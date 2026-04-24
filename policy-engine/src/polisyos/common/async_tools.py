@@ -1,4 +1,5 @@
 """Bridge async coroutines into synchronous entrypoints safely."""
+
 from __future__ import annotations
 
 import asyncio
@@ -7,7 +8,7 @@ import concurrent.futures
 import functools
 import os
 import threading
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -81,11 +82,11 @@ def _run_coro_in_fresh_loop[T](coro: Awaitable[T], *, timeout_seconds: float) ->
             if task is not None and not task.done():
                 task.cancel()
                 loop.run_until_complete(asyncio.gather(task, return_exceptions=True))
-            raise TimeoutError(
-                f"Coroutine did not complete within {timeout_seconds:.3f}s"
-            ) from exc
+            raise TimeoutError(f"Coroutine did not complete within {timeout_seconds:.3f}s") from exc
     finally:
-        pending = [pending_task for pending_task in asyncio.all_tasks(loop) if not pending_task.done()]
+        pending = [
+            pending_task for pending_task in asyncio.all_tasks(loop) if not pending_task.done()
+        ]
         for pending_task in pending:
             pending_task.cancel()
         if pending:
@@ -122,9 +123,9 @@ def run_coro_sync[T](coro: Awaitable[T], *, timeout_seconds: float | None = None
 async def run_blocking_async[T](
     func: Callable[..., T],
     /,
-    *args: Any,
+    *args: object,
     timeout_seconds: float | None = None,
-    **kwargs: Any,
+    **kwargs: object,
 ) -> T:
     """Run a blocking call in the shared executor without stalling the event loop."""
     timeout = _normalize_timeout(timeout_seconds)
@@ -135,6 +136,4 @@ async def run_blocking_async[T](
         return await asyncio.wait_for(future, timeout=timeout)
     except TimeoutError as exc:
         future.cancel()
-        raise TimeoutError(
-            f"Blocking call did not complete within {timeout:.3f}s"
-        ) from exc
+        raise TimeoutError(f"Blocking call did not complete within {timeout:.3f}s") from exc

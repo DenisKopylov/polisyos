@@ -3,6 +3,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 import pytest
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -17,11 +18,11 @@ from polisyos.core.contracts.foundry import (
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile._graph import build_exec_order
 from polisyos.foundry.compile.api import compile as compile_foundry
-from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
+from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
 
@@ -75,9 +76,7 @@ def test_program_graph_includes_op_nodes(tmp_path) -> None:
         ),
     )
     assert result.ok
-    program_ref = next(
-        ref.ref for ref in result.derived_refs if ref.role == "program_graph"
-    )
+    program_ref = next(ref.ref for ref in result.derived_refs if ref.role == "program_graph")
     payload = from_canonical_bytes(store.get_bytes(program_ref.artifact_id))
     graph = ProgramGraph.model_validate(payload)
     assert graph.lowered_ir_ref is not None

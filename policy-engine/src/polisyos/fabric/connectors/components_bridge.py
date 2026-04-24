@@ -1,4 +1,5 @@
 """Public connectors components bridge module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -22,6 +23,7 @@ def _default_connector_registry() -> ConnectorRegistry:
 @dataclass(slots=True)
 class ComponentsBridgeError:
     """Components bridge error exception."""
+
     component_id: str
     message: str
 
@@ -29,6 +31,7 @@ class ComponentsBridgeError:
 @dataclass(slots=True)
 class ComponentsBridgeReport:
     """Components bridge report data model."""
+
     registered: list[str] = field(default_factory=list)
     duplicates: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)

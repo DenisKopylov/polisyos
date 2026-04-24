@@ -27,18 +27,18 @@ The benchmark report used by the validator must prove all of the following:
 
 ## Evidence Matrix
 
-| Deliverable | Machine check |
-| --- | --- |
-| `PosteriorResult.truthfulness_tier` | Validator checks the field is first-class on the posterior contract |
-| `ForecastingUncertaintyBundle` surface | Validator checks `prediction_interval`, `fan_chart`, `posterior_predictive_ref`, `coverage_diagnostic`, `horizon_policy` |
-| `UncertaintyEnvelope.composition_provenance` | Validator checks the field exists on the shared envelope |
-| `MethodAdvisorResult.calibrated_regret_certificate` | Validator checks the advisor result dataclass surface |
-| HMC/NUTS truthfulness closure | Validator checks real catalog entries plus advisor pre-run output |
-| Statistical tolerance budgets | Validator checks same-fingerprint, compatible, and composed replay budgets without placeholders |
-| Default cross-backend equivalence emission | Validator checks the default dispatcher path with the process-global resolver |
-| Validated numerics reachability | Validator checks a critical-path method emits a `ValidatedBound` certificate |
-| Synthetic world registry | Validator checks at least one calibrated world is registered and bound into the benchmark suite |
-| Synthetic world smoke benchmark | Validator checks benchmark JSON coverage, replay, and calibrated-world evidence |
+| Deliverable                                         | Machine check                                                                                                            |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `PosteriorResult.truthfulness_tier`                 | Validator checks the field is first-class on the posterior contract                                                      |
+| `ForecastingUncertaintyBundle` surface              | Validator checks `prediction_interval`, `fan_chart`, `posterior_predictive_ref`, `coverage_diagnostic`, `horizon_policy` |
+| `UncertaintyEnvelope.composition_provenance`        | Validator checks the field exists on the shared envelope                                                                 |
+| `MethodAdvisorResult.calibrated_regret_certificate` | Validator checks the advisor result dataclass surface                                                                    |
+| HMC/NUTS truthfulness closure                       | Validator checks real catalog entries plus advisor pre-run output                                                        |
+| Statistical tolerance budgets                       | Validator checks same-fingerprint, compatible, and composed replay budgets without placeholders                          |
+| Default cross-backend equivalence emission          | Validator checks the default dispatcher path with the process-global resolver                                            |
+| Validated numerics reachability                     | Validator checks a critical-path method emits a `ValidatedBound` certificate                                             |
+| Synthetic world registry                            | Validator checks at least one calibrated world is registered and bound into the benchmark suite                          |
+| Synthetic world smoke benchmark                     | Validator checks benchmark JSON coverage, replay, and calibrated-world evidence                                          |
 
 ## Reproducible Command
 

@@ -1,4 +1,5 @@
 """Public migrations policy ir module API."""
+
 from __future__ import annotations
 
 from polisyos.ir.migrations.base import (
@@ -25,6 +26,7 @@ def migrate_policy_ir_identity(data: dict) -> dict:
     """Identity migration for canonical Trinity policy payloads."""
     bundle = TrinityBundle.model_validate(data)
     return bundle.model_dump(mode="python")
+
 
 __all__ = [
     "POLICY_IR_CURRENT_VERSION",

@@ -34,20 +34,20 @@ from polisyos.scientist.search.readiness import DecisionReadinessContract
 
 class PolicyTranslatorConfig(BaseModel):
     """LLM budget and fallback settings for translating policy dossiers into delivery-ready text."""
+
     model_config = ConfigDict(extra="forbid")
 
     model_name: str = "gpt-5.4"
     provider_hint: str | None = None
     max_tokens: int = Field(default=1800, ge=256, le=4000)
     temperature: float = Field(default=0.1, ge=0.0, le=1.0)
-    budget_keys: list[str] = Field(
-        default_factory=lambda: ["policy_translator", "policy_briefing"]
-    )
+    budget_keys: list[str] = Field(default_factory=lambda: ["policy_translator", "policy_briefing"])
     fallback_on_error: bool = True
 
 
 class TranslatorInputBundle(BaseModel):
     """Joined evidence pack handed to the translator and its compliance checks."""
+
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     dossier: ChampionPolicyDossier
@@ -63,6 +63,7 @@ class TranslatorInputBundle(BaseModel):
 
 class TranslatorComplianceFinding(BaseModel):
     """Translator compliance finding public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     code: str = Field(min_length=1)
@@ -73,6 +74,7 @@ class TranslatorComplianceFinding(BaseModel):
 
 class TranslatorComplianceResult(BaseModel):
     """Outcome of translator compliance checks over the generated policy brief or bundle."""
+
     model_config = ConfigDict(extra="forbid")
 
     passed: bool
@@ -311,8 +313,7 @@ class TranslatorCompliancePass:
         missing_uncertainty_types = [
             uncertainty_type
             for uncertainty_type in uncertainty_report.uncertainties
-            if uncertainty_type
-            not in " ".join(brief.uncertainty_highlights).lower()
+            if uncertainty_type not in " ".join(brief.uncertainty_highlights).lower()
         ]
         if missing_uncertainty_types:
             findings.append(
@@ -324,15 +325,11 @@ class TranslatorCompliancePass:
             )
 
         harmed_labels = {entry.label for entry in subgroup_report.harmed_subgroups}
-        described_harms = {
-            _normalize_text(item) for item in brief.subgroup_harms
-        } | {
+        described_harms = {_normalize_text(item) for item in brief.subgroup_harms} | {
             _normalize_text(risk.description) for risk in brief.risks
         }
         missing_harms = [
-            label
-            for label in harmed_labels
-            if _normalize_text(label) not in described_harms
+            label for label in harmed_labels if _normalize_text(label) not in described_harms
         ]
         if missing_harms:
             findings.append(

@@ -11,9 +11,10 @@ def test_run_agents_endpoint_returns_attempt_pipeline(runtime_api_env) -> None:
     assert pipeline["source_kind"] == "core_run"
     assert pipeline["source"] == "decision_packet.audit_trail"
     assert pipeline["total_attempts"] == 1
-    assert pipeline["reflexion_terminal_ref"]["artifact_id"] == runtime_api_env[
-        "reflexion_terminal_artifact_id"
-    ]
+    assert (
+        pipeline["reflexion_terminal_ref"]["artifact_id"]
+        == runtime_api_env["reflexion_terminal_artifact_id"]
+    )
 
     attempts = pipeline["attempts"]
     assert len(attempts) == 1
@@ -33,10 +34,13 @@ def test_run_workflow_endpoint_returns_dag(runtime_api_env) -> None:
     workflow = response.json()["workflow"]
     assert workflow["run_id"] == runtime_api_env["core_run_id"]
     assert workflow["source_kind"] == "core_run"
-    assert workflow["workflow_spec_ref"]["artifact_id"] == runtime_api_env["workflow_spec_artifact_id"]
-    assert workflow["workflow_report_ref"]["artifact_id"] == runtime_api_env[
-        "workflow_report_artifact_id"
-    ]
+    assert (
+        workflow["workflow_spec_ref"]["artifact_id"] == runtime_api_env["workflow_spec_artifact_id"]
+    )
+    assert (
+        workflow["workflow_report_ref"]["artifact_id"]
+        == runtime_api_env["workflow_report_artifact_id"]
+    )
 
     summary = workflow["summary"]
     assert summary["workflow_id"] == "scientist_default"
@@ -63,10 +67,21 @@ def test_run_evidence_context_endpoint_returns_run_scoped_evidence(runtime_api_e
 
     context = response.json()["context"]
     assert context["run_id"] == runtime_api_env["core_run_id"]
-    assert context["execution_plan_ref"]["artifact_id"] == runtime_api_env["execution_plan_artifact_id"]
-    assert context["data_snapshot_ref"]["artifact_id"] == runtime_api_env["data_snapshot_artifact_id"]
-    assert context["input_bindings_ref"]["artifact_id"] == runtime_api_env["input_bindings_artifact_id"]
-    assert context["evidence_bundle_ref"]["artifact_id"] == runtime_api_env["evidence_bundle_artifact_id"]
+    assert (
+        context["execution_plan_ref"]["artifact_id"]
+        == runtime_api_env["execution_plan_artifact_id"]
+    )
+    assert (
+        context["data_snapshot_ref"]["artifact_id"] == runtime_api_env["data_snapshot_artifact_id"]
+    )
+    assert (
+        context["input_bindings_ref"]["artifact_id"]
+        == runtime_api_env["input_bindings_artifact_id"]
+    )
+    assert (
+        context["evidence_bundle_ref"]["artifact_id"]
+        == runtime_api_env["evidence_bundle_artifact_id"]
+    )
 
     needs = context["data_needs"]
     assert len(needs) == 1

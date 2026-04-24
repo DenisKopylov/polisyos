@@ -5,16 +5,21 @@ registration-based, compliance-based, and system-change-based missingness
 patterns become typed metadata that can travel with an M-graph and power
 readiness/risk assessments.
 """
+
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Iterable, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.analytics.causal_graph import CausalGraphModel
 from polisyos.ir.analytics.mgraph import MissingnessKind, build_mgraph
 from polisyos.ir.analytics.recoverability import mgraph_fingerprint
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel
 
 
 class AdministrativeMissingnessScenarioFamily(str, Enum):
@@ -298,26 +303,26 @@ def build_registration_based_mgraph(
             resolved_class = AdministrativeMissingnessClass.REGISTRATION_NOT_APPLIED
         else:
             resolved_class = AdministrativeMissingnessClass.REGISTRATION_NOT_REGISTERED
-    resolved_direction = (
-        missingness_direction or AdministrativeMissingnessDirection.NOT_GENERATED
-    )
+    resolved_direction = missingness_direction or AdministrativeMissingnessDirection.NOT_GENERATED
     resolved_scope = missingness_unit_scope or AdministrativeMissingnessUnitScope.RECORD
-    all_substantive = _stable_strings([
-        *substantive_vars,
-        registration_indicator,
-        *eligibility_covariates,
-    ])
-    merged_directed = _dedupe_edges([
-        *(directed_edges or []),
-        *((cov, registration_indicator) for cov in eligibility_covariates),
-    ])
+    all_substantive = _stable_strings(
+        [
+            *substantive_vars,
+            registration_indicator,
+            *eligibility_covariates,
+        ]
+    )
+    merged_directed = _dedupe_edges(
+        [
+            *(directed_edges or []),
+            *((cov, registration_indicator) for cov in eligibility_covariates),
+        ]
+    )
     graph = build_mgraph(
         substantive_vars=all_substantive,
         directed_edges=merged_directed,
-        missingness_map={var: missingness_kind for var in target_variables},
-        missingness_edges=[
-            (registration_indicator, f"R_{var}") for var in target_variables
-        ],
+        missingness_map=dict.fromkeys(target_variables, missingness_kind),
+        missingness_edges=[(registration_indicator, f"R_{var}") for var in target_variables],
         discovery_method=discovery_method,
     )
     return attach_administrative_missingness_metadata(
@@ -356,30 +361,28 @@ def build_compliance_based_mgraph(
     """Construct a compliance-based administrative M-graph template."""
     compliance_driver_covariates = list(compliance_driver_covariates or [])
     self_censoring_variables = list(self_censoring_variables or [])
-    resolved_class = (
-        scenario_class or AdministrativeMissingnessClass.COMPLIANCE_NOT_COMPLETED
-    )
-    resolved_direction = (
-        missingness_direction or AdministrativeMissingnessDirection.NOT_CAPTURED
-    )
+    resolved_class = scenario_class or AdministrativeMissingnessClass.COMPLIANCE_NOT_COMPLETED
+    resolved_direction = missingness_direction or AdministrativeMissingnessDirection.NOT_CAPTURED
     resolved_scope = missingness_unit_scope or AdministrativeMissingnessUnitScope.EPISODE
-    all_substantive = _stable_strings([
-        *substantive_vars,
-        compliance_indicator,
-        *compliance_driver_covariates,
-    ])
-    merged_directed = _dedupe_edges([
-        *(directed_edges or []),
-        *((cov, compliance_indicator) for cov in compliance_driver_covariates),
-        *((var, compliance_indicator) for var in self_censoring_variables),
-    ])
+    all_substantive = _stable_strings(
+        [
+            *substantive_vars,
+            compliance_indicator,
+            *compliance_driver_covariates,
+        ]
+    )
+    merged_directed = _dedupe_edges(
+        [
+            *(directed_edges or []),
+            *((cov, compliance_indicator) for cov in compliance_driver_covariates),
+            *((var, compliance_indicator) for var in self_censoring_variables),
+        ]
+    )
     graph = build_mgraph(
         substantive_vars=all_substantive,
         directed_edges=merged_directed,
-        missingness_map={var: missingness_kind for var in target_variables},
-        missingness_edges=[
-            (compliance_indicator, f"R_{var}") for var in target_variables
-        ],
+        missingness_map=dict.fromkeys(target_variables, missingness_kind),
+        missingness_edges=[(compliance_indicator, f"R_{var}") for var in target_variables],
         discovery_method=discovery_method,
     )
     return attach_administrative_missingness_metadata(
@@ -427,9 +430,7 @@ def build_system_change_based_mgraph(
             resolved_class = AdministrativeMissingnessClass.SERVICE_UNAVAILABLE_OFFICE_CLOSED
         else:
             resolved_class = AdministrativeMissingnessClass.SYSTEM_CHANGE_OR_SCHEMA_BREAK
-    resolved_direction = (
-        missingness_direction or AdministrativeMissingnessDirection.NOT_CAPTURED
-    )
+    resolved_direction = missingness_direction or AdministrativeMissingnessDirection.NOT_CAPTURED
     if missingness_unit_scope is not None:
         resolved_scope = missingness_unit_scope
     elif resolved_class is AdministrativeMissingnessClass.SERVICE_UNAVAILABLE_OFFICE_CLOSED:
@@ -441,13 +442,15 @@ def build_system_change_based_mgraph(
         raise ValueError(
             "build_system_change_based_mgraph requires system_version_variable or time_variable"
         )
-    all_substantive = _stable_strings([
-        *substantive_vars,
-        mechanism_var,
-        *( [time_variable] if time_variable and time_variable != mechanism_var else [] ),
-        *rollout_covariates,
-        *office_availability_covariates,
-    ])
+    all_substantive = _stable_strings(
+        [
+            *substantive_vars,
+            mechanism_var,
+            *([time_variable] if time_variable and time_variable != mechanism_var else []),
+            *rollout_covariates,
+            *office_availability_covariates,
+        ]
+    )
     extra_directed: list[tuple[str, str]] = [
         *((cov, mechanism_var) for cov in rollout_covariates),
         *((cov, mechanism_var) for cov in office_availability_covariates),
@@ -459,7 +462,7 @@ def build_system_change_based_mgraph(
     graph = build_mgraph(
         substantive_vars=all_substantive,
         directed_edges=merged_directed,
-        missingness_map={var: missingness_kind for var in target_variables},
+        missingness_map=dict.fromkeys(target_variables, missingness_kind),
         missingness_edges=[(mechanism_var, f"R_{var}") for var in target_variables],
         discovery_method=discovery_method,
     )
@@ -474,9 +477,7 @@ def build_system_change_based_mgraph(
             system_version_variable=system_version_variable,
             time_variable=time_variable,
             rollout_covariates=tuple(_stable_strings(rollout_covariates)),
-            office_availability_covariates=tuple(
-                _stable_strings(office_availability_covariates)
-            ),
+            office_availability_covariates=tuple(_stable_strings(office_availability_covariates)),
             bridge_window_observed=bridge_window_observed,
             evidence_refs=tuple(_stable_strings(evidence_refs or [])),
             notes=notes,
@@ -516,9 +517,9 @@ __all__ = [
     "AdministrativeMissingnessMetadata",
     "AdministrativeMissingnessScenarioFamily",
     "AdministrativeMissingnessUnitScope",
+    "MissingnessAssessmentProvenance",
     "MissingnessAssessmentReport",
     "MissingnessAssessmentStatus",
-    "MissingnessAssessmentProvenance",
     "MissingnessEstimandRisk",
     "MissingnessEvidenceItem",
     "MissingnessImplicationFailure",

@@ -4,7 +4,12 @@ import type {
   LayoutResult,
   LayoutOptions,
 } from "../types";
-import { NODE_WIDTH, NODE_HEIGHT, NODE_HORIZONTAL_GAP, NODE_VERTICAL_GAP } from "../types";
+import {
+  NODE_WIDTH,
+  NODE_HEIGHT,
+  NODE_HORIZONTAL_GAP,
+  NODE_VERTICAL_GAP,
+} from "../types";
 
 /**
  * Simple top-down hierarchical layout (Sugiyama-lite).
@@ -99,7 +104,8 @@ export function hierarchicalLayout(
 
   for (const [d, col] of columns) {
     const colHeight = col.length * (nodeH + vGap) - vGap;
-    const startY = padding + (maxColSize * (nodeH + vGap) - vGap - colHeight) / 2;
+    const startY =
+      padding + (maxColSize * (nodeH + vGap) - vGap - colHeight) / 2;
 
     col.forEach((id, i) => {
       positions.set(id, {

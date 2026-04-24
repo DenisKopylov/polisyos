@@ -9,8 +9,12 @@ from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.batch.edge_synthesize import run_edge_synthesize
 from polisyos.academic.batch.numeric_extract import run_numeric_extract
 from polisyos.academic.batch.pipeline import _ensure_graph_inputs
+from polisyos.academic.batch.resolve_extract import (
+    GonkaMultiKeyPool,
+    _ProviderClient,
+    _resolve_provider_watchdog_seconds,
+)
 from polisyos.academic.batch.resolve_finalize import _link_parameter_to_claims, run_resolve_finalize
-from polisyos.academic.batch.resolve_extract import GonkaMultiKeyPool, _ProviderClient, _resolve_provider_watchdog_seconds
 from polisyos.academic.knowledge.skg_store import ensure_skg_schema, next_skg_version
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.literature import (
@@ -74,7 +78,9 @@ def test_resolve_finalize_merges_attempts_and_builds_clean_outputs(tmp_path) -> 
                 claim_explicitness=ClaimExplicitness.EXPLICIT,
                 design_family_hint=DesignFamily.DID,
                 evidence_strength=EvidenceStrength.QUASI_NATURAL,
-                supporting_spans=[EvidenceSpan(text="Higher tax revenue raised growth by 0.2 points.")],
+                supporting_spans=[
+                    EvidenceSpan(text="Higher tax revenue raised growth by 0.2 points.")
+                ],
                 method_spans=[EvidenceSpan(text="We estimate a difference-in-differences model.")],
                 publish_to_graph=True,
                 design_quality_tier=1,
@@ -113,8 +119,12 @@ def test_resolve_finalize_merges_attempts_and_builds_clean_outputs(tmp_path) -> 
             "causal_claims": [
                 attempt_one.causal_claims[0].model_copy(
                     update={
-                        "supporting_spans": [EvidenceSpan(text="Growth rose more in high-capacity regions.")],
-                        "method_spans": [EvidenceSpan(text="Event-study estimates confirm the DiD timing.")],
+                        "supporting_spans": [
+                            EvidenceSpan(text="Growth rose more in high-capacity regions.")
+                        ],
+                        "method_spans": [
+                            EvidenceSpan(text="Event-study estimates confirm the DiD timing.")
+                        ],
                     }
                 )
             ],
@@ -146,9 +156,14 @@ def test_resolve_finalize_merges_attempts_and_builds_clean_outputs(tmp_path) -> 
     assert metrics["finalized"] == 1
     assert metrics["succeeded_nonempty"] == 1
     assert metrics["simulation_ready_numeric"] == 0
-    final_results = config.resolve_extract_final_results_path.read_text(encoding="utf-8").strip().splitlines()
+    final_results = (
+        config.resolve_extract_final_results_path.read_text(encoding="utf-8").strip().splitlines()
+    )
     assert len(final_results) == 1
-    work_rows = [json.loads(line) for line in config.resolve_extract_final_works_path.read_text(encoding="utf-8").splitlines()]
+    work_rows = [
+        json.loads(line)
+        for line in config.resolve_extract_final_works_path.read_text(encoding="utf-8").splitlines()
+    ]
     assert work_rows[0]["metadata"]["resolve_finalize"] is True
     assert len(work_rows[0]["metadata"]["simulation_ready_numeric_estimates"]) == 0
     assert len(config.published_claims_final_path.read_text(encoding="utf-8").splitlines()) == 1
@@ -196,8 +211,14 @@ def test_resolve_finalize_infers_simulation_ready_strength_and_unit(tmp_path) ->
                 claim_explicitness=ClaimExplicitness.EXPLICIT,
                 design_family_hint=DesignFamily.RCT,
                 evidence_strength=EvidenceStrength.RCT,
-                supporting_spans=[EvidenceSpan(text="Access to commitment savings increased consumption flexibility.")],
-                method_spans=[EvidenceSpan(text="We randomized access to commitment savings products.")],
+                supporting_spans=[
+                    EvidenceSpan(
+                        text="Access to commitment savings increased consumption flexibility."
+                    )
+                ],
+                method_spans=[
+                    EvidenceSpan(text="We randomized access to commitment savings products.")
+                ],
                 publish_to_graph=True,
                 design_quality_tier=1,
                 claim_extraction_confidence=0.9,
@@ -292,7 +313,9 @@ def test_resolve_finalize_filters_non_effect_stats_and_infers_score_units(tmp_pa
                 design_family_hint=DesignFamily.QUASI_EXPERIMENTAL_OTHER,
                 evidence_strength=EvidenceStrength.QUASI_NATURAL,
                 supporting_spans=[EvidenceSpan(text="Knowledge scores increased after treatment.")],
-                method_spans=[EvidenceSpan(text="We compare pretest and posttest knowledge scores.")],
+                method_spans=[
+                    EvidenceSpan(text="We compare pretest and posttest knowledge scores.")
+                ],
                 publish_to_graph=True,
                 design_quality_tier=2,
                 claim_extraction_confidence=0.86,
@@ -417,7 +440,9 @@ def test_resolve_finalize_rejects_ambiguous_small_number_bundles(tmp_path) -> No
                 design_family_hint=DesignFamily.QUASI_EXPERIMENTAL_OTHER,
                 evidence_strength=EvidenceStrength.QUASI_NATURAL,
                 supporting_spans=[EvidenceSpan(text="Knowledge scores increased after treatment.")],
-                method_spans=[EvidenceSpan(text="We compare pretest and posttest knowledge scores.")],
+                method_spans=[
+                    EvidenceSpan(text="We compare pretest and posttest knowledge scores.")
+                ],
                 publish_to_graph=True,
                 design_quality_tier=2,
                 claim_extraction_confidence=0.86,
@@ -486,7 +511,9 @@ def test_numeric_extract_materializes_raw_curated_and_simulation_ready_layers(tm
                 claim_explicitness=ClaimExplicitness.EXPLICIT,
                 design_family_hint=DesignFamily.RCT,
                 evidence_strength=EvidenceStrength.RCT,
-                supporting_spans=[EvidenceSpan(text="Tax notices increased compliance by 4 percentage points.")],
+                supporting_spans=[
+                    EvidenceSpan(text="Tax notices increased compliance by 4 percentage points.")
+                ],
                 method_spans=[EvidenceSpan(text="We randomized reminder notice framing.")],
                 publish_to_graph=True,
                 design_quality_tier=1,

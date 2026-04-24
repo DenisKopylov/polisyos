@@ -31,8 +31,8 @@ from polisyos.ir.analytics.latent_bridge_synthesis import (
 from polisyos.ir.refs import ArtifactRefModel
 from polisyos.scientist.latent_separation import (
     SEPARATION_DIAGNOSTICS_KEY,
-    certify_latent_separation_trust,
     certified_latent_separation_pairs,
+    certify_latent_separation_trust,
     latent_separation_assumption_surfaces,
     latent_separation_falsification_surfaces,
     metadata_with_computed_latent_separation,
@@ -69,12 +69,10 @@ class LatentGovernanceAssessment(BaseModel):
 
     active: bool = True
     valid: bool
-    claim_mode: Literal[
-        "proof_only", "bounded_latent", "validated_measurement_latent"
-    ] = "proof_only"
-    degradation_mode: Literal[
-        "research_only", "bounds_only", "measurement_ready"
-    ] = "research_only"
+    claim_mode: Literal["proof_only", "bounded_latent", "validated_measurement_latent"] = (
+        "proof_only"
+    )
+    degradation_mode: Literal["research_only", "bounds_only", "measurement_ready"] = "research_only"
     readiness_cap: Literal["proof_only", "bounds_ready", "estimation_ready"] = "proof_only"
     promotion_allowed: bool = False
     human_gate_required: bool = True
@@ -143,9 +141,7 @@ def assess_latent_governance(
     if not surfaced_falsification_tests:
         missing_requirements.append("falsification_tests_missing")
     proof_only_reason = (
-        "latent_discovery_proof_only"
-        if verdict.derived_readiness_cap == "proof_only"
-        else None
+        "latent_discovery_proof_only" if verdict.derived_readiness_cap == "proof_only" else None
     )
     no_promotion_reasons = _dedupe_strings(
         [
@@ -154,11 +150,7 @@ def assess_latent_governance(
             *_latent_cardinality_no_promotion_reasons(bundle_metadata),
             *_proxy_boundary_no_promotion_reasons(bundle_metadata),
             *(f"latent_promotion_blocker:{value}" for value in verdict.blockers),
-            *(
-                [proof_only_reason]
-                if proof_only_reason is not None
-                else []
-            ),
+            *([proof_only_reason] if proof_only_reason is not None else []),
         ]
     )
     certified_trust_level = certify_latent_separation_trust(
@@ -235,11 +227,7 @@ def assess_latent_bridge_governance(
             [
                 f"latent_bridge_mode:{hypothesis.synthesis_mode.value}",
                 f"latent_bridge_status:{hypothesis.status.value}",
-                *(
-                    [f"latent_bridge_pair_key:{hypothesis.pair_key}"]
-                    if hypothesis.pair_key
-                    else []
-                ),
+                *([f"latent_bridge_pair_key:{hypothesis.pair_key}"] if hypothesis.pair_key else []),
             ]
         ),
         falsification_tests=_dedupe_strings(
@@ -322,9 +310,7 @@ def materialize_latent_bridge_governance(
         update={
             "promotion_evidence": promotion_evidence,
             "promotion_verdict": (
-                assessment.promotion_verdict
-                if promotion_evidence is not None
-                else None
+                assessment.promotion_verdict if promotion_evidence is not None else None
             ),
             "readiness_cap": assessment.readiness_cap,
             "promotion_allowed": assessment.promotion_allowed,
@@ -477,17 +463,21 @@ def _latent_bridge_promotion_evidence(
             ),
         ]
     )
-    invariance_level = str(
-        hypothesis.metadata.get("invariance_level")
-        or hypothesis.metadata.get("promotion_invariance_level")
-        or (
-            "scalar"
-            if hypothesis.synthesis_mode.value == "hybrid"
-            else "metric"
-            if hypothesis.synthesis_mode.value == "measurement_model"
-            else "none"
+    invariance_level = (
+        str(
+            hypothesis.metadata.get("invariance_level")
+            or hypothesis.metadata.get("promotion_invariance_level")
+            or (
+                "scalar"
+                if hypothesis.synthesis_mode.value == "hybrid"
+                else "metric"
+                if hypothesis.synthesis_mode.value == "measurement_model"
+                else "none"
+            )
         )
-    ).strip().lower()
+        .strip()
+        .lower()
+    )
     if invariance_level not in {"none", "configural", "metric", "scalar", "strict", "approximate"}:
         invariance_level = "none"
 
@@ -634,14 +624,14 @@ def _latent_cardinality_failures(bundle: LatentDiscoveryBundle) -> list[str]:
             value.startswith(f"role_rule:{latent_id}:") for value in conditions
         ):
             failures.append(f"latent_cardinality_role_rule_missing:{latent_id}")
-        if role == "moderator" and not _has_verified_moderator_condition(
-            latent_id, conditions
-        ):
-            failures.append(
-                f"latent_cardinality_moderator_interaction_missing:{latent_id}"
+        if role == "moderator" and not _has_verified_moderator_condition(latent_id, conditions):
+            failures.append(f"latent_cardinality_moderator_interaction_missing:{latent_id}")
+        if (
+            role == "unknown"
+            and candidate_role == "moderator"
+            and not any(
+                value.startswith(f"moderator_extension:{latent_id}:") for value in conditions
             )
-        if role == "unknown" and candidate_role == "moderator" and not any(
-            value.startswith(f"moderator_extension:{latent_id}:") for value in conditions
         ):
             failures.append(f"latent_cardinality_moderator_refusal_missing:{latent_id}")
 
@@ -756,9 +746,8 @@ def _latent_block_metadata_failures(
     ):
         if not bool(evidence.get(key)):
             failures.append(f"latent_cardinality_evidence_missing:{latent_id}:{key}")
-    if (
-        str(block.get("role", "")).strip() == "moderator"
-        and not bool(evidence.get("interaction_signature_supported"))
+    if str(block.get("role", "")).strip() == "moderator" and not bool(
+        evidence.get("interaction_signature_supported")
     ):
         failures.append(f"latent_cardinality_evidence_missing:{latent_id}:interaction")
     return failures
@@ -768,11 +757,7 @@ def _latent_cardinality_assumption_notes(metadata: dict[str, Any]) -> list[str]:
     notes = metadata.get("ambiguity_notes", [])
     if not isinstance(notes, list):
         return []
-    return [
-        f"latent_cardinality_ambiguity:{item}"
-        for item in notes
-        if str(item).strip()
-    ]
+    return [f"latent_cardinality_ambiguity:{item}" for item in notes if str(item).strip()]
 
 
 def _latent_cardinality_no_promotion_reasons(metadata: dict[str, Any]) -> list[str]:
@@ -788,11 +773,7 @@ def _latent_cardinality_metadata(
     metadata: dict[str, Any],
     failures: list[str],
 ) -> dict[str, Any]:
-    payload = {
-        key: metadata[key]
-        for key in _CARDINALITY_METADATA_KEYS
-        if key in metadata
-    }
+    payload = {key: metadata[key] for key in _CARDINALITY_METADATA_KEYS if key in metadata}
     if failures:
         payload["cardinality_gate_failures"] = list(failures)
     return payload
@@ -822,8 +803,8 @@ def _dedupe_strings(values: list[str]) -> list[str]:
 
 __all__ = [
     "LatentGovernanceAssessment",
-    "assess_latent_governance",
     "assess_latent_bridge_governance",
+    "assess_latent_governance",
     "latent_governance_metadata",
     "materialize_latent_bridge_governance",
 ]

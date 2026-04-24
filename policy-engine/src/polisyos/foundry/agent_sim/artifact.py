@@ -1,4 +1,5 @@
 """Public agent sim artifact module API."""
+
 from __future__ import annotations
 
 """
@@ -19,7 +20,7 @@ Example:
 
 import io
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, Generic, TypeVar
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -71,7 +72,7 @@ class IOShapeSpec:
     action_type: str = "continuous"
     action_dim: int | None = None
 
-    def is_compatible(self, other: "IOShapeSpec") -> bool:
+    def is_compatible(self, other: IOShapeSpec) -> bool:
         """Check if two specs are compatible for hot-swap."""
         if (
             self.input_shape != other.input_shape
@@ -107,9 +108,7 @@ class AgentPolicyArtifact(Generic[P]):
     io_spec: IOShapeSpec
 
     serialization_format: str = "equinox_v1"
-    created_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
-    )
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     schema_version: str = "1.0"
 
     @classmethod
@@ -123,7 +122,7 @@ class AgentPolicyArtifact(Generic[P]):
         *,
         best_loss: float | None = None,
         extended_metrics: dict[str, Any] | None = None,
-    ) -> "AgentPolicyArtifact[P]":
+    ) -> AgentPolicyArtifact[P]:
         """
         Create artifact from a freshly trained Equinox policy.
 
@@ -173,7 +172,7 @@ class AgentPolicyArtifact(Generic[P]):
         manifest: dict[str, Any],
         *,
         weights_bytes: bytes,
-    ) -> "AgentPolicyArtifact[P]":
+    ) -> AgentPolicyArtifact[P]:
         """Rebuild artifact from a stored manifest dict and weights bytes."""
         metrics_data = manifest.get("metrics", {})
         metrics = TrainingMetrics(
@@ -190,9 +189,7 @@ class AgentPolicyArtifact(Generic[P]):
         )
 
         fp_data = manifest.get("fingerprint", {})
-        tier_value = fp_data.get(
-            "determinism_tier", DeterminismTier.NONDETERMINISTIC.value
-        )
+        tier_value = fp_data.get("determinism_tier", DeterminismTier.NONDETERMINISTIC.value)
         try:
             tier = DeterminismTier(tier_value)
         except ValueError:
@@ -212,9 +209,7 @@ class AgentPolicyArtifact(Generic[P]):
             device_name=fp_data.get("device_name"),
             determinism_tier=tier,
             random_seed=int(fp_data.get("random_seed", 0)),
-            captured_at=fp_data.get(
-                "captured_at", datetime.now(timezone.utc).isoformat()
-            ),
+            captured_at=fp_data.get("captured_at", datetime.now(UTC).isoformat()),
         )
 
         io_data = manifest.get("io_spec", {})
@@ -239,9 +234,7 @@ class AgentPolicyArtifact(Generic[P]):
             metrics=metrics,
             fingerprint=fingerprint,
             io_spec=io_spec,
-            created_at=manifest.get(
-                "created_at", datetime.now(timezone.utc).isoformat()
-            ),
+            created_at=manifest.get("created_at", datetime.now(UTC).isoformat()),
             schema_version=manifest.get("schema_version", "1.0"),
         )
 
@@ -270,7 +263,7 @@ class AgentPolicyArtifact(Generic[P]):
 
         return loaded
 
-    def can_hot_swap(self, other: "AgentPolicyArtifact") -> bool:
+    def can_hot_swap(self, other: AgentPolicyArtifact) -> bool:
         """Check if another policy can safely replace this one at runtime."""
         if self.policy_type != other.policy_type:
             return False
@@ -452,9 +445,7 @@ def _load_artifact_from_cas(
     if actual_hash != weights_hash:
         raise ValueError("Weights hash mismatch for agent policy artifact")
 
-    return AgentPolicyArtifact.from_manifest_dict(
-        manifest_payload, weights_bytes=weights_bytes
-    )
+    return AgentPolicyArtifact.from_manifest_dict(manifest_payload, weights_bytes=weights_bytes)
 
 
 def _load_payload(
@@ -494,9 +485,7 @@ def _extract_io_spec(policy: Any) -> IOShapeSpec:
             first_layer = layers[0]
             if hasattr(first_layer, "in_features"):
                 input_shape = (int(first_layer.in_features),)
-        elif hasattr(policy, "actor_hidden") and hasattr(
-            policy.actor_hidden, "in_features"
-        ):
+        elif hasattr(policy, "actor_hidden") and hasattr(policy.actor_hidden, "in_features"):
             input_shape = (int(policy.actor_hidden.in_features),)
 
     if output_shape is None:

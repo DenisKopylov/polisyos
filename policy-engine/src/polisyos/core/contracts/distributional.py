@@ -1,12 +1,13 @@
 """Public contracts distributional module API."""
+
 from polisyos.ir.refs import (
     CausalAssumptionCardRef,
     DistributionalBoundsBundleRef,
     DistributionalDualCertificateRef,
     DistributionalEffectBundleRef,
-    OrdinalPovertyReportRef,
     DistributionalProofArtifactRef,
     DistributionalReportRef,
+    OrdinalPovertyReportRef,
 )
 
 __all__ = [
@@ -14,7 +15,7 @@ __all__ = [
     "DistributionalBoundsBundleRef",
     "DistributionalDualCertificateRef",
     "DistributionalEffectBundleRef",
-    "OrdinalPovertyReportRef",
     "DistributionalProofArtifactRef",
     "DistributionalReportRef",
+    "OrdinalPovertyReportRef",
 ]

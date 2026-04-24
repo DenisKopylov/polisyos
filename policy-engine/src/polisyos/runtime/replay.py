@@ -5,6 +5,7 @@ Callers should expect best-effort environment comparison, explicit completeness
 reports for missing/corrupted dependencies, and verification results that
 distinguish bit-exact checks from tolerance-bounded metric comparisons.
 """
+
 from __future__ import annotations
 
 import random
@@ -50,6 +51,7 @@ logger = get_logger(__name__)
 
 class ReplayStrategy(StrEnum):
     """Select the replay engine inferred from the packet dependency layout."""
+
     FOUNDRY = "foundry"
     SCIENTIST = "scientist"
     NONE = "none"
@@ -57,6 +59,7 @@ class ReplayStrategy(StrEnum):
 
 class CompletenessLevel(StrEnum):
     """Classify whether the artifact graph is replayable without intervention."""
+
     COMPLETE = "complete"
     RECOVERABLE = "recoverable"
     INCOMPLETE = "incomplete"
@@ -64,6 +67,7 @@ class CompletenessLevel(StrEnum):
 
 class VerificationMode(StrEnum):
     """Choose how a replay output should be compared with the original result."""
+
     BIT_EXACT = "bit_exact"
     CI_BOUNDED = "ci_bounded"
     SKIP = "skip"
@@ -72,6 +76,7 @@ class VerificationMode(StrEnum):
 @dataclass(frozen=True)
 class SeedResolution:
     """Report the effective random seed and the source field it came from."""
+
     value: int
     source: str
 
@@ -79,6 +84,7 @@ class SeedResolution:
 @dataclass(frozen=True)
 class MissingArtifact:
     """Describe a missing or corrupted dependency discovered during graph traversal."""
+
     artifact_id: str
     role: str
     kind: str | None
@@ -89,6 +95,7 @@ class MissingArtifact:
 @dataclass
 class CompletenessReport:
     """Summarize dependency-graph completeness and replay-blocking reason codes."""
+
     level: CompletenessLevel
     strategy: ReplayStrategy
     total_artifacts: int
@@ -123,6 +130,7 @@ class CompletenessReport:
 @dataclass(frozen=True)
 class VerificationConfig:
     """Configure replay verification mode and numeric tolerance parameters."""
+
     mode: VerificationMode = VerificationMode.BIT_EXACT
     relative_tolerance: float = 1e-6
     confidence_level: float = 0.95
@@ -131,6 +139,7 @@ class VerificationConfig:
 @dataclass
 class VerificationResult:
     """Return replay verification status and comparison diagnostics."""
+
     passed: bool
     mode: VerificationMode
     details: dict[str, Any] = field(default_factory=dict)
@@ -141,6 +150,7 @@ class VerificationResult:
 @dataclass
 class ReplayPlan:
     """Bundle packet payload, inferred replay strategy, seed, and completeness state."""
+
     packet_ref: ArtifactID
     strategy: ReplayStrategy
     seed: SeedResolution
@@ -151,6 +161,7 @@ class ReplayPlan:
 @dataclass(frozen=True)
 class ReplayBundleMeasurement:
     """Describe replay readiness and similarity for a persisted replayable bundle."""
+
     replay_bundle_ref: ArtifactRef
     completeness: CompletenessReport
     verification_mode: str
@@ -415,10 +426,7 @@ def _bundle_has_runtime_snapshot(bundle: Any) -> bool:
     return bool(
         bundle.runtime_input_refs
         and bundle.runtime_params_snapshot
-        and (
-            bundle.workflow_id
-            or bundle.runtime_params_snapshot.get("workflow_id")
-        )
+        and (bundle.workflow_id or bundle.runtime_params_snapshot.get("workflow_id"))
     )
 
 
@@ -848,7 +856,7 @@ def _extract_simulation_result_ref(payload: dict[str, Any]) -> ArtifactID | None
     return try_parse_artifact_id(artifacts.get("simulation_result_ref"))
 
 
-def _load_metrics_values(store: ArtifactStore, sim_ref: ArtifactID) -> dict[str, int | str]:
+def _load_metrics_values(store: ArtifactStore, sim_ref: ArtifactID) -> dict[str, float | int | str]:
     sim_payload = from_canonical_bytes(store.get_bytes(sim_ref))
     simulation_result = SimulationResult.model_validate(sim_payload)
     metrics_payload = from_canonical_bytes(

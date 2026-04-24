@@ -1,8 +1,9 @@
 """Temporal logic contracts for governance/compliance policy constraints."""
+
 from __future__ import annotations
 
 from enum import Enum
-from typing import Annotated, Literal
+from typing import TYPE_CHECKING, Annotated, Literal
 
 from pydantic import Field, model_validator
 
@@ -11,9 +12,14 @@ from polisyos.ir._validation import (
     validate_selector_expr,
     validate_selector_predicate_shape,
 )
-from polisyos.ir.governance.selector_expr import SelectorExpr, SelectorValue
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
-from polisyos.ir.types import SelectorOperator
+
+if TYPE_CHECKING:
+    from polisyos.ir.governance.selector_expr import SelectorExpr, SelectorValue
+    from polisyos.ir.types import SelectorOperator
+else:
+    from polisyos.ir.governance.selector_expr import SelectorExpr, SelectorValue
+    from polisyos.ir.types import SelectorOperator
 
 MAX_TEMPORAL_FORMULA_DEPTH = 24
 MAX_TEMPORAL_FORMULA_NODES = 128
@@ -86,11 +92,9 @@ class TemporalAtom(KernelModel):
     description: str | None = Field(None, max_length=240)
 
     @model_validator(mode="after")
-    def validate_atom(self) -> "TemporalAtom":
+    def validate_atom(self) -> TemporalAtom:
         if self.proposition_id is None and self.selector is None and self.metric_path is None:
-            raise ValueError(
-                "temporal atom requires proposition_id, selector, or metric_path"
-            )
+            raise ValueError("temporal atom requires proposition_id, selector, or metric_path")
         if self.selector is not None:
             validate_selector_expr(
                 self.selector,
@@ -100,9 +104,7 @@ class TemporalAtom(KernelModel):
             )
         if self.metric_path is None:
             if self.operator is not None or self.value is not None:
-                raise ValueError(
-                    "metric operator/value are only allowed when metric_path is set"
-                )
+                raise ValueError("metric operator/value are only allowed when metric_path is set")
             return self
         ensure_non_empty_dotted_path(
             self.metric_path,
@@ -123,21 +125,21 @@ class TemporalNot(KernelModel):
     """Boolean negation over a temporal formula."""
 
     kind: Literal["not"] = "not"
-    clause: "TemporalLogicExpr"
+    clause: TemporalLogicExpr
 
 
 class TemporalAll(KernelModel):
     """Conjunction over temporal clauses."""
 
     kind: Literal["all_of"] = "all_of"
-    clauses: list["TemporalLogicExpr"] = Field(..., min_length=1, max_length=32)
+    clauses: list[TemporalLogicExpr] = Field(..., min_length=1, max_length=32)
 
 
 class TemporalAny(KernelModel):
     """Disjunction over temporal clauses."""
 
     kind: Literal["any_of"] = "any_of"
-    clauses: list["TemporalLogicExpr"] = Field(..., min_length=1, max_length=32)
+    clauses: list[TemporalLogicExpr] = Field(..., min_length=1, max_length=32)
 
 
 class TemporalUnaryFormula(KernelModel):
@@ -145,7 +147,7 @@ class TemporalUnaryFormula(KernelModel):
 
     kind: Literal["unary"] = "unary"
     operator: TemporalUnaryOperator
-    clause: "TemporalLogicExpr"
+    clause: TemporalLogicExpr
 
 
 class TemporalBinaryFormula(KernelModel):
@@ -153,8 +155,8 @@ class TemporalBinaryFormula(KernelModel):
 
     kind: Literal["binary"] = "binary"
     operator: TemporalBinaryOperator
-    left: "TemporalLogicExpr"
-    right: "TemporalLogicExpr"
+    left: TemporalLogicExpr
+    right: TemporalLogicExpr
 
 
 class TemporalBoundedFormula(KernelModel):
@@ -169,7 +171,7 @@ class TemporalBoundedFormula(KernelModel):
     right: TemporalLogicExpr | None = None
 
     @model_validator(mode="after")
-    def validate_bounded_shape(self) -> "TemporalBoundedFormula":
+    def validate_bounded_shape(self) -> TemporalBoundedFormula:
         if self.upper_bound < self.lower_bound:
             raise ValueError("upper_bound must be >= lower_bound")
         if self.operator == "until":
@@ -181,9 +183,7 @@ class TemporalBoundedFormula(KernelModel):
         if self.clause is None:
             raise ValueError(f"bounded {self.operator} requires clause")
         if self.left is not None or self.right is not None:
-            raise ValueError(
-                f"bounded {self.operator} only allows the clause field"
-            )
+            raise ValueError(f"bounded {self.operator} only allows the clause field")
         return self
 
 
@@ -192,7 +192,7 @@ class TemporalPathFormula(KernelModel):
 
     kind: Literal["path"] = "path"
     quantifier: TemporalPathQuantifier
-    clause: "TemporalLogicExpr"
+    clause: TemporalLogicExpr
 
 
 TemporalLogicExpr = Annotated[
@@ -223,21 +223,17 @@ class TemporalPolicyConstraint(KernelModel):
     notes: list[str] = Field(default_factory=list, max_length=20)
 
     @model_validator(mode="after")
-    def validate_constraint(self) -> "TemporalPolicyConstraint":
+    def validate_constraint(self) -> TemporalPolicyConstraint:
         expected_semantics = {
             TemporalLogicFamily.LTL: TemporalExecutionSemantics.FINITE_TRACE,
             TemporalLogicFamily.CTL: TemporalExecutionSemantics.BRANCHING_TREE,
             TemporalLogicFamily.MTL: TemporalExecutionSemantics.WINDOWED_TRACE,
         }[self.logic_family]
         if self.execution_semantics is not expected_semantics:
-            raise ValueError(
-                "execution_semantics does not match logic_family policy"
-            )
+            raise ValueError("execution_semantics does not match logic_family policy")
         if self.logic_family is TemporalLogicFamily.CTL:
             if self.evaluation_scope is not TemporalEvaluationScope.BRANCHING_FORECAST:
-                raise ValueError(
-                    "CTL constraints require branching_forecast evaluation_scope"
-                )
+                raise ValueError("CTL constraints require branching_forecast evaluation_scope")
         elif self.evaluation_scope is TemporalEvaluationScope.BRANCHING_FORECAST:
             raise ValueError(
                 "branching_forecast evaluation_scope is only valid for CTL constraints"
@@ -348,6 +344,8 @@ def _validate_formula_family(
 
 
 __all__ = [
+    "TemporalAll",
+    "TemporalAny",
     "TemporalAtom",
     "TemporalBinaryFormula",
     "TemporalBinaryOperator",
@@ -357,8 +355,6 @@ __all__ = [
     "TemporalLogicExpr",
     "TemporalLogicFamily",
     "TemporalNot",
-    "TemporalAll",
-    "TemporalAny",
     "TemporalPathFormula",
     "TemporalPathQuantifier",
     "TemporalPolicyConstraint",

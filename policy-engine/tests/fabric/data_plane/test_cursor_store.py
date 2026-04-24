@@ -270,7 +270,9 @@ class TestCursorStore:
         assert found is not None
         assert found.resume_token == resume_marker
 
-        paused = cursor_store.pause_stream("stream.jsonl", "events", metadata={"reason": "backpressure"})
+        paused = cursor_store.pause_stream(
+            "stream.jsonl", "events", metadata={"reason": "backpressure"}
+        )
         assert paused.lifecycle_state == StreamLifecycleState.PAUSED
         assert paused.metadata["reason"] == "backpressure"
 
@@ -294,7 +296,9 @@ class TestCursorStore:
         store = FileSystemCAS(tmp_path / ".polisyos")
         cursor_store = CursorStore(store)
 
-        cursor = _make_cursor(connector_id="stream.jsonl", dataset_id="events", watermark_value="42")
+        cursor = _make_cursor(
+            connector_id="stream.jsonl", dataset_id="events", watermark_value="42"
+        )
         checkpoint = _make_stream_checkpoint(offset=42)
         cursor_ref, checkpoint_ref = cursor_store.commit_stream_progress(
             cursor=cursor,

@@ -1,10 +1,12 @@
 """Connector for local or remote tabular files."""
+
 from __future__ import annotations
 
 import time
-from datetime import datetime, timezone
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, AsyncIterator, ClassVar
+from typing import Any, ClassVar
 from urllib.parse import urlparse
 
 from polisyos.fabric.connectors.base import (
@@ -196,7 +198,7 @@ class FileTabularConnector(BaseConnector[Any]):
             schema_id=f"{self.connector_id}.{dataset_id}",
             schema_version="1.0.0",
             version=version,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=1.0 if total_rows else 0.0,
             quality_tier=QualityTier.SILVER,
             quality_flags=frozenset({f"format:{format_name}"}),

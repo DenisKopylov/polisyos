@@ -1,4 +1,5 @@
 """PII detection result models used by fabric privacy gates."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -8,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class PIISeverity(str, Enum):
     """PII severity public type."""
+
     NONE = "none"
     LOW = "low"
     MEDIUM = "medium"
@@ -17,6 +19,7 @@ class PIISeverity(str, Enum):
 
 class PIIEntityType(str, Enum):
     """PII entity type public type."""
+
     PERSON = "PERSON"
     EMAIL_ADDRESS = "EMAIL_ADDRESS"
     PHONE_NUMBER = "PHONE_NUMBER"
@@ -53,6 +56,7 @@ PII_SEVERITY_MAP: dict[PIIEntityType, PIISeverity] = {
 
 class PIIEntity(BaseModel):
     """PII entity public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     entity_type: PIIEntityType
@@ -66,6 +70,7 @@ class PIIEntity(BaseModel):
 
 class PIIScanResult(BaseModel):
     """Aggregate scan counts, severities, and sampled entities for one PII pass."""
+
     model_config = ConfigDict(extra="forbid")
 
     total_records_scanned: int = Field(0, ge=0)

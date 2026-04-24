@@ -1,4 +1,5 @@
 """Public claims canonicalize module API."""
+
 from __future__ import annotations
 
 import re
@@ -31,11 +32,7 @@ _UNIT_ALIASES: dict[str, str] = {
 
 def _transliterate_fragment(fragment: str) -> str:
     decomposed = unicodedata.normalize("NFKD", fragment)
-    stripped = "".join(
-        char
-        for char in decomposed
-        if unicodedata.category(char) != "Mn"
-    )
+    stripped = "".join(char for char in decomposed if unicodedata.category(char) != "Mn")
     return stripped.encode("ascii", "ignore").decode("ascii")
 
 
@@ -53,9 +50,7 @@ def _canonicalize_char(char: str, *, transliterate: bool) -> str:
     if transliterate:
         transliterated = _transliterate_fragment(char).casefold()
         cleaned = "".join(
-            token
-            for token in transliterated
-            if token.isalnum() or token in "_.-"
+            fragment for fragment in transliterated if fragment.isalnum() or fragment in "_.-"
         )
         if cleaned:
             return cleaned
@@ -69,10 +64,7 @@ def canonicalize_id(raw: str, *, transliterate: bool = False) -> str | None:
     value = unicodedata.normalize("NFKC", raw).casefold().strip()
     if not value:
         return None
-    value = "".join(
-        _canonicalize_char(char, transliterate=transliterate)
-        for char in value
-    )
+    value = "".join(_canonicalize_char(char, transliterate=transliterate) for char in value)
     value = re.sub(r"_+", "_", value)
     value = re.sub(r"\.+", ".", value)
     value = re.sub(r"-+", "-", value)

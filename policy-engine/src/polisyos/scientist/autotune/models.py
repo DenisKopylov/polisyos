@@ -1,4 +1,5 @@
 """Core autotune contracts for benchmark splits, promotion rules, and CAS persistence."""
+
 from __future__ import annotations
 
 import os
@@ -40,14 +41,17 @@ else:
     from pydantic import BaseModel as _PydanticBaseModel
     from pydantic import model_validator
 
+
 class MetricDirection(str, Enum):
     """Metric direction public type."""
+
     MINIMIZE = "minimize"
     MAXIMIZE = "maximize"
 
 
 class BenchmarkSplit(str, Enum):
     """Benchmark split public type."""
+
     SELECTION = "selection"
     HOLDOUT = "holdout"
     HIDDEN_HOLDOUT = "hidden_holdout"
@@ -58,6 +62,7 @@ class BenchmarkSplit(str, Enum):
 
 class MutationArtifact(_PydanticBaseModel):
     """Mutation artifact public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = Field(..., min_length=1, max_length=128)
@@ -68,6 +73,7 @@ class MutationArtifact(_PydanticBaseModel):
 
 class BenchmarkSplitManifest(_PydanticBaseModel):
     """Assignment manifest for benchmark split ids."""
+
     model_config = ConfigDict(extra="forbid")
 
     suite_id: str = Field(..., min_length=1, max_length=128)
@@ -118,6 +124,7 @@ class BenchmarkSplitManifest(_PydanticBaseModel):
 
 class BenchmarkSuite(_PydanticBaseModel):
     """Benchmark suite public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     suite_id: str = Field(..., min_length=1, max_length=128)
@@ -130,6 +137,7 @@ class BenchmarkSuite(_PydanticBaseModel):
 
 class BenchmarkEvaluation(_PydanticBaseModel):
     """Benchmark evaluation public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = Field(..., min_length=1, max_length=128)
@@ -190,6 +198,7 @@ class BenchmarkEvaluation(_PydanticBaseModel):
 
 class PromotionPolicy(_PydanticBaseModel):
     """Promotion rule that decides when a candidate may replace the current champion."""
+
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = Field(..., min_length=1, max_length=128)
@@ -203,6 +212,7 @@ class PromotionPolicy(_PydanticBaseModel):
 
 class ChampionPointer(_PydanticBaseModel):
     """Champion pointer public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = Field(..., min_length=1, max_length=128)
@@ -217,6 +227,7 @@ class ChampionPointer(_PydanticBaseModel):
 
 class PromotionDecision(_PydanticBaseModel):
     """Promotion decision public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = Field(..., min_length=1, max_length=128)
@@ -234,39 +245,38 @@ class CandidateGenerator(Protocol):
         history: list[Any],
         current_best: dict[str, Any] | None,
         context: dict[str, Any],
-    ) -> dict[str, Any]:
-        ...
+    ) -> dict[str, Any]: ...
 
 
 class BenchmarkedEvaluator(Protocol):
     """Benchmarked evaluator public type."""
+
     def evaluate(
         self,
         candidate_ref: ArtifactRef,
         suite_ref: ArtifactRef,
         context: dict[str, Any],
-    ) -> BenchmarkEvaluation:
-        ...
+    ) -> BenchmarkEvaluation: ...
 
 
 class MutationCodec(Protocol):
     """Mutation codec public type."""
-    def encode(self, payload: MutationArtifact) -> MutationArtifact:
-        ...
 
-    def decode(self, payload: dict[str, Any]) -> MutationArtifact:
-        ...
+    def encode(self, payload: MutationArtifact) -> MutationArtifact: ...
+
+    def decode(self, payload: dict[str, Any]) -> MutationArtifact: ...
 
 
 class RuntimeLoader(Protocol):
     """Protocol for loading the latest mutation artifact or baseline runtime state."""
-    def load(self, context: dict[str, Any] | None = None) -> MutationArtifact | None:
-        ...
+
+    def load(self, context: dict[str, Any] | None = None) -> MutationArtifact | None: ...
 
 
 @dataclass(frozen=True)
 class SearchLoopSpec:
     """Wiring contract for one autotune loop."""
+
     loop_id: str
     mutation_codec: MutationCodec | None
     candidate_generator: Any | None

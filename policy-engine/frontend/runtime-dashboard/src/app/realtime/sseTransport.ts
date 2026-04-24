@@ -33,9 +33,7 @@ class EventSourceSubscription implements RealtimeSubscription {
   }
 }
 
-export class SseRealtimeTransport
-  implements RealtimeTransport<RunsRealtimeSubscriptionRequest>
-{
+export class SseRealtimeTransport implements RealtimeTransport<RunsRealtimeSubscriptionRequest> {
   subscribe(
     request: RunsRealtimeSubscriptionRequest,
     handlers: RealtimeSubscriptionHandlers,

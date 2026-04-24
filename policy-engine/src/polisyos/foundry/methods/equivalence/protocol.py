@@ -1,9 +1,11 @@
 """Cross-backend numerical equivalence certificate contracts."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Mapping
+from typing import Any
 
 from polisyos.core.observability.determinism import (
     DeterminismTier,
@@ -12,9 +14,7 @@ from polisyos.core.observability.determinism import (
 from polisyos.foundry.methods.base import ComputeBackend
 
 EQUIVALENCE_COMPARATOR_VERSION = "polisyos.xbeq/0.1.0"
-EQUIVALENCE_CERTIFICATE_SCHEMA = (
-    "polisyos.foundry.cross_backend_equivalence_certificate"
-)
+EQUIVALENCE_CERTIFICATE_SCHEMA = "polisyos.foundry.cross_backend_equivalence_certificate"
 EQUIVALENCE_CERTIFICATE_SCHEMA_VERSION = "0.1.0"
 EQUIVALENCE_CERTIFICATE_KIND = "foundry.cross_backend_equivalence_certificate"
 
@@ -76,14 +76,10 @@ class EquivalenceRuntimeEnvelope:
             "source_execution_device": self.source_execution_device,
             "target_execution_device": self.target_execution_device,
             "source_determinism_tier": (
-                None
-                if self.source_determinism_tier is None
-                else self.source_determinism_tier.value
+                None if self.source_determinism_tier is None else self.source_determinism_tier.value
             ),
             "target_determinism_tier": (
-                None
-                if self.target_determinism_tier is None
-                else self.target_determinism_tier.value
+                None if self.target_determinism_tier is None else self.target_determinism_tier.value
             ),
             "source_library_versions": dict(self.source_library_versions),
             "target_library_versions": dict(self.target_library_versions),
@@ -92,16 +88,12 @@ class EquivalenceRuntimeEnvelope:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "EquivalenceRuntimeEnvelope":
+    def from_dict(cls, data: Mapping[str, Any]) -> EquivalenceRuntimeEnvelope:
         return cls(
             source_backend=ComputeBackend(str(data["source_backend"])),
             target_backend=ComputeBackend(str(data["target_backend"])),
-            source_runtime_fingerprint=_optional_string(
-                data.get("source_runtime_fingerprint")
-            ),
-            target_runtime_fingerprint=_optional_string(
-                data.get("target_runtime_fingerprint")
-            ),
+            source_runtime_fingerprint=_optional_string(data.get("source_runtime_fingerprint")),
+            target_runtime_fingerprint=_optional_string(data.get("target_runtime_fingerprint")),
             source_execution_device=_optional_string(data.get("source_execution_device")),
             target_execution_device=_optional_string(data.get("target_execution_device")),
             source_determinism_tier=parse_determinism_tier(
@@ -110,12 +102,8 @@ class EquivalenceRuntimeEnvelope:
             target_determinism_tier=parse_determinism_tier(
                 _optional_string(data.get("target_determinism_tier"))
             ),
-            source_library_versions=_coerce_string_mapping(
-                data.get("source_library_versions")
-            ),
-            target_library_versions=_coerce_string_mapping(
-                data.get("target_library_versions")
-            ),
+            source_library_versions=_coerce_string_mapping(data.get("source_library_versions")),
+            target_library_versions=_coerce_string_mapping(data.get("target_library_versions")),
             source_route_key=_coerce_mapping(data.get("source_route_key")),
             target_route_key=_coerce_mapping(data.get("target_route_key")),
         )
@@ -164,15 +152,9 @@ class FieldToleranceSpec:
             raise ValueError("strict_norm_tol must be non-negative")
         if self.relaxed_norm_tol is not None and self.relaxed_norm_tol < 0:
             raise ValueError("relaxed_norm_tol must be non-negative")
-        if (
-            self.strict_distribution_tol is not None
-            and self.strict_distribution_tol < 0
-        ):
+        if self.strict_distribution_tol is not None and self.strict_distribution_tol < 0:
             raise ValueError("strict_distribution_tol must be non-negative")
-        if (
-            self.relaxed_distribution_tol is not None
-            and self.relaxed_distribution_tol < 0
-        ):
+        if self.relaxed_distribution_tol is not None and self.relaxed_distribution_tol < 0:
             raise ValueError("relaxed_distribution_tol must be non-negative")
         if self.confidence is not None and not (0.0 < self.confidence <= 1.0):
             raise ValueError("confidence must be in (0, 1]")
@@ -194,11 +176,7 @@ class FieldToleranceSpec:
         object.__setattr__(
             self,
             "relaxed_norm_tol",
-            (
-                self.strict_norm_tol
-                if self.relaxed_norm_tol is None
-                else self.relaxed_norm_tol
-            ),
+            (self.strict_norm_tol if self.relaxed_norm_tol is None else self.relaxed_norm_tol),
         )
         object.__setattr__(
             self,
@@ -234,7 +212,7 @@ class FieldToleranceSpec:
         }
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "FieldToleranceSpec":
+    def from_dict(cls, data: Mapping[str, Any]) -> FieldToleranceSpec:
         return cls(
             path=str(data["path"]),
             comparator=ComparatorKind(str(data["comparator"])),
@@ -251,12 +229,8 @@ class FieldToleranceSpec:
             strict_norm_tol=_optional_float(data.get("strict_norm_tol")),
             relaxed_norm_tol=_optional_float(data.get("relaxed_norm_tol")),
             distribution_metric=_optional_string(data.get("distribution_metric")),
-            strict_distribution_tol=_optional_float(
-                data.get("strict_distribution_tol")
-            ),
-            relaxed_distribution_tol=_optional_float(
-                data.get("relaxed_distribution_tol")
-            ),
+            strict_distribution_tol=_optional_float(data.get("strict_distribution_tol")),
+            relaxed_distribution_tol=_optional_float(data.get("relaxed_distribution_tol")),
             confidence=_optional_float(data.get("confidence")),
             metadata=_coerce_mapping(data.get("metadata")),
         )
@@ -370,9 +344,7 @@ class CrossBackendEquivalenceCertificate:
             "field_specs": [spec.as_dict() for spec in self.field_specs],
             "comparator_version": self.comparator_version,
             "confidence": self.confidence,
-            "global_verdict": (
-                None if self.global_verdict is None else self.global_verdict.value
-            ),
+            "global_verdict": (None if self.global_verdict is None else self.global_verdict.value),
             "provenance": dict(self.provenance),
             "test_vectors": dict(self.test_vectors),
             "created_at": self.created_at,
@@ -383,9 +355,7 @@ class CrossBackendEquivalenceCertificate:
         }
 
     @classmethod
-    def from_dict(
-        cls, data: Mapping[str, Any]
-    ) -> "CrossBackendEquivalenceCertificate":
+    def from_dict(cls, data: Mapping[str, Any]) -> CrossBackendEquivalenceCertificate:
         return cls(
             certificate_id=str(data["certificate_id"]),
             method_fqn=str(data["method_fqn"]),
@@ -396,9 +366,7 @@ class CrossBackendEquivalenceCertificate:
                 FieldToleranceSpec.from_dict(item)
                 for item in _coerce_sequence_of_mappings(data["field_specs"])
             ),
-            comparator_version=str(
-                data.get("comparator_version", EQUIVALENCE_COMPARATOR_VERSION)
-            ),
+            comparator_version=str(data.get("comparator_version", EQUIVALENCE_COMPARATOR_VERSION)),
             confidence=_optional_float(data.get("confidence")),
             global_verdict=(
                 None
@@ -453,15 +421,15 @@ def _optional_string(value: Any) -> str | None:
 
 
 __all__ = [
-    "ComparatorKind",
-    "CrossBackendEquivalenceCertificate",
     "EQUIVALENCE_CERTIFICATE_KIND",
     "EQUIVALENCE_CERTIFICATE_SCHEMA",
     "EQUIVALENCE_CERTIFICATE_SCHEMA_VERSION",
     "EQUIVALENCE_COMPARATOR_VERSION",
+    "ComparatorKind",
+    "CrossBackendEquivalenceCertificate",
     "EquivalenceRuntimeEnvelope",
-    "EquivalenceVerificationReport",
     "EquivalenceVerdict",
+    "EquivalenceVerificationReport",
     "FieldComparison",
     "FieldRequirement",
     "FieldToleranceSpec",

@@ -4,6 +4,7 @@ Provides one import surface for runtime metrics collection and exporter health
 inspection so runners, workers, and CI evidence builders do not need to know
 about the underlying OTel bridge layout.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -84,8 +85,6 @@ def get_metrics_exporter_health(
     if not isinstance(failures, list):
         failures = []
     normalized_failures = tuple(
-        str(item)
-        for item in failures
-        if isinstance(item, str) and item.strip()
+        str(item) for item in failures if isinstance(item, str) and item.strip()
     )
     return MetricsExporterHealth(status=status, failures=normalized_failures)

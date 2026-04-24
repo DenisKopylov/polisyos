@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import pytest
-
 from polisyos_tests_runtime_http_conftest import build_runtime_api_env
+
 from polisyos.runtime.http.app import create_runtime_api_app
 
 
@@ -79,7 +79,9 @@ def test_research_profile_requires_durable_control_plane_without_waiver(
         create_runtime_api_app(cas_root=tmp_path / ".polisyos")
 
 
-def test_governed_profile_requires_security_chain(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+def test_governed_profile_requires_security_chain(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "governed")
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
     monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "postgres")
@@ -88,7 +90,9 @@ def test_governed_profile_requires_security_chain(monkeypatch: pytest.MonkeyPatc
         create_runtime_api_app(cas_root=tmp_path / ".polisyos")
 
 
-def test_production_profile_rejects_embedded_worker(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+def test_production_profile_rejects_embedded_worker(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "production")
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "embedded")
     monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "postgres")

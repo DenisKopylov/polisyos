@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useMemo } from "react";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { Button, Card } from "@/shared/ui/primitives";
 
 import type { ParameterSpec, ImpactMetric } from "../types";
@@ -36,6 +37,7 @@ export function WhatIfPanel({
   onLaunchRun,
   className,
 }: WhatIfPanelProps) {
+  const { t } = useI18n();
   const {
     currentParameters,
     currentImpact,
@@ -67,7 +69,8 @@ export function WhatIfPanel({
 
   // Compute impact when parameters change
   useEffect(() => {
-    if (!onParametersChange || Object.keys(currentParameters).length === 0) return;
+    if (!onParametersChange || Object.keys(currentParameters).length === 0)
+      return;
 
     let cancelled = false;
     const run = () => {
@@ -115,15 +118,13 @@ export function WhatIfPanel({
       <Card className="space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 className="text-lg font-semibold">What-If Analysis</h3>
-            <p className="text-muted text-sm">
-              Explore how parameter changes affect outcomes
-            </p>
+            <h3 className="text-lg font-semibold">{t("whatIf.title")}</h3>
+            <p className="text-muted text-sm">{t("whatIf.panelSubtitle")}</p>
           </div>
           <div className="flex gap-2">
             {hasChanges && (
               <Button type="button" variant="ghost" onClick={handleReset}>
-                Reset all
+                {t("whatIf.resetAll")}
               </Button>
             )}
             {hasChanges && onLaunchRun && (
@@ -132,7 +133,7 @@ export function WhatIfPanel({
                 variant="primary"
                 onClick={() => onLaunchRun(currentParameters)}
               >
-                Launch with these parameters
+                {t("whatIf.launchWithParameters")}
               </Button>
             )}
           </div>
@@ -143,7 +144,7 @@ export function WhatIfPanel({
         {/* Left: Parameters */}
         <Card className="space-y-5">
           <h4 className="text-sm font-semibold">
-            Parameters ({parameters.length})
+            {t("whatIf.parametersCount", { count: parameters.length })}
           </h4>
           {sortedParams.map((spec) => (
             <ParameterSlider

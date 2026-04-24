@@ -8,14 +8,10 @@ travel with the artifact before readiness and execution stages consume it.
 
 from __future__ import annotations
 
-from datetime import date
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import Field, model_validator
 
-from polisyos.ir.analytics.context import ContextProfile
-from polisyos.ir.analytics.privacy_transportability import DPUtilityManifest
-from polisyos.ir.analytics.transportability import SNode
 from polisyos.ir.kernel.base import KernelModel
 from polisyos.ir.observation.contracts import (
     IdentificationMode,
@@ -24,10 +20,25 @@ from polisyos.ir.observation.contracts import (
     SourceConfidenceTier,
     StrategicResponseChannel,
 )
-from polisyos.ir.observation.governance import GovernancePassAliasRegistry
-from polisyos.ir.types import TimeFrequency
-from polisyos.scientist.backtesting.plan import HistoricalValidationPlan
-from polisyos.scientist.search.lessons import LessonCard
+
+if TYPE_CHECKING:
+    from datetime import date
+
+    from polisyos.ir.analytics.context import ContextProfile
+    from polisyos.ir.analytics.privacy_transportability import DPUtilityManifest
+    from polisyos.ir.analytics.transportability import SNode
+    from polisyos.ir.observation.governance import GovernancePassAliasRegistry
+    from polisyos.ir.types import TimeFrequency
+    from polisyos.scientist.backtesting.plan import HistoricalValidationPlan
+else:
+    from datetime import date
+
+    from polisyos.ir.analytics.context import ContextProfile
+    from polisyos.ir.analytics.privacy_transportability import DPUtilityManifest
+    from polisyos.ir.analytics.transportability import SNode
+    from polisyos.ir.observation.governance import GovernancePassAliasRegistry
+    from polisyos.ir.types import TimeFrequency
+    from polisyos.scientist.backtesting.plan import HistoricalValidationPlan
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
@@ -177,7 +188,7 @@ class CounterfactualCheckSpec(KernelModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_query(self) -> "CounterfactualCheckSpec":
+    def validate_query(self) -> CounterfactualCheckSpec:
         if not self.query:
             raise ValueError("query must be non-empty")
         return self
@@ -213,7 +224,7 @@ class InterferenceLossTargetSpec(KernelModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_topology(self) -> "InterferenceLossTargetSpec":
+    def validate_topology(self) -> InterferenceLossTargetSpec:
         node_count = len(self.adjacency)
         if any(len(row) != node_count for row in self.adjacency):
             raise ValueError("adjacency must be square")
@@ -371,7 +382,7 @@ class ObservationToContractManifest(KernelModel):
     artifacts: list[ObservationContractArtifact] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_unique_families(self) -> "ObservationToContractManifest":
+    def validate_unique_families(self) -> ObservationToContractManifest:
         seen = [
             (route.family, route.identification_mode, route.target_contract.contract_id)
             for route in self.routes
@@ -491,7 +502,7 @@ class BilevelProblemBundle(KernelModel):
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["bilevel_problem_bundle_v1.json"] = "bilevel_problem_bundle_v1.json"
     optimization_target: str = Field(
-        default="optimization.bilevel.bilevel@1.0.0", min_length=1, max_length=120
+        default="optimization.bilevel.bilevel@1.1.0", min_length=1, max_length=120
     )
     knob_names: list[str] = Field(..., min_length=1)
     c_upper: list[float] = Field(..., min_length=1)
@@ -500,6 +511,10 @@ class BilevelProblemBundle(KernelModel):
     b_upper: list[float] = Field(..., min_length=1)
     A_lower: list[list[float]] = Field(..., min_length=1)
     b_lower: list[float] = Field(..., min_length=1)
+    tie_break: str | None = Field(default=None, min_length=1, max_length=64)
+    ambiguity_mode: str = Field(default="auto", min_length=1, max_length=64)
+    delta_near_opt: float = Field(default=0.0, ge=0.0)
+    certificate_mode: str = Field(default="residual_or_bounds", min_length=1, max_length=64)
     result_summary: dict[str, Any] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
 
@@ -734,21 +749,31 @@ SECTION_15_7_BUNDLE_MODELS: dict[str, type[KernelModel]] = {
 }
 
 __all__ = [
-    "AgentFactorEmbeddingsBundleManifest",
     "BACKTEST_PLAN_TARGET",
+    "DYNAMIC_TREATMENT_TARGET",
+    "LESSON_CARD_TARGET",
+    "MULTIPLEX_NETWORK_TARGET",
+    "NETWORK_ANALYSIS_TARGET",
+    "NETWORK_DATA_TARGET",
+    "PANEL_ECONOMETRIC_TARGET",
+    "PANEL_OBSERVATIONAL_TARGET",
+    "PROXY_MEASUREMENT_TARGET",
+    "SECTION_15_7_BUNDLE_MODELS",
+    "SURVEY_MICRODATA_TARGET",
+    "SURVIVAL_DATA_TARGET",
+    "AgentFactorEmbeddingsBundleManifest",
     "BilevelProblemBundle",
-    "BundleAxisSemantic",
     "BoundsChannelSpec",
     "BoundsEstimationBundle",
+    "BundleAxisSemantic",
     "BundleLineageRef",
     "CalibrationTargetBundleManifest",
     "CausalPanelBundleManifest",
     "CellPrototypeEmbeddingsBundleManifest",
+    "ContractCompatibilityTarget",
     "CounterfactualCheckBundle",
     "CounterfactualCheckSpec",
-    "ContractCompatibilityTarget",
     "DTRTreatmentSequenceBundleManifest",
-    "DYNAMIC_TREATMENT_TARGET",
     "GovernancePassMappingBundle",
     "HeckmanCorrectionBundle",
     "InterferenceLossSpecBundle",
@@ -756,35 +781,25 @@ __all__ = [
     "LeontiefIOBundle",
     "LessonRegistrySeedBundle",
     "LessonRegistrySeedEntry",
-    "LESSON_CARD_TARGET",
     "MicrosimSurveyContractBundle",
-    "MULTIPLEX_NETWORK_TARGET",
-    "NETWORK_ANALYSIS_TARGET",
-    "NETWORK_DATA_TARGET",
     "NetworkCausalContractBundle",
     "NetworkContractBundle",
     "ObservationContractArtifact",
     "ObservationContractRoute",
     "ObservationToContractManifest",
-    "PANEL_ECONOMETRIC_TARGET",
-    "PANEL_OBSERVATIONAL_TARGET",
     "PanelEconometricBundleManifest",
-    "PROXY_MEASUREMENT_TARGET",
     "ProxyChannelSpec",
     "ProxyIdentificationBundle",
     "RequiredArraySpec",
     "RequiredColumnSpec",
-    "SECTION_15_7_BUNDLE_MODELS",
     "SobolDiagnosticsBundle",
     "SpecificationCurveBundle",
     "SpecificationCurveDiagnosticsBundle",
     "SpecificationCurveSource",
     "StrategicResponseSpec",
     "StrategicResponseSpecsBundle",
-    "TransportabilityCheckBundle",
-    "TransportabilityCheckSpec",
-    "SURVEY_MICRODATA_TARGET",
-    "SURVIVAL_DATA_TARGET",
     "SurvivalDataBundleManifest",
     "SurvivalHazardBundle",
+    "TransportabilityCheckBundle",
+    "TransportabilityCheckSpec",
 ]

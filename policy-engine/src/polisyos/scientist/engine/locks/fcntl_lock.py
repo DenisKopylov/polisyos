@@ -7,7 +7,7 @@ import os
 import socket
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -134,9 +134,7 @@ class FcntlRunLock:
                     f" holder_host={current.get('hostname')}"
                     f" holder_mode={current.get('mode')}"
                 )
-            raise RunLockError(
-                f"run {run_id} is already active.{holder}"
-            ) from exc
+            raise RunLockError(f"run {run_id} is already active.{holder}") from exc
 
         token = f"{socket.gethostname()}:{os.getpid()}:{uuid.uuid4().hex}"
         metadata = {
@@ -145,7 +143,7 @@ class FcntlRunLock:
             "hostname": socket.gethostname(),
             "mode": mode,
             "owner_token": token,
-            "started_at": datetime.now(timezone.utc).isoformat(),
+            "started_at": datetime.now(UTC).isoformat(),
         }
         os.ftruncate(fd, 0)
         os.lseek(fd, 0, os.SEEK_SET)
@@ -155,9 +153,7 @@ class FcntlRunLock:
         )
         os.fsync(fd)
 
-        return FcntlLockHandle(
-            run_id=run_id, path=lock_path, fd=fd, metadata=metadata
-        )
+        return FcntlLockHandle(run_id=run_id, path=lock_path, fd=fd, metadata=metadata)
 
     def detect_stale(self, run_id: str) -> bool:
         """Check if a lock file for *run_id* is stale (owner PID dead)."""

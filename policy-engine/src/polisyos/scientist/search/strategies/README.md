@@ -18,6 +18,7 @@ Bayesian и multi-objective контуров.
 - **Advanced optimizers** — optional Bayesian и multi-objective backends.
 - **WS-3C policy toolkit** — offline-gated BOHB/ASHA, CMA-ES, learned VOI,
   learned routing, GP surrogate, constraint propagation and PBT helpers.
+
 - **Resource arbitration** — лимиты памяти/ресурсов для дорогих strategy paths.
 
 ## Public API

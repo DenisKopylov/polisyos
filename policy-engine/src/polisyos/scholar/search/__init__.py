@@ -31,8 +31,8 @@ from .providers import (
     BraveSearchProvider,
     DuckDuckGoHtmlSearchProvider,
     ProviderFailoverPolicy,
-    WikipediaOpenSearchProvider,
     WebSearchProvider,
+    WikipediaOpenSearchProvider,
 )
 from .scoring import (
     anti_seo_score,

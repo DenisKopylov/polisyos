@@ -1,9 +1,10 @@
 """Foundry test fixtures shared across tests/foundry/."""
+
 from __future__ import annotations
 
 import pytest
 
-from polisyos.foundry.methods.registry import MethodRegistry, registry_scope
+from polisyos.foundry.methods.registry import registry_scope
 
 
 @pytest.fixture(scope="module")
@@ -16,5 +17,6 @@ def module_registry():
     """
     with registry_scope() as reg:
         from polisyos.foundry.methods.catalog import ensure_all_methods_registered
+
         ensure_all_methods_registered(reg)
         yield reg

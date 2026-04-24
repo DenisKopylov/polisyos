@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 import numpy as np
 
@@ -112,14 +112,20 @@ def bootstrap_scenario_metrics(
     results: dict[str, BootstrapCI] = {}
 
     results["mae"] = bootstrap_metric(
-        np.abs(arr), metric="mae", statistic="mean",
-        confidence_level=confidence_level, n_bootstrap=n_bootstrap, seed=seed,
+        np.abs(arr),
+        metric="mae",
+        statistic="mean",
+        confidence_level=confidence_level,
+        n_bootstrap=n_bootstrap,
+        seed=seed,
     )
     results["rmse"] = bootstrap_metric(
         arr,
         metric="rmse",
         statistic=_rmse_statistic,
-        confidence_level=confidence_level, n_bootstrap=n_bootstrap, seed=seed,
+        confidence_level=confidence_level,
+        n_bootstrap=n_bootstrap,
+        seed=seed,
     )
 
     return results
@@ -132,7 +138,7 @@ def _resolve_statistic(statistic: str | StatisticFn) -> StatisticFn:
 
 
 def _rmse_statistic(values: np.ndarray) -> float:
-    return float(np.sqrt(np.mean(values ** 2)))
+    return float(np.sqrt(np.mean(values**2)))
 
 
 _STAT_FNS = {

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import json
 import importlib
+import json
 import sys
 import types
 
@@ -184,7 +184,9 @@ def test_evidence_command_emits_operator_summary_json(monkeypatch, capsys) -> No
     assert payload["runnable_count"] == 1
     assert payload["blocked_count"] == 1
     assert payload["backend_summary"][0]["value"] in {"bayesian", "numpy"}
-    assert any(item["determinism_tier"] == "library_deterministic" for item in payload["replay_contracts"])
+    assert any(
+        item["determinism_tier"] == "library_deterministic" for item in payload["replay_contracts"]
+    )
 
 
 def test_release_acceptance_command_emits_report_json(

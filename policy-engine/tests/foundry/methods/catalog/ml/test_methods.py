@@ -4,13 +4,13 @@ import numpy as np
 import pytest
 
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.selection_history import get_global_selection_history
 from polisyos.foundry.methods.ml import (
     SurvivalData,
     TabularData,
     ensure_ml_methods_registered,
 )
 from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.methods.selection_history import get_global_selection_history
 
 
 @pytest.fixture(autouse=True)

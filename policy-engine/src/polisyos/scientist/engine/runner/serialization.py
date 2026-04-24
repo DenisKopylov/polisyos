@@ -217,8 +217,7 @@ def _coerce_wire_bytes(data: Any) -> bytes:
         except ValueError as exc:
             raise DeserializationError(f"Invalid byte sequence in wire payload: {exc}") from exc
     raise DeserializationError(
-        "Failed to deserialize state: unsupported wire payload type "
-        f"{type(data).__name__}"
+        f"Failed to deserialize state: unsupported wire payload type {type(data).__name__}"
     )
 
 

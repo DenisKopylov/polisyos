@@ -81,10 +81,14 @@ def analyze_shard(
     stage_telemetry = _load_json(stage_telemetry_path)
     pipeline_log = _load_text(pipeline_log_path)
     log_429_count = pipeline_log.count("Gonka pool 429")
-    completed = "Manifest pipeline complete:" in pipeline_log or "Pipeline complete in" in pipeline_log
+    completed = (
+        "Manifest pipeline complete:" in pipeline_log or "Pipeline complete in" in pipeline_log
+    )
     docs_from_telemetry = int(stage_telemetry.get("docs_processed") or 0)
     duration_s = float(stage_telemetry.get("total_duration_s") or 0.0)
-    progress_doc_ids = {row.get("doc_id") for row in progress if row.get("doc_id") not in {None, "__global__"}}
+    progress_doc_ids = {
+        row.get("doc_id") for row in progress if row.get("doc_id") not in {None, "__global__"}
+    }
     docs_total = docs_from_telemetry or len(progress_doc_ids)
     resumed_docs = _extract_resumed_docs(pipeline_log)
     docs_count = max(0, docs_total - resumed_docs) if resumed_docs else docs_total
@@ -105,10 +109,16 @@ def analyze_shard(
     ok = [row for row in rows if int(row.get("http_status") or 0) == 200]
     err_429 = [row for row in rows if int(row.get("http_status") or 0) == 429]
     lats = [float(row["total_latency_ms"]) for row in ok if row.get("total_latency_ms") is not None]
-    epochs = [int(row["completed_at_epoch_ms"]) for row in rows if row.get("completed_at_epoch_ms") is not None]
+    epochs = [
+        int(row["completed_at_epoch_ms"])
+        for row in rows
+        if row.get("completed_at_epoch_ms") is not None
+    ]
     span_sec = (max(epochs) - min(epochs)) / 1000 if len(epochs) > 1 else 1.0
     err_classes = Counter(
-        str(row.get("error_class") or "unknown") for row in rows if int(row.get("http_status") or 0) != 200
+        str(row.get("error_class") or "unknown")
+        for row in rows
+        if int(row.get("http_status") or 0) != 200
     )
     p50_ms = round(statistics.median(lats)) if lats else 0
     p90_ms = round(statistics.quantiles(lats, n=10)[8]) if len(lats) >= 10 else 0

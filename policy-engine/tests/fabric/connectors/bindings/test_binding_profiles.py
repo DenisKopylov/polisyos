@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
@@ -20,7 +19,6 @@ from polisyos.fabric.connectors.bindings.resolver import (
     persist_binding_rules_artifact,
     resolve_binding_rules,
 )
-
 
 # ---------------------------------------------------------------------------
 # Model validation tests
@@ -222,36 +220,26 @@ class TestBuiltinProfiles:
         assert "ts_exchange_rate" in ids
 
     def test_single_indicator_rules(self):
-        profile = next(
-            p for p in BUILTIN_BINDING_PROFILES if p.profile_id == "ts_single_indicator"
-        )
+        profile = next(p for p in BUILTIN_BINDING_PROFILES if p.profile_id == "ts_single_indicator")
         assert len(profile.rules) == 2
         rule_ids = {r.binding_id for r in profile.rules}
         assert "ts.time_period" in rule_ids
         assert "ts.value" in rule_ids
 
     def test_multi_indicator_rules(self):
-        profile = next(
-            p for p in BUILTIN_BINDING_PROFILES if p.profile_id == "ts_multi_indicator"
-        )
+        profile = next(p for p in BUILTIN_BINDING_PROFILES if p.profile_id == "ts_multi_indicator")
         assert len(profile.rules) == 4
 
     def test_exchange_rate_has_transforms(self):
-        profile = next(
-            p for p in BUILTIN_BINDING_PROFILES if p.profile_id == "ts_exchange_rate"
-        )
+        profile = next(p for p in BUILTIN_BINDING_PROFILES if p.profile_id == "ts_exchange_rate")
         value_rule = next(r for r in profile.rules if r.binding_id == "exr.value")
         assert len(value_rule.transforms) == 2
         assert value_rule.transforms[0].op == "to_decimal"
         assert value_rule.transforms[1].op == "round"
 
     def test_exchange_rate_has_default_value(self):
-        profile = next(
-            p for p in BUILTIN_BINDING_PROFILES if p.profile_id == "ts_exchange_rate"
-        )
-        denom_rule = next(
-            r for r in profile.rules if r.binding_id == "exr.currency_denom"
-        )
+        profile = next(p for p in BUILTIN_BINDING_PROFILES if p.profile_id == "ts_exchange_rate")
+        denom_rule = next(r for r in profile.rules if r.binding_id == "exr.currency_denom")
         assert denom_rule.default_value == "EUR"
         assert denom_rule.required is False
 
@@ -393,7 +381,9 @@ class TestPersistBindingRulesArtifact:
         )
 
         ref = persist_binding_rules_artifact(
-            store, profile, data_snapshot_ref="snap_abc123",
+            store,
+            profile,
+            data_snapshot_ref="snap_abc123",
         )
         assert ref is not None
 

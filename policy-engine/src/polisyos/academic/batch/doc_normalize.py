@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 import re
 import xml.etree.ElementTree as ET
 from collections import Counter
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import aiohttp
 
@@ -19,7 +17,6 @@ from polisyos.academic.batch.article_extractor import (
     _select_numeric_result_blocks,
     _split_sentences,
 )
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.batch.fulltext_resolver import (
     FullTextFetchResult,
     _extract_html_tables,
@@ -29,8 +26,14 @@ from polisyos.academic.batch.fulltext_resolver import (
 )
 from polisyos.batch_common.manifest import write_stage_manifest
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.academic.batch.config import AcademicBatchConfig
+
 try:
     from polisyos.academic.batch.table_extractor import extract_tables_from_pdf
+
     _HAS_TABLE_EXTRACTOR = True
 except ImportError:
     _HAS_TABLE_EXTRACTOR = False
@@ -45,11 +48,16 @@ _SECTION_HEADING_RE = re.compile(
 )
 _TABLE_RE = re.compile(r"\b(table\s+\d+|panel\s+[a-z]|regression results?)\b", re.IGNORECASE)
 _FIGURE_RE = re.compile(r"\b(fig(?:ure)?\s+\d+)\b", re.IGNORECASE)
-_APPENDIX_RE = re.compile(r"\b(appendix|supplementary(?: materials?)?|online appendix)\b", re.IGNORECASE)
+_APPENDIX_RE = re.compile(
+    r"\b(appendix|supplementary(?: materials?)?|online appendix)\b", re.IGNORECASE
+)
 _REFERENCE_RE = re.compile(
     r"(\bdoi:\s*\S+|\bhttps?://\S+|\[[0-9]{1,3}\]|\([A-Z][A-Za-z\-]+(?:\s+et al\.)?,\s*\d{4}\))"
 )
-_RCT_RE = re.compile(r"\b(randomi[sz]ed|random assignment|rct|encouragement design|field experiment)\b", re.IGNORECASE)
+_RCT_RE = re.compile(
+    r"\b(randomi[sz]ed|random assignment|rct|encouragement design|field experiment)\b",
+    re.IGNORECASE,
+)
 _QUASI_RE = re.compile(
     r"\b(difference.?in.?differences?|instrumental variable|2sls|tsls|regression discontinuity|rdd\b|"
     r"synthetic control|natural experiment|quasi[- ]experimental|event study)\b",
@@ -59,14 +67,23 @@ _OBSERVATIONAL_RE = re.compile(
     r"\b(observational|cohort|case-control|cross-sectional|panel data|fixed effects|ols\b)\b",
     re.IGNORECASE,
 )
-_REVIEW_RE = re.compile(r"\b(systematic review|meta-analysis|review article|literature review)\b", re.IGNORECASE)
-_THEORETICAL_RE = re.compile(r"\b(theoretical|conceptual framework|simulation model|proof)\b", re.IGNORECASE)
-_METHODS_RE = re.compile(r"\b(methodological|benchmark dataset|algorithm|architecture|estimation method)\b", re.IGNORECASE)
+_REVIEW_RE = re.compile(
+    r"\b(systematic review|meta-analysis|review article|literature review)\b", re.IGNORECASE
+)
+_THEORETICAL_RE = re.compile(
+    r"\b(theoretical|conceptual framework|simulation model|proof)\b", re.IGNORECASE
+)
+_METHODS_RE = re.compile(
+    r"\b(methodological|benchmark dataset|algorithm|architecture|estimation method)\b",
+    re.IGNORECASE,
+)
 _CONTEXT_RE = re.compile(
     r"\b(country|countries|regional|jurisdiction|institutional|historical|comparative|governance|socioeconomic|policy context)\b",
     re.IGNORECASE,
 )
-_MECHANISM_RE = re.compile(r"\b(mechanism|channel|pathway|mediat(?:e|es|ion)|through which)\b", re.IGNORECASE)
+_MECHANISM_RE = re.compile(
+    r"\b(mechanism|channel|pathway|mediat(?:e|es|ion)|through which)\b", re.IGNORECASE
+)
 _XML_SIGNAL_RE = re.compile(r"<(?:article|article-meta|body|sec|front|back)\b", re.IGNORECASE)
 _TEI_SIGNAL_RE = re.compile(r"<TEI\b", re.IGNORECASE)
 _PDF_MAGIC = b"%PDF"
@@ -89,7 +106,7 @@ def _iter_jsonl_rows(path: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     if not path.exists():
         return rows
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -131,7 +148,7 @@ def _load_selected_rows(path: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     if not path.exists():
         return rows
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -151,7 +168,9 @@ def _fetch_result_to_row(
     return {
         "work_id": work_id,
         "source_kind": result.source_kind,
-        "source_basis": "abstract_only" if result.source_kind == "abstract_fallback" else "fulltext",
+        "source_basis": "abstract_only"
+        if result.source_kind == "abstract_fallback"
+        else "fulltext",
         "text_quality": (
             "abstract_only"
             if result.source_kind == "abstract_fallback"
@@ -166,7 +185,9 @@ def _fetch_result_to_row(
     }
 
 
-def _extract_sections(text: str, *, title: str, abstract: str, bundle: dict[str, Any]) -> list[dict[str, Any]]:
+def _extract_sections(
+    text: str, *, title: str, abstract: str, bundle: dict[str, Any]
+) -> list[dict[str, Any]]:
     raw_text = str(text or "")
     sections: list[dict[str, Any]] = []
     matches = list(_SECTION_HEADING_RE.finditer(raw_text))
@@ -291,7 +312,9 @@ def _extract_references(text: str, work: dict[str, Any]) -> list[dict[str, Any]]
             {
                 "reference_id": f"ref_{index:03d}",
                 "reference_text": snippet,
-                "kind": "inline_citation" if snippet.startswith("[") or snippet.startswith("(") else "link",
+                "kind": "inline_citation"
+                if snippet.startswith("[") or snippet.startswith("(")
+                else "link",
             }
         )
         if len(rows) >= 32:
@@ -340,7 +363,7 @@ async def _fetch_source_document(
                 "bytes": payload,
                 "text": payload.decode("utf-8", errors="ignore"),
             }
-    except asyncio.TimeoutError:
+    except TimeoutError:
         return {"ok": False, "error_class": "source_fetch_timeout"}
     except aiohttp.ClientError as exc:
         return {"ok": False, "error_class": exc.__class__.__name__.lower()}
@@ -358,7 +381,9 @@ async def _call_pub2tei(
         return {"ok": False, "error_class": "pub2tei_disabled"}
     timeout = aiohttp.ClientTimeout(total=max(5, int(timeout_seconds)))
     form = aiohttp.FormData()
-    form.add_field("input", xml_text.encode("utf-8"), filename="document.xml", content_type="application/xml")
+    form.add_field(
+        "input", xml_text.encode("utf-8"), filename="document.xml", content_type="application/xml"
+    )
     form.add_field("segmentSentences", "1")
     form.add_field("generateIDs", "1")
     try:
@@ -371,7 +396,7 @@ async def _call_pub2tei(
                 "tei_text": tei_text,
                 "error_class": "" if ok else "pub2tei_invalid_response",
             }
-    except asyncio.TimeoutError:
+    except TimeoutError:
         return {"ok": False, "error_class": "pub2tei_timeout"}
     except aiohttp.ClientError as exc:
         return {"ok": False, "error_class": exc.__class__.__name__.lower()}
@@ -400,7 +425,7 @@ async def _call_grobid(
                 "tei_text": tei_text,
                 "error_class": "" if ok else "grobid_invalid_response",
             }
-    except asyncio.TimeoutError:
+    except TimeoutError:
         return {"ok": False, "error_class": "grobid_timeout"}
     except aiohttp.ClientError as exc:
         return {"ok": False, "error_class": exc.__class__.__name__.lower()}
@@ -449,7 +474,9 @@ def _parse_tei_artifacts(tei_text: str) -> dict[str, Any]:
             body = _tei_text(elem)
             if not body:
                 continue
-            heading = _tei_child_text(elem, ("head", "title")) or _normalized_text(elem.attrib.get("type"))
+            heading = _tei_child_text(elem, ("head", "title")) or _normalized_text(
+                elem.attrib.get("type")
+            )
             if heading and body.lower().startswith(heading.lower()):
                 body = _normalized_text(body[len(heading) :])
             section_index += 1
@@ -478,7 +505,8 @@ def _parse_tei_artifacts(tei_text: str) -> dict[str, Any]:
                 tables.append(
                     {
                         "table_id": f"tbl_{len(tables) + 1:03d}",
-                        "label": _tei_child_text(elem, ("head", "label")) or f"table_{len(tables) + 1}",
+                        "label": _tei_child_text(elem, ("head", "label"))
+                        or f"table_{len(tables) + 1}",
                         "text": text,
                         "score": 1.0,
                         "structure_source": "tei_table",
@@ -489,7 +517,9 @@ def _parse_tei_artifacts(tei_text: str) -> dict[str, Any]:
             if not text:
                 continue
             figure_type = _normalized_text(elem.attrib.get("type")).lower()
-            label = _tei_child_text(elem, ("head", "label")) or _normalized_text(elem.attrib.get("{http://www.w3.org/XML/1998/namespace}id"))
+            label = _tei_child_text(elem, ("head", "label")) or _normalized_text(
+                elem.attrib.get("{http://www.w3.org/XML/1998/namespace}id")
+            )
             if figure_type == "table" or _TABLE_RE.search(text):
                 tables.append(
                     {
@@ -596,16 +626,18 @@ def _parse_jats_xml(xml_text: str) -> dict[str, Any] | None:
         heading = _text_of(heading_elem).lower() if heading_elem is not None else ""
         body = _text_of(sec)
         if heading and body.lower().startswith(heading):
-            body = _normalized_text(body[len(heading):])
+            body = _normalized_text(body[len(heading) :])
         if not body:
             continue
         sec_idx += 1
-        sections.append({
-            "section_id": f"sec_{sec_idx:03d}",
-            "section_name": heading or f"section_{sec_idx}",
-            "text": body,
-            "char_count": len(body),
-        })
+        sections.append(
+            {
+                "section_id": f"sec_{sec_idx:03d}",
+                "section_name": heading or f"section_{sec_idx}",
+                "text": body,
+                "char_count": len(body),
+            }
+        )
 
     # Extract tables from <table-wrap>
     for tw in _findall(root, "table-wrap"):
@@ -621,7 +653,7 @@ def _parse_jats_xml(xml_text: str) -> dict[str, Any] | None:
             for tr in _findall(table_elem, "tr"):
                 cells = []
                 for cell_tag in ("th", "td"):
-                    for cell in (tr.findall(f"{ns}{cell_tag}") or tr.findall(cell_tag)):
+                    for cell in tr.findall(f"{ns}{cell_tag}") or tr.findall(cell_tag):
                         cells.append(_text_of(cell))
                 if cells:
                     rows_data.append(cells)
@@ -632,7 +664,7 @@ def _parse_jats_xml(xml_text: str) -> dict[str, Any] | None:
             md_lines.append("| " + " | ".join("---" for _ in headers) + " |")
             for row in rows_data[1:]:
                 padded = row + [""] * max(0, len(headers) - len(row))
-                md_lines.append("| " + " | ".join(padded[:len(headers)]) + " |")
+                md_lines.append("| " + " | ".join(padded[: len(headers)]) + " |")
             text = "\n".join(md_lines)
             if caption:
                 text = f"{label}: {caption}\n{text}"
@@ -640,13 +672,15 @@ def _parse_jats_xml(xml_text: str) -> dict[str, Any] | None:
             text = _text_of(tw)
 
         if text:
-            tables.append({
-                "table_id": f"tbl_{len(tables) + 1:03d}",
-                "label": label,
-                "text": text,
-                "score": 1.0,
-                "structure_source": "jats_table",
-            })
+            tables.append(
+                {
+                    "table_id": f"tbl_{len(tables) + 1:03d}",
+                    "label": label,
+                    "text": text,
+                    "score": 1.0,
+                    "structure_source": "jats_table",
+                }
+            )
 
     # Extract figures from <fig>
     for fig in _findall(root, "fig"):
@@ -655,21 +689,25 @@ def _parse_jats_xml(xml_text: str) -> dict[str, Any] | None:
         label = (_text_of(label_elem) or f"figure_{len(figures) + 1}").lower()
         caption = _text_of(caption_elem)
         if caption:
-            figures.append({
-                "figure_id": f"fig_{len(figures) + 1:03d}",
-                "label": label,
-                "text": f"{label}: {caption}"[:3200],
-            })
+            figures.append(
+                {
+                    "figure_id": f"fig_{len(figures) + 1:03d}",
+                    "label": label,
+                    "text": f"{label}: {caption}"[:3200],
+                }
+            )
 
     # Extract references from <ref-list><ref>
     for ref in _findall(root, "ref"):
         text = _text_of(ref)
         if text:
-            references.append({
-                "reference_id": f"ref_{len(references) + 1:03d}",
-                "reference_text": text[:1000],
-                "kind": "jats_reference",
-            })
+            references.append(
+                {
+                    "reference_id": f"ref_{len(references) + 1:03d}",
+                    "reference_text": text[:1000],
+                    "kind": "jats_reference",
+                }
+            )
 
     if not sections and not tables:
         return None
@@ -690,6 +728,7 @@ def _extract_tables_from_pdf_bytes(pdf_bytes: bytes, work_id: str) -> list[dict[
         return []
     import tempfile
     from pathlib import Path as _Path
+
     try:
         with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
             tmp.write(pdf_bytes)
@@ -698,6 +737,7 @@ def _extract_tables_from_pdf_bytes(pdf_bytes: bytes, work_id: str) -> list[dict[
         tmp_path.unlink(missing_ok=True)
     except Exception:
         from polisyos.common.logger import get_logger as _gl
+
         _gl(__name__).debug("table_extractor failed for {}", work_id, exc_info=True)
         return []
 
@@ -711,17 +751,19 @@ def _extract_tables_from_pdf_bytes(pdf_bytes: bytes, work_id: str) -> list[dict[
         md_lines.append("| " + " | ".join("---" for _ in headers) + " |")
         for row in rows[:50]:
             padded = [str(c) for c in row] + [""] * max(0, len(headers) - len(row))
-            md_lines.append("| " + " | ".join(padded[:len(headers)]) + " |")
-        structured.append({
-            "table_id": f"tbl_marker_{tbl.get('table_index', len(structured)) + 1:03d}",
-            "label": f"table_{tbl.get('table_index', len(structured)) + 1}",
-            "text": "\n".join(md_lines),
-            "headers": headers,
-            "rows": rows[:50],
-            "numeric_cells": tbl.get("numeric_cells", []),
-            "score": 0.9,
-            "structure_source": "marker_pdf",
-        })
+            md_lines.append("| " + " | ".join(padded[: len(headers)]) + " |")
+        structured.append(
+            {
+                "table_id": f"tbl_marker_{tbl.get('table_index', len(structured)) + 1:03d}",
+                "label": f"table_{tbl.get('table_index', len(structured)) + 1}",
+                "text": "\n".join(md_lines),
+                "headers": headers,
+                "rows": rows[:50],
+                "numeric_cells": tbl.get("numeric_cells", []),
+                "score": 0.9,
+                "structure_source": "marker_pdf",
+            }
+        )
     return structured
 
 
@@ -775,14 +817,20 @@ async def _build_document_substrate(
     payload = bytes(source_doc.get("bytes") or b"")
     source_text = str(source_doc.get("text") or "")
     content_type = str(source_doc.get("content_type") or "")
-    source_hint = _infer_source_hint(fetch_result.source_kind, str(fetch_result.source_url or ""), content_type, payload)
+    source_hint = _infer_source_hint(
+        fetch_result.source_kind, str(fetch_result.source_url or ""), content_type, payload
+    )
 
     # --- Try native JATS XML parsing (before Pub2TEI) ---
     if source_doc.get("ok") and source_hint == "publisher_xml":
-        xml_payload = source_text if source_text.strip() else payload.decode("utf-8", errors="ignore")
+        xml_payload = (
+            source_text if source_text.strip() else payload.decode("utf-8", errors="ignore")
+        )
         if _JATS_ROOT_RE.search(xml_payload[:2000]):
             jats_parsed = _parse_jats_xml(xml_payload)
-            if jats_parsed is not None and (jats_parsed.get("sections") or jats_parsed.get("tables")):
+            if jats_parsed is not None and (
+                jats_parsed.get("sections") or jats_parsed.get("tables")
+            ):
                 return {
                     "text": text,
                     "bundle": bundle,
@@ -800,8 +848,14 @@ async def _build_document_substrate(
                 }
 
     # --- Try HTML table extraction ---
-    if source_doc.get("ok") and source_hint not in ("pdf", "publisher_xml") and config.fulltext_extract_html_tables:
-        html_content = source_text if source_text.strip() else payload.decode("utf-8", errors="ignore")
+    if (
+        source_doc.get("ok")
+        and source_hint not in ("pdf", "publisher_xml")
+        and config.fulltext_extract_html_tables
+    ):
+        html_content = (
+            source_text if source_text.strip() else payload.decode("utf-8", errors="ignore")
+        )
         html_tables = _extract_html_tables(html_content)
         if html_tables:
             merged_tables = html_tables + fallback_tables
@@ -822,7 +876,12 @@ async def _build_document_substrate(
             }
 
     # --- Try marker-pdf structured table extraction for PDFs ---
-    if source_doc.get("ok") and source_hint == "pdf" and payload.startswith(_PDF_MAGIC) and _HAS_TABLE_EXTRACTOR:
+    if (
+        source_doc.get("ok")
+        and source_hint == "pdf"
+        and payload.startswith(_PDF_MAGIC)
+        and _HAS_TABLE_EXTRACTOR
+    ):
         marker_tables = _extract_tables_from_pdf_bytes(payload, work_id)
         if marker_tables:
             merged_tables = marker_tables + fallback_tables
@@ -842,18 +901,33 @@ async def _build_document_substrate(
             "tei_status": "fallback",
             "infra_error_class": "",
             "source_content_type": content_type if source_doc.get("ok") else "",
-            "source_fetch_status": int(source_doc.get("status") or 0) if source_doc.get("ok") else 0,
+            "source_fetch_status": int(source_doc.get("status") or 0)
+            if source_doc.get("ok")
+            else 0,
         }
 
     if source_doc.get("ok"):
-        precedence = tuple(str(item).strip().lower() for item in config.doc_infra_precedence if str(item).strip())
+        precedence = tuple(
+            str(item).strip().lower() for item in config.doc_infra_precedence if str(item).strip()
+        )
         attempted = False
         for lane in precedence:
-            if lane == "publisher_xml" and config.doc_infra_enable_pub2tei and source_hint == "publisher_xml":
+            if (
+                lane == "publisher_xml"
+                and config.doc_infra_enable_pub2tei
+                and source_hint == "publisher_xml"
+            ):
                 attempted = True
-                xml_payload = source_text if source_text.strip() else payload.decode("utf-8", errors="ignore")
+                xml_payload = (
+                    source_text if source_text.strip() else payload.decode("utf-8", errors="ignore")
+                )
                 if _TEI_SIGNAL_RE.search(xml_payload):
-                    tei_payload = {"ok": True, "tei_text": xml_payload, "status": 200, "error_class": ""}
+                    tei_payload = {
+                        "ok": True,
+                        "tei_text": xml_payload,
+                        "status": 200,
+                        "error_class": "",
+                    }
                 else:
                     tei_payload = await _call_pub2tei(
                         session,
@@ -934,11 +1008,20 @@ async def _build_document_substrate(
         "tei_status": "fallback",
         "infra_error_class": infra_error_class,
         "source_content_type": content_type,
-        "source_fetch_status": int(source_doc.get("status") or 0) if isinstance(source_doc, dict) else 0,
+        "source_fetch_status": int(source_doc.get("status") or 0)
+        if isinstance(source_doc, dict)
+        else 0,
     }
 
 
-def _classify_doc_family(*, title: str, abstract: str, text: str, tables: list[dict[str, Any]], appendix_blocks: list[dict[str, Any]]) -> str:
+def _classify_doc_family(
+    *,
+    title: str,
+    abstract: str,
+    text: str,
+    tables: list[dict[str, Any]],
+    appendix_blocks: list[dict[str, Any]],
+) -> str:
     haystack = "\n".join(part for part in (title, abstract, text[:12000]) if part)
     if _REVIEW_RE.search(haystack):
         return "review_meta_analysis"
@@ -959,7 +1042,14 @@ def _classify_doc_family(*, title: str, abstract: str, text: str, tables: list[d
     return "observational" if _CONTEXT_RE.search(haystack) else "methods"
 
 
-def _route_document(*, family: str, bundle: dict[str, Any], tables: list[dict[str, Any]], appendix_blocks: list[dict[str, Any]], text: str) -> list[dict[str, Any]]:
+def _route_document(
+    *,
+    family: str,
+    bundle: dict[str, Any],
+    tables: list[dict[str, Any]],
+    appendix_blocks: list[dict[str, Any]],
+    text: str,
+) -> list[dict[str, Any]]:
     normalized = _normalized_text(text)
     route_rows: list[dict[str, Any]] = []
     claim_score = 0.0
@@ -974,7 +1064,9 @@ def _route_document(*, family: str, bundle: dict[str, Any], tables: list[dict[st
             "eligible": claim_score >= 0.45,
             "route": "llm" if claim_score >= 0.45 else "skip",
             "score": round(min(1.0, claim_score), 4),
-            "reasons": ["family_signal", "claim_sentences"] if claim_score >= 0.45 else ["low_claim_signal"],
+            "reasons": ["family_signal", "claim_sentences"]
+            if claim_score >= 0.45
+            else ["low_claim_signal"],
         }
     )
 
@@ -983,14 +1075,24 @@ def _route_document(*, family: str, bundle: dict[str, Any], tables: list[dict[st
         numeric_score += 0.35
     numeric_score += min(0.35, 0.08 * len(tables))
     numeric_score += min(0.2, 0.03 * len(bundle.get("numeric_result_blocks", [])))
-    numeric_score += 0.1 if re.search(r"\b(95%\s*ci|std\.?\s*err(?:or)?|odds ratio|hazard ratio|coefficient|beta)\b", normalized, re.IGNORECASE) else 0.0
+    numeric_score += (
+        0.1
+        if re.search(
+            r"\b(95%\s*ci|std\.?\s*err(?:or)?|odds ratio|hazard ratio|coefficient|beta)\b",
+            normalized,
+            re.IGNORECASE,
+        )
+        else 0.0
+    )
     route_rows.append(
         {
             "lane": "numeric",
             "eligible": numeric_score >= 0.45,
             "route": "llm" if numeric_score >= 0.45 else "skip",
             "score": round(min(1.0, numeric_score), 4),
-            "reasons": ["table_or_result_signal"] if numeric_score >= 0.45 else ["low_numeric_signal"],
+            "reasons": ["table_or_result_signal"]
+            if numeric_score >= 0.45
+            else ["low_numeric_signal"],
         }
     )
 
@@ -1001,7 +1103,11 @@ def _route_document(*, family: str, bundle: dict[str, Any], tables: list[dict[st
         context_score += 0.35
     if appendix_blocks:
         context_score += 0.05
-    if re.search(r"\b(country|countries|region|regional|institutional|historical|governance)\b", normalized, re.IGNORECASE):
+    if re.search(
+        r"\b(country|countries|region|regional|institutional|historical|governance)\b",
+        normalized,
+        re.IGNORECASE,
+    ):
         context_score += 0.2
     route_rows.append(
         {
@@ -1025,7 +1131,9 @@ def _route_document(*, family: str, bundle: dict[str, Any], tables: list[dict[st
             "eligible": mechanism_score >= 0.35,
             "route": "llm" if mechanism_score >= 0.35 else "skip",
             "score": round(min(1.0, mechanism_score), 4),
-            "reasons": ["mechanism_signal"] if mechanism_score >= 0.35 else ["low_mechanism_signal"],
+            "reasons": ["mechanism_signal"]
+            if mechanism_score >= 0.35
+            else ["low_mechanism_signal"],
         }
     )
     return route_rows
@@ -1187,8 +1295,12 @@ async def run_doc_normalize(config: AcademicBatchConfig) -> dict[str, int]:
                 "work_id": work_id,
                 "title": title,
                 "source_kind": fetch_result.source_kind,
-                "source_basis": "abstract_only" if fetch_result.source_kind == "abstract_fallback" else "fulltext",
-                "text_quality": "abstract_only" if fetch_result.source_kind == "abstract_fallback" else ("degraded" if len(text) < 800 else "extracted_fulltext"),
+                "source_basis": "abstract_only"
+                if fetch_result.source_kind == "abstract_fallback"
+                else "fulltext",
+                "text_quality": "abstract_only"
+                if fetch_result.source_kind == "abstract_fallback"
+                else ("degraded" if len(text) < 800 else "extracted_fulltext"),
                 "text_chars": len(text),
                 "abstract_chars": len(abstract),
                 "doc_family": family,
@@ -1253,14 +1365,10 @@ async def run_doc_normalize(config: AcademicBatchConfig) -> dict[str, int]:
     substrate_rows = _iter_jsonl_rows(config.doc_substrate_path)
     table_rows = _iter_jsonl_rows(config.doc_tables_path)
     family_counter: Counter[str] = Counter(
-        str(row.get("doc_family") or "unknown")
-        for row in substrate_rows
-        if isinstance(row, dict)
+        str(row.get("doc_family") or "unknown") for row in substrate_rows if isinstance(row, dict)
     )
     tei_source_counter: Counter[str] = Counter(
-        str(row.get("tei_source") or "heuristic")
-        for row in substrate_rows
-        if isinstance(row, dict)
+        str(row.get("tei_source") or "heuristic") for row in substrate_rows if isinstance(row, dict)
     )
     infra_error_counter: Counter[str] = Counter(
         str(row.get("infra_error_class") or "")

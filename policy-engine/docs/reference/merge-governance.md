@@ -70,6 +70,7 @@ The current repo-tracked workflow inventory is the one listed in
 
 - `.github/workflows/abi.yml`, `.github/workflows/arch.yml`, and
   `.github/workflows/docs.yml` are present and factual;
+
 - subsystem evidence workflows such as `perf.yml`, `replay.yml`,
   `signatures.yml`, and `foundry-release-gate.yml` are factual but may or may
   not be selected as required GitHub checks in the UI.
@@ -83,6 +84,7 @@ If you are configuring GitHub manually, the documented posture is:
 - require conversations to be resolved before merge;
 - choose required-check contexts only from workflows that currently exist in
   `.github/workflows/`;
+
 - avoid selecting historical or otherwise absent check contexts.
 
 Because the exact GitHub check-context names are produced by live workflow runs,
@@ -108,8 +110,10 @@ starts versioning the relevant policy and workflow context.
 
 - `signatures.yml` is the repo-tracked regression surface for artifact-signing
   behavior and private-key hygiene;
+
 - `build-and-push.yml` is the repo-tracked SBOM/signing bundle for manual build
   dispatches;
+
 - commit-signature enforcement on `main`, if enabled in GitHub, is currently a
   manual platform setting rather than a versioned repo contract.
 

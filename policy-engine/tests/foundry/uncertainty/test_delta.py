@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import numpy.testing as npt
-import pytest
 
+from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.foundry.uncertainty.delta import DeltaMethodPropagator
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -10,9 +11,6 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-
-from polisyos.foundry.uncertainty.config import PropagationConfig
-from polisyos.foundry.uncertainty.delta import DeltaMethodPropagator
 
 
 def _normal_env(point: float, std: float, level: float = 0.95) -> UncertaintyEnvelope:
@@ -57,11 +55,15 @@ class TestDeltaMethodPropagator:
         envelopes = {"x": _normal_env(1.0, std_x), "z": _normal_env(2.0, std_z)}
 
         results = propagator.propagate(
-            _linear_sim, {"x": 1.0, "z": 2.0}, envelopes, ["y"],
+            _linear_sim,
+            {"x": 1.0, "z": 2.0},
+            envelopes,
+            ["y"],
         )
 
         assert len(results) == 1
         import math
+
         expected_std = math.sqrt(4 * std_x**2 + 9 * std_z**2)
         ci_width = results[0].envelope.ci_width
         z_val = 1.96
@@ -80,7 +82,10 @@ class TestDeltaMethodPropagator:
             return {"y": x**2}
 
         results = propagator.propagate(
-            quad_sim, {"x": 2.0}, envelopes, ["y"],
+            quad_sim,
+            {"x": 2.0},
+            envelopes,
+            ["y"],
         )
 
         assert len(results) == 1
@@ -99,7 +104,10 @@ class TestDeltaMethodPropagator:
         envelopes = {"x": _normal_env(1.0, 0.5)}
 
         results = propagator.propagate(
-            multi_sim, {"x": 1.0}, envelopes, ["a", "b"],
+            multi_sim,
+            {"x": 1.0},
+            envelopes,
+            ["a", "b"],
         )
 
         assert len(results) == 2
@@ -119,7 +127,10 @@ class TestDeltaMethodPropagator:
         envelopes = {"x": _normal_env(1.0, 0.5)}
 
         results = propagator.propagate(
-            lambda x=0.0: {"y": 2.0 * x}, {"x": 1.0}, envelopes, ["y"],
+            lambda x=0.0: {"y": 2.0 * x},
+            {"x": 1.0},
+            envelopes,
+            ["y"],
         )
 
         assert results[0].method_used == PropagationMethod.DELTA_METHOD

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { Card } from "@/shared/ui/primitives";
 
@@ -33,13 +34,14 @@ export function WidgetContainer({
   children,
   className,
 }: WidgetContainerProps) {
+  const { t } = useI18n();
   return (
     <Card
       className={cn(
         SIZE_CLASSES[size],
         "relative transition-shadow",
         isDragging && "z-10 shadow-lg ring-2 ring-[var(--chart-primary)]",
-        isEditing && "ring-1 ring-dashed ring-[var(--chart-neutral)]",
+        isEditing && "ring-dashed ring-1 ring-[var(--chart-neutral)]",
         className,
       )}
     >
@@ -50,7 +52,7 @@ export function WidgetContainer({
             <span
               {...dragHandleProps}
               className="text-muted cursor-grab active:cursor-grabbing"
-              aria-label="Drag to reorder"
+              aria-label={t("features.dashboard.widgets.dragToReorder")}
             >
               {"\u2630"}
             </span>
@@ -61,7 +63,7 @@ export function WidgetContainer({
           <button
             type="button"
             onClick={onRemove}
-            className="text-muted hover:text-[var(--chart-alert)] text-xs"
+            className="text-muted text-xs hover:text-[var(--chart-alert)]"
             aria-label={`Hide ${title} widget`}
           >
             {"\u2715"}

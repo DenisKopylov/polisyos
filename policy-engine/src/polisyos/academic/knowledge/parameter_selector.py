@@ -1,10 +1,10 @@
 """Public knowledge parameter selector module API."""
+
 from __future__ import annotations
 
-from polisyos.academic.knowledge.skg_query import SKGQuery
+from typing import TYPE_CHECKING
+
 from polisyos.academic.knowledge.skg_store import EVIDENCE_WEIGHTS
-from polisyos.ir.analytics.causal_graph import CausalGraphModel
-from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
     EvidenceStatus,
@@ -18,6 +18,11 @@ from polisyos.ir.analytics.transportability import (
     TransportMode,
     build_selection_diagram,
 )
+
+if TYPE_CHECKING:
+    from polisyos.academic.knowledge.skg_query import SKGQuery
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+    from polisyos.ir.analytics.context import ContextProfile
 
 
 class ParameterSelector:
@@ -111,16 +116,27 @@ class ParameterSelector:
                 parameter.evidence_strength.value,
                 EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value],
             )
-            layer_factor = 1.0 if candidate.source_layer in {"simulation_ready", "simulation"} else 0.72
+            layer_factor = (
+                1.0 if candidate.source_layer in {"simulation_ready", "simulation"} else 0.72
+            )
             uncertainty_factor = 1.0
             if candidate.uncertainty_source == "heuristic":
                 uncertainty_factor = 0.8
             elif parameter.confidence_interval is None and parameter.std_error is None:
                 uncertainty_factor = 0.65
-            score = float(adjusted_confidence) * float(evidence_weight) * layer_factor * uncertainty_factor
+            score = (
+                float(adjusted_confidence)
+                * float(evidence_weight)
+                * layer_factor
+                * uncertainty_factor
+            )
             notes = list(candidate.transport_notes)
             notes.extend(profile_notes)
-            if parameter.confidence_interval is None and parameter.std_error is None and "no_uncertainty" not in notes:
+            if (
+                parameter.confidence_interval is None
+                and parameter.std_error is None
+                and "no_uncertainty" not in notes
+            ):
                 notes.append("no_uncertainty")
             if candidate.source_layer not in {"simulation_ready", "simulation"}:
                 notes.append(f"source_layer:{candidate.source_layer}")
@@ -160,7 +176,9 @@ class ParameterSelector:
         filtered = [item for item in scored if item[1] >= float(min_transport_confidence)]
         if not filtered:
             best_confidence = max(item[1] for item in scored)
-            best_notes = next(item[6] for item in sorted(scored, key=lambda item: item[1], reverse=True))
+            best_notes = next(
+                item[6] for item in sorted(scored, key=lambda item: item[1], reverse=True)
+            )
             return None, self._low_confidence(
                 parameter_name,
                 target_context,
@@ -189,9 +207,7 @@ class ParameterSelector:
             transport_confidence=best_conf,
             context_distance=best_distance,
             is_applicable=True,
-            adjustment_required=(
-                best_mode is not TransportMode.DIRECT or best_penalty > 0.0
-            ),
+            adjustment_required=(best_mode is not TransportMode.DIRECT or best_penalty > 0.0),
             uncertainty_multiplier=uncertainty_multiplier,
             recommended_value=best_parameter.value,
             transport_notes=list(best_notes),

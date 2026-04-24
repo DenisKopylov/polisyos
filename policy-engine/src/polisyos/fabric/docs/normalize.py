@@ -4,17 +4,18 @@ Normalization decodes raw bytes, chooses a MIME-specific text extractor, applies
 newline/whitespace cleanup, persists a normalized text artifact, updates ``DocMeta.normalized_ref``,
 and records a ``NORMALIZE_DOC`` world event.
 """
+
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import asdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Callable
 
-from polisyos.core.backends import BackendDispatcher, BackendNotAvailableError
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.backends import BackendDispatcher, BackendNotAvailableError
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.fabric.world import (
     append_world_segment_index,
@@ -183,7 +184,7 @@ def normalize_doc(
     meta_ref = persist_doc_meta(cas, meta2)
     meta_artifact_id = str(meta_ref.artifact_id)
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     agent = ProvAgent(
         agent_id="prov.agent.fabric_docs",
         agent_type=ProvAgentType.SYSTEM,

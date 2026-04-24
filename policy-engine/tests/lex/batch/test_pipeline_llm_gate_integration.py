@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import hashlib
-from pathlib import Path
+import json
+from typing import TYPE_CHECKING
 
 import duckdb
 
@@ -11,6 +11,9 @@ from polisyos.lex.batch.config import BatchConfig
 from polisyos.lex.batch.pipeline import run_batch_pipeline
 from polisyos.lex.batch.provisions_io import _shard_prefix, write_provisions
 from polisyos.lex.batch.xml_parser import NPACard, NPADocument
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _card(doc_id: str, name: str) -> NPACard:
@@ -32,13 +35,13 @@ def _card(doc_id: str, name: str) -> NPACard:
 
 
 class _FakeGonkaClient:
-    def __init__(self, *args, **kwargs) -> None:  # noqa: ANN002, ANN003
+    def __init__(self, *args, **kwargs) -> None:
         self.model_id = "fake/model"
 
-    async def __aenter__(self) -> "_FakeGonkaClient":
+    async def __aenter__(self) -> _FakeGonkaClient:
         return self
 
-    async def __aexit__(self, *exc) -> None:  # noqa: ANN002
+    async def __aexit__(self, *exc) -> None:
         return None
 
     def set_cache(self, cache: object | None) -> None:
@@ -134,10 +137,9 @@ def _run_pipeline(monkeypatch, tmp_path: Path, *, gate_mode: str) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
     _prepare_provisions(output_dir / "provisions", docs)
 
-    def _iter_documents(*args, **kwargs):  # noqa: ANN002, ANN003
+    def _iter_documents(*args, **kwargs):
         del args, kwargs
-        for doc in docs:
-            yield doc
+        yield from docs
 
     monkeypatch.setattr("polisyos.lex.batch.xml_parser.iter_documents", _iter_documents)
     monkeypatch.setattr("polisyos.lex.batch.spo_extractor.GonkaClient", _FakeGonkaClient)
@@ -168,7 +170,14 @@ def test_pipeline_llm_gate_reduces_llm_calls(monkeypatch, tmp_path: Path) -> Non
     assert llm_sent_balanced < llm_sent_off
 
 
-def _write_single_provision(provisions_dir: Path, doc_id: str, text: str, *, anchor: str = "article:1", citation: str = "Стаття 1") -> None:
+def _write_single_provision(
+    provisions_dir: Path,
+    doc_id: str,
+    text: str,
+    *,
+    anchor: str = "article:1",
+    citation: str = "Стаття 1",
+) -> None:
     text_hash = hashlib.sha256(text.encode()).hexdigest()[:12]
     write_provisions(
         provisions_dir=provisions_dir,
@@ -203,7 +212,16 @@ def _write_single_provision(provisions_dir: Path, doc_id: str, text: str, *, anc
     )
 
 
-def _write_spo_row(spo_dir: Path, doc_id: str, *, subject_en: str, subject_uk: str, object_en: str, object_uk: str, text: str) -> None:
+def _write_spo_row(
+    spo_dir: Path,
+    doc_id: str,
+    *,
+    subject_en: str,
+    subject_uk: str,
+    object_en: str,
+    object_uk: str,
+    text: str,
+) -> None:
     shard_dir = spo_dir / _shard_prefix(doc_id)
     shard_dir.mkdir(parents=True, exist_ok=True)
     with open(shard_dir / f"{doc_id}.jsonl", "w", encoding="utf-8") as fh:
@@ -268,7 +286,9 @@ def _write_reference_hit(references_dir: Path, doc_id: str, target_raw: str) -> 
         )
 
 
-def test_pipeline_resolve_refs_and_graph_integrates_entities_references_and_amendments(monkeypatch, tmp_path: Path) -> None:
+def test_pipeline_resolve_refs_and_graph_integrates_entities_references_and_amendments(
+    monkeypatch, tmp_path: Path
+) -> None:
     docs = [
         NPADocument(
             card=NPACard(
@@ -388,10 +408,9 @@ def test_pipeline_resolve_refs_and_graph_integrates_entities_references_and_amen
         'Закон України "Про базовий акт" від 01.01.2024 № 1234-IX',
     )
 
-    def _iter_documents(*args, **kwargs):  # noqa: ANN002, ANN003
+    def _iter_documents(*args, **kwargs):
         del args, kwargs
-        for doc in docs:
-            yield doc
+        yield from docs
 
     monkeypatch.setattr("polisyos.lex.batch.xml_parser.iter_documents", _iter_documents)
 

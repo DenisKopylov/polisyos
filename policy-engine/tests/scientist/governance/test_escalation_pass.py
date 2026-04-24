@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from polisyos.scientist.governance.passes.escalation_pass import EscalationPass
 
 
@@ -32,9 +30,11 @@ class TestEscalationPass:
         assert any(i.code == "ESCALATION_ACKNOWLEDGE_REQUIRED" for i in issues)
 
     def test_critical_conflicts(self, pass_context_factory):
-        ctx = pass_context_factory(state={
-            "unresolved_conflicts": [{"severity": "critical"}],
-        })
+        ctx = pass_context_factory(
+            state={
+                "unresolved_conflicts": [{"severity": "critical"}],
+            }
+        )
         issues = EscalationPass().validate(ctx)
         assert any(i.code == "ESCALATION_CRITICAL_CONFLICTS" for i in issues)
 

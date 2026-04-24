@@ -5,12 +5,17 @@ at the boundary between real-world observations and synthetic Foundry traces.
 They never advance simulation dynamics; they only adapt loss weights applied
 to already-simulated series inside `Calibrator.run()`.
 """
+
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Mapping, Protocol, Sequence, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
-import jax.numpy as jnp
+try:  # pragma: no cover - preferred in full Foundry runtime environments.
+    import jax.numpy as jnp
+except ImportError:  # pragma: no cover - keeps measurement contracts importable.
+    import numpy as jnp  # type: ignore[no-redef]
 import numpy as np
 from pydantic import Field
 
@@ -155,8 +160,7 @@ class MeasurementAwareLossAdapter(Protocol):
         shock_mask: Any | None,
         identification_mode: Sequence[IdentificationMode] | Any | None,
         config: MeasurementAwareLossConfig,
-    ) -> Mapping[str, Any]:
-        ...
+    ) -> Mapping[str, Any]: ...
 
 
 def _as_1d_array(value: Any, *, dtype: Any) -> jnp.ndarray:
@@ -316,10 +320,10 @@ class DefaultMeasurementAwareLossAdapter:
 
 
 __all__ = [
+    "MEASUREMENT_AWARE_TARGET_CONTRACT",
     "CalibrationTargetBundle",
     "CalibrationTargetBundleManifest",
     "DefaultMeasurementAwareLossAdapter",
-    "MEASUREMENT_AWARE_TARGET_CONTRACT",
     "MeasurementAwareLossAdapter",
     "MeasurementAwareLossConfig",
     "MeasurementAwareTarget",

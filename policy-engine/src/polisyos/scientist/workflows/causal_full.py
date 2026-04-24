@@ -154,6 +154,11 @@ def causal_full_workflow_spec() -> WorkflowSpec:
                 depends_on=["run_simulation"],
             ),
             NodeInvocation(
+                alias="propagate_welfare",
+                node_id="scientist.node_propagate_welfare@1.0.0",
+                depends_on=["run_simulation"],
+            ),
+            NodeInvocation(
                 alias="propagate_uncertainty",
                 node_id="scientist.node_propagate_uncertainty@1.0.0",
                 depends_on=["run_simulation"],
@@ -197,6 +202,7 @@ def causal_full_workflow_spec() -> WorkflowSpec:
                     "run_causal_evaluation",
                     "run_evaluator",
                     "run_metric_validation",
+                    "propagate_welfare",
                 ],
             ),
         ],

@@ -51,9 +51,7 @@ class ConsistencyChecker:
         violations.extend(categorical_violations)
         penalty += categorical_penalty
 
-        pattern_violations, pattern_penalty = self._check_patterns(
-            data_for_set_checks, schema
-        )
+        pattern_violations, pattern_penalty = self._check_patterns(data_for_set_checks, schema)
         violations.extend(pattern_violations)
         penalty += pattern_penalty
 
@@ -103,9 +101,7 @@ class ConsistencyChecker:
                             message=f"{count} values below minimum {min_val}",
                             expected=f">= {min_val}",
                             actual=f"min = {numeric_series.min()}",
-                            sample_values=numeric_series[out_of_bounds]
-                            .head(5)
-                            .tolist(),
+                            sample_values=numeric_series[out_of_bounds].head(5).tolist(),
                         )
                     )
                     penalty += invalid_ratio * SEVERITY_WEIGHTS[severity]
@@ -124,9 +120,7 @@ class ConsistencyChecker:
                             message=f"{count} values above maximum {max_val}",
                             expected=f"<= {max_val}",
                             actual=f"max = {numeric_series.max()}",
-                            sample_values=numeric_series[out_of_bounds]
-                            .head(5)
-                            .tolist(),
+                            sample_values=numeric_series[out_of_bounds].head(5).tolist(),
                         )
                     )
                     penalty += invalid_ratio * SEVERITY_WEIGHTS[severity]
@@ -296,7 +290,7 @@ class ConsistencyChecker:
                     penalty += invalid_ratio * SEVERITY_WEIGHTS[severity]
 
             elif expected_type == SchemaType.BOOLEAN:
-                boolean_values = {True, False, "true", "false", "True", "False", 1, 0}
+                boolean_values = {True, False, "true", "false", "True", "False"}
                 non_boolean = ~series.isin(boolean_values)
 
                 if non_boolean.any():

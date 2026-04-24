@@ -4,13 +4,13 @@
 > профиль, выполните bootstrap, затем `doctor` и `verify`.
 
 !!! info "Validated against current command surface"
-    2026-04-17 на локальном macOS workstation были проверены
-    `uv run polisyos-tools workspace bootstrap --help`,
-    `uv run polisyos-tools workspace doctor --help`,
-    `uv run polisyos-tools workspace verify --help`,
-    `uv run polisyos-tools workspace ci-parity --help`,
-    а также `uv run polisyos-tools workspace doctor --list-surfaces`.
-    Сами install-команды ниже mutating и остаются manual/conceptual steps.
+2026-04-17 на локальном macOS workstation были проверены
+`uv run polisyos-tools workspace bootstrap --help`,
+`uv run polisyos-tools workspace doctor --help`,
+`uv run polisyos-tools workspace verify --help`,
+`uv run polisyos-tools workspace ci-parity --help`,
+а также `uv run polisyos-tools workspace doctor --list-surfaces`.
+Сами install-команды ниже mutating и остаются manual/conceptual steps.
 
 ## Inputs
 
@@ -37,12 +37,12 @@ uv run polisyos-tools workspace verify
 
 ## Канонический выбор профиля
 
-| Профиль | Когда брать | Команда |
-|---|---|---|
-| `minimal` | core Python, lint, быстрые unit/property tests | `uv run polisyos-tools workspace bootstrap --profile minimal --skip-frontend` |
-| `docs` | MkDocs, docs accuracy, docstring quality | `uv run polisyos-tools workspace bootstrap --profile docs --skip-frontend --skip-playwright` |
-| `runtime` | backend/runtime/API work, default path | `uv run polisyos-tools workspace bootstrap --profile runtime` |
-| `research` | causal, Foundry, Scientist heavy workflows | `uv run polisyos-tools workspace bootstrap --profile research --skip-frontend` |
+| Профиль    | Когда брать                                    | Команда                                                                                      |
+| ---------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `minimal`  | core Python, lint, быстрые unit/property tests | `uv run polisyos-tools workspace bootstrap --profile minimal --skip-frontend`                |
+| `docs`     | MkDocs, docs accuracy, docstring quality       | `uv run polisyos-tools workspace bootstrap --profile docs --skip-frontend --skip-playwright` |
+| `runtime`  | backend/runtime/API work, default path         | `uv run polisyos-tools workspace bootstrap --profile runtime`                                |
+| `research` | causal, Foundry, Scientist heavy workflows     | `uv run polisyos-tools workspace bootstrap --profile research --skip-frontend`               |
 
 Если вы не уверены, начинайте с `runtime`.
 
@@ -60,6 +60,7 @@ uv run polisyos-tools workspace verify
 
 - фиксирует поддерживаемый baseline из
   [Environment Matrix](../reference/environment-matrix.md);
+
 - использует `uv` как canonical Python environment manager;
 - проверяет lockfiles, generated-contract surfaces и optional env surfaces;
 - подготавливает backend и, если вы не отключили frontend, dashboard toolchain.
@@ -105,14 +106,14 @@ pip install -e "."
 
 Частые варианты extras:
 
-| Extra | Когда нужен |
-|---|---|
-| `.[core]` | самый узкий source-install |
-| `.[docs]` | MkDocs и docs quality |
-| `.[runtime]` / `.[runtime-http]` | Runtime API и dashboard contract surface |
-| `.[test]` | pytest stack |
-| `.[research]` | causal / Scientist / Foundry heavy workflows |
-| `.[all]` | curated umbrella для широкого локального feature surface |
+| Extra                            | Когда нужен                                              |
+| -------------------------------- | -------------------------------------------------------- |
+| `.[core]`                        | самый узкий source-install                               |
+| `.[docs]`                        | MkDocs и docs quality                                    |
+| `.[runtime]` / `.[runtime-http]` | Runtime API и dashboard contract surface                 |
+| `.[test]`                        | pytest stack                                             |
+| `.[research]`                    | causal / Scientist / Foundry heavy workflows             |
+| `.[all]`                         | curated umbrella для широкого локального feature surface |
 
 Для frontend после manual path все равно нужен npm install:
 

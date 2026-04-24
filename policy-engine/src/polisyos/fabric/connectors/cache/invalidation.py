@@ -1,8 +1,9 @@
 """Cache invalidation strategies and orchestration."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -20,6 +21,7 @@ logger = get_logger(__name__)
 
 class InvalidationStrategy(str, Enum):
     """How connector cache entries are retired or refreshed after a source changes."""
+
     HARD_DELETE = "hard_delete"
     SOFT_MARK = "soft_mark"
     REFRESH_ASYNC = "refresh_async"
@@ -28,6 +30,7 @@ class InvalidationStrategy(str, Enum):
 @dataclass(frozen=True, slots=True)
 class InvalidationEvent:
     """One detected source-side change that should invalidate cached connector payloads."""
+
     trigger_type: str
     dataset_id: str
     timestamp: datetime
@@ -57,7 +60,7 @@ class InvalidationTrigger:
                 return InvalidationEvent(
                     trigger_type="freshness_check",
                     dataset_id=dataset_id,
-                    timestamp=datetime.now(timezone.utc),
+                    timestamp=datetime.now(UTC),
                     reason=freshness.message or "Source reported stale",
                     metadata={
                         "status": freshness.status,
@@ -73,15 +76,16 @@ class InvalidationTrigger:
                 source_mtime = stat.st_mtime
                 source_size = stat.st_size
                 cached_sig = (cached_metadata or {}).get("source_signature")
-                if cached_sig:
-                    if cached_sig.get("mtime") != source_mtime or cached_sig.get("size") != source_size:
-                        return InvalidationEvent(
-                            trigger_type="file_signature",
-                            dataset_id=dataset_id,
-                            timestamp=datetime.now(timezone.utc),
-                            reason="File signature changed",
-                            metadata={"mtime": source_mtime, "size": source_size},
-                        )
+                if cached_sig and (
+                    cached_sig.get("mtime") != source_mtime or cached_sig.get("size") != source_size
+                ):
+                    return InvalidationEvent(
+                        trigger_type="file_signature",
+                        dataset_id=dataset_id,
+                        timestamp=datetime.now(UTC),
+                        reason="File signature changed",
+                        metadata={"mtime": source_mtime, "size": source_size},
+                    )
         except Exception as exc:
             logger.debug("Ignored exception: %s", exc)
 
@@ -164,7 +168,9 @@ class InvalidationOrchestrator:
             try:
                 connector = self._registry.get(connector_id)
             except Exception as exc:
-                logger.warning("Failed to resolve connector", connector_id=connector_id, error=str(exc))
+                logger.warning(
+                    "Failed to resolve connector", connector_id=connector_id, error=str(exc)
+                )
                 continue
 
             cached_meta = self._cache.get_latest_metadata(dataset_id)
@@ -182,10 +188,14 @@ class InvalidationOrchestrator:
                     handle,
                     dataset_id,
                     cached_version,
-                    cached_metadata={"source_signature": cached_signature} if cached_signature else None,
+                    cached_metadata={"source_signature": cached_signature}
+                    if cached_signature
+                    else None,
                 )
             except Exception as exc:
-                logger.warning("Failed to acquire connector", connector_id=connector_id, error=str(exc))
+                logger.warning(
+                    "Failed to acquire connector", connector_id=connector_id, error=str(exc)
+                )
                 continue
             finally:
                 if handle is not None:

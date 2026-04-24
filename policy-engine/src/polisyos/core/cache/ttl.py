@@ -1,12 +1,13 @@
 """Provide a thread-safe TTL cache with optional LRU eviction."""
+
 from __future__ import annotations
 
 import threading
 import time
 from collections import OrderedDict
-from collections.abc import Hashable
+from collections.abc import Callable, Hashable
 from dataclasses import dataclass
-from typing import Callable, Generic, cast
+from typing import Generic, cast
 
 from .protocol import K, T, V
 
@@ -14,6 +15,7 @@ from .protocol import K, T, V
 @dataclass(frozen=True, slots=True)
 class TTLCacheStats:
     """Expose TTL cache hit/miss/eviction/expiration counters."""
+
     hits: int = 0
     misses: int = 0
     evictions: int = 0

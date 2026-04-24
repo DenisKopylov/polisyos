@@ -1,4 +1,5 @@
 """Validate strategic-response evidence, fallback modes, and multiplicity review state."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -55,9 +56,7 @@ class StrategicResponsePass(ValidatorPass):
             return issues
 
         fallback_mode = str(summary.get("fallback_mode") or "").strip().lower()
-        selection_dependence = str(
-            summary.get("equilibrium_selection_dependence") or ""
-        ).strip()
+        selection_dependence = str(summary.get("equilibrium_selection_dependence") or "").strip()
         multiplicity_note = summary.get("multiplicity_note")
         mfg_uniqueness_status = str(summary.get("mfg_uniqueness_status") or "").strip().lower()
         mfg_selection_rule = str(summary.get("mfg_selection_rule") or "").strip().lower()
@@ -74,9 +73,7 @@ class StrategicResponsePass(ValidatorPass):
         mfg_has_mass_conservation = bool(summary.get("mfg_has_mass_conservation"))
         performative_loop = _extract_performative_loop(summary)
         decomposition_status = str(summary.get("decomposition_status") or "").strip().lower()
-        decomposition_failure_code = str(
-            summary.get("decomposition_failure_code") or ""
-        ).strip()
+        decomposition_failure_code = str(summary.get("decomposition_failure_code") or "").strip()
 
         if fallback_mode == "blocked":
             issues.append(
@@ -130,8 +127,7 @@ class StrategicResponsePass(ValidatorPass):
                     pass_id=self.pass_id,
                     path=["strategic_response", "fallback_mode"],
                     message=(
-                        "Strategic response relied on an approximate fallback "
-                        f"({fallback_mode})."
+                        f"Strategic response relied on an approximate fallback ({fallback_mode})."
                     ),
                     severity=IssueSeverity.WARNING,
                     code="STRATEGIC_RESPONSE_APPROXIMATE",
@@ -168,19 +164,16 @@ class StrategicResponsePass(ValidatorPass):
                     ComplianceIssue(
                         pass_id=self.pass_id,
                         path=["strategic_response", "equilibrium_selection_dependence"],
-                        message=(
-                            "Strategic response depends materially on equilibrium selection."
-                        ),
+                        message=("Strategic response depends materially on equilibrium selection."),
                         severity=IssueSeverity.WARNING,
                         code="STRATEGIC_RESPONSE_MULTIPLICITY",
                         suggestion="Escalate for human review if this policy is promoted.",
                     )
                 )
 
-        if (
-            mfg_uniqueness_status
-            and mfg_uniqueness_status != "unique"
-        ) or (mfg_selection_rule and mfg_selection_rule != "none"):
+        if (mfg_uniqueness_status and mfg_uniqueness_status != "unique") or (
+            mfg_selection_rule and mfg_selection_rule != "none"
+        ):
             _append_human_review_items(
                 ctx,
                 [
@@ -218,8 +211,10 @@ class StrategicResponsePass(ValidatorPass):
                     ),
                 )
             )
-        elif has_mfg_numerics_metadata and mfg_uniqueness_status and (
-            not mfg_has_solver_residual or not mfg_has_mass_conservation
+        elif (
+            has_mfg_numerics_metadata
+            and mfg_uniqueness_status
+            and (not mfg_has_solver_residual or not mfg_has_mass_conservation)
         ):
             issues.append(
                 ComplianceIssue(
@@ -249,7 +244,8 @@ class StrategicResponsePass(ValidatorPass):
                         ComplianceIssue(
                             pass_id=self.pass_id,
                             path=["strategic_response", "performative_loop", "stability_status"],
-                            message=loop_summary or "Performative auto-iteration is certified unstable.",
+                            message=loop_summary
+                            or "Performative auto-iteration is certified unstable.",
                             severity=IssueSeverity.BLOCKER,
                             code="PERFORMATIVE_LOOP_UNSTABLE",
                             suggestion="Disable automatic retraining or switch the deployment to single-shot mode.",
@@ -360,8 +356,8 @@ def _bundle_summary(store: Any, bundle: StrategicResponseBundle) -> dict[str, An
         "decomposition_semantics": bundle.decomposition_semantics.value,
     }
     if bundle.decomposition_failure_card_ref is not None:
-        summary["decomposition_failure_card_ref"] = bundle.decomposition_failure_card_ref.model_dump(
-            mode="json"
+        summary["decomposition_failure_card_ref"] = (
+            bundle.decomposition_failure_card_ref.model_dump(mode="json")
         )
     if bundle.metadata:
         closure_summary = bundle.metadata.get("closure_summary")

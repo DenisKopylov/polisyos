@@ -1,4 +1,5 @@
 """Define persisted causal query requests and their Monte-Carlo result payloads."""
+
 from __future__ import annotations
 
 import math
@@ -73,7 +74,7 @@ class InterventionSpec(BaseModel):
         return (lo, hi)
 
     @model_validator(mode="after")
-    def _validate_payload(self) -> "InterventionSpec":
+    def _validate_payload(self) -> InterventionSpec:
         if self.type is InterventionType.TRUNCATED:
             if self.bounds is None:
                 raise ValueError("bounds are required for truncated interventions")
@@ -141,7 +142,7 @@ class CausalQuery(BaseModel):
         return normalized
 
     @model_validator(mode="after")
-    def _validate_semantics(self) -> "CausalQuery":
+    def _validate_semantics(self) -> CausalQuery:
         if self.query_type is QueryType.COUNTERFACTUAL and not self.condition:
             raise ValueError("counterfactual queries require non-empty condition")
 
@@ -222,7 +223,7 @@ class CausalQueryResult(BaseModel):
         return normalized
 
     @model_validator(mode="after")
-    def _validate_result(self) -> "CausalQueryResult":
+    def _validate_result(self) -> CausalQueryResult:
         lo, hi = self.result_ci
         if lo > hi:
             raise ValueError("result_ci lower cannot exceed upper")
@@ -293,12 +294,12 @@ def load_causal_query_result(
 
 
 __all__ = [
-    "QueryType",
-    "InterventionType",
-    "InterventionSpec",
     "CausalInterventionSpec",
     "CausalQuery",
     "CausalQueryResult",
-    "persist_causal_query_result",
+    "InterventionSpec",
+    "InterventionType",
+    "QueryType",
     "load_causal_query_result",
+    "persist_causal_query_result",
 ]

@@ -19,12 +19,10 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
 )
 
-from ._artifacts_chain import CHAIN_ID_NAMESPACE, ChainArtifact
+from ._artifacts_chain import ChainArtifact
 from ._artifacts_evidence import ExecutionEvidence, _to_artifact_id
 from ._artifacts_fingerprint import (
     ARTIFACTS_VERSION,
-    HASH_TRUNCATE_LENGTH,
-    SOURCE_UNAVAILABLE,
     SourceFingerprint,
     compute_source_fingerprint,
     compute_source_hash,
@@ -40,24 +38,24 @@ logger = get_logger(__name__)
 
 
 __all__ = [
-    "MethodArtifact",
     "ChainArtifact",
-    "ExecutionEvidence",
-    "SlotBindingRecord",
-    "MethodTiming",
-    "DeviceInfo",
     "ChainNodeRecord",
+    "DeviceInfo",
+    "ExecutionEvidence",
+    "MethodArtifact",
+    "MethodTiming",
+    "SlotBindingRecord",
     "SourceFingerprint",
-    "compute_source_hash",
     "compute_source_fingerprint",
-    "store_method_artifact",
+    "compute_source_hash",
     "store_chain_artifact",
     "store_execution_evidence",
+    "store_method_artifact",
 ]
 
 
 def store_method_artifact(
-    cas: "FileSystemCAS",
+    cas: FileSystemCAS,
     artifact: MethodArtifact,
 ) -> ArtifactRef:
     """Persist one `MethodArtifact` describing code identity and specialization."""
@@ -82,7 +80,7 @@ def store_method_artifact(
 
 
 def store_chain_artifact(
-    cas: "FileSystemCAS",
+    cas: FileSystemCAS,
     artifact: ChainArtifact,
 ) -> ArtifactRef:
     """Persist a `ChainArtifact` and link it to its component method artifacts."""
@@ -112,7 +110,7 @@ def store_chain_artifact(
 
 
 def store_execution_evidence(
-    cas: "FileSystemCAS",
+    cas: FileSystemCAS,
     evidence: ExecutionEvidence,
 ) -> ArtifactRef:
     """Persist an `ExecutionEvidence` receipt linked to chain/input/output refs."""
@@ -131,9 +129,7 @@ def store_execution_evidence(
             InputRef(artifact_id=_to_artifact_id(evidence.params_artifact_id), role="params")
         )
     if evidence.rng_artifact_id:
-        inputs.append(
-            InputRef(artifact_id=_to_artifact_id(evidence.rng_artifact_id), role="rng")
-        )
+        inputs.append(InputRef(artifact_id=_to_artifact_id(evidence.rng_artifact_id), role="rng"))
 
     return cas.put_bytes(
         content,

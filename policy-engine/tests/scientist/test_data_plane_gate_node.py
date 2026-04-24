@@ -167,8 +167,7 @@ def test_data_plane_gate_records_degraded_event_for_invalid_quality_report(tmp_p
 
     assert outcome.status == "ok"
     degraded = [
-        event for event in outcome.events
-        if event.code == "data_plane_gate.quality_report_degraded"
+        event for event in outcome.events if event.code == "data_plane_gate.quality_report_degraded"
     ]
     assert degraded
     assert degraded[0].attrs["reason"] == "quality_report_load_failed"

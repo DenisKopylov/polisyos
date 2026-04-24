@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { Slider } from "@/shared/ui/Slider";
 import {
   Tooltip,
@@ -53,6 +54,7 @@ export function ParameterSlider({
   onChange,
   className,
 }: ParameterSliderProps) {
+  const { t } = useI18n();
   const step = spec.step ?? (spec.max - spec.min) / 100;
   const pct = ((value - spec.min) / (spec.max - spec.min || 1)) * 100;
   const isDefault = value === spec.defaultValue;
@@ -72,10 +74,10 @@ export function ParameterSlider({
 
   const sensitivityLabel =
     spec.sensitivityPriority >= 0.7
-      ? "High sensitivity"
+      ? t("whatIf.sensitivityZone.high")
       : spec.sensitivityPriority >= 0.4
-        ? "Medium sensitivity"
-        : "Low sensitivity";
+        ? t("whatIf.sensitivityZone.medium")
+        : t("whatIf.sensitivityZone.low");
 
   return (
     <div className={cn("space-y-2", className)}>
@@ -87,7 +89,9 @@ export function ParameterSlider({
             <TooltipProvider delayDuration={200}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className="text-muted cursor-help text-xs">{"\u24D8"}</span>
+                  <span className="text-muted cursor-help text-xs">
+                    {"\u24D8"}
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-60">
                   <p className="text-xs">{spec.description}</p>
@@ -122,9 +126,9 @@ export function ParameterSlider({
               type="button"
               onClick={handleReset}
               className="text-muted text-xs underline decoration-dotted underline-offset-2 hover:text-inherit"
-              aria-label="Reset to default"
+              aria-label={t("whatIf.resetToDefault")}
             >
-              reset
+              {t("whatIf.parameterSlider.reset")}
             </button>
           )}
         </div>
@@ -149,8 +153,9 @@ export function ParameterSlider({
         </span>
         {!isDefault && (
           <span className="text-muted/50">
-            default: {spec.defaultValue}
-            {spec.unit ?? ""}
+            {t("whatIf.parameterSlider.defaultValue", {
+              value: `${spec.defaultValue}${spec.unit ?? ""}`,
+            })}
           </span>
         )}
         <span>

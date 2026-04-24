@@ -23,7 +23,6 @@ from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
     EstimationStrategy,
     classify_estimand,
     compile_estimand,
-    compile_to_method_dag_nodes,
     recommend_estimator,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
@@ -98,7 +97,9 @@ def test_well_posedness_detects_multiple_fixed_points() -> None:
 def test_cyclic_algorithm_identifies_well_posed_feedback_loop() -> None:
     graph = _cyclic_graph(
         [("X", "A"), ("A", "B"), ("B", "A"), ("Y", "B")],
-        metadata={"well_posedness_spec": {"linear_system_matrix": np.array([[0.1, 0.1], [0.1, 0.1]])}},
+        metadata={
+            "well_posedness_spec": {"linear_system_matrix": np.array([[0.1, 0.1], [0.1, 0.1]])}
+        },
     )
     result = cyclic_id_algorithm(frozenset({"X"}), frozenset({"Y"}), graph)
     assert result.status.name == "IDENTIFIED"
@@ -115,7 +116,9 @@ def test_cyclic_algorithm_identifies_well_posed_feedback_loop() -> None:
 def test_engine_routes_supported_cycle_to_validated_dynamic_reduction() -> None:
     graph = _cyclic_graph(
         [("X", "A"), ("A", "B"), ("B", "A"), ("Y", "B")],
-        metadata={"well_posedness_spec": {"linear_system_matrix": np.array([[0.1, 0.1], [0.1, 0.1]])}},
+        metadata={
+            "well_posedness_spec": {"linear_system_matrix": np.array([[0.1, 0.1], [0.1, 0.1]])}
+        },
     )
     engine = CausalEngine(registry=None, knowledge_base=None)
     result = engine.identify("X", "Y", graph)
@@ -145,7 +148,10 @@ def test_cyclic_algorithm_returns_oracle_needed_when_validated_reduction_is_unav
     assert result.algorithm_version == "cyclic_id_scoped_v1"
     assert result.metadata["dynamic_semantics"]["reduction_status"] == "blocked"
     assert result.metadata["frontier_sketch"]["stage_id"] == "4.4"
-    assert result.metadata["frontier_sketch"]["typed_integration_target"] == "ProofBundle.dynamic_semantics"
+    assert (
+        result.metadata["frontier_sketch"]["typed_integration_target"]
+        == "ProofBundle.dynamic_semantics"
+    )
 
 
 def test_compiler_classifies_cyclic_marker() -> None:
@@ -165,7 +171,11 @@ def test_compiler_classifies_cyclic_marker() -> None:
 def test_cyclic_algorithm_returns_negative_certificate_when_not_well_posed() -> None:
     graph = _cyclic_graph(
         [("A", "B"), ("B", "A")],
-        metadata={"well_posedness_spec": {"update_fn": lambda x: float(np.tanh(2.0 * float(np.asarray(x).reshape(-1)[0])))}},
+        metadata={
+            "well_posedness_spec": {
+                "update_fn": lambda x: float(np.tanh(2.0 * float(np.asarray(x).reshape(-1)[0])))
+            }
+        },
     )
     engine = CausalEngine(registry=None, knowledge_base=None)
     result = engine.identify("A", "B", graph)

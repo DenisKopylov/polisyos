@@ -136,8 +136,13 @@ def main(argv: list[str] | None = None) -> int:
         "suite_id": SUITE_ID,
         "status": "pass",
         "metrics": {
-            "peer_identified": 1.0 if peer_effect and peer_effect.diagnostics.identification_status == "identified" else 0.0,
-            "formation_event_history_used": 1.0 if formation_result.formation_diagnostic and formation_result.formation_diagnostic.event_history_used else 0.0,
+            "peer_identified": 1.0
+            if peer_effect and peer_effect.diagnostics.identification_status == "identified"
+            else 0.0,
+            "formation_event_history_used": 1.0
+            if formation_result.formation_diagnostic
+            and formation_result.formation_diagnostic.event_history_used
+            else 0.0,
             "missingness_edge_count": float(missingness.estimands["edge_count"].estimate or 0.0),
             "embedding_status_green": 1.0 if embedding_certificate["status"] == "green" else 0.0,
         },

@@ -1,25 +1,46 @@
 import {
   createContext,
   type PropsWithChildren,
+  type ReactNode,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from "react";
 
+import {
+  formatIcuMessage,
+  formatIcuRichMessage,
+  type MessageValues,
+} from "./icu-messages";
 import type { Locale } from "./locale";
 import { persistLocale, resolveLocale } from "./locale";
-import en from "./messages/en";
-import uk from "./messages/uk";
+import en from "./locales/en.json";
+import ru from "./locales/ru.json";
+import uk from "./locales/uk.json";
+import {
+  applyLocaleTypography,
+  applyTypographyToReactNode,
+  type LocaleTypographyOptions,
+} from "./typography/typography";
 
-const catalogs = { en, uk } as const;
+const catalogs = { en, uk, ru } as const;
 
 type LabelMapName = keyof typeof en.labels;
 
 type I18nContextValue = {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (path: string, vars?: Record<string, string | number>) => string;
+  t: (
+    path: string,
+    vars?: MessageValues,
+    options?: LocaleTypographyOptions,
+  ) => string;
+  rich: (
+    path: string,
+    vars?: Record<string, unknown>,
+    options?: LocaleTypographyOptions,
+  ) => ReactNode;
   label: (
     mapName: LabelMapName,
     value: string | null | undefined,
@@ -49,19 +70,6 @@ function readPathValue(source: unknown, path: string): string | null {
   return typeof current === "string" ? current : null;
 }
 
-function interpolate(
-  template: string,
-  vars?: Record<string, string | number>,
-): string {
-  if (!vars) {
-    return template;
-  }
-  return Object.entries(vars).reduce(
-    (result, [key, value]) => result.split(`{{${key}}}`).join(String(value)),
-    template,
-  );
-}
-
 function createI18nContextValue(
   locale: Locale,
   setLocale: (locale: Locale) => void,
@@ -71,12 +79,27 @@ function createI18nContextValue(
   return {
     locale,
     setLocale,
-    t: (path, vars) => {
+    t: (path, vars, options) => {
       const translated =
         readPathValue(catalog, path) ??
         readPathValue(catalogs.en, path) ??
         path;
-      return interpolate(translated, vars);
+      return applyLocaleTypography(
+        formatIcuMessage(translated, locale, vars),
+        locale,
+        options,
+      );
+    },
+    rich: (path, vars, options) => {
+      const translated =
+        readPathValue(catalog, path) ??
+        readPathValue(catalogs.en, path) ??
+        path;
+      return applyTypographyToReactNode(
+        formatIcuRichMessage(translated, locale, vars) as ReactNode,
+        locale,
+        options,
+      );
     },
     label: (mapName, value, fallback) => {
       if (!value) {
@@ -86,9 +109,9 @@ function createI18nContextValue(
         readPathValue(catalog.labels[mapName], value) ??
         readPathValue(catalogs.en.labels[mapName], value);
       if (direct) {
-        return direct;
+        return applyLocaleTypography(direct, locale);
       }
-      return fallback ?? humanize(value);
+      return applyLocaleTypography(fallback ?? humanize(value), locale);
     },
   };
 }

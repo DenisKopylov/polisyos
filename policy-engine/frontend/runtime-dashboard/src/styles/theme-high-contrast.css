@@ -1,0 +1,146 @@
+@layer base {
+  :root[data-contrast="high"],
+  :root[data-contrast="more"],
+  :root[data-theme="high-contrast"] {
+    --focus-ring: Highlight;
+    --line: CanvasText;
+    --ink: CanvasText;
+    --paper: Canvas;
+    --sand: Canvas;
+    --canvas: Canvas;
+    --panel: Canvas;
+    --panel-strong: Canvas;
+    --surface: Canvas;
+    --text: CanvasText;
+    --muted: CanvasText;
+    --accent: Highlight;
+    --success: Highlight;
+    --warning: Highlight;
+    --danger: LinkText;
+    --chart-grid: GrayText;
+    --chart-axis: CanvasText;
+    --chart-primary: Highlight;
+    --chart-secondary: Highlight;
+    --chart-tertiary: CanvasText;
+    --chart-success: Highlight;
+    --chart-alert: LinkText;
+    --chart-warning: Highlight;
+    --panel-border-color: ButtonBorder;
+    --chip-border-color: ButtonBorder;
+    --chip-bg: Canvas;
+    --chip-ink: CanvasText;
+    --ghost-bg: Canvas;
+    --ghost-bg-hover: Canvas;
+    --ghost-border-color: ButtonBorder;
+    --status-ok-bg: Canvas;
+    --status-warn-bg: Canvas;
+    --status-warn-fg: CanvasText;
+    --status-fail-bg: Canvas;
+    --status-neutral-bg: Canvas;
+    --status-neutral-fg: CanvasText;
+    --metric-bg: Canvas;
+    --metric-border-color: ButtonBorder;
+    --metric-label-color: CanvasText;
+    --input-bg: Canvas;
+    --input-border-color: ButtonBorder;
+    --input-rim-light: none;
+    --deck-card-bg: Canvas;
+    --deck-card-border-color: ButtonBorder;
+    --deck-card-label-color: CanvasText;
+    --shell-border: ButtonBorder;
+    --shell-glass-base: Canvas;
+    --shell-glass-end: Canvas;
+    --shell-glass-start: Canvas;
+    --page-gradient-start: Canvas;
+    --page-gradient-mid: Canvas;
+    --page-gradient-end: Canvas;
+    --page-glow-teal: transparent;
+    --page-glow-ember: transparent;
+    --rim-light-color: CanvasText;
+    --rim-light: none;
+    --rail-surface: Canvas;
+    --rail-surface-start: Canvas;
+    --rail-surface-end: Canvas;
+    --rail-ink: CanvasText;
+    --rail-muted-ink: CanvasText;
+    --rail-link: CanvasText;
+    --rail-active-bg: Canvas;
+    --rail-hover-bg: Canvas;
+    --rail-active-ink: CanvasText;
+    --rail-border: ButtonBorder;
+    --rail-card-bg: Canvas;
+    --rail-card-border: ButtonBorder;
+  }
+
+  :root[data-contrast="high"] .atlas-shell,
+  :root[data-contrast="more"] .atlas-shell,
+  :root[data-theme="high-contrast"] .atlas-shell,
+  :root[data-contrast="high"] .side-rail,
+  :root[data-contrast="more"] .side-rail,
+  :root[data-theme="high-contrast"] .side-rail {
+    backdrop-filter: none;
+  }
+}
+
+@media (forced-colors: active) {
+  :root {
+    --focus-ring: Highlight;
+    --line: ButtonBorder;
+    --ink: CanvasText;
+    --paper: Canvas;
+    --sand: Canvas;
+    --canvas: Canvas;
+    --teal: Highlight;
+    --ember: LinkText;
+    --gold: Highlight;
+    --panel: Canvas;
+    --panel-strong: Canvas;
+    --surface: Canvas;
+    --text: CanvasText;
+    --muted: CanvasText;
+    --accent: Highlight;
+    --success: Highlight;
+    --warning: Highlight;
+    --danger: LinkText;
+    --panel-border-color: ButtonBorder;
+    --chip-border-color: ButtonBorder;
+    --ghost-bg: Canvas;
+    --ghost-bg-hover: Canvas;
+    --ghost-border-color: ButtonBorder;
+    --metric-bg: Canvas;
+    --metric-border-color: ButtonBorder;
+    --input-bg: Canvas;
+    --input-border-color: ButtonBorder;
+    --deck-card-bg: Canvas;
+    --deck-card-border-color: ButtonBorder;
+    --shell-border: ButtonBorder;
+    --shell-glass-base: Canvas;
+    --shell-glass-end: Canvas;
+    --shell-glass-start: Canvas;
+    --rim-light: none;
+    --rail-surface: Canvas;
+    --rail-surface-start: Canvas;
+    --rail-surface-end: Canvas;
+    --rail-ink: CanvasText;
+    --rail-muted-ink: CanvasText;
+    --rail-link: CanvasText;
+    --rail-active-bg: Canvas;
+    --rail-hover-bg: Canvas;
+    --rail-active-ink: CanvasText;
+    --rail-border: ButtonBorder;
+    --rail-card-bg: Canvas;
+    --rail-card-border: ButtonBorder;
+  }
+
+  .atlas-shell {
+    border: 2px solid ButtonBorder;
+    background: Canvas;
+    backdrop-filter: none;
+  }
+
+  .side-rail {
+    background: Canvas;
+    color: CanvasText;
+    border-inline-end: 1px solid ButtonBorder;
+  }
+}

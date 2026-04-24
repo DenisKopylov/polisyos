@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import json
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
@@ -32,7 +32,7 @@ class MissingnessKind(str, Enum):
     """Missingness mechanism classification."""
 
     MCAR = "mcar"  # Missing Completely at Random: R_X ⊥⊥ (X, V\X)
-    MAR = "mar"    # Missing at Random: R_X ⊥⊥ X | observed vars
+    MAR = "mar"  # Missing at Random: R_X ⊥⊥ X | observed vars
     MNAR = "mnar"  # Missing Not at Random: R_X depends on X itself
 
 
@@ -97,7 +97,7 @@ class MGraphMetadata(BaseModel):
     """Subset of substantive_vars that have no R-node (always observed)."""
 
     @model_validator(mode="after")
-    def _validate_consistency(self) -> "MGraphMetadata":
+    def _validate_consistency(self) -> MGraphMetadata:
         r_targets = {rn.target_variable for rn in self.r_nodes}
         p_targets = {pn.target_variable for pn in self.proxy_nodes}
         if r_targets != p_targets:
@@ -109,14 +109,10 @@ class MGraphMetadata(BaseModel):
         subst_set = set(self.substantive_vars)
         for v in r_targets:
             if v not in subst_set:
-                raise ValueError(
-                    f"R-node target '{v}' not listed in substantive_vars"
-                )
+                raise ValueError(f"R-node target '{v}' not listed in substantive_vars")
         for v in self.fully_observed_vars:
             if v not in subst_set:
-                raise ValueError(
-                    f"fully_observed_var '{v}' not listed in substantive_vars"
-                )
+                raise ValueError(f"fully_observed_var '{v}' not listed in substantive_vars")
         return self
 
 
@@ -125,7 +121,7 @@ class MGraphMetadata(BaseModel):
 # ---------------------------------------------------------------------------
 
 
-def extract_mgraph_metadata(graph: "CausalGraphModel") -> MGraphMetadata:
+def extract_mgraph_metadata(graph: CausalGraphModel) -> MGraphMetadata:
     """Extract MGraphMetadata from ``graph.metadata["mgraph"]``.
 
     Raises ValueError if the key is absent or the graph_type is not MGRAPH.
@@ -155,10 +151,10 @@ def build_mgraph(
     missingness_map: dict[str, MissingnessKind] | None = None,
     fully_observed: list[str] | None = None,
     missingness_edges: list[tuple[str, str]] | None = None,
-    base_graph: "CausalGraphModel | None" = None,
+    base_graph: CausalGraphModel | None = None,
     missing_variables: dict[str, MissingnessKind] | None = None,
     discovery_method: str = "manual",
-) -> "CausalGraphModel":
+) -> CausalGraphModel:
     """Construct a well-formed CausalGraphModel with graph_type=MGRAPH.
 
     For each variable X in *missingness_map*:
@@ -210,7 +206,8 @@ def build_mgraph(
     if base_graph is not None:
         if substantive_vars is None:
             substantive_vars = [
-                node for node in base_graph.nodes
+                node
+                for node in base_graph.nodes
                 if not node.startswith("R_") and not node.endswith("_star")
             ]
         if discovery_method == "manual" and getattr(base_graph, "discovery_method", None):
@@ -232,9 +229,7 @@ def build_mgraph(
     # Validate inputs
     for v in missingness_map:
         if v not in subst_set:
-            raise ValueError(
-                f"missingness_map key '{v}' not in substantive_vars"
-            )
+            raise ValueError(f"missingness_map key '{v}' not in substantive_vars")
 
     substantive_directed: list[tuple[str, str]] = []
     for src, dst in directed_edges:
@@ -246,9 +241,7 @@ def build_mgraph(
     normalised_missingness_edges: list[tuple[str, str]] = []
     for src, dst in missingness_edges:
         if not dst.startswith("R_"):
-            raise ValueError(
-                f"missingness edge must target an R-node, got ({src!r}, {dst!r})"
-            )
+            raise ValueError(f"missingness edge must target an R-node, got ({src!r}, {dst!r})")
         target_var = dst[2:]
         if target_var not in subst_set:
             raise ValueError(
@@ -282,9 +275,7 @@ def build_mgraph(
 
     # Bidirected (confounding) edges
     for u, v in bidirected_edges:
-        all_edges.append(
-            CausalEdge(src=u, dst=v, mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW)
-        )
+        all_edges.append(CausalEdge(src=u, dst=v, mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW))
 
     # Missingness mechanism edges
     for v, kind in missingness_map.items():
@@ -321,10 +312,10 @@ def build_mgraph(
 
 
 __all__ = [
-    "MissingnessKind",
-    "RNode",
-    "ProxyNode",
     "MGraphMetadata",
-    "extract_mgraph_metadata",
+    "MissingnessKind",
+    "ProxyNode",
+    "RNode",
     "build_mgraph",
+    "extract_mgraph_metadata",
 ]

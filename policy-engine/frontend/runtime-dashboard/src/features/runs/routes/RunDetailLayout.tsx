@@ -7,6 +7,7 @@ import { getRunReviewTabPermission } from "@/app/authz/permissions";
 import { useTelemetryReadyMark } from "@/app/providers/TelemetryProvider";
 import { PrefetchButton } from "@/app/routes/PrefetchButton";
 import { PrefetchNavLink } from "@/app/routes/PrefetchNavLink";
+import { buildArtifactHref } from "@/features/artifacts";
 import {
   RunInspectorProvider,
   useRunInspector,
@@ -39,6 +40,12 @@ import {
   DetailLayout,
   ProvenanceStrip,
 } from "@/shared/ui";
+import {
+  AuthoredText,
+  AuthorshipTimeline,
+  useAuthorship,
+} from "@/shared/ui/authored-text";
+import { UncertaintyBand, type IdentifiabilityState } from "@/shared/charts";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
 
 function badgeKind(kind: ReturnType<typeof getRunBadgeKind>) {
@@ -93,7 +100,11 @@ function RunBootstrapState({ runId }: { runId: string }) {
 
   return (
     <div className="space-y-5" data-testid="run-detail-page">
-      <Card className="space-y-4">
+      <Card
+        className="space-y-4"
+        data-authored-exempt="true"
+        data-authored-exempt-reason="Run bootstrap copy is structural route chrome, not decision-packet prose."
+      >
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-muted text-xs font-semibold tracking-[0.24em] uppercase">
@@ -144,6 +155,37 @@ function RunInspectorContent() {
     () => buildRunReportSnapshot(summary, []),
     [summary],
   );
+  const primaryUncertaintyMetric = useMemo(() => {
+    const metric = summary.decisionView?.keyMetrics.find(
+      (candidate) =>
+        typeof candidate.ciLower === "number" &&
+        typeof candidate.ciUpper === "number",
+    );
+    if (
+      !metric ||
+      typeof metric.ciLower !== "number" ||
+      typeof metric.ciUpper !== "number"
+    ) {
+      return null;
+    }
+    return {
+      bands: [
+        {
+          level: metric.ciLevel ?? 0.95,
+          lower: metric.ciLower,
+          upper: metric.ciUpper,
+        },
+      ],
+      disputed: Boolean(metric.assumptionWarnings?.length),
+      estimate: metric.value,
+      identifiability: metric.assumptionWarnings?.length
+        ? ("estimated" as IdentifiabilityState)
+        : ("identified" as IdentifiabilityState),
+      label: metric.name,
+      level: metric.ciLevel ?? 0.95,
+      unit: metric.unit,
+    };
+  }, [summary.decisionView?.keyMetrics]);
   const deckSnapshot = useMemo(
     () => buildRunDeckSnapshot(summary, decisionPacket),
     [decisionPacket, summary],
@@ -157,6 +199,27 @@ function RunInspectorContent() {
   const legacySearch = parseRunDetailLegacySearchParams(location.search);
   const canOpenEvidence = authz ? authz.can("evidence.view") : true;
   const canLaunchRuns = authz ? authz.can("runs.launch") : true;
+  const { highlightMode } = useAuthorship();
+  const readingViewHref = useMemo(() => {
+    if (!summary.primaryDecisionArtifactId) {
+      return null;
+    }
+    const decisionPacketId = summary.pipeline?.decision_packet_ref?.artifact_id;
+    const isDecisionPacket =
+      decisionPacketId === summary.primaryDecisionArtifactId ||
+      summary.decisionArtifact?.kind === "scientist.decision_packet";
+    if (!isDecisionPacket) {
+      return null;
+    }
+    return buildArtifactHref(summary.primaryDecisionArtifactId, {
+      tab: "content",
+      view: "reading",
+    });
+  }, [
+    summary.decisionArtifact?.kind,
+    summary.pipeline?.decision_packet_ref?.artifact_id,
+    summary.primaryDecisionArtifactId,
+  ]);
 
   const activeTab =
     tabs.find((tab) => location.pathname.endsWith(`/${tab.key}`))?.key ??
@@ -213,6 +276,16 @@ function RunInspectorContent() {
 
   const run = summary.run;
   const pipelineState = summary.pipeline?.iteration_lifecycle?.state ?? null;
+  const decisionPacketTimestamp =
+    summary.decisionView?.generatedAt ??
+    run.finished_at ??
+    run.started_at ??
+    undefined;
+  const strongestEvidenceHref = buildEvidenceHref({
+    artifactId: summary.primaryDecisionArtifactId ?? undefined,
+    focus: summary.primaryDecisionArtifactId ? "artifact" : "overview",
+    runId,
+  });
 
   return (
     <div className="space-y-5" data-testid="run-detail-page">
@@ -222,6 +295,8 @@ function RunInspectorContent() {
             data-testid="run-detail-summary"
             className="border-line bg-panel rounded-[28px] border p-5"
             aria-label={t("pages.runs.detailTitle", { runId })}
+            data-authored-exempt="true"
+            data-authored-exempt-reason="Run summary rail labels are structural inspector chrome, not authored prose."
           >
             <RunBreadcrumbs runId={runId} />
             <p className="eyebrow mt-4">{t("pages.runs.decisionArtifact")}</p>
@@ -294,7 +369,11 @@ function RunInspectorContent() {
         }
         content={
           <div className="space-y-5">
-            <Card className="space-y-4">
+            <Card
+              className="space-y-4"
+              data-authored-exempt="true"
+              data-authored-exempt-reason="Run detail header and metrics are structural inspector chrome, not authored prose."
+            >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <ProvenanceStrip
@@ -349,6 +428,16 @@ function RunInspectorContent() {
                   >
                     {t("pages.runs.openDeck")}
                   </PrefetchButton>
+                  {readingViewHref ? (
+                    <PrefetchButton
+                      to={readingViewHref}
+                      data-testid="run-reading-view-link"
+                      prefetch="intent"
+                      variant="ghost"
+                    >
+                      {t("common.readingView")}
+                    </PrefetchButton>
+                  ) : null}
                   {summary.pipeline?.preflight?.ready_to_run === false ||
                   summary.pipeline?.evaluator?.verdict?.startsWith("REPLAN") ? (
                     canLaunchRuns ? (
@@ -433,112 +522,210 @@ function RunInspectorContent() {
               </div>
             </Card>
 
-            <Card className="space-y-4" data-testid="run-decision-packet">
-              <div className="panel-header">
-                <div>
-                  <p className="eyebrow">
-                    {t("pages.runs.decisionPacketTitle")}
-                  </p>
-                  <h3>{t("pages.runs.decisionPacketHeading")}</h3>
-                </div>
-                <Badge kind="neutral">{decisionPacket.transportStatus}</Badge>
-              </div>
-
-              <div className="grid gap-3 md:grid-cols-3">
-                <MetricCard
-                  label={t("pages.runs.verdictLabel")}
-                  value={
-                    label(
-                      "evaluatorVerdicts",
-                      decisionPacket.primaryVerdict,
-                      decisionPacket.primaryVerdict ?? t("common.unknown"),
-                    ) ?? t("common.unknown")
-                  }
-                  meta={decisionPacket.decisionHeadline}
-                />
-                <MetricCard
-                  label={t("pages.runs.confidenceLabel")}
-                  value={
-                    decisionPacket.decisionConfidence ?? t("common.unknown")
-                  }
-                  meta={t("pages.runs.report.decisionScore")}
-                />
-                <MetricCard
-                  label={t("pages.runs.blockerStateLabel")}
-                  value={formatNumber(decisionPacket.blockerCount)}
-                  meta={t("pages.runs.governance")}
-                />
-              </div>
-
-              <div className="grid gap-3 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.95fr)_minmax(0,0.95fr)]">
-                <section className="bg-surface/80 border-line rounded-2xl border p-4">
-                  <p className="eyebrow">{t("pages.runs.impactDeltasTitle")}</p>
-                  <div className="mt-4 space-y-3">
-                    {decisionPacket.impactRows.length > 0 ? (
-                      decisionPacket.impactRows.slice(0, 4).map((row) => (
-                        <div
-                          key={row.label}
-                          className="flex items-center justify-between gap-3"
-                        >
-                          <span className="text-sm font-semibold">
-                            {row.label}
-                          </span>
-                          <span className="text-muted font-mono text-sm">
-                            {row.display}
-                          </span>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-muted text-sm">
-                        {t("pages.runs.impactDeltasEmpty")}
-                      </p>
-                    )}
-                  </div>
-                </section>
-
-                <section className="bg-surface/80 border-line rounded-2xl border p-4">
-                  <p className="eyebrow">
-                    {t("pages.runs.strongestEvidenceTitle")}
-                  </p>
-                  <strong className="mt-4 block text-base">
-                    {decisionPacket.strongestEvidence.title}
-                  </strong>
-                  <p className="text-muted mt-3 text-sm leading-6">
-                    {decisionPacket.strongestEvidence.body}
-                  </p>
-                  <Badge kind="neutral" className="mt-4">
-                    {decisionPacket.strongestEvidence.provenance}
-                  </Badge>
-                </section>
-
-                <section className="bg-surface/80 border-line rounded-2xl border p-4">
-                  <p className="eyebrow">{t("pages.runs.uncertaintyTitle")}</p>
-                  <p className="mt-4 text-sm leading-6 font-semibold">
-                    {decisionPacket.mainUncertainty}
-                  </p>
-                </section>
-              </div>
-
-              <section className="bg-surface/80 border-line rounded-2xl border p-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
+            <div
+              className={cn(
+                "gap-4",
+                highlightMode === "prominent" &&
+                  "xl:grid xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start",
+              )}
+            >
+              <Card
+                className="space-y-4"
+                data-testid="run-decision-packet"
+                data-authored-exempt="true"
+                data-authored-exempt-reason="Decision-packet surface headings and metric labels are structural chrome; narrative bodies are explicitly authored."
+              >
+                <div className="panel-header">
                   <div>
                     <p className="eyebrow">
-                      {t("pages.runs.downstreamDependenciesTitle")}
+                      {t("pages.runs.decisionPacketTitle")}
                     </p>
-                    <p className="text-muted mt-2 text-sm">
-                      {t("pages.runs.deck.dependencies")}
-                    </p>
+                    <h3>{t("pages.runs.decisionPacketHeading")}</h3>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {deckSnapshot.close.downstreamDependencies.map((item) => (
-                      <Badge key={item} kind="neutral">
-                        {item}
-                      </Badge>
-                    ))}
-                  </div>
+                  <Badge kind="neutral">{decisionPacket.transportStatus}</Badge>
                 </div>
-              </section>
-            </Card>
+
+                <div className="grid gap-3 md:grid-cols-3">
+                  <MetricCard
+                    label={t("pages.runs.verdictLabel")}
+                    value={
+                      label(
+                        "evaluatorVerdicts",
+                        decisionPacket.primaryVerdict,
+                        decisionPacket.primaryVerdict ?? t("common.unknown"),
+                      ) ?? t("common.unknown")
+                    }
+                    meta={decisionPacket.decisionHeadline}
+                  />
+                  <MetricCard
+                    label={t("pages.runs.confidenceLabel")}
+                    value={
+                      decisionPacket.decisionConfidence ?? t("common.unknown")
+                    }
+                    meta={t("pages.runs.report.decisionScore")}
+                  />
+                  <MetricCard
+                    label={t("pages.runs.blockerStateLabel")}
+                    value={formatNumber(decisionPacket.blockerCount)}
+                    meta={t("pages.runs.governance")}
+                  />
+                </div>
+
+                <div className="grid gap-3 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.95fr)_minmax(0,0.95fr)]">
+                  <section
+                    className="bg-surface/80 border-line rounded-2xl border p-4"
+                    data-authored-exempt="true"
+                    data-authored-exempt-reason="Impact delta labels are metric chrome; empty state prose is explicitly authored."
+                  >
+                    <p className="eyebrow">
+                      {t("pages.runs.impactDeltasTitle")}
+                    </p>
+                    <div className="mt-4 space-y-3">
+                      {decisionPacket.impactRows.length > 0 ? (
+                        decisionPacket.impactRows.slice(0, 4).map((row) => (
+                          <div
+                            key={row.label}
+                            className="flex items-center justify-between gap-3"
+                          >
+                            <span className="text-sm font-semibold">
+                              {row.label}
+                            </span>
+                            <span className="text-muted font-mono text-sm">
+                              {row.display}
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        <AuthoredText
+                          author="human"
+                          className="text-muted text-sm"
+                          timestamp={decisionPacketTimestamp}
+                        >
+                          {t("pages.runs.impactDeltasEmpty")}
+                        </AuthoredText>
+                      )}
+                    </div>
+                  </section>
+
+                  <section
+                    className="bg-surface/80 border-line rounded-2xl border p-4"
+                    data-authored-exempt="true"
+                    data-authored-exempt-reason="Evidence card heading is structural chrome; evidence body is explicitly authored."
+                  >
+                    <p className="eyebrow">
+                      {t("pages.runs.strongestEvidenceTitle")}
+                    </p>
+                    <strong className="mt-4 block text-base">
+                      {decisionPacket.strongestEvidence.title}
+                    </strong>
+                    <AuthoredText
+                      author="citation"
+                      className="mt-3 text-sm leading-6 text-[var(--ink)]"
+                      sourceHref={strongestEvidenceHref}
+                      sourceRef={decisionPacket.strongestEvidence.provenance}
+                      timestamp={decisionPacketTimestamp}
+                    >
+                      {decisionPacket.strongestEvidence.body}
+                    </AuthoredText>
+                  </section>
+
+                  <section
+                    className="bg-surface/80 border-line rounded-2xl border p-4"
+                    data-authored-exempt="true"
+                    data-authored-exempt-reason="Uncertainty chart labels are structural chart chrome; uncertainty prose is explicitly authored."
+                  >
+                    <p className="eyebrow">
+                      {t("pages.runs.uncertaintyTitle")}
+                    </p>
+                    <AuthoredText
+                      author="formalizer"
+                      className="mt-4 text-sm leading-6 font-semibold"
+                      timestamp={decisionPacketTimestamp}
+                    >
+                      {decisionPacket.mainUncertainty}
+                    </AuthoredText>
+                    {primaryUncertaintyMetric ? (
+                      <div
+                        className="border-line bg-background/55 mt-4 space-y-3 rounded-2xl border p-3"
+                        data-testid="run-detail-uncertainty-visual"
+                      >
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-semibold">
+                              {primaryUncertaintyMetric.label}
+                            </p>
+                            <p className="text-muted mt-1 text-xs leading-5">
+                              {t("shared.uncertainty.defaultFraming.range", {
+                                confidence: Math.round(
+                                  primaryUncertaintyMetric.level * 100,
+                                ),
+                                lower: `${primaryUncertaintyMetric.bands[0].lower.toFixed(2)}${
+                                  primaryUncertaintyMetric.unit
+                                }`,
+                                upper: `${primaryUncertaintyMetric.bands[0].upper.toFixed(2)}${
+                                  primaryUncertaintyMetric.unit
+                                }`,
+                              })}
+                            </p>
+                          </div>
+                          <Badge
+                            kind={
+                              primaryUncertaintyMetric.disputed
+                                ? "warn"
+                                : "neutral"
+                            }
+                          >
+                            {t("pages.runs.confidenceIntervalShort", {
+                              confidence: Math.round(
+                                primaryUncertaintyMetric.level * 100,
+                              ),
+                            })}
+                          </Badge>
+                        </div>
+                        <UncertaintyBand
+                          estimate={primaryUncertaintyMetric.estimate}
+                          bands={primaryUncertaintyMetric.bands}
+                          label={primaryUncertaintyMetric.label}
+                          unit={primaryUncertaintyMetric.unit}
+                          disputed={primaryUncertaintyMetric.disputed}
+                          identifiability={
+                            primaryUncertaintyMetric.identifiability as
+                              | IdentifiabilityState
+                              | undefined
+                          }
+                          className="w-full"
+                        />
+                      </div>
+                    ) : null}
+                  </section>
+                </div>
+
+                <section
+                  className="bg-surface/80 border-line rounded-2xl border p-4"
+                  data-authored-exempt="true"
+                  data-authored-exempt-reason="Downstream dependency helper text is structural deck chrome, not authored prose."
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="eyebrow">
+                        {t("pages.runs.downstreamDependenciesTitle")}
+                      </p>
+                      <p className="text-muted mt-2 text-sm">
+                        {t("pages.runs.deck.dependencies")}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {deckSnapshot.close.downstreamDependencies.map((item) => (
+                        <Badge key={item} kind="neutral">
+                          {item}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              </Card>
+              <AuthorshipTimeline />
+            </div>
 
             <nav
               aria-label={t("pages.runs.sectionNav")}
@@ -589,9 +776,10 @@ function RunInspectorContent() {
 
 export default function RunDetailLayout() {
   const { runId } = useParams();
+  const { t } = useI18n();
 
   if (!runId) {
-    return <Card>Run id is required.</Card>;
+    return <Card>{t("pages.runs.requiredRunId")}</Card>;
   }
 
   return (

@@ -1,7 +1,9 @@
 """Project tabular features into low-dimensional linear embeddings."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -44,6 +46,7 @@ def _tabular_payload(state: Any) -> dict[str, Any]:
 )
 class PCAEstimator:
     """Extract orthogonal principal components under linear variance structure; avoid interpreting components causally."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -84,9 +87,7 @@ class PCAEstimator:
         description="Principal component decomposition for tabular features.",
         tags=frozenset({"ml", "decomposition", "pca"}),
         when_to_use="Dimensionality reduction; decorrelation of features; visualization of high-dimensional data",
-        citations=(
-            "Jolliffe, I. (2002). Principal Component Analysis. Springer.",
-        ),
+        citations=("Jolliffe, I. (2002). Principal Component Analysis. Springer.",),
         when_not_to_use="Non-linear structure (use UMAP/t-SNE); non-negative data where parts matter (use NMF)",
         output_interpretation="Explained variance ratio per component. Loadings show variable contributions. Biplot for interpretation.",
     )
@@ -110,7 +111,9 @@ class PCAEstimator:
                 method_name="pca",
                 transformed=transformed,
                 components=np.asarray(model.components_, dtype=float),
-                explained_variance_ratio=[float(value) for value in model.explained_variance_ratio_],
+                explained_variance_ratio=[
+                    float(value) for value in model.explained_variance_ratio_
+                ],
                 metadata={"library": "scikit-learn", "estimator": "PCA"},
             )
         }

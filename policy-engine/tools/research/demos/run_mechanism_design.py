@@ -9,8 +9,9 @@ import os
 import sys
 import tempfile
 from pathlib import Path
-from tools._lib.imports import repo_root_from
 from typing import Any
+
+from tools._lib.imports import repo_root_from
 
 # --- Make `polisyos` importable ---
 POLICY_ENGINE_ROOT = repo_root_from(__file__)
@@ -25,6 +26,8 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 import optax
+from polisyos.foundry.base import Mechanism
+from polisyos.foundry.domain.state import GlobalState
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import SchemaInfo
@@ -32,10 +35,12 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import CompileRequest, ExecPlan, ProgramGraph
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.foundry.agents import AgentPolicy
-from polisyos.foundry.base import Mechanism
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.registry import create_mechanism_from_spec
-from polisyos.foundry.domain.state import GlobalState
+from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.governance.schedule import ScheduleSpec
+from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.kernel import (
     DEFAULT_MECHANISM_REGISTRY,
     DEFAULT_MERGE_RULE_REGISTRY,
@@ -43,10 +48,6 @@ from polisyos.ir.kernel import (
 )
 from polisyos.ir.kernel.merge_rules import MergeRuleKind
 from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
-from polisyos.ir.governance.schedule import ScheduleSpec
-from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.trinity import TrinityBundle
 
 # --- CONFIG (TWEAKED) ---
@@ -58,7 +59,7 @@ ENTROPY_COEF = 0.1
 
 
 def print_header(title: str) -> None:
-    print(f"\n{'='*60}\n {title}\n{'='*60}")
+    print(f"\n{'=' * 60}\n {title}\n{'=' * 60}")
 
 
 def _load_json(store: FileSystemCAS, artifact_id: ArtifactID) -> Any:
@@ -86,7 +87,9 @@ class SystemBundle(eqx.Module):
 def train_and_store_artifact(key: jax.Array, n_agents: int, store: FileSystemCAS) -> str:
     print(">>> [Phase 1] Обучение популяции и сохранение в CAS...")
     key, subkey = jax.random.split(key)
-    policy = AgentPolicy(subkey, in_dim=3, action_type="continuous", out_dim=1, hidden_layers=(64, 64))
+    policy = AgentPolicy(
+        subkey, in_dim=3, action_type="continuous", out_dim=1, hidden_layers=(64, 64)
+    )
 
     params = eqx.filter(policy, eqx.is_inexact_array)
     static = eqx.filter(policy, eqx.is_inexact_array, inverse=True)
@@ -115,7 +118,9 @@ def train_and_store_artifact(key: jax.Array, n_agents: int, store: FileSystemCAS
             probs = jnp.clip(fraction, 1e-4, 1 - 1e-4)
             entropy = -(probs * jnp.log(probs) + (1 - probs) * jnp.log(1 - probs))
 
-            return -jnp.mean(utility) - jnp.array(ENTROPY_COEF, dtype=jnp.float32) * jnp.mean(entropy)
+            return -jnp.mean(utility) - jnp.array(ENTROPY_COEF, dtype=jnp.float32) * jnp.mean(
+                entropy
+            )
 
         grads = jax.grad(loss_fn)(p)
         updates, new_opt = optimizer.update(grads, opt_st, p)
@@ -151,7 +156,7 @@ def debug_agent_response(policy: AgentPolicy):
     """Sanity check to ensure agents actually react to tax."""
     print("\n    [DEBUG] Checking Agent Rationality Table:")
     print("    Tax Rate | Risk=0.2 (Brave) | Risk=0.8 (Cautious)")
-    print("    " + "-"*45)
+    print("    " + "-" * 45)
 
     test_taxes = jnp.array([0.1, 0.3, 0.5, 0.7, 0.9])
 
@@ -165,12 +170,14 @@ def debug_agent_response(policy: AgentPolicy):
         obs_cautious = jnp.array([4.0, 0.8, t])
         resp_cautious = jax.nn.sigmoid(policy(obs_cautious))[0]
 
-        print(f"    {t*100:4.0f}%    | {resp_brave:14.3f}   | {resp_cautious:17.3f}")
-    print("    " + "-"*45 + "\n")
+        print(f"    {t * 100:4.0f}%    | {resp_brave:14.3f}   | {resp_cautious:17.3f}")
+    print("    " + "-" * 45 + "\n")
 
 
 # --- Phase 3: Hydration Logic ---
-def hydrate_system(program_graph: ProgramGraph, store: FileSystemCAS, *, n_agents: int, n_firms: int) -> SystemBundle:
+def hydrate_system(
+    program_graph: ProgramGraph, store: FileSystemCAS, *, n_agents: int, n_firms: int
+) -> SystemBundle:
     mechanisms: dict[str, Mechanism] = {}
     for node in program_graph.nodes:
         if not (node.node_kind == "op" and node.op and node.op.op_kind == "apply_mechanism"):
@@ -202,11 +209,15 @@ def hydrate_system(program_graph: ProgramGraph, store: FileSystemCAS, *, n_agent
         slot_state_path[slot_id] = state_path
         slot_merge_code[slot_id] = _merge_rule_code(kind)
 
-    return SystemBundle(mechanisms=mechanisms, slot_state_path=slot_state_path, slot_merge_code=slot_merge_code)
+    return SystemBundle(
+        mechanisms=mechanisms, slot_state_path=slot_state_path, slot_merge_code=slot_merge_code
+    )
 
 
 # --- Phase 4: Pure Executor & VM ---
-def apply_patch_pure(state: GlobalState, *, state_path: str, value: jnp.ndarray, rule_code: int) -> GlobalState:
+def apply_patch_pure(
+    state: GlobalState, *, state_path: str, value: jnp.ndarray, rule_code: int
+) -> GlobalState:
     if "." in state_path:
         scope_name, field_name = state_path.split(".", 1)
         scope_obj = getattr(state, scope_name)
@@ -231,7 +242,9 @@ def apply_patch_pure(state: GlobalState, *, state_path: str, value: jnp.ndarray,
     return state.replace(**{scope_name: new_scope})
 
 
-def execute_pure(state: GlobalState, bundle: SystemBundle, exec_order: list[str], key: jax.Array) -> GlobalState:
+def execute_pure(
+    state: GlobalState, bundle: SystemBundle, exec_order: list[str], key: jax.Array
+) -> GlobalState:
     for node_id in exec_order:
         mech = bundle.mechanisms[node_id]
         patches, key = mech.emit_patches(state, key)
@@ -245,7 +258,9 @@ def execute_pure(state: GlobalState, bundle: SystemBundle, exec_order: list[str]
                     val = op["delta"]
                 else:
                     val = op.get("value")
-                state = apply_patch_pure(state, state_path=state_path, value=val, rule_code=rule_code)
+                state = apply_patch_pure(
+                    state, state_path=state_path, value=val, rule_code=rule_code
+                )
     return state
 
 
@@ -319,7 +334,9 @@ def main() -> None:
         PutOptions(
             kind="ir.trinity_bundle",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=trinity_bundle.schema_version),
+            schema=SchemaInfo(
+                name="polisyos.ir.TrinityBundle", version=trinity_bundle.schema_version
+            ),
         ),
     )
     compile_result = compile_foundry(
@@ -332,7 +349,9 @@ def main() -> None:
     )
     if not compile_result.ok or compile_result.exec_plan_ref is None:
         raise RuntimeError(f"Compilation failed: {compile_result.notes}")
-    program_ref = next(ref.ref for ref in compile_result.derived_refs if ref.role == "program_graph")
+    program_ref = next(
+        ref.ref for ref in compile_result.derived_refs if ref.role == "program_graph"
+    )
     program_graph = ProgramGraph.model_validate(_load_json(store, program_ref.artifact_id))
     exec_plan = ExecPlan.model_validate(_load_json(store, compile_result.exec_plan_ref.artifact_id))
 
@@ -367,7 +386,9 @@ def main() -> None:
     n_agents_f = jnp.array(float(N_AGENTS), dtype=jnp.float32)
 
     @eqx.filter_jit
-    def objective(tax_param: jnp.ndarray, state: GlobalState, sys_bundle: SystemBundle) -> jnp.ndarray:
+    def objective(
+        tax_param: jnp.ndarray, state: GlobalState, sys_bundle: SystemBundle
+    ) -> jnp.ndarray:
         # Micro-heterogeneity to prevent batch-norm singularities in AgentPolicy
         risk = state.agents.risk_aversion
         noise = jnp.array(1e-3, dtype=jnp.float32) * (risk - jnp.mean(risk))
@@ -391,12 +412,12 @@ def main() -> None:
     print(f"{'STEP':<5} | {'TAX':<10} | {'REVENUE':<15} | {'GRADIENT':<10}")
     print("-" * 55)
 
-    for i in range(100): # Increased steps slightly to see curve
+    for i in range(100):  # Increased steps slightly to see curve
         loss, grad = grad_fn(current_tax, base_state, bundle)
         loss.block_until_ready()
         revenue = (-loss) * n_agents_f
         print(
-            f"{i:<5} | {float(current_tax)*100:6.1f}%    | {float(revenue):15.2f} | {float(grad):10.4f}"
+            f"{i:<5} | {float(current_tax) * 100:6.1f}%    | {float(revenue):15.2f} | {float(grad):10.4f}"
         )
 
         safe_grad = jnp.nan_to_num(grad, nan=0.0, posinf=0.0, neginf=0.0)
@@ -415,7 +436,7 @@ def main() -> None:
         lr = lr * jnp.array(0.98, dtype=jnp.float32)
 
     print("-" * 55)
-    print(f"Optimal Tax Found: {float(current_tax)*100:.1f}%")
+    print(f"Optimal Tax Found: {float(current_tax) * 100:.1f}%")
 
     if 0.30 < float(current_tax) < 0.55:
         print("✅ SUCCESS: Пик Лаффера найден (30-55%).")

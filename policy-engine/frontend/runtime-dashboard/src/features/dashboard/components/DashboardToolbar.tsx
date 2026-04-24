@@ -38,12 +38,7 @@ export function DashboardToolbar({ className }: DashboardToolbarProps) {
   }, [showSaveDialog]);
 
   return (
-    <div
-      className={cn(
-        "flex flex-wrap items-center gap-2",
-        className,
-      )}
-    >
+    <div className={cn("flex flex-wrap items-center gap-2", className)}>
       <Button
         type="button"
         variant={isEditing ? "secondary" : "ghost"}
@@ -89,7 +84,7 @@ export function DashboardToolbar({ className }: DashboardToolbarProps) {
           {t("pages.dashboard.toolbar.saveView")}
         </Button>
         {showSaveDialog && (
-          <div className="bg-surface border-line absolute top-full start-0 z-20 mt-1 rounded-xl border p-3 shadow-lg">
+          <div className="bg-surface border-line absolute start-0 top-full z-20 mt-1 rounded-xl border p-3 shadow-lg">
             <input
               ref={viewNameInputRef}
               type="text"
@@ -137,7 +132,7 @@ export function DashboardToolbar({ className }: DashboardToolbarProps) {
             })}
           </Button>
           {showViewPicker && (
-            <div className="bg-surface border-line absolute top-full start-0 z-20 mt-1 w-56 rounded-xl border p-2 shadow-lg">
+            <div className="bg-surface border-line absolute start-0 top-full z-20 mt-1 w-56 rounded-xl border p-2 shadow-lg">
               {savedViews.map((view) => (
                 <div
                   key={view.id}
@@ -155,7 +150,7 @@ export function DashboardToolbar({ className }: DashboardToolbarProps) {
                   </button>
                   <button
                     type="button"
-                    className="text-muted hover:text-[var(--chart-alert)] shrink-0 ps-2 text-xs"
+                    className="text-muted shrink-0 ps-2 text-xs hover:text-[var(--chart-alert)]"
                     onClick={() => deleteView(view.id)}
                     aria-label={t("pages.dashboard.toolbar.deleteView", {
                       view: view.label,

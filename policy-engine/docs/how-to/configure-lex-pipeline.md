@@ -213,8 +213,10 @@ curl -X POST "http://localhost:8000/api/v1/control/lex/trigger" \
 - если batch path был запущен с неверным `output_dir` или `execution_profile`,
   остановите дальнейшее переиспользование этих артефактов и перезапустите
   pipeline с корректными параметрами;
+
 - если структура или version index собраны из неверного source payload,
   пересоберите их из корректного ingest input, а не поверх спорного результата;
+
 - если ошибка касается only-docs/operator guidance, откатите workflow к
   последнему verified stage sequence.
 
@@ -222,8 +224,10 @@ curl -X POST "http://localhost:8000/api/v1/control/lex/trigger" \
 
 - Если stage-level pipeline даёт "правдоподобный, но непонятный" результат,
   проверьте сначала `doc_source_id`, `fact_log_root` и active-version strategy.
+
 - Если control-plane batch не даёт ожидаемых output artifacts, смотрите `job_id`
   и status endpoint отдельно от content-level артефактов.
+
 - Если нужен быстрый structural smoke run, выключите `embed`, чтобы не путать
   Lex structure/debugging с vector-stage задержками.
 

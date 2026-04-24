@@ -3,12 +3,14 @@ import { lazy, Suspense } from "react";
 import { useInterfaceMode } from "@/app/providers/InterfaceModeProvider";
 import { PageSkeleton } from "@/shared/ui";
 
-const RunsListPage = lazy(
-  () => import("@/features/runs/routes/RunsListPage"),
+const RunsListPage = lazy(() =>
+  import("@/features/runs/routes.public").then((module) => ({
+    default: module.RunsListPage,
+  })),
 );
 const ClerkHistoryList = lazy(() =>
-  import("@/features/clerk/components/ClerkHistoryList").then((m) => ({
-    default: m.ClerkHistoryList,
+  import("@/features/clerk/routes.public").then((module) => ({
+    default: module.ClerkHistoryList,
   })),
 );
 

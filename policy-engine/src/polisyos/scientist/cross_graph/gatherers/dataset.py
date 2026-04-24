@@ -6,7 +6,6 @@ from typing import Any
 
 from polisyos.ir.analytics.cross_graph import (
     CanonicalConcept,
-    CrossGraphDiagnostic,
     EvidenceNeed,
     ObservabilityStatus,
 )
@@ -41,10 +40,14 @@ class DatasetGatherer:
                 target_year=context.get("target_year"),
             )
             return GathererResult(
-                status=result.status.value if hasattr(result.status, "value") else str(result.status),
+                status=result.status.value
+                if hasattr(result.status, "value")
+                else str(result.status),
                 confidence=result.confidence if hasattr(result, "confidence") else 0.5,
                 diagnostics=list(result.diagnostics) if hasattr(result, "diagnostics") else [],
-                provenance_refs=list(result.provenance_refs) if hasattr(result, "provenance_refs") else [],
+                provenance_refs=list(result.provenance_refs)
+                if hasattr(result, "provenance_refs")
+                else [],
                 metadata=result.metadata if hasattr(result, "metadata") else {},
             )
 

@@ -1,14 +1,15 @@
 """Forecasting-specific uncertainty contracts for multi-horizon predictions."""
+
 from __future__ import annotations
 
+import itertools
 import math
-from datetime import datetime
 from enum import Enum
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.observability.truthfulness import (
+from polisyos.ir.analytics._truthfulness import (
     TruthfulnessReceipt,
     TruthfulnessScope,
     TruthfulnessTier,
@@ -18,20 +19,31 @@ from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, pu
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import ArtifactRefModel, ForecastingUncertaintyBundleRef
 
+if TYPE_CHECKING:
+    from datetime import datetime
+else:
+    from datetime import datetime
+
 
 def _coerce_python_numeric(value: Any) -> Any:
     if isinstance(value, (str, bytes)):
         return value
     if hasattr(value, "tolist") and not isinstance(value, (list, tuple, dict)):
+        converted = None
         try:
-            return value.tolist()
+            converted = value.tolist()
         except Exception:
-            pass
+            converted = None
+        if converted is not None:
+            return converted
     if hasattr(value, "item") and not isinstance(value, (list, tuple, dict)):
+        converted = None
         try:
-            return value.item()
+            converted = value.item()
         except Exception:
-            pass
+            converted = None
+        if converted is not None:
+            return converted
     return value
 
 
@@ -133,7 +145,7 @@ class HorizonInterval(BaseModel):
     diagnostics: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_interval(self) -> "HorizonInterval":
+    def _validate_interval(self) -> HorizonInterval:
         point_sig = _shape_signature(self.point)
         lower_sig = _shape_signature(self.lower)
         upper_sig = _shape_signature(self.upper)
@@ -159,7 +171,7 @@ class HorizonQuantileSet(BaseModel):
     quantiles: dict[str, Any]
 
     @model_validator(mode="after")
-    def _validate_quantiles(self) -> "HorizonQuantileSet":
+    def _validate_quantiles(self) -> HorizonQuantileSet:
         if not self.quantiles:
             raise ValueError("fan-chart horizon requires at least one quantile")
         parsed_quantiles = {float(key): value for key, value in self.quantiles.items()}
@@ -178,8 +190,10 @@ class HorizonQuantileSet(BaseModel):
             ordered_payloads.append(_flatten_numeric_payload(payload))
         for position in range(len(ordered_payloads[0])):
             values = [payload[position] for payload in ordered_payloads]
-            if any(left > right for left, right in zip(values, values[1:])):
-                raise ValueError("fan-chart quantiles must be monotone within each payload position")
+            if any(left > right for left, right in itertools.pairwise(values)):
+                raise ValueError(
+                    "fan-chart quantiles must be monotone within each payload position"
+                )
         return self
 
 
@@ -192,7 +206,7 @@ class FanChartSpec(BaseModel):
     horizons: tuple[HorizonQuantileSet, ...] = ()
 
     @model_validator(mode="after")
-    def _validate_fan_chart(self) -> "FanChartSpec":
+    def _validate_fan_chart(self) -> FanChartSpec:
         if any(level < 0.0 or level > 1.0 for level in self.quantile_levels):
             raise ValueError("fan-chart levels must be within [0, 1]")
         if tuple(sorted(self.quantile_levels)) != self.quantile_levels:
@@ -230,7 +244,7 @@ class ForecastCoverageDiagnostic(BaseModel):
     last_recalibrated_at: datetime
 
     @model_validator(mode="after")
-    def _validate_mappings(self) -> "ForecastCoverageDiagnostic":
+    def _validate_mappings(self) -> ForecastCoverageDiagnostic:
         for mapping in (
             self.empirical_coverage_by_horizon,
             self.conditional_coverage_pvalue_by_horizon,
@@ -269,7 +283,7 @@ class HorizonPolicyRule(BaseModel):
     note: str | None = None
 
     @model_validator(mode="after")
-    def _validate_rule(self) -> "HorizonPolicyRule":
+    def _validate_rule(self) -> HorizonPolicyRule:
         if self.horizon_start > self.horizon_end:
             raise ValueError("horizon_start must be <= horizon_end")
         if not self.allowed_methods and self.gate_eligible:
@@ -288,7 +302,7 @@ class HorizonPolicySpec(BaseModel):
     summary: str | None = None
 
     @model_validator(mode="after")
-    def _validate_rules(self) -> "HorizonPolicySpec":
+    def _validate_rules(self) -> HorizonPolicySpec:
         seen: list[tuple[int, int]] = []
         for rule in self.rules:
             for start, end in seen:
@@ -346,7 +360,9 @@ class ForecastingUncertaintyBundle(BaseModel):
             normalized["lower"] = _normalize_numeric_payload(interval["lower"], policy)
             normalized["upper"] = _normalize_numeric_payload(interval["upper"], policy)
             if interval.get("coverage_target") is not None:
-                normalized["coverage_target"] = policy.canonicalize(float(interval["coverage_target"]))
+                normalized["coverage_target"] = policy.canonicalize(
+                    float(interval["coverage_target"])
+                )
             intervals.append(normalized)
         payload["prediction_interval"] = intervals
 
@@ -356,8 +372,7 @@ class ForecastingUncertaintyBundle(BaseModel):
         fan_chart = dict(fan_chart_payload)
         if fan_chart:
             fan_chart["quantile_levels"] = tuple(
-                policy.canonicalize(float(level))
-                for level in fan_chart.get("quantile_levels", ())
+                policy.canonicalize(float(level)) for level in fan_chart.get("quantile_levels", ())
             )
             normalized_horizons: list[dict[str, Any]] = []
             for entry in fan_chart.get("horizons", ()):
@@ -391,7 +406,7 @@ class ForecastingUncertaintyBundle(BaseModel):
         return payload
 
     @model_validator(mode="after")
-    def _validate_bundle(self) -> "ForecastingUncertaintyBundle":
+    def _validate_bundle(self) -> ForecastingUncertaintyBundle:
         prediction_horizons = [interval.horizon for interval in self.prediction_interval]
         if prediction_horizons and prediction_horizons != sorted(prediction_horizons):
             raise ValueError("prediction intervals must be sorted by horizon")
@@ -421,10 +436,14 @@ class ForecastingUncertaintyBundle(BaseModel):
             runtime_tier = TruthfulnessTier.ASYMPTOTIC
 
         red_count = sum(
-            1 for rule in self.horizon_policy.rules if rule.diagnostic_state is HorizonDiagnosticState.RED
+            1
+            for rule in self.horizon_policy.rules
+            if rule.diagnostic_state is HorizonDiagnosticState.RED
         )
         amber_count = sum(
-            1 for rule in self.horizon_policy.rules if rule.diagnostic_state is HorizonDiagnosticState.AMBER
+            1
+            for rule in self.horizon_policy.rules
+            if rule.diagnostic_state is HorizonDiagnosticState.AMBER
         )
         degradation_reasons = list(self.coverage_diagnostic.regime_flags)
         if red_count > 0 or not self.horizon_policy.gate_eligible:

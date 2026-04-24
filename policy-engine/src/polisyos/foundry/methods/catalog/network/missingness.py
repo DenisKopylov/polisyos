@@ -1,11 +1,13 @@
 """Assess identification under partial network observability."""
+
 from __future__ import annotations
 
 from collections import deque
+from collections.abc import Mapping, Sequence
 from enum import Enum
 from itertools import combinations
 from math import comb
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -112,9 +114,18 @@ def maybe_build_missingness_assessment(
         return None
     if isinstance(raw, MissingnessAssessment):
         return raw
-    if isinstance(raw, Mapping) and "global_risk" in raw and "estimands" in raw and "mode" not in raw:
+    if (
+        isinstance(raw, Mapping)
+        and "global_risk" in raw
+        and "estimands" in raw
+        and "mode" not in raw
+    ):
         return MissingnessAssessment.model_validate(raw)
-    request = raw if isinstance(raw, NetworkMissingnessRequest) else NetworkMissingnessRequest.model_validate(raw)
+    request = (
+        raw
+        if isinstance(raw, NetworkMissingnessRequest)
+        else NetworkMissingnessRequest.model_validate(raw)
+    )
     return build_network_missingness_assessment(data, request)
 
 
@@ -125,14 +136,20 @@ def build_network_missingness_assessment(
     """Build an identification-aware missingness assessment for a network."""
 
     data = state if isinstance(state, NetworkData) else NetworkData.model_validate(state)
-    req = request if isinstance(request, NetworkMissingnessRequest) else NetworkMissingnessRequest.model_validate(request)
+    req = (
+        request
+        if isinstance(request, NetworkMissingnessRequest)
+        else NetworkMissingnessRequest.model_validate(request)
+    )
 
     observed_edges, asymmetry_rate = _binary_undirected_adjacency(np.asarray(data.adjacency))
     n_nodes = observed_edges.shape[0]
     node_ids = tuple(data.node_ids or [str(idx) for idx in range(n_nodes)])
     node_observed = _optional_bool_vector(req.node_observed_mask, n_nodes, "node_observed_mask")
     dyad_observed = _optional_bool_matrix(req.dyad_observed_mask, n_nodes, "dyad_observed_mask")
-    confirmed_absence = _optional_bool_matrix(req.confirmed_absence_mask, n_nodes, "confirmed_absence_mask")
+    confirmed_absence = _optional_bool_matrix(
+        req.confirmed_absence_mask, n_nodes, "confirmed_absence_mask"
+    )
     structural_missing = _optional_bool_matrix(
         req.structural_missing_dyad_mask,
         n_nodes,
@@ -166,7 +183,9 @@ def build_network_missingness_assessment(
     )
     edge_probs = _combine_edge_inclusion_probabilities(node_probs, dyad_probs)
 
-    observed_summary = _observed_graph_summary(observed_edges, uncertain, confirmed_absence, structural_missing)
+    observed_summary = _observed_graph_summary(
+        observed_edges, uncertain, confirmed_absence, structural_missing
+    )
     diagnostics = _build_diagnostics(
         data=data,
         request=req,
@@ -234,8 +253,17 @@ def _assess_estimands(
     for estimand in estimands:
         key = str(estimand)
         normalized = _normalize_estimand_name(key)
-        if normalized in {"edge_count", "average_degree", "triangle_count", "wedge_count", "clustering"}:
-            if request.mode in {NetworkMissingnessMode.DESIGN_BASED, NetworkMissingnessMode.SENSITIVITY}:
+        if normalized in {
+            "edge_count",
+            "average_degree",
+            "triangle_count",
+            "wedge_count",
+            "clustering",
+        }:
+            if request.mode in {
+                NetworkMissingnessMode.DESIGN_BASED,
+                NetworkMissingnessMode.SENSITIVITY,
+            }:
                 assessment = _design_based_estimand(
                     name=normalized,
                     request=request,
@@ -248,7 +276,8 @@ def _assess_estimands(
                 )
                 if (
                     request.mode is NetworkMissingnessMode.SENSITIVITY
-                    and assessment.identification_status is NetworkIdentificationStatus.POINT_IDENTIFIED
+                    and assessment.identification_status
+                    is NetworkIdentificationStatus.POINT_IDENTIFIED
                 ):
                     assessment = _with_sensitivity_region(
                         name=normalized,
@@ -279,7 +308,10 @@ def _assess_estimands(
                     confirmed_absence=confirmed_absence,
                 )
         elif normalized == "degree_distribution":
-            if request.mode in {NetworkMissingnessMode.DESIGN_BASED, NetworkMissingnessMode.SENSITIVITY}:
+            if request.mode in {
+                NetworkMissingnessMode.DESIGN_BASED,
+                NetworkMissingnessMode.SENSITIVITY,
+            }:
                 assessment = _degree_distribution_assessment(
                     request=request,
                     observed_edges=observed_edges,
@@ -292,7 +324,8 @@ def _assess_estimands(
                 )
                 if (
                     request.mode is NetworkMissingnessMode.SENSITIVITY
-                    and assessment.identification_status is NetworkIdentificationStatus.POINT_IDENTIFIED
+                    and assessment.identification_status
+                    is NetworkIdentificationStatus.POINT_IDENTIFIED
                 ):
                     assessment = _with_sensitivity_region(
                         name=normalized,
@@ -317,11 +350,18 @@ def _assess_estimands(
                     name="degree_distribution",
                     target=NetworkEstimandTarget.REALIZED_GRAPH,
                     identification_status=NetworkIdentificationStatus.NOT_IDENTIFIED,
-                    diagnostics={"reason": "degree_distribution_requires_design_or_model_based_mode"},
+                    diagnostics={
+                        "reason": "degree_distribution_requires_design_or_model_based_mode"
+                    },
                     algorithm="binomial_degree_deconvolution",
                     complexity="O(n^3)",
                 )
-        elif normalized in {"degree_bounds", "degree_centrality", "giant_component", "shortest_paths"}:
+        elif normalized in {
+            "degree_bounds",
+            "degree_centrality",
+            "giant_component",
+            "shortest_paths",
+        }:
             if request.mode is NetworkMissingnessMode.MODEL_BASED:
                 assessment = _model_based_estimand(
                     name=normalized,
@@ -574,7 +614,10 @@ def _degree_distribution_assessment(
     node_prob_source: str,
     dyad_prob_source: str,
 ) -> EstimandAssessment:
-    if request.mode not in {NetworkMissingnessMode.DESIGN_BASED, NetworkMissingnessMode.SENSITIVITY}:
+    if request.mode not in {
+        NetworkMissingnessMode.DESIGN_BASED,
+        NetworkMissingnessMode.SENSITIVITY,
+    }:
         return EstimandAssessment(
             name="degree_distribution",
             target=NetworkEstimandTarget.REALIZED_GRAPH,
@@ -606,13 +649,17 @@ def _degree_distribution_assessment(
     q: float | None
     sampled_nodes = None if node_observed_mask is None else np.flatnonzero(node_observed_mask)
     if node_observed_mask is not None and not bool(np.all(node_observed_mask)):
-        node_sampling_q = _homogeneous_node_sampling_neighbor_capture_probability(node_probs, dyad_probs)
+        node_sampling_q = _homogeneous_node_sampling_neighbor_capture_probability(
+            node_probs, dyad_probs
+        )
         if node_sampling_q is None:
             return EstimandAssessment(
                 name="degree_distribution",
                 target=NetworkEstimandTarget.REALIZED_GRAPH,
                 identification_status=NetworkIdentificationStatus.NOT_IDENTIFIED,
-                assumptions_required=("homogeneous Bernoulli node sampling or mixed homogeneous thinning",),
+                assumptions_required=(
+                    "homogeneous Bernoulli node sampling or mixed homogeneous thinning",
+                ),
                 diagnostics={"reason": "heterogeneous_node_sampling_probabilities"},
                 algorithm="binomial_degree_deconvolution",
                 complexity="O(n^3)",
@@ -644,7 +691,7 @@ def _degree_distribution_assessment(
     probs, diagnostics = _invert_binomial_degree_distribution(observed_degree, q)
     diagnostics["node_probability_source"] = node_prob_source
     diagnostics["dyad_probability_source"] = dyad_prob_source
-    diagnostics["sampled_node_count"] = int(len(observed_degree))
+    diagnostics["sampled_node_count"] = len(observed_degree)
     return EstimandAssessment(
         name="degree_distribution",
         target=NetworkEstimandTarget.REALIZED_GRAPH,
@@ -780,7 +827,10 @@ def _bounds_estimand(
         compatibility_degree = np.sum(compatibility, axis=1).astype(float)
         scale = 1.0 / float(max(n_nodes - 1, 1))
         region = {
-            node_ids[idx]: (float(observed_degree[idx] * scale), float(compatibility_degree[idx] * scale))
+            node_ids[idx]: (
+                float(observed_degree[idx] * scale),
+                float(compatibility_degree[idx] * scale),
+            )
             for idx in range(n_nodes)
         }
         return EstimandAssessment(
@@ -813,7 +863,10 @@ def _bounds_estimand(
                 name=name,
                 target=NetworkEstimandTarget.REALIZED_GRAPH,
                 identification_status=NetworkIdentificationStatus.NOT_IDENTIFIED,
-                assumptions_required=("known node frame", "explicit shortest_path_pairs or small graph"),
+                assumptions_required=(
+                    "known node frame",
+                    "explicit shortest_path_pairs or small graph",
+                ),
                 diagnostics={"reason": "shortest_path_pairs_required_for_large_graph"},
                 algorithm="observed_compatibility_bounds",
                 complexity="O(|pairs| * (n + m))",
@@ -998,18 +1051,23 @@ def _model_based_estimand(
             complexity="O(draws * (n + m))",
         )
     if name == "shortest_paths":
-        pairs = _resolve_shortest_path_pairs(node_ids, request.shortest_path_pairs, observed_edges.shape[0])
+        pairs = _resolve_shortest_path_pairs(
+            node_ids, request.shortest_path_pairs, observed_edges.shape[0]
+        )
         if pairs is None:
             return EstimandAssessment(
                 name=name,
                 target=NetworkEstimandTarget.POSTERIOR_PREDICTIVE,
                 identification_status=NetworkIdentificationStatus.NOT_IDENTIFIED,
-                assumptions_required=_model_based_assumptions() + ("explicit shortest_path_pairs for large graphs",),
+                assumptions_required=_model_based_assumptions()
+                + ("explicit shortest_path_pairs for large graphs",),
                 diagnostics={"reason": "shortest_path_pairs_required_for_large_graph"},
                 algorithm="beta_bernoulli_posterior_predictive",
                 complexity="O(draws * |pairs| * (n + m))",
             )
-        series: dict[str, list[float]] = {f"({node_ids[src]},{node_ids[dst]})": [] for src, dst in pairs}
+        series: dict[str, list[float]] = {
+            f"({node_ids[src]},{node_ids[dst]})": [] for src, dst in pairs
+        }
         for draw in draws:
             distances = _distances_for_pairs(draw, pairs)
             for src, dst in pairs:
@@ -1048,7 +1106,11 @@ def _model_based_estimand(
             assumptions_required=_model_based_assumptions(),
             estimator="beta_bernoulli_posterior_predictive",
             estimate=estimate,
-            diagnostics={**posterior_summary, **centrality_diagnostics, "credible_interval": interval},
+            diagnostics={
+                **posterior_summary,
+                **centrality_diagnostics,
+                "credible_interval": interval,
+            },
             algorithm="beta_bernoulli_posterior_predictive",
             complexity="O(draws * n^3)",
         )
@@ -1074,7 +1136,9 @@ def _with_sensitivity_region(
         adjusted_edge_probs: np.ndarray | None = None
         if dyad_probs is not None:
             adjusted_dyad_probs = _logit_shift(dyad_probs, delta)
-            adjusted_edge_probs = _combine_edge_inclusion_probabilities(node_probs, adjusted_dyad_probs)
+            adjusted_edge_probs = _combine_edge_inclusion_probabilities(
+                node_probs, adjusted_dyad_probs
+            )
         else:
             adjusted_edge_probs = _logit_shift(edge_probs, delta)
         if name in {"edge_count", "average_degree"}:
@@ -1086,7 +1150,9 @@ def _with_sensitivity_region(
             motif_stats = _ht_motif_totals(
                 observed_edges=observed_edges,
                 node_probs=node_probs,
-                dyad_probs=adjusted_dyad_probs if adjusted_dyad_probs is not None else adjusted_edge_probs,
+                dyad_probs=adjusted_dyad_probs
+                if adjusted_dyad_probs is not None
+                else adjusted_edge_probs,
                 precombined_edge_probs=adjusted_edge_probs if adjusted_dyad_probs is None else None,
             )
             if motif_stats is None:
@@ -1105,7 +1171,9 @@ def _with_sensitivity_region(
                     update={
                         "node_inclusion_probabilities": node_probs,
                         "dyad_inclusion_probabilities": (
-                            adjusted_dyad_probs if adjusted_dyad_probs is not None else adjusted_edge_probs
+                            adjusted_dyad_probs
+                            if adjusted_dyad_probs is not None
+                            else adjusted_edge_probs
                         ),
                     }
                 ),
@@ -1121,7 +1189,10 @@ def _with_sensitivity_region(
                     else "missing"
                 ),
             )
-            if degree_assessment.identification_status is not NetworkIdentificationStatus.POINT_IDENTIFIED:
+            if (
+                degree_assessment.identification_status
+                is not NetworkIdentificationStatus.POINT_IDENTIFIED
+            ):
                 records.append(None)
             else:
                 records.append(degree_assessment.estimate)
@@ -1140,7 +1211,10 @@ def _model_dependent_stub(name: str) -> EstimandAssessment:
         name=name,
         target=NetworkEstimandTarget.EXPECTED_UNDER_MODEL,
         identification_status=NetworkIdentificationStatus.MODEL_DEPENDENT,
-        assumptions_required=("correctly specified network model", "missingness model distinct from graph model"),
+        assumptions_required=(
+            "correctly specified network model",
+            "missingness model distinct from graph model",
+        ),
         diagnostics={"reason": "requires_likelihood_or_bayesian_network_model"},
         algorithm="model_based_reconstruction",
         complexity="superlinear / sampler-dependent",
@@ -1151,7 +1225,13 @@ def _default_estimands(mode: NetworkMissingnessMode) -> tuple[str, ...]:
     if mode in {NetworkMissingnessMode.DESIGN_BASED, NetworkMissingnessMode.SENSITIVITY}:
         return ("edge_count", "average_degree", "triangle_count", "wedge_count", "clustering")
     if mode is NetworkMissingnessMode.BOUNDS_ONLY:
-        return ("edge_count", "average_degree", "degree_bounds", "giant_component", "shortest_paths")
+        return (
+            "edge_count",
+            "average_degree",
+            "degree_bounds",
+            "giant_component",
+            "shortest_paths",
+        )
     return ("edge_count", "average_degree", "degree_distribution", "clustering", "giant_component")
 
 
@@ -1222,9 +1302,7 @@ def _resolve_dyad_inclusion_probabilities(
     structural_missing_count = int(_edge_count(structural_missing))
     auditable_dyads = max(comb(n_nodes, 2) - structural_missing_count, 0)
     observed_share = (
-        float(_edge_count(dyad_observed)) / float(auditable_dyads)
-        if auditable_dyads > 0
-        else 0.0
+        float(_edge_count(dyad_observed)) / float(auditable_dyads) if auditable_dyads > 0 else 0.0
     )
     arr = np.full((n_nodes, n_nodes), observed_share, dtype=float)
     np.fill_diagonal(arr, 1.0)
@@ -1274,14 +1352,16 @@ def _build_diagnostics(
     coverage_audit = {
         "n_nodes": n_nodes,
         "frame_observed": request.frame_observed,
-        "sampled_node_share": float(np.mean(node_observed)) if node_observed is not None else (
-            1.0 if request.missingness_type is NetworkMissingnessType.LINK_CENSORING else None
-        ),
+        "sampled_node_share": float(np.mean(node_observed))
+        if node_observed is not None
+        else (1.0 if request.missingness_type is NetworkMissingnessType.LINK_CENSORING else None),
         "observed_dyad_share": observed_dyad_share,
         "structural_missing_share": (
             float(structural_missing_count) / float(total_dyads) if total_dyads > 0 else None
         ),
-        "administratively_missing_share": float(_edge_count(uncertain)) / float(auditable_dyads) if auditable_dyads > 0 else None,
+        "administratively_missing_share": float(_edge_count(uncertain)) / float(auditable_dyads)
+        if auditable_dyads > 0
+        else None,
     }
     diagnostics["coverage_audit"] = coverage_audit
     diagnostics["positivity_audit"] = _probability_summary(edge_probs)
@@ -1365,18 +1445,30 @@ def _recommendations(
     items: list[str] = []
     statuses = {assessment.identification_status for assessment in estimands.values()}
     if NetworkIdentificationStatus.NOT_IDENTIFIED in statuses:
-        items.append("Provide known node or dyad inclusion probabilities, or a validation subgraph, before reporting nonlocal corrected point estimates.")
+        items.append(
+            "Provide known node or dyad inclusion probabilities, or a validation subgraph, before reporting nonlocal corrected point estimates."
+        )
     if NetworkIdentificationStatus.SET_IDENTIFIED in statuses:
-        items.append("Report interval bounds for path and connectivity metrics instead of a single corrected point estimate.")
+        items.append(
+            "Report interval bounds for path and connectivity metrics instead of a single corrected point estimate."
+        )
     if request.missingness_type is NetworkMissingnessType.STRATEGIC_NON_DISCLOSURE:
-        items.append("Run sensitivity mode over a delta grid and report the tipping point where substantive conclusions change.")
+        items.append(
+            "Run sensitivity mode over a delta grid and report the tipping point where substantive conclusions change."
+        )
     min_prob = diagnostics.get("positivity_audit", {}).get("min_edge_inclusion_probability")
     if min_prob is not None and min_prob < 0.05:
-        items.append("Near-zero inclusion probabilities create extreme weights; trim or redesign the sampling frame before trusting HT corrections.")
+        items.append(
+            "Near-zero inclusion probabilities create extreme weights; trim or redesign the sampling frame before trusting HT corrections."
+        )
     if request.mode is NetworkMissingnessMode.MODEL_BASED:
-        items.append("Mark any reconstructed graph functional as model-dependent and include posterior predictive checks in the runtime artifact.")
+        items.append(
+            "Mark any reconstructed graph functional as model-dependent and include posterior predictive checks in the runtime artifact."
+        )
     if not items:
-        items.append("Current assumptions support only low-risk local summaries; keep global claims aligned with the returned identification status.")
+        items.append(
+            "Current assumptions support only low-risk local summaries; keep global claims aligned with the returned identification status."
+        )
     return tuple(dict.fromkeys(items))
 
 
@@ -1397,7 +1489,8 @@ def _observed_graph_summary(
         "observed_triangle_count": int(_triangle_count(observed_edges)),
         "observed_wedge_count": int(_wedge_count(observed_edges)),
         "observed_component_count": len(components),
-        "observed_largest_component_share": float(max(components, default=0)) / float(max(n_nodes, 1)),
+        "observed_largest_component_share": float(max(components, default=0))
+        / float(max(n_nodes, 1)),
         "uncertain_dyad_count": int(_edge_count(uncertain)),
         "confirmed_absence_count": int(_edge_count(confirmed_absence)),
         "structural_missing_dyad_count": int(_edge_count(structural_missing)),
@@ -1416,13 +1509,19 @@ def _mar_plausibility(
     observed_degree = np.sum(observed_edges, axis=1).astype(float)
     payload: dict[str, Any] = {"status": "heuristic"}
     if node_observed is not None:
-        payload["node_observed_vs_degree_corr"] = _safe_correlation(node_observed.astype(float), observed_degree)
+        payload["node_observed_vs_degree_corr"] = _safe_correlation(
+            node_observed.astype(float), observed_degree
+        )
         if data.node_features is not None:
             features = np.asarray(data.node_features, dtype=float)
-            payload["node_observed_feature_r2"] = _linear_fit_r2(features, node_observed.astype(float))
+            payload["node_observed_feature_r2"] = _linear_fit_r2(
+                features, node_observed.astype(float)
+            )
     if dyad_observed is not None:
         dyad_counts = np.sum(dyad_observed, axis=1).astype(float)
-        payload["dyad_observed_vs_observed_degree_corr"] = _safe_correlation(dyad_counts, observed_degree)
+        payload["dyad_observed_vs_observed_degree_corr"] = _safe_correlation(
+            dyad_counts, observed_degree
+        )
     degree_corr = payload.get("node_observed_vs_degree_corr")
     if degree_corr is not None and abs(degree_corr) > 0.3:
         payload["mnar_risk"] = "elevated"
@@ -1459,7 +1558,10 @@ def _validation_gap(
         return {"status": "invalid", "reason": "gold_standard_shape_mismatch"}
     active = np.ones(observed_edges.shape[0], dtype=bool)
     if validation_node_mask is not None:
-        if validation_node_mask.ndim != 1 or validation_node_mask.shape[0] != observed_edges.shape[0]:
+        if (
+            validation_node_mask.ndim != 1
+            or validation_node_mask.shape[0] != observed_edges.shape[0]
+        ):
             return {"status": "invalid", "reason": "validation_node_mask_shape_mismatch"}
         active = validation_node_mask.astype(bool)
     pairs = np.outer(active, active)
@@ -1561,7 +1663,9 @@ def _probability_summary(probabilities: np.ndarray | None) -> dict[str, Any]:
     }
 
 
-def _ht_edge_total(observed_edges: np.ndarray, edge_probs: np.ndarray) -> tuple[float, float | None]:
+def _ht_edge_total(
+    observed_edges: np.ndarray, edge_probs: np.ndarray
+) -> tuple[float, float | None]:
     point = 0.0
     variance = 0.0
     for i in range(observed_edges.shape[0]):
@@ -1656,10 +1760,14 @@ def _homogeneous_off_diagonal_probability(edge_probs: np.ndarray | None) -> floa
     return float(values[0])
 
 
-def _invert_binomial_degree_distribution(observed_degree: np.ndarray, q: float) -> tuple[np.ndarray, dict[str, Any]]:
+def _invert_binomial_degree_distribution(
+    observed_degree: np.ndarray, q: float
+) -> tuple[np.ndarray, dict[str, Any]]:
     n_nodes = observed_degree.shape[0]
     max_degree = n_nodes - 1
-    empirical = np.bincount(observed_degree, minlength=max_degree + 1).astype(float) / float(max(n_nodes, 1))
+    empirical = np.bincount(observed_degree, minlength=max_degree + 1).astype(float) / float(
+        max(n_nodes, 1)
+    )
     if q <= 0.0:
         raise ValueError("q must be positive")
     matrix = np.zeros((max_degree + 1, max_degree + 1), dtype=float)
@@ -1823,7 +1931,9 @@ def _harmonic_closeness(adjacency: np.ndarray) -> np.ndarray:
     for source in range(n_nodes):
         distances = _bfs_distances(adjacency, source)
         finite = distances[np.isfinite(distances) & (distances > 0)]
-        scores[source] = float(np.sum(1.0 / finite)) / float(max(n_nodes - 1, 1)) if finite.size else 0.0
+        scores[source] = (
+            float(np.sum(1.0 / finite)) / float(max(n_nodes - 1, 1)) if finite.size else 0.0
+        )
     return scores
 
 
@@ -1854,7 +1964,9 @@ def _betweenness_centrality(adjacency: np.ndarray) -> np.ndarray:
             vertex = stack.pop()
             for predecessor in predecessors[vertex]:
                 if sigma[vertex] > 0.0:
-                    dependency[predecessor] += (sigma[predecessor] / sigma[vertex]) * (1.0 + dependency[vertex])
+                    dependency[predecessor] += (sigma[predecessor] / sigma[vertex]) * (
+                        1.0 + dependency[vertex]
+                    )
             if vertex != source:
                 scores[vertex] += dependency[vertex]
     if n_nodes > 2:
@@ -1952,7 +2064,9 @@ def _resolve_shortest_path_pairs(
     return None
 
 
-def _distances_for_pairs(adjacency: np.ndarray, pairs: Sequence[tuple[int, int]]) -> dict[tuple[int, int], float]:
+def _distances_for_pairs(
+    adjacency: np.ndarray, pairs: Sequence[tuple[int, int]]
+) -> dict[tuple[int, int], float]:
     by_source: dict[int, list[int]] = {}
     for src, dst in pairs:
         by_source.setdefault(src, []).append(dst)

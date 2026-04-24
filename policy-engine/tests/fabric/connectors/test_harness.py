@@ -5,12 +5,12 @@ This file validates that the harness, simulator, fault injector, and
 contract verifier all work correctly. It is a meta-test that proves the
 machinery is sound before connector developers start using it.
 """
+
 from __future__ import annotations
 
-import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import ClassVar, Any
+from typing import Any, ClassVar
 
 import numpy as np
 import pandas as pd
@@ -22,25 +22,23 @@ from polisyos.fabric.connectors.base import (
     FetchRequest,
     FetchResult,
     HealthStatus,
-    SourceConnector,
 )
 from polisyos.fabric.connectors.contracts.schema import (
     DataSchema,
     FieldSpec,
     SchemaType,
     SchemaVersion,
-    SemanticType,
 )
 from polisyos.fabric.connectors.testing import (
-    ConnectorTestHarness,
     APISimulator,
-    SimulatorMode,
-    SimulatorFixture,
+    ConnectorTestHarness,
+    ContractViolation,
     FaultInjector,
     FaultProfile,
     FaultSequence,
+    SimulatorFixture,
+    SimulatorMode,
     assert_schema_compliance,
-    ContractViolation,
 )
 from polisyos.fabric.connectors.testing.contracts import generate_dataframe_for_schema
 from polisyos.fabric.connectors.testing.fixtures import SimulatedHTTPError
@@ -57,7 +55,6 @@ from polisyos.ir.connectors import (
     VersionStrategy,
 )
 
-
 # =============================================================================
 # Stub connector -- passes all compliance checks
 # =============================================================================
@@ -65,7 +62,7 @@ from polisyos.ir.connectors import (
 _FIXED_VERSION = DataVersion(
     strategy=VersionStrategy.TIMESTAMP,
     value="2024-06-15T12:00:00+00:00",
-    timestamp=datetime(2024, 6, 15, 12, 0, 0, tzinfo=timezone.utc),
+    timestamp=datetime(2024, 6, 15, 12, 0, 0, tzinfo=UTC),
 )
 
 _FIXED_DATA = [
@@ -104,16 +101,14 @@ class StubConnector:
     async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
         return HealthStatus(healthy=True, message="OK", latency_ms=1.2)
 
-    async def fetch(
-        self, handle: ConnectionHandle, request: FetchRequest
-    ) -> FetchResult:
+    async def fetch(self, handle: ConnectionHandle, request: FetchRequest) -> FetchResult:
         return FetchResult(
             data=_FIXED_DATA,
             row_count=len(_FIXED_DATA),
             schema_id="test.stub.dataset",
             schema_version="1.0.0",
             version=_FIXED_VERSION,
-            fetched_at=datetime(2024, 6, 15, 12, 0, 0, tzinfo=timezone.utc),
+            fetched_at=datetime(2024, 6, 15, 12, 0, 0, tzinfo=UTC),
             completeness=1.0,
             quality_tier=QualityTier.SILVER,
         )
@@ -123,6 +118,7 @@ class StubConnector:
         class _Result:
             valid = True
             issues: list[str] = []
+
         return _Result()
 
 
@@ -184,9 +180,13 @@ class SyncMethodsConnector:
 
     def fetch(self, handle: ConnectionHandle, request: FetchRequest) -> FetchResult:  # type: ignore[override]
         return FetchResult(
-            data=[], row_count=0, schema_id="x", schema_version="1.0",
+            data=[],
+            row_count=0,
+            schema_id="x",
+            schema_version="1.0",
             version=_FIXED_VERSION,
-            fetched_at=datetime.now(timezone.utc), completeness=1.0,
+            fetched_at=datetime.now(UTC),
+            completeness=1.0,
         )
 
 
@@ -228,7 +228,7 @@ class TestHarnessDetectsViolations:
 class TestAPISimulatorReplay:
     """Test REPLAY mode with pre-written fixtures."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def fixture_dir(self, tmp_path: Path) -> tuple[Path, str, str]:
         """Create a temporary fixture directory with one sample fixture."""
         connector_id = "test_connector"
@@ -249,9 +249,7 @@ class TestAPISimulatorReplay:
         )
         canonical_url = _canonicalize_url("http://localhost/api", None)
         real_hash = _request_hash("GET", canonical_url, "none", b"")
-        fixture = SimulatorFixture(
-            **{**fixture.to_dict(), "request_hash": real_hash}
-        )
+        fixture = SimulatorFixture(**{**fixture.to_dict(), "request_hash": real_hash})
         fixture.write(connector_dir / f"{real_hash}.json")
 
         return tmp_path, connector_id, dataset_id
@@ -336,16 +334,23 @@ class TestAPISimulatorCallLog:
         for url in ("http://localhost/a", "http://localhost/b"):
             h = _request_hash("GET", _canonicalize_url(url, None), "none", b"")
             fixture = SimulatorFixture(
-                status_code=200, headers={}, body=__import__("base64").b64encode(b"{}").decode(),
-                captured_at="2024-01-01T00:00:00Z", request_url=url,
-                request_method="GET", request_hash=h, connector_id=connector_id,
+                status_code=200,
+                headers={},
+                body=__import__("base64").b64encode(b"{}").decode(),
+                captured_at="2024-01-01T00:00:00Z",
+                request_url=url,
+                request_method="GET",
+                request_hash=h,
+                connector_id=connector_id,
                 dataset_id=dataset_id,
             )
             fixture.write(tmp_path / connector_id / dataset_id / f"{h}.json")
 
         sim = APISimulator(
-            mode=SimulatorMode.REPLAY, fixture_root=tmp_path,
-            connector_id=connector_id, dataset_id=dataset_id,
+            mode=SimulatorMode.REPLAY,
+            fixture_root=tmp_path,
+            connector_id=connector_id,
+            dataset_id=dataset_id,
         )
         async with sim:
             await sim._handle_request("GET", "http://localhost/a")
@@ -360,16 +365,23 @@ class TestAPISimulatorCallLog:
         url = "http://localhost/target"
         h = _request_hash("GET", _canonicalize_url(url, None), "none", b"")
         fixture = SimulatorFixture(
-            status_code=200, headers={}, body=__import__("base64").b64encode(b"{}").decode(),
-            captured_at="2024-01-01T00:00:00Z", request_url=url,
-            request_method="GET", request_hash=h, connector_id=connector_id,
+            status_code=200,
+            headers={},
+            body=__import__("base64").b64encode(b"{}").decode(),
+            captured_at="2024-01-01T00:00:00Z",
+            request_url=url,
+            request_method="GET",
+            request_hash=h,
+            connector_id=connector_id,
             dataset_id=dataset_id,
         )
         fixture.write(tmp_path / connector_id / dataset_id / f"{h}.json")
 
         sim = APISimulator(
-            mode=SimulatorMode.REPLAY, fixture_root=tmp_path,
-            connector_id=connector_id, dataset_id=dataset_id,
+            mode=SimulatorMode.REPLAY,
+            fixture_root=tmp_path,
+            connector_id=connector_id,
+            dataset_id=dataset_id,
         )
         async with sim:
             await sim._handle_request("GET", url)
@@ -394,11 +406,13 @@ class TestFaultSequence:
 
     def test_multi_profile_ordering(self) -> None:
         """Profiles are consumed in declaration order."""
-        seq = FaultSequence([
-            FaultProfile(kind="error",   status_code=503, count=1),
-            FaultProfile(kind="latency", latency_ms=100,  count=1),
-            FaultProfile(kind="disconnect",                count=1),
-        ])
+        seq = FaultSequence(
+            [
+                FaultProfile(kind="error", status_code=503, count=1),
+                FaultProfile(kind="latency", latency_ms=100, count=1),
+                FaultProfile(kind="disconnect", count=1),
+            ]
+        )
 
         f1 = seq.next_fault()
         assert f1 is not None and f1.kind == "error" and f1.status_code == 503
@@ -455,23 +469,25 @@ class TestFaultSequence:
 class TestFaultInjector:
     """Integration tests: injector + stub connector + resilience interaction."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def stub(self) -> StubConnector:
         return StubConnector()
 
-    @pytest.fixture()
+    @pytest.fixture
     def handle(self) -> ConnectionHandle:
         return ConnectionHandle(
             connector_id="test.stub",
             config=ConnectionConfig(url="http://localhost"),
         )
 
-    @pytest.fixture()
+    @pytest.fixture
     def fetch_request(self) -> FetchRequest:
         return FetchRequest(dataset_id="test.stub.dataset")
 
     @pytest.mark.asyncio
-    async def test_error_injection(self, stub: StubConnector, handle: ConnectionHandle, fetch_request: FetchRequest) -> None:
+    async def test_error_injection(
+        self, stub: StubConnector, handle: ConnectionHandle, fetch_request: FetchRequest
+    ) -> None:
         """SimulatedHTTPError is raised for error faults."""
         injector = FaultInjector.with_error(stub, status_code=503, count=2)
 
@@ -489,7 +505,9 @@ class TestFaultInjector:
         assert injector.faulted_calls == 2
 
     @pytest.mark.asyncio
-    async def test_disconnect_injection(self, stub: StubConnector, handle: ConnectionHandle, fetch_request: FetchRequest) -> None:
+    async def test_disconnect_injection(
+        self, stub: StubConnector, handle: ConnectionHandle, fetch_request: FetchRequest
+    ) -> None:
         """ConnectionError is raised for disconnect faults."""
         injector = FaultInjector.with_disconnect(stub, count=1)
 
@@ -501,7 +519,9 @@ class TestFaultInjector:
         assert isinstance(result, FetchResult)
 
     @pytest.mark.asyncio
-    async def test_latency_injection(self, stub: StubConnector, handle: ConnectionHandle, fetch_request: FetchRequest) -> None:
+    async def test_latency_injection(
+        self, stub: StubConnector, handle: ConnectionHandle, fetch_request: FetchRequest
+    ) -> None:
         """Latency faults delay but still return a result."""
         import time
 
@@ -515,14 +535,18 @@ class TestFaultInjector:
         assert elapsed_ms >= 40  # Allow small timing tolerance
 
     @pytest.mark.asyncio
-    async def test_mixed_sequence(self, stub: StubConnector, handle: ConnectionHandle, fetch_request: FetchRequest) -> None:
+    async def test_mixed_sequence(
+        self, stub: StubConnector, handle: ConnectionHandle, fetch_request: FetchRequest
+    ) -> None:
         """A multi-profile sequence fires in order."""
         injector = FaultInjector(
             connector=stub,
-            sequence=FaultSequence([
-                FaultProfile(kind="error",      status_code=429, count=1),
-                FaultProfile(kind="disconnect",                  count=1),
-            ]),
+            sequence=FaultSequence(
+                [
+                    FaultProfile(kind="error", status_code=429, count=1),
+                    FaultProfile(kind="disconnect", count=1),
+                ]
+            ),
         )
 
         with pytest.raises(SimulatedHTTPError) as exc:
@@ -536,7 +560,9 @@ class TestFaultInjector:
         assert isinstance(result, FetchResult)
 
     @pytest.mark.asyncio
-    async def test_observability_counters(self, stub: StubConnector, handle: ConnectionHandle, fetch_request: FetchRequest) -> None:
+    async def test_observability_counters(
+        self, stub: StubConnector, handle: ConnectionHandle, fetch_request: FetchRequest
+    ) -> None:
         """total_calls and faulted_calls track correctly."""
         injector = FaultInjector.with_error(stub, status_code=500, count=2)
 
@@ -559,16 +585,22 @@ class TestFaultInjector:
 class TestContractVerification:
     """Validate assert_schema_compliance against good and bad data."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def schema(self) -> DataSchema:
         return DataSchema(
             schema_id="test.contract",
             version=SchemaVersion(1, 0, 0),
             fields=(
-                FieldSpec(name="id",    data_type=SchemaType.INT64,   nullable=False),
-                FieldSpec(name="value", data_type=SchemaType.FLOAT64, nullable=True,  bounds=(0.0, 100.0)),
-                FieldSpec(name="label", data_type=SchemaType.CATEGORY, nullable=False,
-                          allowed_values=frozenset({"A", "B", "C"})),
+                FieldSpec(name="id", data_type=SchemaType.INT64, nullable=False),
+                FieldSpec(
+                    name="value", data_type=SchemaType.FLOAT64, nullable=True, bounds=(0.0, 100.0)
+                ),
+                FieldSpec(
+                    name="label",
+                    data_type=SchemaType.CATEGORY,
+                    nullable=False,
+                    allowed_values=frozenset({"A", "B", "C"}),
+                ),
             ),
             required_completeness=0.90,
             allowed_null_fields=frozenset({"value"}),
@@ -576,11 +608,13 @@ class TestContractVerification:
 
     def test_valid_data_passes(self, schema: DataSchema) -> None:
         """Conforming data must not raise."""
-        df = pd.DataFrame({
-            "id":    [1, 2, 3],
-            "value": [10.0, 50.0, 99.9],
-            "label": ["A", "B", "C"],
-        })
+        df = pd.DataFrame(
+            {
+                "id": [1, 2, 3],
+                "value": [10.0, 50.0, 99.9],
+                "label": ["A", "B", "C"],
+            }
+        )
         assert_schema_compliance(df, schema)
 
     def test_missing_column_raises(self, schema: DataSchema) -> None:
@@ -592,33 +626,39 @@ class TestContractVerification:
 
     def test_null_in_non_nullable_raises(self, schema: DataSchema) -> None:
         """Nulls in a non-nullable column must be caught."""
-        df = pd.DataFrame({
-            "id":    [1, None, 3],
-            "value": [1.0, 2.0, 3.0],
-            "label": ["A", "B", "C"],
-        })
+        df = pd.DataFrame(
+            {
+                "id": [1, None, 3],
+                "value": [1.0, 2.0, 3.0],
+                "label": ["A", "B", "C"],
+            }
+        )
 
         with pytest.raises(ContractViolation, match="null"):
             assert_schema_compliance(df, schema)
 
     def test_out_of_bounds_raises(self, schema: DataSchema) -> None:
         """Values outside declared bounds must be caught."""
-        df = pd.DataFrame({
-            "id":    [1, 2, 3],
-            "value": [10.0, 200.0, 50.0],
-            "label": ["A", "B", "C"],
-        })
+        df = pd.DataFrame(
+            {
+                "id": [1, 2, 3],
+                "value": [10.0, 200.0, 50.0],
+                "label": ["A", "B", "C"],
+            }
+        )
 
         with pytest.raises(ContractViolation, match="bound"):
             assert_schema_compliance(df, schema)
 
     def test_invalid_category_raises(self, schema: DataSchema) -> None:
         """Values outside allowed_values must be caught."""
-        df = pd.DataFrame({
-            "id":    [1, 2, 3],
-            "value": [10.0, 20.0, 30.0],
-            "label": ["A", "B", "INVALID"],
-        })
+        df = pd.DataFrame(
+            {
+                "id": [1, 2, 3],
+                "value": [10.0, 20.0, 30.0],
+                "label": ["A", "B", "INVALID"],
+            }
+        )
 
         with pytest.raises(ContractViolation, match="invalid values"):
             assert_schema_compliance(df, schema)
@@ -629,7 +669,8 @@ class TestContractVerification:
 
         with pytest.raises(ContractViolation) as exc_info:
             assert_schema_compliance(
-                df, schema,
+                df,
+                schema,
                 context={"connector_id": "test.ctx", "dataset": "my_data"},
             )
         violation_str = str(exc_info.value)
@@ -645,19 +686,25 @@ class TestContractVerification:
 class TestSyntheticGeneration:
     """Validate that generated DataFrames conform to their source schema."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def rich_schema(self) -> DataSchema:
         """Schema with every constraint type exercised."""
         return DataSchema(
             schema_id="test.synthetic.rich",
             version=SchemaVersion(1, 0, 0),
             fields=(
-                FieldSpec(name="id",       data_type=SchemaType.INT64,   nullable=False),
-                FieldSpec(name="score",    data_type=SchemaType.FLOAT64, nullable=True,  bounds=(0.0, 100.0)),
-                FieldSpec(name="tag",      data_type=SchemaType.CATEGORY, nullable=False,
-                          allowed_values=frozenset({"alpha", "beta", "gamma"})),
-                FieldSpec(name="active",   data_type=SchemaType.BOOLEAN, nullable=False),
-                FieldSpec(name="name",     data_type=SchemaType.STRING,  nullable=True,  max_length=20),
+                FieldSpec(name="id", data_type=SchemaType.INT64, nullable=False),
+                FieldSpec(
+                    name="score", data_type=SchemaType.FLOAT64, nullable=True, bounds=(0.0, 100.0)
+                ),
+                FieldSpec(
+                    name="tag",
+                    data_type=SchemaType.CATEGORY,
+                    nullable=False,
+                    allowed_values=frozenset({"alpha", "beta", "gamma"}),
+                ),
+                FieldSpec(name="active", data_type=SchemaType.BOOLEAN, nullable=False),
+                FieldSpec(name="name", data_type=SchemaType.STRING, nullable=True, max_length=20),
             ),
             allowed_null_fields=frozenset({"score", "name"}),
             required_completeness=0.80,
@@ -743,9 +790,13 @@ class TestSimulatorFixtureSerialization:
 
         raw = b"test payload \xc3\xa9"
         fixture = SimulatorFixture(
-            status_code=200, headers={},
+            status_code=200,
+            headers={},
             body=base64.b64encode(raw).decode(),
-            captured_at="", request_url="", request_method="GET", request_hash="",
+            captured_at="",
+            request_url="",
+            request_method="GET",
+            request_hash="",
         )
         assert fixture.body_bytes == raw
         assert fixture.body_text == raw.decode("utf-8")

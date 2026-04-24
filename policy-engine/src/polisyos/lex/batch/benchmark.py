@@ -6,7 +6,7 @@ import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 
@@ -15,10 +15,12 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.claims.persist import load_json_artifact
 from polisyos.lex.api import assemble_norm_pack, evaluate_transport_constraints
 from polisyos.lex.batch.amendment_metrics import collect_amendment_quality_metrics
-from polisyos.lex.batch.config import BatchConfig
 from polisyos.lex.knowledge.search import LegalKnowledgeGraph
 from polisyos.lex.types import NormPackBuildRequest
 from polisyos.scientist.agent.knowledge_tools import KnowledgeToolkit
+
+if TYPE_CHECKING:
+    from polisyos.lex.batch.config import BatchConfig
 
 READINESS_THRESHOLDS: dict[str, float] = {
     "benchmark_search_top5_relevance_pct": 70.0,
@@ -62,6 +64,7 @@ _POLICY_CASES: tuple[tuple[str, dict[str, Any]], ...] = (
 @dataclass(frozen=True)
 class LegalSearchBenchmarkCase:
     """Legal search benchmark case public type."""
+
     case_id: str
     query: str
     expected_actions: tuple[str, ...] = ()
@@ -72,6 +75,7 @@ class LegalSearchBenchmarkCase:
 @dataclass(frozen=True)
 class BenchmarkOutcome:
     """Benchmark outcome public type."""
+
     report_path: Path
     metrics: dict[str, float | int]
     passed: bool
@@ -137,8 +141,7 @@ def _hallucination_flag_condition(flags: tuple[str, ...]) -> str:
     if not flags:
         return "FALSE"
     return " OR ".join(
-        f"LOWER(COALESCE(hallucination_flags_json, '')) LIKE '%{flag.lower()}%'"
-        for flag in flags
+        f"LOWER(COALESCE(hallucination_flags_json, '')) LIKE '%{flag.lower()}%'" for flag in flags
     )
 
 
@@ -173,16 +176,22 @@ def _load_top_domains(con: duckdb.DuckDBPyConnection) -> list[str]:
 
 
 def _result_matches_case(result: Any, case: LegalSearchBenchmarkCase) -> bool:
-    action = str(getattr(result, "action_canon", "") or getattr(result, "predicate", "") or "").strip().lower()
-    norm_type = str(getattr(result, "norm_type_canon", "") or getattr(result, "norm_type", "") or "").strip().lower()
+    action = (
+        str(getattr(result, "action_canon", "") or getattr(result, "predicate", "") or "")
+        .strip()
+        .lower()
+    )
+    norm_type = (
+        str(getattr(result, "norm_type_canon", "") or getattr(result, "norm_type", "") or "")
+        .strip()
+        .lower()
+    )
     domain = str(getattr(result, "top_domain", "") or "").strip().lower()
     if case.expected_actions and action not in set(case.expected_actions):
         return False
     if case.expected_norm_types and norm_type not in set(case.expected_norm_types):
         return False
-    if case.domain and domain != case.domain.lower():
-        return False
-    return True
+    return not (case.domain and domain != case.domain.lower())
 
 
 def _merge_results(merged: dict[str, Any], results: list[Any]) -> None:
@@ -271,8 +280,12 @@ def _run_search_benchmark(
                 "results_total": len(results),
                 "matched": matched is not None,
                 "matched_fact_id": getattr(matched, "fact_id", "") if matched is not None else "",
-                "matched_action": getattr(matched, "action_canon", "") if matched is not None else "",
-                "matched_norm_type": getattr(matched, "norm_type_canon", "") if matched is not None else "",
+                "matched_action": getattr(matched, "action_canon", "")
+                if matched is not None
+                else "",
+                "matched_norm_type": getattr(matched, "norm_type_canon", "")
+                if matched is not None
+                else "",
             }
         )
     metrics: dict[str, float | int] = {
@@ -282,7 +295,9 @@ def _run_search_benchmark(
     return {"cases": rows, "metrics": metrics}, metrics
 
 
-def _run_constraints_benchmark(toolkit: KnowledgeToolkit, *, domains: list[str]) -> tuple[dict[str, Any], dict[str, float | int]]:
+def _run_constraints_benchmark(
+    toolkit: KnowledgeToolkit, *, domains: list[str]
+) -> tuple[dict[str, Any], dict[str, float | int]]:
     rows: list[dict[str, Any]] = []
     ready = 0
     for domain in domains:
@@ -304,7 +319,9 @@ def _run_constraints_benchmark(toolkit: KnowledgeToolkit, *, domains: list[str])
     return {"domains": rows, "metrics": metrics}, metrics
 
 
-def _resolve_cross_graph_status(*, toolkit: KnowledgeToolkit, domain: str, db_path: Path) -> tuple[str, str]:
+def _resolve_cross_graph_status(
+    *, toolkit: KnowledgeToolkit, domain: str, db_path: Path
+) -> tuple[str, str]:
     constraint_set = evaluate_transport_constraints(
         jurisdiction="UA",
         policy_domain=domain,
@@ -324,7 +341,9 @@ def _resolve_cross_graph_status(*, toolkit: KnowledgeToolkit, domain: str, db_pa
     ]
     if grounded_constraints and constraint_set.hard_constraints:
         return "prohibited", grounded_constraints[0].legal_source
-    if grounded_constraints and (constraint_set.soft_constraints or constraint_set.data_license_constraints):
+    if grounded_constraints and (
+        constraint_set.soft_constraints or constraint_set.data_license_constraints
+    ):
         return "constrained", grounded_constraints[0].legal_source
     applicable = toolkit.get_applicable_norms(domain=domain, top_k=20)
     if applicable:
@@ -381,7 +400,7 @@ def _run_normpack_benchmark(config: BatchConfig) -> tuple[dict[str, Any], dict[s
             "benchmark_normpack_ready_pct": 0.0,
         }
 
-    with open(summary_path, "r", encoding="utf-8") as fh:
+    with open(summary_path, encoding="utf-8") as fh:
         summary = json.load(fh)
 
     claim_set_ids = [
@@ -460,7 +479,9 @@ def _run_normpack_benchmark(config: BatchConfig) -> tuple[dict[str, Any], dict[s
 
     grouped_by_domain: dict[str, list[str]] = {}
     for record in claim_set_records:
-        domain_key = record["domain"] or f"doc_source:{record['doc_source_id'] or record['artifact_id']}"
+        domain_key = (
+            record["domain"] or f"doc_source:{record['doc_source_id'] or record['artifact_id']}"
+        )
         grouped_by_domain.setdefault(domain_key, []).append(record["artifact_id"])
     selected_groups = sorted(
         grouped_by_domain.items(),
@@ -551,7 +572,9 @@ def _run_quality_capability_benchmark(
     payload: dict[str, Any] = {"status": "ok", "metrics": {}, "sections": {}}
 
     with duckdb.connect(str(db_path), read_only=True) as con:
-        if _table_exists(con, "lex_entities") and _column_exists(con, "lex_entities", "mention_count"):
+        if _table_exists(con, "lex_entities") and _column_exists(
+            con, "lex_entities", "mention_count"
+        ):
             entity_total = int(con.execute("SELECT COUNT(*) FROM lex_entities").fetchone()[0])
             single_mention_total = int(
                 con.execute(
@@ -575,7 +598,9 @@ def _run_quality_capability_benchmark(
             }
 
         if _table_exists(con, "lex_reference_resolution_audit"):
-            reference_total = int(con.execute("SELECT COUNT(*) FROM lex_reference_resolution_audit").fetchone()[0])
+            reference_total = int(
+                con.execute("SELECT COUNT(*) FROM lex_reference_resolution_audit").fetchone()[0]
+            )
             resolved_total = int(
                 con.execute(
                     """
@@ -599,7 +624,9 @@ def _run_quality_capability_benchmark(
         amendment_metrics = collect_amendment_quality_metrics(con)
         if amendment_metrics.available:
             metrics["benchmark_amendment_docs_total"] = amendment_metrics.amendment_candidate_docs
-            metrics["benchmark_amendment_cases_total"] = amendment_metrics.amendment_target_expected_total
+            metrics["benchmark_amendment_cases_total"] = (
+                amendment_metrics.amendment_target_expected_total
+            )
             metrics["benchmark_single_target_amendment_docs_total"] = (
                 amendment_metrics.expected_single_target_amendment_docs_total
             )
@@ -625,12 +652,16 @@ def _run_quality_capability_benchmark(
                 "amendments_total": amendment_metrics.amendments_total,
                 "amendments_with_target": amendment_metrics.amendments_with_target_total,
                 "amendment_target_expected_total": amendment_metrics.amendment_target_expected_total,
-                "amendment_target_row_resolution_pct": metrics["benchmark_amendment_target_row_resolution_pct"],
+                "amendment_target_row_resolution_pct": metrics[
+                    "benchmark_amendment_target_row_resolution_pct"
+                ],
                 "single_target_amendment_docs_total": amendment_metrics.expected_single_target_amendment_docs_total,
                 "resolved_single_target_amendment_docs_total": amendment_metrics.resolved_single_target_amendment_docs_total,
                 "single_target_title_docs_total": amendment_metrics.single_target_title_docs_total,
                 "resolved_single_target_title_docs_total": amendment_metrics.resolved_single_target_title_docs_total,
-                "single_target_title_resolution_pct": metrics["benchmark_single_target_title_resolution_pct"],
+                "single_target_title_resolution_pct": metrics[
+                    "benchmark_single_target_title_resolution_pct"
+                ],
                 "amendment_title_unresolved_docs_total": amendment_metrics.amendment_title_unresolved_docs_total,
                 "multi_target_title_docs_total": amendment_metrics.multi_target_title_docs_total,
                 "extraction_ready_pct": metrics["benchmark_amendment_extraction_ready_pct"],
@@ -638,7 +669,9 @@ def _run_quality_capability_benchmark(
             }
 
         if _table_exists(con, "lex_doc_temporal"):
-            doc_temporal_total = int(con.execute("SELECT COUNT(*) FROM lex_doc_temporal").fetchone()[0])
+            doc_temporal_total = int(
+                con.execute("SELECT COUNT(*) FROM lex_doc_temporal").fetchone()[0]
+            )
             doc_temporal_resolved = int(
                 con.execute(
                     """
@@ -660,7 +693,11 @@ def _run_quality_capability_benchmark(
 
         normative_table, normative_where = _normative_fact_table(con)
         if normative_table:
-            normative_total = int(con.execute(f"SELECT COUNT(*) FROM {normative_table}{normative_where}").fetchone()[0])
+            normative_total = int(
+                con.execute(f"SELECT COUNT(*) FROM {normative_table}{normative_where}").fetchone()[
+                    0
+                ]
+            )
             if _column_exists(con, normative_table, "temporal_resolution_status"):
                 fact_temporal_resolved = int(
                     con.execute(
@@ -714,7 +751,9 @@ def _run_quality_capability_benchmark(
                     "temporal_current_safety_pct": metrics["benchmark_temporal_current_safety_pct"],
                 }
             if _table_exists(con, "lex_high_confidence_norms"):
-                high_conf_total = int(con.execute("SELECT COUNT(*) FROM lex_high_confidence_norms").fetchone()[0])
+                high_conf_total = int(
+                    con.execute("SELECT COUNT(*) FROM lex_high_confidence_norms").fetchone()[0]
+                )
                 metrics["benchmark_high_confidence_norm_cases_total"] = normative_total
                 metrics["benchmark_high_confidence_norm_share_pct"] = round(
                     _pct(high_conf_total, normative_total),
@@ -723,7 +762,9 @@ def _run_quality_capability_benchmark(
                 payload["sections"]["high_confidence_norms"] = {
                     "normative_facts_total": normative_total,
                     "high_confidence_norms_total": high_conf_total,
-                    "high_confidence_norm_share_pct": metrics["benchmark_high_confidence_norm_share_pct"],
+                    "high_confidence_norm_share_pct": metrics[
+                        "benchmark_high_confidence_norm_share_pct"
+                    ],
                 }
 
             if _column_exists(con, normative_table, "hallucination_flags_json"):
@@ -763,7 +804,10 @@ def _run_quality_capability_benchmark(
                     3,
                 )
                 metrics["benchmark_hallucination_blocking_clean_pct"] = round(
-                    _pct(max(0, normative_total - hallucination_blocking_flagged_total), normative_total),
+                    _pct(
+                        max(0, normative_total - hallucination_blocking_flagged_total),
+                        normative_total,
+                    ),
                     3,
                 )
                 payload["sections"]["hallucination"] = {
@@ -772,11 +816,15 @@ def _run_quality_capability_benchmark(
                     "hallucination_clean_pct": metrics["benchmark_hallucination_clean_pct"],
                     "blocking_flagged_facts": hallucination_blocking_flagged_total,
                     "advisory_flagged_facts": hallucination_advisory_flagged_total,
-                    "hallucination_blocking_clean_pct": metrics["benchmark_hallucination_blocking_clean_pct"],
+                    "hallucination_blocking_clean_pct": metrics[
+                        "benchmark_hallucination_blocking_clean_pct"
+                    ],
                 }
 
         if _table_exists(con, "lex_consistency_issues"):
-            consistency_total = int(con.execute("SELECT COUNT(*) FROM lex_consistency_issues").fetchone()[0])
+            consistency_total = int(
+                con.execute("SELECT COUNT(*) FROM lex_consistency_issues").fetchone()[0]
+            )
             resolved_total = 0
             if _column_exists(con, "lex_consistency_issues", "requires_manual_review"):
                 resolved_total = int(
@@ -855,7 +903,9 @@ def run_benchmark(config: BatchConfig) -> BenchmarkOutcome:
     toolkit = KnowledgeToolkit(legal_graph=graph)
     try:
         search_payload, search_metrics = _run_search_benchmark(toolkit, graph)
-        constraint_payload, constraint_metrics = _run_constraints_benchmark(toolkit, domains=domains)
+        constraint_payload, constraint_metrics = _run_constraints_benchmark(
+            toolkit, domains=domains
+        )
         cross_graph_payload, cross_graph_metrics = _run_cross_graph_benchmark(
             toolkit,
             db_path=config.db_path,
@@ -919,9 +969,9 @@ def run_benchmark(config: BatchConfig) -> BenchmarkOutcome:
 
 
 __all__ = [
-    "BenchmarkOutcome",
     "DEFAULT_SEARCH_CASES",
-    "LegalSearchBenchmarkCase",
     "READINESS_THRESHOLDS",
+    "BenchmarkOutcome",
+    "LegalSearchBenchmarkCase",
     "run_benchmark",
 ]

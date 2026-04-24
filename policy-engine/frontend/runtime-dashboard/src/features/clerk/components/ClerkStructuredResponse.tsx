@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { Badge, Card } from "@/shared/ui/primitives";
 import { ConfidenceGauge } from "@/shared/charts/ConfidenceGauge";
+import { AuthoredText } from "@/shared/ui/authored-text";
 
 import type {
   StructuredResponseData,
@@ -11,6 +13,7 @@ import type {
 type ClerkStructuredResponseProps = {
   data: StructuredResponseData;
   className?: string;
+  timestamp?: number;
 };
 
 const DIRECTION_ICON: Record<KeyFactor["direction"], string> = {
@@ -94,78 +97,89 @@ function SourceCitationChip({ source }: { source: SourceCitation }) {
 export function ClerkStructuredResponse({
   data,
   className,
+  timestamp,
 }: ClerkStructuredResponseProps) {
+  const { t } = useI18n();
   const hasFactors = data.keyFactors && data.keyFactors.length > 0;
   const hasSources = data.sources && data.sources.length > 0;
+  const authoredTimestamp =
+    typeof timestamp === "number"
+      ? new Date(timestamp).toISOString()
+      : undefined;
 
   return (
-    <Card className={cn("space-y-4 p-4", className)}>
-      {/* Top row: verdict + confidence */}
-      <div className="flex items-start gap-4">
-        <div className="min-w-0 flex-1 space-y-2">
-          {data.policyDomain && (
-            <Badge kind="info">{data.policyDomain}</Badge>
-          )}
-          {data.verdict && (
-            <p className="text-sm font-semibold leading-relaxed">
-              {data.verdict}
-            </p>
-          )}
-          {data.methodology && (
-            <p className="text-xs text-[var(--slate)]">
-              {data.methodology}
-            </p>
+    <AuthoredText
+      as="div"
+      author="drafter"
+      className={className}
+      timestamp={authoredTimestamp}
+    >
+      <Card className="space-y-4 p-4">
+        {/* Top row: verdict + confidence */}
+        <div className="flex items-start gap-4">
+          <div className="min-w-0 flex-1 space-y-2">
+            {data.policyDomain && (
+              <Badge kind="info">{data.policyDomain}</Badge>
+            )}
+            {data.verdict && (
+              <p className="text-sm leading-relaxed font-semibold">
+                {data.verdict}
+              </p>
+            )}
+            {data.methodology && (
+              <p className="text-xs text-[var(--slate)]">{data.methodology}</p>
+            )}
+          </div>
+          {data.confidence != null && (
+            <div className="shrink-0">
+              <ConfidenceGauge
+                value={data.confidence}
+                label={data.confidenceLevel}
+                size={80}
+              />
+            </div>
           )}
         </div>
-        {data.confidence != null && (
-          <div className="shrink-0">
-            <ConfidenceGauge
-              value={data.confidence}
-              label={data.confidenceLevel}
-              size={80}
-            />
+
+        {/* Status chips (progressive build) */}
+        {data.statusChips && data.statusChips.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {data.statusChips.map((chip, i) => (
+              <Badge key={i} kind="neutral">
+                {chip}
+              </Badge>
+            ))}
           </div>
         )}
-      </div>
 
-      {/* Status chips (progressive build) */}
-      {data.statusChips && data.statusChips.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {data.statusChips.map((chip, i) => (
-            <Badge key={i} kind="neutral">
-              {chip}
-            </Badge>
-          ))}
-        </div>
-      )}
-
-      {/* Key factors */}
-      {hasFactors && (
-        <div className="space-y-2">
-          <h5 className="text-xs font-semibold uppercase tracking-wider text-[var(--slate)]">
-            Key Factors
-          </h5>
-          <div className="space-y-1.5">
-            {data.keyFactors!.map((f, i) => (
-              <KeyFactorRow key={i} factor={f} />
-            ))}
+        {/* Key factors */}
+        {hasFactors && (
+          <div className="space-y-2">
+            <h5 className="text-xs font-semibold tracking-wider text-[var(--slate)] uppercase">
+              {t("clerk.structured.keyFactors")}
+            </h5>
+            <div className="space-y-1.5">
+              {data.keyFactors!.map((f, i) => (
+                <KeyFactorRow key={i} factor={f} />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Source citations */}
-      {hasSources && (
-        <div className="space-y-2">
-          <h5 className="text-xs font-semibold uppercase tracking-wider text-[var(--slate)]">
-            Sources
-          </h5>
-          <div className="flex flex-wrap gap-1.5">
-            {data.sources!.map((s) => (
-              <SourceCitationChip key={s.id} source={s} />
-            ))}
+        {/* Source citations */}
+        {hasSources && (
+          <div className="space-y-2">
+            <h5 className="text-xs font-semibold tracking-wider text-[var(--slate)] uppercase">
+              {t("clerk.structured.sources")}
+            </h5>
+            <div className="flex flex-wrap gap-1.5">
+              {data.sources!.map((s) => (
+                <SourceCitationChip key={s.id} source={s} />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-    </Card>
+        )}
+      </Card>
+    </AuthoredText>
   );
 }

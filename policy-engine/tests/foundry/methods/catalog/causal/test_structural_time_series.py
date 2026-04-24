@@ -44,4 +44,3 @@ def test_structural_time_series_runs_without_effect():
     assert report.status == EstimationStatus.SUCCESS
     assert report.inference_method == "state_space_simulation"
     assert abs(report.point_estimate) < 2.0
-

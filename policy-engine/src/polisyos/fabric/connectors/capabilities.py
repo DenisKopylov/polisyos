@@ -1,11 +1,13 @@
 """Capability checking utilities and decorators."""
+
 from __future__ import annotations
 
 import ast
 import inspect
 import textwrap
+from collections.abc import Callable
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar
 
 from polisyos.ir.connectors import ConnectorCapability
 
@@ -34,7 +36,7 @@ def requires_capability(
 
             @wraps(func)
             async def async_wrapper(
-                self: "SourceConnector",
+                self: SourceConnector,
                 *args: P.args,
                 **kwargs: P.kwargs,
             ) -> R:
@@ -56,7 +58,7 @@ def requires_capability(
             return async_wrapper  # type: ignore[return-value]
 
         @wraps(func)
-        def sync_wrapper(self: "SourceConnector", *args: P.args, **kwargs: P.kwargs) -> R:
+        def sync_wrapper(self: SourceConnector, *args: P.args, **kwargs: P.kwargs) -> R:
             from polisyos.fabric.connectors.types import CapabilityError
 
             connector_caps = getattr(self, "capabilities", ConnectorCapability(0))
@@ -88,7 +90,7 @@ def requires_any_capability(
 
             @wraps(func)
             async def async_wrapper(
-                self: "SourceConnector",
+                self: SourceConnector,
                 *args: P.args,
                 **kwargs: P.kwargs,
             ) -> R:
@@ -110,7 +112,7 @@ def requires_any_capability(
             return async_wrapper  # type: ignore[return-value]
 
         @wraps(func)
-        def sync_wrapper(self: "SourceConnector", *args: P.args, **kwargs: P.kwargs) -> R:
+        def sync_wrapper(self: SourceConnector, *args: P.args, **kwargs: P.kwargs) -> R:
             from polisyos.fabric.connectors.types import CapabilityError
 
             connector_caps = getattr(self, "capabilities", ConnectorCapability(0))
@@ -158,7 +160,7 @@ REQUIRED_ATTRIBUTES = (
 
 
 def validate_protocol_compliance(
-    connector_class: type["SourceConnector"],
+    connector_class: type[SourceConnector],
     *,
     strict: bool = True,
 ) -> list[str]:
@@ -188,8 +190,7 @@ def validate_protocol_compliance(
             for method in required_methods:
                 if not hasattr(connector_class, method):
                     violations.append(
-                        f"Capability {cap.name} requires method '{method}' "
-                        f"but it's not implemented"
+                        f"Capability {cap.name} requires method '{method}' but it's not implemented"
                     )
                     continue
 
@@ -209,9 +210,7 @@ def validate_protocol_compliance(
                     continue
 
                 if strict and not _is_async_callable(method_obj, method_name=method):
-                    violations.append(
-                        f"Method '{method}' for capability {cap.name} must be async"
-                    )
+                    violations.append(f"Method '{method}' for capability {cap.name} must be async")
 
     if hasattr(connector_class, "metadata") and hasattr(connector_class, "capabilities"):
         metadata = connector_class.metadata
@@ -230,9 +229,9 @@ def validate_protocol_compliance(
 def _is_async_callable(method: Any, *, method_name: str | None = None) -> bool:
     if inspect.iscoroutinefunction(method):
         return True
-    if method_name in {"list_datasets", "fetch_stream"} and inspect.isasyncgenfunction(method):
-        return True
-    return False
+    return bool(
+        method_name in {"list_datasets", "fetch_stream"} and inspect.isasyncgenfunction(method)
+    )
 
 
 def _is_protocol_stub(method: Any) -> bool:
@@ -244,11 +243,7 @@ def _is_protocol_stub(method: Any) -> bool:
         return False
 
     function_def = next(
-        (
-            node
-            for node in module.body
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-        ),
+        (node for node in module.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))),
         None,
     )
     if function_def is None:
@@ -285,7 +280,7 @@ def _is_protocol_stub(method: Any) -> bool:
     return False
 
 
-def _is_baseconnector_default(connector_class: type["SourceConnector"], method_name: str) -> bool:
+def _is_baseconnector_default(connector_class: type[SourceConnector], method_name: str) -> bool:
     try:
         from polisyos.fabric.connectors.base import BaseConnector
     except ImportError:
@@ -299,7 +294,7 @@ def _is_baseconnector_default(connector_class: type["SourceConnector"], method_n
 
 
 def check_capability_at_runtime(
-    connector: "SourceConnector",
+    connector: SourceConnector,
     required: ConnectorCapability,
 ) -> bool:
     """Check if a connector instance has a required capability at runtime."""
@@ -308,7 +303,7 @@ def check_capability_at_runtime(
 
 
 def get_missing_capabilities(
-    connector: "SourceConnector",
+    connector: SourceConnector,
     required: ConnectorCapability,
 ) -> list[ConnectorCapability]:
     """Get list of missing capabilities from a required set."""

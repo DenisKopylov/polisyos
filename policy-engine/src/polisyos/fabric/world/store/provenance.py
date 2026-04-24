@@ -1,4 +1,5 @@
 """Stable provenance markers for facts emitted by the world-store boundary."""
+
 from __future__ import annotations
 
 from polisyos.ir.fact_log import FactProvenance
@@ -15,9 +16,7 @@ def stable_world_provenance_v1(*, license: str = "internal") -> FactProvenance:
     )
 
 
-def event_world_provenance_v1(
-    event_id: str, *, license: str = "internal"
-) -> FactProvenance:
+def event_world_provenance_v1(event_id: str, *, license: str = "internal") -> FactProvenance:
     """Return a provenance envelope tied to one emitted world event."""
     return FactProvenance(
         source_id="fabric.world.event",

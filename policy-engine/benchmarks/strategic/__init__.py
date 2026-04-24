@@ -1,2 +1,1 @@
 """Strategic benchmark suites."""
-

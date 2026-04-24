@@ -16,9 +16,11 @@ References:
         of causal effects of multiple time point interventions.
         International Journal of Biostatistics, 8(1).
 """
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -35,15 +37,15 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.foundry.methods.catalog.causal._sklearn_compat import (
-    LinearRegression,
-    LogisticRegression,
-)
 from polisyos.foundry.methods.catalog.causal._common import (
     bootstrap_ci,
     build_failure_report,
     build_success_report,
     wrap_causal_output,
+)
+from polisyos.foundry.methods.catalog.causal._sklearn_compat import (
+    LinearRegression,
+    LogisticRegression,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
 from polisyos.foundry.methods.catalog.causal.structural_time_series import (
@@ -78,9 +80,7 @@ _ASSUMPTIONS = {
 }
 
 
-def _build_history_matrix(
-    A_seq: np.ndarray, L_seq: np.ndarray, t: int
-) -> np.ndarray:
+def _build_history_matrix(A_seq: np.ndarray, L_seq: np.ndarray, t: int) -> np.ndarray:
     """Construct flattened history feature matrix H_t for all units.
 
     H_t = [L_0, A_0, L_1, A_1, ..., L_{t-1}, A_{t-1}, L_t]
@@ -153,6 +153,7 @@ def _predict_proba_safe(model: LogisticRegression | None, X: np.ndarray) -> np.n
 # ---------------------------------------------------------------------------
 # ICE g-formula (shared backbone used by ParametricGFormula bootstrap and LTMLE init)
 # ---------------------------------------------------------------------------
+
 
 def _ice_estimate(
     Y: np.ndarray,
@@ -284,7 +285,7 @@ def _parametric_mc_estimate(
     L_sim[:, 0, :] = L_seq[unit_idxs, 0, :]
 
     for t in range(n_periods):
-        H_t = _build_history_matrix(A_sim, L_sim, t)   # (n_mc, features)
+        H_t = _build_history_matrix(A_sim, L_sim, t)  # (n_mc, features)
         L_t = L_sim[:, t, :]
         a_t = _apply_regime(
             H_t,
@@ -300,13 +301,13 @@ def _parametric_mc_estimate(
         if t < n_periods - 1:
             X_cov_sim = np.hstack([H_t, a_t.reshape(-1, 1)])
             for j in range(n_cov):
-                mean_j = cov_models[t][j].predict(X_cov_sim)   # (n_mc,) batch
+                mean_j = cov_models[t][j].predict(X_cov_sim)  # (n_mc,) batch
                 noise = rng.normal(0, cov_residual_stds[t][j], size=n_mc)
                 L_sim[:, t + 1, j] = mean_j + noise
 
     H_final = _build_history_matrix(A_sim, L_sim, n_periods - 1)
     X_out_sim = np.hstack([H_final, A_sim[:, n_periods - 1 : n_periods]])
-    y_sim = out_model.predict(X_out_sim)                         # (n_mc,) batch
+    y_sim = out_model.predict(X_out_sim)  # (n_mc,) batch
     mc_outcomes = y_sim + rng.normal(0, out_resid_std, size=n_mc)
 
     return float(np.mean(mc_outcomes))
@@ -315,6 +316,7 @@ def _parametric_mc_estimate(
 # ---------------------------------------------------------------------------
 # Shared output slot definitions
 # ---------------------------------------------------------------------------
+
 
 def _dynamic_output_slots() -> frozenset[SlotSpec]:
     return frozenset(
@@ -372,9 +374,7 @@ def _extract_dynamic_data(state: Any) -> DynamicTreatmentData:
         return state
     if isinstance(state, dict):
         return DynamicTreatmentData.model_validate(state)
-    raise TypeError(
-        f"Expected DynamicTreatmentData or dict, got {type(state).__name__}"
-    )
+    raise TypeError(f"Expected DynamicTreatmentData or dict, got {type(state).__name__}")
 
 
 def _build_g_output(
@@ -509,7 +509,9 @@ def _regime_from_intervention(
     schedule = _materialize_intervention_schedule(intervention, time_grid=time_grid)
     return DynamicTreatmentRegime(
         time_points=tuple(range(len(schedule))),
-        treatment_variables=tuple(f"{data.treatment_name}_{index}" for index in range(len(schedule))),
+        treatment_variables=tuple(
+            f"{data.treatment_name}_{index}" for index in range(len(schedule))
+        ),
         time_varying_covariates=tuple(data.variable_names or [query.outcome_process]),
         outcome=data.outcome_name,
         rule=RegimeRule.EXPLICIT_SCHEDULE,
@@ -675,11 +677,15 @@ def estimate_g_computation_trajectory(
         )
     )
     effective_regime = regime
-    contract_status = "resolved_artifact" if intervention is not None else "compatibility_synthesized"
+    contract_status = (
+        "resolved_artifact" if intervention is not None else "compatibility_synthesized"
+    )
     if intervention is None:
         effective_regime = regime or DynamicTreatmentRegime(
             time_points=tuple(range(dynamic_data.n_periods)),
-            treatment_variables=tuple(f"{dynamic_data.treatment_name}_{index}" for index in range(dynamic_data.n_periods)),
+            treatment_variables=tuple(
+                f"{dynamic_data.treatment_name}_{index}" for index in range(dynamic_data.n_periods)
+            ),
             time_varying_covariates=tuple(dynamic_data.variable_names or [query.outcome_process]),
             outcome=dynamic_data.outcome_name,
             rule=RegimeRule.ALWAYS_TREAT,
@@ -836,9 +842,7 @@ class ParametricGFormula:
         input_slots=_dynamic_input_slots(),
         output_slots=_dynamic_output_slots(),
         parameters=_dynamic_base_params()
-        + (
-            ParameterSpec("n_monte_carlo", default=500, bounds=(100, 5000)),
-        ),
+        + (ParameterSpec("n_monte_carlo", default=500, bounds=(100, 5000)),),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -868,9 +872,7 @@ class ParametricGFormula:
             "Hernán, M.A. & Robins, J.M. (2020). Causal Inference: What If. Chapman & Hall.",
         ),
         equations={
-            "g_formula": (
-                "E[Y^{ā}] = Σ_{l̄} E[Y|Ā=ā,L̄=l̄] × Π_t P(L_t|ā_{t-1},l̄_{t-1})"
-            ),
+            "g_formula": ("E[Y^{ā}] = Σ_{l̄} E[Y|Ā=ā,L̄=l̄] × Π_t P(L_t|ā_{t-1},l̄_{t-1})"),
         },
         assumptions=dict(_ASSUMPTIONS),
         when_to_use=(
@@ -890,9 +892,7 @@ class ParametricGFormula:
     )
 
     @staticmethod
-    def pure_step(
-        state: DynamicTreatmentData, params: Mapping[str, Any]
-    ) -> dict[str, Any]:
+    def pure_step(state: DynamicTreatmentData, params: Mapping[str, Any]) -> dict[str, Any]:
         try:
             data = _extract_dynamic_data(state)
         except Exception as exc:
@@ -936,15 +936,16 @@ class ParametricGFormula:
         n_mc = int(params.get("n_monte_carlo", 500))
         n_boot = int(params.get("n_bootstrap", 200))
         conf_level = float(params.get("confidence_level", 0.95))
-        regime_params = {k: params.get(k, v.default) for k, v in {
-            "regime": type("_", (), {"default": "always_treat"})(),
-            "threshold_covariate_index": type("_", (), {"default": 0})(),
-            "threshold_value": type("_", (), {"default": 0.0})(),
-        }.items()}
+        regime_params = {
+            k: params.get(k, v.default)
+            for k, v in {
+                "regime": type("_", (), {"default": "always_treat"})(),
+                "threshold_covariate_index": type("_", (), {"default": 0})(),
+                "threshold_value": type("_", (), {"default": 0.0})(),
+            }.items()
+        }
         regime_params["regime"] = regime
-        regime_params["threshold_covariate_index"] = int(
-            params.get("threshold_covariate_index", 0)
-        )
+        regime_params["threshold_covariate_index"] = int(params.get("threshold_covariate_index", 0))
         regime_params["threshold_value"] = float(params.get("threshold_value", 0.0))
 
         rng = np.random.default_rng(42)
@@ -1056,8 +1057,7 @@ class ICEGFormula:
         ),
         equations={
             "ice_backward": (
-                "Q_t = E[Q_{t+1}(H_{t+1}, d*(H_{t+1})) | H_t, A_t]; "
-                "E[Y^d] = E[Q_0(H_0, d*(H_0))]"
+                "Q_t = E[Q_{t+1}(H_{t+1}, d*(H_{t+1})) | H_t, A_t]; E[Y^d] = E[Q_0(H_0, d*(H_0))]"
             ),
         },
         assumptions=dict(_ASSUMPTIONS),
@@ -1066,15 +1066,11 @@ class ICEGFormula:
             "When outcome model is severely misspecified; prefer LTMLE for robustness."
         ),
         typical_min_obs=50,
-        output_interpretation=(
-            "point_estimate is E[Y^{ā}] under the specified dynamic regime."
-        ),
+        output_interpretation=("point_estimate is E[Y^{ā}] under the specified dynamic regime."),
     )
 
     @staticmethod
-    def pure_step(
-        state: DynamicTreatmentData, params: Mapping[str, Any]
-    ) -> dict[str, Any]:
+    def pure_step(state: DynamicTreatmentData, params: Mapping[str, Any]) -> dict[str, Any]:
         try:
             data = _extract_dynamic_data(state)
         except Exception as exc:
@@ -1129,9 +1125,7 @@ class ICEGFormula:
         boot_estimates = np.empty(n_boot)
         for b in range(n_boot):
             idx = rng.integers(0, n_units, size=n_units)
-            boot_estimates[b] = _ice_estimate(
-                Y[idx], A_seq[idx], L_seq[idx], regime_params
-            )
+            boot_estimates[b] = _ice_estimate(Y[idx], A_seq[idx], L_seq[idx], regime_params)
         ci = bootstrap_ci(boot_estimates, conf_level)
         se = float(np.std(boot_estimates, ddof=1))
 
@@ -1247,9 +1241,7 @@ class LTMLEEstimator:
     )
 
     @staticmethod
-    def pure_step(
-        state: DynamicTreatmentData, params: Mapping[str, Any]
-    ) -> dict[str, Any]:
+    def pure_step(state: DynamicTreatmentData, params: Mapping[str, Any]) -> dict[str, Any]:
         try:
             data = _extract_dynamic_data(state)
         except Exception as exc:

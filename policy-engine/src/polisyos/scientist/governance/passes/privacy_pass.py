@@ -1,7 +1,6 @@
 """Validate privacy-tier metadata and data-view access requests before execution."""
-from __future__ import annotations
 
-from typing import List
+from __future__ import annotations
 
 from polisyos.core.governance.passes.base import (
     ComplianceIssue,
@@ -36,8 +35,8 @@ class PrivacyPass(ValidatorPass):
     def estimated_cost_ms(self) -> int:
         return 20
 
-    def validate(self, ctx: PassContext) -> List[ComplianceIssue]:
-        issues: List[ComplianceIssue] = []
+    def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
+        issues: list[ComplianceIssue] = []
 
         pii_tier = ctx.state.get("pii_tier")
         if pii_tier and str(pii_tier).lower() in {"high", "sensitive"}:

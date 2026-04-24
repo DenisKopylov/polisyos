@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 from contextlib import contextmanager
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.lex.batch.spo_extractor import (
     _extract_one_provision_light,
@@ -14,11 +14,14 @@ from polisyos.lex.batch.structurer import ProvisionSpan
 from polisyos.lex.batch.xml_parser import NPACard, NPADocument
 from polisyos.lex.knowledge.types import SPOCandidate, SPOExtractionResult
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
 
 class _FakeClient:
     model_id = "fake/model"
 
-    async def chat_completion(self, *_args, **_kwargs):  # noqa: ANN002, ANN003
+    async def chat_completion(self, *_args, **_kwargs):
         return {
             "choices": [
                 {
@@ -101,10 +104,7 @@ def test_group_request_items_respects_char_budget() -> None:
 
 def test_group_request_items_adaptive_downshift_reduces_medium_long_batches() -> None:
     doc = _doc("doc-b", "base")
-    items = [
-        (doc, _span(f"art:{idx}", "x" * 700))
-        for idx in range(1, 6)
-    ]
+    items = [(doc, _span(f"art:{idx}", "x" * 700)) for idx in range(1, 6)]
 
     baseline_groups = _group_request_items(
         items,
@@ -138,7 +138,7 @@ def test_extract_spo_for_documents_uses_timeout_fallback(monkeypatch, tmp_path: 
     doc = _doc("doc-a", "Орган повинен виконати вимогу.")
     span = _span("art:1", "Орган повинен виконати вимогу.")
 
-    async def _slow_group(*args, **kwargs):  # noqa: ANN002, ANN003
+    async def _slow_group(*args, **kwargs):
         del args, kwargs
         await asyncio.sleep(0.05)
         return []
@@ -172,7 +172,11 @@ def test_extract_spo_for_documents_uses_timeout_fallback(monkeypatch, tmp_path: 
     )
 
     out_path = results_dir / doc.card.doc_id[:2].lower() / f"{doc.card.doc_id}.jsonl"
-    rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    rows = [
+        json.loads(line)
+        for line in out_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
 
     assert total == 1
     assert failed == set()
@@ -190,7 +194,7 @@ def test_extract_spo_for_documents_retries_timed_out_group_with_smaller_batches(
     span_2 = _span("art:2", "Орган повинен подати звіт.")
     telemetry: dict[str, int] = {}
 
-    async def _group_result(_client, group, *, verify_mode, extract_mode, followup_pass_index):  # noqa: ANN001
+    async def _group_result(_client, group, *, verify_mode, extract_mode, followup_pass_index):
         del _client, verify_mode, extract_mode, followup_pass_index
         if len(group) > 1:
             await asyncio.sleep(0.05)
@@ -237,7 +241,11 @@ def test_extract_spo_for_documents_retries_timed_out_group_with_smaller_batches(
     )
 
     out_path = results_dir / doc.card.doc_id[:2].lower() / f"{doc.card.doc_id}.jsonl"
-    rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    rows = [
+        json.loads(line)
+        for line in out_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
 
     assert total == 2
     assert failed == set()
@@ -248,11 +256,13 @@ def test_extract_spo_for_documents_retries_timed_out_group_with_smaller_batches(
     assert {row["provision_anchor"] for row in rows} == {span_1.anchor_path, span_2.anchor_path}
 
 
-def test_extract_spo_for_documents_merges_gap_fill_with_baseline(monkeypatch, tmp_path: Path) -> None:
+def test_extract_spo_for_documents_merges_gap_fill_with_baseline(
+    monkeypatch, tmp_path: Path
+) -> None:
     doc = _doc("doc-b", "Орган повинен виконати вимогу.")
     span = _span("art:1", "Орган повинен виконати вимогу.")
 
-    async def _group_result(*args, **kwargs):  # noqa: ANN002, ANN003
+    async def _group_result(*args, **kwargs):
         del args, kwargs
         return [
             SPOExtractionResult(
@@ -302,7 +312,9 @@ def test_extract_spo_for_documents_merges_gap_fill_with_baseline(monkeypatch, tm
                         "doc_id": doc.card.doc_id,
                         "provision_anchor": span.anchor_path,
                         "provision_citation": span.citation_label,
-                        "statements": [{"predicate": "requires", "fact_text": "Organ requires compliance"}],
+                        "statements": [
+                            {"predicate": "requires", "fact_text": "Organ requires compliance"}
+                        ],
                         "extraction_source": "llm_gap_fill_timeout_fallback",
                     }
                 }
@@ -313,7 +325,9 @@ def test_extract_spo_for_documents_merges_gap_fill_with_baseline(monkeypatch, tm
                         "doc_id": doc.card.doc_id,
                         "provision_anchor": span.anchor_path,
                         "provision_citation": span.citation_label,
-                        "statements": [{"predicate": "requires", "fact_text": "Organ requires compliance"}],
+                        "statements": [
+                            {"predicate": "requires", "fact_text": "Organ requires compliance"}
+                        ],
                         "extraction_source": "llm_gap_fill_timeout_fallback",
                     }
                 }
@@ -322,7 +336,11 @@ def test_extract_spo_for_documents_merges_gap_fill_with_baseline(monkeypatch, tm
     )
 
     out_path = results_dir / doc.card.doc_id[:2].lower() / f"{doc.card.doc_id}.jsonl"
-    rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    rows = [
+        json.loads(line)
+        for line in out_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
 
     assert total == 2
     assert failed == set()
@@ -342,7 +360,7 @@ def test_extract_spo_for_documents_retries_retryable_failed_results_in_followup_
     span = _span("art:1", "Орган повинен виконати вимогу.")
     telemetry: dict[str, int] = {}
 
-    async def _group_result(_client, group, *, verify_mode, extract_mode, followup_pass_index):  # noqa: ANN001
+    async def _group_result(_client, group, *, verify_mode, extract_mode, followup_pass_index):
         del _client, verify_mode, extract_mode
         doc_item, provision = group[0]
         if followup_pass_index == 0:
@@ -397,7 +415,11 @@ def test_extract_spo_for_documents_retries_retryable_failed_results_in_followup_
     )
 
     out_path = results_dir / doc.card.doc_id[:2].lower() / f"{doc.card.doc_id}.jsonl"
-    rows = [json.loads(line) for line in out_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    rows = [
+        json.loads(line)
+        for line in out_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
 
     assert total == 1
     assert failed == set()
@@ -426,7 +448,7 @@ def test_extract_spo_for_documents_uses_retry_lane_context(monkeypatch, tmp_path
             seen_lanes.append((lane_name, rate_scale, concurrency_scale))
             yield self
 
-    async def _group_result(_client, group, *, verify_mode, extract_mode, followup_pass_index):  # noqa: ANN001
+    async def _group_result(_client, group, *, verify_mode, extract_mode, followup_pass_index):
         del _client, verify_mode, extract_mode
         doc_item, provision = group[0]
         if followup_pass_index == 0:

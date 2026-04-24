@@ -1,4 +1,5 @@
 """Expose microsimulation methods and register them into the Foundry catalog."""
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -13,19 +14,22 @@ from .advanced import (
     TaxBenefitCalculatorEstimator,
 )
 from .calibration import ReweightingCalibrationEstimator
+from .inverse import InverseBehavioralCalibrationEstimator
 from .mnar import MNARIncomeBoundsEstimator
 from .protocols import (
     BehavioralResponseResult,
     DynamicMicrosimResult,
     HeterogeneousBehavioralResponseResult,
     ImputationResult,
+    InverseBehavioralCalibrationResult,
+    InverseBehavioralIdentifiedSet,
+    MicrosimResult,
     MNARIncomeAssumptionVector,
     MNARIncomeBoundsDiagnostics,
     MNARIncomeBoundsInterval,
     MNARIncomeBoundsProvenance,
     MNARIncomeBoundsResult,
     MNARIncomeBoundsTarget,
-    MicrosimResult,
     ReweightingCompatibilityReason,
     ReweightingCompatibilityStatus,
     ReweightingCompatibilityTestMethod,
@@ -59,6 +63,9 @@ __all__ = [
     "HeterogeneousBehavioralResponseResult",
     "ImputationModelEstimator",
     "ImputationResult",
+    "InverseBehavioralCalibrationEstimator",
+    "InverseBehavioralCalibrationResult",
+    "InverseBehavioralIdentifiedSet",
     "MNARIncomeAssumptionVector",
     "MNARIncomeBoundsDiagnostics",
     "MNARIncomeBoundsEstimator",
@@ -67,10 +74,10 @@ __all__ = [
     "MNARIncomeBoundsResult",
     "MNARIncomeBoundsTarget",
     "MicrosimResult",
+    "ReweightingCalibrationEstimator",
     "ReweightingCompatibilityReason",
     "ReweightingCompatibilityStatus",
     "ReweightingCompatibilityTestMethod",
-    "ReweightingCalibrationEstimator",
     "ReweightingResult",
     "ReweightingTargetCompatibility",
     "ReweightingTargetGap",

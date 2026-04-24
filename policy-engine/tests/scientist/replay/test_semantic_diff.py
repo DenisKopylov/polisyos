@@ -3,27 +3,24 @@
 Covers distribution comparison (KS-test), reordered list matching,
 custom comparators, causality analysis, and diff report persistence.
 """
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-import pytest
-
 from polisyos.scientist.replay.diff import (
     ComparatorRegistry,
     DiffToleranceConfig,
-    ReplayDiffResult,
     compute_replay_diff,
     save_diff_report,
 )
-
 
 # ---------------------------------------------------------------------------
 # Distribution comparison
 # ---------------------------------------------------------------------------
 
-class TestDistributionComparison:
 
+class TestDistributionComparison:
     def test_distribution_ks_identical(self) -> None:
         """Identical distributions → high similarity."""
         data = list(range(20))
@@ -45,14 +42,15 @@ class TestDistributionComparison:
 
     def test_distribution_fallback_without_scipy(self) -> None:
         """Graceful degradation when scipy is unavailable."""
-        import importlib
         import sys
+
         # Temporarily hide scipy
         scipy_mods = {k: v for k, v in sys.modules.items() if k.startswith("scipy")}
         for k in scipy_mods:
             sys.modules[k] = None  # type: ignore[assignment]
         try:
             from polisyos.scientist.replay.diff import _distribution_similarity
+
             # Force re-import by calling directly
             sim, tol = _distribution_similarity(
                 [float(i) for i in range(20)],
@@ -83,18 +81,22 @@ class TestDistributionComparison:
 # Reordered list matching
 # ---------------------------------------------------------------------------
 
-class TestReorderedListMatching:
 
+class TestReorderedListMatching:
     def test_list_reorder_with_key_field(self) -> None:
         """Match list elements by key field, order-independent."""
-        original = {"items": [
-            {"id": "a", "val": 1},
-            {"id": "b", "val": 2},
-        ]}
-        replayed = {"items": [
-            {"id": "b", "val": 2},
-            {"id": "a", "val": 1},
-        ]}
+        original = {
+            "items": [
+                {"id": "a", "val": 1},
+                {"id": "b", "val": 2},
+            ]
+        }
+        replayed = {
+            "items": [
+                {"id": "b", "val": 2},
+                {"id": "a", "val": 1},
+            ]
+        }
         cfg = DiffToleranceConfig(
             allow_list_reorder=True,
             list_match_key={"items": "id"},
@@ -125,11 +127,12 @@ class TestReorderedListMatching:
 # Custom comparators
 # ---------------------------------------------------------------------------
 
-class TestCustomComparators:
 
+class TestCustomComparators:
     def test_custom_comparator_date(self) -> None:
         """ISO date comparator compares by timedelta."""
         from polisyos.scientist.replay.comparators import date_comparator
+
         registry = ComparatorRegistry()
         registry.register("event_date", date_comparator)
 
@@ -141,6 +144,7 @@ class TestCustomComparators:
     def test_custom_comparator_json_string(self) -> None:
         """JSON string comparator parses and compares structurally."""
         from polisyos.scientist.replay.comparators import json_string_comparator
+
         registry = ComparatorRegistry()
         registry.register("config", json_string_comparator)
 
@@ -171,8 +175,8 @@ class TestCustomComparators:
 # Causality analysis
 # ---------------------------------------------------------------------------
 
-class TestCausalityAnalysis:
 
+class TestCausalityAnalysis:
     def test_causality_analysis_shared_prefix(self) -> None:
         """Input diff at path X causes output diff at path X.result."""
         from polisyos.scientist.replay.causality import analyze_causality
@@ -210,8 +214,8 @@ class TestCausalityAnalysis:
 # Diff report persistence
 # ---------------------------------------------------------------------------
 
-class TestDiffReportPersistence:
 
+class TestDiffReportPersistence:
     def test_diff_report_save_and_load(self) -> None:
         """Persist diff report to mock store, verify JSON structure."""
         result = compute_replay_diff(

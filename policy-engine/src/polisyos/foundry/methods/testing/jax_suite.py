@@ -1,4 +1,5 @@
 """Public testing jax suite module API."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -11,4 +12,3 @@ class JaxMethodTestSuite(MethodTestSuite):
 
     def run_jax_checks(self, sample_state: Any, sample_params: dict[str, Any]) -> TestResult:
         return self.run_all(sample_state, sample_params)
-

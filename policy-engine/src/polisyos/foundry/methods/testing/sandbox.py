@@ -41,18 +41,19 @@ Usage (Jupyter notebook)
     )
     comparison.print()
 """
+
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
 
 __all__ = [
+    "ComparisonResult",
     "MethodSandbox",
     "SandboxResult",
-    "ComparisonResult",
 ]
 
 
@@ -215,6 +216,7 @@ class MethodSandbox:
     def method_class(self) -> type:
         if self._method_class is None:
             from polisyos.foundry.methods.registry import get_registry
+
             reg = self._registry or get_registry()
             self._method_class = reg.get(self.fqn)
         return self._method_class
@@ -277,6 +279,7 @@ class MethodSandbox:
         (SandboxResult, MethodExecutionProfile)
         """
         from polisyos.foundry.methods.profiler import MethodProfiler
+
         if state is None:
             state = kwargs
         params = params or {}
@@ -299,9 +302,8 @@ class MethodSandbox:
         Returns a ``ValidationReport``.
         """
         from polisyos.foundry.methods.cli.validator import MethodValidator
-        return MethodValidator(run_smoke_test=run_smoke_test).validate_class(
-            self.method_class
-        )
+
+        return MethodValidator(run_smoke_test=run_smoke_test).validate_class(self.method_class)
 
     def signature(self) -> Any:
         """Return the method's ``MethodSignature``."""
@@ -324,8 +326,7 @@ class MethodSandbox:
             for s in sorted(sig.output_slots, key=lambda x: x.name)
         )
         params = "".join(
-            f"<li><code>{p.name}</code> = {p.default}</li>"
-            for p in (sig.parameters or [])
+            f"<li><code>{p.name}</code> = {p.default}</li>" for p in (sig.parameters or [])
         )
         tags = ", ".join(f"<code>{t}</code>" for t in sorted(meta.tags))
         return f"""
@@ -334,7 +335,7 @@ class MethodSandbox:
           <p><b>Description:</b> {meta.description}</p>
           <p><b>Backend:</b> {sig.backend.value} &nbsp;
              <b>Fidelity:</b> {sig.fidelity.value} &nbsp;
-             <b>Complexity:</b> {sig.complexity.value if sig.complexity else '?'}</p>
+             <b>Complexity:</b> {sig.complexity.value if sig.complexity else "?"}</p>
           <p><b>Tags:</b> {tags}</p>
           <details><summary><b>Input Slots ({len(sig.input_slots)})</b></summary>
             <ul>{in_slots}</ul></details>

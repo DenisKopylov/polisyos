@@ -1,10 +1,11 @@
 """Project segmented world facts into DuckDB and optional Kuzu query stores."""
+
 from __future__ import annotations
 
 from polisyos.fabric.world.materialize.duckdb import (
-    WorldMaterializationShard,
     WorldMaterializationPlan,
     WorldMaterializationPolicy,
+    WorldMaterializationShard,
     WorldMaterializationStep,
     WorldMaterializeSegmentStats,
     WorldMaterializeStats,
@@ -57,7 +58,6 @@ from polisyos.fabric.world.materialize.rules import MergeStrategy
 __all__ = [
     "MergeStrategy",
     "WorldArtifactReadError",
-    "WorldKuzuCopyError",
     "WorldGraphConflictNeighborhood",
     "WorldGraphEdgeRecord",
     "WorldGraphNeighborhood",
@@ -65,6 +65,7 @@ __all__ = [
     "WorldGraphPolicyImpact",
     "WorldGraphSnapshot",
     "WorldGraphSourceOverlap",
+    "WorldKuzuCopyError",
     "WorldKuzuImportError",
     "WorldKuzuNotAvailable",
     "WorldKuzuRefreshContract",
@@ -86,8 +87,8 @@ __all__ = [
     "build_world_kuzu_lineage_query",
     "build_world_kuzu_policy_impact_query",
     "build_world_materialization_plan",
-    "ensure_world_materialized",
     "ensure_world_kuzu_schema",
+    "ensure_world_materialized",
     "ensure_world_schema",
     "explain_world_kuzu_refresh_contract",
     "materialize_world_duckdb_from_fact_log",

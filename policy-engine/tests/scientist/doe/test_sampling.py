@@ -43,4 +43,3 @@ def test_generate_adversarial_random_tail_within_bounds() -> None:
     assert np.all(samples[:, 0] >= -2.0)
     assert np.all(samples[:, 0] <= 2.0)
     assert np.any(samples[:, 0] <= -1.6) or np.any(samples[:, 0] >= 1.6)
-

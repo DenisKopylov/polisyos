@@ -8,7 +8,12 @@ from hypothesis import strategies as st
 from pydantic import BaseModel
 
 from schemas.abi_models import ABIModelEntry, CompatMode, Lifecycle, Priority
-from tools.quality.diagnostics import abi_diff, check_perf_regression, gen_schema, visualize_provenance
+from tools.quality.diagnostics import (
+    abi_diff,
+    check_perf_regression,
+    gen_schema,
+    visualize_provenance,
+)
 
 
 def _benchmark_payload(name: str, mean: float) -> dict[str, object]:
@@ -187,7 +192,9 @@ def test_gen_schema_process_module_writes_expected_snapshot_and_manifest(
 
     schema_path = tmp_path / "ir" / "demo_model.schema.json"
     manifest_path = tmp_path / "ir" / "_manifest.json"
-    expected_schema = gen_schema._json_dump(gen_schema._generate_model_schema(DemoModel), fmt="pretty")
+    expected_schema = gen_schema._json_dump(
+        gen_schema._generate_model_schema(DemoModel), fmt="pretty"
+    )
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
     assert errors == []

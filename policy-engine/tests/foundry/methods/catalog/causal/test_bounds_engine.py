@@ -1,28 +1,28 @@
 """Tests for BoundsEngineMethod and OptimizationBasedBoundsEstimator."""
+
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
-from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
 from polisyos.ir.analytics.dual_certificate import (
     StratifiedLPDualCertificateBundle,
     coerce_bounds_certificate_bundle,
     validate_bounds_certificate_bundle,
 )
+from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
 from polisyos.ir.analytics.partial_identification import (
-    BoundSoundnessLevel,
     BoundMethod,
     BoundsBundle,
+    BoundSoundnessLevel,
     PartialIdentificationResult,
     TighteningStatus,
     TighteningStopReason,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_state(n: int = 200, *, seed: int = 42) -> dict:
     rng = np.random.default_rng(seed)
@@ -95,6 +95,7 @@ def _make_incompatible_binary_iv_state() -> dict:
 # BoundsEngineMethod — unit tests
 # ---------------------------------------------------------------------------
 
+
 class TestBoundsEngineMethodDefault:
     def test_runs_without_error(self):
         from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
@@ -156,7 +157,9 @@ class TestBoundsEngineMethodDefault:
         assert reloaded.lower_bound == report.lower_bound
         assert len(reloaded.method_summaries) == len(report.method_summaries)
 
-    def test_exact_auto_bounds_returns_certificate_payload_but_bundle_stays_unknown_until_persisted(self):
+    def test_exact_auto_bounds_returns_certificate_payload_but_bundle_stays_unknown_until_persisted(
+        self,
+    ):
         from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
 
         state = _make_exact_lp_state()
@@ -304,8 +307,7 @@ class TestBoundsEngineMethodDefault:
         assert "auto_bounds_excluded_from_headline_bundle_without_certificate" in report.warnings
         assert report.tightening_status is TighteningStatus.BLOCKED
         assert (
-            report.tightening_stop_reason
-            is TighteningStopReason.CLASS_NOT_CERTIFIABLE_WITH_BACKEND
+            report.tightening_stop_reason is TighteningStopReason.CLASS_NOT_CERTIFIABLE_WITH_BACKEND
         )
 
 
@@ -341,15 +343,12 @@ class TestBoundsEngineMethodWithIV:
         assert BoundMethod.LP_BALKE_PEARL not in methods
         assert negative.blocking_type is BlockingType.MODEL_CLASS_INCOMPATIBLE
         assert result["model_class_compatibility"]["compatibility_status"] == "incompatible"
-        assert any(
-            "binary_iv_model_class_incompatible" in warning
-            for warning in report.warnings
-        )
+        assert any("binary_iv_model_class_incompatible" in warning for warning in report.warnings)
 
     def test_with_iv_reports_tighter_than_manski(self):
         """Balke-Pearl bounds should be at most as wide as Manski (typically tighter)."""
-        from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
         from polisyos.foundry.methods.catalog.causal.bounds import ManskiBoundsEstimator
+        from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
 
         state = _make_iv_state()
         base_state = {"outcome": state["outcome"], "treatment": state["treatment"]}
@@ -403,6 +402,7 @@ class TestBoundsEngineRegistration:
 # ---------------------------------------------------------------------------
 # OptimizationBasedBoundsEstimator — unit tests
 # ---------------------------------------------------------------------------
+
 
 class TestOptimizationBasedBoundsEstimator:
     def test_mtr_runs(self):

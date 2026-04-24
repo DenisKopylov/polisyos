@@ -1,4 +1,5 @@
 """Design-of-experiments models for sensitivity studies, adversarial sweeps, and stress inputs."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -8,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 class ScenarioSweep(BaseModel):
     """Scenario sweep public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     scenarios: list[dict] = Field(default_factory=list)
@@ -15,6 +17,7 @@ class ScenarioSweep(BaseModel):
 
 class AblationPlan(BaseModel):
     """List of mechanisms or components to remove when running ablation comparisons."""
+
     model_config = ConfigDict(extra="forbid")
 
     targets: list[str] = Field(default_factory=list)
@@ -22,6 +25,7 @@ class AblationPlan(BaseModel):
 
 class SensitivityMethod(str, Enum):
     """Sensitivity method public type."""
+
     MORRIS = "morris"
     SOBOL = "sobol"
     FAST = "fast"
@@ -29,6 +33,7 @@ class SensitivityMethod(str, Enum):
 
 class ParameterDist(str, Enum):
     """Parameter dist public type."""
+
     UNIFORM = "uniform"
     NORMAL = "normal"
     LOGNORMAL = "lognormal"
@@ -37,6 +42,7 @@ class ParameterDist(str, Enum):
 
 class RunFailurePolicy(str, Enum):
     """Policy for handling failed simulator runs inside a DOE batch."""
+
     FAIL_FAST = "fail_fast"
     DROP_FAILED = "drop_failed"
     IMPUTE_BASELINE = "impute_baseline"
@@ -44,6 +50,7 @@ class RunFailurePolicy(str, Enum):
 
 class ParameterSpec(BaseModel):
     """Search-space definition for one tunable parameter in sensitivity or adversarial analysis."""
+
     model_config = ConfigDict(extra="forbid")
 
     name: str
@@ -55,13 +62,15 @@ class ParameterSpec(BaseModel):
     num_levels: int = Field(default=4, ge=2)
 
     @model_validator(mode="after")
-    def _validate_bounds(self) -> "ParameterSpec":
+    def _validate_bounds(self) -> ParameterSpec:
         if self.lower_bound >= self.upper_bound:
             raise ValueError(
                 f"parameter '{self.name}' has invalid bounds: "
                 f"{self.lower_bound} >= {self.upper_bound}"
             )
-        if self.baseline is not None and not (self.lower_bound <= self.baseline <= self.upper_bound):
+        if self.baseline is not None and not (
+            self.lower_bound <= self.baseline <= self.upper_bound
+        ):
             raise ValueError(
                 f"parameter '{self.name}' baseline {self.baseline} is outside bounds "
                 f"[{self.lower_bound}, {self.upper_bound}]"
@@ -71,6 +80,7 @@ class ParameterSpec(BaseModel):
 
 class SensitivityPlan(BaseModel):
     """Execution plan for Morris, Sobol, or FAST sensitivity analysis with runtime guardrails."""
+
     model_config = ConfigDict(extra="forbid")
 
     # Legacy field preserved for backward compatibility.
@@ -109,7 +119,7 @@ class SensitivityPlan(BaseModel):
         return 0
 
     @model_validator(mode="after")
-    def _validate_plan(self) -> "SensitivityPlan":
+    def _validate_plan(self) -> SensitivityPlan:
         if not self.parameter_specs and self.parameters:
             self.parameter_specs = [
                 ParameterSpec(name=name, lower_bound=0.0, upper_bound=1.0)
@@ -134,6 +144,7 @@ class SensitivityPlan(BaseModel):
 
 class SensitivityResult(BaseModel):
     """Sensitivity-analysis output containing ranked effects, confidence bands, and run accounting."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = "1.0"
@@ -160,6 +171,7 @@ class SensitivityResult(BaseModel):
 
 class AdversarialStrategy(str, Enum):
     """Sampling strategy used to generate adversarial stress scenarios."""
+
     SEARCH_LOOP = "search_loop"
     GRID_EXTREME = "grid_extreme"
     RANDOM_TAIL = "random_tail"
@@ -167,6 +179,7 @@ class AdversarialStrategy(str, Enum):
 
 class AdversarialPlan(BaseModel):
     """Runtime plan for adversarial sweeps over vulnerable parameter regions."""
+
     model_config = ConfigDict(extra="forbid")
 
     parameter_specs: list[ParameterSpec] = Field(default_factory=list)
@@ -183,7 +196,7 @@ class AdversarialPlan(BaseModel):
         return len(self.parameter_specs)
 
     @model_validator(mode="after")
-    def _validate_specs(self) -> "AdversarialPlan":
+    def _validate_specs(self) -> AdversarialPlan:
         if not self.parameter_specs:
             raise ValueError("AdversarialPlan requires at least one parameter_spec")
         names = [item.name for item in self.parameter_specs]

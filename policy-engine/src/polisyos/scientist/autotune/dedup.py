@@ -47,7 +47,9 @@ class TrialDeduplicator:
         seen = self._seen.get(loop_id, set())
         return digest in seen
 
-    def register(self, candidate: MutationArtifact | dict[str, Any], loop_id: str = "") -> TrialFingerprint:
+    def register(
+        self, candidate: MutationArtifact | dict[str, Any], loop_id: str = ""
+    ) -> TrialFingerprint:
         """Register a candidate as seen. Returns its fingerprint."""
         digest = self.fingerprint(candidate)
         if loop_id not in self._seen:

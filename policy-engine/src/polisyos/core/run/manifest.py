@@ -1,7 +1,8 @@
 """Run manifest schema persisted for completed, replayed, and tenant-scoped executions."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -11,11 +12,12 @@ from ..artifacts.manifest import ArtifactRef, EnvInfo, ProducerInfo
 
 def utc_now() -> datetime:
     """Return a second-granularity UTC timestamp for stable run-manifest defaults."""
-    return datetime.now(timezone.utc).replace(microsecond=0)
+    return datetime.now(UTC).replace(microsecond=0)
 
 
 class RunManifest(BaseModel):
     """Canonical summary of one executable run, its provenance, and its produced artifacts."""
+
     model_config = ConfigDict(extra="forbid")
 
     run_id: str

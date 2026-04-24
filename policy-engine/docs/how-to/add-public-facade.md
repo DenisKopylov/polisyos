@@ -8,6 +8,7 @@
 - модуль или package root, который вы хотите сделать supported surface;
 - решение, это новый package entrypoint или новый export внутри уже публичного
   facade;
+
 - понимание, нужен ли этому symbol long-term compatibility contract.
 
 ## Output
@@ -105,7 +106,9 @@ uv run pytest -q tests/ir/test_public_surface.py
 
 - guardrails complain about missing `__all__`: the package declares a public
   facade mode but does not actually expose one;
+
 - docs counts drift: rerun `guardrails sync` and review the generated reference
   page;
+
 - temptation to document a deep import instead: if the supported path is not a
   package facade, it probably should not be public yet.

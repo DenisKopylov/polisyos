@@ -10,10 +10,12 @@ Freeze-политика фиксирует текущее состояние а�
 2. Запрещен рост количества import violations.
 3. Наличие unmanaged import violations (`import_violations_count > 0`) запрещено в P1 Import Policy v2.
 4. Новые исключения разрешены только если заполнены:
-- `id`
-- `owner`
-- `reason`
-- `expires`
+
+   - `id`
+   - `owner`
+   - `reason`
+   - `expires`
+
 5. `expires` не должен быть дальше, чем на 90 дней от даты PR-проверки.
 6. Просроченные исключения запрещены.
 7. Для новых изменений запрещены deep-import в чужие internal/private модули.

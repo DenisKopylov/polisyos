@@ -2,19 +2,18 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
 from polisyos.ir.analytics.cross_graph import (
-    CrossGraphDiagnostic,
     EvidenceNeed,
-    EvidenceStatus,
 )
 
 
 class ConflictSeverity(str, Enum):
     """Conflict severity public type."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -23,6 +22,7 @@ class ConflictSeverity(str, Enum):
 
 class ResolutionStrategy(str, Enum):
     """Resolution strategy data model."""
+
     ACCEPT_MAJORITY = "accept_majority"
     ACCEPT_HIGHEST_QUALITY = "accept_highest_quality"
     ESCALATE = "escalate"
@@ -70,33 +70,39 @@ class ConflictDetector:
         academic_status = academic.get("status", "")
 
         if legal_status == "prohibited" and academic_status in ("supported", "mixed"):
-            conflicts.append(EvidenceConflict(
-                need_id=need.need_id,
-                dimension="legal_vs_academic",
-                conflicting_sources=["legal", "academic"],
-                severity=ConflictSeverity.HIGH,
-                description="Legal prohibits what academic evidence supports",
-            ))
+            conflicts.append(
+                EvidenceConflict(
+                    need_id=need.need_id,
+                    dimension="legal_vs_academic",
+                    conflicting_sources=["legal", "academic"],
+                    severity=ConflictSeverity.HIGH,
+                    description="Legal prohibits what academic evidence supports",
+                )
+            )
 
         if legal_status == "allowed" and academic_status == "unsupported":
-            conflicts.append(EvidenceConflict(
-                need_id=need.need_id,
-                dimension="legal_vs_academic",
-                conflicting_sources=["legal", "academic"],
-                severity=ConflictSeverity.MEDIUM,
-                description="Legally allowed but lacks academic support",
-            ))
+            conflicts.append(
+                EvidenceConflict(
+                    need_id=need.need_id,
+                    dimension="legal_vs_academic",
+                    conflicting_sources=["legal", "academic"],
+                    severity=ConflictSeverity.MEDIUM,
+                    description="Legally allowed but lacks academic support",
+                )
+            )
 
         # Dataset vs academic conflict
         dataset_status = dimension_results.get("dataset", {}).get("status", "")
         if dataset_status == "missing" and academic_status == "supported":
-            conflicts.append(EvidenceConflict(
-                need_id=need.need_id,
-                dimension="dataset_vs_academic",
-                conflicting_sources=["dataset", "academic"],
-                severity=ConflictSeverity.MEDIUM,
-                description="Academic evidence exists but dataset unavailable",
-            ))
+            conflicts.append(
+                EvidenceConflict(
+                    need_id=need.need_id,
+                    dimension="dataset_vs_academic",
+                    conflicting_sources=["dataset", "academic"],
+                    severity=ConflictSeverity.MEDIUM,
+                    description="Academic evidence exists but dataset unavailable",
+                )
+            )
 
         return conflicts
 

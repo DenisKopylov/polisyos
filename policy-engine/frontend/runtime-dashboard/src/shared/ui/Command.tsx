@@ -7,6 +7,7 @@ import { Command as CommandPrimitive } from "cmdk";
 import { Search } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { Dialog, DialogContent, DialogTitle } from "./Dialog";
 
 const Command = forwardRef<
@@ -27,11 +28,17 @@ Command.displayName = CommandPrimitive.displayName;
 type CommandDialogProps = ComponentPropsWithoutRef<typeof Dialog>;
 
 function CommandDialog({ children, ...props }: CommandDialogProps) {
+  const { t } = useI18n();
   return (
     <Dialog {...props}>
-      <DialogContent className="overflow-hidden p-0">
-        <DialogTitle className="sr-only">Command palette</DialogTitle>
-        <Command className="[&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:size-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5">
+      <DialogContent
+        aria-describedby={undefined}
+        className="overflow-hidden p-0"
+      >
+        <DialogTitle className="sr-only">
+          {t("shared.ui.command.paletteTitle")}
+        </DialogTitle>
+        <Command className="[&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:size-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5">
           {children}
         </Command>
       </DialogContent>
@@ -43,7 +50,10 @@ const CommandInput = forwardRef<
   HTMLInputElement,
   ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
-  <div className="flex items-center border-b border-border px-3" cmdk-input-wrapper="">
+  <div
+    className="border-border flex items-center border-b px-3"
+    cmdk-input-wrapper=""
+  >
     <Search className="mr-2 size-4 shrink-0 opacity-50" />
     <CommandPrimitive.Input
       ref={ref}
@@ -63,7 +73,7 @@ const CommandList = forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.List
     ref={ref}
-    className={cn("max-h-[300px] overflow-y-auto overflow-x-hidden", className)}
+    className={cn("max-h-[300px] overflow-x-hidden overflow-y-auto", className)}
     {...props}
   />
 ));

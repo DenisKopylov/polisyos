@@ -54,7 +54,11 @@ from benchmarks.harness import (  # noqa: E402
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.REPRODUCIBILITY
@@ -68,6 +72,7 @@ _N_REPS = 3
 
 def _build_frontdoor():
     from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+
     return CausalGraphModel(
         schema_version="1.0",
         graph_type=GraphType.ADMG,
@@ -82,6 +87,7 @@ def _build_frontdoor():
 
 def _build_bow_arc():
     from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+
     return CausalGraphModel(
         schema_version="1.0",
         graph_type=GraphType.ADMG,
@@ -95,6 +101,7 @@ def _build_bow_arc():
 
 def _build_xy_dag():
     from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+
     return CausalGraphModel(
         schema_version="1.0",
         graph_type=GraphType.DAG,
@@ -116,7 +123,9 @@ def _case_frontdoor_no_flaky() -> BenchmarkCase:
 
         graph = _build_frontdoor()
         statuses = [
-            id_algorithm(treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph).status.value
+            id_algorithm(
+                treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph
+            ).status.value
             for _ in range(_N_REPS)
         ]
         return statuses
@@ -124,9 +133,7 @@ def _case_frontdoor_no_flaky() -> BenchmarkCase:
     def checker(statuses: list) -> bool:
         flaky = [s for s in statuses if s != "identified"]
         if flaky:
-            raise AssertionError(
-                f"Frontdoor flaky: expected all 'identified', got {statuses}"
-            )
+            raise AssertionError(f"Frontdoor flaky: expected all 'identified', got {statuses}")
         if len(set(statuses)) != 1:
             raise AssertionError(f"Flaky! {_N_REPS} reps disagree: {statuses}")
         return True
@@ -149,7 +156,9 @@ def _case_bow_arc_no_flaky() -> BenchmarkCase:
 
         graph = _build_bow_arc()
         statuses = [
-            id_algorithm(treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph).status.value
+            id_algorithm(
+                treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph
+            ).status.value
             for _ in range(_N_REPS)
         ]
         return statuses
@@ -158,9 +167,7 @@ def _case_bow_arc_no_flaky() -> BenchmarkCase:
         if len(set(statuses)) != 1:
             raise AssertionError(f"Bow-arc flaky! {_N_REPS} reps disagree: {statuses}")
         if list(set(statuses))[0] != "hedge_found":
-            raise AssertionError(
-                f"Expected 'hedge_found', got {list(set(statuses))[0]!r}"
-            )
+            raise AssertionError(f"Expected 'hedge_found', got {list(set(statuses))[0]!r}")
         return True
 
     return BenchmarkCase(
@@ -177,8 +184,13 @@ def _case_cyclic_id_no_flaky() -> BenchmarkCase:
     """Cyclic feedback A→B, B→A: 3 reps same algorithm_version."""
 
     def runner():
-        from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
         from polisyos.foundry.methods.catalog.causal.cyclic_id import cyclic_id_algorithm
+        from polisyos.ir.analytics.causal_graph import (
+            CausalEdge,
+            CausalGraphModel,
+            EdgeMark,
+            GraphType,
+        )
 
         graph = CausalGraphModel(
             schema_version="1.0",
@@ -190,7 +202,9 @@ def _case_cyclic_id_no_flaky() -> BenchmarkCase:
             ],
         )
         versions = [
-            cyclic_id_algorithm(treatment=frozenset({"A"}), outcome=frozenset({"B"}), graph=graph).algorithm_version
+            cyclic_id_algorithm(
+                treatment=frozenset({"A"}), outcome=frozenset({"B"}), graph=graph
+            ).algorithm_version
             for _ in range(_N_REPS)
         ]
         return versions
@@ -214,10 +228,13 @@ def _case_mgraph_recoverability_no_flaky() -> BenchmarkCase:
     """MCAR X: 3 reps all RECOVERABLE."""
 
     def runner():
-        from polisyos.ir.analytics.mgraph import MissingnessKind, build_mgraph, extract_mgraph_metadata
         from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
-            RecoverabilityStatus,
             test_recoverability,
+        )
+        from polisyos.ir.analytics.mgraph import (
+            MissingnessKind,
+            build_mgraph,
+            extract_mgraph_metadata,
         )
 
         graph = _build_xy_dag()
@@ -254,9 +271,9 @@ def _case_ctf_transport_no_flaky() -> BenchmarkCase:
             build_ctf_selection_diagram,
             ctf_transportability,
         )
-        from polisyos.foundry.methods.catalog.causal.id_engine import CtfQuery, IdentificationResult
-        from polisyos.ir.analytics.transportability import SNode
+        from polisyos.foundry.methods.catalog.causal.id_engine import CtfQuery
         from polisyos.ir.analytics.negative_certificate import NegativeCertificate
+        from polisyos.ir.analytics.transportability import SNode
 
         graph = _build_xy_dag()
         query = CtfQuery(
@@ -318,7 +335,9 @@ def build_no_flaky_harness() -> BenchmarkHarness:
 # ---------------------------------------------------------------------------
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     return build_report_payload(
         report,
         suite_id="reproducibility_regression",

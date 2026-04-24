@@ -87,10 +87,9 @@ def _run_case(spec: SyntheticWorldDGP) -> dict[str, Any]:
     replay_sample = replay.sample(split="train")
     replay_truth = replay.truth()
 
-    deterministic_replay = (
-        sample.model_dump(mode="json") == replay_sample.model_dump(mode="json")
-        and truth.model_dump(mode="json") == replay_truth.model_dump(mode="json")
-    )
+    deterministic_replay = sample.model_dump(mode="json") == replay_sample.model_dump(
+        mode="json"
+    ) and truth.model_dump(mode="json") == replay_truth.model_dump(mode="json")
     required = _required_targets(spec)
     available = set(truth.available_targets)
     missing_targets = sorted(required - available)
@@ -172,7 +171,9 @@ def _build_report(mode: str, *, quiet: bool) -> dict[str, Any]:
         proof_class="publication_benchmark",
         literature_anchor=LITERATURE_ANCHOR,
         aggregate_metrics=aggregate_metrics,
-        case_details_builder=lambda case: case.result_payload if isinstance(case.result_payload, dict) else {},
+        case_details_builder=lambda case: case.result_payload
+        if isinstance(case.result_payload, dict)
+        else {},
         extra={
             "binding": binding.model_dump(mode="json"),
         },

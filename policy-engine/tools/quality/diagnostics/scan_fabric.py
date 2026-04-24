@@ -6,16 +6,17 @@ Scans all DuckDB files in a directory, extracts schema information,
 and generates a draft data_contracts.json file. The developer then
 annotates the drafts with descriptions, units, and PII tiers.
 """
+
 from __future__ import annotations
 
 import argparse
-import json
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from tools._lib.imports import repo_root_from
 from typing import Any
+
+from tools._lib.imports import repo_root_from
 
 if __package__ in {None, ""}:
     sys.path.insert(0, str(repo_root_from(__file__)))
@@ -196,7 +197,10 @@ def scan_duckdb(path: Path) -> list[dict[str, Any]]:
             try:
                 safe_table_name = validate_sql_identifier(str(table_name), kind="table")
             except ValueError as exc:
-                print(f"Warning: Skipping unsafe table identifier {table_name!r}: {exc}", file=sys.stderr)
+                print(
+                    f"Warning: Skipping unsafe table identifier {table_name!r}: {exc}",
+                    file=sys.stderr,
+                )
                 continue
 
             try:
@@ -312,7 +316,7 @@ def main() -> int:
 
     output = {
         "schema_version": "1.0",
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "generated_by": "tools/diagnostics/scan_fabric.py",
         "contracts": all_contracts,
     }
@@ -324,10 +328,7 @@ def main() -> int:
     print("  1. Review and edit the generated contracts")
     print("  2. Fill in TODO descriptions")
     print("  3. Verify units and PII tiers")
-    print(
-        "  4. Move to production: mv "
-        f"{args.output} {args.curated_dir}/data_contracts.json"
-    )
+    print(f"  4. Move to production: mv {args.output} {args.curated_dir}/data_contracts.json")
 
     return 0
 

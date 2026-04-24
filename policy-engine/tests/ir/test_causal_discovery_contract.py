@@ -21,17 +21,16 @@ from polisyos.ir.analytics.causal_discovery import (
     LatentCardinalityIdentificationSpec,
     LatentCausalRole,
     LatentDiscoveryBundle,
-    LatentPromotionEvidence,
     LatentGraphStatus,
     LatentIdentifiabilityStatus,
+    LatentPromotionEvidence,
     LatentTrustLevel,
     load_causal_discovery_report,
     persist_causal_discovery_report,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.artifacts import get_json_artifact
-from polisyos.ir.refs import CausalDiscoveryReportRef
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.refs import ArtifactRefModel, CausalDiscoveryReportRef
 
 
 def _minimal_report() -> CausalDiscoveryReport:
@@ -136,8 +135,7 @@ def _report_with_latent_discovery() -> CausalDiscoveryReport:
                         assumption_id="latent_shift_exogeneity",
                         title="Shift exogeneity",
                         description=(
-                            "Observed environment changes are not downstream "
-                            "of the policy."
+                            "Observed environment changes are not downstream of the policy."
                         ),
                         evidence_basis=["domain_note:env_a_vs_env_b"],
                         falsification_hook="check pre-policy covariate drift",
@@ -182,8 +180,7 @@ def _report_with_promoted_latent_discovery() -> CausalDiscoveryReport:
                         assumption_id="latent_shift_exogeneity",
                         title="Shift exogeneity",
                         description=(
-                            "Observed environment changes are not downstream "
-                            "of the policy."
+                            "Observed environment changes are not downstream of the policy."
                         ),
                         evidence_basis=["domain_note:env_a_vs_env_b"],
                         falsification_hook="check pre-policy covariate drift",
@@ -199,9 +196,7 @@ def _report_with_promoted_latent_discovery() -> CausalDiscoveryReport:
                         _promotion_ref("a", kind="scientist.latent.observable_implication")
                     ],
                     local_misspecification_test_refs=[
-                        _promotion_ref(
-                            "b", kind="scientist.latent.local_misspecification"
-                        )
+                        _promotion_ref("b", kind="scientist.latent.local_misspecification")
                     ],
                     environment_stability_ref=_promotion_ref(
                         "c", kind="scientist.latent.environment_stability"
@@ -212,9 +207,7 @@ def _report_with_promoted_latent_discovery() -> CausalDiscoveryReport:
                     external_evidence_refs=[
                         _promotion_ref("e", kind="scientist.latent.external_evidence")
                     ],
-                    replication_refs=[
-                        _promotion_ref("f", kind="scientist.latent.replication")
-                    ],
+                    replication_refs=[_promotion_ref("f", kind="scientist.latent.replication")],
                     hidden_benchmark_ref=_promotion_ref(
                         "g", kind="scientist.latent.hidden_benchmark"
                     ),
@@ -291,19 +284,14 @@ def test_latent_cardinality_spec_emits_canonical_bundle_fields() -> None:
         ambiguity_notes=["ordering_within_same_latent_set_unidentifiable"],
     )
 
-    assert spec.proposed_latent_nodes() == [
-        "U_01|block_size=1|role=confounder|status=identified"
-    ]
+    assert spec.proposed_latent_nodes() == ["U_01|block_size=1|role=confounder|status=identified"]
     conditions = spec.canonical_identification_conditions(
         treatment_variable="tax_rate",
         outcome_variable="employment",
     )
     assert "class:multi_env_linear_nongaussian_latent_sem" in conditions
     assert "atomic_block:U_01:p=1:pure_children>=2:neighbors>=3:rank=1" in conditions
-    assert (
-        "env_shift:U_01:contrast=region_a_vs_region_b:localized=true"
-        in conditions
-    )
+    assert "env_shift:U_01:contrast=region_a_vs_region_b:localized=true" in conditions
     role_rule = "role_rule:U_01:ancestor(tax_rate)&ancestor(employment)&!descendant(tax_rate)"
     assert role_rule in conditions
 

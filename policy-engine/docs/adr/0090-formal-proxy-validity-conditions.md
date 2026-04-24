@@ -1,12 +1,15 @@
 # ADR-0090: Formal Proxy Validity Conditions
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-02-28
 
 ## Context
+
 When a target variable is unavailable in the dataset, the system substitutes a proxy
 variable. Informal proxy selection leads to biased estimates when the proxy violates
 structural assumptions relative to the causal graph. Phase 12 codifies four formal
@@ -15,7 +18,9 @@ variable in estimation. These conditions are drawn from the measurement error an
 proxy variable literature in causal inference.
 
 ## Decision
+
 1. Define four mandatory proxy validity conditions, each checked programmatically:
+
    - **Relevance**: the proxy must be significantly associated with the target
      variable (measured via partial correlation or mutual information above a
      configurable threshold).
@@ -33,14 +38,20 @@ proxy variable literature in causal inference.
    audit and reproducibility.
 
 ## Consequences
+
 ### Positive
+
 - Eliminates a common source of silent bias from invalid proxy substitutions.
 - Automated checks reduce reliance on analyst judgement for structural assumptions.
 - Graceful fallback to partial identification preserves analysis continuity.
+
 ### Negative
+
 - Relevance and completeness checks require sufficient overlapping data, which may
   not always be available, leading to conservative proxy rejection.
+
 - The exclusion and non-collider checks depend on the correctness of the causal
   graph, inheriting any graph specification errors.
+
 - Strict enforcement may reduce the number of usable variables, limiting the scope
   of feasible analyses.

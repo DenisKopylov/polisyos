@@ -20,14 +20,14 @@ Chart для изоляции PolicyOS cell на уровне namespace, сет�
 
 ## Ключевые values
 
-| Value | Обязателен | По умолчанию | Назначение |
-|---|---|---|---|
-| `cell.id` | да | `""` | идентификатор cell; используется в именах namespace/ресурсов |
-| `cell.tier` | нет | `shared` | влияет на рендер confidential RuntimeClass |
-| `networkPolicy.allowedEgress` | нет | preset DNS/monitoring | разрешенный egress |
-| `opa.enabled` | нет | `true` | включение ConfigMap с Rego-политиками |
-| `linkerd.enabled` + `linkerd.strictMtls` | нет | `true` + `true` | рендер Linkerd Server/AuthorizationPolicy |
-| `confidentialCompute.enabled` | нет | `false` | включает RuntimeClass `kata-cc` |
+| Value                                    | Обязателен | По умолчанию          | Назначение                                                   |
+| ---------------------------------------- | ---------- | --------------------- | ------------------------------------------------------------ |
+| `cell.id`                                | да         | `""`                  | идентификатор cell; используется в именах namespace/ресурсов |
+| `cell.tier`                              | нет        | `shared`              | влияет на рендер confidential RuntimeClass                   |
+| `networkPolicy.allowedEgress`            | нет        | preset DNS/monitoring | разрешенный egress                                           |
+| `opa.enabled`                            | нет        | `true`                | включение ConfigMap с Rego-политиками                        |
+| `linkerd.enabled` + `linkerd.strictMtls` | нет        | `true` + `true`       | рендер Linkerd Server/AuthorizationPolicy                    |
+| `confidentialCompute.enabled`            | нет        | `false`               | включает RuntimeClass `kata-cc`                              |
 
 ## Операционные особенности
 

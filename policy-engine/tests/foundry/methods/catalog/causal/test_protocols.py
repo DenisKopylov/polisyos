@@ -520,7 +520,9 @@ def test_fragment_composition_data_coerces_fragments_graphs_and_alignment() -> N
             "overall_status": "partially_aligned",
             "measurement_comparability_grade": "insufficient",
         },
-        interface_mapping=InterfaceMapping(fragment_ids=["labor_a", "labor_b"]).model_dump(mode="json"),
+        interface_mapping=InterfaceMapping(fragment_ids=["labor_a", "labor_b"]).model_dump(
+            mode="json"
+        ),
         direct_stitch_pairs=[["labor_a", "labor_b"]],
     )
 

@@ -13,9 +13,12 @@ def test_ir_tree_has_no_core_imports() -> None:
         rel_path = file_path.relative_to(repo_root)
         module = ast.parse(file_path.read_text(encoding="utf-8"), filename=str(rel_path))
         for node in ast.walk(module):
-            if isinstance(node, ast.ImportFrom) and node.module:
-                if node.module == "polisyos.core" or node.module.startswith("polisyos.core."):
-                    violations.append(f"{rel_path}:{node.lineno} from {node.module}")
+            if (
+                isinstance(node, ast.ImportFrom)
+                and node.module
+                and (node.module == "polisyos.core" or node.module.startswith("polisyos.core."))
+            ):
+                violations.append(f"{rel_path}:{node.lineno} from {node.module}")
             if isinstance(node, ast.Import):
                 for alias in node.names:
                     if alias.name == "polisyos.core" or alias.name.startswith("polisyos.core."):

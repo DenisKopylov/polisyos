@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import shutil
 from dataclasses import dataclass
@@ -20,7 +21,11 @@ from polisyos.academic.batch.qc import run_qc
 from polisyos.academic.batch.transport_score import run_transport_score
 from polisyos.academic.knowledge.search import ScholarKnowledgeGraph
 from polisyos.academic.knowledge.skg_query import SKGQuery
-from polisyos.academic.knowledge.skg_store import ensure_skg_schema, finalize_skg_version, next_skg_version
+from polisyos.academic.knowledge.skg_store import (
+    ensure_skg_schema,
+    finalize_skg_version,
+    next_skg_version,
+)
 from polisyos.batch_common.hashing import sha256_file
 from polisyos.common.logger import get_logger
 from polisyos.scientist.cross_graph.feedback import AcademicBenchmarkSuite, load_benchmark_suite
@@ -140,7 +145,9 @@ _VERSION_NORMALIZED_TABLES = frozenset(
     }
 )
 
-_RUNTIME_BEST_STAGES = frozenset({"graph_index", "transport_score", "embed", "benchmark", "qc", "publish"})
+_RUNTIME_BEST_STAGES = frozenset(
+    {"graph_index", "transport_score", "embed", "benchmark", "qc", "publish"}
+)
 
 _PROMOTION_GAIN_FLOORS = {
     "parameter_supported_ratio": 0.2632,
@@ -263,7 +270,9 @@ def build_runtime_first_snapshot(
         candidate_config=candidate_config,
         original_source=sources["original"],
         backup_source=sources["backup"],
-        explicit_suite_path=Path(benchmark_suite_path) if benchmark_suite_path is not None else None,
+        explicit_suite_path=Path(benchmark_suite_path)
+        if benchmark_suite_path is not None
+        else None,
         assembly_entries=assembly_entries,
     )
     _copy_source_manifests(candidate_root, sources, assembly_entries)
@@ -285,8 +294,12 @@ def build_runtime_first_snapshot(
 
     _seal_snapshot(candidate_config, thermal=thermal, assembly_entries=assembly_entries)
 
-    candidate_functional_checks = _run_functional_checks(candidate_config, expected_version_id=snapshot_version_id)
-    candidate_manifest_consistency = _validate_publish_manifest(candidate_config.publish_manifest_path)
+    candidate_functional_checks = _run_functional_checks(
+        candidate_config, expected_version_id=snapshot_version_id
+    )
+    candidate_manifest_consistency = _validate_publish_manifest(
+        candidate_config.publish_manifest_path
+    )
     candidate_comparison = _build_snapshot_comparison(
         candidate_config=candidate_config,
         original_source=sources["original"],
@@ -324,7 +337,9 @@ def build_runtime_first_snapshot(
         run_qc(best_config, fail_fast=False)
         run_publish(best_config)
 
-        final_functional_checks = _run_functional_checks(best_config, expected_version_id=snapshot_version_id)
+        final_functional_checks = _run_functional_checks(
+            best_config, expected_version_id=snapshot_version_id
+        )
         final_manifest_consistency = _validate_publish_manifest(best_config.publish_manifest_path)
         final_comparison = _build_snapshot_comparison(
             candidate_config=best_config,
@@ -387,7 +402,9 @@ def _validate_sources(sources: dict[str, AcademicSnapshotSource]) -> None:
         if not source.snapshot_root.exists():
             raise FileNotFoundError(f"{label} snapshot root does not exist: {source.snapshot_root}")
         if not source.component_dir.exists():
-            raise FileNotFoundError(f"{label} academic component is missing: {source.component_dir}")
+            raise FileNotFoundError(
+                f"{label} academic component is missing: {source.component_dir}"
+            )
     if not sources["original"].db_path.exists():
         raise FileNotFoundError(f"Original DB is missing: {sources['original'].db_path}")
     if not sources["remap"].db_path.exists():
@@ -476,7 +493,7 @@ def _materialize_benchmark_suite(
 
 
 def _load_default_suite() -> AcademicBenchmarkSuite:
-    from polisyos.academic.batch.benchmark import _default_suite  # noqa: PLC2701
+    from polisyos.academic.batch.benchmark import _default_suite
 
     return _default_suite()
 
@@ -650,10 +667,7 @@ def _assemble_duckdb(
         )
         for table_name in _HYBRID_DB_TABLES:
             table_stats = hybrid_stats.get(table_name, {})
-            stats_note = ", ".join(
-                f"{key}={value}"
-                for key, value in sorted(table_stats.items())
-            )
+            stats_note = ", ".join(f"{key}={value}" for key, value in sorted(table_stats.items()))
             assembly_entries.append(
                 {
                     "path": f"academic/graph/scholar_knowledge.duckdb::table/{table_name}",
@@ -693,14 +707,10 @@ def _assemble_duckdb(
         con.execute("CHECKPOINT")
         return version_id
     finally:
-        try:
+        with contextlib.suppress(duckdb.Error):
             con.execute("DETACH remap_src")
-        except duckdb.Error:
-            pass
-        try:
+        with contextlib.suppress(duckdb.Error):
             con.execute("DETACH original_src")
-        except duckdb.Error:
-            pass
         con.close()
 
 
@@ -748,7 +758,9 @@ def _replace_table_contents(
 
     con.execute(f'DELETE FROM "{target_table}"')
     if not insert_columns:
-        raise RuntimeError(f"No compatible columns found when copying {source_alias}.{source_table} -> {target_table}")
+        raise RuntimeError(
+            f"No compatible columns found when copying {source_alias}.{source_table} -> {target_table}"
+        )
     insert_sql = ", ".join(f'"{name}"' for name in insert_columns)
     select_sql = ", ".join(select_exprs)
     con.execute(
@@ -1001,7 +1013,7 @@ def _fetch_table_rows(
         return []
     cursor = con.execute(f"SELECT * FROM {qualified_table}")
     columns = [str(column[0]) for column in cursor.description or []]
-    return [dict(zip(columns, row)) for row in cursor.fetchall()]
+    return [dict(zip(columns, row, strict=False)) for row in cursor.fetchall()]
 
 
 def _insert_dict_rows(
@@ -1272,7 +1284,8 @@ def _run_functional_checks(
         checks["skg_snapshot_ref"] = _guarded_check(
             lambda: {
                 "snapshot_ref": query.skg_snapshot_ref(),
-                "matches_expected": query.skg_snapshot_ref() == f"duckdb://{config.db_path}#v{expected_version_id}",
+                "matches_expected": query.skg_snapshot_ref()
+                == f"duckdb://{config.db_path}#v{expected_version_id}",
             },
             require_true_key="matches_expected",
         )
@@ -1356,7 +1369,9 @@ def _sample_runtime_targets(config: AcademicBatchConfig) -> dict[str, str]:
                 parameter_name = ""
         if not parameter_name:
             try:
-                row = con.execute("SELECT variable_name FROM ac_parameter_estimates LIMIT 1").fetchone()
+                row = con.execute(
+                    "SELECT variable_name FROM ac_parameter_estimates LIMIT 1"
+                ).fetchone()
                 if row and row[0]:
                     parameter_name = str(row[0])
             except duckdb.Error:
@@ -1381,7 +1396,9 @@ def _sample_runtime_targets(config: AcademicBatchConfig) -> dict[str, str]:
             except duckdb.Error:
                 pass
         try:
-            row = con.execute("SELECT title FROM ac_works WHERE title IS NOT NULL AND title != '' LIMIT 1").fetchone()
+            row = con.execute(
+                "SELECT title FROM ac_works WHERE title IS NOT NULL AND title != '' LIMIT 1"
+            ).fetchone()
             search_query = str(row[0]) if row and row[0] else f"{cause} {effect}".strip()
         except duckdb.Error:
             search_query = f"{cause} {effect}".strip()
@@ -1456,9 +1473,17 @@ def _snapshot_summary(
     benchmark_payload = _load_json_dict(benchmark_report_path)
     qc_payload = _load_json_dict(qc_report_path)
     readiness_payload = _load_json_dict(readiness_report_path)
-    benchmark_metrics = benchmark_payload.get("metrics") if isinstance(benchmark_payload.get("metrics"), dict) else {}
+    benchmark_metrics = (
+        benchmark_payload.get("metrics")
+        if isinstance(benchmark_payload.get("metrics"), dict)
+        else {}
+    )
     qc_metrics = qc_payload.get("metrics") if isinstance(qc_payload.get("metrics"), dict) else {}
-    readiness = readiness_payload.get("readiness") if isinstance(readiness_payload.get("readiness"), dict) else {}
+    readiness = (
+        readiness_payload.get("readiness")
+        if isinstance(readiness_payload.get("readiness"), dict)
+        else {}
+    )
     family_edge_count = _coerce_int(
         qc_metrics.get("family_edge_count"),
         default=_query_int(db_path, "SELECT COUNT(*) FROM ac_skg_family_edges", default=0),
@@ -1510,30 +1535,41 @@ def _evaluate_promotion(
         "publish_manifest_consistent": bool(manifest_consistency.get("passed")),
         "scholar_query_coverage_no_regression": _coerce_float(
             candidate_bench.get("scholar_query_coverage_ratio")
-        ) >= _coerce_float(original_bench.get("scholar_query_coverage_ratio")),
+        )
+        >= _coerce_float(original_bench.get("scholar_query_coverage_ratio")),
         "parameter_supported_no_regression": _coerce_float(
             candidate_bench.get("parameter_supported_ratio")
-        ) >= _coerce_float(original_bench.get("parameter_supported_ratio")),
+        )
+        >= _coerce_float(original_bench.get("parameter_supported_ratio")),
         "causal_supported_plus_mixed_no_regression": _coerce_float(
             candidate_bench.get("causal_supported_plus_mixed_ratio")
-        ) >= _coerce_float(original_bench.get("causal_supported_plus_mixed_ratio")),
+        )
+        >= _coerce_float(original_bench.get("causal_supported_plus_mixed_ratio")),
         "runtime_demanded_canonical_resolution_rate_pct": _coerce_float(
             candidate_qc.get("runtime_demanded_canonical_resolution_rate_pct"),
-            default=_coerce_float(candidate_bench.get("runtime_demanded_canonical_resolution_rate_pct")),
-        ) == 100.0,
+            default=_coerce_float(
+                candidate_bench.get("runtime_demanded_canonical_resolution_rate_pct")
+            ),
+        )
+        == 100.0,
         "global_canonical_resolution_rate_pct": _coerce_float(
             candidate_qc.get("global_canonical_resolution_rate_pct")
-        ) >= 95.0,
+        )
+        >= 95.0,
         "review_queue_bounded": candidate_review_queue <= 100.0,
         "family_edges_improved": candidate_family_edges > original_family_edges,
         "scenario_runtime_no_regression": not scenario_regressions,
         "runtime_files_complete": _paths_exist(candidate["component_dir"], _REQUIRED_RUNTIME_FILES),
-        "evidence_files_complete": _paths_exist(candidate["component_dir"], _REQUIRED_EVIDENCE_FILES),
+        "evidence_files_complete": _paths_exist(
+            candidate["component_dir"], _REQUIRED_EVIDENCE_FILES
+        ),
         "required_reports_present": all(
             (
                 Path(candidate["component_dir"], "benchmark_report.json").exists(),
                 Path(candidate["component_dir"], "qc_report.json").exists(),
-                Path(candidate["component_dir"], "publish", "academic_pipeline_readiness.json").exists(),
+                Path(
+                    candidate["component_dir"], "publish", "academic_pipeline_readiness.json"
+                ).exists(),
             )
         ),
     }
@@ -1657,20 +1693,24 @@ def _write_meta_files(
                 "snapshot_root": str(source.snapshot_root),
                 "component_dir": str(source.component_dir),
                 "db_path": str(source.db_path),
-                "publish_manifest_path": str(source.publish_manifest_path) if source.publish_manifest_path.exists() else "",
-                "readiness_report_path": str(source.readiness_report_path) if source.readiness_report_path.exists() else "",
+                "publish_manifest_path": str(source.publish_manifest_path)
+                if source.publish_manifest_path.exists()
+                else "",
+                "readiness_report_path": str(source.readiness_report_path)
+                if source.readiness_report_path.exists()
+                else "",
             }
             for label, source in sources.items()
         },
         "db_table_sources": {
-            **{name: "original" for name in _ORIGINAL_DB_TABLES},
-            **{name: "remap" for name in _REMAP_DB_TABLES},
-            **{name: "hybrid(original+remap)" for name in _HYBRID_DB_TABLES},
-            **{name: "rebuilt" for name in _REBUILT_DB_TABLES},
+            **dict.fromkeys(_ORIGINAL_DB_TABLES, "original"),
+            **dict.fromkeys(_REMAP_DB_TABLES, "remap"),
+            **dict.fromkeys(_HYBRID_DB_TABLES, "hybrid(original+remap)"),
+            **dict.fromkeys(_REBUILT_DB_TABLES, "rebuilt"),
         },
         "file_sources": {
-            **{path: "original" for path in _ORIGINAL_COPY_FILES},
-            **{path: "remap" for path in _REMAP_COPY_FILES},
+            **dict.fromkeys(_ORIGINAL_COPY_FILES, "original"),
+            **dict.fromkeys(_REMAP_COPY_FILES, "remap"),
             "benchmark_suite.json": suite_source,
         },
         "diagnostics": {
@@ -1752,7 +1792,7 @@ def _query_int(db_path: Path, sql: str, *, default: int) -> int:
 def _line_count(path: Path) -> int:
     if not path.exists():
         return 0
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         return sum(1 for _ in fh)
 
 
@@ -1817,9 +1857,7 @@ def _scenario_scholar_status(scenario_payload: dict[str, Any]) -> str:
     if not isinstance(scholar_queries, list) or not scholar_queries:
         return "unknown"
     supports = [
-        bool(query.get("supported"))
-        for query in scholar_queries
-        if isinstance(query, dict)
+        bool(query.get("supported")) for query in scholar_queries if isinstance(query, dict)
     ]
     if not supports:
         return "unknown"

@@ -58,12 +58,16 @@ class PortfolioRunnerConfig(BaseModel):
             params["max_lag"] = self.max_lag
         if method in {DiscoveryMethod.PC, DiscoveryMethod.FCI, DiscoveryMethod.GES}:
             params.setdefault("discovery_scale_backend", "classic")
-        if method in {
-            DiscoveryMethod.PC,
-            DiscoveryMethod.FCI,
-            DiscoveryMethod.GES,
-            DiscoveryMethod.DAGMA,
-        } and self.algebraic_blocks:
+        if (
+            method
+            in {
+                DiscoveryMethod.PC,
+                DiscoveryMethod.FCI,
+                DiscoveryMethod.GES,
+                DiscoveryMethod.DAGMA,
+            }
+            and self.algebraic_blocks
+        ):
             params["algebraic_blocks"] = [
                 block.model_dump(mode="json") for block in self.algebraic_blocks
             ]
@@ -132,9 +136,7 @@ def run_discovery_method(
     if normalized is DiscoveryMethod.FCI:
         from polisyos.foundry.methods.catalog.causal.constraint_discovery import FCIDiscovery
 
-        return CausalDiscoveryReport.model_validate(
-            FCIDiscovery.pure_step(state, params)["report"]
-        )
+        return CausalDiscoveryReport.model_validate(FCIDiscovery.pure_step(state, params)["report"])
     if normalized is DiscoveryMethod.GES:
         from polisyos.foundry.methods.catalog.causal.constraint_discovery import GESDiscovery
 
@@ -233,12 +235,8 @@ def _select_methods(
                 DiscoveryAlgorithmFamily.CONSTRAINT_BASED: (
                     "cross_sectional_only_for_phase_c1_to_c4"
                 ),
-                DiscoveryAlgorithmFamily.SCORE_BASED: (
-                    "cross_sectional_only_for_phase_c1_to_c4"
-                ),
-                DiscoveryAlgorithmFamily.FUNCTIONAL: (
-                    "cross_sectional_only_for_phase_c1_to_c4"
-                ),
+                DiscoveryAlgorithmFamily.SCORE_BASED: ("cross_sectional_only_for_phase_c1_to_c4"),
+                DiscoveryAlgorithmFamily.FUNCTIONAL: ("cross_sectional_only_for_phase_c1_to_c4"),
             },
         )
     functional_methods = [DiscoveryMethod.ANM, DiscoveryMethod.PAIRWISE_HEURISTIC]
@@ -250,11 +248,7 @@ def _select_methods(
             DiscoveryMethod.DAGMA,
             *functional_methods,
         ],
-        {
-            DiscoveryAlgorithmFamily.TIME_SERIES: (
-                "requires_time_series_causal_data"
-            )
-        },
+        {DiscoveryAlgorithmFamily.TIME_SERIES: ("requires_time_series_causal_data")},
     )
 
 
@@ -453,38 +447,54 @@ def _orient_functional_pair(
             left_var = _finite_or_default(np.var(left), default=0.0)
             right_var = _finite_or_default(np.var(right), default=0.0)
             if left_var <= right_var:
-                return left_name, right_name, {
+                return (
+                    left_name,
+                    right_name,
+                    {
+                        "orientation_rule": "pairwise_variance_tiebreak",
+                        "forward_score": left_to_right,
+                        "reverse_score": right_to_left,
+                        "orientation_gap": _clamp01(
+                            abs(left_var - right_var) / max(left_var + right_var, 1e-8)
+                        ),
+                    },
+                )
+            return (
+                right_name,
+                left_name,
+                {
                     "orientation_rule": "pairwise_variance_tiebreak",
-                    "forward_score": left_to_right,
-                    "reverse_score": right_to_left,
+                    "forward_score": right_to_left,
+                    "reverse_score": left_to_right,
                     "orientation_gap": _clamp01(
                         abs(left_var - right_var) / max(left_var + right_var, 1e-8)
                     ),
-                }
-            return right_name, left_name, {
-                "orientation_rule": "pairwise_variance_tiebreak",
-                "forward_score": right_to_left,
-                "reverse_score": left_to_right,
-                "orientation_gap": _clamp01(
-                    abs(left_var - right_var) / max(left_var + right_var, 1e-8)
-                ),
-            }
+                },
+            )
         rule = "pairwise_linear_residual"
 
     gap = _clamp01(abs(left_to_right - right_to_left) / max(left_to_right + right_to_left, 1e-8))
     if left_to_right <= right_to_left:
-        return left_name, right_name, {
+        return (
+            left_name,
+            right_name,
+            {
+                "orientation_rule": rule,
+                "forward_score": left_to_right,
+                "reverse_score": right_to_left,
+                "orientation_gap": gap,
+            },
+        )
+    return (
+        right_name,
+        left_name,
+        {
             "orientation_rule": rule,
-            "forward_score": left_to_right,
-            "reverse_score": right_to_left,
+            "forward_score": right_to_left,
+            "reverse_score": left_to_right,
             "orientation_gap": gap,
-        }
-    return right_name, left_name, {
-        "orientation_rule": rule,
-        "forward_score": right_to_left,
-        "reverse_score": left_to_right,
-        "orientation_gap": gap,
-    }
+        },
+    )
 
 
 def _residual_ratio(cause: np.ndarray, effect: np.ndarray, *, degree: int) -> float:

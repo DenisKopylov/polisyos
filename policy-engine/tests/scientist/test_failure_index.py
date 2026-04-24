@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from polisyos.scientist.agent.failure_index import (
     FailureIndexEntry,
@@ -50,7 +50,7 @@ def test_failure_pattern_index_add_and_search() -> None:
 
 def test_failure_pattern_index_garbage_collect() -> None:
     index = FailurePatternIndex()
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     old_time = (now - timedelta(days=31)).isoformat()
 
     index.entries = [

@@ -4,9 +4,11 @@ Foundry Methods Exception Hierarchy
 All exceptions for method-related errors inherit from FoundryMethodError.
 Each exception includes context attributes for structured logging and diagnostics.
 """
+
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.errors import ErrorCategory, PolicyOSError
 
@@ -341,15 +343,9 @@ class ResolutionError(FoundryMethodError):
         from polisyos.foundry.methods.resolution import ResolutionPolicy
 
         if self.policy == ResolutionPolicy.EXACT:
-            return (
-                f"Exact version '{self.requested}' not found. "
-                f"Available: [{avail_str}]"
-            )
+            return f"Exact version '{self.requested}' not found. Available: [{avail_str}]"
         if self.policy == ResolutionPolicy.PINNED:
-            return (
-                f"Pinned version '{self.requested}' not available. "
-                f"Available: [{avail_str}]"
-            )
+            return f"Pinned version '{self.requested}' not available. Available: [{avail_str}]"
         if self.policy == ResolutionPolicy.LATEST_COMPATIBLE:
             constraint_str = str(self.constraint) if self.constraint else "unspecified"
             return (
@@ -397,8 +393,7 @@ class UnitMismatchError(SlotConnectionError):
         self.source_unit = source_unit
         self.target_unit = target_unit
         super().__init__(
-            f"Unit mismatch: {source_slot}({source_unit}) -> "
-            f"{target_slot}({target_unit})"
+            f"Unit mismatch: {source_slot}({source_unit}) -> {target_slot}({target_unit})"
         )
 
 
@@ -427,8 +422,7 @@ class ShapeMismatchError(SlotConnectionError):
         self.source_shape = source_shape
         self.target_shape = target_shape
         super().__init__(
-            f"Shape mismatch: {source_slot}{source_shape} -> "
-            f"{target_slot}{target_shape}"
+            f"Shape mismatch: {source_slot}{source_shape} -> {target_slot}{target_shape}"
         )
 
 
@@ -468,9 +462,7 @@ class MissingRequirementError(FoundryMethodError):
     def __init__(self, method_fqn: str, required_fqn: str) -> None:
         self.method_fqn = method_fqn
         self.required_fqn = required_fqn
-        super().__init__(
-            f"{method_fqn} requires {required_fqn}, which is not in composition"
-        )
+        super().__init__(f"{method_fqn} requires {required_fqn}, which is not in composition")
 
 
 class CompilationError(FoundryMethodError):
@@ -511,9 +503,7 @@ class ParameterValidationError(FoundryMethodError):
         self.param_name = param_name
         self.value = value
         self.reason = reason
-        super().__init__(
-            f"Invalid parameter '{param_name}' = {value!r}: {reason}"
-        )
+        super().__init__(f"Invalid parameter '{param_name}' = {value!r}: {reason}")
 
 
 class ArtifactError(FoundryMethodError):
@@ -557,9 +547,7 @@ class ContractViolationError(FoundryMethodError):
         self.method_fqn = method_fqn
         self.contract_type = contract_type
         self.expression = expression
-        super().__init__(
-            f"Contract violation in {method_fqn} [{contract_type}]: {expression!r}"
-        )
+        super().__init__(f"Contract violation in {method_fqn} [{contract_type}]: {expression!r}")
 
 
 class LawViolationError(FoundryMethodError):
@@ -593,7 +581,7 @@ class MethodExecutionAbortError(FoundryMethodError):
 
     default_category = ErrorCategory.FATAL
 
-    def __init__(self, card: "object") -> None:
+    def __init__(self, card: object) -> None:
         self.card = card
         severity = getattr(card, "severity", "?")
         severity_str = getattr(severity, "value", str(severity))

@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import hashlib
-import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from polisyos.lex.batch.patterns import (
-    AMENDMENT_CORE_RE,
     AMBIGUITY_CORE_RE,
+    AMENDMENT_CORE_RE,
     ANNEX_REFERENCE_RE,
     ARTICLE_LABEL_RE,
     BULLET_PREFIX_RE,
@@ -23,7 +22,12 @@ from polisyos.lex.batch.patterns import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.lex.batch.jurisdictions.protocol import JurisdictionPlugin, NormativeSignalPatterns
+    import re
+
+    from polisyos.lex.batch.jurisdictions.protocol import (
+        JurisdictionPlugin,
+        NormativeSignalPatterns,
+    )
 
 _NUMERIC_RE = NUMERIC_TOKEN_RE
 _MODALITY_RE = MODALITY_CORE_RE
@@ -122,20 +126,28 @@ class GateRuntime:
 
 _LIST_ITEM_RE = LIST_ITEM_RE
 
-_STRUCTURED_PUBLISHERS = frozenset({
-    "кабінет міністрів", "кму", "президент",
-    "міністерство", "нацбанк", "національний банк",
-})
+_STRUCTURED_PUBLISHERS = frozenset(
+    {
+        "кабінет міністрів",
+        "кму",
+        "президент",
+        "міністерство",
+        "нацбанк",
+        "національний банк",
+    }
+)
 
 
-def _signal_patterns(jurisdiction_plugin: JurisdictionPlugin | None) -> NormativeSignalPatterns | None:
+def _signal_patterns(
+    jurisdiction_plugin: JurisdictionPlugin | None,
+) -> NormativeSignalPatterns | None:
     if jurisdiction_plugin is None:
         return None
     cached = getattr(jurisdiction_plugin, "_cached_normative_signal_patterns", None)
     if cached is None:
         cached = jurisdiction_plugin.normative_signal_patterns()
         try:
-            setattr(jurisdiction_plugin, "_cached_normative_signal_patterns", cached)
+            jurisdiction_plugin._cached_normative_signal_patterns = cached
         except Exception:  # pragma: no cover - defensive for exotic plugin objects
             pass
     return cached
@@ -202,12 +214,22 @@ def build_gate_features(
     publisher_lower = publisher.lower()
     is_structured = any(kw in publisher_lower for kw in _STRUCTURED_PUBLISHERS)
     has_list = bool(_LIST_ITEM_RE.search(text))
-    is_article_like = struct_kind in {"article", "part"} or bool(_ARTICLE_LABEL_RE.match(citation_label))
+    is_article_like = struct_kind in {"article", "part"} or bool(
+        _ARTICLE_LABEL_RE.match(citation_label)
+    )
     is_clause_like = struct_kind in {"point", "subpoint", "enumeration_item"}
     category = (doc_type_category or "").strip().lower()
     law_like_doc = category in {"constitution", "law", "code"}
     treaty_like_doc = category in {"treaty", "protocol"}
-    appendix_heavy_doc = category in {"order", "regulation", "cabinet_resolution", "resolution", "decision", "directive", "decree"}
+    appendix_heavy_doc = category in {
+        "order",
+        "regulation",
+        "cabinet_resolution",
+        "resolution",
+        "decision",
+        "directive",
+        "decree",
+    }
     structural_priority = 0.0
     if is_article_like:
         structural_priority += 0.70
@@ -223,9 +245,19 @@ def build_gate_features(
         structural_priority += 0.15
     if approval_context_hits > 0 and (annex_reference_hits > 0 or legal_signal_hits > 0):
         structural_priority += 0.15
-    if legal_unit_subtype in {"amendment_bundle", "approval_bundle", "tariff_threshold_row", "application_requirement"}:
+    if legal_unit_subtype in {
+        "amendment_bundle",
+        "approval_bundle",
+        "tariff_threshold_row",
+        "application_requirement",
+    }:
         structural_priority += 0.20
-    elif legal_unit_subtype in {"core_normative_clause", "temporal_clause", "sanction_clause", "exception_clause"}:
+    elif legal_unit_subtype in {
+        "core_normative_clause",
+        "temporal_clause",
+        "sanction_clause",
+        "exception_clause",
+    }:
         structural_priority += 0.10
     structural_priority = max(0.0, min(1.0, structural_priority))
 
@@ -240,12 +272,15 @@ def build_gate_features(
         and treaty_hits == 0
         and annex_reference_hits == 0
     )
-    total_legal_hits = modality_hits + legal_signal_hits + amendment_hits + temporal_hits + treaty_hits
+    total_legal_hits = (
+        modality_hits + legal_signal_hits + amendment_hits + temporal_hits + treaty_hits
+    )
     if approval_context_hits > 0 and (annex_reference_hits > 0 or legal_signal_hits > 0):
         total_legal_hits += 1
     high_value_legal_span = (
         amendment_hits > 0
-        or legal_unit_subtype in {
+        or legal_unit_subtype
+        in {
             "amendment_bundle",
             "approval_bundle",
             "tariff_threshold_row",
@@ -260,7 +295,11 @@ def build_gate_features(
         or (law_like_doc and is_article_like and (modality_hits > 0 or legal_signal_hits > 0))
         or (treaty_like_doc and (is_article_like or is_clause_like))
         or (is_article_like and (total_legal_hits > 0 or reference_count > 0))
-        or (is_clause_like and approval_context_hits > 0 and (annex_reference_hits > 0 or legal_signal_hits > 0))
+        or (
+            is_clause_like
+            and approval_context_hits > 0
+            and (annex_reference_hits > 0 or legal_signal_hits > 0)
+        )
         or (is_clause_like and (total_legal_hits > 0 or reference_count > 0))
     ) and not is_fragment_like
     return GateFeatures(
@@ -332,19 +371,32 @@ def irreducibility_score(features: GateFeatures) -> float:
         score += 0.04
     # Subtypes known to produce audit misses under deterministic routing
     if features.legal_unit_subtype in {
-        "core_normative_clause", "sanction_clause", "temporal_clause",
-        "exception_clause", "amendment_bundle",
+        "core_normative_clause",
+        "sanction_clause",
+        "temporal_clause",
+        "exception_clause",
+        "amendment_bundle",
     }:
         score += 0.06
     if features.law_like_doc and features.high_value_legal_span:
         score += 0.07
     if features.treaty_like_doc and features.high_value_legal_span:
         score += 0.05
-    if features.appendix_heavy_doc and features.high_value_legal_span and not features.is_fragment_like:
+    if (
+        features.appendix_heavy_doc
+        and features.high_value_legal_span
+        and not features.is_fragment_like
+    ):
         score += 0.04
-    if features.approval_context_hits > 0 and (features.annex_reference_hits > 0 or features.legal_signal_hits > 0):
+    if features.approval_context_hits > 0 and (
+        features.annex_reference_hits > 0 or features.legal_signal_hits > 0
+    ):
         score += 0.07
-    if features.is_structured_publisher and not features.high_value_legal_span and features.deterministic_confidence >= 0.5:
+    if (
+        features.is_structured_publisher
+        and not features.high_value_legal_span
+        and features.deterministic_confidence >= 0.5
+    ):
         score -= 0.03
     if features.has_list_structure:
         if features.high_value_legal_span:
@@ -400,9 +452,15 @@ def decide_route(
     if gap_fill_enabled and gap_fill_eligible:
         if not llm_available:
             if deterministic_confidence > 0.0:
-                return GateDecision(route="auto", score=score, reason_codes=["llm_gap_fill_unavailable"])
-            return GateDecision(route="deferred", score=score, reason_codes=["llm_gap_fill_unavailable"])
-        if runtime.safe_pass_active or gap_fill_share < (gap_fill_max_share + gap_fill_priority_extra):
+                return GateDecision(
+                    route="auto", score=score, reason_codes=["llm_gap_fill_unavailable"]
+                )
+            return GateDecision(
+                route="deferred", score=score, reason_codes=["llm_gap_fill_unavailable"]
+            )
+        if runtime.safe_pass_active or gap_fill_share < (
+            gap_fill_max_share + gap_fill_priority_extra
+        ):
             reason_codes = ["gap_fill_eligible"]
             if gap_fill_priority_extra > 0.0:
                 reason_codes.append("gap_fill_priority")
@@ -415,8 +473,12 @@ def decide_route(
 
     if features.route_class == "deterministic_only":
         if deterministic_confidence > 0.0:
-            return GateDecision(route="auto", score=score, reason_codes=["deterministic_only_route"])
-        return GateDecision(route="deferred", score=score, reason_codes=["deterministic_only_route"])
+            return GateDecision(
+                route="auto", score=score, reason_codes=["deterministic_only_route"]
+            )
+        return GateDecision(
+            route="deferred", score=score, reason_codes=["deterministic_only_route"]
+        )
 
     if not llm_available:
         return GateDecision(route="deferred", score=score, reason_codes=["llm_unavailable"])
@@ -427,7 +489,9 @@ def decide_route(
     priority_max_share = runtime.max_share + (0.10 if features.high_value_legal_span else 0.0)
     if llm_share >= priority_max_share and not runtime.safe_pass_active:
         if _stable_sample(audit_seed, audit_sample_rate):
-            return GateDecision(route="audit_llm", score=score, reason_codes=["audit_sample_budget_cap"])
+            return GateDecision(
+                route="audit_llm", score=score, reason_codes=["audit_sample_budget_cap"]
+            )
         return GateDecision(route="deferred", score=score, reason_codes=["budget_cap"])
 
     if score >= min_score_force_llm:
@@ -445,7 +509,9 @@ def decide_route(
         return GateDecision(route="llm", score=score, reason_codes=["retry_route_priority"])
 
     if features.high_value_legal_span and score >= max(0.0, runtime.effective_threshold - 0.12):
-        return GateDecision(route="llm", score=score, reason_codes=["near_threshold_legal_priority"])
+        return GateDecision(
+            route="llm", score=score, reason_codes=["near_threshold_legal_priority"]
+        )
 
     if _stable_sample(audit_seed, audit_sample_rate):
         return GateDecision(route="audit_llm", score=score, reason_codes=["audit_sample"])

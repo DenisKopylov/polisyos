@@ -5,18 +5,14 @@ consume task specs such as ``BoundsEstimationTask`` and ``TemporalDTRTask``,
 emit result rows, and persist a ``CausalExecutionBundle`` for downstream
 governance, reporting, and artifact loading.
 """
+
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import Field, model_validator
 
-from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
 from polisyos.ir._validation import ensure_unique_ids
-from polisyos.ir.analytics.dynamic_regime import (
-    ContinuousTimeQuery,
-    TemporalInterventionTrajectory,
-)
 from polisyos.ir.artifacts import (
     ArtifactStore,
     ArtifactTaskBinding,
@@ -26,13 +22,7 @@ from polisyos.ir.artifacts import (
 )
 from polisyos.ir.artifacts.contracts import ArtifactID
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.governance.policy_spec import TemporalInterventionSequence
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
-from polisyos.ir.observation.bundles import (
-    BoundsEstimationBundle,
-    DTRTreatmentSequenceBundleManifest,
-)
-from polisyos.ir.observation.contract_compilers import BoundsEstimationInput
 from polisyos.ir.observation.contracts import (
     IdentificationMode,
     ObservationFamily,
@@ -44,6 +34,31 @@ from polisyos.ir.refs import (
     DynamicTreatmentRegimeRef,
     EffectTrajectoryBundleRef,
 )
+
+if TYPE_CHECKING:
+    from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
+    from polisyos.ir.analytics.dynamic_regime import (
+        ContinuousTimeQuery,
+        TemporalInterventionTrajectory,
+    )
+    from polisyos.ir.governance.policy_spec import TemporalInterventionSequence
+    from polisyos.ir.observation.bundles import (
+        BoundsEstimationBundle,
+        DTRTreatmentSequenceBundleManifest,
+    )
+    from polisyos.ir.observation.contract_compilers import BoundsEstimationInput
+else:
+    from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
+    from polisyos.ir.analytics.dynamic_regime import (
+        ContinuousTimeQuery,
+        TemporalInterventionTrajectory,
+    )
+    from polisyos.ir.governance.policy_spec import TemporalInterventionSequence
+    from polisyos.ir.observation.bundles import (
+        BoundsEstimationBundle,
+        DTRTreatmentSequenceBundleManifest,
+    )
+    from polisyos.ir.observation.contract_compilers import BoundsEstimationInput
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 _CAUSAL_EXECUTION_SCHEMA_NAME = "ir.causal_execution_bundle"
@@ -95,7 +110,7 @@ class TemporalDTRTask(KernelModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_source(self) -> "TemporalDTRTask":
+    def _validate_source(self) -> TemporalDTRTask:
         has_manifest_payload = bool(
             self.bundle_manifest is not None and self.bundle_manifest.contract_payload
         )
@@ -133,7 +148,7 @@ class BoundsEstimationEntry(KernelModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _derive_width(self) -> "BoundsEstimationEntry":
+    def _derive_width(self) -> BoundsEstimationEntry:
         if self.interval is not None and self.width is None:
             object.__setattr__(self, "width", float(self.interval[1] - self.interval[0]))
         return self
@@ -173,7 +188,7 @@ class CausalExecutionBundle(KernelModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_unique_ids(self) -> "CausalExecutionBundle":
+    def _validate_unique_ids(self) -> CausalExecutionBundle:
         ensure_unique_ids(
             self.bounds_results,
             key_fn=lambda item: item.task_id,

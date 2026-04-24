@@ -26,15 +26,15 @@ mkdir -p /opt/polisyos /data/output /data/cache /data/topics
 # --- 3. Clone repo (or copy) ---
 echo "[3/6] Setting up project..."
 if [ -d /opt/polisyos/policy-engine ]; then
-    echo "  Project already exists, pulling latest..."
-    cd /opt/polisyos && git pull || true
+  echo "  Project already exists, pulling latest..."
+  cd /opt/polisyos && git pull || true
 else
-    echo "  Cloning repository..."
-    echo "  NOTE: If repo is private, you'll need to set up SSH key or use token."
-    echo "  Alternative: scp the project from your Mac (see guide)."
-    echo ""
-    echo "  For now, skipping git clone."
-    echo "  Upload the project with: scp -r policy-engine/ root@SERVER_IP:/opt/polisyos/"
+  echo "  Cloning repository..."
+  echo "  NOTE: If repo is private, you'll need to set up SSH key or use token."
+  echo "  Alternative: scp the project from your Mac (see guide)."
+  echo ""
+  echo "  For now, skipping git clone."
+  echo "  Upload the project with: scp -r policy-engine/ root@SERVER_IP:/opt/polisyos/"
 fi
 
 # --- 4. Python virtual environment ---
@@ -56,9 +56,9 @@ python -c "from polisyos.academic.batch.cli import main; print('  Pipeline CLI O
 # --- 5. Environment variables template ---
 echo "[5/6] Checking .env file..."
 if [ -f /opt/polisyos/policy-engine/.env ]; then
-    echo "  .env already exists"
+  echo "  .env already exists"
 else
-    echo "  No .env found. You need to create one (see guide)."
+  echo "  No .env found. You need to create one (see guide)."
 fi
 
 # --- 6. tmux configuration (nice-to-have) ---

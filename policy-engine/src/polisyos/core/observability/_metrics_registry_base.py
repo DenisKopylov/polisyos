@@ -6,11 +6,12 @@ including lazy initialization of the OpenTelemetry MeterProvider, all metric
 instrument declarations, and the ``_register_metrics`` method that creates
 every counter / histogram / gauge used by PolicyOS.
 """
+
 from __future__ import annotations
 
 import logging
 import threading
-from typing import Any, Optional, Self, cast
+from typing import Any, Self, cast
 
 from opentelemetry import metrics
 from opentelemetry.sdk.metrics import MeterProvider
@@ -42,7 +43,7 @@ class _MetricsRegistryBase:
     Subclasses (mixins) add domain-specific recording methods.
     """
 
-    _instance: Optional["_MetricsRegistryBase"] = None
+    _instance: _MetricsRegistryBase | None = None
     _lock: threading.Lock = threading.Lock()
     _initialized: bool = False
 
@@ -52,143 +53,143 @@ class _MetricsRegistryBase:
         return cast("Self | None", cls._instance)
 
     # -- Workflow metric instruments ----------------------------------------
-    workflow_runs_total: Optional[metrics.Counter] = None
-    simulation_duration_seconds: Optional[metrics.Histogram] = None
-    simulation_steps_total: Optional[metrics.Counter] = None
-    simulation_compile_seconds: Optional[metrics.Histogram] = None
-    simulation_steps_per_second: Optional[GaugeProxy] = None
-    simulation_batch_size: Optional[metrics.Histogram] = None
-    llm_calls_total: Optional[metrics.Counter] = None
-    llm_tokens_total: Optional[metrics.Counter] = None
-    llm_cost_usd: Optional[metrics.Histogram] = None
-    llm_latency_ms: Optional[metrics.Histogram] = None
-    drafter_multipass_runs_total: Optional[metrics.Counter] = None
-    drafter_multipass_passes_total: Optional[metrics.Counter] = None
-    drafter_multipass_findings_total: Optional[metrics.Counter] = None
-    drafter_multipass_cost_usd: Optional[metrics.Histogram] = None
-    drafter_multipass_pass_duration_seconds: Optional[metrics.Histogram] = None
-    drafter_multipass_early_exit_total: Optional[metrics.Counter] = None
-    drafter_multipass_budget_stop_total: Optional[metrics.Counter] = None
-    constitution_generation_seconds: Optional[metrics.Histogram] = None
-    constitution_rules_total: Optional[metrics.Counter] = None
-    critic_preemptive_catches_total: Optional[metrics.Counter] = None
-    informed_critic_duration_seconds: Optional[metrics.Histogram] = None
-    feasibility_query_seconds: Optional[metrics.Histogram] = None
-    failure_pattern_index_size: Optional[GaugeProxy] = None
-    knowledge_base_gc_removed_total: Optional[metrics.Counter] = None
-    active_runs: Optional[metrics.UpDownCounter] = None
-    validation_issues_total: Optional[metrics.Counter] = None
-    degraded_paths_total: Optional[metrics.Counter] = None
+    workflow_runs_total: metrics.Counter | None = None
+    simulation_duration_seconds: metrics.Histogram | None = None
+    simulation_steps_total: metrics.Counter | None = None
+    simulation_compile_seconds: metrics.Histogram | None = None
+    simulation_steps_per_second: GaugeProxy | None = None
+    simulation_batch_size: metrics.Histogram | None = None
+    llm_calls_total: metrics.Counter | None = None
+    llm_tokens_total: metrics.Counter | None = None
+    llm_cost_usd: metrics.Histogram | None = None
+    llm_latency_ms: metrics.Histogram | None = None
+    drafter_multipass_runs_total: metrics.Counter | None = None
+    drafter_multipass_passes_total: metrics.Counter | None = None
+    drafter_multipass_findings_total: metrics.Counter | None = None
+    drafter_multipass_cost_usd: metrics.Histogram | None = None
+    drafter_multipass_pass_duration_seconds: metrics.Histogram | None = None
+    drafter_multipass_early_exit_total: metrics.Counter | None = None
+    drafter_multipass_budget_stop_total: metrics.Counter | None = None
+    constitution_generation_seconds: metrics.Histogram | None = None
+    constitution_rules_total: metrics.Counter | None = None
+    critic_preemptive_catches_total: metrics.Counter | None = None
+    informed_critic_duration_seconds: metrics.Histogram | None = None
+    feasibility_query_seconds: metrics.Histogram | None = None
+    failure_pattern_index_size: GaugeProxy | None = None
+    knowledge_base_gc_removed_total: metrics.Counter | None = None
+    active_runs: metrics.UpDownCounter | None = None
+    validation_issues_total: metrics.Counter | None = None
+    degraded_paths_total: metrics.Counter | None = None
 
     # -- Scientist engine node-level instruments ----------------------------
-    scientist_node_starts_total: Optional[metrics.Counter] = None
-    scientist_node_duration_seconds: Optional[metrics.Histogram] = None
-    scientist_node_executions_total: Optional[metrics.Counter] = None
-    scientist_tier_duration_seconds: Optional[metrics.Histogram] = None
-    scientist_node_retry_count: Optional[metrics.Histogram] = None
-    scientist_workflow_state: Optional[metrics.Counter] = None
-    scientist_tier_queue_depth: Optional[GaugeProxy] = None
-    scientist_semaphore_wait_seconds: Optional[metrics.Histogram] = None
-    scientist_trace_correlations_total: Optional[metrics.Counter] = None
-    scientist_operational_alerts_total: Optional[metrics.Counter] = None
-    scientist_llm_budget_utilization: Optional[GaugeProxy] = None
-    scientist_llm_cost_anomalies_total: Optional[metrics.Counter] = None
+    scientist_node_starts_total: metrics.Counter | None = None
+    scientist_node_duration_seconds: metrics.Histogram | None = None
+    scientist_node_executions_total: metrics.Counter | None = None
+    scientist_tier_duration_seconds: metrics.Histogram | None = None
+    scientist_node_retry_count: metrics.Histogram | None = None
+    scientist_workflow_state: metrics.Counter | None = None
+    scientist_tier_queue_depth: GaugeProxy | None = None
+    scientist_semaphore_wait_seconds: metrics.Histogram | None = None
+    scientist_trace_correlations_total: metrics.Counter | None = None
+    scientist_operational_alerts_total: metrics.Counter | None = None
+    scientist_llm_budget_utilization: GaugeProxy | None = None
+    scientist_llm_cost_anomalies_total: metrics.Counter | None = None
 
     # -- Artifact / connector metric instruments ----------------------------
-    artifact_operations_total: Optional[metrics.Counter] = None
-    artifact_io_bytes: Optional[metrics.Histogram] = None
-    artifact_io_duration_seconds: Optional[metrics.Histogram] = None
-    artifact_cache_hits_total: Optional[metrics.Counter] = None
-    artifact_cache_misses_total: Optional[metrics.Counter] = None
-    connector_cache_operations_total: Optional[metrics.Counter] = None
-    connector_cache_latency_seconds: Optional[metrics.Histogram] = None
-    connector_cache_entries_total: Optional[GaugeProxy] = None
-    connector_cache_size_bytes: Optional[GaugeProxy] = None
-    connector_cache_hit_rate: Optional[GaugeProxy] = None
-    connector_cache_evictions_total: Optional[metrics.Counter] = None
-    connector_cache_prefetch_jobs_total: Optional[metrics.Counter] = None
-    connector_retry_attempts_total: Optional[metrics.Counter] = None
-    connector_retry_delay_seconds: Optional[metrics.Histogram] = None
-    connector_circuit_state: Optional[GaugeProxy] = None
-    connector_circuit_trips_total: Optional[metrics.Counter] = None
-    connector_circuit_rejected_requests_total: Optional[metrics.Counter] = None
-    connector_rate_limit_wait_seconds: Optional[metrics.Histogram] = None
-    connector_rate_limit_acquire_duration_seconds: Optional[metrics.Histogram] = None
-    connector_rate_limit_throttled_total: Optional[metrics.Counter] = None
-    connector_rate_limit_tokens: Optional[GaugeProxy] = None
-    connector_fallback_triggered_total: Optional[metrics.Counter] = None
-    connector_fallback_success_total: Optional[metrics.Counter] = None
-    fabric_connector_fetch_duration_seconds: Optional[metrics.Histogram] = None
-    fabric_connector_rows_total: Optional[metrics.Counter] = None
-    fabric_connector_bytes_total: Optional[metrics.Counter] = None
-    fabric_query_duration_seconds: Optional[metrics.Histogram] = None
-    fabric_query_rows_total: Optional[metrics.Counter] = None
-    fabric_materialization_lag_seconds: Optional[GaugeProxy] = None
-    fabric_segment_count: Optional[GaugeProxy] = None
-    fabric_quality_score: Optional[GaugeProxy] = None
-    fabric_freshness_age_seconds: Optional[GaugeProxy] = None
-    fabric_lineage_graph_nodes: Optional[GaugeProxy] = None
-    fabric_lineage_graph_edges: Optional[GaugeProxy] = None
-    fabric_prefetch_backlog: Optional[GaugeProxy] = None
-    fabric_dlq_entries: Optional[GaugeProxy] = None
-    calibration_loss: Optional[GaugeProxy] = None
-    calibration_grad_norm: Optional[GaugeProxy] = None
-    calibration_step_duration_seconds: Optional[metrics.Histogram] = None
-    calibration_convergence_steps: Optional[metrics.Histogram] = None
-    governance_pass_duration_seconds: Optional[metrics.Histogram] = None
-    slo_dag_runs_total: Optional[metrics.Counter] = None
-    slo_dag_duration_seconds: Optional[metrics.Histogram] = None
-    slo_run_cost_usd: Optional[metrics.Histogram] = None
-    slo_simulation_nan_total: Optional[metrics.Counter] = None
-    slo_simulation_runs_total: Optional[metrics.Counter] = None
-    slo_connector_requests_total: Optional[metrics.Counter] = None
-    knowledge_bundle_age_seconds: Optional[GaugeProxy] = None
-    knowledge_bundle_staleness_ratio: Optional[GaugeProxy] = None
-    knowledge_bundle_status: Optional[GaugeProxy] = None
-    knowledge_bundle_refresh_total: Optional[metrics.Counter] = None
-    knowledge_bundle_check_duration_seconds: Optional[metrics.Histogram] = None
-    optimization_solve_duration_seconds: Optional[metrics.Histogram] = None
-    optimization_solve_status: Optional[metrics.Counter] = None
-    portfolio_combinations_evaluated: Optional[metrics.Counter] = None
-    portfolio_best_objective: Optional[GaugeProxy] = None
+    artifact_operations_total: metrics.Counter | None = None
+    artifact_io_bytes: metrics.Histogram | None = None
+    artifact_io_duration_seconds: metrics.Histogram | None = None
+    artifact_cache_hits_total: metrics.Counter | None = None
+    artifact_cache_misses_total: metrics.Counter | None = None
+    connector_cache_operations_total: metrics.Counter | None = None
+    connector_cache_latency_seconds: metrics.Histogram | None = None
+    connector_cache_entries_total: GaugeProxy | None = None
+    connector_cache_size_bytes: GaugeProxy | None = None
+    connector_cache_hit_rate: GaugeProxy | None = None
+    connector_cache_evictions_total: metrics.Counter | None = None
+    connector_cache_prefetch_jobs_total: metrics.Counter | None = None
+    connector_retry_attempts_total: metrics.Counter | None = None
+    connector_retry_delay_seconds: metrics.Histogram | None = None
+    connector_circuit_state: GaugeProxy | None = None
+    connector_circuit_trips_total: metrics.Counter | None = None
+    connector_circuit_rejected_requests_total: metrics.Counter | None = None
+    connector_rate_limit_wait_seconds: metrics.Histogram | None = None
+    connector_rate_limit_acquire_duration_seconds: metrics.Histogram | None = None
+    connector_rate_limit_throttled_total: metrics.Counter | None = None
+    connector_rate_limit_tokens: GaugeProxy | None = None
+    connector_fallback_triggered_total: metrics.Counter | None = None
+    connector_fallback_success_total: metrics.Counter | None = None
+    fabric_connector_fetch_duration_seconds: metrics.Histogram | None = None
+    fabric_connector_rows_total: metrics.Counter | None = None
+    fabric_connector_bytes_total: metrics.Counter | None = None
+    fabric_query_duration_seconds: metrics.Histogram | None = None
+    fabric_query_rows_total: metrics.Counter | None = None
+    fabric_materialization_lag_seconds: GaugeProxy | None = None
+    fabric_segment_count: GaugeProxy | None = None
+    fabric_quality_score: GaugeProxy | None = None
+    fabric_freshness_age_seconds: GaugeProxy | None = None
+    fabric_lineage_graph_nodes: GaugeProxy | None = None
+    fabric_lineage_graph_edges: GaugeProxy | None = None
+    fabric_prefetch_backlog: GaugeProxy | None = None
+    fabric_dlq_entries: GaugeProxy | None = None
+    calibration_loss: GaugeProxy | None = None
+    calibration_grad_norm: GaugeProxy | None = None
+    calibration_step_duration_seconds: metrics.Histogram | None = None
+    calibration_convergence_steps: metrics.Histogram | None = None
+    governance_pass_duration_seconds: metrics.Histogram | None = None
+    slo_dag_runs_total: metrics.Counter | None = None
+    slo_dag_duration_seconds: metrics.Histogram | None = None
+    slo_run_cost_usd: metrics.Histogram | None = None
+    slo_simulation_nan_total: metrics.Counter | None = None
+    slo_simulation_runs_total: metrics.Counter | None = None
+    slo_connector_requests_total: metrics.Counter | None = None
+    knowledge_bundle_age_seconds: GaugeProxy | None = None
+    knowledge_bundle_staleness_ratio: GaugeProxy | None = None
+    knowledge_bundle_status: GaugeProxy | None = None
+    knowledge_bundle_refresh_total: metrics.Counter | None = None
+    knowledge_bundle_check_duration_seconds: metrics.Histogram | None = None
+    optimization_solve_duration_seconds: metrics.Histogram | None = None
+    optimization_solve_status: metrics.Counter | None = None
+    portfolio_combinations_evaluated: metrics.Counter | None = None
+    portfolio_best_objective: GaugeProxy | None = None
 
     # -- Infrastructure metric instruments ----------------------------------
-    cell_router_requests_total: Optional[metrics.Counter] = None
-    cell_router_latency_seconds: Optional[metrics.Histogram] = None
-    cell_router_failures_total: Optional[metrics.Counter] = None
-    security_incidents_total: Optional[metrics.Counter] = None
-    cell_tenants_current: Optional[GaugeProxy] = None
-    authz_decisions_total: Optional[metrics.Counter] = None
-    authz_latency_seconds: Optional[metrics.Histogram] = None
-    authz_cache_hits_total: Optional[metrics.Counter] = None
-    authz_errors_total: Optional[metrics.Counter] = None
-    identity_failures_total: Optional[metrics.Counter] = None
-    audit_entries_total: Optional[metrics.Counter] = None
-    audit_sink_queue_depth: Optional[GaugeProxy] = None
-    audit_write_latency_seconds: Optional[metrics.Histogram] = None
-    audit_chain_tamper_detected_total: Optional[metrics.Counter] = None
-    audit_cold_tier_errors_total: Optional[metrics.Counter] = None
-    audit_tenant_boundary_violations_total: Optional[metrics.Counter] = None
-    tee_attestation_total: Optional[metrics.Counter] = None
-    tee_attestation_duration_seconds: Optional[metrics.Histogram] = None
-    tee_attestation_cache_hit_total: Optional[metrics.Counter] = None
-    sbom_generation_total: Optional[metrics.Counter] = None
-    sbom_vulnerability_count: Optional[metrics.Histogram] = None
-    sbom_deployment_gate_total: Optional[metrics.Counter] = None
-    runtime_api_requests_total: Optional[metrics.Counter] = None
-    runtime_api_duration_seconds: Optional[metrics.Histogram] = None
-    runtime_api_errors_total: Optional[metrics.Counter] = None
-    runtime_data_access_total: Optional[metrics.Counter] = None
-    runtime_cache_operations_total: Optional[metrics.Counter] = None
-    runtime_cache_rebuild_duration_seconds: Optional[metrics.Histogram] = None
-    runtime_cache_item_count: Optional[GaugeProxy] = None
-    runtime_cache_staleness_seconds: Optional[GaugeProxy] = None
-    control_plane_job_admissions_total: Optional[metrics.Counter] = None
-    control_plane_job_admission_duration_seconds: Optional[metrics.Histogram] = None
+    cell_router_requests_total: metrics.Counter | None = None
+    cell_router_latency_seconds: metrics.Histogram | None = None
+    cell_router_failures_total: metrics.Counter | None = None
+    security_incidents_total: metrics.Counter | None = None
+    cell_tenants_current: GaugeProxy | None = None
+    authz_decisions_total: metrics.Counter | None = None
+    authz_latency_seconds: metrics.Histogram | None = None
+    authz_cache_hits_total: metrics.Counter | None = None
+    authz_errors_total: metrics.Counter | None = None
+    identity_failures_total: metrics.Counter | None = None
+    audit_entries_total: metrics.Counter | None = None
+    audit_sink_queue_depth: GaugeProxy | None = None
+    audit_write_latency_seconds: metrics.Histogram | None = None
+    audit_chain_tamper_detected_total: metrics.Counter | None = None
+    audit_cold_tier_errors_total: metrics.Counter | None = None
+    audit_tenant_boundary_violations_total: metrics.Counter | None = None
+    tee_attestation_total: metrics.Counter | None = None
+    tee_attestation_duration_seconds: metrics.Histogram | None = None
+    tee_attestation_cache_hit_total: metrics.Counter | None = None
+    sbom_generation_total: metrics.Counter | None = None
+    sbom_vulnerability_count: metrics.Histogram | None = None
+    sbom_deployment_gate_total: metrics.Counter | None = None
+    runtime_api_requests_total: metrics.Counter | None = None
+    runtime_api_duration_seconds: metrics.Histogram | None = None
+    runtime_api_errors_total: metrics.Counter | None = None
+    runtime_data_access_total: metrics.Counter | None = None
+    runtime_cache_operations_total: metrics.Counter | None = None
+    runtime_cache_rebuild_duration_seconds: metrics.Histogram | None = None
+    runtime_cache_item_count: GaugeProxy | None = None
+    runtime_cache_staleness_seconds: GaugeProxy | None = None
+    control_plane_job_admissions_total: metrics.Counter | None = None
+    control_plane_job_admission_duration_seconds: metrics.Histogram | None = None
 
     # -- Singleton ----------------------------------------------------------
 
-    def __new__(cls) -> "_MetricsRegistryBase":
+    def __new__(cls) -> _MetricsRegistryBase:
         if cls._instance is None:
             with cls._lock:
                 if cls._instance is None:
@@ -199,9 +200,9 @@ class _MetricsRegistryBase:
         # Re-establish instance attributes even if singleton state was reset
         # while the process kept a previously allocated instance alive.
         if not hasattr(self, "_config"):
-            self._config: Optional[OTelConfig] = None
-            self._provider: Optional[MeterProvider] = None
-            self._meter: Optional[metrics.Meter] = None
+            self._config: OTelConfig | None = None
+            self._provider: MeterProvider | None = None
+            self._meter: metrics.Meter | None = None
             self._exporter_health: dict[str, Any] = {
                 "metrics": {
                     "status": "unknown",
@@ -780,8 +781,7 @@ class _MetricsRegistryBase:
         self.scientist_operational_alerts_total = self._meter.create_counter(
             name="polisyos_scientist_operational_alerts_total",
             description=(
-                "Operational monitoring alerts for drift, fairness, "
-                "calibration, and budget paths"
+                "Operational monitoring alerts for drift, fairness, calibration, and budget paths"
             ),
             unit="1",
         )
@@ -1096,7 +1096,7 @@ class _MetricsRegistryBase:
             return str(config.environment)
         return "unknown"
 
-    def _with_env(self, attributes: Optional[dict[str, Any]]) -> dict[str, Any]:
+    def _with_env(self, attributes: dict[str, Any] | None) -> dict[str, Any]:
         attrs: dict[str, Any] = dict(attributes or {})
         attrs.setdefault("env", self._default_env())
         return attrs

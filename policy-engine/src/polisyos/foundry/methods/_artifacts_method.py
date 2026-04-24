@@ -2,6 +2,7 @@
 MethodArtifact -- immutable artifact capturing a method's identity and
 compilation context for CAS-backed provenance (Law J).
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -113,7 +114,7 @@ class MethodArtifact:
         specialization: Specialization,
         *,
         compiled_at: datetime | None = None,
-    ) -> "MethodArtifact":
+    ) -> MethodArtifact:
         """
         Create artifact from a method class.
 
@@ -128,21 +129,25 @@ class MethodArtifact:
         sig: MethodSignature = method_class.signature
         meta: MethodMetadata = method_class.metadata
 
-        signature_hash = _compute_deterministic_hash({
-            "name": sig.name,
-            "namespace": sig.namespace,
-            "version": sig.version,
-            "input_slots": sorted([s.name for s in sig.input_slots]),
-            "output_slots": sorted([s.name for s in sig.output_slots]),
-            "parameters": sorted([p.name for p in sig.parameters]),
-        })
+        signature_hash = _compute_deterministic_hash(
+            {
+                "name": sig.name,
+                "namespace": sig.namespace,
+                "version": sig.version,
+                "input_slots": sorted([s.name for s in sig.input_slots]),
+                "output_slots": sorted([s.name for s in sig.output_slots]),
+                "parameters": sorted([p.name for p in sig.parameters]),
+            }
+        )
 
-        metadata_hash = _compute_deterministic_hash({
-            "description": meta.description,
-            "tags": sorted(meta.tags) if meta.tags else [],
-            "citations": list(meta.citations),
-            "equations": dict(meta.equations),
-        })
+        metadata_hash = _compute_deterministic_hash(
+            {
+                "description": meta.description,
+                "tags": sorted(meta.tags) if meta.tags else [],
+                "citations": list(meta.citations),
+                "equations": dict(meta.equations),
+            }
+        )
 
         source_hash = compute_source_hash(method_class)
         source_available = source_hash != SOURCE_UNAVAILABLE

@@ -25,7 +25,9 @@ def _edge(src: str, dst: str, *, bidirected: bool = False) -> CausalEdge:
     )
 
 
-def _graph(nodes: list[str], edges: list[CausalEdge], *, graph_type: GraphType = GraphType.DAG) -> CausalGraphModel:
+def _graph(
+    nodes: list[str], edges: list[CausalEdge], *, graph_type: GraphType = GraphType.DAG
+) -> CausalGraphModel:
     return CausalGraphModel(
         graph_type=graph_type,
         nodes=nodes,
@@ -34,7 +36,13 @@ def _graph(nodes: list[str], edges: list[CausalEdge], *, graph_type: GraphType =
     )
 
 
-def _fragment(fragment_id: str, *, interface_variables: list[str], inputs: list[str] | None = None, outputs: list[str] | None = None) -> SCMFragment:
+def _fragment(
+    fragment_id: str,
+    *,
+    interface_variables: list[str],
+    inputs: list[str] | None = None,
+    outputs: list[str] | None = None,
+) -> SCMFragment:
     return SCMFragment(
         fragment_id=fragment_id,
         graph_ref=f"artifact:graph:{fragment_id}",
@@ -47,10 +55,20 @@ def _fragment(fragment_id: str, *, interface_variables: list[str], inputs: list[
     )
 
 
-def test_replay_fragment_composition_case_returns_persisted_artifacts_and_query_status(tmp_path) -> None:
+def test_replay_fragment_composition_case_returns_persisted_artifacts_and_query_status(
+    tmp_path,
+) -> None:
     fragments = [
-        _fragment("core", interface_variables=["employment_rate", "wages"], outputs=["employment_rate", "wages"]),
-        _fragment("training", interface_variables=["employment_rate", "wages"], inputs=["employment_rate", "wages"]),
+        _fragment(
+            "core",
+            interface_variables=["employment_rate", "wages"],
+            outputs=["employment_rate", "wages"],
+        ),
+        _fragment(
+            "training",
+            interface_variables=["employment_rate", "wages"],
+            inputs=["employment_rate", "wages"],
+        ),
     ]
     fragment_graphs = {
         "core": _graph(

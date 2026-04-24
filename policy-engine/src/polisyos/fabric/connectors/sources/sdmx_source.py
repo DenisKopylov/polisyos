@@ -15,10 +15,10 @@ Target APIs (configurable via X-SDMX-* headers in ConnectionConfig):
 
 from __future__ import annotations
 
-import json as _json
 import time
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, ClassVar, Iterable
+from collections.abc import AsyncIterator, Iterable
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
 import aiohttp
 import pandas as pd
@@ -32,12 +32,12 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
+from polisyos.fabric.connectors.resilience import apply_resilience
 from polisyos.fabric.connectors.sources.http_base import (
     HTTPConnectorBase,
     HTTPResilienceProfile,
 )
 from polisyos.fabric.connectors.sources.http_common import frame_completeness
-from polisyos.fabric.connectors.resilience import apply_resilience
 from polisyos.fabric.connectors.types import (
     DataChunk,
     DatasetDescriptor,
@@ -54,7 +54,6 @@ from polisyos.ir.connectors import (
     ConnectorMetadataSpec,
     DataVersion,
     QualityTier,
-    ResilienceInfo,
     TrustLevel,
     VersionStrategy,
     capabilities_from_flags,
@@ -63,6 +62,7 @@ from polisyos.ir.connectors import (
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _join_url(base: str, *parts: str) -> str:
     if not base:
@@ -84,7 +84,7 @@ def _parse_http_datetime(value: str | None) -> datetime | None:
 
         parsed = parsedate_to_datetime(value)
         if parsed.tzinfo is None:
-            parsed = parsed.replace(tzinfo=timezone.utc)
+            parsed = parsed.replace(tzinfo=UTC)
         return parsed
     except Exception:
         return None
@@ -178,6 +178,7 @@ def _parse_sdmx_json(body: dict[str, Any]) -> pd.DataFrame:
 # Connector
 # ---------------------------------------------------------------------------
 
+
 class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
     """Production SDMX connector for ECB, OECD, IMF, BIS, ILO, and peers.
 
@@ -254,10 +255,11 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
             "dimension_order": order,
             "include_agency_in_data_path": config.headers.get(
                 "X-SDMX-IncludeAgencyInDataPath", "true"
-            ).strip().lower() not in {"0", "false", "no", "off"},
-            "dataflow_detail": config.headers.get(
-                "X-SDMX-DataflowDetail", "referencestubs"
-            ),
+            )
+            .strip()
+            .lower()
+            not in {"0", "false", "no", "off"},
+            "dataflow_detail": config.headers.get("X-SDMX-DataflowDetail", "referencestubs"),
         }
 
     @staticmethod
@@ -290,9 +292,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
 
     def _sdmx_structure_headers(self, config: ConnectionConfig) -> dict[str, str]:
         headers = self._build_auth_headers(config)
-        headers.setdefault(
-            "Accept", "application/vnd.sdmx.structure+json;version=1.0"
-        )
+        headers.setdefault("Accept", "application/vnd.sdmx.structure+json;version=1.0")
         return headers
 
     # ------------------------------------------------------------------
@@ -316,8 +316,10 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
         url = _join_url(base, cfg["dataflow_path"], cfg["agency"])
         started = time.monotonic()
         try:
-            _body, headers, _raw = await self._sdmx_request_json(
-                handle, url, accept="structure",
+            _body, _headers, _raw = await self._sdmx_request_json(
+                handle,
+                url,
+                accept="structure",
             )
             return HealthStatus(
                 healthy=True,
@@ -347,7 +349,9 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
             url = f"{url}?detail={detail}"
 
         body, _headers, _raw = await self._sdmx_request_json(
-            handle, url, accept="structure",
+            handle,
+            url,
+            accept="structure",
         )
 
         dataflows = self._extract_dataflows(body)
@@ -418,7 +422,9 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
             dimensions = components.get("dimensionList") or components.get("dimensions") or {}
             values = dimensions.get("dimensions") or dimensions.get("dimension") or dimensions
             if isinstance(values, list):
-                names = [str(dim.get("id") or "").strip() for dim in values if isinstance(dim, dict)]
+                names = [
+                    str(dim.get("id") or "").strip() for dim in values if isinstance(dim, dict)
+                ]
                 names = [name for name in names if name]
                 if names:
                     return names
@@ -464,11 +470,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
                             token = str(value).strip()
                         if token:
                             bucket.add(token)
-        return {
-            key: sorted(values)
-            for key, values in allowed.items()
-            if values
-        }
+        return {key: sorted(values) for key, values in allowed.items() if values}
 
     @staticmethod
     def _estimate_constraint_cardinality(allowed_positions: dict[str, list[str]]) -> int:
@@ -513,7 +515,9 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
 
         started = time.monotonic()
         body, headers, raw = await self._sdmx_request_json(
-            handle, url, accept="data",
+            handle,
+            url,
+            accept="data",
         )
         duration_ms = self._elapsed_ms(started)
 
@@ -530,7 +534,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
             quality_tier=QualityTier.GOLD,
             bytes_transferred=len(raw),
             completeness=frame_completeness(df) if not df.empty else 1.0,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             fetch_duration_ms=duration_ms,
             content_hash=content_hash,
             etag=etag,
@@ -565,9 +569,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
             for c in df.columns
             if c.lower() in {"time", "time_period", "period", "date", "obs_time"}
         ]
-        group_cols = [
-            c for c in df.columns if c not in time_cols and c not in ("value",)
-        ]
+        group_cols = [c for c in df.columns if c not in time_cols and c not in ("value",)]
 
         if group_cols:
             groups = df.groupby(group_cols)
@@ -623,7 +625,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
                     status=FreshnessStatus.STALE,
                     new_version_available=True,
                     new_version_hint=etag,
-                    source_updated_at=datetime.now(timezone.utc),
+                    source_updated_at=datetime.now(UTC),
                 )
             return FreshnessResult(status=FreshnessStatus.FRESH)
 
@@ -633,7 +635,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
                     status=FreshnessStatus.STALE,
                     new_version_available=True,
                     new_version_hint=last_modified,
-                    source_updated_at=datetime.now(timezone.utc),
+                    source_updated_at=datetime.now(UTC),
                 )
             return FreshnessResult(status=FreshnessStatus.FRESH)
 
@@ -686,7 +688,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
             constraint_hash=constraint_hash,
             estimated_cardinality=self._estimate_constraint_cardinality(allowed_positions),
             version_hint=self._extract_dataflow_version(body, dataset_id),
-            last_checked_at=datetime.now(timezone.utc),
+            last_checked_at=datetime.now(UTC),
         )
 
     # ------------------------------------------------------------------
@@ -719,7 +721,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
     ) -> str:
         standard_dims = ["freq", "geo", "indicator", "unit", "multiplier"]
         order = dimension_order or standard_dims
-        filter_map = {key: values for key, values in request.filters}
+        filter_map = dict(request.filters)
 
         # Remove SDMX-specific "key" filter (used as raw path segment)
         key_filter = filter_map.pop("key", None)
@@ -789,7 +791,7 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
 
         async def _raw_head(
             *,
-            handle: ConnectionHandle,  # noqa: ARG001
+            handle: ConnectionHandle,
             session: aiohttp.ClientSession,
             url: str,
             connector_id: str,

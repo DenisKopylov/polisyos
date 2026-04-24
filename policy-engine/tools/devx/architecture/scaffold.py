@@ -7,8 +7,8 @@ import subprocess
 import sys
 from datetime import date
 from pathlib import Path
-from tools._lib.imports import repo_root_from
 
+from tools._lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 TEMPLATE_DIR = Path(__file__).resolve().parent / "templates"
@@ -26,12 +26,16 @@ def _parse_args() -> argparse.Namespace:
     package_readme.add_argument("--output", type=Path, required=True)
     package_readme.add_argument("--dry-run", action="store_true")
 
-    connector = subparsers.add_parser("connector", help="Delegate to the existing connector scaffold.")
+    connector = subparsers.add_parser(
+        "connector", help="Delegate to the existing connector scaffold."
+    )
     connector.add_argument("--name", required=True)
     connector.add_argument("--type", choices=("REST", "CSV", "SQL", "SDMX"), required=True)
     connector.add_argument("--dry-run", action="store_true")
 
-    governance = subparsers.add_parser("governance-pass", help="Render a governance-pass source and test template.")
+    governance = subparsers.add_parser(
+        "governance-pass", help="Render a governance-pass source and test template."
+    )
     governance.add_argument("--name", required=True, help="Pass name in snake_case.")
     governance.add_argument("--class-name", help="Optional explicit class name.")
     governance.add_argument("--output", type=Path, required=True)

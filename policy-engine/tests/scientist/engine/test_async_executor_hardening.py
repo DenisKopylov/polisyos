@@ -22,6 +22,7 @@ from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 # ── Helpers ───────────────────────────────────────────────────────────
 
+
 def _node_spec(
     node_id: str = "test.node@1.0.0",
     *,
@@ -99,6 +100,7 @@ def _make_workflow(*invocations, error_policy="fail_fast") -> WorkflowSpec:
 
 # ── Per-task state isolation ──────────────────────────────────────────
 
+
 class TestParallelStateIsolation:
     @pytest.mark.asyncio
     async def test_parallel_nodes_get_independent_copies(self):
@@ -148,9 +150,7 @@ class TestParallelStateIsolation:
             raise RuntimeError("bind exploded")
 
         task_node.bind.side_effect = _bind
-        task_node.execute.side_effect = AssertionError(
-            "execute should not run when bind fails"
-        )
+        task_node.execute.side_effect = AssertionError("execute should not run when bind fails")
 
         registry = _make_registry(("test.bind_fail@1.0.0", task_node))
         ctx = _make_ctx()
@@ -201,10 +201,12 @@ class TestParallelStateIsolation:
 
 # ── Tier savepoint rollback ───────────────────────────────────────────
 
+
 class TestTierSavepoints:
     @pytest.mark.asyncio
     async def test_tier_rollback_on_failure(self):
         """On fail_fast, state should revert to tier savepoint."""
+
         def mutating_ok(state):
             state.params["tier1_done"] = True
             return NodeOutcome(status="ok", state=state)
@@ -212,7 +214,8 @@ class TestTierSavepoints:
         def failing(state):
             state.params["tier2_mutation"] = True
             return NodeOutcome(
-                status="fail", state=state,
+                status="fail",
+                state=state,
                 error=NodeError(code="node.exception", message="boom", details={}),
             )
 
@@ -402,6 +405,7 @@ class TestTierSavepoints:
 
 # ── Workflow timeout ──────────────────────────────────────────────────
 
+
 class TestWorkflowTimeout:
     @pytest.mark.asyncio
     async def test_workflow_timeout_raises(self):
@@ -415,7 +419,9 @@ class TestWorkflowTimeout:
         )
 
         executor = AsyncWorkflowExecutor(
-            ctx, registry, workflow_timeout_s=0.1,
+            ctx,
+            registry,
+            workflow_timeout_s=0.1,
         )
         with pytest.raises(WorkflowTimeoutError):
             await executor.execute(workflow, state)
@@ -437,6 +443,7 @@ class TestWorkflowTimeout:
 
 
 # ── Budget integration ────────────────────────────────────────────────
+
 
 class TestBudgetIntegration:
     @pytest.mark.asyncio
@@ -465,6 +472,7 @@ class TestBudgetIntegration:
 
 
 # ── New init params backward compatibility ────────────────────────────
+
 
 class TestBackwardCompat:
     @pytest.mark.asyncio

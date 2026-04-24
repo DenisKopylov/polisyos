@@ -1,4 +1,5 @@
 """Public foundry patch vm module API."""
+
 from __future__ import annotations
 
 from io import BytesIO

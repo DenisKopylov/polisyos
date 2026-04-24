@@ -4,19 +4,20 @@ Data composer for multi-source federation.
 Implements UNION, JOIN, OVERLAY, and CONSENSUS strategies for combining
 existing data from multiple sources with deterministic behavior.
 """
+
 from __future__ import annotations
 
 import heapq
 import json
+from collections.abc import Iterable
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Iterable
+from typing import Any
 
 import pandas as pd
 
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash
-from polisyos.fabric.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.federation.resolver import ConflictResolver
 from polisyos.fabric.connectors.federation.types import (
     AuditLevel,
@@ -31,6 +32,7 @@ from polisyos.fabric.connectors.federation.types import (
     SchemaIncompatibilityError,
     SourceMetadata,
 )
+from polisyos.fabric.observability import FABRIC_TRACE_NAMES
 
 logger = get_logger(__name__)
 
@@ -298,9 +300,7 @@ class DataComposer:
             all_rows.append(df_copy)
 
         combined = pd.concat(all_rows, ignore_index=True)
-        combined = combined.sort_values(by=key_columns, kind="mergesort").reset_index(
-            drop=True
-        )
+        combined = combined.sort_values(by=key_columns, kind="mergesort").reset_index(drop=True)
 
         source_lookup = {meta.connector_id: meta for _, meta in sources}
 
@@ -344,9 +344,7 @@ class DataComposer:
             resolved_rows.append(pd.Series(resolution.chosen_candidate.value))
 
         result = pd.DataFrame(resolved_rows)
-        result = result.sort_values(by=key_columns, kind="mergesort").reset_index(
-            drop=True
-        )
+        result = result.sort_values(by=key_columns, kind="mergesort").reset_index(drop=True)
 
         return result
 
@@ -380,9 +378,9 @@ class DataComposer:
         result_df, first_metadata = sources[0]
         result_df = result_df.copy()
 
-        column_sources: dict[str, SourceMetadata | None] = {
-            col: first_metadata for col in result_df.columns
-        }
+        column_sources: dict[str, SourceMetadata | None] = dict.fromkeys(
+            result_df.columns, first_metadata
+        )
 
         for df, metadata in sources[1:]:
             df_copy = df.copy()
@@ -393,7 +391,7 @@ class DataComposer:
             if overlapping_cols:
                 logger.info(
                     "JOIN detected overlapping columns",
-                    columns=sorted(list(overlapping_cols)),
+                    columns=sorted(overlapping_cols),
                 )
 
             result_df = result_df.merge(
@@ -599,7 +597,7 @@ class DataComposer:
                 for idx in values_df.index[non_numeric_mask]:
                     row_key = self._row_key_from_index(key_columns, idx)
                     candidates = []
-                    for source_idx, (indexed, metadata) in enumerate(indexed_sources):
+                    for source_idx, (_indexed, metadata) in enumerate(indexed_sources):
                         value = values_df.iloc[values_df.index.get_loc(idx), source_idx]
                         candidates.append(
                             ConflictCandidate(
@@ -642,9 +640,7 @@ class DataComposer:
                             column=col,
                             conflict_type="consensus",
                             source_a_id=indexed_sources[0][1].connector_id,
-                            source_a_value=values_df.iloc[
-                                values_df.index.get_loc(idx), 0
-                            ],
+                            source_a_value=values_df.iloc[values_df.index.get_loc(idx), 0],
                             source_a_trust=indexed_sources[0][1].metadata.trust_level,
                             source_b_id="consensus",
                             source_b_value=consensus_col.loc[idx],
@@ -661,7 +657,7 @@ class DataComposer:
 
             consensus_stats[col] = {
                 "aggregation": agg_func,
-                "rows": int(len(consensus_col)),
+                "rows": len(consensus_col),
                 "conflicts": int(values_df.nunique(axis=1, dropna=True).gt(1).sum()),
                 "sources": len(indexed_sources),
             }
@@ -798,13 +794,13 @@ class DataComposer:
             return {key_columns[0]: key_values}
         if not isinstance(key_values, tuple):
             return {key_columns[0]: key_values}
-        return {key: value for key, value in zip(key_columns, key_values)}
+        return dict(zip(key_columns, key_values, strict=False))
 
     def _row_key_from_index(self, key_columns: list[str], index_value: Any) -> dict[str, Any]:
         if len(key_columns) == 1:
             return {key_columns[0]: index_value}
         if isinstance(index_value, tuple):
-            return {key: value for key, value in zip(key_columns, index_value)}
+            return dict(zip(key_columns, index_value, strict=False))
         return {key_columns[0]: index_value}
 
     def _select_primary_source_index(
@@ -816,9 +812,7 @@ class DataComposer:
             for idx, (_, meta) in enumerate(sources):
                 if meta.connector_id == request.primary_source:
                     return idx
-            raise FederationError(
-                f"Primary source '{request.primary_source}' not found"
-            )
+            raise FederationError(f"Primary source '{request.primary_source}' not found")
 
         if request.manual_priorities:
             best_idx = 0

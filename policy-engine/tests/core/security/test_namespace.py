@@ -1,4 +1,5 @@
 """Tests for namespace utilities — WS3 multi-tenancy isolation."""
+
 from __future__ import annotations
 
 import sys

@@ -188,7 +188,7 @@ function metricSignificanceFields(
   const significant =
     typeof value.significant === "boolean" ? value.significant : undefined;
   const testLabel = asString(value.test_label) ?? undefined;
-  const effectSize = asNumber(value.effect_size);
+  const effectSize = extractEffectSizePoint(value.effect_size);
   return {
     ...(pValue !== null ? { pValue } : {}),
     ...(pAdj !== null ? { pAdj } : {}),
@@ -198,6 +198,14 @@ function metricSignificanceFields(
     ...(effectSize !== null ? { effectSize } : {}),
     ...(warnings.length > 0 ? { assumptionWarnings: warnings } : {}),
   };
+}
+
+function extractEffectSizePoint(value: unknown): number | null {
+  const direct = asNumber(value);
+  if (direct !== null) {
+    return direct;
+  }
+  return asNumber(asRecord(value)?.point);
 }
 
 function extractMetrics(

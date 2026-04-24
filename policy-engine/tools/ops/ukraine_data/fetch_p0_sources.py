@@ -345,7 +345,9 @@ def main(argv: list[str] | None = None) -> int:
     manifest["status"] = "completed" if not overall_failed else "completed_with_failures"
     manifest["finished_at"] = _iso_now()
     path = manifest_dir / "p0_source_acquisition_manifest.json"
-    path.write_text(json.dumps(manifest, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
+    path.write_text(
+        json.dumps(manifest, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8"
+    )
     sys.stdout.write(json.dumps(manifest, ensure_ascii=True, indent=2, sort_keys=True))
     sys.stdout.write("\n")
     return 0 if not overall_failed else 1

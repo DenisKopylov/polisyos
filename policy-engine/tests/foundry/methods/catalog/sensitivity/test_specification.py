@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 
 def _method_or_skip(registry, fqn):
@@ -10,7 +9,9 @@ def _method_or_skip(registry, fqn):
 
 class TestSpecificationCurve:
     def test_basic(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "sensitivity.specification.specification_curve@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "sensitivity.specification.specification_curve@1.0.0"
+        )
         rng = np.random.default_rng(42)
         n_specs = 20
         state = {
@@ -21,7 +22,9 @@ class TestSpecificationCurve:
         assert isinstance(result, dict)
 
     def test_output_finite(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "sensitivity.specification.specification_curve@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "sensitivity.specification.specification_curve@1.0.0"
+        )
         state = {
             "estimates": np.array([1.0, 1.5, 2.0, 2.5, 3.0]),
             "standard_errors": np.array([0.1, 0.2, 0.15, 0.1, 0.3]),

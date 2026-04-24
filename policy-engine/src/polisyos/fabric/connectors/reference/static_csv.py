@@ -30,11 +30,12 @@ Example ConnectionConfig
 ...     "rate_limit_rps": None,
 ... }
 """
+
 from __future__ import annotations
 
 import io
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, ClassVar
 
 import pandas as pd
@@ -93,8 +94,7 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
     connector_id: ClassVar[str] = "reference.static_csv"
 
     capabilities: ClassVar[ConnectorCapability] = (
-        ConnectorCapability.FULL_FETCH
-        | ConnectorCapability.SCHEMA_INTROSPECTION
+        ConnectorCapability.FULL_FETCH | ConnectorCapability.SCHEMA_INTROSPECTION
     )
 
     metadata: ClassVar[ConnectorMetadataSpec] = ConnectorMetadataSpec(
@@ -154,18 +154,20 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
         start = time.monotonic()
         headers = self._http_headers(handle.config)
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.head(
+            async with (
+                aiohttp.ClientSession() as session,
+                session.head(
                     handle.config.url,
                     headers=headers,
                     timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
-                ) as resp:
-                    latency = (time.monotonic() - start) * 1000
-                    return HealthStatus(
-                        healthy=(resp.status == 200),
-                        message=f"HTTP {resp.status}",
-                        latency_ms=round(latency, 2),
-                    )
+                ) as resp,
+            ):
+                latency = (time.monotonic() - start) * 1000
+                return HealthStatus(
+                    healthy=(resp.status == 200),
+                    message=f"HTTP {resp.status}",
+                    latency_ms=round(latency, 2),
+                )
         except Exception as exc:
             return HealthStatus(healthy=False, message=str(exc))
 
@@ -197,55 +199,57 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
 
         start = time.monotonic()
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
+            async with (
+                aiohttp.ClientSession() as session,
+                session.get(
                     handle.config.url,
                     headers=headers,
                     timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
-                ) as resp:
-                    duration_ms = (time.monotonic() - start) * 1000
+                ) as resp,
+            ):
+                duration_ms = (time.monotonic() - start) * 1000
 
-                    if resp.status == 304:
-                        etag_map[dataset_id] = resp.headers.get("ETag") or etag_map.get(dataset_id)
-                        last_mod_map[dataset_id] = (
-                            resp.headers.get("Last-Modified") or last_mod_map.get(dataset_id)
-                        )
-                        version = self._current_version(
-                            etag_map.get(dataset_id),
-                            last_mod_map.get(dataset_id),
-                            content_hash_map.get(dataset_id),
-                        )
-                        return FetchResult(
-                            data=pd.DataFrame(),
-                            row_count=0,
-                            schema_id=f"{self.connector_id}.{dataset_id}",
-                            schema_version="1.0.0",
-                            version=version,
-                            fetched_at=datetime.now(timezone.utc),
-                            completeness=1.0,
-                            quality_tier=QualityTier.SILVER,
-                            fetch_duration_ms=round(duration_ms, 2),
-                            bytes_transferred=0,
-                            not_modified=True,
-                            quality_flags=frozenset({"not_modified"}),
-                        )
+                if resp.status == 304:
+                    etag_map[dataset_id] = resp.headers.get("ETag") or etag_map.get(dataset_id)
+                    last_mod_map[dataset_id] = resp.headers.get(
+                        "Last-Modified"
+                    ) or last_mod_map.get(dataset_id)
+                    version = self._current_version(
+                        etag_map.get(dataset_id),
+                        last_mod_map.get(dataset_id),
+                        content_hash_map.get(dataset_id),
+                    )
+                    return FetchResult(
+                        data=pd.DataFrame(),
+                        row_count=0,
+                        schema_id=f"{self.connector_id}.{dataset_id}",
+                        schema_version="1.0.0",
+                        version=version,
+                        fetched_at=datetime.now(UTC),
+                        completeness=1.0,
+                        quality_tier=QualityTier.SILVER,
+                        fetch_duration_ms=round(duration_ms, 2),
+                        bytes_transferred=0,
+                        not_modified=True,
+                        quality_flags=frozenset({"not_modified"}),
+                    )
 
-                    if resp.status != 200:
-                        error = FetchError(
-                            message=f"HTTP {resp.status} from {handle.config.url}",
-                            connector_id=self.connector_id,
-                            request_params={"status_code": resp.status, "url": handle.config.url},
-                        )
-                        error.status_code = resp.status  # type: ignore[attr-defined]
-                        raise error
+                if resp.status != 200:
+                    error = FetchError(
+                        message=f"HTTP {resp.status} from {handle.config.url}",
+                        connector_id=self.connector_id,
+                        request_params={"status_code": resp.status, "url": handle.config.url},
+                    )
+                    error.status_code = resp.status  # type: ignore[attr-defined]
+                    raise error
 
-                    body = await resp.read()
-                    bytes_xferred = len(body)
+                body = await resp.read()
+                bytes_xferred = len(body)
 
-                    etag_map[dataset_id] = resp.headers.get("ETag")
-                    last_mod_map[dataset_id] = resp.headers.get("Last-Modified")
-                    content_hash = self._content_hash(body)
-                    content_hash_map[dataset_id] = content_hash
+                etag_map[dataset_id] = resp.headers.get("ETag")
+                last_mod_map[dataset_id] = resp.headers.get("Last-Modified")
+                content_hash = self._content_hash(body)
+                content_hash_map[dataset_id] = content_hash
         except FetchError:
             raise
         except Exception as exc:
@@ -283,7 +287,7 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
             schema_id=f"{self.connector_id}.{dataset_id}",
             schema_version="1.0.0",
             version=version,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=1.0,
             quality_tier=QualityTier.SILVER,
             fetch_duration_ms=round(duration_ms, 2),
@@ -333,7 +337,7 @@ class StaticCSVConnector(BaseConnector[pd.DataFrame]):
         last_modified: str | None,
         content_hash: str | None,
     ) -> DataVersion:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if etag:
             return DataVersion(
                 strategy=VersionStrategy.ETAG,

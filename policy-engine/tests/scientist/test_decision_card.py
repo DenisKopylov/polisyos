@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from types import SimpleNamespace
 
 from polisyos.scientist.orchestrator.decision_card import (
     Confidence,
-    DiagnosticBadge,
     DecisionCard,
+    DiagnosticBadge,
     IssuesSummary,
     KeyMetric,
     Verdict,
@@ -34,7 +34,7 @@ class TestDecisionCard:
     def test_render_markdown_pure(self) -> None:
         card = DecisionCard(
             run_id="test_001",
-            generated_at=datetime(2026, 1, 27, 12, 0, 0, tzinfo=timezone.utc),
+            generated_at=datetime(2026, 1, 27, 12, 0, 0, tzinfo=UTC),
             verdict=Verdict.APPROVE,
             confidence=Confidence.HIGH,
             policy_summary="Test policy with 2 interventions",
@@ -88,7 +88,7 @@ class TestDecisionCard:
     def test_to_dict_json_serializable(self) -> None:
         card = DecisionCard(
             run_id="test_002",
-            generated_at=datetime.now(timezone.utc),
+            generated_at=datetime.now(UTC),
             verdict=Verdict.REJECT,
             confidence=Confidence.LOW,
             policy_summary="Failed policy",

@@ -28,6 +28,8 @@ from polisyos.ir.data.versioning import (
 )
 
 __all__ = [
+    # versioning
+    "DatasetVersion",
     # harmonizer
     "DomainHarmonizer",
     "HarmonizationReport",
@@ -35,8 +37,6 @@ __all__ = [
     "MissingVariableStrategy",
     "ResolvedMapping",
     "TypeMismatch",
-    # versioning
-    "DatasetVersion",
     "compute_content_hash",
     "compute_schema_hash",
     "version_dataset",

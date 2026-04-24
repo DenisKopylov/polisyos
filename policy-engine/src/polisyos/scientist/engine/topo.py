@@ -4,6 +4,7 @@ Groups nodes into levels (tiers) using Kahn's algorithm. Nodes in the same
 tier have no mutual dependencies and can potentially execute in parallel,
 subject to write-safety checks.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -15,13 +16,13 @@ if TYPE_CHECKING:
     from polisyos.scientist.engine.workflow_spec import NodeInvocation
 
 
-def topo_sort_tiers(invocations: dict[str, "NodeInvocation"]) -> list[list[str]]:
+def topo_sort_tiers(invocations: dict[str, NodeInvocation]) -> list[list[str]]:
     """Kahn's algorithm, grouping by topological levels.
 
     Returns ``list[list[str]]`` — each inner list is a parallel tier of
     node aliases.
     """
-    indegree: dict[str, int] = {alias: 0 for alias in invocations}
+    indegree: dict[str, int] = dict.fromkeys(invocations, 0)
     forward: dict[str, list[str]] = {alias: [] for alias in invocations}
     order_index = {alias: idx for idx, alias in enumerate(invocations.keys())}
 
@@ -58,8 +59,8 @@ def topo_sort_tiers(invocations: dict[str, "NodeInvocation"]) -> list[list[str]]
 
 def validate_tier_write_safety(
     tier_aliases: list[str],
-    registry: "NodeRegistry",
-    invocations: dict[str, "NodeInvocation"],
+    registry: NodeRegistry,
+    invocations: dict[str, NodeInvocation],
 ) -> tuple[bool, list[str]]:
     """Check that ``state_writes`` of nodes in a tier don't overlap.
 

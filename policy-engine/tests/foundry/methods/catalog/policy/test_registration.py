@@ -10,23 +10,27 @@ def test_register_policy_methods_queryable():
     registry = MethodRegistry.get_instance()
 
     welfare_names = {sig.name for sig in registry.query(namespace="policy.welfare")}
-    assert welfare_names.issuperset({
-        "cost_benefit_analysis",
-        "cost_effectiveness",
-        "utilitarian_swf",
-        "rawlsian_swf",
-        "atkinson_swf",
-        "sen_capability",
-        "sufficient_statistics_welfare",
-    })
+    assert welfare_names.issuperset(
+        {
+            "cost_benefit_analysis",
+            "cost_effectiveness",
+            "utilitarian_swf",
+            "rawlsian_swf",
+            "atkinson_swf",
+            "sen_capability",
+            "sufficient_statistics_welfare",
+        }
+    )
 
     evaluation_names = {sig.name for sig in registry.query(namespace="policy.evaluation")}
-    assert evaluation_names.issuperset({
-        "budget_impact",
-        "scorecard",
-        "ex_ante_simulation",
-        "foundation_model_policy_analysis",
-    })
+    assert evaluation_names.issuperset(
+        {
+            "budget_impact",
+            "scorecard",
+            "ex_ante_simulation",
+            "foundation_model_policy_analysis",
+        }
+    )
 
     macro_names = {sig.name for sig in registry.query(namespace="policy.macro")}
     assert macro_names == {"fiscal_multiplier", "krusell_smith_lite"}
@@ -42,4 +46,8 @@ def test_register_policy_methods_queryable():
         "topsis",
         "ahp",
         "electre",
+        "rank_stability",
+        "robust_topsis",
+        "robust_ahp",
+        "robust_electre",
     }

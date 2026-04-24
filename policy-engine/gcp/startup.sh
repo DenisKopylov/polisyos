@@ -11,7 +11,7 @@ md() {
 meta_or_default() {
   local key="$1"
   local fallback="${2:-}"
-  md "${key}" 2>/dev/null || printf '%s\n' "${fallback}"
+  md "${key}" 2> /dev/null || printf '%s\n' "${fallback}"
 }
 
 PROJECT_ID="$(md project-id)"
@@ -77,20 +77,20 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq \
   apt-transport-https ca-certificates curl gnupg git tar \
-  build-essential libffi-dev libssl-dev pkg-config >/dev/null
+  build-essential libffi-dev libssl-dev pkg-config > /dev/null
 
-if ! command -v gcloud >/dev/null 2>&1; then
+if ! command -v gcloud > /dev/null 2>&1; then
   echo "[2/7] Installing gcloud CLI"
   install -d -m 0755 /usr/share/keyrings
-  curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
+  curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg |
     gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
   echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" \
     > /etc/apt/sources.list.d/google-cloud-sdk.list
   apt-get update -qq
-  apt-get install -y -qq google-cloud-cli >/dev/null
+  apt-get install -y -qq google-cloud-cli > /dev/null
 fi
 
-if ! command -v uv >/dev/null 2>&1; then
+if ! command -v uv > /dev/null 2>&1; then
   echo "[3/7] Installing uv"
   curl -LsSf https://astral.sh/uv/install.sh | sh
 fi
@@ -99,22 +99,22 @@ export PATH="/root/.local/bin:${PATH}"
 mkdir -p /opt/polisyos /mnt/work/input /mnt/work/output /mnt/work/bootstrap
 
 echo "[4/7] Downloading repo bundle"
-gcloud storage cp "${REPO_BUNDLE_URI}" /mnt/work/bootstrap/repo.tgz >/dev/null
+gcloud storage cp "${REPO_BUNDLE_URI}" /mnt/work/bootstrap/repo.tgz > /dev/null
 tar -xzf /mnt/work/bootstrap/repo.tgz -C /opt/polisyos
 
 cd /opt/polisyos/policy-engine
 echo "[5/7] Preparing Python runtime"
-uv python install 3.14 >/dev/null
-uv venv --python 3.14 /opt/venv >/dev/null
+uv python install 3.14 > /dev/null
+uv venv --python 3.14 /opt/venv > /dev/null
 source /opt/venv/bin/activate
-uv pip install --python /opt/venv/bin/python -e /opt/polisyos/policy-engine >/dev/null
+uv pip install --python /opt/venv/bin/python -e /opt/polisyos/policy-engine > /dev/null
 
 echo "[6/7] Loading Gonka secrets and shard inputs"
 if [ "${LOAD_GONKA_SECRETS}" = "1" ]; then
   for i in 1 2 3 4 5; do
     value="$(gcloud secrets versions access latest \
       --secret="gonka-acc${ACCOUNT_NUM}-key${i}" \
-      --project="${PROJECT_ID}" 2>/dev/null || true)"
+      --project="${PROJECT_ID}" 2> /dev/null || true)"
     if [ -n "${value}" ]; then
       export "GONKA_API_KEY_${i}=${value}"
     fi
@@ -125,20 +125,20 @@ fi
 
 gcloud storage cp \
   "gs://${BUCKET_NAME}/input/pre_sharded/${SNAPSHOT_LABEL}/summary.json" \
-  /mnt/work/input/summary.json >/dev/null
+  /mnt/work/input/summary.json > /dev/null
 if [ -n "${MANIFEST_URI}" ]; then
-  gcloud storage cp "${MANIFEST_URI}" "/mnt/work/input/${MANIFEST_NAME}" >/dev/null
+  gcloud storage cp "${MANIFEST_URI}" "/mnt/work/input/${MANIFEST_NAME}" > /dev/null
 else
   gcloud storage cp \
     "gs://${BUCKET_NAME}/input/pre_sharded/${SNAPSHOT_LABEL}/${STATUS_PASS}/${MANIFEST_NAME}" \
-    "/mnt/work/input/${MANIFEST_NAME}" >/dev/null
+    "/mnt/work/input/${MANIFEST_NAME}" > /dev/null
 fi
 
 sync_gcs_dir_to_local() {
   local remote_dir="$1"
   local local_dir="$2"
   mkdir -p "${local_dir}"
-  gcloud storage rsync -r "${remote_dir}/" "${local_dir}/" >/dev/null 2>&1 || true
+  gcloud storage rsync -r "${remote_dir}/" "${local_dir}/" > /dev/null 2>&1 || true
 }
 
 sync_local_dir_to_gcs() {
@@ -147,14 +147,14 @@ sync_local_dir_to_gcs() {
   if [ ! -d "${local_dir}" ]; then
     return 0
   fi
-  gcloud storage rsync -r "${local_dir}/" "${remote_dir}/" >/dev/null 2>&1 || true
+  gcloud storage rsync -r "${local_dir}/" "${remote_dir}/" > /dev/null 2>&1 || true
 }
 
 sync_gcs_file_to_local() {
   local remote_file="$1"
   local local_file="$2"
   mkdir -p "$(dirname "${local_file}")"
-  gcloud storage cp "${remote_file}" "${local_file}" >/dev/null 2>&1 || true
+  gcloud storage cp "${remote_file}" "${local_file}" > /dev/null 2>&1 || true
 }
 
 sync_local_file_to_gcs() {
@@ -163,7 +163,7 @@ sync_local_file_to_gcs() {
   if [ ! -f "${local_file}" ]; then
     return 0
   fi
-  gcloud storage cp "${local_file}" "${remote_file}" >/dev/null 2>&1 || true
+  gcloud storage cp "${local_file}" "${remote_file}" > /dev/null 2>&1 || true
 }
 
 sync_resume_cache_to_local() {
@@ -199,12 +199,12 @@ sync_local_resume_cache() {
 sync_outputs() {
   mkdir -p /mnt/work/output/manifests
   printf '%s\n' "${RUN_LABEL}" > /mnt/work/output/manifests/run_label.txt
-  cp /var/log/policyos-gcp-startup.log /mnt/work/output/manifests/startup.log 2>/dev/null || true
+  cp /var/log/policyos-gcp-startup.log /mnt/work/output/manifests/startup.log 2> /dev/null || true
   # Keep a root-level telemetry.json for older tooling expectations.
   if [ -f /mnt/work/output/manifests/telemetry.json ]; then
-    cp /mnt/work/output/manifests/telemetry.json /mnt/work/output/telemetry.json 2>/dev/null || true
+    cp /mnt/work/output/manifests/telemetry.json /mnt/work/output/telemetry.json 2> /dev/null || true
   fi
-  gcloud storage rsync -r /mnt/work/output/ "${OUTPUT_PREFIX}/" >/dev/null 2>&1 || true
+  gcloud storage rsync -r /mnt/work/output/ "${OUTPUT_PREFIX}/" > /dev/null 2>&1 || true
   sync_local_resume_cache || true
 }
 
@@ -212,8 +212,8 @@ SYNC_LOOP_PID=""
 cleanup() {
   local exit_code=$?
   if [ -n "${SYNC_LOOP_PID}" ]; then
-    kill "${SYNC_LOOP_PID}" >/dev/null 2>&1 || true
-    wait "${SYNC_LOOP_PID}" 2>/dev/null || true
+    kill "${SYNC_LOOP_PID}" > /dev/null 2>&1 || true
+    wait "${SYNC_LOOP_PID}" 2> /dev/null || true
   fi
   sync_outputs || true
   echo "Worker exit code: ${exit_code}"
@@ -245,11 +245,11 @@ fi
 
 echo "[7/7] Restoring previous run state"
 sync_resume_cache_to_local
-gcloud storage rsync -r "${OUTPUT_PREFIX}/" /mnt/work/output/ >/dev/null 2>&1 || true
+gcloud storage rsync -r "${OUTPUT_PREFIX}/" /mnt/work/output/ > /dev/null 2>&1 || true
 mkdir -p /mnt/work/output/manifests
 rm -f /mnt/work/output/manifests/pipeline_exit_code.txt /mnt/work/output/pipeline_exit_code.txt
 
-cat > /mnt/work/output/manifests/run_config.json <<EOF
+cat > /mnt/work/output/manifests/run_config.json << EOF
 {
   "run_label": "${RUN_LABEL}",
   "shard_index": ${SHARD_INDEX},
@@ -295,7 +295,7 @@ RUN_ARGS=(
   --shard-index "${SHARD_INDEX}"
   --manifest-is-pre-sharded
   --resume
-  --stages parse,structure,spo,ground_quotes,resolve_refs
+  --stages "parse,structure,spo,ground_quotes,resolve_refs"
   --parallel-llm "${PARALLEL_LLM}"
   --parallel-llm-global "${PARALLEL_LLM_GLOBAL}"
   --gonka-rate-limit-rps "${RPS}"

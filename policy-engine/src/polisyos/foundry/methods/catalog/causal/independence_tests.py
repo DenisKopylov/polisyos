@@ -22,7 +22,8 @@ categorical families additionally support DP-aware calibration via
 from __future__ import annotations
 
 import math
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -79,13 +80,9 @@ def _median_bandwidth(X: np.ndarray, Y: np.ndarray | None = None) -> float:
 def _rbf_kernel(X: np.ndarray, bandwidth: float) -> np.ndarray:
     """Compute n×n RBF kernel matrix."""
     n = X.shape[0]
-    sq_dists = (
-        np.sum(X ** 2, axis=1, keepdims=True)
-        + np.sum(X ** 2, axis=1)
-        - 2.0 * (X @ X.T)
-    )
+    sq_dists = np.sum(X**2, axis=1, keepdims=True) + np.sum(X**2, axis=1) - 2.0 * (X @ X.T)
     sq_dists = np.maximum(sq_dists, 0.0)
-    return np.exp(-sq_dists / (2.0 * bandwidth ** 2 + _EPS))
+    return np.exp(-sq_dists / (2.0 * bandwidth**2 + _EPS))
 
 
 def _centering_matrix(n: int) -> np.ndarray:
@@ -131,6 +128,7 @@ def _fisher_z(r: float, n: int) -> tuple[float, float]:
     z_stat = z / se
     # two-sided p-value via normal approximation
     from math import erfc, sqrt
+
     p = float(erfc(abs(z_stat) / sqrt(2.0)))
     return float(z_stat), min(p, 1.0)
 
@@ -217,13 +215,17 @@ def _result_payload(
     payload_metadata = dict(metadata)
     payload_metadata.update(dict(calibration.null_summary))
     if calibration.sample_size_requirement is not None:
-        payload_metadata["sample_size_requirement"] = calibration.sample_size_requirement.model_dump(
-            mode="json"
+        payload_metadata["sample_size_requirement"] = (
+            calibration.sample_size_requirement.model_dump(mode="json")
         )
     if calibration.threshold_policy.threshold_scope:
-        payload_metadata["threshold_registry_scope"] = dict(calibration.threshold_policy.threshold_scope)
+        payload_metadata["threshold_registry_scope"] = dict(
+            calibration.threshold_policy.threshold_scope
+        )
     if calibration.threshold_policy.threshold_registry_version is not None:
-        payload_metadata["threshold_registry_version"] = calibration.threshold_policy.threshold_registry_version
+        payload_metadata["threshold_registry_version"] = (
+            calibration.threshold_policy.threshold_registry_version
+        )
     return {
         "result": {
             "test_name": test_name,
@@ -278,9 +280,7 @@ class HSICIndependenceTest:
                 SlotSpec("Y", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "q")),
             }
         ),
-        output_slots=frozenset(
-            {SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}
-        ),
+        output_slots=frozenset({SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}),
         parameters=(
             ParameterSpec(name="kernel", default="rbf"),
             ParameterSpec(name="n_bootstrap", default=200),
@@ -303,7 +303,9 @@ class HSICIndependenceTest:
             "HSIC test for marginal independence X ⊥ Y using RBF kernels "
             "and bootstrap permutation null."
         ),
-        tags=frozenset({"causal", "diagnostics", "independence", "hsic", "kernel", "falsification"}),
+        tags=frozenset(
+            {"causal", "diagnostics", "independence", "hsic", "kernel", "falsification"}
+        ),
         citations=(
             "Gretton, A. et al. (2005). Measuring statistical dependence with Hilbert-Schmidt norms.",
             "Gretton, A. et al. (2008). A kernel statistical test of independence.",
@@ -425,9 +427,7 @@ class KCIConditionalTest:
                 SlotSpec("Z", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "r")),
             }
         ),
-        output_slots=frozenset(
-            {SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}
-        ),
+        output_slots=frozenset({SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}),
         parameters=(
             ParameterSpec(name="kernel", default="rbf"),
             ParameterSpec(name="n_bootstrap", default=200),
@@ -588,9 +588,7 @@ class CategoricalConditionalIndependenceTest:
                 SlotSpec("Z", SlotType.MATRIX, Unit("covariate", "category"), shape=("n_obs", "r")),
             }
         ),
-        output_slots=frozenset(
-            {SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}
-        ),
+        output_slots=frozenset({SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}),
         parameters=(
             ParameterSpec(name="alpha", default=0.05),
             ParameterSpec(name="statistic_family", default="g2"),
@@ -720,7 +718,14 @@ class CategoricalConditionalIndependenceTest:
 @foundry_method(
     namespace="causal.diagnostics.independence",
     version="1.0.0",
-    tags={"causal", "diagnostics", "independence", "partial-correlation", "linear", "cross-section"},
+    tags={
+        "causal",
+        "diagnostics",
+        "independence",
+        "partial-correlation",
+        "linear",
+        "cross-section",
+    },
 )
 class PartialCorrelationTest:
     """Partial correlation test for X ⊥ Y | Z using Fisher z-transform.
@@ -745,9 +750,7 @@ class PartialCorrelationTest:
                 SlotSpec("Z", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "r")),
             }
         ),
-        output_slots=frozenset(
-            {SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}
-        ),
+        output_slots=frozenset({SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}),
         parameters=(
             ParameterSpec(name="alpha", default=0.05),
             ParameterSpec(name="dp_context", default=None),
@@ -766,7 +769,14 @@ class PartialCorrelationTest:
             "Fast linear falsification hint for conditional independence."
         ),
         tags=frozenset(
-            {"causal", "diagnostics", "independence", "partial-correlation", "linear", "falsification"}
+            {
+                "causal",
+                "diagnostics",
+                "independence",
+                "partial-correlation",
+                "linear",
+                "falsification",
+            }
         ),
         citations=(
             "Fisher, R.A. (1924). The distribution of the partial correlation coefficient.",

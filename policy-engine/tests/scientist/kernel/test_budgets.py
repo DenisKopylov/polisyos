@@ -1,4 +1,5 @@
 """Tests for polisyos.scientist.kernel.budgets — Pydantic budget models."""
+
 from __future__ import annotations
 
 import pytest
@@ -11,10 +12,10 @@ from polisyos.scientist.kernel.budgets import (
     LegitimacyBudget,
 )
 
-
 # ---------------------------------------------------------------------------
 # ComputeBudget
 # ---------------------------------------------------------------------------
+
 
 class TestComputeBudget:
     def test_defaults(self):
@@ -62,6 +63,7 @@ class TestComputeBudget:
 # EvidenceBudget
 # ---------------------------------------------------------------------------
 
+
 class TestEvidenceBudget:
     def test_defaults(self):
         b = EvidenceBudget()
@@ -88,6 +90,7 @@ class TestEvidenceBudget:
 # LegitimacyBudget
 # ---------------------------------------------------------------------------
 
+
 class TestLegitimacyBudget:
     def test_defaults(self):
         b = LegitimacyBudget()
@@ -111,6 +114,7 @@ class TestLegitimacyBudget:
 # ---------------------------------------------------------------------------
 # ComplexityBudget
 # ---------------------------------------------------------------------------
+
 
 class TestComplexityBudget:
     def test_defaults(self):

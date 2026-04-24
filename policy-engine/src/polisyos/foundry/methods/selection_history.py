@@ -12,9 +12,10 @@ import math
 import threading
 import time
 from collections import defaultdict, deque
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
@@ -126,7 +127,9 @@ class SelectionHistoryStore:
     def quality_quantiles(self, fqn: str) -> tuple[float, float, float] | None:
         """Return (p25, p50, p75) of output_quality, or None if < 3 records have quality."""
         with self._lock:
-            values = [r.output_quality for r in self._by_fqn.get(fqn, []) if r.output_quality is not None]
+            values = [
+                r.output_quality for r in self._by_fqn.get(fqn, []) if r.output_quality is not None
+            ]
         if len(values) < 3:
             return None
         values.sort()
@@ -205,16 +208,15 @@ class SelectionHistoryStore:
             self.clear()
         imported = 0
         try:
-            with self._persist_lock:
-                with target.open("r", encoding="utf-8") as fh:
-                    for line in fh:
-                        payload = line.strip()
-                        if not payload:
-                            continue
-                        record = MethodExecutionRecord.model_validate_json(payload)
-                        with self._lock:
-                            self._by_fqn[record.method_fqn].append(record)
-                        imported += 1
+            with self._persist_lock, target.open("r", encoding="utf-8") as fh:
+                for line in fh:
+                    payload = line.strip()
+                    if not payload:
+                        continue
+                    record = MethodExecutionRecord.model_validate_json(payload)
+                    with self._lock:
+                        self._by_fqn[record.method_fqn].append(record)
+                    imported += 1
         except OSError as exc:
             self._record_persistence_issue("import", target, exc)
             raise
@@ -357,9 +359,7 @@ class RuntimePredictor:
         residuals_by_method_backend: dict[tuple[str, str], list[float]] = defaultdict(list)
         for fqn, backend, log_n_obs, log_n_features, log_latency in rows:
             baseline = (
-                self._intercept
-                + self._slope_obs * log_n_obs
-                + self._slope_feat * log_n_features
+                self._intercept + self._slope_obs * log_n_obs + self._slope_feat * log_n_features
             )
             residual = log_latency - baseline
             residuals_by_fqn[fqn].append(residual)

@@ -31,9 +31,15 @@ def _make_panel_data() -> PanelData:
     x0 = rng.normal(size=n_obs)
     x1 = rng.normal(size=n_obs)
     x2 = rng.normal(size=n_obs)
-    y = 1.0 + 0.7 * x0 - 0.25 * x1 + entity_ids.astype(float) * 0.05 + rng.normal(
-        scale=0.2,
-        size=n_obs,
+    y = (
+        1.0
+        + 0.7 * x0
+        - 0.25 * x1
+        + entity_ids.astype(float) * 0.05
+        + rng.normal(
+            scale=0.2,
+            size=n_obs,
+        )
     )
     instruments = np.column_stack(
         [
@@ -147,7 +153,10 @@ def test_advanced_estimators_run(
         assert result.output["forecasting_uncertainty_bundle"] is not None
         assert "policy_risk_benchmark" in result.output["result"].diagnostics
         assert result.output["result"].nonstationary_volatility.coverage is not None
-        assert "scenario_benchmarks" in result.output["result"].nonstationary_volatility.coverage.metadata
+        assert (
+            "scenario_benchmarks"
+            in result.output["result"].nonstationary_volatility.coverage.metadata
+        )
 
 
 def test_event_study_runs() -> None:
@@ -156,7 +165,9 @@ def test_event_study_runs() -> None:
     dispatcher = MethodDispatcher.get_instance()
 
     rng = np.random.default_rng(13)
-    outcome = np.vstack([np.linspace(1.0, 3.0, 8) + rng.normal(scale=0.1, size=8) for _ in range(8)])
+    outcome = np.vstack(
+        [np.linspace(1.0, 3.0, 8) + rng.normal(scale=0.1, size=8) for _ in range(8)]
+    )
     outcome[4:, 4:] += 0.6
     state = {
         "outcome": outcome,
@@ -222,7 +233,8 @@ def test_cointegration_and_forecast_backtest_run() -> None:
         endog=np.column_stack(
             [
                 np.asarray(base.endog, dtype=float),
-                np.asarray(base.endog, dtype=float) + np.random.default_rng(14).normal(scale=0.1, size=base.n_obs),
+                np.asarray(base.endog, dtype=float)
+                + np.random.default_rng(14).normal(scale=0.1, size=base.n_obs),
             ]
         )
     )

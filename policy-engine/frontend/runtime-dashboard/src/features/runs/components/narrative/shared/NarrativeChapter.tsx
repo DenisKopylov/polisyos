@@ -36,6 +36,8 @@ export function NarrativeChapter({
       id={id}
       className={cn("scroll-mt-20", className)}
       aria-label={`Chapter ${number}: ${title}`}
+      data-authored-exempt="true"
+      data-authored-exempt-reason="Narrative chapter header is structural chrome; authored prose starts in the chapter body."
     >
       <AnimatePresence>
         <motion.div

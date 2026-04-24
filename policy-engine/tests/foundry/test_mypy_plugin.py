@@ -18,6 +18,7 @@ fast local loops:
 Requirements:
     mypy must be installed (it is in the ``dev`` extra).
 """
+
 from __future__ import annotations
 
 import subprocess
@@ -27,10 +28,10 @@ from pathlib import Path
 
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _run_mypy(tmp_path: Path, source: str) -> tuple[int, str]:
     """Write *source* to a temp .py file and run mypy on it.
@@ -38,6 +39,7 @@ def _run_mypy(tmp_path: Path, source: str) -> tuple[int, str]:
     Returns (exit_code, combined_stdout+stderr).
     """
     import os
+
     module_file = tmp_path / "subject.py"
     module_file.write_text(textwrap.dedent(source), encoding="utf-8")
 
@@ -93,6 +95,7 @@ _SKIP = pytest.mark.skipif(not _mypy_available(), reason="mypy not installed")
 # Tests
 # ---------------------------------------------------------------------------
 
+
 @_SKIP
 @pytest.mark.integration
 class TestFoundryMethodPlugin:
@@ -132,7 +135,8 @@ class TestFoundryMethodPlugin:
         code_rc, output = _run_mypy(tmp_path, code)
         # May have import or other non-plugin errors, but plugin should not add its own
         plugin_errors = [
-            line for line in output.splitlines()
+            line
+            for line in output.splitlines()
             if "must define" in line or "must be a @staticmethod" in line
         ]
         assert plugin_errors == [], f"Plugin raised unexpected errors:\n{output}"
@@ -153,9 +157,7 @@ class TestFoundryMethodPlugin:
                     return {}
         """
         _code_rc, output = _run_mypy(tmp_path, code)
-        assert "signature" in output, (
-            f"Expected error about missing 'signature', got:\n{output}"
-        )
+        assert "signature" in output, f"Expected error about missing 'signature', got:\n{output}"
 
     def test_missing_pure_step_is_flagged(self, tmp_path: Path) -> None:
         """A class missing ``pure_step`` should get a mypy error."""
@@ -188,37 +190,41 @@ class TestFoundryMethodPlugin:
                 # no pure_step!
         """
         _code_rc, output = _run_mypy(tmp_path, code)
-        assert "pure_step" in output, (
-            f"Expected error about missing 'pure_step', got:\n{output}"
-        )
+        assert "pure_step" in output, f"Expected error about missing 'pure_step', got:\n{output}"
 
 
 class TestPluginImport:
     """Fast non-mypy tests that verify the plugin module can be imported."""
 
     def test_plugin_function_exists(self) -> None:
-        from polisyos.foundry.methods.mypy_plugin import plugin, FoundryMethodPlugin
+        from polisyos.foundry.methods.mypy_plugin import FoundryMethodPlugin, plugin
+
         assert callable(plugin)
         assert issubclass(FoundryMethodPlugin, object)
 
     def test_plugin_returns_class(self) -> None:
-        from polisyos.foundry.methods.mypy_plugin import plugin, FoundryMethodPlugin
+        from polisyos.foundry.methods.mypy_plugin import FoundryMethodPlugin, plugin
+
         result = plugin("1.10.0")
         assert result is FoundryMethodPlugin
 
     def test_hook_returns_none_for_unknown_decorator(self) -> None:
         from mypy.options import Options
+
         from polisyos.foundry.methods.mypy_plugin import FoundryMethodPlugin
+
         p = FoundryMethodPlugin(Options())
         result = p.get_class_decorator_hook("some.other.decorator")
         assert result is None
 
     def test_hook_returns_callable_for_foundry_method(self) -> None:
         from mypy.options import Options
+
         from polisyos.foundry.methods.mypy_plugin import (
-            FoundryMethodPlugin,
             _FOUNDRY_METHOD_DECORATOR,
+            FoundryMethodPlugin,
         )
+
         p = FoundryMethodPlugin(Options())
         result = p.get_class_decorator_hook(_FOUNDRY_METHOD_DECORATOR)
         assert callable(result)

@@ -38,9 +38,7 @@ async def test_starter_eval_harness_uses_injected_artifact_store_factory(tmp_pat
 
     def _factory(root):
         seen_roots.append(str(root))
-        return build_artifact_store(
-            ArtifactStoreConfig(backend="filesystem", root=str(root))
-        )
+        return build_artifact_store(ArtifactStoreConfig(backend="filesystem", root=str(root)))
 
     report = await run_starter_eval_harness(
         cas_root=tmp_path,

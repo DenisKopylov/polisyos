@@ -10,6 +10,7 @@ import time
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
+
 from tools._lib.imports import repo_root_from
 
 if __package__ in {None, ""}:
@@ -403,8 +404,9 @@ def _step_run_edge_synthesize(paths: RunPaths) -> dict[str, object]:
 
     print("  db_path: " + str(config.db_path))
     print("  canonical_review_queue_path: " + str(config.canonical_review_queue_path))
-    assert str(config.db_path) == str(paths.output_db), (
-        "db_path mismatch: %s vs %s" % (config.db_path, paths.output_db)
+    assert str(config.db_path) == str(paths.output_db), "db_path mismatch: %s vs %s" % (
+        config.db_path,
+        paths.output_db,
     )
 
     started = time.time()
@@ -443,7 +445,9 @@ def _run_workflow(paths: RunPaths) -> dict[str, object]:
     orig_con = duckdb.connect(str(paths.orig_db), read_only=True)
     try:
         orig_family = orig_con.execute("SELECT COUNT(*) FROM ac_skg_family_edges").fetchone()[0]
-        orig_contested = orig_con.execute("SELECT COUNT(*) FROM ac_skg_contested_edges").fetchone()[0]
+        orig_contested = orig_con.execute("SELECT COUNT(*) FROM ac_skg_contested_edges").fetchone()[
+            0
+        ]
     finally:
         orig_con.close()
 
@@ -484,7 +488,10 @@ def main() -> int:
     if args.dry_run:
         return 0
     if not args.yes:
-        print("ERROR: refusing to publish remap snapshot without --yes. Use --dry-run for preview.", file=sys.stderr)
+        print(
+            "ERROR: refusing to publish remap snapshot without --yes. Use --dry-run for preview.",
+            file=sys.stderr,
+        )
         return 2
 
     staged_root = paths.output_root.parent / f".{paths.output_root.name}.tmp-{uuid.uuid4().hex[:8]}"
@@ -507,7 +514,10 @@ def main() -> int:
     vars_resolved = int(report["re_resolution"]["newly_resolved"])
     comparison = report["comparison"]
     print("  Cache entries approved: %d" % report["cache_approval"]["total_approved"])
-    print("  Variables: %d direct + %d re-resolved = %d" % (vars_approved, vars_resolved, vars_approved + vars_resolved))
+    print(
+        "  Variables: %d direct + %d re-resolved = %d"
+        % (vars_approved, vars_resolved, vars_approved + vars_resolved)
+    )
     print(
         "  Family edges: %d -> %d (+%d, %+.1f%%)"
         % (

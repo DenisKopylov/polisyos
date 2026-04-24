@@ -20,9 +20,10 @@ Output:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import math
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from dataclasses import dataclass
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -48,6 +49,7 @@ DEFAULT_DISTRIBUTIONAL_TAIL_PROBS = (0.90, 0.95)
 @dataclass(frozen=True)
 class ScalarDiscreteMeasure:
     """Represent one finite-support scalar distribution used by transport/density-ratio utilities."""
+
     bin_edges: np.ndarray
     support: np.ndarray
     probabilities: np.ndarray
@@ -62,6 +64,7 @@ class ScalarDiscreteMeasure:
 @dataclass(frozen=True)
 class QuantileShiftResult:
     """Quantile shift result data model."""
+
     quantiles: np.ndarray
     baseline_values: np.ndarray
     counterfactual_values: np.ndarray
@@ -71,6 +74,7 @@ class QuantileShiftResult:
 @dataclass(frozen=True)
 class TailRiskResult:
     """Tail risk result data model."""
+
     tail_probs: np.ndarray
     thresholds: np.ndarray
     baseline_exceedance_probs: np.ndarray
@@ -84,6 +88,7 @@ class TailRiskResult:
 @dataclass(frozen=True)
 class ScalarOTDistributionalResult:
     """Scalar OT distributional result data model."""
+
     baseline_measure: ScalarDiscreteMeasure
     counterfactual_measure: ScalarDiscreteMeasure
     coupling_matrix: np.ndarray
@@ -185,10 +190,10 @@ def _kliep(
 
     def rbf(X: np.ndarray) -> np.ndarray:
         d = ((X[:, None, :] - centres[None, :, :]) ** 2).sum(-1)
-        return np.exp(-d / (2 * sigma ** 2))
+        return np.exp(-d / (2 * sigma**2))
 
-    Phi_s = rbf(X_source)   # (n_s, n_kernels)
-    Phi_t = rbf(X_target)   # (n_t, n_kernels)
+    Phi_s = rbf(X_source)  # (n_s, n_kernels)
+    Phi_t = rbf(X_target)  # (n_t, n_kernels)
 
     alpha = np.ones(len(centres)) / len(centres)
 
@@ -241,10 +246,10 @@ def _rulsif(
 
     def rbf(X: np.ndarray) -> np.ndarray:
         d = ((X[:, None, :] - centres[None, :, :]) ** 2).sum(-1)
-        return np.exp(-d / (2 * sigma ** 2))
+        return np.exp(-d / (2 * sigma**2))
 
-    Phi_s = rbf(X_source)   # (n_s, n_kernels)
-    Phi_t = rbf(X_target)   # (n_t, n_kernels)
+    Phi_s = rbf(X_source)  # (n_s, n_kernels)
+    Phi_t = rbf(X_target)  # (n_t, n_kernels)
 
     # H = (1-α)/n_t * Phi_t^T Phi_t + α/n_s * Phi_s^T Phi_s + λI
     H = (
@@ -279,7 +284,7 @@ def _compute_diagnostics(
 
     # Effective Sample Size
     w_norm = weights / max(np.sum(weights), 1e-12)
-    ess = float(1.0 / max(np.sum(w_norm ** 2), 1e-12))
+    ess = float(1.0 / max(np.sum(w_norm**2), 1e-12))
     ess_fraction = ess / n_s
 
     # Support mismatch: fraction of source samples with extreme weights
@@ -289,7 +294,9 @@ def _compute_diagnostics(
 
     # KL divergence estimate: E_source[w log w] (approximate)
     w_clipped = np.clip(weights, 1e-12, None)
-    kl_estimate = float(np.mean(w_clipped * np.log(w_clipped + 1e-12)) - np.mean(np.log(w_clipped + 1e-12)))
+    kl_estimate = float(
+        np.mean(w_clipped * np.log(w_clipped + 1e-12)) - np.mean(np.log(w_clipped + 1e-12))
+    )
 
     # Covariate balance check (weighted mean difference)
     w_n = weights / max(np.sum(weights), 1e-12)
@@ -580,15 +587,24 @@ def _tail_risk_result(
         probs,
     )
     baseline_exceedance = np.asarray(
-        [float(np.sum(baseline.probabilities[baseline.support >= threshold])) for threshold in thresholds],
+        [
+            float(np.sum(baseline.probabilities[baseline.support >= threshold]))
+            for threshold in thresholds
+        ],
         dtype=float,
     )
     counterfactual_exceedance = np.asarray(
-        [float(np.sum(counterfactual.probabilities[counterfactual.support >= threshold])) for threshold in thresholds],
+        [
+            float(np.sum(counterfactual.probabilities[counterfactual.support >= threshold]))
+            for threshold in thresholds
+        ],
         dtype=float,
     )
     baseline_shortfall = np.asarray(
-        [_expected_shortfall(baseline.support, baseline.probabilities, threshold) for threshold in thresholds],
+        [
+            _expected_shortfall(baseline.support, baseline.probabilities, threshold)
+            for threshold in thresholds
+        ],
         dtype=float,
     )
     counterfactual_shortfall = np.asarray(
@@ -625,7 +641,9 @@ def compute_scalar_distributional_effect(
 ) -> ScalarOTDistributionalResult:
     """Compute scalar distributional effect helper."""
     baseline_arr = _coerce_1d_finite(baseline_values, field_name="baseline_values")
-    counterfactual_arr = _coerce_1d_finite(counterfactual_values, field_name="counterfactual_values")
+    counterfactual_arr = _coerce_1d_finite(
+        counterfactual_values, field_name="counterfactual_values"
+    )
     _validate_compute_budget(
         n_bins=n_bins,
         regularization_strength=regularization_strength,
@@ -637,7 +655,9 @@ def compute_scalar_distributional_effect(
     baseline_weights: np.ndarray | None = None
     if baseline_covariates is not None and counterfactual_covariates is not None:
         X_source = _coerce_2d_finite(baseline_covariates, field_name="baseline_covariates")
-        X_target = _coerce_2d_finite(counterfactual_covariates, field_name="counterfactual_covariates")
+        X_target = _coerce_2d_finite(
+            counterfactual_covariates, field_name="counterfactual_covariates"
+        )
         if X_source.shape[0] != baseline_arr.shape[0]:
             raise ValueError("baseline_covariates must align with baseline_values")
         if X_target.shape[0] != counterfactual_arr.shape[0]:
@@ -782,7 +802,15 @@ class DensityRatioEstimator:
             "so they represent the target population."
         ),
         tags=frozenset(
-            {"causal", "transport", "density-ratio", "covariate-shift", "reweighting", "kliep", "rulsif"}
+            {
+                "causal",
+                "transport",
+                "density-ratio",
+                "covariate-shift",
+                "reweighting",
+                "kliep",
+                "rulsif",
+            }
         ),
         citations=(
             "Sugiyama, M. et al. (2012). Density Ratio Estimation in Machine Learning. Cambridge.",

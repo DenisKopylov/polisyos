@@ -5,10 +5,12 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.batch_common.hashing import sha256_file
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _utc_now_iso() -> str:
@@ -40,7 +42,6 @@ class StageManifest:
     finished_at: str
     metrics: dict[str, Any] = field(default_factory=dict)
     artifacts: list[ArtifactRef] = field(default_factory=list)
-
 
 
 def write_raw_manifest(
@@ -118,7 +119,7 @@ def write_publish_manifest(
         for path in artifacts
     ]
 
-    payload = {
+    payload: dict[str, Any] = {
         "kind": "publish",
         "pipeline": pipeline,
         "published_at": _utc_now_iso(),

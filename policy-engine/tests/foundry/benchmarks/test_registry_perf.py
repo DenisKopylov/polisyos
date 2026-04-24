@@ -11,6 +11,7 @@ These benchmarks are **disabled by default** (via the ``benchmark`` mark) so
 they don't slow down the regular CI run.  Use ``pytest -m benchmark`` to
 opt in.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -41,6 +42,7 @@ def populated_registry():
     with registry_scope() as reg:
         try:
             from polisyos.foundry.methods.catalog import ensure_all_methods_registered
+
             ensure_all_methods_registered(reg)
         except Exception:
             pass
@@ -113,6 +115,7 @@ def test_full_registration_under_5s(benchmark):
         with registry_scope() as reg:
             try:
                 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
+
                 ensure_all_methods_registered(reg)
             except Exception:
                 pass

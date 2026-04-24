@@ -1,14 +1,22 @@
 """Public analytics parameters module API."""
+
 from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.analytics.context import ContextProfile
-from polisyos.ir.analytics.literature import EvidenceParameter
 from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import ContextAdaptiveParameterBundleRef
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.context import ContextProfile
+    from polisyos.ir.analytics.literature import EvidenceParameter
+else:
+    from polisyos.ir.analytics.context import ContextProfile
+    from polisyos.ir.analytics.literature import EvidenceParameter
 
 _SCHEMA_NAME = "ir.context_adaptive_parameter_bundle"
 _SCHEMA_VERSION = "1.0"
@@ -79,8 +87,8 @@ def load_context_adaptive_parameter_bundle(
 
 
 __all__ = [
-    "ParameterApplicability",
     "ContextAdaptiveParameterBundle",
-    "persist_context_adaptive_parameter_bundle",
+    "ParameterApplicability",
     "load_context_adaptive_parameter_bundle",
+    "persist_context_adaptive_parameter_bundle",
 ]

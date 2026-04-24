@@ -1,4 +1,5 @@
 """Public IR CAS boundary for artifact metadata, ref normalization, and JSON persistence helpers."""
+
 from .contracts import (
     ArtifactID,
     ArtifactStore,
@@ -38,30 +39,30 @@ from .transport import (
 )
 
 __all__ = [
-    "ArtifactID",
-    "ArtifactStore",
+    "OBSERVATION_STREAM_TRANSPORT",
     "ArtifactDeltaEntry",
     "ArtifactDeltaEnvelope",
+    "ArtifactID",
     "ArtifactLineageEdge",
     "ArtifactLineageGraph",
     "ArtifactLineageNode",
     "ArtifactLineageNodeKind",
     "ArtifactLineageRelationKind",
+    "ArtifactStore",
+    "ArtifactTaskBinding",
     "BinaryWireFormat",
     "CanonInfo",
     "DeltaSemantics",
     "IncrementalRelinkManifest",
     "InputRef",
-    "OBSERVATION_STREAM_TRANSPORT",
     "ObservationBinaryBatchArtifact",
     "ObservationStreamCheckpoint",
     "ObservationStreamEntry",
     "ObservationStreamUpdate",
     "PutOptions",
     "SchemaInfo",
-    "StreamUpdateOperation",
     "StorePutOptions",
-    "ArtifactTaskBinding",
+    "StreamUpdateOperation",
     "TransportDescriptor",
     "TransportMode",
     "build_artifact_lineage_graph",

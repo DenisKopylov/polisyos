@@ -6,7 +6,7 @@ import json
 import tempfile
 import time
 import zipfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import duckdb
@@ -17,8 +17,8 @@ from polisyos.datasets.batch import core_sources_ingest as core_ingest
 from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.batch.core_sources_ingest import (
     ObservationPlan,
-    _ensure_registry_tables,
     _build_catalog_observation_plans,
+    _ensure_registry_tables,
     _filter_rows_by_series_constraints,
     _insert_generic_observations,
     _limit_observation_plans,
@@ -26,9 +26,9 @@ from polisyos.datasets.batch.core_sources_ingest import (
     _observation_payload_row_limit,
     run_core_sources_ingest,
 )
-from polisyos.datasets.knowledge.variable_alignment import AlignmentMethod, VariableAlignment
 from polisyos.datasets.batch.graph_builder import build_graph
 from polisyos.datasets.knowledge.types import DatasetRecord, DistributionRecord
+from polisyos.datasets.knowledge.variable_alignment import AlignmentMethod, VariableAlignment
 from polisyos.fabric.connectors.base import DatasetCapabilitySnapshot
 from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
 from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
@@ -40,13 +40,13 @@ from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 
 @pytest.fixture(autouse=True)
 def _stub_dataset_capability_describe(monkeypatch):
-    async def _fake_describe(self, _handle, dataset_id):  # noqa: ARG001
+    async def _fake_describe(self, _handle, dataset_id):
         return DatasetCapabilitySnapshot(
             source=str(getattr(self, "namespace", "test")),
             dataset_id=str(dataset_id),
             resolved_dataset_id=str(dataset_id),
             preferred_transport="test",
-            last_checked_at=datetime.now(timezone.utc),
+            last_checked_at=datetime.now(UTC),
         )
 
     for connector_cls in (
@@ -61,7 +61,7 @@ def _stub_dataset_capability_describe(monkeypatch):
 
 
 def test_core_sources_ingest_populates_registry_tables(monkeypatch) -> None:
-    async def _fake_wb_fetch(self, _handle, request):  # noqa: ARG001
+    async def _fake_wb_fetch(self, _handle, request):
         df = pd.DataFrame(
             [
                 {
@@ -111,7 +111,7 @@ def test_core_sources_ingest_populates_registry_tables(monkeypatch) -> None:
 
 
 def test_core_sources_ingest_sync_wrapper_is_event_loop_safe(monkeypatch) -> None:
-    async def _fake_wb_fetch(self, _handle, request):  # noqa: ARG001
+    async def _fake_wb_fetch(self, _handle, request):
         df = pd.DataFrame(
             [
                 {
@@ -163,7 +163,9 @@ def test_core_sources_ingest_injects_unpd_token_into_connection_config(monkeypat
 
 def test_load_catalog_transport_datasets_supports_legacy_graph_schema() -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
-        config = DatasetBatchConfig(snapshot_root=Path(tmpdir) / "snap", promoted_sources=("eurostat",))
+        config = DatasetBatchConfig(
+            snapshot_root=Path(tmpdir) / "snap", promoted_sources=("eurostat",)
+        )
         con = duckdb.connect(str(config.db_path))
         try:
             con.execute(
@@ -506,38 +508,42 @@ def test_iter_uis_bulk_records_reads_matching_indicator_from_zip(tmp_path) -> No
 
 
 def test_core_sources_ingest_catalog_generalizes_across_sources(monkeypatch) -> None:
-    async def _fake_wb_fetch(self, _handle, _request):  # noqa: ARG001
-        return type("WBResult", (), {"data": pd.DataFrame([{"country_code": "UA", "year": 2020, "value": 1.1}])})()
+    async def _fake_wb_fetch(self, _handle, _request):
+        return type(
+            "WBResult",
+            (),
+            {"data": pd.DataFrame([{"country_code": "UA", "year": 2020, "value": 1.1}])},
+        )()
 
-    async def _fake_eurostat_fetch(self, _handle, _request):  # noqa: ARG001
+    async def _fake_eurostat_fetch(self, _handle, _request):
         return type(
             "EurostatResult",
             (),
             {"data": pd.DataFrame([{"geo": "UA", "time_period": "2020", "value": 11.0}])},
         )()
 
-    async def _fake_sdmx_fetch(self, _handle, _request):  # noqa: ARG001
+    async def _fake_sdmx_fetch(self, _handle, _request):
         return type(
             "SDMXResult",
             (),
             {"data": pd.DataFrame([{"REF_AREA": "UKR", "TIME_PERIOD": "2020", "value": 22.0}])},
         )()
 
-    async def _fake_who_fetch(self, _handle, _request):  # noqa: ARG001
+    async def _fake_who_fetch(self, _handle, _request):
         return type(
             "WHOResult",
             (),
             {"data": pd.DataFrame([{"country_code": "UKR", "year": 2020, "value": 33.0}])},
         )()
 
-    async def _fake_unpd_fetch(self, _handle, _request):  # noqa: ARG001
+    async def _fake_unpd_fetch(self, _handle, _request):
         return type(
             "UNPDResult",
             (),
             {"data": pd.DataFrame([{"country_code": "UA", "year": 2020, "value": 44.0}])},
         )()
 
-    async def _fake_uis_fetch(self, _handle, _request):  # noqa: ARG001
+    async def _fake_uis_fetch(self, _handle, _request):
         return type(
             "UISResult",
             (),
@@ -651,7 +657,9 @@ def test_core_sources_ingest_catalog_generalizes_across_sources(monkeypatch) -> 
         try:
             providers = {
                 row[0]
-                for row in con.execute("SELECT DISTINCT provider FROM ds_registry_datasets").fetchall()
+                for row in con.execute(
+                    "SELECT DISTINCT provider FROM ds_registry_datasets"
+                ).fetchall()
             }
             observed_datasets = {
                 row[0]
@@ -660,7 +668,16 @@ def test_core_sources_ingest_catalog_generalizes_across_sources(monkeypatch) -> 
         finally:
             con.close()
 
-        assert {"worldbank", "wvs", "eurostat", "oecd", "ilo", "who", "unpd", "unesco_uis"}.issubset(providers)
+        assert {
+            "worldbank",
+            "wvs",
+            "eurostat",
+            "oecd",
+            "ilo",
+            "who",
+            "unpd",
+            "unesco_uis",
+        }.issubset(providers)
         assert "worldbank-NY.GDP.PCAP.PP.CD" in observed_datasets
         assert "who-LE_001" in observed_datasets
         assert "unpd-POP_001" in observed_datasets
@@ -671,7 +688,7 @@ def test_core_sources_ingest_sampled_run_uses_unfiltered_fallback_for_sdmx(monke
     eurostat_requests: list[tuple] = []
     sdmx_requests: list[tuple[str, tuple]] = []
 
-    async def _fake_eurostat_fetch(self, _handle, request):  # noqa: ARG001
+    async def _fake_eurostat_fetch(self, _handle, request):
         eurostat_requests.append(request.filters)
         if request.filters:
             raise RuntimeError("HTTP 400")
@@ -681,7 +698,7 @@ def test_core_sources_ingest_sampled_run_uses_unfiltered_fallback_for_sdmx(monke
             {"data": pd.DataFrame([{"geo": "UA", "time_period": "2020", "value": 11.0}])},
         )()
 
-    async def _fake_sdmx_fetch(self, _handle, request):  # noqa: ARG001
+    async def _fake_sdmx_fetch(self, _handle, request):
         sdmx_requests.append((request.dataset_id, request.filters))
         if request.filters:
             raise RuntimeError("HTTP 404")
@@ -749,8 +766,10 @@ def test_core_sources_ingest_sampled_run_uses_unfiltered_fallback_for_sdmx(monke
         assert any(not filters for _dataset_id, filters in sdmx_requests)
 
 
-def test_core_sources_ingest_sampled_run_diversifies_observation_canonical_vars(monkeypatch) -> None:
-    async def _fake_sdmx_fetch(self, _handle, _request):  # noqa: ARG001
+def test_core_sources_ingest_sampled_run_diversifies_observation_canonical_vars(
+    monkeypatch,
+) -> None:
+    async def _fake_sdmx_fetch(self, _handle, _request):
         return type(
             "SDMXResult",
             (),
@@ -790,8 +809,12 @@ def test_core_sources_ingest_sampled_run_diversifies_observation_canonical_vars(
 
 
 def test_core_sources_ingest_writes_alignment_audit(monkeypatch) -> None:
-    async def _fake_wb_fetch(self, _handle, _request):  # noqa: ARG001
-        return type("WBResult", (), {"data": pd.DataFrame([{"country_code": "UA", "year": 2020, "value": 1.1}])})()
+    async def _fake_wb_fetch(self, _handle, _request):
+        return type(
+            "WBResult",
+            (),
+            {"data": pd.DataFrame([{"country_code": "UA", "year": 2020, "value": 1.1}])},
+        )()
 
     monkeypatch.setattr(WorldBankConnector, "fetch", _fake_wb_fetch)
 
@@ -832,7 +855,7 @@ def test_core_sources_ingest_writes_alignment_audit(monkeypatch) -> None:
 
 
 def test_core_sources_ingest_adds_proxy_alignment_for_health_spending(monkeypatch) -> None:
-    async def _fake_who_fetch(self, _handle, _request):  # noqa: ARG001
+    async def _fake_who_fetch(self, _handle, _request):
         return type(
             "WHOResult",
             (),
@@ -1027,7 +1050,9 @@ def test_ensure_registry_tables_drops_legacy_unique_observation_index() -> None:
         assert indexes == [("idx_obs_dedup", False)]
 
 
-def test_insert_generic_observations_preserves_multislice_rows_after_legacy_index_migration() -> None:
+def test_insert_generic_observations_preserves_multislice_rows_after_legacy_index_migration() -> (
+    None
+):
     with tempfile.TemporaryDirectory() as tmpdir:
         db_path = Path(tmpdir) / "legacy_multislice.duckdb"
         con = duckdb.connect(str(db_path))
@@ -1431,7 +1456,7 @@ def test_observation_plan_order_prioritizes_annual_before_monthly() -> None:
 
 
 def test_ingest_catalog_observations_skips_oversized_monthly_payload(monkeypatch) -> None:
-    async def _fake_fetch_rows(_plan, _cache, *, config):  # noqa: ARG001
+    async def _fake_fetch_rows(_plan, _cache, *, config):
         return [
             {"geo": "PL", "time_period": f"2022-{(index % 12) + 1:02d}", "value": float(index)}
             for index in range(_observation_payload_row_limit(plan) + 1)  # type: ignore[arg-type]
@@ -1475,7 +1500,7 @@ def test_ingest_catalog_observations_skips_oversized_monthly_payload(monkeypatch
 
 
 def test_ingest_catalog_observations_keeps_large_payloads_in_full_run(monkeypatch) -> None:
-    async def _fake_fetch_rows(_plan, _cache, *, config):  # noqa: ARG001
+    async def _fake_fetch_rows(_plan, _cache, *, config):
         return [
             {
                 "geo": "PL",
@@ -1527,8 +1552,10 @@ def test_ingest_catalog_observations_keeps_large_payloads_in_full_run(monkeypatc
 def test_parallel_observation_ingest_dedupes_shared_upstream_fetches(monkeypatch) -> None:
     fetch_calls: list[tuple[str, str, str]] = []
 
-    async def _fake_fetch_rows(shard, _cache, *, config):  # noqa: ARG001
-        fetch_calls.append((shard.plan.request_dataset_id, shard.country_code or "", shard.plan.canonical_var))
+    async def _fake_fetch_rows(shard, _cache, *, config):
+        fetch_calls.append(
+            (shard.plan.request_dataset_id, shard.country_code or "", shard.plan.canonical_var)
+        )
         return [{"geo": "UA", "time_period": "2022", "value": 1.0}]
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -1577,10 +1604,12 @@ def test_parallel_observation_ingest_dedupes_shared_upstream_fetches(monkeypatch
         assert stats.observations == 2
 
 
-def test_parallel_observation_ingest_negative_support_cache_skips_sibling_shards(monkeypatch) -> None:
+def test_parallel_observation_ingest_negative_support_cache_skips_sibling_shards(
+    monkeypatch,
+) -> None:
     fetch_calls: list[tuple[str | None, int, int]] = []
 
-    async def _fake_fetch_rows(shard, _cache, *, config):  # noqa: ARG001
+    async def _fake_fetch_rows(shard, _cache, *, config):
         fetch_calls.append((shard.country_code, shard.start_year, shard.end_year))
         raise RuntimeError("HTTP 400")
 
@@ -1617,8 +1646,10 @@ def test_parallel_observation_ingest_negative_support_cache_skips_sibling_shards
         assert stats.empty_shards == 5
 
 
-def test_parallel_observation_ingest_persists_capability_snapshots_and_writer_metrics(monkeypatch) -> None:
-    async def _fake_fetch_rows(_shard, _cache, *, config):  # noqa: ARG001
+def test_parallel_observation_ingest_persists_capability_snapshots_and_writer_metrics(
+    monkeypatch,
+) -> None:
+    async def _fake_fetch_rows(_shard, _cache, *, config):
         return [{"geo": "UA", "time_period": "2022", "value": 1.0}]
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -1650,7 +1681,7 @@ def test_parallel_observation_ingest_persists_capability_snapshots_and_writer_me
         )
 
         assert stats.completed_shards == 3
-        with open(config.observation_ingest_checkpoint_path, "r", encoding="utf-8") as fh:
+        with open(config.observation_ingest_checkpoint_path, encoding="utf-8") as fh:
             checkpoint = json.load(fh)
         assert "capability_snapshots" in checkpoint
         assert checkpoint["capability_snapshots"]
@@ -1659,7 +1690,7 @@ def test_parallel_observation_ingest_persists_capability_snapshots_and_writer_me
         assert "work_packages" in checkpoint
         assert checkpoint["work_packages"]
 
-        with open(config.stage_state_path, "r", encoding="utf-8") as fh:
+        with open(config.stage_state_path, encoding="utf-8") as fh:
             stage_state = json.load(fh)
         metadata = stage_state["core_sources_ingest"]["metadata"]
         assert "writer_flush_count" in metadata
@@ -1670,8 +1701,10 @@ def test_parallel_observation_ingest_persists_capability_snapshots_and_writer_me
         assert metadata["planned_work_packages"] >= 1
 
 
-def test_parallel_observation_ingest_observation_mode_core_runs_only_publishable_core(monkeypatch) -> None:
-    async def _fake_fetch_rows(_shard, _cache, *, config):  # noqa: ARG001
+def test_parallel_observation_ingest_observation_mode_core_runs_only_publishable_core(
+    monkeypatch,
+) -> None:
+    async def _fake_fetch_rows(_shard, _cache, *, config):
         return [{"geo": "UA", "time_period": "2022-01", "value": 1.0}]
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -1705,7 +1738,7 @@ def test_parallel_observation_ingest_observation_mode_core_runs_only_publishable
         )
 
         assert stats.completed_shards == 1
-        with open(config.stage_state_path, "r", encoding="utf-8") as fh:
+        with open(config.stage_state_path, encoding="utf-8") as fh:
             stage_state = json.load(fh)
         metadata = stage_state["core_sources_ingest"]["metadata"]
         assert metadata["observation_mode"] == "core"
@@ -1766,7 +1799,7 @@ def test_unesco_uis_backfill_windows_materialize_bulk_work_packages() -> None:
 
 
 def test_parallel_observation_ingest_uses_eurostat_async_path(monkeypatch) -> None:
-    async def _fake_describe(self, _handle, dataset_id):  # noqa: ARG001
+    async def _fake_describe(self, _handle, dataset_id):
         return DatasetCapabilitySnapshot(
             source="eurostat",
             dataset_id=str(dataset_id),
@@ -1779,13 +1812,13 @@ def test_parallel_observation_ingest_uses_eurostat_async_path(monkeypatch) -> No
             },
             estimated_cardinality=60_000,
             version_hint="latest",
-            last_checked_at=datetime.now(timezone.utc),
+            last_checked_at=datetime.now(UTC),
         )
 
-    async def _fail_sync_fetch(self, _handle, _request):  # noqa: ARG001
+    async def _fail_sync_fetch(self, _handle, _request):
         raise AssertionError("sync Eurostat fetch should not be used for async-eligible shard")
 
-    async def _fake_fetch_async(self, _handle, request):  # noqa: ARG001
+    async def _fake_fetch_async(self, _handle, request):
         return core_ingest.AsyncFetchLease(
             lease_id=f"lease-{request.dataset_id}",
             connector_id=self.connector_id,
@@ -1797,7 +1830,7 @@ def test_parallel_observation_ingest_uses_eurostat_async_path(monkeypatch) -> No
             download_url="https://example.test/data",
         )
 
-    async def _fake_poll_async_fetch(self, _handle, lease):  # noqa: ARG001
+    async def _fake_poll_async_fetch(self, _handle, lease):
         return type(
             "EurostatAsyncResult",
             (),
@@ -1839,7 +1872,7 @@ def test_parallel_observation_ingest_uses_eurostat_async_path(monkeypatch) -> No
         )
 
         assert stats.completed_shards == 3
-        with open(config.observation_ingest_checkpoint_path, "r", encoding="utf-8") as fh:
+        with open(config.observation_ingest_checkpoint_path, encoding="utf-8") as fh:
             checkpoint = json.load(fh)
         assert checkpoint["async_fetch_leases"] == {}
 
@@ -1850,7 +1883,7 @@ def test_parallel_observation_ingest_allows_other_sources_to_progress_during_cap
     gate = core_ingest.asyncio.Event()
     planning_started = core_ingest.asyncio.Event()
 
-    async def _blocking_describe(self, _handle, dataset_id):  # noqa: ARG001
+    async def _blocking_describe(self, _handle, dataset_id):
         if str(dataset_id) == "DF_BLOCKED":
             planning_started.set()
             await gate.wait()
@@ -1859,17 +1892,17 @@ def test_parallel_observation_ingest_allows_other_sources_to_progress_during_cap
             dataset_id=str(dataset_id),
             resolved_dataset_id=str(dataset_id),
             preferred_transport="test",
-            last_checked_at=datetime.now(timezone.utc),
+            last_checked_at=datetime.now(UTC),
         )
 
-    async def _worldbank_fetch(self, _handle, _request):  # noqa: ARG001
+    async def _worldbank_fetch(self, _handle, _request):
         return type(
             "WBResult",
             (),
             {"data": pd.DataFrame([{"country_code": "UA", "year": 2022, "value": 123.0}])},
         )()
 
-    async def _sdmx_fetch(self, _handle, _request):  # noqa: ARG001
+    async def _sdmx_fetch(self, _handle, _request):
         return type("SDMXResult", (), {"data": pd.DataFrame([])})()
 
     monkeypatch.setattr(SDMXSourceConnector, "describe_dataset", _blocking_describe)
@@ -1923,7 +1956,9 @@ def test_parallel_observation_ingest_allows_other_sources_to_progress_during_cap
             while time.monotonic() < deadline:
                 con = duckdb.connect(str(config.db_path))
                 try:
-                    observed = int(con.execute("SELECT count(*) FROM ds_observations").fetchone()[0] or 0)
+                    observed = int(
+                        con.execute("SELECT count(*) FROM ds_observations").fetchone()[0] or 0
+                    )
                 finally:
                     con.close()
                 if observed > 0:
@@ -1941,12 +1976,12 @@ def test_parallel_observation_ingest_allows_other_sources_to_progress_during_cap
 def test_parallel_observation_ingest_caches_negative_capability_failures(monkeypatch) -> None:
     describe_calls = 0
 
-    async def _fail_describe(self, _handle, _dataset_id):  # noqa: ARG001
+    async def _fail_describe(self, _handle, _dataset_id):
         nonlocal describe_calls
         describe_calls += 1
         raise RuntimeError("HTTP 404")
 
-    async def _empty_fetch(self, _handle, _request):  # noqa: ARG001
+    async def _empty_fetch(self, _handle, _request):
         return type("SDMXResult", (), {"data": pd.DataFrame([])})()
 
     monkeypatch.setattr(SDMXSourceConnector, "describe_dataset", _fail_describe)
@@ -1983,13 +2018,15 @@ def test_parallel_observation_ingest_caches_negative_capability_failures(monkeyp
         assert stats.completed_shards == 1
         assert stats.empty_shards == 1
         assert describe_calls == 1
-        with open(config.observation_ingest_checkpoint_path, "r", encoding="utf-8") as fh:
+        with open(config.observation_ingest_checkpoint_path, encoding="utf-8") as fh:
             checkpoint = json.load(fh)
         assert checkpoint["capability_failures"]
 
 
-def test_parallel_observation_ingest_marks_http_404_fetch_as_complete_empty_unsupported(monkeypatch) -> None:
-    async def _fail_fetch(self, _handle, _request):  # noqa: ARG001
+def test_parallel_observation_ingest_marks_http_404_fetch_as_complete_empty_unsupported(
+    monkeypatch,
+) -> None:
+    async def _fail_fetch(self, _handle, _request):
         raise RuntimeError("HTTP 404")
 
     monkeypatch.setattr(SDMXSourceConnector, "fetch", _fail_fetch)
@@ -2026,7 +2063,7 @@ def test_parallel_observation_ingest_marks_http_404_fetch_as_complete_empty_unsu
         assert stats.empty_shards == 1
         assert stats.deferred_shards == 0
         assert stats.failed_shards == 0
-        with open(config.observation_ingest_checkpoint_path, "r", encoding="utf-8") as fh:
+        with open(config.observation_ingest_checkpoint_path, encoding="utf-8") as fh:
             checkpoint = json.load(fh)
         assert checkpoint["unsupported_signatures"]
         assert checkpoint["deferred"] == {}
@@ -2141,7 +2178,7 @@ def test_load_observation_checkpoint_state_reactivates_retryable_deferred_result
                         "constraint_hash": "",
                         "estimated_cardinality": None,
                         "version_hint": "",
-                        "last_checked_at": datetime.now(timezone.utc).isoformat(),
+                        "last_checked_at": datetime.now(UTC).isoformat(),
                     }
                 },
                 "capability_failures": {},
@@ -2227,13 +2264,13 @@ def test_rewrite_sdmx_requests_with_dimension_key_uses_full_dimension_order() ->
         resolved_dataset_id="DF_TEST",
         preferred_transport="sdmx",
         dimension_order=("REF_AREA", "FREQ", "MEASURE", "SEX", "AGE"),
-        last_checked_at=datetime.now(timezone.utc),
+        last_checked_at=datetime.now(UTC),
     )
     request = core_ingest.FetchRequest(
         dataset_id="DF_TEST",
         filters=(("REF_AREA", ("UKR", "DEU")),),
-        date_start=datetime(2022, 1, 1, tzinfo=timezone.utc),
-        date_end=datetime(2022, 12, 31, tzinfo=timezone.utc),
+        date_start=datetime(2022, 1, 1, tzinfo=UTC),
+        date_end=datetime(2022, 12, 31, tzinfo=UTC),
     )
 
     rewritten = core_ingest._rewrite_sdmx_requests_with_dimension_key(
@@ -2265,7 +2302,7 @@ def test_hydrate_dimension_orders_from_capability_snapshots() -> None:
         resolved_dataset_id="DF_TEST",
         preferred_transport="sdmx",
         dimension_order=("REF_AREA", "FREQ", "SEX"),
-        last_checked_at=datetime.now(timezone.utc),
+        last_checked_at=datetime.now(UTC),
     )
     sketch_key = core_ingest._support_sketch_id(plan)
     sketches, sketch_changes = core_ingest._hydrate_support_sketch_dimension_orders(
@@ -2330,7 +2367,9 @@ def test_infer_ilo_dimension_order_from_dataset_id() -> None:
     )
 
 
-def test_fetch_observation_rows_for_ilo_uses_persisted_dimension_order_without_live_describe(monkeypatch) -> None:
+def test_fetch_observation_rows_for_ilo_uses_persisted_dimension_order_without_live_describe(
+    monkeypatch,
+) -> None:
     observed_filters: list[tuple[tuple[str, tuple[str, ...]], ...]] = []
 
     class _FakeSDMXConnector:
@@ -2340,13 +2379,17 @@ def test_fetch_observation_rows_for_ilo_uses_persisted_dimension_order_without_l
                 "SDMXResult",
                 (),
                 {
-                    "data": pd.DataFrame([{"REF_AREA": "UKR", "time_period": "2022", "value": 1.0}]),
+                    "data": pd.DataFrame(
+                        [{"REF_AREA": "UKR", "time_period": "2022", "value": 1.0}]
+                    ),
                     "bytes_transferred": 0,
                 },
             )()
 
         async def describe_dataset(self, _handle, _dataset_id):
-            raise AssertionError("ILO fetch should not call live describe_dataset when dimension_order is persisted")
+            raise AssertionError(
+                "ILO fetch should not call live describe_dataset when dimension_order is persisted"
+            )
 
     async def _fake_get_sdmx(self, _profile_id):
         return _FakeSDMXConnector(), object()
@@ -2458,7 +2501,7 @@ def test_canonicalize_observation_request_filters_collapses_ilo_geo_aliases() ->
         resolved_dataset_id="DF_TEST",
         preferred_transport="sdmx",
         dimension_order=("FREQ", "REF_AREA", "SEX"),
-        last_checked_at=datetime.now(timezone.utc),
+        last_checked_at=datetime.now(UTC),
     )
 
     canonical = core_ingest._canonicalize_observation_request_filters(
@@ -2738,7 +2781,7 @@ def test_core_sources_ingest_manifest_propagates_shard_counts(monkeypatch, tmp_p
     stats = asyncio.run(core_ingest.run_core_sources_ingest_async(config))
 
     assert stats.completed_shards == 4
-    with open(config.manifests_dir / "core_sources_ingest.json", "r", encoding="utf-8") as fh:
+    with open(config.manifests_dir / "core_sources_ingest.json", encoding="utf-8") as fh:
         payload = json.load(fh)
     assert payload["metrics"]["completed_shards"] == 4
     assert payload["metrics"]["deferred_shards"] == 5

@@ -26,11 +26,7 @@ def _cmd_audit_export(args: Any) -> int:
     SigningPolicy = audit_mod.SigningPolicy
 
     cas = build_cli_filesystem_cas(Path(args.cas_root))
-    exclude = frozenset(
-        item.strip()
-        for item in str(args.exclude_kinds).split(",")
-        if item.strip()
-    )
+    exclude = frozenset(item.strip() for item in str(args.exclude_kinds).split(",") if item.strip())
     options = ExportOptions(
         exclude_kinds=exclude,
         profile=ExportProfile(args.profile),
@@ -171,9 +167,7 @@ def _cmd_audit_runtime_retention(args: Any) -> int:
         print(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True))
     else:
         print(
-            "scanned={scanned} kept={kept} archived={archived} dry_run={dry_run}".format(
-                **payload
-            )
+            "scanned={scanned} kept={kept} archived={archived} dry_run={dry_run}".format(**payload)
         )
         for path in payload["archive_paths"]:
             print(f"archive={path}")

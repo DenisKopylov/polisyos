@@ -33,14 +33,13 @@ Design decisions
 - ``timeout`` defaults to None (wait indefinitely), matching the behaviour of
   the local synchronous dispatcher.
 """
+
 from __future__ import annotations
 
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Mapping, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    pass
+from typing import Any
 
 __all__ = [
     "RayMethodRunner",
@@ -53,9 +52,11 @@ __all__ = [
 # Availability check
 # ---------------------------------------------------------------------------
 
+
 def _ray_available() -> bool:
     try:
-        import ray  # noqa: F401
+        import ray
+
         return True
     except ImportError:
         return False
@@ -68,6 +69,7 @@ class RayNotAvailableError(RuntimeError):
 # ---------------------------------------------------------------------------
 # Data types
 # ---------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class RayTaskResult:
@@ -83,6 +85,7 @@ class RayTaskResult:
 # Remote task function (defined at module level for pickling)
 # ---------------------------------------------------------------------------
 
+
 def _remote_pure_step(
     method_fqn: str,
     pure_step_fn: Any,
@@ -96,6 +99,7 @@ def _remote_pure_step(
     Defined at module level so Ray's default serialiser can pickle it.
     """
     import os
+
     t0 = time.perf_counter()
     output = pure_step_fn(state, dict(params))
     elapsed = (time.perf_counter() - t0) * 1000.0
@@ -105,6 +109,7 @@ def _remote_pure_step(
 # ---------------------------------------------------------------------------
 # RayMethodRunner
 # ---------------------------------------------------------------------------
+
 
 class RayMethodRunner:
     """
@@ -137,6 +142,7 @@ class RayMethodRunner:
             return False
         try:
             import ray
+
             return ray.is_initialized()
         except Exception:
             return False
@@ -198,9 +204,7 @@ class RayMethodRunner:
         try:
             result_tuple = ray.get(ref, timeout=self._timeout)
         except Exception as exc:
-            raise RuntimeError(
-                f"Ray remote task for '{fqn}' failed: {exc}"
-            ) from exc
+            raise RuntimeError(f"Ray remote task for '{fqn}' failed: {exc}") from exc
 
         _fqn, output, wall_time_ms, worker_pid = result_tuple
         return RayTaskResult(

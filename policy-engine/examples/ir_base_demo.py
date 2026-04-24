@@ -4,7 +4,7 @@
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -14,14 +14,14 @@ class PolicyModel(BaseModel):
 
     id: str = Field(..., description="Уникальный идентификатор политики")
     name: str = Field(..., description="Название политики")
-    description: Optional[str] = Field(None, description="Описание политики")
+    description: str | None = Field(None, description="Описание политики")
 
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
     # Метаданные политики
-    tags: List[str] = Field(default_factory=list, description="Теги для категоризации")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Дополнительные метаданные")
+    tags: list[str] = Field(default_factory=list, description="Теги для категоризации")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Дополнительные метаданные")
 
     class Config:
         """Конфигурация Pydantic"""
@@ -36,7 +36,7 @@ class SimulationParameters(BaseModel):
     population_size: int = Field(..., gt=0, description="Размер популяции для симуляции")
 
     # Параметры моделирования
-    random_seed: Optional[int] = Field(None, description="Seed для воспроизводимости")
+    random_seed: int | None = Field(None, description="Seed для воспроизводимости")
     confidence_level: float = Field(0.95, ge=0, le=1, description="Уровень доверия для интервалов")
 
     # Опциональные параметры
@@ -51,8 +51,8 @@ class SimulationResult(BaseModel):
     parameters: SimulationParameters
 
     # Результаты
-    outcomes: Dict[str, List[float]] = Field(..., description="Результаты по метрикам")
-    statistics: Dict[str, Dict[str, float]] = Field(..., description="Статистики по результатам")
+    outcomes: dict[str, list[float]] = Field(..., description="Результаты по метрикам")
+    statistics: dict[str, dict[str, float]] = Field(..., description="Статистики по результатам")
 
     # Метаданные выполнения
     execution_time: float = Field(..., gt=0, description="Время выполнения в секундах")

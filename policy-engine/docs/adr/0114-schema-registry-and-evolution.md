@@ -1,9 +1,11 @@
 # ADR-0114: Schema Registry and Evolution Rules
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context

@@ -18,16 +18,16 @@ resolve across the Fabric layer.
 
 ## Public API
 
-| Type/Function | Description |
-|---|---|
-| `DataContract` | Canonical metric contract. |
-| `DataContractRegistry` | Registry for contract records. |
-| `MetricBinding` | Hash-locked metric binding. |
-| `SourceBinding` | Curated source binding. |
-| `SourceBindingRegistry` | Registry for source bindings. |
-| `FastLaneResolver` | Deterministic resolver for metric requests. |
-| `MetricSearcher` | Search helper for contract discovery. |
-| `load_contract_collection()` | Loads curated contract collections. |
+| Type/Function                | Description                                 |
+| ---------------------------- | ------------------------------------------- |
+| `DataContract`               | Canonical metric contract.                  |
+| `DataContractRegistry`       | Registry for contract records.              |
+| `MetricBinding`              | Hash-locked metric binding.                 |
+| `SourceBinding`              | Curated source binding.                     |
+| `SourceBindingRegistry`      | Registry for source bindings.               |
+| `FastLaneResolver`           | Deterministic resolver for metric requests. |
+| `MetricSearcher`             | Search helper for contract discovery.       |
+| `load_contract_collection()` | Loads curated contract collections.         |
 
 → Full reference: [docs/reference/fabric/index.md](../../../../docs/reference/fabric/index.md)
 

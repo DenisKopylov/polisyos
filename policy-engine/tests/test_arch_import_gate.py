@@ -29,7 +29,5 @@ def test_arch_import_gate() -> None:
     )
 
     assert result.returncode == 0, (
-        "Import gate failed.\n"
-        f"stdout:\n{result.stdout}\n"
-        f"stderr:\n{result.stderr}\n"
+        f"Import gate failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}\n"
     )

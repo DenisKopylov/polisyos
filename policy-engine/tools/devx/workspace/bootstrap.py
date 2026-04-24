@@ -4,14 +4,9 @@
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
-import shutil
 import subprocess
 import sys
-
-from tools._lib.imports import ensure_repo_import_roots
-
-ensure_repo_import_roots(__file__, include_src_root=False)
+from pathlib import Path
 
 from ._common import (
     DEFAULT_UV_SYNC_PROFILE,
@@ -28,6 +23,7 @@ from ._common import (
     uv_command,
     version_text,
 )
+from ._repo_hygiene import pre_commit_install
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -94,7 +90,7 @@ def _ensure_uv_available(*, allow_install: bool) -> None:
         "[bootstrap] pinned uv "
         f"{UV_BASELINE} not found; installing it via pip for the current Python interpreter."
     )
-    subprocess.run(
+    subprocess.run(  # noqa: S603
         [sys.executable, "-m", "pip", "install", "--user", f"uv=={UV_BASELINE}"],
         cwd=PRODUCT_ROOT,
         check=True,
@@ -149,13 +145,7 @@ def main(argv: list[str] | None = None) -> int:
     ]
 
     if not args.skip_hooks:
-        commands.append(
-            CommandSpec(
-                label="pre-commit install",
-                argv=(*uv, "run", "pre-commit", "install"),
-                cwd=PRODUCT_ROOT,
-            )
-        )
+        commands.append(pre_commit_install())
 
     if not args.skip_frontend:
         commands.append(

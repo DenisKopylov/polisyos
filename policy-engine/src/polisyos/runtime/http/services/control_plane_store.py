@@ -1,4 +1,5 @@
 """Persist durable control jobs, worker leases, and outbox events in SQLite/PostgreSQL."""
+
 from __future__ import annotations
 
 import importlib
@@ -15,7 +16,12 @@ from typing import Any, Iterator, cast
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.contracts.control import ControlJobKind, ControlJobResponse, ControlJobState, ExecutionProfile
+from polisyos.core.contracts.control import (
+    ControlJobKind,
+    ControlJobResponse,
+    ControlJobState,
+    ExecutionProfile,
+)
 from polisyos.core.contracts.runtime import ApiMeta
 
 
@@ -81,6 +87,7 @@ def _coerce_optional_execution_profile(value: Any) -> ExecutionProfile | None:
 @dataclass(frozen=True)
 class ControlJobRecord:
     """Represent one durable background job and its execution/profile metadata."""
+
     job_id: str
     kind: ControlJobKind
     state: ControlJobState
@@ -131,6 +138,7 @@ class ControlJobRecord:
 @dataclass(frozen=True)
 class ControlWorkerLeaseRecord:
     """Report one worker heartbeat/lease row exposed by control-plane diagnostics."""
+
     worker_id: str
     state: str
     backend: str | None
@@ -145,6 +153,7 @@ class ControlWorkerLeaseRecord:
 @dataclass(frozen=True)
 class ControlOutboxRecord:
     """Represent one deduplicated durable outbox event awaiting publication."""
+
     event_id: str
     topic: str
     event_key: str | None
@@ -180,6 +189,7 @@ class ControlPlaneStore:
     and returns domain records consumed by `ControlPlaneService` and
     `/api/v1/control/*` routes.
     """
+
     def __init__(
         self,
         *,
@@ -553,7 +563,9 @@ class ControlPlaneStore:
             "UPDATE control_jobs SET error_message = COALESCE(?, error_message) WHERE job_id = ?",
             (error_message, job_id),
         )
-        self.append_event(job_id=job_id, event_type="job_progress", payload={"state": state, **progress})
+        self.append_event(
+            job_id=job_id, event_type="job_progress", payload={"state": state, **progress}
+        )
         record = self.get_job(job_id)
         if record is not None:
             self._emit_job_outbox_event(
@@ -832,7 +844,9 @@ class ControlPlaneStore:
             state=_coerce_control_job_state(row["state"]),
             run_id=row["run_id"],
             pipeline_id=row["pipeline_id"],
-            requested_execution_profile=_coerce_optional_execution_profile(row["requested_profile"]),
+            requested_execution_profile=_coerce_optional_execution_profile(
+                row["requested_profile"]
+            ),
             effective_execution_profile=_coerce_execution_profile(row["effective_profile"]),
             policy_flags=json.loads(policy_flags_json or "{}"),
             capability_manifest_ref=row["capability_manifest_ref"],
@@ -1008,7 +1022,9 @@ class ControlPlaneStore:
                     raise
         return self.get_job(job_id)
 
-    def _lease_next_postgres(self, *, worker_id: str, lease_seconds: int) -> ControlJobRecord | None:
+    def _lease_next_postgres(
+        self, *, worker_id: str, lease_seconds: int
+    ) -> ControlJobRecord | None:
         now = _utc_now()
         lease_expires_at = now + timedelta(seconds=max(lease_seconds, 1))
         with self._postgres_cursor() as cur:
@@ -1287,8 +1303,7 @@ class ControlPlaneStore:
             rows = cur.fetchall()
             columns = [desc[0] for desc in (cur.description or ())]
             return [
-                {column: value for column, value in zip(columns, row, strict=False)}
-                for row in rows
+                {column: value for column, value in zip(columns, row, strict=False)} for row in rows
             ]
 
     @staticmethod

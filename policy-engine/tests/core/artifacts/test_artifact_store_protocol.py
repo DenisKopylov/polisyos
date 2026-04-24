@@ -1,11 +1,9 @@
 """Tests for ArtifactStore protocol and FileSystemCAS conformance."""
+
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock
-
-import pytest
 
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -38,11 +36,7 @@ class TestArtifactStoreProtocol:
             "iter_artifact_ids",
         }
         # Protocol members (exclude dunder / internal)
-        members = {
-            name
-            for name in dir(ArtifactStore)
-            if not name.startswith("_")
-        }
+        members = {name for name in dir(ArtifactStore) if not name.startswith("_")}
         assert expected.issubset(members)
 
 

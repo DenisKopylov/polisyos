@@ -1,7 +1,8 @@
 """Tests for federation layer (Phase 2.8)."""
+
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import numpy as np
@@ -17,18 +18,18 @@ try:
         ConflictContext,
         ConflictPolicy,
         ConflictResolutionError,
-        DataComposer,
         ConflictResolver,
+        DataComposer,
         FederationPlanner,
-        SourceRanker,
         RankingWeights,
+        SourceRanker,
         build_composite_evidence_bundle,
     )
 except ModuleNotFoundError:  # pragma: no cover
     pytest.skip("Optional dependencies missing for federation tests", allow_module_level=True)
-from polisyos.fabric.connectors.types import DatasetDescriptor
-from polisyos.ir.connectors import ConnectorMetadataSpec, TrustLevel, QualityTier
 from polisyos.fabric.connectors.federation.types import SourceMetadata
+from polisyos.fabric.connectors.types import DatasetDescriptor
+from polisyos.ir.connectors import ConnectorMetadataSpec, QualityTier, TrustLevel
 
 
 def _make_source_metadata(
@@ -78,12 +79,12 @@ def test_union_overlap_uses_key_columns():
     meta_a = _make_source_metadata(
         "worldbank",
         TrustLevel.HIGH,
-        datetime(2024, 1, 1, tzinfo=timezone.utc),
+        datetime(2024, 1, 1, tzinfo=UTC),
     )
     meta_b = _make_source_metadata(
         "minecon",
         TrustLevel.MEDIUM,
-        datetime(2024, 6, 1, tzinfo=timezone.utc),
+        datetime(2024, 6, 1, tzinfo=UTC),
     )
 
     request = CompositionRequest(
@@ -131,12 +132,12 @@ def test_overlay_aligns_on_keys():
     meta_a = _make_source_metadata(
         "primary",
         TrustLevel.HIGH,
-        datetime(2024, 1, 1, tzinfo=timezone.utc),
+        datetime(2024, 1, 1, tzinfo=UTC),
     )
     meta_b = _make_source_metadata(
         "secondary",
         TrustLevel.MEDIUM,
-        datetime(2024, 6, 1, tzinfo=timezone.utc),
+        datetime(2024, 6, 1, tzinfo=UTC),
     )
 
     request = CompositionRequest(
@@ -170,12 +171,12 @@ def test_join_duplicate_column_uses_resolver():
     meta_a = _make_source_metadata(
         "worldbank",
         TrustLevel.HIGH,
-        datetime(2024, 1, 1, tzinfo=timezone.utc),
+        datetime(2024, 1, 1, tzinfo=UTC),
     )
     meta_b = _make_source_metadata(
         "minecon",
         TrustLevel.MEDIUM,
-        datetime(2024, 6, 1, tzinfo=timezone.utc),
+        datetime(2024, 6, 1, tzinfo=UTC),
     )
 
     request = CompositionRequest(
@@ -203,18 +204,22 @@ def test_join_duplicate_column_uses_resolver():
 
 def test_full_audit_is_truncated_with_summary_metadata():
     years = list(range(2000, 2020))
-    source_a = pd.DataFrame({"country": ["UA"] * len(years), "year": years, "gdp": [100] * len(years)})
-    source_b = pd.DataFrame({"country": ["UA"] * len(years), "year": years, "gdp": [200] * len(years)})
+    source_a = pd.DataFrame(
+        {"country": ["UA"] * len(years), "year": years, "gdp": [100] * len(years)}
+    )
+    source_b = pd.DataFrame(
+        {"country": ["UA"] * len(years), "year": years, "gdp": [200] * len(years)}
+    )
 
     meta_a = _make_source_metadata(
         "worldbank",
         TrustLevel.HIGH,
-        datetime(2024, 1, 1, tzinfo=timezone.utc),
+        datetime(2024, 1, 1, tzinfo=UTC),
     )
     meta_b = _make_source_metadata(
         "minecon",
         TrustLevel.MEDIUM,
-        datetime(2024, 6, 1, tzinfo=timezone.utc),
+        datetime(2024, 6, 1, tzinfo=UTC),
     )
 
     request = CompositionRequest(
@@ -273,12 +278,12 @@ def test_data_composer_accepts_injected_tracer(monkeypatch: pytest.MonkeyPatch):
     meta_a = _make_source_metadata(
         "worldbank",
         TrustLevel.HIGH,
-        datetime(2024, 1, 1, tzinfo=timezone.utc),
+        datetime(2024, 1, 1, tzinfo=UTC),
     )
     meta_b = _make_source_metadata(
         "minecon",
         TrustLevel.MEDIUM,
-        datetime(2024, 6, 1, tzinfo=timezone.utc),
+        datetime(2024, 6, 1, tzinfo=UTC),
     )
     request = CompositionRequest(
         dataset_pattern="ukraine.gdp",
@@ -318,12 +323,12 @@ def test_first_available_handles_nan():
     meta_a = _make_source_metadata(
         "a",
         TrustLevel.LOW,
-        datetime(2024, 1, 1, tzinfo=timezone.utc),
+        datetime(2024, 1, 1, tzinfo=UTC),
     )
     meta_b = _make_source_metadata(
         "b",
         TrustLevel.HIGH,
-        datetime(2024, 1, 2, tzinfo=timezone.utc),
+        datetime(2024, 1, 2, tzinfo=UTC),
     )
 
     candidates = [
@@ -348,12 +353,12 @@ def test_median_strict_rejects_non_finite_candidates():
     meta_a = _make_source_metadata(
         "a",
         TrustLevel.MEDIUM,
-        datetime(2024, 1, 1, tzinfo=timezone.utc),
+        datetime(2024, 1, 1, tzinfo=UTC),
     )
     meta_b = _make_source_metadata(
         "b",
         TrustLevel.MEDIUM,
-        datetime(2024, 1, 2, tzinfo=timezone.utc),
+        datetime(2024, 1, 2, tzinfo=UTC),
     )
     candidates = [
         ConflictCandidate(source_id=meta_a.connector_id, value=1.0, metadata=meta_a),
@@ -373,7 +378,7 @@ def test_median_strict_rejects_non_finite_candidates():
 
 
 def test_ranker_freshness_latency():
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     meta_fresh = ConnectorMetadataSpec(
         connector_id="fresh",
         version="1.0.0",
@@ -415,7 +420,7 @@ def test_ranker_freshness_latency():
 
 
 def test_ranker_keeps_scores_finite_with_bad_quality_inputs():
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     metadata = ConnectorMetadataSpec(
         connector_id="bad_quality",
         version="1.0.0",
@@ -485,20 +490,22 @@ def test_planner_union_complementary():
     desc_a = DatasetDescriptor(
         dataset_id="ukraine.gdp",
         name="A",
-        date_start=datetime(2000, 1, 1, tzinfo=timezone.utc),
-        date_end=datetime(2010, 1, 1, tzinfo=timezone.utc),
+        date_start=datetime(2000, 1, 1, tzinfo=UTC),
+        date_end=datetime(2010, 1, 1, tzinfo=UTC),
     )
     desc_b = DatasetDescriptor(
         dataset_id="ukraine.gdp",
         name="B",
-        date_start=datetime(2011, 1, 1, tzinfo=timezone.utc),
-        date_end=datetime(2020, 1, 1, tzinfo=timezone.utc),
+        date_start=datetime(2011, 1, 1, tzinfo=UTC),
+        date_end=datetime(2020, 1, 1, tzinfo=UTC),
     )
 
-    registry = _DummyRegistry([
-        _DummyEntry(meta_a, [desc_a]),
-        _DummyEntry(meta_b, [desc_b]),
-    ])
+    registry = _DummyRegistry(
+        [
+            _DummyEntry(meta_a, [desc_a]),
+            _DummyEntry(meta_b, [desc_b]),
+        ]
+    )
 
     planner = FederationPlanner(registry=registry, ranker=SourceRanker())
 

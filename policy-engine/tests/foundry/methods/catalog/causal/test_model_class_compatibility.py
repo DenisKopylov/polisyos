@@ -110,8 +110,7 @@ def test_conditional_binary_iv_model_class_compatibility_supports_stratified_v()
     assert verdict.report.model_class_id == "iv.binary.conditional_on_v"
     assert len(verdict.report.constraints) == 8
     assert (
-        verdict.report.finite_sample_test.test_name
-        == "gail_simon_style_fisher_union_intersection"
+        verdict.report.finite_sample_test.test_name == "gail_simon_style_fisher_union_intersection"
     )
     assert verdict.report.finite_sample_test.family_test_name is not None
     assert len(verdict.report.finite_sample_test.family_p_values) == 4

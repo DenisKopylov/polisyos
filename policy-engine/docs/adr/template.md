@@ -1,28 +1,6 @@
-# ADR-NNNN: Title
+# ADR Template Redirect
 
-## Status
-Proposed
+The canonical ADR template now lives in [`_template.md`](./_template.md).
 
-## Date
-YYYY-MM-DD
-
-## Context
-
-What problem forces a decision now? Mention the current behavior, constraints,
-and why prose in a plan is not enough.
-
-## Decision
-
-State the decision in numbered bullets. Make the source of truth explicit:
-code, contract file, schema, config path, or runbook.
-
-## Consequences
-
-Capture positive and negative consequences. Include migration, tooling, and
-operational impact.
-
-## Related Decisions
-
-- Supersedes: ADR-NNNN when applicable.
-- Extends: ADR-NNNN when applicable.
-- Related: ADR-NNNN when applicable.
+This file remains only as a compatibility pointer for earlier references inside
+the repository and external notes.

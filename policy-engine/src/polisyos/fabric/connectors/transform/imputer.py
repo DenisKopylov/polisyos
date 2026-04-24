@@ -1,6 +1,7 @@
 """
 Missing value imputation transformations.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -22,8 +23,8 @@ from polisyos.fabric.connectors.transform.pipeline import (
 from polisyos.fabric.finite import ensure_probability, is_finite_number
 
 __all__ = [
-    "ImputationTransform",
     "ImputationStrategy",
+    "ImputationTransform",
     "detect_missing_pattern",
     "recommend_imputation_strategy",
     "validate_imputation_quality",

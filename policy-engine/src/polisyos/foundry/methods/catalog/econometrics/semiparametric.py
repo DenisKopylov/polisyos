@@ -1,7 +1,9 @@
 """Estimate partially linear and kernel semiparametric regressions."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -31,6 +33,7 @@ def _result_slot() -> frozenset[SlotSpec]:
 )
 class RobinsonEstimator:
     """Estimate a partially linear effect after nonparametric residualization; avoid small samples with high-dimensional smoothers."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -40,15 +43,15 @@ class RobinsonEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
                 SlotSpec("z", SlotType.VECTOR, Unit("nonpar", "value"), shape=("n_obs",)),
                 SlotSpec("y", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="bandwidth", default=None),
-        ),
+        parameters=(ParameterSpec(name="bandwidth", default=None),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -59,8 +62,12 @@ class RobinsonEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Robinson (1988) partially linear model: y = X*beta + g(z) + e.",
-        tags=frozenset({"econometrics", "semiparametric", "robinson", "partially-linear", "cross-section"}),
-        citations=("Robinson, P.M. (1988). Root-N-Consistent Semiparametric Regression. Econometrica.",),
+        tags=frozenset(
+            {"econometrics", "semiparametric", "robinson", "partially-linear", "cross-section"}
+        ),
+        citations=(
+            "Robinson, P.M. (1988). Root-N-Consistent Semiparametric Regression. Econometrica.",
+        ),
         equations={"robinson": "y - E[y|z] = (X - E[X|z]) * beta + e"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -123,6 +130,7 @@ class RobinsonEstimator:
 )
 class KernelRegressionEstimator:
     """Estimate a nonparametric regression surface with kernel smoothing; avoid high-dimensional covariates or weak bandwidth support."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -151,7 +159,15 @@ class KernelRegressionEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Nadaraya-Watson kernel regression estimator.",
-        tags=frozenset({"econometrics", "semiparametric", "kernel-regression", "nonparametric", "cross-section"}),
+        tags=frozenset(
+            {
+                "econometrics",
+                "semiparametric",
+                "kernel-regression",
+                "nonparametric",
+                "cross-section",
+            }
+        ),
         citations=("Nadaraya, E.A. (1964). On Estimating Regression. Theory of Probability.",),
         equations={"nw": "m(x) = sum K((x-x_i)/h)*y_i / sum K((x-x_i)/h)"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
@@ -189,7 +205,7 @@ class KernelRegressionEstimator:
             k_sum = float(np.sum(K))
             pred = float(np.sum(K * y) / max(k_sum, 1e-12))
             loo_residuals[i] = y[i] - pred
-        cv_score = float(np.mean(loo_residuals ** 2))
+        cv_score = float(np.mean(loo_residuals**2))
 
         return {
             "result": {

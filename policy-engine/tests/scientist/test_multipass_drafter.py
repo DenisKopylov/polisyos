@@ -7,12 +7,12 @@ from typing import Any
 import pytest
 
 from polisyos.scientist.agent.drafter import (
-    LLMDrafterAgent,
     FindingCategory,
     FindingSeverity,
+    LLMDrafterAgent,
+    MockDrafterAgent,
     MultiPassConfig,
     MultiPassLLMDrafter,
-    MockDrafterAgent,
     create_drafter_agent,
 )
 from polisyos.scientist.agent.memory import ShortTermMemory
@@ -466,7 +466,7 @@ def test_pass3_code_verification_adds_findings_to_memory() -> None:
             (
                 '{"findings":[],"confidence_adjustment":0.0,'
                 '"verification_code":"assert sum(intervention_rates) <= 0.1, '
-                '\\\"Rates exceed threshold\\\""}'
+                '\\"Rates exceed threshold\\""}'
             ),
             (
                 '{"narrative":"Consolidated with verifier feedback","interventions":[{"kind":"'

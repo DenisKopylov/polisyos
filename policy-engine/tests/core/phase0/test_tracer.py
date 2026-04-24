@@ -1,4 +1,5 @@
 """Tests for the PolicyOSTracer singleton and core tracing behaviors."""
+
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
@@ -7,9 +8,9 @@ import pytest
 from opentelemetry.sdk.trace.sampling import ALWAYS_OFF, ALWAYS_ON, Decision
 from opentelemetry.trace import SpanKind
 
+import polisyos.core.observability.tracer as tracer_module
 from polisyos.core.observability import get_tracer
 from polisyos.core.observability.config import OTelConfig
-import polisyos.core.observability.tracer as tracer_module
 from polisyos.core.observability.tracer import (
     ErrorAwareSampler,
     PolicyOSTracer,
@@ -62,9 +63,8 @@ class TestPolicyOSTracer:
         """Child spans should be linked to parent."""
         tracer = get_tracer()
 
-        with tracer.start_as_current_span("parent"):
-            with tracer.start_as_current_span("child"):
-                pass
+        with tracer.start_as_current_span("parent"), tracer.start_as_current_span("child"):
+            pass
 
         spans = in_memory_exporter.get_finished_spans()
         assert len(spans) == 2
@@ -79,9 +79,8 @@ class TestPolicyOSTracer:
         """Exceptions should be recorded on spans."""
         tracer = get_tracer()
 
-        with pytest.raises(ValueError):
-            with tracer.start_as_current_span("failing_operation"):
-                raise ValueError("Test error")
+        with pytest.raises(ValueError), tracer.start_as_current_span("failing_operation"):
+            raise ValueError("Test error")
 
         spans = in_memory_exporter.get_finished_spans()
         assert len(spans) == 1

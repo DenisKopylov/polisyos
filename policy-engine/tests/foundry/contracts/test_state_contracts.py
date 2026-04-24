@@ -5,8 +5,8 @@ import os
 
 os.environ.setdefault("JAX_PLATFORMS", "cpu")
 
-import numpy as np
 import jax
+import numpy as np
 
 from polisyos.foundry._executor_snapshots import _build_dataclass
 from polisyos.foundry.contracts.state import (
@@ -16,8 +16,12 @@ from polisyos.foundry.contracts.state import (
     HouseholdCellState,
     ProcurementGraphState,
 )
-from polisyos.foundry.executor import load_state_snapshot, put_state_snapshot
-from polisyos.foundry.executor import export_seed_state_npz, import_seed_state_npz
+from polisyos.foundry.executor import (
+    export_seed_state_npz,
+    import_seed_state_npz,
+    load_state_snapshot,
+    put_state_snapshot,
+)
 
 
 def test_cell_and_household_cell_contracts_construct() -> None:
@@ -83,7 +87,9 @@ def test_global_state_with_cells_round_trips_through_snapshot(tmp_path) -> None:
 
     assert restored.cells is not None
     assert restored.household_cells is not None
-    assert np.array_equal(np.asarray(restored.cells.region_code), np.asarray(state.cells.region_code))
+    assert np.array_equal(
+        np.asarray(restored.cells.region_code), np.asarray(state.cells.region_code)
+    )
     assert np.allclose(np.asarray(restored.cells.output), np.asarray(state.cells.output))
     assert np.allclose(
         np.asarray(restored.household_cells.disposable_income),
@@ -187,7 +193,9 @@ def test_foundry_seed_state_npz_roundtrip_preserves_multiscale_blocks(tmp_path) 
     assert restored.cells is not None
     assert restored.household_cells is not None
     assert restored.agent_sim_runtime is not None
-    assert np.allclose(np.asarray(restored.cells.output), np.asarray([120.0, 240.0], dtype=np.float32))
+    assert np.allclose(
+        np.asarray(restored.cells.output), np.asarray([120.0, 240.0], dtype=np.float32)
+    )
     assert np.allclose(
         np.asarray(restored.household_cells.disposable_income),
         np.asarray([500.0, 650.0], dtype=np.float32),

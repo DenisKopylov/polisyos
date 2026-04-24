@@ -15,9 +15,15 @@ class _FakeSentenceTransformer:
     def get_sentence_embedding_dimension(self) -> int:
         return self._dim
 
-    def encode(self, texts, batch_size: int = 32, show_progress_bar: bool = False, normalize_embeddings: bool = True):
+    def encode(
+        self,
+        texts,
+        batch_size: int = 32,
+        show_progress_bar: bool = False,
+        normalize_embeddings: bool = True,
+    ):
         rows = []
-        for idx, text in enumerate(texts):
+        for _idx, text in enumerate(texts):
             base = float((len(str(text)) % 7) + 1)
             vec = np.array([base, base + 1, base + 2, base + 3], dtype=np.float32)
             if normalize_embeddings:

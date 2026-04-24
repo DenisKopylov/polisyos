@@ -44,7 +44,9 @@ const MAX_VERTICES = 12;
  * the same geometry; differing hashes with ≥48 bits of entropy collide with
  * probability below 1e-6.
  */
-export function sigilGeometryFromHash(bundleHash: string): EvidenceSigilGeometry {
+export function sigilGeometryFromHash(
+  bundleHash: string,
+): EvidenceSigilGeometry {
   const trimmed = bundleHash.trim().replace(/^0x/, "");
   const bytes = hexBytes(trimmed.length > 0 ? trimmed : "00");
   if (bytes.length === 0) {

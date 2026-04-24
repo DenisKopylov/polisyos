@@ -2,12 +2,8 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.contracts.foundry import CompileResult
-
 from polisyos.foundry.compile.trinity_compiler import _merge_notes
 
 
@@ -57,7 +53,9 @@ class TestCompileTrinityMissing:
     @patch("polisyos.foundry.compile.trinity_compiler.from_canonical_bytes")
     @patch("polisyos.foundry.compile.trinity_compiler.put_compile_report")
     def test_compile_trinity_missing_registry_bundle(
-        self, mock_put_report, mock_canon,
+        self,
+        mock_put_report,
+        mock_canon,
     ) -> None:
         from polisyos.foundry.compile.trinity_compiler import compile_trinity
 
@@ -165,7 +163,8 @@ class TestCompileTrinityLowering:
         store = MagicMock()
         store.get_bytes.return_value = b"{}"
         request = _make_compile_request(
-            registry_bundle_ref=_artifact_ref("registry"), strict_link=True,
+            registry_bundle_ref=_artifact_ref("registry"),
+            strict_link=True,
         )
 
         result = compile_trinity(store, request)
@@ -202,8 +201,8 @@ class TestCompileTrinitySuccess:
         mock_canon,
         mock_reg_bundle,
     ) -> None:
-        from polisyos.foundry.compile.trinity_compiler import compile_trinity
         from polisyos.core.contracts.foundry import LoweredIR, LoweredIRRef, ProgramGraph
+        from polisyos.foundry.compile.trinity_compiler import compile_trinity
 
         mock_canon.return_value = {}
         mock_bundle = MagicMock()
@@ -253,8 +252,12 @@ class TestCompileTrinitySuccess:
         assert len(result.derived_refs) == 6
         roles = {d.role for d in result.derived_refs}
         assert roles == {
-            "lowered_ir", "program_graph", "exec_plan",
-            "link_report", "slot_layout", "treasury_plan",
+            "lowered_ir",
+            "program_graph",
+            "exec_plan",
+            "link_report",
+            "slot_layout",
+            "treasury_plan",
         }
 
 

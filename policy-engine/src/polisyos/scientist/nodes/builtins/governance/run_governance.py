@@ -1,4 +1,5 @@
 """Public governance run governance module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
@@ -141,7 +142,7 @@ class RunGovernanceNode:
     def spec(self) -> NodeSpec:
         return _SPEC
 
-    def bind(self, params: dict[str, Any]) -> "RunGovernanceNode":
+    def bind(self, params: dict[str, Any]) -> RunGovernanceNode:
         if not params:
             return self
         verdict = params.get("default_verdict", self.default_verdict)
@@ -262,8 +263,7 @@ class RunGovernanceNode:
                         NodeEvent(
                             level="warn",
                             message=(
-                                f"Governance checks blocked decision "
-                                f"({blocker_count} blocker(s))"
+                                f"Governance checks blocked decision ({blocker_count} blocker(s))"
                             ),
                         )
                     )
@@ -546,7 +546,9 @@ def _collect_gate_artifact_refs(state: ExperimentState) -> dict[str, str] | None
         REPORT_LEGAL_REPORT_REF,
         REPORT_CHANGE_PROPOSAL_REF,
     ):
-        ref = state.inputs.get(key) or state.artifacts_index.get(key) or state.reports_index.get(key)
+        ref = (
+            state.inputs.get(key) or state.artifacts_index.get(key) or state.reports_index.get(key)
+        )
         if ref is not None:
             refs[key] = str(ref.artifact_id)
     return refs or None
@@ -629,7 +631,9 @@ def _gate_replay_summary(state: ExperimentState) -> dict[str, Any]:
     elif "state_source_ref" in missing_refs:
         suggested_next_step = "Attach data_snapshot_ref, state_snapshot_ref, or input_bindings_ref."
     elif missing_refs:
-        suggested_next_step = "Persist the missing replay refs listed in replay_summary.missing_refs."
+        suggested_next_step = (
+            "Persist the missing replay refs listed in replay_summary.missing_refs."
+        )
     else:
         suggested_next_step = None
 
@@ -657,7 +661,8 @@ def _gate_replay_readiness(state: ExperimentState) -> tuple[str, list[str]]:
         missing_refs.append("registry_bundle_ref")
 
     has_snapshot = any(
-        key in state.inputs for key in ("input_bindings_ref", "data_snapshot_ref", "state_snapshot_ref")
+        key in state.inputs
+        for key in ("input_bindings_ref", "data_snapshot_ref", "state_snapshot_ref")
     )
     if not has_snapshot:
         missing_refs.append("state_source_ref")
@@ -665,7 +670,12 @@ def _gate_replay_readiness(state: ExperimentState) -> tuple[str, list[str]]:
 
     optional_missing = [
         key
-        for key in ("input_bindings_ref", "norm_pack_ref", "knowledge_bundle_ref", "research_intent_ref")
+        for key in (
+            "input_bindings_ref",
+            "norm_pack_ref",
+            "knowledge_bundle_ref",
+            "research_intent_ref",
+        )
         if key not in state.inputs
     ]
     missing_refs.extend(optional_missing)

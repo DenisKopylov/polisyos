@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pandas as pd
 
@@ -48,7 +48,7 @@ def _schema() -> DataSchema:
 
 
 def _fetch_result(data: pd.DataFrame, *, fetched_at: datetime | None = None) -> FetchResult:
-    fetched_at = fetched_at or datetime.now(timezone.utc)
+    fetched_at = fetched_at or datetime.now(UTC)
     version = DataVersion(
         strategy=VersionStrategy.TIMESTAMP,
         value=fetched_at.isoformat(),
@@ -86,7 +86,7 @@ def test_validator_emits_profiles_anomalies_drift_and_trends() -> None:
         {
             "dataset_id": "test.dataset",
             "schema_id": "test.schema",
-            "validated_at": (datetime.now(timezone.utc) - timedelta(days=1)).isoformat(),
+            "validated_at": (datetime.now(UTC) - timedelta(days=1)).isoformat(),
             "score": 0.96,
             "row_count": 30,
             "completeness_score": 1.0,
@@ -153,8 +153,7 @@ rules:
     assert report.quality_contract_result.passed is False
     assert report.quality_contract_result.failed_rules >= 1
     assert any(
-        violation.rule_type.startswith("quality_contract:")
-        for violation in report.violations
+        violation.rule_type.startswith("quality_contract:") for violation in report.violations
     )
     assert report.score <= 0.69
 

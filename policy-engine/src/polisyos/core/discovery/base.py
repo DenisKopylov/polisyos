@@ -1,16 +1,18 @@
 """Core discovery primitives for loading plugins from entry points and source files."""
+
 from __future__ import annotations
 
 import importlib.util
 import re
 import sys
 import traceback as traceback_lib
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from dataclasses import dataclass, field
 from enum import Enum
 from importlib import metadata
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Callable, Generic, Iterable, Iterator, Protocol, Sequence, TypeVar
+from typing import Any, Generic, Protocol, TypeVar
 
 from polisyos.core.canon import DeprecatedHashAlgorithm, truncated_hash
 from polisyos.core.canon.hashing import HashAlgorithm
@@ -22,6 +24,7 @@ E = TypeVar("E")
 
 class DuplicatePolicy(str, Enum):
     """How registry builders should react when two discovered items share the same identity."""
+
     WARN = "warn"
     ERROR = "error"
     IGNORE = "ignore"
@@ -30,6 +33,7 @@ class DuplicatePolicy(str, Enum):
 @dataclass(slots=True)
 class DiscoveryError:
     """Discovery error exception."""
+
     source: str
     item: str | None
     error_type: str
@@ -40,13 +44,14 @@ class DiscoveryError:
 
 class DiscoverySource(Protocol[T_co]):
     """Discovery source public type."""
-    def discover(self) -> Iterator[T_co]:
-        ...
+
+    def discover(self) -> Iterator[T_co]: ...
 
 
 @dataclass(slots=True)
 class SourceBatch(Generic[T, E]):
     """Source batch public type."""
+
     source: DiscoverySource[T] | Any
     items: list[T] = field(default_factory=list)
     errors: list[E] = field(default_factory=list)
@@ -115,14 +120,14 @@ def list_entry_points(*, group: str) -> list[metadata.EntryPoint]:
         direct = None
 
     if direct is not None:
-        return sorted(list(direct), key=_entry_point_sort_key)
+        return sorted(direct, key=_entry_point_sort_key)
 
     all_eps = metadata.entry_points()
-    if isinstance(all_eps, metadata.EntryPoints):
+    if isinstance(all_eps, metadata.EntryPoints) or hasattr(all_eps, "select"):
         selected = all_eps.select(group=group)
     else:
         selected = all_eps.get(group, [])
-    return sorted(list(selected), key=_entry_point_sort_key)
+    return sorted(selected, key=_entry_point_sort_key)
 
 
 def discovery_module_name(

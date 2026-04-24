@@ -175,25 +175,18 @@ def _pick_matching_source_domain(
 
     intervention_set = frozenset(ref.intervention_set)
     if intervention_set:
-        exact = [
-            domain for domain in source_domains
-            if intervention_set <= domain.z_interventions
-        ]
+        exact = [domain for domain in source_domains if intervention_set <= domain.z_interventions]
         if exact:
             return exact[0]
-        partial = [
-            domain for domain in source_domains
-            if intervention_set & domain.z_interventions
-        ]
+        partial = [domain for domain in source_domains if intervention_set & domain.z_interventions]
         if partial:
-            partial.sort(key=lambda domain: len(intervention_set & domain.z_interventions), reverse=True)
+            partial.sort(
+                key=lambda domain: len(intervention_set & domain.z_interventions), reverse=True
+            )
             return partial[0]
 
     leaf_scope = frozenset(ref.variables) | frozenset(ref.conditioning)
-    structural = [
-        domain for domain in source_domains
-        if leaf_scope & domain.s_nodes
-    ]
+    structural = [domain for domain in source_domains if leaf_scope & domain.s_nodes]
     if structural:
         return structural[0]
     return source_domains[0]
@@ -285,7 +278,11 @@ def _rewrite_transport_node(
             source_domains=source_domains,
             dataset_ref=dataset_ref,
         )
-        return node if inner is node.inner_counterfactual else node.model_copy(update={"inner_counterfactual": inner})
+        return (
+            node
+            if inner is node.inner_counterfactual
+            else node.model_copy(update={"inner_counterfactual": inner})
+        )
 
     if isinstance(node, CrossWorldNode):
         worlds = tuple(
@@ -306,7 +303,11 @@ def _rewrite_transport_node(
             source_domains=source_domains,
             dataset_ref=dataset_ref,
         )
-        return node if context is node.ctf_context else node.model_copy(update={"ctf_context": context})
+        return (
+            node
+            if context is node.ctf_context
+            else node.model_copy(update={"ctf_context": context})
+        )
 
     if isinstance(node, CounterfactualNode):
         return node
@@ -506,15 +507,13 @@ def ctf_transportability(
             normalized_query=normalized_query,
             identification_method="ctf_transport_seed",
         )
-        trace.append("ctf_transportability: built raw Layer-3 AST because base ID* did not identify")
+        trace.append(
+            "ctf_transportability: built raw Layer-3 AST because base ID* did not identify"
+        )
     else:
         trace.append("ctf_transportability: seeded Layer-3 AST from ID*/IDC*")
 
-    augmented_graph = (
-        augment_with_s_nodes(graph, selection_vars)
-        if selection_vars
-        else graph
-    )
+    augmented_graph = augment_with_s_nodes(graph, selection_vars) if selection_vars else graph
     ctf_ast, ctf_steps = rewrite_ctf_estimand(seed_ast, augmented_graph)
     sigma_ast, sigma_steps = rewrite_estimand_with_selection(
         ctf_ast,
@@ -557,7 +556,9 @@ def ctf_transportability(
                 source_domains=normalized_domains,
                 dataset_ref=dataset_ref,
             )
-            trace.append("ctf_transportability: reduced to Layer-2 and delegated to transport backend")
+            trace.append(
+                "ctf_transportability: reduced to Layer-2 and delegated to transport backend"
+            )
             proof_steps.extend(getattr(delegated, "proof_steps", []))
 
         if len(normalized_domains) > 1:
@@ -610,7 +611,10 @@ def ctf_transportability(
         if ctf_query.evidence
         else id_star_algorithm(ctf_query, augmented_graph)
     )
-    if fallback_result.status is IdentificationStatus.IDENTIFIED and fallback_result.estimand_ast is not None:
+    if (
+        fallback_result.status is IdentificationStatus.IDENTIFIED
+        and fallback_result.estimand_ast is not None
+    ):
         fallback_ast = _annotate_transport_ast(
             fallback_result.estimand_ast,
             selection_vars=selection_vars,
@@ -628,7 +632,9 @@ def ctf_transportability(
             query_str=fallback_ast.query_str,
         )
 
-    trace.append("ctf_transportability: exact transport failed; returning constructive negative certificate")
+    trace.append(
+        "ctf_transportability: exact transport failed; returning constructive negative certificate"
+    )
     return _ctf_transport_failure_certificate(
         ctf_query=ctf_query,
         selection_diagram=selection_diagram,

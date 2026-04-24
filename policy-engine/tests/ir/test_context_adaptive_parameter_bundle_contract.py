@@ -9,7 +9,7 @@ from polisyos.ir.analytics.parameters import (
     load_context_adaptive_parameter_bundle,
     persist_context_adaptive_parameter_bundle,
 )
-from polisyos.ir.analytics.transportability import TransportMode, TransportabilityStatus
+from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
 from polisyos.ir.refs import ContextAdaptiveParameterBundleRef
 
 

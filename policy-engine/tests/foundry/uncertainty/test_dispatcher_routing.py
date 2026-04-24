@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import pytest
 
+from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -9,9 +11,6 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-
-from polisyos.foundry.uncertainty.config import PropagationConfig
-from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
 
 
 def _normal_env(point: float, std: float, level: float = 0.95) -> UncertaintyEnvelope:
@@ -97,13 +96,20 @@ class TestAnalyticalRouting:
         analytical_config = PropagationConfig(preferred_method="analytical")
         analytical_disp = PropagationDispatcher(analytical_config)
         analytical_results = analytical_disp.propagate(
-            _linear_sim, nominal, envelopes, ["y"], weights=weights,
+            _linear_sim,
+            nominal,
+            envelopes,
+            ["y"],
+            weights=weights,
         )
 
         delta_config = PropagationConfig(preferred_method="delta")
         delta_disp = PropagationDispatcher(delta_config)
         delta_results = delta_disp.propagate(
-            _linear_sim, nominal, envelopes, ["y"],
+            _linear_sim,
+            nominal,
+            envelopes,
+            ["y"],
         )
 
         a_env = analytical_results[0].envelope
@@ -111,10 +117,12 @@ class TestAnalyticalRouting:
 
         assert a_env.point_estimate == pytest.approx(d_env.point_estimate, abs=0.05)
         assert a_env.confidence_interval[0] == pytest.approx(
-            d_env.confidence_interval[0], abs=0.1,
+            d_env.confidence_interval[0],
+            abs=0.1,
         )
         assert a_env.confidence_interval[1] == pytest.approx(
-            d_env.confidence_interval[1], abs=0.1,
+            d_env.confidence_interval[1],
+            abs=0.1,
         )
 
     def test_auto_select_analytical_when_weights_provided(self) -> None:
@@ -125,7 +133,11 @@ class TestAnalyticalRouting:
         weights = {"x": 2.0, "z": 3.0}
 
         results = dispatcher.propagate(
-            _linear_sim, {"x": 1.0, "z": 2.0}, envelopes, ["y"], weights=weights,
+            _linear_sim,
+            {"x": 1.0, "z": 2.0},
+            envelopes,
+            ["y"],
+            weights=weights,
         )
 
         assert results[0].method_used == PropagationMethod.ANALYTICAL
@@ -137,7 +149,10 @@ class TestAnalyticalRouting:
         envelopes = {"x": _normal_env(1.0, 0.1), "z": _normal_env(2.0, 0.2)}
 
         results = dispatcher.propagate(
-            _linear_sim, {"x": 1.0, "z": 2.0}, envelopes, ["y"],
+            _linear_sim,
+            {"x": 1.0, "z": 2.0},
+            envelopes,
+            ["y"],
         )
 
         assert results[0].method_used in {

@@ -15,21 +15,25 @@
 
 После E1.5:
 
-1) **Foundry = pure compute**:
+1. **Foundry = pure compute**:
+
    - входы: только **IR/Core контракты** и/или **CAS refs** (`ArtifactRef`, typed refs из `core.contracts.*`)
    - выходы: только **CAS артефакты** (через `FileSystemCAS.put_*`) + typed refs
    - Foundry **не знает** про Scientist (ни типами, ни импортами, ни governance-профилями).
 
-2) **Компиляция политики разделена**:
+2. **Компиляция политики разделена**:
+
    - `surface_compiler` обслуживает legacy `PolicySurfaceIR` (заморожен: только совместимость/bugfix)
    - `trinity_compiler` обслуживает Trinity (`ProblemFrame/PolicySpec/ModelSpec`), строится поверх `ir.linker.link_trinity()`.
 
-3) **Один публичный входной API**:
+3. **Один публичный входной API**:
+
    - `polisyos.foundry.compile.api.compile(request) -> CompileResult`
    - `polisyos.foundry.execute.api.execute(request) -> ExecuteResult`
    - выбор компилятора **по kind входного ref** (`ir.policy_surface` vs `ir.trinity_bundle`) или явному `input_kind`.
 
-4) **“До зелёного” по зависимостям**:
+4. **“До зелёного” по зависимостям**:
+
    - import gate (`tools/lint/lint_imports.py` + `import_policy.toml`) зелёный
    - внутри Foundry нет импортов `polisyos.scientist.*` и реализаций `polisyos.fabric.*` (контракты `core.contracts.fabric` разрешены).
 
@@ -146,22 +150,22 @@ E1.5 делает только то, что необходимо для:
 
 #### 4.2.1 Таблица утечек и классификация замены
 
-| Локация | Симптом | Тип утечки | Классификация замены | Нормативное решение E1.5 |
-|---|---|---|---|---|
-| `polisyos.foundry.calibration.preflight.fetch_targets()` | дергает `udf_engine.query()` / `fetcher(...)` | I/O (world/data plane) | **Оркестрация** (должна жить в Scientist/Fabric) | Вынести fetch в Scientist. Foundry получает `raw_targets` как input артефакт/параметр. |
-| `polisyos.foundry.executor.execute_program_graph(..., capture_env=True)` | по умолчанию вызывает `capture_environment()` (FS, git, deps) | I/O (host env) | **Оркестрация/observability** (control plane) | По умолчанию `capture_env=False` в kernel API; env capture делает Scientist/RunContext и передаёт refs. |
-| `polisyos.foundry.methods.artifacts` | читает исходники (`Path.open`) и вызывает `git` через `subprocess.run` | I/O + subprocess | **Нужно как контракт/metadata** | Сместить вычисление source fingerprints в Core (env manifest) или в build-time. Метод-артефакт должен ссылаться на уже зафиксированный artifact/ref, а не читать FS. |
-| `polisyos.foundry.plugins.cli` | читает/пишет файлы результатов, создаёт директории | FS I/O | **Tooling** | Вынести CLI в `policy-engine/tools/` или `polisyos.runtime` (не в compute kernel). |
-| `polisyos.foundry.agent_sim.*` | пишет конфиги/метрики/артефакты в run dir | FS I/O | **Tooling / demo** | Вынести в `polisyos.runtime`/`tools` или пометить как отдельный пакет (не часть compute kernel). |
-| `polisyos.foundry.methods.testing.golden` | хранит “golden records” на FS | FS I/O | **Тестовая инфраструктура** | Перенести в `tests/` или `policy-engine/tools/` (не держать под `polisyos.foundry.*`). |
+| Локация                                                                  | Симптом                                                                | Тип утечки             | Классификация замены                             | Нормативное решение E1.5                                                                                                                                             |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------- | ---------------------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `polisyos.foundry.calibration.preflight.fetch_targets()`                 | дергает `udf_engine.query()` / `fetcher(...)`                          | I/O (world/data plane) | **Оркестрация** (должна жить в Scientist/Fabric) | Вынести fetch в Scientist. Foundry получает `raw_targets` как input артефакт/параметр.                                                                               |
+| `polisyos.foundry.executor.execute_program_graph(..., capture_env=True)` | по умолчанию вызывает `capture_environment()` (FS, git, deps)          | I/O (host env)         | **Оркестрация/observability** (control plane)    | По умолчанию `capture_env=False` в kernel API; env capture делает Scientist/RunContext и передаёт refs.                                                              |
+| `polisyos.foundry.methods.artifacts`                                     | читает исходники (`Path.open`) и вызывает `git` через `subprocess.run` | I/O + subprocess       | **Нужно как контракт/metadata**                  | Сместить вычисление source fingerprints в Core (env manifest) или в build-time. Метод-артефакт должен ссылаться на уже зафиксированный artifact/ref, а не читать FS. |
+| `polisyos.foundry.plugins.cli`                                           | читает/пишет файлы результатов, создаёт директории                     | FS I/O                 | **Tooling**                                      | Вынести CLI в `policy-engine/tools/` или `polisyos.runtime` (не в compute kernel).                                                                                   |
+| `polisyos.foundry.agent_sim.*`                                           | пишет конфиги/метрики/артефакты в run dir                              | FS I/O                 | **Tooling / demo**                               | Вынести в `polisyos.runtime`/`tools` или пометить как отдельный пакет (не часть compute kernel).                                                                     |
+| `polisyos.foundry.methods.testing.golden`                                | хранит “golden records” на FS                                          | FS I/O                 | **Тестовая инфраструктура**                      | Перенести в `tests/` или `policy-engine/tools/` (не держать под `polisyos.foundry.*`).                                                                               |
 
 #### 4.2.2 Минимальный cut E1.5 (чтобы не раздувать фазу)
 
 Для E1.5 достаточно:
 
-1) **Сделать новые фасады compile/execute строго CAS-only** (см. §6–§8).
-2) Зафиксировать **policy**: любые I/O tooling модули **не импортируются** из `polisyos.foundry.__init__` и не подтягиваются транзитивно compile/execute.
-3) (Рекомендуемо) добавить unit-test “no-IO-in-kernel” на `polisyos/foundry/compile/*` и `polisyos/foundry/execute/*` (см. §11.7).
+1. **Сделать новые фасады compile/execute строго CAS-only** (см. §6–§8).
+2. Зафиксировать **policy**: любые I/O tooling модули **не импортируются** из `polisyos.foundry.__init__` и не подтягиваются транзитивно compile/execute.
+3. (Рекомендуемо) добавить unit-test “no-IO-in-kernel” на `polisyos/foundry/compile/*` и `polisyos/foundry/execute/*` (см. §11.7).
 
 Полный вынос tooling из пакета Foundry можно выполнить отдельным PR/подфазой, не блокируя split компиляторов.
 
@@ -206,10 +210,10 @@ Foundry фасад **принимает только**:
 
 Добавить (или расширить) модели:
 
-1) `CompileRequest`
-2) `CompileResult`
-3) `ExecuteRequest`
-4) `ExecuteResult`
+1. `CompileRequest`
+2. `CompileResult`
+3. `ExecuteRequest`
+4. `ExecuteResult`
 
 ##### `CompileRequest` (нормативный минимум)
 
@@ -382,7 +386,7 @@ class ExecuteResult(BaseModel):
 
 Target (E1.5):
 
-```
+```text
 polisyos/foundry/
   compile/
     __init__.py
@@ -439,27 +443,34 @@ polisyos/foundry/
 
 Pipeline:
 
-1) **Load policy**:
+1. **Load policy**:
+
    - `policy = PolicySurfaceIR.model_validate(from_canonical_bytes(store.get_bytes(policy_ref)))`
-2) **Resolve registry bundle** (см. §5.3.2):
+2. **Resolve registry bundle** (см. §5.3.2):
+
    - `registry_bundle_ref = request.registry_bundle_ref or policy.semantic.registry_bundle_ref`
    - если нет ⇒ `ok=False`, compile_report с ошибкой `missing_registry_bundle`
-3) **Load registries**:
+3. **Load registries**:
+
    - `registry_content = load_registry_bundle_content(store, registry_bundle_ref)`
-4) **Link legacy surface**:
+4. **Link legacy surface**:
+
    - `link_report = link_policy(policy, registry_content.mechanism_registry, slot_registry=..., units_registry=..., allow_extra_params=request.validation_flags.allow_extra_params, ...)`
    - сохранить `compiler.link_report` (через `core.compiler.report.put_link_report`)
    - если `strict_link=True` и `not link_report.ok` ⇒ `ok=False`, compile_report, выход без компиляции
-5) **Compile graph** (без ссылок на Scientist):
+5. **Compile graph** (без ссылок на Scientist):
+
    - переиспользовать текущую реализацию из `polisyos.foundry.compiler`:
      - build ProgramGraph nodes/edges
      - conflict check (CompileTimeConflictChecker)
      - cost estimate gating (если budget включён)
-6) **Emit compile artifacts**:
+6. **Emit compile artifacts**:
+
    - `foundry.program_graph`
-   - `foundry.exec_plan` (поля берутся из `request.compile_config`, environment_* остаётся `None`)
+   - `foundry.exec_plan` (поля берутся из `request.compile_config`, environment\_\* остаётся `None`)
    - `foundry.slot_layout`, `foundry.treasury_plan` (если текущая логика сохраняется)
-7) **Emit compile_report** (`compiler.compile_report`, всегда):
+7. **Emit compile_report** (`compiler.compile_report`, всегда):
+
    - `ok`, `policy_ref`, `registry_bundle_ref`, `link_report_ref`, `program_graph_ref`, `exec_plan_ref`, `slot_layout_ref`, `treasury_plan_ref`
 
 ### 7.3 Запреты и совместимость
@@ -515,9 +526,9 @@ Pipeline:
 
 #### Step 0: load inputs
 
-1) `bundle = TrinityBundle.model_validate(from_canonical_bytes(store.get_bytes(policy_ref)))`
-2) `registry_bundle_ref = resolve_registry_bundle_ref(bundle, request)`
-3) `registry_content = load_registry_bundle_content(store, registry_bundle_ref)`
+1. `bundle = TrinityBundle.model_validate(from_canonical_bytes(store.get_bytes(policy_ref)))`
+2. `registry_bundle_ref = resolve_registry_bundle_ref(bundle, request)`
+3. `registry_content = load_registry_bundle_content(store, registry_bundle_ref)`
 
 #### Step 1: validate_structural (schema-level)
 
@@ -530,7 +541,7 @@ Pipeline:
 
 #### Step 2: resolve_symbols (linking)
 
-1) Собрать IR-level `RegistryBundle` из загруженных registries:
+1. Собрать IR-level `RegistryBundle` из загруженных registries:
 
 - `mechanisms = registry_content.mechanism_registry`
 - `slots = registry_content.slot_registry`
@@ -540,15 +551,15 @@ Pipeline:
 - `units = registry_content.units_registry`
 - `metrics = registry_content.metric_registry` (если есть)
 
-2) Вызвать:
+1. Вызвать:
 
 `linked_bundle, link_report = link_trinity(bundle, registries, allow_extra_params=request.validation_flags.allow_extra_params, strict=request.validation_flags.strict_link)`
 
-3) Persist link_report:
+1. Persist link_report:
 
 - `link_report_ref = put_link_report(store, link_report, inputs=[policy_ref, registry_bundle_ref])`
 
-4) Если `strict_link=True` и `not link_report.ok` ⇒ `ok=False`, emit compile_report и return.
+1. Если `strict_link=True` и `not link_report.ok` ⇒ `ok=False`, emit compile_report и return.
 
 Опционально:
 
@@ -629,22 +640,23 @@ Persist:
 
 **Запреты:**
 
-1) `import polisyos.scientist.*`
-2) `import polisyos.fabric.*` (кроме `polisyos.core.contracts.fabric` — contracts разрешены)
-3) Любые прямые I/O вне CAS:
+1. `import polisyos.scientist.*`
+2. `import polisyos.fabric.*` (кроме `polisyos.core.contracts.fabric` — contracts разрешены)
+3. Любые прямые I/O вне CAS:
+
    - `open()` на произвольных путях
    - чтение/запись файлов с `Path.read_text/write_text/open`
    - `subprocess.run` (git, pip, etc)
    - сетевые вызовы
    - прямой DuckDB/GraphStore доступ
-4) Любые записи в FactLog / world state (это Fabric plane).
+4. Любые записи в FactLog / world state (это Fabric plane).
 
 ### 9.2 Разрешено
 
-1) CAS I/O через `polisyos.core.artifacts.store.FileSystemCAS`
-2) Канонизация через `polisyos.core.canon.*`
-3) Валидация IR через `polisyos.ir.*` (linker, models)
-4) Выпуск trace/metrics как **CAS артефактов** (если это делается внутри execute и не требует внешнего I/O).
+1. CAS I/O через `polisyos.core.artifacts.store.FileSystemCAS`
+2. Канонизация через `polisyos.core.canon.*`
+3. Валидация IR через `polisyos.ir.*` (linker, models)
+4. Выпуск trace/metrics как **CAS артефактов** (если это делается внутри execute и не требует внешнего I/O).
 
 ### 9.3 Практическая стратегия (E1.5)
 
@@ -813,12 +825,14 @@ E1.5 может сделать один из вариантов (выбрать 
 
 Smoke test:
 
-1) скомпилировать минимальную политику (surface или trinity) в `ExecPlanRef`
-2) создать `StateSnapshotRef`:
+1. скомпилировать минимальную политику (surface или trinity) в `ExecPlanRef`
+2. создать `StateSnapshotRef`:
+
    - собрать минимальный `GlobalState` fixture (как в текущих foundry tests)
    - `put_state_snapshot(store, state=..., step=0)`
-3) вызвать `foundry.execute.api.execute` с `ExecuteRequest(state_snapshot_ref=..., exec_plan_ref=..., registry_bundle_ref=...)`
-4) проверить:
+3. вызвать `foundry.execute.api.execute` с `ExecuteRequest(state_snapshot_ref=..., exec_plan_ref=..., registry_bundle_ref=...)`
+4. проверить:
+
    - `ok=True`
    - вернулся `SimulationResultRef` (kind=`foundry.simulation_result`)
 
@@ -840,16 +854,19 @@ Smoke test:
 
 Фаза считается завершённой, когда:
 
-1) В `polisyos.foundry` нет импортов `polisyos.scientist.*`.
-2) Реализованы два компилятора:
+1. В `polisyos.foundry` нет импортов `polisyos.scientist.*`.
+2. Реализованы два компилятора:
+
    - `polisyos.foundry.compile.surface_compiler`
    - `polisyos.foundry.compile.trinity_compiler`
-3) Существует один фасад:
+3. Существует один фасад:
+
    - `polisyos.foundry.compile.api.compile(request) -> CompileResult`
    - `polisyos.foundry.execute.api.execute(request) -> ExecuteResult`
-4) `ProgramGraph.ir_ref` поддерживает `ir.policy_surface` и `ir.trinity_bundle` (не смешивая модели).
-5) `compiler.compile_report` всегда выпускается, ошибки/предупреждения фиксируются как артефакты.
-6) Тесты:
+4. `ProgramGraph.ir_ref` поддерживает `ir.policy_surface` и `ir.trinity_bundle` (не смешивая модели).
+5. `compiler.compile_report` всегда выпускается, ошибки/предупреждения фиксируются как артефакты.
+6. Тесты:
+
    - import gate зелёный
    - unit tests для surface и trinity компиляции зелёные
    - determinism test зелёный
@@ -857,9 +874,9 @@ Smoke test:
 
 ## D1-L4 Validation Links
 
-| Link type | Current anchor |
-|-----------|----------------|
-| Source plan phase | D1-L4 Phase 0 Trinity/linker contract and Phase 2 compiler pipeline inputs |
-| Contract tests | `tests/contract/test_foundry_facade_contracts.py`, `tests/contract/test_foundry_input_bindings_contract.py`, `tests/foundry/compile/test_trinity_compiler.py`, `tests/foundry/test_trinity_field_coverage.py` |
-| Schema snapshots | `schemas/snapshots/ir/trinity_bundle.schema.json`, `schemas/snapshots/ir/model_spec.schema.json`, `schemas/snapshots/ir/policy_spec.schema.json` |
-| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |
+| Link type           | Current anchor                                                                                                                                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source plan phase   | D1-L4 Phase 0 Trinity/linker contract and Phase 2 compiler pipeline inputs                                                                                                                                    |
+| Contract tests      | `tests/contract/test_foundry_facade_contracts.py`, `tests/contract/test_foundry_input_bindings_contract.py`, `tests/foundry/compile/test_trinity_compiler.py`, `tests/foundry/test_trinity_field_coverage.py` |
+| Schema snapshots    | `schemas/snapshots/ir/trinity_bundle.schema.json`, `schemas/snapshots/ir/model_spec.schema.json`, `schemas/snapshots/ir/policy_spec.schema.json`                                                              |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                                        |

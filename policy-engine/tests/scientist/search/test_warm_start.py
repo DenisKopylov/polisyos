@@ -2,25 +2,16 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
-
-import pytest
-
 from polisyos.scientist.search.controller import (
     SearchConfig,
     SearchController,
-    SearchResult,
-    SearchStatus,
 )
 from polisyos.scientist.search.objective import (
     CompositeObjective,
     GDPGrowthObjective,
     InequalityObjective,
-    ObjectiveValue,
-    OptimizationDirection,
 )
 from polisyos.scientist.search.stopping import MaxIterations
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -31,6 +22,7 @@ def _simple_generator():
     class G:
         def generate(self, history, current_best, context):
             return {"param_a": 0.5}
+
     return G()
 
 
@@ -117,10 +109,12 @@ class TestWarmStart:
 class TestParetoFront:
     def test_pareto_front_populated(self):
         config = _make_config(
-            objective=CompositeObjective(objectives=[
-                GDPGrowthObjective(weight=0.5),
-                InequalityObjective(weight=0.5),
-            ]),
+            objective=CompositeObjective(
+                objectives=[
+                    GDPGrowthObjective(weight=0.5),
+                    InequalityObjective(weight=0.5),
+                ]
+            ),
         )
 
         call_count = [0]

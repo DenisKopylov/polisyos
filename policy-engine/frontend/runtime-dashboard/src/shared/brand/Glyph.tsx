@@ -145,7 +145,8 @@ export function Glyph({
       {strokeStyle === "double" ? (
         <g
           style={{
-            transform: "translate(12px, 12px) scale(0.72) translate(-12px, -12px)",
+            transform:
+              "translate(12px, 12px) scale(0.72) translate(-12px, -12px)",
             transformOrigin: "center",
           }}
         >

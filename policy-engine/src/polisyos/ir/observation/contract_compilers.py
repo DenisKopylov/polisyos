@@ -4,20 +4,19 @@ Each compiler consumes a typed observation contract, validates shape and
 lineage, and emits a ``CompiledObservationArtifact`` plus a bundle manifest
 that advertises which downstream runtime protocol can consume the payload.
 """
+
 from __future__ import annotations
 
 import json
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import date
 from pathlib import Path
-from typing import Any, Literal, Mapping, Sequence
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir._validation import ensure_unique_ids
 from polisyos.foundry.methods.catalog.causal.protocols import (
     DynamicTreatmentData,
     NetworkCausalData,
@@ -31,7 +30,8 @@ from polisyos.foundry.methods.catalog.network.protocols import (
     MultiplexNetworkData,
     NetworkData,
 )
-from polisyos.ir.analytics.causal_graph import CausalGraphModel
+from polisyos.ir._validation import ensure_unique_ids
+from polisyos.ir.analytics.microsim_calibration import build_microsim_calibration_report
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 from polisyos.ir.observation.bundles import (
     BACKTEST_PLAN_TARGET,
@@ -81,6 +81,16 @@ from polisyos.ir.observation.measurement import (
 )
 from polisyos.scientist.backtesting.plan import HistoricalValidationPlan, PredictionSource
 
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+    from datetime import date
+
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+else:
+    from datetime import date
+
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
 
@@ -103,7 +113,9 @@ class ObservationContractCompileError(ValueError):
 class ObservationContractLoadError(ValueError):
     """Load/parse error raised while reading serialized observation artifacts."""
 
-    def __init__(self, message: str, *, artifact_path: str | None = None, field_name: str | None = None) -> None:
+    def __init__(
+        self, message: str, *, artifact_path: str | None = None, field_name: str | None = None
+    ) -> None:
         self.artifact_path = artifact_path
         self.field_name = field_name
         location = f" path={artifact_path}" if artifact_path else ""
@@ -127,7 +139,7 @@ class BoundsEstimationInput(_MutableModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "BoundsEstimationInput":
+    def _validate_shapes(self) -> BoundsEstimationInput:
         n_obs = len(self.outcome)
         if len(self.treatment) != n_obs:
             raise ValueError("treatment length must match outcome length")
@@ -148,7 +160,7 @@ class SpecificationCurveInput(_MutableModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "SpecificationCurveInput":
+    def _validate_shapes(self) -> SpecificationCurveInput:
         n_specs = len(self.specification_ids)
         if len(self.estimates) != n_specs or len(self.standard_errors) != n_specs:
             raise ValueError("specification_ids, estimates, and standard_errors must align")
@@ -169,7 +181,7 @@ class LeontiefIOInput(_MutableModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "LeontiefIOInput":
+    def _validate_shapes(self) -> LeontiefIOInput:
         n = len(self.technical_coefficients)
         if any(len(row) != n for row in self.technical_coefficients):
             raise ValueError("technical_coefficients must be square")
@@ -184,6 +196,7 @@ class LeontiefIOInput(_MutableModel):
 
 class GraphEdge(KernelModel):
     """Represent one directed weighted edge in a network contract payload."""
+
     src_id: str = Field(..., min_length=1, max_length=128)
     dst_id: str = Field(..., min_length=1, max_length=128)
     weight: float = 1.0
@@ -191,6 +204,7 @@ class GraphEdge(KernelModel):
 
 class GraphBipartiteEdge(KernelModel):
     """Represent one treatment-to-outcome edge for bipartite exposure graphs."""
+
     treatment_node_id: str = Field(..., min_length=1, max_length=128)
     outcome_node_id: str = Field(..., min_length=1, max_length=128)
 
@@ -216,7 +230,7 @@ class GraphArtifacts(KernelModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_graph(self) -> "GraphArtifacts":
+    def _validate_graph(self) -> GraphArtifacts:
         ensure_unique_ids(self.node_ids, key_fn=lambda item: item, label="node_ids")
         unknown_nodes: set[str] = set()
         node_set = set(self.node_ids)
@@ -243,6 +257,7 @@ class GraphArtifacts(KernelModel):
 
 class FirmEventRecord(KernelModel):
     """Store one firm entry/exit or censoring event used by survival compilers."""
+
     firm_id: str = Field(..., min_length=1, max_length=128)
     entry_date: date
     exit_date: date | None = None
@@ -251,7 +266,7 @@ class FirmEventRecord(KernelModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_event(self) -> "FirmEventRecord":
+    def _validate_event(self) -> FirmEventRecord:
         if self.exit_date is None and self.censor_date is None:
             raise ValueError("either exit_date or censor_date is required")
         end_date = self.exit_date or self.censor_date
@@ -270,6 +285,7 @@ class FirmEvents(KernelModel):
 
 class FirmPanelRow(KernelModel):
     """Store one firm-period metric row for panel and econometric compilers."""
+
     firm_id: str = Field(..., min_length=1, max_length=128)
     period_start: date
     period_end: date
@@ -277,7 +293,7 @@ class FirmPanelRow(KernelModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_row(self) -> "FirmPanelRow":
+    def _validate_row(self) -> FirmPanelRow:
         if self.period_end < self.period_start:
             raise ValueError("period_end must be >= period_start")
         return self
@@ -293,6 +309,7 @@ class FirmPanels(KernelModel):
 
 class RegionSectorFlowRow(KernelModel):
     """Store one inter-region/inter-sector flow used to assemble Leontief matrices."""
+
     from_region_code: str = Field(..., min_length=1, max_length=32)
     from_sector_id: str = Field(..., min_length=1, max_length=64)
     to_region_code: str = Field(..., min_length=1, max_length=32)
@@ -323,7 +340,7 @@ class ProxyMap(KernelModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_proxy_map(self) -> "ProxyMap":
+    def validate_proxy_map(self) -> ProxyMap:
         ensure_unique_ids(
             self.mapping.values(),
             key_fn=lambda value: value,
@@ -334,6 +351,7 @@ class ProxyMap(KernelModel):
 
 class SurveyMicroDataCompileSpec(KernelModel):
     """Declare which household metrics become survey-microdata fields."""
+
     spec_id: str = Field(..., pattern=ID_PATTERN)
     income_metric_id: str = Field(..., min_length=1, max_length=120)
     weight_metric_id: str = Field(..., min_length=1, max_length=120)
@@ -344,6 +362,7 @@ class SurveyMicroDataCompileSpec(KernelModel):
 
 class NetworkContractCompileSpec(KernelModel):
     """Configure graph-layer ordering and dense/sparse materialization for network bundles."""
+
     spec_id: str = Field(..., pattern=ID_PATTERN)
     primary_layer: MultiplexGraphLayerId | None = None
     layer_order: list[MultiplexGraphLayerId] = Field(default_factory=list)
@@ -355,6 +374,7 @@ class NetworkContractCompileSpec(KernelModel):
 
 class NetworkCausalCompileSpec(KernelModel):
     """Select outcome/treatment/covariate metrics for interference-aware network causal data."""
+
     spec_id: str = Field(..., pattern=ID_PATTERN)
     outcome_metric_id: str = Field(..., min_length=1, max_length=120)
     treatment_metric_id: str = Field(..., min_length=1, max_length=120)
@@ -366,6 +386,7 @@ class NetworkCausalCompileSpec(KernelModel):
 
 class PanelObservationalCompileSpec(KernelModel):
     """Select panel outcome/treatment/covariate metrics for causal panel compilation."""
+
     spec_id: str = Field(..., pattern=ID_PATTERN)
     outcome_metric_id: str = Field(..., min_length=1, max_length=120)
     treatment_metric_id: str = Field(..., min_length=1, max_length=120)
@@ -376,6 +397,7 @@ class PanelObservationalCompileSpec(KernelModel):
 
 class DynamicTreatmentCompileSpec(KernelModel):
     """Select metrics required to compile sequential treatment trajectories."""
+
     spec_id: str = Field(..., pattern=ID_PATTERN)
     outcome_metric_id: str = Field(..., min_length=1, max_length=120)
     treatment_metric_id: str = Field(..., min_length=1, max_length=120)
@@ -386,12 +408,14 @@ class DynamicTreatmentCompileSpec(KernelModel):
 
 class SurvivalCompileSpec(KernelModel):
     """Select feature metrics used to compile survival-analysis tables."""
+
     spec_id: str = Field(..., pattern=ID_PATTERN)
     feature_metric_ids: list[str] = Field(..., min_length=1)
 
 
 class PanelEconometricCompileSpec(KernelModel):
     """Select dependent, exogenous, and instrument columns for econometric panels."""
+
     spec_id: str = Field(..., pattern=ID_PATTERN)
     dependent_metric_id: str = Field(..., min_length=1, max_length=120)
     exog_metric_ids: list[str] = Field(..., min_length=1)
@@ -400,6 +424,7 @@ class PanelEconometricCompileSpec(KernelModel):
 
 class BoundsEstimationCompileSpec(KernelModel):
     """Select outcome/treatment and optional IV/selection/proxy channels for bounds input."""
+
     spec_id: str = Field(..., pattern=ID_PATTERN)
     outcome_metric_id: str = Field(..., min_length=1, max_length=120)
     treatment_metric_id: str = Field(..., min_length=1, max_length=120)
@@ -410,6 +435,7 @@ class BoundsEstimationCompileSpec(KernelModel):
 
 class ProxyMeasurementCompileSpec(KernelModel):
     """Declare proxy and validation metrics for latent-treatment measurement bundles."""
+
     spec_id: str = Field(..., pattern=ID_PATTERN)
     outcome_metric_id: str = Field(..., min_length=1, max_length=120)
     treatment_proxy_metric_id: str = Field(..., min_length=1, max_length=120)
@@ -422,6 +448,7 @@ class ProxyMeasurementCompileSpec(KernelModel):
 
 class HistoricalValidationCompileSpec(KernelModel):
     """Specify holdout horizons and metric ids for backtest-plan compilation."""
+
     spec_id: str = Field(..., pattern=ID_PATTERN)
     metric_ids: list[str] = Field(..., min_length=1)
     intervention_date: str = Field(..., min_length=1, max_length=64)
@@ -435,6 +462,7 @@ class HistoricalValidationCompileSpec(KernelModel):
 
 class SpecificationCurveSourceSpec(KernelModel):
     """Describe one source/family combination to include in a specification curve."""
+
     source_combination_id: str = Field(..., min_length=1, max_length=120)
     included_metric_ids: list[str] = Field(..., min_length=1)
     included_families: list[ObservationFamily] = Field(default_factory=list)
@@ -444,12 +472,14 @@ class SpecificationCurveSourceSpec(KernelModel):
 
 class SpecificationCurveCompileSpec(KernelModel):
     """Wrap the source combinations used to compile specification-curve inputs."""
+
     spec_id: str = Field(..., pattern=ID_PATTERN)
     source_specifications: list[SpecificationCurveSourceSpec] = Field(..., min_length=1)
 
 
 class LeontiefIOCompileSpec(KernelModel):
     """Tag a region-sector panel compilation request for Leontief IO output."""
+
     spec_id: str = Field(..., pattern=ID_PATTERN)
     reference_period: date | None = None
 
@@ -457,6 +487,7 @@ class LeontiefIOCompileSpec(KernelModel):
 @dataclass(frozen=True)
 class CompiledObservationArtifact:
     """Bundle one compiler output contract together with its persisted manifest."""
+
     compiler_id: str
     artifact_key: str
     contract: Any
@@ -466,6 +497,7 @@ class CompiledObservationArtifact:
 @dataclass(frozen=True)
 class HistoricalValidationCompilation:
     """Pair a generated backtest plan with the payload snapshot used to run it."""
+
     plans: list[HistoricalValidationPlan]
     historical_payloads: dict[str, dict[str, Any]]
     bundle: BacktestPlanBundle
@@ -474,6 +506,7 @@ class HistoricalValidationCompilation:
 @dataclass(frozen=True)
 class ObservationContractSuiteResult:
     """Collect all compiled artifacts plus the observation-to-contract manifest."""
+
     artifacts: dict[str, CompiledObservationArtifact]
     backtest: HistoricalValidationCompilation | None
     manifest: ObservationToContractManifest
@@ -504,12 +537,12 @@ def _lineage_from_panel(panel: ObservationPanel) -> list[BundleLineageRef]:
     ]
 
 
-def _sorted_periods(records: Sequence[ObservationRecord], *, metric_ids: Sequence[str] | None = None) -> list[date]:
+def _sorted_periods(
+    records: Sequence[ObservationRecord], *, metric_ids: Sequence[str] | None = None
+) -> list[date]:
     allowed = set(metric_ids or [])
     values = {
-        record.period_start
-        for record in records
-        if not allowed or record.metric_id in allowed
+        record.period_start for record in records if not allowed or record.metric_id in allowed
     }
     return sorted(values)
 
@@ -682,7 +715,9 @@ class SparseDenseBridge:
                 raise ValueError(f"requested node ids not in graph: {missing}")
             return requested
         if graph.index_map:
-            return [node_id for node_id, _ in sorted(graph.index_map.items(), key=lambda item: item[1])]
+            return [
+                node_id for node_id, _ in sorted(graph.index_map.items(), key=lambda item: item[1])
+            ]
         return sorted(graph.node_ids)
 
     def materialize_layer(
@@ -721,7 +756,9 @@ class SparseDenseBridge:
         for layer_idx, layer_id in enumerate(layer_order):
             for edge in graph.layer_edges.get(layer_id, []):
                 if edge.src_id in index_map and edge.dst_id in index_map:
-                    layers[layer_idx, index_map[edge.src_id], index_map[edge.dst_id]] = float(edge.weight)
+                    layers[layer_idx, index_map[edge.src_id], index_map[edge.dst_id]] = float(
+                        edge.weight
+                    )
         return layers, node_order, index_map
 
     def low_rank_factors(self, adjacency: np.ndarray, *, rank: int) -> dict[str, list[list[float]]]:
@@ -763,6 +800,7 @@ class SurveyMicroDataCompiler:
     period with income, weights, and every requested feature metric present for
     each retained survey unit.
     """
+
     compiler_id = "observation.survey_microdata"
 
     def __init__(self, context: ObservationCompilerContext | None = None) -> None:
@@ -816,6 +854,13 @@ class SurveyMicroDataCompiler:
             household_ids=np.asarray(units),
             features=feature_matrix,
             feature_names=list(spec.feature_metric_ids) or None,
+            microsim_calibration_report=build_microsim_calibration_report(
+                compatibility_status="compatible",
+                metadata={
+                    "source": "observation.survey_microdata",
+                    "compiler_id": self.compiler_id,
+                },
+            ).model_dump(mode="json"),
             metadata={
                 "data_shape": "survey_microdata",
                 "panel_id": panel.panel_id,
@@ -845,6 +890,7 @@ class NetworkContractCompiler:
     layers, optional features, and requested materialization settings can all
     be resolved consistently under the configured size limits.
     """
+
     compiler_id = "observation.network_contract"
 
     def __init__(self, context: ObservationCompilerContext | None = None) -> None:
@@ -855,7 +901,9 @@ class NetworkContractCompiler:
         graph: GraphArtifacts,
         spec: NetworkContractCompileSpec,
     ) -> dict[str, CompiledObservationArtifact]:
-        layer_order = list(spec.layer_order or sorted(graph.layer_edges, key=lambda layer: layer.value))
+        layer_order = list(
+            spec.layer_order or sorted(graph.layer_edges, key=lambda layer: layer.value)
+        )
         if not layer_order:
             raise ObservationContractCompileError(
                 "graph has no layers to compile",
@@ -881,11 +929,13 @@ class NetworkContractCompiler:
                 "node_index_map": index_map,
             },
         )
-        multiplex_layers, multiplex_order, multiplex_index_map = self.context.bridge.materialize_multiplex(
-            graph,
-            layer_order=layer_order,
-            materialize_node_ids=spec.materialize_node_ids,
-            max_bytes=spec.dense_max_bytes,
+        multiplex_layers, multiplex_order, multiplex_index_map = (
+            self.context.bridge.materialize_multiplex(
+                graph,
+                layer_order=layer_order,
+                materialize_node_ids=spec.materialize_node_ids,
+                max_bytes=spec.dense_max_bytes,
+            )
         )
         multiplex_contract = MultiplexNetworkData(
             adjacency_layers=multiplex_layers,
@@ -911,14 +961,19 @@ class NetworkContractCompiler:
                     rank=spec.low_rank_rank,
                 )
         sparse_edges = {
-            layer_id.value: [edge.model_dump(mode="json") for edge in graph.layer_edges.get(layer_id, [])]
+            layer_id.value: [
+                edge.model_dump(mode="json") for edge in graph.layer_edges.get(layer_id, [])
+            ]
             for layer_id in layer_order
         }
         bundle = NetworkContractBundle(
-            contract_targets=[NETWORK_ANALYSIS_TARGET, ContractCompatibilityTarget(
-                contract_id=MultiplexNetworkData.contract_id,
-                contract_fqn="polisyos.foundry.methods.catalog.network.protocols.MultiplexNetworkData",
-            )],
+            contract_targets=[
+                NETWORK_ANALYSIS_TARGET,
+                ContractCompatibilityTarget(
+                    contract_id=MultiplexNetworkData.contract_id,
+                    contract_fqn="polisyos.foundry.methods.catalog.network.protocols.MultiplexNetworkData",
+                ),
+            ],
             graph_layers=list(layer_order),
             source_artifacts=[graph.artifact_id],
             node_order=node_order,
@@ -946,7 +1001,9 @@ class NetworkContractCompiler:
             ),
         }
 
-    def _node_features(self, graph: GraphArtifacts, spec: NetworkContractCompileSpec) -> np.ndarray | None:
+    def _node_features(
+        self, graph: GraphArtifacts, spec: NetworkContractCompileSpec
+    ) -> np.ndarray | None:
         feature_names = list(spec.node_feature_names)
         if not feature_names:
             union_names = {name for values in graph.node_features.values() for name in values}
@@ -968,7 +1025,9 @@ class NetworkContractCompiler:
         if not graph.node_states:
             return None
         ordered_nodes = self.context.bridge.node_order(graph)
-        return np.asarray([graph.node_states.get(node_id, 0.0) for node_id in ordered_nodes], dtype=float)
+        return np.asarray(
+            [graph.node_states.get(node_id, 0.0) for node_id in ordered_nodes], dtype=float
+        )
 
 
 class NetworkCausalDataCompiler:
@@ -979,6 +1038,7 @@ class NetworkCausalDataCompiler:
     with graph nodes and provide outcome/treatment values for every retained
     node at the chosen reference period.
     """
+
     compiler_id = "observation.network_causal"
 
     def __init__(self, context: ObservationCompilerContext | None = None) -> None:
@@ -1006,7 +1066,10 @@ class NetworkCausalDataCompiler:
             compiler_id=self.compiler_id,
         )
         treatment = np.asarray(
-            [1.0 if treatment_map[node_id] >= spec.treatment_threshold else 0.0 for node_id in node_order],
+            [
+                1.0 if treatment_map[node_id] >= spec.treatment_threshold else 0.0
+                for node_id in node_order
+            ],
             dtype=float,
         )
         covariates = _baseline_covariates(
@@ -1016,7 +1079,9 @@ class NetworkCausalDataCompiler:
             baseline_period=reference_period,
             compiler_id=self.compiler_id,
         )
-        chosen_layer = spec.structure_layer or sorted(graph.layer_edges, key=lambda item: item.value)[0]
+        chosen_layer = (
+            spec.structure_layer or sorted(graph.layer_edges, key=lambda item: item.value)[0]
+        )
         adjacency, _, index_map = self.context.bridge.materialize_layer(
             graph,
             layer_id=chosen_layer,
@@ -1024,10 +1089,14 @@ class NetworkCausalDataCompiler:
         )
         cluster_id = None
         if graph.cluster_ids:
-            cluster_id = np.asarray([graph.cluster_ids.get(node_id, -1) for node_id in node_order], dtype=int)
+            cluster_id = np.asarray(
+                [graph.cluster_ids.get(node_id, -1) for node_id in node_order], dtype=int
+            )
         coordinates = None
         if graph.coordinates:
-            coordinates = np.asarray([graph.coordinates[node_id] for node_id in node_order], dtype=float)
+            coordinates = np.asarray(
+                [graph.coordinates[node_id] for node_id in node_order], dtype=float
+            )
         bipartite_edges = None
         if graph.bipartite_edges:
             bipartite_edges = np.asarray(
@@ -1077,6 +1146,7 @@ class PanelObservationalCompiler:
     periods, with outcome, treatment, and requested covariates available on a
     common panel grid.
     """
+
     compiler_id = "observation.panel_observational"
 
     def __init__(self, context: ObservationCompilerContext | None = None) -> None:
@@ -1089,7 +1159,11 @@ class PanelObservationalCompiler:
     ) -> CompiledObservationArtifact:
         units = _panel_units(
             panel,
-            metric_ids=[spec.outcome_metric_id, spec.treatment_metric_id, *spec.covariate_metric_ids],
+            metric_ids=[
+                spec.outcome_metric_id,
+                spec.treatment_metric_id,
+                *spec.covariate_metric_ids,
+            ],
         )
         periods = _sorted_periods(
             panel.records,
@@ -1128,10 +1202,7 @@ class PanelObservationalCompiler:
             time_treatment = int(treated_periods[0])
         treatment = treated_panel[:, time_treatment:].any(axis=1).astype(int)
         treatment_timing = np.asarray(
-            [
-                int(np.where(row)[0][0]) if row.any() else len(periods)
-                for row in treated_panel
-            ],
+            [int(np.where(row)[0][0]) if row.any() else len(periods) for row in treated_panel],
             dtype=int,
         )
         baseline_period = periods[max(0, min(time_treatment - 1, len(periods) - 1))]
@@ -1206,8 +1277,8 @@ class PanelObservationalCompiler:
             )
             for unit_idx, unit_id in enumerate(units):
                 for period_idx, period in enumerate(periods):
-                    covariate_values.setdefault((unit_id, period.isoformat()), {})[metric_id] = float(
-                        matrix[unit_idx, period_idx]
+                    covariate_values.setdefault((unit_id, period.isoformat()), {})[metric_id] = (
+                        float(matrix[unit_idx, period_idx])
                     )
         for unit_idx, unit_id in enumerate(units):
             for period_idx, period in enumerate(periods):
@@ -1230,6 +1301,7 @@ class DynamicTreatmentCompiler:
     must provide a common unit-by-period panel with every covariate layer
     present and a treatment series that can be thresholded into a sequence.
     """
+
     compiler_id = "observation.dynamic_treatment"
 
     def __init__(self, context: ObservationCompilerContext | None = None) -> None:
@@ -1242,11 +1314,19 @@ class DynamicTreatmentCompiler:
     ) -> CompiledObservationArtifact:
         units = _panel_units(
             panel,
-            metric_ids=[spec.outcome_metric_id, spec.treatment_metric_id, *spec.covariate_metric_ids],
+            metric_ids=[
+                spec.outcome_metric_id,
+                spec.treatment_metric_id,
+                *spec.covariate_metric_ids,
+            ],
         )
         periods = _sorted_periods(
             panel.records,
-            metric_ids=[spec.outcome_metric_id, spec.treatment_metric_id, *spec.covariate_metric_ids],
+            metric_ids=[
+                spec.outcome_metric_id,
+                spec.treatment_metric_id,
+                *spec.covariate_metric_ids,
+            ],
         )
         outcome_matrix = _panel_matrix(
             panel,
@@ -1302,8 +1382,12 @@ class DynamicTreatmentCompiler:
             contract_target=DYNAMIC_TREATMENT_TARGET,
             required_arrays=[
                 RequiredArraySpec(name="outcome", axes=["unit"], dtype="float64"),
-                RequiredArraySpec(name="treatment_sequence", axes=["unit", "period"], dtype="int64"),
-                RequiredArraySpec(name="covariate_sequence", axes=["unit", "period", "covariate"], dtype="float64"),
+                RequiredArraySpec(
+                    name="treatment_sequence", axes=["unit", "period"], dtype="int64"
+                ),
+                RequiredArraySpec(
+                    name="covariate_sequence", axes=["unit", "period", "covariate"], dtype="float64"
+                ),
             ],
             axis_semantics=[
                 BundleAxisSemantic(axis="unit", description="Treatment unit axis"),
@@ -1329,6 +1413,7 @@ class SurvivalDataCompiler:
     feature row for every firm in the event set plus valid entry/exit or censor
     dates.
     """
+
     compiler_id = "observation.survival"
 
     def compile(
@@ -1366,7 +1451,9 @@ class SurvivalDataCompiler:
                 "duration": max(duration, 1.0),
                 "event": 1 if record.exit_date is not None else 0,
             }
-            for metric_name, metric_value in zip(spec.feature_metric_ids, feature_vector, strict=False):
+            for metric_name, metric_value in zip(
+                spec.feature_metric_ids, feature_vector, strict=False
+            ):
                 row[metric_name] = metric_value
             rows.append(row)
         contract = SurvivalData(
@@ -1407,7 +1494,9 @@ class SurvivalDataCompiler:
             grouped.setdefault(row.firm_id, row)
         output: dict[str, list[float]] = {}
         for firm_id, row in grouped.items():
-            output[firm_id] = [float(row.metrics[metric_id]) for metric_id in spec.feature_metric_ids]
+            output[firm_id] = [
+                float(row.metrics[metric_id]) for metric_id in spec.feature_metric_ids
+            ]
         return output
 
 
@@ -1419,6 +1508,7 @@ class PanelEconometricCompiler:
     panel for the dependent, exogenous, and optional instrument metrics because
     missing metric lookups fail compilation.
     """
+
     compiler_id = "observation.panel_econometric"
 
     def compile(
@@ -1429,10 +1519,7 @@ class PanelEconometricCompiler:
         rows = sorted(firm_panels.rows, key=lambda item: (item.firm_id, item.period_start))
         dependent = np.asarray([row.metrics[spec.dependent_metric_id] for row in rows], dtype=float)
         exog = np.asarray(
-            [
-                [row.metrics[metric_id] for metric_id in spec.exog_metric_ids]
-                for row in rows
-            ],
+            [[row.metrics[metric_id] for metric_id in spec.exog_metric_ids] for row in rows],
             dtype=float,
         )
         instruments = None
@@ -1493,6 +1580,7 @@ class BoundsInputCompiler:
     retained unit for the requested outcome, treatment, and any optional
     IV/selection/MIV metrics.
     """
+
     compiler_id = "observation.bounds_input"
 
     def compile(
@@ -1505,7 +1593,15 @@ class BoundsInputCompiler:
             metric_ids=[
                 spec.outcome_metric_id,
                 spec.treatment_metric_id,
-                *(item for item in [spec.instrument_metric_id, spec.selected_metric_id, spec.miv_proxy_metric_id] if item),
+                *(
+                    item
+                    for item in [
+                        spec.instrument_metric_id,
+                        spec.selected_metric_id,
+                        spec.miv_proxy_metric_id,
+                    ]
+                    if item
+                ),
             ],
         )
         outcome, period = _latest_metric_vector(
@@ -1587,6 +1683,7 @@ class ProxyMeasurementCompiler:
     latent-to-proxy entries match panel metrics available on the same reference
     period.
     """
+
     compiler_id = "observation.proxy_measurement"
 
     def compile(
@@ -1601,7 +1698,14 @@ class ProxyMeasurementCompiler:
                 spec.outcome_metric_id,
                 spec.treatment_proxy_metric_id,
                 *spec.covariate_metric_ids,
-                *(item for item in [spec.validation_true_treatment_metric_id, spec.validation_proxy_metric_id] if item),
+                *(
+                    item
+                    for item in [
+                        spec.validation_true_treatment_metric_id,
+                        spec.validation_proxy_metric_id,
+                    ]
+                    if item
+                ),
             ],
         )
         outcome, period = _latest_metric_vector(
@@ -1696,6 +1800,7 @@ class HistoricalValidationPlanCompiler:
     Callers must provide enough ordered periods to cover the requested
     pre/post-intervention window for every requested metric.
     """
+
     compiler_id = "observation.historical_validation"
 
     def compile(
@@ -1722,7 +1827,8 @@ class HistoricalValidationPlanCompiler:
         plan = HistoricalValidationPlan(
             plan_id=spec.spec_id,
             plan_label=f"{panel.panel_id}_backtest",
-            historical_data_ref=spec.historical_data_ref or f"compiled://{panel.panel_id}/{spec.spec_id}",
+            historical_data_ref=spec.historical_data_ref
+            or f"compiled://{panel.panel_id}/{spec.spec_id}",
             historical_data_path=spec.historical_data_path,
             intervention_date=spec.intervention_date,
             intervention_step=spec.pre_intervention_periods,
@@ -1737,7 +1843,9 @@ class HistoricalValidationPlanCompiler:
         bundle = BacktestPlanBundle(
             contract_target=BACKTEST_PLAN_TARGET,
             required_fields=["historical_data_ref", "ground_truth_outcomes", "target_metrics"],
-            holdout_windows=[f"{periods[-spec.post_intervention_periods].isoformat()}:{periods[-1].isoformat()}"],
+            holdout_windows=[
+                f"{periods[-spec.post_intervention_periods].isoformat()}:{periods[-1].isoformat()}"
+            ],
             plans=[plan],
             historical_payloads={plan.plan_id: historical_payload},
         )
@@ -1758,10 +1866,7 @@ class HistoricalValidationPlanCompiler:
         for record in panel.records:
             if record.metric_id == metric_id:
                 values_by_period[record.period_start].append(float(record.observed_value))
-        return [
-            float(np.mean(values_by_period[period]))
-            for period in periods
-        ]
+        return [float(np.mean(values_by_period[period])) for period in periods]
 
 
 class SpecificationCurveCompiler:
@@ -1772,6 +1877,7 @@ class SpecificationCurveCompiler:
     periods for every included metric in each source specification so effect
     deltas can be computed.
     """
+
     compiler_id = "observation.specification_curve"
 
     def compile(
@@ -1795,7 +1901,9 @@ class SpecificationCurveCompiler:
                 )
             )
         contract = SpecificationCurveInput(
-            specification_ids=[source.source_combination_id for source in spec.source_specifications],
+            specification_ids=[
+                source.source_combination_id for source in spec.source_specifications
+            ],
             estimates=estimates,
             standard_errors=standard_errors,
             metadata={"panel_id": panel.panel_id, "family": panel.family.value},
@@ -1848,7 +1956,11 @@ class SpecificationCurveCompiler:
             last_mean = float(np.mean(last_period_values))
             per_metric_effects.append(last_mean - first_mean)
         estimate = float(np.mean(per_metric_effects))
-        standard_error = float(np.std(per_metric_effects, ddof=1) / max(len(per_metric_effects), 1) ** 0.5) if len(per_metric_effects) > 1 else 0.1
+        standard_error = (
+            float(np.std(per_metric_effects, ddof=1) / max(len(per_metric_effects), 1) ** 0.5)
+            if len(per_metric_effects) > 1
+            else 0.1
+        )
         return estimate, max(standard_error, 1e-6)
 
 
@@ -1860,6 +1972,7 @@ class LeontiefIOCompiler:
     consistent region/sector flow table whose rows aggregate into a square
     coefficient matrix.
     """
+
     compiler_id = "observation.leontief_io"
 
     def compile(
@@ -1869,14 +1982,8 @@ class LeontiefIOCompiler:
     ) -> CompiledObservationArtifact:
         del spec
         node_keys = sorted(
-            {
-                f"{row.from_region_code}:{row.from_sector_id}"
-                for row in panels.rows
-            }
-            | {
-                f"{row.to_region_code}:{row.to_sector_id}"
-                for row in panels.rows
-            }
+            {f"{row.from_region_code}:{row.from_sector_id}" for row in panels.rows}
+            | {f"{row.to_region_code}:{row.to_sector_id}" for row in panels.rows}
         )
         index_map = {key: idx for idx, key in enumerate(node_keys)}
         matrix = np.zeros((len(node_keys), len(node_keys)), dtype=float)
@@ -1888,8 +1995,13 @@ class LeontiefIOCompiler:
             matrix[index_map[src_key], index_map[dst_key]] += float(row.technical_coefficient)
             final_demand[index_map[dst_key]] += float(row.final_demand)
             value_added[index_map[src_key]] += float(row.value_added)
-        regions = sorted({row.from_region_code for row in panels.rows} | {row.to_region_code for row in panels.rows})
-        sectors = sorted({row.from_sector_id for row in panels.rows} | {row.to_sector_id for row in panels.rows})
+        regions = sorted(
+            {row.from_region_code for row in panels.rows}
+            | {row.to_region_code for row in panels.rows}
+        )
+        sectors = sorted(
+            {row.from_sector_id for row in panels.rows} | {row.to_sector_id for row in panels.rows}
+        )
         sector_index_map = {name: idx for idx, name in enumerate(node_keys)}
         contract = LeontiefIOInput(
             technical_coefficients=matrix.tolist(),
@@ -1974,7 +2086,7 @@ def load_npz_payload(path: str | Path) -> dict[str, Any]:
                 else:
                     raw = str(raw_value)
                 stripped = raw.strip()
-                if stripped.startswith(("{", "[", "\"")):
+                if stripped.startswith(("{", "[", '"')):
                     try:
                         payload[key] = json.loads(raw)
                     except json.JSONDecodeError as exc:
@@ -1994,7 +2106,9 @@ def write_parquet_rows(rows: Sequence[Mapping[str, Any]], path: str | Path) -> P
     """Write tabular contract rows to Parquet with deterministic row ordering."""
     destination = Path(path)
     frame = pd.DataFrame(list(rows))
-    sort_columns = [column for column in ("unit_id", "firm_id", "period_id") if column in frame.columns]
+    sort_columns = [
+        column for column in ("unit_id", "firm_id", "period_id") if column in frame.columns
+    ]
     if sort_columns:
         frame = frame.sort_values(sort_columns)
     frame.to_parquet(destination, index=False)
@@ -2054,10 +2168,14 @@ class ObservationContractCompilerSuite:
     ) -> ObservationContractSuiteResult:
         artifacts: dict[str, CompiledObservationArtifact] = {}
         manifest_artifacts: list[ObservationContractArtifact] = []
-        routes: dict[tuple[ObservationFamily, IdentificationMode, str], ObservationContractRoute] = {}
+        routes: dict[
+            tuple[ObservationFamily, IdentificationMode, str], ObservationContractRoute
+        ] = {}
         backtest_result: HistoricalValidationCompilation | None = None
 
-        def _register(artifact: CompiledObservationArtifact, *, family: ObservationFamily | None) -> None:
+        def _register(
+            artifact: CompiledObservationArtifact, *, family: ObservationFamily | None
+        ) -> None:
             artifacts[artifact.artifact_key] = artifact
             target_contract = self._target_contract_for_artifact(artifact)
             route_mode = self._route_mode_for_artifact(artifact)
@@ -2082,29 +2200,55 @@ class ObservationContractCompilerSuite:
                 )
 
         if observation_panel is not None and survey_spec is not None:
-            _register(self.survey.compile(observation_panel, survey_spec), family=observation_panel.family)
+            _register(
+                self.survey.compile(observation_panel, survey_spec), family=observation_panel.family
+            )
         if graph_artifacts is not None and network_spec is not None:
             for artifact in self.network.compile(graph_artifacts, network_spec).values():
                 _register(artifact, family=None)
-        if observation_panel is not None and graph_artifacts is not None and network_causal_spec is not None:
+        if (
+            observation_panel is not None
+            and graph_artifacts is not None
+            and network_causal_spec is not None
+        ):
             _register(
-                self.network_causal.compile(observation_panel, graph_artifacts, network_causal_spec),
+                self.network_causal.compile(
+                    observation_panel, graph_artifacts, network_causal_spec
+                ),
                 family=observation_panel.family,
             )
         if observation_panel is not None and panel_spec is not None:
-            _register(self.panel.compile(observation_panel, panel_spec), family=observation_panel.family)
+            _register(
+                self.panel.compile(observation_panel, panel_spec), family=observation_panel.family
+            )
         if observation_panel is not None and dynamic_treatment_spec is not None:
-            _register(self.dynamic.compile(observation_panel, dynamic_treatment_spec), family=observation_panel.family)
+            _register(
+                self.dynamic.compile(observation_panel, dynamic_treatment_spec),
+                family=observation_panel.family,
+            )
         if firm_events is not None and firm_panels is not None and survival_spec is not None:
-            _register(self.survival.compile(firm_events, firm_panels, survival_spec), family=ObservationFamily.FIRM_FUNDAMENTALS)
+            _register(
+                self.survival.compile(firm_events, firm_panels, survival_spec),
+                family=ObservationFamily.FIRM_FUNDAMENTALS,
+            )
         if firm_panels is not None and panel_econometric_spec is not None:
-            _register(self.panel_econometric.compile(firm_panels, panel_econometric_spec), family=ObservationFamily.FIRM_FUNDAMENTALS)
+            _register(
+                self.panel_econometric.compile(firm_panels, panel_econometric_spec),
+                family=ObservationFamily.FIRM_FUNDAMENTALS,
+            )
         if observation_panel is not None and bounds_spec is not None:
-            _register(self.bounds.compile(observation_panel, bounds_spec), family=observation_panel.family)
+            _register(
+                self.bounds.compile(observation_panel, bounds_spec), family=observation_panel.family
+            )
         if observation_panel is not None and proxy_map is not None and proxy_spec is not None:
-            _register(self.proxy.compile(observation_panel, proxy_map, proxy_spec), family=observation_panel.family)
+            _register(
+                self.proxy.compile(observation_panel, proxy_map, proxy_spec),
+                family=observation_panel.family,
+            )
         if observation_panel is not None and historical_validation_spec is not None:
-            backtest_result = self.historical_validation.compile(observation_panel, historical_validation_spec)
+            backtest_result = self.historical_validation.compile(
+                observation_panel, historical_validation_spec
+            )
             manifest_artifacts.append(
                 ObservationContractArtifact(
                     compiler_id=self.historical_validation.compiler_id,
@@ -2114,7 +2258,11 @@ class ObservationContractCompilerSuite:
                 )
             )
             routes.setdefault(
-                (observation_panel.family, IdentificationMode.POINT_IDENTIFIED, BACKTEST_PLAN_TARGET.contract_id),
+                (
+                    observation_panel.family,
+                    IdentificationMode.POINT_IDENTIFIED,
+                    BACKTEST_PLAN_TARGET.contract_id,
+                ),
                 ObservationContractRoute(
                     family=observation_panel.family,
                     identification_mode=IdentificationMode.POINT_IDENTIFIED,
@@ -2122,12 +2270,24 @@ class ObservationContractCompilerSuite:
                 ),
             )
         if observation_panel is not None and specification_curve_spec is not None:
-            _register(self.specification_curve.compile(observation_panel, specification_curve_spec), family=observation_panel.family)
+            _register(
+                self.specification_curve.compile(observation_panel, specification_curve_spec),
+                family=observation_panel.family,
+            )
         if region_sector_panels is not None and leontief_spec is not None:
-            _register(self.leontief.compile(region_sector_panels, leontief_spec), family=ObservationFamily.TRADE_EXPOSURE)
+            _register(
+                self.leontief.compile(region_sector_panels, leontief_spec),
+                family=ObservationFamily.TRADE_EXPOSURE,
+            )
 
         if not routes:
-            routes[(ObservationFamily.MACRO_STATE, IdentificationMode.POINT_IDENTIFIED, SURVEY_MICRODATA_TARGET.contract_id)] = ObservationContractRoute(
+            routes[
+                (
+                    ObservationFamily.MACRO_STATE,
+                    IdentificationMode.POINT_IDENTIFIED,
+                    SURVEY_MICRODATA_TARGET.contract_id,
+                )
+            ] = ObservationContractRoute(
                 family=ObservationFamily.MACRO_STATE,
                 identification_mode=IdentificationMode.POINT_IDENTIFIED,
                 target_contract=SURVEY_MICRODATA_TARGET,
@@ -2226,8 +2386,8 @@ __all__ = [
     "NetworkContractCompiler",
     "ObservationCompilerContext",
     "ObservationContractCompileError",
-    "ObservationContractLoadError",
     "ObservationContractCompilerSuite",
+    "ObservationContractLoadError",
     "ObservationContractSuiteResult",
     "PanelEconometricCompileSpec",
     "PanelEconometricCompiler",
@@ -2238,11 +2398,11 @@ __all__ = [
     "ProxyMeasurementCompiler",
     "RegionSectorFlowRow",
     "RegionSectorPanels",
+    "SparseDenseBridge",
     "SpecificationCurveCompileSpec",
     "SpecificationCurveCompiler",
     "SpecificationCurveInput",
     "SpecificationCurveSourceSpec",
-    "SparseDenseBridge",
     "SurveyMicroDataCompileSpec",
     "SurveyMicroDataCompiler",
     "SurvivalCompileSpec",

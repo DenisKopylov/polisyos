@@ -29,9 +29,11 @@ from ._env_utils import (
 )
 
 __all__ = [
+    "DEFAULT_COMMAND_TIMEOUT",
+    "MAX_LIBRARY_BYTES",
+    "SYSTEM_LIBRARY_NAMES",
     "CPUInfo",
     "ContainerInfo",
-    "DEFAULT_COMMAND_TIMEOUT",
     "DependencyInfo",
     "EnvironmentDiff",
     "EnvironmentManifest",
@@ -39,11 +41,9 @@ __all__ = [
     "GPUInfo",
     "GitInfo",
     "JAXInfo",
-    "MAX_LIBRARY_BYTES",
     "OSInfo",
     "PythonInfo",
     "RiskLevel",
-    "SYSTEM_LIBRARY_NAMES",
     "SystemLibraryInfo",
     "TEEInfo",
     "capture_environment",

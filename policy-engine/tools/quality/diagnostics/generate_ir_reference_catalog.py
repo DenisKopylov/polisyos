@@ -5,9 +5,10 @@ import argparse
 import json
 import sys
 from collections import Counter
+from collections.abc import Iterable
 from pathlib import Path
+
 from tools._lib.imports import repo_root_from
-from typing import Iterable
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -64,15 +65,22 @@ def generate_reference_docs(*, check: bool = False) -> list[str]:
     return errors
 
 
+def _md_cell(value: object) -> str:
+    text = str(value)
+    return text.replace("\\", "\\\\").replace("|", "\\|").replace("\n", "<br/>")
+
+
 def render_ir_schema_catalog(catalog: IRSchemaCatalog) -> str:
     lines: list[str] = [
         "# IR Schema Catalog",
+        "",
         "Related reference: [Schemas](../schemas.md).",
         "",
         "> This page is generated from `polisyos.ir.schema_catalog` "
         "and the current package facades.",
         "",
         "Canonical regeneration command (snapshots + reference docs):",
+        "",
         "```bash",
         "PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py",
         "```",
@@ -91,11 +99,11 @@ def render_ir_schema_catalog(catalog: IRSchemaCatalog) -> str:
                 "- Export enumeration covers these public packages:",
                 "",
                 "| Package | Export count |",
-                "|---------|--------------|",
+                "| ------- | ------------ |",
             ]
         )
         for package in sorted(export_counts):
-            lines.append(f"| `{package}` | {export_counts[package]} |")
+            lines.append(f"| `{_md_cell(package)}` | {export_counts[package]} |")
         lines.append("")
 
     lines.extend(
@@ -103,14 +111,16 @@ def render_ir_schema_catalog(catalog: IRSchemaCatalog) -> str:
             "## Section Summary",
             "",
             "| Section | Type count | Public types | Snapshot-backed |",
-            "|---------|------------|--------------|-----------------|",
+            "| ------- | ---------- | ------------ | ---------------- |",
         ]
     )
     for section in catalog.sections:
         entries = catalog.list(section=section)
         public_count = sum(entry.public_status is not IRPublicStatus.INTERNAL for entry in entries)
         snapshot_count = sum(entry.abi_key is not None for entry in entries)
-        lines.append(f"| `{section}` | {len(entries)} | {public_count} | {snapshot_count} |")
+        lines.append(
+            f"| `{_md_cell(section)}` | {len(entries)} | {public_count} | {snapshot_count} |"
+        )
     lines.append("")
 
     for section in catalog.sections:
@@ -123,11 +133,13 @@ def render_ir_schema_catalog(catalog: IRSchemaCatalog) -> str:
 def render_schema_reference(catalog: IRSchemaCatalog) -> str:
     lines: list[str] = [
         "# JSON Schema Catalog",
+        "",
         "Related reference: [IR Schema Catalog](ir/schema-catalog.md).",
         "",
         "> This page is generated from the ABI snapshot registry and the IR reflection catalog.",
         "",
         "Canonical regeneration command (snapshots + reference docs):",
+        "",
         "```bash",
         "PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py",
         "```",
@@ -165,8 +177,8 @@ def render_schema_reference(catalog: IRSchemaCatalog) -> str:
             "",
             "| Schema | Type | Section | Version | Priority | Compatibility | "
             "Public status | Docs | Raw path |",
-            "|--------|------|---------|---------|----------|---------------|"
-            "---------------|------|----------|",
+            "| ------ | ---- | ------- | ------- | -------- | ------------- | "
+            "------------- | ---- | -------- |",
         ]
     )
 
@@ -178,8 +190,11 @@ def render_schema_reference(catalog: IRSchemaCatalog) -> str:
         priority = entry.abi_priority or "—"
         lines.append(
             "| "
-            f"`{entry.abi_key}` | `{entry.fqn}` | `{entry.section}` | `{version}` | `{priority}` | "
-            f"`{compat}` | `{entry.public_status.value}` | {docs_link} | `{snapshot_path}` |"
+            f"`{_md_cell(entry.abi_key)}` | `{_md_cell(entry.fqn)}` | "
+            f"`{_md_cell(entry.section)}` | `{_md_cell(version)}` | "
+            f"`{_md_cell(priority)}` | `{_md_cell(compat)}` | "
+            f"`{_md_cell(entry.public_status.value)}` | {docs_link} | "
+            f"`{_md_cell(snapshot_path)}` |"
         )
 
     connector_snapshot = REPO_ROOT / "schemas" / "snapshots" / "connectors" / "contracts.json"
@@ -212,9 +227,7 @@ def _render_type(entry: IRTypeInfo) -> list[str]:
     snapshot_path = abi_snapshot_path(entry) or "—"
     refs = ", ".join(f"`{ref}`" for ref in entry.refs) if entry.refs else "—"
     exports = (
-        ", ".join(f"`{value}`" for value in entry.exported_from)
-        if entry.exported_from
-        else "—"
+        ", ".join(f"`{value}`" for value in entry.exported_from) if entry.exported_from else "—"
     )
     compat = entry.compat_mode.value if entry.compat_mode is not None else "—"
     anchor = entry.docs_link.split("#", 1)[1]
@@ -232,37 +245,38 @@ def _render_type(entry: IRTypeInfo) -> list[str]:
     if entry.summary:
         lines.append(f"- Summary: {entry.summary}")
     if entry.compat_readable_versions:
-        lines.append(
-            f"- Declared readable versions: `{', '.join(entry.compat_readable_versions)}`"
-        )
+        lines.append(f"- Declared readable versions: `{', '.join(entry.compat_readable_versions)}`")
     if entry.compat_writable_versions:
-        lines.append(
-            f"- Declared writable versions: `{', '.join(entry.compat_writable_versions)}`"
-        )
+        lines.append(f"- Declared writable versions: `{', '.join(entry.compat_writable_versions)}`")
     lines.append("")
 
     if entry.enum_values:
         lines.extend(
             [
                 "| Enum values |",
-                "|-------------|",
+                "| ----------- |",
             ]
         )
-        lines.extend(f"| `{value}` |" for value in entry.enum_values)
+        lines.extend(f"| `{_md_cell(value)}` |" for value in entry.enum_values)
         lines.append("")
 
     if entry.fields:
         lines.extend(
             [
                 "| Field | Type | Required | Default | IR refs |",
-                "|-------|------|----------|---------|---------|",
+                "| ----- | ---- | -------- | ------- | ------- |",
             ]
         )
         for field in entry.fields:
-            refs = ", ".join(f"`{ref}`" for ref in field.references) if field.references else "—"
+            refs = (
+                ", ".join(f"`{_md_cell(ref)}`" for ref in field.references)
+                if field.references
+                else "—"
+            )
             lines.append(
-                f"| `{field.name}` | `{field.annotation}` | "
-                f"`{'yes' if field.required else 'no'}` | `{field.default or '—'}` | {refs} |"
+                f"| `{_md_cell(field.name)}` | `{_md_cell(field.annotation)}` | "
+                f"`{'yes' if field.required else 'no'}` | "
+                f"`{_md_cell(field.default or '—')}` | {refs} |"
             )
         lines.append("")
     return lines

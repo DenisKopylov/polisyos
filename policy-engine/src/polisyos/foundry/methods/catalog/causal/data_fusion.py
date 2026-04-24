@@ -44,7 +44,8 @@ from __future__ import annotations
 
 import dataclasses
 import logging
-from typing import Any, ClassVar, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any, ClassVar
 
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
@@ -221,9 +222,7 @@ def multi_study_fusion(
             pass
 
     required_refs = tuple(ds.dataset_ref for ds in datasets if ds.dataset_ref)
-    required_ivs = tuple(
-        iv for ds in datasets for iv in ds.available_interventions
-    )
+    required_ivs = tuple(iv for ds in datasets for iv in ds.available_interventions)
 
     warnings: list[str] = []
     if not identified:
@@ -283,7 +282,7 @@ def optimal_data_combination(
             "returning uniform weights."
         )
         n = max(len(eif_variances), 1)
-        weights = {k: 1.0 / n for k in eif_variances}
+        weights = dict.fromkeys(eif_variances, 1.0 / n)
         return DataCombinationPlan(
             query=query,
             source_weights=weights,
@@ -539,12 +538,16 @@ class DataFusionEngine:
         name="data_fusion",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("graph_json", SlotType.SCALAR, Unit("graph", "json")),
-        }),
-        output_slots=frozenset({
-            SlotSpec("fusion_result", SlotType.SCALAR, Unit("result", "json")),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec("graph_json", SlotType.SCALAR, Unit("graph", "json")),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec("fusion_result", SlotType.SCALAR, Unit("result", "json")),
+            }
+        ),
         parameters=(
             ParameterSpec(name="mode", default="multi_study"),
             ParameterSpec(name="treatment", default=""),
@@ -574,10 +577,19 @@ class DataFusionEngine:
             "Combines observational and experimental datasets with heterogeneous "
             "selection biases to identify causal queries in the target population."
         ),
-        tags=frozenset({
-            "causal", "fusion", "transport", "selection_diagram",
-            "mz_id", "z_id", "tr_algorithm", "ctf_transport", "bareinboim_pearl",
-        }),
+        tags=frozenset(
+            {
+                "causal",
+                "fusion",
+                "transport",
+                "selection_diagram",
+                "mz_id",
+                "z_id",
+                "tr_algorithm",
+                "ctf_transport",
+                "bareinboim_pearl",
+            }
+        ),
         citations=(
             "Bareinboim, E. & Pearl, J. (2016). Causal inference and the "
             "data-fusion problem. PNAS, 113(27), 7345–7352.",
@@ -693,8 +705,8 @@ class DataFusionEngine:
 __all__ = [
     "DataFusionEngine",
     "counterfactual_fusion",
+    "design_external_validity",
     "fuse_experimental_observational",
     "multi_study_fusion",
     "optimal_data_combination",
-    "design_external_validity",
 ]

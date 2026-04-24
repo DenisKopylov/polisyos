@@ -1,9 +1,11 @@
 """Operator-valued causal estimators for multi-output and functional effects."""
+
 from __future__ import annotations
 
 import hashlib
 import json
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -39,9 +41,24 @@ from polisyos.ir.analytics.kernel_causal import (
 def _operator_input_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
-            SlotSpec("outcome", SlotType.MATRIX, Unit("outcome", "value")),
-            SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "value")),
-            SlotSpec("covariates", SlotType.MATRIX, Unit("covariate", "value")),
+            SlotSpec(
+                "outcome",
+                SlotType.MATRIX,
+                Unit("outcome", "value"),
+                shape=("n_obs", "n_outputs"),
+            ),
+            SlotSpec(
+                "treatment",
+                SlotType.VECTOR,
+                Unit("treatment", "value"),
+                shape=("n_obs",),
+            ),
+            SlotSpec(
+                "covariates",
+                SlotType.MATRIX,
+                Unit("covariate", "value"),
+                shape=("n_obs", "n_covariates"),
+            ),
         }
     )
 
@@ -94,12 +111,20 @@ def _as_vector(value: Any, *, name: str, n_rows: int | None = None) -> np.ndarra
     return arr
 
 
-def _operator_payload(state: Mapping[str, Any]) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, dict[str, Any]]:
+def _operator_payload(
+    state: Mapping[str, Any],
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, dict[str, Any]]:
     outcome = _as_matrix(state["outcome"], name="outcome")
     n_obs = outcome.shape[0]
     treatment = _as_vector(state["treatment"], name="treatment", n_rows=n_obs)
-    covariates = _as_matrix(state.get("covariates", np.arange(n_obs, dtype=float).reshape(-1, 1)), name="covariates", n_rows=n_obs)
-    effect_modifier = _as_matrix(state.get("effect_modifier", covariates), name="effect_modifier", n_rows=n_obs)
+    covariates = _as_matrix(
+        state.get("covariates", np.arange(n_obs, dtype=float).reshape(-1, 1)),
+        name="covariates",
+        n_rows=n_obs,
+    )
+    effect_modifier = _as_matrix(
+        state.get("effect_modifier", covariates), name="effect_modifier", n_rows=n_obs
+    )
     metadata = dict(state.get("metadata", {})) if isinstance(state.get("metadata"), Mapping) else {}
     return outcome, treatment, covariates, effect_modifier, metadata
 
@@ -139,7 +164,9 @@ def _resolve_regularization(params: Mapping[str, Any]) -> KernelRegularization:
     return KernelRegularization()
 
 
-def _resolve_treatment_values(treatment: np.ndarray, params: Mapping[str, Any]) -> tuple[float, float]:
+def _resolve_treatment_values(
+    treatment: np.ndarray, params: Mapping[str, Any]
+) -> tuple[float, float]:
     unique = np.unique(np.round(treatment.astype(float), 8))
     if unique.size == 0:
         raise ValueError("treatment vector is empty")
@@ -190,7 +217,7 @@ def _rbf_kernel(left: np.ndarray, right: np.ndarray, *, lengthscale: float) -> n
     lhs_norm = np.sum(lhs * lhs, axis=1, keepdims=True)
     rhs_norm = np.sum(rhs * rhs, axis=1, keepdims=True).T
     sqdist = np.maximum(lhs_norm + rhs_norm - 2.0 * lhs @ rhs.T, 0.0)
-    denom = max(lengthscale ** 2, 1.0e-8)
+    denom = max(lengthscale**2, 1.0e-8)
     return np.exp(-sqdist / (2.0 * denom))
 
 
@@ -225,7 +252,9 @@ def _krr_predict(
     return _rbf_kernel(x_eval, x_train, lengthscale=lengthscale) @ alpha
 
 
-def _evaluation_design(effect_modifier: np.ndarray, params: Mapping[str, Any]) -> tuple[np.ndarray, tuple[str, ...]]:
+def _evaluation_design(
+    effect_modifier: np.ndarray, params: Mapping[str, Any]
+) -> tuple[np.ndarray, tuple[str, ...]]:
     raw_eval = params.get("evaluation_points")
     if raw_eval is not None:
         eval_points = _as_matrix(raw_eval, name="evaluation_points")
@@ -353,9 +382,15 @@ def _operator_summary(
     operator_norm_error_bound: float,
 ) -> dict[str, Any]:
     matrix = np.asarray(operator_matrix, dtype=float)
-    row_means = np.mean(matrix, axis=1) if matrix.size else np.zeros(len(codomain_axis), dtype=float)
+    row_means = (
+        np.mean(matrix, axis=1) if matrix.size else np.zeros(len(codomain_axis), dtype=float)
+    )
     point_estimate = float(np.mean(row_means)) if row_means.size else 0.0
-    std_error = float(np.std(row_means, ddof=1) / np.sqrt(max(row_means.size, 1))) if row_means.size > 1 else 0.0
+    std_error = (
+        float(np.std(row_means, ddof=1) / np.sqrt(max(row_means.size, 1)))
+        if row_means.size > 1
+        else 0.0
+    )
     return {
         "family": family.value,
         "active_treatment_value": active_treatment,
@@ -429,7 +464,9 @@ def _wrap_operator_success(
         extras={
             "result": result,
             "operator_effect_bundle": bundle.model_dump(mode="json"),
-            "applied_probe_exports": [item.model_dump(mode="json") for item in bundle.applied_probe_exports],
+            "applied_probe_exports": [
+                item.model_dump(mode="json") for item in bundle.applied_probe_exports
+            ],
         },
     )
 
@@ -481,7 +518,9 @@ def _build_bundle(
         "metadata": metadata,
     }
     operator_ref = f"operator:{family.value}:{_operator_digest(digest_payload)}"
-    evaluation_points_ref = str(params.get("evaluation_points_ref")) if params.get("evaluation_points_ref") else None
+    evaluation_points_ref = (
+        str(params.get("evaluation_points_ref")) if params.get("evaluation_points_ref") else None
+    )
     return OperatorEffectBundle(
         operator_ref=operator_ref,
         estimand_hash=_operator_digest(digest_payload),
@@ -491,7 +530,9 @@ def _build_bundle(
         regularization=regularization,
         probe_basis=probe_basis,
         codomain_axis=codomain_axis,
-        operator_matrix=tuple(tuple(float(item) for item in row) for row in np.asarray(operator_matrix, dtype=float)),
+        operator_matrix=tuple(
+            tuple(float(item) for item in row) for row in np.asarray(operator_matrix, dtype=float)
+        ),
         operator_norm_error_bound=float(max(operator_norm_error_bound, 0.0)),
         convergence_guarantee=_default_guarantee(family),
         applied_probe_exports=_probe_exports(
@@ -528,8 +569,20 @@ def _cme_operator_fit(state: Mapping[str, Any], params: Mapping[str, Any]) -> di
     operator_matrix = pred_treated - pred_control
     residuals = np.vstack(
         [
-            outcome[treated_mask] - _krr_predict(effect_modifier[treated_mask], outcome[treated_mask], effect_modifier[treated_mask], ridge=regularization.lambda_value),
-            outcome[control_mask] - _krr_predict(effect_modifier[control_mask], outcome[control_mask], effect_modifier[control_mask], ridge=regularization.lambda_value),
+            outcome[treated_mask]
+            - _krr_predict(
+                effect_modifier[treated_mask],
+                outcome[treated_mask],
+                effect_modifier[treated_mask],
+                ridge=regularization.lambda_value,
+            ),
+            outcome[control_mask]
+            - _krr_predict(
+                effect_modifier[control_mask],
+                outcome[control_mask],
+                effect_modifier[control_mask],
+                ridge=regularization.lambda_value,
+            ),
         ]
     )
     probe_basis = _probe_basis(outcome.shape[1], params)
@@ -545,7 +598,9 @@ def _cme_operator_fit(state: Mapping[str, Any], params: Mapping[str, Any]) -> di
         params=params,
         metadata={
             **metadata,
-            "operator_semantics": params.get("operator_semantics", "conditional_mean_embedding_operator"),
+            "operator_semantics": params.get(
+                "operator_semantics", "conditional_mean_embedding_operator"
+            ),
             "identification_scope": params.get("identification_scope", "backdoor"),
         },
     )
@@ -567,7 +622,9 @@ def _rlearner_operator_fit(state: Mapping[str, Any], params: Mapping[str, Any]) 
     active, reference = _resolve_treatment_values(treatment, params)
     binary_treatment = np.isclose(treatment, active).astype(float)
     propensity = _logistic_propensity(covariates, binary_treatment)
-    outcome_coef = _ridge_solve(_with_intercept(covariates), outcome, ridge=regularization.lambda_value)
+    outcome_coef = _ridge_solve(
+        _with_intercept(covariates), outcome, ridge=regularization.lambda_value
+    )
     mu_hat = _with_intercept(covariates) @ outcome_coef
     treatment_residual = np.clip(binary_treatment - propensity, -0.95, 0.95)
     pseudo = (outcome - mu_hat) / np.clip(treatment_residual[:, None], -0.95, 0.95)
@@ -575,7 +632,7 @@ def _rlearner_operator_fit(state: Mapping[str, Any], params: Mapping[str, Any]) 
         _with_intercept(effect_modifier),
         pseudo,
         ridge=regularization.lambda_value,
-        sample_weight=treatment_residual ** 2,
+        sample_weight=treatment_residual**2,
     )
     eval_x, codomain_axis = _evaluation_design(effect_modifier, params)
     operator_matrix = _with_intercept(eval_x) @ tau_coef
@@ -612,7 +669,9 @@ def _rlearner_operator_fit(state: Mapping[str, Any], params: Mapping[str, Any]) 
 def _interaction_design(effect_modifier: np.ndarray, signal: np.ndarray) -> np.ndarray:
     base = _as_matrix(effect_modifier, name="effect_modifier")
     scalar_signal = _as_vector(signal, name="signal", n_rows=base.shape[0])
-    return np.column_stack([np.ones(base.shape[0]), base, scalar_signal[:, None], base * scalar_signal[:, None]])
+    return np.column_stack(
+        [np.ones(base.shape[0]), base, scalar_signal[:, None], base * scalar_signal[:, None]]
+    )
 
 
 def _interaction_effect_matrix(
@@ -622,8 +681,12 @@ def _interaction_effect_matrix(
     active_treatment: float,
     reference_treatment: float,
 ) -> np.ndarray:
-    design_active = _interaction_design(eval_x, np.full(eval_x.shape[0], active_treatment, dtype=float))
-    design_reference = _interaction_design(eval_x, np.full(eval_x.shape[0], reference_treatment, dtype=float))
+    design_active = _interaction_design(
+        eval_x, np.full(eval_x.shape[0], active_treatment, dtype=float)
+    )
+    design_reference = _interaction_design(
+        eval_x, np.full(eval_x.shape[0], reference_treatment, dtype=float)
+    )
     return design_active @ coef - design_reference @ coef
 
 
@@ -637,7 +700,9 @@ def _kiv_operator_fit(state: Mapping[str, Any], params: Mapping[str, Any]) -> di
         treatment,
         ridge=regularization.lambda_value,
     )
-    fitted_treatment = (_with_intercept(np.column_stack([instrument, covariates])) @ stage1_coef).reshape(-1)
+    fitted_treatment = (
+        _with_intercept(np.column_stack([instrument, covariates])) @ stage1_coef
+    ).reshape(-1)
     stage2_coef = _ridge_solve(
         _interaction_design(effect_modifier, fitted_treatment),
         outcome,
@@ -664,7 +729,9 @@ def _kiv_operator_fit(state: Mapping[str, Any], params: Mapping[str, Any]) -> di
         params=params,
         metadata={
             **metadata,
-            "operator_semantics": params.get("operator_semantics", "conditional_mean_embedding_operator"),
+            "operator_semantics": params.get(
+                "operator_semantics", "conditional_mean_embedding_operator"
+            ),
             "identification_scope": params.get("identification_scope", "iv"),
         },
     )
@@ -699,7 +766,9 @@ def _proximal_operator_fit(state: Mapping[str, Any], params: Mapping[str, Any]) 
     proxy_design = np.column_stack([covariates, treatment_proxy, outcome_proxy])
     binary_treatment = np.isclose(treatment, active).astype(float)
     propensity = _logistic_propensity(proxy_design, binary_treatment)
-    outcome_coef = _ridge_solve(_with_intercept(proxy_design), outcome, ridge=regularization.lambda_value)
+    outcome_coef = _ridge_solve(
+        _with_intercept(proxy_design), outcome, ridge=regularization.lambda_value
+    )
     mu_hat = _with_intercept(proxy_design) @ outcome_coef
     treatment_residual = np.clip(binary_treatment - propensity, -0.95, 0.95)
     pseudo = (outcome - mu_hat) / np.clip(treatment_residual[:, None], -0.95, 0.95)
@@ -707,7 +776,7 @@ def _proximal_operator_fit(state: Mapping[str, Any], params: Mapping[str, Any]) 
         _with_intercept(effect_modifier),
         pseudo,
         ridge=regularization.lambda_value,
-        sample_weight=treatment_residual ** 2,
+        sample_weight=treatment_residual**2,
     )
     eval_x, codomain_axis = _evaluation_design(effect_modifier, params)
     operator_matrix = _with_intercept(eval_x) @ tau_coef
@@ -725,7 +794,9 @@ def _proximal_operator_fit(state: Mapping[str, Any], params: Mapping[str, Any]) 
         params=params,
         metadata={
             **metadata,
-            "operator_semantics": params.get("operator_semantics", "conditional_mean_embedding_operator"),
+            "operator_semantics": params.get(
+                "operator_semantics", "conditional_mean_embedding_operator"
+            ),
             "identification_scope": params.get("identification_scope", "proximal"),
         },
     )
@@ -863,7 +934,9 @@ class OperatorRLearnerEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Orthogonal operator-valued R-learner for multi-output causal effects.",
         tags=frozenset({"causal", "operator-valued", "orthogonal", "r-learner"}),
-        citations=("Nie, X. & Wager, S. (2021). Quasi-oracle estimation of heterogeneous treatment effects.",),
+        citations=(
+            "Nie, X. & Wager, S. (2021). Quasi-oracle estimation of heterogeneous treatment effects.",
+        ),
         equations={"orthogonal_loss": "min_tau E[||Y-mu(X)-(A-e(X))tau(V)||^2 + lambda||tau||^2]"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -916,7 +989,9 @@ class OperatorKIVEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Operator-valued IV estimator using a fitted treatment signal from instruments.",
         tags=frozenset({"causal", "operator-valued", "iv", "kiv"}),
-        citations=("Singh, R., Sahani, M. & Gretton, A. (2019). Kernel instrumental variable regression.",),
+        citations=(
+            "Singh, R., Sahani, M. & Gretton, A. (2019). Kernel instrumental variable regression.",
+        ),
         equations={"two_stage": "Y = f(V, A_hat) with A_hat learned from instruments"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -995,7 +1070,7 @@ class OperatorProximalMinimaxEstimator:
 @foundry_method(
     namespace="causal.operator",
     version="1.0.0",
-    tags={"causal", "operator-valued", "probe-application"},
+    tags={"causal", "operator-valued", "probe-application", "tabular"},
 )
 class OperatorApplyProbeMethod:
     """Apply a finite probe or probe combination to an operator-valued effect bundle."""
@@ -1008,9 +1083,7 @@ class OperatorApplyProbeMethod:
         version="0.0.0",
         input_slots=frozenset(),
         output_slots=_probe_output_slots(),
-        parameters=(
-            ParameterSpec(name="probe_ref", default=None),
-        ),
+        parameters=(ParameterSpec(name="probe_ref", default=None),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
@@ -1020,7 +1093,7 @@ class OperatorApplyProbeMethod:
     )
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Apply a probe from the RKHS audit basis to a learned operator bundle.",
-        tags=frozenset({"causal", "operator-valued", "probe-application"}),
+        tags=frozenset({"causal", "operator-valued", "probe-application", "tabular"}),
         citations=(),
         equations={},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
@@ -1029,7 +1102,6 @@ class OperatorApplyProbeMethod:
         when_not_to_use="No operator bundle is available upstream.",
         prerequisites=(),
         diagnostic_checks=(),
-        typical_min_obs=0,
         output_interpretation="Function-valued or trajectory-valued effect induced by a specific probe.",
     )
 
@@ -1052,7 +1124,7 @@ class OperatorApplyProbeMethod:
 @foundry_method(
     namespace="causal.operator",
     version="1.0.0",
-    tags={"causal", "operator-valued", "basis-export"},
+    tags={"causal", "operator-valued", "basis-export", "tabular"},
 )
 class OperatorExportBasisMethod:
     """Export the finite probe audit basis from an operator-valued effect bundle."""
@@ -1075,7 +1147,7 @@ class OperatorExportBasisMethod:
     )
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Export the finite audit basis carried by an operator-valued causal effect bundle.",
-        tags=frozenset({"causal", "operator-valued", "basis-export"}),
+        tags=frozenset({"causal", "operator-valued", "basis-export", "tabular"}),
         citations=(),
         equations={},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
@@ -1084,7 +1156,6 @@ class OperatorExportBasisMethod:
         when_not_to_use="No operator bundle is available.",
         prerequisites=(),
         diagnostic_checks=(),
-        typical_min_obs=0,
         output_interpretation="List of finite probe exports that make the operator artifact auditable.",
     )
 
@@ -1108,7 +1179,7 @@ class OperatorExportBasisMethod:
 @foundry_method(
     namespace="causal.operator",
     version="1.0.0",
-    tags={"causal", "operator-valued", "unsupported"},
+    tags={"causal", "operator-valued", "unsupported", "tabular"},
 )
 class OperatorUnsupportedTargetMethod:
     """Structured refusal for unsupported operator-valued target combinations."""
@@ -1131,7 +1202,7 @@ class OperatorUnsupportedTargetMethod:
     )
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Fail fast when an operator-valued target is outside the supported proof/runtime contract.",
-        tags=frozenset({"causal", "operator-valued", "unsupported"}),
+        tags=frozenset({"causal", "operator-valued", "unsupported", "tabular"}),
         citations=(),
         equations={},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
@@ -1140,7 +1211,6 @@ class OperatorUnsupportedTargetMethod:
         when_not_to_use="A valid operator backend is available.",
         prerequisites=(),
         diagnostic_checks=(),
-        typical_min_obs=0,
         output_interpretation="Non-actionable failure payload explaining why the operator target is unsupported.",
     )
 

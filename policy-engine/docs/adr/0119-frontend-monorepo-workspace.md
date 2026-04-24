@@ -1,9 +1,11 @@
 # ADR-0119: Frontend Monorepo Workspace
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context

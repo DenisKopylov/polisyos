@@ -1,8 +1,9 @@
 """Inspect agent-policy behavior, clustering, and counterfactual sensitivity over runs."""
+
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence
 
 import jax
 import jax.numpy as jnp
@@ -16,6 +17,7 @@ from polisyos.foundry.agent_sim.state import GlobalState
 @dataclass
 class AgentCluster:
     """Describe one behavior cluster extracted from active agents in a simulation snapshot."""
+
     indices: jnp.ndarray
     centroid: jnp.ndarray
     size: int
@@ -26,6 +28,7 @@ class AgentCluster:
 
 class BehaviorAnalyzer:
     """Compute behavioral summaries and counterfactual diagnostics for trained policies."""
+
     @staticmethod
     def compute_action_statistics(
         actor: ActorCritic,
@@ -61,9 +64,7 @@ class BehaviorAnalyzer:
             if actor.action_type == "continuous":
                 all_means.append(dist["mean"])
                 all_stds.append(dist["std"])
-                all_entropies.append(
-                    compute_entropy(dist, action_type=actor.action_type)
-                )
+                all_entropies.append(compute_entropy(dist, action_type=actor.action_type))
             else:
                 logits = dist["logits"]
                 probs = jax.nn.softmax(logits, axis=-1)
@@ -75,9 +76,7 @@ class BehaviorAnalyzer:
                 )
                 all_means.append(mean_action)
                 all_stds.append(jnp.sqrt(var_action))
-                all_entropies.append(
-                    compute_entropy(dist, action_type=actor.action_type)
-                )
+                all_entropies.append(compute_entropy(dist, action_type=actor.action_type))
 
         return {
             "mean_actions": jnp.stack(all_means) if all_means else None,
@@ -111,9 +110,7 @@ class BehaviorAnalyzer:
         X_norm = (X_active - X_mean) / X_std
 
         key = jax.random.PRNGKey(42)
-        centroids = X_norm[
-            jax.random.choice(key, n_active, (n_clusters,), replace=False)
-        ]
+        centroids = X_norm[jax.random.choice(key, n_active, (n_clusters,), replace=False)]
 
         for _ in range(20):
             distances = jnp.sum(

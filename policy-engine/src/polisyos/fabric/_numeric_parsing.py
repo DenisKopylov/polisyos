@@ -1,4 +1,5 @@
 """Shared decimal text normalization helpers for Fabric."""
+
 from __future__ import annotations
 
 import re
@@ -12,9 +13,7 @@ __all__ = [
 
 
 _SPACE_RE = re.compile(r"[\s\u00a0\u2007\u202f_]+")
-_NUMERIC_RE = re.compile(
-    r"^(?P<sign>[+-]?)(?P<mantissa>\d[\d.,]*)(?P<exponent>[eE][+-]?\d+)?$"
-)
+_NUMERIC_RE = re.compile(r"^(?P<sign>[+-]?)(?P<mantissa>\d[\d.,]*)(?P<exponent>[eE][+-]?\d+)?$")
 
 
 def _normalize_mantissa(mantissa: str) -> str | None:
@@ -28,11 +27,7 @@ def _normalize_mantissa(mantissa: str) -> str | None:
         if len(parts) != 2:
             return None
         integer_part, fractional_part = parts
-        if (
-            not integer_part
-            or not fractional_part
-            or thousands_sep in fractional_part
-        ):
+        if not integer_part or not fractional_part or thousands_sep in fractional_part:
             return None
         integer_digits = integer_part.replace(thousands_sep, "")
         if not integer_digits.isdigit() or not fractional_part.isdigit():

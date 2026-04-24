@@ -1,8 +1,10 @@
 """Public scientist publisher module API."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Mapping
+from collections.abc import Mapping
+from datetime import UTC, datetime
+from typing import Any
 
 
 def publish_decision(state: Mapping[str, Any]) -> dict[str, Any]:
@@ -10,7 +12,7 @@ def publish_decision(state: Mapping[str, Any]) -> dict[str, Any]:
     run_id = str(state.get("run_id") or "unknown")
     return {
         "schema_version": "2.0",
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "run_id": run_id,
         "run_record": {
             "schema_version": "2.0",

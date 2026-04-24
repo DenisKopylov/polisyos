@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from polisyos.scientist.search.strategies.space import SearchSpace
 
 
-def compute_space_hash(space: "SearchSpace") -> str:
+def compute_space_hash(space: SearchSpace) -> str:
     """Compute a deterministic hash of the search space definition.
 
     Used to quickly identify structurally identical search spaces.
@@ -33,10 +33,10 @@ def compute_space_hash(space: "SearchSpace") -> str:
 
 
 def embed_run_config(
-    space: "SearchSpace",
+    space: SearchSpace,
     objectives: list[str],
     params_sample: list[dict[str, Any]] | None = None,
-    embedder: "EmbedderProtocol | None" = None,
+    embedder: EmbedderProtocol | None = None,
 ) -> list[float]:
     """Create a fixed-size embedding of a run configuration.
 
@@ -66,10 +66,10 @@ def embed_run_config(
 
 
 def _embed_with_text(
-    space: "SearchSpace",
+    space: SearchSpace,
     objectives: list[str],
     params_sample: list[dict[str, Any]] | None,
-    embedder: "EmbedderProtocol",
+    embedder: EmbedderProtocol,
 ) -> list[float]:
     """Create embedding using text description."""
     parts = []
@@ -84,7 +84,7 @@ def _embed_with_text(
 
 
 def _embed_structural(
-    space: "SearchSpace",
+    space: SearchSpace,
     objectives: list[str],
     params_sample: list[dict[str, Any]] | None,
 ) -> list[float]:
@@ -105,7 +105,7 @@ def _embed_structural(
     # Features 1-4: parameter type counts (normalised)
     from polisyos.scientist.search.strategies.types import ParameterType
 
-    type_counts = {t: 0 for t in ParameterType}
+    type_counts = dict.fromkeys(ParameterType, 0)
     for b in space.bounds:
         type_counts[b.dtype] = type_counts.get(b.dtype, 0) + 1
     total = max(len(space.bounds), 1)

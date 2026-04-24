@@ -5,6 +5,7 @@ demand. The package-level `ensure_all_methods_registered()` helper is the
 catalog bootstrap entrypoint used by tooling, tutorials, and registry cache
 rebuilds.
 """
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.registry import MethodRegistry
@@ -12,6 +13,7 @@ from polisyos.foundry.methods.registry import MethodRegistry
 try:
     from .causal import ensure_causal_methods_registered
 except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+
     def ensure_causal_methods_registered(registry: MethodRegistry | None = None) -> None:
         return None
 
@@ -22,6 +24,7 @@ from .optimization import ensure_optimization_methods_registered
 try:
     from .ml import ensure_ml_methods_registered
 except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+
     def ensure_ml_methods_registered(registry: MethodRegistry | None = None) -> None:
         return None
 
@@ -29,6 +32,7 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 try:
     from .microsim import ensure_microsim_methods_registered
 except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+
     def ensure_microsim_methods_registered(registry: MethodRegistry | None = None) -> None:
         return None
 
@@ -36,6 +40,7 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 try:
     from .spatial import ensure_spatial_methods_registered
 except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+
     def ensure_spatial_methods_registered(registry: MethodRegistry | None = None) -> None:
         return None
 
@@ -43,6 +48,7 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 try:
     from .network import ensure_network_methods_registered
 except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+
     def ensure_network_methods_registered(registry: MethodRegistry | None = None) -> None:
         return None
 
@@ -50,6 +56,7 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 try:
     from .dependence import ensure_dependence_methods_registered
 except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+
     def ensure_dependence_methods_registered(registry: MethodRegistry | None = None) -> None:
         return None
 
@@ -57,6 +64,7 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 try:
     from .bayesian import ensure_bayesian_methods_registered
 except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+
     def ensure_bayesian_methods_registered(registry: MethodRegistry | None = None) -> None:
         return None
 
@@ -64,6 +72,7 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 try:
     from .distributional import ensure_distributional_methods_registered
 except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+
     def ensure_distributional_methods_registered(registry: MethodRegistry | None = None) -> None:
         return None
 
@@ -71,6 +80,7 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 try:
     from .survey import ensure_survey_methods_registered
 except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+
     def ensure_survey_methods_registered(registry: MethodRegistry | None = None) -> None:
         return None
 
@@ -78,6 +88,7 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 try:
     from .forecasting import ensure_forecasting_methods_registered
 except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+
     def ensure_forecasting_methods_registered(registry: MethodRegistry | None = None) -> None:
         return None
 
@@ -85,6 +96,7 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 try:
     from .validation import ensure_validation_methods_registered
 except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+
     def ensure_validation_methods_registered(registry: MethodRegistry | None = None) -> None:
         return None
 
@@ -92,6 +104,7 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 try:
     from .sensitivity import ensure_sensitivity_methods_registered
 except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+
     def ensure_sensitivity_methods_registered(registry: MethodRegistry | None = None) -> None:
         return None
 
@@ -99,6 +112,7 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 try:
     from .mechanism import ensure_mechanism_methods_registered
 except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+
     def ensure_mechanism_methods_registered(registry: MethodRegistry | None = None) -> None:
         return None
 
@@ -106,6 +120,7 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 try:
     from .simulation import ensure_simulation_methods_registered
 except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+
     def ensure_simulation_methods_registered(registry: MethodRegistry | None = None) -> None:
         return None
 
@@ -113,6 +128,7 @@ except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
 try:
     from .policy import ensure_policy_methods_registered
 except ModuleNotFoundError:  # pragma: no cover - defensive for partial installs
+
     def ensure_policy_methods_registered(registry: MethodRegistry | None = None) -> None:
         return None
 
@@ -141,21 +157,21 @@ def ensure_all_methods_registered(registry: MethodRegistry | None = None) -> Non
 
 __all__ = [
     "ensure_all_methods_registered",
-    "ensure_causal_methods_registered",
-    "ensure_econometric_methods_registered",
-    "ensure_optimization_methods_registered",
-    "ensure_ml_methods_registered",
-    "ensure_microsim_methods_registered",
-    "ensure_spatial_methods_registered",
-    "ensure_network_methods_registered",
-    "ensure_dependence_methods_registered",
     "ensure_bayesian_methods_registered",
+    "ensure_causal_methods_registered",
+    "ensure_dependence_methods_registered",
     "ensure_distributional_methods_registered",
-    "ensure_survey_methods_registered",
+    "ensure_econometric_methods_registered",
     "ensure_forecasting_methods_registered",
-    "ensure_validation_methods_registered",
-    "ensure_sensitivity_methods_registered",
     "ensure_mechanism_methods_registered",
-    "ensure_simulation_methods_registered",
+    "ensure_microsim_methods_registered",
+    "ensure_ml_methods_registered",
+    "ensure_network_methods_registered",
+    "ensure_optimization_methods_registered",
     "ensure_policy_methods_registered",
+    "ensure_sensitivity_methods_registered",
+    "ensure_simulation_methods_registered",
+    "ensure_spatial_methods_registered",
+    "ensure_survey_methods_registered",
+    "ensure_validation_methods_registered",
 ]

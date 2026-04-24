@@ -1,8 +1,10 @@
 """Public optimization sequential module API."""
+
 from __future__ import annotations
 
 import time
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -66,6 +68,7 @@ def _solver_status(status: str) -> SolverStatus:
 )
 class SecondOrderConeProgramEstimator:
     """Solve second-order cone programs for convex policy and resource problems."""
+
     runtime_stack: ClassVar[tuple[str, ...]] = ("cvxpy", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -74,8 +77,18 @@ class SecondOrderConeProgramEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("objective_vector", SlotType.VECTOR, Unit("objective", "value"), shape=("n_vars",)),
-                SlotSpec("cone_matrix", SlotType.MATRIX, Unit("cone", "value"), shape=("n_cone_rows", "n_vars")),
+                SlotSpec(
+                    "objective_vector",
+                    SlotType.VECTOR,
+                    Unit("objective", "value"),
+                    shape=("n_vars",),
+                ),
+                SlotSpec(
+                    "cone_matrix",
+                    SlotType.MATRIX,
+                    Unit("cone", "value"),
+                    shape=("n_cone_rows", "n_vars"),
+                ),
                 SlotSpec("cone_bound", SlotType.SCALAR, Unit("cone", "value")),
                 SlotSpec(
                     "linear_constraint_matrix",
@@ -83,7 +96,12 @@ class SecondOrderConeProgramEstimator:
                     Unit("constraint", "value"),
                     shape=("n_constraints", "n_vars"),
                 ),
-                SlotSpec("linear_constraint_rhs", SlotType.VECTOR, Unit("constraint", "value"), shape=("n_constraints",)),
+                SlotSpec(
+                    "linear_constraint_rhs",
+                    SlotType.VECTOR,
+                    Unit("constraint", "value"),
+                    shape=("n_constraints",),
+                ),
                 SlotSpec("bounds", SlotType.MATRIX, Unit("bound", "value"), shape=("n_vars", 2)),
             }
         ),
@@ -119,13 +137,17 @@ class SecondOrderConeProgramEstimator:
     )
 
     @staticmethod
-    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> Mapping[str, Any]:
+    def materialize_input(
+        bound_inputs: Mapping[str, Any], fallback_state: Any
+    ) -> Mapping[str, Any]:
         payload = _mapping_payload(fallback_state) if isinstance(fallback_state, Mapping) else {}
         payload.update(bound_inputs)
         return payload
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    def pure_step(
+        state: Mapping[str, Any], params: Mapping[str, Any]
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
         import cvxpy as cp
 
         payload = _mapping_payload(state)
@@ -153,7 +175,11 @@ class SecondOrderConeProgramEstimator:
         elapsed = time.perf_counter() - started
 
         status = _solver_status(problem.status)
-        solution = np.zeros(c.shape[0], dtype=float) if x.value is None else np.asarray(x.value, dtype=float)
+        solution = (
+            np.zeros(c.shape[0], dtype=float)
+            if x.value is None
+            else np.asarray(x.value, dtype=float)
+        )
         result = OptimizationResult(
             status=status,
             objective_value=(None if problem.value is None else float(problem.value)),
@@ -164,7 +190,9 @@ class SecondOrderConeProgramEstimator:
             },
             solver_iterations=int(getattr(problem.solver_stats, "num_iters", 0) or 0),
             solver_gap=None,
-            solver_time_seconds=float(getattr(problem.solver_stats, "solve_time", elapsed) or elapsed),
+            solver_time_seconds=float(
+                getattr(problem.solver_stats, "solve_time", elapsed) or elapsed
+            ),
             metadata={"solver": solver_name},
         )
         return _serialize_result(result), {
@@ -183,6 +211,7 @@ class SecondOrderConeProgramEstimator:
 )
 class TwoStageStochasticProgramEstimator:
     """Solve two-stage stochastic programs when recourse decisions depend on scenarios."""
+
     runtime_stack: ClassVar[tuple[str, ...]] = ("cvxpy", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -191,11 +220,36 @@ class TwoStageStochasticProgramEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("objective_vector", SlotType.VECTOR, Unit("objective", "value"), shape=("n_vars",)),
-                SlotSpec("technology_matrix", SlotType.MATRIX, Unit("technology", "value"), shape=("n_demands", "n_vars")),
-                SlotSpec("scenario_demand_matrix", SlotType.MATRIX, Unit("demand", "value"), shape=("n_scenarios", "n_demands")),
-                SlotSpec("scenario_probabilities", SlotType.VECTOR, Unit("probability", "mass"), shape=("n_scenarios",)),
-                SlotSpec("recourse_cost_vector", SlotType.VECTOR, Unit("cost", "value"), shape=("n_demands",)),
+                SlotSpec(
+                    "objective_vector",
+                    SlotType.VECTOR,
+                    Unit("objective", "value"),
+                    shape=("n_vars",),
+                ),
+                SlotSpec(
+                    "technology_matrix",
+                    SlotType.MATRIX,
+                    Unit("technology", "value"),
+                    shape=("n_demands", "n_vars"),
+                ),
+                SlotSpec(
+                    "scenario_demand_matrix",
+                    SlotType.MATRIX,
+                    Unit("demand", "value"),
+                    shape=("n_scenarios", "n_demands"),
+                ),
+                SlotSpec(
+                    "scenario_probabilities",
+                    SlotType.VECTOR,
+                    Unit("probability", "mass"),
+                    shape=("n_scenarios",),
+                ),
+                SlotSpec(
+                    "recourse_cost_vector",
+                    SlotType.VECTOR,
+                    Unit("cost", "value"),
+                    shape=("n_demands",),
+                ),
                 SlotSpec("bounds", SlotType.MATRIX, Unit("bound", "value"), shape=("n_vars", 2)),
             }
         ),
@@ -231,13 +285,17 @@ class TwoStageStochasticProgramEstimator:
     )
 
     @staticmethod
-    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> Mapping[str, Any]:
+    def materialize_input(
+        bound_inputs: Mapping[str, Any], fallback_state: Any
+    ) -> Mapping[str, Any]:
         payload = _mapping_payload(fallback_state) if isinstance(fallback_state, Mapping) else {}
         payload.update(bound_inputs)
         return payload
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    def pure_step(
+        state: Mapping[str, Any], params: Mapping[str, Any]
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
         import cvxpy as cp
 
         payload = _mapping_payload(state)
@@ -253,7 +311,9 @@ class TwoStageStochasticProgramEstimator:
         shortage = cp.Variable((demand.shape[0], demand.shape[1]), nonneg=True)
         lb = bounds[:, 0]
         ub = bounds[:, 1]
-        expected_recourse = cp.sum(cp.multiply(probs[:, None], cp.multiply(shortage, recourse[None, :])))
+        expected_recourse = cp.sum(
+            cp.multiply(probs[:, None], cp.multiply(shortage, recourse[None, :]))
+        )
         objective = cp.Maximize(cp.sum(cp.multiply(c, x)) - expected_recourse)
         constraints = [x >= lb]
         finite_ub = np.isfinite(ub)
@@ -270,9 +330,17 @@ class TwoStageStochasticProgramEstimator:
         elapsed = time.perf_counter() - started
 
         status = _solver_status(problem.status)
-        solution = np.zeros(c.shape[0], dtype=float) if x.value is None else np.asarray(x.value, dtype=float)
-        expected_cost = 0.0 if shortage.value is None else float(
-            np.sum(probs[:, None] * np.asarray(shortage.value, dtype=float) * recourse[None, :])
+        solution = (
+            np.zeros(c.shape[0], dtype=float)
+            if x.value is None
+            else np.asarray(x.value, dtype=float)
+        )
+        expected_cost = (
+            0.0
+            if shortage.value is None
+            else float(
+                np.sum(probs[:, None] * np.asarray(shortage.value, dtype=float) * recourse[None, :])
+            )
         )
         result = OptimizationResult(
             status=status,
@@ -281,7 +349,9 @@ class TwoStageStochasticProgramEstimator:
             constraints_satisfied={"bounds": bool(np.all(solution >= lb - 1e-6))},
             solver_iterations=int(getattr(problem.solver_stats, "num_iters", 0) or 0),
             solver_gap=None,
-            solver_time_seconds=float(getattr(problem.solver_stats, "solve_time", elapsed) or elapsed),
+            solver_time_seconds=float(
+                getattr(problem.solver_stats, "solve_time", elapsed) or elapsed
+            ),
             metadata={"solver": solver_name, "expected_recourse_cost": expected_cost},
         )
         return _serialize_result(result), {
@@ -300,6 +370,7 @@ class TwoStageStochasticProgramEstimator:
 )
 class DynamicProgrammingEstimator:
     """Solve staged decision problems with Bellman-style dynamic programming."""
+
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -308,7 +379,12 @@ class DynamicProgrammingEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("reward_tensor", SlotType.TENSOR, Unit("reward", "value"), shape=("n_stages", "n_states", "n_actions")),
+                SlotSpec(
+                    "reward_tensor",
+                    SlotType.TENSOR,
+                    Unit("reward", "value"),
+                    shape=("n_stages", "n_states", "n_actions"),
+                ),
                 SlotSpec(
                     "transition_tensor",
                     SlotType.TENSOR,
@@ -341,9 +417,7 @@ class DynamicProgrammingEstimator:
         description="Finite-horizon dynamic programming over discrete states and actions.",
         tags=frozenset({"optimization", "dynamic-programming"}),
         when_to_use="Multi-period decisions with state transitions; optimal stopping, resource extraction, pension design",
-        citations=(
-            "Bellman, R. (1957). Dynamic Programming. Princeton University Press.",
-        ),
+        citations=("Bellman, R. (1957). Dynamic Programming. Princeton University Press.",),
         when_not_to_use="State space too large (curse of dimensionality without approximation); no clear Markov structure",
         output_interpretation="Value function V(s): expected future payoff from state s. Policy function π(s): optimal action in state s.",
     )
@@ -378,7 +452,7 @@ class DynamicProgrammingEstimator:
             action = int(policy[stage, current_state])
             variables[f"stage_{stage}_action"] = float(action)
             variables[f"stage_{stage}_state"] = float(current_state)
-            path_reward += float(rewards[stage, current_state, action]) * (gamma ** stage)
+            path_reward += float(rewards[stage, current_state, action]) * (gamma**stage)
             probs = np.asarray(transition[stage, current_state, action], dtype=float)
             probs = np.clip(probs, 0.0, None)
             total_mass = float(np.sum(probs))

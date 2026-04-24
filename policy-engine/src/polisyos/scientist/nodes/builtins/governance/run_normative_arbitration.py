@@ -1,4 +1,5 @@
 """Public governance run normative arbitration module API."""
+
 from __future__ import annotations
 
 import math
@@ -113,6 +114,7 @@ class _ResolvedNormativeModel:
 @dataclass(frozen=True)
 class RunNormativeArbitrationNode:
     """Run normative arbitration node implementation."""
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -123,7 +125,11 @@ class RunNormativeArbitrationNode:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="info", message="No trinity_bundle_ref; skip normative arbitration")],
+                events=[
+                    NodeEvent(
+                        level="info", message="No trinity_bundle_ref; skip normative arbitration"
+                    )
+                ],
             )
 
         try:
@@ -143,7 +149,12 @@ class RunNormativeArbitrationNode:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="warn", message="Failed to parse trinity bundle for normative arbitration")],
+                events=[
+                    NodeEvent(
+                        level="warn",
+                        message="Failed to parse trinity bundle for normative arbitration",
+                    )
+                ],
             )
 
         metrics = _load_metrics(ctx, state)
@@ -151,7 +162,10 @@ class RunNormativeArbitrationNode:
         distributional_report = _load_distributional(ctx, state)
         _load_legal_report(ctx, state)
 
-        if _requires_explicit_normative_frame(state) and trinity.problem_frame.normative_frame is None:
+        if (
+            _requires_explicit_normative_frame(state)
+            and trinity.problem_frame.normative_frame is None
+        ):
             return NodeOutcome(
                 status="fail",
                 state=state,
@@ -208,9 +222,7 @@ class RunNormativeArbitrationNode:
         )
         selected_policy = resolved_model.frame.default_policy
         selected_outcome = next(
-            outcome
-            for outcome in policy_outcomes
-            if outcome.policy == selected_policy
+            outcome for outcome in policy_outcomes if outcome.policy == selected_policy
         )
 
         winners = sorted(
@@ -226,7 +238,8 @@ class RunNormativeArbitrationNode:
                 rationale=item.rationale,
             )
             for item in policy_outcomes
-            if item.policy != selected_policy and item.selected_option != selected_outcome.selected_option
+            if item.policy != selected_policy
+            and item.selected_option != selected_outcome.selected_option
         ]
 
         warnings = _dedupe_strings(
@@ -260,13 +273,15 @@ class RunNormativeArbitrationNode:
                 OptionOutcomeMatrix(
                     option=ArbitrationOption.BASELINE,
                     binding_values={
-                        item.binding.binding_id: item.baseline_value for item in binding_values.values()
+                        item.binding.binding_id: item.baseline_value
+                        for item in binding_values.values()
                     },
                 ),
                 OptionOutcomeMatrix(
                     option=ArbitrationOption.PROPOSAL,
                     binding_values={
-                        item.binding.binding_id: item.proposal_value for item in binding_values.values()
+                        item.binding.binding_id: item.proposal_value
+                        for item in binding_values.values()
                     },
                 ),
             ],
@@ -304,13 +319,16 @@ class RunNormativeArbitrationNode:
                     str(ref.artifact_id)
                     for ref in (simulation_result.uncertainty_envelopes or {}).values()
                 )
-                if simulation_result is not None and simulation_result.uncertainty_envelopes is not None
+                if simulation_result is not None
+                and simulation_result.uncertainty_envelopes is not None
                 else [],
             ),
             metadata={
                 "model_source": resolved_model.source,
                 "default_policy": selected_policy.value,
-                "enabled_policies": [policy.value for policy in resolved_model.frame.enabled_policies],
+                "enabled_policies": [
+                    policy.value for policy in resolved_model.frame.enabled_policies
+                ],
                 "rights_violation_count": len(rights_violations),
                 "hard_constraint_violation_count": len(hard_constraint_violations),
             },
@@ -414,7 +432,9 @@ def _load_legal_report(
     if ref is None:
         return None
     try:
-        return LegalReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
+        return LegalReport.model_validate(
+            from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+        )
     except _NORMATIVE_ARTIFACT_ERRORS as exc:
         emit_degraded_path(
             component="scientist.run_normative_arbitration",
@@ -449,7 +469,9 @@ def _resolve_normative_model(
 
 
 def _requires_explicit_normative_frame(state: ExperimentState) -> bool:
-    profile = str(state.execution_profile or state.params.get("execution_profile") or "").strip().lower()
+    profile = (
+        str(state.execution_profile or state.params.get("execution_profile") or "").strip().lower()
+    )
     return profile in {"governed", "production"}
 
 
@@ -517,7 +539,9 @@ def _synthesize_legacy_normative_frame(
 
 
 def _stakeholder_outcome_key(stakeholder: StakeholderSpec) -> str:
-    raw = stakeholder.attributes.get("cohort_id") or stakeholder.attributes.get("distributional_cohort_id")
+    raw = stakeholder.attributes.get("cohort_id") or stakeholder.attributes.get(
+        "distributional_cohort_id"
+    )
     if isinstance(raw, str) and raw:
         return raw
     return stakeholder.stakeholder_id
@@ -600,9 +624,7 @@ def _build_synthesized_impact_map(
             impact_map[key] = 1.0
         elif direction == "negative":
             impact_map[key] = -1.0
-        elif direction == "mixed":
-            impact_map[key] = 0.0
-        elif direction == "neutral":
+        elif direction == "mixed" or direction == "neutral":
             impact_map[key] = 0.0
     return impact_map
 
@@ -834,7 +856,9 @@ def _audit_hard_constraints(
     return audits, _dedupe_strings(warnings)
 
 
-def _constraint_value(metrics: Metrics | None, constraint: ConstraintSpec) -> float | int | str | bool | None:
+def _constraint_value(
+    metrics: Metrics | None, constraint: ConstraintSpec
+) -> float | int | str | bool | None:
     if metrics is None:
         return None
     metric_key = constraint.slot_id or constraint.constraint_id
@@ -850,7 +874,9 @@ def _evaluate_policies(
 ) -> list[PolicyOutcome]:
     outcomes: list[PolicyOutcome] = []
     rights_violations = sum(
-        1 for item in rights_audit if item.status == NormativeAuditStatus.VIOLATED and "soft_right" not in item.notes
+        1
+        for item in rights_audit
+        if item.status == NormativeAuditStatus.VIOLATED and "soft_right" not in item.notes
     )
     hard_constraint_violations = sum(
         1 for item in hard_constraint_audit if item.status == NormativeAuditStatus.VIOLATED
@@ -910,7 +936,9 @@ def _evaluate_policies(
                 rationale = "proposal is not Pareto-admissible because some stakeholders lose"
             elif winners_count > 0:
                 selected_option = ArbitrationOption.PROPOSAL
-                rationale = "proposal is Pareto-admissible and strictly helps at least one stakeholder"
+                rationale = (
+                    "proposal is Pareto-admissible and strictly helps at least one stakeholder"
+                )
             else:
                 selected_option = ArbitrationOption.INDETERMINATE
                 rationale = "proposal is Pareto-neutral"

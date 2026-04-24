@@ -176,9 +176,7 @@ def _extract_context_payload(state: ExperimentState, *keys: str) -> object | Non
 def _fingerprint_payload(value: object) -> str | None:
     if value is None:
         return None
-    return content_hash(
-        json.dumps(value, sort_keys=True, separators=(",", ":"), default=str)
-    )
+    return content_hash(json.dumps(value, sort_keys=True, separators=(",", ":"), default=str))
 
 
 def _path_get(payload: dict[str, object], path: tuple[str, ...]) -> object | None:

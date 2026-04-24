@@ -23,18 +23,22 @@ specialized subdirectories.
 
 - `tests/scientist/` root: `73` tests for engine/executor, workflow defaults,
   replay, decision artifacts, and top-level node behavior.
+
 - `tests/scientist/engine/`: `49` tests for runner, checkpoint, lock, and
   executor details.
+
 - `tests/scientist/nodes/`: `42` tests for builtin planning, compile, causal,
   simulate, data, and decision nodes.
+
 - `tests/scientist/search/`: `45` tests for search loops, funnels, and
   strategies.
+
 - `tests/scientist/governance/`: `32` tests for passes and validation pipeline.
 - `tests/scientist/agent/`: `25` tests for agent and tool-facing helpers.
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - [`../../src/polisyos/scientist/README.md`](../../src/polisyos/scientist/README.md)
 - [`../../src/polisyos/scientist/engine/README.md`](../../src/polisyos/scientist/engine/README.md)
@@ -42,11 +46,12 @@ specialized subdirectories.
 - `src/polisyos/foundry`, `src/polisyos/fabric`, `src/polisyos/core`,
   `src/polisyos/runtime`
 
-**Depended on by**
+### Depended On By
 
 - [`../runtime/README.md`](../runtime/README.md),
   [`../integration/README.md`](../integration/README.md), and
   [`../performance/README.md`](../performance/README.md)
+
 - Runtime control/debug flows and local stack smoke scenarios
 
 ## Common Commands

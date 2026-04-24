@@ -70,7 +70,11 @@ from benchmarks.harness import (  # noqa: E402
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.MISSING
@@ -82,22 +86,27 @@ CIRCUIT = BenchmarkCircuit.MISSING
 
 
 def _imports() -> tuple[Any, Any, Any, Any, Any, Any]:
-    from polisyos.ir.analytics.mgraph import (  # noqa: PLC0415
-        MissingnessKind,
-        build_mgraph,
-        extract_mgraph_metadata,
-    )
     from polisyos.foundry.methods.catalog.causal.recoverability_engine import (  # noqa: PLC0415
         RecoverabilityStatus,
         test_recoverability,
     )
     from polisyos.ir.analytics.causal_graph import (  # noqa: PLC0415
-        CausalEdge,
         CausalGraphModel,
-        GraphType,
     )
-    return (MissingnessKind, build_mgraph, extract_mgraph_metadata,
-            RecoverabilityStatus, test_recoverability, CausalGraphModel)
+    from polisyos.ir.analytics.mgraph import (  # noqa: PLC0415
+        MissingnessKind,
+        build_mgraph,
+        extract_mgraph_metadata,
+    )
+
+    return (
+        MissingnessKind,
+        build_mgraph,
+        extract_mgraph_metadata,
+        RecoverabilityStatus,
+        test_recoverability,
+        CausalGraphModel,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -109,14 +118,20 @@ def _build_case(
     *,
     name: str,
     description: str,
-    build_graph_fn: Any,            # () -> CausalGraphModel
-    query_vars_fn: Any,             # (graph) -> frozenset[str]
-    expected_status_str: str,       # "recoverable" | "not_recoverable"
+    build_graph_fn: Any,  # () -> CausalGraphModel
+    query_vars_fn: Any,  # (graph) -> frozenset[str]
+    expected_status_str: str,  # "recoverable" | "not_recoverable"
     tags: tuple[str, ...] = (),
 ) -> BenchmarkCase:
     def runner() -> dict[str, Any]:
-        (MissingnessKind, build_mgraph, extract_mgraph_metadata,
-         RecoverabilityStatus, test_recoverability, _) = _imports()
+        (
+            MissingnessKind,
+            build_mgraph,
+            extract_mgraph_metadata,
+            RecoverabilityStatus,
+            test_recoverability,
+            _,
+        ) = _imports()
 
         graph = build_graph_fn(MissingnessKind, build_mgraph)
         meta = extract_mgraph_metadata(graph)
@@ -162,17 +177,22 @@ def _build_case(
 
 def _case_mcar_simple() -> BenchmarkCase:
     """MCAR: X→Y, R_X has no parents → RECOVERABLE."""
+
     def build(M, bm):
         return bm(
             substantive_vars=["X", "Y"],
             directed_edges=[("X", "Y")],
             missingness_map={"X": M.MCAR},
         )
-    def qv(meta): return frozenset(v.target_variable for v in meta.r_nodes)
+
+    def qv(meta):
+        return frozenset(v.target_variable for v in meta.r_nodes)
+
     return _build_case(
         name="mcar_simple",
         description="X→Y, R_X MCAR (no parents) — trivially recoverable",
-        build_graph_fn=build, query_vars_fn=qv,
+        build_graph_fn=build,
+        query_vars_fn=qv,
         expected_status_str="recoverable",
         tags=("mcar",),
     )
@@ -180,6 +200,7 @@ def _case_mcar_simple() -> BenchmarkCase:
 
 def _case_mar_independent() -> BenchmarkCase:
     """MAR from independent W: W→R_X, W has no path from X → RECOVERABLE."""
+
     def build(M, bm):
         # Graph: X→Y, W→R_X  (W is exogenous — no edge from X to W or R_X via X)
         return bm(
@@ -187,11 +208,15 @@ def _case_mar_independent() -> BenchmarkCase:
             directed_edges=[("X", "Y"), ("W", "R_X")],
             missingness_map={"X": M.MAR},
         )
-    def qv(meta): return frozenset(["X"])
+
+    def qv(meta):
+        return frozenset(["X"])
+
     return _build_case(
         name="mar_independent_w",
         description="X→Y, W→R_X (W exogenous) — R_X not in desc(X) → RECOVERABLE",
-        build_graph_fn=build, query_vars_fn=qv,
+        build_graph_fn=build,
+        query_vars_fn=qv,
         expected_status_str="recoverable",
         tags=("mar",),
     )
@@ -199,17 +224,22 @@ def _case_mar_independent() -> BenchmarkCase:
 
 def _case_mcar_both() -> BenchmarkCase:
     """Both X and Y MCAR: X→Y → RECOVERABLE for both."""
+
     def build(M, bm):
         return bm(
             substantive_vars=["X", "Y"],
             directed_edges=[("X", "Y")],
             missingness_map={"X": M.MCAR, "Y": M.MCAR},
         )
-    def qv(meta): return frozenset(v.target_variable for v in meta.r_nodes)
+
+    def qv(meta):
+        return frozenset(v.target_variable for v in meta.r_nodes)
+
     return _build_case(
         name="mcar_both",
         description="X→Y, both MCAR → RECOVERABLE",
-        build_graph_fn=build, query_vars_fn=qv,
+        build_graph_fn=build,
+        query_vars_fn=qv,
         expected_status_str="recoverable",
         tags=("mcar",),
     )
@@ -222,17 +252,22 @@ def _case_mar_chain() -> BenchmarkCase:
     Z is not a descendant of X, so the path X→...→R_X does NOT exist.
     → RECOVERABLE.
     """
+
     def build(M, bm):
         return bm(
             substantive_vars=["Z", "X", "Y"],
             directed_edges=[("Z", "X"), ("X", "Y"), ("Z", "R_X")],
             missingness_map={"X": M.MAR},
         )
-    def qv(meta): return frozenset(["X"])
+
+    def qv(meta):
+        return frozenset(["X"])
+
     return _build_case(
         name="mar_chain_from_ancestor",
         description="Z→X→Y, Z→R_X (Z is ancestor of X) → RECOVERABLE",
-        build_graph_fn=build, query_vars_fn=qv,
+        build_graph_fn=build,
+        query_vars_fn=qv,
         expected_status_str="recoverable",
         tags=("mar",),
     )
@@ -240,6 +275,7 @@ def _case_mar_chain() -> BenchmarkCase:
 
 def _case_fully_observed() -> BenchmarkCase:
     """Plain DAG, no R-nodes — all variables trivially RECOVERABLE."""
+
     def build(M, bm):
         # Build a plain DAG (no missingness) — no R-nodes added
         return bm(
@@ -247,14 +283,17 @@ def _case_fully_observed() -> BenchmarkCase:
             directed_edges=[("X", "Y"), ("X", "Z"), ("Y", "Z")],
             missingness_map={},  # no missing variables
         )
-    def qv(meta): return frozenset(["X", "Y", "Z"])
+
+    def qv(meta):
+        return frozenset(["X", "Y", "Z"])
 
     # Special: build_mgraph with empty missingness_map still creates an MGRAPH
     # but with no R-nodes, so all variables are trivially recoverable.
     return _build_case(
         name="fully_observed",
         description="No R-nodes — all variables trivially observable → RECOVERABLE",
-        build_graph_fn=build, query_vars_fn=qv,
+        build_graph_fn=build,
+        query_vars_fn=qv,
         expected_status_str="recoverable",
         tags=("trivial",),
     )
@@ -262,17 +301,22 @@ def _case_fully_observed() -> BenchmarkCase:
 
 def _case_mnar_self() -> BenchmarkCase:
     """MNAR self-loop: X→Y, X→R_X (auto-added) → NOT_RECOVERABLE."""
+
     def build(M, bm):
         return bm(
             substantive_vars=["X", "Y"],
             directed_edges=[("X", "Y")],
             missingness_map={"X": M.MNAR},
         )
-    def qv(meta): return frozenset(["X"])
+
+    def qv(meta):
+        return frozenset(["X"])
+
     return _build_case(
         name="mnar_self",
         description="X→Y, X→R_X (MNAR direct) — R_X ∈ desc(X) → NOT_RECOVERABLE",
-        build_graph_fn=build, query_vars_fn=qv,
+        build_graph_fn=build,
+        query_vars_fn=qv,
         expected_status_str="not_recoverable",
         tags=("mnar",),
     )
@@ -280,17 +324,22 @@ def _case_mnar_self() -> BenchmarkCase:
 
 def _case_mnar_outcome() -> BenchmarkCase:
     """MNAR outcome: X→Y, Y→R_Y (auto-added) → NOT_RECOVERABLE for Y."""
+
     def build(M, bm):
         return bm(
             substantive_vars=["X", "Y"],
             directed_edges=[("X", "Y")],
             missingness_map={"Y": M.MNAR},
         )
-    def qv(meta): return frozenset(["Y"])
+
+    def qv(meta):
+        return frozenset(["Y"])
+
     return _build_case(
         name="mnar_outcome",
         description="X→Y, Y→R_Y (outcome MNAR) → NOT_RECOVERABLE",
-        build_graph_fn=build, query_vars_fn=qv,
+        build_graph_fn=build,
+        query_vars_fn=qv,
         expected_status_str="not_recoverable",
         tags=("mnar",),
     )
@@ -306,17 +355,22 @@ def _case_mar_descendant() -> BenchmarkCase:
     This is the crucial case that distinguishes the Mohan-Pearl framework from
     naive missingness classification.
     """
+
     def build(M, bm):
         return bm(
             substantive_vars=["X", "Y"],
             directed_edges=[("X", "Y"), ("Y", "R_X")],
             missingness_map={"X": M.MAR},
         )
-    def qv(meta): return frozenset(["X"])
+
+    def qv(meta):
+        return frozenset(["X"])
+
     return _build_case(
         name="mar_on_descendant",
         description="X→Y, Y→R_X (MAR but R_X in desc(X)) → NOT_RECOVERABLE",
-        build_graph_fn=build, query_vars_fn=qv,
+        build_graph_fn=build,
+        query_vars_fn=qv,
         expected_status_str="not_recoverable",
         tags=("mar", "mohan_pearl_key"),
     )
@@ -324,17 +378,22 @@ def _case_mar_descendant() -> BenchmarkCase:
 
 def _case_mnar_both() -> BenchmarkCase:
     """MNAR for both X and Y → NOT_RECOVERABLE."""
+
     def build(M, bm):
         return bm(
             substantive_vars=["X", "Y"],
             directed_edges=[("X", "Y")],
             missingness_map={"X": M.MNAR, "Y": M.MNAR},
         )
-    def qv(meta): return frozenset(v.target_variable for v in meta.r_nodes)
+
+    def qv(meta):
+        return frozenset(v.target_variable for v in meta.r_nodes)
+
     return _build_case(
         name="mnar_both",
         description="X→Y, both MNAR → NOT_RECOVERABLE",
-        build_graph_fn=build, query_vars_fn=qv,
+        build_graph_fn=build,
+        query_vars_fn=qv,
         expected_status_str="not_recoverable",
         tags=("mnar",),
     )
@@ -342,6 +401,7 @@ def _case_mnar_both() -> BenchmarkCase:
 
 def _case_mnar_chain() -> BenchmarkCase:
     """MNAR via chain: X→Z→R_X (missingness via intermediate descendant)."""
+
     def build(M, bm):
         # X→Z is a substantive edge; Z→R_X makes R_X a descendant of X via chain.
         # We use MAR kind but add the chain edge manually.
@@ -350,11 +410,15 @@ def _case_mnar_chain() -> BenchmarkCase:
             directed_edges=[("X", "Z"), ("Z", "Y"), ("Z", "R_X")],
             missingness_map={"X": M.MAR},
         )
-    def qv(meta): return frozenset(["X"])
+
+    def qv(meta):
+        return frozenset(["X"])
+
     return _build_case(
         name="mnar_via_chain",
         description="X→Z→R_X (chain descendant path) → NOT_RECOVERABLE",
-        build_graph_fn=build, query_vars_fn=qv,
+        build_graph_fn=build,
+        query_vars_fn=qv,
         expected_status_str="not_recoverable",
         tags=("mnar", "chain"),
     )
@@ -365,17 +429,22 @@ def _case_partial_mnar() -> BenchmarkCase:
 
     Query covers both X and Y → overall NOT_RECOVERABLE because Y blocks it.
     """
+
     def build(M, bm):
         return bm(
             substantive_vars=["X", "Y"],
             directed_edges=[("X", "Y")],
             missingness_map={"X": M.MCAR, "Y": M.MNAR},
         )
-    def qv(meta): return frozenset(v.target_variable for v in meta.r_nodes)
+
+    def qv(meta):
+        return frozenset(v.target_variable for v in meta.r_nodes)
+
     return _build_case(
         name="partial_mnar",
         description="X MCAR (ok), Y MNAR (blocks) → overall NOT_RECOVERABLE",
-        build_graph_fn=build, query_vars_fn=qv,
+        build_graph_fn=build,
+        query_vars_fn=qv,
         expected_status_str="not_recoverable",
         tags=("mnar", "mixed"),
     )
@@ -397,7 +466,7 @@ def build_mgraph_harness() -> BenchmarkHarness:
         _case_fully_observed,
         _case_mnar_self,
         _case_mnar_outcome,
-        _case_mar_descendant,       # KEY Mohan-Pearl case
+        _case_mar_descendant,  # KEY Mohan-Pearl case
         _case_mnar_both,
         _case_mnar_chain,
         _case_partial_mnar,

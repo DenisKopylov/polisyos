@@ -16,9 +16,9 @@ Design Principles:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field
@@ -64,9 +64,9 @@ class ConstraintViolation(BaseModel):
 
     constraint_id: str = Field(description="Unique identifier for the constraint")
     constraint_type: str = Field(description="Category: safety, budget, schema, semantic")
-    field_path: Optional[str] = Field(default=None, description="JSON path to violating field")
-    expected: Optional[str] = Field(default=None, description="What was expected")
-    actual: Optional[str] = Field(default=None, description="What was found")
+    field_path: str | None = Field(default=None, description="JSON path to violating field")
+    expected: str | None = Field(default=None, description="What was expected")
+    actual: str | None = Field(default=None, description="What was found")
     message: str = Field(description="Human-readable explanation")
 
 
@@ -75,9 +75,11 @@ class StateDiff(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    before_ref: Optional[str] = Field(default=None, description="CAS ref to state before operation")
-    after_ref: Optional[str] = Field(default=None, description="CAS ref to state after operation")
-    changed_fields: List[str] = Field(default_factory=list, description="List of modified field paths")
+    before_ref: str | None = Field(default=None, description="CAS ref to state before operation")
+    after_ref: str | None = Field(default=None, description="CAS ref to state after operation")
+    changed_fields: list[str] = Field(
+        default_factory=list, description="List of modified field paths"
+    )
     delta_summary: str = Field(default="", description="Human-readable summary of changes")
 
 
@@ -94,7 +96,7 @@ class FailureCard(BaseModel):
     # === Identity ===
     card_id: UUID = Field(default_factory=uuid4, description="Unique identifier for this card")
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
+        default_factory=lambda: datetime.now(UTC),
         description="When this card was created",
     )
 
@@ -116,15 +118,15 @@ class FailureCard(BaseModel):
     )
 
     # === Technical Details ===
-    violations: List[ConstraintViolation] = Field(
+    violations: list[ConstraintViolation] = Field(
         default_factory=list,
         description="Detailed list of specific constraint violations",
     )
-    technical_details: Dict[str, Any] = Field(
+    technical_details: dict[str, Any] = Field(
         default_factory=dict,
         description="Additional context: stack traces, diffs, constraint IDs",
     )
-    state_diff: Optional[StateDiff] = Field(
+    state_diff: StateDiff | None = Field(
         default=None,
         description="Changes that triggered the failure",
     )
@@ -134,7 +136,7 @@ class FailureCard(BaseModel):
         max_length=1000,
         description="Specific instructions for fixing the issue",
     )
-    governor_advice: Optional[str] = Field(
+    governor_advice: str | None = Field(
         default=None,
         max_length=500,
         description="Additional guidance from Governor component",
@@ -149,11 +151,11 @@ class FailureCard(BaseModel):
     max_iterations: int = Field(default=3, ge=1, le=10, description="Budget for retries")
 
     # === Artifact References ===
-    failed_artifact_ref: Optional[str] = Field(
+    failed_artifact_ref: str | None = Field(
         default=None,
         description="CAS reference to the artifact that failed validation",
     )
-    previous_card_ref: Optional[str] = Field(
+    previous_card_ref: str | None = Field(
         default=None,
         description="CAS reference to previous FailureCard (if this is a retry)",
     )
@@ -187,9 +189,7 @@ class FailureCard(BaseModel):
             Formatted string suitable for LLM context injection
         """
         lines = [
-            "## FAILURE CONTEXT (Attempt {}/{})".format(
-                self.attempt_number, self.max_iterations
-            ),
+            f"## FAILURE CONTEXT (Attempt {self.attempt_number}/{self.max_iterations})",
             "",
             "### What Went Wrong",
             f"**Error Code:** `{self.error_code}`",
@@ -224,7 +224,7 @@ class FailureCard(BaseModel):
 
         return "\n".join(lines)
 
-    def to_audit_entry(self) -> Dict[str, Any]:
+    def to_audit_entry(self) -> dict[str, Any]:
         """Format for audit trail logging."""
         return {
             "card_id": str(self.card_id),
@@ -246,15 +246,15 @@ class FailureCard(BaseModel):
         run_id: str,
         attempt_number: int = 1,
         max_iterations: int = 3,
-        violations: Optional[List[ConstraintViolation]] = None,
-        technical_details: Optional[Dict[str, Any]] = None,
-        governor_advice: Optional[str] = None,
-        failed_artifact_ref: Optional[str] = None,
-        previous_card_ref: Optional[str] = None,
-        severity: Optional[FailureSeverity] = None,
-        remediation_target: Optional[RemediationTarget] = None,
-        state_diff: Optional[StateDiff] = None,
-    ) -> "FailureCard":
+        violations: list[ConstraintViolation] | None = None,
+        technical_details: dict[str, Any] | None = None,
+        governor_advice: str | None = None,
+        failed_artifact_ref: str | None = None,
+        previous_card_ref: str | None = None,
+        severity: FailureSeverity | None = None,
+        remediation_target: RemediationTarget | None = None,
+        state_diff: StateDiff | None = None,
+    ) -> FailureCard:
         """
         Factory method for generating FailureCards with sensible defaults.
 
@@ -345,11 +345,11 @@ class FailureCard(BaseModel):
 
 
 def from_critic_feedback(
-    critique: Dict[str, Any],
+    critique: dict[str, Any],
     run_id: str,
     attempt_number: int = 1,
     max_iterations: int = 3,
-    failed_artifact_ref: Optional[str] = None,
+    failed_artifact_ref: str | None = None,
 ) -> FailureCard:
     """
     Convert Critic agent feedback into a FailureCard.
@@ -406,7 +406,7 @@ def from_critic_feedback(
 
 
 def from_validation_error(
-    validation_report: Dict[str, Any],
+    validation_report: dict[str, Any],
     run_id: str,
     attempt_number: int = 1,
     max_iterations: int = 3,
@@ -437,9 +437,7 @@ def from_validation_error(
     for violation in violations[:3]:
         message_lower = violation.message.lower()
         if "required" in message_lower:
-            remediation_parts.append(
-                f"Add missing required field at `{violation.field_path}`"
-            )
+            remediation_parts.append(f"Add missing required field at `{violation.field_path}`")
         elif "type" in message_lower:
             remediation_parts.append(
                 f"Fix type error at `{violation.field_path}`: {violation.message}"
@@ -451,8 +449,7 @@ def from_validation_error(
         source_step=FailureSource.VALIDATOR_SCHEMA,
         error_code="SCHEMA_VALIDATION_ERROR",
         violation_summary=f"IR failed schema validation with {len(violations)} issue(s)",
-        remediation_advice="\n".join(remediation_parts)
-        or "Fix the validation errors listed above",
+        remediation_advice="\n".join(remediation_parts) or "Fix the validation errors listed above",
         run_id=run_id,
         attempt_number=attempt_number,
         max_iterations=max_iterations,
@@ -462,7 +459,7 @@ def from_validation_error(
 
 
 def from_governor_feedback(
-    feedback: Dict[str, Any],
+    feedback: dict[str, Any],
     run_id: str,
     attempt_number: int = 1,
     max_iterations: int = 3,
@@ -481,7 +478,9 @@ def from_governor_feedback(
                 ConstraintViolation(
                     constraint_id=issue.get("constraint_id", "gov_check"),
                     constraint_type=issue.get("error_type", "governance"),
-                    field_path=".".join(str(item) for item in loc) if isinstance(loc, list) else str(loc),
+                    field_path=".".join(str(item) for item in loc)
+                    if isinstance(loc, list)
+                    else str(loc),
                     message=issue.get("message") or issue.get("msg") or "Governance check failed",
                 )
             )
@@ -506,7 +505,9 @@ def from_governor_feedback(
         source_step=source,
         error_code=f"GOVERNOR_{verdict}",
         violation_summary=f"Governor issued {verdict} verdict with {len(issues)} issue(s)",
-        remediation_advice=feedback.get("remediation_hint", "Address the governance issues and resubmit"),
+        remediation_advice=feedback.get(
+            "remediation_hint", "Address the governance issues and resubmit"
+        ),
         governor_advice=feedback.get("advice"),
         run_id=run_id,
         attempt_number=attempt_number,

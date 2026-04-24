@@ -1,10 +1,11 @@
 """
 Registry for ConnectorSchemaContract versions and evolution enforcement.
 """
+
 from __future__ import annotations
 
 import threading
-from typing import Callable, Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 
 from polisyos.common.logger import get_logger
 from polisyos.core.errors import ErrorCategory, PolicyOSError
@@ -197,7 +198,9 @@ class ContractRegistry:
         with self._lock:
             history = self._contracts.get(contract_id)
             if history is None or not history.versions:
-                raise ContractNotFoundError(contract_id, None if version is None else self._parse(version))
+                raise ContractNotFoundError(
+                    contract_id, None if version is None else self._parse(version)
+                )
 
             if version is None:
                 return history.versions[-1]
@@ -246,9 +249,10 @@ class ContractRegistry:
 
     def list_all(self) -> Iterator[ConnectorSchemaContract]:
         with self._lock:
-            latest = [history.versions[-1] for history in self._contracts.values() if history.versions]
-        for contract in sorted(latest, key=lambda item: item.contract_id):
-            yield contract
+            latest = [
+                history.versions[-1] for history in self._contracts.values() if history.versions
+            ]
+        yield from sorted(latest, key=lambda item: item.contract_id)
 
     def __len__(self) -> int:
         with self._lock:

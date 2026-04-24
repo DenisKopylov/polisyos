@@ -4,6 +4,7 @@ Ensures that all foundry method modules are free of banned imports
 (I/O, system access, heavy data-plane libraries in standard policy zones)
 and that registered methods conform to the FoundryMethod protocol.
 """
+
 from __future__ import annotations
 
 import ast
@@ -13,8 +14,8 @@ from pathlib import Path
 
 import pytest
 
-from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 from polisyos.foundry.methods.registry import MethodRegistry
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -48,9 +49,7 @@ class TestLintFoundrySubprocess:
         assert result.returncode == 0, (
             f"lint_foundry.py exited {result.returncode}:\n{result.stdout}\n{result.stderr}"
         )
-        assert "clean" in result.stdout.lower(), (
-            f"Expected 'clean' in output:\n{result.stdout}"
-        )
+        assert "clean" in result.stdout.lower(), f"Expected 'clean' in output:\n{result.stdout}"
 
 
 # ---------------------------------------------------------------------------
@@ -92,9 +91,7 @@ class TestProtocolCompliance:
 
         for fqn in registry:
             method_cls = registry.get(fqn)
-            assert hasattr(method_cls, "pure_step"), (
-                f"{fqn}: missing pure_step"
-            )
+            assert hasattr(method_cls, "pure_step"), f"{fqn}: missing pure_step"
 
 
 # ---------------------------------------------------------------------------
@@ -126,9 +123,8 @@ class TestDirectASTScan:
                 )
                 violations.extend(outcome.violations)
 
-        assert violations == [], (
-            f"Foundry ban-list violations:\n"
-            + "\n".join(f"  {v.path}:{v.lineno} {v.message}" for v in violations)
+        assert violations == [], "Foundry ban-list violations:\n" + "\n".join(
+            f"  {v.path}:{v.lineno} {v.message}" for v in violations
         )
 
 
@@ -172,6 +168,6 @@ class TestBackendIsolation:
                             f"{py_file.relative_to(REPO_ROOT)}:{node.lineno} from {node.module}"
                         )
 
-        assert violations == [], (
-            f"Catalog files importing I/O modules:\n" + "\n".join(f"  {v}" for v in violations)
+        assert violations == [], "Catalog files importing I/O modules:\n" + "\n".join(
+            f"  {v}" for v in violations
         )

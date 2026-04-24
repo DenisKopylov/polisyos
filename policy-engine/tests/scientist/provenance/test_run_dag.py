@@ -1,4 +1,5 @@
 """Tests for RunProvenanceDAG — WS4 provenance tracking."""
+
 from __future__ import annotations
 
 import sys
@@ -93,10 +94,7 @@ class TestRecordLLMCall:
         assert graph.agents[model_agent_id].agent_type.value == "model"
 
         # An LLM call activity should exist
-        llm_activities = [
-            a for a in graph.activities.values()
-            if a.activity_type.value == "query"
-        ]
+        llm_activities = [a for a in graph.activities.values() if a.activity_type.value == "query"]
         assert len(llm_activities) == 1
         assert "gpt-4o" in llm_activities[0].label
 

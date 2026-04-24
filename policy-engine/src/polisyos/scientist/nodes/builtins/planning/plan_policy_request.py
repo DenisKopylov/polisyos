@@ -1,4 +1,5 @@
 """Public planning plan policy request module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -54,12 +55,16 @@ class PlanPolicyRequestNode:
     the request-frame artifact ref, `params.policy_answer_mode`, and the verified
     execution profile consumed by downstream sourcing nodes.
     """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        if state.policy_request_ref is not None and ARTIFACT_POLICY_REQUEST_FRAME_REF in state.artifacts_index:
+        if (
+            state.policy_request_ref is not None
+            and ARTIFACT_POLICY_REQUEST_FRAME_REF in state.artifacts_index
+        ):
             return NodeOutcome(status="ok", state=state)
 
         frame = build_policy_request_frame(ctx, state)

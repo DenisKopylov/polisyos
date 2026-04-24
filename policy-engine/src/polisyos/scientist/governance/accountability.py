@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import math
 from collections import defaultdict
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any, Literal, Mapping, Sequence
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -351,7 +352,7 @@ class GovernanceAccountabilityInput(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_lengths(self) -> "GovernanceAccountabilityInput":
+    def _validate_lengths(self) -> GovernanceAccountabilityInput:
         n_scores = len(self.predicted_scores)
         n_outcomes = len(self.observed_outcomes)
         if n_scores != n_outcomes:
@@ -360,7 +361,9 @@ class GovernanceAccountabilityInput(BaseModel):
             raise ValueError("predicted_uncertainties must match predicted_scores length")
         for axis, values in self.protected_attributes.items():
             if n_scores and len(values) != n_scores:
-                raise ValueError(f"protected_attributes[{axis!r}] must match predicted_scores length")
+                raise ValueError(
+                    f"protected_attributes[{axis!r}] must match predicted_scores length"
+                )
         return self
 
 
@@ -404,11 +407,7 @@ class GovernanceAccountabilityArtifact(BaseModel):
     def compact_summary(self) -> dict[str, Any]:
         """Return the dashboard-facing summary surfaced in promotion bundles and packets."""
 
-        failed = [
-            entry.threshold_id
-            for entry in self.threshold_registry
-            if entry.passed is False
-        ]
+        failed = [entry.threshold_id for entry in self.threshold_registry if entry.passed is False]
         return {
             "risk_weighted_verdict": self.risk_weighted_verdict,
             "promotion_safe": self.promotion_safe,
@@ -575,7 +574,9 @@ def build_governance_accountability_artifact(
             fairness=fairness,
             composite_score=composite_score,
         ),
-        datasheet=_build_datasheet(payload, sample_count=None if calibration is None else calibration.n_obs),
+        datasheet=_build_datasheet(
+            payload, sample_count=None if calibration is None else calibration.n_obs
+        ),
         escalation_policy=escalation_policy,
         gaps=sorted(set(gaps)),
         notes=sorted(set(notes)),
@@ -633,9 +634,7 @@ def _build_threshold_registry(
             overrides,
             fallback=definition.default_value,
         )
-        serialized_threshold = (
-            threshold_value if math.isfinite(float(threshold_value)) else None
-        )
+        serialized_threshold = threshold_value if math.isfinite(float(threshold_value)) else None
         observed_value = metric_values.get(definition.metric_id)
         passed = (
             None
@@ -681,10 +680,7 @@ def _build_calibration_summary(
         for score, outcome in zip(scores, outcomes)
     ) / max(n_obs, 1)
     bins = _build_reliability_bins(scores, outcomes)
-    ece = sum(
-        (item.count / max(n_obs, 1)) * (item.absolute_gap or 0.0)
-        for item in bins
-    )
+    ece = sum((item.count / max(n_obs, 1)) * (item.absolute_gap or 0.0) for item in bins)
 
     uncertainties = (
         list(payload.predicted_uncertainties)
@@ -736,11 +732,7 @@ def _project_calibration_summary(
     if report.recommended_action:
         notes.append(f"recommended_action:{report.recommended_action}")
     notes.extend(f"issue:{issue.code}" for issue in report.issues)
-    notes.extend(
-        f"test_rejected:{test.test_id}"
-        for test in report.tests
-        if test.passed is False
-    )
+    notes.extend(f"test_rejected:{test.test_id}" for test in report.tests if test.passed is False)
 
     return CalibrationMetricsSummary(
         n_obs=report.metrics.n_obs,
@@ -773,7 +765,11 @@ def _build_fairness_summary(
         protected_attributes=payload.protected_attributes,
     )
     group_calibration_gap = max(
-        (abs(item.calibration_gap) for item in group_calibration if item.calibration_gap is not None),
+        (
+            abs(item.calibration_gap)
+            for item in group_calibration
+            if item.calibration_gap is not None
+        ),
         default=None,
     )
     equalized_odds_gap, demographic_parity_gap = _fairness_gaps_for_threshold(
@@ -789,7 +785,10 @@ def _build_fairness_summary(
     )
 
     notes: list[str] = []
-    if payload.distributional_report is not None and payload.distributional_report.overall_gini_delta is not None:
+    if (
+        payload.distributional_report is not None
+        and payload.distributional_report.overall_gini_delta is not None
+    ):
         notes.append(
             f"distributional_overall_gini_delta={payload.distributional_report.overall_gini_delta:.4f}"
         )
@@ -833,7 +832,10 @@ def _fairness_from_optional_only(
     if payload.distributional_report is None and payload.causal_fairness_report is None:
         return None
     notes: list[str] = []
-    if payload.distributional_report is not None and payload.distributional_report.overall_gini_delta is not None:
+    if (
+        payload.distributional_report is not None
+        and payload.distributional_report.overall_gini_delta is not None
+    ):
         notes.append(
             f"distributional_overall_gini_delta={payload.distributional_report.overall_gini_delta:.4f}"
         )
@@ -1039,9 +1041,7 @@ def _compute_ence(
     for start in range(0, len(ranked), chunk_size):
         chunk = ranked[start : start + chunk_size]
         mean_uncertainty = sum(item[0] for item in chunk) / len(chunk)
-        rmse = math.sqrt(
-            sum((item[1] - item[2]) ** 2 for item in chunk) / len(chunk)
-        )
+        rmse = math.sqrt(sum((item[1] - item[2]) ** 2 for item in chunk) / len(chunk))
         if mean_uncertainty <= _EPSILON:
             continue
         errors.append(abs(mean_uncertainty - rmse) / mean_uncertainty)
@@ -1069,8 +1069,7 @@ def _group_calibration_summaries(
             mean_score = sum(group_scores) / max(count, 1)
             positive_rate = sum(group_outcomes) / max(count, 1)
             brier = sum(
-                (score - outcome) ** 2
-                for score, outcome in zip(group_scores, group_outcomes)
+                (score - outcome) ** 2 for score, outcome in zip(group_scores, group_outcomes)
             ) / max(count, 1)
             log_score = -sum(
                 outcome * math.log(score + _EPSILON)
@@ -1249,7 +1248,9 @@ def _resolve_risk_weighted_verdict(
     normalized = str(governance_verdict or "").strip().lower()
     if normalized in {"reject", "human_gate"}:
         return "human_gate" if normalized == "human_gate" else "reject"
-    if any(entry.passed is False and entry.severity == "human_gate" for entry in threshold_registry):
+    if any(
+        entry.passed is False and entry.severity == "human_gate" for entry in threshold_registry
+    ):
         return "human_gate"
     if any(entry.passed is False and entry.severity == "blocker" for entry in threshold_registry):
         return "reject"

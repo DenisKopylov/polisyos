@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
@@ -89,7 +89,7 @@ class ProblemFrame:
     success_criteria: dict[str, Any] = field(default_factory=dict)
     assumptions: tuple[str, ...] = field(default_factory=tuple)
     context: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def __hash__(self) -> int:
         """Enable use as dict key based on frame_id."""
@@ -147,7 +147,7 @@ class DraftResult:
     confidence: float = 0.0
     alternatives_considered: list[str] = field(default_factory=list)
     raw_llm_response: str | None = None
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass(frozen=True, slots=True)
@@ -182,7 +182,7 @@ class CritiqueReport:
     reflexion_hint: str = ""
     citations: list[dict[str, Any]] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     @property
     def has_blockers(self) -> bool:
@@ -314,25 +314,25 @@ class FormalizerAgent(Protocol):
         draft: DraftResult,
         *,
         schema_version: str = "1.0",
-    ) -> "TrinityBundle":
+    ) -> TrinityBundle:
         """Convert a natural language draft to canonical TrinityBundle."""
         ...
 
     @abstractmethod
     async def repair_ir(
         self,
-        ir: "TrinityBundle",
+        ir: TrinityBundle,
         errors: list[str],
         *,
         hint: str | None = None,
-    ) -> "TrinityBundle":
+    ) -> TrinityBundle:
         """Repair invalid Trinity artifacts based on validation errors."""
         ...
 
     @abstractmethod
     async def validate_structure(
         self,
-        ir: "TrinityBundle",
+        ir: TrinityBundle,
     ) -> tuple[bool, list[str]]:
         """Validate Trinity structure without full semantic check."""
         ...
@@ -345,7 +345,7 @@ class CriticAgent(Protocol):
     @abstractmethod
     async def critique(
         self,
-        ir: "TrinityBundle",
+        ir: TrinityBundle,
         problem_frame: ProblemFrame,
         *,
         depth: str = "standard",
@@ -364,7 +364,7 @@ class CriticAgent(Protocol):
     @abstractmethod
     async def check_alignment(
         self,
-        ir: "TrinityBundle",
+        ir: TrinityBundle,
         problem_frame: ProblemFrame,
     ) -> float:
         """Calculate alignment score between Trinity artifacts and ProblemFrame."""

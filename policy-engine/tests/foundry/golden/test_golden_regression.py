@@ -4,6 +4,7 @@ Golden regression tests — YAML-driven known-answer verification.
 Each test case is defined in a YAML file in this directory and verified
 against the corresponding FoundryMethod.pure_step output.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -33,6 +34,5 @@ def test_golden_case(case, full_method_registry, golden_registry):
     result = golden_registry.verify_case(case, full_method_registry)
     assert result.passed, (
         f"Golden regression FAILED for {case.id} ({case.method_fqn}):\n"
-        f"  {result.message}\n"
-        + "\n".join(f"  - {m}" for m in result.mismatches)
+        f"  {result.message}\n" + "\n".join(f"  - {m}" for m in result.mismatches)
     )

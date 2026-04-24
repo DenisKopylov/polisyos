@@ -7,8 +7,8 @@ import pytest
 from polisyos.core.contracts.execution_plan import (
     ExecutionPlan,
     IterationState,
-    MethodDagNode,
     MethodCatalogSnapshot,
+    MethodDagNode,
     PlanDataNeed,
     ReproducibilityManifest,
 )

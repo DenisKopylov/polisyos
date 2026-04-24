@@ -3,6 +3,7 @@
 Defines the exception and warning classes used throughout the coercion
 subsystem to signal conversion failures and potential precision loss.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -33,9 +34,7 @@ class CoercionError(ValueError):
         if len(value_repr) > 50:
             value_repr = value_repr[:50] + "..."
 
-        super().__init__(
-            f"Cannot coerce {value_repr} ({source_type}) to {target_type}: {reason}"
-        )
+        super().__init__(f"Cannot coerce {value_repr} ({source_type}) to {target_type}: {reason}")
 
 
 class PrecisionLossWarning(UserWarning):
@@ -53,6 +52,5 @@ class PrecisionLossWarning(UserWarning):
         self.target_type = target_type
         self.description = description
         super().__init__(
-            f"Potential precision loss converting {source_type} to {target_type}: "
-            f"{description}"
+            f"Potential precision loss converting {source_type} to {target_type}: {description}"
         )

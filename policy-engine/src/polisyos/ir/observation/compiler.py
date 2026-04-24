@@ -4,18 +4,22 @@ This module consumes ``ObservationPanel`` records plus routing/measurement
 registries, assigns split labels, and emits ``CalibrationTargetBundle``
 payloads and negative-control specs for Foundry calibration and falsification.
 """
+
 from __future__ import annotations
 
 from collections import Counter, defaultdict
 from datetime import date
 from enum import Enum
 
-import jax.numpy as jnp
+try:  # pragma: no cover - preferred in full Foundry runtime environments.
+    import jax.numpy as jnp
+except ImportError:  # pragma: no cover - keeps IR reflection importable.
+    import numpy as jnp  # type: ignore[no-redef]
 from pydantic import Field, model_validator
 
 from polisyos.foundry.calibration.measurement import (
-    CalibrationTargetBundle,
     MEASUREMENT_AWARE_TARGET_CONTRACT,
+    CalibrationTargetBundle,
     MeasurementAwareTarget,
 )
 from polisyos.ir.kernel.base import KernelModel
@@ -28,7 +32,6 @@ from polisyos.ir.observation.bundles import (
 from polisyos.ir.observation.contracts import (
     EntityScope,
     IdentificationMode,
-    ObservationFamily,
     ObservationPanel,
     ObservationRecord,
 )
@@ -108,17 +111,19 @@ class CalibrationSplitWindow(KernelModel):
     reason: str = Field(default="", max_length=120)
 
     @model_validator(mode="after")
-    def validate_window(self) -> "CalibrationSplitWindow":
-        if self.start_date is not None and self.end_date is not None and self.end_date < self.start_date:
+    def validate_window(self) -> CalibrationSplitWindow:
+        if (
+            self.start_date is not None
+            and self.end_date is not None
+            and self.end_date < self.start_date
+        ):
             raise ValueError("end_date must be >= start_date")
         return self
 
     def contains(self, period_start: date, period_end: date) -> bool:
         if self.start_date is not None and period_end < self.start_date:
             return False
-        if self.end_date is not None and period_start > self.end_date:
-            return False
-        return True
+        return not (self.end_date is not None and period_start > self.end_date)
 
 
 class CalibrationSplitPlan(KernelModel):
@@ -140,7 +145,7 @@ class CalibrationSplitPlan(KernelModel):
         time_grain: TimeFrequency,
         records: list[ObservationRecord],
         holdout_windows: list[CalibrationSplitWindow] | None = None,
-    ) -> "CalibrationSplitPlan":
+    ) -> CalibrationSplitPlan:
         if not records:
             return cls(windows=[])
         latest_start = max(record.period_start for record in records)
@@ -213,9 +218,14 @@ class CalibrationSplitter:
             return self._split_plan
         return CalibrationSplitPlan.default(time_grain=panel.time_grain, records=panel.records)
 
-    def label_record(self, record: ObservationRecord, *, split_plan: CalibrationSplitPlan) -> CalibrationSplitLabel:
+    def label_record(
+        self, record: ObservationRecord, *, split_plan: CalibrationSplitPlan
+    ) -> CalibrationSplitLabel:
         label = split_plan.label_for_period(record.period_start, record.period_end)
-        if label in {CalibrationSplitLabel.TRAIN, CalibrationSplitLabel.VALIDATION} and self._is_boundary(record):
+        if label in {
+            CalibrationSplitLabel.TRAIN,
+            CalibrationSplitLabel.VALIDATION,
+        } and self._is_boundary(record):
             return CalibrationSplitLabel.HOLDOUT
         return label
 
@@ -266,10 +276,14 @@ class CalibrationTargetBundleCompiler:
             measurement_registry=self._measurement_registry
         )
         self._schema_regime_registry = schema_regime_registry
-        self._splitter = splitter or CalibrationSplitter(schema_regime_registry=schema_regime_registry)
+        self._splitter = splitter or CalibrationSplitter(
+            schema_regime_registry=schema_regime_registry
+        )
 
     def compile(self, panel: ObservationPanel) -> CalibrationTargetBundle:
-        sorted_records = sorted(panel.records, key=lambda item: (item.period_start, item.observation_id))
+        sorted_records = sorted(
+            panel.records, key=lambda item: (item.period_start, item.observation_id)
+        )
         full_axis = tuple(sorted({record.period_start for record in sorted_records}))
         axis_index = {value: idx for idx, value in enumerate(full_axis)}
         grouped: dict[str, list[ObservationRecord]] = defaultdict(list)
@@ -304,9 +318,7 @@ class CalibrationTargetBundleCompiler:
             observation_ids = [
                 f"missing.{panel.panel_id}.{first.metric_id}.{idx}" for idx in range(len(full_axis))
             ]
-            split_labels = [
-                split_plan.label_for_period(point, point).value for point in full_axis
-            ]
+            split_labels = [split_plan.label_for_period(point, point).value for point in full_axis]
             routed_modes = [first.identification_mode] * len(full_axis)
 
             for record in records:
@@ -355,7 +367,9 @@ class CalibrationTargetBundleCompiler:
                 RequiredArraySpec(name="lag_days_estimate", axes=["time"], dtype="int32"),
                 RequiredArraySpec(name="shock_mask", axes=["time"], dtype="bool"),
             ],
-            axis_semantics=[BundleAxisSemantic(axis="time", description="Aligned observation time axis")],
+            axis_semantics=[
+                BundleAxisSemantic(axis="time", description="Aligned observation time axis")
+            ],
             observation_families=[panel.family],
             lineage=[BundleLineageRef(source_artifact=panel.panel_id, source_family=panel.family)],
         )
@@ -417,16 +431,24 @@ class NegativeControlGenerator:
                 continue
             grain = bundle.time_grain[source_target_id]
             shift_periods = self._shift_periods or (len(source_dates) + 1)
-            placebo_dates = tuple(_shift_period(point, grain, shift_periods) for point in source_dates)
+            placebo_dates = tuple(
+                _shift_period(point, grain, shift_periods) for point in source_dates
+            )
             while set(placebo_dates).intersection(source_dates):
                 shift_periods += 1
-                placebo_dates = tuple(_shift_period(point, grain, shift_periods) for point in source_dates)
+                placebo_dates = tuple(
+                    _shift_period(point, grain, shift_periods) for point in source_dates
+                )
 
             placebo_target_id = f"placebo.{source_target_id}"
             placebo_time = tuple(_time_label(point) for point in placebo_dates)
             placebo_labels = []
             for point in placebo_dates:
-                label = split_plan.label_for_period(point, point).value if split_plan is not None else CalibrationSplitLabel.TEST.value
+                label = (
+                    split_plan.label_for_period(point, point).value
+                    if split_plan is not None
+                    else CalibrationSplitLabel.TEST.value
+                )
                 placebo_labels.append(label)
             if CalibrationSplitLabel.HOLDOUT.value in placebo_labels:
                 continue

@@ -1,5 +1,6 @@
 import { useMemo, type CSSProperties } from "react";
 
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { Card } from "@/shared/ui/primitives";
 
@@ -26,14 +27,11 @@ type PathAnalysisPanelProps = {
   className?: string;
 };
 
-const PATH_TYPE_CONFIG: Record<
-  CausalPath["type"],
-  { color: string; label: string }
-> = {
-  direct: { color: "var(--chart-primary)", label: "Direct" },
-  indirect: { color: "var(--chart-secondary)", label: "Indirect" },
-  backdoor: { color: "var(--chart-alert)", label: "Backdoor" },
-  frontdoor: { color: "var(--chart-success)", label: "Frontdoor" },
+const PATH_TYPE_CONFIG: Record<CausalPath["type"], { color: string }> = {
+  direct: { color: "var(--chart-primary)" },
+  indirect: { color: "var(--chart-secondary)" },
+  backdoor: { color: "var(--chart-alert)" },
+  frontdoor: { color: "var(--chart-success)" },
 };
 
 export function PathAnalysisPanel({
@@ -45,14 +43,15 @@ export function PathAnalysisPanel({
   onClose,
   className,
 }: PathAnalysisPanelProps) {
-  const nodeMap = useMemo(
-    () => new Map(nodes.map((n) => [n.id, n])),
-    [nodes],
-  );
-  const edgeMap = useMemo(
-    () => new Map(edges.map((e) => [e.id, e])),
-    [edges],
-  );
+  const { t } = useI18n();
+  const nodeMap = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
+  const edgeMap = useMemo(() => new Map(edges.map((e) => [e.id, e])), [edges]);
+  const pathTypeLabels: Record<CausalPath["type"], string> = {
+    direct: t("causal.pathAnalysis.direct"),
+    indirect: t("causal.pathAnalysis.indirect"),
+    backdoor: t("causal.pathAnalysis.backdoor"),
+    frontdoor: t("causal.pathAnalysis.frontdoor"),
+  };
 
   const directTotal = paths
     .filter((p) => p.type === "direct" && p.totalEffect != null)
@@ -65,12 +64,14 @@ export function PathAnalysisPanel({
   return (
     <Card className={cn("w-80 space-y-4 overflow-y-auto", className)}>
       <div className="flex items-start justify-between gap-2">
-        <h3 className="text-lg font-semibold">Path Analysis</h3>
+        <h3 className="text-lg font-semibold">
+          {t("causal.pathAnalysis.title")}
+        </h3>
         <button
           type="button"
           onClick={onClose}
-          className="text-muted hover:text-inherit text-lg leading-none"
-          aria-label="Close panel"
+          className="text-muted text-lg leading-none hover:text-inherit"
+          aria-label={t("common.close")}
         >
           {"\u00D7"}
         </button>
@@ -79,23 +80,29 @@ export function PathAnalysisPanel({
       {/* Effect decomposition */}
       <div className="border-line rounded-xl border p-3">
         <p className="text-muted mb-2 text-xs font-semibold uppercase">
-          Effect decomposition
+          {t("causal.pathAnalysis.effectDecomposition")}
         </p>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <p className="text-muted text-xs">Direct</p>
+            <p className="text-muted text-xs">
+              {t("causal.pathAnalysis.direct")}
+            </p>
             <p className="font-mono text-lg font-bold text-[var(--chart-primary)]">
               {directTotal.toFixed(4)}
             </p>
           </div>
           <div>
-            <p className="text-muted text-xs">Indirect</p>
+            <p className="text-muted text-xs">
+              {t("causal.pathAnalysis.indirect")}
+            </p>
             <p className="font-mono text-lg font-bold text-[var(--chart-secondary)]">
               {indirectTotal.toFixed(4)}
             </p>
           </div>
           <div className="col-span-2">
-            <p className="text-muted text-xs">Total</p>
+            <p className="text-muted text-xs">
+              {t("causal.pathAnalysis.total")}
+            </p>
             <p className="font-mono text-lg font-bold">
               {(directTotal + indirectTotal).toFixed(4)}
             </p>
@@ -106,7 +113,7 @@ export function PathAnalysisPanel({
       {/* Path list */}
       <div className="space-y-2">
         <p className="text-muted text-xs font-semibold uppercase">
-          {paths.length} path{paths.length !== 1 ? "s" : ""}
+          {t("causal.pathAnalysis.pathCount", { count: paths.length })}
         </p>
 
         {paths.map((path) => {
@@ -119,9 +126,7 @@ export function PathAnalysisPanel({
               type="button"
               className={cn(
                 "border-line w-full rounded-xl border p-3 text-start transition-colors",
-                isSelected
-                  ? "ring-2"
-                  : "hover:bg-surface/80",
+                isSelected ? "ring-2" : "hover:bg-surface/80",
               )}
               style={
                 isSelected
@@ -130,9 +135,7 @@ export function PathAnalysisPanel({
                     } as CSSProperties)
                   : undefined
               }
-              onClick={() =>
-                onPathSelect?.(isSelected ? null : path.id)
-              }
+              onClick={() => onPathSelect?.(isSelected ? null : path.id)}
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
@@ -140,9 +143,13 @@ export function PathAnalysisPanel({
                     className="inline-block size-2 rounded-full"
                     style={{ background: config.color }}
                   />
-                  <span className="text-xs font-semibold">{config.label}</span>
+                  <span className="text-xs font-semibold">
+                    {pathTypeLabels[path.type]}
+                  </span>
                   {path.blocked && (
-                    <span className="text-muted text-xs">(blocked)</span>
+                    <span className="text-muted text-xs">
+                      {t("causal.pathAnalysis.blocked")}
+                    </span>
                   )}
                 </div>
                 {path.totalEffect != null && (
@@ -162,15 +169,11 @@ export function PathAnalysisPanel({
                   const node = nodeMap.get(nid);
                   return (
                     <span key={nid} className="flex items-center gap-1">
-                      {i > 0 && (
-                        <span className="text-muted">{"\u2192"}</span>
-                      )}
+                      {i > 0 && <span className="text-muted">{"\u2192"}</span>}
                       <span
                         className="font-medium"
                         style={{
-                          color: node
-                            ? NODE_COLORS[node.kind]
-                            : undefined,
+                          color: node ? NODE_COLORS[node.kind] : undefined,
                         }}
                       >
                         {node?.label ?? nid}

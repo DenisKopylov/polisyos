@@ -4,6 +4,7 @@ This module is intentionally side-effect free on import. Entry points that want
 to mutate process environment variables or initialize logging must call
 `apply_process_bootstrap()` explicitly.
 """
+
 from __future__ import annotations
 
 import multiprocessing
@@ -12,7 +13,10 @@ import sys
 import threading
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping, MutableMapping
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, MutableMapping
 
 from polisyos.common.env_parsing import parse_bool, parse_int
 
@@ -242,7 +246,9 @@ def build_process_bootstrap_config(
         scientist_torch_num_interop_threads=(
             source.get("SCIENTIST_TORCH_NUM_INTEROP_THREADS", "1").strip() or "1"
         ),
-        omp_num_threads=(source.get("OMP_NUM_THREADS", str(allowed_cores)).strip() or str(allowed_cores)),
+        omp_num_threads=(
+            source.get("OMP_NUM_THREADS", str(allowed_cores)).strip() or str(allowed_cores)
+        ),
         openblas_num_threads=(
             source.get("OPENBLAS_NUM_THREADS", str(allowed_cores)).strip() or str(allowed_cores)
         ),
@@ -264,9 +270,7 @@ def validate_process_bootstrap_config(config: ProcessBootstrapConfig) -> list[st
         conflicts.append("allowed_cores must remain >= 1")
     if config.jax_platform_name and config.jax_platforms:
         platforms = {
-            token.strip().lower()
-            for token in config.jax_platforms.split(",")
-            if token.strip()
+            token.strip().lower() for token in config.jax_platforms.split(",") if token.strip()
         }
         if platforms and config.jax_platform_name.lower() not in platforms:
             conflicts.append(

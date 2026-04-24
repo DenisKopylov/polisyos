@@ -37,7 +37,9 @@ class _MethodJobIncrement:
         namespace="tests.scientist",
         version="1.0.0",
         input_slots=frozenset({SlotSpec("state", SlotType.VECTOR, Unit("dimensionless", "array"))}),
-        output_slots=frozenset({SlotSpec("values", SlotType.VECTOR, Unit("dimensionless", "array"))}),
+        output_slots=frozenset(
+            {SlotSpec("values", SlotType.VECTOR, Unit("dimensionless", "array"))}
+        ),
         parameters=(ParameterSpec(name="delta", default=1.0),),
         fidelity=FidelityLevel.LOW,
         complexity=ComplexityClass.O_1,

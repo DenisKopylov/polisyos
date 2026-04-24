@@ -8,6 +8,7 @@ Covers:
 - DataContractRegistry loading and validation
 - Bootstrap tool type mapping
 """
+
 from __future__ import annotations
 
 import json
@@ -28,13 +29,12 @@ from polisyos.fabric.catalog.registry import (
     ContractNotFoundError,
     DataContractRegistry,
 )
+from polisyos.fabric.catalog.search import MetricSearcher
 from polisyos.fabric.catalog.semantic import (
     SemanticEvaluationBenchmarkPack,
     SemanticEvaluationCase,
 )
-from polisyos.fabric.catalog.search import MetricSearcher
 from polisyos.fabric.catalog.source_bindings import SourceBinding
-
 
 # =============================================================================
 # Fixtures
@@ -242,7 +242,7 @@ class TestDataContractCollection:
         )
 
         with pytest.raises(ValueError, match="Duplicate"):
-            DataContractCollection(contracts=sample_contracts + [duplicate])
+            DataContractCollection(contracts=[*sample_contracts, duplicate])
 
 
 # =============================================================================
@@ -286,7 +286,9 @@ class TestMetricBinding:
 
         assert binding_v1.contract_hash != binding_v2.contract_hash
 
-    def test_binding_hash_stable_for_same_contract(self, sample_contracts: list[DataContract]) -> None:
+    def test_binding_hash_stable_for_same_contract(
+        self, sample_contracts: list[DataContract]
+    ) -> None:
         """Test that the same contract always produces the same hash."""
         contract = sample_contracts[0]
 
@@ -492,7 +494,10 @@ class TestMetricSearcher:
         document = searcher.semantic_index.document("us.macro.unemployment_rate")
         assert document is not None
         enrichment = document.metadata["metadata_enrichment"]
-        assert "World Bank WDI" in enrichment["profile_display_names"] or enrichment["profile_display_names"] == []
+        assert (
+            "World Bank WDI" in enrichment["profile_display_names"]
+            or enrichment["profile_display_names"] == []
+        )
 
     def test_semantic_refresh_invalidates_on_contract_change(
         self, sample_contracts: list[DataContract]
@@ -502,7 +507,9 @@ class TestMetricSearcher:
         assert before is not None
 
         updated_contracts = [
-            contract.model_copy(update={"description": "Gross domestic product from expenditure accounts"})
+            contract.model_copy(
+                update={"description": "Gross domestic product from expenditure accounts"}
+            )
             if contract.metric_id == "us.macro.gdp_nominal"
             else contract
             for contract in sample_contracts
@@ -651,7 +658,10 @@ class TestMetricSearcher:
         assert report.passed is True
         assert report.passed_cases == 5
         false_positive_case = report.outcomes[-1]
-        assert false_positive_case.matched_metric_id is None or false_positive_case.matched_score <= 0.15
+        assert (
+            false_positive_case.matched_metric_id is None
+            or false_positive_case.matched_score <= 0.15
+        )
 
     def test_semantic_benchmark_pack_fixture_meets_thresholds(
         self,
@@ -707,7 +717,7 @@ class TestDuckDBTypeMapping:
     """Tests for DuckDB type mapping in bootstrap tool."""
 
     @pytest.mark.parametrize(
-        "duckdb_type,expected",
+        ("duckdb_type", "expected"),
         [
             ("INTEGER", "int"),
             ("BIGINT", "int"),

@@ -125,6 +125,20 @@
           "title": "Last Recalibrated At",
           "type": "string"
         },
+        "mean_interval_width_by_horizon": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Mean Interval Width By Horizon",
+          "type": "object"
+        },
         "nominal_coverage": {
           "exclusiveMaximum": 1.0,
           "exclusiveMinimum": 0.0,

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { Card } from "@/shared/ui/primitives";
 import { WaterfallChart, type WaterfallStep } from "@/shared/charts";
@@ -22,30 +23,37 @@ type AttributionWaterfallProps = {
 
 export function AttributionWaterfall({
   baseValue,
-  baseLabel = "Base prediction",
+  baseLabel,
   contributions,
-  totalLabel = "Final estimate",
-  title = "Attribution Waterfall",
+  totalLabel,
+  title,
   onStepClick,
   className,
 }: AttributionWaterfallProps) {
+  const { t } = useI18n();
+  const resolvedBaseLabel =
+    baseLabel || t("shared.ui.attributionWaterfall.baseLabel");
+  const resolvedTotalLabel =
+    totalLabel || t("shared.ui.attributionWaterfall.totalLabel");
+  const resolvedTitle = title ?? t("shared.ui.attributionWaterfall.title");
   const finalValue =
     baseValue + contributions.reduce((sum, c) => sum + c.value, 0);
 
   const steps: WaterfallStep[] = [
-    { label: baseLabel, value: baseValue, isTotal: true },
+    { label: resolvedBaseLabel, value: baseValue, isTotal: true },
     ...contributions.map((c) => ({ label: c.label, value: c.value })),
-    { label: totalLabel, value: finalValue, isTotal: true },
+    { label: resolvedTotalLabel, value: finalValue, isTotal: true },
   ];
 
   const sorted = useMemo(
-    () => [...contributions].sort((a, b) => Math.abs(b.value) - Math.abs(a.value)),
+    () =>
+      [...contributions].sort((a, b) => Math.abs(b.value) - Math.abs(a.value)),
     [contributions],
   );
 
   return (
     <Card className={cn("space-y-4", className)}>
-      <h3 className="text-lg font-semibold">{title}</h3>
+      <h3 className="text-lg font-semibold">{resolvedTitle}</h3>
 
       <WaterfallChart steps={steps} height={280} />
 
@@ -55,19 +63,19 @@ export function AttributionWaterfall({
           <thead>
             <tr className="border-line border-b">
               <th className="text-muted px-4 py-2 text-start text-xs font-medium uppercase">
-                Factor
+                {t("shared.ui.attributionWaterfall.columns.factor")}
               </th>
               <th className="text-muted px-4 py-2 text-end text-xs font-medium uppercase">
-                Contribution
+                {t("shared.ui.attributionWaterfall.columns.contribution")}
               </th>
               <th className="text-muted hidden px-4 py-2 text-start text-xs font-medium uppercase md:table-cell">
-                Detail
+                {t("shared.ui.attributionWaterfall.columns.detail")}
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr className="border-line border-b bg-surface/50">
-              <td className="px-4 py-2.5 font-semibold">{baseLabel}</td>
+            <tr className="border-line bg-surface/50 border-b">
+              <td className="px-4 py-2.5 font-semibold">{resolvedBaseLabel}</td>
               <td className="px-4 py-2.5 text-end font-mono font-semibold">
                 {baseValue.toFixed(4)}
               </td>
@@ -78,7 +86,7 @@ export function AttributionWaterfall({
                 key={c.label}
                 className={cn(
                   "border-line border-b last:border-0",
-                  onStepClick && "cursor-pointer hover:bg-surface/50",
+                  onStepClick && "hover:bg-surface/50 cursor-pointer",
                 )}
                 onClick={onStepClick ? () => onStepClick(c) : undefined}
               >
@@ -102,7 +110,7 @@ export function AttributionWaterfall({
               </tr>
             ))}
             <tr className="bg-surface/50">
-              <td className="px-4 py-2.5 font-bold">{totalLabel}</td>
+              <td className="px-4 py-2.5 font-bold">{resolvedTotalLabel}</td>
               <td className="px-4 py-2.5 text-end font-mono font-bold">
                 {finalValue.toFixed(4)}
               </td>

@@ -31,18 +31,15 @@ def directory_size_bytes(path: Path) -> int:
 def directory_size_gib(path: Path) -> float:
     """Return recursive directory size in GiB."""
 
-    return float(directory_size_bytes(path)) / (1024.0 ** 3)
+    return float(directory_size_bytes(path)) / (1024.0**3)
 
 
 def current_peak_rss_gib() -> float:
     """Return the current process peak RSS in GiB."""
 
     raw = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-    if platform.system() == "Darwin":
-        bytes_value = float(raw)
-    else:
-        bytes_value = float(raw) * 1024.0
-    return bytes_value / (1024.0 ** 3)
+    bytes_value = float(raw) if platform.system() == "Darwin" else float(raw) * 1024.0
+    return bytes_value / (1024.0**3)
 
 
 class ResourceTracker:
@@ -66,7 +63,7 @@ class ResourceTracker:
         final_bytes = directory_size_bytes(self.root)
         return {
             "elapsed_s": elapsed_s,
-            "disk_delta_gib": max(0.0, final_bytes - self.initial_bytes) / (1024.0 ** 3),
+            "disk_delta_gib": max(0.0, final_bytes - self.initial_bytes) / (1024.0**3),
             "peak_rss_gib": current_peak_rss_gib(),
         }
 
@@ -113,7 +110,7 @@ def free_disk_gib(path: Path) -> float:
     while not probe_path.exists() and probe_path != probe_path.parent:
         probe_path = probe_path.parent
     usage = shutil.disk_usage(probe_path)
-    return float(usage.free) / (1024.0 ** 3)
+    return float(usage.free) / (1024.0**3)
 
 
 def total_ram_gib() -> float:
@@ -121,7 +118,7 @@ def total_ram_gib() -> float:
 
     page_size = os.sysconf("SC_PAGE_SIZE")
     pages = os.sysconf("SC_PHYS_PAGES")
-    return float(page_size * pages) / (1024.0 ** 3)
+    return float(page_size * pages) / (1024.0**3)
 
 
 __all__ = [

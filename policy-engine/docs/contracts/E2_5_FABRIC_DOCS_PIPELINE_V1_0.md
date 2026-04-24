@@ -2,6 +2,7 @@
 
 **Repo snapshot date**: 2026-02-03  
 **Scope**:
+
 - new package: `policy-engine/src/polisyos/fabric/docs/*`
 - new tests: `policy-engine/tests/fabric/test_docs_pipeline_phase12.py`
 - (no IR contract changes required for MVP): re-use `policy-engine/src/polisyos/ir/world/*` + `policy-engine/src/polisyos/ir/citations.py`
@@ -9,9 +10,11 @@
 This phase implements the **data-plane** “Documents pipeline” on top of the already-existing:
 
 - **IR World ABI v1.0** (E2.1): `DocMeta`, `DocFragment`, `WorldEvent`, ID rules  
-  `policy-engine/src/polisyos/ir/world/*`  
+  `policy-engine/src/polisyos/ir/world/*`
+
 - **World Store write-path** (E2.2): persist typed objects into CAS + emit World facts into FactLog (`/world/`)  
-  `policy-engine/src/polisyos/fabric/world/store/*`  
+  `policy-engine/src/polisyos/fabric/world/store/*`
+
 - **DuckDB World materialization** (E2.3): FactLog → `world.*` tables + CAS-driven projections  
   `policy-engine/src/polisyos/fabric/world/materialize/*` and `policy-engine/src/polisyos/fabric/world/ddl/duckdb_world.sql`
 
@@ -35,10 +38,10 @@ After Phase 12, documents are represented in the World Graph as:
 
 We introduce a deterministic pipeline (no network; no ML):
 
-1) **Ingest** raw bytes → CAS (`fabric.doc.raw`) + `DocMeta` + world facts + `WorldEvent`
-2) **Normalize** raw → canonical text artifact (`fabric.doc.normalized`) + update `DocMeta.normalized_ref` + `WorldEvent`
-3) **Structure** normalized text → anchors/sections artifact (`fabric.doc.structure`) + `DocFragment` (anchors) + facts + `WorldEvent`
-4) **Chunk** normalized text → deterministic chunk-set artifact (`fabric.doc.chunks`) + `DocFragment` (chunks) + facts + `WorldEvent`
+1. **Ingest** raw bytes → CAS (`fabric.doc.raw`) + `DocMeta` + world facts + `WorldEvent`
+2. **Normalize** raw → canonical text artifact (`fabric.doc.normalized`) + update `DocMeta.normalized_ref` + `WorldEvent`
+3. **Structure** normalized text → anchors/sections artifact (`fabric.doc.structure`) + `DocFragment` (anchors) + facts + `WorldEvent`
+4. **Chunk** normalized text → deterministic chunk-set artifact (`fabric.doc.chunks`) + `DocFragment` (chunks) + facts + `WorldEvent`
 
 ### 0.3 End-to-end verification via DuckDB materialization
 
@@ -69,11 +72,11 @@ Running the pipeline and then materializing World facts must yield:
 Source of truth:
 
 - `DocMeta` must satisfy:
-  - `doc_source_id == doc_source_id(canonical_url|official_id)`  
+  - `doc_source_id == doc_source_id(canonical_url|official_id)`
   - `doc_version_id == doc_version_id_from_raw_artifact(raw_ref)`  
-  Implemented in: `policy-engine/src/polisyos/fabric/world/store/validate.py`
+    Implemented in: `policy-engine/src/polisyos/fabric/world/store/validate.py`
 - `DocFragment.fragment_id` must satisfy:
-  - `fragment_id == doc_fragment_id(doc_version_id, locator, text_hash)`  
+  - `fragment_id == doc_fragment_id(doc_version_id, locator, text_hash)`
 
 **Critical implication for Phase 12**:
 
@@ -119,7 +122,7 @@ From `policy-engine/pyproject.toml`:
 
 Create the new package (separate from `polisyos.fabric.world` by design):
 
-```
+```text
 policy-engine/src/polisyos/fabric/docs/
   __init__.py
   errors.py
@@ -230,21 +233,23 @@ Recommended fields:
 **Repo constraint**: `DocMeta` (IR) allows only one of `canonical_url` or `official_id`.  
 Mapping rule (Phase 12):
 
-1) if `canonical_url` provided → set `DocMeta.canonical_url`
-2) else if `official_id` provided → set `DocMeta.official_id`
-3) else if `source_locator` provided → set `DocMeta.official_id = source_locator`
+1. if `canonical_url` provided → set `DocMeta.canonical_url`
+2. else if `official_id` provided → set `DocMeta.official_id`
+3. else if `source_locator` provided → set `DocMeta.official_id = source_locator`
 
 Store extra identity hints (e.g. both URL and official id) into `DocMeta.props`.
 
 ### 5.2 Options (all deterministic; no runtime timestamps inside options)
 
 #### `DocIngestOptions`
+
 - `raw_kind: str = "fabric.doc.raw"` (CAS kind)
 - `enforce_max_bytes: int | None` (optional guardrail)
 - `agent_id: str = "prov.agent.fabric_docs"`
 - `activity_id: str = "prov.activity.fabric_docs.ingest"`
 
 #### `DocNormalizeOptions`
+
 - `normalized_kind: str = "fabric.doc.normalized"`
 - decoding:
   - `encoding_order: list[str] = ["utf-8", "utf-8-sig", "latin-1"]`
@@ -257,6 +262,7 @@ Store extra identity hints (e.g. both URL and official id) into `DocMeta.props`.
   - `html_extract_mode: Literal["visible_text_v1"] = "visible_text_v1"`
 
 #### `DocStructureOptions`
+
 - `structure_kind: str = "fabric.doc.structure"`
 - `algorithm: Literal["anchors_v1"] = "anchors_v1"`
 - `max_heading_len: int = 160`
@@ -264,6 +270,7 @@ Store extra identity hints (e.g. both URL and official id) into `DocMeta.props`.
 - `include_full_document_anchor: bool = True` (always true for MVP)
 
 #### `DocChunkOptions`
+
 - `chunks_kind: str = "fabric.doc.chunks"`
 - `algorithm: Literal["char_chunks_v1"] = "char_chunks_v1"`
 - `chunk_size_chars: int = 2000`
@@ -353,7 +360,7 @@ Rationale:
 
 ### 8.2 Strict steps (normative)
 
-1) **Persist raw bytes into CAS**
+1. **Persist raw bytes into CAS**
 
 ```python
 raw_ref = cas.put_bytes(
@@ -363,14 +370,14 @@ raw_ref = cas.put_bytes(
 raw_artifact_id = str(raw_ref.artifact_id)   # "sha256:<hex>"
 ```
 
-2) **Derive world ids (strictly per IR)**
+1. **Derive world ids (strictly per IR)**
 
 ```python
 doc_source_id = doc_source_id(canonical_url=..., official_id=...)
 doc_version_id = doc_version_id_from_raw_artifact(raw_artifact_id=raw_artifact_id)
 ```
 
-3) **Build `DocMeta` (IR contract)**
+1. **Build `DocMeta` (IR contract)**
 
 Populate:
 
@@ -380,14 +387,14 @@ Populate:
 - refs: `raw_ref=raw_artifact_id`, all other refs initially `None`
 - `props`: extra metadata (source_type/title/publisher/source_locator etc), **no floats**
 
-4) **Persist `DocMeta` through World Store**
+1. **Persist `DocMeta` through World Store**
 
 ```python
 meta_ref = persist_doc_meta(cas, meta)
 meta_artifact_id = str(meta_ref.artifact_id)
 ```
 
-5) **Create `WorldEvent` (audit)**
+1. **Create `WorldEvent` (audit)**
 
 Phase 12 maps stages to existing IR event kinds:
 
@@ -416,14 +423,14 @@ event_ref = persist_world_event(cas, event)
 event_artifact_id = str(event_ref.artifact_id)
 ```
 
-6) **Emit World facts (strict provenance profiles)**
+1. **Emit World facts (strict provenance profiles)**
 
 - semantic facts: `stable_world_provenance_v1()`
   - `emit_doc_meta_facts(meta, meta_artifact_id=meta_artifact_id, provenance=stable_prov)`
 - event/audit facts: `event_world_provenance_v1(event_id)`
   - `emit_world_event_facts(event, event_artifact_id=event_artifact_id, provenance=event_prov)`
 
-7) **Write a World fact segment**
+1. **Write a World fact segment**
 
 ```python
 facts = stable_facts + event_facts
@@ -447,14 +454,14 @@ append_world_segment_index(manifest, fact_log_root=fact_log_root)
 
 ### 9.2 Strict steps (normative)
 
-1) Load `DocMeta` from CAS and validate ids:
+1. Load `DocMeta` from CAS and validate ids:
 
 - `DocMeta.model_validate(payload)`
 - `validate_doc_meta_ids(meta)` (World Store validator)
 
-2) Load raw bytes from CAS via `meta.raw_ref`.
+1. Load raw bytes from CAS via `meta.raw_ref`.
 
-3) Choose backend by MIME:
+2. Choose backend by MIME:
 
 - `text/plain` → `backends.text_plain.normalize_plain_text_v1`
 - `text/html` → `backends.text_html.normalize_html_visible_text_v1`
@@ -462,7 +469,7 @@ append_world_segment_index(manifest, fact_log_root=fact_log_root)
   - if `mime` starts with `text/` → treat as plain text
   - else raise `DocUnsupportedMimeError` (MVP)
 
-4) Produce **normalized text** deterministically:
+1. Produce **normalized text** deterministically:
 
 Plain text v1:
 
@@ -479,7 +486,7 @@ HTML v1 (stdlib-only):
   - collapse runs of whitespace to single spaces **inside lines** (optional; if done, document it)
 - normalize newlines
 
-5) Persist normalized artifact:
+1. Persist normalized artifact:
 
 Store a JSON object in CAS:
 
@@ -496,7 +503,7 @@ Store a JSON object in CAS:
 
 `normalized_ref = <artifact_id of this JSON>`
 
-6) Update `DocMeta`:
+1. Update `DocMeta`:
 
 - create a new `DocMeta` instance with identical ids + raw_ref + identity fields
 - set `normalized_ref` to the new normalized artifact id
@@ -504,13 +511,13 @@ Store a JSON object in CAS:
 
 Persist `DocMeta` again → `meta_artifact_id_2`
 
-7) Emit world facts:
+1. Emit world facts:
 
 - semantic: `emit_doc_meta_facts(meta2, meta_artifact_id=meta_artifact_id_2, stable_prov)`
 - event: create `WorldEvent(event_kind=NORMALIZE_DOC, inputs=[doc_version_id, raw_ref], outputs=[normalized_ref, meta_artifact_id_2])`
   - emit via `emit_world_event_facts(..., event_prov)`
 
-8) Write segment: `segment_name="doc_normalize"` (or default).
+1. Write segment: `segment_name="doc_normalize"` (or default).
 
 ### 9.3 Idempotency expectations
 
@@ -566,7 +573,7 @@ Recommended heuristics (v1):
 
 - If normalized artifact has `input_mime` `text/html`:
   - emit heading anchors based on detected heading lines in the normalized text
-    - strategy A (simplest): during HTML extraction, prefix heading lines with `"\n# "` or `"\n## "` and then detect `^#+ ` in normalized text.
+    - strategy A (simplest): during HTML extraction, prefix heading lines with `"\n# "` or `"\n## "` and then detect `^#+` in normalized text.
     - strategy B (more direct): track heading offsets in the HTML parser (preferred if implemented).
 - For plain text:
   - detect heading-like lines:
@@ -728,10 +735,11 @@ Create `policy-engine/tests/fabric/test_docs_pipeline_phase12.py`.
 
 Use tmp_path:
 
-1) create `cas = FileSystemCAS(tmp_path/"cas")`
-2) run pipeline: ingest → normalize → structure → chunk
-3) materialize via `materialize_world_duckdb_from_fact_log(tmp_path, db, cas)`
-4) assert:
+1. create `cas = FileSystemCAS(tmp_path/"cas")`
+2. run pipeline: ingest → normalize → structure → chunk
+3. materialize via `materialize_world_duckdb_from_fact_log(tmp_path, db, cas)`
+4. assert:
+
    - `SELECT COUNT(*) FROM world.doc_sources` == 1
    - `SELECT COUNT(*) FROM world.doc_versions` == 1
    - `SELECT normalized_ref, structure_ref, chunks_ref FROM world.doc_versions` are not null
@@ -751,20 +759,21 @@ Run normalize/structure/chunk twice with identical options:
 
 ## 14) Definition of Done (Phase 12)
 
-1) `polisyos.fabric.docs` package exists with modules listed in §3.
-2) Pipeline functions exist (§4) and only write to world via `polisyos.fabric.world.store`.
-3) CAS contains `fabric.doc.*` artifacts for raw/normalized/structure/chunks.
-4) World facts are emitted so that DuckDB materialization shows:
+1. `polisyos.fabric.docs` package exists with modules listed in §3.
+2. Pipeline functions exist (§4) and only write to world via `polisyos.fabric.world.store`.
+3. CAS contains `fabric.doc.*` artifacts for raw/normalized/structure/chunks.
+4. World facts are emitted so that DuckDB materialization shows:
+
    - doc source/version rows
    - fragment rows for structure+chunks
    - events for each step
-5) All new tests in §13 pass.
+5. All new tests in §13 pass.
 
 ## D1-L4 Validation Links
 
-| Link type | Current anchor |
-|-----------|----------------|
-| Source plan phase | D1-L4 Phase 0 citation/world ID determinism and Phase 4 observation/interoperability bridge |
-| Contract tests | `tests/contract/test_world_abi_contract.py`, `tests/fabric/test_docs_pipeline.py`, `tests/fabric/test_world_materialization.py` |
-| Schema snapshots | `schemas/snapshots/ir/doc_meta.schema.json`, `schemas/snapshots/ir/doc_fragment.schema.json`, `schemas/snapshots/ir/world_event.schema.json` |
-| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |
+| Link type           | Current anchor                                                                                                                               |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source plan phase   | D1-L4 Phase 0 citation/world ID determinism and Phase 4 observation/interoperability bridge                                                  |
+| Contract tests      | `tests/contract/test_world_abi_contract.py`, `tests/fabric/test_docs_pipeline.py`, `tests/fabric/test_world_materialization.py`              |
+| Schema snapshots    | `schemas/snapshots/ir/doc_meta.schema.json`, `schemas/snapshots/ir/doc_fragment.schema.json`, `schemas/snapshots/ir/world_event.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                       |

@@ -11,9 +11,12 @@ import duckdb
 import numpy as np
 from pydantic import ValidationError
 
-from polisyos.academic.knowledge.canonical_resolver import CanonicalVariableResolver, ResolutionResult
-from polisyos.academic.knowledge.store import ScholarKnowledgeStore
+from polisyos.academic.knowledge.canonical_resolver import (
+    CanonicalVariableResolver,
+    ResolutionResult,
+)
 from polisyos.academic.knowledge.skg_store import EVIDENCE_WEIGHTS, parent_canonical_name
+from polisyos.academic.knowledge.store import ScholarKnowledgeStore
 from polisyos.academic.knowledge.types import (
     BoundaryConditionResult,
     CausalClaimResult,
@@ -34,6 +37,7 @@ logger = get_logger(__name__)
 @dataclass(frozen=True)
 class LiteraturePriorResult:
     """Literature prior result data model."""
+
     variable: str
     prior: ParameterPrior | None
     estimates: list[ParameterEstimateResult]
@@ -42,6 +46,7 @@ class LiteraturePriorResult:
 @dataclass(frozen=True)
 class ParameterCandidate:
     """Parameter candidate public type."""
+
     parameter: EvidenceParameter
     source_context: ContextProfile | None
     transport_penalty: float = 0.0
@@ -57,6 +62,7 @@ class ParameterCandidate:
 @dataclass(frozen=True)
 class EdgeSupportRecord:
     """Summarize the evidence currently supporting one SKG edge after claim/article synthesis."""
+
     edge_id: str
     src: str
     dst: str
@@ -82,6 +88,7 @@ class EdgeSupportRecord:
 @dataclass(frozen=True)
 class EdgeTransportRecord:
     """Summarize how strongly an SKG edge transports into a target context profile."""
+
     edge_id: str
     target_context_id: str
     transport_confidence: float
@@ -169,7 +176,9 @@ class SKGQuery:
                 effect=row.dst,
                 direction=row.direction,
                 strength=row.evidence_strength,
-                mechanism=("contested_summary" if mode == "contested" else f"{row.source_layer}_support"),
+                mechanism=(
+                    "contested_summary" if mode == "contested" else f"{row.source_layer}_support"
+                ),
                 domain=self._edge_domain(row.src, row.dst),
                 trust_score=row.confidence,
                 work_title=f"{row.n_unique_works} work(s) synthesized",
@@ -213,7 +222,9 @@ class SKGQuery:
                         self._annotate_candidates(
                             sim_results,
                             query_name=clean_name,
-                            canonical_gap_resolved=(lookup_name != clean_name or canonical_gap_resolved),
+                            canonical_gap_resolved=(
+                                lookup_name != clean_name or canonical_gap_resolved
+                            ),
                         )
                     )
                     break
@@ -235,7 +246,9 @@ class SKGQuery:
                     raw_candidates = self._annotate_candidates(
                         raw_candidates,
                         query_name=clean_name,
-                        canonical_gap_resolved=(lookup_name != clean_name or canonical_gap_resolved),
+                        canonical_gap_resolved=(
+                            lookup_name != clean_name or canonical_gap_resolved
+                        ),
                     )
                     break
             if require_simulation_ready:
@@ -252,7 +265,7 @@ class SKGQuery:
                                 }
                             )
                         ),
-                        transport_notes=tuple([*candidate.transport_notes, "raw_parameter_fallback"]),
+                        transport_notes=(*candidate.transport_notes, "raw_parameter_fallback"),
                     )
                     for candidate in raw_candidates
                 ]
@@ -270,7 +283,11 @@ class SKGQuery:
             if existing is None:
                 deduped[key] = candidate
                 continue
-            deduped[key] = existing if self._candidate_priority(existing) >= self._candidate_priority(candidate) else candidate
+            deduped[key] = (
+                existing
+                if self._candidate_priority(existing) >= self._candidate_priority(candidate)
+                else candidate
+            )
         ordered = sorted(deduped.values(), key=self._candidate_priority, reverse=True)
         return ordered[:limit]
 
@@ -286,14 +303,26 @@ class SKGQuery:
         has_ci = self._column_exists("ac_skg_simulation_parameters", "confidence_interval_json")
         has_std_error = self._column_exists("ac_skg_simulation_parameters", "std_error")
         has_source_layer = self._column_exists("ac_skg_simulation_parameters", "source_layer")
-        has_uncertainty_source = self._column_exists("ac_skg_simulation_parameters", "uncertainty_source")
-        has_quality_flags = self._column_exists("ac_skg_simulation_parameters", "quality_flags_json")
+        has_uncertainty_source = self._column_exists(
+            "ac_skg_simulation_parameters", "uncertainty_source"
+        )
+        has_quality_flags = self._column_exists(
+            "ac_skg_simulation_parameters", "quality_flags_json"
+        )
         extra_select = []
-        extra_select.append("confidence_interval_json" if has_ci else "'[]' AS confidence_interval_json")
+        extra_select.append(
+            "confidence_interval_json" if has_ci else "'[]' AS confidence_interval_json"
+        )
         extra_select.append("std_error" if has_std_error else "NULL AS std_error")
-        extra_select.append("source_layer" if has_source_layer else "'simulation_ready' AS source_layer")
-        extra_select.append("uncertainty_source" if has_uncertainty_source else "'' AS uncertainty_source")
-        extra_select.append("quality_flags_json" if has_quality_flags else "'[]' AS quality_flags_json")
+        extra_select.append(
+            "source_layer" if has_source_layer else "'simulation_ready' AS source_layer"
+        )
+        extra_select.append(
+            "uncertainty_source" if has_uncertainty_source else "'' AS uncertainty_source"
+        )
+        extra_select.append(
+            "quality_flags_json" if has_quality_flags else "'[]' AS quality_flags_json"
+        )
 
         rows = self._con.execute(
             f"""
@@ -337,11 +366,13 @@ class SKGQuery:
             )
             if parameter is None:
                 continue
-            transport_penalty, transport_notes, requires_expert_review = self._transport_metadata_for_parameter(
-                parameter_name,
-                source_context=source_context,
-                target_context=target_context,
-                linked_edge_refs=linked_edge_ids,
+            transport_penalty, transport_notes, requires_expert_review = (
+                self._transport_metadata_for_parameter(
+                    parameter_name,
+                    source_context=source_context,
+                    target_context=target_context,
+                    linked_edge_refs=linked_edge_ids,
+                )
             )
             out.append(
                 ParameterCandidate(
@@ -387,11 +418,13 @@ class SKGQuery:
             if parameter is None:
                 continue
             source_context = self._parse_context_profile(context_json)
-            transport_penalty, transport_notes, requires_expert_review = self._transport_metadata_for_parameter(
-                parameter_name,
-                source_context=source_context,
-                target_context=target_context,
-                linked_edge_refs=(),
+            transport_penalty, transport_notes, requires_expert_review = (
+                self._transport_metadata_for_parameter(
+                    parameter_name,
+                    source_context=source_context,
+                    target_context=target_context,
+                    linked_edge_refs=(),
+                )
             )
             quality_flags: list[str] = []
             if parameter.confidence_interval is None and parameter.std_error is None:
@@ -473,9 +506,14 @@ class SKGQuery:
                     if any(record.matched_moderators_count > 0 for record in transport_records):
                         notes.append("moderator_match")
                         penalty = max(0.0, penalty - 0.05)
-                    if any(float(record.context_match_reward or 0.0) > 0.0 for record in transport_records):
+                    if any(
+                        float(record.context_match_reward or 0.0) > 0.0
+                        for record in transport_records
+                    ):
                         notes.append("context_match_positive")
-                    if any(float(record.generic_penalty or 0.0) > 0.0 for record in transport_records):
+                    if any(
+                        float(record.generic_penalty or 0.0) > 0.0 for record in transport_records
+                    ):
                         notes.append("generic_transport_penalty")
 
         moderation_edges = self._moderation_signal_count(parameter_name)
@@ -599,12 +637,20 @@ class SKGQuery:
             need_type=need_type,
             runtime_priority=True,
         )
-        if resolved is not None and resolved.canonical_name and resolved.canonical_name != clean_name:
+        if (
+            resolved is not None
+            and resolved.canonical_name
+            and resolved.canonical_name != clean_name
+        ):
             candidates.append(resolved.canonical_name)
         if resolved is not None and resolved.canonical_name:
             candidates.extend(self._observed_names_for_approved_canonical(resolved.canonical_name))
             parent = parent_canonical_name(resolved.canonical_name)
-            if need_type in {"causal_edge", "scholar_query"} and parent and parent != resolved.canonical_name:
+            if (
+                need_type in {"causal_edge", "scholar_query"}
+                and parent
+                and parent != resolved.canonical_name
+            ):
                 candidates.extend(self._observed_names_for_approved_canonical(parent))
             # For parent-level canonical names (no dot), also expand to child
             # variables that use this as a prefix (e.g. "unemployment_rate" ->
@@ -614,10 +660,7 @@ class SKGQuery:
         return list(dict.fromkeys(candidate for candidate in candidates if candidate)), bool(
             resolved is not None
             and resolved.canonical_name
-            and (
-                resolved.canonical_name != clean_name
-                or len(candidates) > 1
-            )
+            and (resolved.canonical_name != clean_name or len(candidates) > 1)
         )
 
     def _annotate_candidates(
@@ -630,9 +673,11 @@ class SKGQuery:
         annotated: list[ParameterCandidate] = []
         for candidate in candidates:
             flags = list(candidate.quality_flags)
-            if candidate.parameter.confidence_interval is None and candidate.parameter.std_error is None:
-                if "no_uncertainty" not in flags:
-                    flags.append("no_uncertainty")
+            if (
+                candidate.parameter.confidence_interval is None
+                and candidate.parameter.std_error is None
+            ) and "no_uncertainty" not in flags:
+                flags.append("no_uncertainty")
             if canonical_gap_resolved and "canonical_gap_resolved" not in flags:
                 flags.append("canonical_gap_resolved")
             notes = list(candidate.transport_notes)
@@ -730,7 +775,9 @@ class SKGQuery:
         target_context_id: str,
     ) -> list[EdgeTransportRecord]:
         clean_context_id = str(target_context_id or "").strip()
-        clean_edge_ids = sorted({str(edge_id).strip() for edge_id in edge_ids if str(edge_id).strip()})
+        clean_edge_ids = sorted(
+            {str(edge_id).strip() for edge_id in edge_ids if str(edge_id).strip()}
+        )
         if (
             not clean_context_id
             or not clean_edge_ids
@@ -880,7 +927,11 @@ class SKGQuery:
                 support_mode="hybrid",
                 limit=max(limit, 8),
             )
-            direction_set = {str(row.direction or "").strip().lower() for row in hybrid_rows if str(row.direction or "").strip()}
+            direction_set = {
+                str(row.direction or "").strip().lower()
+                for row in hybrid_rows
+                if str(row.direction or "").strip()
+            }
             if len(direction_set) > 1:
                 return hybrid_rows[:limit]
             return [row for row in hybrid_rows if bool(row.conflict_flag)][:limit]
@@ -933,12 +984,16 @@ class SKGQuery:
                 source_layer="hybrid",
                 conflict_flag=bool(existing.conflict_flag or row.conflict_flag),
                 quality_flags=quality_flags,
-                dominant_direction_agreement=min(existing.dominant_direction_agreement, row.dominant_direction_agreement),
+                dominant_direction_agreement=min(
+                    existing.dominant_direction_agreement, row.dominant_direction_agreement
+                ),
                 positive_weight=max(existing.positive_weight, row.positive_weight),
                 negative_weight=max(existing.negative_weight, row.negative_weight),
                 mixed_weight=max(existing.mixed_weight, row.mixed_weight),
-                strongest_dissent_strength=existing.strongest_dissent_strength or row.strongest_dissent_strength,
-                strongest_dissent_year=existing.strongest_dissent_year or row.strongest_dissent_year,
+                strongest_dissent_strength=existing.strongest_dissent_strength
+                or row.strongest_dissent_strength,
+                strongest_dissent_year=existing.strongest_dissent_year
+                or row.strongest_dissent_year,
                 resolution_status=existing.resolution_status or row.resolution_status,
             )
         return sorted(merged.values(), key=lambda item: item.confidence, reverse=True)[:limit]
@@ -1086,8 +1141,12 @@ class SKGQuery:
                     source_layer="family",
                     conflict_flag=bool(quality_signals.get("conflict_flag")),
                     quality_flags=tuple(quality_flags),
-                    dominant_direction_agreement=float(quality_signals.get("direction_agreement") or 1.0),
-                    resolution_status="moderated" if bool(quality_signals.get("moderated_conflict")) else "",
+                    dominant_direction_agreement=float(
+                        quality_signals.get("direction_agreement") or 1.0
+                    ),
+                    resolution_status="moderated"
+                    if bool(quality_signals.get("moderated_conflict"))
+                    else "",
                 )
             )
         return out
@@ -1146,7 +1205,9 @@ class SKGQuery:
     @staticmethod
     def _parse_json_list_or_number_pair(value: object) -> tuple[float, float] | None:
         try:
-            payload = json.loads(str(value or "[]")) if not isinstance(value, (list, tuple)) else value
+            payload = (
+                json.loads(str(value or "[]")) if not isinstance(value, (list, tuple)) else value
+            )
         except (json.JSONDecodeError, ValueError, TypeError):
             return None
         if not isinstance(payload, (list, tuple)) or len(payload) != 2:
@@ -1231,7 +1292,11 @@ class SKGQuery:
             "curated_numeric": 0.95,
             "raw_parameter": 0.65,
         }.get(candidate.source_layer, 0.75)
-        uncertainty_bonus = 0.15 if candidate.parameter.confidence_interval or candidate.parameter.std_error else 0.0
+        uncertainty_bonus = (
+            0.15
+            if candidate.parameter.confidence_interval or candidate.parameter.std_error
+            else 0.0
+        )
         review_penalty = -0.1 if candidate.requires_expert_review else 0.0
         return (
             layer_weight + uncertainty_bonus + review_penalty,
@@ -1245,7 +1310,9 @@ class SKGQuery:
         best = EvidenceStrength.UNKNOWN.value
         best_score = EVIDENCE_WEIGHTS[best]
         for value in values:
-            score = EVIDENCE_WEIGHTS.get(str(value), EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value])
+            score = EVIDENCE_WEIGHTS.get(
+                str(value), EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value]
+            )
             if score > best_score:
                 best = str(value)
                 best_score = score
@@ -1384,8 +1451,12 @@ class SKGQuery:
                 **dict(row.get("quality_signals") or {}),
                 "layers": sorted(
                     {
-                        *existing.get("quality_signals", {}).get("layers", [existing.get("candidate_layer", "exact")]),
-                        *row.get("quality_signals", {}).get("layers", [row.get("candidate_layer", "family")]),
+                        *existing.get("quality_signals", {}).get(
+                            "layers", [existing.get("candidate_layer", "exact")]
+                        ),
+                        *row.get("quality_signals", {}).get(
+                            "layers", [row.get("candidate_layer", "family")]
+                        ),
                     }
                 ),
             }
@@ -1471,7 +1542,9 @@ class SKGQuery:
                 payload["candidate_layer"] = str(row[idx])
                 idx += 1
             if has_quality_json:
-                payload["quality_signals"] = self._parse_json_dict(row[idx]) or {"layers": ["exact"]}
+                payload["quality_signals"] = self._parse_json_dict(row[idx]) or {
+                    "layers": ["exact"]
+                }
             result.append(payload)
         return result
 
@@ -1532,9 +1605,9 @@ class SKGQuery:
 
 
 __all__ = [
-    "SKGQuery",
-    "LiteraturePriorResult",
-    "ParameterCandidate",
     "EdgeSupportRecord",
     "EdgeTransportRecord",
+    "LiteraturePriorResult",
+    "ParameterCandidate",
+    "SKGQuery",
 ]

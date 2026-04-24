@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/shared/ui/primitives";
+import { AuthoredText } from "@/shared/ui/authored-text";
 
 type ClerkProgressiveStreamProps = {
   /** Tokens accumulated so far. */
@@ -11,6 +13,7 @@ type ClerkProgressiveStreamProps = {
   /** Whether still streaming. */
   isActive: boolean;
   className?: string;
+  timestamp?: number;
 };
 
 const STAGE_ICONS: Record<string, string> = {
@@ -38,18 +41,21 @@ export function ClerkProgressiveStream({
   statusChips,
   isActive,
   className,
+  timestamp,
 }: ClerkProgressiveStreamProps) {
+  const { t } = useI18n();
   const [displayedLength, setDisplayedLength] = useState(0);
+  const authoredTimestamp =
+    typeof timestamp === "number"
+      ? new Date(timestamp).toISOString()
+      : undefined;
 
   // Typewriter effect: reveal tokens progressively
   useEffect(() => {
     if (!isActive && displayedLength >= streamedTokens.length) return;
 
     if (displayedLength < streamedTokens.length) {
-      const batchSize = Math.min(
-        3,
-        streamedTokens.length - displayedLength,
-      );
+      const batchSize = Math.min(3, streamedTokens.length - displayedLength);
       const timer = setTimeout(
         () => setDisplayedLength((prev) => prev + batchSize),
         16, // ~60fps
@@ -80,17 +86,25 @@ export function ClerkProgressiveStream({
 
       {/* Progressive text */}
       {displayed && (
-        <p className="text-sm leading-relaxed whitespace-pre-wrap">
+        <AuthoredText
+          as="div"
+          author="drafter"
+          className="text-sm leading-relaxed whitespace-pre-wrap"
+          timestamp={authoredTimestamp}
+        >
           {displayed}
           {isActive && (
             <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-[var(--teal)]" />
           )}
-        </p>
+        </AuthoredText>
       )}
 
       {/* Pulsing dots when no text yet */}
       {isActive && !displayed && (
-        <div className="flex items-center gap-1.5 py-1" aria-label="Processing">
+        <div
+          className="flex items-center gap-1.5 py-1"
+          aria-label={t("clerk.processing")}
+        >
           <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--teal)]" />
           <span
             className="h-2 w-2 animate-pulse rounded-full bg-[var(--teal)]"

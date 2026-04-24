@@ -1,7 +1,9 @@
 """Estimate treated-unit counterfactuals with donor-weight synthetic control."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -130,7 +132,9 @@ def augmented_synthetic_control(
     if y_treated.ndim != 1:
         raise ValueError("y_treated must be a 1D array")
 
-    def _core(y_treated_local: np.ndarray, y_donors_local: np.ndarray, weights_local: np.ndarray) -> dict[str, Any]:
+    def _core(
+        y_treated_local: np.ndarray, y_donors_local: np.ndarray, weights_local: np.ndarray
+    ) -> dict[str, Any]:
         base_cf_local = weights_local @ y_donors_local
         residual_pre_local = y_treated_local[:t0] - base_cf_local[:t0]
         correction_beta_local = _fit_ridge_correction(
@@ -181,7 +185,9 @@ def augmented_synthetic_control(
     if len(jackknife) >= 2:
         jack = np.asarray(jackknife, dtype=float)
         jack_mean = float(np.mean(jack))
-        jack_se = float(np.sqrt(max((len(jack) - 1) / len(jack) * np.sum((jack - jack_mean) ** 2), 0.0)))
+        jack_se = float(
+            np.sqrt(max((len(jack) - 1) / len(jack) * np.sum((jack - jack_mean) ** 2), 0.0))
+        )
         ci = (att - 1.96 * jack_se, att + 1.96 * jack_se)
         inference_method = "jackknife"
     else:
@@ -229,6 +235,7 @@ def _synthetic_control_output(
 )
 class SyntheticControlMethod:
     """Construct a donor-weight counterfactual under good pre-treatment fit; avoid weak donor support or many treated units."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -494,7 +501,9 @@ class SyntheticControlMethod:
                 donor_order = donor_order[: max(0, requested_runs)]
 
             for pseudo_treated in donor_order:
-                pseudo_donors = np.array([idx for idx in donor_idx if idx != pseudo_treated], dtype=int)
+                pseudo_donors = np.array(
+                    [idx for idx in donor_idx if idx != pseudo_treated], dtype=int
+                )
                 if pseudo_donors.size == 0:
                     continue
                 pseudo_weights, pseudo_ok, _ = _fit_scm_weights(

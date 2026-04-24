@@ -10,7 +10,7 @@ from typing import Any
 from polisyos.common.logger import get_logger
 
 # Imported lazily through _deps to keep module importable without optional stack.
-from polisyos.scientist.search.strategies._deps import (  # noqa: E402
+from polisyos.scientist.search.strategies._deps import (
     ExactMarginalLogLikelihood,
     ExpectedImprovement,
     Normalize,
@@ -145,7 +145,9 @@ class BayesianOptimizer(BaseSearchStrategy):
             return self._non_duplicate_random(pending, source="random_duplicate_avoidance")
         return result
 
-    def suggest_batch(self, evaluations: list[Evaluation], batch_size: int) -> list[PolicyCandidate]:
+    def suggest_batch(
+        self, evaluations: list[Evaluation], batch_size: int
+    ) -> list[PolicyCandidate]:
         if batch_size < 1:
             return []
 
@@ -273,9 +275,7 @@ class BayesianOptimizer(BaseSearchStrategy):
 
     def _prepare_training_data(self, evaluations: list[Evaluation]):
         valid_scores = [
-            e.scalar_score
-            for e in evaluations
-            if e.is_valid and math.isfinite(e.scalar_score)
+            e.scalar_score for e in evaluations if e.is_valid and math.isfinite(e.scalar_score)
         ]
         if not valid_scores:
             raise RuntimeError("No valid objective values available for GP fitting")
@@ -329,7 +329,9 @@ class BayesianOptimizer(BaseSearchStrategy):
             )
 
     def _select_acquisition(
-        self, evaluations: list[Evaluation], y_bo,
+        self,
+        evaluations: list[Evaluation],
+        y_bo,
     ) -> AcquisitionType:
         """Select acquisition function, optionally adapting based on progress."""
         if not self._config.adaptive_acquisition:
@@ -358,7 +360,9 @@ class BayesianOptimizer(BaseSearchStrategy):
 
         return AcquisitionType.EI
 
-    def _optimize_acquisition(self, y_bo, soft_limit: bool, evaluations: list[Evaluation] | None = None):
+    def _optimize_acquisition(
+        self, y_bo, soft_limit: bool, evaluations: list[Evaluation] | None = None
+    ):
         best_f = y_bo.max()
         acq_type = self._select_acquisition(evaluations or [], y_bo)
 

@@ -1,7 +1,6 @@
 """Small sklearn-compatible estimators used when sklearn is unavailable."""
-from __future__ import annotations
 
-from typing import Any
+from __future__ import annotations
 
 import numpy as np
 
@@ -18,7 +17,6 @@ except Exception:  # pragma: no cover - fallback covered instead
         if arr.ndim == 1:
             return arr.reshape(-1, 1)
         return arr
-
 
     def _weighted_linear_solve(
         X: np.ndarray,
@@ -52,11 +50,9 @@ except Exception:  # pragma: no cover - fallback covered instead
             return np.asarray(beta[1:], dtype=float), float(beta[0])
         return np.asarray(beta, dtype=float), 0.0
 
-
     def _sigmoid(z: np.ndarray) -> np.ndarray:
         z_clip = np.clip(z, -35.0, 35.0)
         return 1.0 / (1.0 + np.exp(-z_clip))
-
 
     class LinearRegression:
         def __init__(self, *, fit_intercept: bool = True) -> None:
@@ -64,7 +60,7 @@ except Exception:  # pragma: no cover - fallback covered instead
             self.coef_ = np.array([], dtype=float)
             self.intercept_ = 0.0
 
-        def fit(self, X: np.ndarray, y: np.ndarray) -> "LinearRegression":
+        def fit(self, X: np.ndarray, y: np.ndarray) -> LinearRegression:
             self.coef_, self.intercept_ = _weighted_linear_solve(
                 X,
                 y,
@@ -75,7 +71,6 @@ except Exception:  # pragma: no cover - fallback covered instead
         def predict(self, X: np.ndarray) -> np.ndarray:
             X_arr = _as_2d(X)
             return X_arr @ self.coef_ + self.intercept_
-
 
     class LogisticRegression:
         def __init__(
@@ -92,7 +87,7 @@ except Exception:  # pragma: no cover - fallback covered instead
             self.intercept_ = 0.0
             self.classes_ = np.array([0.0, 1.0], dtype=float)
 
-        def fit(self, X: np.ndarray, y: np.ndarray) -> "LogisticRegression":
+        def fit(self, X: np.ndarray, y: np.ndarray) -> LogisticRegression:
             X_arr = _as_2d(X)
             y_arr = np.asarray(y, dtype=float).reshape(-1)
             X_design = np.hstack([np.ones((X_arr.shape[0], 1)), X_arr])
@@ -126,7 +121,6 @@ except Exception:  # pragma: no cover - fallback covered instead
         def predict(self, X: np.ndarray) -> np.ndarray:
             return (self.predict_proba(X)[:, 1] >= 0.5).astype(int)
 
-
     class SVC:
         def __init__(self, *, kernel: str = "linear", C: float = 1.0) -> None:
             self.kernel = kernel
@@ -142,7 +136,7 @@ except Exception:  # pragma: no cover - fallback covered instead
             X: np.ndarray,
             y: np.ndarray,
             sample_weight: np.ndarray | None = None,
-        ) -> "SVC":
+        ) -> SVC:
             X_arr = _as_2d(X)
             y_arr = np.asarray(y).reshape(-1)
             classes = np.unique(y_arr)
@@ -201,8 +195,8 @@ except Exception:  # pragma: no cover - fallback covered instead
 
 
 __all__ = [
-    "LinearRegression",
-    "LogisticRegression",
     "SKLEARN_AVAILABLE",
     "SVC",
+    "LinearRegression",
+    "LogisticRegression",
 ]

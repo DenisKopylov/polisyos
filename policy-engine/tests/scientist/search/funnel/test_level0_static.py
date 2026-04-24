@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-import math
-
-import pytest
-
 from polisyos.scientist.search.funnel.level0_static import Level0StaticValidator
 
 

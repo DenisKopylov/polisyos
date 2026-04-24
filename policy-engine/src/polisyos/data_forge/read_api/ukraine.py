@@ -1,9 +1,9 @@
 """Runtime-safe read API for Ukraine demographic static-aging artifacts."""
+
 from __future__ import annotations
 
-from typing import Any
-
 import numpy as np
+import numpy.typing as npt
 
 from polisyos.data_forge.domains.ukraine.demography import (
     UkraineDemographyArtifacts,
@@ -16,15 +16,15 @@ from polisyos.data_forge.domains.ukraine.demography import (
 
 def build_static_aging_state(
     *,
-    base_weights: Any,
-    origin_state_index: Any,
+    base_weights: npt.ArrayLike,
+    origin_state_index: npt.ArrayLike,
     artifacts: UkraineDemographyArtifacts,
-    exit_weights: Any | None = None,
-    microsim_calibration_report: Any | None = None,
-    microsim_calibration_report_ref: Any | None = None,
-) -> dict[str, Any]:
+    exit_weights: npt.ArrayLike | None = None,
+    microsim_calibration_report: object | None = None,
+    microsim_calibration_report_ref: object | None = None,
+) -> dict[str, object]:
     """Compose a Foundry-ready state dict for static aging from read_api artifacts."""
-    state: dict[str, Any] = {
+    state: dict[str, object] = {
         "base_weights": np.asarray(base_weights, dtype=float),
         "origin_state_index": np.asarray(origin_state_index, dtype=np.int64),
         "target_state_totals": np.asarray(artifacts.target_state_totals, dtype=float),

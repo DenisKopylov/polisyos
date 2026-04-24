@@ -9,7 +9,7 @@ export function RunBreadcrumbs({ runId }: { runId: string }) {
 
   return (
     <nav
-      aria-label="Run lineage"
+      aria-label={t("pages.runs.runLineage")}
       className="text-muted flex flex-wrap items-center gap-2 text-xs"
     >
       <Link to="/runs" className="decoration-line underline">

@@ -17,13 +17,13 @@ SQL-цепочка для tenant isolation в PostgreSQL: добавление `
 
 ## Что делает каждый файл
 
-| Файл | Назначение |
-|---|---|
-| `001_tenant_columns.sql` | добавляет nullable `tenant_id` в tenant-scoped таблицы `world.*` и `public.*` |
-| `002_tenant_backfill.sql` | фиксирует процедуру заполнения `tenant_id` и gate-проверки перед RLS |
-| `003_rls_enable.sql` | включает `NOT NULL`, tenant indexes, `ENABLE/FORCE RLS`, политики `tenant_access_*` |
-| `003_rls_disable_rollback.sql` | удаляет tenant policies и отключает RLS на затронутых таблицах |
-| `004_roles_grants.sql` | создает/настраивает роль `polisyos_app`, grants и default privileges |
+| Файл                           | Назначение                                                                          |
+| ------------------------------ | ----------------------------------------------------------------------------------- |
+| `001_tenant_columns.sql`       | добавляет nullable `tenant_id` в tenant-scoped таблицы `world.*` и `public.*`       |
+| `002_tenant_backfill.sql`      | фиксирует процедуру заполнения `tenant_id` и gate-проверки перед RLS                |
+| `003_rls_enable.sql`           | включает `NOT NULL`, tenant indexes, `ENABLE/FORCE RLS`, политики `tenant_access_*` |
+| `003_rls_disable_rollback.sql` | удаляет tenant policies и отключает RLS на затронутых таблицах                      |
+| `004_roles_grants.sql`         | создает/настраивает роль `polisyos_app`, grants и default privileges                |
 
 ## Операционные требования
 

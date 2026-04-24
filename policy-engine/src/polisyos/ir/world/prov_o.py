@@ -1,13 +1,15 @@
 """PROV-O aligned bridge contracts for world provenance events."""
+
 from __future__ import annotations
 
 from datetime import UTC
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.world.event import ProvActivity, ProvAgent, WorldEvent, WorldObjectRef
+if TYPE_CHECKING:
+    from polisyos.ir.world.event import ProvActivity, ProvAgent, WorldEvent, WorldObjectRef
 
 
 class ProvORecordType(str, Enum):
@@ -170,9 +172,7 @@ def to_prov_o_activity(activity: ProvActivity) -> ProvOActivityRecord:
     """Convert a world activity to PROV-O with deterministic duration semantics."""
 
     ended_at = (
-        activity.ended_at.astimezone(UTC).isoformat()
-        if activity.ended_at is not None
-        else None
+        activity.ended_at.astimezone(UTC).isoformat() if activity.ended_at is not None else None
     )
     duration = None
     if activity.ended_at is not None:
@@ -185,9 +185,7 @@ def to_prov_o_activity(activity: ProvActivity) -> ProvOActivityRecord:
         ended_at=ended_at,
         duration_seconds=duration,
         attributes=(
-            {"polisyos:parameters": dict(activity.parameters)}
-            if activity.parameters
-            else {}
+            {"polisyos:parameters": dict(activity.parameters)} if activity.parameters else {}
         ),
     )
 
@@ -274,13 +272,13 @@ def to_prov_o_world_event(event: WorldEvent) -> ProvODocument:
 
 
 __all__ = [
-    "ProvOAgent",
     "ProvOActivityRecord",
+    "ProvOAgent",
     "ProvODocument",
     "ProvOEntity",
+    "ProvORecordType",
     "ProvORelation",
     "ProvORelationType",
-    "ProvORecordType",
     "prov_o_iri",
     "to_prov_o_activity",
     "to_prov_o_agent",

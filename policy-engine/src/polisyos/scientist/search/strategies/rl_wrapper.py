@@ -74,7 +74,9 @@ class RLStrategyWrapper:
             return self._explore_random()
         return self._base.suggest(evaluations, pending=pending)
 
-    def suggest_batch(self, evaluations: list[Evaluation], batch_size: int) -> list[PolicyCandidate]:
+    def suggest_batch(
+        self, evaluations: list[Evaluation], batch_size: int
+    ) -> list[PolicyCandidate]:
         return [self.suggest(evaluations) for _ in range(batch_size)]
 
     def update(self, evaluation: Evaluation) -> None:
@@ -106,4 +108,3 @@ class RLStrategyWrapper:
             params_normalized=vector,
             source_strategy="rl_exploration",
         )
-

@@ -1,7 +1,9 @@
 """Cluster tabular observations and expose assignments through Foundry method contracts."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -44,6 +46,7 @@ def _tabular_payload(state: Any) -> dict[str, Any]:
 )
 class KMeansEstimator:
     """Partition feature vectors into k-means clusters under roughly spherical cluster geometry; avoid non-convex manifolds."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 

@@ -4,6 +4,7 @@ Freshness: 2026-04-17
 Owner: `@runtime-owners`
 Source of truth: `src/polisyos/core/artifacts/{protocol.py,store.py,backends/config.py}`, `src/polisyos/runtime/http/{dependencies.py,resilience.py}`, `src/polisyos/fabric/storage/tenant_cas.py`, and ADRs `0098`/`0103`
 Validation:
+
 - `uv run pytest -q tests/runtime/http/test_runtime_api_write_path_hardening.py tests/runtime/http/test_api_maturity.py`
 - `uv run pytest -q tests/core/artifacts/backends/test_config.py tests/fabric/test_storage_port.py tests/fabric/test_duckdb_storage_access_control.py`
 
@@ -32,14 +33,14 @@ those concrete extensions.
 
 `ArtifactStoreConfig.from_env()` resolves the declarative CAS backend.
 
-| Variable | Default | Meaning |
-|---|---|---|
-| `POLISYOS_CAS_BACKEND` | `filesystem` | Backend selector: `filesystem`, `s3`, `gcs`, `cached_s3`, `cached_gcs` |
-| `POLISYOS_CAS_ROOT` | unset | Filesystem CAS root; defaults to `.polisyos/cas` when omitted |
-| `POLISYOS_CAS_BUCKET` | unset | Required for cloud backends |
-| `POLISYOS_CAS_PREFIX` | `polisyos-cas` | Object prefix for cloud backends |
-| `POLISYOS_CAS_REGION` | `us-east-1` | Region for S3-backed stores |
-| `POLISYOS_CAS_LOCAL_CACHE_DIR` | unset | Local cache root for cached/object-backed stores |
+| Variable                       | Default        | Meaning                                                                |
+| ------------------------------ | -------------- | ---------------------------------------------------------------------- |
+| `POLISYOS_CAS_BACKEND`         | `filesystem`   | Backend selector: `filesystem`, `s3`, `gcs`, `cached_s3`, `cached_gcs` |
+| `POLISYOS_CAS_ROOT`            | unset          | Filesystem CAS root; defaults to `.polisyos/cas` when omitted          |
+| `POLISYOS_CAS_BUCKET`          | unset          | Required for cloud backends                                            |
+| `POLISYOS_CAS_PREFIX`          | `polisyos-cas` | Object prefix for cloud backends                                       |
+| `POLISYOS_CAS_REGION`          | `us-east-1`    | Region for S3-backed stores                                            |
+| `POLISYOS_CAS_LOCAL_CACHE_DIR` | unset          | Local cache root for cached/object-backed stores                       |
 
 Factory behavior:
 
@@ -55,8 +56,10 @@ Factory behavior:
 - It starts from `ArtifactStoreConfig.from_env()`.
 - It then overrides `root` with the app-level `cas_root` argument before the
   store is built.
+
 - The sync store is wrapped with `guard_runtime_cas(...)` before services see
   it.
+
 - An async sibling is created through `build_async_artifact_store(...)`.
 - `core_runs_root` defaults to `<cas_root>/runs`.
 
@@ -81,6 +84,7 @@ Current semantics:
 - `get_bytes()` reads the blob and verifies it against the manifest.
 - Optional signing is controlled by `SigningConfig.from_env()` and may sign on
   write.
+
 - `artifact_store_config()` exports a rebuildable declarative config for the
   live store instance.
 
@@ -94,6 +98,7 @@ namespaces.
 - Storage usage is tracked against `TenantQuotaRegistry`.
 - `resolve_cas_store(...)` returns the shared store when `tenant_id` is absent
   and a `TenantScopedCAS` wrapper when `tenant_id` is provided.
+
 - `infer_tenant_id_from_cas_root(...)` can recover a tenant ID from an already
   scoped CAS path.
 
@@ -102,19 +107,20 @@ namespaces.
 Runtime HTTP paths do not call blocking CAS operations directly. They run
 behind `BlockingDependencyGuard`.
 
-| Guard family | Default | Notes |
-|---|---|---|
-| `POLISYOS_RUNTIME_CAS_TIMEOUT_SECONDS` | `1.5` | Max blocking CAS call duration before `504` |
-| `POLISYOS_RUNTIME_CAS_EXECUTOR_MAX_WORKERS` | `4` | Worker budget when a dedicated executor is needed |
-| `POLISYOS_RUNTIME_CAS_BREAKER_FAILURE_THRESHOLD` | `3` | Opens the CAS breaker after repeated failures |
-| `POLISYOS_RUNTIME_CAS_BREAKER_TIMEOUT_SECONDS` | `30` | Breaker open-state timeout |
-| `POLISYOS_RUNTIME_CAS_BREAKER_WINDOW_SECONDS` | `60` | Failure accounting window |
+| Guard family                                     | Default | Notes                                             |
+| ------------------------------------------------ | ------- | ------------------------------------------------- |
+| `POLISYOS_RUNTIME_CAS_TIMEOUT_SECONDS`           | `1.5`   | Max blocking CAS call duration before `504`       |
+| `POLISYOS_RUNTIME_CAS_EXECUTOR_MAX_WORKERS`      | `4`     | Worker budget when a dedicated executor is needed |
+| `POLISYOS_RUNTIME_CAS_BREAKER_FAILURE_THRESHOLD` | `3`     | Opens the CAS breaker after repeated failures     |
+| `POLISYOS_RUNTIME_CAS_BREAKER_TIMEOUT_SECONDS`   | `30`    | Breaker open-state timeout                        |
+| `POLISYOS_RUNTIME_CAS_BREAKER_WINDOW_SECONDS`    | `60`    | Failure accounting window                         |
 
 Runtime behavior:
 
 - timeouts surface as `504 content_addressed_storage_timeout`
 - unavailable dependency states surface as
   `503 content_addressed_storage_unavailable`
+
 - `FileNotFoundError` is not treated as dependency unavailability; it remains a
   normal missing-artifact path
 

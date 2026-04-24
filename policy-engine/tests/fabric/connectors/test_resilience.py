@@ -1,13 +1,13 @@
 """Tests for connector resilience patterns."""
+
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import pytest
 
-from polisyos.fabric.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.base import FetchRequest, FetchResult
 from polisyos.fabric.connectors.resilience import (
     AdaptiveRateLimiter,
@@ -25,6 +25,7 @@ from polisyos.fabric.connectors.resilience.circuit_breaker import (
     CircuitLeaseError,
     CircuitState,
 )
+from polisyos.fabric.observability import FABRIC_TRACE_NAMES
 from polisyos.ir.connectors import DataVersion, VersionStrategy
 
 
@@ -67,7 +68,7 @@ class _SpanStub:
         self.attributes: dict[str, object] = {}
         self.exceptions: list[str] = []
 
-    def __enter__(self) -> "_SpanStub":
+    def __enter__(self) -> _SpanStub:
         return self
 
     def __exit__(self, exc_type, exc, tb) -> bool:
@@ -87,7 +88,7 @@ class _TracerStub:
     def __init__(self) -> None:
         self.spans: list[tuple[str, dict[str, object], _SpanStub]] = []
 
-    def start_as_current_span(self, name: str, attributes=None):  # noqa: ANN001
+    def start_as_current_span(self, name: str, attributes=None):
         span = _SpanStub()
         self.spans.append((name, dict(attributes or {}), span))
         return span
@@ -189,12 +190,8 @@ async def test_retry_policy_uses_injected_metrics_and_tracer(
     result = await policy.execute(flaky)
 
     assert result == "ok"
-    assert metrics.connector_retry_attempts_total.calls == [
-        (1, {"attempt": "1"})
-    ]
-    assert metrics.connector_retry_delay_seconds.calls == [
-        (0.01, {"attempt": "1"})
-    ]
+    assert metrics.connector_retry_attempts_total.calls == [(1, {"attempt": "1"})]
+    assert metrics.connector_retry_delay_seconds.calls == [(0.01, {"attempt": "1"})]
     assert tracer.spans
     assert tracer.spans[0][0] == "retry.execute"
     assert tracer.spans[0][2].attributes["retry.success_attempt"] == 2
@@ -214,9 +211,9 @@ async def test_fallback_chain_uses_injected_metrics_and_tracer(
         version=DataVersion(
             strategy=VersionStrategy.TIMESTAMP,
             value="v0",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
         ),
-        fetched_at=datetime.now(timezone.utc),
+        fetched_at=datetime.now(UTC),
         completeness=1.0,
     )
     chain = FallbackChain(
@@ -503,11 +500,11 @@ async def test_rate_limiter_stress_never_goes_negative(monkeypatch: pytest.Monke
 @pytest.mark.asyncio
 async def test_fallback_chain_preserves_primary_and_fallback_errors() -> None:
     class BrokenFallback:
-        async def handle_failure(self, error, func, *args, **kwargs):  # noqa: ANN001
+        async def handle_failure(self, error, func, *args, **kwargs):
             raise ValueError("fallback-one")
 
     class AlsoBrokenFallback:
-        async def handle_failure(self, error, func, *args, **kwargs):  # noqa: ANN001
+        async def handle_failure(self, error, func, *args, **kwargs):
             raise RuntimeError("fallback-two")
 
     chain = FallbackChain([BrokenFallback(), AlsoBrokenFallback()])
@@ -531,7 +528,7 @@ async def test_cache_fallback_uses_request_and_sets_resilience() -> None:
     version = DataVersion(
         strategy=VersionStrategy.TIMESTAMP,
         value="v1",
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
     )
     fetch_result = FetchResult(
         data=[{"ok": True}],
@@ -539,7 +536,7 @@ async def test_cache_fallback_uses_request_and_sets_resilience() -> None:
         schema_id="test.schema",
         schema_version="1.0.0",
         version=version,
-        fetched_at=datetime.now(timezone.utc),
+        fetched_at=datetime.now(UTC),
         completeness=1.0,
     )
 
@@ -551,7 +548,7 @@ async def test_cache_fallback_uses_request_and_sets_resilience() -> None:
             self.seen = (request, connector_id, max_staleness_seconds)
             return SimpleNamespace(
                 result=fetch_result,
-                metadata=SimpleNamespace(cached_at=datetime.now(timezone.utc)),
+                metadata=SimpleNamespace(cached_at=datetime.now(UTC)),
             )
 
     cache = DummyCache()

@@ -6,10 +6,8 @@ All functions operate on plain Python types — no framework dependencies.
 from __future__ import annotations
 
 import dataclasses
-import math
 import statistics
-from typing import Sequence
-
+from collections.abc import Sequence
 
 # ---------------------------------------------------------------------------
 # Timing
@@ -28,9 +26,9 @@ class TimingStats:
 
     def __str__(self) -> str:
         return (
-            f"n={self.n}  mean={self.mean_s*1000:.2f}ms  "
-            f"p50={self.p50_s*1000:.2f}ms  p95={self.p95_s*1000:.2f}ms  "
-            f"min={self.min_s*1000:.2f}ms  max={self.max_s*1000:.2f}ms"
+            f"n={self.n}  mean={self.mean_s * 1000:.2f}ms  "
+            f"p50={self.p50_s * 1000:.2f}ms  p95={self.p95_s * 1000:.2f}ms  "
+            f"min={self.min_s * 1000:.2f}ms  max={self.max_s * 1000:.2f}ms"
         )
 
 
@@ -119,9 +117,9 @@ class AccuracyMetrics:
     n_total: int
     n_true_positive: int
     n_true_negative: int
-    n_false_positive: int    # claimed identified, ground truth: non-identifiable — blocker
-    n_false_negative: int    # claimed non-identifiable, ground truth: identifiable
-    n_wrong_formula: int     # status correct but estimand formula mismatch
+    n_false_positive: int  # claimed identified, ground truth: non-identifiable — blocker
+    n_false_negative: int  # claimed non-identifiable, ground truth: identifiable
+    n_wrong_formula: int  # status correct but estimand formula mismatch
 
     @property
     def n_correct(self) -> int:
@@ -264,7 +262,7 @@ class CircuitScore:
     def __str__(self) -> str:
         lines = [
             f"Circuit: {self.circuit_name}",
-            f"  Pass rate : {self.n_passed}/{self.n_cases} ({self.pass_rate*100:.1f}%)",
+            f"  Pass rate : {self.n_passed}/{self.n_cases} ({self.pass_rate * 100:.1f}%)",
         ]
         if self.accuracy is not None:
             lines.append(f"  Accuracy  : {self.accuracy}")

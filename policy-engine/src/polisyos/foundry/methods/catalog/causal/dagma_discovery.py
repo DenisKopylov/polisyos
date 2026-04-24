@@ -1,12 +1,14 @@
 """Estimate smooth DAGMA graph structures with optional backend fallbacks."""
+
 from __future__ import annotations
 
 import importlib
 import inspect
 import multiprocessing as mp
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -428,7 +430,7 @@ def run_dagma_discovery(
     completed_bootstrap = 0
     base_edge_keys = [_edge_key(edge) for edge in graph.edges]
     if n_bootstrap_requested > 0 and base_edge_keys:
-        hit_counts = {key: 0 for key in base_edge_keys}
+        hit_counts = dict.fromkeys(base_edge_keys, 0)
         rng = np.random.default_rng(seed + 101)
         for idx in range(n_bootstrap_requested):
             remaining = max(0.0, deadline - time.perf_counter())
@@ -473,7 +475,7 @@ def run_dagma_discovery(
                 key: float(hit_counts[key] / completed_bootstrap) for key in base_edge_keys
             }
         else:
-            bootstrap_stability = {key: 0.0 for key in base_edge_keys}
+            bootstrap_stability = dict.fromkeys(base_edge_keys, 0.0)
 
     report = CausalDiscoveryReport(
         method="dagma",
@@ -511,6 +513,7 @@ def run_dagma_discovery(
 )
 class DAGMADiscovery:
     """Learn a weighted acyclic graph with DAGMA optimization; avoid when cycles are substantively required."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(

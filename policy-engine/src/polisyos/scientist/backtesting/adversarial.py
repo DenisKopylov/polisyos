@@ -35,7 +35,6 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
 )
 
-
 PHASE_D4_ROTATION_GROUP = "phase_d4_v1"
 STRATEGIC_GAMING_SUITE_ID = "strategic_gaming_v1"
 MULTIPLICITY_DISCLOSURE_SUITE_ID = "multiplicity_disclosure_v1"
@@ -241,9 +240,11 @@ def build_challenge_suite_result(
     failed = [result for result in executed if not result.passed]
     pass_rate = 1.0 if total_cases == 0 else float((total_cases - len(failed)) / total_cases)
 
-    metrics = {name: 0.0 for name in _PHASE_D4_METRIC_NAMES}
+    metrics = dict.fromkeys(_PHASE_D4_METRIC_NAMES, 0.0)
     metrics["challenge_pass_rate"] = pass_rate
-    metrics[primary_failure_rate_name] = 0.0 if total_cases == 0 else float(len(failed) / total_cases)
+    metrics[primary_failure_rate_name] = (
+        0.0 if total_cases == 0 else float(len(failed) / total_cases)
+    )
 
     disclosure_failures = [
         result.case.case_id
@@ -259,7 +260,9 @@ def build_challenge_suite_result(
         **dict(metadata or {}),
     }
     promotable = pass_rate == 1.0 and all(
-        float(metrics[name]) == 0.0 for name in _PHASE_D4_METRIC_NAMES if name != "challenge_pass_rate"
+        float(metrics[name]) == 0.0
+        for name in _PHASE_D4_METRIC_NAMES
+        if name != "challenge_pass_rate"
     )
     benchmark_evaluation = BenchmarkEvaluation(
         loop_id=str(loop_id),
@@ -406,10 +409,14 @@ def _resolve_strategic_summary(
                     dict(profile) for profile in equilibrium_set.equilibrium_profiles
                 ]
             if bundle.selected_equilibrium_ref is not None:
-                selected = load_equilibrium_selection_summary(store, bundle.selected_equilibrium_ref)
+                selected = load_equilibrium_selection_summary(
+                    store, bundle.selected_equilibrium_ref
+                )
                 summary["selected_equilibrium"] = dict(selected.selected_equilibrium)
             if bundle.performative_shift_ref is not None:
-                performative_shift = load_performative_shift_summary(store, bundle.performative_shift_ref)
+                performative_shift = load_performative_shift_summary(
+                    store, bundle.performative_shift_ref
+                )
                 if performative_shift.performative_shift is not None:
                     summary["performative_shift"] = float(performative_shift.performative_shift)
             post_value = load_post_adaptation_policy_value_summary(
@@ -464,14 +471,14 @@ def _load_abm_alignment_report_if_present(
 
 __all__ = [
     "ABSTRACTION_LEAKAGE_SUITE_ID",
+    "MULTIPLICITY_DISCLOSURE_SUITE_ID",
+    "PHASE_D4_ROTATION_GROUP",
+    "STRATEGIC_GAMING_SUITE_ID",
     "AdversarialGenerator",
     "AdversarialScenario",
     "ChallengeCase",
     "ChallengeCaseResult",
     "ChallengeSuiteResult",
-    "MULTIPLICITY_DISCLOSURE_SUITE_ID",
-    "PHASE_D4_ROTATION_GROUP",
-    "STRATEGIC_GAMING_SUITE_ID",
     "build_challenge_case_result",
     "build_challenge_suite_result",
     "run_phase_d4_challenge_suites",

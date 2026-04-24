@@ -91,7 +91,7 @@ def test_artifact_batch_endpoint_avoids_n_plus_one_fetches(runtime_api_env) -> N
     response = client.post(
         "/api/v1/artifacts/batch",
         json={
-                "artifact_ids": [
+            "artifact_ids": [
                 runtime_api_env["workflow_report_artifact_id"],
                 runtime_api_env["decision_packet_artifact_id"],
                 runtime_api_env["workflow_report_artifact_id"],
@@ -141,7 +141,7 @@ def test_run_detail_endpoint_emits_link_relations(runtime_api_env) -> None:
     assert f'</api/v1/runs/{runtime_api_env["core_run_id"]}>; rel="self"' in links
     assert f'</api/v1/runs/{runtime_api_env["core_run_id"]}/timeline>; rel="related"' in links
     assert (
-        f'</api/v1/runs/{runtime_api_env["core_run_id"]}/evidence-context>; '
+        f"</api/v1/runs/{runtime_api_env['core_run_id']}/evidence-context>; "
         'rel="describedby"' in links
     )
 

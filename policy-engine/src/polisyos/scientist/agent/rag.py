@@ -12,9 +12,10 @@ from __future__ import annotations
 import io
 import os
 import re
+from collections.abc import Callable, Sequence
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
-from typing import Any, Callable, Protocol, Sequence
+from datetime import UTC, datetime
+from typing import Any, Protocol
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -52,7 +53,7 @@ def _as_bool(raw: str | None, *, default: bool) -> bool:
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
 def _normalize_text(raw: str) -> str:
@@ -64,11 +65,9 @@ class EmbeddingBackend(Protocol):
     """Embedding backend protocol."""
 
     @property
-    def dimension(self) -> int:
-        ...
+    def dimension(self) -> int: ...
 
-    def encode(self, texts: list[str]) -> np.ndarray:
-        ...
+    def encode(self, texts: list[str]) -> np.ndarray: ...
 
 
 class ProviderEmbeddingBackend:
@@ -149,6 +148,7 @@ def _l2_normalize(arr: np.ndarray) -> np.ndarray:
 @dataclass(frozen=True, slots=True)
 class RAGCaseEntry:
     """RAG case entry data model."""
+
     decision_packet_ref: str
     trinity_bundle_ref: str
     run_id: str
@@ -164,6 +164,7 @@ class RAGCaseEntry:
 @dataclass(frozen=True, slots=True)
 class RAGSearchResult:
     """RAG search result data model."""
+
     entry: RAGCaseEntry
     similarity: float
 
@@ -184,7 +185,7 @@ class RAGConfig(BaseModel):
     cas_root: str = ".polisyos"
 
     @classmethod
-    def from_env(cls) -> "RAGConfig":
+    def from_env(cls) -> RAGConfig:
         kwargs: dict[str, Any] = {}
         kwargs["enabled"] = _as_bool(os.getenv("POLISYOS_RAG_ENABLED"), default=False)
         backend = os.getenv("POLISYOS_RAG_EMBEDDING_BACKEND")
@@ -240,7 +241,9 @@ class ProblemFrameTextualizer:
     def _from_unknown_problem_frame(problem_frame: Any) -> str:
         if isinstance(problem_frame, dict):
             domain = str(problem_frame.get("domain", ""))
-            narrative = str(problem_frame.get("narrative", "") or problem_frame.get("problem_id", ""))
+            narrative = str(
+                problem_frame.get("narrative", "") or problem_frame.get("problem_id", "")
+            )
             return _normalize_text(f"domain:{domain} | {narrative}")[:1500]
 
         domain = str(getattr(problem_frame, "domain", ""))
@@ -422,7 +425,9 @@ class CASRAGIndex:
         intervention_kinds: list[str] = []
         for intervention in policy.interventions[:5]:
             intervention_kinds.append(str(intervention.kind))
-        intervention_summary = ", ".join(intervention_kinds) if intervention_kinds else "No interventions"
+        intervention_summary = (
+            ", ".join(intervention_kinds) if intervention_kinds else "No interventions"
+        )
 
         metrics = payload.get("simulation_results")
         lesson = "No simulation summary"
@@ -483,7 +488,9 @@ class CASRAGIndex:
             PutOptions(
                 kind=RAG_ENTRIES_KIND,
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scientist.rag_entries", version=RAG_SCHEMA_VERSION),
+                schema=SchemaInfo(
+                    name="polisyos.scientist.rag_entries", version=RAG_SCHEMA_VERSION
+                ),
                 producer=ProducerInfo(component="scientist.agent.rag", version="1.0"),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
@@ -497,7 +504,9 @@ class CASRAGIndex:
             PutOptions(
                 kind=RAG_VECTORS_KIND,
                 media_type="application/octet-stream",
-                schema=SchemaInfo(name="polisyos.scientist.rag_vectors", version=RAG_SCHEMA_VERSION),
+                schema=SchemaInfo(
+                    name="polisyos.scientist.rag_vectors", version=RAG_SCHEMA_VERSION
+                ),
                 producer=ProducerInfo(component="scientist.agent.rag", version="1.0"),
             ),
         )
@@ -516,7 +525,9 @@ class CASRAGIndex:
             PutOptions(
                 kind=RAG_SNAPSHOT_KIND,
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scientist.rag_snapshot", version=RAG_SCHEMA_VERSION),
+                schema=SchemaInfo(
+                    name="polisyos.scientist.rag_snapshot", version=RAG_SCHEMA_VERSION
+                ),
                 producer=ProducerInfo(component="scientist.agent.rag", version="1.0"),
                 inputs=[
                     InputRef(artifact_id=entries_ref.artifact_id, role="entries"),
@@ -535,7 +546,7 @@ class CASRAGIndex:
         *,
         snapshot_ref: str,
         embedder: EmbeddingBackend,
-    ) -> "CASRAGIndex":
+    ) -> CASRAGIndex:
         snapshot_aid = ArtifactID.model_validate(snapshot_ref)
         snapshot_payload = from_canonical_bytes(cas.get_bytes(snapshot_aid))
         if not isinstance(snapshot_payload, dict):
@@ -681,5 +692,7 @@ def build_default_embedder(
     if backend == "provider" and provider_embed_fn is not None:
         return ProviderEmbeddingBackend(provider_embed_fn, dimension=provider_dimension)
     if backend == "provider":
-        logger.warning("RAG provider backend selected but no provider callback supplied; using hash")
+        logger.warning(
+            "RAG provider backend selected but no provider callback supplied; using hash"
+        )
     return HashEmbeddingBackend(dimension=provider_dimension)

@@ -152,7 +152,7 @@ case "${MODE}" in
     ;;
 esac
 
-gcloud config set project "${PROJECT_ID}" >/dev/null
+gcloud config set project "${PROJECT_ID}" > /dev/null
 
 echo "=== Launch calibration workers ==="
 echo "project=${PROJECT_ID} mode=${MODE} status=${STATUS_PASS} run_label=${RUN_LABEL}"
@@ -203,7 +203,7 @@ for i in $(seq 0 $((SHARD_COUNT - 1))); do
     META="${META},resume-cache-prefix=${RESUME_CACHE_PREFIX}"
   fi
 
-  if gcloud compute instances describe "${INSTANCE_NAME}" --zone="${INSTANCE_ZONE}" >/dev/null 2>&1; then
+  if gcloud compute instances describe "${INSTANCE_NAME}" --zone="${INSTANCE_ZONE}" > /dev/null 2>&1; then
     if [ "${SKIP_EXISTING}" = "1" ]; then
       echo "Skipping existing instance ${INSTANCE_NAME} in ${INSTANCE_ZONE}"
       continue
@@ -226,7 +226,7 @@ for i in $(seq 0 $((SHARD_COUNT - 1))); do
     --tags=lex-worker \
     --provisioning-model=SPOT \
     --maintenance-policy=TERMINATE \
-    --instance-termination-action=STOP >/dev/null
+    --instance-termination-action=STOP > /dev/null
 
   printf "  %-14s zone=%-15s hypothesis=%-18s rps=%-4s parallel=%-3s global=%-3s verify=%-4s max_docs=%s\n" \
     "${INSTANCE_NAME}" "${INSTANCE_ZONE}" "${HYPOTHESIS[$i]}" "${RPS[$i]}" "${PARALLEL_LLM[$i]}" "${PARALLEL_LLM_GLOBAL[$i]}" "${VERIFY_MODE[$i]}" "${MAX_DOCS[$i]}"

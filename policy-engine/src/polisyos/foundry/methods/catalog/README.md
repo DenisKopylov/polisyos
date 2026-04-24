@@ -19,14 +19,14 @@ by domain family and registered into the shared `MethodRegistry`.
 
 ## Public API
 
-| Type/Function | Description |
-|---|---|
-| `ensure_all_methods_registered()` | Registers every available catalog family. |
-| `ensure_causal_methods_registered()` | Registers causal methods into a registry. |
-| `ensure_econometric_methods_registered()` | Registers econometrics methods. |
-| `ensure_optimization_methods_registered()` | Registers optimization methods. |
-| `ensure_ml_methods_registered()` | Registers ml methods. |
-| `ensure_simulation_methods_registered()` | Registers simulation methods. |
+| Type/Function                              | Description                               |
+| ------------------------------------------ | ----------------------------------------- |
+| `ensure_all_methods_registered()`          | Registers every available catalog family. |
+| `ensure_causal_methods_registered()`       | Registers causal methods into a registry. |
+| `ensure_econometric_methods_registered()`  | Registers econometrics methods.           |
+| `ensure_optimization_methods_registered()` | Registers optimization methods.           |
+| `ensure_ml_methods_registered()`           | Registers ml methods.                     |
+| `ensure_simulation_methods_registered()`   | Registers simulation methods.             |
 
 → Full reference: [docs/reference/foundry/index.md](../../../../../docs/reference/foundry/index.md)
 

@@ -1,9 +1,10 @@
 """Public analytics literature module API."""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
 from enum import Enum
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -18,15 +19,20 @@ from polisyos.ir.analytics.causal_graph import (
     EdgeSource,
     GraphType,
 )
-from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.artifacts.contracts import ArtifactID
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import LiteratureCausalPriorRef
 
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.context import ContextProfile
+else:
+    from polisyos.ir.analytics.context import ContextProfile
+
 
 class ParameterType(str, Enum):
     """Parameter type public type."""
+
     QUANTITATIVE = "quantitative"
     QUALITATIVE = "qualitative"
     ORDINAL = "ordinal"
@@ -35,6 +41,7 @@ class ParameterType(str, Enum):
 
 class EvidenceStrength(str, Enum):
     """Evidence strength public type."""
+
     RCT = "rct"
     QUASI_NATURAL = "quasi_natural"
     QUASI_NATURAL_EVENT = "quasi_natural_event"
@@ -49,6 +56,7 @@ class EvidenceStrength(str, Enum):
 
 class CausalDirection(str, Enum):
     """Causal direction public type."""
+
     POSITIVE = "positive"
     NEGATIVE = "negative"
     NULL = "null"
@@ -59,12 +67,14 @@ class CausalDirection(str, Enum):
 
 class SourceBasis(str, Enum):
     """Source basis public type."""
+
     FULLTEXT = "fulltext"
     ABSTRACT_ONLY = "abstract_only"
 
 
 class TextQuality(str, Enum):
     """Text quality public type."""
+
     STRUCTURED_FULLTEXT = "structured_fulltext"
     EXTRACTED_FULLTEXT = "extracted_fulltext"
     ABSTRACT_ONLY = "abstract_only"
@@ -73,6 +83,7 @@ class TextQuality(str, Enum):
 
 class ClaimType(str, Enum):
     """Claim type public type."""
+
     CAUSAL_CLAIM = "causal_claim"
     CAUSAL_ASSERTION = "causal_assertion"
     ASSOCIATIVE = "associative"
@@ -87,6 +98,7 @@ class ClaimType(str, Enum):
 
 class ClaimExplicitness(str, Enum):
     """Claim explicitness public type."""
+
     EXPLICIT = "explicit"
     IMPLICIT = "implicit"
     UNCLEAR = "unclear"
@@ -94,6 +106,7 @@ class ClaimExplicitness(str, Enum):
 
 class DesignFamily(str, Enum):
     """Design family public type."""
+
     RCT = "rct"
     IV = "iv"
     DID = "did"
@@ -118,6 +131,7 @@ class DesignFamily(str, Enum):
 
 class CausalCredibility(str, Enum):
     """Causal credibility public type."""
+
     STRONG = "strong"
     MODERATE = "moderate"
     WEAK = "weak"
@@ -127,6 +141,7 @@ class CausalCredibility(str, Enum):
 
 class RiskOfBias(str, Enum):
     """Risk of bias public type."""
+
     LOW = "low"
     MODERATE = "moderate"
     SERIOUS = "serious"
@@ -136,6 +151,7 @@ class RiskOfBias(str, Enum):
 
 class SupportStatus(str, Enum):
     """Support status public type."""
+
     SUPPORTED = "supported"
     MIXED = "mixed"
     COUNTEREVIDENCE = "counterevidence"
@@ -146,6 +162,7 @@ class SupportStatus(str, Enum):
 
 class PaperKind(str, Enum):
     """Paper kind public type."""
+
     EMPIRICAL_CAUSAL = "empirical_causal"
     CONTEXT_CHARACTERIZATION = "context_characterization"
     HETEROGENEITY_ANALYSIS = "heterogeneity_analysis"
@@ -157,6 +174,7 @@ class PaperKind(str, Enum):
 
 class EvidenceSpan(BaseModel):
     """Evidence span public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     span_id: str = ""
@@ -245,6 +263,7 @@ class ModerationEdge(BaseModel):
 
 class EvidenceParameter(BaseModel):
     """Evidence parameter public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     name: str
@@ -269,7 +288,7 @@ class EvidenceParameter(BaseModel):
     subgroup_estimates: dict[str, float] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_value_present(self) -> "EvidenceParameter":
+    def _validate_value_present(self) -> EvidenceParameter:
         if self.value is None and self.value_range is None and self.value_qualitative is None:
             raise ValueError("At least one of value, value_range, value_qualitative is required")
         if self.value is not None:
@@ -296,6 +315,7 @@ class CausalClaim(BaseModel):
     Derived aliases are resolved in a payload-normalization step so validated
     instances are no longer mutated by validators.
     """
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     claim_id: str = ""
@@ -340,13 +360,13 @@ class CausalClaim(BaseModel):
         return _normalize_causal_claim_payload(data)
 
     @classmethod
-    def from_payload(cls, data: dict[str, Any]) -> "CausalClaim":
+    def from_payload(cls, data: dict[str, Any]) -> CausalClaim:
         """Construct a causal claim through the explicit compatibility normalizer."""
 
         return cls.model_validate(cls.normalize_payload(data))
 
     @model_validator(mode="after")
-    def _validate_claim(self) -> "CausalClaim":
+    def _validate_claim(self) -> CausalClaim:
         if self.effect_size is not None:
             ensure_finite_numeric(self.effect_size, field_name="effect_size")
         ensure_unique_ids(
@@ -364,6 +384,7 @@ class CausalClaim(BaseModel):
 
 class Mechanism(BaseModel):
     """Mechanism public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     description: str
@@ -374,6 +395,7 @@ class Mechanism(BaseModel):
 
 class BoundaryCondition(BaseModel):
     """Boundary condition public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     variable: str = ""
@@ -412,7 +434,7 @@ class BoundaryCondition(BaseModel):
         return payload
 
     @classmethod
-    def from_payload(cls, data: dict[str, Any]) -> "BoundaryCondition":
+    def from_payload(cls, data: dict[str, Any]) -> BoundaryCondition:
         """Construct a boundary condition through the explicit compatibility normalizer."""
 
         return cls.model_validate(cls.normalize_payload(data))
@@ -491,13 +513,13 @@ class ArticleExtractionResult(BaseModel):
         return _normalize_article_extraction_payload(data)
 
     @classmethod
-    def from_payload(cls, data: dict[str, Any]) -> "ArticleExtractionResult":
+    def from_payload(cls, data: dict[str, Any]) -> ArticleExtractionResult:
         """Construct an article extraction result via explicit compatibility rules."""
 
         return cls.model_validate(cls.normalize_payload(data))
 
     @model_validator(mode="after")
-    def _validate_confidence(self) -> "ArticleExtractionResult":
+    def _validate_confidence(self) -> ArticleExtractionResult:
         if not (0.0 <= self.extraction_confidence <= 1.0):
             raise ValueError(
                 f"extraction_confidence must be [0,1], got {self.extraction_confidence}"
@@ -544,6 +566,7 @@ class ClaimAdjudicationResult(BaseModel):
 
 class LiteratureEdgePrior(BaseModel):
     """Literature edge prior public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     src: str
@@ -560,6 +583,7 @@ class LiteratureEdgePrior(BaseModel):
 
 class ReconciliationDiagnostics(BaseModel):
     """Reconciliation diagnostics public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     cyclic_inconsistency_norm: float = Field(default=0.0, ge=0.0)
@@ -582,6 +606,7 @@ class ReconciliationDiagnostics(BaseModel):
 
 class EnvironmentAuditReport(BaseModel):
     """Environment audit report data model."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     status: Literal["ok", "warning", "skipped", "degraded"] = "skipped"
@@ -601,6 +626,7 @@ class EnvironmentAuditReport(BaseModel):
 
 class LiteratureCausalPrior(BaseModel):
     """Literature causal prior public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = "1.0"
@@ -700,9 +726,7 @@ def _normalize_article_extraction_payload(data: object) -> object:
         payload["publication_year"] = payload.get("year")
     if "schema_version" not in payload:
         payload["schema_version"] = (
-            "1.0"
-            if "publication_year" in payload and "year" not in payload
-            else "1.5"
+            "1.0" if "publication_year" in payload and "year" not in payload else "1.5"
         )
     return payload
 
@@ -784,36 +808,36 @@ def load_literature_causal_prior(
 
 
 __all__ = [
-    "ParameterType",
-    "EvidenceStrength",
-    "CausalDirection",
-    "SourceBasis",
-    "TextQuality",
-    "ClaimType",
-    "ClaimExplicitness",
-    "DesignFamily",
-    "CausalCredibility",
-    "RiskOfBias",
-    "SupportStatus",
-    "PaperKind",
-    "EvidenceSpan",
-    "IdentificationStrategy",
-    "HeterogeneityResult",
-    "UncertaintyBudget",
-    "ContextAttribute",
-    "ModerationEdge",
-    "EvidenceParameter",
-    "CausalClaim",
-    "Mechanism",
-    "BoundaryCondition",
     "ArticleExtractionResult",
+    "BoundaryCondition",
+    "CausalClaim",
+    "CausalCredibility",
+    "CausalDirection",
     "ClaimAdjudicationResult",
-    "LiteratureEdgePrior",
-    "ReconciliationDiagnostics",
+    "ClaimExplicitness",
+    "ClaimType",
+    "ContextAttribute",
+    "DesignFamily",
     "EnvironmentAuditReport",
+    "EvidenceParameter",
+    "EvidenceSpan",
+    "EvidenceStrength",
+    "HeterogeneityResult",
+    "IdentificationStrategy",
     "LiteratureCausalPrior",
-    "persist_article_extraction_result",
+    "LiteratureEdgePrior",
+    "Mechanism",
+    "ModerationEdge",
+    "PaperKind",
+    "ParameterType",
+    "ReconciliationDiagnostics",
+    "RiskOfBias",
+    "SourceBasis",
+    "SupportStatus",
+    "TextQuality",
+    "UncertaintyBudget",
     "load_article_extraction_result",
-    "persist_literature_causal_prior",
     "load_literature_causal_prior",
+    "persist_article_extraction_result",
+    "persist_literature_causal_prior",
 ]

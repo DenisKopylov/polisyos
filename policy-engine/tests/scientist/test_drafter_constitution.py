@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 from datetime import datetime
 
-from polisyos.scientist.agent.drafter import MultiPassConfig, MultiPassLLMDrafter, MockDrafterAgent
+from polisyos.scientist.agent.drafter import MockDrafterAgent, MultiPassConfig, MultiPassLLMDrafter
 from polisyos.scientist.agent.protocols import ProblemFrame
 
 

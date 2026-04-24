@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-import argparse
 import asyncio
+from typing import TYPE_CHECKING
 
 from polisyos.academic.batch import cli
+
+if TYPE_CHECKING:
+    import argparse
 
 
 def _parse_args(argv: list[str]) -> argparse.Namespace:
@@ -83,7 +86,9 @@ def test_transport_score_command_dispatches(tmp_path, monkeypatch, capsys) -> No
         assert config.snapshot_root == tmp_path / "snap"
         return {"edges_scored": 2, "moderators_applied": 1, "profiles_built": 3}
 
-    monkeypatch.setattr("polisyos.academic.batch.transport_score.run_transport_score", _fake_run_transport_score)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.transport_score.run_transport_score", _fake_run_transport_score
+    )
 
     asyncio.run(cli._run_stage(args, "transport-score"))
     out = capsys.readouterr().out

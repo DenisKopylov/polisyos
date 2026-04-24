@@ -23,8 +23,8 @@ from .quarantine import (
 from .semantic_diff import compare_historical_rows, persist_historical_semantic_diff_report
 from .streaming import (
     StreamDatasetRunResult,
-    StreamRuntimeOptions,
     StreamingSourceSession,
+    StreamRuntimeOptions,
     iter_record_batches,
     persist_cdc_schema_change_event,
     process_stream_dataset,
@@ -49,8 +49,8 @@ __all__ = [
     "load_quarantine_record",
     "persist_cdc_schema_change_event",
     "persist_fabric_benchmark_report",
-    "persist_quarantine_record",
     "persist_historical_semantic_diff_report",
+    "persist_quarantine_record",
     "process_stream_dataset",
     "quarantine_index_path",
     "register_quarantine_reprocessor",

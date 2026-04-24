@@ -49,7 +49,7 @@ def test_hsic_detects_dependence() -> None:
     rng = np.random.default_rng(1)
     n = 120
     X = rng.normal(size=(n, 1))
-    Y = X ** 2 + 0.05 * rng.normal(size=(n, 1))
+    Y = X**2 + 0.05 * rng.normal(size=(n, 1))
 
     out = _dispatch(
         "causal.diagnostics.independence.hsic@1.0.0",
@@ -341,7 +341,10 @@ def test_partial_correlation_flags_missing_dp_calibration() -> None:
     out = _dispatch(
         "causal.diagnostics.independence.partial_correlation@1.0.0",
         state={"X": X, "Y": Y, "Z": None},
-        params={"alpha": 0.05, "dp_context": {"mechanism": "gaussian_counts", "epsilon": 1.0, "delta": 1e-6}},
+        params={
+            "alpha": 0.05,
+            "dp_context": {"mechanism": "gaussian_counts", "epsilon": 1.0, "delta": 1e-6},
+        },
     )
 
     assert out["metadata"]["dp_calibration_supported"] is False

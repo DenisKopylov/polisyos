@@ -1,0 +1,30 @@
+include = ["*.toml", "**/*.toml"]
+exclude = [
+  ".venv/**",
+  ".venv_codex/**",
+  ".pytest_cache/**",
+  ".mypy_cache/**",
+  ".ruff_cache/**",
+  "**/node_modules/**",
+  "docs/archive/**",
+  "data/raw/**",
+  "benchmark-results/**",
+  "coverage/**",
+  "dist/**",
+  "site/**",
+  "storybook-static/**",
+]
+
+[formatting]
+align_entries = false
+align_comments = true
+array_auto_collapse = true
+array_auto_expand = true
+array_trailing_comma = true
+column_width = 100
+compact_arrays = true
+compact_entries = false
+compact_inline_tables = false
+indent_string = "  "
+reorder_keys = false
+trailing_newline = true

@@ -5,6 +5,7 @@ body so builtin orchestration can stay readable. All checks are best-effort and
 non-blocking: when optional inputs are missing, the bundle records a typed
 ``skipped`` status instead of failing the main causal estimate.
 """
+
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
@@ -60,6 +61,8 @@ _GRAPH_REF_KEYS: tuple[str, ...] = (
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
     ARTIFACT_LITERATURE_PRIOR_GRAPH_REF,
 )
+
+
 def persist_causal_validity_bundle(
     *,
     ctx: ExecutionContext,
@@ -261,9 +264,7 @@ def _build_sensitivity_check(
         "e_value": _normalize_optional_float(sensitivity_auto.get("e_value")),
         "rosenbaum_gamma": _normalize_optional_float(sensitivity_auto.get("rosenbaum_gamma")),
         "is_robust": (
-            bool(sensitivity_auto.get("is_robust"))
-            if "is_robust" in sensitivity_auto
-            else None
+            bool(sensitivity_auto.get("is_robust")) if "is_robust" in sensitivity_auto else None
         ),
         "warnings": _string_list(sensitivity_auto.get("warnings")),
     }
@@ -300,18 +301,22 @@ def _build_spatial_interference_check(
     summary = _mapping(
         _first_present(
             getattr(report, "spatial_hodge_summary", None),
-            typed_diagnostics,
+            typed_diagnostics or None,
             metadata.get("spatial_hodge_summary"),
         )
     )
     diagnostics = typed_diagnostics or _mapping(metadata.get("spatial_hodge_diagnostics"))
     maup = typed_maup or _mapping(metadata.get("maup_invariance_certificate"))
     if not summary and not diagnostics and not maup:
-        return _skipped_check("causal.diagnostics.spatial_interference", reason="missing_spatial_diagnostics")
+        return _skipped_check(
+            "causal.diagnostics.spatial_interference", reason="missing_spatial_diagnostics"
+        )
 
     observed_metadata = getattr(observational_data, "metadata", None)
     observed_spatial = _mapping(
-        observed_metadata.get("spatial_interference") if isinstance(observed_metadata, Mapping) else None
+        observed_metadata.get("spatial_interference")
+        if isinstance(observed_metadata, Mapping)
+        else None
     )
     declared_scale_id = _normalize_optional_string(
         summary.get("declared_scale_id")
@@ -338,7 +343,9 @@ def _build_spatial_interference_check(
         or method_params.get("weight_spec")
     )
     warnings = _string_list(summary.get("warnings")) + _string_list(maup.get("warnings"))
-    blocker_codes = _string_list(summary.get("blocker_codes")) + _string_list(maup.get("blocker_codes"))
+    blocker_codes = _string_list(summary.get("blocker_codes")) + _string_list(
+        maup.get("blocker_codes")
+    )
 
     return {
         "status": "success",
@@ -396,9 +403,7 @@ def _build_spatial_interference_check(
             or ()
         ),
         "maup_status": _normalize_optional_string(maup.get("status")),
-        "maup_partitions_tested": (
-            int(maup.get("partitions_tested", 0) or 0) if maup else None
-        ),
+        "maup_partitions_tested": (int(maup.get("partitions_tested", 0) or 0) if maup else None),
         "warnings": warnings,
         "blocker_codes": blocker_codes,
         "experimental": True,
@@ -968,8 +973,7 @@ def _capability_state(check: Mapping[str, Any] | None) -> str:
 
 def _count_changed_pag_edges(*, before: CausalGraphModel, after: CausalGraphModel) -> int:
     before_edges = {
-        (edge.src, edge.dst): (edge.mark_src.value, edge.mark_dst.value)
-        for edge in before.edges
+        (edge.src, edge.dst): (edge.mark_src.value, edge.mark_dst.value) for edge in before.edges
     }
     changed = 0
     for edge in after.edges:

@@ -23,6 +23,7 @@ _FALLBACK_ROUTER_RUNTIME_ERRORS = (
 
 class EndpointHealth(str, Enum):
     """Endpoint health public type."""
+
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
@@ -153,9 +154,7 @@ class FallbackRouter:
             finally:
                 await client.aclose()
 
-        raise RuntimeError(
-            "All LLM endpoints exhausted"
-        ) from last_error
+        raise RuntimeError("All LLM endpoints exhausted") from last_error
 
     async def aclose(self) -> None:
         """No-op close hook for TracedLLMClient compatibility."""

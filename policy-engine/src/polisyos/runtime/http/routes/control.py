@@ -10,8 +10,8 @@ from polisyos.core.contracts.control import (
     BindingProfilesListResponse,
     CacheStatusResponse,
     CapabilityManifestResponse,
-    CausalFrontierSAEResponse,
     CausalFrontierSAERequest,
+    CausalFrontierSAEResponse,
     ConnectorsListResponse,
     ControlJobResponse,
     ControlOutboxEventsResponse,
@@ -106,147 +106,153 @@ def _artifact_ref(artifact_id: str | None, *, kind: str, media_type: str) -> Art
 
 
 @router.post(
-        "/runs",
-        response_model=RunLaunchResponse,
-        operation_id="launch_run",
-        summary="Launch a workflow run",
-    )
+    "/runs",
+    response_model=RunLaunchResponse,
+    operation_id="launch_run",
+    summary="Launch a workflow run",
+)
 def launch_run(
-        body: WorkflowRunRequest,
-        request: Request,
-    ) -> RunLaunchResponse:
-        set_authz_resource(
-            request,
-            tenant_id=getattr(request.state, "tenant_id", None),
-            kind="control.launch_run",
+    body: WorkflowRunRequest,
+    request: Request,
+) -> RunLaunchResponse:
+    set_authz_resource(
+        request,
+        tenant_id=getattr(request.state, "tenant_id", None),
+        kind="control.launch_run",
+    )
+    # Validate that at least one data source is provided
+    ds = body.data_source
+    if not ds.data_snapshot_ref and not ds.input_bindings_ref and not ds.data_view_request_ref:
+        raise bad_request(
+            "At least one data source must be provided",
+            code="missing_data_source",
         )
-        # Validate that at least one data source is provided
-        ds = body.data_source
-        if not ds.data_snapshot_ref and not ds.input_bindings_ref and not ds.data_view_request_ref:
-            raise bad_request(
-                "At least one data source must be provided",
-                code="missing_data_source",
-            )
-        control = _get_control_service(request)
-        request_id = ensure_request_id(request)
-        return control.launch_workflow_run(
-            body,
-            request_id=request_id,
-            principal=_get_principal(request),
-        )
+    control = _get_control_service(request)
+    request_id = ensure_request_id(request)
+    return control.launch_workflow_run(
+        body,
+        request_id=request_id,
+        principal=_get_principal(request),
+    )
+
 
 @router.post(
-        "/runs/{run_id}/feedback/evaluate",
-        response_model=FeedbackActionResponse,
-        operation_id="evaluate_run_feedback",
-        summary="Evaluate post-deployment monitoring for a run",
-    )
+    "/runs/{run_id}/feedback/evaluate",
+    response_model=FeedbackActionResponse,
+    operation_id="evaluate_run_feedback",
+    summary="Evaluate post-deployment monitoring for a run",
+)
 def evaluate_run_feedback(
-        run_id: str,
-        request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
-    ) -> FeedbackActionResponse:
-        run = ctx.run_index.get_run(run_id)
-        enforce_run_tenant_access(request, ctx=ctx, run=run)
-        set_authz_resource(
-            request,
-            tenant_id=run.details.tenant_id,
-            kind="control.evaluate_feedback",
-        )
-        _, monitoring_report_ref, compare_report_ref, reissue_plan_ref = ctx.feedback.evaluate_run_feedback(run)
-        return FeedbackActionResponse(
-            meta=build_meta(request, source_kinds=[run.source_kind]),
-            run_id=run_id,
-            action="evaluate_feedback",
-            status="completed",
-            monitoring_report_ref=_artifact_ref(
-                monitoring_report_ref,
-                kind="scientist.decision_monitoring_report",
-                media_type="application/json",
-            ),
-            compare_report_ref=_artifact_ref(
-                compare_report_ref,
-                kind="scientist.decision_compare_report",
-                media_type="application/json",
-            ),
-            reissue_plan_ref=_artifact_ref(
-                reissue_plan_ref,
-                kind="scientist.decision_reissue_plan",
-                media_type="application/json",
-            ),
-            message=f"Feedback evaluation for run {run_id} completed.",
-        )
+    run_id: str,
+    request: Request,
+    ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+) -> FeedbackActionResponse:
+    run = ctx.run_index.get_run(run_id)
+    enforce_run_tenant_access(request, ctx=ctx, run=run)
+    set_authz_resource(
+        request,
+        tenant_id=run.details.tenant_id,
+        kind="control.evaluate_feedback",
+    )
+    _, monitoring_report_ref, compare_report_ref, reissue_plan_ref = (
+        ctx.feedback.evaluate_run_feedback(run)
+    )
+    return FeedbackActionResponse(
+        meta=build_meta(request, source_kinds=[run.source_kind]),
+        run_id=run_id,
+        action="evaluate_feedback",
+        status="completed",
+        monitoring_report_ref=_artifact_ref(
+            monitoring_report_ref,
+            kind="scientist.decision_monitoring_report",
+            media_type="application/json",
+        ),
+        compare_report_ref=_artifact_ref(
+            compare_report_ref,
+            kind="scientist.decision_compare_report",
+            media_type="application/json",
+        ),
+        reissue_plan_ref=_artifact_ref(
+            reissue_plan_ref,
+            kind="scientist.decision_reissue_plan",
+            media_type="application/json",
+        ),
+        message=f"Feedback evaluation for run {run_id} completed.",
+    )
+
 
 @router.post(
-        "/runs/nl",
-        response_model=RunLaunchResponse,
-        operation_id="launch_nl_run",
-        summary="Launch a natural-language run via agent circuit",
-    )
+    "/runs/nl",
+    response_model=RunLaunchResponse,
+    operation_id="launch_nl_run",
+    summary="Launch a natural-language run via agent circuit",
+)
 async def launch_nl_run(
-        body: NaturalLanguageRunRequest,
-        request: Request,
-    ) -> RunLaunchResponse:
-        set_authz_resource(
-            request,
-            tenant_id=getattr(request.state, "tenant_id", None),
-            kind="control.launch_nl_run",
-        )
-        control = _get_control_service(request)
-        request_id = ensure_request_id(request)
-        return await control.launch_nl_run(
-            body,
-            request_id=request_id,
-            principal=_get_principal(request),
-        )
+    body: NaturalLanguageRunRequest,
+    request: Request,
+) -> RunLaunchResponse:
+    set_authz_resource(
+        request,
+        tenant_id=getattr(request.state, "tenant_id", None),
+        kind="control.launch_nl_run",
+    )
+    control = _get_control_service(request)
+    request_id = ensure_request_id(request)
+    return await control.launch_nl_run(
+        body,
+        request_id=request_id,
+        principal=_get_principal(request),
+    )
+
 
 @router.post(
-        "/runs/{run_id}/reissue",
-        response_model=FeedbackActionResponse,
-        operation_id="reissue_run",
-        summary="Create a human-gated reissue run",
-    )
+    "/runs/{run_id}/reissue",
+    response_model=FeedbackActionResponse,
+    operation_id="reissue_run",
+    summary="Create a human-gated reissue run",
+)
 def reissue_run(
-        run_id: str,
-        request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
-    ) -> FeedbackActionResponse:
-        run = ctx.run_index.get_run(run_id)
-        enforce_run_tenant_access(request, ctx=ctx, run=run)
-        set_authz_resource(
-            request,
-            tenant_id=run.details.tenant_id,
-            kind="control.reissue_run",
-        )
-        control = _get_control_service(request)
-        payload = control.reissue_run(
-            run_id,
-            request_id=ensure_request_id(request),
-            principal=_get_principal(request),
-        )
-        return FeedbackActionResponse(
-            meta=build_meta(request, source_kinds=[run.source_kind]),
-            run_id=run_id,
-            action="reissue",
-            status="accepted",
-            monitoring_report_ref=_artifact_ref(
-                payload.get("monitoring_report_ref"),
-                kind="scientist.decision_monitoring_report",
-                media_type="application/json",
-            ),
-            compare_report_ref=_artifact_ref(
-                payload.get("compare_report_ref"),
-                kind="scientist.decision_compare_report",
-                media_type="application/json",
-            ),
-            reissue_plan_ref=_artifact_ref(
-                payload.get("reissue_plan_ref"),
-                kind="scientist.decision_reissue_plan",
-                media_type="application/json",
-            ),
-            reissued_run_id=payload.get("run_id"),
-            message=str(payload.get("message") or f"Reissue for run {run_id} accepted."),
-        )
+    run_id: str,
+    request: Request,
+    ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+) -> FeedbackActionResponse:
+    run = ctx.run_index.get_run(run_id)
+    enforce_run_tenant_access(request, ctx=ctx, run=run)
+    set_authz_resource(
+        request,
+        tenant_id=run.details.tenant_id,
+        kind="control.reissue_run",
+    )
+    control = _get_control_service(request)
+    payload = control.reissue_run(
+        run_id,
+        request_id=ensure_request_id(request),
+        principal=_get_principal(request),
+    )
+    return FeedbackActionResponse(
+        meta=build_meta(request, source_kinds=[run.source_kind]),
+        run_id=run_id,
+        action="reissue",
+        status="accepted",
+        monitoring_report_ref=_artifact_ref(
+            payload.get("monitoring_report_ref"),
+            kind="scientist.decision_monitoring_report",
+            media_type="application/json",
+        ),
+        compare_report_ref=_artifact_ref(
+            payload.get("compare_report_ref"),
+            kind="scientist.decision_compare_report",
+            media_type="application/json",
+        ),
+        reissue_plan_ref=_artifact_ref(
+            payload.get("reissue_plan_ref"),
+            kind="scientist.decision_reissue_plan",
+            media_type="application/json",
+        ),
+        reissued_run_id=payload.get("run_id"),
+        message=str(payload.get("message") or f"Reissue for run {run_id} accepted."),
+    )
+
 
 if router is not None:
 

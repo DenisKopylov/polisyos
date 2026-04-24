@@ -83,5 +83,7 @@ def test_load_governance_passes_wraps_entry_point_load_error(monkeypatch) -> Non
         lambda *, group: [_BrokenEntryPoint("broken", None)],
     )
 
-    with pytest.raises(RuntimeError, match="Failed to load governance pass from entry_point:broken"):
+    with pytest.raises(
+        RuntimeError, match="Failed to load governance pass from entry_point:broken"
+    ):
         load_governance_passes()

@@ -160,11 +160,9 @@ def build_knowledge_tool_registry(
             continue
 
         try:
-            definition = _method_to_tool_definition(
-                name, method, domain=_infer_domain(name)
-            )
+            definition = _method_to_tool_definition(name, method, domain=_infer_domain(name))
             registry.register(definition, method)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             logger.debug("Failed to register tool %s: %s", name, exc)
 
     if scholar_search_service is not None:

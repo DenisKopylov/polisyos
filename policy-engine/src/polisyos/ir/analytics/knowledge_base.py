@@ -36,10 +36,10 @@ if TYPE_CHECKING:
 class DistributionAvailability(str, Enum):
     """How well a required distribution is covered by a known dataset."""
 
-    AVAILABLE = "available"        # full coverage, all variables present
-    PARTIAL = "partial"            # some variables missing or proxied
-    PROXY_ONLY = "proxy_only"      # only proxy variable(s) exist
-    UNAVAILABLE = "unavailable"    # no matching dataset
+    AVAILABLE = "available"  # full coverage, all variables present
+    PARTIAL = "partial"  # some variables missing or proxied
+    PROXY_ONLY = "proxy_only"  # only proxy variable(s) exist
+    UNAVAILABLE = "unavailable"  # no matching dataset
 
 
 # ---------------------------------------------------------------------------
@@ -52,11 +52,11 @@ class DatasetEntry(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    dataset_ref: str                    # unique key; matches DistributionRef.dataset_ref
-    variables: tuple[str, ...]          # observed variables in this dataset
+    dataset_ref: str  # unique key; matches DistributionRef.dataset_ref
+    variables: tuple[str, ...]  # observed variables in this dataset
     domain: DistributionDomain
     availability: DistributionAvailability = DistributionAvailability.AVAILABLE
-    n_obs: int | None = None            # sample size (None = unknown)
+    n_obs: int | None = None  # sample size (None = unknown)
     quality_score: float = Field(default=1.0, ge=0.0, le=1.0)
 
     # optional: which intervention sets are available in this dataset
@@ -102,7 +102,8 @@ class DataKnowledgeBase(BaseModel):
         req_interventions = set(dist_ref.intervention_set)
 
         best: tuple[DistributionAvailability, str | None] = (
-            DistributionAvailability.UNAVAILABLE, None,
+            DistributionAvailability.UNAVAILABLE,
+            None,
         )
         best_score = -1.0
 
@@ -156,7 +157,7 @@ class DataKnowledgeBase(BaseModel):
         scores: list[float] = []
         missing: list[str] = []
         for dr in dist_refs:
-            avail, found_ref = self.can_identify_distribution(dr)
+            avail, _found_ref = self.can_identify_distribution(dr)
             if avail is DistributionAvailability.AVAILABLE:
                 scores.append(1.0)
             elif avail is DistributionAvailability.PARTIAL:
@@ -165,7 +166,9 @@ class DataKnowledgeBase(BaseModel):
                 scores.append(0.3)
             else:
                 scores.append(0.0)
-                missing.append(dr.dataset_ref or f"unknown({dr.domain.value}:{','.join(dr.variables)})")
+                missing.append(
+                    dr.dataset_ref or f"unknown({dr.domain.value}:{','.join(dr.variables)})"
+                )
 
         overall = sum(scores) / len(scores)
         return overall, missing
@@ -179,14 +182,14 @@ class DataKnowledgeBase(BaseModel):
         """Return all known dataset_ref values."""
         return [d.dataset_ref for d in self.datasets]
 
-    def with_added_entry(self, entry: DatasetEntry) -> "DataKnowledgeBase":
+    def with_added_entry(self, entry: DatasetEntry) -> DataKnowledgeBase:
         """Return a new DataKnowledgeBase with *entry* appended.
 
         No-op (returns self) if an entry with the same ``dataset_ref`` already exists.
         """
         if any(d.dataset_ref == entry.dataset_ref for d in self.datasets):
             return self
-        return DataKnowledgeBase(datasets=self.datasets + (entry,))
+        return DataKnowledgeBase(datasets=(*self.datasets, entry))
 
     def missing_distribution_refs(self, ast: EstimandAST) -> list[str]:
         """Return dataset refs from *ast* that have UNAVAILABLE availability in this KB."""
@@ -195,8 +198,7 @@ class DataKnowledgeBase(BaseModel):
             avail, _ = self.can_identify_distribution(dr)
             if avail is DistributionAvailability.UNAVAILABLE:
                 result.append(
-                    dr.dataset_ref
-                    or f"unknown({dr.domain.value}:{','.join(dr.variables)})"
+                    dr.dataset_ref or f"unknown({dr.domain.value}:{','.join(dr.variables)})"
                 )
         return result
 
@@ -207,8 +209,7 @@ class DataKnowledgeBase(BaseModel):
             return 0.0
         proxy_statuses = {DistributionAvailability.PROXY_ONLY, DistributionAvailability.PARTIAL}
         proxy_count = sum(
-            1 for dr in refs
-            if self.can_identify_distribution(dr)[0] in proxy_statuses
+            1 for dr in refs if self.can_identify_distribution(dr)[0] in proxy_statuses
         )
         return proxy_count / len(refs)
 
@@ -219,13 +220,13 @@ class DataKnowledgeBase(BaseModel):
     @classmethod
     def from_selection_diagram(
         cls,
-        diagram: "SelectionDiagram",
+        diagram: SelectionDiagram,
         *,
         source_dataset_ref: str = "source",
         target_dataset_ref: str | None = None,
         source_n_obs: int | None = None,
         target_n_obs: int | None = None,
-    ) -> "DataKnowledgeBase":
+    ) -> DataKnowledgeBase:
         """Build a DataKnowledgeBase from an existing SelectionDiagram.
 
         Source context → DatasetEntry(domain=SOURCE, all graph nodes).
@@ -267,7 +268,7 @@ class DataKnowledgeBase(BaseModel):
         experimental_ref: str | None = None,
         experimental_vars: tuple[str, ...] = (),
         experimental_interventions: tuple[tuple[str, ...], ...] = (),
-    ) -> "DataKnowledgeBase":
+    ) -> DataKnowledgeBase:
         """Convenience constructor for the common two-dataset (source + target) case."""
         entries: list[DatasetEntry] = [
             DatasetEntry(
@@ -298,11 +299,11 @@ class DataKnowledgeBase(BaseModel):
     @classmethod
     def from_harmonized(
         cls,
-        report: "HarmonizationReport",
+        report: HarmonizationReport,
         *,
         source_domain: DistributionDomain = DistributionDomain.SOURCE,
         target_domain: DistributionDomain = DistributionDomain.TARGET,
-    ) -> "DataKnowledgeBase":
+    ) -> DataKnowledgeBase:
         """Build a DataKnowledgeBase from a :class:`~polisyos.ir.data.harmonizer.HarmonizationReport`.
 
         Automatically derives data availability from the harmonization outcome:
@@ -352,9 +353,7 @@ class DataKnowledgeBase(BaseModel):
         entries: list[DatasetEntry] = [source_entry]
 
         if report.target_dataset_ref:
-            target_vars = tuple(
-                dict.fromkeys(m.target_variable for m in report.resolved_mappings)
-            )
+            target_vars = tuple(dict.fromkeys(m.target_variable for m in report.resolved_mappings))
             target_entry = DatasetEntry(
                 dataset_ref=report.target_dataset_ref,
                 variables=target_vars or report.harmonized_variables,
@@ -368,7 +367,7 @@ class DataKnowledgeBase(BaseModel):
 
 
 __all__ = [
-    "DistributionAvailability",
-    "DatasetEntry",
     "DataKnowledgeBase",
+    "DatasetEntry",
+    "DistributionAvailability",
 ]

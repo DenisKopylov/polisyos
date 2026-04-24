@@ -8,9 +8,12 @@ from __future__ import annotations
 
 import json
 import time
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.common.logger import get_logger
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = get_logger(__name__)
 
@@ -84,11 +87,7 @@ class ProgressTracker:
 
     def completed_count(self, stage: str) -> int:
         """Number of documents that completed *stage*."""
-        return sum(
-            1
-            for doc_stages in self._completed.values()
-            if stage in doc_stages
-        )
+        return sum(1 for doc_stages in self._completed.values() if stage in doc_stages)
 
     def summary(self) -> dict[str, int]:
         """Return {stage: count} across all documents."""
@@ -105,7 +104,7 @@ class ProgressTracker:
     def _load(self) -> None:
         if not self._path.exists():
             return
-        with open(self._path, "r", encoding="utf-8") as fh:
+        with open(self._path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:

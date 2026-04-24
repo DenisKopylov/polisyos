@@ -274,8 +274,12 @@ class BatchConfig:
     llm_gap_fill_force_empty_spo: bool = True
     llm_gap_fill_force_single_fact_tails: bool = True
     llm_gap_fill_tail_markers: list[str] = field(default_factory=_default_llm_gap_fill_tail_markers)
-    llm_gap_fill_target_families: list[str] = field(default_factory=_default_llm_gap_fill_target_families)
-    llm_gap_fill_target_subtypes: list[str] = field(default_factory=_default_llm_gap_fill_target_subtypes)
+    llm_gap_fill_target_families: list[str] = field(
+        default_factory=_default_llm_gap_fill_target_families
+    )
+    llm_gap_fill_target_subtypes: list[str] = field(
+        default_factory=_default_llm_gap_fill_target_subtypes
+    )
 
     # --- LLM response cache ---
     spo_cache_enabled: bool = True
@@ -362,11 +366,17 @@ class BatchConfig:
         if not (0.05 <= self.spo_retryable_followup_worker_scale <= 1.0):
             raise ValueError("spo_retryable_followup_worker_scale must be in range [0.05, 1.0]")
         if not (0.05 <= self.spo_retryable_followup_dispatch_rps_scale <= 1.0):
-            raise ValueError("spo_retryable_followup_dispatch_rps_scale must be in range [0.05, 1.0]")
+            raise ValueError(
+                "spo_retryable_followup_dispatch_rps_scale must be in range [0.05, 1.0]"
+            )
         if not (0.05 <= self.spo_retryable_followup_client_rate_scale <= 1.0):
-            raise ValueError("spo_retryable_followup_client_rate_scale must be in range [0.05, 1.0]")
+            raise ValueError(
+                "spo_retryable_followup_client_rate_scale must be in range [0.05, 1.0]"
+            )
         if not (0.05 <= self.spo_retryable_followup_client_concurrency_scale <= 1.0):
-            raise ValueError("spo_retryable_followup_client_concurrency_scale must be in range [0.05, 1.0]")
+            raise ValueError(
+                "spo_retryable_followup_client_concurrency_scale must be in range [0.05, 1.0]"
+            )
         if self.spo_rate_warmup_seconds < 0.0:
             raise ValueError("spo_rate_warmup_seconds must be >= 0")
         if self.spo_rate_warmup_start_scale < 1.0:
@@ -397,14 +407,34 @@ class BatchConfig:
             raise ValueError("llm_gate_audit_sample_rate must be in range [0, 1]")
         if self.llm_gate_audit_max_miss_rate_pct < 0.0:
             raise ValueError("llm_gate_audit_max_miss_rate_pct must be >= 0")
-        if self.quality_min_reference_resolution_coverage_pct < 0.0 or self.quality_min_reference_resolution_coverage_pct > 100.0:
-            raise ValueError("quality_min_reference_resolution_coverage_pct must be in range [0, 100]")
-        if self.quality_min_amendment_extraction_coverage_pct < 0.0 or self.quality_min_amendment_extraction_coverage_pct > 100.0:
-            raise ValueError("quality_min_amendment_extraction_coverage_pct must be in range [0, 100]")
-        if self.quality_min_amendment_target_resolution_pct < 0.0 or self.quality_min_amendment_target_resolution_pct > 100.0:
-            raise ValueError("quality_min_amendment_target_resolution_pct must be in range [0, 100]")
-        if self.quality_max_current_like_temporal_unknown_pct < 0.0 or self.quality_max_current_like_temporal_unknown_pct > 100.0:
-            raise ValueError("quality_max_current_like_temporal_unknown_pct must be in range [0, 100]")
+        if (
+            self.quality_min_reference_resolution_coverage_pct < 0.0
+            or self.quality_min_reference_resolution_coverage_pct > 100.0
+        ):
+            raise ValueError(
+                "quality_min_reference_resolution_coverage_pct must be in range [0, 100]"
+            )
+        if (
+            self.quality_min_amendment_extraction_coverage_pct < 0.0
+            or self.quality_min_amendment_extraction_coverage_pct > 100.0
+        ):
+            raise ValueError(
+                "quality_min_amendment_extraction_coverage_pct must be in range [0, 100]"
+            )
+        if (
+            self.quality_min_amendment_target_resolution_pct < 0.0
+            or self.quality_min_amendment_target_resolution_pct > 100.0
+        ):
+            raise ValueError(
+                "quality_min_amendment_target_resolution_pct must be in range [0, 100]"
+            )
+        if (
+            self.quality_max_current_like_temporal_unknown_pct < 0.0
+            or self.quality_max_current_like_temporal_unknown_pct > 100.0
+        ):
+            raise ValueError(
+                "quality_max_current_like_temporal_unknown_pct must be in range [0, 100]"
+            )
         if self.quality_max_temporal_interval_inversions < 0:
             raise ValueError("quality_max_temporal_interval_inversions must be >= 0")
         if self.quality_min_reference_rows_for_rate < 0:
@@ -448,23 +478,22 @@ class BatchConfig:
             if explicit_key not in self.gonka_api_keys:
                 self.gonka_api_keys = [explicit_key, *self.gonka_api_keys]
             else:
-                self.gonka_api_keys = [explicit_key, *[k for k in self.gonka_api_keys if k != explicit_key]]
+                self.gonka_api_keys = [
+                    explicit_key,
+                    *[k for k in self.gonka_api_keys if k != explicit_key],
+                ]
         self.gonka_api_key = explicit_key or (self.gonka_api_keys[0] if self.gonka_api_keys else "")
-        self.llm_gap_fill_enabled = bool(self.llm_gap_fill_enabled and self.llm_gap_fill_mode != "off")
+        self.llm_gap_fill_enabled = bool(
+            self.llm_gap_fill_enabled and self.llm_gap_fill_mode != "off"
+        )
         self.llm_gap_fill_tail_markers = [
-            marker.strip()
-            for marker in self.llm_gap_fill_tail_markers
-            if str(marker).strip()
+            marker.strip() for marker in self.llm_gap_fill_tail_markers if str(marker).strip()
         ]
         self.llm_gap_fill_target_families = [
-            family.strip()
-            for family in self.llm_gap_fill_target_families
-            if str(family).strip()
+            family.strip() for family in self.llm_gap_fill_target_families if str(family).strip()
         ]
         self.llm_gap_fill_target_subtypes = [
-            subtype.strip()
-            for subtype in self.llm_gap_fill_target_subtypes
-            if str(subtype).strip()
+            subtype.strip() for subtype in self.llm_gap_fill_target_subtypes if str(subtype).strip()
         ]
 
         if self.export_claims_to_cas:

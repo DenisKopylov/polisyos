@@ -1,23 +1,26 @@
 """Public legal evaluation context builder module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import Metrics, SimulationResult
-from polisyos.core.contracts.lex import LegalEvaluationRequest
-from polisyos.core.contracts.trinity import PolicySpecRef
 from polisyos.ir.governance.policy_spec import ParameterSpec, PolicySpec
 from polisyos.ir.norm_pack import NormPack, NormRule
 from polisyos.lex.common import collapse_ws
 from polisyos.lex.errors import LexNotReadyError, LexValidationError
 from polisyos.lex.normpack.applicability import applies_to_context
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.contracts.lex import LegalEvaluationRequest
+    from polisyos.core.contracts.trinity import PolicySpecRef
 
 
 def _decimal_from_string(value: str) -> Decimal | None:
@@ -47,6 +50,7 @@ def _json_pointer_escape(value: str) -> str:
 @dataclass(frozen=True)
 class ObservedValue:
     """Observed value public type."""
+
     predicate_id: str
     source_kind: str
     value_kind: str
@@ -63,6 +67,7 @@ class ObservedValue:
 @dataclass(frozen=True)
 class RuleObservation:
     """Rule observation public type."""
+
     rule_id: str
     predicate_id: str
     applies: bool
@@ -73,6 +78,7 @@ class RuleObservation:
 @dataclass(frozen=True)
 class LegalContext:
     """Legal context public type."""
+
     request: LegalEvaluationRequest
     jurisdiction_norm: str
     as_of_norm: str
@@ -303,6 +309,7 @@ class _InterventionRecord:
 
 class LegalContextBuilder:
     """Legal context builder implementation."""
+
     def __init__(
         self,
         *,

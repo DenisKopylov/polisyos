@@ -3,11 +3,12 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 import os
-from pathlib import Path
-from tools._lib.imports import repo_root_from
 import sys
+from collections.abc import Sequence
+from pathlib import Path
+
+from tools._lib.imports import repo_root_from
 
 sys.path.insert(0, str(repo_root_from(__file__)))
 

@@ -45,8 +45,24 @@ def test_publish_gate_keeps_whitelisted_did_claim() -> None:
         claim_explicitness=ClaimExplicitness.EXPLICIT,
         design_family_hint=DesignFamily.DID,
         evidence_strength=EvidenceStrength.QUASI_NATURAL,
-        supporting_spans=[EvidenceSpan(span_id="r_01", section="results", text="Higher tax rates reduce employment.", sentence_index=0, score=0.9)],
-        method_spans=[EvidenceSpan(span_id="m_01", section="methods", text="We use a difference-in-differences design with parallel trends checks.", sentence_index=1, score=0.9)],
+        supporting_spans=[
+            EvidenceSpan(
+                span_id="r_01",
+                section="results",
+                text="Higher tax rates reduce employment.",
+                sentence_index=0,
+                score=0.9,
+            )
+        ],
+        method_spans=[
+            EvidenceSpan(
+                span_id="m_01",
+                section="methods",
+                text="We use a difference-in-differences design with parallel trends checks.",
+                sentence_index=1,
+                score=0.9,
+            )
+        ],
         supporting_span_ids=["r_01"],
         method_span_ids=["m_01"],
         source_basis=SourceBasis.FULLTEXT,
@@ -68,8 +84,24 @@ def test_publish_gate_keeps_panel_fe_claim_with_method_signal() -> None:
         claim_explicitness=ClaimExplicitness.EXPLICIT,
         design_family_hint=DesignFamily.PANEL_FE,
         evidence_strength=EvidenceStrength.OBSERVATIONAL,
-        supporting_spans=[EvidenceSpan(span_id="r_01", section="results", text="Higher tax rates correlate with lower employment.", sentence_index=0, score=0.9)],
-        method_spans=[EvidenceSpan(span_id="m_01", section="methods", text="We estimate panel fixed effects models.", sentence_index=1, score=0.9)],
+        supporting_spans=[
+            EvidenceSpan(
+                span_id="r_01",
+                section="results",
+                text="Higher tax rates correlate with lower employment.",
+                sentence_index=0,
+                score=0.9,
+            )
+        ],
+        method_spans=[
+            EvidenceSpan(
+                span_id="m_01",
+                section="methods",
+                text="We estimate panel fixed effects models.",
+                sentence_index=1,
+                score=0.9,
+            )
+        ],
         supporting_span_ids=["r_01"],
         method_span_ids=["m_01"],
         source_basis=SourceBasis.FULLTEXT,
@@ -92,8 +124,24 @@ def test_publish_gate_keeps_event_study_only_with_strong_design() -> None:
         claim_explicitness=ClaimExplicitness.EXPLICIT,
         design_family_hint=DesignFamily.EVENT_STUDY,
         evidence_strength=EvidenceStrength.QUASI_NATURAL,
-        supporting_spans=[EvidenceSpan(span_id="r_01", section="results", text="The event-study estimates show the reform reduces informality after implementation.", sentence_index=0, score=0.9)],
-        method_spans=[EvidenceSpan(span_id="m_01", section="methods", text="We run an event study with dynamic treatment effects around staggered adoption.", sentence_index=1, score=0.9)],
+        supporting_spans=[
+            EvidenceSpan(
+                span_id="r_01",
+                section="results",
+                text="The event-study estimates show the reform reduces informality after implementation.",
+                sentence_index=0,
+                score=0.9,
+            )
+        ],
+        method_spans=[
+            EvidenceSpan(
+                span_id="m_01",
+                section="methods",
+                text="We run an event study with dynamic treatment effects around staggered adoption.",
+                sentence_index=1,
+                score=0.9,
+            )
+        ],
         supporting_span_ids=["r_01"],
         method_span_ids=["m_01"],
         source_basis=SourceBasis.FULLTEXT,

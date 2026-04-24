@@ -290,6 +290,11 @@
       "title": "Methodology",
       "type": "string"
     },
+    "ordinal_poverty_summary": {
+      "additionalProperties": true,
+      "title": "Ordinal Poverty Summary",
+      "type": "object"
+    },
     "overall_gini_after": {
       "anyOf": [
         {

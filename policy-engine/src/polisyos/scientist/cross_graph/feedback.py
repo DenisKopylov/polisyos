@@ -1,4 +1,5 @@
 """Public cross graph feedback module API."""
+
 from __future__ import annotations
 
 import json
@@ -21,6 +22,7 @@ if TYPE_CHECKING:
 
 class BenchmarkCausalEdge(BaseModel):
     """Benchmark causal edge public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     cause: str
@@ -29,6 +31,7 @@ class BenchmarkCausalEdge(BaseModel):
 
 class BenchmarkScholarQuery(BaseModel):
     """Benchmark scholar query public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     cause: str
@@ -40,6 +43,7 @@ class BenchmarkScholarQuery(BaseModel):
 
 class BenchmarkCredibilityPolicy(BaseModel):
     """Thresholds that decide when academic evidence is strong enough to count in benchmark review."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     min_confidence: float = Field(default=0.7, ge=0.0, le=1.0)
@@ -51,13 +55,16 @@ class BenchmarkCredibilityPolicy(BaseModel):
 
 class AcademicBenchmarkScenario(BaseModel):
     """Academic benchmark scenario public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     scenario_id: str
     title: str
     policy_domain: str = ""
     weight: float = Field(default=1.0, ge=0.1)
-    credibility_policy: BenchmarkCredibilityPolicy = Field(default_factory=BenchmarkCredibilityPolicy)
+    credibility_policy: BenchmarkCredibilityPolicy = Field(
+        default_factory=BenchmarkCredibilityPolicy
+    )
     causal_edges: list[BenchmarkCausalEdge] = Field(default_factory=list)
     parameters: list[str] = Field(default_factory=list)
     scholar_queries: list[BenchmarkScholarQuery] = Field(default_factory=list)
@@ -65,6 +72,7 @@ class AcademicBenchmarkScenario(BaseModel):
 
 class AcademicBenchmarkSuite(BaseModel):
     """Academic benchmark suite public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     suite_id: str = "academic_usefulness"
@@ -77,7 +85,9 @@ def load_benchmark_suite(path: Path) -> AcademicBenchmarkSuite:
     if isinstance(payload, dict) and "scenarios" in payload:
         return AcademicBenchmarkSuite.model_validate(payload)
     if isinstance(payload, list):
-        return AcademicBenchmarkSuite(scenarios=[AcademicBenchmarkScenario.model_validate(item) for item in payload])
+        return AcademicBenchmarkSuite(
+            scenarios=[AcademicBenchmarkScenario.model_validate(item) for item in payload]
+        )
     raise ValueError(f"Unsupported benchmark suite payload at {path}")
 
 
@@ -187,7 +197,9 @@ def evaluate_benchmark_suite(
         summary["parameter_needs_total"] += int(result["parameter_needs_total"])
         summary["parameter_needs_supported"] += int(result["parameter_needs_supported"])
         summary["parameter_needs_mixed"] += int(result["parameter_needs_mixed"])
-        summary["governance_blockers_due_to_academic"] += int(result["governance_blockers_due_to_academic"])
+        summary["governance_blockers_due_to_academic"] += int(
+            result["governance_blockers_due_to_academic"]
+        )
         summary["scholar_queries_total"] += int(result["scholar_queries_total"])
         summary["scholar_queries_supported"] += int(result["scholar_queries_supported"])
 
@@ -225,8 +237,7 @@ def _evaluate_scenario(
     scholar_graph: ScholarKnowledgeGraph | None,
 ) -> dict[str, Any]:
     causal_assessments = [
-        _find_causal_assessment(profile, edge.cause, edge.effect)
-        for edge in scenario.causal_edges
+        _find_causal_assessment(profile, edge.cause, edge.effect) for edge in scenario.causal_edges
     ]
     parameter_assessments = [
         _find_parameter_assessment(profile, parameter_name)
@@ -332,7 +343,8 @@ def _assessment_priority(assessment: EvidenceNeedAssessment) -> float:
     transport_bonus = 0.15 if assessment.transport_status is TransportStatus.UNSUPPORTED else 0.0
     need_bonus = (
         0.12
-        if assessment.need.need_type in {EvidenceNeedType.CAUSAL_EDGE_NEED, EvidenceNeedType.PARAMETER_NEED}
+        if assessment.need.need_type
+        in {EvidenceNeedType.CAUSAL_EDGE_NEED, EvidenceNeedType.PARAMETER_NEED}
         else 0.0
     )
     confidence_penalty = max(0.0, 0.1 - float(assessment.confidence) * 0.1)

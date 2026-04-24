@@ -6,13 +6,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from polisyos.ir.observation.contracts import EntityScope, ObservationFamily
 from polisyos.ir.types import TimeFrequency
 from polisyos.scientist.governance import (
     CalibrationRunManifest,
     HoldoutScoresManifest,
     SpecificationCurveSummaryManifest,
-    StrategicResponseRunner,
     StrategicResponseMetricsManifest,
+    StrategicResponseRunner,
     TransportabilitySummaryManifest,
     build_family_eligibility_registry,
 )
@@ -24,29 +25,28 @@ from polisyos.ukraine_data.builders import (
     _build_edr_identity_bridge,
     _build_household_distribution_observation_panel,
     _build_labor_validation_artifacts,
-    _build_unique_name_lookup,
-    _filter_identity_bridge_inputs,
     _build_synthetic_multiscale_payload,
-    _compact_locator_value,
+    _build_unique_name_lookup,
     _collect_graph_node_ids,
+    _compact_locator_value,
+    _directory_file_size_gib,
     _entity_scope_identity,
+    _filter_identity_bridge_inputs,
     _graph_arrays_from_edges,
     _kernel_safe_id,
     _participant_resolution_coverage,
     _period_to_dates,
     _reindex_edge_arrays_to_node_subset,
-    _select_procurement_frame,
+    _resolve_agent_id,
+    _resolve_agent_lookup,
     _select_contract_graph_node_ids,
+    _select_procurement_frame,
+    _stream_parquet_numeric_column_stats,
+    _validation_subset,
     build_d3_stage,
     build_d4_stage,
     build_d5_stage,
-    _resolve_agent_id,
-    _resolve_agent_lookup,
-    _directory_file_size_gib,
-    _stream_parquet_numeric_column_stats,
-    _validation_subset,
 )
-from polisyos.ir.observation.contracts import EntityScope, ObservationFamily
 from polisyos.ukraine_data.models import SourceConfig, StageId, build_default_pipeline_config
 
 
@@ -108,7 +108,9 @@ def test_participant_resolution_coverage_counts_raw_vs_resolved_identities() -> 
     assert total == 3
 
 
-def test_validation_subset_downsamples_large_runtime_frames(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_validation_subset_downsamples_large_runtime_frames(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setenv("POLISYOS_UKRAINE_DATA_BINDINGS_AGENT_LIMIT", "2")
     monkeypatch.setenv("POLISYOS_UKRAINE_DATA_BINDINGS_CELL_LIMIT", "1")
     runtime_agents = pd.DataFrame(
@@ -428,9 +430,12 @@ def test_family_eligibility_registry_respects_signoff_waivers() -> None:
 
 def test_strategic_required_channel_count_excludes_waived_families() -> None:
     assert StrategicResponseRunner.required_channel_count() == 3
-    assert StrategicResponseRunner.required_channel_count(
-        waived_families=[ObservationFamily.PROCUREMENT_FLOWS]
-    ) == 2
+    assert (
+        StrategicResponseRunner.required_channel_count(
+            waived_families=[ObservationFamily.PROCUREMENT_FLOWS]
+        )
+        == 2
+    )
 
 
 def test_edr_identity_bridge_resolves_unique_supplier_name_match(tmp_path) -> None:
@@ -634,7 +639,10 @@ def test_build_d3_stage_emits_labor_validation_artifacts(tmp_path) -> None:
             pd.DataFrame(
                 {
                     "household_id": ["hh::1", "hh::2"],
-                    "cell_id": ["cell::01::household_distribution", "cell::02::household_distribution"],
+                    "cell_id": [
+                        "cell::01::household_distribution",
+                        "cell::02::household_distribution",
+                    ],
                     "period_id": ["2025-12", "2025-12"],
                     "income": [1000.0, 800.0],
                     "weight": [1.0, 1.0],
@@ -667,17 +675,28 @@ def test_build_d3_stage_emits_labor_validation_artifacts(tmp_path) -> None:
         (
             "pfu_debt",
             "arrears_panel_monthly.parquet",
-            pd.DataFrame({"agent_id": ["agent::1"], "period_id": ["2025-12"], "debt_amount": [10.0]}),
+            pd.DataFrame(
+                {"agent_id": ["agent::1"], "period_id": ["2025-12"], "debt_amount": [10.0]}
+            ),
         ),
         (
             "wage_arrears",
             "wage_arrears_panel_monthly.parquet",
-            pd.DataFrame({"agent_id": ["agent::1"], "period_id": ["2025-12"], "arrears_amount": [5.0]}),
+            pd.DataFrame(
+                {"agent_id": ["agent::1"], "period_id": ["2025-12"], "arrears_amount": [5.0]}
+            ),
         ),
         (
             "distress_events",
             "distress_events_panel_monthly.parquet",
-            pd.DataFrame({"agent_id": ["agent::1"], "period_id": ["2025-12"], "months_to_event": [12], "event_flag": [1]}),
+            pd.DataFrame(
+                {
+                    "agent_id": ["agent::1"],
+                    "period_id": ["2025-12"],
+                    "months_to_event": [12],
+                    "event_flag": [1],
+                }
+            ),
         ),
         (
             "employment_service",
@@ -714,7 +733,11 @@ def test_build_d3_stage_emits_labor_validation_artifacts(tmp_path) -> None:
     assert "labor_validation_panel.parquet" in result.outputs
     assert "labor_market_corrected_panel.parquet" in result.outputs
     assert "labor_bias_validation.json" in result.outputs
-    report = json.loads((config.build_root.calibration_dir / "d3" / "labor_bias_validation.json").read_text(encoding="utf-8"))
+    report = json.loads(
+        (config.build_root.calibration_dir / "d3" / "labor_bias_validation.json").read_text(
+            encoding="utf-8"
+        )
+    )
     assert report["family"] == "labor_market"
     assert report["overlap_rows"] >= 1
 
@@ -847,9 +870,25 @@ def test_build_d5_stage_runs_release_acceptance_roundtrip(tmp_path) -> None:
 
     assert not any(finding.severity == "error" for finding in result.findings)
     assert "release_acceptance_report.json" in result.outputs
-    manifest = json.loads((config.build_root.bundles_dir / "d5" / "release_manifest_v1.json").read_text(encoding="utf-8"))
+    manifest = json.loads(
+        (config.build_root.bundles_dir / "d5" / "release_manifest_v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
     assert "release_acceptance_report" in manifest["evidence_refs"]
-    assert "acceptance_contract_bundle.json" in manifest["bundle_contents"]["method_contract_bundle_v1"]
-    acceptance = json.loads((config.build_root.bundles_dir / "d5" / "release_acceptance_report.json").read_text(encoding="utf-8"))
+    assert (
+        "acceptance_contract_bundle.json"
+        in manifest["bundle_contents"]["method_contract_bundle_v1"]
+    )
+    acceptance = json.loads(
+        (config.build_root.bundles_dir / "d5" / "release_acceptance_report.json").read_text(
+            encoding="utf-8"
+        )
+    )
     assert acceptance["passed"] is True
-    assert (config.build_root.bundles_dir / "d5" / "governance_report_v1" / "governance_accountability.json").exists()
+    assert (
+        config.build_root.bundles_dir
+        / "d5"
+        / "governance_report_v1"
+        / "governance_accountability.json"
+    ).exists()

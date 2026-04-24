@@ -13,7 +13,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from tools._lib.imports import repo_root_from, ensure_repo_import_roots
+from tools._lib.imports import ensure_repo_import_roots, repo_root_from
 
 sys.path.insert(0, str(repo_root_from(__file__)))
 
@@ -149,7 +149,9 @@ def _build_command(
 
 
 def _score_run(summary: dict[str, Any]) -> tuple[float, int, float, int]:
-    active = summary.get("active_window", {}) if isinstance(summary.get("active_window"), dict) else {}
+    active = (
+        summary.get("active_window", {}) if isinstance(summary.get("active_window"), dict) else {}
+    )
     overall = summary.get("overall", {}) if isinstance(summary.get("overall"), dict) else {}
     return (
         -float(active.get("items_per_hour", 0.0) or 0.0),
@@ -250,7 +252,17 @@ def main() -> None:
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     markdown_path = sweep_dir / "SWEEP_REPORT.md"
     markdown_path.write_text(_markdown_table(ranked), encoding="utf-8")
-    print(json.dumps({"report_path": str(report_path), "markdown_path": str(markdown_path), "successful_runs": len(ranked)}, ensure_ascii=False, indent=2))
+    print(
+        json.dumps(
+            {
+                "report_path": str(report_path),
+                "markdown_path": str(markdown_path),
+                "successful_runs": len(ranked),
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":

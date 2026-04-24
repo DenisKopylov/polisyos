@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -64,7 +64,7 @@ class _TestConnector(BaseConnector[dict[str, str]]):
         request: FetchRequest,
     ) -> FetchResult[dict[str, str]]:
         del handle, request
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         content_hash = "sha256:" + ("0" * 64)
         return FetchResult(
             data={"status": "ok"},
@@ -84,7 +84,7 @@ class _TestConnector(BaseConnector[dict[str, str]]):
         )
 
 
-@pytest.fixture()
+@pytest.fixture
 def _clean_registry() -> None:
     ConnectorRegistry.reset_instance()
     ConnectorDiscovery.reset()

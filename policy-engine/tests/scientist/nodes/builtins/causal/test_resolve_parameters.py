@@ -71,7 +71,10 @@ def test_skip_when_required_parameters_empty_list(execution_context, minimal_sta
     )
     outcome = ResolveParametersNode().execute(execution_context, state)
     assert outcome.status == "skip"
-    assert any("required_parameters" in e.message or "parameter" in e.message.lower() for e in outcome.events)
+    assert any(
+        "required_parameters" in e.message or "parameter" in e.message.lower()
+        for e in outcome.events
+    )
 
 
 def test_ok_when_already_present(execution_context, minimal_state, artifact_ref_factory):
@@ -198,5 +201,7 @@ def test_resolve_parameters_uses_branch_state_for_declared_outputs(
     )
     assert state.params["nested"] == {"baseline": True}
     assert ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF not in state.artifacts_index
-    assert outcome.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] == bundle_ref
+    assert (
+        outcome.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] == bundle_ref
+    )
     assert outcome.state.params["phase15_runtime_ready"] is True

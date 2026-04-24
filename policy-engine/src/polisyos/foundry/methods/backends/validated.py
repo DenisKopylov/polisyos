@@ -1,10 +1,12 @@
 """Validated numerics helpers for boundary-sensitive Foundry method outputs."""
+
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Mapping, Protocol
+from typing import Any, Protocol
 
 import numpy as np
 
@@ -102,8 +104,7 @@ class ValidatedCertifier(Protocol):
         state: Any,
         params: Mapping[str, Any],
         output: Any,
-    ) -> bool:
-        ...
+    ) -> bool: ...
 
     def certify(
         self,
@@ -112,8 +113,7 @@ class ValidatedCertifier(Protocol):
         state: Any,
         params: Mapping[str, Any],
         output: Any,
-    ) -> ValidatedBound:
-        ...
+    ) -> ValidatedBound: ...
 
 
 def split_validated_execution_params(
@@ -162,9 +162,8 @@ def maybe_certify(
             )
         return None
 
-    if (
-        execution_policy.mode is ValidatedMode.AUTO
-        and not certifier.should_certify(state=state, params=params, output=output)
+    if execution_policy.mode is ValidatedMode.AUTO and not certifier.should_certify(
+        state=state, params=params, output=output
     ):
         return None
 
@@ -282,9 +281,7 @@ def _coerce_validated_mode(value: Any) -> ValidatedMode:
     try:
         return ValidatedMode(str(value).strip().lower())
     except ValueError as exc:
-        raise ValueError(
-            "validated_mode must be one of {'off', 'auto', 'required'}"
-        ) from exc
+        raise ValueError("validated_mode must be one of {'off', 'auto', 'required'}") from exc
 
 
 def _json_safe(value: Any) -> Any:
@@ -479,7 +476,7 @@ def _extract_runtime_marginal_rates(output: Any) -> np.ndarray | None:
         return None
     result = output.get("result")
     if result is not None and hasattr(result, "marginal_tax_rate"):
-        return np.asarray(getattr(result, "marginal_tax_rate"), dtype=float)
+        return np.asarray(result.marginal_tax_rate, dtype=float)
     if isinstance(result, Mapping) and "marginal_tax_rate" in result:
         return np.asarray(result["marginal_tax_rate"], dtype=float)
     if "marginal_tax_rate" in output:
@@ -504,6 +501,17 @@ def _extract_bilevel_problem(
     if A_u.shape[0] != b_u.size or A_l.shape[0] != b_l.size:
         raise ValueError("constraint matrices and rhs vectors must align")
     return c_u, c_l, A_u, b_u, A_l, b_l
+
+
+def _extract_bilevel_ambiguity_certificate(
+    result: Mapping[str, Any],
+) -> Mapping[str, Any] | None:
+    payload = result.get("ambiguity_certificate")
+    if isinstance(payload, Mapping):
+        return payload
+    if payload is not None and hasattr(payload, "items"):
+        return dict(payload.items())
+    return None
 
 
 def _extract_welfare_problem(
@@ -654,11 +662,7 @@ class _TaxBenefitMarginalRateCertifier:
         rate_2 = float(resolved["rate_2"])
         rate_3 = float(resolved["rate_3"])
 
-        if not np.all(
-            np.isfinite(
-                [allowance, threshold_1, threshold_2, rate_1, rate_2, rate_3]
-            )
-        ):
+        if not np.all(np.isfinite([allowance, threshold_1, threshold_2, rate_1, rate_2, rate_3])):
             return ValidatedBound(
                 status=ValidatedStatus.INDETERMINATE,
                 quantity=self.quantity,
@@ -693,12 +697,8 @@ class _TaxBenefitMarginalRateCertifier:
         threshold_2_lower, threshold_2_upper = _scalar_interval(threshold_2)
 
         possible_zero = income_lower <= allowance_upper
-        possible_rate_1 = (income_upper > allowance_lower) & (
-            income_lower <= threshold_1_upper
-        )
-        possible_rate_2 = (income_upper > threshold_1_lower) & (
-            income_lower <= threshold_2_upper
-        )
+        possible_rate_1 = (income_upper > allowance_lower) & (income_lower <= threshold_1_upper)
+        possible_rate_2 = (income_upper > threshold_1_lower) & (income_lower <= threshold_2_upper)
         possible_rate_3 = income_upper > threshold_2_lower
 
         lower = np.full(income.shape, np.inf, dtype=float)
@@ -873,16 +873,12 @@ class _BilevelResidualCertifier:
         )
         return ValidatedBound(
             status=(
-                ValidatedStatus.RIGOROUS_ENCLOSURE
-                if certified
-                else ValidatedStatus.INDETERMINATE
+                ValidatedStatus.RIGOROUS_ENCLOSURE if certified else ValidatedStatus.INDETERMINATE
             ),
             quantity=self.quantity,
             lower=float(residual_norm_lower),
             upper=float(residual_norm_upper),
-            contains_point_estimate=(
-                residual_norm_lower <= residual_norm <= residual_norm_upper
-            ),
+            contains_point_estimate=(residual_norm_lower <= residual_norm <= residual_norm_upper),
             method_family=ValidatedMethodFamily.INTERVAL,
             engine="binary64.nextafter",
             precision_bits=53,
@@ -917,6 +913,154 @@ class _BilevelResidualCertifier:
                 "interval_semantics": "deterministic_rigorous_bound",
                 "is_heuristic_ci": False,
                 "gate_eligible": certified,
+            },
+        )
+
+
+class _BilevelObjectiveBoundsCertifier:
+    """Prefer leader-objective bounds certificates and fall back to iterate-quality residuals."""
+
+    quantity = "leader_objective_interval"
+
+    def __init__(self) -> None:
+        self._residual_certifier = _BilevelResidualCertifier()
+
+    def should_certify(
+        self,
+        *,
+        state: Any,
+        params: Mapping[str, Any],
+        output: Any,
+    ) -> bool:
+        result = _extract_result_mapping(output)
+        if result is None:
+            return True
+        certificate = _extract_bilevel_ambiguity_certificate(result)
+        if (
+            isinstance(certificate, Mapping)
+            and certificate.get("mode") == "leader_objective_bounds"
+        ):
+            return True
+        return self._residual_certifier.should_certify(
+            state=state,
+            params=params,
+            output=output,
+        )
+
+    def certify(
+        self,
+        *,
+        signature: MethodSignature,
+        state: Any,
+        params: Mapping[str, Any],
+        output: Any,
+    ) -> ValidatedBound:
+        result = _extract_result_mapping(output)
+        if result is None:
+            return self._residual_certifier.certify(
+                signature=signature,
+                state=state,
+                params=params,
+                output=output,
+            )
+        certificate = _extract_bilevel_ambiguity_certificate(result)
+        if (
+            not isinstance(certificate, Mapping)
+            or certificate.get("mode") != "leader_objective_bounds"
+        ):
+            return self._residual_certifier.certify(
+                signature=signature,
+                state=state,
+                params=params,
+                output=output,
+            )
+
+        try:
+            lower_value = float(certificate["incumbent_lower"])
+            upper_value = float(certificate["incumbent_upper"])
+        except (KeyError, TypeError, ValueError):
+            return ValidatedBound(
+                status=ValidatedStatus.INDETERMINATE,
+                quantity=self.quantity,
+                lower=None,
+                upper=None,
+                contains_point_estimate=None,
+                method_family=ValidatedMethodFamily.INTERVAL,
+                engine="binary64.nextafter",
+                semantics={
+                    "reason": "missing_incumbent_bounds",
+                    "gate_eligible": False,
+                },
+            )
+
+        if not (
+            math.isfinite(lower_value) and math.isfinite(upper_value) and lower_value <= upper_value
+        ):
+            return ValidatedBound(
+                status=ValidatedStatus.INDETERMINATE,
+                quantity=self.quantity,
+                lower=None,
+                upper=None,
+                contains_point_estimate=None,
+                method_family=ValidatedMethodFamily.INTERVAL,
+                engine="binary64.nextafter",
+                semantics={
+                    "reason": "invalid_incumbent_bounds",
+                    "gate_eligible": False,
+                },
+            )
+
+        lower_bound = math.nextafter(lower_value, -math.inf)
+        upper_bound = math.nextafter(upper_value, math.inf)
+        point_estimate = result.get("objective_value")
+        contains_point_estimate: bool | None = None
+        point: float | None = None
+        if point_estimate is not None:
+            try:
+                point = float(point_estimate)
+            except (TypeError, ValueError):
+                point = None
+            contains_point_estimate = bool(
+                point is not None and math.isfinite(point) and lower_bound <= point <= upper_bound
+            )
+
+        solution = result.get("solution")
+        witness: dict[str, Any] = {
+            "ambiguity_certificate": _json_safe(dict(certificate)),
+            "solution": _json_safe(solution),
+        }
+        if point is not None and contains_point_estimate is not None:
+            witness["point_estimate"] = point
+        if certificate.get("optimistic_value") is not None:
+            witness["optimistic_value_interval"] = list(
+                _scalar_interval(float(certificate["optimistic_value"]))
+            )
+        if certificate.get("pessimistic_value") is not None:
+            witness["pessimistic_value_interval"] = list(
+                _scalar_interval(float(certificate["pessimistic_value"]))
+            )
+
+        return ValidatedBound(
+            status=ValidatedStatus.RIGOROUS_ENCLOSURE,
+            quantity=self.quantity,
+            lower=float(lower_bound),
+            upper=float(upper_bound),
+            contains_point_estimate=contains_point_estimate,
+            method_family=ValidatedMethodFamily.INTERVAL,
+            engine="binary64.nextafter",
+            precision_bits=53,
+            witness=witness,
+            cost={
+                "n_solution_vars": (len(solution) if isinstance(solution, (list, tuple)) else None),
+                "kernel": "bilevel_objective_bounds_certifier",
+            },
+            semantics={
+                "bilevel_objective_bounds_certification": True,
+                "interval_semantics": "deterministic_rigorous_bound",
+                "is_heuristic_ci": False,
+                "gate_eligible": True,
+                "certificate_scope": "leader_objective_bounds",
+                "trigger": certificate.get("trigger"),
             },
         )
 
@@ -1042,8 +1186,7 @@ class _CostBenefitAnalysisCertifier:
                 bracket_upper,
             )
             sign_change_certified = (
-                npv_at_lower[1] < 0.0 < npv_at_upper[0]
-                or npv_at_upper[1] < 0.0 < npv_at_lower[0]
+                npv_at_lower[1] < 0.0 < npv_at_upper[0] or npv_at_upper[1] < 0.0 < npv_at_lower[0]
             )
             monotone = derivative_upper < 0.0 or derivative_lower > 0.0
             irr_status = (
@@ -1103,7 +1246,8 @@ class _CostBenefitAnalysisCertifier:
 
 _CERTIFIERS: dict[str, ValidatedCertifier] = {
     "microsim.policy.tax_benefit_calculator@1.0.0": _TaxBenefitMarginalRateCertifier(),
-    "optimization.bilevel.bilevel@1.0.0": _BilevelResidualCertifier(),
+    "optimization.bilevel.bilevel@1.0.0": _BilevelObjectiveBoundsCertifier(),
+    "optimization.bilevel.bilevel@1.1.0": _BilevelObjectiveBoundsCertifier(),
     "policy.welfare.cost_benefit_analysis@1.0.0": _CostBenefitAnalysisCertifier(),
 }
 

@@ -6,23 +6,25 @@ import hashlib
 import json
 import re
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.common.logger import get_logger
 from polisyos.datasets.batch.checkpoints import fingerprint_paths, load_json, write_json
 from polisyos.datasets.batch.ckan_curation import curate_ckan_package, guess_ckan_resource_format
-from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.batch.source_registry import SourceSpec
 from polisyos.datasets.knowledge.types import (
     DatasetAccess,
     DatasetCoverage,
-    DatasetQuality,
     DatasetRecord,
     DistributionRecord,
 )
 from polisyos.datasets.metrics_map import load_metrics_map
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.datasets.batch.config import DatasetBatchConfig
 
 logger = get_logger(__name__)
 
@@ -71,15 +73,35 @@ _HEURISTIC_METRIC_PATTERNS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("gdp_per_capita", ("gdp per capita", "gross domestic product per capita", "ввп на душу")),
     ("gdp_growth", ("gdp growth", "economic growth", "зростання ввп", "wzrost pkb")),
     ("gdp", ("gross domestic product", " gdp ", "ввп")),
-    ("unemployment_rate", ("unemployment", "jobless", "безробіт", "somaj", "șomaj", "bezroboc", "rynek pracy")),
-    ("youth_unemployment", ("youth unemployment", "young unemploy", "молодіжне безробіт", "bezroboc młodz")),
-    ("inflation", ("inflation", "consumer price", "cpi", "інфляц", "inflatie", "inflație", "inflacja")),
-    ("interest_rate", ("interest rate", "central bank rate", "відсоткова ставка", "stopa procentowa")),
+    (
+        "unemployment_rate",
+        ("unemployment", "jobless", "безробіт", "somaj", "șomaj", "bezroboc", "rynek pracy"),
+    ),
+    (
+        "youth_unemployment",
+        ("youth unemployment", "young unemploy", "молодіжне безробіт", "bezroboc młodz"),
+    ),
+    (
+        "inflation",
+        ("inflation", "consumer price", "cpi", "інфляц", "inflatie", "inflație", "inflacja"),
+    ),
+    (
+        "interest_rate",
+        ("interest rate", "central bank rate", "відсоткова ставка", "stopa procentowa"),
+    ),
     ("public_debt", ("public debt", "government debt", "державний борг", "dług publiczny")),
     ("gov_balance", ("fiscal balance", "budget deficit", "budget surplus", "дефіцит бюджет")),
     ("trade_balance", ("trade balance", "export import", "торговий баланс", "bilans handlowy")),
     ("trade_openness", ("trade openness", "trade to gdp", "відкритість торгівлі")),
-    ("fdi_inflows", ("foreign direct investment", " fdi ", "прямі іноземні інвестиц", "bezpośrednie inwestycje")),
+    (
+        "fdi_inflows",
+        (
+            "foreign direct investment",
+            " fdi ",
+            "прямі іноземні інвестиц",
+            "bezpośrednie inwestycje",
+        ),
+    ),
     ("savings_rate", ("savings rate", "gross savings", "заощаджен")),
     ("investment_rate", ("gross capital formation", "investment rate", "інвестиц")),
     # ── Poverty & Inequality ──
@@ -87,8 +109,14 @@ _HEURISTIC_METRIC_PATTERNS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("gini_coefficient", ("gini", "income inequality", "gini coefficient", "współczynnik gini")),
     ("inequality", ("inequality", "income distribution", "нерівн", "nierówn")),
     # ── Labour ──
-    ("labor_force_participation", ("labor force participation", "labour force participation", "робочій силі")),
-    ("female_labor_participation", ("female labor", "female labour", "women employment", "жіноча зайнят")),
+    (
+        "labor_force_participation",
+        ("labor force participation", "labour force participation", "робочій силі"),
+    ),
+    (
+        "female_labor_participation",
+        ("female labor", "female labour", "women employment", "жіноча зайнят"),
+    ),
     ("employment_rate", ("employment rate", "рівень зайнятост", "stopa zatrudnien")),
     ("informality_rate", ("informal economy", "informal employment", "тіньова економік")),
     ("wage_growth", ("wage growth", "wage increase", "зростання зарплат", "wzrost płac")),
@@ -108,62 +136,159 @@ _HEURISTIC_METRIC_PATTERNS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("urbanization_rate", ("urbanization", "urban population", "урбанізац", "urbanizacj")),
     ("dependency_ratio", ("dependency ratio", "age dependency", "коефіцієнт залежност")),
     # ── Health ──
-    ("health_outcomes", ("life expectancy", "healthy life expectancy", "mortality", "тривалість життя", "здоров", "sanat", "sănătate", "spital", "zdrow", "szpital")),
-    ("infant_mortality", ("infant mortality", "child mortality", "neonatal mortality", "дитяча смертн", "śmiertelność niemowl")),
+    (
+        "health_outcomes",
+        (
+            "life expectancy",
+            "healthy life expectancy",
+            "mortality",
+            "тривалість життя",
+            "здоров",
+            "sanat",
+            "sănătate",
+            "spital",
+            "zdrow",
+            "szpital",
+        ),
+    ),
+    (
+        "infant_mortality",
+        (
+            "infant mortality",
+            "child mortality",
+            "neonatal mortality",
+            "дитяча смертн",
+            "śmiertelność niemowl",
+        ),
+    ),
     ("maternal_mortality", ("maternal mortality", "материнська смертн", "śmiertelność matek")),
-    ("vaccination_coverage", ("vaccination", "immunization", "immunisation", "вакцинац", "щепленн", "szczepien")),
+    (
+        "vaccination_coverage",
+        ("vaccination", "immunization", "immunisation", "вакцинац", "щепленн", "szczepien"),
+    ),
     ("obesity_prevalence", ("obesity", "overweight", "ожирінн", "otyłoś")),
     ("child_stunting", ("stunting", "malnutrition", "wasting", "затримка росту")),
     ("physician_density", ("physician density", "doctors per capita", "лікарі на душу")),
     ("hospital_beds", ("hospital beds", "лікарняні ліжк", "łóżka szpitaln")),
-    ("clean_water_access", ("clean water", "safe water", "drinking water", "чиста вода", "czysta woda")),
+    (
+        "clean_water_access",
+        ("clean water", "safe water", "drinking water", "чиста вода", "czysta woda"),
+    ),
     ("sanitation_coverage", ("sanitation", "sewerage", "каналізац", "kanalizacj")),
     ("universal_health_coverage", ("universal health coverage", " uhc ", "загальне медичне")),
     ("hiv_prevalence", ("hiv", "aids", "віл", "снід")),
     ("tuberculosis_incidence", ("tuberculosis", " tb ", "туберкульоз", "gruźlic")),
-    ("noncommunicable_disease_mortality", ("noncommunicable disease", " ncd ", "неінфекційні захворюванн")),
-    ("health_spending", ("health spending", "health expenditure", "витрати на здоров", "wydatki na zdrow")),
-    ("out_of_pocket_spending", ("out-of-pocket", "out of pocket health", "витрати з власної кишен")),
+    (
+        "noncommunicable_disease_mortality",
+        ("noncommunicable disease", " ncd ", "неінфекційні захворюванн"),
+    ),
+    (
+        "health_spending",
+        ("health spending", "health expenditure", "витрати на здоров", "wydatki na zdrow"),
+    ),
+    (
+        "out_of_pocket_spending",
+        ("out-of-pocket", "out of pocket health", "витрати з власної кишен"),
+    ),
     ("suicide_rate", ("suicide", "самогубств", "samobójstw")),
     # ── Education ──
-    ("education_outcomes", ("education", "enrollment", "enrolment", "school", "literacy", "освіт", "зарахув", "educat", "școal", "scoala", "edukac", "szkol")),
-    ("education_spending", ("education spending", "education expenditure", "витрати на освіт", "wydatki na edukacj")),
-    ("tertiary_enrollment", ("tertiary enrollment", "university enrollment", "вища освіт", "szkolnictwo wyższ")),
+    (
+        "education_outcomes",
+        (
+            "education",
+            "enrollment",
+            "enrolment",
+            "school",
+            "literacy",
+            "освіт",
+            "зарахув",
+            "educat",
+            "școal",
+            "scoala",
+            "edukac",
+            "szkol",
+        ),
+    ),
+    (
+        "education_spending",
+        ("education spending", "education expenditure", "витрати на освіт", "wydatki na edukacj"),
+    ),
+    (
+        "tertiary_enrollment",
+        ("tertiary enrollment", "university enrollment", "вища освіт", "szkolnictwo wyższ"),
+    ),
     ("years_of_schooling", ("years of schooling", "expected years", "роки навчанн")),
     ("school_quality", ("learning outcomes", "learning poverty", "якість освіт", "jakość edukacj")),
     ("research_output", ("scientific publications", "research output", "наукові публікаці")),
     # ── Governance ──
     ("social_trust", ("social trust", "trust survey", "довір")),
-    ("institutional_quality", ("rule of law", "government effectiveness", "regulatory quality", "institutional quality", "guvern", "administratie", "administrație", "administrac", "rząd")),
+    (
+        "institutional_quality",
+        (
+            "rule of law",
+            "government effectiveness",
+            "regulatory quality",
+            "institutional quality",
+            "guvern",
+            "administratie",
+            "administrație",
+            "administrac",
+            "rząd",
+        ),
+    ),
     ("corruption_level", ("corruption", "корупц", "korupcj", "anti-corruption")),
     ("democracy_quality", ("democracy", "democratic", "демократ", "demokracj")),
-    ("public_trust", ("public trust", "trust in government", "trust in institution", "довіра до уряд")),
+    (
+        "public_trust",
+        ("public trust", "trust in government", "trust in institution", "довіра до уряд"),
+    ),
     ("political_stability", ("political stability", "political violence", "політична стабільн")),
-    ("judicial_quality", ("judicial quality", "court system", "судова систем", "wymiar sprawiedliwoś")),
+    (
+        "judicial_quality",
+        ("judicial quality", "court system", "судова систем", "wymiar sprawiedliwoś"),
+    ),
     ("property_rights", ("property rights", "права власност", "prawa własnośc")),
     # ── Environment & Climate ──
     ("co2_emissions", ("co2", "carbon emission", "greenhouse gas", "викид", "emisje co2")),
-    ("renewable_energy_share", ("renewable energy", "clean energy", "відновлювана енерг", "energia odnawialn")),
+    (
+        "renewable_energy_share",
+        ("renewable energy", "clean energy", "відновлювана енерг", "energia odnawialn"),
+    ),
     ("forest_cover", ("forest cover", "forest area", "deforestation", "ліс", "площа лісів")),
-    ("air_quality_index", ("air quality", "pm2.5", "air pollution", "якість повітря", "jakość powietrz")),
+    (
+        "air_quality_index",
+        ("air quality", "pm2.5", "air pollution", "якість повітря", "jakość powietrz"),
+    ),
     ("water_stress", ("water stress", "water scarcity", "водний стрес", "stres wodny")),
     ("energy_intensity", ("energy intensity", "energy efficiency", "енергоінтенсивн")),
     ("electricity_access", ("electricity access", "electrification", "доступ до електрик")),
     ("waste_management", ("waste management", "recycling", "відход", "gospodarka odpadami")),
     # ── Finance ──
-    ("financial_inclusion", ("financial inclusion", "bank account", "фінансова інклюз", "inkluzja finansow")),
+    (
+        "financial_inclusion",
+        ("financial inclusion", "bank account", "фінансова інклюз", "inkluzja finansow"),
+    ),
     ("credit_access", ("domestic credit", "credit access", "доступ до кредит")),
     # ── Infrastructure & Digital ──
-    ("internet_penetration", ("internet users", "internet access", "інтернет", "dostęp do internet")),
+    (
+        "internet_penetration",
+        ("internet users", "internet access", "інтернет", "dostęp do internet"),
+    ),
     ("broadband_penetration", ("broadband", "fixed broadband", "широкосмуговий")),
     ("mobile_coverage", ("mobile phone", "cellular subscription", "мобільний зв'язок")),
     ("logistics_performance", ("logistics performance", " lpi ", "логістик")),
     # ── Security & Conflict ──
     ("homicide_rate", ("homicide", "murder rate", "вбивств", "zabójstw")),
-    ("military_spending", ("military spending", "defense spending", "військові витрат", "wydatki wojskow")),
+    (
+        "military_spending",
+        ("military spending", "defense spending", "військові витрат", "wydatki wojskow"),
+    ),
     ("conflict_intensity", ("armed conflict", "conflict intensity", "збройний конфлікт")),
     # ── Social ──
-    ("social_capital", ("social capital", "civic participation", "соціальний капітал", "kapitał społeczn")),
+    (
+        "social_capital",
+        ("social capital", "civic participation", "соціальний капітал", "kapitał społeczn"),
+    ),
     ("cultural_cluster", ("cultural values", "cultural cluster", "культурні ціннос")),
     ("gender_equality", ("gender equality", "women rights", "гендерна рівн", "równość płci")),
     ("social_protection_coverage", ("social protection", "social safety net", "соціальний захист")),
@@ -175,7 +300,9 @@ _HEURISTIC_METRIC_PATTERNS: tuple[tuple[str, tuple[str, ...]], ...] = (
 )
 
 
-def _fallback_source_spec(source: str, *, endpoint: str = "", execution_tier: str = "catalog") -> SourceSpec:
+def _fallback_source_spec(
+    source: str, *, endpoint: str = "", execution_tier: str = "catalog"
+) -> SourceSpec:
     return SourceSpec(
         name=source,
         family=source,
@@ -262,14 +389,18 @@ def _infer_source_locator(
     if distribution.source_locator:
         return distribution.source_locator
     if connector_id == "ckan.resource":
-        package_id = str(params.get("package_id") or record.dataset_id or record.source_dataset_id or "").strip()
+        package_id = str(
+            params.get("package_id") or record.dataset_id or record.source_dataset_id or ""
+        ).strip()
         resource_id = str(params.get("resource_id") or "").strip()
         if package_id and resource_id:
             return f"{package_id}/{resource_id}"
         if distribution.url:
             return distribution.url
     if connector_id == "worldbank.wdi":
-        indicator_id = str(params.get("indicator_id") or record.dataset_id or record.source_dataset_id or "").strip()
+        indicator_id = str(
+            params.get("indicator_id") or record.dataset_id or record.source_dataset_id or ""
+        ).strip()
         return indicator_id
     if connector_id in {
         "ukons.datasets",
@@ -417,8 +548,12 @@ def _with_execution_metadata(
     for dist in record.distributions:
         dist_connector = _canonical_connector_id(dist.connector_type, spec=spec)
         normalized_format = _normalize_format(dist.format, dist.url)
-        machine_readable = dist.machine_readable or _is_machine_readable(dist_connector, normalized_format)
-        parser_supported = dist.parser_supported or _is_parser_supported(dist_connector, normalized_format)
+        machine_readable = dist.machine_readable or _is_machine_readable(
+            dist_connector, normalized_format
+        )
+        parser_supported = dist.parser_supported or _is_parser_supported(
+            dist_connector, normalized_format
+        )
         parser_supported_total += int(parser_supported)
         machine_readable_total += int(machine_readable)
         params = dict(dist.connector_params or {})
@@ -427,7 +562,9 @@ def _with_execution_metadata(
             params.setdefault("resource_id", params.get("resource_id", ""))
             if dist.url:
                 params.setdefault("url", dist.url)
-        source_locator = _infer_source_locator(record=record, distribution=dist, connector_id=dist_connector)
+        source_locator = _infer_source_locator(
+            record=record, distribution=dist, connector_id=dist_connector
+        )
         distributions.append(
             dist.model_copy(
                 update={
@@ -439,7 +576,8 @@ def _with_execution_metadata(
                     "media_type": dist.media_type or _guess_media_type(normalized_format, dist.url),
                     "machine_readable": machine_readable,
                     "parser_supported": parser_supported,
-                    "quality_score": dist.quality_score or _distribution_quality(
+                    "quality_score": dist.quality_score
+                    or _distribution_quality(
                         machine_readable=machine_readable,
                         parser_supported=parser_supported,
                         fmt=normalized_format,
@@ -476,11 +614,15 @@ def _with_execution_metadata(
         4,
     )
 
-    base_tier = (spec.execution_tier if spec else record.execution_tier or "catalog").strip() or "catalog"
+    base_tier = (
+        spec.execution_tier if spec else record.execution_tier or "catalog"
+    ).strip() or "catalog"
     metrics_required = bool(spec.metrics_required) if spec else False
-    if not distributions or not any(dist.parser_supported for dist in distributions):
-        execution_tier = "catalog"
-    elif metrics_required and not record.polisyos_metrics:
+    if (
+        not distributions
+        or not any(dist.parser_supported for dist in distributions)
+        or (metrics_required and not record.polisyos_metrics)
+    ):
         execution_tier = "catalog"
     else:
         execution_tier = base_tier
@@ -502,7 +644,8 @@ def _with_execution_metadata(
     access = record.access.model_copy(
         update={
             "api_endpoint": record.access.api_endpoint or (spec.endpoint if spec else None),
-            "bulk_download_url": record.access.bulk_download_url or (best_distribution.url if best_distribution else None),
+            "bulk_download_url": record.access.bulk_download_url
+            or (best_distribution.url if best_distribution else None),
             "license": record.access.license or record.license,
             "auth_required": record.access.auth_required,
         }
@@ -521,12 +664,14 @@ def _with_execution_metadata(
             "distributions": distributions,
             "source_dataset_id": record.source_dataset_id or record.dataset_id,
             "execution_tier": execution_tier,
-            "update_frequency": record.update_frequency or _source_update_frequency(record.source, spec),
+            "update_frequency": record.update_frequency
+            or _source_update_frequency(record.source, spec),
             "last_updated": last_updated,
             "coverage": coverage,
             "access": access,
             "quality": quality,
-            "preferred_distribution_id": record.preferred_distribution_id or (best_distribution.id if best_distribution else ""),
+            "preferred_distribution_id": record.preferred_distribution_id
+            or (best_distribution.id if best_distribution else ""),
         }
     )
 
@@ -572,7 +717,7 @@ def _map_metrics_both(
 ) -> tuple[list[str], dict[str, str]]:
     """Return ``(metric_ids, {metric_id: inference_method})``."""
     pairs = _map_metrics_with_method(raw, metrics_map)
-    return [m for m, _ in pairs], {m: method for m, method in pairs}
+    return [m for m, _ in pairs], dict(pairs)
 
 
 # Metric inference methods in descending quality order.
@@ -598,9 +743,21 @@ def _map_metrics_with_method(
         return []
     text = " ".join(
         str(raw.get(key, "") or "")
-        for key in ("title", "name", "description", "Definition", "sourceNote", "notes", "IndicatorName")
+        for key in (
+            "title",
+            "name",
+            "description",
+            "Definition",
+            "sourceNote",
+            "notes",
+            "IndicatorName",
+        )
     ).lower()
-    codes = {str(raw.get(k, "")).upper() for k in ("id", "dataset_id", "indicator_id", "dataflow_id") if raw.get(k)}
+    codes = {
+        str(raw.get(k, "")).upper()
+        for k in ("id", "dataset_id", "indicator_id", "dataflow_id")
+        if raw.get(k)
+    }
 
     matched: list[tuple[str, str]] = []
     seen: set[str] = set()
@@ -616,7 +773,12 @@ def _map_metrics_with_method(
     for metric_id, spec in metrics_map.items():
         if metric_id in seen:
             continue
-        for code_key in ("sdmx_concepts", "worldbank_indicators", "eurostat_codes", "who_indicators"):
+        for code_key in (
+            "sdmx_concepts",
+            "worldbank_indicators",
+            "eurostat_codes",
+            "who_indicators",
+        ):
             code_set = {str(v).upper() for v in spec.get(code_key, [])}
             if codes & code_set:
                 matched.append((metric_id, METRIC_INFERENCE_CODE_MATCH))
@@ -630,7 +792,9 @@ def _map_metrics_with_method(
             if hits > 0:
                 ratio = hits / len(keywords)
                 # Proportional confidence: 1/5 kw → keyword_weak, 3/5+ → keyword_match
-                method = METRIC_INFERENCE_KEYWORD_MATCH if ratio >= 0.3 else METRIC_INFERENCE_HEURISTIC
+                method = (
+                    METRIC_INFERENCE_KEYWORD_MATCH if ratio >= 0.3 else METRIC_INFERENCE_HEURISTIC
+                )
                 matched.append((metric_id, method))
                 seen.add(metric_id)
 
@@ -644,7 +808,9 @@ def _map_metrics_with_method(
     return matched
 
 
-def _normalize_sdmx(raw: dict, *, source: str, metrics_map: dict[str, dict] | None) -> DatasetRecord:
+def _normalize_sdmx(
+    raw: dict, *, source: str, metrics_map: dict[str, dict] | None
+) -> DatasetRecord:
     dataset_id = str(raw.get("id") or raw.get("dataflow_id") or "")
     agency = str(raw.get("agencyID") or raw.get("agency_id") or "")
     dedup_key = f"{source}|{agency}|{dataset_id}"
@@ -691,7 +857,9 @@ def _normalize_worldbank(raw: dict, *, metrics_map: dict[str, dict] | None) -> D
         title=str(raw.get("name") or dataset_id),
         description=str(raw.get("sourceNote") or ""),
         publisher="World Bank",
-        themes=[str((raw.get("source") or {}).get("value", ""))] if isinstance(raw.get("source"), dict) else [],
+        themes=[str((raw.get("source") or {}).get("value", ""))]
+        if isinstance(raw.get("source"), dict)
+        else [],
         variables=extract_variables(raw),
         spatial="WORLD",
         license="CC-BY-4.0",
@@ -774,18 +942,16 @@ def _normalize_indicator_api(
         or raw.get("sourceNote")
         or ""
     )
-    data_availability = raw.get("dataAvailability") if isinstance(raw.get("dataAvailability"), dict) else {}
-    timeline = data_availability.get("timeLine") if isinstance(data_availability.get("timeLine"), dict) else {}
-    time_start = (
-        raw.get("sourceStartYear")
-        or raw.get("startYear")
-        or timeline.get("min")
+    data_availability = (
+        raw.get("dataAvailability") if isinstance(raw.get("dataAvailability"), dict) else {}
     )
-    time_end = (
-        raw.get("sourceEndYear")
-        or raw.get("endYear")
-        or timeline.get("max")
+    timeline = (
+        data_availability.get("timeLine")
+        if isinstance(data_availability.get("timeLine"), dict)
+        else {}
     )
+    time_start = raw.get("sourceStartYear") or raw.get("startYear") or timeline.get("min")
+    time_end = raw.get("sourceEndYear") or raw.get("endYear") or timeline.get("max")
     countries = _coerce_string_list(raw.get("countries") or [])
     auth_required = connector_type == "unpd"
 
@@ -1012,7 +1178,8 @@ def _normalize_generic_endpoint(
         publisher=publisher,
         themes=themes,
         keywords=_coerce_string_list(raw.get("keywords") or raw.get("tags") or []),
-        variables=_coerce_string_list(raw.get("schema_fields") or raw.get("variables") or []) or extract_variables(raw),
+        variables=_coerce_string_list(raw.get("schema_fields") or raw.get("variables") or [])
+        or extract_variables(raw),
         spatial=str(raw.get("spatial") or ""),
         license=str(raw.get("license_name") or raw.get("license") or ""),
         formats=formats,
@@ -1029,14 +1196,20 @@ def _normalize_generic_endpoint(
     )
 
 
-def normalize_raw_sources(config: DatasetBatchConfig, *, metrics_map: dict[str, dict] | None = None) -> dict[str, int]:
+def normalize_raw_sources(
+    config: DatasetBatchConfig, *, metrics_map: dict[str, dict] | None = None
+) -> dict[str, int]:
     """Normalize latest raw snapshots to per-source JSONL files."""
     if metrics_map is None:
         metrics_map = load_metrics_map(config.resolved_metrics_map_path)
 
     registry = config.load_registry()
     source_specs = {spec.name: spec for spec in registry.sources}
-    source_dirs = sorted([p for p in config.raw_dir.iterdir() if p.is_dir()]) if config.raw_dir.exists() else []
+    source_dirs = (
+        sorted([p for p in config.raw_dir.iterdir() if p.is_dir()])
+        if config.raw_dir.exists()
+        else []
+    )
     counts: dict[str, int] = {}
 
     started_at = datetime.now(UTC).isoformat()
@@ -1060,14 +1233,12 @@ def normalize_raw_sources(config: DatasetBatchConfig, *, metrics_map: dict[str, 
             and str(existing_entry.get("input_fingerprint", "")) == source_fingerprint
             and out_path.exists()
         ):
-            counts[source_dir.name] = sum(
-                1 for _line in open(out_path, "r", encoding="utf-8")
-            )
+            counts[source_dir.name] = sum(1 for _line in open(out_path, encoding="utf-8"))
             artifacts.append(out_path)
             continue
         rows = []
         if payload.exists():
-            with open(payload, "r", encoding="utf-8") as fh:
+            with open(payload, encoding="utf-8") as fh:
                 for line in fh:
                     line = line.strip()
                     if line:
@@ -1165,7 +1336,9 @@ def normalize_raw_sources(config: DatasetBatchConfig, *, metrics_map: dict[str, 
                 records.append(_with_execution_metadata(rec, raw=row, spec=spec))
             except Exception as exc:
                 logger.debug(
-                    "Skipping record in %s: %s", source, exc,
+                    "Skipping record in %s: %s",
+                    source,
+                    exc,
                 )
                 continue
 
@@ -1194,6 +1367,7 @@ def normalize_raw_sources(config: DatasetBatchConfig, *, metrics_map: dict[str, 
 
 
 # Backward-compatible API used by existing tests
+
 
 def map_to_polisyos_metrics(raw: dict, metrics_map: dict[str, dict] | None = None) -> list[str]:
     """Map one raw source record to canonical PolicyOS metric ids using code/keyword heuristics."""
@@ -1243,7 +1417,9 @@ def normalize_worldbank(raw: dict, metrics_map: dict | None = None) -> DatasetRe
     )
 
 
-def normalize_to_dcat(raw: dict, source_portal: str, connector_type: str, metrics_map: dict | None = None) -> DatasetRecord:
+def normalize_to_dcat(
+    raw: dict, source_portal: str, connector_type: str, metrics_map: dict | None = None
+) -> DatasetRecord:
     """Dispatch source-specific normalization and return a DCAT-like ``DatasetRecord``.
 
     The helper is used by tests and compatibility callers; batch ETL still enriches the resulting
@@ -1279,7 +1455,9 @@ def normalize_to_dcat(raw: dict, source_portal: str, connector_type: str, metric
         return _with_execution_metadata(
             _normalize_sdmx(raw, source=source_portal, metrics_map=metrics_map),
             raw=raw,
-            spec=_fallback_source_spec(source_portal, endpoint=source_portal, execution_tier="catalog"),
+            spec=_fallback_source_spec(
+                source_portal, endpoint=source_portal, execution_tier="catalog"
+            ),
         )
     if connector_type in {"who", "unesco_uis", "unpd"}:
         agency_map = {"who": "WHO", "unesco_uis": "UNESCO_UIS", "unpd": "UNPD"}
@@ -1293,7 +1471,9 @@ def normalize_to_dcat(raw: dict, source_portal: str, connector_type: str, metric
                 metrics_map=metrics_map,
             ),
             raw=raw,
-            spec=_fallback_source_spec(source_portal, endpoint=source_portal, execution_tier="catalog"),
+            spec=_fallback_source_spec(
+                source_portal, endpoint=source_portal, execution_tier="catalog"
+            ),
         )
     if connector_type == "rest" and source_portal == "data_gov_pl":
         return _with_execution_metadata(

@@ -37,11 +37,11 @@ npm run typecheck
 
 ## Start Here By Task
 
-| Task | Primary doc | Why it matters |
-|---|---|---|
-| Contract-first overview of frontend surfaces | [REST API](../../reference/api/index.md) plus `frontend/runtime-dashboard/README.md` | dashboard, generated API client, and validation chain |
-| Обновить generated dashboard types после runtime change | [REST API](../../reference/api/index.md) plus `frontend/runtime-api-client/README.md` | OpenAPI -> generated client -> dashboard type sync |
-| Понять operator UX и runtime boundaries | [Deploy Runtime](../deploy-runtime.md) and [Use Control Plane](../use-control-plane.md) | UI reflects control-plane reality, not mock-only state |
+| Task                                                    | Primary doc                                                                             | Why it matters                                         |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Contract-first overview of frontend surfaces            | [REST API](../../reference/api/index.md) plus `frontend/runtime-dashboard/README.md`    | dashboard, generated API client, and validation chain  |
+| Обновить generated dashboard types после runtime change | [REST API](../../reference/api/index.md) plus `frontend/runtime-api-client/README.md`   | OpenAPI -> generated client -> dashboard type sync     |
+| Понять operator UX и runtime boundaries                 | [Deploy Runtime](../deploy-runtime.md) and [Use Control Plane](../use-control-plane.md) | UI reflects control-plane reality, not mock-only state |
 
 ## First Productive Slice
 
@@ -55,15 +55,19 @@ npm run typecheck
 
 - если change требует новый endpoint или DTO, передайте или синхронизируйтесь с
   [Backend Engineer](backend-engineer.md);
+
 - если `npm run generate:api` ничего не должен менять, а diff появился,
   проверьте, не дрейфует ли committed OpenAPI snapshot;
+
 - не исправляйте backend drift локальными frontend hacks.
 
 ## Troubleshooting
 
 - `generate:api` обновляет только `src/api/types.ts`; JS/TS client лежит в
   `frontend/runtime-api-client/`;
+
 - `contracts:verify` падает: сначала сверяйте runtime snapshot и fixtures, а не
   переписывайте ожидания вслепую;
+
 - UI issue на `/platform` почти всегда требует чтения runtime/control docs, а
   не только React tree.

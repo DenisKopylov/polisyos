@@ -1,4 +1,5 @@
 """Public analytics causal graph kuzu module API."""
+
 from __future__ import annotations
 
 import csv
@@ -6,11 +7,13 @@ import logging
 import shutil
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Any
 
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from polisyos.ir.analytics.causal_graph import CausalGraphModel
 
 
@@ -64,7 +67,7 @@ def ensure_causal_kuzu_schema(
 
 
 def materialize_causal_kuzu_from_graph(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     *,
     kuzu_path: str | Path,
     clear_on_start: bool = True,
@@ -127,7 +130,7 @@ def materialize_causal_kuzu_from_graph(
             _remove_tmp_files([nodes_csv, edges_csv])
 
 
-def _export_graph_nodes_csv(graph: "CausalGraphModel", output_path: Path) -> None:
+def _export_graph_nodes_csv(graph: CausalGraphModel, output_path: Path) -> None:
     with output_path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=["name"])
         writer.writeheader()
@@ -135,7 +138,7 @@ def _export_graph_nodes_csv(graph: "CausalGraphModel", output_path: Path) -> Non
             writer.writerow(row)
 
 
-def _export_graph_edges_csv(graph: "CausalGraphModel", output_path: Path) -> None:
+def _export_graph_edges_csv(graph: CausalGraphModel, output_path: Path) -> None:
     with output_path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(
             handle,
@@ -174,7 +177,7 @@ def _export_graph_edges_csv(graph: "CausalGraphModel", output_path: Path) -> Non
             )
 
 
-def _import_kuzu():
+def _import_kuzu() -> Any:
     try:
         import kuzu
 
@@ -200,7 +203,7 @@ def _iter_ddl_statements(ddl_text: str) -> list[str]:
     return statements
 
 
-def _copy_kuzu_table(conn, table_name: str, csv_path: Path) -> None:
+def _copy_kuzu_table(conn: Any, table_name: str, csv_path: Path) -> None:
     path_sql = _sql_literal(str(csv_path))
     try:
         conn.execute(f"COPY {table_name} FROM {path_sql} (HEADER=true);")

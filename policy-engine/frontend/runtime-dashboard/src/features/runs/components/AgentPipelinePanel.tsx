@@ -523,7 +523,7 @@ export default function AgentPipelinePanel({
                   ) : null}
                 </div>
                 <p className="text-muted text-xs">
-                  {formatDate(attempt.startedAt)} →{" "}
+                  {formatDate(attempt.startedAt)} {"->"}{" "}
                   {formatDate(attempt.finishedAt)} ·{" "}
                   {formatDuration(attempt.durationMs)}
                 </p>

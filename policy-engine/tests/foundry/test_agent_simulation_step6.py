@@ -8,7 +8,9 @@ from polisyos.foundry.agent_sim import (
     ESConfig,
     GlobalState,
     GovernmentPolicy,
+    GovernmentTrainingConfig,
     JITTrainingConfig,
+    build_government_welfare_reward,
     build_temporal_observations,
     compute_credit_assignment,
     create_jit_trainer,
@@ -16,6 +18,47 @@ from polisyos.foundry.agent_sim import (
     run_evolution_strategies,
     social_welfare_objective,
 )
+from polisyos.foundry.methods.catalog.policy.welfare import (
+    clear_social_weight_manifest_registry,
+    register_social_weight_manifest,
+)
+
+
+def _register_test_social_weights() -> str:
+    clear_social_weight_manifest_registry()
+    manifest = register_social_weight_manifest(
+        {
+            "method_fqn": "policy.welfare.state_dependent_inverse_social_weights@1.0.0",
+            "normalization": "mean_one",
+            "basis": {"family": "cell"},
+            "regime_ids": ["test"],
+            "state_keys": [],
+            "support": {"n_cells": 3},
+            "diagnostics": {"moment_norm": 0.0},
+            "coefficients": [2.0, 1.0, 0.5],
+            "income_grid": [0.0, 10.0, 20.0],
+            "weights_on_grid": [2.0, 1.0, 0.5],
+            "normalization_weights": [1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0],
+        }
+    )
+    return manifest["ref"]
+
+
+def _state_with_income_and_consumption() -> GlobalState:
+    state = GlobalState.empty(n_agents=3, seed=0)
+    agents = state.agents.replace(
+        income=jnp.array([0.0, 10.0, 20.0], dtype=jnp.float32),
+        consumption=jnp.array([10.0, 20.0, 40.0], dtype=jnp.float32),
+        active=jnp.array([True, True, True]),
+    )
+    return state.replace(agents=agents)
+
+
+def _expected_weighted_consumption() -> jnp.ndarray:
+    raw_weights = jnp.array([2.0, 1.0, 0.5], dtype=jnp.float32)
+    normalized_weights = raw_weights / jnp.mean(raw_weights)
+    consumption = jnp.array([10.0, 20.0, 40.0], dtype=jnp.float32)
+    return jnp.mean(normalized_weights * consumption)
 
 
 def test_credit_assignment_individual() -> None:
@@ -108,3 +151,30 @@ def test_social_welfare_objective_total_wealth() -> None:
     state = state.replace(aggregates=aggregates)
     welfare = social_welfare_objective(state, {"gdp": 1.0})
     assert bool(jnp.isclose(welfare, 100.0))
+
+
+def test_social_welfare_objective_uses_social_weight_ref() -> None:
+    social_weight_ref = _register_test_social_weights()
+    state = _state_with_income_and_consumption()
+
+    welfare = social_welfare_objective(
+        state,
+        {},
+        social_weight_ref=social_weight_ref,
+    )
+
+    assert bool(jnp.isclose(welfare, _expected_weighted_consumption(), atol=1e-5))
+    assert not bool(jnp.isclose(welfare, jnp.mean(state.agents.consumption), atol=1e-5))
+
+
+def test_government_welfare_reward_uses_social_weight_ref() -> None:
+    social_weight_ref = _register_test_social_weights()
+    state = _state_with_income_and_consumption()
+    config = GovernmentTrainingConfig(
+        welfare_weights={},
+        social_weight_ref=social_weight_ref,
+    )
+
+    reward = build_government_welfare_reward(config)(state)
+
+    assert bool(jnp.isclose(reward, _expected_weighted_consumption(), atol=1e-5))

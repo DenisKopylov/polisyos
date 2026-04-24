@@ -4,19 +4,19 @@ This module defines the capability boundary for all Fabric connectors: concrete 
 must expose ``SourceConnector`` semantics and may extend ``BaseConnector`` while planners and
 profile resolvers pass immutable ``ConnectionConfig`` / ``ConnectionHandle`` objects at runtime.
 """
+
 from __future__ import annotations
 
 import threading
+from collections.abc import AsyncIterator, Mapping
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from types import MappingProxyType
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncIterator,
     ClassVar,
     Generic,
-    Mapping,
     Protocol,
     TypeVar,
     runtime_checkable,
@@ -31,7 +31,12 @@ from polisyos.ir.connectors import (
     DataVersion,
     FetchRequest,
     FetchResult,
-    ResilienceInfo,
+)
+from polisyos.ir.connectors import (
+    QualityTier as QualityTier,
+)
+from polisyos.ir.connectors import (
+    ResilienceInfo as ResilienceInfo,
 )
 
 if TYPE_CHECKING:
@@ -126,7 +131,7 @@ class ConnectionConfig:
         object.__setattr__(self, "headers", _freeze_nested(dict(self.headers)))
         object.__setattr__(self, "auth_credentials", _freeze_nested(dict(self.auth_credentials)))
 
-    def redacted(self) -> "ConnectionConfig":
+    def redacted(self) -> ConnectionConfig:
         """Return config with sensitive fields redacted for logging."""
         redacted_headers = {
             key: "***"
@@ -134,7 +139,7 @@ class ConnectionConfig:
             else value
             for key, value in self.headers.items()
         }
-        redacted_creds = {key: "***" for key in self.auth_credentials}
+        redacted_creds = dict.fromkeys(self.auth_credentials, "***")
 
         return ConnectionConfig(
             url=self.url,
@@ -176,7 +181,7 @@ class ConnectionHandle:
 
     connector_id: str
     config: ConnectionConfig
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     session_id: str = field(default_factory=lambda: str(uuid4()))
     _state: ConnectionState = field(
         default_factory=ConnectionState,
@@ -189,7 +194,7 @@ class ConnectionHandle:
     @property
     def age_seconds(self) -> float:
         """Get the age of this connection in seconds."""
-        delta = datetime.now(timezone.utc) - self.created_at
+        delta = datetime.now(UTC) - self.created_at
         return delta.total_seconds()
 
     @property
@@ -229,7 +234,7 @@ class HealthStatus(BaseModel):
         description="Remaining API calls before rate limit",
     )
     checked_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
+        default_factory=lambda: datetime.now(UTC),
         description="When the health check was performed",
     )
 
@@ -246,7 +251,7 @@ class HealthStatus(BaseModel):
     @classmethod
     def _ensure_tz_aware(cls, value: datetime) -> datetime:
         if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
+            return value.replace(tzinfo=UTC)
         return value
 
 
@@ -267,7 +272,9 @@ class DatasetCapabilitySnapshot(BaseModel):
         default_factory=dict,
         description="Allowed dimension members by dimension id",
     )
-    availability_hash: str = Field(default="", description="Hash of availability/constraint metadata")
+    availability_hash: str = Field(
+        default="", description="Hash of availability/constraint metadata"
+    )
     constraint_hash: str = Field(default="", description="Hash of content constraints")
     estimated_cardinality: int | None = Field(
         default=None,
@@ -275,7 +282,7 @@ class DatasetCapabilitySnapshot(BaseModel):
     )
     version_hint: str = Field(default="", description="Dataset version or transport revision hint")
     last_checked_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
+        default_factory=lambda: datetime.now(UTC),
         description="When the snapshot was produced",
     )
 
@@ -283,7 +290,7 @@ class DatasetCapabilitySnapshot(BaseModel):
     @classmethod
     def _ensure_snapshot_tz_aware(cls, value: datetime) -> datetime:
         if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
+            return value.replace(tzinfo=UTC)
         return value
 
     @field_validator("version_hint", mode="before")
@@ -302,8 +309,7 @@ class DatasetCapabilitySnapshot(BaseModel):
         if not isinstance(value, Mapping):
             raise TypeError("allowed_positions must be a mapping")
         normalized = {
-            str(key): tuple(str(item) for item in values)
-            for key, values in value.items()
+            str(key): tuple(str(item) for item in values) for key, values in value.items()
         }
         return MappingProxyType(normalized)
 
@@ -323,7 +329,7 @@ class AsyncFetchLease(BaseModel):
     download_url: str | None = Field(default=None)
     metadata: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
+        default_factory=lambda: datetime.now(UTC),
         description="When the lease was created",
     )
 
@@ -331,7 +337,7 @@ class AsyncFetchLease(BaseModel):
     @classmethod
     def _ensure_lease_tz_aware(cls, value: datetime) -> datetime:
         if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
+            return value.replace(tzinfo=UTC)
         return value
 
 
@@ -352,67 +358,57 @@ class SourceConnector(Protocol[DataT]):
     capabilities: ClassVar[ConnectorCapability]
     metadata: ClassVar[ConnectorMetadataSpec]
 
-    async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
-        ...
+    async def connect(self, config: ConnectionConfig) -> ConnectionHandle: ...
 
-    async def disconnect(self, handle: ConnectionHandle) -> None:
-        ...
+    async def disconnect(self, handle: ConnectionHandle) -> None: ...
 
-    async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
-        ...
+    async def health_check(self, handle: ConnectionHandle) -> HealthStatus: ...
 
-    async def fetch(self, handle: ConnectionHandle, request: FetchRequest) -> FetchResult[DataT]:
-        ...
+    async def fetch(
+        self, handle: ConnectionHandle, request: FetchRequest
+    ) -> FetchResult[DataT]: ...
 
-    async def list_datasets(self, handle: ConnectionHandle) -> AsyncIterator["DatasetDescriptor"]:
-        ...
+    async def list_datasets(self, handle: ConnectionHandle) -> AsyncIterator[DatasetDescriptor]: ...
 
     async def fetch_stream(
         self,
         handle: ConnectionHandle,
         request: FetchRequest,
-    ) -> AsyncIterator["DataChunk[DataT]"]:
-        ...
+    ) -> AsyncIterator[DataChunk[DataT]]: ...
 
     async def check_freshness(
         self,
         handle: ConnectionHandle,
         dataset_id: str,
         cached_version: DataVersion,
-    ) -> "FreshnessResult":
-        ...
+    ) -> FreshnessResult: ...
 
     async def get_dataset_schema(
         self,
         handle: ConnectionHandle,
         dataset_id: str,
-    ) -> dict[str, Any]:
-        ...
+    ) -> dict[str, Any]: ...
 
     async def describe_dataset(
         self,
         handle: ConnectionHandle,
         dataset_id: str,
-    ) -> DatasetCapabilitySnapshot | None:
-        ...
+    ) -> DatasetCapabilitySnapshot | None: ...
 
     async def fetch_async(
         self,
         handle: ConnectionHandle,
         request: FetchRequest,
-    ) -> AsyncFetchLease:
-        ...
+    ) -> AsyncFetchLease: ...
 
     async def poll_async_fetch(
         self,
         handle: ConnectionHandle,
         lease: AsyncFetchLease,
-    ) -> AsyncFetchLease | FetchResult[DataT]:
-        ...
+    ) -> AsyncFetchLease | FetchResult[DataT]: ...
 
     @classmethod
-    def validate_config(cls, config: ConnectionConfig) -> "ValidationResult":
-        ...
+    def validate_config(cls, config: ConnectionConfig) -> ValidationResult: ...
 
 
 # ============================================================================
@@ -487,7 +483,7 @@ class BaseConnector(Generic[DataT]):
     def _create_handle(self, config: ConnectionConfig) -> ConnectionHandle:
         return ConnectionHandle(connector_id=self.connector_id, config=config)
 
-    async def list_datasets(self, handle: ConnectionHandle) -> AsyncIterator["DatasetDescriptor"]:
+    async def list_datasets(self, handle: ConnectionHandle) -> AsyncIterator[DatasetDescriptor]:
         self._check_capability(ConnectorCapability.CATALOG_BROWSE)
         self._ensure_overridden("list_datasets")
         if False:  # pragma: no cover
@@ -497,7 +493,7 @@ class BaseConnector(Generic[DataT]):
         self,
         handle: ConnectionHandle,
         request: FetchRequest,
-    ) -> AsyncIterator["DataChunk[DataT]"]:
+    ) -> AsyncIterator[DataChunk[DataT]]:
         self._check_capability(ConnectorCapability.STREAMING)
         self._ensure_overridden("fetch_stream")
         if False:  # pragma: no cover
@@ -508,7 +504,7 @@ class BaseConnector(Generic[DataT]):
         handle: ConnectionHandle,
         dataset_id: str,
         cached_version: DataVersion,
-    ) -> "FreshnessResult":
+    ) -> FreshnessResult:
         self._check_capability(ConnectorCapability.FRESHNESS_CHECK)
         self._ensure_overridden("check_freshness")
         from polisyos.fabric.connectors.types import FreshnessResult, FreshnessStatus
@@ -525,7 +521,7 @@ class BaseConnector(Generic[DataT]):
         return {}
 
     @classmethod
-    def validate_config(cls, config: ConnectionConfig) -> "ValidationResult":
+    def validate_config(cls, config: ConnectionConfig) -> ValidationResult:
         from polisyos.fabric.connectors.types import ValidationResult
 
         return ValidationResult.success()

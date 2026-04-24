@@ -1,8 +1,9 @@
 """Access scope model propagated with each authenticated request."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, FrozenSet
+from typing import Any
 
 from polisyos.core.security.identity import PIIAccessLevel, PolicyOSRole, UserIdentityClaims
 
@@ -15,7 +16,7 @@ class AccessScope:
     cell_id: str | None
     principal_type: str
     user_sub: str
-    roles: FrozenSet[PolicyOSRole]
+    roles: frozenset[PolicyOSRole]
     max_pii_tier: PIIAccessLevel
     mfa_verified: bool
     spiffe_id: str = ""
@@ -23,7 +24,7 @@ class AccessScope:
     jwt_jti: str = ""
 
     @staticmethod
-    def from_user_claims(claims: UserIdentityClaims) -> "AccessScope":
+    def from_user_claims(claims: UserIdentityClaims) -> AccessScope:
         return AccessScope(
             tenant_id=claims.tenant_id,
             cell_id=claims.cell_id,
@@ -41,8 +42,8 @@ class AccessScope:
         tenant_id: str,
         cell_id: str | None,
         spiffe_id: str,
-        roles: FrozenSet[PolicyOSRole] | None = None,
-    ) -> "AccessScope":
+        roles: frozenset[PolicyOSRole] | None = None,
+    ) -> AccessScope:
         return AccessScope(
             tenant_id=tenant_id,
             cell_id=cell_id,
@@ -82,7 +83,7 @@ class AccessScope:
         }
 
     @staticmethod
-    def from_dict(raw: dict[str, Any]) -> "AccessScope":
+    def from_dict(raw: dict[str, Any]) -> AccessScope:
         roles_raw = raw.get("roles")
         if isinstance(roles_raw, list):
             roles = frozenset(PolicyOSRole(str(item)) for item in roles_raw)

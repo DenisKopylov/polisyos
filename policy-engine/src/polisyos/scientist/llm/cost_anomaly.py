@@ -1,4 +1,5 @@
 """LLM cost anomaly detection via rolling z-score."""
+
 from __future__ import annotations
 
 import math

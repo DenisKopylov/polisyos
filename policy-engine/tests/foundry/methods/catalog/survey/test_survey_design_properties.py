@@ -1,11 +1,14 @@
 """Property-based tests for survey design and estimation methods."""
+
 from __future__ import annotations
+
 import sys
+
 import numpy as np
 import pytest
 
 try:
-    from hypothesis import given, settings, HealthCheck
+    from hypothesis import HealthCheck, given, settings
 
     HYPOTHESIS_AVAILABLE = True
 except ImportError:
@@ -23,11 +26,19 @@ def _method_or_skip(registry, fqn):
 
 class TestComplexSurveyProperties:
     @given(data=survey_strategy())
-    @settings(max_examples=20, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_weighted_mean_in_range(self, data, isolated_registry):
         """Weighted mean should be within the range of outcome values."""
         method = _method_or_skip(isolated_registry, "survey.design.complex_survey@1.0.0")
-        state = {"outcome": data["outcome"], "weights": data["weights"], "strata_id": data["strata_id"]}
+        state = {
+            "outcome": data["outcome"],
+            "weights": data["weights"],
+            "strata_id": data["strata_id"],
+        }
         try:
             result = method.pure_step(state, {})
             if "weighted_mean" in result:
@@ -39,11 +50,19 @@ class TestComplexSurveyProperties:
             pass
 
     @given(data=survey_strategy())
-    @settings(max_examples=20, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_se_non_negative(self, data, isolated_registry):
         """Standard error must be non-negative."""
         method = _method_or_skip(isolated_registry, "survey.design.complex_survey@1.0.0")
-        state = {"outcome": data["outcome"], "weights": data["weights"], "strata_id": data["strata_id"]}
+        state = {
+            "outcome": data["outcome"],
+            "weights": data["weights"],
+            "strata_id": data["strata_id"],
+        }
         try:
             result = method.pure_step(state, {})
             if "standard_error" in result:
@@ -56,7 +75,11 @@ class TestComplexSurveyProperties:
 
 class TestRakingProperties:
     @given(data=survey_strategy())
-    @settings(max_examples=20, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_raking_weights_positive(self, data, isolated_registry):
         """Raked weights should be positive."""
         method = _method_or_skip(isolated_registry, "survey.weighting.raking@1.0.0")

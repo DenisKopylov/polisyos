@@ -1,4 +1,5 @@
 """Tests for Phase 9.1 — zone-based lint policy assignment."""
+
 from __future__ import annotations
 
 import sys
@@ -11,10 +12,10 @@ _tools_dir = Path(__file__).resolve().parent.parent.parent / "tools" / "lint"
 if str(_tools_dir) not in sys.path:
     sys.path.insert(0, str(_tools_dir))
 
-from lint_foundry import ZONE_MAP, DEFAULT_ZONE, _policy_for_file, _sorted_zone_entries
+from lint_foundry import DEFAULT_ZONE, ZONE_MAP, _policy_for_file, _sorted_zone_entries
 
 
-@pytest.fixture()
+@pytest.fixture
 def foundry_root(tmp_path: Path) -> Path:
     """Create a mock foundry directory structure with representative files."""
     dirs = [
@@ -77,18 +78,33 @@ def foundry_root(tmp_path: Path) -> Path:
 
 def test_pure_zone_no_banned_imports(foundry_root: Path) -> None:
     """Files in standard zone get 'standard' policy (strictest)."""
-    assert _policy_for_file(foundry_root / "calibration" / "bijectors.py", foundry_root) == "standard"
+    assert (
+        _policy_for_file(foundry_root / "calibration" / "bijectors.py", foundry_root) == "standard"
+    )
     assert _policy_for_file(foundry_root / "constraints_engine.py", foundry_root) == "standard"
-    assert _policy_for_file(foundry_root / "compile" / "trinity_compiler.py", foundry_root) == "standard"
-    assert _policy_for_file(foundry_root / "uncertainty" / "dispatcher.py", foundry_root) == "standard"
+    assert (
+        _policy_for_file(foundry_root / "compile" / "trinity_compiler.py", foundry_root)
+        == "standard"
+    )
+    assert (
+        _policy_for_file(foundry_root / "uncertainty" / "dispatcher.py", foundry_root) == "standard"
+    )
     assert _policy_for_file(foundry_root / "methods" / "registry.py", foundry_root) == "standard"
     assert _policy_for_file(foundry_root / "methods" / "compiler.py", foundry_root) == "standard"
 
 
 def test_mixed_zone_allows_scipy(foundry_root: Path) -> None:
     """Files in methods/backends/ and methods/catalog/ (non-causal) get 'mixed'."""
-    assert _policy_for_file(foundry_root / "methods" / "backends" / "dispatch.py", foundry_root) == "mixed"
-    assert _policy_for_file(foundry_root / "methods" / "catalog" / "survey" / "weighting.py", foundry_root) == "mixed"
+    assert (
+        _policy_for_file(foundry_root / "methods" / "backends" / "dispatch.py", foundry_root)
+        == "mixed"
+    )
+    assert (
+        _policy_for_file(
+            foundry_root / "methods" / "catalog" / "survey" / "weighting.py", foundry_root
+        )
+        == "mixed"
+    )
 
 
 def test_infra_zone_no_restrictions(foundry_root: Path) -> None:
@@ -97,7 +113,10 @@ def test_infra_zone_no_restrictions(foundry_root: Path) -> None:
     assert _policy_for_file(foundry_root / "plugins" / "dashboard.py", foundry_root) == "infra"
     assert _policy_for_file(foundry_root / "runtime" / "__init__.py", foundry_root) == "infra"
     assert _policy_for_file(foundry_root / "agent_sim" / "core.py", foundry_root) == "infra"
-    assert _policy_for_file(foundry_root / "methods" / "testing" / "helpers.py", foundry_root) == "infra"
+    assert (
+        _policy_for_file(foundry_root / "methods" / "testing" / "helpers.py", foundry_root)
+        == "infra"
+    )
     assert _policy_for_file(foundry_root / "methods" / "cli" / "runner.py", foundry_root) == "infra"
     # Individual files
     assert _policy_for_file(foundry_root / "agents.py", foundry_root) == "infra"
@@ -106,16 +125,42 @@ def test_infra_zone_no_restrictions(foundry_root: Path) -> None:
     assert _policy_for_file(foundry_root / "methods" / "hot_reload.py", foundry_root) == "infra"
     assert _policy_for_file(foundry_root / "methods" / "cache.py", foundry_root) == "infra"
     assert _policy_for_file(foundry_root / "methods" / "composer.py", foundry_root) == "infra"
-    assert _policy_for_file(foundry_root / "methods" / "backends" / "checkpointing.py", foundry_root) == "infra"
-    assert _policy_for_file(foundry_root / "methods" / "backends" / "ray_runner.py", foundry_root) == "infra"
+    assert (
+        _policy_for_file(foundry_root / "methods" / "backends" / "checkpointing.py", foundry_root)
+        == "infra"
+    )
+    assert (
+        _policy_for_file(foundry_root / "methods" / "backends" / "ray_runner.py", foundry_root)
+        == "infra"
+    )
 
 
 def test_no_jax_zone_for_causal(foundry_root: Path) -> None:
     """Causal catalog files get 'no_jax' (mixed minus JAX family)."""
-    assert _policy_for_file(foundry_root / "methods" / "catalog" / "causal" / "tmle_core.py", foundry_root) == "no_jax"
-    assert _policy_for_file(foundry_root / "methods" / "catalog" / "causal" / "transport" / "ot.py", foundry_root) == "no_jax"
-    assert _policy_for_file(foundry_root / "methods" / "catalog" / "econometrics" / "iv.py", foundry_root) == "no_jax"
-    assert _policy_for_file(foundry_root / "methods" / "catalog" / "optimization" / "linprog.py", foundry_root) == "no_jax"
+    assert (
+        _policy_for_file(
+            foundry_root / "methods" / "catalog" / "causal" / "tmle_core.py", foundry_root
+        )
+        == "no_jax"
+    )
+    assert (
+        _policy_for_file(
+            foundry_root / "methods" / "catalog" / "causal" / "transport" / "ot.py", foundry_root
+        )
+        == "no_jax"
+    )
+    assert (
+        _policy_for_file(
+            foundry_root / "methods" / "catalog" / "econometrics" / "iv.py", foundry_root
+        )
+        == "no_jax"
+    )
+    assert (
+        _policy_for_file(
+            foundry_root / "methods" / "catalog" / "optimization" / "linprog.py", foundry_root
+        )
+        == "no_jax"
+    )
 
 
 def test_no_jax_allowlist_override(foundry_root: Path) -> None:

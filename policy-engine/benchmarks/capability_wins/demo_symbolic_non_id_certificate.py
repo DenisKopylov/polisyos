@@ -51,18 +51,22 @@ for _p in [str(_SRC), str(_BENCH_ROOT)]:
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+from benchmarks.capability_wins.capability_proof import (  # noqa: E402
+    CapabilityProofSpec,
+    build_capability_report_extra,
+    make_gap_row,
+)
 from benchmarks.harness import (  # noqa: E402
     BenchmarkCase,
     BenchmarkCircuit,
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.capability_wins.capability_proof import (  # noqa: E402
-    CapabilityProofSpec,
-    build_capability_report_extra,
-    make_gap_row,
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
 from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.CAPABILITY_WINS
@@ -80,6 +84,7 @@ def _graph_imports():
         EdgeMark,
         GraphType,
     )
+
     return CausalEdge, CausalGraphModel, EdgeMark, GraphType
 
 
@@ -88,6 +93,7 @@ def _id_imports():
         IdentificationStatus,
         id_algorithm,
     )
+
     return IdentificationStatus, id_algorithm
 
 
@@ -148,10 +154,9 @@ def _case_bow_arc_hedge_certificate() -> BenchmarkCase:
 
     def checker(r) -> bool:
         from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
+
         if r.status != IdentificationStatus.HEDGE_FOUND:
-            raise AssertionError(
-                f"Bow-arc: expected HEDGE_FOUND, got {r.status}"
-            )
+            raise AssertionError(f"Bow-arc: expected HEDGE_FOUND, got {r.status}")
         if r.hedge_certificate is None:
             raise AssertionError("HEDGE_FOUND result must carry a hedge_certificate")
         return True
@@ -181,10 +186,9 @@ def _case_frontdoor_identified_positive_control() -> BenchmarkCase:
 
     def checker(r) -> bool:
         from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
+
         if r.status != IdentificationStatus.IDENTIFIED:
-            raise AssertionError(
-                f"Frontdoor: expected IDENTIFIED, got {r.status}"
-            )
+            raise AssertionError(f"Frontdoor: expected IDENTIFIED, got {r.status}")
         return True
 
     return BenchmarkCase(
@@ -202,7 +206,6 @@ def _case_bow_arc_via_engine_returns_negative_cert() -> BenchmarkCase:
 
     def runner():
         from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
-        from polisyos.ir.analytics.negative_certificate import NegativeCertificate, BlockingType
 
         engine = CausalEngine()
         graph = _build_bow_arc()
@@ -211,20 +214,16 @@ def _case_bow_arc_via_engine_returns_negative_cert() -> BenchmarkCase:
         return result
 
     def checker(r) -> bool:
-        from polisyos.ir.analytics.negative_certificate import NegativeCertificate, BlockingType
+        from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
 
         if not isinstance(r, NegativeCertificate):
             raise AssertionError(
                 f"Engine should return NegativeCertificate for bow-arc, got {type(r).__name__}"
             )
         if r.blocking_type != BlockingType.HEDGE_STRUCTURE:
-            raise AssertionError(
-                f"Expected HEDGE_STRUCTURE blocking, got {r.blocking_type}"
-            )
+            raise AssertionError(f"Expected HEDGE_STRUCTURE blocking, got {r.blocking_type}")
         if not r.suggested_experiments:
-            raise AssertionError(
-                "NegativeCertificate must include suggested_experiments"
-            )
+            raise AssertionError("NegativeCertificate must include suggested_experiments")
         return True
 
     return BenchmarkCase(
@@ -257,10 +256,10 @@ def _case_constructive_message_non_empty() -> BenchmarkCase:
             raise AssertionError("constructive_message should be non-empty")
         # Must contain actionable keywords
         msg = r.constructive_message.lower()
-        if not any(kw in msg for kw in ("identif", "experiment", "instrument", "bound", "consider")):
-            raise AssertionError(
-                f"constructive_message not actionable: {r.constructive_message!r}"
-            )
+        if not any(
+            kw in msg for kw in ("identif", "experiment", "instrument", "bound", "consider")
+        ):
+            raise AssertionError(f"constructive_message not actionable: {r.constructive_message!r}")
         return True
 
     return BenchmarkCase(
@@ -292,7 +291,9 @@ def build_non_id_certificate_harness() -> BenchmarkHarness:
 # ---------------------------------------------------------------------------
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     extra = build_capability_report_extra(
         report,
         CapabilityProofSpec(
@@ -303,12 +304,45 @@ def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, 
             },
             claim_profile_targets=("frontier_frontier_claim", "full_stack_publication_claim"),
             competitor_gap=(
-                make_gap_row("y0", "constructive_negative_certificate", status="partial", note="Can signal non-identification, but no constructive experiment-plan workflow.", level="estimable_or_bounded"),
-                make_gap_row("dowhy", "negative_certificate", status="fail", note="No constructive NegativeCertificate with suggested experiments.", level="identifiable"),
-                make_gap_row("econml", "symbolic_non_id", status="fail", note="No symbolic identification/non-identification layer.", level="expressible"),
-                make_gap_row("causalpy", "symbolic_non_id", status="fail", note="No constructive non-ID certificate.", level="identifiable"),
+                make_gap_row(
+                    "y0",
+                    "constructive_negative_certificate",
+                    status="partial",
+                    note="Can signal non-identification, but no constructive experiment-plan workflow.",
+                    level="estimable_or_bounded",
+                ),
+                make_gap_row(
+                    "dowhy",
+                    "negative_certificate",
+                    status="fail",
+                    note="No constructive NegativeCertificate with suggested experiments.",
+                    level="identifiable",
+                ),
+                make_gap_row(
+                    "econml",
+                    "symbolic_non_id",
+                    status="fail",
+                    note="No symbolic identification/non-identification layer.",
+                    level="expressible",
+                ),
+                make_gap_row(
+                    "causalpy",
+                    "symbolic_non_id",
+                    status="fail",
+                    note="No constructive non-ID certificate.",
+                    level="identifiable",
+                ),
             ),
-            workflow_levels={level: "PASS" for level in ("expressible", "identifiable", "estimable_or_bounded", "audit_trace", "reproducible")},
+            workflow_levels={
+                level: "PASS"
+                for level in (
+                    "expressible",
+                    "identifiable",
+                    "estimable_or_bounded",
+                    "audit_trace",
+                    "reproducible",
+                )
+            },
         ),
     )
     return build_report_payload(

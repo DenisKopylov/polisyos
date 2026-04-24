@@ -1,4 +1,5 @@
 """Tests for Cinelli-Hazlett benchmarking in SensitivityMetrics + SensitivityReport."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -7,10 +8,10 @@ import pytest
 from polisyos.foundry.methods.catalog.causal.protocols import GraphCausalData
 from polisyos.ir.analytics.sensitivity import BenchmarkResult, SensitivityResult
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_gcd(n: int = 400, *, seed: int = 42) -> GraphCausalData:
     """Simple linear DGP with one observed confounder Z."""
@@ -32,6 +33,7 @@ def _make_gcd(n: int = 400, *, seed: int = 42) -> GraphCausalData:
 
 def _run(gcd: GraphCausalData, params: dict) -> dict:
     from polisyos.foundry.methods.catalog.causal.sensitivity_metrics import SensitivityMetrics
+
     return SensitivityMetrics.pure_step(gcd, params)
 
 
@@ -48,6 +50,7 @@ _BASE_PARAMS = {
 # ---------------------------------------------------------------------------
 # BenchmarkResult IR model validation
 # ---------------------------------------------------------------------------
+
 
 class TestBenchmarkResultModel:
     def test_valid_construction(self):
@@ -100,6 +103,7 @@ class TestBenchmarkResultModel:
 # ---------------------------------------------------------------------------
 # SensitivityMetrics — benchmark_covariates parameter
 # ---------------------------------------------------------------------------
+
 
 class TestSensitivityMetricsBenchmarks:
     def test_benchmarks_skipped_when_not_requested(self):
@@ -162,6 +166,7 @@ class TestSensitivityMetricsBenchmarks:
 # ---------------------------------------------------------------------------
 # SensitivityReport — overall_robustness_assessment logic
 # ---------------------------------------------------------------------------
+
 
 class TestSensitivityReportAssessment:
     def _make_sensitivity_result(
@@ -276,6 +281,7 @@ class TestSensitivityReportAssessment:
 # Phase 7: Advanced Partial Identification Tests
 # ---------------------------------------------------------------------------
 
+
 class TestGeneralBalkePearlBoundsEstimator:
     """Tests for multi-valued Balke-Pearl LP bounds (Phase 7)."""
 
@@ -283,18 +289,15 @@ class TestGeneralBalkePearlBoundsEstimator:
         """Ternary treatment (0,1,2), ternary outcome (0,1,2), binary IV."""
         rng = np.random.default_rng(seed)
         Z = rng.integers(0, 2, size=n).astype(float)
-        T = np.clip(
-            np.round(rng.uniform(0, 2, size=n) + 0.4 * Z).astype(int), 0, 2
-        ).astype(float)
-        Y = np.clip(
-            np.round(0.5 * T + rng.normal(0, 0.5, size=n)).astype(int), 0, 2
-        ).astype(float)
+        T = np.clip(np.round(rng.uniform(0, 2, size=n) + 0.4 * Z).astype(int), 0, 2).astype(float)
+        Y = np.clip(np.round(0.5 * T + rng.normal(0, 0.5, size=n)).astype(int), 0, 2).astype(float)
         return {"outcome": Y, "treatment": T, "instrument": Z}
 
     def test_ternary_runs_without_error(self):
         from polisyos.foundry.methods.catalog.causal.bounds import (
             GeneralBalkePearlBoundsEstimator,
         )
+
         state = self._make_ternary_state()
         result = GeneralBalkePearlBoundsEstimator.pure_step(state, {})
         inner = result["result"]
@@ -306,6 +309,7 @@ class TestGeneralBalkePearlBoundsEstimator:
         from polisyos.foundry.methods.catalog.causal.bounds import (
             GeneralBalkePearlBoundsEstimator,
         )
+
         state = self._make_ternary_state()
         result = GeneralBalkePearlBoundsEstimator.pure_step(state, {})
         assert result["result"]["solver_status"] == "optimal"
@@ -316,6 +320,7 @@ class TestGeneralBalkePearlBoundsEstimator:
             BalkePearlBoundsEstimator,
             GeneralBalkePearlBoundsEstimator,
         )
+
         rng = np.random.default_rng(7)
         n = 400
         Z = rng.integers(0, 2, size=n).astype(float)
@@ -336,11 +341,10 @@ class TestGeneralBalkePearlBoundsEstimator:
             BoundMethod,
             PartialIdentificationResult,
         )
+
         state = self._make_ternary_state()
         result = GeneralBalkePearlBoundsEstimator.pure_step(state, {})
-        pid = PartialIdentificationResult.model_validate(
-            result["result"]["partial_id_result"]
-        )
+        pid = PartialIdentificationResult.model_validate(result["result"]["partial_id_result"])
         assert pid.method == BoundMethod.GENERAL_LP_BOUNDS
 
     def test_bounds_within_outcome_range(self):
@@ -348,6 +352,7 @@ class TestGeneralBalkePearlBoundsEstimator:
         from polisyos.foundry.methods.catalog.causal.bounds import (
             GeneralBalkePearlBoundsEstimator,
         )
+
         state = self._make_ternary_state()  # Y ∈ {0, 1, 2}
         result = GeneralBalkePearlBoundsEstimator.pure_step(state, {})
         inner = result["result"]
@@ -366,6 +371,7 @@ class TestCopulaBoundsEstimator:
 
     def test_runs_without_error(self):
         from polisyos.foundry.methods.catalog.causal.bounds import CopulaBoundsEstimator
+
         state = self._make_state()
         result = CopulaBoundsEstimator.pure_step(state, {})
         assert "result" in result
@@ -373,6 +379,7 @@ class TestCopulaBoundsEstimator:
 
     def test_bounds_are_ordered(self):
         from polisyos.foundry.methods.catalog.causal.bounds import CopulaBoundsEstimator
+
         state = self._make_state()
         result = CopulaBoundsEstimator.pure_step(state, {})
         inner = result["result"]
@@ -381,7 +388,9 @@ class TestCopulaBoundsEstimator:
 
     def test_frank_copula_bounds_are_finite(self):
         import math
+
         from polisyos.foundry.methods.catalog.causal.bounds import CopulaBoundsEstimator
+
         state = self._make_state(seed=5)
         result = CopulaBoundsEstimator.pure_step(state, {"n_eval_points": 50})
         inner = result["result"]
@@ -402,6 +411,7 @@ class TestTanBoundsEstimator:
 
     def test_sweep_runs_with_default_lambdas(self):
         from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import TanBoundsEstimator
+
         state = self._make_state()
         result = TanBoundsEstimator.pure_step(state, {})
         assert "result" in result
@@ -410,6 +420,7 @@ class TestTanBoundsEstimator:
     def test_sweep_has_correct_number_of_values(self):
         from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import TanBoundsEstimator
         from polisyos.ir.analytics.partial_identification import SensitivitySweepResult
+
         state = self._make_state()
         lambda_values = [1.0, 1.5, 2.0, 3.0]
         result = TanBoundsEstimator.pure_step(state, {"lambda_values": lambda_values})
@@ -420,10 +431,9 @@ class TestTanBoundsEstimator:
         """Bound widths must be non-decreasing in λ."""
         from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import TanBoundsEstimator
         from polisyos.ir.analytics.partial_identification import SensitivitySweepResult
+
         state = self._make_state()
-        result = TanBoundsEstimator.pure_step(
-            state, {"lambda_values": [1.0, 1.5, 2.0]}
-        )
+        result = TanBoundsEstimator.pure_step(state, {"lambda_values": [1.0, 1.5, 2.0]})
         sweep = SensitivitySweepResult.model_validate(result["result"]["sweep"])
         widths = [
             sweep.upper_bounds[i] - sweep.lower_bounds[i]
@@ -432,12 +442,13 @@ class TestTanBoundsEstimator:
         for i in range(len(widths) - 1):
             assert widths[i] <= widths[i + 1] + 1e-6, (
                 f"Width at λ={sweep.parameter_values[i]} ({widths[i]:.6f}) > "
-                f"width at λ={sweep.parameter_values[i+1]} ({widths[i+1]:.6f})"
+                f"width at λ={sweep.parameter_values[i + 1]} ({widths[i + 1]:.6f})"
             )
 
     def test_at_lambda_1_contains_naive_ate(self):
         """At λ=1 the bounds should contain the naive ATE."""
         from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import TanBoundsEstimator
+
         state = self._make_state()
         Y = state["outcome"]
         T = state["treatment"]
@@ -450,6 +461,7 @@ class TestTanBoundsEstimator:
     def test_sweep_serialization_roundtrip(self):
         from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import TanBoundsEstimator
         from polisyos.ir.analytics.partial_identification import SensitivitySweepResult
+
         state = self._make_state()
         result = TanBoundsEstimator.pure_step(state, {})
         sweep = SensitivitySweepResult.model_validate(result["result"]["sweep"])
@@ -474,10 +486,9 @@ class TestIntersectionBoundsEstimator:
         from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import (
             IntersectionBoundsEstimator,
         )
+
         bounds_list = self._make_bounds_list()
-        result = IntersectionBoundsEstimator.pure_step(
-            {"bounds_list": bounds_list}, {"n_obs": 300}
-        )
+        result = IntersectionBoundsEstimator.pure_step({"bounds_list": bounds_list}, {"n_obs": 300})
         inner = result["result"]
         assert abs(inner["ate_lower_bound"] - (-0.1)) < 1e-9
         assert abs(inner["ate_upper_bound"] - 0.5) < 1e-9
@@ -486,10 +497,9 @@ class TestIntersectionBoundsEstimator:
         from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import (
             IntersectionBoundsEstimator,
         )
+
         bounds_list = self._make_bounds_list()
-        result = IntersectionBoundsEstimator.pure_step(
-            {"bounds_list": bounds_list}, {"n_obs": 300}
-        )
+        result = IntersectionBoundsEstimator.pure_step({"bounds_list": bounds_list}, {"n_obs": 300})
         inner = result["result"]
         for b in bounds_list:
             assert inner["ate_lower_bound"] >= b["ate_lower_bound"] - 1e-9
@@ -499,6 +509,7 @@ class TestIntersectionBoundsEstimator:
         from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import (
             IntersectionBoundsEstimator,
         )
+
         bounds_list = self._make_bounds_list()
         result = IntersectionBoundsEstimator.pure_step(
             {"bounds_list": bounds_list},
@@ -516,10 +527,9 @@ class TestIntersectionBoundsEstimator:
             BoundMethod,
             PartialIdentificationResult,
         )
+
         bounds_list = self._make_bounds_list()
-        result = IntersectionBoundsEstimator.pure_step(
-            {"bounds_list": bounds_list}, {"n_obs": 300}
-        )
+        result = IntersectionBoundsEstimator.pure_step({"bounds_list": bounds_list}, {"n_obs": 300})
         pid = PartialIdentificationResult.model_validate(result["result"]["partial_id_result"])
         assert pid.method == BoundMethod.INTERSECTION_BOUNDS
 
@@ -527,10 +537,9 @@ class TestIntersectionBoundsEstimator:
         from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import (
             IntersectionBoundsEstimator,
         )
+
         bounds_list = [{"ate_lower_bound": -0.2, "ate_upper_bound": 0.7, "se": 0.05}]
-        result = IntersectionBoundsEstimator.pure_step(
-            {"bounds_list": bounds_list}, {"n_obs": 300}
-        )
+        result = IntersectionBoundsEstimator.pure_step({"bounds_list": bounds_list}, {"n_obs": 300})
         inner = result["result"]
         assert abs(inner["ate_lower_bound"] - (-0.2)) < 1e-9
         assert abs(inner["ate_upper_bound"] - 0.7) < 1e-9
@@ -548,10 +557,9 @@ class TestRosenbaumSharpBoundsEstimator:
         from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import (
             RosenbaumSharpBoundsEstimator,
         )
+
         state = self._make_matched_diffs()
-        result = RosenbaumSharpBoundsEstimator.pure_step(
-            state, {"is_matched_diffs": True}
-        )
+        result = RosenbaumSharpBoundsEstimator.pure_step(state, {"is_matched_diffs": True})
         assert "result" in result
         assert "sweep" in result["result"]
 
@@ -561,6 +569,7 @@ class TestRosenbaumSharpBoundsEstimator:
             RosenbaumSharpBoundsEstimator,
         )
         from polisyos.ir.analytics.partial_identification import SensitivitySweepResult
+
         state = self._make_matched_diffs()
         gamma_values = [1.0, 1.5, 2.0, 2.5, 3.0]
         result = RosenbaumSharpBoundsEstimator.pure_step(
@@ -571,7 +580,7 @@ class TestRosenbaumSharpBoundsEstimator:
         for i in range(len(uppers) - 1):
             assert uppers[i] <= uppers[i + 1] + 1e-6, (
                 f"p_upper at Γ={gamma_values[i]} ({uppers[i]:.6f}) > "
-                f"p_upper at Γ={gamma_values[i+1]} ({uppers[i+1]:.6f})"
+                f"p_upper at Γ={gamma_values[i + 1]} ({uppers[i + 1]:.6f})"
             )
 
     def test_critical_gamma_greater_than_1_on_strong_effect(self):
@@ -579,6 +588,7 @@ class TestRosenbaumSharpBoundsEstimator:
         from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import (
             RosenbaumSharpBoundsEstimator,
         )
+
         rng = np.random.default_rng(0)
         # Large positive differences → strong evidence → critical Γ >> 1
         diffs = 0.8 + rng.normal(0, 0.1, size=60)
@@ -594,10 +604,9 @@ class TestRosenbaumSharpBoundsEstimator:
             RosenbaumSharpBoundsEstimator,
         )
         from polisyos.ir.analytics.partial_identification import SensitivitySweepResult
+
         state = self._make_matched_diffs()
-        result = RosenbaumSharpBoundsEstimator.pure_step(
-            state, {"is_matched_diffs": True}
-        )
+        result = RosenbaumSharpBoundsEstimator.pure_step(state, {"is_matched_diffs": True})
         sweep = SensitivitySweepResult.model_validate(result["result"]["sweep"])
         dumped = sweep.model_dump(mode="json")
         reloaded = SensitivitySweepResult.model_validate(dumped)

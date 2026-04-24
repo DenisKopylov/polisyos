@@ -1,4 +1,5 @@
 """Phase 10 tests for graph-based interference identification."""
+
 from __future__ import annotations
 
 import math

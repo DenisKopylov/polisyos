@@ -2,16 +2,11 @@
 
 from __future__ import annotations
 
-import asyncio
-
-import pytest
-
 from polisyos.scientist.engine.runner.error_classifier import (
     RemoteErrorCategory,
     classify_remote_error,
     should_retry,
 )
-
 
 # ---------------------------------------------------------------------------
 # classify_remote_error
@@ -25,7 +20,7 @@ class TestClassifyRemoteError:
         assert classify_remote_error(TimeoutError()) is RemoteErrorCategory.TRANSIENT
 
     def test_asyncio_timeout_is_transient(self) -> None:
-        assert classify_remote_error(asyncio.TimeoutError()) is RemoteErrorCategory.TRANSIENT
+        assert classify_remote_error(TimeoutError()) is RemoteErrorCategory.TRANSIENT
 
     def test_connection_error_is_transient(self) -> None:
         assert classify_remote_error(ConnectionError("refused")) is RemoteErrorCategory.TRANSIENT
@@ -34,7 +29,9 @@ class TestClassifyRemoteError:
         assert classify_remote_error(ConnectionRefusedError()) is RemoteErrorCategory.TRANSIENT
 
     def test_os_error_is_transient(self) -> None:
-        assert classify_remote_error(OSError("network unreachable")) is RemoteErrorCategory.TRANSIENT
+        assert (
+            classify_remote_error(OSError("network unreachable")) is RemoteErrorCategory.TRANSIENT
+        )
 
     def test_value_error_is_fatal(self) -> None:
         assert classify_remote_error(ValueError("bad param")) is RemoteErrorCategory.FATAL

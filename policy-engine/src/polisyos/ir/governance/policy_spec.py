@@ -6,9 +6,10 @@ schedules that should be evaluated against a fixed ``ProblemFrame`` and one or
 more ``ModelSpec`` world models. Use this module when authoring the "what
 should be changed" layer, not the "how the world evolves" layer.
 """
+
 from __future__ import annotations
 
-from typing import Annotated, Any
+from typing import TYPE_CHECKING, Annotated, Any
 
 from pydantic import Field, model_validator
 
@@ -17,15 +18,25 @@ from polisyos.ir._validation import (
     ensure_unique_ids,
     validate_selector_expr,
 )
-from polisyos.ir.governance.game_design import MechanismDesignSpec
-from polisyos.ir.governance.policy_composition import PolicyCompositionPlan
-from polisyos.ir.governance.schedule import ScheduleSpec
-from polisyos.ir.governance.selector_expr import SelectorExpr
-from polisyos.ir.governance.temporal_logic import TemporalPolicyConstraint
 from polisyos.ir.kernel.base import KernelModel
-from polisyos.ir.kernel.values import ParamValue
 from polisyos.ir.observation.contracts import IdentificationMode, StrategicResponseChannel
-from polisyos.ir.types import TranslatableString
+
+if TYPE_CHECKING:
+    from polisyos.ir.governance.game_design import MechanismDesignSpec
+    from polisyos.ir.governance.policy_composition import PolicyCompositionPlan
+    from polisyos.ir.governance.schedule import ScheduleSpec
+    from polisyos.ir.governance.selector_expr import SelectorExpr
+    from polisyos.ir.governance.temporal_logic import TemporalPolicyConstraint
+    from polisyos.ir.kernel.values import ParamValue
+    from polisyos.ir.types import TranslatableString
+else:
+    from polisyos.ir.governance.game_design import MechanismDesignSpec
+    from polisyos.ir.governance.policy_composition import PolicyCompositionPlan
+    from polisyos.ir.governance.schedule import ScheduleSpec
+    from polisyos.ir.governance.selector_expr import SelectorExpr
+    from polisyos.ir.governance.temporal_logic import TemporalPolicyConstraint
+    from polisyos.ir.kernel.values import ParamValue
+    from polisyos.ir.types import TranslatableString
 
 # Constants
 ID_PATTERN = r"^[a-z][a-z0-9_]*$"
@@ -73,9 +84,7 @@ class InterventionSpec(KernelModel):
     kind: str = Field(..., pattern=ID_PATTERN, description="Mechanism type")
     target: SelectorExpr = Field(..., description="Agent/entity selector expression")
     schedule: ScheduleSpec = Field(..., description="Timing of intervention")
-    params: dict[str, ParamValue] = Field(
-        default_factory=dict, description="Mechanism parameters"
-    )
+    params: dict[str, ParamValue] = Field(default_factory=dict, description="Mechanism parameters")
     priority: Annotated[int, Field(ge=0)] | None = Field(
         None, description="Execution priority (lower = earlier)"
     )
@@ -137,7 +146,7 @@ class TemporalInterventionSequence(KernelModel):
     notes: list[str] = Field(default_factory=list, max_length=20)
 
     @model_validator(mode="after")
-    def validate_temporal_sequence(self) -> "TemporalInterventionSequence":
+    def validate_temporal_sequence(self) -> TemporalInterventionSequence:
         ensure_unique_ids(
             self.steps,
             key_fn=lambda step: step.step_id,
@@ -171,7 +180,7 @@ class ParameterSpec(KernelModel):
     )
 
     @model_validator(mode="after")
-    def validate_param_spec(self) -> "ParameterSpec":
+    def validate_param_spec(self) -> ParameterSpec:
         ensure_non_empty_dotted_path(
             self.param_path,
             field_name="param_path",
@@ -260,7 +269,7 @@ class PolicySpec(KernelModel):
     notes: list[str] = Field(default_factory=list, max_length=50)
 
     @model_validator(mode="after")
-    def validate_policy_spec(self) -> "PolicySpec":
+    def validate_policy_spec(self) -> PolicySpec:
         """Validate internal consistency of the policy spec."""
 
         ensure_unique_ids(

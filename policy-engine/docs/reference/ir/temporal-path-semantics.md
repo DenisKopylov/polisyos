@@ -1,4 +1,5 @@
 # Temporal Path Semantics
+
 Related reference: [Analytics IR](analytics.md), [IR Schema Catalog](schema-catalog.md).
 
 Owner: `@ir-owners`, `@causal-owners`
@@ -38,12 +39,12 @@ Stage 4.1 adds typed contracts for exactly that boundary.
 
 `TemporalPathRepresentation` now includes rough/signature families:
 
-| Representation | Intended object |
-|---|---|
-| `geometric_rough_path` | geometric rough lift of irregular observations |
-| `cadlag_rough_path` | jump-aware / càdlàg rough representation |
-| `truncated_signature` | signature/logsignature witness, not a generic latent-path claim |
-| `hybrid_rough_event` | hybrid rough-state + counting/intensity event representation |
+| Representation         | Intended object                                                 |
+| ---------------------- | --------------------------------------------------------------- |
+| `geometric_rough_path` | geometric rough lift of irregular observations                  |
+| `cadlag_rough_path`    | jump-aware / càdlàg rough representation                        |
+| `truncated_signature`  | signature/logsignature witness, not a generic latent-path claim |
+| `hybrid_rough_event`   | hybrid rough-state + counting/intensity event representation    |
 
 The corresponding proof artifact lives in
 `polisyos.ir.analytics.rough_path_semantics.RoughPathInterventionCertificate`.
@@ -71,12 +72,16 @@ PolicyOS treats rough/signature bundles conservatively.
 
 - Missing `metadata["path_semantics"]` on a rough/signature representation is
   not silently accepted. The bundle remains `blocked_research`.
+
 - Provided `path_semantics` metadata must be well-typed. Invalid scope claims
   fail validation instead of degrading silently.
+
 - `latent_path` scope requires
   `lift_faithfulness_checked = true`. Representation-only claims may omit it.
+
 - `truncated_signature` requires `lift_method = "logsignature"` together with
   an explicit `signature_level`.
+
 - Rough/signature support additionally requires
   `interpolation_is_adapted = true`,
   `future_leakage_ruled_out = true`, and
@@ -92,9 +97,11 @@ Stage 4.1 now also exposes the claim scope explicitly at evaluation time.
 - `EffectTrajectoryBundle.path_semantics_scope` returns whether a supported
   claim covers the `represented_path`, the `latent_path`, or only a
   `signature_equivalence_class`.
+
 - `EffectTrajectoryBundle.path_semantics_disclosure_notes` gives a short
   machine-readable disclosure such as
   `claim_scope_limited_to_represented_path`.
+
 - Temporal backtesting propagates these values into `gating_checks` so
   user-facing diagnostics do not flatten representation-only identification
   into latent-path claims.
@@ -106,6 +113,7 @@ irregular-grid queries end to end today.
 
 - `ContinuousTimeQuery(sampling_scheme="irregular_grid")` remains
   `blocked_research` at compile time.
+
 - `neural_cde` and `neural_sde` remain research-gated in the temporal runtime.
 - The new rough/signature path families are supportable only as proof-carrying
   bundle contracts, not yet as a general built-in execution backend.

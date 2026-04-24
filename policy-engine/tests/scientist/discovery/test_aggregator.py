@@ -24,7 +24,9 @@ def _graph(edge_specs: list[tuple[str, str]]) -> CausalGraphModel:
         graph_type=GraphType.DAG,
         nodes=nodes,
         edges=[
-            CausalEdge(src=src, dst=dst, combined_confidence=1.0, evidence_refs=[f"prov:{src}->{dst}"])
+            CausalEdge(
+                src=src, dst=dst, combined_confidence=1.0, evidence_refs=[f"prov:{src}->{dst}"]
+            )
             for src, dst in edge_specs
         ],
         discovery_method="unit",
@@ -39,11 +41,15 @@ def _hypothesis(
     edges: list[tuple[str, str]],
     failure_reasons: list[str] | None = None,
 ) -> GraphHypothesis:
-    graph = _graph(edges) if edges else CausalGraphModel(
-        graph_type=GraphType.DAG,
-        nodes=["X", "Y"],
-        edges=[],
-        discovery_method="unit",
+    graph = (
+        _graph(edges)
+        if edges
+        else CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=["X", "Y"],
+            edges=[],
+            discovery_method="unit",
+        )
     )
     return GraphHypothesis(
         hypothesis_id=hypothesis_id,
@@ -98,8 +104,12 @@ def test_aggregator_balances_families_and_ignores_failed_empty_candidate() -> No
     ]
     stability = _stability(
         HypothesisStabilitySummary(hypothesis_id="pc_main", edge_selection_frequency={"X->Y": 1.0}),
-        HypothesisStabilitySummary(hypothesis_id="fci_minor", edge_selection_frequency={"Y->X": 1.0}),
-        HypothesisStabilitySummary(hypothesis_id="dagma_main", edge_selection_frequency={"X->Y": 1.0}),
+        HypothesisStabilitySummary(
+            hypothesis_id="fci_minor", edge_selection_frequency={"Y->X": 1.0}
+        ),
+        HypothesisStabilitySummary(
+            hypothesis_id="dagma_main", edge_selection_frequency={"X->Y": 1.0}
+        ),
     )
     utility = _utility(
         HypothesisUtilityScore(

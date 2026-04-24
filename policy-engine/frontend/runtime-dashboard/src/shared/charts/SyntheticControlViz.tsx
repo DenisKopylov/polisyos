@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { chartTheme, ciColors, chartDefaults } from "./theme";
 import { ChartDataTable } from "./accessibility";
@@ -47,6 +48,7 @@ export function SyntheticControlViz({
   title,
   className,
 }: SyntheticControlVizProps) {
+  const { t } = useI18n();
   const topDonors = useMemo(
     () =>
       donorWeights
@@ -64,7 +66,7 @@ export function SyntheticControlViz({
       <figure
         className={cn("border-border bg-card rounded-xl border p-4", className)}
         role="img"
-        aria-label="Synthetic Control: no data available"
+        aria-label={t("shared.charts.syntheticControl.emptyAria")}
       >
         {title && (
           <figcaption className="text-foreground mb-3 text-sm font-semibold">
@@ -72,11 +74,15 @@ export function SyntheticControlViz({
           </figcaption>
         )}
         <div className="text-muted flex min-h-40 items-center justify-center rounded-lg border border-dashed text-sm">
-          No data available.
+          {t("shared.charts.common.noDataAvailable")}
         </div>
         <ChartDataTable
-          caption={title ?? "Synthetic Control data"}
-          columns={["Actual", "Synthetic", "Gap"]}
+          caption={title ?? t("shared.charts.syntheticControl.caption")}
+          columns={[
+            t("shared.charts.syntheticControl.actual"),
+            t("shared.charts.syntheticControl.synthetic"),
+            t("shared.charts.syntheticControl.gap"),
+          ]}
           rows={[]}
         />
       </figure>
@@ -109,17 +115,29 @@ export function SyntheticControlViz({
   const treatmentX =
     treatmentIdx >= 0 ? toX(treatmentIdx) : PADDING.left + PLOT_W * 0.5;
 
-  const actualPath = data.map((d, i) => `${i === 0 ? "M" : "L"}${toX(i)},${toY(d.actual)}`).join(" ");
-  const syntheticPath = data.map((d, i) => `${i === 0 ? "M" : "L"}${toX(i)},${toY(d.synthetic)}`).join(" ");
+  const actualPath = data
+    .map((d, i) => `${i === 0 ? "M" : "L"}${toX(i)},${toY(d.actual)}`)
+    .join(" ");
+  const syntheticPath = data
+    .map((d, i) => `${i === 0 ? "M" : "L"}${toX(i)},${toY(d.synthetic)}`)
+    .join(" ");
 
   // CI band path
   const ciBand = (() => {
     const hasCI = data.some((d) => d.ci95Lower != null);
     if (!hasCI) return null;
-    const upper = data.map((d, i) => `${i === 0 ? "M" : "L"}${toX(i)},${toY(d.ci95Upper ?? d.synthetic)}`).join(" ");
+    const upper = data
+      .map(
+        (d, i) =>
+          `${i === 0 ? "M" : "L"}${toX(i)},${toY(d.ci95Upper ?? d.synthetic)}`,
+      )
+      .join(" ");
     const lower = [...data]
       .reverse()
-      .map((d, i) => `${i === 0 ? "L" : "L"}${toX(n - 1 - i)},${toY(d.ci95Lower ?? d.synthetic)}`)
+      .map(
+        (d, i) =>
+          `${i === 0 ? "L" : "L"}${toX(n - 1 - i)},${toY(d.ci95Lower ?? d.synthetic)}`,
+      )
       .join(" ");
     return `${upper} ${lower} Z`;
   })();
@@ -169,7 +187,7 @@ export function SyntheticControlViz({
             fontSize={chartDefaults.tickFontSize}
             fill={chartTheme.warning}
           >
-            Treatment
+            {t("shared.charts.syntheticControl.treatment")}
           </text>
 
           {/* Synthetic path */}
@@ -182,13 +200,23 @@ export function SyntheticControlViz({
           />
 
           {/* Actual path */}
-          <path d={actualPath} fill="none" stroke={chartTheme.primary} strokeWidth={2} />
+          <path
+            d={actualPath}
+            fill="none"
+            stroke={chartTheme.primary}
+            strokeWidth={2}
+          />
 
           {/* Gap shading (post-treatment) */}
           {treatmentIdx >= 0 && (
             <path
               d={[
-                ...data.slice(treatmentIdx).map((d, i) => `${i === 0 ? "M" : "L"}${toX(treatmentIdx + i)},${toY(d.actual)}`),
+                ...data
+                  .slice(treatmentIdx)
+                  .map(
+                    (d, i) =>
+                      `${i === 0 ? "M" : "L"}${toX(treatmentIdx + i)},${toY(d.actual)}`,
+                  ),
                 ...data
                   .slice(treatmentIdx)
                   .reverse()
@@ -242,16 +270,47 @@ export function SyntheticControlViz({
               fontWeight={700}
               fill={chartTheme.success}
             >
-              ATT = {estimatedEffect >= 0 ? "+" : ""}{estimatedEffect.toFixed(3)}
+              {t("shared.charts.syntheticControl.effect")}{" "}
+              {estimatedEffect >= 0 ? "+" : ""}
+              {estimatedEffect.toFixed(3)}
             </text>
           )}
 
           {/* Legend */}
           <g transform={`translate(${PADDING.left + 8}, ${PADDING.top + 8})`}>
-            <line x1={0} y1={0} x2={16} y2={0} stroke={chartTheme.primary} strokeWidth={2} />
-            <text x={20} y={4} fontSize={chartDefaults.tickFontSize} fill={chartTheme.axis}>Actual</text>
-            <line x1={80} y1={0} x2={96} y2={0} stroke={chartTheme.neutral} strokeWidth={2} strokeDasharray="5 3" />
-            <text x={100} y={4} fontSize={chartDefaults.tickFontSize} fill={chartTheme.axis}>Synthetic</text>
+            <line
+              x1={0}
+              y1={0}
+              x2={16}
+              y2={0}
+              stroke={chartTheme.primary}
+              strokeWidth={2}
+            />
+            <text
+              x={20}
+              y={4}
+              fontSize={chartDefaults.tickFontSize}
+              fill={chartTheme.axis}
+            >
+              {t("shared.charts.syntheticControl.actual")}
+            </text>
+            <line
+              x1={80}
+              y1={0}
+              x2={96}
+              y2={0}
+              stroke={chartTheme.neutral}
+              strokeWidth={2}
+              strokeDasharray="5 3"
+            />
+            <text
+              x={100}
+              y={4}
+              fontSize={chartDefaults.tickFontSize}
+              fill={chartTheme.axis}
+            >
+              {t("shared.charts.syntheticControl.synthetic")}
+            </text>
           </g>
         </svg>
       </div>
@@ -259,7 +318,9 @@ export function SyntheticControlViz({
       {/* Donor weights */}
       {topDonors && topDonors.length > 0 && (
         <div className="mt-3 space-y-1">
-          <p className="text-muted text-xs font-semibold">Top donor weights</p>
+          <p className="text-muted text-xs font-semibold">
+            {t("shared.charts.syntheticControl.topDonorWeights")}
+          </p>
           <div className="flex flex-wrap gap-2">
             {topDonors.map((d) => (
               <span
@@ -274,8 +335,12 @@ export function SyntheticControlViz({
       )}
 
       <ChartDataTable
-        caption={title ?? "Synthetic Control data"}
-        columns={["Actual", "Synthetic", "Gap"]}
+        caption={title ?? t("shared.charts.syntheticControl.caption")}
+        columns={[
+          t("shared.charts.syntheticControl.actual"),
+          t("shared.charts.syntheticControl.synthetic"),
+          t("shared.charts.syntheticControl.gap"),
+        ]}
         rows={tableRows}
       />
     </figure>

@@ -5,20 +5,42 @@ is applied explicitly through `polisyos.common.config.apply_process_bootstrap()`
 so importing a helper does not mutate global logging state. See
 `docs/reference/logging.md` for the operator-facing contract.
 """
+
 # Logger sinks are configured in config.py to avoid circular imports.
 from __future__ import annotations
 
 import logging
 import threading
-from typing import Any, cast
+from typing import TYPE_CHECKING, Protocol, cast
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
+
+    from loguru import Record
+
+
+class _BindableLoggerProtocol(Protocol):
+    """Minimal dynamic methods used from non-stdlib logger handles."""
+
+    def bind(self, **kwargs: object) -> object: ...
+
+    def configure(
+        self,
+        *,
+        patcher: Callable[[Record], None] | None = None,
+    ) -> object: ...
+
 
 try:
-    from loguru import logger as _loguru_logger
+    from loguru import logger as _imported_loguru_logger
 
+    _loguru_logger: object
     _USE_LOGURU = True
 except ModuleNotFoundError:  # pragma: no cover
     _USE_LOGURU = False
-    _loguru_logger = cast("Any", logging.getLogger("polisyos"))
+    _loguru_logger = logging.getLogger("polisyos")
+else:
+    _loguru_logger = _imported_loguru_logger
 
 _trace_context_configured = False
 _trace_context_lock = threading.Lock()
@@ -33,23 +55,29 @@ class _CompatLogger:
         {"message", "asctime"}
     )
 
-    def __init__(self, wrapped: Any, *, bound_extra: dict[str, Any] | None = None) -> None:
+    def __init__(
+        self,
+        wrapped: object,
+        *,
+        bound_extra: Mapping[str, object] | None = None,
+    ) -> None:
         self._wrapped = wrapped
         self._bound_extra = dict(bound_extra or {})
 
-    def bind(self, **kwargs: Any) -> _CompatLogger:
-        if hasattr(self._wrapped, "bind") and not isinstance(self._wrapped, logging.Logger):
-            bound = cast("Any", self._wrapped).bind(**kwargs)
+    def bind(self, **kwargs: object) -> _CompatLogger:
+        if not isinstance(self._wrapped, logging.Logger):
+            dynamic_logger = cast("_BindableLoggerProtocol", self._wrapped)
+            bound = dynamic_logger.bind(**kwargs)
             return _CompatLogger(bound, bound_extra=self._bound_extra)
         merged = {**self._bound_extra, **kwargs}
         return _CompatLogger(self._wrapped, bound_extra=merged)
 
     def _normalize_message(
         self,
-        message: Any,
-        args: tuple[Any, ...],
-        kwargs: dict[str, Any],
-    ) -> tuple[Any, tuple[Any, ...], dict[str, Any]]:
+        message: object,
+        args: tuple[object, ...],
+        kwargs: dict[str, object],
+    ) -> tuple[object, tuple[object, ...], dict[str, object]]:
         if not isinstance(message, str) or not args:
             return message, args, kwargs
         if "{" in message:
@@ -61,72 +89,68 @@ class _CompatLogger:
         except Exception:
             return message, args, kwargs
 
-    def _normalize_kwargs(self, kwargs: dict[str, Any]) -> dict[str, Any]:
+    def _normalize_kwargs(self, kwargs: dict[str, object]) -> dict[str, object]:
         if not isinstance(self._wrapped, logging.Logger):
             return kwargs
 
-        stdlib_kwargs = {
-            key: value
-            for key, value in kwargs.items()
-            if key in self._STDLIB_KWARGS
-        }
+        stdlib_kwargs = {key: value for key, value in kwargs.items() if key in self._STDLIB_KWARGS}
         extra = dict(self._bound_extra)
         user_extra = stdlib_kwargs.pop("extra", None)
         if isinstance(user_extra, dict):
             extra.update(user_extra)
-        structured = {
-            key: value
-            for key, value in kwargs.items()
-            if key not in self._STDLIB_KWARGS
-        }
+        structured = {key: value for key, value in kwargs.items() if key not in self._STDLIB_KWARGS}
         extra.update(structured)
         extra = {
-            key: value
-            for key, value in extra.items()
-            if key not in self._STDLIB_RESERVED_EXTRA
+            key: value for key, value in extra.items() if key not in self._STDLIB_RESERVED_EXTRA
         }
         if extra:
             stdlib_kwargs["extra"] = extra
         return stdlib_kwargs
 
-    def debug(self, message: Any, *args: Any, **kwargs: Any) -> Any:
-        message, args, kwargs = self._normalize_message(message, args, kwargs)
-        kwargs = self._normalize_kwargs(kwargs)
-        return self._wrapped.debug(message, *args, **kwargs)
+    def _call(
+        self,
+        method_name: str,
+        message: object,
+        args: tuple[object, ...],
+        kwargs: dict[str, object],
+    ) -> object:
+        method = cast("Callable[..., object]", getattr(self._wrapped, method_name))
+        if isinstance(self._wrapped, logging.Logger):
+            return method(message, *args, **self._normalize_kwargs(kwargs))
+        return method(message, *args, **kwargs)
 
-    def info(self, message: Any, *args: Any, **kwargs: Any) -> Any:
+    def debug(self, message: object, *args: object, **kwargs: object) -> object:
         message, args, kwargs = self._normalize_message(message, args, kwargs)
-        kwargs = self._normalize_kwargs(kwargs)
-        return self._wrapped.info(message, *args, **kwargs)
+        return self._call("debug", message, args, kwargs)
 
-    def warning(self, message: Any, *args: Any, **kwargs: Any) -> Any:
+    def info(self, message: object, *args: object, **kwargs: object) -> object:
         message, args, kwargs = self._normalize_message(message, args, kwargs)
-        kwargs = self._normalize_kwargs(kwargs)
-        return self._wrapped.warning(message, *args, **kwargs)
+        return self._call("info", message, args, kwargs)
 
-    def error(self, message: Any, *args: Any, **kwargs: Any) -> Any:
+    def warning(self, message: object, *args: object, **kwargs: object) -> object:
         message, args, kwargs = self._normalize_message(message, args, kwargs)
-        kwargs = self._normalize_kwargs(kwargs)
-        return self._wrapped.error(message, *args, **kwargs)
+        return self._call("warning", message, args, kwargs)
 
-    def exception(self, message: Any, *args: Any, **kwargs: Any) -> Any:
+    def error(self, message: object, *args: object, **kwargs: object) -> object:
         message, args, kwargs = self._normalize_message(message, args, kwargs)
-        kwargs = self._normalize_kwargs(kwargs)
-        return self._wrapped.exception(message, *args, **kwargs)
+        return self._call("error", message, args, kwargs)
 
-    def critical(self, message: Any, *args: Any, **kwargs: Any) -> Any:
+    def exception(self, message: object, *args: object, **kwargs: object) -> object:
         message, args, kwargs = self._normalize_message(message, args, kwargs)
-        kwargs = self._normalize_kwargs(kwargs)
-        return self._wrapped.critical(message, *args, **kwargs)
+        return self._call("exception", message, args, kwargs)
 
-    def __getattr__(self, name: str) -> Any:
+    def critical(self, message: object, *args: object, **kwargs: object) -> object:
+        message, args, kwargs = self._normalize_message(message, args, kwargs)
+        return self._call("critical", message, args, kwargs)
+
+    def __getattr__(self, name: str) -> object:
         return getattr(self._wrapped, name)
 
 
 logger = _CompatLogger(_loguru_logger)
 
 
-def _get_trace_context() -> dict[str, Any]:
+def _get_trace_context() -> dict[str, str]:
     """
     Get current trace context for log enrichment at call time.
 
@@ -153,12 +177,14 @@ def _configure_loguru_trace_context() -> None:
     if not _USE_LOGURU:
         return
 
-    def trace_context_patcher(record: dict[str, Any]) -> None:
+    def trace_context_patcher(record: Record) -> None:
         ctx = _get_trace_context()
         record["extra"]["trace_id"] = ctx.get("trace_id", "-")
         record["extra"]["span_id"] = ctx.get("span_id", "-")
 
-    cast("Any", _loguru_logger).configure(patcher=trace_context_patcher)
+    if not isinstance(_loguru_logger, logging.Logger):
+        dynamic_logger = cast("_BindableLoggerProtocol", _loguru_logger)
+        dynamic_logger.configure(patcher=trace_context_patcher)
 
 
 def _ensure_loguru_trace_context_configured() -> None:
@@ -198,9 +224,10 @@ def get_logger(module_name: str | None = None) -> _CompatLogger:
 
     if _USE_LOGURU:
         _ensure_loguru_trace_context_configured()
-        return _CompatLogger(
-            cast("Any", _loguru_logger).bind(module=module_name or "polisyos")
-        )
+        if isinstance(_loguru_logger, logging.Logger):  # pragma: no cover - defensive
+            return _CompatLogger(_loguru_logger, bound_extra={"module": module_name or "polisyos"})
+        dynamic_logger = cast("_BindableLoggerProtocol", _loguru_logger)
+        return _CompatLogger(dynamic_logger.bind(module=module_name or "polisyos"))
 
     stdlib_logger = logging.getLogger(module_name)
     with _stdlib_filter_lock:

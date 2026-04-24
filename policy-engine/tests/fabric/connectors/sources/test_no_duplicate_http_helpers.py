@@ -29,15 +29,22 @@ CONNECTOR_CLASSES = {
 
 
 def _sources_root() -> Path:
-    return Path(__file__).resolve().parents[4] / "src" / "polisyos" / "fabric" / "connectors" / "sources"
+    return (
+        Path(__file__).resolve().parents[4]
+        / "src"
+        / "polisyos"
+        / "fabric"
+        / "connectors"
+        / "sources"
+    )
 
 
 def test_production_connectors_subclass_http_connector_base() -> None:
     from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
     from polisyos.fabric.connectors.sources.http_base import HTTPConnectorBase
     from polisyos.fabric.connectors.sources.ukons import UKONSConnector
-    from polisyos.fabric.connectors.sources.wvs import WVSConnector
     from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+    from polisyos.fabric.connectors.sources.wvs import WVSConnector
 
     assert issubclass(WorldBankConnector, HTTPConnectorBase)
     assert issubclass(WVSConnector, HTTPConnectorBase)
@@ -63,12 +70,12 @@ def test_no_forbidden_helper_definitions_in_production_sources() -> None:
 
         for node in tree.body:
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                assert (
-                    node.name not in FORBIDDEN_HELPERS
-                ), f"{filename} defines forbidden module helper {node.name}"
+                assert node.name not in FORBIDDEN_HELPERS, (
+                    f"{filename} defines forbidden module helper {node.name}"
+                )
 
         for node in connector_class.body:
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                assert (
-                    node.name not in FORBIDDEN_HELPERS
-                ), f"{filename} defines forbidden connector helper {node.name}"
+                assert node.name not in FORBIDDEN_HELPERS, (
+                    f"{filename} defines forbidden connector helper {node.name}"
+                )

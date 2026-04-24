@@ -1,7 +1,9 @@
 """Estimate simulation-output uncertainty with Monte Carlo, bootstrap, and permutation procedures."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -31,6 +33,7 @@ def _result_slot() -> frozenset[SlotSpec]:
 )
 class MonteCarloEstimator:
     """Estimate output means/intervals by repeated stochastic simulation; avoid tiny replicate counts when tail risk matters."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -40,14 +43,16 @@ class MonteCarloEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("samples", SlotType.MATRIX, Unit("value", "amount"),
-                         shape=("n_simulations", "n_outputs")),
+                SlotSpec(
+                    "samples",
+                    SlotType.MATRIX,
+                    Unit("value", "amount"),
+                    shape=("n_simulations", "n_outputs"),
+                ),
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="confidence_level", default=0.95, bounds=(0.5, 0.999)),
-        ),
+        parameters=(ParameterSpec(name="confidence_level", default=0.95, bounds=(0.5, 0.999)),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
@@ -109,6 +114,7 @@ class MonteCarloEstimator:
 )
 class BootstrapInferenceEstimator:
     """Estimate sampling uncertainty with bootstrap resampling; avoid strongly dependent samples unless resampling respects dependence."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     _MAX_VECTOR_BATCH: ClassVar[int] = 512
@@ -139,7 +145,9 @@ class BootstrapInferenceEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Nonparametric bootstrap inference for the sample mean.",
         tags=frozenset({"simulation", "inference", "bootstrap", "nonparametric", "structural"}),
-        citations=("Efron, B. (1979). Bootstrap Methods: Another Look at the Jackknife. Ann. Statist.",),
+        citations=(
+            "Efron, B. (1979). Bootstrap Methods: Another Look at the Jackknife. Ann. Statist.",
+        ),
         determinism_tier=DeterminismTier.STATISTICAL,
         required_deps=("numpy",),
         when_to_use="Bias-corrected model performance estimate; small samples where CV is noisy",
@@ -193,6 +201,7 @@ class BootstrapInferenceEstimator:
 )
 class PermutationTestEstimator:
     """Estimate a null p-value by label permutation under exchangeability; avoid blocked/time-dependent data without constrained permutations."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     _MAX_VECTOR_BATCH: ClassVar[int] = 256
@@ -222,7 +231,9 @@ class PermutationTestEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Two-sample permutation test for difference in means (Fisher exact).",
-        tags=frozenset({"simulation", "inference", "permutation", "randomization", "fisher", "structural"}),
+        tags=frozenset(
+            {"simulation", "inference", "permutation", "randomization", "fisher", "structural"}
+        ),
         citations=("Fisher, R.A. (1935). The Design of Experiments.",),
         determinism_tier=DeterminismTier.STATISTICAL,
         required_deps=("numpy",),

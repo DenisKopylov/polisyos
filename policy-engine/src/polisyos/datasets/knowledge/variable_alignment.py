@@ -6,14 +6,18 @@ import re
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
 
 class AlignmentMethod(str, Enum):
     """Alignment method public type."""
+
     EXACT = "exact"
     SEMANTIC = "semantic"
     META_ANALYTIC = "meta_analytic"
@@ -21,6 +25,7 @@ class AlignmentMethod(str, Enum):
 
 class VariableAlignment(BaseModel):
     """Variable alignment public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     canonical_var: str
@@ -35,6 +40,7 @@ class VariableAlignment(BaseModel):
 
 class VariablePairAlignmentScore(BaseModel):
     """Variable pair alignment score public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     left_variable: str
@@ -51,7 +57,12 @@ class VariablePairAlignmentScore(BaseModel):
 
 def default_seed_alignments_path() -> Path:
     """Default seed alignments path helper."""
-    return Path(__file__).resolve().parents[4] / "data" / "dataset_catalog" / "seed_variable_alignments.yaml"
+    return (
+        Path(__file__).resolve().parents[4]
+        / "data"
+        / "dataset_catalog"
+        / "seed_variable_alignments.yaml"
+    )
 
 
 _LEGACY_CANONICAL_VAR_ALIASES: dict[str, str] = {
@@ -107,7 +118,9 @@ def _normalize_seed_canonical_var(name: str) -> str:
     if spaced in runtime_synonyms:
         return runtime_synonyms[spaced]
 
-    suffix_matches = sorted(candidate for candidate in runtime_names if candidate.endswith(f".{clean}"))
+    suffix_matches = sorted(
+        candidate for candidate in runtime_names if candidate.endswith(f".{clean}")
+    )
     if len(suffix_matches) == 1:
         return suffix_matches[0]
 
@@ -127,7 +140,7 @@ def calibrate_alignment_confidence(alignment: VariableAlignment) -> float:
 
 def load_seed_alignments(path: Path) -> list[VariableAlignment]:
     """Load exact seed alignments from YAML."""
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         payload = yaml.safe_load(fh) or {}
     if not isinstance(payload, dict):
         raise ValueError("seed alignments payload must be a mapping")
@@ -142,7 +155,9 @@ def load_seed_alignments(path: Path) -> list[VariableAlignment]:
             continue
         out.append(
             VariableAlignment(
-                canonical_var=_normalize_seed_canonical_var(str(item.get("canonical_var", "")).strip()),
+                canonical_var=_normalize_seed_canonical_var(
+                    str(item.get("canonical_var", "")).strip()
+                ),
                 dataset_var=str(item.get("dataset_var", "")).strip(),
                 dataset_id=str(item.get("dataset_id", "")).strip(),
                 method=AlignmentMethod(str(item.get("method", "exact")).strip().lower()),
@@ -368,9 +383,7 @@ def align_meta_analytic(
 
 def _tokenize(text: str) -> set[str]:
     tokens = {
-        token
-        for token in _TOKEN_RE.findall(text.lower())
-        if token and token not in _STOPWORDS
+        token for token in _TOKEN_RE.findall(text.lower()) if token and token not in _STOPWORDS
     }
     return tokens
 
@@ -442,8 +455,10 @@ def _seed_alignment_support(
     seed_alignments: Iterable[VariableAlignment] | None,
     seed_path: Path | None,
 ) -> tuple[list[str], float, list[str]]:
-    alignments = list(seed_alignments) if seed_alignments is not None else load_seed_alignments(
-        (seed_path or default_seed_alignments_path()).resolve()
+    alignments = (
+        list(seed_alignments)
+        if seed_alignments is not None
+        else load_seed_alignments((seed_path or default_seed_alignments_path()).resolve())
     )
     alias_index = _seed_alias_index(alignments)
     left_aliases = alias_index.get(_normalize_alias(left_name), [])
@@ -456,7 +471,8 @@ def _seed_alignment_support(
         item.is_proxy
         for item in alignments
         if item.canonical_var in shared
-        and _normalize_alias(item.dataset_var) in {_normalize_alias(left_name), _normalize_alias(right_name)}
+        and _normalize_alias(item.dataset_var)
+        in {_normalize_alias(left_name), _normalize_alias(right_name)}
     )
     support_score = 0.85 if proxy_supported else 1.0
     evidence = [f"seed_canonical={canonical}" for canonical in shared]
@@ -547,9 +563,9 @@ __all__ = [
     "AlignmentMethod",
     "VariableAlignment",
     "VariablePairAlignmentScore",
-    "load_seed_alignments",
-    "default_seed_alignments_path",
-    "align_semantic",
     "align_meta_analytic",
+    "align_semantic",
+    "default_seed_alignments_path",
+    "load_seed_alignments",
     "score_variable_pair",
 ]

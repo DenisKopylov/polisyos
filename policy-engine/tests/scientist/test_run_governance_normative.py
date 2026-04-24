@@ -56,7 +56,9 @@ def test_run_governance_marks_needs_revision_when_policy_prefers_baseline(tmp_pa
     assert any(issue["code"] == "NORMATIVE_POLICY_REJECTS_PROPOSAL" for issue in report.issues)
 
 
-def test_run_governance_keeps_warning_only_for_partial_model_when_proposal_selected(tmp_path) -> None:
+def test_run_governance_keeps_warning_only_for_partial_model_when_proposal_selected(
+    tmp_path,
+) -> None:
     report = _run_governance_with_normative_result(
         tmp_path=tmp_path,
         selected_option=ArbitrationOption.PROPOSAL,
@@ -85,7 +87,9 @@ def test_run_governance_preserves_human_gate_precedence(tmp_path) -> None:
 def test_run_governance_uses_branch_state_for_params_and_report(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
-    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_governance_branch")
+    run = RunContext.start(
+        store=store, registry_bundle=registry_bundle, run_id="R_governance_branch"
+    )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.governance.branch"))
 
     normative_ref = persist_normative_arbitration_result(

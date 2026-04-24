@@ -21,7 +21,7 @@ import threading
 import time
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.common.logger import get_logger
@@ -187,7 +187,7 @@ class DynamoDBRunLock:
             "hostname": socket.gethostname(),
             "mode": mode,
             "owner_token": token,
-            "started_at": datetime.now(timezone.utc).isoformat(),
+            "started_at": datetime.now(UTC).isoformat(),
         }
         metadata_json = json.dumps(metadata, ensure_ascii=True, sort_keys=True)
 
@@ -199,18 +199,14 @@ class DynamoDBRunLock:
                     "metadata": metadata_json,
                     "expires_at": expires_at,
                 },
-                ConditionExpression=(
-                    "attribute_not_exists(lock_key) OR expires_at < :now"
-                ),
+                ConditionExpression=("attribute_not_exists(lock_key) OR expires_at < :now"),
                 ExpressionAttributeValues={
                     ":now": int(time.time()),
                 },
             )
         except ClientError as exc:
             error_code = (
-                exc.response.get("Error", {}).get("Code", "")
-                if hasattr(exc, "response")
-                else ""
+                exc.response.get("Error", {}).get("Code", "") if hasattr(exc, "response") else ""
             )
             if error_code == "ConditionalCheckFailedException":
                 if force:
@@ -237,9 +233,7 @@ class DynamoDBRunLock:
                             f"run {run_id} force acquisition rejected: owner token mismatch"
                         ) from force_exc
                 else:
-                    raise RunLockError(
-                        f"run {run_id} is already locked in DynamoDB"
-                    ) from exc
+                    raise RunLockError(f"run {run_id} is already locked in DynamoDB") from exc
             else:
                 raise
 

@@ -6,6 +6,7 @@ Handles:
 2. Unit conversion (kUSD → USD, km → m)
 3. Type casting (string → int, with safety checks)
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -98,9 +99,7 @@ class NormalizationTransform(DataTransform):
                 result[field_name] = self._safe_cast(result[field_name], target_dtype)
                 cast_log[field_name] = target_dtype
             except Exception as exc:
-                raise TransformError(
-                    f"Type cast failed for field '{field_name}': {exc}"
-                ) from exc
+                raise TransformError(f"Type cast failed for field '{field_name}': {exc}") from exc
 
         # Step 4: Type casting based on target schema (optional)
         if self.cast_to_schema and context.target_schema:
@@ -232,7 +231,7 @@ class NormalizationTransform(DataTransform):
             if series.dtype in ("float", "float64"):
                 if not (series.dropna() % 1 == 0).all():
                     raise TransformError(
-                        f"Cannot safely cast {series.name} to int: " "would lose decimal places"
+                        f"Cannot safely cast {series.name} to int: would lose decimal places"
                     )
             return pd.to_numeric(series, errors="coerce").astype("Int64")
         if target_dtype in ("float", "float64"):

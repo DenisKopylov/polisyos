@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from polisyos.scientist.autotune.hyperband import HyperbandScheduler
 
 

@@ -1,15 +1,14 @@
 """Public analytics cross graph module API."""
+
 from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Sequence
 from enum import Enum
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.transportability import TransportMode
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
@@ -19,6 +18,13 @@ from polisyos.ir.refs import (
     InterfaceMappingRef,
     SCMFragmentRef,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from polisyos.ir.analytics.context import ContextProfile
+else:
+    from polisyos.ir.analytics.context import ContextProfile
 
 _SCHEMA_NAME = "ir.cross_graph_evidence_profile"
 _SCHEMA_VERSION = "2.1"
@@ -32,6 +38,7 @@ _COMPOSITION_CERTIFICATE_SCHEMA_VERSION = "1.2"
 
 class InterfaceRole(str, Enum):
     """Interface role public type."""
+
     INPUT = "input"
     OUTPUT = "output"
     SHARED = "shared"
@@ -39,6 +46,7 @@ class InterfaceRole(str, Enum):
 
 class InterfaceVariableSchema(BaseModel):
     """Interface variable schema data model."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     variable_name: str = Field(min_length=1)
@@ -52,6 +60,7 @@ class InterfaceVariableSchema(BaseModel):
 
 class FragmentInterfaceSchema(BaseModel):
     """Fragment interface schema data model."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     fragment_id: str = Field(min_length=1)
@@ -59,7 +68,7 @@ class FragmentInterfaceSchema(BaseModel):
     variables: list[InterfaceVariableSchema] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def _validate_unique_variables(self) -> "FragmentInterfaceSchema":
+    def _validate_unique_variables(self) -> FragmentInterfaceSchema:
         names = [variable.variable_name for variable in self.variables]
         if len(set(names)) != len(names):
             raise ValueError("FragmentInterfaceSchema variables must be unique")
@@ -168,7 +177,7 @@ class CycleWitness(BaseModel):
     audit_refs: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def _validate_lists(self) -> "CycleWitness":
+    def _validate_lists(self) -> CycleWitness:
         for field_name, values in (
             ("existence_conditions", self.existence_conditions),
             ("uniqueness_conditions", self.uniqueness_conditions),
@@ -183,6 +192,7 @@ class CycleWitness(BaseModel):
 
 class SCMFragment(BaseModel):
     """SCM fragment public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.2", pattern=r"^\d+\.\d+$")
@@ -231,7 +241,7 @@ class SCMFragment(BaseModel):
         return normalized
 
     @model_validator(mode="after")
-    def _validate_interfaces(self) -> "SCMFragment":
+    def _validate_interfaces(self) -> SCMFragment:
         interface_set = set(self.interface_variables)
         if len(interface_set) != len(self.interface_variables):
             raise ValueError("interface_variables must be unique")
@@ -246,9 +256,7 @@ class SCMFragment(BaseModel):
                 raise ValueError(f"{field_name} must be unique")
             unknown = sorted(set(values) - interface_set)
             if unknown:
-                raise ValueError(
-                    f"{field_name} must be a subset of interface_variables: {unknown}"
-                )
+                raise ValueError(f"{field_name} must be a subset of interface_variables: {unknown}")
 
         for field_name, mapping in (
             ("measurement_models", self.measurement_models),
@@ -301,28 +309,19 @@ class SCMFragment(BaseModel):
                 and self.composition_policy is CompositionPolicy.ALLOW
             ):
                 raise ValueError("initial-condition-dependent cycles cannot auto-compose")
-            if (
-                self.composition_policy is CompositionPolicy.ALLOW
-                and any(
-                    witness.interventional_closure is InterventionalClosure.NONE
-                    for witness in self.cycle_witnesses
-                )
+            if self.composition_policy is CompositionPolicy.ALLOW and any(
+                witness.interventional_closure is InterventionalClosure.NONE
+                for witness in self.cycle_witnesses
             ):
                 raise ValueError("cyclic auto-composition requires interventional closure")
-            if (
-                self.composition_policy is CompositionPolicy.ALLOW
-                and any(
-                    witness.markov_semantics is not MarkovSemantics.SIGMA_SEPARATION
-                    for witness in self.cycle_witnesses
-                )
+            if self.composition_policy is CompositionPolicy.ALLOW and any(
+                witness.markov_semantics is not MarkovSemantics.SIGMA_SEPARATION
+                for witness in self.cycle_witnesses
             ):
                 raise ValueError("cyclic auto-composition requires sigma-separation witnesses")
-            if (
-                self.composition_policy is CompositionPolicy.ALLOW
-                and any(
-                    alignment_type not in _DEFAULT_CYCLIC_ALIGNMENT_TYPES
-                    for alignment_type in self.allowed_alignment_types
-                )
+            if self.composition_policy is CompositionPolicy.ALLOW and any(
+                alignment_type not in _DEFAULT_CYCLIC_ALIGNMENT_TYPES
+                for alignment_type in self.allowed_alignment_types
             ):
                 raise ValueError(
                     "cyclic auto-composition only supports exact or scale_linked interfaces"
@@ -363,6 +362,7 @@ class SCMFragment(BaseModel):
 
 class InterfaceVariableBinding(BaseModel):
     """Interface variable binding public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     fragment_id: str = Field(min_length=1)
@@ -376,19 +376,22 @@ class InterfaceVariableBinding(BaseModel):
 
 class InterfaceMappingEntry(BaseModel):
     """Interface mapping entry data model."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     interface_id: str = Field(min_length=1)
     canonical_node_id: str = Field(min_length=1)
     bindings: list[InterfaceVariableBinding] = Field(default_factory=list)
     observed: bool = True
-    alignment_type: Literal["exact", "scale_linked", "proxy", "latent_bridge", "incompatible"] = "exact"
+    alignment_type: Literal["exact", "scale_linked", "proxy", "latent_bridge", "incompatible"] = (
+        "exact"
+    )
     reviewer: Literal["automated", "pending_review", "human_verified"] = "automated"
     assumptions_introduced: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_bindings(self) -> "InterfaceMappingEntry":
+    def _validate_bindings(self) -> InterfaceMappingEntry:
         if len(self.bindings) < 2:
             raise ValueError("InterfaceMappingEntry must contain at least two bindings")
         keys = [(item.fragment_id, item.variable_name) for item in self.bindings]
@@ -399,6 +402,7 @@ class InterfaceMappingEntry(BaseModel):
 
 class InterfaceMapping(BaseModel):
     """Interface mapping public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -407,7 +411,7 @@ class InterfaceMapping(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_entries(self) -> "InterfaceMapping":
+    def _validate_entries(self) -> InterfaceMapping:
         if len(set(self.fragment_ids)) != len(self.fragment_ids):
             raise ValueError("fragment_ids must be unique")
         entry_ids = [entry.interface_id for entry in self.entries]
@@ -488,8 +492,7 @@ def completeness_scope_for_composition(
     if graph_type_value != "dag":
         reasons.append("non_dag_composition")
     if directed_cycle_present or (
-        cycle_semantics_mode is not None
-        and cycle_semantics_mode not in {"", "acyclic", "none"}
+        cycle_semantics_mode is not None and cycle_semantics_mode not in {"", "acyclic", "none"}
     ):
         reasons.append("cyclic_or_sigma_semantics")
     if any(not observed for observed in normalized_observed_flags):
@@ -608,7 +611,9 @@ class CompositionCertificate(BaseModel):
     composed_graph_ref: str | None = None
     interface_mapping_ref: str = Field(min_length=1)
     alignment_report_ref: str = Field(min_length=1)
-    checked_queries: dict[str, Literal["preserved", "broken", "unknown"]] = Field(default_factory=dict)
+    checked_queries: dict[str, Literal["preserved", "broken", "unknown"]] = Field(
+        default_factory=dict
+    )
     query_certificates: dict[str, QueryPreservationCertificate] = Field(default_factory=dict)
     newly_required_assumptions: list[str] = Field(default_factory=list)
     structural_assumptions: list[str] = Field(default_factory=list)
@@ -643,6 +648,7 @@ class CompositionCertificate(BaseModel):
 
 class ConceptKind(str, Enum):
     """Concept kind public type."""
+
     METRIC = "metric"
     VARIABLE = "variable"
     PARAMETER = "parameter"
@@ -656,6 +662,7 @@ class ConceptKind(str, Enum):
 
 class BridgeRelation(str, Enum):
     """Bridge relation public type."""
+
     METRIC_TO_VARIABLE = "metric_to_variable"
     PARAMETER_TO_VARIABLE = "parameter_to_variable"
     LEGAL_TO_METRIC = "legal_to_metric"
@@ -668,6 +675,7 @@ class BridgeRelation(str, Enum):
 
 class EvidenceNeedType(str, Enum):
     """Evidence need type public type."""
+
     OBJECTIVE_METRIC = "objective_metric"
     KPI_METRIC = "kpi_metric"
     SUCCESS_CRITERION_METRIC = "success_criterion_metric"
@@ -680,6 +688,7 @@ class EvidenceNeedType(str, Enum):
 
 class LegalStatus(str, Enum):
     """Legal status public type."""
+
     ALLOWED = "allowed"
     CONSTRAINED = "constrained"
     PROHIBITED = "prohibited"
@@ -688,6 +697,7 @@ class LegalStatus(str, Enum):
 
 class ObservabilityStatus(str, Enum):
     """Observability status public type."""
+
     DIRECT = "direct"
     PROXY_ONLY = "proxy_only"
     MISSING = "missing"
@@ -696,6 +706,7 @@ class ObservabilityStatus(str, Enum):
 
 class EvidenceStatus(str, Enum):
     """Evidence status public type."""
+
     SUPPORTED = "supported"
     MIXED = "mixed"
     INSUFFICIENT = "insufficient"
@@ -704,6 +715,7 @@ class EvidenceStatus(str, Enum):
 
 class TransportStatus(str, Enum):
     """Transport status public type."""
+
     IDENTIFIED = "identified"
     PARTIALLY_IDENTIFIED = "partially_identified"
     BOUNDED_NON_IDENTIFIED = "bounded_non_identified"
@@ -712,6 +724,7 @@ class TransportStatus(str, Enum):
 
 class EvidenceSourceKind(str, Enum):
     """Evidence source kind public type."""
+
     ACADEMIC = "academic"
     DATASETS = "datasets"
     LEGAL = "legal"
@@ -720,6 +733,7 @@ class EvidenceSourceKind(str, Enum):
 
 class EvidenceSourceState(str, Enum):
     """Evidence source state data model."""
+
     AVAILABLE = "available"
     MISSING_CONFIG = "missing_config"
     MISSING_PATH = "missing_path"
@@ -730,6 +744,7 @@ class EvidenceSourceState(str, Enum):
 
 class CanonicalConcept(BaseModel):
     """Canonical concept public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     concept_id: str
@@ -741,6 +756,7 @@ class CanonicalConcept(BaseModel):
 
 class ConceptBridge(BaseModel):
     """Concept bridge public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     src_system: str
@@ -754,6 +770,7 @@ class ConceptBridge(BaseModel):
 
 class EvidenceNeed(BaseModel):
     """Evidence need public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     need_id: str
@@ -780,6 +797,7 @@ class EvidenceNeed(BaseModel):
 
 class CrossGraphDiagnostic(BaseModel):
     """Cross graph diagnostic public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     code: str
@@ -791,6 +809,7 @@ class CrossGraphDiagnostic(BaseModel):
 
 class EvidenceNeedAssessment(BaseModel):
     """Evidence need assessment public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     need: EvidenceNeed
@@ -810,6 +829,7 @@ class EvidenceNeedAssessment(BaseModel):
 
 class CrossGraphEvidenceSummary(BaseModel):
     """Cross graph evidence summary data model."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     status: str = "ok"
@@ -824,6 +844,7 @@ class CrossGraphEvidenceSummary(BaseModel):
 
 class CrossGraphSourceRefs(BaseModel):
     """Cross graph source refs public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     academic_db_path: str | None = None
@@ -834,6 +855,7 @@ class CrossGraphSourceRefs(BaseModel):
 
 class EvidenceSourceStatus(BaseModel):
     """Evidence source status public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     source: EvidenceSourceKind
@@ -847,6 +869,7 @@ class EvidenceSourceStatus(BaseModel):
 
 class CrossGraphEvidenceProfile(BaseModel):
     """Cross graph evidence profile data model."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("2.1", pattern=r"^\d+\.\d+$")
@@ -1007,36 +1030,36 @@ __all__ = [
     "AllowedAlignmentType",
     "BridgeRelation",
     "CanonicalConcept",
-    "CompositionPolicy",
     "CompositionCertificate",
-    "CycleScope",
-    "CycleType",
-    "CycleWitness",
-    "QueryPreservationCertificate",
+    "CompositionPolicy",
     "ConceptBridge",
     "ConceptKind",
     "CrossGraphDiagnostic",
     "CrossGraphEvidenceProfile",
     "CrossGraphEvidenceSummary",
     "CrossGraphSourceRefs",
-    "EvidenceSourceKind",
-    "EvidenceSourceState",
-    "EvidenceSourceStatus",
+    "CycleScope",
+    "CycleType",
+    "CycleWitness",
     "EvidenceNeed",
     "EvidenceNeedAssessment",
     "EvidenceNeedType",
+    "EvidenceSourceKind",
+    "EvidenceSourceState",
+    "EvidenceSourceStatus",
     "EvidenceStatus",
     "FragmentInterfaceSchema",
     "GraphAuditGuarantee",
-    "InterfaceRole",
     "InterfaceMapping",
     "InterfaceMappingEntry",
+    "InterfaceRole",
     "InterfaceVariableBinding",
     "InterfaceVariableSchema",
     "InterventionalClosure",
     "LegalStatus",
     "MarkovSemantics",
     "ObservabilityStatus",
+    "QueryPreservationCertificate",
     "SCMFragment",
     "SolverKind",
     "TransportStatus",
@@ -1044,11 +1067,11 @@ __all__ = [
     "build_evidence_need_id",
     "completeness_scope_for_composition",
     "load_composition_certificate",
+    "load_cross_graph_evidence_profile",
     "load_interface_mapping",
     "load_scm_fragment",
-    "load_cross_graph_evidence_profile",
     "persist_composition_certificate",
+    "persist_cross_graph_evidence_profile",
     "persist_interface_mapping",
     "persist_scm_fragment",
-    "persist_cross_graph_evidence_profile",
 ]

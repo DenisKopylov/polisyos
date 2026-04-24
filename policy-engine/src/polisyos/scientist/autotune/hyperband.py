@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Any
 
 
 @dataclass
@@ -64,7 +63,7 @@ class HyperbandScheduler:
         brackets: list[HyperbandBracket] = []
 
         for s in range(s_max, -1, -1):
-            n = int(math.ceil((s_max + 1) / (s + 1)) * (eta ** s))
+            n = int(math.ceil((s_max + 1) / (s + 1)) * (eta**s))
             if n_candidates is not None:
                 n = min(n, n_candidates)
             r = self.max_budget * (eta ** (-s))
@@ -72,7 +71,7 @@ class HyperbandScheduler:
             rungs: list[HyperbandRung] = []
             for i in range(s + 1):
                 n_i = max(1, int(math.floor(n * (eta ** (-i)))))
-                r_i = r * (eta ** i)
+                r_i = r * (eta**i)
                 rungs.append(HyperbandRung(n_configs=n_i, resource=min(r_i, self.max_budget)))
 
             brackets.append(HyperbandBracket(bracket_id=s, rungs=rungs))

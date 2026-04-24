@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
@@ -18,7 +18,13 @@ from polisyos.fabric.provenance.core import (
 )
 from polisyos.ir.canon import to_canonical_bytes as ir_to_canonical_bytes
 from polisyos.ir.citations import AnchorKind, FragmentLocator
-from polisyos.ir.world.event import EventKind, ProvActivity, ProvActivityType, ProvAgent, ProvAgentType
+from polisyos.ir.world.event import (
+    EventKind,
+    ProvActivity,
+    ProvActivityType,
+    ProvAgent,
+    ProvAgentType,
+)
 from polisyos.ir.world.ids import (
     artifact_id_to_world_id,
     claim_id_from_payload,
@@ -43,19 +49,22 @@ def test_canonical_bytes_golden_records(golden_records: dict[str, object]) -> No
         "nested": {"z_key": 3, "a_key": 1},
     }
     dt_payload = {
-        "t": datetime(2026, 1, 10, 12, 0, 0, tzinfo=timezone.utc),
+        "t": datetime(2026, 1, 10, 12, 0, 0, tzinfo=UTC),
         "x": Decimal("1.2300"),
     }
 
-    assert hashlib.sha256(core_to_canonical_bytes(simple_payload)).hexdigest() == expected[
-        "simple_dict_sha256"
-    ]
-    assert hashlib.sha256(core_to_canonical_bytes(nested_payload)).hexdigest() == expected[
-        "nested_decimal_sha256"
-    ]
-    assert hashlib.sha256(core_to_canonical_bytes(dt_payload)).hexdigest() == expected[
-        "datetime_decimal_sha256"
-    ]
+    assert (
+        hashlib.sha256(core_to_canonical_bytes(simple_payload)).hexdigest()
+        == expected["simple_dict_sha256"]
+    )
+    assert (
+        hashlib.sha256(core_to_canonical_bytes(nested_payload)).hexdigest()
+        == expected["nested_decimal_sha256"]
+    )
+    assert (
+        hashlib.sha256(core_to_canonical_bytes(dt_payload)).hexdigest()
+        == expected["datetime_decimal_sha256"]
+    )
     assert hashlib.sha256(core_to_canonical_bytes({})).hexdigest() == expected["empty_dict_sha256"]
 
 
@@ -71,13 +80,15 @@ def test_ir_and_core_canon_equivalence() -> None:
 def test_world_id_golden_records(golden_records: dict[str, object]) -> None:
     expected = golden_records["world_ids"]
 
-    assert stable_world_id_from_canon(prefix="test", payload={"key": "value"}) == expected[
-        "stable_world_id_test_payload"
-    ]
+    assert (
+        stable_world_id_from_canon(prefix="test", payload={"key": "value"})
+        == expected["stable_world_id_test_payload"]
+    )
     assert conflict_set_id_from_key(conflict_key="a" * 64) == expected["conflict_set_id_64a"]
-    assert artifact_id_to_world_id(prefix="doc", artifact_id="sha256:" + "ab" * 32) == expected[
-        "artifact_to_world_doc"
-    ]
+    assert (
+        artifact_id_to_world_id(prefix="doc", artifact_id="sha256:" + "ab" * 32)
+        == expected["artifact_to_world_doc"]
+    )
 
     claim_doc = claim_id_from_payload(
         claim_payload={
@@ -106,14 +117,18 @@ def test_world_id_golden_records(golden_records: dict[str, object]) -> None:
         doc_source_id(canonical_url="https://example.gov/doc/1", official_id=None)
         == expected["doc_source_url"]
     )
-    assert doc_version_id_from_raw_artifact(raw_artifact_id="sha256:" + "c" * 64) == expected[
-        "doc_version_from_artifact"
-    ]
-    assert doc_fragment_id(
-        doc_version_id="docv.sha256_" + "c" * 64,
-        locator=FragmentLocator(anchor_kind=AnchorKind.PAGE, page_start=1, page_end=1),
-        text_artifact_id="sha256:" + "d" * 64,
-    ) == expected["doc_fragment"]
+    assert (
+        doc_version_id_from_raw_artifact(raw_artifact_id="sha256:" + "c" * 64)
+        == expected["doc_version_from_artifact"]
+    )
+    assert (
+        doc_fragment_id(
+            doc_version_id="docv.sha256_" + "c" * 64,
+            locator=FragmentLocator(anchor_kind=AnchorKind.PAGE, page_start=1, page_end=1),
+            text_artifact_id="sha256:" + "d" * 64,
+        )
+        == expected["doc_fragment"]
+    )
 
     event_id = world_event_id_from_payload(
         event_payload={
@@ -127,7 +142,7 @@ def test_world_id_golden_records(golden_records: dict[str, object]) -> None:
                 activity_id="prov.activity.fetch",
                 activity_type=ProvActivityType.FETCH_DOC,
                 label="fetch",
-                started_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+                started_at=datetime(2026, 1, 1, tzinfo=UTC),
             ),
             "inputs": [{"artifact_id": "sha256:" + "1" * 64}],
             "outputs": [{"world_id": "doc.source.us"}],

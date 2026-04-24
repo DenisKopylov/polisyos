@@ -20,22 +20,24 @@ knowledge-layer lookups. The slice currently contains `35` `test_*.py` files.
 
 - `tests/academic/batch/`: `30` tests for extraction, manifests, graph build,
   benchmarking, trust, QC, and CLI smoke paths.
+
 - `tests/academic/knowledge/`: `5` tests for canonical resolver, parameter
   selector, SKG query, and helper types.
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - [`../../src/polisyos/academic/README.md`](../../src/polisyos/academic/README.md)
 - `src/polisyos/academic/batch`
 - `src/polisyos/academic/knowledge`
 
-**Depended on by**
+### Depended On By
 
 - [`../scientist/README.md`](../scientist/README.md) and
   [`../fabric/README.md`](../fabric/README.md) when academic evidence feeds
   policy workflows
+
 - Batch tooling and snapshot curation flows
 
 ## Common Commands

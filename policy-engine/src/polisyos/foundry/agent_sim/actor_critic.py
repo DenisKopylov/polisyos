@@ -1,7 +1,8 @@
 """Build actor-critic networks and the action-distribution math used during training."""
+
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 import chex
 import equinox as eqx
@@ -18,6 +19,7 @@ from polisyos.foundry._numeric import (
 
 class NormalizedMLP(eqx.Module):
     """Normalized MLP public type."""
+
     layers: tuple[eqx.nn.Linear, ...]
     norms: tuple[eqx.nn.LayerNorm, ...]
     activation: Callable[[jnp.ndarray], jnp.ndarray] = eqx.field(static=True)
@@ -41,6 +43,7 @@ class NormalizedMLP(eqx.Module):
 
 class ValueNetwork(eqx.Module):
     """Value network public type."""
+
     trunk: NormalizedMLP
     head: eqx.nn.Linear
 
@@ -70,6 +73,7 @@ class ValueNetwork(eqx.Module):
 
 class AdvantageNetwork(eqx.Module):
     """Advantage network public type."""
+
     trunk: NormalizedMLP
     value_head: eqx.nn.Linear
     advantage_head: eqx.nn.Linear
@@ -94,9 +98,7 @@ class AdvantageNetwork(eqx.Module):
         norms = tuple(eqx.nn.LayerNorm(dim, elementwise_affine=True) for dim in trunk_dims[1:])
         self.trunk = NormalizedMLP(layers=layers, norms=norms, activation=jax.nn.gelu)
         self.value_head = eqx.nn.Linear(trunk_dims[-1], 1, key=keys[-2])
-        self.advantage_head = eqx.nn.Linear(
-            trunk_dims[-1] + self.action_dim, 1, key=keys[-1]
-        )
+        self.advantage_head = eqx.nn.Linear(trunk_dims[-1] + self.action_dim, 1, key=keys[-1])
 
     def __call__(self, observations: jnp.ndarray, actions: jnp.ndarray) -> jnp.ndarray:
         features = self.trunk(observations)
@@ -108,6 +110,7 @@ class AdvantageNetwork(eqx.Module):
 
 class ActorCritic(eqx.Module):
     """Actor critic public type."""
+
     shared: NormalizedMLP
     actor_hidden: eqx.nn.Linear
     actor_norm: eqx.nn.LayerNorm
@@ -146,8 +149,7 @@ class ActorCritic(eqx.Module):
                 for i in range(len(shared_dims) - 1)
             )
             shared_norms = tuple(
-                eqx.nn.LayerNorm(dim, elementwise_affine=True)
-                for dim in shared_dims[1:]
+                eqx.nn.LayerNorm(dim, elementwise_affine=True) for dim in shared_dims[1:]
             )
             shared_out_dim = shared_dims[-1]
 

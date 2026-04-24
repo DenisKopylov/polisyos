@@ -48,9 +48,7 @@ export function ParallelCoordinatesChart({
 
   const axisPositions = useMemo(
     () =>
-      axes.map((_, i) =>
-        PADDING.left + (plotW / (axes.length - 1 || 1)) * i,
-      ),
+      axes.map((_, i) => PADDING.left + (plotW / (axes.length - 1 || 1)) * i),
     [axes.length, plotW],
   );
 
@@ -170,7 +168,8 @@ export function ParallelCoordinatesChart({
           {lines.map((line, i) => {
             const isHighlighted =
               highlightedIds?.has(line.id) || hoveredId === line.id;
-            const isAnyHighlighted = hoveredId !== null || (highlightedIds?.size ?? 0) > 0;
+            const isAnyHighlighted =
+              hoveredId !== null || (highlightedIds?.size ?? 0) > 0;
             return (
               <path
                 key={line.id}
@@ -182,9 +181,7 @@ export function ParallelCoordinatesChart({
                     : chartTheme.neutral
                 }
                 strokeWidth={isHighlighted ? 2 : 1}
-                opacity={
-                  isAnyHighlighted ? (isHighlighted ? 0.9 : 0.08) : 0.35
-                }
+                opacity={isAnyHighlighted ? (isHighlighted ? 0.9 : 0.08) : 0.35}
                 className="cursor-pointer"
                 onMouseEnter={() => handleHover(line.id)}
               />

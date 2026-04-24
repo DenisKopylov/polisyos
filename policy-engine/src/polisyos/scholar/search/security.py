@@ -6,9 +6,10 @@ import ipaddress
 import re
 import socket
 import urllib.parse
+from typing import TYPE_CHECKING
 
-from polisyos.scholar.search.models import SearchConstraints
-
+if TYPE_CHECKING:
+    from polisyos.scholar.search.models import SearchConstraints
 
 _LOCAL_HOSTS = {
     "localhost",

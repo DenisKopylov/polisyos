@@ -1,5 +1,7 @@
 """Tests for EvidenceBundle IR models."""
+
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.evidence_bundle import (
     DataProvenance,

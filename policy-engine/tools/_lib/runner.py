@@ -7,11 +7,11 @@ import inspect
 import shlex
 import subprocess
 import sys
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 _SHELL_CONTROL_SNIPPETS = ("&&", "||", ";", "|", "`", "$(", "<", ">", "\n", "\r")
 
@@ -94,7 +94,9 @@ def validate_command_prefix(
         if tokens[: len(candidate)] == candidate:
             return tokens
     allowed = ", ".join(shlex.join(list(prefix)) for prefix in allowed_prefixes)
-    raise ValueError(f"Command prefix is not allowlisted: {shlex.join(list(tokens))}; allowed: {allowed}")
+    raise ValueError(
+        f"Command prefix is not allowlisted: {shlex.join(list(tokens))}; allowed: {allowed}"
+    )
 
 
 def render_command(argv: Sequence[str]) -> str:
@@ -116,7 +118,9 @@ def run_command(
     tokens = tuple(str(part) for part in argv)
     if allowed_prefixes is not None:
         validate_command_prefix(tokens, allowed_prefixes=allowed_prefixes)
-    return subprocess.run(list(tokens), cwd=cwd, env=dict(env) if env is not None else None, **kwargs)
+    return subprocess.run(
+        list(tokens), cwd=cwd, env=dict(env) if env is not None else None, **kwargs
+    )
 
 
 def invoke_tool_main(spec: ToolSpec, argv: Sequence[str] | None = None) -> int:

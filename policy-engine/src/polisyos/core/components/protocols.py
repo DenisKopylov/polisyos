@@ -1,7 +1,9 @@
 """Define runtime protocols implemented by discovered plugin components."""
+
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Protocol, runtime_checkable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from .metadata import ComponentMetadata
 
@@ -27,7 +29,9 @@ ComponentFactory = Callable[[], Component]
 class SupportsValidation(Protocol):
     """Optional protocol for components that can self-validate against host ABI."""
 
-    def validate(self, host: "HostAbi") -> list["ComplianceIssue"]:  # pragma: no cover - Protocol signature
+    def validate(
+        self, host: HostAbi
+    ) -> list[ComplianceIssue]:  # pragma: no cover - Protocol signature
         """Return component-authored compliance findings for the supplied host ABI."""
         ...
 

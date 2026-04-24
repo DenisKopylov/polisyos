@@ -1,4 +1,5 @@
 """Resolve Zero Trust, OPA, TEE, SBOM, and multi-tenant settings from env vars."""
+
 from __future__ import annotations
 
 import os
@@ -76,18 +77,14 @@ class SecuritySettings:
     def allowed_regions(self) -> frozenset[str]:
         """Return normalized region allowlist values used by cell/tenant routing."""
         return frozenset(
-            region.strip()
-            for region in self.POLISYOS_ALLOWED_REGIONS.split(",")
-            if region.strip()
+            region.strip() for region in self.POLISYOS_ALLOWED_REGIONS.split(",") if region.strip()
         )
 
     @lru_cache(maxsize=1)
     def trusted_delegators(self) -> frozenset[str]:
         """Return SPIFFE/service principals allowed to forward delegation context."""
         return frozenset(
-            item.strip()
-            for item in self.POLISYOS_TRUSTED_DELEGATORS.split(",")
-            if item.strip()
+            item.strip() for item in self.POLISYOS_TRUSTED_DELEGATORS.split(",") if item.strip()
         )
 
     @lru_cache(maxsize=1)
@@ -103,18 +100,14 @@ class SecuritySettings:
     def allowed_jwt_kids(self) -> frozenset[str]:
         """Return JWT signing key IDs accepted during the current rotation window."""
         return frozenset(
-            item.strip()
-            for item in self.POLISYOS_JWT_ALLOWED_KIDS.split(",")
-            if item.strip()
+            item.strip() for item in self.POLISYOS_JWT_ALLOWED_KIDS.split(",") if item.strip()
         )
 
     @lru_cache(maxsize=1)
     def revoked_jwt_kids(self) -> frozenset[str]:
         """Return JWT signing key IDs that must be rejected even if JWKS exposes them."""
         return frozenset(
-            item.strip()
-            for item in self.POLISYOS_JWT_REVOKED_KIDS.split(",")
-            if item.strip()
+            item.strip() for item in self.POLISYOS_JWT_REVOKED_KIDS.split(",") if item.strip()
         )
 
     @lru_cache(maxsize=1)

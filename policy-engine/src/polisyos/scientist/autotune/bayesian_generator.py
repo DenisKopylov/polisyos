@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 def _try_import_bayesian():
     """Lazy import of BayesianOptimizer and dependencies."""
     try:
+        from polisyos.scientist.search.objective import ObjectiveValue, OptimizationDirection
         from polisyos.scientist.search.strategies.bayesian import (
             BayesianConfig,
             BayesianOptimizer,
@@ -22,11 +23,16 @@ def _try_import_bayesian():
             EvaluationStatus,
             ParameterBounds,
         )
-        from polisyos.scientist.search.objective import ObjectiveValue
 
-        from polisyos.scientist.search.objective import OptimizationDirection
-
-        return BayesianConfig, BayesianOptimizer, Evaluation, EvaluationStatus, ParameterBounds, ObjectiveValue, OptimizationDirection
+        return (
+            BayesianConfig,
+            BayesianOptimizer,
+            Evaluation,
+            EvaluationStatus,
+            ParameterBounds,
+            ObjectiveValue,
+            OptimizationDirection,
+        )
     except ImportError:
         return None
 
@@ -94,7 +100,7 @@ class BayesianCandidateGenerator:
                 self._botorch_available = True
                 if self._warm_evals:
                     self._optimizer.warm_start(self._warm_evals)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 logger.warning("BayesianCandidateGenerator: optimizer init failed: %s", exc)
 
     @property
@@ -120,7 +126,7 @@ class BayesianCandidateGenerator:
         try:
             candidate = self._optimizer.suggest(evals)
             return candidate.to_dict()
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             logger.warning("BayesianCandidateGenerator: suggest failed: %s", exc)
             return self._fallback_generate(history, current_best, context)
 
@@ -163,7 +169,13 @@ class BayesianCandidateGenerator:
                     candidate_id=f"hist_{idx}",
                     params=params,
                     params_normalized=normalized,
-                    objectives=[ObjectiveValue(name=self._primary_metric, raw_value=scalar, direction=OptimizationDirection.MINIMIZE)],
+                    objectives=[
+                        ObjectiveValue(
+                            name=self._primary_metric,
+                            raw_value=scalar,
+                            direction=OptimizationDirection.MINIMIZE,
+                        )
+                    ],
                     scalar_score=scalar,
                     stage_a_passed=True,
                     status=EvaluationStatus.SUCCESS,
@@ -195,7 +207,11 @@ def benchmark_to_evaluation(
         candidate_id=str(bench.candidate_ref.artifact_id)[:8],
         params=bench.metrics_for_split(split),
         params_normalized=tuple(0.5 for _ in range(dim)),
-        objectives=[ObjectiveValue(name=primary_metric, raw_value=scalar, direction=OptimizationDirection.MINIMIZE)],
+        objectives=[
+            ObjectiveValue(
+                name=primary_metric, raw_value=scalar, direction=OptimizationDirection.MINIMIZE
+            )
+        ],
         scalar_score=scalar,
         stage_a_passed=True,
         status=EvaluationStatus.SUCCESS,

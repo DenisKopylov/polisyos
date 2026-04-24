@@ -5,7 +5,6 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 import numpy as np
 
@@ -17,8 +16,8 @@ class RealDataset:
     X: np.ndarray
     T: np.ndarray
     Y: np.ndarray
-    true_ate: float | None       # None if unknown
-    true_cate: np.ndarray | None # None if unknown
+    true_ate: float | None  # None if unknown
+    true_cate: np.ndarray | None  # None if unknown
     dataset_name: str
     realisation_id: int
 
@@ -58,14 +57,20 @@ def load_ihdp(realisation: int = 0) -> RealDataset:
     true_ate = float(np.mean(true_cate))
 
     return RealDataset(
-        X=X, T=T, Y=yf, true_ate=true_ate, true_cate=true_cate,
-        dataset_name="ihdp", realisation_id=realisation,
+        X=X,
+        T=T,
+        Y=yf,
+        true_ate=true_ate,
+        true_cate=true_cate,
+        dataset_name="ihdp",
+        realisation_id=realisation,
     )
 
 
 def _download_ihdp(dest: Path) -> None:
     """Download IHDP NPCI data from standard repository."""
     import urllib.request
+
     url = "https://raw.githubusercontent.com/AMLab-Amsterdam/CEVAE/master/datasets/IHDP/csv/ihdp_npci_1-1000.train.npz"
     # Fallback: try to create from CSV files
     try:
@@ -102,8 +107,13 @@ def load_twins(seed: int = 42) -> RealDataset:
     true_ate = float(np.mean(true_cate)) if true_cate is not None else None
 
     return RealDataset(
-        X=X, T=T, Y=Y, true_ate=true_ate, true_cate=true_cate,
-        dataset_name="twins", realisation_id=0,
+        X=X,
+        T=T,
+        Y=Y,
+        true_ate=true_ate,
+        true_cate=true_cate,
+        dataset_name="twins",
+        realisation_id=0,
     )
 
 
@@ -137,8 +147,13 @@ def load_jobs(seed: int = 42) -> RealDataset:
     Y = data["Y"].flatten()
 
     return RealDataset(
-        X=X, T=T, Y=Y, true_ate=None, true_cate=None,
-        dataset_name="jobs", realisation_id=0,
+        X=X,
+        T=T,
+        Y=Y,
+        true_ate=None,
+        true_cate=None,
+        dataset_name="jobs",
+        realisation_id=0,
     )
 
 

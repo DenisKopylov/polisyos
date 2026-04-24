@@ -4,13 +4,14 @@ Verification tests for Phase 17: Search Loop + Two-Stage + Engine Abstraction.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
 
 from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
 from polisyos.foundry.methods.catalog_snapshot import build_method_catalog_snapshot
+from polisyos.scientist.llm_cycle import preflight_execution_plan
 from polisyos.scientist.search.controller import (
     SearchConfig,
     SearchController,
@@ -28,9 +29,7 @@ from polisyos.scientist.search.stopping import (
     MaxIterations,
     MaxWallTime,
 )
-from polisyos.scientist.llm_cycle import preflight_execution_plan
 from polisyos.scientist.workflows.engine_simple import SimpleLoopEngine
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Fixtures
@@ -47,10 +46,10 @@ def mock_candidate_generator():
 
         def generate(
             self,
-            history: List[Any],
-            current_best: Dict[str, Any] | None,
-            context: Dict[str, Any],
-        ) -> Dict[str, Any]:
+            history: list[Any],
+            current_best: dict[str, Any] | None,
+            context: dict[str, Any],
+        ) -> dict[str, Any]:
             if current_best:
                 x = current_best.get("x", 1.0)
                 x = x * 0.5
@@ -72,7 +71,7 @@ def quadratic_objective():
         def name(self) -> str:
             return "quadratic"
 
-        def evaluate(self, results: Dict[str, Any]) -> Any:
+        def evaluate(self, results: dict[str, Any]) -> Any:
             from polisyos.scientist.search.objective import (
                 ObjectiveValue,
                 OptimizationDirection,
@@ -301,9 +300,7 @@ class TestTwoStageFiltering:
 
         bad_candidate = {
             "semantic": {
-                "interventions": [
-                    {"mechanism": "income_tax", "parameters": {"rate": 1.5}}
-                ],
+                "interventions": [{"mechanism": "income_tax", "parameters": {"rate": 1.5}}],
             },
         }
 
@@ -460,9 +457,7 @@ class TestIntegration:
             def generate(self, history, best, context):
                 return {
                     "semantic": {
-                        "interventions": [
-                            {"mechanism": "tax", "parameters": {"rate": 0.2}}
-                        ],
+                        "interventions": [{"mechanism": "tax", "parameters": {"rate": 0.2}}],
                         "objectives": ["growth"],
                     },
                 }

@@ -1,6 +1,7 @@
 # ADR-0019: Lex Norm Impact Analysis API (Phase 13)
 
 ## Status
+
 Proposed
 
 ## Context
@@ -27,6 +28,7 @@ Introduce `polisyos.lex.simulator` with:
 1. `NormPackMutator` + `MutationIntent` for deterministic mutations and intent tracking.
 2. `diff_norm_packs()` producing structured `NormDiff`.
 3. `NormImpactAnalyzer` orchestrating:
+
    - structural diff
    - pass replay (`legal`, `safety`)
    - compliance delta classification
@@ -61,4 +63,3 @@ Typed refs added to `core.contracts.lex`:
 
 1. Rebuild full norm pipeline for each scenario: rejected due high cost and slow UX.
 2. JSON patch only: rejected due poor semantic readability for policy analysts.
-

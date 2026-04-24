@@ -288,9 +288,17 @@ def test_numpy_runner_executes():
     assert np.allclose(result.output, np.array([3.5, 4.5]))
     assert result.reproducibility.backend == ComputeBackend.NUMPY
     assert result.artifacts["backend_runtime_fingerprint"]["backend"] == "numpy"
-    assert result.artifacts["backend_runtime_fingerprint"]["tolerance_budget"]["semantic_mode"] == "library_exact_cpu"
+    assert (
+        result.artifacts["backend_runtime_fingerprint"]["tolerance_budget"]["semantic_mode"]
+        == "library_exact_cpu"
+    )
     assert result.reproducibility.observed_tolerance_budget["budget_source"] == "seed_prior"
-    assert result.artifacts["backend_runtime_fingerprint"]["observed_tolerance_budget"]["route_key"]["backend_route"] == "numpy"
+    assert (
+        result.artifacts["backend_runtime_fingerprint"]["observed_tolerance_budget"]["route_key"][
+            "backend_route"
+        ]
+        == "numpy"
+    )
 
 
 def test_solver_runner_extracts_status():
@@ -473,10 +481,15 @@ def test_execute_heterogeneous_chain_numpy_to_jax():
         result.reproducibility_contract["observed_tolerance_budget"]["route_key"]["backend_route"]
         == "numpy->jax"
     )
-    assert result.reproducibility_contract["observed_tolerance_budget"]["budget_source"] == "seed_prior"
+    assert (
+        result.reproducibility_contract["observed_tolerance_budget"]["budget_source"]
+        == "seed_prior"
+    )
 
 
-def test_validate_observed_tolerance_budget_degrades_when_runtime_drift_exceeds_cpu_budget() -> None:
+def test_validate_observed_tolerance_budget_degrades_when_runtime_drift_exceeds_cpu_budget() -> (
+    None
+):
     posture = capture_backend_runtime_fingerprint(ComputeBackend.NUMPY, seed=7)
 
     validated = validate_observed_tolerance_budget(
@@ -525,7 +538,9 @@ def test_validate_observed_tolerance_budget_validates_statistical_same_fingerpri
     assert validated["distributional_metrics"]["q90_width_abs_error"] == pytest.approx(0.0)
 
 
-def test_validate_observed_tolerance_budget_marks_statistical_cross_architecture_as_compatible() -> None:
+def test_validate_observed_tolerance_budget_marks_statistical_cross_architecture_as_compatible() -> (
+    None
+):
     posture = BackendRuntimeFingerprint(
         backend=ComputeBackend.BAYESIAN,
         available=True,

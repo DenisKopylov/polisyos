@@ -35,14 +35,7 @@ def test_nested_evidence_sources_override_flat_fields() -> None:
     assert config.legal_db_path == "/tmp/nested.duckdb"
 
 
-@given(
-    st.fixed_dictionaries(
-        {
-            field: st.one_of(st.none(), _PATH_TEXT)
-            for field in _FIELD_NAMES
-        }
-    )
-)
+@given(st.fixed_dictionaries({field: st.one_of(st.none(), _PATH_TEXT) for field in _FIELD_NAMES}))
 @settings(
     max_examples=50,
     suppress_health_check=[HealthCheck.too_slow],

@@ -3,12 +3,12 @@ from __future__ import annotations
 import pytest
 
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.scientist.engine.builtins import NoopNode
+from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.errors import UnknownNodeError
 from polisyos.scientist.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.engine.registry import NodeRegistry
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.builtins import NoopNode
 
 
 class DummyNode:

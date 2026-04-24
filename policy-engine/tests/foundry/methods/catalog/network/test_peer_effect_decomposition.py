@@ -98,7 +98,9 @@ def _panel_payload() -> dict[str, np.ndarray]:
 
 
 def test_peer_effect_decomposition_identified_route(isolated_registry) -> None:
-    method = _method_or_skip(isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0")
+    method = _method_or_skip(
+        isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0"
+    )
     result = method.pure_step(
         _baseline_state(),
         {"weak_iv_threshold": 0.1, "ci_level": 0.9},
@@ -114,7 +116,9 @@ def test_peer_effect_decomposition_identified_route(isolated_registry) -> None:
 
 
 def test_peer_effect_decomposition_blocks_partial_network(isolated_registry) -> None:
-    method = _method_or_skip(isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0")
+    method = _method_or_skip(
+        isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0"
+    )
     result = method.pure_step(_baseline_state(observability_rate=0.55), {})
 
     decomposition = result["result"].peer_effect_decomposition
@@ -129,7 +133,9 @@ def test_peer_effect_decomposition_blocks_partial_network(isolated_registry) -> 
 
 
 def test_peer_effect_decomposition_graphical_reconstruction_route(isolated_registry) -> None:
-    method = _method_or_skip(isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0")
+    method = _method_or_skip(
+        isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0"
+    )
     state = _baseline_state(observability_rate=0.55)
     state["metadata"]["can_reconstruct"] = True
     state["metadata"]["reconstructed_adjacency"] = np.asarray(state["adjacency"], dtype=float)
@@ -145,7 +151,9 @@ def test_peer_effect_decomposition_graphical_reconstruction_route(isolated_regis
 
 
 def test_peer_effect_decomposition_external_iv_route(isolated_registry) -> None:
-    method = _method_or_skip(isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0")
+    method = _method_or_skip(
+        isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0"
+    )
     state = _baseline_state()
     features = np.asarray(state["node_features"], dtype=float)[:, 0]
     external_iv = np.column_stack([features**2, features**3])
@@ -168,7 +176,9 @@ def test_peer_effect_decomposition_external_iv_route(isolated_registry) -> None:
 
 
 def test_peer_effect_decomposition_control_function_route(isolated_registry) -> None:
-    method = _method_or_skip(isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0")
+    method = _method_or_skip(
+        isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0"
+    )
     state = _baseline_state()
     state["metadata"]["network_endogenous"] = True
     control_residuals = np.column_stack(
@@ -196,7 +206,9 @@ def test_peer_effect_decomposition_control_function_route(isolated_registry) -> 
 
 
 def test_peer_effect_decomposition_leave_own_out_route(isolated_registry) -> None:
-    method = _method_or_skip(isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0")
+    method = _method_or_skip(
+        isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0"
+    )
     state = _baseline_state()
     state["metadata"]["network_endogenous"] = True
     leave_own_out = np.asarray(state["adjacency"], dtype=float).copy()
@@ -223,7 +235,9 @@ def test_peer_effect_decomposition_leave_own_out_route(isolated_registry) -> Non
 
 
 def test_peer_effect_decomposition_panel_dynamic_contagion_route(isolated_registry) -> None:
-    method = _method_or_skip(isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0")
+    method = _method_or_skip(
+        isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0"
+    )
     state = _baseline_state()
     panel_payload = _panel_payload()
 
@@ -252,7 +266,9 @@ def test_peer_effect_decomposition_panel_dynamic_contagion_route(isolated_regist
 
 
 def test_peer_effect_decomposition_randomization_route(isolated_registry) -> None:
-    method = _method_or_skip(isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0")
+    method = _method_or_skip(
+        isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0"
+    )
     state = _baseline_state()
     treatment = np.array([0, 1, 0, 1, 1, 0, 1, 0], dtype=float)
 

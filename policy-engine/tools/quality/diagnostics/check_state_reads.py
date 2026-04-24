@@ -4,6 +4,7 @@ from __future__ import annotations
 import ast
 from dataclasses import dataclass
 from pathlib import Path
+
 from tools._lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
@@ -109,8 +110,7 @@ def _extract_spec_reads(tree: ast.Module) -> tuple[set[str], set[str]]:
         if not isinstance(parsed, ast.Assign):
             continue
         if not any(
-            isinstance(target, ast.Name) and target.id == "_SPEC"
-            for target in parsed.targets
+            isinstance(target, ast.Name) and target.id == "_SPEC" for target in parsed.targets
         ):
             continue
         if not isinstance(parsed.value, ast.Call):

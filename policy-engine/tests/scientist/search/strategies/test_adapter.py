@@ -71,4 +71,3 @@ def test_adapter_batch_generation(simple_space: SearchSpace) -> None:
     assert len(batch) == 4
     ids = [item["_strategy_metadata"]["candidate_id"] for item in batch]
     assert len(set(ids)) == 4
-

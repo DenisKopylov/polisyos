@@ -1,4 +1,5 @@
 """Public search sensitivity adapter module API."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -56,8 +57,8 @@ class SensitivityAwareCandidateGenerator:
         context: dict[str, Any],
         batch_size: int,
     ) -> list[dict[str, Any]]:
-        if hasattr(self._base, "generate_batch") and callable(getattr(self._base, "generate_batch")):
-            batch = getattr(self._base, "generate_batch")(history, current_best, context, batch_size)
+        if hasattr(self._base, "generate_batch") and callable(self._base.generate_batch):
+            batch = self._base.generate_batch(history, current_best, context, batch_size)
         else:
             batch = [self._base.generate(history, current_best, context) for _ in range(batch_size)]
         return [
@@ -72,4 +73,3 @@ class SensitivityAwareCandidateGenerator:
             }
             for candidate in batch
         ]
-

@@ -2,23 +2,21 @@
 
 from __future__ import annotations
 
-import pytest
 import pandas as pd
+import pytest
 
 from polisyos.ir.data.versioning import (
-    DatasetVersion,
     compute_content_hash,
     compute_schema_hash,
     version_dataset,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
 
 
-@pytest.fixture()
+@pytest.fixture
 def simple_df() -> pd.DataFrame:
     return pd.DataFrame({"X": [1, 2, 3], "Y": [0.1, 0.2, 0.3]})
 
@@ -56,7 +54,7 @@ def test_content_hash_changes_on_data_mutation() -> None:
 def test_schema_hash_changes_on_dtype_change() -> None:
     """Converting a column dtype produces a different schema_hash."""
     df1 = pd.DataFrame({"X": [1, 2, 3]})  # int64
-    df2 = df1.astype({"X": float})         # float64
+    df2 = df1.astype({"X": float})  # float64
     assert compute_schema_hash(df1) != compute_schema_hash(df2)
 
 

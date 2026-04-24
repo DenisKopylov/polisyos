@@ -1,11 +1,12 @@
 """Sign and verify CAS blobs/manifests with detached Ed25519 sidecars."""
+
 from __future__ import annotations
 
 import json
 import os
 import stat
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Protocol
@@ -54,6 +55,7 @@ class KeyLoadingError(SigningError):
 
 class SignatureVerificationStatus(str, Enum):
     """Enumerate verifier outcomes for one artifact signature check."""
+
     VALID = "valid"
     UNSIGNED = "unsigned"
     INVALID = "invalid"
@@ -91,7 +93,7 @@ class DetachedSignature(BaseModel):
     signer_identity: str | None = None
 
     @model_validator(mode="after")
-    def _validate_cross_fields(self) -> "DetachedSignature":
+    def _validate_cross_fields(self) -> DetachedSignature:
         if self.statement.artifact_id != self.artifact_id:
             raise ValueError("signature statement artifact_id mismatch")
         if self.statement.key_id != self.key_id:
@@ -110,7 +112,7 @@ class SignatureVerificationResult(BaseModel):
     signer_identity: str | None = None
     expected_identity: str | None = None
     message: str | None = None
-    checked_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    checked_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     @computed_field(return_type=bool)
     def ok(self) -> bool:
@@ -131,7 +133,7 @@ class BulkVerificationReport(BaseModel):
     revoked: int
     errors: int
     details: list[SignatureVerificationResult] = Field(default_factory=list)
-    checked_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    checked_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     @computed_field(return_type=bool)
     def ok(self) -> bool:
@@ -160,7 +162,7 @@ class BulkSigningReport(BaseModel):
     skipped: int
     errors: int
     details: list[ArtifactSigningResult] = Field(default_factory=list)
-    finished_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    finished_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class SigningConfig(BaseModel):
@@ -186,8 +188,9 @@ class SigningConfig(BaseModel):
     sign_workers: int = 8
 
     @classmethod
-    def from_env(cls) -> "SigningConfig":
+    def from_env(cls) -> SigningConfig:
         """Resolve signing/verification settings from `POLISYOS_SIGN*` env vars."""
+
         def _env_bool(name: str, default: bool) -> bool:
             raw = os.environ.get(name)
             if raw is None:
@@ -219,12 +222,8 @@ class SigningConfig(BaseModel):
                     str(DEFAULT_PRIVATE_KEY_PATH),
                 )
             ).expanduser(),
-            trust_dir=Path(
-                os.environ.get("POLISYOS_SIGN_TRUST_DIR", str(DEFAULT_TRUST_DIR))
-            ),
-            revoked_dir=Path(
-                os.environ.get("POLISYOS_SIGN_REVOKED_DIR", str(DEFAULT_REVOKED_DIR))
-            ),
+            trust_dir=Path(os.environ.get("POLISYOS_SIGN_TRUST_DIR", str(DEFAULT_TRUST_DIR))),
+            revoked_dir=Path(os.environ.get("POLISYOS_SIGN_REVOKED_DIR", str(DEFAULT_REVOKED_DIR))),
             identities_path=Path(
                 os.environ.get("POLISYOS_SIGN_IDENTITIES", str(DEFAULT_IDENTITIES_PATH))
             ),
@@ -243,13 +242,13 @@ class KeyPair:
     public_key: Ed25519PublicKey
 
     @staticmethod
-    def generate() -> "KeyPair":
+    def generate() -> KeyPair:
         """Generate a new Ed25519 private/public key pair."""
         private = Ed25519PrivateKey.generate()
         return KeyPair(private_key=private, public_key=private.public_key())
 
     @staticmethod
-    def from_private_pem(data: bytes, password: bytes | None = None) -> "KeyPair":
+    def from_private_pem(data: bytes, password: bytes | None = None) -> KeyPair:
         """Load an Ed25519 key pair from a private PEM payload.
 
         Raises:
@@ -354,7 +353,7 @@ class Ed25519Signer:
         return self._key_id
 
     @classmethod
-    def from_pem(cls, pem_data: bytes, password: bytes | None = None) -> "Ed25519Signer":
+    def from_pem(cls, pem_data: bytes, password: bytes | None = None) -> Ed25519Signer:
         """Create a signer from a private PEM payload."""
         key = load_pem_private_key(pem_data, password=password)
         if not isinstance(key, Ed25519PrivateKey):
@@ -362,7 +361,7 @@ class Ed25519Signer:
         return cls(key)
 
     @classmethod
-    def from_path(cls, path: Path, password: bytes | None = None) -> "Ed25519Signer":
+    def from_path(cls, path: Path, password: bytes | None = None) -> Ed25519Signer:
         """Load a signer from a PEM file path."""
         return cls.from_pem(path.read_bytes(), password=password)
 
@@ -374,7 +373,7 @@ class Ed25519Signer:
         private_key_file_env: str = DEFAULT_PRIVATE_KEY_FILE_ENV,
         default_private_key_file: Path = DEFAULT_PRIVATE_KEY_PATH,
         password: bytes | None = None,
-    ) -> "Ed25519Signer":
+    ) -> Ed25519Signer:
         """Resolve the signing key from env vars or a default PEM file.
 
         Raises:
@@ -438,7 +437,7 @@ class Ed25519Signer:
             key_id=self._key_id,
             statement=statement,
             signature_hex=signature_bytes.hex(),
-            signed_at=datetime.now(timezone.utc),
+            signed_at=datetime.now(UTC),
             signer_identity=signer_identity,
         )
 
@@ -485,7 +484,8 @@ class Ed25519Verifier:
         for path in sorted(trust_dir.glob("*.pub")):
             try:
                 loaded.append(self.load_trusted_key_file(path))
-            except Exception:
+            except Exception as exc:
+                logger.debug("Skipped trusted key file %s: %s", path, exc)
                 continue
         return loaded
 
@@ -506,7 +506,8 @@ class Ed25519Verifier:
                 kid = compute_key_id(key)
                 self._revoked_key_ids.add(kid)
                 loaded.append(kid)
-            except Exception:
+            except Exception as exc:
+                logger.debug("Skipped revoked key file %s: %s", path, exc)
                 continue
         return loaded
 
@@ -640,19 +641,18 @@ class Ed25519Verifier:
             and signature.signer_identity
             and signature.signer_identity != expected_identity
         )
-        if identity_mismatch:
-            if strict:
-                return SignatureVerificationResult(
-                    status=SignatureVerificationStatus.INVALID,
-                    artifact_id=str(artifact_id),
-                    key_id=key_id,
-                    signer_identity=signature.signer_identity,
-                    expected_identity=expected_identity,
-                    message=(
-                        "Signer identity mismatch: "
-                        f"expected '{expected_identity}', got '{signature.signer_identity}'"
-                    ),
-                )
+        if identity_mismatch and strict:
+            return SignatureVerificationResult(
+                status=SignatureVerificationStatus.INVALID,
+                artifact_id=str(artifact_id),
+                key_id=key_id,
+                signer_identity=signature.signer_identity,
+                expected_identity=expected_identity,
+                message=(
+                    "Signer identity mismatch: "
+                    f"expected '{expected_identity}', got '{signature.signer_identity}'"
+                ),
+            )
 
         payload = canonical_statement_bytes(statement)
         try:
@@ -740,8 +740,11 @@ def _normalize_multiline_pem(raw: str) -> str:
 
 
 __all__ = [
-    "ArtifactSigningResult",
+    "SIGNATURE_ALGORITHM",
+    "SIGNATURE_FORMAT_VERSION",
+    "SIGNATURE_STATEMENT_TYPE",
     "ArtifactSigner",
+    "ArtifactSigningResult",
     "ArtifactVerifier",
     "BulkSigningReport",
     "BulkVerificationReport",
@@ -750,14 +753,11 @@ __all__ = [
     "Ed25519Verifier",
     "KeyLoadingError",
     "KeyPair",
-    "SIGNATURE_ALGORITHM",
-    "SIGNATURE_FORMAT_VERSION",
-    "SIGNATURE_STATEMENT_TYPE",
-    "SigningConfig",
-    "SigningError",
     "SignatureStatement",
     "SignatureVerificationResult",
     "SignatureVerificationStatus",
+    "SigningConfig",
+    "SigningError",
     "build_verifier_from_config",
     "canonical_statement_bytes",
     "compute_key_id",

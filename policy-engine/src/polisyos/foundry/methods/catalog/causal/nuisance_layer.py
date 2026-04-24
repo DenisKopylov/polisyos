@@ -1,13 +1,19 @@
 """Fit cross-fitted nuisance functions and outcome scaling for orthogonal learners."""
+
 from __future__ import annotations
 
 import dataclasses
 from typing import Any
 
 import numpy as np
-from polisyos.foundry.methods.catalog.causal.calibration import make_calibrated_propensity_prediction
+
+from polisyos.foundry.methods.catalog.causal.calibration import (
+    make_calibrated_propensity_prediction,
+)
 from polisyos.foundry.methods.catalog.causal.ci_backends import (
     bootstrap_mean_interval as _ci_bootstrap_mean_interval,
+)
+from polisyos.foundry.methods.catalog.causal.ci_backends import (
     robust_standard_error as _ci_robust_standard_error,
 )
 from polisyos.foundry.methods.catalog.causal.nuisance_backends import (
@@ -21,6 +27,7 @@ from polisyos.foundry.methods.catalog.causal.nuisance_backends import (
 @dataclasses.dataclass(frozen=True)
 class NuisanceConfig:
     """Nuisance config data model."""
+
     nuisance_model_family: str = "competitive"
     crossfit_folds: int = 5
     n_repeats: int = 3
@@ -39,6 +46,7 @@ class NuisanceConfig:
 @dataclasses.dataclass(frozen=True)
 class OutcomeScaler:
     """Store affine outcome-scaling parameters shared by nuisance and target learners."""
+
     mean: float
     scale: float
     applied: bool
@@ -48,6 +56,7 @@ class OutcomeScaler:
 @dataclasses.dataclass
 class CrossFitNuisanceOutputs:
     """Carry fold-wise nuisance predictions, propensity scores, and split metadata."""
+
     propensity: np.ndarray
     mu1: np.ndarray
     mu0: np.ndarray
@@ -61,24 +70,30 @@ class CrossFitNuisanceOutputs:
         return self.mu1 - self.mu0
 
     def aipw_scores(self, outcome: np.ndarray, treatment: np.ndarray) -> np.ndarray:
-        e = np.clip(self.propensity, self.config.propensity_clipping, 1.0 - self.config.propensity_clipping)
-        return self.effect_signal() + treatment * (outcome - self.mu1) / e - (1.0 - treatment) * (
-            outcome - self.mu0
-        ) / (1.0 - e)
+        e = np.clip(
+            self.propensity, self.config.propensity_clipping, 1.0 - self.config.propensity_clipping
+        )
+        return (
+            self.effect_signal()
+            + treatment * (outcome - self.mu1) / e
+            - (1.0 - treatment) * (outcome - self.mu0) / (1.0 - e)
+        )
 
     def diagnostics(self) -> dict[str, Any]:
         propensity = np.asarray(self.propensity, dtype=float).reshape(-1)
         clip = float(self.config.propensity_clipping)
         clipped = np.isclose(propensity, clip) | np.isclose(propensity, 1.0 - clip)
         weights = 1.0 / np.clip(propensity * (1.0 - propensity), clip, None)
-        ess = float((np.sum(weights) ** 2) / max(np.sum(weights ** 2), 1e-12))
+        ess = float((np.sum(weights) ** 2) / max(np.sum(weights**2), 1e-12))
         hist_counts, hist_edges = np.histogram(
             propensity,
             bins=(0.0, 0.05, 0.1, 0.2, 0.4, 0.6, 0.8, 0.9, 0.95, 1.0),
         )
         return {
             "clipping_fraction": float(np.mean(clipped)) if clipped.size else 0.0,
-            "support_mismatch_fraction": float(np.mean(~self.trim_mask)) if self.trim_mask.size else 0.0,
+            "support_mismatch_fraction": float(np.mean(~self.trim_mask))
+            if self.trim_mask.size
+            else 0.0,
             "effective_sample_size": ess,
             "propensity_histogram": {
                 "edges": [float(edge) for edge in hist_edges.tolist()],
@@ -114,6 +129,7 @@ class CrossFitNuisanceOutputs:
 @dataclasses.dataclass
 class TauFitResult:
     """Tau fit result data model."""
+
     cate_predictions: np.ndarray
     feature_importances: np.ndarray | None
     fitted_values: np.ndarray | None = None
@@ -123,7 +139,9 @@ def build_nuisance_config(params: dict[str, Any] | None = None) -> NuisanceConfi
     """Build nuisance config."""
     raw = params or {}
     seed_manifest_raw = raw.get("random_seed_manifest")
-    seed_manifest = tuple(int(seed) for seed in seed_manifest_raw) if seed_manifest_raw is not None else ()
+    seed_manifest = (
+        tuple(int(seed) for seed in seed_manifest_raw) if seed_manifest_raw is not None else ()
+    )
     return NuisanceConfig(
         nuisance_model_family=str(raw.get("nuisance_model_family", "competitive")),
         crossfit_folds=max(2, int(raw.get("crossfit_folds", 5))),
@@ -175,7 +193,11 @@ def crossfit_nuisances(
             fold_seed = rep_seed + 37 * (fold_id + 1)
             train_treatment = treatment[train_idx]
             train_mean_prop = float(
-                np.clip(np.mean(train_treatment), config.propensity_clipping, 1.0 - config.propensity_clipping)
+                np.clip(
+                    np.mean(train_treatment),
+                    config.propensity_clipping,
+                    1.0 - config.propensity_clipping,
+                )
             )
             try:
                 propensity_sum[test_idx] += _fit_predict_propensity(
@@ -194,11 +216,25 @@ def crossfit_nuisances(
             treated_train = train_idx[treatment[train_idx] > 0.5]
             control_train = train_idx[treatment[train_idx] <= 0.5]
             mu1_sum[test_idx] += inverse_scale(
-                _fit_predict_regression(X, scaled_outcome, treated_train, test_idx, config.nuisance_model_family, fold_seed + 11),
+                _fit_predict_regression(
+                    X,
+                    scaled_outcome,
+                    treated_train,
+                    test_idx,
+                    config.nuisance_model_family,
+                    fold_seed + 11,
+                ),
                 scaler,
             )
             mu0_sum[test_idx] += inverse_scale(
-                _fit_predict_regression(X, scaled_outcome, control_train, test_idx, config.nuisance_model_family, fold_seed + 29),
+                _fit_predict_regression(
+                    X,
+                    scaled_outcome,
+                    control_train,
+                    test_idx,
+                    config.nuisance_model_family,
+                    fold_seed + 29,
+                ),
                 scaler,
             )
 
@@ -212,7 +248,9 @@ def crossfit_nuisances(
         trim_mask = np.ones(n_obs, dtype=bool)
 
     return CrossFitNuisanceOutputs(
-        propensity=np.clip(propensity, config.propensity_clipping, 1.0 - config.propensity_clipping),
+        propensity=np.clip(
+            propensity, config.propensity_clipping, 1.0 - config.propensity_clipping
+        ),
         mu1=mu1,
         mu0=mu0,
         trim_mask=trim_mask,
@@ -296,7 +334,9 @@ def fit_outcome_scaler(outcome: np.ndarray, policy: str) -> OutcomeScaler:
     applied = normalized_policy in {"zscore", "standardized", "raw+standardized"} or (
         normalized_policy == "auto" and scale > 10.0
     )
-    return OutcomeScaler(mean=mean, scale=max(scale, 1e-8), applied=applied, policy=normalized_policy)
+    return OutcomeScaler(
+        mean=mean, scale=max(scale, 1e-8), applied=applied, policy=normalized_policy
+    )
 
 
 def scale_outcome(outcome: np.ndarray, scaler: OutcomeScaler) -> np.ndarray:
@@ -351,9 +391,15 @@ def _fit_tau_model(
                 feature_imp = _extract_feature_importances(
                     model,
                     X.shape[1],
-                    X=X[active_weight_mask] if active_weight_mask is not None and np.any(active_weight_mask) else X,
-                    y=target[active_weight_mask] if active_weight_mask is not None and np.any(active_weight_mask) else target,
-                    sample_weight=sample_weight[active_weight_mask] if active_weight_mask is not None and np.any(active_weight_mask) else sample_weight,
+                    X=X[active_weight_mask]
+                    if active_weight_mask is not None and np.any(active_weight_mask)
+                    else X,
+                    y=target[active_weight_mask]
+                    if active_weight_mask is not None and np.any(active_weight_mask)
+                    else target,
+                    sample_weight=sample_weight[active_weight_mask]
+                    if active_weight_mask is not None and np.any(active_weight_mask)
+                    else sample_weight,
                     mode=config.feature_importance_mode,
                     seed=seed + len(local_fis),
                 )
@@ -439,7 +485,9 @@ def _fit_predict_regression(
             continue
     if preds:
         return np.mean(np.vstack(preds), axis=0)
-    return np.full(test_idx.size, float(np.mean(y[train_idx])) if train_idx.size else 0.0, dtype=float)
+    return np.full(
+        test_idx.size, float(np.mean(y[train_idx])) if train_idx.size else 0.0, dtype=float
+    )
 
 
 def _predict_regression(model: Any, X: np.ndarray) -> np.ndarray:
@@ -503,11 +551,17 @@ def _permutation_feature_importances(
         subset = np.sort(rng.choice(X.shape[0], size=256, replace=False))
         X_eval = X[subset]
         y_eval = y[subset]
-        weight_eval = None if sample_weight is None else np.asarray(sample_weight, dtype=float).reshape(-1)[subset]
+        weight_eval = (
+            None
+            if sample_weight is None
+            else np.asarray(sample_weight, dtype=float).reshape(-1)[subset]
+        )
     else:
         X_eval = X
         y_eval = y
-        weight_eval = None if sample_weight is None else np.asarray(sample_weight, dtype=float).reshape(-1)
+        weight_eval = (
+            None if sample_weight is None else np.asarray(sample_weight, dtype=float).reshape(-1)
+        )
 
     try:
         baseline_pred = _predict_regression(model, X_eval)
@@ -525,7 +579,9 @@ def _permutation_feature_importances(
             permuted_pred = _predict_regression(model, X_permuted)
         except Exception:
             continue
-        importances[column_idx] = max(0.0, _weighted_mse(y_eval, permuted_pred, weight_eval) - baseline_loss)
+        importances[column_idx] = max(
+            0.0, _weighted_mse(y_eval, permuted_pred, weight_eval) - baseline_loss
+        )
 
     total = float(np.sum(importances))
     if total <= 0:
@@ -533,9 +589,11 @@ def _permutation_feature_importances(
     return importances / total
 
 
-def _weighted_mse(y_true: np.ndarray, y_pred: np.ndarray, sample_weight: np.ndarray | None) -> float:
+def _weighted_mse(
+    y_true: np.ndarray, y_pred: np.ndarray, sample_weight: np.ndarray | None
+) -> float:
     residual = np.asarray(y_true, dtype=float) - np.asarray(y_pred, dtype=float)
-    squared = residual ** 2
+    squared = residual**2
     if sample_weight is None:
         return float(np.mean(squared))
     weights = np.asarray(sample_weight, dtype=float).reshape(-1)

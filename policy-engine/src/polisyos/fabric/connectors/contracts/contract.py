@@ -5,10 +5,11 @@ ConnectorSchemaContract binds a connector + dataset pattern to a concrete
 DataSchema and quality guarantees, enabling fetch-time enforcement and
 schema-aware cache invalidation.
 """
+
 from __future__ import annotations
 
 import fnmatch
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -19,7 +20,6 @@ from polisyos.ir.canon import CanonSpec, to_canonical_bytes
 
 from .governance import SchemaApprovalMetadata
 from .schema import DataSchema, SchemaVersion
-
 
 CONTRACT_ID_PATTERN = (
     r"^[a-z][a-z0-9]*(?:_[a-z0-9]+)*"
@@ -92,7 +92,7 @@ class ConnectorSchemaContract(BaseModel):
     expected_row_count_range: tuple[int | None, int | None] = Field(default=(None, None))
 
     description: str = Field(default="", max_length=2048)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     created_by: str = Field(default="", max_length=256)
     approval: SchemaApprovalMetadata = Field(default_factory=SchemaApprovalMetadata)
 
@@ -105,9 +105,7 @@ class ConnectorSchemaContract(BaseModel):
 
     @field_validator("field_completeness", mode="before")
     @classmethod
-    def _validate_field_completeness(
-        cls, value: object
-    ) -> dict[str, float]:
+    def _validate_field_completeness(cls, value: object) -> dict[str, float]:
         if value is None:
             return {}
         if not isinstance(value, dict):
@@ -129,18 +127,19 @@ class ConnectorSchemaContract(BaseModel):
 
     @field_validator("expected_row_count_range", mode="before")
     @classmethod
-    def _coerce_expected_row_count_range(
-        cls, value: object
-    ) -> tuple[int | None, int | None]:
+    def _coerce_expected_row_count_range(cls, value: object) -> tuple[int | None, int | None]:
         if value is None:
             return (None, None)
         if not isinstance(value, (list, tuple)) or len(value) != 2:
             raise ValueError("expected_row_count_range must contain exactly two values")
         min_rows, max_rows = value
-        return (None if min_rows is None else int(min_rows), None if max_rows is None else int(max_rows))
+        return (
+            None if min_rows is None else int(min_rows),
+            None if max_rows is None else int(max_rows),
+        )
 
     @model_validator(mode="after")
-    def _validate_consistency(self) -> "ConnectorSchemaContract":
+    def _validate_consistency(self) -> ConnectorSchemaContract:
         min_rows, max_rows = self.expected_row_count_range
         if min_rows is not None and min_rows < 0:
             raise ValueError("expected_row_count_range min must be >= 0")
@@ -155,7 +154,7 @@ class ConnectorSchemaContract(BaseModel):
             )
 
         schema_fields = set(self.connector_schema.field_names())
-        for field_name, threshold in self.field_completeness.items():
+        for field_name, _threshold in self.field_completeness.items():
             if field_name not in schema_fields:
                 raise ValueError(
                     f"field_completeness references unknown schema field '{field_name}'"

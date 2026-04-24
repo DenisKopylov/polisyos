@@ -1,4 +1,5 @@
 """Public survey registry boot module API."""
+
 from __future__ import annotations
 
 from .causal_frontier import CausalFrontierFayHerriotEstimator

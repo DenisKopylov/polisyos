@@ -1,4 +1,5 @@
 """Public fabric trust adapter module API."""
+
 from __future__ import annotations
 
 from polisyos.core.contracts.fabric import UncertaintyBounds

@@ -6,7 +6,9 @@ from polisyos.datasets.batch.source_registry import load_source_registry
 
 
 def test_source_registry_filters_and_waves() -> None:
-    registry_path = Path(__file__).resolve().parents[3] / "src/polisyos/datasets/batch/source_registry.yaml"
+    registry_path = (
+        Path(__file__).resolve().parents[3] / "src/polisyos/datasets/batch/source_registry.yaml"
+    )
     registry = load_source_registry(registry_path)
     all_specs = {spec.name: spec for spec in registry.sources}
 
@@ -63,7 +65,9 @@ def test_source_registry_filters_and_waves() -> None:
     rest_backfill = {spec.name for spec in registry.enabled_sources(run_profile="rest_backfill")}
     assert rest_backfill == {"openaq_v2", "open_meteo", "eia_api"}
 
-    catalog_refresh = {spec.name for spec in registry.enabled_sources(run_profile="catalog_refresh")}
+    catalog_refresh = {
+        spec.name for spec in registry.enabled_sources(run_profile="catalog_refresh")
+    }
     assert "data_gov_ua_broad" in catalog_refresh
     assert "wikidata_sparql" in catalog_refresh
     assert "data_gov_ua_exec" not in catalog_refresh

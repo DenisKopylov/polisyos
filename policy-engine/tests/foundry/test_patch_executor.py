@@ -10,15 +10,15 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import CompileRequest, Metrics, StateDelta
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
+from polisyos.foundry._executor_models import ExecutionStrictness
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry._executor_models import ExecutionStrictness
 from polisyos.foundry.executor import apply_state_delta_and_snapshot, execute_program_graph
-from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
+from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
 
@@ -119,7 +119,9 @@ def test_patch_executor_emits_artifacts(tmp_path) -> None:
     assert store.has(exec_artifacts.state_delta_ref.artifact_id)
     assert store.has(exec_artifacts.metrics_ref.artifact_id)
 
-    delta_payload = from_canonical_bytes(store.get_bytes(exec_artifacts.state_delta_ref.artifact_id))
+    delta_payload = from_canonical_bytes(
+        store.get_bytes(exec_artifacts.state_delta_ref.artifact_id)
+    )
     state_delta = StateDelta.model_validate(delta_payload)
     assert state_delta.ops
     for op in state_delta.ops:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
@@ -13,8 +13,8 @@ from polisyos.fabric.claims import (
     normalize_claims,
     resolve_conflicts,
 )
-from polisyos.fabric.claims.persist import load_json_artifact
 from polisyos.fabric.claims.conflicts.key import conflict_key_v1
+from polisyos.fabric.claims.persist import load_json_artifact
 from polisyos.fabric.docs import (
     DocChunkOptions,
     DocSourceSpec,
@@ -37,7 +37,7 @@ def _source_spec() -> DocSourceSpec:
         official_id=None,
         source_locator=None,
         license="public",
-        retrieved_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+        retrieved_at=datetime(2026, 1, 1, tzinfo=UTC),
         jurisdiction="US",
         language="en",
         source_type="test",

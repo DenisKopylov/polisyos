@@ -4,6 +4,10 @@ from decimal import Decimal
 
 import pytest
 
+from polisyos.foundry.methods.catalog.optimization.protocols import (
+    AmbiguityCertificate,
+    ConstraintCertificate,
+)
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,
@@ -50,6 +54,9 @@ from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.model_spec import AssumptionSpec, AssumptionType, ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import OptimizationDirection, SelectorOperator
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    ProductionPolicyEvaluationBackend,
+)
 from polisyos.scientist.policy_design.objectives import (
     ConstraintStatus,
     ObjectiveStack,
@@ -230,7 +237,9 @@ def _causal_effect_report() -> CausalEffectReport:
     )
 
 
-def _cross_graph_profile(*, transport_status: TransportStatus = TransportStatus.IDENTIFIED) -> CrossGraphEvidenceProfile:
+def _cross_graph_profile(
+    *, transport_status: TransportStatus = TransportStatus.IDENTIFIED
+) -> CrossGraphEvidenceProfile:
     need = EvidenceNeed(
         need_id="need_1",
         need_type=EvidenceNeedType.OBJECTIVE_METRIC,
@@ -382,7 +391,9 @@ def test_objective_stack_marks_exact_thresholds_as_feasible_near_binding() -> No
     )
 
     assert vector.feasible is True
-    assert vector.hard_constraints["policy_budget_constraint"].status == ConstraintStatus.NEAR_BINDING
+    assert (
+        vector.hard_constraints["policy_budget_constraint"].status == ConstraintStatus.NEAR_BINDING
+    )
     assert vector.hard_constraints["statistical_constraint"].status == ConstraintStatus.NEAR_BINDING
     assert vector.secondary["transportability"].value == pytest.approx(1.0)
 
@@ -406,3 +417,108 @@ def test_objective_stack_extracts_blockers_from_uncertainty_and_equity() -> None
     assert "equity_constraint" in vector.blocking_reasons
     assert "transport_constraint" in vector.blocking_reasons
     assert vector.secondary["evidence_depth"].value >= 0.0
+
+
+def test_objective_stack_uses_ambiguity_certificate_for_budget_equity_and_robustness() -> None:
+    candidate = PolicyCandidateSchema.from_trinity_bundle(_bundle(), candidate_id="candidate_a")
+    certificate = AmbiguityCertificate(
+        ambiguity_set_type="moment_mean_cov_support",
+        confidence_level=0.95,
+        overall_status="warn",
+        per_constraint=(
+            ConstraintCertificate(
+                name="budget",
+                constraint_class="budget",
+                formulation="dr_chance_scalar_moment",
+                exactness="conservative_exact_for_scalarized_moments",
+                worst_case_bound=97.0,
+                threshold=100.0,
+                slack=3.0,
+                solver_family="SOCP",
+                epsilon=0.05,
+                violation_probability_bound=0.031,
+            ),
+            ConstraintCertificate(
+                name="equity_low_vs_high",
+                constraint_class="equity",
+                formulation="dr_chance_scalar_moment",
+                exactness="conservative_exact_for_scalarized_moments",
+                worst_case_bound=-0.01,
+                threshold=0.0,
+                slack=0.01,
+                solver_family="SOCP",
+                epsilon=0.05,
+                violation_probability_bound=0.046,
+            ),
+        ),
+        price_of_ambiguity=4.2,
+    )
+
+    stack = ObjectiveStack(max_statistical_uncertainty=0.5)
+    vector = stack.evaluate(
+        PolicyEvaluationBundle(
+            candidate=candidate,
+            simulation_metrics={"policy_value": 11.0, "employment_rate": 0.91},
+            distributional_report=_distributional_report(gini_delta=0.01),
+            causal_effect_report=_causal_effect_report(),
+            cross_graph_profile=_cross_graph_profile(),
+            uncertainty_envelope=_uncertainty(statistical=0.2, transport=0.2),
+            ambiguity_certificate=certificate,
+        )
+    )
+
+    assert vector.hard_constraints["policy_budget_constraint"].source == "ambiguity_certificate"
+    assert (
+        vector.hard_constraints["policy_budget_constraint"].status == ConstraintStatus.NEAR_BINDING
+    )
+    assert vector.hard_constraints["equity_constraint"].source == "ambiguity_certificate"
+    assert vector.hard_constraints["equity_constraint"].status == ConstraintStatus.NEAR_BINDING
+    assert (
+        vector.hard_constraints["statistical_constraint"].source
+        == "uncertainty_envelope+ambiguity_certificate"
+    )
+    assert vector.secondary["robustness"].source == "causal_effect_report+ambiguity_certificate"
+    assert vector.metadata["ambiguity_certificate_status"] == "warn"
+
+
+def test_policy_runtime_propagates_ambiguity_certificate_into_outputs() -> None:
+    candidate = PolicyCandidateSchema.from_trinity_bundle(_bundle(), candidate_id="candidate_a")
+    certificate = AmbiguityCertificate(
+        ambiguity_set_type="moment_mean_cov_support",
+        confidence_level=0.95,
+        overall_status="pass",
+        per_constraint=(
+            ConstraintCertificate(
+                name="budget",
+                constraint_class="budget",
+                formulation="dr_chance_scalar_moment",
+                exactness="conservative_exact_for_scalarized_moments",
+                worst_case_bound=92.0,
+                threshold=100.0,
+                slack=8.0,
+                solver_family="SOCP",
+                epsilon=0.05,
+                violation_probability_bound=0.02,
+            ),
+        ),
+    )
+
+    artifact = ProductionPolicyEvaluationBackend().evaluate(
+        candidate,
+        fidelity="selection",
+        simulation_metrics={"policy_value": 9.0, "employment_rate": 0.84},
+        uncertainty=_uncertainty(statistical=0.2, transport=0.2),
+        distributional_report=None,
+        causal_effect_report=None,
+        cross_graph_profile=None,
+        governance_report=None,
+        ambiguity_certificate=certificate,
+    )
+
+    assert "ambiguity_certificate" in artifact.provenance.source_components
+    assert artifact.simulation_results["ambiguity_certificate"]["overall_status"] == "pass"
+    assert artifact.evaluation_vector.metadata["ambiguity_certificate_status"] == "pass"
+    assert (
+        artifact.evaluation_vector.hard_constraints["policy_budget_constraint"].source
+        == "ambiguity_certificate"
+    )

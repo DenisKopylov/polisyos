@@ -9,13 +9,12 @@ import fnmatch
 import json
 import re
 import subprocess
-import sys
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
-from tools._lib.imports import repo_root_from
 from typing import Any
 
+from tools._lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -257,13 +256,17 @@ def _parse_generated_artifacts(path: Path) -> list[GeneratedArtifactFamily]:
                 approval_owner=str(item["approval_owner"]),
                 source_of_truth=str(item["source_of_truth"]),
                 outputs=tuple(_ensure_relative(output) for output in item.get("outputs", [])),
-                regenerate_commands=tuple(str(command) for command in item.get("regenerate_commands", [])),
+                regenerate_commands=tuple(
+                    str(command) for command in item.get("regenerate_commands", [])
+                ),
                 commit_policy=str(item["commit_policy"]),
                 freshness_rule=str(item["freshness_rule"]),
                 drift_gate=str(item["drift_gate"]),
                 workflow=_ensure_relative(str(workflow_raw)) if workflow_raw else None,
                 check_cwd=_ensure_relative(str(check_cwd_raw)) if check_cwd_raw else None,
-                check_command=tuple(str(part) for part in check_command_raw) if check_command_raw else None,
+                check_command=tuple(str(part) for part in check_command_raw)
+                if check_command_raw
+                else None,
                 check_git_diff_paths=tuple(
                     Path(part) for part in item.get("check_git_diff_paths", [])
                 ),
@@ -307,9 +310,7 @@ def _module_name_for_path(file_path: Path) -> tuple[str, bool] | None:
 
 
 def _iter_py_files() -> list[Path]:
-    return sorted(
-        path for path in SRC_ROOT.rglob("*.py") if "__pycache__" not in path.parts
-    )
+    return sorted(path for path in SRC_ROOT.rglob("*.py") if "__pycache__" not in path.parts)
 
 
 def _root_for_module(module: str) -> str | None:
@@ -319,7 +320,9 @@ def _root_for_module(module: str) -> str | None:
     return parts[1]
 
 
-def _resolve_import_module(current_module: str, is_package: bool, node: ast.ImportFrom) -> str | None:
+def _resolve_import_module(
+    current_module: str, is_package: bool, node: ast.ImportFrom
+) -> str | None:
     if node.level == 0:
         return node.module
     package_parts = current_module.split(".")
@@ -534,6 +537,7 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
         "> Generated from `architecture/public_surface.toml` and package facades under `src/polisyos/**/__init__.py`.",
         "",
         "Canonical regeneration command:",
+        "",
         "```bash",
         "uv run python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline",
         "```",
@@ -619,7 +623,6 @@ def render_generated_artifacts_markdown(families: list[GeneratedArtifactFamily])
         "# Generated Artifacts",
         "",
         "> Generated from `architecture/generated_artifacts.toml`.",
-        "",
         "> Regenerate this page with `uv run polisyos-tools architecture guardrails sync`.",
         "> Validate drift with `uv run polisyos-tools architecture guardrails check`.",
         "",
@@ -657,6 +660,7 @@ def render_generated_artifacts_markdown(families: list[GeneratedArtifactFamily])
                 *[f"  - `{output.relative_to(REPO_ROOT)}`" for output in family.outputs],
                 "",
                 "Canonical regeneration commands:",
+                "",
                 "```bash",
                 *family.regenerate_commands,
                 "```",
@@ -979,13 +983,11 @@ def _exception_matches_violation(
     if exception.check != violation.check:
         return False
     if violation.check == "deep_import":
-        return (
-            fnmatch.fnmatch(violation.source_module, exception.source_module_glob)
-            and fnmatch.fnmatch(violation.target_module, exception.target_module_glob)
-        )
-    return (
-        fnmatch.fnmatch(violation.subject, exception.subject_glob)
-        and fnmatch.fnmatch(violation.detail or "", exception.detail_glob)
+        return fnmatch.fnmatch(
+            violation.source_module, exception.source_module_glob
+        ) and fnmatch.fnmatch(violation.target_module, exception.target_module_glob)
+    return fnmatch.fnmatch(violation.subject, exception.subject_glob) and fnmatch.fnmatch(
+        violation.detail or "", exception.detail_glob
     )
 
 
@@ -1073,7 +1075,9 @@ def run_check(args: argparse.Namespace) -> int:
     guardrail_exceptions = _parse_guardrail_exceptions(args.exceptions)
 
     if not args.public_json.exists():
-        violations.append(f"Missing public surface inventory JSON: {args.public_json.relative_to(REPO_ROOT)}")
+        violations.append(
+            f"Missing public surface inventory JSON: {args.public_json.relative_to(REPO_ROOT)}"
+        )
     elif args.public_json.read_text(encoding="utf-8") != expected_public_json:
         violations.append(
             "Public surface inventory JSON drift detected.\n"
@@ -1085,7 +1089,9 @@ def run_check(args: argparse.Namespace) -> int:
         )
 
     if not args.public_md.exists():
-        violations.append(f"Missing public surface reference doc: {args.public_md.relative_to(REPO_ROOT)}")
+        violations.append(
+            f"Missing public surface reference doc: {args.public_md.relative_to(REPO_ROOT)}"
+        )
     elif args.public_md.read_text(encoding="utf-8") != expected_public_md:
         violations.append(
             "Public surface reference doc drift detected.\n"
@@ -1097,7 +1103,9 @@ def run_check(args: argparse.Namespace) -> int:
         )
 
     if not args.generated_md.exists():
-        violations.append(f"Missing generated-artifacts reference doc: {args.generated_md.relative_to(REPO_ROOT)}")
+        violations.append(
+            f"Missing generated-artifacts reference doc: {args.generated_md.relative_to(REPO_ROOT)}"
+        )
     elif args.generated_md.read_text(encoding="utf-8") != expected_generated_md:
         violations.append(
             "Generated-artifacts reference doc drift detected.\n"
@@ -1134,7 +1142,11 @@ def run_check(args: argparse.Namespace) -> int:
             guardrail_exceptions,
         )
     )
-    violations.extend(_validate_guardrail_exceptions(args.exceptions, args.exceptions_registry, max_expiry_days=args.max_expiry_days))
+    violations.extend(
+        _validate_guardrail_exceptions(
+            args.exceptions, args.exceptions_registry, max_expiry_days=args.max_expiry_days
+        )
+    )
     violations.extend(
         _apply_guardrail_exceptions(
             _check_deep_import_creep(

@@ -1,8 +1,9 @@
 """Compiler-style IR pass pipeline public API."""
+
 from .base import (
+    InvalidationSet,
     IRAnalysis,
     IRPass,
-    InvalidationSet,
     PassContext,
     PassDiagnostic,
     PassPipeline,
@@ -26,10 +27,10 @@ __all__ = [
     "ArtifactRefTypeCheckResult",
     "CrossModelTypeCheckPass",
     "EstimandNormalizationPass",
-    "KernelLoweringPass",
     "IRAnalysis",
     "IRPass",
     "InvalidationSet",
+    "KernelLoweringPass",
     "PassContext",
     "PassDiagnostic",
     "PassPipeline",

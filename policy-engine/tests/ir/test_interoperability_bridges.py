@@ -224,6 +224,5 @@ def test_causal_ecosystem_bridges_cover_dowhy_econml_causalnex_pgmpy_and_tigrami
     assert ("Z", "Y") in pgmpy.directed_edges
     assert tigramite.max_lag == 1
     assert any(
-        edge.lag == 1 and edge.src == "T" and edge.dst == "Y"
-        for edge in tigramite.lagged_edges
+        edge.lag == 1 and edge.src == "T" and edge.dst == "Y" for edge in tigramite.lagged_edges
     )

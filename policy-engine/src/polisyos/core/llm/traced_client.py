@@ -6,6 +6,7 @@ Intercepts LLM calls to record:
 - Token usage metrics (prompt + completion)
 - Call status (success/failure)
 """
+
 from __future__ import annotations
 
 import inspect
@@ -32,6 +33,7 @@ def _load_runtime_trace_types() -> tuple[Any, Any, Any]:
     try:
         from opentelemetry.trace import SpanKind, Status, StatusCode
     except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
+
         class _FallbackSpanKind(str, Enum):
             CLIENT = "CLIENT"
 
@@ -104,7 +106,7 @@ class TracedLLMClient:
 
     def unwrap(self) -> Any:
         current = self._client
-        while hasattr(current, "unwrap") and callable(getattr(current, "unwrap")):
+        while hasattr(current, "unwrap") and callable(current.unwrap):
             next_client = current.unwrap()
             if next_client is current:
                 break
@@ -161,13 +163,9 @@ class TracedLLMClient:
     ) -> tuple[tuple[Any, ...], dict[str, Any]]:
         if self._prompt_sanitizer is None:
             return args, dict(kwargs)
-        sanitized_args = tuple(
-            self._prompt_sanitizer.sanitize_payload(arg)
-            for arg in args
-        )
+        sanitized_args = tuple(self._prompt_sanitizer.sanitize_payload(arg) for arg in args)
         sanitized_kwargs = {
-            key: self._prompt_sanitizer.sanitize_payload(value)
-            for key, value in kwargs.items()
+            key: self._prompt_sanitizer.sanitize_payload(value) for key, value in kwargs.items()
         }
         return sanitized_args, sanitized_kwargs
 
@@ -265,7 +263,8 @@ class TracedLLMClient:
             except Exception:
                 # Observability callback must never break agent execution.
                 logging.getLogger(__name__).debug(
-                    "Observability callback failed", exc_info=True,
+                    "Observability callback failed",
+                    exc_info=True,
                 )
 
     def invoke(self, prompt: str, **kwargs: Any) -> Any:

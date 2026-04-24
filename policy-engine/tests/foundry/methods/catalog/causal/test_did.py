@@ -23,9 +23,7 @@ def _reset_globals():
 
 def test_did_standard_known_att():
     ensure_causal_methods_registered()
-    method_cls = MethodRegistry.get_instance().get(
-        "causal.inference.did.standard@1.0.0"
-    )
+    method_cls = MethodRegistry.get_instance().get("causal.inference.did.standard@1.0.0")
     t0 = 5
     att_true = 3.0
     control = np.tile(np.arange(10, dtype=float), (5, 1))
@@ -49,9 +47,7 @@ def test_did_standard_known_att():
 
 def test_did_staggered_bootstrap_runs():
     ensure_causal_methods_registered()
-    method_cls = MethodRegistry.get_instance().get(
-        "causal.inference.did.staggered@1.0.0"
-    )
+    method_cls = MethodRegistry.get_instance().get("causal.inference.did.staggered@1.0.0")
     n_units, n_periods = 12, 10
     base = np.tile(np.linspace(0, 9, n_periods, dtype=float), (n_units, 1))
     timing = np.array([5, 5, 6, 6, 7, 7, -1, -1, -1, -1, -1, -1], dtype=int)

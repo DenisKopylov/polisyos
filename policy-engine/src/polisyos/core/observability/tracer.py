@@ -15,13 +15,14 @@ Usage:
         span.set_attribute("polisyos.phase", "EXECUTE")
         do_work()
 """
+
 from __future__ import annotations
 
 import threading
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from importlib import import_module
-from typing import TYPE_CHECKING, Any, Iterator, Optional, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from opentelemetry import trace
 from opentelemetry.context import Context
@@ -91,9 +92,7 @@ class ErrorAwareSampler(Sampler):
                 parent_context, trace_id, name, kind, attributes, links, trace_state
             )
         except TypeError:
-            return self._base.should_sample(
-                parent_context, trace_id, name, kind, attributes, links
-            )
+            return self._base.should_sample(parent_context, trace_id, name, kind, attributes, links)
 
     def get_description(self) -> str:
         return self._description
@@ -106,11 +105,11 @@ class PolicyOSTracer:
     Thread-safe and designed for minimal startup overhead.
     """
 
-    _instance: Optional["PolicyOSTracer"] = None
+    _instance: PolicyOSTracer | None = None
     _lock: threading.Lock = threading.Lock()
     _initialized: bool = False
 
-    def __new__(cls) -> "PolicyOSTracer":
+    def __new__(cls) -> PolicyOSTracer:
         if cls._instance is None:
             with cls._lock:
                 if cls._instance is None:
@@ -121,16 +120,16 @@ class PolicyOSTracer:
         # Re-establish instance attributes even if singleton state was reset
         # while an existing object instance remained reachable.
         if not hasattr(self, "_config"):
-            self._config: Optional[OTelConfig] = None
-            self._provider: Optional[TracerProvider] = None
-            self._tracer: Optional[Tracer] = None
+            self._config: OTelConfig | None = None
+            self._provider: TracerProvider | None = None
+            self._tracer: Tracer | None = None
             self._propagator = TraceContextTextMapPropagator()
         # Guard against re-initialization
         if PolicyOSTracer._initialized:
             return
 
     @classmethod
-    def current_instance(cls) -> "PolicyOSTracer | None":
+    def current_instance(cls) -> PolicyOSTracer | None:
         """Return the cached singleton instance without forcing initialization."""
         return cls._instance
 
@@ -242,7 +241,7 @@ class PolicyOSTracer:
             local_parent_not_sampled=ALWAYS_OFF,
         )
 
-    def _create_otlp_exporter(self) -> Optional["SpanExporter"]:
+    def _create_otlp_exporter(self) -> SpanExporter | None:
         """Create OTLP exporter based on configuration."""
         if self._config is None or not self._config.otlp_endpoint:
             return None
@@ -251,11 +250,11 @@ class PolicyOSTracer:
         if protocol.startswith("http"):
             try:
                 module = import_module("opentelemetry.exporter.otlp.proto.http.trace_exporter")
-                HTTPOTLPSpanExporter = getattr(module, "OTLPSpanExporter")
+                http_otlp_span_exporter = module.OTLPSpanExporter
 
                 return cast(
                     "SpanExporter",
-                    HTTPOTLPSpanExporter(
+                    http_otlp_span_exporter(
                         endpoint=f"{self._config.otlp_endpoint}/v1/traces",
                         headers=self._config.otlp_headers or None,
                     ),
@@ -276,11 +275,11 @@ class PolicyOSTracer:
             # Fallback to HTTP if gRPC not available
             try:
                 module = import_module("opentelemetry.exporter.otlp.proto.http.trace_exporter")
-                HTTPOTLPSpanExporter = getattr(module, "OTLPSpanExporter")
+                http_otlp_span_exporter = module.OTLPSpanExporter
 
                 return cast(
                     "SpanExporter",
-                    HTTPOTLPSpanExporter(
+                    http_otlp_span_exporter(
                         endpoint=f"{self._config.otlp_endpoint}/v1/traces",
                         headers=self._config.otlp_headers or None,
                     ),
@@ -292,7 +291,8 @@ class PolicyOSTracer:
     def tracer(self) -> Tracer:
         """Get the underlying OTel Tracer instance."""
         self._ensure_initialized()
-        assert self._tracer is not None
+        if self._tracer is None:
+            raise RuntimeError("PolicyOSTracer failed to initialize an OpenTelemetry tracer")
         return self._tracer
 
     @contextmanager
@@ -300,7 +300,7 @@ class PolicyOSTracer:
         self,
         name: str,
         *,
-        attributes: Optional[dict[str, Any]] = None,
+        attributes: dict[str, Any] | None = None,
         kind: SpanKind = SpanKind.INTERNAL,
     ) -> Iterator[Span]:
         """
@@ -328,7 +328,7 @@ class PolicyOSTracer:
         self,
         name: str,
         *,
-        attributes: Optional[dict[str, Any]] = None,
+        attributes: dict[str, Any] | None = None,
         kind: SpanKind = SpanKind.INTERNAL,
         record_exception: bool = True,
         set_status_on_exception: bool = True,
@@ -354,7 +354,7 @@ class PolicyOSTracer:
         self._ensure_initialized()
         return trace.get_current_span()
 
-    def get_current_trace_id(self) -> Optional[str]:
+    def get_current_trace_id(self) -> str | None:
         """Get the current trace ID as hex string, or None if no active span."""
         span = trace.get_current_span()
         ctx = span.get_span_context()
@@ -362,7 +362,7 @@ class PolicyOSTracer:
             return format(ctx.trace_id, "032x")
         return None
 
-    def get_current_span_id(self) -> Optional[str]:
+    def get_current_span_id(self) -> str | None:
         """Get the current span ID as hex string, or None if no active span."""
         span = trace.get_current_span()
         ctx = span.get_span_context()
@@ -397,7 +397,7 @@ class PolicyOSTracer:
 
 
 # Module-level singleton accessor
-_tracer_instance: Optional[PolicyOSTracer] = None
+_tracer_instance: PolicyOSTracer | None = None
 _tracer_instance_lock = threading.Lock()
 
 
@@ -430,7 +430,7 @@ def _default_tracer() -> PolicyOSTracer:
     return get_tracer()
 
 
-def get_current_trace_context() -> dict[str, Optional[str]]:
+def get_current_trace_context() -> dict[str, str | None]:
     """
     Get current trace context for logging correlation.
 

@@ -21,7 +21,11 @@ class TestSensitivityBridge:
             return params["x1"] * 2 + params["x2"] * 0.1
 
         result = bridge.analyze_search_space(
-            bounds, evaluator, method="morris", n_trajectories=4, n_levels=4,
+            bounds,
+            evaluator,
+            method="morris",
+            n_trajectories=4,
+            n_levels=4,
         )
         assert "ranking" in result
         assert len(result["ranking"]) == 2
@@ -38,7 +42,10 @@ class TestSensitivityBridge:
             return params["a"] ** 2 + params["b"]
 
         result = bridge.analyze_search_space(
-            bounds, evaluator, method="sobol", n_trajectories=8,
+            bounds,
+            evaluator,
+            method="sobol",
+            n_trajectories=8,
         )
         assert "ranking" in result
         assert result["method"] == "sobol"
@@ -56,6 +63,9 @@ class TestSensitivityBridge:
             {"name": "p3", "lower": 0.0, "upper": 1.0},
         ]
         result = bridge.analyze_search_space(
-            bounds, lambda p: sum(p.values()), method="morris", n_trajectories=4,
+            bounds,
+            lambda p: sum(p.values()),
+            method="morris",
+            n_trajectories=4,
         )
         assert set(result["ranking"]) == {"p1", "p2", "p3"}

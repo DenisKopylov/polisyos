@@ -1,4 +1,5 @@
 """Public connectors validation module API."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
 
 def validate_fetch_result_against_schema(
     result: FetchResult[Any],
-    registry: "SchemaRegistry",
+    registry: SchemaRegistry,
     *,
     strict: bool = False,
 ) -> list[str]:
@@ -56,12 +57,12 @@ def validate_fetch_result_against_schema(
 
 def coerce_fetch_result_against_schema(
     result: FetchResult[Any],
-    registry: "SchemaRegistry",
+    registry: SchemaRegistry,
     *,
     strict: bool = False,
     normalize_columns: bool = True,
     drop_extra: bool = False,
-) -> "CoercionResult":
+) -> CoercionResult:
     """
     Coerce FetchResult data to its declared schema.
 
@@ -107,6 +108,6 @@ def coerce_fetch_result_against_schema(
 
 
 __all__ = [
-    "validate_fetch_result_against_schema",
     "coerce_fetch_result_against_schema",
+    "validate_fetch_result_against_schema",
 ]

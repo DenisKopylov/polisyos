@@ -1,10 +1,12 @@
 """Connector for GeoJSON feature collections."""
+
 from __future__ import annotations
 
 import json
 import time
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, ClassVar
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
 from polisyos.fabric.connectors.base import (
     BaseConnector,
@@ -178,7 +180,7 @@ class GeoJSONConnector(BaseConnector[Any]):
             schema_id=schema_id,
             schema_version="1.0.0",
             version=version,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=1.0 if rows else 0.0,
             quality_tier=QualityTier.SILVER,
             quality_flags=frozenset({"spatial_metadata_present"}),
@@ -219,7 +221,10 @@ class GeoJSONConnector(BaseConnector[Any]):
                     message="GeoJSON URLs usually end with .geojson or .json",
                 )
             )
-        return ValidationResult(valid=not any(i.severity == ValidationSeverity.ERROR for i in issues), issues=tuple(issues))
+        return ValidationResult(
+            valid=not any(i.severity == ValidationSeverity.ERROR for i in issues),
+            issues=tuple(issues),
+        )
 
 
 __all__ = ["GeoJSONConnector"]

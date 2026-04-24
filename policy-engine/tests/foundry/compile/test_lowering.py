@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
-from types import SimpleNamespace
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -64,9 +64,9 @@ def _make_intervention(intervention_id: str, kind: str, **kwargs):
     mock.kind = kind
     mock.enabled = True
     mock.priority = kwargs.get("priority", 0)
-    mock.target = kwargs.get("target", None)
+    mock.target = kwargs.get("target")
     mock.params = kwargs.get("params", {})
-    mock.schedule = kwargs.get("schedule", None)
+    mock.schedule = kwargs.get("schedule")
     mock.notes = kwargs.get("notes", [])
     return mock
 
@@ -176,7 +176,8 @@ class TestMergeEffectiveParams:
 
         intervention = _make_intervention("i1", "flat_tax")
         bundle = _make_bundle(
-            interventions=[intervention], fidelity_level=FidelityLevel.RELAXED_DISCRETE,
+            interventions=[intervention],
+            fidelity_level=FidelityLevel.RELAXED_DISCRETE,
         )
 
         linked_bundle = MagicMock()

@@ -4,6 +4,7 @@
 while bundle construction/loading helpers are resolved lazily to avoid importing
 CAS and IR schemas unless a caller explicitly needs immutable registry bundles.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -27,13 +28,13 @@ if TYPE_CHECKING:
 __all__ = [
     "BaseRegistry",
     "DuplicateDecision",
-    "RegistryBundleContent",
     "FragmentPrecedencePolicy",
-    "build_default_registry_bundle",
-    "build_registry_bundle_from_components",
-    "build_registry_bundle",
     "GenericRegistry",
     "GenericRegistrySnapshot",
+    "RegistryBundleContent",
+    "build_default_registry_bundle",
+    "build_registry_bundle",
+    "build_registry_bundle_from_components",
     "load_registry_bundle",
     "load_registry_bundle_content",
     "load_registry_bundle_payload",

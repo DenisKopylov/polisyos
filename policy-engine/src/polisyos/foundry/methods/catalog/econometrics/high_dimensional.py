@@ -1,7 +1,9 @@
 """Estimate high-dimensional sparse models with post-selection correction."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -54,6 +56,7 @@ def _lasso_cd(X: np.ndarray, y: np.ndarray, lam: float, max_iter: int = 100) -> 
 )
 class PostLASSOEstimator:
     """Estimate coefficients after LASSO variable screening; avoid dense true signals where sparse selection is unstable."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -63,14 +66,14 @@ class PostLASSOEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
                 SlotSpec("y", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="lambda_factor", default=1.0, bounds=(0.01, 100.0)),
-        ),
+        parameters=(ParameterSpec(name="lambda_factor", default=1.0, bounds=(0.01, 100.0)),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -81,8 +84,18 @@ class PostLASSOEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Post-LASSO estimator: LASSO for selection, OLS on selected variables.",
-        tags=frozenset({"econometrics", "high-dimensional", "post-lasso", "variable-selection", "cross-section"}),
-        citations=("Belloni, A. & Chernozhukov, V. (2013). Least Squares After Model Selection. Bernoulli.",),
+        tags=frozenset(
+            {
+                "econometrics",
+                "high-dimensional",
+                "post-lasso",
+                "variable-selection",
+                "cross-section",
+            }
+        ),
+        citations=(
+            "Belloni, A. & Chernozhukov, V. (2013). Least Squares After Model Selection. Bernoulli.",
+        ),
         equations={"post_lasso": "Step 1: LASSO select S; Step 2: OLS on X_S"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -157,6 +170,7 @@ class PostLASSOEstimator:
 )
 class PostDoubleSelectionEstimator:
     """Estimate a target effect after double-selection controls; avoid weak nuisance selection or severe multicollinearity."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -166,15 +180,15 @@ class PostDoubleSelectionEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_controls")),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_controls")
+                ),
                 SlotSpec("d", SlotType.VECTOR, Unit("treatment", "value"), shape=("n_obs",)),
                 SlotSpec("y", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="lambda_factor", default=1.0, bounds=(0.01, 100.0)),
-        ),
+        parameters=(ParameterSpec(name="lambda_factor", default=1.0, bounds=(0.01, 100.0)),),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -185,8 +199,12 @@ class PostDoubleSelectionEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Post-double-selection LASSO for causal inference in high dimensions.",
-        tags=frozenset({"econometrics", "high-dimensional", "post-double-selection", "causal", "cross-section"}),
-        citations=("Belloni, A., Chernozhukov, V. & Hansen, C. (2014). Inference on Treatment Effects. REStud.",),
+        tags=frozenset(
+            {"econometrics", "high-dimensional", "post-double-selection", "causal", "cross-section"}
+        ),
+        citations=(
+            "Belloni, A., Chernozhukov, V. & Hansen, C. (2014). Inference on Treatment Effects. REStud.",
+        ),
         equations={
             "step1": "LASSO: y ~ X → select S_y",
             "step2": "LASSO: d ~ X → select S_d",
@@ -241,7 +259,7 @@ class PostDoubleSelectionEstimator:
 
         # SE for treatment effect
         residuals = y - X_sel @ beta_ols
-        sigma2 = float(np.sum(residuals ** 2) / max(n - len(beta_ols), 1))
+        sigma2 = float(np.sum(residuals**2) / max(n - len(beta_ols), 1))
         try:
             var_beta = sigma2 * np.linalg.inv(X_sel.T @ X_sel)
             se = float(np.sqrt(max(var_beta[1, 1], 0.0)))

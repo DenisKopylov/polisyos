@@ -1,8 +1,10 @@
 """Public engine telemetry module API."""
+
 from __future__ import annotations
 
+from collections.abc import Iterable
 from contextlib import nullcontext
-from typing import Any, Iterable
+from typing import Any
 
 from polisyos.scientist.engine.protocol import NodeEvent
 from polisyos.scientist.error_semantics import emit_degraded_path

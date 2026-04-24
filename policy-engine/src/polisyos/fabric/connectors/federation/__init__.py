@@ -36,39 +36,39 @@ from polisyos.fabric.connectors.federation.types import (
 )
 
 __all__ = [
-    # Strategies and policies
-    "CompositionStrategy",
-    "ConflictPolicy",
     "AuditLevel",
     # Request and result
     "CompositionRequest",
     "CompositionResult",
-    # Core components
-    "DataComposer",
-    "ConflictResolver",
-    "SourceRanker",
-    "FederationPlanner",
-    # Planning
-    "ExecutionPlan",
-    "PlannedSource",
-    "RankedSource",
-    "RankingWeights",
+    # Strategies and policies
+    "CompositionStrategy",
     # Conflict resolution
     "ConflictCandidate",
     "ConflictContext",
+    "ConflictPolicy",
     "ConflictResolution",
     "ConflictResolutionError",
-    "MergeLogEntry",
-    "MergeLogSummary",
-    # Evidence
-    "build_composite_evidence_bundle",
-    # Metadata
-    "SourceMetadata",
+    "ConflictResolver",
     "CoverageProfile",
+    # Core components
+    "DataComposer",
+    # Planning
+    "ExecutionPlan",
     # Exceptions
     "FederationError",
-    "SchemaIncompatibilityError",
+    "FederationPlanner",
+    "MergeLogEntry",
+    "MergeLogSummary",
+    "PlannedSource",
     "PlanningError",
+    "RankedSource",
+    "RankingWeights",
+    "SchemaIncompatibilityError",
+    # Metadata
+    "SourceMetadata",
+    "SourceRanker",
+    # Evidence
+    "build_composite_evidence_bundle",
 ]
 
 __version__ = "1.0.0"

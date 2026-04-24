@@ -23,14 +23,17 @@ contains `19` `test_*.py` files plus a local `conftest.py`.
 - Trinity and IR contracts:
   `test_trinity_contracts.py`, `test_trinity_migration.py`,
   `test_trinity_linker_contract.py`, `test_ir_migrations.py`
+
 - Foundry, Scientist, and Core contract surfaces:
   `test_foundry_facade_contracts.py`,
   `test_foundry_input_bindings_contract.py`,
   `test_scientist_workflow_spec_contract.py`, `test_kernel_models.py`
+
 - Governance, world, and citation models:
   `test_gate_models.py`, `test_gate_protocol.py`,
   `test_world_abi_contract.py`, `test_citations_contract.py`,
   `test_applicability_contract.py`
+
 - Compatibility helpers and budgets:
   `test_abi_diff_tool.py`, `test_golden_record_ids.py`,
   `test_run_experiment_slo.py`, `test_slo_metrics.py`,
@@ -38,7 +41,7 @@ contains `19` `test_*.py` files plus a local `conftest.py`.
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - `src/polisyos/core/contracts`
 - `src/polisyos/ir`
@@ -46,7 +49,7 @@ contains `19` `test_*.py` files plus a local `conftest.py`.
 - `src/polisyos/scientist`
 - [`../../tools/diagnostics/abi_diff.py`](../../tools/diagnostics/abi_diff.py)
 
-**Depended on by**
+### Depended On By
 
 - Release and compatibility gates that need ABI drift to fail loudly
 - [`../foundry/README.md`](../foundry/README.md),

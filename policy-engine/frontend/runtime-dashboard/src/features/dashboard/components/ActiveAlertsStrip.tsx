@@ -54,7 +54,10 @@ export function ActiveAlertsStrip({
         <div
           key={alert.id}
           className="border-line bg-surface flex items-center gap-3 rounded-xl border p-2.5 text-xs"
-          style={{ borderLeftWidth: 3, borderLeftColor: SEVERITY_BORDER[alert.severity] }}
+          style={{
+            borderLeftWidth: 3,
+            borderLeftColor: SEVERITY_BORDER[alert.severity],
+          }}
         >
           <Badge kind={SEVERITY_BADGE[alert.severity]}>{alert.severity}</Badge>
           <p className="flex-1 truncate">{alert.message}</p>

@@ -1,9 +1,11 @@
 """Adaptive / responsive survey estimators."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from statistics import NormalDist
-from typing import Any, ClassVar, Literal, Mapping, Sequence
+from typing import Any, ClassVar, Literal
 
 import numpy as np
 
@@ -32,7 +34,9 @@ def _adaptive_input_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
             SlotSpec("y_observed", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-            SlotSpec("response_indicator", SlotType.VECTOR, Unit("indicator", "binary"), shape=("n_obs",)),
+            SlotSpec(
+                "response_indicator", SlotType.VECTOR, Unit("indicator", "binary"), shape=("n_obs",)
+            ),
             SlotSpec(
                 "base_inclusion_probabilities",
                 SlotType.VECTOR,
@@ -45,7 +49,9 @@ def _adaptive_input_slots() -> frozenset[SlotSpec]:
                 Unit("probability", "mass"),
                 shape=("n_obs",),
             ),
-            SlotSpec("X_aux", SlotType.MATRIX, Unit("auxiliary", "value"), shape=("n_obs", "n_aux")),
+            SlotSpec(
+                "X_aux", SlotType.MATRIX, Unit("auxiliary", "value"), shape=("n_obs", "n_aux")
+            ),
             SlotSpec(
                 "paradata_matrix",
                 SlotType.MATRIX,
@@ -59,7 +65,9 @@ def _adaptive_input_slots() -> frozenset[SlotSpec]:
                 shape=("n_obs", "n_actions"),
             ),
             SlotSpec("control_totals", SlotType.VECTOR, Unit("control", "value"), shape=("n_aux",)),
-            SlotSpec("control_vcov", SlotType.MATRIX, Unit("variance", "value"), shape=("n_aux", "n_aux")),
+            SlotSpec(
+                "control_vcov", SlotType.MATRIX, Unit("variance", "value"), shape=("n_aux", "n_aux")
+            ),
             SlotSpec("strata", SlotType.VECTOR, Unit("stratum", "id"), shape=("n_obs",)),
             SlotSpec("clusters", SlotType.VECTOR, Unit("cluster", "id"), shape=("n_obs",)),
             SlotSpec(
@@ -278,7 +286,9 @@ def _fit_weighted_linear(
     try:
         return np.linalg.solve(gram + penalty, rhs)
     except np.linalg.LinAlgError:
-        return np.linalg.lstsq(design * np.sqrt(weights)[:, None], y * np.sqrt(weights), rcond=None)[0]
+        return np.linalg.lstsq(
+            design * np.sqrt(weights)[:, None], y * np.sqrt(weights), rcond=None
+        )[0]
 
 
 def _predict_linear(X: np.ndarray, beta: np.ndarray) -> np.ndarray:
@@ -444,7 +454,9 @@ def _raking_calibration(
         "target_totals": target_totals.tolist(),
         "residuals": residuals.tolist(),
         "max_abs_residual": float(np.max(np.abs(residuals))) if residuals.size else 0.0,
-        "converged": converged or bool(np.max(np.abs(residuals)) <= tolerance) if residuals.size else True,
+        "converged": converged or bool(np.max(np.abs(residuals)) <= tolerance)
+        if residuals.size
+        else True,
     }
 
 
@@ -502,7 +514,9 @@ def _logit_calibration(
         "target_totals": target_totals.tolist(),
         "residuals": residuals.tolist(),
         "max_abs_residual": float(np.max(np.abs(residuals))) if residuals.size else 0.0,
-        "converged": converged or bool(np.max(np.abs(residuals)) <= tolerance) if residuals.size else True,
+        "converged": converged or bool(np.max(np.abs(residuals)) <= tolerance)
+        if residuals.size
+        else True,
     }
 
 
@@ -602,7 +616,9 @@ def _weighted_estimate(
     weight_sum = float(np.sum(weights))
     mean = total / max(weight_sum, 1e-12)
     centered = values - mean
-    var_mean = float(np.sum(np.square(weights) * np.square(centered)) / max(weight_sum * weight_sum, 1e-12))
+    var_mean = float(
+        np.sum(np.square(weights) * np.square(centered)) / max(weight_sum * weight_sum, 1e-12)
+    )
     ess = _effective_sample_size(weights)
     if ess > 1.0:
         var_mean *= ess / max(ess - 1.0, 1.0)
@@ -725,16 +741,18 @@ def _hadamard(order: int) -> np.ndarray:
     return np.block([[half, half], [half, -half]])
 
 
-def _resolved_design_labels(inputs: "_AdaptiveInputs") -> tuple[np.ndarray, np.ndarray]:
+def _resolved_design_labels(inputs: _AdaptiveInputs) -> tuple[np.ndarray, np.ndarray]:
     strata = inputs.strata if inputs.strata is not None else np.zeros(inputs.n_obs, dtype=object)
-    clusters = inputs.clusters if inputs.clusters is not None else np.arange(inputs.n_obs, dtype=object)
+    clusters = (
+        inputs.clusters if inputs.clusters is not None else np.arange(inputs.n_obs, dtype=object)
+    )
     return strata, clusters
 
 
 def _generate_bootstrap_replicates(
     base_weights: np.ndarray,
     *,
-    inputs: "_AdaptiveInputs",
+    inputs: _AdaptiveInputs,
     n_replicates: int,
     bootstrap_type: str,
     seed: int,
@@ -761,7 +779,7 @@ def _generate_bootstrap_replicates(
 def _generate_jackknife_replicates(
     base_weights: np.ndarray,
     *,
-    inputs: "_AdaptiveInputs",
+    inputs: _AdaptiveInputs,
     n_replicates: int,
 ) -> np.ndarray:
     strata, clusters = _resolved_design_labels(inputs)
@@ -792,7 +810,7 @@ def _generate_jackknife_replicates(
 def _generate_brr_replicates(
     base_weights: np.ndarray,
     *,
-    inputs: "_AdaptiveInputs",
+    inputs: _AdaptiveInputs,
     n_replicates: int,
 ) -> np.ndarray:
     strata, clusters = _resolved_design_labels(inputs)
@@ -943,7 +961,9 @@ def _coerce_inputs(state: Mapping[str, Any]) -> _AdaptiveInputs:
         raise ValueError("y_observed must be finite for responding units")
 
     pi0 = _vector(state, "base_inclusion_probabilities")
-    followup = _vector(state, "followup_sampling_probabilities", default=np.ones(n_obs, dtype=float))
+    followup = _vector(
+        state, "followup_sampling_probabilities", default=np.ones(n_obs, dtype=float)
+    )
     if pi0.shape[0] != n_obs or followup.shape[0] != n_obs:
         raise ValueError("Inclusion and follow-up probabilities must align with y_observed")
 
@@ -994,7 +1014,9 @@ def _resolve_feature_block(
     *,
     mode: str,
 ) -> tuple[np.ndarray, tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
-    x_names = _feature_names(inputs.X_aux.shape[1], prefix="x", provided=_string_tuple(params.get("x_feature_names")))
+    x_names = _feature_names(
+        inputs.X_aux.shape[1], prefix="x", provided=_string_tuple(params.get("x_feature_names"))
+    )
     p_names = _feature_names(
         inputs.paradata.shape[1],
         prefix="paradata",
@@ -1043,18 +1065,32 @@ def _run_weight_pipeline(
         lower=1e-9,
         upper=1.0,
     )
-    base_weights = np.asarray(base_weights_override, dtype=float) if base_weights_override is not None else 1.0 / pi0
-    if base_weights.shape != pi0.shape or np.any(~np.isfinite(base_weights)) or np.any(base_weights < 0.0):
-        raise ValueError("Replicate/base weights must be finite, non-negative, and align with the sample")
+    base_weights = (
+        np.asarray(base_weights_override, dtype=float)
+        if base_weights_override is not None
+        else 1.0 / pi0
+    )
+    if (
+        base_weights.shape != pi0.shape
+        or np.any(~np.isfinite(base_weights))
+        or np.any(base_weights < 0.0)
+    ):
+        raise ValueError(
+            "Replicate/base weights must be finite, non-negative, and align with the sample"
+        )
 
     phase_weights = base_weights / followup
-    feature_mode = str(feature_mode_override or params.get("propensity_feature_mode", "full")).lower()
+    feature_mode = str(
+        feature_mode_override or params.get("propensity_feature_mode", "full")
+    ).lower()
     features, feature_names, _, _ = _resolve_feature_block(inputs, params, mode=feature_mode)
     sample_weight = phase_weights / max(float(np.mean(phase_weights)), 1e-12)
 
     propensity_model = str(params.get("propensity_model", "logistic")).lower()
     if propensity_model != "logistic":
-        raise ValueError("Phase 1 adaptive weighting currently supports propensity_model='logistic' only")
+        raise ValueError(
+            "Phase 1 adaptive weighting currently supports propensity_model='logistic' only"
+        )
     propensity, coefficients = _fit_weighted_logistic(
         features,
         inputs.response,
@@ -1067,10 +1103,14 @@ def _run_weight_pipeline(
     )
 
     response_rate = float(np.mean(inputs.response))
-    nr_factor = (response_rate / propensity) if bool(params.get("stabilized", True)) else (1.0 / propensity)
+    nr_factor = (
+        (response_rate / propensity) if bool(params.get("stabilized", True)) else (1.0 / propensity)
+    )
     nonresponse_weights = np.zeros(inputs.n_obs, dtype=float)
     respondent_mask = inputs.response > 0.5
-    nonresponse_weights[respondent_mask] = phase_weights[respondent_mask] * nr_factor[respondent_mask]
+    nonresponse_weights[respondent_mask] = (
+        phase_weights[respondent_mask] * nr_factor[respondent_mask]
+    )
 
     target_weight_sum = float(np.sum(phase_weights))
     current_weight_sum = float(np.sum(nonresponse_weights[respondent_mask]))
@@ -1096,7 +1136,9 @@ def _run_weight_pipeline(
     }
     if inputs.control_totals.size > 0:
         bounds = _parse_bounds(params.get("bounds", (None, None)))
-        calibration_method = str(calibration_method_override or params.get("calibration_method", "linear")).lower()
+        calibration_method = str(
+            calibration_method_override or params.get("calibration_method", "linear")
+        ).lower()
         calibrated_resp, calibration_status = _calibrate_weights(
             trimmed_weights[respondent_mask],
             inputs.X_aux[respondent_mask],
@@ -1163,7 +1205,9 @@ def _variance_from_linearization(
         _, _, base_variance, _ = _weighted_estimate(value_vector, analysis_weights, estimand="mean")
         diagnostics = {
             "linearization_backend": "weighted_approximation",
-            "linearized_design_effect": float(len(value_vector) / max(_effective_sample_size(analysis_weights), 1e-12)),
+            "linearized_design_effect": float(
+                len(value_vector) / max(_effective_sample_size(analysis_weights), 1e-12)
+            ),
             "linearized_effective_n": _effective_sample_size(analysis_weights),
         }
 
@@ -1206,7 +1250,9 @@ def _generate_replicates(
             replicates = replicates[:n_replicates]
         return replicates, {
             "replicates_source": "supplied",
-            "replicate_weight_stage": str(params.get("replicate_weight_stage", "base_design")).lower(),
+            "replicate_weight_stage": str(
+                params.get("replicate_weight_stage", "base_design")
+            ).lower(),
         }
 
     seed = int(params.get("seed", 42))
@@ -1218,13 +1264,26 @@ def _generate_replicates(
             bootstrap_type=str(params.get("bootstrap_type", "auto")).lower(),
             seed=seed,
         )
-        return replicates, {"replicates_source": "generated_bootstrap", "replicate_weight_stage": "base_design"}
+        return replicates, {
+            "replicates_source": "generated_bootstrap",
+            "replicate_weight_stage": "base_design",
+        }
     if variance_method == "jackknife":
-        replicates = _generate_jackknife_replicates(base_weights, inputs=inputs, n_replicates=n_replicates)
-        return replicates, {"replicates_source": "generated_jackknife", "replicate_weight_stage": "base_design"}
+        replicates = _generate_jackknife_replicates(
+            base_weights, inputs=inputs, n_replicates=n_replicates
+        )
+        return replicates, {
+            "replicates_source": "generated_jackknife",
+            "replicate_weight_stage": "base_design",
+        }
     if variance_method == "brr":
-        replicates = _generate_brr_replicates(base_weights, inputs=inputs, n_replicates=n_replicates)
-        return replicates, {"replicates_source": "generated_brr", "replicate_weight_stage": "base_design"}
+        replicates = _generate_brr_replicates(
+            base_weights, inputs=inputs, n_replicates=n_replicates
+        )
+        return replicates, {
+            "replicates_source": "generated_brr",
+            "replicate_weight_stage": "base_design",
+        }
     raise ValueError(f"Unsupported replicate variance method: {variance_method}")
 
 
@@ -1268,18 +1327,23 @@ def _estimate_from_replicates(
                     control_totals=inputs.control_totals,
                     control_vcov=inputs.control_vcov,
                     strata=inputs.strata[respondent_mask] if inputs.strata is not None else None,
-                    clusters=inputs.clusters[respondent_mask] if inputs.clusters is not None else None,
+                    clusters=inputs.clusters[respondent_mask]
+                    if inputs.clusters is not None
+                    else None,
                     replicate_weights=None,
                     cost_vector=inputs.cost_vector[respondent_mask],
                 )
-                return _variance_from_linearization(
-                    reduced_inputs,
-                    run,
-                    estimand=estimand,
-                    value_vector=value_vector,
-                    analysis_weights=analysis_weights,
-                    ridge=ridge,
-                ) + (None,)[:0]
+                return (
+                    _variance_from_linearization(
+                        reduced_inputs,
+                        run,
+                        estimand=estimand,
+                        value_vector=value_vector,
+                        analysis_weights=analysis_weights,
+                        ridge=ridge,
+                    )
+                    + (None,)[:0]
+                )
 
         variance, se, diagnostics, control_adjustment, slope = _variance_from_linearization(
             inputs,
@@ -1304,12 +1368,20 @@ def _estimate_from_replicates(
         if replicate_stage == "analysis":
             if estimator == "augmented" and auxiliary_builder is not None:
                 target_values = np.asarray(auxiliary_builder["pseudo_outcome"], dtype=float)
-                estimates[rep_idx] = _weighted_mean(target_values, rep_weights) if estimand == "mean" else float(np.sum(rep_weights * target_values))
+                estimates[rep_idx] = (
+                    _weighted_mean(target_values, rep_weights)
+                    if estimand == "mean"
+                    else float(np.sum(rep_weights * target_values))
+                )
             else:
                 respondent_mask = run.respondent_mask
                 values = inputs.y[respondent_mask]
                 weights = rep_weights[respondent_mask]
-                estimates[rep_idx] = _weighted_mean(values, weights) if estimand == "mean" else float(np.sum(weights * values))
+                estimates[rep_idx] = (
+                    _weighted_mean(values, weights)
+                    if estimand == "mean"
+                    else float(np.sum(weights * values))
+                )
             continue
 
         if estimator == "augmented":
@@ -1322,9 +1394,28 @@ def _estimate_from_replicates(
             estimates[rep_idx] = rep_estimate_run.point_estimate
         else:
             rep_weight_run = _run_weight_pipeline(inputs, params, base_weights_override=rep_weights)
-            estimates[rep_idx] = rep_weight_run.final_mean if estimand == "mean" else float(np.sum(rep_weight_run.final_weights[rep_weight_run.respondent_mask] * inputs.y[rep_weight_run.respondent_mask]))
+            estimates[rep_idx] = (
+                rep_weight_run.final_mean
+                if estimand == "mean"
+                else float(
+                    np.sum(
+                        rep_weight_run.final_weights[rep_weight_run.respondent_mask]
+                        * inputs.y[rep_weight_run.respondent_mask]
+                    )
+                )
+            )
 
-    full_estimate = auxiliary_builder["point_estimate"] if estimator == "augmented" and auxiliary_builder is not None else (run.final_mean if estimand == "mean" else float(np.sum(run.final_weights[run.respondent_mask] * inputs.y[run.respondent_mask])))
+    full_estimate = (
+        auxiliary_builder["point_estimate"]
+        if estimator == "augmented" and auxiliary_builder is not None
+        else (
+            run.final_mean
+            if estimand == "mean"
+            else float(
+                np.sum(run.final_weights[run.respondent_mask] * inputs.y[run.respondent_mask])
+            )
+        )
+    )
     variance = _replicate_variance(
         estimates,
         full_estimate=float(full_estimate),
@@ -1339,7 +1430,9 @@ def _estimate_from_replicates(
             np.asarray(auxiliary_builder["analysis_weights"], dtype=float),
             inputs.control_vcov,
             ridge=ridge,
-            denominator=float(np.sum(np.asarray(auxiliary_builder["analysis_weights"], dtype=float))),
+            denominator=float(
+                np.sum(np.asarray(auxiliary_builder["analysis_weights"], dtype=float))
+            ),
         )
     else:
         control_adjustment_mean, slope = _control_total_variance_adjustment(
@@ -1351,7 +1444,11 @@ def _estimate_from_replicates(
             denominator=float(np.sum(run.final_weights[run.respondent_mask])),
         )
     if estimand == "total":
-        scale = float(np.sum(auxiliary_builder["analysis_weights"])) ** 2 if estimator == "augmented" and auxiliary_builder is not None else float(np.sum(run.final_weights[run.respondent_mask])) ** 2
+        scale = (
+            float(np.sum(auxiliary_builder["analysis_weights"])) ** 2
+            if estimator == "augmented" and auxiliary_builder is not None
+            else float(np.sum(run.final_weights[run.respondent_mask])) ** 2
+        )
         variance += control_adjustment_mean * scale
         control_adjustment = control_adjustment_mean * scale
     else:
@@ -1364,7 +1461,14 @@ def _estimate_from_replicates(
         "replicate_weight_stage": replicate_stage,
         "replicate_mean_estimate": float(np.mean(estimates)),
     }
-    return float(max(variance, 0.0)), float(np.sqrt(max(variance, 0.0))), diagnostics, estimates, float(control_adjustment), slope
+    return (
+        float(max(variance, 0.0)),
+        float(np.sqrt(max(variance, 0.0))),
+        diagnostics,
+        estimates,
+        float(control_adjustment),
+        slope,
+    )
 
 
 def _build_sensitivity_payload(
@@ -1378,21 +1482,39 @@ def _build_sensitivity_payload(
         "phase_only_mean_estimate": run.phase_mean,
         "nonresponse_adjusted_mean_estimate": run.nr_mean,
         "final_mean_estimate": run.final_mean,
-        "phase_only_effective_sample_size": _effective_sample_size(run.phase_weights[run.respondent_mask]),
-        "final_effective_sample_size": _effective_sample_size(run.final_weights[run.respondent_mask]),
+        "phase_only_effective_sample_size": _effective_sample_size(
+            run.phase_weights[run.respondent_mask]
+        ),
+        "final_effective_sample_size": _effective_sample_size(
+            run.final_weights[run.respondent_mask]
+        ),
     }
 
     no_trim_params = dict(params)
     no_trim_params["trim_method"] = "none"
     no_trim_run = _run_weight_pipeline(inputs, no_trim_params)
-    payload["no_trim_point_estimate"] = no_trim_run.final_mean if estimand == "mean" else float(
-        np.sum(no_trim_run.final_weights[no_trim_run.respondent_mask] * inputs.y[no_trim_run.respondent_mask])
+    payload["no_trim_point_estimate"] = (
+        no_trim_run.final_mean
+        if estimand == "mean"
+        else float(
+            np.sum(
+                no_trim_run.final_weights[no_trim_run.respondent_mask]
+                * inputs.y[no_trim_run.respondent_mask]
+            )
+        )
     )
 
     if inputs.paradata.shape[1] > 0 or inputs.actions.shape[1] > 0:
         aux_only_run = _run_weight_pipeline(inputs, params, feature_mode_override="aux_only")
-        payload["alternate_propensity_aux_only_point_estimate"] = aux_only_run.final_mean if estimand == "mean" else float(
-            np.sum(aux_only_run.final_weights[aux_only_run.respondent_mask] * inputs.y[aux_only_run.respondent_mask])
+        payload["alternate_propensity_aux_only_point_estimate"] = (
+            aux_only_run.final_mean
+            if estimand == "mean"
+            else float(
+                np.sum(
+                    aux_only_run.final_weights[aux_only_run.respondent_mask]
+                    * inputs.y[aux_only_run.respondent_mask]
+                )
+            )
         )
 
     if inputs.control_totals.size > 0:
@@ -1403,8 +1525,15 @@ def _build_sensitivity_payload(
         except Exception as exc:  # pragma: no cover - diagnostic fallback
             payload[f"alternate_calibration_{alternate}_error"] = str(exc)
         else:
-            payload[f"alternate_calibration_{alternate}_point_estimate"] = alt_run.final_mean if estimand == "mean" else float(
-                np.sum(alt_run.final_weights[alt_run.respondent_mask] * inputs.y[alt_run.respondent_mask])
+            payload[f"alternate_calibration_{alternate}_point_estimate"] = (
+                alt_run.final_mean
+                if estimand == "mean"
+                else float(
+                    np.sum(
+                        alt_run.final_weights[alt_run.respondent_mask]
+                        * inputs.y[alt_run.respondent_mask]
+                    )
+                )
             )
     return payload
 
@@ -1422,16 +1551,36 @@ def _common_payload(
     response_rate = float(np.mean(inputs.response))
     clip_min = float(params.get("clip_min", 0.02))
     clip_max = float(params.get("clip_max", 0.98))
-    overlap_share = float(np.mean((run.propensity <= clip_min + 1e-9) | (run.propensity >= clip_max - 1e-9)))
+    overlap_share = float(
+        np.mean((run.propensity <= clip_min + 1e-9) | (run.propensity >= clip_max - 1e-9))
+    )
     respondent_mask = run.respondent_mask
     respondent_weights = run.final_weights[respondent_mask]
     sample_weight = run.phase_weights / max(float(np.mean(run.phase_weights)), 1e-12)
 
     r_indicator = _representativeness_indicator(run.propensity, sample_weight)
     partial_r = {
-        "x_aux": _column_diagnostics(inputs.X_aux, x_names, propensity=run.propensity, response=inputs.response, sample_weight=sample_weight),
-        "paradata": _column_diagnostics(inputs.paradata, paradata_names, propensity=run.propensity, response=inputs.response, sample_weight=sample_weight),
-        "actions": _column_diagnostics(inputs.actions, action_names, propensity=run.propensity, response=inputs.response, sample_weight=sample_weight),
+        "x_aux": _column_diagnostics(
+            inputs.X_aux,
+            x_names,
+            propensity=run.propensity,
+            response=inputs.response,
+            sample_weight=sample_weight,
+        ),
+        "paradata": _column_diagnostics(
+            inputs.paradata,
+            paradata_names,
+            propensity=run.propensity,
+            response=inputs.response,
+            sample_weight=sample_weight,
+        ),
+        "actions": _column_diagnostics(
+            inputs.actions,
+            action_names,
+            propensity=run.propensity,
+            response=inputs.response,
+            sample_weight=sample_weight,
+        ),
     }
 
     action_effects = _action_effect_diagnostics(
@@ -1456,7 +1605,11 @@ def _common_payload(
         selected_indices=_int_tuple(params.get("interviewer_column_indices")),
     )
 
-    weight_cv = float(np.std(respondent_weights) / max(np.mean(respondent_weights), 1e-12)) if respondent_weights.size else 0.0
+    weight_cv = (
+        float(np.std(respondent_weights) / max(np.mean(respondent_weights), 1e-12))
+        if respondent_weights.size
+        else 0.0
+    )
     quality_metrics = {
         "response_rate": response_rate,
         "r_indicator": r_indicator,
@@ -1465,7 +1618,11 @@ def _common_payload(
         "overlap_share_at_clip_bounds": overlap_share,
         "calibration_max_abs_residual": float(run.calibration_status.get("max_abs_residual", 0.0)),
     }
-    loss_value = float(np.sum(inputs.cost_vector)) + float(params.get("stop_lambda", 1.0)) * (1.0 - r_indicator) ** 2 + float(params.get("stop_gamma", 1.0)) * estimate_run.variance_estimate
+    loss_value = (
+        float(np.sum(inputs.cost_vector))
+        + float(params.get("stop_lambda", 1.0)) * (1.0 - r_indicator) ** 2
+        + float(params.get("stop_gamma", 1.0)) * estimate_run.variance_estimate
+    )
 
     return {
         "estimand_type": str(params.get("estimand", "mean")).lower(),
@@ -1476,8 +1633,12 @@ def _common_payload(
         "standard_error": estimate_run.standard_error,
         "variance_method_used": estimate_run.variance_method_used,
         "confidence_level": float(params.get("confidence_level", 0.95)),
-        "ci_lower": estimate_run.point_estimate - float(NormalDist().inv_cdf((1.0 + float(params.get("confidence_level", 0.95))) / 2.0)) * estimate_run.standard_error,
-        "ci_upper": estimate_run.point_estimate + float(NormalDist().inv_cdf((1.0 + float(params.get("confidence_level", 0.95))) / 2.0)) * estimate_run.standard_error,
+        "ci_lower": estimate_run.point_estimate
+        - float(NormalDist().inv_cdf((1.0 + float(params.get("confidence_level", 0.95))) / 2.0))
+        * estimate_run.standard_error,
+        "ci_upper": estimate_run.point_estimate
+        + float(NormalDist().inv_cdf((1.0 + float(params.get("confidence_level", 0.95))) / 2.0))
+        * estimate_run.standard_error,
         "response_rate": response_rate,
         "propensity_scores": run.propensity.tolist(),
         "propensity_model_coefficients": run.propensity_coefficients.tolist(),
@@ -1496,7 +1657,9 @@ def _common_payload(
             "n_nonrespondents": int(np.sum(~respondent_mask)),
             "n_followup": int(np.sum(np.abs(inputs.followup - 1.0) > 1e-12)),
             "n_followup_adjusted": int(np.sum(np.abs(inputs.followup - 1.0) > 1e-12)),
-            "n_targeted": int(np.sum(np.any(inputs.actions > 0.5, axis=1))) if inputs.actions.shape[1] else 0,
+            "n_targeted": int(np.sum(np.any(inputs.actions > 0.5, axis=1)))
+            if inputs.actions.shape[1]
+            else 0,
             "assigned_actions_by_group": {
                 name: int(np.sum(inputs.actions[:, idx] > 0.5))
                 for idx, name in enumerate(action_names)
@@ -1504,7 +1667,9 @@ def _common_payload(
             "representativeness_indicator": r_indicator,
         },
         "stop_status": {
-            "stop_reason": str(params.get("stop_reason", "")) if bool(params.get("store_stop_reason", True)) else "",
+            "stop_reason": str(params.get("stop_reason", ""))
+            if bool(params.get("store_stop_reason", True))
+            else "",
             "require_prespecified_rules": bool(params.get("require_prespecified_rules", True)),
             "prespecified_rule_supplied": bool(str(params.get("decision_rule_id", ""))),
             "loss_value": loss_value,
@@ -1565,15 +1730,24 @@ def _run_augmented_estimation(
         ridge=ridge,
     )
     m_hat = _predict_linear(features, beta)
-    rho = np.clip(run.propensity, float(params.get("clip_min", 0.02)), float(params.get("clip_max", 0.98)))
+    rho = np.clip(
+        run.propensity, float(params.get("clip_min", 0.02)), float(params.get("clip_max", 0.98))
+    )
     pseudo_outcome = m_hat.copy()
-    pseudo_outcome[respondent_mask] = m_hat[respondent_mask] + (inputs.y[respondent_mask] - m_hat[respondent_mask]) / rho[respondent_mask]
+    pseudo_outcome[respondent_mask] = (
+        m_hat[respondent_mask]
+        + (inputs.y[respondent_mask] - m_hat[respondent_mask]) / rho[respondent_mask]
+    )
 
     analysis_weights = run.phase_weights
     total_estimate = float(np.sum(analysis_weights * pseudo_outcome))
     greg_adjustment = 0.0
-    if inputs.control_totals.size > 0 and bool(params.get("use_calibration_on_pseudo_outcome", True)):
-        weighted_beta = _fit_weighted_linear(inputs.X_aux, pseudo_outcome, analysis_weights, ridge=ridge)[1:]
+    if inputs.control_totals.size > 0 and bool(
+        params.get("use_calibration_on_pseudo_outcome", True)
+    ):
+        weighted_beta = _fit_weighted_linear(
+            inputs.X_aux, pseudo_outcome, analysis_weights, ridge=ridge
+        )[1:]
         t_ht_x = np.sum(analysis_weights[:, None] * inputs.X_aux, axis=0)
         greg_adjustment = float((inputs.control_totals - t_ht_x) @ weighted_beta)
         total_estimate += greg_adjustment
@@ -1588,7 +1762,14 @@ def _run_augmented_estimation(
         "point_estimate": point_estimate,
     }
     if compute_variance:
-        variance_estimate, standard_error, variance_diagnostics, replicate_estimates, control_adjustment, slope = _estimate_from_replicates(
+        (
+            variance_estimate,
+            standard_error,
+            variance_diagnostics,
+            replicate_estimates,
+            control_adjustment,
+            slope,
+        ) = _estimate_from_replicates(
             inputs,
             params,
             run,
@@ -1604,8 +1785,22 @@ def _run_augmented_estimation(
         control_adjustment = 0.0
         slope = []
     outcome_predictions_resp = m_hat[respondent_mask]
-    ss_tot = float(np.sum(run.final_weights[respondent_mask] * (inputs.y[respondent_mask] - _weighted_mean(inputs.y[respondent_mask], run.final_weights[respondent_mask])) ** 2))
-    ss_res = float(np.sum(run.final_weights[respondent_mask] * (inputs.y[respondent_mask] - outcome_predictions_resp) ** 2))
+    ss_tot = float(
+        np.sum(
+            run.final_weights[respondent_mask]
+            * (
+                inputs.y[respondent_mask]
+                - _weighted_mean(inputs.y[respondent_mask], run.final_weights[respondent_mask])
+            )
+            ** 2
+        )
+    )
+    ss_res = float(
+        np.sum(
+            run.final_weights[respondent_mask]
+            * (inputs.y[respondent_mask] - outcome_predictions_resp) ** 2
+        )
+    )
     weighted_r2 = 0.0 if ss_tot <= 1e-12 else max(0.0, 1.0 - ss_res / ss_tot)
     estimate_run = _EstimateRun(
         point_estimate=float(point_estimate),
@@ -1613,7 +1808,12 @@ def _run_augmented_estimation(
         total_estimate=float(total_estimate),
         variance_estimate=float(variance_estimate),
         standard_error=float(standard_error),
-        variance_method_used=str(variance_diagnostics.get("replicate_backend", "linearization" if "linearization_backend" in variance_diagnostics else "replicate")),
+        variance_method_used=str(
+            variance_diagnostics.get(
+                "replicate_backend",
+                "linearization" if "linearization_backend" in variance_diagnostics else "replicate",
+            )
+        ),
         variance_diagnostics=variance_diagnostics,
         replicate_estimates=replicate_estimates if replicate_estimates.size else None,
         control_total_variance_adjustment=float(control_adjustment),
@@ -1622,7 +1822,11 @@ def _run_augmented_estimation(
             "outcome_model_coefficients": beta.tolist(),
             "weighted_r2": float(weighted_r2),
             "greg_adjustment": float(greg_adjustment),
-            "calibrated_ipw_reference_estimate": float(run.final_mean if estimand == "mean" else np.sum(run.final_weights[respondent_mask] * inputs.y[respondent_mask])),
+            "calibrated_ipw_reference_estimate": float(
+                run.final_mean
+                if estimand == "mean"
+                else np.sum(run.final_weights[respondent_mask] * inputs.y[respondent_mask])
+            ),
         },
     )
     return estimate_run, auxiliary, run
@@ -1644,7 +1848,14 @@ def _run_calibrated_estimation(
         respondent_weights,
         estimand=estimand,
     )
-    variance_estimate, standard_error, variance_diagnostics, replicate_estimates, control_adjustment, slope = _estimate_from_replicates(
+    (
+        variance_estimate,
+        standard_error,
+        variance_diagnostics,
+        replicate_estimates,
+        control_adjustment,
+        slope,
+    ) = _estimate_from_replicates(
         inputs,
         params,
         run,
@@ -1657,7 +1868,12 @@ def _run_calibrated_estimation(
         total_estimate=float(point_estimate if estimand == "total" else alternate_estimate),
         variance_estimate=float(variance_estimate),
         standard_error=float(standard_error),
-        variance_method_used=str(variance_diagnostics.get("replicate_backend", variance_diagnostics.get("linearization_backend", "linearization"))),
+        variance_method_used=str(
+            variance_diagnostics.get(
+                "replicate_backend",
+                variance_diagnostics.get("linearization_backend", "linearization"),
+            )
+        ),
         variance_diagnostics=variance_diagnostics,
         replicate_estimates=replicate_estimates if replicate_estimates.size else None,
         control_total_variance_adjustment=float(control_adjustment),
@@ -1674,7 +1890,9 @@ def _build_calibrated_payload(inputs: _AdaptiveInputs, params: Mapping[str, Any]
         params,
         mode=str(params.get("propensity_feature_mode", "full")).lower(),
     )
-    x_names = _feature_names(inputs.X_aux.shape[1], prefix="x", provided=_string_tuple(params.get("x_feature_names")))
+    x_names = _feature_names(
+        inputs.X_aux.shape[1], prefix="x", provided=_string_tuple(params.get("x_feature_names"))
+    )
     return {
         "result": _common_payload(
             inputs,
@@ -1695,7 +1913,9 @@ def _build_augmented_payload(inputs: _AdaptiveInputs, params: Mapping[str, Any])
         params,
         mode=str(params.get("propensity_feature_mode", "full")).lower(),
     )
-    x_names = _feature_names(inputs.X_aux.shape[1], prefix="x", provided=_string_tuple(params.get("x_feature_names")))
+    x_names = _feature_names(
+        inputs.X_aux.shape[1], prefix="x", provided=_string_tuple(params.get("x_feature_names"))
+    )
     payload = _common_payload(
         inputs,
         params,
@@ -1710,7 +1930,9 @@ def _build_augmented_payload(inputs: _AdaptiveInputs, params: Mapping[str, Any])
         "outcome_model_coefficients": estimate_run.auxiliary["outcome_model_coefficients"],
         "weighted_r2": estimate_run.auxiliary["weighted_r2"],
         "greg_adjustment": estimate_run.auxiliary["greg_adjustment"],
-        "calibrated_ipw_reference_estimate": estimate_run.auxiliary["calibrated_ipw_reference_estimate"],
+        "calibrated_ipw_reference_estimate": estimate_run.auxiliary[
+            "calibrated_ipw_reference_estimate"
+        ],
     }
     return {"result": payload}
 
@@ -1800,7 +2022,9 @@ class AdaptiveAugmentedEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Adaptive / responsive survey estimator with AIPW/GREG-style augmentation on top of phase-aware response weighting.",
-        tags=frozenset({"survey", "adaptive", "responsive", "aipw", "doubly-robust", "nonresponse"}),
+        tags=frozenset(
+            {"survey", "adaptive", "responsive", "aipw", "doubly-robust", "nonresponse"}
+        ),
         citations=(
             "Robins, J. M., Rotnitzky, A., & Zhao, L. P. (1994). Estimation of regression coefficients when some regressors are not always observed. Journal of the American Statistical Association, 89(427), 846-866.",
             "Särndal, C. E., Swensson, B., & Wretman, J. (1992). Model Assisted Survey Sampling. Springer.",
@@ -1820,7 +2044,9 @@ class AdaptiveAugmentedEstimator:
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
         inputs = _coerce_inputs(state)
         if str(params.get("outcome_model", "linear")).lower() != "linear":
-            raise ValueError("Phase 1 adaptive augmentation currently supports outcome_model='linear' only")
+            raise ValueError(
+                "Phase 1 adaptive augmentation currently supports outcome_model='linear' only"
+            )
         return _build_augmented_payload(inputs, params)
 
 

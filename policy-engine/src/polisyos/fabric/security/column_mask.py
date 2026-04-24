@@ -1,4 +1,5 @@
 """Column-level filtering helpers driven by authorization decisions."""
+
 from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
@@ -73,9 +74,7 @@ def mask_dataframe_columns(
     if allowed is None:
         return frame
     allowed_tokens = {_normalize_column_token(column) for column in allowed}
-    keep = [
-        column for column in frame.columns if _normalize_column_token(column) in allowed_tokens
-    ]
+    keep = [column for column in frame.columns if _normalize_column_token(column) in allowed_tokens]
     return frame.loc[:, keep]
 
 

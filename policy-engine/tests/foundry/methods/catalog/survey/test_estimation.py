@@ -113,7 +113,9 @@ class TestCalibrationGREG:
         assert low["result"]["constraint_mode"] == "relaxed"
         assert high["result"]["constraint_mode"] == "relaxed"
         assert high_shift < low_shift
-        assert abs(high["result"]["control_residual"][0]) > abs(low["result"]["control_residual"][0])
+        assert abs(high["result"]["control_residual"][0]) > abs(
+            low["result"]["control_residual"][0]
+        )
         assert high["result"]["variance_components"]["aux_total_uncertainty"] > 0.0
 
     def test_auxiliary_total_uncertainty_rejects_non_psd_covariance(self) -> None:
@@ -126,7 +128,9 @@ class TestCalibrationGREG:
                 }
             )
 
-    def test_standard_errors_and_correlation_expand_to_full_covariance(self, isolated_registry) -> None:
+    def test_standard_errors_and_correlation_expand_to_full_covariance(
+        self, isolated_registry
+    ) -> None:
         method = _method_or_skip(isolated_registry, "survey.estimation.calibration_greg@1.0.0")
         state = {
             "y": np.array([5.0, 7.0, 6.0]),
@@ -143,7 +147,9 @@ class TestCalibrationGREG:
 
         result = method.pure_step(state, {})
         expected_covariance = np.array([[4.0, 3.0], [3.0, 9.0]])
-        assert_allclose(result["calibration_weights"].uncertainty_covariance_used, expected_covariance)
+        assert_allclose(
+            result["calibration_weights"].uncertainty_covariance_used, expected_covariance
+        )
         assert result["result"]["constraint_mode"] == "relaxed"
 
     def test_replicate_totals_are_supported(self, isolated_registry) -> None:
@@ -166,7 +172,9 @@ class TestCalibrationGREG:
         assert result["result"]["diagnostics"]["uncertainty_used_replicates"] is True
         assert result["result"]["variance_components"]["aux_total_uncertainty"] >= 0.0
 
-    def test_q_weights_and_optional_inputs_are_reflected_in_contract(self, isolated_registry) -> None:
+    def test_q_weights_and_optional_inputs_are_reflected_in_contract(
+        self, isolated_registry
+    ) -> None:
         method = _method_or_skip(isolated_registry, "survey.estimation.calibration_greg@1.0.0")
         state = method.materialize_input(
             {

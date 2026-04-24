@@ -37,21 +37,20 @@ def _check_tcp(host: str, port: int, timeout: float) -> dict[str, object]:
 def _preview_manifest(path: Path, limit: int = 3) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     dctx = zstd.ZstdDecompressor()
-    with path.open("rb") as raw_fh:
-        with dctx.stream_reader(raw_fh) as reader:
-            text_reader = TextIOWrapper(reader, encoding="utf-8")
-            for _ in range(limit):
-                line = text_reader.readline()
-                if not line:
-                    break
-                payload = json.loads(line)
-                rows.append(
-                    {
-                        "doc_id": payload.get("doc_id"),
-                        "status": payload.get("status"),
-                        "text_length": payload.get("text_length"),
-                    }
-                )
+    with path.open("rb") as raw_fh, dctx.stream_reader(raw_fh) as reader:
+        text_reader = TextIOWrapper(reader, encoding="utf-8")
+        for _ in range(limit):
+            line = text_reader.readline()
+            if not line:
+                break
+            payload = json.loads(line)
+            rows.append(
+                {
+                    "doc_id": payload.get("doc_id"),
+                    "status": payload.get("status"),
+                    "text_length": payload.get("text_length"),
+                }
+            )
     return rows
 
 
@@ -76,7 +75,11 @@ def main() -> int:
         "manifest_size_bytes": args.manifest.stat().st_size if args.manifest.exists() else 0,
         "summary_exists": args.summary.exists(),
         "gonka_keys_loaded": len(
-            [key for key in os.environ if key == "GONKA_API_KEY" or key.startswith("GONKA_API_KEY_")]
+            [
+                key
+                for key in os.environ
+                if key == "GONKA_API_KEY" or key.startswith("GONKA_API_KEY_")
+            ]
         ),
         "imports": {},
         "network": {
@@ -105,7 +108,9 @@ def main() -> int:
             report["errors"].append(f"manifest:{exc}")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    args.output.write_text(
+        json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
 
     print(json.dumps({"output": str(args.output), "errors": report["errors"]}, ensure_ascii=False))
     return 0 if not report["errors"] else 1

@@ -29,7 +29,9 @@ def _prepare_schema(backend: PostgresBackend) -> None:
     )
     backend.execute("ALTER TABLE public.rls_test_records ENABLE ROW LEVEL SECURITY")
     backend.execute("ALTER TABLE public.rls_test_records FORCE ROW LEVEL SECURITY")
-    backend.execute("DROP POLICY IF EXISTS tenant_access_rls_test_records ON public.rls_test_records")
+    backend.execute(
+        "DROP POLICY IF EXISTS tenant_access_rls_test_records ON public.rls_test_records"
+    )
     backend.execute(
         "CREATE POLICY tenant_access_rls_test_records ON public.rls_test_records "
         "USING (tenant_id = current_setting('app.current_tenant', true)::uuid) "
@@ -42,36 +44,32 @@ def test_tenant_cannot_read_other_tenant_rows(backend: PostgresBackend) -> None:
     with backend.transaction():
         _prepare_schema(backend)
 
-    with backend.transaction():
-        with backend.tenant_scope(TENANT_A):
-            backend.execute(
-                "INSERT INTO public.rls_test_records (id, tenant_id, payload) VALUES (%s, %s, %s)",
-                ["a1", TENANT_A, "row-a"],
-            )
+    with backend.transaction(), backend.tenant_scope(TENANT_A):
+        backend.execute(
+            "INSERT INTO public.rls_test_records (id, tenant_id, payload) VALUES (%s, %s, %s)",
+            ["a1", TENANT_A, "row-a"],
+        )
 
-    with backend.transaction():
-        with backend.tenant_scope(TENANT_B):
-            backend.execute(
-                "INSERT INTO public.rls_test_records (id, tenant_id, payload) VALUES (%s, %s, %s)",
-                ["b1", TENANT_B, "row-b"],
-            )
+    with backend.transaction(), backend.tenant_scope(TENANT_B):
+        backend.execute(
+            "INSERT INTO public.rls_test_records (id, tenant_id, payload) VALUES (%s, %s, %s)",
+            ["b1", TENANT_B, "row-b"],
+        )
 
-    with backend.transaction():
-        with backend.tenant_scope(TENANT_A):
-            rows = backend.fetchall("SELECT id FROM public.rls_test_records ORDER BY id")
-            assert rows == [("a1",)]
+    with backend.transaction(), backend.tenant_scope(TENANT_A):
+        rows = backend.fetchall("SELECT id FROM public.rls_test_records ORDER BY id")
+        assert rows == [("a1",)]
 
 
 def test_without_tenant_context_returns_no_rows(backend: PostgresBackend) -> None:
     with backend.transaction():
         _prepare_schema(backend)
 
-    with backend.transaction():
-        with backend.tenant_scope(TENANT_A):
-            backend.execute(
-                "INSERT INTO public.rls_test_records (id, tenant_id, payload) VALUES (%s, %s, %s)",
-                ["a1", TENANT_A, "row-a"],
-            )
+    with backend.transaction(), backend.tenant_scope(TENANT_A):
+        backend.execute(
+            "INSERT INTO public.rls_test_records (id, tenant_id, payload) VALUES (%s, %s, %s)",
+            ["a1", TENANT_A, "row-a"],
+        )
 
     with backend.transaction():
         rows = backend.fetchall("SELECT id FROM public.rls_test_records")

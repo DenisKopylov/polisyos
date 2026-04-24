@@ -5,6 +5,7 @@ protocols used by `run_experiment()` and external orchestration wrappers.
 Symbols are lazily imported to avoid pulling LangGraph and node registries into
 processes that only need to inspect the package surface.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -15,42 +16,42 @@ if TYPE_CHECKING:
         build_execution_context,
         build_registry_with_builtin_nodes,
         resolve_workflow_id,
-        run_discovery_workflow,
         run_causal_full_workflow,
         run_default_workflow,
+        run_discovery_workflow,
         run_policy_design_workflow,
         run_selected_workflow,
     )
     from polisyos.scientist.workflows.causal_full import causal_full_workflow_spec
-    from polisyos.scientist.workflows.discovery import discovery_workflow_spec
     from polisyos.scientist.workflows.default import default_workflow_spec
-    from polisyos.scientist.workflows.policy_design import policy_design_workflow_spec
+    from polisyos.scientist.workflows.discovery import discovery_workflow_spec
     from polisyos.scientist.workflows.engine_base import WorkflowEngine, WorkflowEngineFactory
     from polisyos.scientist.workflows.engine_langgraph import (
         LangGraphEngine,
         LangGraphEngineFactory,
     )
     from polisyos.scientist.workflows.engine_simple import SimpleLoopEngine
+    from polisyos.scientist.workflows.policy_design import policy_design_workflow_spec
 
 __all__ = [
-    "WorkflowEngine",
-    "WorkflowEngineFactory",
     "LangGraphEngine",
     "LangGraphEngineFactory",
     "SimpleLoopEngine",
+    "WorkflowEngine",
+    "WorkflowEngineFactory",
     "build_default_registry",
     "build_execution_context",
     "build_registry_with_builtin_nodes",
-    "resolve_workflow_id",
-    "run_discovery_workflow",
-    "run_default_workflow",
-    "run_causal_full_workflow",
-    "run_policy_design_workflow",
-    "run_selected_workflow",
-    "default_workflow_spec",
     "causal_full_workflow_spec",
+    "default_workflow_spec",
     "discovery_workflow_spec",
     "policy_design_workflow_spec",
+    "resolve_workflow_id",
+    "run_causal_full_workflow",
+    "run_default_workflow",
+    "run_discovery_workflow",
+    "run_policy_design_workflow",
+    "run_selected_workflow",
 ]
 
 
@@ -82,9 +83,9 @@ def __getattr__(name: str) -> Any:
             build_execution_context,
             build_registry_with_builtin_nodes,
             resolve_workflow_id,
-            run_discovery_workflow,
             run_causal_full_workflow,
             run_default_workflow,
+            run_discovery_workflow,
             run_policy_design_workflow,
             run_selected_workflow,
         )
@@ -107,8 +108,8 @@ def __getattr__(name: str) -> Any:
         "policy_design_workflow_spec",
     }:
         from polisyos.scientist.workflows.causal_full import causal_full_workflow_spec
-        from polisyos.scientist.workflows.discovery import discovery_workflow_spec
         from polisyos.scientist.workflows.default import default_workflow_spec
+        from polisyos.scientist.workflows.discovery import discovery_workflow_spec
         from polisyos.scientist.workflows.policy_design import policy_design_workflow_spec
 
         return {

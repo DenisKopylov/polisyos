@@ -16,6 +16,7 @@ import tomllib
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
+
 from tools._lib.imports import repo_root_from
 
 TYPE_IGNORE_RE = re.compile(r"#\s*type:\s*ignore(?:\[[^\]]+\])?")
@@ -69,7 +70,9 @@ class Finding:
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Check CI ratchets for suppressions and unbounded caches.")
+    parser = argparse.ArgumentParser(
+        description="Check CI ratchets for suppressions and unbounded caches."
+    )
     parser.add_argument(
         "--repo-root",
         default=repo_root_from(__file__),

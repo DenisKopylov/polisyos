@@ -1,0 +1,198 @@
+@layer components {
+  .monograph-layout {
+    display: grid;
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+    align-items: start;
+  }
+
+  .monograph-shell {
+    position: relative;
+  }
+
+  .monograph-sidebar {
+    display: grid;
+    gap: 1rem;
+    align-self: start;
+  }
+
+  .monograph-sidebar-card {
+    position: sticky;
+    top: calc(var(--safe-area-inset-top) + 1rem);
+    display: grid;
+    gap: 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 1rem;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--panel) 92%, transparent),
+      color-mix(in srgb, var(--surface) 82%, transparent)
+    );
+    box-shadow: var(--shadow-panel);
+    backdrop-filter: blur(18px);
+  }
+
+  .monograph-medallion {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+    background: color-mix(in srgb, var(--paper) 55%, transparent);
+  }
+
+  .monograph-progress {
+    position: relative;
+    overflow: hidden;
+    height: 4px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--line) 54%, transparent);
+  }
+
+  .monograph-progress > span {
+    display: block;
+    height: 100%;
+    transform-origin: left center;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--teal) 82%, white 12%),
+      color-mix(in srgb, var(--gold) 76%, transparent 12%)
+    );
+  }
+
+  .monograph-main {
+    min-width: 0;
+  }
+
+  .monograph-prose-frame {
+    position: relative;
+    padding-right: 0;
+  }
+
+  .monograph-section {
+    position: relative;
+    content-visibility: auto;
+    contain-intrinsic-size: 720px;
+  }
+
+  .prose {
+    position: relative;
+    max-width: 68ch;
+    color: var(--ink);
+    font-family: "Manrope", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+  }
+
+  .prose > p + p {
+    margin-block-start: 1em;
+    text-indent: 0;
+  }
+
+  .prose p,
+  .prose li,
+  .prose dd {
+    max-width: 68ch;
+  }
+
+  .prose blockquote,
+  .reading-pull-quote {
+    font-family: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+    font-style: italic;
+    border-inline-start: 2px solid var(--gold);
+    padding-inline-start: 1.5ch;
+    color: color-mix(in oklch, var(--ink), transparent 15%);
+  }
+
+  .prose h1,
+  .prose h2,
+  .prose h3 {
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  .prose h1 {
+    font-size: clamp(2.2rem, 4vw, 3.6rem);
+  }
+
+  .prose h2 {
+    font-size: clamp(1.5rem, 2vw, 2.2rem);
+    margin-top: 0;
+  }
+
+  .prose ul,
+  .prose ol {
+    padding-left: 1.25em;
+  }
+
+  .prose li + li {
+    margin-top: 0.45em;
+  }
+
+  .prose .definition-term {
+    font-variant: small-caps;
+    letter-spacing: 0.05em;
+  }
+
+  .prose .footnote-ref {
+    font-feature-settings: "sups";
+    color: var(--teal);
+  }
+
+  .prose .margin-note {
+    position: absolute;
+    inset-inline-start: calc(100% + 2ch);
+    inline-size: 18ch;
+    font-size: 13px;
+    color: var(--slate);
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  .reading-section-header {
+    display: grid;
+    gap: 0.85rem;
+    margin-bottom: 1rem;
+  }
+
+  .reading-section-body {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .reading-inline-list {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .reading-inline-list > li {
+    border-left: 2px solid color-mix(in srgb, var(--gold) 32%, transparent);
+    padding-left: 1rem;
+  }
+
+  .reading-footnotes {
+    max-width: 68ch;
+  }
+
+  @media (min-width: 1024px) {
+    .monograph-layout {
+      grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
+    }
+  }
+
+  @media (min-width: 1400px) {
+    .monograph-prose-frame {
+      padding-right: 22ch;
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .monograph-sidebar-card {
+      position: static;
+    }
+  }
+}

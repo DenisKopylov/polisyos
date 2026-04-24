@@ -20,12 +20,12 @@ The slice currently contains `1` `test_*.py` file.
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - [`../../tools/lint/README.md`](../../tools/lint/README.md)
 - `tools/lint/lint_legacy_cutover.py`
 
-**Depended on by**
+### Depended On By
 
 - Architecture and cutover ratchets
 - [`../README.md`](../README.md) when navigating non-subsystem-specific test

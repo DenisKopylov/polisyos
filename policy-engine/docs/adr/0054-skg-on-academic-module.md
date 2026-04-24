@@ -1,12 +1,15 @@
 # ADR-0054: SKG Built on the Academic Module
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-02-28
 
 ## Context
+
 The Scientific Knowledge Graph (SKG) aggregates causal evidence from academic literature.
 It needs a module home in the codebase. Two options were considered: a standalone `skg/`
 top-level package, or building SKG functionality on top of the existing `academic/` module
@@ -15,6 +18,7 @@ A separate package would add import complexity and create an artificial boundary
 closely related concerns.
 
 ## Decision
+
 1. SKG is implemented as sub-modules within `polisyos.academic.knowledge`, not as a separate
    top-level `skg/` package.
 2. The key SKG components are: `skg_store.py` (DuckDB storage layer), `skg_versioning.py`
@@ -29,14 +33,18 @@ closely related concerns.
    import gate boundary makes future extraction straightforward.
 
 ## Consequences
+
 ### Positive
+
 - Natural colocation: SKG lives next to its primary data source (OpenAlex/article extraction).
 - No new top-level package means simpler dependency graph and import structure.
 - Import gates provide a clean public API boundary that enables future extraction if needed.
 
 ### Negative
+
 - The `academic/` module becomes larger and more complex, potentially harder to navigate.
 - Developers unfamiliar with the codebase may not intuitively look in `academic/` for graph
   storage functionality.
+
 - If non-academic knowledge sources contribute to SKG in the future, the module name becomes
   slightly misleading.

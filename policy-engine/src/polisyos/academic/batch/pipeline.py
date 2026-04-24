@@ -6,14 +6,18 @@ import asyncio
 import gc
 import time
 from dataclasses import dataclass, field, replace
+from typing import TYPE_CHECKING
 
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.batch_common.thermal import cooldown
+
+if TYPE_CHECKING:
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 
 @dataclass
 class PipelineStats:
     """Pipeline stats public type."""
+
     elapsed_seconds: float = 0.0
     stage_times: dict[str, float] = field(default_factory=dict)
     metrics: dict[str, float | int | str] = field(default_factory=dict)
@@ -29,12 +33,18 @@ def _ensure_graph_inputs(
     return merge_and_dedup_fn(config)
 
 
-async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = False) -> PipelineStats:
+async def run_academic_pipeline(
+    config: AcademicBatchConfig, *, thermal: bool = False
+) -> PipelineStats:
     """Run selected academic stages sequentially."""
     from polisyos.academic.batch.benchmark import run_benchmark
-    from polisyos.academic.batch.claim_adjudicator import run_claim_adjudicate, run_consensus_aggregate
+    from polisyos.academic.batch.claim_adjudicator import (
+        run_claim_adjudicate,
+        run_consensus_aggregate,
+    )
     from polisyos.academic.batch.conflict_resolve import run_conflict_resolve
     from polisyos.academic.batch.dedup import merge_and_dedup
+    from polisyos.academic.batch.demand_harvest import run_demand_harvest
     from polisyos.academic.batch.doc_normalize import run_doc_normalize
     from polisyos.academic.batch.edge_synthesize import run_edge_synthesize
     from polisyos.academic.batch.embedder import run_embed
@@ -44,9 +54,8 @@ async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = 
     from polisyos.academic.batch.parser import parse_raw_sources
     from polisyos.academic.batch.publish import run_publish
     from polisyos.academic.batch.qc import run_qc
-    from polisyos.academic.batch.resolve_finalize import run_resolve_finalize
     from polisyos.academic.batch.resolve_extract import run_resolve_extract
-    from polisyos.academic.batch.demand_harvest import run_demand_harvest
+    from polisyos.academic.batch.resolve_finalize import run_resolve_finalize
     from polisyos.academic.batch.topic_select import run_topic_select
 
     t0 = time.monotonic()
@@ -147,7 +156,9 @@ async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = 
     if "claim_adjudicate" in config.stages:
         st = time.monotonic()
         adjudicated = await run_claim_adjudicate(config)
-        adjudicated.update({f"consensus_{k}": v for k, v in run_consensus_aggregate(config).items()})
+        adjudicated.update(
+            {f"consensus_{k}": v for k, v in run_consensus_aggregate(config).items()}
+        )
         stats.stage_times["claim_adjudicate"] = time.monotonic() - st
         stats.metrics.update({f"claim_adjudicate_{k}": v for k, v in adjudicated.items()})
 
@@ -184,6 +195,7 @@ async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = 
 
     if "transport_score" in config.stages:
         from polisyos.academic.batch.transport_score import run_transport_score
+
         st = time.monotonic()
         ts_stats = run_transport_score(config)
         stats.stage_times["transport_score"] = time.monotonic() - st
@@ -221,6 +233,8 @@ async def run_academic_pipeline(config: AcademicBatchConfig, *, thermal: bool = 
     return stats
 
 
-def run_academic_pipeline_sync(config: AcademicBatchConfig, *, thermal: bool = False) -> PipelineStats:
+def run_academic_pipeline_sync(
+    config: AcademicBatchConfig, *, thermal: bool = False
+) -> PipelineStats:
     """Sync wrapper for non-async callers."""
     return asyncio.run(run_academic_pipeline(config, thermal=thermal))

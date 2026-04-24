@@ -1,4 +1,5 @@
 """Public causal literature prior module API."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -34,12 +35,7 @@ def _build_prior_metadata(
     extra: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     matched_variables = sorted(
-        {
-            node
-            for edge in edges
-            for node in (edge.src, edge.dst)
-            if node in set(variables)
-        }
+        {node for edge in edges for node in (edge.src, edge.dst) if node in set(variables)}
     )
     return {
         **dict(metadata or {}),

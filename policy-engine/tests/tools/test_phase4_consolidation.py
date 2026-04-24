@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from pathlib import Path
 import re
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
 from tools.quality.ci.check_workflow_policy import collect_findings
-from tools.registry import LEGACY_ENTRYPOINTS, TOOL_SPECS_BY_KEY
 from tools.quality.testing import mutation
+from tools.registry import LEGACY_ENTRYPOINTS, TOOL_SPECS_BY_KEY
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS_ROOT = REPO_ROOT / "tools"
@@ -83,6 +83,7 @@ def test_no_unmanifested_top_level_tool_directories_exist() -> None:
         "migrations",
         "runtime",
         "data",
+        "design",
         "ukraine_data",
         "calibration",
         "benchmarks",
@@ -97,8 +98,8 @@ def test_no_unmanifested_top_level_tool_directories_exist() -> None:
 
 
 def test_workspace_shell_wrapper_routes_through_unified_cli() -> None:
-    result = subprocess.run(
-        ["bash", str(REPO_ROOT / "scripts" / "bootstrap"), "--help"],
+    result = subprocess.run(  # noqa: S603 - trusted repo-local wrapper smoke test
+        ["/bin/bash", str(REPO_ROOT / "scripts" / "bootstrap"), "--help"],
         cwd=REPO_ROOT,
         check=False,
         capture_output=True,
@@ -113,9 +114,13 @@ def test_workspace_shell_wrapper_routes_through_unified_cli() -> None:
 @pytest.mark.parametrize("script_name", HELP_SAFE_SCRIPT_WRAPPERS)
 def test_help_safe_script_wrappers_emit_deprecation_and_help(script_name: str) -> None:
     script_path = REPO_ROOT / "scripts" / script_name
-    runner = [sys.executable, str(script_path)] if script_name.endswith(".py") else ["bash", str(script_path)]
+    runner = (
+        [sys.executable, str(script_path)]
+        if script_name.endswith(".py")
+        else ["bash", str(script_path)]
+    )
 
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603 - trusted repo-local wrapper smoke test
         [*runner, "--help"],
         cwd=REPO_ROOT,
         check=False,
@@ -131,9 +136,13 @@ def test_help_safe_script_wrappers_emit_deprecation_and_help(script_name: str) -
 @pytest.mark.parametrize("wrapper_name", HELP_SAFE_BENCHMARK_WRAPPERS)
 def test_help_safe_root_benchmark_wrappers_emit_deprecation_and_help(wrapper_name: str) -> None:
     wrapper_path = REPO_ROOT / "benchmarks" / wrapper_name
-    runner = [sys.executable, str(wrapper_path)] if wrapper_name.endswith(".py") else ["bash", str(wrapper_path)]
+    runner = (
+        [sys.executable, str(wrapper_path)]
+        if wrapper_name.endswith(".py")
+        else ["bash", str(wrapper_path)]
+    )
 
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603 - trusted repo-local wrapper smoke test
         [*runner, "--help"],
         cwd=REPO_ROOT,
         check=False,
@@ -168,7 +177,10 @@ def test_ci_policy_flags_legacy_benchmark_and_deprecated_tool_usage(tmp_path: Pa
                 "    runs-on: ubuntu-latest",
                 "    steps:",
                 "      - run: bash benchmarks/run_all_benchmarks.sh",
-                "      - run: uv run polisyos-tools cloud run-remaining-stages --yes --snapshot-root /tmp/snapshot",
+                (
+                    "      - run: uv run polisyos-tools cloud "
+                    "run-remaining-stages --yes --snapshot-root /tmp/snapshot"
+                ),
             ]
         )
         + "\n",
@@ -217,14 +229,12 @@ def test_local_sota_profile_shell_wrapper_routes_to_canonical_benchmark_surface(
 
 def test_foundry_legacy_scripts_are_thin_wrappers() -> None:
     generate = (REPO_ROOT / "scripts" / "generate_stubs.py").read_text(encoding="utf-8")
-    baseline = (REPO_ROOT / "scripts" / "update_signature_baseline.py").read_text(
-        encoding="utf-8"
-    )
+    baseline = (REPO_ROOT / "scripts" / "update_signature_baseline.py").read_text(encoding="utf-8")
 
     assert "warn_legacy_entrypoint" in generate
-    assert 'tools.foundry.generate_stubs' in generate
+    assert "tools.foundry.generate_stubs" in generate
     assert "warn_legacy_entrypoint" in baseline
-    assert 'tools.foundry.update_signature_baseline' in baseline
+    assert "tools.foundry.update_signature_baseline" in baseline
 
 
 def test_live_docs_do_not_reference_legacy_scripts_paths() -> None:
@@ -276,14 +286,12 @@ def test_mutation_tool_scientist_all_aggregates_failures(monkeypatch) -> None:
 
 
 def test_remote_acceptance_imports_are_normalized() -> None:
-    shim = (REPO_ROOT / "tools" / "workspace" / "remote_acceptance.py").read_text(
-        encoding="utf-8"
-    )
+    shim = (REPO_ROOT / "tools" / "workspace" / "remote_acceptance.py").read_text(encoding="utf-8")
     source = (REPO_ROOT / "tools" / "devx" / "workspace" / "remote_acceptance.py").read_text(
         encoding="utf-8"
     )
 
-    assert 'tools.devx.workspace.remote_acceptance' in shim
+    assert "tools.devx.workspace.remote_acceptance" in shim
     assert "ModuleNotFoundError" not in source
     assert "from _common" not in source
     assert "from ._common import" in source

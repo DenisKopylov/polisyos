@@ -36,15 +36,19 @@ class TemplateMatch:
 # Helpers
 # ---------------------------------------------------------------------------
 
-_KMU_PUBLISHERS = frozenset({
-    "кабінет міністрів україни",
-    "кабінет міністрів",
-    "кму",
-})
+_KMU_PUBLISHERS = frozenset(
+    {
+        "кабінет міністрів україни",
+        "кабінет міністрів",
+        "кму",
+    }
+)
 
-_PRESIDENT_PUBLISHERS = frozenset({
-    "президент україни",
-})
+_PRESIDENT_PUBLISHERS = frozenset(
+    {
+        "президент україни",
+    }
+)
 
 
 def _clip(text: str, size: int = 200) -> str:
@@ -135,76 +139,108 @@ _RE_REGISTER = re.compile(
 )
 
 
-def _try_approve(text: str, doc_id: str, anchor: str, citation: str, publisher: str) -> SPOExtractionResult | None:
+def _try_approve(
+    text: str, doc_id: str, anchor: str, citation: str, publisher: str
+) -> SPOExtractionResult | None:
     m = _RE_APPROVE.search(text)
     if not m or len(text) > 600:
         return None
     obj = m.group(1).strip().rstrip(".")
-    return _make_result(doc_id, anchor, citation, [
-        _build_candidate(
-            subject_uk=publisher,
-            predicate="approves",
-            object_uk=obj,
-            norm_type="procedure",
-            fact_text=f"Затверджено: {_clip(obj)}",
-            quote=_clip(text, 400),
-            confidence=0.92,
-        ),
-    ], "kmu_approve")
+    return _make_result(
+        doc_id,
+        anchor,
+        citation,
+        [
+            _build_candidate(
+                subject_uk=publisher,
+                predicate="approves",
+                object_uk=obj,
+                norm_type="procedure",
+                fact_text=f"Затверджено: {_clip(obj)}",
+                quote=_clip(text, 400),
+                confidence=0.92,
+            ),
+        ],
+        "kmu_approve",
+    )
 
 
-def _try_delegate(text: str, doc_id: str, anchor: str, citation: str, publisher: str) -> SPOExtractionResult | None:
+def _try_delegate(
+    text: str, doc_id: str, anchor: str, citation: str, publisher: str
+) -> SPOExtractionResult | None:
     m = _RE_DELEGATE.search(text)
     if not m or len(text) > 600:
         return None
     obj = m.group(1).strip().rstrip(".")
-    return _make_result(doc_id, anchor, citation, [
-        _build_candidate(
-            subject_uk=publisher,
-            predicate="delegates",
-            object_uk=obj,
-            norm_type="delegation",
-            fact_text=f"Доручено: {_clip(obj)}",
-            quote=_clip(text, 400),
-            confidence=0.88,
-        ),
-    ], "kmu_delegate")
+    return _make_result(
+        doc_id,
+        anchor,
+        citation,
+        [
+            _build_candidate(
+                subject_uk=publisher,
+                predicate="delegates",
+                object_uk=obj,
+                norm_type="delegation",
+                fact_text=f"Доручено: {_clip(obj)}",
+                quote=_clip(text, 400),
+                confidence=0.88,
+            ),
+        ],
+        "kmu_delegate",
+    )
 
 
-def _try_control(text: str, doc_id: str, anchor: str, citation: str, publisher: str) -> SPOExtractionResult | None:
+def _try_control(
+    text: str, doc_id: str, anchor: str, citation: str, publisher: str
+) -> SPOExtractionResult | None:
     m = _RE_CONTROL.search(text)
     if not m or len(text) > 500:
         return None
     obj = m.group(1).strip().rstrip(".")
-    return _make_result(doc_id, anchor, citation, [
-        _build_candidate(
-            subject_uk=publisher,
-            predicate="delegates",
-            object_uk=obj,
-            norm_type="delegation",
-            fact_text=f"Контроль покладено на: {_clip(obj)}",
-            quote=_clip(text, 400),
-            confidence=0.90,
-        ),
-    ], "kmu_control")
+    return _make_result(
+        doc_id,
+        anchor,
+        citation,
+        [
+            _build_candidate(
+                subject_uk=publisher,
+                predicate="delegates",
+                object_uk=obj,
+                norm_type="delegation",
+                fact_text=f"Контроль покладено на: {_clip(obj)}",
+                quote=_clip(text, 400),
+                confidence=0.90,
+            ),
+        ],
+        "kmu_control",
+    )
 
 
-def _try_repeal(text: str, doc_id: str, anchor: str, citation: str, publisher: str) -> SPOExtractionResult | None:
+def _try_repeal(
+    text: str, doc_id: str, anchor: str, citation: str, publisher: str
+) -> SPOExtractionResult | None:
     m = _RE_REPEAL.search(text)
     if not m or len(text) > 600:
         return None
     obj = (m.group(1) or "").strip().rstrip(".") or "визначені акти"
-    return _make_result(doc_id, anchor, citation, [
-        _build_candidate(
-            subject_uk=publisher,
-            predicate="repeals",
-            object_uk=obj,
-            norm_type="repeal",
-            fact_text=f"Визнано такими, що втратили чинність: {_clip(obj)}",
-            quote=_clip(text, 400),
-            confidence=0.92,
-        ),
-    ], "kmu_repeal")
+    return _make_result(
+        doc_id,
+        anchor,
+        citation,
+        [
+            _build_candidate(
+                subject_uk=publisher,
+                predicate="repeals",
+                object_uk=obj,
+                norm_type="repeal",
+                fact_text=f"Визнано такими, що втратили чинність: {_clip(obj)}",
+                quote=_clip(text, 400),
+                confidence=0.92,
+            ),
+        ],
+        "kmu_repeal",
+    )
 
 
 def _try_entry(text: str, doc_id: str, anchor: str, citation: str) -> SPOExtractionResult | None:
@@ -212,40 +248,55 @@ def _try_entry(text: str, doc_id: str, anchor: str, citation: str) -> SPOExtract
     if not m or len(text) > 400:
         return None
     detail = (m.group(1) or "").strip().rstrip(".")
-    return _make_result(doc_id, anchor, citation, [
-        _build_candidate(
-            subject_uk="цей акт",
-            predicate="enters_into_force",
-            object_uk=detail or "з дня офіційного опублікування",
-            norm_type="entry_into_force",
-            fact_text=f"Акт набирає чинності {detail}".strip(),
-            quote=_clip(text, 400),
-            confidence=0.93,
-        ),
-    ], "kmu_entry")
+    return _make_result(
+        doc_id,
+        anchor,
+        citation,
+        [
+            _build_candidate(
+                subject_uk="цей акт",
+                predicate="enters_into_force",
+                object_uk=detail or "з дня офіційного опублікування",
+                norm_type="entry_into_force",
+                fact_text=f"Акт набирає чинності {detail}".strip(),
+                quote=_clip(text, 400),
+                confidence=0.93,
+            ),
+        ],
+        "kmu_entry",
+    )
 
 
-def _try_register(text: str, doc_id: str, anchor: str, citation: str, publisher: str) -> SPOExtractionResult | None:
+def _try_register(
+    text: str, doc_id: str, anchor: str, citation: str, publisher: str
+) -> SPOExtractionResult | None:
     m = _RE_REGISTER.search(text)
     if not m or len(text) > 400:
         return None
     obj = m.group(1).strip().rstrip(".")
-    return _make_result(doc_id, anchor, citation, [
-        _build_candidate(
-            subject_uk=publisher,
-            predicate="requires",
-            object_uk=obj,
-            norm_type="procedure",
-            fact_text=f"Зареєструвати/опублікувати в: {_clip(obj)}",
-            quote=_clip(text, 400),
-            confidence=0.90,
-        ),
-    ], "kmu_register")
+    return _make_result(
+        doc_id,
+        anchor,
+        citation,
+        [
+            _build_candidate(
+                subject_uk=publisher,
+                predicate="requires",
+                object_uk=obj,
+                norm_type="procedure",
+                fact_text=f"Зареєструвати/опублікувати в: {_clip(obj)}",
+                quote=_clip(text, 400),
+                confidence=0.90,
+            ),
+        ],
+        "kmu_register",
+    )
 
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 def try_template_extraction(
     *,
@@ -273,7 +324,11 @@ def try_template_extraction(
     is_kmu = any(kw in publisher_lower for kw in _KMU_PUBLISHERS)
     is_president = any(kw in publisher_lower for kw in _PRESIDENT_PUBLISHERS)
     is_structured_type = doc_type_lower in (
-        "постанова", "розпорядження", "указ", "наказ", "рішення",
+        "постанова",
+        "розпорядження",
+        "указ",
+        "наказ",
+        "рішення",
     )
 
     if not (is_kmu or is_president) or not is_structured_type:

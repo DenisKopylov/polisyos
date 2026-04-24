@@ -15,6 +15,7 @@ Usage::
     # Record all waves
     python scripts/record_fixtures.py --wave all
 """
+
 from __future__ import annotations
 
 import argparse
@@ -23,10 +24,10 @@ import base64
 import json
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from, ensure_repo_import_roots
+from tools._lib.imports import ensure_repo_import_roots, repo_root_from
 
 sys.path.insert(0, str(repo_root_from(__file__)))
 
@@ -65,15 +66,19 @@ def _profile_to_headers(profile) -> dict[str, str]:
     return dict(profile.headers)
 
 
-async def _record_http(url: str, headers: dict[str, str], timeout: float = 30.0) -> tuple[int, dict[str, str], bytes]:
+async def _record_http(
+    url: str, headers: dict[str, str], timeout: float = 30.0
+) -> tuple[int, dict[str, str], bytes]:
     """Make a real HTTP GET request and return (status, headers, body)."""
     import aiohttp
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=timeout)) as resp:
-            body = await resp.read()
-            resp_headers = {k: v for k, v in resp.headers.items()}
-            return resp.status, resp_headers, body
+    async with (
+        aiohttp.ClientSession() as session,
+        session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=timeout)) as resp,
+    ):
+        body = await resp.read()
+        resp_headers = {k: v for k, v in resp.headers.items()}
+        return resp.status, resp_headers, body
 
 
 def _save_raw_fixture(fixture_dir: Path, filename: str, body: bytes) -> Path:
@@ -105,7 +110,7 @@ def _save_simulator_fixture(
         "status_code": status,
         "headers": headers,
         "body": base64.b64encode(body).decode(),
-        "captured_at": datetime.now(timezone.utc).isoformat(),
+        "captured_at": datetime.now(UTC).isoformat(),
         "request_url": request_url,
         "request_method": "GET",
         "request_hash": "",
@@ -139,6 +144,7 @@ def _build_url(profile, dataset_id: str) -> str:
     elif family == "sparql":
         query = "SELECT ?country ?countryLabel WHERE { ?country wdt:P31 wd:Q6256. SERVICE wikibase:label { bd:serviceParam wikibase:language 'en'. } } LIMIT 50"
         from urllib.parse import quote
+
         return f"{base}/sparql?query={quote(query)}&format=json"
     else:
         return base

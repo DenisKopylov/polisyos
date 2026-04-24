@@ -1,20 +1,21 @@
 """Tests for agent_sim PureExecutor and MechanismOrder."""
+
 from __future__ import annotations
 
-import jax.numpy as jnp
 import pytest
 
 from polisyos.foundry.agent_sim.executor import MechanismOrder, PureExecutor
 from polisyos.foundry.agent_sim.mechanism import Mechanism, MechanismSpec
 from polisyos.foundry.agent_sim.mechanisms import TaxationMechanism
-from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 class _DummyMechanism(Mechanism):
     """Trivial mechanism that does nothing."""
 
     def __init__(self, name: str, reads: frozenset, writes: frozenset, stochastic: bool = False):
-        self._spec = MechanismSpec(name=name, reads=reads, writes=writes, parameters={}, stochastic=stochastic)
+        self._spec = MechanismSpec(
+            name=name, reads=reads, writes=writes, parameters={}, stochastic=stochastic
+        )
 
     @property
     def spec(self):

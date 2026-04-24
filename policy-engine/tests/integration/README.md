@@ -25,7 +25,7 @@ phase0 quality validation path.
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - `src/polisyos/core/run`
 - `src/polisyos/scientist/engine`
@@ -33,10 +33,11 @@ phase0 quality validation path.
 - `src/polisyos/foundry` and `src/polisyos/fabric` for the synthetic pipeline
   scenario
 
-**Depended on by**
+### Depended On By
 
 - The `integration` taxonomy lane in
   [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
+
 - Local and CI workflows that need a narrow end-to-end confidence slice
 
 ## Common Commands

@@ -1,10 +1,11 @@
 """UTC-only temporal helpers for Fabric contracts and runtime comparisons."""
+
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
-UTC = timezone.utc
+UTC = UTC
 DEFAULT_MAX_CLOCK_SKEW = timedelta(minutes=5)
 
 

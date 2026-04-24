@@ -3,6 +3,7 @@ Contract tests for the Trinity artifacts: ProblemFrame, PolicySpec, ModelSpec.
 
 Tests roundtrip serialization, validation, and cross-reference consistency.
 """
+
 from __future__ import annotations
 
 from decimal import Decimal
@@ -18,20 +19,11 @@ from polisyos.core.contracts.trinity import (
     ProblemFrameRef,
     TrinityBundle,
 )
-from polisyos.ir.model_spec import (
-    AgentConfig,
-    AgentTypeConfig,
-    AssumptionSpec,
-    AssumptionType,
-    FidelityLevel,
-    ModelSpec,
-)
 from polisyos.ir.governance.policy_spec import (
     InterventionSpec,
     MechanismBinding,
     PolicySpec,
 )
-from polisyos.ir.trinity import TrinityBundle as IRTrinityBundle
 from polisyos.ir.governance.problem_frame import (
     ConstraintSpec,
     ConstraintType,
@@ -49,8 +41,16 @@ from polisyos.ir.governance.problem_frame import (
 )
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorNot, SelectorPredicate
+from polisyos.ir.model_spec import (
+    AgentConfig,
+    AgentTypeConfig,
+    AssumptionSpec,
+    AssumptionType,
+    FidelityLevel,
+    ModelSpec,
+)
+from polisyos.ir.trinity import TrinityBundle as IRTrinityBundle
 from polisyos.ir.types import EntityType, OptimizationDirection
-
 
 # =============================================================================
 # Fixtures

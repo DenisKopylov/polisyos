@@ -1,15 +1,14 @@
 from __future__ import annotations
 
+import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
-import pytest
 
 from polisyos.foundry.methods.slot_schema import (
     SLOT_SCHEMA_REGISTRY,
     SemanticCompatibilityError,
     is_semantically_compatible,
 )
-
 
 _HEALTH_CHECKS = [HealthCheck.function_scoped_fixture, HealthCheck.too_slow]
 _KNOWN_SLOTS = tuple(sorted(SLOT_SCHEMA_REGISTRY))

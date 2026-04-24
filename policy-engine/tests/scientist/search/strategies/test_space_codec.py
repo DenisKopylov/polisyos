@@ -54,4 +54,3 @@ def test_categorical_requires_categories() -> None:
         assert "requires at least two categories" in str(exc)
     else:
         raise AssertionError("Expected ValueError for categorical without categories")
-

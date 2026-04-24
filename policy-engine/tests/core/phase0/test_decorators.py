@@ -1,4 +1,5 @@
 """Tests for the @traced decorator."""
+
 from __future__ import annotations
 
 import asyncio
@@ -112,7 +113,9 @@ class TestTracedDecorator:
                 yield _FakeSpan()
 
         def _fail_get_tracer():
-            raise AssertionError("global tracer lookup should not run when tracer_factory is provided")
+            raise AssertionError(
+                "global tracer lookup should not run when tracer_factory is provided"
+            )
 
         monkeypatch.setattr(decorators_module, "get_tracer", _fail_get_tracer)
         tracer = _FakeTracer()
@@ -151,7 +154,9 @@ class TestTracedDecorator:
             decorators_module,
             "_default_tracer",
             lambda: (_ for _ in ()).throw(
-                AssertionError("global tracer lookup should not run when tracer_factory is provided")
+                AssertionError(
+                    "global tracer lookup should not run when tracer_factory is provided"
+                )
             ),
         )
         tracer = _FakeTracer()

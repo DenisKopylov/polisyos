@@ -1,10 +1,8 @@
 """Tests for do-calculus post-pass in transport_engine._try_tr_via_id_engine (Phase 4)."""
-import pytest
 
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.transportability import SelectionDiagram, SNode, TransportabilityStatus
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -218,12 +216,11 @@ class TestRunSymbolicBackendWiring:
         assert result.status is TransportabilityStatus.IDENTIFIED
 
     def test_symbolic_backend_returns_transportability_result(self):
-        from polisyos.ir.analytics.transportability import TransportabilityResult
-
         from polisyos.foundry.methods.catalog.causal.transport_engine import (
             CausalBackendId,
             _run_symbolic_backend,
         )
+        from polisyos.ir.analytics.transportability import TransportabilityResult
 
         graph = _dag([("X", "Y")])
         diagram = _diagram(graph, [])

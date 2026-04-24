@@ -1,4 +1,5 @@
 """Shared runtime/CI governance evaluation for Fabric connector contract evolution."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -30,7 +31,7 @@ def actual_version_bump(previous: SchemaVersion, current: SchemaVersion) -> str:
     return "none"
 
 
-def impacted_downstream_surfaces(contract: "ConnectorSchemaContract") -> tuple[str, ...]:
+def impacted_downstream_surfaces(contract: ConnectorSchemaContract) -> tuple[str, ...]:
     """Return the default downstream surfaces used in CI/runtime diagnostics."""
     return (
         f"connector:{contract.connector_id}",
@@ -95,8 +96,8 @@ class ContractGovernanceEvaluation:
 
 
 def evaluate_contract_governance(
-    previous_contract: "ConnectorSchemaContract",
-    current_contract: "ConnectorSchemaContract",
+    previous_contract: ConnectorSchemaContract,
+    current_contract: ConnectorSchemaContract,
     *,
     evolution: SchemaEvolution | None = None,
 ) -> ContractGovernanceEvaluation:

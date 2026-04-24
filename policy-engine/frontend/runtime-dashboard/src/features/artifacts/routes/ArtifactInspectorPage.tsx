@@ -8,8 +8,10 @@ import { useArtifactSchema } from "@/api/hooks/useArtifactSchema";
 import {
   ARTIFACT_TABS,
   type ArtifactTab,
+  type ArtifactView,
   parseArtifactSearchParams,
 } from "@/features/artifacts/domain/searchParams";
+import { resolveArtifactPreviewPayload } from "@/features/artifacts/domain/typedPreview";
 import {
   getArtifactViewerDescriptor,
   renderArtifactViewer,
@@ -35,7 +37,8 @@ export default function ArtifactInspector() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [previewLimit, setPreviewLimit] = useState<number>(PREVIEW_LIMITS[0]);
 
-  const { tab: activeTab } = parseArtifactSearchParams(searchParams);
+  const { tab: activeTab, view: activeView } =
+    parseArtifactSearchParams(searchParams);
 
   useEffect(() => {
     setPreviewLimit(PREVIEW_LIMITS[0]);
@@ -67,10 +70,27 @@ export default function ArtifactInspector() {
     [manifest],
   );
 
-  function selectTab(tab: ArtifactTab) {
+  function updateSearch(
+    updates: Partial<{ tab: ArtifactTab; view: ArtifactView }>,
+  ) {
     const next = new URLSearchParams(searchParams);
-    next.set("tab", tab);
+    if (updates.tab) {
+      next.set("tab", updates.tab);
+    }
+    if (updates.view === "reading") {
+      next.set("view", updates.view);
+    } else if (updates.view === "default") {
+      next.delete("view");
+    }
     setSearchParams(next);
+  }
+
+  function selectTab(tab: ArtifactTab) {
+    updateSearch({ tab });
+  }
+
+  function selectView(view: ArtifactView) {
+    updateSearch({ view });
   }
 
   if (!artifactId) {
@@ -81,10 +101,11 @@ export default function ArtifactInspector() {
   const canLoadMore = content
     ? Boolean(content.truncated && nextPreviewLimit(previewLimit) !== null)
     : false;
+  const resolvedPreview = resolveArtifactPreviewPayload(content);
   const viewerDescriptor = content
     ? getArtifactViewerDescriptor({
         kind: content.kind,
-        preview: content.preview,
+        preview: resolvedPreview,
       })
     : null;
 
@@ -256,7 +277,9 @@ export default function ArtifactInspector() {
 
                 {renderArtifactViewer({
                   kind: content.kind,
-                  preview: content.preview,
+                  preview: resolvedPreview,
+                  view: activeView,
+                  onViewChange: selectView,
                 })}
               </>
             ) : null}

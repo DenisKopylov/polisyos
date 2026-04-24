@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import json
+from typing import TYPE_CHECKING
 from zipfile import ZipFile
-from pathlib import Path
 
 import pandas as pd
 
 from polisyos.ukraine_data.adapters import SourceExecutionContext, TabularSourceAdapter
 from polisyos.ukraine_data.manifests import SkippedSourceManifest, SourceSnapshotManifest
-from polisyos.ukraine_data.models import BuildRootConfig, StageId, SourceConfig
+from polisyos.ukraine_data.models import BuildRootConfig, SourceConfig, StageId
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_tabular_adapter_normalize_generates_agent_id_and_lineage(tmp_path: Path) -> None:
@@ -37,7 +40,9 @@ def test_tabular_adapter_normalize_generates_agent_id_and_lineage(tmp_path: Path
     manifest = adapter.normalize(source, snapshot, ctx)
     frame = pd.read_parquet(manifest.normalized_artifact.path)
 
-    assert {"agent_id", "source_snapshot_id", "schema_version", "record_hash"}.issubset(frame.columns)
+    assert {"agent_id", "source_snapshot_id", "schema_version", "record_hash"}.issubset(
+        frame.columns
+    )
     assert len(frame) == 2
 
 
@@ -123,7 +128,13 @@ def test_tabular_adapter_normalizes_spending_seed_from_directory(tmp_path: Path)
         stage_id=StageId.D0_P0,
         local_path=source_dir,
         normalized_artifact="budget_flows_monthly_sparse.parquet",
-        required_columns=["source_agent_id", "target_agent_id", "amount", "period_id", "registration_code"],
+        required_columns=[
+            "source_agent_id",
+            "target_agent_id",
+            "amount",
+            "period_id",
+            "registration_code",
+        ],
     )
     ctx = SourceExecutionContext(BuildRootConfig(root=tmp_path / "build"))
     adapter = TabularSourceAdapter()
@@ -162,7 +173,13 @@ def test_tabular_adapter_normalizes_prozorro_contracts_feed_directory(tmp_path: 
         stage_id=StageId.D0_P0,
         local_path=source_dir,
         normalized_artifact="procurement_contracts_monthly.parquet",
-        required_columns=["buyer_agent_id", "supplier_agent_id", "amount", "period_id", "registration_code"],
+        required_columns=[
+            "buyer_agent_id",
+            "supplier_agent_id",
+            "amount",
+            "period_id",
+            "registration_code",
+        ],
     )
     ctx = SourceExecutionContext(BuildRootConfig(root=tmp_path / "build"))
     adapter = TabularSourceAdapter()
@@ -204,7 +221,13 @@ def test_tabular_adapter_prefers_prozorro_contract_details_when_present(tmp_path
         stage_id=StageId.D0_P0,
         local_path=source_dir,
         normalized_artifact="procurement_contracts_monthly.parquet",
-        required_columns=["buyer_agent_id", "supplier_agent_id", "amount", "period_id", "registration_code"],
+        required_columns=[
+            "buyer_agent_id",
+            "supplier_agent_id",
+            "amount",
+            "period_id",
+            "registration_code",
+        ],
     )
     ctx = SourceExecutionContext(BuildRootConfig(root=tmp_path / "build"))
     adapter = TabularSourceAdapter()
@@ -259,7 +282,13 @@ def test_tabular_adapter_normalizes_spending_contracts_procurement_proxy(tmp_pat
         stage_id=StageId.D0_P0,
         local_path=source_dir,
         normalized_artifact="procurement_contracts_monthly.parquet",
-        required_columns=["buyer_agent_id", "supplier_agent_id", "amount", "period_id", "registration_code"],
+        required_columns=[
+            "buyer_agent_id",
+            "supplier_agent_id",
+            "amount",
+            "period_id",
+            "registration_code",
+        ],
         identity_columns=["buyer_agent_id", "supplier_agent_id", "registration_code"],
     )
     ctx = SourceExecutionContext(BuildRootConfig(root=tmp_path / "build"))
@@ -272,9 +301,15 @@ def test_tabular_adapter_normalizes_spending_contracts_procurement_proxy(tmp_pat
     )
 
     assert len(frame) == 3
-    visible_amounts = frame[frame["supplier_agent_id"].notna()].set_index("supplier_agent_id")["amount"].to_dict()
+    visible_amounts = (
+        frame[frame["supplier_agent_id"].notna()].set_index("supplier_agent_id")["amount"].to_dict()
+    )
     assert visible_amounts == {"22222222": 600.0, "33333333": 600.0}
-    visible_names = frame[frame["supplier_agent_id"].notna()].set_index("supplier_agent_id")["supplier_name"].to_dict()
+    visible_names = (
+        frame[frame["supplier_agent_id"].notna()]
+        .set_index("supplier_agent_id")["supplier_name"]
+        .to_dict()
+    )
     assert visible_names == {"22222222": "Supplier A", "33333333": "Supplier B"}
     hidden_row = frame[frame["supplier_agent_id"].isna()].iloc[0]
     assert hidden_row["buyer_agent_id"] == "11111111"
@@ -344,7 +379,7 @@ def test_tabular_adapter_normalizes_dps_signed_xml_with_regex_extraction(tmp_pat
     source_dir = tmp_path / "dps_seed"
     source_dir.mkdir()
     balance_payload = (
-        "UA1_SIGN\x00garbage<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        'UA1_SIGN\x00garbage<?xml version="1.0" encoding="UTF-8"?>'
         "<DECLAR><DECLARBODY>"
         "<FIRM_EDRPOU>12345678</FIRM_EDRPOU>"
         "<A1300>100</A1300>"
@@ -353,7 +388,7 @@ def test_tabular_adapter_normalizes_dps_signed_xml_with_regex_extraction(tmp_pat
         "</DECLARBODY></DECLAR>"
     )
     income_payload = (
-        "UA1_SIGN\x00garbage<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        'UA1_SIGN\x00garbage<?xml version="1.0" encoding="UTF-8"?>'
         "<DECLAR><DECLARBODY>"
         "<FIRM_EDRPOU>12345678</FIRM_EDRPOU>"
         "<B2000>250</B2000>"
@@ -541,7 +576,11 @@ def test_tabular_adapter_normalizes_land_cadastre_proxy(tmp_path: Path) -> None:
     source_dir.mkdir()
     pd.DataFrame(
         [
-            ["Інформація з ведення Державного земельного кадастру на території Дніпропетровської області станом на 27.11.2020", None, None],
+            [
+                "Інформація з ведення Державного земельного кадастру на території Дніпропетровської області станом на 27.11.2020",
+                None,
+                None,
+            ],
             ["№ з/п", "Назва адміністративно-територіальних одиниць", "Виконано"],
             [1, "Дніпро", 11],
             [2, "Кам'янське", 7],

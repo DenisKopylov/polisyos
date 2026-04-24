@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import threading
 import time
+from dataclasses import dataclass
 
 import pytest
 
@@ -97,8 +97,12 @@ def test_dag_pipeline_branching_is_thread_safe() -> None:
         return _builder
 
     threads = [
-        threading.Thread(target=lambda: pipeline.branch(_build_branch("left"), depends_on=["root"])),
-        threading.Thread(target=lambda: pipeline.branch(_build_branch("right"), depends_on=["root"])),
+        threading.Thread(
+            target=lambda: pipeline.branch(_build_branch("left"), depends_on=["root"])
+        ),
+        threading.Thread(
+            target=lambda: pipeline.branch(_build_branch("right"), depends_on=["root"])
+        ),
     ]
     for thread in threads:
         thread.start()

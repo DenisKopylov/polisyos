@@ -1,18 +1,20 @@
 """Runtime orchestration for spatial small-area estimation endpoints."""
+
 from __future__ import annotations
 
 from io import BytesIO
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon.canon_json import CanonSpec
-from polisyos.core.contracts.control import CausalFrontierSAERequest
+from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
-from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
-from polisyos.foundry.methods.catalog.survey.causal_frontier import CausalFrontierFayHerriotEstimator
+from polisyos.foundry.methods.catalog.survey.causal_frontier import (
+    CausalFrontierFayHerriotEstimator,
+)
 from polisyos.foundry.methods.catalog.survey.causal_frontier_calibration import (
     calibrate_boundary_leakage_thresholds,
 )
@@ -22,10 +24,13 @@ from polisyos.foundry.methods.catalog.survey.causal_frontier_io import (
     result_to_estimates_frame,
     write_output_bundle,
 )
-from polisyos.foundry.methods.catalog.survey.protocols import SAEResult
 from polisyos.scientist.governance.passes.causal_frontier_leakage_pass import (
     CausalFrontierLeakagePass,
 )
+
+if TYPE_CHECKING:
+    from polisyos.core.contracts.control import CausalFrontierSAERequest
+    from polisyos.foundry.methods.catalog.survey.protocols import SAEResult
 
 
 class SAESpatialService:
@@ -147,8 +152,12 @@ class SAESpatialService:
         )
         return {
             "sae_estimates_ref": ArtifactRef.model_validate(estimates_ref.model_dump(mode="json")),
-            "causal_diagnostics_ref": ArtifactRef.model_validate(diagnostics_ref.model_dump(mode="json")),
-            "governance_artifact_ref": ArtifactRef.model_validate(governance_ref.model_dump(mode="json")),
+            "causal_diagnostics_ref": ArtifactRef.model_validate(
+                diagnostics_ref.model_dump(mode="json")
+            ),
+            "governance_artifact_ref": ArtifactRef.model_validate(
+                governance_ref.model_dump(mode="json")
+            ),
         }
 
     @staticmethod

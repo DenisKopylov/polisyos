@@ -1,15 +1,20 @@
 """Represent normative provisions and deontic rules used during policy review."""
+
 from __future__ import annotations
 
 import ast
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import Field, model_validator
 
 from polisyos.ir.analytics.applicability import NormApplicability
-from polisyos.ir.citations import CitationRef
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
+
+if TYPE_CHECKING:
+    from polisyos.ir.citations import CitationRef
+else:
+    from polisyos.ir.citations import CitationRef
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
@@ -53,7 +58,7 @@ class NormRef(KernelModel):
         return "citations or source_document must be provided"
 
     @model_validator(mode="after")
-    def validate_ref(self) -> "NormRef":
+    def validate_ref(self) -> NormRef:
         if not self.citations and not self.source_document:
             raise ValueError(self._legacy_hint())
         return self
@@ -112,11 +117,11 @@ def parse_expr_syntax(expr: str) -> tuple[bool, str | None]:
 
 
 __all__ = [
+    "BackendExpr",
+    "NormApplicability",
     "NormPack",
     "NormRef",
     "NormRule",
     "RuleType",
-    "NormApplicability",
-    "BackendExpr",
     "parse_expr_syntax",
 ]

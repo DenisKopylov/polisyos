@@ -10,8 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 
@@ -19,8 +18,6 @@ from polisyos.common.logger import get_logger
 from polisyos.lex.batch.confidence import compute_fused_confidence, quality_band_for_score
 from polisyos.lex.batch.doc_identity import (
     DocIndexEntry,
-    build_doc_resolution_index,
-    doc_family_id,
     doc_type_category,
     normalize_ref_number,
     normalize_text_key,
@@ -34,6 +31,9 @@ from polisyos.lex.batch.hallucination_detector import (
 from polisyos.lex.batch.provisions_io import read_provisions
 from polisyos.lex.batch.reference_resolution import resolve_references as resolve_reference_edges
 from polisyos.lex.knowledge.types import SPOCandidate, SPOExtractionResult
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = get_logger(__name__)
 
@@ -199,11 +199,14 @@ def ground_spo_quotes(
         out_path = output_dir / jsonl_file.relative_to(spo_results_dir)
         out_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(jsonl_file, "r", encoding="utf-8") as src, open(
-            out_path,
-            "w",
-            encoding="utf-8",
-        ) as dst:
+        with (
+            open(jsonl_file, encoding="utf-8") as src,
+            open(
+                out_path,
+                "w",
+                encoding="utf-8",
+            ) as dst,
+        ):
             for line in src:
                 line = line.strip()
                 if not line:
@@ -234,7 +237,9 @@ def ground_spo_quotes(
                 grounded_statements: list[SPOCandidate] = []
                 for stmt in result.statements:
                     stats["statements_total"] += 1
-                    quote_text = stmt.source_quote_uk.strip() or _candidate_quote(stmt, provision_text)
+                    quote_text = stmt.source_quote_uk.strip() or _candidate_quote(
+                        stmt, provision_text
+                    )
                     quote_start = stmt.source_quote_start
                     quote_end = stmt.source_quote_end
                     if quote_text and (quote_start is None or quote_end is None):
@@ -253,7 +258,9 @@ def ground_spo_quotes(
                         provision_text=provision_text,
                     )
                     fused = compute_fused_confidence(
-                        extraction_conf=stmt.confidence_extract if stmt.confidence_extract is not None else stmt.confidence,
+                        extraction_conf=stmt.confidence_extract
+                        if stmt.confidence_extract is not None
+                        else stmt.confidence,
                         grounding_status=grounding_status,
                         structural_quality=structure_quality,
                         verification_conf=stmt.confidence_verify,
@@ -290,7 +297,9 @@ def ground_spo_quotes(
                             "fused_confidence": fused.fused_score,
                             "confidence_breakdown_json": fused.breakdown_json(),
                             "consistency_score": 1.0,
-                            "hallucination_flags_json": encode_hallucination_flags(hallucination_flags),
+                            "hallucination_flags_json": encode_hallucination_flags(
+                                hallucination_flags
+                            ),
                             "quality_band": quality_band,
                         }
                     )
@@ -303,7 +312,9 @@ def ground_spo_quotes(
                 grounded_result = SPOExtractionResult.model_validate(
                     {
                         **result.model_dump(mode="python"),
-                        "statements": [stmt.model_dump(mode="python") for stmt in grounded_statements],
+                        "statements": [
+                            stmt.model_dump(mode="python") for stmt in grounded_statements
+                        ],
                     }
                 )
                 dst.write(
@@ -416,14 +427,18 @@ def _family_latest_candidates(
     return resolved
 
 
-def _candidate_score(entry: DocIndexEntry, target_raw: str, *, number_hint: str, date_hint: str) -> float:
+def _candidate_score(
+    entry: DocIndexEntry, target_raw: str, *, number_hint: str, date_hint: str
+) -> float:
     raw_norm = normalize_text_key(target_raw)
     raw_tokens = set(raw_norm.split())
     entry_tokens = set(entry.name_norm.split())
     score = 0.0
     if entry.reestr_code_norm and entry.reestr_code_norm in normalize_ref_number(target_raw):
         score = max(score, 1.0)
-    if number_hint and (entry.doc_number_norm == number_hint or entry.reg_number_norm == number_hint):
+    if number_hint and (
+        entry.doc_number_norm == number_hint or entry.reg_number_norm == number_hint
+    ):
         score = max(score, 0.95)
     if date_hint and entry.doc_date_acc == date_hint:
         score += 0.03
@@ -431,7 +446,9 @@ def _candidate_score(entry: DocIndexEntry, target_raw: str, *, number_hint: str,
         if raw_norm in entry.name_norm or entry.name_norm in raw_norm:
             score = max(score, 0.9 if raw_norm in entry.name_norm else 0.76)
         elif raw_tokens and entry_tokens:
-            score = max(score, len(raw_tokens & entry_tokens) / max(len(raw_tokens), len(entry_tokens)))
+            score = max(
+                score, len(raw_tokens & entry_tokens) / max(len(raw_tokens), len(entry_tokens))
+            )
     return min(score, 1.0)
 
 
@@ -460,7 +477,8 @@ def _best_doc_match(
     raw_norm_number = normalize_ref_number(target_raw)
     if raw_norm_number and raw_norm_number in doc_index.by_reestr_code:
         candidate_pool = [
-            entry for entry in doc_index.by_reestr_code[raw_norm_number]
+            entry
+            for entry in doc_index.by_reestr_code[raw_norm_number]
             if _doc_type_matches(type_hint, entry)
         ]
         matched_by = "reestr_code"

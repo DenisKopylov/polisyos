@@ -1,4 +1,5 @@
 """Public doe sampling module API."""
+
 from __future__ import annotations
 
 import itertools

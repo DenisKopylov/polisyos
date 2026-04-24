@@ -12,12 +12,15 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.scientist import DownstreamUtilityReportRef
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
-from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult, IdentificationStatus
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    IdentificationResult,
+    IdentificationStatus,
+)
 from polisyos.foundry.methods.catalog.causal.transport_engine import solve_transportability
 from polisyos.ir.analytics.causal import CausalEffectReport, EstimationStatus
 from polisyos.ir.analytics.causal_queries import CausalQuery
 from polisyos.ir.analytics.negative_certificate import NegativeCertificate
-from polisyos.ir.analytics.transportability import SNode, SelectionDiagram, TransportabilityStatus
+from polisyos.ir.analytics.transportability import SelectionDiagram, SNode, TransportabilityStatus
 from polisyos.scientist.discovery.schema import (
     GraphHypothesis,
     edge_key_for_edge,
@@ -31,9 +34,7 @@ from polisyos.scientist.search.artifact_minimality import (
     artifact_functions_field,
 )
 
-DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME = (
-    "polisyos.scientist.discovery.DownstreamUtilityReport"
-)
+DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME = "polisyos.scientist.discovery.DownstreamUtilityReport"
 
 
 class UtilityJudgeConfig(BaseModel):
@@ -142,10 +143,7 @@ class DownstreamUtilityJudge:
             ),
             reverse=True,
         )
-        ranked = [
-            item.model_copy(update={"rank": index + 1})
-            for index, item in enumerate(scores)
-        ]
+        ranked = [item.model_copy(update={"rank": index + 1}) for index, item in enumerate(scores)]
         shortlist, shortlist_exclusions = _build_shortlist(
             ranked,
             size=self._config.shortlist_size,
@@ -162,7 +160,8 @@ class DownstreamUtilityJudge:
             recommended_shortlist=shortlist,
             metadata={
                 "n_hypotheses": len(bundle.hypotheses),
-                "transport_context_present": bundle.selection_diagram is not None or bool(bundle.s_nodes),
+                "transport_context_present": bundle.selection_diagram is not None
+                or bool(bundle.s_nodes),
                 "benchmark_reports_present": bool(bundle.benchmark_reports),
                 "channel_coverage": channel_coverage,
                 "algebraic_summary": _algebraic_summary(ranked),
@@ -176,7 +175,7 @@ class DownstreamUtilityJudge:
         hypothesis: GraphHypothesis,
         bundle: UtilityJudgeInput,
         *,
-        dispute_stats: "_HypothesisDisputeStats",
+        dispute_stats: _HypothesisDisputeStats,
     ) -> HypothesisUtilityScore:
         ident_score, ident_status, ident_reasons, ident_warnings, blocking = _score_identifiability(
             hypothesis,
@@ -208,11 +207,13 @@ class DownstreamUtilityJudge:
         transport_score: float | None = None
         transport_status: str | None = None
         if bundle.selection_diagram is not None or bundle.s_nodes:
-            transport_score, transport_status, transport_reasons, transport_warnings = _score_transportability(
-                hypothesis,
-                bundle.causal_query,
-                selection_diagram=bundle.selection_diagram,
-                s_nodes=bundle.s_nodes,
+            transport_score, transport_status, transport_reasons, transport_warnings = (
+                _score_transportability(
+                    hypothesis,
+                    bundle.causal_query,
+                    selection_diagram=bundle.selection_diagram,
+                    s_nodes=bundle.s_nodes,
+                )
             )
             reasons.extend(transport_reasons)
             warnings.extend(transport_warnings)
@@ -325,11 +326,7 @@ def _disputed_edge_stats(
             for edge in hypothesis.graph.edges
             if skeleton_key_for_edge(edge) in disputed_skeletons
         )
-        fraction = (
-            float(disputed_edge_count / total_edge_count)
-            if total_edge_count > 0
-            else 0.0
-        )
+        fraction = float(disputed_edge_count / total_edge_count) if total_edge_count > 0 else 0.0
         stats[hypothesis.hypothesis_id] = _HypothesisDisputeStats(
             disputed_edge_count=disputed_edge_count,
             total_edge_count=total_edge_count,
@@ -394,7 +391,8 @@ def _dispute_summary(
     disputed_hypotheses = [
         score.hypothesis_id
         for score in scores
-        if (dispute_stats.get(score.hypothesis_id) or _HypothesisDisputeStats()).disputed_edge_count > 0
+        if (dispute_stats.get(score.hypothesis_id) or _HypothesisDisputeStats()).disputed_edge_count
+        > 0
     ]
     return {
         "n_hypotheses_with_disputes": len(disputed_hypotheses),
@@ -501,7 +499,10 @@ def _score_transportability(
         graph=graph,
         s_nodes=s_nodes,
     )
-    if isinstance(result, IdentificationResult) and result.status is IdentificationStatus.IDENTIFIED:
+    if (
+        isinstance(result, IdentificationResult)
+        and result.status is IdentificationStatus.IDENTIFIED
+    ):
         reasons.append("transportability:identified_via_s_nodes")
         return 1.0, "identified", reasons, warnings
     if isinstance(result, IdentificationResult) and result.status in {

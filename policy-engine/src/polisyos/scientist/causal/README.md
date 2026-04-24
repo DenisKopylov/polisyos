@@ -9,6 +9,7 @@ strategic-response, counterfactual и bounds artifacts.
 - **Зависит от:** `foundry.methods.catalog.causal`, `ir.observation`, `ir.analytics`
 - **Используется в:** `nodes.builtins.causal.run_causal_readiness`,
   `nodes.builtins.causal.run_causal_contract_execution`
+
 - Пакет отделяет orchestration-level nodes от доменно-специализированных causal runners.
 
 ## Ключевые концепции

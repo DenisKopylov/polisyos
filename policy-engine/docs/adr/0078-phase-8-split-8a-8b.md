@@ -1,12 +1,15 @@
 # ADR-0078: Phase 8 split into 8A + 8B; TransportabilityRequiredPass moved to end of Phase 12
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-02-28
 
 ## Context
+
 Phase 8 currently bundles two conceptually distinct concerns: (8A) constructing the
 transportability diagram by annotating S-nodes for domain differences, and (8B)
 checking whether the target causal effect is transportable and aborting if it is not.
@@ -17,6 +20,7 @@ Moving the hard gate to after Phase 12 identification lets us use the actual s-I
 result.
 
 ## Decision
+
 1. Split Phase 8 into Phase 8A ("Build Transportability Diagram") and Phase 8B
    ("Annotate S-nodes and Domain Metadata").
 2. Remove `TransportabilityRequiredPass` from its current position in the governance
@@ -29,13 +33,18 @@ result.
    reflect the new phase ordering.
 
 ## Consequences
+
 ### Positive
+
 - Eliminates false-negative transportability rejections caused by the heuristic gate.
 - Separates annotation (always useful) from gating (context-dependent).
 - Post-Phase-12 gate uses formal s-ID, providing a mathematically sound accept/reject.
+
 ### Negative
+
 - Phases 9-12 now execute even for non-transportable effects, consuming compute before
   the gate fires. Mitigated by the resolution loop's early-exit on obvious failures.
+
 - Existing tests that assert Phase 8 gating behaviour must be rewritten.
 - Workflow versioning: pipelines serialised with the old phase numbering need a
   migration path.

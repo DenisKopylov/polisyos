@@ -7,7 +7,10 @@ Each document is stored as JSONL with 2-char shard prefix:
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _shard_prefix(doc_id: str) -> str:
@@ -46,7 +49,7 @@ def read_provisions(
         return []
 
     rows: list[dict] = []
-    with open(in_path, "r", encoding="utf-8") as fh:
+    with open(in_path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:

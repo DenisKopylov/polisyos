@@ -67,7 +67,7 @@ def test_deterministic_spo_avoids_overmatching_long_non_constitutional_definitio
             "4.3 цього Закону на суму валових витрат платника податку та амортизаційних відрахувань."
         ),
         citation_label="Стаття 3",
-        doc_title="Про внесення змін до Закону України \"Про оподаткування прибутку підприємств\"",
+        doc_title='Про внесення змін до Закону України "Про оподаткування прибутку підприємств"',
     )
     assert not result.candidates
     assert result.reason_codes == ["no_match"]
@@ -77,7 +77,7 @@ def test_deterministic_spo_extracts_compact_dash_definition_in_regular_law_artic
     result = extract_deterministic_spo(
         text="Стаття 4. Валовий доход - загальна сума доходу платника податку від усіх видів діяльності, отриманого протягом звітного періоду.",
         citation_label="Стаття 4",
-        doc_title="Про внесення змін до Закону України \"Про оподаткування прибутку підприємств\"",
+        doc_title='Про внесення змін до Закону України "Про оподаткування прибутку підприємств"',
     )
     assert result.candidates
     assert result.candidates[0].predicate == "defines"
@@ -775,7 +775,9 @@ def test_deterministic_spo_extracts_threshold_policy_tail_from_core_clause() -> 
     } & set(result.reason_codes)
 
 
-def test_deterministic_spo_extracts_word_threshold_and_priority_permission_from_core_clause() -> None:
+def test_deterministic_spo_extracts_word_threshold_and_priority_permission_from_core_clause() -> (
+    None
+):
     result = extract_deterministic_spo(
         text=(
             "Власники приватизованих об'єктів мають пріоритетне право на довгострокову оренду "

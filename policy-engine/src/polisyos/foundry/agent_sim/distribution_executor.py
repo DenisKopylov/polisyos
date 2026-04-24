@@ -1,7 +1,9 @@
 """Public agent sim distribution executor module API."""
+
 from __future__ import annotations
 
-from typing import Any, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 from polisyos.foundry.agent_sim.distributions import (
     DistributionConfig,
@@ -15,6 +17,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 class DistributionAwareExecutor(PureExecutor):
     """Update inequality summaries before each step and expose them in executor metrics."""
+
     def __init__(
         self,
         mechanisms: Iterable[Mechanism],

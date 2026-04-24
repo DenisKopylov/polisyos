@@ -158,10 +158,7 @@ describe("LexKnowledgeGraphPage search param behavior", () => {
 
     render(<LexKnowledgeGraphPage />);
 
-    await user.type(
-      screen.getByLabelText("pages.lex.outputDirectory"),
-      "next",
-    );
+    await user.type(screen.getByLabelText("pages.lex.outputDirectory"), "next");
     expect(setSearchParamsMock).toHaveBeenLastCalledWith(
       expect.any(URLSearchParams),
       expect.objectContaining({ replace: true }),
@@ -176,12 +173,16 @@ describe("LexKnowledgeGraphPage search param behavior", () => {
       expect.objectContaining({ replace: true }),
     );
 
-    await user.click(
-      screen.getByRole("button", { name: "pages.lex.search" }),
-    );
+    await user.click(screen.getByRole("button", { name: "pages.lex.search" }));
     expect(setSearchParamsMock).toHaveBeenLastCalledWith(
       expect.any(URLSearchParams),
       expect.objectContaining({ replace: false }),
+    );
+
+    await user.click(screen.getByTestId("lex-resume-toggle"));
+    expect(setSearchParamsMock).toHaveBeenLastCalledWith(
+      expect.any(URLSearchParams),
+      expect.objectContaining({ replace: true }),
     );
 
     await user.click(

@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.lex.batch.quality_report import (
     QualityGateThresholds,
     build_quality_report,
     evaluate_quality_gates,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _write_jsonl(path: Path, rows: list[dict]) -> None:
@@ -42,7 +45,7 @@ def test_quality_report_counts_core_metrics(tmp_path: Path) -> None:
         [
             {
                 "statements": [],
-                "normalization_report_json": "{\"oov_action\": 1}",
+                "normalization_report_json": '{"oov_action": 1}',
             },
             {
                 "statements": [
@@ -53,7 +56,7 @@ def test_quality_report_counts_core_metrics(tmp_path: Path) -> None:
                         "source_quote_end": None,
                     }
                 ],
-                "normalization_report_json": "{\"oov_action\": 0}",
+                "normalization_report_json": '{"oov_action": 0}',
             },
         ],
     )
@@ -73,7 +76,9 @@ def test_quality_report_counts_core_metrics(tmp_path: Path) -> None:
     assert report["oov_action_total"] == 1
 
 
-def test_quality_report_ignores_stale_row_level_oov_when_statements_are_canonicalized(tmp_path: Path) -> None:
+def test_quality_report_ignores_stale_row_level_oov_when_statements_are_canonicalized(
+    tmp_path: Path,
+) -> None:
     provisions_dir = tmp_path / "provisions"
     spo_results_dir = tmp_path / "spo_results"
 
@@ -96,7 +101,7 @@ def test_quality_report_ignores_stale_row_level_oov_when_statements_are_canonica
                         "source_quote_end": 25,
                     }
                 ],
-                "normalization_report_json": "{\"oov_action\": 4}",
+                "normalization_report_json": '{"oov_action": 4}',
             }
         ],
     )
@@ -108,6 +113,7 @@ def test_quality_report_ignores_stale_row_level_oov_when_statements_are_canonica
 
     assert report["statement_total"] == 1
     assert report["oov_action_total"] == 0
+
 
 def test_quality_gates_skip_checks_for_small_samples() -> None:
     report = {
@@ -383,14 +389,27 @@ def test_quality_report_builds_family_breakdown_and_audit_categories(tmp_path: P
     assert report["reference_resolution_coverage_pct"] == 50.0
     assert report["doc_family_breakdown"]["law"]["audit_miss_rate_pct"] == 100.0
     assert report["doc_family_breakdown"]["appendix_heavy"]["timeout_fallback_rate_pct"] == 100.0
-    assert report["legal_unit_subtype_breakdown"]["core_normative_clause"]["audit_miss_rate_pct"] == 100.0
-    assert report["legal_unit_subtype_breakdown"]["tariff_threshold_row"]["empty_statement_rows_pct"] == 100.0
-    assert report["top_problem_subtypes"][0]["legal_unit_subtype"] in {"core_normative_clause", "tariff_threshold_row"}
+    assert (
+        report["legal_unit_subtype_breakdown"]["core_normative_clause"]["audit_miss_rate_pct"]
+        == 100.0
+    )
+    assert (
+        report["legal_unit_subtype_breakdown"]["tariff_threshold_row"]["empty_statement_rows_pct"]
+        == 100.0
+    )
+    assert report["top_problem_subtypes"][0]["legal_unit_subtype"] in {
+        "core_normative_clause",
+        "tariff_threshold_row",
+    }
     assert report["top_problem_families"][0]["family"] in {"law", "appendix_heavy"}
-    assert report["top_unresolved_subtype_families"][0]["legal_unit_subtype"] == "tariff_threshold_row"
+    assert (
+        report["top_unresolved_subtype_families"][0]["legal_unit_subtype"] == "tariff_threshold_row"
+    )
 
 
-def test_quality_report_uses_doc_metadata_manifest_for_family_classification(tmp_path: Path) -> None:
+def test_quality_report_uses_doc_metadata_manifest_for_family_classification(
+    tmp_path: Path,
+) -> None:
     provisions_dir = tmp_path / "provisions"
     spo_dir = tmp_path / "spo_grounded"
     manifests_dir = tmp_path / "manifests"
@@ -413,7 +432,11 @@ def test_quality_report_uses_doc_metadata_manifest_for_family_classification(tmp
     _write_jsonl(
         provisions_dir / "aa" / "lawdoc.jsonl",
         [
-            {"kind": "article", "anchor_path": "article:1", "text": "Орган зобов'язаний подати звіт."},
+            {
+                "kind": "article",
+                "anchor_path": "article:1",
+                "text": "Орган зобов'язаний подати звіт.",
+            },
         ],
     )
     _write_jsonl(

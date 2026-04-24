@@ -68,9 +68,7 @@ class ToolRegistry:
         self._tools: dict[str, tuple[ToolDefinition, Callable[..., Any]]] = {}
         self._circuit_breakers = circuit_breakers
 
-    def register(
-        self, definition: ToolDefinition, handler: Callable[..., Any]
-    ) -> None:
+    def register(self, definition: ToolDefinition, handler: Callable[..., Any]) -> None:
         """Register a tool definition with its handler function."""
         self._tools[definition.name] = (definition, handler)
 
@@ -225,9 +223,7 @@ class ToolRegistry:
             if inspect.iscoroutinefunction(handler):
                 coro = handler(**arguments)
             else:
-                coro = asyncio.get_event_loop().run_in_executor(
-                    None, lambda: handler(**arguments)
-                )
+                coro = asyncio.get_event_loop().run_in_executor(None, lambda: handler(**arguments))
             result = await asyncio.wait_for(coro, timeout=timeout)
             duration_ms = int((time.perf_counter() - t0) * 1000)
             if self._circuit_breakers is not None:
@@ -238,7 +234,7 @@ class ToolRegistry:
                 result=_render_tool_result(result, defn),
                 duration_ms=duration_ms,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             duration_ms = int((time.perf_counter() - t0) * 1000)
             logger.debug("Tool %s timed out after %.1fs", name, timeout)
             if self._circuit_breakers is not None:

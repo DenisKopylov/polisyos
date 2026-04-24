@@ -1,11 +1,13 @@
 """Expose runtime helpers that keep Foundry execution deterministic and diagnosable."""
+
 from __future__ import annotations
 
 import threading
 import time
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Iterator, Optional
+from typing import Any, Optional
 
 import jax
 import jax.numpy as jnp
@@ -22,9 +24,9 @@ class JITTimingContext:
 
     is_warmup: bool = False
     total_seconds: float = 0.0
-    compile_seconds: Optional[float] = None
+    compile_seconds: float | None = None
     execute_seconds: float = 0.0
-    override_total_seconds: Optional[float] = None
+    override_total_seconds: float | None = None
 
 
 class JITCompilationTracker:
@@ -70,8 +72,8 @@ def jit_aware_span(
     span_name: str,
     func_name: str,
     *signature_args: Any,
-    span_attributes: Optional[dict[str, Any]] = None,
-    metric_attributes: Optional[dict[str, Any]] = None,
+    span_attributes: dict[str, Any] | None = None,
+    metric_attributes: dict[str, Any] | None = None,
 ) -> Iterator[JITTimingContext]:
     """
     Context manager combining tracing spans with JIT-aware timing.
@@ -122,9 +124,7 @@ def jit_aware_span(
         finally:
             wall_total = time.perf_counter() - start
             ctx.total_seconds = (
-                ctx.override_total_seconds
-                if ctx.override_total_seconds is not None
-                else wall_total
+                ctx.override_total_seconds if ctx.override_total_seconds is not None else wall_total
             )
 
             if ctx.is_warmup:
@@ -165,18 +165,24 @@ class NaNDetectedError(RuntimeError):
         super().__init__(f"NaN detected after node '{node_id}'")
 
 
-def _extract_slot_dict(state, slot_id: str) -> dict[str, Any]:
+def _extract_slot_dict(state, state_path: str, slot_id: str | None = None) -> dict[str, Any]:
     """Extract slot value from state for NaN guard checking."""
     try:
-        value = get_state_path(state, slot_id)
-        return {slot_id: value}
+        value = get_state_path(state, state_path)
+        return {slot_id or state_path: value}
     except (AttributeError, KeyError):
         return {}
 
 
-def step(state, controls, root_key, t: int, static_bundle=None,
-         nan_guard: NaNGuard | None = None,
-         strictness: ExecutionStrictness | None = None):
+def step(
+    state,
+    controls,
+    root_key,
+    t: int,
+    static_bundle=None,
+    nan_guard: NaNGuard | None = None,
+    strictness: ExecutionStrictness | None = None,
+):
     """Pure JAX step: apply all mechanism nodes from static_bundle.
 
     When *static_bundle* is ``None`` the function is an identity (useful for
@@ -208,7 +214,7 @@ def step(state, controls, root_key, t: int, static_bundle=None,
                 # Resolve the actual state path from the slot registry
                 slot_spec = slot_reg.slots.get(slot_id)
                 state_path = slot_spec.state_path if slot_spec and slot_spec.state_path else slot_id
-                slot_dict = _extract_slot_dict(new_state, state_path)
+                slot_dict = _extract_slot_dict(new_state, state_path, slot_id)
                 if not slot_dict:
                     continue
                 valid = nan_guard.check_state(slot_dict, slot_id, node.node_id, t)
@@ -256,11 +262,12 @@ def step_jit(*args, **kwargs):
     )
 
 
-def _run_scan_core(initial_state, controls_seq, root_key, static_bundle=None,
-                   nan_guard=None, strictness=None):
+def _run_scan_core(
+    initial_state, controls_seq, root_key, static_bundle=None, nan_guard=None, strictness=None
+):
     """Pure JAX scan core, safe for vmap/jit usage."""
 
-    n_steps = int(controls_seq.shape[0]) if hasattr(controls_seq, "shape") else int(len(controls_seq))
+    n_steps = int(controls_seq.shape[0]) if hasattr(controls_seq, "shape") else len(controls_seq)
     step_indices = jnp.arange(n_steps, dtype=jnp.int32)
 
     def _body(carry, xs):
@@ -268,7 +275,10 @@ def _run_scan_core(initial_state, controls_seq, root_key, static_bundle=None,
         state, key = carry
         key, sub = jax.random.split(key)
         next_state, trace = step(
-            state, control, sub, t=step_idx,
+            state,
+            control,
+            sub,
+            t=step_idx,
             static_bundle=static_bundle,
             nan_guard=nan_guard,
             strictness=strictness,
@@ -283,8 +293,9 @@ def _run_scan_core(initial_state, controls_seq, root_key, static_bundle=None,
     return final_state, traces
 
 
-def run_scan(initial_state, controls_seq, root_key, static_bundle=None,
-             nan_guard=None, strictness=None):
+def run_scan(
+    initial_state, controls_seq, root_key, static_bundle=None, nan_guard=None, strictness=None
+):
     """
     Run a lax.scan over controls_seq using pure step function.
 
@@ -293,11 +304,7 @@ def run_scan(initial_state, controls_seq, root_key, static_bundle=None,
     - Step count emitted as metric VALUE, not label
     """
     hpc_enabled = is_hpc_observability_enabled()
-    n_steps = (
-        int(controls_seq.shape[0])
-        if hasattr(controls_seq, "shape")
-        else int(len(controls_seq))
-    )
+    n_steps = int(controls_seq.shape[0]) if hasattr(controls_seq, "shape") else len(controls_seq)
 
     with jit_aware_span(
         "foundry.run_scan",
@@ -309,7 +316,9 @@ def run_scan(initial_state, controls_seq, root_key, static_bundle=None,
     ) as ctx:
         run_start = time.perf_counter()
         final_state, traces = _run_scan_core(
-            initial_state, controls_seq, root_key,
+            initial_state,
+            controls_seq,
+            root_key,
             static_bundle=static_bundle,
             nan_guard=nan_guard,
             strictness=strictness,
@@ -329,15 +338,18 @@ def run_scan(initial_state, controls_seq, root_key, static_bundle=None,
     return traces
 
 
-def _execute_program_batch_core(initial_states, controls_seq, root_key,
-                                static_bundle=None, nan_guard=None, strictness=None):
+def _execute_program_batch_core(
+    initial_states, controls_seq, root_key, static_bundle=None, nan_guard=None, strictness=None
+):
     """Pure JAX batch execution core, safe for jit usage."""
     batch_size = int(initial_states.shape[0])
     keys = jax.random.split(root_key, batch_size)
 
     def _run_single(state, controls, key):
         _, traces = _run_scan_core(
-            state, controls, key,
+            state,
+            controls,
+            key,
             static_bundle=static_bundle,
             nan_guard=nan_guard,
             strictness=strictness,
@@ -347,8 +359,9 @@ def _execute_program_batch_core(initial_states, controls_seq, root_key,
     return jax.vmap(_run_single)(initial_states, controls_seq, keys)
 
 
-def execute_program_batch(initial_states, controls_seq, root_key, static_bundle=None,
-                          nan_guard=None, strictness=None):
+def execute_program_batch(
+    initial_states, controls_seq, root_key, static_bundle=None, nan_guard=None, strictness=None
+):
     """
     Execute batched programs deterministically with full observability.
 
@@ -377,7 +390,9 @@ def execute_program_batch(initial_states, controls_seq, root_key, static_bundle=
     ) as ctx:
         run_start = time.perf_counter()
         result = _execute_program_batch_core(
-            initial_states, controls_seq, root_key,
+            initial_states,
+            controls_seq,
+            root_key,
             static_bundle=static_bundle,
             nan_guard=nan_guard,
             strictness=strictness,
@@ -395,9 +410,7 @@ def execute_program_batch(initial_states, controls_seq, root_key, static_bundle=
                 {"backend": jax.default_backend(), "batch_size": str(batch_size)},
             )
         if metrics.simulation_batch_size:
-            metrics.simulation_batch_size.record(
-                batch_size, {"func_name": "execute_program_batch"}
-            )
+            metrics.simulation_batch_size.record(batch_size, {"func_name": "execute_program_batch"})
 
     return result
 

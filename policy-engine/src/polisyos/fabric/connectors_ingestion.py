@@ -15,8 +15,8 @@ from polisyos.fabric.ingestion import (
 __all__ = [
     "ConnectorManifestSpec",
     "DatasetFetchSpec",
-    "run_connectors_ingestion",
     "run",
+    "run_connectors_ingestion",
 ]
 
 
@@ -34,4 +34,3 @@ def run(
         license_name=license_name,
         cas_root=cas_root,
     )
-

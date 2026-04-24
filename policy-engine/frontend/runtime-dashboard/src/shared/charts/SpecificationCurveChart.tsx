@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { chartTheme, ciColors, chartDefaults } from "./theme";
 import { ChartDataTable } from "./accessibility";
 import type { SpecificationPoint } from "./types";
@@ -20,6 +21,7 @@ export function SpecificationCurveChart({
   height = 360,
   className,
 }: SpecificationCurveChartProps) {
+  const { t } = useI18n();
   const sorted = useMemo(
     () => [...specifications].sort((a, b) => a.estimate - b.estimate),
     [specifications],
@@ -32,7 +34,10 @@ export function SpecificationCurveChart({
   const valPadding = valRange * 0.1;
 
   const padding = { top: 20, right: 20, bottom: 12, left: 56 };
-  const svgWidth = Math.max(sorted.length * 8 + padding.left + padding.right, 400);
+  const svgWidth = Math.max(
+    sorted.length * 8 + padding.left + padding.right,
+    400,
+  );
   const plotH = height - padding.top - padding.bottom;
   const plotW = svgWidth - padding.left - padding.right;
   const colW = sorted.length > 0 ? plotW / sorted.length : 1;
@@ -44,7 +49,9 @@ export function SpecificationCurveChart({
     );
   }
 
-  const positiveCount = sorted.filter((s) => s.estimate > referenceValue).length;
+  const positiveCount = sorted.filter(
+    (s) => s.estimate > referenceValue,
+  ).length;
   const positivePct = sorted.length
     ? Math.round((positiveCount / sorted.length) * 100)
     : 0;
@@ -79,14 +86,13 @@ export function SpecificationCurveChart({
         </figcaption>
       )}
       <p className="text-muted-foreground mb-3 text-xs">
-        {sorted.length} specifications — {positivePct}% above reference
+        {t("shared.charts.specificationCurve.summary", {
+          count: sorted.length,
+          positivePct,
+        })}
       </p>
       <div className="overflow-x-auto">
-        <svg
-          width={svgWidth}
-          height={height}
-          className="overflow-visible"
-        >
+        <svg width={svgWidth} height={height} className="overflow-visible">
           {/* Reference line */}
           <line
             x1={padding.left}
@@ -109,21 +115,23 @@ export function SpecificationCurveChart({
           </text>
 
           {/* Y axis ticks */}
-          {[minVal - valPadding, (minVal + maxVal) / 2, maxVal + valPadding].map(
-            (tick) => (
-              <text
-                key={tick}
-                x={padding.left - 4}
-                y={toY(tick)}
-                textAnchor="end"
-                dominantBaseline="central"
-                fontSize={chartDefaults.tickFontSize}
-                fill={chartTheme.axis}
-              >
-                {tick.toFixed(2)}
-              </text>
-            ),
-          )}
+          {[
+            minVal - valPadding,
+            (minVal + maxVal) / 2,
+            maxVal + valPadding,
+          ].map((tick) => (
+            <text
+              key={tick}
+              x={padding.left - 4}
+              y={toY(tick)}
+              textAnchor="end"
+              dominantBaseline="central"
+              fontSize={chartDefaults.tickFontSize}
+              fill={chartTheme.axis}
+            >
+              {tick.toFixed(2)}
+            </text>
+          ))}
 
           {/* CI bars + point estimates */}
           {sorted.map((spec, i) => {

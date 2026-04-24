@@ -6,11 +6,13 @@ parameter updates without mutating CAS artifacts, and replays mechanism
 patches through `jax.lax.scan()` to produce trace tensors consumed by
 `Calibrator.run()`.
 """
+
 from __future__ import annotations
 
+from collections.abc import Callable, Collection, Sequence
 from dataclasses import dataclass, replace
 from decimal import Decimal, InvalidOperation
-from typing import Any, Callable, Collection, Sequence
+from typing import Any
 
 import equinox as eqx
 import jax
@@ -276,8 +278,12 @@ def compile_program(
                     lower=lower,
                     upper=upper,
                     selector=selector_expr,
-                    prior_mean=float(param_spec.prior_mean) if param_spec.prior_mean is not None else None,
-                    prior_std=float(param_spec.prior_std) if param_spec.prior_std is not None else None,
+                    prior_mean=float(param_spec.prior_mean)
+                    if param_spec.prior_mean is not None
+                    else None,
+                    prior_std=float(param_spec.prior_std)
+                    if param_spec.prior_std is not None
+                    else None,
                 )
             )
 
@@ -485,9 +491,7 @@ def apply_nodes(
         patch_map, next_key = node.mechanism.emit_patches(
             visible_state,
             sub,
-            target_mask=mask
-            if mask_scope in {SlotScope.PER_AGENT, SlotScope.PER_FIRM}
-            else None,
+            target_mask=mask if mask_scope in {SlotScope.PER_AGENT, SlotScope.PER_FIRM} else None,
         )
         if patch_map is None:
             raise ValueError(f"Mechanism '{node.mechanism_type}' did not emit patches")

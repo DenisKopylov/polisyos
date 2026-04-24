@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import Any, Sequence
+from typing import TYPE_CHECKING, Any
 
 from polisyos.ir.analytics.dual_certificate import (
     CertifiedBoundsCertificateBundle,
@@ -22,6 +22,8 @@ from polisyos.ir.analytics.partial_identification import (
     TighteningStopReason,
 )
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 _DEFAULT_CLASS_NAME = "finite_sharp_lp_candidates_v1"
 
@@ -46,7 +48,9 @@ def _find_payload(
     return None
 
 
-def _validate_payload(payload: dict[str, Any]) -> tuple[CertifiedBoundsCertificateBundle | None, str]:
+def _validate_payload(
+    payload: dict[str, Any],
+) -> tuple[CertifiedBoundsCertificateBundle | None, str]:
     try:
         bundle = coerce_bounds_certificate_bundle(payload)
     except Exception as exc:
@@ -57,7 +61,9 @@ def _validate_payload(payload: dict[str, Any]) -> tuple[CertifiedBoundsCertifica
     return bundle, ""
 
 
-def _baseline_result(results: Sequence[PartialIdentificationResult]) -> PartialIdentificationResult | None:
+def _baseline_result(
+    results: Sequence[PartialIdentificationResult],
+) -> PartialIdentificationResult | None:
     manski = next((result for result in results if result.method is BoundMethod.MANSKI), None)
     if manski is not None:
         return manski
@@ -164,8 +170,12 @@ def build_certified_tightening_claim(
 
     annotations: list[dict[str, Any]] = []
     log: list[BoundTighteningLogEntry] = []
-    certified_candidates: list[tuple[PartialIdentificationResult, dict[str, Any], dict[str, Any]]] = []
-    improving_candidates: list[tuple[PartialIdentificationResult, dict[str, Any], dict[str, Any]]] = []
+    certified_candidates: list[
+        tuple[PartialIdentificationResult, dict[str, Any], dict[str, Any]]
+    ] = []
+    improving_candidates: list[
+        tuple[PartialIdentificationResult, dict[str, Any], dict[str, Any]]
+    ] = []
     uncertified_search_class_count = 0
     class_spec_hash = _class_spec_hash(
         class_name=class_name,

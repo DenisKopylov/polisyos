@@ -4,6 +4,7 @@
 ``pack_id`` from the operation log and ``MutationIntent``, and records mutation provenance in the
 resulting ``NormPack.metadata`` block.
 """
+
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -26,17 +27,16 @@ class MutationIntent(BaseModel):
 class NormPackMutator:
     """Fluent helper for deterministic NormPack mutations."""
 
-    def __init__(self, base_pack: NormPack):
+    def __init__(self, base_pack: NormPack) -> None:
         self._base = base_pack
         self._norms: dict[str, NormRule] = {
-            rule.norm_id: rule.model_copy(deep=True)
-            for rule in base_pack.norms
+            rule.norm_id: rule.model_copy(deep=True) for rule in base_pack.norms
         }
         self._effective_date: str | None = base_pack.effective_date
         self._metadata_overrides: dict[str, object] = {}
         self._operations: list[dict[str, object]] = []
 
-    def replace_norm(self, norm_id: str, new_rule: NormRule) -> "NormPackMutator":
+    def replace_norm(self, norm_id: str, new_rule: NormRule) -> NormPackMutator:
         """Replace one existing norm while preserving the target ``norm_id``.
 
         Raises:
@@ -47,14 +47,13 @@ class NormPackMutator:
             raise KeyError(f"Norm '{norm_id}' not found in base pack '{self._base.pack_id}'")
         if new_rule.norm_id != norm_id:
             raise ValueError(
-                "Replacement norm_id mismatch: "
-                f"expected '{norm_id}', got '{new_rule.norm_id}'"
+                f"Replacement norm_id mismatch: expected '{norm_id}', got '{new_rule.norm_id}'"
             )
         self._norms[norm_id] = new_rule.model_copy(deep=True)
         self._operations.append({"op": "replace_norm", "norm_id": norm_id})
         return self
 
-    def modify_norm(self, norm_id: str, **field_overrides: object) -> "NormPackMutator":
+    def modify_norm(self, norm_id: str, **field_overrides: object) -> NormPackMutator:
         """Patch one existing norm by validating a merged ``NormRule`` payload."""
         if norm_id not in self._norms:
             raise KeyError(f"Norm '{norm_id}' not found in base pack '{self._base.pack_id}'")
@@ -71,7 +70,7 @@ class NormPackMutator:
         )
         return self
 
-    def remove_norm(self, norm_id: str) -> "NormPackMutator":
+    def remove_norm(self, norm_id: str) -> NormPackMutator:
         """Remove one norm from the mutable working copy."""
         if norm_id not in self._norms:
             raise KeyError(f"Norm '{norm_id}' not found in base pack '{self._base.pack_id}'")
@@ -79,7 +78,7 @@ class NormPackMutator:
         self._operations.append({"op": "remove_norm", "norm_id": norm_id})
         return self
 
-    def add_norm(self, rule: NormRule) -> "NormPackMutator":
+    def add_norm(self, rule: NormRule) -> NormPackMutator:
         """Add a new norm and reject duplicates already present in the working copy."""
         if rule.norm_id in self._norms:
             raise ValueError(f"Norm '{rule.norm_id}' already exists; use replace_norm()")
@@ -87,13 +86,13 @@ class NormPackMutator:
         self._operations.append({"op": "add_norm", "norm_id": rule.norm_id})
         return self
 
-    def set_effective_date(self, effective_date: str | None) -> "NormPackMutator":
+    def set_effective_date(self, effective_date: str | None) -> NormPackMutator:
         """Override the effective date on the mutated pack under construction."""
         self._effective_date = effective_date
         self._operations.append({"op": "set_effective_date", "effective_date": effective_date})
         return self
 
-    def with_metadata(self, **overrides: object) -> "NormPackMutator":
+    def with_metadata(self, **overrides: object) -> NormPackMutator:
         """Merge additional metadata into the mutated pack before ``build()``."""
         self._metadata_overrides.update(overrides)
         if overrides:
@@ -111,9 +110,7 @@ class NormPackMutator:
                 "effective_date": self._effective_date,
                 "intent": intent.model_dump(mode="json", exclude_none=True),
                 "operations": self._operations,
-                "resulting_norm_signatures": [
-                    _rule_signature(rule) for rule in norms
-                ],
+                "resulting_norm_signatures": [_rule_signature(rule) for rule in norms],
             },
         )
 

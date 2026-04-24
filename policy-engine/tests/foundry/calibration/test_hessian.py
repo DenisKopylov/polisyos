@@ -8,7 +8,6 @@ import numpy as np
 import numpy.testing as npt
 
 from polisyos.foundry.calibration.hessian import (
-    HessianResult,
     _finite_difference_hessian,
     _repair_eigenvalues,
     compute_hessian,

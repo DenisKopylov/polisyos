@@ -3,27 +3,21 @@
 from __future__ import annotations
 
 import copy
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.governance.policy_spec import ParameterSpec
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 from polisyos.scientist.llm.factory import create_traced_gateway_client
 from polisyos.scientist.policy_design.critic import ConstraintCritic, ConstraintCriticInput
-from polisyos.scientist.policy_design.translator import (
-    PolicyTranslatorWorker,
-    TranslatorCompliancePass,
-    TranslatorInputBundle,
-)
 from polisyos.scientist.policy_design.objectives import (
     ConstraintStatus,
     ObjectiveDirection,
-    ObjectiveKind,
     ObjectiveStack,
     PolicyEvaluationBundle,
     PolicyEvaluationVector,
@@ -33,6 +27,11 @@ from polisyos.scientist.policy_design.schema import (
     PolicyAssumptionSpec,
     PolicyCandidateSchema,
     TransportAssumptionSpec,
+)
+from polisyos.scientist.policy_design.translator import (
+    PolicyTranslatorWorker,
+    TranslatorCompliancePass,
+    TranslatorInputBundle,
 )
 from polisyos.scientist.search.controller import SearchIteration, SearchResult, SearchStatus
 from polisyos.scientist.search.lessons import (
@@ -54,6 +53,7 @@ from polisyos.scientist.search.transfer_context import resolve_transfer_context
 
 class PolicySearchLevel(str, Enum):
     """Policy search level public type."""
+
     STRUCTURE = "structure"
     PARAMETER = "parameter"
     NARRATIVE = "narrative"
@@ -61,6 +61,7 @@ class PolicySearchLevel(str, Enum):
 
 class HierarchicalSearchConfig(BaseModel):
     """Controls the breadth, LLM budget, and seed policy of the structure-to-narrative search loop."""
+
     model_config = ConfigDict(extra="forbid")
 
     max_structure_candidates: int = Field(default=8, ge=1, le=64)
@@ -75,6 +76,7 @@ class HierarchicalSearchConfig(BaseModel):
 
 class StructureCandidate(BaseModel):
     """Structure candidate public type."""
+
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     structure_id: str = Field(min_length=1)
@@ -90,6 +92,7 @@ class StructureCandidate(BaseModel):
 
 class ParameterSearchSpec(BaseModel):
     """Parameter-search bundle for one structure candidate, including codec paths and search space."""
+
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     structure_id: str = Field(min_length=1)
@@ -103,6 +106,7 @@ class ParameterSearchSpec(BaseModel):
 @dataclass(slots=True)
 class OptimizerObjectiveSpec:
     """Objective mapping that tells the optimizer which signals define the shared frontier."""
+
     objective_names: list[str]
     directions: list[OptimizationDirection]
     frontier_projection_names: list[str]
@@ -111,6 +115,7 @@ class OptimizerObjectiveSpec:
 
 class NarrativeVariant(BaseModel):
     """Narrative variant public type."""
+
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     variant_id: str = Field(min_length=1)
@@ -123,6 +128,7 @@ class NarrativeVariant(BaseModel):
 
 class HierarchicalSearchState(BaseModel):
     """Mutable snapshot of the structure, parameter, and narrative stages for one search run."""
+
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     current_level: PolicySearchLevel = PolicySearchLevel.STRUCTURE
@@ -134,6 +140,7 @@ class HierarchicalSearchState(BaseModel):
 
 class HierarchicalSearchResult(BaseModel):
     """Final coordinator output containing the stage state and published shared frontier."""
+
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     state: HierarchicalSearchState
@@ -143,6 +150,7 @@ class HierarchicalSearchResult(BaseModel):
 @dataclass(slots=True)
 class PolicyParameterCodec:
     """Policy parameter codec public type."""
+
     parameter_paths: dict[str, str]
     template_values: dict[str, Any]
 
@@ -322,30 +330,23 @@ class HierarchicalSearchCoordinator:
         self,
         candidate: PolicyCandidateSchema,
     ) -> OptimizerObjectiveSpec:
-        template = ObjectiveStack().evaluate(
-            PolicyEvaluationBundle(candidate=candidate)
-        )
+        template = ObjectiveStack().evaluate(PolicyEvaluationBundle(candidate=candidate))
         channels = [
             *template.primary.values(),
             *template.secondary.values(),
             *template.penalties.values(),
         ]
         objective_names = list(dict.fromkeys(channel.name for channel in channels))
-        directions = [
-            _to_search_direction(template.channel(name))
-            for name in objective_names
-        ]
+        directions = [_to_search_direction(template.channel(name)) for name in objective_names]
         frontier_projection_names = list(
             dict.fromkeys(template.frontier_objectives("global_feasible").keys())
         )
         constraint_extractors = {
             name: (
                 lambda evaluation, constraint_name=name: float(
-                    (
-                        evaluation.hard_constraints.get(constraint_name).value
-                        if evaluation.hard_constraints.get(constraint_name) is not None
-                        else 1.0
-                    )
+                    evaluation.hard_constraints.get(constraint_name).value
+                    if evaluation.hard_constraints.get(constraint_name) is not None
+                    else 1.0
                 )
             )
             for name in template.hard_constraints
@@ -363,7 +364,8 @@ class HierarchicalSearchCoordinator:
         *,
         loop_id: str,
         stage_b_evaluator: Callable[[dict[str, Any], dict[str, Any]], dict[str, Any]],
-        stage_a_evaluator: Callable[[dict[str, Any], dict[str, Any]], tuple[float, bool]] | None = None,
+        stage_a_evaluator: Callable[[dict[str, Any], dict[str, Any]], tuple[float, bool]]
+        | None = None,
         initial_context: dict[str, Any] | None = None,
     ) -> SearchResult:
         spec = self.build_parameter_search_spec(structure.candidate)
@@ -425,7 +427,9 @@ class HierarchicalSearchCoordinator:
             initial_evaluations=initial_evaluations,
         )
         result.telemetry["optimizer_objectives"] = list(objective_spec.objective_names)
-        result.telemetry["frontier_projection_names"] = list(objective_spec.frontier_projection_names)
+        result.telemetry["frontier_projection_names"] = list(
+            objective_spec.frontier_projection_names
+        )
         result.telemetry["constraint_names"] = sorted(objective_spec.constraint_extractors)
         if seed_bundle is not None:
             result.telemetry["frontier_seed_count"] = len(seed_bundle.entries)
@@ -496,9 +500,12 @@ class HierarchicalSearchCoordinator:
         *,
         loop_id: str,
         stage_b_evaluator: Callable[[dict[str, Any], dict[str, Any]], dict[str, Any]] | None = None,
-        stage_a_evaluator: Callable[[dict[str, Any], dict[str, Any]], tuple[float, bool]] | None = None,
+        stage_a_evaluator: Callable[[dict[str, Any], dict[str, Any]], tuple[float, bool]]
+        | None = None,
         structure_validator: Callable[[PolicyCandidateSchema], bool] | None = None,
-        narrative_input_builder: Callable[[StructureCandidate, SearchResult | None], TranslatorInputBundle | None]
+        narrative_input_builder: Callable[
+            [StructureCandidate, SearchResult | None], TranslatorInputBundle | None
+        ]
         | None = None,
         initial_context: dict[str, Any] | None = None,
     ) -> HierarchicalSearchResult:
@@ -583,7 +590,9 @@ class HierarchicalSearchCoordinator:
     ) -> list[StructureCandidate]:
         if self._pareto_registry is None:
             return []
-        target_context = resolve_transfer_context(candidate=candidate, run_id=candidate.candidate_id)
+        target_context = resolve_transfer_context(
+            candidate=candidate, run_id=candidate.candidate_id
+        )
         bundle = self._pareto_registry.get_seed_bundle(
             target_context,
             max_seeds=max(1, self._config.max_hybrid_seeds),
@@ -666,9 +675,7 @@ class HierarchicalSearchCoordinator:
                     metadata={
                         "parent_structure_hash": candidate.candidate_hash(),
                         "hybrid_gateway_available": not degraded,
-                        "hybrid_degraded_reason": (
-                            None if not degraded else "gateway_unavailable"
-                        ),
+                        "hybrid_degraded_reason": (None if not degraded else "gateway_unavailable"),
                     },
                 )
             )
@@ -722,7 +729,9 @@ class HierarchicalSearchCoordinator:
             source_context=domain,
             target_context=str(candidate.target_population.geography or domain),
             compatible_population_tags=list(candidate.target_population.compatible_transport_tags),
-            caveats=["Hybrid seed surfaces transport assumptions explicitly for later judge review."],
+            caveats=[
+                "Hybrid seed surfaces transport assumptions explicitly for later judge review."
+            ],
         )
         return candidate.model_copy(
             update={
@@ -749,7 +758,9 @@ class HierarchicalSearchCoordinator:
             assumption_id=f"evidence_hybrid_{candidate.candidate_id}",
             description=source.description,
             source_assumption_id=source.assumption_id,
-            notes=["Hybrid seed promotes model assumption into surfaced policy evidence assumption."],
+            notes=[
+                "Hybrid seed promotes model assumption into surfaced policy evidence assumption."
+            ],
         )
         return candidate.model_copy(
             update={
@@ -832,9 +843,7 @@ def _run_blueprint_parameter_search(
     for warm_start in initial_evaluations:
         policy_evaluation = _coerce_policy_evaluation(warm_start.get("stage_b_result"))
         objective_details = (
-            policy_evaluation.as_legacy_objectives()
-            if policy_evaluation is not None
-            else []
+            policy_evaluation.as_legacy_objectives() if policy_evaluation is not None else []
         )
         record = SearchIteration(
             iteration=-1,
@@ -888,9 +897,7 @@ def _run_blueprint_parameter_search(
                     best_candidate = dict(candidate)
                     best_objective = objective_value
             else:
-                objective_value = float(
-                    (stage_b_result or {}).get("objective_value", float("inf"))
-                )
+                objective_value = float((stage_b_result or {}).get("objective_value", float("inf")))
             is_promising = (
                 bool(stage_b_result)
                 and str((stage_b_result or {}).get("feedback", {}).get("verdict", "")).upper()

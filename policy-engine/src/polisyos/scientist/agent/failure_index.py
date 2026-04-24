@@ -47,7 +47,7 @@ class FailureIndexEntry:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, payload: dict[str, Any]) -> "FailureIndexEntry":
+    def from_dict(cls, payload: dict[str, Any]) -> FailureIndexEntry:
         return cls(
             signature_id=str(payload.get("signature_id", "")),
             error_code=str(payload.get("error_code", "unknown")),
@@ -212,16 +212,14 @@ class FailurePatternIndex:
         return str(artifact_ref.artifact_id)
 
     @classmethod
-    def load(cls, cas: FileSystemCAS, artifact_id: str) -> "FailurePatternIndex":
+    def load(cls, cas: FileSystemCAS, artifact_id: str) -> FailurePatternIndex:
         aid = ArtifactID.model_validate(artifact_id)
         payload = from_canonical_bytes(cas.get_bytes(aid))
         if not isinstance(payload, dict):
             return cls()
         entries_payload = payload.get("entries", [])
         entries = [
-            FailureIndexEntry.from_dict(item)
-            for item in entries_payload
-            if isinstance(item, dict)
+            FailureIndexEntry.from_dict(item) for item in entries_payload if isinstance(item, dict)
         ]
         return cls(entries=entries, updated_at=str(payload.get("updated_at", "")))
 
@@ -230,7 +228,7 @@ class FailurePatternIndex:
         cls,
         cas: FileSystemCAS,
         artifact_id: str | None,
-    ) -> "FailurePatternIndex":
+    ) -> FailurePatternIndex:
         if artifact_id:
             try:
                 return cls.load(cas, artifact_id)

@@ -6,7 +6,8 @@ import { getWorkspaceNavigationWithOptions } from "@/app/workspaces";
 import { getBlockedRunCount, useRunsSample } from "@/features/runs";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
-import { AtlasBrand } from "@/shared/brand/AtlasBrand";
+import { JanusGlyph } from "@/shared/brand/JanusGlyph";
+import { SegmentedControl } from "@/shared/ui";
 
 function ModeToggle() {
   const { t } = useI18n();
@@ -19,29 +20,19 @@ function ModeToggle() {
   return (
     <fieldset className="mt-4">
       <legend className="sr-only">{t("mode.interfaceLabel")}</legend>
-      <div className="flex items-center gap-1 rounded-[var(--radius-pill)] bg-[rgba(255,255,255,0.08)] p-1">
-        {(["clerk", "analyst"] as const).map((value) => (
-          <label
-            key={value}
-            className={cn(
-              "flex-1 cursor-pointer rounded-[var(--radius-pill)] px-3 py-1.5 text-center text-xs font-bold tracking-wider transition focus-within:ring-2 focus-within:ring-white/40 focus-within:outline-none",
-              mode === value
-                ? "bg-[rgba(255,255,255,0.16)] text-white"
-                : "text-[var(--rail-link)] hover:text-white",
-            )}
-          >
-            <input
-              type="radio"
-              name="interface-mode"
-              value={value}
-              checked={mode === value}
-              onChange={() => setMode(value)}
-              className="sr-only"
-            />
-            <span>{t(`mode.${value}`)}</span>
-          </label>
-        ))}
-      </div>
+      <SegmentedControl
+        ariaLabel={t("mode.interfaceLabel")}
+        name="interface-mode"
+        tone="rail"
+        size="sm"
+        className="grid-cols-2"
+        value={mode}
+        onValueChange={setMode}
+        options={(["clerk", "analyst"] as const).map((value) => ({
+          label: t(`mode.${value}`),
+          value,
+        }))}
+      />
     </fieldset>
   );
 }
@@ -69,13 +60,13 @@ export default function Sidebar() {
       <div>
         {atlasEnabled ? (
           <div className="atlas-sidebar-brand">
-            <AtlasBrand
-              alt={t("shell.title")}
-              className="max-w-[184px]"
-              inverted
-              size={184}
-              variant="lockup"
-            />
+            <div className="flex items-center gap-3">
+              <JanusGlyph decorative inverted size={32} variant="mark" />
+              <div className="grid gap-1">
+                <p className="eyebrow">{t("shell.eyebrow")}</p>
+                <h1 className="text-xl leading-none">{t("shell.title")}</h1>
+              </div>
+            </div>
             <p className="atlas-sidebar-note">
               {isClerk
                 ? t("shell.atlasShellLiteSubtitle")

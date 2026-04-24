@@ -17,29 +17,30 @@ from polisyos.core.governance.passes.base import (
 )
 
 __all__ = [
-    "ComplianceIssue",
-    "IssueSeverity",
-    "PassContext",
-    "ValidatorPass",
     "BudgetPass",
     "CheckpointPass",
+    "ComplianceIssue",
     "ConfidencePass",
     "CrossGraphEvidencePass",
     "EquityPass",
     "FreshnessPass",
     "HumanReviewRequiredPass",
+    "IncentiveCompatibilityPass",
+    "IssueSeverity",
     "LegalPass",
     "LiteratureGatePass",
     "NormativeArbitrationPass",
-    "PrivacyPass",
     "PIICheckPass",
-    "RefutationPass",
+    "PassContext",
+    "PrivacyPass",
     "QualityGatePass",
+    "RefutationPass",
     "SafetyPass",
     "SchemaPass",
     "StrategicResponsePass",
     "SutvaCheckPass",
     "TransportabilityRequiredPass",
+    "ValidatorPass",
 ]
 
 
@@ -73,6 +74,10 @@ def __getattr__(name: str) -> Any:
         from .human_review_pass import HumanReviewRequiredPass
 
         return HumanReviewRequiredPass
+    if name == "IncentiveCompatibilityPass":
+        from .incentive_compatibility_pass import IncentiveCompatibilityPass
+
+        return IncentiveCompatibilityPass
     if name == "LegalPass":
         from .legal_pass import LegalPass
 

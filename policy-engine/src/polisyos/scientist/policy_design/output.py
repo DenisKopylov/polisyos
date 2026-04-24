@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.contracts.ic_verification import ICVerificationCertificateRef
 from polisyos.core.contracts.scientist import (
     ChampionPolicyDossierRef,
     ConstraintSatisfactionReportRef,
@@ -33,27 +34,39 @@ from polisyos.ir.analytics.distributional import (
     DistributionalReport,
     ImpactDirection,
 )
+from polisyos.ir.refs import (
+    FiscalFeedbackLinkRef,
+    IncentiveCompatibilityCertificateRef,
+    MechanismWelfareLossBoundRef,
+    OptimizationAmbiguityCertificateRef,
+    WelfareBundleRef,
+)
 from polisyos.scientist.doe.stress_report import StressTestReport
 from polisyos.scientist.governance.calibration_validation import CalibrationValidationBundle
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+from polisyos.scientist.policy_design.phase3 import (
+    Phase3CertificateStatus,
+    phase3_gate_reference_blockers,
+)
 from polisyos.scientist.policy_design.schema import (
     MonitoringSignalSpec,
     PolicyCandidateSchema,
     RolloutStep,
 )
-from polisyos.scientist.search.judge_stack import JudgeVerdict, PolicyPromotionResult
-from polisyos.scientist.search.pareto_registry import ParetoRegistrySnapshot
 from polisyos.scientist.search.artifact_minimality import (
     ArtifactFunction,
     ArtifactMinimalityMixin,
     artifact_functions_field,
 )
+from polisyos.scientist.search.judge_stack import JudgeVerdict, PolicyPromotionResult
+from polisyos.scientist.search.pareto_registry import ParetoRegistrySnapshot
 from polisyos.scientist.search.readiness import DecisionReadiness, DecisionReadinessContract
 from polisyos.scientist.search.uncertainty import UncertaintyEnvelope
 
 
 class TradeoffRow(BaseModel):
     """Tradeoff row public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     axis: str = Field(min_length=1)
@@ -64,6 +77,7 @@ class TradeoffRow(BaseModel):
 
 class PolicyRiskNote(BaseModel):
     """Policy risk note public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     risk_id: str = Field(default_factory=lambda: f"risk_{uuid4().hex[:10]}")
@@ -76,6 +90,7 @@ class PolicyRiskNote(BaseModel):
 
 class RecommendedAction(BaseModel):
     """Recommended action public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     action_id: str = Field(default_factory=lambda: f"action_{uuid4().hex[:10]}")
@@ -86,6 +101,7 @@ class RecommendedAction(BaseModel):
 
 class PolicyBrief(ArtifactMinimalityMixin):
     """Policy brief public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -111,6 +127,7 @@ class PolicyBrief(ArtifactMinimalityMixin):
 
 class ConstraintSatisfactionEntry(BaseModel):
     """One feasibility row showing how a single policy constraint was evaluated."""
+
     model_config = ConfigDict(extra="forbid")
 
     constraint_name: str = Field(min_length=1)
@@ -123,6 +140,7 @@ class ConstraintSatisfactionEntry(BaseModel):
 
 class SubgroupImpactEntry(BaseModel):
     """Distributional impact row for one subgroup touched by a candidate policy."""
+
     model_config = ConfigDict(extra="forbid")
 
     subgroup_id: str = Field(min_length=1)
@@ -134,6 +152,7 @@ class SubgroupImpactEntry(BaseModel):
 
 class PolicyFrontierEntry(BaseModel):
     """One candidate on the shared policy frontier, including objectives and constraint status."""
+
     model_config = ConfigDict(extra="forbid")
 
     candidate_hash: str = Field(min_length=1)
@@ -148,6 +167,7 @@ class PolicyFrontierEntry(BaseModel):
 
 class PolicyFrontierReport(ArtifactMinimalityMixin):
     """Frontier snapshot used to compare candidate families and preserve cross-run search context."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -166,6 +186,7 @@ class PolicyFrontierReport(ArtifactMinimalityMixin):
 
 class ChampionPolicyDossier(ArtifactMinimalityMixin):
     """Champion policy dossier public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -196,6 +217,7 @@ class ChampionPolicyDossier(ArtifactMinimalityMixin):
 
 class ConstraintSatisfactionReport(ArtifactMinimalityMixin):
     """Candidate-level feasibility report showing which constraints still block rollout."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -214,6 +236,7 @@ class ConstraintSatisfactionReport(ArtifactMinimalityMixin):
 
 class SubgroupImpactReport(ArtifactMinimalityMixin):
     """Candidate-level equity summary covering harmed groups, beneficiaries, and inequality shift."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -231,6 +254,7 @@ class SubgroupImpactReport(ArtifactMinimalityMixin):
 
 class UncertaintyReport(ArtifactMinimalityMixin):
     """Readiness-oriented summary of the uncertainty channels still binding a candidate."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -249,6 +273,7 @@ class UncertaintyReport(ArtifactMinimalityMixin):
 
 class TransportabilityReport(ArtifactMinimalityMixin):
     """Assessment of whether supporting evidence transfers to the target deployment context."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -266,6 +291,7 @@ class TransportabilityReport(ArtifactMinimalityMixin):
 
 class GovernanceGatePacket(ArtifactMinimalityMixin):
     """Governance gate packet public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -284,11 +310,13 @@ class GovernanceGatePacket(ArtifactMinimalityMixin):
     translator_compliance_passed: bool | None = None
     translator_compliance_failures: list[str] = Field(default_factory=list)
     defer_to_human: bool = False
+    phase3_gate: Phase3CertificateStatus = Field(default_factory=Phase3CertificateStatus.missing)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class ImplementationPlan(ArtifactMinimalityMixin):
     """Rollout plan that turns a candidate into ordered steps, monitors, and fallback actions."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -306,6 +334,7 @@ class ImplementationPlan(ArtifactMinimalityMixin):
 
 class RejectedAlternativeEntry(BaseModel):
     """Near-frontier policy alternative annotated with why it lost to the selected candidate."""
+
     model_config = ConfigDict(extra="forbid")
 
     candidate_hash: str = Field(min_length=1)
@@ -317,6 +346,7 @@ class RejectedAlternativeEntry(BaseModel):
 
 class RejectedAlternativesSummary(ArtifactMinimalityMixin):
     """Search-memory summary of rejected alternatives and their dominant failure modes."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -332,6 +362,7 @@ class RejectedAlternativesSummary(ArtifactMinimalityMixin):
 
 class ReplayableAuditBundle(ArtifactMinimalityMixin):
     """Replay package that pins runtime inputs, outputs, and reports needed for later audit."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -358,6 +389,7 @@ class ReplayableAuditBundle(ArtifactMinimalityMixin):
 
 class PolicyArtifactBundle(ArtifactMinimalityMixin):
     """Top-level bundle stitching together frontier, governance, rollout, and replay artifacts."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -384,6 +416,13 @@ class PolicyArtifactBundle(ArtifactMinimalityMixin):
     decision_readiness_contract_ref: DecisionReadinessContractRef | None = None
     stress_test_report_ref: StressTestReportRef | None = None
     governance_accountability_artifact_ref: GovernanceAccountabilityArtifactRef | None = None
+    phase3_gate: Phase3CertificateStatus = Field(default_factory=Phase3CertificateStatus.missing)
+    welfare_bundle_ref: WelfareBundleRef | None = None
+    ambiguity_certificate_ref: OptimizationAmbiguityCertificateRef | None = None
+    semantic_ic_certificate_ref: ICVerificationCertificateRef | None = None
+    mechanism_ic_certificate_ref: IncentiveCompatibilityCertificateRef | None = None
+    mechanism_welfare_loss_bound_ref: MechanismWelfareLossBoundRef | None = None
+    fiscal_feedback_ref: FiscalFeedbackLinkRef | None = None
     audit_refs: list[ArtifactRef] = Field(default_factory=list)
     actionable_side_information_refs: list[ArtifactRef] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -391,6 +430,7 @@ class PolicyArtifactBundle(ArtifactMinimalityMixin):
 
 class PolicyArtifactBuildInput(BaseModel):
     """Policy artifact build input public type."""
+
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     loop_id: str = Field(default="policy_mode", min_length=1)
@@ -414,6 +454,7 @@ class PolicyArtifactBuildInput(BaseModel):
     calibration_validation_bundle_ref: ArtifactRef | None = None
     policy_brief: PolicyBrief | None = None
     translator_compliance: Any | None = None
+    phase3_gate: Phase3CertificateStatus | None = None
     constraint_findings: list[str] = Field(default_factory=list)
     mutation_hints: list[str] = Field(default_factory=list)
     audit_refs: list[ArtifactRef] = Field(default_factory=list)
@@ -434,10 +475,15 @@ class PolicyArtifactBuilder:
         store: FileSystemCAS,
         source: PolicyArtifactBuildInput,
     ) -> PolicyArtifactBundleRef:
-        self._validate_contract_bound_source(source)
+        self._validate_contract_bound_source(store, source)
         upstream_audit_refs = _dedupe_artifact_refs(source.audit_refs)
         actionable_side_information_refs = _dedupe_artifact_refs(
             source.actionable_side_information_refs
+        )
+        phase3_gate = source.phase3_gate or (
+            source.readiness_contract.phase3_gate
+            if source.readiness_contract is not None
+            else Phase3CertificateStatus.missing()
         )
         frontier_report = self._build_frontier_report(source)
         frontier_ref = persist_policy_frontier_report(
@@ -571,6 +617,31 @@ class PolicyArtifactBuilder:
                 ),
                 GovernanceAccountabilityArtifactRef,
             ),
+            phase3_gate=phase3_gate,
+            welfare_bundle_ref=_maybe_validate_ref(
+                phase3_gate.welfare_bundle_ref,
+                WelfareBundleRef,
+            ),
+            ambiguity_certificate_ref=_maybe_validate_ref(
+                phase3_gate.ambiguity_certificate_ref,
+                OptimizationAmbiguityCertificateRef,
+            ),
+            semantic_ic_certificate_ref=_maybe_validate_ref(
+                phase3_gate.semantic_ic_certificate_ref,
+                ICVerificationCertificateRef,
+            ),
+            mechanism_ic_certificate_ref=_maybe_validate_ref(
+                phase3_gate.mechanism_ic_certificate_ref,
+                IncentiveCompatibilityCertificateRef,
+            ),
+            mechanism_welfare_loss_bound_ref=_maybe_validate_ref(
+                phase3_gate.mechanism_welfare_loss_bound_ref,
+                MechanismWelfareLossBoundRef,
+            ),
+            fiscal_feedback_ref=_maybe_validate_ref(
+                phase3_gate.fiscal_feedback_ref,
+                FiscalFeedbackLinkRef,
+            ),
             audit_refs=upstream_audit_refs,
             actionable_side_information_refs=actionable_side_information_refs,
             metadata={
@@ -586,7 +657,11 @@ class PolicyArtifactBuilder:
             inputs=_bundle_inputs(source),
         )
 
-    def _validate_contract_bound_source(self, source: PolicyArtifactBuildInput) -> None:
+    def _validate_contract_bound_source(
+        self,
+        store: FileSystemCAS,
+        source: PolicyArtifactBuildInput,
+    ) -> None:
         promoted = bool(
             source.promotion_result is not None
             and source.promotion_result.promotion_decision.promoted
@@ -604,6 +679,21 @@ class PolicyArtifactBuilder:
             raise ValueError(
                 "Promoted policy bundles require a PolicyEvaluationVector for audit completeness."
             )
+        phase3_gate = source.phase3_gate or (
+            source.readiness_contract.phase3_gate if source.readiness_contract is not None else None
+        )
+        if phase3_gate is None or not phase3_gate.gate_passed:
+            blocking = [] if phase3_gate is None else list(phase3_gate.blocking_reasons)
+            raise ValueError(
+                "Policy artifact bundles require a complete Phase 3 certificate package before assembly."
+                + ("" if not blocking else f" Blocking reasons: {', '.join(blocking)}")
+            )
+        phase3_ref_blockers = phase3_gate_reference_blockers(store, phase3_gate)
+        if phase3_ref_blockers:
+            raise ValueError(
+                "Policy artifact bundles require loadable Phase 3 certificate refs before assembly."
+                + f" Blocking reasons: {', '.join(phase3_ref_blockers)}"
+            )
         brief_required = self._brief_required(readiness)
         if brief_required and source.policy_brief is None:
             raise ValueError(
@@ -618,9 +708,7 @@ class PolicyArtifactBuilder:
             and source.translator_compliance is not None
             and not bool(getattr(source.translator_compliance, "passed", False))
         ):
-            raise ValueError(
-                "PolicyBrief failed TranslatorCompliancePass and cannot be bundled."
-            )
+            raise ValueError("PolicyBrief failed TranslatorCompliancePass and cannot be bundled.")
 
     def _brief_required(
         self,
@@ -785,9 +873,13 @@ class PolicyArtifactBuilder:
         if profile is None:
             return TransportabilityReport(
                 candidate_id=source.candidate.candidate_id,
-                evidence_depth=str(source.candidate.metadata.get("evidence_depth") or "single_study"),
+                evidence_depth=str(
+                    source.candidate.metadata.get("evidence_depth") or "single_study"
+                ),
                 transport_status="not_assessed",
-                caveats=[assumption.description for assumption in source.candidate.transport_assumptions],
+                caveats=[
+                    assumption.description for assumption in source.candidate.transport_assumptions
+                ],
             )
         statuses = {assessment.transport_status for assessment in profile.needs}
         if TransportStatus.UNSUPPORTED in statuses:
@@ -846,6 +938,16 @@ class PolicyArtifactBuilder:
                 str(getattr(item, "code", item))
                 for item in getattr(source.translator_compliance, "findings", [])
             ]
+        phase3_gate = source.phase3_gate or (
+            source.readiness_contract.phase3_gate
+            if source.readiness_contract is not None
+            else Phase3CertificateStatus.missing()
+        )
+        critical_failures = [
+            card.description for card in (verdict.blocking_failures if verdict is not None else [])
+        ]
+        if not phase3_gate.gate_passed:
+            critical_failures.extend(phase3_gate.blocking_reasons)
         return GovernanceGatePacket(
             candidate_id=source.candidate.candidate_id,
             judge_composite_decision=(
@@ -853,19 +955,16 @@ class PolicyArtifactBuilder:
             ),
             readiness_level=readiness_level,
             governance_issues=list(source.constraint_findings),
-            critical_failures=[
-                card.description for card in (verdict.blocking_failures if verdict is not None else [])
-            ],
+            critical_failures=_dedupe_text(critical_failures),
             warnings=[
                 card.description for card in (verdict.warnings if verdict is not None else [])
             ],
             translator_compliance_passed=compliance_passed,
             translator_compliance_failures=compliance_failures,
             defer_to_human=(
-                verdict.composite_decision == "defer_to_human"
-                if verdict is not None
-                else False
+                verdict.composite_decision == "defer_to_human" if verdict is not None else False
             ),
+            phase3_gate=phase3_gate,
             metadata={"mutation_hints": list(source.mutation_hints)},
         )
 
@@ -927,7 +1026,9 @@ class PolicyArtifactBuilder:
             reason = (
                 "infeasible"
                 if not entry.evaluation.feasible
-                else "dominated_near_frontier" if near_frontier else "dominated"
+                else "dominated_near_frontier"
+                if near_frontier
+                else "dominated"
             )
             reasons.append(reason)
             alternatives.append(
@@ -956,8 +1057,7 @@ class PolicyArtifactBuilder:
         if not shared_axes:
             return float("inf")
         gap = sum(
-            abs(float(selected_axes[axis]) - float(candidate_axes[axis]))
-            for axis in shared_axes
+            abs(float(selected_axes[axis]) - float(candidate_axes[axis])) for axis in shared_axes
         )
         return gap / max(len(shared_axes), 1)
 
@@ -974,7 +1074,8 @@ class PolicyArtifactBuilder:
     ) -> ChampionPolicyDossier:
         evaluation = source.evaluation_vector
         objective_summary = {
-            name: channel.value for name, channel in (evaluation.primary.items() if evaluation else [])
+            name: channel.value
+            for name, channel in (evaluation.primary.items() if evaluation else [])
         }
         recommended_actions = list(implementation_plan.recommended_actions)
         if gate_packet.defer_to_human:
@@ -1528,8 +1629,8 @@ __all__ = [
     "ChampionPolicyDossier",
     "ConstraintSatisfactionEntry",
     "ConstraintSatisfactionReport",
-    "ImplementationPlan",
     "GovernanceGatePacket",
+    "ImplementationPlan",
     "PolicyArtifactBuildInput",
     "PolicyArtifactBuilder",
     "PolicyArtifactBundle",

@@ -1,8 +1,10 @@
 """Train macro-policy controllers that react to global simulation observations."""
+
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from typing import Callable
+from typing import Any
 
 import equinox as eqx
 import jax
@@ -13,10 +15,15 @@ from polisyos.foundry.agent_sim.actor_critic import ActorCritic, NormalizedMLP
 from polisyos.foundry.agent_sim.credit_assignment import CentralizedCritic
 from polisyos.foundry.agent_sim.executor import PureExecutor
 from polisyos.foundry.agent_sim.state import GlobalState, PolicyState
+from polisyos.foundry.social_weights import (
+    prepare_social_weight_schedule,
+    social_weighted_resource,
+)
 
 
 class GovernmentPolicy(eqx.Module):
     """Map global simulation observations into bounded fiscal-policy controls."""
+
     network: NormalizedMLP
     output_bounds: dict[str, tuple[float, float]]
 
@@ -40,12 +47,9 @@ class GovernmentPolicy(eqx.Module):
         dims = (int(obs_dim),) + tuple(int(d) for d in hidden_dims) + (int(n_outputs),)
         keys = jax.random.split(key, len(dims) - 1)
         layers = tuple(
-            eqx.nn.Linear(dims[i], dims[i + 1], key=keys[i])
-            for i in range(len(dims) - 1)
+            eqx.nn.Linear(dims[i], dims[i + 1], key=keys[i]) for i in range(len(dims) - 1)
         )
-        norms = tuple(
-            eqx.nn.LayerNorm(dim, elementwise_affine=True) for dim in dims[1:-1]
-        )
+        norms = tuple(eqx.nn.LayerNorm(dim, elementwise_affine=True) for dim in dims[1:-1])
         self.network = NormalizedMLP(layers=layers, norms=norms, activation=jax.nn.gelu)
 
     def __call__(self, global_obs: jnp.ndarray) -> PolicyState:
@@ -70,12 +74,55 @@ class GovernmentPolicy(eqx.Module):
 @dataclass(frozen=True)
 class GovernmentTrainingConfig:
     """Set episode length, optimizer settings, and welfare weights for government training."""
+
     n_episodes: int = 100
     steps_per_episode: int = 256
     learning_rate: float = 1e-3
     gamma: float = 0.99
     policy_update_frequency: int = 1
-    welfare_weights: dict | None = None
+    welfare_weights: dict[str, float] | None = None
+    social_weight_ref: str | None = None
+    social_weight_manifest: Mapping[str, Any] | None = None
+    social_weight_scale: float = 1.0
+
+
+def build_government_welfare_reward(
+    config: GovernmentTrainingConfig,
+) -> Callable[[GlobalState], jnp.ndarray]:
+    """Build a JAX-compatible government reward from scalar and social-weight terms."""
+    welfare_weights = (
+        dict(config.welfare_weights)
+        if config.welfare_weights is not None
+        else {"gdp": 1.0, "neg_gini": 0.5}
+    )
+    social_weight_schedule = prepare_social_weight_schedule(
+        social_weight_ref=config.social_weight_ref,
+        social_weight_manifest=config.social_weight_manifest,
+    )
+    social_weight_scale = float(config.social_weight_scale)
+
+    def welfare_reward(state: GlobalState) -> jnp.ndarray:
+        total = jnp.array(0.0, dtype=jnp.float32)
+        total = total + welfare_weights.get("gdp", 0.0) * state.aggregates.total_wealth
+        total = total - welfare_weights.get("neg_gini", 0.0) * state.distributions.gini_wealth
+        total = (
+            total
+            + welfare_weights.get("bottom_50_share", 0.0) * state.distributions.bottom_50_share
+        )
+        if social_weight_schedule is not None:
+            total = total + (
+                social_weight_scale
+                * welfare_weights.get("social_weighted_consumption", 1.0)
+                * social_weighted_resource(
+                    state.agents.consumption,
+                    state.agents.income,
+                    state.agents.active,
+                    social_weight_schedule,
+                )
+            )
+        return total
+
+    return welfare_reward
 
 
 def train_government_policy(
@@ -91,14 +138,7 @@ def train_government_policy(
     optimizer = optax.adam(config.learning_rate)
     opt_state = optimizer.init(params)
 
-    welfare_weights = config.welfare_weights or {"gdp": 1.0, "neg_gini": 0.5}
-
-    def welfare_reward(state: GlobalState) -> jnp.ndarray:
-        total = jnp.array(0.0, dtype=jnp.float32)
-        total = total + welfare_weights.get("gdp", 0.0) * state.aggregates.total_wealth
-        total = total - welfare_weights.get("neg_gini", 0.0) * state.distributions.gini_wealth
-        total = total + welfare_weights.get("bottom_50_share", 0.0) * state.distributions.bottom_50_share
-        return total
+    welfare_reward = build_government_welfare_reward(config)
 
     @jax.jit
     def episode_loss(gov_params, key):
@@ -115,7 +155,7 @@ def train_government_policy(
 
             next_state, _ = executor.step(state)
             reward = welfare_reward(next_state)
-            cumulative = cumulative + config.gamma ** state.time_step * reward
+            cumulative = cumulative + config.gamma**state.time_step * reward
             return (next_state, key2, cumulative), reward
 
         init_carry = (initial_state, key, jnp.array(0.0, dtype=jnp.float32))

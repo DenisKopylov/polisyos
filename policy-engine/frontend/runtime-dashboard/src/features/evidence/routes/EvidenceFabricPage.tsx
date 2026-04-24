@@ -348,12 +348,38 @@ export default function EvidenceFabric() {
         ) : null}
       </div>
 
+      {!isMobile ? (
+        <section
+          className="grid gap-3 md:grid-cols-2 xl:grid-cols-4"
+          data-testid="evidence-metric-strip"
+        >
+          <div className="compact-metric">
+            <span>{t("pages.evidence.connectors")}</span>
+            <strong>{formatNumber(loadedConnectors.length)}</strong>
+          </div>
+          <div className="compact-metric">
+            <span>{t("pages.evidence.sourceProfiles")}</span>
+            <strong>{formatNumber(availableProfiles.length)}</strong>
+          </div>
+          <div className="compact-metric">
+            <span>{t("common.gaps")}</span>
+            <strong>{formatNumber(sourceGapCount)}</strong>
+          </div>
+          <div className="compact-metric">
+            <span>{t("common.confidence")}</span>
+            <strong>{formatPercent(averagePromotionConfidence)}</strong>
+          </div>
+        </section>
+      ) : null}
+
       {isMobile ? (
         <section className="grid gap-3" data-testid="evidence-mobile-overview">
           <Card className="space-y-3">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="eyebrow">Source Atlas</p>
+                <p className="eyebrow">
+                  {t("pages.evidence.sourceAtlasEyebrow")}
+                </p>
                 <h4>{t("pages.evidence.sourceAtlasTitle")}</h4>
               </div>
               <Badge kind="neutral">
@@ -384,7 +410,9 @@ export default function EvidenceFabric() {
             <Card className="space-y-3">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="eyebrow">Promotion Lane</p>
+                  <p className="eyebrow">
+                    {t("pages.evidence.promotionLaneEyebrow")}
+                  </p>
                   <h4>{t("pages.evidence.promotionReviewTitle")}</h4>
                 </div>
                 <Badge kind="warn">
@@ -408,7 +436,9 @@ export default function EvidenceFabric() {
             <Card className="space-y-3">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="eyebrow">Knowledge Weave</p>
+                  <p className="eyebrow">
+                    {t("pages.evidence.knowledgeWeaveEyebrow")}
+                  </p>
                   <h4>{t("pages.evidence.relatedArtifacts")}</h4>
                 </div>
                 <Badge kind="neutral">
@@ -442,7 +472,9 @@ export default function EvidenceFabric() {
             <article className="panel">
               <div className="panel-header">
                 <div>
-                  <p className="eyebrow">Source Atlas</p>
+                  <p className="eyebrow">
+                    {t("pages.evidence.sourceAtlasEyebrow")}
+                  </p>
                   <h4>{t("pages.evidence.sourceAtlasTitle")}</h4>
                   <p className="topbar-subtitle mt-2">
                     {t("pages.evidence.sourceAtlasBody")}
@@ -502,7 +534,9 @@ export default function EvidenceFabric() {
             <article className="panel">
               <div className="panel-header">
                 <div>
-                  <p className="eyebrow">Knowledge Weave</p>
+                  <p className="eyebrow">
+                    {t("pages.evidence.knowledgeWeaveEyebrow")}
+                  </p>
                   <h4>{t("pages.evidence.knowledgeWeaveTitle")}</h4>
                   <p className="topbar-subtitle mt-2">
                     {t("pages.evidence.knowledgeWeaveBody")}
@@ -568,7 +602,9 @@ export default function EvidenceFabric() {
             <article className="panel">
               <div className="panel-header">
                 <div>
-                  <p className="eyebrow">Promotion Lane</p>
+                  <p className="eyebrow">
+                    {t("pages.evidence.promotionLaneEyebrow")}
+                  </p>
                   <h4>{t("pages.evidence.promotionReviewTitle")}</h4>
                   <p className="topbar-subtitle mt-2">
                     {t("pages.evidence.promotionReviewBody")}
@@ -985,7 +1021,10 @@ export default function EvidenceFabric() {
                       </Badge>
                     </div>
                     <p className="text-muted mt-1 text-xs">
-                      {connector.namespace} v{connector.version}
+                      {t("pages.evidence.connectorVersion", {
+                        namespace: connector.namespace,
+                        version: connector.version,
+                      })}
                     </p>
                     <p className="text-muted mt-1 text-xs">
                       {t("pages.evidence.datasetsCount", {

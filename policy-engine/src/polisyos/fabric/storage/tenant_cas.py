@@ -1,4 +1,5 @@
 """Tenant-scoped CAS wrapper with namespace isolation and storage quota checks."""
+
 from __future__ import annotations
 
 from pathlib import Path

@@ -85,7 +85,9 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(tmp_path
     strategic_bundle_ref = persist_strategic_response_bundle(
         ctx.store,
         StrategicResponseBundle(
-            causal_component_ref=ArtifactRefModel.model_validate(candidate_ref.model_dump(mode="json")),
+            causal_component_ref=ArtifactRefModel.model_validate(
+                candidate_ref.model_dump(mode="json")
+            ),
             strategic_closure_ref=strategic_closure_ref,
             equilibrium_selection_dependence="follower_best_response_tie_breaking",
             equilibrium_set_ref=equilibrium_set_ref,
@@ -141,7 +143,9 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(tmp_path
     assert len(stress_refs) == 1
 
     rotating_evaluations = [
-        BenchmarkEvaluation.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
+        BenchmarkEvaluation.model_validate(
+            from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+        )
         for ref in rotating_refs
     ]
     assert all(

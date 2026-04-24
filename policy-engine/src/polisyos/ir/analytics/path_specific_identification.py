@@ -11,16 +11,22 @@ This is the path-specific analogue of the proximal/recoverability certificate
 surfaces: a compact machine-readable object that can be embedded into
 ``IdentificationResult.metadata`` / ``NegativeCertificate.quantitative_diagnostics``.
 """
+
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.analytics.estimand import DistributionRef, EstimandAST
-from polisyos.ir.analytics.mediation_effects import PathSpecificQuery
-from polisyos.ir.analytics.partial_identification import BoundsBundle
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.estimand import DistributionRef, EstimandAST
+    from polisyos.ir.analytics.mediation_effects import PathSpecificQuery
+    from polisyos.ir.analytics.partial_identification import BoundsBundle
+else:
+    from polisyos.ir.analytics.estimand import DistributionRef, EstimandAST
+    from polisyos.ir.analytics.mediation_effects import PathSpecificQuery
+    from polisyos.ir.analytics.partial_identification import BoundsBundle
 
 
 class PathSpecificDecisionMode(str, Enum):

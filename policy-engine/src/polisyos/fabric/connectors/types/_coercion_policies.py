@@ -7,6 +7,7 @@ Contains:
 - CoercionResult dataclass
 - CoercionRule Pydantic model for schema integration
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -16,12 +17,12 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 
 __all__ = [
-    "CoercionPolicy",
-    "DataTypeCategory",
-    "TypeInfo",
     "TYPE_INFO",
+    "CoercionPolicy",
     "CoercionResult",
     "CoercionRule",
+    "DataTypeCategory",
+    "TypeInfo",
 ]
 
 
@@ -160,7 +161,7 @@ class CoercionResult:
         *,
         precision_loss: bool = False,
         warnings: list[str] | None = None,
-    ) -> "CoercionResult":
+    ) -> CoercionResult:
         """Create a successful result."""
         return cls(
             success=True,
@@ -177,7 +178,7 @@ class CoercionResult:
         source_type: str,
         target_type: str,
         error: str,
-    ) -> "CoercionResult":
+    ) -> CoercionResult:
         """Create a failed result."""
         return cls(
             success=False,

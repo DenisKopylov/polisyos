@@ -1,4 +1,5 @@
 """Public planning build execution plan module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -59,6 +60,7 @@ class BuildExecutionPlanNode:
     writes the execution-plan artifact ref into both params and workflow inputs
     so simulation-stage nodes can reuse the same contract.
     """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -88,7 +90,9 @@ class BuildExecutionPlanNode:
                 plan = build_default_execution_plan(
                     run_id=state.run_id,
                     data_needs=[],
-                    governance_constraints=_list_of_dict(state.params.get("governance_constraints")),
+                    governance_constraints=_list_of_dict(
+                        state.params.get("governance_constraints")
+                    ),
                     expected_outputs=_list_of_dict(state.params.get("expected_outputs")),
                 )
                 events.append(
@@ -132,7 +136,8 @@ class BuildExecutionPlanNode:
             status="ok",
             state=new_state,
             artifacts=[plan_ref],
-            events=events + [
+            events=events
+            + [
                 NodeEvent(
                     level="info",
                     message="Execution plan created",

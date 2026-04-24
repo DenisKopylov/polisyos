@@ -8,13 +8,14 @@ Verifies:
 - compatible_runtimes() and incompatible_methods() query methods work
 - CompatibilityCell is correctly structured
 """
+
 from __future__ import annotations
 
 import pytest
 
 from polisyos.foundry.methods.compat_matrix import (
-    CompatibilityMatrix,
     CompatibilityCell,
+    CompatibilityMatrix,
 )
 
 
@@ -105,11 +106,10 @@ class TestCompatibilityMatrixEdgeCases:
         m = CompatibilityMatrix()
         m.generate(module_registry)
         deprecated_fqns = [
-            fqn for fqn in m.method_fqns
+            fqn
+            for fqn in m.method_fqns
             if any(
-                cell.status == "DEPRECATED"
-                for cell in m.cells.values()
-                if cell.method_fqn == fqn
+                cell.status == "DEPRECATED" for cell in m.cells.values() if cell.method_fqn == fqn
             )
         ]
         # Just verify the query doesn't crash; deprecated count is 0 or more

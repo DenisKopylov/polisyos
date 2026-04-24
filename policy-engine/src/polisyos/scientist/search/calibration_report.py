@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from datetime import UTC, datetime
 from typing import Any
 
@@ -89,7 +88,9 @@ def build_calibration_report(
     observations = list(sentinel_observations or [])
     sentinel_pass_rate = metrics.get("sentinel_pass_rate")
     if sentinel_pass_rate is None and observations:
-        sentinel_pass_rate = sum(1 for item in observations if item.stage_a_passed) / len(observations)
+        sentinel_pass_rate = sum(1 for item in observations if item.stage_a_passed) / len(
+            observations
+        )
 
     gaps: list[str] = []
     if burn_in_report is None:
@@ -203,21 +204,13 @@ def render_calibration_report(
     ]
     for criterion in report.acceptance_criteria:
         status = (
-            "PASS"
-            if criterion.passed is True
-            else "FAIL"
-            if criterion.passed is False
-            else "GAP"
+            "PASS" if criterion.passed is True else "FAIL" if criterion.passed is False else "GAP"
         )
         actual = "n/a" if criterion.actual is None else f"{criterion.actual:.4f}"
-        lines.append(
-            f"- {criterion.name}: {status} (target {criterion.target}, actual {actual})"
-        )
+        lines.append(f"- {criterion.name}: {status} (target {criterion.target}, actual {actual})")
     lines.append("")
     lines.append("## Sentinel Health")
-    lines.append(
-        f"- Observed pass rate: {report.sentinel_health.get('observed_pass_rate', 'n/a')}"
-    )
+    lines.append(f"- Observed pass rate: {report.sentinel_health.get('observed_pass_rate', 'n/a')}")
     lines.append(
         f"- Configured floor: {report.sentinel_health.get('configured_pass_rate_floor', 'n/a')}"
     )

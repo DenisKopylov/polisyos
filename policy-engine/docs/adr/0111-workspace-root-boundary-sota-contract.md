@@ -1,9 +1,11 @@
 # ADR-0111: Workspace Root Boundary as a SOTA Contract
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context

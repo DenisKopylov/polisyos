@@ -26,9 +26,7 @@ class BudgetMiddleware:
     ) -> None:
         self._ledger = ledger
         self._budget = (
-            ledger.load_or_bootstrap(budget_state)
-            if ledger is not None
-            else budget_state
+            ledger.load_or_bootstrap(budget_state) if ledger is not None else budget_state
         )
         self._lock = threading.Lock()
         self._alerted: set[tuple[str, int]] = set()
@@ -57,16 +55,17 @@ class BudgetMiddleware:
             if self._ledger is not None:
                 self._budget = self._ledger.load()
             alerts = self._budget.threshold_alerts(budget_key)
-            new_alerts = [
-                level for level in alerts
-                if (budget_key, level) not in self._alerted
-            ]
+            new_alerts = [level for level in alerts if (budget_key, level) not in self._alerted]
             for level in new_alerts:
                 self._alerted.add((budget_key, level))
             return new_alerts
 
     def record_spend_safe(
-        self, key: str, amount: Decimal, *, provider: str | None = None,
+        self,
+        key: str,
+        amount: Decimal,
+        *,
+        provider: str | None = None,
     ) -> None:
         """Thread-safe spend recording."""
         with self._lock:
@@ -98,7 +97,11 @@ class BudgetMiddleware:
             return result.applied_amount
 
     def commit_safe(
-        self, key: str, amount: Decimal, *, provider: str | None = None,
+        self,
+        key: str,
+        amount: Decimal,
+        *,
+        provider: str | None = None,
     ) -> Decimal:
         """Thread-safe commit (reservation -> spend). Returns committed amount."""
         with self._lock:

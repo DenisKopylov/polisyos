@@ -18,18 +18,18 @@ SYNCABLE_CACHE_DIRS=(
   resolved_references
 )
 
-gcloud config set project "${PROJECT_ID}" >/dev/null
+gcloud config set project "${PROJECT_ID}" > /dev/null
 
 sync_dir() {
   local src_dir="$1"
   local dst_dir="$2"
-  gcloud storage rsync -r "${src_dir}/" "${dst_dir}/" >/dev/null 2>&1 || true
+  gcloud storage rsync -r "${src_dir}/" "${dst_dir}/" > /dev/null 2>&1 || true
 }
 
 sync_file() {
   local src_file="$1"
   local dst_file="$2"
-  gcloud storage cp "${src_file}" "${dst_file}" >/dev/null 2>&1 || true
+  gcloud storage cp "${src_file}" "${dst_file}" > /dev/null 2>&1 || true
 }
 
 echo "=== Promote run into resume cache ==="

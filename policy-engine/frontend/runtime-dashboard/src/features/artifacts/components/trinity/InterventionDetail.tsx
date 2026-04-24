@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/LocaleProvider";
 import type { TrinityIntervention } from "@/lib/domain/trinity";
 
 function formatValue(value: unknown): string {
@@ -26,6 +27,7 @@ export default function InterventionDetail({
   intervention,
   defaultOpen = false,
 }: InterventionDetailProps) {
+  const { t } = useI18n();
   const params = Object.entries(intervention.params);
 
   return (
@@ -53,12 +55,16 @@ export default function InterventionDetail({
       <div className="border-line mt-3 space-y-2 border-t pt-3">
         {intervention.priority !== null ? (
           <p className="text-muted text-xs">
-            Priority: {intervention.priority}
+            {t("pages.artifacts.trinity.interventionPriority", {
+              priority: intervention.priority,
+            })}
           </p>
         ) : null}
 
         {params.length === 0 ? (
-          <p className="text-muted text-sm">No parameters.</p>
+          <p className="text-muted text-sm">
+            {t("pages.artifacts.trinity.noParameters")}
+          </p>
         ) : (
           <div className="grid gap-2 md:grid-cols-2">
             {params.map(([key, value]) => (

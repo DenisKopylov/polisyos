@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.search.funnel.level1_heuristic import (
     Level1CheapHeuristic,
@@ -85,10 +83,7 @@ class TestLevel1CheapHeuristic:
         shash = _candidate_structure_hash(candidate)
         stage = Level1CheapHeuristic(failure_pattern_cache={shash: 0.95})
         result = stage.evaluate(candidate, {})
-        assert any(
-            fc.failure_type == "historic_failure_pattern"
-            for fc in result.failure_cards
-        )
+        assert any(fc.failure_type == "historic_failure_pattern" for fc in result.failure_cards)
 
     def test_domain_prior_provider_integration(self):
         def mock_priors(cand):

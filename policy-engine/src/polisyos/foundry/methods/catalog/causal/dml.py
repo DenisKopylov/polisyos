@@ -1,8 +1,10 @@
 """Public causal dml module API."""
+
 from __future__ import annotations
 
 import inspect
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 

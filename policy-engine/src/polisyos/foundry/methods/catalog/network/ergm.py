@@ -1,4 +1,5 @@
 """ERGM-inspired null models and diffusion anomaly tests."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -7,7 +8,11 @@ from typing import Any, ClassVar
 
 import numpy as np
 from pydantic import ValidationError
-from sklearn.linear_model import LogisticRegression
+
+try:  # pragma: no cover - preferred in full scientific environments.
+    from sklearn.linear_model import LogisticRegression
+except ImportError:  # pragma: no cover - keeps catalog reflection importable.
+    LogisticRegression = None  # type: ignore[assignment]
 
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
@@ -86,7 +91,9 @@ def _resolve_group_labels(
     metadata: Mapping[str, Any],
     n_units: int,
 ) -> np.ndarray | None:
-    raw = params.get("group_labels", metadata.get("ergm_group_labels", metadata.get("group_labels")))
+    raw = params.get(
+        "group_labels", metadata.get("ergm_group_labels", metadata.get("group_labels"))
+    )
     if raw is None:
         return None
     groups = np.asarray(raw)
@@ -149,7 +156,9 @@ def _diffusion_metric(
     normalized = adj / row_sums
     current = np.asarray(node_states, dtype=float)
     for _ in range(max(n_steps, 1)):
-        current = np.clip((1.0 - decay) * current + diffusion_rate * (normalized @ current), 0.0, 1.0)
+        current = np.clip(
+            (1.0 - decay) * current + diffusion_rate * (normalized @ current), 0.0, 1.0
+        )
     return float(np.mean(current))
 
 
@@ -186,9 +195,8 @@ def fit_ergm_null_model(state: Any, params: Mapping[str, Any]) -> _ERGMFitArtifa
     seed = int(params.get("__seed__", 0))
 
     feature_names = ["gwdegree", "gwesp"]
-    gwdegree = (
-        (1.0 - np.exp(-degree_decay * degree[tri[0]]))
-        + (1.0 - np.exp(-degree_decay * degree[tri[1]]))
+    gwdegree = (1.0 - np.exp(-degree_decay * degree[tri[0]])) + (
+        1.0 - np.exp(-degree_decay * degree[tri[1]])
     )
     gwesp = 1.0 - np.exp(-triangle_decay * common[tri])
     features = [gwdegree, gwesp]
@@ -216,6 +224,8 @@ def fit_ergm_null_model(state: Any, params: Mapping[str, Any]) -> _ERGMFitArtifa
         simulated = np.repeat(p[None, :, :], n_simulations, axis=0)
         coefficients = {"intercept": float(np.log((baseline + 1e-6) / (1.0 - baseline + 1e-6)))}
     else:
+        if LogisticRegression is None:
+            raise ImportError("scikit-learn is required for ERGM logistic fitting")
         model = LogisticRegression(
             C=1.0 / ridge_penalty,
             solver="lbfgs",
@@ -238,7 +248,10 @@ def fit_ergm_null_model(state: Any, params: Mapping[str, Any]) -> _ERGMFitArtifa
             simulated[sim_idx] = graph
         coefficients = {"intercept": float(model.intercept_[0])}
         coefficients.update(
-            {name: float(weight) for name, weight in zip(feature_names, model.coef_[0], strict=True)}
+            {
+                name: float(weight)
+                for name, weight in zip(feature_names, model.coef_[0], strict=True)
+            }
         )
 
     if np.unique(y).size == 1:
@@ -252,15 +265,29 @@ def fit_ergm_null_model(state: Any, params: Mapping[str, Any]) -> _ERGMFitArtifa
             simulated[sim_idx] = graph
 
     observed_density = float(np.mean(binary[tri])) if y.size else 0.0
-    sim_density = np.mean(simulated[:, tri[0], tri[1]], axis=1) if y.size else np.zeros(n_simulations)
+    sim_density = (
+        np.mean(simulated[:, tri[0], tri[1]], axis=1) if y.size else np.zeros(n_simulations)
+    )
     observed_degree = _quantiles(degree)
     observed_esp = _edgewise_shared_partner_quantiles(binary)
-    sim_degree_q25 = np.asarray([_quantiles(np.sum(graph, axis=1))["q25"] for graph in simulated], dtype=float)
-    sim_degree_q50 = np.asarray([_quantiles(np.sum(graph, axis=1))["q50"] for graph in simulated], dtype=float)
-    sim_degree_q75 = np.asarray([_quantiles(np.sum(graph, axis=1))["q75"] for graph in simulated], dtype=float)
-    sim_esp_q25 = np.asarray([_edgewise_shared_partner_quantiles(graph)["q25"] for graph in simulated], dtype=float)
-    sim_esp_q50 = np.asarray([_edgewise_shared_partner_quantiles(graph)["q50"] for graph in simulated], dtype=float)
-    sim_esp_q75 = np.asarray([_edgewise_shared_partner_quantiles(graph)["q75"] for graph in simulated], dtype=float)
+    sim_degree_q25 = np.asarray(
+        [_quantiles(np.sum(graph, axis=1))["q25"] for graph in simulated], dtype=float
+    )
+    sim_degree_q50 = np.asarray(
+        [_quantiles(np.sum(graph, axis=1))["q50"] for graph in simulated], dtype=float
+    )
+    sim_degree_q75 = np.asarray(
+        [_quantiles(np.sum(graph, axis=1))["q75"] for graph in simulated], dtype=float
+    )
+    sim_esp_q25 = np.asarray(
+        [_edgewise_shared_partner_quantiles(graph)["q25"] for graph in simulated], dtype=float
+    )
+    sim_esp_q50 = np.asarray(
+        [_edgewise_shared_partner_quantiles(graph)["q50"] for graph in simulated], dtype=float
+    )
+    sim_esp_q75 = np.asarray(
+        [_edgewise_shared_partner_quantiles(graph)["q75"] for graph in simulated], dtype=float
+    )
     density_envelope = _envelope(sim_density)
     degree_envelope = {
         "q25": _envelope(sim_degree_q25),
@@ -339,7 +366,12 @@ class ERGMNullModelEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("adjacency", SlotType.MATRIX, Unit("network", "weight"), shape=("n_nodes", "n_nodes")),
+                SlotSpec(
+                    "adjacency",
+                    SlotType.MATRIX,
+                    Unit("network", "weight"),
+                    shape=("n_nodes", "n_nodes"),
+                ),
             }
         ),
         output_slots=_result_slot(ERGMResult.contract_id),
@@ -409,8 +441,15 @@ class DiffusionNullTestEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("adjacency", SlotType.MATRIX, Unit("network", "weight"), shape=("n_nodes", "n_nodes")),
-                SlotSpec("node_states", SlotType.VECTOR, Unit("state", "value"), shape=("n_nodes",)),
+                SlotSpec(
+                    "adjacency",
+                    SlotType.MATRIX,
+                    Unit("network", "weight"),
+                    shape=("n_nodes", "n_nodes"),
+                ),
+                SlotSpec(
+                    "node_states", SlotType.VECTOR, Unit("state", "value"), shape=("n_nodes",)
+                ),
             }
         ),
         output_slots=_result_slot(DiffusionNullResult.contract_id),

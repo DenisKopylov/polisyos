@@ -85,9 +85,8 @@ export const Default: Story = {
     const canvas = within(canvasElement);
     const runLink = canvas.getByRole("link", { name: "run-002" });
     await userEvent.hover(runLink);
-    await expect(runLink.closest("tr")).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
+    await expect(
+      canvas.getByRole("heading", { level: 3, name: "run-002" }),
+    ).toBeVisible();
   },
 };

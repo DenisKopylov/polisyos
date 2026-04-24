@@ -1,11 +1,14 @@
 """Property-based tests for network analysis methods."""
+
 from __future__ import annotations
+
 import sys
+
 import numpy as np
 import pytest
 
 try:
-    from hypothesis import given, settings, HealthCheck
+    from hypothesis import HealthCheck, given, settings
     from hypothesis import strategies as st
     from hypothesis.extra.numpy import arrays
 
@@ -24,7 +27,11 @@ def _method_or_skip(registry, fqn):
 @st.composite
 def _adjacency_strategy(draw):
     n = draw(st.integers(min_value=5, max_value=30))
-    adj = draw(arrays(np.float64, (n, n), elements=st.floats(0.0, 1.0, allow_nan=False, allow_infinity=False)))
+    adj = draw(
+        arrays(
+            np.float64, (n, n), elements=st.floats(0.0, 1.0, allow_nan=False, allow_infinity=False)
+        )
+    )
     # Symmetrize for undirected graph
     adj = (adj + adj.T) / 2
     np.fill_diagonal(adj, 0.0)
@@ -33,7 +40,11 @@ def _adjacency_strategy(draw):
 
 class TestCommunityDetectionProperties:
     @given(data=_adjacency_strategy())
-    @settings(max_examples=20, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_community_output_dict(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "network.community.community_detection@1.0.0")
         state = {"adjacency": data["adjacency"]}
@@ -44,7 +55,11 @@ class TestCommunityDetectionProperties:
             pass
 
     @given(data=_adjacency_strategy())
-    @settings(max_examples=20, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_community_labels_cover_all_nodes(self, data, isolated_registry):
         """Every node should be assigned to a community."""
         method = _method_or_skip(isolated_registry, "network.community.community_detection@1.0.0")
@@ -60,7 +75,11 @@ class TestCommunityDetectionProperties:
 
 class TestDiffusionProperties:
     @given(data=_adjacency_strategy())
-    @settings(max_examples=20, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_diffusion_output_finite(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "network.diffusion.network_diffusion@1.0.0")
         state = {"adjacency": data["adjacency"]}
@@ -78,7 +97,11 @@ class TestDiffusionProperties:
             pass
 
     @given(data=_adjacency_strategy())
-    @settings(max_examples=15, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=15,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_diffusion_monotone(self, data, isolated_registry):
         """Number of adopters should be non-decreasing over time."""
         method = _method_or_skip(isolated_registry, "network.diffusion.network_diffusion@1.0.0")

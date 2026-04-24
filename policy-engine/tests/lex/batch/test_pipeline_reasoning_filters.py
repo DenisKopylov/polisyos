@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -11,6 +11,9 @@ from polisyos.lex.batch.pipeline import (
     _should_extract_spo_from_span,
 )
 from polisyos.lex.batch.structurer import ProvisionSpan
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _span(
@@ -37,33 +40,42 @@ def _span(
 
 
 def test_should_extract_spo_from_span_skips_search_only_units() -> None:
-    assert _should_extract_spo_from_span(
-        _span(
-            anchor_path="appendix:1/table:001/header:0001",
-            text="Назва   Значення",
-            section_role="table_header",
-            fallback_allowed_for_reasoning=False,
+    assert (
+        _should_extract_spo_from_span(
+            _span(
+                anchor_path="appendix:1/table:001/header:0001",
+                text="Назва   Значення",
+                section_role="table_header",
+                fallback_allowed_for_reasoning=False,
+            )
         )
-    ) is False
-    assert _should_extract_spo_from_span(
-        _span(
-            anchor_path="full/chunk:0001",
-            text="Суцільний текст без структури",
-            kind="full_text",
-            is_fallback_chunk=True,
-            section_role="fallback_recall",
-            fallback_allowed_for_reasoning=False,
+        is False
+    )
+    assert (
+        _should_extract_spo_from_span(
+            _span(
+                anchor_path="full/chunk:0001",
+                text="Суцільний текст без структури",
+                kind="full_text",
+                is_fallback_chunk=True,
+                section_role="fallback_recall",
+                fallback_allowed_for_reasoning=False,
+            )
         )
-    ) is False
-    assert _should_extract_spo_from_span(
-        _span(
-            anchor_path="art:1/pt:1",
-            text="Орган зобов'язаний надати дозвіл.",
-            kind="point",
-            section_role="normative_unit",
-            fallback_allowed_for_reasoning=True,
+        is False
+    )
+    assert (
+        _should_extract_spo_from_span(
+            _span(
+                anchor_path="art:1/pt:1",
+                text="Орган зобов'язаний надати дозвіл.",
+                kind="point",
+                section_role="normative_unit",
+                fallback_allowed_for_reasoning=True,
+            )
         )
-    ) is True
+        is True
+    )
 
 
 def test_structure_quality_gate_fails_fast_on_full_only_docs(tmp_path: Path) -> None:

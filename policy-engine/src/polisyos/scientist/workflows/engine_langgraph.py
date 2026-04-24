@@ -1,7 +1,8 @@
 """LangGraph-backed adapter that satisfies the legacy `WorkflowEngine` protocol."""
+
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from langgraph.graph.graph import CompiledGraph
 
@@ -20,9 +21,9 @@ class LangGraphEngine:
         self._graph = compiled_graph
         self._current_phase: str = Phase.INTAKE.value
         self._current_node: str | None = None
-        self._last_state: Dict[str, Any] | None = None
+        self._last_state: dict[str, Any] | None = None
 
-    def run(self, initial_state: Dict[str, Any]) -> Dict[str, Any]:
+    def run(self, initial_state: dict[str, Any]) -> dict[str, Any]:
         """Invoke the compiled graph once and return the final merged state."""
         result = self._graph.invoke(initial_state)
         self._last_state = result
@@ -30,7 +31,7 @@ class LangGraphEngine:
         self._current_node = None
         return result
 
-    def step(self, state: Dict[str, Any]) -> tuple[Dict[str, Any], bool]:
+    def step(self, state: dict[str, Any]) -> tuple[dict[str, Any], bool]:
         """
         Execute single step.
 
@@ -50,9 +51,8 @@ class LangGraphEngine:
                     self._current_phase = self._last_state.get("phase", self._current_phase)
 
         last_state = self._last_state or state
-        is_terminal = (
-            self._current_node in {"pack_decision", "__end__"}
-            or last_state.get("pruned", False)
+        is_terminal = self._current_node in {"pack_decision", "__end__"} or last_state.get(
+            "pruned", False
         )
         return last_state, is_terminal
 
@@ -71,7 +71,7 @@ class LangGraphEngine:
         self._last_state = None
 
     @classmethod
-    def from_existing_workflow(cls) -> "LangGraphEngine":
+    def from_existing_workflow(cls) -> LangGraphEngine:
         """Reject the removed legacy builder path and point callers to engine DAGs."""
         raise RuntimeError(
             "LangGraph legacy workflow was removed. Use polisyos.scientist.run_experiment() engine DAG."
@@ -84,7 +84,7 @@ class LangGraphEngineFactory:
     def __init__(self, build_func=None):
         self._build_func = build_func
 
-    def create(self, config: Dict[str, Any] | None = None) -> LangGraphEngine:
+    def create(self, config: dict[str, Any] | None = None) -> LangGraphEngine:
         if self._build_func:
             graph = self._build_func()
         else:

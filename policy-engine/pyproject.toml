@@ -8,256 +8,170 @@ version = "0.1.0"
 description = "AI-driven Policy Simulation System using JAX and Unified Data Fabric"
 requires-python = ">=3.14,<3.15"
 dependencies = [
-    # Core Math & Sim
-    "jax>=0.4.20",
-    "jaxlib>=0.4.20",
-    "equinox>=0.11.0",
-    "diffrax>=0.5.0",
-    "optax>=0.1.9",
-    "jaxtyping>=0.2.25",
-    # Data Fabric
-    "duckdb>=0.9.2",
-    "hnswlib",
-    "pyarrow>=14.0.0",
-    "aiohttp>=3.9.0",
-    "pandas>=2.1.0",
-    "openpyxl>=3.1.0",
-    "xlrd>=2.0.1",
-    "odfpy>=1.4.1",
-    "pypdf>=5.5.0",
-    "openai",
-    "pydantic>=2.5.0",
-    "pydantic-settings>=2.0.0",
-    "click>=8.1.7",
-    "tiktoken",
-    "orjson>=3.10.0",
-    "zstandard>=0.23.0",
-    "opt_einsum>=3.4.0",
-    # Observability
-    "opentelemetry-api>=1.20.0",
-    "opentelemetry-sdk>=1.20.0",
-    "opentelemetry-exporter-otlp-proto-grpc>=1.20.0",
-    "opentelemetry-exporter-prometheus>=0.41b0",
-    # Orchestration
-    "langgraph>=0.0.10",
-    "langchain>=0.1.0",
-    "pymoo>=0.6.0",
-    # Utils
-    "python-dotenv>=1.0.0",
-    "cryptography>=42.0.0",
-    "loguru>=0.7.2",
-    "packaging>=23.0",
-    "chex>=0.1.91",
+  # Core Math & Sim
+  "jax>=0.4.20",
+  "jaxlib>=0.4.20",
+  "equinox>=0.11.0",
+  "diffrax>=0.5.0",
+  "optax>=0.1.9",
+  "jaxtyping>=0.2.25",
+  # Data Fabric
+  "duckdb>=0.9.2",
+  "hnswlib",
+  "pyarrow>=14.0.0",
+  "aiohttp>=3.9.0",
+  "pandas>=2.1.0",
+  "openpyxl>=3.1.0",
+  "xlrd>=2.0.1",
+  "odfpy>=1.4.1",
+  "pypdf>=5.5.0",
+  "openai",
+  "pydantic>=2.5.0",
+  "pydantic-settings>=2.0.0",
+  "click>=8.1.7",
+  "tiktoken",
+  "orjson>=3.10.0",
+  "zstandard>=0.23.0",
+  "opt_einsum>=3.4.0",
+  # Observability
+  "opentelemetry-api>=1.20.0",
+  "opentelemetry-sdk>=1.20.0",
+  "opentelemetry-exporter-otlp-proto-grpc>=1.20.0",
+  "opentelemetry-exporter-prometheus>=0.41b0",
+  # Orchestration
+  "langgraph>=0.0.10",
+  "langchain>=0.1.0",
+  "pymoo>=0.6.0",
+  # Utils
+  "python-dotenv>=1.0.0",
+  "cryptography>=42.0.0",
+  "loguru>=0.7.2",
+  "packaging>=23.0",
+  "chex>=0.1.91",
 ]
 
 [project.optional-dependencies]
 core = []
 lint = [
-    "basedpyright>=1.34.0",
-    "mypy>=1.19.1",
-    "pre-commit>=4.5.1",
-    "ruff>=0.14.10",
-    "types-requests>=2.32.4.20250913",
+  "basedpyright>=1.34.0",
+  "mypy>=1.19.1",
+  "pre-commit>=4.5.1",
+  "ruff>=0.14.10",
+  "types-requests>=2.32.4.20250913",
 ]
-docs = [
-    "mkdocs>=1.6.0",
-    "mkdocs-material>=9.6.0",
-    "mkdocstrings[python]>=0.30.0",
-]
-notebooks = [
-    "jupyterlab>=4.0.0",
-    "matplotlib>=3.8.0",
-    "seaborn>=0.13.0",
-]
-mutation = [
-    "mutmut>=2.0",
-]
-agent-sim = [
-    "plotly>=6.5.0",
-    "streamlit>=1.52.2",
-]
-apple-metal = [
-    "jax-metal>=0.1.1; sys_platform == 'darwin'",
-]
+docs = ["mkdocs>=1.6.0", "mkdocs-material>=9.6.0", "mkdocstrings[python]>=0.30.0"]
+notebooks = ["jupyterlab>=4.0.0", "matplotlib>=3.8.0", "seaborn>=0.13.0"]
+mutation = ["mutmut>=2.0"]
+agent-sim = ["plotly>=6.5.0", "streamlit>=1.52.2"]
+apple-metal = ["jax-metal>=0.1.1; sys_platform == 'darwin'"]
 kuzu = ["kuzu>=0.1.0"]
 analytics = [
-    "scipy>=1.11.0",
-    "statsmodels>=0.14.0",
-    "linearmodels>=5.0",
-    "pandas>=2.0.0",
-    "ruptures>=1.1.10",
-    "arch>=8.0.0",
+  "scipy>=1.11.0",
+  "statsmodels>=0.14.0",
+  "linearmodels>=5.0",
+  "pandas>=2.0.0",
+  "ruptures>=1.1.10",
+  "arch>=8.0.0",
 ]
-ml = [
-    "scikit-learn>=1.6.0",
-    "lifelines>=0.30.0",
-    "mapie>=1.0.0",
-]
+ml = ["scikit-learn>=1.6.0", "lifelines>=0.30.0", "mapie>=1.0.0"]
 # Compatibility alias: the core JAX stack already lives in the base install.
 # Accelerator-specific backends such as Apple Metal stay opt-in extras.
 deep-learning = []
-optimization-advanced = [
-    "cvxpy>=1.8.1",
-]
-bayesian = [
-    "numpyro>=0.20.0",
-    "arviz>=1.0.0",
-]
-sensitivity = [
-    "SALib>=1.5,<2.0",
-    "scipy>=1.11.0",
-]
+optimization-advanced = ["cvxpy>=1.8.1"]
+bayesian = ["numpyro>=0.20.0", "arviz>=1.0.0"]
+sensitivity = ["SALib>=1.5,<2.0", "scipy>=1.11.0"]
 # Keep DoWhy in a separate compatibility extra: 0.13 hard-pins cvxpy<1.5,
 # which conflicts with the modern optimization stack used elsewhere.
-causal = [
-    "policy-engine[causal-core]",
-    "policy-engine[causal-dowhy]",
-]
+causal = ["policy-engine[causal-core]", "policy-engine[causal-dowhy]"]
 causal-core = [
-    # EconML currently resolves to a scikit-learn build path without ready
-    # Python 3.14 wheels in the verified docs environment.
-    "econml>=0.16; python_version < '3.14'",
+  # EconML currently resolves to a scikit-learn build path without ready
+  # Python 3.14 wheels in the verified docs environment.
+  "econml>=0.16; python_version < '3.14'",
 ]
-causal-dowhy = [
-    "dowhy>=0.13,<0.14; python_version < '3.13'",
-    "cvxpy<1.5; python_version < '3.13'",
-]
-causal-bcf = [
-    "stochtree>=0.1.0",
-]
-causal-nuisance = [
-    "lightgbm>=4.0",
-    "zepid>=0.9",
-]
-causal-discovery = [
-    "tigramite>=5.2",
-    "causal-learn>=0.1.3.8",
-]
-causal-discovery-scale = [
-    "dagma>=1.1.1",
-]
-causal-symbolic = [
-    "y0>=0.2,<0.3",
-]
-causal-symbolic-y0 = [
-    "y0>=0.2,<0.3",
-]
-causal-symbolic-r = [
-    "rpy2>=3.5,<4.0",
-]
+causal-dowhy = ["dowhy>=0.13,<0.14; python_version < '3.13'", "cvxpy<1.5; python_version < '3.13'"]
+causal-bcf = ["stochtree>=0.1.0"]
+causal-nuisance = ["lightgbm>=4.0", "zepid>=0.9"]
+causal-discovery = ["tigramite>=5.2", "causal-learn>=0.1.3.8"]
+causal-discovery-scale = ["dagma>=1.1.1"]
+causal-symbolic = ["y0>=0.2,<0.3"]
+causal-symbolic-y0 = ["y0>=0.2,<0.3"]
+causal-symbolic-r = ["rpy2>=3.5,<4.0"]
 causal-full = [
-    "econml>=0.16; python_version < '3.14'",
-    "dowhy>=0.13,<0.14; python_version < '3.13'",
-    "cvxpy<1.5; python_version < '3.13'",
-    "lightgbm>=4.0",
-    "zepid>=0.9",
-    "y0>=0.2,<0.3",
+  "econml>=0.16; python_version < '3.14'",
+  "dowhy>=0.13,<0.14; python_version < '3.13'",
+  "cvxpy<1.5; python_version < '3.13'",
+  "lightgbm>=4.0",
+  "zepid>=0.9",
+  "y0>=0.2,<0.3",
 ]
-table-extraction = [
-    "marker-pdf>=0.3.0",
-]
-solvers = [
-    "ortools>=9.8",
-    "pulp>=2.8",
-]
+table-extraction = ["marker-pdf>=0.3.0"]
+solvers = ["ortools>=9.8", "pulp>=2.8"]
 methods-full = [
-    "policy-engine[analytics]",
-    "policy-engine[causal-core]",
-    "policy-engine[solvers]",
-    "policy-engine[ml]",
-    "policy-engine[optimization-advanced]",
-    "policy-engine[bayesian]",
+  "policy-engine[analytics]",
+  "policy-engine[causal-core]",
+  "policy-engine[solvers]",
+  "policy-engine[ml]",
+  "policy-engine[optimization-advanced]",
+  "policy-engine[bayesian]",
 ]
 methods-milestone2 = [
-    "policy-engine[analytics]",
-    "policy-engine[ml]",
-    "policy-engine[optimization-advanced]",
-    "policy-engine[solvers]",
+  "policy-engine[analytics]",
+  "policy-engine[ml]",
+  "policy-engine[optimization-advanced]",
+  "policy-engine[solvers]",
 ]
-methods-milestone3 = [
-    "policy-engine[methods-milestone2]",
-]
-methods-milestone4 = [
-    "policy-engine[methods-milestone3]",
-    "policy-engine[bayesian]",
-]
-observability = [
-    "prometheus-client>=0.17.0",
-]
-runtime-http = [
-    "fastapi>=0.109.0",
-    "uvicorn[standard]>=0.27.0",
-    "httpx>=0.27.0",
-    "PyJWT>=2.8.0",
-]
+methods-milestone3 = ["policy-engine[methods-milestone2]"]
+methods-milestone4 = ["policy-engine[methods-milestone3]", "policy-engine[bayesian]"]
+observability = ["prometheus-client>=0.17.0"]
+runtime-http = ["fastapi>=0.109.0", "uvicorn[standard]>=0.27.0", "httpx>=0.27.0", "PyJWT>=2.8.0"]
 runtime = [
-    "policy-engine[runtime-http]",
-    "policy-engine[observability]",
-    "policy-engine[structured-logging]",
+  "policy-engine[runtime-http]",
+  "policy-engine[observability]",
+  "policy-engine[structured-logging]",
 ]
-multi-tenant = [
-    "policy-engine[runtime-http]",
-    "psycopg[binary]>=3.1.0",
-    "asyncpg>=0.29.0",
-]
+multi-tenant = ["policy-engine[runtime-http]", "psycopg[binary]>=3.1.0", "asyncpg>=0.29.0"]
 security = [
-    "httpx>=0.27.0",
-    "boto3>=1.34.0",
-    "sigstore>=3.0.0",
-    "presidio-analyzer>=2.2.0",
-    "presidio-anonymizer>=2.2.0",
-    "spacy>=3.7.0",
+  "httpx>=0.27.0",
+  "boto3>=1.34.0",
+  "sigstore>=3.0.0",
+  "presidio-analyzer>=2.2.0",
+  "presidio-anonymizer>=2.2.0",
+  "spacy>=3.7.0",
 ]
-rag = [
-    "faiss-cpu>=1.7.4,<2.0",
-]
-rag-local = [
-    "sentence-transformers>=2.2.0,<3.0",
-    "onnxruntime>=1.18.0,<2.0",
-]
-academic-skg = [
-    "pypdf>=5.5.0",
-]
-sandbox = [
-    "RestrictedPython>=7.0,<8.0",
-]
-shapesafe = [
-    "beartype>=0.18.0",
-]
-hotreload = [
-    "watchfiles>=0.21.0",
-]
+rag = ["faiss-cpu>=1.7.4,<2.0"]
+rag-local = ["sentence-transformers>=2.2.0,<3.0", "onnxruntime>=1.18.0,<2.0"]
+academic-skg = ["pypdf>=5.5.0"]
+sandbox = ["RestrictedPython>=7.0,<8.0"]
+shapesafe = ["beartype>=0.18.0"]
+hotreload = ["watchfiles>=0.21.0"]
 research = [
-    "policy-engine[analytics]",
-    "policy-engine[bayesian]",
-    "policy-engine[causal-discovery]",
-    "policy-engine[causal-discovery-scale]",
-    "policy-engine[causal-full]",
-    "policy-engine[ml]",
-    "policy-engine[optimization-advanced]",
-    "policy-engine[sensitivity]",
-    "policy-engine[solvers]",
-    "policy-engine[academic-skg]",
+  "policy-engine[analytics]",
+  "policy-engine[bayesian]",
+  "policy-engine[causal-discovery]",
+  "policy-engine[causal-discovery-scale]",
+  "policy-engine[causal-full]",
+  "policy-engine[ml]",
+  "policy-engine[optimization-advanced]",
+  "policy-engine[sensitivity]",
+  "policy-engine[solvers]",
+  "policy-engine[academic-skg]",
 ]
-agent-quality = [
-    "faiss-cpu>=1.7.4,<2.0",
-    "RestrictedPython>=7.0,<8.0",
-]
+agent-quality = ["faiss-cpu>=1.7.4,<2.0", "RestrictedPython>=7.0,<8.0"]
 test = [
-    "pytest>=7.4.0",
-    "pytest-asyncio>=0.23.0",
-    "pytest-benchmark>=4.0.0",
-    "pytest-xdist>=3.6.1",
-    "hypothesis>=6.0.0",
-    "rdflib>=7.0.0",
-    "policy-engine[runtime-http]",
+  "pytest>=7.4.0",
+  "pytest-asyncio>=0.23.0",
+  "pytest-benchmark>=4.0.0",
+  "pytest-xdist>=3.6.1",
+  "hypothesis>=6.0.0",
+  "rdflib>=7.0.0",
+  "policy-engine[runtime-http]",
 ]
 dev = [
-    "policy-engine[docs]",
-    "policy-engine[lint]",
-    "policy-engine[mutation]",
-    "policy-engine[notebooks]",
-    "policy-engine[structured-logging]",
+  "policy-engine[docs]",
+  "policy-engine[lint]",
+  "policy-engine[mutation]",
+  "policy-engine[notebooks]",
+  "policy-engine[structured-logging]",
 ]
 # Curated umbrella used by docs/onboarding.
 # It intentionally excludes externally provisioned or highly platform-specific
@@ -265,29 +179,27 @@ dev = [
 # heavyweight local-only tooling and overlap-heavy milestone bundles that slow
 # pip's resolver dramatically without adding new capability surface.
 all = [
-    "policy-engine[research]",
-    "policy-engine[hotreload]",
-    "policy-engine[rag]",
-    "policy-engine[runtime]",
-    "policy-engine[security]",
-    "policy-engine[shapesafe]",
+  "policy-engine[research]",
+  "policy-engine[hotreload]",
+  "policy-engine[rag]",
+  "policy-engine[runtime]",
+  "policy-engine[security]",
+  "policy-engine[shapesafe]",
 ]
-structured-logging = [
-    "structlog>=24.0.0",
-]
+structured-logging = ["structlog>=24.0.0"]
 search_bo = [
-    "torch>=2.0.0",
-    "gpytorch>=1.11",
-    "botorch>=0.9.0",
-    "linear_operator>=0.5.0",
-    "scipy>=1.10.0",
+  "torch>=2.0.0",
+  "gpytorch>=1.11",
+  "botorch>=0.9.0",
+  "linear_operator>=0.5.0",
+  "scipy>=1.10.0",
 ]
 search_mo = [
-    "torch>=2.0.0",
-    "gpytorch>=1.11",
-    "botorch>=0.9.0",
-    "linear_operator>=0.5.0",
-    "scipy>=1.10.0",
+  "torch>=2.0.0",
+  "gpytorch>=1.11",
+  "botorch>=0.9.0",
+  "linear_operator>=0.5.0",
+  "scipy>=1.10.0",
 ]
 
 [project.scripts]
@@ -338,15 +250,15 @@ packages = ["src/polisyos", "tools"]
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "src/polisyos",
-    "benchmarks",
-    "docs",
-    "ops",
-    "schemas",
-    "tools",
-    "CHANGELOG.md",
-    "README.md",
-    "pyproject.toml",
+  "src/polisyos",
+  "benchmarks",
+  "docs",
+  "ops",
+  "schemas",
+  "tools",
+  "CHANGELOG.md",
+  "README.md",
+  "pyproject.toml",
 ]
 
 # --- Tool Configurations ---
@@ -358,22 +270,40 @@ target-version = "py314"
 
 [tool.ruff.lint]
 select = [
-    "E",   # pycodestyle errors
-    "F",   # pyflakes
-    "I",   # isort (imports sorting)
-    "B",   # flake8-bugbear (catching common bugs)
-    "T20", # flake8-print (FORBID PRINT STATEMENTS - требование ТЗ)
-    "N",   # pep8-naming
-    "UP",  # pyupgrade
-    "S",   # flake8-bandit
-    "PT",  # pytest style
-    "SIM", # simplify
-    "RUF", # ruff-native correctness rules
-    "ANN", # explicit annotations
-    "C4",  # comprehensions
-    "TCH", # type-checking import hygiene
+  "E",   # pycodestyle errors
+  "F",   # pyflakes
+  "I",   # isort (imports sorting)
+  "B",   # flake8-bugbear (catching common bugs)
+  "T20", # flake8-print (FORBID PRINT STATEMENTS - требование ТЗ)
+  "N",   # pep8-naming
+  "UP",  # pyupgrade
+  "S",   # flake8-bandit
+  "PT",  # pytest style
+  "SIM", # simplify
+  "RUF", # ruff-native correctness rules
+  "ANN", # explicit annotations
+  "C4",  # comprehensions
+  "TCH", # type-checking import hygiene
 ]
 ignore = []
+allowed-confusables = [
+  "–",
+  "σ",
+  "−",
+  "α",
+  "с",
+  "ρ",
+  "р",
+  "γ",
+  "В",
+  "е",
+  "а",
+  "б",
+  "о",
+  "∪",
+  "у",
+  "×",
+]
 
 # Suppression policy: new noqa/type-ignore entries require an ADR-style comment
 # in the touched file or an explicit per-file ignore here; blanket project-wide
@@ -382,24 +312,639 @@ ignore = []
 [tool.ruff.lint.per-file-ignores]
 "notebooks/*" = ["T201"]
 "tests/*" = ["ANN", "S101", "T201"]
-"tests/**" = ["ANN", "S101", "T201"]
-"src/polisyos/common/*" = ["T201"]  # Разрешаем print в утилитах для отладки
+"tests/**" = [
+  "ANN",
+  "E402",
+  "E501",
+  "F841",
+  "PT011",
+  "PT018",
+  "RUF100",
+  "S101",
+  "S108",
+  "S603",
+  "S607",
+  "SIM102",
+  "T201",
+  "TC001",
+  "TC002",
+  "TC003",
+  "UP047",
+]
+"src/polisyos/ir/**" = [
+  "ANN401",
+  "TC001",
+  "TC003",
+  "E501",
+  "SIM102",
+] # IR contracts rely on runtime-visible annotations for Pydantic model rebuilds.
+"tests/ir/**" = [
+  "ANN",
+  "B017",
+  "E501",
+  "N806",
+  "PT011",
+  "RUF043",
+  "S101",
+  "T201",
+] # IR tests assert broad validation behavior and use math-style fixture names.
+# Phase 3 keeps Core on the same ratchet model as IR: keep public facades and
+# optional runtime adapters stable now, then remove these local ignores module by
+# module as the base layer is hardened.
+"src/polisyos/core/**" = ["ANN401", "TC001", "TC002", "TC003", "UP046", "UP047"]
+"src/polisyos/core/components/_cli_*.py" = ["N803", "N806", "T201"]
+"src/polisyos/core/components/cli_parts.py" = ["T201"]
+"src/polisyos/core/artifacts/_env_utils.py" = ["S603"]
+"src/polisyos/core/audit/_assembler_core.py" = ["S603"]
+"src/polisyos/core/audit/models.py" = ["S105"]
+"src/polisyos/core/audit/standalone_verifier_template.py" = ["T201"]
+"src/polisyos/core/contracts/__init__.py" = ["F401"]
+"src/polisyos/core/observability/__init__.py" = ["ANN"]
+"src/polisyos/core/security/settings.py" = ["B019"]
+"src/polisyos/core/governance/legal/backends/expr_ast.py" = ["S106"]
+"src/polisyos/core/governance/legal/backends/stub.py" = ["S106"]
+"src/polisyos/core/security/sbom.py" = ["S603"]
+"src/polisyos/core/security/slsa/config.py" = ["S105"]
+"tests/core/**" = [
+  "B017",
+  "B905",
+  "E501",
+  "N806",
+  "PT011",
+  "PT012",
+  "RUF007",
+  "S105",
+  "S108",
+  "S603",
+  "S607",
+  "SIM117",
+  "TC003",
+]
+# Phase 4D keeps Foundry on a directory-level Ruff ratchet while the heavy
+# numerics and method registry surfaces are cleaned by vertical slices. The
+# mypy plugin remains active; these suppressions are lint/style debt only.
+"src/polisyos/foundry/**" = [
+  "ANN001",
+  "ANN002",
+  "ANN003",
+  "ANN201",
+  "ANN202",
+  "ANN204",
+  "ANN401",
+  "B007",
+  "B023",
+  "B028",
+  "B905",
+  "C408",
+  "C409",
+  "C416",
+  "E402",
+  "E501",
+  "E741",
+  "F401",
+  "F841",
+  "E731",
+  "N803",
+  "N806",
+  "N814",
+  "N815",
+  "N817",
+  "N818",
+  "PT028",
+  "RUF002",
+  "RUF003",
+  "RUF005",
+  "RUF007",
+  "RUF009",
+  "RUF012",
+  "RUF015",
+  "RUF022",
+  "RUF034",
+  "RUF046",
+  "RUF059",
+  "S101",
+  "S105",
+  "S110",
+  "S112",
+  "SIM102",
+  "SIM103",
+  "SIM105",
+  "SIM108",
+  "SIM109",
+  "SIM110",
+  "SIM118",
+  "SIM401",
+  "T201",
+  "TC001",
+  "TC002",
+  "TC003",
+  "TC004",
+  "UP028",
+  "UP046",
+  "UP047",
+]
+"src/polisyos/foundry/agent_sim/distributions.py" = ["F722", "F821"]
+"src/polisyos/foundry/agent_sim/experiment.py" = ["S301"]
+"src/polisyos/foundry/agent_sim/graphs.py" = ["F722", "F821"]
+"src/polisyos/foundry/agent_sim/policy.py" = ["F722"]
+"src/polisyos/foundry/agent_sim/population.py" = ["F722", "F821"]
+"src/polisyos/foundry/agent_sim/prng.py" = ["F722"]
+"src/polisyos/foundry/agent_sim/rl.py" = ["F722", "F821"]
+"src/polisyos/foundry/agent_sim/state.py" = ["F722", "F821"]
+"src/polisyos/foundry/agent_sim/temporal.py" = ["F722", "F821"]
+"src/polisyos/foundry/agent_sim/wiring/contracts.py" = ["F821"]
+"src/polisyos/foundry/contracts/state.py" = ["F722", "F821"]
+"src/polisyos/foundry/methods/_artifacts_fingerprint.py" = ["S603"]
+"src/polisyos/foundry/methods/artifacts.py" = ["F403"]
+"src/polisyos/foundry/methods/bayesian/__init__.py" = ["F403"]
+"src/polisyos/foundry/methods/causal/__init__.py" = ["F403"]
+"src/polisyos/foundry/methods/catalog/causal/admg_ops.py" = ["S324"]
+"src/polisyos/foundry/methods/catalog/causal/ncm_engine.py" = ["S307"]
+"src/polisyos/foundry/methods/dependence/__init__.py" = ["F403"]
+"src/polisyos/foundry/methods/econometrics/__init__.py" = ["F403"]
+"src/polisyos/foundry/methods/microsim/__init__.py" = ["F403"]
+"src/polisyos/foundry/methods/ml/__init__.py" = ["F403"]
+"src/polisyos/foundry/methods/network/__init__.py" = ["F403"]
+"src/polisyos/foundry/methods/optimization/__init__.py" = ["F403"]
+"src/polisyos/foundry/methods/spatial/__init__.py" = ["F403"]
+"src/polisyos/foundry/validation/phase2_closure.py" = ["S314"]
+"tests/foundry/**" = [
+  "B007",
+  "B017",
+  "B905",
+  "C408",
+  "E402",
+  "E501",
+  "E731",
+  "E741",
+  "F401",
+  "F841",
+  "N801",
+  "N802",
+  "N803",
+  "N806",
+  "N817",
+  "PT006",
+  "PT007",
+  "PT011",
+  "PT017",
+  "PT018",
+  "PT019",
+  "RUF005",
+  "RUF012",
+  "RUF043",
+  "RUF059",
+  "S102",
+  "S108",
+  "S110",
+  "S603",
+  "SIM101",
+  "SIM102",
+  "SIM105",
+  "SIM222",
+  "TC001",
+  "TC003",
+]
+# Phase 4A legacy data-package ratchet. These entries are intentionally
+# per-file rather than package-wide globs so legacy data packages do not gain
+# new blanket ignores.
+"src/polisyos/academic/batch/article_extractor.py" = ["ANN401", "E501", "N806", "S101"]
+"src/polisyos/academic/batch/benchmark.py" = ["ANN401", "E501", "S110", "S608"]
+"src/polisyos/academic/batch/best_snapshot.py" = ["ANN001", "ANN401", "E501", "S107", "S608"]
+"src/polisyos/academic/batch/claim_adjudicator.py" = ["ANN401", "E501", "SIM115"]
+"src/polisyos/academic/batch/cli.py" = ["E501"]
+"src/polisyos/academic/batch/config.py" = ["S105"]
+"src/polisyos/academic/batch/dedup.py" = ["ANN401"]
+"src/polisyos/academic/batch/doc_normalize.py" = ["E501", "S314"]
+"src/polisyos/academic/batch/edge_synthesize.py" = ["E501", "S608"]
+"src/polisyos/academic/batch/fulltext_resolver.py" = ["E501"]
+"src/polisyos/academic/batch/graph_builder.py" = ["B007", "E501"]
+"src/polisyos/academic/batch/llm_extractor.py" = ["ANN401", "S101", "S324"]
+"src/polisyos/academic/batch/numeric_extract.py" = ["E501"]
+"src/polisyos/academic/batch/parser.py" = ["E501"]
+"src/polisyos/academic/batch/pipeline.py" = ["ANN001"]
+"src/polisyos/academic/batch/prompts/boundary_conditions.py" = ["E501"]
+"src/polisyos/academic/batch/prompts/causal_claims.py" = ["E501"]
+"src/polisyos/academic/batch/prompts/claim_adjudication.py" = ["E501"]
+"src/polisyos/academic/batch/prompts/context_extraction.py" = ["E501"]
+"src/polisyos/academic/batch/prompts/empirical_parameters.py" = ["E501"]
+"src/polisyos/academic/batch/prompts/mechanisms.py" = ["E501"]
+"src/polisyos/academic/batch/prompts/moderator_extraction.py" = ["E501"]
+"src/polisyos/academic/batch/prompts/paper_classification.py" = ["E501"]
+"src/polisyos/academic/batch/prompts/screening.py" = ["E501"]
+"src/polisyos/academic/batch/qc.py" = ["E501", "S310"]
+"src/polisyos/academic/batch/resolve_extract.py" = [
+  "ANN401",
+  "E501",
+  "N806",
+  "S110",
+  "S311",
+  "SIM102",
+  "SIM113",
+]
+"src/polisyos/academic/batch/resolve_finalize.py" = ["E501", "N806", "SIM102"]
+"src/polisyos/academic/batch/topic_select.py" = ["E501", "S101"]
+"src/polisyos/academic/batch/transport_score.py" = ["E501", "S608"]
+"src/polisyos/academic/knowledge/__init__.py" = ["ANN202"]
+"src/polisyos/academic/knowledge/canonical_resolver.py" = ["S106"]
+"src/polisyos/academic/knowledge/parameter_selector.py" = ["ANN001", "ANN202"]
+"src/polisyos/academic/knowledge/skg_query.py" = ["E501", "S112", "S608"]
+"src/polisyos/academic/knowledge/skg_store.py" = ["ANN401", "E501"]
+"src/polisyos/academic/knowledge/skg_versioning.py" = ["ANN401"]
+"src/polisyos/academic/knowledge/store.py" = ["E501", "S608"]
+"src/polisyos/academic/knowledge/variable_canonizer.py" = ["S101"]
+"src/polisyos/academic/openalex/client.py" = ["S101"]
+"src/polisyos/datasets/batch/__init__.py" = ["E501"]
+"src/polisyos/datasets/batch/benchmark.py" = ["E501", "S112", "S608"]
+"src/polisyos/datasets/batch/checkpoints.py" = ["ANN401"]
+"src/polisyos/datasets/batch/cli.py" = ["E501"]
+"src/polisyos/datasets/batch/config.py" = ["SIM102"]
+"src/polisyos/datasets/batch/core_sources_ingest.py" = [
+  "ANN401",
+  "B007",
+  "B020",
+  "E501",
+  "F402",
+  "N806",
+  "RUF034",
+  "S101",
+  "S608",
+  "SIM117",
+]
+"src/polisyos/datasets/batch/graph_builder.py" = ["E501"]
+"src/polisyos/datasets/batch/harvester.py" = ["ANN401", "E501", "S314", "SIM102", "SIM117"]
+"src/polisyos/datasets/batch/interpolation.py" = ["S608"]
+"src/polisyos/datasets/batch/normalizer.py" = ["ANN401", "E501", "RUF001", "SIM115"]
+"src/polisyos/datasets/batch/publish.py" = ["E501", "S608"]
+"src/polisyos/datasets/batch/qc.py" = ["E501", "S310", "S608"]
+"src/polisyos/datasets/batch/source_registry.py" = ["ANN401"]
+"src/polisyos/datasets/knowledge/__init__.py" = ["E501"]
+"src/polisyos/datasets/knowledge/proxy_resolver.py" = ["ANN401", "SIM102"]
+"src/polisyos/datasets/knowledge/registry.py" = ["ANN401", "RUF059", "SIM102"]
+"src/polisyos/datasets/knowledge/search.py" = ["E501", "SIM102"]
+"src/polisyos/datasets/knowledge/store.py" = ["E501", "S608"]
+"src/polisyos/ukraine_data/__init__.py" = ["ANN002", "ANN003", "ANN201"]
+"src/polisyos/ukraine_data/adapters.py" = ["E501", "S314", "S603", "S608", "SIM102"]
+"src/polisyos/ukraine_data/builders.py" = [
+  "ANN202",
+  "ANN401",
+  "E501",
+  "RUF001",
+  "S110",
+  "S324",
+  "S608",
+]
+"src/polisyos/ukraine_data/models.py" = ["E501"]
+"src/polisyos/ukraine_data/orchestrator.py" = ["E501"]
+"src/polisyos/ukraine_data/server.py" = ["S603"]
+"tests/academic/batch/test_article_extraction_golden.py" = ["E501"]
+"tests/academic/batch/test_article_extractor_stage.py" = ["E501"]
+"tests/academic/batch/test_benchmark.py" = ["E501"]
+"tests/academic/batch/test_best_snapshot.py" = ["E501"]
+"tests/academic/batch/test_claim_adjudicator.py" = ["E501"]
+"tests/academic/batch/test_doc_normalize.py" = ["E501"]
+"tests/academic/batch/test_fulltext_resolver.py" = ["E501"]
+"tests/academic/batch/test_graph_builder_skg_tables.py" = ["E501"]
+"tests/academic/batch/test_parser.py" = ["E501"]
+"tests/academic/batch/test_qc.py" = ["PT017"]
+"tests/academic/batch/test_run2_pipeline_upgrades.py" = ["E501"]
+"tests/academic/batch/test_skg_versioning.py" = ["E501"]
+"tests/academic/batch/test_transport_score.py" = ["E501"]
+"tests/academic/knowledge/test_canonical_resolver.py" = ["E501"]
+"tests/academic/knowledge/test_skg_query.py" = ["E501"]
+"tests/academic/knowledge/test_types.py" = ["B017", "PT011"]
+"tests/datasets/batch/test_benchmark.py" = ["E501"]
+"tests/datasets/batch/test_core_sources_ingest.py" = ["E501"]
+"tests/datasets/batch/test_harvester_sampling.py" = ["E501"]
+"tests/datasets/batch/test_pipeline.py" = ["PT017"]
+"tests/datasets/batch/test_publish.py" = ["PT017"]
+"tests/datasets/batch/test_qc.py" = ["E501", "PT017"]
+"tests/datasets/knowledge/test_registry.py" = ["E501"]
+"tests/datasets/knowledge/test_store.py" = ["E501"]
+"tests/datasets/knowledge/test_types.py" = ["B017", "PT011"]
+"tests/integration/test_phase0_quality_validation.py" = ["E501"]
+"tests/ukraine_data/test_adapters.py" = ["E501", "RUF001"]
+"tests/ukraine_data/test_builders.py" = ["RUF043"]
+# Phase 4B keeps Fabric on the same explicit ratchet model as the base layers:
+# formatting/import sorting is fail-closed now, while legacy dynamic connector
+# payloads, runtime Pydantic annotations, and generated SQL builders are
+# narrowed by local ignores instead of repo-wide rule suppression.
+"src/polisyos/fabric/**" = [
+  "ANN",
+  "E501",
+  "N818",
+  "SIM102",
+  "SIM117",
+  "TC001",
+  "TC002",
+  "TC003",
+  "UP046",
+  "UP047",
+]
+"src/polisyos/fabric/claims/conflicts/**" = ["S608"]
+"src/polisyos/fabric/connectors/cache/_store_index.py" = ["S608"]
+"src/polisyos/fabric/connectors/sources/eurostat.py" = ["N817"]
+"src/polisyos/fabric/connectors/sources/sql_query.py" = ["S608"]
+"src/polisyos/fabric/connectors/registry_core_parts.py" = ["SIM118"]
+"src/polisyos/fabric/connectors/testing/**" = ["S101", "S110", "SIM105"]
+"src/polisyos/fabric/connectors/transform/aggregator.py" = ["F402"]
+"src/polisyos/fabric/data_plane/cli.py" = ["T201"]
+"src/polisyos/fabric/docs/normalize.py" = ["S110"]
+"src/polisyos/fabric/quality.py" = ["S608"]
+"src/polisyos/fabric/storage/duckdb_adapter.py" = ["S608"]
+"src/polisyos/fabric/world/materialize/**" = ["S112", "S608"]
+"src/polisyos/fabric/world/store/snapshots.py" = ["S608"]
+"src/polisyos/fabric/world_query.py" = ["S608"]
+"tests/fabric/**" = [
+  "B017",
+  "E501",
+  "N801",
+  "N805",
+  "N806",
+  "PT011",
+  "PT012",
+  "PT018",
+  "PT019",
+  "RUF012",
+  "RUF001",
+  "RUF043",
+  "S105",
+  "S106",
+  "S108",
+  "S603",
+  "S608",
+  "SIM101",
+  "SIM108",
+  "SIM117",
+  "TC001",
+  "TC002",
+  "TC003",
+]
+# Phase 4C keeps Lex/Scholar on a local ratchet while the document and
+# retrieval-oriented surfaces are formatted. Ukrainian legal text fixtures,
+# validated dynamic SQL/table-name composition, and dynamically-composed SPO
+# extractors are tracked here instead of scattering inline suppressions.
+"src/polisyos/lex/**" = [
+  "ANN001",
+  "ANN201",
+  "ANN202",
+  "ANN401",
+  "B023",
+  "E501",
+  "N806",
+  "RUF001",
+  "RUF002",
+  "RUF003",
+  "RUF012",
+  "S101",
+  "S105",
+  "S110",
+  "S112",
+  "S311",
+  "S314",
+  "S324",
+  "S608",
+  "SIM102",
+  "SIM105",
+  "SIM115",
+  "TC001",
+  "TC003",
+]
+"src/polisyos/lex/batch/deterministic_spo.py" = ["E402"]
+"src/polisyos/lex/batch/deterministic_spo_core.py" = ["E402", "F821"]
+"src/polisyos/lex/batch/deterministic_spo_articles.py" = ["F821"]
+"src/polisyos/lex/batch/deterministic_spo_subtypes.py" = ["F821"]
+"src/polisyos/scholar/**" = ["ANN001", "ANN202", "ANN401", "S310"]
+"tests/lex/**" = ["E501", "PT011", "RUF001", "RUF002", "RUF003", "S608"]
+"tests/scholar/**" = ["E501"]
+# Phase 5A keeps Scientist fail-closed for syntax and undefined names while
+# the large downstream consumer layer is cleaned by narrower vertical slices.
+"src/polisyos/scientist/**" = [
+  "ANN001",
+  "ANN003",
+  "ANN201",
+  "ANN202",
+  "ANN204",
+  "ANN205",
+  "ANN401",
+  "B007",
+  "B027",
+  "B904",
+  "B905",
+  "C400",
+  "C401",
+  "C409",
+  "C416",
+  "E501",
+  "E731",
+  "E741",
+  "F401",
+  "F841",
+  "N803",
+  "N806",
+  "N814",
+  "N816",
+  "N818",
+  "PT028",
+  "RUF005",
+  "RUF007",
+  "RUF022",
+  "RUF034",
+  "RUF046",
+  "RUF059",
+  "S101",
+  "S102",
+  "S105",
+  "S106",
+  "S110",
+  "S112",
+  "S311",
+  "S324",
+  "S608",
+  "SIM101",
+  "SIM102",
+  "SIM103",
+  "SIM105",
+  "SIM108",
+  "SIM110",
+  "SIM117",
+  "SIM118",
+  "SIM201",
+  "T201",
+  "TC001",
+  "TC002",
+  "TC003",
+  "UP040",
+  "UP046",
+]
+"tests/scientist/**" = [
+  "B007",
+  "B017",
+  "C408",
+  "E402",
+  "E501",
+  "E741",
+  "F841",
+  "N806",
+  "N818",
+  "PT006",
+  "PT011",
+  "PT017",
+  "PT018",
+  "RUF012",
+  "RUF043",
+  "RUF046",
+  "RUF059",
+  "S105",
+  "S106",
+  "S108",
+  "S110",
+  "SIM105",
+  "SIM108",
+  "SIM117",
+  "TC001",
+  "TC002",
+  "TC003",
+]
+"src/polisyos/common/*" = ["T201"] # Разрешаем print в утилитах для отладки
 "src/polisyos/common/serialization.py" = ["ANN401"]
 "src/polisyos/core/artifacts/backends/caching_store.py" = ["ANN401", "TC001"]
 "src/polisyos/core/security/authz.py" = ["ANN401", "TC001"]
+"src/polisyos/ir/observation/governance.py" = ["S106"]
+"src/polisyos/ir/analytics/latent_bridge_synthesis.py" = ["S105"]
+"src/polisyos/ir/analytics/survey_quality.py" = ["S105"]
 "src/polisyos/runtime/http/errors.py" = ["ANN401"]
 "src/polisyos/runtime/http/services/control_plane_store.py" = [
-    "ANN401",
-    "C416",
-    "E501",
-    "I001",
-    "S608",
-    "SIM117",
-    "SIM118",
-    "TC006",
-    "UP017",
-    "UP035",
+  "ANN401",
+  "C416",
+  "E501",
+  "I001",
+  "S608",
+  "SIM117",
+  "SIM118",
+  "TC006",
+  "UP017",
+  "UP035",
 ]
+# Phase 5B runtime ratchet: these dynamic edges sit at HTTP, CAS payload,
+# observability, and framework-extension boundaries. The list stays explicit so
+# newly added runtime modules enter Ruff fail-closed.
+"src/polisyos/runtime/__init__.py" = ["ANN401"]
+"src/polisyos/runtime/api.py" = ["ANN401"]
+"src/polisyos/runtime/http/app.py" = ["ANN401"]
+"src/polisyos/runtime/http/container.py" = ["ANN401"]
+"src/polisyos/runtime/http/csrf.py" = ["ANN401"]
+"src/polisyos/runtime/http/dev_identity_middleware.py" = ["ANN401"]
+"src/polisyos/runtime/http/fail_closed_middleware.py" = ["ANN401"]
+"src/polisyos/runtime/http/mutation_policy.py" = ["ANN401"]
+"src/polisyos/runtime/http/openapi_contract.py" = ["ANN401"]
+"src/polisyos/runtime/http/resilience.py" = ["ANN401"]
+"src/polisyos/runtime/http/response_policies.py" = ["ANN401"]
+"src/polisyos/runtime/http/routes/review.py" = ["ANN401"]
+"src/polisyos/runtime/http/routes/runs.py" = ["ANN401", "B008"]
+"src/polisyos/runtime/http/security.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/artifact_inspector.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/control.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/control_registry_providers.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/debug.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/feedback.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/mobility.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/run_index.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/sae_spatial_service.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/task_runner.py" = ["ANN401"]
+"src/polisyos/runtime/http/services/timeline.py" = ["ANN401"]
+# Runtime manifest keeps runtime-visible Pydantic annotations for model rebuilds.
+"src/polisyos/runtime/manifest.py" = ["TC001"]
+"src/polisyos/runtime/replay.py" = ["ANN401"]
+# FastAPI requires dependency factories in endpoint defaults; the route modules
+# keep B008 suppressed while runtime API contract tests police the surface.
+"src/polisyos/runtime/http/routes/artifacts.py" = ["B008"]
+"src/polisyos/runtime/http/routes/control.py" = ["B008"]
+"src/polisyos/runtime/http/routes/debug.py" = ["B008"]
+"src/polisyos/runtime/http/routes/mobility.py" = ["B008"]
+"tests/ir/analytics/test_evidence_bundle.py" = ["S106"]
+"tests/ir/test_public_surface.py" = ["S603"]
+"tests/ir/test_schema_catalog.py" = ["S603"]
+# Repository hygiene closeout ratchets: these surfaces are now part of the
+# canonical Ruff pass, but their historical style/security debt stays explicit
+# until each directory owner burns it down.
+"src/polisyos/calibration/**" = ["ANN401", "B905", "E501", "RUF005", "TC001", "TC003"]
+"src/polisyos/synthetic_world/**" = ["ANN401", "E501", "RUF046", "TC001", "TC003"]
+"schemas/abi_models.py" = ["TC003"]
+"examples/**" = ["RUF012"]
+"gcp/upload_gonka_secrets.py" = ["S603", "T201"]
+"jax_bootstrap.py" = ["E402"]
+"migrate.py" = ["E402"]
+"scripts/testing/**" = ["S603", "T201"]
+"tools/_lib/**" = ["ANN401", "RUF046", "S108", "S310", "S603", "S607", "TC001", "TC003"]
+"tools/architecture/**" = ["E402"]
+"tools/calibration/**" = ["E402"]
+"tools/ci/**" = ["E402", "E501", "RUF100", "S314", "TC003"]
+"tools/cli.py" = ["E501", "S101", "TC003"]
+"tools/cloud/**" = ["E402"]
+"tools/connectors/**" = ["E402"]
+"tools/data/**" = ["E402"]
+"tools/devx/architecture/**" = ["E501", "S603", "SIM102"]
+"tools/devx/connectors/**" = ["ANN401", "SIM102", "TC001"]
+"tools/devx/foundry/**" = ["TC003"]
+"tools/devx/workspace/**" = ["E402", "E501", "RUF100", "S101", "S603", "S607", "SIM108", "TC003"]
+"tools/diagnostics/**" = ["E402"]
+"tools/foundry/**" = ["E402"]
+"tools/lint/**" = ["E402"]
+"tools/migrations/**" = ["E402"]
+"tools/ops/**" = [
+  "ANN001",
+  "ANN202",
+  "ANN401",
+  "C401",
+  "C416",
+  "E402",
+  "E501",
+  "F841",
+  "RUF001",
+  "RUF100",
+  "S101",
+  "S105",
+  "S106",
+  "S108",
+  "S110",
+  "S310",
+  "S324",
+  "S603",
+  "S607",
+  "S608",
+  "SIM105",
+  "TC003",
+  "UP031",
+]
+"tools/quality/**" = [
+  "ANN001",
+  "ANN401",
+  "B007",
+  "E402",
+  "E501",
+  "RUF005",
+  "RUF100",
+  "S101",
+  "S105",
+  "S314",
+  "S603",
+  "S607",
+  "SIM101",
+  "SIM102",
+  "SIM103",
+  "SIM108",
+  "SIM110",
+  "TC003",
+  "UP022",
+]
+"tools/registry.py" = ["E501"]
+"tools/release/**" = ["E402"]
+"tools/runtime/**" = ["E402"]
+"tools/testing/**" = ["E402"]
+"tools/ukraine_data/**" = ["E402"]
+"tools/validation/**" = ["E402"]
+"tools/workspace/**" = ["E402"]
 "tools/*" = ["T201"]
 "tools/**" = ["T201"]
 
@@ -408,15 +953,923 @@ ignore = []
 python_version = "3.14"
 strict = true
 ignore_missing_imports = false
-plugins = ["pydantic.mypy", "polisyos.foundry.methods.mypy_plugin"] # Плагин для корректной работы с Pydantic v2
+plugins = [
+  "pydantic.mypy",
+  "polisyos.foundry.methods.mypy_plugin",
+] # Плагин для корректной работы с Pydantic v2
+
+# Phase 3 keeps the common -> ir -> core base layers green via a transparent
+# debt ledger instead of scattering inline `type: ignore` comments. As modules
+# are stabilized, entries are removed from this list and return to fail-closed
+# `mypy` coverage.
+[[tool.mypy.overrides]]
+module = [
+  "polisyos.ir._validation",
+  "polisyos.ir.analytics.abstraction",
+  "polisyos.ir.analytics.alignment_certification",
+  "polisyos.ir.analytics.causal",
+  "polisyos.ir.analytics.causal_graph",
+  "polisyos.ir.analytics.causal_graph_kuzu",
+  "polisyos.ir.analytics.causal_run_snapshot",
+  "polisyos.ir.analytics.dependence_structure",
+  "polisyos.ir.analytics.diagnostic_dashboard",
+  "polisyos.ir.analytics.distributional",
+  "polisyos.ir.analytics.dual_certificate",
+  "polisyos.ir.analytics.ecosystem_bridges",
+  "polisyos.ir.analytics.falsification_report",
+  "polisyos.ir.analytics.forecasting_uncertainty",
+  "polisyos.ir.analytics.interventions",
+  "polisyos.ir.analytics.literature",
+  "polisyos.ir.analytics.mediation_effects",
+  "polisyos.ir.analytics.microsim_calibration",
+  "polisyos.ir.analytics.mobility",
+  "polisyos.ir.analytics.negative_certificate",
+  "polisyos.ir.analytics.partial_identification",
+  "polisyos.ir.analytics.proof_composability",
+  "polisyos.ir.analytics.recourse_manifold",
+  "polisyos.ir.analytics.recoverability",
+  "polisyos.ir.analytics.strategic",
+  "polisyos.ir.analytics.survey_quality",
+  "polisyos.ir.analytics.uncertainty",
+  "polisyos.ir.artifacts.contracts",
+  "polisyos.ir.connectors",
+  "polisyos.ir.data.harmonizer",
+  "polisyos.ir.data.versioning",
+  "polisyos.ir.governance.mechanism_semantics",
+  "polisyos.ir.governance.temporal_logic",
+  "polisyos.ir.kernel.merge_rules",
+  "polisyos.ir.kernel.units",
+  "polisyos.ir.loaders",
+  "polisyos.ir.migrations",
+  "polisyos.ir.migrations.policy_ir",
+  "polisyos.ir.migrations.trinity_migration",
+  "polisyos.ir.observation.causal_execution",
+  "polisyos.ir.observation.contract_compilers",
+  "polisyos.ir.portfolio",
+  "polisyos.ir.predicate",
+  "polisyos.ir.refs",
+  "polisyos.ir.schema_catalog",
+  "polisyos.ir.trinity.loaders",
+]
+ignore_errors = true
+
+# Phase 4B records the current Fabric mypy debt by concrete module so the
+# directory can enter the standard gate without hiding newly added modules.
+[[tool.mypy.overrides]]
+module = [
+  "polisyos.fabric.catalog.binding",
+  "polisyos.fabric.catalog.resolver_fast_lane",
+  "polisyos.fabric.catalog.search",
+  "polisyos.fabric.catalog.semantic",
+  "polisyos.fabric.claims",
+  "polisyos.fabric.claims.conflicts.resolve",
+  "polisyos.fabric.claims.persist",
+  "polisyos.fabric.connectors",
+  "polisyos.fabric.connectors._registry_lifecycle",
+  "polisyos.fabric.connectors._registry_models",
+  "polisyos.fabric.connectors.base",
+  "polisyos.fabric.connectors.cache._store_core",
+  "polisyos.fabric.connectors.cache._store_index",
+  "polisyos.fabric.connectors.cache._store_models",
+  "polisyos.fabric.connectors.cache._store_serialization",
+  "polisyos.fabric.connectors.cache.policy",
+  "polisyos.fabric.connectors.cache.prefetch",
+  "polisyos.fabric.connectors.cache.proxy",
+  "polisyos.fabric.connectors.cache.schema_aware",
+  "polisyos.fabric.connectors.capabilities",
+  "polisyos.fabric.connectors.components",
+  "polisyos.fabric.connectors.components_bridge",
+  "polisyos.fabric.connectors.contracts._inference_engine",
+  "polisyos.fabric.connectors.contracts._inference_result",
+  "polisyos.fabric.connectors.contracts._inference_validation",
+  "polisyos.fabric.connectors.contracts.contract",
+  "polisyos.fabric.connectors.contracts.registry",
+  "polisyos.fabric.connectors.contracts.validation_middleware",
+  "polisyos.fabric.connectors.discovery",
+  "polisyos.fabric.connectors.federation.composer",
+  "polisyos.fabric.connectors.federation.evidence_aggregation",
+  "polisyos.fabric.connectors.federation.planner",
+  "polisyos.fabric.connectors.federation.ranker",
+  "polisyos.fabric.connectors.federation.resolver",
+  "polisyos.fabric.connectors.federation.types",
+  "polisyos.fabric.connectors.pool",
+  "polisyos.fabric.connectors.quality",
+  "polisyos.fabric.connectors.quality.completeness",
+  "polisyos.fabric.connectors.quality.consistency",
+  "polisyos.fabric.connectors.quality.freshness",
+  "polisyos.fabric.connectors.quality.report",
+  "polisyos.fabric.connectors.quality.statistics",
+  "polisyos.fabric.connectors.quality.validator",
+  "polisyos.fabric.connectors.reference.rest_json",
+  "polisyos.fabric.connectors.reference.sdmx",
+  "polisyos.fabric.connectors.reference.static_csv",
+  "polisyos.fabric.connectors.registry_core_parts",
+  "polisyos.fabric.connectors.resilience",
+  "polisyos.fabric.connectors.resilience.circuit_breaker",
+  "polisyos.fabric.connectors.resilience.fallback",
+  "polisyos.fabric.connectors.resilience.rate_limiter",
+  "polisyos.fabric.connectors.sources._contracts.eurostat_contracts",
+  "polisyos.fabric.connectors.sources._contracts.sdmx_contracts",
+  "polisyos.fabric.connectors.sources._contracts.ukons_contracts",
+  "polisyos.fabric.connectors.sources._contracts.world_bank_contracts",
+  "polisyos.fabric.connectors.sources._contracts.wvs_contracts",
+  "polisyos.fabric.connectors.sources._file_common",
+  "polisyos.fabric.connectors.sources.ckan_catalog",
+  "polisyos.fabric.connectors.sources.ckan_resource",
+  "polisyos.fabric.connectors.sources.eurostat",
+  "polisyos.fabric.connectors.sources.event_stream",
+  "polisyos.fabric.connectors.sources.file_tabular",
+  "polisyos.fabric.connectors.sources.geojson",
+  "polisyos.fabric.connectors.sources.graphql_api",
+  "polisyos.fabric.connectors.sources.http_base",
+  "polisyos.fabric.connectors.sources.http_common",
+  "polisyos.fabric.connectors.sources.object_storage",
+  "polisyos.fabric.connectors.sources.opendatasoft",
+  "polisyos.fabric.connectors.sources.sdmx_source",
+  "polisyos.fabric.connectors.sources.socrata",
+  "polisyos.fabric.connectors.sources.sparql",
+  "polisyos.fabric.connectors.sources.sql_query",
+  "polisyos.fabric.connectors.sources.ukons",
+  "polisyos.fabric.connectors.sources.unesco_uis",
+  "polisyos.fabric.connectors.sources.unpd",
+  "polisyos.fabric.connectors.sources.who",
+  "polisyos.fabric.connectors.sources.world_bank",
+  "polisyos.fabric.connectors.sources.wvs",
+  "polisyos.fabric.connectors.testing.contracts",
+  "polisyos.fabric.connectors.testing.fixtures",
+  "polisyos.fabric.connectors.testing.harness",
+  "polisyos.fabric.connectors.testing.simulator",
+  "polisyos.fabric.connectors.transform._common",
+  "polisyos.fabric.connectors.transform.aggregator",
+  "polisyos.fabric.connectors.transform.filter",
+  "polisyos.fabric.connectors.transform.harmonizer",
+  "polisyos.fabric.connectors.transform.imputer",
+  "polisyos.fabric.connectors.transform.normalizer",
+  "polisyos.fabric.connectors.transform.pipeline",
+  "polisyos.fabric.connectors.transform.validator",
+  "polisyos.fabric.connectors.types._coercion_rules",
+  "polisyos.fabric.connectors.validation",
+  "polisyos.fabric.data_plane.modes",
+  "polisyos.fabric.data_plane.orchestrator",
+  "polisyos.fabric.data_plane.streaming",
+  "polisyos.fabric.data_plane.watermark",
+  "polisyos.fabric.docs.backends.text_html",
+  "polisyos.fabric.docs.chunking",
+  "polisyos.fabric.docs.normalize",
+  "polisyos.fabric.docs.structure",
+  "polisyos.fabric.entity_resolution.store",
+  "polisyos.fabric.evidence",
+  "polisyos.fabric.fact_writer",
+  "polisyos.fabric.finite",
+  "polisyos.fabric.ingestion",
+  "polisyos.fabric.io.db",
+  "polisyos.fabric.observability",
+  "polisyos.fabric.pii.detector",
+  "polisyos.fabric.quality",
+  "polisyos.fabric.retrieval.executor",
+  "polisyos.fabric.retrieval.explore_lane",
+  "polisyos.fabric.security.column_mask",
+  "polisyos.fabric.storage.duckdb_adapter",
+  "polisyos.fabric.storage.memory_adapter",
+  "polisyos.fabric.storage.port",
+  "polisyos.fabric.storage.tenant_cas",
+  "polisyos.fabric.tabular",
+  "polisyos.fabric.world",
+  "polisyos.fabric.world.materialize.duckdb",
+  "polisyos.fabric.world.materialize.kuzu",
+  "polisyos.fabric.world.materialize.projections",
+  "polisyos.fabric.world.materialize.staging",
+  "polisyos.fabric.world.store.emit",
+  "polisyos.fabric.world.store.snapshots",
+  "polisyos.fabric.world.store.validate",
+  "polisyos.fabric.world_query",
+]
+ignore_errors = true
+
+# Phase 4C records the current Lex/Scholar mypy debt by concrete module so the
+# directories can enter the standard gate without hiding new modules by wildcard.
+[[tool.mypy.overrides]]
+module = [
+  "polisyos.lex.artifacts",
+  "polisyos.lex.batch.amendment_metrics",
+  "polisyos.lex.batch.benchmark",
+  "polisyos.lex.batch.claim_bridge",
+  "polisyos.lex.batch.cli",
+  "polisyos.lex.batch.deterministic_spo_articles",
+  "polisyos.lex.batch.deterministic_spo_core",
+  "polisyos.lex.batch.deterministic_spo_subtypes",
+  "polisyos.lex.batch.embedder",
+  "polisyos.lex.batch.entity_resolver",
+  "polisyos.lex.batch.graph_builder",
+  "polisyos.lex.batch.legal_unit",
+  "polisyos.lex.batch.llm_gate",
+  "polisyos.lex.batch.openai_batch_embeddings",
+  "polisyos.lex.batch.pipeline",
+  "polisyos.lex.batch.pipeline_helpers",
+  "polisyos.lex.batch.pipeline_types",
+  "polisyos.lex.batch.postprocess",
+  "polisyos.lex.batch.progress",
+  "polisyos.lex.batch.provisions_io",
+  "polisyos.lex.batch.publish",
+  "polisyos.lex.batch.qc",
+  "polisyos.lex.batch.quality_report",
+  "polisyos.lex.batch.reference_extractor",
+  "polisyos.lex.batch.reference_resolution",
+  "polisyos.lex.batch.smoke",
+  "polisyos.lex.batch.spo_cache",
+  "polisyos.lex.batch.spo_client",
+  "polisyos.lex.batch.spo_extractor",
+  "polisyos.lex.batch.spo_utils",
+  "polisyos.lex.batch.structurer",
+  "polisyos.lex.batch.template_extractor",
+  "polisyos.lex.corpus.structure",
+  "polisyos.lex.corpus.versioning",
+  "polisyos.lex.factlog",
+  "polisyos.lex.intervention_artifacts",
+  "polisyos.lex.interventions",
+  "polisyos.lex.knowledge.search",
+  "polisyos.lex.knowledge.store",
+  "polisyos.lex.knowledge.types",
+  "polisyos.lex.legal_evaluation.backends.simple_v1",
+  "polisyos.lex.legal_evaluation.change_proposals",
+  "polisyos.lex.legal_evaluation.context_builder",
+  "polisyos.lex.legal_evaluation.evaluator_registry",
+  "polisyos.lex.legal_evaluation.transport_constraints",
+  "polisyos.lex.normpack.assemble_pack",
+  "polisyos.lex.normpack.extract_norm_claims",
+  "polisyos.lex.normpack.provider_registry",
+  "polisyos.lex.normpack.select_sources",
+  "polisyos.lex.simulator.engine",
+  "polisyos.scholar.freshness_store",
+  "polisyos.scholar.orchestrator.bundle",
+  "polisyos.scholar.orchestrator.enrich",
+  "polisyos.scholar.policies",
+  "polisyos.scholar.search.cache",
+  "polisyos.scholar.search.fetcher",
+  "polisyos.scholar.search.planner",
+  "polisyos.scholar.search.providers",
+  "polisyos.scholar.search.security",
+  "polisyos.scholar.search.service",
+]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+# Phase 4D records the current Foundry mypy debt by concrete module. Keep the
+# Foundry mypy plugin enabled in [tool.mypy]; this ledger only prevents the
+# historical catalog/numerics debt from blocking the directory fast gate.
+module = [
+  "polisyos.foundry._executor_graph",
+  "polisyos.foundry._executor_models",
+  "polisyos.foundry._executor_ops",
+  "polisyos.foundry._executor_patching",
+  "polisyos.foundry._executor_snapshots",
+  "polisyos.foundry.agent_sim.actor_critic",
+  "polisyos.foundry.agent_sim.analysis",
+  "polisyos.foundry.agent_sim.artifact",
+  "polisyos.foundry.agent_sim.credit_assignment",
+  "polisyos.foundry.agent_sim.dashboard",
+  "polisyos.foundry.agent_sim.demographics",
+  "polisyos.foundry.agent_sim.distribution_mechanisms",
+  "polisyos.foundry.agent_sim.distributions",
+  "polisyos.foundry.agent_sim.evolution",
+  "polisyos.foundry.agent_sim.executor",
+  "polisyos.foundry.agent_sim.experiment",
+  "polisyos.foundry.agent_sim.government_policy",
+  "polisyos.foundry.agent_sim.graph_executor",
+  "polisyos.foundry.agent_sim.graph_mechanisms",
+  "polisyos.foundry.agent_sim.graphs",
+  "polisyos.foundry.agent_sim.jit_training",
+  "polisyos.foundry.agent_sim.mechanism",
+  "polisyos.foundry.agent_sim.mechanisms",
+  "polisyos.foundry.agent_sim.metrics",
+  "polisyos.foundry.agent_sim.modes",
+  "polisyos.foundry.agent_sim.mpc",
+  "polisyos.foundry.agent_sim.policy",
+  "polisyos.foundry.agent_sim.population",
+  "polisyos.foundry.agent_sim.population_executor",
+  "polisyos.foundry.agent_sim.population_mechanisms",
+  "polisyos.foundry.agent_sim.prng",
+  "polisyos.foundry.agent_sim.rewards",
+  "polisyos.foundry.agent_sim.rl",
+  "polisyos.foundry.agent_sim.state",
+  "polisyos.foundry.agent_sim.temporal",
+  "polisyos.foundry.agent_sim.temporal_mechanisms",
+  "polisyos.foundry.agent_sim.training",
+  "polisyos.foundry.agent_sim.vfi",
+  "polisyos.foundry.agent_sim.visualization",
+  "polisyos.foundry.agent_sim.wiring.contracts",
+  "polisyos.foundry.agent_sim.wiring.executors",
+  "polisyos.foundry.agents",
+  "polisyos.foundry.calibration",
+  "polisyos.foundry.calibration.bijectors",
+  "polisyos.foundry.calibration.calibrator",
+  "polisyos.foundry.calibration.dp_ci",
+  "polisyos.foundry.calibration.preflight",
+  "polisyos.foundry.calibration.pure_executor",
+  "polisyos.foundry.calibration.robust_set_selector",
+  "polisyos.foundry.calibration.uncertainty_adapter",
+  "polisyos.foundry.compile._graph",
+  "polisyos.foundry.compile._lowering",
+  "polisyos.foundry.compile.trinity_compiler",
+  "polisyos.foundry.conflict_checker",
+  "polisyos.foundry.constraints_engine",
+  "polisyos.foundry.contracts.mechanism",
+  "polisyos.foundry.contracts.state",
+  "polisyos.foundry.data_plane.bindings",
+  "polisyos.foundry.execute.api",
+  "polisyos.foundry.feedback.config",
+  "polisyos.foundry.feedback.fixed_point",
+  "polisyos.foundry.loss",
+  "polisyos.foundry.mechanisms.fiscal",
+  "polisyos.foundry.mechanisms.labor",
+  "polisyos.foundry.merge_engine",
+  "polisyos.foundry.methods._artifacts_method",
+  "polisyos.foundry.methods._artifacts_records",
+  "polisyos.foundry.methods._logging",
+  "polisyos.foundry.methods.backends.adapters",
+  "polisyos.foundry.methods.backends.async_chain_executor",
+  "polisyos.foundry.methods.backends.bayesian_runner",
+  "polisyos.foundry.methods.backends.chain_executor",
+  "polisyos.foundry.methods.backends.circuit_breaker",
+  "polisyos.foundry.methods.backends.jax_runner",
+  "polisyos.foundry.methods.backends.numpy_runner",
+  "polisyos.foundry.methods.backends.ray_chain_executor",
+  "polisyos.foundry.methods.backends.ray_runner",
+  "polisyos.foundry.methods.backends.runtime_fingerprint",
+  "polisyos.foundry.methods.backends.solver_runner",
+  "polisyos.foundry.methods.backends.validated",
+  "polisyos.foundry.methods.base",
+  "polisyos.foundry.methods.cache",
+  "polisyos.foundry.methods.catalog._payloads",
+  "polisyos.foundry.methods.catalog.bayesian.advanced",
+  "polisyos.foundry.methods.catalog.bayesian.frontier",
+  "polisyos.foundry.methods.catalog.bayesian.gp",
+  "polisyos.foundry.methods.catalog.bayesian.protocols",
+  "polisyos.foundry.methods.catalog.bayesian.regression",
+  "polisyos.foundry.methods.catalog.bayesian.timeseries",
+  "polisyos.foundry.methods.catalog.bayesian.variational",
+  "polisyos.foundry.methods.catalog.causal._econml_adapter",
+  "polisyos.foundry.methods.catalog.causal._sklearn_compat",
+  "polisyos.foundry.methods.catalog.causal.actual_causality",
+  "polisyos.foundry.methods.catalog.causal.admg_ops",
+  "polisyos.foundry.methods.catalog.causal.advanced_designs",
+  "polisyos.foundry.methods.catalog.causal.algebraic_calibration",
+  "polisyos.foundry.methods.catalog.causal.amn",
+  "polisyos.foundry.methods.catalog.causal.ast_lowerer",
+  "polisyos.foundry.methods.catalog.causal.bounds",
+  "polisyos.foundry.methods.catalog.causal.bounds_engine",
+  "polisyos.foundry.methods.catalog.causal.calibration",
+  "polisyos.foundry.methods.catalog.causal.cate",
+  "polisyos.foundry.methods.catalog.causal.causal_bcf",
+  "polisyos.foundry.methods.catalog.causal.causal_engine",
+  "polisyos.foundry.methods.catalog.causal.causal_fairness",
+  "polisyos.foundry.methods.catalog.causal.causal_rl",
+  "polisyos.foundry.methods.catalog.causal.ci_backends",
+  "polisyos.foundry.methods.catalog.causal.composition_failure_cards",
+  "polisyos.foundry.methods.catalog.causal.conformal_ci",
+  "polisyos.foundry.methods.catalog.causal.constraint_discovery",
+  "polisyos.foundry.methods.catalog.causal.continuous_treatment",
+  "polisyos.foundry.methods.catalog.causal.cross_fit",
+  "polisyos.foundry.methods.catalog.causal.cross_fit_schedule",
+  "polisyos.foundry.methods.catalog.causal.ctf_calculus",
+  "polisyos.foundry.methods.catalog.causal.cyclic_id",
+  "polisyos.foundry.methods.catalog.causal.dagma_discovery",
+  "polisyos.foundry.methods.catalog.causal.data_fusion",
+  "polisyos.foundry.methods.catalog.causal.density_ratio",
+  "polisyos.foundry.methods.catalog.causal.diagnostics",
+  "polisyos.foundry.methods.catalog.causal.did",
+  "polisyos.foundry.methods.catalog.causal.discovery_pipeline",
+  "polisyos.foundry.methods.catalog.causal.distributional_bounds",
+  "polisyos.foundry.methods.catalog.causal.dml",
+  "polisyos.foundry.methods.catalog.causal.dowhy_identify_estimate",
+  "polisyos.foundry.methods.catalog.causal.dowhy_refute",
+  "polisyos.foundry.methods.catalog.causal.dtr",
+  "polisyos.foundry.methods.catalog.causal.eif_bounds",
+  "polisyos.foundry.methods.catalog.causal.endogenous_group_inequality",
+  "polisyos.foundry.methods.catalog.causal.estimand_compiler",
+  "polisyos.foundry.methods.catalog.causal.fairness",
+  "polisyos.foundry.methods.catalog.causal.forest_dr",
+  "polisyos.foundry.methods.catalog.causal.frontier",
+  "polisyos.foundry.methods.catalog.causal.full_transport_bridge",
+  "polisyos.foundry.methods.catalog.causal.g_computation",
+  "polisyos.foundry.methods.catalog.causal.g_estimation",
+  "polisyos.foundry.methods.catalog.causal.gcm_fit",
+  "polisyos.foundry.methods.catalog.causal.gcm_query",
+  "polisyos.foundry.methods.catalog.causal.graph_reconciliation",
+  "polisyos.foundry.methods.catalog.causal.id_engine",
+  "polisyos.foundry.methods.catalog.causal.independence_tests",
+  "polisyos.foundry.methods.catalog.causal.interference",
+  "polisyos.foundry.methods.catalog.causal.invariance_tests",
+  "polisyos.foundry.methods.catalog.causal.kernel_lowering",
+  "polisyos.foundry.methods.catalog.causal.kernel_methods",
+  "polisyos.foundry.methods.catalog.causal.literature_prior",
+  "polisyos.foundry.methods.catalog.causal.local_independence_id",
+  "polisyos.foundry.methods.catalog.causal.lp_bounds",
+  "polisyos.foundry.methods.catalog.causal.measurement_error",
+  "polisyos.foundry.methods.catalog.causal.mediation",
+  "polisyos.foundry.methods.catalog.causal.meta_learners",
+  "polisyos.foundry.methods.catalog.causal.missing_data",
+  "polisyos.foundry.methods.catalog.causal.model_class_compatibility",
+  "polisyos.foundry.methods.catalog.causal.modern_did",
+  "polisyos.foundry.methods.catalog.causal.multi_treatment",
+  "polisyos.foundry.methods.catalog.causal.ncm_engine",
+  "polisyos.foundry.methods.catalog.causal.nuisance_backends",
+  "polisyos.foundry.methods.catalog.causal.nuisance_layer",
+  "polisyos.foundry.methods.catalog.causal.nuisance_resolver",
+  "polisyos.foundry.methods.catalog.causal.operator_valued",
+  "polisyos.foundry.methods.catalog.causal.optimal_design",
+  "polisyos.foundry.methods.catalog.causal.pag_completion",
+  "polisyos.foundry.methods.catalog.causal.parameter_transfer",
+  "polisyos.foundry.methods.catalog.causal.path_specific",
+  "polisyos.foundry.methods.catalog.causal.path_specific_identify",
+  "polisyos.foundry.methods.catalog.causal.pcmci_discovery",
+  "polisyos.foundry.methods.catalog.causal.policy_learning",
+  "polisyos.foundry.methods.catalog.causal.proof_trace_composability",
+  "polisyos.foundry.methods.catalog.causal.protocols",
+  "polisyos.foundry.methods.catalog.causal.proximal_mediation",
+  "polisyos.foundry.methods.catalog.causal.query_preservation",
+  "polisyos.foundry.methods.catalog.causal.query_validator",
+  "polisyos.foundry.methods.catalog.causal.rdd",
+  "polisyos.foundry.methods.catalog.causal.recourse_manifold",
+  "polisyos.foundry.methods.catalog.causal.recoverability_engine",
+  "polisyos.foundry.methods.catalog.causal.recovery_strategy_selector",
+  "polisyos.foundry.methods.catalog.causal.schema_resolver",
+  "polisyos.foundry.methods.catalog.causal.sensitivity_bounds",
+  "polisyos.foundry.methods.catalog.causal.sensitivity_metrics",
+  "polisyos.foundry.methods.catalog.causal.stochastic_policies",
+  "polisyos.foundry.methods.catalog.causal.strategic",
+  "polisyos.foundry.methods.catalog.causal.structural_time_series",
+  "polisyos.foundry.methods.catalog.causal.superlearner",
+  "polisyos.foundry.methods.catalog.causal.symbolic_identify",
+  "polisyos.foundry.methods.catalog.causal.synthetic_control",
+  "polisyos.foundry.methods.catalog.causal.temporal_estimand_compiler",
+  "polisyos.foundry.methods.catalog.causal.tmle_core",
+  "polisyos.foundry.methods.catalog.causal.transport_check",
+  "polisyos.foundry.methods.catalog.causal.transport_engine",
+  "polisyos.foundry.methods.catalog.causal.treatment_effects",
+  "polisyos.foundry.methods.catalog.causal.twin_network_query",
+  "polisyos.foundry.methods.catalog.dependence.diagnostics",
+  "polisyos.foundry.methods.catalog.distributional.advanced",
+  "polisyos.foundry.methods.catalog.distributional.metrics",
+  "polisyos.foundry.methods.catalog.distributional.mobility",
+  "polisyos.foundry.methods.catalog.distributional.polarization",
+  "polisyos.foundry.methods.catalog.distributional.poverty_advanced",
+  "polisyos.foundry.methods.catalog.econometrics.advanced",
+  "polisyos.foundry.methods.catalog.econometrics.count_data",
+  "polisyos.foundry.methods.catalog.econometrics.dependence",
+  "polisyos.foundry.methods.catalog.econometrics.diagnostics",
+  "polisyos.foundry.methods.catalog.econometrics.discrete_choice",
+  "polisyos.foundry.methods.catalog.econometrics.dynamic_panel",
+  "polisyos.foundry.methods.catalog.econometrics.expansion",
+  "polisyos.foundry.methods.catalog.econometrics.factor_models",
+  "polisyos.foundry.methods.catalog.econometrics.high_dimensional",
+  "polisyos.foundry.methods.catalog.econometrics.high_dimensional_iv",
+  "polisyos.foundry.methods.catalog.econometrics.iv",
+  "polisyos.foundry.methods.catalog.econometrics.panel",
+  "polisyos.foundry.methods.catalog.econometrics.protocols",
+  "polisyos.foundry.methods.catalog.econometrics.selection",
+  "polisyos.foundry.methods.catalog.econometrics.semiparametric",
+  "polisyos.foundry.methods.catalog.econometrics.thresholds",
+  "polisyos.foundry.methods.catalog.econometrics.timeseries",
+  "polisyos.foundry.methods.catalog.forecasting.advanced",
+  "polisyos.foundry.methods.catalog.forecasting.benchmarking",
+  "polisyos.foundry.methods.catalog.forecasting.uncertainty",
+  "polisyos.foundry.methods.catalog.forecasting.univariate",
+  "polisyos.foundry.methods.catalog.mechanism.runtime",
+  "polisyos.foundry.methods.catalog.microsim.advanced",
+  "polisyos.foundry.methods.catalog.microsim.calibration",
+  "polisyos.foundry.methods.catalog.microsim.inverse",
+  "polisyos.foundry.methods.catalog.microsim.mnar",
+  "polisyos.foundry.methods.catalog.microsim.static",
+  "polisyos.foundry.methods.catalog.ml.advanced",
+  "polisyos.foundry.methods.catalog.ml.clustering",
+  "polisyos.foundry.methods.catalog.ml.decomposition",
+  "polisyos.foundry.methods.catalog.ml.frontier",
+  "polisyos.foundry.methods.catalog.ml.regression",
+  "polisyos.foundry.methods.catalog.ml.survival",
+  "polisyos.foundry.methods.catalog.ml.transformers",
+  "polisyos.foundry.methods.catalog.ml.uncertainty",
+  "polisyos.foundry.methods.catalog.network.analysis",
+  "polisyos.foundry.methods.catalog.network.embedding_fidelity",
+  "polisyos.foundry.methods.catalog.network.ergm",
+  "polisyos.foundry.methods.catalog.network.missingness",
+  "polisyos.foundry.methods.catalog.network.sbm",
+  "polisyos.foundry.methods.catalog.network.strategic",
+  "polisyos.foundry.methods.catalog.optimization.advanced_stochastic",
+  "polisyos.foundry.methods.catalog.optimization.auction",
+  "polisyos.foundry.methods.catalog.optimization.combinatorial",
+  "polisyos.foundry.methods.catalog.optimization.convex",
+  "polisyos.foundry.methods.catalog.optimization.game_theory",
+  "polisyos.foundry.methods.catalog.optimization.io_model",
+  "polisyos.foundry.methods.catalog.optimization.lp",
+  "polisyos.foundry.methods.catalog.optimization.milp",
+  "polisyos.foundry.methods.catalog.optimization.moment_dro",
+  "polisyos.foundry.methods.catalog.optimization.multiobjective",
+  "polisyos.foundry.methods.catalog.optimization.protocols",
+  "polisyos.foundry.methods.catalog.optimization.sequential",
+  "polisyos.foundry.methods.catalog.policy.evaluation",
+  "polisyos.foundry.methods.catalog.policy.frontier",
+  "polisyos.foundry.methods.catalog.policy.mcda",
+  "polisyos.foundry.methods.catalog.policy.welfare",
+  "polisyos.foundry.methods.catalog.sensitivity.screening",
+  "polisyos.foundry.methods.catalog.sensitivity.sobol",
+  "polisyos.foundry.methods.catalog.sensitivity.specification",
+  "polisyos.foundry.methods.catalog.simulation.demography",
+  "polisyos.foundry.methods.catalog.simulation.dynamics",
+  "polisyos.foundry.methods.catalog.simulation.inference",
+  "polisyos.foundry.methods.catalog.spatial.advanced",
+  "polisyos.foundry.methods.catalog.spatial.analysis",
+  "polisyos.foundry.methods.catalog.survey",
+  "polisyos.foundry.methods.catalog.survey._raking_core",
+  "polisyos.foundry.methods.catalog.survey._registry_boot",
+  "polisyos.foundry.methods.catalog.survey.adaptive",
+  "polisyos.foundry.methods.catalog.survey.adaptive_benchmark",
+  "polisyos.foundry.methods.catalog.survey.causal_frontier",
+  "polisyos.foundry.methods.catalog.survey.causal_frontier_io",
+  "polisyos.foundry.methods.catalog.survey.demographic_consistency",
+  "polisyos.foundry.methods.catalog.survey.design",
+  "polisyos.foundry.methods.catalog.survey.dr",
+  "polisyos.foundry.methods.catalog.survey.estimation",
+  "polisyos.foundry.methods.catalog.survey.imputation",
+  "polisyos.foundry.methods.catalog.survey.protocols",
+  "polisyos.foundry.methods.catalog.survey.semiparametric",
+  "polisyos.foundry.methods.catalog.survey.weighting",
+  "polisyos.foundry.methods.catalog.validation.diagnostics",
+  "polisyos.foundry.methods.catalog.validation.scoring",
+  "polisyos.foundry.methods.catalog_snapshot",
+  "polisyos.foundry.methods.cli",
+  "polisyos.foundry.methods.cli.validator",
+  "polisyos.foundry.methods.compat_matrix",
+  "polisyos.foundry.methods.compiler",
+  "polisyos.foundry.methods.components_bridge",
+  "polisyos.foundry.methods.deprecation",
+  "polisyos.foundry.methods.discovery",
+  "polisyos.foundry.methods.equivalence.calibrate",
+  "polisyos.foundry.methods.equivalence.compare",
+  "polisyos.foundry.methods.equivalence.verify",
+  "polisyos.foundry.methods.exceptions",
+  "polisyos.foundry.methods.hot_reload",
+  "polisyos.foundry.methods.linker",
+  "polisyos.foundry.methods.observability",
+  "polisyos.foundry.methods.output_monitor",
+  "polisyos.foundry.methods.plan_optimizer",
+  "polisyos.foundry.methods.profiler",
+  "polisyos.foundry.methods.resolution",
+  "polisyos.foundry.methods.selection",
+  "polisyos.foundry.methods.specialization",
+  "polisyos.foundry.methods.testing.fixtures",
+  "polisyos.foundry.methods.testing.golden",
+  "polisyos.foundry.methods.testing.golden_yaml",
+  "polisyos.foundry.methods.testing.sandbox",
+  "polisyos.foundry.methods.testing.suite",
+  "polisyos.foundry.methods.types.checker",
+  "polisyos.foundry.patch_vm",
+  "polisyos.foundry.plugins.api",
+  "polisyos.foundry.plugins.cli",
+  "polisyos.foundry.plugins.composite",
+  "polisyos.foundry.plugins.core",
+  "polisyos.foundry.plugins.discovery",
+  "polisyos.foundry.plugins.economics.mechanisms",
+  "polisyos.foundry.plugins.economics.plugin",
+  "polisyos.foundry.plugins.economics.state",
+  "polisyos.foundry.queue",
+  "polisyos.foundry.quickstart",
+  "polisyos.foundry.registry",
+  "polisyos.foundry.release_acceptance",
+  "polisyos.foundry.runtime",
+  "polisyos.foundry.runtime.nan_guard",
+  "polisyos.foundry.specs",
+  "polisyos.foundry.uncertainty",
+  "polisyos.foundry.uncertainty.covariance",
+  "polisyos.foundry.uncertainty.monte_carlo",
+  "polisyos.foundry.uncertainty.quasi_mc",
+  "polisyos.foundry.utils",
+  "polisyos.foundry.validation.phase0_closure",
+  "polisyos.foundry.validation.phase2_closure",
+  "polisyos.foundry.welfare_bounds",
+]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+# Phase 4A legacy data package ratchet: explicit module list only. Do not
+# replace this with `polisyos.academic.*`, `polisyos.datasets.*`, or
+# `polisyos.ukraine_data.*` blanket ignores.
+module = [
+  "polisyos.academic.batch.article_extractor",
+  "polisyos.academic.batch.best_snapshot",
+  "polisyos.academic.batch.cli",
+  "polisyos.academic.batch.context_classifier",
+  "polisyos.academic.batch.dedup",
+  "polisyos.academic.batch.doc_normalize",
+  "polisyos.academic.batch.edge_synthesize",
+  "polisyos.academic.batch.embedder",
+  "polisyos.academic.batch.fulltext_resolver",
+  "polisyos.academic.batch.graph_builder",
+  "polisyos.academic.batch.harvester",
+  "polisyos.academic.batch.llm_extractor",
+  "polisyos.academic.batch.parser",
+  "polisyos.academic.batch.pipeline",
+  "polisyos.academic.batch.publish",
+  "polisyos.academic.batch.qc",
+  "polisyos.academic.batch.resolve_extract",
+  "polisyos.academic.batch.table_extractor",
+  "polisyos.academic.batch.topic_select",
+  "polisyos.academic.batch.transport_score",
+  "polisyos.academic.knowledge",
+  "polisyos.academic.knowledge.canonical_resolver",
+  "polisyos.academic.knowledge.parameter_selector",
+  "polisyos.academic.knowledge.search",
+  "polisyos.academic.knowledge.skg_query",
+  "polisyos.academic.knowledge.store",
+  "polisyos.academic.knowledge.types",
+  "polisyos.academic.openalex.client",
+  "polisyos.academic.openalex.priority_filter",
+  "polisyos.academic.openalex.topic_catalog",
+  "polisyos.datasets.batch.benchmark",
+  "polisyos.datasets.batch.ckan_curation",
+  "polisyos.datasets.batch.cli",
+  "polisyos.datasets.batch.core_sources_ingest",
+  "polisyos.datasets.batch.dedup",
+  "polisyos.datasets.batch.embedder",
+  "polisyos.datasets.batch.graph_builder",
+  "polisyos.datasets.batch.harvester",
+  "polisyos.datasets.batch.normalizer",
+  "polisyos.datasets.batch.pipeline",
+  "polisyos.datasets.batch.publish",
+  "polisyos.datasets.batch.qc",
+  "polisyos.datasets.batch.source_registry",
+  "polisyos.datasets.knowledge.proxy_penalties",
+  "polisyos.datasets.knowledge.proxy_resolver",
+  "polisyos.datasets.knowledge.registry",
+  "polisyos.datasets.knowledge.search",
+  "polisyos.datasets.knowledge.store",
+  "polisyos.datasets.knowledge.types",
+  "polisyos.datasets.knowledge.variable_alignment",
+  "polisyos.datasets.metrics_map",
+  "polisyos.ukraine_data",
+  "polisyos.ukraine_data.adapters",
+  "polisyos.ukraine_data.builders",
+  "polisyos.ukraine_data.orchestrator",
+]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+# Phase 5A records the current Scientist mypy debt by concrete module. This
+# keeps the large downstream consumer layer inside the standard gate without
+# granting new modules a wildcard exemption.
+module = [
+  "polisyos.scientist.adapters.foundry_bridge",
+  "polisyos.scientist.agent._drafter_formatting",
+  "polisyos.scientist.agent._drafter_orchestrator",
+  "polisyos.scientist.agent._drafter_passes",
+  "polisyos.scientist.agent.base",
+  "polisyos.scientist.agent.code_verifier",
+  "polisyos.scientist.agent.constraint_context",
+  "polisyos.scientist.agent.critic",
+  "polisyos.scientist.agent.data_need_extractor",
+  "polisyos.scientist.agent.drafter_clients",
+  "polisyos.scientist.agent.embedder",
+  "polisyos.scientist.agent.eval_harness",
+  "polisyos.scientist.agent.fabric",
+  "polisyos.scientist.agent.failure_card",
+  "polisyos.scientist.agent.feasibility",
+  "polisyos.scientist.agent.feasibility_duckdb",
+  "polisyos.scientist.agent.formalizer",
+  "polisyos.scientist.agent.knowledge_tools",
+  "polisyos.scientist.agent.memory",
+  "polisyos.scientist.agent.persistent_memory",
+  "polisyos.scientist.agent.pi",
+  "polisyos.scientist.agent.prompts",
+  "polisyos.scientist.agent.rag",
+  "polisyos.scientist.agent.reflexion",
+  "polisyos.scientist.agent.supervisor",
+  "polisyos.scientist.agent.tools.tool_loop",
+  "polisyos.scientist.agent.vector_memory",
+  "polisyos.scientist.agent.workers",
+  "polisyos.scientist.api",
+  "polisyos.scientist.autotune.bayesian_generator",
+  "polisyos.scientist.autotune.calibration",
+  "polisyos.scientist.autotune.cheap_stage",
+  "polisyos.scientist.autotune.claim_adjudication",
+  "polisyos.scientist.autotune.dedup",
+  "polisyos.scientist.autotune.execution_plan",
+  "polisyos.scientist.autotune.models",
+  "polisyos.scientist.autotune.reflexion",
+  "polisyos.scientist.autotune.registry",
+  "polisyos.scientist.autotune.runtime",
+  "polisyos.scientist.autotune.sensitivity_bridge",
+  "polisyos.scientist.backtesting.adversarial",
+  "polisyos.scientist.backtesting.bootstrap",
+  "polisyos.scientist.backtesting.cli",
+  "polisyos.scientist.backtesting.distributional",
+  "polisyos.scientist.backtesting.ipw",
+  "polisyos.scientist.backtesting.strategic_suite",
+  "polisyos.scientist.backtesting.temporal",
+  "polisyos.scientist.causal.execution",
+  "polisyos.scientist.causal.readiness",
+  "polisyos.scientist.causal.validity",
+  "polisyos.scientist.compute.advanced_methods",
+  "polisyos.scientist.compute.runner",
+  "polisyos.scientist.cross_graph.compiler",
+  "polisyos.scientist.cross_graph.feedback",
+  "polisyos.scientist.decision_validity",
+  "polisyos.scientist.discovery.latent_producers",
+  "polisyos.scientist.discovery.output",
+  "polisyos.scientist.discovery.portfolio",
+  "polisyos.scientist.discovery.schema",
+  "polisyos.scientist.discovery.utility_judge",
+  "polisyos.scientist.discovery.workers",
+  "polisyos.scientist.doe.analysis",
+  "polisyos.scientist.doe.designs",
+  "polisyos.scientist.doe.sampling",
+  "polisyos.scientist.engine",
+  "polisyos.scientist.engine.async_executor",
+  "polisyos.scientist.engine.checkpoint",
+  "polisyos.scientist.engine.condition",
+  "polisyos.scientist.engine.executor",
+  "polisyos.scientist.engine.locks.dynamodb_lock",
+  "polisyos.scientist.engine.locks.redis_lock",
+  "polisyos.scientist.engine.registry",
+  "polisyos.scientist.engine.retry",
+  "polisyos.scientist.engine.runner._activity_worker",
+  "polisyos.scientist.engine.runner.config",
+  "polisyos.scientist.engine.runner.fallback_runner",
+  "polisyos.scientist.engine.runner.ray_runner",
+  "polisyos.scientist.engine.runner.serialization",
+  "polisyos.scientist.engine.runner.temporal_runner",
+  "polisyos.scientist.engine.workflow_spec",
+  "polisyos.scientist.feedback",
+  "polisyos.scientist.governance.backtest_matrix",
+  "polisyos.scientist.governance.blueprint_release",
+  "polisyos.scientist.governance.calibration",
+  "polisyos.scientist.governance.calibration_leaderboard",
+  "polisyos.scientist.governance.calibration_validation",
+  "polisyos.scientist.governance.pass_registry",
+  "polisyos.scientist.governance.passes.confidence_pass",
+  "polisyos.scientist.governance.passes.cross_graph_evidence_pass",
+  "polisyos.scientist.governance.passes.equity_pass",
+  "polisyos.scientist.governance.passes.human_review_pass",
+  "polisyos.scientist.governance.passes.incentive_compatibility_pass",
+  "polisyos.scientist.governance.passes.normative_arbitration_pass",
+  "polisyos.scientist.governance.passes.pii_check_pass",
+  "polisyos.scientist.governance.passes.quality_gate_pass",
+  "polisyos.scientist.governance.passes.refutation_pass",
+  "polisyos.scientist.governance.passes.sutva_check_pass",
+  "polisyos.scientist.governance.postflight",
+  "polisyos.scientist.governance.preflight",
+  "polisyos.scientist.governance.telemetry",
+  "polisyos.scientist.kernel.fsm",
+  "polisyos.scientist.kernel.gate_protocol",
+  "polisyos.scientist.kernel.guards",
+  "polisyos.scientist.latent_separation",
+  "polisyos.scientist.llm.factory",
+  "polisyos.scientist.llm.gateway_client",
+  "polisyos.scientist.llm.provider_verification",
+  "polisyos.scientist.llm.token_estimator",
+  "polisyos.scientist.nodes.builtins.c6c_runtime_support",
+  "polisyos.scientist.nodes.builtins.causal.build_literature_prior",
+  "polisyos.scientist.nodes.builtins.causal.counterfactual_identification_gate",
+  "polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph",
+  "polisyos.scientist.nodes.builtins.causal.resolve_parameters",
+  "polisyos.scientist.nodes.builtins.causal.resolve_transport",
+  "polisyos.scientist.nodes.builtins.causal.run_abm_consistency",
+  "polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution",
+  "polisyos.scientist.nodes.builtins.causal.run_causal_ensemble",
+  "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+  "polisyos.scientist.nodes.builtins.causal.run_causal_readiness",
+  "polisyos.scientist.nodes.builtins.compile.formalize_verified_policy",
+  "polisyos.scientist.nodes.builtins.data.bind_foundry_inputs",
+  "polisyos.scientist.nodes.builtins.data.build_data_snapshot",
+  "polisyos.scientist.nodes.builtins.data.enrich_knowledge",
+  "polisyos.scientist.nodes.builtins.decide.build_decision_packet",
+  "polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle",
+  "polisyos.scientist.nodes.builtins.decide.build_verified_policy_report",
+  "polisyos.scientist.nodes.builtins.decide.policy_runtime_request",
+  "polisyos.scientist.nodes.builtins.decide.policy_runtime_support",
+  "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime",
+  "polisyos.scientist.nodes.builtins.decide.run_policy_funnel_level5",
+  "polisyos.scientist.nodes.builtins.decide.run_policy_promotion",
+  "polisyos.scientist.nodes.builtins.decide.run_policy_translation",
+  "polisyos.scientist.nodes.builtins.governance.data_plane_gate",
+  "polisyos.scientist.nodes.builtins.governance.legal_check",
+  "polisyos.scientist.nodes.builtins.governance.run_governance",
+  "polisyos.scientist.nodes.builtins.governance.run_normative_arbitration",
+  "polisyos.scientist.nodes.builtins.planning.assemble_legal_candidate_pack",
+  "polisyos.scientist.nodes.builtins.planning.build_method_catalog_snapshot",
+  "polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence",
+  "polisyos.scientist.nodes.builtins.planning.draft_policy_options",
+  "polisyos.scientist.nodes.builtins.planning.expand_legal_source_pack",
+  "polisyos.scientist.nodes.builtins.planning.plan_policy_request",
+  "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime",
+  "polisyos.scientist.nodes.builtins.planning.run_evaluator",
+  "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search",
+  "polisyos.scientist.nodes.builtins.planning.run_preflight",
+  "polisyos.scientist.nodes.builtins.planning.run_source_gap_review",
+  "polisyos.scientist.nodes.builtins.planning.run_source_verification",
+  "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+  "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+  "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation",
+  "polisyos.scientist.nodes.builtins.simulate.run_distributional_analysis",
+  "polisyos.scientist.nodes.builtins.simulate.run_metric_validation",
+  "polisyos.scientist.nodes.builtins.simulate.run_simulation",
+  "polisyos.scientist.nodes.builtins.tracing",
+  "polisyos.scientist.policy_design.adversary",
+  "polisyos.scientist.policy_design.critic",
+  "polisyos.scientist.policy_design.objectives",
+  "polisyos.scientist.policy_design.output",
+  "polisyos.scientist.policy_design.phase3",
+  "polisyos.scientist.policy_design.schema",
+  "polisyos.scientist.policy_design.search",
+  "polisyos.scientist.policy_design.translator",
+  "polisyos.scientist.policy_verified.service",
+  "polisyos.scientist.provenance.prov_json",
+  "polisyos.scientist.provenance.run_dag",
+  "polisyos.scientist.replay.diff",
+  "polisyos.scientist.search.actionable_side_information",
+  "polisyos.scientist.search.adversarial",
+  "polisyos.scientist.search.artifact_minimality",
+  "polisyos.scientist.search.calibration_report",
+  "polisyos.scientist.search.cold_start",
+  "polisyos.scientist.search.controller",
+  "polisyos.scientist.search.funnel",
+  "polisyos.scientist.search.funnel._rules",
+  "polisyos.scientist.search.funnel.correlation",
+  "polisyos.scientist.search.funnel.level0_static",
+  "polisyos.scientist.search.funnel.level1_heuristic",
+  "polisyos.scientist.search.funnel.level2_causal",
+  "polisyos.scientist.search.funnel.level3_medium",
+  "polisyos.scientist.search.funnel.level4_full",
+  "polisyos.scientist.search.funnel.level5_refutation_governance",
+  "polisyos.scientist.search.funnel.level6_promotion",
+  "polisyos.scientist.search.funnel.orchestrator",
+  "polisyos.scientist.search.judge_stack",
+  "polisyos.scientist.search.latent_governance",
+  "polisyos.scientist.search.lessons",
+  "polisyos.scientist.search.objective",
+  "polisyos.scientist.search.pareto_registry",
+  "polisyos.scientist.search.promotion_evidence",
+  "polisyos.scientist.search.readiness",
+  "polisyos.scientist.search.sensitivity_adapter",
+  "polisyos.scientist.search.sentinels",
+  "polisyos.scientist.search.stages",
+  "polisyos.scientist.search.strategies._deps",
+  "polisyos.scientist.search.strategies.adapter",
+  "polisyos.scientist.search.strategies.bayesian",
+  "polisyos.scientist.search.strategies.ensemble_surrogate",
+  "polisyos.scientist.search.strategies.grid",
+  "polisyos.scientist.search.strategies.multi_objective",
+  "polisyos.scientist.search.strategies.neural",
+  "polisyos.scientist.search.strategies.resource_arbiter",
+  "polisyos.scientist.search.strategies.rl_wrapper",
+  "polisyos.scientist.search.strategies.runtime",
+  "polisyos.scientist.search.strategies.space",
+  "polisyos.scientist.search.strategies.surrogate",
+  "polisyos.scientist.search.strategies.transfer",
+  "polisyos.scientist.search.voi_scheduler",
+  "polisyos.scientist.validation.benchmarks",
+  "polisyos.scientist.validation.metrics",
+  "polisyos.scientist.verification.ic.conformance",
+  "polisyos.scientist.verification.ic.service",
+  "polisyos.scientist.workflows.builder",
+  "polisyos.scientist.workflows.engine_langgraph",
+]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = ["polisyos.core.evaluation.mcda_robustness"]
+ignore_errors = true
 
 [tool.basedpyright]
+# Repository-wide policy keeps the root basedpyright scope curated and green.
+# Phase 3 adds a baseline for the IR foundation layer so `common -> ir -> core`
+# can ratchet serially without hiding new regressions. Phase 5A extends the same
+# baseline ratchet to Scientist instead of making the full consumer layer
+# fail-closed in one pass.
 include = [
-    "src/polisyos/common",
-    "src/polisyos/core",
-    "src/polisyos/runtime",
+  "src/polisyos/common",
+  "src/polisyos/ir",
+  "src/polisyos/core",
+  "src/polisyos/fabric",
+  "src/polisyos/data_forge",
+  "src/polisyos/academic",
+  "src/polisyos/datasets",
+  "src/polisyos/ukraine_data",
+  "src/polisyos/batch_common",
+  "src/polisyos/batch_snapshot",
+  "src/polisyos/scientist",
+  "src/polisyos/runtime",
 ]
-exclude = ["**/__pycache__", ".venv", ".venv_codex", ".mypy_cache"]
+baselineFile = ".basedpyright/baseline.json"
+exclude = [
+  "**/__pycache__",
+  ".venv",
+  ".venv_codex",
+  ".hypothesis",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".ruff_cache",
+  "docs/archive",
+]
 pythonVersion = "3.14"
 typeCheckingMode = "standard"
 reportMissingTypeStubs = "warning"
@@ -428,16 +1881,16 @@ addopts = "-ra -q --import-mode=importlib --strict-markers"
 testpaths = ["tests"]
 asyncio_mode = "auto"
 markers = [
-    "unit: fast isolated tests; applied by default when no broader taxonomy class matches",
-    "contract: compatibility and schema-boundary tests for stable cross-layer surfaces",
-    "property: hypothesis property-based tests",
-    "integration: multi-component or runtime-boundary tests that cross subsystem seams",
-    "performance: runtime, benchmark, and regression-cost tests",
-    "benchmark: performance regression benchmarks (requires pytest-benchmark)",
-    "smoke: minimal confidence tests for local and CI fast paths",
-    "slow: intentionally higher-cost tests excluded from the fastest loops",
-    "flaky: unstable tests that require explicit owner follow-up",
-    "quarantine: temporarily de-gated tests tracked in tests/quarantine.toml",
+  "unit: fast isolated tests; applied by default when no broader taxonomy class matches",
+  "contract: compatibility and schema-boundary tests for stable cross-layer surfaces",
+  "property: hypothesis property-based tests",
+  "integration: multi-component or runtime-boundary tests that cross subsystem seams",
+  "performance: runtime, benchmark, and regression-cost tests",
+  "benchmark: performance regression benchmarks (requires pytest-benchmark)",
+  "smoke: minimal confidence tests for local and CI fast paths",
+  "slow: intentionally higher-cost tests excluded from the fastest loops",
+  "flaky: unstable tests that require explicit owner follow-up",
+  "quarantine: temporarily de-gated tests tracked in tests/quarantine.toml",
 ]
 
 # ---------------------------------------------------------------------------
@@ -453,5 +1906,5 @@ markers = [
 [tool.mutmut]
 paths_to_mutate = "src/polisyos/foundry/methods/"
 tests_dir = "tests/foundry/"
-runner = "python -m pytest tests/foundry/methods/ -x -q --no-header"
+runner = "python -m pytest tests/foundry/methods/ -m 'not slow and not benchmark and not performance' -x -q --no-header"
 dict_synonyms = "Synth, Fake, Dummy, Stub, Mock"

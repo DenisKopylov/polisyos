@@ -1,11 +1,11 @@
 """Public provenance export provo module API."""
+
 from __future__ import annotations
 
 from datetime import datetime
 from typing import Any
 
 from polisyos.core.audit.prov_json import ProvJsonConverter
-from polisyos.fabric.temporal import ensure_aware_utc
 from polisyos.fabric.provenance.core import (
     ProvenanceActivity,
     ProvenanceAgent,
@@ -13,6 +13,7 @@ from polisyos.fabric.provenance.core import (
     ProvenanceEdge,
     ProvenanceEntity,
 )
+from polisyos.fabric.temporal import ensure_aware_utc
 
 PROV_CONTEXT = {
     "@context": {
@@ -200,30 +201,30 @@ def export_to_provo_nquads(
     for entity in graph.entities.values():
         subj = uri(f"entity/{entity.entity_id}")
         lines.append(f"{subj} <{rdf}type> <{prov}Entity> .")
-        lines.append(f"{subj} <{rdfs}label> \"{_escape_nquads_literal(entity.label)}\" .")
+        lines.append(f'{subj} <{rdfs}label> "{_escape_nquads_literal(entity.label)}" .')
         lines.append(
             f"{subj} <{prov}generatedAtTime> "
-            f"\"{_format_datetime(entity.created_at)}\"^^<{xsd}dateTime> ."
+            f'"{_format_datetime(entity.created_at)}"^^<{xsd}dateTime> .'
         )
 
     for activity in graph.activities.values():
         subj = uri(f"activity/{activity.activity_id}")
         lines.append(f"{subj} <{rdf}type> <{prov}Activity> .")
-        lines.append(f"{subj} <{rdfs}label> \"{_escape_nquads_literal(activity.label)}\" .")
+        lines.append(f'{subj} <{rdfs}label> "{_escape_nquads_literal(activity.label)}" .')
         lines.append(
             f"{subj} <{prov}startedAtTime> "
-            f"\"{_format_datetime(activity.started_at)}\"^^<{xsd}dateTime> ."
+            f'"{_format_datetime(activity.started_at)}"^^<{xsd}dateTime> .'
         )
         if activity.ended_at:
             lines.append(
                 f"{subj} <{prov}endedAtTime> "
-                f"\"{_format_datetime(activity.ended_at)}\"^^<{xsd}dateTime> ."
+                f'"{_format_datetime(activity.ended_at)}"^^<{xsd}dateTime> .'
             )
 
     for agent in graph.agents.values():
         subj = uri(f"agent/{agent.agent_id}")
         lines.append(f"{subj} <{rdf}type> <{prov}Agent> .")
-        lines.append(f"{subj} <{rdfs}label> \"{_escape_nquads_literal(agent.label)}\" .")
+        lines.append(f'{subj} <{rdfs}label> "{_escape_nquads_literal(agent.label)}" .')
 
     for edge in graph.edges:
         source_prefix = _get_node_prefix(edge.source_id, graph)

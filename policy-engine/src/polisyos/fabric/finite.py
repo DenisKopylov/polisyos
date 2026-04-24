@@ -1,7 +1,9 @@
 """Finite numeric validation helpers for Fabric boundaries."""
+
 from __future__ import annotations
 
 import math
+
 __all__ = [
     "ensure_finite_float",
     "ensure_non_negative_finite",

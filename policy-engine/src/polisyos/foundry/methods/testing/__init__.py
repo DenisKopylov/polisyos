@@ -5,6 +5,7 @@ Provides utilities for validating FoundryMethod implementations, including
 protocol compliance checks, JAX transformation verification, and golden record
 regression testing (Law M).
 """
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.testing.fixtures import (
@@ -22,6 +23,13 @@ from polisyos.foundry.methods.testing.golden import (
     VerificationStatus,
     hash_pytree,
 )
+from polisyos.foundry.methods.testing.golden_yaml import (
+    GoldenCaseResult,
+    GoldenRegistry,
+    GoldenSuiteResult,
+    GoldenTestCase,
+    GoldenTestFile,
+)
 from polisyos.foundry.methods.testing.jax_suite import JaxMethodTestSuite
 from polisyos.foundry.methods.testing.numpy_suite import (
     NumpyMethodTestSuite,
@@ -31,13 +39,6 @@ from polisyos.foundry.methods.testing.solver_suite import (
     SolverMethodTestSuite,
     SolverSuiteResult,
 )
-from polisyos.foundry.methods.testing.golden_yaml import (
-    GoldenCaseResult,
-    GoldenRegistry,
-    GoldenSuiteResult,
-    GoldenTestCase,
-    GoldenTestFile,
-)
 from polisyos.foundry.methods.testing.suite import (
     CheckCategory,
     MethodTestSuite,
@@ -46,29 +47,29 @@ from polisyos.foundry.methods.testing.suite import (
 )
 
 __all__ = [
-    "MethodTestSuite",
-    "TestCheck",
-    "TestResult",
     "CheckCategory",
+    "GoldenCaseResult",
     "GoldenContext",
     "GoldenRecord",
-    "GoldenStore",
     "GoldenRecordRef",
-    "GoldenVerificationResult",
-    "VerificationStatus",
-    "hash_pytree",
-    "create_sample_state",
-    "create_sample_params",
-    "SampleStateFactory",
-    "SampleParamsFactory",
-    "JaxMethodTestSuite",
-    "NumpyMethodTestSuite",
-    "NumpySuiteResult",
-    "SolverMethodTestSuite",
-    "SolverSuiteResult",
+    "GoldenRegistry",
+    "GoldenStore",
+    "GoldenSuiteResult",
     "GoldenTestCase",
     "GoldenTestFile",
-    "GoldenRegistry",
-    "GoldenCaseResult",
-    "GoldenSuiteResult",
+    "GoldenVerificationResult",
+    "JaxMethodTestSuite",
+    "MethodTestSuite",
+    "NumpyMethodTestSuite",
+    "NumpySuiteResult",
+    "SampleParamsFactory",
+    "SampleStateFactory",
+    "SolverMethodTestSuite",
+    "SolverSuiteResult",
+    "TestCheck",
+    "TestResult",
+    "VerificationStatus",
+    "create_sample_params",
+    "create_sample_state",
+    "hash_pytree",
 ]

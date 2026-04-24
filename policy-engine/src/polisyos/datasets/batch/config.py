@@ -175,7 +175,9 @@ class DatasetBatchConfig:
     @property
     def resolved_active_countries(self) -> tuple[str, ...]:
         if self.active_countries:
-            return tuple(sorted({item.strip().upper() for item in self.active_countries if item.strip()}))
+            return tuple(
+                sorted({item.strip().upper() for item in self.active_countries if item.strip()})
+            )
         return tuple(country_scope_members(self.country_scope))
 
     @property
@@ -233,11 +235,22 @@ class DatasetBatchConfig:
         load_metrics_map(self.resolved_metrics_map_path)
         registry = self.load_registry()
         if (self.date_start or self.date_end) and self.run_profile != "rest_backfill":
-            raise ValueError("date_start/date_end overrides are only supported for run_profile='rest_backfill'")
+            raise ValueError(
+                "date_start/date_end overrides are only supported for run_profile='rest_backfill'"
+            )
         if self.run_profile == "rest_backfill":
             if not any(spec.allow_manual_backfill and spec.enabled for spec in registry.sources):
-                raise ValueError("rest_backfill profile requires at least one enabled rolling-window source")
-        if self.run_profile not in {"prod_full", "prod_core_blocking", "rest_backfill", "catalog_refresh", "preflight_core", "observations_backfill"}:
+                raise ValueError(
+                    "rest_backfill profile requires at least one enabled rolling-window source"
+                )
+        if self.run_profile not in {
+            "prod_full",
+            "prod_core_blocking",
+            "rest_backfill",
+            "catalog_refresh",
+            "preflight_core",
+            "observations_backfill",
+        }:
             raise ValueError(f"Unsupported run_profile: {self.run_profile}")
         if self.observation_mode not in {"all", "core", "backfill"}:
             raise ValueError("observation_mode must be one of: all, core, backfill")

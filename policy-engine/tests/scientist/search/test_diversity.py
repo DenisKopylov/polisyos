@@ -84,4 +84,3 @@ def test_search_controller_injects_diversity_context(monkeypatch) -> None:
     second_context = generator.contexts[1]
     assert "excluded_mechanisms" in second_context
     assert "tax_subsidy" in second_context["excluded_mechanisms"]
-

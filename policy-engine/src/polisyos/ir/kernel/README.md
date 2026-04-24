@@ -20,15 +20,15 @@ mechanism types, merge rules, units, metrics, constraints и time semantics.
 
 ## Public entrypoints
 
-| Entrypoint | Use when | Defined in |
-|---|---|---|
-| `polisyos.ir.kernel.KernelModel` | Нужен базовый immutable IR contract type | [`base.py`](./base.py) |
-| `polisyos.ir.kernel.SlotRegistry`, `DEFAULT_SLOT_REGISTRY` | Нужно описать canonical state slots | [`slots.py`](./slots.py) |
-| `polisyos.ir.kernel.SelectorFieldRegistry`, `DEFAULT_SELECTOR_FIELD_REGISTRY` | Нужно описать supported policy targeting fields | [`selector_fields.py`](./selector_fields.py) |
-| `polisyos.ir.kernel.MechanismTypeRegistry` | Нужен registry механизмов и их parameter/read-write contracts | [`mechanisms.py`](./mechanisms.py) |
-| `polisyos.ir.kernel.MergeRuleRegistry` | Нужна canonical merge semantics | [`merge_rules.py`](./merge_rules.py) |
-| `polisyos.ir.kernel.UnitsRegistry`, `MetricRegistry`, `ConstraintRegistry` | Нужны registry units, metrics и constraints | [`units.py`](./units.py), [`metrics.py`](./metrics.py), [`constraints.py`](./constraints.py) |
-| `polisyos.ir.kernel.TimeSemantics` | Нужно сопоставить runtime steps с calendar semantics | [`time_semantics.py`](./time_semantics.py) |
+| Entrypoint                                                                    | Use when                                                      | Defined in                                                                                   |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `polisyos.ir.kernel.KernelModel`                                              | Нужен базовый immutable IR contract type                      | [`base.py`](./base.py)                                                                       |
+| `polisyos.ir.kernel.SlotRegistry`, `DEFAULT_SLOT_REGISTRY`                    | Нужно описать canonical state slots                           | [`slots.py`](./slots.py)                                                                     |
+| `polisyos.ir.kernel.SelectorFieldRegistry`, `DEFAULT_SELECTOR_FIELD_REGISTRY` | Нужно описать supported policy targeting fields               | [`selector_fields.py`](./selector_fields.py)                                                 |
+| `polisyos.ir.kernel.MechanismTypeRegistry`                                    | Нужен registry механизмов и их parameter/read-write contracts | [`mechanisms.py`](./mechanisms.py)                                                           |
+| `polisyos.ir.kernel.MergeRuleRegistry`                                        | Нужна canonical merge semantics                               | [`merge_rules.py`](./merge_rules.py)                                                         |
+| `polisyos.ir.kernel.UnitsRegistry`, `MetricRegistry`, `ConstraintRegistry`    | Нужны registry units, metrics и constraints                   | [`units.py`](./units.py), [`metrics.py`](./metrics.py), [`constraints.py`](./constraints.py) |
+| `polisyos.ir.kernel.TimeSemantics`                                            | Нужно сопоставить runtime steps с calendar semantics          | [`time_semantics.py`](./time_semantics.py)                                                   |
 
 ## Depends on / depended on by
 

@@ -4,6 +4,7 @@ Convenience functions for schema inference, validation, and coercion.
 Contains the module-level helper functions and the CoercionResult
 dataclass that wrap SchemaInference for common use cases.
 """
+
 from __future__ import annotations
 
 import re
@@ -28,9 +29,9 @@ logger = get_logger(__name__)
 
 __all__ = [
     "CoercionResult",
+    "coerce_dataframe_to_schema",
     "infer_schema",
     "validate_dataframe_against_schema",
-    "coerce_dataframe_to_schema",
 ]
 
 
@@ -114,24 +115,16 @@ def validate_dataframe_against_schema(
 
         col = df[field.name]
 
-        if (
-            not field.nullable
-            and field.name not in schema.allowed_null_fields
-            and col.isna().any()
-        ):
+        if not field.nullable and field.name not in schema.allowed_null_fields and col.isna().any():
             null_count = col.isna().sum()
-            errors.append(
-                f"Field '{field.name}' has {null_count} null values but is not nullable"
-            )
+            errors.append(f"Field '{field.name}' has {null_count} null values but is not nullable")
 
         if field.data_type.is_numeric():
             numeric_col = pd.to_numeric(col, errors="coerce")
             finite_mask = numeric_col.map(is_finite_number)
             nonfinite = numeric_col.notna() & ~finite_mask
             if nonfinite.any():
-                errors.append(
-                    f"Field '{field.name}' has {int(nonfinite.sum())} non-finite values"
-                )
+                errors.append(f"Field '{field.name}' has {int(nonfinite.sum())} non-finite values")
             numeric_col = numeric_col[finite_mask]
         else:
             numeric_col = None
@@ -154,21 +147,15 @@ def validate_dataframe_against_schema(
         if field.allowed_values is not None:
             invalid = set(col.dropna().astype(str)) - field.allowed_values
             if invalid:
-                errors.append(
-                    f"Field '{field.name}' has invalid values: {invalid}"
-                )
+                errors.append(f"Field '{field.name}' has invalid values: {invalid}")
 
         if field.pattern and field.data_type in (SchemaType.STRING, SchemaType.CATEGORY):
             pattern = re.compile(field.pattern)
             invalid = [
-                value
-                for value in col.dropna().astype(str).unique()
-                if not pattern.match(value)
+                value for value in col.dropna().astype(str).unique() if not pattern.match(value)
             ]
             if invalid:
-                errors.append(
-                    f"Field '{field.name}' has values not matching pattern: {invalid}"
-                )
+                errors.append(f"Field '{field.name}' has values not matching pattern: {invalid}")
 
         if field.max_length and field.data_type in (
             SchemaType.STRING,
@@ -259,9 +246,7 @@ def coerce_dataframe_to_schema(
                 coerced_columns.append(field.name)
             elif field.data_type.is_numeric():
                 df_work[field.name] = pd.to_numeric(col, errors="coerce")
-                df_work[field.name] = df_work[field.name].astype(
-                    field.data_type.to_pandas_dtype()
-                )
+                df_work[field.name] = df_work[field.name].astype(field.data_type.to_pandas_dtype())
                 coerced_columns.append(field.name)
             elif field.data_type in (SchemaType.DATETIME, SchemaType.TIMESTAMP_TZ):
                 df_work[field.name] = pd.to_datetime(col, errors="coerce", utc=True)
@@ -334,6 +319,8 @@ def _coerce_decimal(value: Any) -> Decimal | None:
         return Decimal(str(value))
     except (TypeError, ValueError):
         logger.debug(
-            "Failed to coerce value %r to Decimal", value, exc_info=True,
+            "Failed to coerce value %r to Decimal",
+            value,
+            exc_info=True,
         )
         return None

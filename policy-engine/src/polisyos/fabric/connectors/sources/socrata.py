@@ -13,20 +13,14 @@ Key features:
 from __future__ import annotations
 
 import time
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, ClassVar
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
 import pandas as pd
 
 from polisyos.core.canon import content_hash as compute_content_hash
-from polisyos.fabric.safety import (
-    UnsafeFilterExpressionError,
-    UnsafeIdentifierError,
-    escape_soql_literal,
-    safe_path_segment,
-)
 from polisyos.fabric.connectors.base import (
-    ConnectionConfig,
     ConnectionHandle,
     FetchRequest,
     FetchResult,
@@ -39,7 +33,12 @@ from polisyos.fabric.connectors.sources.http_base import (
 from polisyos.fabric.connectors.sources.http_common import frame_completeness
 from polisyos.fabric.connectors.types import (
     DatasetDescriptor,
-    FetchError,
+)
+from polisyos.fabric.safety import (
+    UnsafeFilterExpressionError,
+    UnsafeIdentifierError,
+    escape_soql_literal,
+    safe_path_segment,
 )
 from polisyos.ir.connectors import (
     ConnectorCapability,
@@ -120,15 +119,19 @@ class SocrataConnector(HTTPConnectorBase[pd.DataFrame]):
         started = time.monotonic()
         try:
             _body, _headers, _raw = await self._resilient_request_json(
-                handle, url, params=params,
+                handle,
+                url,
+                params=params,
             )
             return HealthStatus(
-                healthy=True, message="HTTP 200",
+                healthy=True,
+                message="HTTP 200",
                 latency_ms=self._elapsed_ms(started),
             )
         except Exception as exc:
             return HealthStatus(
-                healthy=False, message=str(exc),
+                healthy=False,
+                message=str(exc),
                 latency_ms=self._elapsed_ms(started),
             )
 
@@ -148,7 +151,9 @@ class SocrataConnector(HTTPConnectorBase[pd.DataFrame]):
         while True:
             params = {"limit": str(limit), "page": str(page)}
             body, _headers, _raw = await self._resilient_request_json(
-                handle, url, params=params,
+                handle,
+                url,
+                params=params,
             )
             if not isinstance(body, list):
                 break
@@ -181,9 +186,7 @@ class SocrataConnector(HTTPConnectorBase[pd.DataFrame]):
         dataset_segment = safe_path_segment(request.dataset_id, what="Socrata dataset id")
         url = f"{base}/resource/{dataset_segment}.json"
         schema_fields = (
-            await self._get_schema_fields(handle, request.dataset_id)
-            if request.filters
-            else None
+            await self._get_schema_fields(handle, request.dataset_id) if request.filters else None
         )
         params = self._build_soql_params(request, schema_fields=schema_fields)
 
@@ -199,7 +202,9 @@ class SocrataConnector(HTTPConnectorBase[pd.DataFrame]):
         while True:
             params["$offset"] = str(offset)
             body, headers, raw = await self._resilient_request_json(
-                handle, url, params=params,
+                handle,
+                url,
+                params=params,
             )
             last_headers = headers
             all_raw.append(raw)
@@ -225,7 +230,7 @@ class SocrataConnector(HTTPConnectorBase[pd.DataFrame]):
             quality_tier=QualityTier.SILVER,
             bytes_transferred=total_bytes,
             completeness=frame_completeness(df) if not df.empty else 1.0,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             fetch_duration_ms=duration_ms,
             content_hash=chash,
             etag=last_headers.get("ETag"),
@@ -245,7 +250,9 @@ class SocrataConnector(HTTPConnectorBase[pd.DataFrame]):
         dataset_segment = safe_path_segment(dataset_id, what="Socrata dataset id")
         url = f"{base}/api/views/{dataset_segment}.json"
         body, _headers, _raw = await self._resilient_request_json(
-            handle, url, params={},
+            handle,
+            url,
+            params={},
         )
         columns = body.get("columns", [])
         fields = [

@@ -6,7 +6,7 @@ import json
 import re
 import subprocess
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 
@@ -224,7 +224,7 @@ def main() -> int:
     )
 
     summary = {
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "generated_at_utc": datetime.now(UTC).isoformat(),
         "package_cycles_count": _count_package_cycles(lint_imports.output),
         "import_violations_count": _count_import_violations(lint_imports.output),
         "test_collect_errors_count": _count_pytest_collect_errors(pytest_collect.output),
@@ -239,7 +239,9 @@ def main() -> int:
             ruff.name: ruff.exit_code,
         },
     }
-    summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+    summary_path.write_text(
+        json.dumps(summary, indent=2, ensure_ascii=True) + "\n", encoding="utf-8"
+    )
 
     if args.print_summary:
         print(json.dumps(summary, indent=2, ensure_ascii=True))

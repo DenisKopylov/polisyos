@@ -1,4 +1,5 @@
 """Compute Fabric data-quality indicators, levels, and simulation fitness scores."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
@@ -43,7 +44,7 @@ def _compute_staleness_days(last_updated: datetime | None, *, context: str) -> i
     return max(int(age.total_seconds() // 86400), 0)
 
 
-def _quality_score_from_indicators(indicators: "QualityIndicators") -> float:
+def _quality_score_from_indicators(indicators: QualityIndicators) -> float:
     level = indicators.overall_level()
     return {
         QualityLevel.EXCELLENT: 1.0,
@@ -137,7 +138,7 @@ class QualityThresholds:
                 raise ValueError(f"{field_name} must be >= 0")
 
     @classmethod
-    def for_profile(cls, profile_level: str | Enum | None) -> "QualityThresholds":
+    def for_profile(cls, profile_level: str | Enum | None) -> QualityThresholds:
         """
         Return thresholds appropriate for profile.
 
@@ -181,7 +182,7 @@ class QualityThresholds:
             )
         return cls()
 
-    def with_overrides(self, overrides: dict[str, Any]) -> "QualityThresholds":
+    def with_overrides(self, overrides: dict[str, Any]) -> QualityThresholds:
         """Return a new thresholds instance with overrides applied."""
         return replace(self, **overrides)
 
@@ -314,8 +315,8 @@ class QualityIndicators:
     @classmethod
     def from_quality_report(
         cls,
-        report: "DataQualityReport",
-    ) -> "QualityIndicators":
+        report: DataQualityReport,
+    ) -> QualityIndicators:
         """
         Create QualityIndicators from a DataQualityReport.
 
@@ -329,7 +330,8 @@ class QualityIndicators:
             staleness_days = report.freshness_status.cache_age_seconds // 86400
 
         missingness = ensure_probability(
-            1.0 - ensure_probability(
+            1.0
+            - ensure_probability(
                 report.completeness_score,
                 what="report completeness_score",
             ),
@@ -382,7 +384,7 @@ class QualityIndicators:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "QualityIndicators":
+    def from_dict(cls, data: dict[str, Any]) -> QualityIndicators:
         """Deserialize from JSON storage."""
         computed_at = data.get("computed_at")
         if computed_at:
@@ -441,10 +443,7 @@ def compute_quality_indicators(
         )
     else:
         expected_rows = 0.0
-    if expected_rows > 0:
-        coverage = min(1.0, row_count / expected_rows)
-    else:
-        coverage = 1.0
+    coverage = min(1.0, row_count / expected_rows) if expected_rows > 0 else 1.0
 
     schema_drift = False
     if baseline_columns is not None:
@@ -516,12 +515,10 @@ def compute_quality_from_duckdb(
 
         columns_info = conn.execute(f"DESCRIBE {safe_table_name}").fetchall()
         column_names = [
-            validate_sql_identifier(str(col[0]), what="DuckDB column")
-            for col in columns_info
+            validate_sql_identifier(str(col[0]), what="DuckDB column") for col in columns_info
         ]
         quoted_columns = [
-            quote_sql_identifier(column_name, what="DuckDB column")
-            for column_name in column_names
+            quote_sql_identifier(column_name, what="DuckDB column") for column_name in column_names
         ]
 
         if row_count > 0 and len(column_names) > 0:
@@ -529,11 +526,7 @@ def compute_quality_from_duckdb(
                 [f"CASE WHEN {col} IS NULL THEN 1 ELSE 0 END" for col in quoted_columns]
             )
             null_count_query = "SELECT SUM(" + null_checks + ") FROM " + safe_table_name
-            total_nulls = (
-                conn.execute(null_count_query)
-                .fetchone()[0]
-                or 0
-            )
+            total_nulls = conn.execute(null_count_query).fetchone()[0] or 0
             total_cells = row_count * len(column_names)
             missingness = total_nulls / total_cells
         else:
@@ -551,10 +544,7 @@ def compute_quality_from_duckdb(
             )
         else:
             expected_rows = 0.0
-        if expected_rows > 0:
-            coverage = min(1.0, row_count / expected_rows)
-        else:
-            coverage = 1.0
+        coverage = min(1.0, row_count / expected_rows) if expected_rows > 0 else 1.0
 
         indicators = QualityIndicators(
             metric_id=metric_id,
@@ -595,7 +585,9 @@ def get_cached_quality_indicators(
             contract = catalog_registry.get_contract(metric_id)
         except (TypeError, ValueError, KeyError, AttributeError):
             logger.debug(
-                "Failed to get_contract for metric %s", metric_id, exc_info=True,
+                "Failed to get_contract for metric %s",
+                metric_id,
+                exc_info=True,
             )
             return None
     elif hasattr(catalog_registry, "get"):
@@ -603,7 +595,9 @@ def get_cached_quality_indicators(
             contract = catalog_registry.get(metric_id)
         except (TypeError, ValueError, KeyError, AttributeError):
             logger.debug(
-                "Failed to get contract for metric %s", metric_id, exc_info=True,
+                "Failed to get contract for metric %s",
+                metric_id,
+                exc_info=True,
             )
             return None
 
@@ -622,6 +616,8 @@ def get_cached_quality_indicators(
         return QualityIndicators.from_dict(quality_stats)
     except (TypeError, ValueError, KeyError, AttributeError):
         logger.debug(
-            "Failed to parse quality indicators for metric %s", metric_id, exc_info=True,
+            "Failed to parse quality indicators for metric %s",
+            metric_id,
+            exc_info=True,
         )
         return None

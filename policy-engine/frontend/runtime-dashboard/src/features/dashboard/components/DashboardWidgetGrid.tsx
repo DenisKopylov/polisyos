@@ -17,6 +17,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 
 import type { WidgetConfig } from "../state/useDashboardLayoutStore";
@@ -75,6 +76,7 @@ export function DashboardWidgetGrid({
   renderers,
   className,
 }: DashboardWidgetGridProps) {
+  const { t } = useI18n();
   const { widgets, isEditing, reorderWidget, toggleWidgetVisibility } =
     useDashboardLayoutStore();
 
@@ -125,7 +127,15 @@ export function DashboardWidgetGrid({
                 isEditing={isEditing}
                 onRemove={() => toggleWidgetVisibility(config.id)}
               >
-                {render ? render(config) : <p className="text-muted text-sm">Unknown widget type: {config.type}</p>}
+                {render ? (
+                  render(config)
+                ) : (
+                  <p className="text-muted text-sm">
+                    {t("features.dashboard.widgets.unknownType", {
+                      type: config.type,
+                    })}
+                  </p>
+                )}
               </SortableWidget>
             );
           })}

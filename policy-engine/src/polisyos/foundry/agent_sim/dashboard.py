@@ -1,4 +1,5 @@
 """Public agent sim dashboard module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -11,6 +12,7 @@ import jax.numpy as jnp
 @dataclass
 class DashboardConfig:
     """Configure output path and refresh settings for the HTML training dashboard."""
+
     title: str = "PolisyOS Training Dashboard"
     output_path: Path = Path("./dashboard.html")
     refresh_interval: int = 5
@@ -19,6 +21,7 @@ class DashboardConfig:
 
 class DashboardGenerator:
     """Render an HTML dashboard from collected training and policy metrics."""
+
     def __init__(self, config: DashboardConfig | None = None):
         self.config = config or DashboardConfig()
 
@@ -64,9 +67,7 @@ class DashboardGenerator:
         if "reward_history" in metrics:
             rewards = metrics["reward_history"]
             fig.add_trace(
-                go.Scatter(
-                    y=rewards, mode="lines", name="Reward", line=dict(color="green")
-                ),
+                go.Scatter(y=rewards, mode="lines", name="Reward", line=dict(color="green")),
                 row=1,
                 col=2,
             )

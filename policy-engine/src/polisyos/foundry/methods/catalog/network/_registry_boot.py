@@ -1,15 +1,16 @@
 """Public network registry boot module API."""
+
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from .analysis import (
     CommunityDetectionEstimator,
     ContagionModelEstimator,
     InputOutputNetworkEstimator,
     MultiplexNetworkEstimator,
-    NetworkMissingnessAssessmentEstimator,
     NetworkDiffusionEstimator,
+    NetworkMissingnessAssessmentEstimator,
     PeerEffectDecompositionEstimator,
 )
 from .ergm import DiffusionNullTestEstimator, ERGMNullModelEstimator

@@ -17,15 +17,15 @@ __all__ = [
     "DEFAULT_COMMAND_TIMEOUT",
     "MAX_LIBRARY_BYTES",
     "SYSTEM_LIBRARY_NAMES",
-    "safe_run",
-    "safe_package_version",
-    "hash_file",
-    "short_hash",
-    "risk_order",
-    "format_xla_flags",
-    "parse_xla_flags",
     "estimate_precision_loss",
     "fingerprint_system_libraries",
+    "format_xla_flags",
+    "hash_file",
+    "parse_xla_flags",
+    "risk_order",
+    "safe_package_version",
+    "safe_run",
+    "short_hash",
 ]
 
 DEFAULT_COMMAND_TIMEOUT = 1.5
@@ -81,7 +81,7 @@ def _hash_file(path: Path, *, max_bytes: int | None = None) -> str | None:
                 return None
         with open(path, "rb") as f:
             return streaming_hash(iter(lambda: f.read(8192), b""))
-    except (IOError, OSError):
+    except OSError:
         return None
 
 
@@ -91,7 +91,7 @@ def _short_hash(value: str | None) -> str | None:
     return value[:24] + "..." if len(value) > 24 else value
 
 
-def _risk_order(risk: "RiskLevel") -> int:  # noqa: F821 — resolved at runtime
+def _risk_order(risk: RiskLevel) -> int:
     from ._env_models import RiskLevel
 
     order = {
@@ -124,9 +124,9 @@ def _parse_xla_flags(flags_str: str) -> dict[str, str]:
 
 
 def _estimate_precision_loss(
-    cpu: "CPUInfo",  # noqa: F821
-    gpu: "GPUInfo",  # noqa: F821
-    jax_info: "JAXInfo",  # noqa: F821
+    cpu: CPUInfo,
+    gpu: GPUInfo,
+    jax_info: JAXInfo,
 ) -> str | None:
     arch = cpu.architecture.lower()
     if arch in {"arm64", "aarch64"}:
@@ -136,7 +136,7 @@ def _estimate_precision_loss(
     return None
 
 
-def _fingerprint_system_libraries(libs: dict[str, "SystemLibraryInfo"]) -> str:  # noqa: F821
+def _fingerprint_system_libraries(libs: dict[str, SystemLibraryInfo]) -> str:
     from polisyos.core.canon import truncated_hash
 
     if not libs:

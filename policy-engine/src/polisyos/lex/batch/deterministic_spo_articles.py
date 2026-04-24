@@ -4,11 +4,17 @@ from __future__ import annotations
 
 from polisyos.lex.batch import deterministic_spo as _base
 
-_BASE_EXPORTS = {'re', 'canonicalize_action', 'canonicalize_norm_type', 'extract_thresholds_from_text'}
+_BASE_EXPORTS = {
+    "re",
+    "canonicalize_action",
+    "canonicalize_norm_type",
+    "extract_thresholds_from_text",
+}
 for _name in dir(_base):
     if _name.startswith("_") or _name in _BASE_EXPORTS:
         globals().setdefault(_name, getattr(_base, _name))
 del _name
+
 
 def _extract_structured_article_candidates(
     *,
@@ -145,9 +151,7 @@ def _extract_structured_article_candidates(
                 reason_codes.append("article_dash_this_is_pattern")
 
         list_definition_match = _LIST_DEFINITION_RE.search(sentence)
-        if list_definition_match and (
-            sentence.count(";") >= 2 or sentence.count("\n") >= 2
-        ):
+        if list_definition_match and (sentence.count(";") >= 2 or sentence.count("\n") >= 2):
             raw_subject = list_definition_match.group("subject").strip(" ,;:")
             subject_uk = _clip_text(raw_subject, 160)
             if subject_uk:
@@ -243,10 +247,14 @@ def _extract_structured_article_candidates(
             raw_object = declarative_match.group("object").strip(" .;:")
             subject_uk = _clip_text(raw_subject, 160)
             object_uk = _clip_text(raw_object, 220)
-            if subject_uk and object_uk and _is_compact_clause(
-                subject=raw_subject,
-                object_text=raw_object,
-                sentence=sentence,
+            if (
+                subject_uk
+                and object_uk
+                and _is_compact_clause(
+                    subject=raw_subject,
+                    object_text=raw_object,
+                    sentence=sentence,
+                )
             ):
                 candidates.append(
                     _build_candidate(
@@ -335,7 +343,9 @@ def _extract_structured_article_candidates(
                         _build_candidate(
                             subject_uk=subject_uk,
                             predicate="grants",
-                            object_uk=(f"має право {object_uk}" if "має право" in lemma else object_uk),
+                            object_uk=(
+                                f"має право {object_uk}" if "має право" in lemma else object_uk
+                            ),
                             norm_type="permission",
                             fact_text=f"{subject_uk} {permission_match.group('lemma').strip()} {raw_object}",
                             quote=clause_quote,
@@ -345,7 +355,9 @@ def _extract_structured_article_candidates(
                     reason_codes.append("article_subject_permission_pattern")
                     condition_match = _PERMISSION_CONDITION_RE.search(raw_object)
                     if condition_match:
-                        condition_uk = _clip_text(condition_match.group("condition").strip(" .;:"), 220)
+                        condition_uk = _clip_text(
+                            condition_match.group("condition").strip(" .;:"), 220
+                        )
                         candidates.append(
                             _build_candidate(
                                 subject_uk=subject_uk,
@@ -542,7 +554,9 @@ def _extract_treaty_resolution_candidates(
 
             future_cooperation_match = _TREATY_FUTURE_COOPERATION_RE.search(sentence)
             if future_cooperation_match:
-                subject_uk = _clip_text(future_cooperation_match.group("subject").strip(" ,;:"), 140)
+                subject_uk = _clip_text(
+                    future_cooperation_match.group("subject").strip(" ,;:"), 140
+                )
                 object_uk = _clip_text(
                     f"{future_cooperation_match.group('lemma').strip()} "
                     f"{future_cooperation_match.group('object').strip(' .;:')}",
@@ -614,7 +628,9 @@ def _extract_treaty_resolution_candidates(
 
             imperative_mandate_match = _IMPERATIVE_MANDATE_RE.search(sentence)
             if imperative_mandate_match:
-                subject_uk = _clip_text(imperative_mandate_match.group("subject").strip(" ,;:"), 160)
+                subject_uk = _clip_text(
+                    imperative_mandate_match.group("subject").strip(" ,;:"), 160
+                )
                 object_uk = _clip_text(
                     f"{imperative_mandate_match.group('lemma').strip()} "
                     f"{imperative_mandate_match.group('object').strip(' .;:')}",
@@ -634,4 +650,3 @@ def _extract_treaty_resolution_candidates(
                 reason_codes.append("resolution_imperative_mandate_pattern")
 
     return candidates, reason_codes
-

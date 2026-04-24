@@ -158,10 +158,16 @@ def test_build_graph_creates_fact_partitions_and_reference_edges(tmp_path) -> No
         assert con.execute("SELECT COUNT(*) FROM lex_normative_facts").fetchone()[0] == 1
         assert con.execute("SELECT COUNT(*) FROM lex_fact_grounded").fetchone()[0] == 1
         assert con.execute("SELECT top_domain FROM lex_facts").fetchone()[0] == "transport"
-        assert con.execute("SELECT reference_resolution_status FROM lex_facts").fetchone()[0] == "resolved"
+        assert (
+            con.execute("SELECT reference_resolution_status FROM lex_facts").fetchone()[0]
+            == "resolved"
+        )
         assert con.execute("SELECT COUNT(*) FROM lex_reference_edges").fetchone()[0] == 1
         assert con.execute("SELECT COUNT(*) FROM lex_doc_versions").fetchone()[0] == 2
-        assert con.execute("SELECT matched_by FROM lex_reference_edges").fetchone()[0] == "self_reference"
+        assert (
+            con.execute("SELECT matched_by FROM lex_reference_edges").fetchone()[0]
+            == "self_reference"
+        )
         lineage = con.execute(
             """
             SELECT version_rank, previous_version_id, next_version_id, is_latest
@@ -483,7 +489,9 @@ def test_build_graph_infers_amendment_target_from_doc_title_when_refs_missing(tm
         assert metadata["target_hint"]["source"].startswith("doc_title_")
 
 
-def test_build_graph_infers_amendment_target_from_doc_title_with_changes_and_supplements(tmp_path) -> None:
+def test_build_graph_infers_amendment_target_from_doc_title_with_changes_and_supplements(
+    tmp_path,
+) -> None:
     spo_dir = tmp_path / "spo_results" / "ts"
     provisions_dir = tmp_path / "provisions" / "ts"
     spo_dir.mkdir(parents=True)
@@ -560,7 +568,9 @@ def test_build_graph_infers_amendment_target_from_doc_title_with_changes_and_sup
         assert metadata["target_hint"]["source"].startswith("doc_title_")
 
 
-def test_build_graph_infers_amendment_target_from_doc_title_even_when_refs_are_self_only(tmp_path) -> None:
+def test_build_graph_infers_amendment_target_from_doc_title_even_when_refs_are_self_only(
+    tmp_path,
+) -> None:
     spo_dir = tmp_path / "spo_results" / "tr"
     provisions_dir = tmp_path / "provisions" / "tr"
     refs_dir = tmp_path / "resolved_references" / "tr"
@@ -1172,7 +1182,9 @@ def test_amendment_title_infers_instruction_target_from_genitive_stem() -> None:
     assert inferred.doc_id == "instruction-doc"
 
 
-def test_build_graph_infers_amendment_target_from_source_text_using_resolution_metadata(tmp_path) -> None:
+def test_build_graph_infers_amendment_target_from_source_text_using_resolution_metadata(
+    tmp_path,
+) -> None:
     spo_dir = tmp_path / "spo_results" / "sr"
     provisions_dir = tmp_path / "provisions" / "sr"
     spo_dir.mkdir(parents=True)
@@ -1335,8 +1347,20 @@ def test_build_graph_deduplicates_nested_single_target_amendments(tmp_path) -> N
         "fallback_allowed_for_reasoning": True,
     }
     with open(provisions_dir / "singleamend.jsonl", "w", encoding="utf-8") as fh:
-        fh.write(json.dumps({**repeated, "anchor_path": "article:1", "lineage_path": "article:1"}, ensure_ascii=False) + "\n")
-        fh.write(json.dumps({**repeated, "anchor_path": "article:1/para:1", "lineage_path": "article:1/para:1"}, ensure_ascii=False) + "\n")
+        fh.write(
+            json.dumps(
+                {**repeated, "anchor_path": "article:1", "lineage_path": "article:1"},
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
+        fh.write(
+            json.dumps(
+                {**repeated, "anchor_path": "article:1/para:1", "lineage_path": "article:1/para:1"},
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
 
     db_path = tmp_path / "lex_knowledge_graph.duckdb"
     stats = build_graph(
@@ -1381,7 +1405,9 @@ def test_build_graph_deduplicates_nested_single_target_amendments(tmp_path) -> N
         assert rows == (1, True, "base-law")
 
 
-def test_build_graph_marks_multi_target_amendments_as_not_expected_for_target_resolution(tmp_path) -> None:
+def test_build_graph_marks_multi_target_amendments_as_not_expected_for_target_resolution(
+    tmp_path,
+) -> None:
     provisions_dir = tmp_path / "provisions" / "mt"
     spo_dir = tmp_path / "spo_results" / "mt"
     provisions_dir.mkdir(parents=True)
@@ -1550,7 +1576,9 @@ def test_build_graph_does_not_fallback_to_date_acc_for_fact_temporal(tmp_path) -
         assert doc_row == ("", "current", "partial")
 
 
-def test_build_graph_derives_clause_rows_and_reference_links_from_existing_artifacts(tmp_path) -> None:
+def test_build_graph_derives_clause_rows_and_reference_links_from_existing_artifacts(
+    tmp_path,
+) -> None:
     spo_dir = tmp_path / "spo_results" / "cl"
     provisions_dir = tmp_path / "provisions" / "cl"
     refs_dir = tmp_path / "resolved_references" / "cl"
@@ -1665,7 +1693,9 @@ def test_build_graph_derives_clause_rows_and_reference_links_from_existing_artif
         assert "У разі потреби" in clause_row[1]
 
 
-def test_build_graph_emits_general_amendment_fallback_for_title_only_amendment_doc(tmp_path) -> None:
+def test_build_graph_emits_general_amendment_fallback_for_title_only_amendment_doc(
+    tmp_path,
+) -> None:
     provisions_dir = tmp_path / "provisions" / "ga"
     spo_dir = tmp_path / "spo_results" / "ga"
     provisions_dir.mkdir(parents=True)
@@ -1718,7 +1748,7 @@ def test_build_graph_emits_general_amendment_fallback_for_title_only_amendment_d
         doc_metadata={
             "gadoc": {
                 "reestr_code": "888",
-                "name": "Про внесення змін до Закону України \"Про освіту\"",
+                "name": 'Про внесення змін до Закону України "Про освіту"',
                 "doc_type": "Закон",
                 "date_acc": "2024-02-01",
                 "status": "active",

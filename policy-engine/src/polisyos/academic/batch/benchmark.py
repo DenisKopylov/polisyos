@@ -5,11 +5,11 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from polisyos.academic.batch.config import AcademicBatchConfig
-from polisyos.academic.knowledge.runtime_canonical_registry import RUNTIME_CANONICAL_REGISTRY_VERSION
+from polisyos.academic.knowledge.runtime_canonical_registry import (
+    RUNTIME_CANONICAL_REGISTRY_VERSION,
+)
 from polisyos.academic.knowledge.search import ScholarKnowledgeGraph
 from polisyos.academic.knowledge.skg_query import SKGQuery
 from polisyos.academic.knowledge.skg_store import EVIDENCE_WEIGHTS as _SKG_EVIDENCE_WEIGHTS
@@ -17,12 +17,17 @@ from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.scientist.cross_graph.feedback import (
     AcademicBenchmarkScenario,
     AcademicBenchmarkSuite,
-    BenchmarkCredibilityPolicy,
     BenchmarkCausalEdge,
+    BenchmarkCredibilityPolicy,
     BenchmarkScholarQuery,
     load_benchmark_suite,
     write_need_backlog,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 READINESS_THRESHOLDS: dict[str, float] = {
     "parameter_supported_ratio": 0.60,
@@ -37,6 +42,7 @@ READINESS_THRESHOLDS: dict[str, float] = {
 @dataclass(frozen=True)
 class BenchmarkOutcome:
     """Readiness report emitted by the academic runtime benchmark stage."""
+
     report_path: Path
     metrics: dict[str, float | int]
     passed: bool
@@ -51,17 +57,25 @@ def _default_suite() -> AcademicBenchmarkSuite:
                 scenario_id="fiscal_growth",
                 title="Fiscal capacity and growth",
                 policy_domain="fiscal",
-                causal_edges=[BenchmarkCausalEdge(cause="tax_revenue", effect="economic.gdp_growth")],
+                causal_edges=[
+                    BenchmarkCausalEdge(cause="tax_revenue", effect="economic.gdp_growth")
+                ],
                 parameters=["tax_revenue"],
-                scholar_queries=[BenchmarkScholarQuery(cause="tax_revenue", effect="economic.gdp_growth")],
+                scholar_queries=[
+                    BenchmarkScholarQuery(cause="tax_revenue", effect="economic.gdp_growth")
+                ],
             ),
             AcademicBenchmarkScenario(
                 scenario_id="public_investment_jobs",
                 title="Public investment and employment",
                 policy_domain="fiscal",
-                causal_edges=[BenchmarkCausalEdge(cause="public_investment", effect="labor.employment_rate")],
+                causal_edges=[
+                    BenchmarkCausalEdge(cause="public_investment", effect="labor.employment_rate")
+                ],
                 parameters=["public_investment"],
-                scholar_queries=[BenchmarkScholarQuery(cause="public_investment", effect="labor.employment_rate")],
+                scholar_queries=[
+                    BenchmarkScholarQuery(cause="public_investment", effect="labor.employment_rate")
+                ],
             ),
             AcademicBenchmarkScenario(
                 scenario_id="savings_gender_power",
@@ -436,7 +450,7 @@ def _evaluate_readiness(metrics: dict[str, float | int]) -> tuple[bool, tuple[st
 def _best_design_tier_for_edge(query: SKGQuery, edge_id: str) -> int | None:
     """Return the best (lowest) design quality tier among evidence for *edge_id*."""
     try:
-        result = query._con.execute(  # noqa: SLF001
+        result = query._con.execute(
             "SELECT MIN(design_quality_tier) FROM ac_skg_edge_evidence "
             "WHERE edge_id = ? AND design_quality_tier IS NOT NULL",
             [edge_id],
@@ -452,7 +466,7 @@ def _article_years_for_refs(query: SKGQuery, article_refs: tuple[str, ...]) -> l
         return []
     placeholders = ", ".join("?" for _ in refs)
     try:
-        rows = query._con.execute(  # noqa: SLF001
+        rows = query._con.execute(
             f"SELECT year FROM ac_skg_articles WHERE openalex_id IN ({placeholders}) AND year IS NOT NULL",
             refs,
         ).fetchall()
@@ -501,7 +515,9 @@ def _best_edge_runtime_status(
     credible: list[Any] = []
     maybe: list[Any] = []
     for row in records:
-        passed, reasons = _matches_credibility_policy(row, policy, query=query, current_year=current_year)
+        passed, reasons = _matches_credibility_policy(
+            row, policy, query=query, current_year=current_year
+        )
         policy_checks.append(
             {
                 "edge_id": row.edge_id,
@@ -514,7 +530,9 @@ def _best_edge_runtime_status(
         )
         if passed:
             credible.append(row)
-        elif float(row.confidence) >= 0.40 and int(row.n_unique_works) >= max(1, int(policy.min_unique_works) - 1):
+        elif float(row.confidence) >= 0.40 and int(row.n_unique_works) >= max(
+            1, int(policy.min_unique_works) - 1
+        ):
             maybe.append(row)
     if credible:
         return "supported", policy_checks
@@ -599,7 +617,7 @@ def _stratified_edge_analysis(
 
     for edge_id in edge_ids:
         try:
-            rows = query._con.execute(  # noqa: SLF001
+            rows = query._con.execute(
                 "SELECT design_quality_tier FROM ac_skg_edge_evidence "
                 "WHERE edge_id = ? AND design_quality_tier IS NOT NULL",
                 [edge_id],
@@ -613,7 +631,7 @@ def _stratified_edge_analysis(
 
     for edge_id in edge_ids:
         try:
-            rows = query._con.execute(  # noqa: SLF001
+            rows = query._con.execute(
                 "SELECT a.year, a.source_basis FROM ac_skg_edge_evidence ee "
                 "JOIN ac_skg_articles a ON ee.openalex_id = a.openalex_id "
                 "WHERE ee.edge_id = ?",
@@ -638,8 +656,14 @@ def _stratified_edge_analysis(
         "median_evidence_year": sorted_years[len(sorted_years) // 2] if sorted_years else None,
         # sorted_years ascending: low index = old years = high age, high index = recent = low age
         # p25 of *age* = 25th percentile of (current_year - year) = current_year - year_at_75th_pct
-        "evidence_age_p25": (current_year - sorted_years[min(len(sorted_years) - 1, int(len(sorted_years) * 0.75))]) if len(sorted_years) >= 4 else None,
-        "evidence_age_p75": (current_year - sorted_years[max(0, int(len(sorted_years) * 0.25))]) if len(sorted_years) >= 4 else None,
+        "evidence_age_p25": (
+            current_year - sorted_years[min(len(sorted_years) - 1, int(len(sorted_years) * 0.75))]
+        )
+        if len(sorted_years) >= 4
+        else None,
+        "evidence_age_p75": (current_year - sorted_years[max(0, int(len(sorted_years) * 0.25))])
+        if len(sorted_years) >= 4
+        else None,
         "fulltext_share": round(fulltext_count / max(1, total_sources), 4),
         "total_evidence_sources": total_sources,
     }
@@ -653,7 +677,7 @@ def _quality_weighted_parameter_score(
 ) -> float:
     """Compute quality-weighted score for a parameter (0.0-1.0)."""
     try:
-        rows = query._con.execute(  # noqa: SLF001
+        rows = query._con.execute(
             "SELECT point_estimate, evidence_strength, confidence_interval_json, "
             "std_error, source_layer FROM ac_skg_simulation_parameters "
             "WHERE canonical_name = ? AND source_layer IN ('simulation_ready', 'curated_numeric')",
@@ -718,11 +742,19 @@ def run_benchmark(config: AcademicBatchConfig) -> BenchmarkOutcome:
             edge_rows: list[dict[str, Any]] = []
             for edge in scenario.causal_edges:
                 causal_total += 1
-                cause_resolution = _canonical_resolution_payload(query, edge.cause, need_type="causal_edge")
-                effect_resolution = _canonical_resolution_payload(query, edge.effect, need_type="causal_edge")
+                cause_resolution = _canonical_resolution_payload(
+                    query, edge.cause, need_type="causal_edge"
+                )
+                effect_resolution = _canonical_resolution_payload(
+                    query, edge.effect, need_type="causal_edge"
+                )
                 runtime_demand_total += 2
-                runtime_demand_hits += int(bool(cause_resolution["approved"])) + int(bool(effect_resolution["approved"]))
-                canonical_missing = not bool(cause_resolution["approved"]) or not bool(effect_resolution["approved"])
+                runtime_demand_hits += int(bool(cause_resolution["approved"])) + int(
+                    bool(effect_resolution["approved"])
+                )
+                canonical_missing = not bool(cause_resolution["approved"]) or not bool(
+                    effect_resolution["approved"]
+                )
                 if canonical_missing:
                     canonical_miss_total += int(not bool(cause_resolution["approved"])) + int(
                         not bool(effect_resolution["approved"])
@@ -851,7 +883,10 @@ def run_benchmark(config: AcademicBatchConfig) -> BenchmarkOutcome:
                         {
                             "need_id": f"{scenario.scenario_id}:edge:{edge.cause}->{edge.effect}",
                             "need_type": "causal_edge",
-                            "priority_weight": round(float(scenario.weight) * (1.25 if status == "unsupported" else 1.0), 4),
+                            "priority_weight": round(
+                                float(scenario.weight) * (1.25 if status == "unsupported" else 1.0),
+                                4,
+                            ),
                             "terms": [edge.cause, edge.effect],
                             "cause": edge.cause,
                             "effect": edge.effect,
@@ -868,7 +903,9 @@ def run_benchmark(config: AcademicBatchConfig) -> BenchmarkOutcome:
                             "labels": [scenario.policy_domain, scenario.scenario_id],
                             "evidence_status": status,
                             "transport_status": "non_default" if transport_records else "unknown",
-                            "confidence": max((float(row.confidence) for row in supports), default=0.0),
+                            "confidence": max(
+                                (float(row.confidence) for row in supports), default=0.0
+                            ),
                             "workflow_impacts": _workflow_impacts_for_need("causal_edge"),
                         }
                     )
@@ -876,7 +913,9 @@ def run_benchmark(config: AcademicBatchConfig) -> BenchmarkOutcome:
             parameter_rows: list[dict[str, Any]] = []
             for parameter_name in scenario.parameters:
                 parameter_total += 1
-                parameter_resolution = _canonical_resolution_payload(query, parameter_name, need_type="parameter")
+                parameter_resolution = _canonical_resolution_payload(
+                    query, parameter_name, need_type="parameter"
+                )
                 runtime_demand_total += 1
                 runtime_demand_hits += int(bool(parameter_resolution["approved"]))
                 canonical_missing = not bool(parameter_resolution["approved"])
@@ -891,10 +930,13 @@ def run_benchmark(config: AcademicBatchConfig) -> BenchmarkOutcome:
                 sim_candidates = [
                     row
                     for row in candidates
-                    if row.source_layer in {"simulation_ready", "simulation"} and not row.requires_expert_review
+                    if row.source_layer in {"simulation_ready", "simulation"}
+                    and not row.requires_expert_review
                 ]
                 quality_score = _quality_weighted_parameter_score(
-                    query, parameter_name, current_year=current_year,
+                    query,
+                    parameter_name,
+                    current_year=current_year,
                 )
                 parameter_quality_scores.append(quality_score)
                 if sim_candidates:
@@ -925,11 +967,7 @@ def run_benchmark(config: AcademicBatchConfig) -> BenchmarkOutcome:
                 )
                 if status != "supported" or canonical_missing:
                     candidate_reasons = sorted(
-                        {
-                            flag
-                            for row in candidates
-                            for flag in row.quality_flags
-                        }
+                        {flag for row in candidates for flag in row.quality_flags}
                     )
                     if not candidates:
                         candidate_reasons.append("no_parameter_candidates")
@@ -939,7 +977,10 @@ def run_benchmark(config: AcademicBatchConfig) -> BenchmarkOutcome:
                         {
                             "need_id": f"{scenario.scenario_id}:parameter:{parameter_name}",
                             "need_type": "parameter",
-                            "priority_weight": round(float(scenario.weight) * (1.25 if status == "unsupported" else 1.0), 4),
+                            "priority_weight": round(
+                                float(scenario.weight) * (1.25 if status == "unsupported" else 1.0),
+                                4,
+                            ),
                             "terms": [parameter_name],
                             "cause": None,
                             "effect": None,
@@ -964,11 +1005,19 @@ def run_benchmark(config: AcademicBatchConfig) -> BenchmarkOutcome:
             scholar_rows: list[dict[str, Any]] = []
             for scholar_query in scenario.scholar_queries:
                 scholar_total += 1
-                cause_resolution = _canonical_resolution_payload(query, scholar_query.cause, need_type="scholar_query")
-                effect_resolution = _canonical_resolution_payload(query, scholar_query.effect, need_type="scholar_query")
+                cause_resolution = _canonical_resolution_payload(
+                    query, scholar_query.cause, need_type="scholar_query"
+                )
+                effect_resolution = _canonical_resolution_payload(
+                    query, scholar_query.effect, need_type="scholar_query"
+                )
                 runtime_demand_total += 2
-                runtime_demand_hits += int(bool(cause_resolution["approved"])) + int(bool(effect_resolution["approved"]))
-                canonical_missing = not bool(cause_resolution["approved"]) or not bool(effect_resolution["approved"])
+                runtime_demand_hits += int(bool(cause_resolution["approved"])) + int(
+                    bool(effect_resolution["approved"])
+                )
+                canonical_missing = not bool(cause_resolution["approved"]) or not bool(
+                    effect_resolution["approved"]
+                )
                 if canonical_missing:
                     canonical_miss_total += int(not bool(cause_resolution["approved"])) + int(
                         not bool(effect_resolution["approved"])
@@ -1062,11 +1111,15 @@ def run_benchmark(config: AcademicBatchConfig) -> BenchmarkOutcome:
         "contested_edge_coverage_hits": contested_covered,
         "causal_supported_ratio": round(causal_supported / max(1, causal_total), 4),
         "causal_mixed_ratio": round(causal_mixed / max(1, causal_total), 4),
-        "causal_supported_plus_mixed_ratio": round((causal_supported + causal_mixed) / max(1, causal_total), 4),
+        "causal_supported_plus_mixed_ratio": round(
+            (causal_supported + causal_mixed) / max(1, causal_total), 4
+        ),
         "parameter_supported_ratio": round(parameter_supported / max(1, parameter_total), 4),
         "parameter_mixed_ratio": round(parameter_mixed / max(1, parameter_total), 4),
         "scholar_query_coverage_ratio": round(scholar_supported / max(1, scholar_total), 4),
-        "non_default_transport_evidence_ratio": round(transport_non_default / max(1, transport_total), 4),
+        "non_default_transport_evidence_ratio": round(
+            transport_non_default / max(1, transport_total), 4
+        ),
         "family_edge_coverage_ratio": round(family_covered / max(1, causal_total), 4),
         "contested_edge_coverage_ratio": round(contested_covered / max(1, causal_total), 4),
         "simulation_ready_parameter_ratio": round(parameter_supported / max(1, parameter_total), 4),
@@ -1120,7 +1173,11 @@ def run_benchmark(config: AcademicBatchConfig) -> BenchmarkOutcome:
         stage="benchmark",
         status="ok" if passed else "failed",
         metrics={**metrics, "readiness_passed": int(passed)},
-        artifacts=[config.benchmark_suite_path, config.benchmark_report_path, config.runtime_demand_backlog_path],
+        artifacts=[
+            config.benchmark_suite_path,
+            config.benchmark_report_path,
+            config.runtime_demand_backlog_path,
+        ],
         started_at=started_at,
     )
     return BenchmarkOutcome(
@@ -1131,4 +1188,4 @@ def run_benchmark(config: AcademicBatchConfig) -> BenchmarkOutcome:
     )
 
 
-__all__ = ["BenchmarkOutcome", "READINESS_THRESHOLDS", "run_benchmark"]
+__all__ = ["READINESS_THRESHOLDS", "BenchmarkOutcome", "run_benchmark"]

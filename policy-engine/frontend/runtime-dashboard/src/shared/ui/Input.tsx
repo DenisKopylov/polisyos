@@ -9,10 +9,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     <input
       ref={ref}
       type={type}
-      className={cn(
-        "placeholder:text-muted-foreground/80 focus:border-accent/40 focus:ring-accent/20 border-input bg-popover text-foreground flex w-full rounded-2xl border px-4 py-3 text-sm shadow-xs transition outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
-        className,
-      )}
+      className={cn("atlas-input", className)}
       {...props}
     />
   ),

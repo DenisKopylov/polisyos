@@ -13,6 +13,7 @@ Key Components:
 - SchemaEvolution: Change detection and compatibility checking
 - SchemaRegistry: Schema storage and version management
 """
+
 from polisyos.fabric.connectors.contracts.contract import (
     ConnectorSchemaContract,
     FieldMapping,
@@ -82,59 +83,59 @@ from polisyos.fabric.connectors.contracts.validation_middleware import (
 )
 
 __all__ = [
+    "Additivity",
+    # Evolution
+    "ChangeType",
+    "CoercionResult",
+    "ConnectorSchemaContract",
+    "ContractGovernanceError",
+    "ContractGovernanceEvaluation",
+    "ContractNotFoundError",
+    "ContractRegistry",
+    "ContractValidatingProxy",
+    "ContractVersionError",
+    "ContractViolationError",
     # Schema core
     "DataSchema",
-    "SchemaType",
+    "EvolutionReport",
+    # Connector-level contracts
+    "FieldMapping",
     "FieldSpec",
-    "Additivity",
-    "SchemaVersion",
-    "SemanticType",
-    "TimeGranularity",
+    # Registry
+    "FileBackedSchemaRegistry",
     "GeoGranularity",
     # Inference
     "InferenceConfig",
     "InferenceResult",
-    "SchemaHints",
-    "SchemaInference",
-    "infer_schema",
-    "validate_dataframe_against_schema",
-    "coerce_dataframe_to_schema",
-    "CoercionResult",
-    # Evolution
-    "ChangeType",
-    "EvolutionReport",
+    # Errors
+    "JaxTypeError",
     "MigrationOperation",
     "MigrationPlan",
-    "SchemaChange",
-    "SchemaEvolution",
-    "SchemaApprovalMetadata",
-    "SchemaRiskLevel",
     "MigrationStatus",
-    # Connector-level contracts
-    "FieldMapping",
-    "ConnectorSchemaContract",
-    "ContractRegistry",
-    "ContractGovernanceError",
-    "ContractNotFoundError",
-    "ContractVersionError",
-    "ContractViolationError",
-    "build_contract_registry",
-    "ContractGovernanceEvaluation",
-    "actual_version_bump",
-    "evaluate_contract_governance",
-    "format_impacted_surfaces",
-    "impacted_downstream_surfaces",
-    "ContractValidatingProxy",
-    "SchemaValidationMode",
-    # Registry
-    "FileBackedSchemaRegistry",
+    "SchemaApprovalMetadata",
+    "SchemaChange",
+    "SchemaCompatibilityError",
+    "SchemaError",
+    "SchemaEvolution",
+    "SchemaHints",
+    "SchemaInference",
     "SchemaNotFoundError",
     "SchemaRegistration",
     "SchemaRegistry",
+    "SchemaRiskLevel",
+    "SchemaType",
+    "SchemaValidationMode",
+    "SchemaVersion",
     "SchemaVersionConflictError",
-    # Errors
-    "JaxTypeError",
-    "SchemaCompatibilityError",
-    "SchemaError",
+    "SemanticType",
+    "TimeGranularity",
     "TypeCoercionError",
+    "actual_version_bump",
+    "build_contract_registry",
+    "coerce_dataframe_to_schema",
+    "evaluate_contract_governance",
+    "format_impacted_surfaces",
+    "impacted_downstream_surfaces",
+    "infer_schema",
+    "validate_dataframe_against_schema",
 ]

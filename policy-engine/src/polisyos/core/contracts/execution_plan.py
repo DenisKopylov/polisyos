@@ -12,7 +12,6 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import fingerprint
 from polisyos.core.canon.canon_json import CanonSpec
 from polisyos.core.observability.truthfulness import (
-    TruthfulnessStatus,
     TruthfulnessTier,
     parse_truthfulness_scope,
     parse_truthfulness_status,
@@ -51,42 +50,49 @@ StopReason = Literal[
 
 class ExecutionPlanRef(ArtifactRef):
     """Artifact reference for the execution plan driving a Scientist iteration."""
+
     kind: str = "scientist.execution_plan"
     media_type: str = "application/json"
 
 
 class MethodCatalogSnapshotRef(ArtifactRef):
     """Artifact reference for the method-catalog snapshot available during planning."""
+
     kind: str = "foundry.method_catalog_snapshot"
     media_type: str = "application/json"
 
 
 class PreflightReportRef(ArtifactRef):
     """Artifact reference for readiness diagnostics generated before execution starts."""
+
     kind: str = "scientist.preflight_report"
     media_type: str = "application/json"
 
 
 class EvaluatorReportRef(ArtifactRef):
     """Artifact reference for the evaluator verdict emitted after an iteration runs."""
+
     kind: str = "scientist.evaluator_report"
     media_type: str = "application/json"
 
 
 class IterationStateRef(ArtifactRef):
     """Artifact reference for persisted lifecycle state of one planning iteration."""
+
     kind: str = "scientist.iteration_state"
     media_type: str = "application/json"
 
 
 class ReproducibilityManifestRef(ArtifactRef):
     """Artifact reference for the hashes and seeds required to replay an iteration."""
+
     kind: str = "scientist.reproducibility_manifest"
     media_type: str = "application/json"
 
 
 class PlanDataNeed(BaseModel):
     """Plan data need public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     metric: str = Field(..., min_length=1, max_length=256)
@@ -100,6 +106,7 @@ class PlanDataNeed(BaseModel):
 
 class MethodDagNode(BaseModel):
     """One planned method invocation in the execution DAG, including dependencies and slots."""
+
     model_config = ConfigDict(extra="forbid")
 
     node_id: str = Field(..., min_length=1, max_length=128)
@@ -117,6 +124,7 @@ class MethodDagNode(BaseModel):
 
 class MethodDagEdge(BaseModel):
     """Method dag edge public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     src: str = Field(..., min_length=1, max_length=128)
@@ -126,6 +134,7 @@ class MethodDagEdge(BaseModel):
 
 class BudgetSpec(BaseModel):
     """Budget ceilings that bound iterations, spend, wall time, and token consumption."""
+
     model_config = ConfigDict(extra="forbid")
 
     max_iterations: int = Field(default=3, ge=1, le=100)
@@ -137,6 +146,7 @@ class BudgetSpec(BaseModel):
 
 class StopCriteria(BaseModel):
     """Stop criteria public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     min_delta_improvement: float = Field(default=0.0, ge=0.0, le=1.0)
@@ -147,6 +157,7 @@ class StopCriteria(BaseModel):
 
 class GovernanceConstraint(BaseModel):
     """Governance constraint public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     constraint_id: str = Field(..., min_length=1, max_length=128)
@@ -158,6 +169,7 @@ class GovernanceConstraint(BaseModel):
 
 class ExpectedOutputSpec(BaseModel):
     """Target metric and tolerance that the planned run is expected to satisfy."""
+
     model_config = ConfigDict(extra="forbid")
 
     output_id: str = Field(..., min_length=1, max_length=128)
@@ -202,6 +214,7 @@ class ExecutionPlan(BaseModel):
 
 class MethodCatalogEntry(BaseModel):
     """Semantically rich description of one runnable method candidate exposed to the planner."""
+
     model_config = ConfigDict(extra="forbid")
 
     fqn: str = Field(..., min_length=1)
@@ -261,7 +274,7 @@ class MethodCatalogEntry(BaseModel):
     output_interpretation: str = Field(default="")
 
     @model_validator(mode="after")
-    def _synchronize_truthfulness_fields(self) -> "MethodCatalogEntry":
+    def _synchronize_truthfulness_fields(self) -> MethodCatalogEntry:
         legacy_depth_tiers = {
             "heuristic_baseline",
             "structural_scoring",
@@ -281,7 +294,8 @@ class MethodCatalogEntry(BaseModel):
         if effective is None:
             alias_tier = parse_truthfulness_tier(alias_value)
             if alias_tier is not None and (
-                alias_tier is not TruthfulnessTier.UNVERIFIED or (declared is None and runtime is None)
+                alias_tier is not TruthfulnessTier.UNVERIFIED
+                or (declared is None and runtime is None)
             ):
                 effective = alias_tier
             else:
@@ -302,6 +316,7 @@ class MethodCatalogEntry(BaseModel):
 
 class MethodCatalogSnapshot(BaseModel):
     """Point-in-time inventory of the methods and capabilities available to a run planner."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
@@ -327,6 +342,7 @@ class MethodCatalogSnapshot(BaseModel):
 
 class PreflightDiagnostic(BaseModel):
     """Preflight diagnostic public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     code: str = Field(..., min_length=1, max_length=128)
@@ -339,6 +355,7 @@ class PreflightDiagnostic(BaseModel):
 
 class PreflightReport(BaseModel):
     """Readiness diagnostics indicating whether a plan can execute or must be replanned."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -351,6 +368,7 @@ class PreflightReport(BaseModel):
 
 class EvaluatorScores(BaseModel):
     """Evaluator scores public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     kpi_score: float = Field(default=0.0, ge=0.0, le=1.0)
@@ -363,6 +381,7 @@ class EvaluatorScores(BaseModel):
 
 class EvaluatorReport(BaseModel):
     """Evaluator verdict plus scores, reasons, and replanning hints for an iteration."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -376,6 +395,7 @@ class EvaluatorReport(BaseModel):
 
 class IterationState(BaseModel):
     """Persisted lifecycle state for one execution-plan iteration within a run."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -399,6 +419,7 @@ class IterationState(BaseModel):
 
 class ReproducibilityManifest(BaseModel):
     """Hashes, refs, and seed material required to replay one iteration deterministically."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -424,30 +445,30 @@ class ReproducibilityManifest(BaseModel):
 
 
 __all__ = [
-    "DiagnosticSeverity",
-    "EvaluatorVerdict",
-    "IterationLifecycleState",
-    "StopReason",
-    "ExecutionPlanRef",
-    "MethodCatalogSnapshotRef",
-    "PreflightReportRef",
-    "EvaluatorReportRef",
-    "IterationStateRef",
-    "ReproducibilityManifestRef",
-    "PlanDataNeed",
-    "MethodDagNode",
-    "MethodDagEdge",
     "BudgetSpec",
-    "StopCriteria",
-    "GovernanceConstraint",
-    "ExpectedOutputSpec",
+    "DiagnosticSeverity",
+    "EvaluatorReport",
+    "EvaluatorReportRef",
+    "EvaluatorScores",
+    "EvaluatorVerdict",
     "ExecutionPlan",
+    "ExecutionPlanRef",
+    "ExpectedOutputSpec",
+    "GovernanceConstraint",
+    "IterationLifecycleState",
+    "IterationState",
+    "IterationStateRef",
     "MethodCatalogEntry",
     "MethodCatalogSnapshot",
+    "MethodCatalogSnapshotRef",
+    "MethodDagEdge",
+    "MethodDagNode",
+    "PlanDataNeed",
     "PreflightDiagnostic",
     "PreflightReport",
-    "EvaluatorScores",
-    "EvaluatorReport",
-    "IterationState",
+    "PreflightReportRef",
     "ReproducibilityManifest",
+    "ReproducibilityManifestRef",
+    "StopCriteria",
+    "StopReason",
 ]

@@ -47,6 +47,7 @@ Rollback path: return traffic and config to the last known-good candidate before
 1. Подтвердите, что failure действительно promotion-related, а не older
    background incident.
 2. Сравните candidate против last known good по:
+
    - health/readiness;
    - runtime error rate;
    - DAG success rate;
@@ -64,6 +65,7 @@ Rollback path: return traffic and config to the last known-good candidate before
 
 - если candidate ухудшает golden signals, rollback имеет приоритет над поиском
   идеального root cause;
+
 - возвращайтесь к last known good artifact/config pair, а не только к коду;
 - заморозьте дальнейшую promotion активность до стабилизации и incident review;
 - security fixes и P0 restoration work остаются carve-out even under freeze, но
@@ -99,8 +101,8 @@ Rollback path: return traffic and config to the last known-good candidate before
 
 ### Action Items
 
-| Action item | Owner | Due date | Status |
-|---|---|---|---|
-| Add or tighten the missing promotion checkpoint | `@platform-owners` | YYYY-MM-DD | open |
-| Reduce manual rollback steps for this release path | `@platform-owners` | YYYY-MM-DD | open |
-| Add staging/prod parity coverage for the root-cause surface | affected owner | YYYY-MM-DD | open |
+| Action item                                                 | Owner              | Due date   | Status |
+| ----------------------------------------------------------- | ------------------ | ---------- | ------ |
+| Add or tighten the missing promotion checkpoint             | `@platform-owners` | YYYY-MM-DD | open   |
+| Reduce manual rollback steps for this release path          | `@platform-owners` | YYYY-MM-DD | open   |
+| Add staging/prod parity coverage for the root-cause surface | affected owner     | YYYY-MM-DD | open   |

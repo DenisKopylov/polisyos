@@ -1,13 +1,12 @@
 """Runtime service for mobility estimation and report retrieval."""
+
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any, Protocol
 
 import numpy as np
 
-from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.contracts.runtime import MobilityBoundsRequest, MobilityEstimateRequest
 from polisyos.foundry.methods.catalog.distributional.mobility import (
     AttritionAdjustedMobilityMatrixEstimator,
     MobilityMatrixEstimator,
@@ -21,7 +20,19 @@ from polisyos.ir.analytics.partial_identification import (
     load_bounds_bundle,
     persist_bounds_bundle,
 )
+from polisyos.ir.artifacts import ArtifactID as IRArtifactID
 from polisyos.ir.refs import BoundsBundleRef, MobilityReportRef
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.contracts.runtime import MobilityBoundsRequest, MobilityEstimateRequest
+
+
+class _MobilityEstimator(Protocol):
+    @staticmethod
+    def pure_step(state: Any, params: Mapping[str, Any]) -> dict[str, Any]: ...
 
 
 class MobilityService:
@@ -49,6 +60,7 @@ class MobilityService:
             params["panel_length"] = request.panel_length
         if request.waves_used:
             params["waves_used"] = request.waves_used
+        method: type[_MobilityEstimator]
         if request.mode == "complete_case":
             method = MobilityMatrixEstimator
             params = {"n_classes": request.n_classes}
@@ -105,7 +117,9 @@ class MobilityService:
             for row in range(cell_lower.shape[0])
             for col in range(cell_lower.shape[1])
         }
-        summary_payload = {key: [float(value[0]), float(value[1])] for key, value in summary_bounds.items()}
+        summary_payload = {
+            key: [float(value[0]), float(value[1])] for key, value in summary_bounds.items()
+        }
         return bundle, self._artifact_ref_from_typed(bounds_ref), cell_bounds, summary_payload
 
     def load_report(self, artifact_id: ArtifactID) -> tuple[MobilityReport, ArtifactRef]:
@@ -113,12 +127,12 @@ class MobilityService:
         if manifest.kind != "ir.mobility_report":
             raise ValueError("artifact is not an ir.mobility_report")
         ref = MobilityReportRef(
-            artifact_id=artifact_id,
+            artifact_id=IRArtifactID.model_validate(artifact_id.root),
             kind="ir.mobility_report",
             media_type=manifest.media_type,
         )
         report = load_mobility_report(self._store, ref)
-        return report, self._artifact_ref_from_typed(ref)
+        return report, self._required_artifact_ref_from_typed(ref)
 
     def load_bounds_for_report(
         self,
@@ -128,7 +142,7 @@ class MobilityService:
         if report.bounds.bundle_ref is None:
             raise FileNotFoundError("mobility report has no linked bounds bundle")
         bundle = load_bounds_bundle(self._store, report.bounds.bundle_ref)
-        return bundle, report_ref, self._artifact_ref_from_typed(report.bounds.bundle_ref)
+        return bundle, report_ref, self._required_artifact_ref_from_typed(report.bounds.bundle_ref)
 
     def load_diagnostics(
         self,
@@ -138,9 +152,15 @@ class MobilityService:
         return report.diagnostics.model_dump(mode="json"), report_ref
 
     @staticmethod
-    def _artifact_ref_from_typed(ref: MobilityReportRef | BoundsBundleRef | None) -> ArtifactRef | None:
+    def _artifact_ref_from_typed(
+        ref: MobilityReportRef | BoundsBundleRef | None,
+    ) -> ArtifactRef | None:
         if ref is None:
             return None
+        return ArtifactRef.model_validate(ref.model_dump(mode="json"))
+
+    @staticmethod
+    def _required_artifact_ref_from_typed(ref: MobilityReportRef | BoundsBundleRef) -> ArtifactRef:
         return ArtifactRef.model_validate(ref.model_dump(mode="json"))
 
     @staticmethod
@@ -154,8 +174,7 @@ class MobilityService:
         state: dict[str, Any] = {
             "origin_classes": request.origin_classes,
             "destination_classes": [
-                (-1 if value is None else value)
-                for value in request.destination_classes
+                (-1 if value is None else value) for value in request.destination_classes
             ],
         }
         if request.retention_indicators is not None:

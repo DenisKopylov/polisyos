@@ -1,12 +1,15 @@
 # ADR-0080: Tech consolidation stack for causal inference, discovery, and graphs
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-02-28
 
 ## Context
+
 The causal-methods landscape in PolicyOS has grown organically, accumulating overlapping
 dependencies: DoWhy and EconML for inference, tigramite and causal-learn for discovery,
 DAGMA and NOTEARS for continuous optimisation-based discovery, y0 for symbolic
@@ -16,6 +19,7 @@ another library, inflating the dependency tree, CI time, and cognitive load. A f
 consolidation policy is needed.
 
 ## Decision
+
 1. **Tier 1 (Core, always installed):** DoWhy + EconML (identification & estimation),
    tigramite + causal-learn (discovery), rustworkx (in-memory graphs), KuzuDB (graph
    queries).
@@ -30,11 +34,15 @@ consolidation policy is needed.
    compile-time errors; Tier 2 imports must be lazy and guarded.
 
 ## Consequences
+
 ### Positive
+
 - Clear dependency budget reduces install size and CI build time.
 - Tier enforcement via `import_policy.toml` prevents accidental dependency creep.
 - New contributors have a well-defined decision tree for library selection.
+
 ### Negative
+
 - Some research-stage methods (DAGMA) become harder to prototype inside the main repo.
 - Tier promotion requires an ADR, adding process overhead.
 - Tier 2 lazy-import guards add boilerplate to every call site.

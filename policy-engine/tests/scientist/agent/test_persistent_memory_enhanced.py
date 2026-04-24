@@ -5,7 +5,7 @@ from __future__ import annotations
 import concurrent.futures
 import json
 import math
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.agent.persistent_memory import (
@@ -19,6 +19,7 @@ from polisyos.scientist.agent.persistent_memory import (
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 class FakeArtifactStore:
     """In-memory artifact store for testing."""
@@ -238,7 +239,7 @@ class TestTTLPruning:
 
         expired = _make_entry(
             "old memory",
-            expires_at=datetime.now(timezone.utc) - timedelta(hours=1),
+            expires_at=datetime.now(UTC) - timedelta(hours=1),
         )
         valid = _make_entry("fresh memory")
 
@@ -261,14 +262,18 @@ class TestTTLPruning:
         store = FakeArtifactStore()
         mem = PersistentMemoryStore(store)
 
-        mem.store_memory(_make_entry(
-            "expired",
-            expires_at=datetime.now(timezone.utc) - timedelta(hours=1),
-        ))
-        mem.store_memory(_make_entry(
-            "fresh",
-            expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
-        ))
+        mem.store_memory(
+            _make_entry(
+                "expired",
+                expires_at=datetime.now(UTC) - timedelta(hours=1),
+            )
+        )
+        mem.store_memory(
+            _make_entry(
+                "fresh",
+                expires_at=datetime.now(UTC) + timedelta(hours=1),
+            )
+        )
 
         store.get_bytes_calls = 0
         removed = mem.prune_expired()

@@ -1,4 +1,5 @@
 """Public causal resolve transport module API."""
+
 from __future__ import annotations
 
 import hashlib
@@ -522,9 +523,7 @@ class TransportabilityResolutionLoop:
                                 joined_violations = (
                                     "; ".join(checklist.violations) or "validation_failed"
                                 )
-                                reason = (
-                                    f"proxy_validation:{z_var}:{best.proxy_variable}:{joined_violations}"
-                                )
+                                reason = f"proxy_validation:{z_var}:{best.proxy_variable}:{joined_violations}"
                                 if reason not in expert_review_reasons:
                                     expert_review_reasons.append(reason)
                             p_star_values[z_var] = PStarZResult(
@@ -554,8 +553,7 @@ class TransportabilityResolutionLoop:
                             DataGap(
                                 required_variable=z_var,
                                 required_context=(
-                                    f"{target_context.context_id}, "
-                                    f"{target_context.time_period}"
+                                    f"{target_context.context_id}, {target_context.time_period}"
                                 ),
                                 available_proxies=proxy_chain.proxies,
                                 best_proxy_confidence=proxy_chain.best_single_confidence,
@@ -734,8 +732,7 @@ class RunTransportabilityNode:
                     NodeEvent(
                         level="warn",
                         message=(
-                            "Missing source/target context profile; "
-                            "transportability check skipped."
+                            "Missing source/target context profile; transportability check skipped."
                         ),
                     )
                 ],
@@ -922,9 +919,7 @@ def _build_final_result(
         for token in ("outer_search_truncated", "search_budget_exhausted"):
             if token not in search_events:
                 search_events.append(token)
-        warnings.append(
-            "Bounded alignment outer-search truncated due to budget/time limit."
-        )
+        warnings.append("Bounded alignment outer-search truncated due to budget/time limit.")
 
     partial_identification = None
     if tr_result.status is TransportabilityStatus.UNSUPPORTED:
@@ -1336,7 +1331,9 @@ def _resolve_transport_solver_mode(state: ExperimentState) -> str:
 
 def _resolve_allow_degraded_transport(state: ExperimentState) -> bool:
     raw = state.params.get("allow_degraded_transport")
-    profile = str(state.execution_profile or state.params.get("execution_profile") or "").strip().lower()
+    profile = (
+        str(state.execution_profile or state.params.get("execution_profile") or "").strip().lower()
+    )
     if isinstance(raw, bool):
         if raw and profile in {"research", "governed", "production"}:
             raise ValueError(
@@ -1418,7 +1415,9 @@ def _resolve_pag_seed(state: ExperimentState, graph: CausalGraphModel) -> int:
         try:
             return int(raw)
         except _TRANSPORT_NUMERIC_PARSE_ERRORS:
-            logger.debug("Failed to parse pag_seed override; deriving deterministic seed", exc_info=True)
+            logger.debug(
+                "Failed to parse pag_seed override; deriving deterministic seed", exc_info=True
+            )
     payload = f"{state.run_id}|{graph.model_dump_json(exclude_none=False, by_alias=True)}"
     return int(hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16], 16) % (2**31 - 1)
 
@@ -1529,4 +1528,4 @@ def _suggest_data_collection(var: str) -> str:
     )
 
 
-__all__ = ["ResolutionState", "TransportabilityResolutionLoop", "RunTransportabilityNode"]
+__all__ = ["ResolutionState", "RunTransportabilityNode", "TransportabilityResolutionLoop"]

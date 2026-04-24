@@ -91,7 +91,9 @@ def build_workflow_runner(config: WorkflowRunnerConfig) -> WorkflowRunnerBackend
         from polisyos.scientist.engine.state_merge import MergeConflictPolicy
 
         if not config.temporal_server_url:
-            raise ValueError("WorkflowRunnerConfig.temporal_server_url is required for temporal backend")
+            raise ValueError(
+                "WorkflowRunnerConfig.temporal_server_url is required for temporal backend"
+            )
         runner = TemporalWorkflowRunner(
             server_url=config.temporal_server_url,
             namespace=config.temporal_namespace or "default",

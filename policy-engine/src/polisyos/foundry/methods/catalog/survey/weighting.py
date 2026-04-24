@@ -1,7 +1,9 @@
 """Public survey weighting module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -20,7 +22,7 @@ from polisyos.foundry.methods.base import (
 )
 from polisyos.ir.analytics.survey_raking import SurveyRakingDiagnosticReport
 
-from ._raking_core import run_raking_ipf, run_raking_with_fallbacks
+from ._raking_core import run_raking_with_fallbacks
 
 
 def _result_slot() -> frozenset[SlotSpec]:
@@ -58,6 +60,7 @@ def _vector(state: Mapping[str, Any], key: str) -> np.ndarray:
 )
 class HorvitzThompsonEstimator:
     """Estimate weighted totals or means with Horvitz-Thompson weights."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -124,6 +127,7 @@ class HorvitzThompsonEstimator:
 )
 class RakingEstimator:
     """Calibrate survey weights to external margins via iterative proportional fitting."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -133,9 +137,18 @@ class RakingEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("sample_weights", SlotType.VECTOR, Unit("weight", "mass"), shape=("n_obs",)),
-                SlotSpec("category_matrix", SlotType.MATRIX, Unit("indicator", "flag"), shape=("n_obs", "n_margins")),
-                SlotSpec("target_totals", SlotType.VECTOR, Unit("value", "amount"), shape=("n_margins",)),
+                SlotSpec(
+                    "sample_weights", SlotType.VECTOR, Unit("weight", "mass"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "category_matrix",
+                    SlotType.MATRIX,
+                    Unit("indicator", "flag"),
+                    shape=("n_obs", "n_margins"),
+                ),
+                SlotSpec(
+                    "target_totals", SlotType.VECTOR, Unit("value", "amount"), shape=("n_margins",)
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -227,7 +240,12 @@ class RakingIPFEstimator:
                     Unit("indicator", "flag"),
                     shape=("n_obs", "n_categories"),
                 ),
-                SlotSpec("target_totals", SlotType.VECTOR, Unit("value", "amount"), shape=("n_categories",)),
+                SlotSpec(
+                    "target_totals",
+                    SlotType.VECTOR,
+                    Unit("value", "amount"),
+                    shape=("n_categories",),
+                ),
             }
         ),
         output_slots=_raking_ipf_output_slots(),
@@ -288,7 +306,8 @@ class RakingIPFEstimator:
             category_matrix=state["category_matrix"],
             target_totals=state["target_totals"],
             margin_ids=state.get("margin_ids"),
-            margin_names_by_category=state.get("margin_names_by_category") or state.get("margin_names"),
+            margin_names_by_category=state.get("margin_names_by_category")
+            or state.get("margin_names"),
             category_labels=state.get("category_labels"),
             max_iterations=int(params.get("max_iterations", 100)),
             exact_tolerance=float(params.get("exact_tolerance", 1e-6)),
@@ -335,6 +354,7 @@ class RakingIPFEstimator:
 )
 class PropensityWeightingEstimator:
     """Reweight survey units from estimated response propensities."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -344,8 +364,15 @@ class PropensityWeightingEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("propensity_scores", SlotType.VECTOR, Unit("probability", "mass"), shape=("n_obs",)),
-                SlotSpec("treatment_indicator", SlotType.VECTOR, Unit("binary", "flag"), shape=("n_obs",)),
+                SlotSpec(
+                    "propensity_scores",
+                    SlotType.VECTOR,
+                    Unit("probability", "mass"),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    "treatment_indicator", SlotType.VECTOR, Unit("binary", "flag"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=_result_slot(),

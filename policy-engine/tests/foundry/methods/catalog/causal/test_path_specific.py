@@ -19,14 +19,13 @@ Coverage (17 tests):
  16.  test_natural_effect_estimator_pure_step — produces nde/nie/total_effect
  17.  test_path_specific_output_json_serializable — model_dump → JSON
 """
+
 from __future__ import annotations
 
 import json
 import math
 
 import numpy as np
-import pytest
-
 
 # ── DGP helpers ────────────────────────────────────────────────────────────────
 
@@ -59,6 +58,7 @@ def _linear_mediation_dgp(
 # ── Imports ────────────────────────────────────────────────────────────────────
 
 
+from polisyos.foundry.methods.catalog.causal.mediation import NaturalEffectEstimator
 from polisyos.foundry.methods.catalog.causal.path_specific import (
     PathSpecificEffectEstimator,
     _identify_path_specific,
@@ -66,8 +66,6 @@ from polisyos.foundry.methods.catalog.causal.path_specific import (
     _recanting_witness_check,
     _sensitivity_mediation,
 )
-from polisyos.foundry.methods.catalog.causal.mediation import NaturalEffectEstimator
-
 
 # ── Cross-fit NDE/NIE accuracy ─────────────────────────────────────────────────
 
@@ -100,8 +98,11 @@ class TestNDECrossFit:
         m_on_y = 0.4
         true_ate = direct + t_on_m * m_on_y  # = 1.0
         X, T, M, Y = _linear_mediation_dgp(
-            n=2000, direct_coef=direct, mediator_coef=m_on_y,
-            t_on_m_coef=t_on_m, rng=rng,
+            n=2000,
+            direct_coef=direct,
+            mediator_coef=m_on_y,
+            t_on_m_coef=t_on_m,
+            rng=rng,
         )
         nde, nde_se, nie, nie_se = _nde_cross_fit(Y, T, M, X, n_folds=2, rng=rng)
         total = nde + nie
@@ -114,6 +115,7 @@ class TestNDECrossFit:
             compute_eif_nde,
             compute_eif_nie,
         )
+
         rng = np.random.default_rng(99)
         X, T, M, Y = _linear_mediation_dgp(n=200, rng=rng)
         propensity = np.full(200, 0.5)
@@ -171,25 +173,23 @@ class TestIdentification:
     def test_recanting_witness_no_witness_clean_graph(self):
         """Simple T→M→Y: no recanting witness (identifiable)."""
         adjacency = {"T": ["M"], "M": ["Y"], "Y": []}
-        has_witness, witnesses = _recanting_witness_check(
-            "T", "Y", ("M",), adjacency
-        )
+        has_witness, witnesses = _recanting_witness_check("T", "Y", ("M",), adjacency)
         assert has_witness is False
         assert witnesses == []
 
     def test_recanting_witness_detects_bypass_path(self):
         """T→M→Y plus direct T→Y path triggers canonical recanting witness."""
         adjacency = {"T": ["M", "Y"], "M": ["Y"], "Y": []}
-        has_witness, witnesses = _recanting_witness_check(
-            "T", "Y", ("M",), adjacency
-        )
+        has_witness, witnesses = _recanting_witness_check("T", "Y", ("M",), adjacency)
         assert has_witness is True
         assert witnesses == ["M"]
 
     def test_identify_path_specific_no_adjacency(self):
         """Without adjacency info, always returns True."""
         result = _identify_path_specific(
-            "T", "Y", ("M",),
+            "T",
+            "Y",
+            ("M",),
             active_paths=(("T", "Y"),),
             fixed_paths=(("T", "M", "Y"),),
             adjacency=None,
@@ -200,7 +200,9 @@ class TestIdentification:
         """A bypass T→Y path alongside T→M→Y makes the PSE non-identifiable."""
         adjacency = {"T": ["M", "Y"], "M": ["Y"], "Y": []}
         result = _identify_path_specific(
-            "T", "Y", ("M",),
+            "T",
+            "Y",
+            ("M",),
             active_paths=(("T", "Y"),),
             fixed_paths=(("T", "M", "Y"),),
             adjacency=adjacency,
@@ -294,7 +296,12 @@ class TestPathSpecificTMLE:
     def test_path_specific_output_json_serializable(self):
         """Output must be JSON-serializable."""
         state = self._make_state()
-        params = {"n_folds": 2, "compute_sensitivity": True, "rho_range": [-0.5, 0.0, 0.5], "__seed__": 2}
+        params = {
+            "n_folds": 2,
+            "compute_sensitivity": True,
+            "rho_range": [-0.5, 0.0, 0.5],
+            "__seed__": 2,
+        }
         out = PathSpecificEffectEstimator.pure_step(state, params)
         # Should not raise
         json.dumps(out)
@@ -309,6 +316,7 @@ class TestRegistry:
         from polisyos.foundry.methods.catalog.causal._registry_boot import (
             register_causal_methods,
         )
+
         methods = register_causal_methods()
         names = [m.__name__ for m in methods]
         assert "PathSpecificEffectEstimator" in names
@@ -318,6 +326,7 @@ class TestRegistry:
         from polisyos.foundry.methods.catalog.causal._registry_boot import (
             register_causal_methods,
         )
+
         methods = register_causal_methods()
         names = [m.__name__ for m in methods]
         assert "NaturalEffectEstimator" in names

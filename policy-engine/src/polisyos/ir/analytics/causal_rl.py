@@ -1,4 +1,5 @@
 """Causal reinforcement-learning contracts."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -43,7 +44,7 @@ class CounterfactualPolicyOptimizationSpec(BaseModel):
     rollout_budget: int = Field(default=1, ge=1)
 
     @model_validator(mode="after")
-    def validate_spec(self) -> "CounterfactualPolicyOptimizationSpec":
+    def validate_spec(self) -> CounterfactualPolicyOptimizationSpec:
         ensure_finite_numeric(self.risk_aversion, field_name="risk_aversion")
         return self
 
@@ -59,7 +60,7 @@ class OnlineGraphLearningSpec(BaseModel):
     exploration_budget: float = Field(default=0.0, ge=0.0)
 
     @model_validator(mode="after")
-    def validate_graph_learning(self) -> "OnlineGraphLearningSpec":
+    def validate_graph_learning(self) -> OnlineGraphLearningSpec:
         ensure_finite_numeric(self.exploration_budget, field_name="exploration_budget")
         if self.update_mode is GraphUpdateMode.FROZEN:
             if self.update_interval_steps is not None or self.max_graph_edits_per_update != 0:
@@ -89,7 +90,7 @@ class CausalRLContract(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_contract(self) -> "CausalRLContract":
+    def validate_contract(self) -> CausalRLContract:
         ensure_unique_ids(self.state_variables, key_fn=lambda item: item, label="state variable")
         ensure_unique_ids(self.action_variables, key_fn=lambda item: item, label="action variable")
         ensure_unique_ids(
@@ -125,7 +126,7 @@ class CausalRLResult(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_result(self) -> "CausalRLResult":
+    def validate_result(self) -> CausalRLResult:
         for field_name in (
             "policy_value_estimate",
             "off_policy_value",

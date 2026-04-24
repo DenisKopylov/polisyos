@@ -4,10 +4,11 @@ These helpers operate on simulated trace arrays and observed target arrays
 only. Observation trust, coverage, lag, censoring, and regime discounts are
 layered on top by `calibration.measurement` and auxiliary loss components.
 """
+
 from __future__ import annotations
 
 import math
-from typing import Dict, Mapping, Tuple
+from collections.abc import Mapping
 
 import jax.numpy as jnp
 
@@ -84,7 +85,9 @@ def compute_base_loss(
     scale: float,
 ) -> jnp.ndarray:
     """Compute an unweighted per-target loss scalar from predicted vs observed arrays."""
-    return reduce_weighted_loss(pointwise_base_loss(y_pred, y_real, cfg, scale), None, epsilon=cfg.epsilon)
+    return reduce_weighted_loss(
+        pointwise_base_loss(y_pred, y_real, cfg, scale), None, epsilon=cfg.epsilon
+    )
 
 
 def loss_components(
@@ -93,15 +96,15 @@ def loss_components(
     configs: Mapping[str, TargetLossConfig],
     scales: Mapping[str, float],
     weights: Mapping[str, float] | None = None,
-) -> Tuple[jnp.ndarray, Dict[str, jnp.ndarray], Dict[str, jnp.ndarray]]:
+) -> tuple[jnp.ndarray, dict[str, jnp.ndarray], dict[str, jnp.ndarray]]:
     """Aggregate weighted calibration losses across all available targets.
 
     Returns:
         Tuple of `(total_loss, per_target_weighted_loss, per_target_base_loss)`.
     """
     total = jnp.array(0.0)
-    per_target: Dict[str, jnp.ndarray] = {}
-    per_target_base: Dict[str, jnp.ndarray] = {}
+    per_target: dict[str, jnp.ndarray] = {}
+    per_target_base: dict[str, jnp.ndarray] = {}
     for target_id, y_real in targets.items():
         if target_id not in predicted:
             continue
@@ -126,7 +129,7 @@ def unified_loss(
     configs: Mapping[str, TargetLossConfig],
     scales: Mapping[str, float],
     weights: Mapping[str, float] | None = None,
-) -> Tuple[jnp.ndarray, Dict[str, jnp.ndarray]]:
+) -> tuple[jnp.ndarray, dict[str, jnp.ndarray]]:
     """Return total loss plus per-target weighted losses for legacy callers."""
     total, per_target, _ = loss_components(predicted, targets, configs, scales, weights)
     return total, per_target

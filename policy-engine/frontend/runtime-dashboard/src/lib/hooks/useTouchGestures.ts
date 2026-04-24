@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  type RefObject,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, type RefObject } from "react";
 
 /**
  * Lightweight touch gesture detection without external dependencies.
@@ -56,10 +50,7 @@ export function useTouchGestures(
   handlers: TouchGestureHandlers,
   options?: TouchGestureOptions,
 ) {
-  const opts = useMemo(
-    () => ({ ...DEFAULT_OPTIONS, ...options }),
-    [options],
-  );
+  const opts = useMemo(() => ({ ...DEFAULT_OPTIONS, ...options }), [options]);
   const touchStartRef = useRef<{
     startTime: number;
     startX: number;

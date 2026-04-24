@@ -74,9 +74,9 @@ class GatewayLLMConfig:
         except ValueError:
             cache_maxsize = 128
         raw_fallback = os.getenv("POLISYOS_LLM_FALLBACK_URLS", "").strip()
-        fallback_urls = tuple(
-            u.strip() for u in raw_fallback.split(",") if u.strip()
-        ) if raw_fallback else ()
+        fallback_urls = (
+            tuple(u.strip() for u in raw_fallback.split(",") if u.strip()) if raw_fallback else ()
+        )
         return cls(
             base_url=base_url,
             api_key=api_key,

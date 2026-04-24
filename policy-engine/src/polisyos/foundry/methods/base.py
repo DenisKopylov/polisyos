@@ -9,6 +9,7 @@ Architecture laws enforced:
     H: Deterministic compile cache key via stable digests (not __hash__).
     I: Static vs Dynamic parameters explicitly declared.
 """
+
 from __future__ import annotations
 
 import ast
@@ -18,10 +19,11 @@ import inspect
 import json
 import os
 import re
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
 from types import MappingProxyType
-from typing import Any, Callable, ClassVar, Mapping, Protocol, TypeVar, runtime_checkable
+from typing import Any, ClassVar, Protocol, TypeVar, runtime_checkable
 
 import numpy as np
 
@@ -42,6 +44,7 @@ _SEMVER_RE = re.compile(
 # ---------------------------------------------------------------------------
 # Utility functions
 # ---------------------------------------------------------------------------
+
 
 def is_valid_semver(version: str) -> bool:
     """Return True if version is valid SemVer 2.0.0."""
@@ -74,7 +77,7 @@ def _strict_mode_enabled() -> bool:
 
 def _normalize_metadata_tags(
     namespace: str,
-    signature: "MethodSignature",
+    signature: MethodSignature,
     tags: set[str] | frozenset[str],
 ) -> frozenset[str]:
     normalized = {str(tag).strip() for tag in tags if str(tag).strip()}
@@ -83,7 +86,7 @@ def _normalize_metadata_tags(
     return frozenset(sorted(normalized))
 
 
-def _infer_affinity_tags(namespace: str, signature: "MethodSignature") -> set[str]:
+def _infer_affinity_tags(namespace: str, signature: MethodSignature) -> set[str]:
     ns = namespace.lower()
     slot_names = {slot.name for slot in signature.input_slots} | {
         slot.name for slot in signature.output_slots
@@ -110,11 +113,15 @@ def _infer_affinity_tags(namespace: str, signature: "MethodSignature") -> set[st
         "graph_causal_data",
     } & slot_names:
         inferred.add("cross-section")
-    if any(token in ns for token in ("timeseries", "time_series", "time-series")) or {
-        "time_series_data",
-        "endog",
-        "time_index",
-    } & slot_names:
+    if (
+        any(token in ns for token in ("timeseries", "time_series", "time-series"))
+        or {
+            "time_series_data",
+            "endog",
+            "time_index",
+        }
+        & slot_names
+    ):
         inferred.add("time-series")
     if "spatial" in ns or "geo" in ns:
         inferred.add("spatial")
@@ -126,16 +133,23 @@ def _infer_affinity_tags(namespace: str, signature: "MethodSignature") -> set[st
         inferred.add("optimization")
     if "structural" in ns:
         inferred.add("structural")
-    if any(token in ns for token in ("causal.discovery", "causal.prior", "causal.transport")) or {
-        "selection_diagram",
-        "scm_query_data",
-        "scm_fit_data",
-        "graph_causal_data",
-        "graph_reconciliation_data",
-        "literature_prior_build_data",
-    } & slot_names:
+    if (
+        any(token in ns for token in ("causal.discovery", "causal.prior", "causal.transport"))
+        or {
+            "selection_diagram",
+            "scm_query_data",
+            "scm_fit_data",
+            "graph_causal_data",
+            "graph_reconciliation_data",
+            "literature_prior_build_data",
+        }
+        & slot_names
+    ):
         inferred.add("structural")
-    if any(token in ns for token in ("ml", "machine_learning")) or {"covariates", "exog"} & slot_names:
+    if (
+        any(token in ns for token in ("ml", "machine_learning"))
+        or {"covariates", "exog"} & slot_names
+    ):
         inferred.add("tabular")
     if {
         "features",
@@ -160,7 +174,7 @@ def _normalize_string_tuple(values: Any) -> tuple[str, ...]:
     return tuple(dict.fromkeys(normalized))
 
 
-def _infer_data_modalities(namespace: str, signature: "MethodSignature") -> frozenset[str]:
+def _infer_data_modalities(namespace: str, signature: MethodSignature) -> frozenset[str]:
     modalities: set[str] = set()
     affinity_tags = _infer_affinity_tags(namespace, signature)
     for tag in ("panel", "cross-section", "time-series", "spatial", "network", "survey", "tabular"):
@@ -171,7 +185,7 @@ def _infer_data_modalities(namespace: str, signature: "MethodSignature") -> froz
     return frozenset(sorted(modalities))
 
 
-def _infer_task_tags(namespace: str, signature: "MethodSignature") -> set[str]:
+def _infer_task_tags(namespace: str, signature: MethodSignature) -> set[str]:
     ns = namespace.lower()
     output_slot_names = {slot.name for slot in signature.output_slots}
     inferred: set[str] = set()
@@ -201,32 +215,33 @@ def _infer_task_tags(namespace: str, signature: "MethodSignature") -> set[str]:
 # Enumerations
 # ---------------------------------------------------------------------------
 
+
 class FidelityLevel(Enum):
     """Simulation fidelity tiers supporting Law L (multi-fidelity)."""
 
-    LOW = auto()      # Heuristic / proxy
-    MEDIUM = auto()   # Statistical / aggregate
-    HIGH = auto()     # Agent-based / micro-simulation
+    LOW = auto()  # Heuristic / proxy
+    MEDIUM = auto()  # Statistical / aggregate
+    HIGH = auto()  # Agent-based / micro-simulation
 
 
 class ComplexityClass(Enum):
     """Algorithmic complexity classification for cost estimation."""
 
-    O_1 = auto()       # Constant time
-    O_LOG_N = auto()   # Logarithmic
-    O_N = auto()       # Linear in agents
-    O_N2 = auto()      # Quadratic
-    O_N3 = auto()      # Cubic
-    O_EXP = auto()     # Exponential
+    O_1 = auto()  # Constant time
+    O_LOG_N = auto()  # Logarithmic
+    O_N = auto()  # Linear in agents
+    O_N2 = auto()  # Quadratic
+    O_N3 = auto()  # Cubic
+    O_EXP = auto()  # Exponential
 
 
 class SlotType(Enum):
     """Data dimensionality classification for slots."""
 
-    SCALAR = auto()    # ()
-    VECTOR = auto()    # (n_agents,)
-    MATRIX = auto()    # Generic 2D shape
-    TENSOR = auto()    # Arbitrary shape
+    SCALAR = auto()  # ()
+    VECTOR = auto()  # (n_agents,)
+    MATRIX = auto()  # Generic 2D shape
+    TENSOR = auto()  # Arbitrary shape
 
 
 class ComputeBackend(str, Enum):
@@ -258,6 +273,7 @@ class SideEffectProfile(str, Enum):
 # ---------------------------------------------------------------------------
 # Core data types
 # ---------------------------------------------------------------------------
+
 
 @dataclass(frozen=True, slots=True)
 class Unit:
@@ -313,6 +329,7 @@ class Unit:
 # ---------------------------------------------------------------------------
 # Symbolic dimension algebra (T3.1)
 # ---------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class DimVar:
@@ -400,9 +417,7 @@ class SlotSpec:
             raise TypeError("SlotSpec.shape must be a tuple")
         for dim in self.shape:
             if dim is not None and not isinstance(dim, (int, str, DimVar)):
-                raise TypeError(
-                    "SlotSpec.shape entries must be int, str, DimVar, or None"
-                )
+                raise TypeError("SlotSpec.shape entries must be int, str, DimVar, or None")
         if self.slot_type is SlotType.SCALAR and self.shape != ():
             raise ValueError("SlotType.SCALAR requires shape=()")
         _validate_bounds("SlotSpec.bounds", self.bounds)
@@ -765,8 +780,12 @@ class MethodMetadata:
         object.__setattr__(self, "required_deps", _normalize_string_tuple(self.required_deps))
         object.__setattr__(self, "optional_deps", _normalize_string_tuple(self.optional_deps))
         object.__setattr__(self, "prerequisites", _normalize_string_tuple(self.prerequisites))
-        object.__setattr__(self, "diagnostic_checks", _normalize_string_tuple(self.diagnostic_checks))
-        if self.determinism_tier is not None and not isinstance(self.determinism_tier, DeterminismTier):
+        object.__setattr__(
+            self, "diagnostic_checks", _normalize_string_tuple(self.diagnostic_checks)
+        )
+        if self.determinism_tier is not None and not isinstance(
+            self.determinism_tier, DeterminismTier
+        ):
             raise TypeError("MethodMetadata.determinism_tier must be a DeterminismTier")
         parsed_truthfulness_tier = parse_truthfulness_tier(self.declared_truthfulness_tier)
         if self.declared_truthfulness_tier is not None and parsed_truthfulness_tier is None:
@@ -899,6 +918,7 @@ class FoundryMethod(Protocol[StateT, ParamsT]):
 # Registration decorator
 # ---------------------------------------------------------------------------
 
+
 def foundry_method(
     *,
     namespace: str,
@@ -980,9 +1000,7 @@ def foundry_method(
         else:
             existing = cls.metadata
             merged_tags = set(tags or set()) | {
-                str(tag)
-                for tag in existing.tags
-                if not str(tag).startswith("deprecated:")
+                str(tag) for tag in existing.tags if not str(tag).startswith("deprecated:")
             }
             cls.metadata = MethodMetadata(
                 description=existing.description,
@@ -1018,7 +1036,9 @@ def foundry_method(
         optional_deps = current_metadata.optional_deps or _normalize_string_tuple(
             getattr(cls, "optional_deps", ())
         )
-        determinism_tier = current_metadata.determinism_tier or getattr(cls, "determinism_tier", None)
+        determinism_tier = current_metadata.determinism_tier or getattr(
+            cls, "determinism_tier", None
+        )
         fallback_policy = current_metadata.fallback_policy
         if fallback_policy == "none":
             fallback_policy = str(getattr(cls, "fallback_policy", "none"))
@@ -1082,7 +1102,8 @@ def _beartype_enabled() -> bool:
         return False
     # Default on when beartype is installed (dev / test environments)
     try:
-        import beartype  # noqa: F401
+        import beartype
+
         return True
     except ImportError:
         return False
@@ -1115,34 +1136,38 @@ def _wrap_pure_step_with_beartype(cls: type) -> None:
 # ---------------------------------------------------------------------------
 
 
-_ALLOWED_CONTRACT_BUILTINS = MappingProxyType({
-    "abs": abs,
-    "all": all,
-    "any": any,
-    "len": len,
-    "max": max,
-    "min": min,
-    "sum": sum,
-})
-_ALLOWED_CONTRACT_NUMPY_ATTRS = frozenset({
-    "abs",
-    "all",
-    "allclose",
-    "any",
-    "array_equal",
-    "exp",
-    "isclose",
-    "isfinite",
-    "isinf",
-    "isnan",
-    "log",
-    "max",
-    "mean",
-    "min",
-    "sqrt",
-    "std",
-    "sum",
-})
+_ALLOWED_CONTRACT_BUILTINS = MappingProxyType(
+    {
+        "abs": abs,
+        "all": all,
+        "any": any,
+        "len": len,
+        "max": max,
+        "min": min,
+        "sum": sum,
+    }
+)
+_ALLOWED_CONTRACT_NUMPY_ATTRS = frozenset(
+    {
+        "abs",
+        "all",
+        "allclose",
+        "any",
+        "array_equal",
+        "exp",
+        "isclose",
+        "isfinite",
+        "isinf",
+        "isnan",
+        "log",
+        "max",
+        "mean",
+        "min",
+        "sqrt",
+        "std",
+        "sum",
+    }
+)
 _MAX_CONTRACT_EXPRESSION_LENGTH = 512
 _MAX_CONTRACT_AST_NODES = 128
 _MAX_CONTRACT_AST_DEPTH = 16
@@ -1204,7 +1229,9 @@ class _ContractExpressionValidator(ast.NodeVisitor):
         self.visit(node.operand)
 
     def visit_BinOp(self, node: ast.BinOp) -> None:
-        if not isinstance(node.op, (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.FloorDiv, ast.Mod, ast.Pow)):
+        if not isinstance(
+            node.op, (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.FloorDiv, ast.Mod, ast.Pow)
+        ):
             raise ValueError(f"Unsupported arithmetic operator in {self.expression!r}")
         self.visit(node.left)
         self.visit(node.right)
@@ -1213,7 +1240,18 @@ class _ContractExpressionValidator(ast.NodeVisitor):
         for operator in node.ops:
             if not isinstance(
                 operator,
-                (ast.Eq, ast.NotEq, ast.Lt, ast.LtE, ast.Gt, ast.GtE, ast.In, ast.NotIn, ast.Is, ast.IsNot),
+                (
+                    ast.Eq,
+                    ast.NotEq,
+                    ast.Lt,
+                    ast.LtE,
+                    ast.Gt,
+                    ast.GtE,
+                    ast.In,
+                    ast.NotIn,
+                    ast.Is,
+                    ast.IsNot,
+                ),
             ):
                 raise ValueError(f"Unsupported comparison operator in {self.expression!r}")
         self.visit(node.left)
@@ -1455,7 +1493,7 @@ def _enforce_contract_expression(
 
 def _check_contracts_pre(
     fqn: str,
-    contracts: "MethodContracts",
+    contracts: MethodContracts,
     state: Any,
     params: Any,
 ) -> None:
@@ -1481,7 +1519,7 @@ def _check_contracts_pre(
 
 def _check_contracts_post(
     fqn: str,
-    contracts: "MethodContracts",
+    contracts: MethodContracts,
     state: Any,
     params: Any,
     result: Any,
@@ -1510,6 +1548,7 @@ def _check_contracts_post(
 # ---------------------------------------------------------------------------
 # Utility functions
 # ---------------------------------------------------------------------------
+
 
 def check_protocol_compliance(cls: type) -> list[str]:
     """Validate that a class correctly implements FoundryMethod protocol."""
@@ -1606,6 +1645,7 @@ class FoundryMethodBase:
 # ---------------------------------------------------------------------------
 # Stable digest helpers (Law H)
 # ---------------------------------------------------------------------------
+
 
 def _stable_float(value: float) -> str:
     return float(value).hex()

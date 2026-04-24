@@ -8,7 +8,6 @@ from tempfile import NamedTemporaryFile
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -18,9 +17,7 @@ from polisyos.runtime.replay import (
 )
 from polisyos.scientist.autotune.models import default_search_registry_root
 
-REPLAY_VERIFICATION_REPORT_SCHEMA_NAME = (
-    "polisyos.scientist.replay.ReplayVerificationReport"
-)
+REPLAY_VERIFICATION_REPORT_SCHEMA_NAME = "polisyos.scientist.replay.ReplayVerificationReport"
 
 
 class ReplayVerificationReport(BaseModel):

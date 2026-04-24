@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Run the local runtime-dashboard integration stack and smoke profile."""
+
 from __future__ import annotations
 
 import argparse
@@ -7,12 +8,13 @@ import os
 import signal
 import subprocess
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from tools._lib.imports import repo_root_from
-from typing import Mapping
 from urllib.error import URLError
 from urllib.request import urlopen
+
+from tools._lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 DASHBOARD_ROOT = REPO_ROOT / "frontend" / "runtime-dashboard"

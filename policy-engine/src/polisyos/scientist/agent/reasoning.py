@@ -391,11 +391,7 @@ class LATSAgentSearch:
             current.visits += 1
             current.value_sum += score
             current.score = max(current.score, score)
-            current = (
-                None
-                if current.parent_id is None
-                else node_index.get(current.parent_id)
-            )
+            current = None if current.parent_id is None else node_index.get(current.parent_id)
 
 
 def _action_path(node_id: str | None, nodes: Sequence[ReasoningNode]) -> list[str]:

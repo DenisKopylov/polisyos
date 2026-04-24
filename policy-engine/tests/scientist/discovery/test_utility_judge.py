@@ -14,12 +14,12 @@ from polisyos.ir.analytics.causal_graph import (
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.transportability import (
+    SelectionDiagram,
     SNode,
     SNodeOrigin,
-    SelectionDiagram,
-    TransportMode,
     TransportabilityResult,
     TransportabilityStatus,
+    TransportMode,
 )
 from polisyos.scientist.discovery import utility_judge as utility_module
 from polisyos.scientist.discovery.schema import (
@@ -201,7 +201,12 @@ def test_transport_context_changes_ranking_only_when_present(monkeypatch) -> Non
         )
         return TransportabilityResult(
             status=status,
-            transport_mode=TransportMode.DIRECT if status is TransportabilityStatus.IDENTIFIED else TransportMode.NONE,
+            transport_mode=TransportMode.DIRECT
+            if status is TransportabilityStatus.IDENTIFIED
+            else TransportMode.NONE,
+            unsupported_reason="test_transport_not_identified"
+            if status is TransportabilityStatus.UNSUPPORTED
+            else None,
         )
 
     monkeypatch.setattr(utility_module, "solve_transportability", fake_transport)
@@ -221,7 +226,10 @@ def test_transport_context_changes_ranking_only_when_present(monkeypatch) -> Non
     assert [score.hypothesis_id for score in baseline.scores] == ["worse_first", "better_second"]
     assert all(score.transportability_score is None for score in baseline.scores)
     assert baseline.metadata["channel_coverage"]["transportability"] is False
-    assert [score.hypothesis_id for score in with_transport.scores] == ["better_second", "worse_first"]
+    assert [score.hypothesis_id for score in with_transport.scores] == [
+        "better_second",
+        "worse_first",
+    ]
     assert with_transport.scores[0].transportability_score == 1.0
     assert with_transport.scores[1].transportability_score == 0.0
     assert with_transport.metadata["channel_coverage"]["transportability"] is True

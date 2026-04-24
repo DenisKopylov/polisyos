@@ -1,4 +1,5 @@
 """Public contracts world bank contracts module API."""
+
 from __future__ import annotations
 
 from polisyos.fabric.connectors.contracts import (
@@ -115,7 +116,7 @@ WDI_GENERIC_CONTRACT = ConnectorSchemaContract(
 WORLD_BANK_CONTRACTS = (WDI_GENERIC_CONTRACT,)
 
 __all__ = [
-    "WDI_GENERIC_SCHEMA",
     "WDI_GENERIC_CONTRACT",
+    "WDI_GENERIC_SCHEMA",
     "WORLD_BANK_CONTRACTS",
 ]

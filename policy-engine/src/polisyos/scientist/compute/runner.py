@@ -1,4 +1,5 @@
 """Public compute runner module API."""
+
 from __future__ import annotations
 
 import json
@@ -80,6 +81,7 @@ def _default_method_dispatcher() -> MethodDispatcher:
 @dataclass
 class ExecutionResult:
     """Execution result data model."""
+
     exec_artifacts: Any
     applied: Any
     final_state: Any
@@ -88,6 +90,7 @@ class ExecutionResult:
 @dataclass(frozen=True)
 class MethodExecutionArtifacts:
     """Method execution artifacts public type."""
+
     result_ref: ArtifactRef
     evidence_ref: ArtifactRef
 
@@ -108,11 +111,7 @@ def resolve_method_runtime_providers(
 ) -> MethodRuntimeProviders:
     """Resolve the effective method runtime providers for an execution path."""
 
-    if (
-        providers is not None
-        and registry_provider is None
-        and dispatcher_provider is None
-    ):
+    if providers is not None and registry_provider is None and dispatcher_provider is None:
         return providers
     return MethodRuntimeProviders(
         registry_provider=(
@@ -344,9 +343,7 @@ def resolve_backend(
     """Resolve backend."""
     backend_kind = (kind or os.getenv("POLISYOS_RUNNER_BACKEND") or "local").lower()
     if backend_kind != "local":
-        raise ValueError(
-            f"Unsupported runner backend '{backend_kind}'. Only 'local' is available."
-        )
+        raise ValueError(f"Unsupported runner backend '{backend_kind}'. Only 'local' is available.")
     return LocalBackend(store_factory=store_factory)
 
 
@@ -754,9 +751,13 @@ def run_job(
             store_factory=store_factory,
         )
 
-    legacy_backend = backend if backend is not None else resolve_backend(
-        None,
-        store_factory=store_factory,
+    legacy_backend = (
+        backend
+        if backend is not None
+        else resolve_backend(
+            None,
+            store_factory=store_factory,
+        )
     )
     return _run_legacy_job(
         spec,

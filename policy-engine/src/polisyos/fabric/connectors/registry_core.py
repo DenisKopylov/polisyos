@@ -1,8 +1,29 @@
 """Decomposed module wrapper; implementation moved to `registry_core_parts`."""
 
-from .registry_core_parts import *  # noqa: F401,F403
+from ._registry_errors import (
+    AmbiguousConnectorError,
+    ConnectorAlreadyRegisteredError,
+    ConnectorConfigError,
+    ConnectorNotFoundError,
+    RegistryError,
+)
+from .registry_core_parts import (
+    ConnectorEntry,
+    ConnectorPreferences,
+    ConnectorRegistry,
+    RegistryMetrics,
+    RegistryStats,
+)
 
-try:
-    from .registry_core_parts import __all__ as __all__
-except ImportError:
-    pass
+__all__ = [
+    "AmbiguousConnectorError",
+    "ConnectorAlreadyRegisteredError",
+    "ConnectorConfigError",
+    "ConnectorEntry",
+    "ConnectorNotFoundError",
+    "ConnectorPreferences",
+    "ConnectorRegistry",
+    "RegistryError",
+    "RegistryMetrics",
+    "RegistryStats",
+]

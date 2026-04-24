@@ -18,7 +18,5 @@ def test_legacy_cutover_lint_passes() -> None:
         cwd=repo_root,
     )
     assert result.returncode == 0, (
-        "lint_legacy_cutover failed.\n"
-        f"stdout:\n{result.stdout}\n"
-        f"stderr:\n{result.stderr}\n"
+        f"lint_legacy_cutover failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}\n"
     )

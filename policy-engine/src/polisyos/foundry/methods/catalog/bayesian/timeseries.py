@@ -1,7 +1,9 @@
 """Estimate Bayesian autoregressive time-series models with posterior forecasts."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -66,6 +68,7 @@ def _output_slots() -> frozenset[SlotSpec]:
 )
 class BayesianAutoregressionEstimator:
     """Estimate an AR process with Bayesian shrinkage and forecast uncertainty; avoid nonstationary series unless preprocessed."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)
@@ -137,14 +140,21 @@ class BayesianAutoregressionEstimator:
         credible_mass = min(max(float(params.get("credible_mass", 0.9)), 0.5), 0.99)
         proposal_scale = max(1e-4, float(params.get("proposal_scale", 0.04)))
 
-        x = np.column_stack([series[n_lags - lag - 1: -(lag + 1) if lag + 1 > 0 else None] for lag in range(n_lags)])
+        x = np.column_stack(
+            [
+                series[n_lags - lag - 1 : -(lag + 1) if lag + 1 > 0 else None]
+                for lag in range(n_lags)
+            ]
+        )
         y = series[n_lags:]
         design = np.column_stack([np.ones(x.shape[0]), x])
         rng = np.random.default_rng(int(params.get("__seed__", 0)))
         ols_coef = np.linalg.pinv(design) @ y
         resid = y - design @ ols_coef
         sigma0 = max(float(np.std(resid, ddof=max(design.shape[1], 1))), 0.1)
-        initial = np.concatenate([np.asarray(ols_coef, dtype=float), np.array([np.log(sigma0)], dtype=float)])
+        initial = np.concatenate(
+            [np.asarray(ols_coef, dtype=float), np.array([np.log(sigma0)], dtype=float)]
+        )
 
         def log_density(theta: np.ndarray) -> float:
             beta = theta[:-1]
@@ -152,7 +162,9 @@ class BayesianAutoregressionEstimator:
             sigma = float(np.exp(log_sigma))
             mean = design @ beta
             residual = y - mean
-            log_likelihood = -0.5 * np.sum((residual / sigma) ** 2 + 2.0 * log_sigma + np.log(2.0 * np.pi))
+            log_likelihood = -0.5 * np.sum(
+                (residual / sigma) ** 2 + 2.0 * log_sigma + np.log(2.0 * np.pi)
+            )
             log_prior_beta = -0.5 * np.sum((beta / prior_scale) ** 2)
             log_prior_scale = -0.5 * (log_sigma / prior_scale) ** 2
             return float(log_likelihood + log_prior_beta + log_prior_scale)
@@ -200,7 +212,10 @@ class BayesianAutoregressionEstimator:
             target=y,
             coefficients={
                 "intercept": posterior_means.get("intercept", 0.0),
-                **{f"phi_{idx + 1}": posterior_means.get(f"phi_{idx}", 0.0) for idx in range(n_lags)},
+                **{
+                    f"phi_{idx + 1}": posterior_means.get(f"phi_{idx}", 0.0)
+                    for idx in range(n_lags)
+                },
             },
             model_info={"library": "numpy", "estimator": "BayesianAutoregressionMCMC"},
             metadata={"n_lags": n_lags, "num_samples": num_samples},

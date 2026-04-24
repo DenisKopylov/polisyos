@@ -118,7 +118,9 @@ def test_cli_run_accepts_publish_bundle_flags(monkeypatch, tmp_path) -> None:
     assert called["publish_require_embeddings"] is False
 
 
-def test_cli_run_accepts_jurisdiction_retry_and_amendment_quality_flags(monkeypatch, tmp_path) -> None:
+def test_cli_run_accepts_jurisdiction_retry_and_amendment_quality_flags(
+    monkeypatch, tmp_path
+) -> None:
     called: dict[str, object] = {}
 
     def _fake_run(args):  # type: ignore[no-untyped-def]
@@ -127,8 +129,12 @@ def test_cli_run_accepts_jurisdiction_retry_and_amendment_quality_flags(monkeypa
         called["spo_timeout_retry_enabled"] = args.spo_timeout_retry_enabled
         called["spo_timeout_retry_batch_size"] = args.spo_timeout_retry_batch_size
         called["pattern_feedback_enabled"] = args.pattern_feedback_enabled
-        called["quality_min_amendment_extraction_coverage_pct"] = args.quality_min_amendment_extraction_coverage_pct
-        called["quality_min_amendment_target_resolution_pct"] = args.quality_min_amendment_target_resolution_pct
+        called["quality_min_amendment_extraction_coverage_pct"] = (
+            args.quality_min_amendment_extraction_coverage_pct
+        )
+        called["quality_min_amendment_target_resolution_pct"] = (
+            args.quality_min_amendment_target_resolution_pct
+        )
 
     monkeypatch.setattr(cli, "_cmd_run", _fake_run)
     monkeypatch.setattr(

@@ -1,4 +1,5 @@
 """Dynamic panel template."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -6,7 +7,11 @@ from typing import Any
 import numpy as np
 
 from polisyos.synthetic_world.models import SyntheticWorldDGP
-from polisyos.synthetic_world.operators import apply_entity_sampling, apply_measurement_error, apply_missingness
+from polisyos.synthetic_world.operators import (
+    apply_entity_sampling,
+    apply_measurement_error,
+    apply_missingness,
+)
 from polisyos.synthetic_world.targets import (
     register_distributional_targets,
     register_dynamic_causal_targets,
@@ -14,8 +19,8 @@ from polisyos.synthetic_world.targets import (
     register_latent_state_targets,
     register_panel_econometrics_targets,
     register_prior_targets,
-    register_regression_targets,
     register_reference_posterior_targets,
+    register_regression_targets,
     register_survey_targets,
 )
 
@@ -44,20 +49,34 @@ def materialize_panel_dynamic_world(spec: SyntheticWorldDGP) -> MaterializedWorl
     for period in range(n_periods):
         lag = state[:, period - 1] if period > 0 else np.zeros(n_units, dtype=float)
         base_logit = -0.1 + 0.45 * lag + 0.25 * features[:, 0] + spec.confounding_strength * alpha
-        instrument_prob = 1.0 / (1.0 + np.exp(-np.clip(0.15 + 0.2 * features[:, 0] - 0.1 * lag, -30.0, 30.0)))
+        instrument_prob = 1.0 / (
+            1.0 + np.exp(-np.clip(0.15 + 0.2 * features[:, 0] - 0.1 * lag, -30.0, 30.0))
+        )
         instrument[:, period] = rng.binomial(1, instrument_prob, size=n_units).astype(int)
         baseline_propensity = 1.0 / (1.0 + np.exp(-np.clip(base_logit, -30.0, 30.0)))
         propensity[:, period] = 1.0 / (
             1.0
-            + np.exp(-np.clip(base_logit + spec.intervention.instrument_strength * instrument[:, period], -30.0, 30.0))
+            + np.exp(
+                -np.clip(
+                    base_logit + spec.intervention.instrument_strength * instrument[:, period],
+                    -30.0,
+                    30.0,
+                )
+            )
         )
         complier_gap[:, period] = (
-            1.0 / (1.0 + np.exp(-np.clip(base_logit + spec.intervention.instrument_strength, -30.0, 30.0)))
+            1.0
+            / (
+                1.0
+                + np.exp(-np.clip(base_logit + spec.intervention.instrument_strength, -30.0, 30.0))
+            )
             - baseline_propensity
         )
         treatment[:, period] = rng.binomial(1, propensity[:, period], size=n_units).astype(int)
         innovation = rng.normal(scale=spec.noise_scale, size=n_units)
-        structural_mean = spec.autoregressive_scale * lag + features @ beta + alpha + time_effect[period]
+        structural_mean = (
+            spec.autoregressive_scale * lag + features @ beta + alpha + time_effect[period]
+        )
         state[:, period] = structural_mean + innovation
         outcome[:, period] = (
             state[:, period]
@@ -84,11 +103,15 @@ def materialize_panel_dynamic_world(spec: SyntheticWorldDGP) -> MaterializedWorl
         "treatment_effect": np.repeat(treatment_effect[sampled_index], n_periods),
         "outcome": outcome[sampled_index].reshape(-1),
         "treatment": treatment[sampled_index].reshape(-1),
-        "inclusion_probability": np.repeat(sampling.inclusion_probability[sampled_index], n_periods),
+        "inclusion_probability": np.repeat(
+            sampling.inclusion_probability[sampled_index], n_periods
+        ),
         "base_weight": np.repeat(sampling.base_weight[sampled_index], n_periods),
     }
     for feature_idx in range(n_features):
-        latent_table[f"feature_{feature_idx}"] = np.repeat(features[sampled_index, feature_idx], n_periods)
+        latent_table[f"feature_{feature_idx}"] = np.repeat(
+            features[sampled_index, feature_idx], n_periods
+        )
 
     observed_table = {
         name: values
@@ -123,7 +146,9 @@ def materialize_panel_dynamic_world(spec: SyntheticWorldDGP) -> MaterializedWorl
         mean = last_state.copy()
         for _ in range(horizon):
             mean = spec.autoregressive_scale * mean + drift
-        variance = spec.noise_scale**2 * sum(spec.autoregressive_scale ** (2 * lag) for lag in range(horizon))
+        variance = spec.noise_scale**2 * sum(
+            spec.autoregressive_scale ** (2 * lag) for lag in range(horizon)
+        )
         radius = 1.645 * np.sqrt(variance)
         forecast_means[horizon] = mean
         forecast_intervals[horizon] = (mean - radius, mean + radius)
@@ -133,13 +158,17 @@ def materialize_panel_dynamic_world(spec: SyntheticWorldDGP) -> MaterializedWorl
     if not np.any(complier_mask):
         complier_mask = np.ones(sampled_index.shape[0], dtype=bool)
     irf_horizons = np.arange(1, 5, dtype=int)
-    irf = float(np.mean(treatment_effect[sampled_index])) * (spec.autoregressive_scale ** (irf_horizons - 1))
+    irf = float(np.mean(treatment_effect[sampled_index])) * (
+        spec.autoregressive_scale ** (irf_horizons - 1)
+    )
     truth_registry.update(
         register_dynamic_causal_targets(
             treatment_effect=treatment_effect[sampled_index],
             unit_ids=sampled_index,
             regime_value=float(np.mean(state[sampled_index, -1] + treatment_effect[sampled_index])),
-            path_treated=np.mean(state[sampled_index] + treatment_effect[sampled_index, None], axis=0),
+            path_treated=np.mean(
+                state[sampled_index] + treatment_effect[sampled_index, None], axis=0
+            ),
             path_untreated=np.mean(state[sampled_index], axis=0),
             horizon_ids=np.arange(n_periods, dtype=int),
         )
@@ -194,7 +223,9 @@ def materialize_panel_dynamic_world(spec: SyntheticWorldDGP) -> MaterializedWorl
             prior_mean=np.zeros(3, dtype=float),
             prior_covariance=np.diag(np.array([0.25, 1.0, 1.0], dtype=float)),
             predictive_mean=np.zeros(sampled_index.shape[0], dtype=float),
-            predictive_std=np.full(sampled_index.shape[0], np.sqrt(1.0 + spec.noise_scale**2), dtype=float),
+            predictive_std=np.full(
+                sampled_index.shape[0], np.sqrt(1.0 + spec.noise_scale**2), dtype=float
+            ),
             coord_name="unit_id",
             entity_ids=sampled_index,
         )
@@ -203,15 +234,25 @@ def materialize_panel_dynamic_world(spec: SyntheticWorldDGP) -> MaterializedWorl
         register_reference_posterior_targets(
             parameter_names=["rho", "treatment_effect", "instrument_strength"],
             point_estimates=np.array(
-                [spec.autoregressive_scale, float(np.mean(treatment_effect[sampled_index])), spec.intervention.instrument_strength],
+                [
+                    spec.autoregressive_scale,
+                    float(np.mean(treatment_effect[sampled_index])),
+                    spec.intervention.instrument_strength,
+                ],
                 dtype=float,
             ),
-            covariance=np.diag(np.array([0.02, spec.noise_scale**2 / max(sampled_index.shape[0], 1), 0.03], dtype=float)),
+            covariance=np.diag(
+                np.array(
+                    [0.02, spec.noise_scale**2 / max(sampled_index.shape[0], 1), 0.03], dtype=float
+                )
+            ),
             predictive_mean=forecast_means[1],
             predictive_std=(forecast_intervals[1][1] - forecast_intervals[1][0]) / (2.0 * 1.645),
             coord_name="unit_id",
             entity_ids=sampled_index,
-            log_evidence=float(-0.5 * sampled_index.shape[0] * np.log(2.0 * np.pi * spec.noise_scale**2)),
+            log_evidence=float(
+                -0.5 * sampled_index.shape[0] * np.log(2.0 * np.pi * spec.noise_scale**2)
+            ),
         )
     )
     truth_registry.update(

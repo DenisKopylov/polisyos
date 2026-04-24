@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
-from typing import Any, Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
 
 ProxySource = Literal["meta_analysis", "seed_table", "skg_correlation"]
 
@@ -152,9 +154,7 @@ def resolve_proxy(
 
     composite_conf: float | None = None
     if len(candidates) >= 2:
-        composite_conf = compose_confidence_chain(
-            [c.effective_confidence for c in candidates]
-        )
+        composite_conf = compose_confidence_chain([c.effective_confidence for c in candidates])
 
     return ProxyChain(
         target_variable=target_var,
@@ -406,8 +406,7 @@ def validate_proxy(
         if target in proxy_neighbors:
             requires_expert = True
             violations.append(
-                f"proxy '{proxy}' has direct edge to outcome '{outcome}'; "
-                "expert review recommended"
+                f"proxy '{proxy}' has direct edge to outcome '{outcome}'; expert review recommended"
             )
         else:
             violations.append(
@@ -433,9 +432,7 @@ def validate_proxy(
     # 4. Completeness: correlation above invertibility threshold
     completeness = True
     if correlation_matrix is not None:
-        corr = correlation_matrix.get((proxy, target)) or correlation_matrix.get(
-            (target, proxy)
-        )
+        corr = correlation_matrix.get((proxy, target)) or correlation_matrix.get((target, proxy))
         if corr is not None:
             completeness = abs(corr) > invertibility_threshold
             if not completeness:
@@ -480,8 +477,8 @@ def _bfs_path_exists(adjacency: dict[str, set[str]], start: str, goal: str) -> b
 
 
 __all__ = [
-    "DatasetRegistryLike",
     "MAX_SAFE_CHAIN_LENGTH",
+    "DatasetRegistryLike",
     "ProxyCandidate",
     "ProxyChain",
     "ProxyValidityChecklist",

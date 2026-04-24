@@ -1,11 +1,11 @@
 """Tests for Dynamic Treatment Regime estimators: Q-learning, A-learning, OWL, DR-DTR."""
+
 from __future__ import annotations
 
 import numpy as np
 import pytest
 
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog.causal.dtr import (
     ALearningDTR,
     DoublyRobustDTR,
@@ -13,10 +13,10 @@ from polisyos.foundry.methods.catalog.causal.dtr import (
     QLearningDTR,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
+from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics.causal import EstimationStatus
 from polisyos.ir.analytics.dynamic_regime import DTRResult
-
 
 # ---------------------------------------------------------------------------
 # Shared DGP
@@ -112,9 +112,7 @@ class TestQLearningDTR:
 
     def test_registered_under_correct_fqn(self):
         ensure_causal_methods_registered()
-        method_cls = MethodRegistry.get_instance().get(
-            "causal.dynamic.q_learning.q_learning@1.0.0"
-        )
+        method_cls = MethodRegistry.get_instance().get("causal.dynamic.q_learning.q_learning@1.0.0")
         assert method_cls is not None
         assert method_cls is QLearningDTR
 
@@ -160,9 +158,7 @@ class TestALearningDTR:
 
     def test_registered_under_correct_fqn(self):
         ensure_causal_methods_registered()
-        method_cls = MethodRegistry.get_instance().get(
-            "causal.dynamic.a_learning.a_learning@1.0.0"
-        )
+        method_cls = MethodRegistry.get_instance().get("causal.dynamic.a_learning.a_learning@1.0.0")
         assert method_cls is not None
         assert method_cls is ALearningDTR
 
@@ -199,9 +195,7 @@ class TestOutcomeWeightedLearning:
 
     def test_registered_under_correct_fqn(self):
         ensure_causal_methods_registered()
-        method_cls = MethodRegistry.get_instance().get(
-            "causal.dynamic.owl.owl@1.0.0"
-        )
+        method_cls = MethodRegistry.get_instance().get("causal.dynamic.owl.owl@1.0.0")
         assert method_cls is not None
         assert method_cls is OutcomeWeightedLearning
 
@@ -245,9 +239,7 @@ class TestDoublyRobustDTR:
 
     def test_registered_under_correct_fqn(self):
         ensure_causal_methods_registered()
-        method_cls = MethodRegistry.get_instance().get(
-            "causal.dynamic.dr_dtr.dr_dtr@1.0.0"
-        )
+        method_cls = MethodRegistry.get_instance().get("causal.dynamic.dr_dtr.dr_dtr@1.0.0")
         assert method_cls is not None
         assert method_cls is DoublyRobustDTR
 

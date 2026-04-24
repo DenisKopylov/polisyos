@@ -1,7 +1,6 @@
 """Validate normative arbitration results and dissent/hard-constraint outcomes."""
-from __future__ import annotations
 
-from typing import List
+from __future__ import annotations
 
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
@@ -30,6 +29,7 @@ class NormativeArbitrationPass(ValidatorPass):
     models can elevate rights/hard-constraint violations to blockers, and
     partial models, dissent, or proposal rejection remain warnings.
     """
+
     @property
     def pass_id(self) -> str:
         return "normative_arbitration"
@@ -38,7 +38,7 @@ class NormativeArbitrationPass(ValidatorPass):
     def estimated_cost_ms(self) -> int:
         return 20
 
-    def validate(self, ctx: PassContext) -> List[ComplianceIssue]:
+    def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
         if self.pass_id not in ctx.profile.pass_ids:
             return []
 
@@ -54,7 +54,7 @@ class NormativeArbitrationPass(ValidatorPass):
                     severity=IssueSeverity.WARNING,
                     code="NORMATIVE_RESULT_MISSING",
                     suggestion="Run normative arbitration before governance verdicting.",
-                )
+                ),
             ]
 
         issues: list[ComplianceIssue] = list(result_resolution.issues)
@@ -156,12 +156,8 @@ class NormativeArbitrationPass(ValidatorPass):
             load_model=load_normative_arbitration_result,
             severity=IssueSeverity.WARNING,
             code="NORMATIVE_RESULT_INVALID",
-            message=(
-                "Normative arbitration result could not be validated or loaded."
-            ),
-            suggestion=(
-                "Rebuild normative arbitration outputs before governance verdicting."
-            ),
+            message=("Normative arbitration result could not be validated or loaded."),
+            suggestion=("Rebuild normative arbitration outputs before governance verdicting."),
             log=logger,
         )
 

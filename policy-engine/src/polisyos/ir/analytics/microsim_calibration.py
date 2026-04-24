@@ -1,4 +1,5 @@
 """Typed calibration-gate reports for Phase 1 microsimulation workflows."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal
@@ -108,7 +109,9 @@ def report_from_target_compatibility(
         compatibility_status=status,
         reason_code=reason_code,
         exact_feasible=bool(getattr(compatibility, "exact_feasible", False)),
-        distance_to_feasibility=float(getattr(compatibility, "distance_to_feasibility", 0.0) or 0.0),
+        distance_to_feasibility=float(
+            getattr(compatibility, "distance_to_feasibility", 0.0) or 0.0
+        ),
         normalized_distance=float(getattr(compatibility, "normalized_distance", 0.0) or 0.0),
         jacobian_rank=getattr(compatibility, "jacobian_rank", None),
         condition_number=getattr(compatibility, "condition_number", None),
@@ -120,13 +123,13 @@ def report_from_target_compatibility(
 
 
 def persist_microsim_calibration_report(
-    store: "ArtifactStore",
+    store: ArtifactStore,
     report: MicrosimCalibrationReport,
     *,
-    inputs: list["InputRef"] | None = None,
+    inputs: list[InputRef] | None = None,
     schema_name: str = "ir.microsim_calibration_report",
     schema_version: str = "1.0",
-) -> "MicrosimCalibrationReportRef":
+) -> MicrosimCalibrationReportRef:
     """Persist a calibration gate report and return its typed ref."""
 
     from polisyos.ir.artifacts.io import put_json_artifact
@@ -146,8 +149,8 @@ def persist_microsim_calibration_report(
 
 
 def load_microsim_calibration_report(
-    store: "ArtifactStore",
-    ref: "MicrosimCalibrationReportRef",
+    store: ArtifactStore,
+    ref: MicrosimCalibrationReportRef,
 ) -> MicrosimCalibrationReport:
     """Load a persisted calibration gate report."""
 

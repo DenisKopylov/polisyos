@@ -25,16 +25,16 @@ IR-подсистеме.
 
 ## Public entrypoints
 
-| Entrypoint | Use when | Defined in |
-|---|---|---|
-| `polisyos.ir.load_policy()` | Нужно загрузить canonical policy payload из `dict` / JSON / YAML / bytes | [`loaders.py`](./loaders.py) |
-| `polisyos.ir.ProblemFrame`, `PolicySpec`, `ModelSpec` | Нужны базовые Trinity contracts с root import path | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.get_ir_schema_catalog()`, `list_ir_types()`, `get_ir_type()` | Нужен reflection/catalog API для local discovery и generated docs | [`schema_catalog.py`](./schema_catalog.py) |
-| `polisyos.ir.ObservationRecord`, `ObservationPanel` | Нужен базовый observation surface для record/panel payloads | [`observation/contracts.py`](./observation/contracts.py) |
-| `polisyos.ir.CausalReadinessBundle`, `CausalExecutionBundle` | Нужны readiness/execution bundles для downstream foundry/scientist execution | [`observation`](./observation/README.md) |
-| `polisyos.ir.CausalEffectReport`, `TransportabilityResult`, `HTEResult` | Нужны canonical analytics result models | [`analytics`](./analytics/README.md) |
-| `polisyos.ir.trinity.TrinityBundle` | Нужен сам canonical Trinity container | [`trinity/__init__.py`](./trinity/__init__.py) |
-| `polisyos.ir.linker.link_trinity()` | Нужно связать Trinity payload с registry surface до compile/runtime | [`linker/README.md`](./linker/README.md) |
+| Entrypoint                                                                | Use when                                                                     | Defined in                                               |
+| ------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `polisyos.ir.load_policy()`                                               | Нужно загрузить canonical policy payload из `dict` / JSON / YAML / bytes     | [`loaders.py`](./loaders.py)                             |
+| `polisyos.ir.ProblemFrame`, `PolicySpec`, `ModelSpec`                     | Нужны базовые Trinity contracts с root import path                           | [`__init__.py`](./__init__.py)                           |
+| `polisyos.ir.get_ir_schema_catalog()`, `list_ir_types()`, `get_ir_type()` | Нужен reflection/catalog API для local discovery и generated docs            | [`schema_catalog.py`](./schema_catalog.py)               |
+| `polisyos.ir.ObservationRecord`, `ObservationPanel`                       | Нужен базовый observation surface для record/panel payloads                  | [`observation/contracts.py`](./observation/contracts.py) |
+| `polisyos.ir.CausalReadinessBundle`, `CausalExecutionBundle`              | Нужны readiness/execution bundles для downstream foundry/scientist execution | [`observation`](./observation/README.md)                 |
+| `polisyos.ir.CausalEffectReport`, `TransportabilityResult`, `HTEResult`   | Нужны canonical analytics result models                                      | [`analytics`](./analytics/README.md)                     |
+| `polisyos.ir.trinity.TrinityBundle`                                       | Нужен сам canonical Trinity container                                        | [`trinity/__init__.py`](./trinity/__init__.py)           |
+| `polisyos.ir.linker.link_trinity()`                                       | Нужно связать Trinity payload с registry surface до compile/runtime          | [`linker/README.md`](./linker/README.md)                 |
 
 ## Depends on / depended on by
 

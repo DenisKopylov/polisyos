@@ -46,7 +46,9 @@ def test_prioritize_rows_for_sampling_injects_curated_who_health_indicators(tmp_
     ]
 
     augmented = _augment_who_rows(rows, metrics_map=metrics_map)
-    prioritized = _prioritize_rows_for_sampling(augmented, spec=spec, config=config, metrics_map=metrics_map)
+    prioritized = _prioritize_rows_for_sampling(
+        augmented, spec=spec, config=config, metrics_map=metrics_map
+    )
 
     top_codes = [
         str(item.get("IndicatorCode") or item.get("id") or "").strip().upper()

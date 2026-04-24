@@ -22,12 +22,14 @@ Example:
     wrapped = with_trace_context(task_func)
     executor.submit(wrapped)
 """
+
 from __future__ import annotations
 
 import functools
+from collections.abc import Callable
 from contextlib import contextmanager
 from contextvars import copy_context
-from typing import Any, Callable, ParamSpec, TypeVar
+from typing import Any, ParamSpec, TypeVar
 
 from opentelemetry import trace
 from opentelemetry.context import Context, attach, detach, get_current
@@ -125,6 +127,7 @@ def with_trace_context(func: Callable[P, T]) -> Callable[P, T]:
     Returns:
         Wrapped function with captured context
     """
+
     @functools.wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         bound = _bind_context_vars(_bind_trace_context(func))
@@ -140,6 +143,7 @@ def with_context_vars(func: Callable[P, T]) -> Callable[P, T]:
     The wrapper itself is safe to reuse across independent requests because
     the snapshot is taken on each invocation instead of decoration time.
     """
+
     @functools.wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         bound = _bind_context_vars(func)
@@ -183,7 +187,7 @@ class TracedExecutorWrapper:
         wrapped = _bind_context_vars(_bind_trace_context(fn))
         return self._executor.map(wrapped, *iterables, **kwargs)
 
-    def __enter__(self) -> "TracedExecutorWrapper":
+    def __enter__(self) -> TracedExecutorWrapper:
         """Enter the wrapped executor context and return the tracing wrapper."""
         self._executor.__enter__()
         return self

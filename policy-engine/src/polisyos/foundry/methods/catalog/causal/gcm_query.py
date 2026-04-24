@@ -1,4 +1,5 @@
 """Public causal gcm query module API."""
+
 from __future__ import annotations
 
 import math
@@ -80,7 +81,7 @@ def _descendants_of_treatment(
 
 def _topological_order(scm_spec: StructuralCausalModelSpec) -> list[str]:
     nodes = list(scm_spec.graph.nodes)
-    indegree: dict[str, int] = {node: 0 for node in nodes}
+    indegree: dict[str, int] = dict.fromkeys(nodes, 0)
     adjacency: dict[str, list[str]] = {node: [] for node in nodes}
 
     for edge in scm_spec.graph.edges:
@@ -127,8 +128,7 @@ def _linear_predict(
     if not isinstance(coefficients, Mapping):
         coefficients = {}
     contribution = sum(
-        float(coefficients.get(parent, 0.0)) * parent_values[parent]
-        for parent in mechanism.parents
+        float(coefficients.get(parent, 0.0)) * parent_values[parent] for parent in mechanism.parents
     )
     return intercept + contribution
 
@@ -405,9 +405,10 @@ def _abduce_noises_unified(
             mechanism = mechanisms.get(node)
             if mechanism is None:
                 pseudo_observed[node] = 0.0
-            elif mechanism.family in (MechanismFamily.LINEAR, MechanismFamily.ADDITIVE_NOISE) and all(
-                parent in pseudo_observed for parent in parents_map.get(node, [])
-            ):
+            elif mechanism.family in (
+                MechanismFamily.LINEAR,
+                MechanismFamily.ADDITIVE_NOISE,
+            ) and all(parent in pseudo_observed for parent in parents_map.get(node, [])):
                 parent_values = {p: pseudo_observed[p] for p in parents_map.get(node, [])}
                 pseudo_observed[node] = _linear_predict(mechanism, parent_values)
             elif mechanism.family is MechanismFamily.PARAMETRIC_PRIOR and all(
@@ -494,9 +495,7 @@ def _simulate_samples(
     parents_map = _parents_by_node(scm_spec)
     mechanisms = _mechanism_map(scm_spec)
     condition = (
-        dict(condition_override)
-        if condition_override is not None
-        else dict(query.condition)
+        dict(condition_override) if condition_override is not None else dict(query.condition)
     )
     descendants = _descendants_of_treatment(scm_spec, query.treatment_variable)
 
@@ -563,10 +562,7 @@ def _simulate_samples(
 
         outcome_values[index] = assignment[query.outcome_variable]
 
-    samples_by_node = {
-        node: np.asarray(values, dtype=float)
-        for node, values in by_node.items()
-    }
+    samples_by_node = {node: np.asarray(values, dtype=float) for node, values in by_node.items()}
     return outcome_values, samples_by_node
 
 
@@ -649,12 +645,7 @@ def _build_dowhy_comparison(
             intervention_override=None,
             condition_override={},
         )
-        frame = pd.DataFrame(
-            {
-                node: node_samples[node]
-                for node in scm_spec.graph.nodes
-            }
-        )
+        frame = pd.DataFrame({node: node_samples[node] for node in scm_spec.graph.nodes})
         treatment_col = query.treatment_variable
         outcome_col = query.outcome_variable
         method_name = str(params.get("dowhy_method_name", "backdoor.linear_regression"))
@@ -893,11 +884,11 @@ class GCMQuery:
 __all__ = [
     "GCMQuery",
     "_abduce_noises_unified",
+    "_effective_intervention",
+    "_mechanism_map",
+    "_parents_by_node",
+    "_percentile_ci",
+    "_sample_node_value",
     "_simulate_samples",
     "_topological_order",
-    "_parents_by_node",
-    "_mechanism_map",
-    "_sample_node_value",
-    "_effective_intervention",
-    "_percentile_ci",
 ]

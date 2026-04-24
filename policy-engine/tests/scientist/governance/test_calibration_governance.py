@@ -232,7 +232,14 @@ def test_runner_orders_global_before_family_passes(cas_store, mvp_profile) -> No
     )
 
     assert report.verdict == "approve"
-    assert recorder == ["freshness", "checkpoint", "confidence", "budget", "freshness", "confidence"]
+    assert recorder == [
+        "freshness",
+        "checkpoint",
+        "confidence",
+        "budget",
+        "freshness",
+        "confidence",
+    ]
     assert report.metadata["execution_sequence"][:6] == [
         "global:freshness",
         "global:checkpoint",
@@ -242,7 +249,9 @@ def test_runner_orders_global_before_family_passes(cas_store, mvp_profile) -> No
         "macro_state:confidence",
     ]
     abstraction = next(
-        result for result in report.adversarial_results if result.alias == "abstraction_leakage_adversarial"
+        result
+        for result in report.adversarial_results
+        if result.alias == "abstraction_leakage_adversarial"
     )
     assert abstraction.status == "not_applicable"
 
@@ -292,7 +301,9 @@ def test_procurement_strategic_gaming_failure_rejects_run(cas_store, mvp_profile
     )
 
     strategic = next(
-        result for result in report.adversarial_results if result.alias == "strategic_gaming_adversarial"
+        result
+        for result in report.adversarial_results
+        if result.alias == "strategic_gaming_adversarial"
     )
     multiplicity = next(
         result
@@ -323,7 +334,9 @@ def test_missing_required_adversarial_inputs_block_and_keep_abstraction_optional
     )
 
     strategic = next(
-        result for result in report.adversarial_results if result.alias == "strategic_gaming_adversarial"
+        result
+        for result in report.adversarial_results
+        if result.alias == "strategic_gaming_adversarial"
     )
     multiplicity = next(
         result
@@ -331,13 +344,17 @@ def test_missing_required_adversarial_inputs_block_and_keep_abstraction_optional
         if result.alias == "multiplicity_disclosure_adversarial"
     )
     abstraction = next(
-        result for result in report.adversarial_results if result.alias == "abstraction_leakage_adversarial"
+        result
+        for result in report.adversarial_results
+        if result.alias == "abstraction_leakage_adversarial"
     )
     assert report.verdict == "reject"
     assert strategic.status == "missing_inputs"
     assert multiplicity.status == "missing_inputs"
     assert abstraction.status == "not_applicable"
-    assert sum(1 for issue in report.issues if issue.code == "ADVERSARIAL_SUITE_MISSING_INPUTS") == 2
+    assert (
+        sum(1 for issue in report.issues if issue.code == "ADVERSARIAL_SUITE_MISSING_INPUTS") == 2
+    )
 
 
 def test_lesson_card_publisher_writes_registry_entry(tmp_path, cas_store, mvp_profile) -> None:
@@ -380,7 +397,9 @@ def test_active_disambiguation_integration_embeds_ranked_targets(cas_store, mvp_
 
     assert report.verdict == "approve"
     assert report.active_disambiguation_targets
-    assert any(action.action_type == "run_intervention" for action in report.active_disambiguation_actions)
+    assert any(
+        action.action_type == "run_intervention" for action in report.active_disambiguation_actions
+    )
 
 
 @pytest.mark.parametrize(

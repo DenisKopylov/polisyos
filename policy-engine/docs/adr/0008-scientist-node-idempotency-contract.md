@@ -11,20 +11,24 @@ Scientist DAG содержит дорогостоящие и нестабиль�
 ## Решение
 
 1. Добавить run-scoped idempotency key для DAG node:
+
    - `node_id` (включая версию),
    - `run_id`,
    - канонический snapshot `state_reads`,
    - `bind_params`.
 2. Реализовать CAS-backed `NodeResultCache`:
+
    - `ok` outcomes сохраняются как `scientist.node_outcome`,
    - индексная запись сохраняется как `scientist.node_cache_entry`.
 3. Интегрировать кэш в `WorkflowExecutor`:
+
    - cache hit: `NODE_CACHE_HIT`,
    - cache store: `NODE_CACHE_STORE`,
    - fail-open bypass: `NODE_CACHE_BYPASS`.
 4. Восстанавливать cache index при restart того же `run_id` через replay `NODE_CACHE_STORE` из trace JSONL.
 5. Не кэшировать outcomes со статусом `fail`.
 6. Добавить CI guards:
+
    - `tools/diagnostics/check_state_reads.py`,
    - `tools/diagnostics/check_scientist_node_version_bump.py`.
 

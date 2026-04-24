@@ -63,7 +63,11 @@ from benchmarks.harness import (  # noqa: E402
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, dataclasses_to_dict, print_preflight
+from benchmarks.reporting import (
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import BenchmarkMode, acceptance_gaps, dependency_status, resolve_mode
 from polisyos.foundry.methods.catalog.causal.ctf_calculus import (  # noqa: E402
     _build_amn_for_ast,
@@ -87,10 +91,14 @@ from polisyos.foundry.methods.catalog.causal.id_engine import (  # noqa: E402
     mz_id_algorithm,
     z_id_algorithm,
 )
-from polisyos.foundry.methods.catalog.causal.path_specific import _recanting_witness_check  # noqa: E402
+from polisyos.foundry.methods.catalog.causal.path_specific import (
+    _recanting_witness_check,  # noqa: E402
+)
 from polisyos.foundry.methods.catalog.causal.recoverability_engine import (  # noqa: E402
     RecoverabilityStatus,
     full_law_identify,
+)
+from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
     test_recoverability as recoverability_test,
 )
 from polisyos.foundry.methods.catalog.causal.sigma_calculus import (  # noqa: E402
@@ -98,7 +106,9 @@ from polisyos.foundry.methods.catalog.causal.sigma_calculus import (  # noqa: E4
     apply_sigma_rule2,
     apply_sigma_rule3,
 )
-from polisyos.foundry.methods.catalog.causal.transport_check import CheckTransportability  # noqa: E402
+from polisyos.foundry.methods.catalog.causal.transport_check import (
+    CheckTransportability,  # noqa: E402
+)
 from polisyos.ir.analytics.causal_graph import (  # noqa: E402
     CausalEdge,
     CausalGraphModel,
@@ -114,14 +124,21 @@ from polisyos.ir.analytics.estimand import (  # noqa: E402
     EstimandAST,
     NestedCounterfactualNode,
 )
-from polisyos.ir.analytics.mgraph import MissingnessKind, build_mgraph, extract_mgraph_metadata  # noqa: E402
-from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate  # noqa: E402
+from polisyos.ir.analytics.mgraph import (  # noqa: E402
+    MissingnessKind,
+    build_mgraph,
+    extract_mgraph_metadata,
+)
+from polisyos.ir.analytics.negative_certificate import (  # noqa: E402
+    BlockingType,
+    NegativeCertificate,
+)
 from polisyos.ir.analytics.transportability import (  # noqa: E402
     SNode,
     SNodeOrigin,
-    TransportMode,
     TransportabilityResult,
     TransportabilityStatus,
+    TransportMode,
     build_selection_diagram,
 )
 
@@ -192,6 +209,7 @@ def _transport_result(
 # Case-builder helpers
 # ---------------------------------------------------------------------------
 
+
 def _id_case(
     name: str,
     runner,
@@ -256,9 +274,7 @@ def _idc_case(
         if got != want:
             raise AssertionError(f"formula mismatch:\n  want: {want}\n  got : {got}")
         if not is_rule_subsequence(result, ("IDC_DECOMPOSE", "IDC_POSITIVITY")):
-            raise AssertionError(
-                f"missing IDC trace steps, got: {rule_names_from_result(result)}"
-            )
+            raise AssertionError(f"missing IDC trace steps, got: {rule_names_from_result(result)}")
         return True
 
     return BenchmarkCase(
@@ -271,7 +287,8 @@ def _idc_case(
         is_identifiable_extractor=lambda r: r.status is _IS_IDENTIFIED,
         formula_correct_extractor=lambda r: canon(
             r.estimand_ast.to_latex() if r.estimand_ast else None
-        ) == canon(expected_formula),
+        )
+        == canon(expected_formula),
         tags=("idc",),
     )
 
@@ -308,9 +325,7 @@ def _id_star_case(
             if check_trace and not is_rule_subsequence(
                 result, ("ID_STAR_STEP1", "ID_STAR_STEP2", "ID_STAR_STEP3", "ID_STAR_STEP5")
             ):
-                raise AssertionError(
-                    f"missing ID* trace, got: {rule_names_from_result(result)}"
-                )
+                raise AssertionError(f"missing ID* trace, got: {rule_names_from_result(result)}")
         else:
             if result.hedge_certificate is None:
                 raise AssertionError("non-identified ID* but no hedge_certificate")
@@ -433,8 +448,7 @@ def _mz_id_case(
             else (expected_trace,)
         )
         if expected_trace and not any(
-            is_rule_subsequence(result, trace_option)
-            for trace_option in expected_trace_options
+            is_rule_subsequence(result, trace_option) for trace_option in expected_trace_options
         ):
             raise AssertionError(
                 f"MZ-ID trace mismatch:\n  want: {expected_trace}\n"
@@ -530,9 +544,7 @@ def _ctf_transport_case(
 
         # kind == "identified"
         if result.status is not _IS_IDENTIFIED:
-            raise AssertionError(
-                f"CTF transport expected IDENTIFIED, got {result.status.value}"
-            )
+            raise AssertionError(f"CTF transport expected IDENTIFIED, got {result.status.value}")
         if expected_query is not None and canon(result.query_str) != canon(expected_query):
             raise AssertionError(
                 f"query_str mismatch:\n  want: {canon(expected_query)}\n"
@@ -555,7 +567,9 @@ def _ctf_transport_case(
         circuit=CIRCUIT,
         runner=runner,
         checker=checker,
-        proof_step_extractor=lambda r: rule_names_from_result(r) if not isinstance(r, NegativeCertificate) else [],
+        proof_step_extractor=lambda r: rule_names_from_result(r)
+        if not isinstance(r, NegativeCertificate)
+        else [],
         is_identifiable_ground_truth=gt_identifiable,
         is_identifiable_extractor=is_id_pred,
         tags=("ctf_transport",),
@@ -612,15 +626,12 @@ def _mgraph_case(
 ) -> BenchmarkCase:
     # M-graph cases use either RecoverabilityStatus or IdentificationStatus
     is_recoverable = (
-        expected_status is RecoverabilityStatus.RECOVERABLE
-        or expected_status is _IS_IDENTIFIED
+        expected_status is RecoverabilityStatus.RECOVERABLE or expected_status is _IS_IDENTIFIED
     )
 
     def checker(result) -> bool:
         if result.status != expected_status:
-            raise AssertionError(
-                f"mgraph expected status={expected_status}, got={result.status}"
-            )
+            raise AssertionError(f"mgraph expected status={expected_status}, got={result.status}")
         if expected_formula is not None:
             got = canon(latex_from_result(result))
             want = canon(expected_formula)
@@ -652,8 +663,7 @@ def _mgraph_case(
         proof_step_extractor=rule_names_from_result,
         is_identifiable_ground_truth=is_recoverable,
         is_identifiable_extractor=lambda r: (
-            r.status is RecoverabilityStatus.RECOVERABLE
-            or r.status is _IS_IDENTIFIED
+            r.status is RecoverabilityStatus.RECOVERABLE or r.status is _IS_IDENTIFIED
         ),
         tags=("mgraph",),
     )
@@ -702,17 +712,14 @@ def _sigma_calculus_case(
             raise AssertionError(f"sigma {name}: proof step is None")
         if step.rule_name != expected_rule_name:
             raise AssertionError(
-                f"sigma {name}: want rule_name={expected_rule_name!r}, "
-                f"got={step.rule_name!r}"
+                f"sigma {name}: want rule_name={expected_rule_name!r}, got={step.rule_name!r}"
             )
         for attr, want in expected_attrs.items():
             got = getattr(rewritten, attr, _MISSING)
             if got is _MISSING:
                 raise AssertionError(f"sigma {name}: rewritten has no attribute {attr!r}")
             if got != want:
-                raise AssertionError(
-                    f"sigma {name}: rewritten.{attr}: want={want!r}, got={got!r}"
-                )
+                raise AssertionError(f"sigma {name}: rewritten.{attr}: want={want!r}, got={got!r}")
         return True
 
     def step_extractor(result) -> list[str]:
@@ -752,17 +759,14 @@ def _ctf_calculus_case(
             raise AssertionError(f"ctf {name}: proof step is None")
         if step.rule_name != expected_rule_name:
             raise AssertionError(
-                f"ctf {name}: want rule_name={expected_rule_name!r}, "
-                f"got={step.rule_name!r}"
+                f"ctf {name}: want rule_name={expected_rule_name!r}, got={step.rule_name!r}"
             )
         for attr, want in expected_attrs.items():
             got = getattr(rewritten, attr, _MISSING)
             if got is _MISSING:
                 raise AssertionError(f"ctf {name}: rewritten has no attribute {attr!r}")
             if got != want:
-                raise AssertionError(
-                    f"ctf {name}: rewritten.{attr}: want={want!r}, got={got!r}"
-                )
+                raise AssertionError(f"ctf {name}: rewritten.{attr}: want={want!r}, got={got!r}")
         return True
 
     def step_extractor(result) -> list[str]:
@@ -822,6 +826,7 @@ def _recanting_witness_case(
 # ---------------------------------------------------------------------------
 # Gold cases — mirroring test_symbolic_gold_suite.py
 # ---------------------------------------------------------------------------
+
 
 def _build_id_cases() -> list[BenchmarkCase]:
     return [
@@ -1197,9 +1202,7 @@ def _build_mz_id_cases() -> list[BenchmarkCase]:
             lambda: mz_id_algorithm(
                 treatment=frozenset({"X"}),
                 outcome=frozenset({"Y"}),
-                source_domains=[
-                    SourceDomain(domain_id="d1", z_interventions=frozenset({"X"}))
-                ],
+                source_domains=[SourceDomain(domain_id="d1", z_interventions=frozenset({"X"}))],
                 graph=_dag([("X", "Y")]),
             ),
             _IS_IDENTIFIED,
@@ -1211,9 +1214,7 @@ def _build_mz_id_cases() -> list[BenchmarkCase]:
             lambda: mz_id_algorithm(
                 treatment=frozenset({"X"}),
                 outcome=frozenset({"Y"}),
-                source_domains=[
-                    SourceDomain(domain_id="d1", s_nodes=frozenset({"X"}))
-                ],
+                source_domains=[SourceDomain(domain_id="d1", s_nodes=frozenset({"X"}))],
                 graph=_dag([("X", "Y")]),
             ),
             _IS_IDENTIFIED,
@@ -1436,7 +1437,13 @@ def _build_cyclic_cases() -> list[BenchmarkCase]:
             ),
             _IS_IDENTIFIED,
             r"\mathbb{E}[B \mid do(A), A]",
-            ("CYCLIC_START", "CYCLIC_SCC", "CYCLIC_WELL_POSED", "CYCLIC_SIGMA_WARN", "CYCLIC_SOLVER"),
+            (
+                "CYCLIC_START",
+                "CYCLIC_SCC",
+                "CYCLIC_WELL_POSED",
+                "CYCLIC_SIGMA_WARN",
+                "CYCLIC_SOLVER",
+            ),
         ),
         _cyclic_case(
             "non_well_posed",
@@ -1457,7 +1464,13 @@ def _build_cyclic_cases() -> list[BenchmarkCase]:
             ),
             _IS_HEDGE,
             None,
-            ("CYCLIC_START", "CYCLIC_SCC", "CYCLIC_WELL_POSED", "CYCLIC_SIGMA_WARN", "CYCLIC_NON_WELL_POSED"),
+            (
+                "CYCLIC_START",
+                "CYCLIC_SCC",
+                "CYCLIC_WELL_POSED",
+                "CYCLIC_SIGMA_WARN",
+                "CYCLIC_NON_WELL_POSED",
+            ),
         ),
     ]
 
@@ -1637,7 +1650,13 @@ def _build_proof_trace_cases() -> list[BenchmarkCase]:
                     },
                 ),
             ),
-            ("CYCLIC_START", "CYCLIC_SCC", "CYCLIC_WELL_POSED", "CYCLIC_SIGMA_WARN", "CYCLIC_SOLVER"),
+            (
+                "CYCLIC_START",
+                "CYCLIC_SCC",
+                "CYCLIC_WELL_POSED",
+                "CYCLIC_SIGMA_WARN",
+                "CYCLIC_SOLVER",
+            ),
         ),
     ]
 
@@ -1815,38 +1834,50 @@ def _build_recanting_witness_cases() -> list[BenchmarkCase]:
 _Y0_REFERENCE_CASES: list[tuple[str, frozenset, frozenset, list, list, bool]] = [
     (
         "direct_dag",
-        frozenset({"X"}), frozenset({"Y"}),
-        [("X", "Y")], [],
+        frozenset({"X"}),
+        frozenset({"Y"}),
+        [("X", "Y")],
+        [],
         True,
     ),
     (
         "mediated_dag",
-        frozenset({"X"}), frozenset({"Y"}),
-        [("X", "M"), ("M", "Y")], [],
+        frozenset({"X"}),
+        frozenset({"Y"}),
+        [("X", "M"), ("M", "Y")],
+        [],
         True,
     ),
     (
         "backdoor_dag",
-        frozenset({"X"}), frozenset({"Y"}),
-        [("Z", "X"), ("Z", "Y"), ("X", "Y")], [],
+        frozenset({"X"}),
+        frozenset({"Y"}),
+        [("Z", "X"), ("Z", "Y"), ("X", "Y")],
+        [],
         True,
     ),
     (
         "frontdoor_admg",
-        frozenset({"X"}), frozenset({"Y"}),
-        [("X", "M"), ("M", "Y")], [("X", "Y")],
+        frozenset({"X"}),
+        frozenset({"Y"}),
+        [("X", "M"), ("M", "Y")],
+        [("X", "Y")],
         True,
     ),
     (
         "bow_arc_hedge",
-        frozenset({"X"}), frozenset({"Y"}),
-        [("X", "Y")], [("X", "Y")],
+        frozenset({"X"}),
+        frozenset({"Y"}),
+        [("X", "Y")],
+        [("X", "Y")],
         False,
     ),
     (
         "confounded_backdoor_hedge",
-        frozenset({"X"}), frozenset({"Y"}),
-        [("Z", "X"), ("Z", "Y"), ("X", "Y")], [("X", "Y")],
+        frozenset({"X"}),
+        frozenset({"Y"}),
+        [("Z", "X"), ("Z", "Y"), ("X", "Y")],
+        [("X", "Y")],
         False,
     ),
 ]
@@ -1881,9 +1912,7 @@ def _run_y0_comparison(report: BenchmarkReport) -> dict[str, Any]:
         elif cmp.get("agreed"):
             agreements += 1
         else:
-            disagreements.append(
-                f"{name}: PolicyOS={expected_id}, y0={cmp.get('y0_identifiable')}"
-            )
+            disagreements.append(f"{name}: PolicyOS={expected_id}, y0={cmp.get('y0_identifiable')}")
 
     return {
         "skipped": False,
@@ -1910,8 +1939,8 @@ def _y0_check_case(
         return None
 
     try:
-        from y0.graph import NxMixedGraph
         from y0.dsl import P, Variable
+        from y0.graph import NxMixedGraph
 
         y0_identify = None
         y0_identify_outcomes = None
@@ -1929,7 +1958,6 @@ def _y0_check_case(
         except Exception:
             y0_identification_cls = None
 
-        nodes_in_edges = {n for e in directed_edges + bidirected_edges for n in e}
         g = NxMixedGraph.from_edges(
             directed=directed_edges,
             undirected=[(u, v) for u, v in bidirected_edges],
@@ -1971,6 +1999,7 @@ def _y0_check_case(
 # JSON report serialisation
 # ---------------------------------------------------------------------------
 
+
 def _report_to_dict(
     report: BenchmarkReport,
     *,
@@ -1997,6 +2026,7 @@ def _report_to_dict(
 # Main entry point
 # ---------------------------------------------------------------------------
 
+
 def build_harness() -> BenchmarkHarness:
     """Build a BenchmarkHarness pre-loaded with all symbolic gold cases."""
     harness = BenchmarkHarness()
@@ -2018,9 +2048,7 @@ def build_harness() -> BenchmarkHarness:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Circuit 1 — Symbolic / Identification benchmark"
-    )
+    parser = argparse.ArgumentParser(description="Circuit 1 — Symbolic / Identification benchmark")
     parser.add_argument(
         "--y0-compare",
         action="store_true",
@@ -2059,7 +2087,9 @@ def main(argv: list[str] | None = None) -> int:
         data_source="symbolic_gold_suite",
         dependency_status={"python_modules": dependency_status(["numpy", "y0"])},
         comparator_status=comparator_status,
-        degraded_reasons=[] if comparator_status["y0"] == "available" else ["y0 comparator unavailable"],
+        degraded_reasons=[]
+        if comparator_status["y0"] == "available"
+        else ["y0 comparator unavailable"],
     )
     print_preflight(preflight)
 

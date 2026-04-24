@@ -1,8 +1,10 @@
 """Public causal cate module API."""
+
 from __future__ import annotations
 
 import inspect
-from typing import Any, Callable, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -403,7 +405,9 @@ class CausalForestEstimator:
             feature_importance_method=str(params.get("feature_importance_method", "permutation")),
             rng=rng,
         )
-        feature_importance_method = str(params.get("feature_importance_method", "permutation")).strip().lower()
+        feature_importance_method = (
+            str(params.get("feature_importance_method", "permutation")).strip().lower()
+        )
         feature_importances = extracted["feature_importances"]
         if feature_importance_method == "permutation":
             feature_importances = _permutation_feature_importances(
@@ -450,20 +454,26 @@ class CausalForestEstimator:
                 "n_estimators_candidates": _candidate_ints(params.get("n_estimators_candidates")),
                 "max_depth": params.get("max_depth"),
                 "min_samples_leaf": min_samples_leaf,
-                "min_samples_leaf_candidates": _candidate_ints(params.get("min_samples_leaf_candidates")),
+                "min_samples_leaf_candidates": _candidate_ints(
+                    params.get("min_samples_leaf_candidates")
+                ),
                 "max_samples": float(params.get("max_samples", 0.5)),
                 "honest": bool(params.get("honest", True)),
                 "cv_folds": int(params.get("cv_folds", 3)),
                 "model_y_backend": params.get("model_y_backend", params.get("model_y", "auto")),
                 "model_t_backend": params.get("model_t_backend", params.get("model_t", "auto")),
-                "bootstrap_inference_samples": int(params.get("bootstrap_inference_samples", 0) or 0),
+                "bootstrap_inference_samples": int(
+                    params.get("bootstrap_inference_samples", 0) or 0
+                ),
             },
             feature_display_map={name: name for name in data.feature_names},
             metadata={
                 "warnings": list(extracted["warnings"]),
                 "confounder_names": list(data.confounder_names),
                 "feature_importance_method": feature_importance_method,
-                "heterogeneity_signal": _effect_signal(np.asarray(extracted["cate_values"], dtype=float)),
+                "heterogeneity_signal": _effect_signal(
+                    np.asarray(extracted["cate_values"], dtype=float)
+                ),
             },
         )
 

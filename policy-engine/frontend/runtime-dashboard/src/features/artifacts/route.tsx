@@ -7,6 +7,7 @@ import {
   buildArtifactHref,
   parseArtifactSearchParams,
   type ArtifactTab,
+  type ArtifactView,
 } from "@/features/artifacts/domain/searchParams";
 
 const ArtifactInspectorPage = lazy(
@@ -16,6 +17,7 @@ const ArtifactInspectorPage = lazy(
 type ArtifactRouteHrefInput = {
   artifactId: string;
   tab?: ArtifactTab;
+  view?: ArtifactView;
 };
 
 export const artifactRouteHandle = {
@@ -24,7 +26,7 @@ export const artifactRouteHandle = {
   routeId: "artifacts.inspector",
   workspaceKey: "runsDecisions",
 } satisfies AppRouteModule<
-  { tab: ArtifactTab },
+  { tab: ArtifactTab; view: ArtifactView },
   ArtifactRouteHrefInput
 >["handle"];
 
@@ -32,7 +34,10 @@ export const artifactRouteModule = {
   Component: ArtifactInspectorPage,
   handle: artifactRouteHandle,
   path: "artifacts/:artifactId",
-} satisfies AppRouteModule<{ tab: ArtifactTab }, ArtifactRouteHrefInput>;
+} satisfies AppRouteModule<
+  { tab: ArtifactTab; view: ArtifactView },
+  ArtifactRouteHrefInput
+>;
 
 export const artifactRoute: RouteObject = {
   path: artifactRouteModule.path,

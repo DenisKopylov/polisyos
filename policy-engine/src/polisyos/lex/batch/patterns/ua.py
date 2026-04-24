@@ -83,7 +83,9 @@ REFERENCE_REPEALS_RE = re.compile(
     re.IGNORECASE,
 )
 REFERENCE_APPROVES_RE = re.compile(r"(затвердити|затверджується|затверджено)", re.IGNORECASE)
-REFERENCE_ENTRY_INTO_FORCE_RE = re.compile(r"(набирає\s+чинності|вводиться\s+в\s+дію)", re.IGNORECASE)
+REFERENCE_ENTRY_INTO_FORCE_RE = re.compile(
+    r"(набирає\s+чинності|вводиться\s+в\s+дію)", re.IGNORECASE
+)
 REFERENCE_APPLIES_TO_RE = re.compile(r"(поширюється\s+на|застосовується\s+до)", re.IGNORECASE)
 THRESHOLD_CORE_RE = re.compile(
     r"(\d+(?:[.,]\d+)?\s*(?:%|грн|коп|рок(?:ів|и)?|дн(?:ів|і)?|місяц(?:ів|і)|"
@@ -114,7 +116,9 @@ MODALITY_CORE_RE = re.compile(
     re.IGNORECASE,
 )
 NUMERIC_TOKEN_RE = re.compile(r"\b\d+(?:[.,]\d+)?\b")
-AMBIGUITY_CORE_RE = re.compile(r"(та/або|або|якщо|у разі|може|за потреби|відповідно до)", re.IGNORECASE)
+AMBIGUITY_CORE_RE = re.compile(
+    r"(та/або|або|якщо|у разі|може|за потреби|відповідно до)", re.IGNORECASE
+)
 LEGAL_SIGNAL_CORE_RE = re.compile(
     r"(визначає|визначають|затвердити|затверджує|затверджуються|погодити|підписати|здійснювати|"
     r"застосовувати|положення про|правила|порядок|перелік|інструкц|регламент|вимоги)",

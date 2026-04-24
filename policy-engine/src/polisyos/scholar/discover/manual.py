@@ -1,4 +1,5 @@
 """Normalizes manually supplied Scholar seed sources into canonical discover inputs."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -57,7 +58,7 @@ def source_identity_key(source: SourceSpec) -> str:
 
 
 def _normalize_single_source(source: SourceSpec) -> SourceSpec:
-    props = {key: value for key, value in sorted(source.props.items())}
+    props = dict(sorted(source.props.items()))
     mime_hint = source.mime_hint.strip() if source.mime_hint else None
     license_value = source.license.strip()
 

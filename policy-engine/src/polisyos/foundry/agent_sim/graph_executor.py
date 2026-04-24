@@ -1,7 +1,9 @@
 """Public agent sim graph executor module API."""
+
 from __future__ import annotations
 
-from typing import Any, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 import jax
 import jax.numpy as jnp
@@ -19,6 +21,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 class GraphAwareExecutor(PureExecutor):
     """Augment execution with scheduled graph rewiring and graph-level diagnostics."""
+
     def __init__(
         self,
         mechanisms: Iterable[Mechanism],
@@ -50,9 +53,7 @@ class GraphAwareExecutor(PureExecutor):
         state = maybe_update_distributions(state, self.distribution_config)
         state = self._maybe_update_graph(state)
         state, metrics = super().step(state, fidelity)
-        metrics.update(
-            compute_graph_metrics(state.graph.edges, state.agents.active)
-        )
+        metrics.update(compute_graph_metrics(state.graph.edges, state.agents.active))
         return state, metrics
 
     def _maybe_update_graph(self, state: GlobalState) -> GlobalState:
@@ -62,7 +63,9 @@ class GraphAwareExecutor(PureExecutor):
         should_update = (state.time_step % self.graph_update_frequency) == 0
 
         def _update(s: GlobalState) -> GlobalState:
-            key = jax.random.fold_in(s.rng_key, jnp.asarray(self.graph_update_salt, dtype=jnp.uint32))
+            key = jax.random.fold_in(
+                s.rng_key, jnp.asarray(self.graph_update_salt, dtype=jnp.uint32)
+            )
             key = jax.random.fold_in(key, jnp.asarray(s.time_step, dtype=jnp.uint32))
             graph = s.graph
             if hasattr(s.graph.edges, "active"):

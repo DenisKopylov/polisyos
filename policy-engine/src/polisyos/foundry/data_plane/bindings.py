@@ -6,8 +6,10 @@ payloads, materialize a `GlobalState`, persist `FoundryInputBindings`, and
 return the bound `StateSnapshotRef` that execution should use as its base
 synthetic runtime state.
 """
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation
 from typing import Any
@@ -20,6 +22,8 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
+    FeedbackConfig,
+    FeedbackStateSnapshot,
     FoundryInputBindingReportRef,
     FoundryInputBindingRule,
     FoundryInputBindings,
@@ -27,7 +31,7 @@ from polisyos.core.contracts.foundry import (
     StateSnapshotRef,
 )
 from polisyos.core.registry import load_registry_bundle_content
-from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.contracts.state import FeedbackState, GlobalState
 from polisyos.foundry.executor import (
     get_state_path,
     load_state_snapshot,
@@ -276,6 +280,115 @@ def resolve_bound_state_snapshot_ref(
     return bindings.bound_state_snapshot_ref
 
 
+def extract_feedback_state(
+    state: GlobalState,
+    *,
+    config: FeedbackConfig,
+    metrics: Mapping[str, Any] | None = None,
+) -> FeedbackStateSnapshot:
+    """Extract the compact feedback vector from post-execution state and metrics."""
+
+    metric_values = metrics or {}
+    values = [
+        _extract_feedback_scalar(
+            state,
+            metrics=metric_values,
+            source_kind=spec.source_kind,
+            source_ref=spec.source_ref,
+            reduction=spec.reduction,
+            transforms=spec.transforms,
+        )
+        for spec in config.variables
+    ]
+    return FeedbackStateSnapshot(
+        variable_ids=[spec.variable_id for spec in config.variables],
+        values=values,
+        scales=[float(spec.scale) if spec.scale is not None else 1.0 for spec in config.variables],
+        lower_bounds=[spec.lower_bound for spec in config.variables],
+        upper_bounds=[spec.upper_bound for spec in config.variables],
+        weights=[float(spec.weight) for spec in config.variables],
+        notes=list(config.notes),
+    )
+
+
+def extract_feedback_diagnostics(
+    state: GlobalState,
+    *,
+    config: FeedbackConfig,
+    metrics: Mapping[str, Any] | None = None,
+) -> dict[str, float]:
+    """Extract additional scalar diagnostics declared by the feedback config."""
+
+    metric_values = metrics or {}
+    diagnostics: dict[str, float] = {}
+    for spec in config.diagnostics:
+        diagnostics[spec.diagnostic_id] = _extract_feedback_scalar(
+            state,
+            metrics=metric_values,
+            source_kind=spec.source_kind,
+            source_ref=spec.source_ref,
+            reduction=spec.reduction,
+            transforms=spec.transforms,
+        )
+    return diagnostics
+
+
+def inject_feedback_state(
+    state: GlobalState,
+    *,
+    config: FeedbackConfig,
+    snapshot: FeedbackStateSnapshot | list[float] | tuple[float, ...] | np.ndarray,
+) -> tuple[GlobalState, dict[str, dict[str, object]]]:
+    """Inject a compact feedback vector into state paths and parameter overrides."""
+
+    resolved = (
+        snapshot
+        if isinstance(snapshot, FeedbackStateSnapshot)
+        else FeedbackStateSnapshot(
+            variable_ids=[spec.variable_id for spec in config.variables],
+            values=[float(value) for value in np.asarray(snapshot, dtype=float).tolist()],
+            scales=[
+                float(spec.scale) if spec.scale is not None else 1.0 for spec in config.variables
+            ],
+            lower_bounds=[spec.lower_bound for spec in config.variables],
+            upper_bounds=[spec.upper_bound for spec in config.variables],
+            weights=[float(spec.weight) for spec in config.variables],
+        )
+    )
+    if len(resolved.values) != len(config.variables):
+        raise ValueError(
+            "Feedback snapshot dimensionality does not match config variables: "
+            f"{len(resolved.values)} != {len(config.variables)}"
+        )
+
+    overrides: dict[str, dict[str, object]] = {}
+    updated_state = state
+    for spec, value in zip(config.variables, resolved.values, strict=True):
+        if spec.target_kind == "parameter_override":
+            overrides.setdefault(spec.target_ref, {})[str(spec.target_param)] = float(value)
+            continue
+        target_value = get_state_path(updated_state, spec.target_ref)
+        coerced = _coerce_feedback_target(float(value), target_value)
+        updated_state = set_state_path(updated_state, spec.target_ref, coerced)
+
+    feedback_state = FeedbackState(
+        active=jnp.ones((len(resolved.values),), dtype=jnp.bool_),
+        values=jnp.asarray(resolved.values, dtype=jnp.float32),
+        scales=jnp.asarray(resolved.scales, dtype=jnp.float32),
+        lower_bounds=jnp.asarray(
+            [(-jnp.inf if value is None else value) for value in resolved.lower_bounds],
+            dtype=jnp.float32,
+        ),
+        upper_bounds=jnp.asarray(
+            [(jnp.inf if value is None else value) for value in resolved.upper_bounds],
+            dtype=jnp.float32,
+        ),
+        weights=jnp.asarray(resolved.weights, dtype=jnp.float32),
+        noise_estimate=jnp.zeros((len(resolved.values),), dtype=jnp.float32),
+    )
+    return updated_state.replace(feedback_state=feedback_state), overrides
+
+
 def _load_data_snapshot(store: FileSystemCAS, data_snapshot_ref: ArtifactRef) -> DataSnapshot:
     payload = from_canonical_bytes(store.get_bytes(data_snapshot_ref.artifact_id))
     return DataSnapshot.model_validate(payload)
@@ -308,6 +421,61 @@ def _snapshot_binding_warnings(snapshot: DataSnapshot) -> list[str]:
             "transport/survey/HTE workflows, not panel SCM/DiD/econometrics"
         )
     ]
+
+
+def _extract_feedback_scalar(
+    state: GlobalState,
+    *,
+    metrics: Mapping[str, Any],
+    source_kind: str,
+    source_ref: str,
+    reduction: str,
+    transforms: list[Any],
+) -> float:
+    if source_kind == "state_path":
+        source_value = get_state_path(state, source_ref)
+    elif source_kind == "metric":
+        if source_ref not in metrics:
+            raise KeyError(f"Feedback metric '{source_ref}' is missing from execution metrics")
+        source_value = metrics[source_ref]
+    else:
+        raise ValueError(f"Unsupported feedback source_kind: {source_kind}")
+
+    reduced = _reduce_feedback_value(source_value, reduction=reduction, source_ref=source_ref)
+    transformed = _apply_transform_chain(reduced, transforms)
+    array = np.asarray(transformed, dtype=float)
+    if array.ndim != 0:
+        raise ValueError(
+            f"Feedback source '{source_ref}' must reduce to a scalar, got shape {array.shape}"
+        )
+    return float(array.item())
+
+
+def _reduce_feedback_value(value: Any, *, reduction: str, source_ref: str) -> float:
+    array = np.asarray(value, dtype=float)
+    if array.ndim == 0:
+        return float(array.item())
+    if reduction == "identity":
+        raise ValueError(f"Feedback source '{source_ref}' is non-scalar and requires a reduction")
+    if reduction == "mean":
+        return float(np.mean(array))
+    if reduction == "sum":
+        return float(np.sum(array))
+    if reduction == "min":
+        return float(np.min(array))
+    if reduction == "max":
+        return float(np.max(array))
+    raise ValueError(f"Unsupported feedback reduction: {reduction}")
+
+
+def _coerce_feedback_target(value: float, target: Any) -> Any:
+    if isinstance(target, np.ndarray):
+        broadcast = np.broadcast_to(value, target.shape)
+        return np.asarray(broadcast, dtype=target.dtype)
+    if isinstance(target, jnp.ndarray):
+        broadcast = jnp.broadcast_to(jnp.asarray(value, dtype=target.dtype), target.shape)
+        return jnp.asarray(broadcast, dtype=target.dtype)
+    return type(target)(value)
 
 
 def _load_binding_payload(store: FileSystemCAS, snapshot: DataSnapshot) -> Any:
@@ -365,7 +533,8 @@ def _validate_rules(rules: list[FoundryInputBindingRule], slot_registry: SlotReg
         seen.add(rule.binding_id)
         if rule.target_slot_id not in slot_registry.slots:
             raise ValueError(
-                f"Binding rule '{rule.binding_id}' references unknown slot_id '{rule.target_slot_id}'"
+                f"Binding rule '{rule.binding_id}' references unknown slot_id "
+                f"'{rule.target_slot_id}'"
             )
 
 
@@ -466,7 +635,8 @@ def _materialize_state(
             value = rule.default_value
             if value is None and not rule.required:
                 warnings.append(
-                    f"{rule.binding_id}: source_path '{rule.source_path}' missing; optional rule skipped"
+                    f"{rule.binding_id}: source_path '{rule.source_path}' missing; "
+                    "optional rule skipped"
                 )
                 continue
             if value is None and rule.required:
@@ -544,7 +714,7 @@ def _apply_transform(*, op: str, value: Any, params: dict[str, Any]) -> Any:
     raise ValueError(f"Unsupported transform op: {op}")
 
 
-def _map_values(value: Any, fn) -> Any:  # noqa: ANN001
+def _map_values(value: Any, fn) -> Any:
     if isinstance(value, (list, tuple)):
         return [fn(item) for item in value]
     if isinstance(value, np.ndarray):
@@ -554,7 +724,7 @@ def _map_values(value: Any, fn) -> Any:  # noqa: ANN001
     return fn(value)
 
 
-def _map_array_values(value: np.ndarray, fn) -> Any:  # noqa: ANN001
+def _map_array_values(value: np.ndarray, fn) -> Any:
     flat = [fn(item) for item in value.flat]
     if value.ndim == 0:
         return flat[0]
@@ -662,7 +832,8 @@ def _coerce_to_slot_tensor(value: Any, *, slot: SlotSpec, target_tensor: Any):
             source_arr = source_arr.reshape(target_arr.shape)
         else:
             raise ValueError(
-                f"shape mismatch for slot '{slot.slot_id}': expected {target_arr.shape}, got {source_arr.shape}"
+                f"shape mismatch for slot '{slot.slot_id}': expected {target_arr.shape}, "
+                f"got {source_arr.shape}"
             )
 
     return jnp.asarray(source_arr, dtype=target_arr.dtype)

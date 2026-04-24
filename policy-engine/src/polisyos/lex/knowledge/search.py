@@ -17,7 +17,7 @@ from polisyos.common.logger import get_logger
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -32,6 +32,9 @@ from polisyos.lex.knowledge.types import (
     LegalSourceAnchor,
     LegalSourceBundle,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = get_logger(__name__)
 
@@ -98,7 +101,9 @@ class LegalKnowledgeGraph:
         if vec is None:
             return []
         return self._store.search_entities_by_vector(
-            vec, top_k=top_k, min_similarity=min_similarity,
+            vec,
+            top_k=top_k,
+            min_similarity=min_similarity,
         )
 
     def search_facts(

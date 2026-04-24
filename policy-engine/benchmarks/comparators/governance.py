@@ -76,8 +76,7 @@ def apply_governance(
         fail_reason = f"Non-finite RMSE: {rmse}"
     elif fail_reason is None and rmse > governance.max_absolute_rmse:
         fail_reason = (
-            f"RMSE blow-up: {rmse:.1f} "
-            f"> governance threshold {governance.max_absolute_rmse}"
+            f"RMSE blow-up: {rmse:.1f} > governance threshold {governance.max_absolute_rmse}"
         )
 
     return GovernedResult(

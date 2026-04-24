@@ -14,6 +14,7 @@ Zhang, J. & Bareinboim, E. (2018). Fairness in Decision-Making—The Causal
 Kusner, M.J., Loftus, J., Russell, C. & Silva, R. (2017). Counterfactual
     Fairness. NeurIPS.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -84,7 +85,7 @@ class FairnessDecomposition(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_cis(self) -> "FairnessDecomposition":
+    def _validate_cis(self) -> FairnessDecomposition:
         for name, ci in [
             ("tv_ci", self.tv_ci),
             ("de_ci", self.de_ci),
@@ -136,6 +137,6 @@ class CausalFairnessReport(BaseModel):
 
 
 __all__ = [
-    "FairnessDecomposition",
     "CausalFairnessReport",
+    "FairnessDecomposition",
 ]

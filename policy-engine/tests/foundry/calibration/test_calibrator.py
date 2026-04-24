@@ -1,14 +1,10 @@
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
-
-import jax.numpy as jnp
-import numpy as np
-import pytest
+from unittest.mock import MagicMock
 
 from polisyos.foundry.calibration.calibrator import (
-    CalibratorInputs,
     CalibrationMetricsCollector,
+    CalibratorInputs,
     TrainableGroup,
     _match_trainable,
     _selector_key,
@@ -39,14 +35,18 @@ class TestCalibratorInputs:
 class TestCalibrationMetricsCollector:
     def test_record_step_accumulates(self) -> None:
         collector = CalibrationMetricsCollector(
-            optimizer_name="adam", emit_interval=100, enabled=False,
+            optimizer_name="adam",
+            emit_interval=100,
+            enabled=False,
         )
         collector.record_step(0, 0.01, 1.0, 0.5, is_warmup=True)
         assert collector._current_step == 0
 
     def test_finalize_calls_flush(self) -> None:
         collector = CalibrationMetricsCollector(
-            optimizer_name="adam", emit_interval=100, enabled=False,
+            optimizer_name="adam",
+            emit_interval=100,
+            enabled=False,
         )
         collector.record_step(0, 0.01, 1.0, 0.5, is_warmup=False)
         collector.finalize("converged", total_steps=1)

@@ -8,9 +8,10 @@ and flow_nodes.py.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any
 
 import jax.numpy as jnp
 from pydantic import BaseModel, ConfigDict, Field

@@ -1,4 +1,5 @@
 """Public domain schema module API."""
+
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -6,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class AgentType(str, Enum):
     """Agent type public type."""
+
     WORKER = "worker"
     ENTREPRENEUR = "entrepreneur"
     RETIREE = "retiree"

@@ -14,6 +14,7 @@ from polisyos.scientist.autotune.models import (
 
 class ChampionRegistryContract(Protocol):
     """Protocol for the authoritative champion registry that stores promoted candidates per loop."""
+
     def get(self, loop_id: str) -> ChampionPointer | None: ...
 
     def consider_promotion(
@@ -31,6 +32,7 @@ class ChampionRegistryContract(Protocol):
 
 class ParetoRegistryContract(Protocol):
     """Protocol for the Pareto snapshot store that seeds later search iterations."""
+
     def get_snapshot(self, loop_id: str) -> Any: ...
 
     def update(self, loop_id: str, **kwargs: Any) -> Any: ...
@@ -40,6 +42,7 @@ class ParetoRegistryContract(Protocol):
 
 class LessonRegistryContract(Protocol):
     """Protocol for recording and retrieving reusable lessons from prior search runs."""
+
     def record_local(self, card: Any, *, context: Any) -> Any: ...
 
     def query(self, query: Any) -> list[Any]: ...
@@ -49,6 +52,7 @@ class LessonRegistryContract(Protocol):
 
 class BenchmarkRegistryContract(Protocol):
     """Protocol for resolving benchmark assets by split, run, and suite identifier."""
+
     def record(
         self,
         split_type: str,
@@ -102,7 +106,10 @@ class BenchmarkRegistryContract(Protocol):
 
 class DiscoveryHypothesisRegistryContract(Protocol):
     """Protocol for publishing discovery hypotheses back into the runtime search surface."""
-    def publish(self, run_id: str, artifact_ref: ArtifactRef, *, metadata: dict[str, Any] | None = None) -> None: ...
+
+    def publish(
+        self, run_id: str, artifact_ref: ArtifactRef, *, metadata: dict[str, Any] | None = None
+    ) -> None: ...
 
     def latest(self, run_id: str) -> ArtifactRef | None: ...
 

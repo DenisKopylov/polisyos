@@ -1,4 +1,5 @@
 """Artifact manifest lifecycle helpers for filesystem-backed CAS implementations."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

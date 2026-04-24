@@ -1,15 +1,23 @@
 """Public passes base module API."""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from polisyos.core.governance.profiles import ValidationProfile
     from polisyos.ir.trinity import TrinityBundle
 
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
+
+__all__ = [
+    "ComplianceIssue",
+    "IssueSeverity",
+    "PassContext",
+    "ValidatorPass",
+]
 
 
 @dataclass
@@ -21,10 +29,10 @@ class PassContext:
     validation profile, and run identification.
     """
 
-    ir: Optional["TrinityBundle"]
+    ir: TrinityBundle | None
     state: dict[str, Any]
-    registry_bundle: Optional[object]
-    profile: "ValidationProfile"
+    registry_bundle: object | None
+    profile: ValidationProfile
     run_id: str
 
     def get_budget(self, key: str, default: float = 0.0) -> float:
@@ -63,7 +71,7 @@ class ValidatorPass(ABC):
         return False
 
     @abstractmethod
-    def validate(self, ctx: PassContext) -> List[ComplianceIssue]:
+    def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
         """
         Execute validation and return discovered issues.
 

@@ -1,9 +1,11 @@
 """Estimate network structure, diffusion, contagion, and multiplex diagnostics."""
+
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping
 from statistics import NormalDist
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -142,7 +144,9 @@ def _missingness_request_payload(state: NetworkData, params: Mapping[str, Any]) 
     elif isinstance(defaults, Mapping):
         payload.update(defaults)
     request_fields = set(NetworkMissingnessRequest.model_fields)
-    payload.update({key: value for key, value in params.items() if key in request_fields and value is not None})
+    payload.update(
+        {key: value for key, value in params.items() if key in request_fields and value is not None}
+    )
     return payload
 
 
@@ -281,7 +285,9 @@ def _fit_ols(y: np.ndarray, X: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.n
     return beta.reshape(-1), se, resid.reshape(-1)
 
 
-def _fit_wls(y: np.ndarray, X: np.ndarray, weights: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def _fit_wls(
+    y: np.ndarray, X: np.ndarray, weights: np.ndarray
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     design = np.asarray(X, dtype=float)
     outcome = np.asarray(y, dtype=float).reshape(-1, 1)
     weight_vec = np.asarray(weights, dtype=float).reshape(-1)
@@ -291,7 +297,9 @@ def _fit_wls(y: np.ndarray, X: np.ndarray, weights: np.ndarray) -> tuple[np.ndar
     return _fit_ols((root_w[:, 0] * outcome[:, 0]), root_w * design)
 
 
-def _fit_2sls(y: np.ndarray, X: np.ndarray, Z: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def _fit_2sls(
+    y: np.ndarray, X: np.ndarray, Z: np.ndarray
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     regressors = np.asarray(X, dtype=float)
     instruments = np.asarray(Z, dtype=float)
     outcome = np.asarray(y, dtype=float).reshape(-1, 1)
@@ -336,13 +344,14 @@ def _first_stage_f_stat(target: np.ndarray, exog: np.ndarray, excluded: np.ndarr
     return float(improvement / (rss_u / dof))
 
 
-def _first_stage_min_f_stat(targets: np.ndarray, exog: np.ndarray, excluded: np.ndarray) -> float | None:
+def _first_stage_min_f_stat(
+    targets: np.ndarray, exog: np.ndarray, excluded: np.ndarray
+) -> float | None:
     arr = np.asarray(targets, dtype=float)
     if arr.ndim == 1:
         return _first_stage_f_stat(arr, exog, excluded)
     f_stats = [
-        _first_stage_f_stat(arr[:, column], exog, excluded)
-        for column in range(arr.shape[1])
+        _first_stage_f_stat(arr[:, column], exog, excluded) for column in range(arr.shape[1])
     ]
     finite = [value for value in f_stats if value is not None and np.isfinite(value)]
     if not finite:
@@ -522,9 +531,13 @@ def _correlated_proxy(
     if use_component_fe:
         total_variance = float(np.var(y_raw))
         residual_variance = float(np.var(_demean_by_labels(y_raw, components)))
-        estimate = 0.0 if total_variance <= 1e-12 else max(
-            0.0,
-            min(1.0, 1.0 - residual_variance / total_variance),
+        estimate = (
+            0.0
+            if total_variance <= 1e-12
+            else max(
+                0.0,
+                min(1.0, 1.0 - residual_variance / total_variance),
+            )
         )
         return (
             _interval_from_estimate(
@@ -577,15 +590,23 @@ def _estimate_linear_peer_model(
     wx_mat = _ensure_2d_features(np.asarray(WX, dtype=float))
     w2x_mat = _ensure_2d_features(np.asarray(W2X, dtype=float))
     w3x_mat = _ensure_2d_features(np.asarray(W3X if W3X is not None else W2X, dtype=float))
-    extra_mat = None if extra_exog is None else _ensure_2d_features(np.asarray(extra_exog, dtype=float))
+    extra_mat = (
+        None if extra_exog is None else _ensure_2d_features(np.asarray(extra_exog, dtype=float))
+    )
     instrument_wx_mat = (
-        None if instrument_wx is None else _ensure_2d_features(np.asarray(instrument_wx, dtype=float))
+        None
+        if instrument_wx is None
+        else _ensure_2d_features(np.asarray(instrument_wx, dtype=float))
     )
     instrument_w2x_mat = (
-        w2x_mat if instrument_w2x is None else _ensure_2d_features(np.asarray(instrument_w2x, dtype=float))
+        w2x_mat
+        if instrument_w2x is None
+        else _ensure_2d_features(np.asarray(instrument_w2x, dtype=float))
     )
     instrument_w3x_mat = (
-        w3x_mat if instrument_w3x is None else _ensure_2d_features(np.asarray(instrument_w3x, dtype=float))
+        w3x_mat
+        if instrument_w3x is None
+        else _ensure_2d_features(np.asarray(instrument_w3x, dtype=float))
     )
 
     intercept = None if not use_intercept else np.ones(y_vec.shape[0], dtype=float)
@@ -705,11 +726,7 @@ def _estimate_randomization_effects(
         exposure, _, _ = _safe_standardize(exposure)
     design = _column_stack(np.ones(y_vec.shape[0]), treatment_vec, exposure, X_mat)
     beta_hat, beta_se, _ = _fit_wls(y_vec, design, weights)
-    units = (
-        "SD(y)"
-        if estimand_scale == "standardized"
-        else "outcome-units"
-    )
+    units = "SD(y)" if estimand_scale == "standardized" else "outcome-units"
     direct_effect = _interval_from_estimate(
         float(beta_hat[1]),
         float(beta_se[1]),
@@ -747,6 +764,7 @@ def _estimate_randomization_effects(
 )
 class CommunityDetectionEstimator:
     """Detect spectral communities in a weighted adjacency matrix; avoid networks without clear block structure or a plausible `k`."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -756,11 +774,17 @@ class CommunityDetectionEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("adjacency", SlotType.MATRIX, Unit("network", "weight"), shape=("n_nodes", "n_nodes")),
+                SlotSpec(
+                    "adjacency",
+                    SlotType.MATRIX,
+                    Unit("network", "weight"),
+                    shape=("n_nodes", "n_nodes"),
+                ),
             }
         ),
         output_slots=_result_slot(),
-        parameters=(ParameterSpec(name="n_clusters", default=3),) + _missingness_passthrough_parameters(),
+        parameters=(ParameterSpec(name="n_clusters", default=3),)
+        + _missingness_passthrough_parameters(),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -834,6 +858,7 @@ class CommunityDetectionEstimator:
 )
 class InputOutputNetworkEstimator:
     """Estimate Leontief-style linkage centrality from economic flow matrices; avoid adjacency matrices that are not interpretable as flows."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -843,7 +868,12 @@ class InputOutputNetworkEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("adjacency", SlotType.MATRIX, Unit("network", "weight"), shape=("n_nodes", "n_nodes")),
+                SlotSpec(
+                    "adjacency",
+                    SlotType.MATRIX,
+                    Unit("network", "weight"),
+                    shape=("n_nodes", "n_nodes"),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -910,6 +940,7 @@ class InputOutputNetworkEstimator:
 )
 class NetworkDiffusionEstimator:
     """Simulate DeGroot-style diffusion from initial node states; avoid stochastic contagion questions that require SIS/SIR dynamics."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -919,8 +950,15 @@ class NetworkDiffusionEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("adjacency", SlotType.MATRIX, Unit("network", "weight"), shape=("n_nodes", "n_nodes")),
-                SlotSpec("node_states", SlotType.VECTOR, Unit("state", "value"), shape=("n_nodes",)),
+                SlotSpec(
+                    "adjacency",
+                    SlotType.MATRIX,
+                    Unit("network", "weight"),
+                    shape=("n_nodes", "n_nodes"),
+                ),
+                SlotSpec(
+                    "node_states", SlotType.VECTOR, Unit("state", "value"), shape=("n_nodes",)
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -928,7 +966,8 @@ class NetworkDiffusionEstimator:
             ParameterSpec(name="diffusion_rate", default=0.3),
             ParameterSpec(name="decay", default=0.05),
             ParameterSpec(name="n_steps", default=10),
-        ) + _missingness_passthrough_parameters(),
+        )
+        + _missingness_passthrough_parameters(),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -989,7 +1028,7 @@ class NetworkDiffusionEstimator:
 
 @foundry_method(
     namespace="network.missingness",
-    version="0.1.0",
+    version="1.0.0",
     tags={"network", "missingness", "partial-observability", "identification"},
 )
 class NetworkMissingnessAssessmentEstimator:
@@ -1004,7 +1043,12 @@ class NetworkMissingnessAssessmentEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("adjacency", SlotType.MATRIX, Unit("network", "weight"), shape=("n_nodes", "n_nodes")),
+                SlotSpec(
+                    "adjacency",
+                    SlotType.MATRIX,
+                    Unit("network", "weight"),
+                    shape=("n_nodes", "n_nodes"),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -1045,7 +1089,9 @@ class NetworkMissingnessAssessmentEstimator:
         statuses = [item.identification_status.value for item in assessment.estimands.values()]
         metrics = {
             "n_estimands": float(len(assessment.estimands)),
-            "point_identified_count": float(sum(status == "point_identified" for status in statuses)),
+            "point_identified_count": float(
+                sum(status == "point_identified" for status in statuses)
+            ),
             "set_identified_count": float(sum(status == "set_identified" for status in statuses)),
             "model_dependent_count": float(sum(status == "model_dependent" for status in statuses)),
             "not_identified_count": float(sum(status == "not_identified" for status in statuses)),
@@ -1059,7 +1105,9 @@ class NetworkMissingnessAssessmentEstimator:
                 embedding_fidelity_certificate=embedding_fidelity_certificate,
                 metadata=_network_result_metadata(
                     {
-                        "mode": request_payload.get("mode", data.metadata.get("mode", "bounds_only")),
+                        "mode": request_payload.get(
+                            "mode", data.metadata.get("mode", "bounds_only")
+                        ),
                         "requested_estimands": tuple(request_payload.get("estimands", ())),
                     },
                     embedding_fidelity_certificate,
@@ -1085,9 +1133,21 @@ class PeerEffectDecompositionEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("adjacency", SlotType.MATRIX, Unit("network", "weight"), shape=("n_nodes", "n_nodes")),
-                SlotSpec("node_features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_nodes", "n_features")),
-                SlotSpec("node_states", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_nodes",)),
+                SlotSpec(
+                    "adjacency",
+                    SlotType.MATRIX,
+                    Unit("network", "weight"),
+                    shape=("n_nodes", "n_nodes"),
+                ),
+                SlotSpec(
+                    "node_features",
+                    SlotType.MATRIX,
+                    Unit("feature", "value"),
+                    shape=("n_nodes", "n_features"),
+                ),
+                SlotSpec(
+                    "node_states", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_nodes",)
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -1101,7 +1161,8 @@ class PeerEffectDecompositionEstimator:
             ParameterSpec(name="use_component_fixed_effects", default=False),
             ParameterSpec(name="outcome_scale", default="raw"),
             ParameterSpec(name="partial_id_radius", default=None),
-        ) + _missingness_passthrough_parameters(),
+        )
+        + _missingness_passthrough_parameters(),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -1135,7 +1196,9 @@ class PeerEffectDecompositionEstimator:
         if data.node_states is None:
             raise ValueError("peer_effect_decomposition requires node_states as the outcome vector")
         if data.node_features is None:
-            raise ValueError("peer_effect_decomposition requires node_features for contextual effects")
+            raise ValueError(
+                "peer_effect_decomposition requires node_features for contextual effects"
+            )
 
         metadata = dict(data.metadata)
         adjacency = _row_normalize(np.asarray(data.adjacency, dtype=float))
@@ -1266,8 +1329,13 @@ class PeerEffectDecompositionEstimator:
 
         reconstructed_effective: np.ndarray | None = None
         if reconstructed_samples is not None:
-            if reconstructed_samples.ndim != 3 or reconstructed_samples.shape[1:] != (n_nodes, n_nodes):
-                raise ValueError("reconstructed_adjacency_samples must have shape (n_draws, n_nodes, n_nodes)")
+            if reconstructed_samples.ndim != 3 or reconstructed_samples.shape[1:] != (
+                n_nodes,
+                n_nodes,
+            ):
+                raise ValueError(
+                    "reconstructed_adjacency_samples must have shape (n_draws, n_nodes, n_nodes)"
+                )
             reconstructed_effective = _row_normalize(np.mean(reconstructed_samples, axis=0))
         elif reconstructed_adjacency is not None:
             reconstructed_effective = np.asarray(reconstructed_adjacency, dtype=float)
@@ -1289,7 +1357,10 @@ class PeerEffectDecompositionEstimator:
         has_control_function = bool(
             metadata.get(
                 "has_control_function",
-                metadata.get("has_cf", control_function_features is not None or control_function_residuals is not None),
+                metadata.get(
+                    "has_cf",
+                    control_function_features is not None or control_function_residuals is not None,
+                ),
             )
         )
         has_leave_own_out = bool(
@@ -1361,7 +1432,9 @@ class PeerEffectDecompositionEstimator:
 
         observed_design = _prepare_cross_section(adjacency)
         observed_intercept = None if use_component_fe else np.ones(n_nodes, dtype=float)
-        observed_exog = _column_stack(observed_intercept, observed_design["X"], observed_design["WX"])
+        observed_exog = _column_stack(
+            observed_intercept, observed_design["X"], observed_design["WX"]
+        )
         observed_excluded = _column_stack(observed_design["W2X"], observed_design["W3X"])
         observed_first_stage_f = _first_stage_f_stat(
             observed_design["WY"],
@@ -1379,7 +1452,9 @@ class PeerEffectDecompositionEstimator:
             observed_design["y"],
             observed_reduced_form_design,
         )
-        observed_reduced_form_index = (0 if use_component_fe else 1) + observed_design["X"].shape[1] + focal_feature_index
+        observed_reduced_form_index = (
+            (0 if use_component_fe else 1) + observed_design["X"].shape[1] + focal_feature_index
+        )
         reduced_form_interval = _interval_from_estimate(
             float(observed_reduced_form_beta[observed_reduced_form_index]),
             float(observed_reduced_form_se[observed_reduced_form_index]),
@@ -1394,7 +1469,8 @@ class PeerEffectDecompositionEstimator:
                 mobility_variation = float(
                     np.mean(
                         [
-                            np.linalg.norm(panel_adjacency_arr[t] - panel_adjacency_arr[t - 1]) / max(n_nodes, 1)
+                            np.linalg.norm(panel_adjacency_arr[t] - panel_adjacency_arr[t - 1])
+                            / max(n_nodes, 1)
                             for t in range(1, panel_adjacency_arr.shape[0])
                         ]
                     )
@@ -1415,7 +1491,9 @@ class PeerEffectDecompositionEstimator:
         }:
             structural_block_reason = "unknown_strategy"
             resolved_strategy = "partial_id"
-            warnings.append("Unknown peer-effects strategy requested; falling back to partial identification.")
+            warnings.append(
+                "Unknown peer-effects strategy requested; falling back to partial identification."
+            )
         elif requested_strategy == "partial_id":
             structural_block_reason = "partial_id_requested"
             resolved_strategy = "partial_id"
@@ -1441,11 +1519,13 @@ class PeerEffectDecompositionEstimator:
                     structural_block_reason = "not_identified_endogenous_network"
                     resolved_strategy = "partial_id"
             elif has_randomization and (
-                requested_model_class == "potential_outcomes_network" or bool(metadata.get("design_based", False))
+                requested_model_class == "potential_outcomes_network"
+                or bool(metadata.get("design_based", False))
             ):
                 resolved_strategy = "randomization"
             elif has_panel and (
-                requested_model_class == "dynamic_contagion" or bool(metadata.get("prefer_panel_strategy", False))
+                requested_model_class == "dynamic_contagion"
+                or bool(metadata.get("prefer_panel_strategy", False))
             ):
                 resolved_strategy = "panel"
             elif has_external_iv and bool(metadata.get("prefer_external_iv", False)):
@@ -1483,19 +1563,34 @@ class PeerEffectDecompositionEstimator:
         }
 
         if structural_block_reason is None:
-            if resolved_strategy != "graphical_reconstruction" and observability_rate < min_observability:
+            if (
+                resolved_strategy != "graphical_reconstruction"
+                and observability_rate < min_observability
+            ):
                 structural_block_reason = "not_identified_partial_network"
-            elif resolved_strategy == "graphical_reconstruction" and reconstructed_effective is None:
-                structural_block_reason = "graphical_reconstruction_requires_reconstructed_adjacency"
+            elif (
+                resolved_strategy == "graphical_reconstruction" and reconstructed_effective is None
+            ):
+                structural_block_reason = (
+                    "graphical_reconstruction_requires_reconstructed_adjacency"
+                )
             elif resolved_strategy == "topology_iv" and network_endogenous:
                 structural_block_reason = "topology_iv_forbidden_under_endogenous_network"
             elif resolved_strategy == "external_iv" and external_instruments is None:
                 structural_block_reason = "external_iv_requires_instruments"
             elif resolved_strategy == "panel" and panel_outcomes_raw is None:
                 structural_block_reason = "panel_requires_panel_outcomes"
-            elif resolved_strategy == "control_function" and control_function_features is None and control_function_residuals is None:
+            elif (
+                resolved_strategy == "control_function"
+                and control_function_features is None
+                and control_function_residuals is None
+            ):
                 structural_block_reason = "control_function_requires_controls"
-            elif resolved_strategy == "leave_own_out" and leave_own_out_effective is None and leave_own_out_instruments is None:
+            elif (
+                resolved_strategy == "leave_own_out"
+                and leave_own_out_effective is None
+                and leave_own_out_instruments is None
+            ):
                 structural_block_reason = "leave_own_out_requires_network_or_instruments"
             elif resolved_strategy == "randomization" and not has_randomization:
                 structural_block_reason = "randomization_requires_assignment_probabilities"
@@ -1512,7 +1607,9 @@ class PeerEffectDecompositionEstimator:
             provenance["graphical_reconstruction_draws"] = (
                 int(reconstructed_samples.shape[0]) if reconstructed_samples is not None else 1
             )
-            assumptions.append("missing links are addressed through caller-supplied reconstructed network draws")
+            assumptions.append(
+                "missing links are addressed through caller-supplied reconstructed network draws"
+            )
             robustness_checks.append("graphical_reconstruction")
             if not rank_condition_ok:
                 structural_block_reason = "not_identified_reflection"
@@ -1548,11 +1645,15 @@ class PeerEffectDecompositionEstimator:
                 )
 
         if structural_block_reason is None and resolved_strategy == "external_iv":
-            external_iv_work = _transform_auxiliary(external_instruments, observed_design["components"])
+            external_iv_work = _transform_auxiliary(
+                external_instruments, observed_design["components"]
+            )
             rank_condition_ok, condition_number = _rank_summary(
                 _column_stack(observed_design["X"], observed_design["WX"], external_iv_work)
             )
-            assumptions.append("external instruments satisfy exclusion for the peer-outcome channel")
+            assumptions.append(
+                "external instruments satisfy exclusion for the peer-outcome channel"
+            )
             robustness_checks.append("external_iv_route")
             if not rank_condition_ok:
                 structural_block_reason = "external_iv_rank_failure"
@@ -1577,23 +1678,39 @@ class PeerEffectDecompositionEstimator:
         if structural_block_reason is None and resolved_strategy == "control_function":
             cf_blocks: list[np.ndarray] = []
             if control_function_features is not None:
-                cf_blocks.append(_transform_auxiliary(control_function_features, observed_design["components"]))
+                cf_blocks.append(
+                    _transform_auxiliary(control_function_features, observed_design["components"])
+                )
             if control_function_residuals is not None:
-                cf_blocks.append(_transform_auxiliary(control_function_residuals, observed_design["components"]))
+                cf_blocks.append(
+                    _transform_auxiliary(control_function_residuals, observed_design["components"])
+                )
             cf_controls = _column_stack(*cf_blocks) if cf_blocks else None
-            assumptions.append("control-function covariates capture endogenous network formation residuals")
+            assumptions.append(
+                "control-function covariates capture endogenous network formation residuals"
+            )
             robustness_checks.append("control_function")
             if cf_controls is None:
                 structural_block_reason = "control_function_requires_controls"
             else:
                 rank_condition_ok, condition_number = _rank_summary(
-                    _column_stack(observed_design["X"], observed_design["WX"], observed_design["W2X"], cf_controls)
+                    _column_stack(
+                        observed_design["X"],
+                        observed_design["WX"],
+                        observed_design["W2X"],
+                        cf_controls,
+                    )
                 )
                 if not rank_condition_ok:
                     structural_block_reason = "control_function_rank_failure"
                 else:
                     extra_instruments = (
-                        _column_stack(_transform_auxiliary(external_instruments, observed_design["components"]), observed_design["W2X"])
+                        _column_stack(
+                            _transform_auxiliary(
+                                external_instruments, observed_design["components"]
+                            ),
+                            observed_design["W2X"],
+                        )
                         if external_instruments is not None
                         else observed_design["W2X"]
                     )
@@ -1629,7 +1746,9 @@ class PeerEffectDecompositionEstimator:
                 if leave_own_out_instruments is not None
                 else loo_wx
             )
-            assumptions.append("leave-own-out network statistics are conditionally exogenous for ego outcomes")
+            assumptions.append(
+                "leave-own-out network statistics are conditionally exogenous for ego outcomes"
+            )
             robustness_checks.append("leave_own_out")
             if loo_instruments is None:
                 structural_block_reason = "leave_own_out_requires_network_or_instruments"
@@ -1663,7 +1782,9 @@ class PeerEffectDecompositionEstimator:
                     )
 
         if structural_block_reason is None and resolved_strategy == "panel":
-            panel_outcomes = _normalize_panel_outcomes(np.asarray(panel_outcomes_raw, dtype=float), n_nodes)
+            panel_outcomes = _normalize_panel_outcomes(
+                np.asarray(panel_outcomes_raw, dtype=float), n_nodes
+            )
             n_periods = int(panel_outcomes.shape[0])
             if n_periods < 2:
                 structural_block_reason = "panel_requires_two_waves"
@@ -1671,7 +1792,9 @@ class PeerEffectDecompositionEstimator:
                 if panel_features_raw is None:
                     panel_features = np.repeat(X_raw[None, :, :], repeats=n_periods, axis=0)
                 else:
-                    panel_features = _normalize_panel_features(np.asarray(panel_features_raw, dtype=float), n_nodes)
+                    panel_features = _normalize_panel_features(
+                        np.asarray(panel_features_raw, dtype=float), n_nodes
+                    )
                     if panel_features.shape[0] != n_periods:
                         raise ValueError("panel_features must have one slice per panel wave")
                 if panel_adjacency_raw is None:
@@ -1679,7 +1802,9 @@ class PeerEffectDecompositionEstimator:
                 else:
                     raw_panel_adjacency = np.asarray(panel_adjacency_raw, dtype=float)
                     if raw_panel_adjacency.ndim == 2:
-                        panel_adjacency = np.repeat(raw_panel_adjacency[None, :, :], repeats=n_periods, axis=0)
+                        panel_adjacency = np.repeat(
+                            raw_panel_adjacency[None, :, :], repeats=n_periods, axis=0
+                        )
                     else:
                         panel_adjacency = _normalize_panel_adjacency(raw_panel_adjacency, n_nodes)
                         if panel_adjacency.shape[0] != n_periods:
@@ -1689,12 +1814,15 @@ class PeerEffectDecompositionEstimator:
                     if mobility_variation is not None
                     else np.mean(
                         [
-                            np.linalg.norm(panel_adjacency[t] - panel_adjacency[t - 1]) / max(n_nodes, 1)
+                            np.linalg.norm(panel_adjacency[t] - panel_adjacency[t - 1])
+                            / max(n_nodes, 1)
                             for t in range(1, n_periods)
                         ]
                     )
                 )
-                assumptions.append("panel route uses first differences with lagged peer outcomes to soften simultaneity")
+                assumptions.append(
+                    "panel route uses first differences with lagged peer outcomes to soften simultaneity"
+                )
                 robustness_checks.extend(["panel_first_difference", "mover_variation"])
 
                 diff_y_blocks: list[np.ndarray] = []
@@ -1732,13 +1860,29 @@ class PeerEffectDecompositionEstimator:
                     panel_WX, _, _ = _safe_standardize(panel_WX)
                     panel_W2X, _, _ = _safe_standardize(panel_W2X)
                     panel_W3X, _, _ = _safe_standardize(panel_W3X)
-                rank_condition_ok, condition_number = _rank_summary(_column_stack(panel_X, panel_WX, panel_W2X))
-                density = float(np.mean([_density(_row_normalize(panel_adjacency[t])) for t in range(n_periods)]))
+                rank_condition_ok, condition_number = _rank_summary(
+                    _column_stack(panel_X, panel_WX, panel_W2X)
+                )
+                density = float(
+                    np.mean(
+                        [_density(_row_normalize(panel_adjacency[t])) for t in range(n_periods)]
+                    )
+                )
                 intransitivity = float(
-                    np.mean([_intransitivity_index(_row_normalize(panel_adjacency[t])) for t in range(n_periods)])
+                    np.mean(
+                        [
+                            _intransitivity_index(_row_normalize(panel_adjacency[t]))
+                            for t in range(n_periods)
+                        ]
+                    )
                 )
                 spectral_radius = float(
-                    np.mean([_spectral_radius(_row_normalize(panel_adjacency[t])) for t in range(n_periods)])
+                    np.mean(
+                        [
+                            _spectral_radius(_row_normalize(panel_adjacency[t]))
+                            for t in range(n_periods)
+                        ]
+                    )
                 )
                 if not rank_condition_ok:
                     structural_block_reason = "panel_rank_failure"
@@ -1758,11 +1902,14 @@ class PeerEffectDecompositionEstimator:
                     route_components = np.tile(np.arange(n_nodes), n_periods - 1)
                     model_class = (
                         "dynamic_contagion"
-                        if requested_model_class == "dynamic_contagion" or panel_treatment_raw is not None
+                        if requested_model_class == "dynamic_contagion"
+                        or panel_treatment_raw is not None
                         else "linear_in_means"
                     )
                     if panel_treatment_raw is not None:
-                        panel_treatment = _normalize_panel_outcomes(np.asarray(panel_treatment_raw, dtype=float), n_nodes)
+                        panel_treatment = _normalize_panel_outcomes(
+                            np.asarray(panel_treatment_raw, dtype=float), n_nodes
+                        )
                         if panel_treatment.shape[0] != n_periods:
                             raise ValueError("panel_treatment must have one wave per panel period")
                         incident_y_blocks: list[np.ndarray] = []
@@ -1795,7 +1942,9 @@ class PeerEffectDecompositionEstimator:
                             peer_treat,
                             level_x,
                         )
-                        contagion_beta, contagion_se, contagion_residuals = _fit_ols(incident_y, contagion_design)
+                        contagion_beta, contagion_se, contagion_residuals = _fit_ols(
+                            incident_y, contagion_design
+                        )
                         units = "SD(y)" if estimand_scale == "standardized" else "outcome-units"
                         direct_effect = _interval_from_estimate(
                             float(contagion_beta[1]),
@@ -1820,7 +1969,9 @@ class PeerEffectDecompositionEstimator:
                         )
                         spillover_effect = infectiousness_effect
                         if np.std(contagion_residuals) > 1e-12 and np.std(peer_outcome) > 1e-12:
-                            proxy_estimate = float(np.corrcoef(contagion_residuals, peer_outcome)[0, 1])
+                            proxy_estimate = float(
+                                np.corrcoef(contagion_residuals, peer_outcome)[0, 1]
+                            )
                             correlated_proxy = _interval_from_estimate(
                                 proxy_estimate,
                                 None,
@@ -1853,15 +2004,25 @@ class PeerEffectDecompositionEstimator:
             "panel",
         }:
             effective_first_stage_f = route_result.get("first_stage_f")
-            weak_iv_flag = effective_first_stage_f is None or effective_first_stage_f < weak_iv_threshold
+            weak_iv_flag = (
+                effective_first_stage_f is None or effective_first_stage_f < weak_iv_threshold
+            )
             endogenous_interval = route_result.get("endogenous_effect")
             contextual_interval = route_result.get("contextual_effect")
             total_interval = route_result.get("total_peer_effect")
-            reduced_form_interval = route_result.get("reduced_form_peer_multiplier", reduced_form_interval)
-            if route_result.get("residuals") is not None and correlated_proxy is None and resolved_strategy != "panel":
+            reduced_form_interval = route_result.get(
+                "reduced_form_peer_multiplier", reduced_form_interval
+            )
+            if (
+                route_result.get("residuals") is not None
+                and correlated_proxy is None
+                and resolved_strategy != "panel"
+            ):
                 correlated_proxy, correlated_estimand = _correlated_proxy(
                     residuals=route_result["residuals"],
-                    adjacency=adjacency if resolved_strategy != "graphical_reconstruction" else reconstructed_effective,
+                    adjacency=adjacency
+                    if resolved_strategy != "graphical_reconstruction"
+                    else reconstructed_effective,
                     y_raw=y_raw,
                     components=route_components,
                     use_component_fe=use_component_fe,
@@ -1876,35 +2037,58 @@ class PeerEffectDecompositionEstimator:
             direct_effect = route_result.get("direct_effect")
             spillover_effect = route_result.get("spillover_effect")
             total_interval = route_result.get("total_peer_effect")
-            reduced_form_interval = route_result.get("reduced_form_peer_multiplier", reduced_form_interval)
+            reduced_form_interval = route_result.get(
+                "reduced_form_peer_multiplier", reduced_form_interval
+            )
             provenance["design_coefficients"] = route_result.get("design_coefficients")
         else:
-            weak_iv_flag = observed_first_stage_f is None or observed_first_stage_f < weak_iv_threshold
+            weak_iv_flag = (
+                observed_first_stage_f is None or observed_first_stage_f < weak_iv_threshold
+            )
 
         if resolved_strategy != "panel" and resolved_strategy != "randomization":
             model_class = "linear_in_means"
 
-        if structural_block_reason is None and resolved_strategy in {
-            "topology_iv",
-            "graphical_reconstruction",
-            "external_iv",
-            "control_function",
-            "leave_own_out",
-        } and not rank_condition_ok:
+        if (
+            structural_block_reason is None
+            and resolved_strategy
+            in {
+                "topology_iv",
+                "graphical_reconstruction",
+                "external_iv",
+                "control_function",
+                "leave_own_out",
+            }
+            and not rank_condition_ok
+        ):
             structural_block_reason = "not_identified_reflection"
 
-        bounds_scale = 1.0 if estimand_scale == "standardized" else max(float(np.std(y_raw)), 1.0e-6)
+        bounds_scale = (
+            1.0 if estimand_scale == "standardized" else max(float(np.std(y_raw)), 1.0e-6)
+        )
         endogenous_bounds = None
         contextual_bounds = None
         if structural_block_reason is not None or (
             weak_iv_flag
-            and resolved_strategy in {"topology_iv", "graphical_reconstruction", "external_iv", "control_function", "leave_own_out", "panel"}
+            and resolved_strategy
+            in {
+                "topology_iv",
+                "graphical_reconstruction",
+                "external_iv",
+                "control_function",
+                "leave_own_out",
+                "panel",
+            }
             and route_result is not None
         ):
             if structural_block_reason is not None:
-                assumptions.append("structural decomposition blocked; reporting reduced-form plus sensitivity bounds")
+                assumptions.append(
+                    "structural decomposition blocked; reporting reduced-form plus sensitivity bounds"
+                )
             else:
-                assumptions.append("weak first stage detected; sensitivity envelope complements asymptotic intervals")
+                assumptions.append(
+                    "weak first stage detected; sensitivity envelope complements asymptotic intervals"
+                )
                 robustness_checks.append("weak_iv_sensitivity_bounds")
             endogenous_bounds = _sensitivity_bounds(
                 center=endogenous_interval.estimate if endogenous_interval is not None else 0.0,
@@ -1918,7 +2102,9 @@ class PeerEffectDecompositionEstimator:
                 center=(
                     contextual_interval.estimate
                     if contextual_interval is not None
-                    else (reduced_form_interval.estimate if reduced_form_interval is not None else 0.0)
+                    else (
+                        reduced_form_interval.estimate if reduced_form_interval is not None else 0.0
+                    )
                 ),
                 scale=bounds_scale,
                 observability_rate=observability_rate,
@@ -1928,10 +2114,16 @@ class PeerEffectDecompositionEstimator:
             )
 
         if structural_block_reason is None:
-            identification_status = "weakly_identified" if weak_iv_flag and resolved_strategy != "randomization" else "identified"
+            identification_status = (
+                "weakly_identified"
+                if weak_iv_flag and resolved_strategy != "randomization"
+                else "identified"
+            )
             strategy_used = resolved_strategy
         else:
-            identification_status = "partially_identified" if reduced_form_interval is not None else "not_identified"
+            identification_status = (
+                "partially_identified" if reduced_form_interval is not None else "not_identified"
+            )
             strategy_used = "partial_id"
             warnings.append(f"Blocking mode activated: {structural_block_reason}.")
 
@@ -1944,12 +2136,24 @@ class PeerEffectDecompositionEstimator:
             "observability metadata must support the chosen identification route",
             "rank and exclusion restrictions must hold on the transformed design",
         ]
-        if resolved_strategy in {"topology_iv", "graphical_reconstruction", "external_iv", "control_function", "leave_own_out"}:
-            testable_implications.append("excluded instruments are relevant for the peer-outcome channel")
+        if resolved_strategy in {
+            "topology_iv",
+            "graphical_reconstruction",
+            "external_iv",
+            "control_function",
+            "leave_own_out",
+        }:
+            testable_implications.append(
+                "excluded instruments are relevant for the peer-outcome channel"
+            )
         if resolved_strategy == "panel":
-            testable_implications.append("future peers should not predict past outcomes under exogenous mobility")
+            testable_implications.append(
+                "future peers should not predict past outcomes under exogenous mobility"
+            )
         if resolved_strategy == "randomization":
-            testable_implications.append("assignment probabilities must be strictly positive and correctly specified")
+            testable_implications.append(
+                "assignment probabilities must be strictly positive and correctly specified"
+            )
 
         diagnostics = IdentificationDiagnostics(
             identification_status=identification_status,
@@ -1963,7 +2167,9 @@ class PeerEffectDecompositionEstimator:
             component_count=component_count,
             density=density,
             intransitivity_index=intransitivity,
-            mobility_variation=float(mobility_variation) if mobility_variation is not None else None,
+            mobility_variation=float(mobility_variation)
+            if mobility_variation is not None
+            else None,
             spectral_radius_W=spectral_radius,
             blocking_reason=structural_block_reason,
             warnings=warnings,
@@ -1980,7 +2186,9 @@ class PeerEffectDecompositionEstimator:
             total_peer_effect=total_interval if structural_block_reason is None else None,
             reduced_form_peer_multiplier=reduced_form_interval,
             contagion_effect=contagion_effect if structural_block_reason is None else None,
-            infectiousness_effect=infectiousness_effect if structural_block_reason is None else None,
+            infectiousness_effect=infectiousness_effect
+            if structural_block_reason is None
+            else None,
             endogenous_bounds=endogenous_bounds,
             contextual_bounds=contextual_bounds,
             diagnostics=diagnostics,
@@ -1990,12 +2198,15 @@ class PeerEffectDecompositionEstimator:
                 "full_network_observed": observability_rate >= min_observability,
                 "node_features_available": data.node_features is not None,
                 "node_states_available": data.node_states is not None,
-                "component_fixed_effects_applied": use_component_fe and resolved_strategy != "panel",
+                "component_fixed_effects_applied": use_component_fe
+                and resolved_strategy != "panel",
                 "external_iv_available": external_instruments is not None,
                 "panel_available": panel_outcomes_raw is not None,
                 "randomization_available": has_randomization,
-                "control_function_available": control_function_features is not None or control_function_residuals is not None,
-                "leave_own_out_available": leave_own_out_effective is not None or leave_own_out_instruments is not None,
+                "control_function_available": control_function_features is not None
+                or control_function_residuals is not None,
+                "leave_own_out_available": leave_own_out_effective is not None
+                or leave_own_out_instruments is not None,
                 "reconstruction_available": reconstructed_effective is not None,
             },
             robustness_checks_run=robustness_checks,
@@ -2042,6 +2253,7 @@ class PeerEffectDecompositionEstimator:
 )
 class ContagionModelEstimator:
     """Simulate SIS/SIR contagion over a weighted network; avoid homogeneous-mixing settings where compartmental ODEs are simpler."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -2051,8 +2263,15 @@ class ContagionModelEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("adjacency", SlotType.MATRIX, Unit("network", "weight"), shape=("n_nodes", "n_nodes")),
-                SlotSpec("node_states", SlotType.VECTOR, Unit("state", "value"), shape=("n_nodes",)),
+                SlotSpec(
+                    "adjacency",
+                    SlotType.MATRIX,
+                    Unit("network", "weight"),
+                    shape=("n_nodes", "n_nodes"),
+                ),
+                SlotSpec(
+                    "node_states", SlotType.VECTOR, Unit("state", "value"), shape=("n_nodes",)
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -2061,7 +2280,8 @@ class ContagionModelEstimator:
             ParameterSpec(name="gamma", default=0.1),
             ParameterSpec(name="n_steps", default=12),
             ParameterSpec(name="model_type", default="sis"),
-        ) + _missingness_passthrough_parameters(),
+        )
+        + _missingness_passthrough_parameters(),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -2108,8 +2328,14 @@ class ContagionModelEstimator:
             exposure = adjacency @ infected
             infection_prob = np.clip(beta * exposure, 0.0, 1.0)
             recovery_prob = np.clip(np.full_like(infected, gamma), 0.0, 1.0)
-            new_infected = ((rng.uniform(size=infected.shape[0]) < infection_prob) & (infected < 0.5) & (recovered < 0.5)).astype(float)
-            recoveries = ((rng.uniform(size=infected.shape[0]) < recovery_prob) & (infected > 0.5)).astype(float)
+            new_infected = (
+                (rng.uniform(size=infected.shape[0]) < infection_prob)
+                & (infected < 0.5)
+                & (recovered < 0.5)
+            ).astype(float)
+            recoveries = (
+                (rng.uniform(size=infected.shape[0]) < recovery_prob) & (infected > 0.5)
+            ).astype(float)
             infected = np.clip(infected + new_infected - recoveries, 0.0, 1.0)
             if model_type == "sir":
                 recovered = np.clip(recovered + recoveries, 0.0, 1.0)
@@ -2144,6 +2370,7 @@ class ContagionModelEstimator:
 )
 class MultiplexNetworkEstimator:
     """Summarize multi-layer network structure across aligned adjacency layers; avoid layer sets with incompatible node universes."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -2183,18 +2410,32 @@ class MultiplexNetworkEstimator:
     )
 
     @staticmethod
-    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> MultiplexNetworkData:
+    def materialize_input(
+        bound_inputs: Mapping[str, Any], fallback_state: Any
+    ) -> MultiplexNetworkData:
         payload = _multiplex_payload(fallback_state)
         payload.update(bound_inputs)
         return MultiplexNetworkData.model_validate(payload)
 
     @staticmethod
     def pure_step(state: MultiplexNetworkData, params: Mapping[str, Any]) -> dict[str, Any]:
-        data = state if isinstance(state, MultiplexNetworkData) else MultiplexNetworkData.model_validate(state)
+        data = (
+            state
+            if isinstance(state, MultiplexNetworkData)
+            else MultiplexNetworkData.model_validate(state)
+        )
         payload = data.model_dump(mode="python")
         layers = np.asarray(data.adjacency_layers, dtype=float)
         aggregate = np.mean(layers, axis=0)
-        overlap = float(np.mean([np.mean(np.abs(layers[i] - layers[j])) for i in range(layers.shape[0]) for j in range(i + 1, layers.shape[0])]))
+        overlap = float(
+            np.mean(
+                [
+                    np.mean(np.abs(layers[i] - layers[j]))
+                    for i in range(layers.shape[0])
+                    for j in range(i + 1, layers.shape[0])
+                ]
+            )
+        )
         eigvals, eigvecs = np.linalg.eig(_symmetrize(aggregate))
         dominant = np.real(eigvecs[:, int(np.argmax(np.real(eigvals)))])
         dominant = np.abs(dominant)
@@ -2221,7 +2462,9 @@ class MultiplexNetworkEstimator:
                 metadata=_network_result_metadata(
                     {
                         "aggregate_adjacency": aggregate.tolist(),
-                        "missingness_projection": "aggregate_layer_mean" if missingness_assessment is not None else None,
+                        "missingness_projection": "aggregate_layer_mean"
+                        if missingness_assessment is not None
+                        else None,
                     },
                     embedding_fidelity_certificate,
                 ),
@@ -2234,7 +2477,7 @@ __all__ = [
     "ContagionModelEstimator",
     "InputOutputNetworkEstimator",
     "MultiplexNetworkEstimator",
-    "NetworkMissingnessAssessmentEstimator",
     "NetworkDiffusionEstimator",
+    "NetworkMissingnessAssessmentEstimator",
     "PeerEffectDecompositionEstimator",
 ]

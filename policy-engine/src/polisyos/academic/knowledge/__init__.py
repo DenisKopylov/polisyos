@@ -5,15 +5,15 @@ from __future__ import annotations
 import importlib
 
 __all__ = [
-    "ScholarKnowledgeGraph",
     "CanonicalVariableResolver",
-    "ResolutionResult",
-    "ParameterSelector",
-    "SKGQuery",
-    "ParameterCandidate",
     "EdgeSupportRecord",
     "EdgeTransportRecord",
+    "ParameterCandidate",
+    "ParameterSelector",
+    "ResolutionResult",
+    "SKGQuery",
     "SKGVersionManager",
+    "ScholarKnowledgeGraph",
     "VariableCanonizer",
 ]
 

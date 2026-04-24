@@ -1,7 +1,9 @@
 """Public econometrics panel module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -19,7 +21,6 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-
 from polisyos.foundry.methods.catalog._payloads import extract_model_payload
 
 from .dependence import route_cross_sectional_dependence
@@ -122,9 +123,7 @@ def _drop_time_invariant_exog(
             keep_idx.append(idx)
 
     if not keep_idx:
-        raise ValueError(
-            "Fixed Effects dropped all regressors as time-invariant within entities"
-        )
+        raise ValueError("Fixed Effects dropped all regressors as time-invariant within entities")
 
     reduced = exog[:, keep_idx]
     kept_names = [names[i] for i in keep_idx]
@@ -363,7 +362,7 @@ def _run_fixed_effects(state: PanelData, params: Mapping[str, Any]) -> Econometr
     frame = pd.DataFrame(reduced_exog, columns=reduced_names)
     frame["y"] = state.dependent
     frame["entity"] = state.entity_ids
-    frame["time"] = state.time_ids
+    frame["time"] = _coerce_panel_time_ids(state.time_ids, pd=pd)
     frame = frame.set_index(["entity", "time"])
 
     include_time_effects = bool(params.get("include_time_effects", False))
@@ -410,12 +409,11 @@ def _run_random_effects(state: PanelData, params: Mapping[str, Any]) -> Economet
     import pandas as pd
     from linearmodels.panel import RandomEffects
 
-
     names = _feature_names(state)
     frame = pd.DataFrame(state.exog, columns=names)
     frame["y"] = state.dependent
     frame["entity"] = state.entity_ids
-    frame["time"] = state.time_ids
+    frame["time"] = _coerce_panel_time_ids(state.time_ids, pd=pd)
     frame = frame.set_index(["entity", "time"])
 
     cov_type = str(params.get("cov_type", "robust"))
@@ -440,6 +438,22 @@ def _run_random_effects(state: PanelData, params: Mapping[str, Any]) -> Economet
         cross_sectional_dependence_diagnostic=dependence_diagnostic,
     )
     return _apply_dependence_posture(result, params=params)
+
+
+def _coerce_panel_time_ids(time_ids: np.ndarray, *, pd: Any) -> np.ndarray:
+    """Normalize panel time ids so linearmodels receives numeric or date-like values."""
+
+    index = pd.Index(time_ids)
+    if pd.api.types.is_numeric_dtype(index.dtype) or pd.api.types.is_datetime64_any_dtype(
+        index.dtype
+    ):
+        return time_ids
+
+    coerced = pd.to_datetime(time_ids, errors="coerce")
+    if not coerced.isna().any():
+        return coerced.to_numpy()
+
+    return time_ids
 
 
 @foundry_method(

@@ -58,9 +58,9 @@ class DatasetSearchResult(BaseModel):
     execution_tier: str = "catalog"
     update_frequency: str = ""
     last_updated: str | None = None
-    coverage: "DatasetCoverage" = Field(default_factory=lambda: DatasetCoverage())
-    access: "DatasetAccess" = Field(default_factory=lambda: DatasetAccess())
-    quality: "DatasetQuality" = Field(default_factory=lambda: DatasetQuality())
+    coverage: DatasetCoverage = Field(default_factory=lambda: DatasetCoverage())
+    access: DatasetAccess = Field(default_factory=lambda: DatasetAccess())
+    quality: DatasetQuality = Field(default_factory=lambda: DatasetQuality())
     preferred_distribution_id: str = ""
 
     # Best distribution (for quick connector access)
@@ -137,9 +137,9 @@ class DatasetRecord(BaseModel):
     execution_tier: str = "catalog"
     update_frequency: str = ""
     last_updated: str | None = None
-    coverage: "DatasetCoverage" = Field(default_factory=lambda: DatasetCoverage())
-    access: "DatasetAccess" = Field(default_factory=lambda: DatasetAccess())
-    quality: "DatasetQuality" = Field(default_factory=lambda: DatasetQuality())
+    coverage: DatasetCoverage = Field(default_factory=lambda: DatasetCoverage())
+    access: DatasetAccess = Field(default_factory=lambda: DatasetAccess())
+    quality: DatasetQuality = Field(default_factory=lambda: DatasetQuality())
     preferred_distribution_id: str = ""
 
 
@@ -264,6 +264,7 @@ class DatasetMatch(BaseModel):
 
 class DistributionType(str, Enum):
     """Distribution type public type."""
+
     POINT = "point"
     EMPIRICAL = "empirical"
     KDE = "kde"

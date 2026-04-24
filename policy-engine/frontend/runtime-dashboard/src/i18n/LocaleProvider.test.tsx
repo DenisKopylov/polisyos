@@ -28,6 +28,21 @@ describe("LocaleProvider", () => {
     expect(
       result.current.t("pages.evidence.contextTitle", { runId: "run-7" }),
     ).toBe("Evidence context для запуску run-7");
+    expect(result.current.t("shell.header.runsInReview", { count: 1 })).toBe(
+      "1 запуск у review",
+    );
+    expect(result.current.t("shell.header.runsInReview", { count: 2 })).toBe(
+      "2 запуски у review",
+    );
+    expect(result.current.t("shell.header.runsInReview", { count: 5 })).toBe(
+      "5 запусків у review",
+    );
+    expect(
+      result.current.t("pages.lex.resultsSummary", {
+        count: 2,
+        query: "policy",
+      }),
+    ).toBe("2 результати для «policy»");
     expect(result.current.t("missing.translation.path")).toBe(
       "missing.translation.path",
     );
@@ -60,6 +75,21 @@ describe("LocaleProvider", () => {
   it("requires useI18n to be used inside LocaleProvider", () => {
     expect(() => renderHook(() => useI18n())).toThrow(
       "useI18n must be used within LocaleProvider",
+    );
+  });
+
+  it("resolves Russian locale from navigator preferences", async () => {
+    Object.defineProperty(window.navigator, "language", {
+      configurable: true,
+      value: "ru-RU",
+    });
+
+    const { result } = renderHook(() => useI18n(), { wrapper: Wrapper });
+
+    await waitFor(() => expect(result.current.locale).toBe("ru"));
+    expect(document.documentElement.lang).toBe("ru");
+    expect(result.current.t("shell.header.runsInReview", { count: 2 })).toBe(
+      "2 runs in review",
     );
   });
 });

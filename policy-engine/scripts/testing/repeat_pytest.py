@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Repeat one pytest invocation multiple times and fail on the first red run."""
+
 from __future__ import annotations
 
 import argparse

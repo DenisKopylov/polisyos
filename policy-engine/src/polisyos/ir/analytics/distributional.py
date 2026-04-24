@@ -1,4 +1,5 @@
 """Define cohort-level distribution shifts, coupling diagnostics, and report refs."""
+
 from __future__ import annotations
 
 import math
@@ -15,10 +16,10 @@ from polisyos.ir.refs import (
     DistributionalBoundsBundleRef,
     DistributionalDualCertificateRef,
     DistributionalEffectBundleRef,
-    OrdinalPovertyReportRef,
     DistributionalProofArtifactRef,
     DistributionalReportRef,
     EstimandASTRef,
+    OrdinalPovertyReportRef,
     ProofBundleRef,
 )
 
@@ -48,7 +49,7 @@ _SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_NAME = "ir.subgroup_distribution_compar
 _SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_VERSION = "1.0"
 
 
-def _justification_rank(justification: "DistributionalJustification") -> int:
+def _justification_rank(justification: DistributionalJustification) -> int:
     order = {
         DistributionalJustification.SCENARIO: 0,
         DistributionalJustification.BOUNDED: 1,
@@ -58,8 +59,8 @@ def _justification_rank(justification: "DistributionalJustification") -> int:
 
 
 def _weakest_justification(
-    *justifications: "DistributionalJustification | None",
-) -> "DistributionalJustification":
+    *justifications: DistributionalJustification | None,
+) -> DistributionalJustification:
     present = [justification for justification in justifications if justification is not None]
     if not present:
         return DistributionalJustification.SCENARIO
@@ -142,13 +143,16 @@ def _persist_distributional_leaf(
     return ArtifactRefModel.model_validate(ref)
 
 
-def _load_distributional_leaf(store: ArtifactStore, ref: ArtifactRefModel, model: type[BaseModel]) -> Any:
+def _load_distributional_leaf(
+    store: ArtifactStore, ref: ArtifactRefModel, model: type[BaseModel]
+) -> Any:
     payload = get_json_artifact(store, ref.artifact_id)
     return model.model_validate(payload)
 
 
 class DistributionalJustification(str, Enum):
     """Declare whether a distributional claim is identified, bounded, or scenario-based."""
+
     IDENTIFIED = "identified"
     BOUNDED = "bounded"
     SCENARIO = "scenario"
@@ -166,6 +170,7 @@ class DistributionalFunctional(str, Enum):
     ITE_TAIL_RISK = "ite_tail_risk"
     GINI = "gini"
     THEIL_T = "theil_t"
+    GENERALIZED_ENTROPY = "generalized_entropy"
     ATKINSON = "atkinson"
     POVERTY_HEADCOUNT = "poverty_headcount"
 
@@ -235,6 +240,7 @@ class MetricUnit(str, Enum):
 
 class CouplingDiagnostics(BaseModel):
     """Summarize optimal-transport coupling quality and identifiability assumptions."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     mass_conservation_error: float = Field(ge=0.0)
@@ -249,7 +255,7 @@ class CouplingDiagnostics(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_finite_numbers(self) -> "CouplingDiagnostics":
+    def _validate_finite_numbers(self) -> CouplingDiagnostics:
         for field_name in (
             "mass_conservation_error",
             "source_marginal_l1_error",
@@ -279,7 +285,7 @@ class CausalAssumptionCard(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_card(self) -> "CausalAssumptionCard":
+    def _validate_card(self) -> CausalAssumptionCard:
         _ensure_non_empty(self.theorem_family, field_name="theorem_family")
         _ensure_non_empty(self.assumption_type, field_name="assumption_type")
         _ensure_non_empty(self.description, field_name="description")
@@ -296,7 +302,7 @@ class DistributionalSupportDomain(BaseModel):
     unit: str | None = None
 
     @model_validator(mode="after")
-    def _validate_domain(self) -> "DistributionalSupportDomain":
+    def _validate_domain(self) -> DistributionalSupportDomain:
         lower = _ensure_finite(self.lower, field_name="lower")
         upper = _ensure_finite(self.upper, field_name="upper")
         _ensure_non_empty(self.unit, field_name="unit")
@@ -321,7 +327,7 @@ class DistributionalDualBoundWitness(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_witness(self) -> "DistributionalDualBoundWitness":
+    def _validate_witness(self) -> DistributionalDualBoundWitness:
         lengths = {
             len(self.primal_objective_values),
             len(self.dual_objective_values),
@@ -373,7 +379,7 @@ class DistributionalDualCertificate(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_certificate(self) -> "DistributionalDualCertificate":
+    def _validate_certificate(self) -> DistributionalDualCertificate:
         _ensure_non_empty(self.theorem_family, field_name="theorem_family")
         _ensure_non_empty(self.assumption_class, field_name="assumption_class")
         _ensure_non_empty(self.primal_problem_class, field_name="primal_problem_class")
@@ -413,6 +419,7 @@ class DistributionalFunctionalParameters(BaseModel):
     poverty_line: float | None = None
     poverty_lines: tuple[float, ...] = ()
     atkinson_epsilon: float | None = Field(default=None, ge=0.0)
+    generalized_entropy_alpha: float | None = None
     mean_floor: float | None = Field(default=None, gt=0.0)
     support_floor: float | None = None
     support_ceiling: float | None = None
@@ -420,9 +427,10 @@ class DistributionalFunctionalParameters(BaseModel):
     target_potential_outcome: str | None = Field(default=None, pattern=r"^(y0|y1)$")
 
     @model_validator(mode="after")
-    def _validate_parameters(self) -> "DistributionalFunctionalParameters":
+    def _validate_parameters(self) -> DistributionalFunctionalParameters:
         _ensure_finite(self.poverty_line, field_name="poverty_line")
         _ensure_finite(self.atkinson_epsilon, field_name="atkinson_epsilon")
+        _ensure_finite(self.generalized_entropy_alpha, field_name="generalized_entropy_alpha")
         _ensure_finite(self.mean_floor, field_name="mean_floor")
         _ensure_finite(self.support_floor, field_name="support_floor")
         _ensure_finite(self.support_ceiling, field_name="support_ceiling")
@@ -459,10 +467,13 @@ class DistributionalProofArtifact(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_artifact(self) -> "DistributionalProofArtifact":
+    def _validate_artifact(self) -> DistributionalProofArtifact:
         _ensure_non_empty(self.theorem_family, field_name="theorem_family")
         _validate_unique_artifact_refs(
-            [ArtifactRefModel.model_validate(ref.model_dump(mode="json")) for ref in self.assumption_card_refs],
+            [
+                ArtifactRefModel.model_validate(ref.model_dump(mode="json"))
+                for ref in self.assumption_card_refs
+            ],
             field_name="assumption_card_refs",
         )
         if self.target is DistributionalProofTarget.COUPLING:
@@ -470,10 +481,14 @@ class DistributionalProofArtifact(BaseModel):
                 raise ValueError("coupling target requires a non-trivial coupling_status")
         elif self.coupling_status is not DistributionalCouplingStatus.NOT_USED:
             raise ValueError("non-coupling targets must use coupling_status='not_used'")
-        if self.coupling_status in {
-            DistributionalCouplingStatus.IDENTIFIED,
-            DistributionalCouplingStatus.SET_IDENTIFIED,
-        } and self.base_proof_ref is None:
+        if (
+            self.coupling_status
+            in {
+                DistributionalCouplingStatus.IDENTIFIED,
+                DistributionalCouplingStatus.SET_IDENTIFIED,
+            }
+            and self.base_proof_ref is None
+        ):
             raise ValueError("identified or set-identified coupling claims require base_proof_ref")
         derived_targets = {
             DistributionalProofTarget.QUANTILE,
@@ -497,16 +512,25 @@ class DistributionalProofArtifact(BaseModel):
             if self.derived_from_target not in allowed_sources:
                 raise ValueError("derived distributional targets must cite a valid upstream source")
             if self.bound_uniformity is DistributionalBoundUniformity.POINTWISE_ONLY:
-                raise ValueError("derived distributional targets cannot rely on pointwise-only bounds")
+                raise ValueError(
+                    "derived distributional targets cannot rely on pointwise-only bounds"
+                )
         elif self.derived_from_target is not None:
             raise ValueError("derived_from_target is only valid for derived functionals")
-        if self.bound_uniformity in {
-            DistributionalBoundUniformity.UNIFORM_SHARP,
-            DistributionalBoundUniformity.UNIFORM_OUTER,
-            DistributionalBoundUniformity.POINTWISE_ONLY,
-        } and self.bounded_curve_ref is None:
+        if (
+            self.bound_uniformity
+            in {
+                DistributionalBoundUniformity.UNIFORM_SHARP,
+                DistributionalBoundUniformity.UNIFORM_OUTER,
+                DistributionalBoundUniformity.POINTWISE_ONLY,
+            }
+            and self.bounded_curve_ref is None
+        ):
             raise ValueError("bounded proof artifacts require bounded_curve_ref")
-        if self.bound_uniformity is DistributionalBoundUniformity.IDENTIFIED and self.base_proof_ref is None:
+        if (
+            self.bound_uniformity is DistributionalBoundUniformity.IDENTIFIED
+            and self.base_proof_ref is None
+        ):
             raise ValueError("identified distributional proof artifacts require base_proof_ref")
         if (
             self.target is not DistributionalProofTarget.COUPLING
@@ -521,6 +545,7 @@ class DistributionalProofArtifact(BaseModel):
 
 class DistributionBin(BaseModel):
     """Store one histogram bin in a normalized discrete distribution summary."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     index: int = Field(ge=0)
@@ -531,7 +556,7 @@ class DistributionBin(BaseModel):
     sample_count: int = Field(ge=0)
 
     @model_validator(mode="after")
-    def _validate_bin(self) -> "DistributionBin":
+    def _validate_bin(self) -> DistributionBin:
         lower = _ensure_finite(self.lower_edge, field_name="lower_edge")
         upper = _ensure_finite(self.upper_edge, field_name="upper_edge")
         midpoint = _ensure_finite(self.midpoint, field_name="midpoint")
@@ -545,6 +570,7 @@ class DistributionBin(BaseModel):
 
 class DiscreteDistributionSummary(BaseModel):
     """Describe a weighted discrete outcome distribution over histogram bins."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -559,7 +585,7 @@ class DiscreteDistributionSummary(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_distribution(self) -> "DiscreteDistributionSummary":
+    def _validate_distribution(self) -> DiscreteDistributionSummary:
         _ensure_non_empty(self.outcome_name, field_name="outcome_name")
         _ensure_non_empty(self.weighting_mode, field_name="weighting_mode")
         for field_name in ("total_weight", "mean_value", "min_value", "max_value"):
@@ -569,7 +595,11 @@ class DiscreteDistributionSummary(BaseModel):
             raise ValueError(
                 f"distribution probabilities must sum to 1.0, got {total_probability:.8f}"
             )
-        if self.min_value is not None and self.max_value is not None and self.min_value > self.max_value:
+        if (
+            self.min_value is not None
+            and self.max_value is not None
+            and self.min_value > self.max_value
+        ):
             raise ValueError("min_value must be <= max_value")
         return self
 
@@ -584,7 +614,7 @@ class GridAxis(BaseModel):
     unit: str | None = None
 
     @model_validator(mode="after")
-    def _validate_axis(self) -> "GridAxis":
+    def _validate_axis(self) -> GridAxis:
         _ensure_non_empty(self.axis_name, field_name="axis_name")
         _ensure_non_empty(self.unit, field_name="unit")
         previous: float | None = None
@@ -609,7 +639,7 @@ class FunctionalBounds(BaseModel):
     notes: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_bounds(self) -> "FunctionalBounds":
+    def _validate_bounds(self) -> FunctionalBounds:
         if len(self.lower) != len(self.upper):
             raise ValueError("lower and upper bounds must have equal length")
         for lower_value, upper_value in zip(self.lower, self.upper, strict=True):
@@ -634,13 +664,15 @@ class DistributionalBoundsMethodSummary(BaseModel):
     functional: DistributionalFunctional
     axis: GridAxis
     bounds: FunctionalBounds
-    sharpness: str = Field(default="unknown", pattern=r"^(sharp|inner_approx|outer_approx|unknown)$")
+    sharpness: str = Field(
+        default="unknown", pattern=r"^(sharp|inner_approx|outer_approx|unknown)$"
+    )
     assumptions_used: list[str] = Field(default_factory=list)
     display_label: str = ""
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_summary(self) -> "DistributionalBoundsMethodSummary":
+    def _validate_summary(self) -> DistributionalBoundsMethodSummary:
         _ensure_non_empty(self.method, field_name="method")
         if len(self.axis.values) != len(self.bounds.lower):
             raise ValueError("distributional bounds axis and envelopes must have equal length")
@@ -670,17 +702,21 @@ class DistributionalBoundsBundle(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_bundle(self) -> "DistributionalBoundsBundle":
+    def _validate_bundle(self) -> DistributionalBoundsBundle:
         _ensure_non_empty(self.estimand_type, field_name="estimand_type")
         parameters = self.functional_parameters
         if self.functional is DistributionalFunctional.ATKINSON and (
             parameters is None or parameters.atkinson_epsilon is None
         ):
             raise ValueError("Atkinson bounds require functional_parameters.atkinson_epsilon")
-        if self.functional is DistributionalFunctional.POVERTY_HEADCOUNT and self.axis.axis_name not in {
-            "poverty_line",
-            "threshold",
-        }:
+        if (
+            self.functional is DistributionalFunctional.POVERTY_HEADCOUNT
+            and self.axis.axis_name
+            not in {
+                "poverty_line",
+                "threshold",
+            }
+        ):
             raise ValueError("poverty_headcount bounds must use a poverty_line axis")
         warnings = list(self.warnings)
         for summary in self.method_summaries:
@@ -702,7 +738,9 @@ class DistributionalBoundsBundle(BaseModel):
                 min(summary.bounds.upper[index] for summary in self.method_summaries)
                 for index in range(len(self.axis.values))
             )
-            if any(lower > upper for lower, upper in zip(consensus_lower, consensus_upper, strict=True)):
+            if any(
+                lower > upper for lower, upper in zip(consensus_lower, consensus_upper, strict=True)
+            ):
                 warnings.append(
                     "Consensus envelope is empty at one or more grid points; inspect method-specific bounds."
                 )
@@ -751,6 +789,7 @@ def attach_distributional_dual_certificate_ref(
 
 class QuantileShiftEntry(BaseModel):
     """Store one baseline-to-counterfactual shift at a specific quantile."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     quantile: float = Field(ge=0.0, le=1.0)
@@ -759,7 +798,7 @@ class QuantileShiftEntry(BaseModel):
     shift: float
 
     @model_validator(mode="after")
-    def _validate_quantile_shift(self) -> "QuantileShiftEntry":
+    def _validate_quantile_shift(self) -> QuantileShiftEntry:
         for field_name in ("quantile", "baseline_value", "counterfactual_value", "shift"):
             _ensure_finite(getattr(self, field_name), field_name=field_name)
         return self
@@ -767,6 +806,7 @@ class QuantileShiftEntry(BaseModel):
 
 class QuantileShiftSummary(BaseModel):
     """Collect sorted quantile-shift entries for one outcome variable."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -775,7 +815,7 @@ class QuantileShiftSummary(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_summary(self) -> "QuantileShiftSummary":
+    def _validate_summary(self) -> QuantileShiftSummary:
         _ensure_non_empty(self.outcome_name, field_name="outcome_name")
         quantiles = [entry.quantile for entry in self.entries]
         if quantiles != sorted(quantiles):
@@ -785,6 +825,7 @@ class QuantileShiftSummary(BaseModel):
 
 class TailRiskDeltaEntry(BaseModel):
     """Store the exceedance and expected-shortfall delta at one baseline quantile."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     baseline_quantile: float = Field(ge=0.0, le=1.0)
@@ -797,7 +838,7 @@ class TailRiskDeltaEntry(BaseModel):
     expected_shortfall_delta: float | None = None
 
     @model_validator(mode="after")
-    def _validate_tail_entry(self) -> "TailRiskDeltaEntry":
+    def _validate_tail_entry(self) -> TailRiskDeltaEntry:
         for field_name in (
             "baseline_quantile",
             "threshold_value",
@@ -814,6 +855,7 @@ class TailRiskDeltaEntry(BaseModel):
 
 class TailRiskDeltaSummary(BaseModel):
     """Collect tail-risk deltas for one outcome variable."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -822,13 +864,14 @@ class TailRiskDeltaSummary(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_summary(self) -> "TailRiskDeltaSummary":
+    def _validate_summary(self) -> TailRiskDeltaSummary:
         _ensure_non_empty(self.outcome_name, field_name="outcome_name")
         return self
 
 
 class OTCouplingSummary(BaseModel):
     """Store a transport matrix and support diagnostics for optimal-transport analysis."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -843,7 +886,7 @@ class OTCouplingSummary(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_coupling(self) -> "OTCouplingSummary":
+    def _validate_coupling(self) -> OTCouplingSummary:
         _ensure_finite(self.regularization_strength, field_name="regularization_strength")
         _ensure_finite(self.convergence_delta, field_name="convergence_delta")
         _ensure_non_empty(self.weighting_mode, field_name="weighting_mode")
@@ -869,6 +912,7 @@ class OTCouplingSummary(BaseModel):
 
 class SubgroupDistributionComparison(BaseModel):
     """Compare baseline and counterfactual distributions for one subgroup."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -888,7 +932,7 @@ class SubgroupDistributionComparison(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_subgroup(self) -> "SubgroupDistributionComparison":
+    def _validate_subgroup(self) -> SubgroupDistributionComparison:
         _ensure_non_empty(self.subgroup_id, field_name="subgroup_id")
         _ensure_non_empty(self.subgroup_label, field_name="subgroup_label")
         _ensure_finite(self.wasserstein_distance, field_name="wasserstein_distance")
@@ -923,7 +967,7 @@ class OrdinalPovertyEstimate(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_estimate(self) -> "OrdinalPovertyEstimate":
+    def _validate_estimate(self) -> OrdinalPovertyEstimate:
         _ensure_non_empty(self.threshold_weights_basis, field_name="threshold_weights_basis")
         if self.n_poor > self.n_agents:
             raise ValueError("n_poor must not exceed n_agents")
@@ -968,7 +1012,7 @@ class OrdinalPovertyReport(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_report(self) -> "OrdinalPovertyReport":
+    def _validate_report(self) -> OrdinalPovertyReport:
         _ensure_non_empty(self.methodology, field_name="methodology")
         _ensure_non_empty(self.source_simulation_ref, field_name="source_simulation_ref")
         if self.counterfactual is not None:
@@ -1006,6 +1050,7 @@ class OrdinalPovertyReport(BaseModel):
 
 class DistributionalEffectBundle(BaseModel):
     """Persist the leaf artifact refs that make up a full distributional analysis bundle."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -1034,15 +1079,13 @@ class DistributionalEffectBundle(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_bundle(self) -> "DistributionalEffectBundle":
+    def _validate_bundle(self) -> DistributionalEffectBundle:
         _ensure_non_empty(self.outcome_name, field_name="outcome_name")
         _ensure_non_empty(self.distributional_query_kind, field_name="distributional_query_kind")
         _ensure_non_empty(self.readiness_cap, field_name="readiness_cap")
         _ensure_finite(self.wasserstein_distance, field_name="wasserstein_distance")
         marginal_law_justification = (
-            self.marginal_law_justification
-            or self.marginal_justification
-            or self.justification
+            self.marginal_law_justification or self.marginal_justification or self.justification
         )
         marginal_justification = self.marginal_justification or marginal_law_justification
         coupling_justification = self.coupling_justification
@@ -1088,13 +1131,10 @@ class DistributionalEffectBundle(BaseModel):
             field_name="causal_assumption_refs",
             allowed_kind="ir.causal_assumption_card",
         )
-        if (
-            marginal_law_justification is DistributionalJustification.BOUNDED
-            and (
-                not self.distributional_bounds_refs
-                or self.distributional_proof_ref is None
-                or self.distributional_proof_ref.kind != "ir.distributional_proof_artifact"
-            )
+        if marginal_law_justification is DistributionalJustification.BOUNDED and (
+            not self.distributional_bounds_refs
+            or self.distributional_proof_ref is None
+            or self.distributional_proof_ref.kind != "ir.distributional_proof_artifact"
         ):
             raise ValueError(
                 "marginal_law_justification='bounded' requires distributional_bounds_refs "
@@ -1104,23 +1144,17 @@ class DistributionalEffectBundle(BaseModel):
             marginal_law_justification is DistributionalJustification.IDENTIFIED
             and self.distributional_proof_ref is None
         ):
-            raise ValueError("marginal_law_justification='identified' requires distributional_proof_ref")
-        if (
-            coupling_justification is DistributionalJustification.BOUNDED
-            and (
-                self.coupling_proof_ref is None
-                or self.coupling_proof_ref.kind != "ir.distributional_proof_artifact"
-            )
-        ):
             raise ValueError(
-                "coupling_justification='bounded' requires coupling_proof_ref"
+                "marginal_law_justification='identified' requires distributional_proof_ref"
             )
-        if (
-            coupling_justification is DistributionalJustification.IDENTIFIED
-            and (
-                self.coupling_proof_ref is None
-                or self.coupling_proof_ref.kind != "ir.distributional_proof_artifact"
-            )
+        if coupling_justification is DistributionalJustification.BOUNDED and (
+            self.coupling_proof_ref is None
+            or self.coupling_proof_ref.kind != "ir.distributional_proof_artifact"
+        ):
+            raise ValueError("coupling_justification='bounded' requires coupling_proof_ref")
+        if coupling_justification is DistributionalJustification.IDENTIFIED and (
+            self.coupling_proof_ref is None
+            or self.coupling_proof_ref.kind != "ir.distributional_proof_artifact"
         ):
             raise ValueError("coupling_justification='identified' requires coupling_proof_ref")
         _validate_unique_artifact_refs(
@@ -1153,7 +1187,7 @@ class CohortImpact(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_finite_numbers(self) -> "CohortImpact":
+    def _validate_finite_numbers(self) -> CohortImpact:
         for bucket_name, bucket in (
             ("metric_values", self.metric_values),
             ("metric_deltas", self.metric_deltas),
@@ -1179,14 +1213,14 @@ class DimensionBreakdown(BaseModel):
     gini_delta: float | None = None
 
     @model_validator(mode="after")
-    def _validate_population_shares(self) -> "DimensionBreakdown":
+    def _validate_population_shares(self) -> DimensionBreakdown:
         total = sum(cohort.population_share for cohort in self.cohorts)
         if abs(total - 1.0) > 0.01:
             raise ValueError(f"Population shares must sum to ~1.0, got {total:.4f}")
         return self
 
     @model_validator(mode="after")
-    def _validate_unique_cohort_ids(self) -> "DimensionBreakdown":
+    def _validate_unique_cohort_ids(self) -> DimensionBreakdown:
         seen: set[str] = set()
         for cohort in self.cohorts:
             if cohort.cohort_id in seen:
@@ -1195,7 +1229,7 @@ class DimensionBreakdown(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def _validate_primary_metric_exists(self) -> "DimensionBreakdown":
+    def _validate_primary_metric_exists(self) -> DimensionBreakdown:
         for cohort in self.cohorts:
             if self.primary_metric not in cohort.metric_deltas:
                 raise ValueError(
@@ -1204,12 +1238,8 @@ class DimensionBreakdown(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def _compute_gini_delta(self) -> "DimensionBreakdown":
-        if (
-            self.gini_before is not None
-            and self.gini_after is not None
-            and self.gini_delta is None
-        ):
+    def _compute_gini_delta(self) -> DimensionBreakdown:
+        if self.gini_before is not None and self.gini_after is not None and self.gini_delta is None:
             object.__setattr__(self, "gini_delta", self.gini_after - self.gini_before)
         return self
 
@@ -1283,7 +1313,7 @@ class DistributionalReport(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _compute_overall_deltas(self) -> "DistributionalReport":
+    def _compute_overall_deltas(self) -> DistributionalReport:
         if (
             self.overall_gini_before is not None
             and self.overall_gini_after is not None
@@ -1658,11 +1688,11 @@ __all__ = [
     "DiscreteDistributionSummary",
     "DistributionBin",
     "DistributionalBoundUniformity",
-    "DistributionalDualBoundWitness",
-    "DistributionalDualCertificate",
     "DistributionalBoundsBundle",
     "DistributionalBoundsMethodSummary",
     "DistributionalCouplingStatus",
+    "DistributionalDualBoundWitness",
+    "DistributionalDualCertificate",
     "DistributionalEffectBundle",
     "DistributionalFunctional",
     "DistributionalFunctionalParameters",
@@ -1675,9 +1705,9 @@ __all__ = [
     "GridAxis",
     "ImpactDirection",
     "MetricUnit",
+    "OTCouplingSummary",
     "OrdinalPovertyEstimate",
     "OrdinalPovertyReport",
-    "OTCouplingSummary",
     "QuantileShiftEntry",
     "QuantileShiftSummary",
     "SubgroupDistributionComparison",
@@ -1686,28 +1716,28 @@ __all__ = [
     "WinnersLosersEntry",
     "WinnersLosersTable",
     "attach_distributional_dual_certificate_ref",
-    "persist_discrete_distribution_summary",
-    "load_discrete_distribution_summary",
-    "persist_distributional_bounds_bundle",
-    "load_distributional_bounds_bundle",
-    "persist_distributional_dual_certificate",
-    "load_distributional_dual_certificate",
-    "persist_distributional_effect_bundle",
-    "load_distributional_effect_bundle",
-    "persist_ordinal_poverty_report",
-    "load_ordinal_poverty_report",
-    "persist_distributional_proof_artifact",
-    "load_distributional_proof_artifact",
-    "persist_distributional_report",
-    "load_distributional_report",
-    "persist_ot_coupling_summary",
-    "load_ot_coupling_summary",
-    "persist_quantile_shift_summary",
-    "load_quantile_shift_summary",
-    "persist_causal_assumption_card",
     "load_causal_assumption_card",
-    "persist_subgroup_distribution_comparison",
+    "load_discrete_distribution_summary",
+    "load_distributional_bounds_bundle",
+    "load_distributional_dual_certificate",
+    "load_distributional_effect_bundle",
+    "load_distributional_proof_artifact",
+    "load_distributional_report",
+    "load_ordinal_poverty_report",
+    "load_ot_coupling_summary",
+    "load_quantile_shift_summary",
     "load_subgroup_distribution_comparison",
-    "persist_tail_risk_delta_summary",
     "load_tail_risk_delta_summary",
+    "persist_causal_assumption_card",
+    "persist_discrete_distribution_summary",
+    "persist_distributional_bounds_bundle",
+    "persist_distributional_dual_certificate",
+    "persist_distributional_effect_bundle",
+    "persist_distributional_proof_artifact",
+    "persist_distributional_report",
+    "persist_ordinal_poverty_report",
+    "persist_ot_coupling_summary",
+    "persist_quantile_shift_summary",
+    "persist_subgroup_distribution_comparison",
+    "persist_tail_risk_delta_summary",
 ]

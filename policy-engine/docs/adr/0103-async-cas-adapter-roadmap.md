@@ -1,9 +1,11 @@
 # ADR-0103: Async CAS Adapter Roadmap
 
 ## Status
+
 Accepted
 
 ## Date
+
 2026-04-12
 
 ## Context
@@ -19,11 +21,13 @@ runtime storage boundary. This ADR defines the staged roadmap.
 ## Decision
 
 1. Async CAS adoption is staged:
+
    - adapter phase;
    - shared-executor phase;
    - selective async-native backend phase;
    - acceptance phase backed by benchmarks and corruption tests.
 2. The public storage contract remains stable across phases:
+
    - immutable manifest creation;
    - read-time integrity verification;
    - typed integrity failures;
@@ -48,5 +52,6 @@ runtime storage boundary. This ADR defines the staged roadmap.
 
 - There will be an interim period where sync backends still exist behind async
   guards and shared executors.
+
 - The roadmap creates a documentation maintenance burden because operators will
   rely on it during rollout planning.

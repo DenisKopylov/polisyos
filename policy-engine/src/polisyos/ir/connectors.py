@@ -4,13 +4,14 @@ These contracts define the interface boundary between external data sources and
 PolicyOS fabric connectors. All connectors must produce artifacts conforming to
 these contracts.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum, Flag, IntEnum, auto
 from functools import cached_property
-from typing import Any, Generic, TypeAlias, TypeVar
+from typing import Any, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -27,28 +28,28 @@ class ConnectorCapability(Flag):
     """
 
     # Data access patterns
-    CATALOG_BROWSE = auto()      # Can list available datasets
-    FULL_FETCH = auto()          # Can fetch entire dataset
-    INCREMENTAL_FETCH = auto()   # Can fetch only changes since timestamp
-    STREAMING = auto()           # Supports streaming large datasets
+    CATALOG_BROWSE = auto()  # Can list available datasets
+    FULL_FETCH = auto()  # Can fetch entire dataset
+    INCREMENTAL_FETCH = auto()  # Can fetch only changes since timestamp
+    STREAMING = auto()  # Supports streaming large datasets
 
     # Filtering capabilities (server-side pushdown)
-    DATE_RANGE_FILTER = auto()   # Server-side date filtering
-    DIMENSION_FILTER = auto()    # Server-side dimension filtering
-    CUSTOM_QUERY = auto()        # Supports query language (SQL, GraphQL, SDMX)
+    DATE_RANGE_FILTER = auto()  # Server-side date filtering
+    DIMENSION_FILTER = auto()  # Server-side dimension filtering
+    CUSTOM_QUERY = auto()  # Supports query language (SQL, GraphQL, SDMX)
 
     # Metadata capabilities
     SCHEMA_INTROSPECTION = auto()  # Can describe data schema
-    FRESHNESS_CHECK = auto()       # Can check staleness without full fetch
-    PROVENANCE_METADATA = auto()   # Provides source/methodology info
+    FRESHNESS_CHECK = auto()  # Can check staleness without full fetch
+    PROVENANCE_METADATA = auto()  # Provides source/methodology info
 
     # Quality capabilities
-    REVISION_HISTORY = auto()    # Provides historical revisions
-    CONFIDENCE_INTERVALS = auto() # Provides uncertainty bounds
+    REVISION_HISTORY = auto()  # Provides historical revisions
+    CONFIDENCE_INTERVALS = auto()  # Provides uncertainty bounds
 
     # Operational capabilities
-    RATE_LIMIT_AWARE = auto()    # Reports rate limit status
-    RESUMABLE = auto()           # Supports resuming interrupted fetches
+    RATE_LIMIT_AWARE = auto()  # Reports rate limit status
+    RESUMABLE = auto()  # Supports resuming interrupted fetches
 
 
 class VersionStrategy(str, Enum):
@@ -67,10 +68,10 @@ class TrustLevel(IntEnum):
     can be used by query filters, evidence scoring, and manual review tooling.
     """
 
-    UNVERIFIED = 0   # Unknown source, requires manual validation
-    LOW = 1          # User-provided, no institutional backing
-    MEDIUM = 2       # Known organization, standard quality
-    HIGH = 3         # Authoritative source (central bank, NSO)
+    UNVERIFIED = 0  # Unknown source, requires manual validation
+    LOW = 1  # User-provided, no institutional backing
+    MEDIUM = 2  # Known organization, standard quality
+    HIGH = 3  # Authoritative source (central bank, NSO)
     AUTHORITATIVE = 4  # Official government/regulatory source
 
 
@@ -78,10 +79,10 @@ class QualityTier(IntEnum):
     """Data quality classification aligned with existing QualityIndicators."""
 
     UNVERIFIED = 0
-    BRONZE = 1       # Raw data, minimal validation
-    SILVER = 2       # Cleaned, schema-validated
-    GOLD = 3         # Reconciled, cross-validated
-    PLATINUM = 4     # Production-ready, full evidence chain
+    BRONZE = 1  # Raw data, minimal validation
+    SILVER = 2  # Cleaned, schema-validated
+    GOLD = 3  # Reconciled, cross-validated
+    PLATINUM = 4  # Production-ready, full evidence chain
 
 
 class DataVersion(BaseModel):
@@ -108,7 +109,7 @@ class DataVersion(BaseModel):
     @classmethod
     def _ensure_tz_aware(cls, value: datetime) -> datetime:
         if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
+            return value.replace(tzinfo=UTC)
         return value
 
     def is_newer_than(self, other: DataVersion) -> bool:
@@ -221,7 +222,7 @@ class FetchRequest:
         self,
         page_size: int | None = None,
         page_token: str | None = None,
-    ) -> "FetchRequest":
+    ) -> FetchRequest:
         """Create a new request with updated pagination parameters."""
         return FetchRequest(
             dataset_id=self.dataset_id,
@@ -238,7 +239,7 @@ class FetchRequest:
             retryable=self.retryable,
         )
 
-    def with_filter(self, field: str, *values: str) -> "FetchRequest":
+    def with_filter(self, field: str, *values: str) -> FetchRequest:
         """Create a new request with an additional or replaced filter."""
         current = {key: list(vals) for key, vals in self.filters}
         current[field] = list(values)
@@ -369,7 +370,7 @@ class FetchTransferEnvelope(BaseModel):
     pii_scan: PIIScanSummary | None = None
 
 
-class FetchResult(BaseModel, Generic[DataT]):
+class FetchResult[DataT](BaseModel):
     """Immutable result of a fetch operation."""
 
     model_config = ConfigDict(
@@ -463,7 +464,7 @@ class FetchResult(BaseModel, Generic[DataT]):
         if value is None:
             return None
         if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
+            return value.replace(tzinfo=UTC)
         return value
 
     @property
@@ -694,7 +695,7 @@ class ConnectorMetadataSpec(BaseModel):
         if value is None:
             return None
         if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
+            return value.replace(tzinfo=UTC)
         return value
 
     def with_capabilities(self, *caps: ConnectorCapability) -> ConnectorMetadataSpec:
@@ -749,7 +750,7 @@ class ConnectorMetadataSpec(BaseModel):
         )
 
 
-CapabilitySet: TypeAlias = int | ConnectorCapability
+type CapabilitySet = int | ConnectorCapability
 
 
 def capabilities_from_flags(*flags: ConnectorCapability) -> int:
@@ -773,7 +774,7 @@ def _coerce_datetime(value: datetime | None) -> datetime | None:
     if value is None:
         return None
     if value.tzinfo is None:
-        return value.replace(tzinfo=timezone.utc)
+        return value.replace(tzinfo=UTC)
     return value
 
 

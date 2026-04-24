@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from polisyos.scientist.discovery.prior_miner import PriorMiner, PriorMinerConfig
 from polisyos.scientist.discovery.priors import DisputedEdge, GraphPriorBundle, PriorEdge
 
@@ -58,7 +60,7 @@ def test_prior_miner_queries_hybrid_skg_and_filters_to_target_edges(monkeypatch,
     index_dir.mkdir()
 
     class FakeQuery:
-        def __init__(self, db_path: str, index_dir: str) -> None:
+        def __init__(self, db_path: Path, index_dir: Path) -> None:
             captured["db_path"] = db_path
             captured["index_dir"] = index_dir
 
@@ -66,10 +68,50 @@ def test_prior_miner_queries_hybrid_skg_and_filters_to_target_edges(monkeypatch,
             captured["variables"] = list(variables)
             captured["kwargs"] = kwargs
             return [
-                {"src": "X", "dst": "Y", "direction": "positive", "confidence": 0.8, "n_articles": 3, "article_refs": ["oa:1"], "candidate_layer": "hybrid", "quality_signals": {"layers": ["exact"]}, "evidence_strength": "meta_analysis"},
-                {"src": "A", "dst": "B", "direction": "positive", "confidence": 0.7, "n_articles": 2, "article_refs": ["oa:2"], "candidate_layer": "hybrid", "quality_signals": {}, "evidence_strength": "rct"},
-                {"src": "Z", "dst": "X", "direction": "mixed", "confidence": 0.4, "n_articles": 1, "article_refs": ["oa:3"], "candidate_layer": "hybrid", "quality_signals": {}, "evidence_strength": "observational"},
-                {"src": "Q", "dst": "W", "direction": "mixed", "confidence": 0.9, "n_articles": 1, "article_refs": [], "candidate_layer": "hybrid", "quality_signals": {}, "evidence_strength": "observational"},
+                {
+                    "src": "X",
+                    "dst": "Y",
+                    "direction": "positive",
+                    "confidence": 0.8,
+                    "n_articles": 3,
+                    "article_refs": ["oa:1"],
+                    "candidate_layer": "hybrid",
+                    "quality_signals": {"layers": ["exact"]},
+                    "evidence_strength": "meta_analysis",
+                },
+                {
+                    "src": "A",
+                    "dst": "B",
+                    "direction": "positive",
+                    "confidence": 0.7,
+                    "n_articles": 2,
+                    "article_refs": ["oa:2"],
+                    "candidate_layer": "hybrid",
+                    "quality_signals": {},
+                    "evidence_strength": "rct",
+                },
+                {
+                    "src": "Z",
+                    "dst": "X",
+                    "direction": "mixed",
+                    "confidence": 0.4,
+                    "n_articles": 1,
+                    "article_refs": ["oa:3"],
+                    "candidate_layer": "hybrid",
+                    "quality_signals": {},
+                    "evidence_strength": "observational",
+                },
+                {
+                    "src": "Q",
+                    "dst": "W",
+                    "direction": "mixed",
+                    "confidence": 0.9,
+                    "n_articles": 1,
+                    "article_refs": [],
+                    "candidate_layer": "hybrid",
+                    "quality_signals": {},
+                    "evidence_strength": "observational",
+                },
             ]
 
         def latest_skg_version_id(self):
@@ -91,7 +133,8 @@ def test_prior_miner_queries_hybrid_skg_and_filters_to_target_edges(monkeypatch,
     )
     result = miner.mine(_bundle())
 
-    assert captured["db_path"] == str(db_path)
+    assert captured["db_path"] == db_path
+    assert captured["index_dir"] == index_dir
     assert set(captured["variables"]) == {"A", "B", "X", "Y", "Z"}
     assert captured["kwargs"]["edge_layer"] == "hybrid"
     assert {row.edge_key for row in result.support_rows} == {"A->B", "X->Y", "Z->X"}
@@ -110,7 +153,7 @@ def test_prior_miner_returns_degraded_bundle_when_skg_unavailable(monkeypatch, t
     index_dir.mkdir()
 
     class BrokenQuery:
-        def __init__(self, db_path: str, index_dir: str) -> None:
+        def __init__(self, db_path: Path, index_dir: Path) -> None:
             del db_path, index_dir
 
             raise RuntimeError("db unavailable")

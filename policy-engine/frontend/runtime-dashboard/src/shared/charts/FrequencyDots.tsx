@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { classifyConfidence, confidenceColor } from "./types";
 
 type FrequencyDotsProps = {
@@ -22,6 +23,7 @@ export function FrequencyDots({
   size = "md",
   className,
 }: FrequencyDotsProps) {
+  const { t } = useI18n();
   const clamped = Math.max(0, Math.min(total, Math.round(highlighted)));
   const dims = SIZE_MAP[size];
   const rows = Math.ceil(total / dims.cols);
@@ -52,8 +54,7 @@ export function FrequencyDots({
             style={{
               width: dims.dot,
               height: dims.dot,
-              backgroundColor:
-                i < clamped ? fillColor : "var(--line)",
+              backgroundColor: i < clamped ? fillColor : "var(--line)",
               opacity: i < clamped ? 1 : 0.4,
             }}
           />
@@ -61,8 +62,8 @@ export function FrequencyDots({
       </div>
       {label && (
         <p className="text-muted-foreground text-xs">
-          <span className="text-foreground font-semibold">{clamped}</span> out
-          of {total} — {label}
+          <span className="text-foreground font-semibold">{clamped}</span>{" "}
+          {t("shared.charts.frequencyDots.outOf", { total })} — {label}
         </p>
       )}
     </div>

@@ -1,12 +1,14 @@
 """DuckDB-native world snapshots, branch metadata, and retention helpers."""
+
 from __future__ import annotations
 
 import json
 import shutil
 import uuid
+from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import pandas as pd
 
@@ -199,10 +201,7 @@ def get_world_snapshot_adapter(adapter_name: str) -> WorldSnapshotAdapterSpec:
 def default_world_snapshot_root(db: SimulationDB | str | Path) -> Path:
     """Return the default sibling directory for DuckDB-native world snapshots."""
 
-    if isinstance(db, SimulationDB):
-        db_path = db.db_path
-    else:
-        db_path = db
+    db_path = db.db_path if isinstance(db, SimulationDB) else db
     return Path(f"{Path(db_path)}.world_snapshots")
 
 
@@ -244,8 +243,10 @@ def create_world_snapshot(
     snap_id = snapshot_id or _new_snapshot_id()
     created_at = utc_now().isoformat().replace("+00:00", "Z")
     tx_time = as_of_tx_time or _max_world_fact_value(db, "tx_time")
-    valid_time = as_of_valid_time if as_of_valid_time is not None else _max_world_fact_value(
-        db, "valid_time", skip_null=True
+    valid_time = (
+        as_of_valid_time
+        if as_of_valid_time is not None
+        else _max_world_fact_value(db, "valid_time", skip_null=True)
     )
     snapshot_path = _snapshot_file(root, snap_id)
 
@@ -317,7 +318,9 @@ def register_world_snapshot_record(
     else:
         validate_artifact_governance(governance)
 
-    atomic_write_json(_snapshot_meta_file(root, record.snapshot_id), _snapshot_record_payload(record))
+    atomic_write_json(
+        _snapshot_meta_file(root, record.snapshot_id), _snapshot_record_payload(record)
+    )
     _upsert_branch(
         root,
         WorldBranchRecord(
@@ -462,15 +465,9 @@ def gc_world_snapshots(
     retained_tags = {str(tag).strip() for tag in retain_tags if str(tag).strip()}
     keep_since_dt = parse_datetime_utc(keep_since, what="keep_since") if keep_since else None
 
-    protected_ids = {
-        branch.head_snapshot_id
-        for branch in _list_branches(root)
-    }
+    protected_ids = {branch.head_snapshot_id for branch in _list_branches(root)}
     if keep_latest > 0:
-        protected_ids.update(
-            snapshot.snapshot_id
-            for snapshot in snapshots[-keep_latest:]
-        )
+        protected_ids.update(snapshot.snapshot_id for snapshot in snapshots[-keep_latest:])
     if retained_tags:
         protected_ids.update(
             snapshot.snapshot_id
@@ -503,10 +500,7 @@ def gc_world_snapshots(
             meta_path.unlink()
 
     if not dry_run:
-        retained_ids = [
-            snapshot.snapshot_id
-            for snapshot in list_world_snapshots(root)
-        ]
+        retained_ids = [snapshot.snapshot_id for snapshot in list_world_snapshots(root)]
     return WorldSnapshotGCReport(
         retained_snapshot_ids=tuple(retained_ids),
         deleted_snapshot_ids=tuple(deleted_ids),
@@ -555,9 +549,10 @@ def merge_world_branch(
     conflict_resolutions: list[WorldMergeConflictResolution] = []
     merged_snapshot: WorldSnapshotRecord | None = None
     try:
-        with SimulationDB(db_path=str(temp_db_path)) as merged_db, SimulationDB(
-            db_path=str(source_snapshot.snapshot_path)
-        ) as source_db:
+        with (
+            SimulationDB(db_path=str(temp_db_path)) as merged_db,
+            SimulationDB(db_path=str(source_snapshot.snapshot_path)) as source_db,
+        ):
             merged_db.conn.execute("BEGIN")
             try:
                 source_tables = set(_list_world_tables(source_db))
@@ -565,12 +560,8 @@ def merge_world_branch(
                 for table_name in _MERGEABLE_WORLD_TABLES:
                     if table_name not in source_tables or table_name not in target_tables:
                         continue
-                    target_frame = merged_db.conn.execute(
-                        f"SELECT * FROM {table_name}"
-                    ).fetchdf()
-                    source_frame = source_db.conn.execute(
-                        f"SELECT * FROM {table_name}"
-                    ).fetchdf()
+                    target_frame = merged_db.conn.execute(f"SELECT * FROM {table_name}").fetchdf()
+                    source_frame = source_db.conn.execute(f"SELECT * FROM {table_name}").fetchdf()
                     primary_keys = _primary_key_columns(merged_db, table_name)
                     if not primary_keys:
                         continue
@@ -622,7 +613,8 @@ def merge_world_branch(
         if temp_db_path.exists():
             temp_db_path.unlink()
 
-    assert merged_snapshot is not None
+    if merged_snapshot is None:
+        raise RuntimeError("world branch merge completed without a merged snapshot")
     return WorldBranchMergeReport(
         source_branch_name=branch_name,
         target_branch_name=target_branch_name,
@@ -759,11 +751,7 @@ def _list_world_tables(db: SimulationDB) -> tuple[str, ...]:
 
 def _primary_key_columns(db: SimulationDB, table_name: str) -> tuple[str, ...]:
     rows = db.conn.execute(f"PRAGMA table_info('{table_name}')").fetchall()
-    primary_keys = [
-        (int(row[5]), str(row[1]))
-        for row in rows
-        if int(row[5]) > 0
-    ]
+    primary_keys = [(int(row[5]), str(row[1])) for row in rows if int(row[5]) > 0]
     primary_keys.sort(key=lambda item: item[0])
     return tuple(name for _, name in primary_keys)
 
@@ -782,14 +770,8 @@ def _merge_table_frames(
         return source_frame
 
     pk_columns = list(primary_keys)
-    target_rows = {
-        _row_key(row, pk_columns): row
-        for row in target_frame.to_dict(orient="records")
-    }
-    source_rows = {
-        _row_key(row, pk_columns): row
-        for row in source_frame.to_dict(orient="records")
-    }
+    target_rows = {_row_key(row, pk_columns): row for row in target_frame.to_dict(orient="records")}
+    source_rows = {_row_key(row, pk_columns): row for row in source_frame.to_dict(orient="records")}
     merged_rows = dict(target_rows)
     conflicts: list[tuple[tuple[Any, ...], dict[str, Any], dict[str, Any]]] = []
 
@@ -850,8 +832,7 @@ def _resolve_world_kind_fact_conflicts(
     merge_policy: str,
 ) -> tuple[pd.DataFrame, list[WorldMergeConflictResolution]]:
     kind_rows = merged_frame[
-        (merged_frame["predicate_id"] == WORLD_KIND)
-        & merged_frame["object_value"].notna()
+        (merged_frame["predicate_id"] == WORLD_KIND) & merged_frame["object_value"].notna()
     ]
     if kind_rows.empty:
         return merged_frame, []
@@ -859,7 +840,9 @@ def _resolve_world_kind_fact_conflicts(
     resolutions: list[WorldMergeConflictResolution] = []
     keep_fact_ids = set(merged_frame["fact_id"].tolist())
     for subject_id, group in kind_rows.groupby("subject_id", sort=True):
-        values = sorted({str(value) for value in group["object_value"].tolist() if value is not None})
+        values = sorted(
+            {str(value) for value in group["object_value"].tolist() if value is not None}
+        )
         if len(values) <= 1:
             continue
         if merge_policy == "fail_on_conflict":
@@ -886,7 +869,9 @@ def _resolve_world_kind_fact_conflicts(
 
     if not resolutions:
         return merged_frame, []
-    filtered = merged_frame[merged_frame["fact_id"].astype(str).isin(keep_fact_ids)].reset_index(drop=True)
+    filtered = merged_frame[merged_frame["fact_id"].astype(str).isin(keep_fact_ids)].reset_index(
+        drop=True
+    )
     return filtered, resolutions
 
 
@@ -935,9 +920,7 @@ def _replace_table_contents(
     db.conn.register(temp_name, frame)
     try:
         columns = ", ".join(str(column) for column in frame.columns)
-        db.conn.execute(
-            f"INSERT INTO {table_name} ({columns}) SELECT {columns} FROM {temp_name}"
-        )
+        db.conn.execute(f"INSERT INTO {table_name} ({columns}) SELECT {columns} FROM {temp_name}")
     finally:
         db.conn.unregister(temp_name)
 
@@ -982,9 +965,7 @@ def _max_world_fact_value(
     skip_null: bool = False,
 ) -> str | None:
     where = "WHERE " + column_name + " IS NOT NULL" if skip_null else ""
-    row = db.conn.execute(
-        f"SELECT MAX({column_name}) FROM world.world_facts {where}"
-    ).fetchone()
+    row = db.conn.execute(f"SELECT MAX({column_name}) FROM world.world_facts {where}").fetchone()
     if not row or row[0] is None:
         return None
     return str(row[0])
@@ -1005,19 +986,19 @@ def _temporal_lte(candidate: str | int, target: str | int, *, label: str) -> boo
 
 
 __all__ = [
-    "WorldSnapshotAdapterError",
-    "WorldSnapshotAdapterSpec",
     "WorldBranchMergeReport",
     "WorldBranchRecord",
     "WorldMergeConflictResolution",
+    "WorldSnapshotAdapterError",
+    "WorldSnapshotAdapterSpec",
     "WorldSnapshotGCReport",
     "WorldSnapshotRecord",
     "create_world_branch",
     "create_world_snapshot",
     "default_world_snapshot_root",
     "gc_world_snapshots",
-    "get_world_snapshot_adapter",
     "get_world_branch",
+    "get_world_snapshot_adapter",
     "list_world_snapshot_adapters",
     "list_world_snapshots",
     "merge_world_branch",

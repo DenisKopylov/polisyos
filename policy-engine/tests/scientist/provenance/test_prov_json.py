@@ -1,10 +1,9 @@
 """Tests for PROV-JSON round-trip serialization — WS4 provenance."""
+
 from __future__ import annotations
 
 import sys
 from datetime import datetime
-
-import pytest
 
 sys.path.insert(0, "src")
 
@@ -16,7 +15,6 @@ from polisyos.core.contracts.provenance import (
     ProvenanceAgent,
     ProvenanceCoreGraph,
     ProvenanceEntity,
-    RelationType,
 )
 from polisyos.scientist.provenance.prov_json import from_prov_json, to_prov_json
 
@@ -29,37 +27,45 @@ def _build_sample_graph() -> ProvenanceCoreGraph:
     t1 = datetime(2026, 3, 1, 10, 5, 0)
 
     # Entities
-    graph.add_entity(ProvenanceEntity(
-        entity_id="entity:ds1",
-        entity_type=EntityType.DATASET,
-        label="Dataset 1",
-        created_at=t0,
-        attributes={"source": "test"},
-    ))
-    graph.add_entity(ProvenanceEntity(
-        entity_id="entity:ds2",
-        entity_type=EntityType.METRIC,
-        label="Metric output",
-        created_at=t1,
-    ))
+    graph.add_entity(
+        ProvenanceEntity(
+            entity_id="entity:ds1",
+            entity_type=EntityType.DATASET,
+            label="Dataset 1",
+            created_at=t0,
+            attributes={"source": "test"},
+        )
+    )
+    graph.add_entity(
+        ProvenanceEntity(
+            entity_id="entity:ds2",
+            entity_type=EntityType.METRIC,
+            label="Metric output",
+            created_at=t1,
+        )
+    )
 
     # Activities
-    graph.add_activity(ProvenanceActivity(
-        activity_id="activity:etl1",
-        activity_type=ActivityType.ETL,
-        label="ETL step 1",
-        started_at=t0,
-        ended_at=t1,
-        parameters={"batch_size": 100},
-    ))
+    graph.add_activity(
+        ProvenanceActivity(
+            activity_id="activity:etl1",
+            activity_type=ActivityType.ETL,
+            label="ETL step 1",
+            started_at=t0,
+            ended_at=t1,
+            parameters={"batch_size": 100},
+        )
+    )
 
     # Agents
-    graph.add_agent(ProvenanceAgent(
-        agent_id="agent:sys1",
-        agent_type=AgentType.SYSTEM,
-        label="Test system",
-        metadata={"env": "test"},
-    ))
+    graph.add_agent(
+        ProvenanceAgent(
+            agent_id="agent:sys1",
+            agent_type=AgentType.SYSTEM,
+            label="Test system",
+            metadata={"env": "test"},
+        )
+    )
 
     # Relations
     graph.add_usage(

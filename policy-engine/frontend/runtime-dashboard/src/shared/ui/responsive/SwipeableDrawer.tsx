@@ -74,7 +74,8 @@ export function SwipeableDrawer({
 
   if (!open) return null;
 
-  const transform = translateX !== 0 ? `translateX(${translateX}px)` : undefined;
+  const transform =
+    translateX !== 0 ? `translateX(${translateX}px)` : undefined;
 
   return (
     <>
@@ -120,7 +121,10 @@ export function SwipeableDrawer({
         )}
 
         {/* Content */}
-        <div className="overflow-y-auto p-4" style={{ maxHeight: "calc(100% - 56px)" }}>
+        <div
+          className="overflow-y-auto p-4"
+          style={{ maxHeight: "calc(100% - 56px)" }}
+        >
           {children}
         </div>
       </div>

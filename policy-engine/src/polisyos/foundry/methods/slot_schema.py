@@ -41,20 +41,21 @@ Example
     # → True (both belong to "continuous_outcome" or "residual" which is
     #   sub-compatible with "continuous_outcome")
 """
+
 from __future__ import annotations
 
-import numpy as np
 import warnings
 from dataclasses import dataclass, field
-from typing import FrozenSet
+
+import numpy as np
 
 __all__ = [
-    "SlotSchema",
     "SLOT_SCHEMA_REGISTRY",
-    "get_slot_schema",
-    "register_slot_schema",
-    "is_semantically_compatible",
     "SemanticCompatibilityError",
+    "SlotSchema",
+    "get_slot_schema",
+    "is_semantically_compatible",
+    "register_slot_schema",
 ]
 
 
@@ -91,7 +92,7 @@ class SlotSchema:
     dtype: np.dtype | None
     semantics: str
     description: str
-    allowed_targets: FrozenSet[str] = field(default_factory=frozenset)
+    allowed_targets: frozenset[str] = field(default_factory=frozenset)
     nullable: bool = False
 
 
@@ -125,8 +126,7 @@ def register_slot_schema(schema: SlotSchema, *, override: bool = False) -> None:
     """
     if schema.name in _registry and not override:
         raise ValueError(
-            f"SlotSchema '{schema.name}' is already registered. "
-            "Pass override=True to replace it."
+            f"SlotSchema '{schema.name}' is already registered. Pass override=True to replace it."
         )
     if schema.name in _registry and override and _registry[schema.name] != schema:
         warnings.warn(
@@ -192,311 +192,403 @@ _I64 = np.dtype("int64")
 _BOOL = np.dtype("bool")
 
 # -- Observational outcome slots --
-register_slot_schema(SlotSchema(
-    name="outcome",
-    dtype=_F64,
-    semantics="continuous_outcome",
-    description="Continuous dependent variable (Y) in an observational or experimental study.",
-    allowed_targets=frozenset({"residual", "predicted_outcome", "counterfactual_outcome"}),
-))
-register_slot_schema(SlotSchema(
-    name="binary_outcome",
-    dtype=_F64,
-    semantics="binary_outcome",
-    description="Binary (0/1) dependent variable.",
-    allowed_targets=frozenset({"predicted_probability"}),
-))
-register_slot_schema(SlotSchema(
-    name="count_outcome",
-    dtype=_F64,
-    semantics="count_outcome",
-    description="Non-negative integer count dependent variable.",
-))
+register_slot_schema(
+    SlotSchema(
+        name="outcome",
+        dtype=_F64,
+        semantics="continuous_outcome",
+        description="Continuous dependent variable (Y) in an observational or experimental study.",
+        allowed_targets=frozenset({"residual", "predicted_outcome", "counterfactual_outcome"}),
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="binary_outcome",
+        dtype=_F64,
+        semantics="binary_outcome",
+        description="Binary (0/1) dependent variable.",
+        allowed_targets=frozenset({"predicted_probability"}),
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="count_outcome",
+        dtype=_F64,
+        semantics="count_outcome",
+        description="Non-negative integer count dependent variable.",
+    )
+)
 
 # -- Treatment / intervention slots --
-register_slot_schema(SlotSchema(
-    name="treatment",
-    dtype=_F64,
-    semantics="binary_treatment",
-    description="Binary or continuous treatment indicator (D).",
-    allowed_targets=frozenset({"treatment_prob", "propensity_score"}),
-))
-register_slot_schema(SlotSchema(
-    name="binary_treatment",
-    dtype=_BOOL,
-    semantics="binary_treatment",
-    description="Strict binary treatment assignment.",
-))
-register_slot_schema(SlotSchema(
-    name="treatment_timing",
-    dtype=_F64,
-    semantics="treatment_timing",
-    description="Period in which the unit first received treatment (staggered DiD).",
-    nullable=True,
-))
-register_slot_schema(SlotSchema(
-    name="treatment_prob",
-    dtype=_F64,
-    semantics="propensity_score",
-    description="Estimated probability of treatment assignment (propensity score).",
-))
-register_slot_schema(SlotSchema(
-    name="propensity_score",
-    dtype=_F64,
-    semantics="propensity_score",
-    description="Propensity score P(D=1|X).",
-))
+register_slot_schema(
+    SlotSchema(
+        name="treatment",
+        dtype=_F64,
+        semantics="binary_treatment",
+        description="Binary or continuous treatment indicator (D).",
+        allowed_targets=frozenset({"treatment_prob", "propensity_score"}),
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="binary_treatment",
+        dtype=_BOOL,
+        semantics="binary_treatment",
+        description="Strict binary treatment assignment.",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="treatment_timing",
+        dtype=_F64,
+        semantics="treatment_timing",
+        description="Period in which the unit first received treatment (staggered DiD).",
+        nullable=True,
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="treatment_prob",
+        dtype=_F64,
+        semantics="propensity_score",
+        description="Estimated probability of treatment assignment (propensity score).",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="propensity_score",
+        dtype=_F64,
+        semantics="propensity_score",
+        description="Propensity score P(D=1|X).",
+    )
+)
 
 # -- Design matrix / covariates --
-register_slot_schema(SlotSchema(
-    name="covariates",
-    dtype=_F64,
-    semantics="design_matrix",
-    description="Matrix of pre-treatment covariates (confounders).",
-))
-register_slot_schema(SlotSchema(
-    name="design_matrix",
-    dtype=_F64,
-    semantics="design_matrix",
-    description="Full design matrix including intercept column.",
-))
-register_slot_schema(SlotSchema(
-    name="lagged_covariates",
-    dtype=_F64,
-    semantics="design_matrix",
-    description="One-period-lagged covariate matrix for dynamic models.",
-))
+register_slot_schema(
+    SlotSchema(
+        name="covariates",
+        dtype=_F64,
+        semantics="design_matrix",
+        description="Matrix of pre-treatment covariates (confounders).",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="design_matrix",
+        dtype=_F64,
+        semantics="design_matrix",
+        description="Full design matrix including intercept column.",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="lagged_covariates",
+        dtype=_F64,
+        semantics="design_matrix",
+        description="One-period-lagged covariate matrix for dynamic models.",
+    )
+)
 
 # -- Panel data identifiers --
-register_slot_schema(SlotSchema(
-    name="entity_id",
-    dtype=_I64,
-    semantics="panel_entity",
-    description="Integer identifier for the cross-sectional unit (person, firm, region).",
-))
-register_slot_schema(SlotSchema(
-    name="unit_id",
-    dtype=_I64,
-    semantics="panel_entity",
-    description="Alias for entity_id.",
-))
-register_slot_schema(SlotSchema(
-    name="time_id",
-    dtype=_I64,
-    semantics="panel_time",
-    description="Integer period index (year, quarter, month).",
-))
-register_slot_schema(SlotSchema(
-    name="period",
-    dtype=_I64,
-    semantics="panel_time",
-    description="Alias for time_id.",
-))
+register_slot_schema(
+    SlotSchema(
+        name="entity_id",
+        dtype=_I64,
+        semantics="panel_entity",
+        description="Integer identifier for the cross-sectional unit (person, firm, region).",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="unit_id",
+        dtype=_I64,
+        semantics="panel_entity",
+        description="Alias for entity_id.",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="time_id",
+        dtype=_I64,
+        semantics="panel_time",
+        description="Integer period index (year, quarter, month).",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="period",
+        dtype=_I64,
+        semantics="panel_time",
+        description="Alias for time_id.",
+    )
+)
 
 # -- Instrument / IV slots --
-register_slot_schema(SlotSchema(
-    name="instrument",
-    dtype=_F64,
-    semantics="iv_instrument",
-    description="Instrumental variable Z (excluded from outcome equation).",
-))
-register_slot_schema(SlotSchema(
-    name="instruments",
-    dtype=_F64,
-    semantics="iv_instrument",
-    description="Matrix of instrumental variables.",
-))
+register_slot_schema(
+    SlotSchema(
+        name="instrument",
+        dtype=_F64,
+        semantics="iv_instrument",
+        description="Instrumental variable Z (excluded from outcome equation).",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="instruments",
+        dtype=_F64,
+        semantics="iv_instrument",
+        description="Matrix of instrumental variables.",
+    )
+)
 
 # -- RDD running variable --
-register_slot_schema(SlotSchema(
-    name="running_var",
-    dtype=_F64,
-    semantics="rdd_running",
-    description="Continuous running variable for RDD (e.g. test score, birth date offset).",
-))
-register_slot_schema(SlotSchema(
-    name="forcing_var",
-    dtype=_F64,
-    semantics="rdd_running",
-    description="Alias for running_var.",
-))
+register_slot_schema(
+    SlotSchema(
+        name="running_var",
+        dtype=_F64,
+        semantics="rdd_running",
+        description="Continuous running variable for RDD (e.g. test score, birth date offset).",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="forcing_var",
+        dtype=_F64,
+        semantics="rdd_running",
+        description="Alias for running_var.",
+    )
+)
 
 # -- Estimation output slots --
-register_slot_schema(SlotSchema(
-    name="treatment_effect",
-    dtype=_F64,
-    semantics="treatment_effect_estimate",
-    description="Point estimate of the average treatment effect (ATE/ATT/LATE).",
-))
-register_slot_schema(SlotSchema(
-    name="ate",
-    dtype=_F64,
-    semantics="treatment_effect_estimate",
-    description="Average Treatment Effect (ATE).",
-))
-register_slot_schema(SlotSchema(
-    name="att",
-    dtype=_F64,
-    semantics="treatment_effect_estimate",
-    description="Average Treatment Effect on the Treated (ATT).",
-))
-register_slot_schema(SlotSchema(
-    name="local_ate",
-    dtype=_F64,
-    semantics="treatment_effect_estimate",
-    description="Local ATE at regression discontinuity threshold.",
-))
-register_slot_schema(SlotSchema(
-    name="cate",
-    dtype=_F64,
-    semantics="heterogeneous_treatment_effect",
-    description="Conditional (heterogeneous) Average Treatment Effect.",
-))
-register_slot_schema(SlotSchema(
-    name="coefficients",
-    dtype=_F64,
-    semantics="regression_coefficients",
-    description="OLS / IV / panel regression coefficient vector.",
-))
-register_slot_schema(SlotSchema(
-    name="standard_errors",
-    dtype=_F64,
-    semantics="regression_se",
-    description="Standard errors of regression coefficients.",
-    allowed_targets=frozenset({"confidence_interval_width"}),
-))
-register_slot_schema(SlotSchema(
-    name="conf_int_lower",
-    dtype=_F64,
-    semantics="confidence_interval",
-    description="Lower bound of a 95% confidence interval.",
-))
-register_slot_schema(SlotSchema(
-    name="conf_int_upper",
-    dtype=_F64,
-    semantics="confidence_interval",
-    description="Upper bound of a 95% confidence interval.",
-))
-register_slot_schema(SlotSchema(
-    name="p_value",
-    dtype=_F64,
-    semantics="hypothesis_test_pvalue",
-    description="Two-sided p-value for a null hypothesis test.",
-))
-register_slot_schema(SlotSchema(
-    name="residual",
-    dtype=_F64,
-    semantics="residual",
-    description="Regression residuals ε = Y − Ŷ.",
-    allowed_targets=frozenset({"continuous_outcome"}),
-))
-register_slot_schema(SlotSchema(
-    name="predicted_outcome",
-    dtype=_F64,
-    semantics="predicted_outcome",
-    description="In-sample or out-of-sample prediction Ŷ.",
-    allowed_targets=frozenset({"continuous_outcome"}),
-))
-register_slot_schema(SlotSchema(
-    name="counterfactual_outcome",
-    dtype=_F64,
-    semantics="counterfactual_outcome",
-    description="Counterfactual potential outcome Y(0) under no-treatment.",
-    allowed_targets=frozenset({"continuous_outcome"}),
-))
+register_slot_schema(
+    SlotSchema(
+        name="treatment_effect",
+        dtype=_F64,
+        semantics="treatment_effect_estimate",
+        description="Point estimate of the average treatment effect (ATE/ATT/LATE).",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="ate",
+        dtype=_F64,
+        semantics="treatment_effect_estimate",
+        description="Average Treatment Effect (ATE).",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="att",
+        dtype=_F64,
+        semantics="treatment_effect_estimate",
+        description="Average Treatment Effect on the Treated (ATT).",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="local_ate",
+        dtype=_F64,
+        semantics="treatment_effect_estimate",
+        description="Local ATE at regression discontinuity threshold.",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="cate",
+        dtype=_F64,
+        semantics="heterogeneous_treatment_effect",
+        description="Conditional (heterogeneous) Average Treatment Effect.",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="coefficients",
+        dtype=_F64,
+        semantics="regression_coefficients",
+        description="OLS / IV / panel regression coefficient vector.",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="standard_errors",
+        dtype=_F64,
+        semantics="regression_se",
+        description="Standard errors of regression coefficients.",
+        allowed_targets=frozenset({"confidence_interval_width"}),
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="conf_int_lower",
+        dtype=_F64,
+        semantics="confidence_interval",
+        description="Lower bound of a 95% confidence interval.",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="conf_int_upper",
+        dtype=_F64,
+        semantics="confidence_interval",
+        description="Upper bound of a 95% confidence interval.",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="p_value",
+        dtype=_F64,
+        semantics="hypothesis_test_pvalue",
+        description="Two-sided p-value for a null hypothesis test.",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="residual",
+        dtype=_F64,
+        semantics="residual",
+        description="Regression residuals ε = Y − Ŷ.",
+        allowed_targets=frozenset({"continuous_outcome"}),
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="predicted_outcome",
+        dtype=_F64,
+        semantics="predicted_outcome",
+        description="In-sample or out-of-sample prediction Ŷ.",
+        allowed_targets=frozenset({"continuous_outcome"}),
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="counterfactual_outcome",
+        dtype=_F64,
+        semantics="counterfactual_outcome",
+        description="Counterfactual potential outcome Y(0) under no-treatment.",
+        allowed_targets=frozenset({"continuous_outcome"}),
+    )
+)
 
 # -- Spatial / graph slots --
-register_slot_schema(SlotSchema(
-    name="spatial_weights",
-    dtype=_F64,
-    semantics="spatial_weights_matrix",
-    description="Row-standardised spatial weights matrix W.",
-))
-register_slot_schema(SlotSchema(
-    name="coordinates",
-    dtype=_F64,
-    semantics="geographic_coordinates",
-    description="(lon, lat) coordinate matrix for spatial methods.",
-))
-register_slot_schema(SlotSchema(
-    name="adjacency_matrix",
-    dtype=_F64,
-    semantics="graph_adjacency",
-    description="Adjacency matrix A for network/graph methods.",
-))
+register_slot_schema(
+    SlotSchema(
+        name="spatial_weights",
+        dtype=_F64,
+        semantics="spatial_weights_matrix",
+        description="Row-standardised spatial weights matrix W.",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="coordinates",
+        dtype=_F64,
+        semantics="geographic_coordinates",
+        description="(lon, lat) coordinate matrix for spatial methods.",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="adjacency_matrix",
+        dtype=_F64,
+        semantics="graph_adjacency",
+        description="Adjacency matrix A for network/graph methods.",
+    )
+)
 
 # -- Causal graph slots --
-register_slot_schema(SlotSchema(
-    name="dag",
-    dtype=None,
-    semantics="causal_dag",
-    description="Directed Acyclic Graph object (networkx.DiGraph or similar).",
-))
-register_slot_schema(SlotSchema(
-    name="discovered_dag",
-    dtype=None,
-    semantics="causal_dag",
-    description="DAG discovered by a structure-learning algorithm.",
-))
-register_slot_schema(SlotSchema(
-    name="cpdag",
-    dtype=None,
-    semantics="causal_cpdag",
-    description="Completed Partially Directed Acyclic Graph from PC/FCI.",
-))
+register_slot_schema(
+    SlotSchema(
+        name="dag",
+        dtype=None,
+        semantics="causal_dag",
+        description="Directed Acyclic Graph object (networkx.DiGraph or similar).",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="discovered_dag",
+        dtype=None,
+        semantics="causal_dag",
+        description="DAG discovered by a structure-learning algorithm.",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="cpdag",
+        dtype=None,
+        semantics="causal_cpdag",
+        description="Completed Partially Directed Acyclic Graph from PC/FCI.",
+    )
+)
 
 # -- Optimisation slots --
-register_slot_schema(SlotSchema(
-    name="objective_value",
-    dtype=_F64,
-    semantics="optimisation_objective",
-    description="Optimal value of the objective function.",
-))
-register_slot_schema(SlotSchema(
-    name="optimal_allocation",
-    dtype=_F64,
-    semantics="optimisation_solution",
-    description="Optimal primal solution vector x*.",
-))
-register_slot_schema(SlotSchema(
-    name="dual_values",
-    dtype=_F64,
-    semantics="optimisation_dual",
-    description="Dual variable (shadow price) vector.",
-))
+register_slot_schema(
+    SlotSchema(
+        name="objective_value",
+        dtype=_F64,
+        semantics="optimisation_objective",
+        description="Optimal value of the objective function.",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="optimal_allocation",
+        dtype=_F64,
+        semantics="optimisation_solution",
+        description="Optimal primal solution vector x*.",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="dual_values",
+        dtype=_F64,
+        semantics="optimisation_dual",
+        description="Dual variable (shadow price) vector.",
+    )
+)
 
 # -- Simulation / welfare slots --
-register_slot_schema(SlotSchema(
-    name="welfare_change",
-    dtype=_F64,
-    semantics="welfare_metric",
-    description="Change in social welfare from a policy intervention.",
-))
-register_slot_schema(SlotSchema(
-    name="gini_coefficient",
-    dtype=_F64,
-    semantics="inequality_metric",
-    description="Gini coefficient ∈ [0, 1].",
-))
+register_slot_schema(
+    SlotSchema(
+        name="welfare_change",
+        dtype=_F64,
+        semantics="welfare_metric",
+        description="Change in social welfare from a policy intervention.",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="gini_coefficient",
+        dtype=_F64,
+        semantics="inequality_metric",
+        description="Gini coefficient ∈ [0, 1].",
+    )
+)
 
 # -- Bayesian / uncertainty slots --
-register_slot_schema(SlotSchema(
-    name="posterior_samples",
-    dtype=_F64,
-    semantics="mcmc_posterior",
-    description="MCMC / VI posterior samples (n_samples × n_params).",
-))
-register_slot_schema(SlotSchema(
-    name="posterior_mean",
-    dtype=_F64,
-    semantics="bayesian_point_estimate",
-    description="Posterior mean of parameter vector.",
-    allowed_targets=frozenset({"regression_coefficients"}),
-))
-register_slot_schema(SlotSchema(
-    name="posterior_std",
-    dtype=_F64,
-    semantics="bayesian_uncertainty",
-    description="Posterior standard deviation.",
-    allowed_targets=frozenset({"regression_se"}),
-))
+register_slot_schema(
+    SlotSchema(
+        name="posterior_samples",
+        dtype=_F64,
+        semantics="mcmc_posterior",
+        description="MCMC / VI posterior samples (n_samples × n_params).",
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="posterior_mean",
+        dtype=_F64,
+        semantics="bayesian_point_estimate",
+        description="Posterior mean of parameter vector.",
+        allowed_targets=frozenset({"regression_coefficients"}),
+    )
+)
+register_slot_schema(
+    SlotSchema(
+        name="posterior_std",
+        dtype=_F64,
+        semantics="bayesian_uncertainty",
+        description="Posterior standard deviation.",
+        allowed_targets=frozenset({"regression_se"}),
+    )
+)

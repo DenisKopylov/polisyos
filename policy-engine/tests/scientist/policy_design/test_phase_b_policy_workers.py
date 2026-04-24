@@ -129,9 +129,17 @@ def test_translator_surfaces_degraded_evidence_channels() -> None:
     brief = PolicyTranslatorWorker().translate(bundle)
     descriptions = [risk.description for risk in brief.risks]
 
-    assert any("academic" in description and "missing_config" in description for description in descriptions)
-    assert any("datasets" in description and "missing_path" in description for description in descriptions)
-    assert any("Academic prior support is unavailable or degraded" in description for description in descriptions)
+    assert any(
+        "academic" in description and "missing_config" in description
+        for description in descriptions
+    )
+    assert any(
+        "datasets" in description and "missing_path" in description for description in descriptions
+    )
+    assert any(
+        "Academic prior support is unavailable or degraded" in description
+        for description in descriptions
+    )
 
 
 def test_translator_compliance_flags_all_anti_spin_invariants() -> None:
@@ -169,7 +177,9 @@ def test_constraint_critic_surfaces_budget_and_not_assessed_findings() -> None:
     candidate = candidate.model_copy(
         update={
             "budget_allocation": [
-                item.model_copy(update={"amount": item.amount.model_copy(update={"amount": Decimal("95")})})
+                item.model_copy(
+                    update={"amount": item.amount.model_copy(update={"amount": Decimal("95")})}
+                )
                 for item in candidate.budget_allocation
             ]
         }
@@ -189,9 +199,7 @@ def test_constraint_critic_surfaces_budget_and_not_assessed_findings() -> None:
 
 
 def test_scenario_adversary_fallback_and_execution(tmp_path) -> None:
-    worker = ScenarioAdversaryWorker(
-        ScenarioAdversaryConfig(max_scenarios=3, collect_top_k=2)
-    )
+    worker = ScenarioAdversaryWorker(ScenarioAdversaryConfig(max_scenarios=3, collect_top_k=2))
     surface = ScenarioAttackSurface(
         candidate_id="candidate_policy",
         parameter_specs=[
@@ -217,7 +225,8 @@ def test_scenario_adversary_fallback_and_execution(tmp_path) -> None:
         base_objective=CompositeObjective([GDPGrowthObjective()]),
         stage_b_evaluator=lambda candidate, context: {
             "simulation_results": {
-                "gdp_change": float(candidate.get("shock", 0.0)) + float(candidate.get("noise", 0.0))
+                "gdp_change": float(candidate.get("shock", 0.0))
+                + float(candidate.get("noise", 0.0))
             }
         },
         cas=None,

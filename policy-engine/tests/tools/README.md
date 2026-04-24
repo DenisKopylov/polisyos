@@ -22,25 +22,28 @@ tooling. The slice currently contains `23` `test_*.py` files.
 - CLI and workspace gates:
   `test_unified_cli.py`, `test_workspace_phase3.py`,
   `test_core_runtime_closeout.py`, `test_core_runtime_long_soak.py`
+
 - Architecture and quality ratchets:
   `test_architecture_phase3.py`, `test_lint_imports_phase3.py`,
   `test_phase4_consolidation.py`, `test_phase7_ratchet.py`
+
 - Release/acceptance gates:
   `test_acceptance_audit.py`, `test_release_artifact_policy.py`,
   `test_release_notes_tooling.py`, `test_remote_acceptance.py`
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - [`../../tools/README.md`](../../tools/README.md)
 - [`../../docs/reference/tools.md`](../../docs/reference/tools.md)
 - `tools/cli.py` and the zoned `tools/**` implementation tree
 
-**Depended on by**
+### Depended On By
 
 - Contributor workflows such as `workspace verify`, `workspace ci-parity`, and
   acceptance audit flows
+
 - Release and CI ratchets that rely on stable tool behavior
 
 ## Common Commands

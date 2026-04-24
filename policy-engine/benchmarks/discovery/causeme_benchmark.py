@@ -38,7 +38,6 @@ import dataclasses
 import json
 import math
 import sys
-from itertools import combinations
 from pathlib import Path
 from typing import Any
 
@@ -60,7 +59,11 @@ from benchmarks.harness import (  # noqa: E402
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.DISCOVERY
@@ -76,7 +79,9 @@ def _norm_sf(z: float) -> float:
     # Abramowitz & Stegun approximation, max error ≈ 7.5e-8
     z = abs(z)
     t = 1.0 / (1.0 + 0.2316419 * z)
-    poly = t * (0.319381530 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))))
+    poly = t * (
+        0.319381530 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429)))
+    )
     return poly * math.exp(-0.5 * z * z)
 
 
@@ -128,7 +133,7 @@ def _compute_f1(pred: np.ndarray, true: np.ndarray) -> float:
 class VarDGP:
     name: str
     n_vars: int
-    A: np.ndarray         # (n_vars, n_vars) coefficient matrix; A[i,j] means j → i
+    A: np.ndarray  # (n_vars, n_vars) coefficient matrix; A[i,j] means j → i
     true_adj: np.ndarray  # (n_vars, n_vars) binary directed adjacency
     noise_std: float = 1.0
 
@@ -165,7 +170,7 @@ def _granger_f_pvalue(Y: np.ndarray, X: np.ndarray, lag: int = 1) -> float:
     T_eff = len(y)
 
     def _lag_matrix(series: np.ndarray, lags: int) -> np.ndarray:
-        cols = [series[max_lag - l: T - l] for l in range(1, lags + 1)]
+        cols = [series[max_lag - lag_step : T - lag_step] for lag_step in range(1, lags + 1)]
         return np.column_stack(cols)
 
     restr_X = np.column_stack([_lag_matrix(Y, n_lags), np.ones(T_eff)])
@@ -179,7 +184,7 @@ def _granger_f_pvalue(Y: np.ndarray, X: np.ndarray, lag: int = 1) -> float:
     rss_r = _ols_rss(restr_X, y)
     rss_u = _ols_rss(unrestr_X, y)
 
-    df1 = n_lags            # extra parameters
+    df1 = n_lags  # extra parameters
     df2 = T_eff - unrestr_X.shape[1]
     if df2 <= 0 or rss_u <= 0:
         return 1.0
@@ -225,59 +230,71 @@ def _make_var_dgps() -> list[VarDGP]:
     dgps: list[VarDGP] = []
 
     # DGP 1: 3-node chain  A → B → C
-    A1 = np.array([
-        [0.0, 0.0, 0.0],
-        [0.5, 0.0, 0.0],
-        [0.0, 0.6, 0.0],
-    ])
-    true1 = np.array([
-        [0, 0, 0],
-        [1, 0, 0],
-        [0, 1, 0],
-    ])
+    A1 = np.array(
+        [
+            [0.0, 0.0, 0.0],
+            [0.5, 0.0, 0.0],
+            [0.0, 0.6, 0.0],
+        ]
+    )
+    true1 = np.array(
+        [
+            [0, 0, 0],
+            [1, 0, 0],
+            [0, 1, 0],
+        ]
+    )
     dgps.append(VarDGP("chain_3", 3, A1, true1))
 
     # DGP 2: 3-node fork  B ← A → C
-    A2 = np.array([
-        [0.0, 0.0, 0.0],
-        [0.6, 0.0, 0.0],
-        [0.5, 0.0, 0.0],
-    ])
-    true2 = np.array([
-        [0, 0, 0],
-        [1, 0, 0],
-        [1, 0, 0],
-    ])
+    A2 = np.array(
+        [
+            [0.0, 0.0, 0.0],
+            [0.6, 0.0, 0.0],
+            [0.5, 0.0, 0.0],
+        ]
+    )
+    true2 = np.array(
+        [
+            [0, 0, 0],
+            [1, 0, 0],
+            [1, 0, 0],
+        ]
+    )
     dgps.append(VarDGP("fork_3", 3, A2, true2))
 
     # DGP 3: 3-node collider  A → C ← B  (A, B independent)
-    A3 = np.array([
-        [0.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0],
-        [0.5, 0.6, 0.0],
-    ])
-    true3 = np.array([
-        [0, 0, 0],
-        [0, 0, 0],
-        [1, 1, 0],
-    ])
+    A3 = np.array(
+        [
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.5, 0.6, 0.0],
+        ]
+    )
+    true3 = np.array(
+        [
+            [0, 0, 0],
+            [0, 0, 0],
+            [1, 1, 0],
+        ]
+    )
     dgps.append(VarDGP("collider_3", 3, A3, true3))
 
     # DGP 4: 4-node diamond  A→B, A→C, B→D, C→D
     A4 = np.zeros((4, 4))
-    A4[1, 0] = 0.6   # A→B
-    A4[2, 0] = 0.5   # A→C
-    A4[3, 1] = 0.5   # B→D
-    A4[3, 2] = 0.6   # C→D
+    A4[1, 0] = 0.6  # A→B
+    A4[2, 0] = 0.5  # A→C
+    A4[3, 1] = 0.5  # B→D
+    A4[3, 2] = 0.6  # C→D
     true4 = (A4 != 0).astype(int)
     dgps.append(VarDGP("diamond_4", 4, A4, true4))
 
     # DGP 5: 5-node complex  A→B, B→D, A→C, C→E, D→E
     A5 = np.zeros((5, 5))
-    A5[1, 0] = 0.5   # A→B  (B=1, A=0)
-    A5[2, 0] = 0.6   # A→C
+    A5[1, 0] = 0.5  # A→B  (B=1, A=0)
+    A5[2, 0] = 0.6  # A→C
     A5[3, 1] = 0.55  # B→D
-    A5[4, 2] = 0.5   # C→E
+    A5[4, 2] = 0.5  # C→E
     A5[4, 3] = 0.45  # D→E
     true5 = (A5 != 0).astype(int)
     dgps.append(VarDGP("complex_5", 5, A5, true5))
@@ -412,7 +429,9 @@ def _report_to_dict(
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Circuit 3 — CauseMe time-series discovery benchmark")
+    parser = argparse.ArgumentParser(
+        description="Circuit 3 — CauseMe time-series discovery benchmark"
+    )
     parser.add_argument("--T", type=int, default=500, help="Time series length")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--auroc-threshold", type=float, default=0.75)
@@ -436,7 +455,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.json:
         Path(args.json).write_text(
-            json.dumps(_report_to_dict(report, mode=mode, preflight=preflight), indent=2), encoding="utf-8"
+            json.dumps(_report_to_dict(report, mode=mode, preflight=preflight), indent=2),
+            encoding="utf-8",
         )
         print(f"\nJSON report written to: {args.json}")
 

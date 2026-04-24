@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { Card } from "@/shared/ui/primitives";
 import { AnimatedNumber, BarChart } from "@/shared/charts";
@@ -15,13 +16,12 @@ export function ImpactPreview({
   loading = false,
   className,
 }: ImpactPreviewProps) {
+  const { t } = useI18n();
   if (metrics.length === 0 && !loading) {
     return (
       <Card className={cn("space-y-3", className)}>
-        <h4 className="text-sm font-semibold">Impact Preview</h4>
-        <p className="text-muted text-sm">
-          Adjust parameters to see projected impact.
-        </p>
+        <h4 className="text-sm font-semibold">{t("whatIf.impact.title")}</h4>
+        <p className="text-muted text-sm">{t("whatIf.impact.noData")}</p>
       </Card>
     );
   }
@@ -31,15 +31,15 @@ export function ImpactPreview({
   return (
     <Card className={cn("space-y-4", className)}>
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold">Impact Preview</h4>
+        <h4 className="text-sm font-semibold">{t("whatIf.impact.title")}</h4>
         {loading && (
           <span className="text-muted animate-pulse text-xs">
-            Computing...
+            {t("whatIf.impact.computing")}
           </span>
         )}
         {!loading && hasChanges && (
           <span className="text-xs font-medium text-[var(--chart-warning)]">
-            Projected changes
+            {t("whatIf.impact.projectedChanges")}
           </span>
         )}
       </div>
@@ -96,18 +96,21 @@ export function ImpactPreview({
                     {delta >= 0 ? "+" : ""}
                     {delta.toFixed(4)}
                   </span>
+                  <span className="text-muted">({pctChange}%)</span>
                   <span className="text-muted">
-                    ({pctChange}%)
-                  </span>
-                  <span className="text-muted">
-                    was {m.baseValue.toFixed(3)}
+                    {t("whatIf.impact.wasValue", {
+                      value: m.baseValue.toFixed(3),
+                    })}
                   </span>
                 </div>
               )}
 
               {m.ci && changed && (
                 <p className="text-muted mt-0.5 text-[10px]">
-                  CI: [{m.ci.lower.toFixed(3)}, {m.ci.upper.toFixed(3)}]
+                  {t("whatIf.impact.confidenceInterval", {
+                    lower: m.ci.lower.toFixed(3),
+                    upper: m.ci.upper.toFixed(3),
+                  })}
                 </p>
               )}
             </div>
@@ -119,7 +122,7 @@ export function ImpactPreview({
       {hasChanges && metrics.length >= 2 && (
         <div>
           <p className="text-muted mb-1 text-xs font-semibold uppercase">
-            Delta overview
+            {t("whatIf.impact.deltaOverview")}
           </p>
           <BarChart
             data={metrics.map((m) => ({

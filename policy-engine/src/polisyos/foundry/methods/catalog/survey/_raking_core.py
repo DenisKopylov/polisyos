@@ -1,9 +1,11 @@
 """Core helpers for survey IPF / raking diagnostics."""
+
 from __future__ import annotations
 
 import math
 from collections import OrderedDict
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -99,7 +101,11 @@ def build_raking_design_from_feature_targets(
         if margin_name not in name_to_index:
             raise ValueError(f"Unknown raking margin '{margin_name}'")
         target_spec = target_spec_raw if isinstance(target_spec_raw, Mapping) else {}
-        targets_map = target_spec.get("targets") if isinstance(target_spec.get("targets"), Mapping) else target_spec_raw
+        targets_map = (
+            target_spec.get("targets")
+            if isinstance(target_spec.get("targets"), Mapping)
+            else target_spec_raw
+        )
         if not isinstance(targets_map, Mapping) or not targets_map:
             raise ValueError(f"Margin '{margin_name}' must define category targets")
 
@@ -118,9 +124,7 @@ def build_raking_design_from_feature_targets(
         ):
             values *= total
         elif margin_mode not in {"auto", "totals"}:
-            raise ValueError(
-                f"Unsupported target mode '{margin_mode}' for margin '{margin_name}'"
-            )
+            raise ValueError(f"Unsupported target mode '{margin_mode}' for margin '{margin_name}'")
 
         feature_column = feature_matrix[:, name_to_index[margin_name]]
         normalized_column = np.array(
@@ -213,7 +217,9 @@ def run_raking_ipf(
         margin_names_by_category=margin_names_by_category,
         n_categories=n_categories,
     )
-    category_names = _resolve_category_names(category_labels=category_labels, n_categories=n_categories)
+    category_names = _resolve_category_names(
+        category_labels=category_labels, n_categories=n_categories
+    )
     category_keys = tuple(
         f"{margin_names[idx]}={category_names[idx]}" for idx in range(n_categories)
     )
@@ -319,8 +325,10 @@ def run_raking_ipf(
         achieved = np.asarray(design.T @ current, dtype=float)
         rel_errors = np.abs(achieved - targets) / (1.0 + np.abs(targets))
         max_rel_error = float(np.max(rel_errors)) if rel_errors.size else 0.0
-        rms_rel_error = float(np.sqrt(np.mean(rel_errors ** 2))) if rel_errors.size else 0.0
-        log_change = np.abs(np.log(np.maximum(current, _LOG_EPS)) - np.log(np.maximum(previous, _LOG_EPS)))
+        rms_rel_error = float(np.sqrt(np.mean(rel_errors**2))) if rel_errors.size else 0.0
+        log_change = np.abs(
+            np.log(np.maximum(current, _LOG_EPS)) - np.log(np.maximum(previous, _LOG_EPS))
+        )
         max_log_change = float(np.max(log_change)) if log_change.size else 0.0
         worst_idx = int(np.argmax(rel_errors)) if rel_errors.size else 0
         max_error_history.append(max_rel_error)
@@ -432,7 +440,7 @@ def _reference_population_total(
     targets: np.ndarray,
     margin_ids: np.ndarray,
 ) -> tuple[float, str | None]:
-    totals_by_margin: "OrderedDict[int, float]" = OrderedDict()
+    totals_by_margin: OrderedDict[int, float] = OrderedDict()
     for margin_id in dict.fromkeys(int(value) for value in margin_ids.tolist()):
         totals_by_margin[margin_id] = float(np.sum(targets[margin_ids == margin_id]))
     totals = list(totals_by_margin.values())
@@ -535,10 +543,14 @@ def _build_terminal_report(
 ) -> SurveyRakingDiagnosticReport:
     rel_errors = np.abs(achieved - targets) / (1.0 + np.abs(targets))
     max_rel_error = float(np.max(rel_errors)) if rel_errors.size else 0.0
-    rms_rel_error = float(np.sqrt(np.mean(rel_errors ** 2))) if rel_errors.size else 0.0
+    rms_rel_error = float(np.sqrt(np.mean(rel_errors**2))) if rel_errors.size else 0.0
     worst_idx = int(np.argmax(rel_errors)) if rel_errors.size else 0
     max_log_change = float(trace[-1].max_logweight_change) if trace else 0.0
-    improvement_ratio_5 = float(trace[-1].improvement_ratio) if trace and trace[-1].improvement_ratio is not None else None
+    improvement_ratio_5 = (
+        float(trace[-1].improvement_ratio)
+        if trace and trace[-1].improvement_ratio is not None
+        else None
+    )
     decreases = [
         trace[idx].max_rel_margin_error <= trace[idx - 1].max_rel_margin_error + 1e-15
         for idx in range(1, len(trace))
@@ -546,8 +558,8 @@ def _build_terminal_report(
     monotonicity_share = float(np.mean(decreases)) if decreases else 1.0
     n_obs = max(int(final_weights.shape[0]), 1)
     weight_sum = float(np.sum(final_weights))
-    weight_sq_sum = float(np.sum(final_weights ** 2))
-    ess = float(weight_sum ** 2 / max(weight_sq_sum, 1e-12))
+    weight_sq_sum = float(np.sum(final_weights**2))
+    ess = float(weight_sum**2 / max(weight_sq_sum, 1e-12))
     ess_fraction = float(np.clip(ess / n_obs, 0.0, 1.0))
     kish_deff = float(n_obs / max(ess, 1e-12))
     mean_weight = float(np.mean(final_weights))
@@ -637,7 +649,9 @@ def _build_terminal_report(
         )
     elif max_g > 3.0 or min_g < 0.3:
         reasons_warn.append("g_weight_bounds_warn")
-    block_sparse = [item for item in categories if item.sparse_level in {"block", "structural_zero"}]
+    block_sparse = [
+        item for item in categories if item.sparse_level in {"block", "structural_zero"}
+    ]
     warn_sparse = [item for item in categories if item.sparse_level == "warn"]
     if block_sparse:
         reasons_block.append("sparse_categories")
@@ -674,8 +688,12 @@ def _build_terminal_report(
         structural_zero_count=structural_zero_count,
         sparse_category_count=sparse_category_count,
         vif_lb_max=vif_lb_max,
-        target_totals={category_keys[idx]: float(targets[idx]) for idx in range(len(category_keys))},
-        achieved_totals={category_keys[idx]: float(achieved[idx]) for idx in range(len(category_keys))},
+        target_totals={
+            category_keys[idx]: float(targets[idx]) for idx in range(len(category_keys))
+        },
+        achieved_totals={
+            category_keys[idx]: float(achieved[idx]) for idx in range(len(category_keys))
+        },
         blocking_reasons=tuple(dict.fromkeys(reasons_block)),
         warnings=tuple(dict.fromkeys(reasons_warn)),
         recommendations=tuple(dict.fromkeys(recommendations)),
@@ -861,7 +879,8 @@ def run_raking_with_fallbacks(
                 fallback_used="bounded_logit",
                 stop_reason=(
                     "fallback_bounded_logit"
-                    if bounded_fit["success"] and bounded_fit["max_rel_margin_error"] <= warn_tolerance
+                    if bounded_fit["success"]
+                    and bounded_fit["max_rel_margin_error"] <= warn_tolerance
                     else "bounded_infeasible"
                 ),
                 success=bool(bounded_fit["success"]),
@@ -950,7 +969,7 @@ def run_raking_with_fallbacks(
             )
 
     best = _pick_best_candidate(candidates)
-    warnings = list(str(item) for item in best["report"].warnings)
+    warnings = [str(item) for item in best["report"].warnings]
     if best["report"].fallback_used is not None:
         warnings.append(f"raking_fallback_used:{best['report'].fallback_used}")
     warnings.extend(notes)
@@ -962,7 +981,9 @@ def run_raking_with_fallbacks(
         "margin_ids": np.asarray(best["margin_ids"], dtype=int),
         "margin_names_by_category": tuple(str(item) for item in best["margin_names"]),
         "category_labels": tuple(str(item) for item in best["category_names"]),
-        "artifacts": _build_raking_artifacts(best=best, candidates=candidates, collapse_events=collapse_events),
+        "artifacts": _build_raking_artifacts(
+            best=best, candidates=candidates, collapse_events=collapse_events
+        ),
         "warnings": tuple(dict.fromkeys(str(item) for item in warnings if str(item))),
     }
 
@@ -1012,10 +1033,7 @@ def _collapse_sparse_design(
     categories: Sequence[SurveyRakingCategoryDiagnostic],
     collapse_map: Mapping[str, Mapping[str, str]] | None,
 ) -> dict[str, Any] | None:
-    categories_by_key = {
-        f"{item.margin_name}={item.category_name}": item
-        for item in categories
-    }
+    categories_by_key = {f"{item.margin_name}={item.category_name}": item for item in categories}
     explicit_map = collapse_map if isinstance(collapse_map, Mapping) else {}
     new_columns: list[np.ndarray] = []
     new_targets: list[float] = []
@@ -1033,7 +1051,7 @@ def _collapse_sparse_design(
             if isinstance(explicit_map.get(margin_name), Mapping)
             else None
         )
-        assignments: "OrderedDict[str, list[int]]"
+        assignments: OrderedDict[str, list[int]]
         if margin_map:
             assignments = OrderedDict()
             for idx in indices:
@@ -1043,13 +1061,13 @@ def _collapse_sparse_design(
             sparse_indices = [
                 idx
                 for idx in indices
-                if categories_by_key.get(f"{margin_names[idx]}={category_names[idx]}", None) is not None
-                and categories_by_key[f"{margin_names[idx]}={category_names[idx]}"].sparse_level in {"warn", "block"}
+                if categories_by_key.get(f"{margin_names[idx]}={category_names[idx]}", None)
+                is not None
+                and categories_by_key[f"{margin_names[idx]}={category_names[idx]}"].sparse_level
+                in {"warn", "block"}
             ]
             assignments = OrderedDict(
-                (str(category_names[idx]), [idx])
-                for idx in indices
-                if idx not in sparse_indices
+                (str(category_names[idx]), [idx]) for idx in indices if idx not in sparse_indices
             )
             if len(sparse_indices) >= 2:
                 assignments["__collapsed__"] = sparse_indices
@@ -1064,7 +1082,9 @@ def _collapse_sparse_design(
             new_margin_ids.append(margin_id)
             new_margin_names.append(margin_name)
             new_category_names.append(str(collapsed_name))
-            if len(members) > 1 or any(str(category_names[item]) != str(collapsed_name) for item in members):
+            if len(members) > 1 or any(
+                str(category_names[item]) != str(collapsed_name) for item in members
+            ):
                 changed = True
                 events.append(
                     {
@@ -1078,7 +1098,9 @@ def _collapse_sparse_design(
 
     if not changed:
         return None
-    category_matrix = np.column_stack(new_columns) if new_columns else np.zeros((design.shape[0], 0))
+    category_matrix = (
+        np.column_stack(new_columns) if new_columns else np.zeros((design.shape[0], 0))
+    )
     return {
         "category_matrix": category_matrix,
         "target_totals": np.asarray(new_targets, dtype=float),
@@ -1123,7 +1145,9 @@ def _optimize_bounded_scores(
         weights, grad_factor = _weights_and_grad_factor(coeffs)
         achieved = np.asarray(design.T @ weights, dtype=float)
         residual = (achieved - targets) / scale
-        loss = 0.5 * float(np.dot(residual, residual)) + 0.5 * float(ridge) * float(np.dot(coeffs, coeffs))
+        loss = 0.5 * float(np.dot(residual, residual)) + 0.5 * float(ridge) * float(
+            np.dot(coeffs, coeffs)
+        )
         influence = np.asarray(design @ (residual / scale), dtype=float)
         gradient = (
             np.asarray(design.T @ (base_weights * grad_factor * influence), dtype=float)
@@ -1133,7 +1157,9 @@ def _optimize_bounded_scores(
 
     x0 = np.zeros(design.shape[1], dtype=float)
     if init_weights is not None and init_weights.shape == base_weights.shape:
-        init_ratio = np.clip(init_weights / np.maximum(base_weights, 1e-12), lower + 1e-6, upper - 1e-6)
+        init_ratio = np.clip(
+            init_weights / np.maximum(base_weights, 1e-12), lower + 1e-6, upper - 1e-6
+        )
         probs = np.clip((init_ratio - lower) / span, 1e-6, 1.0 - 1e-6)
         raw_scores = np.log(probs / (1.0 - probs)) - offset
         try:
@@ -1181,7 +1207,9 @@ def _build_fallback_report(
     note: str,
 ) -> SurveyRakingDiagnosticReport:
     reference_total, _ = _reference_population_total(targets=targets, margin_ids=margin_ids)
-    category_keys = tuple(f"{margin_names[idx]}={category_names[idx]}" for idx in range(design.shape[1]))
+    category_keys = tuple(
+        f"{margin_names[idx]}={category_names[idx]}" for idx in range(design.shape[1])
+    )
     achieved = np.asarray(design.T @ final_weights, dtype=float)
     categories = _category_diagnostics(
         base_weights=base_weights,
@@ -1212,7 +1240,9 @@ def _build_fallback_report(
         extra_warnings=(() if success else ("fallback_solver_failed",)),
         explicit_recommendations=(note,),
         fallback_used=fallback_used,
-        converged_override=bool(np.max(np.abs(achieved - targets) / (1.0 + np.abs(targets))) <= warn_tolerance),
+        converged_override=bool(
+            np.max(np.abs(achieved - targets) / (1.0 + np.abs(targets))) <= warn_tolerance
+        ),
     )
     recommendations = tuple(
         dict.fromkeys(

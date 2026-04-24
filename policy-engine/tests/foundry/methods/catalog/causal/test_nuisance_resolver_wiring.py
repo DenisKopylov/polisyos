@@ -8,9 +8,8 @@
 - static fallback dict still works when resolver raises
 """
 
-import pytest
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../../../src"))
 
@@ -24,6 +23,7 @@ from polisyos.ir.analytics.estimand import DistributionDomain
 def _make_nuisance_node(nuisance_type: str, target: str = "T", conditioning=("X",)):
     """Create a minimal NuisanceNode via model_validate."""
     from polisyos.ir.analytics.estimand import NuisanceNode
+
     return NuisanceNode(
         nuisance_type=nuisance_type,
         target_variable=target,
@@ -79,7 +79,9 @@ class TestNuisanceResolverWiring:
         node = _make_nuisance_node("density_ratio", target="X")
         lower_nuisance_node(node, ctx)
         emitted = ctx.nodes[-1]
-        assert "density_ratio" in emitted.method_fqn or "density_ratio" in emitted.params.get("role", "")
+        assert "density_ratio" in emitted.method_fqn or "density_ratio" in emitted.params.get(
+            "role", ""
+        )
         assert emitted.is_nuisance
 
     def test_mediator_density_uses_mediator_fqn(self):
@@ -96,18 +98,25 @@ class TestNuisanceResolverWiring:
         def _bad_resolver(*_a, **_kw):
             raise RuntimeError("resolver unavailable")
 
-        monkeypatch.setattr(_mod, "_NUISANCE_TYPE_TO_FQN", {
-            "propensity": "causal.nuisance.propensity_model@1.0.0",
-        })
+        monkeypatch.setattr(
+            _mod,
+            "_NUISANCE_TYPE_TO_FQN",
+            {
+                "propensity": "causal.nuisance.propensity_model@1.0.0",
+            },
+        )
 
         # Patch the import inside lower_nuisance_node by making NuisanceResolver raise
-        original_import = __builtins__.__import__ if hasattr(__builtins__, "__import__") else __import__
+        original_import = (
+            __builtins__.__import__ if hasattr(__builtins__, "__import__") else __import__
+        )
 
         ctx = _make_ctx(n_obs=100, covariate_dim=2)
         node = _make_nuisance_node("propensity", target="Z")
 
         # Simulate resolver failure by patching the NuisanceResolver class
         import polisyos.foundry.methods.catalog.causal.nuisance_resolver as nr_mod
+
         original_cls = nr_mod.NuisanceResolver
 
         class _FailingResolver:

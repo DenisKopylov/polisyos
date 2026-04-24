@@ -42,7 +42,9 @@ def test_metric_validation_type_i_bench_emits_expected_summary_shapes() -> None:
         summary.acceptance_ceiling == pytest.approx(0.06)
         for summary in result.single_test_summaries
     )
-    assert all(0.0 <= summary.empirical_error_rate <= 1.0 for summary in result.family_error_summaries)
+    assert all(
+        0.0 <= summary.empirical_error_rate <= 1.0 for summary in result.family_error_summaries
+    )
     assert all(
         summary.acceptance_ceiling == pytest.approx(0.055)
         for summary in result.family_error_summaries

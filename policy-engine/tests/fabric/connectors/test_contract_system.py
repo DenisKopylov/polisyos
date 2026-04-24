@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import ClassVar
 
 import pandas as pd
@@ -78,7 +78,7 @@ def _contract(
 
 
 def _version() -> DataVersion:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     return DataVersion(
         strategy=VersionStrategy.CONTENT_HASH,
         value="sha256:" + "0" * 64,
@@ -180,7 +180,7 @@ class _MockConnector(BaseConnector[pd.DataFrame]):
             schema_id=self._reported_schema_id,
             schema_version=self._reported_schema_version,
             version=_version(),
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             source_updated_at=self._source_updated_at,
             completeness=self._completeness,
             quality_tier=QualityTier.SILVER,
@@ -189,9 +189,7 @@ class _MockConnector(BaseConnector[pd.DataFrame]):
 
 def test_contract_content_hash_is_semantic() -> None:
     base = _contract()
-    changed_meta = base.model_copy(
-        update={"description": "new desc", "created_by": "other-user"}
-    )
+    changed_meta = base.model_copy(update={"description": "new desc", "created_by": "other-user"})
     assert base.content_hash == changed_meta.content_hash
 
 
@@ -322,6 +320,7 @@ def test_contract_validating_proxy_strict_mode_raises() -> None:
     with pytest.raises(SchemaError):
         asyncio.run(_exercise())
 
+
 def test_contract_validating_proxy_warn_mode_passes_with_warning_counter() -> None:
     contract_registry = ContractRegistry()
     contract_registry.register(_contract())
@@ -374,7 +373,7 @@ def test_contract_validating_proxy_rejects_future_source_timestamp() -> None:
     frame = pd.DataFrame([{"id": "a", "value": 1.0}])
     connector = _MockConnector(
         frame,
-        source_updated_at=datetime.now(timezone.utc) + timedelta(days=2),
+        source_updated_at=datetime.now(UTC) + timedelta(days=2),
     )
     proxy = ContractValidatingProxy(
         connector,

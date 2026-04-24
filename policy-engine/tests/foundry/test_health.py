@@ -2,8 +2,8 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 
-from polisyos.foundry.queue import QueueMechanism, QueueState, fidelity_gap_report, simulate_queue
 from polisyos.foundry.contracts.fidelity import FidelityLevel
+from polisyos.foundry.queue import QueueMechanism, QueueState, fidelity_gap_report, simulate_queue
 from polisyos.foundry.utils import gradient_health_report
 
 

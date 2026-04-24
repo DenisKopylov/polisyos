@@ -5,12 +5,12 @@ Related how-to: [Write Governance Pass](../how-to/write-governance-pass.md). Rel
 > Этот tutorial рассчитан на инженера, который добавляет новый governance check в Scientist и хочет дойти до состояния "pass существует, зарегистрирован, запускается и тестируется".
 
 !!! info "Verified with"
-    Эта страница была перепроверена 2026-04-17 на текущем дереве, macOS,
-    Python 3.14 и `uv`.
-    Реально проверены импорт базовых типов
-    `PassContext` / `ValidatorPass`
-    и dry-run scaffold:
-    `uv run polisyos-tools architecture scaffold governance-pass --name my_pass --output ... --test-output ... --dry-run`.
+Эта страница была перепроверена 2026-04-17 на текущем дереве, macOS,
+Python 3.14 и `uv`.
+Реально проверены импорт базовых типов
+`PassContext` / `ValidatorPass`
+и dry-run scaffold:
+`uv run polisyos-tools architecture scaffold governance-pass --name my_pass --output ... --test-output ... --dry-run`.
 
 Мы пройдём минимальный, но реальный путь: создадим pass, зарегистрируем factory, подключим его к canonical governance surface и проверим blocker/warning semantics тестом.
 

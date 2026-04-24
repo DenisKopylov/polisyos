@@ -1,9 +1,11 @@
 """Solve linear-program bounds for partially identified causal estimands."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from itertools import product
-from typing import Any, Mapping
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
@@ -19,12 +21,12 @@ from polisyos.ir.analytics.partial_identification import (
     PartialIdentificationResult,
 )
 
-
 _MAX_EXACT_RESPONSE_TYPES = 5_000
 
 
 class DiscretizedVariable(BaseModel):
     """Represent one discretized support axis used by the LP bounding problem."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     name: str
@@ -100,12 +102,15 @@ def _empirical_joint(
     total = float(max(len(treatment), 1))
     for i, t_val in enumerate(t_levels):
         for j, y_val in enumerate(y_levels):
-            joint[i, j] = float(
-                np.sum(
-                    np.isclose(treatment, t_val, atol=1e-9)
-                    & np.isclose(outcome, y_val, atol=1e-9)
+            joint[i, j] = (
+                float(
+                    np.sum(
+                        np.isclose(treatment, t_val, atol=1e-9)
+                        & np.isclose(outcome, y_val, atol=1e-9)
+                    )
                 )
-            ) / total
+                / total
+            )
     return _normalize_probability_table(joint)
 
 
@@ -147,12 +152,22 @@ def _build_response_types(
                 continue
             response_types.append((t_obs, tuple(int(v) for v in response_vector)))
             lower_effects.append(
-                float(y_lower[response_vector[target_index]] - y_upper[response_vector[reference_index]])
+                float(
+                    y_lower[response_vector[target_index]]
+                    - y_upper[response_vector[reference_index]]
+                )
             )
             upper_effects.append(
-                float(y_upper[response_vector[target_index]] - y_lower[response_vector[reference_index]])
+                float(
+                    y_upper[response_vector[target_index]]
+                    - y_lower[response_vector[reference_index]]
+                )
             )
-    return response_types, np.asarray(lower_effects, dtype=float), np.asarray(upper_effects, dtype=float)
+    return (
+        response_types,
+        np.asarray(lower_effects, dtype=float),
+        np.asarray(upper_effects, dtype=float),
+    )
 
 
 def build_response_function_constraints(
@@ -356,7 +371,11 @@ def _coarsen_variable(
     target_bins: int,
 ) -> DiscretizedVariable | None:
     levels = _ordered_levels(values)
-    if levels.size >= 2 and levels.size <= target_bins and _looks_discrete(values, max_levels=target_bins):
+    if (
+        levels.size >= 2
+        and levels.size <= target_bins
+        and _looks_discrete(values, max_levels=target_bins)
+    ):
         return None
     return _discretize_continuous_for_bounds(
         values,
@@ -381,7 +400,9 @@ def _coarsened_joint(
         t_labels = t_levels
     else:
         t_levels = np.arange(treatment_disc.n_bins, dtype=float)
-        t_idx = np.digitize(np.asarray(treatment, dtype=float), np.asarray(treatment_disc.edges)[1:-1], right=True)
+        t_idx = np.digitize(
+            np.asarray(treatment, dtype=float), np.asarray(treatment_disc.edges)[1:-1], right=True
+        )
         t_labels = np.asarray(treatment_disc.bin_mid, dtype=float)
 
     if outcome_disc is None:
@@ -393,7 +414,9 @@ def _coarsened_joint(
         y_upper = y_levels
     else:
         y_levels = np.arange(outcome_disc.n_bins, dtype=float)
-        y_idx = np.digitize(np.asarray(outcome, dtype=float), np.asarray(outcome_disc.edges)[1:-1], right=True)
+        y_idx = np.digitize(
+            np.asarray(outcome, dtype=float), np.asarray(outcome_disc.edges)[1:-1], right=True
+        )
         y_lower = np.asarray(outcome_disc.bin_lower, dtype=float)
         y_upper = np.asarray(outcome_disc.bin_upper, dtype=float)
 
@@ -402,7 +425,13 @@ def _coarsened_joint(
     for i in range(len(t_levels)):
         for j in range(len(y_levels)):
             joint[i, j] = float(np.sum((t_idx == i) & (y_idx == j))) / total
-    return _normalize_probability_table(joint), np.asarray(t_labels, dtype=float), np.asarray(y_levels, dtype=float), y_lower, y_upper
+    return (
+        _normalize_probability_table(joint),
+        np.asarray(t_labels, dtype=float),
+        np.asarray(y_levels, dtype=float),
+        y_lower,
+        y_upper,
+    )
 
 
 def _exact_no_assumption_bounds(
@@ -441,11 +470,7 @@ def _exact_no_assumption_bounds(
         assumptions_used=[
             "response_function_lp",
             "exact_discrete_support",
-            *(
-                ["monotone_treatment_response"]
-                if monotone
-                else ["no_assumptions_on_selection"]
-            ),
+            *(["monotone_treatment_response"] if monotone else ["no_assumptions_on_selection"]),
         ],
         display_label="Exact response-function LP bounds",
         bounds_type="sharp_lp",
@@ -459,7 +484,7 @@ def _exact_no_assumption_bounds(
         "solver_status": lp.status,
         "t_levels": tuple(float(v) for v in t_levels),
         "y_levels": tuple(float(v) for v in y_levels),
-        "response_space_size": _response_space_size(int(len(t_levels)), int(len(y_levels))),
+        "response_space_size": _response_space_size(len(t_levels), len(y_levels)),
         "dual_certificate_payload": lp.dual_certificate_payload,
     }
 
@@ -503,7 +528,9 @@ def _adaptive_grid_refinement(
             outcome_disc=outcome_disc,
         )
         if len(t_labels) < 2 or len(y_levels) < 2:
-            raise RuntimeError("outer approximation requires at least two treatment and outcome support points")
+            raise RuntimeError(
+                "outer approximation requires at least two treatment and outcome support points"
+            )
 
         target_idx = int(np.argmin(np.abs(t_labels - target_treatment)))
         reference_idx = int(np.argmin(np.abs(t_labels - reference_treatment)))
@@ -553,19 +580,25 @@ def _adaptive_grid_refinement(
                     bounds_type="relaxed_polynomial",
                     relaxation_gap=float(delta),
                     discretization_method="adaptive",
-                    n_bins_final=int(max(
-                        outcome_disc.n_bins if outcome_disc is not None else len(y_levels),
-                        treatment_disc.n_bins if treatment_disc is not None else len(t_labels),
-                    )),
+                    n_bins_final=int(
+                        max(
+                            outcome_disc.n_bins if outcome_disc is not None else len(y_levels),
+                            treatment_disc.n_bins if treatment_disc is not None else len(t_labels),
+                        )
+                    ),
                     discretization_converged=True,
                     n_refinement_steps=step,
                 )
                 return result, {
                     "solver_status": lp.status,
-                    "treatment_discretization": None if treatment_disc is None else treatment_disc.model_dump(mode="json"),
-                    "outcome_discretization": None if outcome_disc is None else outcome_disc.model_dump(mode="json"),
+                    "treatment_discretization": None
+                    if treatment_disc is None
+                    else treatment_disc.model_dump(mode="json"),
+                    "outcome_discretization": None
+                    if outcome_disc is None
+                    else outcome_disc.model_dump(mode="json"),
                     "previous_bounds": previous_bounds,
-                    "response_space_size": _response_space_size(int(len(t_labels)), int(len(y_levels))),
+                    "response_space_size": _response_space_size(len(t_labels), len(y_levels)),
                 }
 
         previous_bounds = current_bounds
@@ -579,7 +612,7 @@ def _adaptive_grid_refinement(
 
     if last_lp is None:
         raise RuntimeError("adaptive refinement failed to produce a result")
-    last_label_count = 0 if last_labels is None else int(len(last_labels))
+    last_label_count = 0 if last_labels is None else len(last_labels)
     result = PartialIdentificationResult(
         method=BoundMethod.GENERAL_LP_BOUNDS,
         lower_bound=last_lp.lower,
@@ -598,30 +631,34 @@ def _adaptive_grid_refinement(
                 if last_outcome_disc is not None
                 else ["exact_outcome_support"]
             ),
-            *(
-                ["monotone_treatment_response"]
-                if monotone
-                else ["no_assumptions_on_selection"]
-            ),
+            *(["monotone_treatment_response"] if monotone else ["no_assumptions_on_selection"]),
         ],
         display_label="Adaptive outer-approximation bounds",
         bounds_type="relaxed_polynomial",
         relaxation_gap=None,
         discretization_method="adaptive",
-        n_bins_final=int(max(
-            last_outcome_disc.n_bins if last_outcome_disc is not None else 0,
-            last_treatment_disc.n_bins if last_treatment_disc is not None else last_label_count,
-        )),
+        n_bins_final=int(
+            max(
+                last_outcome_disc.n_bins if last_outcome_disc is not None else 0,
+                last_treatment_disc.n_bins if last_treatment_disc is not None else last_label_count,
+            )
+        ),
         discretization_converged=False,
         n_refinement_steps=step,
     )
     return result, {
         "solver_status": last_lp.status,
-        "treatment_discretization": None if last_treatment_disc is None else last_treatment_disc.model_dump(mode="json"),
-        "outcome_discretization": None if last_outcome_disc is None else last_outcome_disc.model_dump(mode="json"),
+        "treatment_discretization": None
+        if last_treatment_disc is None
+        else last_treatment_disc.model_dump(mode="json"),
+        "outcome_discretization": None
+        if last_outcome_disc is None
+        else last_outcome_disc.model_dump(mode="json"),
         "previous_bounds": previous_bounds,
         "response_space_size": _response_space_size(
-            int((last_treatment_disc.n_bins if last_treatment_disc is not None else last_label_count)),
+            int(
+                last_treatment_disc.n_bins if last_treatment_disc is not None else last_label_count
+            ),
             int(last_outcome_disc.n_bins if last_outcome_disc is not None else 0),
         ),
     }
@@ -635,7 +672,7 @@ def _delegate_to_iv_bounds(
     target_treatment: float,
     reference_treatment: float,
 ) -> tuple[PartialIdentificationResult | None, dict[str, Any]]:
-    from polisyos.foundry.methods.catalog.causal.bounds import (  # noqa: PLC0415
+    from polisyos.foundry.methods.catalog.causal.bounds import (
         BalkePearlBoundsEstimator,
         GeneralBalkePearlBoundsEstimator,
     )
@@ -645,7 +682,9 @@ def _delegate_to_iv_bounds(
     y_levels = _ordered_levels(outcome)
     if t_levels.size < 2 or y_levels.size < 2:
         return None, {}
-    is_binary = t_levels.size <= 2 and y_levels.size <= 2 and _looks_discrete(instrument, max_levels=2)
+    is_binary = (
+        t_levels.size <= 2 and y_levels.size <= 2 and _looks_discrete(instrument, max_levels=2)
+    )
     if is_binary:
         out = BalkePearlBoundsEstimator.pure_step(state, {"clip_probs": True})
     else:
@@ -708,7 +747,9 @@ def auto_bounds_with_metadata(
     y = _finite_values(np.asarray(outcome, dtype=float))
     t = _finite_values(np.asarray(treatment, dtype=float))
     if y.size == 0 or t.size == 0 or y.size != t.size:
-        raise ValueError("outcome and treatment must be same-length arrays with finite observations")
+        raise ValueError(
+            "outcome and treatment must be same-length arrays with finite observations"
+        )
     z = None if instrument is None else _finite_values(np.asarray(instrument, dtype=float))
     if z is not None and z.size != y.size:
         raise ValueError("instrument must match outcome/treatment length")
@@ -838,11 +879,7 @@ def conditional_auto_bounds_with_metadata(
             "response_function_lp",
             "exact_discrete_support",
             "conditioning_weighted_aggregation",
-            *(
-                ["monotone_treatment_response"]
-                if monotone
-                else ["no_assumptions_on_selection"]
-            ),
+            *(["monotone_treatment_response"] if monotone else ["no_assumptions_on_selection"]),
         ],
         display_label="Conditioned response-function LP bounds",
         bounds_type="sharp_lp",

@@ -32,23 +32,25 @@ Thread Safety
 -------------
 All state mutations are protected by a ``threading.Lock``.
 """
+
 from __future__ import annotations
 
 import enum
 import threading
 import time
-from dataclasses import dataclass, field
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any, TypeVar
 
 from polisyos.foundry.methods._logging import get_foundry_logger
 
 _log = get_foundry_logger("foundry.backends.circuit_breaker")
 
 __all__ = [
-    "CircuitState",
-    "CircuitBreaker",
     "BackendCircuitOpenError",
+    "CircuitBreaker",
     "CircuitBreakerRegistry",
+    "CircuitState",
     "get_circuit_breaker_registry",
 ]
 
@@ -84,18 +86,20 @@ class BackendCircuitOpenError(Exception):
 
 class CircuitState(enum.Enum):
     """States of the circuit breaker state machine."""
-    CLOSED    = "closed"     # Normal operation — calls pass through
-    OPEN      = "open"       # Failures exceeded threshold — calls rejected
+
+    CLOSED = "closed"  # Normal operation — calls pass through
+    OPEN = "open"  # Failures exceeded threshold — calls rejected
     HALF_OPEN = "half_open"  # Recovery probe — next call determines state
 
 
 @dataclass
 class CircuitBreakerStats:
     """Cumulative statistics for a circuit breaker instance."""
+
     total_calls: int = 0
     total_failures: int = 0
     total_successes: int = 0
-    total_rejected: int = 0       # calls rejected while OPEN
+    total_rejected: int = 0  # calls rejected while OPEN
     state_changes: int = 0
     last_failure_time: float = 0.0
     last_success_time: float = 0.0
@@ -282,7 +286,9 @@ class CircuitBreaker:
             self._consecutive_failures += 1
             self._consecutive_successes = 0
 
-            effective_threshold = 1 if self._state == CircuitState.HALF_OPEN else self._failure_threshold
+            effective_threshold = (
+                1 if self._state == CircuitState.HALF_OPEN else self._failure_threshold
+            )
             if self._state in {CircuitState.CLOSED, CircuitState.HALF_OPEN}:
                 if self._consecutive_failures >= effective_threshold:
                     self._state = CircuitState.OPEN

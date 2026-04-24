@@ -52,12 +52,11 @@ for _p in [str(_SRC), str(_BENCH_ROOT.parent)]:
 # Local imports
 # ---------------------------------------------------------------------------
 
-from benchmarks.harness import (  # noqa: E402
-    BenchmarkCase,
-    BenchmarkCircuit,
-    BenchmarkHarness,
-    BenchmarkReport,
-    Verdict,
+from benchmarks.comparators import (
+    ForestDRLearnerComparator,
+    build_research_acceptance_comparator_status,
+    comparator_degraded_reasons,
+    comparator_required_modules,
 )
 from benchmarks.estimator_profiles import (  # noqa: E402
     ESTIMATION_METHOD_PROFILES,
@@ -71,20 +70,22 @@ from benchmarks.estimator_profiles import (  # noqa: E402
     policyos_xlearner_params,
     resolve_estimation_method_profile,
 )
-from benchmarks.comparators import (
-    ForestDRLearnerComparator,
-    build_research_acceptance_comparator_status,
-    comparator_degraded_reasons,
-    comparator_required_modules,
+from benchmarks.harness import (  # noqa: E402
+    BenchmarkCase,
+    BenchmarkCircuit,
+    BenchmarkHarness,
+    BenchmarkReport,
+    Verdict,
 )
 from benchmarks.method_registry import build_method_registry, infer_method_group
 from benchmarks.policyos_runner import extract_policyos_result, invoke_policyos_method
+from benchmarks.reporting import build_preflight, build_report_payload, print_preflight
 from benchmarks.research_metrics import (
     basic_overlap_diagnostics,
-    fit_eval_propensity,
     eceth,
-    posthoc_cate_calibration,
+    fit_eval_propensity,
     policy_value_top_q,
+    posthoc_cate_calibration,
     rank_weighted_ate,
     summarize_calibration_metrics,
     summarize_method_records,
@@ -92,7 +93,6 @@ from benchmarks.research_metrics import (
     summarize_prioritization_metrics,
     summarize_selection_manifest,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight
 from benchmarks.runtime import (
     BenchmarkMode,
     BenchmarkTier,
@@ -110,7 +110,6 @@ from benchmarks.scorecards import (
     safe_effect_scale,
     summarize_method_metrics,
 )
-
 from polisyos.foundry.methods.catalog.causal.protocols import (  # noqa: E402
     HTEObservationalData,
 )
@@ -138,9 +137,7 @@ LBIDD_GATE_METHOD_SET = tuple(
 )
 
 # Optional real-dataset path
-LBIDD_DATA_DIR: Path | None = (
-    Path(p) if (p := os.environ.get("LBIDD_DATA_DIR", "")) else None
-)
+LBIDD_DATA_DIR: Path | None = Path(p) if (p := os.environ.get("LBIDD_DATA_DIR", "")) else None
 
 
 def _lbidd_nuisance_params(
@@ -325,10 +322,12 @@ def _make_population_covariates(
     means = rng.standard_normal((n_components, p)) * 1.5
     mixing = rng.dirichlet(np.ones(n_components))
     assignments = rng.choice(n_components, size=n, p=mixing)
-    X = np.vstack([
-        rng.multivariate_normal(means[k], np.eye(p), size=int(np.sum(assignments == k)))
-        for k in range(n_components)
-    ])
+    X = np.vstack(
+        [
+            rng.multivariate_normal(means[k], np.eye(p), size=int(np.sum(assignments == k)))
+            for k in range(n_components)
+        ]
+    )
     # Shuffle to break group ordering
     rng.shuffle(X)
     return X[:n]
@@ -415,9 +414,7 @@ def _baseline_ols(data: HTEObservationalData, rng: np.random.Generator) -> LBIDD
     )
 
 
-def _baseline_t_learner(
-    data: HTEObservationalData, rng: np.random.Generator
-) -> LBIDDMetrics:
+def _baseline_t_learner(data: HTEObservationalData, rng: np.random.Generator) -> LBIDDMetrics:
     """T-learner baseline using random forests (pure numpy fallback otherwise)."""
     from numpy.linalg import lstsq
 
@@ -553,9 +550,8 @@ def _run_policy_os_method(
             fail_reason=extracted.fail_reason,
         )
 
-    selection_manifest = (
-        extracted.selection_manifest
-        or benchmark_selection_manifest_from_params(params, method_label=method_class.__name__)
+    selection_manifest = extracted.selection_manifest or benchmark_selection_manifest_from_params(
+        params, method_label=method_class.__name__
     )
     cate_pred = extracted.cate_pred
     ate_pred = extracted.ate_pred
@@ -742,50 +738,46 @@ def _check_lbidd_results(
     pehe_multiplier: float,
     max_failure_rate: float,
 ) -> bool:
-        baseline_names = ("ols", "t_learner", "ipw")
-        policy_os_names = [k for k in results if infer_method_group(k) == "policy_os_competitive"]
+    baseline_names = ("ols", "t_learner", "ipw")
+    policy_os_names = [k for k in results if infer_method_group(k) == "policy_os_competitive"]
 
-        if not policy_os_names:
-            return True  # baselines only, trivially pass
+    if not policy_os_names:
+        return True  # baselines only, trivially pass
 
-        # Best PEHE among baselines (those that produce CATE)
-        baseline_pehe_vals = [
-            results[b].pehe_mean
-            for b in baseline_names
-            if b in results and math.isfinite(results[b].pehe_mean)
-        ]
-        best_baseline_pehe = min(baseline_pehe_vals) if baseline_pehe_vals else None
+    # Best PEHE among baselines (those that produce CATE)
+    baseline_pehe_vals = [
+        results[b].pehe_mean
+        for b in baseline_names
+        if b in results and math.isfinite(results[b].pehe_mean)
+    ]
+    best_baseline_pehe = min(baseline_pehe_vals) if baseline_pehe_vals else None
 
-        issues: list[str] = []
-        for pname in policy_os_names:
-            res = results[pname]
+    issues: list[str] = []
+    for pname in policy_os_names:
+        res = results[pname]
 
-            # Failure rate check
-            if res.failure_rate > max_failure_rate:
-                issues.append(
-                    f"{pname}: failure_rate={res.failure_rate:.2f} > {max_failure_rate}"
-                )
+        # Failure rate check
+        if res.failure_rate > max_failure_rate:
+            issues.append(f"{pname}: failure_rate={res.failure_rate:.2f} > {max_failure_rate}")
 
-            # ATE RMSE check
-            if math.isfinite(res.ate_rmse) and res.ate_rmse > ate_rmse_threshold:
-                issues.append(
-                    f"{pname}: ATE RMSE={res.ate_rmse:.3f} > threshold={ate_rmse_threshold}"
-                )
+        # ATE RMSE check
+        if math.isfinite(res.ate_rmse) and res.ate_rmse > ate_rmse_threshold:
+            issues.append(f"{pname}: ATE RMSE={res.ate_rmse:.3f} > threshold={ate_rmse_threshold}")
 
-            # PEHE check vs baselines
-            if (
-                math.isfinite(res.pehe_mean)
-                and best_baseline_pehe is not None
-                and res.pehe_mean > pehe_multiplier * best_baseline_pehe
-            ):
-                issues.append(
-                    f"{pname}: PEHE={res.pehe_mean:.3f} > {pehe_multiplier}× "
-                    f"best_baseline={best_baseline_pehe:.3f}"
-                )
+        # PEHE check vs baselines
+        if (
+            math.isfinite(res.pehe_mean)
+            and best_baseline_pehe is not None
+            and res.pehe_mean > pehe_multiplier * best_baseline_pehe
+        ):
+            issues.append(
+                f"{pname}: PEHE={res.pehe_mean:.3f} > {pehe_multiplier}× "
+                f"best_baseline={best_baseline_pehe:.3f}"
+            )
 
-        if issues:
-            raise AssertionError(f"lbidd::{case_name}: " + "; ".join(issues))
-        return True
+    if issues:
+        raise AssertionError(f"lbidd::{case_name}: " + "; ".join(issues))
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -828,7 +820,9 @@ def _try_load_lbidd(
             x_by_id = None
             if "sample_id" in rows[0]:
                 x_by_id = {
-                    str(row["sample_id"]): np.array([float(row[fn]) for fn in feature_names], dtype=float)
+                    str(row["sample_id"]): np.array(
+                        [float(row[fn]) for fn in feature_names], dtype=float
+                    )
                     for row in rows
                 }
             else:
@@ -854,7 +848,9 @@ def _try_load_lbidd(
                     mu0 = np.array([float(r.get("mu0", "0")) for r in dgp_rows], dtype=float)
                     cate_true = mu1 - mu0
                     data = HTEObservationalData(
-                        outcome=Y, treatment=T, covariates=X,
+                        outcome=Y,
+                        treatment=T,
+                        covariates=X,
                         feature_names=feature_names,
                     )
                     datasets.append((dgp_file.stem, data, cate_true))
@@ -900,10 +896,17 @@ def _try_load_lbidd(
         datasets: list[tuple[str, HTEObservationalData, np.ndarray]] = []
         dgp_dir = official_root / "scaling"
         factual_files = [
-            path for path in dgp_dir.glob("*.csv")
-            if not path.name.endswith("_cf.csv")
+            path for path in dgp_dir.glob("*.csv") if not path.name.endswith("_cf.csv")
         ]
-        factual_files.sort(key=lambda path: params_by_ufid.get(path.stem, (float("inf"), 0.0,)))
+        factual_files.sort(
+            key=lambda path: params_by_ufid.get(
+                path.stem,
+                (
+                    float("inf"),
+                    0.0,
+                ),
+            )
+        )
 
         for dgp_file in factual_files:
             try:
@@ -913,10 +916,7 @@ def _try_load_lbidd(
                 with open(dgp_file) as f:
                     factual_rows = list(csv.DictReader(f))
                 with open(cf_file) as f:
-                    cf_rows = {
-                        str(row["sample_id"]): row
-                        for row in csv.DictReader(f)
-                    }
+                    cf_rows = {str(row["sample_id"]): row for row in csv.DictReader(f)}
 
                 X_rows: list[np.ndarray] = []
                 T_vals: list[float] = []
@@ -944,7 +944,9 @@ def _try_load_lbidd(
                 mu1 = np.array(mu1_vals, dtype=float)
                 cate_true = mu1 - mu0
                 data = HTEObservationalData(
-                    outcome=Y, treatment=T, covariates=X,
+                    outcome=Y,
+                    treatment=T,
+                    covariates=X,
                     feature_names=feature_names,
                 )
                 datasets.append((dgp_file.stem, data, cate_true))
@@ -969,7 +971,9 @@ def _make_method_fns(
 ) -> dict[str, Any]:
     if method_profile not in ESTIMATION_METHOD_PROFILES:
         valid = ", ".join(ESTIMATION_METHOD_PROFILES)
-        raise ValueError(f"Unknown estimation method profile: {method_profile!r}. Expected one of: {valid}")
+        raise ValueError(
+            f"Unknown estimation method profile: {method_profile!r}. Expected one of: {valid}"
+        )
     fns: dict[str, Any] = {}
     flagship_params = _lbidd_nuisance_params(tier, seed=seed_offset)
 
@@ -979,8 +983,8 @@ def _make_method_fns(
     fns["ipw"] = lambda data, rng: _baseline_ipw(data, rng)
 
     try:
-        from polisyos.foundry.methods.catalog.causal.causal_bcf import CausalBCF
         from polisyos.foundry.methods.catalog.causal.advanced_designs import DRLearnerEstimator
+        from polisyos.foundry.methods.catalog.causal.causal_bcf import CausalBCF
         from polisyos.foundry.methods.catalog.causal.treatment_effects import (
             AIPWEstimator,
             TMLEEstimator,
@@ -989,7 +993,11 @@ def _make_method_fns(
         fns["policy_os_aipw_cf"] = lambda data, rng: _run_policy_os_method(
             AIPWEstimator,
             data,
-            {**dict(flagship_params), "estimation_backend": "econml_direct", "direct_model_type": "linear"},
+            {
+                **dict(flagship_params),
+                "estimation_backend": "econml_direct",
+                "direct_model_type": "linear",
+            },
         )
         fns["policy_os_tmle_cf"] = lambda data, rng: _run_policy_os_method(
             TMLEEstimator,
@@ -1090,7 +1098,9 @@ def build_lbidd_harness(
             real_datasets = real_datasets[:1]
         if tier is BenchmarkTier.RESEARCH_ACCEPTANCE:
             batch_size = min(12, max(4, len(real_datasets)))
-            for batch_index, batch_start in enumerate(range(0, len(real_datasets), batch_size), start=1):
+            for batch_index, batch_start in enumerate(
+                range(0, len(real_datasets), batch_size), start=1
+            ):
                 batch = real_datasets[batch_start : batch_start + batch_size]
 
                 def _make_batch_runner(
@@ -1139,17 +1149,31 @@ def build_lbidd_harness(
                                             "ci_coverage": 1.0 if m.ci_covers else 0.0,
                                             "ci_width": m.ci_width,
                                             "calibration_mode": next(
-                                                iter((m.selection_manifest or {}).get("calibration_modes", [])),
+                                                iter(
+                                                    (m.selection_manifest or {}).get(
+                                                        "calibration_modes", []
+                                                    )
+                                                ),
                                                 None,
                                             ),
                                         }
                                         if m.pehe is not None:
                                             res.pehe_values.append(m.pehe)
-                                            calibration_record["eceth"] = eceth(ct, m.cate_pred) if m.cate_pred is not None else float("nan")
+                                            calibration_record["eceth"] = (
+                                                eceth(ct, m.cate_pred)
+                                                if m.cate_pred is not None
+                                                else float("nan")
+                                            )
                                             res.prioritization_records.append(
                                                 {
-                                                    "rate": rank_weighted_ate(ct, m.cate_pred) if m.cate_pred is not None else float("nan"),
-                                                    "policy_value_top_q": policy_value_top_q(ct, m.cate_pred) if m.cate_pred is not None else float("nan"),
+                                                    "rate": rank_weighted_ate(ct, m.cate_pred)
+                                                    if m.cate_pred is not None
+                                                    else float("nan"),
+                                                    "policy_value_top_q": policy_value_top_q(
+                                                        ct, m.cate_pred
+                                                    )
+                                                    if m.cate_pred is not None
+                                                    else float("nan"),
                                                 }
                                             )
                                         res.calibration_records.append(calibration_record)
@@ -1167,7 +1191,8 @@ def build_lbidd_harness(
                         name=f"lbidd::research_batch_{batch_index:02d}",
                         circuit=CIRCUIT,
                         runner=_make_batch_runner(),
-                        checker=lambda results, bn=f"research_batch_{batch_index:02d}": _check_lbidd_results(
+                        checker=lambda results,
+                        bn=f"research_batch_{batch_index:02d}": _check_lbidd_results(
                             case_name=bn,
                             results=results,
                             ate_rmse_threshold=0.4,
@@ -1182,7 +1207,9 @@ def build_lbidd_harness(
             for dgp_name, real_data, cate_true in real_datasets[:5]:
                 ate_true = float(np.mean(cate_true))
 
-                def _make_runner(rd=real_data, ct=cate_true, at=ate_true, dn=dgp_name, mf=method_fns):
+                def _make_runner(
+                    rd=real_data, ct=cate_true, at=ate_true, dn=dgp_name, mf=method_fns
+                ):
                     def runner() -> dict[str, LBIDDResult]:
                         rng = np.random.default_rng(seed)
                         out: dict[str, LBIDDResult] = {}
@@ -1199,27 +1226,49 @@ def build_lbidd_harness(
                                     ate_biases=[m.ate_bias] if not m.failed else [float("nan")],
                                     ci_covers=[m.ci_covers] if not m.failed else [False],
                                     ci_widths=[m.ci_width] if not m.failed else [float("nan")],
-                                    pehe_values=[m.pehe] if (not m.failed and m.pehe is not None) else [],
+                                    pehe_values=[m.pehe]
+                                    if (not m.failed and m.pehe is not None)
+                                    else [],
                                     n_failed=1 if m.failed else 0,
-                                    selection_records=[m.selection_manifest] if (not m.failed and m.selection_manifest) else [],
-                                    overlap_records=[m.overlap_diagnostics] if (not m.failed and m.overlap_diagnostics) else [],
+                                    selection_records=[m.selection_manifest]
+                                    if (not m.failed and m.selection_manifest)
+                                    else [],
+                                    overlap_records=[m.overlap_diagnostics]
+                                    if (not m.failed and m.overlap_diagnostics)
+                                    else [],
                                     calibration_records=[
                                         {
                                             "ci_coverage": 1.0 if m.ci_covers else 0.0,
                                             "ci_width": m.ci_width,
                                             "calibration_mode": next(
-                                                iter((m.selection_manifest or {}).get("calibration_modes", [])),
+                                                iter(
+                                                    (m.selection_manifest or {}).get(
+                                                        "calibration_modes", []
+                                                    )
+                                                ),
                                                 None,
                                             ),
-                                            "eceth": eceth(ct, m.cate_pred) if m.cate_pred is not None else float("nan"),
+                                            "eceth": eceth(ct, m.cate_pred)
+                                            if m.cate_pred is not None
+                                            else float("nan"),
                                         }
-                                    ] if not m.failed else [],
+                                    ]
+                                    if not m.failed
+                                    else [],
                                     prioritization_records=[
                                         {
-                                            "rate": rank_weighted_ate(ct, m.cate_pred) if m.cate_pred is not None else float("nan"),
-                                            "policy_value_top_q": policy_value_top_q(ct, m.cate_pred) if m.cate_pred is not None else float("nan"),
+                                            "rate": rank_weighted_ate(ct, m.cate_pred)
+                                            if m.cate_pred is not None
+                                            else float("nan"),
+                                            "policy_value_top_q": policy_value_top_q(
+                                                ct, m.cate_pred
+                                            )
+                                            if m.cate_pred is not None
+                                            else float("nan"),
                                         }
-                                    ] if (not m.failed and m.cate_pred is not None) else [],
+                                    ]
+                                    if (not m.failed and m.cate_pred is not None)
+                                    else [],
                                 )
                                 out[name] = r
                             except Exception:
@@ -1238,32 +1287,34 @@ def build_lbidd_harness(
 
                     return runner
 
-                harness.register(BenchmarkCase(
-                    name=f"lbidd::real_{dgp_name}",
-                    circuit=CIRCUIT,
-                    runner=_make_runner(),
-                    checker=lambda results, dn=dgp_name: _check_lbidd_results(
-                        case_name=f"real_{dn}",
-                        results=results,
-                        ate_rmse_threshold=0.4,
-                        pehe_multiplier=2.0,
-                        max_failure_rate=0.25,
-                    ),
-                    tags=("lbidd", "real", "local_evidence"),
-                    timeout_s=1800.0,
-                ))
+                harness.register(
+                    BenchmarkCase(
+                        name=f"lbidd::real_{dgp_name}",
+                        circuit=CIRCUIT,
+                        runner=_make_runner(),
+                        checker=lambda results, dn=dgp_name: _check_lbidd_results(
+                            case_name=f"real_{dn}",
+                            results=results,
+                            ate_rmse_threshold=0.4,
+                            pehe_multiplier=2.0,
+                            max_failure_rate=0.25,
+                        ),
+                        tags=("lbidd", "real", "local_evidence"),
+                        timeout_s=1800.0,
+                    )
+                )
     else:
         # Synthetic LBIDD-style DGPs — varying confounding and SNR
         dgp_grid = [
             # (name_suffix, confounding_rho, snr)
-            ("low_confounding_high_snr",    0.1, 2.0),
+            ("low_confounding_high_snr", 0.1, 2.0),
             ("medium_confounding_high_snr", 0.3, 2.0),
-            ("high_confounding_high_snr",   0.6, 2.0),
-            ("high_confounding_med_snr",    0.6, 1.0),
-            ("high_confounding_low_snr",    0.6, 0.5),
-            ("very_high_confounding",       0.9, 1.0),
-            ("hte_only",                    0.1, 1.0),
-            ("hte_strong_confounding",      0.6, 1.0),
+            ("high_confounding_high_snr", 0.6, 2.0),
+            ("high_confounding_med_snr", 0.6, 1.0),
+            ("high_confounding_low_snr", 0.6, 0.5),
+            ("very_high_confounding", 0.9, 1.0),
+            ("hte_only", 0.1, 1.0),
+            ("hte_strong_confounding", 0.6, 1.0),
         ]
         if fast_mode:
             dgp_grid = dgp_grid[:1]
@@ -1276,17 +1327,19 @@ def build_lbidd_harness(
                 "confounding_rho": rho,
                 "snr": snr,
             }
-            harness.register(_lbidd_case(
-                name=suffix,
-                dgp_kwargs=dgp_kwargs,
-                method_fns=method_fns,
-                n_obs=n_obs,
-                n_reps=n_reps,
-                ate_rmse_threshold=0.4,
-                pehe_multiplier=2.0,
-                max_failure_rate=0.25,
-                seed=seed,
-            ))
+            harness.register(
+                _lbidd_case(
+                    name=suffix,
+                    dgp_kwargs=dgp_kwargs,
+                    method_fns=method_fns,
+                    n_obs=n_obs,
+                    n_reps=n_reps,
+                    ate_rmse_threshold=0.4,
+                    pehe_multiplier=2.0,
+                    max_failure_rate=0.25,
+                    seed=seed,
+                )
+            )
 
     return harness
 
@@ -1336,11 +1389,7 @@ def _lbidd_joint_score(result: Any) -> float:
     scale = safe_effect_scale(getattr(result, "ate_true", float("nan")))
     ate_rmse = getattr(result, "ate_rmse", float("nan"))
     pehe = getattr(result, "pehe_mean", float("nan"))
-    pieces = [
-        value / scale
-        for value in (ate_rmse, pehe)
-        if math.isfinite(value)
-    ]
+    pieces = [value / scale for value in (ate_rmse, pehe) if math.isfinite(value)]
     return float(np.mean(pieces)) if pieces else float("nan")
 
 
@@ -1375,22 +1424,46 @@ def main() -> None:
         has_real_data = _try_load_lbidd(LBIDD_DATA_DIR) is not None
 
     comparator_status = build_research_acceptance_comparator_status()
-    planned_n_obs = 700 if tier is BenchmarkTier.LOCAL_EVIDENCE and args.n_obs == 1000 else args.n_obs
-    planned_n_reps = 5 if tier is BenchmarkTier.LOCAL_EVIDENCE and args.n_reps == 10 else args.n_reps
+    planned_n_obs = (
+        700 if tier is BenchmarkTier.LOCAL_EVIDENCE and args.n_obs == 1000 else args.n_obs
+    )
+    planned_n_reps = (
+        5 if tier is BenchmarkTier.LOCAL_EVIDENCE and args.n_reps == 10 else args.n_reps
+    )
     degraded_reasons = []
     if not has_real_data:
-        degraded_reasons.append("using synthetic LBIDD replicas because real LBIDD data is unavailable")
+        degraded_reasons.append(
+            "using synthetic LBIDD replicas because real LBIDD data is unavailable"
+        )
     if tier is BenchmarkTier.LOCAL_EVIDENCE:
-        degraded_reasons.append("local_evidence tier uses thermal-safe subsets and lighter defaults")
+        degraded_reasons.append(
+            "local_evidence tier uses thermal-safe subsets and lighter defaults"
+        )
     degraded_reasons.extend(comparator_degraded_reasons(comparator_status))
 
     preflight = build_preflight(
         mode=mode.value,
         benchmark_tier=tier.value,
-        data_source=classify_data_source(has_real_data=has_real_data, synthetic_label="synthetic_replica", real_label="real_lbidd"),
+        data_source=classify_data_source(
+            has_real_data=has_real_data,
+            synthetic_label="synthetic_replica",
+            real_label="real_lbidd",
+        ),
         dependency_status={
             **real_data_status,
-            "python_modules": dependency_status(["numpy", "scipy", "sklearn", "econml", "zepid", "stochtree", "dowhy", "y0", "lightgbm"]),
+            "python_modules": dependency_status(
+                [
+                    "numpy",
+                    "scipy",
+                    "sklearn",
+                    "econml",
+                    "zepid",
+                    "stochtree",
+                    "dowhy",
+                    "y0",
+                    "lightgbm",
+                ]
+            ),
         },
         comparator_status=comparator_status,
         degraded_reasons=degraded_reasons,
@@ -1528,9 +1601,7 @@ def main() -> None:
                 indent=2,
             )
 
-    n_fail = sum(
-        1 for cr in report.cases if cr.verdict not in (Verdict.PASS.value, Verdict.PASS)
-    )
+    n_fail = sum(1 for cr in report.cases if cr.verdict not in (Verdict.PASS.value, Verdict.PASS))
     sys.exit(0 if n_fail == 0 else 2)
 
 

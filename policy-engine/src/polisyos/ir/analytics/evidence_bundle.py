@@ -3,16 +3,16 @@
 Assembles proof steps, data provenance, and diagnostic scores into a single
 serializable object for audit, reproducibility, and explanation purposes.
 """
+
 from __future__ import annotations
 
 import hashlib
 import json
-from typing import Any, Literal
-
 from collections.abc import Mapping, Sequence
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -56,7 +56,9 @@ def _normalize_fingerprint_value(value: Any, *, path: str = "$", depth: int = 0)
         try:
             return value.decode("utf-8")
         except UnicodeDecodeError as exc:
-            raise EvidenceFingerprintError(f"Fingerprint bytes are not UTF-8 decodable at {path}") from exc
+            raise EvidenceFingerprintError(
+                f"Fingerprint bytes are not UTF-8 decodable at {path}"
+            ) from exc
     if isinstance(value, BaseModel):
         return _normalize_fingerprint_value(
             value.model_dump(mode="json"),
@@ -74,10 +76,12 @@ def _normalize_fingerprint_value(value: Any, *, path: str = "$", depth: int = 0)
         return normalized
     if isinstance(value, set):
         normalized_items = [
-            _normalize_fingerprint_value(item, path=f"{path}[]", depth=depth + 1)
-            for item in value
+            _normalize_fingerprint_value(item, path=f"{path}[]", depth=depth + 1) for item in value
         ]
-        return sorted(normalized_items, key=lambda item: json.dumps(item, sort_keys=True, separators=(",", ":")))
+        return sorted(
+            normalized_items,
+            key=lambda item: json.dumps(item, sort_keys=True, separators=(",", ":")),
+        )
     if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
         return [
             _normalize_fingerprint_value(item, path=f"{path}[{index}]", depth=depth + 1)
@@ -327,9 +331,7 @@ class EvidenceBundle(BaseModel):
         n_steps = len(self.proof_steps)
         n_data = len(self.data_provenance)
         if self.diagnostic_scores:
-            scores_str = ", ".join(
-                f"{k}={v:.3f}" for k, v in self.diagnostic_scores.items()
-            )
+            scores_str = ", ".join(f"{k}={v:.3f}" for k, v in self.diagnostic_scores.items())
         else:
             scores_str = "none"
         grade = ""

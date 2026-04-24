@@ -60,18 +60,22 @@ for _p in [str(_SRC), str(_BENCH_ROOT)]:
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+from benchmarks.capability_wins.capability_proof import (  # noqa: E402
+    CapabilityProofSpec,
+    build_capability_report_extra,
+    make_gap_row,
+)
 from benchmarks.harness import (  # noqa: E402
     BenchmarkCase,
     BenchmarkCircuit,
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.capability_wins.capability_proof import (  # noqa: E402
-    CapabilityProofSpec,
-    build_capability_report_extra,
-    make_gap_row,
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
 from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.CAPABILITY_WINS
@@ -89,17 +93,22 @@ def _graph_imports():
         EdgeMark,
         GraphType,
     )
+
     return CausalEdge, CausalGraphModel, EdgeMark, GraphType
 
 
 def _cyclic_imports():
     from polisyos.foundry.methods.catalog.causal.cyclic_id import (
-        cyclic_id_algorithm,
-        well_posedness_check,
         build_sigma_connection_graph,
+        cyclic_id_algorithm,
         sigma_separation,
+        well_posedness_check,
     )
-    from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult, IdentificationStatus
+    from polisyos.foundry.methods.catalog.causal.id_engine import (
+        IdentificationResult,
+        IdentificationStatus,
+    )
+
     return (
         cyclic_id_algorithm,
         well_posedness_check,
@@ -131,7 +140,7 @@ def _build_direct_cycle():
     CausalEdge, CausalGraphModel, EdgeMark, GraphType = _graph_imports()
     return CausalGraphModel(
         schema_version="1.0",
-        graph_type=GraphType.ADMG,   # non-acyclic → ADMG
+        graph_type=GraphType.ADMG,  # non-acyclic → ADMG
         nodes=["A", "B"],
         edges=[
             CausalEdge(src="A", dst="B", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
@@ -165,8 +174,12 @@ def _case_acyclic_delegated_to_id() -> BenchmarkCase:
 
     def runner():
         (
-            cyclic_id_algorithm, well_posedness_check, build_sigma_connection_graph,
-            sigma_separation, IdentificationResult, IdentificationStatus,
+            cyclic_id_algorithm,
+            well_posedness_check,
+            build_sigma_connection_graph,
+            sigma_separation,
+            IdentificationResult,
+            IdentificationStatus,
         ) = _cyclic_imports()
         graph = _build_simple_dag()
         result = cyclic_id_algorithm(
@@ -178,10 +191,9 @@ def _case_acyclic_delegated_to_id() -> BenchmarkCase:
 
     def checker(r) -> bool:
         from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
+
         if r.status != IdentificationStatus.IDENTIFIED:
-            raise AssertionError(
-                f"Simple A→B should be IDENTIFIED via cyclic_id, got {r.status}"
-            )
+            raise AssertionError(f"Simple A→B should be IDENTIFIED via cyclic_id, got {r.status}")
         return True
 
     return BenchmarkCase(
@@ -199,8 +211,12 @@ def _case_direct_cycle_well_posedness() -> BenchmarkCase:
 
     def runner():
         (
-            cyclic_id_algorithm, well_posedness_check, build_sigma_connection_graph,
-            sigma_separation, IdentificationResult, IdentificationStatus,
+            cyclic_id_algorithm,
+            well_posedness_check,
+            build_sigma_connection_graph,
+            sigma_separation,
+            IdentificationResult,
+            IdentificationStatus,
         ) = _cyclic_imports()
         graph = _build_direct_cycle()
 
@@ -239,8 +255,12 @@ def _case_direct_cycle_not_well_posed() -> BenchmarkCase:
 
     def runner():
         (
-            cyclic_id_algorithm, well_posedness_check, build_sigma_connection_graph,
-            sigma_separation, IdentificationResult, IdentificationStatus,
+            cyclic_id_algorithm,
+            well_posedness_check,
+            build_sigma_connection_graph,
+            sigma_separation,
+            IdentificationResult,
+            IdentificationStatus,
         ) = _cyclic_imports()
         graph = _build_direct_cycle()
 
@@ -253,13 +273,9 @@ def _case_direct_cycle_not_well_posed() -> BenchmarkCase:
 
     def checker(r) -> bool:
         if r.well_posed:
-            raise AssertionError(
-                "Linear SCM with det(I-A)=0 should be NOT well-posed"
-            )
+            raise AssertionError("Linear SCM with det(I-A)=0 should be NOT well-posed")
         if r.method != "exact_linear":
-            raise AssertionError(
-                f"Expected 'exact_linear' method, got {r.method!r}"
-            )
+            raise AssertionError(f"Expected 'exact_linear' method, got {r.method!r}")
         return True
 
     return BenchmarkCase(
@@ -277,8 +293,12 @@ def _case_policy_feedback_cyclic_id_returns_result() -> BenchmarkCase:
 
     def runner():
         (
-            cyclic_id_algorithm, well_posedness_check, build_sigma_connection_graph,
-            sigma_separation, IdentificationResult, IdentificationStatus,
+            cyclic_id_algorithm,
+            well_posedness_check,
+            build_sigma_connection_graph,
+            sigma_separation,
+            IdentificationResult,
+            IdentificationStatus,
         ) = _cyclic_imports()
         graph = _build_policy_feedback()
         result = cyclic_id_algorithm(
@@ -290,6 +310,7 @@ def _case_policy_feedback_cyclic_id_returns_result() -> BenchmarkCase:
 
     def checker(r) -> bool:
         from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult
+
         if not isinstance(r, IdentificationResult):
             raise AssertionError(
                 f"cyclic_id_algorithm must return IdentificationResult, got {type(r).__name__}"
@@ -322,8 +343,12 @@ def _case_sigma_separation_oracle() -> BenchmarkCase:
 
     def runner():
         (
-            cyclic_id_algorithm, well_posedness_check, build_sigma_connection_graph,
-            sigma_separation, IdentificationResult, IdentificationStatus,
+            cyclic_id_algorithm,
+            well_posedness_check,
+            build_sigma_connection_graph,
+            sigma_separation,
+            IdentificationResult,
+            IdentificationStatus,
         ) = _cyclic_imports()
         graph = _build_direct_cycle()
 
@@ -378,7 +403,9 @@ def build_cyclic_policy_feedback_harness() -> BenchmarkHarness:
 # ---------------------------------------------------------------------------
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     extra = build_capability_report_extra(
         report,
         CapabilityProofSpec(
@@ -388,12 +415,45 @@ def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, 
             },
             claim_profile_targets=("frontier_frontier_claim", "full_stack_publication_claim"),
             competitor_gap=(
-                make_gap_row("y0", "cyclic_scm", status="fail", note="Public symbolic workflow remains acyclic-first.", level="identifiable"),
-                make_gap_row("dowhy", "cyclic_feedback", status="fail", note="No cyclic SCM identification+estimation pipeline.", level="identifiable"),
-                make_gap_row("econml", "cyclic_feedback", status="fail", note="No cyclic SCM query layer.", level="expressible"),
-                make_gap_row("causalpy", "cyclic_feedback", status="fail", note="No cyclic policy feedback workflow.", level="identifiable"),
+                make_gap_row(
+                    "y0",
+                    "cyclic_scm",
+                    status="fail",
+                    note="Public symbolic workflow remains acyclic-first.",
+                    level="identifiable",
+                ),
+                make_gap_row(
+                    "dowhy",
+                    "cyclic_feedback",
+                    status="fail",
+                    note="No cyclic SCM identification+estimation pipeline.",
+                    level="identifiable",
+                ),
+                make_gap_row(
+                    "econml",
+                    "cyclic_feedback",
+                    status="fail",
+                    note="No cyclic SCM query layer.",
+                    level="expressible",
+                ),
+                make_gap_row(
+                    "causalpy",
+                    "cyclic_feedback",
+                    status="fail",
+                    note="No cyclic policy feedback workflow.",
+                    level="identifiable",
+                ),
             ),
-            workflow_levels={level: "PASS" for level in ("expressible", "identifiable", "estimable_or_bounded", "audit_trace", "reproducible")},
+            workflow_levels={
+                level: "PASS"
+                for level in (
+                    "expressible",
+                    "identifiable",
+                    "estimable_or_bounded",
+                    "audit_trace",
+                    "reproducible",
+                )
+            },
         ),
     )
     return build_report_payload(

@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
-
 SEVERITY_RANK = {
     "unknown": 0,
     "negligible": 0,
@@ -63,7 +62,9 @@ def load_exceptions(path: Path) -> list[dict[str, str]]:
     return list(payload.get("exception", []))
 
 
-def evaluate(vulns: list[Vulnerability], exceptions: list[dict[str, str]], threshold: str) -> tuple[list[Vulnerability], list[str]]:
+def evaluate(
+    vulns: list[Vulnerability], exceptions: list[dict[str, str]], threshold: str
+) -> tuple[list[Vulnerability], list[str]]:
     threshold_rank = SEVERITY_RANK[threshold.lower()]
     today = date.today()
     blockers: list[Vulnerability] = []
@@ -116,7 +117,14 @@ def write_summary(
     lines.append("")
 
     if blockers:
-        lines.extend(["## Blocking Findings", "", "| ID | Severity | Package | Version | Fix |", "|---|---|---|---|---|"])
+        lines.extend(
+            [
+                "## Blocking Findings",
+                "",
+                "| ID | Severity | Package | Version | Fix |",
+                "|---|---|---|---|---|",
+            ]
+        )
         for vuln in blockers:
             lines.append(
                 f"| `{vuln.vuln_id}` | {vuln.severity} | `{vuln.package}` | `{vuln.version}` | `{vuln.fix_version or 'n/a'}` |"

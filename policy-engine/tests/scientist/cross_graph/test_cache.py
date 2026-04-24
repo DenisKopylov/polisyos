@@ -4,15 +4,17 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-import pytest
-
 from polisyos.scientist.cross_graph.cache import EvidenceCache
 from polisyos.scientist.cross_graph.protocols import GathererResult
 
 
 def _result(status: str = "ok") -> GathererResult:
     return GathererResult(
-        status=status, confidence=0.8, diagnostics=[], provenance_refs=[], metadata={},
+        status=status,
+        confidence=0.8,
+        diagnostics=[],
+        provenance_refs=[],
+        metadata={},
     )
 
 

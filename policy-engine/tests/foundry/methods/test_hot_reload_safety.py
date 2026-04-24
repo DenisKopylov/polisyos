@@ -1,4 +1,5 @@
 """Tests for Phase 9.3 — hot reload thread safety and cache invalidation."""
+
 from __future__ import annotations
 
 import sys
@@ -24,7 +25,7 @@ from polisyos.foundry.methods.hot_reload import (
 from polisyos.foundry.methods.registry import registry_scope
 
 
-@pytest.fixture()
+@pytest.fixture
 def _fake_module():
     """Install and clean up a fake module in sys.modules."""
     name = "_test_hot_reload_fake_module"
@@ -34,12 +35,12 @@ def _fake_module():
     sys.modules.pop(name, None)
 
 
-@pytest.fixture()
+@pytest.fixture
 def reloader():
     return FoundryHotReloader(watch_paths=[], registry=MagicMock())
 
 
-@pytest.fixture()
+@pytest.fixture
 def live_registry():
     with registry_scope() as reg:
         yield reg
@@ -88,10 +89,10 @@ def test_reload_invalidates_cache(reloader: FoundryHotReloader, _fake_module: tu
     """After a successful reload, cache generation invalidation must run."""
     mod_name, mod = _fake_module
 
-    with patch.object(reloader, "_load_module_transactionally", return_value=mod) as mock_load, \
-         patch(
-             "polisyos.foundry.methods.compiler.get_global_cache"
-         ) as mock_cache_fn:
+    with (
+        patch.object(reloader, "_load_module_transactionally", return_value=mod) as mock_load,
+        patch("polisyos.foundry.methods.compiler.get_global_cache") as mock_cache_fn,
+    ):
         mock_cache = MagicMock()
         mock_cache.invalidate_all.return_value = 3
         mock_cache_fn.return_value = mock_cache
@@ -115,8 +116,10 @@ def test_reload_thread_safe(reloader: FoundryHotReloader, _fake_module: tuple) -
         except Exception as exc:
             errors.append(exc)
 
-    with patch.object(reloader, "_load_module_transactionally", return_value=mod), \
-         patch("polisyos.foundry.methods.compiler.get_global_cache") as mock_cf:
+    with (
+        patch.object(reloader, "_load_module_transactionally", return_value=mod),
+        patch("polisyos.foundry.methods.compiler.get_global_cache") as mock_cf,
+    ):
         mock_cf.return_value = MagicMock(invalidate_all=MagicMock(return_value=0))
         threads = [threading.Thread(target=do_reload) for _ in range(n_threads)]
         for t in threads:
@@ -133,10 +136,10 @@ def test_reload_version_increments(reloader: FoundryHotReloader, _fake_module: t
     mod_name, mod = _fake_module
     assert reloader.reload_version == 0
 
-    with patch.object(reloader, "_load_module_transactionally", return_value=mod), \
-         patch(
-             "polisyos.foundry.methods.compiler.get_global_cache"
-         ) as mock_cf:
+    with (
+        patch.object(reloader, "_load_module_transactionally", return_value=mod),
+        patch("polisyos.foundry.methods.compiler.get_global_cache") as mock_cf,
+    ):
         mock_cf.return_value = MagicMock(invalidate_all=MagicMock(return_value=0))
 
         reloader._reload_and_register(mod_name, Path("/x.py"))
@@ -164,8 +167,10 @@ def test_failed_publication_keeps_previous_module(
     mod_name, previous = _fake_module
     staged = types.ModuleType(mod_name)
 
-    with patch.object(reloader, "_load_module_transactionally", return_value=staged), \
-         patch.object(reloader, "_publish_registry_diff", side_effect=RuntimeError("boom")):
+    with (
+        patch.object(reloader, "_load_module_transactionally", return_value=staged),
+        patch.object(reloader, "_publish_registry_diff", side_effect=RuntimeError("boom")),
+    ):
         assert reloader._reload_and_register(mod_name, Path("/x.py")) is False
 
     assert sys.modules[mod_name] is previous

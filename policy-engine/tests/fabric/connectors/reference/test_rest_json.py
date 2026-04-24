@@ -3,29 +3,35 @@ Test suite for GenericRESTConnector - Phase 2.11.
 
 Includes harness compliance and connector-specific unit/integration tests.
 """
+
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
+import polisyos.fabric.connectors.reference.rest_json as rest_json_module
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     FetchRequest,
     FetchResult,
     HealthStatus,
 )
-from polisyos.fabric.safety import UnsafeDataPathError
-from polisyos.fabric.connectors.contracts.schema import DataSchema, FieldSpec, SchemaType, SchemaVersion
+from polisyos.fabric.connectors.contracts.schema import (
+    DataSchema,
+    FieldSpec,
+    SchemaType,
+    SchemaVersion,
+)
 from polisyos.fabric.connectors.reference.rest_json import (
     GenericRESTConnector,
     PaginationStrategy,
     _extract_nested,
 )
-import polisyos.fabric.connectors.reference.rest_json as rest_json_module
 from polisyos.fabric.connectors.testing import ConnectorTestHarness
 from polisyos.fabric.connectors.types import RateLimitError
+from polisyos.fabric.safety import UnsafeDataPathError
 from polisyos.ir.connectors import DataVersion, QualityTier, VersionStrategy
 
 SAMPLE_SCHEMA = DataSchema(
@@ -53,7 +59,7 @@ class TestRESTCompliance(ConnectorTestHarness):
     sample_schema = SAMPLE_SCHEMA
     sample_request = FetchRequest(dataset_id="test_api")
 
-    @pytest.fixture()
+    @pytest.fixture
     def connector_instance(self) -> GenericRESTConnector:
         connector = GenericRESTConnector()
 
@@ -61,7 +67,7 @@ class TestRESTCompliance(ConnectorTestHarness):
             version = DataVersion(
                 strategy=VersionStrategy.CONTENT_HASH,
                 value="sha256:" + "1" * 64,
-                timestamp=datetime(2024, 1, 1, tzinfo=timezone.utc),
+                timestamp=datetime(2024, 1, 1, tzinfo=UTC),
                 content_hash="sha256:" + "1" * 64,
             )
             return FetchResult(
@@ -70,7 +76,7 @@ class TestRESTCompliance(ConnectorTestHarness):
                 schema_id="reference.rest_json.test_api",
                 schema_version="1.0.0",
                 version=version,
-                fetched_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+                fetched_at=datetime(2024, 1, 1, tzinfo=UTC),
                 completeness=1.0,
                 quality_tier=QualityTier.SILVER,
             )

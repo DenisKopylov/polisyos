@@ -16,11 +16,11 @@ from __future__ import annotations
 import argparse
 import ast
 import re
-import sys
 from collections import Counter
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
+
 from tools._lib.imports import repo_root_from
 
 DOCS_REFERENCE_PATTERN = re.compile(r"^:{3,}\s+([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)\b")
@@ -130,7 +130,9 @@ def module_name_for_path(src_root: Path, file_path: Path) -> tuple[str, bool] | 
     return ".".join(parts), False
 
 
-def resolve_relative_module(current_module: str, is_package: bool, node: ast.ImportFrom) -> str | None:
+def resolve_relative_module(
+    current_module: str, is_package: bool, node: ast.ImportFrom
+) -> str | None:
     """Resolve an ``ImportFrom`` target without importing the module."""
     if node.level == 0:
         return node.module
@@ -339,9 +341,7 @@ def extract_facade(module_file: ModuleFile) -> ModuleFacade:
 
             if sorted_name is not None and target_name == "__all__":
                 source_value = constants.get(sorted_name)
-                if isinstance(source_value, dict):
-                    exported_names = tuple(sorted(source_value))
-                elif isinstance(source_value, tuple):
+                if isinstance(source_value, dict) or isinstance(source_value, tuple):
                     exported_names = tuple(sorted(source_value))
 
     return ModuleFacade(
@@ -370,7 +370,9 @@ def has_pragma(module_file: ModuleFile, lineno: int) -> bool:
     """Return whether a symbol has an inline placeholder allow pragma."""
     index = lineno - 1
     for candidate in (index, index - 1, index - 2):
-        if 0 <= candidate < len(module_file.lines) and PRAGMA_RE.search(module_file.lines[candidate]):
+        if 0 <= candidate < len(module_file.lines) and PRAGMA_RE.search(
+            module_file.lines[candidate]
+        ):
             return True
     return False
 
@@ -490,9 +492,7 @@ def inspect_target(
             )
         return subjects
 
-    subjects.extend(
-        inspect_symbol_target(target, module_paths, module_cache, facade_cache)
-    )
+    subjects.extend(inspect_symbol_target(target, module_paths, module_cache, facade_cache))
     return subjects
 
 
@@ -537,7 +537,11 @@ def inspect_symbol_target(
             origin=target.origin,
         )
         return inspect_symbol_target(alias_target, module_paths, module_cache, facade_cache)
-    if node is None and target.ref.qualname == root_name and (target.ref.module + "." + root_name) in module_paths:
+    if (
+        node is None
+        and target.ref.qualname == root_name
+        and (target.ref.module + "." + root_name) in module_paths
+    ):
         return inspect_symbol_target(
             ResolvedTarget(
                 ref=TargetRef(module=f"{target.ref.module}.{root_name}", qualname=None),
@@ -582,7 +586,9 @@ def resolve_exported_symbol(
     return TargetRef(module=package_module, qualname=export_name)
 
 
-def collect_reference_targets(docs_root: Path, module_paths: Mapping[str, Path]) -> list[ResolvedTarget]:
+def collect_reference_targets(
+    docs_root: Path, module_paths: Mapping[str, Path]
+) -> list[ResolvedTarget]:
     """Extract mkdocstrings targets from ``docs/reference/**``."""
     targets: list[ResolvedTarget] = []
     for docs_file in sorted(docs_root.rglob("*.md")):
@@ -599,7 +605,9 @@ def collect_reference_targets(docs_root: Path, module_paths: Mapping[str, Path])
     return dedupe_targets(targets)
 
 
-def collect_facade_targets(src_root: Path, module_paths: Mapping[str, Path]) -> list[ResolvedTarget]:
+def collect_facade_targets(
+    src_root: Path, module_paths: Mapping[str, Path]
+) -> list[ResolvedTarget]:
     """Collect package facade modules and exports from ``__init__.py`` files."""
     targets: list[ResolvedTarget] = []
     module_cache: dict[str, ModuleFile] = {}
@@ -610,7 +618,9 @@ def collect_facade_targets(src_root: Path, module_paths: Mapping[str, Path]) -> 
         if result is None:
             continue
         module_name, _ = result
-        targets.append(ResolvedTarget(ref=TargetRef(module=module_name, qualname=None), origin="facade"))
+        targets.append(
+            ResolvedTarget(ref=TargetRef(module=module_name, qualname=None), origin="facade")
+        )
         module_file = module_cache.get(module_name)
         if module_file is None:
             module_file = load_module_file(module_name, module_paths)
@@ -691,11 +701,7 @@ def check_docstrings(
             semantic_docstrings += 1
             continue
         needs_second_pass[package_bucket(subject.ref.fqname)] += 1
-        if (
-            placeholder
-            and subject.ref.fqname not in allowlist
-            and not subject.pragma_allowed
-        ):
+        if placeholder and subject.ref.fqname not in allowlist and not subject.pragma_allowed:
             violations.append(
                 DocstringViolation(
                     subject=subject,
@@ -725,7 +731,7 @@ def format_violation(repo_root: Path, violation: DocstringViolation) -> str:
     return (
         f"{relative}:{violation.subject.lineno}: {violation.subject.ref.fqname} "
         f"[{violation.subject.kind}] {violation.reason}; "
-        f'summary={violation.summary!r}; source={violation.subject.source}'
+        f"summary={violation.summary!r}; source={violation.subject.source}"
     )
 
 

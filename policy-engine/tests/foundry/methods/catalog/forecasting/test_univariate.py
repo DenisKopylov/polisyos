@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 
 def _method_or_skip(registry, fqn):
@@ -10,14 +9,25 @@ def _method_or_skip(registry, fqn):
 
 class TestExponentialSmoothing:
     def test_basic_forecast(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "forecasting.univariate.exponential_smoothing@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "forecasting.univariate.exponential_smoothing@1.0.0"
+        )
         state = {"series": np.array([1.0, 2.0, 3.0, 4.0, 5.0])}
         result = method.pure_step(state, {})
         assert isinstance(result, dict)
-        assert any(k for k in result if "forecast" in k.lower() or "smoothed" in k.lower() or "fitted" in k.lower() or len(result) > 0)
+        assert any(
+            k
+            for k in result
+            if "forecast" in k.lower()
+            or "smoothed" in k.lower()
+            or "fitted" in k.lower()
+            or len(result) > 0
+        )
 
     def test_constant_series(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "forecasting.univariate.exponential_smoothing@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "forecasting.univariate.exponential_smoothing@1.0.0"
+        )
         state = {"series": np.array([5.0] * 10)}
         result = method.pure_step(state, {})
         assert isinstance(result, dict)

@@ -2,20 +2,20 @@ from __future__ import annotations
 
 import asyncio
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import pytest
 
-from polisyos.fabric.safety import UnsafePathSegmentError
 from polisyos.fabric.connectors.base import AsyncFetchLease, ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
+from polisyos.fabric.connectors.sources.ukons import UKONSConnector
 from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
 from polisyos.fabric.connectors.sources.unpd import UNPDConnector
-from polisyos.fabric.connectors.sources.ukons import UKONSConnector
 from polisyos.fabric.connectors.sources.who import WHOConnector
-from polisyos.fabric.connectors.sources.wvs import WVSConnector
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector, _retry_after_seconds
+from polisyos.fabric.connectors.sources.wvs import WVSConnector
+from polisyos.fabric.safety import UnsafePathSegmentError
 from polisyos.ir.connectors import VersionStrategy
 
 
@@ -66,7 +66,7 @@ def test_world_bank_fetch_with_mock_http(monkeypatch) -> None:
         }
         return body, headers, json.dumps(body).encode("utf-8")
 
-    async def _fake_get_session(self, _handle):  # noqa: ARG001
+    async def _fake_get_session(self, _handle):
         return object()
 
     monkeypatch.setattr(WorldBankConnector, "_request_json", staticmethod(_fake_request_json))
@@ -89,7 +89,7 @@ def test_world_bank_fetch_with_mock_http(monkeypatch) -> None:
 
 
 def test_world_bank_retry_after_falls_back_to_x_ratelimit_reset() -> None:
-    reset_in_60s = datetime.now(timezone.utc) + timedelta(seconds=60)
+    reset_in_60s = datetime.now(UTC) + timedelta(seconds=60)
     delay = _retry_after_seconds({"X-RateLimit-Reset": str(reset_in_60s.timestamp())})
     assert delay is not None
     assert 0.0 <= delay <= 61.0
@@ -127,7 +127,7 @@ def test_world_bank_fetch_batches_multiple_indicators_and_incremental_params(mon
         headers = {"ETag": '"wdi-etag-2"'}
         return response, headers, json.dumps(response).encode("utf-8")
 
-    async def _fake_get_session(self, _handle):  # noqa: ARG001
+    async def _fake_get_session(self, _handle):
         return object()
 
     monkeypatch.setattr(WorldBankConnector, "_request_json", staticmethod(_fake_request_json))
@@ -201,7 +201,7 @@ def test_eurostat_fetch_with_mock_http(monkeypatch) -> None:
         headers = {"Last-Modified": "Tue, 02 Jan 2024 00:00:00 GMT"}
         return payload, headers, json.dumps(payload).encode("utf-8")
 
-    async def _fake_get_session(self, _handle):  # noqa: ARG001
+    async def _fake_get_session(self, _handle):
         return object()
 
     monkeypatch.setattr(EurostatConnector, "_request_json", staticmethod(_fake_request_json))
@@ -255,7 +255,7 @@ def test_eurostat_uses_since_and_until_time_period_params(monkeypatch) -> None:
         headers = {"Last-Modified": "Tue, 02 Jan 2024 00:00:00 GMT"}
         return payload, headers, json.dumps(payload).encode("utf-8")
 
-    async def _fake_get_session(self, _handle):  # noqa: ARG001
+    async def _fake_get_session(self, _handle):
         return object()
 
     monkeypatch.setattr(EurostatConnector, "_request_json", staticmethod(_fake_request_json))
@@ -268,8 +268,8 @@ def test_eurostat_uses_since_and_until_time_period_params(monkeypatch) -> None:
             FetchRequest(
                 dataset_id="ilc_test",
                 filters=(("geo", ("UA",)),),
-                date_start=datetime(2020, 1, 1, tzinfo=timezone.utc),
-                date_end=datetime(2022, 12, 31, tzinfo=timezone.utc),
+                date_start=datetime(2020, 1, 1, tzinfo=UTC),
+                date_end=datetime(2022, 12, 31, tzinfo=UTC),
             ),
         )
         await connector.disconnect(handle)
@@ -313,10 +313,10 @@ def test_eurostat_describe_dataset_extracts_structure_constraints(monkeypatch) -
         }
     }
 
-    async def _fake_request_json(_session, _url, *, params, connector_id, headers=None):  # noqa: ARG001
+    async def _fake_request_json(_session, _url, *, params, connector_id, headers=None):
         return payload, {}, json.dumps(payload).encode("utf-8")
 
-    async def _fake_get_session(self, _handle):  # noqa: ARG001
+    async def _fake_get_session(self, _handle):
         return object()
 
     monkeypatch.setattr(EurostatConnector, "_request_json", staticmethod(_fake_request_json))
@@ -397,7 +397,12 @@ def test_eurostat_async_lease_lifecycle(monkeypatch) -> None:
             "contentConstraints": [
                 {
                     "cubeRegions": [
-                        {"keyValues": {"geo": {"values": [{"id": "UA"}]}, "hhtyp": {"values": [{"id": "A1"}, {"id": "A2"}]}}}
+                        {
+                            "keyValues": {
+                                "geo": {"values": [{"id": "UA"}]},
+                                "hhtyp": {"values": [{"id": "A1"}, {"id": "A2"}]},
+                            }
+                        }
                     ]
                 }
             ],
@@ -405,10 +410,10 @@ def test_eurostat_async_lease_lifecycle(monkeypatch) -> None:
     }
     poll_state = {"count": 0}
 
-    async def _fake_request_json(_session, _url, *, params, connector_id, headers=None):  # noqa: ARG001
+    async def _fake_request_json(_session, _url, *, params, connector_id, headers=None):
         return describe_payload, {}, json.dumps(describe_payload).encode("utf-8")
 
-    async def _fake_request_raw(self, _session, url, *, params, connector_id, headers=None):  # noqa: ARG001
+    async def _fake_request_raw(self, _session, url, *, params, connector_id, headers=None):
         if "/data/ilc_test" in url:
             return submit_xml, {}
         if url.endswith("/status/lease-123"):
@@ -418,7 +423,7 @@ def test_eurostat_async_lease_lifecycle(monkeypatch) -> None:
             return json.dumps(payload).encode("utf-8"), {}
         raise AssertionError(url)
 
-    async def _fake_get_session(self, _handle):  # noqa: ARG001
+    async def _fake_get_session(self, _handle):
         return object()
 
     monkeypatch.setattr(EurostatConnector, "_request_json", staticmethod(_fake_request_json))
@@ -430,8 +435,8 @@ def test_eurostat_async_lease_lifecycle(monkeypatch) -> None:
         request = FetchRequest(
             dataset_id="ilc_test",
             filters=(("geo", ("UA",)),),
-            date_start=datetime(2022, 1, 1, tzinfo=timezone.utc),
-            date_end=datetime(2022, 12, 31, tzinfo=timezone.utc),
+            date_start=datetime(2022, 1, 1, tzinfo=UTC),
+            date_end=datetime(2022, 12, 31, tzinfo=UTC),
         )
         lease = await connector.fetch_async(handle, request)
         first = await connector.poll_async_fetch(handle, lease)
@@ -485,7 +490,7 @@ def test_ukons_fetch_with_mock_http(monkeypatch) -> None:
         headers: dict[str, str] = {}
         return payload, headers, json.dumps(payload).encode("utf-8")
 
-    async def _fake_get_session(self, _handle):  # noqa: ARG001
+    async def _fake_get_session(self, _handle):
         return object()
 
     monkeypatch.setattr(UKONSConnector, "_request_json", staticmethod(_fake_request_json))
@@ -530,7 +535,7 @@ def test_wvs_fetch_with_mock_http(monkeypatch) -> None:
         headers = {"ETag": '"wvs-etag-1"'}
         return payload, headers, json.dumps(payload).encode("utf-8")
 
-    async def _fake_get_session(self, _handle):  # noqa: ARG001
+    async def _fake_get_session(self, _handle):
         return object()
 
     monkeypatch.setattr(WVSConnector, "_request_json", staticmethod(_fake_request_json))
@@ -572,7 +577,7 @@ def test_who_fetch_with_mock_http(monkeypatch) -> None:
         assert "SpatialDim eq 'UKR'" in params["$filter"]
         return payload, {}, json.dumps(payload).encode("utf-8")
 
-    async def _fake_get_session(self, _handle):  # noqa: ARG001
+    async def _fake_get_session(self, _handle):
         return object()
 
     monkeypatch.setattr(WHOConnector, "_request_json", staticmethod(_fake_request_json))
@@ -585,8 +590,8 @@ def test_who_fetch_with_mock_http(monkeypatch) -> None:
             FetchRequest(
                 dataset_id="WHOSIS_000001",
                 filters=(("country", ("UA",)),),
-                date_start=datetime(2020, 1, 1, tzinfo=timezone.utc),
-                date_end=datetime(2020, 12, 31, tzinfo=timezone.utc),
+                date_start=datetime(2020, 1, 1, tzinfo=UTC),
+                date_end=datetime(2020, 12, 31, tzinfo=UTC),
             ),
         )
         await connector.disconnect(handle)
@@ -620,7 +625,7 @@ def test_unpd_fetch_with_mock_http(monkeypatch) -> None:
         assert headers == {"Authorization": "Bearer token-123"}
         return payload, {}, json.dumps(payload).encode("utf-8")
 
-    async def _fake_get_session(self, _handle):  # noqa: ARG001
+    async def _fake_get_session(self, _handle):
         return object()
 
     monkeypatch.setattr(UNPDConnector, "_request_json", staticmethod(_fake_request_json))
@@ -638,8 +643,8 @@ def test_unpd_fetch_with_mock_http(monkeypatch) -> None:
             FetchRequest(
                 dataset_id="1",
                 filters=(("country", ("UA",)),),
-                date_start=datetime(2020, 1, 1, tzinfo=timezone.utc),
-                date_end=datetime(2020, 12, 31, tzinfo=timezone.utc),
+                date_start=datetime(2020, 1, 1, tzinfo=UTC),
+                date_end=datetime(2020, 12, 31, tzinfo=UTC),
             ),
         )
         await connector.disconnect(handle)
@@ -672,7 +677,7 @@ def test_unesco_uis_fetch_with_mock_http(monkeypatch) -> None:
         assert params["indicator"] == "200101"
         return payload, {}, json.dumps(payload).encode("utf-8")
 
-    async def _fake_get_session(self, _handle):  # noqa: ARG001
+    async def _fake_get_session(self, _handle):
         return object()
 
     monkeypatch.setattr(UNESCOUISConnector, "_request_json", staticmethod(_fake_request_json))
@@ -685,8 +690,8 @@ def test_unesco_uis_fetch_with_mock_http(monkeypatch) -> None:
             FetchRequest(
                 dataset_id="200101",
                 filters=(("country", ("UA",)),),
-                date_start=datetime(2020, 1, 1, tzinfo=timezone.utc),
-                date_end=datetime(2020, 12, 31, tzinfo=timezone.utc),
+                date_start=datetime(2020, 1, 1, tzinfo=UTC),
+                date_end=datetime(2020, 12, 31, tzinfo=UTC),
             ),
         )
         await connector.disconnect(handle)

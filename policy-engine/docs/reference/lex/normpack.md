@@ -1,4 +1,5 @@
 # Lex NormPack
+
 Related explanation: [Lex Pipeline](../../explanation/lex-pipeline.md).
 
 Owner: `@lex-owners`
@@ -11,14 +12,14 @@ snapshots.
 
 ## Pipeline Surface
 
-| Layer | Main contracts |
-|------|-----------------|
-| Source metadata and options | `LegalDocSource`, `LexIngestOptions`, `LexStructureOptions` |
-| Versioning | `LexVersionIndexOptions`, `ActiveVersionStrategy`, `ActiveVersionResult` |
-| NormPack assembly | `NormPackBuildRequest`, `NormPackBuildResult`, `NormPackBudgets` |
-| Mutation and diff | `MutationIntent`, `NormChange`, `NormDiff`, `diff_norm_packs` |
-| Impact analysis | `NormImpactAnalyzer`, `NormImpactReport`, `ComplianceDelta`, `AffectedKPI` |
-| Legality evaluation | `LegalEvaluationRequest`, `LegalReportRef`, `ChangeProposalRef` |
+| Layer                       | Main contracts                                                             |
+| --------------------------- | -------------------------------------------------------------------------- |
+| Source metadata and options | `LegalDocSource`, `LexIngestOptions`, `LexStructureOptions`                |
+| Versioning                  | `LexVersionIndexOptions`, `ActiveVersionStrategy`, `ActiveVersionResult`   |
+| NormPack assembly           | `NormPackBuildRequest`, `NormPackBuildResult`, `NormPackBudgets`           |
+| Mutation and diff           | `MutationIntent`, `NormChange`, `NormDiff`, `diff_norm_packs`              |
+| Impact analysis             | `NormImpactAnalyzer`, `NormImpactReport`, `ComplianceDelta`, `AffectedKPI` |
+| Legality evaluation         | `LegalEvaluationRequest`, `LegalReportRef`, `ChangeProposalRef`            |
 
 ## Top-Level API
 

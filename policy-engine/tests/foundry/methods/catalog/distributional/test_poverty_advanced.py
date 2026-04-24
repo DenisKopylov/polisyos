@@ -48,7 +48,9 @@ class TestOrdinalMultidimensionalPoverty:
         }
 
     def test_micro_example_matches_oraf_reference_values(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "distributional.poverty.ordinal_multidimensional@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "distributional.poverty.ordinal_multidimensional@1.0.0"
+        )
         result = method.pure_step(self._base_state(), self._base_params())
         payload = result["result"]
 
@@ -62,7 +64,9 @@ class TestOrdinalMultidimensionalPoverty:
         assert payload["cutoff_diagnostics"]["recoding_invariance_bound"] == 0.0
 
     def test_monotone_recoding_leaves_oraf_unchanged(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "distributional.poverty.ordinal_multidimensional@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "distributional.poverty.ordinal_multidimensional@1.0.0"
+        )
         baseline = method.pure_step(self._base_state(), self._base_params())["result"]
 
         recoded_state = {
@@ -85,13 +89,22 @@ class TestOrdinalMultidimensionalPoverty:
         }
         recoded = method.pure_step(recoded_state, recoded_params)["result"]
 
-        for key in ("headcount_h", "ordinal_intensity_a", "ordinal_adjusted_headcount_q", "af_m0_baseline"):
+        for key in (
+            "headcount_h",
+            "ordinal_intensity_a",
+            "ordinal_adjusted_headcount_q",
+            "af_m0_baseline",
+        ):
             assert recoded[key] == pytest.approx(baseline[key], rel=1e-9, abs=1e-9)
         assert recoded["poor_mask"] == baseline["poor_mask"]
-        assert recoded["severity_scores"] == pytest.approx(baseline["severity_scores"], rel=1e-9, abs=1e-9)
+        assert recoded["severity_scores"] == pytest.approx(
+            baseline["severity_scores"], rel=1e-9, abs=1e-9
+        )
 
     def test_af_nesting_via_last_threshold_weights(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "distributional.poverty.ordinal_multidimensional@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "distributional.poverty.ordinal_multidimensional@1.0.0"
+        )
         payload = method.pure_step(
             self._base_state(),
             {
@@ -108,7 +121,9 @@ class TestOrdinalMultidimensionalPoverty:
         assert payload["threshold_weights_basis"] == "af_last"
 
     def test_string_category_labels_are_supported(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "distributional.poverty.ordinal_multidimensional@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "distributional.poverty.ordinal_multidimensional@1.0.0"
+        )
         payload = method.pure_step(
             {
                 "category_matrix": np.array(
@@ -140,7 +155,9 @@ class TestOrdinalMultidimensionalPoverty:
         assert payload["threshold_weights_basis"] == "equal"
 
     def test_legacy_gap_envelope_exposes_recoding_sensitivity(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "distributional.poverty.ordinal_multidimensional@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "distributional.poverty.ordinal_multidimensional@1.0.0"
+        )
         payload = method.pure_step(
             self._base_state(),
             {

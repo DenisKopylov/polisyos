@@ -1,4 +1,5 @@
 """Public audit verifier module API."""
+
 from __future__ import annotations
 
 import json
@@ -6,7 +7,7 @@ import tempfile
 import time
 from contextlib import ExitStack
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes
@@ -24,7 +25,6 @@ from polisyos.core.artifacts.signing import (
     compute_key_id,
 )
 from polisyos.core.canon import content_hash, streaming_hash
-from polisyos.core.canon.canon_json import to_canonical_bytes
 
 from .models import StepResult, StepStatus, VerificationReport
 from .safe_tar import UnsafeArchiveError, safe_extract_tar
@@ -56,7 +56,11 @@ class AuditPackageVerifier:
             if package_path.is_dir():
                 pkg_dir = package_path
             else:
-                tmp = Path(stack.enter_context(tempfile.TemporaryDirectory(prefix="polisyos-audit-verify-")))
+                tmp = Path(
+                    stack.enter_context(
+                        tempfile.TemporaryDirectory(prefix="polisyos-audit-verify-")
+                    )
+                )
                 try:
                     safe_extract_tar(package_path, tmp)
                 except UnsafeArchiveError as exc:
@@ -104,7 +108,9 @@ class AuditPackageVerifier:
             report.add_failure("INVALID_INDEX", f"index.json is invalid: {exc}", path="index.json")
             return None
         if not isinstance(index, dict):
-            report.add_failure("INVALID_INDEX", "index.json must contain a JSON object", path="index.json")
+            report.add_failure(
+                "INVALID_INDEX", "index.json must contain a JSON object", path="index.json"
+            )
             return None
         if index.get("package_format") != "polisyos-audit-v1":
             report.add_failure(
@@ -142,7 +148,11 @@ class AuditPackageVerifier:
         if not checksums_path.exists():
             step.status = StepStatus.FAIL
             step.checks_failed += 1
-            report.add_failure("MISSING_CHECKSUMS", "Missing checksums.sha256", path="verification/checksums.sha256")
+            report.add_failure(
+                "MISSING_CHECKSUMS",
+                "Missing checksums.sha256",
+                path="verification/checksums.sha256",
+            )
             step.duration_ms = (time.perf_counter() - started) * 1000
             return step
 
@@ -224,7 +234,9 @@ class AuditPackageVerifier:
         key_id = sig_payload.get("key_id")
         if not isinstance(signature_hex, str) or not isinstance(key_id, str):
             step.checks_failed += 1
-            report.add_failure("INVALID_CHECKSUM_SIGNATURE", "signature payload missing key_id/signature_hex")
+            report.add_failure(
+                "INVALID_CHECKSUM_SIGNATURE", "signature payload missing key_id/signature_hex"
+            )
             return step
 
         trusted, _ = self._load_trusted_keys(pkg_dir)
@@ -239,7 +251,9 @@ class AuditPackageVerifier:
             public_key.verify(bytes.fromhex(signature_hex), payload)
         except InvalidSignature:
             step.checks_failed += 1
-            report.add_failure("INVALID_CHECKSUM_SIGNATURE", "checksum signature verification failed")
+            report.add_failure(
+                "INVALID_CHECKSUM_SIGNATURE", "checksum signature verification failed"
+            )
             return step
         except (ValueError, TypeError) as exc:
             step.checks_failed += 1
@@ -274,7 +288,11 @@ class AuditPackageVerifier:
                 continue
             hex_id = manifest.artifact_id.hex
             blob_path = manifest_path.with_name(f"{hex_id}.blob")
-            artifact_index[hex_id] = {"manifest": manifest, "manifest_path": manifest_path, "blob_path": blob_path}
+            artifact_index[hex_id] = {
+                "manifest": manifest,
+                "manifest_path": manifest_path,
+                "blob_path": blob_path,
+            }
 
             if blob_path.exists():
                 actual_sha = _sha256_path(blob_path)
@@ -338,14 +356,18 @@ class AuditPackageVerifier:
                 signature = DetachedSignature.model_validate_json(sig_path.read_text("utf-8"))
             except (ValueError, TypeError) as exc:
                 step.checks_failed += 1
-                report.add_failure("INVALID_SIGNATURE_FILE", str(exc), path=str(sig_path.relative_to(pkg_dir)))
+                report.add_failure(
+                    "INVALID_SIGNATURE_FILE", str(exc), path=str(sig_path.relative_to(pkg_dir))
+                )
                 continue
             hex_id = signature.statement.artifact_id.removeprefix("sha256:")
             signed_ids.add(hex_id)
             entry = artifact_index.get(hex_id)
             if entry is None:
                 step.checks_failed += 1
-                report.add_failure("SIGNATURE_ORPHAN", f"signature references unknown artifact {hex_id}")
+                report.add_failure(
+                    "SIGNATURE_ORPHAN", f"signature references unknown artifact {hex_id}"
+                )
                 continue
             key = trusted_keys.get(signature.key_id)
             if key is None:
@@ -357,12 +379,9 @@ class AuditPackageVerifier:
                 )
                 continue
             statement = signature.statement
-            manifest = entry["manifest"]
-            assert isinstance(manifest, ArtifactManifest)
-            manifest_path = entry["manifest_path"]
-            blob_path = entry["blob_path"]
-            assert isinstance(manifest_path, Path)
-            assert isinstance(blob_path, Path)
+            manifest = cast("ArtifactManifest", entry["manifest"])
+            manifest_path = cast("Path", entry["manifest_path"])
+            blob_path = cast("Path", entry["blob_path"])
 
             manifest_sha = _sha256_path(manifest_path)
             if statement.manifest_sha256 != manifest_sha:
@@ -428,16 +447,22 @@ class AuditPackageVerifier:
         if unsigned:
             if self._fail_unsigned:
                 step.checks_failed += len(unsigned)
-                report.add_failure("UNSIGNED_ARTIFACTS", f"Unsigned artifacts: {', '.join(unsigned[:8])}")
+                report.add_failure(
+                    "UNSIGNED_ARTIFACTS", f"Unsigned artifacts: {', '.join(unsigned[:8])}"
+                )
             else:
-                report.add_warning("UNSIGNED_ARTIFACTS", f"Unsigned artifacts: {', '.join(unsigned[:8])}")
+                report.add_warning(
+                    "UNSIGNED_ARTIFACTS", f"Unsigned artifacts: {', '.join(unsigned[:8])}"
+                )
                 step.checks_skipped += len(unsigned)
 
         step.status = _status_from_counts(step)
         step.duration_ms = (time.perf_counter() - started) * 1000
         return step
 
-    def _load_trusted_keys(self, pkg_dir: Path) -> tuple[dict[str, Ed25519PublicKey], dict[str, str]]:
+    def _load_trusted_keys(
+        self, pkg_dir: Path
+    ) -> tuple[dict[str, Ed25519PublicKey], dict[str, str]]:
         trusted: dict[str, Ed25519PublicKey] = {}
         identities: dict[str, str] = {}
 
@@ -518,8 +543,14 @@ class AuditPackageVerifier:
         entities = prov_json.get("entity", {})
         activities = prov_json.get("activity", {})
         agents = prov_json.get("agent", {})
-        if not isinstance(entities, dict) or not isinstance(activities, dict) or not isinstance(agents, dict):
-            report.add_failure("INVALID_PROVENANCE", "entity/activity/agent sections must be objects")
+        if (
+            not isinstance(entities, dict)
+            or not isinstance(activities, dict)
+            or not isinstance(agents, dict)
+        ):
+            report.add_failure(
+                "INVALID_PROVENANCE", "entity/activity/agent sections must be objects"
+            )
             step.checks_failed += 1
             step.status = StepStatus.FAIL
             step.duration_ms = (time.perf_counter() - started) * 1000
@@ -559,16 +590,24 @@ class AuditPackageVerifier:
 
         used_rel = prov_json.get("used", {})
         gen_rel = prov_json.get("wasGeneratedBy", {})
-        used_by_activity = {
-            item.get("prov:activity")
-            for item in used_rel.values()
-            if isinstance(item, dict) and isinstance(item.get("prov:activity"), str)
-        } if isinstance(used_rel, dict) else set()
-        gen_by_activity = {
-            item.get("prov:activity")
-            for item in gen_rel.values()
-            if isinstance(item, dict) and isinstance(item.get("prov:activity"), str)
-        } if isinstance(gen_rel, dict) else set()
+        used_by_activity = (
+            {
+                item.get("prov:activity")
+                for item in used_rel.values()
+                if isinstance(item, dict) and isinstance(item.get("prov:activity"), str)
+            }
+            if isinstance(used_rel, dict)
+            else set()
+        )
+        gen_by_activity = (
+            {
+                item.get("prov:activity")
+                for item in gen_rel.values()
+                if isinstance(item, dict) and isinstance(item.get("prov:activity"), str)
+            }
+            if isinstance(gen_rel, dict)
+            else set()
+        )
         for activity_id in activities:
             if activity_id not in used_by_activity and activity_id not in gen_by_activity:
                 report.add_warning("ORPHAN_ACTIVITY", f"Activity has no I/O links: {activity_id}")
@@ -596,7 +635,11 @@ class AuditPackageVerifier:
             step.checks_failed = 1
             step.duration_ms = (time.perf_counter() - started) * 1000
             return step
-        entity_ids = set(prov_json.get("entity", {}).keys()) if isinstance(prov_json.get("entity"), dict) else set()
+        entity_ids = (
+            set(prov_json.get("entity", {}).keys())
+            if isinstance(prov_json.get("entity"), dict)
+            else set()
+        )
         deriv = prov_json.get("wasDerivedFrom", {})
         if isinstance(deriv, dict):
             for edge in deriv.values():
@@ -606,12 +649,16 @@ class AuditPackageVerifier:
                 gen = edge.get("prov:generatedEntity")
                 if isinstance(used, str) and used not in entity_ids:
                     step.checks_failed += 1
-                    report.add_failure("INCOMPLETE_CLOSURE", f"Missing usedEntity in closure: {used}")
+                    report.add_failure(
+                        "INCOMPLETE_CLOSURE", f"Missing usedEntity in closure: {used}"
+                    )
                 else:
                     step.checks_passed += 1
                 if isinstance(gen, str) and gen not in entity_ids:
                     step.checks_failed += 1
-                    report.add_failure("INCOMPLETE_CLOSURE", f"Missing generatedEntity in closure: {gen}")
+                    report.add_failure(
+                        "INCOMPLETE_CLOSURE", f"Missing generatedEntity in closure: {gen}"
+                    )
                 else:
                     step.checks_passed += 1
         step.status = _status_from_counts(step)
@@ -731,9 +778,11 @@ class AuditPackageVerifier:
             else:
                 step.checks_passed += 1
 
-        canonical_payload = to_canonical_bytes(
-            statement.model_dump(mode="json", by_alias=True, exclude_none=True)
-        )
+        canonical_payload = json.dumps(
+            statement.model_dump(mode="json", by_alias=True, exclude_none=True),
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
         canonical_sha = content_hash(canonical_payload)
 
         signature_path = slsa_dir / "signature.json"
@@ -929,7 +978,4 @@ def _has_cycle(edges: list[tuple[str, str]]) -> bool:
         stack.remove(node)
         return False
 
-    for node in graph:
-        if node not in visited and dfs(node):
-            return True
-    return False
+    return any(node not in visited and dfs(node) for node in graph)

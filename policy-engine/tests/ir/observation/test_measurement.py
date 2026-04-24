@@ -78,7 +78,9 @@ def test_measurement_registry_resolves_tiers_and_normalizes_extreme_trust() -> N
         trust_weight=0.5,
     )
 
-    assert registry.tier_for_record(authoritative) == MeasurementTrustTier.AUTHORITATIVE_HIGH_COVERAGE
+    assert (
+        registry.tier_for_record(authoritative) == MeasurementTrustTier.AUTHORITATIVE_HIGH_COVERAGE
+    )
     assert registry.tier_for_record(proxy_record) == MeasurementTrustTier.DERIVED_PROXY
     assert registry.tier_for_record(exploratory) == MeasurementTrustTier.WEAK_ANCHOR
     assert registry.normalize_record_trust(authoritative) == pytest.approx(1.0)
@@ -130,10 +132,18 @@ def test_schema_regime_registry_and_calendars_detect_boundaries() -> None:
         ],
     )
     regime_calendar = RegimeCalendar(
-        entries=[RegimeCalendarEntry(regime_id="wartime_2024", start_date=date(2024, 1, 1), end_date=date(2024, 12, 31))]
+        entries=[
+            RegimeCalendarEntry(
+                regime_id="wartime_2024", start_date=date(2024, 1, 1), end_date=date(2024, 12, 31)
+            )
+        ]
     )
     shock_calendar = ShockCalendar(
-        entries=[ShockCalendarEntry(shock_id="shock_blackout", start_date=date(2024, 2, 1), end_date=date(2024, 2, 29))]
+        entries=[
+            ShockCalendarEntry(
+                shock_id="shock_blackout", start_date=date(2024, 2, 1), end_date=date(2024, 2, 29)
+            )
+        ]
     )
 
     assert registry.is_boundary(

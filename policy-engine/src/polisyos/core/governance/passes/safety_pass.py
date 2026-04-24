@@ -1,7 +1,8 @@
 """Public passes safety pass module API."""
+
 from __future__ import annotations
 
-from typing import Any, List
+from typing import Any
 
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 
@@ -49,8 +50,8 @@ class SafetyPass(ValidatorPass):
     def requires_data(self) -> bool:
         return True
 
-    def validate(self, ctx: PassContext) -> List[ComplianceIssue]:
-        issues: List[ComplianceIssue] = []
+    def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
+        issues: list[ComplianceIssue] = []
         ir = ctx.ir
 
         if ir is None:

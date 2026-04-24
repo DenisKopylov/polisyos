@@ -1,22 +1,31 @@
 """Typed demographic artifact readers for Ukraine static-aging inputs."""
+
 from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import Any, ClassVar, cast
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator, model_validator
+import numpy.typing as npt
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 
 
-def _to_numpy(value: Any, *, dtype: Any = float) -> np.ndarray:
+def _to_numpy(value: object, *, dtype: npt.DTypeLike = float) -> np.ndarray:
     if isinstance(value, np.ndarray):
         return value.astype(dtype, copy=False)
     return np.asarray(value, dtype=dtype)
 
 
 def _read_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    return cast("dict[str, Any]", json.loads(path.read_text(encoding="utf-8")))
 
 
 def _resolve_artifact_path(root: Path, *candidates: str) -> Path:
@@ -56,7 +65,7 @@ class UkraineDemographyArtifacts(BaseModel):
         mode="before",
     )
     @classmethod
-    def _coerce_numpy(cls, value: Any) -> Any:
+    def _coerce_numpy(cls, value: object) -> object:
         if value is None:
             return None
         return np.asarray(value)
@@ -72,13 +81,13 @@ class UkraineDemographyArtifacts(BaseModel):
         mode="plain",
         when_used="json",
     )
-    def _serialize_numpy(self, value: Any) -> Any:
+    def _serialize_numpy(self, value: object) -> object:
         if isinstance(value, np.ndarray):
             return value.tolist()
         return value
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "UkraineDemographyArtifacts":
+    def _validate_shapes(self) -> UkraineDemographyArtifacts:
         n_states = len(self.state_ids)
         if n_states == 0:
             raise ValueError("state_ids must not be empty")
@@ -117,7 +126,10 @@ class UkraineDemographyArtifacts(BaseModel):
                 raise ValueError("donor_state_index contains out-of-range ids")
             if self.donor_record_index is not None:
                 donor_record_index = _to_numpy(self.donor_record_index, dtype=np.int64)
-                if donor_record_index.ndim != 1 or donor_record_index.shape[0] != donor_weights.shape[0]:
+                if (
+                    donor_record_index.ndim != 1
+                    or donor_record_index.shape[0] != donor_weights.shape[0]
+                ):
                     raise ValueError("donor_record_index must align with donor_weights")
 
         return self

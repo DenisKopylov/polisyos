@@ -1,7 +1,10 @@
 """Tests for SchemaResolver."""
+
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.schema_resolver import (
-    SchemaResolver, SchemaResolutionReport,
+    SchemaResolutionReport,
+    SchemaResolver,
 )
 from polisyos.ir.analytics.estimand import make_backdoor_estimand, make_transport_reweight_estimand
 
@@ -45,7 +48,7 @@ class TestSchemaResolver:
         )
         report = self.resolver.resolve(
             ast,
-            df_columns=["X", "Y"],   # Z is missing
+            df_columns=["X", "Y"],  # Z is missing
             df_dtypes={"X": "float64", "Y": "float64"},
         )
         assert not report.is_feasible
@@ -77,10 +80,6 @@ class TestSchemaResolver:
         assert isinstance(report, SchemaResolutionReport)
 
     def test_positivity_warning_low_prevalence(self):
-        from polisyos.ir.analytics.estimand import (
-            EstimandAST, DistributionRef, DistributionDomain,
-            SideCondition, SideConditionKind,
-        )
         ast = make_backdoor_estimand(
             treatment="X", outcome="Y", adjustment_set=("Z",), dataset_ref="ds1"
         )
@@ -95,9 +94,7 @@ class TestSchemaResolver:
         assert isinstance(report.support_warnings, list)
 
     def test_is_feasible_true_when_all_resolved(self):
-        ast = make_backdoor_estimand(
-            treatment="X", outcome="Y", adjustment_set=("Z",)
-        )
+        ast = make_backdoor_estimand(treatment="X", outcome="Y", adjustment_set=("Z",))
         report = self.resolver.resolve(
             ast,
             df_columns=["X", "Y", "Z", "extra_col"],
@@ -107,8 +104,11 @@ class TestSchemaResolver:
 
     def test_resolve_multi_domain(self):
         ast = make_transport_reweight_estimand(
-            treatment="X", outcome="Y", reweighting_vars=("Z",),
-            source_dataset_ref="src", target_dataset_ref="tgt"
+            treatment="X",
+            outcome="Y",
+            reweighting_vars=("Z",),
+            source_dataset_ref="src",
+            target_dataset_ref="tgt",
         )
         report = self.resolver.resolve_multi_domain(
             ast,
@@ -121,8 +121,11 @@ class TestSchemaResolver:
 
     def test_multi_domain_missing_target_column(self):
         ast = make_transport_reweight_estimand(
-            treatment="X", outcome="Y", reweighting_vars=("Z",),
-            source_dataset_ref="src", target_dataset_ref="tgt"
+            treatment="X",
+            outcome="Y",
+            reweighting_vars=("Z",),
+            source_dataset_ref="src",
+            target_dataset_ref="tgt",
         )
         report = self.resolver.resolve_multi_domain(
             ast,

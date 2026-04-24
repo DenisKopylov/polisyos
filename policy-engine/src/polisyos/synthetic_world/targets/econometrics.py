@@ -1,4 +1,5 @@
 """Econometrics-oriented truth targets."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -15,7 +16,9 @@ def register_cross_sectional_econometrics_targets(
     return {
         "econometrics.treatment_effect": {"value": float(np.mean(treatment_effect))},
         "econometrics.structural_coefficients": {
-            "coefficients": {str(key): float(value) for key, value in structural_coefficients.items()}
+            "coefficients": {
+                str(key): float(value) for key, value in structural_coefficients.items()
+            }
         },
     }
 
@@ -48,7 +51,9 @@ def register_panel_econometrics_targets(
             "complier_share": float(complier_share if complier_share is not None else 0.0),
         }
     if irf is not None:
-        irf_horizons = np.asarray(horizons if horizons is not None else np.arange(np.asarray(irf).shape[0]), dtype=int)
+        irf_horizons = np.asarray(
+            horizons if horizons is not None else np.arange(np.asarray(irf).shape[0]), dtype=int
+        )
         targets["econometrics.irf"] = {
             "values": np.asarray(irf, dtype=float).tolist(),
             "coords": {"horizon": irf_horizons.tolist()},

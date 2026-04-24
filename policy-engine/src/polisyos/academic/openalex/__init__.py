@@ -12,13 +12,13 @@ from polisyos.academic.openalex.topic_catalog import TopicEntry, discover_topic_
 
 __all__ = [
     "OpenAlexClient",
-    "OpenAlexRequest",
-    "should_process",
     "OpenAlexRateLimiter",
+    "OpenAlexRequest",
     "SelectedTopicWork",
     "TopicEntry",
     "discover_topic_files",
     "load_topics",
     "select_all_topics",
     "select_topic_works",
+    "should_process",
 ]

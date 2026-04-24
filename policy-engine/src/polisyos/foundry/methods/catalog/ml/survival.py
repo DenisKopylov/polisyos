@@ -1,7 +1,9 @@
 """Estimate survival/time-to-event models and expose curves plus risk scores."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -63,6 +65,7 @@ def _fit_cox_model(frame: Any) -> tuple[Any, float]:
 )
 class SurvivalAnalysisEstimator:
     """Estimate event-time risk under censored observations; avoid when censoring/event semantics are undefined."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("lifelines", "pandas", "numpy")
 
@@ -131,9 +134,7 @@ class SurvivalAnalysisEstimator:
         frame["event"] = np.asarray(data.events, dtype=int)
         fitter, penalizer = _fit_cox_model(frame)
         risk_scores = np.asarray(fitter.predict_partial_hazard(frame)).reshape(-1)
-        coefficients = {
-            str(name): float(value) for name, value in fitter.params_.to_dict().items()
-        }
+        coefficients = {str(name): float(value) for name, value in fitter.params_.to_dict().items()}
         return {
             "result": SurvivalResult(
                 method_name="survival_analysis",

@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pytest
 
-
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SCRIPTS_DIR = REPO_ROOT / "scripts"
 
@@ -69,7 +68,9 @@ def test_candidate_pool_uses_real_abstract(tmp_path: Path) -> None:
                         "cause_variable": "tax_audits",
                         "effect_variable": "compliance",
                         "direction": "positive",
-                        "supporting_spans": [{"text": "Tax audits increase compliance.", "section": "abstract"}],
+                        "supporting_spans": [
+                            {"text": "Tax audits increase compliance.", "section": "abstract"}
+                        ],
                         "design_family_hint": "rct",
                     }
                 ],
@@ -156,7 +157,11 @@ def test_bundle_validation_fails_when_no_real_text_exists(tmp_path: Path) -> Non
         [
             {
                 "work_id": "https://openalex.org/W3",
-                "work": {"id": "https://openalex.org/W3", "title": "", "abstract_inverted_index": {}},
+                "work": {
+                    "id": "https://openalex.org/W3",
+                    "title": "",
+                    "abstract_inverted_index": {},
+                },
                 "topic_ids": ["T1"],
                 "topic_display_names": ["Topic 1"],
                 "run_ids": ["run-1"],
@@ -236,7 +241,9 @@ def test_bundle_source_basis_filter_splits_claims(tmp_path: Path) -> None:
                         "cause_variable": "tax_audits",
                         "effect_variable": "compliance",
                         "direction": "positive",
-                        "supporting_spans": [{"text": "Tax audits increase compliance.", "section": "abstract"}],
+                        "supporting_spans": [
+                            {"text": "Tax audits increase compliance.", "section": "abstract"}
+                        ],
                         "design_family_hint": "rct",
                         "source_basis": "fulltext",
                     }
@@ -254,7 +261,9 @@ def test_bundle_source_basis_filter_splits_claims(tmp_path: Path) -> None:
                         "cause_variable": "taxes",
                         "effect_variable": "growth",
                         "direction": "mixed",
-                        "supporting_spans": [{"text": "Taxes affect growth.", "section": "abstract"}],
+                        "supporting_spans": [
+                            {"text": "Taxes affect growth.", "section": "abstract"}
+                        ],
                         "design_family_hint": "unclear",
                         "source_basis": "abstract_only",
                     }

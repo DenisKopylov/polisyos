@@ -64,8 +64,15 @@ def test_information_diffusion_is_bounded_and_preserves_inactive_agents() -> Non
         FidelityLevel.SURROGATE_FLUID,
     )
 
-    assert bool(jnp.all((next_state.agents.information_level >= 0.0) & (next_state.agents.information_level <= 1.0)))
-    assert bool(jnp.isclose(next_state.agents.information_level[3], state.agents.information_level[3]))
+    assert bool(
+        jnp.all(
+            (next_state.agents.information_level >= 0.0)
+            & (next_state.agents.information_level <= 1.0)
+        )
+    )
+    assert bool(
+        jnp.isclose(next_state.agents.information_level[3], state.agents.information_level[3])
+    )
     assert all(bool(jnp.isfinite(value)) for value in metrics.values())
 
 

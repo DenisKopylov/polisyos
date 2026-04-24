@@ -22,13 +22,13 @@ from polisyos.runtime.http.app import (
 
 
 class _AllowOPA:
-    async def check(self, authz_input):  # noqa: ANN001
+    async def check(self, authz_input):
         del authz_input
         return AuthzResult(decision=AuthzDecision.ALLOW, policy="polisyos/authz/decision")
 
 
 class _DenyOPA:
-    async def check(self, authz_input):  # noqa: ANN001
+    async def check(self, authz_input):
         del authz_input
         return AuthzResult(
             decision=AuthzDecision.DENY,
@@ -38,7 +38,7 @@ class _DenyOPA:
 
 
 class _SelectiveReviewOPA:
-    async def check(self, authz_input):  # noqa: ANN001
+    async def check(self, authz_input):
         kind = getattr(authz_input, "resource_kind", "")
         if str(kind).endswith("message.cursor.update"):
             return AuthzResult(
@@ -50,7 +50,7 @@ class _SelectiveReviewOPA:
 
 
 class _SlowOPA:
-    async def check(self, authz_input):  # noqa: ANN001
+    async def check(self, authz_input):
         del authz_input
         await asyncio.sleep(0.2)
         return AuthzResult(decision=AuthzDecision.ALLOW, policy="polisyos/authz/decision")
@@ -88,6 +88,10 @@ def _claims(*, tenant_id: str, cell_id: str, jti: str) -> UserIdentityClaims:
     )
 
 
+def _fixture_bearer(suffix: str) -> str:
+    return f"token-{suffix}"
+
+
 def _build_secure_client(
     runtime_api_env,
     *,
@@ -121,14 +125,14 @@ def _build_secure_client(
 
 
 def test_runtime_api_allows_tenant_scoped_access(runtime_api_env) -> None:
-    claims_token = "token-a"
+    claims_bearer = _fixture_bearer("a")
     client, cell, provider = _build_secure_client(
         runtime_api_env,
         opa_client=_AllowOPA(),
         claims_by_token={},
     )
     provider.put_claim(
-        claims_token,
+        claims_bearer,
         _claims(
             tenant_id=runtime_api_env["tenant_a"],
             cell_id=cell.cell_id,
@@ -139,7 +143,7 @@ def test_runtime_api_allows_tenant_scoped_access(runtime_api_env) -> None:
     response = client.get(
         f"/api/v1/runs/{runtime_api_env['core_run_id']}",
         headers={
-            "Authorization": f"Bearer {claims_token}",
+            "Authorization": f"Bearer {claims_bearer}",
             "X-Tenant-ID": runtime_api_env["tenant_a"],
         },
     )
@@ -147,14 +151,14 @@ def test_runtime_api_allows_tenant_scoped_access(runtime_api_env) -> None:
 
 
 def test_runtime_api_denies_cross_tenant_run_access(runtime_api_env) -> None:
-    claims_token = "token-b"
+    claims_bearer = _fixture_bearer("b")
     client, cell, provider = _build_secure_client(
         runtime_api_env,
         opa_client=_AllowOPA(),
         claims_by_token={},
     )
     provider.put_claim(
-        claims_token,
+        claims_bearer,
         _claims(
             tenant_id=runtime_api_env["tenant_b"],
             cell_id=cell.cell_id,
@@ -165,7 +169,7 @@ def test_runtime_api_denies_cross_tenant_run_access(runtime_api_env) -> None:
     response = client.get(
         f"/api/v1/runs/{runtime_api_env['core_run_id']}",
         headers={
-            "Authorization": f"Bearer {claims_token}",
+            "Authorization": f"Bearer {claims_bearer}",
             "X-Tenant-ID": runtime_api_env["tenant_b"],
         },
     )
@@ -176,14 +180,14 @@ def test_runtime_api_denies_cross_tenant_run_access(runtime_api_env) -> None:
 
 
 def test_runtime_api_authz_deny_blocks_endpoint(runtime_api_env) -> None:
-    claims_token = "token-a"
+    claims_bearer = _fixture_bearer("a")
     client, cell, provider = _build_secure_client(
         runtime_api_env,
         opa_client=_DenyOPA(),
         claims_by_token={},
     )
     provider.put_claim(
-        claims_token,
+        claims_bearer,
         _claims(
             tenant_id=runtime_api_env["tenant_a"],
             cell_id=cell.cell_id,
@@ -194,7 +198,7 @@ def test_runtime_api_authz_deny_blocks_endpoint(runtime_api_env) -> None:
     response = client.get(
         f"/api/v1/runs/{runtime_api_env['core_run_id']}",
         headers={
-            "Authorization": f"Bearer {claims_token}",
+            "Authorization": f"Bearer {claims_bearer}",
             "X-Tenant-ID": runtime_api_env["tenant_a"],
         },
     )
@@ -213,9 +217,9 @@ def test_runtime_api_authz_timeout_returns_gateway_timeout(
         opa_client=_SlowOPA(),
         claims_by_token={},
     )
-    token = "token-a-timeout"
+    claims_bearer = _fixture_bearer("a-timeout")
     provider.put_claim(
-        token,
+        claims_bearer,
         _claims(
             tenant_id=runtime_api_env["tenant_a"],
             cell_id=cell.cell_id,
@@ -226,7 +230,7 @@ def test_runtime_api_authz_timeout_returns_gateway_timeout(
     response = client.get(
         f"/api/v1/runs/{runtime_api_env['core_run_id']}",
         headers={
-            "Authorization": f"Bearer {token}",
+            "Authorization": f"Bearer {claims_bearer}",
             "X-Tenant-ID": runtime_api_env["tenant_a"],
         },
     )
@@ -236,14 +240,14 @@ def test_runtime_api_authz_timeout_returns_gateway_timeout(
 
 
 def test_runtime_api_denies_cross_tenant_artifact_access(runtime_api_env) -> None:
-    claims_token = "token-b"
+    claims_bearer = _fixture_bearer("b")
     client, cell, provider = _build_secure_client(
         runtime_api_env,
         opa_client=_AllowOPA(),
         claims_by_token={},
     )
     provider.put_claim(
-        claims_token,
+        claims_bearer,
         _claims(
             tenant_id=runtime_api_env["tenant_b"],
             cell_id=cell.cell_id,
@@ -254,7 +258,7 @@ def test_runtime_api_denies_cross_tenant_artifact_access(runtime_api_env) -> Non
     response = client.get(
         f"/api/v1/artifacts/{runtime_api_env['workflow_report_artifact_id']}",
         headers={
-            "Authorization": f"Bearer {claims_token}",
+            "Authorization": f"Bearer {claims_bearer}",
             "X-Tenant-ID": runtime_api_env["tenant_b"],
         },
     )
@@ -264,14 +268,14 @@ def test_runtime_api_denies_cross_tenant_artifact_access(runtime_api_env) -> Non
 
 
 def test_runtime_api_denies_unscoped_artifact_access(runtime_api_env) -> None:
-    claims_token = "token-a"
+    claims_bearer = _fixture_bearer("a")
     client, cell, provider = _build_secure_client(
         runtime_api_env,
         opa_client=_AllowOPA(),
         claims_by_token={},
     )
     provider.put_claim(
-        claims_token,
+        claims_bearer,
         _claims(
             tenant_id=runtime_api_env["tenant_a"],
             cell_id=cell.cell_id,
@@ -282,7 +286,7 @@ def test_runtime_api_denies_unscoped_artifact_access(runtime_api_env) -> None:
     response = client.get(
         f"/api/v1/artifacts/{runtime_api_env['root_artifact_id']}",
         headers={
-            "Authorization": f"Bearer {claims_token}",
+            "Authorization": f"Bearer {claims_bearer}",
             "X-Tenant-ID": runtime_api_env["tenant_a"],
         },
     )
@@ -322,14 +326,14 @@ def test_runtime_api_auth_me_requires_claims_without_explicit_fixture_flag(runti
 
 
 def test_runtime_api_cross_tenant_compare_requires_explicit_capability(runtime_api_env) -> None:
-    claims_token = "token-a"
+    claims_bearer = _fixture_bearer("a")
     client, cell, provider = _build_secure_client(
         runtime_api_env,
         opa_client=_AllowOPA(),
         claims_by_token={},
     )
     provider.put_claim(
-        claims_token,
+        claims_bearer,
         _claims(
             tenant_id=runtime_api_env["tenant_a"],
             cell_id=cell.cell_id,
@@ -343,7 +347,7 @@ def test_runtime_api_cross_tenant_compare_requires_explicit_capability(runtime_a
             f"/compare/{runtime_api_env['cross_tenant_run_id']}"
         ),
         headers={
-            "Authorization": f"Bearer {claims_token}",
+            "Authorization": f"Bearer {claims_bearer}",
             "X-Tenant-ID": runtime_api_env["tenant_a"],
         },
     )
@@ -381,24 +385,26 @@ def test_review_websocket_rejects_anonymous_connect(runtime_api_env) -> None:
     )
     client = TestClient(app)
 
-    with pytest.raises(WebSocketDisconnect) as exc:
-        with client.websocket_connect(
+    with (
+        pytest.raises(WebSocketDisconnect) as exc,
+        client.websocket_connect(
             f"/api/v1/review/live?channel=review.presence&review_id=run:{runtime_api_env['core_run_id']}:governance"
-        ):
-            pass
+        ),
+    ):
+        pass
 
     assert exc.value.code == 4401
 
 
 def test_review_websocket_rechecks_message_authorization(runtime_api_env) -> None:
-    claims_token = "token-a"
+    claims_bearer = _fixture_bearer("a")
     client, cell, provider = _build_secure_client(
         runtime_api_env,
         opa_client=_SelectiveReviewOPA(),
         claims_by_token={},
     )
     provider.put_claim(
-        claims_token,
+        claims_bearer,
         _claims(
             tenant_id=runtime_api_env["tenant_a"],
             cell_id=cell.cell_id,
@@ -412,7 +418,7 @@ def test_review_websocket_rechecks_message_authorization(runtime_api_env) -> Non
             f"&review_id=run:{runtime_api_env['core_run_id']}:governance"
         ),
         headers={
-            "Authorization": f"Bearer {claims_token}",
+            "Authorization": f"Bearer {claims_bearer}",
             "X-Tenant-ID": runtime_api_env["tenant_a"],
         },
     ) as websocket:

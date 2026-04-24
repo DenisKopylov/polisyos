@@ -20,11 +20,11 @@ from polisyos.ir.analytics.dynamic_regime import (
     InterventionInterpolationPolicy,
     TemporalIdentificationCertificate,
     TemporalIdentificationTheoremFamily,
-    TemporalSamplingScheme,
-    TemporalInterventionTrajectory,
     TemporalInterventionSemantics,
+    TemporalInterventionTrajectory,
     TemporalLawObject,
     TemporalObservabilityRegime,
+    TemporalSamplingScheme,
     TemporalTargetFunctional,
 )
 from polisyos.ir.analytics.rough_path_semantics import (
@@ -39,8 +39,7 @@ from polisyos.ir.analytics.rough_path_semantics import (
     TemporalPathSemanticsAttachment,
     TemporalPathSemanticsScope,
 )
-from polisyos.ir.refs import ArtifactRefModel
-from polisyos.ir.refs import RoughPathInterventionCertificateRef
+from polisyos.ir.refs import ArtifactRefModel, RoughPathInterventionCertificateRef
 
 
 def _artifact_id(ch: str) -> str:
@@ -162,10 +161,14 @@ def _dynamic_data() -> DynamicTreatmentData:
     for t in range(n_periods):
         treatment[:, t] = rng.binomial(1, 0.5, size=n_units)
         if t < n_periods - 1:
-            state[:, t + 1] = 0.6 * state[:, t] + 0.4 * treatment[:, t] + rng.normal(
-                0.0,
-                0.2,
-                size=n_units,
+            state[:, t + 1] = (
+                0.6 * state[:, t]
+                + 0.4 * treatment[:, t]
+                + rng.normal(
+                    0.0,
+                    0.2,
+                    size=n_units,
+                )
             )
     outcome = state[:, -1] + treatment.sum(axis=1)
     return DynamicTreatmentData(
@@ -470,9 +473,7 @@ def test_neural_cde_backend_requires_matching_canonical_control() -> None:
             _query(
                 horizon_end=3.0,
                 metadata={"preferred_backend": "neural_cde"},
-            ).model_copy(
-                update={"interpolation_policy": InterventionInterpolationPolicy.LINEAR}
-            ),
+            ).model_copy(update={"interpolation_policy": InterventionInterpolationPolicy.LINEAR}),
             data=_dynamic_data(),
             resolved_intervention=_intervention(
                 horizon_end=3.0,

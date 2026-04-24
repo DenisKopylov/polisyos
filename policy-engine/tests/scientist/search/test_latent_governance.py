@@ -129,12 +129,8 @@ def _conditional_promotion_evidence() -> LatentPromotionEvidence:
         rival_explanation_audit_ref=_promotion_ref(
             "d", kind="scientist.latent.rival_explanation_audit"
         ),
-        external_evidence_refs=[
-            _promotion_ref("e", kind="scientist.latent.external_evidence")
-        ],
-        replication_refs=[
-            _promotion_ref("f", kind="scientist.latent.replication")
-        ],
+        external_evidence_refs=[_promotion_ref("e", kind="scientist.latent.external_evidence")],
+        replication_refs=[_promotion_ref("f", kind="scientist.latent.replication")],
         hidden_benchmark_ref=_promotion_ref("g", kind="scientist.latent.hidden_benchmark"),
         reviewer_decision_ref=_promotion_ref("h", kind="scientist.latent.reviewer_decision"),
         scope_regime=["linear_nongaussian", "metric_invariant"],
@@ -149,12 +145,8 @@ def _validated_measurement_promotion_evidence() -> LatentPromotionEvidence:
                 _promotion_ref("f", kind="scientist.latent.replication"),
                 _promotion_ref("i", kind="scientist.latent.replication"),
             ],
-            "exclusion_test_refs": [
-                _promotion_ref("j", kind="scientist.latent.exclusion_test")
-            ],
-            "external_anchor_refs": [
-                _promotion_ref("k", kind="scientist.latent.external_anchor")
-            ],
+            "exclusion_test_refs": [_promotion_ref("j", kind="scientist.latent.exclusion_test")],
+            "external_anchor_refs": [_promotion_ref("k", kind="scientist.latent.external_anchor")],
             "cross_model_robustness_refs": [
                 _promotion_ref("l", kind="scientist.latent.cross_model_robustness")
             ],
@@ -213,8 +205,7 @@ def test_latent_governance_rejects_cardinality_claim_without_localized_shift() -
     assert "latent_cardinality_localized_shift_missing:U_01" in assessment.missing_requirements
     assert (
         "latent_cardinality_condition_failed:"
-        "latent_cardinality_localized_shift_missing:U_01"
-        in assessment.no_promotion_reasons
+        "latent_cardinality_localized_shift_missing:U_01" in assessment.no_promotion_reasons
     )
     assert assessment.metadata["cardinality_gate_failures"] == [
         "latent_cardinality_localized_shift_missing:U_01"

@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import patch
-
-import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.cursor import CursorState, WatermarkType
@@ -44,12 +42,15 @@ class TestBatchIncremental:
             datasets_fetched=1,
         )
 
-        with patch(
-            "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
-            return_value=mock_result,
-        ), patch(
-            "polisyos.fabric.ingestion.run_connectors_ingestion",
-            return_value=evidence_ref,
+        with (
+            patch(
+                "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+                return_value=mock_result,
+            ),
+            patch(
+                "polisyos.fabric.ingestion.run_connectors_ingestion",
+                return_value=evidence_ref,
+            ),
         ):
             from polisyos.fabric.data_plane.modes import run_batch_incremental
 
@@ -77,12 +78,15 @@ class TestBatchIncremental:
             datasets_fetched=1,
         )
 
-        with patch(
-            "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
-            return_value=mock_result,
-        ), patch(
-            "polisyos.fabric.ingestion.run_connectors_ingestion",
-            return_value=evidence_ref,
+        with (
+            patch(
+                "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+                return_value=mock_result,
+            ),
+            patch(
+                "polisyos.fabric.ingestion.run_connectors_ingestion",
+                return_value=evidence_ref,
+            ),
         ):
             from polisyos.fabric.data_plane.modes import run_batch_incremental
 
@@ -108,12 +112,15 @@ class TestBatchIncremental:
 
         mock_result = IngestionResult(datasets_fetched=0)
 
-        with patch(
-            "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
-            return_value=mock_result,
-        ), patch(
-            "polisyos.fabric.ingestion.run_connectors_ingestion",
-            return_value=None,
+        with (
+            patch(
+                "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+                return_value=mock_result,
+            ),
+            patch(
+                "polisyos.fabric.ingestion.run_connectors_ingestion",
+                return_value=None,
+            ),
         ):
             from polisyos.fabric.data_plane.modes import run_batch_incremental
 
@@ -138,12 +145,15 @@ class TestBatchIncremental:
             datasets_fetched=1,
         )
 
-        with patch(
-            "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
-            return_value=mock_result,
-        ), patch(
-            "polisyos.fabric.ingestion.run_connectors_ingestion",
-            return_value=evidence_ref,
+        with (
+            patch(
+                "polisyos.fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+                return_value=mock_result,
+            ),
+            patch(
+                "polisyos.fabric.ingestion.run_connectors_ingestion",
+                return_value=evidence_ref,
+            ),
         ):
             from polisyos.fabric.data_plane.modes import run_batch_incremental
 
@@ -161,6 +171,7 @@ class TestBatchIncremental:
 
             # Second run
             import time
+
             time.sleep(0.01)  # ensure timestamp differs
 
             run_batch_incremental(
@@ -181,7 +192,7 @@ class TestIncrementalCheckpoint:
         store = FileSystemCAS(cas_root)
         cursor_store = CursorStore(store)
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         cursor = CursorState(
             cursor_id="sdmx.source:ECB.EXR",
             connector_id="sdmx.source",
@@ -208,9 +219,11 @@ class TestIncrementalCheckpoint:
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_manifest():
     """Build a lightweight manifest-like object."""
     from types import SimpleNamespace
+
     return SimpleNamespace(
         datasets=[
             SimpleNamespace(

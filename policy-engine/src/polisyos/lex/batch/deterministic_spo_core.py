@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from polisyos.lex.batch import deterministic_spo as _base
 
-_BASE_EXPORTS = {'re', 'canonicalize_action', 'canonicalize_norm_type', 'extract_thresholds_from_text'}
+_BASE_EXPORTS = {
+    "re",
+    "canonicalize_action",
+    "canonicalize_norm_type",
+    "extract_thresholds_from_text",
+}
 for _name in dir(_base):
     if _name.startswith("_") or _name in _BASE_EXPORTS:
         globals().setdefault(_name, getattr(_base, _name))
@@ -51,6 +56,7 @@ def _search_with_optional_context(
         return match
     return pattern.search(analysis_text)
 
+
 def _extract_core_normative_fallback_candidates(
     *,
     text: str,
@@ -68,7 +74,9 @@ def _extract_core_normative_fallback_candidates(
     candidates: list[SPOCandidate] = []
     reason_codes: list[str] = []
     normalized_context = " ".join(str(context_prefix or "").split()).strip()
-    analysis_full_text = _combine_with_context(text, normalized_context) if normalized_context else text
+    analysis_full_text = (
+        _combine_with_context(text, normalized_context) if normalized_context else text
+    )
     treaty_like_title = bool(_TREATY_TITLE_RE.search(doc_title or ""))
     if not (
         threshold_bearing
@@ -88,41 +96,43 @@ def _extract_core_normative_fallback_candidates(
         ):
             continue
         quote = _clip_text(sentence, size=320)
-        analysis_sentence = _combine_with_context(sentence, normalized_context) if normalized_context else sentence
-        strong_threshold_text = (
-            bool(re.search(r"\d+(?:[.,]\d+)?\s*(?:%|грн|коп|кг|км|га|тонн(?:и)?)\b", sentence, re.IGNORECASE))
-            or any(
-                marker in sentence.lower()
-                for marker in (
-                    "ставк",
-                    "тариф",
-                    "оклад",
-                    "поріг",
-                    "не менш",
-                    "не більш",
-                    "не нижче",
-                    "не вище",
-                )
+        analysis_sentence = (
+            _combine_with_context(sentence, normalized_context) if normalized_context else sentence
+        )
+        strong_threshold_text = bool(
+            re.search(
+                r"\d+(?:[.,]\d+)?\s*(?:%|грн|коп|кг|км|га|тонн(?:и)?)\b", sentence, re.IGNORECASE
+            )
+        ) or any(
+            marker in sentence.lower()
+            for marker in (
+                "ставк",
+                "тариф",
+                "оклад",
+                "поріг",
+                "не менш",
+                "не більш",
+                "не нижче",
+                "не вище",
             )
         )
 
-        if (
-            not (
-                treaty_like_title
-                and _TREATY_TEMPORAL_RE.search(sentence)
-                and not strong_threshold_text
-            )
-            and (
+        if not (
+            treaty_like_title and _TREATY_TEMPORAL_RE.search(sentence) and not strong_threshold_text
+        ) and (
+            (
                 (
                     threshold_bearing
                     or strong_threshold_text
                     or legal_unit_micro_subtype == "threshold_tail"
                 )
-                and extract_thresholds_from_text(analysis_sentence, applies_to=doc_title or "регульований показник")
-                or _UNITLESS_THRESHOLD_ROW_RE.search(sentence)
-                or _CONDITION_THRESHOLD_RE.search(sentence)
-                or legal_unit_micro_subtype == "threshold_tail"
+                and extract_thresholds_from_text(
+                    analysis_sentence, applies_to=doc_title or "регульований показник"
+                )
             )
+            or _UNITLESS_THRESHOLD_ROW_RE.search(sentence)
+            or _CONDITION_THRESHOLD_RE.search(sentence)
+            or legal_unit_micro_subtype == "threshold_tail"
         ):
             threshold_candidates, threshold_reason_codes = _extract_threshold_row_candidates_inner(
                 text=sentence,
@@ -551,7 +561,11 @@ def _extract_semantic_tail_candidates(
                     _build_candidate(
                         subject_uk=subject_uk,
                         predicate="grants",
-                        object_uk=(f"має право {object_uk}" if "право" in match.group("lemma").lower() else object_uk),
+                        object_uk=(
+                            f"має право {object_uk}"
+                            if "право" in match.group("lemma").lower()
+                            else object_uk
+                        ),
                         norm_type="permission",
                         fact_text=f"{subject_uk} {match.group('lemma').strip()} {object_uk}",
                         quote=quote,
@@ -584,11 +598,15 @@ def _extract_semantic_tail_candidates(
             lemma_text = sanction_match.group("lemma").strip()
             # Check if the object ends with a colon followed by a list
             # (e.g. "тягне за собою: штраф; позбавлення ліцензії; ...")
-            tail_after_match = clause[sanction_match.end():]
-            list_items = list(_iter_list_items(tail_after_match)) if ":" in raw_object or tail_after_match.lstrip().startswith(";") else []
+            tail_after_match = clause[sanction_match.end() :]
+            list_items = (
+                list(_iter_list_items(tail_after_match))
+                if ":" in raw_object or tail_after_match.lstrip().startswith(";")
+                else []
+            )
             if list_items and subject_uk:
                 # Colon-delimited list: each item is a separate sanction
-                base_object = raw_object.split(":")[0].strip() if ":" in raw_object else raw_object
+                raw_object.split(":")[0].strip() if ":" in raw_object else raw_object
                 for item in list_items:
                     item_uk = _clip_text(item, 220)
                     if item_uk:
@@ -641,9 +659,7 @@ def _extract_semantic_tail_candidates(
             # candidate so the audit category "threshold" is covered.
             numeric_thresholds = extract_thresholds_from_text(clause)
             if numeric_thresholds:
-                thr_summary = "; ".join(
-                    f"{t.value_text} {t.unit}" for t in numeric_thresholds[:3]
-                )
+                thr_summary = "; ".join(f"{t.value_text} {t.unit}" for t in numeric_thresholds[:3])
                 _append(
                     _build_candidate(
                         subject_uk=doc_title or "регульований показник",

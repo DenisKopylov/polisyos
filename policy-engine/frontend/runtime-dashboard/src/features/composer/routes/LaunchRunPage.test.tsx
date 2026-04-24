@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { useComposerDraftStore } from "@/features/composer/state/useComposerDraftStore";
@@ -161,6 +161,27 @@ describe("LaunchRunPage", () => {
       isPending: false,
       mutate: vi.fn(),
     });
+  });
+
+  it("renders the atlas briefing chrome with readiness and capability tiles", async () => {
+    renderLaunchRunPage();
+
+    expect(screen.getByTestId("composer-page")).toBeInTheDocument();
+    expect(
+      screen.getByText("pages.composer.readinessTitle"),
+    ).toBeInTheDocument();
+
+    const readinessScore = await screen.findByTestId(
+      "composer-readiness-score",
+    );
+    expect(readinessScore).toHaveTextContent(/\d+/);
+
+    const capabilityTiles = screen.getByTestId("composer-capability-tiles");
+    expect(capabilityTiles).toBeInTheDocument();
+    expect(
+      within(capabilityTiles).getByText("Multi-model"),
+    ).toBeInTheDocument();
+    expect(within(capabilityTiles).getByText("Preflight")).toBeInTheDocument();
   });
 
   it("hydrates and discards a saved workflow draft for replans", async () => {
@@ -401,6 +422,11 @@ describe("LaunchRunPage", () => {
     renderLaunchRunPage("/compose?mode=workflow");
 
     await user.click(screen.getByTestId("composer-mode-workflow"));
+    await user.click(
+      screen.getByRole("radio", {
+        name: "pages.composer.dataSource.bindings",
+      }),
+    );
     await user.type(
       screen.getByPlaceholderText("sha256:..."),
       "sha256:workflow",
@@ -413,6 +439,9 @@ describe("LaunchRunPage", () => {
     expect(workflowMutateMock).toHaveBeenCalledWith(
       expect.objectContaining({
         checkpoint_policy: "strict",
+        data_source: {
+          input_bindings_ref: "sha256:workflow",
+        },
         mode: "workflow",
       }),
       expect.any(Object),

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import duckdb
 import numpy as np
@@ -14,6 +14,9 @@ from polisyos.academic.knowledge.types import (
     WorkSearchResult,
 )
 from polisyos.common.logger import get_logger
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = get_logger(__name__)
 
@@ -115,16 +118,18 @@ class ScholarKnowledgeStore:
 
         k = min(top_k, len(self._work_ids))
         labels, distances = self._work_index.knn_query(
-            query_vector.reshape(1, -1), k=k,
+            query_vector.reshape(1, -1),
+            k=k,
         )
         results: list[WorkSearchResult] = []
-        for label, dist in zip(labels[0], distances[0]):
+        for label, dist in zip(labels[0], distances[0], strict=False):
             similarity = 1.0 - float(dist)
             if similarity < min_similarity:
                 continue
             wid = self._work_ids[int(label)]
             row = self._con.execute(
-                f"SELECT {_WORK_SELECT} FROM ac_works WHERE id = ?", [wid],
+                f"SELECT {_WORK_SELECT} FROM ac_works WHERE id = ?",
+                [wid],
             ).fetchone()
             if row:
                 topic_ids = self._topic_ids_for_work(wid)
@@ -143,7 +148,10 @@ class ScholarKnowledgeStore:
     # ------------------------------------------------------------------
 
     def text_search_works(
-        self, query: str, *, top_k: int = 20,
+        self,
+        query: str,
+        *,
+        top_k: int = 20,
     ) -> list[WorkSearchResult]:
         pattern = f"%{query}%"
         rows = self._con.execute(
@@ -296,7 +304,9 @@ class ScholarKnowledgeStore:
             ).fetchall()
         except (OSError, RuntimeError) as exc:
             logger.debug(
-                "topic_ids query failed for %s: %s", work_id, exc,
+                "topic_ids query failed for %s: %s",
+                work_id,
+                exc,
             )
             return []
         return [str(r[0]) for r in rows if r and r[0]]
@@ -353,7 +363,9 @@ class ScholarKnowledgeStore:
             ).fetchall()
         except (OSError, RuntimeError) as exc:
             logger.debug(
-                "boundary_conditions query failed for %s: %s", work_id, exc,
+                "boundary_conditions query failed for %s: %s",
+                work_id,
+                exc,
             )
             return []
         return [

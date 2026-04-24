@@ -1,10 +1,12 @@
 """Singleton UnitRegistry with exchange rate management and convenience functions."""
+
 from __future__ import annotations
 
 import threading
+from collections.abc import Iterator, Mapping
 from decimal import Decimal, InvalidOperation, localcontext
 from types import MappingProxyType
-from typing import ClassVar, Iterator, Mapping
+from typing import ClassVar
 
 from ._units_base import STANDARD_UNITS, BaseUnit
 from ._units_core import Unit
@@ -17,7 +19,7 @@ __all__ = [
 ]
 
 
-def _default_unit_registry() -> "UnitRegistry":
+def _default_unit_registry() -> UnitRegistry:
     return UnitRegistry.get_instance()
 
 
@@ -42,7 +44,7 @@ class UnitRegistry:
         >>> registry.set_exchange_rate("EUR", "USD", Decimal("1.10"))
     """
 
-    _instance: ClassVar["UnitRegistry" | None] = None
+    _instance: ClassVar[UnitRegistry | None] = None
     _lock: ClassVar[threading.Lock] = threading.Lock()
 
     def __init__(self) -> None:
@@ -52,7 +54,7 @@ class UnitRegistry:
         self._state_lock = threading.RLock()
 
     @classmethod
-    def get_instance(cls) -> "UnitRegistry":
+    def get_instance(cls) -> UnitRegistry:
         """Get the singleton registry instance (thread-safe)."""
         if cls._instance is None:
             with cls._lock:

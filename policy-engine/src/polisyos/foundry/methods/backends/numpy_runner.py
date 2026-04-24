@@ -1,24 +1,26 @@
 """Public backends numpy runner module API."""
+
 from __future__ import annotations
 
 import json
 import time
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 import numpy as np
 
 from polisyos.core.canon import truncated_hash
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.backends.runtime_fingerprint import (
-    capture_backend_runtime_fingerprint,
-    capture_versions,
-    runtime_stack_for,
-)
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodRunner,
     MethodTiming,
     ReproducibilityInfo,
+)
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    capture_backend_runtime_fingerprint,
+    capture_versions,
+    runtime_stack_for,
 )
 from polisyos.foundry.methods.backends.validated import VALIDATED_EXECUTION_PARAM_NAMES
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
@@ -38,6 +40,7 @@ def _resolve_params(signature: MethodSignature, params: Mapping[str, Any]) -> di
 
 class NumpyRunner(MethodRunner):
     """Numpy runner public type."""
+
     @property
     def supported_backends(self) -> frozenset[ComputeBackend]:
         return frozenset({ComputeBackend.NUMPY})

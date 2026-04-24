@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 from datetime import UTC, datetime
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import aiohttp
 
@@ -17,19 +17,23 @@ from polisyos.batch_common.manifest import write_raw_manifest, write_stage_manif
 from polisyos.common.logger import get_logger
 from polisyos.datasets.batch.checkpoints import hash_payload, load_json, write_json
 from polisyos.datasets.batch.ckan_curation import curate_ckan_package
-from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.batch.normalizer import map_to_polisyos_metrics
 from polisyos.datasets.metrics_map import load_metrics_map
-from polisyos.datasets.batch.source_registry import SourceSpec
+
+if TYPE_CHECKING:
+    from polisyos.datasets.batch.config import DatasetBatchConfig
+    from polisyos.datasets.batch.source_registry import SourceSpec
 
 logger = get_logger(__name__)
 _HARVEST_MAX_PARALLELISM = 6
-_SERIAL_HARVEST_SOURCES: frozenset[str] = frozenset({
-    "data_gov_ua_broad",
-    "data_gov_ro_broad",
-    "data_gov_md_broad",
-    "data_gov_pl_broad",
-})
+_SERIAL_HARVEST_SOURCES: frozenset[str] = frozenset(
+    {
+        "data_gov_ua_broad",
+        "data_gov_ro_broad",
+        "data_gov_md_broad",
+        "data_gov_pl_broad",
+    }
+)
 _SMOKE_PRIORITY_METRICS: tuple[str, ...] = (
     "gdp_per_capita",
     "gdp",
@@ -154,17 +158,104 @@ _SOURCE_PRIORITY_METRICS: dict[str, tuple[str, ...]] = {
 _PRIORITY_PATTERNS: dict[str, tuple[str, ...]] = {
     "gdp_per_capita": ("gdp per capita", "gross domestic product per capita", "ввп на душу"),
     "gdp": ("gross domestic product", " gdp ", "ввп"),
-    "unemployment_rate": ("unemployment", "jobless", "безробіт", "somaj", "șomaj", "bezroboc", "rynek pracy"),
-    "inflation": ("inflation", "consumer price", "cpi", "інфляц", "inflatie", "inflație", "inflacja"),
+    "unemployment_rate": (
+        "unemployment",
+        "jobless",
+        "безробіт",
+        "somaj",
+        "șomaj",
+        "bezroboc",
+        "rynek pracy",
+    ),
+    "inflation": (
+        "inflation",
+        "consumer price",
+        "cpi",
+        "інфляц",
+        "inflatie",
+        "inflație",
+        "inflacja",
+    ),
     "poverty_rate": ("poverty", "deprivation", "бідн"),
-    "migration": ("migration", "migrant", "refugee", "міграц", "migratie", "migrație", "migrac", "demografi"),
-    "health_outcomes": ("life expectancy", "healthy life expectancy", "mortality", "тривалість життя", "здоров", "sanat", "sănătate", "spital", "zdrow", "szpital"),
-    "education_outcomes": ("education", "enrollment", "enrolment", "school", "literacy", "освіт", "зарахув", "educat", "scoala", "școal", "elev", "edukac", "szkol", "uczni"),
+    "migration": (
+        "migration",
+        "migrant",
+        "refugee",
+        "міграц",
+        "migratie",
+        "migrație",
+        "migrac",
+        "demografi",
+    ),
+    "health_outcomes": (
+        "life expectancy",
+        "healthy life expectancy",
+        "mortality",
+        "тривалість життя",
+        "здоров",
+        "sanat",
+        "sănătate",
+        "spital",
+        "zdrow",
+        "szpital",
+    ),
+    "education_outcomes": (
+        "education",
+        "enrollment",
+        "enrolment",
+        "school",
+        "literacy",
+        "освіт",
+        "зарахув",
+        "educat",
+        "scoala",
+        "școal",
+        "elev",
+        "edukac",
+        "szkol",
+        "uczni",
+    ),
     "social_trust": ("social trust", "values survey", "довір"),
-    "labor_force_participation": ("labor force participation", "labour force participation", "робочій силі"),
-    "institutional_quality": ("rule of law", "government effectiveness", "regulatory quality", "institutional quality"),
-    "municipal_budget": ("budget", "municipal budget", "local budget", "buget", "buget local", "venituri", "cheltuieli", "budzet", "budżet", "dochody", "wydatki"),
-    "demography": ("demography", "population", "birth", "death", "demograf", "populatie", "populație", "nasteri", "nașteri", "decese", "ludnosc", "ludność", "urodzenia", "zgony"),
+    "labor_force_participation": (
+        "labor force participation",
+        "labour force participation",
+        "робочій силі",
+    ),
+    "institutional_quality": (
+        "rule of law",
+        "government effectiveness",
+        "regulatory quality",
+        "institutional quality",
+    ),
+    "municipal_budget": (
+        "budget",
+        "municipal budget",
+        "local budget",
+        "buget",
+        "buget local",
+        "venituri",
+        "cheltuieli",
+        "budzet",
+        "budżet",
+        "dochody",
+        "wydatki",
+    ),
+    "demography": (
+        "demography",
+        "population",
+        "birth",
+        "death",
+        "demograf",
+        "populatie",
+        "populație",
+        "nasteri",
+        "nașteri",
+        "decese",
+        "ludnosc",
+        "ludność",
+        "urodzenia",
+        "zgony",
+    ),
 }
 _PRIORITY_BLACKLIST: tuple[str, ...] = (
     "climate",
@@ -176,242 +267,480 @@ _PRIORITY_BLACKLIST: tuple[str, ...] = (
     "end month",
 )
 _WVS_STATIC_INDICATORS: tuple[dict[str, Any], ...] = (
-    {"id": "A009", "name": "State of health (subjective)", "description": "WVS longitudinal subjective health item", "wave": "timeseries", "harvest_metric_candidates": ["health_outcomes"]},
-    {"id": "A165", "name": "Most people can be trusted", "description": "WVS longitudinal social trust question", "wave": "timeseries", "harvest_metric_candidates": ["social_trust"]},
-    {"id": "A170", "name": "Satisfaction with your life", "description": "WVS longitudinal life satisfaction item", "wave": "timeseries", "harvest_metric_candidates": ["social_capital"]},
-    {"id": "A173", "name": "How much freedom of choice and control", "description": "WVS longitudinal freedom-of-choice item", "wave": "timeseries", "harvest_metric_candidates": ["cultural_cluster"]},
-    {"id": "A214", "name": "I see myself as someone who is generally trusting", "description": "WVS longitudinal generalized trust item", "wave": "timeseries", "harvest_metric_candidates": ["social_trust"]},
-    {"id": "D059", "name": "Men make better political leaders than women do", "description": "WVS longitudinal gender norms item", "wave": "timeseries", "harvest_metric_candidates": ["gender_equality"]},
-    {"id": "E023", "name": "Interest in politics", "description": "WVS longitudinal political interest item", "wave": "timeseries", "harvest_metric_candidates": ["social_capital"]},
-    {"id": "E025", "name": "Political action: Signing a petition", "description": "WVS longitudinal petition participation item", "wave": "timeseries", "harvest_metric_candidates": ["social_capital"]},
-    {"id": "E035", "name": "Income equality", "description": "WVS longitudinal income equality preference item", "wave": "timeseries", "harvest_metric_candidates": ["inequality"]},
-    {"id": "E069_07", "name": "Confidence: Parliament", "description": "WVS longitudinal institutional confidence item for parliament", "wave": "timeseries", "harvest_metric_candidates": ["public_trust", "institutional_quality"]},
-    {"id": "E069_11", "name": "Confidence: The Government", "description": "WVS longitudinal institutional confidence item for government", "wave": "timeseries", "harvest_metric_candidates": ["public_trust", "institutional_quality"]},
-    {"id": "E069_17", "name": "Confidence: Justice System/Courts", "description": "WVS longitudinal institutional confidence item for courts", "wave": "timeseries", "harvest_metric_candidates": ["judicial_quality", "institutional_quality"]},
-    {"id": "E110", "name": "Satisfaction with the way democracy develops", "description": "WVS longitudinal democracy satisfaction item", "wave": "timeseries", "harvest_metric_candidates": ["democracy_quality"]},
-    {"id": "E117", "name": "Political system: Having a democratic political system", "description": "WVS longitudinal democracy preference item", "wave": "timeseries", "harvest_metric_candidates": ["democracy_quality"]},
-    {"id": "E196", "name": "Extent of political corruption", "description": "WVS longitudinal perceived political corruption item", "wave": "timeseries", "harvest_metric_candidates": ["corruption_level"]},
-    {"id": "E233", "name": "Democracy: Women have the same rights as men", "description": "WVS longitudinal gender equality in democracy item", "wave": "timeseries", "harvest_metric_candidates": ["gender_equality"]},
-    {"id": "E286", "name": "Social activism: Donating to a group or campaign", "description": "WVS longitudinal social activism donation item", "wave": "timeseries", "harvest_metric_candidates": ["social_capital"]},
-    {"id": "F108", "name": "Government protects freedom", "description": "WVS longitudinal freedom protection item", "wave": "timeseries", "harvest_metric_candidates": ["democracy_quality"]},
-    {"id": "G007_64", "name": "Trust: People in general", "description": "WVS longitudinal trust in people in general item", "wave": "timeseries", "harvest_metric_candidates": ["social_trust"]},
-    {"id": "Y022", "name": "Welzel equality sub-index", "description": "WVS longitudinal equality composite item", "wave": "timeseries", "harvest_metric_candidates": ["gender_equality"]},
+    {
+        "id": "A009",
+        "name": "State of health (subjective)",
+        "description": "WVS longitudinal subjective health item",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["health_outcomes"],
+    },
+    {
+        "id": "A165",
+        "name": "Most people can be trusted",
+        "description": "WVS longitudinal social trust question",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["social_trust"],
+    },
+    {
+        "id": "A170",
+        "name": "Satisfaction with your life",
+        "description": "WVS longitudinal life satisfaction item",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["social_capital"],
+    },
+    {
+        "id": "A173",
+        "name": "How much freedom of choice and control",
+        "description": "WVS longitudinal freedom-of-choice item",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["cultural_cluster"],
+    },
+    {
+        "id": "A214",
+        "name": "I see myself as someone who is generally trusting",
+        "description": "WVS longitudinal generalized trust item",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["social_trust"],
+    },
+    {
+        "id": "D059",
+        "name": "Men make better political leaders than women do",
+        "description": "WVS longitudinal gender norms item",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["gender_equality"],
+    },
+    {
+        "id": "E023",
+        "name": "Interest in politics",
+        "description": "WVS longitudinal political interest item",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["social_capital"],
+    },
+    {
+        "id": "E025",
+        "name": "Political action: Signing a petition",
+        "description": "WVS longitudinal petition participation item",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["social_capital"],
+    },
+    {
+        "id": "E035",
+        "name": "Income equality",
+        "description": "WVS longitudinal income equality preference item",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["inequality"],
+    },
+    {
+        "id": "E069_07",
+        "name": "Confidence: Parliament",
+        "description": "WVS longitudinal institutional confidence item for parliament",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["public_trust", "institutional_quality"],
+    },
+    {
+        "id": "E069_11",
+        "name": "Confidence: The Government",
+        "description": "WVS longitudinal institutional confidence item for government",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["public_trust", "institutional_quality"],
+    },
+    {
+        "id": "E069_17",
+        "name": "Confidence: Justice System/Courts",
+        "description": "WVS longitudinal institutional confidence item for courts",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["judicial_quality", "institutional_quality"],
+    },
+    {
+        "id": "E110",
+        "name": "Satisfaction with the way democracy develops",
+        "description": "WVS longitudinal democracy satisfaction item",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["democracy_quality"],
+    },
+    {
+        "id": "E117",
+        "name": "Political system: Having a democratic political system",
+        "description": "WVS longitudinal democracy preference item",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["democracy_quality"],
+    },
+    {
+        "id": "E196",
+        "name": "Extent of political corruption",
+        "description": "WVS longitudinal perceived political corruption item",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["corruption_level"],
+    },
+    {
+        "id": "E233",
+        "name": "Democracy: Women have the same rights as men",
+        "description": "WVS longitudinal gender equality in democracy item",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["gender_equality"],
+    },
+    {
+        "id": "E286",
+        "name": "Social activism: Donating to a group or campaign",
+        "description": "WVS longitudinal social activism donation item",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["social_capital"],
+    },
+    {
+        "id": "F108",
+        "name": "Government protects freedom",
+        "description": "WVS longitudinal freedom protection item",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["democracy_quality"],
+    },
+    {
+        "id": "G007_64",
+        "name": "Trust: People in general",
+        "description": "WVS longitudinal trust in people in general item",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["social_trust"],
+    },
+    {
+        "id": "Y022",
+        "name": "Welzel equality sub-index",
+        "description": "WVS longitudinal equality composite item",
+        "wave": "timeseries",
+        "harvest_metric_candidates": ["gender_equality"],
+    },
 )
 _WHO_STATIC_INDICATORS: tuple[dict[str, Any], ...] = (
     # ── Mortality & Life Expectancy ──
-    {"id": "WHOSIS_000001", "IndicatorCode": "WHOSIS_000001",
-     "IndicatorName": "Life expectancy at birth (years)",
-     "name": "Life expectancy at birth (years)",
-     "description": "WHO GHO life expectancy at birth indicator",
-     "harvest_metric_candidates": ["health_outcomes", "life_expectancy"]},
-    {"id": "WHOSIS_000002", "IndicatorCode": "WHOSIS_000002",
-     "IndicatorName": "Healthy life expectancy (HALE) at birth (years)",
-     "name": "Healthy life expectancy (HALE) at birth (years)",
-     "description": "WHO GHO healthy life expectancy at birth indicator",
-     "harvest_metric_candidates": ["health_outcomes", "life_expectancy"]},
-    {"id": "WHOSIS_000015", "IndicatorCode": "WHOSIS_000015",
-     "IndicatorName": "Life expectancy at age 60 (years)",
-     "name": "Life expectancy at age 60 (years)",
-     "description": "WHO GHO life expectancy at age 60 indicator",
-     "harvest_metric_candidates": ["health_outcomes", "life_expectancy"]},
-    {"id": "WHOSIS_000003", "IndicatorCode": "WHOSIS_000003",
-     "IndicatorName": "Neonatal mortality rate (per 1000 live births)",
-     "name": "Neonatal mortality rate (per 1000 live births)",
-     "description": "WHO GHO neonatal mortality rate",
-     "harvest_metric_candidates": ["neonatal_mortality", "infant_mortality"]},
-    {"id": "WHS7_104", "IndicatorCode": "WHS7_104",
-     "IndicatorName": "Infant mortality rate (per 1000 live births)",
-     "name": "Infant mortality rate (per 1000 live births)",
-     "description": "WHO GHO infant mortality rate",
-     "harvest_metric_candidates": ["infant_mortality", "health_outcomes"]},
-    {"id": "MDG_0000000001", "IndicatorCode": "MDG_0000000001",
-     "IndicatorName": "Under-five mortality rate (per 1000 live births)",
-     "name": "Under-five mortality rate (per 1000 live births)",
-     "description": "WHO GHO under-five mortality rate",
-     "harvest_metric_candidates": ["infant_mortality", "health_outcomes"]},
-    {"id": "MDG_0000000003", "IndicatorCode": "MDG_0000000003",
-     "IndicatorName": "Neonatal mortality rate (per 1000 live births)",
-     "name": "Neonatal mortality rate (per 1000 live births)",
-     "description": "WHO GHO neonatal mortality rate (MDG series)",
-     "harvest_metric_candidates": ["neonatal_mortality"]},
-    {"id": "WHS9_95", "IndicatorCode": "WHS9_95",
-     "IndicatorName": "Maternal mortality ratio (per 100 000 live births)",
-     "name": "Maternal mortality ratio (per 100 000 live births)",
-     "description": "WHO GHO maternal mortality ratio",
-     "harvest_metric_candidates": ["maternal_mortality", "health_outcomes"]},
+    {
+        "id": "WHOSIS_000001",
+        "IndicatorCode": "WHOSIS_000001",
+        "IndicatorName": "Life expectancy at birth (years)",
+        "name": "Life expectancy at birth (years)",
+        "description": "WHO GHO life expectancy at birth indicator",
+        "harvest_metric_candidates": ["health_outcomes", "life_expectancy"],
+    },
+    {
+        "id": "WHOSIS_000002",
+        "IndicatorCode": "WHOSIS_000002",
+        "IndicatorName": "Healthy life expectancy (HALE) at birth (years)",
+        "name": "Healthy life expectancy (HALE) at birth (years)",
+        "description": "WHO GHO healthy life expectancy at birth indicator",
+        "harvest_metric_candidates": ["health_outcomes", "life_expectancy"],
+    },
+    {
+        "id": "WHOSIS_000015",
+        "IndicatorCode": "WHOSIS_000015",
+        "IndicatorName": "Life expectancy at age 60 (years)",
+        "name": "Life expectancy at age 60 (years)",
+        "description": "WHO GHO life expectancy at age 60 indicator",
+        "harvest_metric_candidates": ["health_outcomes", "life_expectancy"],
+    },
+    {
+        "id": "WHOSIS_000003",
+        "IndicatorCode": "WHOSIS_000003",
+        "IndicatorName": "Neonatal mortality rate (per 1000 live births)",
+        "name": "Neonatal mortality rate (per 1000 live births)",
+        "description": "WHO GHO neonatal mortality rate",
+        "harvest_metric_candidates": ["neonatal_mortality", "infant_mortality"],
+    },
+    {
+        "id": "WHS7_104",
+        "IndicatorCode": "WHS7_104",
+        "IndicatorName": "Infant mortality rate (per 1000 live births)",
+        "name": "Infant mortality rate (per 1000 live births)",
+        "description": "WHO GHO infant mortality rate",
+        "harvest_metric_candidates": ["infant_mortality", "health_outcomes"],
+    },
+    {
+        "id": "MDG_0000000001",
+        "IndicatorCode": "MDG_0000000001",
+        "IndicatorName": "Under-five mortality rate (per 1000 live births)",
+        "name": "Under-five mortality rate (per 1000 live births)",
+        "description": "WHO GHO under-five mortality rate",
+        "harvest_metric_candidates": ["infant_mortality", "health_outcomes"],
+    },
+    {
+        "id": "MDG_0000000003",
+        "IndicatorCode": "MDG_0000000003",
+        "IndicatorName": "Neonatal mortality rate (per 1000 live births)",
+        "name": "Neonatal mortality rate (per 1000 live births)",
+        "description": "WHO GHO neonatal mortality rate (MDG series)",
+        "harvest_metric_candidates": ["neonatal_mortality"],
+    },
+    {
+        "id": "WHS9_95",
+        "IndicatorCode": "WHS9_95",
+        "IndicatorName": "Maternal mortality ratio (per 100 000 live births)",
+        "name": "Maternal mortality ratio (per 100 000 live births)",
+        "description": "WHO GHO maternal mortality ratio",
+        "harvest_metric_candidates": ["maternal_mortality", "health_outcomes"],
+    },
     # ── Infectious Disease ──
-    {"id": "MDG_0000000020", "IndicatorCode": "MDG_0000000020",
-     "IndicatorName": "Tuberculosis incidence (per 100 000 population per year)",
-     "name": "Tuberculosis incidence (per 100 000 population)",
-     "description": "WHO GHO tuberculosis incidence rate",
-     "harvest_metric_candidates": ["tuberculosis_incidence"]},
-    {"id": "MALARIA_EST_INCIDENCE", "IndicatorCode": "MALARIA_EST_INCIDENCE",
-     "IndicatorName": "Estimated malaria incidence (per 1000 population at risk)",
-     "name": "Estimated malaria incidence (per 1000 population at risk)",
-     "description": "WHO GHO malaria incidence estimate",
-     "harvest_metric_candidates": ["malaria_incidence"]},
-    {"id": "HIV_0000000001", "IndicatorCode": "HIV_0000000001",
-     "IndicatorName": "Estimated number of people (all ages) newly infected with HIV",
-     "name": "New HIV infections",
-     "description": "WHO GHO new HIV infections estimate",
-     "harvest_metric_candidates": ["hiv_prevalence"]},
-    {"id": "WHS3_62", "IndicatorCode": "WHS3_62",
-     "IndicatorName": "Hepatitis B surface antigen prevalence among children under 5",
-     "name": "Hepatitis B prevalence children under 5",
-     "description": "WHO GHO hepatitis B prevalence",
-     "harvest_metric_candidates": ["health_outcomes"]},
+    {
+        "id": "MDG_0000000020",
+        "IndicatorCode": "MDG_0000000020",
+        "IndicatorName": "Tuberculosis incidence (per 100 000 population per year)",
+        "name": "Tuberculosis incidence (per 100 000 population)",
+        "description": "WHO GHO tuberculosis incidence rate",
+        "harvest_metric_candidates": ["tuberculosis_incidence"],
+    },
+    {
+        "id": "MALARIA_EST_INCIDENCE",
+        "IndicatorCode": "MALARIA_EST_INCIDENCE",
+        "IndicatorName": "Estimated malaria incidence (per 1000 population at risk)",
+        "name": "Estimated malaria incidence (per 1000 population at risk)",
+        "description": "WHO GHO malaria incidence estimate",
+        "harvest_metric_candidates": ["malaria_incidence"],
+    },
+    {
+        "id": "HIV_0000000001",
+        "IndicatorCode": "HIV_0000000001",
+        "IndicatorName": "Estimated number of people (all ages) newly infected with HIV",
+        "name": "New HIV infections",
+        "description": "WHO GHO new HIV infections estimate",
+        "harvest_metric_candidates": ["hiv_prevalence"],
+    },
+    {
+        "id": "WHS3_62",
+        "IndicatorCode": "WHS3_62",
+        "IndicatorName": "Hepatitis B surface antigen prevalence among children under 5",
+        "name": "Hepatitis B prevalence children under 5",
+        "description": "WHO GHO hepatitis B prevalence",
+        "harvest_metric_candidates": ["health_outcomes"],
+    },
     # ── NCD / Risk Factors ──
-    {"id": "NCD_BMI_30A", "IndicatorCode": "NCD_BMI_30A",
-     "IndicatorName": "Prevalence of obesity among adults, BMI >= 30 (age-standardized estimate) (%)",
-     "name": "Prevalence of obesity among adults (BMI >= 30)",
-     "description": "WHO GHO adult obesity prevalence",
-     "harvest_metric_candidates": ["obesity_prevalence", "health_outcomes"]},
-    {"id": "NCD_CCS_Diab", "IndicatorCode": "NCD_CCS_Diab",
-     "IndicatorName": "Diabetes prevalence",
-     "name": "Diabetes prevalence",
-     "description": "WHO GHO diabetes prevalence",
-     "harvest_metric_candidates": ["diabetes_prevalence", "health_outcomes"]},
-    {"id": "NCD_HYP_PREVALENCE_A", "IndicatorCode": "NCD_HYP_PREVALENCE_A",
-     "IndicatorName": "Raised blood pressure (SBP>=140 OR DBP>=90) (age-standardized estimate)",
-     "name": "Hypertension prevalence",
-     "description": "WHO GHO hypertension prevalence",
-     "harvest_metric_candidates": ["hypertension_prevalence", "health_outcomes"]},
-    {"id": "NCDMORT3070", "IndicatorCode": "NCDMORT3070",
-     "IndicatorName": "Probability (%) of dying between age 30 and exact age 70 from any of cardiovascular disease, cancer, diabetes, or chronic respiratory disease",
-     "name": "NCD mortality probability 30-70",
-     "description": "WHO GHO NCD premature mortality probability",
-     "harvest_metric_candidates": ["noncommunicable_disease_mortality", "health_outcomes"]},
-    {"id": "NCD_TOB_SMOK_CURRE", "IndicatorCode": "NCD_TOB_SMOK_CURRE",
-     "IndicatorName": "Estimate of current tobacco smoking prevalence (%)",
-     "name": "Current tobacco smoking prevalence",
-     "description": "WHO GHO tobacco smoking prevalence",
-     "harvest_metric_candidates": ["smoking_prevalence"]},
-    {"id": "SA_0000001688", "IndicatorCode": "SA_0000001688",
-     "IndicatorName": "Total alcohol per capita (>=15) consumption, in litres of pure alcohol",
-     "name": "Total alcohol per capita consumption",
-     "description": "WHO GHO alcohol consumption per capita",
-     "harvest_metric_candidates": ["alcohol_consumption"]},
+    {
+        "id": "NCD_BMI_30A",
+        "IndicatorCode": "NCD_BMI_30A",
+        "IndicatorName": "Prevalence of obesity among adults, BMI >= 30 (age-standardized estimate) (%)",
+        "name": "Prevalence of obesity among adults (BMI >= 30)",
+        "description": "WHO GHO adult obesity prevalence",
+        "harvest_metric_candidates": ["obesity_prevalence", "health_outcomes"],
+    },
+    {
+        "id": "NCD_CCS_Diab",
+        "IndicatorCode": "NCD_CCS_Diab",
+        "IndicatorName": "Diabetes prevalence",
+        "name": "Diabetes prevalence",
+        "description": "WHO GHO diabetes prevalence",
+        "harvest_metric_candidates": ["diabetes_prevalence", "health_outcomes"],
+    },
+    {
+        "id": "NCD_HYP_PREVALENCE_A",
+        "IndicatorCode": "NCD_HYP_PREVALENCE_A",
+        "IndicatorName": "Raised blood pressure (SBP>=140 OR DBP>=90) (age-standardized estimate)",
+        "name": "Hypertension prevalence",
+        "description": "WHO GHO hypertension prevalence",
+        "harvest_metric_candidates": ["hypertension_prevalence", "health_outcomes"],
+    },
+    {
+        "id": "NCDMORT3070",
+        "IndicatorCode": "NCDMORT3070",
+        "IndicatorName": "Probability (%) of dying between age 30 and exact age 70 from any of cardiovascular disease, cancer, diabetes, or chronic respiratory disease",
+        "name": "NCD mortality probability 30-70",
+        "description": "WHO GHO NCD premature mortality probability",
+        "harvest_metric_candidates": ["noncommunicable_disease_mortality", "health_outcomes"],
+    },
+    {
+        "id": "NCD_TOB_SMOK_CURRE",
+        "IndicatorCode": "NCD_TOB_SMOK_CURRE",
+        "IndicatorName": "Estimate of current tobacco smoking prevalence (%)",
+        "name": "Current tobacco smoking prevalence",
+        "description": "WHO GHO tobacco smoking prevalence",
+        "harvest_metric_candidates": ["smoking_prevalence"],
+    },
+    {
+        "id": "SA_0000001688",
+        "IndicatorCode": "SA_0000001688",
+        "IndicatorName": "Total alcohol per capita (>=15) consumption, in litres of pure alcohol",
+        "name": "Total alcohol per capita consumption",
+        "description": "WHO GHO alcohol consumption per capita",
+        "harvest_metric_candidates": ["alcohol_consumption"],
+    },
     # ── Health System ──
-    {"id": "UHC_INDEX_REPORTED", "IndicatorCode": "UHC_INDEX_REPORTED",
-     "IndicatorName": "UHC index of service coverage",
-     "name": "UHC service coverage index",
-     "description": "WHO GHO universal health coverage index",
-     "harvest_metric_candidates": ["universal_health_coverage", "health_outcomes"]},
-    {"id": "HWF_0001", "IndicatorCode": "HWF_0001",
-     "IndicatorName": "Medical doctors (per 10 000 population)",
-     "name": "Medical doctors per 10 000 population",
-     "description": "WHO GHO physician density",
-     "harvest_metric_candidates": ["physician_density"]},
-    {"id": "HWF_0006", "IndicatorCode": "HWF_0006",
-     "IndicatorName": "Hospital beds (per 10 000 population)",
-     "name": "Hospital beds per 10 000 population",
-     "description": "WHO GHO hospital bed density",
-     "harvest_metric_candidates": ["hospital_beds"]},
-    {"id": "WHS6_102", "IndicatorCode": "WHS6_102",
-     "IndicatorName": "Diphtheria tetanus toxoid and pertussis (DTP3) immunization coverage among 1-year-olds (%)",
-     "name": "DTP3 immunization coverage",
-     "description": "WHO GHO DTP3 immunization",
-     "harvest_metric_candidates": ["vaccination_coverage"]},
-    {"id": "WHS4_117", "IndicatorCode": "WHS4_117",
-     "IndicatorName": "Measles-containing-vaccine first-dose (MCV1) immunization coverage among 1-year-olds (%)",
-     "name": "Measles immunization coverage",
-     "description": "WHO GHO measles immunization",
-     "harvest_metric_candidates": ["vaccination_coverage"]},
-    {"id": "WHS4_128", "IndicatorCode": "WHS4_128",
-     "IndicatorName": "Polio (Pol3) immunization coverage among 1-year-olds (%)",
-     "name": "Polio immunization coverage",
-     "description": "WHO GHO polio immunization",
-     "harvest_metric_candidates": ["vaccination_coverage"]},
+    {
+        "id": "UHC_INDEX_REPORTED",
+        "IndicatorCode": "UHC_INDEX_REPORTED",
+        "IndicatorName": "UHC index of service coverage",
+        "name": "UHC service coverage index",
+        "description": "WHO GHO universal health coverage index",
+        "harvest_metric_candidates": ["universal_health_coverage", "health_outcomes"],
+    },
+    {
+        "id": "HWF_0001",
+        "IndicatorCode": "HWF_0001",
+        "IndicatorName": "Medical doctors (per 10 000 population)",
+        "name": "Medical doctors per 10 000 population",
+        "description": "WHO GHO physician density",
+        "harvest_metric_candidates": ["physician_density"],
+    },
+    {
+        "id": "HWF_0006",
+        "IndicatorCode": "HWF_0006",
+        "IndicatorName": "Hospital beds (per 10 000 population)",
+        "name": "Hospital beds per 10 000 population",
+        "description": "WHO GHO hospital bed density",
+        "harvest_metric_candidates": ["hospital_beds"],
+    },
+    {
+        "id": "WHS6_102",
+        "IndicatorCode": "WHS6_102",
+        "IndicatorName": "Diphtheria tetanus toxoid and pertussis (DTP3) immunization coverage among 1-year-olds (%)",
+        "name": "DTP3 immunization coverage",
+        "description": "WHO GHO DTP3 immunization",
+        "harvest_metric_candidates": ["vaccination_coverage"],
+    },
+    {
+        "id": "WHS4_117",
+        "IndicatorCode": "WHS4_117",
+        "IndicatorName": "Measles-containing-vaccine first-dose (MCV1) immunization coverage among 1-year-olds (%)",
+        "name": "Measles immunization coverage",
+        "description": "WHO GHO measles immunization",
+        "harvest_metric_candidates": ["vaccination_coverage"],
+    },
+    {
+        "id": "WHS4_128",
+        "IndicatorCode": "WHS4_128",
+        "IndicatorName": "Polio (Pol3) immunization coverage among 1-year-olds (%)",
+        "name": "Polio immunization coverage",
+        "description": "WHO GHO polio immunization",
+        "harvest_metric_candidates": ["vaccination_coverage"],
+    },
     # ── WASH / Environment ──
-    {"id": "WSH_WATER_SAFELY_MANAGED", "IndicatorCode": "WSH_WATER_SAFELY_MANAGED",
-     "IndicatorName": "Population using safely managed drinking-water services (%)",
-     "name": "Safely managed drinking water",
-     "description": "WHO GHO safely managed water services",
-     "harvest_metric_candidates": ["clean_water_access"]},
-    {"id": "WSH_SANITATION_SAFELY_MANAGED", "IndicatorCode": "WSH_SANITATION_SAFELY_MANAGED",
-     "IndicatorName": "Population using safely managed sanitation services (%)",
-     "name": "Safely managed sanitation",
-     "description": "WHO GHO safely managed sanitation services",
-     "harvest_metric_candidates": ["sanitation_coverage"]},
-    {"id": "SDGAIRBOD_3", "IndicatorCode": "SDGAIRBOD_3",
-     "IndicatorName": "Ambient and household air pollution attributable death rate (per 100 000 population, age-standardized)",
-     "name": "Air pollution attributable death rate",
-     "description": "WHO GHO air pollution mortality",
-     "harvest_metric_candidates": ["air_pollution_health", "air_quality_index"]},
+    {
+        "id": "WSH_WATER_SAFELY_MANAGED",
+        "IndicatorCode": "WSH_WATER_SAFELY_MANAGED",
+        "IndicatorName": "Population using safely managed drinking-water services (%)",
+        "name": "Safely managed drinking water",
+        "description": "WHO GHO safely managed water services",
+        "harvest_metric_candidates": ["clean_water_access"],
+    },
+    {
+        "id": "WSH_SANITATION_SAFELY_MANAGED",
+        "IndicatorCode": "WSH_SANITATION_SAFELY_MANAGED",
+        "IndicatorName": "Population using safely managed sanitation services (%)",
+        "name": "Safely managed sanitation",
+        "description": "WHO GHO safely managed sanitation services",
+        "harvest_metric_candidates": ["sanitation_coverage"],
+    },
+    {
+        "id": "SDGAIRBOD_3",
+        "IndicatorCode": "SDGAIRBOD_3",
+        "IndicatorName": "Ambient and household air pollution attributable death rate (per 100 000 population, age-standardized)",
+        "name": "Air pollution attributable death rate",
+        "description": "WHO GHO air pollution mortality",
+        "harvest_metric_candidates": ["air_pollution_health", "air_quality_index"],
+    },
     # ── Reproductive / Child Nutrition ──
-    {"id": "NUTRITION_HA_2", "IndicatorCode": "NUTRITION_HA_2",
-     "IndicatorName": "Children aged < 5 years stunted (%)",
-     "name": "Child stunting prevalence",
-     "description": "WHO GHO child stunting",
-     "harvest_metric_candidates": ["child_stunting"]},
-    {"id": "NUTRITION_WH_2", "IndicatorCode": "NUTRITION_WH_2",
-     "IndicatorName": "Children aged < 5 years wasted (%)",
-     "name": "Child wasting prevalence",
-     "description": "WHO GHO child wasting",
-     "harvest_metric_candidates": ["child_stunting"]},
-    {"id": "NUTRITION_WA_2", "IndicatorCode": "NUTRITION_WA_2",
-     "IndicatorName": "Children aged < 5 years underweight (%)",
-     "name": "Child underweight prevalence",
-     "description": "WHO GHO child underweight",
-     "harvest_metric_candidates": ["child_stunting"]},
-    {"id": "NUTRITION_ANE_WRA_P", "IndicatorCode": "NUTRITION_ANE_WRA_P",
-     "IndicatorName": "Anaemia prevalence in women of reproductive age (%)",
-     "name": "Anaemia prevalence in women",
-     "description": "WHO GHO anaemia prevalence women reproductive age",
-     "harvest_metric_candidates": ["health_outcomes"]},
+    {
+        "id": "NUTRITION_HA_2",
+        "IndicatorCode": "NUTRITION_HA_2",
+        "IndicatorName": "Children aged < 5 years stunted (%)",
+        "name": "Child stunting prevalence",
+        "description": "WHO GHO child stunting",
+        "harvest_metric_candidates": ["child_stunting"],
+    },
+    {
+        "id": "NUTRITION_WH_2",
+        "IndicatorCode": "NUTRITION_WH_2",
+        "IndicatorName": "Children aged < 5 years wasted (%)",
+        "name": "Child wasting prevalence",
+        "description": "WHO GHO child wasting",
+        "harvest_metric_candidates": ["child_stunting"],
+    },
+    {
+        "id": "NUTRITION_WA_2",
+        "IndicatorCode": "NUTRITION_WA_2",
+        "IndicatorName": "Children aged < 5 years underweight (%)",
+        "name": "Child underweight prevalence",
+        "description": "WHO GHO child underweight",
+        "harvest_metric_candidates": ["child_stunting"],
+    },
+    {
+        "id": "NUTRITION_ANE_WRA_P",
+        "IndicatorCode": "NUTRITION_ANE_WRA_P",
+        "IndicatorName": "Anaemia prevalence in women of reproductive age (%)",
+        "name": "Anaemia prevalence in women",
+        "description": "WHO GHO anaemia prevalence women reproductive age",
+        "harvest_metric_candidates": ["health_outcomes"],
+    },
     # ── Violence / Injury ──
-    {"id": "VIOLENCE_HOMICIDERATE", "IndicatorCode": "VIOLENCE_HOMICIDERATE",
-     "IndicatorName": "Estimates of rates of homicides per 100 000 population",
-     "name": "Homicide rate",
-     "description": "WHO GHO homicide rate",
-     "harvest_metric_candidates": ["homicide_rate"]},
-    {"id": "VIOLENCE_YPLLRATE", "IndicatorCode": "VIOLENCE_YPLLRATE",
-     "IndicatorName": "Years of potential life lost from violence",
-     "name": "Years of life lost from violence",
-     "description": "WHO GHO violence years of life lost",
-     "harvest_metric_candidates": ["homicide_rate"]},
+    {
+        "id": "VIOLENCE_HOMICIDERATE",
+        "IndicatorCode": "VIOLENCE_HOMICIDERATE",
+        "IndicatorName": "Estimates of rates of homicides per 100 000 population",
+        "name": "Homicide rate",
+        "description": "WHO GHO homicide rate",
+        "harvest_metric_candidates": ["homicide_rate"],
+    },
+    {
+        "id": "VIOLENCE_YPLLRATE",
+        "IndicatorCode": "VIOLENCE_YPLLRATE",
+        "IndicatorName": "Years of potential life lost from violence",
+        "name": "Years of life lost from violence",
+        "description": "WHO GHO violence years of life lost",
+        "harvest_metric_candidates": ["homicide_rate"],
+    },
     # ── Mental Health ──
-    {"id": "MH_12", "IndicatorCode": "MH_12",
-     "IndicatorName": "Crude suicide rates (per 100 000 population)",
-     "name": "Suicide rate",
-     "description": "WHO GHO crude suicide rate",
-     "harvest_metric_candidates": ["suicide_rate"]},
+    {
+        "id": "MH_12",
+        "IndicatorCode": "MH_12",
+        "IndicatorName": "Crude suicide rates (per 100 000 population)",
+        "name": "Suicide rate",
+        "description": "WHO GHO crude suicide rate",
+        "harvest_metric_candidates": ["suicide_rate"],
+    },
     # ── Road Safety ──
-    {"id": "RS_198", "IndicatorCode": "RS_198",
-     "IndicatorName": "Estimated road traffic death rate (per 100 000 population)",
-     "name": "Road traffic death rate",
-     "description": "WHO GHO road traffic mortality",
-     "harvest_metric_candidates": ["health_outcomes"]},
+    {
+        "id": "RS_198",
+        "IndicatorCode": "RS_198",
+        "IndicatorName": "Estimated road traffic death rate (per 100 000 population)",
+        "name": "Road traffic death rate",
+        "description": "WHO GHO road traffic mortality",
+        "harvest_metric_candidates": ["health_outcomes"],
+    },
     # ── Reproductive Health ──
-    {"id": "MDG_0000000025", "IndicatorCode": "MDG_0000000025",
-     "IndicatorName": "Adolescent birth rate (per 1000 women aged 15-19 years)",
-     "name": "Adolescent birth rate",
-     "description": "WHO GHO adolescent fertility",
-     "harvest_metric_candidates": ["fertility_rate", "health_outcomes"]},
-    {"id": "MDG_0000000026", "IndicatorCode": "MDG_0000000026",
-     "IndicatorName": "Births attended by skilled health personnel (%)",
-     "name": "Skilled birth attendance",
-     "description": "WHO GHO skilled birth attendance",
-     "harvest_metric_candidates": ["maternal_mortality", "health_outcomes"]},
+    {
+        "id": "MDG_0000000025",
+        "IndicatorCode": "MDG_0000000025",
+        "IndicatorName": "Adolescent birth rate (per 1000 women aged 15-19 years)",
+        "name": "Adolescent birth rate",
+        "description": "WHO GHO adolescent fertility",
+        "harvest_metric_candidates": ["fertility_rate", "health_outcomes"],
+    },
+    {
+        "id": "MDG_0000000026",
+        "IndicatorCode": "MDG_0000000026",
+        "IndicatorName": "Births attended by skilled health personnel (%)",
+        "name": "Skilled birth attendance",
+        "description": "WHO GHO skilled birth attendance",
+        "harvest_metric_candidates": ["maternal_mortality", "health_outcomes"],
+    },
     # ── Expenditure ──
-    {"id": "GHED_CHE_pc_PPP_SHA2011", "IndicatorCode": "GHED_CHE_pc_PPP_SHA2011",
-     "IndicatorName": "Current health expenditure (CHE) per capita in PPP int$",
-     "name": "Health expenditure per capita PPP",
-     "description": "WHO GHO health expenditure per capita",
-     "harvest_metric_candidates": ["health_spending"]},
-    {"id": "GHED_OOPS_SHA2011", "IndicatorCode": "GHED_OOPS_SHA2011",
-     "IndicatorName": "Out-of-pocket spending as percentage of current health expenditure (CHE) (%)",
-     "name": "Out-of-pocket health spending %",
-     "description": "WHO GHO out-of-pocket health expenditure",
-     "harvest_metric_candidates": ["out_of_pocket_spending", "health_spending"]},
+    {
+        "id": "GHED_CHE_pc_PPP_SHA2011",
+        "IndicatorCode": "GHED_CHE_pc_PPP_SHA2011",
+        "IndicatorName": "Current health expenditure (CHE) per capita in PPP int$",
+        "name": "Health expenditure per capita PPP",
+        "description": "WHO GHO health expenditure per capita",
+        "harvest_metric_candidates": ["health_spending"],
+    },
+    {
+        "id": "GHED_OOPS_SHA2011",
+        "IndicatorCode": "GHED_OOPS_SHA2011",
+        "IndicatorName": "Out-of-pocket spending as percentage of current health expenditure (CHE) (%)",
+        "name": "Out-of-pocket health spending %",
+        "description": "WHO GHO out-of-pocket health expenditure",
+        "harvest_metric_candidates": ["out_of_pocket_spending", "health_spending"],
+    },
 )
 _WVS_LOCAL_METRIC_CANDIDATES: dict[str, tuple[str, ...]] = {
-    str(item["id"]).strip().upper(): tuple(str(metric) for metric in item.get("harvest_metric_candidates", []) if str(metric).strip())
+    str(item["id"]).strip().upper(): tuple(
+        str(metric) for metric in item.get("harvest_metric_candidates", []) if str(metric).strip()
+    )
     for item in _WVS_STATIC_INDICATORS
 }
 _WHO_STATIC_INDICATOR_NAMES: dict[str, str] = {
-    str(item["id"]).strip().upper(): str(item["name"])
-    for item in _WHO_STATIC_INDICATORS
+    str(item["id"]).strip().upper(): str(item["name"]) for item in _WHO_STATIC_INDICATORS
 }
 _SPARQL_SOURCE_TEMPLATES: dict[str, tuple[dict[str, Any], ...]] = {
     "wikidata_sparql": (
@@ -419,14 +748,31 @@ _SPARQL_SOURCE_TEMPLATES: dict[str, tuple[dict[str, Any], ...]] = {
             "id": "country_entities",
             "title": "Wikidata country entities for comparator alignment",
             "description": "Entity resolution for countries, regions, and comparator panels.",
-            "keywords": ["entity resolution", "country", "region", "wikidata", "migration", "population"],
+            "keywords": [
+                "entity resolution",
+                "country",
+                "region",
+                "wikidata",
+                "migration",
+                "population",
+            ],
             "format": "JSON",
         },
         {
             "id": "indicator_topics",
             "title": "Wikidata policy indicator topics",
             "description": "Ontology enrichment for policy topics, metrics, and indicator concepts.",
-            "keywords": ["indicator", "taxonomy", "policy", "concept", "gdp", "unemployment", "inflation", "health", "education"],
+            "keywords": [
+                "indicator",
+                "taxonomy",
+                "policy",
+                "concept",
+                "gdp",
+                "unemployment",
+                "inflation",
+                "health",
+                "education",
+            ],
             "format": "JSON",
         },
     ),
@@ -435,7 +781,14 @@ _SPARQL_SOURCE_TEMPLATES: dict[str, tuple[dict[str, Any], ...]] = {
             "id": "country_labels",
             "title": "DBpedia country labels and aliases",
             "description": "Alternative labels and aliases for country/entity matching.",
-            "keywords": ["alias", "labels", "country", "entity resolution", "migration", "population"],
+            "keywords": [
+                "alias",
+                "labels",
+                "country",
+                "entity resolution",
+                "migration",
+                "population",
+            ],
             "format": "JSON",
         },
         {
@@ -495,7 +848,12 @@ def _wvs_raw_dir() -> Path:
 
 
 def _wvs_registry_path() -> Path:
-    return Path(__file__).resolve().parents[4] / "data" / "dataset_catalog" / "wvs_indicator_registry.yaml"
+    return (
+        Path(__file__).resolve().parents[4]
+        / "data"
+        / "dataset_catalog"
+        / "wvs_indicator_registry.yaml"
+    )
 
 
 def _wvs_variable_catalog_path() -> Path:
@@ -518,7 +876,9 @@ def _load_wvs_indicator_registry() -> dict[str, dict[str, Any]]:
         indicators = data.get("indicators", {}) if isinstance(data, dict) else {}
         return {str(k).strip().upper(): v for k, v in indicators.items() if isinstance(v, dict)}
     except Exception:
-        logger.warning("Failed to load WVS indicator registry from {}", registry_path, exc_info=True)
+        logger.warning(
+            "Failed to load WVS indicator registry from {}", registry_path, exc_info=True
+        )
         return {}
 
 
@@ -605,7 +965,7 @@ def _read_jsonl(path: Path) -> list[dict]:
     rows: list[dict] = []
     if not path.exists():
         return rows
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if line:
@@ -773,10 +1133,7 @@ async def harvest_sources(config: DatasetBatchConfig) -> dict[str, list[dict]]:
             if not spec.seed_from or spec.seed_from in completed_names
         ]
         if not ready_specs:
-            unresolved = ", ".join(
-                f"{spec.name}->{spec.seed_from}"
-                for spec in pending_specs
-            )
+            unresolved = ", ".join(f"{spec.name}->{spec.seed_from}" for spec in pending_specs)
             raise RuntimeError(f"Harvest dependency deadlock: {unresolved}")
 
         serial_specs = [spec for spec in ready_specs if _harvest_runs_serially(spec)]
@@ -794,7 +1151,11 @@ async def harvest_sources(config: DatasetBatchConfig) -> dict[str, list[dict]]:
         manifest_path=stage_manifest,
         stage="harvest",
         status="ok",
-        metrics={"wave": config.wave or "ALL", "sources": len(specs), "records": sum(len(v) for v in out.values())},
+        metrics={
+            "wave": config.wave or "ALL",
+            "sources": len(specs),
+            "records": sum(len(v) for v in out.values()),
+        },
         artifacts=[],
         started_at=started_at,
     )
@@ -828,13 +1189,17 @@ async def harvest_one_source(
     ):
         logger.info("Using in-progress snapshot payload for {}: {}", spec.name, current_payload)
         rows = _read_jsonl(current_payload)
-        rows = _prioritize_rows_for_sampling(rows, spec=spec, config=config, metrics_map=metrics_map)
+        rows = _prioritize_rows_for_sampling(
+            rows, spec=spec, config=config, metrics_map=metrics_map
+        )
         return _apply_limit(rows, _effective_dataset_limit(config))
 
     if config.resume and latest_payload and latest_payload.exists():
         logger.info("Using cached raw snapshot for {}: {}", spec.name, latest_payload)
         rows = _read_jsonl(latest_payload)
-        rows = _prioritize_rows_for_sampling(rows, spec=spec, config=config, metrics_map=metrics_map)
+        rows = _prioritize_rows_for_sampling(
+            rows, spec=spec, config=config, metrics_map=metrics_map
+        )
         return _apply_limit(rows, _effective_dataset_limit(config))
 
     logger.info("Harvesting source {} ({})", spec.name, spec.endpoint)
@@ -920,7 +1285,9 @@ def _payload_hash(path: Path) -> str:
     if not path.exists():
         return ""
     stat = path.stat()
-    return hash_payload({"path": str(path), "size": int(stat.st_size), "mtime_ns": int(stat.st_mtime_ns)})
+    return hash_payload(
+        {"path": str(path), "size": int(stat.st_size), "mtime_ns": int(stat.st_mtime_ns)}
+    )
 
 
 def _flatten_text_values(value: Any) -> list[str]:
@@ -991,11 +1358,18 @@ def _score_row_for_sampling(
     score = 0
     score += 100 * len(priority_hits)
     score += 25 * len(candidates)
-    score += 4 * sum(1 for metric_id in _SMOKE_PRIORITY_METRICS if any(pattern in text for pattern in _PRIORITY_PATTERNS.get(metric_id, ())))
+    score += 4 * sum(
+        1
+        for metric_id in _SMOKE_PRIORITY_METRICS
+        if any(pattern in text for pattern in _PRIORITY_PATTERNS.get(metric_id, ()))
+    )
 
     if spec.family == "sdmx":
         code = str(row.get("id", "") or "").lower()
-        if any(token in code for token in ("une", "unemp", "lfs", "cpi", "gdp", "pov", "mig", "edu", "health")):
+        if any(
+            token in code
+            for token in ("une", "unemp", "lfs", "cpi", "gdp", "pov", "mig", "edu", "health")
+        ):
             score += 10
 
     if any(token in text for token in _PRIORITY_BLACKLIST):
@@ -1052,7 +1426,9 @@ def _prioritize_rows_for_sampling(
 
         if len(selected_indexes) < limit:
             candidate_ranked = [item for item in ranked if item[2]]
-            fallback_ranked = candidate_ranked if spec.metrics_required and candidate_ranked else ranked
+            fallback_ranked = (
+                candidate_ranked if spec.metrics_required and candidate_ranked else ranked
+            )
             for _score, index, _candidates, _row in fallback_ranked:
                 if index in selected_set:
                     continue
@@ -1064,9 +1440,7 @@ def _prioritize_rows_for_sampling(
     ranked_by_index = {index: row for _score, index, _candidates, row in ranked}
     prioritized = [ranked_by_index[index] for index in selected_indexes if index in ranked_by_index]
     prioritized.extend(
-        row
-        for _score, index, _candidates, row in ranked
-        if index not in selected_set
+        row for _score, index, _candidates, row in ranked if index not in selected_set
     )
     logger.info(
         "Prioritized {} sampled rows for {} before applying limit {}",
@@ -1084,11 +1458,7 @@ def _augment_worldbank_rows(
 ) -> list[dict]:
     if not metrics_map:
         return rows
-    seen = {
-        str(row.get("id") or "").strip().upper()
-        for row in rows
-        if isinstance(row, dict)
-    }
+    seen = {str(row.get("id") or "").strip().upper() for row in rows if isinstance(row, dict)}
     augmented = list(rows)
     for metric_id, spec in metrics_map.items():
         if not isinstance(spec, dict):
@@ -1130,7 +1500,9 @@ def _augment_who_rows(
         for metric_id, spec in metrics_map.items():
             if not isinstance(spec, dict):
                 continue
-            keywords = [str(value).strip() for value in spec.get("keywords", []) if str(value).strip()]
+            keywords = [
+                str(value).strip() for value in spec.get("keywords", []) if str(value).strip()
+            ]
             for indicator_id in spec.get("who_indicators", []) or []:
                 code = str(indicator_id or "").strip().upper()
                 if code:
@@ -1196,7 +1568,9 @@ def _curate_seed_row(row: dict[str, Any], spec: SourceSpec) -> dict[str, Any] | 
 
 def _generic_seed_row_allowed(row: dict[str, Any], spec: SourceSpec) -> bool:
     text = _row_text(row)
-    allow_match = _matches_any_seed(text, spec.keyword_allowlist) if spec.keyword_allowlist else True
+    allow_match = (
+        _matches_any_seed(text, spec.keyword_allowlist) if spec.keyword_allowlist else True
+    )
     deny_match = _matches_any_seed(text, spec.keyword_denylist)
     if not allow_match or deny_match:
         return False
@@ -1222,7 +1596,9 @@ def _generic_seed_row_allowed(row: dict[str, Any], spec: SourceSpec) -> bool:
 
 
 def _seed_row_formats(row: dict[str, Any]) -> tuple[str, ...]:
-    formats = [str(item).strip().upper() for item in (row.get("formats") or []) if str(item).strip()]
+    formats = [
+        str(item).strip().upper() for item in (row.get("formats") or []) if str(item).strip()
+    ]
     explicit = str(row.get("format") or "").strip().upper()
     if explicit and explicit not in formats:
         formats.append(explicit)
@@ -1264,7 +1640,7 @@ async def _harvest_ckan(endpoint: str, limit: int, timeout_s: int) -> list[dict]
                         ),
                         timeout=max(timeout_s * 2, 90),
                     )
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     if page_size <= min_per_page:
                         raise
                     next_page_size = max(page_size // 2, min_per_page)
@@ -1309,7 +1685,10 @@ async def _harvest_json_with_retries(
             async with session.get(url, params=params, headers=request_headers) as resp:
                 if resp.status == 200:
                     return await resp.json(content_type=None)
-                if resp.status in {408, 425, 429, 500, 502, 503, 504} and attempt < max_attempts - 1:
+                if (
+                    resp.status in {408, 425, 429, 500, 502, 503, 504}
+                    and attempt < max_attempts - 1
+                ):
                     delay = _harvest_retry_delay_seconds(resp.headers.get("Retry-After"), attempt)
                     logger.warning(
                         "Retrying harvest request for {} after HTTP {} (sleep={}s)",
@@ -1322,7 +1701,7 @@ async def _harvest_json_with_retries(
                     continue
                 logger.warning("Harvest request failed for {} with HTTP {}", context, resp.status)
                 return None
-        except (asyncio.TimeoutError, aiohttp.ClientError) as exc:
+        except (TimeoutError, aiohttp.ClientError) as exc:
             if attempt >= max_attempts - 1:
                 raise
             delay = _harvest_retry_delay_seconds(None, attempt)
@@ -1355,7 +1734,9 @@ async def _harvest_opendatasoft(endpoint: str, limit: int, timeout_s: int) -> li
     async with aiohttp.ClientSession(timeout=timeout) as session:
         while len(rows) < limit:
             params = {"limit": min(per_page, limit - len(rows)), "offset": offset}
-            async with session.get(url, params=params, headers={"Accept": "application/json"}) as resp:
+            async with session.get(
+                url, params=params, headers={"Accept": "application/json"}
+            ) as resp:
                 if resp.status != 200:
                     break
                 payload = await resp.json(content_type=None)
@@ -1374,7 +1755,11 @@ async def _harvest_opendatasoft(endpoint: str, limit: int, timeout_s: int) -> li
                         "id": dataset_id,
                         "title": title,
                         "description": str(default.get("description") or "").strip(),
-                        "keywords": [str(tag).strip() for tag in (default.get("keyword") or []) if str(tag).strip()],
+                        "keywords": [
+                            str(tag).strip()
+                            for tag in (default.get("keyword") or [])
+                            if str(tag).strip()
+                        ],
                         "category": str(default.get("theme") or "").strip(),
                         "format": "JSON",
                         "formats": ["JSON"],
@@ -1404,7 +1789,9 @@ async def _harvest_socrata(endpoint: str, limit: int, timeout_s: int) -> list[di
     async with aiohttp.ClientSession(timeout=timeout) as session:
         while len(rows) < limit:
             params = {"limit": min(per_page, limit - len(rows)), "page": page}
-            async with session.get(url, params=params, headers={"Accept": "application/json"}) as resp:
+            async with session.get(
+                url, params=params, headers={"Accept": "application/json"}
+            ) as resp:
                 if resp.status != 200:
                     break
                 payload = await resp.json(content_type=None)
@@ -1483,12 +1870,22 @@ def _flatten_poland_open_data_row(raw: dict[str, Any]) -> dict[str, Any]:
         for item in (attrs.get("regions") or [])
         if isinstance(item, dict) and str(item.get("name") or "").strip()
     ]
-    formats = [str(item).strip().upper() for item in (attrs.get("formats") or []) if str(item).strip()]
+    formats = [
+        str(item).strip().upper() for item in (attrs.get("formats") or []) if str(item).strip()
+    ]
     types = [str(item).strip() for item in (attrs.get("types") or []) if str(item).strip()]
-    institution = relationships.get("institution") if isinstance(relationships.get("institution"), dict) else {}
+    institution = (
+        relationships.get("institution")
+        if isinstance(relationships.get("institution"), dict)
+        else {}
+    )
     institution_data = institution.get("data") if isinstance(institution.get("data"), dict) else {}
-    resources_rel = relationships.get("resources") if isinstance(relationships.get("resources"), dict) else {}
-    resources_links = resources_rel.get("links") if isinstance(resources_rel.get("links"), dict) else {}
+    resources_rel = (
+        relationships.get("resources") if isinstance(relationships.get("resources"), dict) else {}
+    )
+    resources_links = (
+        resources_rel.get("links") if isinstance(resources_rel.get("links"), dict) else {}
+    )
     resources_related_url = str(resources_links.get("related") or "").strip()
     notes = _strip_html(str(attrs.get("notes") or ""))
     description_parts = [notes, category_title, *categories, *keywords, *regions, *types]
@@ -1514,7 +1911,9 @@ def _flatten_poland_open_data_row(raw: dict[str, Any]) -> dict[str, Any]:
         "license_name": str(attrs.get("license_condition_original") or ""),
         "resources_related_url": resources_related_url,
         "dataset_url": str(((raw.get("links") or {}).get("self")) or "").strip(),
-        "spatial": "POL" if any(region.lower() in {"polska", "poland"} for region in regions) else "",
+        "spatial": "POL"
+        if any(region.lower() in {"polska", "poland"} for region in regions)
+        else "",
     }
 
 
@@ -1540,9 +1939,7 @@ async def _harvest_poland_open_data(endpoint: str, limit: int, timeout_s: int) -
             if not isinstance(batch, list) or not batch:
                 break
             rows.extend(
-                _flatten_poland_open_data_row(item)
-                for item in batch
-                if isinstance(item, dict)
+                _flatten_poland_open_data_row(item) for item in batch if isinstance(item, dict)
             )
             links = payload.get("links", {}) if isinstance(payload, dict) else {}
             next_url = str(links.get("next") or "").strip() or None
@@ -1729,7 +2126,9 @@ async def _harvest_unpd_indicators(endpoint: str, limit: int, timeout_s: int) ->
             else:
                 request_url = endpoint
                 params = {"page": page}
-            async with session.get(request_url, params=params, headers={"Accept": "application/json"}) as resp:
+            async with session.get(
+                request_url, params=params, headers={"Accept": "application/json"}
+            ) as resp:
                 if resp.status != 200:
                     break
                 payload = await resp.json(content_type=None)

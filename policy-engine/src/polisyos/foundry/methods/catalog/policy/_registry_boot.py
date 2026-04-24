@@ -1,7 +1,8 @@
 """Public policy registry boot module API."""
+
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from .evaluation import (
     BudgetImpactEstimator,
@@ -19,6 +20,10 @@ from .frontier import (
 from .mcda import (
     AHPEstimator,
     ELECTREEstimator,
+    RankStabilityEstimator,
+    RobustAHPEstimator,
+    RobustELECTREEstimator,
+    RobustTOPSISEstimator,
     TOPSISEstimator,
 )
 from .welfare import (
@@ -27,6 +32,7 @@ from .welfare import (
     CostEffectivenessEstimator,
     RawlsianSWFEstimator,
     SenCapabilityEstimator,
+    StateDependentInverseSocialWeightsEstimator,
     UtilitarianSWFEstimator,
 )
 
@@ -37,6 +43,7 @@ def register_policy_methods() -> Sequence[type]:
         CostBenefitAnalysisEstimator,
         CostEffectivenessEstimator,
         SufficientStatisticsWelfareEstimator,
+        StateDependentInverseSocialWeightsEstimator,
         UtilitarianSWFEstimator,
         RawlsianSWFEstimator,
         AtkinsonSWFEstimator,
@@ -52,6 +59,10 @@ def register_policy_methods() -> Sequence[type]:
         TOPSISEstimator,
         AHPEstimator,
         ELECTREEstimator,
+        RankStabilityEstimator,
+        RobustTOPSISEstimator,
+        RobustAHPEstimator,
+        RobustELECTREEstimator,
     )
 
 

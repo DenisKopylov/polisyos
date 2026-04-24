@@ -1,8 +1,10 @@
 """Public microsim advanced module API."""
+
 from __future__ import annotations
 
 import math
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -209,7 +211,9 @@ def _extract_tax_rate(state: Mapping[str, Any], n_obs: int) -> tuple[np.ndarray,
             rate = metadata["marginal_tax_rate"]
             source = "marginal_tax_rate"
     if rate is None:
-        raise ValueError("behavioral_response requires effective_tax_rate or marginal_tax_rate input")
+        raise ValueError(
+            "behavioral_response requires effective_tax_rate or marginal_tax_rate input"
+        )
     array = np.asarray(rate, dtype=float)
     if array.ndim != 1 or array.shape[0] != n_obs:
         raise ValueError(f"{source} must be a 1D array matching market_income length")
@@ -232,7 +236,9 @@ def _prepare_controls(
     for idx in range(usable.shape[1]):
         column = usable[:, idx]
         finite_mask = np.isfinite(column)
-        fill = _weighted_mean(column[finite_mask], weights[finite_mask]) if finite_mask.any() else 0.0
+        fill = (
+            _weighted_mean(column[finite_mask], weights[finite_mask]) if finite_mask.any() else 0.0
+        )
         column[~finite_mask] = fill
         std = math.sqrt(max(_weighted_var(column, weights), 0.0))
         if std > 1e-9:
@@ -275,7 +281,9 @@ def _weighted_rank(values: np.ndarray, weights: np.ndarray) -> np.ndarray:
     values_masked = values[mask]
     weights_masked = weights[mask]
     order = np.argsort(values_masked, kind="mergesort")
-    cdf = (np.cumsum(weights_masked[order]) - 0.5 * weights_masked[order]) / max(np.sum(weights_masked), 1e-12)
+    cdf = (np.cumsum(weights_masked[order]) - 0.5 * weights_masked[order]) / max(
+        np.sum(weights_masked), 1e-12
+    )
     masked_ranks = np.empty(values_masked.shape[0], dtype=float)
     masked_ranks[order] = cdf
     ranks[mask] = masked_ranks
@@ -290,9 +298,13 @@ def _interacted_elasticity_projection(
 ) -> tuple[float, np.ndarray, dict[str, Any]]:
     if controls.shape[1] == 0:
         elasticity = _cross_section_slope(log_income, log_price, controls, weights)
-        return float(elasticity), _constant_vector(float(elasticity), log_income.shape[0]), {
-            "projection": "constant_slope",
-        }
+        return (
+            float(elasticity),
+            _constant_vector(float(elasticity), log_income.shape[0]),
+            {
+                "projection": "constant_slope",
+            },
+        )
 
     interactions = controls * log_price[:, None]
     design = np.column_stack(
@@ -303,11 +315,15 @@ def _interacted_elasticity_projection(
     base = float(beta[1 + n_controls])
     interaction = np.asarray(beta[2 + n_controls :], dtype=float)
     elasticity_by_obs = base + controls @ interaction
-    return _weighted_mean(elasticity_by_obs, weights), elasticity_by_obs, {
-        "projection": "linear_interactions",
-        "base_elasticity": base,
-        "interaction_coefficients": interaction.tolist(),
-    }
+    return (
+        _weighted_mean(elasticity_by_obs, weights),
+        elasticity_by_obs,
+        {
+            "projection": "linear_interactions",
+            "base_elasticity": base,
+            "interaction_coefficients": interaction.tolist(),
+        },
+    )
 
 
 def _iv_interacted_elasticity_projection(
@@ -328,37 +344,54 @@ def _iv_interacted_elasticity_projection(
     stage1_r2 = _weighted_r2(log_price, fitted_price, weights)
 
     if controls.shape[1] == 0:
-        stage2_design = np.column_stack([np.ones(log_income.shape[0], dtype=float), fitted_price, control_rank])
+        stage2_design = np.column_stack(
+            [np.ones(log_income.shape[0], dtype=float), fitted_price, control_rank]
+        )
         beta, _, _ = _solve_weighted_least_squares(log_income, stage2_design, weights)
         elasticity = float(beta[1])
-        return float(elasticity), _constant_vector(float(elasticity), log_income.shape[0]), {
-            "projection": "control_function_constant",
-            "base_elasticity": elasticity,
-            "control_function_coefficient": float(beta[2]),
-            "stage1_r2": stage1_r2,
-        }
+        return (
+            float(elasticity),
+            _constant_vector(float(elasticity), log_income.shape[0]),
+            {
+                "projection": "control_function_constant",
+                "base_elasticity": elasticity,
+                "control_function_coefficient": float(beta[2]),
+                "stage1_r2": stage1_r2,
+            },
+        )
 
     fitted_interactions = controls * fitted_price[:, None]
     control_interactions = controls * control_rank[:, None]
     stage2_design = np.column_stack(
-        [np.ones(log_income.shape[0], dtype=float), controls, fitted_price, control_rank, fitted_interactions, control_interactions]
+        [
+            np.ones(log_income.shape[0], dtype=float),
+            controls,
+            fitted_price,
+            control_rank,
+            fitted_interactions,
+            control_interactions,
+        ]
     )
     beta, _, _ = _solve_weighted_least_squares(log_income, stage2_design, weights)
     n_controls = controls.shape[1]
     base = float(beta[1 + n_controls])
     interaction = np.asarray(beta[3 + n_controls : 3 + 2 * n_controls], dtype=float)
     elasticity_by_obs = base + controls @ interaction
-    return _weighted_mean(elasticity_by_obs, weights), elasticity_by_obs, {
-        "projection": "control_function_linear_interactions",
-        "base_elasticity": base,
-        "interaction_coefficients": interaction.tolist(),
-        "control_function_coefficient": float(beta[2 + n_controls]),
-        "stage1_r2": stage1_r2,
-        "control_function_support": [
-            float(_weighted_quantile(control_rank, weights, 0.1)),
-            float(_weighted_quantile(control_rank, weights, 0.9)),
-        ],
-    }
+    return (
+        _weighted_mean(elasticity_by_obs, weights),
+        elasticity_by_obs,
+        {
+            "projection": "control_function_linear_interactions",
+            "base_elasticity": base,
+            "interaction_coefficients": interaction.tolist(),
+            "control_function_coefficient": float(beta[2 + n_controls]),
+            "stage1_r2": stage1_r2,
+            "control_function_support": [
+                float(_weighted_quantile(control_rank, weights, 0.1)),
+                float(_weighted_quantile(control_rank, weights, 0.9)),
+            ],
+        },
+    )
 
 
 def _cohort_specific_elasticity_projection(
@@ -406,20 +439,30 @@ def _cohort_specific_elasticity_projection(
         cohort_summary[cohort] = slope
 
     if not slopes:
-        raise ValueError("cohort-level elasticity projection requires at least two informative cohorts")
+        raise ValueError(
+            "cohort-level elasticity projection requires at least two informative cohorts"
+        )
 
-    elasticity_by_obs = np.asarray([slopes.get(label, np.nan) for label in cohort_labels], dtype=float)
+    elasticity_by_obs = np.asarray(
+        [slopes.get(label, np.nan) for label in cohort_labels], dtype=float
+    )
     valid_mask = np.isfinite(elasticity_by_obs)
     if not np.all(valid_mask):
         fallback = _weighted_mean(elasticity_by_obs[valid_mask], weights[valid_mask])
         elasticity_by_obs[~valid_mask] = fallback
-    return _weighted_mean(elasticity_by_obs, weights), elasticity_by_obs, {
-        "projection": "cohort_specific_slopes",
-        "cohort_slopes": cohort_summary,
-    }
+    return (
+        _weighted_mean(elasticity_by_obs, weights),
+        elasticity_by_obs,
+        {
+            "projection": "cohort_specific_slopes",
+            "cohort_slopes": cohort_summary,
+        },
+    )
 
 
-def _cell_means(values: np.ndarray, inverse: np.ndarray, cell_weight: np.ndarray, weights: np.ndarray) -> np.ndarray:
+def _cell_means(
+    values: np.ndarray, inverse: np.ndarray, cell_weight: np.ndarray, weights: np.ndarray
+) -> np.ndarray:
     array = np.asarray(values, dtype=float)
     if array.ndim == 1:
         return np.bincount(inverse, weights=weights * array) / np.maximum(cell_weight, 1e-12)
@@ -448,9 +491,15 @@ def _two_way_demean(
 
     for idx in range(array.shape[1]):
         column = array[:, idx]
-        cohort_mean = np.bincount(cohort_inverse, weights=weights * column) / np.maximum(cohort_weight, 1e-12)
-        period_mean = np.bincount(period_inverse, weights=weights * column) / np.maximum(period_weight, 1e-12)
-        demeaned[:, idx] = column - cohort_mean[cohort_inverse] - period_mean[period_inverse] + overall[idx]
+        cohort_mean = np.bincount(cohort_inverse, weights=weights * column) / np.maximum(
+            cohort_weight, 1e-12
+        )
+        period_mean = np.bincount(period_inverse, weights=weights * column) / np.maximum(
+            period_weight, 1e-12
+        )
+        demeaned[:, idx] = (
+            column - cohort_mean[cohort_inverse] - period_mean[period_inverse] + overall[idx]
+        )
 
     return demeaned[:, 0] if one_dim else demeaned
 
@@ -512,7 +561,9 @@ def _pseudo_panel_grouping_iv_projection(
     x_hat = z_tilde @ gamma
     denominator = float(np.sum(cell_weight * x_hat * x_tilde))
     if abs(denominator) <= 1e-12:
-        raise ValueError("pseudo-panel IV first stage is too weak after cohort and period demeaning")
+        raise ValueError(
+            "pseudo-panel IV first stage is too weak after cohort and period demeaning"
+        )
     beta = float(np.sum(cell_weight * x_hat * y_tilde) / denominator)
 
     cohort_slopes: dict[str, float] = {}
@@ -528,14 +579,21 @@ def _pseudo_panel_grouping_iv_projection(
         denom_cohort = float(np.sum(cell_weight[mask] * x_hat_cohort * x_tilde[mask]))
         if abs(denom_cohort) <= 1e-12:
             continue
-        cohort_slopes[cohort] = float(np.sum(cell_weight[mask] * x_hat_cohort * y_tilde[mask]) / denom_cohort)
+        cohort_slopes[cohort] = float(
+            np.sum(cell_weight[mask] * x_hat_cohort * y_tilde[mask]) / denom_cohort
+        )
 
-    return beta, cohort_slopes, {
-        "projection": "pseudo_panel_grouping_iv",
-        "cell_stage1_r2": _weighted_r2(x_tilde, x_hat, cell_weight),
-        "cohort_slopes": cohort_slopes,
-        "n_cells": int(cell_weight.shape[0]),
-    }, int(np.min(cell_count))
+    return (
+        beta,
+        cohort_slopes,
+        {
+            "projection": "pseudo_panel_grouping_iv",
+            "cell_stage1_r2": _weighted_r2(x_tilde, x_hat, cell_weight),
+            "cohort_slopes": cohort_slopes,
+            "n_cells": int(cell_weight.shape[0]),
+        },
+        int(np.min(cell_count)),
+    )
 
 
 def _weighted_corr(x: np.ndarray, y: np.ndarray, weights: np.ndarray) -> float | None:
@@ -565,27 +623,21 @@ def _feature_local_variation_share(
 ) -> float:
     if features.shape[1] == 0:
         return (
-            1.0
-            if math.sqrt(max(_weighted_var(log_price, weights), 0.0)) > variation_floor
-            else 0.0
+            1.0 if math.sqrt(max(_weighted_var(log_price, weights), 0.0)) > variation_floor else 0.0
         )
 
     anchor = features[:, 0]
     finite = np.isfinite(anchor)
     if np.sum(finite) < n_bins:
         return (
-            1.0
-            if math.sqrt(max(_weighted_var(log_price, weights), 0.0)) > variation_floor
-            else 0.0
+            1.0 if math.sqrt(max(_weighted_var(log_price, weights), 0.0)) > variation_floor else 0.0
         )
 
     quantiles = np.quantile(anchor[finite], np.linspace(0.0, 1.0, n_bins + 1))
     edges = np.unique(quantiles)
     if edges.size <= 2:
         return (
-            1.0
-            if math.sqrt(max(_weighted_var(log_price, weights), 0.0)) > variation_floor
-            else 0.0
+            1.0 if math.sqrt(max(_weighted_var(log_price, weights), 0.0)) > variation_floor else 0.0
         )
 
     good_bins = 0
@@ -682,7 +734,9 @@ def _condition_number(log_price: np.ndarray, controls: np.ndarray, weights: np.n
         return float("inf")
 
 
-def _detect_regime(household_ids: np.ndarray | None, period_id: np.ndarray | None) -> tuple[str, int, float]:
+def _detect_regime(
+    household_ids: np.ndarray | None, period_id: np.ndarray | None
+) -> tuple[str, int, float]:
     if period_id is None:
         return "cross_section", 1, 1.0
 
@@ -707,7 +761,9 @@ def _panel_within_slope(
     labels, inverse = np.unique(household_ids.astype(str), return_inverse=True)
     _ = labels
     group_weight = np.bincount(inverse, weights=weights)
-    mean_income = np.bincount(inverse, weights=weights * log_income) / np.maximum(group_weight, 1e-12)
+    mean_income = np.bincount(inverse, weights=weights * log_income) / np.maximum(
+        group_weight, 1e-12
+    )
     mean_price = np.bincount(inverse, weights=weights * log_price) / np.maximum(group_weight, 1e-12)
     y_tilde = log_income - mean_income[inverse]
     x_tilde = log_price - mean_price[inverse]
@@ -729,7 +785,9 @@ def _pseudo_panel_slope(
     cell_labels = np.char.add(cohort_id.astype(str), np.char.add("::", period_id.astype(str)))
     _, inverse = np.unique(cell_labels, return_inverse=True)
     cell_weight = np.bincount(inverse, weights=weights)
-    cell_income = np.bincount(inverse, weights=weights * log_income) / np.maximum(cell_weight, 1e-12)
+    cell_income = np.bincount(inverse, weights=weights * log_income) / np.maximum(
+        cell_weight, 1e-12
+    )
     cell_price = np.bincount(inverse, weights=weights * log_price) / np.maximum(cell_weight, 1e-12)
     cell_count = np.bincount(inverse).astype(int)
 
@@ -748,14 +806,24 @@ def _pseudo_panel_slope(
 
     cohort_weight = np.bincount(cohort_inverse, weights=cell_weight)
     period_weight = np.bincount(period_inverse, weights=cell_weight)
-    cohort_income = np.bincount(cohort_inverse, weights=cell_weight * cell_income) / np.maximum(cohort_weight, 1e-12)
-    cohort_price = np.bincount(cohort_inverse, weights=cell_weight * cell_price) / np.maximum(cohort_weight, 1e-12)
-    period_income = np.bincount(period_inverse, weights=cell_weight * cell_income) / np.maximum(period_weight, 1e-12)
-    period_price = np.bincount(period_inverse, weights=cell_weight * cell_price) / np.maximum(period_weight, 1e-12)
+    cohort_income = np.bincount(cohort_inverse, weights=cell_weight * cell_income) / np.maximum(
+        cohort_weight, 1e-12
+    )
+    cohort_price = np.bincount(cohort_inverse, weights=cell_weight * cell_price) / np.maximum(
+        cohort_weight, 1e-12
+    )
+    period_income = np.bincount(period_inverse, weights=cell_weight * cell_income) / np.maximum(
+        period_weight, 1e-12
+    )
+    period_price = np.bincount(period_inverse, weights=cell_weight * cell_price) / np.maximum(
+        period_weight, 1e-12
+    )
 
     grand_income = _weighted_mean(cell_income, cell_weight)
     grand_price = _weighted_mean(cell_price, cell_weight)
-    y_tilde = cell_income - cohort_income[cohort_inverse] - period_income[period_inverse] + grand_income
+    y_tilde = (
+        cell_income - cohort_income[cohort_inverse] - period_income[period_inverse] + grand_income
+    )
     x_tilde = cell_price - cohort_price[cohort_inverse] - period_price[period_inverse] + grand_price
     denominator = float(np.sum(cell_weight * np.square(x_tilde)))
     if denominator <= 1e-12:
@@ -865,9 +933,13 @@ def _elasticity_grid_summary(
                 low_mask = anchor <= cutoff
                 high_mask = anchor > cutoff
                 if np.any(low_mask):
-                    summary[f"{name}:low_mean"] = _weighted_mean(elasticity_by_obs[low_mask], weights[low_mask])
+                    summary[f"{name}:low_mean"] = _weighted_mean(
+                        elasticity_by_obs[low_mask], weights[low_mask]
+                    )
                 if np.any(high_mask):
-                    summary[f"{name}:high_mean"] = _weighted_mean(elasticity_by_obs[high_mask], weights[high_mask])
+                    summary[f"{name}:high_mean"] = _weighted_mean(
+                        elasticity_by_obs[high_mask], weights[high_mask]
+                    )
     if weighted_mean_income_lower is not None and weighted_mean_income_upper is not None:
         ordered = sorted((float(weighted_mean_income_lower), float(weighted_mean_income_upper)))
         summary["weighted_mean_income_lower"] = ordered[0]
@@ -920,7 +992,9 @@ def _groupwise_slope_bounds(
             continue
         if math.sqrt(max(_weighted_var(log_price[mask], weights[mask]), 0.0)) <= variation_floor:
             continue
-        slope = _cross_section_slope(log_income[mask], log_price[mask], controls[mask], weights[mask])
+        slope = _cross_section_slope(
+            log_income[mask], log_price[mask], controls[mask], weights[mask]
+        )
         slopes.append(
             {
                 "group": str(group),
@@ -979,7 +1053,9 @@ def _local_kink_elasticity(
     return center, float(np.min(estimates)), float(np.max(estimates)), local_payloads
 
 
-def _metric_status(value: float | None, *, identified_threshold: float, sloppy_threshold: float) -> IdentifiabilityStatus:
+def _metric_status(
+    value: float | None, *, identified_threshold: float, sloppy_threshold: float
+) -> IdentifiabilityStatus:
     if value is None or not math.isfinite(value):
         return IdentifiabilityStatus.NON_IDENTIFIED
     if value >= identified_threshold:
@@ -1015,7 +1091,9 @@ def _build_identifiability_report(
         ),
         (
             "first_stage_strength",
-            None if first_stage_strength is None else first_stage_strength / max(minimum_first_stage_strength, 1e-12),
+            None
+            if first_stage_strength is None
+            else first_stage_strength / max(minimum_first_stage_strength, 1e-12),
             max(first_stage_strength or 1.0, 1.0),
         ),
         (
@@ -1030,7 +1108,9 @@ def _build_identifiability_report(
         ),
         (
             "numerical_stability",
-            0.0 if not math.isfinite(condition_number) else 1.0 / max(math.log10(max(condition_number, 10.0)), 1.0),
+            0.0
+            if not math.isfinite(condition_number)
+            else 1.0 / max(math.log10(max(condition_number, 10.0)), 1.0),
             max(condition_number, 1.0),
         ),
     ]
@@ -1110,20 +1190,31 @@ def _behavioral_preflight(
         weights,
         variation_floor=variation_floor,
     )
-    first_stage = None if instrument_z is None else _first_stage_strength(log_price, instrument_z, controls, weights)
+    first_stage = (
+        None
+        if instrument_z is None
+        else _first_stage_strength(log_price, instrument_z, controls, weights)
+    )
     overlap = None if instrument_z is None else _overlap_score(net_rate, instrument_z)
 
     measurement_reliability = None
     if taxrate_repeat_measure is not None:
-        repeated_net_rate = np.clip(1.0 - np.asarray(taxrate_repeat_measure, dtype=float), 1e-3, None)
-        measurement_reliability = _weighted_corr(np.log(net_rate), np.log(repeated_net_rate), weights)
+        repeated_net_rate = np.clip(
+            1.0 - np.asarray(taxrate_repeat_measure, dtype=float), 1e-3, None
+        )
+        measurement_reliability = _weighted_corr(
+            np.log(net_rate), np.log(repeated_net_rate), weights
+        )
     elif income_repeat_measure is not None:
-        measurement_reliability = _weighted_corr(log_income, np.log(np.clip(np.asarray(income_repeat_measure, dtype=float), 1e-3, None)), weights)
+        measurement_reliability = _weighted_corr(
+            log_income,
+            np.log(np.clip(np.asarray(income_repeat_measure, dtype=float), 1e-3, None)),
+            weights,
+        )
 
     condition_number = _condition_number(log_price, controls, weights)
-    has_local_budget_points = (
-        (kink_points is not None and kink_points.size > 0)
-        or (notch_points is not None and notch_points.size > 0)
+    has_local_budget_points = (kink_points is not None and kink_points.size > 0) or (
+        notch_points is not None and notch_points.size > 0
     )
     has_budget_set_metadata = has_local_budget_points or schedule_segments is not None
     block_reasons: list[str] = []
@@ -1239,13 +1330,13 @@ def _behavioral_preflight(
         condition_number=condition_number,
     )
 
-    if estimation_mode == "manual_override":
+    if estimation_mode == "manual_override" or estimation_mode == "blocked":
         identifiability_status = IdentifiabilityStatus.NON_IDENTIFIED.value
-    elif estimation_mode == "blocked":
-        identifiability_status = IdentifiabilityStatus.NON_IDENTIFIED.value
-    elif identifiability_status == IdentifiabilityStatus.NON_IDENTIFIED.value:
-        identifiability_status = IdentifiabilityStatus.SLOPPY.value
-    elif warnings or (math.isfinite(condition_number) and condition_number > 1e6):
+    elif (
+        identifiability_status == IdentifiabilityStatus.NON_IDENTIFIED.value
+        or warnings
+        or (math.isfinite(condition_number) and condition_number > 1e6)
+    ):
         identifiability_status = IdentifiabilityStatus.SLOPPY.value
 
     return {
@@ -1286,6 +1377,7 @@ def _behavioral_preflight(
 )
 class TaxBenefitCalculatorEstimator:
     """Simulate tax-benefit schedules when planners need post-policy household incomes."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -1295,7 +1387,9 @@ class TaxBenefitCalculatorEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)),
+                SlotSpec(
+                    "market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)
+                ),
                 SlotSpec("weights", SlotType.VECTOR, Unit("weight", "survey"), shape=("n_obs",)),
             }
         ),
@@ -1307,10 +1401,21 @@ class TaxBenefitCalculatorEstimator:
                     Unit("tax_benefit", "json"),
                     contract_id=TaxBenefitResult.contract_id,
                 ),
-                SlotSpec("disposable_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)),
-                SlotSpec("tax_liability", SlotType.VECTOR, Unit("tax", "currency"), shape=("n_obs",)),
-                SlotSpec("benefit_income", SlotType.VECTOR, Unit("benefit", "currency"), shape=("n_obs",)),
-                SlotSpec("effective_tax_rate", SlotType.VECTOR, Unit("rate", "share"), shape=("n_obs",)),
+                SlotSpec(
+                    "disposable_income",
+                    SlotType.VECTOR,
+                    Unit("income", "currency"),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    "tax_liability", SlotType.VECTOR, Unit("tax", "currency"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "benefit_income", SlotType.VECTOR, Unit("benefit", "currency"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "effective_tax_rate", SlotType.VECTOR, Unit("rate", "share"), shape=("n_obs",)
+                ),
                 SlotSpec("uncertainty_envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
             }
         ),
@@ -1352,7 +1457,9 @@ class TaxBenefitCalculatorEstimator:
 
     @staticmethod
     def pure_step(state: SurveyMicroData, params: Mapping[str, Any]) -> dict[str, Any]:
-        data = state if isinstance(state, SurveyMicroData) else SurveyMicroData.model_validate(state)
+        data = (
+            state if isinstance(state, SurveyMicroData) else SurveyMicroData.model_validate(state)
+        )
         income = np.asarray(data.market_income, dtype=float)
         weights = np.asarray(data.weights, dtype=float)
         allowance = float(params.get("allowance", 10000.0))
@@ -1366,7 +1473,9 @@ class TaxBenefitCalculatorEstimator:
 
         taxable = np.maximum(income - allowance, 0.0)
         band1 = np.minimum(taxable, np.maximum(threshold_1 - allowance, 0.0))
-        band2 = np.minimum(np.maximum(taxable - band1, 0.0), np.maximum(threshold_2 - threshold_1, 0.0))
+        band2 = np.minimum(
+            np.maximum(taxable - band1, 0.0), np.maximum(threshold_2 - threshold_1, 0.0)
+        )
         band3 = np.maximum(taxable - band1 - band2, 0.0)
         tax_liability = rate_1 * band1 + rate_2 * band2 + rate_3 * band3
         benefit_income = np.maximum(benefit_floor - benefit_taper * income, 0.0)
@@ -1375,7 +1484,9 @@ class TaxBenefitCalculatorEstimator:
         marginal_tax_rate = np.where(
             income <= allowance,
             0.0,
-            np.where(income <= threshold_1, rate_1, np.where(income <= threshold_2, rate_2, rate_3)),
+            np.where(
+                income <= threshold_1, rate_1, np.where(income <= threshold_2, rate_2, rate_3)
+            ),
         )
         effective_tax_rate = np.where(
             income > 1e-9,
@@ -1390,7 +1501,11 @@ class TaxBenefitCalculatorEstimator:
             effective_tax_rate=effective_tax_rate,
             weighted_mean_disposable_income=_weighted_mean(disposable_income, weights),
             policy_revenue=float(np.sum((tax_liability - benefit_income) * weights)),
-            metadata={"allowance": allowance, "threshold_1": threshold_1, "threshold_2": threshold_2},
+            metadata={
+                "allowance": allowance,
+                "threshold_1": threshold_1,
+                "threshold_2": threshold_2,
+            },
         )
         return {
             "result": result,
@@ -1409,6 +1524,7 @@ class TaxBenefitCalculatorEstimator:
 )
 class BehavioralResponseEstimator:
     """Model labor-supply or income responses after a tax-benefit reform."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -1418,9 +1534,13 @@ class BehavioralResponseEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)),
+                SlotSpec(
+                    "market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)
+                ),
                 SlotSpec("weights", SlotType.VECTOR, Unit("weight", "survey"), shape=("n_obs",)),
-                SlotSpec("effective_tax_rate", SlotType.VECTOR, Unit("rate", "share"), shape=("n_obs",)),
+                SlotSpec(
+                    "effective_tax_rate", SlotType.VECTOR, Unit("rate", "share"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=frozenset(
@@ -1431,7 +1551,9 @@ class BehavioralResponseEstimator:
                     Unit("behavior", "json"),
                     contract_id=BehavioralResponseResult.contract_id,
                 ),
-                SlotSpec("market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)),
+                SlotSpec(
+                    "market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)
+                ),
                 SlotSpec("uncertainty_envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
             }
         ),
@@ -1497,6 +1619,7 @@ class BehavioralResponseEstimator:
 )
 class HeterogeneousBehavioralResponseEstimator:
     """Estimate only those behavioral elasticities that are supportable from the available data."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -1506,9 +1629,13 @@ class HeterogeneousBehavioralResponseEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)),
+                SlotSpec(
+                    "market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)
+                ),
                 SlotSpec("weights", SlotType.VECTOR, Unit("weight", "survey"), shape=("n_obs",)),
-                SlotSpec("effective_tax_rate", SlotType.VECTOR, Unit("rate", "share"), shape=("n_obs",)),
+                SlotSpec(
+                    "effective_tax_rate", SlotType.VECTOR, Unit("rate", "share"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=frozenset(
@@ -1519,7 +1646,9 @@ class HeterogeneousBehavioralResponseEstimator:
                     Unit("behavior", "json"),
                     contract_id=HeterogeneousBehavioralResponseResult.contract_id,
                 ),
-                SlotSpec("market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)),
+                SlotSpec(
+                    "market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)
+                ),
                 SlotSpec("uncertainty_envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
             }
         ),
@@ -1580,7 +1709,9 @@ class HeterogeneousBehavioralResponseEstimator:
         features = _optional_matrix(state, "features", income.shape[0])
         feature_names = _extract_feature_names(
             state,
-            0 if features is None else min(features.shape[1], max(0, int(params.get("max_control_features", 3)))),
+            0
+            if features is None
+            else min(features.shape[1], max(0, int(params.get("max_control_features", 3)))),
         )
         max_control_features = max(0, int(params.get("max_control_features", 3)))
         controls, control_names = _prepare_controls(
@@ -1661,9 +1792,13 @@ class HeterogeneousBehavioralResponseEstimator:
                 diagnostics.update(projection_details)
                 diagnostics["observed_min_cohort_cell_size"] = int(min_cell_size)
                 diagnostics["estimand_scope"] = "cohort_average_partial_effect"
-                diagnostics["elasticity_by_obs_semantics"] = "not_returned_to_avoid_overclaiming_individual_identification"
+                diagnostics["elasticity_by_obs_semantics"] = (
+                    "not_returned_to_avoid_overclaiming_individual_identification"
+                )
                 elasticity_grid = _cohort_slope_grid(
-                    projection_details.get("cohort_slopes", {}) if isinstance(projection_details, Mapping) else {}
+                    projection_details.get("cohort_slopes", {})
+                    if isinstance(projection_details, Mapping)
+                    else {}
                 )
                 if min_cell_size < int(preflight["minimum_cohort_cell_size"]):
                     diagnostics["warnings"].append("cohort_cells_below_recommended_size")
@@ -1674,19 +1809,25 @@ class HeterogeneousBehavioralResponseEstimator:
                     or preflight["period_id"] is None
                     or preflight["instrument_z"] is None
                 ):
-                    raise ValueError("pseudo-panel IV requires cohort_id, period_id, and instrument_z")
-                elasticity_mean, cohort_slopes, projection_details, min_cell_size = _pseudo_panel_grouping_iv_projection(
-                    log_income,
-                    log_price,
-                    np.asarray(preflight["cohort_id"]),
-                    np.asarray(preflight["period_id"]),
-                    np.asarray(preflight["instrument_z"]),
-                    weights,
+                    raise ValueError(
+                        "pseudo-panel IV requires cohort_id, period_id, and instrument_z"
+                    )
+                elasticity_mean, cohort_slopes, projection_details, min_cell_size = (
+                    _pseudo_panel_grouping_iv_projection(
+                        log_income,
+                        log_price,
+                        np.asarray(preflight["cohort_id"]),
+                        np.asarray(preflight["period_id"]),
+                        np.asarray(preflight["instrument_z"]),
+                        weights,
+                    )
                 )
                 diagnostics.update(projection_details)
                 diagnostics["observed_min_cohort_cell_size"] = int(min_cell_size)
                 diagnostics["estimand_scope"] = "cohort_average_partial_effect"
-                diagnostics["elasticity_by_obs_semantics"] = "not_returned_to_avoid_overclaiming_individual_identification"
+                diagnostics["elasticity_by_obs_semantics"] = (
+                    "not_returned_to_avoid_overclaiming_individual_identification"
+                )
                 elasticity_grid = _cohort_slope_grid(cohort_slopes)
                 if min_cell_size < int(preflight["minimum_cohort_cell_size"]):
                     diagnostics["warnings"].append("cohort_cells_below_recommended_size")
@@ -1694,12 +1835,14 @@ class HeterogeneousBehavioralResponseEstimator:
             elif preflight["estimation_mode"] == "iv_proxy":
                 if preflight["instrument_z"] is None:
                     raise ValueError("IV proxy requires instrument_z")
-                elasticity_mean, elasticity_by_obs, projection_details = _iv_interacted_elasticity_projection(
-                    log_income,
-                    log_price,
-                    np.asarray(preflight["instrument_z"]),
-                    controls,
-                    weights,
+                elasticity_mean, elasticity_by_obs, projection_details = (
+                    _iv_interacted_elasticity_projection(
+                        log_income,
+                        log_price,
+                        np.asarray(preflight["instrument_z"]),
+                        controls,
+                        weights,
+                    )
                 )
                 diagnostics.update(projection_details)
                 diagnostics["estimand_scope"] = "conditional_mean_structural_elasticity"
@@ -1727,11 +1870,13 @@ class HeterogeneousBehavioralResponseEstimator:
                 diagnostics["estimand_scope"] = "partial_identification_interval"
                 identifiability_status = IdentifiabilityStatus.SLOPPY.value
             elif preflight["estimation_mode"] == "exogenous_wls":
-                elasticity_mean, elasticity_by_obs, projection_details = _interacted_elasticity_projection(
-                    log_income,
-                    log_price,
-                    controls,
-                    weights,
+                elasticity_mean, elasticity_by_obs, projection_details = (
+                    _interacted_elasticity_projection(
+                        log_income,
+                        log_price,
+                        controls,
+                        weights,
+                    )
                 )
                 diagnostics.update(projection_details)
                 diagnostics["estimand_scope"] = "conditional_mean_structural_elasticity"
@@ -1746,7 +1891,8 @@ class HeterogeneousBehavioralResponseEstimator:
                         "local_kink_bandwidth",
                         max(
                             float(params.get("local_kink_bandwidth_min", 1.0)),
-                            float(np.median(np.abs(local_points))) * float(params.get("local_kink_bandwidth_ratio", 0.1)),
+                            float(np.median(np.abs(local_points)))
+                            * float(params.get("local_kink_bandwidth_ratio", 0.1)),
                         ),
                     )
                 )
@@ -1780,7 +1926,13 @@ class HeterogeneousBehavioralResponseEstimator:
 
         if elasticity_mean is not None and np.isfinite(elasticity_mean):
             if elasticity_lower is not None and elasticity_upper is not None:
-                adjusted_income, labor_supply_change, lower_income, upper_income, baseline_net_rate = _apply_behavioral_bounds(
+                (
+                    adjusted_income,
+                    labor_supply_change,
+                    lower_income,
+                    upper_income,
+                    baseline_net_rate,
+                ) = _apply_behavioral_bounds(
                     income,
                     net_rate,
                     weights,
@@ -1796,11 +1948,13 @@ class HeterogeneousBehavioralResponseEstimator:
                     weighted_mean_income_upper=_weighted_mean(upper_income, weights),
                 )
             else:
-                adjusted_income, labor_supply_change, baseline_net_rate = _apply_behavioral_adjustment(
-                    income,
-                    net_rate,
-                    weights,
-                    float(elasticity_mean),
+                adjusted_income, labor_supply_change, baseline_net_rate = (
+                    _apply_behavioral_adjustment(
+                        income,
+                        net_rate,
+                        weights,
+                        float(elasticity_mean),
+                    )
                 )
                 elasticity_grid = _elasticity_grid_summary(
                     elasticity_by_obs,
@@ -1808,12 +1962,20 @@ class HeterogeneousBehavioralResponseEstimator:
                     feature_names=control_names,
                     controls=controls,
                 )
-            if elasticity_grid is None and preflight["estimation_mode"] in {"pseudo_panel", "pseudo_panel_iv"}:
+            if elasticity_grid is None and preflight["estimation_mode"] in {
+                "pseudo_panel",
+                "pseudo_panel_iv",
+            }:
                 elasticity_grid = _cohort_slope_grid(
-                    diagnostics.get("cohort_slopes", {}) if isinstance(diagnostics.get("cohort_slopes"), Mapping) else {}
+                    diagnostics.get("cohort_slopes", {})
+                    if isinstance(diagnostics.get("cohort_slopes"), Mapping)
+                    else {}
                 )
             diagnostics["elasticity_estimate"] = float(elasticity_mean)
-            if abs(float(elasticity_mean)) > 2.0 and identifiability_status == IdentifiabilityStatus.IDENTIFIED.value:
+            if (
+                abs(float(elasticity_mean)) > 2.0
+                and identifiability_status == IdentifiabilityStatus.IDENTIFIED.value
+            ):
                 diagnostics["warnings"].append("large_elasticity_magnitude_review_recommended")
                 identifiability_status = IdentifiabilityStatus.SLOPPY.value
         elif preflight["estimation_mode"] != "manual_override":
@@ -1862,6 +2024,7 @@ class HeterogeneousBehavioralResponseEstimator:
 )
 class ImputationModelEstimator:
     """Impute missing microsimulation inputs before a downstream household policy run."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -1871,7 +2034,9 @@ class ImputationModelEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)),
+                SlotSpec(
+                    "market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=frozenset(
@@ -1882,7 +2047,9 @@ class ImputationModelEstimator:
                     Unit("imputation", "json"),
                     contract_id=ImputationResult.contract_id,
                 ),
-                SlotSpec("market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)),
+                SlotSpec(
+                    "market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)
+                ),
             }
         ),
         parameters=(ParameterSpec(name="n_estimators", default=100),),
@@ -1914,7 +2081,9 @@ class ImputationModelEstimator:
 
     @staticmethod
     def pure_step(state: SurveyMicroData, params: Mapping[str, Any]) -> dict[str, Any]:
-        data = state if isinstance(state, SurveyMicroData) else SurveyMicroData.model_validate(state)
+        data = (
+            state if isinstance(state, SurveyMicroData) else SurveyMicroData.model_validate(state)
+        )
         income = np.asarray(data.market_income, dtype=float)
         missing_mask = ~np.isfinite(income)
         if not missing_mask.any():
@@ -1966,6 +2135,7 @@ class ImputationModelEstimator:
 )
 class DynamicMicrosimEstimator:
     """Replay households forward through time in a dynamic microsimulation scenario."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -1975,7 +2145,9 @@ class DynamicMicrosimEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)),
+                SlotSpec(
+                    "market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)
+                ),
                 SlotSpec("weights", SlotType.VECTOR, Unit("weight", "survey"), shape=("n_obs",)),
             }
         ),
@@ -1987,7 +2159,9 @@ class DynamicMicrosimEstimator:
                     Unit("dynamic_microsim", "json"),
                     contract_id=DynamicMicrosimResult.contract_id,
                 ),
-                SlotSpec("market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)),
+                SlotSpec(
+                    "market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)
+                ),
                 SlotSpec("uncertainty_envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
             }
         ),
@@ -2028,7 +2202,9 @@ class DynamicMicrosimEstimator:
 
     @staticmethod
     def pure_step(state: SurveyMicroData, params: Mapping[str, Any]) -> dict[str, Any]:
-        data = state if isinstance(state, SurveyMicroData) else SurveyMicroData.model_validate(state)
+        data = (
+            state if isinstance(state, SurveyMicroData) else SurveyMicroData.model_validate(state)
+        )
         income = np.asarray(data.market_income, dtype=float)
         weights = np.asarray(data.weights, dtype=float)
         rng = params.get("__rng__")

@@ -3,6 +3,7 @@
 This module is intentionally side-effectful on import: it registers the
 contract-level compatibility rules used by migration and release-review code.
 """
+
 from __future__ import annotations
 
 from polisyos.ir.migrations.base import CompatibilityMode, register_schema_version

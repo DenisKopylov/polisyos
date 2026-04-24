@@ -82,18 +82,18 @@ owners attending for their area.
 The platform scorecard must include throughput and instability, not just static
 policy compliance.
 
-| Indicator | Why it matters | Owner |
-|---|---|---|
-| Deployment frequency | detects whether platform friction is slowing delivery | `@platform-owners` |
-| Lead time for change | shows how quickly a merged fix reaches usable state | `@platform-owners` |
-| Change failure rate | ties delivery speed back to reliability cost | `@platform-owners` |
-| Mean time to restore | core operational responsiveness signal | `@platform-owners` |
-| Error budget burn by surface | reliability state in shared language | service owner |
-| CI flake rate / unstable gate count | delivery drag caused by tooling instability | `@platform-owners` |
-| Docs publish freshness | detects silent docs drift | `@docs-owners` |
-| Contract drift incidents | detects source-of-truth erosion | `@platform-owners` |
-| Replay/restore drill success rate | validates recovery posture | `@platform-owners` |
-| Benchmark review freshness | ensures performance/quality signal still trusted | `@foundry-owners` |
+| Indicator                           | Why it matters                                        | Owner              |
+| ----------------------------------- | ----------------------------------------------------- | ------------------ |
+| Deployment frequency                | detects whether platform friction is slowing delivery | `@platform-owners` |
+| Lead time for change                | shows how quickly a merged fix reaches usable state   | `@platform-owners` |
+| Change failure rate                 | ties delivery speed back to reliability cost          | `@platform-owners` |
+| Mean time to restore                | core operational responsiveness signal                | `@platform-owners` |
+| Error budget burn by surface        | reliability state in shared language                  | service owner      |
+| CI flake rate / unstable gate count | delivery drag caused by tooling instability           | `@platform-owners` |
+| Docs publish freshness              | detects silent docs drift                             | `@docs-owners`     |
+| Contract drift incidents            | detects source-of-truth erosion                       | `@platform-owners` |
+| Replay/restore drill success rate   | validates recovery posture                            | `@platform-owners` |
+| Benchmark review freshness          | ensures performance/quality signal still trusted      | `@foundry-owners`  |
 
 ## Review Outputs
 

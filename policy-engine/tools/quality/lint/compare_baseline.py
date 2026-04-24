@@ -5,11 +5,9 @@ import argparse
 import csv
 import datetime
 import json
-import re
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
-
 
 REQUIRED_KEYS = (
     "package_cycles_count",
@@ -99,7 +97,9 @@ def _validate_exceptions(
     entries = data.get("exception", [])
     if not isinstance(entries, list):
         findings.append(
-            ExceptionFinding(level="error", message="`exception` section must be an array of tables.")
+            ExceptionFinding(
+                level="error", message="`exception` section must be an array of tables."
+            )
         )
         return findings
 
@@ -127,7 +127,9 @@ def _validate_exceptions(
 
         if not exception_id:
             findings.append(
-                ExceptionFinding(level="error", message=f"exception[{idx}] missing required field `id`.")
+                ExceptionFinding(
+                    level="error", message=f"exception[{idx}] missing required field `id`."
+                )
             )
         elif exception_id in seen_ids:
             findings.append(
@@ -246,9 +248,9 @@ def _validate_exception_debt_mapping(
                 )
                 return findings
             debt_exception_ids = {
-                str((row.get("exception_id") or "")).strip()
+                str(row.get("exception_id") or "").strip()
                 for row in reader
-                if str((row.get("exception_id") or "")).strip()
+                if str(row.get("exception_id") or "").strip()
             }
     except Exception as exc:
         findings.append(
@@ -489,7 +491,9 @@ def main() -> int:
     }
     if args.report_json:
         args.report_json.parent.mkdir(parents=True, exist_ok=True)
-        args.report_json.write_text(json.dumps(report, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+        args.report_json.write_text(
+            json.dumps(report, indent=2, ensure_ascii=True) + "\n", encoding="utf-8"
+        )
 
     if args.mode == "blocking" and (growth or strict_findings or all_exception_findings):
         print("[FAIL] Architecture freeze blocking conditions are not satisfied.")

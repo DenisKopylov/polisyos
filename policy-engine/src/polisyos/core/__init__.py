@@ -40,13 +40,13 @@ __all__ = [
     "components",
     "contracts",
     "discovery",
-    "evaluation",
     "errors",
+    "evaluation",
     "llm",
     "observability",
     "pipeline",
-    "resilience",
     "registry",
+    "resilience",
     "run",
 ]
 

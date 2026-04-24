@@ -15,18 +15,18 @@ State the bounded workstream and what is explicitly out of scope.
 
 ## Source of Truth
 
-| Concern | Source |
-|---------|--------|
-| Decisions | ADR links |
-| Machine contracts | `architecture/*.toml` / `schemas/**` |
-| Stable behavior | `docs/reference/**` |
-| Procedures | `docs/how-to/**` or `docs/runbooks/**` |
+| Concern           | Source                                 |
+| ----------------- | -------------------------------------- |
+| Decisions         | ADR links                              |
+| Machine contracts | `architecture/*.toml` / `schemas/**`   |
+| Stable behavior   | `docs/reference/**`                    |
+| Procedures        | `docs/how-to/**` or `docs/runbooks/**` |
 
 ## Phases
 
-| Phase | Deliverable | Acceptance |
-|-------|-------------|------------|
-| 0 | Contracts | Gates can run in report-only mode |
+| Phase | Deliverable | Acceptance                        |
+| ----- | ----------- | --------------------------------- |
+| 0     | Contracts   | Gates can run in report-only mode |
 
 ## Acceptance Criteria
 

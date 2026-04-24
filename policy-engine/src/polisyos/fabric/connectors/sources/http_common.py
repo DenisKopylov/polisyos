@@ -1,9 +1,11 @@
 """Public sources http common module API."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from collections.abc import Iterable, Mapping
+from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
-from typing import Any, Iterable, Mapping
+from typing import Any
 
 import pandas as pd
 
@@ -52,11 +54,13 @@ def parse_http_datetime(value: str | None) -> datetime | None:
         parsed = parsedate_to_datetime(value)
     except (TypeError, ValueError):
         logger.debug(
-            "Failed to parse HTTP datetime value %r", value, exc_info=True,
+            "Failed to parse HTTP datetime value %r",
+            value,
+            exc_info=True,
         )
         return None
     if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=timezone.utc)
+        parsed = parsed.replace(tzinfo=UTC)
     return parsed
 
 
@@ -73,7 +77,7 @@ def retry_after_seconds(headers: Mapping[str, str]) -> float | None:
         reset_ts = float(reset)
     except (TypeError, ValueError):
         return None
-    now_ts = datetime.now(timezone.utc).timestamp()
+    now_ts = datetime.now(UTC).timestamp()
     return max(0.0, reset_ts - now_ts)
 
 

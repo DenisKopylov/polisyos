@@ -44,6 +44,7 @@ import {
   type ReasoningStep,
 } from "@/shared/ui/compounds/ReasoningChainDisplay";
 import type { RunInspectorSummary } from "@/features/runs/context/RunInspectorContext";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { Card } from "@/shared/ui/primitives";
 
 type RunExplainabilityPanelProps = {
@@ -91,9 +92,7 @@ function normalizeVerdictStatus(
   return "review";
 }
 
-function factorDirection(
-  value: number,
-): ImportanceFactor["direction"] {
+function factorDirection(value: number): ImportanceFactor["direction"] {
   if (value > 0) {
     return "positive";
   }
@@ -167,7 +166,8 @@ function buildProvenanceSteps(summary: RunInspectorSummary): ProvenanceStep[] {
     id: "analysis-executed",
     label: "Analysis executed",
     status: summary.run?.status === "completed" ? "ok" : "warn",
-    statusLabel: summary.run?.status === "completed" ? "Completed" : "In review",
+    statusLabel:
+      summary.run?.status === "completed" ? "Completed" : "In review",
     timestamp: summary.run?.finished_at ?? summary.run?.started_at ?? undefined,
     type: "result",
   });
@@ -178,8 +178,7 @@ function buildProvenanceSteps(summary: RunInspectorSummary): ProvenanceStep[] {
       id: "governance-review",
       label: "Governance review",
       status: summary.governanceSummary.blocker > 0 ? "fail" : "ok",
-      statusLabel:
-        summary.governanceSummary.blocker > 0 ? "Blocked" : "Passed",
+      statusLabel: summary.governanceSummary.blocker > 0 ? "Blocked" : "Passed",
       type: "governance",
     });
   }
@@ -217,7 +216,8 @@ function buildGovernancePasses(summary: RunInspectorSummary): GovernancePass[] {
       id: "evaluator",
       label: "Evaluator",
       status:
-        normalizeVerdictStatus(summary.pipeline.evaluator.verdict) === "approved"
+        normalizeVerdictStatus(summary.pipeline.evaluator.verdict) ===
+        "approved"
           ? "pass"
           : normalizeVerdictStatus(summary.pipeline.evaluator.verdict) ===
               "rejected"
@@ -295,8 +295,9 @@ function buildTrustCalibrationData(
       .slice(0, 3),
     historicalAccuracy: accuracy,
     limitations: [
-      ...(summary.pipeline?.preflight?.diagnostics ?? [])
-        .map((diagnostic) => diagnostic.message),
+      ...(summary.pipeline?.preflight?.diagnostics ?? []).map(
+        (diagnostic) => diagnostic.message,
+      ),
       ...(summary.pipeline?.reproducibility?.why_partial ?? []),
       ...(summary.evidenceContext?.warnings ?? []),
     ].slice(0, 4),
@@ -409,7 +410,8 @@ function buildReasoningSteps(summary: RunInspectorSummary): ReasoningStep[] {
     {
       id: "question",
       summary:
-        summary.decisionView?.policySummary ?? "Policy run requested for review.",
+        summary.decisionView?.policySummary ??
+        "Policy run requested for review.",
       title: summary.decisionHeadline,
       type: "question",
     },
@@ -422,7 +424,8 @@ function buildReasoningSteps(summary: RunInspectorSummary): ReasoningStep[] {
         artifacts: String(summary.artifactRefs.length),
         fetchPlans: String(summary.evidenceContext.fetchPlans.length),
       },
-      summary: "Evidence needs, plans, and supporting artifacts were assembled.",
+      summary:
+        "Evidence needs, plans, and supporting artifacts were assembled.",
       title: "Evidence gathered",
       type: "retrieval",
     });
@@ -457,9 +460,7 @@ function buildReasoningSteps(summary: RunInspectorSummary): ReasoningStep[] {
   return steps;
 }
 
-function buildNegativeCertificate(
-  summary: RunInspectorSummary,
-): {
+function buildNegativeCertificate(summary: RunInspectorSummary): {
   assumptions: string[];
   blockingType: string;
   reason: string;
@@ -506,6 +507,7 @@ export function RunExplainabilityPanel({
   summary,
   level = "summary",
 }: RunExplainabilityPanelProps) {
+  const { t } = useI18n();
   const explainabilityVerdict = useMemo(
     () => buildExplainabilityVerdict(summary),
     [summary],
@@ -514,8 +516,14 @@ export function RunExplainabilityPanel({
     () => buildExplainabilityFactors(summary),
     [summary],
   );
-  const provenanceSteps = useMemo(() => buildProvenanceSteps(summary), [summary]);
-  const governancePasses = useMemo(() => buildGovernancePasses(summary), [summary]);
+  const provenanceSteps = useMemo(
+    () => buildProvenanceSteps(summary),
+    [summary],
+  );
+  const governancePasses = useMemo(
+    () => buildGovernancePasses(summary),
+    [summary],
+  );
   const governance = useMemo(
     () => buildExplainabilityGovernance(governancePasses, summary),
     [governancePasses, summary],
@@ -554,20 +562,26 @@ export function RunExplainabilityPanel({
         <div className="grid gap-4 lg:grid-cols-2">
           {provenanceSteps.length > 0 && (
             <Card className="p-4">
-              <p className="mb-3 text-xs font-semibold">Provenance Chain</p>
+              <p className="mb-3 text-xs font-semibold">
+                {t("pages.runs.explainability.provenanceChain")}
+              </p>
               <ProvenanceChain steps={provenanceSteps} />
             </Card>
           )}
 
           {governancePasses.length > 0 && (
             <Card className="p-4">
-              <p className="mb-3 text-xs font-semibold">Governance Passes</p>
+              <p className="mb-3 text-xs font-semibold">
+                {t("shared.ui.governancePassGrid.title")}
+              </p>
               <GovernancePassGrid passes={governancePasses} />
             </Card>
           )}
 
           <Card className="p-4">
-            <p className="mb-3 text-xs font-semibold">Trust Calibration</p>
+            <p className="mb-3 text-xs font-semibold">
+              {t("shared.ui.trustCalibrationDisplay.title")}
+            </p>
             <TrustCalibrationDisplay
               calibrationRecords={trustCalibration.calibrationRecords}
               counterArguments={trustCalibration.counterArguments}
@@ -580,7 +594,9 @@ export function RunExplainabilityPanel({
 
           {attribution.contributions.length > 0 && (
             <Card className="p-4">
-              <p className="mb-3 text-xs font-semibold">Attribution</p>
+              <p className="mb-3 text-xs font-semibold">
+                {t("pages.runs.explainability.attribution")}
+              </p>
               <AttributionWaterfall
                 baseValue={attribution.baseValue}
                 contributions={attribution.contributions}
@@ -593,7 +609,9 @@ export function RunExplainabilityPanel({
       {level === "deep" && (
         <div className="grid gap-4 lg:grid-cols-2">
           <Card className="p-4">
-            <p className="mb-3 text-xs font-semibold">Evidence Coverage</p>
+            <p className="mb-3 text-xs font-semibold">
+              {t("pages.runs.explainability.evidenceCoverage")}
+            </p>
             <EvidenceCoverageRadar
               benchmark={evidenceCoverage.benchmark}
               coverage={evidenceCoverage.coverage}
@@ -601,7 +619,9 @@ export function RunExplainabilityPanel({
           </Card>
 
           <Card className="p-4">
-            <p className="mb-3 text-xs font-semibold">Sensitivity Analysis</p>
+            <p className="mb-3 text-xs font-semibold">
+              {t("pages.runs.explainability.sensitivityAnalysis")}
+            </p>
             <SensitivityPlot
               breakdownGamma={sensitivity.breakdownGamma}
               points={sensitivity.points}
@@ -611,14 +631,18 @@ export function RunExplainabilityPanel({
 
           {importanceFactors.length > 0 && (
             <Card className="p-4">
-              <p className="mb-3 text-xs font-semibold">Factor Importance</p>
+              <p className="mb-3 text-xs font-semibold">
+                {t("pages.runs.explainability.factorImportance")}
+              </p>
               <FactorImportanceChart factors={importanceFactors} />
             </Card>
           )}
 
           {reasoningSteps.length > 0 && (
             <Card className="p-4">
-              <p className="mb-3 text-xs font-semibold">Reasoning Chain</p>
+              <p className="mb-3 text-xs font-semibold">
+                {t("pages.runs.explainability.reasoningChain")}
+              </p>
               <ReasoningChainDisplay steps={reasoningSteps} />
             </Card>
           )}

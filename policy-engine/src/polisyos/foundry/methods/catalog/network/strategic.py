@@ -1,10 +1,12 @@
 """Structural strategic network-formation estimator for policy analysis."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from math import comb, log
 from statistics import NormalDist
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -119,7 +121,9 @@ def _network_moments(adjacency: np.ndarray) -> NetworkFormationScenarioMoments:
         reachability_share = 0.0
     else:
         reachable_pairs = float(sum(size * (size - 1) for size in sizes))
-        reachability_share = float(np.clip(reachable_pairs / float(n_nodes * (n_nodes - 1)), 0.0, 1.0))
+        reachability_share = float(
+            np.clip(reachable_pairs / float(n_nodes * (n_nodes - 1)), 0.0, 1.0)
+        )
     return NetworkFormationScenarioMoments(
         density=_density(graph),
         mean_degree=float(np.mean(degree)) if degree.size else 0.0,
@@ -135,7 +139,9 @@ def _support_from_matrix(matrix: np.ndarray | None) -> float:
     return float(np.mean(np.std(matrix, axis=0) > 1.0e-8))
 
 
-def _full_dyad_surface_available(data: StrategicNetworkFormationData, parameters: Mapping[str, float]) -> bool:
+def _full_dyad_surface_available(
+    data: StrategicNetworkFormationData, parameters: Mapping[str, float]
+) -> bool:
     required = [
         int(key.split("_")[-1]) + 1
         for key in parameters
@@ -211,7 +217,9 @@ def _fit_logistic_ridge(
         std_errors = np.sqrt(np.maximum(np.diag(covariance), 1.0e-8))
         probabilities = np.clip(_sigmoid(design @ beta), 1.0e-6, 1.0 - 1.0e-6)
         log_likelihood = float(
-            np.sum(responses * np.log(probabilities) + (1.0 - responses) * np.log(1.0 - probabilities))
+            np.sum(
+                responses * np.log(probabilities) + (1.0 - responses) * np.log(1.0 - probabilities)
+            )
         )
         return _LogitFit(
             beta=beta,
@@ -270,7 +278,9 @@ def _build_design_names(dyad_dim: int, node_dim: int) -> list[str]:
     return names
 
 
-def _node_pair_terms(node_features: np.ndarray | None, i: int, j: int) -> tuple[np.ndarray, np.ndarray]:
+def _node_pair_terms(
+    node_features: np.ndarray | None, i: int, j: int
+) -> tuple[np.ndarray, np.ndarray]:
     if node_features is None:
         return np.zeros(0, dtype=float), np.zeros(0, dtype=float)
     left = np.asarray(node_features[i], dtype=float)
@@ -308,7 +318,9 @@ def _build_cross_sectional_design(
     dyad_features: np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray, list[str], int, float]:
     graph = _binary_undirected_adjacency(feature_graph)
-    responses_graph = graph if response_graph is None else _binary_undirected_adjacency(response_graph)
+    responses_graph = (
+        graph if response_graph is None else _binary_undirected_adjacency(response_graph)
+    )
     tri = _unordered_pairs(graph.shape[0])
     if pair_mask is None:
         pair_mask = np.ones(tri[0].shape[0], dtype=bool)
@@ -342,10 +354,21 @@ def _build_event_history_design(
     data: StrategicNetworkFormationData,
 ) -> tuple[np.ndarray, np.ndarray, list[str], int, float]:
     if data.formation_events:
-        event_width = max((len(event.dyad_covariates) for event in data.formation_events if event.dyad_covariates), default=0)
+        event_width = max(
+            (
+                len(event.dyad_covariates)
+                for event in data.formation_events
+                if event.dyad_covariates
+            ),
+            default=0,
+        )
     else:
         event_width = 0
-    surface_width = 0 if data.dyad_features is None else int(np.asarray(data.dyad_features, dtype=float).shape[2])
+    surface_width = (
+        0
+        if data.dyad_features is None
+        else int(np.asarray(data.dyad_features, dtype=float).shape[2])
+    )
     dyad_dim = max(event_width, surface_width)
     node_dim = 0 if data.node_features is None else int(np.asarray(data.node_features).shape[1])
     names = _build_design_names(dyad_dim, node_dim)
@@ -545,7 +568,9 @@ def _score_pair(
 
     if dyad_features is not None:
         for idx in range(dyad_features.shape[2]):
-            score += float(parameters.get(f"dyad_feature_{idx}", 0.0)) * float(dyad_features[i, j, idx])
+            score += float(parameters.get(f"dyad_feature_{idx}", 0.0)) * float(
+                dyad_features[i, j, idx]
+            )
 
     if data.node_features is not None:
         node_sum, node_absdiff = _node_pair_terms(np.asarray(data.node_features, dtype=float), i, j)
@@ -584,7 +609,13 @@ def _simulate_networks(
         pair_idx = int(rng.integers(0, n_pairs))
         i = int(tri[0][pair_idx])
         j = int(tri[1][pair_idx])
-        probability = float(_sigmoid(_score_pair(graph, data=data, parameters=parameters, i=i, j=j, dyad_features=dyad_features)))
+        probability = float(
+            _sigmoid(
+                _score_pair(
+                    graph, data=data, parameters=parameters, i=i, j=j, dyad_features=dyad_features
+                )
+            )
+        )
         new_state = 1.0 if rng.uniform() < probability else 0.0
         graph[i, j] = new_state
         graph[j, i] = new_state
@@ -614,7 +645,9 @@ def _sufficient_statistics(
 
     if dyad_features is not None:
         for idx in range(dyad_features.shape[2]):
-            stats[f"dyad_feature_{idx}"] = float(np.mean(edges * dyad_features[tri[0], tri[1], idx])) if edges.size else 0.0
+            stats[f"dyad_feature_{idx}"] = (
+                float(np.mean(edges * dyad_features[tri[0], tri[1], idx])) if edges.size else 0.0
+            )
 
     if data.node_features is not None and edges.size:
         node_features = np.asarray(data.node_features, dtype=float)
@@ -661,7 +694,9 @@ def _bootstrap_parameter_draws(
     if draws <= 0 or not _simulation_ready(data, point_parameters):
         return []
 
-    dyad_features = None if data.dyad_features is None else np.asarray(data.dyad_features, dtype=float)
+    dyad_features = (
+        None if data.dyad_features is None else np.asarray(data.dyad_features, dtype=float)
+    )
     simulated_graphs, _ = _simulate_networks(
         data=data,
         parameters=point_parameters,
@@ -695,12 +730,22 @@ def _predictive_checks_from_graphs(
     simulated_graphs: np.ndarray,
 ) -> tuple[tuple[NetworkFormationPredictiveCheck, ...], tuple[str, ...]]:
     if simulated_graphs.size == 0:
-        return (), ("posterior predictive checks skipped because no simulated graphs were available",)
+        return (), (
+            "posterior predictive checks skipped because no simulated graphs were available",
+        )
 
     observed = _network_moments(observed_adjacency).model_dump(mode="python")
-    simulated_moments = [_network_moments(graph).model_dump(mode="python") for graph in simulated_graphs]
+    simulated_moments = [
+        _network_moments(graph).model_dump(mode="python") for graph in simulated_graphs
+    ]
     checks: list[NetworkFormationPredictiveCheck] = []
-    for key in ("density", "mean_degree", "clustering", "reachability_share", "largest_component_share"):
+    for key in (
+        "density",
+        "mean_degree",
+        "clustering",
+        "reachability_share",
+        "largest_component_share",
+    ):
         values = np.asarray([moments[key] for moments in simulated_moments], dtype=float)
         q05, q95 = np.quantile(values, [0.05, 0.95])
         observed_value = float(observed[key])
@@ -744,14 +789,18 @@ def _heldout_log_loss(
         holdout_pairs[chosen] = True
 
     if not np.any(holdout_pairs) or np.all(holdout_pairs):
-        return None, ("held-out validation skipped because the holdout mask did not leave both train and test dyads",)
+        return None, (
+            "held-out validation skipped because the holdout mask did not leave both train and test dyads",
+        )
 
     train_graph = adjacency.copy()
     for i, j in zip(tri[0][holdout_pairs], tri[1][holdout_pairs], strict=True):
         train_graph[i, j] = 0.0
         train_graph[j, i] = 0.0
 
-    dyad_features = None if data.dyad_features is None else np.asarray(data.dyad_features, dtype=float)
+    dyad_features = (
+        None if data.dyad_features is None else np.asarray(data.dyad_features, dtype=float)
+    )
     train_design, train_y, _, _, _ = _build_cross_sectional_design(
         train_graph,
         data,
@@ -768,7 +817,9 @@ def _heldout_log_loss(
     )
     fit = _fit_logistic_ridge(train_design, train_y, ridge=ridge, max_iter=max_iter)
     probabilities = np.clip(_sigmoid(test_design @ fit.beta), 1.0e-6, 1.0 - 1.0e-6)
-    log_loss = -float(np.mean(test_y * np.log(probabilities) + (1.0 - test_y) * np.log(1.0 - probabilities)))
+    log_loss = -float(
+        np.mean(test_y * np.log(probabilities) + (1.0 - test_y) * np.log(1.0 - probabilities))
+    )
     return log_loss, ()
 
 
@@ -783,7 +834,9 @@ def _temporal_parameter_drift(
     snapshots = np.asarray(data.adjacency_snapshots, dtype=float)
     first = _binary_undirected_adjacency(snapshots[0])
     last = _binary_undirected_adjacency(snapshots[-1])
-    dyad_features = None if data.dyad_features is None else np.asarray(data.dyad_features, dtype=float)
+    dyad_features = (
+        None if data.dyad_features is None else np.asarray(data.dyad_features, dtype=float)
+    )
 
     first_design, first_y, names, _, _ = _build_cross_sectional_design(
         first,
@@ -824,7 +877,9 @@ def _counterfactual_summary(
     if not _simulation_ready(data, point_parameters):
         return None, None
 
-    baseline_features = None if data.dyad_features is None else np.asarray(data.dyad_features, dtype=float)
+    baseline_features = (
+        None if data.dyad_features is None else np.asarray(data.dyad_features, dtype=float)
+    )
     shocked_features = None
     warnings: list[str] = []
     if baseline_features is not None:
@@ -864,7 +919,9 @@ def _counterfactual_summary(
         if baseline_graphs.size == 0 or counterfactual_graphs.size == 0:
             continue
         baseline_moments.append(_network_moments(baseline_graphs[-1]).model_dump(mode="python"))
-        counterfactual_moments.append(_network_moments(counterfactual_graphs[-1]).model_dump(mode="python"))
+        counterfactual_moments.append(
+            _network_moments(counterfactual_graphs[-1]).model_dump(mode="python")
+        )
 
     if not baseline_moments or not counterfactual_moments:
         return None, None
@@ -872,7 +929,10 @@ def _counterfactual_summary(
     keys = ("density", "mean_degree", "clustering", "reachability_share", "largest_component_share")
     effects = {
         key: np.asarray(
-            [counterfactual_moments[idx][key] - baseline_moments[idx][key] for idx in range(len(baseline_moments))],
+            [
+                counterfactual_moments[idx][key] - baseline_moments[idx][key]
+                for idx in range(len(baseline_moments))
+            ],
             dtype=float,
         )
         for key in keys
@@ -882,7 +942,10 @@ def _counterfactual_summary(
         **{key: float(np.mean([moments[key] for moments in baseline_moments])) for key in keys}
     )
     counterfactual_summary = NetworkFormationScenarioMoments(
-        **{key: float(np.mean([moments[key] for moments in counterfactual_moments])) for key in keys}
+        **{
+            key: float(np.mean([moments[key] for moments in counterfactual_moments]))
+            for key in keys
+        }
     )
     effect_intervals = {
         key: _interval_from_samples(
@@ -976,7 +1039,9 @@ def _validation_summary(
     temporal_drift_warn: float,
     seed: int,
 ) -> NetworkFormationValidationSummary:
-    predictive_checks, predictive_warnings = _predictive_checks_from_graphs(adjacency, predictive_graphs)
+    predictive_checks, predictive_warnings = _predictive_checks_from_graphs(
+        adjacency, predictive_graphs
+    )
     heldout_log_loss, holdout_warnings = _heldout_log_loss(
         data=data,
         adjacency=adjacency,
@@ -1020,8 +1085,19 @@ def _stationary_structural_fit(
     burnin: int,
     interval: int,
     seed: int,
-) -> tuple[dict[str, float], dict[str, float], dict[str, float], bool, bool, np.ndarray, list[str], _LogitFit]:
-    dyad_features = None if data.dyad_features is None else np.asarray(data.dyad_features, dtype=float)
+) -> tuple[
+    dict[str, float],
+    dict[str, float],
+    dict[str, float],
+    bool,
+    bool,
+    np.ndarray,
+    list[str],
+    _LogitFit,
+]:
+    dyad_features = (
+        None if data.dyad_features is None else np.asarray(data.dyad_features, dtype=float)
+    )
     design, responses, names, _, _ = _build_cross_sectional_design(
         adjacency,
         data,
@@ -1029,7 +1105,9 @@ def _stationary_structural_fit(
         dyad_features=dyad_features,
     )
     warm_start_fit = _fit_logistic_ridge(design, responses, ridge=ridge, max_iter=max_iter)
-    warm_start_parameters, warm_start_errors = _structuralize_estimates(names, warm_start_fit.beta, warm_start_fit.std_errors)
+    warm_start_parameters, warm_start_errors = _structuralize_estimates(
+        names, warm_start_fit.beta, warm_start_fit.std_errors
+    )
     parameter_order = _parameter_keys(warm_start_parameters)
     observed_stats = _sufficient_statistics(
         adjacency,
@@ -1069,10 +1147,7 @@ def _stationary_structural_fit(
             key: float(np.mean([stats[key] for stats in simulated_stats]))
             for key in parameter_order
         }
-        diff = {
-            key: float(observed_stats[key] - averaged[key])
-            for key in parameter_order
-        }
+        diff = {key: float(observed_stats[key] - averaged[key]) for key in parameter_order}
         rmse = float(np.sqrt(np.mean([value * value for value in diff.values()]))) if diff else 0.0
         trace_rmse.append(rmse)
         learning_rate = float(sa_learning_rate / np.sqrt(iteration + 1.0))
@@ -1083,8 +1158,7 @@ def _stationary_structural_fit(
             break
 
     standard_errors = {
-        key: warm_start_errors.get(key, 1.0 / np.sqrt(max(design.shape[0], 1)))
-        for key in theta
+        key: warm_start_errors.get(key, 1.0 / np.sqrt(max(design.shape[0], 1))) for key in theta
     }
     density_trace = np.asarray([_density(graph) for graph in predictive_graphs], dtype=float)
     fit_statistics = {
@@ -1092,14 +1166,25 @@ def _stationary_structural_fit(
         "warm_start_iterations": float(warm_start_fit.iterations),
         "moment_rmse": float(trace_rmse[-1]) if trace_rmse else 0.0,
         "stochastic_approximation_steps": float(len(trace_rmse)),
-        "density_simulation_ess": _effective_sample_size(density_trace) if density_trace.size else 0.0,
+        "density_simulation_ess": _effective_sample_size(density_trace)
+        if density_trace.size
+        else 0.0,
     }
-    return theta, standard_errors, fit_statistics, converged, True, predictive_graphs, names, warm_start_fit
+    return (
+        theta,
+        standard_errors,
+        fit_statistics,
+        converged,
+        True,
+        predictive_graphs,
+        names,
+        warm_start_fit,
+    )
 
 
 @foundry_method(
     namespace="network.formation",
-    version="0.1.0",
+    version="1.0.0",
     tags={"network", "strategic-formation", "game-theory"},
 )
 class StrategicNetworkFormationEstimator:
@@ -1114,7 +1199,12 @@ class StrategicNetworkFormationEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("adjacency", SlotType.MATRIX, Unit("network", "weight"), shape=("n_nodes", "n_nodes")),
+                SlotSpec(
+                    "adjacency",
+                    SlotType.MATRIX,
+                    Unit("network", "weight"),
+                    shape=("n_nodes", "n_nodes"),
+                ),
             }
         ),
         output_slots=frozenset(
@@ -1174,13 +1264,17 @@ class StrategicNetworkFormationEstimator:
     )
 
     @staticmethod
-    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> StrategicNetworkFormationData:
+    def materialize_input(
+        bound_inputs: Mapping[str, Any], fallback_state: Any
+    ) -> StrategicNetworkFormationData:
         payload = _strategic_payload(fallback_state)
         payload.update(bound_inputs)
         return StrategicNetworkFormationData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: StrategicNetworkFormationData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: StrategicNetworkFormationData, params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = (
             state
             if isinstance(state, StrategicNetworkFormationData)
@@ -1190,7 +1284,7 @@ class StrategicNetworkFormationEstimator:
         density = _density(adjacency)
         clustering = _clustering(adjacency)
         n_nodes = adjacency.shape[0]
-        observed_dyads = int(comb(n_nodes, 2)) if n_nodes >= 2 else 0
+        observed_dyads = comb(n_nodes, 2) if n_nodes >= 2 else 0
         event_history_available = len(data.formation_events) > 0
         prefer_event_history = bool(params.get("prefer_event_history", True))
         cross_sectional_mode = str(params.get("cross_sectional_mode", "auto"))
@@ -1236,10 +1330,14 @@ class StrategicNetworkFormationEstimator:
         fallback_reason = None
 
         if prefer_event_history and event_history_available:
-            design, responses, names, dyad_feature_dimension, dyad_feature_support = _build_event_history_design(data)
+            design, responses, names, dyad_feature_dimension, dyad_feature_support = (
+                _build_event_history_design(data)
+            )
             design_rank, design_condition_number = _design_diagnostics(design)
             fit = _fit_logistic_ridge(design, responses, ridge=ridge, max_iter=max_iter)
-            parameter_estimates, standard_errors = _structuralize_estimates(names, fit.beta, fit.std_errors)
+            parameter_estimates, standard_errors = _structuralize_estimates(
+                names, fit.beta, fit.std_errors
+            )
             fit_statistics = {
                 "log_likelihood": float(fit.log_likelihood),
                 "iterations": float(fit.iterations),
@@ -1250,12 +1348,16 @@ class StrategicNetworkFormationEstimator:
                 predictive_graphs, _ = _simulate_networks(
                     data=data,
                     parameters=parameter_estimates,
-                    dyad_features=None if data.dyad_features is None else np.asarray(data.dyad_features, dtype=float),
+                    dyad_features=None
+                    if data.dyad_features is None
+                    else np.asarray(data.dyad_features, dtype=float),
                     draws=predictive_draws,
                     burnin=burnin,
                     interval=interval,
                     seed=seed + 211,
-                    initial_adjacency=data.initial_adjacency if data.initial_adjacency is not None else data.adjacency,
+                    initial_adjacency=data.initial_adjacency
+                    if data.initial_adjacency is not None
+                    else data.adjacency,
                 )
             validation_summary = _validation_summary(
                 data=data,
@@ -1301,14 +1403,20 @@ class StrategicNetworkFormationEstimator:
                 identification_status = "weakly_identified"
             warnings.extend(validation_summary.warnings)
             if design_condition_number is not None and design_condition_number > condition_warn:
-                warnings.append("event-history design is ill-conditioned; interpret point estimates cautiously")
+                warnings.append(
+                    "event-history design is ill-conditioned; interpret point estimates cautiously"
+                )
             policy_counterfactual_ready = counterfactual_summary is not None
         else:
-            design, responses, names, dyad_feature_dimension, dyad_feature_support = _build_cross_sectional_design(
-                adjacency,
-                data,
-                response_graph=adjacency,
-                dyad_features=None if data.dyad_features is None else np.asarray(data.dyad_features, dtype=float),
+            design, responses, names, dyad_feature_dimension, dyad_feature_support = (
+                _build_cross_sectional_design(
+                    adjacency,
+                    data,
+                    response_graph=adjacency,
+                    dyad_features=None
+                    if data.dyad_features is None
+                    else np.asarray(data.dyad_features, dtype=float),
+                )
             )
             design_rank, design_condition_number = _design_diagnostics(design)
             if dyad_feature_support <= 0.0 or (
@@ -1325,12 +1433,16 @@ class StrategicNetworkFormationEstimator:
                 fit_converged = False
                 fallback_reason = "insufficient_dyad_covariate_support"
                 fit_statistics = {"grid_feasible_share": float(identified_set.feasible_share)}
-                warnings.append("dyad support is too weak for structural point estimation; returning an identified set")
+                warnings.append(
+                    "dyad support is too weak for structural point estimation; returning an identified set"
+                )
             else:
                 use_pseudo_only = cross_sectional_mode in {"pseudo", "stationary_pseudolikelihood"}
                 if use_pseudo_only:
                     fit = _fit_logistic_ridge(design, responses, ridge=ridge, max_iter=max_iter)
-                    parameter_estimates, standard_errors = _structuralize_estimates(names, fit.beta, fit.std_errors)
+                    parameter_estimates, standard_errors = _structuralize_estimates(
+                        names, fit.beta, fit.std_errors
+                    )
                     fit_statistics = {
                         "log_likelihood": float(fit.log_likelihood),
                         "iterations": float(fit.iterations),
@@ -1347,7 +1459,9 @@ class StrategicNetworkFormationEstimator:
                         predictive_graphs, _ = _simulate_networks(
                             data=data,
                             parameters=parameter_estimates,
-                            dyad_features=None if data.dyad_features is None else np.asarray(data.dyad_features, dtype=float),
+                            dyad_features=None
+                            if data.dyad_features is None
+                            else np.asarray(data.dyad_features, dtype=float),
                             draws=predictive_draws,
                             burnin=burnin,
                             interval=interval,
@@ -1381,7 +1495,9 @@ class StrategicNetworkFormationEstimator:
                         ci_level=ci_level,
                         method="asymptotic_normal",
                         scenario_effects=scenario_effects,
-                        warnings=("cross-sectional route used pseudolikelihood without structural refinement",),
+                        warnings=(
+                            "cross-sectional route used pseudolikelihood without structural refinement",
+                        ),
                     )
                     fit_converged = bool(fit.converged)
                     strategy_used = "stationary_pseudolikelihood"
@@ -1461,9 +1577,14 @@ class StrategicNetworkFormationEstimator:
                     strategy_used = "stationary_mcmc_mle"
                     model_class = "stationary_structural_network_formation"
                     identification_status = "point_identified"
-                    if design_condition_number is not None and design_condition_number > condition_warn:
+                    if (
+                        design_condition_number is not None
+                        and design_condition_number > condition_warn
+                    ):
                         identification_status = "weakly_identified"
-                        warnings.append("cross-sectional design is ill-conditioned; structural route remains weakly identified")
+                        warnings.append(
+                            "cross-sectional design is ill-conditioned; structural route remains weakly identified"
+                        )
                     warnings.extend(validation_summary.warnings)
                     policy_counterfactual_ready = counterfactual_summary is not None
 
@@ -1516,7 +1637,9 @@ class StrategicNetworkFormationEstimator:
         }
         if diagnostic.counterfactual_summary is not None:
             density_effect = diagnostic.counterfactual_summary.effects.get("density")
-            metrics["counterfactual_density_effect"] = float(density_effect.estimate) if density_effect else 0.0
+            metrics["counterfactual_density_effect"] = (
+                float(density_effect.estimate) if density_effect else 0.0
+            )
         return {
             "result": NetworkResult(
                 method_name="strategic_formation",
@@ -1524,7 +1647,9 @@ class StrategicNetworkFormationEstimator:
                 formation_diagnostic=diagnostic,
                 missingness_assessment=missingness_assessment,
                 metadata={
-                    "preferred_route": "event_history" if prefer_event_history else "cross_sectional",
+                    "preferred_route": "event_history"
+                    if prefer_event_history
+                    else "cross_sectional",
                     "baseline_moments": _network_moments(adjacency).model_dump(mode="python"),
                 },
             )

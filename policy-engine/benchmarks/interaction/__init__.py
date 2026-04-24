@@ -1,2 +1,1 @@
 """Interaction-contract benchmark suites."""
-

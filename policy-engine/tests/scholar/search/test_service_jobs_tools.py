@@ -187,6 +187,7 @@ class _FlakyService:
     async def deep_search(self, **kwargs):
         self._calls += 1
         if self._calls == 1:
+
             async def _callback(event, bundle):
                 callback = kwargs.get("progress_callback")
                 if callback is not None:

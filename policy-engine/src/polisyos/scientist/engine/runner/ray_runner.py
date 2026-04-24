@@ -115,8 +115,7 @@ class RayWorkflowRunner:
     ) -> None:
         if not _HAS_RAY:
             raise ImportError(
-                "ray is required for the Ray runner backend.  "
-                "Install it with: pip install ray"
+                "ray is required for the Ray runner backend.  Install it with: pip install ray"
             )
         self._address = address
         self._namespace = namespace
@@ -189,7 +188,7 @@ class RayWorkflowRunner:
                 run_id=str(ctx_meta.get("run_id") or state.run_id),
                 trace_id=ctx_meta.get("trace_id"),
                 span_id=ctx_meta.get("span_id"),
-        )
+            )
         state_bytes = serialize_state(state)
         cache = seed_runner_cache(
             store=ctx.store,
@@ -243,18 +242,14 @@ class RayWorkflowRunner:
                 for alias, item in zip(chunk_aliases, results, strict=False):
                     if not isinstance(item, BaseException):
                         tier_results[alias] = item
-                exceptions = [
-                    item for item in results if isinstance(item, BaseException)
-                ]
+                exceptions = [item for item in results if isinstance(item, BaseException)]
                 for exc in exceptions:
                     from polisyos.scientist.engine.runner.error_classifier import (
                         classify_remote_error,
                     )
 
                     category = classify_remote_error(exc)
-                    _logger.error(
-                        "Ray tier execution failed (%s): %s", category.value, exc
-                    )
+                    _logger.error("Ray tier execution failed (%s): %s", category.value, exc)
                 if exceptions:
                     raise exceptions[0]
 
@@ -278,9 +273,7 @@ class RayWorkflowRunner:
                         ).future()
                     )
                     state_bytes = merge_result["state_bytes"]
-                    completed_nodes = list(
-                        merge_result.get("completed_nodes") or completed_nodes
-                    )
+                    completed_nodes = list(merge_result.get("completed_nodes") or completed_nodes)
                     checkpoint_hook_meta = merge_result.get("checkpoint_hook_meta")
                 else:
                     tier_result = merge_and_checkpoint_tier(

@@ -7,6 +7,7 @@ current Trinity input, runs hierarchical structure/parameter search, evaluates
 candidate payloads through the compile/readiness/simulation subpipeline, and
 persists a frontier report plus the selected champion Trinity bundle.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -39,6 +40,7 @@ from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFou
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     ProductionPolicyEvaluationBackend,
     build_policy_runtime_evaluation,
+    load_ambiguity_certificate,
     load_causal_report,
     load_cross_graph_profile,
     load_distributional_report_for_state,
@@ -198,9 +200,8 @@ class RunHierarchicalPolicySearchNode:
 
         adapter = HierarchicalPolicySearchAdapter()
         loop_id = str(state.params.get("policy_loop_id") or f"{state.run_id}:policy_search")
-        search_config = (
-            state.params.get("hierarchical_policy_search_config")
-            or state.params.get("policy_search_config")
+        search_config = state.params.get("hierarchical_policy_search_config") or state.params.get(
+            "policy_search_config"
         )
 
         try:
@@ -304,7 +305,9 @@ def _evaluate_candidate_payload(
     context: dict[str, Any],
 ) -> dict[str, Any]:
     del context
-    candidate = PolicyCandidateSchema.model_validate(_candidate_payload_without_hash(candidate_payload))
+    candidate = PolicyCandidateSchema.model_validate(
+        _candidate_payload_without_hash(candidate_payload)
+    )
     candidate_state = branch_state(
         state,
         write_paths=(
@@ -398,6 +401,7 @@ def _evaluate_candidate_payload(
         causal_effect_report=load_causal_report(ctx, candidate_state),
         cross_graph_profile=load_cross_graph_profile(ctx, candidate_state),
         governance_report=load_governance_report(ctx, candidate_state),
+        ambiguity_certificate=load_ambiguity_certificate(ctx, candidate_state),
     )
     evaluation = evaluation_artifact.evaluation_vector.model_copy(
         update={
@@ -478,14 +482,11 @@ def _select_champion_candidate(
 def _iter_candidate_records(search_result: Any) -> list[_CandidateEvaluationRecord]:
     records: list[_CandidateEvaluationRecord] = []
     structure_map = {
-        item.structure_id: item.candidate
-        for item in search_result.state.structure_candidates
+        item.structure_id: item.candidate for item in search_result.state.structure_candidates
     }
     for structure_id, result in search_result.state.parameter_search_results.items():
         for iteration in result.history:
-            evaluation = _coerce_policy_evaluation(
-                getattr(iteration, "policy_evaluation", None)
-            )
+            evaluation = _coerce_policy_evaluation(getattr(iteration, "policy_evaluation", None))
             candidate_payload = iteration.candidate or result.best_candidate
             if not isinstance(candidate_payload, dict):
                 continue
@@ -605,10 +606,7 @@ def _persist_trinity_bundle(
     *,
     state: ExperimentState,
 ) -> TrinityBundleRef:
-    inputs = [
-        InputRef(artifact_id=ref.artifact_id, role=key)
-        for key, ref in state.inputs.items()
-    ]
+    inputs = [InputRef(artifact_id=ref.artifact_id, role=key) for key, ref in state.inputs.items()]
     artifact = ctx.store.put_json(
         bundle,
         PutOptions(
@@ -654,16 +652,14 @@ def _persist_frontier_report(
                 name: channel.value for name, channel in record.evaluation.primary.items()
             }
             constraint_statuses = {
-                name: status.value
-                for name, status in record.evaluation.constraint_statuses.items()
+                name: status.value for name, status in record.evaluation.constraint_statuses.items()
             }
         entries.append(
             PolicyFrontierEntry(
                 candidate_hash=candidate_hash,
                 candidate_id=record.candidate.candidate_id,
                 policy_family=str(
-                    record.candidate.metadata.get("policy_family")
-                    or record.candidate.candidate_id
+                    record.candidate.metadata.get("policy_family") or record.candidate.candidate_id
                 ),
                 view_membership=view_membership,
                 primary_objectives=primary_objectives,

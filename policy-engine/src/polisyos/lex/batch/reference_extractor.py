@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from polisyos.lex.batch.doc_identity import doc_type_category
-from polisyos.lex.batch.jurisdictions.protocol import JurisdictionPlugin
 from polisyos.lex.batch.patterns import (
     ARTICLEISH_REFERENCE_RE,
     REFERENCE_AMENDS_RE,
@@ -16,6 +15,11 @@ from polisyos.lex.batch.patterns import (
     REFERENCE_PATTERNS_UA,
     REFERENCE_REPEALS_RE,
 )
+
+if TYPE_CHECKING:
+    import re
+
+    from polisyos.lex.batch.jurisdictions.protocol import JurisdictionPlugin
 
 _ARTICLEish_RE = ARTICLEISH_REFERENCE_RE
 _AMENDS_RE = REFERENCE_AMENDS_RE
@@ -61,8 +65,12 @@ _REFERENCE_PATTERNS: tuple[tuple[str, re.Pattern[str], float], ...] = REFERENCE_
 
 
 def _relation_hint(text: str, start: int, end: int) -> str:
-    left_boundary = max(text.rfind(".", 0, start), text.rfind("\n", 0, start), text.rfind(";", 0, start))
-    right_candidates = [pos for pos in (text.find(".", end), text.find("\n", end), text.find(";", end)) if pos >= 0]
+    left_boundary = max(
+        text.rfind(".", 0, start), text.rfind("\n", 0, start), text.rfind(";", 0, start)
+    )
+    right_candidates = [
+        pos for pos in (text.find(".", end), text.find("\n", end), text.find(";", end)) if pos >= 0
+    ]
     right_boundary = min(right_candidates) if right_candidates else len(text)
     context = text[left_boundary + 1 : right_boundary]
     if _REPEALS_RE.search(context):
@@ -105,7 +113,11 @@ def extract_references(
     """Extract legal references from provision text."""
     hits: list[ReferenceHit] = []
     seen: set[tuple[int, int, str, str, str, str]] = set()
-    patterns = jurisdiction_plugin.reference_patterns() if jurisdiction_plugin is not None else _REFERENCE_PATTERNS
+    patterns = (
+        jurisdiction_plugin.reference_patterns()
+        if jurisdiction_plugin is not None
+        else _REFERENCE_PATTERNS
+    )
     for ref_type, pattern, confidence in patterns:
         for match in pattern.finditer(text):
             target_raw = match.group(0).strip()
@@ -135,5 +147,12 @@ def extract_references(
                 relation_hint=_relation_hint(text, match.start(), match.end()),
             )
             hits.append(hit)
-    hits.sort(key=lambda item: (item.source_span_start, item.source_span_end, item.ref_type, item.target_raw))
+    hits.sort(
+        key=lambda item: (
+            item.source_span_start,
+            item.source_span_end,
+            item.ref_type,
+            item.target_raw,
+        )
+    )
     return hits

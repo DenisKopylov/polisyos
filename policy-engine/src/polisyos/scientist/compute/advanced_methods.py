@@ -110,6 +110,10 @@ class C7AdvancedInputs:
     specification_curve_input: SpecificationCurveInput
     sobol_targets: Mapping[str, Mapping[str, Any]]
     intervention_knobs: Mapping[str, float]
+    bilevel_ambiguity_mode: str = "auto"
+    bilevel_tie_break: str | None = None
+    bilevel_delta_near_opt: float = 0.0
+    bilevel_certificate_mode: str = "residual_or_bounds"
     calibration_cut_period: str | None = None
     temporal_embedding_mode: str = "pca"
     seed: int = 20260328
@@ -407,10 +411,18 @@ class FactorModelEmbeddingBuilder(_AdvancedMethodBase):
         feature_fields = inputs.agent_feature_fields or _numeric_feature_fields(
             sorted_rows,
             exclude=_RESERVED_ID_FIELDS,
-            preferred=("income", "employment_score", "consumption", "distress_signal", "network_exposure"),
+            preferred=(
+                "income",
+                "employment_score",
+                "consumption",
+                "distress_signal",
+                "network_exposure",
+            ),
         )
         if not feature_fields:
-            raise ValueError("agent panel must include numeric feature fields for factor embeddings")
+            raise ValueError(
+                "agent panel must include numeric feature fields for factor embeddings"
+            )
         matrix = _rows_to_matrix(sorted_rows, feature_fields)
         n_factors = max(1, min(4, matrix.shape[1], matrix.shape[0]))
         method_fqn = (
@@ -431,12 +443,16 @@ class FactorModelEmbeddingBuilder(_AdvancedMethodBase):
         for row, score in zip(sorted_rows, factor_scores, strict=True):
             grouped[str(row["agent_id"])].append(np.asarray(score, dtype=float))
         agent_ids = np.asarray(sorted(grouped), dtype=str)
-        embeddings = np.vstack([np.mean(np.vstack(grouped[agent_id]), axis=0) for agent_id in agent_ids])
+        embeddings = np.vstack(
+            [np.mean(np.vstack(grouped[agent_id]), axis=0) for agent_id in agent_ids]
+        )
         manifest = AgentFactorEmbeddingsBundleManifest(
             required_arrays=[
                 RequiredArraySpec(name="agent_ids", axes=["agent"], dtype="string"),
                 RequiredArraySpec(name="embeddings", axes=["agent", "factor"], dtype="float64"),
-                RequiredArraySpec(name="factor_loadings", axes=["variable", "factor"], dtype="float64"),
+                RequiredArraySpec(
+                    name="factor_loadings", axes=["variable", "factor"], dtype="float64"
+                ),
                 RequiredArraySpec(
                     name="explained_variance_ratio",
                     axes=["factor"],
@@ -455,7 +471,10 @@ class FactorModelEmbeddingBuilder(_AdvancedMethodBase):
                 )
             ],
             embedding_method=method_fqn,
-            contract_payload={"feature_fields": list(feature_fields), "n_factors": int(embeddings.shape[1])},
+            contract_payload={
+                "feature_fields": list(feature_fields),
+                "n_factors": int(embeddings.shape[1]),
+            },
         )
         bundle_ref = _persist_npz_payload(
             self.store,
@@ -475,7 +494,10 @@ class FactorModelEmbeddingBuilder(_AdvancedMethodBase):
             manifest=manifest,
             method_result_refs=(method_result_ref,),
             method_evidence_refs=(method_evidence_ref,),
-            metadata={"agent_count": int(agent_ids.shape[0]), "feature_fields": list(feature_fields)},
+            metadata={
+                "agent_count": int(agent_ids.shape[0]),
+                "feature_fields": list(feature_fields),
+            },
         )
 
 
@@ -487,14 +509,25 @@ class CellPrototypeBuilder(_AdvancedMethodBase):
         cell_feature_fields = inputs.cell_feature_fields or _numeric_feature_fields(
             cell_rows,
             exclude=_RESERVED_ID_FIELDS,
-            preferred=("population", "employment", "output", "distress_score", "public_service_index"),
+            preferred=(
+                "population",
+                "employment",
+                "output",
+                "distress_score",
+                "public_service_index",
+            ),
         )
         if not cell_feature_fields:
             raise ValueError("cell rows must include numeric feature fields for clustering")
         hh_numeric_fields = _numeric_feature_fields(
             inputs.household_cell_rows,
             exclude=_RESERVED_ID_FIELDS - {"cell_id"},
-            preferred=("household_count", "disposable_income", "poverty_rate", "transfer_intensity"),
+            preferred=(
+                "household_count",
+                "disposable_income",
+                "poverty_rate",
+                "transfer_intensity",
+            ),
         )
         hh_aggregates: dict[str, dict[str, float]] = defaultdict(lambda: defaultdict(float))
         hh_counts: dict[str, int] = defaultdict(int)
@@ -511,7 +544,9 @@ class CellPrototypeBuilder(_AdvancedMethodBase):
             for field_name in hh_numeric_fields:
                 merged[f"hh_{field_name}"] = hh_aggregates[cell_id][field_name] / count
             merged_rows.append(merged)
-        feature_fields = tuple(cell_feature_fields) + tuple(f"hh_{field}" for field in hh_numeric_fields)
+        feature_fields = tuple(cell_feature_fields) + tuple(
+            f"hh_{field}" for field in hh_numeric_fields
+        )
         matrix = _rows_to_matrix(merged_rows, feature_fields)
         k = max(2, min(8, matrix.shape[0] - 1))
         result, method_result_ref, method_evidence_ref = self._run_method(
@@ -526,7 +561,9 @@ class CellPrototypeBuilder(_AdvancedMethodBase):
             required_arrays=[
                 RequiredArraySpec(name="cell_ids", axes=["cell"], dtype="string"),
                 RequiredArraySpec(name="labels", axes=["cell"], dtype="int64"),
-                RequiredArraySpec(name="prototype_centers", axes=["prototype", "feature"], dtype="float64"),
+                RequiredArraySpec(
+                    name="prototype_centers", axes=["prototype", "feature"], dtype="float64"
+                ),
             ],
             axis_semantics=[
                 BundleAxisSemantic(axis="cell", description="Observed cell axis"),
@@ -536,7 +573,9 @@ class CellPrototypeBuilder(_AdvancedMethodBase):
             lineage=[
                 BundleLineageRef(
                     source_artifact="cell_panel",
-                    notes=["cell features enriched with household-cell aggregates before clustering"],
+                    notes=[
+                        "cell features enriched with household-cell aggregates before clustering"
+                    ],
                 )
             ],
             clustering_method="ml.clustering.kmeans@1.0.0",
@@ -567,20 +606,34 @@ class BilevelOptimizationAdapter(_AdvancedMethodBase):
     """Compile intervention knob magnitudes into a bilevel optimization bundle."""
 
     def run(self, inputs: C7AdvancedInputs) -> C7PersistedArtifact:
+        method_fqn = "optimization.bilevel.bilevel@1.1.0"
         knob_names = sorted(inputs.intervention_knobs)
         if not knob_names:
             raise ValueError("intervention_knobs must be non-empty")
-        magnitudes = np.asarray([abs(_coerce_float(inputs.intervention_knobs[name])) for name in knob_names], dtype=float)
+        magnitudes = np.asarray(
+            [abs(_coerce_float(inputs.intervention_knobs[name])) for name in knob_names],
+            dtype=float,
+        )
         upper_bounds = np.maximum(magnitudes, 1.0)
         n_knobs = upper_bounds.shape[0]
         c_upper = 1.0 + upper_bounds
         c_lower = 0.5 + upper_bounds
         A_upper = np.vstack([np.eye(n_knobs, dtype=float), np.ones((1, n_knobs), dtype=float)])
-        b_upper = np.concatenate([upper_bounds, np.asarray([0.6 * np.sum(upper_bounds)], dtype=float)])
+        b_upper = np.concatenate(
+            [upper_bounds, np.asarray([0.6 * np.sum(upper_bounds)], dtype=float)]
+        )
         A_lower = np.eye(n_knobs, dtype=float)
         b_lower = upper_bounds
+        method_params = {
+            "max_iter": 40,
+            "step_size": 0.1,
+            "ambiguity_mode": inputs.bilevel_ambiguity_mode,
+            "tie_break": inputs.bilevel_tie_break,
+            "delta_near_opt": float(inputs.bilevel_delta_near_opt),
+            "certificate_mode": inputs.bilevel_certificate_mode,
+        }
         result, method_result_ref, method_evidence_ref = self._run_method(
-            method_fqn="optimization.bilevel.bilevel@1.0.0",
+            method_fqn=method_fqn,
             input_state={
                 "c_upper": c_upper,
                 "c_lower": c_lower,
@@ -589,10 +642,11 @@ class BilevelOptimizationAdapter(_AdvancedMethodBase):
                 "A_lower": A_lower,
                 "b_lower": b_lower,
             },
-            method_params={"max_iter": 40, "step_size": 0.1},
+            method_params=method_params,
             seed=inputs.seed,
         )
         bundle = BilevelProblemBundle(
+            optimization_target=method_fqn,
             knob_names=knob_names,
             c_upper=c_upper.tolist(),
             c_lower=c_lower.tolist(),
@@ -600,6 +654,10 @@ class BilevelOptimizationAdapter(_AdvancedMethodBase):
             b_upper=b_upper.tolist(),
             A_lower=A_lower.tolist(),
             b_lower=b_lower.tolist(),
+            tie_break=inputs.bilevel_tie_break,
+            ambiguity_mode=inputs.bilevel_ambiguity_mode,
+            delta_near_opt=float(inputs.bilevel_delta_near_opt),
+            certificate_mode=inputs.bilevel_certificate_mode,
             result_summary=dict(result["result"]),
             notes=["v1 box/budget linearization over intervention knobs"],
         )
@@ -633,7 +691,9 @@ class HeckmanCorrectionAdapter(_AdvancedMethodBase):
             current_period = periods[-2] if len(periods) >= 2 else periods[-1]
         next_period = periods[min(periods.index(current_period) + 1, len(periods) - 1)]
         current_rows = [row for row in inputs.firm_panel_rows if _period_key(row) == current_period]
-        next_firms = {str(row["firm_id"]) for row in inputs.firm_panel_rows if _period_key(row) == next_period}
+        next_firms = {
+            str(row["firm_id"]) for row in inputs.firm_panel_rows if _period_key(row) == next_period
+        }
         outcome_fields = tuple(
             field
             for field in ("employment", "wage_bill", "cell_distress")
@@ -645,10 +705,14 @@ class HeckmanCorrectionAdapter(_AdvancedMethodBase):
             if any(field in row for row in current_rows)
         )
         if not outcome_fields or not selection_fields:
-            raise ValueError("firm_panel_rows must include outcome and selection covariates for Heckman correction")
+            raise ValueError(
+                "firm_panel_rows must include outcome and selection covariates for Heckman correction"
+            )
         X_outcome = _rows_to_matrix(current_rows, outcome_fields)
         X_selection = _rows_to_matrix(current_rows, selection_fields)
-        y = np.log1p(np.asarray([_coerce_float(row.get("output")) for row in current_rows], dtype=float))
+        y = np.log1p(
+            np.asarray([_coerce_float(row.get("output")) for row in current_rows], dtype=float)
+        )
         selected = np.asarray(
             [1.0 if str(row["firm_id"]) in next_firms else 0.0 for row in current_rows],
             dtype=float,
@@ -667,8 +731,16 @@ class HeckmanCorrectionAdapter(_AdvancedMethodBase):
         summary = dict(result["result"])
         outcome_coefficients = np.asarray(summary["outcome_coefficients"], dtype=float)
         intercept = float(outcome_coefficients[0]) if outcome_coefficients.size else 0.0
-        slope = outcome_coefficients[1:] if outcome_coefficients.size > 1 else np.zeros(X_outcome.shape[1], dtype=float)
-        corrected_log_output = intercept + X_outcome @ slope[: X_outcome.shape[1]] + float(summary["lambda_coefficient"]) * selected
+        slope = (
+            outcome_coefficients[1:]
+            if outcome_coefficients.size > 1
+            else np.zeros(X_outcome.shape[1], dtype=float)
+        )
+        corrected_log_output = (
+            intercept
+            + X_outcome @ slope[: X_outcome.shape[1]]
+            + float(summary["lambda_coefficient"]) * selected
+        )
         corrected_output = np.expm1(corrected_log_output)
         rows: list[dict[str, Any]] = []
         for row, flag, corrected_log, corrected_level in zip(
@@ -698,7 +770,11 @@ class HeckmanCorrectionAdapter(_AdvancedMethodBase):
                 RequiredColumnSpec(name="corrected_output", dtype="float"),
                 RequiredColumnSpec(name="lambda_coefficient", dtype="float"),
             ],
-            lineage=[BundleLineageRef(source_artifact="firm_panel", notes=[f"calibration_cut_period={current_period}"])],
+            lineage=[
+                BundleLineageRef(
+                    source_artifact="firm_panel", notes=[f"calibration_cut_period={current_period}"]
+                )
+            ],
             table_rows=rows,
             contract_payload={
                 "outcome_fields": list(outcome_fields),
@@ -719,7 +795,11 @@ class HeckmanCorrectionAdapter(_AdvancedMethodBase):
             manifest=bundle,
             method_result_refs=(method_result_ref,),
             method_evidence_refs=(method_evidence_ref,),
-            metadata={"row_count": len(rows), "current_period": current_period, "next_period": next_period},
+            metadata={
+                "row_count": len(rows),
+                "current_period": current_period,
+                "next_period": next_period,
+            },
         )
 
 
@@ -805,7 +885,9 @@ class SobolDiagnosticsAdapter(_AdvancedMethodBase):
             if source_combination_ids is None:
                 source_combination_ids = candidate_ids
             elif candidate_ids != source_combination_ids:
-                raise ValueError("all sobol targets must share the same source_combination_ids ordering")
+                raise ValueError(
+                    "all sobol targets must share the same source_combination_ids ordering"
+                )
             result, method_result_ref, method_evidence_ref = self._run_method(
                 method_fqn="sensitivity.global.sobol_first_order@1.0.0",
                 input_state={
@@ -839,7 +921,10 @@ class SobolDiagnosticsAdapter(_AdvancedMethodBase):
             manifest=bundle,
             method_result_refs=tuple(method_result_refs),
             method_evidence_refs=tuple(method_evidence_refs),
-            metadata={"target_count": len(target_names), "source_combination_ids": list(source_combination_ids or [])},
+            metadata={
+                "target_count": len(target_names),
+                "source_combination_ids": list(source_combination_ids or []),
+            },
         )
 
 

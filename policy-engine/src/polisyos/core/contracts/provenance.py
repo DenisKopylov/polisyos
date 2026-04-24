@@ -1,9 +1,10 @@
 """Public contracts provenance module API."""
+
 from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
@@ -183,7 +184,7 @@ class ProvenanceCoreGraph:
     activities: dict[str, ProvenanceActivity] = field(default_factory=dict)
     agents: dict[str, ProvenanceAgent] = field(default_factory=dict)
     edges: list[ProvenanceEdge] = field(default_factory=list)
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, str] = field(default_factory=dict)
 
     # --- Node Registration (O(1) insertion) ---
@@ -302,7 +303,7 @@ class ProvenanceCoreGraph:
             )
         )
 
-    def merge(self, other: "ProvenanceCoreGraph") -> None:
+    def merge(self, other: ProvenanceCoreGraph) -> None:
         """Merge another provenance graph into this graph idempotently."""
         for entity in other.entities.values():
             self.add_entity(entity)
@@ -351,10 +352,10 @@ class ProvenanceCoreGraph:
                     if (
                         edge.source_id == eid
                         and edge.relation == RelationType.WAS_DERIVED_FROM
+                        and edge.target_id not in ancestors
                     ):
-                        if edge.target_id not in ancestors:
-                            ancestors.add(edge.target_id)
-                            next_frontier.add(edge.target_id)
+                        ancestors.add(edge.target_id)
+                        next_frontier.add(edge.target_id)
             if not next_frontier:
                 break
             frontier = next_frontier
@@ -364,10 +365,7 @@ class ProvenanceCoreGraph:
     def get_generating_activity(self, entity_id: str) -> str | None:
         """Find the activity that generated this entity."""
         for edge in self.edges:
-            if (
-                edge.source_id == entity_id
-                and edge.relation == RelationType.WAS_GENERATED_BY
-            ):
+            if edge.source_id == entity_id and edge.relation == RelationType.WAS_GENERATED_BY:
                 return edge.target_id
         return None
 
@@ -515,9 +513,7 @@ class ProvenanceCoreGraph:
                     activity_type=ActivityType(a["activity_type"]),
                     label=a["label"],
                     started_at=datetime.fromisoformat(a["started_at"]),
-                    ended_at=(
-                        datetime.fromisoformat(a["ended_at"]) if a.get("ended_at") else None
-                    ),
+                    ended_at=(datetime.fromisoformat(a["ended_at"]) if a.get("ended_at") else None),
                     query_hash=a.get("query_hash"),
                     etl_step_id=a.get("etl_step_id"),
                     code_artifact_ref=a.get("code_artifact_ref"),

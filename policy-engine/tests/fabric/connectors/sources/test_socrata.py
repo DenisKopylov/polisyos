@@ -4,15 +4,14 @@ from __future__ import annotations
 
 import asyncio
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 import pytest
 
-from polisyos.fabric.safety import UnsafeFilterExpressionError, UnsafeIdentifierError
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.socrata import SocrataConnector
+from polisyos.fabric.safety import UnsafeFilterExpressionError, UnsafeIdentifierError
 from polisyos.ir.connectors import ConnectorCapability
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "socrata"
@@ -42,6 +41,7 @@ def _make_fake_request_json(fixture_body):
 
 def _fake_get_session(self, _handle):
     import asyncio as _aio
+
     fut = _aio.Future()
     fut.set_result(object())
     return fut
@@ -50,6 +50,7 @@ def _fake_get_session(self, _handle):
 # ---------------------------------------------------------------------------
 # Metadata
 # ---------------------------------------------------------------------------
+
 
 class TestSocrataMetadata:
     def test_connector_id(self):
@@ -67,6 +68,7 @@ class TestSocrataMetadata:
 # ---------------------------------------------------------------------------
 # SoQL params
 # ---------------------------------------------------------------------------
+
 
 class TestSoQLParams:
     def test_basic_params(self):
@@ -96,8 +98,8 @@ class TestSoQLParams:
     def test_date_range(self):
         req = FetchRequest(
             dataset_id="abc1-2345",
-            date_start=datetime(2024, 1, 1, tzinfo=timezone.utc),
-            date_end=datetime(2024, 12, 31, tzinfo=timezone.utc),
+            date_start=datetime(2024, 1, 1, tzinfo=UTC),
+            date_end=datetime(2024, 12, 31, tzinfo=UTC),
         )
         params = SocrataConnector._build_soql_params(req)
         assert ":updated_at >=" in params["$where"]
@@ -135,6 +137,7 @@ class TestSoQLParams:
 # List datasets
 # ---------------------------------------------------------------------------
 
+
 class TestSocrataListDatasets:
     def test_list_views(self, monkeypatch):
         connector = SocrataConnector()
@@ -160,6 +163,7 @@ class TestSocrataListDatasets:
 # Fetch
 # ---------------------------------------------------------------------------
 
+
 class TestSocrataFetch:
     def test_fetch_resource(self, monkeypatch):
         connector = SocrataConnector()
@@ -183,6 +187,7 @@ class TestSocrataFetch:
 # ---------------------------------------------------------------------------
 # Health check
 # ---------------------------------------------------------------------------
+
 
 class TestSocrataHealth:
     def test_health_ok(self, monkeypatch):

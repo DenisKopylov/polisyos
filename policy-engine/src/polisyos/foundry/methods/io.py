@@ -1,7 +1,9 @@
 """Public methods io module API."""
+
 from __future__ import annotations
 
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 import numpy as np
 
@@ -74,7 +76,9 @@ def dematerialize_method_output(
 
     result = _coerce_output_mapping(signature=signature, output=output)
     strict_extras = bool(getattr(method_class, "strict_output_contract", False))
-    _validate_output_mapping(signature=signature, output_mapping=result, strict_extras=strict_extras)
+    _validate_output_mapping(
+        signature=signature, output_mapping=result, strict_extras=strict_extras
+    )
 
     if len(expected_slots) == 1:
         return result
@@ -91,7 +95,7 @@ def validate_value_for_slot(slot: SlotSpec, value: Any, *, method_fqn: str, labe
             if raw is not None:
                 actual_contract = str(raw)
         elif hasattr(value, "contract_id"):
-            raw = getattr(value, "contract_id")
+            raw = value.contract_id
             if raw is not None:
                 actual_contract = str(raw)
         if actual_contract is not None and actual_contract != slot.contract_id:

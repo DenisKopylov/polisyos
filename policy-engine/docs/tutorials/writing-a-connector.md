@@ -5,11 +5,11 @@ Related how-to: [Add Data Source](../how-to/add-data-source.md). Related referen
 > Этот tutorial рассчитан на инженера, который впервые добавляет источник данных в Fabric и хочет пройти весь путь от нового файла до локальной валидации.
 
 !!! info "Verified with"
-    Эта страница была перепроверена 2026-04-17 на текущем дереве, macOS,
-    Python 3.14 и `uv`.
-    Реально проверены
-    `uv run polisyos-tools connectors scaffold create --name MySource --type REST --dry-run`
-    и импорты `WorldBankConnector` / `HTTPConnectorBase`.
+Эта страница была перепроверена 2026-04-17 на текущем дереве, macOS,
+Python 3.14 и `uv`.
+Реально проверены
+`uv run polisyos-tools connectors scaffold create --name MySource --type REST --dry-run`
+и импорты `WorldBankConnector` / `HTTPConnectorBase`.
 
 В walkthrough ниже мы не покрываем все edge cases connector platform. Цель другая: собрать минимальный production-shaped connector, зарегистрировать его в публичной поверхности Fabric и убедиться, что он проходит локальные проверки.
 
@@ -213,12 +213,14 @@ SourceProfile(
 2. Проверьте, что connector metadata и hard capabilities реально покрывают `required_capabilities`.
 3. Добавьте хотя бы один built-in profile scaffold в `builtin_profiles.py`, даже если он demo-oriented.
 4. Для schema introspection сразу решите, какой режим используете:
+
    - files/object storage: sample inference + format/provider metadata
    - sql: query probe или information schema
    - graphql: protocol query + sample inference
    - geojson: feature properties + spatial metadata
    - stream: message sample + stream metadata
 5. Сразу положите lineage metadata в connector boundary, а не как post-processing:
+
    - source location / bucket / object key
    - query or query document
    - CRS / geometry types

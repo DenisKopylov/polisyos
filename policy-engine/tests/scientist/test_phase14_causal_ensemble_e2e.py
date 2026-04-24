@@ -7,7 +7,13 @@ import pytest
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod, EstimationStatus, load_causal_effect_report, persist_causal_effect_report
+from polisyos.ir.analytics.causal import (
+    CausalEffectReport,
+    CausalMethod,
+    EstimationStatus,
+    load_causal_effect_report,
+    persist_causal_effect_report,
+)
 from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.structural_causal_model import (
@@ -25,8 +31,8 @@ from polisyos.scientist.nodes.builtins.causal.resolve_transport import RunTransp
 from polisyos.scientist.nodes.builtins.causal.run_causal_ensemble import RunCausalEnsembleNode
 from polisyos.scientist.nodes.builtins.causal.run_causal_queries import RunCausalQueriesNode
 from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
+    ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_QUERY_ENVELOPE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
@@ -72,7 +78,7 @@ def _scm_for_graph(graph: CausalGraphModel, coef: float) -> StructuralCausalMode
                 family=MechanismFamily.LINEAR,
                 family_params={
                     "intercept": 0.0,
-                    "coefficients": {parent: coef for parent in parents},
+                    "coefficients": dict.fromkeys(parents, coef),
                     "noise_std": 0.05,
                 },
                 source=MechanismSource.DATA_FITTED,

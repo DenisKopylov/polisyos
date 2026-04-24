@@ -9,7 +9,10 @@
  * - Collaboration: review.started, comment.added, share.triggered
  */
 
-import { trackTelemetry, type TelemetryPayload } from "@/shared/telemetry/pipeline";
+import {
+  trackTelemetry,
+  type TelemetryPayload,
+} from "@/shared/telemetry/pipeline";
 
 /* ── Interaction events ── */
 

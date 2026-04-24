@@ -1,15 +1,13 @@
 """Tests for ChainedAuditLog adapter and NoopAuditLog."""
+
 from __future__ import annotations
 
-from unittest.mock import MagicMock, call
-
-import pytest
+from unittest.mock import MagicMock
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.security.audit_log_adapter import ChainedAuditLog
 from polisyos.core.security.audit_models import AuditActor, AuditEventType, AuditResource
 from polisyos.core.security.audit_protocol import AuditLog, NoopAuditLog
-
 
 _FAKE_ID = "sha256:" + "bb" * 32
 

@@ -17,6 +17,7 @@ Halpern, J. & Pearl, J. (2005). Causes and Explanations: A Structural-Model
 Halpern, J. (2016). Actual Causality. MIT Press.
 Chockler, H. & Halpern, J. (2004). Responsibility and Blame. JAIR.
 """
+
 from __future__ import annotations
 
 import itertools
@@ -57,7 +58,6 @@ from polisyos.ir.analytics.actual_causality import (
 )
 from polisyos.ir.analytics.ncm import NCMSpec
 
-
 # ── Tian-Pearl observational bounds (no SCM required) ─────────────────────────
 
 
@@ -75,7 +75,11 @@ def _normalize_cause_assignment(
     ordered_vars = [str(var) for var in cause_vars]
     values: dict[str, float] = {}
     for var in ordered_vars:
-        values[var] = float(cause_values[var]) if cause_values is not None and var in cause_values else float(cause_value)
+        values[var] = (
+            float(cause_values[var])
+            if cause_values is not None and var in cause_values
+            else float(cause_value)
+        )
     return ordered_vars, values
 
 
@@ -109,11 +113,15 @@ def _normalize_context_distribution(raw: Any) -> tuple[list[dict[str, float]], l
             return [], []
         if not isinstance(contexts, list):
             raise ValueError("context_distribution['contexts'] must be a list")
-        parsed_contexts = [{str(k): float(v) for k, v in ctx.items()} for ctx in contexts if isinstance(ctx, dict)]
+        parsed_contexts = [
+            {str(k): float(v) for k, v in ctx.items()} for ctx in contexts if isinstance(ctx, dict)
+        ]
         if len(parsed_contexts) != len(contexts):
             raise ValueError("context_distribution['contexts'] must contain mappings")
         if weights is None:
-            parsed_weights = [1.0 / len(parsed_contexts)] * len(parsed_contexts) if parsed_contexts else []
+            parsed_weights = (
+                [1.0 / len(parsed_contexts)] * len(parsed_contexts) if parsed_contexts else []
+            )
         else:
             parsed_weights = [float(w) for w in weights]
             if len(parsed_weights) != len(parsed_contexts):
@@ -214,6 +222,7 @@ def _compute_monotonicity_test(
     # One-sided p-value for H0: p1 < p0 (monotonicity violation)
     # Using normal approximation
     from scipy.stats import norm  # type: ignore[import-untyped]
+
     p_val = float(norm.cdf(-z_stat))  # P(Z < -z) = P(violation)
     is_compatible = p1 >= p0  # Simple check: E[Y|T=1] >= E[Y|T=0]
     return is_compatible, p_val
@@ -291,8 +300,13 @@ def _pn_from_ncm(
     # Run two parallel worlds: factual (x) and counterfactual (x')
     interventions = [{treatment: x_factual}, {treatment: x_counter}]
     worlds = _parallel_worlds(
-        ncm, interventions, {}, "exact",
-        n_samples=n_samples, rng=rng, warnings=warnings,
+        ncm,
+        interventions,
+        {},
+        "exact",
+        n_samples=n_samples,
+        rng=rng,
+        warnings=warnings,
     )
     factual_y = worlds[0][outcome]
     counter_y = worlds[1][outcome]
@@ -347,8 +361,13 @@ def _ps_from_ncm(
     """
     interventions = [{treatment: x_counter}, {treatment: x_factual}]
     worlds = _parallel_worlds(
-        ncm, interventions, {}, "exact",
-        n_samples=n_samples, rng=rng, warnings=warnings,
+        ncm,
+        interventions,
+        {},
+        "exact",
+        n_samples=n_samples,
+        rng=rng,
+        warnings=warnings,
     )
     counter_y = worlds[0][outcome]  # Y under x'
     factual_y = worlds[1][outcome]  # Y under x (the "treated" world)
@@ -404,8 +423,13 @@ def _pns_from_ncm(
     """
     interventions = [{treatment: x_factual}, {treatment: x_counter}]
     worlds = _parallel_worlds(
-        ncm, interventions, {}, "exact",
-        n_samples=n_samples, rng=rng, warnings=warnings,
+        ncm,
+        interventions,
+        {},
+        "exact",
+        n_samples=n_samples,
+        rng=rng,
+        warnings=warnings,
     )
     y_fact = worlds[0][outcome]
     y_count = worlds[1][outcome]
@@ -763,9 +787,7 @@ def _degree_of_responsibility(
     )
 
     def _effect_changes_with_w(w_dict: dict[str, float]) -> bool:
-        sim = _simulate_with_intervention_and_context(
-            ncm, cf_values, w_dict, context, warnings
-        )
+        sim = _simulate_with_intervention_and_context(ncm, cf_values, w_dict, context, warnings)
         y_sim = sim.get(effect_var, effect_value)
         if outcome_threshold is not None:
             return (effect_value >= outcome_threshold) != (float(y_sim) >= outcome_threshold)
@@ -840,7 +862,11 @@ def _degree_of_blame(
         )
         responsibilities.append(float(resp))
 
-    blame = float(np.average(np.asarray(responsibilities, dtype=float), weights=np.asarray(weights, dtype=float)))
+    blame = float(
+        np.average(
+            np.asarray(responsibilities, dtype=float), weights=np.asarray(weights, dtype=float)
+        )
+    )
     if len(responsibilities) == 1 or bootstrap_samples <= 1:
         return blame, (blame, blame)
 
@@ -849,7 +875,9 @@ def _degree_of_blame(
     probs = np.asarray(weights, dtype=float)
     probs = probs / probs.sum() if probs.sum() > 0 else np.full(len(weights), 1.0 / len(weights))
     for _ in range(bootstrap_samples):
-        idx = rng.choice(len(context_distribution), size=len(context_distribution), replace=True, p=probs)
+        idx = rng.choice(
+            len(context_distribution), size=len(context_distribution), replace=True, p=probs
+        )
         sample_responsibilities = np.asarray([responsibilities[i] for i in idx], dtype=float)
         sample_weights = np.full(len(idx), 1.0 / len(idx), dtype=float)
         boot.append(float(np.average(sample_responsibilities, weights=sample_weights)))
@@ -887,12 +915,16 @@ class ActualCausalityEngine:
         name="actual_causality",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("ncm_query_data", SlotType.SCALAR, Unit("query", "json")),
-        }),
-        output_slots=frozenset({
-            SlotSpec("pns_result", SlotType.SCALAR, Unit("report", "json")),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec("ncm_query_data", SlotType.SCALAR, Unit("query", "json")),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec("pns_result", SlotType.SCALAR, Unit("report", "json")),
+            }
+        ),
         parameters=(
             ParameterSpec(name="n_samples", default=2000),
             ParameterSpec(name="compute_bounds", default=True),
@@ -914,7 +946,9 @@ class ActualCausalityEngine:
             "Probability of Necessity (PN), Sufficiency (PS), and Necessity+Sufficiency "
             "(PNS) via NCM twin-network simulation or Tian-Pearl observational bounds."
         ),
-        tags=frozenset({"causal", "pns", "probability_of_causation", "l3", "counterfactual", "structural"}),
+        tags=frozenset(
+            {"causal", "pns", "probability_of_causation", "l3", "counterfactual", "structural"}
+        ),
         citations=(
             "Pearl, J. (2000). Causality, Ch. 9. CUP.",
             "Tian, J. & Pearl, J. (2000). Probabilities of Causation: Bounds and Identification. "
@@ -963,8 +997,12 @@ class ActualCausalityEngine:
             query_data = NCMQueryData.model_validate(raw if isinstance(raw, dict) else dict(raw))
 
         ncm: NCMSpec = query_data.ncm_spec  # type: ignore[assignment]
-        treatment = str(params.get("treatment_variable") or query_data.metadata.get("treatment_variable", "T"))
-        outcome = str(params.get("outcome_variable") or query_data.metadata.get("outcome_variable", "Y"))
+        treatment = str(
+            params.get("treatment_variable") or query_data.metadata.get("treatment_variable", "T")
+        )
+        outcome = str(
+            params.get("outcome_variable") or query_data.metadata.get("outcome_variable", "Y")
+        )
 
         warnings: list[str] = []
         out: dict[str, Any] = {}
@@ -972,24 +1010,42 @@ class ActualCausalityEngine:
         # NCM-based simulation
         if estimand in ("pn", "all"):
             pn_result = _pn_from_ncm(
-                ncm, treatment, outcome, x_val, x_counter,
-                n_samples=n_samples, rng=rng, warnings=warnings,
+                ncm,
+                treatment,
+                outcome,
+                x_val,
+                x_counter,
+                n_samples=n_samples,
+                rng=rng,
+                warnings=warnings,
                 outcome_threshold=outcome_threshold,
             )
             out["pn_result"] = pn_result.model_dump(mode="json")
 
         if estimand in ("ps", "all"):
             ps_result = _ps_from_ncm(
-                ncm, treatment, outcome, x_val, x_counter,
-                n_samples=n_samples, rng=rng, warnings=warnings,
+                ncm,
+                treatment,
+                outcome,
+                x_val,
+                x_counter,
+                n_samples=n_samples,
+                rng=rng,
+                warnings=warnings,
                 outcome_threshold=outcome_threshold,
             )
             out["ps_result"] = ps_result.model_dump(mode="json")
 
         if estimand in ("pns", "all"):
             pns_result = _pns_from_ncm(
-                ncm, treatment, outcome, x_val, x_counter,
-                n_samples=n_samples, rng=rng, warnings=warnings,
+                ncm,
+                treatment,
+                outcome,
+                x_val,
+                x_counter,
+                n_samples=n_samples,
+                rng=rng,
+                warnings=warnings,
                 outcome_threshold=outcome_threshold,
             )
             out["pns_result"] = pns_result.model_dump(mode="json")
@@ -1031,12 +1087,16 @@ class HPActualCauseMethod:
         name="hp_actual_cause",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("ncm_query_data", SlotType.SCALAR, Unit("query", "json")),
-        }),
-        output_slots=frozenset({
-            SlotSpec("hp_result", SlotType.SCALAR, Unit("report", "json")),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec("ncm_query_data", SlotType.SCALAR, Unit("query", "json")),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec("hp_result", SlotType.SCALAR, Unit("report", "json")),
+            }
+        ),
         parameters=(
             ParameterSpec(name="cause_variable", default="X"),
             ParameterSpec(name="cause_value", default=1.0),
@@ -1066,7 +1126,9 @@ class HPActualCauseMethod:
             "HP actual causality check: determines whether X=x is an actual cause of Y=y "
             "via AC1/AC2/AC3 conditions, and computes degree of responsibility."
         ),
-        tags=frozenset({"causal", "actual_causality", "halpern_pearl", "responsibility", "l3", "structural"}),
+        tags=frozenset(
+            {"causal", "actual_causality", "halpern_pearl", "responsibility", "l3", "structural"}
+        ),
         citations=(
             "Halpern, J. & Pearl, J. (2005). Causes and Explanations: A Structural-Model Approach. BJPS.",
             "Halpern, J. (2016). Actual Causality. MIT Press.",
@@ -1123,13 +1185,17 @@ class HPActualCauseMethod:
         cause_vars, cause_values = _normalize_cause_assignment(
             cause_var,
             cause_val,
-            cause_vars=list(cause_vars_raw) if isinstance(cause_vars_raw, (list, tuple, set, frozenset)) else None,
+            cause_vars=list(cause_vars_raw)
+            if isinstance(cause_vars_raw, (list, tuple, set, frozenset))
+            else None,
             cause_values=cause_values_raw if isinstance(cause_values_raw, Mapping) else None,
         )
         cf_cause_values = _normalize_counterfactual_assignment(
             cause_vars,
             cf_cause_val,
-            counterfactual_cause_values=cf_cause_values_raw if isinstance(cf_cause_values_raw, Mapping) else None,
+            counterfactual_cause_values=cf_cause_values_raw
+            if isinstance(cf_cause_values_raw, Mapping)
+            else None,
         )
         cause_assignment_text = ", ".join(f"{var}={cause_values[var]}" for var in cause_vars)
 
@@ -1137,8 +1203,14 @@ class HPActualCauseMethod:
 
         # AC1
         ac1 = _check_ac1(
-            ncm, cause_var, cause_val, effect_var, effect_val, context,
-            outcome_threshold, warnings,
+            ncm,
+            cause_var,
+            cause_val,
+            effect_var,
+            effect_val,
+            context,
+            outcome_threshold,
+            warnings,
             cause_vars=cause_vars if len(cause_vars) > 1 else None,
             cause_values=cause_values if len(cause_vars) > 1 else None,
         )
@@ -1151,9 +1223,16 @@ class HPActualCauseMethod:
         if ac1:
             # AC2: find contingency
             contingency = _check_ac2_find_contingency(
-                ncm, cause_var, cause_val, cf_cause_val,
-                effect_var, effect_val, context, outcome_threshold,
-                max_contingency_size=max_size, warnings=warnings,
+                ncm,
+                cause_var,
+                cause_val,
+                cf_cause_val,
+                effect_var,
+                effect_val,
+                context,
+                outcome_threshold,
+                max_contingency_size=max_size,
+                warnings=warnings,
                 cause_vars=cause_vars if len(cause_vars) > 1 else None,
                 cause_values=cause_values if len(cause_vars) > 1 else None,
                 counterfactual_cause_values=cf_cause_values if len(cause_vars) > 1 else None,
@@ -1163,9 +1242,17 @@ class HPActualCauseMethod:
         if ac2:
             # AC3: minimality (trivially True for single-variable causes)
             ac3 = _check_ac3_minimality(
-                ncm, cause_var, cause_val, cf_cause_val,
-                effect_var, effect_val, context, contingency,
-                outcome_threshold, max_contingency_size=max_size, warnings=warnings,
+                ncm,
+                cause_var,
+                cause_val,
+                cf_cause_val,
+                effect_var,
+                effect_val,
+                context,
+                contingency,
+                outcome_threshold,
+                max_contingency_size=max_size,
+                warnings=warnings,
                 cause_vars=cause_vars if len(cause_vars) > 1 else None,
                 cause_values=cause_values if len(cause_vars) > 1 else None,
                 counterfactual_cause_values=cf_cause_values if len(cause_vars) > 1 else None,
@@ -1176,19 +1263,32 @@ class HPActualCauseMethod:
         # Degree of responsibility
         if is_actual and compute_dr:
             dr = _degree_of_responsibility(
-                ncm, cause_var, cause_val, cf_cause_val,
-                effect_var, effect_val, context, outcome_threshold,
-                max_contingency_size=max_size, warnings=warnings,
+                ncm,
+                cause_var,
+                cause_val,
+                cf_cause_val,
+                effect_var,
+                effect_val,
+                context,
+                outcome_threshold,
+                max_contingency_size=max_size,
+                warnings=warnings,
                 cause_vars=cause_vars if len(cause_vars) > 1 else None,
                 cause_values=cause_values if len(cause_vars) > 1 else None,
                 counterfactual_cause_values=cf_cause_values if len(cause_vars) > 1 else None,
             )
         elif is_actual:
-            dr = 1.0 / ((contingency.size if contingency else 0) + 1) if contingency is not None else 1.0
+            dr = (
+                1.0 / ((contingency.size if contingency else 0) + 1)
+                if contingency is not None
+                else 1.0
+            )
 
         degree_of_blame: float | None = None
         blame_ci: tuple[float, float] | None = None
-        context_dist_raw = params.get("context_distribution", query_data.metadata.get("context_distribution"))
+        context_dist_raw = params.get(
+            "context_distribution", query_data.metadata.get("context_distribution")
+        )
         context_distribution, context_weights = _normalize_context_distribution(context_dist_raw)
         if estimate_blame or context_distribution:
             degree_of_blame, blame_ci = _degree_of_blame(
@@ -1216,7 +1316,9 @@ class HPActualCauseMethod:
                 f"DR={dr:.3f}."
             )
         elif not ac1:
-            explanation = f"AC1 failed: {cause_assignment_text} or {effect_var}={effect_val} not in context."
+            explanation = (
+                f"AC1 failed: {cause_assignment_text} or {effect_var}={effect_val} not in context."
+            )
         elif not ac2:
             explanation = (
                 f"AC2 failed: no contingency set of size ≤{max_size} makes "
@@ -1240,7 +1342,9 @@ class HPActualCauseMethod:
             is_actual_cause=is_actual,
             contingency=contingency,
             degree_of_responsibility=float(np.clip(dr, 0.0, 1.0)),
-            degree_of_blame=float(np.clip(degree_of_blame, 0.0, 1.0)) if degree_of_blame is not None else None,
+            degree_of_blame=float(np.clip(degree_of_blame, 0.0, 1.0))
+            if degree_of_blame is not None
+            else None,
             blame_ci=blame_ci,
             explanation=explanation,
             metadata={"warnings": warnings, "computation_time_seconds": time.time() - t0},
@@ -1252,17 +1356,17 @@ class HPActualCauseMethod:
 __all__ = [
     "ActualCausalityEngine",
     "HPActualCauseMethod",
-    "compute_pnps_bounds",
-    "_tian_pearl_pn_bounds",
-    "_tian_pearl_ps_bounds",
-    "_tian_pearl_pns_bounds",
-    "_compute_monotonicity_test",
-    "_pn_from_ncm",
-    "_ps_from_ncm",
-    "_pns_from_ncm",
     "_check_ac1",
     "_check_ac2_find_contingency",
     "_check_ac3_minimality",
-    "_degree_of_responsibility",
+    "_compute_monotonicity_test",
     "_degree_of_blame",
+    "_degree_of_responsibility",
+    "_pn_from_ncm",
+    "_pns_from_ncm",
+    "_ps_from_ncm",
+    "_tian_pearl_pn_bounds",
+    "_tian_pearl_pns_bounds",
+    "_tian_pearl_ps_bounds",
+    "compute_pnps_bounds",
 ]

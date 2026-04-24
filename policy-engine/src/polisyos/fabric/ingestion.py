@@ -1,4 +1,5 @@
 """Public fabric ingestion module API."""
+
 from __future__ import annotations
 
 import importlib
@@ -14,6 +15,7 @@ from typing import TYPE_CHECKING, Any, cast
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash
+from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric.connectors.cache.policy import (
     PolicyRegistry,
     SmartExpiryPolicy,
@@ -22,6 +24,7 @@ from polisyos.fabric.connectors.cache.policy import (
     VolatileDataPolicy,
 )
 from polisyos.fabric.connectors.cache.store import ConnectorCacheStore
+from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.data_plane.quarantine import (
     QuarantineRecord,
     persist_quarantine_record,
@@ -58,11 +61,11 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.core.contracts.fabric import EvidenceBundleRef
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
-    from polisyos.fabric.connectors.registry import ConnectorRegistry
 
 logger = get_logger(__name__)
 TransformPipelineFactory = Callable[[], Any]
 _TRANSFORM_PIPELINE_REGISTRY: dict[str, TransformPipelineFactory] = {}
+
 
 def _require_text(raw: Mapping[str, object], field: str) -> str:
     value = raw.get(field)
@@ -209,9 +212,7 @@ class ConnectorManifestSpec:
             raise ValueError("connector manifest 'datasets' must be a list of mappings")
 
         retry_policy = raw.get("retry_policy")
-        normalized_retry_policy = (
-            dict(retry_policy) if isinstance(retry_policy, dict) else None
-        )
+        normalized_retry_policy = dict(retry_policy) if isinstance(retry_policy, dict) else None
         return cls(
             datasets=datasets,
             transform_dag=_optional_text(raw.get("transform_dag")),
@@ -268,9 +269,7 @@ def _normalize_connector_manifest(
     elif isinstance(manifest, dict):
         raw = manifest
     else:
-        raise TypeError(
-            "connector_manifest must be a dict, Path, str, or ConnectorManifestSpec"
-        )
+        raise TypeError("connector_manifest must be a dict, Path, str, or ConnectorManifestSpec")
 
     return ConnectorManifestSpec.from_mapping(raw)
 
@@ -393,10 +392,7 @@ def _pipeline_supports_row_isolation(pipeline: Any) -> bool:
         "CodeHarmonizationTransform",
         "ImputationTransform",
     }
-    return all(
-        stage.transform.__class__.__name__ in safe_classes
-        for stage in compiled.stages
-    )
+    return all(stage.transform.__class__.__name__ in safe_classes for stage in compiled.stages)
 
 
 def _persist_quarantine_entry(
@@ -499,9 +495,7 @@ def _sanitize_fetch_result(
         return result, [], 0
 
     signature_counts = Counter(
-        tuple(sorted(str(key) for key in row))
-        for row in rows
-        if isinstance(row, dict)
+        tuple(sorted(str(key) for key in row)) for row in rows if isinstance(row, dict)
     )
     expected_keys = max(
         signature_counts,
@@ -534,9 +528,7 @@ def _sanitize_fetch_result(
             continue
 
         quarantined += 1
-        warning = (
-            f"quarantined {connector_id}:{dataset_id} row {index} because of {reason}"
-        )
+        warning = f"quarantined {connector_id}:{dataset_id} row {index} because of {reason}"
         warnings.append(warning)
         _persist_quarantine_entry(
             cas_store=cas_store,
@@ -561,9 +553,7 @@ def _sanitize_fetch_result(
 
     total_rows = max(len(rows), 1)
     cleaned_payload = _rows_to_payload(payload_kind, valid_rows, columns)
-    updated_quality_flags = frozenset(
-        set(result.quality_flags).union({"quarantine_applied"})
-    )
+    updated_quality_flags = frozenset(set(result.quality_flags).union({"quarantine_applied"}))
     cleaned_result = result.model_copy(
         update={
             "data": cleaned_payload,
@@ -672,9 +662,7 @@ def _apply_transform_pipeline(
                     context={
                         "row_index": index,
                         "message": str(row_exc),
-                        "pipeline_stages": [
-                            stage.name for stage in pipeline.compile().stages
-                        ],
+                        "pipeline_stages": [stage.name for stage in pipeline.compile().stages],
                     },
                 )
 
@@ -713,9 +701,7 @@ def _sync_fetch(
         if config is None:
             entry = registry.get_entry(connector_id)
             if entry.default_config is None:
-                raise ValueError(
-                    f"No default_config registered for connector '{connector_id}'"
-                )
+                raise ValueError(f"No default_config registered for connector '{connector_id}'")
             config = entry.default_config
         handle = await registry.get_connection(connector_id, config)
         try:
@@ -861,6 +847,9 @@ def run_connectors_ingestion(
         tracer=tracer,
         metrics=metrics,
         store_factory=store_factory,
+        registry_factory=ConnectorRegistry.get_instance,
+        tracer_factory=get_tracer,
+        metrics_factory=get_metrics,
     )
     with resolved_dependencies.tracer.start_as_current_span(
         FABRIC_TRACE_NAMES["data_plane_ingest"],
@@ -871,12 +860,12 @@ def run_connectors_ingestion(
         },
     ) as span:
         cas_store = (
-            resolved_dependencies.store_factory(Path(cas_root))
-            if cas_root is not None
-            else None
+            resolved_dependencies.store_factory(Path(cas_root)) if cas_root is not None else None
         )
         if cas_store is None:
-            logger.warning("connector_ingestion: cas_root is None — evidence will not be persisted.")
+            logger.warning(
+                "connector_ingestion: cas_root is None — evidence will not be persisted."
+            )
 
         cache_registry = _build_cache_registry(spec.cache_policy)
         cache_store = (
@@ -940,17 +929,24 @@ def run_connectors_ingestion(
                 request,
                 connection_config=connection_config,
             )
-            result, transform_graph, transform_warnings, transform_quarantined = _apply_transform_pipeline(
-                result,
-                pipeline,
-                connector_id=connector_id,
-                dataset_id=dataset_id,
-                cas_store=cas_store,
+            result, transform_graph, transform_warnings, transform_quarantined = (
+                _apply_transform_pipeline(
+                    result,
+                    pipeline,
+                    connector_id=connector_id,
+                    dataset_id=dataset_id,
+                    cas_store=cas_store,
+                )
             )
             if transform_graph is not None:
                 transform_lineage_graphs.append(transform_graph)
             if transform_warnings:
-                logger.warning("transform pipeline warnings for %s:%s: %s", connector_id, dataset_id, transform_warnings)
+                logger.warning(
+                    "transform pipeline warnings for %s:%s: %s",
+                    connector_id,
+                    dataset_id,
+                    transform_warnings,
+                )
             if pii_stage is not None:
                 try:
                     result, _ = pii_stage.process_fetch_result(result)
@@ -983,7 +979,9 @@ def run_connectors_ingestion(
                     result,
                     connector_id=connector_id,
                     classification=getattr(connector_metadata, "data_classification", None),
-                    column_classification=getattr(connector_metadata, "column_classification", None),
+                    column_classification=getattr(
+                        connector_metadata, "column_classification", None
+                    ),
                 )
                 payload_ref = metadata.payload_ref
                 artifact_refs.append(payload_ref)
@@ -1010,9 +1008,7 @@ def run_connectors_ingestion(
                     "quality_flags": sorted(str(flag) for flag in result.quality_flags),
                     "not_modified": result.not_modified,
                     "data_artifact_id": payload_ref.artifact_id.hex if payload_ref else None,
-                    "pii_max_severity": (
-                        result.pii_scan.max_severity if result.pii_scan else None
-                    ),
+                    "pii_max_severity": (result.pii_scan.max_severity if result.pii_scan else None),
                     "pii_entities_total": (
                         result.pii_scan.total_entities_found if result.pii_scan else None
                     ),
@@ -1020,13 +1016,14 @@ def run_connectors_ingestion(
                     "pii_scan": (
                         result.pii_scan.model_dump(mode="json") if result.pii_scan else None
                     ),
-                    "quarantined_records_count": int(
-                        transform_quarantined + fetch_quarantined
-                    ),
+                    "quarantined_records_count": int(transform_quarantined + fetch_quarantined),
                     "quarantine_sources": tuple(
                         source_name
                         for source_name, count in (
-                            (f"connector.transform:{connector_id}:{dataset_id}", transform_quarantined),
+                            (
+                                f"connector.transform:{connector_id}:{dataset_id}",
+                                transform_quarantined,
+                            ),
                             (f"connector.fetch:{connector_id}:{dataset_id}", fetch_quarantined),
                         )
                         if count > 0

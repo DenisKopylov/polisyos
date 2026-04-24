@@ -7,10 +7,12 @@ Falls back gracefully when not available.
 from __future__ import annotations
 
 import re
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = get_logger(__name__)
 
@@ -83,19 +85,23 @@ def extract_tables_from_pdf(pdf_path: Path) -> list[dict[str, Any]]:
                 for col_idx, cell_text in enumerate(row_values):
                     parsed = _parse_numeric_cell(cell_text)
                     if parsed is not None:
-                        numeric_cells.append({
-                            "row": row_idx,
-                            "col": col_idx,
-                            "header": headers[col_idx] if col_idx < len(headers) else "",
-                            **parsed,
-                        })
+                        numeric_cells.append(
+                            {
+                                "row": row_idx,
+                                "col": col_idx,
+                                "header": headers[col_idx] if col_idx < len(headers) else "",
+                                **parsed,
+                            }
+                        )
 
-            tables.append({
-                "table_index": table_index,
-                "headers": headers,
-                "rows": rows,
-                "numeric_cells": numeric_cells,
-            })
+            tables.append(
+                {
+                    "table_index": table_index,
+                    "headers": headers,
+                    "rows": rows,
+                    "numeric_cells": numeric_cells,
+                }
+            )
             table_index += 1
 
     return tables

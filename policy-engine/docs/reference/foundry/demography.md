@@ -8,6 +8,7 @@ layers:
 
 - `survey.demography.*` solves the accounting problem exactly on sparse
   record-to-state flows.
+
 - `simulation.demography.static_aging` turns transition priors, donor pools,
   and macro targets into a materialized aged sample plus optional integerized
   draws.
@@ -21,14 +22,14 @@ and the linked tests below.
 
 ## What Is Implemented
 
-| Layer | Module | Role |
-|---|---|---|
-| Deterministic core | `survey.demography.demographic_consistency@1.0.0` | Exact hard balancing for survivor flows with exits, entrants, structural zeros, and target reconciliation |
-| Canonical estimator | `survey.demography.cceb@1.0.0` | Alias for the cohort-component plus entropic-balancing deterministic core |
-| Additional margins | `survey.demography.*` soft-constraint inputs | Heuristic soft-margin fitting for auxiliary cross-tabs such as health or SES after exact demographic balancing |
-| Orchestration | `simulation.demography.static_aging@1.0.0` | Builds sparse candidate flows from origin-state priors, scales donor pools, materializes aged sample, and emits integerized draws |
-| Data access | `polisyos.data_forge.read_api.ukraine` | Runtime-safe loading of reconciled targets, transition priors, donor pools, and Foundry-ready state composition |
-| Compatibility shim | `polisyos.ukraine_data.demography` | Temporary bridge until the wider Data Forge migration is complete |
+| Layer               | Module                                            | Role                                                                                                                              |
+| ------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Deterministic core  | `survey.demography.demographic_consistency@1.0.0` | Exact hard balancing for survivor flows with exits, entrants, structural zeros, and target reconciliation                         |
+| Canonical estimator | `survey.demography.cceb@1.0.0`                    | Alias for the cohort-component plus entropic-balancing deterministic core                                                         |
+| Additional margins  | `survey.demography.*` soft-constraint inputs      | Heuristic soft-margin fitting for auxiliary cross-tabs such as health or SES after exact demographic balancing                    |
+| Orchestration       | `simulation.demography.static_aging@1.0.0`        | Builds sparse candidate flows from origin-state priors, scales donor pools, materializes aged sample, and emits integerized draws |
+| Data access         | `polisyos.data_forge.read_api.ukraine`            | Runtime-safe loading of reconciled targets, transition priors, donor pools, and Foundry-ready state composition                   |
+| Compatibility shim  | `polisyos.ukraine_data.demography`                | Temporary bridge until the wider Data Forge migration is complete                                                                 |
 
 ## Deterministic Contract
 
@@ -96,10 +97,13 @@ result = method.pure_step(state, {"mode": "deterministic"})
 
 - exact accounting, entrants/exits, soft margins:
   `tests/foundry/methods/catalog/survey/test_demographic_consistency.py`
+
 - deterministic/integerized aged sample materialization:
   `tests/foundry/methods/catalog/simulation/test_demography.py`
+
 - read surface and compatibility shim:
   `tests/ukraine_data/test_demography_artifacts.py`
+
 - sparse-flow performance gate:
   `tests/foundry/benchmarks/test_demographic_consistency_perf.py`
 
@@ -107,8 +111,10 @@ result = method.pure_step(state, {"mode": "deterministic"})
 
 - Household formation logic is not part of this surface yet; this is a
   person-level aging engine with donor-based entrants.
+
 - The soft-margin layer is heuristic and subordinate to the exact hard
   demographic constraints.
+
 - The broader Data Forge package is still being migrated; the read surface here
   is intentionally small and stable while the rest of the consolidation
   proceeds.

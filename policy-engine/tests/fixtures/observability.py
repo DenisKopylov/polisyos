@@ -40,7 +40,7 @@ def _otel_exporter() -> InMemorySpanExporter:
     return exporter
 
 
-@pytest.fixture()
+@pytest.fixture
 def in_memory_exporter(_otel_exporter: InMemorySpanExporter):
     _otel_exporter.clear()
     _reset_observability_singletons()
@@ -51,17 +51,17 @@ def in_memory_exporter(_otel_exporter: InMemorySpanExporter):
     _reset_observability_singletons()
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_tracer_provider(in_memory_exporter: InMemorySpanExporter):
     return trace.get_tracer_provider()
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_tracer(test_tracer_provider):
     return trace.get_tracer("test.polisyos")
 
 
-@pytest.fixture()
+@pytest.fixture
 def reset_singleton():
     from polisyos.core.observability.tracer import PolicyOSTracer
 

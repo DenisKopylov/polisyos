@@ -34,33 +34,33 @@ uv run polisyos-tools validation fabric-schema-governance --check --evidence-out
 
 Every connector contribution maps to the D1-L2 Fabric remediation phases:
 
-| Phase | Contributor obligation |
-|---|---|
+| Phase   | Contributor obligation                                                                                                                                       |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Phase 0 | Validate query identifiers, literals, URL/path segments, REST/GraphQL data paths, bounded response size, provenance serialization, and UTC-aware timestamps. |
-| Phase 1 | Close sessions, pools, handles, caches, and background work deterministically; keep shared state locked or immutable; keep queues/caches bounded. |
-| Phase 2 | Return stable `schema_id`, `schema_version`, `DataVersion`, finite quality values, normalized units, and deterministic transform output. |
-| Phase 3 | Add or update schema contracts and run the schema compatibility gates when payload shape changes. |
-| Phase 5 | Use quarantine/DLQ patterns for poison rows/messages and fixture-backed tests for new families. |
-| Phase 6 | Expose catalog/search metadata in profiles and schemas; do not make natural-language discovery the only resolution path. |
+| Phase 1 | Close sessions, pools, handles, caches, and background work deterministically; keep shared state locked or immutable; keep queues/caches bounded.            |
+| Phase 2 | Return stable `schema_id`, `schema_version`, `DataVersion`, finite quality values, normalized units, and deterministic transform output.                     |
+| Phase 3 | Add or update schema contracts and run the schema compatibility gates when payload shape changes.                                                            |
+| Phase 5 | Use quarantine/DLQ patterns for poison rows/messages and fixture-backed tests for new families.                                                              |
+| Phase 6 | Expose catalog/search metadata in profiles and schemas; do not make natural-language discovery the only resolution path.                                     |
 
 ## Choose A Family
 
 Start with the closest existing source module under
 `src/polisyos/fabric/connectors/sources/`.
 
-| Need | Existing family |
-|---|---|
-| Public HTTP JSON API | `RestJsonConnector`, `WHOConnector`, `WorldBankConnector` |
-| SDMX statistical source | `SDMXSourceConnector`, `EurostatConnector` |
-| CKAN catalog/resource | `CKANCatalogConnector`, `CKANResourceConnector` |
-| Socrata or Opendatasoft | `SocrataConnector`, `OpendatasoftConnector` |
-| SPARQL endpoint | `SPARQLConnector` |
-| CSV/JSONL/Parquet/Excel file | `FileTabularConnector` |
-| S3/GCS/Azure-style object | `ObjectStorageConnector` |
-| SQLite/DuckDB read-only query | `SQLQueryConnector` |
-| GraphQL API | `GraphQLConnector` |
-| GeoJSON features | `GeoJSONConnector` |
-| JSONL event stream/replay log | `EventStreamConnector` |
+| Need                          | Existing family                                           |
+| ----------------------------- | --------------------------------------------------------- |
+| Public HTTP JSON API          | `RestJsonConnector`, `WHOConnector`, `WorldBankConnector` |
+| SDMX statistical source       | `SDMXSourceConnector`, `EurostatConnector`                |
+| CKAN catalog/resource         | `CKANCatalogConnector`, `CKANResourceConnector`           |
+| Socrata or Opendatasoft       | `SocrataConnector`, `OpendatasoftConnector`               |
+| SPARQL endpoint               | `SPARQLConnector`                                         |
+| CSV/JSONL/Parquet/Excel file  | `FileTabularConnector`                                    |
+| S3/GCS/Azure-style object     | `ObjectStorageConnector`                                  |
+| SQLite/DuckDB read-only query | `SQLQueryConnector`                                       |
+| GraphQL API                   | `GraphQLConnector`                                        |
+| GeoJSON features              | `GeoJSONConnector`                                        |
+| JSONL event stream/replay log | `EventStreamConnector`                                    |
 
 Use the scaffold only for a new custom family:
 
@@ -73,12 +73,12 @@ uv run polisyos-tools architecture scaffold connector --name "MyDataSource" --ty
 
 The minimum implementation remains:
 
-| Method | Requirement |
-|---|---|
-| `connect()` / `disconnect()` | Validate config, create a handle, and release resources deterministically. |
-| `health_check()` | Perform a lightweight source probe and return `HealthStatus`. |
-| `fetch()` | Return `FetchResult` with row count, schema refs, `DataVersion`, UTC `fetched_at`, completeness, and provenance-friendly content identifiers. |
-| `validate_config()` | Fail early for missing URL/auth headers, unsafe path/query settings, unsupported formats, or unbounded profile settings. |
+| Method                       | Requirement                                                                                                                                   |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `connect()` / `disconnect()` | Validate config, create a handle, and release resources deterministically.                                                                    |
+| `health_check()`             | Perform a lightweight source probe and return `HealthStatus`.                                                                                 |
+| `fetch()`                    | Return `FetchResult` with row count, schema refs, `DataVersion`, UTC `fetched_at`, completeness, and provenance-friendly content identifiers. |
+| `validate_config()`          | Fail early for missing URL/auth headers, unsafe path/query settings, unsupported formats, or unbounded profile settings.                      |
 
 For source families that support discovery or streaming, implement the matching
 protocol methods such as `list_datasets()`, `get_dataset_schema()`,
@@ -88,9 +88,11 @@ protocol methods such as `list_datasets()`, `get_dataset_schema()`,
 
 - Do not interpolate untrusted identifiers or literals into SQL, SPARQL, SoQL,
   ODSQL, REST paths, GraphQL data paths, or file/object paths.
+
 - Use Fabric safety helpers such as `safe_path_segment()`,
   `validate_data_path()`, `extract_bounded_data_path()`, and connector-family
   identifier validators.
+
 - Use timezone-aware UTC datetimes only.
 - Reject or quarantine non-finite numeric values at public boundaries.
 - Keep per-source caches, resolver maps, audit logs, and prefetch queues bounded.
@@ -189,4 +191,5 @@ uv run pytest tests/fabric/data_plane/test_quarantine.py tests/fabric/data_plane
 - Registry, protocol, contract, and source-specific tests pass.
 - Schema compatibility gates pass when schema contracts or generated snapshots
   change.
+
 - Quality/lineage metadata points to current artifacts or tests.

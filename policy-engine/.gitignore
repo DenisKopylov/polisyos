@@ -20,6 +20,9 @@ __pycache__/
 data/**
 !data/**/
 !data/**/*.md
+!data/academic_gold/claim_gold.jsonl
+!data/academic_gold/claim_gold_split.json
+!data/dataset_catalog/*.yaml
 # Jupyter
 .ipynb_checkpoints
 # Databases files
@@ -125,6 +128,10 @@ docs/archive/reports/**
 !docs/archive/reports/core-runtime-long-soak.md
 !docs/connectors/
 !docs/connectors/**
+!docs/brand/
+docs/brand/*
+!docs/brand/storybook-wave1-snapshot/
+!docs/brand/storybook-wave1-snapshot/**
 !docs/contracts/
 !docs/contracts/**
 !docs/explanation/

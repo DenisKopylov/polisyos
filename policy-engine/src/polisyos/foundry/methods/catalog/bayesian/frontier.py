@@ -1,8 +1,10 @@
 """Frontier Bayesian interfaces with dependency-aware runtime truthfulness."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import replace
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -27,7 +29,6 @@ from .protocols import (
     PosteriorResult,
     augment_sampler_diagnostics,
     extract_truthfulness_hints,
-    pareto_tail_shape,
     relative_interval_shift_max,
     split_truthfulness_hints,
     summarize_posterior_samples,
@@ -160,10 +161,7 @@ def _posterior_from_samples(
     metadata: Mapping[str, Any],
     diagnostics: Mapping[str, Any] | None = None,
 ) -> PosteriorResult:
-    sample_map = {
-        name: samples[:, idx]
-        for idx, name in enumerate(parameter_names)
-    }
+    sample_map = {name: samples[:, idx] for idx, name in enumerate(parameter_names)}
     posterior_means, posterior_stds, credible_intervals = summarize_posterior_samples(
         sample_map,
         credible_mass=credible_mass,
@@ -310,9 +308,7 @@ def _linear_regression_grad_particles(
         gradients[idx, 0] = float(np.sum(residual) * inv_sigma_sq - intercept / prior_var)
         gradients[idx, 1:-1] = (x.T @ residual) * inv_sigma_sq - beta / prior_var
         gradients[idx, -1] = (
-            -float(y.shape[0])
-            + float(np.sum(residual**2) * inv_sigma_sq)
-            - log_sigma / prior_var
+            -float(y.shape[0]) + float(np.sum(residual**2) * inv_sigma_sq) - log_sigma / prior_var
         )
     return gradients
 
@@ -345,8 +341,18 @@ class ExpectationPropagationGaussianEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("site_means", SlotType.MATRIX, Unit("parameter", "value"), shape=("n_sites", "n_parameters")),
-                SlotSpec("site_variances", SlotType.MATRIX, Unit("variance", "value"), shape=("n_sites", "n_parameters")),
+                SlotSpec(
+                    "site_means",
+                    SlotType.MATRIX,
+                    Unit("parameter", "value"),
+                    shape=("n_sites", "n_parameters"),
+                ),
+                SlotSpec(
+                    "site_variances",
+                    SlotType.MATRIX,
+                    Unit("variance", "value"),
+                    shape=("n_sites", "n_parameters"),
+                ),
             }
         ),
         output_slots=_posterior_output_slots(),
@@ -368,7 +374,9 @@ class ExpectationPropagationGaussianEstimator:
         tags=frozenset({"bayesian", "expectation-propagation", "ep", "structural", "uncertainty"}),
         when_to_use="Distributed or factorized Gaussian site approximations where EP sites are already computed.",
         when_not_to_use="Non-Gaussian site approximations that require iterative moment projection.",
-        citations=("Minka, T. P. (2001). Expectation propagation for approximate Bayesian inference. UAI.",),
+        citations=(
+            "Minka, T. P. (2001). Expectation propagation for approximate Bayesian inference. UAI.",
+        ),
         output_interpretation="Gaussian posterior approximation obtained by multiplying prior and site precisions.",
     )
 
@@ -422,7 +430,9 @@ class ExpectationPropagationGaussianEstimator:
                     np.std(site_precision, axis=0, ddof=1)
                     / np.maximum(np.mean(site_precision, axis=0), 1e-9)
                 )
-            ) if site_precision.shape[0] > 1 else 0.0,
+            )
+            if site_precision.shape[0] > 1
+            else 0.0,
             "site_mean_z_residual_max": float(np.max(np.abs(site_residual))),
             "site_skewness_proxy": site_skewness_proxy,
             "site_kurtosis_proxy": site_kurtosis_proxy,
@@ -442,7 +452,10 @@ class ExpectationPropagationGaussianEstimator:
             scale=np.sqrt(np.maximum(posterior_var, 1e-12)),
             size=(max(64, site_means.shape[0] * 8), n_params),
         )
-        names = [str(item) for item in state.get("parameter_names", [f"theta_{idx}" for idx in range(n_params)])]
+        names = [
+            str(item)
+            for item in state.get("parameter_names", [f"theta_{idx}" for idx in range(n_params)])
+        ]
         if len(names) != n_params:
             names = [f"theta_{idx}" for idx in range(n_params)]
         posterior = _posterior_from_samples(
@@ -478,7 +491,12 @@ class SVGDRegressionEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "features",
+                    SlotType.MATRIX,
+                    Unit("feature", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
                 SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_obs",)),
             }
         ),
@@ -503,7 +521,9 @@ class SVGDRegressionEstimator:
         tags=frozenset({"bayesian", "svgd", "regression", "tabular", "uncertainty"}),
         when_to_use="Fast particle posterior approximation when MCMC is too slow and linear-Gaussian likelihood is acceptable.",
         when_not_to_use="Strongly multimodal or non-differentiable posteriors; use HMC/NUTS where exactness matters.",
-        citations=("Liu, Q. & Wang, D. (2016). Stein variational gradient descent: A general purpose Bayesian inference algorithm. NeurIPS.",),
+        citations=(
+            "Liu, Q. & Wang, D. (2016). Stein variational gradient descent: A general purpose Bayesian inference algorithm. NeurIPS.",
+        ),
         output_interpretation="Particles approximate the coefficient posterior; intervals are empirical particle quantiles.",
     )
 
@@ -517,7 +537,9 @@ class SVGDRegressionEstimator:
         return TabularData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any] | TabularData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: Mapping[str, Any] | TabularData, params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         data = state if isinstance(state, TabularData) else TabularData.model_validate(state)
         x = np.asarray(data.features, dtype=float)
         y = np.asarray(data.target, dtype=float)
@@ -558,6 +580,7 @@ class SVGDRegressionEstimator:
             y=y,
             prior_scale=prior_scale,
         )
+
         def _particle_log_posterior(theta: np.ndarray) -> float:
             intercept = float(theta[0])
             beta = theta[1:-1]
@@ -568,9 +591,14 @@ class SVGDRegressionEstimator:
             return float(
                 -float(y.shape[0]) * np.log(max(sigma, 1e-12))
                 - 0.5 * float(np.sum(residual**2)) / max(sigma * sigma, 1e-12)
-                - 0.5 * float(intercept * intercept + np.sum(beta**2) + log_sigma * log_sigma) / prior_var
+                - 0.5
+                * float(intercept * intercept + np.sum(beta**2) + log_sigma * log_sigma)
+                / prior_var
             )
-        log_weights = np.asarray([_particle_log_posterior(theta) for theta in particles], dtype=float)
+
+        log_weights = np.asarray(
+            [_particle_log_posterior(theta) for theta in particles], dtype=float
+        )
         normalized_weights = np.exp(log_weights - float(np.max(log_weights)))
         normalized_weights = normalized_weights / np.maximum(np.sum(normalized_weights), 1e-12)
         raw_intervals = _sample_intervals(
@@ -600,7 +628,9 @@ class SVGDRegressionEstimator:
                 parameter_names=parameter_names,
                 credible_mass=credible_mass,
             ),
-            "posthoc_interval_shift_max": relative_interval_shift_max(raw_intervals, weighted_intervals),
+            "posthoc_interval_shift_max": relative_interval_shift_max(
+                raw_intervals, weighted_intervals
+            ),
         }
         diagnostics, metadata = _apply_truthfulness_hints(
             diagnostics=base_diagnostics,
@@ -683,10 +713,14 @@ class AffineNormalizingFlowPosteriorAdapter:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Affine normalizing-flow posterior adapter fitted to existing posterior samples.",
-        tags=frozenset({"bayesian", "normalizing-flow", "affine-flow", "structural", "uncertainty"}),
+        tags=frozenset(
+            {"bayesian", "normalizing-flow", "affine-flow", "structural", "uncertainty"}
+        ),
         when_to_use="Compress posterior samples into a lightweight affine flow baseline for replay and downstream sampling.",
         when_not_to_use="Need expressive nonlinear flows; use a dedicated trainable flow stack instead.",
-        citations=("Rezende, D. & Mohamed, S. (2015). Variational inference with normalizing flows. ICML.",),
+        citations=(
+            "Rezende, D. & Mohamed, S. (2015). Variational inference with normalizing flows. ICML.",
+        ),
         output_interpretation="Generated samples preserve posterior mean/covariance through an affine Gaussianizing map; metadata marks this as an affine-flow baseline.",
     )
 
@@ -706,7 +740,12 @@ class AffineNormalizingFlowPosteriorAdapter:
         cov = np.atleast_2d(cov) + jitter * np.eye(samples.shape[1])
         rng = np.random.default_rng(int(params.get("__seed__", 0)))
         generated = rng.multivariate_normal(mean=mean, cov=cov, size=num_flow_samples)
-        names = [str(item) for item in state.get("parameter_names", [f"theta_{idx}" for idx in range(samples.shape[1])])]
+        names = [
+            str(item)
+            for item in state.get(
+                "parameter_names", [f"theta_{idx}" for idx in range(samples.shape[1])]
+            )
+        ]
         if len(names) != samples.shape[1]:
             names = [f"theta_{idx}" for idx in range(samples.shape[1])]
         source_intervals = _sample_intervals(
@@ -729,7 +768,9 @@ class AffineNormalizingFlowPosteriorAdapter:
         base_diagnostics = {
             "source_mean_shift_max": _normalized_mean_shift(samples, generated),
             "source_covariance_error_fro": _relative_covariance_error(samples, generated),
-            "source_interval_shift_max": relative_interval_shift_max(source_intervals, generated_intervals),
+            "source_interval_shift_max": relative_interval_shift_max(
+                source_intervals, generated_intervals
+            ),
             "jacobian_condition_number": float(np.linalg.cond(cov)),
         }
         diagnostics, metadata = _apply_truthfulness_hints(
@@ -770,9 +811,16 @@ class FactorGraphBeliefPropagationEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("unary_log_potentials", SlotType.MATRIX, Unit("log_potential", "value"), shape=("n_variables", "n_states")),
+                SlotSpec(
+                    "unary_log_potentials",
+                    SlotType.MATRIX,
+                    Unit("log_potential", "value"),
+                    shape=("n_variables", "n_states"),
+                ),
                 SlotSpec("edges", SlotType.MATRIX, Unit("edge", "id"), shape=("n_edges", 2)),
-                SlotSpec("pairwise_log_potentials", SlotType.SCALAR, Unit("log_potential", "tensor")),
+                SlotSpec(
+                    "pairwise_log_potentials", SlotType.SCALAR, Unit("log_potential", "tensor")
+                ),
             }
         ),
         output_slots=frozenset(
@@ -783,8 +831,15 @@ class FactorGraphBeliefPropagationEstimator:
                     Unit("posterior", "json"),
                     contract_id=PosteriorResult.contract_id,
                 ),
-                SlotSpec("marginals", SlotType.MATRIX, Unit("probability", "value"), shape=("n_variables", "n_states")),
-                SlotSpec("map_assignment", SlotType.VECTOR, Unit("state", "id"), shape=("n_variables",)),
+                SlotSpec(
+                    "marginals",
+                    SlotType.MATRIX,
+                    Unit("probability", "value"),
+                    shape=("n_variables", "n_states"),
+                ),
+                SlotSpec(
+                    "map_assignment", SlotType.VECTOR, Unit("state", "id"), shape=("n_variables",)
+                ),
             }
         ),
         parameters=(
@@ -802,10 +857,14 @@ class FactorGraphBeliefPropagationEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Pairwise discrete factor-graph inference via loopy belief propagation.",
-        tags=frozenset({"bayesian", "factor-graph", "belief-propagation", "network", "uncertainty"}),
+        tags=frozenset(
+            {"bayesian", "factor-graph", "belief-propagation", "network", "uncertainty"}
+        ),
         when_to_use="Discrete graphical-model inference where exact junction-tree inference is too expensive.",
         when_not_to_use="Continuous latent variables or graphs requiring guaranteed convergence/exact marginals.",
-        citations=("Kschischang, F. R., Frey, B. J. & Loeliger, H. A. (2001). Factor graphs and the sum-product algorithm. IEEE TIT.",),
+        citations=(
+            "Kschischang, F. R., Frey, B. J. & Loeliger, H. A. (2001). Factor graphs and the sum-product algorithm. IEEE TIT.",
+        ),
         output_interpretation="Approximate node marginals and MAP states; diagnostics include convergence delta.",
     )
 
@@ -819,7 +878,9 @@ class FactorGraphBeliefPropagationEstimator:
         if edges.ndim != 2 or edges.shape[1] != 2:
             raise ValueError("edges must have shape (n_edges, 2)")
         if pairwise.shape != (edges.shape[0], unary.shape[1], unary.shape[1]):
-            raise ValueError("pairwise_log_potentials must have shape (n_edges, n_states, n_states)")
+            raise ValueError(
+                "pairwise_log_potentials must have shape (n_edges, n_states, n_states)"
+            )
         _require_numpy_finite("unary_log_potentials", unary)
         _require_numpy_finite("pairwise_log_potentials", pairwise)
         if np.any(edges < 0) or np.any(edges >= unary.shape[0]):
@@ -846,9 +907,7 @@ class FactorGraphBeliefPropagationEstimator:
                 if neighbour not in visited:
                     agenda.append(neighbour)
         graph_exact_regime = bool(
-            unary.shape[0] > 0
-            and n_edges == unary.shape[0] - 1
-            and len(visited) == unary.shape[0]
+            unary.shape[0] > 0 and n_edges == unary.shape[0] - 1 and len(visited) == unary.shape[0]
         )
         delta = float("inf")
         iterations = 0
@@ -862,14 +921,22 @@ class FactorGraphBeliefPropagationEstimator:
                 for other_edge, direction in incident[src]:
                     if other_edge == edge_idx:
                         continue
-                    src_belief += messages_backward[other_edge] if direction == 1 else messages_forward[other_edge]
+                    src_belief += (
+                        messages_backward[other_edge]
+                        if direction == 1
+                        else messages_forward[other_edge]
+                    )
                 candidate_forward = _logsumexp(src_belief[:, None] + pairwise[edge_idx], axis=0)
                 candidate_forward -= _logsumexp(candidate_forward)
                 dst_belief = unary[dst].copy()
                 for other_edge, direction in incident[dst]:
                     if other_edge == edge_idx:
                         continue
-                    dst_belief += messages_backward[other_edge] if direction == 1 else messages_forward[other_edge]
+                    dst_belief += (
+                        messages_backward[other_edge]
+                        if direction == 1
+                        else messages_forward[other_edge]
+                    )
                 candidate_backward = _logsumexp(dst_belief[None, :] + pairwise[edge_idx], axis=1)
                 candidate_backward -= _logsumexp(candidate_backward)
                 next_forward[edge_idx] = (
@@ -904,7 +971,11 @@ class FactorGraphBeliefPropagationEstimator:
             posterior_stds={
                 f"variable_{idx}": float(
                     np.sqrt(
-                        np.sum(marginals[idx] * (np.arange(n_states) - np.sum(marginals[idx] * np.arange(n_states))) ** 2)
+                        np.sum(
+                            marginals[idx]
+                            * (np.arange(n_states) - np.sum(marginals[idx] * np.arange(n_states)))
+                            ** 2
+                        )
                     )
                 )
                 for idx in range(marginals.shape[0])
@@ -981,7 +1052,9 @@ class _SBIBase:
     )
 
     @classmethod
-    def _run(cls, state: Mapping[str, Any], params: Mapping[str, Any], *, algorithm: str) -> dict[str, Any]:
+    def _run(
+        cls, state: Mapping[str, Any], params: Mapping[str, Any], *, algorithm: str
+    ) -> dict[str, Any]:
         _require_backend(params, "sbi")
         parameter_draws, simulations, observed_summary = _coerce_sbi_payload(state)
         num_training_epochs = max(1, int(params.get("num_training_epochs", 64)))
@@ -1007,7 +1080,9 @@ class _SBIBase:
             parameter_names = [f"theta_{idx}" for idx in range(samples.shape[1])]
         simulation_scale = np.std(simulations, axis=0, ddof=1)
         simulation_scale = np.where(simulation_scale > 1e-9, simulation_scale, 1.0)
-        standardized_distances = np.linalg.norm((simulations - observed_summary[None, :]) / simulation_scale[None, :], axis=1)
+        standardized_distances = np.linalg.norm(
+            (simulations - observed_summary[None, :]) / simulation_scale[None, :], axis=1
+        )
         neighborhood_count = min(max(16, int(np.sqrt(simulations.shape[0]))), simulations.shape[0])
         nearest = np.argsort(standardized_distances)[:neighborhood_count]
         local_parameters = parameter_draws[nearest]
@@ -1020,9 +1095,12 @@ class _SBIBase:
         base_diagnostics = {
             "observed_neighborhood_count": float(neighborhood_count),
             "observed_neighborhood_radius_quantile": float(
-                np.mean(standardized_distances[nearest]) / max(float(np.mean(standardized_distances)), 1e-12)
+                np.mean(standardized_distances[nearest])
+                / max(float(np.mean(standardized_distances)), 1e-12)
             ),
-            "local_reference_mean_shift_max": float(np.max(np.abs(sample_mean - local_mean) / local_std)),
+            "local_reference_mean_shift_max": float(
+                np.max(np.abs(sample_mean - local_mean) / local_std)
+            ),
             "local_reference_std_ratio_max": float(
                 np.max(np.maximum(sample_std / local_std, local_std / sample_std))
             ),
@@ -1068,7 +1146,9 @@ class SimulationBasedNPEEstimator(_SBIBase):
         tags=frozenset({"bayesian", "sbi", "npe", "likelihood-free", "structural"}),
         when_to_use="Likelihood-free calibration where simulator summaries and parameter draws are available.",
         when_not_to_use="Installed runtime lacks sbi/torch, or the prior/simulation design is poorly specified.",
-        citations=("Papamakarios, G. & Murray, I. (2016). Fast epsilon-free inference of simulation models with Bayesian conditional density estimation. NeurIPS.",),
+        citations=(
+            "Papamakarios, G. & Murray, I. (2016). Fast epsilon-free inference of simulation models with Bayesian conditional density estimation. NeurIPS.",
+        ),
         output_interpretation="Posterior samples over simulator parameters conditioned on observed summary statistics.",
     )
 
@@ -1116,7 +1196,9 @@ class SimulationBasedNREEstimator(_SBIBase):
         tags=frozenset({"bayesian", "sbi", "nre", "likelihood-free", "structural"}),
         when_to_use="Likelihood-free policy models where ratio estimation is more stable than density estimation.",
         when_not_to_use="Installed runtime lacks sbi/torch, or simulator coverage around observed summaries is weak.",
-        citations=("Hermans, J., Begy, V. & Louppe, G. (2020). Likelihood-free MCMC with amortized approximate ratio estimators. ICML.",),
+        citations=(
+            "Hermans, J., Begy, V. & Louppe, G. (2020). Likelihood-free MCMC with amortized approximate ratio estimators. ICML.",
+        ),
         output_interpretation="Posterior samples obtained from learned likelihood-to-evidence ratio estimates.",
     )
 
@@ -1144,7 +1226,12 @@ class BayesianBARTRegressorEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "features",
+                    SlotType.MATRIX,
+                    Unit("feature", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
                 SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_obs",)),
             }
         ),
@@ -1170,7 +1257,9 @@ class BayesianBARTRegressorEstimator:
         tags=frozenset({"bayesian", "bart", "nonparametric", "heterogeneity"}),
         when_to_use="Nonlinear policy heterogeneity with enough observations and an installed PyMC-BART runtime.",
         when_not_to_use="PyMC-BART is unavailable, exact structural interpretation is required, or dataset is too small for tree ensembles.",
-        citations=("Chipman, H. A., George, E. I. & McCulloch, R. E. (2010). BART: Bayesian additive regression trees. Annals of Applied Statistics.",),
+        citations=(
+            "Chipman, H. A., George, E. I. & McCulloch, R. E. (2010). BART: Bayesian additive regression trees. Annals of Applied Statistics.",
+        ),
         output_interpretation="Posterior predictive draws and credible intervals over nonlinear response surfaces.",
         typical_min_obs=80,
     )
@@ -1185,7 +1274,9 @@ class BayesianBARTRegressorEstimator:
         return TabularData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any] | TabularData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: Mapping[str, Any] | TabularData, params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         _require_backend(params, "pymc_bart")
         data = state if isinstance(state, TabularData) else TabularData.model_validate(state)
         x = np.asarray(data.features, dtype=float)
@@ -1198,7 +1289,9 @@ class BayesianBARTRegressorEstimator:
             import pymc as pm
             import pymc_bart as pmb
         except Exception as exc:  # pragma: no cover - optional runtime dependency
-            raise RuntimeError("BART runtime requires installed 'pymc' and 'pymc_bart' packages") from exc
+            raise RuntimeError(
+                "BART runtime requires installed 'pymc' and 'pymc_bart' packages"
+            ) from exc
 
         num_trees = max(5, int(params.get("num_trees", 50)))
         num_warmup = max(32, int(params.get("num_warmup", 128)))
@@ -1234,7 +1327,8 @@ class BayesianBARTRegressorEstimator:
         predictive_mean_draws = np.mean(mu_draws, axis=1)
         credible_intervals = {
             "posterior_predictive_mean": tuple(
-                float(item) for item in np.quantile(predictive_mean_draws, [alpha / 2.0, 1.0 - alpha / 2.0])
+                float(item)
+                for item in np.quantile(predictive_mean_draws, [alpha / 2.0, 1.0 - alpha / 2.0])
             ),
             "sigma": tuple(
                 float(item) for item in np.quantile(sigma_draws, [alpha / 2.0, 1.0 - alpha / 2.0])
@@ -1244,9 +1338,14 @@ class BayesianBARTRegressorEstimator:
             metric_id="bart_prediction",
             point_estimate=float(np.mean(predictions)),
             confidence_level=credible_mass,
-            epistemic_std=float(np.std(predictive_mean_draws, ddof=1)) if predictive_mean_draws.shape[0] > 1 else 0.0,
+            epistemic_std=float(np.std(predictive_mean_draws, ddof=1))
+            if predictive_mean_draws.shape[0] > 1
+            else 0.0,
             aleatoric_std=float(np.mean(sigma_draws)) if sigma_draws.size else 0.0,
-            metadata={"method_name": "bayesian_bart_regression", "runtime_backend_used": "pymc_bart"},
+            metadata={
+                "method_name": "bayesian_bart_regression",
+                "runtime_backend_used": "pymc_bart",
+            },
         )
         prediction_output = _build_prediction_result(
             method_name="bayesian_bart_regression",
@@ -1263,7 +1362,9 @@ class BayesianBARTRegressorEstimator:
         )
         diagnostics = augment_sampler_diagnostics(
             {
-                "posterior_predictive_mean": np.mean(np.asarray(idata.posterior["mu"], dtype=float), axis=2),
+                "posterior_predictive_mean": np.mean(
+                    np.asarray(idata.posterior["mu"], dtype=float), axis=2
+                ),
                 "sigma": np.asarray(idata.posterior["sigma"], dtype=float),
             },
             diagnostics={
@@ -1305,8 +1406,8 @@ __all__ = [
     "BayesianBARTRegressorEstimator",
     "ExpectationPropagationGaussianEstimator",
     "FactorGraphBeliefPropagationEstimator",
+    "SVGDRegressionEstimator",
     "SimulationBasedNLEEstimator",
     "SimulationBasedNPEEstimator",
     "SimulationBasedNREEstimator",
-    "SVGDRegressionEstimator",
 ]

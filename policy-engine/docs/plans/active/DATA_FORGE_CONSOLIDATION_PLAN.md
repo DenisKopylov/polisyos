@@ -99,13 +99,13 @@ async def ac_works_normalized(ctx, raw: Works) -> Works:
 
 Required kernel modules:
 
-| Module | Purpose |
-|--------|---------|
-| `kernel/pipeline/assets.py` | `AssetKey`, `AssetSpec`, `AssetGroup`, `PartitionSpec` |
-| `kernel/pipeline/materialize.py` | `@asset`, materialization planner/executor |
-| `kernel/pipeline/partitions.py` | time/hash/composite partitions |
-| `kernel/pipeline/config/` | pydantic-settings profile composition |
-| `kernel/pipeline/schemas/` | versioned schema registry and migration rules |
+| Module                           | Purpose                                                |
+| -------------------------------- | ------------------------------------------------------ |
+| `kernel/pipeline/assets.py`      | `AssetKey`, `AssetSpec`, `AssetGroup`, `PartitionSpec` |
+| `kernel/pipeline/materialize.py` | `@asset`, materialization planner/executor             |
+| `kernel/pipeline/partitions.py`  | time/hash/composite partitions                         |
+| `kernel/pipeline/config/`        | pydantic-settings profile composition                  |
+| `kernel/pipeline/schemas/`       | versioned schema registry and migration rules          |
 
 ## Lakehouse Snapshot Semantics
 
@@ -113,13 +113,13 @@ Decision source: ADR-0122.
 
 Publishing is atomic and addressable:
 
-| Module | Purpose |
-|--------|---------|
-| `kernel/snapshot/transactions.py` | all-or-nothing asset group publish |
-| `kernel/snapshot/commit.py` | write-then-rename atomic commit |
-| `kernel/snapshot/merkle.py` | Merkle root for complete snapshot identity |
-| `kernel/snapshot/time_travel.py` | resolve artifact at `(snapshot_id, logical_ts)` |
-| `kernel/snapshot/retention.py` | HOT/WARM/COLD/EPHEMERAL retention and GC |
+| Module                            | Purpose                                         |
+| --------------------------------- | ----------------------------------------------- |
+| `kernel/snapshot/transactions.py` | all-or-nothing asset group publish              |
+| `kernel/snapshot/commit.py`       | write-then-rename atomic commit                 |
+| `kernel/snapshot/merkle.py`       | Merkle root for complete snapshot identity      |
+| `kernel/snapshot/time_travel.py`  | resolve artifact at `(snapshot_id, logical_ts)` |
+| `kernel/snapshot/retention.py`    | HOT/WARM/COLD/EPHEMERAL retention and GC        |
 
 Published artifacts use logical URIs such as:
 
@@ -158,20 +158,20 @@ Decision source: ADR-0123.
 
 Published artifact references include:
 
-| Field | Meaning |
-|-------|---------|
-| `uri` | logical `polisyos://...` identifier |
-| `sha256` | content hash |
-| `producer` | module/function that materialized the artifact |
-| `producer_version` | code/model/lockfile version tuple |
-| `trace_id`, `span_id` | OTel trace linkage |
-| `config_hash` | materialization config hash |
-| `owner` | accountable team |
-| `license` | artifact license |
-| `pii_level` | `none`, `low`, `medium`, `high` |
-| `retention_class` | `hot`, `warm`, `cold`, `ephemeral` |
-| `freshness_sla_seconds` | freshness contract |
-| `schema_id`, `schema_version` | schema registry identity |
+| Field                         | Meaning                                        |
+| ----------------------------- | ---------------------------------------------- |
+| `uri`                         | logical `polisyos://...` identifier            |
+| `sha256`                      | content hash                                   |
+| `producer`                    | module/function that materialized the artifact |
+| `producer_version`            | code/model/lockfile version tuple              |
+| `trace_id`, `span_id`         | OTel trace linkage                             |
+| `config_hash`                 | materialization config hash                    |
+| `owner`                       | accountable team                               |
+| `license`                     | artifact license                               |
+| `pii_level`                   | `none`, `low`, `medium`, `high`                |
+| `retention_class`             | `hot`, `warm`, `cold`, `ephemeral`             |
+| `freshness_sla_seconds`       | freshness contract                             |
+| `schema_id`, `schema_version` | schema registry identity                       |
 
 ## OTel-First Telemetry
 
@@ -194,12 +194,12 @@ Decision source: ADR-0125.
 
 `kernel/quality/` includes:
 
-| Module | Purpose |
-|--------|---------|
-| `expectations.py` | declarative expectations over any artifact |
-| `differential.py` | old-vs-new pipeline diff tests with tolerances |
-| `drift.py` | distribution drift between snapshots |
-| `consumer_contracts.py` | Fabric/runtime minimum requirements |
+| Module                  | Purpose                                        |
+| ----------------------- | ---------------------------------------------- |
+| `expectations.py`       | declarative expectations over any artifact     |
+| `differential.py`       | old-vs-new pipeline diff tests with tolerances |
+| `drift.py`              | distribution drift between snapshots           |
+| `consumer_contracts.py` | Fabric/runtime minimum requirements            |
 
 Golden tests remain, but differential and drift tests are required for
 LLM-extracted or embedding-derived assets.
@@ -245,16 +245,16 @@ LLM extraction requires:
 
 ## Phases
 
-| Phase | Deliverables |
-|-------|--------------|
-| 0 | Create `data_forge` skeleton, asset kernel, schema registry skeleton, import contracts, public surface entry |
-| 1 | Move shared batch infrastructure into `kernel/*`; remove `batch_common` and `batch_snapshot` entries from `architecture/complexity_exceptions.toml` when split |
-| 2 | Move academic domain into `domains/academic`; burn down academic entries in `architecture/complexity_exceptions.toml` |
-| 3 | Move catalog domain into `domains/catalog`; replace `core_sources_ingest.py` exception with per-source modules |
-| 4 | Move legal batch into `domains/legal`; burn down `lex/batch/*` exceptions |
-| 5 | Move Ukraine pipeline into `domains/ukraine`; split `ukraine_data/builders.py` exception |
-| 6 | Split old read facades into `read_api/*`; remove runtime imports of domain internals |
-| 7 | Remove compatibility shims after `migration_shims.toml` sunset gates pass |
+| Phase | Deliverables                                                                                                                                                   |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0     | Create `data_forge` skeleton, asset kernel, schema registry skeleton, import contracts, public surface entry                                                   |
+| 1     | Move shared batch infrastructure into `kernel/*`; remove `batch_common` and `batch_snapshot` entries from `architecture/complexity_exceptions.toml` when split |
+| 2     | Move academic domain into `domains/academic`; burn down academic entries in `architecture/complexity_exceptions.toml`                                          |
+| 3     | Move catalog domain into `domains/catalog`; replace `core_sources_ingest.py` exception with per-source modules                                                 |
+| 4     | Move legal batch into `domains/legal`; burn down `lex/batch/*` exceptions                                                                                      |
+| 5     | Move Ukraine pipeline into `domains/ukraine`; split `ukraine_data/builders.py` exception                                                                       |
+| 6     | Split old read facades into `read_api/*`; remove runtime imports of domain internals                                                                           |
+| 7     | Remove compatibility shims after `migration_shims.toml` sunset gates pass                                                                                      |
 
 ## Acceptance Criteria
 

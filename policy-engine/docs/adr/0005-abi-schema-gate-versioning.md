@@ -19,15 +19,18 @@
 1. Реестр ABI-моделей хранится в `schemas/abi_models.py`.
 2. Snapshot-артефакты хранятся в `schemas/snapshots/{ir,fabric}` с `_manifest.json`.
 3. `tools/diagnostics/gen_schema.py`:
+
    - генерирует snapshots по ABI registry,
    - поддерживает `--check`,
    - пишет manifest с полями `priority`, `compat_mode`, `schema_version`, `sha256_full`, `sha256_semantic`.
 4. `tools/diagnostics/abi_diff.py`:
+
    - строит семантический diff,
    - классифицирует изменения,
    - проверяет major bump при breaking (`p0`),
    - формирует JSON/Markdown/GitHub report.
 5. CI workflow `.github/workflows/abi.yml`:
+
    - генерирует current snapshots,
    - сравнивает с baseline snapshots из base SHA PR,
    - публикует sticky report,

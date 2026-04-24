@@ -1,4 +1,5 @@
 """Compute inequality, mobility, and quantile summaries for agent-simulation state."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -8,7 +9,7 @@ from typing import TYPE_CHECKING
 import chex
 import jax
 import jax.numpy as jnp
-from jaxtyping import Array, Bool, Float, Int
+from jaxtyping import Array, Float, Int
 
 if TYPE_CHECKING:
     from polisyos.foundry.agent_sim.state import GlobalState
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
 
 class ComputeMode(str, Enum):
     """Choose exact, differentiable, or cached updates for distribution statistics."""
+
     HARD = "hard"
     SOFT = "soft"
     CACHED = "cached"
@@ -24,6 +26,7 @@ class ComputeMode(str, Enum):
 @chex.dataclass(frozen=True)
 class DistributionConfig:
     """Control how often distribution statistics are refreshed during simulation."""
+
     mode: ComputeMode = ComputeMode.HARD
     update_frequency: int = 8
     soft_temperature: float = 1.0
@@ -35,19 +38,20 @@ class DistributionConfig:
 @chex.dataclass(frozen=True)
 class DistributionState:
     """Hold the full quantile, rank, and inequality snapshot attached to runtime state."""
+
     last_update_step: Int[Array, ""]
-    wealth_quantiles: Float[Array, "n_quantiles"]
-    income_quantiles: Float[Array, "n_quantiles"]
-    consumption_quantiles: Float[Array, "n_quantiles"]
-    wealth_ranks: Float[Array, "n_agents"]
-    income_ranks: Float[Array, "n_agents"]
+    wealth_quantiles: Float[Array, n_quantiles]
+    income_quantiles: Float[Array, n_quantiles]
+    consumption_quantiles: Float[Array, n_quantiles]
+    wealth_ranks: Float[Array, n_agents]
+    income_ranks: Float[Array, n_agents]
     gini_wealth: Float[Array, ""]
     gini_income: Float[Array, ""]
     top_10_share: Float[Array, ""]
     bottom_50_share: Float[Array, ""]
 
     @classmethod
-    def empty(cls, n_agents: int, *, n_quantiles: int = 10) -> "DistributionState":
+    def empty(cls, n_agents: int, *, n_quantiles: int = 10) -> DistributionState:
         zeros_q = jnp.zeros((n_quantiles,), dtype=jnp.float32)
         zeros_n = jnp.zeros((n_agents,), dtype=jnp.float32)
         return cls(
@@ -67,8 +71,9 @@ class DistributionState:
 @chex.dataclass(frozen=True)
 class CompactDistributionState:
     """Store a compressed inequality snapshot for dashboards, caches, or artifacts."""
-    wealth_deciles: Float[Array, "10"]
-    income_deciles: Float[Array, "10"]
+
+    wealth_deciles: Float[Array, 10]
+    income_deciles: Float[Array, 10]
     gini_wealth: Float[Array, ""]
     gini_income: Float[Array, ""]
     top_1_wealth_share: Float[Array, ""]
@@ -77,14 +82,12 @@ class CompactDistributionState:
     last_update_step: Int[Array, ""]
 
 
-def maybe_update_distributions(state: "GlobalState", config: DistributionConfig) -> "GlobalState":
+def maybe_update_distributions(state: GlobalState, config: DistributionConfig) -> GlobalState:
     """Refresh distribution statistics only on scheduled update steps."""
     last_step = state.distributions.last_update_step
-    needs_update = (last_step < 0) | (
-        (state.time_step - last_step) >= config.update_frequency
-    )
+    needs_update = (last_step < 0) | ((state.time_step - last_step) >= config.update_frequency)
 
-    def _update(s: "GlobalState") -> DistributionState:
+    def _update(s: GlobalState) -> DistributionState:
         return compute_all_distributions(s, config)
 
     new_distributions = jax.lax.cond(
@@ -97,7 +100,7 @@ def maybe_update_distributions(state: "GlobalState", config: DistributionConfig)
 
 
 def compute_all_distributions(
-    state: "GlobalState",
+    state: GlobalState,
     config: DistributionConfig,
 ) -> DistributionState:
     """Recompute quantiles, ranks, and inequality summaries from the current agent state."""
@@ -287,7 +290,7 @@ def soft_rank(values: jnp.ndarray, *, temperature: float = 1.0) -> jnp.ndarray:
     block_size = min(values.shape[0], 256)
     rank_acc = jnp.zeros_like(values, dtype=jnp.float32)
     for start in range(0, values.shape[0], block_size):
-        block = values[start:start + block_size]
+        block = values[start : start + block_size]
         diff = values[:, None] - block[None, :]
         rank_acc = rank_acc + jnp.sum(jax.nn.sigmoid(diff / temperature), axis=1)
     ranks = rank_acc - 0.5
@@ -307,8 +310,8 @@ def _soft_rank_masked(
     active_f = active.astype(jnp.float32)
     rank_acc = jnp.zeros_like(values, dtype=jnp.float32)
     for start in range(0, values.shape[0], block_size):
-        block = values[start:start + block_size]
-        block_active = active_f[start:start + block_size]
+        block = values[start : start + block_size]
+        block_active = active_f[start : start + block_size]
         diff = values[:, None] - block[None, :]
         comparisons = jax.nn.sigmoid(diff / temperature) * block_active[None, :]
         rank_acc = rank_acc + jnp.sum(comparisons, axis=1)
@@ -336,7 +339,7 @@ def _soft_select_by_rank(
     if valid_mask is not None:
         valid_weights = valid_mask.astype(jnp.float32)[:, None]
     for start in range(0, target_ranks.shape[0], block_size):
-        target_block = target_ranks[start:start + block_size].astype(jnp.float32)
+        target_block = target_ranks[start : start + block_size].astype(jnp.float32)
         distances = masked_ranks[:, None] - target_block[None, :]
         weights = jnp.exp(-(distances**2) / bandwidth)
         if valid_weights is not None:
@@ -448,9 +451,7 @@ def compute_gini_hard(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
         total = jnp.sum(sorted_values)
         weighted_sum = jnp.sum(indices * sorted_values)
         n_act = n_active.astype(jnp.float32)
-        return (2.0 * weighted_sum) / (n_act * total + 1e-8) - (n_act + 1.0) / (
-            n_act + 1e-8
-        )
+        return (2.0 * weighted_sum) / (n_act * total + 1e-8) - (n_act + 1.0) / (n_act + 1e-8)
 
     return jax.lax.cond(n_active > 0, _with_active, _no_active)
 
@@ -605,6 +606,7 @@ def compute_transition_matrix(
 
 class AgentGrouping:
     """Assign agents to quantile or threshold-defined groups for distribution diagnostics."""
+
     @staticmethod
     def by_quantile(values: jnp.ndarray, active: jnp.ndarray, n_groups: int) -> jnp.ndarray:
         ranks = compute_ranks_hard(values, active)
@@ -668,7 +670,9 @@ def compute_group_statistics(
     }
 
 
-def batch_compute_group_means(values: jnp.ndarray, groups: jnp.ndarray, n_groups: int) -> jnp.ndarray:
+def batch_compute_group_means(
+    values: jnp.ndarray, groups: jnp.ndarray, n_groups: int
+) -> jnp.ndarray:
     """Compute per-group means with one-hot aggregation for vectorized diagnostics."""
     group_onehot = jax.nn.one_hot(groups, n_groups)
     group_sums = jnp.sum(values[:, None] * group_onehot, axis=0)
@@ -713,6 +717,7 @@ def compress_distribution_state(
 @dataclass
 class RewardConfig:
     """Configure how mobility bonuses and inequality penalties adjust per-agent rewards."""
+
     reward_mobility: bool = False
     penalize_inequality: bool = False
     mobility_weight: float = 0.1
@@ -720,8 +725,8 @@ class RewardConfig:
 
 
 def compute_distribution_aware_reward(
-    state: "GlobalState",
-    next_state: "GlobalState",
+    state: GlobalState,
+    next_state: GlobalState,
     config: RewardConfig,
 ) -> jnp.ndarray:
     """Augment base rewards with mobility bonuses and inequality penalties."""
@@ -744,6 +749,7 @@ def compute_distribution_aware_reward(
 
 class AdaptiveUpdateStrategy:
     """Adapt refresh frequency when inequality metrics start moving quickly."""
+
     def __init__(
         self,
         base_frequency: int = 8,
@@ -758,7 +764,7 @@ class AdaptiveUpdateStrategy:
         self.last_gini = None
         self.current_frequency = base_frequency
 
-    def should_update(self, state: "GlobalState", step: int) -> bool:
+    def should_update(self, state: GlobalState, step: int) -> bool:
         if step % self.current_frequency != 0:
             return False
 

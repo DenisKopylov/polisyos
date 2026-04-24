@@ -7,7 +7,9 @@ from polisyos.ir.connectors import QualityTier
 from polisyos.scientist.governance.passes.quality_gate_pass import QualityGatePass
 
 
-def _make_freshness(*, is_fresh: bool = True, data_age_seconds: int | None = None, message: str = "ok"):
+def _make_freshness(
+    *, is_fresh: bool = True, data_age_seconds: int | None = None, message: str = "ok"
+):
     f = MagicMock()
     f.is_fresh = is_fresh
     f.data_age_seconds = data_age_seconds
@@ -36,7 +38,15 @@ def _make_quality_report(
     return report
 
 
-def _make_violation(*, field_name: str = "col_a", message: str = "bad value", severity: str = "error", rule_type: str = "range", expected: str = ">0", actual: str = "-1"):
+def _make_violation(
+    *,
+    field_name: str = "col_a",
+    message: str = "bad value",
+    severity: str = "error",
+    rule_type: str = "range",
+    expected: str = ">0",
+    actual: str = "-1",
+):
     v = MagicMock()
     v.field_name = field_name
     v.message = message

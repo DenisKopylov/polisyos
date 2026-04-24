@@ -5,6 +5,7 @@ that the real ConnectorRegistry bootstrap works end-to-end: all 9 connectors
 are discovered, default configs are wired from profiles, and the control
 plane API exposes them correctly.
 """
+
 from __future__ import annotations
 
 from unittest.mock import patch
@@ -49,9 +50,7 @@ class TestE2EConnectorsList:
             "opendatasoft.ods",
             "sparql.endpoint",
         }
-        assert expected.issubset(connector_ids), (
-            f"Missing connectors: {expected - connector_ids}"
-        )
+        assert expected.issubset(connector_ids), f"Missing connectors: {expected - connector_ids}"
 
     def test_each_connector_has_default_config(self, runtime_api_env):
         client = runtime_api_env["client"]
@@ -68,7 +67,8 @@ class TestE2EConnectorsList:
         resp = client.get("/api/v1/control/data/connectors")
         body = resp.json()
         connectors_with_profiles = [
-            c for c in body["connectors"]
+            c
+            for c in body["connectors"]
             if c.get("available_profiles") and len(c["available_profiles"]) > 0
         ]
         # At least the Wave-1 connectors should have profiles
@@ -190,7 +190,7 @@ class TestE2EIngestionDispatch:
         assert resp.status_code == 200
 
     @pytest.mark.parametrize(
-        "connector_id,dataset_id,profile_id",
+        ("connector_id", "dataset_id", "profile_id"),
         [
             ("worldbank.wdi", "SP.POP.TOTL", "worldbank_wdi"),
             ("eurostat.data", "nama_10_gdp", "eurostat_public"),

@@ -5,13 +5,15 @@ Runs PC / FCI / GES / DAGMA / PCMCI based on data characteristics and
 combines their outputs into a single PAG via weighted edge-mark voting.
 The resulting CausalGraphModel (graph_type=PAG) is ready for id_algorithm().
 """
+
 from __future__ import annotations
 
 import concurrent.futures
 import dataclasses
 import time
 from collections import defaultdict
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -100,7 +102,7 @@ def _suspect_latent_confounders(data: np.ndarray) -> bool:
         # Many high partial correlations after partialing out all others
         # suggest systematic hidden structure
         return float(np.mean(np.abs(partial) > 0.3)) > 0.2
-    except Exception:  # noqa: BLE001
+    except Exception:
         return False
 
 
@@ -161,7 +163,8 @@ class DataCharacterizer:
 @dataclasses.dataclass(frozen=True)
 class DiscoveryAlgorithmSpec:
     """Discovery algorithm spec data model."""
-    name: str    # "pc" | "fci" | "ges" | "dagma" | "pcmci"
+
+    name: str  # "pc" | "fci" | "ges" | "dagma" | "pcmci"
     weight: float
     required: bool
 
@@ -176,7 +179,9 @@ class AlgorithmSelector:
     ) -> list[DiscoveryAlgorithmSpec]:
         if force_algorithms:
             w = 1.0 / len(force_algorithms)
-            return [DiscoveryAlgorithmSpec(name=a, weight=w, required=True) for a in force_algorithms]
+            return [
+                DiscoveryAlgorithmSpec(name=a, weight=w, required=True) for a in force_algorithms
+            ]
 
         if dc.data_type == DataType.TIME_SERIES:
             return [DiscoveryAlgorithmSpec("pcmci", weight=1.0, required=True)]
@@ -271,7 +276,7 @@ def _run_single_algorithm(
             )
             return result["report"]
 
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         # Return a minimal fallback report so the pipeline can continue
         fallback_report = CausalDiscoveryReport(
             method=algo,
@@ -324,7 +329,7 @@ def _run_algorithms_parallel(
                 if report is not None:
                     results.append(report)
                     weights_used[spec.name] = spec.weight
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 if spec.required:
                     fallback = CausalDiscoveryReport(
                         method=spec.name,
@@ -363,7 +368,9 @@ def _build_consensus_pag(
     variable_names: list[str],
     *,
     min_presence_score: float = 0.3,
-) -> tuple[CausalGraphModel, list[EdgeAgreement], dict[str, float], list[str], list[str], list[CausalEdge]]:
+) -> tuple[
+    CausalGraphModel, list[EdgeAgreement], dict[str, float], list[str], list[str], list[CausalEdge]
+]:
     """
     Combine multiple discovery reports into a single PAG via weighted edge-mark voting.
 
@@ -409,9 +416,7 @@ def _build_consensus_pag(
     for report in results:
         if report.method == "pcmci+":
             lag_edges = [e for e in report.graph.edges if e.lag is not None and e.lag > 0]
-            contemp_edges = [
-                e for e in report.graph.edges if e.lag is None or e.lag == 0
-            ]
+            contemp_edges = [e for e in report.graph.edges if e.lag is None or e.lag == 0]
             temporal_edges.extend(lag_edges)
             if lag_edges or contemp_edges:
                 contemp_graph = CausalGraphModel(
@@ -596,10 +601,7 @@ def _build_consensus_pag(
             if beta_mark_from_alpha is None or beta_mark_from_gamma is None:
                 continue
 
-            if (
-                beta_mark_from_alpha is EdgeMark.ARROW
-                and beta_mark_from_gamma is EdgeMark.ARROW
-            ):
+            if beta_mark_from_alpha is EdgeMark.ARROW and beta_mark_from_gamma is EdgeMark.ARROW:
                 collider_weight += w
             else:
                 noncollider_weight += w
@@ -613,27 +615,15 @@ def _build_consensus_pag(
             key_gb = (gamma, beta)
 
             if key_ab in canonical_votes:
-                canonical_votes[key_ab]["dst_marks"] = defaultdict(
-                    float, {EdgeMark.ARROW: 1.0}
-                )
-                canonical_votes[key_ab]["src_marks"] = defaultdict(
-                    float, {EdgeMark.TAIL: 1.0}
-                )
+                canonical_votes[key_ab]["dst_marks"] = defaultdict(float, {EdgeMark.ARROW: 1.0})
+                canonical_votes[key_ab]["src_marks"] = defaultdict(float, {EdgeMark.TAIL: 1.0})
             elif key_ba in canonical_votes:
-                canonical_votes[key_ba]["src_marks"] = defaultdict(
-                    float, {EdgeMark.ARROW: 1.0}
-                )
-                canonical_votes[key_ba]["dst_marks"] = defaultdict(
-                    float, {EdgeMark.TAIL: 1.0}
-                )
+                canonical_votes[key_ba]["src_marks"] = defaultdict(float, {EdgeMark.ARROW: 1.0})
+                canonical_votes[key_ba]["dst_marks"] = defaultdict(float, {EdgeMark.TAIL: 1.0})
 
             if key_bg in canonical_votes:
-                canonical_votes[key_bg]["src_marks"] = defaultdict(
-                    float, {EdgeMark.TAIL: 1.0}
-                )
-                canonical_votes[key_bg]["dst_marks"] = defaultdict(
-                    float, {EdgeMark.ARROW: 1.0}
-                )
+                canonical_votes[key_bg]["src_marks"] = defaultdict(float, {EdgeMark.TAIL: 1.0})
+                canonical_votes[key_bg]["dst_marks"] = defaultdict(float, {EdgeMark.ARROW: 1.0})
                 # Fix: collider means β-end of β-γ is ARROW (mark_src of (β,γ) = TAIL, mark_dst = ARROW)
                 # Actually: collider means mark at β in β-γ edge: if stored as (β→γ), mark_src is β-end
                 # We want the mark at γ's end to go ARROW, and β's end to be TAIL (non-collider at γ)
@@ -644,21 +634,13 @@ def _build_consensus_pag(
                 # Let me reconsider: edge stored as (β,γ): mark_src is at β-end, mark_dst is at γ-end
                 # We want: γ→β means mark at β-end is ARROW and γ-end is TAIL
                 # So for the (β,γ) edge: mark_src (β-end)=ARROW, mark_dst (γ-end)=TAIL means γ→β
-                canonical_votes[key_bg]["src_marks"] = defaultdict(
-                    float, {EdgeMark.ARROW: 1.0}
-                )
-                canonical_votes[key_bg]["dst_marks"] = defaultdict(
-                    float, {EdgeMark.TAIL: 1.0}
-                )
+                canonical_votes[key_bg]["src_marks"] = defaultdict(float, {EdgeMark.ARROW: 1.0})
+                canonical_votes[key_bg]["dst_marks"] = defaultdict(float, {EdgeMark.TAIL: 1.0})
             elif key_gb in canonical_votes:
                 # Edge stored as (γ, β): mark_src is at γ-end, mark_dst is at β-end
                 # γ→β collider at β: mark_dst (β-end) = ARROW, mark_src (γ-end) = TAIL
-                canonical_votes[key_gb]["dst_marks"] = defaultdict(
-                    float, {EdgeMark.ARROW: 1.0}
-                )
-                canonical_votes[key_gb]["src_marks"] = defaultdict(
-                    float, {EdgeMark.TAIL: 1.0}
-                )
+                canonical_votes[key_gb]["dst_marks"] = defaultdict(float, {EdgeMark.ARROW: 1.0})
+                canonical_votes[key_gb]["src_marks"] = defaultdict(float, {EdgeMark.TAIL: 1.0})
 
     # ------------------------------------------------------------------
     # Phase 3: Mark consensus — derive final marks from vote tallies
@@ -749,9 +731,7 @@ def _build_consensus_pag(
     # ------------------------------------------------------------------
     # Phase 4: PAG orientation rules + validity check
     # ------------------------------------------------------------------
-    oriented_pag, orientation_warnings = apply_pag_orientation_rules(
-        assembled_pag, max_iter=10
-    )
+    oriented_pag, orientation_warnings = apply_pag_orientation_rules(assembled_pag, max_iter=10)
     violations = validate_pag(oriented_pag)
 
     return (
@@ -779,7 +759,9 @@ def _maybe_reconcile(
         return pag
 
     try:
-        from polisyos.foundry.methods.catalog.causal.graph_reconciliation import ReconcileCausalGraph
+        from polisyos.foundry.methods.catalog.causal.graph_reconciliation import (
+            ReconcileCausalGraph,
+        )
         from polisyos.foundry.methods.catalog.causal.protocols import GraphReconciliationData
 
         recon_data = GraphReconciliationData(
@@ -800,7 +782,7 @@ def _maybe_reconcile(
                 metadata=reconciled.metadata,
             )
         return reconciled
-    except Exception:  # noqa: BLE001
+    except Exception:
         return pag
 
 
@@ -827,9 +809,7 @@ def _pipeline_dispute_summary(
     )
     total_skeletons = len(support)
     disputed_edge_fraction = (
-        float(len(disputed_edges) / total_skeletons)
-        if total_skeletons > 0
-        else 0.0
+        float(len(disputed_edges) / total_skeletons) if total_skeletons > 0 else 0.0
     )
     return {
         "disputed_edges": disputed_edges,
@@ -981,7 +961,7 @@ def _maybe_run_regime_shift_discovery(
             exact_component_cap=int(params.get("regime_exact_component_cap", 12)),
             exact_treewidth_cap=int(params.get("regime_exact_treewidth_cap", 8)),
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return None, [f"regime_shift_discovery_failed:{type(exc).__name__}:{exc}"]
 
     warnings = [f"regime_shift:{warning}" for warning in certificate.warnings]
@@ -1020,11 +1000,7 @@ def _apply_regime_shift_constraints(
 
     for src, dst in forced_orientations:
         edge_index = next(
-            (
-                idx
-                for idx, edge in enumerate(updated_edges)
-                if {edge.src, edge.dst} == {src, dst}
-            ),
+            (idx for idx, edge in enumerate(updated_edges) if {edge.src, edge.dst} == {src, dst}),
             None,
         )
 
@@ -1143,9 +1119,7 @@ def _pipeline_regime_shift_summary(
         }
 
     empty_set_targets = sorted(
-        target.target
-        for target in certificate.targets
-        if target.informativeness.empty_set_stable
+        target.target for target in certificate.targets if target.informativeness.empty_set_stable
     )
     redundant_envs = sorted(
         {
@@ -1156,9 +1130,7 @@ def _pipeline_regime_shift_summary(
     )
     assessment = certificate.shift_type_assessment
     feasibility = certificate.computational_feasibility
-    shift_type_reproducibility = certificate.metadata.get(
-        "shift_type_reproducibility"
-    )
+    shift_type_reproducibility = certificate.metadata.get("shift_type_reproducibility")
     return {
         "regime_shift_discovery": {
             "applied": True,
@@ -1215,24 +1187,16 @@ def _pipeline_regime_shift_summary(
                 else None
             ),
             "track7_forbidden_edge_count": (
-                len(feasibility.track7.hard_forbidden_edges)
-                if feasibility is not None
-                else 0
+                len(feasibility.track7.hard_forbidden_edges) if feasibility is not None else 0
             ),
             "track7_prior_blocker_families": (
-                list(feasibility.track7.prior_blocker_families)
-                if feasibility is not None
-                else []
+                list(feasibility.track7.prior_blocker_families) if feasibility is not None else []
             ),
             "track7_revalidation_performed": (
-                feasibility.track7.revalidation.performed
-                if feasibility is not None
-                else False
+                feasibility.track7.revalidation.performed if feasibility is not None else False
             ),
             "track7_revalidation_severity": (
-                feasibility.track7.revalidation.severity
-                if feasibility is not None
-                else None
+                feasibility.track7.revalidation.severity if feasibility is not None else None
             ),
             "track7_revalidation_violated_by_family": (
                 dict(feasibility.track7.revalidation.violated_by_family)
@@ -1367,10 +1331,7 @@ def _run_unified_discovery(
             warnings.extend(regime_apply_warnings)
             regime_constraints_applied = True
         else:
-            warnings.append(
-                "regime_shift_pre_screen_blocked:"
-                f"{assessment.overall_label.value}"
-            )
+            warnings.append(f"regime_shift_pre_screen_blocked:{assessment.overall_label.value}")
             if assessment.pipeline_action.allow_selection_transport_path:
                 warnings.append("regime_shift_route:selection_transport_path")
             if assessment.pipeline_action.route_to_latent_aware_discovery:
@@ -1386,9 +1347,11 @@ def _run_unified_discovery(
                 edges=temporal_edges,
                 discovery_method="pcmci_temporal_dag",
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             temporal_dag = None
-            warnings.append("temporal_dag_construction_failed: could not build temporal DAG from PCMCI lag edges")
+            warnings.append(
+                "temporal_dag_construction_failed: could not build temporal DAG from PCMCI lag edges"
+            )
 
     # 5. Optional reconciliation with priors
     unified_pag = _maybe_reconcile(unified_pag, state, params)
@@ -1397,12 +1360,11 @@ def _run_unified_discovery(
     # orientation conflicts that violate PAG invariants — e.g. new v-structures
     # conflicting with existing orientations).
     from polisyos.foundry.methods.catalog.causal.pag_completion import validate_pag as _validate_pag
+
     post_reconcile_violations = _validate_pag(unified_pag)
     if post_reconcile_violations:
         pag_validity_violations.extend(post_reconcile_violations)
-        warnings.extend(
-            f"post_reconcile_violation: {v}" for v in post_reconcile_violations
-        )
+        warnings.extend(f"post_reconcile_violation: {v}" for v in post_reconcile_violations)
 
     pipeline_metadata = {
         **_pipeline_dispute_summary(individual_results),
@@ -1558,8 +1520,8 @@ class UnifiedCausalDiscovery:
 
 
 __all__ = [
-    "DataCharacterizer",
     "AlgorithmSelector",
+    "DataCharacterizer",
     "DiscoveryAlgorithmSpec",
     "UnifiedCausalDiscovery",
     "_build_consensus_pag",

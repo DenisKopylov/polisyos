@@ -1,4 +1,5 @@
 """Public fabric trust module API."""
+
 from __future__ import annotations
 
 from decimal import Decimal

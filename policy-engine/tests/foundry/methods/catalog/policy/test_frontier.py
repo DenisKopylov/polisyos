@@ -7,6 +7,19 @@ from polisyos.foundry.methods.catalog.policy import ensure_policy_methods_regist
 from polisyos.foundry.methods.registry import MethodRegistry
 
 
+def _inverse_tax_rates(
+    incomes: np.ndarray,
+    density_row: np.ndarray,
+    elasticity_row: np.ndarray,
+    weights: np.ndarray,
+) -> np.ndarray:
+    mass = density_row / np.sum(density_row)
+    tail_mass = np.cumsum(mass[::-1])[::-1]
+    pareto_like = np.maximum(incomes, 1.0) * mass / np.maximum(tail_mass, 1.0e-8)
+    tau = (1.0 - weights) / np.maximum(1.0 - weights + pareto_like * elasticity_row, 1.0e-8)
+    return np.clip(tau, 0.0, 0.95)
+
+
 @pytest.fixture(autouse=True)
 def _reset_registry():
     MethodRegistry.reset_instance()
@@ -51,6 +64,44 @@ def test_policy_frontier_methods_run() -> None:
         {"elasticity": 0.35},
     )["result"]
     assert 0.0 <= tax_result["optimal_tax_rate"] <= 1.0
+
+    inverse = registry.get("policy.welfare.state_dependent_inverse_social_weights@1.0.0")
+    income_grid = np.array([10.0, 18.0, 28.0, 42.0], dtype=float)
+    density = np.array(
+        [
+            [0.34, 0.28, 0.22, 0.16],
+            [0.20, 0.24, 0.28, 0.28],
+        ],
+        dtype=float,
+    )
+    elasticities = np.array(
+        [
+            [0.20, 0.22, 0.24, 0.26],
+            [0.18, 0.21, 0.23, 0.25],
+        ],
+        dtype=float,
+    )
+    weights = np.array([1.0, 0.92, 0.84, 0.76], dtype=float)
+    tax_rates = np.vstack(
+        [
+            _inverse_tax_rates(income_grid, density[idx], elasticities[idx], weights)
+            for idx in range(2)
+        ]
+    )
+    inverse_result = inverse.pure_step(
+        {
+            "income_grid": income_grid,
+            "marginal_tax_rates": tax_rates,
+            "density": density,
+            "elasticities": elasticities[:, :, None],
+            "state_features": np.zeros((income_grid.size, 1), dtype=float),
+            "basis_matrix": np.eye(income_grid.size, dtype=float),
+        },
+        {"normalization": "reference_cell", "reference_index": 0},
+    )["result"]
+    assert inverse_result["social_weight_ref"].startswith(
+        "swr://policy.welfare/state_dependent_inverse_social_weights@1.0.0#"
+    )
 
 
 def test_mean_field_and_krusell_smith_lite_converge() -> None:
@@ -116,3 +167,39 @@ def test_foundation_model_policy_analysis_uses_tfidf_runtime() -> None:
 
     assert result["runtime_backend"] == "tfidf"
     assert result["policy_rankings"][0]["policy_index"] == 0
+
+
+def test_sufficient_statistics_propagates_social_weight_ref() -> None:
+    ensure_policy_methods_registered()
+    registry = MethodRegistry.get_instance()
+    sufficient = registry.get("policy.welfare.sufficient_statistics_welfare@1.0.0")
+    social_weight_ref = "swr://policy.welfare/state_dependent_inverse_social_weights@1.0.0#abc123"
+
+    result = sufficient.pure_step(
+        {
+            "mechanical_effects": [1.0, 0.6, 0.2],
+            "revenue_effects": [0.3, 0.1, -0.1],
+            "elasticities": [0.2, 0.25, 0.3],
+            "social_weights": [2.0, 1.5, 1.0],
+        },
+        {"social_weight_ref": social_weight_ref},
+    )["result"]
+
+    assert result["social_weight_ref"] == social_weight_ref
+
+
+def test_optimal_linear_tax_propagates_social_weight_ref() -> None:
+    ensure_policy_methods_registered()
+    registry = MethodRegistry.get_instance()
+    optimal_tax = registry.get("policy.public_finance.optimal_linear_tax@1.0.0")
+    social_weight_ref = "swr://policy.welfare/state_dependent_inverse_social_weights@1.0.0#def456"
+
+    result = optimal_tax.pure_step(
+        {
+            "incomes": [10.0, 12.0, 18.0, 25.0, 40.0, 70.0],
+            "social_weights": [2.5, 2.2, 1.8, 1.2, 0.9, 0.6],
+        },
+        {"elasticity": 0.35, "social_weight_ref": social_weight_ref},
+    )["result"]
+
+    assert result["social_weight_ref"] == social_weight_ref

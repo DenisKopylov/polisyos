@@ -21,40 +21,48 @@ Usage
         result = MyMethod.pure_step(data, {})
         assert result is not None
 """
+
 from __future__ import annotations
 
 from typing import Any
 
 import numpy as np
-import pytest
 
 try:
     from hypothesis import assume
     from hypothesis import strategies as st
     from hypothesis.extra.numpy import arrays, floating_dtypes
+
     HYPOTHESIS_AVAILABLE = True
 except ImportError:
     HYPOTHESIS_AVAILABLE = False
+
     # Provide no-op stubs so module-level @st.composite decorators don't fail at import
     class _StStub:
         @staticmethod
         def composite(f):  # type: ignore[misc]
             return f
+
         @staticmethod
         def integers(**_kw):  # type: ignore[misc]
             return None
+
         @staticmethod
         def floats(**_kw):  # type: ignore[misc]
             return None
+
         @staticmethod
         def booleans():  # type: ignore[misc]
             return None
+
         @staticmethod
         def one_of(*_):  # type: ignore[misc]
             return None
+
         @staticmethod
         def just(_):  # type: ignore[misc]
             return None
+
     st = _StStub()  # type: ignore[assignment]
     assume = lambda _: None  # type: ignore[assignment]
     arrays = None  # type: ignore[assignment]
@@ -78,20 +86,20 @@ _MAX_COVS = 8
 # ---------------------------------------------------------------------------
 
 
-def _n_obs_st(min_val: int = _MIN_OBS, max_val: int = _MAX_OBS) -> "st.SearchStrategy[int]":
+def _n_obs_st(min_val: int = _MIN_OBS, max_val: int = _MAX_OBS) -> st.SearchStrategy[int]:
     return st.integers(min_value=min_val, max_value=max_val)
 
 
 def _n_periods_st(
     min_val: int = _MIN_PERIODS, max_val: int = _MAX_PERIODS
-) -> "st.SearchStrategy[int]":
+) -> st.SearchStrategy[int]:
     return st.integers(min_value=min_val, max_value=max_val)
 
 
 def _finite_floats(
     min_value: float = -100.0,
     max_value: float = 100.0,
-) -> "st.SearchStrategy[float]":
+) -> st.SearchStrategy[float]:
     return st.floats(
         min_value=min_value,
         max_value=max_value,
@@ -104,7 +112,7 @@ def _finite_array(
     shape: tuple[int, ...],
     min_value: float = -100.0,
     max_value: float = 100.0,
-) -> "st.SearchStrategy[np.ndarray]":
+) -> st.SearchStrategy[np.ndarray]:
     return arrays(
         dtype=np.float64,
         shape=shape,
@@ -145,9 +153,7 @@ def panel_data_strategy(
     n_units = draw(st.integers(min_value=min_units, max_value=max_units))
     n_periods = draw(st.integers(min_value=min_periods, max_value=max_periods))
     outcome = draw(_finite_array((n_units, n_periods)))
-    time_treatment = draw(
-        st.integers(min_value=2, max_value=n_periods - 1)
-    )
+    time_treatment = draw(st.integers(min_value=2, max_value=n_periods - 1))
     n_treated = draw(
         st.integers(
             min_value=max(1, int(n_units * min_treated_frac)),
@@ -437,7 +443,7 @@ def survey_strategy(draw: Any) -> dict[str, Any]:
     weights_raw = draw(_finite_array((n_obs,), min_value=0.5, max_value=3.0))
     assume(np.all(weights_raw > 0))
     strata_id = np.repeat(np.arange(n_strata), n_per_stratum).astype(np.int64)
-    cluster_id = np.repeat(np.arange(n_obs // 2), 2)[: n_obs].astype(np.int64)
+    cluster_id = np.repeat(np.arange(n_obs // 2), 2)[:n_obs].astype(np.int64)
     return {
         "outcome": outcome,
         "weights": weights_raw,

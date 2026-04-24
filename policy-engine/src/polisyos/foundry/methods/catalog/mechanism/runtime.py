@@ -1,7 +1,9 @@
 """Public mechanism runtime module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -69,9 +71,9 @@ def _coerce_runtime_state(value: Any, *, allow_queue: bool = False) -> Any:
     if hasattr(value, "agents") or hasattr(value, "firms"):
         return value
     if allow_queue and isinstance(value, Mapping) and "queue_length" in value:
-        from polisyos.foundry.queue import QueueState
-
         import jax.numpy as jnp
+
+        from polisyos.foundry.queue import QueueState
 
         return QueueState(queue_length=jnp.asarray(value["queue_length"], dtype=jnp.float32))
     raise TypeError("mechanism runtime methods require a Foundry runtime state object")
@@ -80,7 +82,9 @@ def _coerce_runtime_state(value: Any, *, allow_queue: bool = False) -> Any:
 def _runtime_fidelity(params: Mapping[str, Any]) -> Any:
     from polisyos.foundry.contracts.fidelity import FidelityLevel as RuntimeFidelityLevel
 
-    return RuntimeFidelityLevel(str(params.get("fidelity", RuntimeFidelityLevel.SURROGATE_FLUID.value)))
+    return RuntimeFidelityLevel(
+        str(params.get("fidelity", RuntimeFidelityLevel.SURROGATE_FLUID.value))
+    )
 
 
 def _apply_runtime_mechanism(
@@ -95,9 +99,9 @@ def _apply_runtime_mechanism(
     fidelity = _runtime_fidelity(params)
     n_agents, n_firms = _population_shape(runtime_state)
     mechanism_params = {key: params.get(key) for key in param_keys if key in params}
-    from polisyos.foundry.registry import create_mechanism_from_spec
-
     import jax
+
+    from polisyos.foundry.registry import create_mechanism_from_spec
 
     mechanism = create_mechanism_from_spec(
         mechanism_type,
@@ -136,6 +140,7 @@ def _apply_runtime_mechanism(
 )
 class TaxSubsidyMechanismMethod:
     """Tax subsidy mechanism method public type."""
+
     method_kind: ClassVar[MethodKind] = MethodKind.MECHANISM
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
@@ -153,7 +158,9 @@ class TaxSubsidyMechanismMethod:
         name="tax_subsidy",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({SlotSpec("runtime_state", SlotType.SCALAR, Unit("state", "object"))}),
+        input_slots=frozenset(
+            {SlotSpec("runtime_state", SlotType.SCALAR, Unit("state", "object"))}
+        ),
         output_slots=_result_slot(),
         parameters=(
             ParameterSpec(name="rate", default=0.1),
@@ -191,6 +198,7 @@ class TaxSubsidyMechanismMethod:
 )
 class IncomeTaxMechanismMethod:
     """Income tax mechanism method public type."""
+
     method_kind: ClassVar[MethodKind] = MethodKind.MECHANISM
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
@@ -208,7 +216,9 @@ class IncomeTaxMechanismMethod:
         name="income_tax",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({SlotSpec("runtime_state", SlotType.SCALAR, Unit("state", "object"))}),
+        input_slots=frozenset(
+            {SlotSpec("runtime_state", SlotType.SCALAR, Unit("state", "object"))}
+        ),
         output_slots=_result_slot(),
         parameters=(
             ParameterSpec(name="rate", default=0.2),
@@ -246,14 +256,13 @@ class IncomeTaxMechanismMethod:
 )
 class LaborMarketMechanismMethod:
     """Labor market mechanism method public type."""
+
     method_kind: ClassVar[MethodKind] = MethodKind.MECHANISM
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
     side_effect_profile: ClassVar[SideEffectProfile] = SideEffectProfile.PATCH_EMISSION
     runtime_mechanism_type: ClassVar[str] = "labor_market"
-    runtime_mechanism_class_path: ClassVar[str] = (
-        "polisyos.foundry.mechanisms:LaborMarketMechanism"
-    )
+    runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.mechanisms:LaborMarketMechanism"
     supported_runtime_fidelities: ClassVar[tuple[RuntimeFidelityLevel, ...]] = (
         RuntimeFidelityLevel.SURROGATE_FLUID,
         RuntimeFidelityLevel.RELAXED_DISCRETE,
@@ -266,7 +275,9 @@ class LaborMarketMechanismMethod:
         name="labor_market",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({SlotSpec("runtime_state", SlotType.SCALAR, Unit("state", "object"))}),
+        input_slots=frozenset(
+            {SlotSpec("runtime_state", SlotType.SCALAR, Unit("state", "object"))}
+        ),
         output_slots=_result_slot(),
         parameters=(
             ParameterSpec(name="employment_threshold", default=0.5),
@@ -309,6 +320,7 @@ class LaborMarketMechanismMethod:
 )
 class QueueMechanismMethod:
     """Queue mechanism method public type."""
+
     method_kind: ClassVar[MethodKind] = MethodKind.MECHANISM
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
@@ -327,7 +339,9 @@ class QueueMechanismMethod:
         name="queue",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({SlotSpec("runtime_state", SlotType.SCALAR, Unit("state", "object"))}),
+        input_slots=frozenset(
+            {SlotSpec("runtime_state", SlotType.SCALAR, Unit("state", "object"))}
+        ),
         output_slots=_result_slot(),
         parameters=(
             ParameterSpec(name="service_rate", default=1.0),
@@ -349,9 +363,7 @@ class QueueMechanismMethod:
         description="Emit queue-length patches through the unified MethodRegistry.",
         tags=frozenset({"mechanism", "runtime", "queue", "structural"}),
         when_to_use="Model service congestion in simulation; analyze capacity, waiting times, and throughput under policy changes",
-        citations=(
-            "Gross, D. & Shortle, J. (2008). Fundamentals of Queueing Theory. Wiley.",
-        ),
+        citations=("Gross, D. & Shortle, J. (2008). Fundamentals of Queueing Theory. Wiley.",),
         output_interpretation="Queue-length patch. Stable queue = lambda < mu (rho < 1). Policy target: reduce waiting time or increase throughput.",
     )
 
@@ -373,14 +385,13 @@ class QueueMechanismMethod:
 )
 class AdaptiveAgentMechanismMethod:
     """Adaptive agent mechanism method public type."""
+
     method_kind: ClassVar[MethodKind] = MethodKind.MECHANISM
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax", "equinox", "optax")
     side_effect_profile: ClassVar[SideEffectProfile] = SideEffectProfile.PATCH_EMISSION
     runtime_mechanism_type: ClassVar[str] = "adaptive_agent"
-    runtime_mechanism_class_path: ClassVar[str] = (
-        "polisyos.foundry.agents:AdaptiveAgentMechanism"
-    )
+    runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.agents:AdaptiveAgentMechanism"
     supported_runtime_fidelities: ClassVar[tuple[RuntimeFidelityLevel, ...]] = tuple(
         RuntimeFidelityLevel
     )
@@ -392,11 +403,17 @@ class AdaptiveAgentMechanismMethod:
         name="adaptive_agent",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({SlotSpec("runtime_state", SlotType.SCALAR, Unit("state", "object"))}),
+        input_slots=frozenset(
+            {SlotSpec("runtime_state", SlotType.SCALAR, Unit("state", "object"))}
+        ),
         output_slots=_result_slot(),
         parameters=(
             ParameterSpec(name="observation_space", default=(), is_static=True),
-            ParameterSpec(name="action_space", default={"type": "continuous", "affects": ["policy.tax_rate"]}, is_static=True),
+            ParameterSpec(
+                name="action_space",
+                default={"type": "continuous", "affects": ["policy.tax_rate"]},
+                is_static=True,
+            ),
             ParameterSpec(name="utility", default=None, is_static=True),
             ParameterSpec(name="policy_model", default=None, is_static=True),
             ParameterSpec(name="weights_artifact", default=None, is_static=True),

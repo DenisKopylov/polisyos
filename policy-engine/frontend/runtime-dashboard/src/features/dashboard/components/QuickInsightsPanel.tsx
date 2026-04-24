@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { Card } from "@/shared/ui/primitives";
 
@@ -31,11 +32,14 @@ export function QuickInsightsPanel({
   title = "Quick Insights",
   className,
 }: QuickInsightsPanelProps) {
+  const { t } = useI18n();
   if (insights.length === 0) {
     return (
       <Card className={cn("space-y-3", className)}>
         <h4 className="text-sm font-semibold">{title}</h4>
-        <p className="text-muted text-sm">No insights available.</p>
+        <p className="text-muted text-sm">
+          {t("features.dashboard.quickInsights.empty")}
+        </p>
       </Card>
     );
   }
@@ -45,7 +49,9 @@ export function QuickInsightsPanel({
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-semibold">{title}</h4>
         <span className="text-muted text-xs">
-          {insights.length} insight{insights.length !== 1 ? "s" : ""}
+          {t("features.dashboard.quickInsights.count", {
+            count: insights.length,
+          })}
         </span>
       </div>
 

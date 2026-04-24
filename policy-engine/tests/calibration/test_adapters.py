@@ -1,4 +1,5 @@
 """Tests for calibration diagnostics adapters."""
+
 from __future__ import annotations
 
 from polisyos.calibration import evaluate_binary, evaluate_multiclass, to_validation_report

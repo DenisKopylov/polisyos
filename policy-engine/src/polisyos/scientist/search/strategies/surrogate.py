@@ -80,4 +80,3 @@ class MeanVarianceSurrogate:
         self._x_dim = int(state.get("x_dim", 0))
         digest = state.get("x_digest", [])
         self._x_digest = [float(item) for item in digest]
-

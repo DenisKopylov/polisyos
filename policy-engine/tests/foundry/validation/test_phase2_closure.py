@@ -74,16 +74,10 @@ def _write_junit(
     testcase = (
         f"  <testcase {rendered_attrs} />"
         if passed
-        else (
-            f"  <testcase {rendered_attrs}>"
-            '<failure message="boom" />'
-            "</testcase>"
-        )
+        else (f'  <testcase {rendered_attrs}><failure message="boom" /></testcase>')
     )
     path.write_text(
-        "<testsuite name=\"phase2\">\n"
-        f"{testcase}\n"
-        "</testsuite>\n",
+        f'<testsuite name="phase2">\n{testcase}\n</testsuite>\n',
         encoding="utf-8",
     )
 
@@ -93,7 +87,9 @@ def _write_benchmarks(
     *,
     benchmarks: list[dict[str, object]] | None = None,
 ) -> None:
-    payload = {"benchmarks": benchmarks or [{"name": "phase2_distributional_frontier", "status": "pass"}]}
+    payload = {
+        "benchmarks": benchmarks or [{"name": "phase2_distributional_frontier", "status": "pass"}]
+    }
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
@@ -137,7 +133,9 @@ def test_build_foundry_phase2_closure_report_all_green(tmp_path: Path) -> None:
     assert report.artifact_families["distributional_frontier"].passes_all is True
 
 
-def test_build_foundry_phase2_closure_report_flags_missing_typed_target_mapping(tmp_path: Path) -> None:
+def test_build_foundry_phase2_closure_report_flags_missing_typed_target_mapping(
+    tmp_path: Path,
+) -> None:
     _write_manifest(
         tmp_path / "manifest.json",
         typed_targets=[
@@ -162,7 +160,9 @@ def test_build_foundry_phase2_closure_report_flags_missing_typed_target_mapping(
 def test_build_foundry_phase2_closure_report_flags_missing_benchmark(tmp_path: Path) -> None:
     _write_manifest(tmp_path / "manifest.json")
     _write_junit(tmp_path / "acceptance.xml")
-    _write_benchmarks(tmp_path / "benchmarks.json", benchmarks=[{"name": "other", "status": "pass"}])
+    _write_benchmarks(
+        tmp_path / "benchmarks.json", benchmarks=[{"name": "other", "status": "pass"}]
+    )
     _write_evidence(tmp_path / "evidence.json")
 
     report = _build_report(tmp_path)
@@ -171,7 +171,9 @@ def test_build_foundry_phase2_closure_report_flags_missing_benchmark(tmp_path: P
     assert "stale_manifest:benchmark_missing:P2.04:phase2_distributional_frontier" in report.notes
 
 
-def test_build_foundry_phase2_closure_report_flags_missing_synthetic_world_check(tmp_path: Path) -> None:
+def test_build_foundry_phase2_closure_report_flags_missing_synthetic_world_check(
+    tmp_path: Path,
+) -> None:
     _write_manifest(tmp_path / "manifest.json")
     _write_junit(tmp_path / "acceptance.xml")
     _write_benchmarks(tmp_path / "benchmarks.json")

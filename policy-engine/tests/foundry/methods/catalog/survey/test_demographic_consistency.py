@@ -56,10 +56,14 @@ class TestDemographicConsistencyEstimator:
         assert np.allclose(payload.calibrated_flows, np.array([3.0, 4.0]))
         assert np.allclose(payload.record_survivor_weights, np.array([3.0, 4.0]))
         assert np.allclose(payload.achieved_state_totals, np.array([3.0, 5.0]))
-        assert math.isclose(payload.diagnostics["entrant_mass_total"], 1.0, rel_tol=0.0, abs_tol=1e-12)
+        assert math.isclose(
+            payload.diagnostics["entrant_mass_total"], 1.0, rel_tol=0.0, abs_tol=1e-12
+        )
         assert math.isclose(payload.diagnostics["exit_mass_total"], 1.0, rel_tol=0.0, abs_tol=1e-12)
 
-    def test_reconciles_mass_when_targets_do_not_sum_to_available_survivors(self, isolated_registry) -> None:
+    def test_reconciles_mass_when_targets_do_not_sum_to_available_survivors(
+        self, isolated_registry
+    ) -> None:
         method = _method_or_skip(
             isolated_registry,
             "survey.demography.demographic_consistency@1.0.0",
@@ -139,7 +143,9 @@ class TestDemographicConsistencyEstimator:
             },
         )["result"]
 
-        baseline_soft_total = float((state["soft_constraint_matrix"] @ baseline.calibrated_flows).item())
+        baseline_soft_total = float(
+            (state["soft_constraint_matrix"] @ baseline.calibrated_flows).item()
+        )
         baseline_gap = abs(baseline_soft_total - 0.75)
         soft_gap = softened.diagnostics["soft_max_gap"]
         assert soft_gap < baseline_gap

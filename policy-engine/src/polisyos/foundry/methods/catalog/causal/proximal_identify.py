@@ -4,6 +4,7 @@ This module implements the v1 Stage 11.1 surface: a sound, intentionally
 incomplete proximal bridge identifier that emits machine-checkable certificates
 for canonical single-treatment/single-outcome proximal settings.
 """
+
 from __future__ import annotations
 
 from collections import deque
@@ -73,8 +74,7 @@ def proximal_identify_v1(
             check="graph_type_supported",
             blocking_type=BlockingType.OUT_OF_SCOPE_FOR_PROXIMAL_V1,
             description=(
-                "Proximal v1 only supports DAG/ADMG graphs with directed and "
-                "bidirected edges."
+                "Proximal v1 only supports DAG/ADMG graphs with directed and bidirected edges."
             ),
             detail=f"Received graph_type={graph.graph_type.value}.",
             trace=trace,
@@ -132,8 +132,7 @@ def proximal_identify_v1(
             check="proxy_annotation_disjoint",
             blocking_type=BlockingType.PROXIMAL_CONDITION_FAILED,
             description=(
-                "Proximal v1 requires treatment, outcome, proxies, and "
-                "covariates to be disjoint."
+                "Proximal v1 requires treatment, outcome, proxies, and covariates to be disjoint."
             ),
             detail=f"{left} and {right} overlap on {sorted(overlap)}.",
             trace=trace,
@@ -210,8 +209,7 @@ def proximal_identify_v1(
             source_set=proxy_annotation.treatment_inducing,
             target=outcome,
             detail=(
-                "No directed path from any Z-proxy to outcome was found after "
-                "removing treatment."
+                "No directed path from any Z-proxy to outcome was found after removing treatment."
             ),
         )
     )
@@ -430,10 +428,14 @@ def proximal_spatial_identify_v1(
         buffer_radius = int(spec.buffer_radius or 0)
         min_lag = min(spec.lag_orders)
         has_safe_buffer = max(buffer_radius, min_lag) > spillover_radius
-        if spec.proxy_construction in {
-            "ring_lag",
-            "buffered_ring_lag",
-        } and not has_safe_buffer:
+        if (
+            spec.proxy_construction
+            in {
+                "ring_lag",
+                "buffered_ring_lag",
+            }
+            and not has_safe_buffer
+        ):
             return _negative(
                 check="buffered_spatial_proxy_exclusion",
                 blocking_type=BlockingType.PROXIMAL_CONDITION_FAILED,
@@ -503,9 +505,7 @@ def proximal_spatial_identify_v1(
         ),
         "impact_functionals_declared": ["tau", "ADE", "AIE", "ATE_total"],
         "weight_matrix_refs": [
-            spec.weight_matrix_ref
-            for spec in spatial_specs
-            if spec.weight_matrix_ref is not None
+            spec.weight_matrix_ref for spec in spatial_specs if spec.weight_matrix_ref is not None
         ],
     }
     return base_result.model_copy(
@@ -582,11 +582,7 @@ def _check_district_relevance(
     proxies: ProxyAnnotation,
 ) -> ProximalGraphCheck:
     components = c_components(graph)
-    district_by_node = {
-        node: component
-        for component in components
-        for node in component
-    }
+    district_by_node = {node: component for component in components for node in component}
     treatment_district = district_by_node.get(treatment, frozenset({treatment}))
     outcome_district = district_by_node.get(outcome, frozenset({outcome}))
     witness = {
@@ -792,8 +788,8 @@ def _negative(
 
 
 __all__ = [
-    "PROXIMAL_V1_ALGORITHM",
     "PROXIMAL_SPATIAL_V1_ALGORITHM",
+    "PROXIMAL_V1_ALGORITHM",
     "proximal_identify_v1",
     "proximal_spatial_identify_v1",
 ]

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import shutil
 import tarfile
 from io import BytesIO
 
@@ -23,11 +22,11 @@ def test_safe_extract_tar_cleans_partial_files_on_failure(tmp_path, monkeypatch)
     target = tmp_path / "out"
     target.mkdir()
 
-    def _raise_type_error(self, path, members=None, filter=None):  # noqa: ANN001
+    def _raise_type_error(self, path, members=None, filter=None):
         del self, path, members, filter
         raise TypeError("fallback path")
 
-    def _copy_boom(src, dst, length=16 * 1024):  # noqa: ANN001
+    def _copy_boom(src, dst, length=16 * 1024):
         del src, length
         dst.write(b"partial")
         raise OSError("copy failed")

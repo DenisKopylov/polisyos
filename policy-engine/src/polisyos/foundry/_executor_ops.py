@@ -1,11 +1,12 @@
 """Selector evaluation, constraint checking, and patch-op application."""
+
 from __future__ import annotations
 
+from collections.abc import Iterable
 from decimal import Decimal, InvalidOperation
-from typing import Any, Iterable
+from typing import Any
 
 import jax.numpy as jnp
-import numpy as np
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.foundry import LoweredConstraint, PatchOp
@@ -32,16 +33,16 @@ from .constraints_engine import check_constraints as evaluate_lowered_constraint
 from .methods.exceptions import SelectorCoercionError, SelectorEvaluationError
 
 __all__ = [
-    "coerce_selector_scalar",
-    "selector_field_values",
-    "apply_operator",
-    "evaluate_selector",
-    "apply_ops_to_state",
-    "coerce_number",
-    "check_constraints",
-    "validate_ops_compatibility",
-    "apply_ops_for_slot",
     "apply_op",
+    "apply_operator",
+    "apply_ops_for_slot",
+    "apply_ops_to_state",
+    "check_constraints",
+    "coerce_number",
+    "coerce_selector_scalar",
+    "evaluate_selector",
+    "selector_field_values",
+    "validate_ops_compatibility",
 ]
 
 

@@ -1,4 +1,5 @@
 """Public fabric fact writer module API."""
+
 from __future__ import annotations
 
 import json

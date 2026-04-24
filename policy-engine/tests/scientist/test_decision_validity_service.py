@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -173,9 +175,9 @@ def test_decision_validity_service_records_events_dedupes_and_tracks_monitoring(
 
     refreshed_summary = service.get_summary(str(packet_ref.artifact_id))
     assert refreshed_summary["lifecycle"]["scheduled_jobs"][0]["state"] == "completed"
-    assert refreshed_summary["lifecycle"]["scheduled_jobs"][0]["payload"]["monitoring_report_ref"] == str(
-        monitoring_report_ref.artifact_id
-    )
+    assert refreshed_summary["lifecycle"]["scheduled_jobs"][0]["payload"][
+        "monitoring_report_ref"
+    ] == str(monitoring_report_ref.artifact_id)
     assert refreshed_summary["lifecycle"]["reissue_candidates"] == [
         {"artifact_id": str(reissue_plan_ref.artifact_id)}
     ]

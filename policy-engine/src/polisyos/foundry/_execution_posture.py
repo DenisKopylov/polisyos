@@ -1,4 +1,5 @@
 """Resolve effective Foundry execution posture from compile-time plans and run-time overrides."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

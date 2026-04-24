@@ -1,10 +1,11 @@
 """Store discovered components and resolve versions by metadata indices."""
+
 from __future__ import annotations
 
-from collections.abc import Callable, Hashable, Mapping
+import builtins
+from collections.abc import Callable, Hashable, Mapping, Sequence
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Sequence
 
 from polisyos.core.registry import BaseRegistry
 
@@ -16,6 +17,7 @@ from .protocols import Component
 
 class DuplicateComponentIdPolicy(str, Enum):
     """Control how duplicate component IDs are handled during registration."""
+
     WARN = "warn"
     ERROR = "error"
     IGNORE = "ignore"
@@ -23,6 +25,7 @@ class DuplicateComponentIdPolicy(str, Enum):
 
 class ResolvePolicy(str, Enum):
     """Select which version of a component base ID should be returned."""
+
     EXACT = "exact"
     LATEST = "latest"
     LATEST_COMPATIBLE = "latest_compatible"
@@ -31,12 +34,14 @@ class ResolvePolicy(str, Enum):
 @dataclass(slots=True, frozen=True)
 class SourcePrecedencePolicy:
     """Prefer dev-scan declarations over entry points when duplicates appear."""
+
     dev_scan_wins_over_entry_points: bool = True
 
 
 @dataclass(slots=True)
 class ComponentEntry:
     """Store component metadata, runtime object, and optional discovery provenance."""
+
     metadata: ComponentMetadata
     component: Component
     source: object | None = None
@@ -148,7 +153,7 @@ class ComponentRegistry(BaseRegistry[str, ComponentEntry]):
         jurisdiction: str | None = None,
         capabilities: Capability | None = None,
         tags: Sequence[str] | None = None,
-    ) -> List[ComponentEntry]:
+    ) -> builtins.list[ComponentEntry]:
         """Filter entries by kind, domain, jurisdiction, capabilities, and tags."""
         if index_filters is not None or predicate is not None:
             return super().query(index_filters=index_filters, predicate=predicate)
@@ -182,7 +187,7 @@ class ComponentRegistry(BaseRegistry[str, ComponentEntry]):
         *,
         constraint: SemverRange | str | None = None,
         kind: ComponentKind | None = None,
-    ) -> List[ComponentEntry]:
+    ) -> builtins.list[ComponentEntry]:
         """Return candidate versions that satisfy `constraint` and optional kind filtering."""
         rows = self.find("base_id", base_id)
         if not rows:

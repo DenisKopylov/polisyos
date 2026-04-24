@@ -9,15 +9,17 @@ Design Principles:
 - Configurable pool sizes with backpressure (semaphore-based)
 - Connection reuse to minimize latency and resource usage
 """
+
 from __future__ import annotations
 
 import asyncio
 import threading
 from collections import deque
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Callable, Generic, TypeVar
+from typing import TYPE_CHECKING, Generic, TypeVar
 from uuid import uuid4
 
 from polisyos.common.logger import get_logger
@@ -65,11 +67,11 @@ class PooledConnection:
     for intelligent connection reuse decisions.
     """
 
-    connector: "SourceConnector"
-    handle: "ConnectionHandle"
+    connector: SourceConnector
+    handle: ConnectionHandle
     pool_id: str
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    last_used_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    last_used_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     last_health_check: datetime | None = None
     consecutive_failures: int = 0
     use_count: int = 0
@@ -78,28 +80,28 @@ class PooledConnection:
     @property
     def age_seconds(self) -> float:
         """Time since connection was created."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return (now - self.created_at).total_seconds()
 
     @property
     def idle_seconds(self) -> float:
         """Time since connection was last used."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return (now - self.last_used_at).total_seconds()
 
     def mark_used(self) -> None:
         """Update last_used_at and increment use count."""
-        self.last_used_at = datetime.now(timezone.utc)
+        self.last_used_at = datetime.now(UTC)
         self.use_count += 1
 
     def mark_healthy(self) -> None:
         """Record successful health check."""
-        self.last_health_check = datetime.now(timezone.utc)
+        self.last_health_check = datetime.now(UTC)
         self.consecutive_failures = 0
 
     def mark_unhealthy(self) -> None:
         """Record failed health check."""
-        self.last_health_check = datetime.now(timezone.utc)
+        self.last_health_check = datetime.now(UTC)
         self.consecutive_failures += 1
 
 
@@ -165,7 +167,7 @@ class BackpressureSignal:
     level: BackpressureLevel
     reason: str
     pause_seconds: float = 0.0
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass(frozen=True)
@@ -211,10 +213,10 @@ class ConnectionPool(Generic[ConnectorT]):
     def __init__(
         self,
         connector_factory: Callable[[], ConnectorT],
-        config: "ConnectionConfig",
+        config: ConnectionConfig,
         pool_config: PoolConfig | None = None,
         pool_id: str | None = None,
-        circuit_breaker: "CircuitBreaker | None" = None,
+        circuit_breaker: CircuitBreaker | None = None,
     ) -> None:
         """
         Initialize connection pool.
@@ -253,7 +255,7 @@ class ConnectionPool(Generic[ConnectorT]):
         self._total_health_checks = 0
         self._failed_health_checks = 0
         self._acquire_wait_time_total_ms = 0.0
-        self._created_at = datetime.now(timezone.utc)
+        self._created_at = datetime.now(UTC)
 
         logger.info(
             "Connection pool initialized",
@@ -272,7 +274,7 @@ class ConnectionPool(Generic[ConnectorT]):
         """Whether the pool has been closed."""
         return self._closed
 
-    async def acquire(self) -> "ConnectionHandle":
+    async def acquire(self) -> ConnectionHandle:
         """
         Acquire a connection from the pool.
 
@@ -289,14 +291,14 @@ class ConnectionPool(Generic[ConnectorT]):
         if self._circuit_breaker is not None and self._circuit_breaker.is_open():
             from polisyos.fabric.connectors.resilience import CircuitOpenError
 
-            opened_at = self._circuit_breaker.opened_at or datetime.now(timezone.utc)
+            opened_at = self._circuit_breaker.opened_at or datetime.now(UTC)
             raise CircuitOpenError(
                 self._circuit_breaker.circuit_id,
                 opened_at,
                 self._circuit_breaker.config.timeout_seconds,
             )
 
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         try:
             # Wait for available slot with timeout
@@ -305,13 +307,12 @@ class ConnectionPool(Generic[ConnectorT]):
                 timeout=self._config.acquire_timeout_seconds,
             )
             if not acquired:
-                raise PoolExhaustedError(
-                    self._pool_id, self._config.acquire_timeout_seconds
-                )
-        except asyncio.TimeoutError:
+                raise PoolExhaustedError(self._pool_id, self._config.acquire_timeout_seconds)
+        except TimeoutError as exc:
             raise PoolExhaustedError(
-                self._pool_id, self._config.acquire_timeout_seconds
-            )
+                self._pool_id,
+                self._config.acquire_timeout_seconds,
+            ) from exc
 
         try:
             async with self._lock:
@@ -334,7 +335,7 @@ class ConnectionPool(Generic[ConnectorT]):
                 # Update statistics
                 with self._stats_lock:
                     self._total_acquires += 1
-                    elapsed = datetime.now(timezone.utc) - start_time
+                    elapsed = datetime.now(UTC) - start_time
                     self._acquire_wait_time_total_ms += elapsed.total_seconds() * 1000
 
                 logger.debug(
@@ -351,19 +352,19 @@ class ConnectionPool(Generic[ConnectorT]):
             self._semaphore.release()
             raise
 
-    async def acquire_with_connector(self) -> tuple["SourceConnector", "ConnectionHandle"]:
+    async def acquire_with_connector(self) -> tuple[SourceConnector, ConnectionHandle]:
         """Acquire a connection and return both connector instance and handle."""
         if self._circuit_breaker is not None and self._circuit_breaker.is_open():
             from polisyos.fabric.connectors.resilience import CircuitOpenError
 
-            opened_at = self._circuit_breaker.opened_at or datetime.now(timezone.utc)
+            opened_at = self._circuit_breaker.opened_at or datetime.now(UTC)
             raise CircuitOpenError(
                 self._circuit_breaker.circuit_id,
                 opened_at,
                 self._circuit_breaker.config.timeout_seconds,
             )
 
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         try:
             acquired = await asyncio.wait_for(
@@ -371,13 +372,12 @@ class ConnectionPool(Generic[ConnectorT]):
                 timeout=self._config.acquire_timeout_seconds,
             )
             if not acquired:
-                raise PoolExhaustedError(
-                    self._pool_id, self._config.acquire_timeout_seconds
-                )
-        except asyncio.TimeoutError:
+                raise PoolExhaustedError(self._pool_id, self._config.acquire_timeout_seconds)
+        except TimeoutError as exc:
             raise PoolExhaustedError(
-                self._pool_id, self._config.acquire_timeout_seconds
-            )
+                self._pool_id,
+                self._config.acquire_timeout_seconds,
+            ) from exc
 
         try:
             async with self._lock:
@@ -395,7 +395,7 @@ class ConnectionPool(Generic[ConnectorT]):
 
                 with self._stats_lock:
                     self._total_acquires += 1
-                    elapsed = datetime.now(timezone.utc) - start_time
+                    elapsed = datetime.now(UTC) - start_time
                     self._acquire_wait_time_total_ms += elapsed.total_seconds() * 1000
 
                 return pooled.connector, pooled.handle
@@ -403,7 +403,7 @@ class ConnectionPool(Generic[ConnectorT]):
             self._semaphore.release()
             raise
 
-    async def release(self, handle: "ConnectionHandle") -> None:
+    async def release(self, handle: ConnectionHandle) -> None:
         """
         Release a connection back to the pool.
 
@@ -492,11 +492,10 @@ class ConnectionPool(Generic[ConnectorT]):
                 connector.connect(self._connection_config),
                 timeout=self._config.connection_timeout_seconds,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError as exc:
             raise TimeoutError(
-                "Connection creation timed out after "
-                f"{self._config.connection_timeout_seconds}s"
-            )
+                f"Connection creation timed out after {self._config.connection_timeout_seconds}s"
+            ) from exc
 
         pooled = PooledConnection(
             connector=connector,
@@ -524,9 +523,7 @@ class ConnectionPool(Generic[ConnectorT]):
         """
         # Skip if recently checked
         if pooled.last_health_check is not None:
-            since_check = (
-                datetime.now(timezone.utc) - pooled.last_health_check
-            ).total_seconds()
+            since_check = (datetime.now(UTC) - pooled.last_health_check).total_seconds()
             if since_check < self._config.health_check_interval_seconds:
                 return pooled.consecutive_failures == 0
 
@@ -534,7 +531,7 @@ class ConnectionPool(Generic[ConnectorT]):
             with self._stats_lock:
                 self._total_health_checks += 1
 
-            health: "HealthStatus" = await asyncio.wait_for(
+            health: HealthStatus = await asyncio.wait_for(
                 pooled.connector.health_check(pooled.handle),
                 timeout=10.0,  # Quick health check timeout
             )
@@ -576,10 +573,7 @@ class ConnectionPool(Generic[ConnectorT]):
             return True
 
         # Too many failures
-        if pooled.consecutive_failures >= self._config.max_consecutive_failures:
-            return True
-
-        return False
+        return pooled.consecutive_failures >= self._config.max_consecutive_failures
 
     async def _retire_connection(self, pooled: PooledConnection) -> None:
         """Retire a connection (close and don't return to pool)."""
@@ -611,7 +605,7 @@ class ConnectionPool(Generic[ConnectorT]):
                 error=str(e),
             )
 
-    async def _close_connection_handle(self, handle: "ConnectionHandle") -> None:
+    async def _close_connection_handle(self, handle: ConnectionHandle) -> None:
         """Close a connection handle using a fresh connector instance."""
         if handle.session_id in self._closed_session_ids:
             return
@@ -665,7 +659,7 @@ class ConnectionPool(Generic[ConnectorT]):
             total_closes=self._total_closes,
         )
 
-    async def __aenter__(self) -> "ConnectionPool[ConnectorT]":
+    async def __aenter__(self) -> ConnectionPool[ConnectorT]:
         """Async context manager entry."""
         return self
 
@@ -676,11 +670,11 @@ class ConnectionPool(Generic[ConnectorT]):
     class _ConnectionContext:
         """Context manager for a single connection."""
 
-        def __init__(self, pool: "ConnectionPool", handle: "ConnectionHandle") -> None:
+        def __init__(self, pool: ConnectionPool, handle: ConnectionHandle) -> None:
             self._pool = pool
             self._handle = handle
 
-        async def __aenter__(self) -> "ConnectionHandle":
+        async def __aenter__(self) -> ConnectionHandle:
             return self._handle
 
         async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:

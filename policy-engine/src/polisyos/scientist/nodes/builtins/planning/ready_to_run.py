@@ -1,4 +1,5 @@
 """Public planning ready to run module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -34,6 +35,7 @@ class ReadyToRunNode:
     Reads `params.preflight_ready` and `params.preflight_diagnostics`, emits a gate
     event, and fails the DAG unless earlier preflight checks marked the plan executable.
     """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

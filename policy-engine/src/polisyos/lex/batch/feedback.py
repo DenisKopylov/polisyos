@@ -5,8 +5,10 @@ from __future__ import annotations
 import hashlib
 import json
 from collections import defaultdict
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def build_feedback_queue_rows(audit_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -75,7 +77,9 @@ def write_candidate_patterns(*, feedback_rows: list[dict[str, Any]], output_dir:
                     for item in rows[:5]
                 ],
             }
-            for cluster_key, rows in sorted(grouped.items(), key=lambda item: (-len(item[1]), item[0]))
+            for cluster_key, rows in sorted(
+                grouped.items(), key=lambda item: (-len(item[1]), item[0])
+            )
         ],
     }
     out_path = output_dir / "pattern_feedback_candidates.json"
@@ -83,8 +87,12 @@ def write_candidate_patterns(*, feedback_rows: list[dict[str, Any]], output_dir:
     return out_path
 
 
-def _cluster_key(*, quality_family: str, legal_unit_subtype: str, miss_categories: list[str]) -> str:
-    categories = ",".join(sorted(str(item).strip() for item in miss_categories if str(item).strip()))
+def _cluster_key(
+    *, quality_family: str, legal_unit_subtype: str, miss_categories: list[str]
+) -> str:
+    categories = ",".join(
+        sorted(str(item).strip() for item in miss_categories if str(item).strip())
+    )
     return f"{quality_family}:{legal_unit_subtype}:{categories or 'generic'}"
 
 

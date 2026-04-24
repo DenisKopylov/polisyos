@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -41,7 +41,7 @@ def _build_doc_meta() -> DocMeta:
         doc_version_id=doc_version_id_from_raw_artifact(raw_artifact_id=raw_ref),
         canonical_url=canonical_url,
         official_id=None,
-        retrieved_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+        retrieved_at=datetime(2026, 1, 1, tzinfo=UTC),
         mime="text/html",
         license="public",
         raw_ref=raw_ref,
@@ -110,24 +110,16 @@ def test_kuzu_rebuild_smoke(tmp_path: Path) -> None:
         kuzu_enabled=True,
     )
 
-    duckdb_nodes = int(
-        db.conn.execute("SELECT COUNT(*) FROM world.world_nodes").fetchone()[0]
-    )
-    duckdb_edges = int(
-        db.conn.execute("SELECT COUNT(*) FROM world.world_edges").fetchone()[0]
-    )
+    duckdb_nodes = int(db.conn.execute("SELECT COUNT(*) FROM world.world_nodes").fetchone()[0])
+    duckdb_edges = int(db.conn.execute("SELECT COUNT(*) FROM world.world_edges").fetchone()[0])
 
     kuzu_db = kuzu.Database(str(kuzu_path))
     kuzu_conn = kuzu.Connection(kuzu_db)
     kuzu_nodes = int(
-        kuzu_conn.execute("MATCH (n:WorldNode) RETURN COUNT(n) AS c").get_as_df().iloc[
-            0, 0
-        ]
+        kuzu_conn.execute("MATCH (n:WorldNode) RETURN COUNT(n) AS c").get_as_df().iloc[0, 0]
     )
     kuzu_edges = int(
-        kuzu_conn.execute("MATCH ()-[e:WorldEdge]->() RETURN COUNT(e) AS c")
-        .get_as_df()
-        .iloc[0, 0]
+        kuzu_conn.execute("MATCH ()-[e:WorldEdge]->() RETURN COUNT(e) AS c").get_as_df().iloc[0, 0]
     )
 
     assert duckdb_nodes == kuzu_nodes

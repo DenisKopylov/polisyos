@@ -8,7 +8,7 @@ import socket
 import threading
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.common.logger import get_logger
@@ -125,9 +125,7 @@ class RedisLockHandle:
         def _extend() -> None:
             while not self._heartbeat_stop.wait(interval):
                 try:
-                    extended = self._redis.eval(
-                        _EXTEND_LUA, 1, self._key, self._token, str(ttl_ms)
-                    )
+                    extended = self._redis.eval(_EXTEND_LUA, 1, self._key, self._token, str(ttl_ms))
                     if not extended:
                         self._heartbeat_stop.set()
                         break
@@ -176,9 +174,7 @@ class RedisRunLock:
             if self._client is None:
                 import redis
 
-                self._client = redis.Redis.from_url(
-                    self._redis_url, decode_responses=True
-                )
+                self._client = redis.Redis.from_url(self._redis_url, decode_responses=True)
         return self._client
 
     def acquire(
@@ -195,7 +191,7 @@ class RedisRunLock:
             "hostname": socket.gethostname(),
             "mode": mode,
             "owner_token": token,
-            "started_at": datetime.now(timezone.utc).isoformat(),
+            "started_at": datetime.now(UTC).isoformat(),
         }
         payload = json.dumps(
             {
@@ -210,9 +206,7 @@ class RedisRunLock:
         if not acquired:
             if force:
                 if not owner_token:
-                    raise RunLockError(
-                        f"run {run_id} force acquisition requires owner_token"
-                    )
+                    raise RunLockError(f"run {run_id} force acquisition requires owner_token")
                 forced = r.eval(
                     _FORCE_ACQUIRE_LUA,
                     1,

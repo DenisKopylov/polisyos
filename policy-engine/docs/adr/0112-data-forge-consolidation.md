@@ -1,9 +1,11 @@
 # ADR-0112: Data Forge Consolidation
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context

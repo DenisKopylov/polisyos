@@ -1,16 +1,15 @@
 """Tests for metrics integration in WorkflowExecutor."""
+
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import MagicMock
 
 from polisyos.scientist.engine.metrics_protocol import NoopEngineMetrics
-
 
 # ---------------------------------------------------------------------------
 # Recording mock metrics → run simple workflow → verify calls
 # ---------------------------------------------------------------------------
+
 
 class TestExecutorMetricsCalls:
     """Verify the executor calls metrics methods at the right points."""
@@ -47,11 +46,13 @@ class TestExecutorMetricsCalls:
         run.add_input = MagicMock()
         run.add_output = MagicMock()
         run.trace_path = None
-        run.finalize = MagicMock(return_value=ArtifactRef(
-            artifact_id=_fake_sha,
-            kind="run",
-            media_type="application/json",
-        ))
+        run.finalize = MagicMock(
+            return_value=ArtifactRef(
+                artifact_id=_fake_sha,
+                kind="run",
+                media_type="application/json",
+            )
+        )
 
         logger = MagicMock()
 
@@ -139,12 +140,16 @@ class TestExecutorMetricsCalls:
         _fake_sha = "sha256:" + "ab" * 32
         store = MagicMock()
         store.put_json.return_value = ArtifactRef(
-            artifact_id=_fake_sha, kind="test", media_type="application/json",
+            artifact_id=_fake_sha,
+            kind="test",
+            media_type="application/json",
         )
         run = MagicMock()
         run.trace_path = None
         run.finalize.return_value = ArtifactRef(
-            artifact_id=_fake_sha, kind="run", media_type="application/json",
+            artifact_id=_fake_sha,
+            kind="run",
+            media_type="application/json",
         )
 
         ctx = ExecutionContext(store=store, run=run, logger=MagicMock(), metrics=None)
@@ -155,7 +160,10 @@ class TestExecutorMetricsCalls:
         mock_node.spec.state_writes = []
         mock_node.spec.node_id = "test.node@1.0.0"
         mock_node.execute.return_value = NodeOutcome(
-            status="ok", state=state, events=[], artifacts=[],
+            status="ok",
+            state=state,
+            events=[],
+            artifacts=[],
         )
 
         registry = MagicMock(spec=NodeRegistry)
@@ -176,7 +184,6 @@ class TestExecutorMetricsCalls:
         from polisyos.core.artifacts.manifest import ArtifactRef
         from polisyos.scientist.engine.context import ExecutionContext
         from polisyos.scientist.engine.executor import WorkflowExecutor
-        from polisyos.scientist.engine.protocol import NodeError, NodeOutcome
         from polisyos.scientist.engine.registry import NodeRegistry
         from polisyos.scientist.engine.state import ExperimentState
         from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
@@ -184,12 +191,16 @@ class TestExecutorMetricsCalls:
         _fake_sha = "sha256:" + "ab" * 32
         store = MagicMock()
         store.put_json.return_value = ArtifactRef(
-            artifact_id=_fake_sha, kind="test", media_type="application/json",
+            artifact_id=_fake_sha,
+            kind="test",
+            media_type="application/json",
         )
         run = MagicMock()
         run.trace_path = None
         run.finalize.return_value = ArtifactRef(
-            artifact_id=_fake_sha, kind="run", media_type="application/json",
+            artifact_id=_fake_sha,
+            kind="run",
+            media_type="application/json",
         )
 
         ctx = ExecutionContext(store=store, run=run, logger=MagicMock(), metrics=metrics)

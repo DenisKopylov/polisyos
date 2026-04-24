@@ -1,4 +1,5 @@
 """Public planning run discovery blueprint runtime module API."""
+
 from __future__ import annotations
 
 import json
@@ -112,6 +113,7 @@ class RunDiscoveryBlueprintRuntimeNode:
     writes graph-prior and prior-knowledge refs together with the discovery artifact
     bundle consumed by later causal and governance stages.
     """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -123,13 +125,23 @@ class RunDiscoveryBlueprintRuntimeNode:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="info", message="Discovery runtime skipped: no discovery_variable_names present.")],
+                events=[
+                    NodeEvent(
+                        level="info",
+                        message="Discovery runtime skipped: no discovery_variable_names present.",
+                    )
+                ],
             )
         if not isinstance(data, list) or not data:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="info", message="Discovery runtime skipped: no discovery_data present.")],
+                events=[
+                    NodeEvent(
+                        level="info",
+                        message="Discovery runtime skipped: no discovery_data present.",
+                    )
+                ],
             )
 
         discovery_state = _discovery_state_from_params(state)
@@ -265,8 +277,8 @@ class RunDiscoveryBlueprintRuntimeNode:
         new_state.params["graph_prior_bundle_ref"] = bundle.graph_prior_bundle_ref.model_dump(
             mode="json"
         )
-        new_state.params["prior_knowledge_bundle_ref"] = bundle.prior_knowledge_bundle_ref.model_dump(
-            mode="json"
+        new_state.params["prior_knowledge_bundle_ref"] = (
+            bundle.prior_knowledge_bundle_ref.model_dump(mode="json")
         )
         new_state.params["discovery_artifact_bundle_ref"] = bundle_ref.model_dump(mode="json")
 
@@ -331,7 +343,7 @@ def _resolve_selection_diagram(
 ) -> SelectionDiagram | None:
     if not hypotheses:
         return None
-    base_graph = (hypotheses[0].resolved_graph or hypotheses[0].graph)
+    base_graph = hypotheses[0].resolved_graph or hypotheses[0].graph
     raw = state.params.get("discovery_selection_diagram")
     if isinstance(raw, dict):
         try:
@@ -447,8 +459,7 @@ def _measure_seed_reproducibility(
                 compute_footprint=ComputeFootprint(method_params=params),
             )
             replay_edges = {
-                edge_key_for_edge(edge)
-                for edge in (replay.resolved_graph or replay.graph).edges
+                edge_key_for_edge(edge) for edge in (replay.resolved_graph or replay.graph).edges
             }
             overlaps.append(_edge_jaccard(base_edges, replay_edges))
         if overlaps:

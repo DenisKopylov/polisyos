@@ -1,21 +1,24 @@
 """Lazy facade for simulation-stage builtin nodes."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from .propagate_uncertainty import PropagateUncertaintyNode
+    from .propagate_welfare import PropagateWelfareNode
     from .run_causal_evaluation import RunCausalEvaluationNode
     from .run_distributional_analysis import RunDistributionalAnalysisNode
     from .run_metric_validation import RunMetricValidationNode
     from .run_simulation import RunSimulationNode
 
 __all__ = [
-    "RunSimulationNode",
-    "RunMetricValidationNode",
+    "PropagateUncertaintyNode",
+    "PropagateWelfareNode",
     "RunCausalEvaluationNode",
     "RunDistributionalAnalysisNode",
-    "PropagateUncertaintyNode",
+    "RunMetricValidationNode",
+    "RunSimulationNode",
 ]
 
 
@@ -36,6 +39,10 @@ def __getattr__(name: str) -> Any:
         from .run_distributional_analysis import RunDistributionalAnalysisNode
 
         return RunDistributionalAnalysisNode
+    if name == "PropagateWelfareNode":
+        from .propagate_welfare import PropagateWelfareNode
+
+        return PropagateWelfareNode
     if name == "PropagateUncertaintyNode":
         from .propagate_uncertainty import PropagateUncertaintyNode
 

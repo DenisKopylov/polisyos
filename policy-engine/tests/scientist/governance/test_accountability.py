@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from polisyos.calibration import evaluate_binary
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.calibration import evaluate_binary
 from polisyos.ir.analytics.distributional import TailRiskDeltaEntry, TailRiskDeltaSummary
 from polisyos.ir.analytics.fairness import CausalFairnessReport, FairnessDecomposition
 from polisyos.scientist.governance.accountability import (
@@ -123,7 +123,10 @@ def test_governance_accountability_artifact_builds_thresholds_frontier_and_escal
     summary = loaded.compact_summary()
     assert summary["risk_weighted_verdict"] == "human_gate"
     assert summary["requires_human_review"] is True
-    assert "threshold_violation:fairness.counterfactual_direct_discrimination_max" in summary["escalation_triggers"]
+    assert (
+        "threshold_violation:fairness.counterfactual_direct_discrimination_max"
+        in summary["escalation_triggers"]
+    )
     assert summary["fairness"]["counterfactual_fairness_satisfied"] is False
 
 

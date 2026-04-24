@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn, formatDate, formatNumber } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -36,10 +37,11 @@ export function DataFreshnessMatrix({
   sources,
   className,
 }: DataFreshnessMatrixProps) {
+  const { t } = useI18n();
   if (sources.length === 0) {
     return (
       <p className="text-muted py-4 text-center text-xs">
-        No data source freshness information available.
+        {t("features.dashboard.dataFreshness.empty")}
       </p>
     );
   }
@@ -53,15 +55,21 @@ export function DataFreshnessMatrix({
       <div className="flex gap-3 text-xs">
         <span className="flex items-center gap-1">
           <span className="inline-block size-2 rounded-full bg-[var(--color-status-approved)]" />
-          {freshCount} fresh
+          {t("features.dashboard.dataFreshness.freshCount", {
+            count: freshCount,
+          })}
         </span>
         <span className="flex items-center gap-1">
           <span className="inline-block size-2 rounded-full bg-[var(--color-status-rejected)]" />
-          {staleCount} stale
+          {t("features.dashboard.dataFreshness.staleCount", {
+            count: staleCount,
+          })}
         </span>
         <span className="flex items-center gap-1">
           <span className="inline-block size-2 rounded-full bg-[var(--line)]" />
-          {sources.length - freshCount - staleCount} unknown
+          {t("features.dashboard.dataFreshness.unknownCount", {
+            count: sources.length - freshCount - staleCount,
+          })}
         </span>
       </div>
 
@@ -71,7 +79,10 @@ export function DataFreshnessMatrix({
           <div
             key={source.sourceId}
             className="border-line rounded-xl border p-2 text-xs"
-            style={{ borderLeftWidth: 3, borderLeftColor: STATUS_COLOR[source.status] }}
+            style={{
+              borderLeftWidth: 3,
+              borderLeftColor: STATUS_COLOR[source.status],
+            }}
           >
             <p className="truncate font-semibold">{source.label}</p>
             <p className="text-muted mt-0.5">
@@ -79,7 +90,9 @@ export function DataFreshnessMatrix({
             </p>
             {source.recordCount != null && (
               <p className="text-muted">
-                {formatNumber(source.recordCount)} records
+                {t("features.dashboard.dataFreshness.records", {
+                  count: formatNumber(source.recordCount),
+                })}
               </p>
             )}
           </div>

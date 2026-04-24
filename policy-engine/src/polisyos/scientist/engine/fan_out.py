@@ -134,6 +134,7 @@ class FanOutResult(BaseModel):
 # Path helpers
 # ---------------------------------------------------------------------------
 
+
 def _resolve_path(state: ExperimentState, path: str) -> Any:
     parts = path.split(".")
     current: Any = state
@@ -159,6 +160,7 @@ def _set_nested(target: dict[str, Any], path_parts: list[str], value: Any) -> No
 # ---------------------------------------------------------------------------
 # FanOutNode
 # ---------------------------------------------------------------------------
+
 
 class FanOutNode:
     """Map-reduce node that fans out a list to parallel task invocations.
@@ -201,20 +203,28 @@ class FanOutNode:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(
-                    level="info", message="No items found for fan-out",
-                    code="fan_out.no_items", attrs={},
-                )],
+                events=[
+                    NodeEvent(
+                        level="info",
+                        message="No items found for fan-out",
+                        code="fan_out.no_items",
+                        attrs={},
+                    )
+                ],
             )
 
         if len(items) == 0:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(
-                    level="info", message="Empty items list",
-                    code="fan_out.empty_items", attrs={},
-                )],
+                events=[
+                    NodeEvent(
+                        level="info",
+                        message="Empty items list",
+                        code="fan_out.empty_items",
+                        attrs={},
+                    )
+                ],
             )
 
         task_node = self._registry.get(self._config.task_node_id)
@@ -289,7 +299,9 @@ class FanOutNode:
         )
 
     async def execute_async(
-        self, ctx: ExecutionContext, state: ExperimentState,
+        self,
+        ctx: ExecutionContext,
+        state: ExperimentState,
     ) -> NodeOutcome:
         """Async fan-out with real parallelism via asyncio.TaskGroup."""
         items = _resolve_path(state, self._config.items_state_path)
@@ -297,20 +309,28 @@ class FanOutNode:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(
-                    level="info", message="No items found for fan-out",
-                    code="fan_out.no_items", attrs={},
-                )],
+                events=[
+                    NodeEvent(
+                        level="info",
+                        message="No items found for fan-out",
+                        code="fan_out.no_items",
+                        attrs={},
+                    )
+                ],
             )
 
         if len(items) == 0:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(
-                    level="info", message="Empty items list",
-                    code="fan_out.empty_items", attrs={},
-                )],
+                events=[
+                    NodeEvent(
+                        level="info",
+                        message="Empty items list",
+                        code="fan_out.empty_items",
+                        attrs={},
+                    )
+                ],
             )
 
         task_node = self._registry.get(self._config.task_node_id)
@@ -355,7 +375,9 @@ class FanOutNode:
                 ).state
                 try:
                     outcome = await run_blocking_async(
-                        bound_node.execute, ctx, item_state,
+                        bound_node.execute,
+                        ctx,
+                        item_state,
                     )
                 except _FAN_OUT_RUNTIME_ERRORS as exc:
                     envelope = _fan_out_degraded(
@@ -544,8 +566,10 @@ class FanOutNode:
                 )
             )
 
-        overall_status = "ok" if not failed_items else (
-            "fail" if not self._config.continue_on_item_failure else "ok"
+        overall_status = (
+            "ok"
+            if not failed_items
+            else ("fail" if not self._config.continue_on_item_failure else "ok")
         )
         error = None
         if failed_items and not self._config.continue_on_item_failure:
@@ -559,13 +583,9 @@ class FanOutNode:
         merged_state = state
         resolved_conflict_events: list[NodeEvent] = []
         if apply_merged_state:
-            staged_outcomes = {
-                f"item[{i}]": outcome
-                for i, outcome, _ in ok_outcomes
-            }
+            staged_outcomes = {f"item[{i}]": outcome for i, outcome, _ in ok_outcomes}
             staged_write_specs = {
-                f"item[{i}]": list(write_paths)
-                for i, _, write_paths in ok_outcomes
+                f"item[{i}]": list(write_paths) for i, _, write_paths in ok_outcomes
             }
             aggregate_write_paths: list[str] = []
             aggregate_state = state
@@ -613,9 +633,7 @@ class FanOutNode:
                         code="fan_out.merge_conflict",
                         message="fan-out merge conflict blocked atomic state application",
                         details={
-                            "conflicts": [
-                                item.to_dict() for item in merge_result.conflict_details
-                            ],
+                            "conflicts": [item.to_dict() for item in merge_result.conflict_details],
                         },
                     ),
                 )

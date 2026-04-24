@@ -1,10 +1,13 @@
 """Versioned entrypoints for migrating canonical policy IR payloads between schema releases."""
+
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 
 from polisyos.ir.migrations.base import (
     CompatibilityMode,
+    MigrationFn,
     SchemaCompatibilityDecision,
     can_read_schema,
     get_schema_rule,
@@ -14,6 +17,7 @@ from polisyos.ir.migrations.base import (
 )
 from polisyos.ir.migrations.base import register_migration as _register_migration
 from polisyos.ir.migrations.policy_ir import POLICY_IR_CURRENT_VERSION
+
 from . import schema_registry as _schema_registry  # noqa: F401
 
 IR_ARTIFACT = "policy_ir"
@@ -42,7 +46,7 @@ def register_migration(
     to_version: str,
     *,
     compatibility: CompatibilityMode | str = CompatibilityMode.BACKWARD,
-):
+) -> Callable[[MigrationFn], MigrationFn]:
     """Register policy IR migration in shared registry."""
     parse_version(from_version)
     parse_version(to_version)
@@ -66,9 +70,7 @@ def migrate_policy_ir(
 
     current_version = str(data["schema_version"])
     if current_version.startswith("2.") or "semantic" in data:
-        raise ValueError(
-            "Legacy non-Trinity payloads are not supported by runtime migrations."
-        )
+        raise ValueError("Legacy non-Trinity payloads are not supported by runtime migrations.")
 
     target = target_version or IR_CURRENT_VERSION
     parse_version(current_version)
@@ -83,9 +85,9 @@ def migrate_policy_ir(
 
 
 __all__ = [
-    "CompatibilityMode",
     "IR_ARTIFACT",
     "IR_CURRENT_VERSION",
+    "CompatibilityMode",
     "SchemaCompatibilityDecision",
     "can_read_schema",
     "get_schema_rule",

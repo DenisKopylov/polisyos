@@ -11,8 +11,10 @@ The directory contains three surfaces:
 
 - [`runtime-dashboard/`](runtime-dashboard/README.md) — the main React/Vite
   operator UI.
+
 - [`runtime-reference-shell/`](runtime-reference-shell/README.md) — a static
   diagnostics shell for fast manual checks.
+
 - [`runtime-api-client/`](runtime-api-client/README.md) — the generated JS/TS
   client consumed by the reference shell and other lightweight integrations.
 
@@ -20,12 +22,16 @@ The directory contains three surfaces:
 
 - Start here for contributor workflow:
   [`../docs/how-to/onboarding/frontend-engineer.md`](../docs/how-to/onboarding/frontend-engineer.md)
+
 - Start here for the main app:
   [`runtime-dashboard/README.md`](runtime-dashboard/README.md)
+
 - Start here for the generated contract surfaces:
   [`runtime-api-client/README.md`](runtime-api-client/README.md)
+
 - Start here for the canonical backend contract:
   [`../schemas/runtime_api_v1.openapi.json`](../schemas/runtime_api_v1.openapi.json)
+
 - Start here for the backend implementation boundary:
   [`../src/polisyos/runtime/http/README.md`](../src/polisyos/runtime/http/README.md)
 
@@ -33,12 +39,16 @@ The directory contains three surfaces:
 
 - Dashboard browser entry:
   [`runtime-dashboard/src/main.tsx`](runtime-dashboard/src/main.tsx)
+
 - Dashboard route tree:
   [`runtime-dashboard/src/app/routes/routes.tsx`](runtime-dashboard/src/app/routes/routes.tsx)
+
 - Dashboard generated API types:
   [`runtime-dashboard/src/api/types.ts`](runtime-dashboard/src/api/types.ts)
+
 - Static reference shell:
   [`runtime-reference-shell/index.html`](runtime-reference-shell/index.html)
+
 - Generated runtime client:
   [`runtime-api-client/runtimeApiClient.ts`](runtime-api-client/runtimeApiClient.ts)
 
@@ -49,6 +59,7 @@ The directory contains three surfaces:
   [`../src/polisyos/runtime/http/`](../src/polisyos/runtime/http/),
   [`../tools/runtime/export_runtime_openapi.py`](../tools/runtime/export_runtime_openapi.py),
   [`../tools/runtime/generate_runtime_client.py`](../tools/runtime/generate_runtime_client.py)
+
 - Depended on by:
   frontend onboarding, runtime operator flows, frontend contract checks, and
   manual API diagnostics without opening the docs site
@@ -57,10 +68,13 @@ The directory contains three surfaces:
 
 - `cd frontend/runtime-dashboard && npm run generate:api`
   `smoke-tested 2026-04-17`
+
 - `cd frontend/runtime-dashboard && npm run dev`
   `conceptual/manual; requires a running Runtime API or VITE_RUNTIME_API_URL`
+
 - `cd frontend/runtime-dashboard && npm run preview`
   `conceptual/manual; run after npm run build`
+
 - `cd frontend/runtime-reference-shell && python3 -m http.server 4173`
   `smoke-tested 2026-04-17`
 
@@ -68,10 +82,13 @@ The directory contains three surfaces:
 
 - `cd frontend/runtime-dashboard && npm run typecheck`
   `smoke-tested 2026-04-17`
+
 - `cd frontend/runtime-dashboard && npm run test:contracts`
   `smoke-tested 2026-04-17`
+
 - `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
   `smoke-tested 2026-04-17`
+
 - `curl -I http://127.0.0.1:4173/index.html`
   `smoke-tested 2026-04-17 while serving runtime-reference-shell locally`
 

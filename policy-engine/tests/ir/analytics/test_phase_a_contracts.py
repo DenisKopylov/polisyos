@@ -4,10 +4,22 @@ from types import SimpleNamespace
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
+from polisyos.ir import (
+    AdministrativeMissingnessClass as RootAdministrativeMissingnessClass,
+)
+from polisyos.ir import (
+    MissingnessAssessmentReport as RootMissingnessAssessmentReport,
+)
+from polisyos.ir.analytics import (
+    AdministrativeMissingnessClass as AnalyticsAdministrativeMissingnessClass,
+)
+from polisyos.ir.analytics import (
+    MissingnessAssessmentReport as AnalyticsMissingnessAssessmentReport,
+)
 from polisyos.ir.analytics.administrative_missingness import (
     AdministrativeMissingnessClass,
-    MissingnessAssessmentProvenance,
     AdministrativeMissingnessScenarioFamily,
+    MissingnessAssessmentProvenance,
     MissingnessAssessmentReport,
     MissingnessAssessmentStatus,
     MissingnessEstimandRisk,
@@ -23,14 +35,6 @@ from polisyos.ir.analytics.causal import (
     persist_proof_bundle,
     proof_bundle_from_identification_result,
 )
-from polisyos.ir import (
-    AdministrativeMissingnessClass as RootAdministrativeMissingnessClass,
-    MissingnessAssessmentReport as RootMissingnessAssessmentReport,
-)
-from polisyos.ir.analytics import (
-    AdministrativeMissingnessClass as AnalyticsAdministrativeMissingnessClass,
-    MissingnessAssessmentReport as AnalyticsMissingnessAssessmentReport,
-)
 from polisyos.ir.analytics.dynamic_causal_semantics import (
     DynamicReductionStatus,
     DynamicSemanticsAttachment,
@@ -39,8 +43,8 @@ from polisyos.ir.analytics.dynamic_causal_semantics import (
     GraphicalOracleKind,
 )
 from polisyos.ir.analytics.partial_identification import (
-    BoundMethod,
     BestInClassClaim,
+    BoundMethod,
     BoundsBundle,
     BoundsMethodSummary,
     BoundsReport,

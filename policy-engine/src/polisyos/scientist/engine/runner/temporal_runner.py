@@ -56,6 +56,7 @@ _TEMPORAL_PROBE_ERRORS = (TemporalRPCError,) + _TEMPORAL_HEALTH_ERRORS
 # Payload models (plain dicts for Temporal serialization)
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class NodeActivityPayload:
     """Serialisable payload shipped to a Temporal activity worker."""
@@ -170,9 +171,7 @@ if _HAS_TEMPORAL:
                         maximum_attempts=1 + (inv.retry.max_retries if inv.retry else 0),
                     )
                     timeout = (
-                        timedelta(seconds=inv.timeout_s)
-                        if inv.timeout_s
-                        else timedelta(minutes=10)
+                        timedelta(seconds=inv.timeout_s) if inv.timeout_s else timedelta(minutes=10)
                     )
                     activity_specs.append((act_payload, timeout, retry_policy))
 
@@ -196,9 +195,7 @@ if _HAS_TEMPORAL:
                     ):
                         if not isinstance(item, BaseException):
                             tier_results[str(act_payload["alias"])] = item
-                    exceptions = [
-                        item for item in results if isinstance(item, BaseException)
-                    ]
+                    exceptions = [item for item in results if isinstance(item, BaseException)]
                     if exceptions:
                         raise exceptions[0]
 
@@ -274,7 +271,8 @@ class TemporalWorkflowRunner:
     async def _get_client(self) -> TemporalClient:
         if self._client is None:
             self._client = await TemporalClient.connect(
-                self._server_url, namespace=self._namespace,
+                self._server_url,
+                namespace=self._namespace,
             )
         return self._client
 
@@ -318,6 +316,7 @@ class TemporalWorkflowRunner:
             serialize_checkpoint_hook_runtime_metadata,
         )
         from polisyos.scientist.engine.topo import topo_sort_tiers
+
         client = await self._get_client()
         ctx_meta = serialize_context_meta(
             ctx,
@@ -331,7 +330,7 @@ class TemporalWorkflowRunner:
                 run_id=str(ctx_meta.get("run_id") or state.run_id),
                 trace_id=ctx_meta.get("trace_id"),
                 span_id=ctx_meta.get("span_id"),
-        )
+            )
         state_bytes = serialize_state(state)
         cache = seed_runner_cache(
             store=ctx.store,
@@ -372,9 +371,7 @@ class TemporalWorkflowRunner:
                         maximum_attempts=1 + (inv.retry.max_retries if inv.retry else 0),
                     )
                     timeout = (
-                        timedelta(seconds=inv.timeout_s)
-                        if inv.timeout_s
-                        else timedelta(minutes=10)
+                        timedelta(seconds=inv.timeout_s) if inv.timeout_s else timedelta(minutes=10)
                     )
                     activity_specs.append((alias, act_payload, timeout, retry_policy))
 
@@ -390,9 +387,7 @@ class TemporalWorkflowRunner:
                     ):
                         if not isinstance(item, BaseException):
                             tier_results[alias] = item
-                    exceptions = [
-                        item for item in results if isinstance(item, BaseException)
-                    ]
+                    exceptions = [item for item in results if isinstance(item, BaseException)]
                     if exceptions:
                         raise exceptions[0]
 

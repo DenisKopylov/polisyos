@@ -16,10 +16,16 @@ from tools._lib.imports import ensure_repo_import_roots
 REPO_ROOT, SRC_ROOT = ensure_repo_import_roots(__file__)
 
 try:
-    from polisyos.fabric.io.db import SimulationDB
     from polisyos.fabric.io.graph_store import GraphStore
     from polisyos.fabric.udf.engine import UDFEngine
-    from polisyos.ir.analytics.data_views import AccessTier, DataFilter, DataViewRequest, DataViewType
+
+    from polisyos.fabric.io.db import SimulationDB
+    from polisyos.ir.analytics.data_views import (
+        AccessTier,
+        DataFilter,
+        DataViewRequest,
+        DataViewType,
+    )
 except ImportError as exc:  # explicit degraded mode for legacy UDF surface.
     _IMPORT_ERROR: ImportError | None = exc
 else:
@@ -96,7 +102,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--db-path", type=Path, default=Path("data/databases/demo_udf.duckdb"))
     parser.add_argument("--kuzu-path", type=Path, default=Path("data/databases/demo_udf.kuzu"))
     parser.add_argument("--curated-dir", type=Path, default=Path("data/curated"))
-    parser.add_argument("--baseline", type=Path, default=Path("data/curated/udf_perf_baseline.json"))
+    parser.add_argument(
+        "--baseline", type=Path, default=Path("data/curated/udf_perf_baseline.json")
+    )
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--max-regression", type=float, default=1.2)
     parser.add_argument("--write-baseline", action="store_true")
@@ -108,7 +116,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             f"{type(_IMPORT_ERROR).__name__}: {_IMPORT_ERROR}",
             file=sys.stderr,
         )
-        print("This legacy tool is quarantined; use `polisyos-tools list` for replacement metadata.", file=sys.stderr)
+        print(
+            "This legacy tool is quarantined; use `polisyos-tools list` for replacement metadata.",
+            file=sys.stderr,
+        )
         return 78
     if args.repeats <= 0:
         print("--repeats must be positive", file=sys.stderr)
@@ -145,7 +156,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 continue
             allowed = baseline_queries[name] * args.max_regression
             if ms > allowed:
-                failures.append(f"{name}: {ms:.2f}ms > {allowed:.2f}ms (baseline {baseline_queries[name]:.2f}ms)")
+                failures.append(
+                    f"{name}: {ms:.2f}ms > {allowed:.2f}ms (baseline {baseline_queries[name]:.2f}ms)"
+                )
 
         if failures:
             print("Performance regression detected:")

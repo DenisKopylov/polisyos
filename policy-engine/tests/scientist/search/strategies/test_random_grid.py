@@ -38,4 +38,3 @@ def test_grid_state_roundtrip(simple_space: SearchSpace) -> None:
 
     assert first.params != second.params
     assert third_from_original.params == third_from_restored.params
-

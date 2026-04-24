@@ -1,4 +1,5 @@
 """Public autotune claim adjudication module API."""
+
 from __future__ import annotations
 
 import json
@@ -21,10 +22,10 @@ from polisyos.ir.analytics.literature import (
 )
 
 from .models import (
+    BenchmarkedEvaluator,
     BenchmarkEvaluation,
     BenchmarkSplit,
     BenchmarkSuite,
-    BenchmarkedEvaluator,
     MetricDirection,
     MutationArtifact,
     PromotionPolicy,
@@ -38,7 +39,9 @@ from .runtime import ChampionBackedRuntimeLoader, PydanticMutationCodec
 CLAIM_ADJUDICATION_LOOP_ID = "claim_adjudication"
 _POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_CLAIM_GOLD_PATH = _POLICY_ENGINE_ROOT / "data" / "academic_gold" / "claim_gold.jsonl"
-DEFAULT_CLAIM_GOLD_SPLIT_PATH = _POLICY_ENGINE_ROOT / "data" / "academic_gold" / "claim_gold_split.json"
+DEFAULT_CLAIM_GOLD_SPLIT_PATH = (
+    _POLICY_ENGINE_ROOT / "data" / "academic_gold" / "claim_gold_split.json"
+)
 STRONG_DESIGN_FAMILIES = {
     DesignFamily.RCT.value,
     DesignFamily.IV.value,
@@ -50,15 +53,19 @@ STRONG_DESIGN_FAMILIES = {
 
 class ClaimConsensusRule(str, Enum):
     """Claim consensus rule data model."""
+
     MAJORITY_OR_HIGH_CONFIDENCE = "majority_or_high_confidence"
 
 
 class ClaimAdjudicationSearchConfig(MutationArtifact):
     """Claim adjudication search config data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = CLAIM_ADJUDICATION_LOOP_ID
-    prompt_variants: list[str] = Field(default_factory=lambda: list(CLAIM_ADJUDICATION_PROMPT_VARIANTS))
+    prompt_variants: list[str] = Field(
+        default_factory=lambda: list(CLAIM_ADJUDICATION_PROMPT_VARIANTS)
+    )
     passes: int = Field(default=3, ge=1, le=9)
     consensus_rule: ClaimConsensusRule = ClaimConsensusRule.MAJORITY_OR_HIGH_CONFIDENCE
     majority_vote_floor: int = Field(default=2, ge=1, le=9)
@@ -77,7 +84,9 @@ class ClaimAdjudicationSearchConfig(MutationArtifact):
         return cleaned
 
 
-def build_baseline_claim_adjudication_config(_context: dict[str, Any] | None = None) -> ClaimAdjudicationSearchConfig:
+def build_baseline_claim_adjudication_config(
+    _context: dict[str, Any] | None = None,
+) -> ClaimAdjudicationSearchConfig:
     """Build baseline claim adjudication config."""
     return ClaimAdjudicationSearchConfig()
 
@@ -154,7 +163,9 @@ def aggregate_claim_rows(
     publish_weight = sum(row.adjudication_confidence for row in rows if row.publishable_edge)
     total_weight = sum(max(0.0001, row.adjudication_confidence) for row in rows)
     weighted_publish_ratio = publish_weight / total_weight if total_weight else 0.0
-    stability = weighted_publish_ratio if weighted_publish_ratio >= 0.5 else (1.0 - weighted_publish_ratio)
+    stability = (
+        weighted_publish_ratio if weighted_publish_ratio >= 0.5 else (1.0 - weighted_publish_ratio)
+    )
     avg_asserts = sum(row.paper_asserts_causality_score for row in rows) / max(1, total)
     avg_validity = sum(row.claim_validity_score for row in rows) / max(1, total)
     avg_conf = sum(row.adjudication_confidence for row in rows) / max(1, total)
@@ -193,7 +204,9 @@ def aggregate_claim_rows(
         claim_validity_score=avg_validity,
         adjudication_confidence=avg_conf,
         publishable_edge=publishable,
-        adjudication_notes=" | ".join(sorted({row.adjudication_notes for row in rows if row.adjudication_notes}))[:800],
+        adjudication_notes=" | ".join(
+            sorted({row.adjudication_notes for row in rows if row.adjudication_notes})
+        )[:800],
         consensus_passes=total,
         consensus_stability=stability,
         claim_type_confidence=claim_type_confidence,
@@ -228,6 +241,7 @@ def load_claim_adjudication_config(
 
 class ClaimGoldEvaluator(BenchmarkedEvaluator):
     """Claim gold evaluator public type."""
+
     def __init__(
         self,
         *,
@@ -252,7 +266,9 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
             raise ValueError("ClaimGoldEvaluator requires dataset_path and split_manifest_path")
         predictor = context.get("claim_predictor")
         if not callable(predictor):
-            raise ValueError("context['claim_predictor'] must be callable for claim adjudication benchmark evaluation")
+            raise ValueError(
+                "context['claim_predictor'] must be callable for claim adjudication benchmark evaluation"
+            )
         rows = _read_jsonl(Path(suite.dataset_path))
         split_manifest = read_split_manifest(Path(suite.split_manifest_path))
         per_item, invalid_count, total_cost = self._predict_dataset(
@@ -269,20 +285,32 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
             context=context,
         )
         selection_metrics = _claim_metrics(
-            [item for item in per_item if split_manifest.split_for(item["item_id"]) == BenchmarkSplit.SELECTION],
+            [
+                item
+                for item in per_item
+                if split_manifest.split_for(item["item_id"]) == BenchmarkSplit.SELECTION
+            ],
             total_cost=total_cost,
             invalid_count=invalid_count,
         )
         holdout_metrics = _claim_metrics(
-            [item for item in per_item if split_manifest.split_for(item["item_id"]) == BenchmarkSplit.HOLDOUT],
+            [
+                item
+                for item in per_item
+                if split_manifest.split_for(item["item_id"]) == BenchmarkSplit.HOLDOUT
+            ],
             total_cost=total_cost,
             invalid_count=invalid_count,
         )
         holdout_recall = float(holdout_metrics.get("fulltext_strong_design_recall", 0.0))
         recall_delta_pp = (holdout_recall - current_recall) * 100.0
         guardrails = {
-            "abstract_only_publishable_fp_rate_zero": float(holdout_metrics.get("abstract_only_publishable_fp_rate", 1.0)) == 0.0,
-            "schema_valid_json_rate_one": float(holdout_metrics.get("schema_valid_json_rate", 0.0)) >= 1.0,
+            "abstract_only_publishable_fp_rate_zero": float(
+                holdout_metrics.get("abstract_only_publishable_fp_rate", 1.0)
+            )
+            == 0.0,
+            "schema_valid_json_rate_one": float(holdout_metrics.get("schema_valid_json_rate", 0.0))
+            >= 1.0,
             "fulltext_strong_design_recall_within_2pp": recall_delta_pp >= -2.0,
         }
         sample_counts = {
@@ -319,8 +347,12 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
         champion = registry.get(CLAIM_ADJUDICATION_LOOP_ID)
         if champion is None or champion.candidate_ref.artifact_id == candidate_ref.artifact_id:
             return 0.0
-        champion_cfg = load_model_artifact(store, champion.candidate_ref, ClaimAdjudicationSearchConfig)
-        split_manifest = read_split_manifest(Path(suite.split_manifest_path or DEFAULT_CLAIM_GOLD_SPLIT_PATH))
+        champion_cfg = load_model_artifact(
+            store, champion.candidate_ref, ClaimAdjudicationSearchConfig
+        )
+        split_manifest = read_split_manifest(
+            Path(suite.split_manifest_path or DEFAULT_CLAIM_GOLD_SPLIT_PATH)
+        )
         champion_items, invalid_count, total_cost = self._predict_dataset(
             rows=rows,
             config=champion_cfg,
@@ -329,7 +361,11 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
         )
         del invalid_count, total_cost
         holdout_metrics = _claim_metrics(
-            [item for item in champion_items if split_manifest.split_for(item["item_id"]) == BenchmarkSplit.HOLDOUT],
+            [
+                item
+                for item in champion_items
+                if split_manifest.split_for(item["item_id"]) == BenchmarkSplit.HOLDOUT
+            ],
             total_cost=0.0,
             invalid_count=0,
         )
@@ -360,8 +396,12 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
                         fallback_item_id=str(row.get("paper_id") or row.get("claim_id") or ""),
                         fallback_openalex_id=str(row.get("paper_id") or row.get("claim_id") or ""),
                         fallback_claim_text=str(row.get("claim_text") or ""),
-                        fallback_cause=str(row.get("cause_text") or row.get("cause_variable") or ""),
-                        fallback_effect=str(row.get("effect_text") or row.get("effect_variable") or ""),
+                        fallback_cause=str(
+                            row.get("cause_text") or row.get("cause_variable") or ""
+                        ),
+                        fallback_effect=str(
+                            row.get("effect_text") or row.get("effect_variable") or ""
+                        ),
                     )
                 except Exception:
                     invalid_count += 1
@@ -373,7 +413,9 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
             aggregated = aggregate_claim_rows(passes, config)
             items.append(
                 {
-                    "item_id": str(row.get("paper_id") or row.get("claim_id") or aggregated.claim_id),
+                    "item_id": str(
+                        row.get("paper_id") or row.get("claim_id") or aggregated.claim_id
+                    ),
                     "gold": row,
                     "prediction": aggregated,
                 }
@@ -383,6 +425,7 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
 
 class ClaimAdjudicationRuntimeLoader(ChampionBackedRuntimeLoader[ClaimAdjudicationSearchConfig]):
     """Claim adjudication runtime loader implementation."""
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(
             loop_id=CLAIM_ADJUDICATION_LOOP_ID,
@@ -421,7 +464,7 @@ def _mode(items: list[str], default: str) -> str:
 
 def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -484,7 +527,9 @@ def _claim_metrics(
             fn += 1
         if predicted_publishable == actual_publishable:
             correct += 1
-        brier_total += (float(prediction.claim_validity_score) - (1.0 if actual_publishable else 0.0)) ** 2
+        brier_total += (
+            float(prediction.claim_validity_score) - (1.0 if actual_publishable else 0.0)
+        ) ** 2
         if str(gold.get("source_basis") or "").strip().lower() == SourceBasis.ABSTRACT_ONLY.value:
             abstract_only_total += 1
             if predicted_publishable and not actual_publishable:
@@ -531,12 +576,18 @@ def _coerce_prediction(
     if isinstance(payload, ClaimAdjudicationResult):
         return payload, cost
     if not isinstance(payload, dict):
-        raise TypeError("Claim predictor must return ClaimAdjudicationResult, dict, or (payload, meta)")
+        raise TypeError(
+            "Claim predictor must return ClaimAdjudicationResult, dict, or (payload, meta)"
+        )
     normalized = {
         "claim_id": str(payload.get("claim_id") or fallback_item_id),
         "openalex_id": str(payload.get("openalex_id") or fallback_openalex_id),
-        "cause_variable": str(payload.get("cause_variable") or payload.get("cause_text") or fallback_cause),
-        "effect_variable": str(payload.get("effect_variable") or payload.get("effect_text") or fallback_effect),
+        "cause_variable": str(
+            payload.get("cause_variable") or payload.get("cause_text") or fallback_cause
+        ),
+        "effect_variable": str(
+            payload.get("effect_variable") or payload.get("effect_text") or fallback_effect
+        ),
         "source_basis": payload.get("source_basis") or SourceBasis.FULLTEXT.value,
         "paper_asserts_causality_score": payload.get("paper_asserts_causality_score", 0.0),
         "claim_type": payload.get("claim_type", ClaimType.ASSOCIATION.value),

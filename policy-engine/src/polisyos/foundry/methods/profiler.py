@@ -34,6 +34,7 @@ Speedscope Export
     Path("/tmp/profile.json").write_text(json_str)
     # Open at https://www.speedscope.app
 """
+
 from __future__ import annotations
 
 import json

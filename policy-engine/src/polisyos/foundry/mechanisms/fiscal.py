@@ -1,4 +1,5 @@
 """Public mechanisms fiscal module API."""
+
 from typing import Any
 
 import jax
@@ -50,6 +51,7 @@ def compute_income_tax(state: GlobalState, rate: jnp.ndarray) -> jnp.ndarray:
 
 class TaxSubsidy(Mechanism):
     """Tax subsidy public type."""
+
     rate: jnp.ndarray  # Изменено на jnp.ndarray для дифференцируемости
     target_sector_mask: jnp.ndarray
 
@@ -95,6 +97,7 @@ class TaxSubsidy(Mechanism):
 
 class IncomeTax(Mechanism):
     """Income tax public type."""
+
     rate: jnp.ndarray
 
     def __init__(self, rate: float, n_agents: int, **kwargs: Any):

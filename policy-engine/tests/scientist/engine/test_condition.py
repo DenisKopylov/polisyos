@@ -13,10 +13,10 @@ from polisyos.scientist.engine.condition import (
 )
 from polisyos.scientist.engine.state import ExperimentState
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _state(**params: object) -> ExperimentState:
     return ExperimentState(run_id="test-run", params=params)
@@ -29,6 +29,7 @@ def _state_with_profile(profile: str | None) -> ExperimentState:
 # ---------------------------------------------------------------------------
 # NodeCondition model
 # ---------------------------------------------------------------------------
+
 
 class TestNodeConditionModel:
     def test_defaults(self) -> None:
@@ -58,6 +59,7 @@ class TestNodeConditionModel:
 # ---------------------------------------------------------------------------
 # Equality / inequality
 # ---------------------------------------------------------------------------
+
 
 class TestEqualityOperators:
     def test_eq_true_literal(self) -> None:
@@ -98,6 +100,7 @@ class TestEqualityOperators:
 # Ordering operators
 # ---------------------------------------------------------------------------
 
+
 class TestOrderingOperators:
     def test_gt(self) -> None:
         assert evaluate_condition("params.x > 3", _state(x=5)) is True
@@ -124,6 +127,7 @@ class TestOrderingOperators:
 # ---------------------------------------------------------------------------
 # Unary operators
 # ---------------------------------------------------------------------------
+
 
 class TestUnaryOperators:
     def test_is_set_true(self) -> None:
@@ -162,6 +166,7 @@ class TestUnaryOperators:
 # Dot-path resolution
 # ---------------------------------------------------------------------------
 
+
 class TestPathResolution:
     def test_top_level_field(self) -> None:
         s = _state_with_profile("research")
@@ -193,6 +198,7 @@ class TestPathResolution:
 # ---------------------------------------------------------------------------
 # Edge cases and errors
 # ---------------------------------------------------------------------------
+
 
 class TestEdgeCases:
     def test_empty_expression_raises(self) -> None:
@@ -228,6 +234,7 @@ class TestEdgeCases:
 # ---------------------------------------------------------------------------
 # in / not_in operators
 # ---------------------------------------------------------------------------
+
 
 class TestMembershipOperators:
     def test_in_string(self) -> None:

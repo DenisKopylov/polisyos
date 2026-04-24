@@ -154,9 +154,7 @@ class EvidenceWeightedAggregator:
                 continue
             summary = stability_report.summary_for(hypothesis.hypothesis_id)
             edge_selection_frequency = (
-                {}
-                if summary is None
-                else dict(getattr(summary, "edge_selection_frequency", {}))
+                {} if summary is None else dict(getattr(summary, "edge_selection_frequency", {}))
             )
             for edge in hypothesis.graph.edges:
                 edge_key = edge_key_for_edge(edge)
@@ -185,12 +183,10 @@ class EvidenceWeightedAggregator:
                 total_active_mass=total_active_mass,
                 weighted_presence_support=float(bucket.weighted_presence_support),
                 directional_support_mass={
-                    key: float(value)
-                    for key, value in bucket.directional_support_mass.items()
+                    key: float(value) for key, value in bucket.directional_support_mass.items()
                 },
                 orientation_support_mass={
-                    key: float(value)
-                    for key, value in bucket.orientation_support_mass.items()
+                    key: float(value) for key, value in bucket.orientation_support_mass.items()
                 },
                 contributing_hypothesis_ids=sorted(bucket.supporting_hypothesis_ids),
                 contributing_families=sorted(bucket.supporting_families),
@@ -223,7 +219,9 @@ class EvidenceWeightedAggregator:
                 "n_entries": len(entries),
             },
             "n_hypotheses": len(hypotheses),
-            "n_weighted_hypotheses": len([value for value in hypothesis_weights.values() if value > 0.0]),
+            "n_weighted_hypotheses": len(
+                [value for value in hypothesis_weights.values() if value > 0.0]
+            ),
         }
         return EdgeConfidenceMatrix(
             entries=entries,
@@ -271,8 +269,7 @@ def _compute_hypothesis_weights(
     config: EvidenceWeightedAggregatorConfig,
 ) -> dict[str, float]:
     utility_by_hypothesis = {
-        score.hypothesis_id: float(score.composite_score)
-        for score in utility_report.scores
+        score.hypothesis_id: float(score.composite_score) for score in utility_report.scores
     }
     active_by_family: dict[DiscoveryAlgorithmFamily, list[GraphHypothesis]] = defaultdict(list)
     for hypothesis in hypotheses:
@@ -304,7 +301,11 @@ def _is_active_candidate(hypothesis: GraphHypothesis) -> bool:
     if hypothesis.failure_reasons:
         return False
     failure_warning_markers = ("algorithm_failed", "timeout", "unsupported", "executor_failed")
-    return not any(marker in warning.lower() for marker in failure_warning_markers for warning in hypothesis.warnings)
+    return not any(
+        marker in warning.lower()
+        for marker in failure_warning_markers
+        for warning in hypothesis.warnings
+    )
 
 
 def _edge_reliability(
@@ -409,10 +410,7 @@ def _normalize_support(
 ) -> dict[str, float]:
     if denominator <= 0.0:
         return {}
-    return {
-        key: float(value / denominator)
-        for key, value in sorted(mass.items())
-    }
+    return {key: float(value / denominator) for key, value in sorted(mass.items())}
 
 
 def _top_item(mapping: dict[str, float]) -> tuple[str, float] | None:
@@ -435,8 +433,8 @@ def _mean_or_none(values: list[float]) -> float | None:
 
 
 __all__ = [
-    "AggregatedEdgeEvidence",
     "EDGE_CONFIDENCE_MATRIX_SCHEMA_NAME",
+    "AggregatedEdgeEvidence",
     "EdgeConfidenceEntry",
     "EdgeConfidenceMatrix",
     "EvidenceWeightedAggregator",

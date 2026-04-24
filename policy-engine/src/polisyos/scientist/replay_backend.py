@@ -1,4 +1,5 @@
 """Public scientist replay backend module API."""
+
 from __future__ import annotations
 
 import logging
@@ -68,6 +69,7 @@ class DeadLetterCorruptedError(DeadLetterError):
 @dataclass
 class ReplayBackendResult:
     """Replay backend result data model."""
+
     success: bool
     run_id: str
     strategy: ReplayStrategy
@@ -139,9 +141,7 @@ def replay_packet(
     env_diffs = compare_current_environment(store, plan.payload)
     for diff in env_diffs:
         if diff.risk_level in (RiskLevel.CRITICAL, RiskLevel.HIGH):
-            warnings.append(
-                f"environment_mismatch:{diff.field_path}:{diff.risk_level.value}"
-            )
+            warnings.append(f"environment_mismatch:{diff.field_path}:{diff.risk_level.value}")
 
     set_global_seeds(plan.seed.value)
     replay_decision_packet_ref: ArtifactID | None = None

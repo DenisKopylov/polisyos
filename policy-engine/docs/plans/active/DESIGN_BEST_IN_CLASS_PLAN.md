@@ -47,6 +47,7 @@
 Разница между **SOTA** и **best-in-class** — не количественная. SOTA догоняет лучшее на рынке; best-in-class **изобретает примитив**, которому потом подчиняется вся категория (Linear — feel скорости; Figma — multiplayer-as-medium; Notion — block; Observable — reactive document).
 
 PolicyOS в этом плане получает два несводимых примитива:
+
 - **B1** Time-as-primitive — скрабируемый темпоральный курсор как глобальное измерение интерфейса.
 - **B2** Provenance-on-hover — lineage-граф за каждым количественным утверждением как сквозной закон.
 
@@ -62,39 +63,39 @@ PolicyOS в этом плане получает два несводимых п�
 
 ### 1.1. Капитал — что **не трогаем**
 
-| Слой | Состояние | Почему капитал |
-|---|---|---|
-| Лексическая дисциплина | 18-словарный домен, запрет `you`, sentence case, no emoji | Редчайший уровень в AI-продуктах 2025–26 |
-| Хроматическая палитра | Sandstone + graphite без синевы | Осознанное меньшинственное позиционирование |
-| Glass-панели с inset rim-light | Сквозной мотив | Узнаваемая подпись |
-| Сигнальная триада | teal=verified, ember=blocked, gold=pending | Жёсткая семантика |
-| Типография | Manrope 800 / IBM Plex Mono / Instrument Serif | Профессиональный контроль регистров |
-| UI-база | 70+ шаренных компонентов в `src/shared/ui/`, `.a11y.test.tsx` рядом | Готовая техническая основа |
-| Chart-база | 20+ компонентов в `src/shared/charts/` (ConfidenceDial, ForestPlot, GradedErrorBar, UncertaintyDisplay) | Частично покрывает §1.2 |
-| Токены | `designTokens.ts` (evidence/governance/severity/status/transport) | Готовые семантические шкалы |
-| Дата-слой | 50+ React Query хуков, openapi-typescript, SSE runsLiveMachine | Фундамент для реактивных примитивов |
+| Слой                           | Состояние                                                                                               | Почему капитал                              |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| Лексическая дисциплина         | 29-терминный домен, запрет `you`, sentence case, no emoji                                               | Редчайший уровень в AI-продуктах 2025–26    |
+| Хроматическая палитра          | Sandstone + graphite без синевы                                                                         | Осознанное меньшинственное позиционирование |
+| Glass-панели с inset rim-light | Сквозной мотив                                                                                          | Узнаваемая подпись                          |
+| Сигнальная триада              | teal=verified, ember=blocked, gold=pending                                                              | Жёсткая семантика                           |
+| Типография                     | Manrope 800 / IBM Plex Mono / Instrument Serif                                                          | Профессиональный контроль регистров         |
+| UI-база                        | 70+ шаренных компонентов в `src/shared/ui/`, `.a11y.test.tsx` рядом                                     | Готовая техническая основа                  |
+| Chart-база                     | 20+ компонентов в `src/shared/charts/` (ConfidenceDial, ForestPlot, GradedErrorBar, UncertaintyDisplay) | Частично покрывает §1.2                     |
+| Токены                         | `designTokens.ts` (evidence/governance/severity/status/transport)                                       | Готовые семантические шкалы                 |
+| Дата-слой                      | 50+ React Query хуков, openapi-typescript, SSE runsLiveMachine                                          | Фундамент для реактивных примитивов         |
 
 ### 1.2. Шесть критических SOTA-пробелов (Wave 1 scope)
 
-| # | Пробел | Последствие | Фаза |
-|---|---|---|---|
-| G1 | Визуальный язык **неопределённости** не систематизирован (есть примитивы, нет языка) | PolicyOS показывает CI/identifiability/counterfactual spreads как плоские числа | 1.2 |
-| G2 | **Accessibility** (WCAG 2.2 AA) не задокументирована, нет pattern-fills для колор-блайнд | Блокер для процурмента в ЕС/укр. госсектор | 1.3 |
-| G3 | Нет **dark theme v2** и **density modes** | Аналитики в 8-часовых сессиях уйдут в нативный терминал | 1.4 |
-| G4 | **Prose system** для decision packets пуст | Разрыв между «что показывает» и «что производит» | 1.5 |
-| G5 | Нет регистра для **AI-authored** текста (vs цитата vs оператор) | В 2026 — определяющий SOTA-признак для AI-продуктов | 1.6 |
-| G6 | **i18n** под украинско-русскую реальность не специфицирован | Ломается плюрализация, типографика, даты, валюта | 1.7 |
+| #   | Пробел                                                                                   | Последствие                                                                     | Фаза |
+| --- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ---- |
+| G1  | Визуальный язык **неопределённости** не систематизирован (есть примитивы, нет языка)     | PolicyOS показывает CI/identifiability/counterfactual spreads как плоские числа | 1.2  |
+| G2  | **Accessibility** (WCAG 2.2 AA) не задокументирована, нет pattern-fills для колор-блайнд | Блокер для процурмента в ЕС/укр. госсектор                                      | 1.3  |
+| G3  | Нет **dark theme v2** и **density modes**                                                | Аналитики в 8-часовых сессиях уйдут в нативный терминал                         | 1.4  |
+| G4  | **Prose system** для decision packets пуст                                               | Разрыв между «что показывает» и «что производит»                                | 1.5  |
+| G5  | Нет регистра для **AI-authored** текста (vs цитата vs оператор)                          | В 2026 — определяющий SOTA-признак для AI-продуктов                             | 1.6  |
+| G6  | **i18n** под украинско-русскую реальность не специфицирован                              | Ломается плюрализация, типографика, даты, валюта                                | 1.7  |
 
 ### 1.3. Шесть best-in-class примитивов (Wave 2 scope)
 
-| # | Примитив | Конкурентный анализ | Фаза |
-|---|---|---|---|
-| B1 | Time-as-primitive | Ни одного govtech-инструмента | 2.1 |
-| B2 | Provenance-on-hover | Observable флиртует, никто не коммитится | 2.2 |
-| B3 | Policy diff (каузальный) | Чистое поле | 2.3 |
-| B4 | Counterfactual layer | Никто | 2.4 |
-| B5 | Native bureaucratic rendering | Все GPT-обёртки рендерят generic markdown | 2.5 |
-| B6 | Trust view | Никто | 2.6 |
+| #   | Примитив                      | Конкурентный анализ                       | Фаза |
+| --- | ----------------------------- | ----------------------------------------- | ---- |
+| B1  | Time-as-primitive             | Ни одного govtech-инструмента             | 2.1  |
+| B2  | Provenance-on-hover           | Observable флиртует, никто не коммитится  | 2.2  |
+| B3  | Policy diff (каузальный)      | Чистое поле                               | 2.3  |
+| B4  | Counterfactual layer          | Никто                                     | 2.4  |
+| B5  | Native bureaucratic rendering | Все GPT-обёртки рендерят generic markdown | 2.5  |
+| B6  | Trust view                    | Никто                                     | 2.6  |
 
 ---
 
@@ -119,6 +120,7 @@ PolicyOS в этом плане получает два несводимых п�
 ### 3.1. Критерии перехода между волнами (gate)
 
 Wave 1 → Wave 2 допускается только при одновременном выполнении:
+
 - Все G1–G6 closed (acceptance criteria каждой фазы).
 - Storybook visual regression — 0 unexpected diffs.
 - `pnpm test` + a11y — зелёно.
@@ -129,6 +131,7 @@ Wave 1 → Wave 2 допускается только при одновреме�
 ### 3.2. Параллелизация
 
 Внутри волны некоторые фазы можно вести параллельно:
+
 - Wave 1: **1.2 || 1.3 || 1.4** после 1.0 и 1.1.
 - Wave 1: **1.5 || 1.6** после 1.1 (требуют глифов) и 1.4 (требуют dark theme для prose reader).
 - Wave 1: **1.7** может идти параллельно любому этапу после 1.0.
@@ -137,6 +140,7 @@ Wave 1 → Wave 2 допускается только при одновреме�
 ### 3.3. Feature flags
 
 Каждая фаза ≥ 1.2 вводит один feature flag в `src/app/providers/feature-flags` формата `design.wave{N}.phase{Y}.{slug}`:
+
 - По умолчанию `off` в production.
 - `on` в development и staging после acceptance.
 - Постепенный rollout через manifest после 14 дней стабильности.
@@ -144,7 +148,7 @@ Wave 1 → Wave 2 допускается только при одновреме�
 
 ---
 
-# Волна 1 — SOTA Gap Closure
+## Волна 1 — SOTA Gap Closure
 
 ## Фаза 1.0 — Foundations
 
@@ -164,7 +168,7 @@ Wave 1 → Wave 2 допускается только при одновреме�
 
 **Папки и файлы:**
 
-```
+```text
 policy-engine/docs/brand/
 ├── GLYPH_SPECIFICATION.md           — геометрия, штрих, диакритика, грамматика
 ├── UNCERTAINTY_LANGUAGE.md          — паттерны, окраска, do/don't
@@ -185,7 +189,8 @@ policy-engine/docs/compliance/
 ```
 
 **Конкретные артефакты:**
-- `A11Y_CONTRAST.md` — таблица всех пар `(background-token, foreground-token)` с contrast ratio, проверенная автоматизированной утилитой (см. Testing).
+
+- `docs/compliance/A11Y_CONTRAST.md` — канонический auto-generated артефакт со всеми парами `(background-token, foreground-token)` и contrast ratio; `docs/brand/A11Y_CONTRAST.md` остаётся spec/index-страницей.
 - `GLYPH_SPECIFICATION.md` — сетка 5×5, stroke-width 1.25–1.5, список всех 10 радикалов с геометрическим описанием.
 - `UNCERTAINTY_LANGUAGE.md` — 7 паттернов с SVG-превью и указанием каких именно chart-компонентов затрагивает.
 - `MOTION.md` — `--motion-duration-*` и `--motion-ease-*` tokens, правила для reduced-motion, конкретные transitions для каждого state change.
@@ -194,22 +199,22 @@ policy-engine/docs/compliance/
 ### Acceptance criteria
 
 - [ ] Все 11 файлов существуют, прошли `markdownlint`.
-- [ ] `A11Y_CONTRAST.md` проверен `axe-core` CLI на 100% пар — нет пропусков.
-- [ ] 5 ADR approved (git commit с тегом `[adr-approved]`).
+- [ ] `docs/compliance/A11Y_CONTRAST.md` auto-generated и проверен `tools/design/check-contrast.ts` на 100% обязательных пар — нет пропусков.
+- [ ] 5 ADR имеют статус `Approved` и проходят `adr-lint`.
 - [ ] В `docs/README.md` добавлена секция `brand/` и `compliance/` с ссылками.
 - [ ] Создан `.cursor/rules/design-system.mdc` (или эквивалент в `CLAUDE.md`), ссылающийся на эти документы, чтобы будущие генерации не уходили в сторону.
 
 ### Testing
 
-- Скрипт `tools/design/check-contrast.ts` — парсит `A11Y_CONTRAST.md`, прогоняет через `wcag-contrast` или `@axe-core/utils`, падает если ratio < 4.5 для normal text / 3.0 для large.
+- Скрипт `tools/design/check-contrast.ts` — генерирует `docs/compliance/A11Y_CONTRAST.md` из токенов и валидирует обязательные пары на пороги WCAG 2.2 AA; drift артефакта блокирует CI.
 - Markdown-lint + link-check (`lychee`) в CI.
 
 ### Risks
 
-| Риск | Mitigation |
-|---|---|
+| Риск                                          | Mitigation                                                                                         |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | ADR-ы уходят в абстракцию без привязки к коду | Каждый ADR завершается секцией «Concrete impact» со списком файлов, которые будут созданы/изменены |
-| Contrast matrix устаревает при смене токенов | Генерировать из `designTokens.ts` автоматически, не руками |
+| Contrast matrix устаревает при смене токенов  | Генерировать из `designTokens.ts` автоматически, не руками                                         |
 
 ---
 
@@ -235,7 +240,7 @@ policy-engine/docs/compliance/
 
 **Ассеты:**
 
-```
+```text
 frontend/runtime-dashboard/public/atlas/
 ├── logo-mark.svg                    — обновлённый (Janus-прочтение)
 ├── logo-mark-inverse.svg            — для dark background
@@ -258,7 +263,7 @@ frontend/runtime-dashboard/public/atlas/
 
 **React-компоненты:**
 
-```
+```text
 frontend/runtime-dashboard/src/shared/brand/
 ├── AtlasBrand.tsx                   — существующий, без изменений API
 ├── AtlasBrand.test.tsx
@@ -277,7 +282,7 @@ frontend/runtime-dashboard/src/shared/brand/
 
 **Компоненты в `shared/ui`:**
 
-```
+```text
 frontend/runtime-dashboard/src/shared/ui/
 ├── ProvenanceStrip.tsx              — новая eyebrow-компонента
 ├── ProvenanceStrip.test.tsx
@@ -331,6 +336,7 @@ frontend/runtime-dashboard/src/shared/ui/
 ### Backend contract changes
 
 Нет изменений в Wave 1 — `ProvenanceStrip` получает готовые данные клиентской композицией из уже существующих полей:
+
 - `EvidenceFabricItem.fresh_at` → `freshness` глиф.
 - `EvidenceFabricItem.governance_pass` → `governance-pass` или `blocker`.
 - `EvidenceFabricItem.intervention_type` → `intervention`.
@@ -341,10 +347,10 @@ frontend/runtime-dashboard/src/shared/ui/
 ### Acceptance criteria
 
 - [ ] 10 SVG-глифов существуют, прошли `svgo` + визуальный review, зарендерены в Storybook на 12/14/16/24 px.
-- [ ] `logo-janus.svg` в 16 px узнаётся в favicon — blind test на 5 коллегах ≥ 4/5.
+- [ ] `logo-janus.svg` в 16 px зафиксирован recognizability evidence sheet + visual regression baseline для favicon state.
 - [ ] `ProvenanceStrip` заменил eyebrow в 3 местах без регрессий (visual regression test).
 - [ ] `EvidenceSigil` детерминирован: `render(hash_A) === render(hash_A)` в snapshot-тесте, `render(hash_A) !== render(hash_B)` в 100/100 случаев.
-- [ ] `glyph-vocabulary.ts` покрыт 100% 18-словарного домена, unit-test проверяет соответствие.
+- [ ] `glyph-vocabulary.ts` покрыт 100% канонического 29-терминного домена, unit-test проверяет соответствие.
 - [ ] ESLint-правило `no-raw-emoji-in-jsx` работает (как замена попыткам вставить `⊙` напрямую).
 
 ### Testing
@@ -356,10 +362,10 @@ frontend/runtime-dashboard/src/shared/ui/
 
 ### Risks
 
-| Риск | Mitigation |
-|---|---|
-| Глифы засоряют интерфейс | `glyph-vocabulary.ts` — whitelist; PR добавляющий глиф в новое место требует design-review |
-| `EvidenceSigil` даёт коллизии хэша | 48-bit entropy минимум; periodic collision audit |
+| Риск                               | Mitigation                                                                                 |
+| ---------------------------------- | ------------------------------------------------------------------------------------------ |
+| Глифы засоряют интерфейс           | `glyph-vocabulary.ts` — whitelist; PR добавляющий глиф в новое место требует design-review |
+| `EvidenceSigil` даёт коллизии хэша | 48-bit entropy минимум; periodic collision audit                                           |
 
 ### Effort
 
@@ -384,6 +390,7 @@ frontend/runtime-dashboard/src/shared/ui/
 Семь паттернов визуализации неопределённости, расширение существующих chart-компонентов, правила окраски, pattern-fills, правила анимации.
 
 **Существующие компоненты для рефакторинга** (не пересоздаём с нуля):
+
 - `shared/charts/ConfidenceDial.tsx`
 - `shared/charts/ConfidenceGauge.tsx`
 - `shared/charts/ForestPlot.tsx`
@@ -391,6 +398,7 @@ frontend/runtime-dashboard/src/shared/ui/
 - `shared/charts/UncertaintyDisplay.tsx`
 
 **Новые компоненты:**
+
 - `UncertaintyBand.tsx` — generic wrapper для линейных графиков с confidence bands.
 - `FanChart.tsx` — прогнозные распределения с квантилями 10/25/50/75/90.
 - `QuantileDotplot.tsx` — реализация Hullman et al.
@@ -400,7 +408,7 @@ frontend/runtime-dashboard/src/shared/ui/
 
 ### Deliverables
 
-```
+```text
 frontend/runtime-dashboard/src/shared/charts/
 ├── UncertaintyBand.tsx              — new
 ├── UncertaintyBand.test.tsx
@@ -440,13 +448,13 @@ export const uncertaintyTokens = {
 
 ### Chart refactoring tasks
 
-| Component | Change |
-|---|---|
-| `ConfidenceDial` | Использует `uncertaintyTokens`; добавляет prop `disputed?: boolean` |
-| `ConfidenceGauge` | То же + pattern-fill для estimated regions |
-| `ForestPlot` | Confidence intervals теперь gradient-filled (была solid line) |
-| `GradedErrorBar` | Использует `uncertaintyTokens.estimated.pattern` |
-| `UncertaintyDisplay` | Становится dispatcher: принимает тип (`band` \| `fan` \| `dotplot` \| `hops`), рендерит соответствующий |
+| Component            | Change                                                              |         |             |                                   |
+| -------------------- | ------------------------------------------------------------------- | ------- | ----------- | --------------------------------- |
+| `ConfidenceDial`     | Использует `uncertaintyTokens`; добавляет prop `disputed?: boolean` |         |             |                                   |
+| `ConfidenceGauge`    | То же + pattern-fill для estimated regions                          |         |             |                                   |
+| `ForestPlot`         | Confidence intervals теперь gradient-filled (была solid line)       |         |             |                                   |
+| `GradedErrorBar`     | Использует `uncertaintyTokens.estimated.pattern`                    |         |             |                                   |
+| `UncertaintyDisplay` | Становится dispatcher: принимает тип (`band` \                      | `fan` \ | `dotplot` \ | `hops`), рендерит соответствующий |
 
 ### API
 
@@ -511,21 +519,21 @@ export const uncertaintyTokens = {
 - [ ] HOPs имеет reduced-motion fallback (автоматически переключается при `prefers-reduced-motion: reduce`).
 - [ ] `uncertainty-tokens.ts` покрыт 100% в unit-тестах.
 - [ ] 3 реальных Run Detail страницы используют `UncertaintyBand` вместо плоских чисел.
-- [ ] Pattern-fills различимы для deuteranope / protanope / tritanope (Coblis simulation in Storybook).
+- [ ] Pattern-fills различимы для deuteranope / protanope / tritanope (deterministic in-repo simulation in Storybook).
 
 ### Testing
 
-- Visual regression в Storybook (3 themes × 3 densities × 3 color-blind simulations).
+- Visual regression в Storybook (3 themes × 3 densities × 3 deterministic color-blind simulations).
 - Unit: quantile correctness, reduced-motion fallback.
 - Integration: e2e Playwright сценарий «открыл Run Detail → увидел fan chart → переключил режим reduced-motion → увидел static fan».
 
 ### Risks
 
-| Риск | Mitigation |
-|---|---|
-| Backend не готов расширить контракт | Clientsidе имеет fallback adapter: `legacy_number → { point: legacy_number }` |
-| HOPs раздражает — слишком быстро/медленно | Hullman default 2.5 fps, user preference в Settings |
-| Pattern-fills «шумные» | Opacity 0.18 по умолчанию; только внутри CI-band, не на основной линии |
+| Риск                                      | Mitigation                                                                    |
+| ----------------------------------------- | ----------------------------------------------------------------------------- |
+| Backend не готов расширить контракт       | Clientsidе имеет fallback adapter: `legacy_number → { point: legacy_number }` |
+| HOPs раздражает — слишком быстро/медленно | Hullman default 2.5 fps, user preference в Settings                           |
+| Pattern-fills «шумные»                    | Opacity 0.18 по умолчанию; только внутри CI-band, не на основной линии        |
 
 ### Effort
 
@@ -560,7 +568,7 @@ export const uncertaintyTokens = {
 
 ### Deliverables
 
-```
+```text
 frontend/runtime-dashboard/src/shared/a11y/
 ├── ContrastEnforcer.tsx              — dev-only overlay, показывает warnings
 ├── HighContrastProvider.tsx          — media query → [data-contrast="more"]
@@ -573,7 +581,7 @@ frontend/runtime-dashboard/src/shared/a11y/
 frontend/runtime-dashboard/src/test/a11y/
 ├── keyboard-journeys.spec.ts         — Playwright e2e
 ├── screen-reader-snapshots.spec.ts
-└── color-blind-simulation.spec.ts    — Coblis + axe
+└── color-blind-simulation.spec.ts    — deterministic simulation + axe
 
 policy-engine/docs/compliance/
 ├── VPAT.md                           — full document
@@ -583,7 +591,7 @@ policy-engine/docs/compliance/
 tools/design/
 ├── check-contrast.ts                 — pre-commit hook
 ├── check-reduced-motion.ts           — grep all transitions, flag non-respecting
-└── check-color-blind.ts              — axe + Coblis CLI
+└── check-color-blind.ts              — axe + deterministic Coblis-equivalent simulation
 ```
 
 **CSS additions** (в `styles.css` или эквиваленте):
@@ -595,17 +603,27 @@ tools/design/
     --surface: #ffffff;
     /* all borders +50% opacity */
   }
-  .glyph { stroke-width: 2; }
-  .provenance-strip .glyph + .glyph { margin-inline-start: 0.75ch; }
+  .glyph {
+    stroke-width: 2;
+  }
+  .provenance-strip .glyph + .glyph {
+    margin-inline-start: 0.75ch;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
-  .hops { display: none; }
-  .hops + .hops-static-fallback { display: block; }
+  .hops {
+    display: none;
+  }
+  .hops + .hops-static-fallback {
+    display: block;
+  }
 }
 ```
 
@@ -620,7 +638,7 @@ tools/design/
 - [ ] VPAT.md опубликован, signed, версия закоммичена.
 - [ ] Все 70+ компонентов в `shared/ui/` имеют `.a11y.test.tsx`.
 - [ ] Keyboard-only journey: «старт → открыть run → скачать decision packet» — проходится без мыши за ≤ 20 tab-stop'ов.
-- [ ] Coblis simulation — все сигнальные различения остаются читаемыми в deuteranope/protanope/tritanope.
+- [ ] Deterministic color-blind simulation — все сигнальные различения остаются читаемыми в deuteranope/protanope/tritanope.
 - [ ] Pre-commit hook `check-contrast` работает, падает на PR с плохими парами.
 
 ### Testing
@@ -631,10 +649,10 @@ tools/design/
 
 ### Risks
 
-| Риск | Mitigation |
-|---|---|
+| Риск                                                     | Mitigation                                                                |
+| -------------------------------------------------------- | ------------------------------------------------------------------------- |
 | Contrast enforcement ломает кастомные визуальные решения | Opt-out через `data-a11y-exempt` c обязательным комментарием-обоснованием |
-| VPAT устаревает между релизами | Auto-regenerate из тестов + manual review quarterly |
+| VPAT устаревает между релизами                           | Auto-regenerate из тестов + manual review quarterly                       |
 
 ### Effort
 
@@ -666,7 +684,7 @@ tools/design/
 
 ### Deliverables
 
-```
+```text
 frontend/runtime-dashboard/src/styles/
 ├── theme-light.css                   — extract from globals
 ├── theme-dark.css                    — new, полноценный
@@ -692,8 +710,8 @@ frontend/runtime-dashboard/src/features/platform/settings/
 // designTokens.ts additions
 export const densityScale = {
   comfortable: { space: 1.0, fontStep: 0, rowHeight: 1.0 },
-  compact:     { space: 0.75, fontStep: -1, rowHeight: 0.85 },
-  condensed:   { space: 0.5, fontStep: -2, rowHeight: 0.7 },
+  compact: { space: 0.75, fontStep: -1, rowHeight: 0.85 },
+  condensed: { space: 0.5, fontStep: -2, rowHeight: 0.7 },
 } as const;
 ```
 
@@ -709,6 +727,7 @@ export const densityScale = {
 ```
 
 **Dark theme specifics:**
+
 - Rim-light (inset top-border) — в светлой теме светлый штрих; в тёмной — еле заметный warm-ink штрих, создающий обратный «pressed» эффект.
 - Glass-panels: в светлой теме — белый с 0.85 opacity; в тёмной — warm-graphite с 0.92 opacity, noise-texture сохраняется.
 - Teal/ember/gold остаются теми же hex'ами, но имеют tuned `color-mix` алиасы для тёмного фона чтобы сохранить контраст.
@@ -734,11 +753,11 @@ export const densityScale = {
 
 ### Risks
 
-| Риск | Mitigation |
-|---|---|
-| Dark theme требует пересчёта rim-light во всех компонентах | CSS custom property `--rim-light-color` — один источник правды |
-| Condensed mode ломает table layouts | Явные min-width'ы в DataTable + horizontal scroll |
-| Двойные CI-прогоны × 3 density удорожают testing | Выборочно: только критические смоки в compact/condensed, full suite — в comfortable |
+| Риск                                                       | Mitigation                                                                          |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Dark theme требует пересчёта rim-light во всех компонентах | CSS custom property `--rim-light-color` — один источник правды                      |
+| Condensed mode ломает table layouts                        | Явные min-width'ы в DataTable + horizontal scroll                                   |
+| Двойные CI-прогоны × 3 density удорожают testing           | Выборочно: только критические смоки в compact/condensed, full suite — в comfortable |
 
 ### Effort
 
@@ -770,7 +789,7 @@ export const densityScale = {
 
 ### Deliverables
 
-```
+```text
 frontend/runtime-dashboard/src/features/artifacts/reading-view/
 ├── MonographLayout.tsx
 ├── MonographLayout.test.tsx
@@ -802,7 +821,10 @@ frontend/runtime-dashboard/src/styles/
   line-height: 1.65;
   color: var(--ink);
 }
-.prose > p + p { margin-block-start: 1em; text-indent: 0; }
+.prose > p + p {
+  margin-block-start: 1em;
+  text-indent: 0;
+}
 .prose blockquote {
   font-family: "Instrument Serif";
   font-style: italic;
@@ -810,8 +832,14 @@ frontend/runtime-dashboard/src/styles/
   padding-inline-start: 1.5ch;
   color: color-mix(in oklch, var(--ink), transparent 15%);
 }
-.prose .definition-term { font-variant: small-caps; letter-spacing: 0.05em; }
-.prose .footnote-ref { font-feature-settings: "sups"; color: var(--teal); }
+.prose .definition-term {
+  font-variant: small-caps;
+  letter-spacing: 0.05em;
+}
+.prose .footnote-ref {
+  font-feature-settings: "sups";
+  color: var(--teal);
+}
 .prose .margin-note {
   position: absolute;
   inset-inline-start: calc(100% + 2ch);
@@ -825,13 +853,31 @@ frontend/runtime-dashboard/src/styles/
 **Print CSS:**
 
 ```css
-@page { margin: 2.5cm 2cm; size: A4; }
+@page {
+  margin: 2.5cm 2cm;
+  size: A4;
+}
 @media print {
-  nav, aside.dashboard-shell, .reading-view-toggle { display: none; }
-  .prose { max-width: none; }
-  h1, h2, h3 { break-after: avoid; }
-  .fan-chart, .uncertainty-band { break-inside: avoid; }
-  .provenance-strip::after { content: " [" attr(data-glyph-summary) "]"; }
+  nav,
+  aside.dashboard-shell,
+  .reading-view-toggle {
+    display: none;
+  }
+  .prose {
+    max-width: none;
+  }
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+  .fan-chart,
+  .uncertainty-band {
+    break-inside: avoid;
+  }
+  .provenance-strip::after {
+    content: " [" attr(data-glyph-summary) "]";
+  }
 }
 ```
 
@@ -856,9 +902,9 @@ frontend/runtime-dashboard/src/styles/
 
 ### Risks
 
-| Риск | Mitigation |
-|---|---|
-| Margin notes не помещаются на узких экранах | Responsive: < 1400px → inline footnote; > 1400 → margin |
+| Риск                                              | Mitigation                                               |
+| ------------------------------------------------- | -------------------------------------------------------- |
+| Margin notes не помещаются на узких экранах       | Responsive: < 1400px → inline footnote; > 1400 → margin  |
 | Print не даёт pixel-perfect результатов в Firefox | Primary: Chrome headless; Firefox — graceful degradation |
 
 ### Effort
@@ -886,7 +932,7 @@ frontend/runtime-dashboard/src/styles/
 
 ### Deliverables
 
-```
+```text
 frontend/runtime-dashboard/src/shared/ui/authored-text/
 ├── AuthoredText.tsx
 ├── AuthoredText.test.tsx
@@ -900,13 +946,13 @@ frontend/runtime-dashboard/src/shared/ui/authored-text/
 
 **Регистры:**
 
-| Регистр | Источник | Визуал | Screen reader |
-|---|---|---|---|
-| `citation` | Цитата из закона/источника | `Instrument Serif italic`, тонкий `--gold` left-border (2px) | «Quoted text from {source}» |
-| `human` | Написал оператор-человек | `Manrope 400`, без маркера | (default) |
-| `drafter` | AI-агент Drafter | `--teal` left-border (1px), глиф `⊙` в начале параграфа | «AI-generated by Drafter» |
-| `formalizer` | AI-агент Formalizer | `--slate` left-border, глиф `≔` | «AI-generated by Formalizer» |
-| `critic` | AI-агент Critic | `--ember` left-border, глиф `⋌` | «AI review by Critic» |
+| Регистр      | Источник                   | Визуал                                                       | Screen reader                |
+| ------------ | -------------------------- | ------------------------------------------------------------ | ---------------------------- |
+| `citation`   | Цитата из закона/источника | `Instrument Serif italic`, тонкий `--gold` left-border (2px) | «Quoted text from {source}»  |
+| `human`      | Написал оператор-человек   | `Manrope 400`, без маркера                                   | (default)                    |
+| `drafter`    | AI-агент Drafter           | `--teal` left-border (1px), глиф `⊙` в начале параграфа      | «AI-generated by Drafter»    |
+| `formalizer` | AI-агент Formalizer        | `--slate` left-border, глиф `≔`                              | «AI-generated by Formalizer» |
+| `critic`     | AI-агент Critic            | `--ember` left-border, глиф `⋌`                              | «AI review by Critic»        |
 
 ### API
 
@@ -940,9 +986,9 @@ frontend/runtime-dashboard/src/shared/ui/authored-text/
       "sources": [{ "kind": "evidence_bundle", "ref": "eb_abc" }],
       "timestamp": "2026-04-22T...",
       "confidence": 0.82,
-      "reviewed_by_human": false
-    }
-  ]
+      "reviewed_by_human": false,
+    },
+  ],
 }
 ```
 
@@ -972,11 +1018,11 @@ frontend/runtime-dashboard/src/shared/ui/authored-text/
 
 ### Risks
 
-| Риск | Mitigation |
-|---|---|
+| Риск                                       | Mitigation                                                |
+| ------------------------------------------ | --------------------------------------------------------- |
 | Слишком «шумный» UI с 4 разными border'ами | Subtle mode по умолчанию, границы 1px, off в reading view |
-| Backend не готов отдавать author | Default `"human"`, адаптер на клиенте для legacy блоков |
-| Citation source broken | `sourceRef` optional, UI graceful degrade |
+| Backend не готов отдавать author           | Default `"human"`, адаптер на клиенте для legacy блоков   |
+| Citation source broken                     | `sourceRef` optional, UI graceful degrade                 |
 
 ### Effort
 
@@ -1005,7 +1051,7 @@ frontend/runtime-dashboard/src/shared/ui/authored-text/
 
 ### Deliverables
 
-```
+```text
 frontend/runtime-dashboard/src/i18n/
 ├── LocaleProvider.tsx                — существующий, расширить
 ├── locales/
@@ -1025,6 +1071,7 @@ frontend/runtime-dashboard/src/i18n/
 └── icu-messages.ts                   — helpers for plural
 
 frontend/runtime-dashboard/.eslintrc.js
+
   - no-hardcoded-strings                — новое правило
   - require-non-breaking-space-for-short-prepositions
 ```
@@ -1035,7 +1082,7 @@ frontend/runtime-dashboard/.eslintrc.js
 // uk.json
 {
   "scenarios.count": "{count, plural, =0 {Немає сценаріїв} one {# сценарій} few {# сценарії} many {# сценаріїв} other {# сценарію}}",
-  "policy.applied": "Політику <b>{name}</b> застосовано о {time, time, short}"
+  "policy.applied": "Політику <b>{name}</b> застосовано о {time, time, short}",
 }
 ```
 
@@ -1043,7 +1090,8 @@ frontend/runtime-dashboard/.eslintrc.js
 
 ```css
 /* Plex Mono cyrillic metrics компенсация */
-:lang(uk), :lang(ru) {
+:lang(uk),
+:lang(ru) {
   --plex-mono-cyrillic-offset: 0.02em;
 }
 .mono:is(:lang(uk), :lang(ru)) {
@@ -1074,10 +1122,10 @@ Auto-insert после: `в, у, з, і, й, та, на, до, від, за, п�
 
 ### Risks
 
-| Риск | Mitigation |
-|---|---|
+| Риск                                           | Mitigation                                           |
+| ---------------------------------------------- | ---------------------------------------------------- |
 | Авто-вставка NBSP ломает существующие переводы | Opt-in per-string через конфиг; постепенная миграция |
-| ICU plural усложняет разработку | Краткий styleguide + ESLint-hint |
+| ICU plural усложняет разработку                | Краткий styleguide + ESLint-hint                     |
 
 ### Effort
 
@@ -1114,11 +1162,11 @@ Auto-insert после: `в, у, з, і, й, та, на, до, від, за, п�
 - [ ] Все anchor artifacts 1–4, 7–10 (§7) воспроизводятся на staging.
 - [ ] Bug count from Wave 1 fixes: 0 P0, ≤ 2 P1, ≤ 5 P2 за 14 дней.
 - [ ] VPAT document signed.
-- [ ] Storybook deployed на public URL (для stakeholder review).
+- [ ] Storybook published as immutable CI artifact/preview URL и зафиксирован в release notes для stakeholder review.
 
 ---
 
-# Волна 2 — Best-in-class primitives
+## Волна 2 — Best-in-class primitives
 
 > Начинать только после gate (см. §3.1).
 
@@ -1141,7 +1189,7 @@ Auto-insert после: `в, у, з, і, й, та, на, до, від, за, п�
 
 ### Deliverables
 
-```
+```text
 policy-engine/docs/adr/ADR-043-provenance-law.md  — финализация
 policy-engine/src/runtime/api/schema/quantity.py  — Pydantic модели
 policy-engine/src/runtime/api/routes/lineage.py    — GET /api/v1/lineage/{lineage_id}
@@ -1196,10 +1244,10 @@ GET /api/v1/lineage/{lineage_id} →
 
 ### Risks
 
-| Риск | Mitigation |
-|---|---|
+| Риск                                           | Mitigation                                                                               |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | Backend не готов отдать lineage для всех чисел | Fallback `lineage_id: "untraced"` + TODO-ticket per endpoint; migration план на 4 недели |
-| 3000 warnings демотивируют | Phased rollout: warn → error через 2 релиза, группами по feature |
+| 3000 warnings демотивируют                     | Phased rollout: warn → error через 2 релиза, группами по feature                         |
 
 ### Effort
 
@@ -1230,7 +1278,7 @@ GET /api/v1/lineage/{lineage_id} →
 
 ### Deliverables
 
-```
+```text
 frontend/runtime-dashboard/src/app/providers/
 ├── TemporalCursorProvider.tsx
 ├── TemporalCursorProvider.test.tsx
@@ -1274,12 +1322,14 @@ policy-engine/src/runtime/api/
 ### Backend contract
 
 Добавить `as_of: datetime` query param на endpoints:
+
 - `GET /api/v1/runs/{id}?as_of=...`
 - `GET /api/v1/runs/{id}/metrics?as_of=...`
 - `GET /api/v1/evidence/bundles/{id}?as_of=...`
 - `GET /api/v1/decisions/{id}?as_of=...`
 
 Поведение:
+
 - Если `as_of` в прошлом — возвращает snapshot того момента.
 - Если `as_of` в будущем (для симулированных) — возвращает simulated state с marker `is_simulated: true`.
 - Если `as_of` вне допустимого range — 422 с описанием `valid_range`.
@@ -1310,11 +1360,11 @@ Additive: без `as_of` — текущее поведение. DB-индекс�
 
 ### Risks
 
-| Риск | Mitigation |
-|---|---|
-| Backend не справляется с as_of для всех endpoints | Phased rollout: сначала `/runs/{id}`, потом metrics, потом evidence. Feature flag per endpoint. |
-| DB без time-series индексов становится медленной | DBA task: установить indices на `created_at`, `updated_at`, `valid_from/valid_to`. Audit slow queries. |
-| «Будущее» — сложная симуляция | В Wave 2.1 only past/present; future (simulated) в Wave 2.4 (counterfactual layer). |
+| Риск                                              | Mitigation                                                                                             |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Backend не справляется с as_of для всех endpoints | Phased rollout: сначала `/runs/{id}`, потом metrics, потом evidence. Feature flag per endpoint.        |
+| DB без time-series индексов становится медленной  | DBA task: установить indices на `created_at`, `updated_at`, `valid_from/valid_to`. Audit slow queries. |
+| «Будущее» — сложная симуляция                     | В Wave 2.1 only past/present; future (simulated) в Wave 2.4 (counterfactual layer).                    |
 
 ### Effort
 
@@ -1344,7 +1394,7 @@ Additive: без `as_of` — текущее поведение. DB-индекс�
 
 ### Deliverables
 
-```
+```text
 frontend/runtime-dashboard/src/shared/ui/quantity/
 ├── Quantity.tsx                     — full implementation
 ├── Quantity.test.tsx
@@ -1405,11 +1455,11 @@ frontend/runtime-dashboard/eslint-rules/
 
 ### Risks
 
-| Риск | Mitigation |
-|---|---|
-| Perf regression при 100+ Quantity на странице | Lazy-render popover content (только при hover, not pre-fetch) |
-| `lineage_id: untraced` режет UX | Roadmap: в 6 месяцев все endpoints возвращают lineage; warning как driver для backend team |
-| Popover конфликтует с existing tooltips | Единая система — только Quantity owns popover'ы для numbers |
+| Риск                                          | Mitigation                                                                                 |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Perf regression при 100+ Quantity на странице | Lazy-render popover content (только при hover, not pre-fetch)                              |
+| `lineage_id: untraced` режет UX               | Roadmap: в 6 месяцев все endpoints возвращают lineage; warning как driver для backend team |
+| Popover конфликтует с existing tooltips       | Единая система — только Quantity owns popover'ы для numbers                                |
 
 ### Effort
 
@@ -1439,7 +1489,7 @@ frontend/runtime-dashboard/eslint-rules/
 
 ### Deliverables
 
-```
+```text
 frontend/runtime-dashboard/src/features/runs/compare/
 ├── PolicyDiffView.tsx
 ├── PolicyDiffView.test.tsx
@@ -1479,10 +1529,10 @@ frontend/runtime-dashboard/src/features/runs/compare/
 
 ### Risks
 
-| Риск | Mitigation |
-|---|---|
+| Риск                                  | Mitigation                                                                                     |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | Diff для очень разных runs бесполезен | Pre-flight check: если runs не сопоставимы (разные problem frames) — warning + graceful render |
-| Вычисление deltas медленное | Backend pre-computes popular pairs (cache); fallback client-side для остальных |
+| Вычисление deltas медленное           | Backend pre-computes popular pairs (cache); fallback client-side для остальных                 |
 
 ### Effort
 
@@ -1513,7 +1563,7 @@ frontend/runtime-dashboard/src/features/runs/compare/
 
 ### Deliverables
 
-```
+```text
 frontend/runtime-dashboard/src/app/providers/
 ├── CounterfactualProvider.tsx
 └── CounterfactualProvider.test.tsx
@@ -1569,10 +1619,10 @@ GET /api/v1/runs/{id}/metrics?cf=1 →
 
 ### Risks
 
-| Риск | Mitigation |
-|---|---|
-| Cognitive overload | Onboarding tooltip при первом включении; default off |
-| CF для всех runs не считается бэком | Per-run flag `has_counterfactual: bool` на API |
+| Риск                                 | Mitigation                                                                               |
+| ------------------------------------ | ---------------------------------------------------------------------------------------- |
+| Cognitive overload                   | Onboarding tooltip при первом включении; default off                                     |
+| CF для всех runs не считается бэком  | Per-run flag `has_counterfactual: bool` на API                                           |
 | Colour collision `--gold` vs pending | В CF-mode pending использует `⧗` с другим оттенком; formal rule в `COMPOSITION_RULES.md` |
 
 ### Effort
@@ -1600,6 +1650,7 @@ GET /api/v1/runs/{id}/metrics?cf=1 →
 Четыре жанра: **постанова КМУ**, **законопроект**, **експертний висновок**, **аналітична записка**.
 
 Для каждого:
+
 - Нативный шаблон по ДСТУ / офіційним вимогам.
 - Авто-заполнение из decision packet data.
 - Epistemic transparency map.
@@ -1607,7 +1658,7 @@ GET /api/v1/runs/{id}/metrics?cf=1 →
 
 ### Deliverables
 
-```
+```text
 frontend/runtime-dashboard/src/features/artifacts/renderers/
 ├── PostanovaKMURenderer.tsx
 ├── PostanovaKMURenderer.test.tsx
@@ -1661,11 +1712,11 @@ policy-engine/docs/brand/BUREAUCRATIC_RENDERING.md
 
 ### Risks
 
-| Риск | Mitigation |
-|---|---|
+| Риск                                               | Mitigation                                                                                        |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | Юридическое обвинение в подделке официальной формы | Явный watermark «Generated by PolicyOS / Draft only» на всех рендерах; not actual state documents |
-| ДСТУ обновляются | Versioned templates: `PostanovaKMURenderer.v1.tsx` |
-| Assets лицензирование | Аудит перед PR, только public domain или CC0 |
+| ДСТУ обновляются                                   | Versioned templates: `PostanovaKMURenderer.v1.tsx`                                                |
+| Assets лицензирование                              | Аудит перед PR, только public domain или CC0                                                      |
 
 ### Effort
 
@@ -1696,7 +1747,7 @@ policy-engine/docs/brand/BUREAUCRATIC_RENDERING.md
 
 ### Deliverables
 
-```
+```text
 frontend/runtime-dashboard/src/app/providers/
 ├── TrustViewProvider.tsx
 └── useTrustView.ts
@@ -1739,10 +1790,10 @@ frontend/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx
 
 ### Risks
 
-| Риск | Mitigation |
-|---|---|
+| Риск                   | Mitigation                                                                     |
+| ---------------------- | ------------------------------------------------------------------------------ |
 | Overlay слишком шумный | Плотность hashes адаптивна к density-mode (1.4); в condensed — только на click |
-| Hashes раздувают экран | Truncate `sha:abc...` с expand-on-hover |
+| Hashes раздувают экран | Truncate `sha:abc...` с expand-on-hover                                        |
 
 ### Effort
 
@@ -1770,7 +1821,7 @@ frontend/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx
 
 ### Deliverables
 
-```
+```text
 frontend/runtime-dashboard/src/styles/print.css                          — refinement
 policy-engine/docs/brand/
 ├── CLI_STYLEGUIDE.md
@@ -1809,57 +1860,57 @@ packages/cli/src/                                                        — е�
 
 ## 4. Success metrics
 
-| Слой | Метрика | Целевое значение | Замер |
-|---|---|---|---|
-| **Wave 1** | | | |
-| Бренд | Blind recognition test | ≥ 80% узнают Janus-glyph как PolicyOS | After 1.1 |
-| A11y | WCAG 2.2 AA automated audit | 0 blockers | After 1.3 |
-| Uncertainty | % metric-рендеров с CI | ≥ 90% | After 1.2 |
-| Theme | Storybook coverage | 100% компонентов × 3 themes × 3 densities | After 1.4 |
-| Prose | Reading view usage | ≥ 30% operators открывают ≥ 1×/week | 3 months after 1.5 |
-| Authorship | Text coverage | 100% narrative blocks have `author` | After 1.6 |
-| i18n | Plural/typography correctness | 100% ICU + 100% NBSP rules | After 1.7 |
-| **Wave 2** | | | |
-| Provenance law | % numbers wrapped | 100% (ESLint error) | After 2.2 |
-| Time cursor | Endpoints supporting `as_of` | ≥ 90% time-sensitive | After 2.1 |
-| Policy diff | Diff view usage | ≥ 20% reviewers use ≥ 1×/week | 3 months after 2.3 |
-| CF layer | Coverage | ≥ 80% decision packets offer CF | After 2.4 |
-| Bureaucratic | Genres supported | ≥ 4 | After 2.5 |
-| Trust view | Audit flow time | −40% vs current audit UX | After 2.6 |
+| Слой           | Метрика                       | Целевое значение                          | Замер              |
+| -------------- | ----------------------------- | ----------------------------------------- | ------------------ |
+| **Wave 1**     |                               |                                           |                    |
+| Бренд          | Blind recognition test        | ≥ 80% узнают Janus-glyph как PolicyOS     | After 1.1          |
+| A11y           | WCAG 2.2 AA automated audit   | 0 blockers                                | After 1.3          |
+| Uncertainty    | % metric-рендеров с CI        | ≥ 90%                                     | After 1.2          |
+| Theme          | Storybook coverage            | 100% компонентов × 3 themes × 3 densities | After 1.4          |
+| Prose          | Reading view usage            | ≥ 30% operators открывают ≥ 1×/week       | 3 months after 1.5 |
+| Authorship     | Text coverage                 | 100% narrative blocks have `author`       | After 1.6          |
+| i18n           | Plural/typography correctness | 100% ICU + 100% NBSP rules                | After 1.7          |
+| **Wave 2**     |                               |                                           |                    |
+| Provenance law | % numbers wrapped             | 100% (ESLint error)                       | After 2.2          |
+| Time cursor    | Endpoints supporting `as_of`  | ≥ 90% time-sensitive                      | After 2.1          |
+| Policy diff    | Diff view usage               | ≥ 20% reviewers use ≥ 1×/week             | 3 months after 2.3 |
+| CF layer       | Coverage                      | ≥ 80% decision packets offer CF           | After 2.4          |
+| Bureaucratic   | Genres supported              | ≥ 4                                       | After 2.5          |
+| Trust view     | Audit flow time               | −40% vs current audit UX                  | After 2.6          |
 
 ---
 
 ## 5. Risks & mitigations
 
-| Level | Risk | Mitigation |
-|---|---|---|
-| **Program** | Wave 2 стартует без закрытого Wave 1 | Gate §3.1 с жёстким checklist |
-| **Program** | Один инженер перегорает на 32 недели | Планировать каждую 8-ю неделю как light (docs/refactor) |
-| **Architecture** | Provenance law ломает миллион мест | Phased warn → error + codemod (2.0) |
-| **Architecture** | `as_of` требует DB-миграций | DBA task в 2.1, начать заранее |
-| **Design** | Глифы «засоряют» | 10-лимит + whitelist (1.1) + composition rules (1.0) |
-| **Design** | Maskot или bureaucratic render срывается в китч | Non-goals §2 + design-review gate |
-| **Backend** | Coordination с policy-engine медленна | Contracts как ADR в начале каждой фазы |
-| **Legal** | Bureaucratic genres под угрозой подделки формы | Watermark + legal review (2.5) |
-| **Performance** | Temporal scrubbing не 60 fps | Perf budget в CI (2.1), Lighthouse regression checks |
-| **A11y** | Новые компоненты ломают a11y | `.a11y.test.tsx` обязателен в PR checklist |
+| Level            | Risk                                            | Mitigation                                              |
+| ---------------- | ----------------------------------------------- | ------------------------------------------------------- |
+| **Program**      | Wave 2 стартует без закрытого Wave 1            | Gate §3.1 с жёстким checklist                           |
+| **Program**      | Один инженер перегорает на 32 недели            | Планировать каждую 8-ю неделю как light (docs/refactor) |
+| **Architecture** | Provenance law ломает миллион мест              | Phased warn → error + codemod (2.0)                     |
+| **Architecture** | `as_of` требует DB-миграций                     | DBA task в 2.1, начать заранее                          |
+| **Design**       | Глифы «засоряют»                                | 10-лимит + whitelist (1.1) + composition rules (1.0)    |
+| **Design**       | Maskot или bureaucratic render срывается в китч | Non-goals §2 + design-review gate                       |
+| **Backend**      | Coordination с policy-engine медленна           | Contracts как ADR в начале каждой фазы                  |
+| **Legal**        | Bureaucratic genres под угрозой подделки формы  | Watermark + legal review (2.5)                          |
+| **Performance**  | Temporal scrubbing не 60 fps                    | Perf budget в CI (2.1), Lighthouse regression checks    |
+| **A11y**         | Новые компоненты ломают a11y                    | `.a11y.test.tsx` обязателен в PR checklist              |
 
 ---
 
 ## 6. Owner matrix
 
-| Область | Артефакты | Ответственный слой |
-|---|---|---|
-| Бренд, глифы, sigil | `shared/brand/*`, `public/atlas/*`, `docs/brand/*` | Design system |
-| Токены (dark, density, a11y) | `shared/ui/designTokens.ts`, `styles/*.css` | Design system |
-| Charts (uncertainty, deltas) | `shared/charts/*` | Data-viz |
-| Провайдеры (time, cf, trust) | `app/providers/*` | App shell |
-| Прозаические артефакты | `features/artifacts/reading-view/*` | Publications |
-| Bureaucratic renderers | `features/artifacts/renderers/*` | Publications + legal |
-| i18n | `i18n/*` | Localization |
-| A11y infra | `shared/a11y/*`, `tools/design/*` | Quality |
-| Backend contracts | `policy-engine/src/runtime/api/*` | Runtime API |
-| CLI styleguide | `packages/cli/*` | DX |
+| Область                      | Артефакты                                          | Ответственный слой   |
+| ---------------------------- | -------------------------------------------------- | -------------------- |
+| Бренд, глифы, sigil          | `shared/brand/*`, `public/atlas/*`, `docs/brand/*` | Design system        |
+| Токены (dark, density, a11y) | `shared/ui/designTokens.ts`, `styles/*.css`        | Design system        |
+| Charts (uncertainty, deltas) | `shared/charts/*`                                  | Data-viz             |
+| Провайдеры (time, cf, trust) | `app/providers/*`                                  | App shell            |
+| Прозаические артефакты       | `features/artifacts/reading-view/*`                | Publications         |
+| Bureaucratic renderers       | `features/artifacts/renderers/*`                   | Publications + legal |
+| i18n                         | `i18n/*`                                           | Localization         |
+| A11y infra                   | `shared/a11y/*`, `tools/design/*`                  | Quality              |
+| Backend contracts            | `policy-engine/src/runtime/api/*`                  | Runtime API          |
+| CLI styleguide               | `packages/cli/*`                                   | DX                   |
 
 ---
 
@@ -1882,20 +1933,20 @@ packages/cli/src/                                                        — е�
 
 ### Wave 2
 
-11. **Temporal scrubber** — скрабинг на 60 fps, все графики синхронно.
-12. **Quantity hover** — в любом месте UI появляется mini-lineage за 150 ms.
-13. **Lineage trace** — от финального числа до raw dataset за 3 клика.
-14. **Policy diff** — два run'а, causal delta strip, sync scroll.
-15. **Counterfactual toggle** — real + CF одновременно, разница в gold.
-16. **Постанова КМУ render** — с правильной шапкой, нумерацией, epistemic legend.
-17. **Trust view** — hashes и timestamps inline, глифы с диакритиками.
-18. **OG card** — shareable URL автоматически даёт brand-correct изображение.
+1. **Temporal scrubber** — скрабинг на 60 fps, все графики синхронно.
+2. **Quantity hover** — в любом месте UI появляется mini-lineage за 150 ms.
+3. **Lineage trace** — от финального числа до raw dataset за 3 клика.
+4. **Policy diff** — два run'а, causal delta strip, sync scroll.
+5. **Counterfactual toggle** — real + CF одновременно, разница в gold.
+6. **Постанова КМУ render** — с правильной шапкой, нумерацией, epistemic legend.
+7. **Trust view** — hashes и timestamps inline, глифы с диакритиками.
+8. **OG card** — shareable URL автоматически даёт brand-correct изображение.
 
 ---
 
 ## Appendix A — Critical path dependency graph
 
-```
+```text
 1.0 Foundations
   ├─ 1.1 Visual language
   │   ├─ 1.2 Uncertainty (also needs 1.0)
@@ -1920,6 +1971,7 @@ packages/cli/src/                                                        — е�
 ## Appendix B — Definition of Done (применяется к каждой фазе)
 
 Phase is Done when:
+
 - [ ] All Deliverables exist and are committed to main.
 - [ ] All Acceptance criteria pass.
 - [ ] `pnpm test` green.

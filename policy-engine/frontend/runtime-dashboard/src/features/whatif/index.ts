@@ -1,9 +1,5 @@
 // Types
-export type {
-  ParameterSpec,
-  ImpactMetric,
-  Scenario,
-} from "./types";
+export type { ParameterSpec, ImpactMetric, Scenario } from "./types";
 
 // Components
 export {

@@ -5,6 +5,7 @@ Entry-point groups are the stable package-install boundary, while
 for unpacked component repositories. Duplicate handling is deterministic and
 reported through `DiscoveryReport`.
 """
+
 from __future__ import annotations
 
 import os
@@ -73,6 +74,7 @@ DISCOVERY_MODULE_PREFIX = "_polisyos_components_scan_"
 @dataclass(slots=True, frozen=True)
 class DiscoverySourceInfo:
     """Describe where a component declaration was loaded from."""
+
     source_type: str
     location: str
     group: str | None = None
@@ -82,6 +84,7 @@ class DiscoverySourceInfo:
 @dataclass(slots=True)
 class DiscoveredComponent:
     """Pair a materialized component with metadata and source provenance."""
+
     metadata: ComponentMetadata
     component: Component
     source: DiscoverySourceInfo
@@ -90,6 +93,7 @@ class DiscoveredComponent:
 @dataclass(slots=True)
 class DiscoveryDuplicate:
     """Explain which duplicate component declaration was kept or dropped."""
+
     component_id: str
     kept_source: DiscoverySourceInfo
     dropped_source: DiscoverySourceInfo
@@ -99,6 +103,7 @@ class DiscoveryDuplicate:
 @dataclass(slots=True)
 class DiscoveryError:
     """Capture a non-fatal discovery failure tied to one source/item."""
+
     source: str
     item: str | None
     error_type: str
@@ -109,12 +114,14 @@ class DiscoveryError:
 @dataclass(slots=True)
 class DiscoveryPrecedencePolicy:
     """Select whether local dev scan declarations override installed entry points."""
+
     dev_scan_wins_over_entry_points: bool = True
 
 
 @dataclass(slots=True)
 class DiscoveryReport:
     """Collect discovered components plus duplicate/error diagnostics."""
+
     components: list[DiscoveredComponent] = field(default_factory=list)
     duplicates: list[DiscoveryDuplicate] = field(default_factory=list)
     errors: list[DiscoveryError] = field(default_factory=list)

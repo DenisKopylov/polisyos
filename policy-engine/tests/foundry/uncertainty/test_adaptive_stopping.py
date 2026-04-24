@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from polisyos.foundry.uncertainty.config import AdaptiveStoppingConfig, PropagationConfig
+from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -7,9 +9,6 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-
-from polisyos.foundry.uncertainty.config import AdaptiveStoppingConfig, PropagationConfig
-from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 
 
 def _normal_env(point: float, std: float) -> UncertaintyEnvelope:

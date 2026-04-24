@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Any, Iterable
+from typing import Any
 
 from polisyos.common.serialization import stable_json_dumps, to_python_data
 from polisyos.scientist.search.objective import ObjectiveValue
@@ -105,8 +106,7 @@ def update_legacy_pareto_front(
             surviving.append(existing)
 
     is_dominated = any(
-        dominates(existing.normalized_values, new_point.normalized_values)
-        for existing in surviving
+        dominates(existing.normalized_values, new_point.normalized_values) for existing in surviving
     )
     if is_dominated:
         return surviving[:cap]

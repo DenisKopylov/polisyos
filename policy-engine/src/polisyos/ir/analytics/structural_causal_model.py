@@ -1,17 +1,22 @@
 """Describe serializable SCM graph-plus-mechanism contracts and persistence helpers."""
+
 from __future__ import annotations
 
 import json
 from enum import Enum
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.analytics.causal_graph import CausalGraphModel
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import StructuralCausalModelSpecRef
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+else:
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel
 
 
 def _normalize_json_value(value: Any) -> Any:
@@ -87,7 +92,7 @@ class NodeMechanism(BaseModel):
         return payload
 
     @model_validator(mode="after")
-    def _validate_json_only(self) -> "NodeMechanism":
+    def _validate_json_only(self) -> NodeMechanism:
         _ensure_json_serializable("family_params", self.family_params)
         if self.literature_prior is not None:
             _ensure_json_serializable("literature_prior", self.literature_prior)
@@ -109,7 +114,7 @@ class StructuralCausalModelSpec(BaseModel):
     skg_snapshot_ref: str | None = None
 
     @model_validator(mode="after")
-    def _validate_mechanisms_cover_graph(self) -> "StructuralCausalModelSpec":
+    def _validate_mechanisms_cover_graph(self) -> StructuralCausalModelSpec:
         mech_vars = {m.variable for m in self.mechanisms}
         graph_vars = set(self.graph.nodes)
 
@@ -160,6 +165,6 @@ __all__ = [
     "MechanismSource",
     "NodeMechanism",
     "StructuralCausalModelSpec",
-    "persist_structural_causal_model_spec",
     "load_structural_causal_model_spec",
+    "persist_structural_causal_model_spec",
 ]

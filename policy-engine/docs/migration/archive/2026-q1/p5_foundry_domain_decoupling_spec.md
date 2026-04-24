@@ -19,9 +19,11 @@
 Planning baseline for this phase (before implementation):
 
 1. `Q1` in `p1_refactor_queue.md` was open:
+
    - break cycle `CYCLE-002` (`polisyos.foundry <-> polisyos.foundry.domain`).
 2. `arch_cycles_register.csv` marked `CYCLE-002` as `open` with `critical` severity.
 3. Fresh architecture snapshot on `2026-02-09` reports:
+
    - `package_cycles_count = 1`
    - only remaining cycle: `polisyos.foundry, polisyos.foundry.domain`
 4. Import gate reports no `ARCH` violations, meaning this is pure package-cycle debt, not a policy matrix violation.
@@ -29,20 +31,20 @@ Planning baseline for this phase (before implementation):
 
 Current cross-package runtime edges driving the cycle:
 
-| Direction | File | Import |
-| --- | --- | --- |
-| `foundry -> foundry.domain` | `src/polisyos/foundry/base.py` | `from polisyos.foundry.domain.state import GlobalState` |
-| `foundry -> foundry.domain` | `src/polisyos/foundry/agents.py` | `from polisyos.foundry.domain.state import GlobalState` |
-| `foundry -> foundry.domain` | `src/polisyos/foundry/_executor_snapshots.py` | `from polisyos.foundry.domain.state import GlobalState` |
-| `foundry -> foundry.domain` | `src/polisyos/foundry/calibration/pure_executor.py` | `from polisyos.foundry.domain.state import GlobalState` |
-| `foundry -> foundry.domain` | `src/polisyos/foundry/calibration/calibrator.py` | `from polisyos.foundry.domain.state import GlobalState` |
-| `foundry -> foundry.domain` | `src/polisyos/foundry/loss.py` | `from polisyos.foundry.domain.state import GlobalState` |
-| `foundry -> foundry.domain` | `src/polisyos/foundry/registry.py` | `from polisyos.foundry.domain.mechanisms import ...` |
-| `foundry -> foundry.domain` | `src/polisyos/foundry/compile/trinity_compiler.py` | `from polisyos.foundry.domain.mechanisms import build_treasury_plan` |
-| `foundry.domain -> foundry` | `src/polisyos/foundry/domain/mechanisms/fiscal.py` | `from polisyos.foundry.base import Mechanism, PatchMap` |
-| `foundry.domain -> foundry` | `src/polisyos/foundry/domain/mechanisms/labor.py` | `from polisyos.foundry.base import ComplexMechanism, PatchMap` |
-| `foundry.domain -> foundry` | `src/polisyos/foundry/domain/mechanisms/fiscal.py` | `from polisyos.foundry.types import FidelityLevel` |
-| `foundry.domain -> foundry` | `src/polisyos/foundry/domain/mechanisms/labor.py` | `from polisyos.foundry.types import FidelityLevel` |
+| Direction                   | File                                                | Import                                                               |
+| --------------------------- | --------------------------------------------------- | -------------------------------------------------------------------- |
+| `foundry -> foundry.domain` | `src/polisyos/foundry/base.py`                      | `from polisyos.foundry.domain.state import GlobalState`              |
+| `foundry -> foundry.domain` | `src/polisyos/foundry/agents.py`                    | `from polisyos.foundry.domain.state import GlobalState`              |
+| `foundry -> foundry.domain` | `src/polisyos/foundry/_executor_snapshots.py`       | `from polisyos.foundry.domain.state import GlobalState`              |
+| `foundry -> foundry.domain` | `src/polisyos/foundry/calibration/pure_executor.py` | `from polisyos.foundry.domain.state import GlobalState`              |
+| `foundry -> foundry.domain` | `src/polisyos/foundry/calibration/calibrator.py`    | `from polisyos.foundry.domain.state import GlobalState`              |
+| `foundry -> foundry.domain` | `src/polisyos/foundry/loss.py`                      | `from polisyos.foundry.domain.state import GlobalState`              |
+| `foundry -> foundry.domain` | `src/polisyos/foundry/registry.py`                  | `from polisyos.foundry.domain.mechanisms import ...`                 |
+| `foundry -> foundry.domain` | `src/polisyos/foundry/compile/trinity_compiler.py`  | `from polisyos.foundry.domain.mechanisms import build_treasury_plan` |
+| `foundry.domain -> foundry` | `src/polisyos/foundry/domain/mechanisms/fiscal.py`  | `from polisyos.foundry.base import Mechanism, PatchMap`              |
+| `foundry.domain -> foundry` | `src/polisyos/foundry/domain/mechanisms/labor.py`   | `from polisyos.foundry.base import ComplexMechanism, PatchMap`       |
+| `foundry.domain -> foundry` | `src/polisyos/foundry/domain/mechanisms/fiscal.py`  | `from polisyos.foundry.types import FidelityLevel`                   |
+| `foundry.domain -> foundry` | `src/polisyos/foundry/domain/mechanisms/labor.py`   | `from polisyos.foundry.types import FidelityLevel`                   |
 
 Net effect: the last package cycle blocks full DAG closure promised by P0-P4 and keeps `team-foundry` debt item unresolved.
 
@@ -78,21 +80,24 @@ This document uses:
 P5 introduces canonical ownership split:
 
 1. `src/polisyos/foundry/contracts/*`
+
    - canonical state and protocol contracts.
 2. `src/polisyos/foundry/mechanisms/*`
+
    - canonical compute mechanism implementations.
 3. `src/polisyos/foundry/domain/*`
+
    - compatibility facade layer only (no canonical compute ownership).
 
 ### 4.2 Canonical ownership mapping
 
-| Current module | Canonical P5 owner | Compatibility behavior |
-| --- | --- | --- |
-| `src/polisyos/foundry/domain/state.py` | `src/polisyos/foundry/contracts/state.py` | domain module re-exports canonical symbols |
-| `src/polisyos/foundry/base.py` | `src/polisyos/foundry/contracts/mechanism.py` | base module becomes thin facade |
-| `src/polisyos/foundry/types.py` | `src/polisyos/foundry/contracts/fidelity.py` | types module re-exports enum |
-| `src/polisyos/foundry/domain/mechanisms/fiscal.py` | `src/polisyos/foundry/mechanisms/fiscal.py` | domain path re-exports with deprecation warning |
-| `src/polisyos/foundry/domain/mechanisms/labor.py` | `src/polisyos/foundry/mechanisms/labor.py` | domain path re-exports with deprecation warning |
+| Current module                                       | Canonical P5 owner                            | Compatibility behavior                          |
+| ---------------------------------------------------- | --------------------------------------------- | ----------------------------------------------- |
+| `src/polisyos/foundry/domain/state.py`               | `src/polisyos/foundry/contracts/state.py`     | domain module re-exports canonical symbols      |
+| `src/polisyos/foundry/base.py`                       | `src/polisyos/foundry/contracts/mechanism.py` | base module becomes thin facade                 |
+| `src/polisyos/foundry/types.py`                      | `src/polisyos/foundry/contracts/fidelity.py`  | types module re-exports enum                    |
+| `src/polisyos/foundry/domain/mechanisms/fiscal.py`   | `src/polisyos/foundry/mechanisms/fiscal.py`   | domain path re-exports with deprecation warning |
+| `src/polisyos/foundry/domain/mechanisms/labor.py`    | `src/polisyos/foundry/mechanisms/labor.py`    | domain path re-exports with deprecation warning |
 | `src/polisyos/foundry/domain/mechanisms/treasury.py` | `src/polisyos/foundry/mechanisms/treasury.py` | domain path re-exports with deprecation warning |
 
 ### 4.3 Dependency direction invariants
@@ -110,6 +115,7 @@ After P5 merge:
 For one release after P5:
 
 1. Legacy imports remain valid:
+
    - `polisyos.foundry.domain.state.*`
    - `polisyos.foundry.domain.mechanisms.*`
    - `polisyos.foundry.base.*`
@@ -124,12 +130,16 @@ For one release after P5:
 Required additions:
 
 1. `src/polisyos/foundry/contracts/state.py`
+
    - move `AgentState`, `FirmState`, `MarketState`, `GlobalState`, and `GlobalState.empty`.
 2. `src/polisyos/foundry/contracts/fidelity.py`
+
    - canonical `FidelityLevel` enum.
 3. `src/polisyos/foundry/contracts/mechanism.py`
+
    - canonical `PatchRecord`, `PatchMap`, `Mechanism`, `ComplexMechanism`.
 4. `src/polisyos/foundry/contracts/__init__.py`
+
    - curated export surface for external and internal consumers.
 
 Hard constraints:
@@ -143,11 +153,13 @@ Hard constraints:
 Required changes:
 
 1. Create canonical mechanism modules:
+
    - `src/polisyos/foundry/mechanisms/fiscal.py`
    - `src/polisyos/foundry/mechanisms/labor.py`
    - `src/polisyos/foundry/mechanisms/treasury.py`
    - `src/polisyos/foundry/mechanisms/__init__.py`
 2. Rewire mechanism imports:
+
    - `src/polisyos/foundry/registry.py`
    - `src/polisyos/foundry/compile/trinity_compiler.py`
 3. Convert domain mechanism modules into compatibility facades pointing to canonical modules.
@@ -162,6 +174,7 @@ Hard constraints:
 Mandatory rewiring:
 
 1. Replace `polisyos.foundry.domain.state` imports with `polisyos.foundry.contracts.state` in:
+
    - `src/polisyos/foundry/base.py`
    - `src/polisyos/foundry/agents.py`
    - `src/polisyos/foundry/_executor_snapshots.py`
@@ -176,10 +189,13 @@ Mandatory rewiring:
 Required new tests:
 
 1. `tests/foundry/test_no_foundry_domain_imports.py`
+
    - AST scan: forbid `polisyos.foundry.domain.*` imports in `src/polisyos/foundry/**` excluding `src/polisyos/foundry/domain/**`.
 2. `tests/foundry/test_domain_compat_facades.py`
+
    - verify legacy imports resolve and point to canonical implementations.
 3. `tests/foundry/test_contract_state_compat.py`
+
    - verify `GlobalState.empty()` parity and key dataclass behavior across old and new import paths.
 
 ### 5.5 Documentation updates
@@ -187,10 +203,13 @@ Required new tests:
 Required docs sync:
 
 1. `src/polisyos/foundry/README.md`
+
    - update package map to show `contracts/` and `mechanisms/` canonical ownership.
 2. `src/polisyos/foundry/calibration/README.md`
+
    - update state import references to canonical contracts path.
 3. `tools/README.md` (Foundry examples section)
+
    - update references from `foundry.domain` to canonical modules.
 
 ## 6. Migration Plan (2 Weeks)
@@ -214,12 +233,16 @@ Required docs sync:
 ### 7.1 Mandatory artifact updates
 
 1. `arch_cycles_register.csv`
+
    - mark `CYCLE-002` as `closed` with closure date and evidence note.
 2. `p1_refactor_queue.md`
+
    - mark `Q1` as `Done` with closure date.
 3. `import_debt_register.csv`
+
    - if P5-specific debt IDs are introduced during implementation, they MUST be removed/closed by phase end.
 4. `import_exceptions.toml` and `import_exceptions_registry.md`
+
    - P5 SHOULD complete without new exceptions; if temporary exceptions are added, they MUST include owner/expiry and be tracked.
 
 ### 7.2 Required verification commands
@@ -272,6 +295,7 @@ P5 is complete only if all criteria are met:
 1. Import gate cycle output has no `polisyos.foundry, polisyos.foundry.domain` cycle.
 2. `src/polisyos/foundry/**` outside `domain/**` has zero imports from `polisyos.foundry.domain.*`.
 3. Canonical ownership exists and is used:
+
    - state/protocol in `foundry/contracts`
    - built-in mechanisms in `foundry/mechanisms`
 4. Legacy imports from `foundry.domain.*`, `foundry.base`, and `foundry.types` remain functional through facades.
@@ -280,13 +304,13 @@ P5 is complete only if all criteria are met:
 
 ## 9. Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| Import-path breakage for downstream users/tests | High | Keep one-release compatibility facades and add explicit compatibility tests |
-| Behavior drift after module move | High | Golden tests for `GlobalState.empty` and mechanism output parity |
-| Hidden reintroduction of `foundry -> domain` imports | High | Add AST boundary test and keep it in default CI test suite |
-| Scope creep into plugin/runtime redesign | Medium | Keep P5 strictly limited to cycle closure and contract extraction |
-| Documentation drift | Medium | Treat README updates as required in closure PR |
+| Risk                                                 | Impact | Mitigation                                                                  |
+| ---------------------------------------------------- | ------ | --------------------------------------------------------------------------- |
+| Import-path breakage for downstream users/tests      | High   | Keep one-release compatibility facades and add explicit compatibility tests |
+| Behavior drift after module move                     | High   | Golden tests for `GlobalState.empty` and mechanism output parity            |
+| Hidden reintroduction of `foundry -> domain` imports | High   | Add AST boundary test and keep it in default CI test suite                  |
+| Scope creep into plugin/runtime redesign             | Medium | Keep P5 strictly limited to cycle closure and contract extraction           |
+| Documentation drift                                  | Medium | Treat README updates as required in closure PR                              |
 
 ## 10. Post-P5 Follow-Ups (Out of Scope)
 
@@ -310,16 +334,19 @@ This confirms P5 is the final architecture cycle closure step after P4 completio
 ### 12.1 Canonical ownership implemented
 
 1. Added canonical state/protocol contracts:
+
    - `src/polisyos/foundry/contracts/state.py`
    - `src/polisyos/foundry/contracts/fidelity.py`
    - `src/polisyos/foundry/contracts/mechanism.py`
    - `src/polisyos/foundry/contracts/__init__.py`
 2. Added canonical mechanism implementations:
+
    - `src/polisyos/foundry/mechanisms/fiscal.py`
    - `src/polisyos/foundry/mechanisms/labor.py`
    - `src/polisyos/foundry/mechanisms/treasury.py`
    - `src/polisyos/foundry/mechanisms/__init__.py`
 3. Converted legacy modules to compatibility facades:
+
    - `src/polisyos/foundry/base.py`
    - `src/polisyos/foundry/types.py`
    - `src/polisyos/foundry/domain/state.py`
@@ -328,6 +355,7 @@ This confirms P5 is the final architecture cycle closure step after P4 completio
 ### 12.2 Runtime import rewiring completed
 
 1. Rewired runtime/compile/calibration code to canonical contracts:
+
    - `src/polisyos/foundry/agents.py`
    - `src/polisyos/foundry/queue.py`
    - `src/polisyos/foundry/_executor_snapshots.py`
@@ -335,6 +363,7 @@ This confirms P5 is the final architecture cycle closure step after P4 completio
    - `src/polisyos/foundry/calibration/calibrator.py`
    - `src/polisyos/foundry/loss.py`
 2. Rewired mechanism consumers to canonical mechanisms:
+
    - `src/polisyos/foundry/registry.py`
    - `src/polisyos/foundry/compile/trinity_compiler.py`
 3. Replaced `foundry.types` usage in Foundry source tree with `foundry.contracts.fidelity`.
@@ -342,10 +371,12 @@ This confirms P5 is the final architecture cycle closure step after P4 completio
 ### 12.3 Regression guards and docs
 
 1. Added boundary/compatibility tests:
+
    - `tests/foundry/test_no_foundry_domain_imports.py`
    - `tests/foundry/test_domain_compat_facades.py`
    - `tests/foundry/test_contract_state_compat.py`
 2. Updated docs:
+
    - `src/polisyos/foundry/README.md`
    - `src/polisyos/foundry/calibration/README.md`
    - `tools/README.md`
@@ -353,23 +384,29 @@ This confirms P5 is the final architecture cycle closure step after P4 completio
 ### 12.4 Governance closure artifacts
 
 1. Closed cycle item:
+
    - `arch_cycles_register.csv` (`CYCLE-002` -> `closed`, closure note added).
 2. Closed queue item:
+
    - `p1_refactor_queue.md` (`Q1` -> `Done` on `2026-02-09`).
 
 ### 12.5 Verification results
 
 1. `lint_imports.py --fail-on-cycles`:
+
    - `Violations: none`
    - `Allowed exceptions: none`
    - `Cycles (runtime imports, package-level): none`
 2. `collect_arch_metrics.py` (`.tmp/p5_metrics/summary.json`):
+
    - `package_cycles_count=0`
    - `import_violations_count=0`
    - `test_collect_errors_count=42`
 3. `compare_baseline.py --mode blocking`:
+
    - `[OK] Architecture freeze checks passed.`
 4. New P5 tests:
+
    - `tests/foundry/test_no_foundry_domain_imports.py`: passed
    - `tests/foundry/test_domain_compat_facades.py`: skipped in current env (`jax` missing)
    - `tests/foundry/test_contract_state_compat.py`: skipped in current env (`jax` missing)

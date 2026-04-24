@@ -14,7 +14,8 @@ ATE = mean(ψ),  SE = std(ψ) / √n.
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -34,7 +35,6 @@ from polisyos.foundry.methods.base import (
 from polisyos.foundry.methods.catalog.causal.treatment_effects import (
     _logistic_propensity,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -178,9 +178,9 @@ def _aipw_scores(
 # All functions must be pure-numpy implementations (no external imports needed).
 _INNER_DISPATCH: dict = {
     "causal.treatment_effects.aipw": (_logistic_propensity, _outcome_model, _outcome_model),
-    "causal.hte.double_ml":          (_logistic_propensity, _outcome_model, _outcome_model),
+    "causal.hte.double_ml": (_logistic_propensity, _outcome_model, _outcome_model),
     "causal.treatment_effects.tmle": (_logistic_propensity, _outcome_model, _outcome_model),
-    "causal.treatment_effects.ipw":  (_logistic_propensity, _const_outcome, _const_outcome),
+    "causal.treatment_effects.ipw": (_logistic_propensity, _const_outcome, _const_outcome),
 }
 _DEFAULT_DISPATCH = (_logistic_propensity, _outcome_model, _outcome_model)
 
@@ -221,15 +221,21 @@ class CrossFitOrchestrator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
             }
         ),
         output_slots=frozenset(
             {
                 SlotSpec("result", SlotType.SCALAR, Unit("result", "json")),
-                SlotSpec("influence_function", SlotType.VECTOR, Unit("eif", "score"), shape=("n_obs",)),
+                SlotSpec(
+                    "influence_function", SlotType.VECTOR, Unit("eif", "score"), shape=("n_obs",)
+                ),
             }
         ),
         parameters=(
@@ -331,8 +337,15 @@ class CrossFitOrchestrator:
                 continue
 
             e_k, mu1_k, mu0_k = _cross_fit_fold(
-                X, T, Y, train_mask, eval_mask, min_propensity,
-                prop_fn=prop_fn, mu1_fn=mu1_fn, mu0_fn=mu0_fn,
+                X,
+                T,
+                Y,
+                train_mask,
+                eval_mask,
+                min_propensity,
+                prop_fn=prop_fn,
+                mu1_fn=mu1_fn,
+                mu0_fn=mu0_fn,
             )
             e_oof[eval_mask] = e_k
             mu1_oof[eval_mask] = mu1_k
@@ -350,8 +363,8 @@ class CrossFitOrchestrator:
         # Diagnostic: effective sample sizes
         w1 = T / np.clip(e_oof, min_propensity, 1.0 - min_propensity)
         w0 = (1 - T) / np.clip(1 - e_oof, min_propensity, 1.0 - min_propensity)
-        ess_treated = float(np.sum(w1) ** 2 / max(np.sum(w1 ** 2), 1e-12))
-        ess_control = float(np.sum(w0) ** 2 / max(np.sum(w0 ** 2), 1e-12))
+        ess_treated = float(np.sum(w1) ** 2 / max(np.sum(w1**2), 1e-12))
+        ess_control = float(np.sum(w0) ** 2 / max(np.sum(w0**2), 1e-12))
 
         return {
             "result": {
@@ -420,29 +433,59 @@ class CrossFitContinuousOrchestrator:
         name="cross_fit_continuous",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset([
-            SlotSpec(name="covariates", slot_type=SlotType.MATRIX,
-                     unit=Unit("covariates", "matrix"), shape=("n_obs", "n_features")),
-            SlotSpec(name="treatment", slot_type=SlotType.VECTOR,
-                     unit=Unit("treatment", "continuous"), shape=("n_obs",)),
-            SlotSpec(name="outcome", slot_type=SlotType.VECTOR,
-                     unit=Unit("outcome", "observed"), shape=("n_obs",)),
-        ]),
-        output_slots=frozenset([
-            SlotSpec(name="gps_oof", slot_type=SlotType.VECTOR,
-                     unit=Unit("gps", "density"), shape=("n_obs",)),
-            SlotSpec(name="outcome_oof", slot_type=SlotType.VECTOR,
-                     unit=Unit("outcome", "predicted"), shape=("n_obs",)),
-            SlotSpec(name="fold_assignments", slot_type=SlotType.VECTOR,
-                     unit=Unit("fold", "index"), shape=("n_obs",)),
-        ]),
+        input_slots=frozenset(
+            [
+                SlotSpec(
+                    name="covariates",
+                    slot_type=SlotType.MATRIX,
+                    unit=Unit("covariates", "matrix"),
+                    shape=("n_obs", "n_features"),
+                ),
+                SlotSpec(
+                    name="treatment",
+                    slot_type=SlotType.VECTOR,
+                    unit=Unit("treatment", "continuous"),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    name="outcome",
+                    slot_type=SlotType.VECTOR,
+                    unit=Unit("outcome", "observed"),
+                    shape=("n_obs",),
+                ),
+            ]
+        ),
+        output_slots=frozenset(
+            [
+                SlotSpec(
+                    name="gps_oof",
+                    slot_type=SlotType.VECTOR,
+                    unit=Unit("gps", "density"),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    name="outcome_oof",
+                    slot_type=SlotType.VECTOR,
+                    unit=Unit("outcome", "predicted"),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    name="fold_assignments",
+                    slot_type=SlotType.VECTOR,
+                    unit=Unit("fold", "index"),
+                    shape=("n_obs",),
+                ),
+            ]
+        ),
         parameters=(
-            ParameterSpec(name="n_folds", default=5,
-                          description="Number of cross-fitting folds", bounds=(2, 20)),
-            ParameterSpec(name="seed", default=42,
-                          description="Random seed for fold assignment"),
-            ParameterSpec(name="min_gps", default=1e-4,
-                          description="GPS clipping floor"),
+            ParameterSpec(
+                name="n_folds",
+                default=5,
+                description="Number of cross-fitting folds",
+                bounds=(2, 20),
+            ),
+            ParameterSpec(name="seed", default=42, description="Random seed for fold assignment"),
+            ParameterSpec(name="min_gps", default=1e-4, description="GPS clipping floor"),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N,
@@ -471,8 +514,7 @@ class CrossFitContinuousOrchestrator:
         diagnostic_checks=("Verify gps_oof > min_gps for all observations.",),
         typical_min_obs=50,
         output_interpretation=(
-            "gps_oof[i] = out-of-fold f(T_i|X_i). "
-            "outcome_oof[i] = out-of-fold μ(T_i, X_i)."
+            "gps_oof[i] = out-of-fold f(T_i|X_i). outcome_oof[i] = out-of-fold μ(T_i, X_i)."
         ),
     )
 
@@ -505,12 +547,8 @@ class CrossFitContinuousOrchestrator:
             )
 
             # Linear outcome model: Y ~ [1, T, X] beta
-            feat_tr = np.column_stack([
-                np.ones(len(train_idx)), T[train_idx], X[train_idx]
-            ])
-            feat_val = np.column_stack([
-                np.ones(len(val_idx)), T[val_idx], X[val_idx]
-            ])
+            feat_tr = np.column_stack([np.ones(len(train_idx)), T[train_idx], X[train_idx]])
+            feat_val = np.column_stack([np.ones(len(val_idx)), T[val_idx], X[val_idx]])
             beta_y, *_ = np.linalg.lstsq(feat_tr, Y[train_idx], rcond=None)
             outcome_oof[val_idx] = feat_val @ beta_y
 
@@ -523,4 +561,4 @@ class CrossFitContinuousOrchestrator:
         }
 
 
-__all__ = ["CrossFitOrchestrator", "CrossFitContinuousOrchestrator"]
+__all__ = ["CrossFitContinuousOrchestrator", "CrossFitOrchestrator"]

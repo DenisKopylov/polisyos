@@ -1,4 +1,5 @@
 """Builds and persists Scholar knowledge bundles plus their world-event side effects."""
+
 from __future__ import annotations
 
 from datetime import UTC, datetime
@@ -101,8 +102,7 @@ def build_knowledge_bundle_payload(
         policy_ids_used={key: policy_ids_used[key] for key in sorted(policy_ids_used)},
         created_by={key: created_by[key] for key in sorted(created_by)},
         summary={key: summary[key] for key in sorted(summary)},
-        freshness=freshness
-        or FreshnessMetadata(created_at=datetime(1970, 1, 1, tzinfo=UTC)),
+        freshness=freshness or FreshnessMetadata(created_at=datetime(1970, 1, 1, tzinfo=UTC)),
     )
 
 
@@ -162,8 +162,7 @@ def persist_bundle_and_event(
         for world_id in sorted(set(doc_version_ids))
     ]
     inputs.extend(
-        WorldObjectRef(world_id=world_id, artifact_id=None)
-        for world_id in sorted(set(claim_ids))
+        WorldObjectRef(world_id=world_id, artifact_id=None) for world_id in sorted(set(claim_ids))
     )
     inputs.extend(
         WorldObjectRef(world_id=world_id, artifact_id=None)

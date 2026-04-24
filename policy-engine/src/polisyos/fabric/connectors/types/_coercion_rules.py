@@ -4,6 +4,7 @@ Each function converts an arbitrary value into a specific target type,
 respecting the supplied CoercionPolicy.  They return a CoercionResult
 rather than raising, so callers can decide how to surface failures.
 """
+
 from __future__ import annotations
 
 import math
@@ -23,13 +24,13 @@ from polisyos.fabric.temporal import (
 from ._coercion_policies import CoercionPolicy, CoercionResult
 
 __all__ = [
-    "coerce_to_int",
-    "coerce_to_float",
-    "coerce_to_decimal",
     "coerce_to_boolean",
-    "coerce_to_string",
     "coerce_to_date",
     "coerce_to_datetime",
+    "coerce_to_decimal",
+    "coerce_to_float",
+    "coerce_to_int",
+    "coerce_to_string",
 ]
 
 
@@ -42,7 +43,7 @@ def _get_int_range(bits: int, signed: bool) -> tuple[int, int]:
     """Get the valid range for an integer type."""
     if signed:
         return (-(2 ** (bits - 1)), 2 ** (bits - 1) - 1)
-    return (0, 2 ** bits - 1)
+    return (0, 2**bits - 1)
 
 
 def _is_exact_integer(value: float) -> bool:
@@ -50,9 +51,7 @@ def _is_exact_integer(value: float) -> bool:
     return math.isfinite(value) and value == math.floor(value)
 
 
-def _float_to_int_safe(
-    value: float, target_bits: int, target_signed: bool
-) -> int | None:
+def _float_to_int_safe(value: float, target_bits: int, target_signed: bool) -> int | None:
     """Safely convert a float to an integer if it represents an exact integer.
 
     Returns None if conversion would lose precision or overflow.
@@ -113,8 +112,7 @@ def coerce_to_int(
         if min_val <= value <= max_val:
             return CoercionResult.ok(value, "int", target_type)
         return CoercionResult.fail(
-            "int", target_type,
-            f"value {value} out of range [{min_val}, {max_val}]"
+            "int", target_type, f"value {value} out of range [{min_val}, {max_val}]"
         )
 
     # From float
@@ -125,8 +123,7 @@ def coerce_to_int(
 
         if policy == CoercionPolicy.STRICT:
             return CoercionResult.fail(
-                "float", target_type,
-                f"value {value} is not an exact integer or out of range"
+                "float", target_type, f"value {value} is not an exact integer or out of range"
             )
 
         # Lenient/Warn: truncate
@@ -134,14 +131,14 @@ def coerce_to_int(
             truncated = int(value)
             if min_val <= truncated <= max_val:
                 return CoercionResult.ok(
-                    truncated, "float", target_type,
+                    truncated,
+                    "float",
+                    target_type,
                     precision_loss=True,
                     warnings=[f"truncated {value} to {truncated}"],
                 )
 
-        return CoercionResult.fail(
-            "float", target_type, f"value {value} cannot be converted"
-        )
+        return CoercionResult.fail("float", target_type, f"value {value} cannot be converted")
 
     # From Decimal
     if isinstance(value, Decimal):
@@ -151,22 +148,20 @@ def coerce_to_int(
                 int_val = int(value)
                 if min_val <= int_val <= max_val:
                     return CoercionResult.ok(int_val, "Decimal", target_type)
-                return CoercionResult.fail(
-                    "Decimal", target_type,
-                    f"value {value} out of range"
-                )
+                return CoercionResult.fail("Decimal", target_type, f"value {value} out of range")
 
             if policy == CoercionPolicy.STRICT:
                 return CoercionResult.fail(
-                    "Decimal", target_type,
-                    f"value {value} is not an exact integer"
+                    "Decimal", target_type, f"value {value} is not an exact integer"
                 )
 
             # Lenient/Warn: round
             rounded = int(value.to_integral_value(rounding=ROUND_HALF_UP))
             if min_val <= rounded <= max_val:
                 return CoercionResult.ok(
-                    rounded, "Decimal", target_type,
+                    rounded,
+                    "Decimal",
+                    target_type,
                     precision_loss=True,
                     warnings=[f"rounded {value} to {rounded}"],
                 )
@@ -181,17 +176,16 @@ def coerce_to_int(
     if isinstance(value, str):
         value = value.strip()
         if not value:
-            return CoercionResult.fail("string", target_type, "cannot parse empty string as integer")
+            return CoercionResult.fail(
+                "string", target_type, "cannot parse empty string as integer"
+            )
 
         # Try integer parsing
         try:
             int_val = int(value)
             if min_val <= int_val <= max_val:
                 return CoercionResult.ok(int_val, "string", target_type)
-            return CoercionResult.fail(
-                "string", target_type,
-                f"value {int_val} out of range"
-            )
+            return CoercionResult.fail("string", target_type, f"value {int_val} out of range")
         except ValueError:
             pass
 
@@ -202,13 +196,9 @@ def coerce_to_int(
             if min_val <= int_val <= max_val:
                 return CoercionResult.ok(int_val, "string", target_type)
 
-        return CoercionResult.fail(
-            "string", target_type, f"cannot parse '{value}' as integer"
-        )
+        return CoercionResult.fail("string", target_type, f"cannot parse '{value}' as integer")
 
-    return CoercionResult.fail(
-        source_type, target_type, f"unsupported source type {source_type}"
-    )
+    return CoercionResult.fail(source_type, target_type, f"unsupported source type {source_type}")
 
 
 # =============================================================================
@@ -239,11 +229,12 @@ def coerce_to_float(
         if not _int_fits_in_float(value, target_bits):
             if policy == CoercionPolicy.STRICT:
                 return CoercionResult.fail(
-                    "int", target_type,
-                    f"integer {value} may lose precision in {target_type}"
+                    "int", target_type, f"integer {value} may lose precision in {target_type}"
                 )
             return CoercionResult.ok(
-                float(value), "int", target_type,
+                float(value),
+                "int",
+                target_type,
                 precision_loss=True,
                 warnings=[f"large integer {value} may lose precision"],
             )
@@ -256,24 +247,25 @@ def coerce_to_float(
             # For float64 -> float32, check if value fits
             if target_bits == 32:
                 import struct
+
                 try:
                     # Round-trip through float32
-                    f32 = struct.unpack('f', struct.pack('f', value))[0]
+                    f32 = struct.unpack("f", struct.pack("f", value))[0]
                     if f32 != value and policy == CoercionPolicy.STRICT:
                         return CoercionResult.fail(
-                            "float64", target_type,
-                            f"value {value} loses precision in float32"
+                            "float64", target_type, f"value {value} loses precision in float32"
                         )
                     if f32 != value:
                         return CoercionResult.ok(
-                            f32, "float64", target_type,
+                            f32,
+                            "float64",
+                            target_type,
                             precision_loss=True,
                             warnings=[f"precision loss: {value} -> {f32}"],
                         )
                 except (struct.error, OverflowError):
                     return CoercionResult.fail(
-                        "float64", target_type,
-                        f"value {value} overflows float32"
+                        "float64", target_type, f"value {value} overflows float32"
                     )
         return CoercionResult.ok(value, "float", target_type)
 
@@ -285,11 +277,12 @@ def coerce_to_float(
             if Decimal(str(float_val)) != value:
                 if policy == CoercionPolicy.STRICT:
                     return CoercionResult.fail(
-                        "Decimal", target_type,
-                        f"Decimal {value} loses precision as float"
+                        "Decimal", target_type, f"Decimal {value} loses precision as float"
                     )
                 return CoercionResult.ok(
-                    float_val, "Decimal", target_type,
+                    float_val,
+                    "Decimal",
+                    target_type,
                     precision_loss=True,
                     warnings=["precision loss converting Decimal to float"],
                 )
@@ -304,14 +297,10 @@ def coerce_to_float(
             return CoercionResult.fail("string", target_type, "cannot parse empty string as float")
         decimal_val = parse_decimal_text(value)
         if decimal_val is None:
-            return CoercionResult.fail(
-                "string", target_type, f"cannot parse '{value}' as float"
-            )
+            return CoercionResult.fail("string", target_type, f"cannot parse '{value}' as float")
         return CoercionResult.ok(float(decimal_val), "string", target_type)
 
-    return CoercionResult.fail(
-        source_type, target_type, f"unsupported source type {source_type}"
-    )
+    return CoercionResult.fail(source_type, target_type, f"unsupported source type {source_type}")
 
 
 # =============================================================================
@@ -341,9 +330,7 @@ def coerce_to_decimal(
     # From float
     if isinstance(value, float):
         if not math.isfinite(value):
-            return CoercionResult.fail(
-                "float", target_type, f"cannot convert {value} to Decimal"
-            )
+            return CoercionResult.fail("float", target_type, f"cannot convert {value} to Decimal")
         # Use string conversion for better precision
         return CoercionResult.ok(Decimal(str(value)), "float", target_type)
 
@@ -361,14 +348,10 @@ def coerce_to_decimal(
         cleaned = re.sub(r"[$\u20ac\u00a3\u00a5\u20b4]", "", value)
         decimal_val = parse_decimal_text(cleaned)
         if decimal_val is None:
-            return CoercionResult.fail(
-                "string", target_type, f"cannot parse '{value}' as Decimal"
-            )
+            return CoercionResult.fail("string", target_type, f"cannot parse '{value}' as Decimal")
         return CoercionResult.ok(decimal_val, "string", target_type)
 
-    return CoercionResult.fail(
-        source_type, target_type, f"unsupported source type {source_type}"
-    )
+    return CoercionResult.fail(source_type, target_type, f"unsupported source type {source_type}")
 
 
 # =============================================================================
@@ -392,9 +375,7 @@ def coerce_to_boolean(value: Any, policy: CoercionPolicy) -> CoercionResult:
         if value in (0, 1):
             return CoercionResult.ok(bool(value), "int", "boolean")
         if policy == CoercionPolicy.STRICT:
-            return CoercionResult.fail(
-                "int", "boolean", f"only 0 and 1 allowed, got {value}"
-            )
+            return CoercionResult.fail("int", "boolean", f"only 0 and 1 allowed, got {value}")
         return CoercionResult.ok(bool(value), "int", "boolean")
 
     # From float
@@ -402,9 +383,7 @@ def coerce_to_boolean(value: Any, policy: CoercionPolicy) -> CoercionResult:
         if value in (0.0, 1.0):
             return CoercionResult.ok(bool(value), "float", "boolean")
         if policy == CoercionPolicy.STRICT:
-            return CoercionResult.fail(
-                "float", "boolean", f"only 0.0 and 1.0 allowed, got {value}"
-            )
+            return CoercionResult.fail("float", "boolean", f"only 0.0 and 1.0 allowed, got {value}")
         return CoercionResult.ok(bool(value), "float", "boolean")
 
     # From string
@@ -424,13 +403,9 @@ def coerce_to_boolean(value: Any, policy: CoercionPolicy) -> CoercionResult:
                 "empty string must be treated as missing, not false",
             )
 
-        return CoercionResult.fail(
-            "string", "boolean", f"cannot interpret '{value}' as boolean"
-        )
+        return CoercionResult.fail("string", "boolean", f"cannot interpret '{value}' as boolean")
 
-    return CoercionResult.fail(
-        source_type, "boolean", f"unsupported source type {source_type}"
-    )
+    return CoercionResult.fail(source_type, "boolean", f"unsupported source type {source_type}")
 
 
 # =============================================================================
@@ -474,7 +449,9 @@ def coerce_to_date(value: Any, policy: CoercionPolicy) -> CoercionResult:
                     "datetime", "date", "datetime has non-zero time component"
                 )
             return CoercionResult.ok(
-                result, "datetime", "date",
+                result,
+                "datetime",
+                "date",
                 precision_loss=True,
                 warnings=["time component truncated"],
             )
@@ -508,9 +485,7 @@ def coerce_to_date(value: Any, policy: CoercionPolicy) -> CoercionResult:
         except ValueError:
             pass
 
-        return CoercionResult.fail(
-            "string", "date", f"cannot parse '{value}' as date"
-        )
+        return CoercionResult.fail("string", "date", f"cannot parse '{value}' as date")
 
     # From int (Excel serial date)
     if isinstance(value, int):
@@ -524,9 +499,7 @@ def coerce_to_date(value: Any, policy: CoercionPolicy) -> CoercionResult:
                 pass
         return CoercionResult.fail("int", "date", f"invalid date value {value}")
 
-    return CoercionResult.fail(
-        source_type, "date", f"unsupported source type {source_type}"
-    )
+    return CoercionResult.fail(source_type, "date", f"unsupported source type {source_type}")
 
 
 # =============================================================================
@@ -603,9 +576,7 @@ def coerce_to_datetime(value: Any, policy: CoercionPolicy) -> CoercionResult:
         except ValueError:
             pass
 
-        return CoercionResult.fail(
-            "string", "datetime", f"cannot parse '{value}' as datetime"
-        )
+        return CoercionResult.fail("string", "datetime", f"cannot parse '{value}' as datetime")
 
     # From int/float (Unix timestamp)
     if isinstance(value, (int, float)):
@@ -613,10 +584,6 @@ def coerce_to_datetime(value: Any, policy: CoercionPolicy) -> CoercionResult:
             result = from_unix_timestamp_utc(value)
             return _normalize_result(result, source_type)
         except (ValueError, OSError, OverflowError):
-            return CoercionResult.fail(
-                source_type, "datetime", f"invalid timestamp {value}"
-            )
+            return CoercionResult.fail(source_type, "datetime", f"invalid timestamp {value}")
 
-    return CoercionResult.fail(
-        source_type, "datetime", f"unsupported source type {source_type}"
-    )
+    return CoercionResult.fail(source_type, "datetime", f"unsupported source type {source_type}")

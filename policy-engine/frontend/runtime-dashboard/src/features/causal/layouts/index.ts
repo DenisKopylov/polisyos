@@ -2,7 +2,13 @@ export { hierarchicalLayout } from "./hierarchicalLayout";
 export { forceLayout } from "./forceLayout";
 export { sugiyamaLayout } from "./sugiyamaLayout";
 
-import type { CausalNodeData, CausalEdgeData, LayoutResult, LayoutOptions, LayoutAlgorithm } from "../types";
+import type {
+  CausalNodeData,
+  CausalEdgeData,
+  LayoutResult,
+  LayoutOptions,
+  LayoutAlgorithm,
+} from "../types";
 import { hierarchicalLayout } from "./hierarchicalLayout";
 import { forceLayout } from "./forceLayout";
 import { sugiyamaLayout } from "./sugiyamaLayout";

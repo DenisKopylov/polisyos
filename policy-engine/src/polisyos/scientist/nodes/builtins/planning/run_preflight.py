@@ -1,4 +1,5 @@
 """Public planning run preflight module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -69,6 +70,7 @@ class RunPreflightNode:
     report, and writes readiness diagnostics that determine whether expensive runtime
     stages are allowed to proceed.
     """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -126,7 +128,9 @@ class RunPreflightNode:
             error = NodeError(
                 code=node_errors.ERROR_INVALID_STATE,
                 message="Preflight validation failed",
-                details={"diagnostics": [item.model_dump(mode="json") for item in report.diagnostics]},
+                details={
+                    "diagnostics": [item.model_dump(mode="json") for item in report.diagnostics]
+                },
             )
             return NodeOutcome(
                 status="fail",

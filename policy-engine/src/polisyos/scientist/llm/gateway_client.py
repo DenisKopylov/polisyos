@@ -5,11 +5,12 @@ from __future__ import annotations
 import asyncio
 import json
 import uuid
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from email.utils import parsedate_to_datetime
-from typing import TYPE_CHECKING, Any, AsyncIterator
+from typing import TYPE_CHECKING, Any
 
 import aiohttp
 
@@ -25,6 +26,7 @@ if TYPE_CHECKING:
 @dataclass(slots=True)
 class GatewayUsage:
     """Gateway usage public type."""
+
     prompt_tokens: int = 0
     completion_tokens: int = 0
     total_tokens: int = 0
@@ -44,6 +46,7 @@ class GatewayToolCall:
 @dataclass(slots=True)
 class GatewayLLMResponse:
     """Normalized completion payload with usage, headers, and parsed tool calls."""
+
     content: str
     usage: GatewayUsage = field(default_factory=GatewayUsage)
     model: str = "unknown"
@@ -157,9 +160,7 @@ class GatewayLLMClient:
         self.extra_headers = dict(extra_headers or {})
         self.preset = preset.strip() if isinstance(preset, str) and preset.strip() else None
         self.default_plugins = [
-            dict(plugin)
-            for plugin in (default_plugins or [])
-            if isinstance(plugin, dict)
+            dict(plugin) for plugin in (default_plugins or []) if isinstance(plugin, dict)
         ]
         self._session: aiohttp.ClientSession | None = None
 
@@ -314,7 +315,7 @@ class GatewayLLMClient:
         plugins: list[dict[str, Any]] | None = None,
         timeout: float | None = None,
         **kwargs: Any,
-    ) -> AsyncIterator["StreamChunk"]:
+    ) -> AsyncIterator[StreamChunk]:
         """Stream a chat completion, yielding ``StreamChunk`` objects.
 
         Requires ``polisyos.scientist.llm.streaming`` (imported lazily).
@@ -512,9 +513,7 @@ class GatewayLLMClient:
         )
         if cost_usd is None:
             base_cost = _as_float(_extract_usage_value(usage_payload, "base_cost_usd"))
-            platform_fee = _as_float(
-                _extract_usage_value(usage_payload, "platform_fee_usd")
-            )
+            platform_fee = _as_float(_extract_usage_value(usage_payload, "platform_fee_usd"))
             if base_cost is not None or platform_fee is not None:
                 cost_usd = (base_cost or 0.0) + (platform_fee or 0.0)
         usage = GatewayUsage(
@@ -668,8 +667,8 @@ def _parse_retry_after_seconds(value: str | None) -> float | None:
     except (TypeError, ValueError):
         return None
     if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=timezone.utc)
-    delta = parsed - datetime.now(tz=timezone.utc)
+        parsed = parsed.replace(tzinfo=UTC)
+    delta = parsed - datetime.now(tz=UTC)
     return max(0.0, delta.total_seconds())
 
 
@@ -709,6 +708,6 @@ def _merge_plugins(
 __all__ = [
     "GatewayLLMClient",
     "GatewayLLMResponse",
-    "GatewayUsage",
     "GatewayToolCall",
+    "GatewayUsage",
 ]

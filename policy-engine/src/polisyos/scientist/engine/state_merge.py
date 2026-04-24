@@ -4,6 +4,7 @@ Merges ``NodeOutcome`` results back into a base ``ExperimentState`` by
 applying each outcome's writes using the ``state_writes`` declarations
 from their ``NodeSpec``.
 """
+
 from __future__ import annotations
 
 from copy import deepcopy
@@ -202,7 +203,8 @@ def _resolve_conflicts(
 
     for candidate in staged:
         overlapping = [
-            existing for existing in accepted
+            existing
+            for existing in accepted
             if existing.alias != candidate.alias and _paths_overlap(existing.parts, candidate.parts)
         ]
         if not overlapping:
@@ -229,7 +231,8 @@ def _resolve_conflicts(
             continue
 
         accepted = [
-            existing for existing in accepted
+            existing
+            for existing in accepted
             if not (
                 existing.alias != candidate.alias
                 and _paths_overlap(existing.parts, candidate.parts)

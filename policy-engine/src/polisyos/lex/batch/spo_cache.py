@@ -11,10 +11,12 @@ import hashlib
 import json
 import sqlite3
 import time
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = get_logger(__name__)
 
@@ -45,9 +47,7 @@ class SPOCache:
 
     def get(self, provision_text: str, doc_type: str, model_id: str) -> dict[str, Any] | None:
         key = _cache_key(provision_text, doc_type, model_id)
-        row = self._conn.execute(
-            "SELECT response FROM spo_cache WHERE key = ?", (key,)
-        ).fetchone()
+        row = self._conn.execute("SELECT response FROM spo_cache WHERE key = ?", (key,)).fetchone()
         if row is None:
             self._misses += 1
             return None
@@ -58,7 +58,9 @@ class SPOCache:
             self._misses += 1
             return None
 
-    def put(self, provision_text: str, doc_type: str, model_id: str, response: dict[str, Any]) -> None:
+    def put(
+        self, provision_text: str, doc_type: str, model_id: str, response: dict[str, Any]
+    ) -> None:
         key = _cache_key(provision_text, doc_type, model_id)
         self._conn.execute(
             "INSERT OR REPLACE INTO spo_cache (key, response, ts) VALUES (?, ?, ?)",

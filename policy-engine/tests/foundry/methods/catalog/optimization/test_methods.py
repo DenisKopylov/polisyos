@@ -10,8 +10,8 @@ from polisyos.foundry.methods.optimization import (
     BudgetMILP,
     LeontiefInputOutput,
     OptimizationProblem,
-    ResourceLP,
     ResourceConstraint,
+    ResourceLP,
 )
 
 

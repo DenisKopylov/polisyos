@@ -1,14 +1,11 @@
 """Public normpack select sources module API."""
+
 from __future__ import annotations
 
 from datetime import date
-from pathlib import Path
-from typing import Any
-
-import pandas as pd
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.world.abi import EdgeKind
 from polisyos.ir.world.predicates import WORLD_ARTIFACT_ID, WORLD_KIND, rel
 from polisyos.lex.artifacts import load_doc_meta_artifact
@@ -17,6 +14,14 @@ from polisyos.lex.corpus.versioning import resolve_active_version
 from polisyos.lex.errors import LexNotReadyError, LexValidationError
 from polisyos.lex.factlog import load_world_facts
 from polisyos.lex.types import ActiveVersionStrategy, NormPackBuildRequest, SelectedDocVersion
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    import pandas as pd
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.ir.world.doc import DocMeta
 
 logger = get_logger(__name__)
 
@@ -85,9 +90,7 @@ def select_doc_sources(
                 versions_by_source.setdefault(source_id, []).append(str(row["target_id"]))
 
             all_versions = {
-                version_id
-                for values in versions_by_source.values()
-                for version_id in values
+                version_id for values in versions_by_source.values() for version_id in values
             }
             latest_meta_by_version = latest_object_by_subject(
                 facts,
@@ -147,12 +150,16 @@ def _fallback_select_active_version(
         try:
             meta = load_doc_meta_artifact(cas, artifact_id, payload_label="doc meta artifact")
         except Exception:
-            logger.debug("Failed to load doc meta artifact %s in fallback version selection", artifact_id)
+            logger.debug(
+                "Failed to load doc meta artifact %s in fallback version selection", artifact_id
+            )
             continue
         lex_props = meta.props.get("lex") if isinstance(meta.props, dict) else None
         if not isinstance(lex_props, dict):
             lex_props = {}
-        temporal_props = lex_props.get("temporal") if isinstance(lex_props.get("temporal"), dict) else {}
+        temporal_props = (
+            lex_props.get("temporal") if isinstance(lex_props.get("temporal"), dict) else {}
+        )
         effective_from_raw = temporal_props.get("effective_from") or lex_props.get("effective_from")
         effective_to_raw = temporal_props.get("effective_to") or lex_props.get("effective_to")
         published_at_raw = temporal_props.get("published_at") or lex_props.get("published_at")

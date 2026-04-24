@@ -17,6 +17,7 @@ Rollback path: stop promotion, preserve baseline and candidate reports, then rol
 - release summary или comparator matrix ухудшаются по suite/circuit;
 - benchmark JSON output отличается между двумя одинаковыми runs без
   оправданной nondeterminism note;
+
 - regression попадает в local validation, nightly pack или release review.
 
 ## Likely Causes
@@ -36,6 +37,7 @@ Rollback path: stop promotion, preserve baseline and candidate reports, then rol
 - commit SHA, environment, seed/profile if relevant;
 - regression type: pass rate, latency, NaN rate, comparator completeness,
   release gate, memory/cost;
+
 - был ли regression замечен локально, в nightly или в release review.
 
 ## First Triage Steps
@@ -51,6 +53,7 @@ Rollback path: stop promotion, preserve baseline and candidate reports, then rol
    или benchmark-specific test рядом с suite family.
 3. Сравните generated JSON reports, а не только console summary.
 4. Проверьте, не затронуты ли одновременно:
+
    - dependency upgrades;
    - schema/contract refresh;
    - replay/data fixture drift;
@@ -63,8 +66,10 @@ Rollback path: stop promotion, preserve baseline and candidate reports, then rol
 - если regression severe и confirmed, не повышайте candidate в release;
 - если regression caused by recent merge, откатите offending change или
   temporarily pin feature flag/profile;
+
 - если regression only on one benchmark family, ограничьте blast radius и не
   останавливайте unrelated work без evidence;
+
 - если baseline устарел, обновление baseline допустимо только после явного
   review и rationale.
 
@@ -98,8 +103,8 @@ Rollback path: stop promotion, preserve baseline and candidate reports, then rol
 
 ### Action Items
 
-| Action item | Owner | Due date | Status |
-|---|---|---|---|
-| Add focused regression coverage for the failing benchmark path | `@foundry-owners` | YYYY-MM-DD | open |
-| Clarify benchmark baseline or report interpretation if it was ambiguous | affected owner | YYYY-MM-DD | open |
-| Update release review policy if the regression should block sooner | `@platform-owners` | YYYY-MM-DD | open |
+| Action item                                                             | Owner              | Due date   | Status |
+| ----------------------------------------------------------------------- | ------------------ | ---------- | ------ |
+| Add focused regression coverage for the failing benchmark path          | `@foundry-owners`  | YYYY-MM-DD | open   |
+| Clarify benchmark baseline or report interpretation if it was ambiguous | affected owner     | YYYY-MM-DD | open   |
+| Update release review policy if the regression should block sooner      | `@platform-owners` | YYYY-MM-DD | open   |

@@ -17,15 +17,28 @@ def _coverage_file(covered_lines: int, num_statements: int) -> dict[str, object]
 def _payload_with_all_domains(repo_root: Path) -> dict[str, object]:
     return {
         "files": {
-            str(repo_root / "policy-engine/src/polisyos/foundry/_executor_graph.py"): _coverage_file(95, 100),
-            str(repo_root / "policy-engine/src/polisyos/foundry/mechanisms/fiscal.py"): _coverage_file(90, 100),
-            str(repo_root / "policy-engine/src/polisyos/foundry/methods/catalog/bayesian/regression.py"): _coverage_file(82, 100),
-            str(repo_root / "policy-engine/src/polisyos/foundry/methods/catalog/ml/regression.py"): _coverage_file(75, 100),
-            str(repo_root / "policy-engine/src/polisyos/foundry/methods/catalog/spatial/analysis.py"): _coverage_file(76, 100),
+            str(
+                repo_root / "policy-engine/src/polisyos/foundry/_executor_graph.py"
+            ): _coverage_file(95, 100),
+            str(
+                repo_root / "policy-engine/src/polisyos/foundry/mechanisms/fiscal.py"
+            ): _coverage_file(90, 100),
+            str(
+                repo_root
+                / "policy-engine/src/polisyos/foundry/methods/catalog/bayesian/regression.py"
+            ): _coverage_file(82, 100),
+            str(
+                repo_root / "policy-engine/src/polisyos/foundry/methods/catalog/ml/regression.py"
+            ): _coverage_file(75, 100),
+            str(
+                repo_root / "policy-engine/src/polisyos/foundry/methods/catalog/spatial/analysis.py"
+            ): _coverage_file(76, 100),
             str(repo_root / "policy-engine/src/polisyos/foundry/trace.py"): _coverage_file(3, 10),
             str(repo_root / "policy-engine/src/polisyos/foundry/queue.py"): _coverage_file(4, 10),
             str(repo_root / "policy-engine/src/polisyos/foundry/specs.py"): _coverage_file(5, 10),
-            str(repo_root / "policy-engine/src/polisyos/foundry/profiles.py"): _coverage_file(2, 10),
+            str(repo_root / "policy-engine/src/polisyos/foundry/profiles.py"): _coverage_file(
+                2, 10
+            ),
         }
     }
 
@@ -52,9 +65,9 @@ def test_foundry_domain_coverage_ratchet_reports_threshold_and_missing_domain_fa
     tmp_path: Path,
 ) -> None:
     payload = _payload_with_all_domains(tmp_path)
-    payload["files"][
-        str(tmp_path / "policy-engine/src/polisyos/foundry/mechanisms/fiscal.py")
-    ] = _coverage_file(40, 100)
+    payload["files"][str(tmp_path / "policy-engine/src/polisyos/foundry/mechanisms/fiscal.py")] = (
+        _coverage_file(40, 100)
+    )
     payload["files"].pop(
         str(tmp_path / "policy-engine/src/polisyos/foundry/methods/catalog/spatial/analysis.py")
     )
@@ -65,13 +78,16 @@ def test_foundry_domain_coverage_ratchet_reports_threshold_and_missing_domain_fa
     )
 
     assert any("core_mechanisms" in finding and "40.0%" in finding for finding in findings)
-    assert any("spatial_methods" in finding and "no coverage files matched" in finding for finding in findings)
+    assert any(
+        "spatial_methods" in finding and "no coverage files matched" in finding
+        for finding in findings
+    )
 
 
 def test_summarize_domain_normalizes_absolute_paths_against_repo_root(tmp_path: Path) -> None:
     payload = {
         "files": {
-        str(tmp_path / "policy-engine/src/polisyos/foundry/specs.py"): _coverage_file(7, 10),
+            str(tmp_path / "policy-engine/src/polisyos/foundry/specs.py"): _coverage_file(7, 10),
         }
     }
     target = next(

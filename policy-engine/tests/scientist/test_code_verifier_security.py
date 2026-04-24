@@ -42,11 +42,7 @@ def test_output_is_bounded() -> None:
 
 def test_allows_identifiers_containing_blocked_substrings() -> None:
     sandbox = CodeVerificationSandbox()
-    code = (
-        "costs = [10.0, 20.0, 30.0]\n"
-        "total_cost = sum(costs)\n"
-        "assert total_cost == 60.0\n"
-    )
+    code = "costs = [10.0, 20.0, 30.0]\ntotal_cost = sum(costs)\nassert total_cost == 60.0\n"
     result = sandbox.execute(code)
     assert result.status == VerificationStatus.PASSED
     assert result.passed

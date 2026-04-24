@@ -16,7 +16,6 @@ import uvicorn
 
 from polisyos.runtime.http.app import create_runtime_api_app
 
-
 PROBES = (
     ("/health", {"status": "ok"}),
     ("/ready", {"status": "ready"}),
@@ -25,7 +24,9 @@ PROBES = (
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run release canary probes against a live runtime app")
+    parser = argparse.ArgumentParser(
+        description="Run release canary probes against a live runtime app"
+    )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8010)
     parser.add_argument("--summary", help="Optional markdown summary output path")

@@ -1,20 +1,26 @@
 """Public analytics normative arbitration module API."""
+
 from __future__ import annotations
 
 import math
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.governance.problem_frame import NormativeArbitrationPolicy
 from polisyos.ir.refs import NormativeArbitrationResultRef
+
+if TYPE_CHECKING:
+    from polisyos.ir.governance.problem_frame import NormativeArbitrationPolicy
+else:
+    from polisyos.ir.governance.problem_frame import NormativeArbitrationPolicy
 
 
 class ArbitrationOption(str, Enum):
     """Arbitration option public type."""
+
     BASELINE = "baseline"
     PROPOSAL = "proposal"
     INDETERMINATE = "indeterminate"
@@ -22,12 +28,14 @@ class ArbitrationOption(str, Enum):
 
 class NormativeModelCompleteness(str, Enum):
     """Normative model completeness public type."""
+
     COMPLETE = "complete"
     PARTIAL = "partial"
 
 
 class NormativeAuditStatus(str, Enum):
     """Normative audit status public type."""
+
     SATISFIED = "satisfied"
     VIOLATED = "violated"
     UNEVALUATED = "unevaluated"
@@ -35,6 +43,7 @@ class NormativeAuditStatus(str, Enum):
 
 class OptionOutcomeMatrix(BaseModel):
     """Option outcome matrix data model."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     option: ArbitrationOption
@@ -42,7 +51,7 @@ class OptionOutcomeMatrix(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def _validate_binding_values(self) -> "OptionOutcomeMatrix":
+    def _validate_binding_values(self) -> OptionOutcomeMatrix:
         for key, value in self.binding_values.items():
             if not math.isfinite(value):
                 raise ValueError(f"binding_values.{key} must be finite")
@@ -51,6 +60,7 @@ class OptionOutcomeMatrix(BaseModel):
 
 class StakeholderUtilitySummary(BaseModel):
     """Stakeholder utility summary data model."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     stakeholder_id: str
@@ -61,7 +71,7 @@ class StakeholderUtilitySummary(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def _validate_numbers(self) -> "StakeholderUtilitySummary":
+    def _validate_numbers(self) -> StakeholderUtilitySummary:
         for value in (
             self.baseline_utility,
             self.proposal_utility,
@@ -75,6 +85,7 @@ class StakeholderUtilitySummary(BaseModel):
 
 class RightsAuditEntry(BaseModel):
     """Rights audit entry data model."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     right_id: str
@@ -90,6 +101,7 @@ class RightsAuditEntry(BaseModel):
 
 class HardConstraintAuditEntry(BaseModel):
     """Hard constraint audit entry data model."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     constraint_id: str
@@ -103,6 +115,7 @@ class HardConstraintAuditEntry(BaseModel):
 
 class PolicyOutcome(BaseModel):
     """Policy outcome public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     policy: NormativeArbitrationPolicy
@@ -115,6 +128,7 @@ class PolicyOutcome(BaseModel):
 
 class ResidualDissent(BaseModel):
     """Residual dissent public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     policy: NormativeArbitrationPolicy
@@ -124,6 +138,7 @@ class ResidualDissent(BaseModel):
 
 class NormativeProvenance(BaseModel):
     """Normative provenance public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     trinity_bundle_ref: str | None = None
@@ -136,6 +151,7 @@ class NormativeProvenance(BaseModel):
 
 class TradeoffCertificate(BaseModel):
     """Tradeoff certificate public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     selected_policy: NormativeArbitrationPolicy
@@ -150,6 +166,7 @@ class TradeoffCertificate(BaseModel):
 
 class NormativeArbitrationResult(BaseModel):
     """Normative arbitration result data model."""
+
     model_config = ConfigDict(
         extra="forbid",
         frozen=True,
@@ -178,12 +195,15 @@ class NormativeArbitrationResult(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_selected_policy(self) -> "NormativeArbitrationResult":
+    def _validate_selected_policy(self) -> NormativeArbitrationResult:
         policy_ids = {item.policy for item in self.policy_outcomes}
         if self.selected_policy not in policy_ids:
             raise ValueError("selected_policy must be present in policy_outcomes")
         option_ids = {item.option for item in self.option_matrix}
-        if ArbitrationOption.BASELINE not in option_ids or ArbitrationOption.PROPOSAL not in option_ids:
+        if (
+            ArbitrationOption.BASELINE not in option_ids
+            or ArbitrationOption.PROPOSAL not in option_ids
+        ):
             raise ValueError("option_matrix must include baseline and proposal entries")
         return self
 

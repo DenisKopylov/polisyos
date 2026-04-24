@@ -1,7 +1,9 @@
 """Estimate mediation and controlled-direct-effect decompositions."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -31,6 +33,7 @@ def _result_slot() -> frozenset[SlotSpec]:
 )
 class CausalMediationEstimator:
     """Estimate ACME/ADE under sequential ignorability; avoid post-treatment confounding or mediator-outcome feedback."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -40,8 +43,12 @@ class CausalMediationEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
                 SlotSpec("mediator", SlotType.VECTOR, Unit("mediator", "value"), shape=("n_obs",)),
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
             }
@@ -110,9 +117,9 @@ class CausalMediationEstimator:
         sigma_y = float(np.std(resid_y))
 
         # Approximate SE of ACME
-        var_a_T = sigma_m ** 2 / max(float(np.sum((T - np.mean(T)) ** 2)), 1e-12)
-        var_b_M = sigma_y ** 2 / max(float(np.sum((M - np.mean(M)) ** 2)), 1e-12)
-        se_acme = float(np.sqrt(a_T ** 2 * var_b_M + b_M ** 2 * var_a_T))
+        var_a_T = sigma_m**2 / max(float(np.sum((T - np.mean(T)) ** 2)), 1e-12)
+        var_b_M = sigma_y**2 / max(float(np.sum((M - np.mean(M)) ** 2)), 1e-12)
+        se_acme = float(np.sqrt(a_T**2 * var_b_M + b_M**2 * var_a_T))
 
         return {
             "result": {
@@ -135,6 +142,7 @@ class CausalMediationEstimator:
 )
 class ControlledDirectEffectEstimator:
     """Estimate a controlled direct effect at a fixed mediator level; avoid ill-defined mediator interventions."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -144,16 +152,18 @@ class ControlledDirectEffectEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
                 SlotSpec("mediator", SlotType.VECTOR, Unit("mediator", "value"), shape=("n_obs",)),
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="mediator_level", default=0.0),
-        ),
+        parameters=(ParameterSpec(name="mediator_level", default=0.0),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -193,10 +203,12 @@ class ControlledDirectEffectEstimator:
 
         # SE
         resid = Y - X_y @ b
-        sigma2 = float(np.sum(resid ** 2) / max(n - len(b), 1))
+        sigma2 = float(np.sum(resid**2) / max(n - len(b), 1))
         try:
             cov = sigma2 * np.linalg.inv(X_y.T @ X_y)
-            se_cde = float(np.sqrt(max(cov[1, 1] + m_level ** 2 * cov[3, 3] + 2 * m_level * cov[1, 3], 0.0)))
+            se_cde = float(
+                np.sqrt(max(cov[1, 1] + m_level**2 * cov[3, 3] + 2 * m_level * cov[1, 3], 0.0))
+            )
         except np.linalg.LinAlgError:
             se_cde = float("inf")
 
@@ -246,12 +258,18 @@ class NaturalEffectEstimator:
         name="natural_effects",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-            SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-            SlotSpec("mediator", SlotType.VECTOR, Unit("mediator", "value"), shape=("n_obs",)),
-            SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec("mediator", SlotType.VECTOR, Unit("mediator", "value"), shape=("n_obs",)),
+                SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
+            }
+        ),
         output_slots=_result_slot(),
         parameters=(
             ParameterSpec(name="n_folds", default=2),
@@ -307,7 +325,10 @@ class NaturalEffectEstimator:
         min_propensity = float(params.get("min_propensity", 1e-4))
 
         nde, nde_se, nie, nie_se = _nde_cross_fit(
-            Y, T, M, X,
+            Y,
+            T,
+            M,
+            X,
             n_folds=n_folds,
             rng=rng,
             min_propensity=min_propensity,

@@ -4,8 +4,8 @@ from typing import Any
 
 import pytest
 
-from polisyos.ir.portfolio import PolicyPortfolio
 from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.portfolio import PolicyPortfolio
 from polisyos.scientist.search.controller import SearchConfig, SearchController
 from polisyos.scientist.search.objective import (
     CompositeObjective,

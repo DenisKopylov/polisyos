@@ -1,9 +1,11 @@
 # ADR-0098: CAS Abstraction Boundary for Runtime Services
 
 ## Status
+
 Accepted
 
 ## Date
+
 2026-04-12
 
 ## Context
@@ -25,6 +27,7 @@ bulk import/export behavior.
    backend-specific persistence details. Runtime routes and services do not rely
    on those internals directly.
 3. CAS responsibilities are separated conceptually into:
+
    - blob storage;
    - manifest lifecycle;
    - signing and integrity verification;
@@ -44,13 +47,16 @@ bulk import/export behavior.
 
 - Runtime can switch between filesystem, cloud, or wrapped async stores without
   route-level rewrites.
+
 - Tests can use focused doubles or fixtures without monkeypatching concrete CAS
   internals.
+
 - Integrity and manifest semantics become reviewable as platform contracts.
 
 ### Negative
 
 - Backend-specific optimization surfaces must move behind adapters or explicit
   extension points.
+
 - Transitional compatibility shims add short-term duplication until all callers
   stop depending on legacy backend details.

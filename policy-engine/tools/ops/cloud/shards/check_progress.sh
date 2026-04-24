@@ -7,7 +7,7 @@
 set -euo pipefail
 
 usage() {
-  cat <<'EOF'
+  cat << 'EOF'
 Usage:
   bash tools/cloud/check_progress.sh <ip1> [ip2 ...]
 EOF
@@ -35,7 +35,8 @@ for index in "${!IPS[@]}"; do
   fi
   echo "  Status: ${tmux_status}"
 
-  if ! server_report="$(ssh -o BatchMode=yes -o ConnectTimeout=5 "root@${ip}" "bash -s" <<'REMOTE'
+  if ! server_report="$(
+    ssh -o BatchMode=yes -o ConnectTimeout=5 "root@${ip}" "bash -s" << 'REMOTE'
 set -euo pipefail
 
 log_path="$(find /data/output -name pipeline.log -type f 2>/dev/null | sort | tail -1 || true)"
@@ -68,7 +69,7 @@ else
   echo "  Load: unavailable"
 fi
 REMOTE
-)"; then
+  )"; then
     echo "  DETAILS UNAVAILABLE"
     echo ""
     continue

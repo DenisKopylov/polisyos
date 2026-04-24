@@ -74,8 +74,7 @@ def build_error_envelope(
 ) -> ErrorEnvelope:
     """Construct a serializable error envelope."""
     envelope_details: dict[str, Any] = {
-        str(key): _safe_detail_value(value)
-        for key, value in dict(details or {}).items()
+        str(key): _safe_detail_value(value) for key, value in dict(details or {}).items()
     }
     if exc is not None and "exception_type" not in envelope_details:
         envelope_details["exception_type"] = exc.__class__.__name__
@@ -158,10 +157,7 @@ def _safe_detail_value(value: object) -> object:
     if value is None or isinstance(value, (bool, int, float, str)):
         return value
     if isinstance(value, Mapping):
-        return {
-            str(key): _safe_detail_value(item)
-            for key, item in value.items()
-        }
+        return {str(key): _safe_detail_value(item) for key, item in value.items()}
     if isinstance(value, (list, tuple, set)):
         return [_safe_detail_value(item) for item in value]
     return str(value)

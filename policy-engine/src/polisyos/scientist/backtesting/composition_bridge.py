@@ -1,4 +1,5 @@
 """Replay fragment composition cases through `ReconcileCausalGraphNode` for audit."""
+
 from __future__ import annotations
 
 import logging
@@ -46,6 +47,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 if TYPE_CHECKING:
     from polisyos.ir.analytics.causal_queries import CausalQuery
     from polisyos.ir.artifacts import ArtifactStore as IRArtifactStore
+
     type CompositionStore = CoreArtifactStore
 else:
     IRArtifactStore = Any
@@ -68,6 +70,7 @@ def _default_composition_store_factory(root: Path) -> CompositionStore:
 @dataclass(frozen=True)
 class CompositionReplayResult:
     """Capture composition replay status, query-preservation diagnostics, and artifact signatures."""
+
     node_status: str
     composition_status: str
     composition_structure_status: str
@@ -152,7 +155,9 @@ def replay_fragment_composition_case(
             stitch_pairs=direct_stitch_pairs,
         )
         artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF] = persist_alignment_report(ir_store, report)
-        artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF] = persist_interface_mapping(ir_store, mapping)
+        artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF] = persist_interface_mapping(
+            ir_store, mapping
+        )
 
     state = ExperimentState(
         schema_version="1.3",
@@ -204,9 +209,11 @@ def replay_fragment_composition_case(
     persisted_artifacts = {
         "alignment_report": ARTIFACT_ALIGNMENT_REPORT_REF in outcome.state.artifacts_index,
         "interface_mapping": ARTIFACT_INTERFACE_MAPPING_REF in outcome.state.artifacts_index,
-        "composition_certificate": ARTIFACT_COMPOSITION_CERTIFICATE_REF in outcome.state.artifacts_index,
+        "composition_certificate": ARTIFACT_COMPOSITION_CERTIFICATE_REF
+        in outcome.state.artifacts_index,
         "composed_graph": ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF in outcome.state.artifacts_index,
-        "failure_card_bundle": ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF in outcome.state.artifacts_index,
+        "failure_card_bundle": ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF
+        in outcome.state.artifacts_index,
     }
     composed_graph_signature = None
     if persisted_artifacts["composed_graph"]:
@@ -233,8 +240,7 @@ def replay_fragment_composition_case(
             ),
         )
         failure_cards = [
-            _failure_card_signature(card.model_dump(mode="json"))
-            for card in bundle.cards
+            _failure_card_signature(card.model_dump(mode="json")) for card in bundle.cards
         ]
 
     diagnostics = outcome.state.params.get("reconciliation_diagnostics", {})
@@ -296,8 +302,7 @@ def normalize_alignment_report(report: Any) -> dict[str, Any]:
                 "reviewer": certificate.reviewer.value,
                 "assumptions_introduced": list(certificate.assumptions_introduced),
                 "metadata_checks": [
-                    check.model_dump(mode="json")
-                    for check in certificate.metadata_checks
+                    check.model_dump(mode="json") for check in certificate.metadata_checks
                 ],
                 "metadata": certificate.metadata,
             }
@@ -354,9 +359,7 @@ def normalize_composition_certificate(certificate: Any) -> dict[str, Any]:
         "checked_queries": dict(sorted(certificate.checked_queries.items())),
         "query_certificates": {
             str(key): (
-                value.model_dump(mode="json")
-                if hasattr(value, "model_dump")
-                else dict(value)
+                value.model_dump(mode="json") if hasattr(value, "model_dump") else dict(value)
             )
             for key, value in sorted(getattr(certificate, "query_certificates", {}).items())
         },

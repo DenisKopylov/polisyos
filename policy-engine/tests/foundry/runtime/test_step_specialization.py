@@ -1,8 +1,6 @@
 """Tests for Phase 6: step() specialization with mechanism dispatch and NaN guards."""
-from __future__ import annotations
 
-from dataclasses import dataclass
-from unittest.mock import patch
+from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
@@ -24,14 +22,13 @@ from polisyos.ir.kernel import (
     MergeRuleKind,
     MergeRuleRegistry,
     MergeRuleSpec,
+    SlotKind,
     SlotRegistry,
     SlotScope,
     SlotSpec,
-    SlotKind,
     SlotValueType,
 )
 from polisyos.ir.kernel.merge_rules import MergeRuleRef
-
 
 # ---------------------------------------------------------------------------
 # Helpers: minimal mock mechanism that produces predictable patches
@@ -152,7 +149,10 @@ def test_step_nan_guard_strict_raises():
 
     with pytest.raises(NaNDetectedError) as exc_info:
         step(
-            base_state, controls, key, t=0,
+            base_state,
+            controls,
+            key,
+            t=0,
             static_bundle=bundle,
             nan_guard=guard,
             strictness=ExecutionStrictness.FAIL_CLOSED,
@@ -173,7 +173,10 @@ def test_step_nan_guard_research_logs():
     guard = NaNGuard(enabled=True, check_interval=1, max_diagnostics=10)
 
     new_state, trace = step(
-        base_state, controls, key, t=0,
+        base_state,
+        controls,
+        key,
+        t=0,
         static_bundle=bundle,
         nan_guard=guard,
         strictness=ExecutionStrictness.RESEARCH,

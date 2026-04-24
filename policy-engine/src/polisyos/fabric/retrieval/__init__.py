@@ -13,8 +13,8 @@ __all__ = [
     "ExploreLaneDiscovery",
     "ExploreLaneLimits",
     "FetchExecutor",
-    "RetrievalProviders",
     "ResolveOutcome",
+    "RetrievalProviders",
     "RetrievalService",
     "resolve_retrieval_providers",
 ]

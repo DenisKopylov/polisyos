@@ -9,6 +9,7 @@ Trinity separates one policy payload into three durable questions:
 
 - `ProblemFrame`: what problem is being investigated and under which goals and
   constraints.
+
 - `PolicySpec`: which interventions are being proposed.
 - `ModelSpec`: which world model, data snapshot, and runtime assumptions are
   allowed to execute the policy.
@@ -33,6 +34,7 @@ The split prevents three kinds of accidental coupling:
 - changing the policy question should not force a new model implementation;
 - exploring multiple intervention sets should not require duplicating the same
   world model;
+
 - simulation/runtime assumptions should not be hidden inside narrative problem
   text.
 
@@ -41,11 +43,11 @@ workflows around Trinity refs rather than one monolithic document.
 
 ## Responsibilities
 
-| Contract | Current job | Typical downstream consumer |
-|---|---|---|
-| `ProblemFrame` | goals, constraints, stakeholders, normative framing, KPI intent | Scientist planning and governance |
-| `PolicySpec` | interventions, schedules, mechanism bindings, parameters | Scientist policy-design and Foundry compile |
-| `ModelSpec` | registry bundle, snapshot refs, time semantics, calibration refs, execution assumptions | Foundry compile/execute |
+| Contract       | Current job                                                                             | Typical downstream consumer                 |
+| -------------- | --------------------------------------------------------------------------------------- | ------------------------------------------- |
+| `ProblemFrame` | goals, constraints, stakeholders, normative framing, KPI intent                         | Scientist planning and governance           |
+| `PolicySpec`   | interventions, schedules, mechanism bindings, parameters                                | Scientist policy-design and Foundry compile |
+| `ModelSpec`    | registry bundle, snapshot refs, time semantics, calibration refs, execution assumptions | Foundry compile/execute                     |
 
 ## Linking and Validation
 
@@ -54,6 +56,7 @@ The linker does not only join three objects together. It enforces that:
 - IDs and refs are valid before compile-time lowering;
 - required refs such as registry or snapshot inputs are present when the
   workflow needs them;
+
 - legacy migration paths remain explicit instead of implicit compatibility
   shims.
 

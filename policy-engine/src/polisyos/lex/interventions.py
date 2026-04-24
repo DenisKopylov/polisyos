@@ -4,11 +4,12 @@ Use this module after NormPack/provision mapping steps when legal clauses must b
 ``InterventionSpec`` objects, tunable ``ParameterSpec`` knobs, temporal treatment sequences, or
 hierarchical Scientist policy-search requests.
 """
+
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
 from decimal import Decimal
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from pydantic import Field, model_validator
@@ -20,13 +21,8 @@ from polisyos.foundry.methods.catalog.causal.dtr import (
     OutcomeWeightedLearning,
     QLearningDTR,
 )
-from polisyos.lex.intervention_artifacts import (
-    LexPolicyBundleInput,
-    LexProvisionMappingRegistry,
-)
 from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
 from polisyos.ir.analytics.dynamic_regime import DTRResult, persist_dynamic_treatment_regime
-from polisyos.ir.artifacts import ArtifactStore, InputRef
 from polisyos.ir.governance.policy_spec import (
     InterventionSpec,
     ParameterSpec,
@@ -43,14 +39,18 @@ from polisyos.ir.kernel.values import (
     ParamValue,
     RateValue,
 )
+from polisyos.ir.observation.bundles import StrategicResponseSpec, StrategicResponseSpecsBundle
 from polisyos.ir.observation.causal_execution import (
     TemporalDTRExecutionEntry,
     TemporalDTRTask,
 )
-from polisyos.ir.observation.bundles import StrategicResponseSpec, StrategicResponseSpecsBundle
 from polisyos.ir.observation.contracts import IdentificationMode, StrategicResponseChannel
 from polisyos.ir.refs import EffectTrajectoryBundleRef
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.lex.intervention_artifacts import (
+    LexPolicyBundleInput,
+    LexProvisionMappingRegistry,
+)
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from polisyos.scientist.policy_design.search import (
     HierarchicalSearchConfig,
@@ -58,6 +58,9 @@ from polisyos.scientist.policy_design.search import (
     PolicySearchLevel,
 )
 from polisyos.scientist.search.controller import SearchIteration, SearchResult, SearchStatus
+
+if TYPE_CHECKING:
+    from polisyos.ir.artifacts import ArtifactStore, InputRef
 
 
 class InterventionKnobSpec(KernelModel):
@@ -104,7 +107,7 @@ class LexProvisionDirective(KernelModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_strategy_channels(self) -> "LexProvisionDirective":
+    def _validate_strategy_channels(self) -> LexProvisionDirective:
         if self.strategic_response_expected and not self.transmission_channels:
             raise ValueError(
                 "transmission_channels are required when strategic_response_expected=True"
@@ -279,9 +282,7 @@ class LexInterventionCompiler:
             strategic_response_expected is not None
             and strategic_response_expected != mapping_entry.strategic_response_expected
         ):
-            raise ValueError(
-                "explicit strategic_response_expected conflicts with registry mapping"
-            )
+            raise ValueError("explicit strategic_response_expected conflicts with registry mapping")
         if transmission_channels is not None and tuple(transmission_channels) != tuple(
             mapping_entry.transmission_channels
         ):
@@ -328,9 +329,9 @@ class LexInterventionCompiler:
             raise ValueError(
                 f"knob '{knob.param_id}' references unknown intervention param '{knob.param_path}'"
             )
-        if value != knob.default_value and _param_value_to_decimal(value) == _param_value_to_decimal(
-            knob.default_value
-        ):
+        if value != knob.default_value and _param_value_to_decimal(
+            value
+        ) == _param_value_to_decimal(knob.default_value):
             return
 
     def _validate_knob_bounds(self, knob: InterventionKnobSpec) -> None:
@@ -353,7 +354,9 @@ class TemporalInterventionSequencer:
         *,
         sequence_id: str,
         dynamic_intervention_id: str,
-        steps: Sequence[TemporalInterventionStepInput | TemporalInterventionStep | Mapping[str, Any]],
+        steps: Sequence[
+            TemporalInterventionStepInput | TemporalInterventionStep | Mapping[str, Any]
+        ],
         compiled_interventions: (
             Sequence[CompiledLexIntervention | Mapping[str, Any]]
             | Mapping[str, CompiledLexIntervention | Mapping[str, Any]]
@@ -372,8 +375,7 @@ class TemporalInterventionSequencer:
         """
         compiled_catalog = _normalize_compiled_intervention_catalog(compiled_interventions)
         normalized_steps = [
-            self._normalize_step(step, index)
-            for index, step in enumerate(steps, start=1)
+            self._normalize_step(step, index) for index, step in enumerate(steps, start=1)
         ]
         if compiled_catalog:
             for step in normalized_steps:
@@ -452,9 +454,8 @@ class TemporalInterventionSequencer:
             covariate_sequence[:, :, extra_index] = treatment_sequence
 
         if outcome is None:
-            outcome_array = (
-                treatment_sequence.mean(axis=1, dtype=np.float32)
-                + np.linspace(0.0, 0.09, num=n_units, dtype=np.float32)
+            outcome_array = treatment_sequence.mean(axis=1, dtype=np.float32) + np.linspace(
+                0.0, 0.09, num=n_units, dtype=np.float32
             )
         else:
             outcome_array = np.asarray(outcome, dtype=np.float32)
@@ -548,7 +549,9 @@ class TemporalInterventionSequenceCompiler:
         dtr_result = None
         if dtr_payload is not None:
             dtr_result = (
-                dtr_payload if isinstance(dtr_payload, DTRResult) else DTRResult.model_validate(dtr_payload)
+                dtr_payload
+                if isinstance(dtr_payload, DTRResult)
+                else DTRResult.model_validate(dtr_payload)
             )
         else:
             warnings.append("DTR estimator did not return an optimal regime result.")
@@ -582,19 +585,21 @@ class TemporalInterventionSequenceCompiler:
                         media_type="application/json",
                     )
                 else:
-                    warnings.append("Continuous-time execution completed without a persisted effect bundle.")
+                    warnings.append(
+                        "Continuous-time execution completed without a persisted effect bundle."
+                    )
 
         entry = TemporalDTRExecutionEntry(
             task_id=resolved_task.task_id,
             sequence_id=_optional_id(
-                sequence.sequence_id if sequence is not None else dynamic_data.metadata.get("sequence_id")
+                sequence.sequence_id
+                if sequence is not None
+                else dynamic_data.metadata.get("sequence_id")
             ),
             dynamic_intervention_id=_optional_id(
-                (
-                    sequence.dynamic_intervention_id
-                    if sequence is not None
-                    else dynamic_data.metadata.get("dynamic_intervention_id")
-                )
+                sequence.dynamic_intervention_id
+                if sequence is not None
+                else dynamic_data.metadata.get("dynamic_intervention_id")
             ),
             status="ok" if dtr_result is not None else "blocked",
             dtr_method=resolved_task.dtr_method,
@@ -632,7 +637,9 @@ class TemporalInterventionSequenceCompiler:
         if task.dynamic_treatment_data is not None:
             return task.dynamic_treatment_data, task.temporal_sequence
         if task.bundle_manifest is not None and task.bundle_manifest.contract_payload:
-            return DynamicTreatmentData.model_validate(task.bundle_manifest.contract_payload), task.temporal_sequence
+            return DynamicTreatmentData.model_validate(
+                task.bundle_manifest.contract_payload
+            ), task.temporal_sequence
         sequence = task.temporal_sequence
         if sequence is None:
             sequence = self.sequencer.compile_sequence(
@@ -697,15 +704,14 @@ class StrategicResponseSpecRegistry:
     def from_bundle(
         cls,
         bundle: StrategicResponseSpecsBundle | Mapping[str, Any],
-    ) -> "StrategicResponseSpecRegistry":
+    ) -> StrategicResponseSpecRegistry:
         resolved_bundle = (
             bundle
             if isinstance(bundle, StrategicResponseSpecsBundle)
             else StrategicResponseSpecsBundle.model_validate(bundle)
         )
         return cls(
-            StrategicResponseRegistryEntry(spec=spec)
-            for spec in resolved_bundle.expectations
+            StrategicResponseRegistryEntry(spec=spec) for spec in resolved_bundle.expectations
         )
 
     def register(
@@ -720,8 +726,7 @@ class StrategicResponseSpecRegistry:
         )
         if resolved.spec.intervention_kind in self._entries:
             raise ValueError(
-                "duplicate strategic response spec for "
-                f"'{resolved.spec.intervention_kind}'"
+                f"duplicate strategic response spec for '{resolved.spec.intervention_kind}'"
             )
         self._entries[resolved.spec.intervention_kind] = resolved
         return resolved
@@ -759,10 +764,7 @@ class StrategicResponseSpecRegistry:
 
     def bundle(self) -> StrategicResponseSpecsBundle:
         return StrategicResponseSpecsBundle(
-            expectations=[
-                self._entries[key].spec
-                for key in sorted(self._entries)
-            ]
+            expectations=[self._entries[key].spec for key in sorted(self._entries)]
         )
 
 
@@ -774,10 +776,7 @@ class HierarchicalPolicySearchAdapter:
     def build_request(
         self,
         candidate: (
-            PolicyCandidateSchema
-            | LexPolicyBundleInput
-            | TrinityBundle
-            | Mapping[str, Any]
+            PolicyCandidateSchema | LexPolicyBundleInput | TrinityBundle | Mapping[str, Any]
         ),
         *,
         search_config: HierarchicalSearchConfig | Mapping[str, Any] | None = None,
@@ -915,10 +914,7 @@ class HierarchicalPolicySearchAdapter:
     def validate_policy_design_api(
         self,
         candidate: (
-            PolicyCandidateSchema
-            | LexPolicyBundleInput
-            | TrinityBundle
-            | Mapping[str, Any]
+            PolicyCandidateSchema | LexPolicyBundleInput | TrinityBundle | Mapping[str, Any]
         ),
         *,
         search_config: HierarchicalSearchConfig | Mapping[str, Any] | None = None,
@@ -945,10 +941,7 @@ class HierarchicalPolicySearchAdapter:
     def build_runtime_context(
         self,
         candidate: (
-            PolicyCandidateSchema
-            | LexPolicyBundleInput
-            | TrinityBundle
-            | Mapping[str, Any]
+            PolicyCandidateSchema | LexPolicyBundleInput | TrinityBundle | Mapping[str, Any]
         ),
         *,
         loop_id: str,
@@ -977,9 +970,7 @@ class HierarchicalPolicySearchAdapter:
                 "policy_family": request.policy_family,
                 "candidate_hash": resolved_candidate.candidate_hash(),
                 "task_family": request.policy_family,
-                "domain": str(
-                    request.metadata.get("domain") or resolved_candidate.candidate_id
-                ),
+                "domain": str(request.metadata.get("domain") or resolved_candidate.candidate_id),
             },
             "ukraine_metadata": {
                 "jurisdiction": request.metadata.get("jurisdiction"),
@@ -1001,10 +992,7 @@ class HierarchicalPolicySearchAdapter:
     def run_search(
         self,
         candidate: (
-            PolicyCandidateSchema
-            | LexPolicyBundleInput
-            | TrinityBundle
-            | Mapping[str, Any]
+            PolicyCandidateSchema | LexPolicyBundleInput | TrinityBundle | Mapping[str, Any]
         ),
         *,
         loop_id: str,
@@ -1059,10 +1047,7 @@ class HierarchicalPolicySearchAdapter:
     def _resolve_candidate_payload(
         self,
         candidate: (
-            PolicyCandidateSchema
-            | LexPolicyBundleInput
-            | TrinityBundle
-            | Mapping[str, Any]
+            PolicyCandidateSchema | LexPolicyBundleInput | TrinityBundle | Mapping[str, Any]
         ),
         *,
         policy_family: str | None,
@@ -1243,9 +1228,7 @@ def _coerce_lex_policy_bundle_input(
         return LexPolicyBundleInput(trinity_bundle=bundle_input)
     if isinstance(bundle_input, Mapping) and "trinity_bundle" in bundle_input:
         return LexPolicyBundleInput.model_validate(bundle_input)
-    return LexPolicyBundleInput(
-        trinity_bundle=TrinityBundle.model_validate(bundle_input)
-    )
+    return LexPolicyBundleInput(trinity_bundle=TrinityBundle.model_validate(bundle_input))
 
 
 def _bundle_domain(bundle: TrinityBundle) -> str:
@@ -1269,8 +1252,8 @@ __all__ = [
     "LexProvisionDirective",
     "StrategicResponseRegistryEntry",
     "StrategicResponseSpecRegistry",
-    "TemporalInterventionSequenceCompiler",
     "TemporalInterventionSequenceCompileResult",
+    "TemporalInterventionSequenceCompiler",
     "TemporalInterventionSequencer",
     "TemporalInterventionStepInput",
 ]

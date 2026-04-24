@@ -66,8 +66,18 @@ def test_voi_prioritizes_higher_roi_ticket_first() -> None:
     scheduler = SimpleVOIScheduler(stage_costs={3: Decimal("0.5")})
     decisions = scheduler.prioritize(
         [
-            _ticket(candidate_hash="a", next_level=3, expected_value_proxy=0.9, expected_information_gain=0.2),
-            _ticket(candidate_hash="b", next_level=3, expected_value_proxy=0.3, expected_information_gain=0.9),
+            _ticket(
+                candidate_hash="a",
+                next_level=3,
+                expected_value_proxy=0.9,
+                expected_information_gain=0.2,
+            ),
+            _ticket(
+                candidate_hash="b",
+                next_level=3,
+                expected_value_proxy=0.3,
+                expected_information_gain=0.9,
+            ),
         ],
         _budget(),
         ParetoSnapshot(),
@@ -80,7 +90,14 @@ def test_voi_defers_when_budget_is_insufficient() -> None:
     scheduler = SimpleVOIScheduler(stage_costs={4: Decimal("5.0")})
     budget = _budget(max_usd="1.0")
     decision = scheduler.prioritize(
-        [_ticket(candidate_hash="a", next_level=4, expected_value_proxy=0.9, expected_information_gain=0.2)],
+        [
+            _ticket(
+                candidate_hash="a",
+                next_level=4,
+                expected_value_proxy=0.9,
+                expected_information_gain=0.2,
+            )
+        ],
         budget,
         ParetoSnapshot(),
     )[0]
@@ -90,7 +107,14 @@ def test_voi_defers_when_budget_is_insufficient() -> None:
 def test_voi_rejects_dominated_candidate() -> None:
     scheduler = SimpleVOIScheduler(stage_costs={3: Decimal("0.5")})
     decision = scheduler.prioritize(
-        [_ticket(candidate_hash="dom", next_level=3, expected_value_proxy=0.9, expected_information_gain=0.2)],
+        [
+            _ticket(
+                candidate_hash="dom",
+                next_level=3,
+                expected_value_proxy=0.9,
+                expected_information_gain=0.2,
+            )
+        ],
         _budget(),
         ParetoSnapshot(dominated_candidate_hashes=frozenset({"dom"})),
     )[0]
@@ -100,7 +124,15 @@ def test_voi_rejects_dominated_candidate() -> None:
 def test_voi_requests_retry_cheaper_on_high_timeout_risk_before_level4() -> None:
     scheduler = SimpleVOIScheduler(stage_costs={4: Decimal("0.5")})
     decision = scheduler.prioritize(
-        [_ticket(candidate_hash="slow", next_level=4, expected_value_proxy=0.9, expected_information_gain=0.2, timeout_risk=0.95)],
+        [
+            _ticket(
+                candidate_hash="slow",
+                next_level=4,
+                expected_value_proxy=0.9,
+                expected_information_gain=0.2,
+                timeout_risk=0.95,
+            )
+        ],
         _budget(),
         ParetoSnapshot(),
     )[0]
@@ -161,7 +193,13 @@ def test_predictive_voi_uses_observations_and_snapshot_round_trip() -> None:
                 next_level=4,
                 expected_value_proxy=0.85,
                 expected_information_gain=0.3,
-                context={"transfer_context": type("Transfer", (), {"task_family": "policy", "domain": "fiscal", "tenant_hash": "tenant"})()},
+                context={
+                    "transfer_context": type(
+                        "Transfer",
+                        (),
+                        {"task_family": "policy", "domain": "fiscal", "tenant_hash": "tenant"},
+                    )()
+                },
             )
         ],
         _budget(),
@@ -180,7 +218,13 @@ def test_predictive_voi_uses_observations_and_snapshot_round_trip() -> None:
                 next_level=4,
                 expected_value_proxy=0.85,
                 expected_information_gain=0.3,
-                context={"transfer_context": type("Transfer", (), {"task_family": "policy", "domain": "fiscal", "tenant_hash": "tenant"})()},
+                context={
+                    "transfer_context": type(
+                        "Transfer",
+                        (),
+                        {"task_family": "policy", "domain": "fiscal", "tenant_hash": "tenant"},
+                    )()
+                },
             )
         ],
         _budget(),
@@ -197,7 +241,14 @@ def test_predictive_voi_falls_back_under_drift() -> None:
     scheduler.update_calibration_state({"routing_mode": "conservative_routing"})
 
     decision = scheduler.prioritize(
-        [_ticket(candidate_hash="a", next_level=4, expected_value_proxy=0.9, expected_information_gain=0.2)],
+        [
+            _ticket(
+                candidate_hash="a",
+                next_level=4,
+                expected_value_proxy=0.9,
+                expected_information_gain=0.2,
+            )
+        ],
         _budget(),
         ParetoSnapshot(),
     )[0]
@@ -231,7 +282,13 @@ def test_predictive_voi_requests_retry_cheaper_when_model_support_is_too_low() -
                 next_level=4,
                 expected_value_proxy=0.9,
                 expected_information_gain=0.4,
-                context={"transfer_context": type("Transfer", (), {"task_family": "policy", "domain": "fiscal", "tenant_hash": "tenant"})()},
+                context={
+                    "transfer_context": type(
+                        "Transfer",
+                        (),
+                        {"task_family": "policy", "domain": "fiscal", "tenant_hash": "tenant"},
+                    )()
+                },
             )
         ],
         _budget(),
@@ -324,7 +381,7 @@ def test_predictive_voi_does_not_mix_cross_domain_observations_by_default() -> N
         compute_cost_usd=1.0,
     )
 
-    sliced = scheduler._slice_stage_observations(  # noqa: SLF001
+    sliced = scheduler._slice_stage_observations(
         {"task_family": "policy", "domain": "fiscal", "tenant_hash": "tenant"}
     )
 

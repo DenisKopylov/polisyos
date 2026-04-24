@@ -23,12 +23,13 @@ Or in ``mypy.ini``:
     [mypy]
     plugins = polisyos.foundry.methods.mypy_plugin
 """
+
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 from mypy.plugin import ClassDefContext, Plugin
-from mypy.types import AnyType  # noqa: F401 — kept for potential future checks
+from mypy.types import AnyType
 
 # Fully qualified name of the decorator as mypy resolves it.
 _FOUNDRY_METHOD_DECORATOR = "polisyos.foundry.methods.base.foundry_method"
@@ -40,6 +41,7 @@ _METHOD_SIGNATURE_TYPE = "polisyos.foundry.methods.base.MethodSignature"
 # ---------------------------------------------------------------------------
 # Hook: class decorated with @foundry_method(...)
 # ---------------------------------------------------------------------------
+
 
 def _foundry_method_hook(ctx: ClassDefContext) -> None:
     """Validate a class decorated with @foundry_method(...)."""
@@ -87,12 +89,11 @@ def _foundry_method_hook(ctx: ClassDefContext) -> None:
 # Plugin class
 # ---------------------------------------------------------------------------
 
+
 class FoundryMethodPlugin(Plugin):
     """Mypy plugin entry-point for @foundry_method validation."""
 
-    def get_class_decorator_hook(
-        self, fullname: str
-    ) -> Callable[[ClassDefContext], None] | None:
+    def get_class_decorator_hook(self, fullname: str) -> Callable[[ClassDefContext], None] | None:
         """
         Return our validation hook for the @foundry_method decorator.
 

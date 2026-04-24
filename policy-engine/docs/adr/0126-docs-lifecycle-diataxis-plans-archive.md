@@ -1,9 +1,11 @@
 # ADR-0126: Docs Lifecycle via Diataxis and Plan Buckets
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context

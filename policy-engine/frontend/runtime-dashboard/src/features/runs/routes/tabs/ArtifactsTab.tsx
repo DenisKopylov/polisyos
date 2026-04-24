@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { useSuspenseArtifactContent } from "@/api/hooks/useArtifactContent";
-import { renderArtifactViewer } from "@/features/artifacts";
+import {
+  renderArtifactViewer,
+  resolveArtifactPreviewPayload,
+} from "@/features/artifacts";
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { useI18n } from "@/i18n/LocaleProvider";
@@ -16,6 +19,7 @@ function ArtifactPreviewContent({ artifactId }: { artifactId: string }) {
     maxBytes: 256 * 1024,
   });
   const selectedArtifact = artifactQuery.data.artifact;
+  const resolvedPreview = resolveArtifactPreviewPayload(selectedArtifact);
 
   return (
     <>
@@ -43,7 +47,7 @@ function ArtifactPreviewContent({ artifactId }: { artifactId: string }) {
       </div>
       {renderArtifactViewer({
         kind: selectedArtifact.kind,
-        preview: selectedArtifact.preview,
+        preview: resolvedPreview,
       })}
       <div className="flex justify-end">
         <Link

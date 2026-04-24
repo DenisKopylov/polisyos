@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import csv
 import gzip
-import html
 import hashlib
-import io
+import html
 import json
 import os
 import re
@@ -14,11 +12,11 @@ import shutil
 import subprocess
 import tempfile
 import urllib.request
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 from zipfile import ZipFile
-import xml.etree.ElementTree as ET
 
 import pandas as pd
 
@@ -33,7 +31,6 @@ from polisyos.ukraine_data.manifests import (
     write_manifest,
 )
 from polisyos.ukraine_data.models import BuildRootConfig, SourceConfig, StageId
-
 
 _UKRAINE_OBLAST_CODE_MAP = {
     "вінницька": "05",
@@ -105,7 +102,7 @@ class SourceAdapter(Protocol):
         snapshot: SourceSnapshotManifest,
         ctx: SourceExecutionContext,
         *,
-        identity_resolver: "AgentIdentityResolver | None" = None,
+        identity_resolver: AgentIdentityResolver | None = None,
     ) -> NormalizedArtifactManifest:
         """Produce the normalized parquet output for one source."""
 
@@ -151,9 +148,7 @@ class AgentIdentityResolver:
                 continue
             lookup_map = lookup
             mapped = result.loc[unresolved, column].map(
-                lambda value, lookup_map=lookup_map: lookup_map.get(
-                    self._normalize_identity(value)
-                )
+                lambda value, lookup_map=lookup_map: lookup_map.get(self._normalize_identity(value))
             )
             result.loc[unresolved, "agent_id"] = mapped
             unresolved = result["agent_id"].isna()
@@ -191,7 +186,9 @@ class TabularSourceAdapter:
                 reason=source.optional_reason or "optional_source_not_configured",
                 skipped_at=utc_now_iso(),
             )
-            write_manifest(ctx.manifest_dir(source.source_id) / "skipped_source_manifest.json", manifest)
+            write_manifest(
+                ctx.manifest_dir(source.source_id) / "skipped_source_manifest.json", manifest
+            )
             return manifest
 
         raw_dir = ctx.raw_dir(source.source_id)
@@ -208,7 +205,9 @@ class TabularSourceAdapter:
                 destination = raw_dir / source_path.name
                 resolved_source = source_path.resolve()
                 resolved_raw_root = ctx.build_root.raw_dir.resolve()
-                if resolved_source == raw_dir.resolve() or resolved_source.is_relative_to(resolved_raw_root):
+                if resolved_source == raw_dir.resolve() or resolved_source.is_relative_to(
+                    resolved_raw_root
+                ):
                     destination = source_path
                 if source_path.is_dir():
                     if source_path.resolve() != destination.resolve():
@@ -227,7 +226,9 @@ class TabularSourceAdapter:
             raw_artifacts=raw_artifacts,
             endpoint=source.endpoint,
         )
-        write_manifest(ctx.manifest_dir(source.source_id) / "source_snapshot_manifest.json", manifest)
+        write_manifest(
+            ctx.manifest_dir(source.source_id) / "source_snapshot_manifest.json", manifest
+        )
         return manifest
 
     def normalize(
@@ -266,7 +267,11 @@ class TabularSourceAdapter:
             status="normalized",
             normalized_artifact=ArtifactRecord.from_path(destination, row_count=len(frame)),
             schema_version="1.0",
-            join_keys=[key for key in ("agent_id", "cell_id", "region_code", "sector_id", "period_id") if key in frame.columns],
+            join_keys=[
+                key
+                for key in ("agent_id", "cell_id", "region_code", "sector_id", "period_id")
+                if key in frame.columns
+            ],
             lineage_fields=["source_snapshot_id", "schema_version", "record_hash"],
             findings=findings,
         )
@@ -326,14 +331,10 @@ class TabularSourceAdapter:
                 if not isinstance(item, dict):
                     continue
                 source_agent_id = str(
-                    item.get("payer_edrpou")
-                    or item.get("payer_edrpou_fact")
-                    or ""
+                    item.get("payer_edrpou") or item.get("payer_edrpou_fact") or ""
                 ).strip()
                 target_agent_id = str(
-                    item.get("recipt_edrpou")
-                    or item.get("recipt_edrpou_fact")
-                    or ""
+                    item.get("recipt_edrpou") or item.get("recipt_edrpou_fact") or ""
                 ).strip()
                 if not source_agent_id or not target_agent_id:
                     continue
@@ -342,7 +343,9 @@ class TabularSourceAdapter:
                         "source_agent_id": source_agent_id,
                         "target_agent_id": target_agent_id,
                         "amount": self._coerce_float(item.get("amount") or item.get("amount_cop")),
-                        "period_id": self._coerce_period_id(item.get("trans_date") or item.get("doc_date")),
+                        "period_id": self._coerce_period_id(
+                            item.get("trans_date") or item.get("doc_date")
+                        ),
                         "registration_code": source_agent_id,
                     }
                 )
@@ -352,10 +355,7 @@ class TabularSourceAdapter:
             if len(chunk_frames) >= chunk_file_budget:
                 flush_chunk()
             if index % 32 == 0:
-                print(
-                    f"[ukraine-data] spending normalization prepared {index} raw files into {len(chunk_paths)} parquet chunks",
-                    flush=True,
-                )
+                pass
         flush_chunk()
 
         destination_dir = ctx.normalized_dir(source.source_id)
@@ -461,7 +461,10 @@ class TabularSourceAdapter:
                     message=f"{source.source_id} normalized artifact is missing a SHA256 hash",
                 )
             )
-        if manifest.normalized_artifact.row_count is not None and manifest.normalized_artifact.row_count <= 0:
+        if (
+            manifest.normalized_artifact.row_count is not None
+            and manifest.normalized_artifact.row_count <= 0
+        ):
             findings.append(
                 ValidationFinding(
                     severity="error",
@@ -512,7 +515,9 @@ class TabularSourceAdapter:
             return None, []
         return handler(raw_path)
 
-    def _normalize_edr_current(self, raw_path: Path) -> tuple[pd.DataFrame, list[ValidationFinding]]:
+    def _normalize_edr_current(
+        self, raw_path: Path
+    ) -> tuple[pd.DataFrame, list[ValidationFinding]]:
         rows: list[tuple[str, str, str, str, str]] = []
         findings: list[ValidationFinding] = []
         zip_names = ["UO.zip", "FOP.zip"]
@@ -559,7 +564,9 @@ class TabularSourceAdapter:
         )
         return frame, findings
 
-    def _normalize_spending_full(self, raw_path: Path) -> tuple[pd.DataFrame, list[ValidationFinding]]:
+    def _normalize_spending_full(
+        self, raw_path: Path
+    ) -> tuple[pd.DataFrame, list[ValidationFinding]]:
         findings: list[ValidationFinding] = []
         sample_paths = sorted(raw_path.glob("transactions_sample_*.json"))
         daily_paths = sorted(raw_path.glob("daily/**/*.json.gz"))
@@ -585,14 +592,10 @@ class TabularSourceAdapter:
                 if not isinstance(item, dict):
                     continue
                 source_agent_id = str(
-                    item.get("payer_edrpou")
-                    or item.get("payer_edrpou_fact")
-                    or ""
+                    item.get("payer_edrpou") or item.get("payer_edrpou_fact") or ""
                 ).strip()
                 target_agent_id = str(
-                    item.get("recipt_edrpou")
-                    or item.get("recipt_edrpou_fact")
-                    or ""
+                    item.get("recipt_edrpou") or item.get("recipt_edrpou_fact") or ""
                 ).strip()
                 if not source_agent_id or not target_agent_id:
                     continue
@@ -676,7 +679,9 @@ class TabularSourceAdapter:
                     amount_value = document.get("amount")
                 amount = self._coerce_float(amount_value)
                 period_id = self._coerce_period_id(
-                    document.get("signDate") or document.get("documentDate") or document.get("fromDate")
+                    document.get("signDate")
+                    or document.get("documentDate")
+                    or document.get("fromDate")
                 )
                 contractors = document.get("contractors")
                 supplier_candidates: list[str | None] = []
@@ -691,7 +696,9 @@ class TabularSourceAdapter:
                         supplier_candidates.append((identifier or None, supplier_name))
                 if not supplier_candidates:
                     supplier_candidates = [(None, None)]
-                visible_supplier_candidates = [identifier for identifier, _ in supplier_candidates if identifier]
+                visible_supplier_candidates = [
+                    identifier for identifier, _ in supplier_candidates if identifier
+                ]
                 if visible_supplier_candidates:
                     documents_with_visible_supplier_id += 1
                 else:
@@ -731,18 +738,15 @@ class TabularSourceAdapter:
             return frame, findings
 
         frame = pd.DataFrame.from_records(rows)
-        aggregated = (
-            frame.groupby(
-                ["buyer_agent_id", "supplier_agent_id", "supplier_name", "period_id"],
-                dropna=False,
-                as_index=False,
-            )
-            .agg(
-                amount=("amount", "sum"),
-                contract_count=("contract_count", "sum"),
-                resolved_supplier_contract_count=("resolved_supplier_contract_count", "sum"),
-                prozorro_linked_contract_count=("prozorro_linked_contract_count", "sum"),
-            )
+        aggregated = frame.groupby(
+            ["buyer_agent_id", "supplier_agent_id", "supplier_name", "period_id"],
+            dropna=False,
+            as_index=False,
+        ).agg(
+            amount=("amount", "sum"),
+            contract_count=("contract_count", "sum"),
+            resolved_supplier_contract_count=("resolved_supplier_contract_count", "sum"),
+            prozorro_linked_contract_count=("prozorro_linked_contract_count", "sum"),
         )
         aggregated["registration_code"] = aggregated["buyer_agent_id"]
         aggregated = aggregated[
@@ -797,7 +801,7 @@ class TabularSourceAdapter:
         for path in candidate_paths:
             try:
                 frame = pd.read_excel(path)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 findings.append(
                     ValidationFinding(
                         severity="warning",
@@ -822,19 +826,28 @@ class TabularSourceAdapter:
                     )
                 )
                 continue
-            year_series = pd.to_numeric(frame[year_col], errors="coerce").fillna(
-                self._extract_year_from_name(path.name)
-            ).astype(int)
-            quarter_series = pd.to_numeric(
-                frame[quarter_col] if quarter_col is not None else 4,
-                errors="coerce",
-            ).fillna(4).clip(1, 4).astype(int)
+            year_series = (
+                pd.to_numeric(frame[year_col], errors="coerce")
+                .fillna(self._extract_year_from_name(path.name))
+                .astype(int)
+            )
+            quarter_series = (
+                pd.to_numeric(
+                    frame[quarter_col] if quarter_col is not None else 4,
+                    errors="coerce",
+                )
+                .fillna(4)
+                .clip(1, 4)
+                .astype(int)
+            )
             region_series = frame[region_col] if region_col is not None else "00"
             normalized = pd.DataFrame(
                 {
                     "household_id": [
                         f"hh::{year}::{self._normalize_registration_code(code) or self._stable_token(code)}"
-                        for year, code in zip(year_series.tolist(), frame[family_col].tolist(), strict=False)
+                        for year, code in zip(
+                            year_series.tolist(), frame[family_col].tolist(), strict=False
+                        )
                     ],
                     "cell_id": [
                         f"cell::{region_code}::household_distribution"
@@ -842,16 +855,22 @@ class TabularSourceAdapter:
                     ],
                     "period_id": [
                         self._quarter_to_period_id(year, quarter)
-                        for year, quarter in zip(year_series.tolist(), quarter_series.tolist(), strict=False)
+                        for year, quarter in zip(
+                            year_series.tolist(), quarter_series.tolist(), strict=False
+                        )
                     ],
                     "income": pd.to_numeric(frame[income_col], errors="coerce").fillna(0.0),
                     "weight": pd.to_numeric(frame[weight_col], errors="coerce").fillna(1.0),
                     "market_income": pd.to_numeric(
-                        frame[self._first_existing_column(frame, "cashinc", "CASHINC") or income_col],
+                        frame[
+                            self._first_existing_column(frame, "cashinc", "CASHINC") or income_col
+                        ],
                         errors="coerce",
                     ).fillna(0.0),
                     "total_expenditure": pd.to_numeric(
-                        frame[self._first_existing_column(frame, "totalexp", "TOTALEXP") or income_col],
+                        frame[
+                            self._first_existing_column(frame, "totalexp", "TOTALEXP") or income_col
+                        ],
                         errors="coerce",
                     ).fillna(0.0),
                     "region_code": region_series.map(self._normalize_region_code),
@@ -892,7 +911,7 @@ class TabularSourceAdapter:
         for path in candidate_paths:
             try:
                 frame = pd.read_excel(path, sheet_name=0)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 findings.append(
                     ValidationFinding(
                         severity="warning",
@@ -918,11 +937,15 @@ class TabularSourceAdapter:
                     )
                 )
                 continue
-            year_series = pd.to_numeric(frame[year_col], errors="coerce").fillna(
-                self._extract_year_from_name(path.name)
-            ).astype(int)
+            year_series = (
+                pd.to_numeric(frame[year_col], errors="coerce")
+                .fillna(self._extract_year_from_name(path.name))
+                .astype(int)
+            )
             region_series = frame[region_col] if region_col is not None else "00"
-            participation = frame[labour_force_col].map(self._labor_force_participation_flag).astype(float)
+            participation = (
+                frame[labour_force_col].map(self._labor_force_participation_flag).astype(float)
+            )
             employment = (
                 frame[status_col].map(lambda value: 0.0 if self._is_nullish(value) else 1.0)
                 if status_col is not None
@@ -939,7 +962,9 @@ class TabularSourceAdapter:
                 {
                     "household_id": [
                         f"lfs::{year}::{self._normalize_registration_code(code) or self._stable_token(code)}"
-                        for year, code in zip(year_series.tolist(), frame[id_col].tolist(), strict=False)
+                        for year, code in zip(
+                            year_series.tolist(), frame[id_col].tolist(), strict=False
+                        )
                     ],
                     "cell_id": [
                         f"cell::{region_code}::labor_market"
@@ -993,7 +1018,7 @@ class TabularSourceAdapter:
                     if path.suffix.lower() == ".csv"
                     else pd.read_excel(path, header=None)
                 )
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 findings.append(
                     ValidationFinding(
                         severity="warning",
@@ -1002,19 +1027,26 @@ class TabularSourceAdapter:
                     )
                 )
                 continue
-            rows.extend(self._extract_pfu_debt_rows(frame, period_id=self._extract_period_id_from_name(path.name)))
+            rows.extend(
+                self._extract_pfu_debt_rows(
+                    frame, period_id=self._extract_period_id_from_name(path.name)
+                )
+            )
         frame = pd.DataFrame.from_records(rows)
         if frame.empty:
             return pd.DataFrame(
-                columns=["registration_code", "period_id", "arrears_amount", "debt_amount", "region_code"]
+                columns=[
+                    "registration_code",
+                    "period_id",
+                    "arrears_amount",
+                    "debt_amount",
+                    "region_code",
+                ]
             ), findings
-        aggregated = (
-            frame.groupby(["registration_code", "period_id"], as_index=False)
-            .agg(
-                arrears_amount=("arrears_amount", "sum"),
-                debt_amount=("debt_amount", "sum"),
-                region_code=("region_code", "first"),
-            )
+        aggregated = frame.groupby(["registration_code", "period_id"], as_index=False).agg(
+            arrears_amount=("arrears_amount", "sum"),
+            debt_amount=("debt_amount", "sum"),
+            region_code=("region_code", "first"),
         )
         return aggregated, findings
 
@@ -1078,7 +1110,13 @@ class TabularSourceAdapter:
                 return proxy, findings
 
         return pd.DataFrame(
-            columns=["agent_id", "registration_code", "period_id", "wage_arrears_amount", "region_code"]
+            columns=[
+                "agent_id",
+                "registration_code",
+                "period_id",
+                "wage_arrears_amount",
+                "region_code",
+            ]
         ), findings
 
     def _normalize_distress_events(
@@ -1089,7 +1127,9 @@ class TabularSourceAdapter:
         raw_root = self._resolve_distress_raw_root(raw_path)
         rows: list[dict[str, object]] = []
 
-        bankruptcy_path = raw_root / "bankruptcy_notices" / "001_vidomosti-pro-spravi-pro-bankrutstvo.csv"
+        bankruptcy_path = (
+            raw_root / "bankruptcy_notices" / "001_vidomosti-pro-spravi-pro-bankrutstvo.csv"
+        )
         if bankruptcy_path.exists():
             bankruptcy = pd.read_csv(
                 bankruptcy_path,
@@ -1123,7 +1163,9 @@ class TabularSourceAdapter:
                         chunksize=100_000,
                         low_memory=False,
                     ):
-                        debtor_chunk.columns = [str(column).strip() for column in debtor_chunk.columns]
+                        debtor_chunk.columns = [
+                            str(column).strip() for column in debtor_chunk.columns
+                        ]
                         if "DEBTOR_CODE" not in debtor_chunk.columns:
                             continue
                         for value in debtor_chunk["DEBTOR_CODE"].tolist():
@@ -1142,15 +1184,18 @@ class TabularSourceAdapter:
         frame = pd.DataFrame.from_records(rows)
         if frame.empty:
             return pd.DataFrame(
-                columns=["registration_code", "period_id", "event_count", "event_flag", "region_code"]
+                columns=[
+                    "registration_code",
+                    "period_id",
+                    "event_count",
+                    "event_flag",
+                    "region_code",
+                ]
             ), findings
-        aggregated = (
-            frame.groupby(["registration_code", "period_id"], as_index=False)
-            .agg(
-                event_count=("event_count", "sum"),
-                event_flag=("event_flag", "max"),
-                region_code=("region_code", "first"),
-            )
+        aggregated = frame.groupby(["registration_code", "period_id"], as_index=False).agg(
+            event_count=("event_count", "sum"),
+            event_flag=("event_flag", "max"),
+            region_code=("region_code", "first"),
         )
         return aggregated, findings
 
@@ -1180,7 +1225,7 @@ class TabularSourceAdapter:
             seen.add(resolved)
             try:
                 frame = pd.read_excel(path, sheet_name=0)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 findings.append(
                     ValidationFinding(
                         severity="warning",
@@ -1234,12 +1279,9 @@ class TabularSourceAdapter:
                 columns=["cell_id", "period_id", "mobility_pressure", "region_code"]
             ), findings
         combined = pd.concat(rows, ignore_index=True)
-        aggregated = (
-            combined.groupby(["cell_id", "period_id", "region_code"], as_index=False)
-            .agg(
-                mobility_pressure=("mobility_pressure", "sum"),
-                source_file=("source_file", "first"),
-            )
+        aggregated = combined.groupby(["cell_id", "period_id", "region_code"], as_index=False).agg(
+            mobility_pressure=("mobility_pressure", "sum"),
+            source_file=("source_file", "first"),
         )
         return aggregated, findings
 
@@ -1256,7 +1298,7 @@ class TabularSourceAdapter:
         for path in candidate_paths:
             try:
                 frame = pd.read_excel(path, header=None, sheet_name=0)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 findings.append(
                     ValidationFinding(
                         severity="warning",
@@ -1299,7 +1341,9 @@ class TabularSourceAdapter:
             ), findings
         return pd.DataFrame.from_records(rows), findings
 
-    def _normalize_prozorro_full(self, raw_path: Path) -> tuple[pd.DataFrame, list[ValidationFinding]]:
+    def _normalize_prozorro_full(
+        self, raw_path: Path
+    ) -> tuple[pd.DataFrame, list[ValidationFinding]]:
         detail_paths = sorted(raw_path.glob("contracts_details/page_*.json"))
         if detail_paths:
             rows: list[dict[str, object]] = []
@@ -1321,11 +1365,16 @@ class TabularSourceAdapter:
                     if not isinstance(suppliers, list):
                         suppliers = []
                     buyer_identifier = (
-                        ((buyer.get("identifier") or {}) if isinstance(buyer.get("identifier"), dict) else {})
-                        .get("id")
-                    )
+                        (buyer.get("identifier") or {})
+                        if isinstance(buyer.get("identifier"), dict)
+                        else {}
+                    ).get("id")
                     supplier_identifiers = [
-                        ((supplier.get("identifier") or {}) if isinstance(supplier.get("identifier"), dict) else {}).get("id")
+                        (
+                            (supplier.get("identifier") or {})
+                            if isinstance(supplier.get("identifier"), dict)
+                            else {}
+                        ).get("id")
                         for supplier in suppliers
                         if isinstance(supplier, dict)
                     ]
@@ -1336,13 +1385,17 @@ class TabularSourceAdapter:
                             {
                                 "buyer_agent_id": str(buyer_identifier).strip() or None,
                                 "supplier_agent_id": str(supplier_identifier).strip() or None,
-                                "amount": self._coerce_float((contract.get("value") or {}).get("amount")),
+                                "amount": self._coerce_float(
+                                    (contract.get("value") or {}).get("amount")
+                                ),
                                 "period_id": self._coerce_period_id(
                                     contract.get("dateSigned")
                                     or contract.get("date")
                                     or contract.get("dateModified")
                                 ),
-                                "registration_code": str(buyer_identifier or contract.get("id") or "").strip(),
+                                "registration_code": str(
+                                    buyer_identifier or contract.get("id") or ""
+                                ).strip(),
                                 "contract_id": str(contract.get("id") or "").strip(),
                             }
                         )
@@ -1356,7 +1409,9 @@ class TabularSourceAdapter:
                 message="Normalization uses contracts feed pages; buyer/supplier and amount require detail hydration that is not available in current raw layer.",
             )
         ]
-        page_paths = sorted(raw_path.glob("contracts_feed/page_*.json")) or sorted(raw_path.glob("page_*.json"))
+        page_paths = sorted(raw_path.glob("contracts_feed/page_*.json")) or sorted(
+            raw_path.glob("page_*.json")
+        )
         seed_paths = [path for path in [raw_path / "contracts_seed_page.json"] if path.exists()]
         page_limit = self._seed_limit("POLISYOS_UKRAINE_DATA_PROZORRO_PAGE_LIMIT")
         selected_pages = self._evenly_spaced_paths(page_paths, page_limit)
@@ -1394,7 +1449,9 @@ class TabularSourceAdapter:
         )
         return frame, findings
 
-    def _normalize_macro_panel(self, raw_path: Path) -> tuple[pd.DataFrame, list[ValidationFinding]]:
+    def _normalize_macro_panel(
+        self, raw_path: Path
+    ) -> tuple[pd.DataFrame, list[ValidationFinding]]:
         rows: list[dict[str, object]] = []
         for path in sorted(raw_path.glob("*.json")):
             if path.name.endswith("_package_show.json"):
@@ -1409,7 +1466,9 @@ class TabularSourceAdapter:
                         {
                             "period_id": self._coerce_period_id(record.get("exchangedate")),
                             "metric_id": f"{path.stem}:{currency}:rate",
-                            "observed_value": self._coerce_float(record.get("rate_per_unit") or record.get("rate")),
+                            "observed_value": self._coerce_float(
+                                record.get("rate_per_unit") or record.get("rate")
+                            ),
                             "region_code": "UA00000000000000000",
                         }
                     )
@@ -1418,7 +1477,9 @@ class TabularSourceAdapter:
         frame = pd.DataFrame(rows)
         return frame, []
 
-    def _normalize_dps_financials(self, raw_path: Path) -> tuple[pd.DataFrame, list[ValidationFinding]]:
+    def _normalize_dps_financials(
+        self, raw_path: Path
+    ) -> tuple[pd.DataFrame, list[ValidationFinding]]:
         findings: list[ValidationFinding] = []
         record_limit = self._seed_limit("POLISYOS_UKRAINE_DATA_DPS_RECORD_LIMIT")
         balance_rows = self._parse_dps_zip_records(
@@ -1467,20 +1528,32 @@ class TabularSourceAdapter:
 
         frame = pd.DataFrame(balance_rows)
         if frame.empty:
-            frame = pd.DataFrame(columns=["registration_code", "assets", "liabilities", "employees"])
+            frame = pd.DataFrame(
+                columns=["registration_code", "assets", "liabilities", "employees"]
+            )
         income_frame = pd.DataFrame(income_rows)
         if not income_frame.empty:
             frame = frame.merge(income_frame, on="registration_code", how="outer")
         if "registration_code" not in frame.columns:
             frame["registration_code"] = []
-        frame["agent_id"] = frame["registration_code"].map(lambda value: f"agent::{self._stable_token(value)}")
+        frame["agent_id"] = frame["registration_code"].map(
+            lambda value: f"agent::{self._stable_token(value)}"
+        )
         frame["period_id"] = "2022-12"
         for column in ("revenue", "assets", "liabilities", "employees"):
             if column not in frame.columns:
                 frame[column] = 0.0
             frame[column] = pd.to_numeric(frame[column], errors="coerce").fillna(0.0)
         return frame[
-            ["agent_id", "registration_code", "period_id", "revenue", "assets", "liabilities", "employees"]
+            [
+                "agent_id",
+                "registration_code",
+                "period_id",
+                "revenue",
+                "assets",
+                "liabilities",
+                "employees",
+            ]
         ], findings
 
     def _parse_dps_zip_records(
@@ -1529,7 +1602,7 @@ class TabularSourceAdapter:
         if limit <= 1:
             return [paths[-1]]
         step = (len(paths) - 1) / float(limit - 1)
-        indices = sorted({min(len(paths) - 1, int(round(i * step))) for i in range(limit)})
+        indices = sorted({min(len(paths) - 1, round(i * step)) for i in range(limit)})
         return [paths[index] for index in indices]
 
     @staticmethod
@@ -1688,13 +1761,13 @@ class TabularSourceAdapter:
             if series.empty:
                 continue
             text_values = series.astype(str).map(str.strip)
-            alpha_score = sum(any(char.isalpha() for char in value) for value in text_values.tolist())
+            alpha_score = sum(
+                any(char.isalpha() for char in value) for value in text_values.tolist()
+            )
             if alpha_score <= 0:
                 continue
             region_score = sum(
-                1
-                for value in text_values.tolist()
-                if self._normalize_region_code(value) != "00"
+                1 for value in text_values.tolist() if self._normalize_region_code(value) != "00"
             )
             if region_score > best_score:
                 best_score = region_score
@@ -1728,7 +1801,11 @@ class TabularSourceAdapter:
         text = str(value or "").strip().lower()
         if not text or text == "#null!":
             return 0
-        if "поза робочою силою" in text or "неактив" in text or "не входять до робочої сили" in text:
+        if (
+            "поза робочою силою" in text
+            or "неактив" in text
+            or "не входять до робочої сили" in text
+        ):
             return 0
         return 1
 
@@ -1748,7 +1825,9 @@ class TabularSourceAdapter:
     def _resolve_distress_raw_root(self, raw_path: Path) -> Path:
         candidates = [raw_path, raw_path.parent, raw_path.parent.parent]
         for candidate in candidates:
-            if (candidate / "bankruptcy_notices").exists() or (candidate / "debtor_register").exists():
+            if (candidate / "bankruptcy_notices").exists() or (
+                candidate / "debtor_register"
+            ).exists():
                 return candidate
         return raw_path
 
@@ -1767,7 +1846,9 @@ class TabularSourceAdapter:
         debt_col: int | None = None
         region_col = 0
         for row_index in range(len(normalized)):
-            values = [str(value or "").strip().lower() for value in normalized.iloc[row_index].tolist()]
+            values = [
+                str(value or "").strip().lower() for value in normalized.iloc[row_index].tolist()
+            ]
             if any("єдрпоу" in value for value in values):
                 header_row_index = row_index
                 for idx, value in enumerate(values):
@@ -1779,7 +1860,10 @@ class TabularSourceAdapter:
                         region_col = idx
                 if debt_col is None:
                     for follow_row in range(row_index + 1, min(len(normalized), row_index + 4)):
-                        follow_values = [str(value or "").strip().lower() for value in normalized.iloc[follow_row].tolist()]
+                        follow_values = [
+                            str(value or "").strip().lower()
+                            for value in normalized.iloc[follow_row].tolist()
+                        ]
                         for idx, value in enumerate(follow_values):
                             if "станом на звітну дату" in value or "сума заборгованості" in value:
                                 debt_col = idx
@@ -1821,7 +1905,7 @@ class TabularSourceAdapter:
                     if path.suffix.lower() == ".csv"
                     else pd.read_excel(path, header=None)
                 )
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 findings.append(
                     ValidationFinding(
                         severity="warning",
@@ -1835,8 +1919,12 @@ class TabularSourceAdapter:
             registration_col: int | None = None
             amount_col: int | None = None
             for row_index in range(len(frame)):
-                values = [str(value or "").strip().lower() for value in frame.iloc[row_index].tolist()]
-                if any("назва" in value for value in values) and any("заборг" in value or "сума" in value for value in values):
+                values = [
+                    str(value or "").strip().lower() for value in frame.iloc[row_index].tolist()
+                ]
+                if any("назва" in value for value in values) and any(
+                    "заборг" in value or "сума" in value for value in values
+                ):
                     header_row_index = row_index
                     for idx, value in enumerate(values):
                         if "єдрпоу" in value and registration_col is None:
@@ -1871,24 +1959,27 @@ class TabularSourceAdapter:
                 )
         if not rows:
             return pd.DataFrame(
-                columns=["agent_id", "registration_code", "period_id", "wage_arrears_amount", "region_code"]
+                columns=[
+                    "agent_id",
+                    "registration_code",
+                    "period_id",
+                    "wage_arrears_amount",
+                    "region_code",
+                ]
             ), findings
         frame = pd.DataFrame.from_records(rows)
-        aggregated = (
-            frame.groupby(["agent_id", "registration_code", "period_id"], as_index=False)
-            .agg(
-                wage_arrears_amount=("wage_arrears_amount", "sum"),
-                region_code=("region_code", "first"),
-            )
+        aggregated = frame.groupby(
+            ["agent_id", "registration_code", "period_id"], as_index=False
+        ).agg(
+            wage_arrears_amount=("wage_arrears_amount", "sum"),
+            region_code=("region_code", "first"),
         )
         return aggregated, findings
 
     def _edr_registration_code(self, elem: ET.Element, *, zip_name: str) -> str:
         if "FOP" not in zip_name:
             return (
-                self._xml_child_text(elem, "EDRPOU")
-                or self._xml_child_text(elem, "RECORD")
-                or ""
+                self._xml_child_text(elem, "EDRPOU") or self._xml_child_text(elem, "RECORD") or ""
             ).strip()
         exchange_answers = elem.findall("./EXCHANGE_DATA/EXCHANGE_ANSWER")
         for answer in exchange_answers:
@@ -1915,7 +2006,9 @@ class TabularSourceAdapter:
         obs_dims = dimensions.get("observation", [])
         time_values = []
         if obs_dims:
-            time_values = [item.get("value") or item.get("id") for item in obs_dims[0].get("values", [])]
+            time_values = [
+                item.get("value") or item.get("id") for item in obs_dims[0].get("values", [])
+            ]
         rows: list[dict[str, object]] = []
         for dataset in data_sets:
             if not isinstance(dataset, dict):
@@ -1983,9 +2076,7 @@ class TabularSourceAdapter:
         if "agent_id" not in result.columns and "registration_code" in result.columns:
             result["agent_id"] = result["registration_code"].map(
                 lambda value: (
-                    f"agent::{self._stable_token(value)}"
-                    if not self._is_nullish(value)
-                    else None
+                    f"agent::{self._stable_token(value)}" if not self._is_nullish(value) else None
                 )
             )
         if source.stage_id == StageId.D0_P0 and source.source_id == "edr_current":
@@ -1995,13 +2086,10 @@ class TabularSourceAdapter:
                         lambda value: f"agent::{self._stable_token(value)}"
                     )
                 else:
-                    result["agent_id"] = [
-                        f"agent::{index:08d}" for index in range(len(result))
-                    ]
+                    result["agent_id"] = [f"agent::{index:08d}" for index in range(len(result))]
         if "record_hash" not in result.columns:
             result["record_hash"] = [
-                self._stable_row_hash(row)
-                for row in result.to_dict(orient="records")
+                self._stable_row_hash(row) for row in result.to_dict(orient="records")
             ]
         return result
 

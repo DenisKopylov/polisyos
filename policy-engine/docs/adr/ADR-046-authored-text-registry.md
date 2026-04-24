@@ -1,9 +1,11 @@
 # ADR-046: Authored Text Registry
 
 ## Status
-Proposed
+
+Approved
 
 ## Date
+
 2026-04-22
 
 ## Context
@@ -38,26 +40,29 @@ propagates through the system.
 1. Every string rendered in PolicyOS UI that is **prose with semantic
    content** (sentences in a decision packet, tooltip body text,
    caption of a chart) must carry an `AuthoredText` payload:
+
    ```ts
    type AuthoredText = {
      text: string;
      author_kind: "operator" | "ai" | "cited";
      author: {
-       id: string;              // operator user id, model id, or citation id
-       name?: string;           // display name for operators; model name for AI
-       version?: string;        // prompt_version or model version for AI
+       id: string; // operator user id, model id, or citation id
+       name?: string; // display name for operators; model name for AI
+       version?: string; // prompt_version or model version for AI
      };
-     created_at: string;         // ISO timestamp
-     prompt_ref?: string;        // required when author_kind = "ai"
-     citation_ref?: string;      // required when author_kind = "cited"
-     reviewed_by?: string[];     // operator ids who reviewed
+     created_at: string; // ISO timestamp
+     prompt_ref?: string; // required when author_kind = "ai"
+     citation_ref?: string; // required when author_kind = "cited"
+     reviewed_by?: string[]; // operator ids who reviewed
    };
    ```
+
 2. Excluded from the contract: fixed UI microcopy (button labels, menu
    items, form field labels) — these are code constants, not prose.
 3. The frontend renders `AuthoredText` via a single component
    `<AuthoredTextBlock />` that applies visual treatment per
    `author_kind`:
+
    - `operator`: default typography (Manrope, `--ink`), no marker.
    - `ai`: Manrope with a thin left rule in `var(--gold)` and a
      leading `<Glyph name="evidence" strokeStyle="dashed" />` at 14px;
@@ -81,13 +86,17 @@ propagates through the system.
    governance-pass glyph when `reviewed_by` is non-empty.
 
 Source of truth:
+
 - Backend schema: `policy-engine/src/policy_engine/schemas/authored_text.py`
   (new, Phase 1.6).
+
 - Frontend type: generated from OpenAPI into
   `frontend/runtime-dashboard/src/api/types.ts`.
+
 - Frontend component:
   `frontend/runtime-dashboard/src/shared/authored/AuthoredTextBlock.tsx`
   (new, Phase 1.6).
+
 - Packet compiler: `policy-engine/src/policy_engine/packet/compiler.py`
   gains an `AuthoredText` validator.
 
@@ -95,14 +104,17 @@ Source of truth:
 
 - AI-authored text becomes visually distinct — the primary UX signal
   users wanted from day one.
+
 - The packet compiler gains an invariant that catches the most common
   AI-product failure (ship LLM prose as operator directive).
+
 - Operator review becomes a mechanical, not cultural, gate: a reviewed
   AI paragraph renders differently from an unreviewed one.
+
 - Existing prose in the codebase that does not yet have `AuthoredText`
   metadata will throw at render time in development; migration is
   Phase 1.6's primary cost. A temporary fallback (`author_kind =
-  "operator"` with `author.id = "legacy-import"`) is allowed during
+"operator"` with `author.id = "legacy-import"`) is allowed during
   migration and removed at end of Phase 1.6.
 
 ## Concrete impact
@@ -113,11 +125,14 @@ Files created or modified in Phase 1.6:
 - New: `policy-engine/tests/schemas/test_authored_text.py`
 - Modified: `policy-engine/src/policy_engine/packet/compiler.py`
   (invariant).
+
 - Modified: `policy-engine/src/policy_engine/runtime/routes/packets.py`
   (return `AuthoredText[]` instead of `str`).
+
 - Modified: `policy-engine/schemas/runtime_api_v1.openapi.json`
 - Modified: `frontend/runtime-dashboard/src/api/types.ts`
   (regenerated).
+
 - New: `frontend/runtime-dashboard/src/shared/authored/AuthoredTextBlock.tsx`
 - New: `frontend/runtime-dashboard/src/shared/authored/AuthoredTextBlock.test.tsx`
 - New: `frontend/runtime-dashboard/src/shared/authored/AuthoredTextBlock.stories.tsx`
@@ -131,11 +146,14 @@ Files created or modified in Phase 1.6:
 - Depends on:
   [ADR-0124](0124-llm-idempotency-and-prompt-versioning.md) — LLM
   calls are the source of `author_kind = "ai"` entries.
+
 - Depends on:
   [ADR-0123](0123-artifact-ref-governance.md) — `citation_ref` is an
   `artifact_ref`.
+
 - Related: [ADR-042](ADR-042-janus-atlas-dual-brand.md) — the
   textual counterpart of dual-brand role separation.
+
 - Related: [ADR-043](ADR-043-provenance-law.md) — numerical
   provenance and textual authorship together cover all claims made
   in the UI.

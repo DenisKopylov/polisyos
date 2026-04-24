@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
 
 def extract_unshielded_triples(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
 ) -> list[tuple[str, str, str]]:
     """Return all unshielded triples (A, B, C) where A-B-C but A not adjacent to C.
 
@@ -43,7 +43,6 @@ def extract_unshielded_triples(
     orientation rules may apply differently depending on which end carries
     the arrowhead.
     """
-    from polisyos.foundry.methods.catalog.causal.admg_ops import is_adjacent
 
     # Build adjacency set once
     adj_pairs: set[frozenset[str]] = set()
@@ -64,7 +63,7 @@ def extract_unshielded_triples(
     for b in graph.nodes:
         nbrs = neighbors[b]
         for i, a in enumerate(nbrs):
-            for c in nbrs[i + 1:]:
+            for c in nbrs[i + 1 :]:
                 if frozenset({a, c}) not in adj_pairs:
                     # Unshielded triple a-b-c
                     if (a, b, c) not in seen:
@@ -82,7 +81,7 @@ def extract_unshielded_triples(
 # ---------------------------------------------------------------------------
 
 
-def cpdag_to_pag(cpdag: "CausalGraphModel") -> "CausalGraphModel":
+def cpdag_to_pag(cpdag: CausalGraphModel) -> CausalGraphModel:
     """Convert a CPDAG to PAG form for use in consensus mark merging.
 
     CPDAG semantics:
@@ -116,16 +115,12 @@ def cpdag_to_pag(cpdag: "CausalGraphModel") -> "CausalGraphModel":
         elif e.mark_src is EdgeMark.TAIL and e.mark_dst is EdgeMark.TAIL:
             # Undirected CPDAG edge → fully uncertain PAG edge
             new_edges.append(
-                e.model_copy(
-                    update={"mark_src": EdgeMark.CIRCLE, "mark_dst": EdgeMark.CIRCLE}
-                )
+                e.model_copy(update={"mark_src": EdgeMark.CIRCLE, "mark_dst": EdgeMark.CIRCLE})
             )
         else:
             # Any other combination (shouldn't occur in valid CPDAG, but be conservative)
             new_edges.append(
-                e.model_copy(
-                    update={"mark_src": EdgeMark.CIRCLE, "mark_dst": EdgeMark.CIRCLE}
-                )
+                e.model_copy(update={"mark_src": EdgeMark.CIRCLE, "mark_dst": EdgeMark.CIRCLE})
             )
 
     return CausalGraphModel(
@@ -147,7 +142,7 @@ def cpdag_to_pag(cpdag: "CausalGraphModel") -> "CausalGraphModel":
 
 
 def _get_edge_marks(
-    lookup: dict[tuple[str, str], "CausalEdge"],
+    lookup: dict[tuple[str, str], CausalEdge],
     u: str,
     v: str,
 ) -> tuple | None:
@@ -167,7 +162,7 @@ def _get_edge_marks(
 
 
 def _set_edge_marks(
-    lookup: dict[tuple[str, str], "CausalEdge"],
+    lookup: dict[tuple[str, str], CausalEdge],
     u: str,
     v: str,
     mark_at_u: object,
@@ -182,26 +177,22 @@ def _set_edge_marks(
         e = lookup[(u, v)]
         if e.mark_src == mark_at_u and e.mark_dst == mark_at_v:
             return False
-        lookup[(u, v)] = e.model_copy(
-            update={"mark_src": mark_at_u, "mark_dst": mark_at_v}
-        )
+        lookup[(u, v)] = e.model_copy(update={"mark_src": mark_at_u, "mark_dst": mark_at_v})
         return True
     if (v, u) in lookup:
         e = lookup[(v, u)]
         # For the (v, u) entry, u-end is mark_dst and v-end is mark_src
         if e.mark_dst == mark_at_u and e.mark_src == mark_at_v:
             return False
-        lookup[(v, u)] = e.model_copy(
-            update={"mark_dst": mark_at_u, "mark_src": mark_at_v}
-        )
+        lookup[(v, u)] = e.model_copy(update={"mark_dst": mark_at_u, "mark_src": mark_at_v})
         return True
     return False
 
 
 def _rebuild_graph(
-    original: "CausalGraphModel",
-    lookup: dict[tuple[str, str], "CausalEdge"],
-) -> "CausalGraphModel":
+    original: CausalGraphModel,
+    lookup: dict[tuple[str, str], CausalEdge],
+) -> CausalGraphModel:
     """Rebuild a CausalGraphModel from the mutable edge lookup."""
     from polisyos.ir.analytics.causal_graph import CausalGraphModel
 
@@ -224,10 +215,10 @@ def _rebuild_graph(
 
 
 def apply_pag_orientation_rules(
-    pag: "CausalGraphModel",
+    pag: CausalGraphModel,
     *,
     max_iter: int = 10,
-) -> tuple["CausalGraphModel", list[str]]:
+) -> tuple[CausalGraphModel, list[str]]:
     """Apply Zhang (2008) PAG orientation rules R1–R3 until fixpoint.
 
     Iterates over unshielded triples and directed paths, resolving CIRCLE
@@ -249,12 +240,12 @@ def apply_pag_orientation_rules(
 
     if pag.graph_type is not GraphType.PAG:
         # Cannot apply PAG rules to a non-PAG; return unchanged
-        return pag, [f"apply_pag_orientation_rules: graph_type={pag.graph_type.value}, expected PAG — skipping"]
+        return pag, [
+            f"apply_pag_orientation_rules: graph_type={pag.graph_type.value}, expected PAG — skipping"
+        ]
 
     # Build a mutable edge lookup keyed by canonical (src, dst) pairs
-    lookup: dict[tuple[str, str], "CausalEdge"] = {
-        (e.src, e.dst): e for e in pag.edges
-    }
+    lookup: dict[tuple[str, str], CausalEdge] = {(e.src, e.dst): e for e in pag.edges}
 
     current_graph = pag
     warnings: list[str] = []
@@ -300,9 +291,7 @@ def apply_pag_orientation_rules(
             fwd_adj[src].append(dst)
 
         for alpha, gamma in [
-            (u, v)
-            for (u, v), e in lookup.items()
-            if _get_edge_marks(lookup, u, v) is not None
+            (u, v) for (u, v), e in lookup.items() if _get_edge_marks(lookup, u, v) is not None
         ]:
             marks_ag = _get_edge_marks(lookup, alpha, gamma)
             if marks_ag is None:
@@ -327,9 +316,7 @@ def apply_pag_orientation_rules(
         # ---------------------------------------------------------------
         # Build directed-children index for O(1) intersection in R3.
         # fwd_adj already maps parent → [children] from directed (TAIL→ARROW) edges.
-        fwd_adj_set: dict[str, set[str]] = {
-            k: set(v) for k, v in fwd_adj.items()
-        }
+        fwd_adj_set: dict[str, set[str]] = {k: set(v) for k, v in fwd_adj.items()}
 
         for alpha, beta, gamma in triples:
             # α not adj γ is guaranteed by unshielded triple
@@ -351,7 +338,7 @@ def apply_pag_orientation_rules(
             common_children = children_alpha & children_gamma - {alpha, beta, gamma}
 
             for delta in common_children:
-                marks_db = _get_edge_marks(lookup, delta, beta)   # (mark@delta, mark@beta)
+                marks_db = _get_edge_marks(lookup, delta, beta)  # (mark@delta, mark@beta)
                 if marks_db is None:
                     continue
                 # δ o-* β: mark at δ-end is CIRCLE
@@ -386,7 +373,7 @@ def apply_pag_orientation_rules(
 # ---------------------------------------------------------------------------
 
 
-def validate_pag(pag: "CausalGraphModel") -> list[str]:
+def validate_pag(pag: CausalGraphModel) -> list[str]:
     """Validate a PAG for formal correctness.
 
     Returns a list of human-readable violation strings.  An empty list means
@@ -407,9 +394,7 @@ def validate_pag(pag: "CausalGraphModel") -> list[str]:
 
     # Check 1: graph_type
     if pag.graph_type is not GraphType.PAG:
-        violations.append(
-            f"graph_type_not_pag: got {pag.graph_type.value}"
-        )
+        violations.append(f"graph_type_not_pag: got {pag.graph_type.value}")
         return violations  # remaining checks assume PAG type
 
     # Check 2: almost-directed cycles
@@ -421,42 +406,32 @@ def validate_pag(pag: "CausalGraphModel") -> list[str]:
             # Arrow pointing into e.dst from e.src side: e.src *→ e.dst
             # Check: is there a directed path from e.dst back to e.src?
             if has_directed_path(pag, e.dst, e.src):
-                violations.append(
-                    f"almost_directed_cycle: {e.dst}->...-> {e.src} *-> {e.dst}"
-                )
+                violations.append(f"almost_directed_cycle: {e.dst}->...-> {e.src} *-> {e.dst}")
         if e.mark_src is EdgeMark.ARROW:
             # Arrow pointing into e.src: e.dst *→ e.src
             if has_directed_path(pag, e.src, e.dst):
-                violations.append(
-                    f"almost_directed_cycle: {e.src}->...-> {e.dst} *-> {e.src}"
-                )
+                violations.append(f"almost_directed_cycle: {e.src}->...-> {e.dst} *-> {e.src}")
 
     # Check 3: ambiguous non-collider triples (informational)
     triples = extract_unshielded_triples(pag)
-    lookup: dict[tuple[str, str], "CausalEdge"] = {(e.src, e.dst): e for e in pag.edges}
+    lookup: dict[tuple[str, str], CausalEdge] = {(e.src, e.dst): e for e in pag.edges}
 
     for alpha, beta, gamma in triples:
         marks_ab = _get_edge_marks(lookup, alpha, beta)  # (mark@alpha, mark@beta)
         marks_bg = _get_edge_marks(lookup, beta, gamma)  # (mark@beta, mark@gamma)
         if marks_ab is None or marks_bg is None:
             continue
-        mark_at_beta_from_a = marks_ab[1]   # mark at β from the α-β edge
-        mark_at_beta_from_g = marks_bg[0]   # mark at β from the β-γ edge
+        mark_at_beta_from_a = marks_ab[1]  # mark at β from the α-β edge
+        mark_at_beta_from_g = marks_bg[0]  # mark at β from the β-γ edge
 
         # Collider: both β-ends are ARROW
         is_collider = (
-            mark_at_beta_from_a is EdgeMark.ARROW
-            and mark_at_beta_from_g is EdgeMark.ARROW
+            mark_at_beta_from_a is EdgeMark.ARROW and mark_at_beta_from_g is EdgeMark.ARROW
         )
         if not is_collider:
             # Non-collider or undecided; if both β-ends are CIRCLE → ambiguous
-            if (
-                mark_at_beta_from_a is EdgeMark.CIRCLE
-                and mark_at_beta_from_g is EdgeMark.CIRCLE
-            ):
-                violations.append(
-                    f"ambiguous_noncollider_triple: ({alpha}, {beta}, {gamma})"
-                )
+            if mark_at_beta_from_a is EdgeMark.CIRCLE and mark_at_beta_from_g is EdgeMark.CIRCLE:
+                violations.append(f"ambiguous_noncollider_triple: ({alpha}, {beta}, {gamma})")
 
     # Deduplicate (almost-directed cycle violations may appear twice due to both
     # endpoints being checked)
@@ -470,8 +445,8 @@ def validate_pag(pag: "CausalGraphModel") -> list[str]:
 
 
 __all__ = [
-    "extract_unshielded_triples",
-    "cpdag_to_pag",
     "apply_pag_orientation_rules",
+    "cpdag_to_pag",
+    "extract_unshielded_triples",
     "validate_pag",
 ]

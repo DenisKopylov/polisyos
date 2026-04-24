@@ -47,7 +47,9 @@ def test_normalize_filesystem_path_rejects_nul_bytes() -> None:
         normalize_filesystem_path("bad\x00path", kind="test path")
 
 
-def test_scan_duckdb_skips_unsafe_table_identifiers(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_scan_duckdb_skips_unsafe_table_identifiers(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     db_path = tmp_path / "example.duckdb"
     db_path.write_text("", encoding="utf-8")
 
@@ -127,7 +129,9 @@ def test_migrate_duckdb_to_pg_rejects_malicious_column_names(
             },
         )(),
     )
-    monkeypatch.setattr(migrate_duckdb_to_pg.duckdb, "connect", lambda *_args, **_kwargs: _DuckConnection())
+    monkeypatch.setattr(
+        migrate_duckdb_to_pg.duckdb, "connect", lambda *_args, **_kwargs: _DuckConnection()
+    )
 
     with pytest.raises(ValueError, match="Unsafe column"):
         migrate_duckdb_to_pg.main()
@@ -171,7 +175,9 @@ def test_run_pipeline_dry_run_resumes_existing_snapshot_root(tmp_path: Path) -> 
         encoding="utf-8",
     )
     topics_dir.mkdir(parents=True)
-    (topics_dir / "relevant_topics_sample.csv").write_text("topic_id,name\n1,Test topic\n", encoding="utf-8")
+    (topics_dir / "relevant_topics_sample.csv").write_text(
+        "topic_id,name\n1,Test topic\n", encoding="utf-8"
+    )
     snapshot_root.mkdir(parents=True)
 
     env = os.environ | {

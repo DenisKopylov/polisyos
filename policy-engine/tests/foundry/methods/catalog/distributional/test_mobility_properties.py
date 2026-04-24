@@ -1,11 +1,14 @@
 """Property-based tests for distributional mobility and polarization methods."""
+
 from __future__ import annotations
+
 import sys
+
 import numpy as np
 import pytest
 
 try:
-    from hypothesis import given, settings, HealthCheck
+    from hypothesis import HealthCheck, given, settings
     from hypothesis import strategies as st
     from hypothesis.extra.numpy import arrays
 
@@ -25,10 +28,16 @@ def _method_or_skip(registry, fqn):
 
 class TestTransitionMatrixProperties:
     @given(data=distribution_strategy())
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_transition_rows_sum_to_one(self, data, isolated_registry):
         """Each row of the transition matrix should sum to ~1."""
-        method = _method_or_skip(isolated_registry, "distributional.mobility.transition_matrix@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "distributional.mobility.transition_matrix@1.0.0"
+        )
         n = len(data["income"])
         state = {"income_t0": data["income"], "income_t1": data["income"] * 1.05}
         try:
@@ -42,10 +51,16 @@ class TestTransitionMatrixProperties:
             pass
 
     @given(data=distribution_strategy())
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_transition_matrix_non_negative(self, data, isolated_registry):
         """Transition probabilities must be non-negative."""
-        method = _method_or_skip(isolated_registry, "distributional.mobility.transition_matrix@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "distributional.mobility.transition_matrix@1.0.0"
+        )
         state = {"income_t0": data["income"], "income_t1": data["income"] * 1.05}
         try:
             result = method.pure_step(state, {"n_quantiles": 5})
@@ -59,7 +74,11 @@ class TestTransitionMatrixProperties:
 
 class TestPolarizationProperties:
     @given(data=distribution_strategy())
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_esteban_ray_non_negative(self, data, isolated_registry):
         """Esteban-Ray polarization index should be non-negative."""
         method = _method_or_skip(isolated_registry, "distributional.polarization.esteban_ray@1.0.0")
@@ -74,7 +93,11 @@ class TestPolarizationProperties:
             pass
 
     @given(data=distribution_strategy())
-    @settings(max_examples=15, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=15,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_esteban_ray_deterministic(self, data, isolated_registry):
         """Same input → same polarization index."""
         method = _method_or_skip(isolated_registry, "distributional.polarization.esteban_ray@1.0.0")

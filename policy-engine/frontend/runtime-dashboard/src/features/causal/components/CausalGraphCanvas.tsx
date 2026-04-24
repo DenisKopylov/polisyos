@@ -139,7 +139,13 @@ export function CausalGraphCanvas({
   );
 
   // Panning state
-  const panRef = useRef<{ active: boolean; startX: number; startY: number; originX: number; originY: number }>({
+  const panRef = useRef<{
+    active: boolean;
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+  }>({
     active: false,
     startX: 0,
     startY: 0,
@@ -154,16 +160,25 @@ export function CausalGraphCanvas({
   );
 
   // Derived sets for overlays
-  const adjustmentSetIds = useMemo(() => new Set(adjustmentSet), [adjustmentSet]);
-  const highlightedEdgeIds = useMemo(() => new Set(highlightedPath), [highlightedPath]);
+  const adjustmentSetIds = useMemo(
+    () => new Set(adjustmentSet),
+    [adjustmentSet],
+  );
+  const highlightedEdgeIds = useMemo(
+    () => new Set(highlightedPath),
+    [highlightedPath],
+  );
 
   // ---- Zoom ----
-  const zoom = useCallback((delta: number) => {
-    updateTransform((prev) => ({
-      ...prev,
-      scale: Math.max(MIN_SCALE, Math.min(MAX_SCALE, prev.scale + delta)),
-    }));
-  }, [updateTransform]);
+  const zoom = useCallback(
+    (delta: number) => {
+      updateTransform((prev) => ({
+        ...prev,
+        scale: Math.max(MIN_SCALE, Math.min(MAX_SCALE, prev.scale + delta)),
+      }));
+    },
+    [updateTransform],
+  );
 
   const handleWheel = useCallback(
     (e: ReactWheelEvent) => {
@@ -197,7 +212,8 @@ export function CausalGraphCanvas({
   const handlePointerDown = useCallback(
     (e: ReactPointerEvent) => {
       // Only pan on background click (not nodes/edges)
-      if ((e.target as HTMLElement).closest("[data-node-id], [data-edge-id]")) return;
+      if ((e.target as HTMLElement).closest("[data-node-id], [data-edge-id]"))
+        return;
       panRef.current = {
         active: true,
         startX: e.clientX,
@@ -210,14 +226,17 @@ export function CausalGraphCanvas({
     [transform.x, transform.y],
   );
 
-  const handlePointerMove = useCallback((e: ReactPointerEvent) => {
-    if (!panRef.current.active) return;
-    updateTransform((prev) => ({
-      ...prev,
-      x: panRef.current.originX + (e.clientX - panRef.current.startX),
-      y: panRef.current.originY + (e.clientY - panRef.current.startY),
-    }));
-  }, [updateTransform]);
+  const handlePointerMove = useCallback(
+    (e: ReactPointerEvent) => {
+      if (!panRef.current.active) return;
+      updateTransform((prev) => ({
+        ...prev,
+        x: panRef.current.originX + (e.clientX - panRef.current.startX),
+        y: panRef.current.originY + (e.clientY - panRef.current.startY),
+      }));
+    },
+    [updateTransform],
+  );
 
   const handlePointerUp = useCallback(() => {
     panRef.current.active = false;
@@ -250,17 +269,23 @@ export function CausalGraphCanvas({
     [interaction.selectedEdgeId, onEdgeSelect, updateInteraction],
   );
 
-  const handleNodeHover = useCallback((id: string) => {
-    updateInteraction((prev) => ({ ...prev, hoveredNodeId: id }));
-  }, [updateInteraction]);
+  const handleNodeHover = useCallback(
+    (id: string) => {
+      updateInteraction((prev) => ({ ...prev, hoveredNodeId: id }));
+    },
+    [updateInteraction],
+  );
 
   const handleNodeLeave = useCallback(() => {
     updateInteraction((prev) => ({ ...prev, hoveredNodeId: null }));
   }, [updateInteraction]);
 
-  const handleEdgeHover = useCallback((id: string) => {
-    updateInteraction((prev) => ({ ...prev, hoveredEdgeId: id }));
-  }, [updateInteraction]);
+  const handleEdgeHover = useCallback(
+    (id: string) => {
+      updateInteraction((prev) => ({ ...prev, hoveredEdgeId: id }));
+    },
+    [updateInteraction],
+  );
 
   const handleEdgeLeave = useCallback(() => {
     updateInteraction((prev) => ({ ...prev, hoveredEdgeId: null }));
@@ -277,7 +302,10 @@ export function CausalGraphCanvas({
         case "ArrowDown": {
           e.preventDefault();
           const next = focusedIdx < nodeIds.length - 1 ? focusedIdx + 1 : 0;
-          updateInteraction((prev) => ({ ...prev, focusedNodeId: nodeIds[next] }));
+          updateInteraction((prev) => ({
+            ...prev,
+            focusedNodeId: nodeIds[next],
+          }));
           break;
         }
         case "ArrowLeft":
@@ -290,7 +318,8 @@ export function CausalGraphCanvas({
         case "Enter":
         case " ": {
           e.preventDefault();
-          if (interaction.focusedNodeId) handleNodeClick(interaction.focusedNodeId);
+          if (interaction.focusedNodeId)
+            handleNodeClick(interaction.focusedNodeId);
           break;
         }
         case "Escape": {
@@ -337,8 +366,7 @@ export function CausalGraphCanvas({
         // Dim nodes that have no transportable edges
         return !edges.some(
           (e) =>
-            e.transportable &&
-            (e.source === node.id || e.target === node.id),
+            e.transportable && (e.source === node.id || e.target === node.id),
         );
       }
       return false;
@@ -396,7 +424,9 @@ export function CausalGraphCanvas({
         onPointerUp={handlePointerUp}
         onKeyDown={handleKeyDown}
       >
-        <g transform={`translate(${transform.x}, ${transform.y}) scale(${transform.scale})`}>
+        <g
+          transform={`translate(${transform.x}, ${transform.y}) scale(${transform.scale})`}
+        >
           {/* Edges first (behind nodes) */}
           {edges.map((edge) => {
             const sp = layoutResult.positions.get(edge.source);
@@ -444,7 +474,7 @@ export function CausalGraphCanvas({
       </svg>
 
       {/* Scale indicator */}
-      <div className="text-muted absolute bottom-2 right-3 text-xs">
+      <div className="text-muted absolute right-3 bottom-2 text-xs">
         {Math.round(transform.scale * 100)}%
       </div>
     </div>

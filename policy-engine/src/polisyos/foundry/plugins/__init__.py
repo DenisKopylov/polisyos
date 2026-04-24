@@ -1,4 +1,5 @@
 """Expose the Foundry plugin surface used for discovery and auto-registration."""
+
 from .api import PolisySimulator, SimulationConfig, SimulationResult, TrainingResult
 from .composite import (
     CompositeExecutor,
@@ -24,6 +25,12 @@ from .core import (
 from .discovery import auto_register_plugins, create_simple_plugin, discover_plugins
 
 __all__ = [
+    "CompositeExecutor",
+    "CompositeObjective",
+    "CompositeReward",
+    "CompositeState",
+    "CompositeStateConfig",
+    "CrossDomainInteraction",
     "DomainAgentState",
     "DomainConfig",
     "DomainPlugin",
@@ -33,19 +40,13 @@ __all__ = [
     "PluginCapability",
     "PluginMetadata",
     "PluginRegistry",
-    "RewardProtocol",
-    "get_registry",
-    "CompositeExecutor",
-    "CompositeObjective",
-    "CompositeReward",
-    "CompositeState",
-    "CompositeStateConfig",
-    "CrossDomainInteraction",
-    "auto_register_plugins",
-    "create_simple_plugin",
-    "discover_plugins",
     "PolisySimulator",
+    "RewardProtocol",
     "SimulationConfig",
     "SimulationResult",
     "TrainingResult",
+    "auto_register_plugins",
+    "create_simple_plugin",
+    "discover_plugins",
+    "get_registry",
 ]

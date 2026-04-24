@@ -33,13 +33,14 @@ Usage (programmatic)
     scaffold.write(output_dir=Path("..."))
     print(scaffold.class_name)
 """
+
 from __future__ import annotations
 
 import re
 import textwrap
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Sequence
 
 __all__ = [
     "MethodScaffold",
@@ -286,9 +287,7 @@ class MethodScaffold:
 
         output_dir.mkdir(parents=True, exist_ok=True)
         if method_path.exists() and not overwrite:
-            raise FileExistsError(
-                f"{method_path} already exists. Use overwrite=True to replace."
-            )
+            raise FileExistsError(f"{method_path} already exists. Use overwrite=True to replace.")
         method_path.write_text(self.render_method_file(), encoding="utf-8")
 
         test_dir.mkdir(parents=True, exist_ok=True)
@@ -346,7 +345,9 @@ def main() -> None:
     parser.add_argument("--namespace", required=True, help="Method namespace, e.g. causal.did")
     parser.add_argument("--name", required=True, help="Method name (snake_case)")
     parser.add_argument("--version", default="1.0.0")
-    parser.add_argument("--backend", default="numpy", choices=["numpy", "jax", "solver", "bayesian"])
+    parser.add_argument(
+        "--backend", default="numpy", choices=["numpy", "jax", "solver", "bayesian"]
+    )
     parser.add_argument("--output-dir", required=True, type=Path)
     parser.add_argument("--tag", action="append", dest="tags", default=[])
     parser.add_argument("--description", default="")

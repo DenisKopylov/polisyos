@@ -6,11 +6,13 @@ input shape/backend context?" It does not execute the method and does not
 store artifacts itself; those concerns belong to backend runners and
 `methods.artifacts`.
 """
+
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import jax
 import jax.numpy as jnp
@@ -19,8 +21,8 @@ import numpy as np
 from polisyos.core.canon import content_hash, truncated_hash
 
 __all__ = [
-    "ShapeSpec",
     "BackendSpec",
+    "ShapeSpec",
     "Specialization",
     "build_specialization",
     "compute_static_params_hash",
@@ -41,7 +43,7 @@ class ShapeSpec:
     dtype: str
 
     @classmethod
-    def from_array(cls, arr: jnp.ndarray) -> "ShapeSpec":
+    def from_array(cls, arr: jnp.ndarray) -> ShapeSpec:
         """Create ShapeSpec from a JAX/NumPy array."""
         return cls(
             shape=tuple(int(d) for d in arr.shape),
@@ -135,7 +137,7 @@ class BackendSpec:
         cls,
         precision: str = "float32",
         xla_flags: Sequence[str] | None = None,
-    ) -> "BackendSpec":
+    ) -> BackendSpec:
         """Capture the current JAX backend/platform/device fingerprint."""
         backend = jax.default_backend()
         devices = jax.devices()
@@ -278,13 +280,9 @@ class Specialization:
 
     @property
     def signature_summary(self) -> str:
-        shape_info = ", ".join(
-            f"{name}: {spec.shape}" for name, spec in self.input_shapes
-        )
+        shape_info = ", ".join(f"{name}: {spec.shape}" for name, spec in self.input_shapes)
         return (
-            f"{self.method_fqn} "
-            f"[{self.backend.platform}/{self.backend.precision}] "
-            f"({shape_info})"
+            f"{self.method_fqn} [{self.backend.platform}/{self.backend.precision}] ({shape_info})"
         )
 
 
@@ -354,10 +352,7 @@ def compute_static_params_hash(params: Mapping[str, Any]) -> str:
     Uses canonical JSON serialization to ensure identical parameters always
     produce identical hashes, regardless of key order.
     """
-    sorted_params = {
-        k: _convert_value_for_canonical(v)
-        for k, v in sorted(params.items())
-    }
+    sorted_params = {k: _convert_value_for_canonical(v) for k, v in sorted(params.items())}
 
     try:
         from polisyos.core.canon import to_canonical_bytes
@@ -393,8 +388,7 @@ def build_specialization(
         method_fqn=method_fqn,
         static_params_hash=compute_static_params_hash(static_params),
         input_shapes=tuple(
-            (name, ShapeSpec.from_array(arr))
-            for name, arr in sorted(input_arrays.items())
+            (name, ShapeSpec.from_array(arr)) for name, arr in sorted(input_arrays.items())
         ),
         backend=backend or BackendSpec.current(),
         jit_enabled=jit_enabled,

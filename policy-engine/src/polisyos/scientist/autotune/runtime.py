@@ -1,4 +1,5 @@
 """Public autotune runtime module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -9,12 +10,15 @@ from pydantic import BaseModel
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.search.controller import SearchConfig, SearchController, SearchResult
-from polisyos.scientist.search.objective import BaseObjective, CompositeObjective, OptimizationDirection
+from polisyos.scientist.search.objective import (
+    BaseObjective,
+    CompositeObjective,
+    OptimizationDirection,
+)
 from polisyos.scientist.search.stopping import MaxIterations
 
 from .models import (
     BenchmarkEvaluation,
-    BenchmarkSplit,
     ChampionPointer,
     MetricDirection,
     MutationArtifact,
@@ -32,6 +36,7 @@ ModelT = TypeVar("ModelT", bound=MutationArtifact)
 
 class PydanticMutationCodec(Generic[ModelT]):
     """Pydantic mutation codec public type."""
+
     def __init__(self, model_cls: type[ModelT]) -> None:
         self._model_cls = model_cls
 
@@ -81,6 +86,7 @@ def seed_loop_baseline(
 
 class ChampionBackedRuntimeLoader(Generic[ModelT]):
     """Champion backed runtime loader implementation."""
+
     def __init__(
         self,
         *,
@@ -113,7 +119,7 @@ class ChampionBackedRuntimeLoader(Generic[ModelT]):
         if champion is None:
             champion = self.ensure_baseline(context)
         payload = load_model_artifact(self._store, champion.candidate_ref, self._model_cls)
-        return cast(ModelT, payload)
+        return cast("ModelT", payload)
 
 
 class _AutotuneObjective(BaseObjective):
@@ -139,6 +145,7 @@ class _AutotuneObjective(BaseObjective):
 @dataclass
 class SearchRunArtifacts:
     """Search run artifacts public type."""
+
     candidate_ref: ArtifactRef
     evaluation_ref: ArtifactRef
     evaluation: BenchmarkEvaluation
@@ -146,6 +153,7 @@ class SearchRunArtifacts:
 
 class SequenceCandidateGenerator:
     """Sequence candidate generator implementation."""
+
     def __init__(self, candidates: list[dict[str, Any] | MutationArtifact]) -> None:
         self._candidates = list(candidates)
         self._index = 0
@@ -172,6 +180,7 @@ class SequenceCandidateGenerator:
 
 class SearchLoopRunner:
     """Search loop runner public type."""
+
     def __init__(
         self,
         *,
@@ -236,7 +245,7 @@ class SearchLoopRunner:
         candidate = codec.decode(candidate_payload)
         candidate_ref = persist_mutation_artifact(
             self._store,
-            cast(MutationArtifact, candidate),
+            cast("MutationArtifact", candidate),
             inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
         )
         evaluation = spec.benchmark_evaluator.evaluate(
@@ -281,8 +290,8 @@ class SearchLoopRunner:
 __all__ = [
     "ChampionBackedRuntimeLoader",
     "PydanticMutationCodec",
-    "SequenceCandidateGenerator",
     "SearchLoopRunner",
     "SearchRunArtifacts",
+    "SequenceCandidateGenerator",
     "seed_loop_baseline",
 ]

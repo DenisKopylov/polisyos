@@ -89,24 +89,22 @@ from polisyos.scientist.discovery.workers import (
 from polisyos.scientist.latent_separation import (
     SEPARATION_DIAGNOSTICS_KEY,
     certify_latent_separation_trust,
-    metadata_with_computed_latent_separation,
     merge_latent_separation_diagnostics_payloads,
+    metadata_with_computed_latent_separation,
     separation_diagnostics_payload,
 )
-from polisyos.scientist.search.latent_promotion import evaluate_latent_promotion
 from polisyos.scientist.search.artifact_minimality import (
     ArtifactFunction,
     ArtifactMinimalityMixin,
     artifact_functions_field,
 )
+from polisyos.scientist.search.latent_promotion import evaluate_latent_promotion
 
 DISCOVERY_TASK_PROFILE_SCHEMA_NAME = "polisyos.scientist.discovery.DiscoveryTaskProfile"
 GRAPH_HYPOTHESIS_SET_SCHEMA_NAME = "polisyos.scientist.discovery.GraphHypothesisSet"
 REFUTATION_REPORT_SCHEMA_NAME = "polisyos.scientist.discovery.RefutationReport"
 REPRODUCIBILITY_REPORT_SCHEMA_NAME = "polisyos.scientist.discovery.ReproducibilityReport"
-ACTIVE_DISAMBIGUATION_PLAN_SCHEMA_NAME = (
-    "polisyos.scientist.discovery.ActiveDisambiguationPlan"
-)
+ACTIVE_DISAMBIGUATION_PLAN_SCHEMA_NAME = "polisyos.scientist.discovery.ActiveDisambiguationPlan"
 DISCOVERY_AUDIT_BUNDLE_SCHEMA_NAME = "polisyos.scientist.discovery.DiscoveryAuditBundle"
 DISCOVERY_ARTIFACT_BUNDLE_SCHEMA_NAME = "polisyos.scientist.discovery.DiscoveryArtifactBundle"
 _LATENT_CARDINALITY_METADATA_KEYS = {
@@ -120,6 +118,7 @@ _LATENT_CARDINALITY_METADATA_KEYS = {
 
 class SeedVariationStatus(str, Enum):
     """Seed variation status public type."""
+
     MEASURED = "measured"
     ESTIMATED = "estimated"
     NOT_RUN = "not_run"
@@ -489,10 +488,14 @@ class DiscoveryArtifactBuilder:
             skipped_families={
                 family.value if hasattr(family, "value") else str(family): reason
                 for family, reason in (
-                    (portfolio_result.skipped_families if portfolio_result is not None else {}).items()
+                    (
+                        portfolio_result.skipped_families if portfolio_result is not None else {}
+                    ).items()
                 )
             },
-            portfolio_warnings=list(portfolio_result.warnings if portfolio_result is not None else []),
+            portfolio_warnings=list(
+                portfolio_result.warnings if portfolio_result is not None else []
+            ),
             metadata={
                 "n_hypotheses": len(source.hypotheses),
             },
@@ -697,7 +700,9 @@ class DiscoveryArtifactBuilder:
             skipped_families={
                 family.value if hasattr(family, "value") else str(family): reason
                 for family, reason in (
-                    (portfolio_result.skipped_families if portfolio_result is not None else {}).items()
+                    (
+                        portfolio_result.skipped_families if portfolio_result is not None else {}
+                    ).items()
                 )
             },
             warnings=[
@@ -1026,11 +1031,7 @@ def _merge_proxy_boundary_payloads(values: list[dict[str, Any]]) -> dict[str, An
 
 
 def _latent_cardinality_payload(metadata: dict[str, Any]) -> dict[str, Any] | None:
-    payload = {
-        key: metadata[key]
-        for key in _LATENT_CARDINALITY_METADATA_KEYS
-        if key in metadata
-    }
+    payload = {key: metadata[key] for key in _LATENT_CARDINALITY_METADATA_KEYS if key in metadata}
     return payload or None
 
 
@@ -1141,11 +1142,7 @@ def _merge_latent_promotion_evidence(
         scope_regime = sorted(set.intersection(*scope_sets))
     else:
         scope_regime = _dedupe_preserve_order(
-            [
-                value
-                for evidence in evidences
-                for value in evidence.scope_regime
-            ]
+            [value for evidence in evidences for value in evidence.scope_regime]
         )
 
     invariance_level = min(
@@ -1155,9 +1152,7 @@ def _merge_latent_promotion_evidence(
 
     return LatentPromotionEvidence(
         observable_implication_refs=_merge_ref_list("observable_implication_refs"),
-        local_misspecification_test_refs=_merge_ref_list(
-            "local_misspecification_test_refs"
-        ),
+        local_misspecification_test_refs=_merge_ref_list("local_misspecification_test_refs"),
         environment_stability_ref=_merge_single_ref("environment_stability_ref"),
         rival_explanation_audit_ref=_merge_single_ref("rival_explanation_audit_ref"),
         external_evidence_refs=_merge_ref_list("external_evidence_refs"),
@@ -1173,9 +1168,7 @@ def _merge_latent_promotion_evidence(
         structural_interpretation_rejected=any(
             evidence.structural_interpretation_rejected for evidence in evidences
         ),
-        notes=_dedupe_preserve_order(
-            [note for evidence in evidences for note in evidence.notes]
-        ),
+        notes=_dedupe_preserve_order([note for evidence in evidences for note in evidence.notes]),
     )
 
 
@@ -1314,11 +1307,7 @@ def merge_latent_discovery_hypotheses(
         human_gate_required=True,
         promotion_allowed=False,
         no_promotion_reasons=_dedupe_preserve_order(
-            [
-                reason
-                for reason in no_promotion_reasons
-                if reason != "latent_discovery_proof_only"
-            ]
+            [reason for reason in no_promotion_reasons if reason != "latent_discovery_proof_only"]
         ),
         not_for_decision_support=True,
         promotion_evidence=merged_promotion_evidence,
@@ -1395,10 +1384,7 @@ def load_graph_hypotheses_for_bundle(
 ) -> list[GraphHypothesis]:
     """Load graph hypotheses for bundle."""
     hypothesis_set = load_graph_hypothesis_set(store, bundle.graph_hypothesis_set_ref)
-    return [
-        load_graph_hypothesis(store, ref)
-        for ref in hypothesis_set.graph_hypothesis_refs
-    ]
+    return [load_graph_hypothesis(store, ref) for ref in hypothesis_set.graph_hypothesis_refs]
 
 
 def load_source_discovery_reports_for_bundle(
@@ -1463,22 +1449,22 @@ def _estimate_seed_variation_score(
 
 __all__ = [
     "ACTIVE_DISAMBIGUATION_PLAN_SCHEMA_NAME",
+    "DISCOVERY_ARTIFACT_BUNDLE_SCHEMA_NAME",
+    "DISCOVERY_AUDIT_BUNDLE_SCHEMA_NAME",
+    "DISCOVERY_TASK_PROFILE_SCHEMA_NAME",
+    "GRAPH_HYPOTHESIS_SET_SCHEMA_NAME",
+    "REFUTATION_REPORT_SCHEMA_NAME",
+    "REPRODUCIBILITY_REPORT_SCHEMA_NAME",
     "ActiveDisambiguationConfig",
     "ActiveDisambiguationPlan",
     "ActiveDisambiguationPlanner",
     "ActiveDisambiguationPlannerInput",
-    "DISCOVERY_ARTIFACT_BUNDLE_SCHEMA_NAME",
-    "DISCOVERY_AUDIT_BUNDLE_SCHEMA_NAME",
-    "DISCOVERY_TASK_PROFILE_SCHEMA_NAME",
     "DiscoveryArtifactBuildInput",
     "DiscoveryArtifactBuilder",
     "DiscoveryArtifactBundle",
     "DiscoveryAuditBundle",
     "DiscoveryTaskProfile",
-    "GRAPH_HYPOTHESIS_SET_SCHEMA_NAME",
     "GraphHypothesisSet",
-    "REFUTATION_REPORT_SCHEMA_NAME",
-    "REPRODUCIBILITY_REPORT_SCHEMA_NAME",
     "RefutationReport",
     "ReproducibilityReport",
     "load_active_disambiguation_plan",
@@ -1490,12 +1476,12 @@ __all__ = [
     "load_edge_confidence_matrix",
     "load_graph_hypotheses_for_bundle",
     "load_graph_hypothesis_set",
-    "load_merged_latent_discovery_bundle",
     "load_graph_prior_bundle",
+    "load_merged_latent_discovery_bundle",
     "load_prior_knowledge_bundle",
-    "load_source_discovery_reports_for_bundle",
     "load_refutation_report",
     "load_reproducibility_report",
+    "load_source_discovery_reports_for_bundle",
     "merge_latent_discovery_hypotheses",
     "persist_active_disambiguation_plan",
     "persist_discovery_artifact_bundle",

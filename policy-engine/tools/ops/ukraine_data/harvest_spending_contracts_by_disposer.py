@@ -32,16 +32,22 @@ import sys
 import threading
 from dataclasses import dataclass
 from pathlib import Path
-from tools._lib.imports import repo_root_from
 from typing import Any
 from urllib.parse import urlencode
 
 import duckdb
 
+from tools._lib.imports import repo_root_from
+
 if __package__ in {None, ""}:
     sys.path.insert(0, str(repo_root_from(__file__)))
 
-from tools._lib.fs import atomic_write_bytes, atomic_write_json, exclusive_lock, write_json_exclusive
+from tools._lib.fs import (
+    atomic_write_bytes,
+    atomic_write_json,
+    exclusive_lock,
+    write_json_exclusive,
+)
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -521,7 +527,9 @@ def _harvest_slice(
     if sign_date_range is not None:
         range_hint = f"sign={sign_date_range[0].isoformat()}..{sign_date_range[1].isoformat()}"
     elif document_date_range is not None:
-        range_hint = f"document={document_date_range[0].isoformat()}..{document_date_range[1].isoformat()}"
+        range_hint = (
+            f"document={document_date_range[0].isoformat()}..{document_date_range[1].isoformat()}"
+        )
     elif amount_split is not None:
         range_hint = f"amount={amount_split[0]:.2f}..{amount_split[2]:.2f}"
     return (
@@ -644,8 +652,12 @@ def main(argv: list[str] | None = None) -> int:
             def _record(result: HarvestResult) -> None:
                 with lock:
                     if result.error is None:
-                        state["completed_count"] = int(state["completed_count"]) + (0 if result.skipped_existing else 1)
-                        state["document_count"] = int(state["document_count"]) + result.document_count
+                        state["completed_count"] = int(state["completed_count"]) + (
+                            0 if result.skipped_existing else 1
+                        )
+                        state["document_count"] = (
+                            int(state["document_count"]) + result.document_count
+                        )
                         state["slice_count"] = int(state["slice_count"]) + result.slice_count
                         state["last_completed_id"] = result.disposer_id
                     else:
@@ -655,7 +667,9 @@ def main(argv: list[str] | None = None) -> int:
                         state["failed_count"] = len(failed_ids)
                     completed_count = int(state["completed_count"])
                     failed_count = int(state["failed_count"])
-                    state["pending_count"] = max(0, len(disposer_ids) - completed_count - failed_count)
+                    state["pending_count"] = max(
+                        0, len(disposer_ids) - completed_count - failed_count
+                    )
                     state["last_updated_at"] = dt.datetime.now(dt.UTC).isoformat()
                     atomic_write_json(state_path, state)
                     if result.error is None:
@@ -670,7 +684,12 @@ def main(argv: list[str] | None = None) -> int:
 
             with cf.ThreadPoolExecutor(max_workers=max(1, args.workers)) as executor:
                 futures = [
-                    executor.submit(_harvest_disposer, disposer_id, raw_root=contracts_root, max_time=args.max_time)
+                    executor.submit(
+                        _harvest_disposer,
+                        disposer_id,
+                        raw_root=contracts_root,
+                        max_time=args.max_time,
+                    )
                     for disposer_id in pending
                 ]
                 for future in cf.as_completed(futures):

@@ -25,7 +25,7 @@ class ToolDependencyGraph:
         iterations).
         """
         request_set = set(requested)
-        in_degree: dict[str, int] = {name: 0 for name in requested}
+        in_degree: dict[str, int] = dict.fromkeys(requested, 0)
         adj: dict[str, list[str]] = {name: [] for name in requested}
 
         for name in requested:

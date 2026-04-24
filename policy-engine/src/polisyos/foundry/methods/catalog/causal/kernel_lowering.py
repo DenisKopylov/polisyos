@@ -1,15 +1,15 @@
 """Kernel/RKHS lowering rules for proof-certified causal estimands."""
+
 from __future__ import annotations
 
 from typing import Any
 
 from polisyos.ir.analytics.estimand import (
-    DistributionLawNode,
     DistributionDomain,
+    DistributionLawNode,
     DistributionRef,
     EstimandAST,
     EventPredicate,
-    SideConditionKind,
 )
 from polisyos.ir.analytics.kernel_causal import (
     KernelConsistencyClaim,
@@ -84,10 +84,14 @@ def build_kernel_estimator_spec(
     elif template is None:
         disposition = KernelLoweringDisposition.UNSUPPORTED
         blocking_reasons.append(f"unsupported_shape={shape}")
-    elif template in {
-        KernelEstimatorTemplate.KIV,
-        KernelEstimatorTemplate.PROXIMAL_MINIMAX,
-    } and not operator_certificate:
+    elif (
+        template
+        in {
+            KernelEstimatorTemplate.KIV,
+            KernelEstimatorTemplate.PROXIMAL_MINIMAX,
+        }
+        and not operator_certificate
+    ):
         disposition = KernelLoweringDisposition.PROOF_ONLY
         blocking_reasons.append("operator_certificate_missing")
     elif (
@@ -109,7 +113,8 @@ def build_kernel_estimator_spec(
     regularization = KernelRegularization(
         selection=(
             KernelRegularizationSelection.STABILITY_GUARDED_CV
-            if template not in {
+            if template
+            not in {
                 KernelEstimatorTemplate.KIV,
                 KernelEstimatorTemplate.PROXIMAL_MINIMAX,
             }
@@ -359,17 +364,17 @@ def _node_has_event(node: Any) -> bool:
     if isinstance(node, DistributionRef):
         return isinstance(node.event, EventPredicate)
     if hasattr(node, "operand"):
-        return _node_has_event(getattr(node, "operand"))
+        return _node_has_event(node.operand)
     if hasattr(node, "factors"):
-        return any(_node_has_event(child) for child in getattr(node, "factors"))
+        return any(_node_has_event(child) for child in node.factors)
     if hasattr(node, "numerator") or hasattr(node, "denominator"):
         return _node_has_event(getattr(node, "numerator", None)) or _node_has_event(
             getattr(node, "denominator", None)
         )
     if hasattr(node, "inner_do_node"):
-        return _node_has_event(getattr(node, "inner_do_node"))
+        return _node_has_event(node.inner_do_node)
     if hasattr(node, "inner_node"):
-        inner = getattr(node, "inner_node")
+        inner = node.inner_node
         return False if inner is None else _node_has_event(inner)
     return False
 

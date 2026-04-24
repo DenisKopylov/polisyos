@@ -74,7 +74,12 @@ class GridSearchStrategy(BaseSearchStrategy):
                 continue
             if bound.dtype == ParameterType.INTEGER:
                 values = [
-                    int(round(bound.lower + i * (bound.upper - bound.lower) / (self._points_per_dim - 1)))
+                    int(
+                        round(
+                            bound.lower
+                            + i * (bound.upper - bound.lower) / (self._points_per_dim - 1)
+                        )
+                    )
                     for i in range(self._points_per_dim)
                 ]
                 dedup = sorted(set(values))
@@ -82,7 +87,9 @@ class GridSearchStrategy(BaseSearchStrategy):
                 continue
             per_dim_values.append(
                 [
-                    float(bound.lower + i * (bound.upper - bound.lower) / (self._points_per_dim - 1))
+                    float(
+                        bound.lower + i * (bound.upper - bound.lower) / (self._points_per_dim - 1)
+                    )
                     for i in range(self._points_per_dim)
                 ]
             )
@@ -94,4 +101,3 @@ class GridSearchStrategy(BaseSearchStrategy):
             if len(output) >= self._max_candidates:
                 break
         return output
-

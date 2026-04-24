@@ -56,4 +56,3 @@ class SuccessiveHalvingScheduler:
     def register_evaluation(self, candidate_id: str, fidelity: int, score: float) -> None:
         self._scores_by_fidelity.setdefault(fidelity, []).append((candidate_id, score))
         self._candidate_fidelity[candidate_id] = fidelity
-

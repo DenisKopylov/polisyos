@@ -162,7 +162,8 @@ def test_confidence_pass_non_gate_eligible_triggers_gate_ratio_blocker(tmp_path)
         uncertainty_envelopes={"m": env_ref},
     )
     sim_ref = store.put_json(
-        sim, PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+        sim,
+        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
     )
     ctx = PassContext(
         ir=None,

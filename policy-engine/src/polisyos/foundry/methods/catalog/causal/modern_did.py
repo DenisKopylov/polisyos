@@ -1,7 +1,9 @@
 """Estimate modern staggered-adoption DiD variants with robust cohort/event-time aggregation."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -12,7 +14,6 @@ from polisyos.foundry.methods.base import (
     FidelityLevel,
     MethodMetadata,
     MethodSignature,
-    ParameterSpec,
     SlotSpec,
     SlotType,
     Unit,
@@ -30,7 +31,9 @@ def _panel_did_slots() -> frozenset[SlotSpec]:
             SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
             SlotSpec("unit_id", SlotType.VECTOR, Unit("unit", "id"), shape=("n_obs",)),
             SlotSpec("time_id", SlotType.VECTOR, Unit("time", "period"), shape=("n_obs",)),
-            SlotSpec("treatment_timing", SlotType.VECTOR, Unit("timing", "period"), shape=("n_units",)),
+            SlotSpec(
+                "treatment_timing", SlotType.VECTOR, Unit("timing", "period"), shape=("n_units",)
+            ),
         }
     )
 
@@ -42,6 +45,7 @@ def _panel_did_slots() -> frozenset[SlotSpec]:
 )
 class CallawaySantAnnaEstimator:
     """Estimate group-time ATTs under conditional parallel trends; avoid tiny cohorts with poor overlap."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -63,7 +67,9 @@ class CallawaySantAnnaEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Callaway & Sant'Anna (2021) group-time ATT for staggered DiD.",
         tags=frozenset({"causal", "did", "callaway-santanna", "staggered", "heterogeneous-timing"}),
-        citations=("Callaway, B. & Sant'Anna, P.H.C. (2021). Difference-in-Differences with Multiple Time Periods. JoE.",),
+        citations=(
+            "Callaway, B. & Sant'Anna, P.H.C. (2021). Difference-in-Differences with Multiple Time Periods. JoE.",
+        ),
         equations={"cs_did": "ATT(g,t) = E[Y_t - Y_{g-1} | G=g] - E[Y_t - Y_{g-1} | C=1]"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -125,10 +131,19 @@ class CallawaySantAnnaEstimator:
                 if np.sum(valid_g) == 0 or np.sum(valid_c) == 0:
                     continue
 
-                att_gt = float(np.mean(y_g_t[valid_g] - y_g_pre[valid_g]) -
-                               np.mean(y_c_t[valid_c] - y_c_pre[valid_c]))
-                gt_atts.append({"group": float(g), "time": float(t), "att": att_gt,
-                                "n_treated": int(np.sum(valid_g)), "n_control": int(np.sum(valid_c))})
+                att_gt = float(
+                    np.mean(y_g_t[valid_g] - y_g_pre[valid_g])
+                    - np.mean(y_c_t[valid_c] - y_c_pre[valid_c])
+                )
+                gt_atts.append(
+                    {
+                        "group": float(g),
+                        "time": float(t),
+                        "att": att_gt,
+                        "n_treated": int(np.sum(valid_g)),
+                        "n_control": int(np.sum(valid_c)),
+                    }
+                )
 
         # Aggregate ATT
         if gt_atts:
@@ -157,6 +172,7 @@ class CallawaySantAnnaEstimator:
 )
 class SunAbrahamEstimator:
     """Estimate interaction-weighted event-study effects that avoid TWFE contamination; avoid unsupported control structures."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -178,7 +194,9 @@ class SunAbrahamEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Sun & Abraham (2021) interaction-weighted estimator for staggered DiD.",
         tags=frozenset({"causal", "did", "sun-abraham", "interaction-weighted", "staggered"}),
-        citations=("Sun, L. & Abraham, S. (2021). Estimating Dynamic Treatment Effects in Event Studies. JoE.",),
+        citations=(
+            "Sun, L. & Abraham, S. (2021). Estimating Dynamic Treatment Effects in Event Studies. JoE.",
+        ),
         equations={"sa": "IW estimator: weight cohort-specific CATT by cohort shares"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -271,6 +289,7 @@ class SunAbrahamEstimator:
 )
 class DeChaisemartinDHaultfoeuilleEstimator:
     """Estimate heterogeneous-effect DiD contrasts with explicit weighting diagnostics; avoid sparse switcher cells."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -283,7 +302,9 @@ class DeChaisemartinDHaultfoeuilleEstimator:
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
                 SlotSpec("unit_id", SlotType.VECTOR, Unit("unit", "id"), shape=("n_obs",)),
                 SlotSpec("time_id", SlotType.VECTOR, Unit("time", "period"), shape=("n_obs",)),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -299,7 +320,9 @@ class DeChaisemartinDHaultfoeuilleEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="de Chaisemartin & D'Haultfoeuille (2020) estimator robust to heterogeneous effects.",
         tags=frozenset({"causal", "did", "dechaisemartin", "heterogeneous-effects", "robust"}),
-        citations=("de Chaisemartin, C. & D'Haultfoeuille, X. (2020). Two-Way Fixed Effects Estimators. AER.",),
+        citations=(
+            "de Chaisemartin, C. & D'Haultfoeuille, X. (2020). Two-Way Fixed Effects Estimators. AER.",
+        ),
         equations={"dcdh": "delta_M = weighted avg of switchers' outcomes vs stable controls"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -353,12 +376,14 @@ class DeChaisemartinDHaultfoeuilleEstimator:
             dy_switch = np.mean(Y_panel[switchers, t_idx] - Y_panel[switchers, t_idx - 1])
             dy_control = np.mean(Y_panel[controls, t_idx] - Y_panel[controls, t_idx - 1])
             effect = float(dy_switch - dy_control)
-            effects.append({
-                "period": float(times[t_idx]),
-                "effect": effect,
-                "n_switchers": len(switchers),
-                "n_controls": len(controls),
-            })
+            effects.append(
+                {
+                    "period": float(times[t_idx]),
+                    "effect": effect,
+                    "n_switchers": len(switchers),
+                    "n_controls": len(controls),
+                }
+            )
 
         if effects:
             weights = np.array([e["n_switchers"] for e in effects], dtype=float)
@@ -384,6 +409,7 @@ class DeChaisemartinDHaultfoeuilleEstimator:
 )
 class BorusyakJaravelSpiessEstimator:
     """Estimate imputation-based DiD effects under untreated-trend extrapolation; avoid weak pre-period fit."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -405,8 +431,12 @@ class BorusyakJaravelSpiessEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Borusyak, Jaravel & Spiess (2024) imputation estimator for staggered DiD.",
         tags=frozenset({"causal", "did", "imputation", "borusyak", "staggered"}),
-        citations=("Borusyak, K., Jaravel, X. & Spiess, J. (2024). Revisiting Event Study Designs. ReStud.",),
-        equations={"bjs": "Impute Y(0) for treated using untreated outcomes, then ATT = Y - Y_hat(0)"},
+        citations=(
+            "Borusyak, K., Jaravel, X. & Spiess, J. (2024). Revisiting Event Study Designs. ReStud.",
+        ),
+        equations={
+            "bjs": "Impute Y(0) for treated using untreated outcomes, then ATT = Y - Y_hat(0)"
+        },
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
         when_to_use="Staggered DiD with imputation-based approach; robust to heterogeneous treatment effects; efficient under parallel trends",

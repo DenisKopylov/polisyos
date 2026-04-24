@@ -1,7 +1,9 @@
 """Estimate binary-treatment effects with weighting, matching, and doubly robust estimators."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -32,7 +34,9 @@ def _result_slot() -> frozenset[SlotSpec]:
 def _treatment_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
-            SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
+            SlotSpec(
+                "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+            ),
             SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
             SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
         }
@@ -69,6 +73,7 @@ def _logistic_propensity(X: np.ndarray, t: np.ndarray, max_iter: int = 50) -> np
 )
 class AIPWEstimator:
     """Estimate ATE with augmented IPW under consistent nuisance fits; avoid extreme weights from poor overlap."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -94,8 +99,12 @@ class AIPWEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Augmented Inverse Probability Weighting (AIPW) — doubly robust ATE estimator.",
         tags=frozenset({"causal", "treatment-effects", "aipw", "doubly-robust", "ate"}),
-        citations=("Robins, J.M., Rotnitzky, A. & Zhao, L.P. (1994). Estimation of Regression Coefficients. JASA.",),
-        equations={"aipw": "ATE = E[mu1(X) - mu0(X) + T*(Y-mu1(X))/e(X) - (1-T)*(Y-mu0(X))/(1-e(X))]"},
+        citations=(
+            "Robins, J.M., Rotnitzky, A. & Zhao, L.P. (1994). Estimation of Regression Coefficients. JASA.",
+        ),
+        equations={
+            "aipw": "ATE = E[mu1(X) - mu0(X) + T*(Y-mu1(X))/e(X) - (1-T)*(Y-mu0(X))/(1-e(X))]"
+        },
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
         when_to_use="Observational study with binary treatment, rich covariate set, and strong overlap; want doubly-robust ATE/ATT",
@@ -126,7 +135,7 @@ class AIPWEstimator:
                 "eif_standard_deviation": fit_result.eif_standard_deviation,
                 "n_treated": int(np.sum(T > 0.5)),
                 "n_control": int(np.sum(T <= 0.5)),
-                "n_obs": int(len(Y)),
+                "n_obs": len(Y),
                 "n_trimmed": int(np.sum(~nuisance.trim_mask)),
                 **payload,
             }
@@ -140,6 +149,7 @@ class AIPWEstimator:
 )
 class TMLEEstimator:
     """Estimate ATE with a targeted update that reduces plug-in bias; avoid positivity violations or unstable nuisances."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -162,7 +172,9 @@ class TMLEEstimator:
         description="Targeted Maximum Likelihood Estimation for ATE with semiparametric efficiency.",
         tags=frozenset({"causal", "treatment-effects", "tmle", "semiparametric", "efficient"}),
         citations=("van der Laan, M.J. & Rose, S. (2011). Targeted Learning. Springer.",),
-        equations={"tmle": "Update initial Q via clever covariate H(A,W) = A/g(W) - (1-A)/(1-g(W))"},
+        equations={
+            "tmle": "Update initial Q via clever covariate H(A,W) = A/g(W) - (1-A)/(1-g(W))"
+        },
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
         when_to_use="Semiparametric efficient estimation of ATE; when Super Learner / ML for nuisance functions; targeted towards specific estimand",
@@ -191,7 +203,7 @@ class TMLEEstimator:
                 "eif_mean": fit_result.eif_mean,
                 "eif_standard_deviation": fit_result.eif_standard_deviation,
                 "targeting_summary": fit_result.targeting_summary,
-                "n_obs": int(len(Y)),
+                "n_obs": len(Y),
                 "n_trimmed": int(np.sum(~nuisance.trim_mask)),
                 **payload,
             }
@@ -205,6 +217,7 @@ class TMLEEstimator:
 )
 class IPWEstimator:
     """Estimate ATE by inverse propensity weighting under unconfoundedness and overlap; avoid near-zero propensities."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -214,9 +227,7 @@ class IPWEstimator:
         version="0.0.0",
         input_slots=_treatment_slots(),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="trimming", default=0.01, bounds=(0.0, 0.2)),
-        ),
+        parameters=(ParameterSpec(name="trimming", default=0.01, bounds=(0.0, 0.2)),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -273,8 +284,8 @@ class IPWEstimator:
         mean_w0 = max(float(np.mean(w0)), 1e-12)
         psi = (w1 * (Y - mu1)) / mean_w1 - (w0 * (Y - mu0)) / mean_w0
         se = float(np.std(psi, ddof=1) / np.sqrt(n)) if n > 1 else 0.0
-        ess_treated = float(sum_w1 ** 2 / max(np.sum(w1 ** 2), 1e-12))
-        ess_control = float(sum_w0 ** 2 / max(np.sum(w0 ** 2), 1e-12))
+        ess_treated = float(sum_w1**2 / max(np.sum(w1**2), 1e-12))
+        ess_control = float(sum_w0**2 / max(np.sum(w0**2), 1e-12))
         n_clipped = int(np.sum((propensity < trim) | (propensity > (1.0 - trim))))
 
         return {
@@ -303,6 +314,7 @@ class IPWEstimator:
 )
 class PropensityScoreMatchingEstimator:
     """Estimate treatment effects by propensity-score matching; avoid high-dimensional covariates with weak common support."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -327,7 +339,9 @@ class PropensityScoreMatchingEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Nearest-neighbor propensity score matching for ATE/ATT estimation.",
         tags=frozenset({"causal", "treatment-effects", "propensity-matching", "nearest-neighbor"}),
-        citations=("Rosenbaum, P.R. & Rubin, D.B. (1983). The Central Role of the Propensity Score. Biometrika.",),
+        citations=(
+            "Rosenbaum, P.R. & Rubin, D.B. (1983). The Central Role of the Propensity Score. Biometrika.",
+        ),
         equations={"psm": "Match treated i to control j minimizing |e(X_i) - e(X_j)|"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -396,6 +410,7 @@ class PropensityScoreMatchingEstimator:
 )
 class EntropyBalancingEstimator:
     """Estimate effects by reweighting moments to match covariates; avoid infeasible balance constraints."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -405,9 +420,7 @@ class EntropyBalancingEstimator:
         version="0.0.0",
         input_slots=_treatment_slots(),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="max_iter", default=200),
-        ),
+        parameters=(ParameterSpec(name="max_iter", default=200),),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -419,7 +432,9 @@ class EntropyBalancingEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Entropy balancing weights for exact covariate balance in causal inference.",
         tags=frozenset({"causal", "treatment-effects", "entropy-balancing", "reweighting"}),
-        citations=("Hainmueller, J. (2012). Entropy Balancing for Causal Effects. Political Analysis.",),
+        citations=(
+            "Hainmueller, J. (2012). Entropy Balancing for Causal Effects. Political Analysis.",
+        ),
         equations={"ebal": "min KL(w, q) s.t. sum(w_i * X_i) = X_bar_treated for control units"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -491,7 +506,7 @@ class EntropyBalancingEstimator:
                 "y_treated_mean": y_t_mean,
                 "y_control_weighted": y_c_weighted,
                 "max_covariate_imbalance": max_imbalance,
-                "effective_sample_size": float(1.0 / np.sum(w_final ** 2)),
+                "effective_sample_size": float(1.0 / np.sum(w_final**2)),
                 "n_treated": n_t,
                 "n_control": n_c,
                 "n_obs": n,
@@ -506,6 +521,7 @@ class EntropyBalancingEstimator:
 )
 class CBPSEstimator:
     """Estimate covariate-balancing propensities for ATE/ATT; avoid severe overlap failures or misspecified moments."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -515,9 +531,7 @@ class CBPSEstimator:
         version="0.0.0",
         input_slots=_treatment_slots(),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="max_iter", default=100),
-        ),
+        parameters=(ParameterSpec(name="max_iter", default=100),),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -529,8 +543,12 @@ class CBPSEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Covariate Balancing Propensity Score: propensity model optimized for balance.",
         tags=frozenset({"causal", "treatment-effects", "cbps", "covariate-balance"}),
-        citations=("Imai, K. & Ratkovic, M. (2014). Covariate Balancing Propensity Score. JRSS-B.",),
-        equations={"cbps": "Solve E[X*(T - e(X;beta))] = 0 (score) and E[X*(T/e - (1-T)/(1-e))] = 0 (balance)"},
+        citations=(
+            "Imai, K. & Ratkovic, M. (2014). Covariate Balancing Propensity Score. JRSS-B.",
+        ),
+        equations={
+            "cbps": "Solve E[X*(T - e(X;beta))] = 0 (score) and E[X*(T/e - (1-T)/(1-e))] = 0 (balance)"
+        },
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
         when_to_use="Observational study where propensity score model may be misspecified; want covariate balance by construction",
@@ -569,7 +587,7 @@ class CBPSEstimator:
             # Jacobian
             W = e * (1 - e)
             J_score = -X_aug.T @ np.diag(W) @ X_aug / n
-            dw1 = -T * W / (e ** 2)
+            dw1 = -T * W / (e**2)
             dw0 = -(1 - T) * W / ((1 - e) ** 2)
             J_balance = X_aug.T @ np.diag(dw1 - dw0) @ X_aug / n
             J = np.vstack([J_score, J_balance])

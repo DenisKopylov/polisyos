@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any, Dict, List
+from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.scientist.search.actionable_side_information import (
@@ -57,8 +57,8 @@ class Level4FullFidelity(FunnelStage):
 
     def evaluate(
         self,
-        candidate: Dict[str, Any],
-        context: Dict[str, Any],
+        candidate: dict[str, Any],
+        context: dict[str, Any],
     ) -> FunnelStageResult:
         start = datetime.now(UTC)
         result = self._stage.evaluate(candidate, context)
@@ -66,7 +66,7 @@ class Level4FullFidelity(FunnelStage):
             result.duration_seconds,
             (datetime.now(UTC) - start).total_seconds(),
         )
-        cards: List[TypedFailureCard] = []
+        cards: list[TypedFailureCard] = []
         if not result.is_promising:
             cards.append(
                 TypedFailureCard(
@@ -146,7 +146,7 @@ class Level4FullFidelity(FunnelStage):
 
     def _build_uncertainty_envelope(
         self,
-        simulation_results: Dict[str, Any],
+        simulation_results: dict[str, Any],
     ) -> UncertaintyEnvelope:
         bootstrap = simulation_results.get("bootstrap", {})
         effect = abs(float(simulation_results.get("ate", 0.0) or 0.0))

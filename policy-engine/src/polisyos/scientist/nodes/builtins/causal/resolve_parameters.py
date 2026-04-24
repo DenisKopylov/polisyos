@@ -1,8 +1,9 @@
 """Public causal resolve parameters module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -171,7 +172,7 @@ class ResolveParametersNode:
             unsupported_parameters=unsupported,
             skg_snapshot_ref=skg_snapshot_ref,
             skg_version_id=skg_version_id,
-            selection_timestamp=datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+            selection_timestamp=datetime.now(UTC).replace(microsecond=0).isoformat(),
         )
 
         input_refs = [InputRef(artifact_id=str(graph_ref.artifact_id), role="causal_graph")]
@@ -204,9 +205,7 @@ class ResolveParametersNode:
             "runtime_parameter_intervals",
             {},
         )
-        new_state.params["phase15_runtime_ready"] = bool(
-            bridge_payload.get("runtime_ready", False)
-        )
+        new_state.params["phase15_runtime_ready"] = bool(bridge_payload.get("runtime_ready", False))
 
         events = []
         if unsupported:

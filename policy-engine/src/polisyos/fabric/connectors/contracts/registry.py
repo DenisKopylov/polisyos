@@ -7,13 +7,14 @@ Provides:
 - CAS-based caching
 - Schema discovery
 """
+
 from __future__ import annotations
 
 import json
 import threading
-from datetime import datetime, timezone
+from collections.abc import Iterator
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Iterator
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -87,12 +88,12 @@ class SchemaRegistration(BaseModel):
 
     registered_schema: DataSchema = Field(alias="schema")
     content_hash: str
-    registered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    registered_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     registered_by: str = ""
     approval: SchemaApprovalMetadata = Field(default_factory=SchemaApprovalMetadata)
 
     @model_validator(mode="after")
-    def _validate_content_hash(self) -> "SchemaRegistration":
+    def _validate_content_hash(self) -> SchemaRegistration:
         if self.content_hash != self.registered_schema.content_hash:
             raise ValueError(
                 "SchemaRegistration content_hash does not match registered schema content_hash"
@@ -110,7 +111,7 @@ class SchemaRegistration(BaseModel):
         schema: DataSchema,
         registered_by: str = "",
         approval: SchemaApprovalMetadata | None = None,
-    ) -> "SchemaRegistration":
+    ) -> SchemaRegistration:
         return cls(
             schema=schema,
             content_hash=schema.content_hash,
@@ -362,7 +363,7 @@ class FileBackedSchemaRegistry(SchemaRegistry):
 
             for version_file in schema_dir.glob("*.json"):
                 try:
-                    with open(version_file, "r") as f:
+                    with open(version_file) as f:
                         data = json.load(f)
 
                     schema_payload = data.get("schema") or data
@@ -377,14 +378,12 @@ class FileBackedSchemaRegistry(SchemaRegistry):
                             f"{expected_hash} != {schema.content_hash}"
                         )
                     registered_by = data.get("registered_by", "")
-                    approval = SchemaApprovalMetadata.model_validate(
-                        data.get("approval") or {}
-                    )
+                    approval = SchemaApprovalMetadata.model_validate(data.get("approval") or {})
                     registered_at_raw = data.get("registered_at")
                     registered_at = (
                         datetime.fromisoformat(registered_at_raw)
                         if registered_at_raw
-                        else datetime.now(timezone.utc)
+                        else datetime.now(UTC)
                     )
                     SchemaRegistration(
                         schema=schema,
@@ -402,9 +401,7 @@ class FileBackedSchemaRegistry(SchemaRegistry):
                     )
 
                 except Exception as exc:
-                    logger.warning(
-                        f"Failed to load schema from {version_file}: {exc}"
-                    )
+                    logger.warning(f"Failed to load schema from {version_file}: {exc}")
 
     def register(
         self,

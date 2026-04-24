@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import duckdb
 import pytest
@@ -16,8 +15,11 @@ from polisyos.academic.batch.transport_score import (
 )
 from polisyos.academic.knowledge.skg_store import ensure_skg_schema
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
-@pytest.fixture()
+
+@pytest.fixture
 def tmp_db(tmp_path: Path) -> Path:
     return tmp_path / "graph" / "scholar_knowledge.duckdb"
 
@@ -83,7 +85,9 @@ def test_build_profiles_with_data(tmp_db: Path) -> None:
         count = _build_context_profiles(con, skg_version=1)
         assert count == 2
 
-        rows = con.execute("SELECT context_id, context_label FROM ac_skg_context_profiles ORDER BY context_id").fetchall()
+        rows = con.execute(
+            "SELECT context_id, context_label FROM ac_skg_context_profiles ORDER BY context_id"
+        ).fetchall()
         assert rows == [("DE", "DE (2010-2015)"), ("US", "US (2015-2020)")]
     finally:
         con.close()
@@ -139,7 +143,9 @@ def test_run_transport_score_counts_edges_without_moderators(tmp_path: Path) -> 
     assert row == (0.8, 0.0, 0.0, 0.8, "")
 
 
-def test_run_transport_score_preserves_requested_target_context_without_profile(tmp_path: Path) -> None:
+def test_run_transport_score_preserves_requested_target_context_without_profile(
+    tmp_path: Path,
+) -> None:
     config = AcademicBatchConfig(
         snapshot_root=tmp_path,
         transport_target_context_id="UA",
@@ -169,7 +175,9 @@ def test_run_transport_score_preserves_requested_target_context_without_profile(
     assert row == ("UA", pytest.approx(0.7))
 
 
-def test_run_transport_score_writes_target_aware_scores_without_mutating_edges(tmp_path: Path) -> None:
+def test_run_transport_score_writes_target_aware_scores_without_mutating_edges(
+    tmp_path: Path,
+) -> None:
     config = AcademicBatchConfig(
         snapshot_root=tmp_path,
         transport_target_country_codes=("US",),
@@ -207,7 +215,9 @@ def test_run_transport_score_writes_target_aware_scores_without_mutating_edges(t
 
     con = duckdb.connect(str(config.db_path), read_only=True)
     try:
-        edge_conf = float(con.execute("SELECT confidence FROM ac_skg_edges WHERE edge_id = 'e1'").fetchone()[0])
+        edge_conf = float(
+            con.execute("SELECT confidence FROM ac_skg_edges WHERE edge_id = 'e1'").fetchone()[0]
+        )
         transport_row = con.execute(
             "SELECT target_context_id, generic_penalty, context_match_reward, transport_confidence, match_mode "
             "FROM ac_skg_transport_scores WHERE edge_id = 'e1'"

@@ -159,17 +159,29 @@ export function ExportConversation({ className }: ExportConversationProps) {
       switch (format) {
         case "markdown": {
           const md = toMarkdown(messages);
-          downloadBlob(md, `polisyos-conversation-${timestamp}.md`, "text/markdown");
+          downloadBlob(
+            md,
+            `polisyos-conversation-${timestamp}.md`,
+            "text/markdown",
+          );
           break;
         }
         case "json": {
           const json = toJson(messages);
-          downloadBlob(json, `polisyos-conversation-${timestamp}.json`, "application/json");
+          downloadBlob(
+            json,
+            `polisyos-conversation-${timestamp}.json`,
+            "application/json",
+          );
           break;
         }
         case "text": {
           const txt = toPlainText(messages);
-          downloadBlob(txt, `polisyos-conversation-${timestamp}.txt`, "text/plain");
+          downloadBlob(
+            txt,
+            `polisyos-conversation-${timestamp}.txt`,
+            "text/plain",
+          );
           break;
         }
       }
@@ -190,7 +202,7 @@ export function ExportConversation({ className }: ExportConversationProps) {
         size="sm"
         onClick={() => handleExport("markdown")}
       >
-        Markdown
+        {t("clerk.exportMarkdown")}
       </Button>
       <Button
         type="button"
@@ -198,7 +210,7 @@ export function ExportConversation({ className }: ExportConversationProps) {
         size="sm"
         onClick={() => handleExport("json")}
       >
-        JSON
+        {t("clerk.exportJson")}
       </Button>
       <Button
         type="button"
@@ -206,7 +218,7 @@ export function ExportConversation({ className }: ExportConversationProps) {
         size="sm"
         onClick={() => handleExport("text")}
       >
-        Text
+        {t("clerk.exportText")}
       </Button>
     </div>
   );

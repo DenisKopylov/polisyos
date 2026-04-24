@@ -5,6 +5,7 @@ It links the Trinity bundle against a registry bundle, lowers mechanisms,
 materializes a `ProgramGraph`, derives an `ExecPlan`, and writes all derived
 artifacts into CAS with explicit provenance edges.
 """
+
 from __future__ import annotations
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -240,7 +241,9 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         PutOptions(
             kind="foundry.slot_layout",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.foundry.SlotLayout", version=slot_layout.schema_version),
+            schema=SchemaInfo(
+                name="polisyos.foundry.SlotLayout", version=slot_layout.schema_version
+            ),
             inputs=[InputRef(artifact_id=program_graph_ref.artifact_id, role="program_graph")],
         ),
     )
@@ -325,9 +328,7 @@ def _program_graph_inputs(
 ) -> list[InputRef]:
     inputs = [InputRef(artifact_id=policy_ref.artifact_id, role="ir")]
     if registry_bundle_ref is not None:
-        inputs.append(
-            InputRef(artifact_id=registry_bundle_ref.artifact_id, role="registry_bundle")
-        )
+        inputs.append(InputRef(artifact_id=registry_bundle_ref.artifact_id, role="registry_bundle"))
     if link_report_ref is not None:
         inputs.append(InputRef(artifact_id=link_report_ref.artifact_id, role="link_report"))
     if lowered_ir_ref is not None:
@@ -350,25 +351,19 @@ def _compile_inputs(
 ) -> list[InputRef]:
     inputs = [InputRef(artifact_id=policy_ref.artifact_id, role="ir")]
     if registry_bundle_ref is not None:
-        inputs.append(
-            InputRef(artifact_id=registry_bundle_ref.artifact_id, role="registry_bundle")
-        )
+        inputs.append(InputRef(artifact_id=registry_bundle_ref.artifact_id, role="registry_bundle"))
     if link_report_ref is not None:
         inputs.append(InputRef(artifact_id=link_report_ref.artifact_id, role="link_report"))
     if lowered_ir_ref is not None:
         inputs.append(InputRef(artifact_id=lowered_ir_ref.artifact_id, role="lowered_ir"))
     if program_graph_ref is not None:
-        inputs.append(
-            InputRef(artifact_id=program_graph_ref.artifact_id, role="program_graph")
-        )
+        inputs.append(InputRef(artifact_id=program_graph_ref.artifact_id, role="program_graph"))
     if exec_plan_ref is not None:
         inputs.append(InputRef(artifact_id=exec_plan_ref.artifact_id, role="exec_plan"))
     if slot_layout_ref is not None:
         inputs.append(InputRef(artifact_id=slot_layout_ref.artifact_id, role="slot_layout"))
     if treasury_plan_ref is not None:
-        inputs.append(
-            InputRef(artifact_id=treasury_plan_ref.artifact_id, role="treasury_plan")
-        )
+        inputs.append(InputRef(artifact_id=treasury_plan_ref.artifact_id, role="treasury_plan"))
     return inputs
 
 

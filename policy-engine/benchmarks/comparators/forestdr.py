@@ -8,9 +8,11 @@ contracts still see a uniform PolicyOS-style payload.
 
 from __future__ import annotations
 
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 import numpy as np
+
 
 def _bootstrap_interval(values: np.ndarray, *, seed: int, draws: int) -> tuple[float, float]:
     arr = np.asarray(values, dtype=float).reshape(-1)
@@ -88,7 +90,9 @@ class ForestDRLearnerComparator:
                     "ci_lower": ci_lower,
                     "ci_upper": ci_upper,
                     "cate_predictions": cate_predictions.tolist(),
-                    "feature_importances": None if feature_importances is None else feature_importances.tolist(),
+                    "feature_importances": None
+                    if feature_importances is None
+                    else feature_importances.tolist(),
                     "backend_used": "econml.ForestDRLearner",
                     "confidence_level": confidence_level,
                 }

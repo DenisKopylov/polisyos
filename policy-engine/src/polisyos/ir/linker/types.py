@@ -1,10 +1,14 @@
 """Public linker types module API."""
+
 from __future__ import annotations
 
-from polisyos.ir.analytics.applicability import IdSelector, NormApplicability
-from polisyos.ir.registry_fragments import RegistryBundle
+from typing import TYPE_CHECKING
 
 from .reports import LinkIssue, LinkIssueCode, LinkSeverity
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.applicability import IdSelector, NormApplicability
+    from polisyos.ir.registry_fragments import RegistryBundle
 
 
 def validate_norm_applicability_refs(
@@ -106,7 +110,7 @@ def validate_norm_applicability_refs(
             validate_norm_applicability_refs(
                 exc,
                 registries,
-                path_prefix=path_prefix + ["exceptions", idx],
+                path_prefix=[*path_prefix, "exceptions", idx],
             )
         )
 

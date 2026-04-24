@@ -1,4 +1,5 @@
 """Public planning expand legal source pack module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -53,22 +54,35 @@ class ExpandLegalSourcePackNode:
     Requires a candidate pack, respects source-depth params, and writes the
     `legal_source_pack_ref` artifact that later verification and gap-review nodes reuse.
     """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        if state.legal_source_pack_ref is not None and ARTIFACT_LEGAL_SOURCE_PACK_REF in state.artifacts_index:
+        if (
+            state.legal_source_pack_ref is not None
+            and ARTIFACT_LEGAL_SOURCE_PACK_REF in state.artifacts_index
+        ):
             return NodeOutcome(status="ok", state=state)
 
-        raw_ref = state.legal_candidate_pack_ref or state.artifacts_index.get(ARTIFACT_LEGAL_CANDIDATE_PACK_REF)
+        raw_ref = state.legal_candidate_pack_ref or state.artifacts_index.get(
+            ARTIFACT_LEGAL_CANDIDATE_PACK_REF
+        )
         if raw_ref is None:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="warn", message="Missing legal candidate pack; source expansion skipped.")],
+                events=[
+                    NodeEvent(
+                        level="warn",
+                        message="Missing legal candidate pack; source expansion skipped.",
+                    )
+                ],
             )
-        pack = load_legal_candidate_pack(ctx.store, LegalCandidatePackRef.model_validate(raw_ref.model_dump()))
+        pack = load_legal_candidate_pack(
+            ctx.store, LegalCandidatePackRef.model_validate(raw_ref.model_dump())
+        )
         source_pack = expand_legal_source_pack(ctx, state, pack)
         pack_ref = persist_legal_source_pack(
             ctx.store,

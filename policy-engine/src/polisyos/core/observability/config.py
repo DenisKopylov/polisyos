@@ -15,12 +15,12 @@ Environment Variables:
     POLISYOS_TRACE_SAMPLING_RATIO: Trace sampling ratio (default: 1.0)
     POLISYOS_ALWAYS_SAMPLE_ERRORS: Force sampling for spans created as errors (default: true)
 """
+
 from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -60,9 +60,7 @@ class OTelConfig(BaseModel):
 
     # Phase 3 HPC observability toggle
     hpc_observability_enabled: bool = Field(
-        default_factory=lambda: os.getenv(
-            "POLISYOS_HPC_OBSERVABILITY_ENABLED", "true"
-        ).lower()
+        default_factory=lambda: os.getenv("POLISYOS_HPC_OBSERVABILITY_ENABLED", "true").lower()
         == "true"
     )
 
@@ -79,7 +77,7 @@ class OTelConfig(BaseModel):
             else ExporterType.NONE
         )
     )
-    otlp_endpoint: Optional[str] = Field(
+    otlp_endpoint: str | None = Field(
         default_factory=lambda: os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
     )
     otlp_protocol: str = Field(
@@ -95,12 +93,13 @@ class OTelConfig(BaseModel):
 
     # Metrics configuration
     metrics_exporter: MetricsExporterType = Field(default=MetricsExporterType.PROMETHEUS)
-    metrics_port: int = Field(default_factory=lambda: int(os.getenv("POLISYOS_METRICS_PORT", "9464")))
+    metrics_port: int = Field(
+        default_factory=lambda: int(os.getenv("POLISYOS_METRICS_PORT", "9464"))
+    )
 
     # Debug options
     console_export: bool = Field(
-        default_factory=lambda: os.getenv("POLISYOS_OTEL_CONSOLE_EXPORT", "false").lower()
-        == "true"
+        default_factory=lambda: os.getenv("POLISYOS_OTEL_CONSOLE_EXPORT", "false").lower() == "true"
     )
 
     # Sampling configuration (Phase 4)

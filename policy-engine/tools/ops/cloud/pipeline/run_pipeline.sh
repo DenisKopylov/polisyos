@@ -6,7 +6,7 @@
 set -euo pipefail
 
 usage() {
-  cat <<'EOF'
+  cat << 'EOF'
 Usage:
   bash tools/cloud/run_pipeline.sh --dry-run
   bash tools/cloud/run_pipeline.sh --yes [--run-id RUN_ID] [--snapshot-root PATH] [--resume]
@@ -23,7 +23,7 @@ EOF
 }
 
 generate_run_id() {
-  python3 - <<'PY'
+  python3 - << 'PY'
 from datetime import datetime, timezone
 import re
 import secrets
@@ -70,7 +70,7 @@ while [[ $# -gt 0 ]]; do
       TOPICS_DIR="${2:?--topics-dir requires a value}"
       shift 2
       ;;
-    -h|--help)
+    -h | --help)
       usage
       exit 0
       ;;
@@ -178,7 +178,7 @@ CMD=(
   --article-target-fulltext-per-topic 50
   --fulltext-acquisition-mode v7_http_metadata
   --fulltext-metadata-resolvers-enabled
-  --fulltext-metadata-resolver-order unpaywall,crossref,semanticscholar
+  --fulltext-metadata-resolver-order "unpaywall,crossref,semanticscholar"
   --fulltext-shared-cache-dir "${DATA_ROOT}/cache"
   --fulltext-unpaywall-email "${UNPAYWALL_EMAIL:-}"
   --fulltext-metadata-timeout-seconds 20
@@ -203,7 +203,7 @@ CMD=(
   --track-b-enabled
   --track-c-enabled
   --transport-target-country-codes UA
-  --stages topic_select,harvest,parse,resolve_extract,merge_dedup,graph_load,graph_index,transport_score,qc,publish
+  --stages "topic_select,harvest,parse,resolve_extract,merge_dedup,graph_load,graph_index,transport_score,qc,publish"
 )
 
 if [[ "$RESUME" -eq 1 ]]; then

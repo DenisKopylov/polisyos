@@ -1,4 +1,5 @@
 """Atomic CAS file-write helpers shared by filesystem-backed artifact stores."""
+
 from __future__ import annotations
 
 import os

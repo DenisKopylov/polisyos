@@ -1,4 +1,5 @@
 """Survey domain accuracy benchmarks."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -9,7 +10,6 @@ from benchmarks.foundry.conftest import make_survey_areas
 
 @pytest.mark.benchmark
 class TestSurveyAccuracy:
-
     def test_fay_herriot_shrinkage(self, bench_registry):
         """EBLUP shrinkage: estimates between direct and regression."""
         data = make_survey_areas(n_areas=8, seed=42)

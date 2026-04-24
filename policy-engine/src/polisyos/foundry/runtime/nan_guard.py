@@ -1,4 +1,5 @@
 """Public runtime nan guard module API."""
+
 from __future__ import annotations
 
 from typing import Any

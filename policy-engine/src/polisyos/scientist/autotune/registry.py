@@ -1,7 +1,7 @@
 """Public autotune registry module API."""
+
 from __future__ import annotations
 
-import json
 import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -12,7 +12,6 @@ from polisyos.core.artifacts.store import FileSystemCAS
 
 from .models import (
     BenchmarkEvaluation,
-    BenchmarkSplit,
     ChampionPointer,
     MetricDirection,
     MutationArtifact,
@@ -93,7 +92,11 @@ class ChampionRegistry:
                 )
 
         guardrail_failure = next(
-            (name for name in policy.required_guardrails if not bool(evaluation.guardrails.get(name))),
+            (
+                name
+                for name in policy.required_guardrails
+                if not bool(evaluation.guardrails.get(name))
+            ),
             None,
         )
         if guardrail_failure is not None:
@@ -123,7 +126,9 @@ class ChampionRegistry:
                 previous_champion=current,
             )
 
-        new_value = evaluation.primary_value(split=policy.compare_split, metric=policy.primary_metric)
+        new_value = evaluation.primary_value(
+            split=policy.compare_split, metric=policy.primary_metric
+        )
         if new_value is None:
             return PromotionDecision(
                 loop_id=loop_id,

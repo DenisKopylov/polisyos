@@ -5,6 +5,7 @@ metadata and synthetic runtime state updates. They normalize firm lifecycle,
 procurement shock, tax, and transfer inputs before executor classes mutate a
 `GlobalState` snapshot.
 """
+
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
@@ -57,21 +58,21 @@ class FirmLifecycleEventBatch:
     existing firm-state values when a record omits an update.
     """
 
-    event_type: Int[Array, "n_events"]
-    firm_id: Int[Array, "n_events"]
-    cell_id: Int[Array, "n_events"]
-    firm_type_id: Int[Array, "n_events"]
-    sector_id: Int[Array, "n_events"]
-    productivity: Float[Array, "n_events"]
-    capital: Float[Array, "n_events"]
-    cash: Float[Array, "n_events"]
-    inventory: Float[Array, "n_events"]
-    debt: Float[Array, "n_events"]
-    wage_offer: Float[Array, "n_events"]
-    price: Float[Array, "n_events"]
+    event_type: Int[Array, n_events]
+    firm_id: Int[Array, n_events]
+    cell_id: Int[Array, n_events]
+    firm_type_id: Int[Array, n_events]
+    sector_id: Int[Array, n_events]
+    productivity: Float[Array, n_events]
+    capital: Float[Array, n_events]
+    cash: Float[Array, n_events]
+    inventory: Float[Array, n_events]
+    debt: Float[Array, n_events]
+    wage_offer: Float[Array, n_events]
+    price: Float[Array, n_events]
 
     @classmethod
-    def empty(cls) -> "FirmLifecycleEventBatch":
+    def empty(cls) -> FirmLifecycleEventBatch:
         """Return a zero-length batch that preserves dtypes expected by executors."""
         empty_i = jnp.zeros((0,), dtype=jnp.int32)
         empty_f = jnp.zeros((0,), dtype=jnp.float32)
@@ -94,7 +95,7 @@ class FirmLifecycleEventBatch:
     def from_records(
         cls,
         records: Sequence[Mapping[str, Any]],
-    ) -> "FirmLifecycleEventBatch":
+    ) -> FirmLifecycleEventBatch:
         """Build a vectorized lifecycle batch from dict-like records.
 
         Args:
@@ -162,13 +163,13 @@ class FirmLifecycleEventBatch:
 class ProcurementShockBatch:
     """Carry supply-chain shock seeds for propagation over the procurement graph."""
 
-    origin_firm_id: Int[Array, "n_shocks"]
-    magnitude: Float[Array, "n_shocks"]
-    decay: Float[Array, "n_shocks"]
-    max_hops: Int[Array, "n_shocks"]
+    origin_firm_id: Int[Array, n_shocks]
+    magnitude: Float[Array, n_shocks]
+    decay: Float[Array, n_shocks]
+    max_hops: Int[Array, n_shocks]
 
     @classmethod
-    def empty(cls) -> "ProcurementShockBatch":
+    def empty(cls) -> ProcurementShockBatch:
         """Return an empty shock batch with executor-compatible dtypes."""
         empty_i = jnp.zeros((0,), dtype=jnp.int32)
         empty_f = jnp.zeros((0,), dtype=jnp.float32)
@@ -183,7 +184,7 @@ class ProcurementShockBatch:
     def from_records(
         cls,
         records: Sequence[Mapping[str, Any]],
-    ) -> "ProcurementShockBatch":
+    ) -> ProcurementShockBatch:
         """Build a procurement shock batch from dict-like shock records."""
         if not records:
             return cls.empty()
@@ -277,7 +278,7 @@ class InterventionMechanismConfig:
         params: Mapping[str, Any] | None = None,
         *,
         metadata: Mapping[str, Any] | None = None,
-    ) -> "InterventionMechanismConfig":
+    ) -> InterventionMechanismConfig:
         """Normalize loose intervention params/metadata into a strict runtime config."""
         resolved = dict(params or {})
         extra = dict(metadata or {})
@@ -341,7 +342,7 @@ class InterventionMechanismConfig:
     def from_compiled_intervention(
         cls,
         compiled: CompiledLexIntervention,
-    ) -> "InterventionMechanismConfig":
+    ) -> InterventionMechanismConfig:
         """Create a runtime config from a compiled Lex intervention contract."""
         params = dict(compiled.intervention.params)
         metadata = dict(compiled.metadata)
@@ -356,7 +357,9 @@ class InterventionMechanismConfig:
             list(compiled.intervention.target_sector_ids),
         )
         if kind in {"tax_rate_change", "distribution_aware_tax", "tax_rule_change"}:
-            params.setdefault("base_tax_rate", _resolve_float(params, "tax_rate", "rate", default=0.0))
+            params.setdefault(
+                "base_tax_rate", _resolve_float(params, "tax_rate", "rate", default=0.0)
+            )
             params.setdefault(
                 "tax_progressivity",
                 _resolve_float(params, "progressivity", default=0.0),

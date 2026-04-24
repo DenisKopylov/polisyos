@@ -3,15 +3,14 @@ from __future__ import annotations
 from decimal import Decimal
 from types import SimpleNamespace
 
+import numpy as np
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
-import numpy as np
 
 from polisyos.core.contracts.foundry import LoweredConstraint
 from polisyos.foundry.constraints_engine import check_constraints
 from polisyos.ir.kernel.merge_rules import MergeRuleRef
 from polisyos.ir.kernel.slots import SlotKind, SlotRegistry, SlotScope, SlotSpec, SlotValueType
-
 
 _HEALTH_CHECKS = [HealthCheck.function_scoped_fixture, HealthCheck.too_slow]
 

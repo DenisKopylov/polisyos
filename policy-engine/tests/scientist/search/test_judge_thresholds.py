@@ -65,25 +65,20 @@ def test_threshold_registry_exposes_tiered_tetrad_defaults(tmp_path) -> None:
     registry = JudgeThresholdRegistry(tmp_path / "judge_thresholds")
     resolved = registry.resolve(JudgeName.STATISTICAL.value, family="algebraic_tetrad")
     recommendations = {
-        (item.metric_name, item.threshold_tier): item
-        for item in tetrad_threshold_recommendations()
+        (item.metric_name, item.threshold_tier): item for item in tetrad_threshold_recommendations()
     }
 
     assert resolved.threshold_value(
         "algebraic_tetrad_min_q",
         threshold_tier="warning",
-    ) == pytest.approx(
-        recommendations[("algebraic_tetrad_min_q", "warning")].threshold_value
-    )
+    ) == pytest.approx(recommendations[("algebraic_tetrad_min_q", "warning")].threshold_value)
     assert resolved.threshold_value("algebraic_tetrad_min_q") == pytest.approx(
         recommendations[("algebraic_tetrad_min_q", "blocker")].threshold_value
     )
     assert resolved.threshold_value(
         "algebraic_tetrad_max_abs_z",
         threshold_tier="warning",
-    ) == pytest.approx(
-        recommendations[("algebraic_tetrad_max_abs_z", "warning")].threshold_value
-    )
+    ) == pytest.approx(recommendations[("algebraic_tetrad_max_abs_z", "warning")].threshold_value)
     assert resolved.threshold_value("algebraic_tetrad_max_abs_z") == pytest.approx(
         recommendations[("algebraic_tetrad_max_abs_z", "blocker")].threshold_value
     )

@@ -3,6 +3,7 @@
 Many econometrics methods require Pydantic models (PanelData, etc.)
 so these benchmarks test the methods that accept structured model input.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -13,7 +14,6 @@ import pytest
 
 @pytest.mark.benchmark
 class TestEconometricsAccuracy:
-
     def test_quantile_regression_placeholder(self):
         """Placeholder: quantile regression requires QuantileRegressionData."""
         pytest.skip("Requires Pydantic model input — deferred to Phase 10b")

@@ -6,6 +6,7 @@ Contains:
 - Timestamp / datetime conversion helpers
 - Request serialization helpers for index storage
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -78,9 +79,7 @@ def ts_to_dt(ts: float | None) -> datetime | None:
 
 def request_to_payload(request: FetchRequest) -> dict[str, Any]:
     incremental_dump = (
-        request.incremental_since.model_dump(mode="python")
-        if request.incremental_since
-        else None
+        request.incremental_since.model_dump(mode="python") if request.incremental_since else None
     )
     return {
         "dataset_id": request.dataset_id,
@@ -107,7 +106,9 @@ def payload_to_request(payload: dict[str, Any]) -> FetchRequest:
     min_quality = payload.get("min_quality_tier", QualityTier.UNVERIFIED)
     return FetchRequest(
         dataset_id=payload["dataset_id"],
-        date_start=datetime.fromisoformat(payload["date_start"]) if payload.get("date_start") else None,
+        date_start=datetime.fromisoformat(payload["date_start"])
+        if payload.get("date_start")
+        else None,
         date_end=datetime.fromisoformat(payload["date_end"]) if payload.get("date_end") else None,
         as_of=datetime.fromisoformat(payload["as_of"]) if payload.get("as_of") else None,
         filters=filter_tuple,
@@ -235,7 +236,15 @@ class CacheEntry(BaseModel):
 
     request_payload: dict[str, Any]
 
-    @field_validator("cached_at", "expires_at", "last_accessed_at", "date_start", "date_end", "as_of", mode="after")
+    @field_validator(
+        "cached_at",
+        "expires_at",
+        "last_accessed_at",
+        "date_start",
+        "date_end",
+        "as_of",
+        mode="after",
+    )
     @classmethod
     def _ensure_tz_aware(cls, value: datetime | None) -> datetime | None:
         if value is None:

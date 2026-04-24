@@ -1,4 +1,5 @@
 """Expose causal estimators, diagnostics, and discovery methods under the `causal.*` namespaces."""
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -28,21 +29,34 @@ from .bounds import (
     OptimizationBasedBoundsEstimator,
 )
 from .bounds_engine import BoundsEngineMethod
-from .lp_bounds import auto_bounds
 from .cate import CausalForestEstimator
-from .constraint_discovery import FCIDiscovery, GESDiscovery, PCDiscovery
-from .dagma_discovery import DAGMADiscovery
-from .discovery_pipeline import UnifiedCausalDiscovery
-from .diagnostics import ParallelTrendsCheck, PolicyOverlapDiagnostic
-from .invariance_tests import InvariantDiscoveryFromRegimes
-from .did import (
-    StandardDifferenceInDifferences,
-    StaggeredDifferenceInDifferences,
+from .causal_bcf import CausalBCF
+from .causal_engine import CausalEngine
+from .causal_fairness import (
+    CausalFairnessEngine,
+    StandardFairnessModel,
+    fairness_bounds,
+    identify_fairness_effects,
+    tv_decomposition,
 )
-from .dtr import estimate_dtr_trajectory
-from .dml import DoubleMachineLearning
-from .dowhy_identify_estimate import DoWhyIdentifyEstimate, DoWhyIdentifyEstimateV1
-from .dowhy_refute import DoWhyRefute
+from .constraint_discovery import FCIDiscovery, GESDiscovery, PCDiscovery
+from .continuous_treatment import (
+    EntropyBalancingContinuousEstimator,
+    GeneralizedPropensityScoreEstimator,
+    KernelDoseResponseEstimator,
+    ShiftInterventionEstimator,
+)
+from .cross_fit import CrossFitContinuousOrchestrator
+from .ctf_calculus import rewrite_ctf_estimand
+from .ctf_transport import ctf_transport_bounds, ctf_transportability
+from .cyclic_id import cyclic_id_algorithm
+from .dagma_discovery import DAGMADiscovery
+from .diagnostics import ParallelTrendsCheck, PolicyOverlapDiagnostic
+from .did import (
+    StaggeredDifferenceInDifferences,
+    StandardDifferenceInDifferences,
+)
+from .discovery_pipeline import UnifiedCausalDiscovery
 from .distributional_bounds import (
     DistributionalBoundsEngineMethod,
     lee_trimming_distributional_bounds,
@@ -56,50 +70,111 @@ from .distributional_bounds import (
     sd_headcount_distributional_bounds,
     sd_theil_distributional_bounds,
 )
+from .dml import DoubleMachineLearning
+from .dowhy_identify_estimate import DoWhyIdentifyEstimate, DoWhyIdentifyEstimateV1
+from .dowhy_refute import DoWhyRefute
+from .dtr import estimate_dtr_trajectory
+from .fairness import (
+    CounterfactualFairnessEstimator,
+    PathSpecificFairnessEstimator,
+    TVFairnessDecomposer,
+)
+from .forest_dr import ForestDRLearnerEstimator
+from .frontier import (
+    DistributionalTreatmentEffectEstimator,
+    NetworkHeterogeneousEffectEstimator,
+    ProximalBridgeEstimator,
+    SpatialProximalBridgeEstimator,
+)
 from .g_computation import estimate_g_computation_trajectory
 from .g_estimation import StructuralNestedMeanModel
 from .gcm_fit import HybridSCMFit
 from .gcm_query import GCMQuery
-from .twin_network_query import TwinNetworkQuery
 from .graph_reconciliation import ReconcileCausalGraph, compute_reconciliation_diagnostics
-from .query_preservation import (
-    check_query_preservation,
-    check_query_preservation_batch,
-    evaluate_query_preservation,
-    evaluate_query_preservation_batch,
-    negative_certificate_from_query_preservation_trace,
-    update_query_preservation_cache,
-    update_query_preservation_artifact_refs,
+from .interference import (
+    BipartiteInterferenceEstimator,
+    NetworkAIPWEstimator,
+    PartialInterferenceEstimator,
+    SpatialInterferenceEstimator,
+    build_block_stratified_network_causal_data,
 )
-from .proof_trace_composability import (
-    build_witness_index_from_proof_steps,
-    check_proof_trace_composability,
-    proof_composability_cache_key,
-    replay_graph_witness,
-)
+from .invariance_tests import InvariantDiscoveryFromRegimes
 from .literature_prior import BuildLiteraturePrior
+from .lp_bounds import auto_bounds
 from .mediation import CausalMediationEstimator, ControlledDirectEffectEstimator
+from .meta_learners import MetaLearnerEstimator
 from .model_class_compatibility import (
     CompatibilityVerdict,
     check_model_class_compatibility,
 )
-from .causal_bcf import CausalBCF
-from .forest_dr import ForestDRLearnerEstimator
-from .meta_learners import MetaLearnerEstimator
 from .modern_did import (
     BorusyakJaravelSpiessEstimator,
     CallawaySantAnnaEstimator,
     DeChaisemartinDHaultfoeuilleEstimator,
     SunAbrahamEstimator,
 )
+from .multi_treatment import (
+    MultiArmAIPWEstimator,
+    MultinomialIPWEstimator,
+    pairwise_contrasts,
+)
+from .nuisance_resolver import MultinomialPropensityModel, ParametricConditionalDensity
+from .operator_valued import (
+    OperatorApplyProbeMethod,
+    OperatorCMEKRREstimator,
+    OperatorExportBasisMethod,
+    OperatorKIVEstimator,
+    OperatorProximalMinimaxEstimator,
+    OperatorRLearnerEstimator,
+    OperatorUnsupportedTargetMethod,
+)
 from .parameter_transfer import ParameterTransfer
 from .pcmci_discovery import PCMCIDiscovery
 from .policy_learning import OptimalPolicyLearner
+from .proof_trace_composability import (
+    build_witness_index_from_proof_steps,
+    check_proof_trace_composability,
+    proof_composability_cache_key,
+    replay_graph_witness,
+)
+from .protocols import (
+    CausalEstimator,
+    ContinuousTreatmentData,
+    DoseResponseResult,
+    FairnessObservationalData,
+    GraphCausalData,
+    GraphCausalDataV1,
+    GraphReconciliationData,
+    HTEObservationalData,
+    LiteraturePriorBuildData,
+    LLMStructuralHint,
+    MultiTreatmentData,
+    MultiTreatmentResult,
+    NetworkCausalData,
+    PanelObservationalData,
+    ParameterTransferData,
+    RDDObservationalData,
+    SCMFitData,
+    SCMQueryData,
+    TabularCausalDiscoveryData,
+    TimeSeriesCausalData,
+)
 from .proximal_identify import proximal_identify_v1
 from .proximal_mediation import (
     ProximalMediationEstimator,
     proximal_mediation_identify_v1,
 )
+from .query_preservation import (
+    check_query_preservation,
+    check_query_preservation_batch,
+    evaluate_query_preservation,
+    evaluate_query_preservation_batch,
+    negative_certificate_from_query_preservation_trace,
+    update_query_preservation_artifact_refs,
+    update_query_preservation_cache,
+)
+from .query_validator import CausalQueryValidator
+from .rdd import RegressionDiscontinuity
 from .recourse_manifold import (
     DiscreteActionAtlas,
     PlannerOptions,
@@ -111,6 +186,13 @@ from .recourse_manifold import (
     optimal_recourse_intervention,
     program_cost,
 )
+from .sensitivity_metrics import SensitivityMetrics
+from .sigma_calculus import sigma_identify, sigma_z_identify
+from .stochastic_policies import (
+    PolicyAIPWEstimator,
+    PolicyPluginEstimator,
+    PolicyTMLEEstimator,
+)
 from .strategic import (
     PerformativeLoopSpec,
     StrategicSolveResult,
@@ -120,24 +202,6 @@ from .strategic import (
     solve_strategic_response,
     strategic_result_summary,
 )
-from .protocols import (
-    CausalEstimator,
-    GraphCausalData,
-    GraphCausalDataV1,
-    GraphReconciliationData,
-    HTEObservationalData,
-    LiteraturePriorBuildData,
-    LLMStructuralHint,
-    PanelObservationalData,
-    ParameterTransferData,
-    RDDObservationalData,
-    SCMFitData,
-    SCMQueryData,
-    TabularCausalDiscoveryData,
-    TimeSeriesCausalData,
-)
-from .rdd import RegressionDiscontinuity
-from .sensitivity_metrics import SensitivityMetrics
 from .structural_time_series import (
     StructuralTimeSeries,
     TemporalTrajectoryResult,
@@ -146,6 +210,7 @@ from .structural_time_series import (
     estimate_structural_time_series_trajectory,
     solve_temporal_effect_path,
 )
+from .superlearner import FittedSuperLearner, SuperLearnerNuisanceModel
 from .symbolic_identify import SymbolicIdentify
 from .synthetic_control import SyntheticControlMethod
 from .temporal_estimand_compiler import (
@@ -157,10 +222,8 @@ from .temporal_estimand_compiler import (
     TemporalFallbackMode,
     compile_temporal_estimand,
 )
-from .causal_engine import CausalEngine
-from .query_validator import CausalQueryValidator
-from .transport_check import CheckTransportability
 from .transport_bounds import transport_bounds
+from .transport_check import CheckTransportability
 from .treatment_effects import (
     AIPWEstimator,
     CBPSEstimator,
@@ -169,71 +232,7 @@ from .treatment_effects import (
     PropensityScoreMatchingEstimator,
     TMLEEstimator,
 )
-from .interference import (
-    BipartiteInterferenceEstimator,
-    NetworkAIPWEstimator,
-    PartialInterferenceEstimator,
-    SpatialInterferenceEstimator,
-    build_block_stratified_network_causal_data,
-)
-from .protocols import NetworkCausalData
-from .protocols import (
-    ContinuousTreatmentData,
-    DoseResponseResult,
-    MultiTreatmentData,
-    MultiTreatmentResult,
-)
-from .continuous_treatment import (
-    EntropyBalancingContinuousEstimator,
-    GeneralizedPropensityScoreEstimator,
-    KernelDoseResponseEstimator,
-    ShiftInterventionEstimator,
-)
-from .stochastic_policies import (
-    PolicyAIPWEstimator,
-    PolicyPluginEstimator,
-    PolicyTMLEEstimator,
-)
-from .multi_treatment import (
-    MultiArmAIPWEstimator,
-    MultinomialIPWEstimator,
-    pairwise_contrasts,
-)
-from .superlearner import FittedSuperLearner, SuperLearnerNuisanceModel
-from .nuisance_resolver import MultinomialPropensityModel, ParametricConditionalDensity
-from .cross_fit import CrossFitContinuousOrchestrator
-from .fairness import (
-    CounterfactualFairnessEstimator,
-    PathSpecificFairnessEstimator,
-    TVFairnessDecomposer,
-)
-from .frontier import (
-    DistributionalTreatmentEffectEstimator,
-    NetworkHeterogeneousEffectEstimator,
-    ProximalBridgeEstimator,
-    SpatialProximalBridgeEstimator,
-)
-from .operator_valued import (
-    OperatorApplyProbeMethod,
-    OperatorCMEKRREstimator,
-    OperatorExportBasisMethod,
-    OperatorKIVEstimator,
-    OperatorProximalMinimaxEstimator,
-    OperatorRLearnerEstimator,
-    OperatorUnsupportedTargetMethod,
-)
-from .causal_fairness import (
-    CausalFairnessEngine,
-    StandardFairnessModel,
-    fairness_bounds,
-    identify_fairness_effects,
-    tv_decomposition,
-)
-from .ctf_calculus import rewrite_ctf_estimand
-from .ctf_transport import ctf_transportability, ctf_transport_bounds
-from .cyclic_id import cyclic_id_algorithm
-from .sigma_calculus import sigma_identify, sigma_z_identify
-from .protocols import FairnessObservationalData
+from .twin_network_query import TwinNetworkQuery
 
 
 def ensure_causal_methods_registered(registry: MethodRegistry | None = None) -> None:

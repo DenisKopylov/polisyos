@@ -1,4 +1,5 @@
 """Public causal run causal queries module API."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping

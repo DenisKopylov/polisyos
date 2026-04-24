@@ -1,5 +1,5 @@
 import sys
-from pathlib import Path
+
 from tools._lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
@@ -9,15 +9,15 @@ if str(SRC_ROOT) not in sys.path:
 
 import uuid
 
-# --- IMPORTS HACK ---
-import jax_bootstrap  # noqa: F401
 import jax  # noqa: E402
 import jax.numpy as jnp  # noqa: E402
-
 from polisyos.foundry.domain.state import GlobalState  # noqa: E402
 from polisyos.foundry.engine.kernel import SimulationKernel  # noqa: E402
-from polisyos.fabric.io.db import SimulationDB  # noqa: E402
+
+# --- IMPORTS HACK ---
+import jax_bootstrap  # noqa: F401
 from polisyos.common.logger import logger  # noqa: E402
+from polisyos.fabric.io.db import SimulationDB  # noqa: E402
 
 
 def main():

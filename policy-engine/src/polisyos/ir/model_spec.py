@@ -6,18 +6,27 @@ explicit modeling assumptions used to evaluate a fixed ``PolicySpec`` against a
 fixed ``ProblemFrame``. Multiple ``ModelSpec`` variants are expected when
 running robustness or sensitivity sweeps over world-model assumptions.
 """
+
 from __future__ import annotations
 
 from decimal import Decimal
 from enum import Enum
-from typing import Annotated, Any, Literal, Sequence
+from typing import TYPE_CHECKING, Annotated, Any, Literal
 
 from pydantic import BeforeValidator, Field, model_validator
 
 from polisyos.ir.kernel.base import KernelModel, reject_float
-from polisyos.ir.kernel.numbers import DecimalValue
-from polisyos.ir.kernel.time_semantics import TimeSemantics
-from polisyos.ir.types import EntityType, TranslatableString
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from polisyos.ir.kernel.numbers import DecimalValue
+    from polisyos.ir.kernel.time_semantics import TimeSemantics
+    from polisyos.ir.types import EntityType, TranslatableString
+else:
+    from polisyos.ir.kernel.numbers import DecimalValue
+    from polisyos.ir.kernel.time_semantics import TimeSemantics
+    from polisyos.ir.types import EntityType, TranslatableString
 
 # Constants
 ID_PATTERN = r"^[a-z][a-z0-9_]*$"
@@ -74,9 +83,7 @@ class AssumptionSpec(KernelModel):
         None, description="Confidence in this assumption (0-1)"
     )
     source: str | None = Field(None, max_length=200, description="Source/citation")
-    sensitivity_flag: bool = Field(
-        False, description="Flag for sensitivity analysis priority"
-    )
+    sensitivity_flag: bool = Field(False, description="Flag for sensitivity analysis priority")
     notes: list[str] = Field(default_factory=list, max_length=5)
 
 
@@ -254,7 +261,7 @@ class ModelSpec(KernelModel):
     notes: list[str] = Field(default_factory=list, max_length=50)
 
     @model_validator(mode="after")
-    def validate_model_spec(self) -> "ModelSpec":
+    def validate_model_spec(self) -> ModelSpec:
         """Validate internal consistency of the model spec."""
 
         _validate_unique_ids(self.assumptions, "assumption_id")
@@ -263,13 +270,10 @@ class ModelSpec(KernelModel):
 
         if self.agent_config.agent_types:
             total_share = sum(
-                (agent.population_share or Decimal("0"))
-                for agent in self.agent_config.agent_types
+                (agent.population_share or Decimal("0")) for agent in self.agent_config.agent_types
             )
             if total_share > Decimal("1"):
-                raise ValueError(
-                    f"Agent type population shares sum to {total_share}, exceeds 1.0"
-                )
+                raise ValueError(f"Agent type population shares sum to {total_share}, exceeds 1.0")
 
         return self
 

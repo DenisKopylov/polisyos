@@ -30,9 +30,9 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.scientist.engine.state import ExperimentState
 
 __all__ = [
+    "ConditionSyntaxError",
     "NodeCondition",
     "evaluate_condition",
-    "ConditionSyntaxError",
 ]
 
 
@@ -60,6 +60,7 @@ class NodeCondition(BaseModel):
 # Path resolution (mirrors idempotency._resolve_path)
 # ---------------------------------------------------------------------------
 
+
 def _resolve_path(state: ExperimentState, path: str) -> Any:
     """Resolve a dot-path against *state*, returning ``None`` for missing."""
     parts = path.split(".")
@@ -78,10 +79,21 @@ def _resolve_path(state: ExperimentState, path: str) -> Any:
 # Tokeniser
 # ---------------------------------------------------------------------------
 
-_BINARY_OPS = frozenset({
-    "==", "!=", ">", "<", ">=", "<=", "in", "not_in",
-    "has_length", "has_min_length", "has_max_length",
-})
+_BINARY_OPS = frozenset(
+    {
+        "==",
+        "!=",
+        ">",
+        "<",
+        ">=",
+        "<=",
+        "in",
+        "not_in",
+        "has_length",
+        "has_min_length",
+        "has_max_length",
+    }
+)
 _UNARY_OPS = frozenset({"is_set", "is_empty"})
 _ALL_OPS = _BINARY_OPS | _UNARY_OPS
 
@@ -126,6 +138,7 @@ def _parse_literal(raw: str) -> Any:
 # Comparisons
 # ---------------------------------------------------------------------------
 
+
 def _coerce_for_comparison(resolved: Any) -> Any:
     """Normalise resolved state values for comparison.
 
@@ -136,7 +149,7 @@ def _coerce_for_comparison(resolved: Any) -> Any:
         return None
     # ArtifactRef has an artifact_id attribute
     if hasattr(resolved, "artifact_id"):
-        return getattr(resolved, "artifact_id")
+        return resolved.artifact_id
     return resolved
 
 
@@ -199,6 +212,7 @@ def _compare(left: Any, op: str, right: Any) -> bool:
 # Public API
 # ---------------------------------------------------------------------------
 
+
 def evaluate_condition(expr: str, state: ExperimentState) -> bool:
     """Evaluate a condition expression against *state*.
 
@@ -215,9 +229,7 @@ def evaluate_condition(expr: str, state: ExperimentState) -> bool:
     has_and = " AND " in expr
     has_or = " OR " in expr
     if has_and and has_or:
-        raise ConditionSyntaxError(
-            "Mixed AND/OR not supported; use separate conditions"
-        )
+        raise ConditionSyntaxError("Mixed AND/OR not supported; use separate conditions")
     if has_and:
         parts = [p.strip() for p in expr.split(" AND ")]
         return all(_evaluate_single(p, state) for p in parts)
@@ -252,9 +264,7 @@ def _evaluate_single(expr: str, state: ExperimentState) -> bool:
 
     # Binary operators require a RHS
     if raw_value is None:
-        raise ConditionSyntaxError(
-            f"Operator {op!r} requires a right-hand value in: {expr!r}"
-        )
+        raise ConditionSyntaxError(f"Operator {op!r} requires a right-hand value in: {expr!r}")
 
     literal = _parse_literal(raw_value)
     return _compare(resolved, op, literal)

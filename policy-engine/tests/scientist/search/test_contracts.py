@@ -10,8 +10,16 @@ from polisyos.scientist.search.contracts import (
 )
 from polisyos.scientist.search.controller import SearchConfig, SearchController
 from polisyos.scientist.search.funnel.orchestrator import FunnelOrchestrator
-from polisyos.scientist.search.funnel.types import FunnelStage, FunnelStageResult, UncertaintyEnvelope
-from polisyos.scientist.search.objective import CompositeObjective, ObjectiveValue, OptimizationDirection
+from polisyos.scientist.search.funnel.types import (
+    FunnelStage,
+    FunnelStageResult,
+    UncertaintyEnvelope,
+)
+from polisyos.scientist.search.objective import (
+    CompositeObjective,
+    ObjectiveValue,
+    OptimizationDirection,
+)
 from polisyos.scientist.search.stopping import MaxIterations
 
 

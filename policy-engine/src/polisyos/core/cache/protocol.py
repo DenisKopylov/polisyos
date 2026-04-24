@@ -1,4 +1,5 @@
 """Define the minimal mutable cache protocol shared by cache backends."""
+
 from __future__ import annotations
 
 from collections.abc import Hashable
@@ -14,12 +15,10 @@ class Cache(Protocol[K, V]):
     """Generic mutable cache contract."""
 
     @overload
-    def get(self, key: K) -> V | None:
-        ...
+    def get(self, key: K) -> V | None: ...
 
     @overload
-    def get(self, key: K, default: T) -> V | T:
-        ...
+    def get(self, key: K, default: T) -> V | T: ...
 
     def get(self, key: K, default: T | None = None) -> V | T | None:
         """Return a cached value or `default` when the key is absent."""
@@ -30,12 +29,10 @@ class Cache(Protocol[K, V]):
         ...
 
     @overload
-    def pop(self, key: K) -> V | None:
-        ...
+    def pop(self, key: K) -> V | None: ...
 
     @overload
-    def pop(self, key: K, default: T) -> V | T:
-        ...
+    def pop(self, key: K, default: T) -> V | T: ...
 
     def pop(self, key: K, default: T | None = None) -> V | T | None:
         """Remove a cached key and return its value or `default`."""
@@ -49,8 +46,6 @@ class Cache(Protocol[K, V]):
         """Drop all cached entries."""
         ...
 
-    def __contains__(self, key: object) -> bool:
-        ...
+    def __contains__(self, key: object) -> bool: ...
 
-    def __len__(self) -> int:
-        ...
+    def __len__(self) -> int: ...

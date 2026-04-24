@@ -1,4 +1,5 @@
 # Strategic Admissibility
+
 Related reference: [Analytics IR](analytics.md), [IR Schema Catalog](schema-catalog.md).
 
 Owner: `@ir-owners`
@@ -20,7 +21,7 @@ The reduced-scope D.2 runtime still solves only tiny finite games exactly:
 
 That implementation limit is narrower than the policy question. For realistic
 strategic environments, the important contract question is not only "can we run
- a solver" but also:
+a solver" but also:
 
 - does the requested equilibrium notion exist under declared assumptions
 - is the equilibrium set typically unique or selection-sensitive
@@ -33,38 +34,43 @@ strategic environments, the important contract question is not only "can we run
 
 The admissibility registry currently ships these policy-facing classes.
 
-| Game class | Solution concept | Existence anchor | Tractability | Default fallback | Current runtime posture |
-|---|---|---|---|---|---|
-| `zero_sum` | `minimax` | minimax / zero-sum value exists | `P` | `exact_equilibrium` | `blocked_unsupported` |
-| `normal_form_general_sum` | `mixed_nash` | finite mixed Nash exists | `PPAD` | `strategic_bounds` | `blocked_research` |
-| `stackelberg_single_follower` | `stackelberg_optimistic` | single-follower commitment equilibrium | `P` | `exact_equilibrium` | `supported` |
-| `stackelberg_single_follower` | `stackelberg_pessimistic` | single-follower commitment equilibrium | `P` | `exact_equilibrium` | `blocked_unsupported` |
-| `stackelberg_complex` | `stackelberg_optimistic` / `stackelberg_pessimistic` | requires explicit follower-selection semantics | `NP_HARD` | `blocked` | `blocked_research` |
-| `potential_congestion` | `pure_nash` | Rosenthal / potential-game pure equilibrium | `PLS` | `strategic_bounds` | `blocked_research` |
-| `concave_vi` | `variational_equilibrium` | concave-game existence | `POLY_EPSILON` | `strategic_bounds` | `blocked_unsupported` |
-| `gne_jointly_convex` | `variational_equilibrium` | jointly-convex GNE existence | `POLY_EPSILON` | `strategic_bounds` | `blocked_unsupported` |
-| `gne_nonconvex` | `variational_equilibrium` | nonconvex GNE needs global optimization / convexification | `GLOBAL_OPT` | `blocked` | `blocked_research` |
-| `anonymous_aggregative` | `epsilon_nash` | anonymous-game PTAS / macro limit | `POLY_EPSILON` | `macro_abstracted` | `blocked_unsupported` |
-| `small_finite_best_response` | `best_response_fixed_point` | explicit finite-profile enumeration | `P` | `exact_equilibrium` | `supported` |
+| Game class                    | Solution concept                                     | Existence anchor                                          | Tractability   | Default fallback    | Current runtime posture |
+| ----------------------------- | ---------------------------------------------------- | --------------------------------------------------------- | -------------- | ------------------- | ----------------------- |
+| `zero_sum`                    | `minimax`                                            | minimax / zero-sum value exists                           | `P`            | `exact_equilibrium` | `blocked_unsupported`   |
+| `normal_form_general_sum`     | `mixed_nash`                                         | finite mixed Nash exists                                  | `PPAD`         | `strategic_bounds`  | `blocked_research`      |
+| `stackelberg_single_follower` | `stackelberg_optimistic`                             | single-follower commitment equilibrium                    | `P`            | `exact_equilibrium` | `supported`             |
+| `stackelberg_single_follower` | `stackelberg_pessimistic`                            | single-follower commitment equilibrium                    | `P`            | `exact_equilibrium` | `blocked_unsupported`   |
+| `stackelberg_complex`         | `stackelberg_optimistic` / `stackelberg_pessimistic` | requires explicit follower-selection semantics            | `NP_HARD`      | `blocked`           | `blocked_research`      |
+| `potential_congestion`        | `pure_nash`                                          | Rosenthal / potential-game pure equilibrium               | `PLS`          | `strategic_bounds`  | `blocked_research`      |
+| `concave_vi`                  | `variational_equilibrium`                            | concave-game existence                                    | `POLY_EPSILON` | `strategic_bounds`  | `blocked_unsupported`   |
+| `gne_jointly_convex`          | `variational_equilibrium`                            | jointly-convex GNE existence                              | `POLY_EPSILON` | `strategic_bounds`  | `blocked_unsupported`   |
+| `gne_nonconvex`               | `variational_equilibrium`                            | nonconvex GNE needs global optimization / convexification | `GLOBAL_OPT`   | `blocked`           | `blocked_research`      |
+| `anonymous_aggregative`       | `epsilon_nash`                                       | anonymous-game PTAS / macro limit                         | `POLY_EPSILON` | `macro_abstracted`  | `blocked_unsupported`   |
+| `small_finite_best_response`  | `best_response_fixed_point`                          | explicit finite-profile enumeration                       | `P`            | `exact_equilibrium` | `supported`             |
 
 ## Existence Rules
 
 - `zero_sum` + `minimax`: use the minimax existence/value theorem as the
   policy anchor; this is the clean allowlist case for exact reporting once a
   dedicated solver lands.
+
 - `normal_form_general_sum` + `mixed_nash`: finite mixed Nash exists, but
   existence alone is not enough to justify a point recommendation because
   computation is hard and equilibrium selection is often policy-sensitive.
+
 - `potential_congestion` + `pure_nash`: pure equilibrium exists in potential /
   congestion subclasses, but that does not make pure-equilibrium selection a
   safe default output.
+
 - `concave_vi` + `variational_equilibrium`: existence is weaker than
   uniqueness; the registry therefore defaults to bounds unless the descriptor
   carries a uniqueness certificate such as `strong_monotonicity`,
   `diagonal_strict_concavity`, or `unique_equilibrium`.
+
 - `gne_jointly_convex` + `variational_equilibrium`: jointly-convex shared
   constraint games stay in bounds mode by default; exact mode is unlocked only
   by a uniqueness/monotonicity certificate.
+
 - `anonymous_aggregative` + `epsilon_nash`: the contract treats large-population
   strategic classes as approximation-first and macro-friendly rather than
   point-equilibrium first.
@@ -75,6 +81,7 @@ The admissibility registry currently ships these policy-facing classes.
 
 - `equilibrium_concept`: legacy shorthand kept for compatibility with existing
   `"stackelberg"`, `"nash"`, and `"best_response_fixed_point"` payloads
+
 - `equilibrium_descriptor`: the normalized contract surface containing
   `game_class`, `solution_concept`, `tractability_class`,
   `existence_assumptions`, `uniqueness_assumptions`,
@@ -96,6 +103,7 @@ The solver now consults the descriptor registry before degrading:
 - classes with default `blocked` skip the generic payoff-envelope bounds path
 - classes with default `macro_abstracted` try macro abstraction before the
   normal bounds path when macro tables are present
+
 - classes with default `strategic_bounds` keep the existing bounds-first
   behavior
 
@@ -134,8 +142,10 @@ The bundle now distinguishes four decomposition states:
 
 - `exact`: point decomposition is licensed by an explicit certificate plus an
   anchor equilibrium.
+
 - `selector_invariant`: multiple equilibria may exist, but all admissible
   selectors induce the same component pair.
+
 - `bounded`: only interval-valued component disclosure is allowed.
 - `blocked`: total post-adaptation value may still be known, but the two-number
   decomposition is not licensed.

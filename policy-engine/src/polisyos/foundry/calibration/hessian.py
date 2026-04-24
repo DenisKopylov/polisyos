@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, List
 
 import jax
 import jax.numpy as jnp
@@ -20,7 +20,7 @@ class HessianResult:
     eigenvalues: np.ndarray  # (n,) sorted eigenvalues from eigh
     condition_number: float
     n_repaired: int  # number of eigenvalues clipped to eps
-    param_names: List[str]
+    param_names: list[str]
     strategy: str  # "exact" or "finite_diff"
 
 
@@ -115,7 +115,7 @@ def _finite_difference_hessian(
 def compute_hessian(
     loss_fn: Callable[[jnp.ndarray], jnp.ndarray],
     flat_theta: jnp.ndarray,
-    param_names: List[str],
+    param_names: list[str],
     *,
     damping: float = 1e-6,
     jitter_floor: float = 1e-8,
@@ -132,11 +132,11 @@ def compute_hessian(
         H_raw = jax.hessian(loss_fn)(jnp.asarray(flat_theta))
         if not bool(jnp.all(jnp.isfinite(H_raw))):
             raise ValueError("Hessian contains non-finite values")
-    except Exception:
+    except Exception as exc:
         H_raw = _finite_difference_hessian(loss_fn, jnp.asarray(flat_theta))
         strategy = "finite_diff"
         if not bool(jnp.all(jnp.isfinite(H_raw))):
-            raise ValueError("Finite-difference Hessian contains non-finite values")
+            raise ValueError("Finite-difference Hessian contains non-finite values") from exc
 
     raw_eigvals = jnp.linalg.eigvalsh(0.5 * (H_raw + H_raw.T))
     H_repaired, eigvals, n_repaired = _repair_eigenvalues(
@@ -148,10 +148,7 @@ def compute_hessian(
     cov = jnp.linalg.inv(H_repaired)
 
     std = jnp.sqrt(jnp.maximum(jnp.diag(cov), 0.0))
-    if (
-        not bool(jnp.all(jnp.isfinite(raw_eigvals)))
-        or bool(jnp.any(raw_eigvals <= jitter_floor))
-    ):
+    if not bool(jnp.all(jnp.isfinite(raw_eigvals))) or bool(jnp.any(raw_eigvals <= jitter_floor)):
         condition_number = float("inf")
     else:
         condition_number = float(raw_eigvals[-1] / raw_eigvals[0])

@@ -13,17 +13,17 @@ from __future__ import annotations
 import logging
 import time
 from enum import Enum
-from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
-from polisyos.scientist.engine.runner.worker_pool import PoolCapacity, WorkerPool
+from polisyos.scientist.engine.runner.worker_pool import WorkerPool
 
 _logger = logging.getLogger(__name__)
 
 
 class ScaleDirection(str, Enum):
     """Scale direction public type."""
+
     UP = "up"
     DOWN = "down"
     NONE = "none"
@@ -76,11 +76,7 @@ class AutoScaler:
     async def evaluate(self) -> ScaleDecision:
         """Compute a scaling decision based on current utilisation."""
         cap = await self._pool.current_capacity()
-        utilisation = (
-            cap.active_tasks / cap.total_workers
-            if cap.total_workers > 0
-            else 0.0
-        )
+        utilisation = cap.active_tasks / cap.total_workers if cap.total_workers > 0 else 0.0
 
         now = time.monotonic()
         in_cooldown = (now - self._last_scale_at) < self._policy.cooldown_s

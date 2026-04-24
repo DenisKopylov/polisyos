@@ -1,4 +1,5 @@
 """Program-graph orchestrator — execute_program_graph and direct helpers."""
+
 from __future__ import annotations
 
 import logging
@@ -12,7 +13,6 @@ import jax.numpy as jnp
 import numpy as np
 from pydantic import TypeAdapter, ValidationError
 
-from polisyos.core.canon import CanonSpec
 from polisyos.core.artifacts.environment import (
     EnvironmentManifest,
     EnvironmentManifestRef,
@@ -21,6 +21,7 @@ from polisyos.core.artifacts.environment import (
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
     ConstraintReport,
     ConstraintReportRef,
@@ -48,9 +49,9 @@ from polisyos.ir.kernel import (
 
 from ._executor_models import (
     ExecuteArtifacts,
-    FailureKind,
     ExecutionStrictness,
     FailureCard,
+    FailureKind,
     FailureSeverity,
     artifact_id,
     get_state_path,
@@ -59,6 +60,7 @@ from ._executor_models import (
     put_tensor,
 )
 from ._executor_ops import apply_ops_to_state, coerce_number, evaluate_selector
+from ._executor_patching import apply_patch_map
 from .constraints_engine import check_constraints as evaluate_lowered_constraints
 from .methods.backends.circuit_breaker import BackendCircuitOpenError
 from .methods.backends.dispatch import BackendNotAvailableError
@@ -72,6 +74,11 @@ from .methods.exceptions import (
     SelectorEvaluationError,
     ShapeMismatchError,
     StatePathTraversalError,
+)
+from .welfare_bounds import (
+    load_observed_range_bundle,
+    persist_welfare_bound_report,
+    safe_compute_mechanism_welfare_bound_report,
 )
 
 __all__ = [
@@ -120,6 +127,9 @@ def execute_program_graph(
     capture_env: bool = False,
     parameter_overrides: dict[str, dict[str, Any]] | None = None,
     parameter_override_bundle_ref: ArtifactRef | None = None,
+    observed_range_bundle_ref: ArtifactRef | None = None,
+    welfare_bound_mode: str = "ex_ante",
+    persist_welfare_bound_reports: bool = True,
     strictness: ExecutionStrictness = ExecutionStrictness.FAIL_CLOSED,
 ) -> ExecuteArtifacts:
     """Execute program graph."""
@@ -146,6 +156,13 @@ def execute_program_graph(
     if program_graph.lowered_ir_ref is None:
         raise ValueError("program_graph_missing_lowered_ir_ref")
     lowered_ir = load_model(store, program_graph.lowered_ir_ref, LoweredIR)
+    observed_ranges = None
+    if persist_welfare_bound_reports and welfare_bound_mode != "off":
+        observed_ranges = (
+            load_observed_range_bundle(store, observed_range_bundle_ref)
+            if observed_range_bundle_ref is not None
+            else None
+        )
 
     order = exec_plan.order or [node.node_id for node in program_graph.nodes]
     node_map = {node.node_id: node for node in program_graph.nodes}
@@ -174,6 +191,7 @@ def execute_program_graph(
     failure_cards: list[FailureCard] = []
     failure_cards_dropped = 0
     provenance: dict[str, list[str]] = {}
+    derived_artifacts: list[tuple[str, ArtifactRef]] = []
     touched_slots: set[str] = set()
     executed_mutating_nodes: set[str] = set()
     op_nodes = 0
@@ -196,7 +214,7 @@ def execute_program_graph(
         touched_slots.update(patch_records.keys())
         base_values = {
             slot_id: get_state_path(visible_state, slot_spec.state_path)
-            for slot_id in patch_records.keys()
+            for slot_id in patch_records
             for slot_spec in [slot_registry.slots.get(slot_id)]
             if slot_spec is not None and slot_spec.state_path
         }
@@ -215,6 +233,37 @@ def execute_program_graph(
             merge_registry=merge_registry,
         )
         patch_records = {}
+
+    def _persist_welfare_report(node: Any, report: Any) -> None:
+        if report is None or not persist_welfare_bound_reports:
+            return
+        report_inputs = [
+            InputRef(artifact_id=artifact_id(exec_plan_ref), role="exec_plan"),
+        ]
+        if base_ref is not None:
+            report_inputs.append(
+                InputRef(artifact_id=base_ref.artifact_id, role="base_state_snapshot")
+            )
+        if node.params_ref is not None:
+            report_inputs.append(
+                InputRef(artifact_id=node.params_ref.artifact_id, role="mechanism_params")
+            )
+        if parameter_override_bundle_ref is not None:
+            report_inputs.append(
+                InputRef(
+                    artifact_id=parameter_override_bundle_ref.artifact_id,
+                    role="parameter_override_bundle",
+                )
+            )
+        if observed_range_bundle_ref is not None:
+            report_inputs.append(
+                InputRef(
+                    artifact_id=observed_range_bundle_ref.artifact_id,
+                    role="observed_range_bundle",
+                )
+            )
+        report_ref = persist_welfare_bound_report(store, report, inputs=report_inputs)
+        derived_artifacts.append((f"welfare_bound_report:{node.node_id}", report_ref))
 
     for node_id in order:
         node = node_map.get(node_id)
@@ -259,7 +308,7 @@ def execute_program_graph(
                     masks[node.node_id] = (mask, scope)
                     continue
                 if node.op.op_kind == "apply_mechanism":
-                    key, patch_map, payload = _execute_mechanism_like_node(
+                    key, patch_map, payload, welfare_report = _execute_mechanism_like_node(
                         store,
                         node=node,
                         visible_state=visible_state,
@@ -271,7 +320,11 @@ def execute_program_graph(
                         n_firms=n_firms,
                         mechanism_registry=mechanism_registry,
                         parameter_overrides=parameter_overrides,
+                        observed_ranges=observed_ranges,
+                        slot_registry=slot_registry,
+                        merge_registry=merge_registry,
                         tax_rate_value=tax_rate_value,
+                        welfare_bound_mode=welfare_bound_mode,
                     )
                     if patch_map is None:
                         skipped_nodes += 1
@@ -282,6 +335,7 @@ def execute_program_graph(
                         payload=payload,
                         patch_map=patch_map,
                     )
+                    _persist_welfare_report(node, welfare_report)
                     applied_nodes += 1
                     executed_mutating_nodes.add(node_id)
                     continue
@@ -311,7 +365,7 @@ def execute_program_graph(
                     code="unsupported_program_op",
                 )
             if node.node_kind == "mechanism":
-                key, patch_map, payload = _execute_mechanism_like_node(
+                key, patch_map, payload, welfare_report = _execute_mechanism_like_node(
                     store,
                     node=node,
                     visible_state=visible_state,
@@ -323,7 +377,11 @@ def execute_program_graph(
                     n_firms=n_firms,
                     mechanism_registry=mechanism_registry,
                     parameter_overrides=parameter_overrides,
+                    observed_ranges=observed_ranges,
+                    slot_registry=slot_registry,
+                    merge_registry=merge_registry,
                     tax_rate_value=tax_rate_value,
+                    welfare_bound_mode=welfare_bound_mode,
                 )
                 if patch_map is None:
                     skipped_nodes += 1
@@ -334,6 +392,7 @@ def execute_program_graph(
                     payload=payload,
                     patch_map=patch_map,
                 )
+                _persist_welfare_report(node, welfare_report)
                 applied_nodes += 1
                 executed_mutating_nodes.add(node_id)
                 continue
@@ -442,11 +501,11 @@ def execute_program_graph(
             "skipped_nodes": int(skipped_nodes),
             "op_nodes": int(op_nodes),
             "checked_constraints": int(checked_constraints),
-            "patch_ops": int(len(ops)),
+            "patch_ops": len(ops),
             "step": int(step),
             "step_latency_ms": latency_ms,
             "constraint_hard_fail": int(constraint_report.hard_fail),
-            "failure_cards_recorded": int(len(failure_cards)),
+            "failure_cards_recorded": len(failure_cards),
             "failure_cards_dropped": int(failure_cards_dropped),
         }
     )
@@ -481,6 +540,7 @@ def execute_program_graph(
     return ExecuteArtifacts(
         state_delta_ref=state_delta_ref,
         metrics_ref=metrics_ref,
+        derived_artifacts=tuple(derived_artifacts),
         constraint_report_ref=constraint_report_ref,
         constraint_hard_fail=constraint_report.hard_fail,
         environment_ref=env_manifest_ref,
@@ -563,10 +623,7 @@ def _build_failure_card(
 ) -> FailureCard:
     details = dict(getattr(exc, "details", {}) or {})
     resolved_node_id = (
-        getattr(exc, "node_id", None)
-        or getattr(node, "node_id", None)
-        or node_id
-        or "unknown"
+        getattr(exc, "node_id", None) or getattr(node, "node_id", None) or node_id or "unknown"
     )
     resolved_method_fqn = getattr(exc, "method_fqn", None) or _node_target_fqn(
         node, node_id=resolved_node_id
@@ -575,7 +632,9 @@ def _build_failure_card(
         node, "mechanism_type", None
     )
     resolved_op_kind = getattr(exc, "op_kind", None) or (
-        getattr(node.op, "op_kind", None) if node is not None and getattr(node, "op", None) else None
+        getattr(node.op, "op_kind", None)
+        if node is not None and getattr(node, "op", None)
+        else None
     )
     resolved_slot_context = tuple(slot_context)
     slot_id = getattr(exc, "slot_id", None)
@@ -593,7 +652,9 @@ def _build_failure_card(
         traceback_hash=_hash_traceback(exc),
         timestamp=time.time(),
         retry_eligible=_classify_failure(exc) == FailureSeverity.RECOVERABLE,
-        suggested_fallback="retry" if _classify_failure(exc) == FailureSeverity.RECOVERABLE else None,
+        suggested_fallback="retry"
+        if _classify_failure(exc) == FailureSeverity.RECOVERABLE
+        else None,
         mechanism_type=resolved_mechanism_type,
         op_kind=resolved_op_kind,
         slot_context=resolved_slot_context,
@@ -684,7 +745,9 @@ def _append_method_patch_records(
             "patch_records must be a dict[str, list[dict]]",
         )
     expected_slots = {str(slot_id) for slot_id in getattr(node, "outputs", [])}
-    unexpected_slots = set(map(str, patch_payload.keys())) - expected_slots if expected_slots else set()
+    unexpected_slots = (
+        set(map(str, patch_payload.keys())) - expected_slots if expected_slots else set()
+    )
     if unexpected_slots:
         raise ContractViolationError(
             method_fqn,
@@ -783,8 +846,12 @@ def _execute_mechanism_like_node(
     n_firms: int,
     mechanism_registry: MechanismTypeRegistry,
     parameter_overrides: dict[str, dict[str, Any]] | None,
+    observed_ranges: Any | None,
+    slot_registry: SlotRegistry,
+    merge_registry: MergeRuleRegistry,
     tax_rate_value: jnp.ndarray | None,
-) -> tuple[jax.Array, dict[str, Any] | None, dict[str, Any]]:
+    welfare_bound_mode: str,
+) -> tuple[jax.Array, dict[str, Any] | None, dict[str, Any], Any | None]:
     if node.params_ref is None:
         raise ProgramNodeValidationError(
             f"Node '{node.node_id}' is missing params_ref",
@@ -801,7 +868,7 @@ def _execute_mechanism_like_node(
     schedule = ScheduleSpec.model_validate(payload.get("schedule", {}))
     start, end = schedule_range(schedule)
     if step < start or step > end:
-        return key, None, payload
+        return key, None, payload, None
 
     mechanism_type = node.mechanism_type or payload.get("mechanism_id")
     if not isinstance(mechanism_type, str) or not mechanism_type.strip():
@@ -872,7 +939,43 @@ def _execute_mechanism_like_node(
             "postcondition",
             f"mechanism '{mechanism_type}' did not emit patches",
         )
-    return key, patch_map, payload
+    welfare_report = None
+    state_after_error: str | None = None
+    if welfare_bound_mode != "off":
+        state_after = None
+        if welfare_bound_mode in {"ex_post", "both"}:
+            try:
+                state_after = apply_patch_map(
+                    visible_state,
+                    patch_map,
+                    slot_registry=slot_registry,
+                    merge_registry=merge_registry,
+                    default_node_id=node.node_id,
+                    priority=payload.get("priority"),
+                )
+            except Exception as exc:  # pragma: no cover - defensive envelope
+                state_after_error = f"{type(exc).__name__}: {exc}"
+        welfare_report = safe_compute_mechanism_welfare_bound_report(
+            mechanism_type,
+            mechanism,
+            visible_state,
+            observed_ranges,
+            state_after=state_after,
+            node_id=node.node_id,
+            target_mask=target_mask,
+            mode=welfare_bound_mode,
+        )
+    if welfare_report is not None and state_after_error is not None:
+        welfare_report = welfare_report.model_copy(
+            update={
+                "status": "warning",
+                "notes": [
+                    *welfare_report.notes,
+                    f"state_after_reconstruction_failed:{state_after_error}",
+                ],
+            }
+        )
+    return key, patch_map, payload, welfare_report
 
 
 def _build_state_delta_ops(

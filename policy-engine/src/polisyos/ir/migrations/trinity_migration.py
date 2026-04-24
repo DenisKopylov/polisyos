@@ -1,12 +1,16 @@
 """Trinity migration helpers."""
+
 from __future__ import annotations
 
 import logging
-from typing import Any, Mapping
+from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
 from polisyos.ir.trinity import TrinityBundle
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 logger = logging.getLogger(__name__)
 

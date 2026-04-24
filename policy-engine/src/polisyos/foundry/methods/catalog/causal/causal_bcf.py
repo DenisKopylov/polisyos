@@ -1,7 +1,9 @@
 """Public causal causal bcf module API."""
+
 from __future__ import annotations
 
-from typing import Any, Callable, ClassVar, Literal, Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -19,7 +21,6 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.foundry.methods.catalog.causal._common import (
-    build_failure_report,
     build_success_report,
     wrap_causal_output,
 )
@@ -32,8 +33,7 @@ from polisyos.foundry.methods.catalog.causal.ci_backends import (
     robust_standard_error,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
-from polisyos.foundry.methods.catalog.causal.superlearner import SuperLearnerConfig, SuperLearnerNuisance
-from polisyos.ir.analytics.causal import CausalMethod, EstimationStatus
+from polisyos.ir.analytics.causal import CausalMethod
 from polisyos.ir.analytics.hte import FeatureImportance, HTEResult, SubgroupEffect
 
 
@@ -167,7 +167,7 @@ def _feature_importances_from_array(
                 "method": method,
                 "metadata": {},
             }
-    )
+        )
     return out
 
 
@@ -260,8 +260,10 @@ def _fit_sklearn_pseudo_bcf(
 ]:
     warnings: list[str] = []
     try:  # pragma: no cover - optional dependency
-        from sklearn.ensemble import GradientBoostingClassifier  # type: ignore[import]
-        from sklearn.ensemble import GradientBoostingRegressor  # type: ignore[import]
+        from sklearn.ensemble import (
+            GradientBoostingClassifier,  # type: ignore[import]
+            GradientBoostingRegressor,  # type: ignore[import]
+        )
         from sklearn.linear_model import LogisticRegression
 
         def _fit_once(
@@ -323,9 +325,7 @@ def _fit_sklearn_pseudo_bcf(
             return mu_hat_local, tau_hat_local, tau_model_local
 
         mu_hat, tau_hat, tau_model = _fit_once(X, T, Y, fit_seed=seed)
-        warnings.append(
-            "sklearn fallback uses propensity-augmented pseudo-outcome calibration"
-        )
+        warnings.append("sklearn fallback uses propensity-augmented pseudo-outcome calibration")
 
         boot = np.zeros((bootstrap_runs, X.shape[0]), dtype=float)
         rng = np.random.default_rng(seed)
@@ -339,16 +339,20 @@ def _fit_sklearn_pseudo_bcf(
         coef = getattr(tau_model, "feature_importances_", np.array([]))
         if np.asarray(coef).size == 0 and hasattr(tau_model, "estimators_"):
             coef = np.std(boot, axis=0)
-        predict_tau = lambda X_new: np.asarray(tau_model.predict(np.asarray(X_new, dtype=float)), dtype=float).ravel()
+        predict_tau = lambda X_new: np.asarray(
+            tau_model.predict(np.asarray(X_new, dtype=float)), dtype=float
+        ).ravel()
         return mu_hat, tau_hat, tau_std, np.asarray(coef, dtype=float), warnings, predict_tau
     except Exception as exc:  # pragma: no cover - optional dependency
         warnings.append(f"sklearn fallback unavailable: {exc}")
-        mu_hat, tau_hat, mu_beta, tau_beta = _fit_two_stage_linear_bcf(
-            X, T, Y, ridge_alpha=1.0
+        mu_hat, tau_hat, mu_beta, tau_beta = _fit_two_stage_linear_bcf(X, T, Y, ridge_alpha=1.0)
+        tau_std = np.full(
+            X.shape[0], float(np.std(tau_hat, ddof=1) / np.sqrt(max(len(tau_hat), 1)))
         )
-        tau_std = np.full(X.shape[0], float(np.std(tau_hat, ddof=1) / np.sqrt(max(len(tau_hat), 1))))
         coef = np.abs(tau_beta[1:])
-        predict_tau = lambda X_new: np.asarray(_ridge_predict(np.asarray(X_new, dtype=float), tau_beta), dtype=float).ravel()
+        predict_tau = lambda X_new: np.asarray(
+            _ridge_predict(np.asarray(X_new, dtype=float), tau_beta), dtype=float
+        ).ravel()
         return mu_hat, tau_hat, tau_std, coef, warnings, predict_tau
 
 
@@ -359,17 +363,20 @@ def _fit_stochtree_bcf(
     *,
     seed: int,
     params: Mapping[str, Any],
-) -> tuple[
-    np.ndarray,
-    np.ndarray,
-    np.ndarray,
-    np.ndarray,
-    list[str],
-    Callable[[np.ndarray], np.ndarray] | None,
-] | None:
+) -> (
+    tuple[
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        list[str],
+        Callable[[np.ndarray], np.ndarray] | None,
+    ]
+    | None
+):
     try:  # pragma: no cover - optional dependency
         from stochtree import BCFModel  # type: ignore[import]
-    except Exception as exc:  # pragma: no cover - optional dependency
+    except Exception:  # pragma: no cover - optional dependency
         return None
 
     warnings: list[str] = []
@@ -447,8 +454,12 @@ def _fit_stochtree_bcf(
             )
             return _coerce_stochtree_prediction(pred, term="tau").reshape(-1)
 
-        coef = np.abs(np.asarray(getattr(model, "feature_importances_", np.array([])), dtype=float).ravel())
-        warnings.append("stochtree backend uses explicit propensity augmentation with tau-term predictions")
+        coef = np.abs(
+            np.asarray(getattr(model, "feature_importances_", np.array([])), dtype=float).ravel()
+        )
+        warnings.append(
+            "stochtree backend uses explicit propensity augmentation with tau-term predictions"
+        )
         return mu_hat, tau_hat, tau_std, coef, warnings, _predict_tau
     except Exception as exc:
         warnings.append(f"stochtree backend failed: {exc}")
@@ -481,7 +492,11 @@ class CausalBCF:
         ),
         output_slots=frozenset(
             {
-                SlotSpec(name="causal_effect_report", slot_type=SlotType.SCALAR, unit=Unit("report", "json")),
+                SlotSpec(
+                    name="causal_effect_report",
+                    slot_type=SlotType.SCALAR,
+                    unit=Unit("report", "json"),
+                ),
                 SlotSpec(name="hte_result", slot_type=SlotType.SCALAR, unit=Unit("report", "json")),
             }
         ),
@@ -559,7 +574,9 @@ class CausalBCF:
         backend_used = "numpy"
         warnings: list[str] = []
 
-        stochtree_result: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, list[str]] | None = None
+        stochtree_result: (
+            tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, list[str]] | None
+        ) = None
         if backend in ("auto", "stochtree"):
             stochtree_result = _fit_stochtree_bcf(
                 hte.x,
@@ -648,13 +665,17 @@ class CausalBCF:
             cate_ci_lower_values=(tau_hat - 1.96 * tau_std).tolist(),
             cate_ci_upper_values=(tau_hat + 1.96 * tau_std).tolist(),
             subgroup_effects=[SubgroupEffect.model_validate(item) for item in subgroup_payloads],
-            feature_importances=[FeatureImportance.model_validate(item) for item in feature_importances],
+            feature_importances=[
+                FeatureImportance.model_validate(item) for item in feature_importances
+            ],
             n_samples=int(hte.y.shape[0]),
             n_treated=int(np.sum(hte.t == 1)),
             n_control=int(np.sum(hte.t == 0)),
             n_features=int(hte.x.shape[1]),
             feature_names=feature_names,
-            econml_estimator_class=f"{backend_used}.BCFModel" if backend_used == "stochtree" else f"{backend_used}.PseudoBCF",
+            econml_estimator_class=f"{backend_used}.BCFModel"
+            if backend_used == "stochtree"
+            else f"{backend_used}.PseudoBCF",
             econml_params={
                 "backend": backend_used,
                 "bootstrap_runs": bootstrap_runs,

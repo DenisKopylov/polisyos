@@ -39,12 +39,12 @@ governance passes, and decision artifacts.
 
 ## Pipeline Stages
 
-| Stage | Primary owner | Evidence anchor |
-|---|---|---|
-| Discovery and graph shaping | Foundry methods + Scientist routing | Foundry method tests and Scientist workflow tests |
-| Identification and estimation | Foundry method catalog | ADR-backed method tests |
-| Bounds, proxy, and sensitivity handling | Foundry plus IR observation contracts | Foundry causal tests and IR observation tests |
-| Readiness, governance, publication | Scientist | Scientist causal-validity and governance pages |
+| Stage                                   | Primary owner                         | Evidence anchor                                   |
+| --------------------------------------- | ------------------------------------- | ------------------------------------------------- |
+| Discovery and graph shaping             | Foundry methods + Scientist routing   | Foundry method tests and Scientist workflow tests |
+| Identification and estimation           | Foundry method catalog                | ADR-backed method tests                           |
+| Bounds, proxy, and sensitivity handling | Foundry plus IR observation contracts | Foundry causal tests and IR observation tests     |
+| Readiness, governance, publication      | Scientist                             | Scientist causal-validity and governance pages    |
 
 ## Non-Default Capability Policy
 

@@ -1,4 +1,5 @@
 # Configuration Profiles
+
 Related reference: [Configuration](configuration.md), [Environment Matrix](environment-matrix.md), [Security Model](../explanation/security-model.md), [Key Rotation](../key-rotation.md).
 
 Owner: `@runtime-owners`
@@ -14,13 +15,13 @@ Canonical sources:
 
 ## Taxonomy
 
-| Category | Definition | Representative variables |
-|---|---|---|
-| Public config | Safe to expose to the browser or public build outputs | `VITE_RUNTIME_API_URL`, `VITE_FF_*`, `VITE_SENTRY_RELEASE` |
-| Sensitive runtime config | Required by backend/runtime services and must stay secret or tightly scoped | `POLISYOS_CONTROL_POSTGRES_DSN`, `POLISYOS_DELEGATION_SECRET`, `POLISYOS_LLM_GATEWAY_API_KEY` |
-| CI-only secrets | Needed only inside CI or release automation | `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `POLISYOS_SLSA_OIDC_TOKEN` |
-| Local developer-only toggles | Safe, non-production defaults used to shape workstation behavior | `LOG_LEVEL`, `DUCKDB_THREADS`, `POLISYOS_OTEL_CONSOLE_EXPORT`, `POLICY_ENGINE_ALLOW_JAX_METAL` |
-| Deprecated variables | Compatibility fallbacks that should not be introduced into new setup docs | `POLICY_ENGINE_ALLOW_JAX_METAL`, `POLISYOS_DATASET_LEGACY_SERIAL`, unprefixed `PUB2TEI_BASE_URL`, unprefixed `GROBID_BASE_URL` |
+| Category                     | Definition                                                                  | Representative variables                                                                                                       |
+| ---------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Public config                | Safe to expose to the browser or public build outputs                       | `VITE_RUNTIME_API_URL`, `VITE_FF_*`, `VITE_SENTRY_RELEASE`                                                                     |
+| Sensitive runtime config     | Required by backend/runtime services and must stay secret or tightly scoped | `POLISYOS_CONTROL_POSTGRES_DSN`, `POLISYOS_DELEGATION_SECRET`, `POLISYOS_LLM_GATEWAY_API_KEY`                                  |
+| CI-only secrets              | Needed only inside CI or release automation                                 | `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `POLISYOS_SLSA_OIDC_TOKEN`                                                |
+| Local developer-only toggles | Safe, non-production defaults used to shape workstation behavior            | `LOG_LEVEL`, `DUCKDB_THREADS`, `POLISYOS_OTEL_CONSOLE_EXPORT`, `POLICY_ENGINE_ALLOW_JAX_METAL`                                 |
+| Deprecated variables         | Compatibility fallbacks that should not be introduced into new setup docs   | `POLICY_ENGINE_ALLOW_JAX_METAL`, `POLISYOS_DATASET_LEGACY_SERIAL`, unprefixed `PUB2TEI_BASE_URL`, unprefixed `GROBID_BASE_URL` |
 
 ## Twelve-Factor Rules
 
@@ -71,11 +72,11 @@ repository files.
 
 ## Secret Lifecycle Policy
 
-| Surface | Injection path | Storage rule | Owner / rotation expectation |
-|---|---|---|---|
-| Local developer secrets | Shell exports, `direnv`, or a local secret store | May live in a personal, untracked `.env`, but never in tracked files | Rotated by the developer or service owner when access changes |
-| CI secrets | GitHub Actions secrets or OIDC-issued short-lived credentials | Prefer platform-managed secrets; avoid duplicating prod secrets into every workflow | Platform owners rotate on workflow or credential changes |
-| Production secrets | Deployment platform secret store / managed identity | Never stored in repo files or copied into casual local workflows | Service owners rotate per provider policy and after incidents |
+| Surface                 | Injection path                                                | Storage rule                                                                        | Owner / rotation expectation                                  |
+| ----------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Local developer secrets | Shell exports, `direnv`, or a local secret store              | May live in a personal, untracked `.env`, but never in tracked files                | Rotated by the developer or service owner when access changes |
+| CI secrets              | GitHub Actions secrets or OIDC-issued short-lived credentials | Prefer platform-managed secrets; avoid duplicating prod secrets into every workflow | Platform owners rotate on workflow or credential changes      |
+| Production secrets      | Deployment platform secret store / managed identity           | Never stored in repo files or copied into casual local workflows                    | Service owners rotate per provider policy and after incidents |
 
 Secrets that may never be stored in tracked `.env` files:
 
@@ -101,9 +102,9 @@ Generated security artifacts are not casual developer state:
 
 ## Deprecated / Compatibility Variables
 
-| Variable | Status | Replacement / guidance |
-|---|---|---|
-| `POLICY_ENGINE_ALLOW_JAX_METAL` | Deprecated compatibility toggle | Prefer the opt-in `apple-metal` extra and explicit JAX platform selection |
-| `POLISYOS_DATASET_LEGACY_SERIAL` | Deprecated migration toggle | Use the current dataset ingest path and keep the legacy path off by default |
-| `PUB2TEI_BASE_URL` | Deprecated unprefixed alias | Prefer `POLISYOS_PUB2TEI_BASE_URL` |
-| `GROBID_BASE_URL` | Deprecated unprefixed alias | Prefer `POLISYOS_GROBID_BASE_URL` |
+| Variable                         | Status                          | Replacement / guidance                                                      |
+| -------------------------------- | ------------------------------- | --------------------------------------------------------------------------- |
+| `POLICY_ENGINE_ALLOW_JAX_METAL`  | Deprecated compatibility toggle | Prefer the opt-in `apple-metal` extra and explicit JAX platform selection   |
+| `POLISYOS_DATASET_LEGACY_SERIAL` | Deprecated migration toggle     | Use the current dataset ingest path and keep the legacy path off by default |
+| `PUB2TEI_BASE_URL`               | Deprecated unprefixed alias     | Prefer `POLISYOS_PUB2TEI_BASE_URL`                                          |
+| `GROBID_BASE_URL`                | Deprecated unprefixed alias     | Prefer `POLISYOS_GROBID_BASE_URL`                                           |

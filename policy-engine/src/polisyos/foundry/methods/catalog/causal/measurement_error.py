@@ -29,7 +29,8 @@ Cook, J.R. & Stefanski, L.A. (1994). "Simulation-Extrapolation Estimation in
 from __future__ import annotations
 
 import logging
-from typing import Any, ClassVar, Literal, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar, Literal
 
 import numpy as np
 
@@ -51,9 +52,9 @@ from polisyos.ir.analytics.estimand import (
     DistributionDomain,
     DistributionRef,
     EstimandAST,
+    ProductNode,
     ProxyAdjustmentNode,
     SumNode,
-    ProductNode,
 )
 from polisyos.ir.analytics.partial_identification import (
     BoundMethod,
@@ -75,7 +76,7 @@ def identify_with_proxy(
     outcome: str,
     proxy_map: dict[str, str],
     measurement_model: Literal["known", "estimated", "unknown"] = "unknown",
-) -> "Any":  # IdentificationResult — imported lazily to avoid circular imports
+) -> Any:  # IdentificationResult — imported lazily to avoid circular imports
     """Graphical identification under measurement error (Kuroki & Pearl 2014, Thm 2).
 
     Checks whether P(Y|do(X)) is identifiable when true confounder C is latent
@@ -117,12 +118,12 @@ def identify_with_proxy(
         IDENTIFIED (with :class:`ProxyAdjustmentNode` AST) when conditions hold;
         ORACLE_NEEDED otherwise.
     """
+    from polisyos.foundry.methods.catalog.causal.admg_ops import m_separation
     from polisyos.foundry.methods.catalog.causal.id_engine import (
         IdentificationResult,
         IdentificationStatus,
         ProofStep,
     )
-    from polisyos.foundry.methods.catalog.causal.admg_ops import m_separation
 
     _trace: list[str] = []
     _steps: list[ProofStep] = []
@@ -150,8 +151,7 @@ def identify_with_proxy(
     missing_proxies = proxy_vars - all_nodes
     if missing_proxies:
         _trace.append(
-            f"[PROXY-ID] Proxy variables {sorted(missing_proxies)} not in graph → "
-            "ORACLE_NEEDED"
+            f"[PROXY-ID] Proxy variables {sorted(missing_proxies)} not in graph → ORACLE_NEEDED"
         )
         return IdentificationResult(
             status=IdentificationStatus.ORACLE_NEEDED,
@@ -187,17 +187,19 @@ def identify_with_proxy(
                 f"{c_star!r} ⊥ {outcome!r} | {{{c_var!r}, {treatment!r}}}"
             )
 
-    _steps.append(ProofStep(
-        rule_name="PROXY_ADJUSTMENT",
-        antecedent_vars=(treatment,),
-        consequent_vars=(outcome,),
-        applied_to_graph_state=(
-            f"Proxy validity check for {list(proxy_map.items())}: "
-            f"{'PASSED' if proxy_valid else 'FAILED'}; "
-            f"measurement_model={measurement_model!r}"
-        ),
-        depth=0,
-    ))
+    _steps.append(
+        ProofStep(
+            rule_name="PROXY_ADJUSTMENT",
+            antecedent_vars=(treatment,),
+            consequent_vars=(outcome,),
+            applied_to_graph_state=(
+                f"Proxy validity check for {list(proxy_map.items())}: "
+                f"{'PASSED' if proxy_valid else 'FAILED'}; "
+                f"measurement_model={measurement_model!r}"
+            ),
+            depth=0,
+        )
+    )
 
     if not proxy_valid:
         return IdentificationResult(
@@ -233,19 +235,21 @@ def identify_with_proxy(
     # For simplicity represent as a backdoor-style product with a ProxyAdjustmentNode wrapper
     # The inner estimand uses proxy_vars as the observed adjustment set
     observed_adjustment = tuple(sorted(proxy_vars))
-    inner_node: Any = ProductNode(factors=(
-        DistributionRef(
-            domain=DistributionDomain.SOURCE,
-            variables=(outcome,),
-            conditioning=(treatment,) + observed_adjustment,
-            dataset_ref=None,
-        ),
-        DistributionRef(
-            domain=DistributionDomain.SOURCE,
-            variables=observed_adjustment,
-            dataset_ref=None,
-        ),
-    ))
+    inner_node: Any = ProductNode(
+        factors=(
+            DistributionRef(
+                domain=DistributionDomain.SOURCE,
+                variables=(outcome,),
+                conditioning=(treatment,) + observed_adjustment,
+                dataset_ref=None,
+            ),
+            DistributionRef(
+                domain=DistributionDomain.SOURCE,
+                variables=observed_adjustment,
+                dataset_ref=None,
+            ),
+        )
+    )
     if observed_adjustment:
         inner_node = SumNode(
             summation_vars=observed_adjustment,
@@ -283,8 +287,7 @@ def identify_with_proxy(
     ]
 
     _trace.append(
-        f"[PROXY-ID] IDENTIFIED via proxy adjustment "
-        f"(measurement_model={measurement_model!r})"
+        f"[PROXY-ID] IDENTIFIED via proxy adjustment (measurement_model={measurement_model!r})"
     )
 
     return IdentificationResult(
@@ -639,7 +642,9 @@ def bounds_with_measurement_error(
         warnings=(
             f"Bounds widened by ±{correction:.4f} due to α={alpha:.3f} "
             "classification error in treatment proxy",
-        ) if alpha > 0.0 else (),
+        )
+        if alpha > 0.0
+        else (),
     )
     return {"bounds_report": report.model_dump()}
 
@@ -678,24 +683,28 @@ class MeasurementErrorEstimator:
         name="measurement_error_proxy",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-            SlotSpec(
-                "treatment_proxy",
-                SlotType.VECTOR,
-                Unit("treatment", "proxy"),
-                shape=("n_obs",),
-            ),
-            SlotSpec(
-                "covariates",
-                SlotType.MATRIX,
-                Unit("covariates", "features"),
-                shape=("n_obs", "n_features"),
-            ),
-        }),
-        output_slots=frozenset({
-            SlotSpec("result", SlotType.SCALAR, Unit("result", "json")),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
+                SlotSpec(
+                    "treatment_proxy",
+                    SlotType.VECTOR,
+                    Unit("treatment", "proxy"),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    "covariates",
+                    SlotType.MATRIX,
+                    Unit("covariates", "features"),
+                    shape=("n_obs", "n_features"),
+                ),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec("result", SlotType.SCALAR, Unit("result", "json")),
+            }
+        ),
         parameters=(
             ParameterSpec(name="method", default="regression_calibration"),
             ParameterSpec(name="error_variance", default=1.0),
@@ -719,10 +728,17 @@ class MeasurementErrorEstimator:
             "Identification and estimation under measurement error. "
             "Supports regression calibration, SIMEX, and widened Manski bounds."
         ),
-        tags=frozenset({
-            "causal", "measurement_error", "proxy", "calibration",
-            "simex", "kuroki_pearl", "carroll",
-        }),
+        tags=frozenset(
+            {
+                "causal",
+                "measurement_error",
+                "proxy",
+                "calibration",
+                "simex",
+                "kuroki_pearl",
+                "carroll",
+            }
+        ),
         citations=(
             "Kuroki, M. & Pearl, J. (2014). Measurement Bias and Effect "
             "Restoration in Causal Inference. Biometrika, 101(2), 423–437.",
@@ -783,7 +799,8 @@ class MeasurementErrorEstimator:
         )
         val_T_true = (
             np.asarray(state["validation_true_treatment"], dtype=float)
-            if "validation_true_treatment" in state and state["validation_true_treatment"] is not None
+            if "validation_true_treatment" in state
+            and state["validation_true_treatment"] is not None
             else None
         )
 
@@ -862,10 +879,10 @@ def latent_proxy_boundary_notes(
 
 
 __all__ = [
+    "MeasurementErrorEstimator",
+    "bounds_with_measurement_error",
     "identify_with_proxy",
     "latent_proxy_boundary_notes",
     "regression_calibration",
     "simex",
-    "bounds_with_measurement_error",
-    "MeasurementErrorEstimator",
 ]

@@ -46,7 +46,12 @@ def _build_packet_fixture(store: FileSystemCAS):
     input_bindings_ref = _put_json(store, input_bindings, kind="foundry.input_bindings")
     program_graph_ref = _put_json(
         store,
-        {"nodes": [], "edges": [], "entrypoints": [], "lowered_ir_ref": str(lowered_ir_ref.artifact_id)},
+        {
+            "nodes": [],
+            "edges": [],
+            "entrypoints": [],
+            "lowered_ir_ref": str(lowered_ir_ref.artifact_id),
+        },
         kind="foundry.program_graph",
     )
     exec_plan = ExecPlan(

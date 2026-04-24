@@ -21,13 +21,11 @@ def test_keygen_creates_files_with_permissions(tmp_path: Path) -> None:
     assert public_path.stat().st_mode & 0o777 == 0o644
 
 
-
 def test_keygen_no_overwrite_without_force(tmp_path: Path) -> None:
     base = tmp_path / "keys" / "polisyos-signing"
 
     assert main(["keygen", "--output", str(base)]) == 0
     assert main(["keygen", "--output", str(base)]) == 1
-
 
 
 def test_sign_verify_cli_roundtrip(tmp_path: Path) -> None:
@@ -76,7 +74,6 @@ def test_sign_verify_cli_roundtrip(tmp_path: Path) -> None:
     assert verify_code == 0
 
 
-
 def test_verify_fail_unsigned_exit_code(tmp_path: Path) -> None:
     cas_root = tmp_path / ".polisyos"
     store = FileSystemCAS(cas_root)
@@ -115,7 +112,6 @@ def test_verify_fail_unsigned_exit_code(tmp_path: Path) -> None:
     assert code_with_flag == 1
 
 
-
 def test_verify_all_json_output(capsys, tmp_path: Path) -> None:
     cas_root = tmp_path / ".polisyos"
     store = FileSystemCAS(cas_root)
@@ -136,16 +132,19 @@ def test_verify_all_json_output(capsys, tmp_path: Path) -> None:
 
     assert main(["keygen", "--output", str(key_base)]) == 0
     (trust_dir / "signing.pub").write_bytes((key_base.with_suffix(".pub")).read_bytes())
-    assert main(
-        [
-            "sign",
-            str(signed_ref.artifact_id),
-            "--cas-root",
-            str(cas_root),
-            "--key",
-            str(key_base.with_suffix(".pem")),
-        ]
-    ) == 0
+    assert (
+        main(
+            [
+                "sign",
+                str(signed_ref.artifact_id),
+                "--cas-root",
+                str(cas_root),
+                "--key",
+                str(key_base.with_suffix(".pem")),
+            ]
+        )
+        == 0
+    )
     _ = capsys.readouterr()
 
     code = main(

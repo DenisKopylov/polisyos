@@ -1,6 +1,7 @@
 """
 Self-tests for the Testing Infrastructure (Phase 3.8).
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -18,7 +19,6 @@ from polisyos.foundry.methods import (
 )
 from polisyos.foundry.methods.base import Unit
 from polisyos.foundry.methods.testing import (
-    CheckCategory,
     GoldenContext,
     GoldenRecord,
     GoldenStore,
@@ -28,7 +28,6 @@ from polisyos.foundry.methods.testing import (
     hash_pytree,
 )
 from polisyos.foundry.methods.testing.golden import VerificationStatus
-
 
 # =============================================================================
 # Test Fixtures
@@ -509,4 +508,7 @@ class TestIntegration:
         )
 
         assert not verification.passed
-        assert "regression" in verification.message.lower() or verification.status == VerificationStatus.FAILED_OUTPUT
+        assert (
+            "regression" in verification.message.lower()
+            or verification.status == VerificationStatus.FAILED_OUTPUT
+        )

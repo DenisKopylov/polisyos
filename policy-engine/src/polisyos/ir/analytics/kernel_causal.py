@@ -1,4 +1,5 @@
 """Typed RKHS/kernel lowering contracts for distributional and operator-valued causal estimation."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -99,7 +100,7 @@ class OperatorProbeExport(BaseModel):
     summary: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_shape(self) -> "OperatorProbeExport":
+    def _validate_shape(self) -> OperatorProbeExport:
         if self.codomain_axis and len(self.codomain_axis) != len(self.values):
             raise ValueError("operator probe export codomain_axis must align with values")
         return self
@@ -131,15 +132,13 @@ class KernelRegularization(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     scheme: KernelRegularizationScheme = KernelRegularizationScheme.RIDGE
-    selection: KernelRegularizationSelection = (
-        KernelRegularizationSelection.STABILITY_GUARDED_CV
-    )
+    selection: KernelRegularizationSelection = KernelRegularizationSelection.STABILITY_GUARDED_CV
     lambda_value: float = Field(default=5.0e-2, gt=0.0)
     lambda_schedule: tuple[float, ...] = (5.0e-3, 5.0e-2, 5.0e-1)
     cross_fit_folds: int | None = Field(default=None, ge=2, le=20)
 
     @model_validator(mode="after")
-    def _validate_schedule(self) -> "KernelRegularization":
+    def _validate_schedule(self) -> KernelRegularization:
         schedule = tuple(float(value) for value in self.lambda_schedule)
         if not schedule:
             raise ValueError("kernel regularization requires a non-empty lambda_schedule")
@@ -185,7 +184,7 @@ class KernelEstimatorSpec(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_blocking_consistency(self) -> "KernelEstimatorSpec":
+    def _validate_blocking_consistency(self) -> KernelEstimatorSpec:
         if self.lowering_disposition is KernelLoweringDisposition.READY and self.blocking_reasons:
             raise ValueError("ready kernel lowering cannot carry blocking_reasons")
         if (
@@ -234,11 +233,15 @@ class OperatorEffectBundle(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_matrix(self) -> "OperatorEffectBundle":
+    def _validate_matrix(self) -> OperatorEffectBundle:
         if self.operator_matrix and not self.codomain_axis:
-            raise ValueError("operator effect bundle requires codomain_axis when operator_matrix is set")
+            raise ValueError(
+                "operator effect bundle requires codomain_axis when operator_matrix is set"
+            )
         if self.operator_matrix and not self.probe_basis:
-            raise ValueError("operator effect bundle requires probe_basis when operator_matrix is set")
+            raise ValueError(
+                "operator effect bundle requires probe_basis when operator_matrix is set"
+            )
         if self.operator_matrix and len(self.operator_matrix) != len(self.codomain_axis):
             raise ValueError("operator_matrix row count must match codomain_axis length")
         expected_width = len(self.probe_basis)
@@ -248,7 +251,11 @@ class OperatorEffectBundle(BaseModel):
         if len(export_probe_refs) != len(set(export_probe_refs)):
             raise ValueError("applied_probe_exports must have unique probe_ref values")
         for export in self.applied_probe_exports:
-            if self.codomain_axis and export.codomain_axis and export.codomain_axis != self.codomain_axis:
+            if (
+                self.codomain_axis
+                and export.codomain_axis
+                and export.codomain_axis != self.codomain_axis
+            ):
                 raise ValueError("probe export codomain_axis must match bundle codomain_axis")
         return self
 

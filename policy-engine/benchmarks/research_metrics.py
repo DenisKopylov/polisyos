@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import math
 from collections import Counter
-from typing import Any, Callable, Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -72,7 +73,9 @@ def eceth(
             mask = (pred >= left) & (pred < right)
         if not np.any(mask):
             continue
-        error += (float(np.sum(mask)) / total) * abs(float(np.mean(pred[mask])) - float(np.mean(truth[mask])))
+        error += (float(np.sum(mask)) / total) * abs(
+            float(np.mean(pred[mask])) - float(np.mean(truth[mask]))
+        )
     return float(error)
 
 
@@ -178,7 +181,9 @@ def summarize_selection_manifest(records: Sequence[Mapping[str, Any]]) -> dict[s
         if selected_prop:
             selected_propensity[str(selected_prop)] += _record_count(record)
         else:
-            selected_propensity.update(_counter_from_mapping(record.get("selected_propensity_backends")))
+            selected_propensity.update(
+                _counter_from_mapping(record.get("selected_propensity_backends"))
+            )
         if selected_out:
             selected_outcome[str(selected_out)] += _record_count(record)
         else:
@@ -238,7 +243,10 @@ def summarize_overlap_diagnostics(records: Sequence[Mapping[str, Any]]) -> dict[
             weights=weights,
         ),
         "coverage_guard_trigger_rate": weighted_mean_or_nan(
-            (_record_metric(record, "coverage_guard_triggered", coerce_bool=True) for record in records),
+            (
+                _record_metric(record, "coverage_guard_triggered", coerce_bool=True)
+                for record in records
+            ),
             weights=weights,
         ),
         "n_records": int(sum(weights)),
@@ -313,11 +321,7 @@ def summarize_method_records(
             record = getattr(result, attribute, None)
             if isinstance(record, Mapping) and record:
                 by_method.setdefault(str(method_name), []).append(record)
-    return {
-        method_name: reducer(records)
-        for method_name, records in by_method.items()
-        if records
-    }
+    return {method_name: reducer(records) for method_name, records in by_method.items() if records}
 
 
 def weighted_mean_or_nan(values: Iterable[Any], *, weights: Sequence[float] | None = None) -> float:
@@ -428,7 +432,12 @@ def posthoc_cate_calibration(
     X = np.asarray(X, dtype=float)
     treatment = np.asarray(treatment, dtype=float).reshape(-1)
     outcome = np.asarray(outcome, dtype=float).reshape(-1)
-    if raw.size == 0 or raw.size != treatment.size or raw.size != outcome.size or X.shape[0] != raw.size:
+    if (
+        raw.size == 0
+        or raw.size != treatment.size
+        or raw.size != outcome.size
+        or X.shape[0] != raw.size
+    ):
         return raw, {
             "calibration_mode": "identity",
             "split_policy": "invalid_shapes",
@@ -438,7 +447,9 @@ def posthoc_cate_calibration(
     eval_propensity = fit_eval_propensity(X, treatment)
     eval_outcome_main = fit_eval_outcome_main(X, outcome)
     denominator = treatment - eval_propensity
-    safe_denominator = np.where(np.abs(denominator) < 0.05, np.sign(denominator) * 0.05, denominator)
+    safe_denominator = np.where(
+        np.abs(denominator) < 0.05, np.sign(denominator) * 0.05, denominator
+    )
     safe_denominator = np.where(np.abs(safe_denominator) < 1e-8, 0.05, safe_denominator)
     pseudo_outcome = (outcome - eval_outcome_main) / safe_denominator
     weights = np.square(denominator)
@@ -457,7 +468,11 @@ def posthoc_cate_calibration(
         raw,
         pseudo_outcome,
         weights=weights,
-        ate_anchor=float(ate_anchor if ate_anchor is not None and math.isfinite(float(ate_anchor)) else np.mean(raw)),
+        ate_anchor=float(
+            ate_anchor
+            if ate_anchor is not None and math.isfinite(float(ate_anchor))
+            else np.mean(raw)
+        ),
     )
     if shrink_pred is not None:
         candidates.append(("orthogonal_shrinkage", shrink_pred))

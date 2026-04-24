@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import jax.numpy as jnp
 import numpy.testing as npt
-import pytest
 
+from polisyos.foundry.uncertainty.covariance import build_covariance_matrix, extract_std
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -12,11 +11,12 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintySource,
 )
 
-from polisyos.foundry.uncertainty.covariance import build_covariance_matrix, extract_std
-
 
 def _normal_env(
-    point: float, std: float, level: float = 0.95, **metadata: object,
+    point: float,
+    std: float,
+    level: float = 0.95,
+    **metadata: object,
 ) -> UncertaintyEnvelope:
     from statistics import NormalDist
 
@@ -59,7 +59,10 @@ class TestBuildCovarianceMatrix:
     def test_build_covariance_diagonal(self) -> None:
         envelopes = {"x": _normal_env(1.0, 0.5), "z": _normal_env(2.0, 1.0)}
         cov = build_covariance_matrix(
-            ["x", "z"], envelopes, use_full_covariance=False, jitter=0.0,
+            ["x", "z"],
+            envelopes,
+            use_full_covariance=False,
+            jitter=0.0,
         )
         assert cov.shape == (2, 2)
         npt.assert_allclose(float(cov[0, 1]), 0.0, atol=1e-6)
@@ -76,13 +79,19 @@ class TestBuildCovarianceMatrix:
             "z": _normal_env(2.0, 1.0, covariance_row=cov_row_z, covariance_params=params_order),
         }
         cov = build_covariance_matrix(
-            ["x", "z"], envelopes, use_full_covariance=True, jitter=0.0,
+            ["x", "z"],
+            envelopes,
+            use_full_covariance=True,
+            jitter=0.0,
         )
         npt.assert_allclose(float(cov[0, 1]), 0.1, atol=1e-6)
 
     def test_build_covariance_fallback_on_missing_metadata(self) -> None:
         envelopes = {"x": _normal_env(1.0, 0.5), "z": _normal_env(2.0, 1.0)}
         cov = build_covariance_matrix(
-            ["x", "z"], envelopes, use_full_covariance=True, jitter=0.0,
+            ["x", "z"],
+            envelopes,
+            use_full_covariance=True,
+            jitter=0.0,
         )
         npt.assert_allclose(float(cov[0, 1]), 0.0, atol=1e-6)

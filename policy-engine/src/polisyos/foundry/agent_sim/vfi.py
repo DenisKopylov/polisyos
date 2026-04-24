@@ -1,8 +1,9 @@
 """Public agent sim vfi module API."""
+
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 import jax
 import jax.numpy as jnp
@@ -11,6 +12,7 @@ import jax.numpy as jnp
 @dataclass
 class OfflineVFI:
     """Offline VFI public type."""
+
     state_grid: dict[str, jnp.ndarray]
     action_grid: jnp.ndarray
     transition_fn: Callable[[dict[str, float], jnp.ndarray], dict[str, float]]
@@ -79,6 +81,7 @@ class OfflineVFI:
 @dataclass
 class VFILookupTable:
     """VFI lookup table public type."""
+
     value_table: jnp.ndarray
     policy_table: jnp.ndarray
     state_grid: dict[str, jnp.ndarray]
@@ -123,6 +126,7 @@ def _iter_indices(shape: tuple[int, ...]):
         yield ()
         return
     stacks = [range(dim) for dim in shape]
+
     def _recurse(prefix, dims):
         if not dims:
             yield tuple(prefix)
@@ -131,4 +135,5 @@ def _iter_indices(shape: tuple[int, ...]):
             prefix.append(idx)
             yield from _recurse(prefix, dims[1:])
             prefix.pop()
+
     yield from _recurse([], stacks)

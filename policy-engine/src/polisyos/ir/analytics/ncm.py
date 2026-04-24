@@ -17,16 +17,21 @@ This module provides:
   - ``NCMSpec``          — full NCM specification (composes StructuralCausalModelSpec)
   - Persistence helpers  — persist_ncm_spec / load_ncm_spec
 """
+
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.analytics.structural_causal_model import StructuralCausalModelSpec
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import NCMSpecRef
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.structural_causal_model import StructuralCausalModelSpec
+else:
+    from polisyos.ir.analytics.structural_causal_model import StructuralCausalModelSpec
 
 
 class ExogenousSpec(BaseModel):
@@ -175,7 +180,7 @@ class NCMSpec(BaseModel):
     # ── Consistency validator ──────────────────────────────────────────────────
 
     @model_validator(mode="after")
-    def _validate_ncm_consistency(self) -> "NCMSpec":
+    def _validate_ncm_consistency(self) -> NCMSpec:
         """Check that every structural equation has a matching ExogenousSpec."""
         eq_vars = {eq.variable for eq in self.structural_equations}
         exo_targets = {ex.associated_endogenous for ex in self.exogenous_specs}
@@ -234,8 +239,8 @@ def load_ncm_spec(
 
 __all__ = [
     "ExogenousSpec",
-    "StructuralEquation",
     "NCMSpec",
-    "persist_ncm_spec",
+    "StructuralEquation",
     "load_ncm_spec",
+    "persist_ncm_spec",
 ]

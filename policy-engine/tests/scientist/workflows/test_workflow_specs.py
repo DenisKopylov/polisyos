@@ -1,20 +1,19 @@
 """Structural tests for the three workflow specs (DAG validity, node coverage)."""
+
 from __future__ import annotations
 
 from collections import defaultdict
 
-import pytest
-
-from polisyos.scientist.workflows.default import default_workflow_spec
 from polisyos.scientist.workflows.causal_full import causal_full_workflow_spec
+from polisyos.scientist.workflows.default import default_workflow_spec
 from polisyos.scientist.workflows.discovery import discovery_workflow_spec
 from polisyos.scientist.workflows.policy_design import policy_design_workflow_spec
 from polisyos.scientist.workflows.policy_verified import policy_verified_workflow_spec
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _aliases(spec):
     return {n.alias for n in spec.nodes}
@@ -65,6 +64,7 @@ def _assert_valid_dag(spec):
 # Default workflow
 # ---------------------------------------------------------------------------
 
+
 class TestDefaultWorkflowSpec:
     def test_valid_dag(self):
         _assert_valid_dag(default_workflow_spec())
@@ -89,8 +89,10 @@ class TestDefaultWorkflowSpec:
         # run_governance must transitively depend on run_simulation
         gov_deps = graph.get("run_governance", set())
         # At least propagate_uncertainty, which depends on run_simulation
-        assert "propagate_uncertainty" in gov_deps or "run_simulation" in gov_deps or any(
-            "run_simulation" in graph.get(dep, set()) for dep in gov_deps
+        assert (
+            "propagate_uncertainty" in gov_deps
+            or "run_simulation" in gov_deps
+            or any("run_simulation" in graph.get(dep, set()) for dep in gov_deps)
         )
 
     def test_decision_packet_is_terminal(self):
@@ -106,6 +108,7 @@ class TestDefaultWorkflowSpec:
 # ---------------------------------------------------------------------------
 # Causal full workflow
 # ---------------------------------------------------------------------------
+
 
 class TestCausalFullWorkflowSpec:
     def test_valid_dag(self):
@@ -142,6 +145,7 @@ class TestCausalFullWorkflowSpec:
 # Policy verified workflow
 # ---------------------------------------------------------------------------
 
+
 class TestPolicyVerifiedWorkflowSpec:
     def test_valid_dag(self):
         _assert_valid_dag(policy_verified_workflow_spec())
@@ -177,6 +181,7 @@ class TestPolicyVerifiedWorkflowSpec:
 # Policy design workflow
 # ---------------------------------------------------------------------------
 
+
 class TestPolicyDesignWorkflowSpec:
     def test_valid_dag(self):
         _assert_valid_dag(policy_design_workflow_spec())
@@ -211,6 +216,7 @@ class TestPolicyDesignWorkflowSpec:
 # Discovery workflow
 # ---------------------------------------------------------------------------
 
+
 class TestDiscoveryWorkflowSpec:
     def test_valid_dag(self):
         _assert_valid_dag(discovery_workflow_spec())
@@ -223,6 +229,7 @@ class TestDiscoveryWorkflowSpec:
 # ---------------------------------------------------------------------------
 # Cross-workflow
 # ---------------------------------------------------------------------------
+
 
 class TestCrossWorkflow:
     def test_all_workflow_ids_unique(self):
@@ -237,7 +244,11 @@ class TestCrossWorkflow:
 
     def test_preflight_precedes_compile_foundry(self):
         """In all workflows with compile_foundry, preflight runs before it."""
-        for spec_fn in (default_workflow_spec, causal_full_workflow_spec, policy_verified_workflow_spec):
+        for spec_fn in (
+            default_workflow_spec,
+            causal_full_workflow_spec,
+            policy_verified_workflow_spec,
+        ):
             spec = spec_fn()
             graph = _dep_graph(spec)
             if "compile_foundry" in graph:

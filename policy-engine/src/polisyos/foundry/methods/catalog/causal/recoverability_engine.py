@@ -37,6 +37,7 @@ if TYPE_CHECKING:
     from polisyos.ir.analytics.negative_certificate import NegativeCertificate
     from polisyos.ir.analytics.recoverability import (
         JointDecisionCertificate,
+        JointDecisionStatus,
         RecoverabilityCertificate,
         RecoverabilityCertificateStatus,
         RecoveryScope,
@@ -122,14 +123,9 @@ def test_recoverability(
     # out of path analysis is the graphical equivalent of the fixing operator.
     # We construct a PAG-type graph so validation doesn't enforce MGRAPH naming
     # contracts (which are no longer satisfied after stripping *_star nodes).
-    proxy_names: frozenset[str] = frozenset(
-        pn.proxy_name for pn in mgraph_meta.proxy_nodes
-    )
+    proxy_names: frozenset[str] = frozenset(pn.proxy_name for pn in mgraph_meta.proxy_nodes)
     kept_nodes = [n for n in graph.nodes if n not in proxy_names]
-    kept_edges = [
-        e for e in graph.edges
-        if e.src not in proxy_names and e.dst not in proxy_names
-    ]
+    kept_edges = [e for e in graph.edges if e.src not in proxy_names and e.dst not in proxy_names]
     g_no_proxies = CausalGraphModel(
         graph_type=GraphType.PAG,  # PAG allows any edge marks; no naming contract
         nodes=kept_nodes,
@@ -154,9 +150,7 @@ def test_recoverability(
                     rule_name="MGRAPH_TRIVIALLY_OBSERVED",
                     antecedent_vars=(vi,),
                     consequent_vars=(vi,),
-                    applied_to_graph_state=(
-                        f"{vi} has no R-node in G': trivially recoverable"
-                    ),
+                    applied_to_graph_state=(f"{vi} has no R-node in G': trivially recoverable"),
                     depth=0,
                 )
             )
@@ -189,8 +183,7 @@ def test_recoverability(
                     antecedent_vars=(vi,),
                     consequent_vars=(r_name,),
                     applied_to_graph_state=(
-                        f"R_{vi} ∉ desc({vi}) in G[V∪R\\proxy]: "
-                        f"P({vi}) is recoverable"
+                        f"R_{vi} ∉ desc({vi}) in G[V∪R\\proxy]: P({vi}) is recoverable"
                     ),
                     depth=0,
                 )
@@ -198,9 +191,7 @@ def test_recoverability(
             trace.append(f"  {vi}: recoverable (R_{vi} not in desc({vi}))")
 
     if blocking:
-        trace.append(
-            f"test_recoverability: NOT_RECOVERABLE — blocking={sorted(blocking)}"
-        )
+        trace.append(f"test_recoverability: NOT_RECOVERABLE — blocking={sorted(blocking)}")
         return RecoverabilityResult(
             status=RecoverabilityStatus.NOT_RECOVERABLE,
             query_variables=query_vars,
@@ -276,14 +267,11 @@ def ordered_recovery(
     # Build a DAG of substantive variables only for topological ordering.
     # Use ADMG type to allow bidirected edges; DAG type would reject them.
     kept_nodes = [n for n in graph.nodes if n in subst_set]
-    kept_edges = [
-        e for e in graph.edges
-        if e.src in subst_set and e.dst in subst_set
-    ]
+    kept_edges = [e for e in graph.edges if e.src in subst_set and e.dst in subst_set]
     from polisyos.ir.analytics.causal_graph import EdgeMark
+
     has_bidirected = any(
-        e.mark_src is EdgeMark.ARROW and e.mark_dst is EdgeMark.ARROW
-        for e in kept_edges
+        e.mark_src is EdgeMark.ARROW and e.mark_dst is EdgeMark.ARROW for e in kept_edges
     )
     subst_graph_type = GraphType.ADMG if has_bidirected else GraphType.DAG
     g_subst = CausalGraphModel(
@@ -338,8 +326,7 @@ def ordered_recovery(
                 antecedent_vars=predecessors,
                 consequent_vars=(vi,),
                 applied_to_graph_state=(
-                    f"Recover P({vi} | {list(predecessors)}) "
-                    f"via fixing operator [{kind}]"
+                    f"Recover P({vi} | {list(predecessors)}) via fixing operator [{kind}]"
                 ),
                 depth=i,
             )
@@ -387,15 +374,11 @@ def _project_to_base_dag(
 
     subst_set = set(mgraph_meta.substantive_vars)
     kept_nodes = [n for n in graph.nodes if n in subst_set]
-    kept_edges = [
-        e for e in graph.edges
-        if e.src in subst_set and e.dst in subst_set
-    ]
+    kept_edges = [e for e in graph.edges if e.src in subst_set and e.dst in subst_set]
 
     # Choose graph_type based on whether bidirected edges exist
     has_bidirected = any(
-        e.mark_src is EdgeMark.ARROW and e.mark_dst is EdgeMark.ARROW
-        for e in kept_edges
+        e.mark_src is EdgeMark.ARROW and e.mark_dst is EdgeMark.ARROW for e in kept_edges
     )
     target_type = GraphType.ADMG if has_bidirected else GraphType.DAG
 
@@ -487,10 +470,7 @@ def _minimal_repair_sets(blocking_r_nodes: frozenset[str]) -> tuple[Any, ...]:
                     f"measure_auxiliary_variable_for({r_node})",
                 ),
                 testability=RepairSetTestability.UNKNOWN,
-                notes=(
-                    "Additional observed data can block or audit the MNAR "
-                    f"path into {r_node}."
-                ),
+                notes=(f"Additional observed data can block or audit the MNAR path into {r_node}."),
             )
         )
     return tuple(repairs)
@@ -510,6 +490,12 @@ def _recoverability_certificate_from_result(
     completeness_regime: str = "sound_incomplete",
     metadata: dict[str, Any] | None = None,
 ) -> RecoverabilityCertificate:
+    from polisyos.foundry.methods.catalog.causal.recovery_strategy_selector import (
+        RecoveryEstimatorFamily as CompileTimeRecoveryFamily,
+    )
+    from polisyos.foundry.methods.catalog.causal.recovery_strategy_selector import (
+        build_compile_time_recovery_summary,
+    )
     from polisyos.ir.analytics.recoverability import (
         RecoverabilityCertificate,
         RecoverabilityCertificateStatus,
@@ -517,10 +503,6 @@ def _recoverability_certificate_from_result(
         RecoverabilityNuisanceKind,
         RecoverabilityProofForm,
         mgraph_fingerprint,
-    )
-    from polisyos.foundry.methods.catalog.causal.recovery_strategy_selector import (
-        RecoveryEstimatorFamily as CompileTimeRecoveryFamily,
-        build_compile_time_recovery_summary,
     )
 
     if status_override is not None:
@@ -593,20 +575,15 @@ def _recoverability_certificate_from_result(
         recovery_scope=scope,
         recovery_expression_ast=_dump_estimand(expression),
         recovery_steps=tuple(
-            _step_to_recovery_step(step, theorem=theorem_family)
-            for step in result.proof_steps
+            _step_to_recovery_step(step, theorem=theorem_family) for step in result.proof_steps
         ),
         blocking_r_nodes=blocking,
         blocking_explanation=(
-            "Blocking R-nodes indicate self-affecting missingness paths."
-            if blocking
-            else ""
+            "Blocking R-nodes indicate self-affecting missingness paths." if blocking else ""
         ),
         minimal_repair_sets=_minimal_repair_sets(result.blocking_r_nodes),
         recovery_form=recovery_form,
-        identified_nuisance=tuple(
-            sorted(identified_nuisance, key=lambda item: item.value)
-        ),
+        identified_nuisance=tuple(sorted(identified_nuisance, key=lambda item: item.value)),
         required_side_conditions=tuple(
             str(item) for item in profile_data.get("required_side_conditions", ()) or ()
         ),
@@ -643,10 +620,7 @@ def _negative_certificate_from_recoverability(
 
     missing_vars = tuple(
         sorted(
-            {
-                node[2:] if node.startswith("R_") else node
-                for node in certificate.blocking_r_nodes
-            }
+            {node[2:] if node.startswith("R_") else node for node in certificate.blocking_r_nodes}
         )
     )
     suggested = NegativeCertificate.auto_suggest_experiments(
@@ -655,9 +629,7 @@ def _negative_certificate_from_recoverability(
     )
     return NegativeCertificate(
         blocking_type=BlockingType.MISSINGNESS_NOT_RECOVERABLE,
-        blocking_description=(
-            f"Missingness graph blocks recovery of {certificate.target_query}."
-        ),
+        blocking_description=(f"Missingness graph blocks recovery of {certificate.target_query}."),
         technical_detail=certificate.blocking_explanation,
         suggested_experiments=suggested,
         quantitative_diagnostics={
@@ -746,9 +718,7 @@ def _negative_certificate_from_id_failure(
         )
     return NegativeCertificate(
         blocking_type=BlockingType.MISSING_DISTRIBUTION,
-        blocking_description=(
-            f"Could not identify P({outcome_str}|do({treatment_str}))."
-        ),
+        blocking_description=(f"Could not identify P({outcome_str}|do({treatment_str}))."),
         technical_detail=status,
         quantitative_diagnostics={
             "identification_status": status,
@@ -774,9 +744,7 @@ def _identification_result_payload(result: object) -> dict[str, Any]:
                 "rule_name": str(getattr(step, "rule_name", "") or ""),
                 "antecedent_vars": list(getattr(step, "antecedent_vars", ()) or ()),
                 "consequent_vars": list(getattr(step, "consequent_vars", ()) or ()),
-                "applied_to_graph_state": str(
-                    getattr(step, "applied_to_graph_state", "") or ""
-                ),
+                "applied_to_graph_state": str(getattr(step, "applied_to_graph_state", "") or ""),
                 "depth": int(getattr(step, "depth", 0) or 0),
             }
             for step in getattr(result, "proof_steps", []) or []
@@ -913,8 +881,7 @@ def full_law_identify(
             warnings=("full_law_not_recoverable",),
         )
         trace.append(
-            "full_law_identify: Stage 1 FAILED — "
-            f"blocking R-nodes: {sorted(rec.blocking_r_nodes)}"
+            f"full_law_identify: Stage 1 FAILED — blocking R-nodes: {sorted(rec.blocking_r_nodes)}"
         )
         return IdentificationResult(
             status=IdentificationStatus.NOT_RECOVERABLE,
@@ -975,9 +942,7 @@ def full_law_identify(
             depth=0,
         )
     )
-    trace.append(
-        f"full_law_identify: Stage 2 status={id_result.status.value}"
-    )
+    trace.append(f"full_law_identify: Stage 2 status={id_result.status.value}")
 
     if id_result.status != IdentificationStatus.IDENTIFIED:
         from polisyos.ir.analytics.recoverability import RecoveryScope
@@ -1088,9 +1053,7 @@ def identify_joint_recoverability(
         graph=graph,
         mgraph_meta=mgraph_meta,
     )
-    full_law_computable = (
-        ("P(V)",) if full_rec.status is RecoverabilityStatus.RECOVERABLE else ()
-    )
+    full_law_computable = ("P(V)",) if full_rec.status is RecoverabilityStatus.RECOVERABLE else ()
     full_cert = _recoverability_certificate_from_result(
         result=full_rec,
         graph=graph,

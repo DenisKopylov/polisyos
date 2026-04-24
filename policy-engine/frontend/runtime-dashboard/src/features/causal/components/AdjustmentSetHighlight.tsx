@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 
 import type { CausalNodeData } from "../types";
 import { NODE_COLORS } from "../types";
@@ -10,20 +11,23 @@ type AdjustmentSetHighlightProps = {
   className?: string;
 };
 
-const SET_TYPE_LABELS: Record<string, string> = {
-  backdoor: "Backdoor adjustment set",
-  frontdoor: "Frontdoor adjustment set",
-  iv: "Instrumental variable set",
-};
-
 export function AdjustmentSetHighlight({
   nodes,
   adjustmentSet,
   setType = "backdoor",
   className,
 }: AdjustmentSetHighlightProps) {
+  const { t } = useI18n();
   const setIds = new Set(adjustmentSet);
   const inSet = nodes.filter((n) => setIds.has(n.id));
+  const setTypeLabels: Record<
+    NonNullable<AdjustmentSetHighlightProps["setType"]>,
+    string
+  > = {
+    backdoor: t("causal.adjustmentSet.backdoor"),
+    frontdoor: t("causal.adjustmentSet.frontdoor"),
+    iv: t("causal.adjustmentSet.iv"),
+  };
 
   return (
     <div
@@ -33,11 +37,11 @@ export function AdjustmentSetHighlight({
       )}
     >
       <p className="mb-2 font-semibold">
-        {SET_TYPE_LABELS[setType] ?? "Adjustment set"}
+        {setTypeLabels[setType] ?? t("causal.adjustmentSet.title")}
       </p>
 
       {inSet.length === 0 ? (
-        <p className="text-muted">No adjustment set selected.</p>
+        <p className="text-muted">{t("causal.adjustmentSet.empty")}</p>
       ) : (
         <div className="space-y-1">
           {inSet.map((node) => (
@@ -54,8 +58,9 @@ export function AdjustmentSetHighlight({
       )}
 
       <p className="text-muted mt-2">
-        Conditioning on {inSet.length} variable{inSet.length !== 1 ? "s" : ""}{" "}
-        blocks all non-causal paths.
+        {t("causal.adjustmentSet.conditioningSummary", {
+          count: inSet.length,
+        })}
       </p>
     </div>
   );

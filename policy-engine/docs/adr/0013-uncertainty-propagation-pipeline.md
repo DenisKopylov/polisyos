@@ -26,12 +26,14 @@ without uncertainty bounds and without policy gates on uncertainty quality.
 Implement an end-to-end uncertainty propagation pipeline with the following components:
 
 1. New Foundry package `polisyos.foundry.uncertainty` with:
+
    - `DeltaMethodPropagator` (JAX Jacobian-based linearized propagation)
    - `MonteCarloPropagator` (sampling-based propagation with chunked batching)
    - `AnalyticalPropagator` (linear Normal closed-form helper)
    - `PropagationDispatcher` with robust delta dry-run and automatic fallback to MC
    - covariance utilities and envelope aggregation helpers
 2. Extend `SimulationResult` with optional fields:
+
    - `uncertainty_envelopes: Mapping[str, UncertaintyEnvelopeRef] | None`
    - `propagation_config_ref: ArtifactRef | None`
    - `propagation_report_ref: ArtifactRef | None`
@@ -43,14 +45,18 @@ Implement an end-to-end uncertainty propagation pipeline with the following comp
 ## Key Design Constraints
 
 1. Delta covariance handling:
+
    - If full covariance rows are available in input envelope metadata, use full covariance.
    - Otherwise fallback to diagonal covariance.
 2. JAX differentiability robustness:
+
    - Auto strategy selection performs dry-run shape/Jacobian validation.
    - On dry-run or delta execution failure, dispatcher falls back to MC.
 3. MC memory safety:
+
    - Sampling/execution is chunked by `mc_batch_size` to avoid OOM on large models.
 4. Backward compatibility:
+
    - `SimulationResult` additions are optional and additive.
    - Existing runs/artifacts without propagated uncertainty remain valid.
 
@@ -78,6 +84,7 @@ Implement an end-to-end uncertainty propagation pipeline with the following comp
 - `run_governance` now evaluates confidence issues using the active validation profile.
 - `preflight.DEFAULT_PIPELINE` includes `ConfidencePass`; pass execution remains controlled
   by profile `pass_ids`.
+
 - Metrics provider initialization was hardened to always pass iterable metric readers to
   OpenTelemetry SDK.
 
@@ -85,6 +92,7 @@ Implement an end-to-end uncertainty propagation pipeline with the following comp
 
 1. Enable by default in workflow (`run_simulation -> propagate_uncertainty -> run_governance`).
 2. Start with strict profile confidence thresholds:
+
    - `uncertainty_max_ci_width_ratio = 0.5`
    - `uncertainty_max_ci_width_abs = 1e6`
    - `uncertainty_min_gate_eligible_ratio = 0.5`

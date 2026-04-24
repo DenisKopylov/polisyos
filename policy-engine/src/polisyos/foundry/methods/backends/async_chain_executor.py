@@ -38,20 +38,22 @@ Thread safety
 The shared *state dict* is only mutated between levels, never within a
 level, so no additional locking is needed.
 """
+
 from __future__ import annotations
 
 import asyncio
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any
 from uuid import UUID
 
 from polisyos.foundry.methods._logging import get_foundry_logger
+from polisyos.foundry.methods.backends.adapters import adapt_state
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_level_parallel_reproducibility_contract,
 )
-from polisyos.foundry.methods.backends.adapters import adapt_state
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import MethodResult
 from polisyos.foundry.methods.exceptions import MethodContractError
@@ -61,8 +63,8 @@ from polisyos.foundry.methods.registry import MethodRegistry, get_registry
 _log = get_foundry_logger("foundry.backends.async_chain")
 
 __all__ = [
-    "AsyncChainExecutor",
     "AsyncChainExecutionError",
+    "AsyncChainExecutor",
     "AsyncNodeError",
 ]
 
@@ -275,11 +277,13 @@ class AsyncChainExecutor:
         for node_id, raw in zip(level, raw_results, strict=True):
             if isinstance(raw, BaseException):
                 node = chain.get_node(node_id)
-                node_errors.append(AsyncNodeError(
-                    node_id=node_id,
-                    method_fqn=node.method_fqn,
-                    error=raw,
-                ))
+                node_errors.append(
+                    AsyncNodeError(
+                        node_id=node_id,
+                        method_fqn=node.method_fqn,
+                        error=raw,
+                    )
+                )
             else:
                 level_results.append((node_id, raw))
 

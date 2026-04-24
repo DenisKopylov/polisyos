@@ -1,4 +1,5 @@
 """Integration tests simulating real workflows for observability."""
+
 from __future__ import annotations
 
 from polisyos.core.observability import get_metrics, get_tracer, traced
@@ -50,9 +51,7 @@ class TestIntegrationScenarios:
 
         # Verify phases
         phases = {
-            s.attributes.get("polisyos.phase")
-            for s in spans
-            if "polisyos.phase" in s.attributes
+            s.attributes.get("polisyos.phase") for s in spans if "polisyos.phase" in s.attributes
         }
         assert phases == {"DRAFT", "VALIDATE", "EXECUTE", "DECIDE"}
 

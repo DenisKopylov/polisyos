@@ -104,16 +104,13 @@ notes = "Topic enrichment service facade; API is user-facing but still evolving.
 [[package]]
 module = "polisyos.data_forge"
 classification = "public_experimental"
-facade_mode = "lazy_facade"
+facade_mode = "eager_exports"
 owner = "team-data-forge"
 readme = "src/polisyos/data_forge/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = [
-  "polisyos.data_forge",
-  "polisyos.data_forge.read_api",
-]
+supported_entrypoints = ["polisyos.data_forge", "polisyos.data_forge.read_api"]
 major_subsystem = true
-notes = "Planned asset-centric build-time data forge facade. Kernel/domains remain internal; read_api is the only runtime import surface."
+notes = "Experimental asset-centric build-time data forge facade. The top-level package currently re-exports read_api eagerly; kernel/domains remain internal and read_api is the only runtime import surface."
 
 [[package]]
 module = "polisyos.academic"

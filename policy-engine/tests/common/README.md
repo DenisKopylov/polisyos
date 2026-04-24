@@ -30,13 +30,13 @@ timestamps, and migration purity. The slice currently contains `7`
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - [`../../src/polisyos/common/README.md`](../../src/polisyos/common/README.md)
 - `src/polisyos/common/migrations`
 - `tests/conftest.py`
 
-**Depended on by**
+### Depended On By
 
 - Nearly every subsystem test slice under [`../README.md`](../README.md)
 - Core/runtime verification that reuses bootstrap, serialization, and timing

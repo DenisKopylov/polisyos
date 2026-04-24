@@ -6,10 +6,12 @@ Implements the two theorem families promoted by the research result plan:
 * Makarov/Frechet bounds for individual-treatment-effect distributional functionals
   with fixed marginal laws and unknown copula.
 """
+
 from __future__ import annotations
 
 import math
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -27,14 +29,14 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.ir.analytics.distributional import (
-    DistributionalDualCertificate,
-    DistributionalDualBoundWitness,
     DistributionalBoundsBundle,
     DistributionalBoundsMethodSummary,
+    DistributionalBoundUniformity,
+    DistributionalDualBoundWitness,
+    DistributionalDualCertificate,
     DistributionalFunctional,
     DistributionalFunctionalParameters,
     DistributionalSupportDomain,
-    DistributionalBoundUniformity,
     FunctionalBounds,
     GridAxis,
 )
@@ -217,7 +219,9 @@ def _equalized_completion_search(
         from scipy.optimize import minimize_scalar
 
         result = minimize_scalar(
-            lambda item: float(objective(_clip_completion(lower=lower, upper=upper, level=float(item)))),
+            lambda item: float(
+                objective(_clip_completion(lower=lower, upper=upper, level=float(item)))
+            ),
             bounds=(left, right),
             method="bounded",
         )
@@ -456,12 +460,16 @@ def _distributional_support_domain_from_values(
         "observed_support_upper": observed_upper,
         "support_floor": lower_bound,
         "support_ceiling": upper_bound,
-        "support_floor_source": "explicit" if support_floor is not None else "empirical_observed_min",
+        "support_floor_source": "explicit"
+        if support_floor is not None
+        else "empirical_observed_min",
         "support_ceiling_source": (
             "explicit" if support_ceiling is not None else "empirical_observed_max"
         ),
     }
-    support_domain = DistributionalSupportDomain(lower=lower_bound, upper=upper_bound, unit=outcome_unit)
+    support_domain = DistributionalSupportDomain(
+        lower=lower_bound, upper=upper_bound, unit=outcome_unit
+    )
     support_is_explicit = support_floor is not None and support_ceiling is not None
     return support_domain, warnings, rescue_actions, metadata, support_is_explicit
 
@@ -1290,7 +1298,9 @@ def mtr_theil_distributional_bounds(
     )
 
     sharpness = (
-        "sharp" if support_is_explicit and effective_mean_floor > 0.0 and mean_floor_certified else "outer_approx"
+        "sharp"
+        if support_is_explicit and effective_mean_floor > 0.0 and mean_floor_certified
+        else "outer_approx"
     )
     axis = _scalar_axis(axis_name="functional_query", axis_value=axis_values[0], unit="query")
     parameters = DistributionalFunctionalParameters(
@@ -1306,8 +1316,14 @@ def mtr_theil_distributional_bounds(
         "assumption_class": "mtr",
         "pointwise_not_uniform": False,
         "minimum_feasible_mean": min_feasible_mean,
-        "lower_extremizer": {**lower_meta, "completion": tuple(float(item) for item in lower_completion)},
-        "upper_extremizer": {**upper_meta, "completion": tuple(float(item) for item in upper_completion)},
+        "lower_extremizer": {
+            **lower_meta,
+            "completion": tuple(float(item) for item in lower_completion),
+        },
+        "upper_extremizer": {
+            **upper_meta,
+            "completion": tuple(float(item) for item in upper_completion),
+        },
     }
     bounds = FunctionalBounds(
         lower=(float(lower_value),),
@@ -1329,7 +1345,9 @@ def mtr_theil_distributional_bounds(
         functional=functional,
         axis=axis,
         primal_problem_class="mean_normalized_box_extremal",
-        dual_problem_class="fenchel_ratio_dual" if sharpness == "sharp" else "fenchel_ratio_outer_dual",
+        dual_problem_class="fenchel_ratio_dual"
+        if sharpness == "sharp"
+        else "fenchel_ratio_outer_dual",
         sharpness_status=sharpness,
         bound_uniformity=DistributionalBoundUniformity.NOT_APPLICABLE,
         support_domain=support_domain,
@@ -1438,8 +1456,14 @@ def sd_theil_distributional_bounds(
         "assumption_class": "stochastic_dominance_fosd",
         "minimum_feasible_mean": min_feasible_mean,
         "mean_floor_certified": mean_floor_certified,
-        "lower_extremizer": {**lower_meta, "completion": tuple(float(item) for item in lower_completion)},
-        "upper_extremizer": {**upper_meta, "completion": tuple(float(item) for item in upper_completion)},
+        "lower_extremizer": {
+            **lower_meta,
+            "completion": tuple(float(item) for item in lower_completion),
+        },
+        "upper_extremizer": {
+            **upper_meta,
+            "completion": tuple(float(item) for item in upper_completion),
+        },
     }
     bounds = FunctionalBounds(
         lower=(float(lower_value),),
@@ -1588,8 +1612,14 @@ def mtr_atkinson_distributional_bounds(
         "minimum_feasible_mean": min_feasible_mean,
         "atkinson_epsilon": epsilon,
         "strictly_positive_support": strictly_positive_support,
-        "lower_extremizer": {**lower_meta, "completion": tuple(float(item) for item in lower_completion)},
-        "upper_extremizer": {**upper_meta, "completion": tuple(float(item) for item in upper_completion)},
+        "lower_extremizer": {
+            **lower_meta,
+            "completion": tuple(float(item) for item in lower_completion),
+        },
+        "upper_extremizer": {
+            **upper_meta,
+            "completion": tuple(float(item) for item in upper_completion),
+        },
     }
     bounds = FunctionalBounds(
         lower=(float(lower_value),),
@@ -1611,7 +1641,9 @@ def mtr_atkinson_distributional_bounds(
         functional=functional,
         axis=axis,
         primal_problem_class="ede_box_extremal",
-        dual_problem_class="power_moment_dual" if sharpness == "sharp" else "power_moment_outer_dual",
+        dual_problem_class="power_moment_dual"
+        if sharpness == "sharp"
+        else "power_moment_outer_dual",
         sharpness_status=sharpness,
         bound_uniformity=DistributionalBoundUniformity.NOT_APPLICABLE,
         support_domain=support_domain,
@@ -1730,8 +1762,14 @@ def sd_atkinson_distributional_bounds(
         "mean_floor_certified": mean_floor_certified,
         "atkinson_epsilon": epsilon,
         "strictly_positive_support": strictly_positive_support,
-        "lower_extremizer": {**lower_meta, "completion": tuple(float(item) for item in lower_completion)},
-        "upper_extremizer": {**upper_meta, "completion": tuple(float(item) for item in upper_completion)},
+        "lower_extremizer": {
+            **lower_meta,
+            "completion": tuple(float(item) for item in lower_completion),
+        },
+        "upper_extremizer": {
+            **upper_meta,
+            "completion": tuple(float(item) for item in upper_completion),
+        },
     }
     bounds = FunctionalBounds(
         lower=(float(lower_value),),
@@ -1851,8 +1889,14 @@ def mtr_gini_lorenz_distributional_bounds(
         "theorem_family": "mtr_gini_lorenz",
         "assumption_class": "mtr",
         "pointwise_not_uniform": False,
-        "lower_extremizer": {**lower_meta, "completion": tuple(float(item) for item in lower_completion)},
-        "upper_extremizer": {**upper_meta, "completion": tuple(float(item) for item in upper_completion)},
+        "lower_extremizer": {
+            **lower_meta,
+            "completion": tuple(float(item) for item in lower_completion),
+        },
+        "upper_extremizer": {
+            **upper_meta,
+            "completion": tuple(float(item) for item in upper_completion),
+        },
     }
     bounds = FunctionalBounds(
         lower=(float(lower_value),),
@@ -1967,8 +2011,14 @@ def sd_gini_lorenz_distributional_bounds(
         **metadata,
         "theorem_family": "sd_gini_lorenz",
         "assumption_class": "stochastic_dominance_fosd",
-        "lower_extremizer": {**lower_meta, "completion": tuple(float(item) for item in lower_completion)},
-        "upper_extremizer": {**upper_meta, "completion": tuple(float(item) for item in upper_completion)},
+        "lower_extremizer": {
+            **lower_meta,
+            "completion": tuple(float(item) for item in lower_completion),
+        },
+        "upper_extremizer": {
+            **upper_meta,
+            "completion": tuple(float(item) for item in upper_completion),
+        },
     }
     bounds = FunctionalBounds(
         lower=(float(lower_value),),
@@ -2057,10 +2107,24 @@ class DistributionalBoundsEngineMethod:
         input_slots=frozenset(
             {
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "numeric"), shape=("n_obs",)),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-                SlotSpec("selected", SlotType.VECTOR, Unit("selection", "binary"), shape=("n_obs",)),
-                SlotSpec("treated_outcome", SlotType.VECTOR, Unit("outcome", "numeric"), shape=("n_treated",)),
-                SlotSpec("control_outcome", SlotType.VECTOR, Unit("outcome", "numeric"), shape=("n_control",)),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "selected", SlotType.VECTOR, Unit("selection", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "treated_outcome",
+                    SlotType.VECTOR,
+                    Unit("outcome", "numeric"),
+                    shape=("n_treated",),
+                ),
+                SlotSpec(
+                    "control_outcome",
+                    SlotType.VECTOR,
+                    Unit("outcome", "numeric"),
+                    shape=("n_control",),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -2176,7 +2240,9 @@ class DistributionalBoundsEngineMethod:
 
         if family == "lee_trimming_distributional":
             if not {"outcome", "treatment", "selected"}.issubset(state):
-                raise ValueError("lee_trimming_distributional requires outcome, treatment, selected")
+                raise ValueError(
+                    "lee_trimming_distributional requires outcome, treatment, selected"
+                )
             bundle = lee_trimming_distributional_bounds(
                 outcome=state["outcome"],
                 treatment=state["treatment"],
@@ -2329,12 +2395,12 @@ class DistributionalBoundsEngineMethod:
 
 
 __all__ = [
-    "DistributionalBoundsEngineMethod",
-    "EMPIRICAL_SUPPORT_FALLBACK_WARNING",
     "ATKINSON_POSITIVITY_WARNING",
+    "EMPIRICAL_SUPPORT_FALLBACK_WARNING",
     "GINI_UNIFORM_CERTIFICATE_WARNING",
     "POINTWISE_NON_UNIFORM_WARNING",
     "STOCHASTIC_DOMINANCE_OUTER_WARNING",
+    "DistributionalBoundsEngineMethod",
     "lee_trimming_distributional_bounds",
     "makarov_distributional_bounds",
     "mtr_atkinson_distributional_bounds",

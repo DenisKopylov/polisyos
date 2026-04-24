@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import SchemaInfo
@@ -183,7 +183,7 @@ def build_linear_registry(
     governance_mode: str = "approve",
     search_failures: int = 0,
     decision_failures: int = 0,
-) -> tuple[NodeRegistry, dict[str, "ScenarioNode"]]:
+) -> tuple[NodeRegistry, dict[str, ScenarioNode]]:
     feedback_service = DecisionFeedbackService(store)
     validity_service = DecisionValidityService(store)
     registry = NodeRegistry()
@@ -393,7 +393,7 @@ def _meta(raw_component_id: str, display_name: str) -> ComponentMetadata:
 class ScenarioNode:
     raw_component_id: str
     display_name: str
-    handler: Callable[["ScenarioNode", ExecutionContext, ExperimentState], NodeOutcome]
+    handler: Callable[[ScenarioNode, ExecutionContext, ExperimentState], NodeOutcome]
     state_reads: list[str] | None = None
     state_writes: list[str] | None = None
     calls: int = 0

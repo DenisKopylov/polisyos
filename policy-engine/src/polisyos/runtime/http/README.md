@@ -12,14 +12,19 @@ runtime mutations and live streams.
 - `src/polisyos/runtime/http/__init__.py` for the exported package surface.
 - `src/polisyos/runtime/http/app.py` for app assembly, middleware order, and
   lifecycle wiring.
+
 - `src/polisyos/runtime/http/routes/README.md` for endpoint-by-endpoint local
   navigation.
+
 - `src/polisyos/runtime/http/services/README.md` for the application logic
   behind routes.
+
 - `src/polisyos/runtime/http/openapi_contract.py` for examples, links, and
   contract hardening hooks.
+
 - `src/polisyos/runtime/http/mutation_policy.py` for rate limits, idempotency,
   audit trail, and live-stream budgets.
+
 - `src/polisyos/runtime/http/fail_closed_middleware.py` and
   `src/polisyos/runtime/http/security.py` for perimeter enforcement.
 
@@ -29,9 +34,11 @@ runtime mutations and live streams.
   `create_runtime_api_app`, `export_runtime_openapi_schema`,
   `AuthzMiddleware`, `CellRouterMiddleware`, `JWTAuthMiddleware`,
   `TENANT_HEADER`, `get_current_user`
+
 - Repo-level public-surface docs still anchor on `polisyos.runtime`; use this
   README when you need the actual HTTP assembly boundary, route/service
   navigation, or contract generation inputs.
+
 - Internal local-navigation surfaces worth checking first: `routes/*`,
   `services/*`, `container.py`, `dependencies.py`, `execution_policy.py`,
   `mutation_policy.py`, `openapi_contract.py`
@@ -52,8 +59,10 @@ Run commands from the repository root `policy-engine/`.
 
 - Smoke-tested:
   `PYTHONPATH=src:. uv run --extra runtime --extra ml python -c "import polisyos.runtime.http as runtime_http; print(sorted(runtime_http.__all__))"`
+
 - Conceptual regeneration:
   `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json`
+
 - Conceptual regeneration:
   `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js`
 
@@ -63,8 +72,10 @@ Run commands from the repository root `policy-engine/`.
 
 - Smoke-tested:
   `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
+
 - Smoke-tested:
   `uv run pytest -q tests/runtime/http/test_runtime_api_contract_hardening.py tests/runtime/http/test_runtime_api_authz.py tests/runtime/http/test_runtime_api_write_path_hardening.py`
+
 - Smoke-tested:
   `uv run pytest -q tests/runtime/http/test_runtime_api_observability.py tests/runtime/http/test_api_maturity.py tests/runtime/http/test_access_invariants_properties.py tests/runtime/http/test_control_service_di.py tests/runtime/http/test_resilience_guards.py`
 

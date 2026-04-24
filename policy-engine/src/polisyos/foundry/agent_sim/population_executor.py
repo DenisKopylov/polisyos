@@ -1,7 +1,9 @@
 """Public agent sim population executor module API."""
+
 from __future__ import annotations
 
-from typing import Any, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 import chex
 import jax
@@ -85,6 +87,7 @@ def lifecycle_step(
 
 class PopulationAwareExecutor(GraphAwareExecutor):
     """Wrap the base executor with lifecycle, graph, and distribution updates."""
+
     def __init__(
         self,
         mechanisms: Iterable[Mechanism],

@@ -45,4 +45,3 @@ def test_diff_norm_packs_detects_all_change_types() -> None:
     assert change_types["n.removed"] == NormChangeType.REMOVED
     assert change_types["n.modified"] == NormChangeType.MODIFIED
     assert change_types["n.keep"] == NormChangeType.UNCHANGED
-

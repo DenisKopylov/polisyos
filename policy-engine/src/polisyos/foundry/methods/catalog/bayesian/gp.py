@@ -7,9 +7,11 @@ Implements:
 - ``SparseGPRegressionEstimator`` — inducing-point sparse GP (O(n·m²))
   suitable for n > 5000.
 """
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -39,8 +41,7 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintySource,
 )
 
-from .protocols import PosteriorResult, summarize_posterior_samples
-
+from .protocols import PosteriorResult
 
 # ---------------------------------------------------------------------------
 # Internal kernel functions
@@ -50,14 +51,16 @@ from .protocols import PosteriorResult, summarize_posterior_samples
 def _rbf_kernel(X1: np.ndarray, X2: np.ndarray, lengthscale: float, variance: float) -> np.ndarray:
     """Squared exponential (RBF) kernel."""
     diff = X1[:, None, :] - X2[None, :, :]  # (n, m, d)
-    sq_dist = np.sum(diff ** 2, axis=-1)  # (n, m)
-    return variance * np.exp(-0.5 * sq_dist / (lengthscale ** 2))
+    sq_dist = np.sum(diff**2, axis=-1)  # (n, m)
+    return variance * np.exp(-0.5 * sq_dist / (lengthscale**2))
 
 
-def _matern32_kernel(X1: np.ndarray, X2: np.ndarray, lengthscale: float, variance: float) -> np.ndarray:
+def _matern32_kernel(
+    X1: np.ndarray, X2: np.ndarray, lengthscale: float, variance: float
+) -> np.ndarray:
     """Matérn 3/2 kernel."""
     diff = X1[:, None, :] - X2[None, :, :]
-    r = np.sqrt(np.maximum(np.sum(diff ** 2, axis=-1), 0.0))
+    r = np.sqrt(np.maximum(np.sum(diff**2, axis=-1), 0.0))
     sqrt3_r = np.sqrt(3.0) * r / lengthscale
     return variance * (1.0 + sqrt3_r) * np.exp(-sqrt3_r)
 
@@ -107,7 +110,7 @@ def _gp_posterior(
         alpha = np.linalg.solve(L.T, np.linalg.solve(L, y_train))
         mean = K_sn @ alpha
         v = np.linalg.solve(L, K_sn.T)
-        var = np.maximum(K_ss_diag - np.sum(v ** 2, axis=0), 1e-10)
+        var = np.maximum(K_ss_diag - np.sum(v**2, axis=0), 1e-10)
     except np.linalg.LinAlgError:
         # Fallback: pseudo-inverse
         K_nn_inv = np.linalg.pinv(K_nn)
@@ -118,13 +121,23 @@ def _gp_posterior(
 
 
 def _output_slots() -> frozenset[SlotSpec]:
-    return frozenset({
-        SlotSpec("result", SlotType.SCALAR, Unit("posterior", "json"),
-                 contract_id=PosteriorResult.contract_id),
-        SlotSpec("prediction_result", SlotType.SCALAR, Unit("prediction", "json"),
-                 contract_id=PredictionResult.contract_id),
-        SlotSpec("uncertainty_envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
-    })
+    return frozenset(
+        {
+            SlotSpec(
+                "result",
+                SlotType.SCALAR,
+                Unit("posterior", "json"),
+                contract_id=PosteriorResult.contract_id,
+            ),
+            SlotSpec(
+                "prediction_result",
+                SlotType.SCALAR,
+                Unit("prediction", "json"),
+                contract_id=PredictionResult.contract_id,
+            ),
+            SlotSpec("uncertainty_envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
+        }
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -163,10 +176,17 @@ class GaussianProcessRegressionEstimator:
         name="gp_regression",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
-            SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_obs",)),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    "features",
+                    SlotType.MATRIX,
+                    Unit("feature", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
+                SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_obs",)),
+            }
+        ),
         output_slots=_output_slots(),
         parameters=(
             ParameterSpec(name="kernel", default="rbf"),
@@ -236,7 +256,9 @@ class GaussianProcessRegressionEstimator:
         try:
             L = np.linalg.cholesky(K_tr)
             alpha = np.linalg.solve(L.T, np.linalg.solve(L, y_tr))
-            lml = float(-0.5 * y_tr @ alpha - np.sum(np.log(np.diag(L))) - 0.5 * n_tr * np.log(2 * np.pi))
+            lml = float(
+                -0.5 * y_tr @ alpha - np.sum(np.log(np.diag(L))) - 0.5 * n_tr * np.log(2 * np.pi)
+            )
         except np.linalg.LinAlgError:
             lml = float("nan")
 
@@ -326,10 +348,17 @@ class SparseGPRegressionEstimator:
         name="sparse_gp_regression",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
-            SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_obs",)),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    "features",
+                    SlotType.MATRIX,
+                    Unit("feature", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
+                SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_obs",)),
+            }
+        ),
         output_slots=_output_slots(),
         parameters=(
             ParameterSpec(name="n_inducing", default=100, bounds=(10, 2000)),
@@ -389,7 +418,7 @@ class SparseGPRegressionEstimator:
         try:
             L_mm = np.linalg.cholesky(K_mm)
             V = np.linalg.solve(L_mm, K_nm.T)  # (m, n)
-            Q_nn_diag = np.sum(V ** 2, axis=0)  # Nyström diag
+            Q_nn_diag = np.sum(V**2, axis=0)  # Nyström diag
             Lambda_diag = np.maximum(sv * np.ones(X.shape[0]) - Q_nn_diag + nv, 1e-6)
             Lambda_inv = 1.0 / Lambda_diag
 

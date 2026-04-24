@@ -37,8 +37,8 @@ describe("Glyph", () => {
 
   it("exposes diacritic via data attribute", () => {
     render(<Glyph name="identifiability" diacritic="strict" />);
-    expect(
-      screen.getByRole("img").getAttribute("data-glyph-diacritic"),
-    ).toBe("strict");
+    expect(screen.getByRole("img").getAttribute("data-glyph-diacritic")).toBe(
+      "strict",
+    );
   });
 });

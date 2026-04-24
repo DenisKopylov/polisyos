@@ -15,7 +15,7 @@ from polisyos.scientist.engine.circuit_breaker import (
     CircuitBreakerConfig,
 )
 from polisyos.scientist.engine.errors import CircuitBreakerOpenError
-from polisyos.scientist.engine.protocol import NodeError, NodeOutcome
+from polisyos.scientist.engine.protocol import NodeOutcome
 from polisyos.scientist.engine.retry import (
     RetryPolicy,
     execute_with_retry_async,
@@ -30,6 +30,7 @@ def state():
 
 
 # ── Config validation ────────────────────────────────────────────────
+
 
 class TestCircuitBreakerConfig:
     def test_defaults(self) -> None:
@@ -50,6 +51,7 @@ class TestCircuitBreakerConfig:
 
 
 # ── State machine ────────────────────────────────────────────────────
+
 
 class TestCircuitBreakerStateMachine:
     def test_initial_state_closed(self) -> None:
@@ -91,7 +93,9 @@ class TestCircuitBreakerStateMachine:
 
     def test_half_open_allows_limited_calls(self) -> None:
         cfg = CircuitBreakerConfig(
-            failure_threshold=1, recovery_timeout_s=1.0, half_open_max_calls=2,
+            failure_threshold=1,
+            recovery_timeout_s=1.0,
+            half_open_max_calls=2,
         )
         cb = CircuitBreaker(cfg)
         cb.record_failure()
@@ -154,6 +158,7 @@ class TestCircuitBreakerStateMachine:
 
 # ── Thread safety ────────────────────────────────────────────────────
 
+
 class TestCircuitBreakerThreadSafety:
     def test_concurrent_failures(self) -> None:
         cfg = CircuitBreakerConfig(failure_threshold=50)
@@ -177,6 +182,7 @@ class TestCircuitBreakerThreadSafety:
 
 # ── Integration with retry ───────────────────────────────────────────
 
+
 def _make_ctx() -> MagicMock:
     ctx = MagicMock()
     ctx.run.emit = MagicMock()
@@ -195,9 +201,12 @@ class TestCircuitBreakerRetryIntegration:
 
         with pytest.raises(CircuitBreakerOpenError):
             execute_with_retry_sync(
-                node, ctx, state,
+                node,
+                ctx,
+                state,
                 retry_policy=RetryPolicy(max_retries=0),
-                timeout_s=None, alias="test",
+                timeout_s=None,
+                alias="test",
                 circuit_breaker=cb,
             )
 
@@ -210,9 +219,12 @@ class TestCircuitBreakerRetryIntegration:
         ctx = _make_ctx()
 
         execute_with_retry_sync(
-            node, ctx, state,
+            node,
+            ctx,
+            state,
             retry_policy=RetryPolicy(max_retries=0),
-            timeout_s=None, alias="test",
+            timeout_s=None,
+            alias="test",
             circuit_breaker=cb,
         )
         assert cb.failure_count == 0
@@ -228,9 +240,12 @@ class TestCircuitBreakerRetryIntegration:
 
         with pytest.raises(CircuitBreakerOpenError):
             await execute_with_retry_async(
-                node, ctx, state,
+                node,
+                ctx,
+                state,
                 retry_policy=RetryPolicy(max_retries=0),
-                timeout_s=None, alias="test",
+                timeout_s=None,
+                alias="test",
                 circuit_breaker=cb,
             )
 
@@ -242,9 +257,12 @@ class TestCircuitBreakerRetryIntegration:
 
         with pytest.raises(asyncio.CancelledError):
             await execute_with_retry_async(
-                node, ctx, state,
+                node,
+                ctx,
+                state,
                 retry_policy=RetryPolicy(max_retries=3),
-                timeout_s=None, alias="test",
+                timeout_s=None,
+                alias="test",
             )
 
         # Should not have retried
@@ -258,11 +276,14 @@ class TestCircuitBreakerRetryIntegration:
 
         policy = RetryPolicy(max_retries=1, backoff_base_s=0.1, backoff_factor=1.0)
         with patch("polisyos.scientist.engine.retry.time.sleep"):
-            with pytest.raises(Exception):  # noqa: B017
+            with pytest.raises(Exception):
                 execute_with_retry_sync(
-                    node, ctx, state,
+                    node,
+                    ctx,
+                    state,
                     retry_policy=policy,
-                    timeout_s=None, alias="dlq_test",
+                    timeout_s=None,
+                    alias="dlq_test",
                 )
 
         # Dead-letter artifact should have been persisted
@@ -282,10 +303,13 @@ class TestCircuitBreakerRetryIntegration:
 
         policy = RetryPolicy(max_retries=1, backoff_base_s=0.1, backoff_factor=1.0)
         with patch("polisyos.scientist.engine.retry.time.sleep"):
-            with pytest.raises(Exception):  # noqa: B017
+            with pytest.raises(Exception):
                 execute_with_retry_sync(
-                    node, ctx, state,
+                    node,
+                    ctx,
+                    state,
                     retry_policy=policy,
-                    timeout_s=None, alias="test",
+                    timeout_s=None,
+                    alias="test",
                 )
         # Should not crash — DLQ is best-effort

@@ -1,4 +1,5 @@
 """Derive slot-to-state layouts and family manifests for execution and docs."""
+
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -82,7 +83,9 @@ def build_slot_family_manifest(slot_registry: SlotRegistry) -> SlotFamilyManifes
 
     return SlotFamilyManifest(
         families=families,
-        notes=["Families are derived from state_path prefixes when present, else slot_id prefixes."],
+        notes=[
+            "Families are derived from state_path prefixes when present, else slot_id prefixes."
+        ],
     )
 
 

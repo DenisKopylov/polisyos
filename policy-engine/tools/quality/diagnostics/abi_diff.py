@@ -223,20 +223,23 @@ def _match_renamed_models(
     sorted_current = sorted(current_only.items(), key=lambda item: item[0])
     alias_index: dict[str, list[tuple[str, ModelSnapshot]]] = {}
     semantic_hash_index: dict[str, list[tuple[str, ModelSnapshot]]] = {}
-    exact_similarity_buckets: dict[tuple[str, str, int, int, int], list[tuple[str, ModelSnapshot]]] = {}
+    exact_similarity_buckets: dict[
+        tuple[str, str, int, int, int], list[tuple[str, ModelSnapshot]]
+    ] = {}
     loose_similarity_buckets: dict[tuple[str, str], list[tuple[str, ModelSnapshot]]] = {}
-    current_canonical = {
-        key: _schema_canonical(model.schema)
-        for key, model in sorted_current
-    }
+    current_canonical = {key: _schema_canonical(model.schema) for key, model in sorted_current}
 
     for c_key, c_model in sorted_current:
         for token in _alias_tokens(c_model):
             alias_index.setdefault(token, []).append((c_key, c_model))
         if c_model.sha256_semantic:
             semantic_hash_index.setdefault(c_model.sha256_semantic, []).append((c_key, c_model))
-        exact_similarity_buckets.setdefault(_rename_similarity_signature(c_model), []).append((c_key, c_model))
-        loose_similarity_buckets.setdefault((c_model.module, _schema_root_key(c_model.schema)), []).append((c_key, c_model))
+        exact_similarity_buckets.setdefault(_rename_similarity_signature(c_model), []).append(
+            (c_key, c_model)
+        )
+        loose_similarity_buckets.setdefault(
+            (c_model.module, _schema_root_key(c_model.schema)), []
+        ).append((c_key, c_model))
 
     # 1) alias-based match
     for b_key, b_model in sorted(baseline_only.items(), key=lambda item: item[0]):
@@ -276,7 +279,11 @@ def _match_renamed_models(
         candidate_groups = [
             exact_similarity_buckets.get(_rename_similarity_signature(b_model), []),
             loose_similarity_buckets.get((b_model.module, _schema_root_key(b_model.schema)), []),
-            [(c_key, c_model) for c_key, c_model in sorted_current if c_model.module == b_model.module],
+            [
+                (c_key, c_model)
+                for c_key, c_model in sorted_current
+                if c_model.module == b_model.module
+            ],
         ]
 
         best: RenameSimilarityCandidate | None = None
@@ -700,9 +707,7 @@ def _verify_version_bumps(
             continue
 
         if current_model.version_field is None:
-            report.warnings.append(
-                f"{model_key}: version check skipped (version_field is None)"
-            )
+            report.warnings.append(f"{model_key}: version check skipped (version_field is None)")
             continue
 
         if old_version is None or new_version is None:

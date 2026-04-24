@@ -1,15 +1,19 @@
 """Fetches URL-backed Scholar seed sources into the normalized acquire payload shape."""
+
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-from polisyos.core.contracts.scholar import SourceSpec
 from polisyos.fabric.docs import DocSourceSpec
 from polisyos.scholar.errors import ScholarAcquireError, ScholarValidationError
 from polisyos.scholar.search.models import SearchConstraints
 from polisyos.scholar.search.security import validate_content_type, validate_fetch_url
 from polisyos.scholar.types import AcquireResult
+
+if TYPE_CHECKING:
+    from polisyos.core.contracts.scholar import SourceSpec
 
 
 def _doc_source_from_source(source: SourceSpec, *, canonical_url: str) -> DocSourceSpec:

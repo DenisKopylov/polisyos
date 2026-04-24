@@ -1,7 +1,8 @@
 """Formal statistical validation for paired metric comparisons."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from math import sqrt
 from typing import Any, Literal
 
@@ -14,7 +15,6 @@ from sklearn.metrics import (
     f1_score,
     log_loss,
     mean_absolute_error,
-    mean_squared_error,
     precision_score,
     recall_score,
     roc_auc_score,
@@ -282,7 +282,9 @@ def compare_metric_family(
                 alpha=config.alpha,
             )
             family_adjustment = group_adjustment.model_copy(
-                update={"hypotheses_total": max(group_adjustment.hypotheses_total, hypotheses_total)}
+                update={
+                    "hypotheses_total": max(group_adjustment.hypotheses_total, hypotheses_total)
+                }
             )
             for local_index, comparison_index in enumerate(indices):
                 comparison = comparisons[comparison_index]
@@ -292,7 +294,9 @@ def compare_metric_family(
                         "reject_null_adj": bool(rejects[local_index]),
                     }
                 )
-                adjusted[comparison_index] = comparison.model_copy(update={"significance": significance})
+                adjusted[comparison_index] = comparison.model_copy(
+                    update={"significance": significance}
+                )
 
     if any(
         comparison.metric_id == "rmse"
@@ -313,8 +317,10 @@ def compare_metric_family(
     if grouped_indices and len(grouped_indices) > 1:
         notes.append(f"group_count={len(grouped_indices)}")
 
-    run_id = str(bundle.metadata.get("run_id")) if bundle.metadata.get("run_id") is not None else None
-    checked_at = datetime.now(timezone.utc).isoformat()
+    run_id = (
+        str(bundle.metadata.get("run_id")) if bundle.metadata.get("run_id") is not None else None
+    )
+    checked_at = datetime.now(UTC).isoformat()
     report_id = f"mvr_{checked_at.replace(':', '').replace('-', '')}"
     return MetricValidationReport(
         report_id=report_id,
@@ -426,10 +432,14 @@ def _apply_correction(
 ) -> tuple[np.ndarray, np.ndarray, FamilyAdjustment]:
     raw = np.asarray(raw_pvalues, dtype=float)
     if raw.size == 0:
-        return raw, np.asarray([], dtype=bool), _family_adjustment_metadata(
-            method=method,
-            alpha=alpha,
-            hypotheses_total=1,
+        return (
+            raw,
+            np.asarray([], dtype=bool),
+            _family_adjustment_metadata(
+                method=method,
+                alpha=alpha,
+                hypotheses_total=1,
+            ),
         )
     if method in {"westfall_young_maxT", "westfall_young_minP"}:
         raise NotImplementedError(f"{method} is reserved for a later phase")
@@ -655,9 +665,7 @@ def _run_paired_permutation(
     rng = np.random.default_rng(config.random_seed)
     y_true = np.asarray(bundle.y_true)
     sample_weight = (
-        np.asarray(bundle.sample_weight, dtype=float)
-        if bundle.sample_weight is not None
-        else None
+        np.asarray(bundle.sample_weight, dtype=float) if bundle.sample_weight is not None else None
     )
     if metric_id in {"roc_auc", "average_precision", "log_loss", "brier"}:
         baseline_values = _require_score_array(baseline)
@@ -773,11 +781,11 @@ def _run_paired_permutation(
     return significance, "paired_permutation"
 
 
-def _metric_value(metric_id: MetricId, bundle: MetricObservationBundle, outputs: ModelOutputs) -> float:
+def _metric_value(
+    metric_id: MetricId, bundle: MetricObservationBundle, outputs: ModelOutputs
+) -> float:
     sample_weight = (
-        np.asarray(bundle.sample_weight, dtype=float)
-        if bundle.sample_weight is not None
-        else None
+        np.asarray(bundle.sample_weight, dtype=float) if bundle.sample_weight is not None else None
     )
     y_true = np.asarray(bundle.y_true)
     y_pred = np.asarray(outputs.y_pred) if outputs.y_pred is not None else None
@@ -809,17 +817,23 @@ def _metric_value_from_parts(
         if y_pred is None:
             raise ValueError("precision requires y_pred")
         kwargs = _classification_average_kwargs(task, y_true)
-        return float(precision_score(y_true, y_pred, sample_weight=sample_weight, zero_division=0, **kwargs))
+        return float(
+            precision_score(y_true, y_pred, sample_weight=sample_weight, zero_division=0, **kwargs)
+        )
     if metric_id == "recall":
         if y_pred is None:
             raise ValueError("recall requires y_pred")
         kwargs = _classification_average_kwargs(task, y_true)
-        return float(recall_score(y_true, y_pred, sample_weight=sample_weight, zero_division=0, **kwargs))
+        return float(
+            recall_score(y_true, y_pred, sample_weight=sample_weight, zero_division=0, **kwargs)
+        )
     if metric_id == "f1":
         if y_pred is None:
             raise ValueError("f1 requires y_pred")
         kwargs = _classification_average_kwargs(task, y_true)
-        return float(f1_score(y_true, y_pred, sample_weight=sample_weight, zero_division=0, **kwargs))
+        return float(
+            f1_score(y_true, y_pred, sample_weight=sample_weight, zero_division=0, **kwargs)
+        )
     if metric_id == "roc_auc":
         if y_score is None:
             raise ValueError("roc_auc requires y_score")
@@ -895,7 +909,11 @@ def _metric_value_from_parts(
     if metric_id == "mae":
         if y_pred is None:
             raise ValueError("mae requires y_pred")
-        return float(mean_absolute_error(y_true.astype(float), y_pred.astype(float), sample_weight=sample_weight))
+        return float(
+            mean_absolute_error(
+                y_true.astype(float), y_pred.astype(float), sample_weight=sample_weight
+            )
+        )
     raise ValueError(f"Unsupported metric_id: {metric_id}")
 
 
@@ -914,15 +932,9 @@ def _per_example_loss(
         return np.asarray(outputs.per_example_loss[metric_id], dtype=float), ()
 
     weight = (
-        np.asarray(bundle.sample_weight, dtype=float)
-        if bundle.sample_weight is not None
-        else None
+        np.asarray(bundle.sample_weight, dtype=float) if bundle.sample_weight is not None else None
     )
-    normalized_weight = (
-        weight / max(float(np.mean(weight)), _EPS)
-        if weight is not None
-        else None
-    )
+    normalized_weight = weight / max(float(np.mean(weight)), _EPS) if weight is not None else None
     y_true = np.asarray(bundle.y_true)
     y_pred = np.asarray(outputs.y_pred) if outputs.y_pred is not None else None
     y_score = np.asarray(outputs.y_score, dtype=float) if outputs.y_score is not None else None

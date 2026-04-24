@@ -1,6 +1,7 @@
 # ADR-0020: Robustness Modes (Sensitivity + Stress Test) (Phase 13)
 
 ## Status
+
 Proposed
 
 ## Context
@@ -21,20 +22,25 @@ but no production-ready robustness engine.
 ## Decision
 
 1. Expand `scientist.doe.designs` with:
+
    - `ParameterSpec`
    - `SensitivityPlan` guardrails (`estimated_runs`, `max_estimated_runs`, failure policy)
    - `SensitivityResult`
    - `AdversarialPlan`
 2. Add SALib-backed modules:
+
    - `scientist.doe.sampling`
    - `scientist.doe.analysis`
 3. Add stress reporting contract:
+
    - `scientist.doe.stress_report` (`StressTestReport`, `Vulnerability`)
 4. Extend search integrations:
+
    - `SensitivityAwareCandidateGenerator`
    - adversarial objective wrapper (`NegatedCompositeObjective`)
    - stress orchestrator (`run_stress_test`)
 5. Add CLI entries:
+
    - `polisyos scientist sensitivity run --config ...`
    - `polisyos scientist stress-test --config ...`
 
@@ -53,6 +59,7 @@ Typed refs added to `core.contracts.scientist`:
 - Large sensitivity batches are blocked by default unless explicitly overridden.
 - Failed simulation runs are handled by explicit policy:
   `fail_fast | drop_failed | impute_baseline`.
+
 - Stress mode supports both "stop at first vulnerability" and "collect risk landscape".
 
 ## Consequences
@@ -72,4 +79,3 @@ Typed refs added to `core.contracts.scientist`:
 
 1. Build custom Morris/Sobol implementation: rejected (validation and maintenance burden).
 2. Separate stress optimizer subsystem: rejected (duplicates Search logic).
-

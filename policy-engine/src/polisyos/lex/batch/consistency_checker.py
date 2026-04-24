@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import hashlib
-from typing import Any
-
-import duckdb
+from typing import TYPE_CHECKING, Any
 
 from polisyos.lex.batch.patterns import DOC_TYPE_HIERARCHY_UA
+
+if TYPE_CHECKING:
+    import duckdb
 
 _CONTRADICTIONS_SQL = """
 WITH active_norms AS (
@@ -74,7 +75,9 @@ def detect_consistency_issues(
     jurisdiction: str = "UA",
 ) -> int:
     """Detect consistency issues helper."""
-    if not _table_exists(con, "lex_consistency_issues") or not _table_exists(con, "lex_normative_facts"):
+    if not _table_exists(con, "lex_consistency_issues") or not _table_exists(
+        con, "lex_normative_facts"
+    ):
         return 0
     con.execute("DELETE FROM lex_consistency_issues")
     rows = con.execute(_CONTRADICTIONS_SQL, [jurisdiction]).fetchall()
@@ -88,11 +91,15 @@ def detect_consistency_issues(
             doc_id_1=str(row[6] or ""),
             doc_id_2=str(row[7] or ""),
         )
-        issue_id = hashlib.sha256("|".join(str(item or "") for item in row[:6]).encode("utf-8")).hexdigest()[:24]
+        issue_id = hashlib.sha256(
+            "|".join(str(item or "") for item in row[:6]).encode("utf-8")
+        ).hexdigest()[:24]
         payloads.append(
             (
                 issue_id,
-                "cross_document_contradiction" if str(row[6] or "") != str(row[7] or "") else "intra_document_contradiction",
+                "cross_document_contradiction"
+                if str(row[6] or "") != str(row[7] or "")
+                else "intra_document_contradiction",
                 str(row[0] or ""),
                 str(row[1] or ""),
                 str(row[6] or ""),

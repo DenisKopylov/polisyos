@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any, List
-
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 
@@ -26,7 +24,7 @@ class CitationValidatorPass(ValidatorPass):
     def estimated_cost_ms(self) -> int:
         return 30
 
-    def validate(self, ctx: PassContext) -> List[ComplianceIssue]:
+    def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
         issues: list[ComplianceIssue] = []
         state = ctx.state
 

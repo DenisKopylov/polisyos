@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import hashlib
 import re
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
-from polisyos.core.contracts.scholar import ResearchIntent
 from polisyos.scholar.search.models import QueryGraph, QueryNode, ResearchBrief
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from polisyos.core.contracts.scholar import ResearchIntent
 
 _DEFAULT_PERSPECTIVES = [
     "official policy source",
@@ -114,8 +117,7 @@ def build_research_brief(
         raise ValueError("question or intent.topic/domain is required")
 
     selected_perspectives = list(
-        perspectives
-        or _DOMAIN_PERSPECTIVES.get(domain, _DEFAULT_PERSPECTIVES)
+        perspectives or _DOMAIN_PERSPECTIVES.get(domain, _DEFAULT_PERSPECTIVES)
     )
     seed_terms = _extract_seed_terms(question_text)
     required_source_types = sorted(
@@ -342,7 +344,7 @@ def _node_id(
     depth: int,
     parent_id: str | None,
 ) -> str:
-    payload = f"{query}|{perspective}|{depth}|{parent_id or ''}".encode("utf-8")
+    payload = f"{query}|{perspective}|{depth}|{parent_id or ''}".encode()
     return f"qg.{hashlib.sha256(payload).hexdigest()[:24]}"
 
 

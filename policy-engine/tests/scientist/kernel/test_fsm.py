@@ -1,4 +1,5 @@
 """Tests for polisyos.scientist.kernel.fsm — Phase FSM, ReflexionGuard, KernelState."""
+
 from __future__ import annotations
 
 import pytest
@@ -11,17 +12,27 @@ from polisyos.scientist.kernel.fsm import (
     TransitionEvent,
 )
 
-
 # ---------------------------------------------------------------------------
 # Phase enum
 # ---------------------------------------------------------------------------
 
+
 class TestPhase:
     def test_all_phases_exist(self):
         expected = {
-            "INTAKE", "FRAME", "PREFLIGHT_GOV", "PLAN", "EXECUTE",
-            "POSTFLIGHT_GOV", "DECIDE", "PUBLISH", "ARCHIVE",
-            "SEARCH_INIT", "SEARCH_ITERATE", "SEARCH_COMPLETE", "REFLEXION",
+            "INTAKE",
+            "FRAME",
+            "PREFLIGHT_GOV",
+            "PLAN",
+            "EXECUTE",
+            "POSTFLIGHT_GOV",
+            "DECIDE",
+            "PUBLISH",
+            "ARCHIVE",
+            "SEARCH_INIT",
+            "SEARCH_ITERATE",
+            "SEARCH_COMPLETE",
+            "REFLEXION",
         }
         assert {p.name for p in Phase} == expected
 
@@ -41,59 +52,66 @@ class TestPhase:
 # ALLOWED_TRANSITIONS
 # ---------------------------------------------------------------------------
 
+
 class TestAllowedTransitions:
     def test_all_phases_have_transitions(self):
         for p in Phase:
             assert p in ALLOWED_TRANSITIONS, f"Phase {p} missing from ALLOWED_TRANSITIONS"
 
-    @pytest.mark.parametrize("src,dst", [
-        (Phase.INTAKE, Phase.FRAME),
-        (Phase.INTAKE, Phase.SEARCH_INIT),
-        (Phase.FRAME, Phase.PREFLIGHT_GOV),
-        (Phase.FRAME, Phase.PLAN),
-        (Phase.FRAME, Phase.DECIDE),
-        (Phase.FRAME, Phase.REFLEXION),
-        (Phase.FRAME, Phase.FRAME),
-        (Phase.PREFLIGHT_GOV, Phase.PLAN),
-        (Phase.PREFLIGHT_GOV, Phase.REFLEXION),
-        (Phase.PLAN, Phase.EXECUTE),
-        (Phase.PLAN, Phase.REFLEXION),
-        (Phase.PLAN, Phase.DECIDE),
-        (Phase.PLAN, Phase.PLAN),
-        (Phase.EXECUTE, Phase.POSTFLIGHT_GOV),
-        (Phase.EXECUTE, Phase.FRAME),
-        (Phase.EXECUTE, Phase.REFLEXION),
-        (Phase.EXECUTE, Phase.DECIDE),
-        (Phase.EXECUTE, Phase.EXECUTE),
-        (Phase.POSTFLIGHT_GOV, Phase.DECIDE),
-        (Phase.POSTFLIGHT_GOV, Phase.REFLEXION),
-        (Phase.REFLEXION, Phase.FRAME),
-        (Phase.REFLEXION, Phase.PLAN),
-        (Phase.REFLEXION, Phase.DECIDE),
-        (Phase.DECIDE, Phase.PUBLISH),
-        (Phase.DECIDE, Phase.ARCHIVE),
-        (Phase.PUBLISH, Phase.ARCHIVE),
-        (Phase.ARCHIVE, Phase.ARCHIVE),
-        (Phase.SEARCH_INIT, Phase.SEARCH_ITERATE),
-        (Phase.SEARCH_INIT, Phase.DECIDE),
-        (Phase.SEARCH_ITERATE, Phase.SEARCH_ITERATE),
-        (Phase.SEARCH_ITERATE, Phase.SEARCH_COMPLETE),
-        (Phase.SEARCH_ITERATE, Phase.FRAME),
-        (Phase.SEARCH_COMPLETE, Phase.DECIDE),
-    ])
+    @pytest.mark.parametrize(
+        "src,dst",
+        [
+            (Phase.INTAKE, Phase.FRAME),
+            (Phase.INTAKE, Phase.SEARCH_INIT),
+            (Phase.FRAME, Phase.PREFLIGHT_GOV),
+            (Phase.FRAME, Phase.PLAN),
+            (Phase.FRAME, Phase.DECIDE),
+            (Phase.FRAME, Phase.REFLEXION),
+            (Phase.FRAME, Phase.FRAME),
+            (Phase.PREFLIGHT_GOV, Phase.PLAN),
+            (Phase.PREFLIGHT_GOV, Phase.REFLEXION),
+            (Phase.PLAN, Phase.EXECUTE),
+            (Phase.PLAN, Phase.REFLEXION),
+            (Phase.PLAN, Phase.DECIDE),
+            (Phase.PLAN, Phase.PLAN),
+            (Phase.EXECUTE, Phase.POSTFLIGHT_GOV),
+            (Phase.EXECUTE, Phase.FRAME),
+            (Phase.EXECUTE, Phase.REFLEXION),
+            (Phase.EXECUTE, Phase.DECIDE),
+            (Phase.EXECUTE, Phase.EXECUTE),
+            (Phase.POSTFLIGHT_GOV, Phase.DECIDE),
+            (Phase.POSTFLIGHT_GOV, Phase.REFLEXION),
+            (Phase.REFLEXION, Phase.FRAME),
+            (Phase.REFLEXION, Phase.PLAN),
+            (Phase.REFLEXION, Phase.DECIDE),
+            (Phase.DECIDE, Phase.PUBLISH),
+            (Phase.DECIDE, Phase.ARCHIVE),
+            (Phase.PUBLISH, Phase.ARCHIVE),
+            (Phase.ARCHIVE, Phase.ARCHIVE),
+            (Phase.SEARCH_INIT, Phase.SEARCH_ITERATE),
+            (Phase.SEARCH_INIT, Phase.DECIDE),
+            (Phase.SEARCH_ITERATE, Phase.SEARCH_ITERATE),
+            (Phase.SEARCH_ITERATE, Phase.SEARCH_COMPLETE),
+            (Phase.SEARCH_ITERATE, Phase.FRAME),
+            (Phase.SEARCH_COMPLETE, Phase.DECIDE),
+        ],
+    )
     def test_valid_transition(self, src: Phase, dst: Phase):
         assert dst in ALLOWED_TRANSITIONS[src]
 
-    @pytest.mark.parametrize("src,dst", [
-        (Phase.INTAKE, Phase.EXECUTE),
-        (Phase.INTAKE, Phase.DECIDE),
-        (Phase.INTAKE, Phase.ARCHIVE),
-        (Phase.DECIDE, Phase.INTAKE),
-        (Phase.DECIDE, Phase.EXECUTE),
-        (Phase.PUBLISH, Phase.INTAKE),
-        (Phase.ARCHIVE, Phase.INTAKE),
-        (Phase.SEARCH_COMPLETE, Phase.SEARCH_ITERATE),
-    ])
+    @pytest.mark.parametrize(
+        "src,dst",
+        [
+            (Phase.INTAKE, Phase.EXECUTE),
+            (Phase.INTAKE, Phase.DECIDE),
+            (Phase.INTAKE, Phase.ARCHIVE),
+            (Phase.DECIDE, Phase.INTAKE),
+            (Phase.DECIDE, Phase.EXECUTE),
+            (Phase.PUBLISH, Phase.INTAKE),
+            (Phase.ARCHIVE, Phase.INTAKE),
+            (Phase.SEARCH_COMPLETE, Phase.SEARCH_ITERATE),
+        ],
+    )
     def test_invalid_transition(self, src: Phase, dst: Phase):
         assert dst not in ALLOWED_TRANSITIONS[src]
 
@@ -101,6 +119,7 @@ class TestAllowedTransitions:
 # ---------------------------------------------------------------------------
 # ReflexionGuard
 # ---------------------------------------------------------------------------
+
 
 class TestReflexionGuard:
     def test_defaults(self):
@@ -189,6 +208,7 @@ class TestReflexionGuard:
 # KernelState
 # ---------------------------------------------------------------------------
 
+
 class TestKernelState:
     def test_default_phase(self):
         ks = KernelState()
@@ -237,14 +257,21 @@ class TestKernelState:
 # TransitionEvent enum
 # ---------------------------------------------------------------------------
 
+
 class TestTransitionEvent:
     def test_all_events_exist(self):
         expected = {
-            "VALIDATION_PASSED", "VALIDATION_FAILED",
-            "COMPILATION_PASSED", "COMPILATION_FAILED",
-            "SIMULATION_PASSED", "SIMULATION_FAILED",
-            "GOVERNOR_APPROVED", "GOVERNOR_REJECTED",
-            "REFLEXION_RETRY", "REFLEXION_ABORT", "REFLEXION_ESCALATE",
+            "VALIDATION_PASSED",
+            "VALIDATION_FAILED",
+            "COMPILATION_PASSED",
+            "COMPILATION_FAILED",
+            "SIMULATION_PASSED",
+            "SIMULATION_FAILED",
+            "GOVERNOR_APPROVED",
+            "GOVERNOR_REJECTED",
+            "REFLEXION_RETRY",
+            "REFLEXION_ABORT",
+            "REFLEXION_ESCALATE",
             "BUDGET_EXHAUSTED",
         }
         assert {e.name for e in TransitionEvent} == expected

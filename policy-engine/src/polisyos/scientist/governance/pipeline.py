@@ -1,4 +1,5 @@
 """Run ordered governance passes with telemetry, short-circuiting, and degraded paths."""
+
 from __future__ import annotations
 
 import json
@@ -45,6 +46,7 @@ def _load_runtime_trace_types() -> tuple[Any, Any]:
     try:
         from opentelemetry.trace import Status, StatusCode
     except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
+
         class _FallbackStatusCode(str, Enum):
             OK = "OK"
             ERROR = "ERROR"

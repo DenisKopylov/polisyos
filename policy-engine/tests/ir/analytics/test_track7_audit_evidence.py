@@ -6,13 +6,13 @@ Covers:
     5.3  CausalRunSnapshot (build + persist + lookup)
     5.4  QualityDimension, CausalQualityReport, QualityScoreAggregator
 """
+
 from __future__ import annotations
 
 import tempfile
 from pathlib import Path
 
 import pytest
-
 
 # ===========================================================================
 # 5.1 — EvidenceBundle new types
@@ -45,8 +45,9 @@ class TestCompilationStep:
             step.n_executor_nodes = 99  # type: ignore[misc]
 
     def test_extra_forbidden(self):
-        from polisyos.ir.analytics.evidence_bundle import CompilationStep
         from pydantic import ValidationError
+
+        from polisyos.ir.analytics.evidence_bundle import CompilationStep
 
         with pytest.raises(ValidationError):
             CompilationStep(
@@ -111,7 +112,9 @@ class TestEvidenceBundleNewFields:
             _fingerprint,
         )
 
-        cs = CompilationStep(estimand_shape="backdoor", estimation_strategy="aipw", n_executor_nodes=2)
+        cs = CompilationStep(
+            estimand_shape="backdoor", estimation_strategy="aipw", n_executor_nodes=2
+        )
         es = EstimationStep(node_id="n0", method_fqn="causal.treatment_effects.aipw")
         fp = _fingerprint({"nodes": ["X", "Y"]})
         bundle = EvidenceBundle(
@@ -168,6 +171,7 @@ class TestCovariateBalanceReport:
 
     def test_compute_smd_balanced(self):
         import numpy as np
+
         from polisyos.ir.analytics.covariate_balance import compute_smd
 
         rng = np.random.default_rng(42)
@@ -181,10 +185,11 @@ class TestCovariateBalanceReport:
 
     def test_compute_smd_imbalanced(self):
         import numpy as np
+
         from polisyos.ir.analytics.covariate_balance import compute_smd
 
-        Xt = np.ones((50, 1)) * 2.0   # mean=2
-        Xc = np.ones((50, 1)) * 0.0   # mean=0
+        Xt = np.ones((50, 1)) * 2.0  # mean=2
+        Xc = np.ones((50, 1)) * 0.0  # mean=0
         report = compute_smd(Xt, Xc)
         # SMD should be large
         assert report.max_smd > 0.5
@@ -330,8 +335,14 @@ class TestDiagnosticDashboardData:
             },
         )
 
-        assert any(warning.startswith("sensitivity_serialize_fallback:diag") for warning in dashboard.warnings)
-        assert any(warning.startswith("covariate_balance_parse_failed:diag") for warning in dashboard.warnings)
+        assert any(
+            warning.startswith("sensitivity_serialize_fallback:diag")
+            for warning in dashboard.warnings
+        )
+        assert any(
+            warning.startswith("covariate_balance_parse_failed:diag")
+            for warning in dashboard.warnings
+        )
 
 
 # ===========================================================================
@@ -483,7 +494,9 @@ class TestCausalQualityReport:
 
 class TestQualityScoreAggregator:
     def test_no_data(self):
-        from polisyos.foundry.methods.catalog.causal.quality_aggregator import QualityScoreAggregator
+        from polisyos.foundry.methods.catalog.causal.quality_aggregator import (
+            QualityScoreAggregator,
+        )
 
         agg = QualityScoreAggregator()
         report = agg.score(run_id="test", query_str="P(Y|do(X))")
@@ -491,16 +504,20 @@ class TestQualityScoreAggregator:
         assert report.composite_grade in ("A", "B", "C", "D", "F")
 
     def test_good_diagnostics_high_score(self):
-        from polisyos.foundry.methods.catalog.causal.quality_aggregator import QualityScoreAggregator
+        from polisyos.foundry.methods.catalog.causal.quality_aggregator import (
+            QualityScoreAggregator,
+        )
         from polisyos.ir.analytics.evidence_bundle import DataProvenance, EstimationStep
 
         agg = QualityScoreAggregator()
         prov = (DataProvenance(dataset_ref="obs", quality_score=0.95),)
-        steps = (EstimationStep(
-            node_id="n0",
-            method_fqn="causal.treatment_effects.aipw",
-            determinism_tier="library_deterministic",
-        ),)
+        steps = (
+            EstimationStep(
+                node_id="n0",
+                method_fqn="causal.treatment_effects.aipw",
+                determinism_tier="library_deterministic",
+            ),
+        )
         node_outputs = {
             "pos": {
                 "result": {
@@ -520,7 +537,9 @@ class TestQualityScoreAggregator:
         assert report.composite_grade in ("A", "B")
 
     def test_poor_diagnostics_low_score(self):
-        from polisyos.foundry.methods.catalog.causal.quality_aggregator import QualityScoreAggregator
+        from polisyos.foundry.methods.catalog.causal.quality_aggregator import (
+            QualityScoreAggregator,
+        )
         from polisyos.ir.analytics.evidence_bundle import DataProvenance
 
         agg = QualityScoreAggregator()
@@ -542,7 +561,9 @@ class TestQualityScoreAggregator:
         assert report.composite_score < 0.70
 
     def test_blocking_dimension_caps_composite(self):
-        from polisyos.foundry.methods.catalog.causal.quality_aggregator import QualityScoreAggregator
+        from polisyos.foundry.methods.catalog.causal.quality_aggregator import (
+            QualityScoreAggregator,
+        )
         from polisyos.ir.analytics.evidence_bundle import DataProvenance
 
         agg = QualityScoreAggregator()
@@ -561,7 +582,9 @@ class TestQualityScoreAggregator:
             assert report.composite_score <= 0.39
 
     def test_aggregate_weights_stored(self):
-        from polisyos.foundry.methods.catalog.causal.quality_aggregator import QualityScoreAggregator
+        from polisyos.foundry.methods.catalog.causal.quality_aggregator import (
+            QualityScoreAggregator,
+        )
 
         # Custom weights are accepted and stored
         agg = QualityScoreAggregator(weights={"data": 0.5, "method": 0.3, "robustness": 0.2})
@@ -571,7 +594,10 @@ class TestQualityScoreAggregator:
 
     def test_json_serializable(self):
         import json
-        from polisyos.foundry.methods.catalog.causal.quality_aggregator import QualityScoreAggregator
+
+        from polisyos.foundry.methods.catalog.causal.quality_aggregator import (
+            QualityScoreAggregator,
+        )
 
         agg = QualityScoreAggregator()
         report = agg.score(run_id="json-test")

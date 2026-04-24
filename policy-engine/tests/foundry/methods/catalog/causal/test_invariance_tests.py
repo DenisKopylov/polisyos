@@ -3,13 +3,13 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from polisyos.foundry.methods.catalog.causal import invariance_tests as invariance_module
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.causal import ensure_causal_methods_registered
+from polisyos.foundry.methods.catalog.causal import invariance_tests as invariance_module
 from polisyos.foundry.methods.catalog.causal.invariance_tests import (
     build_environment_audit_report,
     build_regime_shift_identification_certificate,
 )
+from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics.causal_discovery import (
     AlgebraicConstraintFamily,
@@ -122,10 +122,12 @@ def test_ks_invariance_bh_reduces_rejections_vs_bonferroni() -> None:
     n = 100
     # Moderate shift in one feature, same for others
     data_d0 = rng.normal(size=(n, 5))
-    data_d1 = np.column_stack([
-        rng.normal(loc=1.5, size=(n, 1)),  # shifted
-        rng.normal(size=(n, 4)),           # same
-    ])
+    data_d1 = np.column_stack(
+        [
+            rng.normal(loc=1.5, size=(n, 1)),  # shifted
+            rng.normal(size=(n, 4)),  # same
+        ]
+    )
     data = np.vstack([data_d0, data_d1])
     labels = np.array([0] * n + [1] * n)
 
@@ -157,7 +159,14 @@ def test_ks_invariance_output_structure() -> None:
         params={"alpha": 0.05},
     )
 
-    required = {"passed", "n_rejected", "rejected_variables", "p_values_matrix", "correction_method", "metadata"}
+    required = {
+        "passed",
+        "n_rejected",
+        "rejected_variables",
+        "p_values_matrix",
+        "correction_method",
+        "metadata",
+    }
     assert required <= set(out.keys())
     assert isinstance(out["rejected_variables"], list)
 
@@ -172,16 +181,20 @@ def test_icp_invariance_basic_run() -> None:
     rng = np.random.default_rng(20)
     n = 100
     # Feature 0 causes Y with same coefficient; feature 1 has heterogeneous effect
-    data_d0 = np.column_stack([
-        rng.normal(size=(n, 2)),
-        rng.normal(size=n),  # Y = X0 + noise
-    ])
+    data_d0 = np.column_stack(
+        [
+            rng.normal(size=(n, 2)),
+            rng.normal(size=n),  # Y = X0 + noise
+        ]
+    )
     data_d0[:, 2] = data_d0[:, 0] + 0.3 * rng.normal(size=n)
 
-    data_d1 = np.column_stack([
-        rng.normal(size=(n, 2)),
-        rng.normal(size=n),
-    ])
+    data_d1 = np.column_stack(
+        [
+            rng.normal(size=(n, 2)),
+            rng.normal(size=n),
+        ]
+    )
     data_d1[:, 2] = 3.0 * data_d1[:, 1] + 0.3 * rng.normal(size=n)  # different feature
 
     data = np.vstack([data_d0, data_d1])
@@ -207,21 +220,27 @@ def test_icp_invariance_stable_feature_is_invariant() -> None:
     n = 120
     # X0 has stable effect on Y across both domains
     # X1 has completely different effect in each domain
-    data_d0 = np.column_stack([
-        rng.normal(size=n),   # X0
-        rng.normal(size=n),   # X1
-    ])
-    data_d1 = np.column_stack([
-        rng.normal(size=n),   # X0
-        rng.normal(size=n),   # X1
-    ])
+    data_d0 = np.column_stack(
+        [
+            rng.normal(size=n),  # X0
+            rng.normal(size=n),  # X1
+        ]
+    )
+    data_d1 = np.column_stack(
+        [
+            rng.normal(size=n),  # X0
+            rng.normal(size=n),  # X1
+        ]
+    )
     Y_d0 = 2.0 * data_d0[:, 0] + 0.1 * rng.normal(size=n)
     Y_d1 = 2.0 * data_d1[:, 0] + 5.0 * data_d1[:, 1] + 0.1 * rng.normal(size=n)
 
-    data = np.column_stack([
-        np.vstack([data_d0, data_d1]),
-        np.concatenate([Y_d0, Y_d1]),
-    ])
+    data = np.column_stack(
+        [
+            np.vstack([data_d0, data_d1]),
+            np.concatenate([Y_d0, Y_d1]),
+        ]
+    )
     labels = np.array([0] * n + [1] * n)
 
     out = _dispatch(
@@ -355,9 +374,16 @@ def test_invariant_discovery_from_regimes_emits_certificate_and_orientations() -
     assert ["X0", "Y"] in out["forced_orientations"]
 
 
-def test_regime_shift_certificate_uses_nonlinear_phase_closing_route_when_auto_is_eligible() -> None:
+def test_regime_shift_certificate_uses_nonlinear_phase_closing_route_when_auto_is_eligible() -> (
+    None
+):
     rng = np.random.default_rng(909)
-    env_specs = [("env_a", -2.0, 0.0), ("env_b", 0.0, 0.0), ("env_c", 2.0, 0.0), ("env_d", 0.0, 2.0)]
+    env_specs = [
+        ("env_a", -2.0, 0.0),
+        ("env_b", 0.0, 0.0),
+        ("env_c", 2.0, 0.0),
+        ("env_d", 0.0, 2.0),
+    ]
     chunks: list[np.ndarray] = []
     labels: list[str] = []
     for env_name, mean_x, mean_z in env_specs:
@@ -444,7 +470,9 @@ def test_regime_shift_certificate_marks_duplicate_environment_pattern_as_redunda
     assert certificate.metadata["phase_closing_stage16_1"] is False
 
 
-def test_regime_shift_certificate_blocks_phase_closing_for_selection_or_mixed_nonlinear_case() -> None:
+def test_regime_shift_certificate_blocks_phase_closing_for_selection_or_mixed_nonlinear_case() -> (
+    None
+):
     rng = np.random.default_rng(911)
     chunks: list[np.ndarray] = []
     labels: list[str] = []
@@ -482,7 +510,9 @@ def test_regime_shift_certificate_blocks_phase_closing_for_selection_or_mixed_no
     assert certificate.metadata["phase_closing_stage16_1"] is False
 
 
-def test_regime_shift_certificate_marks_linear_route_as_fallback_when_auto_is_not_eligible() -> None:
+def test_regime_shift_certificate_marks_linear_route_as_fallback_when_auto_is_not_eligible() -> (
+    None
+):
     rng = np.random.default_rng(912)
     n = 220
     x0_a = rng.normal(loc=0.0, scale=1.0, size=n)

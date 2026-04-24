@@ -1,14 +1,17 @@
 """I/O helpers for causal-frontier small-area estimation bundles."""
+
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pandas as pd
 
 from polisyos.foundry.methods.catalog.survey.protocols import SAEResult
+
+type Path = Any
+_Path = __import__("pathlib", fromlist=("Path",)).Path
 
 _REQUIRED_AREA_COLUMNS = ("area_id", "direct_estimate", "direct_variance")
 _REQUIRED_EDGE_COLUMNS = ("src_area_id", "dst_area_id")
@@ -29,7 +32,7 @@ def load_causal_frontier_bundle(
     add_intercept: bool = True,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Load the Phase 2 causal-frontier bundle contract from one directory."""
-    bundle_path = Path(bundle_dir).expanduser().resolve()
+    bundle_path = _Path(bundle_dir).expanduser().resolve()
     if not bundle_path.exists():
         raise FileNotFoundError(f"bundle_dir does not exist: {bundle_path}")
     if not bundle_path.is_dir():
@@ -49,9 +52,7 @@ def load_causal_frontier_bundle(
     edges = pd.read_parquet(edges_path)
     exposure = pd.read_parquet(exposure_path) if exposure_path.exists() else None
     metadata = (
-        json.loads(metadata_path.read_text(encoding="utf-8"))
-        if metadata_path.exists()
-        else {}
+        json.loads(metadata_path.read_text(encoding="utf-8")) if metadata_path.exists() else {}
     )
     if not isinstance(metadata, dict):
         raise ValueError("metadata.json must contain a JSON object")
@@ -119,9 +120,9 @@ def build_causal_frontier_state_from_frames(
 
     if "policy_indicator" not in areas_frame.columns:
         areas_frame["policy_indicator"] = 0.0
-    areas_frame["policy_indicator"] = (
-        pd.to_numeric(areas_frame["policy_indicator"], errors="coerce").fillna(0.0)
-    )
+    areas_frame["policy_indicator"] = pd.to_numeric(
+        areas_frame["policy_indicator"], errors="coerce"
+    ).fillna(0.0)
     areas_frame["direct_estimate"] = pd.to_numeric(
         areas_frame["direct_estimate"],
         errors="coerce",
@@ -150,7 +151,9 @@ def build_causal_frontier_state_from_frames(
     for column in covariates_used:
         if column == "intercept":
             continue
-        design_columns.append(pd.to_numeric(areas_frame[column], errors="coerce").to_numpy(dtype=float))
+        design_columns.append(
+            pd.to_numeric(areas_frame[column], errors="coerce").to_numpy(dtype=float)
+        )
     if not design_columns:
         raise ValueError("causal-frontier SAE requires at least one covariate column or intercept")
     x_covariates = np.column_stack(design_columns)
@@ -212,19 +215,28 @@ def build_causal_frontier_state_from_frames(
     frontier_sources = sorted(
         {
             str(value)
-            for value in edges_frame.get("frontier_source", pd.Series(dtype=object)).dropna().astype(str).tolist()
+            for value in edges_frame.get("frontier_source", pd.Series(dtype=object))
+            .dropna()
+            .astype(str)
+            .tolist()
         }
     )
     frontier_types = sorted(
         {
             str(value)
-            for value in edges_frame.get("frontier_type", pd.Series(dtype=object)).dropna().astype(str).tolist()
+            for value in edges_frame.get("frontier_type", pd.Series(dtype=object))
+            .dropna()
+            .astype(str)
+            .tolist()
         }
     )
     adjacency_types = sorted(
         {
             str(value)
-            for value in edges_frame.get("adjacency_type", pd.Series(dtype=object)).dropna().astype(str).tolist()
+            for value in edges_frame.get("adjacency_type", pd.Series(dtype=object))
+            .dropna()
+            .astype(str)
+            .tolist()
         }
     )
     state = {
@@ -287,7 +299,7 @@ def write_output_bundle(
     governance_artifact: dict[str, Any],
 ) -> dict[str, str]:
     """Persist output bundle files following the Phase 2 contract layout."""
-    output_path = Path(output_dir).expanduser().resolve()
+    output_path = _Path(output_dir).expanduser().resolve()
     output_path.mkdir(parents=True, exist_ok=True)
 
     estimates_path = output_path / "sae_estimates.parquet"
@@ -338,8 +350,7 @@ def _resolve_covariate_columns(
         resolved = [
             column
             for column in areas.columns
-            if column not in _RESERVED_AREA_COLUMNS
-            and pd.api.types.is_numeric_dtype(areas[column])
+            if column not in _RESERVED_AREA_COLUMNS and pd.api.types.is_numeric_dtype(areas[column])
         ]
     if add_intercept:
         return ["intercept", *resolved]

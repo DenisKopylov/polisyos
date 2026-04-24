@@ -23,6 +23,7 @@ Bongers, S., Forré, P., Peters, J. & Mooij, J.M. (2021). Foundations of
     Structural Causal Models with Cycles and Latent Variables. AoS 49(5).
 Pearl, J. (2000). Causality: Models, Reasoning and Inference. CUP.
 """
+
 from __future__ import annotations
 
 import math
@@ -48,7 +49,6 @@ from polisyos.foundry.methods.base import (
 )
 from polisyos.foundry.methods.catalog.causal.gcm_query import (
     _abduce_noises_unified,
-    _linear_predict,
     _mechanism_map,
     _parents_by_node,
     _topological_order,
@@ -58,8 +58,7 @@ from polisyos.foundry.methods.catalog.causal.twin_network_query import (
     _sample_node_noise,
 )
 from polisyos.ir.analytics.ncm import NCMSpec, StructuralEquation
-from polisyos.ir.analytics.structural_causal_model import MechanismFamily, NodeMechanism
-
+from polisyos.ir.analytics.structural_causal_model import NodeMechanism
 
 # ── Private helpers ────────────────────────────────────────────────────────────
 
@@ -77,7 +76,9 @@ def _equation_deterministic_term(
     params = eq.equation_params
     intercept = float(params.get("intercept", 0.0))
     coefs = params.get("coefficients", {})
-    return intercept + sum(float(coefs.get(parent, 0.0)) * float(parent_vals.get(parent, 0.0)) for parent in eq.parents)
+    return intercept + sum(
+        float(coefs.get(parent, 0.0)) * float(parent_vals.get(parent, 0.0)) for parent in eq.parents
+    )
 
 
 def _noise_polynomial_coefficients(eq: StructuralEquation) -> list[float]:
@@ -269,7 +270,9 @@ def _log_posterior_noise(
     prior_std = float(eq.equation_params.get("prior_std", 1.0))
     observation_scale = max(float(eq.equation_params.get("observation_noise_scale", 0.1)), 1e-6)
     residual = _nonlinear_residual(eq, parent_vals, observed_value, noise)
-    return _normal_logpdf(noise, prior_mean, prior_std) + _normal_logpdf(residual, 0.0, observation_scale)
+    return _normal_logpdf(noise, prior_mean, prior_std) + _normal_logpdf(
+        residual, 0.0, observation_scale
+    )
 
 
 def _find_scalar_brackets(
@@ -285,7 +288,7 @@ def _find_scalar_brackets(
     brackets: list[tuple[float, float]] = []
     span = max(abs(scale), 1.0)
     for expansion in range(n_expansions):
-        radius = span * (2 ** expansion)
+        radius = span * (2**expansion)
         grid = np.linspace(center - radius, center + radius, grid_points)
         residuals = np.array(
             [_nonlinear_residual(eq, parent_vals, observed_value, float(value)) for value in grid],
@@ -298,7 +301,11 @@ def _find_scalar_brackets(
                 continue
             if abs(float(f_left)) <= 1e-10:
                 brackets.append((float(left), float(left)))
-            if float(f_left) == 0.0 or float(f_right) == 0.0 or float(f_left) * float(f_right) < 0.0:
+            if (
+                float(f_left) == 0.0
+                or float(f_right) == 0.0
+                or float(f_left) * float(f_right) < 0.0
+            ):
                 brackets.append((float(left), float(right)))
         if brackets:
             break
@@ -330,12 +337,14 @@ def _numeric_exact_noise_candidates(
             if abs(right - left) <= 1e-12:
                 root = left
             else:
-                root = float(brentq(
-                    lambda u: _nonlinear_residual(eq, parent_vals, observed_value, u),
-                    left,
-                    right,
-                    maxiter=200,
-                ))
+                root = float(
+                    brentq(
+                        lambda u: _nonlinear_residual(eq, parent_vals, observed_value, u),
+                        left,
+                        right,
+                        maxiter=200,
+                    )
+                )
             if abs(_nonlinear_residual(eq, parent_vals, observed_value, root)) <= 1e-5:
                 candidates.append(root)
         except Exception:
@@ -522,14 +531,16 @@ def _ncm_topological_order(ncm: NCMSpec) -> list[str]:
         return _topological_order(ncm.scm_spec)
 
     # Build from structural_equations: collect parents from equations
-    nodes = list(ncm.endogenous_vars) if ncm.endogenous_vars else [
-        eq.variable for eq in ncm.structural_equations
-    ]
+    nodes = (
+        list(ncm.endogenous_vars)
+        if ncm.endogenous_vars
+        else [eq.variable for eq in ncm.structural_equations]
+    )
     if not nodes:
         return []
 
     nodes_set = set(nodes)
-    indegree: dict[str, int] = {n: 0 for n in nodes}
+    indegree: dict[str, int] = dict.fromkeys(nodes, 0)
     adjacency: dict[str, list[str]] = {n: [] for n in nodes}
     for eq in ncm.structural_equations:
         for parent in eq.parents:
@@ -584,7 +595,9 @@ def _abduce_exogenous(
     method: Literal["exact", "mcmc", "variational"],
     *,
     warnings: list[str],
-    root_selection_policy: Literal["closest_to_prior", "smallest_magnitude", "all_roots_mcmc"] = "closest_to_prior",
+    root_selection_policy: Literal[
+        "closest_to_prior", "smallest_magnitude", "all_roots_mcmc"
+    ] = "closest_to_prior",
     rng: np.random.Generator | None = None,
 ) -> dict[str, float]:
     """Abduct exogenous noise values from factual evidence.
@@ -644,32 +657,15 @@ def _abduce_exogenous(
                     if eq.equation_type == "linear":
                         pseudo_observed[node] = deterministic
                     else:
-                        pseudo_observed[node] = _evaluate_nonlinear_equation(eq, pseudo_observed, 0.0)
+                        pseudo_observed[node] = _evaluate_nonlinear_equation(
+                            eq, pseudo_observed, 0.0
+                        )
                 else:
                     pseudo_observed[node] = 0.0
 
         if node in evidence:
             eq = eq_map.get(node)
-            if eq is not None and eq.equation_type == "linear":
-                parents_ok = all(p in pseudo_observed for p in eq.parents)
-                if parents_ok:
-                    noise[node] = _abduct_noise_via_method(
-                        eq,
-                        pseudo_observed,
-                        float(evidence[node]),
-                        method=method,
-                        root_selection_policy=root_selection_policy,
-                        warnings=warnings,
-                        rng=rng,
-                    )
-                else:
-                    _append_warning(
-                        warnings,
-                        f"ncm-engine: cannot abduct U for '{node}' "
-                        "(parents not in topological prefix); defaulting to U=0",
-                    )
-                    noise[node] = 0.0
-            elif eq is not None:
+            if (eq is not None and eq.equation_type == "linear") or eq is not None:
                 parents_ok = all(p in pseudo_observed for p in eq.parents)
                 if parents_ok:
                     noise[node] = _abduct_noise_via_method(
@@ -731,9 +727,7 @@ def _predict_from_abducted(
     mech_map: dict[str, NodeMechanism] = (
         _mechanism_map(ncm.scm_spec) if ncm.scm_spec is not None else {}
     )
-    eq_map: dict[str, StructuralEquation] = {
-        eq.variable: eq for eq in ncm.structural_equations
-    }
+    eq_map: dict[str, StructuralEquation] = {eq.variable: eq for eq in ncm.structural_equations}
 
     values: dict[str, float] = {}
 
@@ -779,7 +773,9 @@ def _counterfactual_world(
     abduction_method: Literal["exact", "mcmc", "variational"],
     *,
     warnings: list[str],
-    root_selection_policy: Literal["closest_to_prior", "smallest_magnitude", "all_roots_mcmc"] = "closest_to_prior",
+    root_selection_policy: Literal[
+        "closest_to_prior", "smallest_magnitude", "all_roots_mcmc"
+    ] = "closest_to_prior",
     rng: np.random.Generator | None = None,
 ) -> dict[str, float]:
     """Compute the counterfactual world M_{do(X=x)} given factual evidence.
@@ -815,7 +811,9 @@ def _parallel_worlds(
     n_samples: int,
     rng: np.random.Generator,
     warnings: list[str],
-    root_selection_policy: Literal["closest_to_prior", "smallest_magnitude", "all_roots_mcmc"] = "closest_to_prior",
+    root_selection_policy: Literal[
+        "closest_to_prior", "smallest_magnitude", "all_roots_mcmc"
+    ] = "closest_to_prior",
 ) -> list[dict[str, np.ndarray]]:
     """Simulate K parallel worlds with shared exogenous noise.
 
@@ -884,17 +882,12 @@ def _parallel_worlds(
 
         # ── Step 3: Simulate each world with the same noise ───────────────────
         for w_idx, interv in enumerate(interventions):
-            vals = _predict_from_abducted(
-                ncm, fresh_noise, interv, order, parents_map, warnings
-            )
+            vals = _predict_from_abducted(ncm, fresh_noise, interv, order, parents_map, warnings)
             for node in order:
                 worlds[w_idx][node].append(vals.get(node, 0.0))
 
     # Convert to numpy arrays
-    return [
-        {node: np.asarray(vals, dtype=float) for node, vals in w.items()}
-        for w in worlds
-    ]
+    return [{node: np.asarray(vals, dtype=float) for node, vals in w.items()} for w in worlds]
 
 
 def _twin_network_from_ncm(ncm: NCMSpec) -> NCMSpec:
@@ -929,7 +922,9 @@ def _twin_network_from_ncm(ncm: NCMSpec) -> NCMSpec:
                         "variable": f"{ex.variable}{suffix}",
                         "associated_endogenous": f"{ex.associated_endogenous}{suffix}",
                         "is_shared": True,
-                        "shared_with": [f"{ex.associated_endogenous}{'__1' if suffix == '__0' else '__0'}"],
+                        "shared_with": [
+                            f"{ex.associated_endogenous}{'__1' if suffix == '__0' else '__0'}"
+                        ],
                     }
                 )
             )
@@ -992,12 +987,16 @@ class NCMEngineMethod:
         name="ncm_engine",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("ncm_query_data", SlotType.SCALAR, Unit("query", "json")),
-        }),
-        output_slots=frozenset({
-            SlotSpec("counterfactual_result", SlotType.SCALAR, Unit("report", "json")),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec("ncm_query_data", SlotType.SCALAR, Unit("query", "json")),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec("counterfactual_result", SlotType.SCALAR, Unit("report", "json")),
+            }
+        ),
         parameters=(
             ParameterSpec(name="n_samples", default=2000),
             ParameterSpec(name="abduction_method", default="exact"),
@@ -1141,11 +1140,11 @@ class NCMEngineMethod:
 __all__ = [
     "NCMEngineMethod",
     "_abduce_exogenous",
-    "_predict_from_abducted",
     "_counterfactual_world",
+    "_ncm_parents_map",
+    "_ncm_topological_order",
     "_parallel_worlds",
+    "_predict_from_abducted",
     "_twin_network_from_ncm",
     "_validate_markov_condition",
-    "_ncm_topological_order",
-    "_ncm_parents_map",
 ]

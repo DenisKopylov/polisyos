@@ -23,9 +23,11 @@ References:
     Vansteelandt, S. & Joffe, M. (2014). Structural nested models and G-estimation.
         Statistical Science, 29(2), 232-255.
 """
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Literal, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -42,10 +44,6 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.foundry.methods.catalog.causal._sklearn_compat import (
-    LinearRegression,
-    LogisticRegression,
-)
 from polisyos.foundry.methods.catalog.causal._common import (
     bootstrap_ci,
     build_failure_report,
@@ -55,7 +53,6 @@ from polisyos.foundry.methods.catalog.causal._common import (
 from polisyos.foundry.methods.catalog.causal.g_computation import (
     _build_history_matrix,
     _dynamic_input_slots,
-    _dynamic_output_slots,
     _extract_dynamic_data,
     _fit_propensity_model,
     _predict_proba_safe,
@@ -64,7 +61,6 @@ from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentDa
 from polisyos.ir.analytics.causal import CausalMethod, EstimationStatus
 from polisyos.ir.analytics.dynamic_regime import (
     DynamicTreatmentRegime,
-    GComputationResult,
     RegimeRule,
     SNMMResult,
 )
@@ -73,9 +69,7 @@ _ASSUMPTIONS = {
     "sequential_ignorability": (
         "A_t ⊥ Y^{ā} | H_t for all t (no unmeasured time-varying confounders)"
     ),
-    "blip_model_correct": (
-        "The specified blip function γ(a_t, H_t; ψ) is correctly specified"
-    ),
+    "blip_model_correct": ("The specified blip function γ(a_t, H_t; ψ) is correctly specified"),
     "consistency": "Y_i = Y_i^{ā} when Ā_i = ā",
     "positivity": "0 < P(A_t = 1 | H_t) < 1 for all H_t in support",
 }
@@ -153,7 +147,7 @@ def _g_estimate_stage(
         Z = np.column_stack([U_t, U_t * l0])[:, :K]
     elif blip_model == "quadratic":
         l0 = L_t[:, 0]
-        Z = np.column_stack([U_t, U_t * l0, U_t * l0 ** 2])[:, :K]
+        Z = np.column_stack([U_t, U_t * l0, U_t * l0**2])[:, :K]
     else:
         Z = U_t.reshape(-1, 1)
 
@@ -329,8 +323,7 @@ class StructuralNestedMeanModel:
             "useful when a parametric blip structure is plausible."
         ),
         when_not_to_use=(
-            "When the blip function is highly non-linear; "
-            "use Q-learning or OWL instead."
+            "When the blip function is highly non-linear; use Q-learning or OWL instead."
         ),
         typical_min_obs=80,
         output_interpretation=(
@@ -341,9 +334,7 @@ class StructuralNestedMeanModel:
     )
 
     @staticmethod
-    def pure_step(
-        state: DynamicTreatmentData, params: Mapping[str, Any]
-    ) -> dict[str, Any]:
+    def pure_step(state: DynamicTreatmentData, params: Mapping[str, Any]) -> dict[str, Any]:
         try:
             data = _extract_dynamic_data(state)
         except Exception as exc:

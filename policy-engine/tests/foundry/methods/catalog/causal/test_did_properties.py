@@ -6,6 +6,7 @@ These tests use Hypothesis to verify that DiD implementations:
 2. Return a dict with the expected keys.
 3. Produce estimates close to the ground-truth ATT for well-specified inputs.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -18,7 +19,6 @@ from hypothesis import strategies as st
 
 from tests.foundry.methods.testing.strategies import panel_data_strategy
 
-
 # ---------------------------------------------------------------------------
 # Fixtures: register methods once per module
 # ---------------------------------------------------------------------------
@@ -27,12 +27,14 @@ from tests.foundry.methods.testing.strategies import panel_data_strategy
 @pytest.fixture(scope="module", autouse=True)
 def _register():
     from polisyos.foundry.methods.registry import registry_scope
+
     # Registration is isolated; module fixture keeps it alive for all tests
     with registry_scope():
         try:
             from polisyos.foundry.methods.catalog.causal import (
                 ensure_causal_methods_registered,
             )
+
             ensure_causal_methods_registered()
         except Exception:
             pass
@@ -135,9 +137,7 @@ def test_did_standard_output_has_report(data: dict) -> None:
     noise_scale=st.floats(min_value=0.1, max_value=2.0, allow_nan=False),
 )
 @settings(max_examples=20, deadline=20_000)
-def test_did_zero_att_estimate_is_finite(
-    n_units: int, n_periods: int, noise_scale: float
-) -> None:
+def test_did_zero_att_estimate_is_finite(n_units: int, n_periods: int, noise_scale: float) -> None:
     """When true ATT=0, the estimate should be finite."""
     try:
         from polisyos.foundry.methods.catalog.causal._registry_boot import (

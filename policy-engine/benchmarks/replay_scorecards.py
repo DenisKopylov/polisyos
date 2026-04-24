@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -34,8 +33,12 @@ def replay_suite_payload(payload: dict[str, Any]) -> dict[str, Any]:
             metric_getters={
                 "ate_rmse": lambda result: getattr(result, "ate_rmse", float("nan")),
                 "ci_coverage": lambda result: getattr(result, "ci_coverage", float("nan")),
-                "ci_width": lambda result: getattr(result, "ci_width_mean", getattr(result, "ci_width", float("nan"))),
-                "pehe": lambda result: getattr(result, "pehe_mean", getattr(result, "pehe", float("nan"))),
+                "ci_width": lambda result: getattr(
+                    result, "ci_width_mean", getattr(result, "ci_width", float("nan"))
+                ),
+                "pehe": lambda result: getattr(
+                    result, "pehe_mean", getattr(result, "pehe", float("nan"))
+                ),
             },
             standardized_metrics={"ate_rmse"},
             scale_getter=lambda result: getattr(result, "ate_true", float("nan")),
@@ -87,7 +90,9 @@ def replay_suite_payload(payload: dict[str, Any]) -> dict[str, Any]:
             report,
             metric_getters={
                 "ate_rmse": lambda result: getattr(result, "ate_rmse", float("nan")),
-                "pehe": lambda result: getattr(result, "pehe_mean", getattr(result, "pehe", float("nan"))),
+                "pehe": lambda result: getattr(
+                    result, "pehe_mean", getattr(result, "pehe", float("nan"))
+                ),
                 "ci_coverage": lambda result: getattr(result, "ci_coverage", float("nan")),
                 "failure_rate": lambda result: getattr(result, "failure_rate", float("nan")),
             },
@@ -140,10 +145,14 @@ def replay_suite_payload(payload: dict[str, Any]) -> dict[str, Any]:
             report,
             metric_getters={
                 "ate_rmse": lambda result: getattr(result, "ate_rmse", float("nan")),
-                "pehe": lambda result: getattr(result, "pehe_mean", getattr(result, "pehe", float("nan"))),
+                "pehe": lambda result: getattr(
+                    result, "pehe_mean", getattr(result, "pehe", float("nan"))
+                ),
                 "ci_coverage": lambda result: getattr(result, "ci_coverage", float("nan")),
                 "failure_rate": lambda result: getattr(result, "failure_rate", float("nan")),
-                "kl_mean": lambda result: getattr(result, "kl_mean_mean", getattr(result, "kl_mean", float("nan"))),
+                "kl_mean": lambda result: getattr(
+                    result, "kl_mean_mean", getattr(result, "kl_mean", float("nan"))
+                ),
             },
             standardized_metrics={"ate_rmse", "pehe"},
             scale_getter=lambda result: getattr(result, "ate_true", float("nan")),
@@ -208,7 +217,9 @@ def replay_bundle(
     claim_result = evaluate_claim_gate(json_dir, profile=profile)
     publication_card = build_publication_benchmark_card(json_dir, claim_result=claim_result)
     if write:
-        (json_dir / "claim_gate.json").write_text(json.dumps(claim_result, indent=2), encoding="utf-8")
+        (json_dir / "claim_gate.json").write_text(
+            json.dumps(claim_result, indent=2), encoding="utf-8"
+        )
         (json_dir / "publication_benchmark_card.json").write_text(
             json.dumps(publication_card, indent=2),
             encoding="utf-8",
@@ -264,10 +275,14 @@ def _result_payload_from_case(value: Any) -> dict[str, Any]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Replay estimation scorecards from saved suite JSON")
+    parser = argparse.ArgumentParser(
+        description="Replay estimation scorecards from saved suite JSON"
+    )
     parser.add_argument("paths", nargs="+", help="Suite JSON files or directories")
     parser.add_argument("--write", action="store_true", help="Rewrite JSON files in place")
-    parser.add_argument("--profile", default="air-m2", help="Claim-gate profile to recompute for directories")
+    parser.add_argument(
+        "--profile", default="air-m2", help="Claim-gate profile to recompute for directories"
+    )
     parser.add_argument(
         "--write-claim-artifacts",
         action="store_true",
@@ -294,7 +309,11 @@ def main() -> None:
         updated = replay_suite_path(path, write=args.write)
         if not args.write:
             print(f"===== {path} =====")
-            print(json.dumps(updated.get("aggregate_metrics", {}).get("flagship_scorecard", {}), indent=2))
+            print(
+                json.dumps(
+                    updated.get("aggregate_metrics", {}).get("flagship_scorecard", {}), indent=2
+                )
+            )
 
 
 if __name__ == "__main__":

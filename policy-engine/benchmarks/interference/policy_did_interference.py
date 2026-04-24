@@ -33,14 +33,24 @@ from benchmarks.harness import (  # noqa: E402
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import BenchmarkMode, resolve_mode  # noqa: E402
 from polisyos.foundry.methods.catalog.causal.did import DifferenceInDifferences  # noqa: E402
-from polisyos.foundry.methods.catalog.causal.interference import identify_interference_effect  # noqa: E402
+from polisyos.foundry.methods.catalog.causal.interference import (
+    identify_interference_effect,  # noqa: E402
+)
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData  # noqa: E402
 from polisyos.ir.analytics.causal import EstimationStatus  # noqa: E402
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType  # noqa: E402
-
+from polisyos.ir.analytics.causal_graph import (  # noqa: E402
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    GraphType,
+)
 
 CIRCUIT = BenchmarkCircuit.ESTIMATION
 
@@ -117,8 +127,14 @@ def _build_interference_graph() -> CausalGraphModel:
 
 
 def _runner_did(data: PanelObservationalData, *, seed: int) -> dict[str, Any]:
-    result = DifferenceInDifferences.pure_step(data, {"confidence_level": 0.95, "__rng__": np.random.default_rng(seed)})
-    return {"artifact": result["report"], "artifact_kind": "did", "warnings": list(result.get("warnings", []))}
+    result = DifferenceInDifferences.pure_step(
+        data, {"confidence_level": 0.95, "__rng__": np.random.default_rng(seed)}
+    )
+    return {
+        "artifact": result["report"],
+        "artifact_kind": "did",
+        "warnings": list(result.get("warnings", [])),
+    }
 
 
 def _runner_graph_detection() -> dict[str, Any]:
@@ -168,7 +184,9 @@ def _case_contaminated_rollout() -> BenchmarkCase:
     direct_effect = 2.2
     spillover_effect = 0.9
     expected_att = direct_effect - spillover_effect
-    data = _build_panel_data(direct_effect=direct_effect, spillover_effect=spillover_effect, seed=13)
+    data = _build_panel_data(
+        direct_effect=direct_effect, spillover_effect=spillover_effect, seed=13
+    )
 
     def runner() -> dict[str, Any]:
         payload = _runner_did(data, seed=13)
@@ -327,7 +345,9 @@ def _aggregate_metrics(report: BenchmarkReport) -> dict[str, Any]:
     }
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     return build_report_payload(
         report,
         suite_id="policy_did_interference",

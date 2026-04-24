@@ -4,16 +4,15 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
-from typing import Any, Mapping
+from typing import Any
 
 from polisyos.lex.batch.doc_identity import parse_doc_date
 from polisyos.lex.batch.temporal_parser import TemporalConstraint, parse_temporal_constraints
 
-_PUBLICATION_DATE_RE = re.compile(
-    r"(?P<day>\d{1,2})[./-](?P<month>\d{1,2})[./-](?P<year>\d{4})"
-)
+_PUBLICATION_DATE_RE = re.compile(r"(?P<day>\d{1,2})[./-](?P<month>\d{1,2})[./-](?P<year>\d{4})")
 
 _STATUS_CURRENT_RE = re.compile(r"\bчинн", re.IGNORECASE)
 _STATUS_FUTURE_RE = re.compile(r"не\s+наб(рав|ула|ули)\s+чинності", re.IGNORECASE)
@@ -174,11 +173,21 @@ def _temporal_scan_text(text: str) -> str:
 def _resolved_constraint_dates(
     constraints: list[TemporalConstraint],
 ) -> tuple[list[str], list[str], float, str]:
-    effective_from_candidates = _distinct_non_empty([item.effective_from_iso for item in constraints if item.resolved])
-    effective_to_candidates = _distinct_non_empty([item.effective_to_iso for item in constraints if item.resolved])
+    effective_from_candidates = _distinct_non_empty(
+        [item.effective_from_iso for item in constraints if item.resolved]
+    )
+    effective_to_candidates = _distinct_non_empty(
+        [item.effective_to_iso for item in constraints if item.resolved]
+    )
     confidence = max((float(item.confidence or 0.0) for item in constraints), default=0.0)
     source_kind = ",".join(
-        sorted({str(item.constraint_type or "").strip() for item in constraints if str(item.constraint_type or "").strip()})
+        sorted(
+            {
+                str(item.constraint_type or "").strip()
+                for item in constraints
+                if str(item.constraint_type or "").strip()
+            }
+        )
     )
     return effective_from_candidates, effective_to_candidates, confidence, source_kind
 
@@ -193,7 +202,9 @@ def resolve_document_temporal(
     publication_date_iso = extract_publication_date(metadata)
     adoption_date = parse_doc_date(str(metadata.get("date_acc") or ""))
     adoption_date_iso = adoption_date.isoformat() if adoption_date is not None else ""
-    state_from_status, resolution_from_status, status_confidence = _status_semantics(str(metadata.get("status") or ""))
+    state_from_status, resolution_from_status, status_confidence = _status_semantics(
+        str(metadata.get("status") or "")
+    )
 
     scan_text = _temporal_scan_text(text)
     constraints = parse_temporal_constraints(
@@ -201,7 +212,9 @@ def resolve_document_temporal(
         publication_date_iso=publication_date_iso or None,
         adoption_date_iso=adoption_date_iso or None,
     )
-    effective_from_candidates, effective_to_candidates, text_confidence, source_kind = _resolved_constraint_dates(constraints)
+    effective_from_candidates, effective_to_candidates, text_confidence, source_kind = (
+        _resolved_constraint_dates(constraints)
+    )
 
     conflict = len(effective_from_candidates) > 1 or len(effective_to_candidates) > 1
     effective_from = effective_from_candidates[0] if len(effective_from_candidates) == 1 else ""
@@ -224,18 +237,28 @@ def resolve_document_temporal(
             resolution_status = "conflict"
     elif effective_to or publication_date_iso or resolution_from_status != "unknown" or constraints:
         resolution_status = "partial"
-        temporal_source_kind = source_kind or ("status_semantics" if resolution_from_status != "unknown" else "publication_metadata")
-        temporal_confidence = max(text_confidence, status_confidence, 0.6 if publication_date_iso else 0.0)
+        temporal_source_kind = source_kind or (
+            "status_semantics" if resolution_from_status != "unknown" else "publication_metadata"
+        )
+        temporal_confidence = max(
+            text_confidence, status_confidence, 0.6 if publication_date_iso else 0.0
+        )
 
     if temporal_state == "unknown":
         if resolution_status == "resolved":
             temporal_state = "current"
         elif constraints:
-            temporal_state = next((item.state_hint for item in constraints if item.state_hint), "unknown")
+            temporal_state = next(
+                (item.state_hint for item in constraints if item.state_hint), "unknown"
+            )
 
     # A historical/suspended status without a bounded end should not look fully resolved,
     # otherwise downstream checks may treat the document as still active.
-    if resolution_status == "resolved" and temporal_state in _HISTORICAL_STATES and not effective_to:
+    if (
+        resolution_status == "resolved"
+        and temporal_state in _HISTORICAL_STATES
+        and not effective_to
+    ):
         resolution_status = "partial"
         if not temporal_source_kind:
             temporal_source_kind = source_kind or "status_semantics"
@@ -249,21 +272,25 @@ def resolve_document_temporal(
         "publication_raw": (
             [str(item) for item in metadata.get("publication", [])]
             if isinstance(metadata.get("publication"), (list, tuple))
-            else ([str(metadata.get("publication"))] if str(metadata.get("publication") or "").strip() else [])
+            else (
+                [str(metadata.get("publication"))]
+                if str(metadata.get("publication") or "").strip()
+                else []
+            )
         ),
         "resolved_constraints": [asdict(item) for item in constraints[:8]],
     }
 
     return _normalize_doc_temporal_envelope(
         DocTemporalEnvelope(
-        published_at=publication_date_iso,
-        effective_from=effective_from,
-        effective_to=effective_to,
-        temporal_state=temporal_state,
-        temporal_resolution_status=resolution_status,
-        temporal_source_kind=temporal_source_kind,
-        temporal_confidence=temporal_confidence,
-        temporal_provenance_json=json.dumps(provenance, ensure_ascii=False, sort_keys=True),
+            published_at=publication_date_iso,
+            effective_from=effective_from,
+            effective_to=effective_to,
+            temporal_state=temporal_state,
+            temporal_resolution_status=resolution_status,
+            temporal_source_kind=temporal_source_kind,
+            temporal_confidence=temporal_confidence,
+            temporal_provenance_json=json.dumps(provenance, ensure_ascii=False, sort_keys=True),
         )
     )
 
@@ -281,7 +308,9 @@ def coerce_doc_temporal(metadata: Mapping[str, Any] | Any) -> DocTemporalEnvelop
                 effective_from=str(temporal.get("effective_from") or ""),
                 effective_to=str(temporal.get("effective_to") or ""),
                 temporal_state=str(temporal.get("temporal_state") or "unknown"),
-                temporal_resolution_status=str(temporal.get("temporal_resolution_status") or "unknown"),
+                temporal_resolution_status=str(
+                    temporal.get("temporal_resolution_status") or "unknown"
+                ),
                 temporal_source_kind=str(temporal.get("temporal_source_kind") or ""),
                 temporal_confidence=float(temporal.get("temporal_confidence") or 0.0),
                 temporal_provenance_json=str(temporal.get("temporal_provenance_json") or "{}"),
@@ -313,12 +342,17 @@ def resolve_fact_temporal(
         )
 
     candidates = statement_constraints or provision_constraints
-    effective_from_candidates, effective_to_candidates, candidate_confidence, source_kind = _resolved_constraint_dates(candidates)
+    effective_from_candidates, effective_to_candidates, candidate_confidence, source_kind = (
+        _resolved_constraint_dates(candidates)
+    )
     conflict = len(effective_from_candidates) > 1 or len(effective_to_candidates) > 1
 
     if conflict:
         return FactTemporalEnvelope(
-            temporal_state=next((item.state_hint for item in candidates if item.state_hint), doc_temporal.temporal_state),
+            temporal_state=next(
+                (item.state_hint for item in candidates if item.state_hint),
+                doc_temporal.temporal_state,
+            ),
             temporal_resolution_status="conflict",
             temporal_source_scope="statement" if statement_constraints else "provision",
             temporal_source_kind=source_kind or "statement_conflict",
@@ -352,12 +386,17 @@ def resolve_fact_temporal(
             effective_to=effective_to if resolution_status == "resolved" else "",
             temporal_state=(
                 doc_temporal.temporal_state
-                if doc_temporal.temporal_state in _HISTORICAL_STATES and resolution_status != "conflict"
-                else next((item.state_hint for item in candidates if item.state_hint), doc_temporal.temporal_state)
+                if doc_temporal.temporal_state in _HISTORICAL_STATES
+                and resolution_status != "conflict"
+                else next(
+                    (item.state_hint for item in candidates if item.state_hint),
+                    doc_temporal.temporal_state,
+                )
             ),
             temporal_resolution_status=resolution_status,
             temporal_source_scope="statement" if statement_constraints else "provision",
-            temporal_source_kind=source_kind or ("statement_temporal_text" if statement_constraints else "provision_text"),
+            temporal_source_kind=source_kind
+            or ("statement_temporal_text" if statement_constraints else "provision_text"),
             temporal_confidence=candidate_confidence,
             temporal_provenance_json=json.dumps(
                 {
@@ -373,10 +412,14 @@ def resolve_fact_temporal(
 
     if candidates:
         return FactTemporalEnvelope(
-            temporal_state=next((item.state_hint for item in candidates if item.state_hint), doc_temporal.temporal_state),
+            temporal_state=next(
+                (item.state_hint for item in candidates if item.state_hint),
+                doc_temporal.temporal_state,
+            ),
             temporal_resolution_status="partial",
             temporal_source_scope="statement" if statement_constraints else "provision",
-            temporal_source_kind=source_kind or ("statement_temporal_text" if statement_constraints else "provision_text"),
+            temporal_source_kind=source_kind
+            or ("statement_temporal_text" if statement_constraints else "provision_text"),
             temporal_confidence=candidate_confidence,
             temporal_provenance_json=json.dumps(
                 {
@@ -425,7 +468,11 @@ def resolve_fact_temporal(
             ),
         )
 
-    resolution_status = doc_temporal.temporal_resolution_status if doc_temporal.temporal_resolution_status != "resolved" else "unknown"
+    resolution_status = (
+        doc_temporal.temporal_resolution_status
+        if doc_temporal.temporal_resolution_status != "resolved"
+        else "unknown"
+    )
     if (
         doc_temporal.temporal_state in _HISTORICAL_STATES
         and resolution_status == "resolved"

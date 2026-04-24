@@ -1,13 +1,15 @@
 """Export the materialized world graph from DuckDB into a Kuzu graph database."""
+
 from __future__ import annotations
 
 import contextlib
-from collections import defaultdict, deque
 import shutil
 import tempfile
+from collections import defaultdict, deque
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Iterable, Literal, Sequence
+from typing import Any, Literal
 
 from polisyos.common.logger import get_logger
 from polisyos.fabric.io.db import SimulationDB
@@ -117,7 +119,7 @@ class WorldGraphSnapshot:
             self._incoming[edge.target_id].append(edge)
 
     @classmethod
-    def from_duckdb(cls, db: SimulationDB) -> "WorldGraphSnapshot":
+    def from_duckdb(cls, db: SimulationDB) -> WorldGraphSnapshot:
         node_rows = db.conn.execute(
             """
             SELECT node_id, kind, label, artifact_id
@@ -168,7 +170,9 @@ class WorldGraphSnapshot:
         return tuple(self._incoming.get(node_id, ()))
 
 
-def build_world_kuzu_lineage_query(node_id: str, *, max_hops: int = 2) -> tuple[str, dict[str, object]]:
+def build_world_kuzu_lineage_query(
+    node_id: str, *, max_hops: int = 2
+) -> tuple[str, dict[str, object]]:
     hops = max(1, max_hops)
     query = f"""
         MATCH path = (seed:WorldNode)-[:WorldEdge*1..{hops}]-(neighbor:WorldNode)
@@ -192,7 +196,9 @@ def build_world_kuzu_entity_neighborhood_query(
     return query.strip(), {"node_id": node_id}
 
 
-def build_world_kuzu_conflict_query(node_id: str, *, max_hops: int = 2) -> tuple[str, dict[str, object]]:
+def build_world_kuzu_conflict_query(
+    node_id: str, *, max_hops: int = 2
+) -> tuple[str, dict[str, object]]:
     hops = max(1, max_hops)
     query = f"""
         MATCH path = (seed:WorldNode)-[edges:WorldEdge*1..{hops}]-(neighbor:WorldNode)
@@ -239,9 +245,7 @@ def query_world_entity_neighborhood(
                 continue
             visited_nodes.add(neighbor_id)
             queue.append((neighbor_id, depth + 1))
-    nodes = tuple(
-        snapshot.nodes[node] for node in sorted(visited_nodes) if node in snapshot.nodes
-    )
+    nodes = tuple(snapshot.nodes[node] for node in sorted(visited_nodes) if node in snapshot.nodes)
     edges = tuple(
         edge
         for edge in snapshot.edges
@@ -265,8 +269,7 @@ def query_world_source_overlap(
     overlapping_sources = tuple(
         node
         for node in neighborhood.nodes
-        if node.node_id != node_id
-        and ("source" in node.kind or node.artifact_id is not None)
+        if node.node_id != node_id and ("source" in node.kind or node.artifact_id is not None)
     )
     related_entities = tuple(
         node
@@ -289,14 +292,10 @@ def query_world_conflict_neighborhood(
 ) -> WorldGraphConflictNeighborhood:
     neighborhood = query_world_entity_neighborhood(snapshot, node_id, max_hops=max_hops)
     conflict_nodes = tuple(
-        node
-        for node in neighborhood.nodes
-        if "conflict" in node.kind or "contrad" in node.kind
+        node for node in neighborhood.nodes if "conflict" in node.kind or "contrad" in node.kind
     )
     evidence_edges = tuple(
-        edge
-        for edge in neighborhood.edges
-        if "conflict" in edge.kind or "contrad" in edge.kind
+        edge for edge in neighborhood.edges if "conflict" in edge.kind or "contrad" in edge.kind
     )
     return WorldGraphConflictNeighborhood(
         center_id=node_id,
@@ -366,8 +365,7 @@ def query_world_kuzu_source_overlap(
     overlapping_sources = tuple(
         node
         for node in neighborhood.nodes
-        if node.node_id != node_id
-        and ("source" in node.kind or node.artifact_id is not None)
+        if node.node_id != node_id and ("source" in node.kind or node.artifact_id is not None)
     )
     related_entities = tuple(
         node
@@ -396,14 +394,10 @@ def query_world_kuzu_conflict_neighborhood(
         max_hops=max_hops,
     )
     conflict_nodes = tuple(
-        node
-        for node in neighborhood.nodes
-        if "conflict" in node.kind or "contrad" in node.kind
+        node for node in neighborhood.nodes if "conflict" in node.kind or "contrad" in node.kind
     )
     evidence_edges = tuple(
-        edge
-        for edge in neighborhood.edges
-        if "conflict" in edge.kind or "contrad" in edge.kind
+        edge for edge in neighborhood.edges if "conflict" in edge.kind or "contrad" in edge.kind
     )
     return WorldGraphConflictNeighborhood(
         center_id=node_id,
@@ -574,6 +568,7 @@ def materialize_world_kuzu_from_duckdb(
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _import_kuzu():
     try:
         import kuzu
@@ -700,19 +695,11 @@ def _copy_kuzu_table(conn, table_name: str, csv_path: Path) -> None:
 
 
 def _validate_counts(db: SimulationDB, kuzu_conn) -> None:
-    duckdb_nodes = int(
-        db.conn.execute("SELECT COUNT(*) FROM world.world_nodes").fetchone()[0]
-    )
-    duckdb_edges = int(
-        db.conn.execute("SELECT COUNT(*) FROM world.world_edges").fetchone()[0]
-    )
+    duckdb_nodes = int(db.conn.execute("SELECT COUNT(*) FROM world.world_nodes").fetchone()[0])
+    duckdb_edges = int(db.conn.execute("SELECT COUNT(*) FROM world.world_edges").fetchone()[0])
 
-    kuzu_nodes_df = kuzu_conn.execute(
-        "MATCH (n:WorldNode) RETURN COUNT(n) AS c"
-    ).get_as_df()
-    kuzu_edges_df = kuzu_conn.execute(
-        "MATCH ()-[e:WorldEdge]->() RETURN COUNT(e) AS c"
-    ).get_as_df()
+    kuzu_nodes_df = kuzu_conn.execute("MATCH (n:WorldNode) RETURN COUNT(n) AS c").get_as_df()
+    kuzu_edges_df = kuzu_conn.execute("MATCH ()-[e:WorldEdge]->() RETURN COUNT(e) AS c").get_as_df()
 
     kuzu_nodes = int(kuzu_nodes_df.iloc[0, 0])
     kuzu_edges = int(kuzu_edges_df.iloc[0, 0])
@@ -784,10 +771,7 @@ def _fetch_kuzu_neighborhood_edges(
             event_id=_optional_text(row.get("event_id")),
         )
         edges[(record.source_id, record.target_id, record.kind)] = record
-    return tuple(
-        edges[key]
-        for key in sorted(edges, key=lambda item: (item[0], item[1], item[2]))
-    )
+    return tuple(edges[key] for key in sorted(edges, key=lambda item: (item[0], item[1], item[2])))
 
 
 def _build_kuzu_neighborhood_nodes_query(*, max_hops: int) -> str:
@@ -872,8 +856,8 @@ def _optional_float(value: object) -> float | None:
 
 
 __all__ = [
+    "WorldKuzuRefreshContract",
     "ensure_world_kuzu_schema",
     "explain_world_kuzu_refresh_contract",
     "materialize_world_kuzu_from_duckdb",
-    "WorldKuzuRefreshContract",
 ]

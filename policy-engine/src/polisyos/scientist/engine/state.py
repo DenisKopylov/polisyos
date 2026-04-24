@@ -5,6 +5,7 @@ nodes declare which keys they read/write, governance nodes materialize verdicts
 into `params` and `reports_index`, and decision nodes persist the final packet
 into `artifacts_index`.
 """
+
 from __future__ import annotations
 
 from decimal import Decimal

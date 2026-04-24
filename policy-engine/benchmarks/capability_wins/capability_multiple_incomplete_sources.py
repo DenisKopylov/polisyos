@@ -18,15 +18,23 @@ for _p in (str(_SRC), str(_BENCH_ROOT)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-from benchmarks.harness import BenchmarkCase, BenchmarkCircuit, BenchmarkHarness, BenchmarkReport  # noqa: E402
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
-from benchmarks.runtime import resolve_mode  # noqa: E402
-
 from benchmarks.capability_wins.capability_proof import (  # noqa: E402
     CapabilityProofSpec,
     build_capability_report_extra,
     make_gap_row,
 )
+from benchmarks.harness import (  # noqa: E402
+    BenchmarkCase,
+    BenchmarkCircuit,
+    BenchmarkHarness,
+    BenchmarkReport,
+)
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
+from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.CAPABILITY_WINS
 
@@ -39,14 +47,18 @@ def _graph_imports():
 
 def _engine_imports():
     from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
-    from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult, IdentificationStatus, SourceDomain
+    from polisyos.foundry.methods.catalog.causal.id_engine import (
+        IdentificationResult,
+        IdentificationStatus,
+        SourceDomain,
+    )
 
     return CausalEngine, IdentificationResult, IdentificationStatus, SourceDomain
 
 
 def _fusion_imports():
-    from polisyos.ir.analytics.data_fusion import FusionDataset
     from polisyos.foundry.methods.catalog.causal.data_fusion import multi_study_fusion
+    from polisyos.ir.analytics.data_fusion import FusionDataset
 
     return FusionDataset, multi_study_fusion
 
@@ -104,13 +116,22 @@ def _case_single_source_blocks() -> BenchmarkCase:
             treatment="X",
             outcome="Y",
             graph=graph,
-            source_domains=[SourceDomain(domain_id="registry_a", s_nodes=frozenset({"Y"}), dataset_ref="registry_a")],
+            source_domains=[
+                SourceDomain(
+                    domain_id="registry_a", s_nodes=frozenset({"Y"}), dataset_ref="registry_a"
+                )
+            ],
         )
 
     def checker(result: Any) -> bool:
         _, IdentificationResult, IdentificationStatus, _ = _engine_imports()
-        if isinstance(result, IdentificationResult) and result.status is IdentificationStatus.IDENTIFIED:
-            raise AssertionError("Single incomplete source should not fully identify the target effect")
+        if (
+            isinstance(result, IdentificationResult)
+            and result.status is IdentificationStatus.IDENTIFIED
+        ):
+            raise AssertionError(
+                "Single incomplete source should not fully identify the target effect"
+            )
         return True
 
     return BenchmarkCase(
@@ -153,7 +174,9 @@ def _case_two_source_fusion_identified() -> BenchmarkCase:
 
     def checker(result: Any) -> bool:
         if not getattr(result, "is_identified", False):
-            raise AssertionError(f"Expected identified fusion result, got {getattr(result, 'warnings', None)}")
+            raise AssertionError(
+                f"Expected identified fusion result, got {getattr(result, 'warnings', None)}"
+            )
         return True
 
     return BenchmarkCase(
@@ -174,7 +197,9 @@ def build_multiple_incomplete_sources_harness() -> BenchmarkHarness:
     return harness
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     extra = build_capability_report_extra(
         report,
         CapabilityProofSpec(
@@ -223,7 +248,9 @@ def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, 
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Capability win demo — multiple incomplete sources")
+    parser = argparse.ArgumentParser(
+        description="Capability win demo — multiple incomplete sources"
+    )
     parser.add_argument("--mode", choices=("smoke", "acceptance"))
     parser.add_argument("--json", metavar="FILE")
     parser.add_argument("--quiet", action="store_true")

@@ -1,7 +1,7 @@
 """Public routes auth module API."""
+
 from __future__ import annotations
 
-from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.contracts.runtime import ApiMeta, AuthMeResponse
@@ -12,6 +12,8 @@ from polisyos.runtime.http.errors import unauthorized
 from polisyos.runtime.http.security import build_fixture_identity_claims
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from fastapi import APIRouter, Request
 else:
     try:  # pragma: no cover - optional runtime dependency

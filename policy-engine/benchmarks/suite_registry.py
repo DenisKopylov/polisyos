@@ -7,8 +7,8 @@ import dataclasses
 import json
 from collections import OrderedDict
 from pathlib import Path
-from tools._lib.imports import repo_root_from
 
+from tools._lib.imports import repo_root_from
 
 VALIDATION_CONTOURS = ("legacy", "production", "academic")
 VISIBILITY_LANES = ("public", "hidden_release", "prod_shadow")
@@ -228,7 +228,11 @@ _SUITES: tuple[SuiteSpec, ...] = (
         aliases=("phase2", "econometrics", "frontier"),
         proof_class="supplementary_benchmark",
         family="econometrics_frontier",
-        primary_metrics=("post_selection_ci_count", "threshold_shift_abs_error", "nonstationary_break_count"),
+        primary_metrics=(
+            "post_selection_ci_count",
+            "threshold_shift_abs_error",
+            "nonstationary_break_count",
+        ),
         memory_gib_hint=2.0,
     ),
     SuiteSpec(
@@ -258,7 +262,11 @@ _SUITES: tuple[SuiteSpec, ...] = (
         aliases=("phase2", "network", "frontier"),
         proof_class="supplementary_benchmark",
         family="network_identification",
-        primary_metrics=("peer_identified", "formation_event_history_used", "embedding_status_green"),
+        primary_metrics=(
+            "peer_identified",
+            "formation_event_history_used",
+            "embedding_status_green",
+        ),
         memory_gib_hint=2.0,
     ),
     SuiteSpec(
@@ -888,10 +896,7 @@ def _filtered_specs(
         normalized_contour = validation_contour.strip().lower()
         if normalized_contour not in VALIDATION_CONTOURS:
             raise ValueError(f"Unknown validation contour: {validation_contour!r}")
-        candidates = [
-            spec for spec in candidates
-            if normalized_contour in spec.validation_contours
-        ]
+        candidates = [spec for spec in candidates if normalized_contour in spec.validation_contours]
     if visibility is not None:
         normalized_visibility = visibility.strip().lower()
         if normalized_visibility not in VISIBILITY_LANES:
@@ -958,9 +963,7 @@ def alias_targets(
         visibility=visibility,
     )
     return [
-        spec
-        for spec in candidates
-        if normalized == spec.suite_id or normalized in spec.aliases
+        spec for spec in candidates if normalized == spec.suite_id or normalized in spec.aliases
     ]
 
 

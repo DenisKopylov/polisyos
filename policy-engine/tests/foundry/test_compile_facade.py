@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from polisyos.core.compiler.report import CompileReport
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.compiler.report import CompileReport
 from polisyos.core.contracts.foundry import CompileRequest, ExecPlan, LoweredIR, ProgramGraph
 from polisyos.core.registry import (
     build_default_registry_bundle,
@@ -74,7 +74,9 @@ def _put_trinity_bundle(store: FileSystemCAS, trinity_bundle: TrinityBundle):
         PutOptions(
             kind="ir.trinity_bundle",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=trinity_bundle.schema_version),
+            schema=SchemaInfo(
+                name="polisyos.ir.TrinityBundle", version=trinity_bundle.schema_version
+            ),
         ),
     )
 
@@ -119,9 +121,7 @@ def test_compile_trinity_facade(tmp_path) -> None:
     assert result.ok is True
     assert result.exec_plan_ref is not None
 
-    program_ref = next(
-        ref.ref for ref in result.derived_refs if ref.role == "program_graph"
-    )
+    program_ref = next(ref.ref for ref in result.derived_refs if ref.role == "program_graph")
     payload = from_canonical_bytes(store.get_bytes(program_ref.artifact_id))
     graph = ProgramGraph.model_validate(payload)
     assert graph.ir_ref.kind == "ir.trinity_bundle"
@@ -199,9 +199,7 @@ def test_compile_trinity_lowers_bindings_and_fidelity(tmp_path) -> None:
     link_payload = from_canonical_bytes(store.get_bytes(compile_report.link_report_ref.artifact_id))
     link_report = LinkReport.model_validate(link_payload)
     warning_codes = {
-        issue.code
-        for issue in link_report.issues
-        if issue.severity.value == "warning"
+        issue.code for issue in link_report.issues if issue.severity.value == "warning"
     }
     assert LinkIssueCode.DEPRECATED_MECHANISM_BINDINGS not in warning_codes
     assert LinkIssueCode.MODEL_FIDELITY_LEVEL_IGNORED not in warning_codes
@@ -211,7 +209,9 @@ def test_compile_trinity_fails_on_binding_kind_mismatch(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     bundle = build_default_registry_bundle(store)
     trinity_bundle = TrinityBundle(
-        problem_frame=ProblemFrame(problem_id="problem_binding_mismatch", domain=ProblemDomain.FISCAL),
+        problem_frame=ProblemFrame(
+            problem_id="problem_binding_mismatch", domain=ProblemDomain.FISCAL
+        ),
         policy_spec=PolicySpec(
             policy_id="policy_binding_mismatch",
             interventions=[

@@ -1,9 +1,11 @@
 # ADR-0127: Repository Hygiene Gates
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context
@@ -39,4 +41,5 @@ Adopt repo hygiene gates as first-class CI and pre-commit checks:
 
 - Extends: ADR-0004 (architecture boundaries import gate), ADR-0115 (layered
   architecture enforcement).
+
 - Related: ADR-0118 (release train), ADR-0126 (docs lifecycle).

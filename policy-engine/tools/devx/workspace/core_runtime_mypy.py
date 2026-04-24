@@ -15,9 +15,7 @@ DEFAULT_SCOPE = (
     "src/polisyos/core",
     "src/polisyos/runtime",
 )
-DEFAULT_MYPY_ARGS = (
-    "--strict",
-)
+DEFAULT_MYPY_ARGS = ("--strict",)
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -97,7 +95,9 @@ def _run_mypy_for_file(path: Path) -> tuple[int, str]:
         capture_output=True,
         text=True,
     )
-    combined = "\n".join(part for part in (completed.stdout.strip(), completed.stderr.strip()) if part)
+    combined = "\n".join(
+        part for part in (completed.stdout.strip(), completed.stderr.strip()) if part
+    )
     return completed.returncode, combined
 
 

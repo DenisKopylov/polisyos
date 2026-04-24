@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """Summarize slow suites and unstable tests from JUnit XML plus quarantine metadata."""
+
 from __future__ import annotations
 
 import argparse
 import tomllib
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
-from tools._lib.imports import repo_root_from
-from typing import Iterable
 from xml.etree import ElementTree
+
+from tools._lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 DEFAULT_QUARANTINE_PATH = REPO_ROOT / "tests" / "quarantine.toml"
@@ -230,8 +232,7 @@ def _render_summary(
     ]
     if missing_reports:
         lines.append(
-            "- Missing reports: "
-            + ", ".join(f"`{report.label}`" for report in missing_reports)
+            "- Missing reports: " + ", ".join(f"`{report.label}`" for report in missing_reports)
         )
     lines.append("")
     lines.extend(_render_suite_table(suites))

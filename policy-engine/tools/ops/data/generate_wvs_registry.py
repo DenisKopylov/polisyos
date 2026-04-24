@@ -17,10 +17,10 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
-
 # ---------------------------------------------------------------------------
 # Response type inference
 # ---------------------------------------------------------------------------
+
 
 def _infer_response_type(values: list[float]) -> str:
     """Infer WVS response type from sampled valid values."""
@@ -119,9 +119,21 @@ _CANONICAL_CANDIDATES: dict[str, list[str]] = {
 _BINARY_SHARE_INDICATORS = frozenset({"A165"})
 
 # Metadata columns to skip
-_METADATA_PREFIXES = ("S", "COUNTRY", "COW", "MODE", "CASEID", "N", "GWNO",
-                       "version", "doi", "survself", "tradrat", "TradAgg",
-                       "SurvSAgg")
+_METADATA_PREFIXES = (
+    "S",
+    "COUNTRY",
+    "COW",
+    "MODE",
+    "CASEID",
+    "N",
+    "GWNO",
+    "version",
+    "doi",
+    "survself",
+    "tradrat",
+    "TradAgg",
+    "SurvSAgg",
+)
 
 
 def _is_indicator_column(col: str) -> bool:
@@ -137,17 +149,23 @@ def _top_level_code(col: str) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate WVS indicator registry")
-    parser.add_argument("--raw-dir", type=Path,
-                        default=Path("data/raw/wvs"))
-    parser.add_argument("--output", type=Path,
-                        default=Path("data/dataset_catalog/wvs_indicator_registry.yaml"))
-    parser.add_argument("--sample-rows", type=int, default=8000,
-                        help="Number of CSV rows to sample for response type inference")
+    parser.add_argument("--raw-dir", type=Path, default=Path("data/raw/wvs"))
+    parser.add_argument(
+        "--output", type=Path, default=Path("data/dataset_catalog/wvs_indicator_registry.yaml")
+    )
+    parser.add_argument(
+        "--sample-rows",
+        type=int,
+        default=8000,
+        help="Number of CSV rows to sample for response type inference",
+    )
     args = parser.parse_args()
 
     raw_dir = args.raw_dir
     csv_path = raw_dir / "WVS_Time_Series_1981-2022_csv_v5_0.csv"
-    xlsx_path = raw_dir / "F00003844-WVS_Time_Series_List_of_Variables_and_equivalences_1981_2022_v3_1.xlsx"
+    xlsx_path = (
+        raw_dir / "F00003844-WVS_Time_Series_List_of_Variables_and_equivalences_1981_2022_v3_1.xlsx"
+    )
 
     if not csv_path.exists():
         print(f"ERROR: CSV not found at {csv_path}", file=sys.stderr)
@@ -161,6 +179,7 @@ def main() -> None:
     if xlsx_path.exists():
         try:
             from openpyxl import load_workbook
+
             wb = load_workbook(xlsx_path, read_only=True, data_only=True)
             ws = wb[wb.sheetnames[0]]
             # Header: None, Variable, Title, WVS7, WVS6, WVS5, WVS4, WVS3, WVS2, WVS1
@@ -187,7 +206,8 @@ def main() -> None:
                         continue
                     title = str(row[title_idx] or "").strip()
                     waves = sorted(
-                        wn for wn, ci in wave_indices.items()
+                        wn
+                        for wn, ci in wave_indices.items()
                         if row[ci] is not None and str(row[ci]).strip()
                     )
                     codebook[variable] = {"title": title, "waves": waves}
@@ -199,7 +219,7 @@ def main() -> None:
     # -----------------------------------------------------------------------
     # Step 2: Read CSV headers to discover all columns and sub-items
     # -----------------------------------------------------------------------
-    with open(csv_path, "r", encoding="utf-8") as f:
+    with open(csv_path, encoding="utf-8") as f:
         reader = csv.reader(f)
         csv_headers = next(reader)
 
@@ -219,7 +239,7 @@ def main() -> None:
     print(f"Sampling {args.sample_rows} rows to infer response types...")
     value_samples: dict[str, list[float]] = defaultdict(list)
 
-    with open(csv_path, "r", encoding="utf-8") as f:
+    with open(csv_path, encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for i, row in enumerate(reader):
             if i >= args.sample_rows:
@@ -307,9 +327,7 @@ def main() -> None:
         stats[rt] += 1
 
         # Determine aggregation from response type
-        if code in _BINARY_SHARE_INDICATORS:
-            aggregation = "weighted_share_response_1"
-        elif rt == "binary_12":
+        if code in _BINARY_SHARE_INDICATORS or rt == "binary_12":
             aggregation = "weighted_share_response_1"
         elif rt == "binary_mentioned":
             aggregation = "weighted_share_mentioned"
@@ -340,8 +358,12 @@ def main() -> None:
 
     print(f"\nWritten {len(sorted_indicators)} indicators to {output_path}")
     print(f"Response type distribution: {dict(stats)}")
-    print(f"Sub-item families: {len(sub_items_map)} (total sub-items: {sum(len(v) for v in sub_items_map.values())})")
-    print(f"Indicators with canonical candidates: {sum(1 for c in sorted_indicators if c in _CANONICAL_CANDIDATES)}")
+    print(
+        f"Sub-item families: {len(sub_items_map)} (total sub-items: {sum(len(v) for v in sub_items_map.values())})"
+    )
+    print(
+        f"Indicators with canonical candidates: {sum(1 for c in sorted_indicators if c in _CANONICAL_CANDIDATES)}"
+    )
 
 
 if __name__ == "__main__":

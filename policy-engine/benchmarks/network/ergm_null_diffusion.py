@@ -21,15 +21,23 @@ for _p in [str(_SRC), str(_BENCH_ROOT)]:
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-from benchmarks.harness import BenchmarkCase, BenchmarkCircuit, BenchmarkHarness, BenchmarkReport  # noqa: E402
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
+from benchmarks.harness import (  # noqa: E402
+    BenchmarkCase,
+    BenchmarkCircuit,
+    BenchmarkHarness,
+    BenchmarkReport,
+)
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import BenchmarkMode, resolve_mode  # noqa: E402
 from polisyos.foundry.methods.catalog.network.ergm import (  # noqa: E402
     DiffusionNullTestEstimator,
     ERGMNullModelEstimator,
 )
 from polisyos.foundry.methods.catalog.network.protocols import NetworkData  # noqa: E402
-
 
 CIRCUIT = BenchmarkCircuit.ESTIMATION
 
@@ -81,7 +89,9 @@ def _case_ergm_null_fit() -> BenchmarkCase:
         assert "gwdegree" in artifact.coefficients
         assert "gwesp" in artifact.coefficients
         assert artifact.metadata["n_simulations"] == 16
-        assert artifact.gof_checks["edge_density"]["q05"] <= artifact.gof_checks["edge_density"]["q95"]
+        assert (
+            artifact.gof_checks["edge_density"]["q05"] <= artifact.gof_checks["edge_density"]["q95"]
+        )
         return True
 
     return BenchmarkCase(
@@ -134,10 +144,12 @@ def _case_diffusion_null_summary() -> BenchmarkCase:
 
 def build_harness() -> BenchmarkHarness:
     harness = BenchmarkHarness()
-    harness.register_many([
-        _case_ergm_null_fit(),
-        _case_diffusion_null_summary(),
-    ])
+    harness.register_many(
+        [
+            _case_ergm_null_fit(),
+            _case_diffusion_null_summary(),
+        ]
+    )
     return harness
 
 
@@ -170,7 +182,9 @@ def _aggregate_metrics(report: BenchmarkReport) -> dict[str, Any]:
     }
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     return build_report_payload(
         report,
         suite_id="ergm_null_diffusion",

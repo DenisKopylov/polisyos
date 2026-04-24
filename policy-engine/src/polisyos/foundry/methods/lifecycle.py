@@ -20,25 +20,22 @@ Architecture notes
   process; wall-clock times are NOT used so that serialised logs remain
   consistent across machines.
 """
+
 from __future__ import annotations
 
 import enum
 import inspect
 import time
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from dataclasses import dataclass
 
 from polisyos.foundry.methods.exceptions import FoundryExecutionError
 
-if TYPE_CHECKING:
-    pass  # forward references only
-
 __all__ = [
-    "MethodLifecycle",
     "LifecycleEvent",
     "LifecycleLog",
     "LifecycleManager",
     "LifecycleTransitionError",
+    "MethodLifecycle",
 ]
 
 # ---------------------------------------------------------------------------
@@ -47,12 +44,12 @@ __all__ = [
 
 # Maps from_state → set of allowed to_states
 _ALLOWED_TRANSITIONS: dict[str, set[str]] = {
-    "defined":    {"registered"},
+    "defined": {"registered"},
     "registered": {"validated", "retired"},
-    "validated":  {"warm", "executing", "retired"},
-    "warm":       {"executing", "retired"},
-    "executing":  {"warm", "validated", "retired"},
-    "retired":    set(),  # terminal
+    "validated": {"warm", "executing", "retired"},
+    "warm": {"executing", "retired"},
+    "executing": {"warm", "validated", "retired"},
+    "retired": set(),  # terminal
 }
 
 
@@ -95,12 +92,12 @@ class MethodLifecycle(enum.Enum):
         to it.  Existing in-flight calls may still complete.
     """
 
-    DEFINED    = "defined"
+    DEFINED = "defined"
     REGISTERED = "registered"
-    VALIDATED  = "validated"
-    WARM       = "warm"
-    EXECUTING  = "executing"
-    RETIRED    = "retired"
+    VALIDATED = "validated"
+    WARM = "warm"
+    EXECUTING = "executing"
+    RETIRED = "retired"
 
 
 @dataclass(frozen=True)

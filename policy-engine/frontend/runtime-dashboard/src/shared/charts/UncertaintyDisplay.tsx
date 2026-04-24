@@ -1,16 +1,20 @@
-import { useState } from "react";
+import { useState, type ComponentProps } from "react";
 
 import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
+
 import { ConfidenceGauge } from "./ConfidenceGauge";
-import { GradedErrorBar } from "./GradedErrorBar";
+import { FanChart } from "./FanChart";
 import { FrequencyDots } from "./FrequencyDots";
+import { GradedErrorBar } from "./GradedErrorBar";
+import { HypotheticalOutcomePlot } from "./HypotheticalOutcomePlot";
+import { QuantileDotplot } from "./QuantileDotplot";
+import { UncertaintyBand } from "./UncertaintyBand";
 
 type UncertaintyDisplayMode = "intuitive" | "statistical";
-
 type CIBand = { lower: number; upper: number; level: number };
 
-type UncertaintyDisplayProps = {
+type LegacyUncertaintyDisplayProps = {
   estimate: number;
   confidence: number;
   bands: CIBand[];
@@ -20,9 +24,17 @@ type UncertaintyDisplayProps = {
   frequencyFraming?: string;
   defaultMode?: UncertaintyDisplayMode;
   className?: string;
+  type?: undefined;
 };
 
-export function UncertaintyDisplay({
+type UncertaintyDisplayProps =
+  | LegacyUncertaintyDisplayProps
+  | ({ type: "band" } & ComponentProps<typeof UncertaintyBand>)
+  | ({ type: "fan" } & ComponentProps<typeof FanChart>)
+  | ({ type: "dotplot" } & ComponentProps<typeof QuantileDotplot>)
+  | ({ type: "hops" } & ComponentProps<typeof HypotheticalOutcomePlot>);
+
+function LegacyUncertaintyDisplay({
   estimate,
   confidence,
   bands,
@@ -32,10 +44,9 @@ export function UncertaintyDisplay({
   frequencyFraming,
   defaultMode = "intuitive",
   className,
-}: UncertaintyDisplayProps) {
+}: LegacyUncertaintyDisplayProps) {
   const { t } = useI18n();
   const [mode, setMode] = useState<UncertaintyDisplayMode>(defaultMode);
-
   const directionLabel =
     effectDirection === "positive"
       ? t("shared.uncertainty.direction.positive")
@@ -44,8 +55,7 @@ export function UncertaintyDisplay({
         : t("shared.uncertainty.direction.uncertain");
 
   const pct = Math.round(confidence * 100);
-  const primaryBand = bands.find((b) => b.level >= 0.95) ?? bands.at(-1);
-
+  const primaryBand = bands.find((band) => band.level >= 0.95) ?? bands.at(-1);
   const defaultFraming = primaryBand
     ? t("shared.uncertainty.defaultFraming.range", {
         confidence: pct,
@@ -58,12 +68,8 @@ export function UncertaintyDisplay({
 
   return (
     <div
-      className={cn(
-        "border-border bg-card rounded-xl border p-5",
-        className,
-      )}
+      className={cn("border-border bg-card rounded-xl border p-5", className)}
     >
-      {/* Mode toggle */}
       <div className="mb-4 flex items-center justify-between">
         <h4 className="text-foreground text-sm font-semibold">
           {t("shared.uncertainty.title")}
@@ -130,29 +136,50 @@ export function UncertaintyDisplay({
         <div className="space-y-4">
           <div className="space-y-1">
             <p className="text-foreground text-lg font-semibold">
-              ATE: {estimate.toFixed(4)}{unit}
-              {primaryBand && (
+              ATE: {estimate.toFixed(4)}
+              {unit}
+              {primaryBand ? (
                 <span className="text-muted-foreground text-sm font-normal">
                   {" "}
-                  [{Math.round(primaryBand.level * 100)}% CI:{" "}
-                  {primaryBand.lower.toFixed(4)}, {primaryBand.upper.toFixed(4)}
-                  ]
+                  {t("shared.charts.common.confidenceIntervalBracketed", {
+                    confidence: Math.round(primaryBand.level * 100),
+                    lower: primaryBand.lower.toFixed(4),
+                    upper: primaryBand.upper.toFixed(4),
+                  })}
                 </span>
-              )}
+              ) : null}
             </p>
-            {methodology && (
+            {methodology ? (
               <p className="text-muted-foreground text-xs">
                 {t("shared.uncertainty.method", { methodology })}
               </p>
-            )}
+            ) : null}
           </div>
-          <GradedErrorBar
-            estimate={estimate}
-            bands={bands}
-            unit={unit}
-          />
+          <GradedErrorBar estimate={estimate} bands={bands} unit={unit} />
         </div>
       )}
     </div>
   );
+}
+
+export function UncertaintyDisplay(props: UncertaintyDisplayProps) {
+  if (!("type" in props) || props.type === undefined) {
+    return <LegacyUncertaintyDisplay {...props} />;
+  }
+
+  if (props.type === "band") {
+    const { type: _type, ...bandProps } = props;
+    return <UncertaintyBand {...bandProps} />;
+  }
+  if (props.type === "fan") {
+    const { type: _type, ...fanProps } = props;
+    return <FanChart {...fanProps} />;
+  }
+  if (props.type === "dotplot") {
+    const { type: _type, ...dotplotProps } = props;
+    return <QuantileDotplot {...dotplotProps} />;
+  }
+
+  const { type: _type, ...hopsProps } = props;
+  return <HypotheticalOutcomePlot {...hopsProps} />;
 }

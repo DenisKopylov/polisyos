@@ -83,6 +83,7 @@ export type ArtifactBatchResponse = {
 
 export type ArtifactContentPreview = {
   artifact_id: string;
+  decision_packet_preview?: DecisionPacketPreview | null;
   kind: string;
   max_bytes: number;
   media_type: string;
@@ -576,6 +577,91 @@ export type DecisionMonitoringReport = {
   refuted_metric_ids?: Array<string>;
   run_id: string;
   schema_version?: string;
+};
+
+export type DecisionPacketAuthoredBlock = {
+  author?: "citation" | "human" | "drafter" | "formalizer" | "critic" | null;
+  author_agent_version?: string | null;
+  confidence?: number | null;
+  content: string;
+  id?: string | null;
+  reviewed_by_human?: boolean | null;
+  sources?: Array<{
+  [key: string]: string;
+}>;
+  timestamp?: string | null;
+};
+
+export type DecisionPacketEffectSize = {
+  ci_80?: Array<unknown> | null;
+  ci_95?: Array<unknown> | null;
+  disputed?: boolean | null;
+  identifiability?: "identified" | "estimated" | "assumed" | null;
+  method?: string | null;
+  point?: number | null;
+  quantiles?: {
+  [key: string]: number;
+} | null;
+};
+
+export type DecisionPacketMetricComparisonRow = {
+  alpha?: number | null;
+  assumption_warnings?: Array<string>;
+  baseline_model_id?: string | null;
+  baseline_value?: number | null;
+  calibration_warnings?: Array<string>;
+  candidate_model_id?: string | null;
+  candidate_value?: number | null;
+  delta_value?: number | null;
+  effect_size?: DecisionPacketEffectSize | null;
+  family_id?: string | null;
+  family_scope?: string | null;
+  metric_direction?: string | null;
+  metric_id: string;
+  p_adj?: number | null;
+  p_value?: number | null;
+  resampling_method?: string | null;
+  sample_size_effective?: number | null;
+  significant?: boolean | null;
+  statistic?: number | null;
+  test_id?: string | null;
+  test_label?: string | null;
+};
+
+export type DecisionPacketMetricSignificance = {
+  alpha?: number | null;
+  assumption_warnings?: Array<string>;
+  baseline_model_id?: string | null;
+  baseline_value?: number | null;
+  calibration_warnings?: Array<string>;
+  candidate_model_id?: string | null;
+  candidate_value?: number | null;
+  delta_value?: number | null;
+  effect_size?: DecisionPacketEffectSize | null;
+  metric_direction?: string | null;
+  p_adj?: number | null;
+  p_value?: number | null;
+  significant?: boolean | null;
+  test_id?: string | null;
+  test_label?: string | null;
+};
+
+export type DecisionPacketOutlineEntry = {
+  section_id: string;
+  section_type?: string | null;
+  title: string;
+};
+
+export type DecisionPacketPreview = {
+  blocks?: Array<DecisionPacketAuthoredBlock>;
+  document_outline?: Array<DecisionPacketOutlineEntry>;
+  evidence_summary_blocks?: Array<DecisionPacketAuthoredBlock>;
+  metric_significance_by_metric?: {
+  [key: string]: DecisionPacketMetricSignificance;
+};
+  metric_validation_comparison_rows?: Array<DecisionPacketMetricComparisonRow>;
+  narrative_blocks?: Array<DecisionPacketAuthoredBlock>;
+  [key: string]: unknown;
 };
 
 export type DecisionReissuePlan = {

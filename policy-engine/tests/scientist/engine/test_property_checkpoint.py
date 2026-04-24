@@ -1,10 +1,11 @@
 """Property-based tests for checkpoint fingerprinting."""
+
 from __future__ import annotations
 
 import copy
 
 import pytest
-from hypothesis import given, settings, HealthCheck
+from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
 from polisyos.scientist.engine.checkpoint import compute_workflow_fingerprint
@@ -36,11 +37,13 @@ def workflow_specs(draw):
     nodes = []
     for i, alias in enumerate(aliases):
         deps = aliases[:i][:2]  # at most 2 deps from prior nodes
-        nodes.append(NodeInvocation(
-            alias=alias,
-            node_id=draw(_node_id),
-            depends_on=deps,
-        ))
+        nodes.append(
+            NodeInvocation(
+                alias=alias,
+                node_id=draw(_node_id),
+                depends_on=deps,
+            )
+        )
     return WorkflowSpec(
         workflow_id=draw(st.from_regex(r"[a-z][a-z0-9_]{2,15}", fullmatch=True)),
         nodes=nodes,
@@ -50,6 +53,7 @@ def workflow_specs(draw):
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
 
 @given(spec=workflow_specs())
 @settings(max_examples=30, suppress_health_check=[HealthCheck.too_slow])

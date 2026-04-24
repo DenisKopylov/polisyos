@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+import hypothesis.strategies as st
+import jax.numpy as jnp
 import numpy as np
 import pytest
 from hypothesis import HealthCheck, assume, given, settings
-import hypothesis.strategies as st
-import jax.numpy as jnp
 
 from polisyos.foundry.merge_engine import (
     JAXMergeEngine,
@@ -22,7 +22,6 @@ from polisyos.ir.kernel import (
     SlotSpec,
     SlotValueType,
 )
-
 
 _PROPERTY_TEST_HEALTH_CHECKS = [
     HealthCheck.function_scoped_fixture,
@@ -130,9 +129,10 @@ class TestCommutativity:
         result_forward = engine.merge_records(records, {"test.sum_slot": base})
         result_reverse = engine.merge_records(list(reversed(records)), {"test.sum_slot": base})
 
-        assert result_forward.merged_values["test.sum_slot"] == result_reverse.merged_values[
-            "test.sum_slot"
-        ]
+        assert (
+            result_forward.merged_values["test.sum_slot"]
+            == result_reverse.merged_values["test.sum_slot"]
+        )
 
     @given(
         value_a=st.floats(-1000, 1000, allow_nan=False, allow_infinity=False),
@@ -157,9 +157,10 @@ class TestCommutativity:
         result_ab = engine.merge_records([record_a, record_b])
         result_ba = engine.merge_records([record_b, record_a])
 
-        assert result_ab.merged_values["test.priority_slot"] == result_ba.merged_values[
-            "test.priority_slot"
-        ]
+        assert (
+            result_ab.merged_values["test.priority_slot"]
+            == result_ba.merged_values["test.priority_slot"]
+        )
 
 
 class TestAssociativity:
@@ -233,9 +234,10 @@ class TestAssociativity:
         winner_bc = record_b if winner_bc_value == record_b.value else record_c
         result_right = engine.merge_records([record_a, winner_bc])
 
-        assert result_left.merged_values["test.priority_slot"] == result_right.merged_values[
-            "test.priority_slot"
-        ]
+        assert (
+            result_left.merged_values["test.priority_slot"]
+            == result_right.merged_values["test.priority_slot"]
+        )
 
 
 class TestIdempotency:
@@ -251,9 +253,10 @@ class TestIdempotency:
         )
         result_once = engine.merge_records([record])
         result_twice = engine.merge_records([record, record])
-        assert result_once.merged_values["test.priority_slot"] == result_twice.merged_values[
-            "test.priority_slot"
-        ]
+        assert (
+            result_once.merged_values["test.priority_slot"]
+            == result_twice.merged_values["test.priority_slot"]
+        )
 
 
 class TestConflictDetection:

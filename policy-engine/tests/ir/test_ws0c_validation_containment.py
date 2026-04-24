@@ -35,9 +35,7 @@ class _FinderFallbackClient:
         *,
         max_distance_years: int,
     ) -> tuple[int, str]:
-        raise LookupError(
-            f"no survey wave for {context_id}/{year} within {max_distance_years}"
-        )
+        raise LookupError(f"no survey wave for {context_id}/{year} within {max_distance_years}")
 
     def get_indicators(self, context_id: str, survey_year: int | None = None) -> dict[str, object]:
         return {
@@ -152,8 +150,7 @@ def test_alignment_report_records_degraded_outcome_when_ontology_warning_builder
         )
 
     assert any(
-        "ontology_warning_build_failed" in warning
-        for warning in report.ontology_mismatch_warnings
+        "ontology_warning_build_failed" in warning for warning in report.ontology_mismatch_warnings
     )
     degraded_outcomes = report.metadata.get("degraded_outcomes")
     assert isinstance(degraded_outcomes, list)

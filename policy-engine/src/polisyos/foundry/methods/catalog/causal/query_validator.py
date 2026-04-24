@@ -5,10 +5,11 @@ identification and estimation begin. Returns a structured QueryValidationReport.
 
 Design mirrors SchemaResolver: plain Python class, lazy imports, no @foundry_method.
 """
+
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from polisyos.ir.analytics.query_validation_report import (
@@ -25,7 +26,6 @@ if TYPE_CHECKING:
     from polisyos.ir.analytics.recourse_manifold import (
         InterventionCostManifold,
         OptimalRecourseInterventionQuery,
-        RecourseReadinessCap,
     )
 
 
@@ -67,10 +67,10 @@ class CausalQueryValidator:
 
     def validate(
         self,
-        graph: "CausalGraphModel",
-        estimand_ast: "EstimandAST",
-        knowledge_base: "DataKnowledgeBase | None" = None,
-        proof_bundle: "ProofBundle | None" = None,
+        graph: CausalGraphModel,
+        estimand_ast: EstimandAST,
+        knowledge_base: DataKnowledgeBase | None = None,
+        proof_bundle: ProofBundle | None = None,
     ) -> QueryValidationReport:
         """Run all validation checks and return a structured report.
 
@@ -107,15 +107,15 @@ class CausalQueryValidator:
             errors=tuple(errors),
             warnings=tuple(warnings),
             query_str=estimand_ast.query_str if hasattr(estimand_ast, "query_str") else "",
-            checked_at=datetime.now(tz=timezone.utc).isoformat(),
+            checked_at=datetime.now(tz=UTC).isoformat(),
         )
 
     def validate_optimal_recourse_query(
         self,
-        graph: "CausalGraphModel",
-        query: "OptimalRecourseInterventionQuery",
-        manifold: "InterventionCostManifold",
-        proof_bundle: "ProofBundle | None" = None,
+        graph: CausalGraphModel,
+        query: OptimalRecourseInterventionQuery,
+        manifold: InterventionCostManifold,
+        proof_bundle: ProofBundle | None = None,
     ) -> QueryValidationReport:
         """Validate the Stage 13.4 recourse query surface against graph/manifold contracts."""
         errors: list[ValidationError] = []
@@ -194,7 +194,7 @@ class CausalQueryValidator:
             errors=tuple(errors),
             warnings=tuple(warnings),
             query_str=f"recourse:{query.target_outcome}",
-            checked_at=datetime.now(tz=timezone.utc).isoformat(),
+            checked_at=datetime.now(tz=UTC).isoformat(),
         )
 
     # ------------------------------------------------------------------
@@ -203,7 +203,7 @@ class CausalQueryValidator:
 
     def _check_graph_acyclicity(
         self,
-        graph: "CausalGraphModel",
+        graph: CausalGraphModel,
         errors: list[ValidationError],
         warnings: list[ValidationWarning],
     ) -> None:
@@ -242,8 +242,8 @@ class CausalQueryValidator:
 
     def _check_treatment_in_graph(
         self,
-        graph: "CausalGraphModel",
-        estimand_ast: "EstimandAST",
+        graph: CausalGraphModel,
+        estimand_ast: EstimandAST,
         errors: list[ValidationError],
     ) -> None:
         treatment = getattr(estimand_ast, "treatment", None)
@@ -258,8 +258,8 @@ class CausalQueryValidator:
 
     def _check_outcome_in_graph(
         self,
-        graph: "CausalGraphModel",
-        estimand_ast: "EstimandAST",
+        graph: CausalGraphModel,
+        estimand_ast: EstimandAST,
         errors: list[ValidationError],
     ) -> None:
         outcome = getattr(estimand_ast, "outcome", None)
@@ -274,7 +274,7 @@ class CausalQueryValidator:
 
     def _check_treatment_not_equals_outcome(
         self,
-        estimand_ast: "EstimandAST",
+        estimand_ast: EstimandAST,
         errors: list[ValidationError],
     ) -> None:
         treatment = getattr(estimand_ast, "treatment", None)
@@ -293,8 +293,8 @@ class CausalQueryValidator:
 
     def _check_all_vars_in_graph(
         self,
-        graph: "CausalGraphModel",
-        estimand_ast: "EstimandAST",
+        graph: CausalGraphModel,
+        estimand_ast: EstimandAST,
         warnings: list[ValidationWarning],
     ) -> None:
         """Warn for every estimand variable that is absent from the graph.
@@ -323,16 +323,14 @@ class CausalQueryValidator:
 
     def _check_datasets_present(
         self,
-        estimand_ast: "EstimandAST",
-        knowledge_base: "DataKnowledgeBase",
+        estimand_ast: EstimandAST,
+        knowledge_base: DataKnowledgeBase,
         errors: list[ValidationError],
     ) -> None:
         """Verify every required dataset_ref is registered in the KB."""
         known = set(knowledge_base.all_dataset_refs())
         required: list[str] = (
-            estimand_ast.required_datasets()
-            if hasattr(estimand_ast, "required_datasets")
-            else []
+            estimand_ast.required_datasets() if hasattr(estimand_ast, "required_datasets") else []
         )
         for ref in required:
             if ref not in known:
@@ -349,8 +347,8 @@ class CausalQueryValidator:
 
     def _check_domain_labels_consistent(
         self,
-        estimand_ast: "EstimandAST",
-        knowledge_base: "DataKnowledgeBase",
+        estimand_ast: EstimandAST,
+        knowledge_base: DataKnowledgeBase,
         warnings: list[ValidationWarning],
     ) -> None:
         """Warn when a DistributionRef's domain disagrees with its matched KB entry."""
@@ -394,8 +392,8 @@ class CausalQueryValidator:
 
     def _check_side_condition_feasibility(
         self,
-        estimand_ast: "EstimandAST",
-        knowledge_base: "DataKnowledgeBase",
+        estimand_ast: EstimandAST,
+        knowledge_base: DataKnowledgeBase,
         warnings: list[ValidationWarning],
     ) -> None:
         """Check data sufficiency for each SideCondition in the estimand."""
@@ -453,8 +451,8 @@ class CausalQueryValidator:
 
     def _check_kb_coverage(
         self,
-        estimand_ast: "EstimandAST",
-        knowledge_base: "DataKnowledgeBase",
+        estimand_ast: EstimandAST,
+        knowledge_base: DataKnowledgeBase,
         errors: list[ValidationError],
         warnings: list[ValidationWarning],
     ) -> None:
@@ -494,7 +492,7 @@ class CausalQueryValidator:
 
     def _check_sample_sizes(
         self,
-        knowledge_base: "DataKnowledgeBase",
+        knowledge_base: DataKnowledgeBase,
         warnings: list[ValidationWarning],
     ) -> None:
         """Warn for datasets whose sample size is below the minimum threshold."""
@@ -518,13 +516,12 @@ class CausalQueryValidator:
 
     def _check_operator_contracts(
         self,
-        estimand_ast: "EstimandAST",
-        proof_bundle: "ProofBundle | None",
+        estimand_ast: EstimandAST,
+        proof_bundle: ProofBundle | None,
         errors: list[ValidationError],
         warnings: list[ValidationWarning],
     ) -> None:
         """Validate operator-valued estimand scaffolding before compilation."""
-        from polisyos.ir.analytics.estimand import OperatorApplyNode, OperatorTargetNode
 
         operator_targets = _collect_operator_targets(estimand_ast.root)
         operator_applies = _collect_operator_applies(estimand_ast.root)
@@ -597,7 +594,8 @@ class CausalQueryValidator:
                     )
                 )
             if (
-                node.operator_semantics in {
+                node.operator_semantics
+                in {
                     "conditional_mean_embedding_operator",
                     "counterfactual_probe_operator",
                 }
@@ -683,7 +681,7 @@ class CausalQueryValidator:
 # ---------------------------------------------------------------------------
 
 
-def _treatment_covered_in_kb(treatment: str, knowledge_base: "DataKnowledgeBase") -> bool:
+def _treatment_covered_in_kb(treatment: str, knowledge_base: DataKnowledgeBase) -> bool:
     """Return True if treatment variable appears in any source-domain KB dataset."""
     if not treatment:
         return True  # no treatment to check
@@ -699,8 +697,8 @@ def _collect_operator_targets(node) -> list:
     from polisyos.ir.analytics.estimand import (
         ConditionalInterventionNode,
         CounterfactualNode,
-        CtfInterventionNode,
         CrossWorldNode,
+        CtfInterventionNode,
         DistributionLawNode,
         DistributionRef,
         EdgeInterventionNode,
@@ -732,14 +730,18 @@ def _collect_operator_targets(node) -> list:
             collected.extend(_collect_operator_targets(factor))
         return collected
     if isinstance(node, RatioNode):
-        return _collect_operator_targets(node.numerator) + _collect_operator_targets(node.denominator)
+        return _collect_operator_targets(node.numerator) + _collect_operator_targets(
+            node.denominator
+        )
     if isinstance(node, IntegralNode):
         return _collect_operator_targets(node.operand)
     if isinstance(node, EdgeInterventionNode):
         return _collect_operator_targets(node.inner_node) if node.inner_node is not None else []
     if isinstance(node, ModifiedTreatmentPolicyNode):
         return _collect_operator_targets(node.inner_node) if node.inner_node is not None else []
-    if isinstance(node, (StochasticInterventionNode, ConditionalInterventionNode, ProxyAdjustmentNode)):
+    if isinstance(
+        node, (StochasticInterventionNode, ConditionalInterventionNode, ProxyAdjustmentNode)
+    ):
         return _collect_operator_targets(node.inner_do_node)
     if isinstance(node, NestedCounterfactualNode):
         return _collect_operator_targets(node.inner_counterfactual)
@@ -770,8 +772,8 @@ def _collect_operator_applies(node) -> list:
     from polisyos.ir.analytics.estimand import (
         ConditionalInterventionNode,
         CounterfactualNode,
-        CtfInterventionNode,
         CrossWorldNode,
+        CtfInterventionNode,
         DistributionLawNode,
         DistributionRef,
         EdgeInterventionNode,
@@ -800,14 +802,18 @@ def _collect_operator_applies(node) -> list:
             collected.extend(_collect_operator_applies(factor))
         return collected
     if isinstance(node, RatioNode):
-        return _collect_operator_applies(node.numerator) + _collect_operator_applies(node.denominator)
+        return _collect_operator_applies(node.numerator) + _collect_operator_applies(
+            node.denominator
+        )
     if isinstance(node, IntegralNode):
         return _collect_operator_applies(node.operand)
     if isinstance(node, EdgeInterventionNode):
         return _collect_operator_applies(node.inner_node) if node.inner_node is not None else []
     if isinstance(node, ModifiedTreatmentPolicyNode):
         return _collect_operator_applies(node.inner_node) if node.inner_node is not None else []
-    if isinstance(node, (StochasticInterventionNode, ConditionalInterventionNode, ProxyAdjustmentNode)):
+    if isinstance(
+        node, (StochasticInterventionNode, ConditionalInterventionNode, ProxyAdjustmentNode)
+    ):
         return _collect_operator_applies(node.inner_do_node)
     if isinstance(node, NestedCounterfactualNode):
         return _collect_operator_applies(node.inner_counterfactual)

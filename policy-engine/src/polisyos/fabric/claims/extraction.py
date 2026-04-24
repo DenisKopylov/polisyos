@@ -4,6 +4,7 @@ Extractor backends read normalized text chunks, emit ``ClaimCandidate`` rows, th
 canonicalizes ids/units enough to build deterministic ``Claim`` payloads, deduplicates candidates,
 persists a claim-set artifact, and attaches optional evidence/provenance metadata.
 """
+
 from __future__ import annotations
 
 import re

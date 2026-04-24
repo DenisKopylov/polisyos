@@ -48,7 +48,8 @@ class ToolCircuitBreakerRegistry:
         with self._lock:
             if tool_name not in self._breakers:
                 self._breakers[tool_name] = CircuitBreaker(
-                    self._config, name=tool_name,
+                    self._config,
+                    name=tool_name,
                 )
             return self._breakers[tool_name]
 

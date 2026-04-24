@@ -6,6 +6,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+
 from tools._lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
@@ -113,10 +114,8 @@ def main() -> int:
             continue
         if old_version == new_version:
             failures.append(
-                (
-                    f"{path.as_posix()}: component_id version unchanged ({new_version}); "
-                    "bump SemVer on code changes"
-                )
+                f"{path.as_posix()}: component_id version unchanged ({new_version}); "
+                "bump SemVer on code changes"
             )
 
     if failures:

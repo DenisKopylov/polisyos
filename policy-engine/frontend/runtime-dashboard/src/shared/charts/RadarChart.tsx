@@ -74,7 +74,10 @@ export function RadarChart({
           <PolarGrid stroke={chartTheme.grid} />
           <PolarAngleAxis
             dataKey="dimension"
-            tick={{ fontSize: chartDefaults.tickFontSize, fill: chartTheme.axis }}
+            tick={{
+              fontSize: chartDefaults.tickFontSize,
+              fill: chartTheme.axis,
+            }}
           />
           <PolarRadiusAxis
             tick={{ fontSize: chartDefaults.tickFontSize }}

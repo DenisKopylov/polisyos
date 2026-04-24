@@ -14,7 +14,6 @@ import tracemalloc
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 
 @dataclass(frozen=True, slots=True)
@@ -246,8 +245,18 @@ def _run_index_long_soak(iterations: int, sample_every: int, root: Path) -> Scen
                 _capture_memory_sample(samples, index + 1)
         duration = time.perf_counter() - start
         current, peak = tracemalloc.get_traced_memory()
-    except (AssertionError, AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
-        return _render_failure("run_index_incremental_refresh", title, iterations, tuple(samples), exc)
+    except (
+        AssertionError,
+        AttributeError,
+        KeyError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+    ) as exc:
+        return _render_failure(
+            "run_index_incremental_refresh", title, iterations, tuple(samples), exc
+        )
     finally:
         tracemalloc.stop()
 
@@ -295,7 +304,15 @@ def _timeline_long_soak(iterations: int, sample_every: int, root: Path) -> Scena
                 _capture_memory_sample(samples, index + 1)
         duration = time.perf_counter() - start
         current, peak = tracemalloc.get_traced_memory()
-    except (AssertionError, AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+    except (
+        AssertionError,
+        AttributeError,
+        KeyError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+    ) as exc:
         return _render_failure("timeline_build_loops", title, iterations, tuple(samples), exc)
     finally:
         tracemalloc.stop()
@@ -364,7 +381,15 @@ def _async_cas_long_soak(iterations: int, sample_every: int, root: Path) -> Scen
         duration = time.perf_counter() - start
         current, peak = tracemalloc.get_traced_memory()
         assert completed == iterations
-    except (AssertionError, AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+    except (
+        AssertionError,
+        AttributeError,
+        KeyError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+    ) as exc:
         return _render_failure("async_cas_round_trip", title, iterations, tuple(samples), exc)
     finally:
         tracemalloc.stop()
@@ -452,7 +477,15 @@ def _checkpoint_long_soak(iterations: int, sample_every: int, root: Path) -> Sce
         duration = time.perf_counter() - start
         current, peak = tracemalloc.get_traced_memory()
         assert last_sequence == iterations - 1
-    except (AssertionError, AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+    except (
+        AssertionError,
+        AttributeError,
+        KeyError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+    ) as exc:
         return _render_failure("async_checkpoint_restore", title, iterations, tuple(samples), exc)
     finally:
         tracemalloc.stop()
@@ -530,8 +563,18 @@ def _cursor_store_long_soak(iterations: int, sample_every: int, root: Path) -> S
         duration = time.perf_counter() - start
         current, peak = tracemalloc.get_traced_memory()
         assert last_offset == iterations - 1
-    except (AssertionError, AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
-        return _render_failure("async_cursor_store_stream_progress", title, iterations, tuple(samples), exc)
+    except (
+        AssertionError,
+        AttributeError,
+        KeyError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+    ) as exc:
+        return _render_failure(
+            "async_cursor_store_stream_progress", title, iterations, tuple(samples), exc
+        )
     finally:
         tracemalloc.stop()
 
@@ -620,7 +663,15 @@ def write_summary(path: Path, report: LongSoakReport) -> None:
             lines.append(f"- Details: `{json.dumps(item.details, sort_keys=True)}`")
         if item.error:
             lines.append(f"- Error: `{item.error}`")
-        lines.extend(["", "### Memory Samples", "", "| Iteration | Current KiB | Peak KiB |", "|---|---:|---:|"])
+        lines.extend(
+            [
+                "",
+                "### Memory Samples",
+                "",
+                "| Iteration | Current KiB | Peak KiB |",
+                "|---|---:|---:|",
+            ]
+        )
         for sample in item.memory_samples:
             lines.append(
                 f"| {sample.iteration} | {sample.current_kib:.2f} | {sample.peak_kib:.2f} |"

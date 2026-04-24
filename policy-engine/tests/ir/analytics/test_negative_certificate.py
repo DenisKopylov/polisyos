@@ -38,8 +38,11 @@ class TestBlockingType:
 
     def test_all_expected_values_exist(self):
         expected = {
-            "hedge_structure", "s_node_unresolved", "positivity_violation",
-            "support_mismatch", "missing_distribution",
+            "hedge_structure",
+            "s_node_unresolved",
+            "positivity_violation",
+            "support_mismatch",
+            "missing_distribution",
             "missingness_not_recoverable",
             "model_class_incompatible",
         }
@@ -154,9 +157,7 @@ class TestNegativeCertificate:
 
         assert cert.recovery_plan is not None
         assert cert.recovery_plan.stop_reason == "class_not_certifiable_with_backend"
-        assert any(
-            "solver/backend" in action for action in cert.recovery_plan.candidate_actions
-        )
+        assert any("solver/backend" in action for action in cert.recovery_plan.candidate_actions)
 
     def test_model_class_compatibility_payload_round_trips(self):
         compatibility = ModelClassCompatibilityReport(
@@ -194,7 +195,10 @@ class TestNegativeCertificate:
         assert restored.model_class_compatibility is not None
         assert restored.model_class_compatibility.model_class_id == "iv.binary.unconditional"
         assert restored.model_class_compatibility.constraints[0].rejected is True
-        assert restored.model_class_compatibility.finite_sample_test.test_name == "fisher_exact_one_sided"
+        assert (
+            restored.model_class_compatibility.finite_sample_test.test_name
+            == "fisher_exact_one_sided"
+        )
 
 
 class TestSuggestedExperiment:
@@ -309,16 +313,12 @@ class TestTrack6Additions:
         assert suggestions[0].design_type == "RCT"
 
     def test_auto_suggest_s_node_unresolved(self):
-        suggestions = NegativeCertificate.auto_suggest_experiments(
-            BlockingType.S_NODE_UNRESOLVED
-        )
+        suggestions = NegativeCertificate.auto_suggest_experiments(BlockingType.S_NODE_UNRESOLVED)
         assert len(suggestions) == 1
         assert suggestions[0].domain == "experimental"
 
     def test_auto_suggest_support_mismatch_returns_empty(self):
-        suggestions = NegativeCertificate.auto_suggest_experiments(
-            BlockingType.SUPPORT_MISMATCH
-        )
+        suggestions = NegativeCertificate.auto_suggest_experiments(BlockingType.SUPPORT_MISMATCH)
         assert suggestions == ()
 
     def test_auto_suggest_model_class_incompatible(self):

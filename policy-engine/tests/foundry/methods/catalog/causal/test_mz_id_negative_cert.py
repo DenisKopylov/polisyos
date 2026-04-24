@@ -1,9 +1,7 @@
 """Tests for NegativeCertificate emission on mz-ID failure (Phases 3+5)."""
-import pytest
 
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -22,7 +20,9 @@ def _dag(edges: list[tuple[str, str]]) -> CausalGraphModel:
     )
 
 
-def _confounded(directed: list[tuple[str, str]], bidirected: list[tuple[str, str]]) -> CausalGraphModel:
+def _confounded(
+    directed: list[tuple[str, str]], bidirected: list[tuple[str, str]]
+) -> CausalGraphModel:
     nodes = sorted({n for e in directed + bidirected for n in e})
     edges = [
         CausalEdge(src=s, dst=d, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)
@@ -50,6 +50,7 @@ class TestNegativeCertFromMzIdFailure:
 
     def test_hedge_structure_blocking_type(self):
         """No unresolved S-nodes but hedge certificate → HEDGE_STRUCTURE."""
+
         # Provide a mock hedge certificate with a description attribute
         class MockHedge:
             description = "hedge found: F={X,Y}, F'={X}"
@@ -160,7 +161,10 @@ class TestNegativeCertFromMzIdFailure:
         assert "X" in cert.technical_detail or "Y" in cert.technical_detail
 
     def test_partial_bounds_forwarded(self):
-        from polisyos.ir.analytics.partial_identification import BoundMethod, PartialIdentificationResult
+        from polisyos.ir.analytics.partial_identification import (
+            BoundMethod,
+            PartialIdentificationResult,
+        )
 
         bounds = PartialIdentificationResult(
             method=BoundMethod.MANSKI, lower_bound=-0.2, upper_bound=0.8, confidence=0.9

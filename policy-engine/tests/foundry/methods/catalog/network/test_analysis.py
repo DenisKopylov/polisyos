@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 
 def _method_or_skip(registry, fqn):
@@ -50,7 +49,7 @@ class TestNetworkMissingnessAssessment:
     def test_basic(self, isolated_registry) -> None:
         method = _method_or_skip(
             isolated_registry,
-            "network.missingness.network_missingness_assessment@0.1.0",
+            "network.missingness.network_missingness_assessment@1.0.0",
         )
         state = {
             "adjacency": np.array(
@@ -90,7 +89,9 @@ class TestContagionModel:
 
 class TestPeerEffectDecomposition:
     def test_basic(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "network.peer_effects.peer_effect_decomposition@1.0.0"
+        )
         adjacency = np.array(
             [
                 [0.0, 1.0, 0.4, 0.0, 0.0, 0.0],
@@ -103,7 +104,10 @@ class TestPeerEffectDecomposition:
         )
         features = np.array([[0.2], [0.7], [1.1], [1.4], [0.9], [0.4]])
         W = adjacency / np.maximum(adjacency.sum(axis=1, keepdims=True), 1.0)
-        outcome = np.linalg.solve(np.eye(adjacency.shape[0]) - 0.15 * W, 0.6 * features[:, 0] + 0.25 * (W @ features[:, 0]))
+        outcome = np.linalg.solve(
+            np.eye(adjacency.shape[0]) - 0.15 * W,
+            0.6 * features[:, 0] + 0.25 * (W @ features[:, 0]),
+        )
         state = {
             "adjacency": adjacency,
             "node_features": features,
@@ -114,7 +118,11 @@ class TestPeerEffectDecomposition:
         payload = result["result"].peer_effect_decomposition
         assert payload is not None
         assert payload.reduced_form_peer_multiplier is not None
-        assert payload.diagnostics.identification_status in {"identified", "weakly_identified", "partially_identified"}
+        assert payload.diagnostics.identification_status in {
+            "identified",
+            "weakly_identified",
+            "partially_identified",
+        }
 
 
 class TestMultiplexNetwork:
@@ -130,7 +138,7 @@ class TestMultiplexNetwork:
 
 class TestStrategicNetworkFormation:
     def test_event_history_route_is_used_when_available(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "network.formation.strategic_formation@0.1.0")
+        method = _method_or_skip(isolated_registry, "network.formation.strategic_formation@1.0.0")
         adjacency = np.array(
             [
                 [0.0, 1.0, 0.0, 0.0],
@@ -166,7 +174,7 @@ class TestStrategicNetworkFormation:
         assert payload.validation_summary is not None
 
     def test_event_level_covariates_count_toward_policy_support(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "network.formation.strategic_formation@0.1.0")
+        method = _method_or_skip(isolated_registry, "network.formation.strategic_formation@1.0.0")
         adjacency = np.array(
             [
                 [0.0, 1.0, 0.0, 0.0],
@@ -196,7 +204,7 @@ class TestStrategicNetworkFormation:
         assert payload.policy_counterfactual_ready is False
 
     def test_cross_sectional_route_uses_stationary_mcmc_mle(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "network.formation.strategic_formation@0.1.0")
+        method = _method_or_skip(isolated_registry, "network.formation.strategic_formation@1.0.0")
         adjacency = np.array(
             [
                 [0.0, 1.0, 1.0, 0.0, 0.0],
@@ -244,8 +252,10 @@ class TestStrategicNetworkFormation:
         assert payload.uncertainty_summary is not None
         assert payload.validation_summary is not None
 
-    def test_counterfactual_summary_is_returned_when_policy_shock_is_available(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "network.formation.strategic_formation@0.1.0")
+    def test_counterfactual_summary_is_returned_when_policy_shock_is_available(
+        self, isolated_registry
+    ) -> None:
+        method = _method_or_skip(isolated_registry, "network.formation.strategic_formation@1.0.0")
         adjacency = np.array(
             [
                 [0.0, 1.0, 1.0, 0.0, 0.0],
@@ -289,7 +299,7 @@ class TestStrategicNetworkFormation:
         assert "density" in payload.counterfactual_summary.effects
 
     def test_fallback_returns_identified_set_when_support_is_weak(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "network.formation.strategic_formation@0.1.0")
+        method = _method_or_skip(isolated_registry, "network.formation.strategic_formation@1.0.0")
         adjacency = np.array(
             [
                 [0.0, 1.0, 0.0, 0.0],

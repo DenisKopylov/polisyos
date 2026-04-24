@@ -19,22 +19,31 @@ reasons.  Semantically loaded labels are **never** coined automatically - the
 default ``latent_label`` is ``None`` and the ``opaque_label_required`` guard in
 ``metadata`` is on by default.
 """
+
 from __future__ import annotations
 
 import hashlib
-from collections.abc import Sequence
 from enum import Enum
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.ir.analytics.causal_discovery import (
-    LatentPromotionEvidence,
-    LatentPromotionVerdict,
-)
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import LatentBridgeHypothesisRef
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from polisyos.ir.analytics.causal_discovery import (
+        LatentPromotionEvidence,
+        LatentPromotionVerdict,
+    )
+else:
+    from polisyos.ir.analytics.causal_discovery import (
+        LatentPromotionEvidence,
+        LatentPromotionVerdict,
+    )
 
 _LATENT_BRIDGE_HYPOTHESIS_SCHEMA_NAME = "ir.latent_bridge_hypothesis"
 _LATENT_BRIDGE_HYPOTHESIS_SCHEMA_VERSION = "1.0"
@@ -163,7 +172,7 @@ class LatentBridgeHeldoutMetrics(BaseModel):
     scoring_rule: str = Field(default="loglik", min_length=1)
 
     @model_validator(mode="after")
-    def _validate_ci(self) -> "LatentBridgeHeldoutMetrics":
+    def _validate_ci(self) -> LatentBridgeHeldoutMetrics:
         if self.lower_ci > self.delta_cv:
             raise ValueError("lower_ci must not exceed delta_cv")
         if self.upper_ci is not None and self.upper_ci < self.delta_cv:
@@ -285,7 +294,9 @@ class LatentBridgeHypothesis(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field(default=_LATENT_BRIDGE_HYPOTHESIS_SCHEMA_VERSION, pattern=r"^\d+\.\d+$")
+    schema_version: str = Field(
+        default=_LATENT_BRIDGE_HYPOTHESIS_SCHEMA_VERSION, pattern=r"^\d+\.\d+$"
+    )
     bridge_id: str = Field(min_length=1)
     pair_key: str = Field(min_length=1)
     status: LatentBridgeStatus
@@ -311,7 +322,7 @@ class LatentBridgeHypothesis(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _enforce_status_invariants(self) -> "LatentBridgeHypothesis":
+    def _enforce_status_invariants(self) -> LatentBridgeHypothesis:
         if self.status is LatentBridgeStatus.PROPOSED:
             if self.block_conditions_checked:
                 raise ValueError(
@@ -325,7 +336,9 @@ class LatentBridgeHypothesis(BaseModel):
                 test.status is LatentBridgeFalsificationTestStatus.FAIL
                 for test in self.falsification_tests
             ):
-                raise ValueError("PROPOSED latent bridge must not carry failing falsification tests")
+                raise ValueError(
+                    "PROPOSED latent bridge must not carry failing falsification tests"
+                )
         if self.status in {LatentBridgeStatus.BLOCKED, LatentBridgeStatus.BLOCKED_AMBIGUOUS}:
             if not self.block_conditions_checked:
                 raise ValueError("BLOCKED latent bridge must list at least one block condition")
@@ -344,13 +357,9 @@ class LatentBridgeHypothesis(BaseModel):
                     "promotion_verdict requires promotion_evidence on LatentBridgeHypothesis"
                 )
             if self.readiness_cap != self.promotion_verdict.derived_readiness_cap:
-                raise ValueError(
-                    "readiness_cap must match promotion_verdict.derived_readiness_cap"
-                )
+                raise ValueError("readiness_cap must match promotion_verdict.derived_readiness_cap")
             if self.promotion_allowed != self.promotion_verdict.promotion_allowed:
-                raise ValueError(
-                    "promotion_allowed must match promotion_verdict.promotion_allowed"
-                )
+                raise ValueError("promotion_allowed must match promotion_verdict.promotion_allowed")
             if self.not_for_decision_support != self.promotion_verdict.not_for_decision_support:
                 raise ValueError(
                     "not_for_decision_support must match promotion_verdict.not_for_decision_support"
@@ -378,7 +387,7 @@ def build_pair_key(
 
 
 def _derive_bridge_id(pair_key: str, synthesis_mode: LatentBridgeSynthesisMode) -> str:
-    digest = hashlib.sha256(f"{pair_key}|{synthesis_mode.value}".encode("utf-8")).hexdigest()
+    digest = hashlib.sha256(f"{pair_key}|{synthesis_mode.value}".encode()).hexdigest()
     return f"latent::bridge::{digest[:16]}"
 
 
@@ -394,10 +403,7 @@ def _available_modes(
         and total_indicators >= policy.min_total_indicators
     ):
         available.add(LatentBridgeSynthesisMode.MEASUREMENT_MODEL)
-    if (
-        policy.allow_proxy_only_mode
-        and len(evidence.proxy_families) >= 2
-    ):
+    if policy.allow_proxy_only_mode and len(evidence.proxy_families) >= 2:
         available.add(LatentBridgeSynthesisMode.PROXY)
     if len(evidence.environment_refs) >= policy.min_environments:
         available.add(LatentBridgeSynthesisMode.MULTI_ENVIRONMENT)
@@ -463,10 +469,7 @@ def _check_environment_mode(
         reasons.append(LatentBridgeBlockReason.INSUFFICIENT_ANCHOR_ITEMS)
     if policy.require_dif_free_anchor_set and not evidence.dif_free_anchor_set:
         reasons.append(LatentBridgeBlockReason.DIF_IN_ANCHOR_SET)
-    if (
-        policy.require_leave_one_anchor_out_stable
-        and not evidence.leave_one_anchor_out_stable
-    ):
+    if policy.require_leave_one_anchor_out_stable and not evidence.leave_one_anchor_out_stable:
         reasons.append(LatentBridgeBlockReason.ANCHOR_SET_UNSTABLE)
     return reasons
 
@@ -504,19 +507,13 @@ def _check_candidate(
             reasons.append(LatentBridgeBlockReason.HELDOUT_IMPROVEMENT_NONPOSITIVE)
     if candidate.stability_frequency < policy.min_stability_frequency:
         reasons.append(LatentBridgeBlockReason.BOOTSTRAP_INSTABILITY)
-    if (
-        policy.require_alternative_model_challenge
-        and not candidate.alternative_model_beaten
-    ):
+    if policy.require_alternative_model_challenge and not candidate.alternative_model_beaten:
         reasons.append(LatentBridgeBlockReason.ALTERNATIVE_MODEL_NOT_BEATEN)
     if policy.block_on_post_hoc_modifications and candidate.post_hoc_modifications:
         reasons.append(LatentBridgeBlockReason.POST_HOC_MODIFICATIONS)
     if policy.block_on_heywood_improper_solution and candidate.heywood_improper_solution:
         reasons.append(LatentBridgeBlockReason.HEYWOOD_IMPROPER_SOLUTION)
-    if (
-        policy.require_reflective_direction_support
-        and not candidate.reflective_direction_supported
-    ):
+    if policy.require_reflective_direction_support and not candidate.reflective_direction_supported:
         reasons.append(LatentBridgeBlockReason.REFLECTIVE_DIRECTION_REJECTED)
     if any(
         test.status is LatentBridgeFalsificationTestStatus.FAIL
@@ -625,9 +622,8 @@ def synthesize_latent_bridge(
     )
 
     admissible_measurement = not measurement_reasons
-    admissible_environment = (
-        not environment_reasons
-        and (admissible_measurement or not _environment_only_refused(evidence, resolved_policy))
+    admissible_environment = not environment_reasons and (
+        admissible_measurement or not _environment_only_refused(evidence, resolved_policy)
     )
     admissible_proxy = not proxy_reasons and resolved_policy.allow_proxy_only_mode
 
@@ -713,7 +709,11 @@ def synthesize_latent_bridge(
         )
 
     chosen = surviving[0]
-    resolved_mode = chosen.synthesis_mode if chosen.synthesis_mode is not LatentBridgeSynthesisMode.NONE else primary_mode
+    resolved_mode = (
+        chosen.synthesis_mode
+        if chosen.synthesis_mode is not LatentBridgeSynthesisMode.NONE
+        else primary_mode
+    )
     metadata["selected_candidate_id"] = chosen.candidate_id
     metadata["semantic_interpretation_confidence"] = "none"
     metadata["opaque_label_required"] = resolved_policy.opaque_label_required

@@ -3,6 +3,7 @@
 Tests vector/tensor aggregation, element-wise reporting, compositional
 constraints, backward compatibility, and safe expression evaluation.
 """
+
 from __future__ import annotations
 
 from decimal import Decimal
@@ -13,7 +14,6 @@ import pytest
 
 from polisyos.core.contracts.foundry import CompositeConstraint, LoweredConstraint
 from polisyos.foundry.constraints_engine import (
-    AggregationFunction,
     _safe_eval_expression,
     check_composite_constraints,
     check_constraints,
@@ -21,10 +21,10 @@ from polisyos.foundry.constraints_engine import (
 from polisyos.ir.kernel.merge_rules import MergeRuleRef
 from polisyos.ir.kernel.slots import SlotKind, SlotRegistry, SlotScope, SlotSpec, SlotValueType
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_slot_registry(*slot_defs: tuple[str, str]) -> SlotRegistry:
     """Create a minimal SlotRegistry from (slot_id, state_path) pairs."""
@@ -86,6 +86,7 @@ SLOT_REG = _make_slot_registry(("gov.balance", "gov.balance"))
 # 1. Scalar backward compatibility
 # ---------------------------------------------------------------------------
 
+
 def test_scalar_constraint_backward_compat():
     """Existing scalar behavior preserved when aggregation is default ('scalar')."""
     state = _make_state(**{"gov.balance": 10.0})
@@ -109,6 +110,7 @@ def test_scalar_constraint_violation():
 # 2. Vector aggregation — MEAN
 # ---------------------------------------------------------------------------
 
+
 def test_vector_constraint_mean():
     state = _make_state(**{"gov.balance": np.array([10.0, 20.0, 30.0])})
     c = _scalar_constraint(aggregation="mean", operator=">=", expected=Decimal("15"))
@@ -130,6 +132,7 @@ def test_vector_constraint_mean_violated():
 # ---------------------------------------------------------------------------
 # 3. Vector aggregation — ALL (element-wise)
 # ---------------------------------------------------------------------------
+
 
 def test_vector_constraint_all():
     """ALL aggregation: all elements must satisfy the constraint."""
@@ -167,6 +170,7 @@ def test_vector_constraint_all_passes():
 # 4. Vector aggregation — ANY
 # ---------------------------------------------------------------------------
 
+
 def test_vector_constraint_any():
     state = _make_state(**{"gov.balance": np.array([1.0, 2.0, 10.0])})
     c = _scalar_constraint(aggregation="any", operator="==", expected=Decimal("1"))
@@ -191,11 +195,14 @@ def test_vector_constraint_any_none_satisfy():
 # 5. Vector aggregation — QUANTILE
 # ---------------------------------------------------------------------------
 
+
 def test_vector_constraint_quantile():
     values = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
     state = _make_state(**{"gov.balance": values})
     c = _scalar_constraint(
-        aggregation="quantile", operator="<=", expected=Decimal("10"),
+        aggregation="quantile",
+        operator="<=",
+        expected=Decimal("10"),
         quantile_param=0.9,
     )
     report = check_constraints(constraints=[c], slot_registry=SLOT_REG, state=state)
@@ -208,10 +215,13 @@ def test_vector_constraint_quantile():
 # 6. Vector aggregation — COUNT_VIOLATING
 # ---------------------------------------------------------------------------
 
+
 def test_vector_constraint_count_violating():
     state = _make_state(**{"gov.balance": np.array([10.0, 3.0, 8.0, 2.0, 1.0])})
     c = _scalar_constraint(
-        aggregation="count_violating", operator=">=", expected=Decimal("5"),
+        aggregation="count_violating",
+        operator=">=",
+        expected=Decimal("5"),
     )
     report = check_constraints(constraints=[c], slot_registry=SLOT_REG, state=state)
     # Elements violating >= 5: indices 1 (3.0), 3 (2.0), 4 (1.0) → 3 violating
@@ -222,6 +232,7 @@ def test_vector_constraint_count_violating():
 # ---------------------------------------------------------------------------
 # 7. MIN, MAX, SUM
 # ---------------------------------------------------------------------------
+
 
 def test_vector_constraint_min():
     state = _make_state(**{"gov.balance": np.array([5.0, 10.0, 15.0])})
@@ -333,6 +344,7 @@ def test_vector_constraint_rejects_non_finite_state_values() -> None:
 # 8. Property test: aggregation monotonicity — min <= mean <= max
 # ---------------------------------------------------------------------------
 
+
 def test_aggregation_monotonicity():
     rng = np.random.default_rng(42)
     for _ in range(20):
@@ -353,6 +365,7 @@ def test_aggregation_monotonicity():
 # 9. Scalar raises on vector when aggregation=scalar
 # ---------------------------------------------------------------------------
 
+
 def test_scalar_aggregation_rejects_vector():
     state = _make_state(**{"gov.balance": np.array([1.0, 2.0])})
     c = _scalar_constraint(aggregation="scalar", operator=">=", expected=Decimal("0"))
@@ -363,6 +376,7 @@ def test_scalar_aggregation_rejects_vector():
 # ---------------------------------------------------------------------------
 # 10. Composite constraints
 # ---------------------------------------------------------------------------
+
 
 def _composite_slot_registry():
     return _make_slot_registry(
@@ -439,6 +453,7 @@ def test_composite_constraint_sum_budget_violated():
 # ---------------------------------------------------------------------------
 # 11. Safe expression evaluator — rejects unsafe constructs
 # ---------------------------------------------------------------------------
+
 
 def test_safe_eval_rejects_function_call():
     with pytest.raises(ValueError, match="Disallowed AST node"):

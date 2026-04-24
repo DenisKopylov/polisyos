@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
+from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 
 
@@ -28,7 +28,9 @@ def test_parallel_trends_check_runs() -> None:
     registry, dispatcher = _setup()
 
     rng = np.random.default_rng(41)
-    outcome = np.vstack([np.linspace(1.0, 3.5, 8) + rng.normal(scale=0.08, size=8) for _ in range(8)])
+    outcome = np.vstack(
+        [np.linspace(1.0, 3.5, 8) + rng.normal(scale=0.08, size=8) for _ in range(8)]
+    )
     outcome[4:, 4:] += 0.5
     state = PanelObservationalData(
         outcome=outcome,

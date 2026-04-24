@@ -16,8 +16,8 @@ import {
   subscribeRuntimeApiEvents,
   type RuntimeApiEvent,
 } from "@/api/runtimeApiEvents";
+import { buildLoginNavigationTarget } from "@/features/auth";
 import { LOGIN_PATH } from "@/lib/constants";
-import { buildLoginNavigationTarget } from "@/features/auth/domain/loginRedirect";
 import { useLogger } from "@/shared/telemetry/logger";
 
 type RuntimeIncident = RuntimeApiEvent | null;

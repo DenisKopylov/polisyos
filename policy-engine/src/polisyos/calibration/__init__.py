@@ -1,4 +1,5 @@
 """Calibration diagnostics public entrypoints."""
+
 from __future__ import annotations
 
 from polisyos.calibration.adapters import to_validation_report

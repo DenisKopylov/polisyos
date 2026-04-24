@@ -19,12 +19,13 @@ Usage:
     logger = get_logger(__name__)
     logger.info("Processing policy")  # Automatically includes trace_id
 """
+
 from __future__ import annotations
 
 import logging
 import sys
 from collections.abc import Callable
-from typing import Any, Optional
+from contextlib import suppress
 
 from opentelemetry import trace
 
@@ -128,16 +129,14 @@ class StructuredFormatter(logging.Formatter):
                 "trace_sampled",
                 "message",
             ):
-                try:
+                with suppress(TypeError, ValueError):
                     log_dict[key] = value
-                except (TypeError, ValueError):
-                    pass
 
         return json_dumps(log_dict, default=str)
 
 
 def configure_otel_logging_handler(
-    logger: Optional[logging.Logger] = None,
+    logger: logging.Logger | None = None,
     level: int = logging.INFO,
     structured: bool = True,
 ) -> None:
@@ -176,7 +175,7 @@ def configure_otel_logging_handler(
     logger.setLevel(level)
 
 
-def get_trace_context_dict() -> dict[str, Optional[str]]:
+def get_trace_context_dict() -> dict[str, str | None]:
     """
     Get current trace context as a dictionary.
 

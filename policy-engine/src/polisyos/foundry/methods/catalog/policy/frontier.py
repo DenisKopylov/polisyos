@@ -1,7 +1,9 @@
 """Frontier policy methods for public finance, macro, mean-field equilibrium, and policy-text analysis."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -52,7 +54,9 @@ def _gini(values: np.ndarray) -> float:
     if arr.size == 0 or np.allclose(arr, 0.0):
         return 0.0
     index = np.arange(1, arr.size + 1, dtype=float)
-    return float((2.0 * np.sum(index * arr) / (arr.size * np.sum(arr))) - (arr.size + 1.0) / arr.size)
+    return float(
+        (2.0 * np.sum(index * arr) / (arr.size * np.sum(arr))) - (arr.size + 1.0) / arr.size
+    )
 
 
 def _softmax(values: np.ndarray, axis: int = -1) -> np.ndarray:
@@ -61,7 +65,9 @@ def _softmax(values: np.ndarray, axis: int = -1) -> np.ndarray:
     return exp_values / np.maximum(np.sum(exp_values, axis=axis, keepdims=True), 1.0e-12)
 
 
-def _stationary_distribution(transition: np.ndarray, *, max_iter: int = 500, tol: float = 1.0e-10) -> tuple[np.ndarray, bool, int]:
+def _stationary_distribution(
+    transition: np.ndarray, *, max_iter: int = 500, tol: float = 1.0e-10
+) -> tuple[np.ndarray, bool, int]:
     dist = np.full(transition.shape[0], 1.0 / transition.shape[0], dtype=float)
     for step in range(max_iter):
         next_dist = dist @ transition
@@ -77,10 +83,20 @@ def _cosine_similarity(query: np.ndarray, docs: np.ndarray) -> np.ndarray:
     return (docs @ query) / (doc_norms * query_norm)
 
 
+def _extract_social_weight_ref(state: Mapping[str, Any], params: Mapping[str, Any]) -> str | None:
+    param_ref = params.get("social_weight_ref")
+    if isinstance(param_ref, str) and param_ref.strip():
+        return param_ref.strip()
+    state_ref = state.get("social_weight_ref")
+    if isinstance(state_ref, str) and state_ref.strip():
+        return state_ref.strip()
+    return None
+
+
 @foundry_method(
     namespace="policy.welfare",
     version="1.0.0",
-    tags={"policy", "welfare", "sufficient-statistics", "frontier"},
+    tags={"policy", "welfare", "sufficient-statistics", "frontier", "structural"},
 )
 class SufficientStatisticsWelfareEstimator:
     """Approximate welfare changes using sufficient-statistics decomposition."""
@@ -94,14 +110,34 @@ class SufficientStatisticsWelfareEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("mechanical_effects", SlotType.VECTOR, Unit("welfare", "delta"), shape=("n_groups",)),
-                SlotSpec("revenue_effects", SlotType.VECTOR, Unit("currency", "delta"), shape=("n_groups",)),
-                SlotSpec("elasticities", SlotType.VECTOR, Unit("elasticity", "value"), shape=("n_groups",)),
-                SlotSpec("social_weights", SlotType.VECTOR, Unit("weight", "social"), shape=("n_groups",)),
+                SlotSpec(
+                    "mechanical_effects",
+                    SlotType.VECTOR,
+                    Unit("welfare", "delta"),
+                    shape=("n_groups",),
+                ),
+                SlotSpec(
+                    "revenue_effects",
+                    SlotType.VECTOR,
+                    Unit("currency", "delta"),
+                    shape=("n_groups",),
+                ),
+                SlotSpec(
+                    "elasticities",
+                    SlotType.VECTOR,
+                    Unit("elasticity", "value"),
+                    shape=("n_groups",),
+                ),
+                SlotSpec(
+                    "social_weights", SlotType.VECTOR, Unit("weight", "social"), shape=("n_groups",)
+                ),
             }
         ),
         output_slots=_result_slot(),
-        parameters=(ParameterSpec("deadweight_scale", default=0.5),),
+        parameters=(
+            ParameterSpec("deadweight_scale", default=0.5),
+            ParameterSpec("social_weight_ref", default=None),
+        ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
@@ -112,7 +148,7 @@ class SufficientStatisticsWelfareEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Sufficient-statistics welfare ledger combining mechanical gains, fiscal effects, and behavioral leakage.",
-        tags=frozenset({"policy", "welfare", "sufficient-statistics", "frontier"}),
+        tags=frozenset({"policy", "welfare", "sufficient-statistics", "frontier", "structural"}),
         citations=(
             "Chetty, R. (2009). Sufficient statistics for welfare analysis.",
             "Hendren, N. & Sprung-Keyser, B. (2020). A unified welfare analysis of government policies.",
@@ -135,8 +171,11 @@ class SufficientStatisticsWelfareEstimator:
         mechanical_component = float(np.dot(weights, mechanical))
         revenue_component = float(np.dot(weights, revenue))
         deadweight_scale = float(params.get("deadweight_scale", 0.5))
-        behavioral_leakage = float(deadweight_scale * np.dot(weights, np.abs(revenue) * np.abs(elasticities)))
+        behavioral_leakage = float(
+            deadweight_scale * np.dot(weights, np.abs(revenue) * np.abs(elasticities))
+        )
         welfare_delta = mechanical_component + revenue_component - behavioral_leakage
+        social_weight_ref = _extract_social_weight_ref(state, params)
         return {
             "result": {
                 "welfare_delta": welfare_delta,
@@ -145,6 +184,7 @@ class SufficientStatisticsWelfareEstimator:
                 "behavioral_leakage": behavioral_leakage,
                 "average_elasticity": float(np.dot(weights, elasticities)),
                 "social_weighted_groups": int(weights.shape[0]),
+                "social_weight_ref": social_weight_ref,
             }
         }
 
@@ -152,7 +192,7 @@ class SufficientStatisticsWelfareEstimator:
 @foundry_method(
     namespace="policy.macro",
     version="1.0.0",
-    tags={"policy", "macro", "fiscal-multiplier", "frontier"},
+    tags={"policy", "macro", "fiscal-multiplier", "frontier", "structural"},
 )
 class FiscalMultiplierEstimator:
     """Estimate cumulative and state-dependent fiscal multipliers from shock and outcome series."""
@@ -166,8 +206,15 @@ class FiscalMultiplierEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("output_changes", SlotType.VECTOR, Unit("output", "delta"), shape=("n_periods",)),
-                SlotSpec("spending_changes", SlotType.VECTOR, Unit("spending", "delta"), shape=("n_periods",)),
+                SlotSpec(
+                    "output_changes", SlotType.VECTOR, Unit("output", "delta"), shape=("n_periods",)
+                ),
+                SlotSpec(
+                    "spending_changes",
+                    SlotType.VECTOR,
+                    Unit("spending", "delta"),
+                    shape=("n_periods",),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -182,7 +229,7 @@ class FiscalMultiplierEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Discounted cumulative multiplier and local-projection style slope for fiscal shocks.",
-        tags=frozenset({"policy", "macro", "fiscal-multiplier", "frontier"}),
+        tags=frozenset({"policy", "macro", "fiscal-multiplier", "frontier", "structural"}),
         citations=(
             "Ramey, V. (2019). Ten years after the financial crisis: what have we learned from the renaissance in fiscal research?",
         ),
@@ -234,7 +281,7 @@ class FiscalMultiplierEstimator:
 @foundry_method(
     namespace="policy.public_finance",
     version="1.0.0",
-    tags={"policy", "public-finance", "optimal-tax", "frontier"},
+    tags={"policy", "public-finance", "optimal-tax", "frontier", "structural"},
 )
 class OptimalLinearTaxEstimator:
     """Saez-style optimal linear tax approximation under observed incomes and social weights."""
@@ -249,13 +296,16 @@ class OptimalLinearTaxEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("incomes", SlotType.VECTOR, Unit("income", "amount"), shape=("n_obs",)),
-                SlotSpec("social_weights", SlotType.VECTOR, Unit("weight", "social"), shape=("n_obs",)),
+                SlotSpec(
+                    "social_weights", SlotType.VECTOR, Unit("weight", "social"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=_result_slot(),
         parameters=(
             ParameterSpec("elasticity", default=0.25, bounds=(1.0e-6, None)),
             ParameterSpec("lump_sum_rebate_share", default=0.0, bounds=(0.0, 1.0)),
+            ParameterSpec("social_weight_ref", default=None),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N,
@@ -267,10 +317,8 @@ class OptimalLinearTaxEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Optimal linear income-tax approximation from sufficient-statistics inputs and social marginal welfare weights.",
-        tags=frozenset({"policy", "public-finance", "optimal-tax", "frontier"}),
-        citations=(
-            "Saez, E. (2001). Using elasticities to derive optimal income tax rates.",
-        ),
+        tags=frozenset({"policy", "public-finance", "optimal-tax", "frontier", "structural"}),
+        citations=("Saez, E. (2001). Using elasticities to derive optimal income tax rates.",),
         when_to_use="Need a fast public-finance recommendation for a linear tax schedule with observed income distribution and social weights.",
         when_not_to_use="Need nonlinear Mirrlees schedules, strong income dynamics, or equilibrium labor-demand feedbacks.",
         typical_min_obs=50,
@@ -286,8 +334,12 @@ class OptimalLinearTaxEstimator:
         elasticity = float(params.get("elasticity", 0.25))
         rebate_share = float(params.get("lump_sum_rebate_share", 0.0))
 
-        social_marginal_value = float(np.dot(weights, np.clip(_coerce_vector(state, "social_weights"), 0.0, None)))
-        social_marginal_value = social_marginal_value / max(float(np.max(_coerce_vector(state, "social_weights"))), 1.0e-12)
+        social_marginal_value = float(
+            np.dot(weights, np.clip(_coerce_vector(state, "social_weights"), 0.0, None))
+        )
+        social_marginal_value = social_marginal_value / max(
+            float(np.max(_coerce_vector(state, "social_weights"))), 1.0e-12
+        )
         numerator = max(0.0, 1.0 - social_marginal_value)
         optimal_tax_rate = numerator / max(numerator + elasticity, 1.0e-12)
         optimal_tax_rate = float(np.clip(optimal_tax_rate, 0.0, 1.0))
@@ -295,6 +347,7 @@ class OptimalLinearTaxEstimator:
         tax_revenue = float(optimal_tax_rate * np.mean(incomes))
         rebate = rebate_share * tax_revenue
         after_tax = incomes * (1.0 - optimal_tax_rate) + rebate
+        social_weight_ref = _extract_social_weight_ref(state, params)
         return {
             "result": {
                 "optimal_tax_rate": optimal_tax_rate,
@@ -304,6 +357,7 @@ class OptimalLinearTaxEstimator:
                 "before_tax_gini": _gini(incomes),
                 "after_tax_gini": _gini(after_tax),
                 "elasticity": elasticity,
+                "social_weight_ref": social_weight_ref,
             }
         }
 
@@ -311,7 +365,7 @@ class OptimalLinearTaxEstimator:
 @foundry_method(
     namespace="policy.agent_sim",
     version="1.0.0",
-    tags={"policy", "agent-sim", "mean-field", "frontier"},
+    tags={"policy", "agent-sim", "mean-field", "frontier", "structural"},
 )
 class MeanFieldEquilibriumEstimator:
     """Solve a discrete mean-field equilibrium with congestion-adjusted rewards."""
@@ -325,8 +379,18 @@ class MeanFieldEquilibriumEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("reward_matrix", SlotType.MATRIX, Unit("utility", "value"), shape=("n_states", "n_actions")),
-                SlotSpec("transition_tensor", SlotType.TENSOR, Unit("probability", "transition"), shape=("n_actions", "n_states", "n_states")),
+                SlotSpec(
+                    "reward_matrix",
+                    SlotType.MATRIX,
+                    Unit("utility", "value"),
+                    shape=("n_states", "n_actions"),
+                ),
+                SlotSpec(
+                    "transition_tensor",
+                    SlotType.TENSOR,
+                    Unit("probability", "transition"),
+                    shape=("n_actions", "n_states", "n_states"),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -346,7 +410,7 @@ class MeanFieldEquilibriumEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Discrete-state mean-field equilibrium solver with congestion costs and endogenous stationary population mass.",
-        tags=frozenset({"policy", "agent-sim", "mean-field", "frontier"}),
+        tags=frozenset({"policy", "agent-sim", "mean-field", "frontier", "structural"}),
         citations=("Lasry, J.-M. & Lions, P.-L. (2007). Mean field games.",),
         when_to_use="Large-population strategic settings where individual value depends on aggregate state congestion or participation rates.",
         when_not_to_use="Strong finite-player strategic complementarities, continuous-time HJB/FPK requirements, or settings needing explicit agent heterogeneity beyond state masses.",
@@ -358,7 +422,11 @@ class MeanFieldEquilibriumEstimator:
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
         reward = _coerce_matrix(state, "reward_matrix")
         transition = np.array(state["transition_tensor"], dtype=float, copy=True)
-        if transition.ndim != 3 or transition.shape[1] != reward.shape[0] or transition.shape[2] != reward.shape[0]:
+        if (
+            transition.ndim != 3
+            or transition.shape[1] != reward.shape[0]
+            or transition.shape[2] != reward.shape[0]
+        ):
             raise ValueError("transition_tensor must have shape (n_actions, n_states, n_states)")
 
         n_states, n_actions = reward.shape
@@ -366,7 +434,9 @@ class MeanFieldEquilibriumEstimator:
         temperature = float(params.get("temperature", 0.5))
         max_iter = int(params.get("max_iter", 200))
         tol = float(params.get("tol", 1.0e-8))
-        congestion_costs = np.asarray(state.get("congestion_costs", np.zeros(n_states)), dtype=float)
+        congestion_costs = np.asarray(
+            state.get("congestion_costs", np.zeros(n_states)), dtype=float
+        )
         if congestion_costs.shape != (n_states,):
             raise ValueError("congestion_costs must be a vector with n_states elements")
 
@@ -381,12 +451,19 @@ class MeanFieldEquilibriumEstimator:
             q_values = np.zeros((n_states, n_actions), dtype=float)
             congestion = congestion_costs * dist
             for action in range(n_actions):
-                q_values[:, action] = reward[:, action] - congestion + discount * (transition[action] @ value)
+                q_values[:, action] = (
+                    reward[:, action] - congestion + discount * (transition[action] @ value)
+                )
             policy = _softmax(q_values / max(temperature, 1.0e-6), axis=1)
             value_new = np.sum(policy * q_values, axis=1)
             policy_transition = np.einsum("sa,ask->sk", policy, transition)
             dist_new, _, _ = _stationary_distribution(policy_transition, max_iter=100, tol=tol)
-            if max(float(np.max(np.abs(value_new - value))), float(np.max(np.abs(dist_new - dist)))) < tol:
+            if (
+                max(
+                    float(np.max(np.abs(value_new - value))), float(np.max(np.abs(dist_new - dist)))
+                )
+                < tol
+            ):
                 value = value_new
                 dist = dist_new
                 converged = True
@@ -409,7 +486,7 @@ class MeanFieldEquilibriumEstimator:
 @foundry_method(
     namespace="policy.macro",
     version="1.0.0",
-    tags={"policy", "macro", "krusell-smith", "heterogeneous-shocks", "frontier"},
+    tags={"policy", "macro", "krusell-smith", "heterogeneous-shocks", "frontier", "structural"},
 )
 class KrusellSmithLiteEstimator:
     """Approximate stationary heterogeneous-agent block with idiosyncratic income shocks and a simple savings rule."""
@@ -423,9 +500,21 @@ class KrusellSmithLiteEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("asset_grid", SlotType.VECTOR, Unit("asset", "amount"), shape=("n_assets",)),
-                SlotSpec("productivity_states", SlotType.VECTOR, Unit("productivity", "state"), shape=("n_prod",)),
-                SlotSpec("productivity_transition", SlotType.MATRIX, Unit("probability", "transition"), shape=("n_prod", "n_prod")),
+                SlotSpec(
+                    "asset_grid", SlotType.VECTOR, Unit("asset", "amount"), shape=("n_assets",)
+                ),
+                SlotSpec(
+                    "productivity_states",
+                    SlotType.VECTOR,
+                    Unit("productivity", "state"),
+                    shape=("n_prod",),
+                ),
+                SlotSpec(
+                    "productivity_transition",
+                    SlotType.MATRIX,
+                    Unit("probability", "transition"),
+                    shape=("n_prod", "n_prod"),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -446,8 +535,12 @@ class KrusellSmithLiteEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Krusell-Smith style stationary heterogeneous-shock economy with an explicit but lightweight savings-rule approximation.",
-        tags=frozenset({"policy", "macro", "krusell-smith", "heterogeneous-shocks", "frontier"}),
-        citations=("Krusell, P. & Smith, A. (1998). Income and wealth heterogeneity in the macroeconomy.",),
+        tags=frozenset(
+            {"policy", "macro", "krusell-smith", "heterogeneous-shocks", "frontier", "structural"}
+        ),
+        citations=(
+            "Krusell, P. & Smith, A. (1998). Income and wealth heterogeneity in the macroeconomy.",
+        ),
         when_to_use="Need a fast heterogeneous-agent macro block for screening tax-transfer proposals before moving to a full HANK/DSGE workflow.",
         when_not_to_use="Need endogenous labor supply, richer aggregate shocks, full market-clearing iteration, or production-side equilibrium closure.",
         typical_min_obs=1,
@@ -459,8 +552,14 @@ class KrusellSmithLiteEstimator:
         asset_grid = np.asarray(state["asset_grid"], dtype=float)
         productivity = np.asarray(state["productivity_states"], dtype=float)
         transition = np.array(state["productivity_transition"], dtype=float, copy=True)
-        if asset_grid.ndim != 1 or productivity.ndim != 1 or transition.shape != (productivity.shape[0], productivity.shape[0]):
-            raise ValueError("asset/productivity inputs must be aligned 1D grids and a square transition matrix")
+        if (
+            asset_grid.ndim != 1
+            or productivity.ndim != 1
+            or transition.shape != (productivity.shape[0], productivity.shape[0])
+        ):
+            raise ValueError(
+                "asset/productivity inputs must be aligned 1D grids and a square transition matrix"
+            )
 
         beta = float(params.get("beta", 0.96))
         interest_rate = float(params.get("interest_rate", 0.03))
@@ -478,7 +577,9 @@ class KrusellSmithLiteEstimator:
             1.0 + np.exp(-(beta - 0.5) * (cash_on_hand - np.median(cash_on_hand)))
         )
         next_assets = np.clip(savings_rate * cash_on_hand, asset_grid[0], asset_grid[-1])
-        next_asset_index = np.abs(next_assets[:, :, None] - asset_grid[None, None, :]).argmin(axis=2)
+        next_asset_index = np.abs(next_assets[:, :, None] - asset_grid[None, None, :]).argmin(
+            axis=2
+        )
 
         joint_size = n_assets * n_prod
         joint_transition = np.zeros((joint_size, joint_size), dtype=float)
@@ -509,7 +610,7 @@ class KrusellSmithLiteEstimator:
 @foundry_method(
     namespace="policy.evaluation",
     version="1.0.0",
-    tags={"policy", "evaluation", "foundation-model", "frontier"},
+    tags={"policy", "evaluation", "foundation-model", "frontier", "structural"},
 )
 class FoundationModelPolicyAnalysisEstimator:
     """Rank policy options against evidence using lexical or embedding backends with explicit runtime disclosure."""
@@ -544,10 +645,12 @@ class FoundationModelPolicyAnalysisEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Policy-analysis pipeline that scores policy alternatives against evidence using a truthful embedding backend surface.",
-        tags=frozenset({"policy", "evaluation", "foundation-model", "frontier"}),
+        tags=frozenset({"policy", "evaluation", "foundation-model", "frontier", "structural"}),
         optional_deps=("sentence-transformers",),
         fallback_policy="tfidf_backoff",
-        citations=("Ni, J. et al. (2021). Sentence-T5: Scalable sentence encoders from pre-trained text-to-text models.",),
+        citations=(
+            "Ni, J. et al. (2021). Sentence-T5: Scalable sentence encoders from pre-trained text-to-text models.",
+        ),
         when_to_use="Need a fast planner-facing ranking of policy options against a body of textual evidence before deeper human review.",
         when_not_to_use="Final legal or budgetary decisions, or cases where unsupported semantic ranking would be mistaken for causal evidence.",
         typical_min_obs=1,
@@ -578,7 +681,12 @@ class FoundationModelPolicyAnalysisEstimator:
         query_embedding = np.asarray(embedder.embed([query])[0], dtype=float)
 
         policy_scores = _cosine_similarity(query_embedding, policy_embeddings)
-        evidence_scores = np.asarray([_cosine_similarity(policy_embeddings[idx], evidence_embeddings) for idx in range(len(policy_options))])
+        evidence_scores = np.asarray(
+            [
+                _cosine_similarity(policy_embeddings[idx], evidence_embeddings)
+                for idx in range(len(policy_options))
+            ]
+        )
         rankings = []
         for idx, policy_text in enumerate(policy_options):
             top_indices = np.argsort(evidence_scores[idx])[::-1][:top_k]
@@ -591,7 +699,9 @@ class FoundationModelPolicyAnalysisEstimator:
                     "combined_score": combined_score,
                     "query_similarity": float(policy_scores[idx]),
                     "evidence_support": support,
-                    "top_evidence": [evidence_snippets[evidence_idx] for evidence_idx in top_indices.tolist()],
+                    "top_evidence": [
+                        evidence_snippets[evidence_idx] for evidence_idx in top_indices.tolist()
+                    ],
                 }
             )
         rankings.sort(key=lambda item: item["combined_score"], reverse=True)

@@ -67,13 +67,13 @@ export function RecentRunsTimeline({
   return (
     <div className={cn("relative space-y-0", className)}>
       {/* Timeline spine */}
-      <div className="bg-line absolute left-3 top-0 bottom-0 w-px" />
+      <div className="bg-line absolute top-0 bottom-0 left-3 w-px" />
 
       {displayed.map((run) => (
         <div key={run.runId} className="relative flex gap-3 py-2 pl-6">
           {/* Dot */}
           <span
-            className="absolute left-1.5 top-3.5 size-3 rounded-full border-2 border-[var(--paper)]"
+            className="absolute top-3.5 left-1.5 size-3 rounded-full border-2 border-[var(--paper)]"
             style={{
               background:
                 run.status === "completed"

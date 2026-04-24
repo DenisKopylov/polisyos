@@ -9,6 +9,7 @@ parts of lex and scholar. The slice currently contains `87` `test_*.py` files.
 - Protect the connector framework and built-in sources.
 - Keep provenance, trust, quality, semantic-diff, and world materialization
   behavior stable.
+
 - Validate the document, claim, legal, and scholar-facing fabric pipelines that
   upstream subsystems depend on.
 
@@ -17,6 +18,7 @@ parts of lex and scholar. The slice currently contains `87` `test_*.py` files.
 - [`../../src/polisyos/fabric/README.md`](../../src/polisyos/fabric/README.md)
 - `connectors/` if the change touches source adapters, profiles, schema, cache,
   or resilience.
+
 - `data_plane/` for semantic diff, cursor store, replay, and ingestion
   orchestration issues.
 
@@ -24,26 +26,30 @@ parts of lex and scholar. The slice currently contains `87` `test_*.py` files.
 
 - `tests/fabric/` root: `39` tests for trust, provenance, world, claims/docs,
   legal-evaluation, lex-corpus, and scholar-facing flows.
+
 - `tests/fabric/connectors/`: `36` tests for protocol compliance, registry,
   schema/type systems, transform pipeline, cache, federation, and sources.
+
 - `tests/fabric/data_plane/`: `11` tests for incremental ingestion, replay,
   watermarks, cursor store, and semantic diff.
+
 - `tests/fabric/pii/`: `1` test for PII detection behavior.
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - [`../../src/polisyos/fabric/README.md`](../../src/polisyos/fabric/README.md)
 - `src/polisyos/lex`
 - `src/polisyos/scholar`
 - `src/polisyos/ir`
 
-**Depended on by**
+### Depended On By
 
 - [`../scientist/README.md`](../scientist/README.md),
   [`../scholar/README.md`](../scholar/README.md), and
   [`../datasets/README.md`](../datasets/README.md)
+
 - The integration and local-stack flows that need connector and data-plane
   behavior to stay consistent
 

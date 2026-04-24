@@ -1,4 +1,5 @@
 """Conflict detection and resolution result contracts for canonical claim arbitration."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -10,6 +11,7 @@ from polisyos.ir.fact_log import FactSegmentManifest
 @dataclass(frozen=True)
 class ConflictDetectOptions:
     """Algorithm and tolerance settings for claim conflict grouping."""
+
     key_algorithm_version: str = "conflict_key_v1"
     compare_algorithm_version: str = "compare_v1"
     tolerance: Decimal = Decimal("0")
@@ -20,6 +22,7 @@ class ConflictDetectOptions:
 @dataclass(frozen=True)
 class ConflictResolveOptions:
     """Policy/version settings for winner selection, trust scoring, and emitted edges."""
+
     trust_algorithm_version: str = "trust_v1"
     resolution_algorithm_version: str = "resolve_v1"
     emit_contradicts_to_winner: bool = True
@@ -31,6 +34,7 @@ class ConflictResolveOptions:
 @dataclass(frozen=True)
 class RankedClaim:
     """Claim candidate ranked by total trust score and feature-level score breakdown."""
+
     claim_id: str
     score_total: Decimal
     score_breakdown: dict[str, Decimal] = field(default_factory=dict)
@@ -39,6 +43,7 @@ class RankedClaim:
 @dataclass(frozen=True)
 class ConflictDetectResult:
     """Artifact and provenance references emitted by conflict-set detection."""
+
     conflict_set_ids: list[str]
     conflict_set_artifact_ids: list[str]
     claim_ids: list[str]
@@ -51,6 +56,7 @@ class ConflictDetectResult:
 @dataclass(frozen=True)
 class ConflictResolveResult:
     """Winner map, trust outputs, uncertainty envelopes, and provenance emitted by resolution."""
+
     conflict_set_ids: list[str]
     winner_by_conflict_set: dict[str, str]
     conflict_set_artifact_ids: list[str]

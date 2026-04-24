@@ -5,6 +5,7 @@ Performance regression checker for CI/CD.
 Compares benchmark results between baseline (main) and current (PR) branches.
 Fails if latency increases by >5% or throughput decreases by >5%.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -109,9 +110,7 @@ def compare_benchmarks(
 
         # Calculate delta (positive = regression for latency tests)
         delta = current_result.mean - baseline_result.mean
-        delta_percent = (
-            (delta / baseline_result.mean) * 100 if baseline_result.mean > 0 else 0
-        )
+        delta_percent = (delta / baseline_result.mean) * 100 if baseline_result.mean > 0 else 0
 
         # Determine threshold based on test type
         if "throughput" in name.lower() or "steps_per_second" in name.lower():
@@ -155,13 +154,15 @@ def format_github_output(comparisons: list[Comparison]) -> str:
         # Format times nicely
         def fmt_time(t: float) -> str:
             if t < 0.001:
-                return f"{t*1e6:.1f}us"
+                return f"{t * 1e6:.1f}us"
             if t < 1:
-                return f"{t*1e3:.1f}ms"
+                return f"{t * 1e3:.1f}ms"
             return f"{t:.2f}s"
 
         delta_str = (
-            f"+{comp.delta_percent:.1f}%" if comp.delta_percent > 0 else f"{comp.delta_percent:.1f}%"
+            f"+{comp.delta_percent:.1f}%"
+            if comp.delta_percent > 0
+            else f"{comp.delta_percent:.1f}%"
         )
 
         lines.append(
@@ -180,7 +181,9 @@ def format_github_output(comparisons: list[Comparison]) -> str:
     return "\n".join(lines)
 
 
-def _comparison_messages(comparisons: list[Comparison], warnings: list[str]) -> tuple[ToolMessage, ...]:
+def _comparison_messages(
+    comparisons: list[Comparison], warnings: list[str]
+) -> tuple[ToolMessage, ...]:
     messages: list[ToolMessage] = []
     for warning in warnings:
         messages.append(ToolMessage(level="warning", message=warning, rule_id="PERF_MISSING"))
@@ -244,8 +247,17 @@ def _structured_result(
             status="skipped",
             summary="No comparable benchmarks found",
             exit_code=0,
-            messages=(ToolMessage(level="skipped", message="No overlapping benchmark names were found", rule_id="PERF_SKIPPED"),)
-            + tuple(ToolMessage(level="warning", message=warning, rule_id="PERF_MISSING") for warning in warnings),
+            messages=(
+                ToolMessage(
+                    level="skipped",
+                    message="No overlapping benchmark names were found",
+                    rule_id="PERF_SKIPPED",
+                ),
+            )
+            + tuple(
+                ToolMessage(level="warning", message=warning, rule_id="PERF_MISSING")
+                for warning in warnings
+            ),
             data=payload,
         )
 
@@ -290,7 +302,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--current", type=Path, required=True)
     parser.add_argument("--latency-threshold", type=float, default=5.0)
     parser.add_argument("--throughput-threshold", type=float, default=5.0)
-    parser.add_argument("--output-format", choices=["github", "text", "json", "junit"], default="text")
+    parser.add_argument(
+        "--output-format", choices=["github", "text", "json", "junit"], default="text"
+    )
     parser.add_argument("--output", type=Path, help="Optional output file path")
     args = parser.parse_args(argv)
     if args.latency_threshold < 0 or not math.isfinite(args.latency_threshold):
@@ -309,7 +323,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             str(exc),
             exit_code=2,
         )
-        structured_format = args.output_format if args.output_format in {"json", "junit"} else "text"
+        structured_format = (
+            args.output_format if args.output_format in {"json", "junit"} else "text"
+        )
         _emit(format_tool_result(result, output_format=structured_format), output=args.output)
         return 2
 

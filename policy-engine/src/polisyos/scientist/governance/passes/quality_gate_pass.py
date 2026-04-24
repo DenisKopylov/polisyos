@@ -1,7 +1,8 @@
 """Validate data-quality and evidence readiness signals before governed execution."""
+
 from __future__ import annotations
 
-from typing import Any, List
+from typing import Any
 
 from pydantic import ValidationError
 
@@ -66,8 +67,8 @@ class QualityGatePass(ValidatorPass):
     def requires_data(self) -> bool:
         return True
 
-    def validate(self, ctx: PassContext) -> List[ComplianceIssue]:
-        issues: List[ComplianceIssue] = []
+    def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
+        issues: list[ComplianceIssue] = []
 
         if not self._force_run and self.pass_id not in ctx.profile.pass_ids:
             return issues
@@ -149,9 +150,7 @@ class QualityGatePass(ValidatorPass):
                 )
             elif fitness.level == QualityLevel.POOR:
                 severity = (
-                    IssueSeverity.BLOCKER
-                    if profile_level == "strict"
-                    else IssueSeverity.WARNING
+                    IssueSeverity.BLOCKER if profile_level == "strict" else IssueSeverity.WARNING
                 )
                 issues.append(
                     ComplianceIssue(
@@ -266,9 +265,7 @@ class QualityGatePass(ValidatorPass):
                     pass_id=pass_id,
                     path=["metrics", metric_id],
                     code="QUALITY_INDICATORS_COMPUTE_FAILED",
-                    message=(
-                        f"Metric '{metric_id}' quality indicators could not be computed."
-                    ),
+                    message=(f"Metric '{metric_id}' quality indicators could not be computed."),
                     suggestion="Check upstream metric materialization and dataframe loading.",
                     exc=exc,
                     operation="compute_quality_indicators",
@@ -281,18 +278,14 @@ class QualityGatePass(ValidatorPass):
         self,
         data_quality_report: Any,
         ctx: PassContext,
-        issues: List[ComplianceIssue],
+        issues: list[ComplianceIssue],
     ) -> None:
         from polisyos.ir.connectors import QualityTier
 
         profile_level = ctx.profile.level.value
 
         if data_quality_report.tier == QualityTier.BRONZE:
-            severity = (
-                IssueSeverity.BLOCKER
-                if profile_level == "strict"
-                else IssueSeverity.WARNING
-            )
+            severity = IssueSeverity.BLOCKER if profile_level == "strict" else IssueSeverity.WARNING
 
             violation_summary: list[str] = []
             for violation in data_quality_report.violations[:3]:
@@ -319,9 +312,7 @@ class QualityGatePass(ValidatorPass):
 
         if not data_quality_report.freshness_status.is_fresh:
             severity = (
-                IssueSeverity.WARNING
-                if profile_level in ("fast", "mvp")
-                else IssueSeverity.BLOCKER
+                IssueSeverity.WARNING if profile_level in ("fast", "mvp") else IssueSeverity.BLOCKER
             )
 
             age_days = 0
@@ -339,9 +330,7 @@ class QualityGatePass(ValidatorPass):
                 )
             )
 
-        critical_violations = [
-            v for v in data_quality_report.violations if v.severity == "error"
-        ]
+        critical_violations = [v for v in data_quality_report.violations if v.severity == "error"]
         if critical_violations:
             for violation in critical_violations[:5]:
                 issues.append(
@@ -355,9 +344,7 @@ class QualityGatePass(ValidatorPass):
                             else IssueSeverity.WARNING
                         ),
                         code=f"QUALITY_{violation.rule_type.upper()}",
-                        suggestion=(
-                            f"Expected: {violation.expected}, Actual: {violation.actual}"
-                        ),
+                        suggestion=(f"Expected: {violation.expected}, Actual: {violation.actual}"),
                     )
                 )
 

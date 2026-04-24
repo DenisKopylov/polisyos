@@ -23,26 +23,29 @@ currently contains `64` `test_*.py` files.
 
 - `tests/ir/` root: `36` tests for loaders, migrations, canon parity,
   architectural boundaries, and core IR contracts.
+
 - `tests/ir/analytics/`: `17` tests for analytics and policy-portfolio style
   contracts.
+
 - `tests/ir/observation/`: `7` tests for observation and measurement surfaces.
 - `tests/ir/governance/`: `2` tests for governance-facing IR models.
 - `tests/ir/data/`: `2` tests for data-adjacent IR behavior.
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - [`../../src/polisyos/ir/README.md`](../../src/polisyos/ir/README.md)
 - [`../../src/polisyos/ir/trinity/README.md`](../../src/polisyos/ir/trinity/README.md)
 - [`../../src/polisyos/ir/analytics/README.md`](../../src/polisyos/ir/analytics/README.md)
 - `src/polisyos/core/canon` for parity checks
 
-**Depended on by**
+### Depended On By
 
 - [`../fabric/README.md`](../fabric/README.md),
   [`../foundry/README.md`](../foundry/README.md), and
   [`../scientist/README.md`](../scientist/README.md)
+
 - Contract and migration gates that assume IR compatibility
 
 ## Common Commands

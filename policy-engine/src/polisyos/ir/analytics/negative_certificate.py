@@ -7,6 +7,7 @@ additional data or assumptions would be needed to resolve the blockage.
 This is the public, JSON-serializable counterpart of the internal
 ``HedgeCertificate`` frozen dataclass in ``id_engine.py``.
 """
+
 from __future__ import annotations
 
 from enum import Enum
@@ -14,8 +15,6 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.canon import CanonSpec
 from polisyos.ir.analytics.partial_identification import (
     BoundsBundle,
     PartialIdentificationResult,
@@ -24,6 +23,8 @@ from polisyos.ir.analytics.partial_identification import (
     bounds_bundle_from_partial_identification_result,
 )
 from polisyos.ir.analytics.proximal import BridgeFailureMode, BridgePlausibilityReport
+from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import NegativeCertificateRef
 
 
@@ -141,7 +142,7 @@ class FallbackResult(BaseModel):
     notes: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def _derive_metadata(self) -> "FallbackResult":
+    def _derive_metadata(self) -> FallbackResult:
         fallback_level = 0
         candidates: list[EpistemicTier] = []
         if self.bounds is not None and self.bounds_tier is not None:
@@ -353,7 +354,7 @@ class NegativeCertificate(BaseModel):
     """Finite-sample evidence that falsifies a declared SCM model class."""
 
     @model_validator(mode="after")
-    def _populate_canonical_artifacts(self) -> "NegativeCertificate":
+    def _populate_canonical_artifacts(self) -> NegativeCertificate:
         if self.bounds_bundle is None:
             inferred = _infer_bounds_bundle(self.partial_bounds, self.fallback_result)
             if inferred is not None:
@@ -542,14 +543,14 @@ class NegativeCertificate(BaseModel):
     def from_mz_id_failure(
         cls,
         *,
-        treatment: "frozenset[str]",
-        outcome: "frozenset[str]",
-        unresolved_s_nodes: "frozenset[str]",
-        available_domains: "list[str]",
-        missing_domains: "list[str] | None" = None,
+        treatment: frozenset[str],
+        outcome: frozenset[str],
+        unresolved_s_nodes: frozenset[str],
+        available_domains: list[str],
+        missing_domains: list[str] | None = None,
         hedge_certificate: Any = None,
         partial_bounds: PartialIdentificationResult | None = None,
-    ) -> "NegativeCertificate":
+    ) -> NegativeCertificate:
         """Build a NegativeCertificate for an mz-ID algorithm failure.
 
         Parameters
@@ -576,9 +577,7 @@ class NegativeCertificate(BaseModel):
         # Build human-readable description
         treatment_str = ", ".join(sorted(treatment))
         outcome_str = ", ".join(sorted(outcome))
-        blocking_description = (
-            f"mz-ID failed for P({outcome_str}|do({treatment_str})). "
-        )
+        blocking_description = f"mz-ID failed for P({outcome_str}|do({treatment_str})). "
         if unresolved_s_nodes:
             blocking_description += (
                 f"Unresolved S-nodes: {sorted(unresolved_s_nodes)}. "
@@ -607,17 +606,19 @@ class NegativeCertificate(BaseModel):
                 "the target domain that covers these mechanism-shifted variables."
             )
         if missing_domains:
-            parts.append(
-                f"Additional source domains that would help: {missing_domains}."
-            )
+            parts.append(f"Additional source domains that would help: {missing_domains}.")
         if hedge_certificate is not None:
             minimal = getattr(hedge_certificate, "minimal_required_s_nodes", frozenset())
             if minimal:
                 parts.append(
                     f"Breaking the hedge requires experimental data on: {sorted(minimal)}."
                 )
-        constructive_message = " ".join(parts) if parts else (
-            "Provide additional source domains or experimental data to unlock identification."
+        constructive_message = (
+            " ".join(parts)
+            if parts
+            else (
+                "Provide additional source domains or experimental data to unlock identification."
+            )
         )
 
         # Suggested experiments
@@ -740,14 +741,18 @@ def negative_certificate_from_transport_result(
     transport_reason = str(getattr(result, "unsupported_reason", "") or "transport_unsupported")
     suggested = NegativeCertificate.auto_suggest_experiments(
         blocking_type,
-        missing_vars=tuple(getattr(node, "target_variable", str(node)) for node in blocking_s_nodes),
+        missing_vars=tuple(
+            getattr(node, "target_variable", str(node)) for node in blocking_s_nodes
+        ),
     )
     return NegativeCertificate(
         blocking_type=blocking_type,
         blocking_description=f"Could not identify transport query P*({outcome}|do({treatment})).",
         technical_detail=transport_reason,
         suggested_experiments=suggested,
-        partial_bounds=partial_bounds if isinstance(partial_bounds, PartialIdentificationResult) else None,
+        partial_bounds=partial_bounds
+        if isinstance(partial_bounds, PartialIdentificationResult)
+        else None,
         constructive_message=(
             "Provide additional target-domain evidence or use bounded transport assumptions."
         ),
@@ -822,7 +827,9 @@ def negative_certificate_from_bridge_plausibility_report(
         quantitative_diagnostics={
             "bridge_failure_mode": report.suspected_failure_mode.value,
             "bridge_fallback_disposition": (
-                report.fallback_disposition.value if report.fallback_disposition is not None else None
+                report.fallback_disposition.value
+                if report.fallback_disposition is not None
+                else None
             ),
             "bridge_plausibility_report": report.model_dump(mode="json"),
         },

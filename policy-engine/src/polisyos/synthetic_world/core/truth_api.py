@@ -1,7 +1,9 @@
 """Helpers for selecting and subsetting truth targets."""
+
 from __future__ import annotations
 
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 from polisyos.synthetic_world.models import TruthQuery, json_safe
 

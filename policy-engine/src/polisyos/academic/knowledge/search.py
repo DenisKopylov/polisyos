@@ -91,10 +91,14 @@ class ScholarKnowledgeGraph:
 
         try:
             vector_results = self._store.search_works_by_vector(
-                vec, top_k=top_k * 2, min_similarity=0.2,
+                vec,
+                top_k=top_k * 2,
+                min_similarity=0.2,
             )
         except Exception as exc:
-            logger.warning("Vector work search failed; falling back to text-only retrieval: %s", exc)
+            logger.warning(
+                "Vector work search failed; falling back to text-only retrieval: %s", exc
+            )
             return text_results[:top_k]
 
         scores: dict[str, float] = {}
@@ -142,7 +146,9 @@ class ScholarKnowledgeGraph:
                 usable_candidates = [
                     candidate for candidate in candidates if candidate.parameter.value is not None
                 ]
-                values = np.array([float(candidate.parameter.value) for candidate in usable_candidates])
+                values = np.array(
+                    [float(candidate.parameter.value) for candidate in usable_candidates]
+                )
                 if len(values) > 0:
                     weights = np.array(
                         [
@@ -191,7 +197,9 @@ class ScholarKnowledgeGraph:
         weighted_std = max(weighted_std, 0.01)
         best_design = ""
         if estimates:
-            sorted_by_trust = sorted(estimates, key=lambda estimate: estimate.trust_score, reverse=True)
+            sorted_by_trust = sorted(
+                estimates, key=lambda estimate: estimate.trust_score, reverse=True
+            )
             best_design = sorted_by_trust[0].study_design
 
         return ParameterPrior(
@@ -238,7 +246,9 @@ class ScholarKnowledgeGraph:
         min_trust: float = 0.3,
     ) -> list[CausalClaimResult]:
         return self._store.search_causal_claims(
-            mechanism_name, top_k=top_k, min_trust=min_trust,
+            mechanism_name,
+            top_k=top_k,
+            min_trust=min_trust,
         )
 
     def find_works_for_topic(

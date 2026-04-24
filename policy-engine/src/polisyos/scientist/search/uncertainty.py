@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from enum import Enum
-from typing import Iterable, Mapping
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -39,7 +39,7 @@ class UncertaintyEnvelope(BaseModel):
     uncertainties: dict[UncertaintyType, UncertaintyEstimate]
 
     @model_validator(mode="after")
-    def _validate_all_types_present(self) -> "UncertaintyEnvelope":
+    def _validate_all_types_present(self) -> UncertaintyEnvelope:
         expected = set(UncertaintyType)
         actual = set(self.uncertainties)
         if actual != expected:
@@ -77,7 +77,7 @@ class UncertaintyEnvelope(BaseModel):
         *,
         quantification_method: str = "not_assessed",
         is_reducible: bool = True,
-    ) -> "UncertaintyEnvelope":
+    ) -> UncertaintyEnvelope:
         """Build an envelope where every type is unassessed and maximally uncertain."""
 
         return cls(
@@ -92,7 +92,7 @@ class UncertaintyEnvelope(BaseModel):
         )
 
     @classmethod
-    def deterministic(cls) -> "UncertaintyEnvelope":
+    def deterministic(cls) -> UncertaintyEnvelope:
         """Compatibility factory for deterministic gates that do not assess uncertainty."""
 
         return cls.unknown(
@@ -109,7 +109,7 @@ class UncertaintyEnvelope(BaseModel):
         source: str = "not assessed at this fidelity",
         quantification_method: str = "not_assessed",
         is_reducible: bool = True,
-    ) -> "UncertaintyEnvelope":
+    ) -> UncertaintyEnvelope:
         """Fill missing uncertainty types with explicit unassessed estimates."""
 
         payload: dict[UncertaintyType, UncertaintyEstimate] = {}
@@ -127,8 +127,8 @@ class UncertaintyEnvelope(BaseModel):
     @classmethod
     def merge_max(
         cls,
-        envelopes: Iterable["UncertaintyEnvelope"],
-    ) -> "UncertaintyEnvelope":
+        envelopes: Iterable[UncertaintyEnvelope],
+    ) -> UncertaintyEnvelope:
         """Merge envelopes by taking the highest uncertainty estimate per type."""
 
         envelope_list = list(envelopes)
@@ -147,10 +147,9 @@ class UncertaintyEnvelope(BaseModel):
         self,
         uncertainty_type: UncertaintyType,
         estimate: UncertaintyEstimate,
-    ) -> "UncertaintyEnvelope":
+    ) -> UncertaintyEnvelope:
         """Return a new envelope with one estimate replaced."""
 
         updated = dict(self.uncertainties)
         updated[uncertainty_type] = estimate
         return UncertaintyEnvelope(uncertainties=updated)
-

@@ -1,8 +1,9 @@
 """Public planning run evaluator module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import ValidationError
@@ -88,6 +89,7 @@ class RunEvaluatorNode:
     evaluator report and iteration-state refs that tell the workflow whether to
     approve, replan, or stop for budget reasons.
     """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -139,7 +141,7 @@ class RunEvaluatorNode:
             iteration=1,
             lifecycle_state="evaluating",
             evaluator_report_ref=eval_ref,
-            updated_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(UTC),
         )
         try:
             if evaluator_report.verdict == "APPROVE":

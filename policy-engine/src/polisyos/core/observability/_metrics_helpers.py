@@ -4,18 +4,19 @@ Metric helper classes: context-manager timer and observable gauge proxy.
 These are used by MetricsRegistry and its mixins to record durations
 and expose observable gauge values.
 """
+
 from __future__ import annotations
 
 import threading
 import time
-from typing import Any, Optional
+from typing import Any
 
 from opentelemetry import metrics
 from opentelemetry.metrics import Observation
 
 __all__ = [
-    "HistogramTimer",
     "GaugeProxy",
+    "HistogramTimer",
 ]
 
 
@@ -28,14 +29,14 @@ class HistogramTimer:
 
     def __init__(
         self,
-        histogram: Optional[metrics.Histogram],
-        attributes: Optional[dict[str, Any]] = None,
+        histogram: metrics.Histogram | None,
+        attributes: dict[str, Any] | None = None,
     ) -> None:
         self._histogram = histogram
         self._attributes = attributes or {}
-        self._start_time: Optional[float] = None
+        self._start_time: float | None = None
 
-    def __enter__(self) -> "HistogramTimer":
+    def __enter__(self) -> HistogramTimer:
         self._start_time = time.perf_counter()
         return self
 
@@ -81,7 +82,7 @@ class GaugeProxy:
             unit=unit,
         )
 
-    def set(self, value: float, attributes: Optional[dict[str, Any]] = None) -> None:
+    def set(self, value: float, attributes: dict[str, Any] | None = None) -> None:
         attrs = attributes or {}
         key = tuple(sorted(attrs.items()))
         with self._lock:

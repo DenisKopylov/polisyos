@@ -1,13 +1,15 @@
 """World Values Survey connector implementation for wave-aware survey indicator retrieval."""
+
 from __future__ import annotations
 
 import logging
 import time
-from datetime import datetime, timezone
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
 from functools import lru_cache
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any, AsyncIterator, ClassVar
+from typing import Any, ClassVar
 
 import pandas as pd
 
@@ -38,7 +40,6 @@ from polisyos.ir.connectors import (
     capabilities_from_flags,
 )
 
-
 _log = logging.getLogger(__name__)
 
 
@@ -46,7 +47,7 @@ _log = logging.getLogger(__name__)
 def _load_wvs_registry_indicators() -> dict[str, str]:
     """Load indicator titles from wvs_indicator_registry.yaml (wave 7 only)."""
     try:
-        import yaml  # noqa: PLC0415
+        import yaml
 
         registry_path = (
             Path(__file__).resolve().parents[5]
@@ -188,9 +189,7 @@ class WVSConnector(HTTPConnectorBase[pd.DataFrame]):
 
     def __init__(self) -> None:
         super().__init__()
-        self._survey_year_by_country = MappingProxyType(
-            dict(self._DEFAULT_SURVEY_YEAR_BY_COUNTRY)
-        )
+        self._survey_year_by_country = MappingProxyType(dict(self._DEFAULT_SURVEY_YEAR_BY_COUNTRY))
 
     def find_closest_in_wave(
         self,
@@ -331,7 +330,7 @@ class WVSConnector(HTTPConnectorBase[pd.DataFrame]):
                 rows.extend(recovered)
 
         frame = self._normalize_rows(rows, indicator_id=indicator_id)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return self._build_fetch_result(
             data=frame,
             row_count=len(frame),

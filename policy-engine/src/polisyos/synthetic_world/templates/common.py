@@ -1,4 +1,5 @@
 """Shared payloads for world templates."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -31,4 +32,3 @@ def default_splits(n_rows: int) -> dict[str, np.ndarray]:
 
 
 __all__ = ["MaterializedWorldPayload", "default_splits"]
-

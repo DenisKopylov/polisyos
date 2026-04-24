@@ -4,20 +4,20 @@ import numpy as np
 
 from polisyos.ir.analytics.causal_discovery import LatentTrustLevel
 from polisyos.scientist.latent_separation import (
-    SEPARATION_DIAGNOSTICS_KEY,
     SEPARATION_DIAGNOSTIC_INPUTS_KEY,
+    SEPARATION_DIAGNOSTICS_KEY,
     LatentSeparationDiagnosticInputs,
     LatentSeparationEnvironmentInput,
     LatentSeparationMeasurementInput,
     LatentSeparationProxyInput,
-    compute_latent_separation_diagnostics,
-    compute_latent_separation_diagnostics_from_inputs,
     certified_latent_separation_pairs,
     certify_latent_separation_trust,
+    compute_latent_separation_diagnostics,
+    compute_latent_separation_diagnostics_from_inputs,
     latent_separation_assumption_surfaces,
     latent_separation_falsification_surfaces,
-    metadata_with_computed_latent_separation,
     merge_latent_separation_diagnostics_payloads,
+    metadata_with_computed_latent_separation,
 )
 
 
@@ -73,10 +73,7 @@ def _computed_inputs(
         w_proxy = rng.normal(size=n_obs)
         z_proxy = rng.normal(size=n_obs)
         outcome = (
-            treatment
-            + 0.8 * latent
-            + env_shift * env_effect
-            + rng.normal(scale=0.2, size=n_obs)
+            treatment + 0.8 * latent + env_shift * env_effect + rng.normal(scale=0.2, size=n_obs)
         )
     else:
         w_proxy = 0.7 * latent + 0.5 * rng.normal(size=n_obs)
@@ -217,9 +214,7 @@ def test_raw_inputs_take_precedence_over_prefilled_separation_metadata() -> None
 
 
 def test_latent_separation_certifies_conditional_with_pairwise_separation() -> None:
-    assert certified_latent_separation_pairs(_diagnostics()) == [
-        "measurement_vs_confounding"
-    ]
+    assert certified_latent_separation_pairs(_diagnostics()) == ["measurement_vs_confounding"]
 
     trust = certify_latent_separation_trust(
         {SEPARATION_DIAGNOSTICS_KEY: _diagnostics()},
@@ -498,9 +493,7 @@ def test_latent_separation_surfaces_assumptions_and_falsification_families() -> 
 
 
 def test_merging_replicated_diagnostics_can_validate_same_resolution() -> None:
-    merged = merge_latent_separation_diagnostics_payloads(
-        [_diagnostics(), _diagnostics()]
-    )
+    merged = merge_latent_separation_diagnostics_payloads([_diagnostics(), _diagnostics()])
 
     assert merged is not None
     assert merged["resolution_label"] == "latent_confounding"

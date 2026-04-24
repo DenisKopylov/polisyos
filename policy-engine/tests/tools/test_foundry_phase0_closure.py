@@ -49,7 +49,9 @@ def test_foundry_phase0_closure_validator_fails_when_benchmark_regresses(tmp_pat
         metadata = dict(case.get("metadata") or {})
         metadata["calibrated_world"] = False
         case["metadata"] = metadata
-    benchmark_json.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    benchmark_json.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
     exit_code = validate_foundry_phase0_closure.main(
         [

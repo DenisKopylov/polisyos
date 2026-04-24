@@ -3,6 +3,7 @@ Federation types and data contracts for multi-source composition.
 
 Defines the core data structures used by the federation layer.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

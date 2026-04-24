@@ -6,10 +6,12 @@ Provides:
   multi-backend type mapping (pandas, JAX, DuckDB), and schema evolution helpers
 - Helper functions for deterministic content hashing of field payloads
 """
+
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from datetime import datetime
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -47,7 +49,7 @@ def _number_token(value: int | float | None) -> int | dict[str, str] | None:
 
 
 def _sorted_list(values: Sequence[str] | set[str] | frozenset[str]) -> list[str]:
-    return sorted(list(values))
+    return sorted(values)
 
 
 def _unit_id(unit: UnitRef | None) -> str | None:
@@ -66,9 +68,7 @@ def _field_hash_payload(field: FieldSpec) -> dict[str, Any]:
         "nullable": field.nullable,
         "bounds": [_number_token(field.bounds[0]), _number_token(field.bounds[1])],
         "allowed_values": (
-            _sorted_list(field.allowed_values)
-            if field.allowed_values is not None
-            else None
+            _sorted_list(field.allowed_values) if field.allowed_values is not None else None
         ),
         "pattern": field.pattern,
         "max_length": field.max_length,
@@ -331,7 +331,7 @@ class DataSchema(BaseModel):
         return DataSchema(
             schema_id=self.schema_id,
             version=self.version.bump_minor(),
-            fields=self.fields + (field,),
+            fields=(*self.fields, field),
             primary_key=self.primary_key,
             grain_dims=self.grain_dims,
             time_dimension=self.time_dimension,

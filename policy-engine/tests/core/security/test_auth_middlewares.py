@@ -33,13 +33,13 @@ class _FakeIdentityProvider:
 
 
 class _AllowOPA:
-    async def check(self, authz_input):  # noqa: ANN001
+    async def check(self, authz_input):
         del authz_input
         return AuthzResult(decision=AuthzDecision.ALLOW, policy="polisyos/authz/decision")
 
 
 class _DenyOPA:
-    async def check(self, authz_input):  # noqa: ANN001
+    async def check(self, authz_input):
         del authz_input
         return AuthzResult(
             decision=AuthzDecision.DENY,
@@ -49,7 +49,7 @@ class _DenyOPA:
 
 
 class _AllowOPAWithColumns:
-    async def check(self, authz_input):  # noqa: ANN001
+    async def check(self, authz_input):
         del authz_input
         return AuthzResult(
             decision=AuthzDecision.ALLOW,

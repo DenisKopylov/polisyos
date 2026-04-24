@@ -1,50 +1,116 @@
 import { RuntimeApiClient } from "../runtime-api-client/runtimeApiClient.js";
 
+/**
+ * @template {typeof HTMLElement} T
+ * @param {string} id
+ * @param {T} expectedType
+ * @returns {InstanceType<T>}
+ */
+function requireElement(id, expectedType) {
+  const element = document.getElementById(id);
+  if (!(element instanceof expectedType)) {
+    throw new Error(`Missing required element #${id}`);
+  }
+  return /** @type {InstanceType<T>} */ (element);
+}
+
+function getTabs() {
+  return Array.from(document.querySelectorAll(".tab")).flatMap((element) =>
+    element instanceof HTMLButtonElement ? [element] : [],
+  );
+}
+
+function getPages() {
+  return Array.from(document.querySelectorAll(".page")).flatMap((element) =>
+    element instanceof HTMLElement ? [element] : [],
+  );
+}
+
+/** @type {{ baseUrl: string; client: RuntimeApiClient | null }} */
 const state = {
   baseUrl: "http://127.0.0.1:8000",
   client: null,
 };
 
 const elements = {
-  baseUrl: document.getElementById("base-url"),
-  runsState: document.getElementById("runs-state"),
-  runsTable: document.getElementById("runs-table"),
-  timelineSummary: document.getElementById("timeline-summary"),
-  timelineEvents: document.getElementById("timeline-events"),
-  nodeGraph: document.getElementById("node-graph"),
-  nodeDebugView: document.getElementById("node-debug-view"),
-  artifactView: document.getElementById("artifact-view"),
+  artifactContentButton: requireElement(
+    "artifact-content-btn",
+    HTMLButtonElement,
+  ),
+  artifactId: requireElement("artifact-id", HTMLInputElement),
+  artifactLineageButton: requireElement(
+    "artifact-lineage-btn",
+    HTMLButtonElement,
+  ),
+  artifactManifestButton: requireElement(
+    "artifact-manifest-btn",
+    HTMLButtonElement,
+  ),
+  artifactSchemaButton: requireElement(
+    "artifact-schema-btn",
+    HTMLButtonElement,
+  ),
+  artifactView: requireElement("artifact-view", HTMLElement),
+  baseUrl: requireElement("base-url", HTMLInputElement),
+  connectionForm: requireElement("connection-form", HTMLFormElement),
+  nodeDebugAlias: requireElement("node-debug-alias", HTMLInputElement),
+  nodeDebugForm: requireElement("node-debug-form", HTMLFormElement),
+  nodeDebugRunId: requireElement("node-debug-run-id", HTMLInputElement),
+  nodeDebugView: requireElement("node-debug-view", HTMLElement),
+  nodeGraph: requireElement("node-graph", HTMLDivElement),
+  pages: getPages(),
+  runsForm: requireElement("runs-form", HTMLFormElement),
+  runsLimit: requireElement("runs-limit", HTMLInputElement),
+  runsState: requireElement("runs-state", HTMLElement),
+  runsStatus: requireElement("runs-status", HTMLInputElement),
+  runsTable: requireElement("runs-table", HTMLTableSectionElement),
+  tabs: getTabs(),
+  timelineEvents: requireElement("timeline-events", HTMLTableSectionElement),
+  timelineForm: requireElement("timeline-form", HTMLFormElement),
+  timelineRunId: requireElement("timeline-run-id", HTMLInputElement),
+  timelineSummary: requireElement("timeline-summary", HTMLElement),
 };
 
+/** @param {string} baseUrl */
 function connectClient(baseUrl) {
   state.baseUrl = baseUrl.replace(/\/$/, "");
   state.client = new RuntimeApiClient({ baseUrl: state.baseUrl });
   elements.runsState.textContent = `Connected to ${state.baseUrl}`;
 }
 
+/** @returns {RuntimeApiClient} */
 function ensureClient() {
   if (state.client) {
     return state.client;
   }
   connectClient(state.baseUrl);
+  if (!state.client) {
+    throw new Error("Runtime API client failed to initialize");
+  }
   return state.client;
 }
 
+/**
+ * @param {HTMLElement} target
+ * @param {unknown} value
+ */
 function setJson(target, value) {
   target.textContent = JSON.stringify(value, null, 2);
 }
 
+/** @param {string} page */
 function showPage(page) {
-  document.querySelectorAll(".tab").forEach((tab) => {
+  elements.tabs.forEach((tab) => {
     tab.classList.toggle("is-active", tab.dataset.page === page);
   });
-  document.querySelectorAll(".page").forEach((section) => {
+  elements.pages.forEach((section) => {
     section.classList.toggle("is-visible", section.id === `page-${page}`);
   });
 }
 
+/** @param {any} payload */
 function renderRuns(payload) {
-  const rows = payload.runs || [];
+  const rows = /** @type {Array<any>} */ (payload.runs || []);
   elements.runsTable.innerHTML = rows
     .map((run) => {
       const statusClass = `status-${String(run.status || "").toLowerCase()}`;
@@ -54,7 +120,7 @@ function renderRuns(payload) {
           <td><span class="badge core">${run.source_kind}</span></td>
           <td class="${statusClass}">${run.status}</td>
           <td>${run.started_at || "-"}</td>
-          <td>${run.tenant_id || "<unscoped>"}</td>
+          <td>${run.tenant_id || "&lt;unscoped&gt;"}</td>
           <td>${run.duration_ms ?? "-"}</td>
         </tr>
       `;
@@ -67,13 +133,14 @@ function renderRuns(payload) {
       if (!runId) {
         return;
       }
-      document.getElementById("timeline-run-id").value = runId;
-      document.getElementById("node-debug-run-id").value = runId;
+      elements.timelineRunId.value = runId;
+      elements.nodeDebugRunId.value = runId;
       showPage("timeline");
     });
   });
 }
 
+/** @param {Array<any> | undefined} events */
 function renderTimelineEvents(events) {
   elements.timelineEvents.innerHTML = (events || [])
     .map(
@@ -85,11 +152,12 @@ function renderTimelineEvents(events) {
         <td>${event.event}</td>
         <td>${event.error_count ?? 0}</td>
       </tr>
-    `
+    `,
     )
     .join("");
 }
 
+/** @param {Array<any> | undefined} nodes */
 function renderNodeGraph(nodes) {
   const chips = (nodes || [])
     .map((node) => {
@@ -97,26 +165,27 @@ function renderNodeGraph(nodes) {
       return `<div class="node-chip"><strong>${node.alias}</strong><br/>status=${status}<br/>duration=${node.duration_ms ?? 0}ms</div>`;
     })
     .join("");
-  elements.nodeGraph.innerHTML = chips || "<div class=\"node-chip\">No node records</div>";
+  elements.nodeGraph.innerHTML =
+    chips || '<div class="node-chip">No node records</div>';
 }
 
-document.getElementById("connection-form").addEventListener("submit", (event) => {
+elements.connectionForm.addEventListener("submit", (event) => {
   event.preventDefault();
   connectClient(elements.baseUrl.value || state.baseUrl);
 });
 
-document.querySelectorAll(".tab").forEach((tab) => {
+elements.tabs.forEach((tab) => {
   tab.addEventListener("click", () => {
     showPage(tab.dataset.page || "runs");
   });
 });
 
-document.getElementById("runs-form").addEventListener("submit", async (event) => {
+elements.runsForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const client = ensureClient();
   try {
-    const limit = Number(document.getElementById("runs-limit").value || 50);
-    const status = document.getElementById("runs-status").value.trim() || undefined;
+    const limit = Number(elements.runsLimit.value || 50);
+    const status = elements.runsStatus.value.trim() || undefined;
     const payload = await client.listRuns({ limit, status });
     elements.runsState.textContent = `Loaded ${payload.page?.count ?? 0} runs.`;
     renderRuns(payload);
@@ -125,10 +194,10 @@ document.getElementById("runs-form").addEventListener("submit", async (event) =>
   }
 });
 
-document.getElementById("timeline-form").addEventListener("submit", async (event) => {
+elements.timelineForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const client = ensureClient();
-  const runId = document.getElementById("timeline-run-id").value.trim();
+  const runId = elements.timelineRunId.value.trim();
   if (!runId) {
     elements.timelineSummary.textContent = "run_id is required";
     return;
@@ -148,11 +217,11 @@ document.getElementById("timeline-form").addEventListener("submit", async (event
   }
 });
 
-document.getElementById("node-debug-form").addEventListener("submit", async (event) => {
+elements.nodeDebugForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const client = ensureClient();
-  const runId = document.getElementById("node-debug-run-id").value.trim();
-  const alias = document.getElementById("node-debug-alias").value.trim();
+  const runId = elements.nodeDebugRunId.value.trim();
+  const alias = elements.nodeDebugAlias.value.trim();
   if (!runId || !alias) {
     elements.nodeDebugView.textContent = "run_id and alias are required";
     return;
@@ -165,9 +234,10 @@ document.getElementById("node-debug-form").addEventListener("submit", async (eve
   }
 });
 
+/** @param {"manifest" | "content" | "lineage" | "schema"} mode */
 async function loadArtifact(mode) {
   const client = ensureClient();
-  const artifactId = document.getElementById("artifact-id").value.trim();
+  const artifactId = elements.artifactId.value.trim();
   if (!artifactId) {
     elements.artifactView.textContent = "artifact_id is required";
     return;
@@ -177,9 +247,16 @@ async function loadArtifact(mode) {
     if (mode === "manifest") {
       payload = await client.getArtifactManifest({ artifact_id: artifactId });
     } else if (mode === "content") {
-      payload = await client.getArtifactContent({ artifact_id: artifactId, max_bytes: 4096 });
+      payload = await client.getArtifactContent({
+        artifact_id: artifactId,
+        max_bytes: 4096,
+      });
     } else if (mode === "lineage") {
-      payload = await client.getArtifactLineage({ artifact_id: artifactId, max_depth: 16, max_nodes: 500 });
+      payload = await client.getArtifactLineage({
+        artifact_id: artifactId,
+        max_depth: 16,
+        max_nodes: 500,
+      });
     } else {
       payload = await client.getArtifactSchema({ artifact_id: artifactId });
     }
@@ -189,10 +266,18 @@ async function loadArtifact(mode) {
   }
 }
 
-document.getElementById("artifact-manifest-btn").addEventListener("click", () => loadArtifact("manifest"));
-document.getElementById("artifact-content-btn").addEventListener("click", () => loadArtifact("content"));
-document.getElementById("artifact-lineage-btn").addEventListener("click", () => loadArtifact("lineage"));
-document.getElementById("artifact-schema-btn").addEventListener("click", () => loadArtifact("schema"));
+elements.artifactManifestButton.addEventListener("click", () =>
+  loadArtifact("manifest"),
+);
+elements.artifactContentButton.addEventListener("click", () =>
+  loadArtifact("content"),
+);
+elements.artifactLineageButton.addEventListener("click", () =>
+  loadArtifact("lineage"),
+);
+elements.artifactSchemaButton.addEventListener("click", () =>
+  loadArtifact("schema"),
+);
 
 connectClient(state.baseUrl);
 showPage("runs");

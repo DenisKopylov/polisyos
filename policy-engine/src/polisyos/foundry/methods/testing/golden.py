@@ -4,11 +4,12 @@ Golden Record system for regression testing (Law M enforcement).
 Provides content-addressed snapshots of method inputs and outputs that enable
 regression detection across code and environment changes.
 """
+
 from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum, auto
 from pathlib import Path
 from typing import Any
@@ -22,6 +23,7 @@ from polisyos.foundry.methods.specialization import BackendSpec
 try:  # JAX >= 0.4
     from jax.tree_util import tree_flatten_with_path
 except Exception:  # pragma: no cover - fallback
+
     def tree_flatten_with_path(tree: Any):
         leaves, treedef = jax.tree_util.tree_flatten(tree)
         return [((), leaf) for leaf in leaves], treedef
@@ -90,10 +92,10 @@ class GoldenContext:
     backend: BackendSpec
     jax_version: str
     jaxlib_version: str
-    recorded_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    recorded_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     @classmethod
-    def current(cls, method_fqn: str, precision: str = "float32") -> "GoldenContext":
+    def current(cls, method_fqn: str, precision: str = "float32") -> GoldenContext:
         backend = BackendSpec.current(precision=precision)
         return cls(
             method_fqn=method_fqn,
@@ -104,7 +106,7 @@ class GoldenContext:
 
     def matches(
         self,
-        other: "GoldenContext",
+        other: GoldenContext,
         *,
         strict_version: bool = False,
         strict_backend: bool = False,
@@ -150,7 +152,7 @@ class GoldenContext:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "GoldenContext":
+    def from_dict(cls, data: dict[str, Any]) -> GoldenContext:
         backend_data = data.get("backend", {})
         backend = BackendSpec(
             platform=backend_data.get("platform", ""),
@@ -333,7 +335,7 @@ class GoldenRecord:
         precision: str | None = None,
         rtol: float = DEFAULT_RTOL,
         atol: float = DEFAULT_ATOL,
-    ) -> "GoldenRecord":
+    ) -> GoldenRecord:
         precision = precision or _infer_precision(state, params, output)
         input_hash = hash_pytree({"state": state, "params": params})
         output_hash = hash_pytree(output)
@@ -433,7 +435,7 @@ class GoldenRecord:
         )
 
     @classmethod
-    def from_json(cls, data: str) -> "GoldenRecord":
+    def from_json(cls, data: str) -> GoldenRecord:
         payload = json.loads(data)
         return cls(
             context=GoldenContext.from_dict(payload["context"]),
@@ -454,6 +456,7 @@ class GoldenRecord:
 @dataclass(frozen=True, slots=True)
 class GoldenRecordRef:
     """Point to a persisted golden record used for deterministic replay and regression checks."""
+
     method_fqn: str
     input_hash: str
     backend_platform: str
@@ -478,12 +481,7 @@ class GoldenStore:
         self._base.mkdir(parents=True, exist_ok=True)
 
     def _method_dir(self, method_fqn: str) -> Path:
-        safe_name = (
-            method_fqn
-            .replace(".", "_")
-            .replace("@", "_v")
-            .replace("-", "_")
-        )
+        safe_name = method_fqn.replace(".", "_").replace("@", "_v").replace("-", "_")
         return self._base / safe_name
 
     def _context_dir(self, context: GoldenContext) -> Path:

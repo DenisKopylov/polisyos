@@ -31,9 +31,7 @@ class TestFallbackRunner:
     def test_healthy_primary_used(self) -> None:
         primary = _make_primary(healthy=True)
         runner = FallbackWorkflowRunner(primary, health_ttl_s=0)
-        result = asyncio.run(
-            runner.execute_workflow("wf", "st", "ctx", "reg")
-        )
+        result = asyncio.run(runner.execute_workflow("wf", "st", "ctx", "reg"))
         assert result == "primary_result"
         primary.execute_workflow.assert_awaited_once()
 
@@ -79,7 +77,9 @@ class TestFallbackRunner:
         primary = _make_primary(healthy=True)
         primary.execute_workflow = AsyncMock(side_effect=RuntimeError("boom"))
         runner = FallbackWorkflowRunner(primary, health_ttl_s=0)
-        runner._fallback = SimpleNamespace(execute_workflow=AsyncMock(return_value="fallback_result"))
+        runner._fallback = SimpleNamespace(
+            execute_workflow=AsyncMock(return_value="fallback_result")
+        )
 
         degraded: list[dict[str, object]] = []
         monkeypatch.setattr(

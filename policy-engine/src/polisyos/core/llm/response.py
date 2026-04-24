@@ -1,4 +1,5 @@
 """Normalizes provider-specific LLM responses into one PolicyOS telemetry shape."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -9,6 +10,7 @@ from typing import Any
 @dataclass(frozen=True)
 class LLMResponseData:
     """LLM response data public type."""
+
     content: str
     prompt_tokens: int
     completion_tokens: int
@@ -97,27 +99,33 @@ def _extract_cost_usd(*, usage: Any, payload: Any) -> float | None:
         getattr(usage, "cost", None) if usage is not None else None,
     ]
     if isinstance(usage, dict):
-        candidates.extend([
-            usage.get("total_cost_usd"),
-            usage.get("cost_usd"),
-            usage.get("cost"),
-        ])
+        candidates.extend(
+            [
+                usage.get("total_cost_usd"),
+                usage.get("cost_usd"),
+                usage.get("cost"),
+            ]
+        )
         base_cost = _as_float(usage.get("base_cost_usd"))
         platform_fee = _as_float(usage.get("platform_fee_usd"))
         if base_cost is not None or platform_fee is not None:
             candidates.append((base_cost or 0.0) + (platform_fee or 0.0))
     if isinstance(payload, dict):
-        candidates.extend([
-            payload.get("total_cost_usd"),
-            payload.get("cost_usd"),
-            payload.get("cost"),
-        ])
+        candidates.extend(
+            [
+                payload.get("total_cost_usd"),
+                payload.get("cost_usd"),
+                payload.get("cost"),
+            ]
+        )
     else:
-        candidates.extend([
-            getattr(payload, "total_cost_usd", None),
-            getattr(payload, "cost_usd", None),
-            getattr(payload, "cost", None),
-        ])
+        candidates.extend(
+            [
+                getattr(payload, "total_cost_usd", None),
+                getattr(payload, "cost_usd", None),
+                getattr(payload, "cost", None),
+            ]
+        )
 
     for candidate in candidates:
         parsed = _as_float(candidate)

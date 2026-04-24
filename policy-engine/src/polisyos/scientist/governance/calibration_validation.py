@@ -5,6 +5,7 @@ leaderboard scoring into one `CalibrationValidationBundle`. If C5a governance
 already short-circuited, the bundle is persisted as `blocked_by_governance`
 without running replay so downstream promotion logic can audit the stop reason.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -25,13 +26,17 @@ from polisyos.ir.analytics.transportability import TransportabilityResult
 from polisyos.ir.observation.bundles import BacktestPlanBundle
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
 from polisyos.scientist.discovery.utility_judge import DownstreamUtilityReport
-from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult, BacktestMatrixRunner
-from polisyos.scientist.governance.calibration import CalibrationGovernanceReport
 from polisyos.scientist.governance.accountability import (
     GovernanceAccountabilityInput,
     build_governance_accountability_artifact,
     persist_governance_accountability_artifact,
 )
+from polisyos.scientist.governance.backtest_matrix import (
+    BacktestKind,
+    BacktestMatrixResult,
+    BacktestMatrixRunner,
+)
+from polisyos.scientist.governance.calibration import CalibrationGovernanceReport
 from polisyos.scientist.governance.calibration_leaderboard import (
     CalibrationLeaderboard,
     CalibrationLeaderboardEntry,
@@ -67,7 +72,9 @@ class CalibrationValidationRunnerInput(BaseModel):
     baseline_metrics: dict[str, float] = Field(default_factory=dict)
     baseline_objective: float | None = None
     scenario_objective_overrides: dict[StressScenarioKind, float] = Field(default_factory=dict)
-    scenario_metric_overrides: dict[StressScenarioKind, dict[str, float]] = Field(default_factory=dict)
+    scenario_metric_overrides: dict[StressScenarioKind, dict[str, float]] = Field(
+        default_factory=dict
+    )
     lesson_registry: Any | None = None
     accountability_input: GovernanceAccountabilityInput | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -150,7 +157,9 @@ class CalibrationValidationBundle(BaseModel):
 
     @property
     def stress_test_report_ref(self) -> StressTestReportRef | None:
-        return None if self.stress_scenarios is None else self.stress_scenarios.stress_test_report_ref
+        return (
+            None if self.stress_scenarios is None else self.stress_scenarios.stress_test_report_ref
+        )
 
 
 class CalibrationValidationRunnerResult(BaseModel):
@@ -435,10 +444,10 @@ def load_calibration_validation_bundle(
 
 __all__ = [
     "CalibrationValidationBundle",
+    "CalibrationValidationLessonPublisher",
     "CalibrationValidationRunner",
     "CalibrationValidationRunnerInput",
     "CalibrationValidationRunnerResult",
-    "CalibrationValidationLessonPublisher",
     "load_calibration_validation_bundle",
     "persist_calibration_validation_bundle",
 ]

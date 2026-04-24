@@ -60,8 +60,10 @@ class TestPoolCapacity:
     def test_extra_fields_forbidden(self) -> None:
         with pytest.raises(ValidationError):
             PoolCapacity(
-                total_workers=1, idle_workers=1,
-                active_tasks=0, queue_depth=0,
+                total_workers=1,
+                idle_workers=1,
+                active_tasks=0,
+                queue_depth=0,
                 extra=True,
             )
 

@@ -3,6 +3,7 @@
 Optimization methods require specialized problem models.
 Structural placeholders for Phase 10b.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -10,7 +11,6 @@ import pytest
 
 @pytest.mark.benchmark
 class TestOptimizationAccuracy:
-
     def test_resource_lp_placeholder(self):
         """Placeholder: LP requires optimization problem model."""
         pytest.skip("Requires optimization problem model — deferred to Phase 10b")

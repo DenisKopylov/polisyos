@@ -50,32 +50,31 @@ for _p in [str(_SRC), str(_BENCH_ROOT.parent)]:
 # Local imports
 # ---------------------------------------------------------------------------
 
-from benchmarks.harness import (  # noqa: E402
-    BenchmarkCase,
-    BenchmarkCircuit,
-    BenchmarkHarness,
-    BenchmarkReport,
-    Verdict,
-)
-from benchmarks.estimator_profiles import (  # noqa: E402
-    ESTIMATION_METHOD_PROFILES,
-    benchmark_selection_manifest_from_params,
-    external_dml_params,
-    fast_benchmark_mode,
-    policyos_causal_forest_params,
-    policyos_forestdr_params,
-    policyos_nuisance_params,
-    policyos_xlearner_params,
-    resolve_estimation_method_profile,
-)
 from benchmarks.comparators import (
     ForestDRLearnerComparator,
     build_research_acceptance_comparator_status,
     comparator_degraded_reasons,
     comparator_required_modules,
 )
+from benchmarks.estimator_profiles import (  # noqa: E402
+    ESTIMATION_METHOD_PROFILES,
+    benchmark_selection_manifest_from_params,
+    external_dml_params,
+    policyos_causal_forest_params,
+    policyos_forestdr_params,
+    policyos_nuisance_params,
+    policyos_xlearner_params,
+    resolve_estimation_method_profile,
+)
+from benchmarks.harness import (  # noqa: E402
+    BenchmarkCase,
+    BenchmarkCircuit,
+    BenchmarkHarness,
+    BenchmarkReport,
+)
 from benchmarks.method_registry import build_method_registry, infer_method_group
 from benchmarks.policyos_runner import extract_policyos_result, invoke_policyos_method
+from benchmarks.reporting import build_preflight, build_report_payload, print_preflight
 from benchmarks.research_metrics import (
     basic_overlap_diagnostics,
     fit_eval_propensity,
@@ -84,7 +83,6 @@ from benchmarks.research_metrics import (
     summarize_overlap_diagnostics,
     summarize_selection_manifest,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight
 from benchmarks.runtime import (
     BenchmarkMode,
     BenchmarkTier,
@@ -101,7 +99,6 @@ from benchmarks.scorecards import (
     compute_ranking_summary,
     summarize_method_metrics,
 )
-
 from polisyos.foundry.methods.catalog.causal.protocols import (  # noqa: E402
     HTEObservationalData,
 )
@@ -128,9 +125,7 @@ ACIC_GATE_METHOD_SET = tuple(
 )
 
 # Optional real-dataset path (set via environment variable or override)
-ACIC_DATA_DIR: Path | None = (
-    Path(p) if (p := os.environ.get("ACIC_DATA_DIR", "")) else None
-)
+ACIC_DATA_DIR: Path | None = Path(p) if (p := os.environ.get("ACIC_DATA_DIR", "")) else None
 
 
 def _acic_nuisance_params(
@@ -345,9 +340,7 @@ def _dgp_weak_overlap(
 # ---------------------------------------------------------------------------
 
 
-def _baseline_ols(
-    data: HTEObservationalData, rng: np.random.Generator
-) -> EstimationMetrics:
+def _baseline_ols(data: HTEObservationalData, rng: np.random.Generator) -> EstimationMetrics:
     """OLS regression with treatment indicator and all covariates."""
     from numpy.linalg import lstsq
 
@@ -386,9 +379,7 @@ def _baseline_ols(
     )
 
 
-def _baseline_ipw(
-    data: HTEObservationalData, rng: np.random.Generator
-) -> EstimationMetrics:
+def _baseline_ipw(data: HTEObservationalData, rng: np.random.Generator) -> EstimationMetrics:
     """Inverse Probability Weighting estimator."""
     from numpy.linalg import lstsq
 
@@ -715,38 +706,34 @@ def _check_acic_results(
     ate_bias_threshold: float,
     min_ci_coverage: float,
 ) -> bool:
-        # Find the best (lowest) RMSE across all methods
-        rmse_vals = [r.ate_rmse for r in results.values() if math.isfinite(r.ate_rmse)]
-        if not rmse_vals:
-            raise AssertionError(f"{case_name}: all methods failed")
-        best_rmse = min(rmse_vals)
-        relative_reference = max(best_rmse, float(ate_bias_threshold) / 6.0)
+    # Find the best (lowest) RMSE across all methods
+    rmse_vals = [r.ate_rmse for r in results.values() if math.isfinite(r.ate_rmse)]
+    if not rmse_vals:
+        raise AssertionError(f"{case_name}: all methods failed")
+    best_rmse = min(rmse_vals)
+    relative_reference = max(best_rmse, float(ate_bias_threshold) / 6.0)
 
-        # Check each PolicyOS method
-        policy_os_names = [k for k in results if infer_method_group(k) == "policy_os_competitive"]
-        if not policy_os_names:
-            return True  # baselines only, trivially pass
+    # Check each PolicyOS method
+    policy_os_names = [k for k in results if infer_method_group(k) == "policy_os_competitive"]
+    if not policy_os_names:
+        return True  # baselines only, trivially pass
 
-        issues = []
-        for pname in policy_os_names:
-            res = results[pname]
-            if res.ate_rmse > ate_bias_threshold:
-                issues.append(
-                    f"{pname}: ATE RMSE={res.ate_rmse:.3f} > threshold={ate_bias_threshold}"
-                )
-            if res.ci_coverage < min_ci_coverage:
-                issues.append(
-                    f"{pname}: CI coverage={res.ci_coverage:.2f} < {min_ci_coverage}"
-                )
-            # Guard against near-oracle winners making the relative bar degenerate.
-            if math.isfinite(res.ate_rmse) and res.ate_rmse > 3.0 * relative_reference + 1e-6:
-                issues.append(
-                    f"{pname}: RMSE={res.ate_rmse:.3f} is >3x reference={relative_reference:.3f} "
-                    f"(best={best_rmse:.3f}, quartile floor)"
-                )
-        if issues:
-            raise AssertionError(f"{case_name}: " + "; ".join(issues))
-        return True
+    issues = []
+    for pname in policy_os_names:
+        res = results[pname]
+        if res.ate_rmse > ate_bias_threshold:
+            issues.append(f"{pname}: ATE RMSE={res.ate_rmse:.3f} > threshold={ate_bias_threshold}")
+        if res.ci_coverage < min_ci_coverage:
+            issues.append(f"{pname}: CI coverage={res.ci_coverage:.2f} < {min_ci_coverage}")
+        # Guard against near-oracle winners making the relative bar degenerate.
+        if math.isfinite(res.ate_rmse) and res.ate_rmse > 3.0 * relative_reference + 1e-6:
+            issues.append(
+                f"{pname}: RMSE={res.ate_rmse:.3f} is >3x reference={relative_reference:.3f} "
+                f"(best={best_rmse:.3f}, quartile floor)"
+            )
+    if issues:
+        raise AssertionError(f"{case_name}: " + "; ".join(issues))
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -857,7 +844,9 @@ def _make_method_fns(
     """Build method callables — PolicyOS + baselines."""
     if method_profile not in ESTIMATION_METHOD_PROFILES:
         valid = ", ".join(ESTIMATION_METHOD_PROFILES)
-        raise ValueError(f"Unknown estimation method profile: {method_profile!r}. Expected one of: {valid}")
+        raise ValueError(
+            f"Unknown estimation method profile: {method_profile!r}. Expected one of: {valid}"
+        )
     fns: dict[str, Any] = {}
     flagship_params = _acic_nuisance_params(tier, seed=seed_offset)
 
@@ -875,7 +864,11 @@ def _make_method_fns(
         fns["policy_os_aipw_cf"] = lambda data, rng: _run_policy_os_method(
             AIPWEstimator,
             data,
-            {**dict(flagship_params), "estimation_backend": "econml_direct", "direct_model_type": "linear"},
+            {
+                **dict(flagship_params),
+                "estimation_backend": "econml_direct",
+                "direct_model_type": "linear",
+            },
         )
         fns["policy_os_tmle_cf"] = lambda data, rng: _run_policy_os_method(
             TMLEEstimator,
@@ -961,7 +954,9 @@ def build_acic_harness(
     if real_datasets:
         if tier is BenchmarkTier.RESEARCH_ACCEPTANCE:
             batch_size = min(20, max(5, len(real_datasets)))
-            for batch_index, batch_start in enumerate(range(0, len(real_datasets), batch_size), start=1):
+            for batch_index, batch_start in enumerate(
+                range(0, len(real_datasets), batch_size), start=1
+            ):
                 batch = real_datasets[batch_start : batch_start + batch_size]
 
                 def _make_batch_runner(
@@ -1011,7 +1006,11 @@ def build_acic_harness(
                                                 "ci_coverage": 1.0 if m.ci_covers else 0.0,
                                                 "ci_width": m.ci_width,
                                                 "calibration_mode": next(
-                                                    iter((m.selection_manifest or {}).get("calibration_modes", [])),
+                                                    iter(
+                                                        (m.selection_manifest or {}).get(
+                                                            "calibration_modes", []
+                                                        )
+                                                    ),
                                                     None,
                                                 ),
                                             }
@@ -1032,7 +1031,8 @@ def build_acic_harness(
                         name=f"acic::research_batch_{batch_index:02d}",
                         circuit=CIRCUIT,
                         runner=_make_batch_runner(),
-                        checker=lambda results, bn=f"research_batch_{batch_index:02d}": _check_acic_results(
+                        checker=lambda results,
+                        bn=f"research_batch_{batch_index:02d}": _check_acic_results(
                             case_name=bn,
                             results=results,
                             ate_bias_threshold=0.30,
@@ -1047,7 +1047,9 @@ def build_acic_harness(
             for dgp_name, real_data, cate_true in real_datasets[:6]:
                 ate_true = float(np.mean(cate_true))
 
-                def _make_real_runner(rd=real_data, ct=cate_true, at=ate_true, dn=dgp_name, mf=method_fns):
+                def _make_real_runner(
+                    rd=real_data, ct=cate_true, at=ate_true, dn=dgp_name, mf=method_fns
+                ):
                     def runner() -> dict[str, DGPResult]:
                         rng = np.random.default_rng(seed)
                         out: dict[str, DGPResult] = {}
@@ -1066,18 +1068,28 @@ def build_acic_harness(
                                     ci_widths=[m.ci_width],
                                     pehe_values=[m.pehe] if m.pehe is not None else [],
                                     n_failed=1 if m.failed else 0,
-                                    selection_records=[m.selection_manifest] if (not m.failed and m.selection_manifest) else [],
-                                    overlap_records=[m.overlap_diagnostics] if (not m.failed and m.overlap_diagnostics) else [],
+                                    selection_records=[m.selection_manifest]
+                                    if (not m.failed and m.selection_manifest)
+                                    else [],
+                                    overlap_records=[m.overlap_diagnostics]
+                                    if (not m.failed and m.overlap_diagnostics)
+                                    else [],
                                     calibration_records=[
                                         {
                                             "ci_coverage": 1.0 if m.ci_covers else 0.0,
                                             "ci_width": m.ci_width,
                                             "calibration_mode": next(
-                                                iter((m.selection_manifest or {}).get("calibration_modes", [])),
+                                                iter(
+                                                    (m.selection_manifest or {}).get(
+                                                        "calibration_modes", []
+                                                    )
+                                                ),
                                                 None,
                                             ),
                                         }
-                                    ] if not m.failed else [],
+                                    ]
+                                    if not m.failed
+                                    else [],
                                 )
                                 out[name] = r
                             except Exception:
@@ -1205,7 +1217,9 @@ def _acic_case_group(case_name: str) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: BenchmarkMode, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: BenchmarkMode, preflight: dict[str, Any]
+) -> dict[str, Any]:
     aggregate_summary, standardized_summary, grouped_summary = summarize_method_metrics(
         report,
         metric_getters={
@@ -1301,9 +1315,7 @@ def _report_to_dict(report: BenchmarkReport, *, mode: BenchmarkMode, preflight: 
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Circuit 2 — ACIC Effect Estimation benchmark"
-    )
+    parser = argparse.ArgumentParser(description="Circuit 2 — ACIC Effect Estimation benchmark")
     parser.add_argument("--n-obs", type=int, default=500)
     parser.add_argument("--n-reps", type=int, default=10)
     parser.add_argument("--seed", type=int, default=42)
@@ -1328,22 +1340,44 @@ def main(argv: list[str] | None = None) -> int:
         has_real_data = _try_load_acic_2016(ACIC_DATA_DIR) is not None
 
     comparator_status = build_research_acceptance_comparator_status()
-    planned_n_obs = 400 if tier is BenchmarkTier.LOCAL_EVIDENCE and args.n_obs == 500 else args.n_obs
-    planned_n_reps = 6 if tier is BenchmarkTier.LOCAL_EVIDENCE and args.n_reps == 10 else args.n_reps
+    planned_n_obs = (
+        400 if tier is BenchmarkTier.LOCAL_EVIDENCE and args.n_obs == 500 else args.n_obs
+    )
+    planned_n_reps = (
+        6 if tier is BenchmarkTier.LOCAL_EVIDENCE and args.n_reps == 10 else args.n_reps
+    )
     degraded_reasons = []
     if not has_real_data:
-        degraded_reasons.append("using synthetic ACIC replicas because real ACIC data is unavailable")
+        degraded_reasons.append(
+            "using synthetic ACIC replicas because real ACIC data is unavailable"
+        )
     if tier is BenchmarkTier.LOCAL_EVIDENCE:
-        degraded_reasons.append("local_evidence tier uses thermal-safe subsets and lighter defaults")
+        degraded_reasons.append(
+            "local_evidence tier uses thermal-safe subsets and lighter defaults"
+        )
     degraded_reasons.extend(comparator_degraded_reasons(comparator_status))
 
     preflight = build_preflight(
         mode=mode.value,
         benchmark_tier=tier.value,
-        data_source=classify_data_source(has_real_data=has_real_data, synthetic_label="synthetic_replica", real_label="real_acic"),
+        data_source=classify_data_source(
+            has_real_data=has_real_data, synthetic_label="synthetic_replica", real_label="real_acic"
+        ),
         dependency_status={
             **real_data_status,
-            "python_modules": dependency_status(["numpy", "scipy", "sklearn", "econml", "zepid", "stochtree", "dowhy", "y0", "lightgbm"]),
+            "python_modules": dependency_status(
+                [
+                    "numpy",
+                    "scipy",
+                    "sklearn",
+                    "econml",
+                    "zepid",
+                    "stochtree",
+                    "dowhy",
+                    "y0",
+                    "lightgbm",
+                ]
+            ),
         },
         comparator_status=comparator_status,
         degraded_reasons=degraded_reasons,
@@ -1379,7 +1413,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.json:
         path = Path(args.json)
-        path.write_text(json.dumps(_report_to_dict(report, mode=mode, preflight=preflight), indent=2), encoding="utf-8")
+        path.write_text(
+            json.dumps(_report_to_dict(report, mode=mode, preflight=preflight), indent=2),
+            encoding="utf-8",
+        )
         print(f"\nJSON report written to: {path}")
 
     n_failed = report.n_total() - report.n_passed()

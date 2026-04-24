@@ -1,7 +1,7 @@
 """Public fabric segment manifest module API."""
+
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from polisyos.ir.fact_log import FactSegmentManifest

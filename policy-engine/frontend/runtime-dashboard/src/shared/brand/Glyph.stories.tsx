@@ -57,7 +57,12 @@ export const IntentPalette: Story = {
     <div className="grid grid-cols-5 items-center gap-4">
       {(["default", "verified", "blocked", "pending"] as const).map((intent) =>
         GLYPH_NAMES.map((name) => (
-          <Glyph key={`${intent}-${name}`} name={name} intent={intent} size={24} />
+          <Glyph
+            key={`${intent}-${name}`}
+            name={name}
+            intent={intent}
+            size={24}
+          />
         )),
       )}
     </div>

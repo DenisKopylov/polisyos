@@ -1,4 +1,5 @@
 """Public routes review module API."""
+
 from __future__ import annotations
 
 import json
@@ -29,13 +30,14 @@ from polisyos.runtime.http.security import (
     RuntimeSecurityConfig,
     build_fixture_identity_claims,
 )
-from polisyos.runtime.http.services.review_collaboration import (
-    ReviewChannel,
-    ReviewCollaborationHub,
-)
 
 if TYPE_CHECKING:
     from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
+
+    from polisyos.runtime.http.services.review_collaboration import (
+        ReviewChannel,
+        ReviewCollaborationHub,
+    )
 else:
     try:  # pragma: no cover - optional runtime dependency
         from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
@@ -329,9 +331,7 @@ if router is not None:
                     action=f"message.{message_type}",
                 ):
                     break
-                await hub.dispatch(
-                    await hub.handle_message(session, payload, websocket=websocket)
-                )
+                await hub.dispatch(await hub.handle_message(session, payload, websocket=websocket))
         except WebSocketDisconnect:
             pass
         finally:

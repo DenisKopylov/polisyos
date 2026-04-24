@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
 
 import numpy as np
 from scipy import stats
@@ -26,7 +25,7 @@ class AggregatedMetrics:
     ci_coverage: float
     ci_coverage_se: float
     ci_width_mean: float
-    pehe: float | None          # only for CATE methods
+    pehe: float | None  # only for CATE methods
     pehe_se: float | None
     wall_time_mean: float
     wall_time_p95: float
@@ -34,7 +33,7 @@ class AggregatedMetrics:
 
     # Per-replication arrays (for pairwise tests)
     per_rep_ate_error: np.ndarray  # (K,) array of ATE_hat - ATE_true
-    per_rep_sq_error: np.ndarray   # (K,) array of (ATE_hat - ATE_true)^2
+    per_rep_sq_error: np.ndarray  # (K,) array of (ATE_hat - ATE_true)^2
 
 
 def aggregate_metrics(
@@ -57,21 +56,30 @@ def aggregate_metrics(
 
     if n_valid == 0:
         return AggregatedMetrics(
-            method_name=method_name, dataset_name=dataset_name, tier=tier,
-            n_replications=len(results), n_failed=n_failed,
-            ate_bias=np.nan, ate_bias_se=np.nan,
-            ate_rmse=np.nan, ate_rmse_se=np.nan,
-            ci_coverage=np.nan, ci_coverage_se=np.nan,
+            method_name=method_name,
+            dataset_name=dataset_name,
+            tier=tier,
+            n_replications=len(results),
+            n_failed=n_failed,
+            ate_bias=np.nan,
+            ate_bias_se=np.nan,
+            ate_rmse=np.nan,
+            ate_rmse_se=np.nan,
+            ci_coverage=np.nan,
+            ci_coverage_se=np.nan,
             ci_width_mean=np.nan,
-            pehe=np.nan, pehe_se=np.nan,
-            wall_time_mean=np.nan, wall_time_p95=np.nan,
+            pehe=np.nan,
+            pehe_se=np.nan,
+            wall_time_mean=np.nan,
+            wall_time_p95=np.nan,
             failure_rate=1.0,
-            per_rep_ate_error=np.array([]), per_rep_sq_error=np.array([]),
+            per_rep_ate_error=np.array([]),
+            per_rep_sq_error=np.array([]),
         )
 
     ates = np.array([r.ate for _, r in valid])
     errors = ates - true_ate
-    sq_errors = errors ** 2
+    sq_errors = errors**2
 
     # ATE Bias
     bias = float(np.mean(errors))
@@ -83,7 +91,7 @@ def aggregate_metrics(
     ci_widths = []
     for _, r in valid:
         if r.ci_lower is not None and r.ci_upper is not None:
-            covered = (r.ci_lower <= true_ate <= r.ci_upper)
+            covered = r.ci_lower <= true_ate <= r.ci_upper
             coverage_hits.append(float(covered))
             ci_widths.append(r.ci_upper - r.ci_lower)
     coverage = float(np.mean(coverage_hits)) if coverage_hits else np.nan
@@ -91,7 +99,6 @@ def aggregate_metrics(
 
     # PEHE (if CATE available)
     pehe_val = None
-    pehe_se_val = None
     if true_cates is not None:
         pehe_list = []
         for (i, r), tc in zip(valid, [true_cates[i] for i, _ in valid]):
@@ -115,9 +122,9 @@ def aggregate_metrics(
         idx = rng.integers(0, n_valid, n_valid)
         b_errors = errors[idx]
         bias_boots[b] = np.mean(b_errors)
-        rmse_boots[b] = np.sqrt(np.mean(b_errors ** 2))
+        rmse_boots[b] = np.sqrt(np.mean(b_errors**2))
         if coverage_hits:
-            b_cov = np.array(coverage_hits)[idx[:len(coverage_hits)]]
+            b_cov = np.array(coverage_hits)[idx[: len(coverage_hits)]]
             cov_boots[b] = np.mean(b_cov)
         if pehe_boots is not None and pehe_list:
             b_pehe = np.array(pehe_list)
@@ -150,6 +157,7 @@ def aggregate_metrics(
 # -----------------------------------------------------------------------
 # Pairwise statistical tests
 # -----------------------------------------------------------------------
+
 
 @dataclass
 class PairwiseTestResult:
@@ -202,12 +210,16 @@ def pairwise_wilcoxon(
 
     for rank, (name_a, name_b, stat_val, p_val, d) in enumerate(raw_tests):
         corrected = min(p_val * (m - rank), 1.0)
-        results.append(PairwiseTestResult(
-            method_a=name_a, method_b=name_b,
-            statistic=stat_val, p_value=p_val,
-            corrected_p=corrected,
-            effect_size=d,
-            significant=corrected < alpha,
-        ))
+        results.append(
+            PairwiseTestResult(
+                method_a=name_a,
+                method_b=name_b,
+                statistic=stat_val,
+                p_value=p_val,
+                corrected_p=corrected,
+                effect_size=d,
+                significant=corrected < alpha,
+            )
+        )
 
     return results

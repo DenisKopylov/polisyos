@@ -11,4 +11,3 @@ def test_method_metadata_assumptions_preserved():
     assert metadata.assumptions["parallel_trends"] == "must hold"
     digest = metadata.stable_digest()
     assert isinstance(digest, str) and digest
-

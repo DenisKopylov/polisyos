@@ -10,8 +10,8 @@ from .retry import (
 )
 
 __all__ = [
-    "RetryPolicy",
     "RetryExhaustedError",
+    "RetryPolicy",
     "is_retryable_error",
     "retry_async",
     "simple_retry",

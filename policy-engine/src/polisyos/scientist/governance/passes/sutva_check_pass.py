@@ -1,4 +1,5 @@
 """Warn when the causal report suggests treatment interference or spillover risk."""
+
 from __future__ import annotations
 
 from typing import Literal
@@ -124,12 +125,8 @@ def _resolve_report(ctx: PassContext):
         load_model=load_causal_effect_report,
         severity=IssueSeverity.WARNING,
         code="SUTVA_CAUSAL_REPORT_INVALID",
-        message=(
-            "SUTVA check could not validate or load the causal report artifact."
-        ),
-        suggestion=(
-            "Rebuild the causal report artifact before running governance validation."
-        ),
+        message=("SUTVA check could not validate or load the causal report artifact."),
+        suggestion=("Rebuild the causal report artifact before running governance validation."),
         log=logger,
     )
 

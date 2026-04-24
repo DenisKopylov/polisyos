@@ -1,13 +1,15 @@
 """Statistical profiling, anomaly detection, drift detection, and quality contracts."""
+
 from __future__ import annotations
 
+import importlib.util
+import math
 from collections import Counter
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterable, Mapping
-import importlib.util
-import math
+from typing import Any
 
 import pandas as pd
 
@@ -88,7 +90,7 @@ def _schema_expected_kind(schema: Any, column_name: str) -> str | None:
     return None
 
 
-def _top_values(series: pd.Series, *, limit: int) -> tuple["TopValue", ...]:
+def _top_values(series: pd.Series, *, limit: int) -> tuple[TopValue, ...]:
     non_null = series.dropna().astype(str)
     value_counts = non_null.value_counts().head(limit)
     total = int(non_null.shape[0])
@@ -104,7 +106,7 @@ def _top_values(series: pd.Series, *, limit: int) -> tuple["TopValue", ...]:
     )
 
 
-def _numeric_histogram(series: pd.Series, *, bins: int) -> tuple["HistogramBin", ...]:
+def _numeric_histogram(series: pd.Series, *, bins: int) -> tuple[HistogramBin, ...]:
     numeric = _finite_numeric_series(series)
     if numeric.empty or len(numeric.unique()) <= 1:
         return ()
@@ -173,7 +175,11 @@ class ColumnProfile:
     top_values: tuple[TopValue, ...] = ()
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "null_rate", ensure_probability(self.null_rate, what=f"{self.column_name} null_rate"))
+        object.__setattr__(
+            self,
+            "null_rate",
+            ensure_probability(self.null_rate, what=f"{self.column_name} null_rate"),
+        )
         object.__setattr__(
             self,
             "cardinality_ratio",
@@ -256,8 +262,7 @@ class DatasetProfile:
             "profiled_at": self.profiled_at.isoformat(),
             "profile_score": self.profile_score,
             "column_profiles": {
-                column: profile.to_dict()
-                for column, profile in self.column_profiles.items()
+                column: profile.to_dict() for column, profile in self.column_profiles.items()
             },
         }
 
@@ -345,11 +350,17 @@ class DriftFinding:
     message: str
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "statistic", ensure_non_negative_finite(self.statistic, what=f"{self.column_name} drift statistic"))
+        object.__setattr__(
+            self,
+            "statistic",
+            ensure_non_negative_finite(self.statistic, what=f"{self.column_name} drift statistic"),
+        )
         object.__setattr__(
             self,
             "drift_score",
-            ensure_probability(self.drift_score, what=f"{self.column_name} drift_score", clamp=True),
+            ensure_probability(
+                self.drift_score, what=f"{self.column_name} drift_score", clamp=True
+            ),
         )
         if self.p_value is not None:
             object.__setattr__(
@@ -406,13 +417,25 @@ class QualityContractRule:
 
     def __post_init__(self) -> None:
         if self.min_value is None and self.max_value is None:
-            raise ValueError(f"Quality contract rule {self.rule_id} must declare min_value or max_value")
+            raise ValueError(
+                f"Quality contract rule {self.rule_id} must declare min_value or max_value"
+            )
         if self.min_value is not None:
-            object.__setattr__(self, "min_value", ensure_finite_float(self.min_value, what=f"{self.rule_id} min_value"))
+            object.__setattr__(
+                self,
+                "min_value",
+                ensure_finite_float(self.min_value, what=f"{self.rule_id} min_value"),
+            )
         if self.max_value is not None:
-            object.__setattr__(self, "max_value", ensure_finite_float(self.max_value, what=f"{self.rule_id} max_value"))
+            object.__setattr__(
+                self,
+                "max_value",
+                ensure_finite_float(self.max_value, what=f"{self.rule_id} max_value"),
+            )
         if self.severity not in {"warning", "error"}:
-            raise ValueError(f"Unsupported severity for quality contract rule {self.rule_id}: {self.severity}")
+            raise ValueError(
+                f"Unsupported severity for quality contract rule {self.rule_id}: {self.severity}"
+            )
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -528,7 +551,7 @@ class QualityTrendPoint:
             )
 
     @classmethod
-    def from_any(cls, payload: Any) -> "QualityTrendPoint":
+    def from_any(cls, payload: Any) -> QualityTrendPoint:
         if isinstance(payload, QualityTrendPoint):
             return payload
         if isinstance(payload, Mapping):
@@ -536,7 +559,9 @@ class QualityTrendPoint:
                 dataset_id=str(payload["dataset_id"]),
                 schema_id=str(payload["schema_id"]),
                 source_id=payload.get("source_id"),
-                validated_at=parse_datetime_utc(payload["validated_at"], what="quality trend validated_at"),
+                validated_at=parse_datetime_utc(
+                    payload["validated_at"], what="quality trend validated_at"
+                ),
                 score=float(payload["score"]),
                 row_count=int(payload.get("row_count", 0)),
                 completeness_score=payload.get("completeness_score"),
@@ -544,11 +569,13 @@ class QualityTrendPoint:
                 tier=payload.get("tier"),
             )
         return cls(
-            dataset_id=str(getattr(payload, "dataset_id")),
-            schema_id=str(getattr(payload, "schema_id")),
+            dataset_id=str(payload.dataset_id),
+            schema_id=str(payload.schema_id),
             source_id=getattr(payload, "source_id", None),
-            validated_at=parse_datetime_utc(getattr(payload, "validated_at"), what="quality trend validated_at"),
-            score=float(getattr(payload, "score")),
+            validated_at=parse_datetime_utc(
+                payload.validated_at, what="quality trend validated_at"
+            ),
+            score=float(payload.score),
             row_count=int(getattr(payload, "row_count", 0)),
             completeness_score=getattr(payload, "completeness_score", None),
             consistency_score=getattr(payload, "consistency_score", None),
@@ -594,7 +621,9 @@ class QualityTrendReport:
         }
 
 
-def build_quality_series_key(*, dataset_id: str, schema_id: str, source_id: str | None = None) -> str:
+def build_quality_series_key(
+    *, dataset_id: str, schema_id: str, source_id: str | None = None
+) -> str:
     if source_id:
         return f"{dataset_id}|{schema_id}|{source_id}"
     return f"{dataset_id}|{schema_id}"
@@ -646,8 +675,7 @@ def profile_dataframe(
                 "p95": 0.95,
             }
             quantiles = {
-                name: float(numeric.quantile(quantile))
-                for name, quantile in quantile_pairs.items()
+                name: float(numeric.quantile(quantile)) for name, quantile in quantile_pairs.items()
             }
             histogram = _numeric_histogram(numeric, bins=histogram_bins)
         elif not non_null.empty:
@@ -705,7 +733,9 @@ def detect_anomalies(
                         anomaly_count=anomaly_count,
                         anomaly_rate=anomaly_count / len(series),
                         threshold=zscore_threshold,
-                        sample_indices=tuple(int(idx) for idx in series[anomaly_mask].index[:max_samples_per_finding]),
+                        sample_indices=tuple(
+                            int(idx) for idx in series[anomaly_mask].index[:max_samples_per_finding]
+                        ),
                         message=f"z-score detected {anomaly_count} anomalous values",
                     )
                 )
@@ -726,7 +756,9 @@ def detect_anomalies(
                         anomaly_count=anomaly_count,
                         anomaly_rate=anomaly_count / len(series),
                         threshold=iqr_multiplier,
-                        sample_indices=tuple(int(idx) for idx in series[anomaly_mask].index[:max_samples_per_finding]),
+                        sample_indices=tuple(
+                            int(idx) for idx in series[anomaly_mask].index[:max_samples_per_finding]
+                        ),
                         message=f"IQR detected {anomaly_count} anomalous values",
                     )
                 )
@@ -745,7 +777,9 @@ def detect_anomalies(
                         anomaly_count=anomaly_count,
                         anomaly_rate=anomaly_count / len(series),
                         threshold=mad_threshold,
-                        sample_indices=tuple(int(idx) for idx in series[anomaly_mask].index[:max_samples_per_finding]),
+                        sample_indices=tuple(
+                            int(idx) for idx in series[anomaly_mask].index[:max_samples_per_finding]
+                        ),
                         message=f"MAD detected {anomaly_count} anomalous values",
                     )
                 )
@@ -770,7 +804,9 @@ def detect_anomalies(
                             detector="isolation_forest",
                             anomaly_count=anomaly_count,
                             anomaly_rate=anomaly_count / len(series),
-                            sample_indices=tuple(int(idx) for idx in anomalous_index[:max_samples_per_finding]),
+                            sample_indices=tuple(
+                                int(idx) for idx in anomalous_index[:max_samples_per_finding]
+                            ),
                             message=f"Isolation Forest detected {anomaly_count} anomalous values",
                         )
                     )
@@ -807,9 +843,7 @@ def _ks_drift(current: pd.Series, baseline: pd.Series) -> tuple[float, float]:
 
 
 def _psi(current: pd.Series, baseline: pd.Series, *, bins: int) -> float:
-    quantiles = pd.concat([baseline, current]).quantile(
-        [index / bins for index in range(bins + 1)]
-    )
+    quantiles = pd.concat([baseline, current]).quantile([index / bins for index in range(bins + 1)])
     edges = sorted({float(value) for value in quantiles if is_finite_number(value)})
     if len(edges) < 2:
         return 0.0
@@ -838,7 +872,9 @@ def _categorical_drift(current: pd.Series, baseline: pd.Series) -> tuple[float, 
 
     observed_dist = [count / observed_total for count in observed]
     expected_dist = [count / expected_total for count in expected]
-    tv_distance = 0.5 * sum(abs(left - right) for left, right in zip(observed_dist, expected_dist))
+    tv_distance = 0.5 * sum(
+        abs(left - right) for left, right in zip(observed_dist, expected_dist, strict=False)
+    )
 
     if importlib.util.find_spec("scipy") is not None:
         from scipy.stats import chisquare  # type: ignore[import]
@@ -912,7 +948,9 @@ def detect_drift(
             )
             continue
 
-        chi_statistic, chi_p_value, tv_distance = _categorical_drift(current_series, baseline_series)
+        chi_statistic, chi_p_value, tv_distance = _categorical_drift(
+            current_series, baseline_series
+        )
         detected = chi_p_value < 0.05 and tv_distance >= 0.1
         findings.append(
             DriftFinding(
@@ -932,7 +970,9 @@ def detect_drift(
     )
 
 
-def load_quality_contract(spec: str | Path | Mapping[str, Any] | QualityContract) -> QualityContract:
+def load_quality_contract(
+    spec: str | Path | Mapping[str, Any] | QualityContract,
+) -> QualityContract:
     if isinstance(spec, QualityContract):
         return spec
 
@@ -963,9 +1003,7 @@ def load_quality_contract(spec: str | Path | Mapping[str, Any] | QualityContract
         payload = loaded
 
     contract_name = str(
-        payload.get("name")
-        or payload.get("contract_name")
-        or "fabric_quality_contract"
+        payload.get("name") or payload.get("contract_name") or "fabric_quality_contract"
     )
     raw_rules = payload.get("rules")
     if not isinstance(raw_rules, list) or not raw_rules:
@@ -977,7 +1015,9 @@ def load_quality_contract(spec: str | Path | Mapping[str, Any] | QualityContract
             raise ValueError("Each quality contract rule must be a single-key mapping")
         expectation_name, params = next(iter(entry.items()))
         if not isinstance(params, Mapping):
-            raise ValueError(f"Quality contract rule {expectation_name} must map to rule parameters")
+            raise ValueError(
+                f"Quality contract rule {expectation_name} must map to rule parameters"
+            )
         rules.append(_parse_expectation_rule(expectation_name, params, index=index))
 
     return QualityContract(
@@ -987,7 +1027,9 @@ def load_quality_contract(spec: str | Path | Mapping[str, Any] | QualityContract
     )
 
 
-def _parse_expectation_rule(expectation_name: str, params: Mapping[str, Any], *, index: int) -> QualityContractRule:
+def _parse_expectation_rule(
+    expectation_name: str, params: Mapping[str, Any], *, index: int
+) -> QualityContractRule:
     severity = str(params.get("severity", "error")).lower()
     message = params.get("message")
     field_name = params.get("column") or params.get("field")

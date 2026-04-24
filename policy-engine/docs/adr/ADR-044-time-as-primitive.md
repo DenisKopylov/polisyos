@@ -1,9 +1,11 @@
 # ADR-044: Time as a UI Primitive
 
 ## Status
-Proposed
+
+Approved
 
 ## Date
+
 2026-04-22
 
 ## Context
@@ -31,17 +33,20 @@ point-in-time queries?
 
 1. Time is a **UI primitive**, not a filter. A `TimeContext` provider
    at the app root exposes:
+
    ```ts
    type TimeContext = {
-     cursor: Temporal.Instant;        // current UI time
+     cursor: Temporal.Instant; // current UI time
      setCursor: (t: Temporal.Instant) => void;
      mode: "live" | "historical" | "counterfactual";
      bounds: { min: Temporal.Instant; max: Temporal.Instant };
    };
    ```
+
    `live` mode ties the cursor to wall clock; `historical` detaches
    and pins to the chosen instant; `counterfactual` mode composes
    with the counterfactual layer (Phase 2.4).
+
 2. The scrubber component (`<TimeScrubber />`, Phase 2.1) owns the
    global cursor and is visible in the top rail when the current
    route is time-aware. Keyboard shortcuts `,` / `.` move the cursor
@@ -69,12 +74,15 @@ point-in-time queries?
    configurable tolerance (default: ±1 min).
 
 Source of truth:
+
 - Frontend: `frontend/runtime-dashboard/src/shared/time/TimeContext.tsx`
   (new, Phase 2.1).
+
 - Frontend scrubber: `frontend/runtime-dashboard/src/shared/time/TimeScrubber.tsx`.
 - Backend: `policy-engine/src/policy_engine/runtime/as_of.py` (new,
   Phase 2.1) centralising `as_of` parsing, validation, and routing
   to lakehouse snapshots.
+
 - OpenAPI: each applicable endpoint gains a `$ref` to the shared
   `AsOfQueryParameter`.
 
@@ -83,11 +91,14 @@ Source of truth:
 - Every backend read endpoint inherits a contract responsibility: if
   it is version-sensitive, it must honour `as_of`; if it cannot, it
   must 400.
+
 - Analysts gain the ability to answer retrospective questions without
   leaving the UI or running separate SQL.
+
 - The lakehouse snapshot layer becomes a hot path — query plans must
   be benchmarked for `as_of` queries specifically (new SLO added in
   Phase 2.1).
+
 - Shareable URLs with `?t=` become a first-class artefact (they are
   implicit deep links into history).
 
@@ -103,15 +114,19 @@ Files created or modified in Phase 2.1:
 - New: `policy-engine/tests/runtime/test_as_of.py`
 - Modified: every runtime route under `policy-engine/src/policy_engine/runtime/routes/**`
   that returns version-sensitive data (catalogued in Phase 2.1 scope).
+
 - Modified: `policy-engine/schemas/runtime_api_v1.openapi.json` —
   `AsOfQueryParameter` shared schema.
+
 - Modified: `frontend/runtime-dashboard/src/api/types.ts` (regenerated).
 
 ## Related Decisions
 
 - Extends: [ADR-0122](0122-lakehouse-snapshot-semantics.md) — provides
   the storage primitive that makes `as_of` tractable.
+
 - Related: [ADR-043](ADR-043-provenance-law.md) — provenance `as_of`
   field and scrubber coupling.
+
 - Related: Phase 2.4 counterfactual layer — composes with `mode =
-  "counterfactual"` of the `TimeContext`.
+"counterfactual"` of the `TimeContext`.

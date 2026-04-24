@@ -15,14 +15,13 @@ import numpy as np
 import pytest
 
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog.causal.protocols import NetworkCausalData
+from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics.interference import (
     InterferenceMethod,
     NetworkInterferenceReport,
 )
-
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Fixture: reset registry / dispatcher before each test
@@ -532,7 +531,9 @@ def test_spatial_interference_maup_certificate_not_identified_without_micro_supp
         data,
         params={
             "compute_maup_certificate": True,
-            "candidate_partitions": [{"partition_id": "clusters", "block_of_unit": data.cluster_id}],
+            "candidate_partitions": [
+                {"partition_id": "clusters", "block_of_unit": data.cluster_id}
+            ],
         },
     )
     certificate = report.maup_invariance_certificate

@@ -16,15 +16,16 @@ Usage::
     _log.warning("circuit_opened", backend="jax", failure_count=5)
     _log.error("method_dispatch_error", fqn="...", exc=repr(exc))
 """
+
 from __future__ import annotations
 
 import logging
 from typing import Any, Protocol, runtime_checkable
 
-
 # ---------------------------------------------------------------------------
 # Protocol — common interface for structlog and stdlib loggers
 # ---------------------------------------------------------------------------
+
 
 @runtime_checkable
 class FoundryLogger(Protocol):
@@ -39,6 +40,7 @@ class FoundryLogger(Protocol):
 # ---------------------------------------------------------------------------
 # Stdlib shim — converts keyword kwargs to a single formatted message
 # ---------------------------------------------------------------------------
+
 
 class _StdlibLoggerShim:
     """
@@ -81,6 +83,7 @@ class _StdlibLoggerShim:
 
 try:
     import structlog as _structlog
+
     _STRUCTLOG_AVAILABLE = True
 except ImportError:
     _STRUCTLOG_AVAILABLE = False
@@ -138,7 +141,7 @@ def _infer_n_obs(state: Any) -> int | None:
         val = state.get(key)
         if val is not None:
             try:
-                return int(len(val))  # type: ignore[arg-type]
+                return len(val)  # type: ignore[arg-type]
             except (TypeError, AttributeError):
                 pass
     return None

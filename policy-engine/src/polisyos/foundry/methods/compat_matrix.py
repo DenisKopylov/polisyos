@@ -18,19 +18,22 @@ Usage::
     print(matrix.to_markdown())
     df = matrix.to_dataframe()   # requires pandas
 """
+
 from __future__ import annotations
 
-import sys
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
+    import pandas as pd
+
+    from polisyos.foundry.methods.base import MethodSignature
     from polisyos.foundry.methods.registry import MethodRegistry
 
 __all__ = [
-    "CompatibilityMatrix",
-    "CompatibilityCell",
     "CellStatus",
+    "CompatibilityCell",
+    "CompatibilityMatrix",
 ]
 
 # ---------------------------------------------------------------------------
@@ -56,6 +59,7 @@ class CompatibilityCell:
 # CompatibilityMatrix
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class CompatibilityMatrix:
     """
@@ -77,7 +81,7 @@ class CompatibilityMatrix:
 
     def generate(
         self,
-        registry: "MethodRegistry",
+        registry: MethodRegistry,
         runtime_versions: list[str] | None = None,
     ) -> None:
         """
@@ -111,7 +115,7 @@ class CompatibilityMatrix:
 
     def _classify(
         self,
-        sig: "MethodSignature",  # type: ignore[name-defined]  # forward ref
+        sig: MethodSignature,  # type: ignore[name-defined]  # forward ref
         meta: object | None,
         runtime_version: str,
     ) -> tuple[CellStatus, str]:
@@ -153,7 +157,7 @@ class CompatibilityMatrix:
     # Output formatters
     # ------------------------------------------------------------------
 
-    def to_dataframe(self) -> "pd.DataFrame":  # type: ignore[name-defined]
+    def to_dataframe(self) -> pd.DataFrame:  # type: ignore[name-defined]
         """
         Return the matrix as a ``pandas.DataFrame``.
 
@@ -187,7 +191,9 @@ class CompatibilityMatrix:
             return "_Empty compatibility matrix._"
 
         header = "| Method | " + " | ".join(self.runtime_versions) + " |"
-        sep = "|--------|" + "|".join("-" * max(5, len(rv) + 2) for rv in self.runtime_versions) + "|"
+        sep = (
+            "|--------|" + "|".join("-" * max(5, len(rv) + 2) for rv in self.runtime_versions) + "|"
+        )
 
         lines = [header, sep]
         for fqn in self.method_fqns:
@@ -195,7 +201,12 @@ class CompatibilityMatrix:
             for rv in self.runtime_versions:
                 cell = self.cells.get((fqn, rv))
                 status = cell.status if cell else "UNKNOWN"
-                emoji = {"COMPATIBLE": "✅", "DEPRECATED": "⚠️", "INCOMPATIBLE": "❌", "UNKNOWN": "❓"}.get(status, "❓")
+                emoji = {
+                    "COMPATIBLE": "✅",
+                    "DEPRECATED": "⚠️",
+                    "INCOMPATIBLE": "❌",
+                    "UNKNOWN": "❓",
+                }.get(status, "❓")
                 cells_row.append(f"{emoji} {status}")
             lines.append(f"| `{fqn}` | " + " | ".join(cells_row) + " |")
 
@@ -206,24 +217,35 @@ class CompatibilityMatrix:
 
     def _summary(self) -> str:
         from collections import Counter
+
         counts: Counter[str] = Counter()
         for cell in self.cells.values():
             counts[cell.status] += 1
-        parts = [f"**{v}**: {counts[v]}" for v in ("COMPATIBLE", "DEPRECATED", "INCOMPATIBLE", "UNKNOWN") if v in counts]
+        parts = [
+            f"**{v}**: {counts[v]}"
+            for v in ("COMPATIBLE", "DEPRECATED", "INCOMPATIBLE", "UNKNOWN")
+            if v in counts
+        ]
         return "_Summary: " + " | ".join(parts) + "_"
 
     def compatible_runtimes(self, method_fqn: str) -> list[str]:
         """Return the list of runtime versions compatible with *method_fqn*."""
         return [
-            rv for rv in self.runtime_versions
-            if self.cells.get((method_fqn, rv), CompatibilityCell(method_fqn, rv, "UNKNOWN")).status == "COMPATIBLE"
+            rv
+            for rv in self.runtime_versions
+            if self.cells.get((method_fqn, rv), CompatibilityCell(method_fqn, rv, "UNKNOWN")).status
+            == "COMPATIBLE"
         ]
 
     def incompatible_methods(self, runtime_version: str) -> list[str]:
         """Return FQNs of methods incompatible with *runtime_version*."""
         return [
-            fqn for fqn in self.method_fqns
-            if self.cells.get((fqn, runtime_version), CompatibilityCell(fqn, runtime_version, "UNKNOWN")).status == "INCOMPATIBLE"
+            fqn
+            for fqn in self.method_fqns
+            if self.cells.get(
+                (fqn, runtime_version), CompatibilityCell(fqn, runtime_version, "UNKNOWN")
+            ).status
+            == "INCOMPATIBLE"
         ]
 
     def __repr__(self) -> str:

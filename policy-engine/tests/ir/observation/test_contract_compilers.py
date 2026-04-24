@@ -48,16 +48,16 @@ from polisyos.ir.observation.contract_compilers import (
     NetworkCausalCompileSpec,
     NetworkContractCompileSpec,
     ObservationContractCompilerSuite,
+    ObservationContractLoadError,
     PanelEconometricCompileSpec,
     PanelObservationalCompileSpec,
-    ObservationContractLoadError,
     ProxyMap,
     ProxyMeasurementCompileSpec,
     RegionSectorFlowRow,
     RegionSectorPanels,
+    SparseDenseBridge,
     SpecificationCurveCompileSpec,
     SpecificationCurveSourceSpec,
-    SparseDenseBridge,
     SurveyMicroDataCompileSpec,
     SurvivalCompileSpec,
     load_json_bundle,
@@ -382,8 +382,7 @@ def _suite_specs() -> dict[str, object]:
 
 def _assert_primary_payload(output: dict[str, object]) -> None:
     assert any(
-        key in output
-        for key in ("result", "report", "bounds_report", "status", "output_vector")
+        key in output for key in ("result", "report", "bounds_report", "status", "output_vector")
     )
 
 
@@ -402,16 +401,12 @@ def test_sparse_dense_bridge_materializes_small_subgraph_and_guards_large_dense(
     assert node_order == ["hh_00", "hh_01", "hh_02"]
     assert float(adjacency[0, 1]) == 1.0
 
-    try:
+    with pytest.raises(MemoryError, match="dense materialization"):
         bridge.materialize_layer(
             graph,
             layer_id=MultiplexGraphLayerId.BUDGET,
             max_bytes=1,
         )
-    except MemoryError as exc:
-        assert "dense materialization" in str(exc)
-    else:  # pragma: no cover - defensive
-        raise AssertionError("expected MemoryError for oversized dense materialization")
 
 
 def test_survival_compiler_sets_right_censoring_flags() -> None:
@@ -447,13 +442,18 @@ def test_compilers_round_trip_deterministic_bundles(tmp_path) -> None:
 
     survey_path = write_json_bundle(survey_artifact.bundle, tmp_path / "survey.json")
     loaded_survey = load_json_bundle(survey_path, MicrosimSurveyContractBundle)
-    assert loaded_survey.contract_payload["market_income"] == survey_artifact.bundle.contract_payload["market_income"]
+    assert (
+        loaded_survey.contract_payload["market_income"]
+        == survey_artifact.bundle.contract_payload["market_income"]
+    )
 
     spec_path = write_json_bundle(spec_artifact.bundle, tmp_path / "specification.json")
     loaded_spec = load_json_bundle(spec_path, type(spec_artifact.bundle))
     assert loaded_spec.specification_ids == spec_artifact.bundle.specification_ids
 
-    npz_path = write_npz_payload(dynamic_artifact.bundle.contract_payload, tmp_path / "dynamic_treatment.npz")
+    npz_path = write_npz_payload(
+        dynamic_artifact.bundle.contract_payload, tmp_path / "dynamic_treatment.npz"
+    )
     loaded_npz = load_npz_payload(npz_path)
     assert loaded_npz["treatment_sequence"].shape == (20, 4)
 
@@ -461,7 +461,9 @@ def test_compilers_round_trip_deterministic_bundles(tmp_path) -> None:
     loaded_panel_rows = load_parquet_rows(panel_path)
     assert len(loaded_panel_rows) == 80
 
-    survival_path = write_parquet_rows(survival_artifact.bundle.table_rows, tmp_path / "survival.parquet")
+    survival_path = write_parquet_rows(
+        survival_artifact.bundle.table_rows, tmp_path / "survival.parquet"
+    )
     loaded_survival_rows = load_parquet_rows(survival_path)
     assert len(loaded_survival_rows) == 20
 
@@ -475,7 +477,9 @@ def test_load_npz_payload_raises_on_malformed_json_scalar(tmp_path) -> None:
     npz_path = tmp_path / "broken_payload.npz"
     np.savez(npz_path, metadata=np.asarray('{"broken":', dtype="<U16"))
 
-    with pytest.raises(ObservationContractLoadError, match="failed to parse JSON-encoded scalar payload"):
+    with pytest.raises(
+        ObservationContractLoadError, match="failed to parse JSON-encoded scalar payload"
+    ):
         load_npz_payload(npz_path)
 
 
@@ -556,11 +560,17 @@ def test_compile_all_and_downstream_methods_accept_compiled_contracts(tmp_path) 
         "leontief_io_input",
     } <= set(result.artifacts)
     assert result.backtest is not None
-    assert any(item.artifact_name == "backtest_plan_bundle.json" for item in result.manifest.artifacts)
+    assert any(
+        item.artifact_name == "backtest_plan_bundle.json" for item in result.manifest.artifacts
+    )
 
-    microsim_out = StaticMicrosimEstimator.pure_step(result.artifacts["survey_micro_data"].contract, {})
+    microsim_out = StaticMicrosimEstimator.pure_step(
+        result.artifacts["survey_micro_data"].contract, {}
+    )
     network_out = NetworkDiffusionEstimator.pure_step(result.artifacts["network_data"].contract, {})
-    multiplex_out = MultiplexNetworkEstimator.pure_step(result.artifacts["multiplex_network_data"].contract, {})
+    multiplex_out = MultiplexNetworkEstimator.pure_step(
+        result.artifacts["multiplex_network_data"].contract, {}
+    )
     network_causal_out = NetworkAIPWEstimator.pure_step(
         result.artifacts["network_causal_data"].contract,
         {"n_bootstrap": 10, "confidence_level": 0.9},
@@ -575,7 +585,9 @@ def test_compile_all_and_downstream_methods_accept_compiled_contracts(tmp_path) 
     )
     survival_out = None
     if importlib.util.find_spec("lifelines") is not None:
-        survival_out = SurvivalAnalysisEstimator.pure_step(result.artifacts["survival_data"].contract, {})
+        survival_out = SurvivalAnalysisEstimator.pure_step(
+            result.artifacts["survival_data"].contract, {}
+        )
     econometric_out = None
     if importlib.util.find_spec("linearmodels") is not None:
         econometric_out = PanelDataEstimator.pure_step(

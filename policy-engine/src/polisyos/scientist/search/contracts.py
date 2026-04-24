@@ -110,7 +110,7 @@ class LegacySearchServiceAdapter:
         context: dict[str, Any],
     ) -> list[CandidateProposal]:
         del goal, search_space
-        payloads = self.controller._generate_candidates(  # noqa: SLF001 - intentional adapter bridge
+        payloads = self.controller._generate_candidates(
             iteration=self._ask_iteration,
             initial_candidate=None,
             context=context,
@@ -140,7 +140,7 @@ class LegacySearchServiceAdapter:
     ) -> TellResult:
         candidate = self._pending_candidates.pop(candidate_id, {})
         record = SearchIteration(
-            iteration=len(self.controller._history),  # noqa: SLF001 - adapter-managed bridge
+            iteration=len(self.controller._history),
             candidate=candidate,
             objective_value=float(evaluation.objective_value),
             objective_details=list(evaluation.objective_details),
@@ -150,19 +150,19 @@ class LegacySearchServiceAdapter:
             duration_seconds=float(evaluation.duration_seconds),
             policy_evaluation=evaluation.policy_evaluation,
         )
-        self.controller._history.append(record)  # noqa: SLF001 - adapter-managed bridge
-        if evaluation.objective_value < self.controller._best_objective:  # noqa: SLF001
-            self.controller._best_objective = float(evaluation.objective_value)  # noqa: SLF001
-            self.controller._best_candidate = dict(candidate)  # noqa: SLF001
+        self.controller._history.append(record)
+        if evaluation.objective_value < self.controller._best_objective:
+            self.controller._best_objective = float(evaluation.objective_value)
+            self.controller._best_candidate = dict(candidate)
         return TellResult(
-            best_candidate=self.controller._best_candidate,  # noqa: SLF001
+            best_candidate=self.controller._best_candidate,
             best_objective=(
                 None
-                if self.controller._best_objective == float("inf")  # noqa: SLF001
-                else float(self.controller._best_objective)  # noqa: SLF001
+                if self.controller._best_objective == float("inf")
+                else float(self.controller._best_objective)
             ),
-            history_length=len(self.controller._history),  # noqa: SLF001
-            registry_update={"search_id": self.controller._search_id},  # noqa: SLF001
+            history_length=len(self.controller._history),
+            registry_update={"search_id": self.controller._search_id},
             frontier_delta=list(getattr(self.controller, "_pareto_front", [])),
         )
 

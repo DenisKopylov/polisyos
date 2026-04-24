@@ -8,6 +8,7 @@ slice currently contains `19` `test_*.py` files.
 
 - Keep dataset ingest, normalization, dedup, QC, and publication behavior
   stable.
+
 - Validate dataset knowledge registries and variable-alignment helpers.
 - Protect transportability-oriented dataset selection logic from drift.
 
@@ -21,22 +22,24 @@ slice currently contains `19` `test_*.py` files.
 
 - `tests/datasets/batch/`: `13` tests for CKAN curation, ingest, dedup,
   normalization, harvesting, QC, publish, and CLI smoke.
+
 - `tests/datasets/knowledge/`: `6` tests for registry, store, proxy penalties,
   proxy resolver, types, and variable alignment.
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - [`../../src/polisyos/datasets/README.md`](../../src/polisyos/datasets/README.md)
 - `src/polisyos/datasets/batch`
 - `src/polisyos/datasets/knowledge`
 
-**Depended on by**
+### Depended On By
 
 - [`../scientist/README.md`](../scientist/README.md) and
   [`../fabric/README.md`](../fabric/README.md) when dataset knowledge feeds
   search and transportability logic
+
 - Data curation and benchmark preparation flows
 
 ## Common Commands

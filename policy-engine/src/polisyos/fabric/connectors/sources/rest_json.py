@@ -12,13 +12,13 @@ Supported REST APIs (via source profiles):
 - EIA Energy Data
 - NVD Vulnerability Database
 """
+
 from __future__ import annotations
 
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from polisyos.fabric.connectors.reference.rest_json import (
     GenericRESTConnector,
-    PaginationStrategy,
 )
 from polisyos.ir.connectors import (
     ConnectorCapability,

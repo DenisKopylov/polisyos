@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List
 
 import numpy as np
 
@@ -30,7 +29,7 @@ class MultiStartResult:
     """Aggregated result of multi-start optimization."""
 
     selected_idx: int
-    runs: List[SingleRunResult]
+    runs: list[SingleRunResult]
     selection_reason: str
 
 
@@ -73,7 +72,10 @@ def _select_best_loss(
 
     # All exceed threshold — fall back to absolute min loss
     best_idx = min(range(len(runs)), key=lambda i: runs[i].loss)
-    return best_idx, f"best_loss={runs[best_idx].loss:.6g} (all condition>{condition_threshold:.1g})"
+    return (
+        best_idx,
+        f"best_loss={runs[best_idx].loss:.6g} (all condition>{condition_threshold:.1g})",
+    )
 
 
 def _select_best_identifiability(
@@ -99,6 +101,5 @@ def _select_best_identifiability(
         else float("inf")
     )
     return best_idx, (
-        f"best_identifiability: {n_id} identified, "
-        f"condition={condition:.6g}, loss={r.loss:.6g}"
+        f"best_identifiability: {n_id} identified, condition={condition:.6g}, loss={r.loss:.6g}"
     )

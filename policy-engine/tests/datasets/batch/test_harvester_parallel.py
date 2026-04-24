@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import asyncio
 
+from polisyos.datasets.batch import harvester as harvester_module
 from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.batch.harvester import harvest_sources
-from polisyos.datasets.batch import harvester as harvester_module
 from polisyos.datasets.batch.source_registry import SourceRegistry, SourceSpec
 
 
@@ -13,7 +13,9 @@ def test_harvest_sources_runs_independent_sources_in_parallel(monkeypatch, tmp_p
     registry = SourceRegistry(
         version=1,
         sources=(
-            SourceSpec(name="worldbank", family="worldbank", wave="A", endpoint="https://example.com/wb"),
+            SourceSpec(
+                name="worldbank", family="worldbank", wave="A", endpoint="https://example.com/wb"
+            ),
             SourceSpec(name="who", family="who", wave="A", endpoint="https://example.com/who"),
         ),
     )
@@ -23,7 +25,9 @@ def test_harvest_sources_runs_independent_sources_in_parallel(monkeypatch, tmp_p
     state = {"active": 0, "max_active": 0}
     gate = asyncio.Lock()
 
-    async def _fake_harvest_one_source(spec, config, *, harvested=None, metrics_map=None, checkpoint=None):  # noqa: ARG001
+    async def _fake_harvest_one_source(
+        spec, config, *, harvested=None, metrics_map=None, checkpoint=None
+    ):
         async with gate:
             state["active"] += 1
             state["max_active"] = max(state["max_active"], state["active"])
@@ -40,13 +44,19 @@ def test_harvest_sources_runs_independent_sources_in_parallel(monkeypatch, tmp_p
     assert state["max_active"] >= 2
 
 
-def test_harvest_sources_respects_seed_dependencies_and_keeps_broad_ckan_serial(monkeypatch, tmp_path) -> None:
+def test_harvest_sources_respects_seed_dependencies_and_keeps_broad_ckan_serial(
+    monkeypatch, tmp_path
+) -> None:
     config = DatasetBatchConfig(snapshot_root=tmp_path / "snap")
     registry = SourceRegistry(
         version=1,
         sources=(
-            SourceSpec(name="data_gov_ua_broad", family="ckan", wave="C", endpoint="https://example.com/ua"),
-            SourceSpec(name="data_gov_ro_broad", family="ckan", wave="C", endpoint="https://example.com/ro"),
+            SourceSpec(
+                name="data_gov_ua_broad", family="ckan", wave="C", endpoint="https://example.com/ua"
+            ),
+            SourceSpec(
+                name="data_gov_ro_broad", family="ckan", wave="C", endpoint="https://example.com/ro"
+            ),
             SourceSpec(
                 name="data_gov_ua_exec",
                 family="ckan",
@@ -54,7 +64,9 @@ def test_harvest_sources_respects_seed_dependencies_and_keeps_broad_ckan_serial(
                 endpoint="https://example.com/ua-exec",
                 seed_from="data_gov_ua_broad",
             ),
-            SourceSpec(name="worldbank", family="worldbank", wave="A", endpoint="https://example.com/wb"),
+            SourceSpec(
+                name="worldbank", family="worldbank", wave="A", endpoint="https://example.com/wb"
+            ),
         ),
     )
     monkeypatch.setattr(DatasetBatchConfig, "load_registry", lambda self: registry)
@@ -69,7 +81,9 @@ def test_harvest_sources_respects_seed_dependencies_and_keeps_broad_ckan_serial(
     }
     gate = asyncio.Lock()
 
-    async def _fake_harvest_one_source(spec, config, *, harvested=None, metrics_map=None, checkpoint=None):  # noqa: ARG001
+    async def _fake_harvest_one_source(
+        spec, config, *, harvested=None, metrics_map=None, checkpoint=None
+    ):
         async with gate:
             state["active_total"] += 1
             state["max_active_total"] = max(state["max_active_total"], state["active_total"])
@@ -81,7 +95,9 @@ def test_harvest_sources_respects_seed_dependencies_and_keeps_broad_ckan_serial(
                 )
             if spec.name == "data_gov_ua_exec":
                 assert state["ua_broad_finished"] is True
-        await asyncio.sleep(0.05 if spec.name in {"data_gov_ua_broad", "data_gov_ro_broad"} else 0.01)
+        await asyncio.sleep(
+            0.05 if spec.name in {"data_gov_ua_broad", "data_gov_ro_broad"} else 0.01
+        )
         async with gate:
             if spec.name == "data_gov_ua_broad":
                 state["ua_broad_finished"] = True

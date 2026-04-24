@@ -67,7 +67,8 @@ class StateMutationGuard:
 
         mutated_paths = sorted(_diff_paths(before_snapshot, after_snapshot))
         undeclared = [
-            path for path in mutated_paths
+            path
+            for path in mutated_paths
             if path not in removed_indexes and not _write_covers_path(self._writes, path)
         ]
         if undeclared:

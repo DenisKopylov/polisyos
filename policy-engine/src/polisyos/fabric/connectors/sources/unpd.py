@@ -1,17 +1,24 @@
 """UN Population Division connector implementation for demographic indicator datasets."""
+
 from __future__ import annotations
 
 import asyncio
 import json
 import os
 import time
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, ClassVar
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
 import pandas as pd
 
 from polisyos.core.canon import streaming_hash
-from polisyos.fabric.connectors.base import ConnectionHandle, FetchRequest, FetchResult, HealthStatus
+from polisyos.fabric.connectors.base import (
+    ConnectionHandle,
+    FetchRequest,
+    FetchResult,
+    HealthStatus,
+)
 from polisyos.fabric.connectors.sources.http_base import HTTPConnectorBase, HTTPResilienceProfile
 from polisyos.fabric.connectors.sources.http_common import frame_completeness, safe_float, safe_int
 from polisyos.fabric.connectors.types import DatasetDescriptor, FetchError
@@ -172,7 +179,9 @@ class UNPDConnector(HTTPConnectorBase[pd.DataFrame]):
         last_headers: dict[str, str] = {}
         semaphore = asyncio.Semaphore(max(1, min(self._PARALLEL_LOCATION_LIMIT, len(location_ids))))
 
-        async def _fetch_location(location_id: str) -> tuple[str, dict[str, Any], dict[str, str], bytes]:
+        async def _fetch_location(
+            location_id: str,
+        ) -> tuple[str, dict[str, Any], dict[str, str], bytes]:
             url = (
                 f"{self._base_url(handle)}/data/indicators/{indicator_id}"
                 f"/locations/{location_id}/start/{int(start_year)}/end/{int(end_year)}"
@@ -192,10 +201,14 @@ class UNPDConnector(HTTPConnectorBase[pd.DataFrame]):
             last_headers = headers
             payload_chunks.append(raw)
             bytes_transferred += len(raw)
-            rows.extend(self._extract_rows(body, indicator_id=indicator_id, location_id=location_id))
+            rows.extend(
+                self._extract_rows(body, indicator_id=indicator_id, location_id=location_id)
+            )
 
-        frame = pd.DataFrame(rows, columns=_UNPD_FIELDS) if rows else pd.DataFrame(columns=_UNPD_FIELDS)
-        now = datetime.now(timezone.utc)
+        frame = (
+            pd.DataFrame(rows, columns=_UNPD_FIELDS) if rows else pd.DataFrame(columns=_UNPD_FIELDS)
+        )
+        now = datetime.now(UTC)
         return self._build_fetch_result(
             data=frame,
             row_count=len(frame),
@@ -241,10 +254,16 @@ class UNPDConnector(HTTPConnectorBase[pd.DataFrame]):
     @staticmethod
     def _location_ids(request: FetchRequest) -> list[str]:
         filter_map = {key: list(values) for key, values in request.filters}
-        explicit = [str(value).strip() for value in filter_map.get("location_id", []) if str(value).strip()]
+        explicit = [
+            str(value).strip() for value in filter_map.get("location_id", []) if str(value).strip()
+        ]
         if explicit:
             return sorted(set(explicit))
-        countries = [str(value).strip() for value in filter_map.get("country", []) + filter_map.get("geo", []) if str(value).strip()]
+        countries = [
+            str(value).strip()
+            for value in filter_map.get("country", []) + filter_map.get("geo", [])
+            if str(value).strip()
+        ]
         mapped = [UNPDConnector._country_to_numeric(value) for value in countries]
         return sorted({value for value in mapped if value})
 
@@ -301,7 +320,9 @@ class UNPDConnector(HTTPConnectorBase[pd.DataFrame]):
                         or row.get("iso2")
                         or row.get("locationCode")
                         or ""
-                    ).strip().upper(),
+                    )
+                    .strip()
+                    .upper(),
                     "location_id": str(row.get("locationId") or location_id),
                     "year": safe_int(row.get("timeLabel") or row.get("timeId") or row.get("year")),
                     "value": value,
@@ -309,7 +330,9 @@ class UNPDConnector(HTTPConnectorBase[pd.DataFrame]):
                     "sex_id": safe_int(row.get("sexId")),
                     "age_id": safe_int(row.get("ageId")),
                     "category_id": safe_int(row.get("categoryId")),
-                    "dimensions_json": json.dumps(dimensions, sort_keys=True, separators=(",", ":")),
+                    "dimensions_json": json.dumps(
+                        dimensions, sort_keys=True, separators=(",", ":")
+                    ),
                 }
             )
         return rows

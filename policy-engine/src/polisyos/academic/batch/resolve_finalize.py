@@ -4,15 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from collections import Counter, defaultdict
 from datetime import UTC, datetime
-from pathlib import Path
-import re
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.academic.batch.article_extractor import _to_work_record
 from polisyos.academic.batch.claim_ids import stable_claim_id
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.batch.resolve_extract import _to_claim_row
 from polisyos.academic.knowledge.skg_store import hash_edge_id
 from polisyos.batch_common.manifest import write_stage_manifest
@@ -23,12 +21,17 @@ from polisyos.ir.analytics.literature import (
     ContextAttribute,
     DesignFamily,
     EvidenceParameter,
-    EvidenceStrength,
     EvidenceSpan,
+    EvidenceStrength,
     ModerationEdge,
     ParameterType,
     SourceBasis,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 _TRANSIENT_ERROR_CLASSES = {"provider_http_429", "provider_http_5xx", "timeout", "empty_response"}
 _PERMANENT_ERROR_PREFIXES = ("provider_http_4", "json_parse", "normalization_error")
@@ -41,7 +44,12 @@ _UNIT_HINT_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"\bsemi[- ]?elasticit(y|ies)\b", re.IGNORECASE), "semi_elasticity"),
     (re.compile(r"\belasticit(y|ies)\b", re.IGNORECASE), "elasticity"),
     (re.compile(r"\bcorrelation\b|\bcorr\b", re.IGNORECASE), "correlation_coefficient"),
-    (re.compile(r"\bstandardi[sz]ed effect\b|\bstandardi[sz]ed coefficient\b|\bbeta\b", re.IGNORECASE), "standardized_effect"),
+    (
+        re.compile(
+            r"\bstandardi[sz]ed effect\b|\bstandardi[sz]ed coefficient\b|\bbeta\b", re.IGNORECASE
+        ),
+        "standardized_effect",
+    ),
     (re.compile(r"\bindex points?\b|\bscore points?\b", re.IGNORECASE), "index_points"),
     (re.compile(r"\blog odds\b", re.IGNORECASE), "log_odds"),
 )
@@ -106,7 +114,7 @@ def _load_selected_rows(path: Path) -> dict[str, dict[str, Any]]:
     rows: dict[str, dict[str, Any]] = {}
     if not path.exists():
         return rows
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -124,7 +132,7 @@ def _load_attempts(path: Path) -> dict[str, list[ArticleExtractionResult]]:
     grouped: dict[str, list[ArticleExtractionResult]] = defaultdict(list)
     if not path.exists():
         return grouped
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -179,36 +187,53 @@ def _merge_claims(rows: list[ArticleExtractionResult]) -> list[CausalClaim]:
             merged[key] = existing.model_copy(
                 update={
                     "claim_text": existing.claim_text or claim.claim_text,
-                    "direction": existing.direction if existing.direction.value != "mixed" else claim.direction,
-                    "claim_type": existing.claim_type if existing.claim_type.value != "unclear" else claim.claim_type,
+                    "direction": existing.direction
+                    if existing.direction.value != "mixed"
+                    else claim.direction,
+                    "claim_type": existing.claim_type
+                    if existing.claim_type.value != "unclear"
+                    else claim.claim_type,
                     "design_family_hint": (
                         existing.design_family_hint
                         if existing.design_family_hint != DesignFamily.UNCLEAR
                         else claim.design_family_hint
                     ),
-                    "effect_size": existing.effect_size if existing.effect_size is not None else claim.effect_size,
+                    "effect_size": existing.effect_size
+                    if existing.effect_size is not None
+                    else claim.effect_size,
                     "supporting_spans": supporting_spans,
-                    "supporting_span_ids": [span.span_id for span in supporting_spans if span.span_id],
+                    "supporting_span_ids": [
+                        span.span_id for span in supporting_spans if span.span_id
+                    ],
                     "method_spans": method_spans,
                     "method_span_ids": [span.span_id for span in method_spans if span.span_id],
                     "source_basis": (
                         SourceBasis.FULLTEXT
-                        if existing.source_basis == SourceBasis.FULLTEXT or claim.source_basis == SourceBasis.FULLTEXT
+                        if existing.source_basis == SourceBasis.FULLTEXT
+                        or claim.source_basis == SourceBasis.FULLTEXT
                         else SourceBasis.ABSTRACT_ONLY
                     ),
                     "claim_extraction_confidence": max(
                         float(existing.claim_extraction_confidence or 0.0),
                         float(claim.claim_extraction_confidence or 0.0),
                     ),
-                    "extraction_warnings": sorted({*existing.extraction_warnings, *claim.extraction_warnings}),
-                    "strong_design_evidence": bool(existing.strong_design_evidence or claim.strong_design_evidence),
+                    "extraction_warnings": sorted(
+                        {*existing.extraction_warnings, *claim.extraction_warnings}
+                    ),
+                    "strong_design_evidence": bool(
+                        existing.strong_design_evidence or claim.strong_design_evidence
+                    ),
                     "publish_to_graph": bool(existing.publish_to_graph or claim.publish_to_graph),
                     "publish_blockers": publish_blockers,
-                    "design_quality_tier": min(existing_tier, candidate_tier) if min(existing_tier, candidate_tier) < 99 else None,
+                    "design_quality_tier": min(existing_tier, candidate_tier)
+                    if min(existing_tier, candidate_tier) < 99
+                    else None,
                     "span_contamination_detected": bool(
                         existing.span_contamination_detected or claim.span_contamination_detected
                     ),
-                    "scope_conditions": sorted({*existing.scope_conditions, *claim.scope_conditions}),
+                    "scope_conditions": sorted(
+                        {*existing.scope_conditions, *claim.scope_conditions}
+                    ),
                 }
             )
     return list(merged.values())
@@ -229,14 +254,19 @@ def _merge_parameters(rows: list[ArticleExtractionResult]) -> list[EvidenceParam
             if existing is None:
                 merged[key] = parameter
                 continue
-            transfer_conditions = sorted({*existing.transfer_conditions, *parameter.transfer_conditions})
+            transfer_conditions = sorted(
+                {*existing.transfer_conditions, *parameter.transfer_conditions}
+            )
             subgroup_estimates = dict(existing.subgroup_estimates)
             subgroup_estimates.update(parameter.subgroup_estimates)
             merged[key] = existing.model_copy(
                 update={
                     "display_name": existing.display_name or parameter.display_name,
-                    "confidence_interval": existing.confidence_interval or parameter.confidence_interval,
-                    "std_error": existing.std_error if existing.std_error is not None else parameter.std_error,
+                    "confidence_interval": existing.confidence_interval
+                    or parameter.confidence_interval,
+                    "std_error": existing.std_error
+                    if existing.std_error is not None
+                    else parameter.std_error,
                     "evidence_strength": (
                         existing.evidence_strength
                         if existing.evidence_strength.value != "unknown"
@@ -245,9 +275,12 @@ def _merge_parameters(rows: list[ArticleExtractionResult]) -> list[EvidenceParam
                     "geographic_scope": existing.geographic_scope or parameter.geographic_scope,
                     "time_period": existing.time_period or parameter.time_period,
                     "aggregation_level": existing.aggregation_level or parameter.aggregation_level,
-                    "transferability": existing.transferability if existing.transferability != "unknown" else parameter.transferability,
+                    "transferability": existing.transferability
+                    if existing.transferability != "unknown"
+                    else parameter.transferability,
                     "transfer_conditions": transfer_conditions,
-                    "heterogeneity_note": existing.heterogeneity_note or parameter.heterogeneity_note,
+                    "heterogeneity_note": existing.heterogeneity_note
+                    or parameter.heterogeneity_note,
                     "subgroup_estimates": subgroup_estimates,
                 }
             )
@@ -274,7 +307,8 @@ def _merge_context_attributes(rows: list[ArticleExtractionResult]) -> list[Conte
             merged[key] = existing.model_copy(
                 update={
                     "confidence": max(float(existing.confidence), float(attribute.confidence)),
-                    "measurement_method": existing.measurement_method or attribute.measurement_method,
+                    "measurement_method": existing.measurement_method
+                    or attribute.measurement_method,
                     "evidence_spans": evidence_spans,
                 }
             )
@@ -295,19 +329,24 @@ def _merge_moderation_edges(rows: list[ArticleExtractionResult]) -> list[Moderat
             if existing is None:
                 merged[key] = edge.model_copy(
                     update={
-                        "source_openalex_ids": sorted({*edge.source_openalex_ids, result.openalex_id}),
+                        "source_openalex_ids": sorted(
+                            {*edge.source_openalex_ids, result.openalex_id}
+                        ),
                     }
                 )
                 continue
             merged[key] = existing.model_copy(
                 update={
-                    "direction_of_moderation": existing.direction_of_moderation or edge.direction_of_moderation,
+                    "direction_of_moderation": existing.direction_of_moderation
+                    or edge.direction_of_moderation,
                     "quantitative_interaction": (
                         existing.quantitative_interaction
                         if existing.quantitative_interaction is not None
                         else edge.quantitative_interaction
                     ),
-                    "interaction_pvalue": existing.interaction_pvalue if existing.interaction_pvalue is not None else edge.interaction_pvalue,
+                    "interaction_pvalue": existing.interaction_pvalue
+                    if existing.interaction_pvalue is not None
+                    else edge.interaction_pvalue,
                     "evidence_count": max(int(existing.evidence_count), int(edge.evidence_count)),
                     "confidence": max(float(existing.confidence), float(edge.confidence)),
                     "match_quality": existing.match_quality or edge.match_quality,
@@ -393,7 +432,11 @@ def _status_for_attempts(rows: list[ArticleExtractionResult]) -> str:
     )
     if any_nonempty:
         return "succeeded_nonempty"
-    error_classes = {str(result.llm_error_class or "").strip() for result in rows if str(result.llm_error_class or "").strip()}
+    error_classes = {
+        str(result.llm_error_class or "").strip()
+        for result in rows
+        if str(result.llm_error_class or "").strip()
+    }
     if any(error in _TRANSIENT_ERROR_CLASSES for error in error_classes):
         return "retryable_failed"
     if any(error.startswith(_PERMANENT_ERROR_PREFIXES) for error in error_classes):
@@ -440,7 +483,9 @@ def _merge_attempts(rows: list[ArticleExtractionResult]) -> ArticleExtractionRes
             "causal_claims": merged_claims,
             "boundary_conditions": merged_boundaries,
             "extraction_confidence": max(float(result.extraction_confidence) for result in ordered),
-            "llm_error_class": "" if any(row for row in ordered if _attempt_rank(row)[0]) else "|".join(error_classes),
+            "llm_error_class": ""
+            if any(row for row in ordered if _attempt_rank(row)[0])
+            else "|".join(error_classes),
             "extraction_warnings": extraction_warnings,
             "context_attributes": merged_context_attributes,
             "moderation_edges": merged_moderation_edges,
@@ -535,7 +580,10 @@ def _ambiguous_small_number_parameter_names(parameters: list[EvidenceParameter])
             continue
         if parameter.confidence_interval is not None or parameter.std_error is not None:
             continue
-        if parameter.evidence_strength.value not in {EvidenceStrength.UNKNOWN.value, EvidenceStrength.THEORETICAL.value}:
+        if parameter.evidence_strength.value not in {
+            EvidenceStrength.UNKNOWN.value,
+            EvidenceStrength.THEORETICAL.value,
+        }:
             continue
         grouped[str(parameter.name or "").strip()].append(parameter)
     return {name for name, rows in grouped.items() if name and len(rows) >= 2}
@@ -547,7 +595,10 @@ def _effective_parameter_strength(
     result: ArticleExtractionResult,
     linked_claims: list[CausalClaim],
 ) -> str:
-    if parameter.evidence_strength.value not in {EvidenceStrength.UNKNOWN.value, EvidenceStrength.THEORETICAL.value}:
+    if parameter.evidence_strength.value not in {
+        EvidenceStrength.UNKNOWN.value,
+        EvidenceStrength.THEORETICAL.value,
+    }:
         return parameter.evidence_strength.value
     claim_strength = _best_strength([claim.evidence_strength.value for claim in linked_claims])
     if claim_strength != EvidenceStrength.UNKNOWN.value:
@@ -627,7 +678,9 @@ def _curated_numeric_rows(
         if point_estimate is None:
             continue
         linked_claim_ids = _link_parameter_to_claims(parameter, result.causal_claims)
-        linked_claims = [claim_lookup[claim_id] for claim_id in linked_claim_ids if claim_id in claim_lookup]
+        linked_claims = [
+            claim_lookup[claim_id] for claim_id in linked_claim_ids if claim_id in claim_lookup
+        ]
         effective_unit = _effective_parameter_unit(parameter, linked_claims=linked_claims)
         effective_strength = _effective_parameter_strength(
             parameter,
@@ -644,7 +697,10 @@ def _curated_numeric_rows(
         quality_flags: list[str] = []
         if not effective_unit:
             quality_flags.append("unit_missing")
-        if effective_strength in {EvidenceStrength.UNKNOWN.value, EvidenceStrength.THEORETICAL.value}:
+        if effective_strength in {
+            EvidenceStrength.UNKNOWN.value,
+            EvidenceStrength.THEORETICAL.value,
+        }:
             quality_flags.append("weak_evidence_strength")
         if not linked_claim_ids:
             quality_flags.append("claim_link_missing")
@@ -653,7 +709,7 @@ def _curated_numeric_rows(
         rows.append(
             {
                 "numeric_id": hashlib.sha256(
-                    f"curated|{result.openalex_id}|{parameter.name}|{point_estimate}|{effective_unit or ''}".encode("utf-8")
+                    f"curated|{result.openalex_id}|{parameter.name}|{point_estimate}|{effective_unit or ''}".encode()
                 ).hexdigest()[:24],
                 "openalex_id": result.openalex_id,
                 "canonical_name": parameter.name,
@@ -661,8 +717,14 @@ def _curated_numeric_rows(
                 "display_name": parameter.display_name or parameter.name,
                 "estimate_type": estimate_source,
                 "point_estimate": float(point_estimate),
-                "estimate_sign": "positive" if point_estimate > 0 else "negative" if point_estimate < 0 else "null",
-                "confidence_interval": list(parameter.confidence_interval) if parameter.confidence_interval else None,
+                "estimate_sign": "positive"
+                if point_estimate > 0
+                else "negative"
+                if point_estimate < 0
+                else "null",
+                "confidence_interval": list(parameter.confidence_interval)
+                if parameter.confidence_interval
+                else None,
                 "std_error": parameter.std_error,
                 "unit": effective_unit,
                 "evidence_strength": effective_strength,
@@ -713,10 +775,14 @@ def _strict_simulation_ready_rows(curated_rows: list[dict[str, Any]]) -> list[di
         if not isinstance(row.get("source_context"), dict) or not row["source_context"]:
             if not is_strong:
                 continue
-            existing_flags = json.loads(row.get("quality_flags_json") or "[]") if row.get("quality_flags_json") else []
+            existing_flags = (
+                json.loads(row.get("quality_flags_json") or "[]")
+                if row.get("quality_flags_json")
+                else []
+            )
             row = {
                 **row,
-                "quality_flags_json": json.dumps(existing_flags + ["missing_source_context"]),
+                "quality_flags_json": json.dumps([*existing_flags, "missing_source_context"]),
             }
         rows.append(
             {
@@ -766,7 +832,9 @@ def _simulation_ready_parameters(
         if point_estimate is None:
             continue
         linked_claim_ids = _link_parameter_to_claims(parameter, result.causal_claims)
-        linked_claims = [claim_lookup[claim_id] for claim_id in linked_claim_ids if claim_id in claim_lookup]
+        linked_claims = [
+            claim_lookup[claim_id] for claim_id in linked_claim_ids if claim_id in claim_lookup
+        ]
         effective_unit = _effective_parameter_unit(parameter, linked_claims=linked_claims)
         effective_strength = _effective_parameter_strength(
             parameter,
@@ -783,7 +851,10 @@ def _simulation_ready_parameters(
         quality_flags: list[str] = []
         if not effective_unit:
             quality_flags.append("unit_missing")
-        if effective_strength in {EvidenceStrength.UNKNOWN.value, EvidenceStrength.THEORETICAL.value}:
+        if effective_strength in {
+            EvidenceStrength.UNKNOWN.value,
+            EvidenceStrength.THEORETICAL.value,
+        }:
             quality_flags.append("weak_evidence_strength")
         if not linked_claim_ids:
             quality_flags.append("claim_link_missing")
@@ -792,29 +863,35 @@ def _simulation_ready_parameters(
         rows.append(
             {
                 "numeric_id": hashlib.sha256(
-                    f"{result.openalex_id}|{parameter.name}|{point_estimate}|{effective_unit or ''}".encode("utf-8")
+                    f"{result.openalex_id}|{parameter.name}|{point_estimate}|{effective_unit or ''}".encode()
                 ).hexdigest()[:24],
-            "openalex_id": result.openalex_id,
-            "canonical_name": parameter.name,
-            "parameter_name": parameter.name,
-            "display_name": parameter.display_name or parameter.name,
-            "estimate_type": estimate_source,
-            "point_estimate": point_estimate,
-            "estimate_sign": "positive" if point_estimate > 0 else "negative" if point_estimate < 0 else "null",
-            "confidence_interval": list(parameter.confidence_interval) if parameter.confidence_interval else None,
-            "std_error": parameter.std_error,
-            "unit": effective_unit,
-            "evidence_strength": effective_strength,
-            "source_basis": result.source_basis.value,
-            "geographic_scope": parameter.geographic_scope,
-            "time_period": parameter.time_period,
-            "linked_claim_ids": linked_claim_ids,
-            "linked_edge_ids": _linked_edge_ids(result, linked_claim_ids),
-            "linked_edge_pairs": [
-                {"src": claim.cause_variable, "dst": claim.effect_variable}
-                for claim in result.causal_claims
-                if claim.claim_id in linked_claim_ids
-            ],
+                "openalex_id": result.openalex_id,
+                "canonical_name": parameter.name,
+                "parameter_name": parameter.name,
+                "display_name": parameter.display_name or parameter.name,
+                "estimate_type": estimate_source,
+                "point_estimate": point_estimate,
+                "estimate_sign": "positive"
+                if point_estimate > 0
+                else "negative"
+                if point_estimate < 0
+                else "null",
+                "confidence_interval": list(parameter.confidence_interval)
+                if parameter.confidence_interval
+                else None,
+                "std_error": parameter.std_error,
+                "unit": effective_unit,
+                "evidence_strength": effective_strength,
+                "source_basis": result.source_basis.value,
+                "geographic_scope": parameter.geographic_scope,
+                "time_period": parameter.time_period,
+                "linked_claim_ids": linked_claim_ids,
+                "linked_edge_ids": _linked_edge_ids(result, linked_claim_ids),
+                "linked_edge_pairs": [
+                    {"src": claim.cause_variable, "dst": claim.effect_variable}
+                    for claim in result.causal_claims
+                    if claim.claim_id in linked_claim_ids
+                ],
                 "source_context": source_context or None,
                 "source_layer": "simulation_ready",
                 "uncertainty_source": uncertainty_source,
@@ -860,9 +937,13 @@ def run_resolve_finalize(config: AcademicBatchConfig) -> dict[str, int]:
         record = _to_work_record(
             result=merged,
             raw_work=raw_work if isinstance(raw_work, dict) else {},
-            topic_ids=[str(item) for item in selected_row.get("topic_ids", []) if str(item).strip()],
+            topic_ids=[
+                str(item) for item in selected_row.get("topic_ids", []) if str(item).strip()
+            ],
             topic_display_names=[
-                str(item) for item in selected_row.get("topic_display_names", []) if str(item).strip()
+                str(item)
+                for item in selected_row.get("topic_display_names", [])
+                if str(item).strip()
             ],
             run_id=config.run_id,
             pass_name=config.pass_name,
@@ -896,9 +977,13 @@ def run_resolve_finalize(config: AcademicBatchConfig) -> dict[str, int]:
             row = _to_claim_row(
                 merged,
                 claim,
-                topic_ids=[str(item) for item in selected_row.get("topic_ids", []) if str(item).strip()],
+                topic_ids=[
+                    str(item) for item in selected_row.get("topic_ids", []) if str(item).strip()
+                ],
                 topic_display_names=[
-                    str(item) for item in selected_row.get("topic_display_names", []) if str(item).strip()
+                    str(item)
+                    for item in selected_row.get("topic_display_names", [])
+                    if str(item).strip()
                 ],
             )
             raw_claim_rows.append(row)

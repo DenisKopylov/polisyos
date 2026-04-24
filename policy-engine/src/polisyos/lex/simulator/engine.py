@@ -3,6 +3,7 @@
 ``NormImpactAnalyzer`` compares rule-level mutations with pass-level compliance transitions and
 produces a ``NormImpactReport`` that downstream review or decision tooling can inspect.
 """
+
 from __future__ import annotations
 
 from collections import defaultdict
@@ -34,7 +35,7 @@ class NormImpactAnalyzer:
         profile: ValidationProfile | None = None,
         passes: tuple[str, ...] | None = None,
         legal_backend: object | None = None,
-    ):
+    ) -> None:
         self._cas = cas
         self._profile = profile or ValidationProfile.strict()
         self._pass_ids = passes or self.DEFAULT_PASSES
@@ -78,13 +79,17 @@ class NormImpactAnalyzer:
             norms_removed=diff.removed_count,
             norms_modified=diff.modified_count,
             compliance_deltas=deltas,
-            new_blockers=_count_transition(deltas, ComplianceTransition.PASS_TO_FAIL, IssueSeverity.BLOCKER)
+            new_blockers=_count_transition(
+                deltas, ComplianceTransition.PASS_TO_FAIL, IssueSeverity.BLOCKER
+            )
             + _count_transition(deltas, ComplianceTransition.NEW_ISSUE, IssueSeverity.BLOCKER),
             resolved_blockers=_count_transition(
                 deltas, ComplianceTransition.FAIL_TO_PASS, IssueSeverity.BLOCKER
             )
             + _count_transition(deltas, ComplianceTransition.RESOLVED_ISSUE, IssueSeverity.BLOCKER),
-            new_warnings=_count_transition(deltas, ComplianceTransition.PASS_TO_FAIL, IssueSeverity.WARNING)
+            new_warnings=_count_transition(
+                deltas, ComplianceTransition.PASS_TO_FAIL, IssueSeverity.WARNING
+            )
             + _count_transition(deltas, ComplianceTransition.NEW_ISSUE, IssueSeverity.WARNING),
             resolved_warnings=_count_transition(
                 deltas, ComplianceTransition.FAIL_TO_PASS, IssueSeverity.WARNING
@@ -123,7 +128,9 @@ class NormImpactAnalyzer:
 
         for pass_id in self._pass_ids:
             if pass_id == "legal":
-                issues.extend(LegalPass(backend=self._legal_backend, enabled=True).validate(pass_context))
+                issues.extend(
+                    LegalPass(backend=self._legal_backend, enabled=True).validate(pass_context)
+                )
             elif pass_id == "safety":
                 issues.extend(SafetyPass().validate(pass_context))
         return issues
@@ -251,7 +258,9 @@ class NormImpactAnalyzer:
             ),
         )
 
-    def _generate_report_id(self, old_pack: NormPack, new_pack: NormPack, norm_diff: NormDiff) -> str:
+    def _generate_report_id(
+        self, old_pack: NormPack, new_pack: NormPack, norm_diff: NormDiff
+    ) -> str:
         return stable_world_id_from_canon(
             prefix="lex.impact_report",
             payload={

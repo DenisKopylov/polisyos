@@ -13,6 +13,7 @@ Key difference from ``GCMQuery``: GCMQuery runs one world at a time so it cannot
 compute Corr(Y(x₀), Y(x₁)) or the ITE variance.  This method runs both worlds
 inside the *same* Monte Carlo iteration, ensuring shared noise.
 """
+
 from __future__ import annotations
 
 import math
@@ -59,7 +60,6 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-
 
 # ── Private helpers ────────────────────────────────────────────────────────────
 
@@ -152,8 +152,7 @@ def _apply_node_noise(
 
     # ADDITIVE_NOISE, POST_NONLINEAR, CLASSIFIER: linear fallback with warning
     if not any(
-        w.startswith(f"twin-network: mechanism family '{mechanism.family.value}'")
-        for w in warnings
+        w.startswith(f"twin-network: mechanism family '{mechanism.family.value}'") for w in warnings
     ):
         warnings.append(
             f"twin-network: mechanism family '{mechanism.family.value}' for node "
@@ -376,8 +375,7 @@ class TwinNetworkQuery:
         seed = int(params.get("__seed__", 0) or 0)
         rng_param = params.get("__rng__")
         rng: np.random.Generator = (
-            rng_param if isinstance(rng_param, np.random.Generator)
-            else np.random.default_rng(seed)
+            rng_param if isinstance(rng_param, np.random.Generator) else np.random.default_rng(seed)
         )
 
         warnings: list[str] = []
@@ -504,7 +502,7 @@ class TwinNetworkQuery:
 
 __all__ = [
     "TwinNetworkQuery",
-    "_twin_simulate_samples",
-    "_sample_node_noise",
     "_apply_node_noise",
+    "_sample_node_noise",
+    "_twin_simulate_samples",
 ]

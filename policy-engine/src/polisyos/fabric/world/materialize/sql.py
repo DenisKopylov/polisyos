@@ -1,4 +1,5 @@
 """Public materialize sql module API."""
+
 from __future__ import annotations
 
 from polisyos.ir.world.predicates import (

@@ -76,7 +76,10 @@ def test_search_controller_excludes_sentinels_from_history() -> None:
                 kind=SentinelKind.CALIBRATION,
                 candidate={
                     "x": 99,
-                    "semantic": {"interventions": [{"type": "sentinel"}], "objectives": [{"name": "gdp"}]},
+                    "semantic": {
+                        "interventions": [{"type": "sentinel"}],
+                        "objectives": [{"name": "gdp"}],
+                    },
                 },
             )
         ],

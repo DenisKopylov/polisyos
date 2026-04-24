@@ -7,7 +7,7 @@ import type { RealtimeSubscription } from "@/app/realtime/types";
 import {
   buildNaturalLanguageLaunchRequest,
   type NaturalLanguageLaunchFormValues,
-} from "@/features/composer/domain/forms";
+} from "@/features/composer";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { buildClerkFormDefaults } from "../domain/clerkDefaults";
 import { useChatStore } from "../state/useChatStore";
@@ -19,8 +19,7 @@ export function useClerkNlRun() {
   const store = useChatStore();
   const sseRef = useRef<RealtimeSubscription | null>(null);
 
-  const defaultModelId =
-    profilesQuery.data?.profiles?.[0]?.model_id ?? null;
+  const defaultModelId = profilesQuery.data?.profiles?.[0]?.model_id ?? null;
 
   const submit = useCallback(
     async (question: string, domainHint?: string) => {
@@ -87,7 +86,11 @@ export function useClerkNlRun() {
                   runStatus: status,
                 });
 
-                if (payload.finished_at || status === "completed" || status === "failed") {
+                if (
+                  payload.finished_at ||
+                  status === "completed" ||
+                  status === "failed"
+                ) {
                   store.setStreaming(false);
                   store.setCurrentRunId(null);
                   sseRef.current?.close();

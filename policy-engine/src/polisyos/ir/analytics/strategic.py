@@ -1,4 +1,5 @@
 """Represent strategic-response games, admissibility descriptors, and persisted closure artifacts."""
+
 from __future__ import annotations
 
 import itertools
@@ -165,6 +166,7 @@ def decode_action_profile(
 
 class StrategicEquilibriumConcept(str, Enum):
     """Select the equilibrium notion used by strategic-response solvers."""
+
     NASH = "nash"
     STACKELBERG = "stackelberg"
     BEST_RESPONSE_FIXED_POINT = "best_response_fixed_point"
@@ -180,6 +182,7 @@ class StrategicEquilibriumConcept(str, Enum):
 
 class StrategicFallbackMode(str, Enum):
     """Report whether strategic evaluation used exact, bounded, abstracted, or blocked fallback."""
+
     EXACT_EQUILIBRIUM = "exact_equilibrium"
     STRATEGIC_BOUNDS = "strategic_bounds"
     MACRO_ABSTRACTED = "macro_abstracted"
@@ -442,9 +445,7 @@ _STRATEGIC_ADMISSIBILITY_REGISTRY: dict[
         default_fallback_mode=StrategicFallbackMode.STRATEGIC_BOUNDS,
         existence_theorem="concave_game_equilibrium_exists",
         runtime_support_status=RuntimeSupportStatus.BLOCKED_UNSUPPORTED,
-        equilibrium_concept_aliases=(
-            StrategicEquilibriumConcept.VARIATIONAL_EQUILIBRIUM_MONOTONE,
-        ),
+        equilibrium_concept_aliases=(StrategicEquilibriumConcept.VARIATIONAL_EQUILIBRIUM_MONOTONE,),
         required_existence_assumptions=(
             "compact_convex_strategy_sets",
             "continuous_payoffs",
@@ -583,7 +584,11 @@ def _default_fallback_mode_for_descriptor_payload(
 def _descriptor_payload_from_legacy(
     value: StrategicEquilibriumConcept | str,
 ) -> dict[str, Any]:
-    legacy = value if isinstance(value, StrategicEquilibriumConcept) else StrategicEquilibriumConcept(value)
+    legacy = (
+        value
+        if isinstance(value, StrategicEquilibriumConcept)
+        else StrategicEquilibriumConcept(value)
+    )
     if legacy is StrategicEquilibriumConcept.MINIMAX_ZERO_SUM:
         game_class = StrategicGameClass.ZERO_SUM
         solution_concept = StrategicSolutionConcept.MINIMAX
@@ -704,7 +709,9 @@ class StrategicEquilibriumDescriptor(BaseModel):
         if isinstance(value, str):
             return _descriptor_payload_from_legacy(value)
         if not isinstance(value, Mapping):
-            raise ValueError("equilibrium_descriptor must be a mapping or a legacy equilibrium shorthand")
+            raise ValueError(
+                "equilibrium_descriptor must be a mapping or a legacy equilibrium shorthand"
+            )
         payload = dict(value)
         if "game_class" not in payload or "solution_concept" not in payload:
             raise ValueError("equilibrium_descriptor requires game_class and solution_concept")
@@ -762,7 +769,7 @@ class StrategicEquilibriumDescriptor(BaseModel):
         return _ensure_non_empty(str(value), field_name="existence_theorem")
 
     @model_validator(mode="after")
-    def _validate_descriptor_contract(self) -> "StrategicEquilibriumDescriptor":
+    def _validate_descriptor_contract(self) -> StrategicEquilibriumDescriptor:
         entry = _registry_entry(
             game_class=self.game_class,
             solution_concept=self.solution_concept,
@@ -841,7 +848,7 @@ class FiniteStrategicPayoffTable(BaseModel):
         return _ensure_non_empty(str(value), field_name="agent")
 
     @model_validator(mode="after")
-    def _validate_dense_surface(self) -> "FiniteStrategicPayoffTable":
+    def _validate_dense_surface(self) -> FiniteStrategicPayoffTable:
         if not self.strategic_agents:
             raise ValueError("strategic_agents must be non-empty")
         ensure_unique_ids(
@@ -884,8 +891,7 @@ class FiniteStrategicPayoffTable(BaseModel):
         extra = sorted(observed_profiles - expected_profiles)
         if missing or extra:
             raise ValueError(
-                "payoffs must define a dense normal-form table; "
-                f"missing={missing}, extra={extra}"
+                f"payoffs must define a dense normal-form table; missing={missing}, extra={extra}"
             )
         for key, value in self.payoffs.items():
             decode_action_profile(key, agent_order=self.strategic_agents)
@@ -932,7 +938,9 @@ class StrategicSCM(BaseModel):
 
         if raw_descriptor is None:
             if normalized_concept is None:
-                raise ValueError("equilibrium_descriptor is required when equilibrium_concept is omitted")
+                raise ValueError(
+                    "equilibrium_descriptor is required when equilibrium_concept is omitted"
+                )
             descriptor = StrategicEquilibriumDescriptor.model_validate(normalized_concept)
         else:
             descriptor = StrategicEquilibriumDescriptor.model_validate(raw_descriptor)
@@ -948,7 +956,7 @@ class StrategicSCM(BaseModel):
         return payload
 
     @model_validator(mode="after")
-    def _validate_contract(self) -> "StrategicSCM":
+    def _validate_contract(self) -> StrategicSCM:
         _validate_artifact_ref(self.base_graph_ref, field_name="base_graph_ref")
         _validate_artifact_ref(self.policy_rule_ref, field_name="policy_rule_ref")
         if not self.strategic_agents:
@@ -1056,7 +1064,7 @@ class EquilibriumSetSummary(BaseModel):
         return _ensure_non_empty(str(value), field_name="multiplicity_note")
 
     @model_validator(mode="after")
-    def _validate_profiles(self) -> "EquilibriumSetSummary":
+    def _validate_profiles(self) -> EquilibriumSetSummary:
         if self.equilibrium_count != len(self.equilibrium_profiles):
             raise ValueError("equilibrium_count must match equilibrium_profiles length")
         return self
@@ -1078,7 +1086,7 @@ class EquilibriumSelectionSummary(BaseModel):
         return _ensure_non_empty(str(value), field_name="equilibrium_selection_dependence")
 
     @model_validator(mode="after")
-    def _validate_selected_equilibrium(self) -> "EquilibriumSelectionSummary":
+    def _validate_selected_equilibrium(self) -> EquilibriumSelectionSummary:
         if not self.selected_equilibrium:
             raise ValueError("selected_equilibrium must be non-empty")
         for agent, action in self.selected_equilibrium.items():
@@ -1092,9 +1100,7 @@ class PerformativeLoopCertificate(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    analysis_scope: PerformativeLoopAnalysisScope = (
-        PerformativeLoopAnalysisScope.SINGLE_STEP_ONLY
-    )
+    analysis_scope: PerformativeLoopAnalysisScope = PerformativeLoopAnalysisScope.SINGLE_STEP_ONLY
     proof_family: PerformativeLoopProofFamily | None = None
     stability_status: PerformativeLoopStabilityStatus | None = None
     reason_code: PerformativeInstabilityReason | None = None
@@ -1112,7 +1118,7 @@ class PerformativeLoopCertificate(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_certificate_values(self) -> "PerformativeLoopCertificate":
+    def _validate_certificate_values(self) -> PerformativeLoopCertificate:
         for field_name in (
             "contraction_upper_bound",
             "local_spectral_radius_estimate",
@@ -1138,7 +1144,7 @@ class PerformativeShiftSummary(PerformativeLoopCertificate):
     post_adaptation_policy_value: float | None = None
 
     @model_validator(mode="after")
-    def _validate_shift_values(self) -> "PerformativeShiftSummary":
+    def _validate_shift_values(self) -> PerformativeShiftSummary:
         if self.performative_shift is not None:
             _ensure_finite(self.performative_shift, field_name="performative_shift")
         if self.baseline_policy_value is not None:
@@ -1294,7 +1300,7 @@ class MeanFieldPerturbationSpec(BaseModel):
         return _normalize_string_tuple(value, field_name="notes")
 
     @model_validator(mode="after")
-    def _validate_perturbation_spec(self) -> "MeanFieldPerturbationSpec":
+    def _validate_perturbation_spec(self) -> MeanFieldPerturbationSpec:
         if self.source_intervention_ref is not None:
             _validate_artifact_ref(
                 self.source_intervention_ref,
@@ -1356,9 +1362,7 @@ class MeanFieldMacroSimulationConfig(BaseModel):
     numerics_scheme: MeanFieldNumericsScheme = (
         MeanFieldNumericsScheme.SEMI_IMPLICIT_FINITE_DIFFERENCE
     )
-    fixed_point_method: MeanFieldFixedPointMethod = (
-        MeanFieldFixedPointMethod.FORWARD_BACKWARD_SWEEP
-    )
+    fixed_point_method: MeanFieldFixedPointMethod = MeanFieldFixedPointMethod.FORWARD_BACKWARD_SWEEP
     runtime_mode: MeanFieldRuntimeMode = MeanFieldRuntimeMode.REPLAY
     time_horizon: float | None = None
     time_steps: int | None = None
@@ -1395,7 +1399,7 @@ class MeanFieldMacroSimulationConfig(BaseModel):
         return normalized
 
     @model_validator(mode="after")
-    def _validate_macro_simulation_config(self) -> "MeanFieldMacroSimulationConfig":
+    def _validate_macro_simulation_config(self) -> MeanFieldMacroSimulationConfig:
         _validate_artifact_ref(
             self.population_measure_snapshot_ref,
             field_name="population_measure_snapshot_ref",
@@ -1502,7 +1506,7 @@ class MeanFieldWellPosednessSummary(BaseModel):
         return _ensure_non_empty(str(value), field_name="regularity_scope")
 
     @model_validator(mode="after")
-    def _validate_well_posedness(self) -> "MeanFieldWellPosednessSummary":
+    def _validate_well_posedness(self) -> MeanFieldWellPosednessSummary:
         _validate_artifact_ref(self.scm_solvability_ref, field_name="scm_solvability_ref")
         return self
 
@@ -1523,14 +1527,9 @@ class MeanFieldIdentificationSummary(BaseModel):
         return _normalize_string_tuple(value, field_name="identified_estimands")
 
     @model_validator(mode="after")
-    def _validate_identification_summary(self) -> "MeanFieldIdentificationSummary":
-        if (
-            self.positivity_status is MeanFieldPositivityStatus.FAILED
-            and self.identified_estimands
-        ):
-            raise ValueError(
-                "identified_estimands must be omitted when positivity_status=failed"
-            )
+    def _validate_identification_summary(self) -> MeanFieldIdentificationSummary:
+        if self.positivity_status is MeanFieldPositivityStatus.FAILED and self.identified_estimands:
+            raise ValueError("identified_estimands must be omitted when positivity_status=failed")
         return self
 
 
@@ -1546,7 +1545,7 @@ class MeanFieldEquilibriumSolutionSummary(BaseModel):
     mass_conservation_ref: ArtifactRefModel | None = None
 
     @model_validator(mode="after")
-    def _validate_solution_refs(self) -> "MeanFieldEquilibriumSolutionSummary":
+    def _validate_solution_refs(self) -> MeanFieldEquilibriumSolutionSummary:
         for field_name in (
             "hjb_solution_ref",
             "fp_solution_ref",
@@ -1580,7 +1579,7 @@ class MeanFieldSolverResidualReport(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_solver_residual_report(self) -> "MeanFieldSolverResidualReport":
+    def _validate_solver_residual_report(self) -> MeanFieldSolverResidualReport:
         for field_name in (
             "tolerance",
             "value_residual_max_abs",
@@ -1618,7 +1617,7 @@ class MeanFieldMassConservationReport(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_mass_conservation_report(self) -> "MeanFieldMassConservationReport":
+    def _validate_mass_conservation_report(self) -> MeanFieldMassConservationReport:
         for field_name in (
             "mass_sum",
             "mass_sum_error",
@@ -1641,30 +1640,38 @@ class MeanFieldMassConservationReport(BaseModel):
 class MeanFieldStabilitySummary(BaseModel):
     """Convergence disclosure for the post-intervention Fokker-Planck flow."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
 
     bound_type: MeanFieldStabilityBoundType = MeanFieldStabilityBoundType.NONE
-    constant_C: float | None = None
+    constant_c: float | None = Field(
+        default=None,
+        alias="constant_C",
+        serialization_alias="constant_C",
+    )
     decay_rate: float | None = None
     metric: MeanFieldStabilityMetric | None = None
 
     @model_validator(mode="after")
-    def _validate_stability_summary(self) -> "MeanFieldStabilitySummary":
-        if self.constant_C is not None:
-            _ensure_finite(self.constant_C, field_name="constant_C")
-            if self.constant_C < 0.0:
+    def _validate_stability_summary(self) -> MeanFieldStabilitySummary:
+        if self.constant_c is not None:
+            _ensure_finite(self.constant_c, field_name="constant_C")
+            if self.constant_c < 0.0:
                 raise ValueError("constant_C must be >= 0")
         if self.decay_rate is not None:
             _ensure_finite(self.decay_rate, field_name="decay_rate")
             if self.decay_rate < 0.0:
                 raise ValueError("decay_rate must be >= 0")
         if self.bound_type is MeanFieldStabilityBoundType.NONE:
-            if self.constant_C is not None or self.decay_rate is not None or self.metric is not None:
+            if (
+                self.constant_c is not None
+                or self.decay_rate is not None
+                or self.metric is not None
+            ):
                 raise ValueError(
                     "constant_C, decay_rate, and metric must be omitted when bound_type=none"
                 )
             return self
-        if self.constant_C is None or self.metric is None:
+        if self.constant_c is None or self.metric is None:
             raise ValueError("constant_C and metric are required for nontrivial stability bounds")
         if (
             self.bound_type is MeanFieldStabilityBoundType.ERGODIC_EXPONENTIAL
@@ -1684,7 +1691,7 @@ class MeanFieldProvenanceSummary(BaseModel):
     numerics_config_ref: ArtifactRefModel | None = None
 
     @model_validator(mode="after")
-    def _validate_provenance_refs(self) -> "MeanFieldProvenanceSummary":
+    def _validate_provenance_refs(self) -> MeanFieldProvenanceSummary:
         for field_name in (
             "data_snapshot_ref",
             "calibration_bundle_ref",
@@ -1789,13 +1796,10 @@ class MeanFieldSolveInput(BaseModel):
             return ()
         if not isinstance(value, (tuple, list)):
             raise ValueError("congestion_costs must be a vector")
-        return tuple(
-            _ensure_finite(float(cell), field_name="congestion_costs")
-            for cell in value
-        )
+        return tuple(_ensure_finite(float(cell), field_name="congestion_costs") for cell in value)
 
     @model_validator(mode="after")
-    def _validate_mean_field_solve_input(self) -> "MeanFieldSolveInput":
+    def _validate_mean_field_solve_input(self) -> MeanFieldSolveInput:
         _validate_artifact_ref(
             self.intervention_spec_ref,
             field_name="intervention_spec_ref",
@@ -1810,19 +1814,13 @@ class MeanFieldSolveInput(BaseModel):
         if n_states == 0 or n_actions == 0:
             raise ValueError("reward_matrix must have positive dimensions")
         if len(self.transition_tensor) != n_actions:
-            raise ValueError(
-                "transition_tensor must provide one transition matrix per action"
-            )
-        for action_index, matrix in enumerate(self.transition_tensor):
+            raise ValueError("transition_tensor must provide one transition matrix per action")
+        for _action_index, matrix in enumerate(self.transition_tensor):
             if len(matrix) != n_states:
-                raise ValueError(
-                    "transition_tensor matrices must have one row per state"
-                )
-            for row_index, row in enumerate(matrix):
+                raise ValueError("transition_tensor matrices must have one row per state")
+            for _row_index, row in enumerate(matrix):
                 if len(row) != n_states:
-                    raise ValueError(
-                        "transition_tensor rows must have one column per state"
-                    )
+                    raise ValueError("transition_tensor rows must have one column per state")
         if self.congestion_costs and len(self.congestion_costs) != n_states:
             raise ValueError("congestion_costs must have one entry per state")
         if (
@@ -1863,7 +1861,7 @@ class MeanFieldEquilibriumCertificate(BaseModel):
         return candidate
 
     @model_validator(mode="after")
-    def _validate_certificate(self) -> "MeanFieldEquilibriumCertificate":
+    def _validate_certificate(self) -> MeanFieldEquilibriumCertificate:
         _validate_artifact_ref(self.intervention_spec_ref, field_name="intervention_spec_ref")
         if self.baseline_policy_ref is not None:
             _validate_artifact_ref(self.baseline_policy_ref, field_name="baseline_policy_ref")
@@ -1871,9 +1869,7 @@ class MeanFieldEquilibriumCertificate(BaseModel):
             self.well_posedness.uniqueness_status is MeanFieldUniquenessStatus.UNIQUE
             and self.identification.selection_rule is not MeanFieldSelectionRule.NONE
         ):
-            raise ValueError(
-                "selection_rule must be none when uniqueness_status=unique"
-            )
+            raise ValueError("selection_rule must be none when uniqueness_status=unique")
         if (
             self.well_posedness.uniqueness_status is MeanFieldUniquenessStatus.LOCAL_STABLE_BRANCH
             and self.identification.selection_rule is MeanFieldSelectionRule.NONE
@@ -1881,10 +1877,7 @@ class MeanFieldEquilibriumCertificate(BaseModel):
             raise ValueError(
                 "selection_rule is required when uniqueness_status=local_stable_branch"
             )
-        if (
-            self.provenance is not None
-            and self.provenance.numerics_config_ref is not None
-        ):
+        if self.provenance is not None and self.provenance.numerics_config_ref is not None:
             if self.equilibrium_solution is None:
                 raise ValueError(
                     "equilibrium_solution is required when numerics_config_ref is provided"
@@ -1922,7 +1915,7 @@ class PostAdaptationPolicyValueSummary(BaseModel):
         return _ensure_non_empty(str(value), field_name="blocked_reason")
 
     @model_validator(mode="after")
-    def _validate_value_summary(self) -> "PostAdaptationPolicyValueSummary":
+    def _validate_value_summary(self) -> PostAdaptationPolicyValueSummary:
         for field_name in (
             "baseline_policy_value",
             "point_value",
@@ -1932,7 +1925,11 @@ class PostAdaptationPolicyValueSummary(BaseModel):
             value = getattr(self, field_name)
             if value is not None:
                 _ensure_finite(value, field_name=field_name)
-        if self.lower_bound is not None and self.upper_bound is not None and self.lower_bound > self.upper_bound:
+        if (
+            self.lower_bound is not None
+            and self.upper_bound is not None
+            and self.lower_bound > self.upper_bound
+        ):
             raise ValueError("lower_bound must be <= upper_bound")
         if self.fallback_mode is StrategicFallbackMode.BLOCKED:
             if self.blocked_reason is None:
@@ -1975,13 +1972,17 @@ class StrategicDecompositionCertificate(BaseModel):
         return _ensure_non_empty(str(value), field_name="theorem_family")
 
     @model_validator(mode="after")
-    def _validate_certificate(self) -> "StrategicDecompositionCertificate":
+    def _validate_certificate(self) -> StrategicDecompositionCertificate:
         if self.decomposition_status is StrategicDecompositionStatus.BLOCKED:
             raise ValueError("decomposition certificate cannot use blocked status")
-        if self.decomposition_status in {
-            StrategicDecompositionStatus.EXACT,
-            StrategicDecompositionStatus.SELECTOR_INVARIANT,
-        } and not self.cross_world_anchor_defined:
+        if (
+            self.decomposition_status
+            in {
+                StrategicDecompositionStatus.EXACT,
+                StrategicDecompositionStatus.SELECTOR_INVARIANT,
+            }
+            and not self.cross_world_anchor_defined
+        ):
             raise ValueError(
                 "cross_world_anchor_defined is required for exact or selector_invariant decomposition"
             )
@@ -2042,7 +2043,7 @@ class StrategicComponentBoundsSummary(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_bounds(self) -> "StrategicComponentBoundsSummary":
+    def _validate_bounds(self) -> StrategicComponentBoundsSummary:
         _ensure_finite(self.lower_bound, field_name="lower_bound")
         _ensure_finite(self.upper_bound, field_name="upper_bound")
         if self.lower_bound > self.upper_bound:
@@ -2093,7 +2094,7 @@ class StrategicResponseBundle(BaseModel):
         return _ensure_non_empty(str(value), field_name=str(info.field_name))
 
     @model_validator(mode="after")
-    def _validate_bundle(self) -> "StrategicResponseBundle":
+    def _validate_bundle(self) -> StrategicResponseBundle:
         _validate_artifact_ref(self.causal_component_ref, field_name="causal_component_ref")
         _validate_artifact_ref(self.strategic_closure_ref, field_name="strategic_closure_ref")
         _validate_artifact_ref(self.equilibrium_set_ref, field_name="equilibrium_set_ref")
@@ -2160,10 +2161,7 @@ class StrategicResponseBundle(BaseModel):
                 raise ValueError("mfg_equilibrium_ref must be omitted when blocked")
         elif self.blocked_reason is not None:
             raise ValueError("blocked_reason is only allowed when fallback_mode=blocked")
-        if (
-            self.selected_equilibrium_ref is not None
-            and self.mfg_equilibrium_ref is not None
-        ):
+        if self.selected_equilibrium_ref is not None and self.mfg_equilibrium_ref is not None:
             raise ValueError(
                 "selected_equilibrium_ref and mfg_equilibrium_ref are mutually exclusive"
             )
@@ -2184,7 +2182,10 @@ class StrategicResponseBundle(BaseModel):
                 raise ValueError(
                     "decomposition_certificate_ref must be omitted when decomposition_status=blocked"
                 )
-            if self.causal_component_bounds_ref is not None or self.strategic_component_bounds_ref is not None:
+            if (
+                self.causal_component_bounds_ref is not None
+                or self.strategic_component_bounds_ref is not None
+            ):
                 raise ValueError(
                     "component bounds refs must be omitted when decomposition_status=blocked"
                 )
@@ -2213,7 +2214,10 @@ class StrategicResponseBundle(BaseModel):
                 raise ValueError(
                     "decomposition_failure_card_ref must be omitted for exact or selector_invariant decomposition"
                 )
-            if self.causal_component_bounds_ref is not None or self.strategic_component_bounds_ref is not None:
+            if (
+                self.causal_component_bounds_ref is not None
+                or self.strategic_component_bounds_ref is not None
+            ):
                 raise ValueError(
                     "component bounds refs must be omitted for exact or selector_invariant decomposition"
                 )
@@ -2351,9 +2355,7 @@ def persist_strategic_solve_artifacts(
     resolved_decomposition_status = (
         decomposition_status
         if decomposition_status is not None
-        else StrategicDecompositionStatus(
-            str(decomposition_summary["decomposition_status"])
-        )
+        else StrategicDecompositionStatus(str(decomposition_summary["decomposition_status"]))
     )
     if decomposition_certificate is None and resolved_decomposition_status in {
         StrategicDecompositionStatus.EXACT,
@@ -2364,9 +2366,7 @@ def persist_strategic_solve_artifacts(
             cross_world_anchor_defined=bool(
                 decomposition_summary.get("cross_world_anchor_defined", False)
             ),
-            selector_invariant=bool(
-                decomposition_summary.get("selector_invariant", False)
-            ),
+            selector_invariant=bool(decomposition_summary.get("selector_invariant", False)),
             equilibrium_selector_justified=(
                 str(getattr(result, "equilibrium_selection_dependence", "")).strip().lower()
                 in {"deterministic", "deterministic_selection"}
@@ -2380,14 +2380,15 @@ def persist_strategic_solve_artifacts(
         )
     if (
         anchor_equilibrium is None
-        and resolved_decomposition_status in {
+        and resolved_decomposition_status
+        in {
             StrategicDecompositionStatus.EXACT,
             StrategicDecompositionStatus.SELECTOR_INVARIANT,
         }
         and getattr(result, "selected_equilibrium", None) is not None
     ):
         anchor_equilibrium = EquilibriumSelectionSummary(
-            selected_equilibrium=dict(getattr(result, "selected_equilibrium")),
+            selected_equilibrium=dict(result.selected_equilibrium),
             equilibrium_selection_dependence=str(
                 getattr(result, "equilibrium_selection_dependence", "deterministic")
             ),
@@ -2429,7 +2430,10 @@ def persist_strategic_solve_artifacts(
             inputs=inputs,
         )
     decomposition_failure_card_ref = None
-    if decomposition_failure_card is None and resolved_decomposition_status is StrategicDecompositionStatus.BLOCKED:
+    if (
+        decomposition_failure_card is None
+        and resolved_decomposition_status is StrategicDecompositionStatus.BLOCKED
+    ):
         decomposition_failure_card = _default_strategic_decomposition_failure_card(
             result,
             metadata=bundle_metadata,
@@ -2473,8 +2477,7 @@ def persist_strategic_solve_artifacts(
             )
         resolved_mfg_certificate = mfg_equilibrium_certificate
         mfg_equilibrium_solution = (
-            resolved_mfg_certificate.equilibrium_solution
-            or MeanFieldEquilibriumSolutionSummary()
+            resolved_mfg_certificate.equilibrium_solution or MeanFieldEquilibriumSolutionSummary()
         )
         if mfg_solver_residual_report is not None:
             solver_residual_ref = persist_mean_field_solver_residual_report(
@@ -3003,10 +3006,10 @@ __all__ = [
     "MeanFieldModelClass",
     "MeanFieldMonotonicityType",
     "MeanFieldNumericsScheme",
-    "MeanFieldPositivityStatus",
-    "MeanFieldProvenanceSummary",
     "MeanFieldPerturbationChannel",
     "MeanFieldPerturbationSpec",
+    "MeanFieldPositivityStatus",
+    "MeanFieldProvenanceSummary",
     "MeanFieldRuntimeMode",
     "MeanFieldSelectionRule",
     "MeanFieldSolveInput",
@@ -3025,16 +3028,16 @@ __all__ = [
     "PerformativeLoopWitnessStrength",
     "PerformativeShiftSummary",
     "PostAdaptationPolicyValueSummary",
-    "StrategicComponentBoundsSummary",
     "StrategicAdmissibilityRecord",
     "StrategicClosureSummary",
+    "StrategicComponentBoundsSummary",
     "StrategicDecompositionCertificate",
     "StrategicDecompositionComponent",
     "StrategicDecompositionFailureCard",
     "StrategicDecompositionSemantics",
     "StrategicDecompositionStatus",
-    "StrategicEquilibriumDescriptor",
     "StrategicEquilibriumConcept",
+    "StrategicEquilibriumDescriptor",
     "StrategicFallbackMode",
     "StrategicGameClass",
     "StrategicResponseBundle",
@@ -3044,19 +3047,17 @@ __all__ = [
     "compile_intervention_spec_to_mean_field_perturbation",
     "decode_action_profile",
     "encode_action_profile",
-    "load_mean_field_macro_simulation_config",
-    "strategic_admissibility_record_for",
-    "strategic_admissibility_records",
-    "load_strategic_component_bounds_summary",
     "load_equilibrium_selection_summary",
     "load_equilibrium_set_summary",
     "load_mean_field_equilibrium_certificate",
+    "load_mean_field_macro_simulation_config",
     "load_mean_field_mass_conservation_report",
     "load_mean_field_perturbation_spec",
     "load_mean_field_solver_residual_report",
     "load_performative_shift_summary",
     "load_post_adaptation_policy_value_summary",
     "load_strategic_closure_summary",
+    "load_strategic_component_bounds_summary",
     "load_strategic_decomposition_certificate",
     "load_strategic_decomposition_failure_card",
     "load_strategic_payoff_table",
@@ -3065,18 +3066,20 @@ __all__ = [
     "persist_equilibrium_selection_summary",
     "persist_equilibrium_set_summary",
     "persist_mean_field_equilibrium_certificate",
-    "persist_mean_field_mass_conservation_report",
     "persist_mean_field_macro_simulation_config",
+    "persist_mean_field_mass_conservation_report",
     "persist_mean_field_perturbation_spec",
     "persist_mean_field_solver_residual_report",
     "persist_performative_shift_summary",
     "persist_post_adaptation_policy_value_summary",
-    "persist_strategic_component_bounds_summary",
     "persist_strategic_closure_summary",
+    "persist_strategic_component_bounds_summary",
     "persist_strategic_decomposition_certificate",
     "persist_strategic_decomposition_failure_card",
     "persist_strategic_payoff_table",
-    "persist_strategic_solve_artifacts",
     "persist_strategic_response_bundle",
     "persist_strategic_scm",
+    "persist_strategic_solve_artifacts",
+    "strategic_admissibility_record_for",
+    "strategic_admissibility_records",
 ]

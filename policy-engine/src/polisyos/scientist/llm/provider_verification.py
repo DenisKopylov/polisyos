@@ -73,12 +73,10 @@ class ProviderCapabilityVerification(BaseModel):
     verification_notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def _bound_retained_lists(self) -> "ProviderCapabilityVerification":
+    def _bound_retained_lists(self) -> ProviderCapabilityVerification:
         request_ids = [item for item in self.request_ids if isinstance(item, str) and item.strip()]
         verification_notes = [
-            item
-            for item in self.verification_notes
-            if isinstance(item, str) and item.strip()
+            item for item in self.verification_notes if isinstance(item, str) and item.strip()
         ]
         self.request_ids = list(dict.fromkeys(request_ids))[-_MAX_VERIFICATION_REQUEST_IDS:]
         self.verification_notes = verification_notes[-_MAX_VERIFICATION_NOTES:]
@@ -117,9 +115,7 @@ def provider_verification_path(
     base_dir: str | Path | None = None,
 ) -> Path:
     root = Path(
-        base_dir
-        or os.getenv("POLISYOS_PROVIDER_VERIFICATION_DIR")
-        or _DEFAULT_VERIFICATION_DIR
+        base_dir or os.getenv("POLISYOS_PROVIDER_VERIFICATION_DIR") or _DEFAULT_VERIFICATION_DIR
     )
     safe_provider = _safe_slug(provider)
     safe_model = _safe_slug(model_id)

@@ -148,9 +148,7 @@ class DiscoveryWorkerBundle(BaseModel):
             "targeted_hypothesis_ids": list(self.targeted_hypothesis_ids),
             "targeted_edge_keys": list(self.targeted_edge_keys),
             "recommended_checks": list(self.recommended_checks),
-            "skeptic_categories": [
-                finding.category for finding in self.skeptic_findings[:10]
-            ],
+            "skeptic_categories": [finding.category for finding in self.skeptic_findings[:10]],
             "data_diagnostic_codes": [
                 diagnostic.code for diagnostic in self.data_profile.diagnostics[:10]
             ],
@@ -252,7 +250,9 @@ class DataProfilerWorker:
                     message=message,
                 )
             )
-            checks.append("Inspect proxy coverage and missingness assumptions in the evidence bundle.")
+            checks.append(
+                "Inspect proxy coverage and missingness assumptions in the evidence bundle."
+            )
 
         for disputed in bundle.graph_prior_bundle.disputed_edges[:4]:
             diagnostics.append(
@@ -293,7 +293,9 @@ class DataProfilerWorker:
                         metadata={"identification_status": score.identification_status},
                     )
                 )
-                checks.append("Validate missing measurements or transport assumptions for top-ranked hypotheses.")
+                checks.append(
+                    "Validate missing measurements or transport assumptions for top-ranked hypotheses."
+                )
 
         report = DataProfileReport(
             status=status,
@@ -476,7 +478,9 @@ class SkepticWorker:
                 else None
             ),
             "prior_warnings": (
-                bundle.prior_knowledge_bundle.warnings if bundle.prior_knowledge_bundle is not None else []
+                bundle.prior_knowledge_bundle.warnings
+                if bundle.prior_knowledge_bundle is not None
+                else []
             ),
             "metadata": dict(bundle.metadata),
         }
@@ -623,7 +627,12 @@ def run_bounded_discovery_workers(
         {
             item
             for item in (
-                [score.hypothesis_id for score in data_profiler_input.downstream_utility_report.scores[: worker_budget.max_hypotheses]]
+                [
+                    score.hypothesis_id
+                    for score in data_profiler_input.downstream_utility_report.scores[
+                        : worker_budget.max_hypotheses
+                    ]
+                ]
                 + [finding.hypothesis_id for finding in skeptic_findings]
             )
             if item
@@ -646,7 +655,11 @@ def run_bounded_discovery_workers(
         notes.extend(data_profile.notes)
     recommended_checks = _dedupe_text(
         list(data_profile.recommended_checks)
-        + [finding.falsification_suggestion for finding in skeptic_findings if finding.falsification_suggestion]
+        + [
+            finding.falsification_suggestion
+            for finding in skeptic_findings
+            if finding.falsification_suggestion
+        ]
     )
     return DiscoveryWorkerBundle(
         status=status,
@@ -728,7 +741,9 @@ def _proxy_signals_from_evidence_bundle(bundle: Any) -> list[tuple[str, str]]:
                     "Evidence bundle indicates proxy-only coverage for at least part of the estimand surface.",
                 )
             )
-    sources = bundle.get("sources", []) if isinstance(bundle, dict) else getattr(bundle, "sources", [])
+    sources = (
+        bundle.get("sources", []) if isinstance(bundle, dict) else getattr(bundle, "sources", [])
+    )
     for source in sources or []:
         text = json.dumps(source, default=str).lower()
         if "proxy" in text:

@@ -1,7 +1,8 @@
 """Public agent sim policy module API."""
+
 from __future__ import annotations
 
-from typing import Callable, Iterable
+from collections.abc import Callable, Iterable
 
 import chex
 import equinox as eqx
@@ -14,6 +15,7 @@ from polisyos.foundry.agent_sim.state import AgentState, PolicyState
 
 class MLP(eqx.Module):
     """MLP public type."""
+
     layers: tuple[eqx.nn.Linear, ...]
     activation: Callable[[jnp.ndarray], jnp.ndarray] = eqx.field(static=True)
 
@@ -33,6 +35,7 @@ class MLP(eqx.Module):
 
 class SharedPolicy(eqx.Module):
     """Apply one shared network to every agent when behavior is homogeneous."""
+
     network: MLP
 
     def __init__(

@@ -1,4 +1,5 @@
 """Gate unsupported causal edges when literature-prior coverage is insufficient."""
+
 from __future__ import annotations
 
 from pydantic import ValidationError
@@ -78,9 +79,7 @@ def _issues_from_cross_graph_profile(
     profile: CrossGraphEvidenceProfile,
 ) -> list[ComplianceIssue]:
     severity = (
-        IssueSeverity.BLOCKER
-        if ctx.profile.level is ProfileLevel.STRICT
-        else IssueSeverity.WARNING
+        IssueSeverity.BLOCKER if ctx.profile.level is ProfileLevel.STRICT else IssueSeverity.WARNING
     )
     issues: list[ComplianceIssue] = []
     for assessment in profile.needs:

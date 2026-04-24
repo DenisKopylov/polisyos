@@ -3,11 +3,13 @@ Stock/Flow-aware temporal aggregation transformations.
 
 This is one of the MOST CRITICAL modules in Phase 2.5.
 """
+
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from types import MappingProxyType
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import pandas as pd
 
@@ -34,8 +36,8 @@ from polisyos.fabric.connectors.types.temporal import (
 )
 
 __all__ = [
-    "AggregationTransform",
     "AggregationMethod",
+    "AggregationTransform",
     "TemporalType",
     "validate_temporal_aggregation",
 ]
@@ -148,7 +150,7 @@ class AggregationTransform(DataTransform):
             if isinstance(col, pd.Grouper) and col.key not in data.columns:
                 errors.append(f"Grouping key '{col.key}' not found")
 
-        for field in self.aggregations.keys():
+        for field in self.aggregations:
             if field not in data.columns:
                 errors.append(f"Aggregation field '{field}' not found")
 
@@ -200,7 +202,7 @@ class AggregationTransform(DataTransform):
         *,
         temporal_context: dict[str, TemporalType],
     ) -> dict[str, TemporalType]:
-        for field in self.aggregations.keys():
+        for field in self.aggregations:
             if field in temporal_context:
                 continue
             semantic_type = None
@@ -247,9 +249,7 @@ class AggregationTransform(DataTransform):
 
         time_collapsing = False
         if grouper_grain is not None:
-            if source_grain is None:
-                time_collapsing = True
-            elif grouper_grain.is_coarser_than(source_grain):
+            if source_grain is None or grouper_grain.is_coarser_than(source_grain):
                 time_collapsing = True
 
         if not time_collapsing and source_grain and target_grain:
@@ -287,7 +287,7 @@ class AggregationTransform(DataTransform):
 
             if method == AggregationMethod.SUM.value:
                 if additivity == Additivity.NON_ADDITIVE:
-                    msg = f"Cannot sum non-additive variable '{field}'. " "Using 'first' instead."
+                    msg = f"Cannot sum non-additive variable '{field}'. Using 'first' instead."
                     if self.strict:
                         raise TransformError(msg)
                     corrections.append(f"{field}: sum → first (non-additive)")

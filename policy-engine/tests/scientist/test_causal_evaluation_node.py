@@ -29,9 +29,9 @@ from polisyos.ir.analytics.causal import (
 )
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
-    GraphType,
-    EdgeMark,
     CausalGraphModel,
+    EdgeMark,
+    GraphType,
     persist_causal_graph_model,
 )
 from polisyos.ir.analytics.hte import HTEResult
@@ -45,8 +45,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_METHOD_RESULT_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
-    ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
     ARTIFACT_HTE_RESULT_REF,
+    ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
 )
 
@@ -175,7 +175,9 @@ def test_causal_evaluation_node_persists_hte_result(tmp_path, monkeypatch) -> No
     assert ARTIFACT_HTE_RESULT_REF in outcome.state.artifacts_index
 
 
-@pytest.mark.skipif(not _PYGRAPHVIZ_INSTALLED, reason="pygraphviz not installed — dowhy cannot build causal graphs")
+@pytest.mark.skipif(
+    not _PYGRAPHVIZ_INSTALLED, reason="pygraphviz not installed — dowhy cannot build causal graphs"
+)
 def test_causal_evaluation_node_supports_graph_causal_data_v1(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
@@ -219,7 +221,9 @@ def test_causal_evaluation_node_supports_graph_causal_data_v1(tmp_path) -> None:
     assert report_payload["method"].startswith("dowhy_")
 
 
-@pytest.mark.skipif(not _PYGRAPHVIZ_INSTALLED, reason="pygraphviz not installed — dowhy cannot build causal graphs")
+@pytest.mark.skipif(
+    not _PYGRAPHVIZ_INSTALLED, reason="pygraphviz not installed — dowhy cannot build causal graphs"
+)
 def test_causal_evaluation_node_supports_graph_causal_data_v2(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
@@ -492,8 +496,7 @@ def test_causal_evaluation_node_auto_refutation_merges_and_persists_lineage(
     assert len(report_payload["refutation_results"]) == 1
     assert report_payload["metadata"]["refutation_auto"]["status"] == "success"
     assert any(
-        item["test_name"].startswith("refutation.")
-        for item in report_payload["diagnostics"]
+        item["test_name"].startswith("refutation.") for item in report_payload["diagnostics"]
     )
 
     manifest = store.get_manifest(report_ref.artifact_id)
@@ -1000,7 +1003,8 @@ def test_causal_evaluation_node_persists_causal_validity_bundle_for_hte_inputs(
     assert bundle_payload["capability_matrix"]["icp_invariance"] == "available"
     frontier_runtime = bundle_payload["frontier_runtime"]
     proximal = next(
-        item for item in frontier_runtime["capabilities"]
+        item
+        for item in frontier_runtime["capabilities"]
         if item["capability_id"] == "proximal_causal"
     )
     assert proximal["status"] == "offline_gated"

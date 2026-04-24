@@ -115,8 +115,12 @@ def test_platform_meta_evaluator_passes_healthy_sentinel_injection() -> None:
     tracker = CorrelationTracker(drift_window_size=5, sentinel_pass_floor=0.95)
     for idx in range(5):
         tracker.record(
-            StageResult(policy_candidate={}, objective_value=0.8, is_promising=True, stage_name="L2"),
-            StageResult(policy_candidate={}, objective_value=0.75, is_promising=True, stage_name="L4"),
+            StageResult(
+                policy_candidate={}, objective_value=0.8, is_promising=True, stage_name="L2"
+            ),
+            StageResult(
+                policy_candidate={}, objective_value=0.75, is_promising=True, stage_name="L4"
+            ),
             f"c{idx}",
             is_sentinel=True,
         )
@@ -149,7 +153,9 @@ def test_platform_meta_evaluator_passes_healthy_sentinel_injection() -> None:
         )
     )
 
-    sentinel_result = next(item for item in report.attack_results if item.attack_type == "sentinel_injection")
+    sentinel_result = next(
+        item for item in report.attack_results if item.attack_type == "sentinel_injection"
+    )
     assert sentinel_result.status == "passed"
     assert report.promotion_safe is True
 
@@ -179,7 +185,9 @@ def test_platform_meta_evaluator_detects_holdout_rotation_failure() -> None:
         )
     )
 
-    result = next(item for item in report.attack_results if item.attack_type == "hidden_holdout_rotation")
+    result = next(
+        item for item in report.attack_results if item.attack_type == "hidden_holdout_rotation"
+    )
     assert result.status == "failed"
     assert report.promotion_safe is False
 
@@ -202,7 +210,9 @@ def test_platform_meta_evaluator_rejects_mistyped_rotations() -> None:
         )
     )
 
-    result = next(item for item in report.attack_results if item.attack_type == "hidden_holdout_rotation")
+    result = next(
+        item for item in report.attack_results if item.attack_type == "hidden_holdout_rotation"
+    )
     assert result.status == "failed"
     assert result.metrics["invalid_rotation_splits"] == [BenchmarkSplit.HIDDEN_HOLDOUT.value]
 
@@ -215,8 +225,15 @@ def test_platform_meta_evaluator_passes_drift_attack_when_tracker_degrades() -> 
     )
     for idx in range(5):
         tracker.record(
-            StageResult(policy_candidate={}, objective_value=float(idx), is_promising=True, stage_name="L2"),
-            StageResult(policy_candidate={}, objective_value=float(5 - idx), is_promising=(idx % 2 == 0), stage_name="L4"),
+            StageResult(
+                policy_candidate={}, objective_value=float(idx), is_promising=True, stage_name="L2"
+            ),
+            StageResult(
+                policy_candidate={},
+                objective_value=float(5 - idx),
+                is_promising=(idx % 2 == 0),
+                stage_name="L4",
+            ),
             f"neg{idx}",
             is_sentinel=False,
         )
@@ -227,6 +244,10 @@ def test_platform_meta_evaluator_passes_drift_attack_when_tracker_degrades() -> 
         )
     )
 
-    result = next(item for item in report.attack_results if item.attack_type == "calibration_drift_replay")
+    result = next(
+        item for item in report.attack_results if item.attack_type == "calibration_drift_replay"
+    )
     assert result.status == "passed"
-    assert "CALIBRATION_DRIFT" in result.triggered_guards or "PROMOTION_BAN" in result.triggered_guards
+    assert (
+        "CALIBRATION_DRIFT" in result.triggered_guards or "PROMOTION_BAN" in result.triggered_guards
+    )

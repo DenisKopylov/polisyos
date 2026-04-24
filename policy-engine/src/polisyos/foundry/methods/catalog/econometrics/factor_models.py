@@ -8,9 +8,11 @@ Implements:
   factor loadings, common factors, idiosyncratic noise, and Kalman-smoother
   factor estimates.
 """
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -27,23 +29,39 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-
 from polisyos.foundry.methods.catalog._payloads import extract_model_payload
-from .protocols import EconometricResult, PanelData
 
+from .protocols import EconometricResult
 
 # ---------------------------------------------------------------------------
 # Output slots
 # ---------------------------------------------------------------------------
 
+
 def _factor_output_slots() -> frozenset[SlotSpec]:
-    return frozenset({
-        SlotSpec("result", SlotType.SCALAR, Unit("result", "json"),
-                 contract_id=EconometricResult.contract_id),
-        SlotSpec("factor_loadings", SlotType.MATRIX, Unit("loadings", "matrix"), shape=("n_vars", "n_factors")),
-        SlotSpec("factor_scores", SlotType.MATRIX, Unit("scores", "matrix"), shape=("n_obs", "n_factors")),
-        SlotSpec("uncertainty_envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
-    })
+    return frozenset(
+        {
+            SlotSpec(
+                "result",
+                SlotType.SCALAR,
+                Unit("result", "json"),
+                contract_id=EconometricResult.contract_id,
+            ),
+            SlotSpec(
+                "factor_loadings",
+                SlotType.MATRIX,
+                Unit("loadings", "matrix"),
+                shape=("n_vars", "n_factors"),
+            ),
+            SlotSpec(
+                "factor_scores",
+                SlotType.MATRIX,
+                Unit("scores", "matrix"),
+                shape=("n_obs", "n_factors"),
+            ),
+            SlotSpec("uncertainty_envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
+        }
+    )
 
 
 def _resolve_exog(state: Any) -> Any:
@@ -95,9 +113,13 @@ class PrincipalComponentsEstimator:
         name="principal_components",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_vars")),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    "exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_vars")
+                ),
+            }
+        ),
         output_slots=_factor_output_slots(),
         parameters=(
             ParameterSpec(name="n_factors", default=3, bounds=(0, 50)),
@@ -153,7 +175,7 @@ class PrincipalComponentsEstimator:
 
         # SVD-based PCA
         U, s, Vt = np.linalg.svd(X_c, full_matrices=False)
-        eigenvalues = (s ** 2) / (n_obs - 1)
+        eigenvalues = (s**2) / (n_obs - 1)
         total_var = float(np.sum(eigenvalues))
         explained_var_ratio = eigenvalues / max(total_var, 1e-10)
 
@@ -170,7 +192,7 @@ class PrincipalComponentsEstimator:
             loadings = _varimax_rotation(loadings)
 
         # Communalities
-        communalities = np.sum(loadings ** 2, axis=1)
+        communalities = np.sum(loadings**2, axis=1)
 
         result = EconometricResult(
             method_name="principal_components",
@@ -200,6 +222,7 @@ class PrincipalComponentsEstimator:
             UncertaintyEnvelope,
             UncertaintySource,
         )
+
         envelope = UncertaintyEnvelope(
             point_estimate=float(np.sum(explained_var_ratio[:n_factors])),
             confidence_interval=(0.0, 1.0),
@@ -233,14 +256,14 @@ def _varimax_rotation(loadings: np.ndarray, max_iter: int = 100, tol: float = 1e
             for j in range(i + 1, n_factors):
                 col_i = loadings @ rotation_matrix[:, i]
                 col_j = loadings @ rotation_matrix[:, j]
-                u = col_i ** 2 - col_j ** 2
+                u = col_i**2 - col_j**2
                 v = 2 * col_i * col_j
                 A = np.sum(u)
                 B = np.sum(v)
-                C = np.sum(u ** 2 - v ** 2)
+                C = np.sum(u**2 - v**2)
                 D = np.sum(u * v)
                 num = D - 2 * A * B / n_vars
-                den = C - (A ** 2 - B ** 2) / n_vars
+                den = C - (A**2 - B**2) / n_vars
                 theta = 0.25 * np.arctan2(num, den)
                 c, s = np.cos(theta), np.sin(theta)
                 Rij = np.eye(n_factors)
@@ -289,9 +312,13 @@ class DynamicFactorModelEstimator:
         name="dynamic_factor_model",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_time", "n_vars")),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    "exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_time", "n_vars")
+                ),
+            }
+        ),
         output_slots=_factor_output_slots(),
         parameters=(
             ParameterSpec(name="n_factors", default=2, bounds=(1, 20)),
@@ -387,8 +414,9 @@ class DynamicFactorModelEstimator:
                 # Log-likelihood increment
                 sign, logdet = np.linalg.slogdet(S)
                 if sign > 0:
-                    ll -= 0.5 * (p * np.log(2 * np.pi) + logdet
-                                 + float(innovation @ S_inv @ innovation))
+                    ll -= 0.5 * (
+                        p * np.log(2 * np.pi) + logdet + float(innovation @ S_inv @ innovation)
+                    )
 
             log_likelihoods.append(ll)
 
@@ -416,7 +444,9 @@ class DynamicFactorModelEstimator:
             if len(log_likelihoods) > 1 and abs(log_likelihoods[-1] - log_likelihoods[-2]) < tol:
                 break
 
-        converged = len(log_likelihoods) > 1 and abs(log_likelihoods[-1] - log_likelihoods[-2]) < tol
+        converged = (
+            len(log_likelihoods) > 1 and abs(log_likelihoods[-1] - log_likelihoods[-2]) < tol
+        )
         factor_variances = np.var(F, axis=0, ddof=1) if T > 1 else np.var(F, axis=0)
         total_factor_variance = float(np.sum(factor_variances))
         explained_var_ratio = factor_variances / max(total_factor_variance, 1e-10)
@@ -453,6 +483,7 @@ class DynamicFactorModelEstimator:
             UncertaintyEnvelope,
             UncertaintySource,
         )
+
         envelope = UncertaintyEnvelope(
             point_estimate=float(log_likelihoods[-1]) if log_likelihoods else 0.0,
             confidence_interval=(

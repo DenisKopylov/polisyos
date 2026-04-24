@@ -8,7 +8,11 @@ from polisyos.foundry.calibration.report import (
     CalibrationFitQuality,
     CalibrationReport,
 )
-from polisyos.ir.analytics.calibration import CalibrationConfig, CalibrationTarget, TrainableParamRef
+from polisyos.ir.analytics.calibration import (
+    CalibrationConfig,
+    CalibrationTarget,
+    TrainableParamRef,
+)
 from polisyos.scientist.autotune import (
     BenchmarkSplitManifest,
     BenchmarkSuite,
@@ -50,7 +54,9 @@ def _calibration_suite(tmp_path):
     )
 
 
-def _report(*, rmse: float, runtime_seconds: float, diagnostics: list[str] | None = None) -> CalibrationReport:
+def _report(
+    *, rmse: float, runtime_seconds: float, diagnostics: list[str] | None = None
+) -> CalibrationReport:
     return CalibrationReport(
         calibrated_params={"node.param": 1.0},
         total_loss=rmse,
@@ -106,7 +112,9 @@ def test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence(tmp_p
     suite_ref = persist_benchmark_suite(store, _calibration_suite(tmp_path))
     evaluator = CalibrationMetaEvaluator(store=store, registry=registry)
 
-    good_candidate_ref = persist_mutation_artifact(store, CalibrationMetaSearchConfig(learning_rate=0.01))
+    good_candidate_ref = persist_mutation_artifact(
+        store, CalibrationMetaSearchConfig(learning_rate=0.01)
+    )
 
     def good_runner(row, config, context):
         del row, context
@@ -128,11 +136,15 @@ def test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence(tmp_p
         default_calibration_policy(),
     )
 
-    bad_candidate_ref = persist_mutation_artifact(store, CalibrationMetaSearchConfig(learning_rate=0.5))
+    bad_candidate_ref = persist_mutation_artifact(
+        store, CalibrationMetaSearchConfig(learning_rate=0.5)
+    )
 
     def bad_runner(row, config, context):
         del row, context, config
-        return _report(rmse=0.05, runtime_seconds=1.0, diagnostics=["Non-finite gradients at step 3"])
+        return _report(
+            rmse=0.05, runtime_seconds=1.0, diagnostics=["Non-finite gradients at step 3"]
+        )
 
     bad_eval = evaluator.evaluate(
         bad_candidate_ref,

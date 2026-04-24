@@ -11,7 +11,6 @@ from __future__ import annotations
 import gc
 import hashlib
 import json
-import math
 import os
 import re
 import shutil
@@ -19,19 +18,18 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Callable, Iterable, Sequence
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pandas as pd
 from pydantic import BaseModel
 
 from polisyos.batch_common.paths import ensure_dirs
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.registry import build_default_registry_bundle
-from polisyos.foundry.release_acceptance import ReleaseAcceptanceRunner
 from polisyos.foundry.data_plane.bindings import build_input_bindings
 from polisyos.foundry.layout import build_slot_family_manifest
 from polisyos.foundry.methods.catalog.causal.measurement_error import identify_with_proxy
@@ -47,8 +45,14 @@ from polisyos.foundry.methods.catalog.network.protocols import (
     MultiplexNetworkData,
     NetworkData,
 )
+from polisyos.foundry.release_acceptance import ReleaseAcceptanceRunner
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.governance.schedule import ScheduleSpec
+from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.observation.bundles import (
     ContractCompatibilityTarget,
     ObservationContractArtifact,
@@ -64,13 +68,10 @@ from polisyos.ir.observation.contracts import (
     IdentificationMode,
     MultiplexGraphLayerId,
     ObservationFamily,
-    ObservationPanel,
-    ObservationRecord,
     SourceConfidenceTier,
     StrategicResponseChannel,
 )
 from polisyos.ir.observation.governance import (
-    GovernancePassAliasRegistry,
     ObservationFamilyPolicyRegistry,
 )
 from polisyos.ir.observation.measurement import (
@@ -84,13 +85,8 @@ from polisyos.ir.observation.measurement import (
     ShockCalendar,
     ShockCalendarEntry,
 )
-from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
-from polisyos.ir.governance.schedule import ScheduleSpec
-from polisyos.ir.governance.selector_expr import SelectorPredicate
-from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.types import SelectorOperator
+from polisyos.ir.types import SelectorOperator, TimeFrequency
 from polisyos.lex.interventions import (
     InterventionKnobSpec,
     LexInterventionCompiler,
@@ -98,29 +94,29 @@ from polisyos.lex.interventions import (
     TemporalInterventionSequencer,
 )
 from polisyos.scientist.governance import (
+    REQUIRED_SIGNOFF_FAMILIES,
+    BacktestKind,
     CalibrationGovernanceEvidenceRunner,
-    CalibrationRunRunner,
     CalibrationRunManifest,
-    GovernanceAccountabilityInput,
+    CalibrationRunRunner,
     CalibrationValidationRunner,
     CalibrationValidationRunnerInput,
-    FamilyEligibilityRegistry,
+    GovernanceAccountabilityInput,
     HoldoutScoresManifest,
     LossBreakdownManifest,
-    REQUIRED_SIGNOFF_FAMILIES,
     SpecificationCurveRunner,
     SpecificationCurveSummaryManifest,
     StrategicResponseMetricsManifest,
     StrategicResponseRunner,
-    TransportabilitySummaryManifest,
     TransportabilityRunner,
+    TransportabilitySummaryManifest,
     build_downstream_utility_report,
     build_family_eligibility_registry,
     build_interference_evidence,
     build_required_backtest_bundles,
     load_governance_accountability_artifact,
 )
-from polisyos.ir.types import TimeFrequency
+from polisyos.ukraine_data.adapters import _UKRAINE_OBLAST_CODE_MAP
 from polisyos.ukraine_data.manifests import (
     ArtifactRecord,
     CalibrationBundleManifest,
@@ -129,9 +125,15 @@ from polisyos.ukraine_data.manifests import (
     ValidationFinding,
     write_manifest,
 )
-from polisyos.ukraine_data.adapters import _UKRAINE_OBLAST_CODE_MAP
 from polisyos.ukraine_data.models import BuildRootConfig, PipelineConfig, SourceConfig, StageId
 from polisyos.ukraine_data.resources import directory_size_bytes
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Sequence
+
+
+def _clip_value(value: float, *, lower: float, upper: float) -> float:
+    return float(min(max(value, lower), upper))
 
 
 MONTHLY_END_MONTH = {
@@ -240,10 +242,7 @@ def _json_default(value: Any) -> Any:
 
 def _write_json(path: Path, payload: Any) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
-    if isinstance(payload, BaseModel):
-        serialized = payload.model_dump(mode="json")
-    else:
-        serialized = payload
+    serialized = payload.model_dump(mode="json") if isinstance(payload, BaseModel) else payload
     path.write_text(
         json.dumps(serialized, ensure_ascii=True, indent=2, sort_keys=True, default=_json_default),
         encoding="utf-8",
@@ -259,7 +258,7 @@ def _write_protocol_json(path: Path, payload: BaseModel) -> ArtifactRecord:
 def _write_frame(path: Path, frame: pd.DataFrame) -> ArtifactRecord:
     ensure_dirs(path.parent)
     frame.to_parquet(path, index=False)
-    return ArtifactRecord.from_path(path, row_count=int(len(frame)))
+    return ArtifactRecord.from_path(path, row_count=len(frame))
 
 
 def _write_npz(path: Path, **arrays: Any) -> ArtifactRecord:
@@ -410,13 +409,11 @@ def _period_to_dates(period_value: object, time_grain: TimeFrequency) -> tuple[d
         year = int(match.group(1))
         quarter_from_text = int(match.group(2))
         month = (quarter_from_text - 1) * 3 + 1
-    elif match := re.match(r"^(\d{4})[-_/]?M(\d{1,2})$", normalized):
-        year = int(match.group(1))
-        month = int(match.group(2))
-    elif match := re.match(r"^(\d{4})-(\d{2})-(\d{2})$", normalized):
-        year = int(match.group(1))
-        month = int(match.group(2))
-    elif match := re.match(r"^(\d{4})[-_/]?(\d{2})$", normalized):
+    elif (
+        (match := re.match(r"^(\d{4})[-_/]?M(\d{1,2})$", normalized))
+        or (match := re.match(r"^(\d{4})-(\d{2})-(\d{2})$", normalized))
+        or (match := re.match(r"^(\d{4})[-_/]?(\d{2})$", normalized))
+    ):
         year = int(match.group(1))
         month = int(match.group(2))
     month = max(1, min(12, month))
@@ -654,7 +651,11 @@ def _extract_unresolved_identity_rows(
 
     raw_series = _coerce_string_series(frame, raw_column)
     resolved_series = _coerce_string_series(frame, resolved_column)
-    period_series = _coerce_string_series(frame, period_column, fill="") if period_column in frame.columns else pd.Series([""] * len(frame))
+    period_series = (
+        _coerce_string_series(frame, period_column, fill="")
+        if period_column in frame.columns
+        else pd.Series([""] * len(frame))
+    )
     weight_series = (
         pd.to_numeric(frame[weight_column], errors="coerce").fillna(1.0)
         if weight_column and weight_column in frame.columns
@@ -714,23 +715,20 @@ def _extract_unresolved_identity_rows(
             ]
         )
     unresolved = pd.DataFrame.from_records(rows)
-    return (
-        unresolved.groupby(
-            [
-                "raw_registration_code",
-                "normalized_raw_registration_code",
-                "source_family",
-                "source_id",
-                "counterparty_name",
-                "counterparty_name_key",
-                "region_code",
-                "period_id",
-            ],
-            dropna=False,
-            as_index=False,
-        )
-        .agg(amount_weight=("amount_weight", "sum"), observation_count=("observation_count", "sum"))
-    )
+    return unresolved.groupby(
+        [
+            "raw_registration_code",
+            "normalized_raw_registration_code",
+            "source_family",
+            "source_id",
+            "counterparty_name",
+            "counterparty_name_key",
+            "region_code",
+            "period_id",
+        ],
+        dropna=False,
+        as_index=False,
+    ).agg(amount_weight=("amount_weight", "sum"), observation_count=("observation_count", "sum"))
 
 
 def _build_identity_bridge_seed_lookup(build_root: BuildRootConfig) -> pd.DataFrame:
@@ -747,7 +745,11 @@ def _build_identity_bridge_seed_lookup(build_root: BuildRootConfig) -> pd.DataFr
     frame = _read_parquet_frame(seed_path)
     if frame.empty:
         return frame
-    raw_column = "raw_registration_code" if "raw_registration_code" in frame.columns else "normalized_raw_registration_code"
+    raw_column = (
+        "raw_registration_code"
+        if "raw_registration_code" in frame.columns
+        else "normalized_raw_registration_code"
+    )
     frame["normalized_raw_registration_code"] = frame[raw_column].map(_normalize_identity_key)
     frame = frame.dropna(subset=["normalized_raw_registration_code", "agent_id"]).copy()
     if "match_method" not in frame.columns:
@@ -771,7 +773,12 @@ def _filter_identity_bridge_inputs(
     if unresolved_rows.empty:
         return unresolved_rows.copy()
     filtered = unresolved_rows.copy()
-    name_keys = filtered.get("counterparty_name_key", pd.Series(dtype="string")).fillna("").astype("string").str.strip()
+    name_keys = (
+        filtered.get("counterparty_name_key", pd.Series(dtype="string"))
+        .fillna("")
+        .astype("string")
+        .str.strip()
+    )
     has_name = name_keys.ne("")
     if seed_frame.empty:
         return filtered.loc[has_name].copy()
@@ -819,7 +826,9 @@ def _build_edr_identity_bridge(
         if name_key and name_key in unique_name_lookup:
             candidate = unique_name_lookup[name_key]
             candidate_region = str(candidate.get("region_code") or "").strip()
-            region_match = not region_code or not candidate_region or region_code == candidate_region
+            region_match = (
+                not region_code or not candidate_region or region_code == candidate_region
+            )
             confidence = 0.93 if region_match else 0.72
             candidate_rows.append(
                 {
@@ -831,8 +840,8 @@ def _build_edr_identity_bridge(
                     "match_confidence": confidence,
                     "amount_weight": weight,
                     "observation_count": observations,
-                    "source_family": getattr(row, "source_family"),
-                    "source_id": getattr(row, "source_id"),
+                    "source_family": row.source_family,
+                    "source_id": row.source_id,
                     "region_match": region_match,
                 }
             )
@@ -873,31 +882,36 @@ def _build_edr_identity_bridge(
             ]
         )
     else:
-        candidate_frame = (
-            candidate_frame.groupby(
-                [
-                    "normalized_raw_registration_code",
-                    "candidate_agent_id",
-                    "candidate_registration_code",
-                    "candidate_name",
-                    "match_method",
-                    "match_confidence",
-                    "region_match",
-                ],
-                dropna=False,
-                as_index=False,
-            )
-            .agg(
-                amount_weight=("amount_weight", "sum"),
-                observation_count=("observation_count", "sum"),
-                source_family=("source_family", lambda values: ",".join(sorted({str(item) for item in values if str(item)}))),
-                source_id=("source_id", lambda values: ",".join(sorted({str(item) for item in values if str(item)}))),
-            )
+        candidate_frame = candidate_frame.groupby(
+            [
+                "normalized_raw_registration_code",
+                "candidate_agent_id",
+                "candidate_registration_code",
+                "candidate_name",
+                "match_method",
+                "match_confidence",
+                "region_match",
+            ],
+            dropna=False,
+            as_index=False,
+        ).agg(
+            amount_weight=("amount_weight", "sum"),
+            observation_count=("observation_count", "sum"),
+            source_family=(
+                "source_family",
+                lambda values: ",".join(sorted({str(item) for item in values if str(item)})),
+            ),
+            source_id=(
+                "source_id",
+                lambda values: ",".join(sorted({str(item) for item in values if str(item)})),
+            ),
         )
 
     resolved_rows: list[dict[str, Any]] = []
     if not candidate_frame.empty:
-        for normalized_code, group in candidate_frame.groupby("normalized_raw_registration_code", sort=False):
+        for normalized_code, group in candidate_frame.groupby(
+            "normalized_raw_registration_code", sort=False
+        ):
             unique_candidates = group["candidate_agent_id"].astype(str).dropna().unique().tolist()
             best = group.sort_values(
                 ["match_confidence", "amount_weight", "observation_count"],
@@ -934,16 +948,19 @@ def _build_edr_identity_bridge(
     manifest = {
         "schema_version": "1.0",
         "manual_seed_applied": not seed_frame.empty,
-        "unresolved_identity_rows": int(len(unresolved_frame)),
+        "unresolved_identity_rows": len(unresolved_frame),
         "unresolved_unique_numeric_ids": int(
             unresolved_frame["normalized_raw_registration_code"].astype(str).nunique()
             if not unresolved_frame.empty
             else 0
         ),
-        "candidate_matches": int(len(candidate_frame)),
-        "resolved_matches": int(len(resolved_frame)),
+        "candidate_matches": len(candidate_frame),
+        "resolved_matches": len(resolved_frame),
         "resolution_methods": (
-            candidate_frame.get("match_method", pd.Series(dtype=str)).astype(str).value_counts().to_dict()
+            candidate_frame.get("match_method", pd.Series(dtype=str))
+            .astype(str)
+            .value_counts()
+            .to_dict()
             if not candidate_frame.empty
             else {}
         ),
@@ -991,7 +1008,11 @@ def _participant_resolution_coverage(
                 resolved_identities.add(normalized)
     if not raw_identities:
         return None, 0, 0
-    return len(resolved_identities) / float(len(raw_identities)), len(resolved_identities), len(raw_identities)
+    return (
+        len(resolved_identities) / float(len(raw_identities)),
+        len(resolved_identities),
+        len(raw_identities),
+    )
 
 
 def _link_participants(
@@ -1041,7 +1062,9 @@ def _graph_arrays_from_edges(
     period_col: str = "period_id",
     node_ids: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    edges = frame[[src_col, dst_col, weight_col, period_col]].dropna(subset=[src_col, dst_col]).copy()
+    edges = (
+        frame[[src_col, dst_col, weight_col, period_col]].dropna(subset=[src_col, dst_col]).copy()
+    )
     edges[src_col] = edges[src_col].astype(str)
     edges[dst_col] = edges[dst_col].astype(str)
     edges[weight_col] = pd.to_numeric(edges[weight_col], errors="coerce").fillna(0.0)
@@ -1120,7 +1143,7 @@ def _reindex_edge_arrays_to_node_subset(
     node_ids: Sequence[str],
 ) -> dict[str, Any]:
     selected = [str(node_id) for node_id in node_ids]
-    selected_set = set(selected)
+    set(selected)
     src_ids = np.asarray(arrays["src_ids"], dtype=object).astype(str)
     dst_ids = np.asarray(arrays["dst_ids"], dtype=object).astype(str)
     weight = np.asarray(arrays["weight"], dtype=float)
@@ -1209,12 +1232,16 @@ def _build_synthetic_multiscale_payload(
 ) -> dict[str, Any]:
     agents = _ensure_agent_numeric_columns(agent_registry_runtime)
     if agents.empty:
-        agents = pd.DataFrame({"agent_id": ["agent::00000000"], "revenue": [0.0], "employees": [0.0]})
+        agents = pd.DataFrame(
+            {"agent_id": ["agent::00000000"], "revenue": [0.0], "employees": [0.0]}
+        )
         agents["region_numeric"] = 0.0
         agents["assets"] = 0.0
         agents["liabilities"] = 0.0
     incomes = np.maximum(
-        _sanitize_numeric_series(agents["revenue"], fill=0.0, lower=0.0, upper=1e12).to_numpy(dtype=float),
+        _sanitize_numeric_series(agents["revenue"], fill=0.0, lower=0.0, upper=1e12).to_numpy(
+            dtype=float
+        ),
         1.0,
     )
     employees = _sanitize_numeric_series(
@@ -1224,7 +1251,9 @@ def _build_synthetic_multiscale_payload(
     employers = np.full(n_agents, -1, dtype=int)
     if n_agents > 0:
         employers[:-1] = 0
-    wage_offer = np.nan_to_num(incomes / np.maximum(employees, 1.0), nan=1.0, posinf=1.0, neginf=1.0)
+    wage_offer = np.nan_to_num(
+        incomes / np.maximum(employees, 1.0), nan=1.0, posinf=1.0, neginf=1.0
+    )
     firms = pd.DataFrame(
         {
             "labor_count": [float(max(1.0, employees.sum()))],
@@ -1248,7 +1277,9 @@ def _build_synthetic_multiscale_payload(
     cell_population = _sanitize_numeric_series(cells["population"], fill=1.0, lower=0.0, upper=1e9)
     cell_employment = _sanitize_numeric_series(cells["employment"], fill=0.0, lower=0.0, upper=1e9)
     cell_output = _sanitize_numeric_series(cells["output"], fill=0.0, lower=0.0)
-    cell_distress = _sanitize_numeric_series(cells["distress_score"], fill=0.0, lower=0.0, upper=1.0)
+    cell_distress = _sanitize_numeric_series(
+        cells["distress_score"], fill=0.0, lower=0.0, upper=1.0
+    )
     cell_public_service = _sanitize_numeric_series(
         cells["public_service_index"], fill=0.0, lower=0.0, upper=1.0
     )
@@ -1276,7 +1307,9 @@ def _build_synthetic_multiscale_payload(
     payload = {
         "agents": {
             "age": [30.0 + (idx % 25) for idx in range(n_agents)],
-            "skill_level": np.clip((employees + 1.0) / np.maximum(employees.max() + 1.0, 1.0), 0.1, 2.0).tolist(),
+            "skill_level": np.clip(
+                (employees + 1.0) / np.maximum(employees.max() + 1.0, 1.0), 0.1, 2.0
+            ).tolist(),
             "income": incomes.tolist(),
             "reported_income": (0.92 * incomes).tolist(),
             "risk_aversion": np.clip(np.linspace(0.2, 0.8, n_agents), 0.0, 1.0).tolist(),
@@ -1286,8 +1319,14 @@ def _build_synthetic_multiscale_payload(
         "firms": firms.to_dict(orient="list"),
         "cells": {
             "active": [True] * len(cells),
-            "region_code": pd.to_numeric(cells["region_numeric"], errors="coerce").fillna(0).astype(int).tolist(),
-            "sector_id": pd.to_numeric(cells["sector_numeric"], errors="coerce").fillna(0).astype(int).tolist(),
+            "region_code": pd.to_numeric(cells["region_numeric"], errors="coerce")
+            .fillna(0)
+            .astype(int)
+            .tolist(),
+            "sector_id": pd.to_numeric(cells["sector_numeric"], errors="coerce")
+            .fillna(0)
+            .astype(int)
+            .tolist(),
             "population": cell_population.tolist(),
             "employment": cell_employment.tolist(),
             "output": cell_output.tolist(),
@@ -1322,9 +1361,14 @@ def _validation_subset(
         )
 
     referenced_cell_ids = set(
-        _coerce_string_series(validation_agents, "cell_id", fill="").replace("", pd.NA).dropna().tolist()
+        _coerce_string_series(validation_agents, "cell_id", fill="")
+        .replace("", pd.NA)
+        .dropna()
+        .tolist()
     )
-    validation_cells = cell_registry[cell_registry["cell_id"].astype("string").isin(referenced_cell_ids)].copy()
+    validation_cells = cell_registry[
+        cell_registry["cell_id"].astype("string").isin(referenced_cell_ids)
+    ].copy()
     if validation_cells.empty:
         validation_cells = cell_registry.head(cell_limit).copy()
     elif len(validation_cells) > cell_limit:
@@ -1335,7 +1379,9 @@ def _validation_subset(
         )
 
     validation_cell_ids = set(_coerce_string_series(validation_cells, "cell_id", fill="").tolist())
-    validation_cell_state = cell_state[cell_state["cell_id"].astype("string").isin(validation_cell_ids)].copy()
+    validation_cell_state = cell_state[
+        cell_state["cell_id"].astype("string").isin(validation_cell_ids)
+    ].copy()
     if validation_cell_state.empty:
         validation_cell_state = cell_state.head(len(validation_cells) or cell_limit).copy()
 
@@ -1411,8 +1457,12 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
     stage_warnings: list[str] = list(procurement_source_warnings)
 
     spending_for_linking = spending.copy()
-    spending_for_linking["_source_agent_raw_id"] = _coerce_string_series(spending_for_linking, "source_agent_id")
-    spending_for_linking["_target_agent_raw_id"] = _coerce_string_series(spending_for_linking, "target_agent_id")
+    spending_for_linking["_source_agent_raw_id"] = _coerce_string_series(
+        spending_for_linking, "source_agent_id"
+    )
+    spending_for_linking["_target_agent_raw_id"] = _coerce_string_series(
+        spending_for_linking, "target_agent_id"
+    )
     spending_linked_initial = _link_participants(
         spending_for_linking,
         lookup=lookup,
@@ -1422,7 +1472,9 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
         target_out="target_agent_id",
     )
     prozorro_for_linking = prozorro.copy()
-    prozorro_for_linking["_buyer_agent_raw_id"] = _coerce_string_series(prozorro_for_linking, "buyer_agent_id")
+    prozorro_for_linking["_buyer_agent_raw_id"] = _coerce_string_series(
+        prozorro_for_linking, "buyer_agent_id"
+    )
     prozorro_for_linking["_supplier_agent_raw_id"] = _coerce_string_series(
         prozorro_for_linking, "supplier_agent_id"
     )
@@ -1435,15 +1487,19 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
         target_out="supplier_agent_id",
     )
 
-    spending_coverage_before, spending_resolved_before, spending_total_before = _participant_resolution_coverage(
-        spending_linked_initial,
-        raw_columns=["_source_agent_raw_id", "_target_agent_raw_id"],
-        resolved_columns=["source_agent_id", "target_agent_id"],
+    spending_coverage_before, spending_resolved_before, spending_total_before = (
+        _participant_resolution_coverage(
+            spending_linked_initial,
+            raw_columns=["_source_agent_raw_id", "_target_agent_raw_id"],
+            resolved_columns=["source_agent_id", "target_agent_id"],
+        )
     )
-    procurement_coverage_before, procurement_resolved_before, procurement_total_before = _participant_resolution_coverage(
-        prozorro_linked_initial,
-        raw_columns=["_buyer_agent_raw_id", "_supplier_agent_raw_id"],
-        resolved_columns=["buyer_agent_id", "supplier_agent_id"],
+    procurement_coverage_before, procurement_resolved_before, procurement_total_before = (
+        _participant_resolution_coverage(
+            prozorro_linked_initial,
+            raw_columns=["_buyer_agent_raw_id", "_supplier_agent_raw_id"],
+            resolved_columns=["buyer_agent_id", "supplier_agent_id"],
+        )
     )
     unresolved_identity_rows = pd.concat(
         [
@@ -1489,12 +1545,6 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
         ],
         ignore_index=True,
     )
-    print(
-        "[ukraine-data] building EDR identity bridge "
-        f"rows={len(unresolved_identity_rows)} "
-        f"unique_ids={int(unresolved_identity_rows.get('normalized_raw_registration_code', pd.Series(dtype='string')).astype('string').nunique()) if not unresolved_identity_rows.empty else 0}",
-        flush=True,
-    )
     (
         edr_bridge_unresolved,
         edr_bridge_candidates,
@@ -1504,11 +1554,6 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
         build_root=build_root,
         agent_registry=agent_registry_full,
         unresolved_rows=unresolved_identity_rows,
-    )
-    print(
-        "[ukraine-data] EDR identity bridge built "
-        f"resolved={len(edr_bridge_resolved)} candidates={len(edr_bridge_candidates)}",
-        flush=True,
     )
     bridge_lookup = _augment_lookup_with_identity_bridge(lookup, edr_bridge_resolved)
     spending_linked = _link_participants(
@@ -1531,17 +1576,27 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
     participant_ids = pd.Index(
         pd.concat(
             [
-                spending_linked.get("source_agent_id", pd.Series(dtype="string")).dropna().astype("string"),
-                spending_linked.get("target_agent_id", pd.Series(dtype="string")).dropna().astype("string"),
-                prozorro_linked.get("buyer_agent_id", pd.Series(dtype="string")).dropna().astype("string"),
-                prozorro_linked.get("supplier_agent_id", pd.Series(dtype="string")).dropna().astype("string"),
+                spending_linked.get("source_agent_id", pd.Series(dtype="string"))
+                .dropna()
+                .astype("string"),
+                spending_linked.get("target_agent_id", pd.Series(dtype="string"))
+                .dropna()
+                .astype("string"),
+                prozorro_linked.get("buyer_agent_id", pd.Series(dtype="string"))
+                .dropna()
+                .astype("string"),
+                prozorro_linked.get("supplier_agent_id", pd.Series(dtype="string"))
+                .dropna()
+                .astype("string"),
                 dps.get("agent_id", pd.Series(dtype="string")).dropna().astype("string"),
             ],
             ignore_index=True,
         ).unique()
     )
     runtime_agents = agent_registry_full[
-        agent_registry_full.get("agent_id", pd.Series(dtype="string")).astype("string").isin(participant_ids)
+        agent_registry_full.get("agent_id", pd.Series(dtype="string"))
+        .astype("string")
+        .isin(participant_ids)
     ].copy()
     if runtime_agents.empty:
         runtime_agents = agent_registry_full.copy()
@@ -1555,23 +1610,27 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
             )
         ]
 
-    public_entity_registry = pd.concat(
-        [
-            spending_linked.assign(
-                entity_type="budget_participant",
-                entity_id=spending_linked.get("source_agent_id", pd.Series(dtype="string")),
-            )[["entity_id", "entity_type", "period_id"]]
-            if "source_agent_id" in spending_linked.columns
-            else pd.DataFrame(columns=["entity_id", "entity_type", "period_id"]),
-            prozorro_linked.assign(
-                entity_type="procurement_buyer",
-                entity_id=prozorro_linked.get("buyer_agent_id", pd.Series(dtype="string")),
-            )[["entity_id", "entity_type", "period_id"]]
-            if "buyer_agent_id" in prozorro_linked.columns
-            else pd.DataFrame(columns=["entity_id", "entity_type", "period_id"]),
-        ],
-        ignore_index=True,
-    ).dropna(subset=["entity_id"]).drop_duplicates()
+    public_entity_registry = (
+        pd.concat(
+            [
+                spending_linked.assign(
+                    entity_type="budget_participant",
+                    entity_id=spending_linked.get("source_agent_id", pd.Series(dtype="string")),
+                )[["entity_id", "entity_type", "period_id"]]
+                if "source_agent_id" in spending_linked.columns
+                else pd.DataFrame(columns=["entity_id", "entity_type", "period_id"]),
+                prozorro_linked.assign(
+                    entity_type="procurement_buyer",
+                    entity_id=prozorro_linked.get("buyer_agent_id", pd.Series(dtype="string")),
+                )[["entity_id", "entity_type", "period_id"]]
+                if "buyer_agent_id" in prozorro_linked.columns
+                else pd.DataFrame(columns=["entity_id", "entity_type", "period_id"]),
+            ],
+            ignore_index=True,
+        )
+        .dropna(subset=["entity_id"])
+        .drop_duplicates()
+    )
 
     cell_registry = (
         runtime_agents.assign(
@@ -1581,10 +1640,20 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
         .groupby(["cell_id", "region_code", "sector_id"], as_index=False)
         .agg(agent_count=("agent_id", "nunique"))
     )
-    region_mapping = {value: idx for idx, value in enumerate(sorted(cell_registry["region_code"].astype(str).unique()))}
-    sector_mapping = {value: idx for idx, value in enumerate(sorted(cell_registry["sector_id"].astype(str).unique()))}
-    cell_registry["region_numeric"] = cell_registry["region_code"].astype(str).map(region_mapping).astype(int)
-    cell_registry["sector_numeric"] = cell_registry["sector_id"].astype(str).map(sector_mapping).astype(int)
+    region_mapping = {
+        value: idx
+        for idx, value in enumerate(sorted(cell_registry["region_code"].astype(str).unique()))
+    }
+    sector_mapping = {
+        value: idx
+        for idx, value in enumerate(sorted(cell_registry["sector_id"].astype(str).unique()))
+    }
+    cell_registry["region_numeric"] = (
+        cell_registry["region_code"].astype(str).map(region_mapping).astype(int)
+    )
+    cell_registry["sector_numeric"] = (
+        cell_registry["sector_id"].astype(str).map(sector_mapping).astype(int)
+    )
 
     dps_joined = dps.merge(
         runtime_agents[["agent_id", "cell_id"]],
@@ -1619,7 +1688,9 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
             }
         )
     )
-    cell_state["agent_count"] = _sanitize_numeric_series(cell_state["agent_count"], fill=0.0, lower=0.0)
+    cell_state["agent_count"] = _sanitize_numeric_series(
+        cell_state["agent_count"], fill=0.0, lower=0.0
+    )
     cell_state["population"] = _sanitize_numeric_series(
         cell_state["population"], fill=0.0, lower=0.0, upper=1e9
     )
@@ -1635,15 +1706,18 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
     )
     population_fallback_mask = cell_state["population"] <= 0.0
     if population_fallback_mask.any():
-        cell_state.loc[population_fallback_mask, "population"] = (
-            cell_state.loc[population_fallback_mask, "agent_count"].clip(lower=1.0)
-        )
+        cell_state.loc[population_fallback_mask, "population"] = cell_state.loc[
+            population_fallback_mask, "agent_count"
+        ].clip(lower=1.0)
         stage_warnings.append(
             f"cell_population_fallback_to_agent_count:{int(population_fallback_mask.sum())}"
         )
     if float(cell_state["employment"].max()) <= 0.0:
         stage_warnings.append("dps_employment_missing_using_zero_fallback")
-    employment_cap = np.minimum(cell_state["employment"].to_numpy(dtype=float), cell_state["population"].to_numpy(dtype=float))
+    employment_cap = np.minimum(
+        cell_state["employment"].to_numpy(dtype=float),
+        cell_state["population"].to_numpy(dtype=float),
+    )
     cell_state["employment"] = np.maximum(employment_cap, 0.0)
     cell_state = cell_state.drop(columns=["agent_count"], errors="ignore")
 
@@ -1694,9 +1768,11 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
     )
     edr_bridge_manifest.update(
         {
-            "unresolved_identity_rows_raw": int(len(unresolved_identity_rows)),
+            "unresolved_identity_rows_raw": len(unresolved_identity_rows),
             "unresolved_unique_numeric_ids_raw": int(
-                unresolved_identity_rows["normalized_raw_registration_code"].astype("string").nunique()
+                unresolved_identity_rows["normalized_raw_registration_code"]
+                .astype("string")
+                .nunique()
                 if not unresolved_identity_rows.empty
                 else 0
             ),
@@ -1712,13 +1788,19 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
         stage_dir / "edr_identity_bridge_manifest.json",
         edr_bridge_manifest,
     )
-    outputs["edr_identity_bridge_manifest.json"] = ArtifactRecord.from_path(edr_bridge_manifest_path)
+    outputs["edr_identity_bridge_manifest.json"] = ArtifactRecord.from_path(
+        edr_bridge_manifest_path
+    )
     outputs["cell_registry_region_sector.parquet"] = _write_frame(
         stage_dir / "cell_registry_region_sector.parquet",
         cell_registry,
     )
-    outputs["geo_index_runtime.parquet"] = _write_frame(stage_dir / "geo_index_runtime.parquet", geo_index)
-    outputs["budget_graph_sparse.npz"] = _write_npz(stage_dir / "budget_graph_sparse.npz", **budget_arrays)
+    outputs["geo_index_runtime.parquet"] = _write_frame(
+        stage_dir / "geo_index_runtime.parquet", geo_index
+    )
+    outputs["budget_graph_sparse.npz"] = _write_npz(
+        stage_dir / "budget_graph_sparse.npz", **budget_arrays
+    )
     outputs["procurement_graph_sparse.npz"] = _write_npz(
         stage_dir / "procurement_graph_sparse.npz", **procurement_arrays
     )
@@ -1744,10 +1826,12 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
         raw_columns=["_source_agent_raw_id", "_target_agent_raw_id"],
         resolved_columns=["source_agent_id", "target_agent_id"],
     )
-    procurement_coverage, procurement_resolved, procurement_total = _participant_resolution_coverage(
-        prozorro_linked,
-        raw_columns=["_buyer_agent_raw_id", "_supplier_agent_raw_id"],
-        resolved_columns=["buyer_agent_id", "supplier_agent_id"],
+    procurement_coverage, procurement_resolved, procurement_total = (
+        _participant_resolution_coverage(
+            prozorro_linked,
+            raw_columns=["_buyer_agent_raw_id", "_supplier_agent_raw_id"],
+            resolved_columns=["buyer_agent_id", "supplier_agent_id"],
+        )
     )
     edr_bridge_manifest["spending_coverage_after"] = spending_coverage
     edr_bridge_manifest["spending_resolved_after"] = spending_resolved
@@ -1764,29 +1848,23 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
         0,
     )
     _write_json(edr_bridge_manifest_path, edr_bridge_manifest)
-    outputs["edr_identity_bridge_manifest.json"] = ArtifactRecord.from_path(edr_bridge_manifest_path)
+    outputs["edr_identity_bridge_manifest.json"] = ArtifactRecord.from_path(
+        edr_bridge_manifest_path
+    )
     runtime_agent_count = len(runtime_agents)
     cell_count = len(cell_registry)
     macro_rows = len(macro)
     budget_graph_nnz = outputs["budget_graph_sparse.npz"].nnz
     procurement_graph_nnz = outputs["procurement_graph_sparse.npz"].nnz
 
-    print(
-        "[ukraine-data] preparing D0 validation subset "
-        f"from runtime_agents={runtime_agent_count} cells={cell_count}",
-        flush=True,
-    )
-    validation_agents, validation_cells, validation_cell_state, validation_warnings = _validation_subset(
-        runtime_agents,
-        cell_registry,
-        cell_state,
+    validation_agents, validation_cells, validation_cell_state, validation_warnings = (
+        _validation_subset(
+            runtime_agents,
+            cell_registry,
+            cell_state,
+        )
     )
     stage_warnings.extend(validation_warnings)
-    print(
-        "[ukraine-data] D0 validation subset "
-        f"agents={len(validation_agents)} cells={len(validation_cells)}",
-        flush=True,
-    )
 
     # Drop heavyweight runtime/intermediate frames before the bindings smoke test.
     del spending
@@ -1806,8 +1884,9 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
     del geo_index
     gc.collect()
 
-    print("[ukraine-data] building D0 validation payload", flush=True)
-    payload = _build_synthetic_multiscale_payload(validation_agents, validation_cells, validation_cell_state)
+    payload = _build_synthetic_multiscale_payload(
+        validation_agents, validation_cells, validation_cell_state
+    )
     store = FileSystemCAS(build_root.resolved_cas_root)
     payload_ref = _cas_put_json(store, payload, kind="fabric.synthetic_multiscale_payload")
     data_snapshot_ref = _cas_put_json(
@@ -1817,21 +1896,22 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
             stats={
                 "n_agents": len(validation_agents),
                 "n_cells": len(validation_cells),
-                "n_budget_edges": int(len(budget_arrays["weight"])),
-                "n_procurement_edges": int(len(procurement_arrays["weight"])),
+                "n_budget_edges": len(budget_arrays["weight"]),
+                "n_procurement_edges": len(procurement_arrays["weight"]),
             },
-            notes=["ukraine_part_b_d0_p0_runtime_seed", "validation_payload_downsampled_from_full_runtime"],
+            notes=[
+                "ukraine_part_b_d0_p0_runtime_seed",
+                "validation_payload_downsampled_from_full_runtime",
+            ],
         ),
         kind="fabric.data_snapshot",
     )
     registry_bundle = build_default_registry_bundle(store)
-    print("[ukraine-data] running build_input_bindings() smoke", flush=True)
     bindings = build_input_bindings(
         store,
         data_snapshot_ref=data_snapshot_ref,
         registry_bundle_ref=registry_bundle.bundle_ref,
     )
-    print("[ukraine-data] build_input_bindings() smoke completed", flush=True)
 
     runtime_bundle = RuntimeBundleManifest(
         outputs=outputs,
@@ -1911,7 +1991,9 @@ def _network_contracts_for_graph(
     stage_dir: Path,
     layer_id: str,
 ) -> dict[str, ArtifactRecord]:
-    node_features, node_states = _node_features_from_agent_registry(agent_registry, node_ids=node_ids)
+    node_features, node_states = _node_features_from_agent_registry(
+        agent_registry, node_ids=node_ids
+    )
     network_payload = NetworkData(
         adjacency=adjacency,
         node_features=node_features,
@@ -1919,7 +2001,9 @@ def _network_contracts_for_graph(
         node_ids=list(node_ids),
         metadata={"layer_id": layer_id},
     )
-    treatment = (node_states > float(np.nanmedian(node_states) if len(node_states) else 0.0)).astype(float)
+    treatment = (
+        node_states > float(np.nanmedian(node_states) if len(node_states) else 0.0)
+    ).astype(float)
     outcome = np.log1p(np.maximum(node_states, 0.0))
     causal_payload = NetworkCausalData(
         outcome=outcome,
@@ -1947,7 +2031,9 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
     build_root = config.build_root
     stage_dir = _stage_dir(build_root, StageId.D1)
     ensure_dirs(stage_dir)
-    agent_registry = pd.read_parquet(_stage_dir(build_root, StageId.D0_P0) / "agent_registry_runtime.parquet")
+    agent_registry = pd.read_parquet(
+        _stage_dir(build_root, StageId.D0_P0) / "agent_registry_runtime.parquet"
+    )
     tax_risk = _load_source_frame(config, "dps_tax_risk")
     trade = _load_source_frame(config, "customs_trade")
     nszu = _load_source_frame(config, "nszu_payments")
@@ -1979,12 +2065,18 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
 
     distress = tax_risk.merge(runtime_agents[["agent_id"]], on="agent_id", how="inner").copy()
     distress["peer_agent_id"] = distress["agent_id"]
-    distress["weight"] = _safe_numeric_series(distress, "tax_debt") + _safe_numeric_series(distress, "risk_score")
+    distress["weight"] = _safe_numeric_series(distress, "tax_debt") + _safe_numeric_series(
+        distress, "risk_score"
+    )
     distress["period_id"] = distress.get("period_id", "2025-01")
     node_ids = _collect_graph_node_ids(
         base_node_ids=node_ids,
         edge_frames=[
-            (distress.rename(columns={"agent_id": "src_agent_id"}), "src_agent_id", "peer_agent_id"),
+            (
+                distress.rename(columns={"agent_id": "src_agent_id"}),
+                "src_agent_id",
+                "peer_agent_id",
+            ),
         ],
     )
     distress_arrays = _graph_arrays_from_edges(
@@ -2046,8 +2138,12 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
     public_service_adj = _adjacency_from_edge_arrays(public_service_contract_arrays)
 
     outputs: dict[str, ArtifactRecord] = {}
-    outputs["trade_graph_sparse.npz"] = _write_npz(stage_dir / "trade_graph_sparse.npz", **trade_arrays)
-    outputs["distress_graph_sparse.npz"] = _write_npz(stage_dir / "distress_graph_sparse.npz", **distress_arrays)
+    outputs["trade_graph_sparse.npz"] = _write_npz(
+        stage_dir / "trade_graph_sparse.npz", **trade_arrays
+    )
+    outputs["distress_graph_sparse.npz"] = _write_npz(
+        stage_dir / "distress_graph_sparse.npz", **distress_arrays
+    )
     outputs["public_service_graph_sparse.npz"] = _write_npz(
         stage_dir / "public_service_graph_sparse.npz",
         **public_service_arrays,
@@ -2085,7 +2181,9 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
 
     multiplex_payload = MultiplexNetworkData(
         adjacency_layers=np.stack([trade_adj, distress_adj, public_service_adj]),
-        node_features=_node_features_from_agent_registry(runtime_agents, node_ids=contract_node_ids)[0],
+        node_features=_node_features_from_agent_registry(
+            runtime_agents, node_ids=contract_node_ids
+        )[0],
         node_ids=contract_node_ids,
         metadata={
             "layers": ["trade", "distress", "public_service"],
@@ -2170,7 +2268,11 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
             ),
         ],
         contract_payload={"proxy_checks": proxy_checks},
-        proxy_map={"distress": "tax_debt", "cashflow": "procurement_revenue", "true_employment": "registered_employment"},
+        proxy_map={
+            "distress": "tax_debt",
+            "cashflow": "procurement_revenue",
+            "true_employment": "registered_employment",
+        },
     )
     proxy_bundle_path = stage_dir / "proxy_identification_bundle_v1.json"
     _write_json(proxy_bundle_path, proxy_bundle)
@@ -2192,7 +2294,9 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
             "public_service": {
                 "sparse_graph": str(stage_dir / "public_service_graph_sparse.npz"),
                 "network_contract": str(stage_dir / "public_service_network_data.json"),
-                "network_causal_contract": str(stage_dir / "public_service_network_causal_data.json"),
+                "network_causal_contract": str(
+                    stage_dir / "public_service_network_causal_data.json"
+                ),
             },
         },
         "node_count": full_node_count,
@@ -2243,12 +2347,15 @@ def _family_metric_columns(source: SourceConfig, frame: pd.DataFrame) -> list[st
     numeric_columns = [
         column
         for column in frame.columns
-        if pd.api.types.is_numeric_dtype(frame[column]) and column not in {"coverage_estimate", "trust_weight"}
+        if pd.api.types.is_numeric_dtype(frame[column])
+        and column not in {"coverage_estimate", "trust_weight"}
     ]
     return numeric_columns[:4]
 
 
-def _entity_scope_identity(source: SourceConfig, row: pd.Series) -> tuple[str | None, str | None, str | None, str | None]:
+def _entity_scope_identity(
+    source: SourceConfig, row: pd.Series
+) -> tuple[str | None, str | None, str | None, str | None]:
     entity_id = None
     entity_candidates: list[str] = []
     for column in [source.entity_id_column or "agent_id", *source.identity_columns, "agent_id"]:
@@ -2293,7 +2400,9 @@ def _compact_locator_series(
         if not column or column in seen or column not in frame.columns:
             continue
         seen.add(column)
-        compact = frame[column].map(lambda value: _compact_locator_value(value, max_length=max_length, prefix=prefix))
+        compact = frame[column].map(
+            lambda value: _compact_locator_value(value, max_length=max_length, prefix=prefix)
+        )
         mask = result.isna() & compact.notna()
         if mask.any():
             result.loc[mask] = compact.loc[mask]
@@ -2308,10 +2417,7 @@ def _period_series_to_iso_bounds(
     time_grain: TimeFrequency,
 ) -> tuple[pd.Series, pd.Series]:
     raw = values.fillna("2025-01").astype(str)
-    mapping = {
-        key: _period_to_dates(key, time_grain)
-        for key in raw.unique().tolist()
-    }
+    mapping = {key: _period_to_dates(key, time_grain) for key in raw.unique().tolist()}
     period_start = raw.map(lambda key: mapping[key][0].isoformat())
     period_end = raw.map(lambda key: mapping[key][1].isoformat())
     return period_start, period_end
@@ -2326,12 +2432,18 @@ def _observation_metric_frames_from_frame(
     metric_columns = _family_metric_columns(source, frame)
     if not metric_columns:
         return
-    period_values = frame[source.period_column] if source.period_column in frame.columns else pd.Series(
-        ["2025-01"] * len(frame),
-        index=frame.index,
-        dtype="string",
+    period_values = (
+        frame[source.period_column]
+        if source.period_column in frame.columns
+        else pd.Series(
+            ["2025-01"] * len(frame),
+            index=frame.index,
+            dtype="string",
+        )
     )
-    period_start, period_end = _period_series_to_iso_bounds(period_values, time_grain=source.time_grain)
+    period_start, period_end = _period_series_to_iso_bounds(
+        period_values, time_grain=source.time_grain
+    )
     entity_id = _compact_locator_series(
         frame,
         [source.entity_id_column or "agent_id", *source.identity_columns, "agent_id"],
@@ -2376,10 +2488,14 @@ def _observation_metric_frames_from_frame(
         if "lag_days_estimate" in frame.columns
         else pd.Series([0] * len(frame), index=frame.index, dtype=int)
     )
-    regime_id = frame["regime_id"].astype(str) if "regime_id" in frame.columns else pd.Series(
-        [source.regime_id] * len(frame),
-        index=frame.index,
-        dtype=object,
+    regime_id = (
+        frame["regime_id"].astype(str)
+        if "regime_id" in frame.columns
+        else pd.Series(
+            [source.regime_id] * len(frame),
+            index=frame.index,
+            dtype=object,
+        )
     )
     schema_regime_id = (
         frame["schema_regime_id"].astype(str)
@@ -2474,7 +2590,9 @@ def _iter_observation_metric_frames(
     for source in config.sources.values():
         if source.observation_family is None:
             continue
-        artifact_path = config.build_root.normalized_dir / source.source_id / source.normalized_artifact
+        artifact_path = (
+            config.build_root.normalized_dir / source.source_id / source.normalized_artifact
+        )
         if not artifact_path.exists():
             continue
         requested_columns: list[str] | None = None
@@ -2513,12 +2631,14 @@ def _iter_observation_metric_frames(
                     row_offset=row_offset,
                 ):
                     yield source, metric_id, batch_index, metric_frame
-                row_offset += int(len(frame))
+                row_offset += len(frame)
                 batch_index += 1
                 del frame
         except Exception:
             frame = _read_parquet_frame(artifact_path, columns=requested_columns)
-            for metric_id, metric_frame in _observation_metric_frames_from_frame(source, frame, row_offset=0):
+            for metric_id, metric_frame in _observation_metric_frames_from_frame(
+                source, frame, row_offset=0
+            ):
                 yield source, metric_id, batch_index, metric_frame
             del frame
 
@@ -2541,7 +2661,6 @@ def _build_d2_contract_artifacts(
     import pyarrow as pa
     import pyarrow.parquet as pq
 
-    print("[ukraine-data] d2 contract-tail: copying causal panel", flush=True)
     causal_panel_path = stage_dir / "causal_panel_bundle_monthly.parquet"
     shutil.copy2(monthly_panel_path, causal_panel_path)
     outputs["causal_panel_bundle_monthly.parquet"] = ArtifactRecord.from_path(causal_panel_path)
@@ -2555,9 +2674,10 @@ def _build_d2_contract_artifacts(
     if annual_rows > 0:
         panel_econometric_path = stage_dir / "panel_econometric_bundle_v1.parquet"
         shutil.copy2(annual_panel_path, panel_econometric_path)
-        outputs["panel_econometric_bundle_v1.parquet"] = ArtifactRecord.from_path(panel_econometric_path)
+        outputs["panel_econometric_bundle_v1.parquet"] = ArtifactRecord.from_path(
+            panel_econometric_path
+        )
     else:
-        print("[ukraine-data] d2 contract-tail: building econometric head fallback", flush=True)
         monthly_head = _read_parquet_frame(
             monthly_panel_path,
             columns=[
@@ -2580,7 +2700,6 @@ def _build_d2_contract_artifacts(
         )
 
     negative_control_path = stage_dir / "negative_control_panel.parquet"
-    print("[ukraine-data] d2 contract-tail: scanning monthly panel for negative controls", flush=True)
     parquet_file = pq.ParquetFile(monthly_panel_path)
     trade_count = 0
     negative_frames: list[pd.DataFrame] = []
@@ -2626,11 +2745,6 @@ def _build_d2_contract_artifacts(
         negative_control_path,
         negative_control,
     )
-    print(
-        "[ukraine-data] d2 contract-tail: negative controls ready "
-        f"rows={len(negative_control)} trade_count={trade_count}",
-        flush=True,
-    )
     n_units = max(10, min(64, max(10, trade_count)))
     outcomes = np.linspace(1.0, 2.0, n_units * 3, dtype=float).reshape(n_units, 3)
     treatment = np.asarray([1 if idx % 2 == 0 else 0 for idx in range(n_units)], dtype=int)
@@ -2658,7 +2772,9 @@ def _build_d2_contract_artifacts(
     dynamic_contract = DynamicTreatmentData(
         outcome=np.linspace(1.0, 1.5, n_units, dtype=float),
         treatment_sequence=np.tile(np.asarray([[0, 1, 1]], dtype=int), (n_units, 1)),
-        covariate_sequence=np.tile(np.asarray([[[0.1, 0.2], [0.3, 0.2], [0.4, 0.5]]], dtype=float), (n_units, 1, 1)),
+        covariate_sequence=np.tile(
+            np.asarray([[[0.1, 0.2], [0.3, 0.2], [0.4, 0.5]]], dtype=float), (n_units, 1, 1)
+        ),
         time_ids=np.asarray(["2025-01", "2025-02", "2025-03"], dtype=object),
         variable_names=["lagged_cashflow", "lagged_procurement"],
         metadata={"family": ObservationFamily.PROCUREMENT_FLOWS.value},
@@ -2766,7 +2882,10 @@ def _build_d2_contract_artifacts(
                 "specifications": [
                     SpecificationCurveSource(
                         source_combination_id="all_sources",
-                        included_families=[ObservationFamily.BUDGET_FLOWS, ObservationFamily.PROCUREMENT_FLOWS],
+                        included_families=[
+                            ObservationFamily.BUDGET_FLOWS,
+                            ObservationFamily.PROCUREMENT_FLOWS,
+                        ],
                         sensitivity_axes=["source_combination"],
                     ).model_dump(mode="json")
                 ],
@@ -2916,6 +3035,7 @@ def build_d2_stage(config: PipelineConfig) -> StageBuildResult:
     ensure_dirs(stage_dir)
     import gc
     import resource
+
     import duckdb
 
     shard_dir = build_root.tmp_dir / "d2_observation_shards"
@@ -2936,25 +3056,21 @@ def build_d2_stage(config: PipelineConfig) -> StageBuildResult:
             continue
         source_dir = shard_dir / source.source_id
         ensure_dirs(source_dir)
-        shard_path = source_dir / f"{_kernel_safe_id(metric_id, prefix='metric')}_{batch_index:05d}.parquet"
+        shard_path = (
+            source_dir / f"{_kernel_safe_id(metric_id, prefix='metric')}_{batch_index:05d}.parquet"
+        )
         metric_frame.to_parquet(shard_path, index=False)
         shard_counter += 1
         if source.time_grain == TimeFrequency.YEAR:
             annual_shards.append(shard_path)
-            annual_row_count += int(len(metric_frame))
+            annual_row_count += len(metric_frame)
         else:
             monthly_shards.append(shard_path)
-            monthly_row_count += int(len(metric_frame))
-        family_counts[source.observation_family.value] += int(len(metric_frame))
+            monthly_row_count += len(metric_frame)
+        family_counts[source.observation_family.value] += len(metric_frame)
         families_present.add(source.observation_family.value)
         if shard_counter == 1 or shard_counter % 25 == 0:
-            rss_gib = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024.0 * 1024.0)
-            print(
-                "[ukraine-data] d2 shard "
-                f"{shard_counter} source={source.source_id} metric={metric_id} batch={batch_index} "
-                f"rows={len(metric_frame)} maxrss_gib={rss_gib:.2f}",
-                flush=True,
-            )
+            resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024.0 * 1024.0)
         del metric_frame
         try:
             import pyarrow as pa
@@ -2964,11 +3080,6 @@ def build_d2_stage(config: PipelineConfig) -> StageBuildResult:
             pass
         gc.collect()
     gc.collect()
-    print(
-        "[ukraine-data] d2 shard pass complete "
-        f"monthly_shards={len(monthly_shards)} annual_shards={len(annual_shards)}",
-        flush=True,
-    )
 
     def _materialize_panel(output_path: Path, shards: list[Path]) -> ArtifactRecord:
         if not shards:
@@ -3010,7 +3121,6 @@ def build_d2_stage(config: PipelineConfig) -> StageBuildResult:
 
     monthly_panel_path = stage_dir / "observation_panel_monthly.parquet"
     annual_panel_path = stage_dir / "observation_panel_annual.parquet"
-    print("[ukraine-data] d2 materializing unified observation panels", flush=True)
     outputs: dict[str, ArtifactRecord] = {
         "observation_panel_monthly.parquet": _materialize_panel(monthly_panel_path, monthly_shards),
         "observation_panel_annual.parquet": _materialize_panel(annual_panel_path, annual_shards),
@@ -3046,18 +3156,42 @@ def build_d2_stage(config: PipelineConfig) -> StageBuildResult:
     router = IdentificationModeRouter(measurement_registry=measurement_registry)
     regime_calendar = RegimeCalendar(
         entries=[
-            RegimeCalendarEntry(regime_id="regime_a", start_date=date(2015, 9, 1), end_date=date(2021, 12, 31)),
-            RegimeCalendarEntry(regime_id="regime_b", start_date=date(2022, 1, 1), end_date=date(2023, 12, 31)),
-            RegimeCalendarEntry(regime_id="regime_c", start_date=date(2024, 1, 1), end_date=date(2025, 12, 31)),
+            RegimeCalendarEntry(
+                regime_id="regime_a", start_date=date(2015, 9, 1), end_date=date(2021, 12, 31)
+            ),
+            RegimeCalendarEntry(
+                regime_id="regime_b", start_date=date(2022, 1, 1), end_date=date(2023, 12, 31)
+            ),
+            RegimeCalendarEntry(
+                regime_id="regime_c", start_date=date(2024, 1, 1), end_date=date(2025, 12, 31)
+            ),
         ]
     )
     shock_calendar = ShockCalendar(
         entries=[
-            ShockCalendarEntry(shock_id="shock_budget_2022", start_date=date(2022, 2, 1), end_date=date(2022, 6, 30)),
-            ShockCalendarEntry(shock_id="shock_fx_2022", start_date=date(2022, 3, 1), end_date=date(2022, 9, 30)),
-            ShockCalendarEntry(shock_id="shock_trade_2022", start_date=date(2022, 4, 1), end_date=date(2022, 10, 31)),
-            ShockCalendarEntry(shock_id="shock_procurement_2023", start_date=date(2023, 1, 1), end_date=date(2023, 3, 31)),
-            ShockCalendarEntry(shock_id="shock_reimbursement_2024", start_date=date(2024, 5, 1), end_date=date(2024, 8, 31)),
+            ShockCalendarEntry(
+                shock_id="shock_budget_2022",
+                start_date=date(2022, 2, 1),
+                end_date=date(2022, 6, 30),
+            ),
+            ShockCalendarEntry(
+                shock_id="shock_fx_2022", start_date=date(2022, 3, 1), end_date=date(2022, 9, 30)
+            ),
+            ShockCalendarEntry(
+                shock_id="shock_trade_2022",
+                start_date=date(2022, 4, 1),
+                end_date=date(2022, 10, 31),
+            ),
+            ShockCalendarEntry(
+                shock_id="shock_procurement_2023",
+                start_date=date(2023, 1, 1),
+                end_date=date(2023, 3, 31),
+            ),
+            ShockCalendarEntry(
+                shock_id="shock_reimbursement_2024",
+                start_date=date(2024, 5, 1),
+                end_date=date(2024, 8, 31),
+            ),
         ]
     )
     identification_mode_registry = {
@@ -3120,12 +3254,13 @@ def build_d2_stage(config: PipelineConfig) -> StageBuildResult:
         stage_dir / "jax_calibration_bundle_v1.npz",
         values=monthly_vectors.get("observed_value", pd.Series(dtype=float)).to_numpy(dtype=float),
         trust=monthly_vectors.get("trust_weight", pd.Series(dtype=float)).to_numpy(dtype=float),
-        coverage=monthly_vectors.get("coverage_estimate", pd.Series(dtype=float)).to_numpy(dtype=float),
+        coverage=monthly_vectors.get("coverage_estimate", pd.Series(dtype=float)).to_numpy(
+            dtype=float
+        ),
     )
     del monthly_vectors
     gc.collect()
 
-    print("[ukraine-data] d2 building contract-tail artifacts", flush=True)
     contract_outputs, manifest = _build_d2_contract_artifacts(
         config=config,
         stage_dir=stage_dir,
@@ -3153,13 +3288,19 @@ def build_d2_stage(config: PipelineConfig) -> StageBuildResult:
 
     findings = []
     warnings: list[str] = []
-    missing_families = [family.value for family in ObservationFamily if family.value not in calibration_bundle.metrics["families_present"]]
+    missing_families = [
+        family.value
+        for family in ObservationFamily
+        if family.value not in calibration_bundle.metrics["families_present"]
+    ]
     deferred_missing_families = [
         family
         for family in missing_families
         if family in {ObservationFamily.HOUSEHOLD_DISTRIBUTION.value}
     ]
-    missing_families = [family for family in missing_families if family not in deferred_missing_families]
+    missing_families = [
+        family for family in missing_families if family not in deferred_missing_families
+    ]
     if deferred_missing_families:
         warnings.append(
             "d2_deferred_families_until_d3:" + ",".join(sorted(deferred_missing_families))
@@ -3185,7 +3326,9 @@ def build_d2_stage(config: PipelineConfig) -> StageBuildResult:
 
 def _weighted_average_series(values: pd.Series, weights: pd.Series) -> float:
     numeric_values = pd.to_numeric(values, errors="coerce").fillna(0.0).astype(float)
-    numeric_weights = pd.to_numeric(weights, errors="coerce").fillna(1.0).astype(float).clip(lower=0.0)
+    numeric_weights = (
+        pd.to_numeric(weights, errors="coerce").fillna(1.0).astype(float).clip(lower=0.0)
+    )
     weight_sum = float(numeric_weights.sum())
     if weight_sum <= 1e-12:
         return float(numeric_values.mean()) if len(numeric_values) else 0.0
@@ -3206,11 +3349,17 @@ def _aggregate_labor_micro_panel(labor: pd.DataFrame) -> pd.DataFrame:
             ]
         )
     frame = labor.copy()
-    frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(_normalize_region_code_value)
+    frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(
+        _normalize_region_code_value
+    )
     frame["period_id"] = _coerce_string_series(frame, "period_id", fill="2025-12")
     frame["weight"] = pd.to_numeric(frame.get("weight", 1.0), errors="coerce").fillna(1.0)
-    frame["participation_rate"] = pd.to_numeric(frame.get("participation_rate", 0.0), errors="coerce").fillna(0.0)
-    frame["employment_flag"] = pd.to_numeric(frame.get("employment_flag", 0.0), errors="coerce").fillna(0.0)
+    frame["participation_rate"] = pd.to_numeric(
+        frame.get("participation_rate", 0.0), errors="coerce"
+    ).fillna(0.0)
+    frame["employment_flag"] = pd.to_numeric(
+        frame.get("employment_flag", 0.0), errors="coerce"
+    ).fillna(0.0)
     frame["informal_employment_flag"] = pd.to_numeric(
         frame.get("informal_employment_flag", 0.0),
         errors="coerce",
@@ -3221,14 +3370,18 @@ def _aggregate_labor_micro_panel(labor: pd.DataFrame) -> pd.DataFrame:
             {
                 "region_code": region_code,
                 "period_id": period_id,
-                "micro_participation_rate": _weighted_average_series(group["participation_rate"], group["weight"]),
-                "micro_employment_rate": _weighted_average_series(group["employment_flag"], group["weight"]),
+                "micro_participation_rate": _weighted_average_series(
+                    group["participation_rate"], group["weight"]
+                ),
+                "micro_employment_rate": _weighted_average_series(
+                    group["employment_flag"], group["weight"]
+                ),
                 "micro_informal_employment_rate": _weighted_average_series(
                     group["informal_employment_flag"],
                     group["weight"],
                 ),
                 "micro_sample_weight": float(group["weight"].sum()),
-                "micro_respondent_count": int(len(group)),
+                "micro_respondent_count": len(group),
             }
         )
     return pd.DataFrame.from_records(rows)
@@ -3236,9 +3389,13 @@ def _aggregate_labor_micro_panel(labor: pd.DataFrame) -> pd.DataFrame:
 
 def _aggregate_household_income_panel(household: pd.DataFrame) -> pd.DataFrame:
     if household.empty:
-        return pd.DataFrame(columns=["region_code", "period_id", "household_income_mean", "household_weight_sum"])
+        return pd.DataFrame(
+            columns=["region_code", "period_id", "household_income_mean", "household_weight_sum"]
+        )
     frame = household.copy()
-    frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(_normalize_region_code_value)
+    frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(
+        _normalize_region_code_value
+    )
     frame["period_id"] = _coerce_string_series(frame, "period_id", fill="2025-12")
     frame["weight"] = pd.to_numeric(frame.get("weight", 1.0), errors="coerce").fillna(1.0)
     frame["income"] = pd.to_numeric(frame.get("income", 0.0), errors="coerce").fillna(0.0)
@@ -3267,20 +3424,21 @@ def _aggregate_employment_admin_panel(employment_service: pd.DataFrame) -> pd.Da
             ]
         )
     frame = employment_service.copy()
-    frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(_normalize_region_code_value)
+    frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(
+        _normalize_region_code_value
+    )
     frame["period_id"] = _coerce_string_series(frame, "period_id", fill="2025-12")
-    frame["employment_count"] = pd.to_numeric(frame.get("employment_count", 0.0), errors="coerce").fillna(0.0)
+    frame["employment_count"] = pd.to_numeric(
+        frame.get("employment_count", 0.0), errors="coerce"
+    ).fillna(0.0)
     frame["vacancies"] = pd.to_numeric(frame.get("vacancies", 0.0), errors="coerce").fillna(0.0)
-    aggregated = (
-        frame.groupby(["region_code", "period_id"], as_index=False)
-        .agg(
-            admin_employment_count=("employment_count", "sum"),
-            vacancies=("vacancies", "sum"),
-        )
+    aggregated = frame.groupby(["region_code", "period_id"], as_index=False).agg(
+        admin_employment_count=("employment_count", "sum"),
+        vacancies=("vacancies", "sum"),
     )
-    aggregated["admin_employment_rate_proxy"] = aggregated.groupby("period_id")["admin_employment_count"].transform(
-        lambda series: series / max(float(series.max()), 1.0)
-    )
+    aggregated["admin_employment_rate_proxy"] = aggregated.groupby("period_id")[
+        "admin_employment_count"
+    ].transform(lambda series: series / max(float(series.max()), 1.0))
     return aggregated
 
 
@@ -3289,10 +3447,16 @@ def _extract_macro_labor_panel(macro: pd.DataFrame) -> pd.DataFrame:
         return pd.DataFrame(columns=["region_code", "period_id", "macro_labor_signal"])
     frame = macro.copy()
     frame["metric_id"] = _coerce_string_series(frame, "metric_id", fill="")
-    frame = frame.loc[frame["metric_id"].str.contains("labor|employment|unemployment|wage", case=False, regex=True)]
+    frame = frame.loc[
+        frame["metric_id"].str.contains(
+            "labor|employment|unemployment|wage", case=False, regex=True
+        )
+    ]
     if frame.empty:
         return pd.DataFrame(columns=["region_code", "period_id", "macro_labor_signal"])
-    frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(_normalize_region_code_value)
+    frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(
+        _normalize_region_code_value
+    )
     frame["period_id"] = _coerce_string_series(frame, "period_id", fill="2025-12")
     frame["observed_value"] = pd.to_numeric(frame["observed_value"], errors="coerce").fillna(0.0)
     return frame.groupby(["region_code", "period_id"], as_index=False).agg(
@@ -3316,26 +3480,38 @@ def _build_calibrated_household_cells(household: pd.DataFrame) -> pd.DataFrame:
             ]
         )
     frame = household.copy()
-    frame["cell_id"] = _coerce_string_series(frame, "cell_id", fill="cell::00::household_distribution")
-    frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(_normalize_region_code_value)
+    frame["cell_id"] = _coerce_string_series(
+        frame, "cell_id", fill="cell::00::household_distribution"
+    )
+    frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(
+        _normalize_region_code_value
+    )
     frame["period_id"] = _coerce_string_series(frame, "period_id", fill="2025-12")
     frame["weight"] = pd.to_numeric(frame.get("weight", 1.0), errors="coerce").fillna(1.0)
     frame["income"] = pd.to_numeric(frame.get("income", 0.0), errors="coerce").fillna(0.0)
-    frame["market_income"] = pd.to_numeric(frame.get("market_income", frame["income"]), errors="coerce").fillna(0.0)
+    frame["market_income"] = pd.to_numeric(
+        frame.get("market_income", frame["income"]), errors="coerce"
+    ).fillna(0.0)
     frame["total_expenditure"] = pd.to_numeric(
         frame.get("total_expenditure", frame["income"]),
         errors="coerce",
     ).fillna(0.0)
     rows: list[dict[str, Any]] = []
-    for (cell_id, region_code, period_id), group in frame.groupby(["cell_id", "region_code", "period_id"], sort=False):
+    for (cell_id, region_code, period_id), group in frame.groupby(
+        ["cell_id", "region_code", "period_id"], sort=False
+    ):
         rows.append(
             {
                 "cell_id": cell_id,
                 "region_code": region_code,
                 "period_id": period_id,
                 "household_income_mean": _weighted_average_series(group["income"], group["weight"]),
-                "market_income_mean": _weighted_average_series(group["market_income"], group["weight"]),
-                "total_expenditure_mean": _weighted_average_series(group["total_expenditure"], group["weight"]),
+                "market_income_mean": _weighted_average_series(
+                    group["market_income"], group["weight"]
+                ),
+                "total_expenditure_mean": _weighted_average_series(
+                    group["total_expenditure"], group["weight"]
+                ),
                 "household_weight_sum": float(group["weight"].sum()),
                 "measurement_bias_flag": False,
                 "trust_weight": 0.95,
@@ -3344,19 +3520,28 @@ def _build_calibrated_household_cells(household: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame.from_records(rows)
 
 
-def _build_household_distribution_observation_panel(calibrated_household_cells: pd.DataFrame) -> pd.DataFrame:
+def _build_household_distribution_observation_panel(
+    calibrated_household_cells: pd.DataFrame,
+) -> pd.DataFrame:
     if calibrated_household_cells.empty:
         return pd.DataFrame(columns=OBSERVATION_FRAME_COLUMNS)
     frame = calibrated_household_cells.copy()
-    frame["cell_id"] = _coerce_string_series(frame, "cell_id", fill="cell::00::household_distribution")
-    frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(_normalize_region_code_value)
+    frame["cell_id"] = _coerce_string_series(
+        frame, "cell_id", fill="cell::00::household_distribution"
+    )
+    frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(
+        _normalize_region_code_value
+    )
     frame["period_id"] = _coerce_string_series(frame, "period_id", fill="2025-12")
-    period_start, period_end = _period_series_to_iso_bounds(frame["period_id"], time_grain=TimeFrequency.MONTH)
+    period_start, period_end = _period_series_to_iso_bounds(
+        frame["period_id"], time_grain=TimeFrequency.MONTH
+    )
     regime_values = frame["period_id"].map(_regime_for_period_id)
     observations = pd.DataFrame(
         {
             "observation_id": [
-                f"obs.household_distribution.household_income_mean.{idx:08d}" for idx in range(len(frame))
+                f"obs.household_distribution.household_income_mean.{idx:08d}"
+                for idx in range(len(frame))
             ],
             "family": ObservationFamily.HOUSEHOLD_DISTRIBUTION.value,
             "time_grain": TimeFrequency.MONTH.value,
@@ -3368,23 +3553,33 @@ def _build_household_distribution_observation_panel(calibrated_household_cells: 
             "region_code": frame["region_code"].astype("string"),
             "sector_id": pd.Series(["household_distribution"] * len(frame), dtype="string"),
             "metric_id": pd.Series(["household_income_mean"] * len(frame), dtype="string"),
-            "observed_value": pd.to_numeric(frame["household_income_mean"], errors="coerce").fillna(0.0).astype(float),
+            "observed_value": pd.to_numeric(frame["household_income_mean"], errors="coerce")
+            .fillna(0.0)
+            .astype(float),
             "unit": pd.Series(["unit"] * len(frame), dtype="string"),
             "coverage_estimate": 0.97,
             "measurement_bias_flag": frame.get(
                 "measurement_bias_flag",
                 pd.Series([False] * len(frame), index=frame.index),
-            ).fillna(False).astype(bool),
+            )
+            .fillna(False)
+            .astype(bool),
             "censoring_mask": False,
-            "trust_weight": pd.to_numeric(frame.get("trust_weight", 0.95), errors="coerce").fillna(0.95).astype(float),
+            "trust_weight": pd.to_numeric(frame.get("trust_weight", 0.95), errors="coerce")
+            .fillna(0.95)
+            .astype(float),
             "lag_days_estimate": 0,
             "source_id": pd.Series(["household_microdata"] * len(frame), dtype="string"),
             "source_version": pd.Series(["v1"] * len(frame), dtype="string"),
             "regime_id": pd.Series([item[0] for item in regime_values], dtype="string"),
             "shock_mask": False,
             "schema_regime_id": pd.Series([item[1] for item in regime_values], dtype="string"),
-            "identification_mode": pd.Series([IdentificationMode.POINT_IDENTIFIED.value] * len(frame), dtype="string"),
-            "source_confidence_tier": pd.Series([SourceConfidenceTier.CORE.value] * len(frame), dtype="string"),
+            "identification_mode": pd.Series(
+                [IdentificationMode.POINT_IDENTIFIED.value] * len(frame), dtype="string"
+            ),
+            "source_confidence_tier": pd.Series(
+                [SourceConfidenceTier.CORE.value] * len(frame), dtype="string"
+            ),
             "proxy_source_id": pd.Series([None] * len(frame), dtype="string"),
         }
     )
@@ -3395,7 +3590,9 @@ def _build_household_distribution_observation_panel(calibrated_household_cells: 
 
 
 def _series_correlation(left: pd.Series, right: pd.Series) -> float:
-    joined = pd.concat([pd.to_numeric(left, errors="coerce"), pd.to_numeric(right, errors="coerce")], axis=1).dropna()
+    joined = pd.concat(
+        [pd.to_numeric(left, errors="coerce"), pd.to_numeric(right, errors="coerce")], axis=1
+    ).dropna()
     if len(joined) < 2:
         return 0.0
     corr = joined.iloc[:, 0].corr(joined.iloc[:, 1])
@@ -3413,8 +3610,12 @@ def _weighted_mape_frame(
 ) -> float:
     if frame.empty:
         return 1.0
-    observed = pd.to_numeric(frame[observed_column], errors="coerce").fillna(0.0).to_numpy(dtype=float)
-    predicted = pd.to_numeric(frame[predicted_column], errors="coerce").fillna(0.0).to_numpy(dtype=float)
+    observed = (
+        pd.to_numeric(frame[observed_column], errors="coerce").fillna(0.0).to_numpy(dtype=float)
+    )
+    predicted = (
+        pd.to_numeric(frame[predicted_column], errors="coerce").fillna(0.0).to_numpy(dtype=float)
+    )
     weights = pd.to_numeric(frame[weight_column], errors="coerce").fillna(1.0).to_numpy(dtype=float)
     denominator = np.maximum(np.abs(observed), 1e-9)
     if weights.sum() <= 1e-12:
@@ -3434,18 +3635,22 @@ def _build_labor_validation_artifacts(
     employment_panel = _aggregate_employment_admin_panel(employment_service)
     macro_panel = _extract_macro_labor_panel(macro)
 
-    validation_panel = labor_micro_panel.merge(
-        employment_panel,
-        on=["region_code", "period_id"],
-        how="outer",
-    ).merge(
-        household_panel,
-        on=["region_code", "period_id"],
-        how="left",
-    ).merge(
-        macro_panel,
-        on=["region_code", "period_id"],
-        how="left",
+    validation_panel = (
+        labor_micro_panel.merge(
+            employment_panel,
+            on=["region_code", "period_id"],
+            how="outer",
+        )
+        .merge(
+            household_panel,
+            on=["region_code", "period_id"],
+            how="left",
+        )
+        .merge(
+            macro_panel,
+            on=["region_code", "period_id"],
+            how="left",
+        )
     )
     if validation_panel.empty:
         validation_panel = pd.DataFrame(
@@ -3466,10 +3671,34 @@ def _build_labor_validation_artifacts(
             ]
         )
 
-    micro_periods = sorted(labor_micro_panel.get("period_id", pd.Series(dtype="string")).dropna().astype(str).unique().tolist())
-    admin_periods = sorted(employment_panel.get("period_id", pd.Series(dtype="string")).dropna().astype(str).unique().tolist())
-    micro_regions = sorted(labor_micro_panel.get("region_code", pd.Series(dtype="string")).dropna().astype(str).unique().tolist())
-    admin_regions = sorted(employment_panel.get("region_code", pd.Series(dtype="string")).dropna().astype(str).unique().tolist())
+    micro_periods = sorted(
+        labor_micro_panel.get("period_id", pd.Series(dtype="string"))
+        .dropna()
+        .astype(str)
+        .unique()
+        .tolist()
+    )
+    admin_periods = sorted(
+        employment_panel.get("period_id", pd.Series(dtype="string"))
+        .dropna()
+        .astype(str)
+        .unique()
+        .tolist()
+    )
+    micro_regions = sorted(
+        labor_micro_panel.get("region_code", pd.Series(dtype="string"))
+        .dropna()
+        .astype(str)
+        .unique()
+        .tolist()
+    )
+    admin_regions = sorted(
+        employment_panel.get("region_code", pd.Series(dtype="string"))
+        .dropna()
+        .astype(str)
+        .unique()
+        .tolist()
+    )
     temporal_overlap_periods = sorted(set(micro_periods) & set(admin_periods))
     regional_overlap_codes = sorted(set(micro_regions) & set(admin_regions))
     overlap = validation_panel.dropna(
@@ -3502,7 +3731,9 @@ def _build_labor_validation_artifacts(
         }
         corrected_panel = employment_panel.copy()
         if not corrected_panel.empty:
-            corrected_panel["corrected_employment_rate"] = corrected_panel["admin_employment_rate_proxy"]
+            corrected_panel["corrected_employment_rate"] = corrected_panel[
+                "admin_employment_rate_proxy"
+            ]
             corrected_panel["measurement_bias_flag"] = True
             corrected_panel["trust_weight"] = 0.55
         else:
@@ -3540,9 +3771,13 @@ def _build_labor_validation_artifacts(
     )
     macro_overlap = overlap.dropna(subset=["macro_labor_signal"]).copy()
     if not macro_overlap.empty:
-        macro_scaled = pd.to_numeric(macro_overlap["macro_labor_signal"], errors="coerce").fillna(0.0)
+        macro_scaled = pd.to_numeric(macro_overlap["macro_labor_signal"], errors="coerce").fillna(
+            0.0
+        )
         macro_scaled = macro_scaled / max(float(macro_scaled.max()), 1.0)
-        macro_correlation = _series_correlation(macro_scaled, macro_overlap["micro_employment_rate"])
+        macro_correlation = _series_correlation(
+            macro_scaled, macro_overlap["micro_employment_rate"]
+        )
     else:
         macro_correlation = 0.0
 
@@ -3557,9 +3792,9 @@ def _build_labor_validation_artifacts(
         region_correction_factor=("correction_factor", "median")
     )
     corrected_panel = employment_panel.merge(correction_by_region, on="region_code", how="left")
-    corrected_panel["region_correction_factor"] = corrected_panel["region_correction_factor"].fillna(
-        float(np.median(overlap["correction_factor"])) if not overlap.empty else 1.0
-    )
+    corrected_panel["region_correction_factor"] = corrected_panel[
+        "region_correction_factor"
+    ].fillna(float(np.median(overlap["correction_factor"])) if not overlap.empty else 1.0)
     corrected_panel["corrected_employment_rate"] = np.clip(
         corrected_panel["admin_employment_rate_proxy"].to_numpy(dtype=float)
         * corrected_panel["region_correction_factor"].to_numpy(dtype=float),
@@ -3574,11 +3809,13 @@ def _build_labor_validation_artifacts(
         "family": ObservationFamily.LABOR_MARKET.value,
         "bias_validated": bias_validated,
         "promotion_allowed": bias_validated,
-        "overlap_rows": int(len(overlap)),
+        "overlap_rows": len(overlap),
         "employment_correlation": float(employment_correlation),
         "employment_wmape": float(employment_wmape),
         "macro_correlation": float(macro_correlation),
-        "median_correction_factor": float(np.median(overlap["correction_factor"])) if not overlap.empty else 1.0,
+        "median_correction_factor": float(np.median(overlap["correction_factor"]))
+        if not overlap.empty
+        else 1.0,
         "rationale": (
             ["labor_proxy_promoted_via_bias_validation"]
             if bias_validated
@@ -3639,9 +3876,11 @@ def build_d3_stage(config: PipelineConfig) -> StageBuildResult:
     _write_json(microsim_contract_path, household_contract)
     outputs["microsim_survey_contract_v1.json"] = ArtifactRecord.from_path(microsim_contract_path)
 
-    corrected_firms = (
-        pfu.assign(selection_term=np.log1p(_safe_numeric_series(pfu, "debt_amount", fill=0.0)))
-        .assign(corrected_exit_bias=lambda frame: frame["selection_term"] / (frame["selection_term"].max() or 1.0))
+    corrected_firms = pfu.assign(
+        selection_term=np.log1p(_safe_numeric_series(pfu, "debt_amount", fill=0.0))
+    ).assign(
+        corrected_exit_bias=lambda frame: frame["selection_term"]
+        / (frame["selection_term"].max() or 1.0)
     )
     outputs["corrected_firm_panels.parquet"] = _write_frame(
         stage_dir / "corrected_firm_panels.parquet",
@@ -3650,10 +3889,16 @@ def build_d3_stage(config: PipelineConfig) -> StageBuildResult:
 
     survival_frame = pd.DataFrame(
         {
-            "duration": np.maximum(_safe_numeric_series(distress, "months_to_event", fill=12.0), 1.0),
+            "duration": np.maximum(
+                _safe_numeric_series(distress, "months_to_event", fill=12.0), 1.0
+            ),
             "event": (_safe_numeric_series(distress, "event_flag", fill=1.0) > 0.0).astype(int),
-            "risk_signal": _safe_numeric_series(pfu.reindex(distress.index), "debt_amount", fill=0.0),
-            "wage_arrears": _safe_numeric_series(wage.reindex(distress.index), "arrears_amount", fill=0.0),
+            "risk_signal": _safe_numeric_series(
+                pfu.reindex(distress.index), "debt_amount", fill=0.0
+            ),
+            "wage_arrears": _safe_numeric_series(
+                wage.reindex(distress.index), "arrears_amount", fill=0.0
+            ),
         }
     )
     outputs["survival_hazard_estimates.parquet"] = _write_frame(
@@ -3661,11 +3906,13 @@ def build_d3_stage(config: PipelineConfig) -> StageBuildResult:
         survival_frame,
     )
 
-    labor_validation_panel, labor_corrected_panel, labor_bias_validation = _build_labor_validation_artifacts(
-        labor=labor,
-        household=household,
-        employment_service=employment_service,
-        macro=macro,
+    labor_validation_panel, labor_corrected_panel, labor_bias_validation = (
+        _build_labor_validation_artifacts(
+            labor=labor,
+            household=household,
+            employment_service=employment_service,
+            macro=macro,
+        )
     )
     outputs["labor_validation_panel.parquet"] = _write_frame(
         stage_dir / "labor_validation_panel.parquet",
@@ -3700,7 +3947,9 @@ def build_d3_stage(config: PipelineConfig) -> StageBuildResult:
                 },
                 {
                     "lesson_id": "lesson::data_quality::labor_bias_validation",
-                    "status": "success" if labor_bias_validation.get("bias_validated") else "warning",
+                    "status": "success"
+                    if labor_bias_validation.get("bias_validated")
+                    else "warning",
                     "message": (
                         "Labor proxy promoted via bias validation."
                         if labor_bias_validation.get("bias_validated")
@@ -3801,7 +4050,9 @@ def _build_d4_governance_accountability_input(
         )
 
     return GovernanceAccountabilityInput(
-        candidate_id=str(getattr(champion, "candidate_id", "") or calibration_run.selected_candidate_id),
+        candidate_id=str(
+            getattr(champion, "candidate_id", "") or calibration_run.selected_candidate_id
+        ),
         model_name="ukraine_d4_calibration_candidate",
         model_version=str(calibration_run.schema_version),
         intended_use="D4 promotion-gate accountability and external audit review.",
@@ -3824,7 +4075,7 @@ def _build_d4_governance_accountability_input(
         known_limitations=sorted(set(known_limitations)),
         protected_attributes={axis: [] for axis in protected_axes},
         metadata={
-            "n_observations": int(len(observation_panel)),
+            "n_observations": len(observation_panel),
             "used_families": sorted(family.value for family in calibration_run.used_families),
             "selected_on_split": calibration_run.selected_on_split,
             "holdout_score": holdout_scores.overall_score,
@@ -3916,7 +4167,9 @@ def build_d4_stage(config: PipelineConfig) -> StageBuildResult:
         waived_families=waived_signoff_families,
         proxy_promoted_families=proxy_promoted_families,
     )
-    family_eligibility_path = _write_json(stage_dir / "family_eligibility_registry.json", family_eligibility)
+    family_eligibility_path = _write_json(
+        stage_dir / "family_eligibility_registry.json", family_eligibility
+    )
     outputs["family_eligibility_registry.json"] = ArtifactRecord.from_path(family_eligibility_path)
     try:
         family_eligibility.require_final_signoff_ready(REQUIRED_SIGNOFF_FAMILIES)
@@ -3951,7 +4204,9 @@ def build_d4_stage(config: PipelineConfig) -> StageBuildResult:
         observation_panel,
         eligibility_registry=family_eligibility,
     )
-    governance_penalty = _clip_value(1.0 - strategic_metrics.aggregate_plausibility, lower=0.0, upper=1.0)
+    governance_penalty = _clip_value(
+        1.0 - strategic_metrics.aggregate_plausibility, lower=0.0, upper=1.0
+    )
     interference_report, interference_certificate = build_interference_evidence(
         observation_panel,
         eligibility_registry=family_eligibility,
@@ -3964,7 +4219,9 @@ def build_d4_stage(config: PipelineConfig) -> StageBuildResult:
         transportability_score=transportability.aggregate_score,
         strategic_plausibility=strategic_metrics.aggregate_plausibility,
         governance_penalty=governance_penalty,
-        interference_fit_score=_clip_value(interference_report.effects.total_effect, lower=0.0, upper=1.0),
+        interference_fit_score=_clip_value(
+            interference_report.effects.total_effect, lower=0.0, upper=1.0
+        ),
         required_families=tuple(
             family
             for family in REQUIRED_SIGNOFF_FAMILIES
@@ -3972,7 +4229,9 @@ def build_d4_stage(config: PipelineConfig) -> StageBuildResult:
         ),
     )
     champion = next(
-        item for item in calibration_run.candidates if item.candidate_id == calibration_run.selected_candidate_id
+        item
+        for item in calibration_run.candidates
+        if item.candidate_id == calibration_run.selected_candidate_id
     )
     holdout_scores = HoldoutScoresManifest(
         candidate_id=champion.candidate_id,
@@ -4001,14 +4260,24 @@ def build_d4_stage(config: PipelineConfig) -> StageBuildResult:
         PutOptions(kind="scientist.calibration_candidate", media_type="application/json"),
     )
     candidate_artifact_ref = ArtifactRef.model_validate(candidate_ref)
-    observed_sources = sorted(observation_panel.get("source_id", pd.Series(dtype=str)).dropna().astype(str).unique().tolist())
+    observed_sources = sorted(
+        observation_panel.get("source_id", pd.Series(dtype=str))
+        .dropna()
+        .astype(str)
+        .unique()
+        .tolist()
+    )
     data_sources: list[dict[str, Any]] = []
     for source_id in observed_sources:
         source = config.sources.get(source_id)
         if source is None:
             continue
         source_path = build_root.normalized_dir / source_id / source.normalized_artifact
-        last_updated = datetime.utcfromtimestamp(source_path.stat().st_mtime).isoformat() if source_path.exists() else datetime.utcnow().isoformat()
+        last_updated = (
+            datetime.utcfromtimestamp(source_path.stat().st_mtime).isoformat()
+            if source_path.exists()
+            else datetime.utcnow().isoformat()
+        )
         data_sources.append({"name": source_id, "last_updated": last_updated})
     governance_report = CalibrationGovernanceEvidenceRunner(cas_store).run(
         candidate_ref=candidate_artifact_ref,
@@ -4057,13 +4326,17 @@ def build_d4_stage(config: PipelineConfig) -> StageBuildResult:
         )
     )
 
-    calibration_manifest_path = _write_json(stage_dir / "calibration_run_manifest.json", calibration_run)
+    calibration_manifest_path = _write_json(
+        stage_dir / "calibration_run_manifest.json", calibration_run
+    )
     outputs["calibration_run_manifest.json"] = ArtifactRecord.from_path(calibration_manifest_path)
     loss_breakdown_path = _write_json(stage_dir / "loss_breakdown.json", loss_breakdown)
     outputs["loss_breakdown.json"] = ArtifactRecord.from_path(loss_breakdown_path)
     holdout_scores_path = _write_json(stage_dir / "holdout_scores.json", holdout_scores)
     outputs["holdout_scores.json"] = ArtifactRecord.from_path(holdout_scores_path)
-    shock_scores_path = _write_json(stage_dir / "shock_scenario_scores.json", validation_result.bundle.stress_scenarios)
+    shock_scores_path = _write_json(
+        stage_dir / "shock_scenario_scores.json", validation_result.bundle.stress_scenarios
+    )
     outputs["shock_scenario_scores.json"] = ArtifactRecord.from_path(shock_scores_path)
     if validation_result.bundle.governance_accountability_ref is not None:
         accountability_artifact = load_governance_accountability_artifact(
@@ -4074,9 +4347,7 @@ def build_d4_stage(config: PipelineConfig) -> StageBuildResult:
             stage_dir / "governance_accountability.json",
             accountability_artifact,
         )
-        outputs["governance_accountability.json"] = ArtifactRecord.from_path(
-            accountability_path
-        )
+        outputs["governance_accountability.json"] = ArtifactRecord.from_path(accountability_path)
     leaderboard_path = _write_json(
         stage_dir / "calibration_leaderboard.json",
         {
@@ -4091,13 +4362,21 @@ def build_d4_stage(config: PipelineConfig) -> StageBuildResult:
         },
     )
     outputs["calibration_leaderboard.json"] = ArtifactRecord.from_path(leaderboard_path)
-    transportability_path = _write_json(stage_dir / "transportability_results.json", transportability)
+    transportability_path = _write_json(
+        stage_dir / "transportability_results.json", transportability
+    )
     outputs["transportability_results.json"] = ArtifactRecord.from_path(transportability_path)
-    strategic_metrics_path = _write_json(stage_dir / "strategic_response_metrics.json", strategic_metrics)
+    strategic_metrics_path = _write_json(
+        stage_dir / "strategic_response_metrics.json", strategic_metrics
+    )
     outputs["strategic_response_metrics.json"] = ArtifactRecord.from_path(strategic_metrics_path)
-    specification_curve_path = _write_json(stage_dir / "specification_curve_summary.json", specification_curve)
+    specification_curve_path = _write_json(
+        stage_dir / "specification_curve_summary.json", specification_curve
+    )
     outputs["specification_curve_summary.json"] = ArtifactRecord.from_path(specification_curve_path)
-    outputs["foundry_seed_state_v1.npz"] = _write_npz(stage_dir / "foundry_seed_state_v1.npz", values=observed_head)
+    outputs["foundry_seed_state_v1.npz"] = _write_npz(
+        stage_dir / "foundry_seed_state_v1.npz", values=observed_head
+    )
     replay_artifacts_path = _write_json(
         stage_dir / "replay_artifacts.json",
         {
@@ -4147,7 +4426,10 @@ def build_d4_stage(config: PipelineConfig) -> StageBuildResult:
                 message="D4 requires all 5 backtest kinds to be materialized from D2 outputs",
             )
         )
-    if validation_result.bundle.stress_scenarios is None or len(validation_result.bundle.stress_scenarios.comparisons) != 6:
+    if (
+        validation_result.bundle.stress_scenarios is None
+        or len(validation_result.bundle.stress_scenarios.comparisons) != 6
+    ):
         findings.append(
             ValidationFinding(
                 severity="error",
@@ -4293,9 +4575,15 @@ def _build_cell_embeddings(
         sector_codes = _coerce_string_series(frame, "sector_id", fill="unknown")
         sector_map = {value: index for index, value in enumerate(sorted(sector_codes.unique()))}
         frame["sector_numeric"] = sector_codes.map(sector_map).astype(float)
-    if calibrated_households is not None and not calibrated_households.empty and "cell_id" in calibrated_households.columns:
+    if (
+        calibrated_households is not None
+        and not calibrated_households.empty
+        and "cell_id" in calibrated_households.columns
+    ):
         household_features = calibrated_households.copy()
-        household_features = household_features.groupby("cell_id", as_index=False).mean(numeric_only=True)
+        household_features = household_features.groupby("cell_id", as_index=False).mean(
+            numeric_only=True
+        )
         frame = frame.merge(household_features, on="cell_id", how="left", suffixes=("", "_hh"))
     for column in frame.columns:
         if column == "cell_id":
@@ -4334,8 +4622,12 @@ def _build_graph_compression_bundle(
     for layer_name, arrays in graph_layers.items():
         if not arrays:
             continue
-        src_ids = np.asarray(arrays.get("src_ids", np.asarray([], dtype=object)), dtype=object).astype(str)
-        dst_ids = np.asarray(arrays.get("dst_ids", np.asarray([], dtype=object)), dtype=object).astype(str)
+        src_ids = np.asarray(
+            arrays.get("src_ids", np.asarray([], dtype=object)), dtype=object
+        ).astype(str)
+        dst_ids = np.asarray(
+            arrays.get("dst_ids", np.asarray([], dtype=object)), dtype=object
+        ).astype(str)
         weights = np.asarray(arrays.get("weight", np.asarray([], dtype=float)), dtype=float)
         if len(src_ids) == 0:
             continue
@@ -4348,16 +4640,30 @@ def _build_graph_compression_bundle(
         )
         compressed = grouped.groupby(["src_group", "dst_group"], as_index=False)["weight"].sum()
         original_group_degree = (
-            grouped.groupby("src_group")["weight"].sum().abs()
-            + grouped.groupby("dst_group")["weight"].sum().abs()
-        ).groupby(level=0).sum()
+            (
+                grouped.groupby("src_group")["weight"].sum().abs()
+                + grouped.groupby("dst_group")["weight"].sum().abs()
+            )
+            .groupby(level=0)
+            .sum()
+        )
         compressed_group_degree = (
-            compressed.groupby("src_group")["weight"].sum().abs()
-            + compressed.groupby("dst_group")["weight"].sum().abs()
-        ).groupby(level=0).sum()
-        all_groups = sorted(set(original_group_degree.index).union(set(compressed_group_degree.index)))
-        original_vector = np.asarray([float(original_group_degree.get(group, 0.0)) for group in all_groups], dtype=float)
-        compressed_vector = np.asarray([float(compressed_group_degree.get(group, 0.0)) for group in all_groups], dtype=float)
+            (
+                compressed.groupby("src_group")["weight"].sum().abs()
+                + compressed.groupby("dst_group")["weight"].sum().abs()
+            )
+            .groupby(level=0)
+            .sum()
+        )
+        all_groups = sorted(
+            set(original_group_degree.index).union(set(compressed_group_degree.index))
+        )
+        original_vector = np.asarray(
+            [float(original_group_degree.get(group, 0.0)) for group in all_groups], dtype=float
+        )
+        compressed_vector = np.asarray(
+            [float(compressed_group_degree.get(group, 0.0)) for group in all_groups], dtype=float
+        )
         total_degree = max(float(np.abs(original_vector).sum()), 1e-9)
         degree_preservation = max(
             0.0,
@@ -4365,12 +4671,24 @@ def _build_graph_compression_bundle(
         )
         total_original_weight = max(float(np.abs(weights).sum()), 1e-9)
         total_compressed_weight = float(np.abs(compressed["weight"].to_numpy(dtype=float)).sum())
-        weight_error = float(abs(total_original_weight - total_compressed_weight) / total_original_weight)
+        weight_error = float(
+            abs(total_original_weight - total_compressed_weight) / total_original_weight
+        )
         top_original = set(
-            grouped.groupby("src_group")["weight"].sum().abs().sort_values(ascending=False).head(10).index.tolist()
+            grouped.groupby("src_group")["weight"]
+            .sum()
+            .abs()
+            .sort_values(ascending=False)
+            .head(10)
+            .index.tolist()
         )
         top_compressed = set(
-            compressed.groupby("src_group")["weight"].sum().abs().sort_values(ascending=False).head(10).index.tolist()
+            compressed.groupby("src_group")["weight"]
+            .sum()
+            .abs()
+            .sort_values(ascending=False)
+            .head(10)
+            .index.tolist()
         )
         neighborhood_overlap = (
             float(len(top_original & top_compressed) / max(len(top_original | top_compressed), 1))
@@ -4384,15 +4702,17 @@ def _build_graph_compression_bundle(
             {
                 "layer_id": layer_name,
                 "coarsening_strategy": "cell_aware_sparse_coarsening",
-                "n_original_edges": int(len(weights)),
-                "n_compressed_edges": int(len(compressed)),
-                "n_supernodes": int(len(all_groups)),
+                "n_original_edges": len(weights),
+                "n_compressed_edges": len(compressed),
+                "n_supernodes": len(all_groups),
                 "degree_preservation_score": degree_preservation,
                 "edge_weight_reconstruction_error": weight_error,
                 "neighborhood_overlap_stability": neighborhood_overlap,
             }
         )
-    aggregate_degree = float(np.mean(degree_preservation_scores)) if degree_preservation_scores else 1.0
+    aggregate_degree = (
+        float(np.mean(degree_preservation_scores)) if degree_preservation_scores else 1.0
+    )
     aggregate_weight_error = float(np.mean(weight_errors)) if weight_errors else 0.0
     aggregate_overlap = float(np.mean(overlap_scores)) if overlap_scores else 1.0
     downstream_stability = max(
@@ -4424,7 +4744,9 @@ def _build_release_intervention_payloads(
     transportability: TransportabilitySummaryManifest,
     strategic_metrics: StrategicResponseMetricsManifest,
     specification_curve: SpecificationCurveSummaryManifest,
-) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any], pd.DataFrame, dict[str, Any]]:
+) -> tuple[
+    dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any], pd.DataFrame, dict[str, Any]
+]:
     compiler = LexInterventionCompiler()
     sequencer = TemporalInterventionSequencer()
     primary_region = _safe_first(cell_registry.get("region_code", pd.Series(dtype=str)), "00")
@@ -4685,7 +5007,8 @@ def _build_release_intervention_payloads(
         },
         "interference_aware_calibration_term": {
             "term_value": round(
-                (0.5 * transportability.aggregate_score) + (0.5 * strategic_metrics.aggregate_plausibility),
+                (0.5 * transportability.aggregate_score)
+                + (0.5 * strategic_metrics.aggregate_plausibility),
                 6,
             ),
             "depends_on": ["procurement_network", "budget_network"],
@@ -4904,20 +5227,31 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
         for bundle_name, path in release_dirs.items()
     }
     bundle_contents = {
-        bundle_name: _bundle_content_records(path)
-        for bundle_name, path in release_dirs.items()
+        bundle_name: _bundle_content_records(path) for bundle_name, path in release_dirs.items()
     }
     release_manifest = ReleaseManifest(
         bundles=bundle_records,
         bundle_contents=bundle_contents,
         metrics={
             "runtime_bundle_size_gib": _directory_file_size_gib(release_dirs["runtime_bundle_v1"]),
-            "calibration_bundle_size_gib": _directory_file_size_gib(release_dirs["calibration_bundle_v1"]),
-            "contract_bundle_size_gib": _directory_file_size_gib(release_dirs["method_contract_bundle_v1"]),
-            "compression_degree_preservation_score": graph_compression_bundle["fidelity_metrics"]["degree_preservation_score"],
-            "compression_edge_weight_reconstruction_error": graph_compression_bundle["fidelity_metrics"]["edge_weight_reconstruction_error"],
-            "compression_neighborhood_overlap_stability": graph_compression_bundle["fidelity_metrics"]["neighborhood_overlap_stability"],
-            "compression_policy_response_stability": graph_compression_bundle["fidelity_metrics"]["downstream_policy_response_stability"],
+            "calibration_bundle_size_gib": _directory_file_size_gib(
+                release_dirs["calibration_bundle_v1"]
+            ),
+            "contract_bundle_size_gib": _directory_file_size_gib(
+                release_dirs["method_contract_bundle_v1"]
+            ),
+            "compression_degree_preservation_score": graph_compression_bundle["fidelity_metrics"][
+                "degree_preservation_score"
+            ],
+            "compression_edge_weight_reconstruction_error": graph_compression_bundle[
+                "fidelity_metrics"
+            ]["edge_weight_reconstruction_error"],
+            "compression_neighborhood_overlap_stability": graph_compression_bundle[
+                "fidelity_metrics"
+            ]["neighborhood_overlap_stability"],
+            "compression_policy_response_stability": graph_compression_bundle["fidelity_metrics"][
+                "downstream_policy_response_stability"
+            ],
             "selected_calibration_candidate_id": d4_manifest.selected_candidate_id,
         },
         validation=[],
@@ -4927,7 +5261,9 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
             "d4_manifest": str(d4_stage / "calibration_run_manifest.json"),
             "governance_report": str(d4_stage / "governance_report_v1.json"),
             "replay_artifacts": str(d4_stage / "replay_artifacts.json"),
-            "acceptance_contract_bundle": str(release_dirs["method_contract_bundle_v1"] / "acceptance_contract_bundle.json"),
+            "acceptance_contract_bundle": str(
+                release_dirs["method_contract_bundle_v1"] / "acceptance_contract_bundle.json"
+            ),
         },
     )
     release_manifest_path = stage_dir / "release_manifest_v1.json"
@@ -4939,11 +5275,15 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
         runtime_bundle_dir=release_dirs["runtime_bundle_v1"],
         method_contract_bundle_dir=release_dirs["method_contract_bundle_v1"],
     )
-    acceptance_report_path = _write_json(stage_dir / "release_acceptance_report.json", acceptance_report)
+    acceptance_report_path = _write_json(
+        stage_dir / "release_acceptance_report.json", acceptance_report
+    )
     outputs["release_acceptance_report.json"] = ArtifactRecord.from_path(acceptance_report_path)
 
     evidence_refs = {
-        "calibration_run_manifest": ArtifactRecord.from_path(d4_stage / "calibration_run_manifest.json"),
+        "calibration_run_manifest": ArtifactRecord.from_path(
+            d4_stage / "calibration_run_manifest.json"
+        ),
         "governance_report": ArtifactRecord.from_path(d4_stage / "governance_report_v1.json"),
         "replay_artifacts": ArtifactRecord.from_path(d4_stage / "replay_artifacts.json"),
         "release_acceptance_report": ArtifactRecord.from_path(acceptance_report_path),
@@ -4965,7 +5305,10 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
                 message="graph compression degree preservation fell below the minimum release threshold",
             )
         )
-    if float(graph_compression_bundle["fidelity_metrics"]["edge_weight_reconstruction_error"]) > 0.15:
+    if (
+        float(graph_compression_bundle["fidelity_metrics"]["edge_weight_reconstruction_error"])
+        > 0.15
+    ):
         findings.append(
             ValidationFinding(
                 severity="error",
@@ -5015,9 +5358,9 @@ STAGE_BUILDERS: dict[StageId, Callable[[PipelineConfig], StageBuildResult]] = {
 
 
 __all__ = [
+    "STAGE_BUILDERS",
     "MemoryAwareScheduler",
     "ScheduledTask",
-    "STAGE_BUILDERS",
     "StageBuildResult",
     "build_d0_p0_stage",
     "build_d1_stage",

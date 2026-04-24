@@ -57,18 +57,22 @@ for _p in [str(_SRC), str(_BENCH_ROOT)]:
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+from benchmarks.capability_wins.capability_proof import (  # noqa: E402
+    CapabilityProofSpec,
+    build_capability_report_extra,
+    make_gap_row,
+)
 from benchmarks.harness import (  # noqa: E402
     BenchmarkCase,
     BenchmarkCircuit,
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.capability_wins.capability_proof import (  # noqa: E402
-    CapabilityProofSpec,
-    build_capability_report_extra,
-    make_gap_row,
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
 from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.CAPABILITY_WINS
@@ -86,13 +90,18 @@ def _graph_imports():
         EdgeMark,
         GraphType,
     )
+
     return CausalEdge, CausalGraphModel, EdgeMark, GraphType
 
 
 def _engine_imports():
     from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
-    from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult, IdentificationStatus
+    from polisyos.foundry.methods.catalog.causal.id_engine import (
+        IdentificationResult,
+        IdentificationStatus,
+    )
     from polisyos.ir.analytics.evidence_bundle import EvidenceBundle
+
     return CausalEngine, IdentificationResult, IdentificationStatus, EvidenceBundle
 
 
@@ -159,9 +168,7 @@ def _case_frontdoor_audit_trail() -> BenchmarkCase:
 
         id_result = engine.identify(treatment="X", outcome="Y", graph=graph)
         if not isinstance(id_result, IdentificationResult):
-            raise AssertionError(
-                f"Expected IdentificationResult, got {type(id_result).__name__}"
-            )
+            raise AssertionError(f"Expected IdentificationResult, got {type(id_result).__name__}")
 
         run_id = str(uuid.uuid4())
         bundle = engine.audit(
@@ -184,7 +191,9 @@ def _case_frontdoor_audit_trail() -> BenchmarkCase:
         if not r.algorithm_version:
             raise AssertionError("EvidenceBundle.algorithm_version must be non-empty")
         if not r.graph_fingerprint:
-            raise AssertionError("EvidenceBundle.graph_fingerprint must be non-empty (graph was provided)")
+            raise AssertionError(
+                "EvidenceBundle.graph_fingerprint must be non-empty (graph was provided)"
+            )
         return True
 
     return BenchmarkCase(
@@ -222,13 +231,13 @@ def _case_backdoor_estimand_ast_fingerprint() -> BenchmarkCase:
 
     def checker(r) -> bool:
         if not r.estimand_ast:
-            raise AssertionError("EvidenceBundle.estimand_ast should be non-empty for identified query")
+            raise AssertionError(
+                "EvidenceBundle.estimand_ast should be non-empty for identified query"
+            )
         if not r.estimand_fingerprint:
             raise AssertionError("EvidenceBundle.estimand_fingerprint should be non-empty")
         if r.identification_status != "identified":
-            raise AssertionError(
-                f"Backdoor should be identified, got {r.identification_status!r}"
-            )
+            raise AssertionError(f"Backdoor should be identified, got {r.identification_status!r}")
         return True
 
     return BenchmarkCase(
@@ -246,7 +255,6 @@ def _case_non_id_negative_certificate_fields() -> BenchmarkCase:
 
     def runner():
         CausalEngine, IdentificationResult, IdentificationStatus, EvidenceBundle = _engine_imports()
-        from polisyos.ir.analytics.negative_certificate import NegativeCertificate
 
         engine = CausalEngine()
         graph = _build_bow_arc()
@@ -336,7 +344,9 @@ def build_pipeline_audit_harness() -> BenchmarkHarness:
 # ---------------------------------------------------------------------------
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     extra = build_capability_report_extra(
         report,
         CapabilityProofSpec(
@@ -346,12 +356,45 @@ def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, 
             },
             claim_profile_targets=("frontier_frontier_claim", "full_stack_publication_claim"),
             competitor_gap=(
-                make_gap_row("y0", "audit_bundle", status="fail", note="No EvidenceBundle-grade audit package with estimand fingerprints and run metadata.", level="audit_trace"),
-                make_gap_row("dowhy", "audit_bundle", status="fail", note="No machine-readable estimand→executor→audit bundle.", level="audit_trace"),
-                make_gap_row("econml", "audit_bundle", status="fail", note="No proof-carrying audit bundle.", level="audit_trace"),
-                make_gap_row("causalpy", "audit_bundle", status="fail", note="Notebook workflow lacks portable audit package.", level="audit_trace"),
+                make_gap_row(
+                    "y0",
+                    "audit_bundle",
+                    status="fail",
+                    note="No EvidenceBundle-grade audit package with estimand fingerprints and run metadata.",
+                    level="audit_trace",
+                ),
+                make_gap_row(
+                    "dowhy",
+                    "audit_bundle",
+                    status="fail",
+                    note="No machine-readable estimand→executor→audit bundle.",
+                    level="audit_trace",
+                ),
+                make_gap_row(
+                    "econml",
+                    "audit_bundle",
+                    status="fail",
+                    note="No proof-carrying audit bundle.",
+                    level="audit_trace",
+                ),
+                make_gap_row(
+                    "causalpy",
+                    "audit_bundle",
+                    status="fail",
+                    note="Notebook workflow lacks portable audit package.",
+                    level="audit_trace",
+                ),
             ),
-            workflow_levels={level: "PASS" for level in ("expressible", "identifiable", "estimable_or_bounded", "audit_trace", "reproducible")},
+            workflow_levels={
+                level: "PASS"
+                for level in (
+                    "expressible",
+                    "identifiable",
+                    "estimable_or_bounded",
+                    "audit_trace",
+                    "reproducible",
+                )
+            },
         ),
     )
     return build_report_payload(

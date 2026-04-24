@@ -20,7 +20,10 @@
       <header class="topbar card">
         <div>
           <h1>Runtime API v1 Reference Shell</h1>
-          <p>API-only debug path. No direct DB/filesystem reads in UI runtime flow.</p>
+          <p>
+            API-only debug path. No direct DB/filesystem reads in UI runtime
+            flow.
+          </p>
         </div>
         <form id="connection-form" class="connection">
           <label>
@@ -33,7 +36,9 @@
 
       <nav class="tabs card">
         <button class="tab is-active" data-page="runs">Run List</button>
-        <button class="tab" data-page="timeline">Run Timeline + Node Graph</button>
+        <button class="tab" data-page="timeline">
+          Run Timeline + Node Graph
+        </button>
         <button class="tab" data-page="node-debug">Node Debug Panel</button>
         <button class="tab" data-page="artifacts">Artifact Inspector</button>
       </nav>
@@ -47,7 +52,11 @@
           </label>
           <label>
             Status
-            <input id="runs-status" type="text" placeholder="ok / fail / completed" />
+            <input
+              id="runs-status"
+              type="text"
+              placeholder="ok / fail / completed"
+            />
           </label>
           <button type="submit">Load Runs</button>
         </form>
@@ -74,7 +83,11 @@
         <form id="timeline-form" class="inline-form">
           <label>
             Run ID
-            <input id="timeline-run-id" type="text" placeholder="R_core_api_001" />
+            <input
+              id="timeline-run-id"
+              type="text"
+              placeholder="R_core_api_001"
+            />
           </label>
           <button type="submit">Load Timeline</button>
         </form>
@@ -110,11 +123,19 @@
         <form id="node-debug-form" class="inline-form">
           <label>
             Run ID
-            <input id="node-debug-run-id" type="text" placeholder="R_core_api_001" />
+            <input
+              id="node-debug-run-id"
+              type="text"
+              placeholder="R_core_api_001"
+            />
           </label>
           <label>
             Alias
-            <input id="node-debug-alias" type="text" placeholder="run_governance" />
+            <input
+              id="node-debug-alias"
+              type="text"
+              placeholder="run_governance"
+            />
           </label>
           <button type="submit">Load Node Debug</button>
         </form>

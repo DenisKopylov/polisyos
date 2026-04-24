@@ -52,8 +52,10 @@ flowchart LR
 
 - Deny paths stop before downstream route logic can treat the request as
   authenticated.
+
 - Mutation protection lives before side effects and records replay/throttle
   outcomes.
+
 - Read paths attach data-access audit entries with `request_id`, actor, tenant,
   and resource metadata.
 
@@ -74,6 +76,7 @@ flowchart TB
 - tenant or cell mismatch is a deny path, not a warning path;
 - auth, routing, authorization, namespace checks, and audit should agree on the
   same tenant/cell identity;
+
 - see [Security Model](../../explanation/security-model.md) and
   [Auth and tenant model](../api/auth-tenant-model.md) for the contract details.
 
@@ -144,5 +147,6 @@ flowchart TB
 - traces explain why a request degraded;
 - metrics show latency, saturation, circuit state, cache behavior, and
   rate-limit pressure;
+
 - logs capture operator narrative plus dependency diagnostics;
 - audit trails answer who read or changed which resource.

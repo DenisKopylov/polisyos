@@ -1,4 +1,5 @@
 """Public governance legal check module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -166,6 +167,7 @@ def _skip_legal_check(
 @dataclass(frozen=True)
 class LegalCheckNode:
     """Legal check node implementation."""
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -294,9 +296,7 @@ class LegalCheckNode:
                     message="Legal check report grade degraded",
                     attrs={
                         "reason": str(degraded.get("reason", "legal_report_grade_load_failed")),
-                        "error_type": str(
-                            degraded.get("error_type", "runtime_error")
-                        ),
+                        "error_type": str(degraded.get("error_type", "runtime_error")),
                     },
                 )
             )

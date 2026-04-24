@@ -1,9 +1,11 @@
 """MNAR sensitivity bounds for income imputation in microsimulation pipelines."""
+
 from __future__ import annotations
 
 import math
-from datetime import datetime, timezone
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -146,8 +148,12 @@ def _resolve_component_grid(
         raw = overrides[label]
         if isinstance(raw, Mapping):
             if "grid" in raw:
-                return _coerce_grid(raw["grid"], default_interval=default_interval, n_points=n_points, name=name)
-            interval = _coerce_interval(raw.get("range"), default=default_interval, name=f"{name}_range")
+                return _coerce_grid(
+                    raw["grid"], default_interval=default_interval, n_points=n_points, name=name
+                )
+            interval = _coerce_interval(
+                raw.get("range"), default=default_interval, name=f"{name}_range"
+            )
             return _coerce_grid(None, default_interval=interval, n_points=n_points, name=name)
         values = np.asarray(raw, dtype=float).reshape(-1)
         if values.size == 2:
@@ -206,8 +212,7 @@ def _coerce_missingness_types(raw: Any, *, missing_mask: np.ndarray) -> np.ndarr
     values = np.asarray(raw, dtype=object).reshape(-1)
     if values.size == n_obs:
         normalized = [
-            "" if item is None or not str(item).strip() else str(item).strip()
-            for item in values
+            "" if item is None or not str(item).strip() else str(item).strip() for item in values
         ]
         labels = np.asarray(normalized, dtype=object)
         labels[~missing_mask] = ""
@@ -221,7 +226,9 @@ def _coerce_missingness_types(raw: Any, *, missing_mask: np.ndarray) -> np.ndarr
         ]
         labels[missing_mask] = np.asarray(normalized, dtype=object)
         return labels
-    raise ValueError("missingness_types must align with either n_obs or the number of missing incomes")
+    raise ValueError(
+        "missingness_types must align with either n_obs or the number of missing incomes"
+    )
 
 
 def _coerce_string_tuple(raw: Any) -> tuple[str, ...]:
@@ -266,7 +273,9 @@ def _resolve_support_bounds(
         return interval, warnings, "user_or_metadata"
     observed = income[observed_mask]
     if observed.size == 0:
-        raise ValueError("support_lower and support_upper are required when all market_income values are missing")
+        raise ValueError(
+            "support_lower and support_upper are required when all market_income values are missing"
+        )
     inferred_lower = float(min(np.nanmin(observed), 0.0))
     inferred_upper = float(np.nanmax(observed))
     if lower is None:
@@ -409,7 +418,9 @@ def _selection_probit_curve(
     effective_sample_sizes = np.zeros_like(gamma_grid, dtype=float)
     converged = True
     for idx, gamma in enumerate(gamma_grid):
-        alpha, solved = _solve_probit_alpha(score_values, observed_weights, response_rate, float(gamma))
+        alpha, solved = _solve_probit_alpha(
+            score_values, observed_weights, response_rate, float(gamma)
+        )
         solved_alpha[idx] = alpha
         converged &= solved
         ratio = _response_ratio(alpha + float(gamma) * score_values)
@@ -431,13 +442,16 @@ def _pattern_mixture_surface(
 ) -> tuple[np.ndarray, np.ndarray]:
     donor_weight_total = float(np.sum(observed_weights))
     if donor_weight_total <= 0.0:
-        donor_weight_norm = np.full(observed_target_income.size, 1.0 / max(observed_target_income.size, 1), dtype=float)
+        donor_weight_norm = np.full(
+            observed_target_income.size, 1.0 / max(observed_target_income.size, 1), dtype=float
+        )
     else:
         donor_weight_norm = observed_weights / donor_weight_total
 
     base = (
         delta_grid[:, None, None]
-        + lambda_grid[None, :, None] * np.asarray(observed_target_income, dtype=float)[None, None, :]
+        + lambda_grid[None, :, None]
+        * np.asarray(observed_target_income, dtype=float)[None, None, :]
     )
     surface = np.zeros((delta_grid.size, lambda_grid.size), dtype=float)
     clipped_share = np.zeros_like(surface)
@@ -446,7 +460,9 @@ def _pattern_mixture_surface(
         return surface, clipped_share
     missing_weight_norm = missing_weights / missing_weight_total
 
-    for lower, upper, weight in zip(missing_support_lower.tolist(), missing_support_upper.tolist(), missing_weight_norm.tolist()):
+    for lower, upper, weight in zip(
+        missing_support_lower.tolist(), missing_support_upper.tolist(), missing_weight_norm.tolist()
+    ):
         clipped = np.clip(base, float(lower), float(upper))
         indicator = ((base < float(lower)) | (base > float(upper))).astype(float)
         surface += float(weight) * np.tensordot(clipped, donor_weight_norm, axes=([2], [0]))
@@ -492,7 +508,11 @@ def _taxonomy_entries(
     elif mechanism_class == "selection.probit":
         entries.append("mnar.selection.probit_income")
     elif mechanism_class == "pattern_mixture.locscale":
-        if lambda_interval is not None and math.isclose(lambda_interval[0], 1.0) and math.isclose(lambda_interval[1], 1.0):
+        if (
+            lambda_interval is not None
+            and math.isclose(lambda_interval[0], 1.0)
+            and math.isclose(lambda_interval[1], 1.0)
+        ):
             entries.append("mnar.pattern_mixture.delta")
         else:
             entries.append("mnar.pattern_mixture.locscale")
@@ -552,7 +572,9 @@ class MNARIncomeBoundsEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)),
+                SlotSpec(
+                    "market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)
+                ),
                 SlotSpec("weights", SlotType.VECTOR, Unit("weight", "survey"), shape=("n_obs",)),
             }
         ),
@@ -564,7 +586,9 @@ class MNARIncomeBoundsEstimator:
                     Unit("imputation", "json"),
                     contract_id=ImputationResult.contract_id,
                 ),
-                SlotSpec("market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)),
+                SlotSpec(
+                    "market_income", SlotType.VECTOR, Unit("income", "currency"), shape=("n_obs",)
+                ),
                 SlotSpec("uncertainty_envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
             }
         ),
@@ -640,7 +664,9 @@ class MNARIncomeBoundsEstimator:
 
     @staticmethod
     def pure_step(state: SurveyMicroData, params: Mapping[str, Any]) -> dict[str, Any]:
-        data = state if isinstance(state, SurveyMicroData) else SurveyMicroData.model_validate(state)
+        data = (
+            state if isinstance(state, SurveyMicroData) else SurveyMicroData.model_validate(state)
+        )
         income = np.asarray(data.market_income, dtype=float)
         weights = np.asarray(data.weights, dtype=float)
         observed_mask = np.isfinite(income)
@@ -669,7 +695,9 @@ class MNARIncomeBoundsEstimator:
             )
         )
         if target_scale not in {"raw_income", "log_income", "equivalized_income"}:
-            raise ValueError("target_scale must be one of {'raw_income', 'log_income', 'equivalized_income'}")
+            raise ValueError(
+                "target_scale must be one of {'raw_income', 'log_income', 'equivalized_income'}"
+            )
         score_name = str(
             params.get("income_score", metadata.get("mnar_income_score", "standardized_raw_income"))
         )
@@ -683,11 +711,12 @@ class MNARIncomeBoundsEstimator:
             or (score_name == "standardized_target_income" and target_scale == "equivalized_income")
         ) and equivalence_scale_source is None:
             warnings.append("equivalence_scale_defaulted_to_one")
-        if (target_scale == "log_income" or score_name == "standardized_log_income") and support_lower < 0.0:
-            warnings.append("log_scale_support_lower_clipped_to_zero")
         if (
-            np.any(observed_mask & (income < 0.0))
-            and (target_scale == "log_income" or score_name == "standardized_log_income")
+            target_scale == "log_income" or score_name == "standardized_log_income"
+        ) and support_lower < 0.0:
+            warnings.append("log_scale_support_lower_clipped_to_zero")
+        if np.any(observed_mask & (income < 0.0)) and (
+            target_scale == "log_income" or score_name == "standardized_log_income"
         ):
             warnings.append("negative_income_clipped_for_log_scale")
 
@@ -737,7 +766,10 @@ class MNARIncomeBoundsEstimator:
                 baseline_imputed[missing_mask] > support_upper
             )
             clipped_share = (
-                float(np.sum(weights[missing_mask] * clipped_indicator) / max(np.sum(weights[missing_mask]), 1e-12))
+                float(
+                    np.sum(weights[missing_mask] * clipped_indicator)
+                    / max(np.sum(weights[missing_mask]), 1e-12)
+                )
                 if np.any(missing_mask)
                 else 0.0
             )
@@ -756,17 +788,24 @@ class MNARIncomeBoundsEstimator:
             warnings.append("no_observed_income_reference_mean_defaulted_to_support_midpoint")
 
         fixed_observed_total = (
-            float(np.sum(weights[observed_mask] * analysis_income[observed_mask]) / max(total_weight, 1e-12))
+            float(
+                np.sum(weights[observed_mask] * analysis_income[observed_mask])
+                / max(total_weight, 1e-12)
+            )
             if np.any(observed_mask)
             else 0.0
         )
         manski_lower = fixed_observed_total + float(
-            np.sum(weights[missing_mask] * target_support_lower_arr[missing_mask]) / max(total_weight, 1e-12)
+            np.sum(weights[missing_mask] * target_support_lower_arr[missing_mask])
+            / max(total_weight, 1e-12)
         )
         manski_upper = fixed_observed_total + float(
-            np.sum(weights[missing_mask] * target_support_upper_arr[missing_mask]) / max(total_weight, 1e-12)
+            np.sum(weights[missing_mask] * target_support_upper_arr[missing_mask])
+            / max(total_weight, 1e-12)
         )
-        support_reference = float(np.clip(observed_mean, target_support_summary[0], target_support_summary[1]))
+        support_reference = float(
+            np.clip(observed_mean, target_support_summary[0], target_support_summary[1])
+        )
 
         group_labels = _coerce_group_labels(
             params.get("group_labels", metadata.get("mnar_strata_labels")),
@@ -833,13 +872,15 @@ class MNARIncomeBoundsEstimator:
                         "target_support_bounds_summary": list(target_support_summary),
                         "target_scale": target_scale,
                         "equivalence_scale_source": (
-                            equivalence_scale_source if equivalence_scale_source is not None else "implicit_unity"
+                            equivalence_scale_source
+                            if equivalence_scale_source is not None
+                            else "implicit_unity"
                         ),
                     },
                 ),
                 provenance=MNARIncomeBoundsProvenance(
                     method="microsim.imputation.mnar_income_bounds@1.0.0",
-                    timestamp_utc=datetime.now(timezone.utc).isoformat(),
+                    timestamp_utc=datetime.now(UTC).isoformat(),
                 ),
                 warnings=tuple(warnings),
             )
@@ -911,14 +952,20 @@ class MNARIncomeBoundsEstimator:
         lambda_overrides = params.get("lambda_overrides", {})
         taxonomy_entries = _taxonomy_entries(
             mechanism_class=mechanism_class,
-            lambda_interval=lambda_interval if mechanism_class == "pattern_mixture.locscale" else None,
+            lambda_interval=lambda_interval
+            if mechanism_class == "pattern_mixture.locscale"
+            else None,
             missingness_types=missingness_types,
             missing_mask=missing_mask,
             external_anchors=external_anchors,
         )
 
         uses_component_specific_parameters = False
-        if mechanism_class.startswith("selection") and isinstance(gamma_overrides, Mapping) and gamma_overrides:
+        if (
+            mechanism_class.startswith("selection")
+            and isinstance(gamma_overrides, Mapping)
+            and gamma_overrides
+        ):
             uses_component_specific_parameters = True
         if mechanism_class == "pattern_mixture.locscale" and (
             (isinstance(delta_overrides, Mapping) and delta_overrides)
@@ -981,7 +1028,11 @@ class MNARIncomeBoundsEstimator:
                 respondent_std = None
 
             component_labels = sorted(
-                {str(item) for item in missingness_types[stratum_missing_mask].tolist() if str(item)}
+                {
+                    str(item)
+                    for item in missingness_types[stratum_missing_mask].tolist()
+                    if str(item)
+                }
             )
             if not component_labels and np.any(stratum_missing_mask):
                 component_labels = [_ALL_MISSING]
@@ -995,9 +1046,15 @@ class MNARIncomeBoundsEstimator:
                 component_missing_share = component_weight / max(total_missing_weight, 1e-12)
                 component_support_lower = target_support_lower_arr[component_mask]
                 component_support_upper = target_support_upper_arr[component_mask]
-                component_support_midpoint = 0.5 * (component_support_lower + component_support_upper)
-                component_support_lower_mean = _weighted_mean(component_support_lower, weights[component_mask])
-                component_support_upper_mean = _weighted_mean(component_support_upper, weights[component_mask])
+                component_support_midpoint = 0.5 * (
+                    component_support_lower + component_support_upper
+                )
+                component_support_lower_mean = _weighted_mean(
+                    component_support_lower, weights[component_mask]
+                )
+                component_support_upper_mean = _weighted_mean(
+                    component_support_upper, weights[component_mask]
+                )
                 component_entry: dict[str, Any] = {
                     "label": component_label,
                     "weight_share": component_share,
@@ -1018,7 +1075,9 @@ class MNARIncomeBoundsEstimator:
                     interval_reference_total += component_share * reference_mu0
                     component_entry.update(
                         {
-                            "fallback": None if mechanism_class == "support_only" else "support_only_no_respondents",
+                            "fallback": None
+                            if mechanism_class == "support_only"
+                            else "support_only_no_respondents",
                             "lower_nonrespondent_mean": lower_mu0,
                             "upper_nonrespondent_mean": upper_mu0,
                             "reference_nonrespondent_mean": reference_mu0,
@@ -1077,12 +1136,14 @@ class MNARIncomeBoundsEstimator:
                             stratum_response_rate,
                         )
                         alpha_solver_converged = bool(alpha_solver_converged) and solved
-                        reference_curve, reference_alpha, solved_reference, reference_ess = _selection_probit_curve(
-                            stratum_observed_target,
-                            stratum_observed_weights,
-                            score_values,
-                            np.asarray([component_reference_gamma], dtype=float),
-                            stratum_response_rate,
+                        reference_curve, reference_alpha, solved_reference, reference_ess = (
+                            _selection_probit_curve(
+                                stratum_observed_target,
+                                stratum_observed_weights,
+                                score_values,
+                                np.asarray([component_reference_gamma], dtype=float),
+                                stratum_response_rate,
+                            )
                         )
                         alpha_solver_converged = bool(alpha_solver_converged) and solved_reference
                         alpha_values = [float(item) for item in solved_alpha]
@@ -1094,7 +1155,12 @@ class MNARIncomeBoundsEstimator:
                     selection_effective_sample_size_min = (
                         float(np.min(np.concatenate([ess_curve, reference_ess])))
                         if selection_effective_sample_size_min is None
-                        else float(min(selection_effective_sample_size_min, np.min(np.concatenate([ess_curve, reference_ess]))))
+                        else float(
+                            min(
+                                selection_effective_sample_size_min,
+                                np.min(np.concatenate([ess_curve, reference_ess])),
+                            )
+                        )
                     )
                     if uses_component_specific_parameters:
                         independent_lower_total += component_share * lower_mu0
@@ -1116,7 +1182,9 @@ class MNARIncomeBoundsEstimator:
                                     "gamma": float(gamma_value),
                                     "nonrespondent_mean": float(curve_value),
                                 }
-                                for gamma_value, curve_value in zip(component_gamma_grid.tolist(), curve.tolist())
+                                for gamma_value, curve_value in zip(
+                                    component_gamma_grid.tolist(), curve.tolist()
+                                )
                             ],
                         }
                     )
@@ -1186,7 +1254,9 @@ class MNARIncomeBoundsEstimator:
                 upper_mu0 = float(np.max(surface))
                 reference_clip_share_component = float(reference_clip_surface[0, 0])
                 max_clip_share_component = float(np.max(clip_surface))
-                pattern_reference_clip_share += component_missing_share * reference_clip_share_component
+                pattern_reference_clip_share += (
+                    component_missing_share * reference_clip_share_component
+                )
                 pattern_max_clip_share = max(pattern_max_clip_share, max_clip_share_component)
                 tail_candidate = float(
                     max(component_lambda_range[1], 1.0 / max(component_lambda_range[0], 1e-12))
@@ -1238,17 +1308,25 @@ class MNARIncomeBoundsEstimator:
         elif uses_component_specific_parameters:
             lower_bound = fixed_observed_total + independent_lower_total + interval_lower_total
             upper_bound = fixed_observed_total + independent_upper_total + interval_upper_total
-            reference_value = fixed_observed_total + independent_reference_total + interval_reference_total
-            warnings.append("component_specific_parameter_overrides_disable_single_collapsed_scenario_grid")
+            reference_value = (
+                fixed_observed_total + independent_reference_total + interval_reference_total
+            )
+            warnings.append(
+                "component_specific_parameter_overrides_disable_single_collapsed_scenario_grid"
+            )
         elif mechanism_class.startswith("selection"):
             if shared_selection_curves:
-                total_curve = fixed_observed_total + np.sum(np.vstack(shared_selection_curves), axis=0)
+                total_curve = fixed_observed_total + np.sum(
+                    np.vstack(shared_selection_curves), axis=0
+                )
                 lower_index = int(np.argmin(total_curve))
                 upper_index = int(np.argmax(total_curve))
                 selection_curve_monotonicity = _curve_monotonicity(total_curve)
                 lower_bound = float(total_curve[lower_index] + interval_lower_total)
                 upper_bound = float(total_curve[upper_index] + interval_upper_total)
-                reference_value = float(fixed_observed_total + shared_reference_total + interval_reference_total)
+                reference_value = float(
+                    fixed_observed_total + shared_reference_total + interval_reference_total
+                )
                 grid_argmin = {"gamma": float(gamma_grid[lower_index])}
                 grid_argmax = {"gamma": float(gamma_grid[upper_index])}
                 scenario_grid = [
@@ -1267,14 +1345,18 @@ class MNARIncomeBoundsEstimator:
                 reference_value = fixed_observed_total + interval_reference_total
         else:
             if shared_pattern_surfaces:
-                total_surface = fixed_observed_total + np.sum(np.stack(shared_pattern_surfaces), axis=0)
+                total_surface = fixed_observed_total + np.sum(
+                    np.stack(shared_pattern_surfaces), axis=0
+                )
                 flat_argmin = int(np.argmin(total_surface))
                 flat_argmax = int(np.argmax(total_surface))
                 lower_coords = np.unravel_index(flat_argmin, total_surface.shape)
                 upper_coords = np.unravel_index(flat_argmax, total_surface.shape)
                 lower_bound = float(total_surface[lower_coords] + interval_lower_total)
                 upper_bound = float(total_surface[upper_coords] + interval_upper_total)
-                reference_value = float(fixed_observed_total + shared_reference_total + interval_reference_total)
+                reference_value = float(
+                    fixed_observed_total + shared_reference_total + interval_reference_total
+                )
                 grid_argmin = {
                     "delta": float(delta_grid[lower_coords[0]]),
                     "lambda": float(lambda_grid[lower_coords[1]]),
@@ -1287,7 +1369,9 @@ class MNARIncomeBoundsEstimator:
                     {
                         "delta": float(delta_grid[row_idx]),
                         "lambda": float(lambda_grid[col_idx]),
-                        "estimate": float(total_surface[row_idx, col_idx] + interval_reference_total),
+                        "estimate": float(
+                            total_surface[row_idx, col_idx] + interval_reference_total
+                        ),
                     }
                     for row_idx in range(total_surface.shape[0])
                     for col_idx in range(total_surface.shape[1])
@@ -1302,12 +1386,22 @@ class MNARIncomeBoundsEstimator:
             assumption_vector=MNARIncomeAssumptionVector(
                 external_anchors=external_anchors,
                 mechanism_class=mechanism_class,
-                income_score=None if mechanism_class in {"support_only", "pattern_mixture.locscale"} else score_name,
-                gamma_range=None if mechanism_class not in {"selection.logit", "selection.probit"} else gamma_interval,
-                delta_range=None if mechanism_class != "pattern_mixture.locscale" else delta_interval,
-                lambda_range=None if mechanism_class != "pattern_mixture.locscale" else lambda_interval,
+                income_score=None
+                if mechanism_class in {"support_only", "pattern_mixture.locscale"}
+                else score_name,
+                gamma_range=None
+                if mechanism_class not in {"selection.logit", "selection.probit"}
+                else gamma_interval,
+                delta_range=None
+                if mechanism_class != "pattern_mixture.locscale"
+                else delta_interval,
+                lambda_range=None
+                if mechanism_class != "pattern_mixture.locscale"
+                else lambda_interval,
                 support_bounds=target_support_summary,
-                strata=tuple(item["label"] for item in strata_payloads if item["label"] != _ALL_GROUP),
+                strata=tuple(
+                    item["label"] for item in strata_payloads if item["label"] != _ALL_GROUP
+                ),
                 missingness_types=tuple(
                     sorted(
                         {
@@ -1334,7 +1428,9 @@ class MNARIncomeBoundsEstimator:
                 weight_dispersion=float(np.std(weights) / max(np.mean(weights), 1e-12)),
                 effective_sample_size=_effective_sample_size(weights),
                 share_clipped_to_support=(
-                    pattern_reference_clip_share if mechanism_class == "pattern_mixture.locscale" else clipped_share
+                    pattern_reference_clip_share
+                    if mechanism_class == "pattern_mixture.locscale"
+                    else clipped_share
                 ),
                 alpha_solver_converged=alpha_solver_converged,
                 selection_weight_effective_sample_size_min=selection_effective_sample_size_min,
@@ -1348,22 +1444,28 @@ class MNARIncomeBoundsEstimator:
                     "target_support_bounds_summary": list(target_support_summary),
                     "target_scale": target_scale,
                     "equivalence_scale_source": (
-                        equivalence_scale_source if equivalence_scale_source is not None else "implicit_unity"
+                        equivalence_scale_source
+                        if equivalence_scale_source is not None
+                        else "implicit_unity"
                     ),
                     "unit_specific_support": bool(target_scale == "equivalized_income"),
                     "component_specific_parameters": uses_component_specific_parameters,
                     "reference_point_imputation": "mar_baseline_clipped_to_support",
                     "pattern_reference_share_clipped_to_support": (
-                        pattern_reference_clip_share if mechanism_class == "pattern_mixture.locscale" else None
+                        pattern_reference_clip_share
+                        if mechanism_class == "pattern_mixture.locscale"
+                        else None
                     ),
                     "pattern_max_share_clipped_to_support": (
-                        pattern_max_clip_share if mechanism_class == "pattern_mixture.locscale" else None
+                        pattern_max_clip_share
+                        if mechanism_class == "pattern_mixture.locscale"
+                        else None
                     ),
                 },
             ),
             provenance=MNARIncomeBoundsProvenance(
                 method="microsim.imputation.mnar_income_bounds@1.0.0",
-                timestamp_utc=datetime.now(timezone.utc).isoformat(),
+                timestamp_utc=datetime.now(UTC).isoformat(),
             ),
             scenario_grid=tuple(scenario_grid),
             strata=tuple(strata_payloads),

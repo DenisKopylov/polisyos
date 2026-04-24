@@ -34,9 +34,11 @@ class _FakeResponse:
     @property
     def content(self):
         parent = self
+
         class _Content:
             async def iter_chunks(self):
                 yield parent._raw, True
+
         return _Content()
 
 
@@ -89,16 +91,20 @@ async def test_parse_empty_stream():
 @pytest.mark.asyncio
 async def test_parse_tool_calls():
     payload = {
-        "choices": [{
-            "delta": {
-                "tool_calls": [{
-                    "index": 0,
-                    "id": "tc_1",
-                    "function": {"name": "search", "arguments": '{"q": "test"}'},
-                }],
-            },
-            "finish_reason": None,
-        }],
+        "choices": [
+            {
+                "delta": {
+                    "tool_calls": [
+                        {
+                            "index": 0,
+                            "id": "tc_1",
+                            "function": {"name": "search", "arguments": '{"q": "test"}'},
+                        }
+                    ],
+                },
+                "finish_reason": None,
+            }
+        ],
     }
     resp = _FakeResponse(_make_sse_lines(payload))
     chunks = [c async for c in parse_sse_stream(resp)]
@@ -124,9 +130,7 @@ def test_stream_accumulator():
     acc.feed(StreamChunk(delta_content="world"))
     acc.feed(StreamChunk(finish_reason="stop"))
     acc.feed(
-        StreamChunk(
-            usage_delta={"prompt_tokens": 5, "completion_tokens": 3, "total_tokens": 8}
-        )
+        StreamChunk(usage_delta={"prompt_tokens": 5, "completion_tokens": 3, "total_tokens": 8})
     )
     assert acc.content == "Hello world"
     assert acc.finish_reason == "stop"

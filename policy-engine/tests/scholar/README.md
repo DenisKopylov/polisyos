@@ -29,16 +29,17 @@ bootstrap. The slice currently contains `6` `test_*.py` files.
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - [`../../src/polisyos/scholar/README.md`](../../src/polisyos/scholar/README.md)
 - `src/polisyos/scholar/search`
 - `src/polisyos/fabric`
 
-**Depended on by**
+### Depended On By
 
 - [`../scientist/README.md`](../scientist/README.md) when scholar-backed
   knowledge acquisition participates in workflows
+
 - [`../fabric/README.md`](../fabric/README.md) for docs/claims handoff paths
 
 ## Common Commands

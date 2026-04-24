@@ -6,17 +6,23 @@ instrumental inequalities.  This module turns those inequalities into a
 machine-checkable compatibility report and, when violated, a blocking
 ``NegativeCertificate``.
 """
+
 from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Sequence
 from dataclasses import dataclass
 from itertools import product
+from math import comb
 from typing import Any, Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field
-from scipy.stats import fisher_exact
+from pydantic import BaseModel, ConfigDict
+
+try:  # pragma: no cover - preferred in full scientific environments.
+    from scipy.stats import fisher_exact
+except ImportError:  # pragma: no cover - keeps IR/schema reflection importable.
+    fisher_exact = None  # type: ignore[assignment]
 
 from polisyos.ir.analytics.negative_certificate import (
     BlockingType,
@@ -52,6 +58,29 @@ class _FamilyTestDecision:
     adjusted_p_value: float
     rejected: bool
     witness_constraint_id: str | None
+
+
+def _fisher_exact_greater_pvalue(table: np.ndarray) -> float:
+    if fisher_exact is not None:
+        return float(fisher_exact(table, alternative="greater").pvalue)
+
+    arr = np.asarray(table, dtype=int)
+    if arr.shape != (2, 2):
+        raise ValueError("fisher exact fallback requires a 2x2 table")
+    a = int(arr[0, 0])
+    row_1 = int(arr[0, :].sum())
+    row_2 = int(arr[1, :].sum())
+    col_1 = int(arr[:, 0].sum())
+    total = row_1 + row_2
+    lower = max(0, col_1 - row_2)
+    upper = min(row_1, col_1)
+    denominator = comb(total, col_1)
+    if denominator <= 0:
+        return 1.0
+    tail = 0.0
+    for x in range(max(a, lower), upper + 1):
+        tail += comb(row_1, x) * comb(row_2, col_1 - x) / denominator
+    return float(min(max(tail, 0.0), 1.0))
 
 
 def check_model_class_compatibility(
@@ -96,12 +125,16 @@ def check_model_class_compatibility(
     conditioning_variables = tuple(str(item) for item in observed_variables[3:])
     column_lookup = {str(name): index for index, name in enumerate(variable_names)}
     missing = [
-        name for name in (z_name, d_name, y_name, *conditioning_variables) if name not in column_lookup
+        name
+        for name in (z_name, d_name, y_name, *conditioning_variables)
+        if name not in column_lookup
     ]
     if missing:
         raise ValueError(f"data is missing required observed variables: {missing}")
 
-    selected_columns = [column_lookup[name] for name in (z_name, d_name, y_name, *conditioning_variables)]
+    selected_columns = [
+        column_lookup[name] for name in (z_name, d_name, y_name, *conditioning_variables)
+    ]
     subset = np.asarray(data[:, selected_columns], dtype=object)
     if subset.ndim != 2:
         raise ValueError("data must be a 2D array")
@@ -169,8 +202,7 @@ def check_model_class_compatibility(
         if n_z1 == 0 or n_z0 == 0:
             skipped_constraint_count += 4
             warnings.append(
-                "binary_iv_empty_instrument_arm:"
-                f"{_scope_token(scope)}:n_z1={n_z1}:n_z0={n_z0}"
+                f"binary_iv_empty_instrument_arm:{_scope_token(scope)}:n_z1={n_z1}:n_z0={n_z0}"
             )
             continue
 
@@ -188,9 +220,9 @@ def check_model_class_compatibility(
                 d_value=d_value,
                 y_value=y_value,
             )
-            lhs_z1 = float(np.mean((z_slice == 1) & (d_slice == d_value) & (y_slice == y_value))) / (
-                float(np.mean(z_slice == 1)) or 1.0
-            )
+            lhs_z1 = float(
+                np.mean((z_slice == 1) & (d_slice == d_value) & (y_slice == y_value))
+            ) / (float(np.mean(z_slice == 1)) or 1.0)
             lhs_z0_term = float(
                 np.mean((z_slice == 0) & (d_slice == d_value) & (y_slice == (1 - y_value)))
             ) / (float(np.mean(z_slice == 0)) or 1.0)
@@ -208,7 +240,7 @@ def check_model_class_compatibility(
                 ],
                 dtype=int,
             )
-            p_value = float(fisher_exact(table, alternative="greater").pvalue)
+            p_value = _fisher_exact_greater_pvalue(table)
             supported_constraint_count += 1
             if violation_margin > max_violation_margin:
                 max_violation_margin = violation_margin
@@ -476,8 +508,7 @@ def _negative_certificate_from_compatibility_report(
     return NegativeCertificate(
         blocking_type=BlockingType.MODEL_CLASS_INCOMPATIBLE,
         blocking_description=(
-            "Observed data are incompatible with the declared SCM class "
-            f"`{model_label}`."
+            f"Observed data are incompatible with the declared SCM class `{model_label}`."
         ),
         technical_detail=(
             f"Rejected semialgebraic constraint {worst.constraint_id}: "

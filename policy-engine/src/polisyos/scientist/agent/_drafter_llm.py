@@ -89,7 +89,7 @@ class _DrafterLLMMixin:
 
     def _inner_model_name(self) -> str:
         if hasattr(self._inner, "_llm"):
-            inner_llm = getattr(self._inner, "_llm")
+            inner_llm = self._inner._llm
             return str(getattr(inner_llm, "_model_name", "default"))
         return "default"
 

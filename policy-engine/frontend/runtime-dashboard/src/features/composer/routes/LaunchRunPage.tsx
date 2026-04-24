@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -10,7 +11,10 @@ import {
   readNumericConstraint,
 } from "@/lib/capabilities";
 import { cn, formatNumber } from "@/lib/utils";
-import { Button, Card } from "@/shared/ui";
+import { Glyph } from "@/shared/brand/Glyph";
+import type { GlyphName } from "@/shared/brand/glyph-vocabulary";
+import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
+import { Badge, Button, ProvenanceStrip } from "@/shared/ui";
 import { parseComposerSearchParams } from "../domain/searchParams";
 import {
   NaturalLanguageComposerSection,
@@ -18,6 +22,310 @@ import {
 } from "./ComposerModeSections";
 
 type Mode = "workflow" | "nl";
+type RecentLaunch = { runId: string; status: string };
+type CapabilityHighlight = NonNullable<ReturnType<typeof getCapability>>;
+
+const composerHeroProvenance: ProvenanceItem[] = [
+  {
+    id: "intervention",
+    glyph: "intervention",
+    label: "Interventions",
+    intent: "default",
+  },
+  {
+    id: "evidence",
+    glyph: "evidence",
+    label: "Evidence",
+    intent: "default",
+  },
+  {
+    id: "governance",
+    glyph: "governance-pass",
+    label: "Guardrails",
+    intent: "verified",
+  },
+];
+
+const CAPABILITY_GLYPHS: Record<string, GlyphName> = {
+  auto_materialization: "evidence",
+  multimodel_nl: "counterfactual",
+  promotion_lane: "transport",
+  required_preflight: "governance-pass",
+};
+
+function clampReadiness(score: number): number {
+  return Math.max(18, Math.min(96, Math.round(score)));
+}
+
+function buildReadinessScore({
+  autoMaterializationEnabled,
+  capabilityCount,
+  fromRunId,
+  llmProfileCount,
+  maxParallelConstraint,
+  mode,
+  multimodelEnabled,
+  preflightEnabled,
+}: {
+  autoMaterializationEnabled: boolean;
+  capabilityCount: number;
+  fromRunId: string | null;
+  llmProfileCount: number;
+  maxParallelConstraint: number;
+  mode: Mode;
+  multimodelEnabled: boolean;
+  preflightEnabled: boolean;
+}): number {
+  const base = mode === "workflow" ? 58 : 52;
+  const capabilityBonus = Math.min(capabilityCount * 6, 24);
+  const preflightBonus = preflightEnabled ? 8 : 0;
+  const materializationBonus = autoMaterializationEnabled ? 6 : 0;
+  const modelRosterBonus = Math.min(llmProfileCount * 5, 15);
+  const multimodelBonus = mode === "nl" && multimodelEnabled ? 7 : 0;
+  const orchestrationBonus =
+    mode === "nl" ? Math.min(maxParallelConstraint * 2, 8) : 4;
+  const replanBonus = fromRunId ? 6 : 0;
+
+  return clampReadiness(
+    base +
+      capabilityBonus +
+      preflightBonus +
+      materializationBonus +
+      modelRosterBonus +
+      multimodelBonus +
+      orchestrationBonus +
+      replanBonus,
+  );
+}
+
+function resolveCapabilityGlyph(key: string): GlyphName {
+  return CAPABILITY_GLYPHS[key] ?? "intervention";
+}
+
+function resolveReadinessKind(score: number): "ok" | "warn" | "neutral" {
+  if (score >= 74) {
+    return "ok";
+  }
+  if (score >= 58) {
+    return "warn";
+  }
+  return "neutral";
+}
+
+function resolveReadinessStatusKey(
+  score: number,
+): "common.ready" | "common.pending" | "common.blocked" {
+  if (score >= 74) {
+    return "common.ready";
+  }
+  if (score >= 58) {
+    return "common.pending";
+  }
+  return "common.blocked";
+}
+
+function buildReadinessRingStyle(score: number): CSSProperties {
+  const degrees = Math.round(score * 3.6);
+  return {
+    background: `radial-gradient(circle, rgba(20,22,26,1) 52%, transparent 53%), conic-gradient(from 238deg, #1d8d84 0deg, #1d8d84 ${degrees}deg, rgba(255,255,255,0.12) ${degrees}deg)`,
+  };
+}
+
+function resolveLaunchStatusKind(
+  status: string,
+): "ok" | "warn" | "fail" | "neutral" {
+  const normalized = status.trim().toLowerCase();
+  if (["accepted", "completed", "succeeded", "success"].includes(normalized)) {
+    return "ok";
+  }
+  if (["blocked", "failed", "error", "rejected"].includes(normalized)) {
+    return "fail";
+  }
+  if (["pending", "queued", "review"].includes(normalized)) {
+    return "warn";
+  }
+  return "neutral";
+}
+
+function ComposerSummaryMetric({
+  label,
+  value,
+  tone = "default",
+}: {
+  label: string;
+  tone?: "default" | "accent";
+  value: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-[24px] border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]",
+        tone === "accent"
+          ? "border-[rgba(28,139,130,0.18)] bg-[linear-gradient(180deg,rgba(28,139,130,0.15),rgba(255,255,255,0.74))]"
+          : "border-[rgba(23,25,29,0.08)] bg-white/70",
+      )}
+    >
+      <span className="text-muted block text-xs tracking-[0.12em] uppercase">
+        {label}
+      </span>
+      <strong className="mt-2 block text-2xl font-semibold tracking-[-0.04em]">
+        {value}
+      </strong>
+    </div>
+  );
+}
+
+function ComposerJourneyStep({
+  active,
+  body,
+  index,
+  title,
+}: {
+  active: boolean;
+  body: string;
+  index: number;
+  title: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-full border px-4 py-3 transition-colors",
+        active
+          ? "border-transparent bg-[linear-gradient(135deg,#26313a,#1a1f24)] text-[#fff8ef] shadow-[0_16px_28px_rgba(23,25,29,0.14)]"
+          : "text-text border-[rgba(23,25,29,0.08)] bg-white/62",
+      )}
+    >
+      <span
+        className={cn(
+          "block text-[11px] font-semibold tracking-[0.14em] uppercase",
+          active ? "text-white/64" : "text-muted",
+        )}
+      >
+        {index}
+      </span>
+      <strong className="mt-2 block text-sm">{title}</strong>
+      <p
+        className={cn(
+          "mt-1 text-xs leading-5",
+          active ? "text-white/78" : "text-muted",
+        )}
+      >
+        {body}
+      </p>
+    </div>
+  );
+}
+
+function ComposerCapabilityTile({ feature }: { feature: CapabilityHighlight }) {
+  return (
+    <div className="rounded-[24px] border border-[rgba(23,25,29,0.07)] bg-white/72 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
+      <div className="flex items-center justify-between gap-3">
+        <span className="grid size-9 place-items-center rounded-full bg-[rgba(23,25,29,0.06)]">
+          <Glyph
+            decorative
+            intent={feature.enabled ? "verified" : "default"}
+            name={resolveCapabilityGlyph(feature.key)}
+            size={16}
+          />
+        </span>
+        <Badge
+          kind={feature.enabled ? "ok" : "neutral"}
+          className="px-2 py-1 text-[10px]"
+        >
+          {feature.category}
+        </Badge>
+      </div>
+      <strong className="mt-4 block text-sm leading-5 font-semibold">
+        {feature.label}
+      </strong>
+      <p className="text-muted mt-2 text-sm leading-6">
+        {feature.description || feature.key}
+      </p>
+    </div>
+  );
+}
+
+function ComposerGuardrailRow({
+  kind,
+  label,
+  value,
+}: {
+  kind: "ok" | "warn" | "neutral";
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-[18px] border border-[rgba(23,25,29,0.06)] bg-white/58 px-4 py-3">
+      <span className="text-sm font-semibold">{label}</span>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-muted font-mono text-[11px] tracking-[0.08em] uppercase">
+          {value}
+        </span>
+        <Badge kind={kind} className="px-2 py-1 text-[10px]">
+          {value}
+        </Badge>
+      </div>
+    </div>
+  );
+}
+
+function ComposerRailStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border-b border-white/10 pb-3 last:border-b-0 last:pb-0">
+      <span className="block font-mono text-[11px] tracking-[0.12em] text-white/52 uppercase">
+        {label}
+      </span>
+      <strong className="mt-1 block text-base font-semibold text-[#fff8ef]">
+        {value}
+      </strong>
+    </div>
+  );
+}
+
+function ComposerRecentLaunchRail({
+  recentLaunches,
+}: {
+  recentLaunches: RecentLaunch[];
+}) {
+  const { t } = useI18n();
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <p className="font-mono text-[11px] tracking-[0.12em] text-white/52 uppercase">
+          {t("pages.composer.recentLaunches")}
+        </p>
+        <Badge kind="neutral" className="bg-white/10 text-white/72">
+          {formatNumber(recentLaunches.length)}
+        </Badge>
+      </div>
+      {recentLaunches.length === 0 ? (
+        <p className="text-sm leading-6 text-white/72">
+          {t("pages.composer.noLaunchReceipts")}
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {recentLaunches.slice(0, 3).map((launch) => (
+            <div
+              key={launch.runId}
+              className="flex items-center justify-between gap-3 rounded-[18px] border border-white/10 bg-white/5 px-3 py-3"
+            >
+              <span className="font-mono text-xs text-white/78">
+                {launch.runId}
+              </span>
+              <Badge
+                kind={resolveLaunchStatusKind(launch.status)}
+                className="px-2 py-1 text-[10px]"
+              >
+                {launch.status}
+              </Badge>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function LaunchRunPage() {
   const { t } = useI18n();
@@ -29,12 +337,17 @@ export default function LaunchRunPage() {
   const [mode, setMode] = useState<Mode>(
     () => composerSearch.mode ?? (fromRunId ? "workflow" : "nl"),
   );
-  const [recentLaunches, setRecentLaunches] = useState<
-    Array<{ runId: string; status: string }>
-  >([]);
+  const [recentLaunches, setRecentLaunches] = useState<RecentLaunch[]>([]);
 
   const manifest = capabilitiesQuery.data;
   const llmProfiles = llmProfilesQuery.data?.profiles ?? [];
+  const multimodelCapability = getCapability(manifest, "multimodel_nl");
+  const preflightCapability = getCapability(manifest, "required_preflight");
+  const autoMaterializationCapability = getCapability(
+    manifest,
+    "auto_materialization",
+  );
+  const promotionLaneCapability = getCapability(manifest, "promotion_lane");
   const multimodelEnabled = isCapabilityEnabled(manifest, "multimodel_nl");
   const preflightEnabled = isCapabilityEnabled(manifest, "required_preflight");
   const autoMaterializationEnabled = isCapabilityEnabled(
@@ -54,14 +367,20 @@ export default function LaunchRunPage() {
   const capabilityHighlights = useMemo(
     () =>
       [
-        getCapability(manifest, "multimodel_nl"),
-        getCapability(manifest, "required_preflight"),
-        getCapability(manifest, "auto_materialization"),
-        getCapability(manifest, "promotion_lane"),
+        multimodelCapability,
+        preflightCapability,
+        autoMaterializationCapability,
+        promotionLaneCapability,
       ].filter((feature): feature is NonNullable<typeof feature> =>
         Boolean(feature),
       ),
-    [manifest],
+    [
+      autoMaterializationCapability,
+      multimodelCapability,
+      preflightCapability,
+      promotionLaneCapability,
+      manifest,
+    ],
   );
   const journeySteps = useMemo(
     () => [
@@ -93,6 +412,83 @@ export default function LaunchRunPage() {
     ],
     [t],
   );
+  const readinessScore = useMemo(
+    () =>
+      buildReadinessScore({
+        autoMaterializationEnabled,
+        capabilityCount: capabilityHighlights.length,
+        fromRunId,
+        llmProfileCount: llmProfiles.length,
+        maxParallelConstraint,
+        mode,
+        multimodelEnabled,
+        preflightEnabled,
+      }),
+    [
+      autoMaterializationEnabled,
+      capabilityHighlights.length,
+      fromRunId,
+      llmProfiles.length,
+      maxParallelConstraint,
+      mode,
+      multimodelEnabled,
+      preflightEnabled,
+    ],
+  );
+  const readinessKind = resolveReadinessKind(readinessScore);
+  const readinessRingStyle = useMemo(
+    () => buildReadinessRingStyle(readinessScore),
+    [readinessScore],
+  );
+  const guardrailRows = useMemo<
+    Array<{ kind: "ok" | "warn" | "neutral"; label: string; value: string }>
+  >(
+    () => [
+      {
+        kind: preflightEnabled ? "ok" : ("warn" as const),
+        label: preflightCapability?.label ?? t("pages.composer.plan"),
+        value: preflightEnabled
+          ? t("pages.composer.preflightRequired")
+          : t("pages.composer.preflightOptional"),
+      },
+      {
+        kind: multimodelEnabled ? "ok" : ("neutral" as const),
+        label:
+          multimodelCapability?.label ?? t("pages.composer.maxParallelModels"),
+        value: multimodelEnabled
+          ? formatNumber(maxParallelConstraint)
+          : t("common.disabled"),
+      },
+      {
+        kind: autoMaterializationEnabled ? "ok" : ("neutral" as const),
+        label:
+          autoMaterializationCapability?.label ??
+          t("pages.composer.capabilityContext"),
+        value: autoMaterializationEnabled
+          ? t("common.enabled")
+          : t("common.disabled"),
+      },
+      {
+        kind: "neutral" as const,
+        label: t("pages.composer.maxIterations"),
+        value: formatNumber(maxIterationsConstraint),
+      },
+    ],
+    [
+      autoMaterializationCapability,
+      autoMaterializationEnabled,
+      maxIterationsConstraint,
+      maxParallelConstraint,
+      multimodelCapability,
+      multimodelEnabled,
+      preflightCapability,
+      preflightEnabled,
+      t,
+    ],
+  );
+  const launchContextSummary = fromRunId
+    ? fromRunId
+    : t("pages.composer.newScenario");
 
   function addRecentLaunch(runId: string, status: string) {
     setRecentLaunches((previous) =>
@@ -104,113 +500,216 @@ export default function LaunchRunPage() {
     <div className="space-y-5" data-testid="composer-page">
       <h1 className="sr-only">{t("pages.composer.title")}</h1>
 
-      <Card className="space-y-4">
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.5fr)_minmax(320px,1fr)]">
-          <div>
-            <p className="eyebrow">{t("pages.composer.title")}</p>
-            <h2>{t("pages.composer.heroTitle")}</h2>
-            <p className="topbar-subtitle">
-              {t("pages.composer.journeyTitle")}
-            </p>
-            <p className="text-muted mt-2 max-w-3xl text-sm">
-              {fromRunId
-                ? t("pages.composer.journeyReplanBody", { runId: fromRunId })
-                : t("pages.composer.journeyBody")}
-            </p>
-          </div>
+      <section className="relative overflow-hidden rounded-[30px] border border-[rgba(23,25,29,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(247,243,235,0.94))] p-5 shadow-[0_26px_50px_rgba(23,25,29,0.08)] md:p-6">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top_left,rgba(28,139,130,0.18),transparent_36%),radial-gradient(circle_at_top_right,rgba(181,139,43,0.14),transparent_32%)]" />
+        <div className="relative grid gap-5 xl:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.8fr)]">
+          <div className="space-y-5">
+            <div className="space-y-4">
+              <ProvenanceStrip
+                title={t("pages.composer.title")}
+                items={composerHeroProvenance}
+                density="compact"
+              />
 
-          <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <span className="text-muted text-xs tracking-wide uppercase">
-                {t("pages.composer.journeyMetrics.mode")}
-              </span>
-              <strong className="mt-2 block text-lg font-semibold">
-                {mode === "workflow"
-                  ? t("pages.composer.workflow")
-                  : t("pages.composer.naturalLanguage")}
-              </strong>
-            </div>
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <span className="text-muted text-xs tracking-wide uppercase">
-                {t("pages.composer.journeyMetrics.capabilities")}
-              </span>
-              <strong className="mt-2 block text-lg font-semibold">
-                {formatNumber(capabilityHighlights.length)}
-              </strong>
-            </div>
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <span className="text-muted text-xs tracking-wide uppercase">
-                {t("pages.composer.journeyMetrics.models")}
-              </span>
-              <strong className="mt-2 block text-lg font-semibold">
-                {formatNumber(llmProfiles.length)}
-              </strong>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid gap-3 md:grid-cols-5">
-          {journeySteps.map((step, index) => {
-            const isActive =
-              (step.id === "workflow" && mode === "workflow") ||
-              (step.id === "nl" && mode === "nl") ||
-              (step.id !== "workflow" && step.id !== "nl");
-
-            return (
-              <div
-                key={step.id}
-                className={cn(
-                  "rounded-2xl border px-3 py-4",
-                  isActive
-                    ? "border-accent/35 bg-accent/10"
-                    : "bg-surface/75 border-line",
-                )}
-              >
-                <span className="text-muted block text-xs tracking-wide uppercase">
-                  {index + 1}
-                </span>
-                <strong className="mt-2 block text-sm">{step.title}</strong>
-                <p className="text-muted mt-2 text-xs">{step.body}</p>
+              <div className="space-y-3">
+                <h2 className="max-w-3xl text-[clamp(2rem,4vw,3.25rem)] leading-[0.96] font-extrabold tracking-[-0.05em]">
+                  {t("pages.composer.heroTitle")}
+                </h2>
+                <p className="topbar-subtitle max-w-3xl">
+                  {t("pages.composer.journeyTitle")}
+                </p>
               </div>
-            );
-          })}
-        </div>
 
-        <div className="bg-surface/70 border-line flex flex-wrap items-center justify-between gap-4 rounded-2xl border p-4">
-          <div>
-            <p className="eyebrow">{t("pages.composer.modeTitle")}</p>
-            <h3 className="text-lg font-semibold">
-              {mode === "workflow"
-                ? t("pages.composer.modeWorkflowTitle")
-                : t("pages.composer.modeNlTitle")}
-            </h3>
-            <p className="text-muted mt-2 text-sm">
-              {mode === "workflow"
-                ? t("pages.composer.modeWorkflowBody")
-                : t("pages.composer.modeNlBody")}
-            </p>
+              <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]">
+                <div className="rounded-[28px] border border-[rgba(23,25,29,0.08)] bg-[linear-gradient(145deg,rgba(28,139,130,0.14),rgba(181,139,43,0.08)),rgba(255,255,255,0.72)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
+                  <p className="eyebrow">
+                    {t("pages.composer.steps.workflow")}
+                  </p>
+                  <p className="text-text mt-3 text-lg leading-8 font-semibold tracking-[-0.03em]">
+                    {fromRunId
+                      ? t("pages.composer.replanIntent", { runId: fromRunId })
+                      : mode === "workflow"
+                        ? t("pages.composer.modeWorkflowBody")
+                        : t("pages.composer.modeNlBody")}
+                  </p>
+                  <p className="text-muted mt-4 max-w-2xl text-sm leading-6">
+                    {fromRunId
+                      ? t("pages.composer.journeyReplanBody", {
+                          runId: fromRunId,
+                        })
+                      : t("pages.composer.journeyBody")}
+                  </p>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                  <ComposerSummaryMetric
+                    label={t("pages.composer.journeyMetrics.mode")}
+                    value={
+                      mode === "workflow"
+                        ? t("pages.composer.workflow")
+                        : t("pages.composer.naturalLanguage")
+                    }
+                    tone="accent"
+                  />
+                  <ComposerSummaryMetric
+                    label={t("pages.composer.journeyMetrics.capabilities")}
+                    value={formatNumber(capabilityHighlights.length)}
+                  />
+                  <ComposerSummaryMetric
+                    label={t("pages.composer.journeyMetrics.models")}
+                    value={formatNumber(llmProfiles.length)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                data-testid="composer-mode-workflow"
+                onClick={() => setMode("workflow")}
+                variant={mode === "workflow" ? "primary" : "ghost"}
+              >
+                {t("pages.composer.workflow")}
+              </Button>
+              <Button
+                type="button"
+                data-testid="composer-mode-nl"
+                onClick={() => setMode("nl")}
+                variant={mode === "nl" ? "primary" : "ghost"}
+              >
+                {t("pages.composer.naturalLanguage")}
+              </Button>
+            </div>
+
+            <div className="grid gap-3 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
+              <div className="space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="eyebrow">
+                      {t("pages.composer.capabilityContext")}
+                    </p>
+                    <h3 className="text-xl font-semibold tracking-[-0.03em]">
+                      {t("pages.composer.runtimeSignalsTitle")}
+                    </h3>
+                  </div>
+                  <Badge kind="neutral" className="px-2 py-1 text-[10px]">
+                    {t("pages.composer.capabilitiesVisible", {
+                      count: formatNumber(capabilityHighlights.length),
+                    })}
+                  </Badge>
+                </div>
+
+                <div
+                  className="grid gap-3 md:grid-cols-2"
+                  data-testid="composer-capability-tiles"
+                >
+                  {capabilityHighlights.map((feature) => (
+                    <ComposerCapabilityTile
+                      key={feature.key}
+                      feature={feature}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-[28px] border border-[rgba(23,25,29,0.08)] bg-white/58 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="eyebrow">
+                      {t("pages.composer.governanceConstraints")}
+                    </p>
+                    <h3 className="text-xl font-semibold tracking-[-0.03em]">
+                      {mode === "workflow"
+                        ? t("pages.composer.modeWorkflowTitle")
+                        : t("pages.composer.modeNlTitle")}
+                    </h3>
+                  </div>
+                  <Badge kind={readinessKind} className="px-2 py-1 text-[10px]">
+                    {t(resolveReadinessStatusKey(readinessScore))}
+                  </Badge>
+                </div>
+                <div className="mt-4 space-y-2">
+                  {guardrailRows.map((row) => (
+                    <ComposerGuardrailRow key={row.label} {...row} />
+                  ))}
+                </div>
+                <p className="text-muted mt-4 text-sm leading-6">
+                  {t("pages.composer.dynamicTextPolicy")}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-5">
+              {journeySteps.map((step, index) => {
+                const isActive =
+                  (step.id === "workflow" && mode === "workflow") ||
+                  (step.id === "nl" && mode === "nl") ||
+                  (step.id !== "workflow" && step.id !== "nl");
+
+                return (
+                  <ComposerJourneyStep
+                    key={step.id}
+                    active={isActive}
+                    body={step.body}
+                    index={index + 1}
+                    title={step.title}
+                  />
+                );
+              })}
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              data-testid="composer-mode-workflow"
-              onClick={() => setMode("workflow")}
-              variant={mode === "workflow" ? "primary" : "ghost"}
-            >
-              {t("pages.composer.workflow")}
-            </Button>
-            <Button
-              type="button"
-              data-testid="composer-mode-nl"
-              onClick={() => setMode("nl")}
-              variant={mode === "nl" ? "primary" : "ghost"}
-            >
-              {t("pages.composer.naturalLanguage")}
-            </Button>
-          </div>
+          <aside className="flex h-full flex-col gap-5 rounded-[28px] bg-[linear-gradient(180deg,rgba(38,49,58,0.98),rgba(20,22,26,0.96))] p-6 text-[#f5f0e6] shadow-[0_26px_40px_rgba(23,25,29,0.18)]">
+            <div>
+              <p className="font-mono text-[11px] tracking-[0.12em] text-white/52 uppercase">
+                {t("pages.composer.readinessTitle")}
+              </p>
+              <div
+                className="mt-3 grid size-32 place-items-center rounded-full text-4xl font-extrabold tracking-[-0.05em] text-[#fff8ef]"
+                data-testid="composer-readiness-score"
+                style={readinessRingStyle}
+              >
+                {readinessScore}
+              </div>
+              <Badge
+                kind={readinessKind}
+                className="mt-4 bg-white/10 text-white/78"
+              >
+                {t(resolveReadinessStatusKey(readinessScore))}
+              </Badge>
+              <p className="mt-4 max-w-xs text-sm leading-6 text-white/72">
+                {t("pages.composer.readinessNote")}
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <ComposerRailStat
+                label={t("pages.composer.journeyMetrics.mode")}
+                value={
+                  mode === "workflow"
+                    ? t("pages.composer.workflow")
+                    : t("pages.composer.naturalLanguage")
+                }
+              />
+              <ComposerRailStat
+                label={t("pages.composer.journeyMetrics.capabilities")}
+                value={formatNumber(capabilityHighlights.length)}
+              />
+              <ComposerRailStat
+                label={t("pages.composer.journeyMetrics.models")}
+                value={formatNumber(llmProfiles.length)}
+              />
+              <ComposerRailStat
+                label={t("pages.composer.steps.launch")}
+                value={launchContextSummary}
+              />
+            </div>
+
+            <ComposerRecentLaunchRail recentLaunches={recentLaunches} />
+          </aside>
         </div>
-      </Card>
+      </section>
 
       {mode === "workflow" ? (
         <WorkflowComposerSection

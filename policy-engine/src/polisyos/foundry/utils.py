@@ -1,4 +1,5 @@
 """Public foundry utils module API."""
+
 from dataclasses import dataclass
 
 import jax
@@ -13,6 +14,7 @@ def soft_step(x: jnp.ndarray, k: float = 10.0) -> jnp.ndarray:
     k - коэффициент жесткости.
     """
     return jax.nn.sigmoid(k * x)
+
 
 def soft_clamp(x: jnp.ndarray, min_val: float, max_val: float) -> jnp.ndarray:
     """
@@ -43,6 +45,7 @@ def gradient_health(
 @dataclass(frozen=True)
 class GradientHealthReport:
     """Gradient health report data model."""
+
     nan_frac: float
     inf_frac: float
     grad_norm: float

@@ -1,4 +1,5 @@
 """Public conflicts score claims module API."""
+
 from __future__ import annotations
 
 from decimal import ROUND_HALF_UP, Decimal

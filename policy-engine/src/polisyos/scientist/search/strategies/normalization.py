@@ -38,4 +38,3 @@ class Normalizer:
 
     def denormalize_std(self, std_norm: float) -> float:
         return std_norm * self.output_std
-

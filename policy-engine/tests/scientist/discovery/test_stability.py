@@ -16,7 +16,6 @@ from polisyos.scientist.discovery import stability as stability_module
 from polisyos.scientist.discovery.portfolio import PortfolioCandidate
 from polisyos.scientist.discovery.schema import (
     ComputeFootprint,
-    DiscoveryAlgorithmFamily,
     DiscoveryMethod,
     GraphHypothesis,
     infer_algorithm_family,
@@ -130,7 +129,9 @@ def test_bootstrap_mode_selection_matches_input_type() -> None:
     assert time_series_report.bootstrap_mode is BootstrapMode.MOVING_BLOCK
 
 
-def test_adjustment_set_stability_appears_for_query_when_resolved_graph_is_available(monkeypatch) -> None:
+def test_adjustment_set_stability_appears_for_query_when_resolved_graph_is_available(
+    monkeypatch,
+) -> None:
     dag = _dag_graph()
     pag = _pag_graph()
     candidate = _candidate(graph=pag, resolved_graph=dag, method=DiscoveryMethod.FCI)
@@ -163,7 +164,9 @@ def test_adjustment_set_stability_appears_for_query_when_resolved_graph_is_avail
     assert no_query_summary.identifiable_rate is None
 
 
-def test_truncated_bootstrap_keeps_completed_resamples_and_unavailable_metrics_explicit(monkeypatch) -> None:
+def test_truncated_bootstrap_keeps_completed_resamples_and_unavailable_metrics_explicit(
+    monkeypatch,
+) -> None:
     candidate = _candidate(graph=_dag_graph(), resolved_graph=None, method=DiscoveryMethod.DAGMA)
 
     def always_fail(state, method, params):

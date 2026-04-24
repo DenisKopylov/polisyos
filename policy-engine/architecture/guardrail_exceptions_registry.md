@@ -5,6 +5,6 @@
 `workflow_config`, `readme_policy`, а для `deep_import` — `source_module_glob` и
 `target_module_glob`.
 
-| id | check | owner | reason | added_on | expires | status |
-| --- | --- | --- | --- | --- | --- | --- |
-| `_no-active-exceptions_` | - | - | - | - | - | - |
+| id                       | check | owner | reason | added_on | expires | status |
+| ------------------------ | ----- | ----- | ------ | -------- | ------- | ------ |
+| `_no-active-exceptions_` | -     | -     | -      | -        | -       | -      |

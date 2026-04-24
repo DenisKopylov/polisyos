@@ -1,7 +1,8 @@
 """Public slsa attestation module API."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -37,7 +38,7 @@ class SLSAAttestationBuilder:
         external_parameters: dict[str, Any] | None = None,
         finished_at: datetime | None = None,
     ) -> InTotoStatement:
-        finished = finished_at or run_manifest.finished_at or datetime.now(timezone.utc)
+        finished = finished_at or run_manifest.finished_at or datetime.now(UTC)
 
         subject = Subject(
             name=f"cas://sha256:{decision_packet_id.hex}",

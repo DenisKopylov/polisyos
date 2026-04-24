@@ -50,9 +50,6 @@ def audit_fairness(
     if not method_configs:
         return AuditVerdict(True, {}, [], "{}")
 
-    names = list(method_configs.keys())
-    configs = list(method_configs.values())
-
     for name, cfg in method_configs.items():
         digests[name] = _digest(cfg)
 
@@ -65,9 +62,7 @@ def audit_fairness(
         }
         unique_cv = set(cv_vals.values())
         if len(unique_cv) > 1:
-            violations.append(
-                f"CV folds mismatch: {cv_vals}"
-            )
+            violations.append(f"CV folds mismatch: {cv_vals}")
 
     # Check param counts
     if require_same_param_count:

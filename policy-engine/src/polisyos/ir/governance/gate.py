@@ -3,10 +3,11 @@
 These contracts are emitted when execution pauses for automated or human review
 and are consumed by the gate subsystem, audit logs, and replay/reporting tools.
 """
+
 from __future__ import annotations
 
 import enum
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -71,7 +72,7 @@ class GateRequest(BaseModel):
     context: GateContext
     priority: GatePriority = GatePriority.NORMAL
     timeout_seconds: int | None = Field(default=None, ge=1)
-    requested_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    requested_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     requested_by: str = "system"
 
 
@@ -87,7 +88,7 @@ class GateDecision(BaseModel):
     approver_id: str
     reason_codes: list[str] = Field(default_factory=list)
     comment: str | None = None
-    decided_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    decided_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     evidence_refs: list[str] = Field(default_factory=list)
 
 
@@ -100,7 +101,7 @@ class GateEvent(BaseModel):
     event_type: GateEventType
     run_id: str
     request_id: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     payload: dict[str, Any] = Field(default_factory=dict)
     trace_id: str | None = None
     span_id: str | None = None

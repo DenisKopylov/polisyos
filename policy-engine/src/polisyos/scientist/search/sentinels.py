@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import json
 import hashlib
+import json
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
@@ -23,17 +23,14 @@ _SENTINEL_SET_SCHEMA = SchemaInfo(
 
 
 def _stable_candidate_hash(candidate: dict[str, Any]) -> str:
-    payload = {
-        key: value
-        for key, value in candidate.items()
-        if not str(key).startswith("__")
-    }
+    payload = {key: value for key, value in candidate.items() if not str(key).startswith("__")}
     material = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str)
     return hashlib.sha256(material.encode("utf-8")).hexdigest()[:16]
 
 
 class SentinelKind(str, Enum):
     """Sentinel kind public type."""
+
     CALIBRATION = "calibration"
     REGRESSION = "regression"
 
@@ -54,7 +51,7 @@ class SentinelCandidate(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _fill_candidate_hash(self) -> "SentinelCandidate":
+    def _fill_candidate_hash(self) -> SentinelCandidate:
         if not self.candidate_hash:
             self.candidate_hash = _stable_candidate_hash(self.candidate)
         return self
@@ -95,7 +92,7 @@ class SentinelObservation(BaseModel):
         cls,
         sentinel: SentinelCandidate,
         outcome: Any,
-    ) -> "SentinelObservation":
+    ) -> SentinelObservation:
         stage_results = getattr(outcome, "stage_results", {}) or {}
         sorted_levels = sorted(stage_results)
         level_reached = sorted_levels[-1] if sorted_levels else 0
@@ -112,10 +109,14 @@ class SentinelObservation(BaseModel):
             final_action=str(getattr(outcome, "final_action", "unknown")),
             level_reached=level_reached,
             stage_a_passed=(
-                None if stage_a_result is None else bool(getattr(stage_a_result, "is_promising", False))
+                None
+                if stage_a_result is None
+                else bool(getattr(stage_a_result, "is_promising", False))
             ),
             stage_b_approved=(
-                None if stage_b_result is None else bool(getattr(stage_b_result, "is_promising", False))
+                None
+                if stage_b_result is None
+                else bool(getattr(stage_b_result, "is_promising", False))
             ),
             metadata={"ticket_id": getattr(outcome, "ticket_id", None)},
         )
@@ -129,11 +130,7 @@ def extract_sentinel_metadata(candidate: dict[str, Any]) -> dict[str, Any] | Non
 
 def strip_internal_candidate_metadata(candidate: dict[str, Any]) -> dict[str, Any]:
     """Remove sentinel-private metadata before a candidate leaves internal search infrastructure."""
-    return {
-        key: value
-        for key, value in candidate.items()
-        if not str(key).startswith("__")
-    }
+    return {key: value for key, value in candidate.items() if not str(key).startswith("__")}
 
 
 def persist_sentinel_set(

@@ -59,6 +59,11 @@ from polisyos.ir.governance.problem_frame import (
 )
 from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.model_spec import AssumptionSpec, AssumptionType, ModelSpec
+from polisyos.ir.refs import (
+    ArtifactRefModel,
+    OptimizationAmbiguityCertificateRef,
+    WelfareBundleRef,
+)
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import OptimizationDirection, SelectorOperator
 from polisyos.scientist.autotune.models import (
@@ -78,6 +83,7 @@ from polisyos.scientist.policy_design.output import (
     ReplayableAuditBundle,
     persist_replayable_audit_bundle,
 )
+from polisyos.scientist.policy_design.phase3 import Phase3CertificateStatus
 from polisyos.scientist.policy_design.schema import (
     BudgetAllocationEntry,
     PolicyCandidateSchema,
@@ -107,7 +113,6 @@ from polisyos.scientist.search.uncertainty import (
     UncertaintyEstimate,
     UncertaintyType,
 )
-from polisyos.ir.refs import ArtifactRefModel
 
 
 def _artifact_ref(seed: str) -> ArtifactRef:
@@ -115,6 +120,22 @@ def _artifact_ref(seed: str) -> ArtifactRef:
         artifact_id=f"sha256:{seed * 64}",
         kind="scientist.test",
         media_type="application/json",
+    )
+
+
+def _phase3_passed() -> Phase3CertificateStatus:
+    return Phase3CertificateStatus(
+        welfare_bundle_ref=WelfareBundleRef(
+            artifact_id="sha256:" + "a" * 64,
+            kind="ir.welfare_bundle",
+            media_type="application/json",
+        ),
+        ambiguity_certificate_ref=OptimizationAmbiguityCertificateRef(
+            artifact_id="sha256:" + "b" * 64,
+            kind="ir.optimization_ambiguity_certificate",
+            media_type="application/json",
+        ),
+        gate_passed=True,
     )
 
 
@@ -325,7 +346,9 @@ def _cross_graph_profile() -> CrossGraphEvidenceProfile:
     )
 
 
-def _prior_knowledge_bundle(*, status: str = "ok", coverage_complete: bool = True) -> PriorKnowledgeBundle:
+def _prior_knowledge_bundle(
+    *, status: str = "ok", coverage_complete: bool = True
+) -> PriorKnowledgeBundle:
     unresolved = [] if coverage_complete else ["X->Y"]
     support_rows = (
         [
@@ -376,7 +399,9 @@ def _uncertainty(level: float = 0.2) -> UncertaintyEnvelope:
     )
 
 
-def _benchmark(candidate_ref: ArtifactRef, *, holdout_score: float = 0.94) -> tuple[BenchmarkEvaluation, BenchmarkEvaluation]:
+def _benchmark(
+    candidate_ref: ArtifactRef, *, holdout_score: float = 0.94
+) -> tuple[BenchmarkEvaluation, BenchmarkEvaluation]:
     selection = BenchmarkEvaluation(
         loop_id="policy_loop",
         suite_id="suite_a",
@@ -572,9 +597,7 @@ def _conditional_latent_bundle() -> LatentDiscoveryBundle:
             external_evidence_refs=[
                 _latent_promotion_ref("e", kind="scientist.latent.external_evidence")
             ],
-            replication_refs=[
-                _latent_promotion_ref("f", kind="scientist.latent.replication")
-            ],
+            replication_refs=[_latent_promotion_ref("f", kind="scientist.latent.replication")],
             hidden_benchmark_ref=_latent_promotion_ref(
                 "g", kind="scientist.latent.hidden_benchmark"
             ),
@@ -651,10 +674,21 @@ def test_pareto_registry_tracks_frontiers_and_voi_snapshot(tmp_path) -> None:
         }
     )
 
-    registry.update("loop", candidate_hash="sha256:" + "a" * 64, evaluation=vector_a, candidate_id="candidate_b")
-    registry.update("loop", candidate_hash="sha256:" + "b" * 64, evaluation=vector_b, candidate_id="candidate_c")
-    registry.update("loop", candidate_hash="sha256:" + "c" * 64, evaluation=vector_c, candidate_id="candidate_d")
-    registry.update("loop", candidate_hash="sha256:" + "d" * 64, evaluation=vector_bad, candidate_id="candidate_bad")
+    registry.update(
+        "loop", candidate_hash="sha256:" + "a" * 64, evaluation=vector_a, candidate_id="candidate_b"
+    )
+    registry.update(
+        "loop", candidate_hash="sha256:" + "b" * 64, evaluation=vector_b, candidate_id="candidate_c"
+    )
+    registry.update(
+        "loop", candidate_hash="sha256:" + "c" * 64, evaluation=vector_c, candidate_id="candidate_d"
+    )
+    registry.update(
+        "loop",
+        candidate_hash="sha256:" + "d" * 64,
+        evaluation=vector_bad,
+        candidate_id="candidate_bad",
+    )
 
     global_frontier = registry.get_frontier("loop", ParetoView.GLOBAL_FEASIBLE)
     assert {entry.candidate_id for entry in global_frontier} == {"candidate_b", "candidate_d"}
@@ -684,7 +718,10 @@ def test_judge_stack_reduced_mode_and_human_gate() -> None:
         evaluation_ref=_artifact_ref("b"),
         governance_report={"verdict": "human_gate", "issues": []},
         state={
-            "checkpoints": [{"stage": "data_loaded", "timestamp": "2026-03-25T10:00:00Z"}, {"stage": "estimation_complete", "timestamp": "2026-03-25T10:01:00Z"}],
+            "checkpoints": [
+                {"stage": "data_loaded", "timestamp": "2026-03-25T10:00:00Z"},
+                {"stage": "estimation_complete", "timestamp": "2026-03-25T10:01:00Z"},
+            ],
             "verified_claims": [{"source_ref": "source:1", "confidence": 0.9}],
             "data_sources": [{"name": "dataset", "last_updated": "2026-03-01T00:00:00+00:00"}],
             "knowledge_metadata": {"last_updated": "2026-03-01T00:00:00+00:00"},
@@ -830,6 +867,7 @@ def test_promotion_coordinator_persists_readiness_and_updates_champion(tmp_path)
     vector = _evaluation_vector(candidate)
     bundle = coordinator.build_input_bundle(
         candidate=candidate,
+        phase3_gate=_phase3_passed(),
         benchmark_evaluation=selection_eval,
         hidden_holdout_evaluation=hidden_holdout,
         evaluation_vector=vector,
@@ -895,8 +933,12 @@ def test_promotion_coordinator_persists_readiness_and_updates_champion(tmp_path)
     pointer = registry.get("policy_loop")
     assert pointer is not None
     assert pointer.metadata["decision_readiness"]["readiness_level"] == "deployment_ready"
-    assert pointer.metadata["judge_verdict_ref"]["artifact_id"] == str(result.judge_verdict_ref.artifact_id)
-    assert pointer.metadata["decision_readiness_ref"]["artifact_id"] == str(result.readiness_ref.artifact_id)
+    assert pointer.metadata["judge_verdict_ref"]["artifact_id"] == str(
+        result.judge_verdict_ref.artifact_id
+    )
+    assert pointer.metadata["decision_readiness_ref"]["artifact_id"] == str(
+        result.readiness_ref.artifact_id
+    )
 
 
 def test_missing_prior_knowledge_caps_readiness_below_recommendation_ready(tmp_path) -> None:
@@ -916,6 +958,7 @@ def test_missing_prior_knowledge_caps_readiness_below_recommendation_ready(tmp_p
 
     bundle = coordinator.build_input_bundle(
         candidate=candidate,
+        phase3_gate=_phase3_passed(),
         benchmark_evaluation=selection_eval,
         hidden_holdout_evaluation=hidden_holdout,
         evaluation_vector=_evaluation_vector(candidate),
@@ -966,9 +1009,7 @@ def test_missing_prior_knowledge_caps_readiness_below_recommendation_ready(tmp_p
     assert result.readiness_contract.readiness_level == DecisionReadiness.SIMULATION_READY
     assert result.readiness_contract.metadata["actual_evidence_depth"] == "single_study"
     assert result.readiness_contract.metadata["prior_knowledge_status"] == "missing"
-    assert (
-        result.readiness_contract.metadata["evidence_support_summary"]["available"] is False
-    )
+    assert result.readiness_contract.metadata["evidence_support_summary"]["available"] is False
 
 
 def test_synthetic_runtime_caps_readiness_and_blocks_promotion(tmp_path) -> None:
@@ -987,6 +1028,7 @@ def test_synthetic_runtime_caps_readiness_and_blocks_promotion(tmp_path) -> None
     )
     bundle = coordinator.build_input_bundle(
         candidate=candidate,
+        phase3_gate=_phase3_passed(),
         benchmark_evaluation=selection_eval,
         hidden_holdout_evaluation=hidden_holdout,
         evaluation_vector=_evaluation_vector(candidate),
@@ -1053,6 +1095,7 @@ def test_phase2_closure_caps_readiness_for_incomplete_relevant_family() -> None:
         candidate=_candidate(evidence_depth="replicated"),
         judge_verdict=JudgeVerdict(per_judge={}, composite_decision="promote"),
         uncertainty_envelope=_uncertainty(0.1),
+        phase3_gate=_phase3_passed(),
         evidence_metadata={
             "artifact_family": "distributional_frontier",
             "phase2_closure": {
@@ -1100,6 +1143,7 @@ def test_phase2_closure_summary_flows_through_promotion_runtime(tmp_path) -> Non
 
     bundle = coordinator.build_input_bundle(
         candidate=candidate,
+        phase3_gate=_phase3_passed(),
         artifact_family="distributional_frontier",
         benchmark_evaluation=selection_eval,
         evaluation_vector=_evaluation_vector(candidate),
@@ -1150,6 +1194,21 @@ def test_phase2_closure_summary_flows_through_promotion_runtime(tmp_path) -> Non
     assert result.readiness_contract.metadata["phase2_closure_status"] == "fail"
 
 
+def test_missing_phase3_gate_caps_readiness_to_research() -> None:
+    contract = DecisionReadinessEvaluator().evaluate(
+        candidate=_candidate(evidence_depth="replicated"),
+        judge_verdict=JudgeVerdict(per_judge={}, composite_decision="promote"),
+        uncertainty_envelope=_uncertainty(0.1),
+        evidence_metadata={},
+    )
+
+    assert contract.readiness_level == DecisionReadiness.RESEARCH_ARTIFACT
+    assert contract.metadata["readiness_cap_reason"] == "phase3_gate_blocked"
+    assert contract.phase3_gate.gate_passed is False
+    assert "phase3.welfare_missing" in contract.phase3_gate.blocking_reasons
+    assert "phase3.ambiguity_missing" in contract.phase3_gate.blocking_reasons
+
+
 def test_phase2_closure_report_env_caps_readiness_without_inline_summary(
     tmp_path,
     monkeypatch,
@@ -1167,6 +1226,7 @@ def test_phase2_closure_report_env_caps_readiness_without_inline_summary(
         candidate=_candidate(evidence_depth="replicated"),
         judge_verdict=JudgeVerdict(per_judge={}, composite_decision="promote"),
         uncertainty_envelope=_uncertainty(0.1),
+        phase3_gate=_phase3_passed(),
         evidence_metadata={"artifact_family": "distributional_frontier"},
     )
 
@@ -1209,6 +1269,7 @@ def test_phase2_closure_summary_flows_through_promotion_runtime_via_env_report(
 
     bundle = coordinator.build_input_bundle(
         candidate=candidate,
+        phase3_gate=_phase3_passed(),
         artifact_family="distributional_frontier",
         benchmark_evaluation=selection_eval,
         evaluation_vector=_evaluation_vector(candidate),
@@ -1252,7 +1313,12 @@ def test_phase2_benchmark_scope_normalizes_frontier_family() -> None:
     candidate = type(
         "Candidate",
         (),
-        {"metadata": {"artifact_family": "causal_core", "query_type": "partial_observability_bounds"}},
+        {
+            "metadata": {
+                "artifact_family": "causal_core",
+                "query_type": "partial_observability_bounds",
+            }
+        },
     )()
     selection_vector = type(
         "SelectionVector",
@@ -1288,6 +1354,7 @@ def test_latent_bundle_forces_research_only_cap_and_human_gate(tmp_path) -> None
 
     bundle = coordinator.build_input_bundle(
         candidate=candidate,
+        phase3_gate=_phase3_passed(),
         benchmark_evaluation=selection_eval,
         evaluation_vector=_evaluation_vector(candidate),
         governance_report={"verdict": "approve", "issues": []},
@@ -1337,6 +1404,7 @@ def test_readiness_metadata_surfaces_latent_separation_summary() -> None:
         candidate=_candidate(evidence_depth="single_study"),
         judge_verdict=JudgeVerdict(per_judge={}, composite_decision="promote"),
         uncertainty_envelope=_uncertainty(0.1),
+        phase3_gate=_phase3_passed(),
         evidence_metadata={"latent_governance": governance_payload},
     )
 
@@ -1366,6 +1434,7 @@ def test_promoted_latent_bundle_maps_to_bounds_claim_mode_in_runtime(
 
     bundle = coordinator.build_input_bundle(
         candidate=candidate,
+        phase3_gate=_phase3_passed(),
         benchmark_evaluation=selection_eval,
         evaluation_vector=_evaluation_vector(candidate),
         governance_report={"verdict": "approve", "issues": []},
@@ -1403,8 +1472,7 @@ def test_promoted_latent_bundle_maps_to_bounds_claim_mode_in_runtime(
     assert result.readiness_contract.metadata["claim_mode"] == "bounds"
     assert result.readiness_contract.metadata["not_for_decision_support"] is False
     assert (
-        result.readiness_contract.metadata["latent_governance"]["readiness_cap"]
-        == "bounds_ready"
+        result.readiness_contract.metadata["latent_governance"]["readiness_cap"] == "bounds_ready"
     )
     analyst_assessment = next(
         assessment
@@ -1494,6 +1562,7 @@ def test_unreadable_latent_bundle_resolution_is_rejected_and_caps_readiness(
 
     bundle = coordinator.build_input_bundle(
         candidate=candidate,
+        phase3_gate=_phase3_passed(),
         benchmark_evaluation=selection_eval,
         evaluation_vector=_evaluation_vector(candidate),
         governance_report={"verdict": "approve", "issues": []},
@@ -1550,6 +1619,7 @@ def test_data_readiness_metadata_uses_ref_and_summary_not_inline_dump(tmp_path) 
     evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
     bundle = coordinator.build_input_bundle(
         candidate=candidate,
+        phase3_gate=_phase3_passed(),
         benchmark_evaluation=selection_eval,
         hidden_holdout_evaluation=hidden_holdout,
         evaluation_vector=_evaluation_vector(candidate),
@@ -1622,6 +1692,7 @@ def test_ref_only_data_readiness_warn_caps_readiness(tmp_path) -> None:
 
     bundle = coordinator.build_input_bundle(
         candidate=candidate,
+        phase3_gate=_phase3_passed(),
         benchmark_evaluation=selection_eval,
         hidden_holdout_evaluation=hidden_holdout,
         evaluation_vector=_evaluation_vector(candidate),
@@ -1705,6 +1776,7 @@ def test_dp_bounds_only_metadata_is_surfaced_in_readiness_contract(tmp_path) -> 
 
     bundle = coordinator.build_input_bundle(
         candidate=candidate,
+        phase3_gate=_phase3_passed(),
         benchmark_evaluation=selection_eval,
         hidden_holdout_evaluation=hidden_holdout,
         evaluation_vector=_evaluation_vector(candidate),
@@ -1781,6 +1853,7 @@ def test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler(tmp_
 
     bundle = coordinator.build_input_bundle(
         candidate=candidate,
+        phase3_gate=_phase3_passed(),
         benchmark_evaluation=selection_eval,
         hidden_holdout_evaluation=hidden_holdout,
         evaluation_vector=_evaluation_vector(candidate),

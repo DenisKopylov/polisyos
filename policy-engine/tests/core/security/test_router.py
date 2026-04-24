@@ -70,7 +70,7 @@ def test_missing_header(app_with_router: tuple[FastAPI, list[str]]) -> None:
 
 
 def test_routing_rejects_authenticated_tenant_mismatch(
-    app_with_router: tuple[FastAPI, list[str]]
+    app_with_router: tuple[FastAPI, list[str]],
 ) -> None:
     app, tenants = app_with_router
 

@@ -1,4 +1,5 @@
 """Intervention assignment helpers."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -37,7 +38,9 @@ def dynamic_treatment_assignments(
     rng: np.random.Generator,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Assign dynamic treatments at one time step and return `(treatment, propensity)`."""
-    logits = -0.1 + 0.45 * lagged_state + 0.25 * features[:, 0] + confounding_strength * latent_driver
+    logits = (
+        -0.1 + 0.45 * lagged_state + 0.25 * features[:, 0] + confounding_strength * latent_driver
+    )
     propensity = _sigmoid(logits)
     treatment = rng.binomial(1, propensity).astype(int)
     return treatment, propensity
@@ -70,4 +73,3 @@ __all__ = [
     "static_treatment_assignments",
     "survey_wave_treatment_assignments",
 ]
-

@@ -1,24 +1,26 @@
 """Public backends solver runner module API."""
+
 from __future__ import annotations
 
 import json
 import time
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 from polisyos.core.canon import CanonSpec, to_canonical_bytes, truncated_hash
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.backends.runtime_fingerprint import (
-    augment_observed_tolerance_budget,
-    capture_backend_runtime_fingerprint,
-    capture_versions,
-    runtime_stack_for,
-)
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodRunner,
     MethodTiming,
     ReproducibilityInfo,
     SolverStatus,
+)
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    augment_observed_tolerance_budget,
+    capture_backend_runtime_fingerprint,
+    capture_versions,
+    runtime_stack_for,
 )
 from polisyos.foundry.methods.backends.validated import VALIDATED_EXECUTION_PARAM_NAMES
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
@@ -45,6 +47,7 @@ def _assert_canonicalizable(payload: Any, *, label: str) -> None:
 
 class SolverRunner(MethodRunner):
     """Solver runner public type."""
+
     @property
     def supported_backends(self) -> frozenset[ComputeBackend]:
         return frozenset({ComputeBackend.SOLVER})
@@ -96,7 +99,9 @@ class SolverRunner(MethodRunner):
             if key not in {"status", "gap", "iterations", "objective_value", "warnings", "backend"}
         }
         solver_options_hash = (
-            truncated_hash(json.dumps(solver_options_payload, sort_keys=True, default=str), length=12)
+            truncated_hash(
+                json.dumps(solver_options_payload, sort_keys=True, default=str), length=12
+            )
             if solver_options_payload
             else None
         )

@@ -182,7 +182,9 @@ class CursorStore:
         return PartitionCursorState.model_validate(data)
 
     def find_latest_cursor(
-        self, connector_id: str, dataset_id: str,
+        self,
+        connector_id: str,
+        dataset_id: str,
     ) -> CursorState | None:
         """Find the most recent cursor for a connector:dataset pair."""
         cursor_id = f"{connector_id}:{dataset_id}"
@@ -197,7 +199,10 @@ class CursorStore:
         except (FileNotFoundError, OSError, TypeError, ValueError):
             logger.debug(
                 "Failed to load cursor for %s:%s (artifact=%s)",
-                connector_id, dataset_id, artifact_id_str, exc_info=True,
+                connector_id,
+                dataset_id,
+                artifact_id_str,
+                exc_info=True,
             )
             return None
 
@@ -214,7 +219,9 @@ class CursorStore:
             except (FileNotFoundError, OSError, TypeError, ValueError):
                 logger.debug(
                     "Failed to load cursor %s (artifact=%s)",
-                    cursor_id, artifact_id_str, exc_info=True,
+                    cursor_id,
+                    artifact_id_str,
+                    exc_info=True,
                 )
                 continue
         return result
@@ -239,7 +246,9 @@ class CursorStore:
         except (FileNotFoundError, OSError, TypeError, ValueError):
             logger.debug(
                 "Failed to load stream checkpoint for %s (artifact=%s)",
-                stream_id, artifact_id_str, exc_info=True,
+                stream_id,
+                artifact_id_str,
+                exc_info=True,
             )
             return None
 
@@ -256,7 +265,9 @@ class CursorStore:
             except (FileNotFoundError, OSError, TypeError, ValueError):
                 logger.debug(
                     "Failed to load stream checkpoint %s (artifact=%s)",
-                    stream_id, artifact_id_str, exc_info=True,
+                    stream_id,
+                    artifact_id_str,
+                    exc_info=True,
                 )
                 continue
         return result
@@ -337,9 +348,7 @@ class CursorStore:
             update={
                 "offset": max(0, offset if offset is not None else checkpoint.offset),
                 "resume_token": (
-                    resume_token
-                    if resume_token is not None
-                    else checkpoint.resume_token
+                    resume_token if resume_token is not None else checkpoint.resume_token
                 ),
                 "lifecycle_state": StreamLifecycleState.ACTIVE,
                 "committed_at": None,
@@ -371,7 +380,9 @@ class CursorStore:
         except (FileNotFoundError, OSError, TypeError, ValueError):
             logger.debug(
                 "Failed to load partition state %s (artifact=%s)",
-                key, artifact_id_str, exc_info=True,
+                key,
+                artifact_id_str,
+                exc_info=True,
             )
             return None
 
@@ -390,7 +401,9 @@ class CursorStore:
             except (FileNotFoundError, OSError, TypeError, ValueError):
                 logger.debug(
                     "Failed to load partition state %s (artifact=%s)",
-                    key, artifact_id_str, exc_info=True,
+                    key,
+                    artifact_id_str,
+                    exc_info=True,
                 )
                 continue
         return result
@@ -537,9 +550,7 @@ class CursorStore:
             if not isinstance(key, str) or not key:
                 raise CursorStoreError("cursor index contains an invalid cursor id")
             if not isinstance(value, str) or not value:
-                raise CursorStoreError(
-                    f"cursor index contains an invalid artifact id for {key}"
-                )
+                raise CursorStoreError(f"cursor index contains an invalid artifact id for {key}")
             ArtifactID.model_validate(value)
             validated[key] = value
         return validated
@@ -582,10 +593,10 @@ class AsyncCursorStoreAdapter:
         return cast(
             "tuple[ArtifactRef, ArtifactRef | None]",
             await run_blocking_async(
-            self.store.commit_stream_progress,
-            cursor=cursor,
-            checkpoint=checkpoint,
-            timeout_seconds=self.timeout_seconds,
+                self.store.commit_stream_progress,
+                cursor=cursor,
+                checkpoint=checkpoint,
+                timeout_seconds=self.timeout_seconds,
             ),
         )
 
@@ -641,5 +652,6 @@ class AsyncCursorStoreAdapter:
             partition_id,
             timeout_seconds=self.timeout_seconds,
         )
+
 
 __all__ = ["AsyncCursorStoreAdapter", "CursorStore", "CursorStoreError"]

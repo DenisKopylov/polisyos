@@ -1,9 +1,11 @@
 """Public builtins c 6 c runtime support module API."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Any, Mapping
+from typing import Any
 
 from pydantic import ValidationError
 
@@ -35,8 +37,8 @@ from polisyos.ir.analytics.strategic import (
     StrategicSCM,
     load_strategic_payoff_table,
     persist_strategic_payoff_table,
-    persist_strategic_solve_artifacts,
     persist_strategic_scm,
+    persist_strategic_solve_artifacts,
 )
 from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.ir.refs import ArtifactRefModel
@@ -168,9 +170,7 @@ def maybe_materialize_policy_override_bundle(
         lowered_ir=lowered_ir,
         program_graph=program_graph,
         compiled_interventions=(
-            tuple(lex_bundle.compiled_interventions)
-            if lex_bundle is not None
-            else ()
+            tuple(lex_bundle.compiled_interventions) if lex_bundle is not None else ()
         ),
     )
     if bundle is None:
@@ -179,19 +179,13 @@ def maybe_materialize_policy_override_bundle(
     input_refs = []
     lowered_ref = state.artifacts_index.get(ARTIFACT_LOWERED_IR_REF)
     if lowered_ref is not None:
-        input_refs.append(
-            InputRef(artifact_id=str(lowered_ref.artifact_id), role="lowered_ir")
-        )
+        input_refs.append(InputRef(artifact_id=str(lowered_ref.artifact_id), role="lowered_ir"))
     program_ref = state.artifacts_index.get(ARTIFACT_PROGRAM_GRAPH_REF)
     if program_ref is not None:
-        input_refs.append(
-            InputRef(artifact_id=str(program_ref.artifact_id), role="program_graph")
-        )
+        input_refs.append(InputRef(artifact_id=str(program_ref.artifact_id), role="program_graph"))
     trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is not None:
-        input_refs.append(
-            InputRef(artifact_id=str(trinity_ref.artifact_id), role="trinity_bundle")
-        )
+        input_refs.append(InputRef(artifact_id=str(trinity_ref.artifact_id), role="trinity_bundle"))
     bundle_ref = ctx.store.put_json(
         bundle,
         PutOptions(
@@ -239,9 +233,7 @@ def build_policy_parameter_override_bundle(
         if existing is not None and _normalize_for_compare(existing[0]) != _normalize_for_compare(
             entry.scheduled_value
         ):
-            raise ValueError(
-                f"ambiguous scheduled override for param_id '{entry.param_id}'"
-            )
+            raise ValueError(f"ambiguous scheduled override for param_id '{entry.param_id}'")
         schedule_by_param_id[entry.param_id] = (entry.scheduled_value, entry.entry_id)
 
     for parameter in candidate.trinity_bundle.policy_spec.parameters:
@@ -258,9 +250,9 @@ def build_policy_parameter_override_bundle(
                 f"'{parameter.param_path}'"
             )
         schedule_entry = schedule_by_param_id.get(parameter.param_id)
-        if schedule_entry is not None and _normalize_for_compare(schedule_entry[0]) != _normalize_for_compare(
-            current_value
-        ):
+        if schedule_entry is not None and _normalize_for_compare(
+            schedule_entry[0]
+        ) != _normalize_for_compare(current_value):
             current_value = schedule_entry[0]
             source_tag = f"parameter_schedule:{schedule_entry[1]}"
         else:
@@ -423,7 +415,9 @@ def persist_runtime_strategic_artifacts(
             }
         )
         strategic_scm_ref = ArtifactRef.model_validate(
-            persist_strategic_scm(ctx.store, normalized_contract, inputs=inputs).model_dump(mode="json")
+            persist_strategic_scm(ctx.store, normalized_contract, inputs=inputs).model_dump(
+                mode="json"
+            )
         )
         abstraction_certificate = load_runtime_abstraction_certificate(
             ctx,
@@ -439,7 +433,9 @@ def persist_runtime_strategic_artifacts(
             performative_loop_spec=state.params.get("performative_loop_spec"),
             mean_field_inputs=state.params.get("mean_field_game"),
         )
-        causal_component_ref = ArtifactRefModel.model_validate(causal_report_ref.model_dump(mode="json"))
+        causal_component_ref = ArtifactRefModel.model_validate(
+            causal_report_ref.model_dump(mode="json")
+        )
         bundle, bundle_ref = persist_strategic_solve_artifacts(
             ctx.store,
             causal_component_ref=causal_component_ref,
@@ -457,7 +453,9 @@ def persist_runtime_strategic_artifacts(
             mfg_solver_residual_report=result.mfg_solver_residual_report,
             mfg_mass_conservation_report=result.mfg_mass_conservation_report,
         )
-        strategic_response_bundle_ref = ArtifactRef.model_validate(bundle_ref.model_dump(mode="json"))
+        strategic_response_bundle_ref = ArtifactRef.model_validate(
+            bundle_ref.model_dump(mode="json")
+        )
         summary = strategic_result_summary(result)
         summary.update(
             {
@@ -528,7 +526,9 @@ def resolve_existing_strategic_output(
     raw_summary = state.params.get("strategic_response")
     summary = dict(raw_summary) if isinstance(raw_summary, Mapping) else None
     strategic_scm_ref = state.artifacts_index.get(ARTIFACT_STRATEGIC_SCM_REF)
-    strategic_response_bundle_ref = state.artifacts_index.get(ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF)
+    strategic_response_bundle_ref = state.artifacts_index.get(
+        ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF
+    )
     source = str(state.params.get("strategic_response_source") or "").strip().lower()
     if summary is None and source not in {"run_simulation", "policy_runtime"}:
         return None
@@ -645,18 +645,14 @@ def build_runtime_abstraction_metadata(
                 metadata["abstraction_error_bound"] = float(certificate.error_bound)
             allowed_intervention_family = abstraction_allowed_intervention_family(certificate)
             if allowed_intervention_family is not None:
-                metadata["abstraction_allowed_intervention_family"] = (
-                    allowed_intervention_family
-                )
+                metadata["abstraction_allowed_intervention_family"] = allowed_intervention_family
             estimand_error_bounds = abstraction_estimand_error_bounds(certificate)
             if estimand_error_bounds:
                 metadata["abstraction_estimand_error_bounds"] = estimand_error_bounds
             error_bound_spec = abstraction_error_bound_spec(certificate)
             if error_bound_spec:
                 metadata["abstraction_error_bound_spec"] = error_bound_spec
-            recommendation_margin_required = abstraction_recommendation_margin_required(
-                certificate
-            )
+            recommendation_margin_required = abstraction_recommendation_margin_required(certificate)
             if recommendation_margin_required is not None:
                 metadata["abstraction_recommendation_margin_required"] = (
                     recommendation_margin_required
@@ -715,9 +711,7 @@ def _payoff_table_signature(table: FiniteStrategicPayoffTable) -> dict[str, Any]
     return {
         "agent": table.agent,
         "strategic_agents": tuple(table.strategic_agents),
-        "action_spaces": {
-            agent: tuple(actions) for agent, actions in table.action_spaces.items()
-        },
+        "action_spaces": {agent: tuple(actions) for agent, actions in table.action_spaces.items()},
         "payoffs": {key: float(value) for key, value in table.payoffs.items()},
     }
 
@@ -858,12 +852,10 @@ def _apply_policy_override(
     param_key = _terminal_param_key(param_path)
     for node_id in sorted(set(node_ids)):
         existing_value = overrides.setdefault(node_id, {}).get(param_key)
-        if existing_value is not None and _normalize_for_compare(existing_value) != _normalize_for_compare(
-            value
-        ):
-            raise ValueError(
-                f"ambiguous override for node '{node_id}' and param '{param_key}'"
-            )
+        if existing_value is not None and _normalize_for_compare(
+            existing_value
+        ) != _normalize_for_compare(value):
+            raise ValueError(f"ambiguous override for node '{node_id}' and param '{param_key}'")
         overrides[node_id][param_key] = value
         sources.setdefault(node_id, []).append(source_tag)
 

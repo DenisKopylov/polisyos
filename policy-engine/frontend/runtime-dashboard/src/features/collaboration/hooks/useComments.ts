@@ -12,10 +12,9 @@ type UseCommentsOptions = {
 };
 
 async function fetchComments(sessionId: string): Promise<Comment[]> {
-  const response = await fetch(
-    `/api/v1/collaboration/${sessionId}/comments`,
-    { credentials: "include" },
-  );
+  const response = await fetch(`/api/v1/collaboration/${sessionId}/comments`, {
+    credentials: "include",
+  });
   if (!response.ok) return [];
   const data = await response.json();
   return (data.comments ?? []).map(mapServerComment);
@@ -25,21 +24,18 @@ async function postComment(
   sessionId: string,
   draft: CommentDraft,
 ): Promise<Comment> {
-  const response = await fetch(
-    `/api/v1/collaboration/${sessionId}/comments`,
-    {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        body: draft.body,
-        anchor_id: draft.anchorId,
-        anchor_type: draft.anchorType,
-        anchor_position: draft.anchorPosition,
-        parent_id: draft.parentId,
-      }),
-    },
-  );
+  const response = await fetch(`/api/v1/collaboration/${sessionId}/comments`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      body: draft.body,
+      anchor_id: draft.anchorId,
+      anchor_type: draft.anchorType,
+      anchor_position: draft.anchorPosition,
+      parent_id: draft.parentId,
+    }),
+  });
   if (!response.ok) throw new Error("Failed to post comment");
   return mapServerComment(await response.json());
 }
@@ -68,9 +64,7 @@ function mapServerComment(raw: Record<string, unknown>): Comment {
     resolvedBy: raw.resolved_by as string | undefined,
     anchorId: (raw.anchor_id ?? "") as string,
     anchorType: (raw.anchor_type ?? "section") as Comment["anchorType"],
-    anchorPosition: raw.anchor_position as
-      | { x: number; y: number }
-      | undefined,
+    anchorPosition: raw.anchor_position as { x: number; y: number } | undefined,
     parentId: raw.parent_id as string | undefined,
   };
 }

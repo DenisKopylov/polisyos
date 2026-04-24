@@ -2,24 +2,25 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import inspect
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypeGuard, cast
 
 from polisyos.common.async_tools import run_blocking_async
+
 from .protocol import ArtifactStore, AsyncArtifactStore
 
 if TYPE_CHECKING:
     from polisyos.core.canon.canon_json import CanonSpec
 
     from ._integrity_ops import VerificationReport
+    from .backends.config import ArtifactStoreConfig
     from .ids import ArtifactID
     from .manifest import ArtifactManifest, ArtifactRef
-    from .backends.config import ArtifactStoreConfig
     from .write_contract import ArtifactWriteOptions
 
 
-def is_async_artifact_store(store: object) -> TypeGuard["AsyncArtifactStore"]:
+def is_async_artifact_store(store: object) -> TypeGuard[AsyncArtifactStore]:
     """Return whether *store* exposes the async CAS contract at runtime."""
 
     candidate = getattr(store, "put_json", None)

@@ -258,10 +258,7 @@ def _cmd_resume(args: Any) -> int:
         print(f"workflow.fingerprint={summary['workflow_fingerprint'][:16]}...")
         print(f"fsm.phase={summary['fsm_phase']}")
         print(f"checkpoint.updated_at={summary['updated_at']}")
-        print(
-            "checkpoint.writer="
-            f"{summary['writer_hostname']}:{summary['writer_pid']}"
-        )
+        print(f"checkpoint.writer={summary['writer_hostname']}:{summary['writer_pid']}")
         print(f"completed_nodes={summary['completed_nodes_count']}")
 
     if args.dry_run:

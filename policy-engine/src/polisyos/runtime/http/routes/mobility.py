@@ -1,4 +1,5 @@
 """Runtime mobility estimation and report retrieval routes."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
@@ -52,7 +53,7 @@ if router is not None:
     def estimate_mobility(
         body: MobilityEstimateRequest,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> MobilityEstimateResponse:
         set_authz_resource(
             request,
@@ -84,7 +85,7 @@ if router is not None:
     def compute_mobility_bounds(
         body: MobilityBoundsRequest,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> MobilityBoundsResponse:
         set_authz_resource(
             request,
@@ -117,7 +118,7 @@ if router is not None:
     def get_mobility_report(
         artifact_id: str,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> MobilityReportResponse:
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
@@ -153,7 +154,7 @@ if router is not None:
     def get_mobility_report_bounds(
         artifact_id: str,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> MobilityBoundsResponse:
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
@@ -182,7 +183,9 @@ if router is not None:
             bounds_bundle_ref=bounds_ref,
             mobility_report_ref=report_ref,
             cell_bounds={key: list(value) for key, value in report.bounds.cell_bounds.items()},
-            summary_bounds={key: list(value) for key, value in report.bounds.summary_bounds.items()},
+            summary_bounds={
+                key: list(value) for key, value in report.bounds.summary_bounds.items()
+            },
         )
 
     @router.get(
@@ -193,7 +196,7 @@ if router is not None:
     def get_mobility_report_diagnostics(
         artifact_id: str,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> MobilityDiagnosticsResponse:
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)

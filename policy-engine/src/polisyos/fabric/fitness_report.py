@@ -1,9 +1,10 @@
 """Assemble human-readable data-fitness reports from Fabric quality indicators."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, List
+from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.fabric.temporal import parse_datetime_utc, utc_now
@@ -25,7 +26,7 @@ class MetricFitness:
     metric_id: str
     indicators: QualityIndicators
     level: QualityLevel
-    fail_reasons: List[str] = field(default_factory=list)
+    fail_reasons: list[str] = field(default_factory=list)
     profile_used: str = "mvp"
 
     @property
@@ -39,7 +40,7 @@ class MetricFitness:
         indicators: QualityIndicators,
         thresholds: QualityThresholds | None = None,
         profile: str = "mvp",
-    ) -> "MetricFitness":
+    ) -> MetricFitness:
         thresholds = thresholds or QualityThresholds.for_profile(profile)
         level = indicators.overall_level(thresholds)
         reasons = indicators.get_failure_reasons(thresholds)
@@ -74,11 +75,11 @@ class DataFitnessReport:
 
     run_id: str
     profile: str = "mvp"
-    metrics: List[MetricFitness] = field(default_factory=list)
+    metrics: list[MetricFitness] = field(default_factory=list)
     overall_passed: bool = True
     summary: str = ""
     computed_at: datetime = field(default_factory=utc_now)
-    diagnostics: List[dict[str, str]] = field(default_factory=list)
+    diagnostics: list[dict[str, str]] = field(default_factory=list)
 
     total_metrics: int = 0
     passed_metrics: int = 0
@@ -113,9 +114,7 @@ class DataFitnessReport:
 
         for metric in self.metrics:
             status = "PASSED" if metric.passed else "FAILED"
-            lines.append(
-                f"{metric.metric_id} | {metric.level.value.upper()} | {status}"
-            )
+            lines.append(f"{metric.metric_id} | {metric.level.value.upper()} | {status}")
             for reason in metric.fail_reasons[:3]:
                 lines.append(f"  - {reason}")
 
@@ -193,7 +192,7 @@ class DataFitnessReport:
         data: dict[str, Any],
         *,
         strict: bool = False,
-    ) -> "DataFitnessReport":
+    ) -> DataFitnessReport:
         """Deserialize from JSON storage."""
         report = cls(
             run_id=data["run_id"],
@@ -241,7 +240,8 @@ class DataFitnessReport:
                 )
                 logger.warning(
                     "Failed to parse metric fitness entry for metric_id=%s",
-                    metric.get("metric_id", "<unknown>"), exc_info=True,
+                    metric.get("metric_id", "<unknown>"),
+                    exc_info=True,
                 )
         report.metrics = metrics
 

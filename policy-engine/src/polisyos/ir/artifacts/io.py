@@ -1,7 +1,8 @@
 """High-level helpers for persisting and loading JSON artifacts through the IR CAS boundary."""
+
 from __future__ import annotations
 
-from typing import Any, Sequence
+from typing import TYPE_CHECKING, Any
 
 from polisyos.ir.canon import CanonSpec, from_canonical_bytes
 
@@ -16,6 +17,9 @@ from .contracts import (
     normalize_input_refs,
     to_store_put_options,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 def put_json_artifact(

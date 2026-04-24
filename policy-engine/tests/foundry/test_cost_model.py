@@ -1,4 +1,5 @@
 """Tests for cost estimation model."""
+
 from __future__ import annotations
 
 from polisyos.core.artifacts.ids import ArtifactID

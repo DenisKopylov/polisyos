@@ -4,11 +4,11 @@
 
 ## Что здесь
 
-| Chart | Назначение | Ключевые ресурсы |
-|---|---|---|
-| `polisyos-cell` | tenant/cell isolation baseline | Namespace, NetworkPolicy, ResourceQuota, RBAC, OPA ConfigMap, Linkerd policy, optional RuntimeClass |
-| `spire` | SPIFFE/SPIRE identity plane | server Deployment, agent DaemonSet, ConfigMap, ServiceAccounts |
-| `keycloak` | OIDC identity provider baseline | Keycloak StatefulSet + Service + Namespace |
+| Chart           | Назначение                      | Ключевые ресурсы                                                                                    |
+| --------------- | ------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `polisyos-cell` | tenant/cell isolation baseline  | Namespace, NetworkPolicy, ResourceQuota, RBAC, OPA ConfigMap, Linkerd policy, optional RuntimeClass |
+| `spire`         | SPIFFE/SPIRE identity plane     | server Deployment, agent DaemonSet, ConfigMap, ServiceAccounts                                      |
+| `keycloak`      | OIDC identity provider baseline | Keycloak StatefulSet + Service + Namespace                                                          |
 
 ## Порядок применения
 

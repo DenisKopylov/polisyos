@@ -424,8 +424,7 @@ def test_runtime_live_stream_rate_limit_metrics_capture_acquire_and_release(tmp_
     )
 
     with env["client"].websocket_connect(
-        f"/api/v1/review/live?channel=review.presence"
-        f"&review_id=run:{env['core_run_id']}:governance"
+        f"/api/v1/review/live?channel=review.presence&review_id=run:{env['core_run_id']}:governance"
     ) as websocket:
         assert websocket.receive_json()["type"] == "presence.snapshot"
         assert {

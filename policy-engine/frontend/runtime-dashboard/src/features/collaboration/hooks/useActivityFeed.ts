@@ -13,10 +13,9 @@ type UseActivityFeedOptions = {
 };
 
 async function fetchActivity(sessionId: string): Promise<ActivityEvent[]> {
-  const response = await fetch(
-    `/api/v1/collaboration/${sessionId}/activity`,
-    { credentials: "include" },
-  );
+  const response = await fetch(`/api/v1/collaboration/${sessionId}/activity`, {
+    credentials: "include",
+  });
   if (!response.ok) return [];
   const data = await response.json();
   return (data.events ?? []).map(mapServerEvent);
@@ -42,10 +41,7 @@ function mapServerEvent(raw: Record<string, unknown>): ActivityEvent {
  * Polls via TanStack Query (10s stale time) and merges with
  * real-time events pushed via the collab.activity WebSocket channel.
  */
-export function useActivityFeed({
-  sessionId,
-  filter,
-}: UseActivityFeedOptions) {
+export function useActivityFeed({ sessionId, filter }: UseActivityFeedOptions) {
   const storeActivity = useCollaborationStore((s) => s.activity);
   const setSessionId = useCollaborationStore((s) => s.setSessionId);
   const hydrateActivitySnapshot = useCollaborationStore(

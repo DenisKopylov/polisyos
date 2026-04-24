@@ -1,8 +1,9 @@
 """Survey-quality contracts for design-aware missing-data estimation."""
+
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Iterable, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import Field, model_validator
 
@@ -17,6 +18,8 @@ from polisyos.ir.analytics.administrative_missingness import (
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from polisyos.ir.artifacts.contracts import ArtifactStore
     from polisyos.ir.artifacts.refs import InputRef
     from polisyos.ir.refs import SurveyQualityCertificateRef
@@ -89,7 +92,9 @@ class SurveyQualityCertificate(KernelModel):
     """Operational certificate for survey DR estimation under design + missingness."""
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
-    artifact_name: Literal["survey_quality_certificate_v1.json"] = "survey_quality_certificate_v1.json"
+    artifact_name: Literal["survey_quality_certificate_v1.json"] = (
+        "survey_quality_certificate_v1.json"
+    )
 
     target_estimand: str = Field(..., min_length=1, max_length=255)
     estimator_id: str = Field(..., min_length=1, max_length=255)
@@ -136,7 +141,7 @@ class SurveyQualityCertificate(KernelModel):
     evidence_payload: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_certificate(self) -> "SurveyQualityCertificate":
+    def validate_certificate(self) -> SurveyQualityCertificate:
         allowed_when_passing = {
             SurveyValidatedRegime.BOTH_VALID,
             SurveyValidatedRegime.DESIGN_VALID_ONLY,
@@ -222,7 +227,9 @@ def build_survey_quality_certificate(
     resolved_imputation_assumptions = list(imputation_assumptions)
     resolved_identification_assumptions = list(identification_assumptions)
     resolved_missingness_assumptions = list(missingness_assumptions)
-    resolved_blocking_reasons = [str(item).strip() for item in blocking_reasons if str(item).strip()]
+    resolved_blocking_reasons = [
+        str(item).strip() for item in blocking_reasons if str(item).strip()
+    ]
     resolved_evidence_refs = [str(item).strip() for item in evidence_refs if str(item).strip()]
     payload = dict(evidence_payload or {})
 
@@ -343,13 +350,13 @@ def _stable_strings(values: Iterable[str]) -> list[str]:
 
 
 def persist_survey_quality_certificate(
-    store: "ArtifactStore",
+    store: ArtifactStore,
     certificate: SurveyQualityCertificate,
     *,
-    inputs: list["InputRef"] | None = None,
+    inputs: list[InputRef] | None = None,
     schema_name: str = "ir.survey_quality_certificate",
     schema_version: str = "1.0",
-) -> "SurveyQualityCertificateRef":
+) -> SurveyQualityCertificateRef:
     """Persist a survey-quality certificate and return its typed artifact ref."""
 
     from polisyos.ir.artifacts.io import put_json_artifact
@@ -369,8 +376,8 @@ def persist_survey_quality_certificate(
 
 
 def load_survey_quality_certificate(
-    store: "ArtifactStore",
-    ref: "SurveyQualityCertificateRef",
+    store: ArtifactStore,
+    ref: SurveyQualityCertificateRef,
 ) -> SurveyQualityCertificate:
     """Load a persisted survey-quality certificate."""
 

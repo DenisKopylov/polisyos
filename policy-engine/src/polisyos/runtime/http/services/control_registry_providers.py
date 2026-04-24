@@ -68,9 +68,7 @@ def resolve_control_registry_providers(
 
     if connectors is None:
         connectors = (
-            connectors_factory()
-            if connectors_factory is not None
-            else _default_connectors()
+            connectors_factory() if connectors_factory is not None else _default_connectors()
         )
     if source_profiles is None:
         source_profiles = (

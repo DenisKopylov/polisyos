@@ -145,7 +145,7 @@ def append_timing_record(path: Path, record: ToolRunRecord) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     records = read_timing_records(path)
     limit = _retention_limit()
-    retained = [*records[-max(limit - 1, 0):], record]
+    retained = [*records[-max(limit - 1, 0) :], record]
     payload = "".join(json.dumps(asdict(item), sort_keys=True) + "\n" for item in retained)
     atomic_write_text(path, payload)
 

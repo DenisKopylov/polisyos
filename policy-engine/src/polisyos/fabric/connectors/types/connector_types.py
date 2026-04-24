@@ -1,8 +1,9 @@
 """Connector types, errors, and supporting data structures."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, Generic, TypeVar
 
@@ -174,8 +175,7 @@ class FetchError(ConnectorError):
             safe_params: dict[str, Any] = {}
             for key, value in request_params.items():
                 if any(
-                    tok in key.lower()
-                    for tok in ("auth", "key", "token", "secret", "password")
+                    tok in key.lower() for tok in ("auth", "key", "token", "secret", "password")
                 ):
                     continue
                 safe_params[key] = value
@@ -233,7 +233,7 @@ class FreshnessResult:
 
     status: FreshnessStatus
     message: str = ""
-    checked_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    checked_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     source_updated_at: datetime | None = None
 
     new_version_available: bool = False
@@ -330,15 +330,15 @@ class ValidationResult(BaseModel):
         return any(issue.severity == ValidationSeverity.WARNING for issue in self.issues)
 
     @classmethod
-    def success(cls) -> "ValidationResult":
+    def success(cls) -> ValidationResult:
         return cls(valid=True, issues=())
 
     @classmethod
-    def failure(cls, *issues: ValidationIssue) -> "ValidationResult":
+    def failure(cls, *issues: ValidationIssue) -> ValidationResult:
         return cls(valid=False, issues=tuple(issues))
 
-    def with_issue(self, issue: ValidationIssue) -> "ValidationResult":
-        new_issues = self.issues + (issue,)
+    def with_issue(self, issue: ValidationIssue) -> ValidationResult:
+        new_issues = (*self.issues, issue)
         new_valid = self.valid and issue.severity != ValidationSeverity.ERROR
         return ValidationResult(valid=new_valid, issues=new_issues)
 
@@ -374,6 +374,6 @@ class RateLimitStatus:
             return None
         reset_at = self.reset_at
         if reset_at.tzinfo is None:
-            reset_at = reset_at.replace(tzinfo=timezone.utc)
-        delta = reset_at - datetime.now(timezone.utc)
+            reset_at = reset_at.replace(tzinfo=UTC)
+        delta = reset_at - datetime.now(UTC)
         return max(0, int(delta.total_seconds()))

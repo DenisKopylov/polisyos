@@ -215,7 +215,9 @@ def lesson_hint_payload(card: Any) -> dict[str, Any]:
         "summary": str(getattr(card, "summary", "") or ""),
         "failure_type": str(getattr(card, "failure_type", "") or ""),
         "remediation_hint": getattr(card, "remediation_hint", None),
-        "trust_level": str(getattr(getattr(card, "trust_level", None), "value", getattr(card, "trust_level", ""))),
+        "trust_level": str(
+            getattr(getattr(card, "trust_level", None), "value", getattr(card, "trust_level", ""))
+        ),
         "provenance_weight": float(getattr(card, "provenance_weight", 1.0) or 0.0),
         "domain": str(getattr(card, "domain", "isolated") or "isolated"),
         "task_family": str(getattr(card, "task_family", "policy") or "policy"),

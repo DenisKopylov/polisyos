@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 @dataclass
 class TaskRecord:
     """Track in-process task state for local/dev background execution."""
+
     task_id: str
     run_id: str
     state: TaskState = "pending"

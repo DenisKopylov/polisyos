@@ -1,4 +1,5 @@
 """Public economics state module API."""
+
 from __future__ import annotations
 
 import chex
@@ -36,9 +37,7 @@ class EconomicAgentState:
         return cls(
             active=jnp.ones(n_agents, dtype=jnp.bool_),
             age=jax.random.randint(keys[0], (n_agents,), 18, 65, dtype=jnp.int32),
-            skill_level=jax.random.uniform(
-                keys[1], (n_agents,), minval=0.2, maxval=1.0
-            ),
+            skill_level=jax.random.uniform(keys[1], (n_agents,), minval=0.2, maxval=1.0),
             wealth=jax.random.exponential(keys[2], (n_agents,)) * 50000.0,
             income=jnp.zeros(n_agents, dtype=jnp.float32),
             consumption=jnp.zeros(n_agents, dtype=jnp.float32),
@@ -46,15 +45,9 @@ class EconomicAgentState:
             employed=jax.random.bernoulli(keys[3], 0.95, (n_agents,)),
             wage=jax.random.uniform(keys[4], (n_agents,), minval=20000.0, maxval=150000.0),
             hours_worked=jnp.zeros(n_agents, dtype=jnp.float32),
-            discount_rate=jax.random.uniform(
-                keys[5], (n_agents,), minval=0.9, maxval=0.99
-            ),
-            risk_aversion=jax.random.uniform(
-                keys[6], (n_agents,), minval=0.5, maxval=3.0
-            ),
-            consumption_preference=jax.random.uniform(
-                keys[7], (n_agents,), minval=0.6, maxval=0.9
-            ),
+            discount_rate=jax.random.uniform(keys[5], (n_agents,), minval=0.9, maxval=0.99),
+            risk_aversion=jax.random.uniform(keys[6], (n_agents,), minval=0.5, maxval=3.0),
+            consumption_preference=jax.random.uniform(keys[7], (n_agents,), minval=0.6, maxval=0.9),
         )
 
     def get_observations(self) -> jnp.ndarray:
@@ -185,9 +178,7 @@ class EconomicState:
         gini_wealth = compute_gini_hard(agents.wealth, active)
         gini_income = compute_gini_hard(agents.income, active)
         top_10_share = compute_top_share(agents.wealth, active, top_fraction=0.10)
-        bottom_50_share = compute_bottom_share(
-            agents.wealth, active, bottom_fraction=0.50
-        )
+        bottom_50_share = compute_bottom_share(agents.wealth, active, bottom_fraction=0.50)
         median_wealth = EconomicState._median_active(agents.wealth, active)
         median_income = EconomicState._median_active(agents.income, active)
 

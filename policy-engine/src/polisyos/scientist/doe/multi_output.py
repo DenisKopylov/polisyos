@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
 
 import numpy as np
 
@@ -112,7 +111,8 @@ class MultiOutputAnalyzer:
         )
 
     def _run_pca(
-        self, outputs: np.ndarray,
+        self,
+        outputs: np.ndarray,
     ) -> tuple[list[np.ndarray], list[float]]:
         """Run PCA and return (list of score arrays, variance ratios)."""
         n_outputs = outputs.shape[1]
@@ -129,7 +129,9 @@ class MultiOutputAnalyzer:
             centered = outputs - outputs.mean(axis=0)
             U, S, Vt = np.linalg.svd(centered, full_matrices=False)
             total_var = np.sum(S**2)
-            var_ratio = (S**2 / total_var).tolist() if total_var > 0 else [1.0 / n_outputs] * n_outputs
+            var_ratio = (
+                (S**2 / total_var).tolist() if total_var > 0 else [1.0 / n_outputs] * n_outputs
+            )
             scores = U * S
             n_components = min(n_components, scores.shape[1])
 
@@ -154,7 +156,7 @@ class MultiOutputAnalyzer:
     ) -> list[str]:
         """Compute variance-weighted aggregate ranking."""
         names = [p.name for p in plan.parameter_specs]
-        scores: dict[str, float] = {n: 0.0 for n in names}
+        scores: dict[str, float] = dict.fromkeys(names, 0.0)
 
         for result, weight in zip(results, weights):
             for rank_pos, name in enumerate(result.ranking):

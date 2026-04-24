@@ -1,9 +1,10 @@
 """Detect claim groups that conflict and emit the corresponding world artifacts and facts."""
+
 from __future__ import annotations
 
+from collections.abc import Iterable
 from decimal import Decimal
 from pathlib import Path
-from typing import Iterable
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS

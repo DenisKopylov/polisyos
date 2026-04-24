@@ -41,16 +41,18 @@ Usage:
     for sig in registry.query(tags={"fiscal"}, input_slots={"income"}):
         print(sig.fqn)
 """
+
 from __future__ import annotations
 
 import contextvars
 import logging
 import threading
 from collections import deque
+from collections.abc import Callable, Generator, Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from functools import cmp_to_key
-from typing import Any, Callable, Generator, Iterator, Mapping
+from typing import Any
 
 from polisyos.core.registry import BaseRegistry
 from polisyos.foundry.methods.base import (
@@ -74,6 +76,7 @@ from polisyos.foundry.methods.lifecycle import (
 
 try:
     import structlog as _structlog
+
     _log = _structlog.get_logger("foundry.registry")
     _STRUCTLOG_AVAILABLE = True
 except ImportError:  # pragma: no cover
@@ -99,18 +102,20 @@ def _registry_log(event: str, **kwargs: object) -> None:
 import time as _time
 from typing import Literal
 
-_AuditEventKind = Literal["register", "register_lazy", "unregister", "lazy_load", "conflict_skipped"]
+_AuditEventKind = Literal[
+    "register", "register_lazy", "unregister", "lazy_load", "conflict_skipped"
+]
 
 
 @dataclass(slots=True)
 class RegistryAuditEvent:
     """A single entry in the registry audit log."""
 
-    event: str          # AuditEventKind value
+    event: str  # AuditEventKind value
     fqn: str
-    timestamp: float    # time.time()
-    caller: str         # simplified "module:lineno" string
-    details: dict       # extra context (backend, version, lazy, ...)
+    timestamp: float  # time.time()
+    caller: str  # simplified "module:lineno" string
+    details: dict  # extra context (backend, version, lazy, ...)
 
 
 class RegistryAuditLog:
@@ -160,22 +165,23 @@ class RegistryAuditLog:
 
     def export_jsonl(self, path: str) -> None:
         """Write all events to *path* as newline-delimited JSON."""
-        import io as _io
         import json as _json
 
         with self._lock:
             lines = [
-                _json.dumps({
-                    "event": e.event,
-                    "fqn": e.fqn,
-                    "timestamp": e.timestamp,
-                    "caller": e.caller,
-                    **e.details,
-                })
+                _json.dumps(
+                    {
+                        "event": e.event,
+                        "fqn": e.fqn,
+                        "timestamp": e.timestamp,
+                        "caller": e.caller,
+                        **e.details,
+                    }
+                )
                 for e in self._events
             ]
-        with _io.open(str(path), "w", encoding="utf-8") as _f:
-            _f.write("\n".join(lines) + ("\n" if lines else ""))
+        _Path = __import__("pathlib", fromlist=("Path",)).Path
+        _Path(path).write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
 
     def __len__(self) -> int:
         with self._lock:
@@ -205,15 +211,15 @@ from polisyos.foundry.methods.resolution import (
 
 __all__ = [
     "MethodEntry",
-    "RegistrySnapshotEntry",
+    "MethodLifecycle",
     "MethodRegistry",
-    "RegistrySnapshot",
     "RegistryAuditEvent",
     "RegistryAuditLog",
+    "RegistrySnapshot",
+    "RegistrySnapshotEntry",
     "get_registry",
     "get_registry_audit_log",
     "registry_scope",
-    "MethodLifecycle",
 ]
 
 MethodFactory = Callable[[], type[FoundryMethod]]
@@ -305,7 +311,7 @@ class RegistrySnapshotEntry:
         return None
 
     @classmethod
-    def from_entry(cls, entry: MethodEntry) -> "RegistrySnapshotEntry":
+    def from_entry(cls, entry: MethodEntry) -> RegistrySnapshotEntry:
         return cls(
             signature=entry.signature,
             metadata=entry.metadata,
@@ -446,7 +452,7 @@ class MethodRegistry:
             cls._instance = None
 
     @classmethod
-    def _create_fresh(cls) -> "MethodRegistry":
+    def _create_fresh(cls) -> MethodRegistry:
         """
         Create a brand-new, isolated MethodRegistry instance (NOT the singleton).
 
@@ -536,7 +542,9 @@ class MethodRegistry:
             )
 
             self._entries.register(entry, override=override)
-            LifecycleManager.transition(log, fqn, MethodLifecycle.REGISTERED, actor="registry.register")
+            LifecycleManager.transition(
+                log, fqn, MethodLifecycle.REGISTERED, actor="registry.register"
+            )
             self._registration_count += 1
             self._touch_modified()
             _registry_log(
@@ -549,7 +557,9 @@ class MethodRegistry:
                 override=override,
                 lazy=False,
             )
-            _AUDIT_LOG.record("register", fqn, backend=sig.backend.value, lazy=False, override=override)
+            _AUDIT_LOG.record(
+                "register", fqn, backend=sig.backend.value, lazy=False, override=override
+            )
 
         return fqn
 
@@ -570,13 +580,9 @@ class MethodRegistry:
         deferring imports of heavy modules.
         """
         if not isinstance(signature, MethodSignature):
-            raise TypeError(
-                f"signature must be MethodSignature, got {type(signature).__name__}"
-            )
+            raise TypeError(f"signature must be MethodSignature, got {type(signature).__name__}")
         if not isinstance(metadata, MethodMetadata):
-            raise TypeError(
-                f"metadata must be MethodMetadata, got {type(metadata).__name__}"
-            )
+            raise TypeError(f"metadata must be MethodMetadata, got {type(metadata).__name__}")
         if not callable(factory):
             raise TypeError(f"factory must be callable, got {type(factory).__name__}")
 
@@ -598,7 +604,9 @@ class MethodRegistry:
             )
 
             self._entries.register(entry, override=override)
-            LifecycleManager.transition(log, fqn, MethodLifecycle.REGISTERED, actor="registry.register_lazy")
+            LifecycleManager.transition(
+                log, fqn, MethodLifecycle.REGISTERED, actor="registry.register_lazy"
+            )
             self._registration_count += 1
             self._touch_modified()
             _registry_log(
@@ -611,7 +619,9 @@ class MethodRegistry:
                 override=override,
                 lazy=True,
             )
-            _AUDIT_LOG.record("register_lazy", fqn, backend=signature.backend.value, lazy=True, override=override)
+            _AUDIT_LOG.record(
+                "register_lazy", fqn, backend=signature.backend.value, lazy=True, override=override
+            )
 
         return fqn
 
@@ -631,8 +641,11 @@ class MethodRegistry:
                 return False
 
             LifecycleManager.transition(
-                removed.lifecycle_log, fqn, MethodLifecycle.RETIRED,
-                actor="registry.unregister", strict=False,
+                removed.lifecycle_log,
+                fqn,
+                MethodLifecycle.RETIRED,
+                actor="registry.unregister",
+                strict=False,
             )
             self._touch_modified()
             _registry_log("method_unregistered", fqn=fqn)
@@ -824,7 +837,8 @@ class MethodRegistry:
 
             if name_pattern:
                 candidates = {
-                    fqn for fqn in candidates
+                    fqn
+                    for fqn in candidates
                     if (
                         (entry := self._entries.get(fqn)) is not None
                         and name_pattern in entry.signature.name
@@ -844,7 +858,8 @@ class MethodRegistry:
         """Find all methods that produce a given output slot."""
         with self._reg_lock:
             results = [
-                entry.signature for entry in sorted(
+                entry.signature
+                for entry in sorted(
                     self._entries.find("output_slot", slot_name), key=lambda row: row.fqn
                 )
             ]
@@ -855,7 +870,8 @@ class MethodRegistry:
         """Find all methods that consume a given input slot."""
         with self._reg_lock:
             results = [
-                entry.signature for entry in sorted(
+                entry.signature
+                for entry in sorted(
                     self._entries.find("input_slot", slot_name), key=lambda row: row.fqn
                 )
             ]
@@ -1005,7 +1021,7 @@ _registry_ctx: contextvars.ContextVar[MethodRegistry | None] = contextvars.Conte
 
 
 @contextmanager
-def registry_scope() -> Generator[MethodRegistry, None, None]:
+def registry_scope() -> Generator[MethodRegistry]:
     """
     Context manager that provides an isolated, fresh MethodRegistry.
 

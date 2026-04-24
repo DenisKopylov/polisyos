@@ -1,7 +1,9 @@
 """Public optimization combinatorial module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -31,6 +33,7 @@ def _result_slot() -> frozenset[SlotSpec]:
 )
 class KnapsackEstimator:
     """Solve knapsack-style resource allocation problems under budget constraints."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -45,9 +48,7 @@ class KnapsackEstimator:
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="capacity", default=100.0, bounds=(0.0, 1e9)),
-        ),
+        parameters=(ParameterSpec(name="capacity", default=100.0, bounds=(0.0, 1e9)),),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -147,6 +148,7 @@ class KnapsackEstimator:
 )
 class VehicleRoutingEstimator:
     """Solve vehicle-routing style service-allocation problems over networked demand."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -156,7 +158,12 @@ class VehicleRoutingEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("distance_matrix", SlotType.MATRIX, Unit("distance", "km"), shape=("n_nodes", "n_nodes")),
+                SlotSpec(
+                    "distance_matrix",
+                    SlotType.MATRIX,
+                    Unit("distance", "km"),
+                    shape=("n_nodes", "n_nodes"),
+                ),
                 SlotSpec("demands", SlotType.VECTOR, Unit("demand", "unit"), shape=("n_nodes",)),
             }
         ),

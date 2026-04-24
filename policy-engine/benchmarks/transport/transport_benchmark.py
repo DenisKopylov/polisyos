@@ -61,7 +61,11 @@ from benchmarks.harness import (  # noqa: E402
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.TRANSPORT
@@ -74,8 +78,12 @@ CIRCUIT = BenchmarkCircuit.TRANSPORT
 
 def _graph_imports() -> tuple[Any, ...]:
     from polisyos.ir.analytics.causal_graph import (  # noqa: PLC0415
-        CausalEdge, CausalGraphModel, EdgeMark, GraphType,
+        CausalEdge,
+        CausalGraphModel,
+        EdgeMark,
+        GraphType,
     )
+
     return CausalEdge, CausalGraphModel, EdgeMark, GraphType
 
 
@@ -85,14 +93,17 @@ def _id_imports() -> tuple[Any, ...]:
         id_algorithm,
         tr_algorithm,
     )
+
     return IdentificationStatus, id_algorithm, tr_algorithm
 
 
 def _transport_imports() -> tuple[Any, ...]:
     from polisyos.ir.analytics.context import ContextProfile  # noqa: PLC0415
     from polisyos.ir.analytics.transportability import (  # noqa: PLC0415
-        SelectionDiagram, SNode,
+        SelectionDiagram,
+        SNode,
     )
+
     return ContextProfile, SelectionDiagram, SNode
 
 
@@ -102,12 +113,20 @@ def _ctf_imports() -> tuple[Any, ...]:
         ctf_transportability,
     )
     from polisyos.foundry.methods.catalog.causal.id_engine import (  # noqa: PLC0415
-        CtfQuery, IdentificationStatus,
+        CtfQuery,
+        IdentificationStatus,
     )
     from polisyos.ir.analytics.negative_certificate import (  # noqa: PLC0415
         NegativeCertificate,
     )
-    return build_ctf_selection_diagram, ctf_transportability, CtfQuery, IdentificationStatus, NegativeCertificate
+
+    return (
+        build_ctf_selection_diagram,
+        ctf_transportability,
+        CtfQuery,
+        IdentificationStatus,
+        NegativeCertificate,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -121,14 +140,25 @@ def _dag(edges: list[tuple[str, str]], *, extra_nodes: tuple[str, ...] = ()) -> 
     return CausalGraphModel(
         graph_type=GraphType.DAG,
         nodes=nodes,
-        edges=[CausalEdge(src=s, dst=d, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW) for s, d in edges],
+        edges=[
+            CausalEdge(src=s, dst=d, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)
+            for s, d in edges
+        ],
     )
 
 
-def _admg(nodes: list[str], dir_edges: list[tuple[str, str]], bidir_edges: list[tuple[str, str]]) -> Any:
+def _admg(
+    nodes: list[str], dir_edges: list[tuple[str, str]], bidir_edges: list[tuple[str, str]]
+) -> Any:
     CausalEdge, CausalGraphModel, EdgeMark, GraphType = _graph_imports()
-    edges = [CausalEdge(src=s, dst=d, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW) for s, d in dir_edges]
-    edges += [CausalEdge(src=s, dst=d, mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW) for s, d in bidir_edges]
+    edges = [
+        CausalEdge(src=s, dst=d, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)
+        for s, d in dir_edges
+    ]
+    edges += [
+        CausalEdge(src=s, dst=d, mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW)
+        for s, d in bidir_edges
+    ]
     return CausalGraphModel(graph_type=GraphType.ADMG, nodes=nodes, edges=edges)
 
 
@@ -187,6 +217,7 @@ def _transport_case(
 
 def _case_id_direct_dag() -> BenchmarkCase:
     """Direct DAG X→Y: P(Y|do(X)) is identifiable (trivial ID)."""
+
     def runner():
         IdentificationStatus, id_algorithm, _ = _id_imports()
         graph = _dag([("X", "Y")])
@@ -207,6 +238,7 @@ def _case_id_direct_dag() -> BenchmarkCase:
 
 def _case_id_backdoor_admg() -> BenchmarkCase:
     """X→Y with latent X↔Y confounder: bow-arc — must return HEDGE_FOUND."""
+
     def runner():
         IdentificationStatus, id_algorithm, _ = _id_imports()
         graph = _admg(["X", "Y"], [("X", "Y")], [("X", "Y")])
@@ -219,18 +251,19 @@ def _case_id_backdoor_admg() -> BenchmarkCase:
     def checker(r):
         IdentificationStatus, _, __ = _id_imports()
         if r.status is not IdentificationStatus.HEDGE_FOUND:
-            raise AssertionError(
-                f"Bow-arc should be HEDGE_FOUND, got {r.status}"
-            )
+            raise AssertionError(f"Bow-arc should be HEDGE_FOUND, got {r.status}")
         if r.hedge_certificate is None:
             raise AssertionError("HEDGE_FOUND but no certificate returned")
         return True
 
-    return _transport_case(name="id_bow_arc_hedge", runner_fn=runner, checker_fn=checker, tags=("id", "hedge"))
+    return _transport_case(
+        name="id_bow_arc_hedge", runner_fn=runner, checker_fn=checker, tags=("id", "hedge")
+    )
 
 
 def _case_id_frontdoor() -> BenchmarkCase:
     """Front-door: X→M→Y, X↔Y bidirected → IDENTIFIED via front-door."""
+
     def runner():
         IdentificationStatus, id_algorithm, _ = _id_imports()
         graph = _admg(["X", "M", "Y"], [("X", "M"), ("M", "Y")], [("X", "Y")])
@@ -246,11 +279,14 @@ def _case_id_frontdoor() -> BenchmarkCase:
             raise AssertionError(f"Front-door should be IDENTIFIED, got {r.status}")
         return True
 
-    return _transport_case(name="id_frontdoor", runner_fn=runner, checker_fn=checker, tags=("id", "frontdoor"))
+    return _transport_case(
+        name="id_frontdoor", runner_fn=runner, checker_fn=checker, tags=("id", "frontdoor")
+    )
 
 
 def _case_id_backdoor_observed() -> BenchmarkCase:
     """Z→X, Z→Y, X→Y (Z observed confounder) — IDENTIFIED via backdoor."""
+
     def runner():
         IdentificationStatus, id_algorithm, _ = _id_imports()
         graph = _dag([("Z", "X"), ("Z", "Y"), ("X", "Y")])
@@ -266,7 +302,9 @@ def _case_id_backdoor_observed() -> BenchmarkCase:
             raise AssertionError(f"Backdoor-observed should be IDENTIFIED, got {r.status}")
         return True
 
-    return _transport_case(name="id_backdoor_observed_z", runner_fn=runner, checker_fn=checker, tags=("id", "backdoor"))
+    return _transport_case(
+        name="id_backdoor_observed_z", runner_fn=runner, checker_fn=checker, tags=("id", "backdoor")
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -280,6 +318,7 @@ def _case_tr_s_on_non_ancestor() -> BenchmarkCase:
     Graph: X→Y (simple).  S-node on W (W is disconnected from X and Y).
     The TR algorithm's S-trimming should prune S_W before ID runs.
     """
+
     def runner():
         IdentificationStatus, _, tr_algorithm = _id_imports()
         graph = _dag([("X", "Y")], extra_nodes=("W",))
@@ -297,8 +336,9 @@ def _case_tr_s_on_non_ancestor() -> BenchmarkCase:
                 f"S on non-ancestor should be trimmed → IDENTIFIED, got {r.status}"
             )
         # S_TRIM proof step should appear in trace
-        trimmed = any("S_TRIM" in step.rule_name or "trim" in step.rule_name.lower()
-                      for step in r.proof_steps)
+        trimmed = any(
+            "S_TRIM" in step.rule_name or "trim" in step.rule_name.lower() for step in r.proof_steps
+        )
         if not trimmed:
             # Acceptable: may use a different internal name
             pass
@@ -306,7 +346,8 @@ def _case_tr_s_on_non_ancestor() -> BenchmarkCase:
 
     return _transport_case(
         name="tr_s_non_ancestor_trimmed",
-        runner_fn=runner, checker_fn=checker,
+        runner_fn=runner,
+        checker_fn=checker,
         tags=("tr", "s_trim"),
     )
 
@@ -318,6 +359,7 @@ def _case_tr_pretreatment_covariate() -> BenchmarkCase:
     P*(Y|do(X)) = Σ_z P(Y|do(X),Z=z) P*(Z=z)  — standard reweighting formula.
     Expected: IDENTIFIED.
     """
+
     def runner():
         IdentificationStatus, _, tr_algorithm = _id_imports()
         graph = _dag([("Z", "X"), ("X", "Y")])
@@ -338,7 +380,8 @@ def _case_tr_pretreatment_covariate() -> BenchmarkCase:
 
     return _transport_case(
         name="tr_pretreatment_covariate_z",
-        runner_fn=runner, checker_fn=checker,
+        runner_fn=runner,
+        checker_fn=checker,
         tags=("tr", "reweighting"),
     )
 
@@ -349,6 +392,7 @@ def _case_tr_s_on_instrument() -> BenchmarkCase:
     P*(Y|do(X)) is still identifiable after augmenting with S_Z→Z.
     Expected: IDENTIFIED.
     """
+
     def runner():
         IdentificationStatus, _, tr_algorithm = _id_imports()
         graph = _dag([("Z", "X"), ("X", "Y")])
@@ -362,14 +406,13 @@ def _case_tr_s_on_instrument() -> BenchmarkCase:
     def checker(r):
         IdentificationStatus, _, __ = _id_imports()
         if r.status is not IdentificationStatus.IDENTIFIED:
-            raise AssertionError(
-                f"S on instrument (Z→X→Y) should be IDENTIFIED, got {r.status}"
-            )
+            raise AssertionError(f"S on instrument (Z→X→Y) should be IDENTIFIED, got {r.status}")
         return True
 
     return _transport_case(
         name="tr_instrument_s_node",
-        runner_fn=runner, checker_fn=checker,
+        runner_fn=runner,
+        checker_fn=checker,
         tags=("tr", "instrument"),
     )
 
@@ -380,6 +423,7 @@ def _case_tr_bow_arc_s_on_x() -> BenchmarkCase:
     S_X → X augments the graph.  The c-component {X,Y} remains connected via
     the bidirected edge → HEDGE_FOUND.  Non-transportable.
     """
+
     def runner():
         IdentificationStatus, _, tr_algorithm = _id_imports()
         graph = _admg(["X", "Y"], [("X", "Y")], [("X", "Y")])
@@ -393,14 +437,13 @@ def _case_tr_bow_arc_s_on_x() -> BenchmarkCase:
     def checker(r):
         IdentificationStatus, _, __ = _id_imports()
         if r.status not in (IdentificationStatus.HEDGE_FOUND, IdentificationStatus.ORACLE_NEEDED):
-            raise AssertionError(
-                f"Bow-arc with S_X should be non-identifiable, got {r.status}"
-            )
+            raise AssertionError(f"Bow-arc with S_X should be non-identifiable, got {r.status}")
         return True
 
     return _transport_case(
         name="tr_bow_arc_s_on_x_nonid",
-        runner_fn=runner, checker_fn=checker,
+        runner_fn=runner,
+        checker_fn=checker,
         tags=("tr", "non_transportable", "hedge"),
     )
 
@@ -412,6 +455,7 @@ def _case_tr_mediator_s_frontdoor() -> BenchmarkCase:
     P*(Y|do(X)) is identified despite mechanism shift on M.
     Expected: IDENTIFIED.
     """
+
     def runner():
         IdentificationStatus, _, tr_algorithm = _id_imports()
         graph = _admg(["X", "M", "Y"], [("X", "M"), ("M", "Y")], [("X", "Y")])
@@ -432,7 +476,8 @@ def _case_tr_mediator_s_frontdoor() -> BenchmarkCase:
 
     return _transport_case(
         name="tr_frontdoor_s_on_mediator",
-        runner_fn=runner, checker_fn=checker,
+        runner_fn=runner,
+        checker_fn=checker,
         tags=("tr", "frontdoor"),
     )
 
@@ -449,6 +494,7 @@ def _case_tr_two_s_nodes_identifiable() -> BenchmarkCase:
     two background covariates).  The interventional distribution P*(Y|do(X))
     is identifiable because the S-nodes don't lie on active paths to Y after do(X).
     """
+
     def runner():
         IdentificationStatus, _, tr_algorithm = _id_imports()
         graph = _dag([("Z1", "X"), ("Z2", "X"), ("X", "Y")])
@@ -469,7 +515,8 @@ def _case_tr_two_s_nodes_identifiable() -> BenchmarkCase:
 
     return _transport_case(
         name="tr_two_pretreatment_s_nodes",
-        runner_fn=runner, checker_fn=checker,
+        runner_fn=runner,
+        checker_fn=checker,
         tags=("tr", "multi_source"),
     )
 
@@ -484,6 +531,7 @@ def _case_tr_chain_all_s_nodes() -> BenchmarkCase:
     This is a completeness stress test: even with aggressive selection, the
     simple chain should remain identifiable.
     """
+
     def runner():
         IdentificationStatus, _, tr_algorithm = _id_imports()
         graph = _dag([("A", "B"), ("B", "C")])
@@ -504,7 +552,8 @@ def _case_tr_chain_all_s_nodes() -> BenchmarkCase:
 
     return _transport_case(
         name="tr_chain_all_s_nodes",
-        runner_fn=runner, checker_fn=checker,
+        runner_fn=runner,
+        checker_fn=checker,
         tags=("tr", "s_trim", "stress"),
     )
 
@@ -521,6 +570,7 @@ def _case_ctf_pn_simple() -> BenchmarkCase:
     Selection diagram: S on Y (mechanism shift on outcome).
     Expected: IDENTIFIED (layer-3 query, simple direct graph).
     """
+
     def runner():
         bctf, ctf_transport, CtfQuery, IdentificationStatus, NegativeCertificate = _ctf_imports()
         CausalEdge, CausalGraphModel, EdgeMark, GraphType = _graph_imports()
@@ -538,8 +588,12 @@ def _case_ctf_pn_simple() -> BenchmarkCase:
         )
         _, SelectionDiagram, SNode = _transport_imports()
         s_node = SNode(
-            target_variable="Y", context_dimension="mechanism_shift",
-            source_value=0.0, target_value=1.0, delta=1.0, severity="medium",
+            target_variable="Y",
+            context_dimension="mechanism_shift",
+            source_value=0.0,
+            target_value=1.0,
+            delta=1.0,
+            severity="medium",
         )
         diagram = bctf(graph=graph, s_nodes=[s_node])
         return ctf_transport(query, diagram)
@@ -547,20 +601,22 @@ def _case_ctf_pn_simple() -> BenchmarkCase:
     def checker(r):
         _, __, ___, IdentificationStatus, NegativeCertificate = _ctf_imports()
         if isinstance(r, NegativeCertificate):
-            raise AssertionError(f"PN query on X→Y should be IDENTIFIED, got NegativeCertificate")
+            raise AssertionError("PN query on X→Y should be IDENTIFIED, got NegativeCertificate")
         if r.status is not IdentificationStatus.IDENTIFIED:
             raise AssertionError(f"PN query on X→Y expected IDENTIFIED, got {r.status}")
         return True
 
     return _transport_case(
         name="ctf_pn_x_to_y_s_on_y",
-        runner_fn=runner, checker_fn=checker,
+        runner_fn=runner,
+        checker_fn=checker,
         tags=("ctf", "pn"),
     )
 
 
 def _case_ctf_single_world_simple() -> BenchmarkCase:
     """Single-world counterfactual on X→Y with S on Y → IDENTIFIED."""
+
     def runner():
         bctf, ctf_transport, CtfQuery, IdentificationStatus, NegativeCertificate = _ctf_imports()
         CausalEdge, CausalGraphModel, EdgeMark, GraphType = _graph_imports()
@@ -577,8 +633,12 @@ def _case_ctf_single_world_simple() -> BenchmarkCase:
         )
         _, SelectionDiagram, SNode = _transport_imports()
         s_node = SNode(
-            target_variable="Y", context_dimension="mechanism_shift",
-            source_value=0.0, target_value=1.0, delta=1.0, severity="medium",
+            target_variable="Y",
+            context_dimension="mechanism_shift",
+            source_value=0.0,
+            target_value=1.0,
+            delta=1.0,
+            severity="medium",
         )
         diagram = bctf(graph=graph, s_nodes=[s_node])
         return ctf_transport(query, diagram)
@@ -593,7 +653,8 @@ def _case_ctf_single_world_simple() -> BenchmarkCase:
 
     return _transport_case(
         name="ctf_single_world_x_to_y",
-        runner_fn=runner, checker_fn=checker,
+        runner_fn=runner,
+        checker_fn=checker,
         tags=("ctf", "single_world"),
     )
 
@@ -604,6 +665,7 @@ def _case_ctf_bow_arc_non_transportable() -> BenchmarkCase:
     The bidirected confounder X↔Y plus S_Y creates a blocking structure for
     the layer-3 query.  Expected: NegativeCertificate with TRANSPORT_BOUNDS.
     """
+
     def runner():
         bctf, ctf_transport, CtfQuery, IdentificationStatus, NegativeCertificate = _ctf_imports()
         CausalEdge, CausalGraphModel, EdgeMark, GraphType = _graph_imports()
@@ -623,8 +685,12 @@ def _case_ctf_bow_arc_non_transportable() -> BenchmarkCase:
         )
         _, SelectionDiagram, SNode = _transport_imports()
         s_node = SNode(
-            target_variable="Y", context_dimension="mechanism_shift",
-            source_value=0.0, target_value=1.0, delta=1.0, severity="medium",
+            target_variable="Y",
+            context_dimension="mechanism_shift",
+            source_value=0.0,
+            target_value=1.0,
+            delta=1.0,
+            severity="medium",
         )
         diagram = bctf(graph=graph, s_nodes=[s_node])
         return ctf_transport(query, diagram)
@@ -639,19 +705,19 @@ def _case_ctf_bow_arc_non_transportable() -> BenchmarkCase:
         # Also acceptable: HEDGE_FOUND result (engine may return this instead)
         if r.status is IdentificationStatus.HEDGE_FOUND:
             return True
-        raise AssertionError(
-            f"Bow-arc CTF with S_Y should be non-transportable, got {r.status}"
-        )
+        raise AssertionError(f"Bow-arc CTF with S_Y should be non-transportable, got {r.status}")
 
     return _transport_case(
         name="ctf_bow_arc_non_transportable",
-        runner_fn=runner, checker_fn=checker,
+        runner_fn=runner,
+        checker_fn=checker,
         tags=("ctf", "non_transportable"),
     )
 
 
 def _case_ctf_no_s_nodes_reduces_to_l2() -> BenchmarkCase:
     """CTF with no S-nodes reduces to layer-2 identification → IDENTIFIED."""
+
     def runner():
         bctf, ctf_transport, CtfQuery, IdentificationStatus, NegativeCertificate = _ctf_imports()
         CausalEdge, CausalGraphModel, EdgeMark, GraphType = _graph_imports()
@@ -679,7 +745,8 @@ def _case_ctf_no_s_nodes_reduces_to_l2() -> BenchmarkCase:
 
     return _transport_case(
         name="ctf_no_s_nodes_l2_reduction",
-        runner_fn=runner, checker_fn=checker,
+        runner_fn=runner,
+        checker_fn=checker,
         tags=("ctf", "l2_reduction"),
     )
 
@@ -690,6 +757,7 @@ def _case_ctf_chain_mediator_transport() -> BenchmarkCase:
     P*(Y_{X=1}) should be identifiable by adjusting for M's mechanism shift.
     Expected: IDENTIFIED.
     """
+
     def runner():
         bctf, ctf_transport, CtfQuery, IdentificationStatus, NegativeCertificate = _ctf_imports()
         CausalEdge, CausalGraphModel, EdgeMark, GraphType = _graph_imports()
@@ -709,8 +777,12 @@ def _case_ctf_chain_mediator_transport() -> BenchmarkCase:
         )
         _, SelectionDiagram, SNode = _transport_imports()
         s_node = SNode(
-            target_variable="M", context_dimension="mechanism_shift",
-            source_value=0.0, target_value=1.0, delta=1.0, severity="medium",
+            target_variable="M",
+            context_dimension="mechanism_shift",
+            source_value=0.0,
+            target_value=1.0,
+            delta=1.0,
+            severity="medium",
         )
         diagram = bctf(graph=graph, s_nodes=[s_node])
         return ctf_transport(query, diagram)
@@ -725,7 +797,8 @@ def _case_ctf_chain_mediator_transport() -> BenchmarkCase:
 
     return _transport_case(
         name="ctf_chain_s_on_mediator",
-        runner_fn=runner, checker_fn=checker,
+        runner_fn=runner,
+        checker_fn=checker,
         tags=("ctf", "chain", "mediator"),
     )
 

@@ -3,15 +3,13 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from collections.abc import Sequence
 from datetime import UTC, datetime
-from pathlib import Path
-from tools._lib.imports import repo_root_from
-
-import json
 
 from tools._lib.fs import atomic_write_text
+from tools._lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -23,6 +21,7 @@ def build_hashes() -> dict[str, str]:
         sys.path.insert(0, str(SRC_ROOT))
 
     from polisyos.foundry.methods.registry import MethodRegistry
+
     try:
         from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 
 def _method_or_skip(registry, fqn):
@@ -22,7 +21,9 @@ class TestMICE:
 
 class TestNonresponseAdjustment:
     def test_basic(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "survey.imputation.nonresponse_adjustment@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "survey.imputation.nonresponse_adjustment@1.0.0"
+        )
         rng = np.random.default_rng(42)
         n = 40
         state = {

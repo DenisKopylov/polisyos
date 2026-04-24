@@ -1,8 +1,5 @@
 import type { WorkspaceKey } from "@/app/workspaces";
-import {
-  RUN_DETAIL_TAB_REGISTRY,
-  type RunDetailTab,
-} from "@/features/runs/domain/runDetailTabs";
+import { RUN_DETAIL_TAB_REGISTRY, type RunDetailTab } from "@/features/runs";
 
 export const PERMISSION_KEYS = [
   "collaboration.comment",

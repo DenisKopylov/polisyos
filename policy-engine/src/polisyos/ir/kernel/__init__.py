@@ -5,6 +5,7 @@ does not eagerly instantiate default registries or pull the full kernel module
 graph into process startup. Treat this facade as the documented public surface
 for registry-aware runtime code.
 """
+
 from __future__ import annotations
 
 from typing import Any

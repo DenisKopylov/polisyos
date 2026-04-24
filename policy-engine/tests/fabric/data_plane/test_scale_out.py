@@ -1,24 +1,24 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
 
-from polisyos.core.observability import get_metrics
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.observability import get_metrics
 from polisyos.core.security.quota_enforcer import QuotaExceededError
 from polisyos.core.security.tenant_quota import TenantQuotaLimits
 from polisyos.fabric.connectors.base import FetchRequest, FetchResult
 from polisyos.fabric.connectors.cache import ConnectorCacheStore, TTLPolicy
+from polisyos.fabric.data_plane.cursor_store import CursorStore
 from polisyos.fabric.data_plane.orchestrator import (
     IngestionPartition,
     IngestionResult,
     build_partitioned_ingestion_plan,
     run_partitioned_ingestion,
 )
-from polisyos.fabric.data_plane.cursor_store import CursorStore
 from polisyos.fabric.storage.tenant_cas import TenantScopedCAS
 from polisyos.fabric.world.materialize import plan_world_materialization_shards
 from polisyos.fabric.world.store import (
@@ -85,7 +85,7 @@ def test_tenant_scoped_connector_cache_isolated_and_metrics_labeled(tmp_path: Pa
     )
 
     request = FetchRequest(dataset_id="events")
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     cache_a.put(
         request,
         FetchResult(
@@ -147,9 +147,7 @@ def test_world_segment_metrics_are_tenant_scoped(tmp_path: Path):
         facts,
         fact_log_root=tmp_path,
         segment_name="tenant-world",
-    ).model_copy(
-        update={"stats": {"tenant_id": "tenant-a", "dataset_id": "world"}}
-    )
+    ).model_copy(update={"stats": {"tenant_id": "tenant-a", "dataset_id": "world"}})
     append_world_segment_index(manifest, fact_log_root=tmp_path)
 
     metrics = get_metrics()

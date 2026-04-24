@@ -1,27 +1,24 @@
+import { useId } from "react";
+
 import { cn } from "@/lib/utils";
-import { confidenceColors } from "./theme";
-import type { ConfidenceLevel } from "./types";
-import { classifyConfidence } from "./types";
+
+import {
+  resolveUncertaintyIntervalColor,
+  resolveUncertaintyPaletteColor,
+} from "./uncertainty-tokens";
+import type { UncertaintyPalette } from "./uncertainty-tokens";
 
 type ConfidenceDialProps = {
   value: number;
   label?: string;
   size?: number;
+  disputed?: boolean;
   className?: string;
 };
 
-const ZONES: Array<{
-  level: ConfidenceLevel;
-  label: string;
-  startAngle: number;
-  sweepAngle: number;
-}> = [
-  { level: "low", label: "Low", startAngle: -120, sweepAngle: 80 },
-  { level: "medium", label: "Med", startAngle: -40, sweepAngle: 80 },
-  { level: "high", label: "High", startAngle: 40, sweepAngle: 80 },
-];
-
 const STROKE_WIDTH = 14;
+const START_ANGLE = -120;
+const SWEEP_ANGLE = 240;
 
 function polarToCartesian(
   cx: number,
@@ -51,20 +48,22 @@ export function ConfidenceDial({
   value,
   label,
   size = 100,
+  disputed = false,
   className,
 }: ConfidenceDialProps) {
   const clamped = Math.max(0, Math.min(1, value));
-  const level = classifyConfidence(clamped);
+  const palette: UncertaintyPalette = disputed ? "disputed" : "default";
+  const pointColor = resolveUncertaintyPaletteColor(palette);
+  const intervalColor = resolveUncertaintyIntervalColor(palette);
+  const gradientId = `${useId().replace(/:/g, "")}-dial-gradient`;
 
   const cx = size / 2;
   const cy = size / 2 + 4;
   const r = (size - STROKE_WIDTH) / 2 - 6;
-
-  // Needle angle: map 0..1 to -120..120 degrees
-  const needleAngle = -120 + clamped * 240;
+  const needleAngle = START_ANGLE + clamped * SWEEP_ANGLE;
   const needleEnd = polarToCartesian(cx, cy, r - 6, needleAngle - 90);
-
-  const ariaLabel = `Confidence dial: ${Math.round(clamped * 100)}%, ${level} confidence${label ? `. ${label}` : ""}`;
+  const activeSweep = Math.max(4, clamped * SWEEP_ANGLE);
+  const ariaLabel = `Confidence dial: ${Math.round(clamped * 100)}%${label ? `. ${label}` : ""}`;
 
   return (
     <div
@@ -76,75 +75,42 @@ export function ConfidenceDial({
       aria-label={ariaLabel}
     >
       <svg width={size} height={size * 0.7} viewBox={`0 0 ${size} ${size}`}>
-        {/* Zone arcs */}
-        {ZONES.map((zone) => (
-          <path
-            key={zone.level}
-            d={describeArc(cx, cy, r, zone.startAngle, zone.sweepAngle)}
-            fill="none"
-            stroke={confidenceColors[zone.level]}
-            strokeWidth={STROKE_WIDTH}
-            strokeLinecap="butt"
-            opacity={0.3}
-          />
-        ))}
-
-        {/* Active zone highlight */}
-        {ZONES.map((zone) =>
-          zone.level === level ? (
-            <path
-              key={`active-${zone.level}`}
-              d={describeArc(cx, cy, r, zone.startAngle, zone.sweepAngle)}
-              fill="none"
-              stroke={confidenceColors[zone.level]}
-              strokeWidth={STROKE_WIDTH}
-              strokeLinecap="butt"
-              opacity={0.85}
-            />
-          ) : null,
-        )}
-
-        {/* Needle */}
+        <defs>
+          <linearGradient id={gradientId} x1="0%" x2="100%" y1="0%" y2="0%">
+            <stop offset="0%" stopColor={pointColor} stopOpacity="0.16" />
+            <stop offset="55%" stopColor={pointColor} stopOpacity="0.75" />
+            <stop offset="100%" stopColor={pointColor} stopOpacity="1" />
+          </linearGradient>
+        </defs>
+        <path
+          d={describeArc(cx, cy, r, START_ANGLE, SWEEP_ANGLE)}
+          fill="none"
+          stroke={intervalColor}
+          strokeWidth={STROKE_WIDTH}
+          strokeLinecap="round"
+          opacity={0.45}
+        />
+        <path
+          d={describeArc(cx, cy, r, START_ANGLE, activeSweep)}
+          fill="none"
+          stroke={`url(#${gradientId})`}
+          strokeWidth={STROKE_WIDTH}
+          strokeLinecap="round"
+        />
         <line
           x1={cx}
           y1={cy}
           x2={needleEnd.x}
           y2={needleEnd.y}
-          stroke="var(--ink)"
+          stroke={pointColor}
           strokeWidth={2}
           strokeLinecap="round"
         />
-        <circle cx={cx} cy={cy} r={4} fill="var(--ink)" />
-
-        {/* Zone labels */}
-        {ZONES.map((zone) => {
-          const midAngle = zone.startAngle + zone.sweepAngle / 2;
-          const labelPos = polarToCartesian(cx, cy, r + 14, midAngle - 90);
-          return (
-            <text
-              key={`label-${zone.level}`}
-              x={labelPos.x}
-              y={labelPos.y}
-              textAnchor="middle"
-              dominantBaseline="central"
-              fontSize={9}
-              fontWeight={zone.level === level ? 700 : 400}
-              fill={
-                zone.level === level
-                  ? confidenceColors[zone.level]
-                  : "var(--muted)"
-              }
-            >
-              {zone.label}
-            </text>
-          );
-        })}
+        <circle cx={cx} cy={cy} r={4} fill={pointColor} />
       </svg>
-      {label && (
-        <span className="text-muted-foreground text-xs font-medium">
-          {label}
-        </span>
-      )}
+      {label ? (
+        <span className="text-muted text-xs font-medium">{label}</span>
+      ) : null}
     </div>
   );
 }

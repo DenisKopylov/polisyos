@@ -21,15 +21,23 @@ for _p in (str(_SRC), str(_BENCH_ROOT)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-from benchmarks.harness import BenchmarkCase, BenchmarkCircuit, BenchmarkHarness, BenchmarkReport  # noqa: E402
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
-from benchmarks.runtime import resolve_mode  # noqa: E402
-
 from benchmarks.capability_wins.capability_proof import (  # noqa: E402
     CapabilityProofSpec,
     build_capability_report_extra,
     make_gap_row,
 )
+from benchmarks.harness import (  # noqa: E402
+    BenchmarkCase,
+    BenchmarkCircuit,
+    BenchmarkHarness,
+    BenchmarkReport,
+)
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
+from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.CAPABILITY_WINS
 
@@ -42,10 +50,22 @@ def _graph_imports():
 
 def _engine_imports():
     from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
-    from polisyos.foundry.methods.catalog.causal.id_engine import CtfQuery, IdentificationResult, IdentificationStatus, SourceDomain
+    from polisyos.foundry.methods.catalog.causal.id_engine import (
+        CtfQuery,
+        IdentificationResult,
+        IdentificationStatus,
+        SourceDomain,
+    )
     from polisyos.ir.analytics.estimand import NestedCounterfactualNode
 
-    return CausalEngine, CtfQuery, IdentificationResult, IdentificationStatus, SourceDomain, NestedCounterfactualNode
+    return (
+        CausalEngine,
+        CtfQuery,
+        IdentificationResult,
+        IdentificationStatus,
+        SourceDomain,
+        NestedCounterfactualNode,
+    )
 
 
 def _build_chain_graph():
@@ -78,13 +98,24 @@ def _proof_steps(result: Any) -> list[str]:
 
 def _case_nested_plain_identified() -> BenchmarkCase:
     def runner():
-        CausalEngine, CtfQuery, IdentificationResult, IdentificationStatus, SourceDomain, NestedCounterfactualNode = _engine_imports()
+        (
+            CausalEngine,
+            CtfQuery,
+            IdentificationResult,
+            IdentificationStatus,
+            SourceDomain,
+            NestedCounterfactualNode,
+        ) = _engine_imports()
         engine = CausalEngine()
         graph = _build_chain_graph()
-        return engine.identify(treatment="X", outcome="Y", graph=graph, counterfactual_query=_nested_query())
+        return engine.identify(
+            treatment="X", outcome="Y", graph=graph, counterfactual_query=_nested_query()
+        )
 
     def checker(result: Any) -> bool:
-        _, _, IdentificationResult, IdentificationStatus, _, NestedCounterfactualNode = _engine_imports()
+        _, _, IdentificationResult, IdentificationStatus, _, NestedCounterfactualNode = (
+            _engine_imports()
+        )
         if not isinstance(result, IdentificationResult):
             raise AssertionError(f"Expected IdentificationResult, got {type(result).__name__}")
         if result.status is not IdentificationStatus.IDENTIFIED:
@@ -106,7 +137,14 @@ def _case_nested_plain_identified() -> BenchmarkCase:
 
 def _case_nested_surrogate_domain_identified() -> BenchmarkCase:
     def runner():
-        CausalEngine, CtfQuery, IdentificationResult, IdentificationStatus, SourceDomain, NestedCounterfactualNode = _engine_imports()
+        (
+            CausalEngine,
+            CtfQuery,
+            IdentificationResult,
+            IdentificationStatus,
+            SourceDomain,
+            NestedCounterfactualNode,
+        ) = _engine_imports()
         engine = CausalEngine()
         graph = _build_chain_graph()
         source_domains = [
@@ -125,7 +163,9 @@ def _case_nested_surrogate_domain_identified() -> BenchmarkCase:
         )
 
     def checker(result: Any) -> bool:
-        _, _, IdentificationResult, IdentificationStatus, _, NestedCounterfactualNode = _engine_imports()
+        _, _, IdentificationResult, IdentificationStatus, _, NestedCounterfactualNode = (
+            _engine_imports()
+        )
         if not isinstance(result, IdentificationResult):
             raise AssertionError(f"Expected IdentificationResult, got {type(result).__name__}")
         if result.status is not IdentificationStatus.IDENTIFIED:
@@ -154,7 +194,9 @@ def build_nested_surrogate_ctf_harness() -> BenchmarkHarness:
     return harness
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     extra = build_capability_report_extra(
         report,
         CapabilityProofSpec(

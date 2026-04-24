@@ -13,7 +13,7 @@ evidence.  No candidate may be promoted based solely on Level 3 results.
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any, Dict, List
+from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.scientist.search.funnel.types import (
@@ -91,11 +91,11 @@ class Level3MediumFidelity(FunnelStage):
 
     def evaluate(
         self,
-        candidate: Dict[str, Any],
-        context: Dict[str, Any],
+        candidate: dict[str, Any],
+        context: dict[str, Any],
     ) -> FunnelStageResult:
         start = datetime.now(UTC)
-        cards: List[TypedFailureCard] = []
+        cards: list[TypedFailureCard] = []
 
         # Build initial_state with reduced-fidelity configuration.
         initial_state = self._build_reduced_state(candidate, context)
@@ -175,11 +175,11 @@ class Level3MediumFidelity(FunnelStage):
 
     def _build_reduced_state(
         self,
-        candidate: Dict[str, Any],
-        context: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        candidate: dict[str, Any],
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
         """Build initial_state with reduced-fidelity config overrides."""
-        state: Dict[str, Any] = {
+        state: dict[str, Any] = {
             "ir": candidate,
             "user_request": context.get("user_request", ""),
             "optimize": True,
@@ -218,7 +218,7 @@ class Level3MediumFidelity(FunnelStage):
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _compute_objective(results: Dict[str, Any]) -> float:
+    def _compute_objective(results: dict[str, Any]) -> float:
         """Same formula as ``ExpensiveStage._compute_default_objective``."""
         gdp = results.get("gdp_change", 0.0)
         deficit = abs(min(results.get("gov_balance", 0.0), 0))
@@ -230,7 +230,7 @@ class Level3MediumFidelity(FunnelStage):
 
     def _build_uncertainty_envelope(
         self,
-        sim_results: Dict[str, Any],
+        sim_results: dict[str, Any],
     ) -> UncertaintyEnvelope:
         """Build envelope from reduced bootstrap results."""
         envelope = UncertaintyEnvelope.unknown(source="L3 medium fidelity")
@@ -278,7 +278,7 @@ class Level3MediumFidelity(FunnelStage):
     def as_stage_b_callable(self):
         """Return a callable compatible with SearchController's stage_b_evaluator."""
 
-        def _evaluate(candidate: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+        def _evaluate(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
             result = self.evaluate(candidate, context)
             return {
                 "simulation_results": result.simulation_results,

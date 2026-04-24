@@ -136,7 +136,7 @@ class StrategyState:
         return json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
 
     @classmethod
-    def from_artifact(cls, data: bytes) -> "StrategyState":
+    def from_artifact(cls, data: bytes) -> StrategyState:
         payload = json.loads(data.decode("utf-8"))
         model_state = payload.get("model_state")
         payload["model_state"] = bytes.fromhex(model_state) if model_state else None

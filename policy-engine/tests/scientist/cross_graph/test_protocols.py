@@ -4,13 +4,8 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-import pytest
-
 from polisyos.scientist.cross_graph.protocols import (
-    ConfidenceAggregator,
-    EvidenceGatherer,
     GathererResult,
-    OntologyResolver,
 )
 
 

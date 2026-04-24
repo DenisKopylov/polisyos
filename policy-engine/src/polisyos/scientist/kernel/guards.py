@@ -1,7 +1,8 @@
 """Public kernel guards module API."""
+
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 
 from polisyos.scientist.kernel.fsm import ALLOWED_TRANSITIONS, Phase
 
@@ -12,7 +13,9 @@ def advance_phase(state: dict, next_phase: Phase) -> dict:
     current_phase = Phase(current) if current else Phase.INTAKE
     allowed = ALLOWED_TRANSITIONS.get(current_phase, set())
     if next_phase not in allowed and next_phase != current_phase:
-        raise ValueError(f"Phase transition {current_phase.value} -> {next_phase.value} is not allowed")
+        raise ValueError(
+            f"Phase transition {current_phase.value} -> {next_phase.value} is not allowed"
+        )
     state["phase"] = next_phase.value
     return state
 

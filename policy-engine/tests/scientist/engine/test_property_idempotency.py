@@ -1,14 +1,14 @@
 """Property-based tests for idempotency key computation."""
+
 from __future__ import annotations
 
 import re
 
 import pytest
-from hypothesis import given, settings, HealthCheck
+from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
-from unittest.mock import MagicMock
 
-from polisyos.core.components import ComponentId, ComponentKind, ComponentMetadata, Capability
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.scientist.engine.idempotency import compute_idempotency_key
 from polisyos.scientist.engine.protocol import NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
@@ -29,7 +29,9 @@ def _make_spec(state_reads: list[str] | None = None) -> NodeSpec:
     return NodeSpec(metadata=meta, state_reads=state_reads or [])
 
 
-@given(run_id=st.text(min_size=1, max_size=20, alphabet=st.characters(whitelist_categories=("L", "N"))))
+@given(
+    run_id=st.text(min_size=1, max_size=20, alphabet=st.characters(whitelist_categories=("L", "N")))
+)
 @settings(max_examples=50, suppress_health_check=[HealthCheck.too_slow])
 def test_key_is_64_char_hex(run_id: str):
     """Idempotency key is always a 64-character hex string."""

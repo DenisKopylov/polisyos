@@ -53,9 +53,7 @@ def test_resolve_causal_query_assertion_is_not_swallowed(
         _resolve_causal_query(state, ["X", "Y"])
 
 
-def test_resolve_s_nodes_assertion_is_not_swallowed(
-    minimal_state, monkeypatch: pytest.MonkeyPatch
-):
+def test_resolve_s_nodes_assertion_is_not_swallowed(minimal_state, monkeypatch: pytest.MonkeyPatch):
     state = minimal_state.model_copy(
         update={"params": {"discovery_s_nodes": [{"selection_variable": "S_X"}]}}
     )

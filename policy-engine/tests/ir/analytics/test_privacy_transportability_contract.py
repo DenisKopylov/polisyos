@@ -4,14 +4,14 @@ import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.privacy_transportability import (
-    DPMechanismScope,
-    DPGraphSourceKind,
-    DPUtilityManifest,
     DistortionToleranceMap,
-    PrivateFactorBound,
-    PrivateFactorMetric,
+    DPGraphSourceKind,
+    DPMechanismScope,
+    DPUtilityManifest,
     PrivacyAwareTransportCertificate,
     PrivacyObservedMode,
+    PrivateFactorBound,
+    PrivateFactorMetric,
     ValidityPredicate,
     ValidityPredicateKind,
     apply_privacy_transportability_gate,

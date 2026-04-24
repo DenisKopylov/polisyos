@@ -1,12 +1,15 @@
 # ADR-0029: E-Value ATE-to-Risk-Ratio Conversion Strategy
 
 ## Status
+
 Accepted
 
 ## Date
+
 2026-02-28
 
 ## Context
+
 Phase 4 sensitivity analysis computes E-values to quantify the minimum strength of
 unmeasured confounding that could explain away an observed causal effect. E-values
 operate on the risk-ratio (RR) scale, but most policy-engine estimators produce
@@ -19,6 +22,7 @@ sensitivity results are not reproducible across runs or auditable by governance
 passes.
 
 ## Decision
+
 1. Add a `conversion_method` field to `SensitivityResult` in the IR analytics
    contract (`polisyos.ir.analytics.sensitivity`).
 2. Default conversion method is **log-linear approximation** (`log_linear`),
@@ -30,16 +34,22 @@ passes.
    so that downstream governance and audit passes can verify reproducibility.
 
 ## Consequences
+
 ### Positive
+
 - E-value calculations are fully reproducible given the same input and
   conversion method.
+
 - Governance passes can verify that sensitivity analysis used an approved
   conversion strategy.
+
 - Enables cross-study comparison of robustness when conversion methods are
   held constant.
 
 ### Negative
+
 - Adds an extra field to the `SensitivityResult` IR contract, increasing
   serialization surface.
+
 - Users must be aware of conversion semantics; incorrect method choice can
   produce misleading E-values.

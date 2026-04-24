@@ -13,12 +13,14 @@ CAS в Policy OS уже гарантирует integrity (`sha256(blob)`), но 
 1. Ввести detached signatures в sidecar файлах `<artifact>.sig` рядом с `<artifact>.blob` и `<artifact>.manifest.json`.
 2. Алгоритм подписи: **Ed25519** (через `cryptography`).
 3. Подписывать canonical statement со следующими полями:
+
    - `artifact_id`
    - `blob_sha256`
    - `manifest_sha256`
    - `key_id`
 4. Source of truth для подписи: `.sig` файл (manifest не переписывается).
 5. Ввести trust store:
+
    - `.polisyos/keys/trusted/*.pub`
    - `.polisyos/keys/revoked/*.pub`
    - `.polisyos/keys/identities.json` (optional key_id -> identity binding)
@@ -56,4 +58,5 @@ CAS в Policy OS уже гарантирует integrity (`sha256(blob)`), но 
 
 - Extended by: ADR-0122 (lakehouse snapshot semantics), ADR-0123
   (ArtifactRef governance metadata), ADR-0128 (hermetic reproducibility).
+
 - Related: ADR-0118 (release train and SemVer contracts).

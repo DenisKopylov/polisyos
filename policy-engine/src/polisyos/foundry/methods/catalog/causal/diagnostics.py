@@ -1,7 +1,9 @@
 """Run validity diagnostics such as placebo and parallel-trends checks."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -40,6 +42,7 @@ def _panel_payload(state: Any) -> dict[str, Any]:
 )
 class ParallelTrendsCheck:
     """Store pre-trend diagnostics for DiD designs under a no-differential-trends assumption."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -173,13 +176,15 @@ class PositivityDiagnostic:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
             }
         ),
-        output_slots=frozenset(
-            {SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}
-        ),
+        output_slots=frozenset({SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}),
         parameters=(
             ParameterSpec(
                 name="min_threshold",
@@ -252,9 +257,7 @@ class PositivityDiagnostic:
         e = _logistic_propensity(X, T, max_iter=propensity_max_iter)
 
         # Positivity check
-        passes_positivity = bool(
-            np.all(e >= min_threshold) and np.all(e <= 1.0 - min_threshold)
-        )
+        passes_positivity = bool(np.all(e >= min_threshold) and np.all(e <= 1.0 - min_threshold))
 
         min_e = float(np.min(e))
         max_e = float(np.max(e))
@@ -267,14 +270,12 @@ class PositivityDiagnostic:
         w0 = np.where(T <= 0.5, 1.0 / np.clip(1.0 - e, min_threshold, 1.0 - min_threshold), 0.0)
         w = w1 + w0
         w_sum = float(np.sum(w))
-        w_sq_sum = float(np.sum(w ** 2))
-        ess = float(w_sum ** 2 / max(w_sq_sum, 1e-12))
+        w_sq_sum = float(np.sum(w**2))
+        ess = float(w_sum**2 / max(w_sq_sum, 1e-12))
         ess_fraction = min(float(ess / n), 1.0)
 
         # Overlap score: fraction of obs with propensity in [overlap_band, 1-overlap_band]
-        overlap_score = float(
-            np.mean((e >= overlap_band) & (e <= 1.0 - overlap_band))
-        )
+        overlap_score = float(np.mean((e >= overlap_band) & (e <= 1.0 - overlap_band)))
 
         # Build actionable recommendations
         recommendations: list[str] = []
@@ -341,7 +342,15 @@ class PositivityDiagnostic:
 @foundry_method(
     namespace="causal.diagnostics",
     version="1.0.0",
-    tags={"causal", "diagnostics", "policy", "stochastic", "overlap", "weights"},
+    tags={
+        "causal",
+        "diagnostics",
+        "policy",
+        "stochastic",
+        "overlap",
+        "weights",
+        "cross-section",
+    },
 )
 class PolicyOverlapDiagnostic:
     """Policy-overlap diagnostic for stochastic interventions and MTPs.
@@ -361,9 +370,7 @@ class PolicyOverlapDiagnostic:
         namespace="",
         version="0.0.0",
         input_slots=frozenset(),
-        output_slots=frozenset(
-            {SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}
-        ),
+        output_slots=frozenset({SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}),
         parameters=(
             ParameterSpec(
                 name="clip_min",
@@ -391,7 +398,15 @@ class PolicyOverlapDiagnostic:
             "extreme-tail behavior."
         ),
         tags=frozenset(
-            {"causal", "diagnostics", "policy", "overlap", "stochastic", "weights"}
+            {
+                "causal",
+                "diagnostics",
+                "policy",
+                "overlap",
+                "stochastic",
+                "weights",
+                "cross-section",
+            }
         ),
         citations=(
             "Díaz, I. & van der Laan, M.J. (2012). Population intervention causal effects based on stochastic interventions.",
@@ -445,15 +460,9 @@ class PolicyOverlapDiagnostic:
                     f"[{clip_min:.3f}, {clip_max:.1f}]."
                 )
 
-            severe = (
-                ess_fraction < 0.15
-                or dominant_weight_share > 0.2
-                or clip_fraction > 0.2
-            )
+            severe = ess_fraction < 0.15 or dominant_weight_share > 0.2 or clip_fraction > 0.2
             gate_eligible = (
-                ess_fraction >= 0.3
-                and dominant_weight_share <= 0.1
-                and clip_fraction <= 0.05
+                ess_fraction >= 0.3 and dominant_weight_share <= 0.1 and clip_fraction <= 0.05
             )
             severity = "high_risk" if severe else ("ok" if gate_eligible else "warning")
             return gate_eligible, recommendations, severity
@@ -530,7 +539,7 @@ class PolicyOverlapDiagnostic:
 
         abs_weights = np.abs(weights)
         total_weight = float(np.sum(abs_weights))
-        ess = float(total_weight ** 2 / max(float(np.sum(abs_weights ** 2)), 1e-12))
+        ess = float(total_weight**2 / max(float(np.sum(abs_weights**2)), 1e-12))
         ess_fraction = float(ess / max(abs_weights.size, 1))
         dominant_weight_share = float(np.max(abs_weights) / max(total_weight, 1e-12))
         n_clipped = int(np.sum((abs_weights < clip_min) | (abs_weights > clip_max)))
@@ -614,9 +623,7 @@ class SupportMismatchDiagnostic:
                 ),
             }
         ),
-        output_slots=frozenset(
-            {SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}
-        ),
+        output_slots=frozenset({SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}),
         parameters=(
             ParameterSpec(
                 name="method",
@@ -704,8 +711,8 @@ class SupportMismatchDiagnostic:
 
         weights = np.asarray(weights, dtype=float)
         w_sum = float(np.sum(weights))
-        w_sq_sum = float(np.sum(weights ** 2))
-        ess = float(w_sum ** 2 / max(w_sq_sum, 1e-12))
+        w_sq_sum = float(np.sum(weights**2))
+        ess = float(w_sum**2 / max(w_sq_sum, 1e-12))
         ess_fraction = min(float(ess / n_source), 1.0)
 
         p95 = float(np.percentile(weights, 95))

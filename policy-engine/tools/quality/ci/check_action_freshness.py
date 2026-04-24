@@ -54,7 +54,9 @@ def parse_semver(tag: str | None) -> tuple[int, int, int] | None:
 def discover_pinned_actions(workflows_root: Path) -> list[dict[str, object]]:
     entries: list[dict[str, object]] = []
     for workflow in sorted(workflows_root.glob("*.yml")):
-        for line_number, line in enumerate(workflow.read_text(encoding="utf-8").splitlines(), start=1):
+        for line_number, line in enumerate(
+            workflow.read_text(encoding="utf-8").splitlines(), start=1
+        ):
             match = USES_PATTERN.search(line)
             if not match:
                 continue
@@ -116,7 +118,9 @@ def fetch_latest_tag(repo: str) -> LatestTagResult:
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, ValueError) as release_exc:
         try:
             tag = _fetch_latest_tag(repo, headers)
-            return LatestTagResult(tag, degraded_reason=f"latest release lookup failed: {release_exc}")
+            return LatestTagResult(
+                tag, degraded_reason=f"latest release lookup failed: {release_exc}"
+            )
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, ValueError) as tag_exc:
             return LatestTagResult(
                 None,
@@ -130,7 +134,9 @@ def evaluate(entries: list[dict[str, object]]) -> list[dict[str, object]]:
     for entry in entries:
         repo = str(entry["repo"])
         latest_raw = latest_cache.setdefault(repo, fetch_latest_tag(repo))
-        latest = latest_raw if isinstance(latest_raw, LatestTagResult) else LatestTagResult(latest_raw)
+        latest = (
+            latest_raw if isinstance(latest_raw, LatestTagResult) else LatestTagResult(latest_raw)
+        )
         latest_tag = latest.tag
         current_tag = str(entry.get("tag") or "")
         current_version = parse_semver(current_tag)

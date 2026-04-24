@@ -8,6 +8,7 @@ Tests verify:
 4. MethodDispatcher falls back to NumPy when JAX circuit is OPEN.
 5. After circuit opens and resets, normal dispatch resumes.
 """
+
 from __future__ import annotations
 
 import time
@@ -23,7 +24,6 @@ from polisyos.foundry.methods.backends.circuit_breaker import (
     CircuitState,
     get_circuit_breaker_registry,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -159,6 +159,7 @@ class TestDispatcherFallback:
     def setup_method(self) -> None:
         CircuitBreakerRegistry.reset_instance()
         from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+
         MethodDispatcher.reset_instance()
 
     def test_open_jax_circuit_triggers_numpy_fallback(self) -> None:
@@ -190,9 +191,7 @@ class TestDispatcherFallback:
         mock_numpy_result = mock.MagicMock()
         mock_numpy_result.output = {"result": 42}
 
-        with mock.patch.object(
-            disp, "_resolve_runner"
-        ) as mock_resolve:
+        with mock.patch.object(disp, "_resolve_runner") as mock_resolve:
             mock_numpy_runner = mock.MagicMock()
             mock_numpy_runner.execute.return_value = mock_numpy_result
             mock_resolve.return_value = mock_numpy_runner

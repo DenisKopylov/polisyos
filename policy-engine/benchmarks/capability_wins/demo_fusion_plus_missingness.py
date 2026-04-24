@@ -51,18 +51,22 @@ for _p in [str(_SRC), str(_BENCH_ROOT)]:
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+from benchmarks.capability_wins.capability_proof import (  # noqa: E402
+    CapabilityProofSpec,
+    build_capability_report_extra,
+    make_gap_row,
+)
 from benchmarks.harness import (  # noqa: E402
     BenchmarkCase,
     BenchmarkCircuit,
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.capability_wins.capability_proof import (  # noqa: E402
-    CapabilityProofSpec,
-    build_capability_report_extra,
-    make_gap_row,
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
 from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.CAPABILITY_WINS
@@ -80,26 +84,35 @@ def _graph_imports():
         EdgeMark,
         GraphType,
     )
+
     return CausalEdge, CausalGraphModel, EdgeMark, GraphType
 
 
 def _mgraph_imports():
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        RecoverabilityStatus,
+        test_recoverability,
+    )
     from polisyos.ir.analytics.mgraph import (
         MissingnessKind,
         build_mgraph,
         extract_mgraph_metadata,
     )
-    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+
+    return (
+        MissingnessKind,
+        build_mgraph,
+        extract_mgraph_metadata,
         RecoverabilityStatus,
         test_recoverability,
     )
-    return MissingnessKind, build_mgraph, extract_mgraph_metadata, RecoverabilityStatus, test_recoverability
 
 
 def _fusion_imports():
     from polisyos.foundry.methods.catalog.causal.data_fusion import (
         fuse_experimental_observational,
     )
+
     return fuse_experimental_observational
 
 
@@ -113,7 +126,13 @@ def _case_mcar_recoverable_then_fuse() -> BenchmarkCase:
 
     def runner():
         CausalEdge, CausalGraphModel, EdgeMark, GraphType = _graph_imports()
-        MissingnessKind, build_mgraph, extract_mgraph_metadata, RecoverabilityStatus, test_recoverability = _mgraph_imports()
+        (
+            MissingnessKind,
+            build_mgraph,
+            extract_mgraph_metadata,
+            RecoverabilityStatus,
+            test_recoverability,
+        ) = _mgraph_imports()
         fuse_experimental_observational = _fusion_imports()
 
         # Base DAG: X→Y
@@ -141,9 +160,7 @@ def _case_mcar_recoverable_then_fuse() -> BenchmarkCase:
             mgraph_meta=meta,
         )
         if recov.status != RecoverabilityStatus.RECOVERABLE:
-            raise AssertionError(
-                f"MCAR X should be RECOVERABLE, got {recov.status}"
-            )
+            raise AssertionError(f"MCAR X should be RECOVERABLE, got {recov.status}")
 
         # Step 2: fusion — obs registry (MCAR, recoverable) + RCT
         fusion_result = fuse_experimental_observational(
@@ -177,7 +194,13 @@ def _case_mar_ancestor_recoverable() -> BenchmarkCase:
 
     def runner():
         CausalEdge, CausalGraphModel, EdgeMark, GraphType = _graph_imports()
-        MissingnessKind, build_mgraph, extract_mgraph_metadata, RecoverabilityStatus, test_recoverability = _mgraph_imports()
+        (
+            MissingnessKind,
+            build_mgraph,
+            extract_mgraph_metadata,
+            RecoverabilityStatus,
+            test_recoverability,
+        ) = _mgraph_imports()
 
         # Base DAG: Z→X→Y
         base_edges = [
@@ -195,7 +218,7 @@ def _case_mar_ancestor_recoverable() -> BenchmarkCase:
         mgraph = build_mgraph(
             base_graph=base_graph,
             missing_variables={"X": MissingnessKind.MAR},
-            directed_edges=[("Z", "R_X")],   # Z→R_X makes it MAR
+            directed_edges=[("Z", "R_X")],  # Z→R_X makes it MAR
         )
         meta = extract_mgraph_metadata(mgraph)
 
@@ -207,11 +230,12 @@ def _case_mar_ancestor_recoverable() -> BenchmarkCase:
         return recov
 
     def checker(r) -> bool:
-        from polisyos.foundry.methods.catalog.causal.recoverability_engine import RecoverabilityStatus
+        from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+            RecoverabilityStatus,
+        )
+
         if r.status != RecoverabilityStatus.RECOVERABLE:
-            raise AssertionError(
-                f"MAR-via-ancestor X should be RECOVERABLE, got {r.status}"
-            )
+            raise AssertionError(f"MAR-via-ancestor X should be RECOVERABLE, got {r.status}")
         return True
 
     return BenchmarkCase(
@@ -229,7 +253,13 @@ def _case_mnar_self_not_recoverable_blocks_fusion() -> BenchmarkCase:
 
     def runner():
         CausalEdge, CausalGraphModel, EdgeMark, GraphType = _graph_imports()
-        MissingnessKind, build_mgraph, extract_mgraph_metadata, RecoverabilityStatus, test_recoverability = _mgraph_imports()
+        (
+            MissingnessKind,
+            build_mgraph,
+            extract_mgraph_metadata,
+            RecoverabilityStatus,
+            test_recoverability,
+        ) = _mgraph_imports()
 
         # Base DAG: X→Y
         base_edges = [
@@ -257,11 +287,12 @@ def _case_mnar_self_not_recoverable_blocks_fusion() -> BenchmarkCase:
         return recov
 
     def checker(r) -> bool:
-        from polisyos.foundry.methods.catalog.causal.recoverability_engine import RecoverabilityStatus
+        from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+            RecoverabilityStatus,
+        )
+
         if r.status != RecoverabilityStatus.NOT_RECOVERABLE:
-            raise AssertionError(
-                f"MNAR self-censoring X should be NOT_RECOVERABLE, got {r.status}"
-            )
+            raise AssertionError(f"MNAR self-censoring X should be NOT_RECOVERABLE, got {r.status}")
         return True
 
     return BenchmarkCase(
@@ -292,7 +323,9 @@ def build_fusion_missingness_harness() -> BenchmarkHarness:
 # ---------------------------------------------------------------------------
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     extra = build_capability_report_extra(
         report,
         CapabilityProofSpec(
@@ -303,12 +336,45 @@ def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, 
             },
             claim_profile_targets=("frontier_frontier_claim", "full_stack_publication_claim"),
             competitor_gap=(
-                make_gap_row("y0", "fusion_plus_missingness", status="fail", note="Missing-data recoverability and fusion are not a unified public workflow.", level="identifiable"),
-                make_gap_row("dowhy", "recoverability_decision", status="fail", note="No M-graph recoverability engine for fusion scenarios.", level="identifiable"),
-                make_gap_row("econml", "graph_native_missingness", status="fail", note="Estimator stack has no graph-native missingness/fusion layer.", level="expressible"),
-                make_gap_row("causalpy", "mgraph_recoverability", status="fail", note="No M-graph recoverability workflow.", level="identifiable"),
+                make_gap_row(
+                    "y0",
+                    "fusion_plus_missingness",
+                    status="fail",
+                    note="Missing-data recoverability and fusion are not a unified public workflow.",
+                    level="identifiable",
+                ),
+                make_gap_row(
+                    "dowhy",
+                    "recoverability_decision",
+                    status="fail",
+                    note="No M-graph recoverability engine for fusion scenarios.",
+                    level="identifiable",
+                ),
+                make_gap_row(
+                    "econml",
+                    "graph_native_missingness",
+                    status="fail",
+                    note="Estimator stack has no graph-native missingness/fusion layer.",
+                    level="expressible",
+                ),
+                make_gap_row(
+                    "causalpy",
+                    "mgraph_recoverability",
+                    status="fail",
+                    note="No M-graph recoverability workflow.",
+                    level="identifiable",
+                ),
             ),
-            workflow_levels={level: "PASS" for level in ("expressible", "identifiable", "estimable_or_bounded", "audit_trace", "reproducible")},
+            workflow_levels={
+                level: "PASS"
+                for level in (
+                    "expressible",
+                    "identifiable",
+                    "estimable_or_bounded",
+                    "audit_trace",
+                    "reproducible",
+                )
+            },
         ),
     )
     return build_report_payload(

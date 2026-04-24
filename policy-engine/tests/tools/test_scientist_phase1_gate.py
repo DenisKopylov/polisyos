@@ -39,9 +39,7 @@ def _write_junit_xml(path: Path, names: list[str | tuple[str, str]]) -> None:
         for item in names
     )
     path.write_text(
-        "<testsuite name=\"scientist-phase1\">"
-        f"\n{testcases}\n"
-        "</testsuite>\n",
+        f'<testsuite name="scientist-phase1">\n{testcases}\n</testsuite>\n',
         encoding="utf-8",
     )
 
@@ -156,7 +154,9 @@ def test_scientist_phase1_gate_builds_passing_json_report(tmp_path: Path) -> Non
     assert payload["ratchet_results"]["no_live_model_copy_deep_true_hot_paths"] is True
 
 
-def test_scientist_phase1_gate_matches_parametrized_cases_for_required_names(tmp_path: Path) -> None:
+def test_scientist_phase1_gate_matches_parametrized_cases_for_required_names(
+    tmp_path: Path,
+) -> None:
     repo_root = tmp_path / "repo"
     benchmark_json = repo_root / "benchmarks.json"
     junit_xml = repo_root / "phase1.xml"
@@ -276,5 +276,11 @@ def test_scientist_phase1_gate_fails_on_missing_evidence_and_broad_handlers(tmp_
     assert exit_code == 1
     assert payload["passes_all"] is False
     assert "broad_exception:src/polisyos/scientist/agent/code_verifier.py:3" in payload["notes"]
-    assert "machine_readable_status:test_scientist_remediation_status_report_is_machine_readable" in payload["notes"]
-    assert any(item.startswith("reliability:scenario_missing:tool_failure_with_retry") for item in payload["notes"])
+    assert (
+        "machine_readable_status:test_scientist_remediation_status_report_is_machine_readable"
+        in payload["notes"]
+    )
+    assert any(
+        item.startswith("reliability:scenario_missing:tool_failure_with_retry")
+        for item in payload["notes"]
+    )

@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Annotated, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
 from polisyos.ir.analytics.estimand import DistributionRef, EstimandAST, SideConditionKind
-from polisyos.ir.analytics.evidence_bundle import ProofStep  # noqa: TC001
+from polisyos.ir.analytics.evidence_bundle import ProofStep
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import (
@@ -326,9 +326,7 @@ class EdgeIntervention(BaseModel):
 
     intervention_type: Literal["edge"] = "edge"
     assignments: tuple[EdgeAssignment, ...] = Field(min_length=1)
-    semantics: Literal["edge_g_formula", "reduce_to_node_if_uniform"] = (
-        "reduce_to_node_if_uniform"
-    )
+    semantics: Literal["edge_g_formula", "reduce_to_node_if_uniform"] = "reduce_to_node_if_uniform"
 
 
 class PathIntervention(BaseModel):
@@ -634,10 +632,7 @@ def _positions(step: InterventionExpr) -> set[str]:
     if isinstance(step, EdgeIntervention):
         return {f"edge:{item.source}->{item.target}" for item in step.assignments}
     if isinstance(step, PathIntervention):
-        return {
-            f"path:{'->'.join(path)}"
-            for path in (*step.active_paths, *step.frozen_paths)
-        }
+        return {f"path:{'->'.join(path)}" for path in (*step.active_paths, *step.frozen_paths)}
     if isinstance(step, TransportIntervention):
         return {f"transport:{step.source_domain}->{step.target_domain}"}
     if isinstance(step, InterferenceIntervention):
@@ -715,9 +710,7 @@ def check_intervention_composition(expr: InterventionExpr) -> InterventionCompos
             positions=positions,
         )
     if has_interference and len(steps) > 1:
-        interference_steps = [
-            step for step in steps if isinstance(step, InterferenceIntervention)
-        ]
+        interference_steps = [step for step in steps if isinstance(step, InterferenceIntervention)]
         if any(step.fallback_mode != "clustered" for step in interference_steps):
             return _block(
                 reason=(
@@ -888,9 +881,7 @@ def identification_plan_for_intervention(expr: InterventionExpr) -> Intervention
             intervention_type=ProofKernelInterventionType.TRANSPORT,
             backend=backend,
             theorem_family=(
-                "Correa-Bareinboim-soft-transport"
-                if expr.soft_transport
-                else "Bareinboim-Pearl-TR"
+                "Correa-Bareinboim-soft-transport" if expr.soft_transport else "Bareinboim-Pearl-TR"
             ),
             native_status=InterventionIdentificationStatus.ORACLE_NEEDED,
             reductions=(
@@ -1019,8 +1010,7 @@ def identification_plan_for_intervention(expr: InterventionExpr) -> Intervention
                     kind="no_forbidden_recanting_witness",
                     variables=natural_dependencies(expr),
                     description=(
-                        "Path-specific natural-value assignments must pass "
-                        "path-ID conditions."
+                        "Path-specific natural-value assignments must pass path-ID conditions."
                     ),
                 ),
             ),
@@ -1034,9 +1024,7 @@ def identification_plan_for_intervention(expr: InterventionExpr) -> Intervention
                 else IdentificationBackend.TR
             ),
             theorem_family=(
-                "Correa-Bareinboim-soft-transport"
-                if expr.soft_transport
-                else "Bareinboim-Pearl-TR"
+                "Correa-Bareinboim-soft-transport" if expr.soft_transport else "Bareinboim-Pearl-TR"
             ),
             native_status=InterventionIdentificationStatus.ORACLE_NEEDED,
             conditions=(
@@ -1157,13 +1145,9 @@ def proof_bundle_from_intervention_certificate(
     else:
         proof_status = "oracle_needed"
 
-    proof_trace = [
-        step.description or step.rule_name
-        for step in certificate.proof_steps
-    ]
+    proof_trace = [step.description or step.rule_name for step in certificate.proof_steps]
     proof_trace.extend(
-        reduction.description or reduction.rule_name
-        for reduction in certificate.reduction_chain
+        reduction.description or reduction.rule_name for reduction in certificate.reduction_chain
     )
     payload_metadata = dict(metadata or {})
     payload_metadata.update(certificate.proofbundle_metadata)
@@ -1208,24 +1192,16 @@ def proof_bundle_from_intervention_certificate(
 
 def _render_intervention_expr(expr: InterventionExpr) -> str:
     if isinstance(expr, NodeIntervention):
-        assignments = ", ".join(
-            f"{item.variable}={item.stable_value}" for item in expr.assignments
-        )
+        assignments = ", ".join(f"{item.variable}={item.stable_value}" for item in expr.assignments)
         return f"do({assignments})"
     if isinstance(expr, ConditionalIntervention):
-        assignments = ", ".join(
-            f"{item.target}:={item.policy_expr}" for item in expr.assignments
-        )
+        assignments = ", ".join(f"{item.target}:={item.policy_expr}" for item in expr.assignments)
         return f"cond({assignments})"
     if isinstance(expr, StochasticIntervention):
-        policies = ", ".join(
-            f"{item.target}~{item.distribution_expr}" for item in expr.policies
-        )
+        policies = ", ".join(f"{item.target}~{item.distribution_expr}" for item in expr.policies)
         return f"stoch({policies})"
     if isinstance(expr, MTPIntervention):
-        policies = ", ".join(
-            f"{item.target}:={item.policy_expr}" for item in expr.policies
-        )
+        policies = ", ".join(f"{item.target}:={item.policy_expr}" for item in expr.policies)
         return f"mtp({policies})"
     if isinstance(expr, EdgeIntervention):
         assignments = ", ".join(
@@ -1236,13 +1212,9 @@ def _render_intervention_expr(expr: InterventionExpr) -> str:
     if isinstance(expr, PathIntervention):
         parts: list[str] = []
         if expr.active_paths:
-            parts.append(
-                "active=" + ",".join("->".join(path) for path in expr.active_paths)
-            )
+            parts.append("active=" + ",".join("->".join(path) for path in expr.active_paths))
         if expr.frozen_paths:
-            parts.append(
-                "frozen=" + ",".join("->".join(path) for path in expr.frozen_paths)
-            )
+            parts.append("frozen=" + ",".join("->".join(path) for path in expr.frozen_paths))
         return f"path({'; '.join(parts)})"
     if isinstance(expr, TransportIntervention):
         inner = (
@@ -1253,9 +1225,7 @@ def _render_intervention_expr(expr: InterventionExpr) -> str:
         mode = "soft_transport" if expr.soft_transport else "transport"
         return f"{mode}[{expr.source_domain}->{expr.target_domain}]({inner})"
     if isinstance(expr, InterferenceIntervention):
-        policies = ", ".join(
-            f"{item.target}:={item.policy_expr}" for item in expr.policies
-        )
+        policies = ", ".join(f"{item.target}:={item.policy_expr}" for item in expr.policies)
         return f"interference({policies})"
     if isinstance(expr, CompositeIntervention):
         return " then ".join(_render_intervention_expr(step) for step in expr.steps)
@@ -1266,11 +1236,7 @@ def render_intervention_query(query: InterventionQuery) -> str:
     """Render a stable human-readable query string for proof/audit surfaces."""
 
     target = ",".join(query.target.outcome_variables)
-    conditioning = (
-        f" | {','.join(query.target.conditioning)}"
-        if query.target.conditioning
-        else ""
-    )
+    conditioning = f" | {','.join(query.target.conditioning)}" if query.target.conditioning else ""
     return f"{query.target.target_kind.value}:{target}{conditioning} <- {_render_intervention_expr(query.intervention)}"
 
 
@@ -1380,8 +1346,8 @@ __all__ = [
     "check_intervention_composition",
     "identification_plan_for_intervention",
     "load_intervention_certificate",
-    "natural_dependencies",
     "load_intervention_query",
+    "natural_dependencies",
     "persist_intervention_certificate",
     "persist_intervention_query",
     "proof_bundle_from_intervention_certificate",

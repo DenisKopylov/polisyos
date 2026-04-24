@@ -14,4 +14,5 @@ Operational rules:
 - Release tools should be deterministic and safe to run repeatedly.
 - Snapshot/staging tools must declare their upstream dependencies in
   `tools.registry`.
+
 - Prefer structured outputs and timing records for release evidence.

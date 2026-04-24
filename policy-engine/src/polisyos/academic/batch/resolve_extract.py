@@ -12,8 +12,7 @@ import time
 from collections import Counter, defaultdict, deque
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import aiohttp
 
@@ -31,10 +30,8 @@ from polisyos.academic.batch.article_extractor import (
     _normalized_text,
     _parse_json_object,
     _to_work_record,
-    _validate_extraction_response,
 )
 from polisyos.academic.batch.claim_ids import stable_claim_id
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.batch.context_classifier import infer_context_from_article
 from polisyos.academic.batch.fulltext_resolver import (
     FullTextFetchResult,
@@ -59,15 +56,20 @@ from polisyos.ir.analytics.literature import (
     ContextAttribute,
     DesignFamily,
     EvidenceParameter,
-    EvidenceStrength,
     EvidenceSpan,
+    EvidenceStrength,
     HeterogeneityResult,
     ModerationEdge,
-    ParameterType,
     PaperKind,
+    ParameterType,
     SourceBasis,
     TextQuality,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 logger = get_logger(__name__)
 
@@ -97,11 +99,21 @@ _DESIGN_TIERS: dict[str, int | None] = {
 }
 _STRONG_METHOD_PATTERNS: dict[str, re.Pattern[str]] = {
     DesignFamily.RCT.value: re.compile(r"\b(randomi[sz]ed|random assignment|rct)\b", re.IGNORECASE),
-    DesignFamily.IV.value: re.compile(r"\b(instrumental variable|instrument\w*|2sls|tsls|first stage)\b", re.IGNORECASE),
-    DesignFamily.DID.value: re.compile(r"\b(difference[- ]?in[- ]?differences?|\bdid\b|parallel trends)\b", re.IGNORECASE),
-    DesignFamily.RDD.value: re.compile(r"\b(regression discontinuity|\brdd\b|cutoff|threshold design)\b", re.IGNORECASE),
-    DesignFamily.SYNTHETIC_CONTROL.value: re.compile(r"\b(synthetic control|synthetic counterfactual)\b", re.IGNORECASE),
-    DesignFamily.EVENT_STUDY.value: re.compile(r"\b(event study|dynamic treatment effects|lead[s]? and lag[s]?)\b", re.IGNORECASE),
+    DesignFamily.IV.value: re.compile(
+        r"\b(instrumental variable|instrument\w*|2sls|tsls|first stage)\b", re.IGNORECASE
+    ),
+    DesignFamily.DID.value: re.compile(
+        r"\b(difference[- ]?in[- ]?differences?|\bdid\b|parallel trends)\b", re.IGNORECASE
+    ),
+    DesignFamily.RDD.value: re.compile(
+        r"\b(regression discontinuity|\brdd\b|cutoff|threshold design)\b", re.IGNORECASE
+    ),
+    DesignFamily.SYNTHETIC_CONTROL.value: re.compile(
+        r"\b(synthetic control|synthetic counterfactual)\b", re.IGNORECASE
+    ),
+    DesignFamily.EVENT_STUDY.value: re.compile(
+        r"\b(event study|dynamic treatment effects|lead[s]? and lag[s]?)\b", re.IGNORECASE
+    ),
     DesignFamily.QUASI_EXPERIMENTAL_OTHER.value: re.compile(
         r"\b(natural experiment|quasi[- ]experimental|exogenous shock|policy discontinuity|staggered adoption)\b",
         re.IGNORECASE,
@@ -129,9 +141,9 @@ def _has_downgrade_signal(text: str) -> bool:
         return False
     # If a negation phrase is present, the downgrade keyword is used in a
     # context that actually STRENGTHENS the claim (e.g. "beyond correlation").
-    if _DOWNGRADE_NEGATION_RE.search(text):
-        return False
-    return True
+    return not _DOWNGRADE_NEGATION_RE.search(text)
+
+
 # Strong identification methods that justify tier-4 promotion for "unclear" designs.
 # Excludes weak data-type terms (regression, panel data, OLS, admin data) that are
 # necessary but not sufficient for causal identification.
@@ -148,9 +160,18 @@ _NARRATIVE_HEDGE_RE = re.compile(
     r"is likely|it is probable|we speculate|we conjecture|we hypothesi[sz]e that)\b",
     re.IGNORECASE,
 )
-_REVIEW_LIKE_RE = re.compile(r"\b(review|survey|literature review|meta-analysis|bibliometric|systematic review)\b", re.IGNORECASE)
-_THEORY_LIKE_RE = re.compile(r"\b(theoretical|theory|conceptual framework|modeling exercise|simulation study)\b", re.IGNORECASE)
-_METHOD_ONLY_RE = re.compile(r"\b(methods? paper|methodological|estimation method|algorithm|benchmark dataset)\b", re.IGNORECASE)
+_REVIEW_LIKE_RE = re.compile(
+    r"\b(review|survey|literature review|meta-analysis|bibliometric|systematic review)\b",
+    re.IGNORECASE,
+)
+_THEORY_LIKE_RE = re.compile(
+    r"\b(theoretical|theory|conceptual framework|modeling exercise|simulation study)\b",
+    re.IGNORECASE,
+)
+_METHOD_ONLY_RE = re.compile(
+    r"\b(methods? paper|methodological|estimation method|algorithm|benchmark dataset)\b",
+    re.IGNORECASE,
+)
 _EMPIRICAL_DATA_RE = re.compile(
     r"\b(administrative data|registry data|register data|panel data|longitudinal data|survey data|census data|microdata|"
     r"matched employer[- ]employee|linked data|transaction data|tax records?|firm-level data|household survey|"
@@ -387,13 +408,18 @@ def _select_relevant_canonical_names(topic_display_names: list[str]) -> list[str
         matched_prefixes.update(_SHARED_VOCABULARY_PREFIXES)
 
     matched = [
-        n for n in sorted(all_names)
+        n
+        for n in sorted(all_names)
         if any(n.startswith(p) or n == p.rstrip(".") for p in matched_prefixes)
     ]
     universal = [n for n in _UNIVERSAL_CANONICAL_VARS if n in all_names]
     combined = list(dict.fromkeys(matched + universal))
     return combined[:60]
-_CONTEXT_EFFECT_ESTIMATE_RE = re.compile(r"(?:^|[_\.])(multiplier|effect|impact|estimate|coefficient)(?:$|[_\.])", re.IGNORECASE)
+
+
+_CONTEXT_EFFECT_ESTIMATE_RE = re.compile(
+    r"(?:^|[_\.])(multiplier|effect|impact|estimate|coefficient)(?:$|[_\.])", re.IGNORECASE
+)
 _CONTAMINATION_RE = re.compile(
     r"(?i)"
     r"(accesses|citations|altmetric|explore all metrics|download pdf|view pdf|view abstract|cookie policy|"
@@ -617,6 +643,7 @@ _VAR_SPLIT_RE = re.compile(r"[^a-z0-9]+")
 @dataclass
 class ResolveExtractStats:
     """Cumulative counters and latency samples for resolve/extract passes."""
+
     records: int = 0
     fulltext_resolved: int = 0
     abstract_only: int = 0
@@ -660,6 +687,7 @@ class ResolveExtractStats:
 @dataclass
 class WorkItem:
     """Selected OpenAlex work plus topic routing metadata for resolve/extract scheduling."""
+
     work: dict[str, Any]
     work_id: str
     topic_id: str
@@ -672,6 +700,7 @@ class WorkItem:
 @dataclass
 class EligibleItem:
     """Full-text work payload annotated with source quality and LLM/context eligibility flags."""
+
     work_item: WorkItem
     text: str
     source_kind: str
@@ -685,6 +714,7 @@ class EligibleItem:
 @dataclass(frozen=True)
 class EligibilityDecision:
     """Binary routing decision and rejection reasons for one resolve/extract candidate."""
+
     llm_eligible: bool
     context_eligible: bool
     rejection_reasons: list[str]
@@ -693,6 +723,7 @@ class EligibilityDecision:
 @dataclass
 class ProviderResponse:
     """Normalized LLM provider response, retry metadata, and parse status for one extraction call."""
+
     parsed: dict[str, Any]
     usage: dict[str, Any]
     http_status: int
@@ -785,13 +816,25 @@ class _SlidingWindowLimiter:
 
 
 # API concurrency limits (with ~10% headroom from provider caps).
-_PER_KEY_CONCURRENT_CAP = 40   # provider hard limit: 50 per key
-_GLOBAL_CONCURRENT_CAP = 180   # provider hard limit: 200 per user account
+_PER_KEY_CONCURRENT_CAP = 40  # provider hard limit: 50 per key
+_GLOBAL_CONCURRENT_CAP = 180  # provider hard limit: 200 per user account
 _MAX_RETRY_AFTER_SECONDS = 30.0  # cap on Retry-After header value
 
 
 class _ProviderClient:
-    def __init__(self, *, client_index: int, api_key: str, base_url: str, rate_limit_rps: float, circuit_failures: int, circuit_reset_seconds: int, connect_timeout_seconds: int, read_timeout_seconds: int, total_timeout_seconds: int) -> None:
+    def __init__(
+        self,
+        *,
+        client_index: int,
+        api_key: str,
+        base_url: str,
+        rate_limit_rps: float,
+        circuit_failures: int,
+        circuit_reset_seconds: int,
+        connect_timeout_seconds: int,
+        read_timeout_seconds: int,
+        total_timeout_seconds: int,
+    ) -> None:
         self.client_index = client_index
         self.api_key = api_key
         self.url = f"{base_url.rstrip('/')}/chat/completions"
@@ -812,7 +855,7 @@ class _ProviderClient:
         )
         self.session: aiohttp.ClientSession | None = None
 
-    async def __aenter__(self) -> "_ProviderClient":
+    async def __aenter__(self) -> _ProviderClient:
         self.session = aiohttp.ClientSession(
             headers={
                 "Authorization": f"Bearer {self.api_key}",
@@ -843,6 +886,7 @@ class _ProviderClient:
 
 class GonkaMultiKeyPool:
     """Gonka multi key pool public type."""
+
     def __init__(self, config: AcademicBatchConfig) -> None:
         self._clients = [
             _ProviderClient(
@@ -879,7 +923,7 @@ class GonkaMultiKeyPool:
     def theoretical_aggregate_rps(self) -> float:
         return self.client_count * self.per_key_rate_limit_rps
 
-    async def __aenter__(self) -> "GonkaMultiKeyPool":
+    async def __aenter__(self) -> GonkaMultiKeyPool:
         for client in self._clients:
             await client.__aenter__()
         return self
@@ -894,14 +938,17 @@ class GonkaMultiKeyPool:
             await self._global_sem.acquire()
             async with self._selection_lock:
                 available = [
-                    c for c in self._clients
+                    c
+                    for c in self._clients
                     if c.is_available() and c.in_flight < _PER_KEY_CONCURRENT_CAP
                 ]
                 if available:
                     min_load = min(c.in_flight for c in available)
                     candidates = [c for c in available if c.in_flight == min_load]
                     client = candidates[self._selection_cursor % len(candidates)]
-                    self._selection_cursor = (self._selection_cursor + 1) % max(1, len(self._clients))
+                    self._selection_cursor = (self._selection_cursor + 1) % max(
+                        1, len(self._clients)
+                    )
                     client.in_flight += 1
                     return client
             # No client available — release global slot and wait with jitter
@@ -966,13 +1013,25 @@ class GonkaMultiKeyPool:
                             if not isinstance(data, dict):
                                 data = {}
                             usage = data.get("usage") if isinstance(data.get("usage"), dict) else {}
-                            choices = data.get("choices") if isinstance(data.get("choices"), list) else []
+                            choices = (
+                                data.get("choices") if isinstance(data.get("choices"), list) else []
+                            )
                             first = choices[0] if choices else {}
                             message = first.get("message") if isinstance(first, dict) else {}
-                            raw_content = str(message.get("content") or "") if isinstance(message, dict) else ""
-                            finish_reason = str(first.get("finish_reason") or "") if isinstance(first, dict) else ""
+                            raw_content = (
+                                str(message.get("content") or "")
+                                if isinstance(message, dict)
+                                else ""
+                            )
+                            finish_reason = (
+                                str(first.get("finish_reason") or "")
+                                if isinstance(first, dict)
+                                else ""
+                            )
                             parsed = _parse_json_object(raw_content) or {}
-                            parse_status = "ok" if parsed else ("partial" if raw_content.strip() else "empty")
+                            parse_status = (
+                                "ok" if parsed else ("partial" if raw_content.strip() else "empty")
+                            )
                             truncated_output = finish_reason == "length"
                             last_error_class = ""
                             client.record_success()
@@ -1015,14 +1074,36 @@ class GonkaMultiKeyPool:
                                     data = json.loads(body) if body else {}
                                     if not isinstance(data, dict):
                                         data = {}
-                                    usage = data.get("usage") if isinstance(data.get("usage"), dict) else {}
-                                    choices = data.get("choices") if isinstance(data.get("choices"), list) else []
+                                    usage = (
+                                        data.get("usage")
+                                        if isinstance(data.get("usage"), dict)
+                                        else {}
+                                    )
+                                    choices = (
+                                        data.get("choices")
+                                        if isinstance(data.get("choices"), list)
+                                        else []
+                                    )
                                     first = choices[0] if choices else {}
-                                    message = first.get("message") if isinstance(first, dict) else {}
-                                    raw_content = str(message.get("content") or "") if isinstance(message, dict) else ""
-                                    finish_reason = str(first.get("finish_reason") or "") if isinstance(first, dict) else ""
+                                    message = (
+                                        first.get("message") if isinstance(first, dict) else {}
+                                    )
+                                    raw_content = (
+                                        str(message.get("content") or "")
+                                        if isinstance(message, dict)
+                                        else ""
+                                    )
+                                    finish_reason = (
+                                        str(first.get("finish_reason") or "")
+                                        if isinstance(first, dict)
+                                        else ""
+                                    )
                                     parsed = _parse_json_object(raw_content) or {}
-                                    parse_status = "ok" if parsed else ("partial" if raw_content.strip() else "empty")
+                                    parse_status = (
+                                        "ok"
+                                        if parsed
+                                        else ("partial" if raw_content.strip() else "empty")
+                                    )
                                     truncated_output = finish_reason == "length"
                                     client.record_success()
                                     return ProviderResponse(
@@ -1035,7 +1116,9 @@ class GonkaMultiKeyPool:
                                         limiter_wait_ms=total_limiter_wait * 1000.0,
                                         backoff_sleep_ms=total_backoff_sleep * 1000.0,
                                         parse_status=parse_status,
-                                        error_class=("provider_length_stop" if truncated_output else ""),
+                                        error_class=(
+                                            "provider_length_stop" if truncated_output else ""
+                                        ),
                                         raw_content=raw_content,
                                         truncated_output=truncated_output,
                                         provider_key_index=client.client_index,
@@ -1049,7 +1132,7 @@ class GonkaMultiKeyPool:
                             last_finish_reason = ""
                             last_raw_content = body[:4000]
                             client.record_failure()
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     last_error_class = "timeout"
                     client.record_failure()
                     backoff = self._backoff(attempt, None)
@@ -1092,7 +1175,7 @@ def _load_progress(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {"version": 1, "updated_at": "", "items": {}}
     try:
-        with open(path, "r", encoding="utf-8") as fh:
+        with open(path, encoding="utf-8") as fh:
             loaded = json.load(fh)
         if isinstance(loaded, dict) and isinstance(loaded.get("items"), dict):
             return loaded
@@ -1106,6 +1189,7 @@ def _write_progress(path: Path, progress: dict[str, Any]) -> None:
     tmp_path = path.with_suffix(".tmp")
     try:
         import orjson
+
         tmp_path.write_bytes(orjson.dumps(progress))
     except ImportError:
         with open(tmp_path, "w", encoding="utf-8") as fh:
@@ -1117,7 +1201,7 @@ def _load_metadata_cache(path: Path) -> dict[str, dict[str, Any]]:
     if not path.exists():
         return {}
     cache: dict[str, dict[str, Any]] = {}
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -1153,7 +1237,11 @@ def _count_progress_state(progress: dict[str, Any], state: str) -> int:
     items = progress.get("items")
     if not isinstance(items, dict):
         return 0
-    return sum(1 for value in items.values() if isinstance(value, dict) and str(value.get("state") or "") == state)
+    return sum(
+        1
+        for value in items.values()
+        if isinstance(value, dict) and str(value.get("state") or "") == state
+    )
 
 
 def _persist_timeout_retry_queue(config: AcademicBatchConfig, progress: dict[str, Any]) -> None:
@@ -1340,22 +1428,28 @@ def _result_signal_score(*parts: str) -> float:
             + _count_pattern(_CLAIM_SENTENCE_RE, text)
         ),
     )
-    score += min(
-        2.0,
-        float(
-            _count_pattern(_RESULT_CUE_RE, abstract)
-            + _count_pattern(_RESULT_SENTENCE_RE, abstract)
-            + _count_pattern(_CLAIM_SENTENCE_RE, abstract)
-        ),
-    ) * 0.75
-    score += min(
-        1.0,
-        float(
-            _count_pattern(_RESULT_CUE_RE, title)
-            + _count_pattern(_RESULT_SENTENCE_RE, title)
-            + _count_pattern(_CLAIM_SENTENCE_RE, title)
-        ),
-    ) * 0.25
+    score += (
+        min(
+            2.0,
+            float(
+                _count_pattern(_RESULT_CUE_RE, abstract)
+                + _count_pattern(_RESULT_SENTENCE_RE, abstract)
+                + _count_pattern(_CLAIM_SENTENCE_RE, abstract)
+            ),
+        )
+        * 0.75
+    )
+    score += (
+        min(
+            1.0,
+            float(
+                _count_pattern(_RESULT_CUE_RE, title)
+                + _count_pattern(_RESULT_SENTENCE_RE, title)
+                + _count_pattern(_CLAIM_SENTENCE_RE, title)
+            ),
+        )
+        * 0.25
+    )
     return round(score, 6)
 
 
@@ -1429,16 +1523,24 @@ def _resolve_paper_kind(
         )
         if part
     )
-    review_like = _is_review_like(result.title, abstract, result.citation_summary, result.methodology)
-    theory_like = _is_theory_like(result.title, abstract, result.citation_summary, result.methodology)
-    method_only = _is_method_only(result.title, abstract, result.citation_summary, result.methodology)
+    review_like = _is_review_like(
+        result.title, abstract, result.citation_summary, result.methodology
+    )
+    theory_like = _is_theory_like(
+        result.title, abstract, result.citation_summary, result.methodology
+    )
+    method_only = _is_method_only(
+        result.title, abstract, result.citation_summary, result.methodology
+    )
     context_signal = _has_context_classification_signal(joined)
     heterogeneity_signal = _has_heterogeneity_classification_signal(joined)
     has_claims = bool(result.causal_claims)
-    has_moderation = bool(result.moderation_edges) or bool(result.heterogeneity_results) or heterogeneity_signal
-    strong_design = _has_strong_design_signal(result.title, abstract, result.methodology, result.citation_summary) or any(
-        claim.identification_strategy is not None for claim in result.causal_claims
+    has_moderation = (
+        bool(result.moderation_edges) or bool(result.heterogeneity_results) or heterogeneity_signal
     )
+    strong_design = _has_strong_design_signal(
+        result.title, abstract, result.methodology, result.citation_summary
+    ) or any(claim.identification_strategy is not None for claim in result.causal_claims)
     paper_kind_raw = str(cls_parsed.get("paper_kind", "")).strip().lower()
     parsed_kind: PaperKind | None = None
     if paper_kind_raw:
@@ -1455,20 +1557,35 @@ def _resolve_paper_kind(
         if review_like and not has_claims and not has_moderation:
             return PaperKind.CONTEXT_CHARACTERIZATION
         if has_moderation and has_claims:
-            return PaperKind.MIXED if (eligible_item.context_eligible or context_signal) else PaperKind.HETEROGENEITY_ANALYSIS
+            return (
+                PaperKind.MIXED
+                if (eligible_item.context_eligible or context_signal)
+                else PaperKind.HETEROGENEITY_ANALYSIS
+            )
         if eligible_item.context_eligible and (context_signal or not has_claims):
             return PaperKind.CONTEXT_CHARACTERIZATION
         if has_claims:
             return PaperKind.EMPIRICAL_CAUSAL
         return PaperKind.DESCRIPTIVE
 
-    if parsed_kind == PaperKind.EMPIRICAL_CAUSAL and eligible_item.context_eligible and not eligible_item.llm_eligible:
+    if (
+        parsed_kind == PaperKind.EMPIRICAL_CAUSAL
+        and eligible_item.context_eligible
+        and not eligible_item.llm_eligible
+    ):
         if has_moderation:
-            return PaperKind.MIXED if (review_like or context_signal or not strong_design) else PaperKind.HETEROGENEITY_ANALYSIS
+            return (
+                PaperKind.MIXED
+                if (review_like or context_signal or not strong_design)
+                else PaperKind.HETEROGENEITY_ANALYSIS
+            )
         if review_like or ((context_signal or not has_claims) and not strong_design):
             return PaperKind.CONTEXT_CHARACTERIZATION
 
-    if parsed_kind in {PaperKind.REVIEW_SYSTEMATIC, PaperKind.DESCRIPTIVE} and eligible_item.context_eligible:
+    if (
+        parsed_kind in {PaperKind.REVIEW_SYSTEMATIC, PaperKind.DESCRIPTIVE}
+        and eligible_item.context_eligible
+    ):
         return PaperKind.MIXED if has_moderation else PaperKind.CONTEXT_CHARACTERIZATION
 
     return parsed_kind
@@ -1478,7 +1595,9 @@ def _shared_vocabulary_text() -> str:
     return ", ".join(_SHARED_VOCABULARY_PREFIXES)
 
 
-def _build_claim_inventory(result: ArticleExtractionResult, canonizer: VariableCanonizer) -> list[dict[str, str]]:
+def _build_claim_inventory(
+    result: ArticleExtractionResult, canonizer: VariableCanonizer
+) -> list[dict[str, str]]:
     inventory: list[dict[str, str]] = []
     for claim in result.causal_claims:
         cause, _ = canonizer.canonize(claim.cause_variable)
@@ -1545,7 +1664,9 @@ def _normalize_context_lane_result(
             "methodology_enum": parsed.get("methodology_enum") or "",
             "citation_summary": parsed.get("citation_summary") or "",
             "extraction_confidence": parsed.get("extraction_confidence") or 0.6,
-            "source_basis": SourceBasis.FULLTEXT.value if source_kind != "abstract_fallback" else SourceBasis.ABSTRACT_ONLY.value,
+            "source_basis": SourceBasis.FULLTEXT.value
+            if source_kind != "abstract_fallback"
+            else SourceBasis.ABSTRACT_ONLY.value,
         },
         model,
         usage,
@@ -1555,8 +1676,7 @@ def _normalize_context_lane_result(
     payload["context_attributes"] = [
         item.model_dump(mode="json")
         for item in (
-            _normalize_context_attribute(raw)
-            for raw in _as_list(parsed.get("context_attributes"))
+            _normalize_context_attribute(raw) for raw in _as_list(parsed.get("context_attributes"))
         )
         if item is not None
     ]
@@ -1607,7 +1727,27 @@ def _tokenize_variable_name(value: str) -> set[str]:
     if not text:
         return set()
     parts = re.split(r"[^a-z0-9]+", text.replace(".", "_"))
-    return {part for part in parts if part and part not in {"economic", "fiscal", "governance", "institutional", "social", "demographic", "labor", "trade", "environmental", "health", "education", "infrastructure", "political"}}
+    return {
+        part
+        for part in parts
+        if part
+        and part
+        not in {
+            "economic",
+            "fiscal",
+            "governance",
+            "institutional",
+            "social",
+            "demographic",
+            "labor",
+            "trade",
+            "environmental",
+            "health",
+            "education",
+            "infrastructure",
+            "political",
+        }
+    }
 
 
 def _token_overlap_score(left: str, right: str) -> float:
@@ -1647,7 +1787,10 @@ def _sanitize_spans(spans: list[EvidenceSpan]) -> tuple[list[EvidenceSpan], bool
 
 def _has_any_method_signal(claim: CausalClaim) -> bool:
     method_text = " ".join(span.text for span in claim.method_spans)
-    if claim.identification_strategy is not None and claim.identification_strategy.identification_method:
+    if (
+        claim.identification_strategy is not None
+        and claim.identification_strategy.identification_method
+    ):
         return True
     return bool(_METHOD_SENTENCE_RE.search(method_text))
 
@@ -1659,14 +1802,27 @@ def _has_strong_identification_signal(claim: CausalClaim) -> bool:
     (regression, panel data, OLS, admin data) that are necessary but not
     sufficient for causal identification.
     """
-    if claim.identification_strategy is not None and claim.identification_strategy.identification_method:
+    if (
+        claim.identification_strategy is not None
+        and claim.identification_strategy.identification_method
+    ):
         return True
     method_text = " ".join(span.text for span in claim.method_spans)
     return bool(_STRONG_IDENTIFICATION_RE.search(method_text))
 
 
-def _looks_like_context_overlap(attribute_name: str, canonical_name: str, claim_inventory: list[dict[str, str]]) -> bool:
-    candidate_names = [name for name in {attribute_name, canonical_name, canonical_name.rsplit(".", 1)[-1] if canonical_name else ""} if name]
+def _looks_like_context_overlap(
+    attribute_name: str, canonical_name: str, claim_inventory: list[dict[str, str]]
+) -> bool:
+    candidate_names = [
+        name
+        for name in {
+            attribute_name,
+            canonical_name,
+            canonical_name.rsplit(".", 1)[-1] if canonical_name else "",
+        }
+        if name
+    ]
     if any(_CONTEXT_EFFECT_ESTIMATE_RE.search(name) for name in candidate_names):
         return True
     for claim_row in claim_inventory:
@@ -1685,7 +1841,9 @@ def _reconcile_tracks(
     claim_inventory: list[dict[str, str]],
 ) -> ArticleExtractionResult:
     claim_by_id = {row["claim_id"]: row for row in claim_inventory}
-    claim_by_pair = {(row["cause_variable"], row["effect_variable"]): row for row in claim_inventory}
+    claim_by_pair = {
+        (row["cause_variable"], row["effect_variable"]): row for row in claim_inventory
+    }
     diagnostics = {
         "exact_claim_ref_matches": 0,
         "canonical_tuple_matches": 0,
@@ -1757,7 +1915,9 @@ def _reconcile_tracks(
         if _looks_like_context_overlap(attribute.attribute_name, canonical_name, claim_inventory):
             diagnostics["dropped_context_overlap"] += 1
             continue
-        canonized_context_attributes.append(attribute.model_copy(update={"canonical_name": canonical_name}))
+        canonized_context_attributes.append(
+            attribute.model_copy(update={"canonical_name": canonical_name})
+        )
 
     canonized_moderation_edges: list[ModerationEdge] = []
     for moderation_edge in result.moderation_edges:
@@ -1834,7 +1994,9 @@ def _reconcile_tracks(
     )
 
 
-def _post_resolve_priority(item: WorkItem, *, text: str, source_kind: str, text_quality: str) -> float:
+def _post_resolve_priority(
+    item: WorkItem, *, text: str, source_kind: str, text_quality: str
+) -> float:
     abstract = reconstruct_abstract(item.work)
     title = _normalized_text(item.work.get("title"))
     method_signal = _method_signal_score(title, abstract, text)
@@ -1892,9 +2054,13 @@ def _eligibility_gate(
     if source_kind == "abstract_fallback":
         reasons.append("abstract_only")
     if (
-        text_quality == TextQuality.DEGRADED.value
-        or len(_normalized_text(text)) < _MIN_FULLTEXT_CHARS
-    ) and empirical_signal < 2.0 and not strong_design:
+        (
+            text_quality == TextQuality.DEGRADED.value
+            or len(_normalized_text(text)) < _MIN_FULLTEXT_CHARS
+        )
+        and empirical_signal < 2.0
+        and not strong_design
+    ):
         reasons.append("degraded_text")
     if _is_access_shell(title, abstract, text):
         reasons.append("access_shell")
@@ -1906,7 +2072,12 @@ def _eligibility_gate(
         reasons.append("method_only")
     if empirical_signal < 1.0 and not strong_design:
         reasons.append("missing_empirical_cues")
-    if descriptive_signal > 0 and precision_signal == 0 and method_signal < 1.5 and not strong_design:
+    if (
+        descriptive_signal > 0
+        and precision_signal == 0
+        and method_signal < 1.5
+        and not strong_design
+    ):
         reasons.append("descriptive_only")
     lane = str(extraction_lane or "all").strip().lower() or "all"
     family = str(doc_family or "").strip().lower()
@@ -1927,10 +2098,11 @@ def _eligibility_gate(
     llm_eligible = not effective_reasons
     hard_reasons = [reason for reason in reasons if reason in _CONTEXT_HARD_REJECTION_REASONS]
     soft_reasons = [reason for reason in reasons if reason in _CONTEXT_SOFT_REJECTION_REASONS]
-    context_signal = bool(_CONTEXT_CLASSIFICATION_RE.search("\n".join((title, abstract, text[:6000]))))
-    context_eligible = (
-        (bool(track_b_enabled) and not hard_reasons and bool(soft_reasons))
-        or (lane == "context" and not hard_reasons and (context_signal or bool(soft_reasons)))
+    context_signal = bool(
+        _CONTEXT_CLASSIFICATION_RE.search("\n".join((title, abstract, text[:6000])))
+    )
+    context_eligible = (bool(track_b_enabled) and not hard_reasons and bool(soft_reasons)) or (
+        lane == "context" and not hard_reasons and (context_signal or bool(soft_reasons))
     )
     if lane == "context" and context_eligible:
         llm_eligible = False
@@ -1986,7 +2158,9 @@ def _build_streaming_evidence_bundle(
         if isinstance(substrate.get("references"), list):
             bundle["references"] = list(substrate["references"])[:20]
         if isinstance(substrate.get("tables"), list):
-            sorted_tables = sorted(substrate["tables"], key=lambda t: float(t.get("score") or 0), reverse=True)
+            sorted_tables = sorted(
+                substrate["tables"], key=lambda t: float(t.get("score") or 0), reverse=True
+            )
             bundle["tables"] = sorted_tables[:16]
         if isinstance(substrate.get("figures"), list):
             bundle["figures"] = list(substrate["figures"])[:10]
@@ -2008,7 +2182,9 @@ def _build_streaming_evidence_bundle(
             )
         if extra_numeric_blocks:
             merged_blocks = [*bundle.get("numeric_result_blocks", []), *extra_numeric_blocks]
-            bundle["numeric_result_blocks"] = merged_blocks[: max(6, allocations["numeric_result_blocks"] + 4)]
+            bundle["numeric_result_blocks"] = merged_blocks[
+                : max(6, allocations["numeric_result_blocks"] + 4)
+            ]
     return bundle
 
 
@@ -2064,7 +2240,10 @@ def _parameter_quality_score(parameter: EvidenceParameter) -> float:
         score += 1.0
     if parameter.std_error is not None:
         score += 0.5
-    if parameter.evidence_strength.value not in {EvidenceStrength.UNKNOWN.value, EvidenceStrength.THEORETICAL.value}:
+    if parameter.evidence_strength.value not in {
+        EvidenceStrength.UNKNOWN.value,
+        EvidenceStrength.THEORETICAL.value,
+    }:
         score += 1.5
     if _NUMERIC_UNITFUL_HINT_RE.search(_parameter_context_text(parameter)):
         score += 0.5
@@ -2171,7 +2350,9 @@ def _best_parameter_for_estimate(
     if len(value_matches) == 1:
         return value_matches[0]
     quantitative_parameters = [
-        parameter for parameter in parameters if parameter.parameter_type == ParameterType.QUANTITATIVE
+        parameter
+        for parameter in parameters
+        if parameter.parameter_type == ParameterType.QUANTITATIVE
     ]
     if len(quantitative_parameters) == 1:
         return quantitative_parameters[0]
@@ -2186,11 +2367,19 @@ def _deterministic_numeric_rescue_parameters(
     if result.source_basis != SourceBasis.FULLTEXT:
         return []
     candidate_parameters = [
-        parameter for parameter in result.empirical_parameters if parameter.parameter_type == ParameterType.QUANTITATIVE
+        parameter
+        for parameter in result.empirical_parameters
+        if parameter.parameter_type == ParameterType.QUANTITATIVE
     ]
     rescued: list[EvidenceParameter] = []
     seen: set[tuple[Any, ...]] = set()
-    for bucket in ("numeric_result_blocks", "numeric_result_snippets", "result_sentences", "claim_sentences", "abstract_sentences"):
+    for bucket in (
+        "numeric_result_blocks",
+        "numeric_result_snippets",
+        "result_sentences",
+        "claim_sentences",
+        "abstract_sentences",
+    ):
         for item in bundle.get(bucket, []):
             if not isinstance(item, dict):
                 continue
@@ -2198,7 +2387,9 @@ def _deterministic_numeric_rescue_parameters(
             if not sentence:
                 continue
             for estimate in extract_numerical_estimates(sentence):
-                if estimate.std_error is None and (estimate.ci_low is None or estimate.ci_high is None):
+                if estimate.std_error is None and (
+                    estimate.ci_low is None or estimate.ci_high is None
+                ):
                     continue
                 target_parameter = _best_parameter_for_estimate(
                     estimate.value,
@@ -2222,7 +2413,8 @@ def _deterministic_numeric_rescue_parameters(
                         "name": target_name,
                         "display_name": (
                             target_parameter.display_name
-                            if target_parameter is not None and str(target_parameter.display_name or "").strip()
+                            if target_parameter is not None
+                            and str(target_parameter.display_name or "").strip()
                             else target_name
                         ),
                         "parameter_type": "quantitative",
@@ -2233,19 +2425,26 @@ def _deterministic_numeric_rescue_parameters(
                             else None
                         ),
                         "std_error": estimate.std_error,
-                        "unit": estimate.unit or (target_parameter.unit if target_parameter is not None else None),
+                        "unit": estimate.unit
+                        or (target_parameter.unit if target_parameter is not None else None),
                         "evidence_strength": (
                             target_parameter.evidence_strength.value
                             if target_parameter is not None
-                            and target_parameter.evidence_strength.value != EvidenceStrength.UNKNOWN.value
+                            and target_parameter.evidence_strength.value
+                            != EvidenceStrength.UNKNOWN.value
                             else target_claim.evidence_strength.value
                             if target_claim is not None
-                            and target_claim.evidence_strength.value != EvidenceStrength.UNKNOWN.value
+                            and target_claim.evidence_strength.value
+                            != EvidenceStrength.UNKNOWN.value
                             else result.methodology_enum.value
                         ),
                         "heterogeneity_note": sentence,
-                        "geographic_scope": target_parameter.geographic_scope if target_parameter is not None else "",
-                        "time_period": target_parameter.time_period if target_parameter is not None else "",
+                        "geographic_scope": target_parameter.geographic_scope
+                        if target_parameter is not None
+                        else "",
+                        "time_period": target_parameter.time_period
+                        if target_parameter is not None
+                        else "",
                     }
                 )
                 if normalized is None or _parameter_is_non_effect_metric(normalized):
@@ -2294,7 +2493,9 @@ def _merge_numeric_parameter_lists(
                     if keep.transferability != "unknown"
                     else enrich.transferability
                 ),
-                "transfer_conditions": sorted({*keep.transfer_conditions, *enrich.transfer_conditions}),
+                "transfer_conditions": sorted(
+                    {*keep.transfer_conditions, *enrich.transfer_conditions}
+                ),
                 "subgroup_estimates": {**enrich.subgroup_estimates, **keep.subgroup_estimates},
             }
         )
@@ -2313,21 +2514,22 @@ def _has_high_precision_numeric_parameter(result: ArticleExtractionResult) -> bo
             continue
         if parameter.confidence_interval is None and parameter.std_error is None:
             continue
-        if parameter.evidence_strength.value in {EvidenceStrength.UNKNOWN.value, EvidenceStrength.THEORETICAL.value}:
+        if parameter.evidence_strength.value in {
+            EvidenceStrength.UNKNOWN.value,
+            EvidenceStrength.THEORETICAL.value,
+        }:
             continue
         return True
     return False
 
 
 def _claim_supports_numeric_rescue(claim: CausalClaim) -> bool:
-    if claim.claim_type in {
+    return claim.claim_type in {
         ClaimType.CAUSAL_CLAIM,
         ClaimType.CAUSAL_ASSERTION,
         ClaimType.ASSOCIATIVE,
         ClaimType.ASSOCIATION,
-    }:
-        return True
-    return False
+    }
 
 
 def _has_precision_numeric_signal(result: ArticleExtractionResult) -> bool:
@@ -2361,16 +2563,12 @@ def _needs_numeric_rescue(result: ArticleExtractionResult) -> bool:
     if not any(_claim_supports_numeric_rescue(claim) for claim in result.causal_claims):
         return False
     # Relax: allow rescue if claims have effect_size or there are any numeric signals
-    has_effect_sizes = any(
-        claim.effect_size is not None for claim in result.causal_claims
-    )
+    has_effect_sizes = any(claim.effect_size is not None for claim in result.causal_claims)
     if has_effect_sizes:
         return True
     if not result.methodology and not any(claim.method_spans for claim in result.causal_claims):
         return False
-    if not _has_precision_numeric_signal(result):
-        return False
-    return True
+    return _has_precision_numeric_signal(result)
 
 
 def _build_numeric_rescue_prompt(
@@ -2464,13 +2662,19 @@ def _apply_publish_gate(result: ArticleExtractionResult) -> ArticleExtractionRes
             method_text = " ".join(span.text for span in claim.method_spans)
             support_text = " ".join(span.text for span in claim.supporting_spans)
             has_strong = _has_strong_identification_signal(claim)
-            has_downgrade = _has_downgrade_signal(method_text) or _has_downgrade_signal(support_text)
+            has_downgrade = _has_downgrade_signal(method_text) or _has_downgrade_signal(
+                support_text
+            )
             has_hedge = bool(_NARRATIVE_HEDGE_RE.search(claim.claim_text or ""))
             # Scoring-based promotion instead of all-or-nothing boolean gate.
             # has_strong is the primary signal (0.70), downgrade and hedge are
             # partial penalties (not full veto) because papers often use cautious
             # language even when they have genuine identification strategies.
-            _promo_score = (0.70 * float(has_strong)) * (1.0 - 0.5 * float(has_downgrade)) * (1.0 - 0.3 * float(has_hedge))
+            _promo_score = (
+                (0.70 * float(has_strong))
+                * (1.0 - 0.5 * float(has_downgrade))
+                * (1.0 - 0.3 * float(has_hedge))
+            )
             if _promo_score >= 0.50:
                 design_tier = 4
         # Abstract-only is a blocker ONLY for weak designs (tier 3-4 or None).
@@ -2493,7 +2697,9 @@ def _apply_publish_gate(result: ArticleExtractionResult) -> ArticleExtractionRes
             blockers.append("missing_supporting_spans")
         if not claim.method_spans or not claim.method_span_ids:
             blockers.append("missing_method_spans")
-        if claim.span_contamination_detected and (not claim.supporting_spans or not claim.method_spans):
+        if claim.span_contamination_detected and (
+            not claim.supporting_spans or not claim.method_spans
+        ):
             blockers.append("span_contamination_removed_evidence")
         if blocked_paper:
             blockers.append("paper_classified_non_empirical")
@@ -2520,7 +2726,13 @@ def _apply_publish_gate(result: ArticleExtractionResult) -> ArticleExtractionRes
     return result.model_copy(update={"causal_claims": gated_claims})
 
 
-def _to_claim_row(result: ArticleExtractionResult, claim: CausalClaim, *, topic_ids: list[str], topic_display_names: list[str]) -> dict[str, Any]:
+def _to_claim_row(
+    result: ArticleExtractionResult,
+    claim: CausalClaim,
+    *,
+    topic_ids: list[str],
+    topic_display_names: list[str],
+) -> dict[str, Any]:
     return {
         "claim_id": claim.claim_id,
         "work_id": result.openalex_id,
@@ -2545,7 +2757,9 @@ def _to_claim_row(result: ArticleExtractionResult, claim: CausalClaim, *, topic_
         "span_contamination_detected": claim.span_contamination_detected,
         "publish_to_graph": claim.publish_to_graph,
         "publish_blockers": list(claim.publish_blockers),
-        "claim_extraction_confidence": float(claim.claim_extraction_confidence or result.extraction_confidence),
+        "claim_extraction_confidence": float(
+            claim.claim_extraction_confidence or result.extraction_confidence
+        ),
     }
 
 
@@ -2553,7 +2767,7 @@ def _percentile(values: list[float], q: float) -> float:
     if not values:
         return 0.0
     ordered = sorted(values)
-    idx = min(len(ordered) - 1, max(0, int(round((len(ordered) - 1) * q))))
+    idx = min(len(ordered) - 1, max(0, round((len(ordered) - 1) * q)))
     return ordered[idx]
 
 
@@ -2569,7 +2783,7 @@ class _LazyJsonlDict:
     def __init__(self, path: Path, *, key: str = "work_id") -> None:
         self._path = path
         self._key = key
-        self._index: dict[str, int] = {}          # key → byte offset
+        self._index: dict[str, int] = {}  # key → byte offset
         self._overrides: dict[str, dict[str, Any]] = {}  # runtime writes
         self._deleted: set[str] = set()
         if path.exists():
@@ -2658,7 +2872,7 @@ def _load_jsonl_keyed(path: Path, *, key: str = "work_id") -> dict[str, dict[str
     rows: dict[str, dict[str, Any]] = {}
     if not path.exists():
         return rows
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -2682,7 +2896,7 @@ def _load_jsonl_grouped(path: Path, *, key: str = "work_id") -> dict[str, list[d
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     if not path.exists():
         return grouped
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -2843,7 +3057,10 @@ def _reset_output_paths(config: AcademicBatchConfig) -> None:
         config.article_extraction_results_path,
         config.extracted_dir / "resolve_extract.jsonl",
     ]
-    if not config.stream_doc_normalize_to_resolve_extract and not config.doc_substrate_path.exists():
+    if (
+        not config.stream_doc_normalize_to_resolve_extract
+        and not config.doc_substrate_path.exists()
+    ):
         reset_paths.append(config.fulltext_resolved_path)
     for path in reset_paths:
         if path.exists():
@@ -2901,7 +3118,7 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
 
     merged_rows: dict[str, dict[str, Any]] = {}
     index = 0
-    with open(selected_rows_path, "r", encoding="utf-8") as fh:
+    with open(selected_rows_path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -3007,7 +3224,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 _progress_dirty = 0
 
     fetch_queue: asyncio.Queue[WorkItem | None] = asyncio.Queue()
-    eligible_queue: asyncio.PriorityQueue[tuple[float, int, EligibleItem] | None] = asyncio.PriorityQueue()
+    eligible_queue: asyncio.PriorityQueue[tuple[float, int, EligibleItem] | None] = (
+        asyncio.PriorityQueue()
+    )
     llm_queue: asyncio.Queue[EligibleItem | None] = asyncio.Queue()
     fetch_done = asyncio.Event()
     dispatcher_done = asyncio.Event()
@@ -3017,7 +3236,11 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
     _enqueue_count = 0
     _skip_count = 0
     for item in work_items:
-        existing = progress.get("items", {}).get(item.work_id, {}) if isinstance(progress.get("items"), dict) else {}
+        existing = (
+            progress.get("items", {}).get(item.work_id, {})
+            if isinstance(progress.get("items"), dict)
+            else {}
+        )
         if _terminal_state(str(existing.get("state") or "")):
             _skip_count += 1
             continue
@@ -3039,7 +3262,11 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
             _skip_count,
         )
     else:
-        logger.info("Enqueue complete: {} items queued, {} skipped (already done)", _enqueue_count, _skip_count)
+        logger.info(
+            "Enqueue complete: {} items queued, {} skipped (already done)",
+            _enqueue_count,
+            _skip_count,
+        )
 
     fetch_workers_count = max(1, int(config.fulltext_max_concurrent_fetches))
     llm_workers_count = max(1, int(config.article_max_concurrent_llm))
@@ -3047,7 +3274,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
         for _ in range(fetch_workers_count):
             await fetch_queue.put(None)
 
-    async def _append_artifacts(*, result: ArticleExtractionResult, work_item: WorkItem, record_json: str) -> None:
+    async def _append_artifacts(
+        *, result: ArticleExtractionResult, work_item: WorkItem, record_json: str
+    ) -> None:
         async with file_lock:
             _jsonl_append(config.article_extraction_results_path, result.model_dump(mode="json"))
             _jsonl_append(config.resolve_extract_results_path, result.model_dump(mode="json"))
@@ -3055,7 +3284,12 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
             with open(config.extracted_dir / "resolve_extract.jsonl", "a", encoding="utf-8") as fh:
                 fh.write(record_json + "\n")
             for claim in result.causal_claims:
-                row = _to_claim_row(result, claim, topic_ids=work_item.topic_ids, topic_display_names=work_item.topic_display_names)
+                row = _to_claim_row(
+                    result,
+                    claim,
+                    topic_ids=work_item.topic_ids,
+                    topic_display_names=work_item.topic_display_names,
+                )
                 _jsonl_append(config.raw_claim_candidates_path, row)
                 if claim.publish_to_graph:
                     _jsonl_append(config.published_claims_path, row)
@@ -3066,7 +3300,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
         manifest_path = config.manifests_dir / "doc_normalize.json"
         try:
             while True:
-                ready_rows, queue_offset = _load_jsonl_from_offset(config.doc_ready_queue_path, queue_offset)
+                ready_rows, queue_offset = _load_jsonl_from_offset(
+                    config.doc_ready_queue_path, queue_offset
+                )
                 for ready_row in ready_rows:
                     work_id = _apply_doc_ready_payload(
                         payload=ready_row,
@@ -3088,7 +3324,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                     queued_stream_work_ids.add(work_id)
                     _enqueue_count += 1
                 if manifest_path.exists():
-                    final_rows, queue_offset = _load_jsonl_from_offset(config.doc_ready_queue_path, queue_offset)
+                    final_rows, queue_offset = _load_jsonl_from_offset(
+                        config.doc_ready_queue_path, queue_offset
+                    )
                     for ready_row in final_rows:
                         work_id = _apply_doc_ready_payload(
                             payload=ready_row,
@@ -3161,12 +3399,18 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 cached_fulltext_row = precomputed_fulltext.get(item.work_id)
                 used_precomputed_fulltext = False
                 try:
-                    if isinstance(cached_fulltext_row, dict) and _normalized_text(cached_fulltext_row.get("text")):
+                    if isinstance(cached_fulltext_row, dict) and _normalized_text(
+                        cached_fulltext_row.get("text")
+                    ):
                         fetch_result = FullTextFetchResult(
                             text=_normalized_text(cached_fulltext_row.get("text")),
-                            source_kind=str(cached_fulltext_row.get("source_kind") or "abstract_fallback"),
+                            source_kind=str(
+                                cached_fulltext_row.get("source_kind") or "abstract_fallback"
+                            ),
                             source_url=str(cached_fulltext_row.get("source_url") or ""),
-                            fetch_error_class=str(cached_fulltext_row.get("fetch_error_class") or ""),
+                            fetch_error_class=str(
+                                cached_fulltext_row.get("fetch_error_class") or ""
+                            ),
                             final_state=str(cached_fulltext_row.get("final_state") or ""),
                         )
                         used_precomputed_fulltext = True
@@ -3192,7 +3436,10 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                             resolved_cache=resolved_fulltext_cache,
                             cache_ttl_days=config.fulltext_cache_ttl_days,
                         )
-                    elif fetch_full_text_result_for_work is not fulltext_resolver_module.fetch_full_text_result_for_work:
+                    elif (
+                        fetch_full_text_result_for_work
+                        is not fulltext_resolver_module.fetch_full_text_result_for_work
+                    ):
                         fetch_result = await fetch_full_text_result_for_work(
                             item.work,
                             timeout_seconds=config.article_fulltext_timeout_seconds,
@@ -3214,13 +3461,17 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                             text=text,
                             source_kind=source_kind,
                             source_url=source_url,
-                            final_state=("abstract_fallback" if source_kind == "abstract_fallback" else "usable_fulltext"),
+                            final_state=(
+                                "abstract_fallback"
+                                if source_kind == "abstract_fallback"
+                                else "usable_fulltext"
+                            ),
                         )
                     text = fetch_result.text
                     source_kind = fetch_result.source_kind
                     source_url = fetch_result.source_url
                     fetch_error_class = fetch_result.fetch_error_class
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     text, source_kind = reconstruct_abstract(item.work), "abstract_fallback"
                     fetch_error_class = "timeout"
                 except Exception:
@@ -3268,7 +3519,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                             {
                                 "work_id": item.work_id,
                                 "topic_id": item.topic_id,
-                                "attempt_kind": "doc_normalize_cache" if used_precomputed_fulltext else "seed",
+                                "attempt_kind": "doc_normalize_cache"
+                                if used_precomputed_fulltext
+                                else "seed",
                                 "candidate_priority": 0,
                                 "candidate_url": "",
                                 "source_kind": source_kind,
@@ -3289,14 +3542,20 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                         if cache_key and metadata_cache.get(cache_key) is row:
                             _jsonl_append(config.fulltext_metadata_cache_path, row)
                     if fetch_result.resolved_cache_row is not None:
-                        _jsonl_append(config.resolved_fulltext_cache_path, fetch_result.resolved_cache_row)
+                        _jsonl_append(
+                            config.resolved_fulltext_cache_path, fetch_result.resolved_cache_row
+                        )
                     if not used_precomputed_fulltext:
                         _jsonl_append(
                             config.fulltext_resolved_path,
                             {
                                 "work_id": item.work_id,
                                 "source_kind": source_kind,
-                                "source_basis": (SourceBasis.ABSTRACT_ONLY.value if source_kind == "abstract_fallback" else SourceBasis.FULLTEXT.value),
+                                "source_basis": (
+                                    SourceBasis.ABSTRACT_ONLY.value
+                                    if source_kind == "abstract_fallback"
+                                    else SourceBasis.FULLTEXT.value
+                                ),
                                 "text_quality": text_quality,
                                 "source_url": source_url,
                                 "fetch_error_class": fetch_error_class,
@@ -3351,7 +3610,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                     stats.context_eligible += 1
                     if not eligibility.llm_eligible:
                         stats.track_b_only_routed += 1
-                post_priority = _post_resolve_priority(item, text=text, source_kind=source_kind, text_quality=text_quality)
+                post_priority = _post_resolve_priority(
+                    item, text=text, source_kind=source_kind, text_quality=text_quality
+                )
                 await _persist_progress(
                     item.work_id,
                     "eligible",
@@ -3361,7 +3622,11 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                     post_priority=post_priority,
                     llm_eligible=eligibility.llm_eligible,
                     context_eligible=eligibility.context_eligible,
-                    routing_score=(float(route_entry.get("score") or 0.0) if isinstance(route_entry, dict) else None),
+                    routing_score=(
+                        float(route_entry.get("score") or 0.0)
+                        if isinstance(route_entry, dict)
+                        else None
+                    ),
                 )
                 await eligible_queue.put(
                     (
@@ -3384,7 +3649,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
     async def llm_dispatcher() -> None:
         client_count = int(getattr(pool, "client_count", 0) or 0)
         per_key_rps = float(getattr(pool, "per_key_rate_limit_rps", 0.0) or 0.0)
-        aggregate_rps = float(getattr(pool, "theoretical_aggregate_rps", client_count * per_key_rps) or 0.0)
+        aggregate_rps = float(
+            getattr(pool, "theoretical_aggregate_rps", client_count * per_key_rps) or 0.0
+        )
         logger.info(
             "LLM dispatcher started, llm_workers={}, gonka_keys={}, per_key_rps={}, aggregate_rps_ceiling={}",
             llm_workers_count,
@@ -3398,14 +3665,18 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
         _bounce_log_counter = 0
         _BOUNCE_LIMIT = 200
         while True:
-            if fetch_done.is_set() and eligible_queue.empty() and all(v == 0 for v in topic_inflight.values()):
+            if (
+                fetch_done.is_set()
+                and eligible_queue.empty()
+                and all(v == 0 for v in topic_inflight.values())
+            ):
                 for _ in range(llm_workers_count):
                     await llm_queue.put(None)
                 dispatcher_done.set()
                 return
             try:
                 entry = await asyncio.wait_for(eligible_queue.get(), timeout=0.2)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 continue
             priority, _rank, eligible_item = entry
             topic_id = eligible_item.work_item.topic_id
@@ -3421,7 +3692,10 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 continue
             _bk = eligible_item.work_item.work_id
             _bounce_counts[_bk] = _bounce_counts.get(_bk, 0) + 1
-            if topic_success[topic_id] + topic_inflight[topic_id] >= config.article_target_fulltext_per_topic:
+            if (
+                topic_success[topic_id] + topic_inflight[topic_id]
+                >= config.article_target_fulltext_per_topic
+            ):
                 if _bounce_counts[_bk] < _BOUNCE_LIMIT:
                     _bounce_log_counter += 1
                     if _bounce_log_counter % _bounce_log_interval == 1:
@@ -3433,7 +3707,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                         )
                     eligible_queue.task_done()
                     await asyncio.sleep(0.05)
-                    await eligible_queue.put((priority, eligible_item.work_item.selected_rank, eligible_item))
+                    await eligible_queue.put(
+                        (priority, eligible_item.work_item.selected_rank, eligible_item)
+                    )
                     continue
                 logger.warning(
                     "LLM dispatcher: bounce limit ({}) reached for {}, forcing dispatch (topic={}, inflight={}, success={})",
@@ -3473,7 +3749,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
             await _persist_progress(work_item.work_id, "llm_inflight", topic_id=work_item.topic_id)
             stats.llm_requests += 1
             substrate = {
-                "doc_family": str(substrate_rows.get(work_item.work_id, {}).get("doc_family") or ""),
+                "doc_family": str(
+                    substrate_rows.get(work_item.work_id, {}).get("doc_family") or ""
+                ),
                 "routing": list(substrate_rows.get(work_item.work_id, {}).get("routing") or []),
                 "sections": substrate_sections.get(work_item.work_id, []),
                 "references": substrate_references.get(work_item.work_id, []),
@@ -3493,7 +3771,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 request_kind = "context_extract"
                 prompt = _build_track_b_prompt(bundle, [])
             else:
-                prompt = _prompt_for_bundle(bundle, topic_display_names=work_item.topic_display_names)
+                prompt = _prompt_for_bundle(
+                    bundle, topic_display_names=work_item.topic_display_names
+                )
             response = _empty_provider_response(error_class="provider_client_exception")
             request_failure_exc: Exception | None = None
             try:
@@ -3504,12 +3784,14 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                     temperature=0.0,
                     watchdog_seconds=provider_watchdog_seconds,
                 )
-            except asyncio.TimeoutError as exc:
+            except TimeoutError:
                 response = _empty_provider_response(
                     error_class="watchdog_timeout",
                     raw_content=f"worker_watchdog_timeout:{provider_watchdog_seconds}",
                 )
-                request_failure_exc = RuntimeError(f"worker_watchdog_timeout:{provider_watchdog_seconds}")
+                request_failure_exc = RuntimeError(
+                    f"worker_watchdog_timeout:{provider_watchdog_seconds}"
+                )
             except Exception as exc:
                 response = _empty_provider_response(
                     error_class="provider_client_exception",
@@ -3523,7 +3805,10 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                     "timeout": "provider_timeout",
                     "watchdog_timeout": "watchdog_timeout",
                     "json_parse": "json_parse_failure",
-                }.get(str(response.error_class or ""), str(response.error_class or "provider_client_exception"))
+                }.get(
+                    str(response.error_class or ""),
+                    str(response.error_class or "provider_client_exception"),
+                )
                 stats.failure_class_counts[failure_key] += 1
                 async with file_lock:
                     _jsonl_append(
@@ -3562,7 +3847,8 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                     work_item.work_id,
                     (
                         "retryable_failed"
-                        if str(response.error_class or "") in {"provider_http_429", "provider_http_5xx", "timeout", "watchdog_timeout"}
+                        if str(response.error_class or "")
+                        in {"provider_http_429", "provider_http_5xx", "timeout", "watchdog_timeout"}
                         else "permanent_failed"
                     ),
                     topic_id=work_item.topic_id,
@@ -3653,7 +3939,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                         source_kind=eligible_item.source_kind,
                     )
                     payload["paper_relevance"] = bool(parsed.get("paper_relevance", True))
-                    payload["paper_relevance_reason"] = _normalized_text(parsed.get("paper_relevance_reason"))
+                    payload["paper_relevance_reason"] = _normalized_text(
+                        parsed.get("paper_relevance_reason")
+                    )
                     payload["provider_finish_reason"] = response.finish_reason
                     payload["provider_latency_ms"] = round(response.latency_ms, 3)
                     payload["truncated_output"] = bool(response.truncated_output)
@@ -3661,11 +3949,17 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                     payload["text_quality"] = eligible_item.text_quality
                     payload["source_basis"] = resolved_source_basis.value
                     result = ArticleExtractionResult.model_validate(payload)
-                result = result.model_copy(update={"source_context": infer_context_from_article(work_item.work, result)})
+                result = result.model_copy(
+                    update={"source_context": infer_context_from_article(work_item.work, result)}
+                )
                 result = _apply_extraction_lane(result, config.extraction_lane)
                 claim_inventory = _build_claim_inventory(result, canonizer)
 
-                if config.extraction_lane in {"all", "claim"} and config.numeric_precision_mode != "off" and _needs_numeric_rescue(result):
+                if (
+                    config.extraction_lane in {"all", "claim"}
+                    and config.numeric_precision_mode != "off"
+                    and _needs_numeric_rescue(result)
+                ):
                     try:
                         stats.numeric_rescue_requests += 1
                         stats.llm_requests += 1
@@ -3681,9 +3975,15 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                         )
                         stats.llm_latency_ms.append(rescue_response.latency_ms)
                         stats.limiter_wait_ms.append(rescue_response.limiter_wait_ms)
-                        stats.total_tokens_prompt += int(rescue_response.usage.get("prompt_tokens") or 0)
-                        stats.total_tokens_completion += int(rescue_response.usage.get("completion_tokens") or 0)
-                        stats.total_extraction_cost_usd += float(rescue_response.usage.get("total_cost_usd") or 0.0)
+                        stats.total_tokens_prompt += int(
+                            rescue_response.usage.get("prompt_tokens") or 0
+                        )
+                        stats.total_tokens_completion += int(
+                            rescue_response.usage.get("completion_tokens") or 0
+                        )
+                        stats.total_extraction_cost_usd += float(
+                            rescue_response.usage.get("total_cost_usd") or 0.0
+                        )
                         async with file_lock:
                             _jsonl_append(
                                 config.llm_request_log_path,
@@ -3698,8 +3998,12 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                                     "limiter_wait_ms": round(rescue_response.limiter_wait_ms, 3),
                                     "backoff_sleep_ms": round(rescue_response.backoff_sleep_ms, 3),
                                     "total_latency_ms": round(rescue_response.latency_ms, 3),
-                                    "prompt_tokens": int(rescue_response.usage.get("prompt_tokens") or 0),
-                                    "completion_tokens": int(rescue_response.usage.get("completion_tokens") or 0),
+                                    "prompt_tokens": int(
+                                        rescue_response.usage.get("prompt_tokens") or 0
+                                    ),
+                                    "completion_tokens": int(
+                                        rescue_response.usage.get("completion_tokens") or 0
+                                    ),
                                     "parse_status": rescue_response.parse_status,
                                     "error_class": rescue_response.error_class,
                                     "truncated_output": rescue_response.truncated_output,
@@ -3725,12 +4029,20 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                                     0,
                                     len(merged_parameters) - len(result.empirical_parameters),
                                 )
-                                result = result.model_copy(update={"empirical_parameters": merged_parameters})
+                                result = result.model_copy(
+                                    update={"empirical_parameters": merged_parameters}
+                                )
                     except Exception:
                         stats.numeric_rescue_failures += 1
-                        logger.debug("Numeric rescue failed for {}", work_item.work_id, exc_info=True)
+                        logger.debug(
+                            "Numeric rescue failed for {}", work_item.work_id, exc_info=True
+                        )
 
-                if config.extraction_lane in {"all", "claim"} and config.numeric_precision_mode != "off" and not _has_high_precision_numeric_parameter(result):
+                if (
+                    config.extraction_lane in {"all", "claim"}
+                    and config.numeric_precision_mode != "off"
+                    and not _has_high_precision_numeric_parameter(result)
+                ):
                     deterministic_rescue_parameters = _deterministic_numeric_rescue_parameters(
                         bundle=bundle,
                         result=result,
@@ -3746,13 +4058,21 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                                 0,
                                 len(merged_parameters) - len(result.empirical_parameters),
                             )
-                            result = result.model_copy(update={"empirical_parameters": merged_parameters})
+                            result = result.model_copy(
+                                update={"empirical_parameters": merged_parameters}
+                            )
 
                 # --- Track B/C routing (opt-in) ---
-                if config.extraction_lane == "all" and (config.track_b_enabled or config.track_c_enabled):
+                if config.extraction_lane == "all" and (
+                    config.track_b_enabled or config.track_c_enabled
+                ):
                     try:
-                        classification_model = config.paper_classification_model or config.article_screening_model
-                        abstract_text = str(work_item.work.get("abstract") or bundle.get("abstract") or "")
+                        classification_model = (
+                            config.paper_classification_model or config.article_screening_model
+                        )
+                        abstract_text = str(
+                            work_item.work.get("abstract") or bundle.get("abstract") or ""
+                        )
                         method_cues_text = ", ".join(
                             s.get("text", "")[:80]
                             for s in bundle.get("method_sentences", [])[:5]
@@ -3787,7 +4107,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                         }
                         if track_b_eligible:
                             stats.track_b_routed += 1
-                            track_b_model = config.track_b_extraction_model or config.article_extraction_model
+                            track_b_model = (
+                                config.track_b_extraction_model or config.article_extraction_model
+                            )
                             ctx_prompt = _build_track_b_prompt(bundle, claim_inventory)
                             ctx_response = await pool.chat_json(
                                 model=track_b_model,
@@ -3804,7 +4126,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                                 if item is not None
                             ]
                             if context_attributes:
-                                result = result.model_copy(update={"context_attributes": context_attributes})
+                                result = result.model_copy(
+                                    update={"context_attributes": context_attributes}
+                                )
 
                         # Track C: moderation/heterogeneity
                         track_c_eligible = config.track_c_enabled and paper_kind in {
@@ -3813,7 +4137,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                             PaperKind.EMPIRICAL_CAUSAL,
                         }
                         if track_c_eligible:
-                            track_c_model = config.track_c_extraction_model or config.article_extraction_model
+                            track_c_model = (
+                                config.track_c_extraction_model or config.article_extraction_model
+                            )
                             mod_prompt = _build_track_c_prompt(bundle, claim_inventory)
                             mod_response = await pool.chat_json(
                                 model=track_c_model,
@@ -3830,11 +4156,17 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                                 if item is not None
                             ]
                             if moderation_edges:
-                                result = result.model_copy(update={"moderation_edges": moderation_edges})
+                                result = result.model_copy(
+                                    update={"moderation_edges": moderation_edges}
+                                )
                     except Exception:
-                        logger.debug("Track B/C routing failed for {}", work_item.work_id, exc_info=True)
+                        logger.debug(
+                            "Track B/C routing failed for {}", work_item.work_id, exc_info=True
+                        )
 
-                result = _reconcile_tracks(result, canonizer=canonizer, claim_inventory=claim_inventory)
+                result = _reconcile_tracks(
+                    result, canonizer=canonizer, claim_inventory=claim_inventory
+                )
                 stats.context_attributes_extracted += len(result.context_attributes)
                 stats.moderation_edges_extracted += len(result.moderation_edges)
                 result = _apply_publish_gate(result)
@@ -3852,17 +4184,23 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 if result.context_attributes:
                     async with file_lock:
                         for ca in result.context_attributes:
-                            _jsonl_append(config.context_attributes_path, {
-                                "openalex_id": result.openalex_id,
-                                **ca.model_dump(mode="json"),
-                            })
+                            _jsonl_append(
+                                config.context_attributes_path,
+                                {
+                                    "openalex_id": result.openalex_id,
+                                    **ca.model_dump(mode="json"),
+                                },
+                            )
                 if result.moderation_edges:
                     async with file_lock:
                         for me in result.moderation_edges:
-                            _jsonl_append(config.moderation_edges_path, {
-                                "openalex_id": result.openalex_id,
-                                **me.model_dump(mode="json"),
-                            })
+                            _jsonl_append(
+                                config.moderation_edges_path,
+                                {
+                                    "openalex_id": result.openalex_id,
+                                    **me.model_dump(mode="json"),
+                                },
+                            )
                 published_count = sum(1 for claim in result.causal_claims if claim.publish_to_graph)
                 nonempty_result = bool(
                     result.causal_claims
@@ -3924,7 +4262,8 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                     work_item.work_id,
                     (
                         "retryable_failed"
-                        if str(response.error_class or "") in {"provider_http_429", "provider_http_5xx", "timeout", "watchdog_timeout"}
+                        if str(response.error_class or "")
+                        in {"provider_http_429", "provider_http_5xx", "timeout", "watchdog_timeout"}
                         else "permanent_failed"
                     ),
                     topic_id=work_item.topic_id,
@@ -3969,9 +4308,13 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
         "raw_claims_per_topic": stats.raw_claims,
         "published_claims_per_topic": stats.published_claims,
         "extraction_errors": stats.extraction_errors,
-        "length_stop_rate": round((stats.provider_length_stop / max(1, stats.llm_requests)) * 100.0, 3),
+        "length_stop_rate": round(
+            (stats.provider_length_stop / max(1, stats.llm_requests)) * 100.0, 3
+        ),
         "provider_429_rate": round((stats.provider_429 / max(1, stats.llm_requests)) * 100.0, 3),
-        "mean_limiter_wait_ms": round(sum(stats.limiter_wait_ms) / max(1, len(stats.limiter_wait_ms)), 3),
+        "mean_limiter_wait_ms": round(
+            sum(stats.limiter_wait_ms) / max(1, len(stats.limiter_wait_ms)), 3
+        ),
         "fulltext_fetch_latency_p50_ms": round(_percentile(stats.fetch_latency_ms, 0.5), 3),
         "fulltext_fetch_latency_p95_ms": round(_percentile(stats.fetch_latency_ms, 0.95), 3),
         "llm_latency_p50_ms": round(_percentile(stats.llm_latency_ms, 0.5), 3),
@@ -3996,7 +4339,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
         "provider_timeout_count": int(stats.failure_class_counts.get("provider_timeout", 0)),
         "watchdog_timeout_count": int(stats.failure_class_counts.get("watchdog_timeout", 0)),
         "json_parse_failure_count": int(stats.failure_class_counts.get("json_parse_failure", 0)),
-        "normalization_failure_count": int(stats.failure_class_counts.get("normalization_failure", 0)),
+        "normalization_failure_count": int(
+            stats.failure_class_counts.get("normalization_failure", 0)
+        ),
         "route_rejected_count": int(stats.failure_class_counts.get("route_rejected", 0)),
         "rejection_reason_counts": dict(sorted(stats.rejection_reason_counts.items())),
         "failure_class_counts": dict(sorted(stats.failure_class_counts.items())),
@@ -4097,10 +4442,12 @@ async def _run_targeted_extraction_pass(config: AcademicBatchConfig) -> dict[str
     demanded_pairs: set[tuple[str, str]] = set()
     for scenario in suite.scenarios:
         for edge in scenario.causal_edges:
-            demanded_pairs.add((
-                edge.cause.replace(".", " ").replace("_", " ").lower(),
-                edge.effect.replace(".", " ").replace("_", " ").lower(),
-            ))
+            demanded_pairs.add(
+                (
+                    edge.cause.replace(".", " ").replace("_", " ").lower(),
+                    edge.effect.replace(".", " ").replace("_", " ").lower(),
+                )
+            )
 
     if not demanded_pairs:
         return {"targeted_extraction_pairs": 0}
@@ -4133,11 +4480,13 @@ async def _run_targeted_extraction_pass(config: AcademicBatchConfig) -> dict[str
             abstract_tokens = set(abstract.split())
             if cause_tokens & abstract_tokens and effect_tokens & abstract_tokens:
                 if (cause, effect) not in claim_pairs:
-                    papers_needing_targeted.append({
-                        "record": record,
-                        "demanded_cause": cause,
-                        "demanded_effect": effect,
-                    })
+                    papers_needing_targeted.append(
+                        {
+                            "record": record,
+                            "demanded_cause": cause,
+                            "demanded_effect": effect,
+                        }
+                    )
                     break
 
     if not papers_needing_targeted:
@@ -4166,13 +4515,19 @@ async def _run_targeted_extraction_pass(config: AcademicBatchConfig) -> dict[str
     with open(results_append_path, "w", encoding="utf-8") as fh:
         for item in papers_needing_targeted:
             record = item["record"]
-            fh.write(json.dumps({
-                "openalex_id": record.get("openalex_id"),
-                "targeted_cause": item["demanded_cause"],
-                "targeted_effect": item["demanded_effect"],
-                "prompt_template": targeted_prompt_template,
-                "status": "queued",
-            }, ensure_ascii=False) + "\n")
+            fh.write(
+                json.dumps(
+                    {
+                        "openalex_id": record.get("openalex_id"),
+                        "targeted_cause": item["demanded_cause"],
+                        "targeted_effect": item["demanded_effect"],
+                        "prompt_template": targeted_prompt_template,
+                        "status": "queued",
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n"
+            )
 
     return {
         "targeted_extraction_candidates": len(papers_needing_targeted),
@@ -4208,9 +4563,15 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
         if retryable_remaining == 0 or pass_index >= max_followup_passes:
             cumulative_metrics["retry_followup_passes_run"] = max(0, passes_run - 1)
             cumulative_metrics["retryable_failures_remaining"] = retryable_remaining
-            cumulative_metrics["final_succeeded_nonempty"] = _count_progress_state(progress, "succeeded_nonempty")
-            cumulative_metrics["final_succeeded_empty"] = _count_progress_state(progress, "succeeded_empty")
-            cumulative_metrics["final_permanent_failed"] = _count_progress_state(progress, "permanent_failed")
+            cumulative_metrics["final_succeeded_nonempty"] = _count_progress_state(
+                progress, "succeeded_nonempty"
+            )
+            cumulative_metrics["final_succeeded_empty"] = _count_progress_state(
+                progress, "succeeded_empty"
+            )
+            cumulative_metrics["final_permanent_failed"] = _count_progress_state(
+                progress, "permanent_failed"
+            )
             cumulative_metrics["final_retryable_failed"] = retryable_remaining
             cumulative_metrics["final_rejected"] = _count_progress_state(progress, "rejected")
             # Persist timeout retry queue for cross-run recovery
@@ -4234,11 +4595,24 @@ async def run_resolve_extract(config: AcademicBatchConfig) -> dict[str, float | 
         current_config = replace(
             current_config,
             resume=True,
-            article_max_concurrent_llm=max(1, min(current_config.article_max_concurrent_llm, math.ceil(config.article_max_concurrent_llm / 2))),
-            article_rate_limit_rps=max(0.05, min(current_config.article_rate_limit_rps, config.article_rate_limit_rps * 0.5)),
+            article_max_concurrent_llm=max(
+                1,
+                min(
+                    current_config.article_max_concurrent_llm,
+                    math.ceil(config.article_max_concurrent_llm / 2),
+                ),
+            ),
+            article_rate_limit_rps=max(
+                0.05,
+                min(current_config.article_rate_limit_rps, config.article_rate_limit_rps * 0.5),
+            ),
         )
-        cumulative_metrics["retry_lane_llm_workers"] = int(current_config.article_max_concurrent_llm)
-        cumulative_metrics["retry_lane_rate_limit_rps"] = round(float(current_config.article_rate_limit_rps), 6)
+        cumulative_metrics["retry_lane_llm_workers"] = int(
+            current_config.article_max_concurrent_llm
+        )
+        cumulative_metrics["retry_lane_rate_limit_rps"] = round(
+            float(current_config.article_rate_limit_rps), 6
+        )
 
     return cumulative_metrics
 

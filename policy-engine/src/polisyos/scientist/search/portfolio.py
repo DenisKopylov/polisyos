@@ -1,17 +1,20 @@
 """Public search portfolio module API."""
+
 from __future__ import annotations
 
 import itertools
 import random
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Mapping
+from typing import Any
 
 from polisyos.ir.portfolio import PolicyPortfolio
 
 
 class PortfolioSearchMode(str, Enum):
     """Portfolio search mode public type."""
+
     ENUMERATE = "enumerate"
     SAMPLE = "sample"
     GREEDY = "greedy"
@@ -20,6 +23,7 @@ class PortfolioSearchMode(str, Enum):
 @dataclass(frozen=True)
 class PortfolioCombination:
     """Portfolio combination public type."""
+
     active_policy_ids: frozenset[str]
     parameter_overrides: Mapping[str, Mapping[str, Any]] = field(default_factory=dict)
 
@@ -31,6 +35,7 @@ class PortfolioCombination:
 @dataclass(frozen=True)
 class PortfolioEvaluationResult:
     """Portfolio evaluation result data model."""
+
     combination: PortfolioCombination
     objective_value: float
     metrics: Mapping[str, Any] = field(default_factory=dict)
@@ -39,6 +44,7 @@ class PortfolioEvaluationResult:
 @dataclass(frozen=True)
 class PortfolioSweepConfig:
     """Portfolio sweep config data model."""
+
     portfolio: PolicyPortfolio
     combination_mode: PortfolioSearchMode = PortfolioSearchMode.ENUMERATE
     max_combinations: int = 100
@@ -48,6 +54,7 @@ class PortfolioSweepConfig:
 @dataclass(frozen=True)
 class PortfolioSweepReport:
     """Portfolio sweep report data model."""
+
     total_evaluations: int
     best_result: PortfolioEvaluationResult | None
     all_results: tuple[PortfolioEvaluationResult, ...]

@@ -34,13 +34,13 @@ flowchart TB
 
 ## Runtime Model
 
-| Piece | Current responsibility |
-|---|---|
-| Workflow routing | choose the default, discovery, causal-full, policy-verified, or policy-design DAG |
-| Pass registry | load builtin and entry-point governance validators |
-| Validation pipeline | order, execute, trace, and short-circuit pass execution |
-| Accountability artifact | package calibration, fairness, escalation, and missing-evidence disclosures |
-| Human gate | pause and resume promotion when the machine path is insufficient |
+| Piece                   | Current responsibility                                                            |
+| ----------------------- | --------------------------------------------------------------------------------- |
+| Workflow routing        | choose the default, discovery, causal-full, policy-verified, or policy-design DAG |
+| Pass registry           | load builtin and entry-point governance validators                                |
+| Validation pipeline     | order, execute, trace, and short-circuit pass execution                           |
+| Accountability artifact | package calibration, fairness, escalation, and missing-evidence disclosures       |
+| Human gate              | pause and resume promotion when the machine path is insufficient                  |
 
 ## Why This Is A Separate Architecture Package
 

@@ -3,11 +3,15 @@ import { lazy, Suspense } from "react";
 import { useInterfaceMode } from "@/app/providers/InterfaceModeProvider";
 import { PageSkeleton } from "@/shared/ui";
 
-const DashboardPage = lazy(
-  () => import("@/features/dashboard/routes/DashboardPage"),
+const DashboardPage = lazy(() =>
+  import("@/features/dashboard/routes.public").then((module) => ({
+    default: module.DashboardPage,
+  })),
 );
-const ClerkChatPage = lazy(
-  () => import("@/features/clerk/routes/ClerkChatPage"),
+const ClerkChatPage = lazy(() =>
+  import("@/features/clerk/routes.public").then((module) => ({
+    default: module.ClerkChatPage,
+  })),
 );
 
 export function ModeAwareHome() {

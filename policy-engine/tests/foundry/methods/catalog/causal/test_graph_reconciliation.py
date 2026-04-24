@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from polisyos.foundry.methods.catalog.causal.graph_reconciliation import (
-    ComposeSCMFragments,
     MAX_RECON_EDGES,
+    ComposeSCMFragments,
     ReconcileCausalGraph,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import (
@@ -57,7 +57,9 @@ def _data_edge(
     )
 
 
-def _graph(nodes: list[str], edges: list[CausalEdge], *, graph_type: GraphType = GraphType.DAG) -> CausalGraphModel:
+def _graph(
+    nodes: list[str], edges: list[CausalEdge], *, graph_type: GraphType = GraphType.DAG
+) -> CausalGraphModel:
     return CausalGraphModel(graph_type=graph_type, nodes=nodes, edges=edges)
 
 
@@ -138,10 +140,14 @@ def test_literature_and_data_agreement_increases_combined_confidence() -> None:
     prior = LiteratureCausalPrior(
         edges=[LiteratureEdgePrior(src="X", dst="Y", confidence=0.6)],
     )
-    payload = GraphReconciliationData(data_graph=data_graph, literature_prior=prior, min_edge_confidence=0.0)
+    payload = GraphReconciliationData(
+        data_graph=data_graph, literature_prior=prior, min_edge_confidence=0.0
+    )
 
     result = ReconcileCausalGraph.pure_step(payload, params={})
-    edge = next(item for item in result["reconciled_graph"].edges if item.src == "X" and item.dst == "Y")
+    edge = next(
+        item for item in result["reconciled_graph"].edges if item.src == "X" and item.dst == "Y"
+    )
 
     assert edge.combined_confidence is not None
     assert edge.combined_confidence > 0.7
@@ -153,7 +159,9 @@ def test_data_wins_when_direction_conflicts_with_literature() -> None:
     prior = LiteratureCausalPrior(
         edges=[LiteratureEdgePrior(src="B", dst="A", confidence=0.8)],
     )
-    payload = GraphReconciliationData(data_graph=data_graph, literature_prior=prior, min_edge_confidence=0.0)
+    payload = GraphReconciliationData(
+        data_graph=data_graph, literature_prior=prior, min_edge_confidence=0.0
+    )
 
     result = ReconcileCausalGraph.pure_step(payload, params={})
     pairs = {(edge.src, edge.dst) for edge in result["reconciled_graph"].edges}
@@ -171,7 +179,9 @@ def test_llm_only_hint_is_marked_unsupported_and_capped() -> None:
     )
 
     result = ReconcileCausalGraph.pure_step(payload, params={})
-    edge = next(item for item in result["reconciled_graph"].edges if item.src == "A" and item.dst == "B")
+    edge = next(
+        item for item in result["reconciled_graph"].edges if item.src == "A" and item.dst == "B"
+    )
 
     assert edge.unsupported_by_evidence is True
     assert edge.combined_confidence is not None
@@ -314,8 +324,14 @@ def test_compose_scm_fragments_preserves_exact_observed_interface() -> None:
         FragmentCompositionData(
             fragments=[fragment_a, fragment_b],
             fragment_graphs={
-                "a": _graph(["employment_rate", "tax"], [_data_edge("tax", "employment_rate", confidence=0.8)]),
-                "b": _graph(["employment_rate", "wages"], [_data_edge("employment_rate", "wages", confidence=0.7)]),
+                "a": _graph(
+                    ["employment_rate", "tax"],
+                    [_data_edge("tax", "employment_rate", confidence=0.8)],
+                ),
+                "b": _graph(
+                    ["employment_rate", "wages"],
+                    [_data_edge("employment_rate", "wages", confidence=0.7)],
+                ),
             },
             alignment_report=report,
             interface_mapping=mapping,
@@ -343,7 +359,9 @@ def test_compose_scm_fragments_preserves_exact_observed_interface() -> None:
         "b": "artifact:graph:b",
     }
     assert result["composed_graph"] is not None
-    assert any(node.startswith("stitched::employment_rate") for node in result["composed_graph"].nodes)
+    assert any(
+        node.startswith("stitched::employment_rate") for node in result["composed_graph"].nodes
+    )
 
     metadata = result["composition_certificate"].metadata
     assert metadata["completeness_scope"] == "exact_observed_dag_adjustment_v1"
@@ -376,8 +394,14 @@ def test_compose_scm_fragments_defers_when_cycle_contract_requires_review() -> N
         FragmentCompositionData(
             fragments=[fragment_a, fragment_b],
             fragment_graphs={
-                "macro": _graph(["employment_rate", "wages"], [_data_edge("employment_rate", "wages", confidence=0.9)]),
-                "feedback": _graph(["employment_rate", "training_slots"], [_data_edge("employment_rate", "training_slots", confidence=0.8)]),
+                "macro": _graph(
+                    ["employment_rate", "wages"],
+                    [_data_edge("employment_rate", "wages", confidence=0.9)],
+                ),
+                "feedback": _graph(
+                    ["employment_rate", "training_slots"],
+                    [_data_edge("employment_rate", "training_slots", confidence=0.8)],
+                ),
             },
             alignment_report=report,
             interface_mapping=mapping,
@@ -422,8 +446,14 @@ def test_compose_scm_fragments_blocks_research_only_cycle_contracts() -> None:
         FragmentCompositionData(
             fragments=[fragment_a, fragment_b],
             fragment_graphs={
-                "macro": _graph(["employment_rate", "wages"], [_data_edge("employment_rate", "wages", confidence=0.9)]),
-                "feedback": _graph(["employment_rate", "training_slots"], [_data_edge("employment_rate", "training_slots", confidence=0.8)]),
+                "macro": _graph(
+                    ["employment_rate", "wages"],
+                    [_data_edge("employment_rate", "wages", confidence=0.9)],
+                ),
+                "feedback": _graph(
+                    ["employment_rate", "training_slots"],
+                    [_data_edge("employment_rate", "training_slots", confidence=0.8)],
+                ),
             },
             alignment_report=report,
             interface_mapping=mapping,
@@ -464,7 +494,10 @@ def test_compose_scm_fragments_allows_supported_internal_cyclic_scc() -> None:
         FragmentCompositionData(
             fragments=[fragment_a, fragment_b],
             fragment_graphs={
-                "macro": _graph(["tax", "employment_rate"], [_data_edge("tax", "employment_rate", confidence=0.9)]),
+                "macro": _graph(
+                    ["tax", "employment_rate"],
+                    [_data_edge("tax", "employment_rate", confidence=0.9)],
+                ),
                 "feedback": _graph(
                     ["employment_rate", "wage_pressure"],
                     [
@@ -549,10 +582,7 @@ def test_compose_scm_fragments_blocks_cross_fragment_cyclic_scc() -> None:
 
     assert result["composition_certificate"].status == "broken"
     assert result["composed_graph"] is not None
-    assert any(
-        "disconnected" in reason.lower()
-        for reason in result["blocking_reasons"]
-    )
+    assert any("disconnected" in reason.lower() for reason in result["blocking_reasons"])
     assert {card.failure_type for card in result["failure_cards"]} >= {
         "fragment_topology_disconnected",
         "completeness_scope_cyclic",
@@ -561,7 +591,9 @@ def test_compose_scm_fragments_blocks_cross_fragment_cyclic_scc() -> None:
 
 
 def test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg() -> None:
-    fragment_a = _fragment("a", interface_variables=["employment_rate"], outputs=["employment_rate"])
+    fragment_a = _fragment(
+        "a", interface_variables=["employment_rate"], outputs=["employment_rate"]
+    )
     fragment_b = _fragment("b", interface_variables=["employment_rate"], inputs=["employment_rate"])
     report, mapping = verify_fragment_alignment(fragment_a, fragment_b)
 
@@ -569,7 +601,10 @@ def test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg
         FragmentCompositionData(
             fragments=[fragment_a, fragment_b],
             fragment_graphs={
-                "a": _graph(["employment_rate", "tax"], [_data_edge("tax", "employment_rate", confidence=0.8)]),
+                "a": _graph(
+                    ["employment_rate", "tax"],
+                    [_data_edge("tax", "employment_rate", confidence=0.8)],
+                ),
                 "b": _graph(
                     ["employment_rate", "latent_u"],
                     [
@@ -628,8 +663,14 @@ def test_compose_scm_fragments_allows_asymmetric_output_input_stitch() -> None:
         FragmentCompositionData(
             fragments=[fragment_a, fragment_b],
             fragment_graphs={
-                "a": _graph(["employment_rate", "tax"], [_data_edge("tax", "employment_rate", confidence=0.8)]),
-                "b": _graph(["employment_rate", "wages"], [_data_edge("employment_rate", "wages", confidence=0.7)]),
+                "a": _graph(
+                    ["employment_rate", "tax"],
+                    [_data_edge("tax", "employment_rate", confidence=0.8)],
+                ),
+                "b": _graph(
+                    ["employment_rate", "wages"],
+                    [_data_edge("employment_rate", "wages", confidence=0.7)],
+                ),
             },
             alignment_report=report,
             interface_mapping=mapping,
@@ -679,9 +720,17 @@ def test_compose_scm_fragments_allows_chain_topology() -> None:
         FragmentCompositionData(
             fragments=fragments,
             fragment_graphs={
-                "a": _graph(["tax", "employment_rate"], [_data_edge("tax", "employment_rate", confidence=0.8)]),
-                "b": _graph(["employment_rate", "wages"], [_data_edge("employment_rate", "wages", confidence=0.7)]),
-                "c": _graph(["wages", "consumption"], [_data_edge("wages", "consumption", confidence=0.7)]),
+                "a": _graph(
+                    ["tax", "employment_rate"],
+                    [_data_edge("tax", "employment_rate", confidence=0.8)],
+                ),
+                "b": _graph(
+                    ["employment_rate", "wages"],
+                    [_data_edge("employment_rate", "wages", confidence=0.7)],
+                ),
+                "c": _graph(
+                    ["wages", "consumption"], [_data_edge("wages", "consumption", confidence=0.7)]
+                ),
             },
             alignment_report=report,
             interface_mapping=mapping,
@@ -730,8 +779,14 @@ def test_compose_scm_fragments_rejects_disconnected_fragment_topology() -> None:
         FragmentCompositionData(
             fragments=fragments,
             fragment_graphs={
-                "a": _graph(["tax", "employment_rate"], [_data_edge("tax", "employment_rate", confidence=0.8)]),
-                "b": _graph(["employment_rate", "wages"], [_data_edge("employment_rate", "wages", confidence=0.7)]),
+                "a": _graph(
+                    ["tax", "employment_rate"],
+                    [_data_edge("tax", "employment_rate", confidence=0.8)],
+                ),
+                "b": _graph(
+                    ["employment_rate", "wages"],
+                    [_data_edge("employment_rate", "wages", confidence=0.7)],
+                ),
                 "c": _graph(["hospital_occupancy"], []),
             },
             alignment_report=report,
@@ -879,9 +934,7 @@ def test_compose_scm_fragments_promotes_human_verified_proxy_to_preserved() -> N
     assert result["composition_certificate"].structure_status == "valid"
     assert result["composition_certificate"].review_status == "clear"
     assert result["needs_expert_review"] is False
-    assert {card.failure_type for card in result["failure_cards"]} == {
-        "completeness_scope_proxy"
-    }
+    assert {card.failure_type for card in result["failure_cards"]} == {"completeness_scope_proxy"}
 
     # Even with human review promoting proxy to `preserved`, the certificate is
     # engineering-verdict preserved rather than theorem-backed: the alignment

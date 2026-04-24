@@ -1,10 +1,12 @@
 """UK ONS connector implementation for dataset discovery and statistical observations."""
+
 from __future__ import annotations
 
 import json
 import time
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, ClassVar, Iterable
+from collections.abc import AsyncIterator, Iterable
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
 import pandas as pd
 
@@ -156,7 +158,7 @@ class UKONSConnector(HTTPConnectorBase[pd.DataFrame]):
                 request_params={"url": url},
             )
         frame = self._parse_observations(payload, dataset_id)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return self._build_fetch_result(
             data=frame,
             row_count=len(frame),

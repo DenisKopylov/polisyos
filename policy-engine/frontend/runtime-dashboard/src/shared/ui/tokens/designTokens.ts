@@ -3,6 +3,12 @@ export type DesignTokenDefinition = {
   description: string;
 };
 
+export const densityScale = {
+  comfortable: { fontStep: 0, rowHeight: 1, space: 1 },
+  compact: { fontStep: -1, rowHeight: 0.85, space: 0.75 },
+  condensed: { fontStep: -2, rowHeight: 0.7, space: 0.5 },
+} as const;
+
 export const foundationTokens = {
   color: {
     accent: {
@@ -292,6 +298,56 @@ export const semanticTokens = {
       description: "Rejected/failure status color.",
     },
   },
+  uncertainty: {
+    pointEstimate: {
+      cssVar: "--color-uncertainty-point-estimate",
+      description: "Primary point-estimate stroke and marker color.",
+    },
+    confidenceInterval: {
+      cssVar: "--color-uncertainty-confidence-interval",
+      description: "Default confidence interval fill and stroke tone.",
+    },
+    counterfactualInterval: {
+      cssVar: "--color-uncertainty-counterfactual-interval",
+      description: "Counterfactual interval stroke tone, typically dashed.",
+    },
+    disputed: {
+      cssVar: "--color-uncertainty-disputed",
+      description: "Disputed uncertainty state accent.",
+    },
+    boundsFill: {
+      cssVar: "--color-bounds-fill",
+      description: "Default fill for wide uncertainty envelopes.",
+    },
+    boundsStroke: {
+      cssVar: "--color-bounds-stroke",
+      description: "Stroke color for uncertainty interval outlines.",
+    },
+    ci50: {
+      cssVar: "--color-ci-50",
+      description: "Tightest interval fill used for 50% confidence bands.",
+    },
+    ci80: {
+      cssVar: "--color-ci-80",
+      description: "Mid-range interval fill used for 80% confidence bands.",
+    },
+    ci95: {
+      cssVar: "--color-ci-95",
+      description: "Widest interval fill used for 95% confidence bands.",
+    },
+    confidenceHigh: {
+      cssVar: "--color-confidence-high",
+      description: "High-confidence / strong-support state.",
+    },
+    confidenceMedium: {
+      cssVar: "--color-confidence-medium",
+      description: "Medium-confidence / review-needed state.",
+    },
+    confidenceLow: {
+      cssVar: "--color-confidence-low",
+      description: "Low-confidence / weak-support state.",
+    },
+  },
   transport: {
     degraded: {
       cssVar: "--color-transport-degraded",
@@ -305,10 +361,13 @@ export const semanticTokens = {
 } as const satisfies Record<string, Record<string, DesignTokenDefinition>>;
 
 export const designTokens = {
+  density: densityScale,
   foundation: foundationTokens,
   semantic: semanticTokens,
 } as const;
 
+export type DensityScale = typeof densityScale;
+export type DensityScaleKey = keyof DensityScale;
 export type FoundationTokens = typeof foundationTokens;
 export type SemanticTokens = typeof semanticTokens;
 export type DesignTokens = typeof designTokens;

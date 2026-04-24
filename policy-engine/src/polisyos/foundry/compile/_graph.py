@@ -1,8 +1,10 @@
 """Public compile graph module API."""
+
 from __future__ import annotations
 
+from collections.abc import Iterable
 from graphlib import TopologicalSorter
-from typing import Any, Iterable
+from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.foundry import (
@@ -32,7 +34,9 @@ def build_program_graph(
     existing: set[str] = set()
     for mechanism in sorted(mechanisms, key=lambda item: item.binding_id):
         params_ref = mechanism.effective_params_ref
-        primary_id = mechanism.intervention_ids[0] if mechanism.intervention_ids else mechanism.binding_id
+        primary_id = (
+            mechanism.intervention_ids[0] if mechanism.intervention_ids else mechanism.binding_id
+        )
 
         mask_id = _unique_node_id(f"op.mask.{primary_id}", existing)
         existing.add(mask_id)
@@ -192,10 +196,15 @@ def _build_op_nodes(
     for node in nodes:
         if node.node_kind == "method":
             op_edges.append(ProgramEdge(src=node.node_id, dst=merge_id, relation="depends_on"))
-        if node.node_kind == "op" and node.op and node.op.op_kind in {
-            "apply_mechanism",
-            "apply_method",
-        }:
+        if (
+            node.node_kind == "op"
+            and node.op
+            and node.op.op_kind
+            in {
+                "apply_mechanism",
+                "apply_method",
+            }
+        ):
             op_edges.append(ProgramEdge(src=node.node_id, dst=merge_id, relation="depends_on"))
     op_edges.append(ProgramEdge(src=merge_id, dst=check_id, relation="depends_on"))
     return op_nodes, op_edges

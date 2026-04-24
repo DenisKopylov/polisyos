@@ -59,9 +59,7 @@ class AcademicGatherer:
                     ),
                     baseline_result,
                 ),
-                environment_audit_summary=context_metadata.get(
-                    "environment_audit_summary", {}
-                ),
+                environment_audit_summary=context_metadata.get("environment_audit_summary", {}),
             )
 
         # Delegate to existing compiler function if available
@@ -80,15 +78,11 @@ class AcademicGatherer:
                     else str(result.evidence_status)
                 ),
                 confidence=(
-                    result.transport_confidence
-                    if hasattr(result, "transport_confidence")
-                    else 0.5
+                    result.transport_confidence if hasattr(result, "transport_confidence") else 0.5
                 ),
                 diagnostics=list(result.diagnostics) if hasattr(result, "diagnostics") else [],
                 provenance_refs=(
-                    list(result.provenance_refs)
-                    if hasattr(result, "provenance_refs")
-                    else []
+                    list(result.provenance_refs) if hasattr(result, "provenance_refs") else []
                 ),
                 metadata={
                     **(
@@ -102,9 +96,7 @@ class AcademicGatherer:
             return _attach_environment_audit_diagnostics(
                 need,
                 _merge_baseline_with_primary(gathered, baseline_result),
-                environment_audit_summary=context_metadata.get(
-                    "environment_audit_summary", {}
-                ),
+                environment_audit_summary=context_metadata.get("environment_audit_summary", {}),
             )
 
         # Standalone assessment: check for parameter/edge needs
@@ -215,9 +207,7 @@ def _assess_literature_prior_baseline(
         max(0.2, confidence),
     )
     article_refs = [
-        str(item)
-        for item in list(best.get("article_refs", []) or [])
-        if str(item).strip()
+        str(item) for item in list(best.get("article_refs", []) or []) if str(item).strip()
     ]
     metadata = {
         **context_metadata,
@@ -264,12 +254,19 @@ def _merge_baseline_with_primary(
     primary_status = _coerce_evidence_status(primary.status)
     baseline_status = _coerce_evidence_status(baseline.status)
     merged_status = primary_status
-    if primary_status in {
-        EvidenceStatus.INSUFFICIENT,
-        EvidenceStatus.UNSUPPORTED,
-    } and baseline_status is EvidenceStatus.MIXED:
+    if (
+        primary_status
+        in {
+            EvidenceStatus.INSUFFICIENT,
+            EvidenceStatus.UNSUPPORTED,
+        }
+        and baseline_status is EvidenceStatus.MIXED
+    ):
         merged_status = EvidenceStatus.MIXED
-    elif primary_status is EvidenceStatus.UNSUPPORTED and baseline_status is EvidenceStatus.INSUFFICIENT:
+    elif (
+        primary_status is EvidenceStatus.UNSUPPORTED
+        and baseline_status is EvidenceStatus.INSUFFICIENT
+    ):
         merged_status = EvidenceStatus.INSUFFICIENT
 
     diagnostics = list(primary.diagnostics)
@@ -317,9 +314,7 @@ def _context_metadata(context: dict[str, Any]) -> dict[str, Any]:
     if isinstance(environment_audit_summary, dict):
         metadata["environment_audit_summary"] = dict(environment_audit_summary)
     elif environment_audit is not None:
-        metadata["environment_audit_summary"] = _summarize_environment_audit(
-            environment_audit
-        )
+        metadata["environment_audit_summary"] = _summarize_environment_audit(environment_audit)
 
     return metadata
 
@@ -368,9 +363,7 @@ def _environment_audit_diagnostics(
     audit_status = str(environment_audit_summary.get("status") or "").strip().lower()
     ks_passed = environment_audit_summary.get("ks_passed")
     variant_features = list(environment_audit_summary.get("variant_features", []) or [])
-    rejected_variables = list(
-        environment_audit_summary.get("ks_rejected_variables", []) or []
-    )
+    rejected_variables = list(environment_audit_summary.get("ks_rejected_variables", []) or [])
     unstable = (
         audit_status in {"warning", "degraded"}
         or ks_passed is False

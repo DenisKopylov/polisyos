@@ -1,0 +1,36 @@
+# PolicyOS Wave 1 Design System Rule
+
+When generating or modifying UI, charts, typography, or product copy for the
+runtime dashboard, treat the following documents as the canonical Wave 1 source
+of truth:
+
+- `policy-engine/docs/plans/active/DESIGN_BEST_IN_CLASS_PLAN.md`
+- `policy-engine/docs/brand/GLYPH_SPECIFICATION.md`
+- `policy-engine/docs/brand/UNCERTAINTY_LANGUAGE.md`
+- `policy-engine/docs/brand/MOTION.md`
+- `policy-engine/docs/brand/COMPOSITION_RULES.md`
+- `policy-engine/docs/brand/TYPOGRAPHY_UA_RU.md`
+- `policy-engine/docs/brand/A11Y_CONTRAST.md`
+- `policy-engine/docs/compliance/A11Y_CONTRAST.md`
+- `policy-engine/docs/compliance/VPAT.md`
+- `policy-engine/docs/adr/ADR-042-janus-atlas-dual-brand.md`
+- `policy-engine/docs/adr/ADR-043-provenance-law.md`
+- `policy-engine/docs/adr/ADR-044-time-as-primitive.md`
+- `policy-engine/docs/adr/ADR-045-glyph-alphabet-limit-10.md`
+- `policy-engine/docs/adr/ADR-046-authored-text-registry.md`
+
+Operational constraints:
+
+1. `docs/compliance/A11Y_CONTRAST.md` is the canonical generated contrast
+   artifact. `docs/brand/A11Y_CONTRAST.md` is a spec/index page and must not
+   become a second hand-maintained matrix.
+2. The glyph alphabet is closed at 10 radicals; the current vocabulary maps 29
+   domain terms onto those radicals. Do not introduce an 11th radical without a
+   replacement ADR.
+3. Atlas and Janus have separate roles:
+   Atlas for public/unauthenticated surfaces, Janus for authenticated product
+   surfaces.
+4. New prose blocks in decision, narrative, and reading-view surfaces should
+   prefer `AuthoredText` over raw `<p>` tags when the content is semantic prose.
+5. New uncertainty visuals must reuse the existing uncertainty tokens and
+   pattern system instead of inventing one-off encodings.

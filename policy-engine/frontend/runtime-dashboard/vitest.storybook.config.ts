@@ -13,6 +13,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "virtual:pwa-register": path.resolve(
+        __dirname,
+        "./.storybook/mocks/virtual-pwa-register.ts",
+      ),
     },
   },
   optimizeDeps: {
@@ -20,7 +24,11 @@ export default defineConfig({
       "@storybook/react-vite",
       "@storybook/addon-a11y/preview",
       "@tanstack/react-query",
+      "@hookform/resolvers/zod",
+      "idb",
       "react-router-dom",
+      "react-dom/client",
+      "react-hook-form",
       "web-vitals",
     ],
   },

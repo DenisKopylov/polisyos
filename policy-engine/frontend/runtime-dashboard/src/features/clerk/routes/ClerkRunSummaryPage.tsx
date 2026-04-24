@@ -50,9 +50,7 @@ export default function ClerkRunSummaryPage() {
             </Badge>
           </div>
 
-          <h2 className="text-xl font-bold text-[var(--ink)]">
-            {run.run_id}
-          </h2>
+          <h2 className="text-xl font-bold text-[var(--ink)]">{run.run_id}</h2>
 
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
@@ -62,9 +60,7 @@ export default function ClerkRunSummaryPage() {
               </p>
             </div>
             <div>
-              <span className="text-[var(--slate)]">
-                {t("clerk.duration")}
-              </span>
+              <span className="text-[var(--slate)]">{t("clerk.duration")}</span>
               <p className="font-semibold text-[var(--ink)]">
                 {formatDuration(run.duration_ms, locale)}
               </p>

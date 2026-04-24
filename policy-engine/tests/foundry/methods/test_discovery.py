@@ -1,15 +1,17 @@
 """
 Tests for Method Discovery & Plugin System.
 """
+
 from __future__ import annotations
 
 import importlib
 import sys
 import textwrap
 import threading
+from collections.abc import Iterator, Mapping
 from pathlib import Path
 from types import ModuleType
-from typing import Any, ClassVar, Iterator, Mapping
+from typing import Any, ClassVar
 from unittest import mock
 
 import pytest
@@ -38,7 +40,6 @@ from polisyos.foundry.methods.discovery import (
 )
 from polisyos.foundry.methods.registry import MethodRegistry
 
-
 # =============================================================================
 # Fixtures and helpers
 # =============================================================================
@@ -58,12 +59,8 @@ def sample_signature() -> MethodSignature:
         name="test_method",
         namespace="test.ns",
         version="1.0.0",
-        input_slots=frozenset({
-            SlotSpec(name="income", slot_type=SlotType.VECTOR, unit=unit)
-        }),
-        output_slots=frozenset({
-            SlotSpec(name="tax", slot_type=SlotType.VECTOR, unit=unit)
-        }),
+        input_slots=frozenset({SlotSpec(name="income", slot_type=SlotType.VECTOR, unit=unit)}),
+        output_slots=frozenset({SlotSpec(name="tax", slot_type=SlotType.VECTOR, unit=unit)}),
         parameters=(),
         fidelity=FidelityLevel.LOW,
         complexity=ComplexityClass.O_N,
@@ -88,12 +85,8 @@ def create_test_method(
         name=name,
         namespace=namespace,
         version=version,
-        input_slots=frozenset({
-            SlotSpec(name="state", slot_type=SlotType.SCALAR, unit=unit)
-        }),
-        output_slots=frozenset({
-            SlotSpec(name="result", slot_type=SlotType.SCALAR, unit=unit)
-        }),
+        input_slots=frozenset({SlotSpec(name="state", slot_type=SlotType.SCALAR, unit=unit)}),
+        output_slots=frozenset({SlotSpec(name="result", slot_type=SlotType.SCALAR, unit=unit)}),
         parameters=(),
         fidelity=FidelityLevel.LOW,
         complexity=ComplexityClass.O_1,
@@ -417,7 +410,7 @@ class TestEntryPointSource:
         method_class = create_test_method("in_module", "test.module")
 
         module = ModuleType("test_module")
-        setattr(module, "TestMethod", method_class)
+        module.TestMethod = method_class
         method_class.__module__ = "test_module"
 
         mock_ep = mock.MagicMock()
@@ -544,9 +537,7 @@ class TestFileSystemSource:
         package_dir.mkdir()
 
         (package_dir / "__init__.py").write_text("# package")
-        (package_dir / "utils.py").write_text(
-            "VALUE = 42\n"
-        )
+        (package_dir / "utils.py").write_text("VALUE = 42\n")
 
         method_file = package_dir / "method.py"
         method_file.write_text(
@@ -1025,10 +1016,7 @@ class TestThreadSafety:
             except Exception as exc:
                 errors.append(str(exc))
 
-        threads = [
-            threading.Thread(target=discover_methods, args=(i,))
-            for i in range(num_threads)
-        ]
+        threads = [threading.Thread(target=discover_methods, args=(i,)) for i in range(num_threads)]
 
         for t in threads:
             t.start()
@@ -1059,13 +1047,17 @@ class TestEdgeCases:
             name="complex",
             namespace="complex.test",
             version="2.5.3",
-            input_slots=frozenset({
-                SlotSpec("a", SlotType.VECTOR, unit),
-                SlotSpec("b", SlotType.MATRIX, unit),
-            }),
-            output_slots=frozenset({
-                SlotSpec("c", SlotType.SCALAR, unit),
-            }),
+            input_slots=frozenset(
+                {
+                    SlotSpec("a", SlotType.VECTOR, unit),
+                    SlotSpec("b", SlotType.MATRIX, unit),
+                }
+            ),
+            output_slots=frozenset(
+                {
+                    SlotSpec("c", SlotType.SCALAR, unit),
+                }
+            ),
             parameters=(),
             fidelity=FidelityLevel.HIGH,
             complexity=ComplexityClass.O_N2,
@@ -1103,12 +1095,12 @@ class TestEdgeCases:
             name="\u043f\u043e\u0434\u0430\u0442\u043e\u043a",
             namespace="\u0444\u0456\u0441\u043a\u0430\u043b\u044c\u043d\u0438\u0439",
             version="1.0.0",
-            input_slots=frozenset({
-                SlotSpec("\u0434\u043e\u0445\u0456\u0434", SlotType.VECTOR, unit)
-            }),
-            output_slots=frozenset({
-                SlotSpec("\u043f\u043e\u0434\u0430\u0442\u043e\u043a", SlotType.VECTOR, unit)
-            }),
+            input_slots=frozenset(
+                {SlotSpec("\u0434\u043e\u0445\u0456\u0434", SlotType.VECTOR, unit)}
+            ),
+            output_slots=frozenset(
+                {SlotSpec("\u043f\u043e\u0434\u0430\u0442\u043e\u043a", SlotType.VECTOR, unit)}
+            ),
             parameters=(),
             fidelity=FidelityLevel.LOW,
             complexity=ComplexityClass.O_N,

@@ -296,7 +296,9 @@ def _classify_struct_kind(kind: str, text: str) -> str:
     return kind or "provision"
 
 
-def _classify_section_role(*, kind: str, text: str, doc_profile: str, is_fallback_chunk: bool) -> str:
+def _classify_section_role(
+    *, kind: str, text: str, doc_profile: str, is_fallback_chunk: bool
+) -> str:
     if is_fallback_chunk:
         return "fallback_recall"
     if _ENTRY_INTO_FORCE_RE.search(text):
@@ -386,7 +388,10 @@ def _match_section_heading(line: _LineSpan) -> tuple[str, str] | None:
         marker = keyword_match.group(1)
         title = (keyword_match.group(2) or "").strip()
         if title:
-            return (f"Розділ {marker} {title}".strip(), _normalize_anchor_token(marker, fallback="section"))
+            return (
+                f"Розділ {marker} {title}".strip(),
+                _normalize_anchor_token(marker, fallback="section"),
+            )
         return (f"Розділ {marker}", _normalize_anchor_token(marker, fallback="section"))
     roman_match = _ROMAN_SECTION_RE.match(stripped)
     if roman_match is None:
@@ -491,7 +496,11 @@ def _looks_like_table_scaffold_text(text: str) -> bool:
         return True
 
     if compact.startswith("*") and compact.endswith("*"):
-        cells = [cell.strip(" *|-:") for cell in re.split(r"\*+|\|+| {2,}", compact) if cell.strip(" *|-:")]
+        cells = [
+            cell.strip(" *|-:")
+            for cell in re.split(r"\*+|\|+| {2,}", compact)
+            if cell.strip(" *|-:")
+        ]
         if len(cells) <= 1:
             return True
         if len(cells) >= 2 and all(len(cell) <= 3 for cell in cells):
@@ -500,20 +509,29 @@ def _looks_like_table_scaffold_text(text: str) -> bool:
     if compact.startswith("*") and digits == 0 and not _TABLE_SCAFFOLD_KEEP_CUES_RE.search(compact):
         return True
 
-    cells = [cell.strip(" *|-:") for cell in re.split(r"\*+|\|+| {2,}", compact) if cell.strip(" *|-:")]
-    if stars >= 5 and digits <= 3 and letters <= 24 and not _TABLE_SCAFFOLD_KEEP_CUES_RE.search(compact):
+    cells = [
+        cell.strip(" *|-:") for cell in re.split(r"\*+|\|+| {2,}", compact) if cell.strip(" *|-:")
+    ]
+    if (
+        stars >= 5
+        and digits <= 3
+        and letters <= 24
+        and not _TABLE_SCAFFOLD_KEEP_CUES_RE.search(compact)
+    ):
         return True
-    if re.search(r"\bвсього\b", compact, re.IGNORECASE) and re.search(r"\bквартал", compact, re.IGNORECASE):
+    if re.search(r"\bвсього\b", compact, re.IGNORECASE) and re.search(
+        r"\bквартал", compact, re.IGNORECASE
+    ):
         return True
     if len(cells) >= 4:
         numericish = sum(
-            1
-            for cell in cells
-            if re.fullmatch(r"(?:\d{1,3}|[Xx]|№|N|п/п)", cell, re.IGNORECASE)
+            1 for cell in cells if re.fullmatch(r"(?:\d{1,3}|[Xx]|№|N|п/п)", cell, re.IGNORECASE)
         )
         if numericish / len(cells) >= 0.7:
             return True
-        if all(len(cell.split()) <= 2 for cell in cells) and not _TABLE_SCAFFOLD_KEEP_CUES_RE.search(compact):
+        if all(
+            len(cell.split()) <= 2 for cell in cells
+        ) and not _TABLE_SCAFFOLD_KEEP_CUES_RE.search(compact):
             return True
         fragmented = sum(
             1
@@ -526,16 +544,13 @@ def _looks_like_table_scaffold_text(text: str) -> bool:
             and not re.search(r"[.;:]\s*$", compact)
         ):
             return True
-    if (
+    return bool(
         stars >= 4
         and len(cells) >= 3
         and not _has_reasoning_cues(compact)
         and not _has_strong_normative_cues(compact)
         and sum(1 for cell in cells if len(cell.split()) <= 2) / max(1, len(cells)) >= 0.7
-    ):
-        return True
-
-    return False
+    )
 
 
 def _looks_like_placeholder_text(text: str) -> bool:
@@ -548,9 +563,7 @@ def _looks_like_placeholder_text(text: str) -> bool:
         return True
     if compact.count("_") >= 6:
         return True
-    if compact.count('"') >= 2 and compact.count("_") >= 3:
-        return True
-    return False
+    return bool(compact.count('"') >= 2 and compact.count("_") >= 3)
 
 
 def _looks_like_catalog_header_text(text: str) -> bool:
@@ -583,11 +596,13 @@ def _has_reasoning_cues(text: str) -> bool:
         return True
     if _INFINITIVE_REQUIREMENT_RE.match(compact):
         return True
-    if re.search(r"\b\d+[.,]?\d*\s*(?:грн|%|відсот|рок(?:ів|и)?|дн(?:ів|і)?|місяц(?:ів|і)?)\b", compact, re.IGNORECASE):
+    if re.search(
+        r"\b\d+[.,]?\d*\s*(?:грн|%|відсот|рок(?:ів|и)?|дн(?:ів|і)?|місяц(?:ів|і)?)\b",
+        compact,
+        re.IGNORECASE,
+    ):
         return True
-    if re.search(r"\b(?:до|після|протягом|не пізніше)\b", compact, re.IGNORECASE):
-        return True
-    return False
+    return bool(re.search(r"\b(?:до|після|протягом|не пізніше)\b", compact, re.IGNORECASE))
 
 
 def _has_strong_normative_cues(text: str) -> bool:
@@ -612,9 +627,7 @@ def _looks_like_threshold_table_row_text(text: str) -> bool:
         return False
     label = _MULTIVALUE_THRESHOLD_ROW_RE.match(compact)
     label_text = (label.group("label") if label else "").strip()
-    if len(label_text) < 2 or label_text.isdigit():
-        return False
-    return True
+    return not (len(label_text) < 2 or label_text.isdigit())
 
 
 def _looks_like_strict_catalog_context(text: str) -> bool:
@@ -681,13 +694,19 @@ def _adjust_reasoning_policy(
         return "table_header", False
     if struct_kind == "table_row" and _FORM_REQUEST_ROW_RE.search(compact):
         return "form_field", False
-    if struct_kind == "table_row" and "найменування" in lower and ("оклад" in lower or "адреса" in lower):
+    if (
+        struct_kind == "table_row"
+        and "найменування" in lower
+        and ("оклад" in lower or "адреса" in lower)
+    ):
         return "table_header", False
     if _looks_like_catalog_header_text(compact):
         return "catalog_header", False
     if struct_kind in {"paragraph", "enumeration_item"} and _looks_like_heading_block_text(text):
         return "catalog_header", False
-    if struct_kind in {"paragraph", "enumeration_item"} and _INFINITIVE_REQUIREMENT_RE.match(compact):
+    if struct_kind in {"paragraph", "enumeration_item"} and _INFINITIVE_REQUIREMENT_RE.match(
+        compact
+    ):
         return "normative_unit", True
     if struct_kind == "table_row" and _looks_like_threshold_table_row_text(compact):
         return "table_row", True
@@ -697,11 +716,23 @@ def _adjust_reasoning_policy(
         and not _has_reasoning_cues(compact)
     ):
         return "catalog_item", False
-    if strict_catalog_mode and struct_kind == "table_row" and not _has_strong_normative_cues(compact):
+    if (
+        strict_catalog_mode
+        and struct_kind == "table_row"
+        and not _has_strong_normative_cues(compact)
+    ):
         return "catalog_item", False
-    if strict_catalog_mode and struct_kind == "paragraph" and not _has_strong_normative_cues(compact):
+    if (
+        strict_catalog_mode
+        and struct_kind == "paragraph"
+        and not _has_strong_normative_cues(compact)
+    ):
         return "catalog_item", False
-    if catalog_mode and struct_kind in {"paragraph", "enumeration_item", "table_row"} and not _has_reasoning_cues(compact):
+    if (
+        catalog_mode
+        and struct_kind in {"paragraph", "enumeration_item", "table_row"}
+        and not _has_reasoning_cues(compact)
+    ):
         return "catalog_item", False
     return section_role, fallback_allowed_for_reasoning
 
@@ -735,7 +766,9 @@ def _has_structured_fallback_signal(lines: list[_LineSpan], *, doc_profile: str)
         return True
     if column_clause_hits >= 2:
         return True
-    return doc_profile in {"appendix", "table_heavy"} and (tableish_hits > 0 or enumeration_hits > 0)
+    return doc_profile in {"appendix", "table_heavy"} and (
+        tableish_hits > 0 or enumeration_hits > 0
+    )
 
 
 def _fallback_citation_label(
@@ -829,7 +862,9 @@ def _build_fallback_span(
     )
 
 
-def _collect_appendix_blocks(lines: list[_LineSpan]) -> list[tuple[str, str | None, list[_LineSpan]]]:
+def _collect_appendix_blocks(
+    lines: list[_LineSpan],
+) -> list[tuple[str, str | None, list[_LineSpan]]]:
     appendix_headers: list[tuple[int, str | None]] = []
     for idx, line in enumerate(lines):
         match = _APPENDIX_RE.match(line.line_no_nl)
@@ -878,7 +913,11 @@ def _parse_structured_fallback_units(
             heading_end = 1
             while heading_end < len(block_lines):
                 row = block_lines[heading_end]
-                if _is_blank_line(row) or _is_tableish_line(row) or _match_enumeration_marker(row) is not None:
+                if (
+                    _is_blank_line(row)
+                    or _is_tableish_line(row)
+                    or _match_enumeration_marker(row) is not None
+                ):
                     break
                 if _match_section_heading(row) is not None or _match_column_clause(row) is not None:
                     break
@@ -904,7 +943,10 @@ def _parse_structured_fallback_units(
             )
             if appendix_span is not None:
                 spans.append(appendix_span)
-                catalog_mode = strict_catalog_mode or appendix_span.section_role in {"catalog_header", "form_header"}
+                catalog_mode = strict_catalog_mode or appendix_span.section_role in {
+                    "catalog_header",
+                    "form_header",
+                }
                 appendix_heading_text = _compact_spaces(appendix_span.text)
             cursor = heading_end
 
@@ -1028,9 +1070,14 @@ def _parse_structured_fallback_units(
                     next_line = block_lines[end_idx]
                     if _is_blank_line(next_line) or _is_tableish_line(next_line):
                         break
-                    if _match_enumeration_marker(next_line) is not None or _APPENDIX_RE.match(next_line.line_no_nl):
+                    if _match_enumeration_marker(next_line) is not None or _APPENDIX_RE.match(
+                        next_line.line_no_nl
+                    ):
                         break
-                    if _match_section_heading(next_line) is not None or _match_column_clause(next_line) is not None:
+                    if (
+                        _match_section_heading(next_line) is not None
+                        or _match_column_clause(next_line) is not None
+                    ):
                         break
                     end_idx += 1
                 item_count += 1
@@ -1071,7 +1118,9 @@ def _parse_structured_fallback_units(
                 while cursor < len(block_lines) and _is_tableish_line(block_lines[cursor]):
                     row_start = cursor
                     row_end = cursor + 1
-                    while row_end < len(block_lines) and _looks_like_table_row_continuation(block_lines[row_end]):
+                    while row_end < len(block_lines) and _looks_like_table_row_continuation(
+                        block_lines[row_end]
+                    ):
                         row_end += 1
                     row_text = text[block_lines[row_start].start : block_lines[row_end - 1].end]
                     is_header = (not seen_data_row) and _looks_like_table_header_text(row_text)
@@ -1271,8 +1320,8 @@ def _apply_legal_unit_signals(
 ) -> list[ProvisionSpan]:
     if not spans:
         return []
-    from polisyos.lex.batch.legal_unit import build_legal_unit_signals, infer_doc_family_for_unit
     from polisyos.lex.batch.jurisdictions import get_jurisdiction_plugin
+    from polisyos.lex.batch.legal_unit import build_legal_unit_signals, infer_doc_family_for_unit
 
     doc_family = infer_doc_family_for_unit(
         doc_type=str(doc_type or ""),
@@ -1348,7 +1397,10 @@ def extract_provisions(
         ruleset = _ruleset_for(jurisdiction)
     except Exception:
         # Unsupported jurisdiction — chunk whole text instead of monolithic full_text.
-        logger.debug("Unsupported jurisdiction ruleset for %r, falling back to chunked full text", jurisdiction)
+        logger.debug(
+            "Unsupported jurisdiction ruleset for %r, falling back to chunked full text",
+            jurisdiction,
+        )
         return _chunk_full_text(
             text=text,
             chunk_chars=fallback_chunk_chars,

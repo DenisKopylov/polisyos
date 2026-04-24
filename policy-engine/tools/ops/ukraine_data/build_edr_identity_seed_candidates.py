@@ -51,7 +51,8 @@ def build_seed_candidate_report(root: Path, *, top_n: int) -> dict[str, Path]:
             (
                 source_id
                 for source_id in procurement_source_candidates
-                if "prozorro" in str(source_id) or "spending_contracts_procurement_proxy" in str(source_id)
+                if "prozorro" in str(source_id)
+                or "spending_contracts_procurement_proxy" in str(source_id)
             ),
             procurement_source_id,
         )
@@ -85,8 +86,12 @@ def build_seed_candidate_report(root: Path, *, top_n: int) -> dict[str, Path]:
         )
 
         spending_for_linking = spending.copy()
-        spending_for_linking["_source_agent_raw_id"] = spending_for_linking["source_agent_id"].astype("string")
-        spending_for_linking["_target_agent_raw_id"] = spending_for_linking["target_agent_id"].astype("string")
+        spending_for_linking["_source_agent_raw_id"] = spending_for_linking[
+            "source_agent_id"
+        ].astype("string")
+        spending_for_linking["_target_agent_raw_id"] = spending_for_linking[
+            "target_agent_id"
+        ].astype("string")
         spending_linked = _link_participants(
             spending_for_linking,
             lookup=lookup,
@@ -102,8 +107,12 @@ def build_seed_candidate_report(root: Path, *, top_n: int) -> dict[str, Path]:
         )
 
         procurement_for_linking = procurement.copy()
-        procurement_for_linking["_buyer_agent_raw_id"] = procurement_for_linking["buyer_agent_id"].astype("string")
-        procurement_for_linking["_supplier_agent_raw_id"] = procurement_for_linking["supplier_agent_id"].astype("string")
+        procurement_for_linking["_buyer_agent_raw_id"] = procurement_for_linking[
+            "buyer_agent_id"
+        ].astype("string")
+        procurement_for_linking["_supplier_agent_raw_id"] = procurement_for_linking[
+            "supplier_agent_id"
+        ].astype("string")
         procurement_linked = _link_participants(
             procurement_for_linking,
             lookup=lookup,
@@ -168,7 +177,9 @@ def build_seed_candidate_report(root: Path, *, top_n: int) -> dict[str, Path]:
         )
     else:
         summary = (
-            unresolved_rows.groupby("normalized_raw_registration_code", as_index=False, dropna=False)
+            unresolved_rows.groupby(
+                "normalized_raw_registration_code", as_index=False, dropna=False
+            )
             .agg(
                 amount_weight=("amount_weight", "sum"),
                 observation_count=("observation_count", "sum"),
@@ -213,9 +224,9 @@ def build_seed_candidate_report(root: Path, *, top_n: int) -> dict[str, Path]:
             "top_n": top_n,
             "procurement_source_id": procurement_source_id,
             "used_runtime_unresolved_artifact": used_runtime_unresolved_artifact,
-            "unresolved_rows_considered": int(len(unresolved_rows)),
-            "candidate_rows": int(len(summary)),
-            "template_rows": int(len(template)),
+            "unresolved_rows_considered": len(unresolved_rows),
+            "candidate_rows": len(summary),
+            "template_rows": len(template),
             "candidate_artifact": str(candidates_path),
             "template_artifact": str(template_path),
         },

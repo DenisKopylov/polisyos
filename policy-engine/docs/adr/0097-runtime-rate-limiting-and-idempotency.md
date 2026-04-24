@@ -1,9 +1,11 @@
 # ADR-0097: Runtime Rate Limiting and Idempotency
 
 ## Status
+
 Accepted
 
 ## Date
+
 2026-04-12
 
 ## Context
@@ -21,12 +23,14 @@ middleware.
 
 1. Runtime mutation paths are protected at the HTTP perimeter by one shared
    policy layer that applies:
+
    - per-tenant and per-endpoint rate limiting for expensive `POST` control
      paths;
    - concurrent plus request-budget limits for live-stream endpoints;
    - idempotency replay for side-effecting `POST` routes.
 2. `X-Idempotency-Key` is the canonical replay key for supported mutation
    routes. Scope is:
+
    - tenant;
    - HTTP method;
    - normalized route path;
@@ -39,6 +43,7 @@ middleware.
    `request_id`, `tenant_id`, endpoint, outcome, and key metadata where
    applicable.
 6. The policy is fail-closed for conflicting or ambiguous replay states:
+
    - mismatched request hash;
    - dependency or persistence failure while finalizing replay state;
    - live-stream concurrency over budget.
@@ -52,6 +57,7 @@ middleware.
 - Duplicate run/job creation is no longer the default failure mode for retries.
 - Operators get one place to inspect throttle, replay, and mutation audit
   outcomes.
+
 - Tenant fairness is enforced close to the perimeter instead of being left to
   downstream workers.
 
@@ -60,5 +66,6 @@ middleware.
 - Clients must preserve and reuse idempotency keys intentionally.
 - Incident response must now consider replay-state persistence as part of the
   control-plane contract.
+
 - Rate-limit tuning becomes an explicit operational responsibility rather than a
   hidden runtime constant.

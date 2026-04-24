@@ -1,12 +1,15 @@
 # ADR-0085: PAG to Identification: CONSERVATIVE policy (identify iff identifiable in all DAGs in PAG)
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-02-28
 
 ## Context
+
 Causal discovery algorithms (FCI, RFCI, BCCD) often produce a Partial Ancestral Graph
 (PAG) rather than a single DAG, representing an equivalence class of DAGs consistent
 with the data and background knowledge. Identification algorithms (backdoor criterion,
@@ -16,6 +19,7 @@ when it is only identifiable under a subset of compatible DAGs. This creates a f
 sense of precision that undermines the governance guarantees of the pipeline.
 
 ## Decision
+
 1. Adopt a CONSERVATIVE identification policy: a causal effect is reported as
    identifiable if and only if it is identifiable in every DAG consistent with the PAG.
 2. Implement `pag_conservative_identify` in `foundry/methods/causal/` that enumerates
@@ -33,13 +37,19 @@ sense of precision that undermines the governance guarantees of the pipeline.
    trail.
 
 ## Consequences
+
 ### Positive
+
 - Eliminates false-positive identification claims arising from DAG selection ambiguity.
 - Partial identification bounds give policy-makers honest uncertainty ranges.
 - Override mechanism preserves flexibility for exploratory analysis.
+
 ### Negative
+
 - Equivalence class enumeration is exponential in the worst case; the 12-node
   threshold may be too conservative or too generous depending on PAG density.
+
 - Many real-world PAGs will yield `PARTIALLY_IDENTIFIED`, which may frustrate
   analysts expecting point estimates.
+
 - Zhang's PAG identification rules are complex to implement and test correctly.

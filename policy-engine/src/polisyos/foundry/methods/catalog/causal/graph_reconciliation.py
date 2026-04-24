@@ -1,4 +1,5 @@
 """Public causal graph reconciliation module API."""
+
 from __future__ import annotations
 
 import time
@@ -10,7 +11,6 @@ from typing import Any, ClassVar
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.catalog.causal.admg_ops import tarjan_scc
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -23,6 +23,7 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.foundry.methods.catalog.causal.admg_ops import tarjan_scc
 from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
     build_composition_failure_cards,
 )
@@ -33,8 +34,8 @@ from polisyos.foundry.methods.catalog.causal.protocols import (
 )
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentOverallStatus,
-    AlignmentReviewStatus,
     AlignmentReviewerState,
+    AlignmentReviewStatus,
     AlignmentType,
 )
 from polisyos.ir.analytics.causal_graph import (
@@ -44,8 +45,8 @@ from polisyos.ir.analytics.causal_graph import (
     EdgeSource,
     GraphType,
 )
-from polisyos.ir.analytics.cross_graph import CompositionCertificate
 from polisyos.ir.analytics.cross_graph import (
+    CompositionCertificate,
     CompositionPolicy,
     CycleScope,
     CycleType,
@@ -53,7 +54,6 @@ from polisyos.ir.analytics.cross_graph import (
 )
 from polisyos.ir.analytics.literature import (
     LiteratureCausalPrior,
-    LiteratureEdgePrior,
     ReconciliationDiagnostics,
 )
 
@@ -141,7 +141,9 @@ def _fragments_declare_cycles(fragments: list[Any]) -> bool:
 
 
 def _cycle_semantics_mode(fragments: list[Any]) -> str:
-    cyclic_fragments = [fragment for fragment in fragments if fragment.cycle_type is not CycleType.ACYCLIC]
+    cyclic_fragments = [
+        fragment for fragment in fragments if fragment.cycle_type is not CycleType.ACYCLIC
+    ]
     if not cyclic_fragments:
         return "none"
     if all(
@@ -482,7 +484,7 @@ def _find_cycle(edges: list[CausalEdge]) -> list[int] | None:
         nodes.add(edge.src)
         nodes.add(edge.dst)
         adjacency[edge.src].append((edge.dst, idx))
-    color: dict[str, int] = {node: 0 for node in nodes}  # 0=unseen, 1=active, 2=done
+    color: dict[str, int] = dict.fromkeys(nodes, 0)  # 0=unseen, 1=active, 2=done
     parent_node: dict[str, str | None] = {}
     parent_edge: dict[str, int] = {}
 
@@ -571,7 +573,10 @@ def _break_cycles(
             continue
 
         resolved_cycles += 1
-        source_tags = {tag.strip().lower() for tag in _coerce_source_tags(target.metadata.get("source_method_tags"))}
+        source_tags = {
+            tag.strip().lower()
+            for tag in _coerce_source_tags(target.metadata.get("source_method_tags"))
+        }
         current_lag = int(target.lag or 0)
         if "time-series" in source_tags:
             removed = working.pop(idx)
@@ -714,7 +719,11 @@ def compute_reconciliation_diagnostics(
             pin_rows[idx, node_index[component[0]]] = 1.0
 
     a_aug = np.vstack([d0, pin_rows]) if len(components) else d0
-    b_aug = np.concatenate([alpha, np.zeros(len(components), dtype=float)]) if len(components) else alpha
+    b_aug = (
+        np.concatenate([alpha, np.zeros(len(components), dtype=float)])
+        if len(components)
+        else alpha
+    )
 
     try:
         phi, *_ = np.linalg.lstsq(a_aug, b_aug, rcond=None)
@@ -734,7 +743,9 @@ def compute_reconciliation_diagnostics(
         undirected_neighbors[edge.src].add(edge.dst)
         undirected_neighbors[edge.dst].add(edge.src)
         current_idx = edge_lookup.get((edge.src, edge.dst))
-        if current_idx is None or _edge_confidence(sampled_edges[current_idx]) < _edge_confidence(edge):
+        if current_idx is None or _edge_confidence(sampled_edges[current_idx]) < _edge_confidence(
+            edge
+        ):
             edge_lookup[(edge.src, edge.dst)] = idx
 
     triangle_rows: list[list[tuple[int, float]]] = []
@@ -816,10 +827,9 @@ def compute_reconciliation_diagnostics(
         operators_delta1 = []
 
     harmonic = residual - curl_component
-    cyclic_inconsistency_norm = (
-        float(np.linalg.norm(np.asarray(triangle_values, dtype=float)))
-        / max(1.0, float(np.sqrt(max(1, len(triangle_values)))))
-    )
+    cyclic_inconsistency_norm = float(
+        np.linalg.norm(np.asarray(triangle_values, dtype=float))
+    ) / max(1.0, float(np.sqrt(max(1, len(triangle_values)))))
     gradient_norm = float(np.linalg.norm(gradient)) / max(1.0, float(np.sqrt(max(1, n_edges))))
     curl_norm = float(np.linalg.norm(curl_component)) / max(1.0, float(np.sqrt(max(1, n_edges))))
     harmonic_norm = float(np.linalg.norm(harmonic)) / max(1.0, float(np.sqrt(max(1, n_edges))))
@@ -827,7 +837,8 @@ def compute_reconciliation_diagnostics(
     disagreement_edges = sum(
         1
         for edge in sampled_edges
-        if bool(edge.metadata.get("llm_disagreement")) or bool(edge.metadata.get("direction_conflict"))
+        if bool(edge.metadata.get("llm_disagreement"))
+        or bool(edge.metadata.get("direction_conflict"))
     )
     disagreement_ratio = float(disagreement_edges) / max(1.0, float(len(sampled_edges)))
     irreducible_conflict_norm = max(harmonic_norm, disagreement_ratio)
@@ -988,7 +999,9 @@ class ReconcileCausalGraph:
             edges=resolved_edges,
             discovery_method="reconciled_prior_graph",
             skg_version_id=(
-                payload.literature_prior.skg_version_id if payload.literature_prior is not None else None
+                payload.literature_prior.skg_version_id
+                if payload.literature_prior is not None
+                else None
             ),
             metadata=metadata,
         )
@@ -1012,7 +1025,11 @@ def _composition_edge_key(edge: CausalEdge) -> tuple[str, str, str, str, int]:
 
 def _merge_composed_edge(existing: CausalEdge | None, incoming: CausalEdge) -> CausalEdge:
     if existing is None:
-        combined = incoming.compute_combined_confidence() if incoming.sources else incoming.combined_confidence
+        combined = (
+            incoming.compute_combined_confidence()
+            if incoming.sources
+            else incoming.combined_confidence
+        )
         return incoming.model_copy(update={"combined_confidence": combined})
 
     metadata = {**existing.metadata, **incoming.metadata}
@@ -1028,7 +1045,9 @@ def _merge_composed_edge(existing: CausalEdge | None, incoming: CausalEdge) -> C
         lag=existing.lag,
         sources=sorted(set(existing.sources) | set(incoming.sources), key=lambda item: item.value),
         data_confidence=max(
-            value for value in (existing.data_confidence, incoming.data_confidence) if value is not None
+            value
+            for value in (existing.data_confidence, incoming.data_confidence)
+            if value is not None
         )
         if any(value is not None for value in (existing.data_confidence, incoming.data_confidence))
         else None,
@@ -1043,14 +1062,20 @@ def _merge_composed_edge(existing: CausalEdge | None, incoming: CausalEdge) -> C
         )
         else None,
         llm_confidence=max(
-            value for value in (existing.llm_confidence, incoming.llm_confidence) if value is not None
+            value
+            for value in (existing.llm_confidence, incoming.llm_confidence)
+            if value is not None
         )
         if any(value is not None for value in (existing.llm_confidence, incoming.llm_confidence))
         else None,
         expert_confidence=max(
-            value for value in (existing.expert_confidence, incoming.expert_confidence) if value is not None
+            value
+            for value in (existing.expert_confidence, incoming.expert_confidence)
+            if value is not None
         )
-        if any(value is not None for value in (existing.expert_confidence, incoming.expert_confidence))
+        if any(
+            value is not None for value in (existing.expert_confidence, incoming.expert_confidence)
+        )
         else None,
         simulation_confidence=max(
             value
@@ -1062,7 +1087,8 @@ def _merge_composed_edge(existing: CausalEdge | None, incoming: CausalEdge) -> C
             for value in (existing.simulation_confidence, incoming.simulation_confidence)
         )
         else None,
-        unsupported_by_evidence=existing.unsupported_by_evidence and incoming.unsupported_by_evidence,
+        unsupported_by_evidence=existing.unsupported_by_evidence
+        and incoming.unsupported_by_evidence,
         evidence_refs=sorted(set(existing.evidence_refs) | set(incoming.evidence_refs)),
         metadata=metadata,
     )
@@ -1074,7 +1100,10 @@ def _merge_composed_edge(existing: CausalEdge | None, incoming: CausalEdge) -> C
             for value in (existing.combined_confidence, incoming.combined_confidence)
             if value is not None
         )
-        if any(value is not None for value in (existing.combined_confidence, incoming.combined_confidence))
+        if any(
+            value is not None
+            for value in (existing.combined_confidence, incoming.combined_confidence)
+        )
         else None
     )
     return merged.model_copy(update={"combined_confidence": combined_confidence})
@@ -1115,7 +1144,11 @@ def _directed_cycle_present(edges: list[CausalEdge]) -> bool:
 
 
 def _allowed_graph_types(graphs: dict[str, CausalGraphModel]) -> GraphType:
-    return GraphType.ADMG if any(graph.graph_type is GraphType.ADMG for graph in graphs.values()) else GraphType.DAG
+    return (
+        GraphType.ADMG
+        if any(graph.graph_type is GraphType.ADMG for graph in graphs.values())
+        else GraphType.DAG
+    )
 
 
 def _structural_assumptions_for_composition(
@@ -1130,7 +1163,9 @@ def _structural_assumptions_for_composition(
     ]
     if graph_type is GraphType.ADMG:
         assumptions.append(
-            "cycle_aware_sigma_view" if allow_cycle_aware_sigma else "admg_directed_component_acyclic"
+            "cycle_aware_sigma_view"
+            if allow_cycle_aware_sigma
+            else "admg_directed_component_acyclic"
         )
     return assumptions
 
@@ -1220,7 +1255,8 @@ class ComposeSCMFragments:
         graph_type = _effective_composition_graph_type(payload.fragment_graphs, payload.fragments)
         structural_assumptions = _structural_assumptions_for_composition(
             graph_type,
-            allow_cycle_aware_sigma=declared_cycle_semantics and cycle_semantics_mode == "sigma_separation",
+            allow_cycle_aware_sigma=declared_cycle_semantics
+            and cycle_semantics_mode == "sigma_separation",
         )
         warnings = list(payload.alignment_report.ontology_mismatch_warnings)
         blocking_reasons: list[str] = []
@@ -1232,7 +1268,9 @@ class ComposeSCMFragments:
         ]
         disconnected_fragment_ids = [
             str(fragment_id)
-            for fragment_id in payload.alignment_report.metadata.get("disconnected_fragment_ids", [])
+            for fragment_id in payload.alignment_report.metadata.get(
+                "disconnected_fragment_ids", []
+            )
             if str(fragment_id).strip()
         ]
         boundary_interface_variables = dict(
@@ -1244,8 +1282,7 @@ class ComposeSCMFragments:
                 for left, right in payload.direct_stitch_pairs
             )
             observed_pairs = sorted(
-                tuple(sorted((str(left), str(right))))
-                for left, right in selected_stitch_pairs
+                tuple(sorted((str(left), str(right)))) for left, right in selected_stitch_pairs
             )
             if observed_pairs and observed_pairs != expected_pairs:
                 blocking_reasons.append(
@@ -1269,7 +1306,11 @@ class ComposeSCMFragments:
                 blocking_reasons.append(
                     f"Fragment {fragment_id} has no admissible stitch partner in the selected topology."
                 )
-        if len(payload.fragments) > 1 and not payload.interface_mapping.entries and not blocking_reasons:
+        if (
+            len(payload.fragments) > 1
+            and not payload.interface_mapping.entries
+            and not blocking_reasons
+        ):
             blocking_reasons.append("Missing alignment coverage for fragment composition.")
 
         binding_to_node: dict[tuple[str, str], str] = {}
@@ -1285,7 +1326,9 @@ class ComposeSCMFragments:
             if entry.reviewer == AlignmentReviewerState.PENDING_REVIEW.value:
                 needs_expert_review = True
             for binding in entry.bindings:
-                binding_to_node[(binding.fragment_id, binding.variable_name)] = entry.canonical_node_id
+                binding_to_node[(binding.fragment_id, binding.variable_name)] = (
+                    entry.canonical_node_id
+                )
 
         for certificate in payload.alignment_report.per_variable_certificates:
             if certificate.reviewer is AlignmentReviewerState.PENDING_REVIEW:
@@ -1358,13 +1401,16 @@ class ComposeSCMFragments:
         ):
             structural_violations.append("DAG composition produced non-directed edges.")
         if graph_type is GraphType.ADMG and any(
-            (edge.mark_src, edge.mark_dst) not in {
+            (edge.mark_src, edge.mark_dst)
+            not in {
                 (EdgeMark.TAIL, EdgeMark.ARROW),
                 (EdgeMark.ARROW, EdgeMark.ARROW),
             }
             for edge in merged_edge_list
         ):
-            structural_violations.append("ADMG composition produced unsupported edge endpoint marks.")
+            structural_violations.append(
+                "ADMG composition produced unsupported edge endpoint marks."
+            )
         directed_cycle_present = _directed_cycle_present(merged_edge_list)
         cross_fragment_cycle_components = (
             _cross_fragment_cycle_components(node_set, merged_edge_list)
@@ -1377,8 +1423,7 @@ class ComposeSCMFragments:
                 for item in cross_fragment_cycle_components
             )
             structural_violations.append(
-                "Fragment composition introduces a cross-fragment directed cycle SCC: "
-                f"{summary}."
+                f"Fragment composition introduces a cross-fragment directed cycle SCC: {summary}."
             )
         elif directed_cycle_present and not declared_cycle_semantics:
             structural_violations.append("Fragment composition introduces a directed cycle.")
@@ -1400,7 +1445,9 @@ class ComposeSCMFragments:
                 edges=merged_edge_list,
                 discovery_method="scm_fragment_composition",
                 metadata={
-                    "source_fragment_ids": sorted(fragment.fragment_id for fragment in payload.fragments),
+                    "source_fragment_ids": sorted(
+                        fragment.fragment_id for fragment in payload.fragments
+                    ),
                     "interface_mapping_entry_ids": [
                         entry.interface_id for entry in payload.interface_mapping.entries
                     ],
@@ -1469,8 +1516,12 @@ class ComposeSCMFragments:
             blocking_reasons=_dedupe_preserve(blocking_reasons),
             metadata={
                 "graph_type": graph_type.value,
-                "source_fragment_ids": sorted(fragment.fragment_id for fragment in payload.fragments),
-                "incompatible_pairs": [list(pair) for pair in payload.alignment_report.incompatible_pairs],
+                "source_fragment_ids": sorted(
+                    fragment.fragment_id for fragment in payload.fragments
+                ),
+                "incompatible_pairs": [
+                    list(pair) for pair in payload.alignment_report.incompatible_pairs
+                ],
                 "selected_stitch_pairs": [list(pair) for pair in selected_stitch_pairs],
                 "boundary_interface_variables": boundary_interface_variables,
                 "disconnected_fragment_ids": disconnected_fragment_ids,
@@ -1503,17 +1554,17 @@ class ComposeSCMFragments:
 
 
 __all__ = [
-    "LLM_PRIOR_CEILING",
     "LLM_OVERLAP_DISCOUNT",
+    "LLM_PRIOR_CEILING",
     "LLM_REPLICATION_BONUS",
-    "MAX_LAG_DEPTH",
-    "MAX_LAGGED_EDGES",
     "MAX_CYCLES_TO_RESOLVE",
-    "MAX_RECON_SOURCES",
+    "MAX_LAGGED_EDGES",
+    "MAX_LAG_DEPTH",
     "MAX_RECON_EDGES",
+    "MAX_RECON_SOURCES",
     "MAX_TRIANGLES",
     "TRIANGLE_BUDGET_MS",
     "ComposeSCMFragments",
-    "compute_reconciliation_diagnostics",
     "ReconcileCausalGraph",
+    "compute_reconciliation_diagnostics",
 ]

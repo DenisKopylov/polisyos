@@ -2,17 +2,22 @@
 
 from __future__ import annotations
 
-import tempfile
-from pathlib import Path
 import sys
+import tempfile
 import types
+from pathlib import Path
 
 import duckdb
 
 from polisyos.datasets.batch.graph_builder import build_graph
 from polisyos.datasets.knowledge.search import DatasetCatalogGraph, SearchFilters
 from polisyos.datasets.knowledge.store import DatasetCatalogStore
-from polisyos.datasets.knowledge.types import DatasetCoverage, DatasetQuality, DatasetRecord, DistributionRecord
+from polisyos.datasets.knowledge.types import (
+    DatasetCoverage,
+    DatasetQuality,
+    DatasetRecord,
+    DistributionRecord,
+)
 
 
 def _build_test_db(tmpdir: str) -> Path:
@@ -47,7 +52,9 @@ def _build_test_db(tmpdir: str) -> Path:
             source="worldbank",
             source_dataset_id="NY.GDP.PCAP.CD",
             execution_tier="fetchable",
-            coverage=DatasetCoverage(countries=["UA", "PL"], time_start="2018", time_end="2024", granularity="annual"),
+            coverage=DatasetCoverage(
+                countries=["UA", "PL"], time_start="2018", time_end="2024", granularity="annual"
+            ),
             quality=DatasetQuality(execution_readiness_score=0.91),
             preferred_distribution_id="dist-gdp-1",
         ),
@@ -62,7 +69,9 @@ def _build_test_db(tmpdir: str) -> Path:
             formats=["CSV"],
             source="ilo",
             execution_tier="transport_ready",
-            coverage=DatasetCoverage(countries=["DE"], time_start="2019", time_end="2023", granularity="annual"),
+            coverage=DatasetCoverage(
+                countries=["DE"], time_start="2019", time_end="2023", granularity="annual"
+            ),
             quality=DatasetQuality(execution_readiness_score=0.74),
             distributions=[],
         ),
@@ -131,8 +140,30 @@ def test_resolve_metric_bindings_prefers_transport_ready_and_schema_ready() -> N
                 "(metric_id, dataset_id, distribution_id, connector_id, profile_id, request_dataset_id, confidence, default_filters, execution_tier, source) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 [
-                    ("gdp", "ds-gdp", "dist-gdp-1", "worldbank.wdi", "worldbank_wdi", "NY.GDP.PCAP.CD", 0.99, "{}", "fetchable", "worldbank"),
-                    ("gdp", "ds-gdp-alt", "dist-gdp-alt", "sdmx.source", "oecd_sdmx", "GDP_ALT", 0.70, "{}", "transport_ready", "oecd"),
+                    (
+                        "gdp",
+                        "ds-gdp",
+                        "dist-gdp-1",
+                        "worldbank.wdi",
+                        "worldbank_wdi",
+                        "NY.GDP.PCAP.CD",
+                        0.99,
+                        "{}",
+                        "fetchable",
+                        "worldbank",
+                    ),
+                    (
+                        "gdp",
+                        "ds-gdp-alt",
+                        "dist-gdp-alt",
+                        "sdmx.source",
+                        "oecd_sdmx",
+                        "GDP_ALT",
+                        0.70,
+                        "{}",
+                        "transport_ready",
+                        "oecd",
+                    ),
                 ],
             )
             con.execute(
@@ -337,12 +368,16 @@ def test_graph_suggest_related_uses_metric_overlap() -> None:
 def test_graph_search_datasets_skips_embedding_import_when_index_missing(monkeypatch) -> None:
     class _PoisonModule(types.ModuleType):
         def __getattr__(self, name: str) -> object:
-            raise AssertionError("sentence_transformers should not be imported when vector index is missing")
+            raise AssertionError(
+                "sentence_transformers should not be imported when vector index is missing"
+            )
 
     with tempfile.TemporaryDirectory() as tmpdir:
         db_path = _build_test_db(tmpdir)
         graph = DatasetCatalogGraph(db_path, Path(tmpdir))
-        monkeypatch.setitem(sys.modules, "sentence_transformers", _PoisonModule("sentence_transformers"))
+        monkeypatch.setitem(
+            sys.modules, "sentence_transformers", _PoisonModule("sentence_transformers")
+        )
         try:
             results = graph.search_datasets("gdp per capita", top_k=5)
             assert results

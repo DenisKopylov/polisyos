@@ -6,12 +6,14 @@ import json
 import re
 import urllib.parse
 import urllib.request
-from collections.abc import Sequence
 from html.parser import HTMLParser
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.scholar.search.models import SearchConstraints, WebSearchHit
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class WebSearchProvider(Protocol):
@@ -61,7 +63,7 @@ class ProviderFailoverPolicy:
                     timeout_s=timeout_s,
                 )
                 return provider.name, hits, None
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 last_error = f"{provider.name}: {exc}"
                 continue
         return self._providers[-1].name, [], last_error
@@ -225,7 +227,9 @@ class WikipediaOpenSearchProvider:
             title = str(item.get("title") or "")
             if page_id is None or not title:
                 continue
-            target_url = f"https://en.wikipedia.org/wiki/{urllib.parse.quote(title.replace(' ', '_'))}"
+            target_url = (
+                f"https://en.wikipedia.org/wiki/{urllib.parse.quote(title.replace(' ', '_'))}"
+            )
             hits.append(
                 WebSearchHit(
                     url=target_url,
@@ -289,9 +293,7 @@ class _DuckDuckGoParser(HTMLParser):
             self._current_title_parts = []
         if tag in {"a", "div", "span"} and self._capture_snippet:
             self._capture_snippet = False
-            snippet = " ".join(
-                part.strip() for part in self._current_snippet_parts if part.strip()
-            )
+            snippet = " ".join(part.strip() for part in self._current_snippet_parts if part.strip())
             if self._pending_hit is not None:
                 self.hits.append(
                     self._pending_hit.model_copy(
@@ -381,8 +383,10 @@ def _infer_source_type(url: str, title: str, snippet: str) -> str:
 def _domain_matches(domain: str, pattern: str) -> bool:
     domain = domain.lower().strip(".")
     pattern = pattern.lower().strip(".")
-    return domain == pattern or domain.endswith(f".{pattern}") or (
-        pattern.startswith(".") and domain.endswith(pattern.strip("."))
+    return (
+        domain == pattern
+        or domain.endswith(f".{pattern}")
+        or (pattern.startswith(".") and domain.endswith(pattern.strip(".")))
     )
 
 
@@ -414,6 +418,6 @@ __all__ = [
     "BraveSearchProvider",
     "DuckDuckGoHtmlSearchProvider",
     "ProviderFailoverPolicy",
-    "WikipediaOpenSearchProvider",
     "WebSearchProvider",
+    "WikipediaOpenSearchProvider",
 ]

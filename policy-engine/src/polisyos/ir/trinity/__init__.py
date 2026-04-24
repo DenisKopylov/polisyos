@@ -5,6 +5,7 @@ the proposed intervention/governance surface, and ``ModelSpec`` defines **how**
 the world is simulated. ``TrinityBundle`` keeps these contracts together for
 loading, validation, and migration-safe persistence.
 """
+
 from __future__ import annotations
 
 from pydantic import Field
@@ -28,9 +29,9 @@ class TrinityBundle(KernelModel):
 
 
 __all__ = [
-    "ProblemFrame",
-    "PolicySpec",
-    "ModelSpec",
-    "TrinityBundle",
     "TRINITY_BUNDLE_SCHEMA_VERSION",
+    "ModelSpec",
+    "PolicySpec",
+    "ProblemFrame",
+    "TrinityBundle",
 ]

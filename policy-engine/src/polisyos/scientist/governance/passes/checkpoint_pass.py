@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, List
+from typing import Any
 
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
@@ -28,7 +28,7 @@ class CheckpointPass(ValidatorPass):
     def estimated_cost_ms(self) -> int:
         return 20
 
-    def validate(self, ctx: PassContext) -> List[ComplianceIssue]:
+    def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
         issues: list[ComplianceIssue] = []
         state = ctx.state
         checkpoint_required = _checkpoint_required(state)
@@ -55,11 +55,7 @@ class CheckpointPass(ValidatorPass):
                 )
             )
 
-        timestamps = [
-            cp.get("timestamp", "")
-            for cp in checkpoints
-            if isinstance(cp, dict)
-        ]
+        timestamps = [cp.get("timestamp", "") for cp in checkpoints if isinstance(cp, dict)]
         if timestamps and timestamps != sorted(timestamps):
             issues.append(
                 ComplianceIssue(

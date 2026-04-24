@@ -1,13 +1,13 @@
 """Unit tests for fail-closed automatic latent-bridge synthesis (Stage 2.4)."""
+
 from __future__ import annotations
 
 import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.alignment_certification import (
-    AlignmentOverallStatus,
-    AlignmentReviewStatus,
     AlignmentReviewerState,
+    AlignmentReviewStatus,
     AlignmentType,
     AlignmentVerificationConfig,
     VariableAlignmentCertificate,
@@ -34,7 +34,6 @@ from polisyos.ir.analytics.latent_bridge_synthesis import (
     synthesize_latent_bridge,
 )
 from polisyos.ir.refs import LatentBridgeHypothesisRef
-
 
 PAIR_KEY = "fragA:var|fragB:var"
 
@@ -254,10 +253,7 @@ def test_environment_only_evidence_is_refused_by_default() -> None:
         policy=_accept_policy(),
     )
     assert hypothesis.status is LatentBridgeStatus.BLOCKED
-    assert (
-        LatentBridgeBlockReason.ENVIRONMENT_ONLY_EVIDENCE
-        in hypothesis.block_conditions_checked
-    )
+    assert LatentBridgeBlockReason.ENVIRONMENT_ONLY_EVIDENCE in hypothesis.block_conditions_checked
 
 
 def test_missing_metric_invariance_blocks_environment_mode_when_scaffold_present() -> None:
@@ -270,9 +266,7 @@ def test_missing_metric_invariance_blocks_environment_mode_when_scaffold_present
         anchor_items=["anchor:1", "anchor:2"],
         dif_free_anchor_set=True,
         leave_one_anchor_out_stable=True,
-        candidates=[
-            _good_candidate(mode=LatentBridgeSynthesisMode.MEASUREMENT_MODEL)
-        ],
+        candidates=[_good_candidate(mode=LatentBridgeSynthesisMode.MEASUREMENT_MODEL)],
     )
     hypothesis = synthesize_latent_bridge(
         pair_key=PAIR_KEY,
@@ -303,8 +297,7 @@ def test_single_proxy_family_blocks_proxy_mode() -> None:
     )
     assert hypothesis.status is LatentBridgeStatus.BLOCKED
     assert (
-        LatentBridgeBlockReason.NO_ADMISSIBLE_CANDIDATE
-        in hypothesis.block_conditions_checked
+        LatentBridgeBlockReason.NO_ADMISSIBLE_CANDIDATE in hypothesis.block_conditions_checked
         or LatentBridgeBlockReason.INSUFFICIENT_PROXY_FAMILIES
         in hypothesis.block_conditions_checked
     )
@@ -368,17 +361,12 @@ def test_bootstrap_instability_blocks_candidate() -> None:
         policy=_accept_policy(),
     )
     assert hypothesis.status is LatentBridgeStatus.BLOCKED
-    assert (
-        LatentBridgeBlockReason.BOOTSTRAP_INSTABILITY
-        in hypothesis.block_conditions_checked
-    )
+    assert LatentBridgeBlockReason.BOOTSTRAP_INSTABILITY in hypothesis.block_conditions_checked
 
 
 def test_alternative_model_not_beaten_blocks_candidate() -> None:
     evidence = _admissible_measurement_evidence(
-        candidate=_good_candidate().model_copy(
-            update={"alternative_model_beaten": False}
-        ),
+        candidate=_good_candidate().model_copy(update={"alternative_model_beaten": False}),
     )
     hypothesis = synthesize_latent_bridge(
         pair_key=PAIR_KEY,
@@ -387,8 +375,7 @@ def test_alternative_model_not_beaten_blocks_candidate() -> None:
     )
     assert hypothesis.status is LatentBridgeStatus.BLOCKED
     assert (
-        LatentBridgeBlockReason.ALTERNATIVE_MODEL_NOT_BEATEN
-        in hypothesis.block_conditions_checked
+        LatentBridgeBlockReason.ALTERNATIVE_MODEL_NOT_BEATEN in hypothesis.block_conditions_checked
     )
 
 
@@ -402,17 +389,12 @@ def test_post_hoc_modifications_block_candidate() -> None:
         policy=_accept_policy(),
     )
     assert hypothesis.status is LatentBridgeStatus.BLOCKED
-    assert (
-        LatentBridgeBlockReason.POST_HOC_MODIFICATIONS
-        in hypothesis.block_conditions_checked
-    )
+    assert LatentBridgeBlockReason.POST_HOC_MODIFICATIONS in hypothesis.block_conditions_checked
 
 
 def test_heywood_improper_solution_blocks_candidate() -> None:
     evidence = _admissible_measurement_evidence(
-        candidate=_good_candidate().model_copy(
-            update={"heywood_improper_solution": True}
-        ),
+        candidate=_good_candidate().model_copy(update={"heywood_improper_solution": True}),
     )
     hypothesis = synthesize_latent_bridge(
         pair_key=PAIR_KEY,
@@ -420,10 +402,7 @@ def test_heywood_improper_solution_blocks_candidate() -> None:
         policy=_accept_policy(),
     )
     assert hypothesis.status is LatentBridgeStatus.BLOCKED
-    assert (
-        LatentBridgeBlockReason.HEYWOOD_IMPROPER_SOLUTION
-        in hypothesis.block_conditions_checked
-    )
+    assert LatentBridgeBlockReason.HEYWOOD_IMPROPER_SOLUTION in hypothesis.block_conditions_checked
 
 
 def test_failing_falsification_test_blocks_candidate() -> None:
@@ -446,10 +425,7 @@ def test_failing_falsification_test_blocks_candidate() -> None:
         policy=_accept_policy(),
     )
     assert hypothesis.status is LatentBridgeStatus.BLOCKED
-    assert (
-        LatentBridgeBlockReason.FALSIFICATION_TEST_FAILED
-        in hypothesis.block_conditions_checked
-    )
+    assert LatentBridgeBlockReason.FALSIFICATION_TEST_FAILED in hypothesis.block_conditions_checked
 
 
 # ------------------------------------------------------------------ ambiguity
@@ -469,8 +445,7 @@ def test_multiple_surviving_candidates_yield_blocked_ambiguous() -> None:
     )
     assert hypothesis.status is LatentBridgeStatus.BLOCKED_AMBIGUOUS
     assert (
-        LatentBridgeBlockReason.AMBIGUOUS_COMPETING_LATENTS
-        in hypothesis.block_conditions_checked
+        LatentBridgeBlockReason.AMBIGUOUS_COMPETING_LATENTS in hypothesis.block_conditions_checked
     )
     assert hypothesis.metadata["surviving_candidate_ids"] == ["cand-a", "cand-b"]
 
@@ -602,7 +577,7 @@ def test_verify_fragment_alignment_emits_auto_latent_bridge_when_policy_enabled(
         latent_bridge_policy=_accept_policy(),
         latent_bridge_evidence={pair_key: evidence},
     )
-    report, mapping = verify_fragment_alignment(
+    report, _mapping = verify_fragment_alignment(
         fragment_a,
         fragment_b,
         config=config,

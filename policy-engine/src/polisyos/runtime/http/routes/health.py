@@ -1,7 +1,8 @@
 """Public routes health module API."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.runtime.http.container import get_runtime_container, resolve_runtime_metrics
@@ -58,7 +59,7 @@ if router is not None:
         payload: dict[str, Any] = {
             "status": "ok",
             "service": "runtime_api_v1",
-            "ts": datetime.now(timezone.utc).isoformat(),
+            "ts": datetime.now(UTC).isoformat(),
         }
         lifecycle = _runtime_lifecycle_payload(request)
         if lifecycle:

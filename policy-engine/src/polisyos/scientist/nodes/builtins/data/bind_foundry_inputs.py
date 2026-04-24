@@ -1,4 +1,5 @@
 """Public data bind foundry inputs module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
@@ -71,13 +72,14 @@ class BindFoundryInputsNode:
     consistency, and writes the input-bindings ref, bound state snapshot, and
     input-binding report needed by simulation and compile stages.
     """
+
     strict_model_spec_match: bool = True
 
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
 
-    def bind(self, params: dict[str, Any]) -> "BindFoundryInputsNode":
+    def bind(self, params: dict[str, Any]) -> BindFoundryInputsNode:
         if not params:
             return self
         strict_model_spec_match = params.get(

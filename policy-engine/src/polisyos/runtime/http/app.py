@@ -1,4 +1,5 @@
 """Assembles the FastAPI runtime surface, middleware chain, and OpenAPI contract."""
+
 from __future__ import annotations
 
 import os
@@ -91,9 +92,7 @@ def create_runtime_api_app(
     )
     policy_resolver = RuntimeExecutionPolicyResolver.from_env()
     security_chain_available = (
-        identity_provider is not None
-        and cell_registry is not None
-        and opa_client is not None
+        identity_provider is not None and cell_registry is not None and opa_client is not None
     )
     deployment_policy = policy_resolver.validate_bootstrap(
         authz_shadow_mode=authz_shadow_mode,
@@ -145,8 +144,7 @@ def create_runtime_api_app(
         title="PolicyOS Runtime API",
         version="1.0.0",
         description=(
-            "Runtime API v1: run explorer, debug, and artifact inspector "
-            "surfaces for PolicyOS."
+            "Runtime API v1: run explorer, debug, and artifact inspector surfaces for PolicyOS."
         ),
         lifespan=_runtime_lifespan,
     )

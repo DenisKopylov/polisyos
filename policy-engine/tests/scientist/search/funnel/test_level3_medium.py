@@ -4,11 +4,9 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-import pytest
-
 from polisyos.scientist.search.funnel.level3_medium import (
-    Level3MediumFidelity,
     _FORBIDDEN_PRUNING_METRICS,
+    Level3MediumFidelity,
 )
 
 
@@ -106,10 +104,12 @@ class TestLevel3MediumFidelity:
 
     def test_objective_matches_expensive_stage_formula(self):
         """Objective formula must match ExpensiveStage._compute_default_objective."""
-        engine = _make_mock_engine({
-            "simulation_results": {"gdp_change": 0.05, "gov_balance": -0.02},
-            "feedback": {"verdict": "APPROVE"},
-        })
+        engine = _make_mock_engine(
+            {
+                "simulation_results": {"gdp_change": 0.05, "gov_balance": -0.02},
+                "feedback": {"verdict": "APPROVE"},
+            }
+        )
         stage = Level3MediumFidelity(workflow_engine=engine)
         result = stage.evaluate(_make_candidate(), {})
 

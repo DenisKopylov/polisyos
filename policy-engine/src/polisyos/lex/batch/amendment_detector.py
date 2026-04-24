@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
-from polisyos.lex.batch.temporal_parser import parse_temporal_constraints
 from polisyos.lex.batch.patterns import AMENDMENT_CORE_RE
-
-import re
+from polisyos.lex.batch.temporal_parser import parse_temporal_constraints
 
 # --- Structural amendment patterns (capture groups for target/old/new text) ---
 
@@ -173,7 +172,7 @@ def _should_keep_fallback_signal(text: str, match: re.Match[str]) -> bool:
     source_text = " ".join(match.group(0).split()).strip().lower()
     if source_text not in _LOW_SIGNAL_FALLBACKS:
         return True
-    window = text[max(0, match.start() - 120): min(len(text), match.end() + 120)]
+    window = text[max(0, match.start() - 120) : min(len(text), match.end() + 120)]
     return bool(_FALLBACK_CONTEXT_RE.search(window))
 
 
@@ -238,8 +237,7 @@ def detect_amendments(text: str) -> list[AmendmentRecord]:
     for match in AMENDMENT_CORE_RE.finditer(text):
         span = (match.start(), match.end())
         if any(
-            abs(span[0] - s) < 15 or (s <= span[0] < e or s < span[1] <= e)
-            for s, e in seen_spans
+            abs(span[0] - s) < 15 or (s <= span[0] < e or s < span[1] <= e) for s, e in seen_spans
         ):
             continue
         if not _should_keep_fallback_signal(text, match):

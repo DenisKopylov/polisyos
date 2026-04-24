@@ -191,9 +191,7 @@ class ScientistSupervisorAgent:
                 max(1, self_moa_replicas or self._config.max_self_moa_replicas),
             )
             if self_moa_replicas is not None and self_moa_replicas > replicas:
-                warnings.append(
-                    f"self_moa_replicas capped at {replicas}"
-                )
+                warnings.append(f"self_moa_replicas capped at {replicas}")
             expanded: list[WorkerTaskEnvelope] = []
             for envelope in requested:
                 expanded.extend(
@@ -223,9 +221,7 @@ class ScientistSupervisorAgent:
                 unique_envelopes.append(envelope)
             else:
                 deduped_id = f"{envelope.task_id}__{count + 1}"
-                warnings.append(
-                    f"duplicate task_id '{envelope.task_id}' renamed to '{deduped_id}'"
-                )
+                warnings.append(f"duplicate task_id '{envelope.task_id}' renamed to '{deduped_id}'")
                 unique_envelopes.append(envelope.model_copy(update={"task_id": deduped_id}))
 
         planned: list[WorkerTaskEnvelope] = []
@@ -250,9 +246,7 @@ class ScientistSupervisorAgent:
             planned.append(envelope)
 
         if skipped:
-            warnings.append(
-                f"skipped {len(skipped)} worker task(s) due to worker/budget caps"
-            )
+            warnings.append(f"skipped {len(skipped)} worker task(s) due to worker/budget caps")
         return planned, skipped, warnings
 
     async def _execute_envelopes(
@@ -428,9 +422,7 @@ class ScientistSupervisorAgent:
                             f"missing={missing}, failed={failed_dependencies}"
                         ),
                         error_type=(
-                            "worker_dependency_missing"
-                            if missing
-                            else "worker_dependency_failed"
+                            "worker_dependency_missing" if missing else "worker_dependency_failed"
                         ),
                     )
                     results[index] = result
@@ -455,10 +447,7 @@ class ScientistSupervisorAgent:
                 if result is not None and not result.success:
                     failed_or_blocked.add(result.task_id)
 
-        return [
-            item for item in results
-            if item is not None
-        ]
+        return [item for item in results if item is not None]
 
     def _synthesize_results(
         self,
@@ -485,9 +474,7 @@ class ScientistSupervisorAgent:
             if mode == SupervisorSynthesisMode.SECTIONING or result.task_id in winners
         )
         avg_confidence = (
-            sum(result.confidence for result in successes) / len(successes)
-            if successes
-            else 0.0
+            sum(result.confidence for result in successes) / len(successes) if successes else 0.0
         )
         total_cost = sum((result.cost_usd for result in worker_results), Decimal("0"))
         merged_warnings = [*warnings]
@@ -588,10 +575,7 @@ def _synthesize_votes(
             ),
         )
         winner_label = ranked_labels[0] if ranked_labels else ""
-        winners = [
-            result for result in group_results
-            if result.normalized_vote_key == winner_label
-        ]
+        winners = [result for result in group_results if result.normalized_vote_key == winner_label]
         representative = max(
             winners,
             key=lambda result: (result.confidence, -result.duration_ms, result.task_id),
@@ -675,26 +659,19 @@ def _worker_execution_tiers(
             alias=alias_by_task_id[envelope.task_id],
             node_id=_WORKER_DAG_NODE_ID,
             depends_on=[
-                alias_by_task_id[task_id]
-                for task_id in dependencies
-                if task_id in alias_by_task_id
+                alias_by_task_id[task_id] for task_id in dependencies if task_id in alias_by_task_id
             ],
         )
 
     return (
-        [
-            [alias_to_index[alias] for alias in tier]
-            for tier in topo_sort_tiers(invocations)
-        ],
+        [[alias_to_index[alias] for alias in tier] for tier in topo_sort_tiers(invocations)],
         missing_dependencies,
     )
 
 
 def _worker_dependencies(envelope: WorkerTaskEnvelope) -> list[str]:
     metadata_dependencies = (
-        envelope.metadata.get("depends_on_task_ids")
-        or envelope.metadata.get("depends_on")
-        or []
+        envelope.metadata.get("depends_on_task_ids") or envelope.metadata.get("depends_on") or []
     )
     raw_dependencies: list[str] = [*envelope.depends_on_task_ids]
     if isinstance(metadata_dependencies, str):
@@ -729,9 +706,7 @@ def _record_worker_success(
             node_id=envelope.worker_name,
             started_at=started_at,
             ended_at=datetime.now(UTC),
-            input_refs=[
-                f"worker_objective:{envelope.task_id}:{_hashish(envelope.objective)}"
-            ],
+            input_refs=[f"worker_objective:{envelope.task_id}:{_hashish(envelope.objective)}"],
             output_refs=[f"worker_result:{result.task_id}:{_hashish(result.output_text)}"],
             params={
                 "mode": envelope.mode.value,

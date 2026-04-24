@@ -29,7 +29,13 @@ from .sql import (
     validate_qualified_sql_identifier,
     validate_sql_identifier,
 )
-from .timing import ToolRunRecord, append_timing_record, make_timing_record, timed_tool_run, timing_log_from_env
+from .timing import (
+    ToolRunRecord,
+    append_timing_record,
+    make_timing_record,
+    timed_tool_run,
+    timing_log_from_env,
+)
 
 __all__ = [
     "OUTPUT_FORMATS",
@@ -42,11 +48,11 @@ __all__ = [
     "ToolRunRecord",
     "ToolSpec",
     "ToolStatus",
+    "append_timing_record",
     "atomic_replace_path",
     "atomic_write_bytes",
     "atomic_write_json",
     "atomic_write_text",
-    "append_timing_record",
     "ensure_repo_import_roots",
     "exclusive_lock",
     "format_tool_result",
@@ -66,7 +72,7 @@ __all__ = [
     "validate_command_prefix",
     "validate_qualified_sql_identifier",
     "validate_sql_identifier",
-    "write_tool_result",
     "write_json_exclusive",
     "write_text_exclusive",
+    "write_tool_result",
 ]

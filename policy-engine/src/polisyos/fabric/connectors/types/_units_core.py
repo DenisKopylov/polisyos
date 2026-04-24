@@ -1,18 +1,18 @@
 """Core Unit class with parsing, compatibility, conversion, and arithmetic."""
+
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import cached_property
-from typing import Mapping
 
 from polisyos.fabric.connectors.types.dimensions import Dimension
 
 from ._units_base import (
     STANDARD_UNITS,
     SUPERSCRIPT_MAP,
-    BaseUnit,
     ConversionFactor,
 )
 from ._units_errors import UnitConversionError, UnitParseError
@@ -77,7 +77,7 @@ class Unit:
             raise TypeError(f"dimension must be Dimension, got {type(self.dimension)}")
 
     @classmethod
-    def parse(cls, unit_str: str) -> "Unit":
+    def parse(cls, unit_str: str) -> Unit:
         """
         Parse a unit string into a Unit object.
 
@@ -113,7 +113,7 @@ class Unit:
         return cls._parse_compound(unit_str)
 
     @classmethod
-    def _parse_compound(cls, unit_str: str) -> "Unit":
+    def _parse_compound(cls, unit_str: str) -> Unit:
         """Parse a potentially compound unit string."""
         # Normalize the string
         normalized = unit_str.replace("\u00b7", "*").replace("\u00d7", "*")
@@ -134,7 +134,7 @@ class Unit:
         return cls._parse_product(normalized)
 
     @classmethod
-    def _parse_product(cls, unit_str: str) -> "Unit":
+    def _parse_product(cls, unit_str: str) -> Unit:
         """Parse a product of units (e.g., 'kg*m')."""
         # Split by multiplication signs
         parts = re.split(r"[\*\s]+", unit_str)
@@ -144,11 +144,7 @@ class Unit:
             raise UnitParseError(unit_str, "no unit components found")
 
         # Handle prefix token followed by unit token (e.g., "Mio EUR")
-        if (
-            len(parts) == 2
-            and parts[0] in PREFIX_FACTORS
-            and parts[0] not in STANDARD_UNITS
-        ):
+        if len(parts) == 2 and parts[0] in PREFIX_FACTORS and parts[0] not in STANDARD_UNITS:
             prefix_symbol = parts[0]
             base_unit = cls._parse_single(parts[1])
             if base_unit.to_canonical_offset != 0:
@@ -170,7 +166,7 @@ class Unit:
         return result
 
     @classmethod
-    def _parse_single(cls, unit_str: str) -> "Unit":
+    def _parse_single(cls, unit_str: str) -> Unit:
         """Parse a single unit with optional prefix and exponent."""
         if not unit_str:
             raise UnitParseError(unit_str, "empty component")
@@ -203,12 +199,12 @@ class Unit:
         base_unit = cls._lookup_base_unit(unit_str)
 
         if exponent != 1:
-            return base_unit ** exponent
+            return base_unit**exponent
 
         return base_unit
 
     @classmethod
-    def _lookup_base_unit(cls, unit_str: str) -> "Unit":
+    def _lookup_base_unit(cls, unit_str: str) -> Unit:
         """Look up a base unit, handling prefixes."""
         # First, try direct lookup
         if unit_str in STANDARD_UNITS:
@@ -240,7 +236,7 @@ class Unit:
             reverse=True,  # Try longer prefixes first
         ):
             if unit_str.startswith(prefix_symbol) and len(unit_str) > len(prefix_symbol):
-                remainder = unit_str[len(prefix_symbol):]
+                remainder = unit_str[len(prefix_symbol) :]
 
                 # Look up the remainder
                 if remainder in STANDARD_UNITS:
@@ -272,7 +268,7 @@ class Unit:
         raise UnitParseError(unit_str, f"unknown unit '{unit_str}'")
 
     @classmethod
-    def dimensionless(cls) -> "Unit":
+    def dimensionless(cls) -> Unit:
         """Create a dimensionless unit."""
         return cls(
             symbol="1",
@@ -283,7 +279,7 @@ class Unit:
         )
 
     @classmethod
-    def from_kernel_unit(cls, unit_id: str) -> "Unit":
+    def from_kernel_unit(cls, unit_id: str) -> Unit:
         """
         Create a Unit from an ir/kernel/units.py unit ID.
 
@@ -352,7 +348,7 @@ class Unit:
             return "*".join(parts)
         return self.symbol
 
-    def is_compatible_with(self, other: "Unit") -> bool:
+    def is_compatible_with(self, other: Unit) -> bool:
         """
         Check if two units are dimensionally compatible.
 
@@ -367,7 +363,7 @@ class Unit:
         """
         return self.dimension.is_compatible_with(other.dimension)
 
-    def get_conversion_factor(self, target: "Unit") -> ConversionFactor:
+    def get_conversion_factor(self, target: Unit) -> ConversionFactor:
         """
         Get the conversion factor from this unit to the target unit.
 
@@ -391,7 +387,9 @@ class Unit:
         # Calculate the conversion factor (affine aware)
         # value_target = (value_source * f_s + o_s - o_t) / f_t
         multiplier = self.to_canonical_factor / target.to_canonical_factor
-        offset = (self.to_canonical_offset - target.to_canonical_offset) / target.to_canonical_factor
+        offset = (
+            self.to_canonical_offset - target.to_canonical_offset
+        ) / target.to_canonical_factor
 
         return ConversionFactor(
             multiplier=multiplier,
@@ -401,7 +399,7 @@ class Unit:
 
     def convert_to(
         self,
-        target: "Unit",
+        target: Unit,
         value: float | Decimal,
         *,
         exchange_rates: Mapping[tuple[str, str], Decimal] | None = None,
@@ -433,8 +431,7 @@ class Unit:
         if factor.requires_rate:
             if exchange_rates is None:
                 raise UnitConversionError(
-                    self, target,
-                    f"exchange rate required for {self.symbol} -> {target.symbol}"
+                    self, target, f"exchange rate required for {self.symbol} -> {target.symbol}"
                 )
 
             from_currency = self._currency_code()
@@ -447,8 +444,9 @@ class Unit:
                     rate = Decimal("1") / exchange_rates[reverse_key]
                 else:
                     raise UnitConversionError(
-                        self, target,
-                        f"exchange rate not found for {self.symbol} -> {target.symbol}"
+                        self,
+                        target,
+                        f"exchange rate not found for {self.symbol} -> {target.symbol}",
                     )
             else:
                 rate = exchange_rates[rate_key]
@@ -460,7 +458,7 @@ class Unit:
 
         return factor.apply(value)
 
-    def _assert_linear(self, other: "Unit" | None = None, operation: str = "operation") -> None:
+    def _assert_linear(self, other: Unit | None = None, operation: str = "operation") -> None:
         if self.to_canonical_offset != 0:
             raise ValueError(
                 f"Cannot {operation} affine unit '{self.symbol}'; use absolute conversions only"
@@ -470,7 +468,7 @@ class Unit:
                 f"Cannot {operation} affine unit '{other.symbol}'; use absolute conversions only"
             )
 
-    def __mul__(self, other: "Unit") -> "Unit":
+    def __mul__(self, other: Unit) -> Unit:
         """
         Multiply two units (add dimensions).
 
@@ -503,7 +501,7 @@ class Unit:
             _components=tuple(sorted(components.items())),
         )
 
-    def __truediv__(self, other: "Unit") -> "Unit":
+    def __truediv__(self, other: Unit) -> Unit:
         """
         Divide two units (subtract dimensions).
 
@@ -536,7 +534,7 @@ class Unit:
             _components=tuple(sorted(components.items())),
         )
 
-    def __pow__(self, power: int) -> "Unit":
+    def __pow__(self, power: int) -> Unit:
         """
         Raise a unit to an integer power.
 
@@ -548,8 +546,8 @@ class Unit:
             raise TypeError(f"Unit power must be int, got {type(power)}")
 
         self._assert_linear(operation="exponentiate")
-        new_dimension = self.dimension ** power
-        new_factor = self.to_canonical_factor ** power
+        new_dimension = self.dimension**power
+        new_factor = self.to_canonical_factor**power
 
         # Scale components
         components = {sym: p * power for sym, p in self._components}
@@ -566,10 +564,10 @@ class Unit:
             _components=tuple(sorted(components.items())),
         )
 
-    def __invert__(self) -> "Unit":
+    def __invert__(self) -> Unit:
         """Return the inverse unit (reciprocal)."""
         self._assert_linear(operation="invert")
-        return self ** -1
+        return self**-1
 
     @staticmethod
     def _build_compound_symbol(components: dict[str, int]) -> str:

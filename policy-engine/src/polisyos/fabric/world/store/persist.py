@@ -1,4 +1,5 @@
 """Persist world-domain artifacts so later stages can materialize and query them."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -29,9 +30,7 @@ _DOC_META_SCHEMA = SchemaInfo(name="polisyos.ir.world.DocMeta", version="1.0")
 _DOC_FRAGMENT_SCHEMA = SchemaInfo(name="polisyos.ir.world.DocFragment", version="1.0")
 _CLAIM_SCHEMA = SchemaInfo(name="polisyos.ir.world.Claim", version="1.0")
 _CONFLICT_SET_SCHEMA = SchemaInfo(name="polisyos.ir.world.ConflictSet", version="1.0")
-_TRUST_ASSESSMENT_SCHEMA = SchemaInfo(
-    name="polisyos.ir.world.TrustAssessment", version="1.0"
-)
+_TRUST_ASSESSMENT_SCHEMA = SchemaInfo(name="polisyos.ir.world.TrustAssessment", version="1.0")
 _QUALITY_REPORT_SCHEMA = SchemaInfo(name="polisyos.ir.world.QualityReport", version="1.0")
 _WORLD_EVENT_SCHEMA = SchemaInfo(name="polisyos.ir.world.WorldEvent", version="1.0")
 

@@ -8,7 +8,7 @@ runners can block, downgrade, or proceed with a causal execution bundle.
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import Field, model_validator
 
@@ -16,8 +16,12 @@ from polisyos.ir._validation import ensure_non_empty_dotted_path, ensure_unique_
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.kernel.base import KernelModel
-from polisyos.ir.observation.contracts import ObservationFamily, StrategicResponseChannel
 from polisyos.ir.refs import ArtifactRefModel, CausalReadinessBundleRef
+
+if TYPE_CHECKING:
+    from polisyos.ir.observation.contracts import ObservationFamily, StrategicResponseChannel
+else:
+    from polisyos.ir.observation.contracts import ObservationFamily, StrategicResponseChannel
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 _CAUSAL_READINESS_SCHEMA_NAME = "ir.causal_readiness_bundle"
@@ -118,7 +122,7 @@ class InterferenceReadinessEntry(KernelModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_entry(self) -> "InterferenceReadinessEntry":
+    def validate_entry(self) -> InterferenceReadinessEntry:
         ensure_non_empty_dotted_path(
             self.predicted_metric_path,
             field_name="predicted_metric_path",
@@ -166,7 +170,7 @@ class CausalReadinessBundle(KernelModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_unique_ids(self) -> "CausalReadinessBundle":
+    def _validate_unique_ids(self) -> CausalReadinessBundle:
         ensure_unique_ids(
             self.proxy_results,
             key_fn=lambda item: (item.family.value, item.proxy_variable, item.latent_variable),

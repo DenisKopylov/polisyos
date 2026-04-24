@@ -1,15 +1,15 @@
 """Distributional domain accuracy benchmarks."""
+
 from __future__ import annotations
 
 import numpy as np
 import pytest
 
-from benchmarks.foundry.conftest import make_distribution, make_two_class_distribution
+from benchmarks.foundry.conftest import make_distribution
 
 
 @pytest.mark.benchmark
 class TestDistributionalAccuracy:
-
     def test_gini_uniform(self, bench_registry):
         """Uniform-ish dist → Gini ≈ 1/3 for linspace."""
         values = np.linspace(1.0, 100.0, 50)

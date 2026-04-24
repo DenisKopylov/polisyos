@@ -1,22 +1,15 @@
 """Comprehensive tests for Phase 2.2: Registry Architecture & Lazy Loading."""
+
 from __future__ import annotations
 
 import asyncio
 import threading
-from datetime import datetime, timezone
-from typing import AsyncIterator, ClassVar
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
+from typing import ClassVar
 
 import pytest
 
-from polisyos.ir.connectors import (
-    ConnectorCapability,
-    ConnectorMetadataSpec,
-    DataVersion,
-    QualityTier,
-    TrustLevel,
-    VersionStrategy,
-    capabilities_from_flags,
-)
 from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
@@ -25,11 +18,12 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
-from polisyos.fabric.connectors.types import (
-    DatasetDescriptor,
-    FreshnessResult,
-    FreshnessStatus,
-    ValidationResult,
+from polisyos.fabric.connectors.discovery import ConnectorDiscovery
+from polisyos.fabric.connectors.pool import (
+    ConnectionPool,
+    PoolClosedError,
+    PoolConfig,
+    PoolExhaustedError,
 )
 from polisyos.fabric.connectors.registry import (
     AmbiguousConnectorError,
@@ -39,14 +33,21 @@ from polisyos.fabric.connectors.registry import (
     ConnectorPreferences,
     ConnectorRegistry,
 )
-from polisyos.fabric.connectors.pool import (
-    ConnectionPool,
-    PoolClosedError,
-    PoolConfig,
-    PoolExhaustedError,
+from polisyos.fabric.connectors.types import (
+    DatasetDescriptor,
+    FreshnessResult,
+    FreshnessStatus,
+    ValidationResult,
 )
-from polisyos.fabric.connectors.discovery import ConnectorDiscovery
-
+from polisyos.ir.connectors import (
+    ConnectorCapability,
+    ConnectorMetadataSpec,
+    DataVersion,
+    QualityTier,
+    TrustLevel,
+    VersionStrategy,
+    capabilities_from_flags,
+)
 
 # =============================================================================
 # Test Fixtures: Mock Connectors
@@ -93,10 +94,10 @@ class MockConnectorA(BaseConnector[list[dict]]):
             schema_version="1.0",
             version=DataVersion(
                 strategy=VersionStrategy.TIMESTAMP,
-                value=datetime.now(timezone.utc).isoformat(),
-                timestamp=datetime.now(timezone.utc),
+                value=datetime.now(UTC).isoformat(),
+                timestamp=datetime.now(UTC),
             ),
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=1.0,
         )
 
@@ -145,10 +146,10 @@ class MockConnectorA_v10(BaseConnector[list[dict]]):
             schema_version="1.0",
             version=DataVersion(
                 strategy=VersionStrategy.TIMESTAMP,
-                value=datetime.now(timezone.utc).isoformat(),
-                timestamp=datetime.now(timezone.utc),
+                value=datetime.now(UTC).isoformat(),
+                timestamp=datetime.now(UTC),
             ),
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=1.0,
         )
 
@@ -197,16 +198,14 @@ class MockConnectorB(BaseConnector[list[dict]]):
             schema_version="1.0",
             version=DataVersion(
                 strategy=VersionStrategy.TIMESTAMP,
-                value=datetime.now(timezone.utc).isoformat(),
-                timestamp=datetime.now(timezone.utc),
+                value=datetime.now(UTC).isoformat(),
+                timestamp=datetime.now(UTC),
             ),
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=1.0,
         )
 
-    async def list_datasets(
-        self, handle: ConnectionHandle
-    ) -> AsyncIterator[DatasetDescriptor]:
+    async def list_datasets(self, handle: ConnectionHandle) -> AsyncIterator[DatasetDescriptor]:
         yield DatasetDescriptor(
             dataset_id="test.dataset",
             name="Test Dataset",
@@ -261,19 +260,17 @@ class MockConnectorC(BaseConnector[list[dict]]):
             schema_version="1.0",
             version=DataVersion(
                 strategy=VersionStrategy.TIMESTAMP,
-                value=datetime.now(timezone.utc).isoformat(),
-                timestamp=datetime.now(timezone.utc),
+                value=datetime.now(UTC).isoformat(),
+                timestamp=datetime.now(UTC),
             ),
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=1.0,
         )
 
     async def check_freshness(
         self, handle: ConnectionHandle, dataset_id: str, cached_version: DataVersion
     ) -> FreshnessResult:
-        return FreshnessResult(
-            status=FreshnessStatus.FRESH, current_version=cached_version
-        )
+        return FreshnessResult(status=FreshnessStatus.FRESH, current_version=cached_version)
 
     async def fetch_stream(
         self, handle: ConnectionHandle, request: FetchRequest
@@ -466,9 +463,7 @@ class TestRegistryRegistration:
         assert not registry.has("mock_a")
         assert len(registry) == 0
 
-    def test_unregister_nonexistent_returns_false(
-        self, registry: ConnectorRegistry
-    ) -> None:
+    def test_unregister_nonexistent_returns_false(self, registry: ConnectorRegistry) -> None:
         """Unregister unknown connector returns False."""
         result = registry.unregister("nonexistent")
         assert result is False
@@ -546,9 +541,7 @@ class TestRegistryLookup:
         assert entry.loaded is True
         assert connector1 is connector2
 
-    def test_get_metadata_without_instantiation(
-        self, registry: ConnectorRegistry
-    ) -> None:
+    def test_get_metadata_without_instantiation(self, registry: ConnectorRegistry) -> None:
         """get_metadata() doesn't trigger instantiation."""
         registry.register(MockConnectorA)
 
@@ -579,9 +572,7 @@ class TestRegistryQueries:
         ids = {r.connector_id for r in results}
         assert ids == {"mock_a", "mock_c"}
 
-    def test_query_by_capability_catalog_browse(
-        self, registry: ConnectorRegistry
-    ) -> None:
+    def test_query_by_capability_catalog_browse(self, registry: ConnectorRegistry) -> None:
         """Query connectors with CATALOG_BROWSE capability."""
         registry.register(MockConnectorA)  # No CATALOG_BROWSE
         registry.register(MockConnectorB)  # Has CATALOG_BROWSE
@@ -647,9 +638,7 @@ class TestRegistryQueries:
         assert len(results) == 1
         assert results[0].connector_id == "mock_c"
 
-    def test_query_returns_deterministic_order(
-        self, registry: ConnectorRegistry
-    ) -> None:
+    def test_query_returns_deterministic_order(self, registry: ConnectorRegistry) -> None:
         """Query results are in deterministic order."""
         # Register in random order
         registry.register(MockConnectorC)
@@ -717,9 +706,7 @@ class TestDatasetResolution:
         assert len(results) == 1
         assert results[0][0].connector_id == "mock_b"
 
-    def test_find_connectors_respects_trust_minimum(
-        self, registry: ConnectorRegistry
-    ) -> None:
+    def test_find_connectors_respects_trust_minimum(self, registry: ConnectorRegistry) -> None:
         """Dataset resolution respects minimum trust level."""
         registry.register(MockConnectorA)  # MEDIUM
         registry.register(MockConnectorB)  # HIGH
@@ -735,9 +722,7 @@ class TestDatasetResolution:
         assert len(results) == 1
         assert results[0][0].connector_id == "mock_b"
 
-    def test_find_connectors_excludes_specified(
-        self, registry: ConnectorRegistry
-    ) -> None:
+    def test_find_connectors_excludes_specified(self, registry: ConnectorRegistry) -> None:
         """Dataset resolution excludes specified connectors."""
         registry.register(MockConnectorA)
         registry.register(MockConnectorB)
@@ -753,9 +738,7 @@ class TestDatasetResolution:
         assert len(results) == 1
         assert results[0][0].connector_id == "mock_b"
 
-    def test_find_connectors_sorted_by_score(
-        self, registry: ConnectorRegistry
-    ) -> None:
+    def test_find_connectors_sorted_by_score(self, registry: ConnectorRegistry) -> None:
         """Results are sorted by relevance score (descending)."""
         registry.register(MockConnectorA)  # MEDIUM trust
         registry.register(MockConnectorC)  # AUTHORITATIVE trust
@@ -849,6 +832,7 @@ class TestConnectionPool:
         pool_config: PoolConfig,
     ) -> None:
         """Acquire creates new connection when pool is empty."""
+
         async def _run() -> None:
             pool = ConnectionPool(
                 connector_factory=mock_connector_factory,
@@ -872,6 +856,7 @@ class TestConnectionPool:
         pool_config: PoolConfig,
     ) -> None:
         """Release returns connection to pool for reuse."""
+
         async def _run() -> None:
             pool = ConnectionPool(
                 connector_factory=mock_connector_factory,
@@ -896,6 +881,7 @@ class TestConnectionPool:
         self, mock_connector_factory, sample_config: ConnectionConfig
     ) -> None:
         """Pool respects maximum size configuration."""
+
         async def _run() -> None:
             pool = ConnectionPool(
                 connector_factory=mock_connector_factory,
@@ -923,6 +909,7 @@ class TestConnectionPool:
         pool_config: PoolConfig,
     ) -> None:
         """Closed pool raises error on acquire."""
+
         async def _run() -> None:
             pool = ConnectionPool(
                 connector_factory=mock_connector_factory,
@@ -944,6 +931,7 @@ class TestConnectionPool:
         pool_config: PoolConfig,
     ) -> None:
         """Pool tracks statistics."""
+
         async def _run() -> None:
             pool = ConnectionPool(
                 connector_factory=mock_connector_factory,
@@ -973,6 +961,7 @@ class TestConnectionPool:
         pool_config: PoolConfig,
     ) -> None:
         """Connection context manager releases on exit."""
+
         async def _run() -> None:
             pool = ConnectionPool(
                 connector_factory=mock_connector_factory,
@@ -999,6 +988,7 @@ class TestConnectionPool:
         sample_config: ConnectionConfig,
     ) -> None:
         """Double release cannot over-release the pool semaphore."""
+
         async def _run() -> None:
             pool = ConnectionPool(
                 connector_factory=mock_connector_factory,
@@ -1132,6 +1122,7 @@ class TestRegistryIntegration:
         self, registry: ConnectorRegistry, sample_config: ConnectionConfig
     ) -> None:
         """Registry integrates with connection pooling."""
+
         async def _run() -> None:
             registry.register(MockConnectorA, config=sample_config)
 
@@ -1223,6 +1214,7 @@ class TestRegistryIntegration:
         self, registry: ConnectorRegistry, sample_config: ConnectionConfig
     ) -> None:
         """Async unregister closes associated pools without fire-and-forget tasks."""
+
         class TrackingConnector(MockConnectorA):
             disconnect_count = 0
 
@@ -1245,6 +1237,7 @@ class TestRegistryIntegration:
         self, registry: ConnectorRegistry, sample_config: ConnectionConfig
     ) -> None:
         """Sync unregister does not create fire-and-forget cleanup tasks in a live loop."""
+
         async def _run() -> None:
             registry.register(MockConnectorA, config=sample_config)
             handle = await registry.get_connection("mock_a")
@@ -1264,6 +1257,7 @@ class TestRegistryIntegration:
         alt_config: ConnectionConfig,
     ) -> None:
         """Pools are isolated by config fingerprint."""
+
         async def _run() -> None:
             registry.register(MockConnectorA, config=sample_config)
 
@@ -1280,10 +1274,9 @@ class TestRegistryIntegration:
 
         asyncio.run(_run())
 
-    def test_get_connection_without_config_raises(
-        self, registry: ConnectorRegistry
-    ) -> None:
+    def test_get_connection_without_config_raises(self, registry: ConnectorRegistry) -> None:
         """get_connection without config raises error."""
+
         async def _run() -> None:
             registry.register(MockConnectorA)  # No default config
 

@@ -6,21 +6,22 @@ Property-based tests for econometrics methods:
 - Quantile regression
 - Panel models (Fixed effects, Random effects)
 """
+
 from __future__ import annotations
 
 import sys
+
 import numpy as np
 import pytest
 
 try:
-    from hypothesis import given, settings, HealthCheck
+    from hypothesis import HealthCheck, given, settings
+
     HYPOTHESIS_AVAILABLE = True
 except ImportError:
     HYPOTHESIS_AVAILABLE = False
 
-pytestmark = pytest.mark.skipif(
-    not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed"
-)
+pytestmark = pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
 
 sys.path.insert(0, "src")
 
@@ -44,7 +45,11 @@ def _check_finite_outputs(result: dict, method_fqn: str) -> None:
 
 class TestCountDataProperties:
     @given(data=count_data_strategy())
-    @settings(max_examples=30, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=30,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_poisson_output_finite(self, data, isolated_registry):
         fqn = "econometrics.count.poisson@1.0.0"
         method = isolated_registry.get(fqn)
@@ -57,7 +62,11 @@ class TestCountDataProperties:
             pass
 
     @given(data=count_data_strategy())
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_negbin_output_dict(self, data, isolated_registry):
         fqn = "econometrics.count.negative_binomial@1.0.0"
         method = isolated_registry.get(fqn)
@@ -69,7 +78,11 @@ class TestCountDataProperties:
             pass
 
     @given(data=count_data_strategy())
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_output_keys_stable(self, data, isolated_registry):
         """Poisson always returns same set of keys."""
         fqn = "econometrics.count.poisson@1.0.0"
@@ -85,7 +98,11 @@ class TestCountDataProperties:
 
 class TestDiscreteChoiceProperties:
     @given(data=discrete_choice_strategy())
-    @settings(max_examples=25, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=25,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_logit_output_finite(self, data, isolated_registry):
         fqn = "econometrics.discrete_choice.logit@1.0.0"
         method = isolated_registry.get(fqn)
@@ -97,7 +114,11 @@ class TestDiscreteChoiceProperties:
             pass
 
     @given(data=discrete_choice_strategy())
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_logit_result_is_dict(self, data, isolated_registry):
         fqn = "econometrics.discrete_choice.logit@1.0.0"
         method = isolated_registry.get(fqn)
@@ -111,7 +132,11 @@ class TestDiscreteChoiceProperties:
 
 class TestGARCHProperties:
     @given(data=timeseries_strategy())
-    @settings(max_examples=20, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_garch_output_finite(self, data, isolated_registry):
         fqn = "econometrics.timeseries.garch@1.0.0"
         method = isolated_registry.get(fqn)
@@ -123,7 +148,11 @@ class TestGARCHProperties:
             pass
 
     @given(data=timeseries_strategy())
-    @settings(max_examples=15, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=15,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_garch_returns_dict(self, data, isolated_registry):
         fqn = "econometrics.timeseries.garch@1.0.0"
         method = isolated_registry.get(fqn)
@@ -137,7 +166,11 @@ class TestGARCHProperties:
 
 class TestPanelModelProperties:
     @given(data=cross_section_strategy())
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_fixed_effects_output_finite(self, data, isolated_registry):
         fqn = "econometrics.panel.fixed_effects@1.0.0"
         method = isolated_registry.get(fqn)
@@ -146,8 +179,12 @@ class TestPanelModelProperties:
         state = {
             "outcome": data["outcome"],
             "covariates": data["covariates"],
-            "entity_id": np.repeat(np.arange(n_entities), n_obs // n_entities + 1)[:n_obs].astype(np.int64),
-            "time_id": np.tile(np.arange(n_obs // n_entities + 1), n_entities)[:n_obs].astype(np.int64),
+            "entity_id": np.repeat(np.arange(n_entities), n_obs // n_entities + 1)[:n_obs].astype(
+                np.int64
+            ),
+            "time_id": np.tile(np.arange(n_obs // n_entities + 1), n_entities)[:n_obs].astype(
+                np.int64
+            ),
         }
         try:
             result = method.pure_step(state, {})

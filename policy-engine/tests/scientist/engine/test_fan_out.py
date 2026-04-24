@@ -24,7 +24,9 @@ _FAKE_SHA = "sha256:" + "ab" * 32
 def _make_ctx():
     store = MagicMock()
     store.put_json.return_value = ArtifactRef(
-        artifact_id=_FAKE_SHA, kind="test", media_type="application/json",
+        artifact_id=_FAKE_SHA,
+        kind="test",
+        media_type="application/json",
     )
     run = MagicMock()
     run.trace_path = None
@@ -39,18 +41,26 @@ def _make_mock_node(*, ok=True, artifacts=None):
     # bind returns None so the original node is used (not a mock wrapper)
     node.bind.return_value = None
     if ok:
+
         def _execute(ctx, state):
             return NodeOutcome(
-                status="ok", state=state, events=[],
+                status="ok",
+                state=state,
+                events=[],
                 artifacts=artifacts or [],
             )
+
         node.execute.side_effect = _execute
     else:
+
         def _execute_fail(ctx, state):
             return NodeOutcome(
-                status="fail", state=state, events=[],
+                status="fail",
+                state=state,
+                events=[],
                 error=NodeError(code="test.fail", message="fail", details={}),
             )
+
         node.execute.side_effect = _execute_fail
     return node
 
@@ -64,6 +74,7 @@ def _make_registry(node):
 # ---------------------------------------------------------------------------
 # Config model
 # ---------------------------------------------------------------------------
+
 
 class TestFanOutConfigModel:
     def test_defaults(self) -> None:
@@ -80,8 +91,10 @@ class TestFanOutConfigModel:
     def test_extra_forbidden(self) -> None:
         with pytest.raises(Exception):
             FanOutConfig(
-                items_state_path="x", task_node_id="x@1.0.0",
-                result_state_path="y", bad="field",
+                items_state_path="x",
+                task_node_id="x@1.0.0",
+                result_state_path="y",
+                bad="field",
             )
 
     def test_roundtrip(self) -> None:
@@ -106,6 +119,7 @@ class TestFanOutResultModel:
 # FanOutNode spec
 # ---------------------------------------------------------------------------
 
+
 class TestFanOutNodeSpec:
     def test_spec_reads_items_path(self) -> None:
         cfg = FanOutConfig(
@@ -129,6 +143,7 @@ class TestFanOutNodeSpec:
 # ---------------------------------------------------------------------------
 # Execution: basic
 # ---------------------------------------------------------------------------
+
 
 class TestFanOutExecution:
     def test_processes_all_items(self) -> None:
@@ -199,9 +214,11 @@ class TestFanOutExecution:
         task_node = _make_mock_node()
         # Track what bind receives
         bind_calls = []
+
         def _bind(params):
             bind_calls.append(params)
             return task_node
+
         task_node.bind = _bind
 
         cfg = FanOutConfig(
@@ -223,6 +240,7 @@ class TestFanOutExecution:
 # Failure handling
 # ---------------------------------------------------------------------------
 
+
 class TestFanOutFailures:
     def test_continue_on_failure(self) -> None:
         """With continue_on_item_failure=True, overall status is ok."""
@@ -231,12 +249,14 @@ class TestFanOutFailures:
             params={"items": [1, 2, 3]},
         )
         call_count = 0
+
         def _execute(ctx, s):
             nonlocal call_count
             call_count += 1
             if call_count == 2:
                 return NodeOutcome(
-                    status="fail", state=s,
+                    status="fail",
+                    state=s,
                     error=NodeError(code="test.fail", message="fail", details={}),
                 )
             return NodeOutcome(status="ok", state=s, events=[], artifacts=[])
@@ -262,12 +282,14 @@ class TestFanOutFailures:
             params={"items": [1, 2, 3]},
         )
         call_count = 0
+
         def _execute(ctx, s):
             nonlocal call_count
             call_count += 1
             if call_count == 2:
                 return NodeOutcome(
-                    status="fail", state=s,
+                    status="fail",
+                    state=s,
                     error=NodeError(code="test.fail", message="fail", details={}),
                 )
             return NodeOutcome(status="ok", state=s, events=[], artifacts=[])
@@ -440,6 +462,7 @@ class TestFanOutFailures:
 # Merge strategies
 # ---------------------------------------------------------------------------
 
+
 class TestMergeStrategies:
     def test_list_collect(self) -> None:
         state = ExperimentState(
@@ -590,6 +613,7 @@ class TestMergeStrategies:
 # Template params
 # ---------------------------------------------------------------------------
 
+
 class TestTemplateParams:
     def test_template_merged_with_item(self) -> None:
         state = ExperimentState(
@@ -598,9 +622,11 @@ class TestTemplateParams:
         )
         task_node = _make_mock_node()
         bind_calls = []
+
         def _bind(params):
             bind_calls.append(params)
             return task_node
+
         task_node.bind = _bind
 
         cfg = FanOutConfig(

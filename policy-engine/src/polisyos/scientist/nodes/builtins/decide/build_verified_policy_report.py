@@ -1,4 +1,5 @@
 """Public decide build verified policy report module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -58,19 +59,31 @@ _SPEC = NodeSpec(
 @dataclass(frozen=True)
 class BuildVerifiedPolicyReportNode:
     """Build verified policy report node implementation."""
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        if state.verified_policy_report_ref is not None and ARTIFACT_VERIFIED_POLICY_REPORT_REF in state.artifacts_index:
+        if (
+            state.verified_policy_report_ref is not None
+            and ARTIFACT_VERIFIED_POLICY_REPORT_REF in state.artifacts_index
+        ):
             return NodeOutcome(status="ok", state=state)
-        request_ref = state.policy_request_ref or state.artifacts_index.get(ARTIFACT_POLICY_REQUEST_FRAME_REF)
-        option_ref = state.policy_option_set_ref or state.artifacts_index.get(ARTIFACT_POLICY_OPTION_SET_REF)
-        report_ref = state.source_verification_report_ref or state.artifacts_index.get(ARTIFACT_SOURCE_VERIFICATION_REPORT_REF)
+        request_ref = state.policy_request_ref or state.artifacts_index.get(
+            ARTIFACT_POLICY_REQUEST_FRAME_REF
+        )
+        option_ref = state.policy_option_set_ref or state.artifacts_index.get(
+            ARTIFACT_POLICY_OPTION_SET_REF
+        )
+        report_ref = state.source_verification_report_ref or state.artifacts_index.get(
+            ARTIFACT_SOURCE_VERIFICATION_REPORT_REF
+        )
         if request_ref is None or option_ref is None or report_ref is None:
             return NodeOutcome(status="skip", state=state)
-        frame = load_policy_request_frame(ctx.store, PolicyRequestFrameRef.model_validate(request_ref.model_dump()))
+        frame = load_policy_request_frame(
+            ctx.store, PolicyRequestFrameRef.model_validate(request_ref.model_dump())
+        )
         option_set = load_policy_option_set(
             ctx.store, PolicyOptionSetRef.model_validate(option_ref.model_dump())
         )
@@ -98,7 +111,10 @@ class BuildVerifiedPolicyReportNode:
                 NodeEvent(
                     level="info",
                     message="Verified policy report created.",
-                    attrs={"verified_findings": len(payload.verified_findings), "needs_expert_review": payload.needs_expert_review},
+                    attrs={
+                        "verified_findings": len(payload.verified_findings),
+                        "needs_expert_review": payload.needs_expert_review,
+                    },
                 )
             ],
         )

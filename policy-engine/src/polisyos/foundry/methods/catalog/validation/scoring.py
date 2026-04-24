@@ -1,8 +1,10 @@
 """Public validation scoring module API."""
+
 from __future__ import annotations
 
 import math
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -31,6 +33,7 @@ def _result_slot() -> frozenset[SlotSpec]:
 )
 class ProbabilisticScoringEstimator:
     """Score predictive distributions with probabilistic forecast metrics."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -40,9 +43,15 @@ class ProbabilisticScoringEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("observations", SlotType.VECTOR, Unit("value", "amount"), shape=("n_obs",)),
-                SlotSpec("predictive_mean", SlotType.VECTOR, Unit("value", "amount"), shape=("n_obs",)),
-                SlotSpec("predictive_std", SlotType.VECTOR, Unit("value", "amount"), shape=("n_obs",)),
+                SlotSpec(
+                    "observations", SlotType.VECTOR, Unit("value", "amount"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "predictive_mean", SlotType.VECTOR, Unit("value", "amount"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "predictive_std", SlotType.VECTOR, Unit("value", "amount"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -71,8 +80,8 @@ class ProbabilisticScoringEstimator:
         if observed.shape != mean.shape or observed.shape != std.shape:
             raise ValueError("observations, predictive_mean, and predictive_std must align")
         z = (observed - mean) / std
-        log_scores = 0.5 * np.log(2.0 * np.pi * (std ** 2)) + 0.5 * (z ** 2)
-        pdf = np.exp(-0.5 * z ** 2) / math.sqrt(2.0 * np.pi)
+        log_scores = 0.5 * np.log(2.0 * np.pi * (std**2)) + 0.5 * (z**2)
+        pdf = np.exp(-0.5 * z**2) / math.sqrt(2.0 * np.pi)
         cdf = 0.5 * (1.0 + np.vectorize(math.erf)(z / math.sqrt(2.0)))
         crps = std * (z * (2.0 * cdf - 1.0) + 2.0 * pdf - 1.0 / math.sqrt(np.pi))
         return {

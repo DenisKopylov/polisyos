@@ -67,4 +67,3 @@ def test_retry_async_raises_after_attempts() -> None:
 
     with pytest.raises(RuntimeError, match="fail"):
         asyncio.run(retry_async(_op, attempts=2))
-

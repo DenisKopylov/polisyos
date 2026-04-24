@@ -3,20 +3,17 @@
 from __future__ import annotations
 
 import importlib
-import json
 import logging
 import platform
 import sys
-import time
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
-from benchmarks.honest_comparison.adapters.base import EstimatorResult, safe_run, config_digest
+from benchmarks.honest_comparison.adapters.base import EstimatorResult, safe_run
 from benchmarks.honest_comparison.config import (
     BenchmarkConfig,
-    FairnessTier,
     nuisance_config_for_tier,
 )
 from benchmarks.honest_comparison.dgp_library import DGP_REGISTRY, DGPData
@@ -39,6 +36,7 @@ logger = logging.getLogger("honest_benchmark")
 # Method registry
 # -----------------------------------------------------------------------
 
+
 def _try_import(module_name: str) -> bool:
     try:
         importlib.import_module(module_name)
@@ -52,14 +50,18 @@ def build_method_registry() -> list[Any]:
     methods = []
 
     # Baselines (always available)
-    from benchmarks.honest_comparison.adapters.baseline import OLSBaseline, NaiveDiffMeans
+    from benchmarks.honest_comparison.adapters.baseline import NaiveDiffMeans, OLSBaseline
+
     methods.extend([OLSBaseline(), NaiveDiffMeans()])
 
     # PolicyOS ATE
     try:
         from benchmarks.honest_comparison.adapters.policyos_ate import (
-            PolicyOSTMLE, PolicyOSAIPW, PolicyOSIPW,
+            PolicyOSAIPW,
+            PolicyOSIPW,
+            PolicyOSTMLE,
         )
+
         methods.extend([PolicyOSTMLE(), PolicyOSAIPW(), PolicyOSIPW()])
         logger.info("PolicyOS ATE adapters loaded")
     except ImportError as e:
@@ -68,8 +70,11 @@ def build_method_registry() -> list[Any]:
     # PolicyOS CATE
     try:
         from benchmarks.honest_comparison.adapters.policyos_cate import (
-            PolicyOSCausalForest, PolicyOSXLearner, PolicyOSDML,
+            PolicyOSCausalForest,
+            PolicyOSDML,
+            PolicyOSXLearner,
         )
+
         methods.extend([PolicyOSCausalForest(), PolicyOSXLearner(), PolicyOSDML()])
         logger.info("PolicyOS CATE adapters loaded")
     except ImportError as e:
@@ -78,13 +83,24 @@ def build_method_registry() -> list[Any]:
     # Raw EconML
     if _try_import("econml"):
         from benchmarks.honest_comparison.adapters.econml_raw import (
-            RawEconMLLinearDML, RawEconMLCausalForestDML, RawEconMLXLearner,
-            RawEconMLTLearner, RawEconMLForestDR, RawEconMLDRLearner,
+            RawEconMLCausalForestDML,
+            RawEconMLDRLearner,
+            RawEconMLForestDR,
+            RawEconMLLinearDML,
+            RawEconMLTLearner,
+            RawEconMLXLearner,
         )
-        methods.extend([
-            RawEconMLLinearDML(), RawEconMLCausalForestDML(), RawEconMLXLearner(),
-            RawEconMLTLearner(), RawEconMLForestDR(), RawEconMLDRLearner(),
-        ])
+
+        methods.extend(
+            [
+                RawEconMLLinearDML(),
+                RawEconMLCausalForestDML(),
+                RawEconMLXLearner(),
+                RawEconMLTLearner(),
+                RawEconMLForestDR(),
+                RawEconMLDRLearner(),
+            ]
+        )
         logger.info("EconML adapters loaded")
     else:
         logger.warning("econml not installed — skipping EconML adapters")
@@ -92,8 +108,11 @@ def build_method_registry() -> list[Any]:
     # Raw zepid
     if _try_import("zepid"):
         from benchmarks.honest_comparison.adapters.zepid_raw import (
-            RawZepidTMLE, RawZepidIPTW, RawZepidAIPTW,
+            RawZepidAIPTW,
+            RawZepidIPTW,
+            RawZepidTMLE,
         )
+
         methods.extend([RawZepidTMLE(), RawZepidIPTW(), RawZepidAIPTW()])
         logger.info("zepid adapters loaded")
     else:
@@ -102,8 +121,10 @@ def build_method_registry() -> list[Any]:
     # Raw DoWhy
     if _try_import("dowhy"):
         from benchmarks.honest_comparison.adapters.dowhy_raw import (
-            RawDoWhyLinear, RawDoWhyIPW,
+            RawDoWhyIPW,
+            RawDoWhyLinear,
         )
+
         methods.extend([RawDoWhyLinear(), RawDoWhyIPW()])
         logger.info("DoWhy adapters loaded")
     else:
@@ -112,14 +133,17 @@ def build_method_registry() -> list[Any]:
     # Raw CausalML (optional)
     if _try_import("causalml"):
         from benchmarks.honest_comparison.adapters.causalml_raw import (
-            RawCausalMLXLearner, RawCausalMLTLearner,
+            RawCausalMLTLearner,
+            RawCausalMLXLearner,
         )
+
         methods.extend([RawCausalMLXLearner(), RawCausalMLTLearner()])
         logger.info("CausalML adapters loaded")
 
     # Raw stochtree (optional)
     if _try_import("stochtree"):
         from benchmarks.honest_comparison.adapters.stochtree_raw import RawBCF
+
         methods.append(RawBCF())
         logger.info("stochtree BCF adapter loaded")
 
@@ -131,6 +155,7 @@ def build_method_registry() -> list[Any]:
 # Environment snapshot
 # -----------------------------------------------------------------------
 
+
 def environment_snapshot() -> dict[str, Any]:
     """Capture hardware/software snapshot for reproducibility."""
     snap = {
@@ -141,8 +166,18 @@ def environment_snapshot() -> dict[str, Any]:
     }
 
     # Package versions
-    for pkg in ["econml", "dowhy", "zepid", "causalml", "stochtree",
-                "sklearn", "lightgbm", "numpy", "scipy", "pandas"]:
+    for pkg in [
+        "econml",
+        "dowhy",
+        "zepid",
+        "causalml",
+        "stochtree",
+        "sklearn",
+        "lightgbm",
+        "numpy",
+        "scipy",
+        "pandas",
+    ]:
         try:
             mod = importlib.import_module(pkg)
             snap[f"{pkg}_version"] = getattr(mod, "__version__", "unknown")
@@ -152,15 +187,23 @@ def environment_snapshot() -> dict[str, Any]:
     # Try to get CPU/memory info on Linux
     try:
         import os
+
         with open("/proc/cpuinfo") as f:
             cpuinfo = f.read()
-        snap["cpu_model"] = [l.split(":")[1].strip() for l in cpuinfo.split("\n") if "model name" in l][0]
+        snap["cpu_model"] = [
+            line.split(":")[1].strip() for line in cpuinfo.split("\n") if "model name" in line
+        ][0]
         snap["cpu_count"] = os.cpu_count()
         with open("/proc/meminfo") as f:
             meminfo = f.read()
-        snap["total_memory_gb"] = int([l.split()[1] for l in meminfo.split("\n") if "MemTotal" in l][0]) / 1024 / 1024
+        snap["total_memory_gb"] = (
+            int([line.split()[1] for line in meminfo.split("\n") if "MemTotal" in line][0])
+            / 1024
+            / 1024
+        )
     except Exception:
         import os
+
         snap["cpu_count"] = os.cpu_count()
 
     return snap
@@ -169,6 +212,7 @@ def environment_snapshot() -> dict[str, Any]:
 # -----------------------------------------------------------------------
 # Main run
 # -----------------------------------------------------------------------
+
 
 def run_benchmark(cfg: BenchmarkConfig, output_path: Path | None = None) -> dict[str, Any]:
     """Execute the full benchmark."""
@@ -224,8 +268,11 @@ def run_benchmark(cfg: BenchmarkConfig, output_path: Path | None = None) -> dict
                         config = dict(shared_config) if shared_config else {}
                         result = safe_run(
                             method.fit_predict,
-                            data.X, data.T, data.Y,
-                            config, seed=cfg.base_seed + k,
+                            data.X,
+                            data.T,
+                            data.Y,
+                            config,
+                            seed=cfg.base_seed + k,
                             timeout_s=cfg.timeout_per_method_s,
                         )
                         method_results.append(result)

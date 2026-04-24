@@ -2,15 +2,21 @@ from __future__ import annotations
 
 import ast
 import json
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 from tools._lib.output import ToolMessage, ToolResult, format_tool_result
-from tools._lib.timing import ToolRunRecord, append_timing_record, read_timing_records
 from tools._lib.runner import ToolStatus
+from tools._lib.timing import ToolRunRecord, append_timing_record, read_timing_records
 from tools.cli import EX_CONFIG, main
-from tools.registry import CATEGORY_MANIFEST, TOOL_SPECS_BY_KEY, dependency_edges, render_reference_docs, zones
+from tools.registry import (
+    CATEGORY_MANIFEST,
+    TOOL_SPECS_BY_KEY,
+    dependency_edges,
+    render_reference_docs,
+    zones,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -91,6 +97,8 @@ def test_graph_and_reference_docs_are_generated_from_metadata(capsys) -> None:
     assert "## Dependency Graph" in docs
     assert "`check-udf-perf` | `quarantined`" in docs
     assert "`polisyos-tools workspace bootstrap`" in docs
+    assert "`polisyos-tools workspace lint-fast`" in docs
+    assert "`polisyos-tools workspace format-check`" in docs
 
 
 def test_completion_snippets_cover_supported_shells(capsys) -> None:
@@ -103,7 +111,15 @@ def test_common_output_formatters_are_structured() -> None:
         tool="lint.example",
         status="failed",
         exit_code=1,
-        messages=(ToolMessage(level="error", message="bad thing", path="x.py", line=3, rule_id="T1"),),
+        messages=(
+            ToolMessage(
+                level="error",
+                message="bad thing",
+                path="x.py",
+                line=3,
+                rule_id="T1",
+            ),
+        ),
     )
 
     assert format_tool_result(result, "json").endswith("\n")
@@ -186,7 +202,8 @@ def test_quarantined_preflight_records_skipped_run(tmp_path: Path, capsys) -> No
 
 
 def test_python_module_cli_smoke_subprocess() -> None:
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603 - trusted repo-local CLI smoke test
+        # Trusted smoke invocation of the repo-local CLI.
         [sys.executable, "-m", "tools.cli", "list", "--output-format", "json"],
         cwd=REPO_ROOT,
         check=False,
@@ -197,11 +214,15 @@ def test_python_module_cli_smoke_subprocess() -> None:
     assert result.returncode == 0
     payload = json.loads(result.stdout)
     assert any(item["qualified_name"] == "diagnostics.gen-schema" for item in payload)
-    assert any(item["zone"] == "research" and item["qualified_name"] == "benchmarks.run-all" for item in payload)
+    assert any(
+        item["zone"] == "research" and item["qualified_name"] == "benchmarks.run-all"
+        for item in payload
+    )
 
 
 def test_python_module_compatibility_shim_smoke_subprocess() -> None:
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603 - trusted compatibility shim smoke test
+        # Trusted smoke invocation of the compatibility shim.
         [sys.executable, "-m", "tools.workspace.bootstrap", "--help"],
         cwd=REPO_ROOT,
         check=False,

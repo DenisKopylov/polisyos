@@ -1,9 +1,9 @@
 """Public materialize staging module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
 
 import pandas as pd
 
@@ -30,6 +30,7 @@ REQUIRED_COLUMNS = {
 @dataclass
 class StagedWorldSegment:
     """Staged world segment public type."""
+
     df: pd.DataFrame
     attr_df: pd.DataFrame
     edge_df: pd.DataFrame

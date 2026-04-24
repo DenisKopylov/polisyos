@@ -17,12 +17,18 @@ import tempfile
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
+
 from tools._lib.imports import repo_root_from
 
 if __package__ in {None, ""}:
     sys.path.insert(0, str(repo_root_from(__file__)))
 
-from tools._lib.fs import atomic_replace_path, atomic_write_json, exclusive_lock, normalize_filesystem_path
+from tools._lib.fs import (
+    atomic_replace_path,
+    atomic_write_json,
+    exclusive_lock,
+    normalize_filesystem_path,
+)
 from tools._lib.sql import quote_sql_string_literal, validate_sql_identifier
 
 try:
@@ -66,7 +72,9 @@ _JSONL_SPECS: tuple[tuple[str, str | None], ...] = (
     ("all_records.jsonl", None),
 )
 
-_VALID_TABLES = tuple(validate_sql_identifier(table, kind="table") for table in (_CORE_TABLES + _SKG_TABLES))
+_VALID_TABLES = tuple(
+    validate_sql_identifier(table, kind="table") for table in (_CORE_TABLES + _SKG_TABLES)
+)
 
 
 def _find_duckdb(shard_dir: Path) -> Path:
@@ -142,7 +150,7 @@ def _count_rows(con: duckdb.DuckDBPyConnection, table: str, schema: str = "main"
 
 
 def _preview_duckdb(shard_paths: list[Path]) -> dict[str, int]:
-    totals: dict[str, int] = {table: 0 for table in _VALID_TABLES}
+    totals: dict[str, int] = dict.fromkeys(_VALID_TABLES, 0)
     for shard_db in shard_paths:
         safe_shard_db = normalize_filesystem_path(
             shard_db,
@@ -248,8 +256,12 @@ def merge_duckdb(shard_paths: list[Path], output_path: Path) -> dict[str, int]:
                     shard_ref = f"{alias}.{table}"
 
                     if dedup_key:
-                        validated_keys = [validate_sql_identifier(column, kind="column") for column in dedup_key]
-                        where_clause = " AND ".join(f"s.{column} = m.{column}" for column in validated_keys)
+                        validated_keys = [
+                            validate_sql_identifier(column, kind="column") for column in dedup_key
+                        ]
+                        where_clause = " AND ".join(
+                            f"s.{column} = m.{column}" for column in validated_keys
+                        )
                         con.execute(
                             f"INSERT INTO {main_ref} "
                             f"SELECT s.* FROM {shard_ref} s "
@@ -279,17 +291,25 @@ def _get_dedup_key(table: str, cols: list[str]) -> list[str] | None:
         "ac_works": ["id"],
         "ac_work_concepts": ["work_id", "topic_id", "concept"] if "concept" in cols else None,
         "ac_topic_selections": ["run_id", "topic_id", "work_id"],
-        "ac_article_extractions": ["extraction_id"] if "extraction_id" in cols else ["run_id", "work_id", "extraction_mode"],
+        "ac_article_extractions": ["extraction_id"]
+        if "extraction_id" in cols
+        else ["run_id", "work_id", "extraction_mode"],
         "ac_causal_claims_raw": ["id"] if "id" in cols else ["work_id", "cause", "effect"],
         "ac_claim_adjudications": ["claim_id"] if "claim_id" in cols else None,
         "ac_causal_claims": ["id"] if "id" in cols else ["work_id", "cause", "effect"],
-        "ac_parameter_estimates": ["id"] if "id" in cols else ["work_id", "variable_name", "estimate"],
+        "ac_parameter_estimates": ["id"]
+        if "id" in cols
+        else ["work_id", "variable_name", "estimate"],
         "ac_boundary_conditions": ["boundary_id"] if "boundary_id" in cols else None,
         "ac_skg_articles": ["openalex_id"],
         "ac_skg_variables": ["variable_name"] if "variable_name" in cols else ["canonical_name"],
         "ac_skg_edges": ["edge_id"] if "edge_id" in cols else ["src", "dst", "direction"],
-        "ac_skg_edge_evidence": ["edge_id", "claim_id", "openalex_id"] if "claim_id" in cols else None,
-        "ac_skg_family_edges": ["family_edge_id"] if "family_edge_id" in cols else ["src_family", "dst_family", "direction"],
+        "ac_skg_edge_evidence": ["edge_id", "claim_id", "openalex_id"]
+        if "claim_id" in cols
+        else None,
+        "ac_skg_family_edges": ["family_edge_id"]
+        if "family_edge_id" in cols
+        else ["src_family", "dst_family", "direction"],
         "ac_skg_parameters": ["param_id"] if "param_id" in cols else None,
         "ac_skg_simulation_parameters": ["numeric_id"] if "numeric_id" in cols else None,
         "ac_skg_canonization_cache": ["raw_name"] if "raw_name" in cols else None,
@@ -441,7 +461,10 @@ def main() -> int:
     if args.dry_run:
         return 0
     if not args.yes:
-        print("ERROR: refusing to overwrite merged output without --yes. Use --dry-run for preview.", file=sys.stderr)
+        print(
+            "ERROR: refusing to overwrite merged output without --yes. Use --dry-run for preview.",
+            file=sys.stderr,
+        )
         return 2
 
     staged_output_dir = output_dir.parent / f".{output_dir.name}.tmp-{uuid.uuid4().hex[:8]}"
@@ -450,7 +473,9 @@ def main() -> int:
     backup_path: Path | None = None
 
     try:
-        with exclusive_lock(lock_path, content=f"pid={os.getpid()}\nstarted_at={datetime.now(UTC).isoformat()}\n"):
+        with exclusive_lock(
+            lock_path, content=f"pid={os.getpid()}\nstarted_at={datetime.now(UTC).isoformat()}\n"
+        ):
             print("[1/4] Merging DuckDB databases...")
             if db_paths:
                 merged_db = staged_output_dir / "graph" / "scholar_knowledge.duckdb"
@@ -478,7 +503,12 @@ def main() -> int:
 
             print("")
             print("[3/4] Collecting JSON reports...")
-            for report_name in ("topic_quality_report.json", "topic_selection_report.json", "benchmark_report.json", "qc_report.json"):
+            for report_name in (
+                "topic_quality_report.json",
+                "topic_selection_report.json",
+                "benchmark_report.json",
+                "qc_report.json",
+            ):
                 merge_json_reports(
                     shard_dirs,
                     report_name,

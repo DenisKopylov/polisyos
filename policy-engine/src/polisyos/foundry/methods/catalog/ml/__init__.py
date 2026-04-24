@@ -1,4 +1,5 @@
 """Expose tabular ML, uncertainty, embedding, and survival-analysis methods."""
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -44,6 +45,7 @@ __all__ = [
     "ConformalPredictionEstimator",
     "ElasticNetEstimator",
     "EmbeddingResult",
+    "FTTransformerEstimator",
     "GaussianProcessEstimator",
     "GradientBoostingEstimator",
     "GraphNeuralNetworkEstimator",
@@ -58,10 +60,9 @@ __all__ = [
     "SurvivalAnalysisEstimator",
     "SurvivalData",
     "SurvivalResult",
+    "TabNetEstimator",
     "TabularData",
     "TabularTransformerEstimator",
-    "FTTransformerEstimator",
-    "TabNetEstimator",
     "ensure_ml_methods_registered",
     "register_ml_methods",
 ]

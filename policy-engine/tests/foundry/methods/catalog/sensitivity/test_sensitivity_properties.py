@@ -1,11 +1,15 @@
 """Property-based tests for global sensitivity analysis methods."""
+
 from __future__ import annotations
+
 import sys
+
 import numpy as np
 import pytest
 
 try:
-    from hypothesis import given, settings, HealthCheck
+    from hypothesis import HealthCheck, given, settings
+
     HYPOTHESIS_AVAILABLE = True
 except ImportError:
     HYPOTHESIS_AVAILABLE = False
@@ -22,7 +26,11 @@ def _method_or_skip(registry, fqn):
 
 class TestSobolIndicesProperties:
     @given(data=sensitivity_strategy())
-    @settings(max_examples=25, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=25,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_sobol_output_finite(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "sensitivity.global.sobol_first_order@1.0.0")
         state = {"X": data["X"], "Y": data["Y"]}
@@ -38,7 +46,11 @@ class TestSobolIndicesProperties:
             pass
 
     @given(data=sensitivity_strategy())
-    @settings(max_examples=20, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_sobol_indices_in_range(self, data, isolated_registry):
         """First-order Sobol indices should sum to at most 1."""
         method = _method_or_skip(isolated_registry, "sensitivity.global.sobol_first_order@1.0.0")
@@ -50,13 +62,18 @@ class TestSobolIndicesProperties:
                 s1 = np.asarray(result["first_order"])
                 if np.all(np.isfinite(s1)):
                     # Sum of first-order indices should be <= 1 (with tolerance)
-                    assert np.sum(s1) <= 1.0 + 0.1, \
+                    assert np.sum(s1) <= 1.0 + 0.1, (
                         f"First-order Sobol indices sum > 1: {np.sum(s1)}"
+                    )
         except Exception:
             pass
 
     @given(data=sensitivity_strategy())
-    @settings(max_examples=15, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=15,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_sobol_deterministic(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "sensitivity.global.sobol_first_order@1.0.0")
         state = {"X": data["X"], "Y": data["Y"]}
@@ -71,7 +88,11 @@ class TestSobolIndicesProperties:
 
 class TestMorrisScreeningProperties:
     @given(data=sensitivity_strategy())
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_morris_output_dict(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "sensitivity.global.morris@1.0.0")
         state = {"X": data["X"], "Y": data["Y"]}

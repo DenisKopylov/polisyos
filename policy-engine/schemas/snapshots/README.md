@@ -19,11 +19,11 @@ snapshots/
 
 ## Роль подпапок
 
-| Папка | Назначение |
-| --- | --- |
-| `snapshots/ir` | ABI JSON Schema для IR-моделей (`src/polisyos/ir/**`) |
-| `snapshots/fabric` | ABI JSON Schema для enum world-ABI (`src/polisyos/ir/world/abi.py`) |
-| `snapshots/connectors` | Baseline source connector-контрактов |
+| Папка                  | Назначение                                                          |
+| ---------------------- | ------------------------------------------------------------------- |
+| `snapshots/ir`         | ABI JSON Schema для IR-моделей (`src/polisyos/ir/**`)               |
+| `snapshots/fabric`     | ABI JSON Schema для enum world-ABI (`src/polisyos/ir/world/abi.py`) |
+| `snapshots/connectors` | Baseline source connector-контрактов                                |
 
 ## Формат артефактов
 

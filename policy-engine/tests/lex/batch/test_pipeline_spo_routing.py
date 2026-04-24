@@ -1,19 +1,22 @@
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.lex.batch.config import BatchConfig
 from polisyos.lex.batch.pipeline import (
     _build_spo_doc_routing_plan,
-    _extract_provisions_worker,
     _group_docs_by_spo_settings,
+    _should_extract_spo_from_span,
     _should_route_llm_gap_fill,
     _should_skip_audit_for_span,
-    _should_extract_spo_from_span,
+    extract_provisions_worker,
 )
 from polisyos.lex.batch.smoke import SMOKE_PROFILES
 from polisyos.lex.batch.structurer import ProvisionSpan
 from polisyos.lex.batch.xml_parser import NPACard, NPADocument
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _doc(*, doc_id: str, title: str, doc_type: str = "Постанова") -> NPADocument:
@@ -89,8 +92,12 @@ def test_build_spo_doc_routing_plan_caps_mega_catalog_and_disables_llm(tmp_path:
         _span(i, "Затвердити список виробництв та визначити порядок застосування.", kind="point")
         for i in range(12)
     ]
-    prov_rows = [{"kind": "full_chunk", "fallback_allowed_for_reasoning": False} for _ in range(1490)]
-    prov_rows.extend({"kind": "point", "fallback_allowed_for_reasoning": True} for _ in reasoning_spans)
+    prov_rows = [
+        {"kind": "full_chunk", "fallback_allowed_for_reasoning": False} for _ in range(1490)
+    ]
+    prov_rows.extend(
+        {"kind": "point", "fallback_allowed_for_reasoning": True} for _ in reasoning_spans
+    )
 
     plan = _build_spo_doc_routing_plan(
         doc=doc,
@@ -119,13 +126,23 @@ def test_group_docs_by_spo_settings_separates_outliers(tmp_path: Path) -> None:
         spo_group_timeout_seconds=90.0,
         spo_max_provisions_per_doc=14,
     )
-    normal_doc = _doc(doc_id="norm000000000001", title="Про порядок ліцензування", doc_type="Закон України")
+    normal_doc = _doc(
+        doc_id="norm000000000001", title="Про порядок ліцензування", doc_type="Закон України"
+    )
     outlier_doc = _doc(
         doc_id="mega000000000002",
         title="Про перелік об'єктів, які не підлягають приватизації",
     )
-    normal_spans = [_span(i, "Орган ліцензування зобов'язаний видати рішення.", kind="article") for i in range(6)]
-    outlier_spans = [_span(i, "Перелік об'єктів державної власності.", kind="point", section_role="catalog_entry") for i in range(10)]
+    normal_spans = [
+        _span(i, "Орган ліцензування зобов'язаний видати рішення.", kind="article")
+        for i in range(6)
+    ]
+    outlier_spans = [
+        _span(
+            i, "Перелік об'єктів державної власності.", kind="point", section_role="catalog_entry"
+        )
+        for i in range(10)
+    ]
     normal_plan = _build_spo_doc_routing_plan(
         doc=normal_doc,
         prov_rows=[{"kind": "article", "fallback_allowed_for_reasoning": True} for _ in range(8)],
@@ -135,7 +152,9 @@ def test_group_docs_by_spo_settings_separates_outliers(tmp_path: Path) -> None:
     )
     outlier_plan = _build_spo_doc_routing_plan(
         doc=outlier_doc,
-        prov_rows=[{"kind": "full_chunk", "fallback_allowed_for_reasoning": False} for _ in range(1200)],
+        prov_rows=[
+            {"kind": "full_chunk", "fallback_allowed_for_reasoning": False} for _ in range(1200)
+        ],
         reasoning_spans=outlier_spans,
         quality_family="appendix_heavy",
         config=config,
@@ -157,7 +176,9 @@ def test_group_docs_by_spo_settings_separates_outliers(tmp_path: Path) -> None:
     assert request_sizes == [1, 4]
 
 
-def test_build_spo_doc_routing_plan_keeps_law_soft_cap_above_acceptance_default(tmp_path: Path) -> None:
+def test_build_spo_doc_routing_plan_keeps_law_soft_cap_above_acceptance_default(
+    tmp_path: Path,
+) -> None:
     config = BatchConfig(
         cards_path=tmp_path / "cards.xml",
         texts_path=tmp_path / "texts.xml",
@@ -175,7 +196,11 @@ def test_build_spo_doc_routing_plan_keeps_law_soft_cap_above_acceptance_default(
         doc_type="Конституція",
     )
     law_spans = [
-        _span(i, "Громадяни України мають право на свободу об'єднання у політичні партії.", kind="article")
+        _span(
+            i,
+            "Громадяни України мають право на свободу об'єднання у політичні партії.",
+            kind="article",
+        )
         for i in range(40)
     ]
 
@@ -194,7 +219,7 @@ def test_build_spo_doc_routing_plan_keeps_law_soft_cap_above_acceptance_default(
 def test_extract_provisions_worker_passes_jurisdiction(monkeypatch) -> None:
     captured: dict[str, str] = {}
 
-    def _fake_extract_provisions(text: str, **kwargs):  # noqa: ANN003
+    def _fake_extract_provisions(text: str, **kwargs):
         del text
         captured["jurisdiction"] = str(kwargs.get("jurisdiction") or "")
         return [
@@ -215,9 +240,11 @@ def test_extract_provisions_worker_passes_jurisdiction(monkeypatch) -> None:
             )
         ]
 
-    monkeypatch.setattr("polisyos.lex.batch.structurer.extract_provisions", _fake_extract_provisions)
+    monkeypatch.setattr(
+        "polisyos.lex.batch.structurer.extract_provisions", _fake_extract_provisions
+    )
 
-    rows = _extract_provisions_worker(
+    rows = extract_provisions_worker(
         {
             "text": "Article 1 sample",
             "doc_type": "Regulation",

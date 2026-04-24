@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn, formatDate } from "@/lib/utils";
 import { Button, Card } from "@/shared/ui/primitives";
 
@@ -15,6 +16,7 @@ export function ScenarioSnapshot({
   onCompare,
   className,
 }: ScenarioSnapshotProps) {
+  const { t } = useI18n();
   const { scenarios, saveScenario, deleteScenario, loadScenario } =
     useWhatIfStore();
   const [showSave, setShowSave] = useState(false);
@@ -38,14 +40,16 @@ export function ScenarioSnapshot({
     <Card className={cn("space-y-3", className)}>
       <div className="flex items-center justify-between gap-2">
         <h4 className="text-sm font-semibold">
-          Scenarios ({scenarios.length})
+          {t("whatIf.scenarios.countTitle", { count: scenarios.length })}
         </h4>
         <Button
           type="button"
           variant="ghost"
           onClick={() => setShowSave(!showSave)}
         >
-          {showSave ? "Cancel" : "+ Save current"}
+          {showSave
+            ? t("common.cancel")
+            : `+ ${t("whatIf.scenarios.saveCurrent")}`}
         </Button>
       </div>
 
@@ -57,23 +61,21 @@ export function ScenarioSnapshot({
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Scenario name"
+            placeholder={t("whatIf.scenarios.nameLabel")}
             className="bg-surface border-line flex-1 rounded-lg border px-2 py-1 text-sm"
             onKeyDown={(e) => {
               if (e.key === "Enter") handleSave();
             }}
           />
           <Button type="button" variant="primary" onClick={handleSave}>
-            Save
+            {t("whatIf.scenarios.save")}
           </Button>
         </div>
       )}
 
       {/* Scenario list */}
       {scenarios.length === 0 ? (
-        <p className="text-muted text-sm">
-          No scenarios saved yet. Adjust parameters and save.
-        </p>
+        <p className="text-muted text-sm">{t("whatIf.scenarios.empty")}</p>
       ) : (
         <div className="space-y-2">
           {scenarios.map((scenario) => (
@@ -82,11 +84,7 @@ export function ScenarioSnapshot({
               scenario={scenario}
               onLoad={() => loadScenario(scenario.id)}
               onDelete={() => deleteScenario(scenario.id)}
-              onCompare={
-                onCompare
-                  ? () => onCompare(scenario.id)
-                  : undefined
-              }
+              onCompare={onCompare ? () => onCompare(scenario.id) : undefined}
             />
           ))}
         </div>
@@ -106,6 +104,7 @@ function ScenarioRow({
   onDelete: () => void;
   onCompare?: () => void;
 }) {
+  const { t } = useI18n();
   const paramCount = Object.keys(scenario.parameters).length;
 
   return (
@@ -113,9 +112,15 @@ function ScenarioRow({
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold">{scenario.name}</p>
         <div className="text-muted mt-0.5 flex flex-wrap gap-2 text-xs">
-          <span>{paramCount} params</span>
+          <span>
+            {t("whatIf.scenarios.paramsCount", { count: paramCount })}
+          </span>
           {scenario.metrics && (
-            <span>{scenario.metrics.length} metrics</span>
+            <span>
+              {t("whatIf.scenarios.metricsCount", {
+                count: scenario.metrics.length,
+              })}
+            </span>
           )}
           <span>
             {formatDate(scenario.createdAt, undefined, {
@@ -131,26 +136,26 @@ function ScenarioRow({
         <button
           type="button"
           onClick={onLoad}
-          className="text-muted hover:text-inherit rounded-lg px-2 py-1 text-xs font-medium"
-          title="Load parameters"
+          className="text-muted rounded-lg px-2 py-1 text-xs font-medium hover:text-inherit"
+          title={t("whatIf.scenarios.loadParameters")}
         >
-          Load
+          {t("whatIf.scenarios.load")}
         </button>
         {onCompare && (
           <button
             type="button"
             onClick={onCompare}
             className="rounded-lg px-2 py-1 text-xs font-medium text-[var(--chart-primary)]"
-            title="Compare with base run"
+            title={t("whatIf.scenarios.compareWithBaseRun")}
           >
-            Compare
+            {t("whatIf.scenarios.compare")}
           </button>
         )}
         <button
           type="button"
           onClick={onDelete}
-          className="text-muted hover:text-[var(--chart-alert)] rounded-lg px-2 py-1 text-xs"
-          title="Delete scenario"
+          className="text-muted rounded-lg px-2 py-1 text-xs hover:text-[var(--chart-alert)]"
+          title={t("whatIf.scenarios.delete")}
         >
           {"\u2715"}
         </button>

@@ -1,6 +1,11 @@
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { Card } from "@/shared/ui/primitives";
-import { RadarChart, type RadarDimension, type RadarSeries } from "@/shared/charts";
+import {
+  RadarChart,
+  type RadarDimension,
+  type RadarSeries,
+} from "@/shared/charts";
 
 export type EvidenceCoverage = {
   academic: number;
@@ -38,6 +43,7 @@ export function EvidenceCoverageRadar({
   title = "Evidence Coverage (4D)",
   className,
 }: EvidenceCoverageRadarProps) {
+  const { t } = useI18n();
   const series: RadarSeries[] = [
     { id: "current", label: "Current", values: toPercent(coverage) },
   ];
@@ -50,7 +56,10 @@ export function EvidenceCoverageRadar({
   }
 
   const overall =
-    (coverage.academic + coverage.dataset + coverage.legal + coverage.transport) /
+    (coverage.academic +
+      coverage.dataset +
+      coverage.legal +
+      coverage.transport) /
     4;
 
   return (
@@ -58,7 +67,9 @@ export function EvidenceCoverageRadar({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-lg font-semibold">{title}</h3>
         <span className="text-muted text-xs font-medium">
-          Overall: {Math.round(overall * 100)}%
+          {t("shared.ui.evidenceCoverageRadar.overall", {
+            percent: Math.round(overall * 100),
+          })}
         </span>
       </div>
 
@@ -79,9 +90,7 @@ export function EvidenceCoverageRadar({
               className="border-line rounded-xl border p-2 text-center"
             >
               <p className="text-muted text-xs uppercase">{dim.label}</p>
-              <p className="mt-1 text-lg font-bold">
-                {Math.round(val * 100)}%
-              </p>
+              <p className="mt-1 text-lg font-bold">{Math.round(val * 100)}%</p>
             </div>
           );
         })}

@@ -309,7 +309,10 @@ def test_runtime_strategic_helper_persists_normalized_contract_and_real_causal_c
     assert output.strategic_response_summary is not None
     normalized_contract = load_strategic_scm(ctx.store, output.strategic_scm_ref)
     assert normalized_contract.utility_refs["leader"] == leader_ref
-    assert load_strategic_payoff_table(ctx.store, normalized_contract.utility_refs["leader"]) == tables["leader"]
+    assert (
+        load_strategic_payoff_table(ctx.store, normalized_contract.utility_refs["leader"])
+        == tables["leader"]
+    )
     assert output.strategic_response_summary["causal_component_ref"]["artifact_id"] == str(
         causal_report_ref.artifact_id
     )

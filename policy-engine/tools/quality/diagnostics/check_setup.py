@@ -14,15 +14,15 @@ REPO_ROOT, SRC_ROOT = ensure_repo_import_roots(__file__, include_repo_root=False
 # --- CRITICAL SETUP ORDER ---
 # Мы специально нарушаем порядок импортов (E402, I001),
 # чтобы применить настройки среды (.env) ДО загрузки тяжелых библиотек.
-from polisyos.common import config  # noqa: E402
-
 # Теперь безопасные импорты
 import duckdb  # noqa: E402
 import jax  # noqa: E402
-from pydantic import BaseModel  # noqa: E402
 
 # Используем логгер из конфига или создаем локальный
 from loguru import logger  # noqa: E402
+from pydantic import BaseModel  # noqa: E402
+
+from polisyos.common import config  # noqa: E402
 
 
 def main(argv: Sequence[str] | None = None) -> int:

@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from polisyos.scientist.backtesting.distributional import (
     test_residual_autocorrelation as check_autocorrelation,
+)
+from polisyos.scientist.backtesting.distributional import (
     test_residual_normality as check_normality,
+)
+from polisyos.scientist.backtesting.distributional import (
     test_residual_stationarity as check_stationarity,
 )
 

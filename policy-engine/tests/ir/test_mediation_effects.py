@@ -16,10 +16,9 @@ def test_mediation_decomposition_normalizes_proportion_mediated_consistently() -
 
     assert result.proportion_mediated == pytest.approx(0.25)
     assert result.model_copy(deep=True).proportion_mediated == pytest.approx(0.25)
-    assert (
-        MediationDecomposition.model_validate(result.model_dump(mode="json")).proportion_mediated
-        == pytest.approx(0.25)
-    )
+    assert MediationDecomposition.model_validate(
+        result.model_dump(mode="json")
+    ).proportion_mediated == pytest.approx(0.25)
 
 
 def test_path_specific_query_rejects_paths_without_treatment_and_outcome_endpoints() -> None:

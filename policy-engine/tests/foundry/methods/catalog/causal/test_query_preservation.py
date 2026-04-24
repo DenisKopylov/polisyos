@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from polisyos.foundry.methods.catalog.causal.graph_reconciliation import ComposeSCMFragments
+from polisyos.foundry.methods.catalog.causal.protocols import FragmentCompositionData
 from polisyos.foundry.methods.catalog.causal.query_preservation import (
     check_query_preservation,
     check_query_preservation_batch,
@@ -8,8 +10,17 @@ from polisyos.foundry.methods.catalog.causal.query_preservation import (
     negative_certificate_from_query_preservation_trace,
     update_query_preservation_cache,
 )
-from polisyos.ir.analytics.alignment_certification import AlignmentVerificationConfig, verify_fragment_bundle_alignment
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, EdgeSource, GraphType
+from polisyos.ir.analytics.alignment_certification import (
+    AlignmentVerificationConfig,
+    verify_fragment_bundle_alignment,
+)
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    EdgeSource,
+    GraphType,
+)
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.ir.analytics.cross_graph import (
     CompositionCertificate,
@@ -25,8 +36,6 @@ from polisyos.ir.analytics.cross_graph import (
     UniquenessScope,
 )
 from polisyos.ir.analytics.negative_certificate import BlockingType
-from polisyos.foundry.methods.catalog.causal.graph_reconciliation import ComposeSCMFragments
-from polisyos.foundry.methods.catalog.causal.protocols import FragmentCompositionData
 
 
 def _edge(src: str, dst: str) -> CausalEdge:
@@ -51,7 +60,9 @@ def _bidirected(src: str, dst: str) -> CausalEdge:
     )
 
 
-def _graph(nodes: list[str], edges: list[CausalEdge], *, graph_type: GraphType = GraphType.DAG) -> CausalGraphModel:
+def _graph(
+    nodes: list[str], edges: list[CausalEdge], *, graph_type: GraphType = GraphType.DAG
+) -> CausalGraphModel:
     return CausalGraphModel(
         graph_type=graph_type,
         nodes=nodes,
@@ -77,8 +88,7 @@ def _fragment(
         exposed_inputs=list(inputs or []),
         exposed_outputs=list(outputs or []),
         variable_definitions=dict(
-            definitions
-            or {name: name.replace("_", " ").title() for name in interface_variables}
+            definitions or {name: name.replace("_", " ").title() for name in interface_variables}
         ),
         variable_units=dict(units or {}),
     )
@@ -116,8 +126,7 @@ def _cyclic_fragment(
         exposed_inputs=list(inputs or []),
         exposed_outputs=list(outputs or []),
         variable_definitions=dict(
-            definitions
-            or {name: name.replace("_", " ").title() for name in interface_variables}
+            definitions or {name: name.replace("_", " ").title() for name in interface_variables}
         ),
         variable_units=dict(units or {}),
         cycle_type=CycleType.SIMPLE_CYCLIC,
@@ -160,8 +169,16 @@ def _compose(
 
 def test_check_query_preservation_preserved_for_supported_dag_query() -> None:
     fragments = [
-        _fragment("core", interface_variables=["employment_rate", "wages"], outputs=["employment_rate", "wages"]),
-        _fragment("training", interface_variables=["employment_rate", "wages"], inputs=["employment_rate", "wages"]),
+        _fragment(
+            "core",
+            interface_variables=["employment_rate", "wages"],
+            outputs=["employment_rate", "wages"],
+        ),
+        _fragment(
+            "training",
+            interface_variables=["employment_rate", "wages"],
+            inputs=["employment_rate", "wages"],
+        ),
     ]
     fragment_graphs = {
         "core": _graph(
@@ -248,8 +265,16 @@ def test_check_query_preservation_detects_broken_query_after_stitching() -> None
 
 def test_check_query_preservation_uses_m_separation_for_admg() -> None:
     fragments = [
-        _fragment("core", interface_variables=["employment_rate", "wages"], outputs=["employment_rate", "wages"]),
-        _fragment("spillover", interface_variables=["employment_rate", "wages"], inputs=["employment_rate", "wages"]),
+        _fragment(
+            "core",
+            interface_variables=["employment_rate", "wages"],
+            outputs=["employment_rate", "wages"],
+        ),
+        _fragment(
+            "spillover",
+            interface_variables=["employment_rate", "wages"],
+            inputs=["employment_rate", "wages"],
+        ),
     ]
     fragment_graphs = {
         "core": _graph(
@@ -365,8 +390,12 @@ def test_check_query_preservation_returns_unknown_for_unsupported_query_shape() 
         _fragment("training", interface_variables=["employment_rate"], inputs=["employment_rate"]),
     ]
     fragment_graphs = {
-        "core": _graph(["schooling", "employment_rate", "wages"], [_edge("schooling", "employment_rate")]),
-        "training": _graph(["employment_rate", "training_slots"], [_edge("employment_rate", "training_slots")]),
+        "core": _graph(
+            ["schooling", "employment_rate", "wages"], [_edge("schooling", "employment_rate")]
+        ),
+        "training": _graph(
+            ["employment_rate", "training_slots"], [_edge("employment_rate", "training_slots")]
+        ),
     }
     composed_graph, certificate, mapping = _compose(fragments, fragment_graphs)
     query = CausalQuery(
@@ -396,8 +425,12 @@ def test_evaluate_query_preservation_batch_surfaces_reason_codes() -> None:
         _fragment("training", interface_variables=["employment_rate"], inputs=["employment_rate"]),
     ]
     fragment_graphs = {
-        "core": _graph(["schooling", "employment_rate", "wages"], [_edge("schooling", "employment_rate")]),
-        "training": _graph(["employment_rate", "training_slots"], [_edge("employment_rate", "training_slots")]),
+        "core": _graph(
+            ["schooling", "employment_rate", "wages"], [_edge("schooling", "employment_rate")]
+        ),
+        "training": _graph(
+            ["employment_rate", "training_slots"], [_edge("employment_rate", "training_slots")]
+        ),
     }
     composed_graph, certificate, mapping = _compose(fragments, fragment_graphs)
     query = CausalQuery(
@@ -505,8 +538,16 @@ def test_query_preservation_cache_is_stable_and_invalidates_when_composition_cha
 
 def test_check_query_preservation_batch_returns_fingerprint_status_map() -> None:
     fragments = [
-        _fragment("core", interface_variables=["employment_rate", "wages"], outputs=["employment_rate", "wages"]),
-        _fragment("training", interface_variables=["employment_rate", "wages"], inputs=["employment_rate", "wages"]),
+        _fragment(
+            "core",
+            interface_variables=["employment_rate", "wages"],
+            outputs=["employment_rate", "wages"],
+        ),
+        _fragment(
+            "training",
+            interface_variables=["employment_rate", "wages"],
+            inputs=["employment_rate", "wages"],
+        ),
     ]
     fragment_graphs = {
         "core": _graph(
@@ -556,7 +597,12 @@ def test_check_query_preservation_batch_returns_fingerprint_status_map() -> None
 def test_evaluate_query_preservation_uses_witness_subgraph_for_chain() -> None:
     fragments = [
         _fragment("a", interface_variables=["employment_rate"], outputs=["employment_rate"]),
-        _fragment("b", interface_variables=["employment_rate", "wages"], inputs=["employment_rate"], outputs=["wages"]),
+        _fragment(
+            "b",
+            interface_variables=["employment_rate", "wages"],
+            inputs=["employment_rate"],
+            outputs=["wages"],
+        ),
         _fragment("c", interface_variables=["wages"], inputs=["wages"]),
     ]
     fragment_graphs = {
@@ -624,7 +670,9 @@ def test_evaluate_query_preservation_identifies_frontdoor_after_latent_projectio
         fragments,
         fragment_graphs,
         config=AlignmentVerificationConfig(
-            explicit_latent_bridges={"a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"},
+            explicit_latent_bridges={
+                "a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"
+            },
             human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
         ),
     )
@@ -702,7 +750,9 @@ def test_evaluate_query_preservation_identifies_adjustment_family_after_latent_p
         fragments,
         fragment_graphs,
         config=AlignmentVerificationConfig(
-            explicit_latent_bridges={"a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"},
+            explicit_latent_bridges={
+                "a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"
+            },
             human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
         ),
     )
@@ -762,7 +812,9 @@ def test_evaluate_query_preservation_emits_hedge_for_latent_projection_bow() -> 
         fragments,
         fragment_graphs,
         config=AlignmentVerificationConfig(
-            explicit_latent_bridges={"a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"},
+            explicit_latent_bridges={
+                "a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"
+            },
             human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
         ),
     )
@@ -794,10 +846,15 @@ def test_evaluate_query_preservation_emits_hedge_for_latent_projection_bow() -> 
     negative_certificate = negative_certificate_from_query_preservation_trace(query, trace)
     assert negative_certificate is not None
     assert negative_certificate.blocking_type is BlockingType.HEDGE_STRUCTURE
-    assert negative_certificate.quantitative_diagnostics["query_preservation_reason"] == "latent_projection_hedge_found"
+    assert (
+        negative_certificate.quantitative_diagnostics["query_preservation_reason"]
+        == "latent_projection_hedge_found"
+    )
 
 
-def test_update_query_preservation_cache_persists_query_certificates_for_latent_projection() -> None:
+def test_update_query_preservation_cache_persists_query_certificates_for_latent_projection() -> (
+    None
+):
     fragments = [
         _fragment(
             "a",
@@ -832,7 +889,9 @@ def test_update_query_preservation_cache_persists_query_certificates_for_latent_
         fragments,
         fragment_graphs,
         config=AlignmentVerificationConfig(
-            explicit_latent_bridges={"a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"},
+            explicit_latent_bridges={
+                "a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"
+            },
             human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
         ),
     )
@@ -871,7 +930,9 @@ def test_update_query_preservation_cache_persists_query_certificates_for_latent_
     assert replay_trace.theorem_family == "frontdoor_exact"
 
 
-def test_evaluate_query_preservation_marks_direct_latent_query_as_unknown_after_projection() -> None:
+def test_evaluate_query_preservation_marks_direct_latent_query_as_unknown_after_projection() -> (
+    None
+):
     fragments = [
         _fragment("a", interface_variables=["x", "y"], outputs=["x", "y"]),
         _fragment("b", interface_variables=["x", "y"], inputs=["x", "y"]),

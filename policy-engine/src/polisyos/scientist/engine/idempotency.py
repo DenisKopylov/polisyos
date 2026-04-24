@@ -1,4 +1,5 @@
 """Idempotency hashing and cache-entry helpers for repeat-safe Scientist node execution."""
+
 from __future__ import annotations
 
 import json
@@ -33,6 +34,7 @@ _IDEM_CANON = CanonSpec(
 
 class NodeCacheEntry(BaseModel):
     """Artifact record linking a run-scoped idempotency key to a cached node outcome."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
@@ -102,6 +104,7 @@ def compute_idempotency_key(
 
 class NodeResultCache:
     """Node result cache public type."""
+
     def __init__(
         self,
         store: ArtifactStore,
@@ -140,7 +143,9 @@ class NodeResultCache:
             outcome = NodeOutcome.model_validate(payload)
         except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
             logger.debug(
-                "Cache miss for key %s, evicting: %s", key, exc,
+                "Cache miss for key %s, evicting: %s",
+                key,
+                exc,
             )
             self._index.delete(key)
             return None
@@ -213,7 +218,8 @@ class NodeResultCache:
                         ref = ArtifactRef.model_validate(item)
                     except (TypeError, ValueError) as exc:
                         logger.debug(
-                            "Skipping invalid artifact ref in trace: %s", exc,
+                            "Skipping invalid artifact ref in trace: %s",
+                            exc,
                         )
                         continue
                     if ref.kind != "scientist.node_cache_entry":
@@ -223,7 +229,8 @@ class NodeResultCache:
                             restored += 1
                     except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
                         logger.debug(
-                            "Failed to load cache entry: %s", exc,
+                            "Failed to load cache entry: %s",
+                            exc,
                         )
                         continue
         return restored
@@ -238,7 +245,8 @@ class NodeResultCache:
                     restored += 1
             except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
                 logger.debug(
-                    "Failed to seed from entry ref: %s", exc,
+                    "Failed to seed from entry ref: %s",
+                    exc,
                 )
                 continue
         return restored

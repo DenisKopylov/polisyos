@@ -63,10 +63,10 @@ def test_network_registration_and_methods_run() -> None:
         "network.community.community_detection@1.0.0",
         "network.io.input_output_network@1.0.0",
         "network.diffusion.network_diffusion@1.0.0",
-        "network.missingness.network_missingness_assessment@0.1.0",
+        "network.missingness.network_missingness_assessment@1.0.0",
         "network.peer_effects.peer_effect_decomposition@1.0.0",
         "network.contagion.contagion_model@1.0.0",
-        "network.community.sbm_stratification@0.1.0",
+        "network.community.sbm_stratification@1.0.0",
         "network.generative.ergm_null@0.1.0",
         "network.generative.diffusion_null_test@0.1.0",
     ):
@@ -81,7 +81,7 @@ def test_network_registration_and_methods_run() -> None:
                     "frame_observed": True,
                     "estimands": ("edge_count",),
                 }
-                if fqn == "network.missingness.network_missingness_assessment@0.1.0"
+                if fqn == "network.missingness.network_missingness_assessment@1.0.0"
                 else {}
             ),
             seed=163,
@@ -89,12 +89,15 @@ def test_network_registration_and_methods_run() -> None:
         assert result.output["result"].method_name
         if fqn == "network.peer_effects.peer_effect_decomposition@1.0.0":
             assert result.output["result"].peer_effect_decomposition is not None
-        if fqn == "network.missingness.network_missingness_assessment@0.1.0":
+        if fqn == "network.missingness.network_missingness_assessment@1.0.0":
             assert result.output["result"].missingness_assessment is not None
-        if fqn == "network.community.sbm_stratification@0.1.0":
-            assert result.output["result"].metadata["embedding_fidelity_certificate"]["status"] == "red"
+        if fqn == "network.community.sbm_stratification@1.0.0":
+            assert (
+                result.output["result"].metadata["embedding_fidelity_certificate"]["status"]
+                == "red"
+            )
 
-    strategic_cls = registry.get("network.formation.strategic_formation@0.1.0")
+    strategic_cls = registry.get("network.formation.strategic_formation@1.0.0")
     strategic_result = dispatcher.dispatch(
         method_class=strategic_cls,
         signature=strategic_cls.signature,

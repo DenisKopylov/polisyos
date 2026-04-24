@@ -26,9 +26,7 @@ if TYPE_CHECKING:
 REPO_ROOT = repo_root_from(__file__)
 IMPACT_NOTE = "docs/reference/documentation-inventory.md"
 
-TOOLS_REFERENCE_PATTERNS = (
-    "tools/**",
-)
+TOOLS_REFERENCE_PATTERNS = ("tools/**",)
 DOCS_OR_README_PATTERNS = (
     "docs/**",
     "mkdocs.yml",
@@ -46,9 +44,7 @@ IR_OR_SCHEMA_PATTERNS = (
     "src/polisyos/ir/**",
     "schemas/**",
 )
-RUNTIME_HTTP_PATTERNS = (
-    "src/polisyos/runtime/http/**",
-)
+RUNTIME_HTTP_PATTERNS = ("src/polisyos/runtime/http/**",)
 SEMANTIC_DOCSTRING_PATTERNS = (
     "src/polisyos/**/__init__.py",
     "src/polisyos/runtime/http/*.py",
@@ -71,9 +67,7 @@ RUNTIME_EVIDENCE_PATTERNS = (
     "frontend/runtime-dashboard/README.md",
     IMPACT_NOTE,
 )
-FABRIC_CONNECTOR_PATTERNS = (
-    "src/polisyos/fabric/connectors/**",
-)
+FABRIC_CONNECTOR_PATTERNS = ("src/polisyos/fabric/connectors/**",)
 FABRIC_EVIDENCE_PATTERNS = (
     "docs/reference/fabric/**",
     "docs/connectors/CONTRIBUTING.md",
@@ -335,8 +329,7 @@ def _has_changed(paths: Sequence[str], patterns: Iterable[str]) -> bool:
 
 def _has_keyword_match(paths: Sequence[str], *, prefix: str, keywords: Iterable[str]) -> bool:
     return any(
-        path.startswith(prefix) and any(keyword in path for keyword in keywords)
-        for path in paths
+        path.startswith(prefix) and any(keyword in path for keyword in keywords) for path in paths
     )
 
 
@@ -430,8 +423,7 @@ def _is_security_sensitive(path: str) -> bool:
         return True
     if path.startswith("src/polisyos/runtime/http/"):
         return any(
-            keyword in path
-            for keyword in ("auth", "tenant", "audit", "sign", "csrf", "jwt")
+            keyword in path for keyword in ("auth", "tenant", "audit", "sign", "csrf", "jwt")
         )
     if not path.startswith(("src/polisyos/", "tools/")):
         return False
@@ -449,9 +441,7 @@ def build_gate_plan(changed_paths: Sequence[str]) -> GatePlan:
     def add_command(key: str) -> None:
         if key not in command_keys:
             if key == "semantic_docstrings":
-                dynamic_commands[key] = _build_semantic_docstrings_command(
-                    semantic_docstring_paths
-                )
+                dynamic_commands[key] = _build_semantic_docstrings_command(semantic_docstring_paths)
             command_keys.append(key)
 
     if _has_changed(changed_paths, TOOLS_REFERENCE_PATTERNS):

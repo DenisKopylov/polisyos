@@ -26,7 +26,8 @@ Cattaneo, M.D. (2010). Efficient semiparametric estimation of multi-valued
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -43,15 +44,10 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.foundry.methods.catalog.causal.eif_bounds import (
-    EIFScores,
-    compute_eif_multi_treatment_ate,
-)
 from polisyos.foundry.methods.catalog.causal.protocols import (
     MultiTreatmentData,
     MultiTreatmentResult,
 )
-
 
 # ---------------------------------------------------------------------------
 # Private helpers
@@ -148,7 +144,7 @@ def _all_pairwise_contrasts(
     keys = [str(lv) for lv in levels]
     out: dict[str, float] = {}
     for i, k1 in enumerate(keys):
-        for k2 in keys[i + 1:]:
+        for k2 in keys[i + 1 :]:
             out[f"{k1}_vs_{k2}"] = arm_means[k1] - arm_means[k2]
     return out
 
@@ -177,7 +173,7 @@ def pairwise_contrasts(result: MultiTreatmentResult) -> dict[str, float]:
     levels = [str(lv) for lv in sorted(int(x) for x in result.levels)]
     out: dict[str, float] = {}
     for i, k1 in enumerate(levels):
-        for k2 in levels[i + 1:]:
+        for k2 in levels[i + 1 :]:
             out[f"{k1}_vs_{k2}"] = result.arm_means[k1] - result.arm_means[k2]
     return out
 
@@ -210,29 +206,58 @@ class MultinomialIPWEstimator:
         name="ipw",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset([
-            SlotSpec(name="outcome", slot_type=SlotType.VECTOR,
-                     description="(n,) outcome", unit=Unit("dimensionless", ""),
-                     shape=("n",)),
-            SlotSpec(name="treatment", slot_type=SlotType.VECTOR,
-                     description="(n,) integer treatment labels", unit=Unit("dimensionless", ""),
-                     shape=("n",)),
-            SlotSpec(name="covariates", slot_type=SlotType.MATRIX,
-                     description="(n, p) covariates", unit=Unit("dimensionless", ""),
-                     shape=("n", "p")),
-        ]),
-        output_slots=frozenset([
-            SlotSpec(name="multi_treatment_result", slot_type=SlotType.SCALAR,
-                     description="MultiTreatmentResult dict", unit=Unit("dimensionless", "")),
-        ]),
+        input_slots=frozenset(
+            [
+                SlotSpec(
+                    name="outcome",
+                    slot_type=SlotType.VECTOR,
+                    description="(n,) outcome",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n",),
+                ),
+                SlotSpec(
+                    name="treatment",
+                    slot_type=SlotType.VECTOR,
+                    description="(n,) integer treatment labels",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n",),
+                ),
+                SlotSpec(
+                    name="covariates",
+                    slot_type=SlotType.MATRIX,
+                    description="(n, p) covariates",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n", "p"),
+                ),
+            ]
+        ),
+        output_slots=frozenset(
+            [
+                SlotSpec(
+                    name="multi_treatment_result",
+                    slot_type=SlotType.SCALAR,
+                    description="MultiTreatmentResult dict",
+                    unit=Unit("dimensionless", ""),
+                ),
+            ]
+        ),
         parameters=(
-            ParameterSpec(name="reference_level", default=0,
-                          description="Reference treatment arm for ATE contrasts"),
-            ParameterSpec(name="min_propensity", default=0.01,
-                          description="Propensity score clipping floor",
-                          bounds=(1e-6, 0.2)),
-            ParameterSpec(name="estimator", default="hajek",
-                          description="'hajek' (normalised) or 'ht' (Horvitz-Thompson)"),
+            ParameterSpec(
+                name="reference_level",
+                default=0,
+                description="Reference treatment arm for ATE contrasts",
+            ),
+            ParameterSpec(
+                name="min_propensity",
+                default=0.01,
+                description="Propensity score clipping floor",
+                bounds=(1e-6, 0.2),
+            ),
+            ParameterSpec(
+                name="estimator",
+                default="hajek",
+                description="'hajek' (normalised) or 'ht' (Horvitz-Thompson)",
+            ),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N,
@@ -254,9 +279,7 @@ class MultinomialIPWEstimator:
             "estimating dose-response functions. Biometrika 87(3).",
         ),
         equations={
-            "E_Y_k": (
-                "Ê[Y(k)] = [Σᵢ I(Tᵢ=k)·Yᵢ/p_k(Xᵢ)] / [Σᵢ I(Tᵢ=k)/p_k(Xᵢ)]"
-            ),
+            "E_Y_k": ("Ê[Y(k)] = [Σᵢ I(Tᵢ=k)·Yᵢ/p_k(Xᵢ)] / [Σᵢ I(Tᵢ=k)/p_k(Xᵢ)]"),
         },
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -269,13 +292,10 @@ class MultinomialIPWEstimator:
             "Use MultiArmAIPWEstimator for doubly-robust estimation."
         ),
         prerequisites=(),
-        diagnostic_checks=(
-            "Inspect effective sample size per arm: Σᵢ wᵢ² / (Σᵢ wᵢ)².",
-        ),
+        diagnostic_checks=("Inspect effective sample size per arm: Σᵢ wᵢ² / (Σᵢ wᵢ)².",),
         typical_min_obs=50,
         output_interpretation=(
-            "arm_means[k] = Ê[Y(k)]. "
-            "ate_vs_reference[k] = Ê[Y(k)] − Ê[Y(reference)]."
+            "arm_means[k] = Ê[Y(k)]. ate_vs_reference[k] = Ê[Y(k)] − Ê[Y(reference)]."
         ),
     )
 
@@ -301,11 +321,11 @@ class MultinomialIPWEstimator:
         se_dict: dict[str, float] = {}
 
         for i, level in enumerate(levels):
-            mask = (T == level).astype(float)
+            mask = (level == T).astype(float)
             w = mask / probs[:, i]  # raw IPW weights
 
             if estimator == "hajek":
-                w_norm = w / float(w[T == level].sum())
+                w_norm = w / float(w[level == T].sum())
             else:  # ht
                 w_norm = w / len(Y)
 
@@ -316,17 +336,10 @@ class MultinomialIPWEstimator:
             se_dict[str(level)] = float(np.std(psi, ddof=1) / np.sqrt(len(Y)))
 
         ref_mean = arm_means[str(k_ref)]
-        ate_vs_ref = {
-            k: v - ref_mean
-            for k, v in arm_means.items()
-            if int(k) != k_ref
-        }
-        ci = {
-            k: (v - 1.96 * se_dict[k], v + 1.96 * se_dict[k])
-            for k, v in arm_means.items()
-        }
+        ate_vs_ref = {k: v - ref_mean for k, v in arm_means.items() if int(k) != k_ref}
+        ci = {k: (v - 1.96 * se_dict[k], v + 1.96 * se_dict[k]) for k, v in arm_means.items()}
         pairwise = _all_pairwise_contrasts(arm_means, levels)
-        n_per_arm = {str(lv): int((T == lv).sum()) for lv in levels}
+        n_per_arm = {str(lv): int((lv == T).sum()) for lv in levels}
 
         result = MultiTreatmentResult(
             levels=tuple(levels),
@@ -349,8 +362,7 @@ class MultinomialIPWEstimator:
 @foundry_method(
     namespace="causal.multi_treatment",
     version="1.0.0",
-    tags=frozenset({"causal", "multi_treatment", "aipw", "doubly_robust",
-                    "semiparametric"}),
+    tags=frozenset({"causal", "multi_treatment", "aipw", "doubly_robust", "semiparametric"}),
 )
 class MultiArmAIPWEstimator:
     """Doubly-robust multi-arm AIPW estimator (Cattaneo 2010).
@@ -374,30 +386,53 @@ class MultiArmAIPWEstimator:
         name="aipw",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset([
-            SlotSpec(name="outcome", slot_type=SlotType.VECTOR,
-                     description="(n,) outcome", unit=Unit("dimensionless", ""),
-                     shape=("n",)),
-            SlotSpec(name="treatment", slot_type=SlotType.VECTOR,
-                     description="(n,) integer treatment labels", unit=Unit("dimensionless", ""),
-                     shape=("n",)),
-            SlotSpec(name="covariates", slot_type=SlotType.MATRIX,
-                     description="(n, p) covariates", unit=Unit("dimensionless", ""),
-                     shape=("n", "p")),
-        ]),
-        output_slots=frozenset([
-            SlotSpec(name="multi_treatment_result", slot_type=SlotType.SCALAR,
-                     description="MultiTreatmentResult dict", unit=Unit("dimensionless", "")),
-        ]),
+        input_slots=frozenset(
+            [
+                SlotSpec(
+                    name="outcome",
+                    slot_type=SlotType.VECTOR,
+                    description="(n,) outcome",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n",),
+                ),
+                SlotSpec(
+                    name="treatment",
+                    slot_type=SlotType.VECTOR,
+                    description="(n,) integer treatment labels",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n",),
+                ),
+                SlotSpec(
+                    name="covariates",
+                    slot_type=SlotType.MATRIX,
+                    description="(n, p) covariates",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n", "p"),
+                ),
+            ]
+        ),
+        output_slots=frozenset(
+            [
+                SlotSpec(
+                    name="multi_treatment_result",
+                    slot_type=SlotType.SCALAR,
+                    description="MultiTreatmentResult dict",
+                    unit=Unit("dimensionless", ""),
+                ),
+            ]
+        ),
         parameters=(
-            ParameterSpec(name="reference_level", default=0,
-                          description="Reference treatment arm"),
-            ParameterSpec(name="n_folds", default=5,
-                          description="K-fold cross-fitting folds", bounds=(2, 20)),
-            ParameterSpec(name="min_propensity", default=0.01,
-                          description="Propensity clipping floor", bounds=(1e-6, 0.2)),
-            ParameterSpec(name="seed", default=42,
-                          description="Random seed for K-fold splits"),
+            ParameterSpec(name="reference_level", default=0, description="Reference treatment arm"),
+            ParameterSpec(
+                name="n_folds", default=5, description="K-fold cross-fitting folds", bounds=(2, 20)
+            ),
+            ParameterSpec(
+                name="min_propensity",
+                default=0.01,
+                description="Propensity clipping floor",
+                bounds=(1e-6, 0.2),
+            ),
+            ParameterSpec(name="seed", default=42, description="Random seed for K-fold splits"),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -413,8 +448,9 @@ class MultiArmAIPWEstimator:
             "functions (Cattaneo 2010). Achieves semiparametric efficiency bound "
             "under correctly specified propensity or outcome model."
         ),
-        tags=frozenset({"causal", "multi_treatment", "aipw", "doubly_robust",
-                        "semiparametric", "eif"}),
+        tags=frozenset(
+            {"causal", "multi_treatment", "aipw", "doubly_robust", "semiparametric", "eif"}
+        ),
         citations=(
             "Cattaneo, M.D. (2010). Efficient semiparametric estimation of "
             "multi-valued treatment effects under ignorability. "
@@ -468,17 +504,14 @@ class MultiArmAIPWEstimator:
         K = len(levels)
         probs_oof = np.zeros((n, K), dtype=float)
         for train_idx, val_idx in _kfold_indices(n, n_folds, seed=seed):
-            pr = _fit_multinomial_logistic(
-                X[train_idx], T[train_idx], levels, min_p=min_p
-            )
+            pr = _fit_multinomial_logistic(X[train_idx], T[train_idx], levels, min_p=min_p)
             # pr is (n_train, K) — but we need predictions at val_idx
             # Refit on train, predict on val
             from polisyos.foundry.methods.catalog.causal.cross_fit import _fit_logistic_beta
+
             n_val = len(val_idx)
             level_to_idx = {lv: i for i, lv in enumerate(levels)}
-            T_idx_tr = np.array(
-                [level_to_idx[int(t)] for t in T[train_idx]], dtype=int
-            )
+            T_idx_tr = np.array([level_to_idx[int(t)] for t in T[train_idx]], dtype=int)
             X_aug_tr = np.column_stack([np.ones(len(train_idx)), X[train_idx]])
             X_aug_val = np.column_stack([np.ones(n_val), X[val_idx]])
             log_odds_val = np.zeros((n_val, K), dtype=float)
@@ -522,27 +555,18 @@ class MultiArmAIPWEstimator:
             p_k_oof = probs_oof[:, arm_i]
             mu_k = _predict_outcome_by_arm(X, level, beta_oof, levels_oof)
 
-            ind_k = (T == level).astype(float)
+            ind_k = (level == T).astype(float)
 
             # Arm mean estimator (AIPW for E[Y(k)])
             psi_k = mu_k + ind_k * (Y - mu_k) / np.clip(p_k_oof, min_p, 1.0)
             arm_means[str(level)] = float(psi_k.mean())
-            se_dict[str(level)] = float(
-                np.std(psi_k - psi_k.mean(), ddof=1) / np.sqrt(n)
-            )
+            se_dict[str(level)] = float(np.std(psi_k - psi_k.mean(), ddof=1) / np.sqrt(n))
 
         ref_mean = arm_means[str(k_ref)]
-        ate_vs_ref = {
-            k: v - ref_mean
-            for k, v in arm_means.items()
-            if int(k) != k_ref
-        }
-        ci = {
-            k: (v - 1.96 * se_dict[k], v + 1.96 * se_dict[k])
-            for k, v in arm_means.items()
-        }
+        ate_vs_ref = {k: v - ref_mean for k, v in arm_means.items() if int(k) != k_ref}
+        ci = {k: (v - 1.96 * se_dict[k], v + 1.96 * se_dict[k]) for k, v in arm_means.items()}
         pairwise = _all_pairwise_contrasts(arm_means, levels)
-        n_per_arm = {str(lv): int((T == lv).sum()) for lv in levels}
+        n_per_arm = {str(lv): int((lv == T).sum()) for lv in levels}
 
         result = MultiTreatmentResult(
             levels=tuple(levels),
@@ -558,7 +582,7 @@ class MultiArmAIPWEstimator:
 
 
 __all__ = [
-    "MultinomialIPWEstimator",
     "MultiArmAIPWEstimator",
+    "MultinomialIPWEstimator",
     "pairwise_contrasts",
 ]

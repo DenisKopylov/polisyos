@@ -1,4 +1,5 @@
 """Tests for the new EstimandAST node types: NuisanceNode, ExpectationNode, IntegralNode."""
+
 import pytest
 from pydantic import ValidationError
 
@@ -11,15 +12,14 @@ from polisyos.ir.analytics.estimand import (
     EventPredicate,
     ExpectationNode,
     IntegralNode,
-    make_distribution_law_estimand,
     NuisanceNode,
     OperatorApplyNode,
     OperatorTargetNode,
     ProductNode,
     SpaceRef,
     SumNode,
+    make_distribution_law_estimand,
 )
-
 
 # ---------------------------------------------------------------------------
 # NuisanceNode
@@ -53,7 +53,9 @@ class TestNuisanceNode:
         assert node.nuisance_type == "density_ratio"
 
     def test_mediator_density_creation(self):
-        node = NuisanceNode(nuisance_type="mediator_density", target_variable="M", conditioning=("T",))
+        node = NuisanceNode(
+            nuisance_type="mediator_density", target_variable="M", conditioning=("T",)
+        )
         assert node.nuisance_type == "mediator_density"
 
     def test_invalid_nuisance_type_raises(self):
@@ -178,7 +180,7 @@ class TestExpectationNode:
     def test_to_latex_unconditional(self):
         node = ExpectationNode(outcome="Y")
         latex = node.to_latex()
-        assert "\\mathbb{E}[Y]" == latex
+        assert latex == "\\mathbb{E}[Y]"
 
     def test_frozen_rejects_mutation(self):
         node = ExpectationNode(outcome="Y")
@@ -343,15 +345,21 @@ class TestIntegralNode:
         assert node.measure == "gaussian"
 
     def test_to_latex(self):
-        operand = DistributionRef(domain=DistributionDomain.SOURCE, variables=("Y",), conditioning=("Z",))
+        operand = DistributionRef(
+            domain=DistributionDomain.SOURCE, variables=("Y",), conditioning=("Z",)
+        )
         node = IntegralNode(integration_vars=("Z",), operand=operand)
         latex = node.to_latex()
         assert "\\int" in latex
         assert "dZ" in latex
 
     def test_nested_in_product(self):
-        leaf1 = DistributionRef(domain=DistributionDomain.SOURCE, variables=("M",), conditioning=("T",))
-        leaf2 = DistributionRef(domain=DistributionDomain.SOURCE, variables=("Y",), conditioning=("M",))
+        leaf1 = DistributionRef(
+            domain=DistributionDomain.SOURCE, variables=("M",), conditioning=("T",)
+        )
+        leaf2 = DistributionRef(
+            domain=DistributionDomain.SOURCE, variables=("Y",), conditioning=("M",)
+        )
         product = ProductNode(factors=(leaf1, leaf2))
         integral = IntegralNode(integration_vars=("M",), operand=product)
         assert integral.integration_vars == ("M",)
@@ -379,7 +387,9 @@ class TestIntegralNode:
         assert restored.measure == "lebesgue"
 
     def test_as_estimand_ast_root(self):
-        leaf = DistributionRef(domain=DistributionDomain.SOURCE, variables=("Y",), conditioning=("Z",))
+        leaf = DistributionRef(
+            domain=DistributionDomain.SOURCE, variables=("Y",), conditioning=("Z",)
+        )
         node = IntegralNode(integration_vars=("Z",), operand=leaf)
         ast = EstimandAST(
             query_str="int P(Y|Z) dZ",
@@ -440,7 +450,9 @@ class TestIntegralNode:
 
 class TestMixedTrees:
     def test_sum_over_nuisance_node(self):
-        nuisance = NuisanceNode(nuisance_type="outcome", target_variable="Y", conditioning=("T", "Z"))
+        nuisance = NuisanceNode(
+            nuisance_type="outcome", target_variable="Y", conditioning=("T", "Z")
+        )
         marginal = DistributionRef(domain=DistributionDomain.SOURCE, variables=("Z",))
         product = ProductNode(factors=(nuisance, marginal))
         root = SumNode(summation_vars=("Z",), operand=product)

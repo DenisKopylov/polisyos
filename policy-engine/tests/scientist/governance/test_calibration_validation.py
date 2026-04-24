@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.ir.analytics.distributional import TailRiskDeltaEntry, TailRiskDeltaSummary
+from polisyos.ir.analytics.fairness import CausalFairnessReport, FairnessDecomposition
 from polisyos.ir.analytics.interference import (
     ExposureMappingType,
     InterferenceCertificate,
@@ -10,8 +12,6 @@ from polisyos.ir.analytics.interference import (
     InterferenceMethod,
     NetworkInterferenceReport,
 )
-from polisyos.ir.analytics.distributional import TailRiskDeltaEntry, TailRiskDeltaSummary
-from polisyos.ir.analytics.fairness import CausalFairnessReport, FairnessDecomposition
 from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
 from polisyos.scientist.backtesting.plan import HistoricalValidationPlan, PredictionSource
@@ -19,8 +19,8 @@ from polisyos.scientist.discovery.utility_judge import (
     DownstreamUtilityReport,
     HypothesisUtilityScore,
 )
-from polisyos.scientist.governance.backtest_matrix import BacktestKind
 from polisyos.scientist.governance.accountability import GovernanceAccountabilityInput
+from polisyos.scientist.governance.backtest_matrix import BacktestKind
 from polisyos.scientist.governance.calibration import (
     CalibrationAdversarialResult,
     CalibrationGovernanceReport,

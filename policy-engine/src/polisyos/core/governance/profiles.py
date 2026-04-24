@@ -1,9 +1,10 @@
 """Public governance profiles module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, FrozenSet
+from typing import Any
 
 
 class ProfileLevel(Enum):
@@ -24,12 +25,12 @@ class ValidationProfile:
     """
 
     level: ProfileLevel
-    pass_ids: FrozenSet[str]
-    thresholds: Dict[str, float] = field(default_factory=dict)
+    pass_ids: frozenset[str]
+    thresholds: dict[str, float] = field(default_factory=dict)
     short_circuit_on_blocker: bool = True
 
     @classmethod
-    def fast(cls) -> "ValidationProfile":
+    def fast(cls) -> ValidationProfile:
         """
         Fast profile for development and iteration.
 
@@ -52,7 +53,7 @@ class ValidationProfile:
         )
 
     @classmethod
-    def mvp(cls) -> "ValidationProfile":
+    def mvp(cls) -> ValidationProfile:
         """
         MVP profile for standard validation.
 
@@ -71,6 +72,7 @@ class ValidationProfile:
                     "safety",
                     "causal_frontier_leakage",
                     "equity",
+                    "incentive_compatibility",
                     "refutation",
                     "cross_graph_evidence",
                     "literature_gate",
@@ -97,7 +99,7 @@ class ValidationProfile:
         )
 
     @classmethod
-    def strict(cls) -> "ValidationProfile":
+    def strict(cls) -> ValidationProfile:
         """
         Strict profile for production and compliance.
 
@@ -119,6 +121,7 @@ class ValidationProfile:
                     "causal_frontier_leakage",
                     "confidence",
                     "equity",
+                    "incentive_compatibility",
                     "refutation",
                     "cross_graph_evidence",
                     "literature_gate",
@@ -150,7 +153,7 @@ class ValidationProfile:
         )
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ValidationProfile":
+    def from_dict(cls, data: dict[str, Any]) -> ValidationProfile:
         """Deserialize from dictionary (for configuration files)."""
 
         return cls(

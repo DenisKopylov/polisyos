@@ -1,25 +1,26 @@
 # Первый policy-анализ
+
 Related references: [Compile Execute](../reference/foundry/compile-execute.md), [Scientist Workflows](../reference/scientist/workflows.md), [Problem Framing](../reference/ir/problem-framing.md).
 
 > Практический первый проход по текущей analytical surface в PolicyOS: сформулировать задачу, привязать данные World Bank и проверить локальный execution toolchain.
 
 !!! info "Verified with"
-    Эта страница была перепроверена 2026-04-17 на текущем дереве, macOS,
-    Python 3.14 и `uv`.
-    Были реально проверены импорты
-    `ProblemFrame` / `PolicySpec` / `ModelSpec`,
-    `WorldBankConnector`,
-    `run_trivial_compile_execute`
-    и `run_experiment`.
+Эта страница была перепроверена 2026-04-17 на текущем дереве, macOS,
+Python 3.14 и `uv`.
+Были реально проверены импорты
+`ProblemFrame` / `PolicySpec` / `ModelSpec`,
+`WorldBankConnector`,
+`run_trivial_compile_execute`
+и `run_experiment`.
 
 !!! info "Важное замечание про форму модели"
-    В текущей схеме `ProblemFrame` нет полей вида `outcome_kpi`, `treatment`,
-    `entity_scope=EntityScope(region_codes=[...])` или `temporal_window=(...)`.
-    В проверенном коде эта семантика разделена между:
-    `ProblemFrame` для целей и KPI,
-    `PolicySpec` для интервенций и таргетинга по регионам,
-    Fabric-запросами для выбора страны и периода,
-    и causal-observation contracts для деталей идентификации.
+В текущей схеме `ProblemFrame` нет полей вида `outcome_kpi`, `treatment`,
+`entity_scope=EntityScope(region_codes=[...])` или `temporal_window=(...)`.
+В проверенном коде эта семантика разделена между:
+`ProblemFrame` для целей и KPI,
+`PolicySpec` для интервенций и таргетинга по регионам,
+Fabric-запросами для выбора страны и периода,
+и causal-observation contracts для деталей идентификации.
 
 ## Поток в текущем дереве
 
@@ -169,11 +170,11 @@ print(panel[["country_code", "indicator_id", "date", "value"]].tail())
 ## Шаг 4: compile и execute
 
 !!! warning
-    Текущий Trinity linker компилирует только registry-backed mechanism и metric ids.
-    Богато аннотированный аналитический `ProblemFrame`, как выше, полезен для анализа,
-    но сам по себе пока не является гарантированным compile target.
-    Поэтому проверенный compile/execute путь ниже использует минимальный registry-backed smoke bundle,
-    а analytical framing и Fabric panel остаются отдельным слоем.
+Текущий Trinity linker компилирует только registry-backed mechanism и metric ids.
+Богато аннотированный аналитический `ProblemFrame`, как выше, полезен для анализа,
+но сам по себе пока не является гарантированным compile target.
+Поэтому проверенный compile/execute путь ниже использует минимальный registry-backed smoke bundle,
+а analytical framing и Fabric panel остаются отдельным слоем.
 
 ```python
 from decimal import Decimal
@@ -348,8 +349,10 @@ print("report_keys:", sorted(scientist_state["reports_index"])[:5])
 
 - если у вас уже есть `trinity_bundle_ref` и нужен baseline governed path, можно
   опустить `workflow_id` и дать `run_experiment()` выбрать `scientist_default`;
+
 - если нужен явный causal escalation path, задайте
   `params.workflow_id="scientist_causal_full"` или `execution_profile="research"`;
+
 - если у вас только policy question и ещё нет Trinity bundle, используйте
   verified-policy path, описанный в [Scientist Workflows](../reference/scientist/workflows.md).
 

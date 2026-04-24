@@ -145,9 +145,7 @@ def test_unified_discovery_surfaces_disputed_edges_and_algebraic_summary(
     assert report.metadata["disputed_edge_count"] == 1
     assert report.metadata["disputed_edge_fraction"] == 1.0
     assert report.metadata["algebraic_violation_summary"]["blocker_reports"] == 1
-    assert report.metadata["algebraic_violation_summary"]["violated_by_family"] == {
-        "ci": 2
-    }
+    assert report.metadata["algebraic_violation_summary"]["violated_by_family"] == {"ci": 2}
     assert report.metadata["families_with_blockers"] == ["ci"]
 
 
@@ -255,10 +253,7 @@ def test_unified_discovery_applies_regime_shift_orientations(
     assert report.metadata["regime_shift_discovery"]["max_candidate_parents"] == 1
     assert report.metadata["regime_shift_discovery"]["expected_test_count"] > 0
     assert (
-        report.metadata["regime_shift_discovery"]["shift_type_reproducibility"][
-            "agreement"
-        ]
-        == 1.0
+        report.metadata["regime_shift_discovery"]["shift_type_reproducibility"]["agreement"] == 1.0
     )
 
     edge = next(edge for edge in report.unified_pag.edges if {edge.src, edge.dst} == {"X", "Y"})

@@ -16,8 +16,20 @@ export function ApiErrorAlert({ error, title }: ApiErrorAlertProps) {
         <p className="text-danger font-semibold">{resolvedTitle}</p>
         <p className="text-danger mt-1">{error.detail}</p>
         <p className="text-danger/80 mt-2 font-mono text-xs">
-          status={error.status} code={error.code}
-          {error.requestId ? ` request_id=${error.requestId}` : ""}
+          <span>
+            {t("shared.ui.apiErrorAlert.status", { status: error.status })}
+          </span>{" "}
+          <span>{t("shared.ui.apiErrorAlert.code", { code: error.code })}</span>
+          {error.requestId ? (
+            <>
+              {" "}
+              <span>
+                {t("shared.ui.apiErrorAlert.requestId", {
+                  requestId: error.requestId,
+                })}
+              </span>
+            </>
+          ) : null}
         </p>
       </div>
     );

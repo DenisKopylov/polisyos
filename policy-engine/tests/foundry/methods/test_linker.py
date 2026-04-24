@@ -1,17 +1,18 @@
 """
 Unit tests for Slot Linker and Compatibility Checker.
 """
+
 from __future__ import annotations
 
 import pytest
 
 from polisyos.foundry.methods.base import (
+    ComplexityClass,
+    FidelityLevel,
     MethodSignature,
     SlotSpec,
     SlotType,
     Unit,
-    FidelityLevel,
-    ComplexityClass,
 )
 from polisyos.foundry.methods.exceptions import (
     ShapeMismatchError,
@@ -33,7 +34,6 @@ from polisyos.foundry.methods.types.checker import (
     check_slot_compatibility,
     find_compatible_slots,
 )
-
 
 # =============================================================================
 # Test Fixtures
@@ -655,7 +655,9 @@ class TestLinkerIntegration:
             ],
             outputs=[
                 make_slot("revenue", SlotType.SCALAR, unit=units.USD),
-                make_slot("effective_rate", SlotType.VECTOR, unit=units.PERCENT, shape=("N_AGENTS",)),
+                make_slot(
+                    "effective_rate", SlotType.VECTOR, unit=units.PERCENT, shape=("N_AGENTS",)
+                ),
             ],
         )
 

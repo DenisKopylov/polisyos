@@ -60,9 +60,8 @@ def should_process(
             keyword in name and any(domain in name for domain in domain_lower)
             for keyword in TIER_2_KEYWORDS
             for name in topic_names
-        ):
-            if cited_by_count >= max(5, min_citations // 2):
-                return True, "tier2_domain_match"
+        ) and cited_by_count >= max(5, min_citations // 2):
+            return True, "tier2_domain_match"
 
     return False, "skip_irrelevant"
 

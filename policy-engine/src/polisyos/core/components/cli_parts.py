@@ -6,7 +6,7 @@ import argparse
 import importlib
 import sys
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from importlib.metadata import PackageNotFoundError, version
 from typing import cast
 
@@ -23,7 +23,7 @@ CommandHandler = Callable[[argparse.Namespace], int]
 
 def _dispatch_private(relative_module: str, handler_name: str, args: argparse.Namespace) -> int:
     module = importlib.import_module(relative_module, package=__package__)
-    handler = cast(CommandHandler, getattr(module, handler_name))
+    handler = cast("CommandHandler", getattr(module, handler_name))
     return handler(args)
 
 
@@ -36,7 +36,7 @@ def main(argv: list[str] | None = None) -> int:
     """
     argv = list(sys.argv[1:] if argv is None else argv)
     if "--version" in argv:
-        print(f"polisyos {_cli_version()}")
+        sys.stdout.write(f"polisyos {_cli_version()}\n")
         return 0
 
     parser = _build_parser()
@@ -52,19 +52,17 @@ def main(argv: list[str] | None = None) -> int:
         return _dispatch_private("._cli_scholar", "_cmd_scholar_enrich", args)
     if args.command == "metric-validate":
         return _dispatch_private("._cli_metric_validation", "_cmd_metric_validate", args)
-    if args.command == "lex" and args.lex_command == "normpack" and args.lex_normpack_command == "build":
+    if (
+        args.command == "lex"
+        and args.lex_command == "normpack"
+        and args.lex_normpack_command == "build"
+    ):
         return _dispatch_private("._cli_lex", "_cmd_lex_normpack_build", args)
     if args.command == "lex" and args.lex_command == "impact":
         return _dispatch_private("._cli_lex", "_cmd_lex_impact", args)
-    if (
-        args.command == "scientist"
-        and args.scientist_command == "burn-in"
-    ):
+    if args.command == "scientist" and args.scientist_command == "burn-in":
         return _dispatch_private("._cli_scientist", "_cmd_scientist_burn_in", args)
-    if (
-        args.command == "scientist"
-        and args.scientist_command == "calibration-report"
-    ):
+    if args.command == "scientist" and args.scientist_command == "calibration-report":
         return _dispatch_private("._cli_scientist", "_cmd_scientist_calibration_report", args)
     if (
         args.command == "scientist"
@@ -220,7 +218,7 @@ def _build_parser() -> argparse.ArgumentParser:
     build_normpack = normpack_sub.add_parser("build")
     build_normpack.add_argument("--jurisdiction", required=True)
     build_normpack.add_argument("--domain", default=None)
-    build_normpack.add_argument("--as-of", default=datetime.now(timezone.utc).date().isoformat())
+    build_normpack.add_argument("--as-of", default=datetime.now(UTC).date().isoformat())
     build_normpack.add_argument("--cas-root", default=".polisyos/cas")
     build_normpack.add_argument("--fact-log-root", default=".polisyos/facts")
 
@@ -387,7 +385,9 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Attempt resume even if run lock metadata suggests another holder",
     )
-    cmd_resume.add_argument("--dry-run", action="store_true", help="Only inspect checkpoint metadata")
+    cmd_resume.add_argument(
+        "--dry-run", action="store_true", help="Only inspect checkpoint metadata"
+    )
     cmd_resume.add_argument("--json", action="store_true")
 
     cmd_keygen = components.add_parser("keygen")

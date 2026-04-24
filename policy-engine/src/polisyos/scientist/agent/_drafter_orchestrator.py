@@ -11,7 +11,8 @@ from __future__ import annotations
 
 import asyncio
 import time
-from typing import Any, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.llm import retry_async
@@ -22,7 +23,7 @@ from polisyos.scientist.agent.code_verifier import (
     CodeVerificationSandbox,
     SandboxConfig,
 )
-from polisyos.scientist.agent.constitution import ConstitutionGenerator, PolicyConstitution
+from polisyos.scientist.agent.constitution import ConstitutionGenerator
 from polisyos.scientist.agent.knowledge_base import CriticKnowledgeBase
 from polisyos.scientist.agent.memory import ShortTermMemory
 from polisyos.scientist.agent.prompts import get_self_critique_prompt
@@ -33,7 +34,6 @@ from polisyos.scientist.agent.protocols import (
     ProblemFrame,
 )
 from polisyos.scientist.agent.rag import CASRAGIndex, RAGConfig, format_few_shot_block
-
 from polisyos.scientist.engine.convergence import ConvergenceDetector
 
 from ._drafter_formatting import _DrafterFormattingMixin

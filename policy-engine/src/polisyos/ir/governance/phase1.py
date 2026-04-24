@@ -1,4 +1,5 @@
 """Governance helpers for Phase 1 readiness closure and global gate enforcement."""
+
 from __future__ import annotations
 
 import json
@@ -49,7 +50,7 @@ def load_phase1_flagship_dataset_ids() -> tuple[str, ...]:
 
 
 def build_phase1_gate_summary(
-    artifact_store: "ArtifactStore | None",
+    artifact_store: ArtifactStore | None,
 ) -> Phase1GateSummary:
     """Summarize whether the Phase 1 closure lane is materially available."""
 

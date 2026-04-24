@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from fnmatch import fnmatchcase
 from pathlib import Path
-from typing import Iterable
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -58,14 +58,12 @@ class SourceBinding(BaseModel):
         normalized_geo = geography.strip().upper()
         if not normalized_geo:
             return True
-        for pattern in self.geography_patterns:
-            if fnmatchcase(normalized_geo, pattern):
-                return True
-        return False
+        return any(fnmatchcase(normalized_geo, pattern) for pattern in self.geography_patterns)
 
 
 class SourceBindingCollection(BaseModel):
     """Source binding collection public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = "1.0"
@@ -104,13 +102,21 @@ class SourceBindingRegistry:
             collection = SourceBindingCollection.model_validate_json(raw)
         except Exception as exc:
             if self._strict:
-                raise ValueError(f"Invalid source bindings file '{self.bindings_path}': {exc}") from exc
+                raise ValueError(
+                    f"Invalid source bindings file '{self.bindings_path}': {exc}"
+                ) from exc
             logger.warning("Invalid source bindings file '%s': %s", self.bindings_path, exc)
             return
 
         self._bindings = sorted(
             collection.bindings,
-            key=lambda item: (item.metric_id, item.priority, -item.trust, item.connector_id, item.dataset_id),
+            key=lambda item: (
+                item.metric_id,
+                item.priority,
+                -item.trust,
+                item.connector_id,
+                item.dataset_id,
+            ),
         )
         by_metric: dict[str, list[SourceBinding]] = {}
         for binding in self._bindings:
@@ -128,7 +134,9 @@ class SourceBindingRegistry:
     def list_metric_ids(self) -> list[str]:
         return sorted(self._by_metric)
 
-    def bindings_for_metric(self, metric_id: str, *, geography: str | None = None) -> list[SourceBinding]:
+    def bindings_for_metric(
+        self, metric_id: str, *, geography: str | None = None
+    ) -> list[SourceBinding]:
         bindings = self._by_metric.get(metric_id, [])
         if geography is None:
             return list(bindings)
@@ -198,7 +206,13 @@ class SourceBindingRegistry:
         retained.append(binding)
         self._bindings = sorted(
             retained,
-            key=lambda item: (item.metric_id, item.priority, -item.trust, item.connector_id, item.dataset_id),
+            key=lambda item: (
+                item.metric_id,
+                item.priority,
+                -item.trust,
+                item.connector_id,
+                item.dataset_id,
+            ),
         )
         by_metric: dict[str, list[SourceBinding]] = {}
         for item in self._bindings:
@@ -220,4 +234,3 @@ class SourceBindingRegistry:
             "size_bytes": self._raw_size_bytes,
             "indexed_sources": len(sources),
         }
-

@@ -1,6 +1,7 @@
 """
 Tests for MethodComposer and CompositionDAG.
 """
+
 from __future__ import annotations
 
 from typing import Any, ClassVar
@@ -26,7 +27,6 @@ from polisyos.foundry.methods.composer import (
 from polisyos.foundry.methods.exceptions import CyclicDependencyError, MethodNotFoundError
 from polisyos.foundry.methods.linker import LinkResult
 from polisyos.foundry.methods.registry import MethodRegistry
-
 
 # =============================================================================
 # Fixtures
@@ -346,7 +346,9 @@ class TestMultiInstanceBindings:
         assert bindings_rev1 and bindings_rev2
         assert all(b.target_node_id == rev1.id for b in bindings_rev1)
         assert all(b.target_node_id == rev2.id for b in bindings_rev2)
-        assert {b.source_node_id for b in bindings_rev1} != {b.source_node_id for b in bindings_rev2}
+        assert {b.source_node_id for b in bindings_rev1} != {
+            b.source_node_id for b in bindings_rev2
+        }
 
 
 class TestRequirementValidation:
@@ -357,7 +359,9 @@ class TestRequirementValidation:
         warnings = composer.validate()
         assert any("MISSING REQUIREMENT" in w for w in warnings)
 
-    def test_requires_enforces_order(self, registry_with_methods: MethodRegistry, income_slot: SlotSpec, tax_slot: SlotSpec):
+    def test_requires_enforces_order(
+        self, registry_with_methods: MethodRegistry, income_slot: SlotSpec, tax_slot: SlotSpec
+    ):
         registry = MethodRegistry.get_instance()
         required = make_method_class(
             name="validator",
@@ -383,7 +387,9 @@ class TestRequirementValidation:
 
         chain = composer.build()
 
-        assert chain.execution_order.index(required_node.id) < chain.execution_order.index(dependent_node.id)
+        assert chain.execution_order.index(required_node.id) < chain.execution_order.index(
+            dependent_node.id
+        )
 
 
 class TestConflictDetection:

@@ -7,6 +7,7 @@ Verifies that methods handle pathological input gracefully:
 - Zero variance in outcome
 - Minimum viable sample sizes
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -14,10 +15,10 @@ import pytest
 
 from polisyos.foundry.methods.output_monitor import MethodOutputMonitor
 
-
 # ---------------------------------------------------------------------------
 # Helper: numerical quality checker
 # ---------------------------------------------------------------------------
+
 
 def _assert_output_finite_or_warned(result: dict, method_fqn: str) -> None:
     """
@@ -39,10 +40,11 @@ def _assert_output_finite_or_warned(result: dict, method_fqn: str) -> None:
 # Near-singular matrix tests
 # ---------------------------------------------------------------------------
 
+
 class TestNearSingularMatrix:
     """Methods receiving near-singular design matrices should not crash."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def near_singular_regression_data(self):
         """Design matrix with condition number ~ 1e12."""
         rng = np.random.default_rng(0)
@@ -64,7 +66,7 @@ class TestNearSingularMatrix:
         result = method_cls.pure_step(near_singular_regression_data, {"seed": 0})
         _assert_output_finite_or_warned(result, fqn)
 
-    @pytest.fixture()
+    @pytest.fixture
     def near_singular_iv_data(self):
         """IV data with weak instrument (near-zero first stage)."""
         rng = np.random.default_rng(1)
@@ -81,9 +83,7 @@ class TestNearSingularMatrix:
             "time_ids": np.tile(np.array([0, 1], dtype=np.int64), n // 2),
         }
 
-    def test_iv_weak_instrument_does_not_crash(
-        self, near_singular_iv_data, isolated_registry
-    ):
+    def test_iv_weak_instrument_does_not_crash(self, near_singular_iv_data, isolated_registry):
         fqn = "econometrics.iv.two_stage_least_squares@1.0.0"
         method_cls = isolated_registry.get(fqn)
 
@@ -95,8 +95,9 @@ class TestNearSingularMatrix:
 # Extreme magnitude inputs
 # ---------------------------------------------------------------------------
 
+
 class TestExtremeMagnitudes:
-    @pytest.fixture()
+    @pytest.fixture
     def extreme_large_data(self):
         rng = np.random.default_rng(2)
         n_units = 20
@@ -107,7 +108,7 @@ class TestExtremeMagnitudes:
             "time_treatment": 2,
         }
 
-    @pytest.fixture()
+    @pytest.fixture
     def extreme_small_data(self):
         rng = np.random.default_rng(3)
         n_units = 20
@@ -135,8 +136,9 @@ class TestExtremeMagnitudes:
 # Zero variance in outcome
 # ---------------------------------------------------------------------------
 
+
 class TestZeroVariance:
-    @pytest.fixture()
+    @pytest.fixture
     def zero_variance_data(self):
         """Outcome is constant — zero variance."""
         n_units = 15
@@ -168,10 +170,11 @@ class TestZeroVariance:
 # Minimum viable sample sizes
 # ---------------------------------------------------------------------------
 
+
 class TestMinimumSampleSizes:
     """Methods should either work or raise a clear DomainError at n_min."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def tiny_panel_data(self):
         """Smallest possible panel: 2 entities × 2 periods = 4 observations."""
         return {
@@ -180,9 +183,7 @@ class TestMinimumSampleSizes:
             "time_treatment": 1,
         }
 
-    def test_did_minimum_sample_does_not_silently_corrupt(
-        self, tiny_panel_data, isolated_registry
-    ):
+    def test_did_minimum_sample_does_not_silently_corrupt(self, tiny_panel_data, isolated_registry):
         fqn = "causal.inference.did.standard@1.0.0"
         method_cls = isolated_registry.get(fqn)
 
@@ -201,8 +202,8 @@ class TestMinimumSampleSizes:
         method_cls = isolated_registry.get(fqn)
 
         state = {
-            "c": np.array([-1.0]),       # minimize -x (= maximize x)
-            "A_ub": np.array([[1.0]]),   # x <= 10
+            "c": np.array([-1.0]),  # minimize -x (= maximize x)
+            "A_ub": np.array([[1.0]]),  # x <= 10
             "b_ub": np.array([10.0]),
         }
         try:
@@ -216,10 +217,12 @@ class TestMinimumSampleSizes:
 # Output monitor integration: flags raised on pathological outputs
 # ---------------------------------------------------------------------------
 
+
 class TestOutputMonitorWithPathologicalData:
     def test_monitor_flags_nan_from_method(self):
         """Construct synthetic result with NaN and verify monitor detects it."""
         from polisyos.foundry.methods.output_monitor import MethodOutputMonitor
+
         monitor = MethodOutputMonitor()
         bad_result = {"coefficients": np.array([1.0, float("nan"), 3.0])}
         flags = monitor.check_basic(bad_result)
@@ -227,6 +230,7 @@ class TestOutputMonitorWithPathologicalData:
 
     def test_monitor_flags_inf_from_method(self):
         from polisyos.foundry.methods.output_monitor import MethodOutputMonitor
+
         monitor = MethodOutputMonitor()
         bad_result = {"se": np.array([0.1, float("inf")])}
         flags = monitor.check_basic(bad_result)
@@ -234,6 +238,7 @@ class TestOutputMonitorWithPathologicalData:
 
     def test_clean_result_no_flags(self):
         from polisyos.foundry.methods.output_monitor import MethodOutputMonitor
+
         monitor = MethodOutputMonitor()
         good_result = {"ate": np.array([0.25, 0.30, 0.20])}
         flags = monitor.check_basic(good_result)

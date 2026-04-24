@@ -1,13 +1,13 @@
 """Connector for object-storage hosted tabular data."""
+
 from __future__ import annotations
 
-from typing import Any
-from typing import ClassVar
+from typing import Any, ClassVar
 from urllib.parse import urlparse
 
 from polisyos.fabric.connectors.base import ConnectionConfig
-from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
 from polisyos.fabric.connectors.sources._file_common import parse_file_config
+from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
 from polisyos.fabric.connectors.types import ValidationIssue, ValidationResult, ValidationSeverity
 from polisyos.ir.connectors import (
     ConnectorCapability,

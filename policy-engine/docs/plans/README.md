@@ -7,11 +7,11 @@ machine-checkable contracts.
 
 ## Buckets
 
-| Path | Meaning | Exit rule |
-|------|---------|-----------|
-| `active/` | Under review or currently being implemented | Move to `accepted/` when approved |
-| `accepted/` | Approved and implementation is in progress | Move to `docs/archive/plans/` when complete |
-| `docs/archive/plans/` | Historical plans and superseded drafts | Keep only curated history |
+| Path                  | Meaning                                     | Exit rule                                   |
+| --------------------- | ------------------------------------------- | ------------------------------------------- |
+| `active/`             | Under review or currently being implemented | Move to `accepted/` when approved           |
+| `accepted/`           | Approved and implementation is in progress  | Move to `docs/archive/plans/` when complete |
+| `docs/archive/plans/` | Historical plans and superseded drafts      | Keep only curated history                   |
 
 ## Required Front Matter
 

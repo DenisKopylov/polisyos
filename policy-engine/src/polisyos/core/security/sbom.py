@@ -1,4 +1,5 @@
 """SBOM generation and vulnerability scanning helpers for runtime provenance checks."""
+
 from __future__ import annotations
 
 import json
@@ -32,12 +33,14 @@ def _default_metrics() -> MetricsRegistry:
 
 class SBOMFormat(str, Enum):
     """SBOM format public type."""
+
     CYCLONEDX_JSON = "cyclonedx-json"
     SPDX_JSON = "spdx-json"
 
 
 class VulnerabilitySeverity(str, Enum):
     """Vulnerability severity public type."""
+
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
@@ -48,6 +51,7 @@ class VulnerabilitySeverity(str, Enum):
 
 class VulnerabilityRecord(_PydanticBaseModel):
     """One vulnerability finding attached to a package discovered in an SBOM scan."""
+
     model_config = ConfigDict(extra="forbid")
 
     cve_id: str
@@ -61,6 +65,7 @@ class VulnerabilityRecord(_PydanticBaseModel):
 
 class SBOMMetadata(_PydanticBaseModel):
     """Describes how an SBOM was produced and how much software inventory it contains."""
+
     model_config = ConfigDict(extra="forbid")
 
     format: SBOMFormat = SBOMFormat.CYCLONEDX_JSON
@@ -74,6 +79,7 @@ class SBOMMetadata(_PydanticBaseModel):
 
 class SBOMVerificationResult(_PydanticBaseModel):
     """Decision record returned after applying vulnerability thresholds to an SBOM scan."""
+
     model_config = ConfigDict(extra="forbid")
 
     allowed: bool
@@ -245,6 +251,7 @@ class SBOMGenerator:
 
 class SBOMVerifier:
     """SBOM verifier public type."""
+
     def __init__(
         self,
         *,

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from polisyos.scientist.nodes.builtins.checkpoint_marker import (
     CHECKPOINT_CODE,
     emit_checkpoint,

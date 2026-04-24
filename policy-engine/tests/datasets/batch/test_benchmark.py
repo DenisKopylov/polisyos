@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import duckdb
 
@@ -9,6 +9,9 @@ from polisyos.datasets.batch.benchmark import BenchmarkSuite, SearchBenchmarkCas
 from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.batch.graph_builder import build_graph
 from polisyos.datasets.knowledge.types import DatasetRecord, DistributionRecord
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _write_test_registry(path: Path, entries: list[dict[str, object]]) -> None:
@@ -125,8 +128,30 @@ def _build_benchmark_fixture(config: DatasetBatchConfig) -> None:
             "(observation_id, dataset_id, raw_variable, canonical_var, country_code, year, survey_year, wave, value, condition_json) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
-                ("obs-gdp", "ds-gdp", "value", "gdp_per_capita", "UA", 2020, None, None, 1000.0, "{}"),
-                ("obs-unemp", "ds-unemp", "value", "unemployment_rate", "UA", 2020, None, None, 8.0, "{}"),
+                (
+                    "obs-gdp",
+                    "ds-gdp",
+                    "value",
+                    "gdp_per_capita",
+                    "UA",
+                    2020,
+                    None,
+                    None,
+                    1000.0,
+                    "{}",
+                ),
+                (
+                    "obs-unemp",
+                    "ds-unemp",
+                    "value",
+                    "unemployment_rate",
+                    "UA",
+                    2020,
+                    None,
+                    None,
+                    8.0,
+                    "{}",
+                ),
             ],
         )
     finally:
@@ -166,7 +191,7 @@ def test_run_benchmark_writes_report_and_metrics(tmp_path) -> None:
     assert outcome.metrics["benchmark_foundry_fitness_pct"] == 100.0
     assert "benchmark_source_preflight_ready_pct" in outcome.metrics
 
-    with open(outcome.report_path, "r", encoding="utf-8") as fh:
+    with open(outcome.report_path, encoding="utf-8") as fh:
         payload = json.load(fh)
 
     assert payload["kind"] == "datasets_benchmark"
@@ -319,7 +344,7 @@ def test_run_benchmark_aggregates_bulk_equivalence_manifests(tmp_path) -> None:
     assert outcome.metrics["benchmark_bulk_equivalence_mismatch_rate"] == round((2 / 75) * 100.0, 2)
     assert outcome.metrics["benchmark_bulk_equivalence_blocking_sources_total"] == 1
 
-    with open(outcome.report_path, "r", encoding="utf-8") as fh:
+    with open(outcome.report_path, encoding="utf-8") as fh:
         payload = json.load(fh)
 
     assert len(payload["bulk_equivalence"]["manifests"]) == 2
@@ -452,7 +477,7 @@ def test_run_benchmark_marks_partial_eval_when_core_ingest_is_blocked(tmp_path) 
     )
 
     outcome = run_benchmark(config, suite=suite)
-    with open(outcome.report_path, "r", encoding="utf-8") as fh:
+    with open(outcome.report_path, encoding="utf-8") as fh:
         payload = json.load(fh)
 
     assert payload["evaluation_mode"] == "partial-eval"
@@ -463,7 +488,9 @@ def test_run_benchmark_marks_partial_eval_when_core_ingest_is_blocked(tmp_path) 
     assert payload["source_preflight"]["sources"][0]["failure_reason"] == "ingest_blocked"
 
 
-def test_foundry_benchmark_prefers_execution_grade_alias_binding_over_catalog_exact(tmp_path) -> None:
+def test_foundry_benchmark_prefers_execution_grade_alias_binding_over_catalog_exact(
+    tmp_path,
+) -> None:
     config = DatasetBatchConfig(snapshot_root=tmp_path / "snap")
     build_graph(
         records=iter(
@@ -577,7 +604,7 @@ def test_foundry_benchmark_prefers_execution_grade_alias_binding_over_catalog_ex
 
     outcome = run_benchmark(config, suite=suite)
 
-    with open(outcome.report_path, "r", encoding="utf-8") as fh:
+    with open(outcome.report_path, encoding="utf-8") as fh:
         payload = json.load(fh)
 
     result = payload["foundry"]["metrics"][0]
@@ -622,7 +649,7 @@ def test_run_benchmark_adds_romania_search_cases_when_source_present(tmp_path) -
 
     outcome = run_benchmark(config)
 
-    with open(outcome.report_path, "r", encoding="utf-8") as fh:
+    with open(outcome.report_path, encoding="utf-8") as fh:
         payload = json.load(fh)
 
     case_ids = {case["case_id"] for case in payload["suite"]["search_cases"]}
@@ -690,7 +717,7 @@ def test_run_benchmark_adds_poland_and_moldova_cases_when_sources_present(tmp_pa
 
     outcome = run_benchmark(config)
 
-    with open(outcome.report_path, "r", encoding="utf-8") as fh:
+    with open(outcome.report_path, encoding="utf-8") as fh:
         payload = json.load(fh)
 
     case_ids = {case["case_id"] for case in payload["suite"]["search_cases"]}
@@ -719,7 +746,9 @@ def test_source_preflight_requires_positive_empirical_rows_for_transport_source(
     payload.write_text('{"id":"NY.GDP.PCAP.CD"}\n', encoding="utf-8")
     with open(raw_dir / "manifest.json", "w", encoding="utf-8") as fh:
         json.dump({"count": 1, "payload": str(payload)}, fh)
-    with open(config.manifests_dir / "observation_source_summary.json", "w", encoding="utf-8") as fh:
+    with open(
+        config.manifests_dir / "observation_source_summary.json", "w", encoding="utf-8"
+    ) as fh:
         json.dump(
             {
                 "worldbank": {
@@ -738,10 +767,12 @@ def test_source_preflight_requires_positive_empirical_rows_for_transport_source(
 
     outcome = run_benchmark(
         config,
-        suite=BenchmarkSuite(search_cases=(), retrieval_metrics=(), transport_variables=(), foundry_metrics=()),
+        suite=BenchmarkSuite(
+            search_cases=(), retrieval_metrics=(), transport_variables=(), foundry_metrics=()
+        ),
     )
 
-    with open(outcome.report_path, "r", encoding="utf-8") as fh:
+    with open(outcome.report_path, encoding="utf-8") as fh:
         payload = json.load(fh)
     case = payload["source_preflight"]["sources"][0]
 
@@ -800,15 +831,19 @@ def test_source_preflight_counts_exec_graph_artifacts_without_registry_rows(tmp_
     payload.write_text('{"id":"ua-exec-1"}\n', encoding="utf-8")
     with open(raw_dir / "manifest.json", "w", encoding="utf-8") as fh:
         json.dump({"count": 1, "payload": str(payload)}, fh)
-    with open(config.manifests_dir / "observation_source_summary.json", "w", encoding="utf-8") as fh:
+    with open(
+        config.manifests_dir / "observation_source_summary.json", "w", encoding="utf-8"
+    ) as fh:
         json.dump({}, fh)
 
     outcome = run_benchmark(
         config,
-        suite=BenchmarkSuite(search_cases=(), retrieval_metrics=(), transport_variables=(), foundry_metrics=()),
+        suite=BenchmarkSuite(
+            search_cases=(), retrieval_metrics=(), transport_variables=(), foundry_metrics=()
+        ),
     )
 
-    with open(outcome.report_path, "r", encoding="utf-8") as fh:
+    with open(outcome.report_path, encoding="utf-8") as fh:
         payload = json.load(fh)
     case = payload["source_preflight"]["sources"][0]
 

@@ -1,13 +1,22 @@
 """Transport contracts for JSON-first, binary sidecar, and incremental IR delivery."""
+
 from __future__ import annotations
 
-from datetime import datetime
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts.contracts import ArtifactID
-from polisyos.ir.observation.contracts import ObservationFamily, ObservationRecord
+
+if TYPE_CHECKING:
+    from datetime import datetime
+
+    from polisyos.ir.observation.contracts import ObservationFamily, ObservationRecord
+else:
+    from datetime import datetime
+
+    from polisyos.ir.observation.contracts import ObservationFamily, ObservationRecord
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
@@ -58,12 +67,11 @@ class TransportDescriptor(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_descriptor(self) -> "TransportDescriptor":
+    def validate_descriptor(self) -> TransportDescriptor:
         if self.mode is TransportMode.OPTIONAL_BINARY:
             if self.binary_media_type is None or self.wire_format is None:
                 raise ValueError(
-                    "optional binary transport requires binary_media_type "
-                    "and wire_format"
+                    "optional binary transport requires binary_media_type and wire_format"
                 )
         return self
 
@@ -80,7 +88,7 @@ class ArtifactDeltaEntry(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_delta_entry(self) -> "ArtifactDeltaEntry":
+    def validate_delta_entry(self) -> ArtifactDeltaEntry:
         if self.operation is StreamUpdateOperation.UPSERT and self.payload_artifact_id is None:
             raise ValueError("upsert delta entries require payload_artifact_id")
         return self
@@ -100,7 +108,7 @@ class ArtifactDeltaEnvelope(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_delta_envelope(self) -> "ArtifactDeltaEnvelope":
+    def validate_delta_envelope(self) -> ArtifactDeltaEnvelope:
         if not self.entries:
             raise ValueError("ArtifactDeltaEnvelope requires at least one delta entry")
         if self.semantics is not DeltaSemantics.APPEND_ONLY and self.base_artifact_id is None:
@@ -145,7 +153,7 @@ class ObservationBinaryBatchArtifact(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_binary_batch(self) -> "ObservationBinaryBatchArtifact":
+    def validate_binary_batch(self) -> ObservationBinaryBatchArtifact:
         if self.delta_semantics is not DeltaSemantics.APPEND_ONLY and self.base_artifact_id is None:
             raise ValueError("base_artifact_id is required when binary batch is emitted as a delta")
         return self
@@ -175,7 +183,7 @@ class ObservationStreamEntry(BaseModel):
     prior_artifact_id: ArtifactID | None = None
 
     @model_validator(mode="after")
-    def validate_stream_entry(self) -> "ObservationStreamEntry":
+    def validate_stream_entry(self) -> ObservationStreamEntry:
         if self.operation is StreamUpdateOperation.UPSERT and self.record is None:
             raise ValueError("upsert stream entries require a record payload")
         if self.operation is StreamUpdateOperation.RETRACT and self.record is None:
@@ -203,7 +211,7 @@ class ObservationStreamUpdate(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_update(self) -> "ObservationStreamUpdate":
+    def validate_update(self) -> ObservationStreamUpdate:
         if self.sequence_end < self.sequence_start:
             raise ValueError("sequence_end must be >= sequence_start")
         if not self.entries and self.binary_batch is None and self.delta is None:
@@ -224,12 +232,12 @@ OBSERVATION_STREAM_TRANSPORT = TransportDescriptor(
 
 
 __all__ = [
+    "OBSERVATION_STREAM_TRANSPORT",
     "ArtifactDeltaEntry",
     "ArtifactDeltaEnvelope",
     "BinaryWireFormat",
     "DeltaSemantics",
     "IncrementalRelinkManifest",
-    "OBSERVATION_STREAM_TRANSPORT",
     "ObservationBinaryBatchArtifact",
     "ObservationStreamCheckpoint",
     "ObservationStreamEntry",

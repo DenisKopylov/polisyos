@@ -40,9 +40,7 @@ def test_raises_when_simulation_result_invalid(
         PropagateUncertaintyNode().execute(execution_context, state)
 
 
-def test_skip_when_no_input_envelopes(
-    execution_context, minimal_state, cas_store
-):
+def test_skip_when_no_input_envelopes(execution_context, minimal_state, cas_store):
     """Valid sim result with metrics but no input envelopes -> skip."""
     from decimal import Decimal
 

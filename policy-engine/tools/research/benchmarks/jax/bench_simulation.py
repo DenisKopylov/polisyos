@@ -7,20 +7,19 @@ import argparse
 import json
 import sys
 import time
-from pathlib import Path
 from typing import Any
 
-from tools._lib.imports import repo_root_from, ensure_repo_import_roots
+from tools._lib.imports import ensure_repo_import_roots, repo_root_from
 
 sys.path.insert(0, str(repo_root_from(__file__)))
 
 REPO_ROOT, SRC_ROOT = ensure_repo_import_roots(__file__)
 
-import jax_bootstrap  # noqa: F401
 import jax
 import jax.numpy as jnp
 import numpy as np
 
+import jax_bootstrap  # noqa: F401
 from polisyos.foundry.agent_sim.executor import PureExecutor
 from polisyos.foundry.agent_sim.mechanisms import TaxationMechanism
 from polisyos.foundry.agent_sim.state import GlobalState

@@ -12,6 +12,7 @@ import {
 } from "recharts";
 
 import type { DistributionalModel } from "@/lib/domain/simulation";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { Select, chartTheme } from "@/shared/ui";
 
 type DistributionalPanelProps = {
@@ -21,6 +22,7 @@ type DistributionalPanelProps = {
 export default function DistributionalPanel({
   distributional,
 }: DistributionalPanelProps) {
+  const { t } = useI18n();
   const [selectedDimension, setSelectedDimension] = useState<string>(
     distributional?.breakdowns[0]?.dimensionLabel ?? "",
   );
@@ -44,9 +46,11 @@ export default function DistributionalPanel({
   if (!distributional) {
     return (
       <section className="bg-canvas/40 border-line rounded-xl border border-dashed p-4">
-        <h3 className="mb-1 text-lg font-semibold">Distributional Panel</h3>
+        <h3 className="mb-1 text-lg font-semibold">
+          {t("pages.artifacts.simulation.distributionalPanel.title")}
+        </h3>
         <p className="text-muted text-sm">
-          Distributional report not found in this artifact.
+          {t("pages.artifacts.simulation.distributionalPanel.unavailable")}
         </p>
       </section>
     );
@@ -55,7 +59,9 @@ export default function DistributionalPanel({
   return (
     <section className="border-line bg-panel space-y-3 rounded-xl border p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-lg font-semibold">Distributional Panel</h3>
+        <h3 className="text-lg font-semibold">
+          {t("pages.artifacts.simulation.distributionalPanel.title")}
+        </h3>
         {distributional.breakdowns.length > 1 ? (
           <Select
             value={selectedBreakdown?.dimensionLabel ?? ""}
@@ -76,35 +82,54 @@ export default function DistributionalPanel({
 
       <div className="grid gap-2 md:grid-cols-3">
         <div className="bg-canvas/30 border-line rounded-lg border p-3">
-          <p className="text-muted text-xs uppercase">Gini (before to after)</p>
+          <p className="text-muted text-xs uppercase">
+            {t("pages.artifacts.simulation.distributionalPanel.gini")}
+          </p>
           <p className="text-sm font-semibold">
-            {distributional.overallGiniBefore?.toFixed(4) ?? "-"} to{" "}
-            {distributional.overallGiniAfter?.toFixed(4) ?? "-"}
+            {t("pages.artifacts.simulation.distributionalPanel.giniRange", {
+              after: distributional.overallGiniAfter?.toFixed(4) ?? "-",
+              before: distributional.overallGiniBefore?.toFixed(4) ?? "-",
+            })}
           </p>
           <p className="text-muted text-xs">
-            Δ{" "}
-            {distributional.overallGiniDelta !== null
-              ? distributional.overallGiniDelta.toFixed(4)
-              : "-"}
+            {t("pages.artifacts.simulation.distributionalPanel.delta", {
+              value:
+                distributional.overallGiniDelta !== null
+                  ? distributional.overallGiniDelta.toFixed(4)
+                  : "-",
+            })}
           </p>
         </div>
         <div className="bg-canvas/30 border-line rounded-lg border p-3">
-          <p className="text-muted text-xs uppercase">Winners / Losers</p>
+          <p className="text-muted text-xs uppercase">
+            {t("pages.artifacts.simulation.distributionalPanel.winnersLosers")}
+          </p>
           <p className="text-sm font-semibold">
             {distributional.winnersCount ?? 0} /{" "}
             {distributional.losersCount ?? 0}
           </p>
           <p className="text-muted text-xs">
-            pop share: {((distributional.winnersShare ?? 0) * 100).toFixed(0)}%
-            / {((distributional.losersShare ?? 0) * 100).toFixed(0)}%
+            {t(
+              "pages.artifacts.simulation.distributionalPanel.populationShare",
+              {
+                losers: `${((distributional.losersShare ?? 0) * 100).toFixed(0)}%`,
+                winners: `${((distributional.winnersShare ?? 0) * 100).toFixed(0)}%`,
+              },
+            )}
           </p>
         </div>
         <div className="bg-canvas/30 border-line rounded-lg border p-3">
-          <p className="text-muted text-xs uppercase">Breakdowns</p>
+          <p className="text-muted text-xs uppercase">
+            {t("pages.artifacts.simulation.distributionalPanel.breakdowns")}
+          </p>
           <p className="text-sm font-semibold">
             {distributional.breakdowns.length}
           </p>
-          <p className="text-muted text-xs">Primary metrics by cohort groups</p>
+          <p className="text-muted text-xs">
+            {t(
+              "pages.artifacts.simulation.distributionalPanel.primaryMetricsByCohort",
+            )}
+          </p>
         </div>
       </div>
 
@@ -122,7 +147,12 @@ export default function DistributionalPanel({
               <Legend />
               <Bar
                 dataKey="delta"
-                name={`Δ ${selectedBreakdown.primaryMetric}`}
+                name={t(
+                  "pages.artifacts.simulation.distributionalPanel.deltaMetric",
+                  {
+                    metric: selectedBreakdown.primaryMetric,
+                  },
+                )}
               >
                 {selectedBreakdown.cohorts.map((cohort) => (
                   <Cell
@@ -142,7 +172,7 @@ export default function DistributionalPanel({
         </div>
       ) : (
         <p className="text-muted text-sm">
-          No cohort data in distributional report.
+          {t("pages.artifacts.simulation.distributionalPanel.noCohortData")}
         </p>
       )}
     </section>

@@ -1,4 +1,5 @@
 """Public routes debug module API."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
@@ -50,7 +51,7 @@ if router is not None:
         run_id: str,
         alias: str,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> NodeDebugResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
@@ -73,7 +74,7 @@ if router is not None:
     def get_governance_debug(
         run_id: str,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> GovernanceDebugResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
@@ -92,7 +93,7 @@ if router is not None:
     def get_run_errors(
         run_id: str,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunErrorsResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
@@ -116,7 +117,7 @@ if router is not None:
     def get_run_feedback(
         run_id: str,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunFeedbackResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
@@ -140,7 +141,7 @@ if router is not None:
         left_run_id: str,
         right_run_id: str,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunCompareResponse:
         left_run = ctx.run_index.get_run(left_run_id)
         right_run = ctx.run_index.get_run(right_run_id)

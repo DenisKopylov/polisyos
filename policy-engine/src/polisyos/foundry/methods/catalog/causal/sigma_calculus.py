@@ -6,7 +6,8 @@ backward-compatible re-exports in the original module.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
     ancestors,
@@ -33,9 +34,9 @@ CtfPostPass = Callable[["EstimandAST", "CausalGraphModel"], tuple[EstimandAST, l
 
 
 def _build_sigma_graph(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     selection_vars: frozenset[str],
-) -> tuple["CausalGraphModel", frozenset[str]]:
+) -> tuple[CausalGraphModel, frozenset[str]]:
     """Build the selection-augmented graph G^σ and return S-node names."""
     g_sigma = augment_with_s_nodes(graph, selection_vars)
     s_node_names = frozenset(f"S_{v}" for v in selection_vars)
@@ -44,7 +45,7 @@ def _build_sigma_graph(
 
 def apply_sigma_rule1(
     dist_ref: DistributionRef,
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     z_vars: frozenset[str],
     selection_vars: frozenset[str],
 ) -> tuple[DistributionRef, IRProofStep] | None:
@@ -63,7 +64,9 @@ def apply_sigma_rule1(
     g_sigma_xbar = remove_incoming_edges(g_sigma, X)
     cond_set = X | W | s_node_names
 
-    if not (m_separation(g_sigma_xbar, Y, z, cond_set) and m_separation(g_sigma_xbar, z, Y, cond_set)):
+    if not (
+        m_separation(g_sigma_xbar, Y, z, cond_set) and m_separation(g_sigma_xbar, z, Y, cond_set)
+    ):
         return None
 
     new_ref = dist_ref.model_copy(update={"conditioning": tuple(sorted(W))})
@@ -85,7 +88,7 @@ def apply_sigma_rule1(
 
 def apply_sigma_rule2(
     dist_ref: DistributionRef,
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     z_vars: frozenset[str],
     selection_vars: frozenset[str],
 ) -> tuple[DistributionRef, IRProofStep] | None:
@@ -105,7 +108,10 @@ def apply_sigma_rule2(
     g_sigma_xbar_zunder = remove_outgoing_edges(g_sigma_xbar, z)
     cond_set = X | W | s_node_names
 
-    if not (m_separation(g_sigma_xbar_zunder, Y, z, cond_set) and m_separation(g_sigma_xbar_zunder, z, Y, cond_set)):
+    if not (
+        m_separation(g_sigma_xbar_zunder, Y, z, cond_set)
+        and m_separation(g_sigma_xbar_zunder, z, Y, cond_set)
+    ):
         return None
 
     new_intervention = tuple(sorted(frozenset(dist_ref.intervention_set) - z))
@@ -137,7 +143,7 @@ def apply_sigma_rule2(
 
 def apply_sigma_rule3(
     dist_ref: DistributionRef,
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     z_vars: frozenset[str],
     selection_vars: frozenset[str],
 ) -> tuple[DistributionRef, IRProofStep] | None:
@@ -162,7 +168,10 @@ def apply_sigma_rule3(
     g_sigma_xbar_zs_bar = remove_incoming_edges(g_sigma_xbar, z_s)
     cond_set = X | W | s_node_names
 
-    if not (m_separation(g_sigma_xbar_zs_bar, Y, z_s, cond_set) and m_separation(g_sigma_xbar_zs_bar, z_s, Y, cond_set)):
+    if not (
+        m_separation(g_sigma_xbar_zs_bar, Y, z_s, cond_set)
+        and m_separation(g_sigma_xbar_zs_bar, z_s, Y, cond_set)
+    ):
         return None
 
     new_intervention = tuple(sorted(frozenset(dist_ref.intervention_set) - z_s))
@@ -191,7 +200,7 @@ def apply_sigma_rule3(
 
 def _try_all_rules_with_selection(
     dist_ref: DistributionRef,
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     selection_vars: frozenset[str],
 ) -> tuple[DistributionRef, list[IRProofStep]]:
     """Try do-calculus and σ-calculus rules on a single DistributionRef."""
@@ -252,7 +261,7 @@ def _try_all_rules_with_selection(
 
 def _rewrite_node_with_selection(
     node: object,
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     selection_vars: frozenset[str],
 ) -> tuple[object, list[IRProofStep]]:
     """Recursively rewrite an EstimandNode using do-calculus + σ-calculus rules."""
@@ -322,7 +331,7 @@ def _resolve_ctf_postpass(
 
 def rewrite_estimand_with_selection(
     ast: EstimandAST,
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     selection_vars: frozenset[str],
     max_iterations: int = 20,
     *,
@@ -351,7 +360,7 @@ def rewrite_estimand_with_selection(
 
 def sigma_identify(
     ast: EstimandAST,
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     selection_vars: frozenset[str] = frozenset(),
     max_iterations: int = 20,
     *,
@@ -378,7 +387,7 @@ def sigma_identify(
 
 def sigma_z_identify(
     ast: EstimandAST,
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     selection_vars: frozenset[str] = frozenset(),
     z_interventions: frozenset[str] = frozenset(),
     max_iterations: int = 20,

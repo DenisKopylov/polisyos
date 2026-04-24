@@ -21,23 +21,25 @@ Example:
     >>> acceleration = velocity / Dimension(time=1)
     >>> assert acceleration == Dimension(length=1, time=-2)
 """
+
 from __future__ import annotations
 
 import threading
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
-from typing import ClassVar, Iterator, Mapping
+from typing import ClassVar
 
 __all__ = [
-    "Dimension",
-    "DimensionRegistry",
     "BaseDimension",
+    "Dimension",
     "DimensionError",
+    "DimensionRegistry",
     "IncompatibleDimensionsError",
     "get_dimension_registry",
 ]
 
 
-def _default_dimension_registry() -> "DimensionRegistry":
+def _default_dimension_registry() -> DimensionRegistry:
     return DimensionRegistry.get_instance()
 
 
@@ -53,13 +55,11 @@ class DimensionError(Exception):
 class IncompatibleDimensionsError(DimensionError):
     """Raised when operations require compatible dimensions but receive incompatible ones."""
 
-    def __init__(self, dim1: "Dimension", dim2: "Dimension", operation: str = "operation"):
+    def __init__(self, dim1: Dimension, dim2: Dimension, operation: str = "operation"):
         self.dim1 = dim1
         self.dim2 = dim2
         self.operation = operation
-        super().__init__(
-            f"Incompatible dimensions for {operation}: {dim1} vs {dim2}"
-        )
+        super().__init__(f"Incompatible dimensions for {operation}: {dim1} vs {dim2}")
 
 
 # =============================================================================
@@ -82,28 +82,39 @@ class BaseDimension:
     """
 
     # SI Base Dimensions
-    LENGTH = "length"           # L (meters)
-    MASS = "mass"               # M (kilograms)
-    TIME = "time"               # T (seconds)
+    LENGTH = "length"  # L (meters)
+    MASS = "mass"  # M (kilograms)
+    TIME = "time"  # T (seconds)
     ELECTRIC_CURRENT = "current"  # I (amperes)
     TEMPERATURE = "temperature"  # Th (kelvin)
-    AMOUNT = "amount"           # N (moles)
-    LUMINOSITY = "luminosity"   # J (candelas)
+    AMOUNT = "amount"  # N (moles)
+    LUMINOSITY = "luminosity"  # J (candelas)
 
     # Domain-Specific Dimensions for PolicyOS
-    CURRENCY = "currency"       # C (monetary value)
-    POPULATION = "population"   # P (persons/entities)
-    INFORMATION = "information" # B (bits/bytes)
-    ANGLE = "angle"             # For angular measurements
+    CURRENCY = "currency"  # C (monetary value)
+    POPULATION = "population"  # P (persons/entities)
+    INFORMATION = "information"  # B (bits/bytes)
+    ANGLE = "angle"  # For angular measurements
 
     # Alias (not a base dimension)
     AREA = "area"
 
     # All base dimensions
-    ALL: ClassVar[frozenset[str]] = frozenset({
-        LENGTH, MASS, TIME, ELECTRIC_CURRENT, TEMPERATURE, AMOUNT,
-        LUMINOSITY, CURRENCY, POPULATION, INFORMATION, ANGLE
-    })
+    ALL: ClassVar[frozenset[str]] = frozenset(
+        {
+            LENGTH,
+            MASS,
+            TIME,
+            ELECTRIC_CURRENT,
+            TEMPERATURE,
+            AMOUNT,
+            LUMINOSITY,
+            CURRENCY,
+            POPULATION,
+            INFORMATION,
+            ANGLE,
+        }
+    )
 
 
 # =============================================================================
@@ -166,7 +177,7 @@ class Dimension:
         pass
 
     @classmethod
-    def from_dict(cls, powers: Mapping[str, int]) -> "Dimension":
+    def from_dict(cls, powers: Mapping[str, int]) -> Dimension:
         """
         Create a Dimension from a dictionary of base dimension powers.
 
@@ -182,9 +193,17 @@ class Dimension:
             >>> assert dim == Dimension(length=1, time=-2)
         """
         valid_keys = {
-            "length", "mass", "time", "current", "temperature",
-            "amount", "luminosity", "currency", "population",
-            "information", "angle"
+            "length",
+            "mass",
+            "time",
+            "current",
+            "temperature",
+            "amount",
+            "luminosity",
+            "currency",
+            "population",
+            "information",
+            "angle",
         }
         filtered: dict[str, int] = {}
         length_power = 0
@@ -240,7 +259,7 @@ class Dimension:
         """Check if this is a dimensionless quantity (all powers zero)."""
         return not any(self.to_dict().values())
 
-    def is_compatible_with(self, other: "Dimension") -> bool:
+    def is_compatible_with(self, other: Dimension) -> bool:
         """
         Check if two dimensions are compatible (can be added/compared).
 
@@ -262,7 +281,7 @@ class Dimension:
         """
         return self == other
 
-    def __mul__(self, other: "Dimension") -> "Dimension":
+    def __mul__(self, other: Dimension) -> Dimension:
         """
         Multiply two dimensions (add exponents).
 
@@ -286,7 +305,7 @@ class Dimension:
             angle=self.angle + other.angle,
         )
 
-    def __truediv__(self, other: "Dimension") -> "Dimension":
+    def __truediv__(self, other: Dimension) -> Dimension:
         """
         Divide two dimensions (subtract exponents).
 
@@ -310,7 +329,7 @@ class Dimension:
             angle=self.angle - other.angle,
         )
 
-    def __pow__(self, power: int) -> "Dimension":
+    def __pow__(self, power: int) -> Dimension:
         """
         Raise dimension to an integer power.
 
@@ -335,7 +354,7 @@ class Dimension:
             angle=self.angle * power,
         )
 
-    def __invert__(self) -> "Dimension":
+    def __invert__(self) -> Dimension:
         """
         Return the inverse dimension (negate all exponents).
 
@@ -344,7 +363,7 @@ class Dimension:
             >>> time_per_length = ~velocity
             >>> assert time_per_length == Dimension(length=-1, time=1)
         """
-        return self ** -1
+        return self**-1
 
     def __str__(self) -> str:
         """
@@ -408,7 +427,7 @@ class DimensionRegistry:
         >>> assert velocity == Dimension(length=1, time=-1)
     """
 
-    _instance: ClassVar["DimensionRegistry" | None] = None
+    _instance: ClassVar[DimensionRegistry | None] = None
     _lock: ClassVar[threading.Lock] = threading.Lock()
 
     # Standard dimensions (class-level for easy access)
@@ -494,7 +513,7 @@ class DimensionRegistry:
         }
 
     @classmethod
-    def get_instance(cls) -> "DimensionRegistry":
+    def get_instance(cls) -> DimensionRegistry:
         """
         Get the singleton registry instance (thread-safe).
 

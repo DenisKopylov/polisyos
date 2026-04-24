@@ -12,12 +12,12 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactManifest
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import content_hash
-from polisyos.core.canon.canon_json import from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon.canon_json import from_canonical_bytes
 from polisyos.core.run.manifest import RunManifest
 
 from ._assembler_archive import write_json
 from ._assembler_errors import AuditAssemblyError
-from .models import ExportOptions, ExportProfile, SigningPolicy
+from .models import ExportOptions
 
 __all__ = [
     "attach_sbom",
@@ -110,7 +110,11 @@ def build_slsa_bundle(
         )
         write_json(slsa_dir / "attestation.json", attestation_payload)
 
-        payload_bytes = to_canonical_bytes(attestation_payload)
+        payload_bytes = json.dumps(
+            attestation_payload,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
         signer = FulcioClient(config)
         signed = signer.sign(payload_bytes)
         write_json(
@@ -208,7 +212,7 @@ def attach_sbom(
                 "cas_ref": sbom_ref.artifact_id.hex,
                 **metadata,
             }
-        except (ValueError, TypeError, OSError, json.JSONDecodeError, UnicodeDecodeError) as exc:  # noqa: BLE001
+        except (ValueError, TypeError, OSError, json.JSONDecodeError, UnicodeDecodeError) as exc:
             warnings.append(f"SBOM attach from CAS failed: {exc}")
 
     env_path = os.getenv("POLISYOS_SBOM_PATH", "").strip()
@@ -227,7 +231,13 @@ def attach_sbom(
                     "source": str(path),
                     **metadata,
                 }
-            except (json.JSONDecodeError, OSError, TypeError, ValueError, UnicodeDecodeError) as exc:  # noqa: BLE001
+            except (
+                json.JSONDecodeError,
+                OSError,
+                TypeError,
+                ValueError,
+                UnicodeDecodeError,
+            ) as exc:
                 warnings.append(f"SBOM attach from env failed: {exc}")
 
     warnings.append("SBOM not available for audit package")

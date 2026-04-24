@@ -59,7 +59,7 @@ _NUMERIC_KINDS = frozenset("iufcb")  # int, uint, float, complex, bool
 def _is_numeric_dtype(dtype_str: str) -> bool:
     """Return True if the dtype kind character is numeric (numpy convention)."""
     # dtype_str is something like "int64", "float32", "object", "bool"
-    import numpy as np  # noqa: PLC0415
+    import numpy as np
 
     try:
         kind = np.dtype(dtype_str).kind
@@ -205,8 +205,8 @@ class DomainHarmonizer:
 
     @staticmethod
     def align(
-        source_df: "pd.DataFrame",
-        target_df: "pd.DataFrame",
+        source_df: pd.DataFrame,
+        target_df: pd.DataFrame,
         variable_mapping: dict[str, str],
         *,
         missing_strategy: MissingVariableStrategy = MissingVariableStrategy.RAISE_ERROR,
@@ -239,7 +239,7 @@ class DomainHarmonizer:
         """
         resolved: list[ResolvedMapping] = []
         mismatches: list[TypeMismatch] = []
-        harmonized: list[str] = []          # target variable names
+        harmonized: list[str] = []  # target variable names
         excluded: list[str] = []
         warnings: list[str] = []
         errors: list[str] = []
@@ -253,15 +253,11 @@ class DomainHarmonizer:
         for src_col, tgt_var in variable_mapping.items():
             # Validate source column exists
             if src_col not in source_df.columns:
-                warnings.append(
-                    f"Source column '{src_col}' not found in source_df — skipped."
-                )
+                warnings.append(f"Source column '{src_col}' not found in source_df — skipped.")
                 continue
             # Validate target variable exists
             if tgt_var not in target_df.columns:
-                warnings.append(
-                    f"Target variable '{tgt_var}' not found in target_df — skipped."
-                )
+                warnings.append(f"Target variable '{tgt_var}' not found in target_df — skipped.")
                 continue
 
             src_dtype = str(source_df[src_col].dtype)
@@ -315,8 +311,7 @@ class DomainHarmonizer:
                 tgt_dtype_str = str(target_df[tgt_var].dtype)
                 if _is_numeric_dtype(tgt_dtype_str):
                     numeric_cols = [
-                        c for c in source_df.columns
-                        if _is_numeric_dtype(str(source_df[c].dtype))
+                        c for c in source_df.columns if _is_numeric_dtype(str(source_df[c].dtype))
                     ]
                     if numeric_cols:
                         imputed_value = float(source_df[numeric_cols[0]].mean())
@@ -374,10 +369,10 @@ class DomainHarmonizer:
 
 
 __all__ = [
+    "DomainHarmonizer",
+    "HarmonizationReport",
+    "MissingVariableRecord",
     "MissingVariableStrategy",
     "ResolvedMapping",
     "TypeMismatch",
-    "MissingVariableRecord",
-    "HarmonizationReport",
-    "DomainHarmonizer",
 ]

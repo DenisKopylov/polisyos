@@ -19,7 +19,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 # Ensure benchmarks root is importable
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from benchmarks.comparators import build_research_acceptance_comparator_status, comparator_degraded_reasons
+from benchmarks.comparators import (
+    build_research_acceptance_comparator_status,
+    comparator_degraded_reasons,
+)
 from benchmarks.harness import BenchmarkCircuit, BenchmarkReport, CaseResult, Verdict
 from benchmarks.honest_comparison.config import BenchmarkConfig, FairnessTier
 from benchmarks.honest_comparison.metrics import AggregatedMetrics
@@ -64,7 +67,9 @@ def _synthetic_report(raw_metrics: dict[str, list[AggregatedMetrics]]) -> Benchm
                 name=f"{tier_name}::{dataset_name}",
                 circuit=BenchmarkCircuit.COMPARISON,
                 verdict=Verdict.PASS if valid_rows else Verdict.FAIL,
-                elapsed_s=float(sum(row.wall_time_mean for row in rows if not math.isnan(row.wall_time_mean))),
+                elapsed_s=float(
+                    sum(row.wall_time_mean for row in rows if not math.isnan(row.wall_time_mean))
+                ),
                 memory_delta_mb=0.0,
                 error_msg=None if valid_rows else "all honest comparison rows failed",
                 result_payload={
@@ -96,7 +101,11 @@ def _aggregate_metrics(raw_metrics: dict[str, list[AggregatedMetrics]]) -> dict[
                 / max(1, sum(1 for metric in metrics_list if not math.isnan(metric.ate_rmse)))
             ),
             "mean_failure_rate": float(
-                sum(metric.failure_rate for metric in metrics_list if not math.isnan(metric.failure_rate))
+                sum(
+                    metric.failure_rate
+                    for metric in metrics_list
+                    if not math.isnan(metric.failure_rate)
+                )
                 / max(1, sum(1 for metric in metrics_list if not math.isnan(metric.failure_rate)))
             ),
         }
@@ -165,17 +174,27 @@ def main() -> int:
     )
     parser.add_argument("--smoke", action="store_true", help="Smoke test: K=3, n=500, Tier B only")
     parser.add_argument("--output", type=str, default=None, help="Native JSON output path")
-    parser.add_argument("--json", type=str, default=None, help="Unified benchmark payload output path")
+    parser.add_argument(
+        "--json", type=str, default=None, help="Unified benchmark payload output path"
+    )
     parser.add_argument("--quiet", action="store_true", help="Suppress unified JSON stdout")
     parser.add_argument("--mode", choices=[mode.value for mode in BenchmarkMode], default=None)
-    parser.add_argument("--tiers", type=str, default=None, help="Comma-separated tiers to run (A,B,C)")
+    parser.add_argument(
+        "--tiers", type=str, default=None, help="Comma-separated tiers to run (A,B,C)"
+    )
     parser.add_argument("--k", type=int, default=None, help="Override number of replications")
-    parser.add_argument("--n", type=str, default=None, help="Comma-separated sample sizes (e.g., 1000,2500,5000)")
+    parser.add_argument(
+        "--n", type=str, default=None, help="Comma-separated sample sizes (e.g., 1000,2500,5000)"
+    )
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose logging")
     args = parser.parse_args()
 
     mode = resolve_mode(args.mode)
-    smoke = args.smoke or mode is BenchmarkMode.SMOKE or os.environ.get("HONEST_SMOKE", "").lower() in ("1", "true")
+    smoke = (
+        args.smoke
+        or mode is BenchmarkMode.SMOKE
+        or os.environ.get("HONEST_SMOKE", "").lower() in ("1", "true")
+    )
 
     level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(
@@ -191,7 +210,11 @@ def main() -> int:
         smoke=smoke,
     )
 
-    raw_output_path = Path(args.output) if args.output else (_default_output_path() if args.json is None else None)
+    raw_output_path = (
+        Path(args.output)
+        if args.output
+        else (_default_output_path() if args.json is None else None)
+    )
     raw_result = run_benchmark(cfg, output_path=raw_output_path)
 
     if args.json:

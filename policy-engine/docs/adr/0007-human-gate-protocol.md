@@ -31,6 +31,7 @@ Human gate ранее был распределён между:
 
 - Детерминированный `request_id`:
   `sha256("{run_id}:{phase}:{node_alias}:{iteration}")`
+
 - Персистенс `GateRequest`/`GateDecision` в CAS (`ir.gate_request`, `ir.gate_decision`)
 - Запись `GATE_REQUESTED`/`GATE_DECIDED` в `trace.jsonl`
 - Корреляция с OTel trace/span id

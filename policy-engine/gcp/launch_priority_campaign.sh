@@ -46,7 +46,7 @@ resolve_bundle() {
   fi
 
   if [ "${PACKAGE_REPO}" = "1" ]; then
-    BUCKET_NAME="${BUCKET_NAME}" UPLOAD=1 "${SCRIPT_DIR}/package_repo.sh" >/dev/null
+    BUCKET_NAME="${BUCKET_NAME}" UPLOAD=1 "${SCRIPT_DIR}/package_repo.sh" > /dev/null
   fi
 
   gcloud storage ls "gs://${BUCKET_NAME}/bootstrap/repo/" | tail -n 1
@@ -77,116 +77,116 @@ build_manifests() {
 
 launch_queue1() {
   PROJECT_ID="${PROJECT_ID}" \
-  BUCKET_NAME="${BUCKET_NAME}" \
-  WORKER_SA_EMAIL="${WORKER_SA_EMAIL}" \
-  SNAPSHOT_LABEL="${SNAPSHOT_LABEL}" \
-  REPO_BUNDLE_URI="${REPO_BUNDLE_URI}" \
-  QUEUE_NAME="queue1_core_current" \
-  STATUS_PASS="current" \
-  MANIFEST_BASE_URI="${GCS_MANIFEST_ROOT}/queue1_core_current" \
-  OUTPUT_ROOT="${QUEUE1_OUTPUT_ROOT}" \
-  INSTANCE_NAME_PREFIX="${QUEUE1_INSTANCE_PREFIX}" \
-  SHARD_COUNT=6 \
-  SHARD_ZONE_MAP="${QUEUE_ZONE_MAP}" \
-  MACHINE_TYPE="t2d-standard-2" \
-  BOOT_DISK_SIZE_GB=50 \
-  BOOT_DISK_TYPE="pd-ssd" \
-  PROVISIONING_MODEL="STANDARD" \
-  LOAD_GONKA_SECRETS=1 \
-  RESUME_CACHE_ENABLED=1 \
-  RESUME_CACHE_ROOT="${CURRENT_CAMPAIGN_CACHE_ROOT}" \
-  RPS=5.0 \
-  PARALLEL_LLM=16 \
-  PARALLEL_LLM_GLOBAL=56 \
-  VERIFY_MODE="code" \
-  BATCH_CHARS=3600 \
-  BATCH_SIZE=3 \
-  XML_PARSE_CHUNK=128 \
-  RUN_LABEL="${QUEUE1_RUN_LABEL}" \
-  GAP_FILL_MODE="narrow" \
-  GAP_FILL_SHARE="0.10" \
-  HYPOTHESIS="queue1_core_current" \
-  "${SCRIPT_DIR}/launch_worker_group.sh"
+    BUCKET_NAME="${BUCKET_NAME}" \
+    WORKER_SA_EMAIL="${WORKER_SA_EMAIL}" \
+    SNAPSHOT_LABEL="${SNAPSHOT_LABEL}" \
+    REPO_BUNDLE_URI="${REPO_BUNDLE_URI}" \
+    QUEUE_NAME="queue1_core_current" \
+    STATUS_PASS="current" \
+    MANIFEST_BASE_URI="${GCS_MANIFEST_ROOT}/queue1_core_current" \
+    OUTPUT_ROOT="${QUEUE1_OUTPUT_ROOT}" \
+    INSTANCE_NAME_PREFIX="${QUEUE1_INSTANCE_PREFIX}" \
+    SHARD_COUNT=6 \
+    SHARD_ZONE_MAP="${QUEUE_ZONE_MAP}" \
+    MACHINE_TYPE="t2d-standard-2" \
+    BOOT_DISK_SIZE_GB=50 \
+    BOOT_DISK_TYPE="pd-ssd" \
+    PROVISIONING_MODEL="STANDARD" \
+    LOAD_GONKA_SECRETS=1 \
+    RESUME_CACHE_ENABLED=1 \
+    RESUME_CACHE_ROOT="${CURRENT_CAMPAIGN_CACHE_ROOT}" \
+    RPS=5.0 \
+    PARALLEL_LLM=16 \
+    PARALLEL_LLM_GLOBAL=56 \
+    VERIFY_MODE="code" \
+    BATCH_CHARS=3600 \
+    BATCH_SIZE=3 \
+    XML_PARSE_CHUNK=128 \
+    RUN_LABEL="${QUEUE1_RUN_LABEL}" \
+    GAP_FILL_MODE="narrow" \
+    GAP_FILL_SHARE="0.10" \
+    HYPOTHESIS="queue1_core_current" \
+    "${SCRIPT_DIR}/launch_worker_group.sh"
 }
 
 launch_queue2() {
   PROJECT_ID="${PROJECT_ID}" \
-  BUCKET_NAME="${BUCKET_NAME}" \
-  WORKER_SA_EMAIL="${WORKER_SA_EMAIL}" \
-  SNAPSHOT_LABEL="${SNAPSHOT_LABEL}" \
-  REPO_BUNDLE_URI="${REPO_BUNDLE_URI}" \
-  QUEUE_NAME="queue2_fast_useful_current" \
-  STATUS_PASS="current" \
-  MANIFEST_BASE_URI="${GCS_MANIFEST_ROOT}/queue2_fast_useful_current" \
-  OUTPUT_ROOT="${QUEUE2_OUTPUT_ROOT}" \
-  INSTANCE_NAME_PREFIX="${QUEUE2_INSTANCE_PREFIX}" \
-  SHARD_COUNT=6 \
-  SHARD_ZONE_MAP="${QUEUE_ZONE_MAP}" \
-  MACHINE_TYPE="t2d-standard-2" \
-  BOOT_DISK_SIZE_GB=50 \
-  BOOT_DISK_TYPE="pd-ssd" \
-  PROVISIONING_MODEL="STANDARD" \
-  LOAD_GONKA_SECRETS=1 \
-  RESUME_CACHE_ENABLED=1 \
-  RESUME_CACHE_ROOT="${CURRENT_CAMPAIGN_CACHE_ROOT}" \
-  RPS=5.0 \
-  PARALLEL_LLM=16 \
-  PARALLEL_LLM_GLOBAL=56 \
-  VERIFY_MODE="code" \
-  BATCH_CHARS=3600 \
-  BATCH_SIZE=3 \
-  XML_PARSE_CHUNK=128 \
-  RUN_LABEL="${QUEUE2_RUN_LABEL}" \
-  GAP_FILL_MODE="narrow" \
-  GAP_FILL_SHARE="0.10" \
-  HYPOTHESIS="queue2_fast_useful_current" \
-  "${SCRIPT_DIR}/launch_worker_group.sh"
+    BUCKET_NAME="${BUCKET_NAME}" \
+    WORKER_SA_EMAIL="${WORKER_SA_EMAIL}" \
+    SNAPSHOT_LABEL="${SNAPSHOT_LABEL}" \
+    REPO_BUNDLE_URI="${REPO_BUNDLE_URI}" \
+    QUEUE_NAME="queue2_fast_useful_current" \
+    STATUS_PASS="current" \
+    MANIFEST_BASE_URI="${GCS_MANIFEST_ROOT}/queue2_fast_useful_current" \
+    OUTPUT_ROOT="${QUEUE2_OUTPUT_ROOT}" \
+    INSTANCE_NAME_PREFIX="${QUEUE2_INSTANCE_PREFIX}" \
+    SHARD_COUNT=6 \
+    SHARD_ZONE_MAP="${QUEUE_ZONE_MAP}" \
+    MACHINE_TYPE="t2d-standard-2" \
+    BOOT_DISK_SIZE_GB=50 \
+    BOOT_DISK_TYPE="pd-ssd" \
+    PROVISIONING_MODEL="STANDARD" \
+    LOAD_GONKA_SECRETS=1 \
+    RESUME_CACHE_ENABLED=1 \
+    RESUME_CACHE_ROOT="${CURRENT_CAMPAIGN_CACHE_ROOT}" \
+    RPS=5.0 \
+    PARALLEL_LLM=16 \
+    PARALLEL_LLM_GLOBAL=56 \
+    VERIFY_MODE="code" \
+    BATCH_CHARS=3600 \
+    BATCH_SIZE=3 \
+    XML_PARSE_CHUNK=128 \
+    RUN_LABEL="${QUEUE2_RUN_LABEL}" \
+    GAP_FILL_MODE="narrow" \
+    GAP_FILL_SHARE="0.10" \
+    HYPOTHESIS="queue2_fast_useful_current" \
+    "${SCRIPT_DIR}/launch_worker_group.sh"
 }
 
 launch_history() {
   PROJECT_ID="${PROJECT_ID}" \
-  BUCKET_NAME="${BUCKET_NAME}" \
-  WORKER_SA_EMAIL="${WORKER_SA_EMAIL}" \
-  SNAPSHOT_LABEL="${SNAPSHOT_LABEL}" \
-  REPO_BUNDLE_URI="${REPO_BUNDLE_URI}" \
-  QUEUE_NAME="history_parallel" \
-  STATUS_PASS="history" \
-  MANIFEST_BASE_URI="${GCS_MANIFEST_ROOT}/history_parallel" \
-  OUTPUT_ROOT="${HISTORY_OUTPUT_ROOT}" \
-  INSTANCE_NAME_PREFIX="${HISTORY_INSTANCE_PREFIX}" \
-  SHARD_COUNT=2 \
-  SHARD_ZONE_MAP="${HISTORY_ZONE_MAP}" \
-  MACHINE_TYPE="e2-standard-2" \
-  BOOT_DISK_SIZE_GB=40 \
-  BOOT_DISK_TYPE="pd-standard" \
-  PROVISIONING_MODEL="STANDARD" \
-  LOAD_GONKA_SECRETS=0 \
-  RESUME_CACHE_ENABLED=1 \
-  RESUME_CACHE_ROOT="${HISTORY_CAMPAIGN_CACHE_ROOT}" \
-  RPS=1.0 \
-  PARALLEL_LLM=1 \
-  PARALLEL_LLM_GLOBAL=1 \
-  VERIFY_MODE="code" \
-  BATCH_CHARS=3600 \
-  BATCH_SIZE=3 \
-  XML_PARSE_CHUNK=128 \
-  RUN_LABEL="${HISTORY_RUN_LABEL}" \
-  HYPOTHESIS="history_parallel" \
-  "${SCRIPT_DIR}/launch_worker_group.sh"
+    BUCKET_NAME="${BUCKET_NAME}" \
+    WORKER_SA_EMAIL="${WORKER_SA_EMAIL}" \
+    SNAPSHOT_LABEL="${SNAPSHOT_LABEL}" \
+    REPO_BUNDLE_URI="${REPO_BUNDLE_URI}" \
+    QUEUE_NAME="history_parallel" \
+    STATUS_PASS="history" \
+    MANIFEST_BASE_URI="${GCS_MANIFEST_ROOT}/history_parallel" \
+    OUTPUT_ROOT="${HISTORY_OUTPUT_ROOT}" \
+    INSTANCE_NAME_PREFIX="${HISTORY_INSTANCE_PREFIX}" \
+    SHARD_COUNT=2 \
+    SHARD_ZONE_MAP="${HISTORY_ZONE_MAP}" \
+    MACHINE_TYPE="e2-standard-2" \
+    BOOT_DISK_SIZE_GB=40 \
+    BOOT_DISK_TYPE="pd-standard" \
+    PROVISIONING_MODEL="STANDARD" \
+    LOAD_GONKA_SECRETS=0 \
+    RESUME_CACHE_ENABLED=1 \
+    RESUME_CACHE_ROOT="${HISTORY_CAMPAIGN_CACHE_ROOT}" \
+    RPS=1.0 \
+    PARALLEL_LLM=1 \
+    PARALLEL_LLM_GLOBAL=1 \
+    VERIFY_MODE="code" \
+    BATCH_CHARS=3600 \
+    BATCH_SIZE=3 \
+    XML_PARSE_CHUNK=128 \
+    RUN_LABEL="${HISTORY_RUN_LABEL}" \
+    HYPOTHESIS="history_parallel" \
+    "${SCRIPT_DIR}/launch_worker_group.sh"
 }
 
 start_watcher() {
   local name="$1"
   shift
   local log_path="${WATCHER_LOG_DIR}/${name}.log"
-  nohup "$@" >"${log_path}" 2>&1 &
+  nohup "$@" > "${log_path}" 2>&1 &
   echo "Started watcher ${name}: pid=$! log=${log_path}"
 }
 
 start_queue1_watcher() {
   local on_shard_complete_cmd
   on_shard_complete_cmd=$(
-    cat <<EOF
+    cat << EOF
 PROJECT_ID=$(printf '%q' "${PROJECT_ID}") \
 BUCKET_NAME=$(printf '%q' "${BUCKET_NAME}") \
 SNAPSHOT_LABEL=$(printf '%q' "${SNAPSHOT_LABEL}") \

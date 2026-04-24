@@ -1,4 +1,5 @@
 """Tests for polisyos.scientist.kernel.guards — advance_phase, require_artifacts."""
+
 from __future__ import annotations
 
 import pytest
@@ -6,10 +7,10 @@ import pytest
 from polisyos.scientist.kernel.fsm import Phase
 from polisyos.scientist.kernel.guards import advance_phase, require_artifacts
 
-
 # ---------------------------------------------------------------------------
 # advance_phase
 # ---------------------------------------------------------------------------
+
 
 class TestAdvancePhase:
     def test_valid_transition_intake_to_frame(self):
@@ -68,6 +69,7 @@ class TestAdvancePhase:
 # ---------------------------------------------------------------------------
 # require_artifacts
 # ---------------------------------------------------------------------------
+
 
 class TestRequireArtifacts:
     def test_all_present(self):

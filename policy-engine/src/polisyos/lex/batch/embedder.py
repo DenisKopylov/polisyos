@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Callable
+from typing import TYPE_CHECKING
 
 import duckdb
 import hnswlib
@@ -14,12 +13,17 @@ import numpy as np
 from polisyos.batch_common.thermal import pause_between_batches
 from polisyos.common.logger import get_logger
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
+
 logger = get_logger(__name__)
 
 
 @dataclass
 class EmbeddingStats:
     """Embedding stats public type."""
+
     entities_embedded: int = 0
     facts_embedded: int = 0
     provisions_embedded: int = 0
@@ -91,7 +95,7 @@ def _load_existing_ids(npz_path: Path) -> set[str]:
         return set()
     try:
         data = np.load(str(npz_path), allow_pickle=True)
-        return set(str(v) for v in data["ids"])
+        return {str(v) for v in data["ids"]}
     except Exception:
         logger.debug("Failed to load existing embedding IDs from %s", npz_path)
         return set()
@@ -223,6 +227,7 @@ def build_local_embeddings_and_indexes(
     if fp16 and embedding_device in ("mps", "cuda"):
         try:
             import torch
+
             model_kwargs["torch_dtype"] = torch.float16
             logger.info("FP16 inference enabled for device=%s", embedding_device)
         except ImportError:

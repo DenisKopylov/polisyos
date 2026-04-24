@@ -1,13 +1,16 @@
 """Normalized artifact lineage graph for IR-level dependency analysis."""
+
 from __future__ import annotations
 
-from collections.abc import Iterable
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.artifacts.contracts import ArtifactID
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class ArtifactLineageNodeKind(str, Enum):
@@ -143,9 +146,7 @@ class ArtifactLineageGraph(BaseModel):
                 queue.append(edge.target_node_id)
         return tuple(
             sorted(
-                node.split("artifact:", 1)[1]
-                for node in visited
-                if node.startswith("artifact:")
+                node.split("artifact:", 1)[1] for node in visited if node.startswith("artifact:")
             )
         )
 
@@ -168,14 +169,10 @@ def build_artifact_lineage_graph(
 
     if artifact_ids is None:
         iter_ids = getattr(store, "iter_artifact_ids", None)
-        if callable(iter_ids):
-            artifact_ids = iter_ids()
-        else:
-            artifact_ids = []
+        artifact_ids = iter_ids() if callable(iter_ids) else []
 
     normalized_ids = tuple(
-        ArtifactID.model_validate(str(artifact_id))
-        for artifact_id in artifact_ids
+        ArtifactID.model_validate(str(artifact_id)) for artifact_id in artifact_ids
     )
     bindings = tuple(
         binding

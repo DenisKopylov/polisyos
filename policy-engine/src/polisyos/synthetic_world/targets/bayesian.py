@@ -1,4 +1,5 @@
 """Bayesian truth targets."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -80,9 +81,7 @@ def reference_posterior_summary(
     cov = np.asarray(covariance, dtype=float)
     payload: dict[str, Any] = {
         "policy": "reference_posterior",
-        "posterior_mean": {
-            name: float(mean[idx]) for idx, name in enumerate(parameter_names)
-        },
+        "posterior_mean": {name: float(mean[idx]) for idx, name in enumerate(parameter_names)},
         "posterior_covariance": cov.tolist(),
     }
     if predictive_mean is not None:

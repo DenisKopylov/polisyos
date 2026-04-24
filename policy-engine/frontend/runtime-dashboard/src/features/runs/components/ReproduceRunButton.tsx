@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { Button } from "@/shared/ui/primitives";
 
 type ReproduceRunButtonProps = {
@@ -21,6 +22,7 @@ export function ReproduceRunButton({
   disabled = false,
   className,
 }: ReproduceRunButtonProps) {
+  const { t } = useI18n();
   const [state, setState] = useState<
     "idle" | "confirming" | "submitting" | "done" | "error"
   >("idle");
@@ -44,10 +46,12 @@ export function ReproduceRunButton({
       setNewRunId(result?.runId ?? null);
       setState("done");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to reproduce run");
+      setError(
+        err instanceof Error ? err.message : t("pages.runs.reproduce.failed"),
+      );
       setState("error");
     }
-  }, [runId, parameters, onReproduce]);
+  }, [runId, parameters, onReproduce, t]);
 
   const handleCancel = useCallback(() => {
     setState("idle");
@@ -59,7 +63,7 @@ export function ReproduceRunButton({
       <div className={cn("flex items-center gap-2 text-sm", className)}>
         <span className="text-[var(--chart-success)]">{"\u2713"}</span>
         <span>
-          Run reproduced
+          {t("pages.runs.reproduce.done")}
           {newRunId && (
             <span className="text-muted ms-1 font-mono">({newRunId})</span>
           )}
@@ -72,8 +76,7 @@ export function ReproduceRunButton({
     return (
       <div className={cn("flex items-center gap-2", className)}>
         <span className="text-sm">
-          Re-run <span className="font-mono">{runId}</span> with same
-          parameters?
+          {t("pages.runs.reproduce.confirmPrompt", { runId })}
         </span>
         <Button
           type="button"
@@ -81,7 +84,9 @@ export function ReproduceRunButton({
           onClick={handleConfirm}
           disabled={state === "submitting"}
         >
-          {state === "submitting" ? "Submitting\u2026" : "Confirm"}
+          {state === "submitting"
+            ? t("pages.runs.reproduce.submitting")
+            : t("common.confirm")}
         </Button>
         <Button
           type="button"
@@ -89,7 +94,7 @@ export function ReproduceRunButton({
           onClick={handleCancel}
           disabled={state === "submitting"}
         >
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
     );
@@ -99,10 +104,10 @@ export function ReproduceRunButton({
     return (
       <div className={cn("flex items-center gap-2", className)}>
         <span className="text-sm text-[var(--chart-alert)]">
-          {error ?? "Failed"}
+          {error ?? t("pages.runs.reproduce.failed")}
         </span>
         <Button type="button" variant="ghost" onClick={handleCancel}>
-          Dismiss
+          {t("common.dismiss")}
         </Button>
       </div>
     );
@@ -116,7 +121,7 @@ export function ReproduceRunButton({
       disabled={disabled}
       className={className}
     >
-      {"\u21BB"} Reproduce run
+      {t("pages.runs.reproduce.action")}
     </Button>
   );
 }

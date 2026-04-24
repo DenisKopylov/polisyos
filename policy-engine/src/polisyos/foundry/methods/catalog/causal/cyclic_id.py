@@ -9,7 +9,8 @@ a generic update function.
 from __future__ import annotations
 
 import dataclasses
-from typing import Any, Callable, Literal
+from collections.abc import Callable
+from typing import Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict
@@ -63,7 +64,9 @@ def _well_posedness_witness(result: WellPosednessResult) -> WellPosednessWitness
         family = "linear_unique"
     else:
         status = WellPosednessStatus.HEURISTIC_BLOCKED
-        family = "contraction" if result.method == "lipschitz_heuristic" else "numerical_fixed_point"
+        family = (
+            "contraction" if result.method == "lipschitz_heuristic" else "numerical_fixed_point"
+        )
     evidence: dict[str, Any] = {
         "well_posed": result.well_posed,
         "method": result.method,
@@ -402,7 +405,9 @@ def well_posedness_check(
     )
 
 
-def _component_for_nodes(sccs: list[frozenset[str]], nodes: frozenset[str]) -> frozenset[str] | None:
+def _component_for_nodes(
+    sccs: list[frozenset[str]], nodes: frozenset[str]
+) -> frozenset[str] | None:
     for comp in sccs:
         if nodes & comp:
             return comp
@@ -473,9 +478,7 @@ def cyclic_id_algorithm(
     )
 
     well_posed = well_posedness_check(graph, scm_spec)
-    trace.append(
-        f"[depth={_depth}] well_posed={well_posed.well_posed} method={well_posed.method}"
-    )
+    trace.append(f"[depth={_depth}] well_posed={well_posed.well_posed} method={well_posed.method}")
     proof_steps.append(
         ProofStep(
             rule_name="CYCLIC_WELL_POSED",
@@ -542,7 +545,9 @@ def cyclic_id_algorithm(
             metadata={"dynamic_semantics": dynamic_semantics.model_dump(mode="json")},
         )
 
-    validated_reduction = dynamic_semantics.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION
+    validated_reduction = (
+        dynamic_semantics.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION
+    )
     if not validated_reduction:
         known_limitations = []
         if not sigma_ok:
@@ -594,7 +599,9 @@ def cyclic_id_algorithm(
         )
 
     representative_outcome = next(iter(sorted(outcome)))
-    representative_treatment = next(iter(sorted(treatment))) if treatment else representative_outcome
+    representative_treatment = (
+        next(iter(sorted(treatment))) if treatment else representative_outcome
+    )
     ast = EstimandAST(
         query_str=f"E[{representative_outcome} | cyclic do({representative_treatment})]",
         root=ExpectationNode(
@@ -608,9 +615,7 @@ def cyclic_id_algorithm(
         outcome=representative_outcome,
         all_variables=tuple(sorted(graph.nodes)),
         identification_method=(
-            "cyclic_id|"
-            f"scc={','.join(sorted(cycle_component))}|"
-            f"solver={well_posed.method}"
+            f"cyclic_id|scc={','.join(sorted(cycle_component))}|solver={well_posed.method}"
         ),
     )
     proof_steps.append(
@@ -638,7 +643,7 @@ def cyclic_id_algorithm(
 __all__ = [
     "WellPosednessResult",
     "build_sigma_connection_graph",
+    "cyclic_id_algorithm",
     "sigma_separation",
     "well_posedness_check",
-    "cyclic_id_algorithm",
 ]

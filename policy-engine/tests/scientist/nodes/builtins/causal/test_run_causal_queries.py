@@ -48,7 +48,9 @@ def test_skip_when_no_scm_ref(execution_context, minimal_state):
     assert any("structural_causal_model_ref" in e.message for e in outcome.events)
 
 
-def test_fail_when_causal_query_payload_invalid(execution_context, minimal_state, artifact_ref_factory):
+def test_fail_when_causal_query_payload_invalid(
+    execution_context, minimal_state, artifact_ref_factory
+):
     """Invalid params.causal_query payload -> fail."""
     ref = artifact_ref_factory(kind="ir.structural_causal_model_spec")
     state = minimal_state.model_copy(deep=True)
@@ -189,5 +191,10 @@ def test_run_causal_queries_uses_branch_state_for_declared_outputs(
     assert outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_RESULT_REF] == query_result_ref
     assert outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_ENVELOPE_REF] == envelope_ref
     assert outcome.state.artifacts_index[ARTIFACT_CAUSAL_ENVELOPE_REF] == envelope_ref
-    assert outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_METHOD_RESULT_REF] == method_result_ref
-    assert outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_METHOD_EVIDENCE_REF] == method_evidence_ref
+    assert (
+        outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_METHOD_RESULT_REF] == method_result_ref
+    )
+    assert (
+        outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_METHOD_EVIDENCE_REF]
+        == method_evidence_ref
+    )

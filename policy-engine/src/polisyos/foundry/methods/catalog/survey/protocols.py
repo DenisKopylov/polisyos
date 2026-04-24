@@ -1,10 +1,18 @@
 """Define survey-calibration contracts for noisy auxiliary totals and weight outputs."""
+
 from __future__ import annotations
 
 from typing import Any, ClassVar, Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 
 from polisyos.ir.observation.bundles import ContractCompatibilityTarget
 from polisyos.ir.refs import ArtifactRefModel, DependenceStructureRef
@@ -30,7 +38,9 @@ def _validate_vector(name: str, value: Any, *, expected_length: int | None = Non
     return arr
 
 
-def _validate_square_matrix(name: str, value: Any, *, expected_size: int | None = None) -> np.ndarray:
+def _validate_square_matrix(
+    name: str, value: Any, *, expected_size: int | None = None
+) -> np.ndarray:
     arr = _to_numpy(value)
     if arr.ndim != 2 or arr.shape[0] != arr.shape[1]:
         raise ValueError(f"{name} must be a square 2D numpy array")
@@ -112,7 +122,7 @@ class AuxiliaryTotalUncertainty(BaseModel):
         return value
 
     @model_validator(mode="after")
-    def _validate_structure(self) -> "AuxiliaryTotalUncertainty":
+    def _validate_structure(self) -> AuxiliaryTotalUncertainty:
         n_targets = len(self.target_names)
         if len(set(self.target_names)) != n_targets:
             raise ValueError("target_names must be unique")
@@ -136,7 +146,9 @@ class AuxiliaryTotalUncertainty(BaseModel):
                 return self
             covariance = self.to_covariance()
             if not np.allclose(covariance, 0.0, atol=_PSD_TOL):
-                raise ValueError("exact uncertainty must omit variance-like fields or set them to zero")
+                raise ValueError(
+                    "exact uncertainty must omit variance-like fields or set them to zero"
+                )
             return self
 
         if representation_count != 1:
@@ -223,7 +235,9 @@ class CalibrationWeights(BaseModel):
     """Carry calibrated weights plus diagnostics for exact or relaxed survey calibration."""
 
     contract_id: ClassVar[str] = "foundry.survey.calibration_weights.v1"
-    contract_fqn: ClassVar[str] = "polisyos.foundry.methods.catalog.survey.protocols.CalibrationWeights"
+    contract_fqn: ClassVar[str] = (
+        "polisyos.foundry.methods.catalog.survey.protocols.CalibrationWeights"
+    )
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
     calibrated_weights: Any
@@ -281,15 +295,19 @@ class CalibrationWeights(BaseModel):
         return value
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "CalibrationWeights":
+    def _validate_shapes(self) -> CalibrationWeights:
         calibrated_weights = _validate_vector("calibrated_weights", self.calibrated_weights)
         design_weights = (
-            _validate_vector("design_weights", self.design_weights, expected_length=calibrated_weights.shape[0])
+            _validate_vector(
+                "design_weights", self.design_weights, expected_length=calibrated_weights.shape[0]
+            )
             if self.design_weights is not None
             else None
         )
         q_weights = (
-            _validate_vector("q_weights", self.q_weights, expected_length=calibrated_weights.shape[0])
+            _validate_vector(
+                "q_weights", self.q_weights, expected_length=calibrated_weights.shape[0]
+            )
             if self.q_weights is not None
             else None
         )
@@ -318,7 +336,9 @@ class CalibrationWeights(BaseModel):
             if x_sample.ndim != 2:
                 raise ValueError("x_sample must be a 2D numpy array")
             if x_sample.shape != (calibrated_weights.shape[0], lambda_.shape[0]):
-                raise ValueError("x_sample shape must match calibrated_weights x lambda_ dimensions")
+                raise ValueError(
+                    "x_sample shape must match calibrated_weights x lambda_ dimensions"
+                )
         if self.sample_aux_error_cov is not None:
             sample_aux = _validate_square_matrix(
                 "sample_aux_error_cov",
@@ -365,8 +385,8 @@ class SAEResult(BaseModel):
 
 __all__ = [
     "AUXILIARY_TOTAL_UNCERTAINTY_TARGET",
-    "SAEResult",
-    "AuxiliaryTotalUncertainty",
     "CALIBRATION_WEIGHTS_TARGET",
+    "AuxiliaryTotalUncertainty",
     "CalibrationWeights",
+    "SAEResult",
 ]

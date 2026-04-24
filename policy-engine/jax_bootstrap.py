@@ -7,6 +7,7 @@ crashes in our environment with: `UNIMPLEMENTED: default_memory_space is not sup
 
 This module applies safe defaults (CPU on macOS) unless explicitly overridden.
 """
+
 from __future__ import annotations
 
 import sys

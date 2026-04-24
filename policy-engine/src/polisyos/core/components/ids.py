@@ -1,4 +1,5 @@
 """Define component ID and semver contracts used by plugin registries."""
+
 from __future__ import annotations
 
 import re
@@ -25,6 +26,7 @@ _COMPONENT_ID_RE = re.compile(
 @dataclass(frozen=True, slots=True)
 class SemVer:
     """Represent a SemVer value with precedence rules used by component resolution."""
+
     major: int
     minor: int
     patch: int
@@ -32,15 +34,13 @@ class SemVer:
     build: tuple[str, ...] = ()
 
     @classmethod
-    def parse(cls, value: str) -> "SemVer":
+    def parse(cls, value: str) -> SemVer:
         """Parse a semantic version and validate prerelease/build syntax."""
         match = _SEMVER_RE.fullmatch(value.strip())
         if match is None:
             raise ValueError(f"Invalid semver: {value!r}")
 
-        prerelease = tuple(
-            token for token in (match.group("prerelease") or "").split(".") if token
-        )
+        prerelease = tuple(token for token in (match.group("prerelease") or "").split(".") if token)
         build = tuple(token for token in (match.group("build") or "").split(".") if token)
 
         for token in prerelease:
@@ -82,7 +82,7 @@ class SemVer:
             and self.build == other.build
         )
 
-    def without_build(self) -> "SemVer":
+    def without_build(self) -> SemVer:
         """Return the same version without build metadata for precedence/range checks."""
         return SemVer(
             major=self.major,
@@ -127,11 +127,12 @@ def _compare_prerelease(left: tuple[str, ...], right: tuple[str, ...]) -> int:
 @dataclass(frozen=True, slots=True)
 class SemverRange:
     """Represent a supported component version constraint expression."""
+
     raw: str
     clauses: tuple[tuple[str, SemVer], ...]
 
     @classmethod
-    def parse(cls, value: str) -> "SemverRange":
+    def parse(cls, value: str) -> SemverRange:
         """Parse exact, wildcard, or comparator-based version constraints."""
         raw = value.strip()
         if not raw:
@@ -221,7 +222,7 @@ class ComponentId(RootModel[str]):
         return value
 
     @classmethod
-    def parse(cls, value: str) -> "ComponentId":
+    def parse(cls, value: str) -> ComponentId:
         """Parse a component identifier string into the normalized root model."""
         return cls(value)
 

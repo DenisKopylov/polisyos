@@ -1,4 +1,5 @@
 """Tests for multiclass calibration diagnostics."""
+
 from __future__ import annotations
 
 import pytest
@@ -8,10 +9,7 @@ from polisyos.calibration import evaluate_multiclass
 
 def test_evaluate_multiclass_returns_top_label_and_classwise_metrics() -> None:
     y_true = [0, 1, 2] * 30
-    y_prob = (
-        [[0.72, 0.18, 0.10], [0.12, 0.70, 0.18], [0.10, 0.22, 0.68]]
-        * 30
-    )
+    y_prob = [[0.72, 0.18, 0.10], [0.12, 0.70, 0.18], [0.10, 0.22, 0.68]] * 30
     groups = {"region": ["north", "south", "east"] * 30}
 
     report = evaluate_multiclass(

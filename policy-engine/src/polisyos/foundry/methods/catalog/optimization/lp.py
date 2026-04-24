@@ -1,8 +1,10 @@
 """Public optimization lp module API."""
+
 from __future__ import annotations
 
 import time
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -36,7 +38,7 @@ from .protocols import (
 
 def _check_ortools_available() -> bool:
     try:
-        from ortools.linear_solver import pywraplp  # noqa: F401
+        from ortools.linear_solver import pywraplp
 
         return True
     except Exception:
@@ -45,7 +47,7 @@ def _check_ortools_available() -> bool:
 
 def _check_scipy_available() -> bool:
     try:
-        from scipy.optimize import linprog  # noqa: F401
+        from scipy.optimize import linprog
 
         return True
     except Exception:
@@ -99,7 +101,7 @@ class ResourceLP:
                     name="solver_info",
                     slot_type=SlotType.SCALAR,
                     unit=Unit("solver", "json"),
-                )
+                ),
             }
         ),
         parameters=(
@@ -407,5 +409,6 @@ class ResourceLP:
                 "wall_time_ms": int(getattr(solver, "wall_time", lambda: 0)()),
             },
         )
+
 
 __all__ = ["ResourceLP"]

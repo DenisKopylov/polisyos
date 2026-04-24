@@ -1,4 +1,5 @@
 """HTTP response helpers for cacheability, versioning, and lightweight link relations."""
+
 from __future__ import annotations
 
 import os
@@ -51,7 +52,7 @@ def format_http_date(value: datetime) -> str:
 def build_artifact_etag(*parts: str) -> str:
     """Build a stable weak ETag token from immutable artifact metadata."""
     token = "-".join(part.strip() for part in parts if part.strip())
-    return f"W/\"{token}\""
+    return f'W/"{token}"'
 
 
 def set_versioning_headers(
@@ -90,24 +91,24 @@ def set_immutable_resource_headers(
 def add_artifact_link_relations(response: Response, *, artifact_id: str) -> None:
     """Attach lightweight discovery links for artifact-related endpoints."""
     base = f"/api/v1/artifacts/{artifact_id}"
-    _append_link_header(response, f"<{base}>; rel=\"self\"")
-    _append_link_header(response, f"<{base}/content>; rel=\"preview\"")
-    _append_link_header(response, f"<{base}/download>; rel=\"download\"")
-    _append_link_header(response, f"<{base}/schema>; rel=\"describedby\"")
-    _append_link_header(response, f"<{base}/lineage>; rel=\"related\"")
+    _append_link_header(response, f'<{base}>; rel="self"')
+    _append_link_header(response, f'<{base}/content>; rel="preview"')
+    _append_link_header(response, f'<{base}/download>; rel="download"')
+    _append_link_header(response, f'<{base}/schema>; rel="describedby"')
+    _append_link_header(response, f'<{base}/lineage>; rel="related"')
 
 
 def add_run_link_relations(response: Response, *, run_id: str) -> None:
     """Attach lightweight discovery links for run-related endpoints."""
     base = f"/api/v1/runs/{run_id}"
-    _append_link_header(response, "</api/v1/runs>; rel=\"collection\"")
-    _append_link_header(response, f"<{base}>; rel=\"self\"")
-    _append_link_header(response, f"<{base}/timeline>; rel=\"related\"")
-    _append_link_header(response, f"<{base}/nodes>; rel=\"related\"")
-    _append_link_header(response, f"<{base}/lineage>; rel=\"related\"")
-    _append_link_header(response, f"<{base}/agents>; rel=\"related\"")
-    _append_link_header(response, f"<{base}/evidence-context>; rel=\"describedby\"")
-    _append_link_header(response, f"<{base}/workflow>; rel=\"related\"")
+    _append_link_header(response, '</api/v1/runs>; rel="collection"')
+    _append_link_header(response, f'<{base}>; rel="self"')
+    _append_link_header(response, f'<{base}/timeline>; rel="related"')
+    _append_link_header(response, f'<{base}/nodes>; rel="related"')
+    _append_link_header(response, f'<{base}/lineage>; rel="related"')
+    _append_link_header(response, f'<{base}/agents>; rel="related"')
+    _append_link_header(response, f'<{base}/evidence-context>; rel="describedby"')
+    _append_link_header(response, f'<{base}/workflow>; rel="related"')
 
 
 def build_not_modified_response(
@@ -117,9 +118,7 @@ def build_not_modified_response(
     last_modified: datetime,
 ) -> Response | None:
     """Return a 304 response when conditional request headers already match."""
-    if_none_match = getattr(request_headers, "get", lambda *_args, **_kwargs: None)(
-        "if-none-match"
-    )
+    if_none_match = getattr(request_headers, "get", lambda *_args, **_kwargs: None)("if-none-match")
     if isinstance(if_none_match, str) and _etag_matches(if_none_match, etag):
         response = Response(status_code=304)
         set_immutable_resource_headers(response, etag=etag, last_modified=last_modified)

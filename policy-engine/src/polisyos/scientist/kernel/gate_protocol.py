@@ -1,9 +1,11 @@
 """Public kernel gate protocol module API."""
+
 from __future__ import annotations
 
 try:
     from opentelemetry import trace
 except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
+
     class _NoopSpanContext:
         is_valid = False
         trace_id = 0

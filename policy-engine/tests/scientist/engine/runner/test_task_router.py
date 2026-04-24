@@ -24,8 +24,11 @@ from polisyos.scientist.engine.runner.worker_pool import (
 def _make_task(gpu: bool = False, *, priority: int = 0, queue_weight: float = 1.0) -> NodeTask:
     req = ResourceRequirements(gpu=gpu) if gpu else None
     return NodeTask(
-        node_id="n", alias="a", params={},
-        state_bytes=b"{}", trace_carrier={},
+        node_id="n",
+        alias="a",
+        params={},
+        state_bytes=b"{}",
+        trace_carrier={},
         resource_requirements=req,
         priority=priority,
         queue_weight=queue_weight,
@@ -36,8 +39,10 @@ def _mock_pool(idle: int = 4, total: int = 8, active: int = 4, queue: int = 0) -
     pool = AsyncMock()
     pool.current_capacity = AsyncMock(
         return_value=PoolCapacity(
-            total_workers=total, idle_workers=idle,
-            active_tasks=active, queue_depth=queue,
+            total_workers=total,
+            idle_workers=idle,
+            active_tasks=active,
+            queue_depth=queue,
         )
     )
     pool.submit = AsyncMock(return_value=AsyncMock())
@@ -79,10 +84,7 @@ class TestRoundRobinStrategy:
             "a": PoolCapacity(total_workers=4, idle_workers=2, active_tasks=2, queue_depth=0),
             "b": PoolCapacity(total_workers=4, idle_workers=2, active_tasks=2, queue_depth=0),
         }
-        results = [
-            asyncio.run(strategy.select_pool(_make_task(), caps))
-            for _ in range(4)
-        ]
+        results = [asyncio.run(strategy.select_pool(_make_task(), caps)) for _ in range(4)]
         assert results.count("a") == 2
         assert results.count("b") == 2
 
@@ -105,9 +107,7 @@ class TestWeightedQueueStrategy:
             "cpu_a": PoolCapacity(total_workers=8, idle_workers=2, active_tasks=6, queue_depth=8),
             "cpu_b": PoolCapacity(total_workers=8, idle_workers=1, active_tasks=7, queue_depth=1),
         }
-        result = asyncio.run(
-            strategy.select_pool(_make_task(priority=5, queue_weight=3.0), caps)
-        )
+        result = asyncio.run(strategy.select_pool(_make_task(priority=5, queue_weight=3.0), caps))
         assert result == "cpu_b"
 
 

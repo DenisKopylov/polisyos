@@ -5,10 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.batch.resolve_finalize import (
     _curated_numeric_rows,
     _jsonl_write,
@@ -19,12 +17,17 @@ from polisyos.academic.batch.resolve_finalize import (
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.ir.analytics.literature import ArticleExtractionResult, ParameterType
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.academic.batch.config import AcademicBatchConfig
+
 
 def _load_final_results(path: Path) -> list[ArticleExtractionResult]:
     rows: list[ArticleExtractionResult] = []
     if not path.exists():
         return rows
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -37,7 +40,7 @@ def _load_context_profiles(path: Path) -> dict[str, dict[str, Any]]:
     profiles: dict[str, dict[str, Any]] = {}
     if not path.exists():
         return profiles
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -51,7 +54,9 @@ def _load_context_profiles(path: Path) -> dict[str, dict[str, Any]]:
     return profiles
 
 
-def _raw_numeric_rows(result: ArticleExtractionResult, source_context: dict[str, Any]) -> list[dict[str, Any]]:
+def _raw_numeric_rows(
+    result: ArticleExtractionResult, source_context: dict[str, Any]
+) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for parameter in result.empirical_parameters:
         if parameter.parameter_type != ParameterType.QUANTITATIVE:
@@ -60,15 +65,20 @@ def _raw_numeric_rows(result: ArticleExtractionResult, source_context: dict[str,
         rows.append(
             {
                 "numeric_id": hashlib.sha256(
-                    f"raw|{result.openalex_id}|{parameter.name}|{point_estimate}|{parameter.unit or ''}".encode("utf-8")
+                    f"raw|{result.openalex_id}|{parameter.name}|{point_estimate}|{parameter.unit or ''}".encode()
                 ).hexdigest()[:24],
                 "openalex_id": result.openalex_id,
                 "canonical_name": parameter.name,
                 "display_name": parameter.display_name or parameter.name,
-                "estimate_type": estimate_source or ("range_only" if parameter.value_range is not None else "raw_value"),
+                "estimate_type": estimate_source
+                or ("range_only" if parameter.value_range is not None else "raw_value"),
                 "point_estimate": point_estimate,
-                "value_range": list(parameter.value_range) if parameter.value_range is not None else None,
-                "confidence_interval": list(parameter.confidence_interval) if parameter.confidence_interval else None,
+                "value_range": list(parameter.value_range)
+                if parameter.value_range is not None
+                else None,
+                "confidence_interval": list(parameter.confidence_interval)
+                if parameter.confidence_interval
+                else None,
                 "std_error": parameter.std_error,
                 "unit": parameter.unit,
                 "evidence_strength": parameter.evidence_strength.value,
@@ -77,6 +87,7 @@ def _raw_numeric_rows(result: ArticleExtractionResult, source_context: dict[str,
             }
         )
     return rows
+
 
 def run_numeric_extract(config: AcademicBatchConfig) -> dict[str, int]:
     """Run numeric extract."""
@@ -88,7 +99,12 @@ def run_numeric_extract(config: AcademicBatchConfig) -> dict[str, int]:
             manifest_path=config.manifests_dir / "numeric_extract.json",
             stage="numeric_extract",
             status="ok",
-            metrics={"works_seen": 0, "raw_numeric": 0, "curated_numeric": 0, "simulation_ready": 0},
+            metrics={
+                "works_seen": 0,
+                "raw_numeric": 0,
+                "curated_numeric": 0,
+                "simulation_ready": 0,
+            },
             artifacts=[],
             started_at=started_at,
         )

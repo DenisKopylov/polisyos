@@ -113,7 +113,11 @@ def is_calendar_year_token(value_text: str, *, surrounding_text: str = "") -> bo
         return True
     if not compact:
         return False
-    return bool(_MONTH_NAME_RE.search(compact) or _DATE_NUMERIC_RE.search(compact) or _YEAR_REF_RE.search(compact))
+    return bool(
+        _MONTH_NAME_RE.search(compact)
+        or _DATE_NUMERIC_RE.search(compact)
+        or _YEAR_REF_RE.search(compact)
+    )
 
 
 def is_low_quality_entity_text(text: str) -> bool:
@@ -138,7 +142,7 @@ def is_low_quality_entity_text(text: str) -> bool:
         return True
     if re.match(r"^(у|на|при|для|щодо|від|за)\b", lower) and token_count > 5:
         return True
-    if compact[0] in {"(", "[", "\"", "'", "«"} and len(compact) >= 12:
+    if compact[0] in {"(", "[", '"', "'", "«"} and len(compact) >= 12:
         return True
     if _LOW_QUALITY_ENTITY_RE.search(compact):
         return True
@@ -148,9 +152,7 @@ def is_low_quality_entity_text(text: str) -> bool:
         return True
     if compact.count(".") >= 2 and token_count > 10:
         return True
-    if _SENTENCE_VERB_RE.search(compact) and token_count > 8:
-        return True
-    return False
+    return bool(_SENTENCE_VERB_RE.search(compact) and token_count > 8)
 
 
 def has_explicit_modal_signal(text: str) -> bool:

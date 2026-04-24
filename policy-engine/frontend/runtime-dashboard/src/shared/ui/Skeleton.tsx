@@ -49,10 +49,7 @@ export function SkeletonText({
 export function SkeletonChart({ className }: { className?: string }) {
   return (
     <div
-      className={cn(
-        "border-border bg-card rounded-xl border p-4",
-        className,
-      )}
+      className={cn("border-border bg-card rounded-xl border p-4", className)}
       aria-hidden="true"
       data-testid="skeleton-chart"
     >
@@ -110,14 +107,14 @@ export function SkeletonTable({
     >
       <div className="border-border flex gap-3 border-b p-3">
         {Array.from({ length: cols }, (_, i) => (
-          <SkeletonBlock
-            key={i}
-            className="h-4 flex-1"
-          />
+          <SkeletonBlock key={i} className="h-4 flex-1" />
         ))}
       </div>
       {Array.from({ length: rows }, (_, r) => (
-        <div key={r} className="border-border flex gap-3 border-b p-3 last:border-0">
+        <div
+          key={r}
+          className="border-border flex gap-3 border-b p-3 last:border-0"
+        >
           {Array.from({ length: cols }, (_, c) => (
             <SkeletonBlock
               key={c}

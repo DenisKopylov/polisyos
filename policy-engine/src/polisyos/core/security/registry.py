@@ -1,4 +1,5 @@
 """Tenant-to-cell in-memory registry."""
+
 from __future__ import annotations
 
 import json
@@ -14,6 +15,7 @@ from polisyos.core.security.exceptions import CellCapacityError, TenantNotFoundE
 
 class CellResolution(BaseModel):
     """Return the tenant-to-cell placement and routing namespace for one tenant."""
+
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     tenant_id: str
@@ -130,9 +132,13 @@ class CellRegistry:
     def list_tenants_in_cell(self, cell_id: str) -> list[str]:
         """List tenant ids currently assigned to one cell."""
         with self._lock:
-            return sorted(assignment.tenant_id for assignment in self._assignments.find("cell_id", cell_id))
+            return sorted(
+                assignment.tenant_id for assignment in self._assignments.find("cell_id", cell_id)
+            )
 
-    def replace_snapshot(self, *, cells: list[CellSpec], tenants: list[tuple[TenantSpec, str]]) -> None:
+    def replace_snapshot(
+        self, *, cells: list[CellSpec], tenants: list[tuple[TenantSpec, str]]
+    ) -> None:
         """Atomically replace the in-memory registry from a validated snapshot."""
         with self._lock:
             self._cells.clear()

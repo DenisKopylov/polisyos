@@ -7,11 +7,10 @@ import argparse
 import asyncio
 import contextlib
 import json
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from datetime import UTC, datetime
 from io import TextIOWrapper
 from pathlib import Path
-from typing import Iterator
 
 import zstandard as zstd
 
@@ -79,9 +78,13 @@ def _iter_documents_from_manifest(
             try:
                 payload = json.loads(stripped)
             except json.JSONDecodeError as exc:
-                raise ValueError(f"invalid JSON in manifest {manifest_path} at line {line_number}") from exc
+                raise ValueError(
+                    f"invalid JSON in manifest {manifest_path} at line {line_number}"
+                ) from exc
             if not isinstance(payload, dict):
-                raise ValueError(f"manifest {manifest_path} line {line_number} must be a JSON object")
+                raise ValueError(
+                    f"manifest {manifest_path} line {line_number} must be a JSON object"
+                )
             card = _card_from_payload(payload)
 
             if status_filter and card.status not in status_filter:
@@ -139,7 +142,9 @@ def _patched_iter_documents(manifest_path: Path) -> Iterator[None]:
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--manifest", type=Path, required=True, help="Path to pre-sharded JSONL(.ZST) manifest")
+    parser.add_argument(
+        "--manifest", type=Path, required=True, help="Path to pre-sharded JSONL(.ZST) manifest"
+    )
     parser.add_argument("--output-dir", type=Path, required=True, help="Pipeline output directory")
     parser.add_argument(
         "--cards-placeholder",
@@ -217,8 +222,12 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.set_defaults(spo_adaptive_batch_downshift_enabled=True)
     parser.add_argument("--spo-adaptive-batch-soft-chars-share", type=float, default=0.80)
     parser.add_argument("--spo-group-timeout-seconds", type=float, default=None)
-    parser.add_argument("--spo-timeout-retry-enabled", dest="spo_timeout_retry_enabled", action="store_true")
-    parser.add_argument("--no-spo-timeout-retry-enabled", dest="spo_timeout_retry_enabled", action="store_false")
+    parser.add_argument(
+        "--spo-timeout-retry-enabled", dest="spo_timeout_retry_enabled", action="store_true"
+    )
+    parser.add_argument(
+        "--no-spo-timeout-retry-enabled", dest="spo_timeout_retry_enabled", action="store_false"
+    )
     parser.set_defaults(spo_timeout_retry_enabled=True)
     parser.add_argument("--spo-timeout-retry-batch-size", type=int, default=1)
     parser.add_argument("--spo-timeout-retry-chars", type=int, default=3000)
@@ -227,9 +236,15 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--spo-retryable-followup-worker-scale", type=float, default=0.5)
     parser.add_argument("--spo-retryable-followup-dispatch-rps-scale", type=float, default=0.5)
     parser.add_argument("--spo-retryable-followup-client-rate-scale", type=float, default=0.5)
-    parser.add_argument("--spo-retryable-followup-client-concurrency-scale", type=float, default=0.5)
-    parser.add_argument("--spo-request-log-enabled", dest="spo_request_log_enabled", action="store_true")
-    parser.add_argument("--no-spo-request-log-enabled", dest="spo_request_log_enabled", action="store_false")
+    parser.add_argument(
+        "--spo-retryable-followup-client-concurrency-scale", type=float, default=0.5
+    )
+    parser.add_argument(
+        "--spo-request-log-enabled", dest="spo_request_log_enabled", action="store_true"
+    )
+    parser.add_argument(
+        "--no-spo-request-log-enabled", dest="spo_request_log_enabled", action="store_false"
+    )
     parser.set_defaults(spo_request_log_enabled=True)
     parser.add_argument("--spo-extract-mode", choices=("light", "full"), default="light")
     parser.add_argument("--no-spo-skip-trivial", action="store_true")
@@ -239,7 +254,9 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--llm-gate-enabled", dest="llm_gate_enabled", action="store_true")
     parser.add_argument("--no-llm-gate-enabled", dest="llm_gate_enabled", action="store_false")
     parser.set_defaults(llm_gate_enabled=True)
-    parser.add_argument("--llm-gate-mode", choices=("off", "balanced", "aggressive"), default="balanced")
+    parser.add_argument(
+        "--llm-gate-mode", choices=("off", "balanced", "aggressive"), default="balanced"
+    )
     parser.add_argument("--llm-gate-threshold", type=float, default=0.55)
     parser.add_argument("--llm-gate-max-share", type=float, default=0.35)
     parser.add_argument("--llm-gate-audit-sample-rate", type=float, default=0.02)
@@ -248,8 +265,12 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--llm-gap-fill-max-share", type=float, default=0.80)
 
     parser.add_argument("--jurisdiction", default="UA")
-    parser.add_argument("--pattern-feedback-enabled", dest="pattern_feedback_enabled", action="store_true")
-    parser.add_argument("--no-pattern-feedback-enabled", dest="pattern_feedback_enabled", action="store_false")
+    parser.add_argument(
+        "--pattern-feedback-enabled", dest="pattern_feedback_enabled", action="store_true"
+    )
+    parser.add_argument(
+        "--no-pattern-feedback-enabled", dest="pattern_feedback_enabled", action="store_false"
+    )
     parser.set_defaults(pattern_feedback_enabled=True)
     parser.add_argument("--extract-references", dest="extract_references", action="store_true")
     parser.add_argument("--no-extract-references", dest="extract_references", action="store_false")
@@ -271,8 +292,10 @@ def _build_parser() -> argparse.ArgumentParser:
 def _build_config(args: argparse.Namespace) -> BatchConfig:
     cards_placeholder = args.cards_placeholder or args.manifest
     texts_placeholder = args.texts_placeholder or args.manifest
-    stages = ALL_STAGES if args.stages == "all" else frozenset(
-        stage.strip() for stage in args.stages.split(",") if stage.strip()
+    stages = (
+        ALL_STAGES
+        if args.stages == "all"
+        else frozenset(stage.strip() for stage in args.stages.split(",") if stage.strip())
     )
     return BatchConfig(
         cards_path=cards_placeholder,
@@ -364,7 +387,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.clean_output and args.shard_count > 1 and args.shard_index != 0:
         raise ValueError("In sharded mode use --clean-output only on --shard-index 0.")
     if args.clean_output:
-        _clean_lex_output(args.output_dir, shard_count=args.shard_count, shard_index=args.shard_index)
+        _clean_lex_output(
+            args.output_dir, shard_count=args.shard_count, shard_index=args.shard_index
+        )
 
     config = _build_config(args)
     started_at = datetime.now(UTC).isoformat()

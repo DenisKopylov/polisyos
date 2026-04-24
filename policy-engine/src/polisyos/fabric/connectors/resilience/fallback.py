@@ -7,6 +7,7 @@ Implements fallback patterns when primary operations fail:
 - RaiseFallback: Propagate error (default behavior)
 - FallbackChain: Chain multiple strategies
 """
+
 from __future__ import annotations
 
 from abc import abstractmethod
@@ -90,13 +91,10 @@ def _raise_with_fallback_diagnostics(
     *,
     cause: Exception | None = None,
 ) -> None:
-    setattr(primary_error, "fallback_errors", tuple(fallback_errors))
-    note = (
-        "Fallback failures: "
-        + ", ".join(
-            f"{item['strategy']}[{item['error_type']}]: {item['error_message']}"
-            for item in fallback_errors
-        )
+    primary_error.fallback_errors = tuple(fallback_errors)
+    note = "Fallback failures: " + ", ".join(
+        f"{item['strategy']}[{item['error_type']}]: {item['error_message']}"
+        for item in fallback_errors
     )
     if hasattr(primary_error, "add_note"):
         primary_error.add_note(note)
@@ -116,8 +114,7 @@ class FallbackStrategy[DataT](Protocol):
         func: Callable[..., Awaitable[DataT]],
         *args: Any,
         **kwargs: Any,
-    ) -> DataT | None:
-        ...
+    ) -> DataT | None: ...
 
 
 class RaiseFallback[DataT]:
@@ -168,18 +165,18 @@ class MockFallback[DataT]:
                 "DataT",
                 _annotate_fallback(
                     FetchResult(
-                    data=[],
-                    row_count=0,
-                    schema_id="mock",
-                    schema_version="1.0.0",
-                    version=DataVersion(
-                        strategy=VersionStrategy.TIMESTAMP,
-                        value="mock",
-                        timestamp=_utc_now(),
+                        data=[],
+                        row_count=0,
+                        schema_id="mock",
+                        schema_version="1.0.0",
+                        version=DataVersion(
+                            strategy=VersionStrategy.TIMESTAMP,
+                            value="mock",
+                            timestamp=_utc_now(),
+                        ),
+                        fetched_at=_utc_now(),
+                        completeness=0.0,
                     ),
-                    fetched_at=_utc_now(),
-                    completeness=0.0,
-                ),
                     type(self).__name__,
                 ),
             )
@@ -374,9 +371,7 @@ class FallbackChain[DataT]:
                                 error_type=type(fallback_error).__name__,
                             )
 
-                            strategy_span.set_status(
-                                Status(StatusCode.ERROR, str(fallback_error))
-                            )
+                            strategy_span.set_status(Status(StatusCode.ERROR, str(fallback_error)))
                             strategy_span.record_exception(fallback_error)
                             fallback_errors.append(
                                 _fallback_diagnostic(strategy_name, fallback_error)
@@ -388,9 +383,7 @@ class FallbackChain[DataT]:
                     strategy_count=len(self.strategies),
                 )
 
-                parent_span.set_status(
-                    Status(StatusCode.ERROR, "All fallbacks exhausted")
-                )
+                parent_span.set_status(Status(StatusCode.ERROR, "All fallbacks exhausted"))
                 if fallback_errors:
                     _raise_with_fallback_diagnostics(
                         primary_error,

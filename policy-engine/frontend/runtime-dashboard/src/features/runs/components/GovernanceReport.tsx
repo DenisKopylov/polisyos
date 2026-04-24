@@ -234,7 +234,9 @@ export default function GovernanceReport({ data }: GovernanceReportProps) {
                   </div>
                   {issue.durationMs !== null ? (
                     <span className="text-muted text-xs">
-                      {formatNumber(issue.durationMs)} ms
+                      {t("panels.governance.durationMs", {
+                        duration: formatNumber(issue.durationMs),
+                      })}
                     </span>
                   ) : null}
                 </div>

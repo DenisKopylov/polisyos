@@ -1,4 +1,5 @@
 """Typed runtime container and lifecycle helpers for the HTTP API surface."""
+
 from __future__ import annotations
 
 import inspect
@@ -155,9 +156,7 @@ class RuntimeServiceContainer:
             runtime_idempotency_store=(
                 overrides.runtime_idempotency_store or runtime_idempotency_store
             ),
-            runtime_mutation_audit=(
-                overrides.runtime_mutation_audit or runtime_mutation_audit
-            ),
+            runtime_mutation_audit=(overrides.runtime_mutation_audit or runtime_mutation_audit),
             runtime_review_opa_guard=(
                 overrides.runtime_review_opa_guard or build_runtime_opa_async_guard()
             ),
@@ -293,7 +292,11 @@ def resolve_control_service(subject: Any) -> ControlPlaneService | None:
     container = get_runtime_container(subject)
     if container is None:
         return None
-    return container.control_service if isinstance(container.control_service, ControlPlaneService) else None
+    return (
+        container.control_service
+        if isinstance(container.control_service, ControlPlaneService)
+        else None
+    )
 
 
 def resolve_review_collaboration_hub(subject: Any) -> ReviewCollaborationHub | None:

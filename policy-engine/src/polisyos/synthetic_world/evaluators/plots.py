@@ -1,7 +1,9 @@
 """Serializable plot specs for synthetic-world diagnostics."""
+
 from __future__ import annotations
 
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 import numpy as np
 
@@ -49,4 +51,3 @@ def build_plot_specs(
 
 
 __all__ = ["build_plot_specs"]
-

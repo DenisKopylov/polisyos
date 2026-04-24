@@ -65,10 +65,7 @@ class FallbackWorkflowRunner:
     async def health_check(self) -> RunnerHealth:
         """Probe the primary runner, caching the result for ``health_ttl_s``."""
         now = time.monotonic()
-        if (
-            self._last_health is not None
-            and (now - self._last_health_at) < self._health_ttl_s
-        ):
+        if self._last_health is not None and (now - self._last_health_at) < self._health_ttl_s:
             return self._last_health
 
         health = await self._primary.health_check()
@@ -93,7 +90,10 @@ class FallbackWorkflowRunner:
         if health.healthy:
             try:
                 return await self._primary.execute_workflow(
-                    workflow, state, ctx, registry,
+                    workflow,
+                    state,
+                    ctx,
+                    registry,
                     checkpoint_hook=checkpoint_hook,
                     checkpoint_cache_seed_refs=checkpoint_cache_seed_refs,
                     max_parallelism=max_parallelism,
@@ -130,7 +130,10 @@ class FallbackWorkflowRunner:
             self._last_health = None
 
         return await self._fallback.execute_workflow(
-            workflow, state, ctx, registry,
+            workflow,
+            state,
+            ctx,
+            registry,
             checkpoint_hook=checkpoint_hook,
             checkpoint_cache_seed_refs=checkpoint_cache_seed_refs,
             max_parallelism=max_parallelism,

@@ -10,8 +10,9 @@ import json
 import os
 import platform
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from benchmarks.comparators.stack import (
     OPTIONAL_LEGACY_COMPARATORS,
@@ -111,12 +112,14 @@ def build_preflight(
         "run_id": run_id or os.environ.get("BENCH_RUN_ID"),
         "mode": mode,
         "benchmark_tier": benchmark_tier or os.environ.get("BENCH_TIER", "local_evidence"),
-        "validation_contour": validation_contour or os.environ.get("BENCH_VALIDATION_CONTOUR", "legacy"),
+        "validation_contour": validation_contour
+        or os.environ.get("BENCH_VALIDATION_CONTOUR", "legacy"),
         "visibility": visibility or os.environ.get("BENCH_VISIBILITY", "public"),
         "data_source": data_source,
         "dataset_family": dataset_family,
         "batch_id": batch_id,
-        "estimator_profile": estimator_profile or os.environ.get("BENCH_ESTIMATOR_PROFILE", "default"),
+        "estimator_profile": estimator_profile
+        or os.environ.get("BENCH_ESTIMATOR_PROFILE", "default"),
         "comparator_profile": comparator_profile or os.environ.get("BENCH_COMPARATOR_PROFILE"),
         "required_comparators": list(required_comparators or []),
         "dependency_status": dependency_status or {},
@@ -129,11 +132,7 @@ def build_preflight(
         "data_manifest_hash": _detect_data_manifest_hash(),
     }
     preflight["run_config_hash"] = _stable_hash(
-        {
-            key: value
-            for key, value in preflight.items()
-            if key != "run_config_hash"
-        }
+        {key: value for key, value in preflight.items() if key != "run_config_hash"}
     )
     return preflight
 
@@ -190,7 +189,11 @@ def build_report_payload(
     counts = summarize_report_outcomes(report)
     cases: list[dict[str, Any]] = []
     for case in report.cases:
-        raw_status = str(case.verdict.value if hasattr(case.verdict, "value") else case.verdict).strip().lower()
+        raw_status = (
+            str(case.verdict.value if hasattr(case.verdict, "value") else case.verdict)
+            .strip()
+            .lower()
+        )
         if getattr(case, "runtime_budget_exceeded", False) and raw_status == "pass":
             status = "over_budget"
         else:
@@ -248,7 +251,9 @@ def build_report_payload(
         "dependency_status": dataclasses_to_dict(preflight.get("dependency_status", {})),
         "comparator_status": dataclasses_to_dict(preflight.get("comparator_status", {})),
         "degraded_reasons": list(preflight.get("degraded_reasons", [])),
-        "dataset_family": dataset_family if dataset_family is not None else preflight.get("dataset_family"),
+        "dataset_family": dataset_family
+        if dataset_family is not None
+        else preflight.get("dataset_family"),
         "batch_id": batch_id if batch_id is not None else preflight.get("batch_id"),
         "n_total": counts["n_total"],
         "n_passed": counts["n_passed"],
@@ -260,12 +265,16 @@ def build_report_payload(
         "overall_status": str(overall_status or suite_overall_status_from_counts(counts)),
         "scores": dataclasses_to_dict(report.circuit_scores),
         "cases": cases,
-        "blockers": list(blockers) if blockers is not None else [case.name for case in report.blocker_cases()],
+        "blockers": list(blockers)
+        if blockers is not None
+        else [case.name for case in report.blocker_cases()],
         "preflight": preflight,
         "aggregate_metrics": dataclasses_to_dict(aggregate_metrics or {}),
         "standardized_metrics": dataclasses_to_dict(standardized_metrics or {}),
         "method_groups": dataclasses_to_dict(method_groups or {}),
-        "method_manifest": dataclasses_to_dict(method_manifest if method_manifest is not None else (method_groups or {})),
+        "method_manifest": dataclasses_to_dict(
+            method_manifest if method_manifest is not None else (method_groups or {})
+        ),
         "gate_method_set": list(gate_method_set or []),
         "flagship_presence": dataclasses_to_dict(flagship_presence or {}),
         "exploratory_methods": list(exploratory_methods or []),
@@ -393,7 +402,9 @@ def validate_publication_payload(payload: dict[str, Any]) -> list[str]:
     if suite_id == "temporal_hidden":
         aggregate = payload.get("aggregate_metrics", {})
         if payload.get("baseline_snapshot_ref") != "temporal_hidden@synthetic-v1":
-            errors.append("temporal_hidden requires baseline_snapshot_ref=temporal_hidden@synthetic-v1")
+            errors.append(
+                "temporal_hidden requires baseline_snapshot_ref=temporal_hidden@synthetic-v1"
+            )
         regression_guard = payload.get("regression_guard")
         if not isinstance(regression_guard, dict) or not regression_guard:
             errors.append("temporal_hidden requires non-empty regression_guard")
@@ -473,7 +484,9 @@ def _environment_metadata() -> dict[str, Any]:
 
 
 def _benchmark_env_spec() -> str | None:
-    spec_path = Path(__file__).resolve().parent / "comparators" / "research_acceptance_environment.yml"
+    spec_path = (
+        Path(__file__).resolve().parent / "comparators" / "research_acceptance_environment.yml"
+    )
     return str(spec_path) if spec_path.exists() else None
 
 

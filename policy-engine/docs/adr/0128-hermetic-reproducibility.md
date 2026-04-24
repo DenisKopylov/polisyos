@@ -1,9 +1,11 @@
 # ADR-0128: Hermetic Reproducibility
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context
@@ -29,6 +31,7 @@ Make reproducibility hermetic by default:
 
 - Historical artifacts become reproducible enough for audit and regression
   investigation.
+
 - Model upgrades become explicit governance events.
 - Local velocity can still use opt-in unlocked workflows, but publish and CI
   paths fail closed.
@@ -37,4 +40,5 @@ Make reproducibility hermetic by default:
 
 - Extends: ADR-0118 (release train and SemVer contracts), ADR-0123 (ArtifactRef
   governance metadata).
+
 - Related: ADR-0010 (CAS artifact signing), ADR-0122 (lakehouse snapshots).

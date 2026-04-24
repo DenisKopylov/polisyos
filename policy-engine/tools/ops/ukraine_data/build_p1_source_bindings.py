@@ -4,8 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import csv
-import gzip
 import hashlib
 import io
 import json
@@ -80,7 +78,9 @@ def _normalize_registration_code(value: object) -> str | None:
     return digits
 
 
-def _read_csv_loose(path: Path, *, sep: str | None = None, compression: str | None = None) -> pd.DataFrame:
+def _read_csv_loose(
+    path: Path, *, sep: str | None = None, compression: str | None = None
+) -> pd.DataFrame:
     encodings = ("utf-8-sig", "utf-8", "cp1251", "latin1")
     separators = [sep] if sep else [None, ";", ",", "\t"]
     last_error: Exception | None = None
@@ -137,7 +137,11 @@ def _detect_header_row(path: Path, *, sheet_name: int | str = 0, max_rows: int =
     best_index = 0
     best_score = -1
     for index, row in preview.iterrows():
-        texts = [str(value).strip() for value in row.tolist() if str(value).strip() and str(value) != "nan"]
+        texts = [
+            str(value).strip()
+            for value in row.tolist()
+            if str(value).strip() and str(value) != "nan"
+        ]
         score = 0
         for text in texts:
             lowered = text.lower()
@@ -176,7 +180,7 @@ def _write_binding(root: Path, source_id: str, frame: pd.DataFrame) -> dict[str,
     frame.to_parquet(parquet_path, index=False)
     summary = {
         "source_id": source_id,
-        "rows": int(len(frame)),
+        "rows": len(frame),
         "columns": list(frame.columns),
         "path": str(parquet_path),
     }
@@ -202,10 +206,14 @@ def _build_dps_tax_risk(root: Path) -> pd.DataFrame:
                 if frame.empty:
                     continue
                 period_id = _parse_period(member, fallback=_parse_period(archive_path.name))
-                registration_col = _candidate_column(frame.columns.tolist(), "tin", "єдрпоу", "edrpou")
+                registration_col = _candidate_column(
+                    frame.columns.tolist(), "tin", "єдрпоу", "edrpou"
+                )
                 debt_col = _candidate_column(frame.columns.tolist(), "sum_d", "sum_m", "борг")
                 for _, row in frame.iterrows():
-                    registration_code = _normalize_registration_code(row.get(registration_col or ""))
+                    registration_code = _normalize_registration_code(
+                        row.get(registration_col or "")
+                    )
                     if registration_code is None:
                         continue
                     tax_debt = _coerce_float(row.get(debt_col or ""))
@@ -239,18 +247,33 @@ def _build_customs_trade(root: Path) -> pd.DataFrame:
         month_col = _candidate_column(frame.columns.tolist(), "місяць")
         customs_col = _candidate_column(frame.columns.tolist(), "митниц")
         partner_col = _candidate_column(frame.columns.tolist(), "країна-партнер")
-        value_col = _candidate_column(frame.columns.tolist(), "товарообіг uah", "експорт uah", "імпорт uah")
+        value_col = _candidate_column(
+            frame.columns.tolist(), "товарообіг uah", "експорт uah", "імпорт uah"
+        )
         if not all((year_col, month_col, customs_col, partner_col, value_col)):
             continue
         subset = frame[[year_col, month_col, customs_col, partner_col, value_col]].copy()
         subset.columns = ["year", "month", "customs_name", "partner_name", "trade_value"]
         subset["period_id"] = (
-            subset["year"].fillna("2025").astype("string").str.extract(r"(20\d{2})", expand=False).fillna("2025")
+            subset["year"]
+            .fillna("2025")
+            .astype("string")
+            .str.extract(r"(20\d{2})", expand=False)
+            .fillna("2025")
             + "-"
-            + subset["month"].fillna("1").astype("string").str.extract(r"(\d{1,2})", expand=False).fillna("1").str.zfill(2)
+            + subset["month"]
+            .fillna("1")
+            .astype("string")
+            .str.extract(r"(\d{1,2})", expand=False)
+            .fillna("1")
+            .str.zfill(2)
         )
-        subset["customs_name"] = subset["customs_name"].fillna("unknown_customs").astype("string").str.strip()
-        subset["partner_name"] = subset["partner_name"].fillna("unknown_partner").astype("string").str.strip()
+        subset["customs_name"] = (
+            subset["customs_name"].fillna("unknown_customs").astype("string").str.strip()
+        )
+        subset["partner_name"] = (
+            subset["partner_name"].fillna("unknown_partner").astype("string").str.strip()
+        )
         subset["trade_value"] = subset["trade_value"].map(_coerce_float)
         subset["source_agent_id"] = subset["customs_name"].map(
             lambda value: f"agent::customs::{_stable_token(value or 'unknown_customs')}"
@@ -279,14 +302,11 @@ def _build_customs_trade(root: Path) -> pd.DataFrame:
     if not frames:
         return pd.DataFrame()
     result = pd.concat(frames, ignore_index=True)
-    return (
-        result.groupby(["source_agent_id", "target_agent_id", "period_id"], as_index=False)
-        .agg(
-            trade_value=("trade_value", "sum"),
-            registration_code=("registration_code", "first"),
-            region_code=("region_code", "first"),
-            sector_id=("sector_id", "first"),
-        )
+    return result.groupby(["source_agent_id", "target_agent_id", "period_id"], as_index=False).agg(
+        trade_value=("trade_value", "sum"),
+        registration_code=("registration_code", "first"),
+        region_code=("region_code", "first"),
+        sector_id=("sector_id", "first"),
     )
 
 
@@ -447,7 +467,9 @@ def _build_yedessb(root: Path) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def _cell_scaffold(root: Path, *, value_a: float, value_b: float, columns: tuple[str, str]) -> pd.DataFrame:
+def _cell_scaffold(
+    root: Path, *, value_a: float, value_b: float, columns: tuple[str, str]
+) -> pd.DataFrame:
     cells = _load_runtime_cells(root)
     frame = cells[["cell_id", "region_code", "sector_id"]].copy()
     frame["period_id"] = "2025-01"
@@ -480,7 +502,9 @@ def _build_spatial_exogenous(root: Path) -> pd.DataFrame:
     frame["period_id"] = "2025-01"
     frame["night_lights"] = 0.0
     frame["population_density"] = pd.to_numeric(frame["agent_count"], errors="coerce").fillna(0.0)
-    return frame[["cell_id", "region_code", "sector_id", "period_id", "night_lights", "population_density"]]
+    return frame[
+        ["cell_id", "region_code", "sector_id", "period_id", "night_lights", "population_density"]
+    ]
 
 
 BUILDERS = {

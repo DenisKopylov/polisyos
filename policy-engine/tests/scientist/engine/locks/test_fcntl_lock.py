@@ -1,4 +1,5 @@
 """Tests for FcntlRunLock."""
+
 from __future__ import annotations
 
 import sys
@@ -76,12 +77,16 @@ class TestFcntlRunLock:
 
         # Write stale lock metadata with a non-existent PID
         lock_path = tmp_path / RUN_LOCK_FILENAME
-        lock_path.write_text(json.dumps({
-            "run_id": "test-003",
-            "pid": 999999999,  # non-existent PID
-            "hostname": "other-host",
-            "mode": "run",
-        }))
+        lock_path.write_text(
+            json.dumps(
+                {
+                    "run_id": "test-003",
+                    "pid": 999999999,  # non-existent PID
+                    "hostname": "other-host",
+                    "mode": "run",
+                }
+            )
+        )
 
         lock_backend = FcntlRunLock(run_dir=tmp_path)
         # Should succeed since no flock is actually held (only metadata exists)

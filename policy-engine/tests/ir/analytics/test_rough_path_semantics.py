@@ -90,7 +90,9 @@ def test_certificate_round_trips_via_store(tmp_path) -> None:
 
 
 def test_bounds_only_certificate_cannot_claim_fully_identified() -> None:
-    with pytest.raises(ValidationError, match="bounds_only certificates cannot claim fully identified"):
+    with pytest.raises(
+        ValidationError, match="bounds_only certificates cannot claim fully identified"
+    ):
         RoughPathInterventionCertificate(
             **(
                 _certificate().model_dump(mode="python")

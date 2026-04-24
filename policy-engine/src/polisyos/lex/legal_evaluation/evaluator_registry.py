@@ -1,9 +1,11 @@
 """Public legal evaluation evaluator registry module API."""
+
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import (
@@ -30,6 +32,7 @@ LexEvaluatorFn = Callable[
 @dataclass(slots=True)
 class EvaluatorRecord:
     """Evaluator record data model."""
+
     component_id: str
     base_id: str
     version: str
@@ -40,6 +43,7 @@ class EvaluatorRecord:
 @dataclass(slots=True)
 class EvaluatorBootstrapReport:
     """Evaluator bootstrap report data model."""
+
     registered: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     discovery_errors: list[str] = field(default_factory=list)
@@ -47,6 +51,7 @@ class EvaluatorBootstrapReport:
 
 class LexEvaluatorRegistry:
     """Lex evaluator registry implementation."""
+
     def __init__(self) -> None:
         self._records = GenericRegistry[str, EvaluatorRecord](
             key_fn=lambda record: record.component_id,
@@ -127,9 +132,7 @@ def bootstrap_component_evaluators(components_index: ComponentRegistry) -> Evalu
         )
         errors = [issue for issue in issues if issue.severity == "error"]
         if errors:
-            report.errors.append(
-                f"{component_id}: {'; '.join(issue.message for issue in errors)}"
-            )
+            report.errors.append(f"{component_id}: {'; '.join(issue.message for issue in errors)}")
             continue
 
         try:

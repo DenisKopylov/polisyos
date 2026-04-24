@@ -1,9 +1,6 @@
 import { useMemo, useState } from "react";
 
-import {
-  useChatStore,
-  type ConversationSession,
-} from "../state/useChatStore";
+import { useChatStore, type ConversationSession } from "../state/useChatStore";
 
 export type HistorySearchResult = {
   session: ConversationSession;
@@ -23,10 +20,7 @@ function searchSessions(
     return sessions.map((session) => ({ session, matches: [] }));
   }
 
-  const terms = query
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean);
+  const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
   const results: HistorySearchResult[] = [];
 
   for (const session of sessions) {
@@ -38,7 +32,10 @@ function searchSessions(
         // Build snippet around first match
         const firstTermIdx = text.indexOf(terms[0]);
         const start = Math.max(0, firstTermIdx - 30);
-        const end = Math.min(msg.content.length, firstTermIdx + terms[0].length + 60);
+        const end = Math.min(
+          msg.content.length,
+          firstTermIdx + terms[0].length + 60,
+        );
         const snippet =
           (start > 0 ? "..." : "") +
           msg.content.slice(start, end) +

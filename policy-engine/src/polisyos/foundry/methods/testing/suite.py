@@ -9,13 +9,15 @@ Tests:
     - Determinism (eager and JIT outputs)
     - Compile key determinism (Law H)
 """
+
 from __future__ import annotations
 
 import inspect
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Any, Callable, ClassVar
+from typing import Any, ClassVar
 
 import jax
 import jax.numpy as jnp
@@ -31,6 +33,7 @@ from polisyos.foundry.methods.specialization import specialization_from_signatur
 try:  # JAX >= 0.4
     from jax.tree_util import tree_flatten_with_path
 except Exception:  # pragma: no cover - fallback
+
     def tree_flatten_with_path(tree: Any):
         leaves, treedef = jax.tree_util.tree_flatten(tree)
         return [((), leaf) for leaf in leaves], treedef
@@ -143,10 +146,7 @@ class TestResult:
         return "\n".join(lines)
 
     def __repr__(self) -> str:
-        return (
-            f"TestResult(fqn={self.method_fqn!r}, "
-            f"passed={self.passed_count}/{self.total_count})"
-        )
+        return f"TestResult(fqn={self.method_fqn!r}, passed={self.passed_count}/{self.total_count})"
 
 
 # =============================================================================
@@ -285,9 +285,7 @@ def _check_finite(tree: Any) -> tuple[bool, list[str]]:
             if not np.all(np.isfinite(arr)):
                 nan_count = int(np.sum(np.isnan(arr)))
                 inf_count = int(np.sum(np.isinf(arr)))
-                problems.append(
-                    f"{_format_path(path)}: {nan_count} NaN, {inf_count} Inf"
-                )
+                problems.append(f"{_format_path(path)}: {nan_count} NaN, {inf_count} Inf")
     return len(problems) == 0, problems
 
 
@@ -394,14 +392,16 @@ class MethodTestSuite:
         )
 
         if has_sig:
-            sig = getattr(self.method, "signature")
+            sig = self.method.signature
             is_sig_type = isinstance(sig, MethodSignature)
             checks.append(
                 TestCheck(
                     name="signature_type",
                     category=CheckCategory.PROTOCOL,
                     passed=is_sig_type,
-                    message="" if is_sig_type else f"Expected MethodSignature, got {type(sig).__name__}",
+                    message=""
+                    if is_sig_type
+                    else f"Expected MethodSignature, got {type(sig).__name__}",
                 )
             )
 
@@ -416,14 +416,16 @@ class MethodTestSuite:
         )
 
         if has_meta:
-            meta = getattr(self.method, "metadata")
+            meta = self.method.metadata
             is_meta_type = isinstance(meta, MethodMetadata)
             checks.append(
                 TestCheck(
                     name="metadata_type",
                     category=CheckCategory.PROTOCOL,
                     passed=is_meta_type,
-                    message="" if is_meta_type else f"Expected MethodMetadata, got {type(meta).__name__}",
+                    message=""
+                    if is_meta_type
+                    else f"Expected MethodMetadata, got {type(meta).__name__}",
                 )
             )
 
@@ -581,9 +583,9 @@ class MethodTestSuite:
         if self._vmap_in_axes is not None:
             return self._vmap_in_axes
         if hasattr(self.method, "vmap_in_axes"):
-            return getattr(self.method, "vmap_in_axes")
+            return self.method.vmap_in_axes
         if hasattr(self.method, "__vmap_in_axes__"):
-            return getattr(self.method, "__vmap_in_axes__")
+            return self.method.__vmap_in_axes__
         return None
 
     def _expand_in_axes(self, tree: Any, axes: Any) -> Any:
@@ -620,6 +622,7 @@ class MethodTestSuite:
 
         supports_jit = self.sig.supports_jit if self.sig else True
         if supports_jit:
+
             def check_jit() -> tuple[bool, str]:
                 jitted = jax.jit(pure_step)
                 result = jitted(state, params)
@@ -632,6 +635,7 @@ class MethodTestSuite:
 
         supports_vmap = self.sig.supports_vmap if self.sig else True
         if supports_vmap:
+
             def check_vmap() -> tuple[bool, str]:
                 vmap_in_axes = self._resolve_vmap_in_axes()
                 if vmap_in_axes is None:
@@ -656,6 +660,7 @@ class MethodTestSuite:
 
         supports_grad = self.sig.supports_grad if self.sig else True
         if supports_grad and not skip_grad:
+
             def check_grad() -> tuple[bool, str]:
                 diff_params: dict[str, Any] = {}
                 for key, value in params.items():
@@ -751,20 +756,18 @@ class MethodTestSuite:
                 return True, ""
 
             all_close = all(
-                _trees_allclose(first, r, rtol=self._rtol, atol=self._atol)
-                for r in results[1:]
+                _trees_allclose(first, r, rtol=self._rtol, atol=self._atol) for r in results[1:]
             )
             if all_close:
                 return True, f"Approximate match (rtol={self._rtol}, atol={self._atol})"
 
             return False, f"Results differ across {n_runs} eager runs"
 
-        checks.append(
-            _timed_check("deterministic_eager", CheckCategory.DETERMINISM, check_eager)
-        )
+        checks.append(_timed_check("deterministic_eager", CheckCategory.DETERMINISM, check_eager))
 
         supports_jit = self.sig.supports_jit if self.sig else True
         if supports_jit:
+
             def check_jitted() -> tuple[bool, str]:
                 jitted = jax.jit(pure_step)
                 warm = jitted(state, params)
@@ -781,8 +784,7 @@ class MethodTestSuite:
                     return True, ""
 
                 all_close = all(
-                    _trees_allclose(first, r, rtol=self._rtol, atol=self._atol)
-                    for r in results[1:]
+                    _trees_allclose(first, r, rtol=self._rtol, atol=self._atol) for r in results[1:]
                 )
                 if all_close:
                     return True, f"Approximate match (rtol={self._rtol}, atol={self._atol})"
@@ -807,9 +809,7 @@ class MethodTestSuite:
             return checks
 
         def check_key() -> tuple[bool, str]:
-            static_params = {
-                k: v for k, v in params.items() if k in self.sig.static_param_names
-            }
+            static_params = {k: v for k, v in params.items() if k in self.sig.static_param_names}
             spec_a = specialization_from_signature_and_state(
                 self.sig.fqn,
                 static_params,

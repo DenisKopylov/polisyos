@@ -9,15 +9,14 @@ Tests cover:
 - mz_id_algorithm
 - SourceDomain frozen dataclass
 """
+
 from __future__ import annotations
 
 import dataclasses
 
 import pytest
 
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.foundry.methods.catalog.causal.id_engine import (
-    HedgeCertificate,
     IdentificationResult,
     IdentificationStatus,
     ProofStep,
@@ -28,7 +27,7 @@ from polisyos.foundry.methods.catalog.causal.id_engine import (
     mz_id_algorithm,
     z_id_algorithm,
 )
-
+from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 
 # ---------------------------------------------------------------------------
 # Graph helpers
@@ -158,7 +157,15 @@ class TestProofStepDataclass:
         assert isinstance(s.consequent_vars, tuple)
 
     def test_all_rule_names_can_be_stored(self):
-        rule_names = ["RULE1", "RULE2", "RULE3", "ANCESTRAL_COLLAPSE", "C_COMPONENT", "HEDGE", "ORACLE"]
+        rule_names = [
+            "RULE1",
+            "RULE2",
+            "RULE3",
+            "ANCESTRAL_COLLAPSE",
+            "C_COMPONENT",
+            "HEDGE",
+            "ORACLE",
+        ]
         for rn in rule_names:
             s = ProofStep(
                 rule_name=rn,
@@ -360,6 +367,7 @@ class TestIdentificationResultProofSteps:
     def test_default_proof_steps_is_empty_list(self):
         """IdentificationResult default proof_steps is an empty list."""
         from polisyos.ir.analytics.estimand import DistributionDomain, DistributionRef
+
         leaf = DistributionRef(
             domain=DistributionDomain.SOURCE,
             variables=("Y",),
@@ -753,7 +761,15 @@ class TestProofStepAuditTrail:
         """rule_formal_name must differ from raw rule_name for known rules."""
         from polisyos.foundry.methods.catalog.causal.id_engine import _internal_proof_step_to_ir
 
-        for rule_name in ["RULE1", "RULE3", "C_COMPONENT", "HEDGE", "S_TRIM", "IDC_DECOMPOSE", "SIGMA_R1"]:
+        for rule_name in [
+            "RULE1",
+            "RULE3",
+            "C_COMPONENT",
+            "HEDGE",
+            "S_TRIM",
+            "IDC_DECOMPOSE",
+            "SIGMA_R1",
+        ]:
             step = ProofStep(
                 rule_name=rule_name,
                 antecedent_vars=("X",),
@@ -778,8 +794,7 @@ class TestProofStepAuditTrail:
             )
             ir_step = _internal_proof_step_to_ir(step)
             assert re.search(r"\d{4}", ir_step.applicable_theorem), (
-                f"applicable_theorem for {rule_name!r} missing year: "
-                f"{ir_step.applicable_theorem!r}"
+                f"applicable_theorem for {rule_name!r} missing year: {ir_step.applicable_theorem!r}"
             )
 
     def test_graph_state_before_preserved(self):
@@ -932,7 +947,7 @@ class TestSIDAlgorithm:
     def test_soft_policy_returns_identified_when_base_is_identified(self):
         """Soft Gaussian policy on identifiable DAG → IDENTIFIED with StochasticInterventionNode."""
         from polisyos.foundry.methods.catalog.causal.id_engine import sid_algorithm
-        from polisyos.ir.analytics.estimand import StochasticPolicy, StochasticInterventionNode
+        from polisyos.ir.analytics.estimand import StochasticInterventionNode, StochasticPolicy
 
         graph = make_dag([("Z", "X"), ("Z", "Y"), ("X", "Y")])
         policy = StochasticPolicy(policy_type="soft", policy_expr="N(mu, sigma)")
@@ -985,7 +1000,9 @@ class TestSIDAlgorithm:
         from polisyos.ir.analytics.estimand import StochasticPolicy
 
         graph = make_dag([("Z", "X"), ("Z", "Y"), ("X", "Y")])
-        policy = StochasticPolicy(policy_type="soft", conditioning_vars=("Z",), policy_expr="pi(X|Z)")
+        policy = StochasticPolicy(
+            policy_type="soft", conditioning_vars=("Z",), policy_expr="pi(X|Z)"
+        )
         result = sid_algorithm(
             treatment=frozenset({"X"}),
             outcome=frozenset({"Y"}),
@@ -1074,7 +1091,10 @@ class TestSIDAlgorithm:
             condition_vars=frozenset({"Z"}),
             graph=graph,
         )
-        assert "conditional" in result.algorithm_version or result.status == IdentificationStatus.IDENTIFIED
+        assert (
+            "conditional" in result.algorithm_version
+            or result.status == IdentificationStatus.IDENTIFIED
+        )
 
     def test_conditional_intervention_emits_sid_conditional_step(self):
         """conditional_intervention_id must emit a SID_CONDITIONAL proof step."""
@@ -1228,8 +1248,7 @@ class TestJointID:
         )
         combined_trace = " ".join(result.trace)
         assert any(
-            kw in combined_trace.lower()
-            for kw in ("c-component", "ccomponent", "factor", "joint")
+            kw in combined_trace.lower() for kw in ("c-component", "ccomponent", "factor", "joint")
         )
 
     def test_multi_outcome_id_returns_dict(self):
@@ -1280,11 +1299,7 @@ class TestJointID:
             outcomes=["Y1", "Y2"],
             graph=graph,
         )
-        all_steps = [
-            step
-            for res in results.values()
-            for step in res.proof_steps
-        ]
+        all_steps = [step for res in results.values() for step in res.proof_steps]
         rule_names = {s.rule_name for s in all_steps}
         assert "MULTI_OUTCOME_SHARED_CCOMP" in rule_names
 

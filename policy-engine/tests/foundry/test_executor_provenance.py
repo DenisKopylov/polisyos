@@ -1,7 +1,8 @@
 """Tests for provenance tracking in executor."""
+
 from __future__ import annotations
 
-from polisyos.foundry._executor_models import ExecuteArtifacts, FailureCard
+from polisyos.foundry._executor_models import ExecuteArtifacts
 
 
 class TestProvenanceFields:

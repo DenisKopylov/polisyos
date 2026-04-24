@@ -1,14 +1,20 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, ClassVar
 
 import pytest
 
 pytest.importorskip("aiohttp")
 
-from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle, FetchRequest, FetchResult, HealthStatus
+from polisyos.fabric.connectors.base import (
+    ConnectionConfig,
+    ConnectionHandle,
+    FetchRequest,
+    FetchResult,
+    HealthStatus,
+)
 from polisyos.fabric.connectors.sources.http_base import HTTPConnectorBase, HTTPResilienceProfile
 from polisyos.fabric.connectors.types import FetchError, RateLimitError
 from polisyos.ir.connectors import (
@@ -48,7 +54,7 @@ class _DummyConnector(HTTPConnectorBase[list[dict[str, Any]]]):
         request: FetchRequest,
     ) -> FetchResult[list[dict[str, Any]]]:
         del handle, request
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return FetchResult(
             data=[],
             row_count=0,
@@ -79,7 +85,7 @@ class _FakeResponse:
         self._body = body
         self.content = _FakeContent(stream_chunks or [body]) if stream_chunks is not None else None
 
-    async def __aenter__(self) -> "_FakeResponse":
+    async def __aenter__(self) -> _FakeResponse:
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
@@ -103,7 +109,9 @@ class _FakeSession:
     def __init__(self, response: _FakeResponse) -> None:
         self._response = response
 
-    def get(self, url: str, *, params: dict[str, str], headers: dict[str, str] | None = None) -> _FakeResponse:
+    def get(
+        self, url: str, *, params: dict[str, str], headers: dict[str, str] | None = None
+    ) -> _FakeResponse:
         del url, params, headers
         return self._response
 
@@ -245,10 +253,10 @@ def test_request_json_rejects_top_level_row_limit() -> None:
 
 
 def test_session_lifecycle(monkeypatch: pytest.MonkeyPatch) -> None:
-    created: list["_FakeClientSession"] = []
+    created: list[_FakeClientSession] = []
 
     class _FakeClientSession:
-        def __init__(self, *, timeout) -> None:  # noqa: ANN001
+        def __init__(self, *, timeout) -> None:
             del timeout
             self.closed = False
             created.append(self)
@@ -273,10 +281,10 @@ def test_session_lifecycle(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_get_session_is_race_safe(monkeypatch: pytest.MonkeyPatch) -> None:
-    created: list["_FakeClientSession"] = []
+    created: list[_FakeClientSession] = []
 
     class _FakeClientSession:
-        def __init__(self, *, timeout) -> None:  # noqa: ANN001
+        def __init__(self, *, timeout) -> None:
             del timeout
             self.closed = False
             created.append(self)

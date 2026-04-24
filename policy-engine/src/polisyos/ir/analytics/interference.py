@@ -123,7 +123,7 @@ class InteractionComplex(BaseModel):
         return tuple(normalized)
 
     @model_validator(mode="after")
-    def _validate_contract(self) -> "InteractionComplex":
+    def _validate_contract(self) -> InteractionComplex:
         _validate_artifact_ref(self.exposure_operator_ref, field_name="exposure_operator_ref")
         declared_nodes = set(self.nodes)
         for field_name in ("hyperedges", "simplices"):
@@ -215,7 +215,7 @@ class InterferenceCertificate(BaseModel):
         return casted
 
     @model_validator(mode="after")
-    def _validate_fallback_certificate(self) -> "InterferenceCertificate":
+    def _validate_fallback_certificate(self) -> InterferenceCertificate:
         if self.fallback_triggered and not self.fallback_reason_codes:
             raise ValueError(
                 "fallback_reason_codes must be non-empty when fallback_triggered is true"
@@ -315,7 +315,7 @@ def load_interference_certificate(
 
 def persist_maup_invariance_certificate(
     store: ArtifactStore,
-    certificate: "MAUPInvarianceCertificate",
+    certificate: MAUPInvarianceCertificate,
     *,
     inputs: list[InputRef] | None = None,
     schema_name: str = _MAUP_INVARIANCE_CERTIFICATE_SCHEMA_NAME,
@@ -337,7 +337,7 @@ def persist_maup_invariance_certificate(
 def load_maup_invariance_certificate(
     store: ArtifactStore,
     ref: MAUPInvarianceCertificateRef,
-) -> "MAUPInvarianceCertificate":
+) -> MAUPInvarianceCertificate:
     """Load a persisted MAUP invariance certificate."""
     payload = get_json_artifact(store, ref.artifact_id)
     return MAUPInvarianceCertificate.model_validate(payload)
@@ -345,7 +345,7 @@ def load_maup_invariance_certificate(
 
 def persist_spatial_hodge_diagnostics(
     store: ArtifactStore,
-    diagnostics: "SpatialHodgeDiagnostics",
+    diagnostics: SpatialHodgeDiagnostics,
     *,
     inputs: list[InputRef] | None = None,
     schema_name: str = _SPATIAL_HODGE_DIAGNOSTICS_SCHEMA_NAME,
@@ -367,7 +367,7 @@ def persist_spatial_hodge_diagnostics(
 def load_spatial_hodge_diagnostics(
     store: ArtifactStore,
     ref: SpatialHodgeDiagnosticsRef,
-) -> "SpatialHodgeDiagnostics":
+) -> SpatialHodgeDiagnostics:
     """Load persisted multiscale spatial Hodge diagnostics."""
     payload = get_json_artifact(store, ref.artifact_id)
     return SpatialHodgeDiagnostics.model_validate(payload)
@@ -451,7 +451,7 @@ class InterferenceEffectDecomposition(BaseModel):
     """True when the spillover effect is statistically significant at 5%."""
 
     @model_validator(mode="after")
-    def _check_consistency(self) -> "InterferenceEffectDecomposition":
+    def _check_consistency(self) -> InterferenceEffectDecomposition:
         if self.n_treated > self.n_units:
             raise ValueError("n_treated must not exceed n_units")
         if not math.isfinite(self.direct_effect):
@@ -503,7 +503,7 @@ class NetworkInterferenceReport(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _check_effects_on_success(self) -> "NetworkInterferenceReport":
+    def _check_effects_on_success(self) -> NetworkInterferenceReport:
         if self.status == "success" and self.effects is None:
             raise ValueError("effects must be set when status is 'success'")
         return self
@@ -637,7 +637,7 @@ class MAUPInvarianceCertificate(BaseModel):
         return _validate_artifact_ref(ref, field_name=str(info.field_name))
 
     @model_validator(mode="after")
-    def _validate_certificate(self) -> "MAUPInvarianceCertificate":
+    def _validate_certificate(self) -> MAUPInvarianceCertificate:
         if self.partitions_tested != len(self.partition_checks):
             raise ValueError("partitions_tested must equal len(partition_checks)")
         if self.status in {"pass", "warn"} and self.partitions_tested == 0:
@@ -693,7 +693,7 @@ class SpatialHodgeScaleProfile(BaseModel):
         return _coerce_string_tuple(() if value in (None, ()) else value, field_name="warnings")
 
     @model_validator(mode="after")
-    def _validate_energy_profile(self) -> "SpatialHodgeScaleProfile":
+    def _validate_energy_profile(self) -> SpatialHodgeScaleProfile:
         total_components = self.gradient_energy + self.curl_energy + self.harmonic_energy
         if self.total_energy + 1.0e-9 < total_components:
             raise ValueError("total_energy must dominate component energies")
@@ -769,7 +769,7 @@ class SpatialHodgeDiagnostics(BaseModel):
         )
 
     @model_validator(mode="after")
-    def _validate_diagnostics(self) -> "SpatialHodgeDiagnostics":
+    def _validate_diagnostics(self) -> SpatialHodgeDiagnostics:
         total_eta = self.eta_grad + self.eta_curl + self.eta_harm
         if total_eta > 1.0 + 1.0e-6:
             raise ValueError("eta_grad + eta_curl + eta_harm must not exceed 1")
@@ -793,15 +793,15 @@ class SpatialResult(NetworkInterferenceReport):
 
 __all__ = [
     "ExposureMappingType",
+    "InteractionComplex",
+    "InterferenceCertificate",
+    "InterferenceEffectDecomposition",
+    "InterferenceMethod",
     "MAUPInvarianceCertificate",
     "MAUPPartitionCheck",
+    "NetworkInterferenceReport",
     "SpatialHodgeDiagnostics",
     "SpatialHodgeScaleProfile",
-    "InteractionComplex",
-    "InterferenceEffectDecomposition",
-    "InterferenceCertificate",
-    "InterferenceMethod",
-    "NetworkInterferenceReport",
     "SpatialResult",
     "load_interaction_complex",
     "load_interference_certificate",

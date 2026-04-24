@@ -1,4 +1,5 @@
 """Public causal transport engine module API."""
+
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -57,12 +58,9 @@ def solve_transportability(
         f"capability_fingerprint:{contract.dependency_fingerprint}",
         f"allow_degraded_transport:{str(bool(allow_degraded_transport)).lower()}",
     ]
-    if (
-        not selection_diagram.s_nodes
-        and _should_use_probabilistic_pag_path(
-            selection_diagram=selection_diagram,
-            pag_identification_policy=pag_identification_policy,
-        )
+    if not selection_diagram.s_nodes and _should_use_probabilistic_pag_path(
+        selection_diagram=selection_diagram,
+        pag_identification_policy=pag_identification_policy,
     ):
         pag_result = _run_simplified_legacy(
             diagram=selection_diagram,
@@ -182,7 +180,10 @@ def _should_use_probabilistic_pag_path(
     if pag_identification_policy is None:
         return True
     try:
-        return PAGIdentificationPolicy(str(pag_identification_policy)) is PAGIdentificationPolicy.PROBABILISTIC
+        return (
+            PAGIdentificationPolicy(str(pag_identification_policy))
+            is PAGIdentificationPolicy.PROBABILISTIC
+        )
     except Exception:
         return True
 
@@ -192,9 +193,7 @@ def _attach_estimand_ast(
     estimand_ast: Any,
 ) -> TransportabilityResult:
     """Return a copy of *result* with *estimand_ast* serialised into the result."""
-    return result.model_copy(
-        update={"estimand_ast": estimand_ast.model_dump(mode="json")}
-    )
+    return result.model_copy(update={"estimand_ast": estimand_ast.model_dump(mode="json")})
 
 
 def _estimand_ast_to_transport_formula(
@@ -209,7 +208,7 @@ def _estimand_ast_to_transport_formula(
 
     Returns None when the AST shape is not expressible as a simple TransportFormula.
     """
-    from polisyos.ir.analytics.estimand import DistributionDomain, SumNode  # noqa: PLC0415
+    from polisyos.ir.analytics.estimand import DistributionDomain
 
     try:
         latex = ast.to_latex()
@@ -221,9 +220,7 @@ def _estimand_ast_to_transport_formula(
             if ref.domain in {DistributionDomain.SOURCE, DistributionDomain.EXPERIMENTAL}
         ]
         target_qtys = [
-            ref.to_latex()
-            for ref in dist_refs
-            if ref.domain is DistributionDomain.TARGET
+            ref.to_latex() for ref in dist_refs if ref.domain is DistributionDomain.TARGET
         ]
 
         # Extract summation/stratification variables from SumNode root or first SumNode child
@@ -249,7 +246,7 @@ def _estimand_ast_to_transport_formula(
             target_quantities=target_qtys,
             adjustment_type=adj_type,
         )
-    except Exception:  # noqa: BLE001
+    except Exception:
         return None
 
 
@@ -271,8 +268,10 @@ def _try_tr_via_id_engine(
     Returns None if identification fails or the estimand cannot be converted.
     """
     try:
-        from polisyos.foundry.methods.catalog.causal.do_calculus import rewrite_estimand  # noqa: PLC0415
-        from polisyos.foundry.methods.catalog.causal.id_engine import (  # noqa: PLC0415
+        from polisyos.foundry.methods.catalog.causal.do_calculus import (
+            rewrite_estimand,
+        )
+        from polisyos.foundry.methods.catalog.causal.id_engine import (
             IdentificationStatus,
             tr_algorithm,
         )
@@ -285,7 +284,7 @@ def _try_tr_via_id_engine(
             outcome=frozenset({outcome}),
             selection_diagram=diagram,
         )
-    except Exception:  # noqa: BLE001
+    except Exception:
         return None
 
     if id_result.status is not IdentificationStatus.IDENTIFIED:
@@ -295,10 +294,8 @@ def _try_tr_via_id_engine(
 
     # Apply do-calculus simplification post-pass
     try:
-        simplified_ast, rewrite_steps = rewrite_estimand(
-            id_result.estimand_ast, diagram.base_graph
-        )
-    except Exception:  # noqa: BLE001
+        simplified_ast, rewrite_steps = rewrite_estimand(id_result.estimand_ast, diagram.base_graph)
+    except Exception:
         simplified_ast = id_result.estimand_ast
         rewrite_steps = []
 
@@ -309,7 +306,11 @@ def _try_tr_via_id_engine(
 
     engine_tag = f"id_engine_tr:{backend_id.value}"
     n_rewrite = len(rewrite_steps)
-    extra_trace = [*trace, f"symbolic_backend_selected:{backend_id.value}", "tr_id_engine_identified"]
+    extra_trace = [
+        *trace,
+        f"symbolic_backend_selected:{backend_id.value}",
+        "tr_id_engine_identified",
+    ]
     if n_rewrite > 0:
         extra_trace.append(f"do_calculus_rewrite:{n_rewrite}_steps")
 
@@ -320,8 +321,7 @@ def _try_tr_via_id_engine(
         query=f"P*({outcome}|do({treatment}))",
         status=TransportabilityStatus.IDENTIFIED,
         transport_mode=(
-            TransportMode.TRANSPORT_FORMULA if formula.target_quantities
-            else TransportMode.DIRECT
+            TransportMode.TRANSPORT_FORMULA if formula.target_quantities else TransportMode.DIRECT
         ),
         transport_formula=formula if formula.target_quantities else None,
         base_confidence=1.0,
@@ -460,7 +460,9 @@ def _run_bounds_only(
         algorithm_version="trso_v2_bounds",
         identification_engine="bounds_only",
         identification_trace=[*trace, "family:transport_bounds"],
-        warnings=["Exact transport identification unavailable; emitted transport-aware bounds fallback."],
+        warnings=[
+            "Exact transport identification unavailable; emitted transport-aware bounds fallback."
+        ],
         partial_identification_result=partial,
         required_target_data=sorted({node.target_variable for node in diagram.s_nodes}),
         source_context_id=diagram.source_context.context_id,
@@ -499,7 +501,9 @@ def _run_simplified_legacy(
     return legacy.model_copy(
         update={
             "algorithm_version": (
-                "trso_v2" if legacy.algorithm_version == "simplified_tr_v2" else legacy.algorithm_version
+                "trso_v2"
+                if legacy.algorithm_version == "simplified_tr_v2"
+                else legacy.algorithm_version
             ),
             "identification_engine": "simplified_legacy",
             "identification_trace": [*legacy.identification_trace, *next_trace],
@@ -661,7 +665,9 @@ def _rule3_formula(
     outcome: str,
     s_nodes: Iterable[Any],
 ) -> TransportFormula:
-    instruments = [str(item.target_variable) for item in s_nodes if item.role is SNodeRole.INSTRUMENT]
+    instruments = [
+        str(item.target_variable) for item in s_nodes if item.role is SNodeRole.INSTRUMENT
+    ]
     instrument = instruments[0] if instruments else "z"
     normalized = normalize_transport_formula(
         formula=(
@@ -742,7 +748,6 @@ def _rule2_adjustment_candidates(
     treatment: str,
     outcome: str,
 ) -> list[str]:
-    del outcome
     preferred = [
         node
         for node in graph_nodes
@@ -755,7 +760,9 @@ def _rule2_adjustment_candidates(
 
 
 def _c_component_candidates(s_nodes: list[Any]) -> list[str]:
-    components = sorted({str(node.target_variable) for node in s_nodes if node.role is SNodeRole.MEDIATOR})
+    components = sorted(
+        {str(node.target_variable) for node in s_nodes if node.role is SNodeRole.MEDIATOR}
+    )
     if len(components) >= 2:
         return components
     return []
@@ -781,7 +788,9 @@ def _directed_edges(graph: Any) -> set[tuple[str, str]]:
 
 
 def _lagged_edge_count(graph: Any) -> int:
-    return sum(1 for edge in getattr(graph, "edges", []) if getattr(edge, "lag", None) not in (None, 0))
+    return sum(
+        1 for edge in getattr(graph, "edges", []) if getattr(edge, "lag", None) not in (None, 0)
+    )
 
 
 def _backend_order(mode: str, *, allow_degraded_transport: bool) -> list[CausalBackendId]:

@@ -20,14 +20,14 @@ machine-readable contracts start in `architecture/topology.toml`,
 
 Six directories currently handle offline data collection and preprocessing:
 
-| Directory | LOC | Files | Domain |
-|-----------|-----|-------|--------|
-| `academic/` | ~23k | 62 | Academic literature: OpenAlex harvest, fulltext resolution, LLM extraction, SKG graph |
-| `datasets/` | ~19k | 28 | Dataset catalog: 40+ source harvest, DCAT normalization, metric bindings, transportability |
-| `ukraine_data/` | ~9k | 9 | Country data: EDR/Prozorro/macro sources, agent/cell registries, network graphs, calibration |
-| `lex/batch/` | ~12k | 45 | Legal corpus: XML/NPA parsing, provision anchoring, SPO extraction, knowledge graph |
-| `batch_common/` | ~0.5k | 7 | Shared: manifests, hashing, paths, QC models, thermal throttling |
-| `batch_snapshot/` | ~0.2k | 2 | Snapshot finalization: aggregates publish manifests |
+| Directory         | LOC   | Files | Domain                                                                                       |
+| ----------------- | ----- | ----- | -------------------------------------------------------------------------------------------- |
+| `academic/`       | ~23k  | 62    | Academic literature: OpenAlex harvest, fulltext resolution, LLM extraction, SKG graph        |
+| `datasets/`       | ~19k  | 28    | Dataset catalog: 40+ source harvest, DCAT normalization, metric bindings, transportability   |
+| `ukraine_data/`   | ~9k   | 9     | Country data: EDR/Prozorro/macro sources, agent/cell registries, network graphs, calibration |
+| `lex/batch/`      | ~12k  | 45    | Legal corpus: XML/NPA parsing, provision anchoring, SPO extraction, knowledge graph          |
+| `batch_common/`   | ~0.5k | 7     | Shared: manifests, hashing, paths, QC models, thermal throttling                             |
+| `batch_snapshot/` | ~0.2k | 2     | Snapshot finalization: aggregates publish manifests                                          |
 
 **Total: ~64k LOC, ~153 files** with substantial architectural overlap.
 
@@ -53,17 +53,18 @@ These are concrete issues found in the current codebase that MUST be fixed durin
 
 #### 1.2.1 God Classes / God Files
 
-| File | LOC | Problem | Action |
-|------|-----|---------|--------|
-| `academic/batch/resolve_extract.py` | 4,246 | Mixed concerns: fulltext fetching, LLM coordination, progress state machine, claim normalization, evidence bundling, metadata reconciliation, targeted extraction | Split into 5 modules: `fulltext_fetcher.py`, `extraction_coordinator.py`, `progress_tracker.py`, `claim_normalizer.py`, `targeted_extraction.py` |
-| `academic/batch/article_extractor.py` | 1,979 | 40+ normalization functions mixed with orchestration | Extract `normalization_helpers.py` (~800 LOC) |
-| `datasets/batch/core_sources_ingest.py` | 7,862 | Combines ingestion, alignment, observation loading for 8+ sources | Split per-source into `ingest/{worldbank,eurostat,oecd,ilo,who,...}.py` + shared `ingest/base.py` protocol |
-| `lex/batch/graph_builder.py` | 3,542 | DDL, loading, entity resolution, amendment detection, trust tier all in one file | Split: `ddl.py` (schema), `loader.py` (bulk load), `entity_resolver.py`, `trust.py` |
-| `lex/batch/pipeline.py` | 1,509 | `_process_spo_chunk()` contains ~70% of pipeline logic | Split into `spo_orchestrator.py` with separate deterministic/llm/gap_fill/audit paths |
+| File                                    | LOC   | Problem                                                                                                                                                           | Action                                                                                                                                           |
+| --------------------------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `academic/batch/resolve_extract.py`     | 4,246 | Mixed concerns: fulltext fetching, LLM coordination, progress state machine, claim normalization, evidence bundling, metadata reconciliation, targeted extraction | Split into 5 modules: `fulltext_fetcher.py`, `extraction_coordinator.py`, `progress_tracker.py`, `claim_normalizer.py`, `targeted_extraction.py` |
+| `academic/batch/article_extractor.py`   | 1,979 | 40+ normalization functions mixed with orchestration                                                                                                              | Extract `normalization_helpers.py` (~800 LOC)                                                                                                    |
+| `datasets/batch/core_sources_ingest.py` | 7,862 | Combines ingestion, alignment, observation loading for 8+ sources                                                                                                 | Split per-source into `ingest/{worldbank,eurostat,oecd,ilo,who,...}.py` + shared `ingest/base.py` protocol                                       |
+| `lex/batch/graph_builder.py`            | 3,542 | DDL, loading, entity resolution, amendment detection, trust tier all in one file                                                                                  | Split: `ddl.py` (schema), `loader.py` (bulk load), `entity_resolver.py`, `trust.py`                                                              |
+| `lex/batch/pipeline.py`                 | 1,509 | `_process_spo_chunk()` contains ~70% of pipeline logic                                                                                                            | Split into `spo_orchestrator.py` with separate deterministic/llm/gap_fill/audit paths                                                            |
 
 #### 1.2.2 Mutable Config State
 
 **Current (academic/batch/pipeline.py:121):**
+
 ```python
 config.extraction_lane = lane_name  # Mutation during multi-lane extraction
 try:
@@ -73,6 +74,7 @@ finally:
 ```
 
 **Fix:** Use `dataclasses.replace()` everywhere:
+
 ```python
 lane_config = replace(config, extraction_lane=lane_name)
 result = await run_resolve_extract(lane_config)
@@ -83,6 +85,7 @@ result = await run_resolve_extract(lane_config)
 #### 1.2.3 Duplicated Design Tier Mappings
 
 Three independent copies of design tier dicts:
+
 - `academic/trust.py:5-29`
 - `academic/batch/resolve_extract.py:74-97`
 - `academic/batch/graph_builder.py:37-58`
@@ -92,6 +95,7 @@ Three independent copies of design tier dicts:
 #### 1.2.4 Missing DuckDB Transaction Boundaries
 
 **Current (academic/batch/graph_builder.py `_flush_all()`):**
+
 ```python
 con.executemany("INSERT INTO ac_works ...", work_batch)       # Success
 con.executemany("INSERT INTO ac_estimates ...", est_batch)     # FAILS mid-batch
@@ -102,12 +106,12 @@ con.executemany("INSERT INTO ac_estimates ...", est_batch)     # FAILS mid-batch
 
 #### 1.2.5 Silent Failures
 
-| Location | Problem | Fix |
-|----------|---------|-----|
-| `batch_common/manifest.py:65` | Missing payload_path returns empty sha256 silently | Raise `FileNotFoundError` or log warning with `findings` |
-| `batch_snapshot/cli.py:42` | Recomputes SHA256 on-the-fly if missing from manifest | Raise `ManifestIntegrityError` -- hash must come from pipeline |
-| `batch_snapshot/cli.py:64` | Symlink OSError caught and ignored | Log error + set `symlink_created: false` in manifest |
-| `datasets/batch/harvester.py:520,598` | Bare `except Exception` | Catch `aiohttp.ClientError`, `asyncio.TimeoutError`, `json.JSONDecodeError` specifically |
+| Location                              | Problem                                               | Fix                                                                                      |
+| ------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `batch_common/manifest.py:65`         | Missing payload_path returns empty sha256 silently    | Raise `FileNotFoundError` or log warning with `findings`                                 |
+| `batch_snapshot/cli.py:42`            | Recomputes SHA256 on-the-fly if missing from manifest | Raise `ManifestIntegrityError` -- hash must come from pipeline                           |
+| `batch_snapshot/cli.py:64`            | Symlink OSError caught and ignored                    | Log error + set `symlink_created: false` in manifest                                     |
+| `datasets/batch/harvester.py:520,598` | Bare `except Exception`                               | Catch `aiohttp.ClientError`, `asyncio.TimeoutError`, `json.JSONDecodeError` specifically |
 
 #### 1.2.6 Hardcoded Pipelines & Dead Code
 
@@ -118,12 +122,14 @@ con.executemany("INSERT INTO ac_estimates ...", est_batch)     # FAILS mid-batch
 #### 1.2.7 SQL Injection Risk in DuckDB
 
 **Current (ukraine_data/adapters.py:393-435):**
+
 ```python
 chunk_glob = str(chunk_dir / "*.parquet").replace("'", "''")
 con.execute(f"... from read_parquet('{chunk_glob}')")  # Manual escaping -- fragile
 ```
 
 **Fix:** Use parameterized queries:
+
 ```python
 con.execute("SELECT * FROM read_parquet(?)", [str(chunk_dir / "*.parquet")])
 ```
@@ -142,7 +148,7 @@ con.execute("SELECT * FROM read_parquet(?)", [str(chunk_dir / "*.parquet")])
 
 ### 2.1 Package Layout
 
-```
+```text
 polisyos/data_forge/
 |-- __init__.py                     # Public API facade (lazy imports)
 |-- _version.py                     # Semantic version for artifact compatibility
@@ -326,16 +332,16 @@ polisyos/data_forge/
 
 ### 2.2 What Stays Outside data_forge
 
-| Module | Reason |
-|--------|--------|
-| `lex/` (non-batch) | `lex.corpus`, `lex.normpack`, `lex.legal_evaluation`, legal impact/what-if analysis, and legal-to-IR intervention compilation stay as `polisyos.lex`; DTR execution and Scientist policy-search bridges split upward. |
-| `fabric/` | Runtime data access layer. Consumes what data_forge produces. |
-| `academic/knowledge/` | Read-side API. Moves **into** `data_forge/academic/knowledge/` since it queries artifacts data_forge builds. |
-| `datasets/knowledge/` | Read-side API. Moves into `data_forge/catalog/knowledge/` for same reason. |
+| Module                | Reason                                                                                                                                                                                                                |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lex/` (non-batch)    | `lex.corpus`, `lex.normpack`, `lex.legal_evaluation`, legal impact/what-if analysis, and legal-to-IR intervention compilation stay as `polisyos.lex`; DTR execution and Scientist policy-search bridges split upward. |
+| `fabric/`             | Runtime data access layer. Consumes what data_forge produces.                                                                                                                                                         |
+| `academic/knowledge/` | Read-side API. Moves **into** `data_forge/academic/knowledge/` since it queries artifacts data_forge builds.                                                                                                          |
+| `datasets/knowledge/` | Read-side API. Moves into `data_forge/catalog/knowledge/` for same reason.                                                                                                                                            |
 
 ### 2.3 Responsibility Boundary
 
-```
+```text
 +-------------------------------------------------------------+
 |                      BUILD TIME                              |
 |                                                              |
@@ -386,7 +392,7 @@ and product source currently mix.
 `policy-engine/` remains the canonical product root. Repository root remains a
 workspace gateway and repo control plane only.
 
-```
+```text
 polisyos/
 |-- .github/                    # Active GitHub control plane
 |-- README.md                   # Workspace gateway
@@ -423,18 +429,18 @@ policy-engine/
 
 All maintained offline acquisition and preprocessing code moves under:
 
-```
+```text
 policy-engine/src/polisyos/data_forge/
 ```
 
 Domain-specific batch code belongs under one of:
 
-| Domain | Target package | Old source |
-|--------|----------------|------------|
-| Academic literature | `polisyos.data_forge.academic` | `polisyos.academic` |
-| Dataset catalog | `polisyos.data_forge.catalog` | `polisyos.datasets` |
-| Ukraine data | `polisyos.data_forge.ukraine` | `polisyos.ukraine_data` |
-| Legal batch corpus | `polisyos.data_forge.legal` | `polisyos.lex.batch` |
+| Domain              | Target package                 | Old source              |
+| ------------------- | ------------------------------ | ----------------------- |
+| Academic literature | `polisyos.data_forge.academic` | `polisyos.academic`     |
+| Dataset catalog     | `polisyos.data_forge.catalog`  | `polisyos.datasets`     |
+| Ukraine data        | `polisyos.data_forge.ukraine`  | `polisyos.ukraine_data` |
+| Legal batch corpus  | `polisyos.data_forge.legal`    | `polisyos.lex.batch`    |
 
 Shared batch infrastructure belongs in `data_forge/pipeline`,
 `data_forge/io`, `data_forge/harvest`, `data_forge/transform`,
@@ -447,17 +453,17 @@ Shared batch infrastructure belongs in `data_forge/pipeline`,
 The source tree should distinguish committed source of truth from local or
 generated state:
 
-| Kind | Target location | Commit policy |
-|------|-----------------|---------------|
-| Small committed schemas and ABI snapshots | `policy-engine/schemas/` | Committed, registered in `architecture/generated_artifacts.toml` |
-| Curated tiny test fixtures | `policy-engine/tests/**/fixtures/` | Committed when deterministic and reviewable |
-| Golden migration snapshots | `policy-engine/tests/data_forge/golden/` or external artifact store | Committed only when small; otherwise referenced by manifest |
-| Local full datasets | repository root `data/` or external object storage | Ignored |
-| Production-scale generated bundles | `policy-engine/production_data/` or external object storage | Ignored by default |
-| Runtime state, audit bundles, local CAS | `policy-engine/.polisyos/` | Ignored |
-| Build outputs | `policy-engine/site/`, `policy-engine/dist/`, `frontend/**/dist/` | Ignored |
-| Run scratch | `policy-engine/.tmp/`, `policy-engine/tmp/`, root `tmp/` | Ignored |
-| Reports worth keeping | `policy-engine/docs/archive/reports/` | Committed only when curated |
+| Kind                                      | Target location                                                     | Commit policy                                                    |
+| ----------------------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Small committed schemas and ABI snapshots | `policy-engine/schemas/`                                            | Committed, registered in `architecture/generated_artifacts.toml` |
+| Curated tiny test fixtures                | `policy-engine/tests/**/fixtures/`                                  | Committed when deterministic and reviewable                      |
+| Golden migration snapshots                | `policy-engine/tests/data_forge/golden/` or external artifact store | Committed only when small; otherwise referenced by manifest      |
+| Local full datasets                       | repository root `data/` or external object storage                  | Ignored                                                          |
+| Production-scale generated bundles        | `policy-engine/production_data/` or external object storage         | Ignored by default                                               |
+| Runtime state, audit bundles, local CAS   | `policy-engine/.polisyos/`                                          | Ignored                                                          |
+| Build outputs                             | `policy-engine/site/`, `policy-engine/dist/`, `frontend/**/dist/`   | Ignored                                                          |
+| Run scratch                               | `policy-engine/.tmp/`, `policy-engine/tmp/`, root `tmp/`            | Ignored                                                          |
+| Reports worth keeping                     | `policy-engine/docs/archive/reports/`                               | Committed only when curated                                      |
 
 Rule: if a generated artifact is committed, it needs a source of truth,
 regeneration command, freshness rule, and owner in
@@ -472,7 +478,7 @@ wrappers during the migration.
 
 Target:
 
-```
+```text
 policy-engine/ops/
 |-- ci/
 |-- cloud/
@@ -495,19 +501,19 @@ topology. The product source tree should not be the data lake.
 
 Current data-heavy roots:
 
-| Path | Current role | Target role |
-|------|--------------|-------------|
-| repository root `data/` | Large local data lake: academic archives, fulltext caches, legal corpus, Ukraine server support | Keep as ignored local/external data lake; organize by layer/domain/snapshot |
-| `policy-engine/data/` | Mixed small tracked gold scaffolding plus ignored raw WVS data, local DuckDB/Kuzu DBs, curated manifests | Reduce to small committed fixtures, contracts, source registries, and README/manifests only |
-| `policy-engine/production_data/` | Ignored release/publish bundles and promoted runtime artifacts | Local release cache only; canonical release identity is a manifest with hashes and logical artifact URIs |
-| `policy-engine/benchmark-results/` | Ignored benchmark outputs and visual reports | Move transient output to `.polisyos/benchmarks/`; commit only curated baselines/reports through the generated-artifact registry |
-| `policy-engine/baseline/` | Small tracked architecture freeze baselines | Keep small and committed, or move to `architecture/baselines/` with compatibility docs |
-| `policy-engine/tmp/` | Ignored local probes and manual integration logs | Move to `.tmp/` or `.polisyos/tmp/`; no source of truth |
-| repository root `tmp/` | Large local scratch: GCP bundles, legal history probes, priority manifests | Ignored local scratch only; cleanup/TTL managed outside product automation |
+| Path                               | Current role                                                                                             | Target role                                                                                                                     |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| repository root `data/`            | Large local data lake: academic archives, fulltext caches, legal corpus, Ukraine server support          | Keep as ignored local/external data lake; organize by layer/domain/snapshot                                                     |
+| `policy-engine/data/`              | Mixed small tracked gold scaffolding plus ignored raw WVS data, local DuckDB/Kuzu DBs, curated manifests | Reduce to small committed fixtures, contracts, source registries, and README/manifests only                                     |
+| `policy-engine/production_data/`   | Ignored release/publish bundles and promoted runtime artifacts                                           | Local release cache only; canonical release identity is a manifest with hashes and logical artifact URIs                        |
+| `policy-engine/benchmark-results/` | Ignored benchmark outputs and visual reports                                                             | Move transient output to `.polisyos/benchmarks/`; commit only curated baselines/reports through the generated-artifact registry |
+| `policy-engine/baseline/`          | Small tracked architecture freeze baselines                                                              | Keep small and committed, or move to `architecture/baselines/` with compatibility docs                                          |
+| `policy-engine/tmp/`               | Ignored local probes and manual integration logs                                                         | Move to `.tmp/` or `.polisyos/tmp/`; no source of truth                                                                         |
+| repository root `tmp/`             | Large local scratch: GCP bundles, legal history probes, priority manifests                               | Ignored local scratch only; cleanup/TTL managed outside product automation                                                      |
 
 Target data lake shape for ignored local data:
 
-```
+```text
 data/
 |-- raw/                         # Immutable source downloads, by domain/source/snapshot
 |   |-- academic/openalex/<snapshot_id>/
@@ -524,7 +530,7 @@ data/
 
 Target product-root data shape:
 
-```
+```text
 policy-engine/data/
 |-- README.md
 |-- fixtures/                    # Tiny deterministic fixtures only
@@ -539,7 +545,7 @@ Rules:
 2. Working outputs are disposable and live under `data/work/`, `.tmp/`, or
    `.polisyos/runs/`.
 3. Published runtime bundles are addressed by `(domain, snapshot_id, manifest
-   sha256)`, not by a machine-local path.
+sha256)`, not by a machine-local path.
 4. Committed manifests must avoid machine-specific absolute paths as the only
    artifact reference. Use logical URIs plus optional local cache paths.
 5. Large benchmark outputs are not committed. A curated benchmark report or
@@ -556,44 +562,44 @@ Rules:
 The final tree should be enforced by small machine-checkable contracts, not by
 memory.
 
-| Control | Target | Purpose |
-|---------|--------|---------|
-| Topology registry | `architecture/topology.toml` | Lists allowed top-level directories, owner, path type, commit policy, and sunset date for temporary paths |
-| Import policy | `import_policy.toml` | Adds `data_forge` as a first-class root and removes old batch roots after compatibility shims expire |
-| Generated artifact registry | `architecture/generated_artifacts.toml` | Registers every committed generated family, including Data Forge schemas, fixture captures, and golden baselines |
-| Ownership map | `.github/CODEOWNERS` + `docs/reference/ownership.md` | Adds `src/polisyos/data_forge/**`, Data Forge docs, and Data Forge tools to an explicit owner group |
-| Explorer hygiene | `.vscode/settings.json` | Hides generated and local state from normal development views without hiding source-of-truth files |
-| Topology gate | `tools/architecture/guardrails.py` | Fails when product source appears in repository root or unknown top-level paths are added |
+| Control                     | Target                                               | Purpose                                                                                                          |
+| --------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Topology registry           | `architecture/topology.toml`                         | Lists allowed top-level directories, owner, path type, commit policy, and sunset date for temporary paths        |
+| Import policy               | `import_policy.toml`                                 | Adds `data_forge` as a first-class root and removes old batch roots after compatibility shims expire             |
+| Generated artifact registry | `architecture/generated_artifacts.toml`              | Registers every committed generated family, including Data Forge schemas, fixture captures, and golden baselines |
+| Ownership map               | `.github/CODEOWNERS` + `docs/reference/ownership.md` | Adds `src/polisyos/data_forge/**`, Data Forge docs, and Data Forge tools to an explicit owner group              |
+| Explorer hygiene            | `.vscode/settings.json`                              | Hides generated and local state from normal development views without hiding source-of-truth files               |
+| Topology gate               | `tools/architecture/guardrails.py`                   | Fails when product source appears in repository root or unknown top-level paths are added                        |
 
 The topology registry should use path categories rather than ad-hoc prose:
 
-```
+```text
 source | docs | test_fixture | golden_fixture | generated_committed |
 local_data | runtime_state | build_output | cache | scratch | wrapper
 ```
 
 Every category has a default commit policy:
 
-| Category | Default policy |
-|----------|----------------|
-| `source`, `docs`, `test_fixture` | Committed |
-| `golden_fixture` | Committed only when small and deterministic; otherwise manifest-only |
-| `generated_committed` | Committed only through `architecture/generated_artifacts.toml` |
-| `local_data`, `runtime_state`, `build_output`, `cache`, `scratch` | Ignored |
-| `wrapper` | Temporary; must have a target path and sunset phase |
+| Category                                                          | Default policy                                                       |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `source`, `docs`, `test_fixture`                                  | Committed                                                            |
+| `golden_fixture`                                                  | Committed only when small and deterministic; otherwise manifest-only |
+| `generated_committed`                                             | Committed only through `architecture/generated_artifacts.toml`       |
+| `local_data`, `runtime_state`, `build_output`, `cache`, `scratch` | Ignored                                                              |
+| `wrapper`                                                         | Temporary; must have a target path and sunset phase                  |
 
 #### 2.4.7 Fixtures, Testdata, and Golden Baselines
 
 Fixtures are source only when they are small, deterministic, and reviewable.
 Large or live-captured data belongs outside the source tree with a manifest.
 
-| Kind | Target |
-|------|--------|
-| Cross-cutting unit fixtures | `tests/fixtures/` |
-| Domain fixtures | `tests/<domain>/fixtures/` |
-| Data Forge migration goldens | `tests/data_forge/golden/` or external artifact store + manifest |
-| Benchmark fixtures | `benchmarks/<suite>/fixtures/` |
-| Recorded live connector fixtures | `tests/fabric/connectors/sources/fixtures/` |
+| Kind                                  | Target                                                              |
+| ------------------------------------- | ------------------------------------------------------------------- |
+| Cross-cutting unit fixtures           | `tests/fixtures/`                                                   |
+| Domain fixtures                       | `tests/<domain>/fixtures/`                                          |
+| Data Forge migration goldens          | `tests/data_forge/golden/` or external artifact store + manifest    |
+| Benchmark fixtures                    | `benchmarks/<suite>/fixtures/`                                      |
+| Recorded live connector fixtures      | `tests/fabric/connectors/sources/fixtures/`                         |
 | Full datasets or production snapshots | root `data/`, `production_data/`, or object storage, ignored by Git |
 
 No new `testdata/`, `sample_data/`, or one-off fixture directories should be
@@ -604,13 +610,13 @@ added without registering them in the topology inventory.
 `tools/` is the maintained automation package. `scripts/` should become
 wrapper-only or disappear.
 
-| Rule | Target |
-|------|--------|
-| Maintained Python automation | `tools/<area>/...` and exposed through `tools/cli.py` when user-facing |
-| Legacy executable wrappers | `scripts/<command>` thinly delegates to `python -m tools.cli ...` |
-| Deprecated tools | `tools/_deprecated/` with removal phase and replacement path |
-| Cloud/ops tools | Prefer `tools/ops/...`; avoid parallel `tools/cloud` and `tools/ops/cloud` growth |
-| Data Forge tools | `tools/data_forge/` or `tools/data/` only if not part of the package runtime |
+| Rule                         | Target                                                                            |
+| ---------------------------- | --------------------------------------------------------------------------------- |
+| Maintained Python automation | `tools/<area>/...` and exposed through `tools/cli.py` when user-facing            |
+| Legacy executable wrappers   | `scripts/<command>` thinly delegates to `python -m tools.cli ...`                 |
+| Deprecated tools             | `tools/_deprecated/` with removal phase and replacement path                      |
+| Cloud/ops tools              | Prefer `tools/ops/...`; avoid parallel `tools/cloud` and `tools/ops/cloud` growth |
+| Data Forge tools             | `tools/data_forge/` or `tools/data/` only if not part of the package runtime      |
 
 The cleanup phase should eliminate duplicate homes such as `tools/cloud` vs
 `tools/ops/cloud`, `tools/data` vs domain-specific Data Forge CLIs, and
@@ -638,32 +644,32 @@ an ignored artifact directory.
 
 Repository root disposition:
 
-| File(s) | Target disposition |
-|---------|--------------------|
-| `.gitignore`, `README.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `SUPPORT.md`, `lefthook.yml`, `renovate.json` | Keep at repository root as workspace gateway / repo control plane |
-| `filter_topics.py`, `organize_relevant_topics.py` | Move maintained logic to `policy-engine/tools/research/topics/`; remove or wrap old root paths |
-| `topics.csv` | Move to root `data/topics/` if local, or to a registered fixture/curated data path if canonical |
-| `compileall.txt`, `import_gate.txt`, `ruff_stats.txt`, `stale_sources_missing_paths.txt`, `summary.json`, `test_collect.txt` | Treat as local freeze outputs; keep curated baselines in `policy-engine/baseline/` or curated reports in `docs/archive/reports/`; otherwise write to `.polisyos/reports/` |
-| `scm-implementation-spec-v3.md` | If canonical product spec, move to `policy-engine/docs/contracts/` or `docs/archive/plans/` and update diagnostics; if external/private input, keep ignored and document as local input |
-| `.DS_Store` | Delete locally; ignored |
+| File(s)                                                                                                                      | Target disposition                                                                                                                                                                      |
+| ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.gitignore`, `README.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `SUPPORT.md`, `lefthook.yml`, `renovate.json`                | Keep at repository root as workspace gateway / repo control plane                                                                                                                       |
+| `filter_topics.py`, `organize_relevant_topics.py`                                                                            | Move maintained logic to `policy-engine/tools/research/topics/`; remove or wrap old root paths                                                                                          |
+| `topics.csv`                                                                                                                 | Move to root `data/topics/` if local, or to a registered fixture/curated data path if canonical                                                                                         |
+| `compileall.txt`, `import_gate.txt`, `ruff_stats.txt`, `stale_sources_missing_paths.txt`, `summary.json`, `test_collect.txt` | Treat as local freeze outputs; keep curated baselines in `policy-engine/baseline/` or curated reports in `docs/archive/reports/`; otherwise write to `.polisyos/reports/`               |
+| `scm-implementation-spec-v3.md`                                                                                              | If canonical product spec, move to `policy-engine/docs/contracts/` or `docs/archive/plans/` and update diagnostics; if external/private input, keep ignored and document as local input |
+| `.DS_Store`                                                                                                                  | Delete locally; ignored                                                                                                                                                                 |
 
 `policy-engine/` product-root disposition:
 
-| File(s) | Target disposition |
-|---------|--------------------|
-| `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `pyproject.toml`, `uv.lock`, `mkdocs.yml`, `.gitignore`, `.env.example`, `.nvmrc`, `.python-version`, `.pre-commit-config.yaml` | Keep: standard product-root sentinels and tool-discovered config |
-| `Dockerfile.reproducible` | Keep only if product-root Docker discovery needs it; otherwise move to `ops/docker/Dockerfile.reproducible` with documented build command |
-| `import_policy.toml`, `import_exceptions.toml` | Keep during migration because import tooling defaults resolve from product root; long-term target is `architecture/` if CLI defaults and docs are updated together |
-| `import_exceptions_registry.md` | Move to `architecture/import_exceptions_registry.md` or `docs/reference/import-exceptions.md`; keep root compatibility only during transition |
-| `freeze_policy.md` | Move to `docs/explanation/freeze-policy.md` or `docs/reference/quality-gates.md`; remove root duplicate |
-| `env_example.txt` | Remove after confirming `.env.example` is the canonical example |
-| `install.sh` | Convert to thin wrapper or remove in favor of `python3 -m tools.cli workspace bootstrap` documented in README |
-| `migrate.py` | Move to `tools/migrations/` or keep as wrapper to `polisyos-tools` only |
-| `jax_bootstrap.py` | Move to `tools/_lib/` or `tools/research/benchmarks/jax/`; update imports that currently rely on product-root importability |
-| `all_1000_policy_topics.csv` | Move to ignored local data, curated fixture, or registered Data Forge input manifest depending on whether it is source-of-truth |
-| `audit_*.polisyos-audit.tar.gz` | Move to `.polisyos/audits/`; keep curated evidence in `docs/archive/reports/` only |
-| `.env` | Keep local and ignored; never commit |
-| `.DS_Store`, `=2.5.0` | Delete locally; ignored |
+| File(s)                                                                                                                                                                         | Target disposition                                                                                                                                                 |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `pyproject.toml`, `uv.lock`, `mkdocs.yml`, `.gitignore`, `.env.example`, `.nvmrc`, `.python-version`, `.pre-commit-config.yaml` | Keep: standard product-root sentinels and tool-discovered config                                                                                                   |
+| `Dockerfile.reproducible`                                                                                                                                                       | Keep only if product-root Docker discovery needs it; otherwise move to `ops/docker/Dockerfile.reproducible` with documented build command                          |
+| `import_policy.toml`, `import_exceptions.toml`                                                                                                                                  | Keep during migration because import tooling defaults resolve from product root; long-term target is `architecture/` if CLI defaults and docs are updated together |
+| `import_exceptions_registry.md`                                                                                                                                                 | Move to `architecture/import_exceptions_registry.md` or `docs/reference/import-exceptions.md`; keep root compatibility only during transition                      |
+| `freeze_policy.md`                                                                                                                                                              | Move to `docs/explanation/freeze-policy.md` or `docs/reference/quality-gates.md`; remove root duplicate                                                            |
+| `env_example.txt`                                                                                                                                                               | Remove after confirming `.env.example` is the canonical example                                                                                                    |
+| `install.sh`                                                                                                                                                                    | Convert to thin wrapper or remove in favor of `python3 -m tools.cli workspace bootstrap` documented in README                                                      |
+| `migrate.py`                                                                                                                                                                    | Move to `tools/migrations/` or keep as wrapper to `polisyos-tools` only                                                                                            |
+| `jax_bootstrap.py`                                                                                                                                                              | Move to `tools/_lib/` or `tools/research/benchmarks/jax/`; update imports that currently rely on product-root importability                                        |
+| `all_1000_policy_topics.csv`                                                                                                                                                    | Move to ignored local data, curated fixture, or registered Data Forge input manifest depending on whether it is source-of-truth                                    |
+| `audit_*.polisyos-audit.tar.gz`                                                                                                                                                 | Move to `.polisyos/audits/`; keep curated evidence in `docs/archive/reports/` only                                                                                 |
+| `.env`                                                                                                                                                                          | Keep local and ignored; never commit                                                                                                                               |
+| `.DS_Store`, `=2.5.0`                                                                                                                                                           | Delete locally; ignored                                                                                                                                            |
 
 Topology gate rule: after Phase -1, adding a new loose top-level file requires
 one of:
@@ -681,21 +687,21 @@ would leave the tree tidy but architecturally ambiguous.
 
 Current factual import graph highlights:
 
-| Source package | Current cross-package smell | Target correction |
-|----------------|-----------------------------|-------------------|
-| `ir` | Imports `foundry`, `scientist`, and `datasets` from analytics/observation modules | `ir` must contain contracts, schemas, pure transforms, and artifact codecs only; execution adapters move upward |
-| `core` | `core/components/_cli_scientist.py` imports Scientist modules | Scientist CLI glue belongs in `tools/` or `scientist`, not in platform core |
-| `fabric` | `fabric/retrieval/service.py` imports `datasets.batch.source_registry` | Runtime source-registry contracts move to `fabric.catalog` or `core.contracts`; Data Forge only generates/updates registry content |
-| `foundry` | Imports `scientist`, `lex`, `academic`, and `ukraine_data` in a few modules | Foundry must be a domain-neutral compute layer; domain bridges live in Scientist, packs, ops, or Data Forge |
-| `lex` | `lex/interventions.py` imports Foundry DTR and Scientist search; `lex/batch/benchmark.py` imports Scientist tools | Lex emits legal/IR contracts; Foundry executes methods; Scientist searches/plans |
-| `runtime` | HTTP control service imports `lex.batch` and low-level Foundry/Scientist internals | Runtime should call service facades only; no direct batch internals after Data Forge extraction |
-| `ukraine_data` | Builders import Lex, Foundry, and Scientist while also acting as a data pipeline | Build-time assembly moves to `data_forge.ukraine`; reusable runtime/domain pieces move to `packs/ukraine` or service facades |
+| Source package | Current cross-package smell                                                                                       | Target correction                                                                                                                  |
+| -------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `ir`           | Imports `foundry`, `scientist`, and `datasets` from analytics/observation modules                                 | `ir` must contain contracts, schemas, pure transforms, and artifact codecs only; execution adapters move upward                    |
+| `core`         | `core/components/_cli_scientist.py` imports Scientist modules                                                     | Scientist CLI glue belongs in `tools/` or `scientist`, not in platform core                                                        |
+| `fabric`       | `fabric/retrieval/service.py` imports `datasets.batch.source_registry`                                            | Runtime source-registry contracts move to `fabric.catalog` or `core.contracts`; Data Forge only generates/updates registry content |
+| `foundry`      | Imports `scientist`, `lex`, `academic`, and `ukraine_data` in a few modules                                       | Foundry must be a domain-neutral compute layer; domain bridges live in Scientist, packs, ops, or Data Forge                        |
+| `lex`          | `lex/interventions.py` imports Foundry DTR and Scientist search; `lex/batch/benchmark.py` imports Scientist tools | Lex emits legal/IR contracts; Foundry executes methods; Scientist searches/plans                                                   |
+| `runtime`      | HTTP control service imports `lex.batch` and low-level Foundry/Scientist internals                                | Runtime should call service facades only; no direct batch internals after Data Forge extraction                                    |
+| `ukraine_data` | Builders import Lex, Foundry, and Scientist while also acting as a data pipeline                                  | Build-time assembly moves to `data_forge.ukraine`; reusable runtime/domain pieces move to `packs/ukraine` or service facades       |
 
 #### 2.5.1 Layered Ownership Model
 
 Target dependency direction:
 
-```
+```text
 common
   -> ir
   -> core
@@ -709,60 +715,60 @@ This is a dependency guideline, not a forced directory nesting. The important
 property is that lower layers do not import orchestration, domain packs, batch
 pipelines, or runtime delivery code.
 
-| Package | Owns | May depend on | Must not depend on |
-|---------|------|---------------|--------------------|
-| `common` | Small generic helpers with no PolicyOS semantics | stdlib and tiny external utilities | any `polisyos.*` package |
-| `ir` | Stable contracts, ABI models, schemas, references, pure validation, portable artifact codecs | `common` only, plus explicitly approved pure dependencies | `core`, `fabric`, `foundry`, `scientist`, `runtime`, `data_forge`, domain packages |
-| `core` | Platform primitives: artifacts, canon, contracts, governance passes, observability, security, registries | `common`, `ir` | `fabric`, `foundry`, `scientist`, `runtime`, domain pipelines |
-| `fabric` | Runtime data access, connector protocols, retrieval, document/claim/world materialization, live storage | `common`, `ir`, `core` | batch pipelines, `scientist`, `lex` domain logic, `foundry` execution |
-| `data_forge` | Offline acquisition, preprocessing, extraction, indexing, snapshot/release publishing | `common`, `ir`, `core`, selected Fabric connector protocols | runtime services, Scientist planning, Foundry execution internals |
-| `lex` | Legal domain contracts, corpus runtime APIs, NormPack assembly, legal evaluation, norm impact analysis | `common`, `ir`, `core`, Fabric read/materialization APIs | Foundry methods, Scientist search/orchestration, Data Forge batch internals |
-| `foundry` | Compile/execute, numerical methods, simulations, calibration, uncertainty, method catalog | `common`, `ir`, `core`, narrow Fabric data-plane contracts | `scientist`, `lex`, `academic`, `datasets`, `ukraine_data`, domain packs |
-| `scholar` | Research-intent enrichment and knowledge-bundle service facade | `common`, `ir`, `core`, `fabric` | Foundry execution, Data Forge batch internals except optional artifact readers |
-| `scientist` | Agents, search, governance orchestration, policy design, replay/backtesting, cross-domain bridges | lower layers and stable public facades | HTTP/runtime delivery details |
-| `runtime` | API/HTTP delivery and adapter wiring | public service facades from lower layers | direct batch modules, generated artifact internals, private module paths |
-| `packs` | Domain packs, examples, policy families, domain-specific adapters | public facades only | private internals of core packages; wildcard imports should be temporary |
+| Package      | Owns                                                                                                     | May depend on                                               | Must not depend on                                                                 |
+| ------------ | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `common`     | Small generic helpers with no PolicyOS semantics                                                         | stdlib and tiny external utilities                          | any `polisyos.*` package                                                           |
+| `ir`         | Stable contracts, ABI models, schemas, references, pure validation, portable artifact codecs             | `common` only, plus explicitly approved pure dependencies   | `core`, `fabric`, `foundry`, `scientist`, `runtime`, `data_forge`, domain packages |
+| `core`       | Platform primitives: artifacts, canon, contracts, governance passes, observability, security, registries | `common`, `ir`                                              | `fabric`, `foundry`, `scientist`, `runtime`, domain pipelines                      |
+| `fabric`     | Runtime data access, connector protocols, retrieval, document/claim/world materialization, live storage  | `common`, `ir`, `core`                                      | batch pipelines, `scientist`, `lex` domain logic, `foundry` execution              |
+| `data_forge` | Offline acquisition, preprocessing, extraction, indexing, snapshot/release publishing                    | `common`, `ir`, `core`, selected Fabric connector protocols | runtime services, Scientist planning, Foundry execution internals                  |
+| `lex`        | Legal domain contracts, corpus runtime APIs, NormPack assembly, legal evaluation, norm impact analysis   | `common`, `ir`, `core`, Fabric read/materialization APIs    | Foundry methods, Scientist search/orchestration, Data Forge batch internals        |
+| `foundry`    | Compile/execute, numerical methods, simulations, calibration, uncertainty, method catalog                | `common`, `ir`, `core`, narrow Fabric data-plane contracts  | `scientist`, `lex`, `academic`, `datasets`, `ukraine_data`, domain packs           |
+| `scholar`    | Research-intent enrichment and knowledge-bundle service facade                                           | `common`, `ir`, `core`, `fabric`                            | Foundry execution, Data Forge batch internals except optional artifact readers     |
+| `scientist`  | Agents, search, governance orchestration, policy design, replay/backtesting, cross-domain bridges        | lower layers and stable public facades                      | HTTP/runtime delivery details                                                      |
+| `runtime`    | API/HTTP delivery and adapter wiring                                                                     | public service facades from lower layers                    | direct batch modules, generated artifact internals, private module paths           |
+| `packs`      | Domain packs, examples, policy families, domain-specific adapters                                        | public facades only                                         | private internals of core packages; wildcard imports should be temporary           |
 
 #### 2.5.2 Placement Heuristics
 
 Use the dominant reason a module exists:
 
-| If code primarily... | Home |
-|----------------------|------|
-| Defines portable schemas, references, IDs, or serialization contracts | `ir` or `core.contracts` |
-| Fetches, parses, deduplicates, indexes, or publishes offline source data | `data_forge/<domain>` |
-| Resolves live data needs or materializes runtime evidence/world state | `fabric` |
-| Represents legal norms, validates legal compliance, or computes legal impact | `lex` |
-| Executes numerical methods, simulations, DTR/causal estimators, calibration, or ABM/RL runtime | `foundry` |
-| Chooses policies, searches candidates, coordinates agents, applies governance workflows | `scientist` |
-| Serves HTTP/API requests or translates transport-layer payloads | `runtime` |
-| Is a command, audit, migration, cleanup, or release procedure | `tools/` or `ops/` |
+| If code primarily...                                                                           | Home                     |
+| ---------------------------------------------------------------------------------------------- | ------------------------ |
+| Defines portable schemas, references, IDs, or serialization contracts                          | `ir` or `core.contracts` |
+| Fetches, parses, deduplicates, indexes, or publishes offline source data                       | `data_forge/<domain>`    |
+| Resolves live data needs or materializes runtime evidence/world state                          | `fabric`                 |
+| Represents legal norms, validates legal compliance, or computes legal impact                   | `lex`                    |
+| Executes numerical methods, simulations, DTR/causal estimators, calibration, or ABM/RL runtime | `foundry`                |
+| Chooses policies, searches candidates, coordinates agents, applies governance workflows        | `scientist`              |
+| Serves HTTP/API requests or translates transport-layer payloads                                | `runtime`                |
+| Is a command, audit, migration, cleanup, or release procedure                                  | `tools/` or `ops/`       |
 
 If one file does more than one of these, split it. Do not pick the "least bad"
 single home for a mixed module.
 
 #### 2.5.3 Concrete Source Relocation Decisions
 
-| Current path | Decision | Rationale |
-|--------------|----------|-----------|
-| `polisyos.lex.simulator` | Keep under Lex, but rename/reframe to `lex.impact` or move the analyzer into `lex.legal_evaluation.impact` after compatibility shims exist | It runs legal/safety governance over old/new `NormPack` objects and publishes legal impact reports; it is not a general Foundry runtime |
-| `polisyos.lex.simulator.diff` and `mutator` | Keep Lex/IR-adjacent, possibly under `lex.normpack.whatif` | Pure NormPack diff/mutation belongs close to NormPack semantics |
-| `polisyos.lex.interventions` | Split into three homes | Legal-to-IR directive/compiler stays in Lex; DTR execution moves to Foundry or Scientist bridge; hierarchical policy search adapter moves to Scientist |
-| `polisyos.lex.batch` | Move to `data_forge.legal` | It is offline corpus/SPO/KG generation, not runtime Lex |
-| `polisyos.lex.batch.benchmark` | Move with legal Data Forge benchmarks or `benchmarks/legal/` | A benchmark must not make Lex depend on Scientist |
-| `polisyos.foundry.release_acceptance` | Move to `ops/release` or `data_forge.ukraine.release_acceptance` with a compatibility shim | It imports Ukraine manifests and Scientist postflight checks, so it is a release procedure, not Foundry core |
-| `polisyos.foundry.agent_sim.wiring.contracts` | Replace direct `CompiledLexIntervention` import with neutral IR/core intervention payloads; place Lex-to-agent-sim adapter in Scientist or packs | Foundry should consume executable/vectorized contracts, not legal-domain compiler classes |
-| `polisyos.foundry.methods.catalog.causal.literature_prior` | Route through Scholar or a dependency-light knowledge artifact facade | Foundry methods should not import `academic` pipeline code |
-| `polisyos.foundry.methods.catalog.causal.composition_failure_cards` | Move `TypedFailureCard`/`FailureSeverity` contracts downward to `ir.analytics` or `core.contracts` | Foundry can emit typed failure data without importing Scientist search internals |
-| `polisyos.foundry.methods.catalog.policy.frontier` | Move embedding/search orchestration to Scientist, or inject embedder protocol into Foundry | Foundry method catalog should not depend on Scientist agent embedders |
-| `polisyos.foundry.calibration.calibrator` lazy Scientist import | Replace with callback/protocol or move meta-override application to Scientist orchestration | Calibration engine can expose hooks; Scientist owns policy for using them |
-| `polisyos.ir.analytics.strategic` | Move `ComputeBudget` to core/IR contract and move Foundry-specific bundle construction upward | IR should not import Scientist or Foundry execution builders |
-| `polisyos.ir.analytics.transportability` | Move dataset proxy contracts into IR/core or Data Forge artifact contracts; replace `to_source_domain()` with neutral payload export | IR cannot construct Foundry classes directly |
-| `polisyos.ir.analytics.alignment_certification` | Keep certificate models in IR; move proxy-resolution and ontology-warning service code upward | IR should not import Data Forge/Dataset knowledge or Scientist compiler services |
-| `polisyos.fabric.retrieval.service` source registry import | Move registry contract/read API to `fabric.catalog` or `core.contracts`; Data Forge writes the registry | Runtime Fabric can read registry content without importing batch code |
-| `polisyos.core.components._cli_scientist` | Move to `tools/scientist/` or `scientist/cli.py` | Core should not contain Scientist CLI adapters |
-| `polisyos.ukraine_data.builders` | Split into `data_forge.ukraine` build pipeline plus optional `packs/ukraine` runtime/domain package | Current file mixes data assembly, Foundry bundle prep, Lex interventions, and Scientist governance |
-| `polisyos.runtime.http.services.control` batch calls | Replace direct `lex.batch` calls with Data Forge job/service facade | Runtime can trigger jobs, but should not import batch internals |
+| Current path                                                        | Decision                                                                                                                                         | Rationale                                                                                                                                              |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `polisyos.lex.simulator`                                            | Keep under Lex, but rename/reframe to `lex.impact` or move the analyzer into `lex.legal_evaluation.impact` after compatibility shims exist       | It runs legal/safety governance over old/new `NormPack` objects and publishes legal impact reports; it is not a general Foundry runtime                |
+| `polisyos.lex.simulator.diff` and `mutator`                         | Keep Lex/IR-adjacent, possibly under `lex.normpack.whatif`                                                                                       | Pure NormPack diff/mutation belongs close to NormPack semantics                                                                                        |
+| `polisyos.lex.interventions`                                        | Split into three homes                                                                                                                           | Legal-to-IR directive/compiler stays in Lex; DTR execution moves to Foundry or Scientist bridge; hierarchical policy search adapter moves to Scientist |
+| `polisyos.lex.batch`                                                | Move to `data_forge.legal`                                                                                                                       | It is offline corpus/SPO/KG generation, not runtime Lex                                                                                                |
+| `polisyos.lex.batch.benchmark`                                      | Move with legal Data Forge benchmarks or `benchmarks/legal/`                                                                                     | A benchmark must not make Lex depend on Scientist                                                                                                      |
+| `polisyos.foundry.release_acceptance`                               | Move to `ops/release` or `data_forge.ukraine.release_acceptance` with a compatibility shim                                                       | It imports Ukraine manifests and Scientist postflight checks, so it is a release procedure, not Foundry core                                           |
+| `polisyos.foundry.agent_sim.wiring.contracts`                       | Replace direct `CompiledLexIntervention` import with neutral IR/core intervention payloads; place Lex-to-agent-sim adapter in Scientist or packs | Foundry should consume executable/vectorized contracts, not legal-domain compiler classes                                                              |
+| `polisyos.foundry.methods.catalog.causal.literature_prior`          | Route through Scholar or a dependency-light knowledge artifact facade                                                                            | Foundry methods should not import `academic` pipeline code                                                                                             |
+| `polisyos.foundry.methods.catalog.causal.composition_failure_cards` | Move `TypedFailureCard`/`FailureSeverity` contracts downward to `ir.analytics` or `core.contracts`                                               | Foundry can emit typed failure data without importing Scientist search internals                                                                       |
+| `polisyos.foundry.methods.catalog.policy.frontier`                  | Move embedding/search orchestration to Scientist, or inject embedder protocol into Foundry                                                       | Foundry method catalog should not depend on Scientist agent embedders                                                                                  |
+| `polisyos.foundry.calibration.calibrator` lazy Scientist import     | Replace with callback/protocol or move meta-override application to Scientist orchestration                                                      | Calibration engine can expose hooks; Scientist owns policy for using them                                                                              |
+| `polisyos.ir.analytics.strategic`                                   | Move `ComputeBudget` to core/IR contract and move Foundry-specific bundle construction upward                                                    | IR should not import Scientist or Foundry execution builders                                                                                           |
+| `polisyos.ir.analytics.transportability`                            | Move dataset proxy contracts into IR/core or Data Forge artifact contracts; replace `to_source_domain()` with neutral payload export             | IR cannot construct Foundry classes directly                                                                                                           |
+| `polisyos.ir.analytics.alignment_certification`                     | Keep certificate models in IR; move proxy-resolution and ontology-warning service code upward                                                    | IR should not import Data Forge/Dataset knowledge or Scientist compiler services                                                                       |
+| `polisyos.fabric.retrieval.service` source registry import          | Move registry contract/read API to `fabric.catalog` or `core.contracts`; Data Forge writes the registry                                          | Runtime Fabric can read registry content without importing batch code                                                                                  |
+| `polisyos.core.components._cli_scientist`                           | Move to `tools/scientist/` or `scientist/cli.py`                                                                                                 | Core should not contain Scientist CLI adapters                                                                                                         |
+| `polisyos.ukraine_data.builders`                                    | Split into `data_forge.ukraine` build pipeline plus optional `packs/ukraine` runtime/domain package                                              | Current file mixes data assembly, Foundry bundle prep, Lex interventions, and Scientist governance                                                     |
+| `polisyos.runtime.http.services.control` batch calls                | Replace direct `lex.batch` calls with Data Forge job/service facade                                                                              | Runtime can trigger jobs, but should not import batch internals                                                                                        |
 
 #### 2.5.4 Data Forge vs Runtime Read Facades
 
@@ -789,15 +795,15 @@ become mandatory runtime imports.
 `import_policy.toml` should evolve from today's permissive migration state to
 explicit anti-edges:
 
-| Package | Final rule |
-|---------|------------|
-| `ir` | no imports from `core`, `fabric`, `foundry`, `scientist`, `runtime`, `data_forge`, `academic`, `datasets`, `ukraine_data`, `lex` |
-| `core` | no imports from `fabric`, `foundry`, `scientist`, `runtime`, `data_forge`, or domain packages |
-| `fabric` | no imports from batch domains; only stable registry/contracts/read APIs |
-| `foundry` | no imports from `scientist`, `lex`, `academic`, `datasets`, `ukraine_data`, `data_forge`, `runtime` |
-| `lex` | no imports from `foundry`, `scientist`, `runtime`, or Data Forge pipeline modules |
-| `runtime` | imports only public facades; no `*.batch.*`, no private `_` modules except compatibility windows |
-| `packs` | replace current wildcard allowance with package-specific public-facade imports |
+| Package   | Final rule                                                                                                                       |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `ir`      | no imports from `core`, `fabric`, `foundry`, `scientist`, `runtime`, `data_forge`, `academic`, `datasets`, `ukraine_data`, `lex` |
+| `core`    | no imports from `fabric`, `foundry`, `scientist`, `runtime`, `data_forge`, or domain packages                                    |
+| `fabric`  | no imports from batch domains; only stable registry/contracts/read APIs                                                          |
+| `foundry` | no imports from `scientist`, `lex`, `academic`, `datasets`, `ukraine_data`, `data_forge`, `runtime`                              |
+| `lex`     | no imports from `foundry`, `scientist`, `runtime`, or Data Forge pipeline modules                                                |
+| `runtime` | imports only public facades; no `*.batch.*`, no private `_` modules except compatibility windows                                 |
+| `packs`   | replace current wildcard allowance with package-specific public-facade imports                                                   |
 
 Temporary exceptions must live in `import_exceptions.toml` with owner, reason,
 target path, and sunset phase.
@@ -809,78 +815,78 @@ the backlog for making the repository layout match Sections 2.4 and 2.5.
 
 #### 2.6.1 Source Packages
 
-| Area | Finding | Target work |
-|------|---------|-------------|
-| `src/polisyos/academic` | Mostly build-time literature pipeline; several large batch modules, including `batch/resolve_extract.py` at ~4.2k LOC | Move to `data_forge.academic`; split resolve/extract/graph/index/publish concerns before or during the move |
-| `src/polisyos/datasets` | Build-time dataset catalog; `batch/core_sources_ingest.py` is ~7.9k LOC and mixes source registry, fetch, normalize, publish | Move to `data_forge.catalog`; split per-source adapters, registry contracts, normalization, and publishing |
-| `src/polisyos/lex/batch` | Offline legal corpus/SPO/KG pipeline; `graph_builder.py`, `pipeline.py`, `structurer.py`, `spo_extractor.py` are large orchestration modules | Move to `data_forge.legal`; keep only dependency-light runtime read facades for Lex/Fabric |
-| `src/polisyos/lex/interventions.py` | One file spans legal directive compilation, DTR execution, strategic-response registry, and Scientist search bridge | Split into Lex compiler, Foundry/Scientist DTR bridge, and Scientist policy-search adapter |
-| `src/polisyos/lex/simulator` | Name suggests generic simulation, but code is legal NormPack what-if and governance impact analysis | Rename/reframe to `lex.impact` or `lex.legal_evaluation.impact`; keep compatibility shim |
-| `src/polisyos/ukraine_data` | No package README; `builders.py` is ~5k LOC and mixes build-time data assembly with Lex, Foundry, and Scientist governance | Move build pipeline to `data_forge.ukraine`; move runtime/domain adapters to `packs/ukraine` if they are not build-only |
-| `src/polisyos/foundry` | Domain-neutral compute layer contains release/domain bridges and several causal mega-modules | Move domain bridges out; split method catalog files by algorithm family and keep public method facade stable |
-| `src/polisyos/ir` | Analytics/observation modules import Foundry, Scientist, and Datasets | Keep models/contracts in IR; move execution adapters and service helpers upward |
-| `src/polisyos/runtime/http/services/control.py` | ~4k LOC control surface imports many lower-level internals, including batch paths | Split by bounded service surface: data, runs, artifacts, lex, admin; call public facades only |
-| `src/polisyos/scientist/nodes/builtins` | Several large built-in node files combine orchestration and payload construction | Split large node implementations into contracts, loaders, execution, and presentation helpers |
-| `src/polisyos/packs` | Empty-ish namespace with no README while import policy currently allows wildcard dependencies | Define pack policy, add README, and narrow imports to public facades |
-| `src/polisyos/**/__pycache__` and `.DS_Store` | Local generated files are present throughout source packages | Keep ignored; add cleanup/doctor command and IDE excludes so source views stay clean |
+| Area                                            | Finding                                                                                                                                      | Target work                                                                                                             |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `src/polisyos/academic`                         | Mostly build-time literature pipeline; several large batch modules, including `batch/resolve_extract.py` at ~4.2k LOC                        | Move to `data_forge.academic`; split resolve/extract/graph/index/publish concerns before or during the move             |
+| `src/polisyos/datasets`                         | Build-time dataset catalog; `batch/core_sources_ingest.py` is ~7.9k LOC and mixes source registry, fetch, normalize, publish                 | Move to `data_forge.catalog`; split per-source adapters, registry contracts, normalization, and publishing              |
+| `src/polisyos/lex/batch`                        | Offline legal corpus/SPO/KG pipeline; `graph_builder.py`, `pipeline.py`, `structurer.py`, `spo_extractor.py` are large orchestration modules | Move to `data_forge.legal`; keep only dependency-light runtime read facades for Lex/Fabric                              |
+| `src/polisyos/lex/interventions.py`             | One file spans legal directive compilation, DTR execution, strategic-response registry, and Scientist search bridge                          | Split into Lex compiler, Foundry/Scientist DTR bridge, and Scientist policy-search adapter                              |
+| `src/polisyos/lex/simulator`                    | Name suggests generic simulation, but code is legal NormPack what-if and governance impact analysis                                          | Rename/reframe to `lex.impact` or `lex.legal_evaluation.impact`; keep compatibility shim                                |
+| `src/polisyos/ukraine_data`                     | No package README; `builders.py` is ~5k LOC and mixes build-time data assembly with Lex, Foundry, and Scientist governance                   | Move build pipeline to `data_forge.ukraine`; move runtime/domain adapters to `packs/ukraine` if they are not build-only |
+| `src/polisyos/foundry`                          | Domain-neutral compute layer contains release/domain bridges and several causal mega-modules                                                 | Move domain bridges out; split method catalog files by algorithm family and keep public method facade stable            |
+| `src/polisyos/ir`                               | Analytics/observation modules import Foundry, Scientist, and Datasets                                                                        | Keep models/contracts in IR; move execution adapters and service helpers upward                                         |
+| `src/polisyos/runtime/http/services/control.py` | ~4k LOC control surface imports many lower-level internals, including batch paths                                                            | Split by bounded service surface: data, runs, artifacts, lex, admin; call public facades only                           |
+| `src/polisyos/scientist/nodes/builtins`         | Several large built-in node files combine orchestration and payload construction                                                             | Split large node implementations into contracts, loaders, execution, and presentation helpers                           |
+| `src/polisyos/packs`                            | Empty-ish namespace with no README while import policy currently allows wildcard dependencies                                                | Define pack policy, add README, and narrow imports to public facades                                                    |
+| `src/polisyos/**/__pycache__` and `.DS_Store`   | Local generated files are present throughout source packages                                                                                 | Keep ignored; add cleanup/doctor command and IDE excludes so source views stay clean                                    |
 
 #### 2.6.2 Tests, Fixtures, and Benchmarks
 
-| Area | Finding | Target work |
-|------|---------|-------------|
-| `tests/academic`, `tests/datasets`, `tests/ukraine_data`, `tests/lex/batch` | Tests mirror old package boundaries | Move or alias tests with the code: `tests/data_forge/academic`, `tests/data_forge/catalog`, `tests/data_forge/ukraine`, `tests/data_forge/legal` |
-| `tests/fixtures` | Shared fixture directory lacks README/ownership policy | Add fixture README with size, determinism, refresh, and commit policy |
-| `tests/foundry` and `tests/scientist` | Very large test subtrees; many pycache artifacts present locally | Keep source layout, but hide generated caches and require suite-level README/ownership for large subtrees |
-| `benchmarks/_reports` | Ignored generated benchmark output lives beside benchmark source and is ~9.5 MB locally | Route transient reports to `.polisyos/benchmarks/`; move curated summaries to `docs/archive/reports/` or register as generated artifacts |
-| `benchmark-results` | Ignored final/visual benchmark output lives at product root | Treat as local output only; canonical baseline summaries go through the generated-artifact registry |
-| `benchmarks/*` | Many benchmark suites lack README files | Add suite-level READMEs for non-obvious suites or create a central benchmark registry with owner, inputs, outputs, and expected runtime |
+| Area                                                                        | Finding                                                                                 | Target work                                                                                                                                      |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tests/academic`, `tests/datasets`, `tests/ukraine_data`, `tests/lex/batch` | Tests mirror old package boundaries                                                     | Move or alias tests with the code: `tests/data_forge/academic`, `tests/data_forge/catalog`, `tests/data_forge/ukraine`, `tests/data_forge/legal` |
+| `tests/fixtures`                                                            | Shared fixture directory lacks README/ownership policy                                  | Add fixture README with size, determinism, refresh, and commit policy                                                                            |
+| `tests/foundry` and `tests/scientist`                                       | Very large test subtrees; many pycache artifacts present locally                        | Keep source layout, but hide generated caches and require suite-level README/ownership for large subtrees                                        |
+| `benchmarks/_reports`                                                       | Ignored generated benchmark output lives beside benchmark source and is ~9.5 MB locally | Route transient reports to `.polisyos/benchmarks/`; move curated summaries to `docs/archive/reports/` or register as generated artifacts         |
+| `benchmark-results`                                                         | Ignored final/visual benchmark output lives at product root                             | Treat as local output only; canonical baseline summaries go through the generated-artifact registry                                              |
+| `benchmarks/*`                                                              | Many benchmark suites lack README files                                                 | Add suite-level READMEs for non-obvious suites or create a central benchmark registry with owner, inputs, outputs, and expected runtime          |
 
 #### 2.6.3 Tools, Scripts, and Operations
 
-| Area | Finding | Target work |
-|------|---------|-------------|
-| `tools/cloud` vs `tools/ops/cloud` | Exact duplicated basenames across the cloud tool tree | Pick `tools/ops/cloud` as canonical; make `tools/cloud` wrapper-only with sunset, then remove |
-| `tools/lint` vs `tools/quality/lint` | Duplicate lint command homes | Pick `tools/quality/lint` for quality gates; keep old path wrappers only during transition |
-| `tools/diagnostics` vs `tools/quality/diagnostics` | Duplicate diagnostics command homes | Pick one canonical diagnostics namespace under `tools/quality` or `tools/devx`; document command aliases |
-| `tools/validation` vs `tools/quality/validation` | Duplicate validation command homes | Consolidate validation under `tools/quality/validation` |
-| `tools/testing` vs `tools/quality/testing` | Duplicate testing helpers | Consolidate under `tools/quality/testing` unless a helper is pure developer workflow |
-| `tools/data` vs `tools/ops/data` | Duplicate data utility homes | Split: Data Forge CLIs under package/tools, operational data jobs under `tools/ops/data` |
-| `tools/release` vs `tools/ops/release` | Duplicate release utility homes | Use `tools/ops/release` for release procedures; keep `release/` for release policy/config only |
-| `tools/ukraine_data` vs `tools/ops/ukraine_data` | Duplicate Ukraine operational tooling | Move build-time tooling to `data_forge.ukraine` or `tools/data_forge/ukraine`; operations to `tools/ops/ukraine_data` |
-| `scripts/` | Mix of bootstrap wrappers, benchmark scripts, fixture recorders, and generated `__pycache__` | Keep only stable executable wrappers; move maintained Python logic to `tools/` or package CLIs |
-| `cloud_deploy/`, `gcp/`, `deploy/`, `docker/`, `ops/` | Multiple operations/deployment homes; `cloud_deploy` contains local env/shard files | Consolidate under `ops/cloud`, `ops/docker`, `ops/observability`, and `ops/release`; local env/shards move to ignored `.polisyos/` or root `data/` |
-| nested `policy-engine/.github` | Duplicate GitHub config/workflows beside root `.github` | Root `.github` is active; move product templates to `ops/ci/templates` or delete obsolete nested workflows |
+| Area                                                  | Finding                                                                                      | Target work                                                                                                                                        |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tools/cloud` vs `tools/ops/cloud`                    | Exact duplicated basenames across the cloud tool tree                                        | Pick `tools/ops/cloud` as canonical; make `tools/cloud` wrapper-only with sunset, then remove                                                      |
+| `tools/lint` vs `tools/quality/lint`                  | Duplicate lint command homes                                                                 | Pick `tools/quality/lint` for quality gates; keep old path wrappers only during transition                                                         |
+| `tools/diagnostics` vs `tools/quality/diagnostics`    | Duplicate diagnostics command homes                                                          | Pick one canonical diagnostics namespace under `tools/quality` or `tools/devx`; document command aliases                                           |
+| `tools/validation` vs `tools/quality/validation`      | Duplicate validation command homes                                                           | Consolidate validation under `tools/quality/validation`                                                                                            |
+| `tools/testing` vs `tools/quality/testing`            | Duplicate testing helpers                                                                    | Consolidate under `tools/quality/testing` unless a helper is pure developer workflow                                                               |
+| `tools/data` vs `tools/ops/data`                      | Duplicate data utility homes                                                                 | Split: Data Forge CLIs under package/tools, operational data jobs under `tools/ops/data`                                                           |
+| `tools/release` vs `tools/ops/release`                | Duplicate release utility homes                                                              | Use `tools/ops/release` for release procedures; keep `release/` for release policy/config only                                                     |
+| `tools/ukraine_data` vs `tools/ops/ukraine_data`      | Duplicate Ukraine operational tooling                                                        | Move build-time tooling to `data_forge.ukraine` or `tools/data_forge/ukraine`; operations to `tools/ops/ukraine_data`                              |
+| `scripts/`                                            | Mix of bootstrap wrappers, benchmark scripts, fixture recorders, and generated `__pycache__` | Keep only stable executable wrappers; move maintained Python logic to `tools/` or package CLIs                                                     |
+| `cloud_deploy/`, `gcp/`, `deploy/`, `docker/`, `ops/` | Multiple operations/deployment homes; `cloud_deploy` contains local env/shard files          | Consolidate under `ops/cloud`, `ops/docker`, `ops/observability`, and `ops/release`; local env/shards move to ignored `.polisyos/` or root `data/` |
+| nested `policy-engine/.github`                        | Duplicate GitHub config/workflows beside root `.github`                                      | Root `.github` is active; move product templates to `ops/ci/templates` or delete obsolete nested workflows                                         |
 
 #### 2.6.4 Frontend
 
-| Area | Finding | Target work |
-|------|---------|-------------|
-| `frontend/runtime-dashboard/node_modules` | ~760 MB local dependency tree | Ignored/local only; hide in IDE and cleanup command |
-| `frontend/runtime-dashboard/dist`, `coverage`, `storybook-static`, `playwright-report`, `test-results` | Generated outputs live beside source | Keep ignored; route persistent curated reports to docs/archive or CI artifacts |
-| `frontend/runtime-dashboard/src/api/types.ts` | Large generated API type file (~8.2k LOC) is tracked | Register as generated artifact with source OpenAPI command, owner, and freshness rule |
-| `frontend/runtime-api-client` | Generated client is tracked | Register as generated artifact; ensure generation command is canonical and CI-verifiable |
-| `frontend/runtime-dashboard/.tmp` | Local fixture/generated runtime payloads live inside frontend | Keep ignored; if fixtures become canonical, move to `src/test/fixtures` or `tests/frontend/fixtures` with README |
-| `frontend/runtime-dashboard/src/features/*` | Feature-sliced layout is mostly healthy | Keep; apply the same boundary policy: features consume `src/api`, `shared`, and domain models through public barrels rather than deep imports |
+| Area                                                                                                   | Finding                                                       | Target work                                                                                                                                   |
+| ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `frontend/runtime-dashboard/node_modules`                                                              | ~760 MB local dependency tree                                 | Ignored/local only; hide in IDE and cleanup command                                                                                           |
+| `frontend/runtime-dashboard/dist`, `coverage`, `storybook-static`, `playwright-report`, `test-results` | Generated outputs live beside source                          | Keep ignored; route persistent curated reports to docs/archive or CI artifacts                                                                |
+| `frontend/runtime-dashboard/src/api/types.ts`                                                          | Large generated API type file (~8.2k LOC) is tracked          | Register as generated artifact with source OpenAPI command, owner, and freshness rule                                                         |
+| `frontend/runtime-api-client`                                                                          | Generated client is tracked                                   | Register as generated artifact; ensure generation command is canonical and CI-verifiable                                                      |
+| `frontend/runtime-dashboard/.tmp`                                                                      | Local fixture/generated runtime payloads live inside frontend | Keep ignored; if fixtures become canonical, move to `src/test/fixtures` or `tests/frontend/fixtures` with README                              |
+| `frontend/runtime-dashboard/src/features/*`                                                            | Feature-sliced layout is mostly healthy                       | Keep; apply the same boundary policy: features consume `src/api`, `shared`, and domain models through public barrels rather than deep imports |
 
 #### 2.6.5 Docs, Architecture, and Release Metadata
 
-| Area | Finding | Target work |
-|------|---------|-------------|
-| `docs/*.md` | Many active root-level plan docs coexist with reference/how-to/runbook docs | Every active plan gets owner and `.gitignore` exception; accepted plans move to `docs/archive/plans/` with ADR/reference/runbook follow-up |
-| `docs/.DS_Store` | Local Finder artifact in docs root | Delete locally; keep ignored |
-| active docs with absolute local paths | Active docs should not contain `/Users/...` or machine-local paths except intentional archived evidence | Keep archive evidence if needed; fix active reference docs and rely on docs accuracy gate |
-| `architecture/` | Already has public surface and generated artifact registry | Add `topology.toml` and `package_boundaries.toml`; make guardrails read these instead of hardcoded assumptions |
-| `release/` | Release policy/config is small and tracked | Keep as policy/config; move runnable release procedures to `tools/ops/release` |
+| Area                                  | Finding                                                                                                 | Target work                                                                                                                                |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `docs/*.md`                           | Many active root-level plan docs coexist with reference/how-to/runbook docs                             | Every active plan gets owner and `.gitignore` exception; accepted plans move to `docs/archive/plans/` with ADR/reference/runbook follow-up |
+| `docs/.DS_Store`                      | Local Finder artifact in docs root                                                                      | Delete locally; keep ignored                                                                                                               |
+| active docs with absolute local paths | Active docs should not contain `/Users/...` or machine-local paths except intentional archived evidence | Keep archive evidence if needed; fix active reference docs and rely on docs accuracy gate                                                  |
+| `architecture/`                       | Already has public surface and generated artifact registry                                              | Add `topology.toml` and `package_boundaries.toml`; make guardrails read these instead of hardcoded assumptions                             |
+| `release/`                            | Release policy/config is small and tracked                                                              | Keep as policy/config; move runnable release procedures to `tools/ops/release`                                                             |
 
 #### 2.6.6 Local Data, Runtime State, and Generated Outputs
 
-| Area | Finding | Target work |
-|------|---------|-------------|
-| `policy-engine/data` | Only README/guidelines are tracked; ignored raw WVS/local DB data is large | Keep tracked docs/gold only; move raw/local DBs to root `data/` or `.polisyos/` |
-| `production_data` | 7.4 GB local release cache with DuckDB/HNSW/JSONL/NPZ bundles | Keep ignored; manifests use logical artifact URIs + hashes, not local absolute paths |
-| `runs/`, `logs/`, `tmp/`, `.tmp/`, `.polisyos/` | Local runtime/scratch state appears in several places | Route product-local state to `.polisyos/` by default and scratch to `.tmp/`; root `tmp/` is user scratch only |
-| `site/`, `dist/`, `out/` | Generated docs/build/batch outputs in product root | Keep ignored; add doctor checks when generated output grows outside approved roots |
-| `__pycache__`, `.pytest_cache`, `.mypy_cache`, `.ruff_cache`, `.hypothesis`, `.uv-cache`, `.venv*` | Expected local caches and environments | Keep ignored; add `tools/workspace/clean` or `polisyos doctor --cleanup` recipe |
+| Area                                                                                               | Finding                                                                    | Target work                                                                                                   |
+| -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `policy-engine/data`                                                                               | Only README/guidelines are tracked; ignored raw WVS/local DB data is large | Keep tracked docs/gold only; move raw/local DBs to root `data/` or `.polisyos/`                               |
+| `production_data`                                                                                  | 7.4 GB local release cache with DuckDB/HNSW/JSONL/NPZ bundles              | Keep ignored; manifests use logical artifact URIs + hashes, not local absolute paths                          |
+| `runs/`, `logs/`, `tmp/`, `.tmp/`, `.polisyos/`                                                    | Local runtime/scratch state appears in several places                      | Route product-local state to `.polisyos/` by default and scratch to `.tmp/`; root `tmp/` is user scratch only |
+| `site/`, `dist/`, `out/`                                                                           | Generated docs/build/batch outputs in product root                         | Keep ignored; add doctor checks when generated output grows outside approved roots                            |
+| `__pycache__`, `.pytest_cache`, `.mypy_cache`, `.ruff_cache`, `.hypothesis`, `.uv-cache`, `.venv*` | Expected local caches and environments                                     | Keep ignored; add `tools/workspace/clean` or `polisyos doctor --cleanup` recipe                               |
 
 ---
 
@@ -889,6 +895,7 @@ the backlog for making the repository layout match Sections 2.4 and 2.5.
 ### 3.1 Naming: `data_forge`
 
 "forge" evokes transformation (raw -> refined), distinct from fabric's "weaving" metaphor. Alternatives considered:
+
 - "pipeline" -- too generic (every module has pipelines)
 - "ingestion" -- understates scope (includes extraction, graph building, embedding)
 - "data_plane_batch" -- too infrastructure-y for a domain module
@@ -896,6 +903,7 @@ the backlog for making the repository layout match Sections 2.4 and 2.5.
 ### 3.2 Knowledge subpackages: Inside data_forge
 
 `academic/knowledge/` and `catalog/knowledge/` move into data_forge because:
+
 1. They query DuckDB/HNSW artifacts that data_forge produces
 2. They version-track with the schema that data_forge defines
 3. Build-time schema and artifact readers version with the producing pipeline
@@ -924,6 +932,7 @@ data_forge shares types with fabric, scientist, foundry. Separate package would 
 ### 3.5 Source adapter protocol: Promote to generic
 
 Ukraine's `SourceAdapter` protocol (discover -> fetch -> normalize -> validate) generalized for all pipelines as `data_forge/harvest/adapter.py`. Domain implementations:
+
 - `OpenAlexAdapter` -- academic
 - `SDMXAdapter`, `CKANAdapter` -- catalog
 - `TabularAdapter` -- ukraine
@@ -1024,6 +1033,7 @@ class Stage(Protocol):
 ```
 
 **Why this matters:**
+
 - `@runtime_checkable` enables `isinstance(stage, Stage)` validation at DAG build time
 - `StageContract` catches misconfigured DAGs before execution (compile-time safety)
 - `ResourceEstimate` enables smart scheduling (memory/disk pre-checks)
@@ -1263,6 +1273,7 @@ async def run_academic_pipeline(config: AcademicConfig) -> PipelineResult:
 ```
 
 **Benefits:**
+
 - Automatic topological sort and parallel stage execution where dependencies allow
 - Each stage is independently testable
 - `depends_on` makes data flow explicit and auditable
@@ -1270,7 +1281,7 @@ async def run_academic_pipeline(config: AcademicConfig) -> PipelineResult:
 
 **Parallelizable stages identified:**
 
-```
+```text
 Academic:  topic_select -> [harvest, demand_harvest]
            resolve_finalize -> [numeric_extract, merge]
            graph_load -> [embed, transport_score]
@@ -1462,6 +1473,7 @@ class LineageRecord:
 ```
 
 Every artifact gets a lineage record in `manifests/lineage.jsonl`. Enables:
+
 - Full backward tracing from any production artifact to raw source
 - Diff detection: which artifacts changed between runs
 - Audit compliance for data provenance requirements
@@ -1762,6 +1774,7 @@ class IncrementalStrategy:
 ```
 
 Domain-specific strategies:
+
 - **Academic:** re-extract only papers with new fulltext availability or retraction status
 - **Catalog:** re-harvest only sources whose upstream data changed (via ETag/Last-Modified)
 - **Ukraine:** re-build only stages whose normalized parquet inputs changed
@@ -1773,7 +1786,7 @@ Domain-specific strategies:
 
 ### 6.1 Four-Tier Quality Cascade
 
-```
+```text
 Tier 0 (compile-time):   StageContract validation at DAG build
                           -> Catches misconfigured pipelines before any execution
                           -> NEW: not in any current pipeline
@@ -1939,6 +1952,7 @@ python -m polisyos.data_forge --dry-run academic     # Show execution plan witho
 ```
 
 Commands `doctor`, `validate`, `config`, `clean`, `diff` are new. Rationale:
+
 - `doctor` -- pre-flight environment validation. Generalizes Ukraine's `probe_local_server_capabilities()`.
 - `config` -- show resolved config. Helps debug "why did it use this model?"
 - `validate` -- run QC on existing snapshot without re-running pipeline. Post-migration verification.
@@ -1964,24 +1978,24 @@ Commands `doctor`, `validate`, `config`, `clean`, `diff` are new. Rationale:
 Create a factual inventory of the current tree before moving domain code. This
 phase is intentionally low-risk and should not change runtime behavior.
 
-| Task | Details |
-|------|---------|
-| Produce top-level inventory | List every repository-root and `policy-engine/` top-level path with owner, type, size, Git status, and target home |
-| Produce package import graph | Generate current package-level and subpackage-level imports for `src/polisyos/**`; record all reverse edges from Section 2.5 |
-| Produce directory work register | Use Section 2.6 as the initial backlog; add owner, priority, target phase, and compatibility strategy to each item |
-| Inventory data roots | Classify `data/`, `tmp/`, `policy-engine/data/`, `policy-engine/production_data/`, `policy-engine/benchmark-results/`, `policy-engine/baseline/`, and `policy-engine/tmp/` by layer, domain, snapshot id, commit policy, and retention |
-| Inventory duplicate tool homes | Compare `tools/*`, `tools/ops/*`, `tools/quality/*`, `tools/research/*`, `scripts/`, and ops directories for duplicate command names and owners |
-| Classify loose files | Apply the disposition matrix in Section 2.4.10 to every top-level file in repository root and `policy-engine/` |
-| Classify files | Use categories: source, docs, test fixture, generated committed artifact, local data, runtime state, build output, cache, scratch |
-| Draft package boundary ledger | Add an import-boundary appendix or `architecture/package_boundaries.toml` covering owner, allowed dependencies, public facade, and sunset exceptions for each package |
-| Confirm ignored plan files | Add explicit `.gitignore` exceptions for source-of-truth plans that must be reviewed |
-| Draft topology registry | Add `architecture/topology.toml` with allowed top-level paths, category, owner, commit policy, and sunset phase |
-| Add topology gate | Extend `tools/architecture/guardrails.py` to flag unknown top-level paths and product source under repository root |
-| Update ownership | Add `data_forge` ownership to `.github/CODEOWNERS` and `docs/reference/ownership.md` |
-| Define quarantine paths | Use `.polisyos/audits/`, `.polisyos/reports/`, `.tmp/`, `tmp/`, and root `data/` for local state instead of ad-hoc root files |
-| Update IDE excludes | Hide caches, virtualenvs, build outputs, `production_data/`, `node_modules/`, `site/`, `dist/`, `tmp/`, and local CAS from normal explorer views |
-| Document allowed top-level paths | Update README or contributor docs with a short allowlist for root and `policy-engine/` top-level directories |
-| Add loose-file gate | Fail CI when a new top-level file is neither a sentinel, registered topology entry, ignored local artifact, nor temporary wrapper |
+| Task                             | Details                                                                                                                                                                                                                                |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Produce top-level inventory      | List every repository-root and `policy-engine/` top-level path with owner, type, size, Git status, and target home                                                                                                                     |
+| Produce package import graph     | Generate current package-level and subpackage-level imports for `src/polisyos/**`; record all reverse edges from Section 2.5                                                                                                           |
+| Produce directory work register  | Use Section 2.6 as the initial backlog; add owner, priority, target phase, and compatibility strategy to each item                                                                                                                     |
+| Inventory data roots             | Classify `data/`, `tmp/`, `policy-engine/data/`, `policy-engine/production_data/`, `policy-engine/benchmark-results/`, `policy-engine/baseline/`, and `policy-engine/tmp/` by layer, domain, snapshot id, commit policy, and retention |
+| Inventory duplicate tool homes   | Compare `tools/*`, `tools/ops/*`, `tools/quality/*`, `tools/research/*`, `scripts/`, and ops directories for duplicate command names and owners                                                                                        |
+| Classify loose files             | Apply the disposition matrix in Section 2.4.10 to every top-level file in repository root and `policy-engine/`                                                                                                                         |
+| Classify files                   | Use categories: source, docs, test fixture, generated committed artifact, local data, runtime state, build output, cache, scratch                                                                                                      |
+| Draft package boundary ledger    | Add an import-boundary appendix or `architecture/package_boundaries.toml` covering owner, allowed dependencies, public facade, and sunset exceptions for each package                                                                  |
+| Confirm ignored plan files       | Add explicit `.gitignore` exceptions for source-of-truth plans that must be reviewed                                                                                                                                                   |
+| Draft topology registry          | Add `architecture/topology.toml` with allowed top-level paths, category, owner, commit policy, and sunset phase                                                                                                                        |
+| Add topology gate                | Extend `tools/architecture/guardrails.py` to flag unknown top-level paths and product source under repository root                                                                                                                     |
+| Update ownership                 | Add `data_forge` ownership to `.github/CODEOWNERS` and `docs/reference/ownership.md`                                                                                                                                                   |
+| Define quarantine paths          | Use `.polisyos/audits/`, `.polisyos/reports/`, `.tmp/`, `tmp/`, and root `data/` for local state instead of ad-hoc root files                                                                                                          |
+| Update IDE excludes              | Hide caches, virtualenvs, build outputs, `production_data/`, `node_modules/`, `site/`, `dist/`, `tmp/`, and local CAS from normal explorer views                                                                                       |
+| Document allowed top-level paths | Update README or contributor docs with a short allowlist for root and `policy-engine/` top-level directories                                                                                                                           |
+| Add loose-file gate              | Fail CI when a new top-level file is neither a sentinel, registered topology entry, ignored local artifact, nor temporary wrapper                                                                                                      |
 
 **Validation:** No imports change. `git status --ignored` shows expected local
 artifacts as ignored, and source-of-truth docs are visible to Git.
@@ -1992,80 +2006,80 @@ Create `data_forge/` package with shared infrastructure modules. No domain code 
 
 #### 9.3.1 Pre-Migration: Capture Golden Snapshots
 
-| Task | Details |
-|------|---------|
-| Capture academic golden | Run academic pipeline on 50-paper test corpus -> snapshot all outputs (DuckDB, JSONL, HNSW) |
-| Capture catalog golden | Run catalog pipeline with `preflight_core` profile -> snapshot outputs |
-| Capture legal golden | Run lex batch on 10-document test corpus -> snapshot outputs |
-| Capture ukraine golden | Use existing D0_P0 test fixtures -> snapshot outputs |
-| Create golden test harness | `data_forge/testing/golden.py` with `capture` and `verify` commands |
+| Task                       | Details                                                                                     |
+| -------------------------- | ------------------------------------------------------------------------------------------- |
+| Capture academic golden    | Run academic pipeline on 50-paper test corpus -> snapshot all outputs (DuckDB, JSONL, HNSW) |
+| Capture catalog golden     | Run catalog pipeline with `preflight_core` profile -> snapshot outputs                      |
+| Capture legal golden       | Run lex batch on 10-document test corpus -> snapshot outputs                                |
+| Capture ukraine golden     | Use existing D0_P0 test fixtures -> snapshot outputs                                        |
+| Create golden test harness | `data_forge/testing/golden.py` with `capture` and `verify` commands                         |
 
 #### 9.3.2 Framework Unit Tests FIRST
 
 Write unit tests for the framework before any domain code migrates:
 
-| Test Module | Tests |
-|-------------|-------|
-| `test_stage_protocol.py` | Contract validation, DAG building, cycle detection |
-| `test_orchestrator.py` | Topo sort, skip detection, parallel execution, cascade failure |
-| `test_checkpoints.py` | Content-addressed skip, mtime fast path, output existence |
-| `test_manifest.py` | Write/read roundtrip, SHA256 computation, ArtifactRef |
-| `test_rate_limiter.py` | Token bucket, burst, concurrent limit |
-| `test_fetcher.py` | Retry, backoff, circuit breaker, 429 handling |
-| `test_dedup.py` | Quality-ranked replacement, key generation |
-| `test_qc.py` | Severity filtering, fail-fast evaluation |
+| Test Module              | Tests                                                          |
+| ------------------------ | -------------------------------------------------------------- |
+| `test_stage_protocol.py` | Contract validation, DAG building, cycle detection             |
+| `test_orchestrator.py`   | Topo sort, skip detection, parallel execution, cascade failure |
+| `test_checkpoints.py`    | Content-addressed skip, mtime fast path, output existence      |
+| `test_manifest.py`       | Write/read roundtrip, SHA256 computation, ArtifactRef          |
+| `test_rate_limiter.py`   | Token bucket, burst, concurrent limit                          |
+| `test_fetcher.py`        | Retry, backoff, circuit breaker, 429 handling                  |
+| `test_dedup.py`          | Quality-ranked replacement, key generation                     |
+| `test_qc.py`             | Severity filtering, fail-fast evaluation                       |
 
 **Rule:** Framework must have >90% test coverage before Phase 1.
 
 #### 9.3.3 Move Shared Infrastructure
 
-| Task | Source | Target |
-|------|--------|--------|
-| Create `pipeline/` framework | New code, patterns from all orchestrators | `data_forge/pipeline/` |
-| Move hashing | `batch_common/hashing.py` | `data_forge/io/hashing.py` |
-| Move paths | `batch_common/paths.py` | `data_forge/io/paths.py` |
-| Move manifests | `batch_common/manifest.py` | `data_forge/pipeline/manifest.py` |
-| Move QC models | `batch_common/qc.py` | `data_forge/quality/qc.py` |
-| Move phase0 gates | `batch_common/phase0_quality_validation.py` | `data_forge/quality/phase0.py` |
-| Move thermal | `batch_common/thermal.py` | `data_forge/harvest/thermal.py` |
-| Move snapshot | `batch_snapshot/cli.py` | `data_forge/snapshot/finalize.py` |
-| Move checkpoints | `datasets/batch/checkpoints.py` | `data_forge/pipeline/checkpoints.py` |
-| Move country_codes | `datasets/knowledge/country_codes.py` | `data_forge/transform/country_codes.py` |
-| Move interpolation | `datasets/batch/interpolation.py` | `data_forge/transform/interpolation.py` |
-| Move rate_limiter | `academic/openalex/rate_limiter.py` | `data_forge/harvest/rate_limiter.py` |
-| Re-export from old locations | Add compatibility shims | `batch_common/__init__.py`, etc. |
+| Task                         | Source                                      | Target                                  |
+| ---------------------------- | ------------------------------------------- | --------------------------------------- |
+| Create `pipeline/` framework | New code, patterns from all orchestrators   | `data_forge/pipeline/`                  |
+| Move hashing                 | `batch_common/hashing.py`                   | `data_forge/io/hashing.py`              |
+| Move paths                   | `batch_common/paths.py`                     | `data_forge/io/paths.py`                |
+| Move manifests               | `batch_common/manifest.py`                  | `data_forge/pipeline/manifest.py`       |
+| Move QC models               | `batch_common/qc.py`                        | `data_forge/quality/qc.py`              |
+| Move phase0 gates            | `batch_common/phase0_quality_validation.py` | `data_forge/quality/phase0.py`          |
+| Move thermal                 | `batch_common/thermal.py`                   | `data_forge/harvest/thermal.py`         |
+| Move snapshot                | `batch_snapshot/cli.py`                     | `data_forge/snapshot/finalize.py`       |
+| Move checkpoints             | `datasets/batch/checkpoints.py`             | `data_forge/pipeline/checkpoints.py`    |
+| Move country_codes           | `datasets/knowledge/country_codes.py`       | `data_forge/transform/country_codes.py` |
+| Move interpolation           | `datasets/batch/interpolation.py`           | `data_forge/transform/interpolation.py` |
+| Move rate_limiter            | `academic/openalex/rate_limiter.py`         | `data_forge/harvest/rate_limiter.py`    |
+| Re-export from old locations | Add compatibility shims                     | `batch_common/__init__.py`, etc.        |
 
 **Validation:** All existing tests pass with re-exports.
 
 #### 9.3.4 Directory Guardrails for New Shared Code
 
-| Guardrail | Rule |
-|-----------|------|
-| No new old-package infra | Do not add new shared helpers under `batch_common`, `academic/batch`, `datasets/batch`, `lex/batch`, or `ukraine_data` after this phase starts |
-| One public facade | `polisyos.data_forge` owns the new public batch facade; old packages only re-export |
-| Generated artifacts registered | Any committed schema, manifest, report, or fixture family is added to `architecture/generated_artifacts.toml` |
-| Local outputs redirected | New CLI defaults write scratch to `.polisyos/` or `.tmp/`, not to product root |
-| Import policy staged | Add `data_forge` to `import_policy.toml` while old roots remain allowed only for compatibility shims |
-| Reverse edges frozen | No new `ir -> foundry/scientist/datasets`, `foundry -> scientist/lex/domain`, or `lex -> foundry/scientist` imports after Phase 0 |
-| Fixtures normalized | Data Forge test fixtures use `tests/data_forge/**`; migration goldens use the fixture policy in Section 2.4.7 |
+| Guardrail                      | Rule                                                                                                                                           |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| No new old-package infra       | Do not add new shared helpers under `batch_common`, `academic/batch`, `datasets/batch`, `lex/batch`, or `ukraine_data` after this phase starts |
+| One public facade              | `polisyos.data_forge` owns the new public batch facade; old packages only re-export                                                            |
+| Generated artifacts registered | Any committed schema, manifest, report, or fixture family is added to `architecture/generated_artifacts.toml`                                  |
+| Local outputs redirected       | New CLI defaults write scratch to `.polisyos/` or `.tmp/`, not to product root                                                                 |
+| Import policy staged           | Add `data_forge` to `import_policy.toml` while old roots remain allowed only for compatibility shims                                           |
+| Reverse edges frozen           | No new `ir -> foundry/scientist/datasets`, `foundry -> scientist/lex/domain`, or `lex -> foundry/scientist` imports after Phase 0              |
+| Fixtures normalized            | Data Forge test fixtures use `tests/data_forge/**`; migration goldens use the fixture policy in Section 2.4.7                                  |
 
 ### 9.4 Phase 1: Academic Pipeline
 
 Move `academic/` into `data_forge/academic/`.
 
-| Task | Details |
-|------|---------|
-| Move batch stages | `academic/batch/*.py` -> `data_forge/academic/stages/` |
-| Move config | `academic/batch/config.py` -> `data_forge/academic/config.py`, inherit `BasePipelineConfig` |
-| Move pipeline | `academic/batch/pipeline.py` -> `data_forge/academic/pipeline.py`, use generic orchestrator |
-| Move OpenAlex | `academic/openalex/` -> `data_forge/academic/openalex/` |
-| Move prompts | `academic/batch/prompts/` -> `data_forge/academic/prompts/` |
-| Move knowledge | `academic/knowledge/` -> `data_forge/academic/knowledge/` |
-| Move trust | `academic/trust.py` -> `data_forge/academic/trust.py` |
-| Extract LLM client | `academic/batch/llm_extractor.py` -> `data_forge/extraction/llm_client.py` (generic) |
-| Extract embedder | `academic/batch/embedder.py` -> `data_forge/index/embedder.py` (generic) |
-| Split resolve_extract.py | 4,246 LOC god file -> 5 modules (see Section 1.2.1) |
-| Re-export | `polisyos.academic` -> `polisyos.data_forge.academic` |
+| Task                     | Details                                                                                     |
+| ------------------------ | ------------------------------------------------------------------------------------------- |
+| Move batch stages        | `academic/batch/*.py` -> `data_forge/academic/stages/`                                      |
+| Move config              | `academic/batch/config.py` -> `data_forge/academic/config.py`, inherit `BasePipelineConfig` |
+| Move pipeline            | `academic/batch/pipeline.py` -> `data_forge/academic/pipeline.py`, use generic orchestrator |
+| Move OpenAlex            | `academic/openalex/` -> `data_forge/academic/openalex/`                                     |
+| Move prompts             | `academic/batch/prompts/` -> `data_forge/academic/prompts/`                                 |
+| Move knowledge           | `academic/knowledge/` -> `data_forge/academic/knowledge/`                                   |
+| Move trust               | `academic/trust.py` -> `data_forge/academic/trust.py`                                       |
+| Extract LLM client       | `academic/batch/llm_extractor.py` -> `data_forge/extraction/llm_client.py` (generic)        |
+| Extract embedder         | `academic/batch/embedder.py` -> `data_forge/index/embedder.py` (generic)                    |
+| Split resolve_extract.py | 4,246 LOC god file -> 5 modules (see Section 1.2.1)                                         |
+| Re-export                | `polisyos.academic` -> `polisyos.data_forge.academic`                                       |
 
 **Validation:** Academic pipeline produces identical outputs on test corpus. Golden test passes.
 
@@ -2073,17 +2087,17 @@ Move `academic/` into `data_forge/academic/`.
 
 Move `datasets/` into `data_forge/catalog/`. **Can run in parallel with Phase 1.**
 
-| Task | Details |
-|------|---------|
-| Move batch stages | `datasets/batch/*.py` -> `data_forge/catalog/stages/` |
-| Move config | Inherit `BasePipelineConfig`, reuse shared LLM/embedding/thermal fields |
-| Move source_registry | `datasets/batch/source_registry.py` -> `data_forge/catalog/source_registry.py` |
-| Move knowledge | `datasets/knowledge/` -> `data_forge/catalog/knowledge/` |
-| Move curation | `datasets/batch/ckan_curation.py`, `metrics_map.py` -> `data_forge/catalog/curation/` |
-| Split core_sources_ingest.py | 7,862 LOC -> per-source modules + shared base protocol |
-| Reuse generic dedup | Replace `datasets/batch/dedup.py` with `data_forge/transform/dedup.py` |
-| Reuse generic embedder | Replace `datasets/batch/embedder.py` with `data_forge/index/embedder.py` |
-| Reuse generic QC | Replace `datasets/batch/qc.py` with domain-specific checks on `data_forge/quality/` |
+| Task                         | Details                                                                               |
+| ---------------------------- | ------------------------------------------------------------------------------------- |
+| Move batch stages            | `datasets/batch/*.py` -> `data_forge/catalog/stages/`                                 |
+| Move config                  | Inherit `BasePipelineConfig`, reuse shared LLM/embedding/thermal fields               |
+| Move source_registry         | `datasets/batch/source_registry.py` -> `data_forge/catalog/source_registry.py`        |
+| Move knowledge               | `datasets/knowledge/` -> `data_forge/catalog/knowledge/`                              |
+| Move curation                | `datasets/batch/ckan_curation.py`, `metrics_map.py` -> `data_forge/catalog/curation/` |
+| Split core_sources_ingest.py | 7,862 LOC -> per-source modules + shared base protocol                                |
+| Reuse generic dedup          | Replace `datasets/batch/dedup.py` with `data_forge/transform/dedup.py`                |
+| Reuse generic embedder       | Replace `datasets/batch/embedder.py` with `data_forge/index/embedder.py`              |
+| Reuse generic QC             | Replace `datasets/batch/qc.py` with domain-specific checks on `data_forge/quality/`   |
 
 **Validation:** Dataset pipeline produces identical catalog DuckDB. Golden test passes.
 
@@ -2091,17 +2105,17 @@ Move `datasets/` into `data_forge/catalog/`. **Can run in parallel with Phase 1.
 
 Extract batch layer from `lex/` into `data_forge/legal/`. **Can run in parallel with Phase 4.**
 
-| Task | Details |
-|------|---------|
-| Move batch pipeline | `lex/batch/*.py` -> `data_forge/legal/stages/` |
-| Move config | `lex/batch/config.py` -> `data_forge/legal/config.py` |
-| Move jurisdictions | `lex/batch/jurisdictions/` -> `data_forge/legal/jurisdictions/` |
-| Move patterns | `lex/batch/patterns/` -> `data_forge/legal/patterns/` |
-| Extract LLM gate | Merge `lex/batch/llm_gate.py` + `academic/batch/llm_gate` -> `data_forge/extraction/llm_gate.py` |
-| Extract hallucination | `lex/batch/hallucination_detector.py` -> `data_forge/extraction/hallucination_detector.py` |
-| Split graph_builder.py | 3,542 LOC -> `ddl.py` + `loader.py` + `entity_resolver.py` + `trust.py` |
-| Reuse generic embedder | Replace lex OpenAI batch embedder with shared embedder + OpenAI backend |
-| Update lex imports | `polisyos.lex` non-batch modules import only from side-effect-free legal knowledge/read facades, never Data Forge batch stages |
+| Task                   | Details                                                                                                                        |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Move batch pipeline    | `lex/batch/*.py` -> `data_forge/legal/stages/`                                                                                 |
+| Move config            | `lex/batch/config.py` -> `data_forge/legal/config.py`                                                                          |
+| Move jurisdictions     | `lex/batch/jurisdictions/` -> `data_forge/legal/jurisdictions/`                                                                |
+| Move patterns          | `lex/batch/patterns/` -> `data_forge/legal/patterns/`                                                                          |
+| Extract LLM gate       | Merge `lex/batch/llm_gate.py` + `academic/batch/llm_gate` -> `data_forge/extraction/llm_gate.py`                               |
+| Extract hallucination  | `lex/batch/hallucination_detector.py` -> `data_forge/extraction/hallucination_detector.py`                                     |
+| Split graph_builder.py | 3,542 LOC -> `ddl.py` + `loader.py` + `entity_resolver.py` + `trust.py`                                                        |
+| Reuse generic embedder | Replace lex OpenAI batch embedder with shared embedder + OpenAI backend                                                        |
+| Update lex imports     | `polisyos.lex` non-batch modules import only from side-effect-free legal knowledge/read facades, never Data Forge batch stages |
 
 **Validation:** Lex batch produces identical KG and SPO outputs. Golden test passes.
 
@@ -2109,49 +2123,49 @@ Extract batch layer from `lex/` into `data_forge/legal/`. **Can run in parallel 
 
 Move `ukraine_data/` into `data_forge/ukraine/`. **Can run in parallel with Phase 3.**
 
-| Task | Details |
-|------|---------|
-| Move all files | `ukraine_data/*.py` -> `data_forge/ukraine/` |
-| Refactor config | Inherit `BasePipelineConfig`, keep Ukraine-specific `ServerConfig`, `StageConfig` |
-| Refactor orchestrator | Replace `UkraineDataOrchestrator` with generic `PipelineOrchestrator` + Ukraine-specific gates (Part A) |
-| Keep adapters | `TabularSourceAdapter` stays in `data_forge/ukraine/adapters.py` (too Ukraine-specific) |
-| Reuse generic manifests | Replace Ukraine manifest models with extended `StageManifest` |
+| Task                    | Details                                                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------------------------- |
+| Move all files          | `ukraine_data/*.py` -> `data_forge/ukraine/`                                                            |
+| Refactor config         | Inherit `BasePipelineConfig`, keep Ukraine-specific `ServerConfig`, `StageConfig`                       |
+| Refactor orchestrator   | Replace `UkraineDataOrchestrator` with generic `PipelineOrchestrator` + Ukraine-specific gates (Part A) |
+| Keep adapters           | `TabularSourceAdapter` stays in `data_forge/ukraine/adapters.py` (too Ukraine-specific)                 |
+| Reuse generic manifests | Replace Ukraine manifest models with extended `StageManifest`                                           |
 
 **Validation:** Ukraine pipeline produces identical release bundle. Golden test passes.
 
 ### 9.8 Phase 5: Directory and Import Cleanup
 
-| Task | Details |
-|------|---------|
-| Remove old directories | Delete `academic/`, `datasets/`, `ukraine_data/`, `batch_common/`, `batch_snapshot/` |
-| Remove re-export shims | Clean up compatibility imports |
-| Update all imports | Global find-replace across `fabric`, `scientist`, `foundry`, `lex`, tests |
-| Update CI/CD | Pipeline configs, Docker, GitHub Actions |
-| Update documentation | ADRs, runbooks, reference docs |
-| Update import policy | Remove old roots from `import_policy.toml`; leave only `data_forge` and non-batch runtime packages |
-| Update ownership | CODEOWNERS and `docs/reference/ownership.md` point to final Data Forge paths |
-| Fix SQL injection | Parameterized queries in all DuckDB paths |
-| Fix silent failures | All issues from Section 1.2.5 |
-| Remove dead code | `sha256_jsonl()`, unused `filters` parameter |
-| Remove root scratch files | Move or delete root-level local reports such as `compileall.txt`, `import_gate.txt`, `ruff_stats.txt`, `summary.json`, and `test_collect.txt` |
-| Move root research scripts | Move maintained scripts such as `filter_topics.py` and `organize_relevant_topics.py` under `policy-engine/tools/research/topics/` or delete if obsolete |
-| Clean product-root loose files | Resolve `env_example.txt`, `freeze_policy.md`, `install.sh`, `migrate.py`, `jax_bootstrap.py`, `all_1000_policy_topics.csv`, `.DS_Store`, and `=2.5.0` according to Section 2.4.10 |
-| Consolidate ops dirs | Move `cloud_deploy/`, `deploy/`, `docker/`, and `gcp/` into `policy-engine/ops/` or replace with documented compatibility wrappers |
-| Resolve nested GitHub config | Move active workflows to root `.github/`; move templates to `policy-engine/ops/ci/templates/` |
-| Normalize tools/scripts | Move maintained `scripts/*.py` into `tools/`; keep only thin wrappers or remove obsolete scripts |
-| Consolidate duplicate tool homes | Resolve duplicate pairs from Section 2.6.3 with one canonical home plus temporary wrappers |
-| Quarantine audit bundles | Move local `*.polisyos-audit.tar.gz` into `.polisyos/audits/`; keep curated audit evidence in `docs/archive/reports/` only |
-| Verify top-level allowlist | `policy-engine/` top-level paths match Section 2.4 or have a documented owner and sunset date |
-| Enforce package boundary policy | Apply Section 2.5 package layering and make import policy fail on newly forbidden anti-edges |
-| Split Lex intervention bridge | Keep legal-to-IR compiler in `lex`; move DTR execution to Foundry/Scientist bridge and hierarchical search adapter to Scientist |
-| Reframe Lex simulator | Rename or relocate `lex.simulator` to `lex.impact` / `lex.legal_evaluation.impact` with compatibility shims; do not move it wholesale to Foundry |
-| Move Foundry release/domain bridges | Move `foundry.release_acceptance` to `ops/release` or `data_forge.ukraine`; remove Foundry imports of `academic`, `ukraine_data`, and Lex compiler classes |
-| Invert IR execution dependencies | Move Foundry/Scientist/Dataset-dependent logic out of `ir.analytics` and `ir.observation`; keep neutral contracts and pure codecs in IR |
-| Move Scientist CLI glue out of Core | Relocate `core/components/_cli_scientist.py` behavior to `tools/scientist/` or `scientist/cli.py` |
-| Demote Runtime batch imports | Replace runtime direct imports of `lex.batch` with Data Forge job/service facades |
-| Tighten packs policy | Replace `packs = ["*"]` with explicit package-specific public facade dependencies |
-| Normalize tests after source moves | Move old-domain tests to `tests/data_forge/**` or keep wrapper tests that assert compatibility imports |
-| Register generated frontend artifacts | Add `frontend/runtime-api-client/**` and `frontend/runtime-dashboard/src/api/types.ts` to the generated-artifact registry with regeneration commands |
+| Task                                  | Details                                                                                                                                                                            |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Remove old directories                | Delete `academic/`, `datasets/`, `ukraine_data/`, `batch_common/`, `batch_snapshot/`                                                                                               |
+| Remove re-export shims                | Clean up compatibility imports                                                                                                                                                     |
+| Update all imports                    | Global find-replace across `fabric`, `scientist`, `foundry`, `lex`, tests                                                                                                          |
+| Update CI/CD                          | Pipeline configs, Docker, GitHub Actions                                                                                                                                           |
+| Update documentation                  | ADRs, runbooks, reference docs                                                                                                                                                     |
+| Update import policy                  | Remove old roots from `import_policy.toml`; leave only `data_forge` and non-batch runtime packages                                                                                 |
+| Update ownership                      | CODEOWNERS and `docs/reference/ownership.md` point to final Data Forge paths                                                                                                       |
+| Fix SQL injection                     | Parameterized queries in all DuckDB paths                                                                                                                                          |
+| Fix silent failures                   | All issues from Section 1.2.5                                                                                                                                                      |
+| Remove dead code                      | `sha256_jsonl()`, unused `filters` parameter                                                                                                                                       |
+| Remove root scratch files             | Move or delete root-level local reports such as `compileall.txt`, `import_gate.txt`, `ruff_stats.txt`, `summary.json`, and `test_collect.txt`                                      |
+| Move root research scripts            | Move maintained scripts such as `filter_topics.py` and `organize_relevant_topics.py` under `policy-engine/tools/research/topics/` or delete if obsolete                            |
+| Clean product-root loose files        | Resolve `env_example.txt`, `freeze_policy.md`, `install.sh`, `migrate.py`, `jax_bootstrap.py`, `all_1000_policy_topics.csv`, `.DS_Store`, and `=2.5.0` according to Section 2.4.10 |
+| Consolidate ops dirs                  | Move `cloud_deploy/`, `deploy/`, `docker/`, and `gcp/` into `policy-engine/ops/` or replace with documented compatibility wrappers                                                 |
+| Resolve nested GitHub config          | Move active workflows to root `.github/`; move templates to `policy-engine/ops/ci/templates/`                                                                                      |
+| Normalize tools/scripts               | Move maintained `scripts/*.py` into `tools/`; keep only thin wrappers or remove obsolete scripts                                                                                   |
+| Consolidate duplicate tool homes      | Resolve duplicate pairs from Section 2.6.3 with one canonical home plus temporary wrappers                                                                                         |
+| Quarantine audit bundles              | Move local `*.polisyos-audit.tar.gz` into `.polisyos/audits/`; keep curated audit evidence in `docs/archive/reports/` only                                                         |
+| Verify top-level allowlist            | `policy-engine/` top-level paths match Section 2.4 or have a documented owner and sunset date                                                                                      |
+| Enforce package boundary policy       | Apply Section 2.5 package layering and make import policy fail on newly forbidden anti-edges                                                                                       |
+| Split Lex intervention bridge         | Keep legal-to-IR compiler in `lex`; move DTR execution to Foundry/Scientist bridge and hierarchical search adapter to Scientist                                                    |
+| Reframe Lex simulator                 | Rename or relocate `lex.simulator` to `lex.impact` / `lex.legal_evaluation.impact` with compatibility shims; do not move it wholesale to Foundry                                   |
+| Move Foundry release/domain bridges   | Move `foundry.release_acceptance` to `ops/release` or `data_forge.ukraine`; remove Foundry imports of `academic`, `ukraine_data`, and Lex compiler classes                         |
+| Invert IR execution dependencies      | Move Foundry/Scientist/Dataset-dependent logic out of `ir.analytics` and `ir.observation`; keep neutral contracts and pure codecs in IR                                            |
+| Move Scientist CLI glue out of Core   | Relocate `core/components/_cli_scientist.py` behavior to `tools/scientist/` or `scientist/cli.py`                                                                                  |
+| Demote Runtime batch imports          | Replace runtime direct imports of `lex.batch` with Data Forge job/service facades                                                                                                  |
+| Tighten packs policy                  | Replace `packs = ["*"]` with explicit package-specific public facade dependencies                                                                                                  |
+| Normalize tests after source moves    | Move old-domain tests to `tests/data_forge/**` or keep wrapper tests that assert compatibility imports                                                                             |
+| Register generated frontend artifacts | Add `frontend/runtime-api-client/**` and `frontend/runtime-dashboard/src/api/types.ts` to the generated-artifact registry with regeneration commands                               |
 
 **Validation:** Package import graph has no new reverse edges from Section 2.5,
 and all remaining temporary exceptions have owners and sunset phases in
@@ -2162,19 +2176,19 @@ and all remaining temporary exceptions have owners and sunset phases in
 This phase can happen after import cleanup because it changes operational
 paths more than Python package paths.
 
-| Task | Details |
-|------|---------|
-| Normalize local data roots | Keep full local datasets in root `data/` or an external object store; organize by `raw/cache/work/snapshots/releases/archives/manifests` |
-| Shrink `policy-engine/data/` | Keep only tiny fixtures, gold sets, contracts, registry seeds, README, and manifest templates; move raw WVS and local DBs out |
-| Normalize production outputs | Keep `production_data/` ignored by default as local release cache; add manifest references and logical artifact URIs for reproducible bundles |
-| Normalize reports | Curated reports live in `docs/archive/reports/`; transient reports live in `.polisyos/reports/` |
-| Normalize benchmark outputs | Benchmark source stays in `benchmarks/`; transient outputs move to `.polisyos/benchmarks/`; curated baselines are registered |
-| Normalize frontend outputs | Keep `node_modules`, `dist`, `coverage`, `storybook-static`, `playwright-report`, and `test-results` ignored/local; route CI artifacts outside the source tree |
-| Normalize baselines | Keep `baseline/` small and committed, or move to `architecture/baselines/` with updated docs/tool defaults |
-| Normalize temp dirs | Route product scratch to `.tmp/` or `.polisyos/tmp/`; root `tmp/` remains local scratch with TTL cleanup |
-| Remove absolute-path-only manifests | Data Forge publish manifests use logical URIs + content hashes; local absolute paths are optional cache hints only |
-| Add cleanup command | `python -m polisyos.data_forge clean` removes intermediate artifacts by snapshot, domain, or age |
-| Add doctor checks | `python -m polisyos.data_forge doctor` warns when large generated outputs appear in product source roots |
+| Task                                | Details                                                                                                                                                        |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Normalize local data roots          | Keep full local datasets in root `data/` or an external object store; organize by `raw/cache/work/snapshots/releases/archives/manifests`                       |
+| Shrink `policy-engine/data/`        | Keep only tiny fixtures, gold sets, contracts, registry seeds, README, and manifest templates; move raw WVS and local DBs out                                  |
+| Normalize production outputs        | Keep `production_data/` ignored by default as local release cache; add manifest references and logical artifact URIs for reproducible bundles                  |
+| Normalize reports                   | Curated reports live in `docs/archive/reports/`; transient reports live in `.polisyos/reports/`                                                                |
+| Normalize benchmark outputs         | Benchmark source stays in `benchmarks/`; transient outputs move to `.polisyos/benchmarks/`; curated baselines are registered                                   |
+| Normalize frontend outputs          | Keep `node_modules`, `dist`, `coverage`, `storybook-static`, `playwright-report`, and `test-results` ignored/local; route CI artifacts outside the source tree |
+| Normalize baselines                 | Keep `baseline/` small and committed, or move to `architecture/baselines/` with updated docs/tool defaults                                                     |
+| Normalize temp dirs                 | Route product scratch to `.tmp/` or `.polisyos/tmp/`; root `tmp/` remains local scratch with TTL cleanup                                                       |
+| Remove absolute-path-only manifests | Data Forge publish manifests use logical URIs + content hashes; local absolute paths are optional cache hints only                                             |
+| Add cleanup command                 | `python -m polisyos.data_forge clean` removes intermediate artifacts by snapshot, domain, or age                                                               |
+| Add doctor checks                   | `python -m polisyos.data_forge doctor` warns when large generated outputs appear in product source roots                                                       |
 
 **Validation:** A clean checkout plus documented external artifacts can rebuild
 the same golden outputs. Local generated state can be deleted without losing
@@ -2184,7 +2198,7 @@ source-of-truth files.
 
 Phases 1+2 and 3+4 can overlap since each domain pipeline is independent:
 
-```
+```text
 Week 0:  Phase -1 (topology baseline + explorer/ignore hygiene)      -- sequential, blocking
 Week 1:  Phase 0 (foundation + golden snapshots + framework tests)   -- sequential, blocking
 Week 2:  Phase 1 (academic) + Phase 2 (catalog)                      -- PARALLEL
@@ -2214,7 +2228,7 @@ Each phase PR must include:
 
 ### 10.1 Test Pyramid
 
-```
+```text
                     +-------------+
                     |  E2E Golden  |  1 per pipeline: full run -> compare to golden
                     |  Tests (4)   |  ~30 min each, CI nightly
@@ -2238,16 +2252,16 @@ Each phase PR must include:
 
 ### 10.2 Missing Unit Tests to Add
 
-| Module | Currently Tested? | Tests Needed |
-|--------|-------------------|--------------|
-| `hashing.py` | Only indirectly | `test_sha256_file`, `test_sha256_empty_file`, `test_sha256_large_file` |
-| `thermal.py` | No | `test_resolve_profile`, `test_unknown_profile_returns_default` |
-| `paths.py` | No | `test_snapshot_component_dir_creates`, `test_ensure_dirs` |
-| `rate_limiter.py` | No | `test_acquire_respects_rate`, `test_backoff_on_429`, `test_concurrent_limit` |
-| `dedup.py` | Indirectly | `test_quality_ranked_replacement`, `test_dedup_key_generation` |
-| `llm_gate.py` | No | `test_auto_route_high_confidence`, `test_llm_route_low_confidence` |
-| `batch_snapshot/cli.py` | No | `test_finalize_snapshot`, `test_missing_pipeline_manifest` |
-| DAG orchestrator | N/A (new) | `test_cycle_detection`, `test_topo_sort`, `test_contract_validation`, `test_parallel_execution` |
+| Module                  | Currently Tested? | Tests Needed                                                                                    |
+| ----------------------- | ----------------- | ----------------------------------------------------------------------------------------------- |
+| `hashing.py`            | Only indirectly   | `test_sha256_file`, `test_sha256_empty_file`, `test_sha256_large_file`                          |
+| `thermal.py`            | No                | `test_resolve_profile`, `test_unknown_profile_returns_default`                                  |
+| `paths.py`              | No                | `test_snapshot_component_dir_creates`, `test_ensure_dirs`                                       |
+| `rate_limiter.py`       | No                | `test_acquire_respects_rate`, `test_backoff_on_429`, `test_concurrent_limit`                    |
+| `dedup.py`              | Indirectly        | `test_quality_ranked_replacement`, `test_dedup_key_generation`                                  |
+| `llm_gate.py`           | No                | `test_auto_route_high_confidence`, `test_llm_route_low_confidence`                              |
+| `batch_snapshot/cli.py` | No                | `test_finalize_snapshot`, `test_missing_pipeline_manifest`                                      |
+| DAG orchestrator        | N/A (new)         | `test_cycle_detection`, `test_topo_sort`, `test_contract_validation`, `test_parallel_execution` |
 
 ### 10.3 Deterministic Test Fixtures
 
@@ -2314,70 +2328,70 @@ The lex pipeline already discovered that large corpora OOM when stacking all vec
 
 ## 12. Risk Mitigation
 
-| Risk | Mitigation |
-|------|------------|
-| **Breaking imports** | Phase 0 creates re-export shims; old paths work until Phase 5 directory/import cleanup |
-| **Output divergence** | Golden test: snapshot before migration, verify byte-identical outputs after |
-| **LLM non-determinism** | Freeze LLM cache for migration testing; compare structure, not exact text |
-| **Partial migration failures** | Each phase independently revertable via git; no phase depends on another |
-| **CI pipeline disruption** | Run old and new paths in parallel during migration; switch when green |
-| **Production data path changes** | Source-code moves do not change `production_data/`; any data-store normalization happens separately in Phase 6 |
-| **Large PR risk** | One PR per phase; each PR reviewable in isolation |
-| **God class decomposition breaks internal contracts** | Extract into modules within same directory first (move functions, not files). Test at function level before reorganizing files. |
-| **Unified gate logic diverges from domain-specific tuning** | Keep `DomainFeatureExtractor` protocol -- domain-specific weights stay in domain code. Only transport/retry/cache unifies. |
-| **Frozen config breaks dynamic stage configuration** | `dataclasses.replace()` is the escape hatch. `with_overrides(**kw)` convenience method. |
-| **Parallel stage execution introduces race conditions** | Only stages marked `parallelizable=True` run concurrently. Each writes to its own output directory. No shared mutable state. |
-| **DuckDB schema migration breaks existing databases** | Migration is forward-only. `_schema_version` table tracks what's applied. Old DROP IF EXISTS still works for fresh builds. |
-| **Thermal profile changes affect benchmark reproducibility** | Thermal pauses NOT included in `elapsed_seconds`. Only compute time measured. |
-| **Directory cleanup deletes useful local evidence** | Phase -1 classifies files first; curated evidence moves to `docs/archive/reports/`, local evidence moves to `.polisyos/` |
-| **Ignored source-of-truth docs disappear from review** | Phase -1 checks `git status --ignored` and adds narrow `.gitignore` exceptions for canonical plans and docs |
-| **Ops files move but automation still points at old paths** | Phase 5 keeps compatibility wrappers until CI, Docker, docs, and runbooks point at `policy-engine/ops/` |
-| **Topology registry becomes bureaucracy** | Keep `architecture/topology.toml` short: top-level paths plus exceptional generated families only; detailed file inventories stay generated |
-| **Import policy blocks compatibility shims too early** | Phase 0 adds `data_forge` without removing old roots; Phase 5 removes old roots only after shims and downstream imports are gone |
-| **Fixture policy slows test authoring** | Small deterministic fixtures stay easy to add under `tests/<domain>/fixtures/`; only large/live/generated fixtures need registry entries |
+| Risk                                                                | Mitigation                                                                                                                                                               |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Breaking imports**                                                | Phase 0 creates re-export shims; old paths work until Phase 5 directory/import cleanup                                                                                   |
+| **Output divergence**                                               | Golden test: snapshot before migration, verify byte-identical outputs after                                                                                              |
+| **LLM non-determinism**                                             | Freeze LLM cache for migration testing; compare structure, not exact text                                                                                                |
+| **Partial migration failures**                                      | Each phase independently revertable via git; no phase depends on another                                                                                                 |
+| **CI pipeline disruption**                                          | Run old and new paths in parallel during migration; switch when green                                                                                                    |
+| **Production data path changes**                                    | Source-code moves do not change `production_data/`; any data-store normalization happens separately in Phase 6                                                           |
+| **Large PR risk**                                                   | One PR per phase; each PR reviewable in isolation                                                                                                                        |
+| **God class decomposition breaks internal contracts**               | Extract into modules within same directory first (move functions, not files). Test at function level before reorganizing files.                                          |
+| **Unified gate logic diverges from domain-specific tuning**         | Keep `DomainFeatureExtractor` protocol -- domain-specific weights stay in domain code. Only transport/retry/cache unifies.                                               |
+| **Frozen config breaks dynamic stage configuration**                | `dataclasses.replace()` is the escape hatch. `with_overrides(**kw)` convenience method.                                                                                  |
+| **Parallel stage execution introduces race conditions**             | Only stages marked `parallelizable=True` run concurrently. Each writes to its own output directory. No shared mutable state.                                             |
+| **DuckDB schema migration breaks existing databases**               | Migration is forward-only. `_schema_version` table tracks what's applied. Old DROP IF EXISTS still works for fresh builds.                                               |
+| **Thermal profile changes affect benchmark reproducibility**        | Thermal pauses NOT included in `elapsed_seconds`. Only compute time measured.                                                                                            |
+| **Directory cleanup deletes useful local evidence**                 | Phase -1 classifies files first; curated evidence moves to `docs/archive/reports/`, local evidence moves to `.polisyos/`                                                 |
+| **Ignored source-of-truth docs disappear from review**              | Phase -1 checks `git status --ignored` and adds narrow `.gitignore` exceptions for canonical plans and docs                                                              |
+| **Ops files move but automation still points at old paths**         | Phase 5 keeps compatibility wrappers until CI, Docker, docs, and runbooks point at `policy-engine/ops/`                                                                  |
+| **Topology registry becomes bureaucracy**                           | Keep `architecture/topology.toml` short: top-level paths plus exceptional generated families only; detailed file inventories stay generated                              |
+| **Import policy blocks compatibility shims too early**              | Phase 0 adds `data_forge` without removing old roots; Phase 5 removes old roots only after shims and downstream imports are gone                                         |
+| **Fixture policy slows test authoring**                             | Small deterministic fixtures stay easy to add under `tests/<domain>/fixtures/`; only large/live/generated fixtures need registry entries                                 |
 | **Loose-file cleanup breaks scripts that import from product root** | Convert files like `jax_bootstrap.py`, `install.sh`, and `migrate.py` into wrappers first; only remove wrappers after docs, tests, and tool registry aliases are updated |
-| **Duplicate tool consolidation breaks muscle memory** | Keep one deprecation cycle of wrapper aliases; print canonical command path in wrapper output |
-| **Mega-module splits create review churn** | Split by extracting private helper modules in-place first, then move packages after tests and imports stabilize |
-| **Frontend generated files drift from backend OpenAPI** | Register generated clients/types with regeneration command and CI freshness check |
-| **Archived evidence contains local absolute paths** | Allow local paths only in curated archived evidence; active docs and reference docs must pass the docs accuracy gate |
+| **Duplicate tool consolidation breaks muscle memory**               | Keep one deprecation cycle of wrapper aliases; print canonical command path in wrapper output                                                                            |
+| **Mega-module splits create review churn**                          | Split by extracting private helper modules in-place first, then move packages after tests and imports stabilize                                                          |
+| **Frontend generated files drift from backend OpenAPI**             | Register generated clients/types with regeneration command and CI freshness check                                                                                        |
+| **Archived evidence contains local absolute paths**                 | Allow local paths only in curated archived evidence; active docs and reference docs must pass the docs accuracy gate                                                     |
 
 ---
 
 ## 13. Success Metrics
 
-| Metric | Before | Target |
-|--------|--------|--------|
-| Shared infra code (LOC) | ~500 (batch_common only) | ~4,000 (full framework + scheduler + progress + errors + testing) |
-| Domain-specific code (LOC) | ~64k with duplication | ~45k (god class decomposition eliminates hidden duplication) |
-| DRY violations (duplicate patterns) | 11 identified | 0 structural + 0 behavioral (gate logic, rate limiting unified) |
-| Time to add new domain pipeline | ~2 weeks (copy-paste-modify) | ~1 day (register pipeline + implement stages, framework does rest) |
-| Test coverage of pipeline infra | Ad-hoc per domain | >90% framework + golden tests for all 4 domains |
-| Artifact lineage | Per-domain, inconsistent | Unified lineage.jsonl + content-addressed provenance chain |
-| CLI entry points | 4 separate (academic, datasets, lex, ukraine) | 1 unified + doctor/validate/diff/clean/config subcommands |
-| DuckDB transaction safety | None | All bulk loads in explicit transactions |
-| LLM cache hit rate | Per-domain caches | Unified cache across pipelines (~30% cross-domain overlap expected) |
-| Resume reliability | Mtime-only or none | Content-addressed + mtime hybrid (correct on NFS/CI) |
-| Mean stage startup time | ~3s (import overhead) | <0.5s (lazy imports) |
-| Parallel stage speedup | 0% (all sequential) | ~25% on academic, ~15% on catalog (independent stages run concurrently) |
-| Ambiguous product-root files | Multiple tracked scripts/reports at repository root | 0 product source files at root; root remains gateway/control plane only |
-| Undocumented top-level directories | Several overlapping ops/data/artifact homes | Every top-level directory has owner, type, target home, and cleanup policy |
-| Local artifacts visible in normal IDE tree | Caches, venvs, build outputs, and generated data mixed with source | Explorer excludes hide generated state; Git ignore rules match artifact policy |
-| Topology enforcement | Mostly prose and convention | `tools/architecture/guardrails.py` validates topology registry in CI |
-| Tool/script duplication | Maintained logic split across `scripts/`, `tools/cloud`, `tools/ops`, and domain tools | `tools/` is canonical; `scripts/` contains only wrappers or is removed |
-| Duplicate tool homes | Exact duplicate command families across `tools/cloud`, `tools/ops/cloud`, `tools/lint`, `tools/quality/lint`, etc. | One canonical namespace per command family; old homes are wrappers with sunset phase |
-| Ownership coverage | Existing owners cover old roots only | `data_forge`, topology, fixtures, and generated artifacts have explicit owners |
-| Loose top-level files | Mixed sentinel files, wrappers, local reports, CSVs, and accidental artifacts | Only explicit sentinels remain loose; all other files move to registered homes or ignored artifact roots |
-| Data-root ambiguity | `data/`, `production_data/`, `benchmark-results/`, `baseline/`, and `tmp/` mix raw/input/output/cache roles | Each data root has a layer, domain, snapshot id, commit policy, and retention rule |
-| Product-root data bulk | `policy-engine/data/` contains ignored raw data and local databases | Product-root data contains only small fixtures, gold sets, contracts, registry seeds, and manifest templates |
-| Manifest portability | Some manifests rely on machine-local absolute paths | Published manifests use logical artifact URIs plus sha256; local paths are optional cache hints |
-| Frontend generated state | `node_modules`, build outputs, coverage, storybook, and Playwright reports can dominate the tree | Generated frontend state is ignored, hidden, and cleanable; tracked generated clients are registered |
-| Python cache noise | Thousands of local `__pycache__`/`.pyc` files can appear across source, tests, tools, and benchmarks | Clean/doctor command removes caches and IDE excludes hide them |
+| Metric                                     | Before                                                                                                             | Target                                                                                                       |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Shared infra code (LOC)                    | ~500 (batch_common only)                                                                                           | ~4,000 (full framework + scheduler + progress + errors + testing)                                            |
+| Domain-specific code (LOC)                 | ~64k with duplication                                                                                              | ~45k (god class decomposition eliminates hidden duplication)                                                 |
+| DRY violations (duplicate patterns)        | 11 identified                                                                                                      | 0 structural + 0 behavioral (gate logic, rate limiting unified)                                              |
+| Time to add new domain pipeline            | ~2 weeks (copy-paste-modify)                                                                                       | ~1 day (register pipeline + implement stages, framework does rest)                                           |
+| Test coverage of pipeline infra            | Ad-hoc per domain                                                                                                  | >90% framework + golden tests for all 4 domains                                                              |
+| Artifact lineage                           | Per-domain, inconsistent                                                                                           | Unified lineage.jsonl + content-addressed provenance chain                                                   |
+| CLI entry points                           | 4 separate (academic, datasets, lex, ukraine)                                                                      | 1 unified + doctor/validate/diff/clean/config subcommands                                                    |
+| DuckDB transaction safety                  | None                                                                                                               | All bulk loads in explicit transactions                                                                      |
+| LLM cache hit rate                         | Per-domain caches                                                                                                  | Unified cache across pipelines (~30% cross-domain overlap expected)                                          |
+| Resume reliability                         | Mtime-only or none                                                                                                 | Content-addressed + mtime hybrid (correct on NFS/CI)                                                         |
+| Mean stage startup time                    | ~3s (import overhead)                                                                                              | <0.5s (lazy imports)                                                                                         |
+| Parallel stage speedup                     | 0% (all sequential)                                                                                                | ~25% on academic, ~15% on catalog (independent stages run concurrently)                                      |
+| Ambiguous product-root files               | Multiple tracked scripts/reports at repository root                                                                | 0 product source files at root; root remains gateway/control plane only                                      |
+| Undocumented top-level directories         | Several overlapping ops/data/artifact homes                                                                        | Every top-level directory has owner, type, target home, and cleanup policy                                   |
+| Local artifacts visible in normal IDE tree | Caches, venvs, build outputs, and generated data mixed with source                                                 | Explorer excludes hide generated state; Git ignore rules match artifact policy                               |
+| Topology enforcement                       | Mostly prose and convention                                                                                        | `tools/architecture/guardrails.py` validates topology registry in CI                                         |
+| Tool/script duplication                    | Maintained logic split across `scripts/`, `tools/cloud`, `tools/ops`, and domain tools                             | `tools/` is canonical; `scripts/` contains only wrappers or is removed                                       |
+| Duplicate tool homes                       | Exact duplicate command families across `tools/cloud`, `tools/ops/cloud`, `tools/lint`, `tools/quality/lint`, etc. | One canonical namespace per command family; old homes are wrappers with sunset phase                         |
+| Ownership coverage                         | Existing owners cover old roots only                                                                               | `data_forge`, topology, fixtures, and generated artifacts have explicit owners                               |
+| Loose top-level files                      | Mixed sentinel files, wrappers, local reports, CSVs, and accidental artifacts                                      | Only explicit sentinels remain loose; all other files move to registered homes or ignored artifact roots     |
+| Data-root ambiguity                        | `data/`, `production_data/`, `benchmark-results/`, `baseline/`, and `tmp/` mix raw/input/output/cache roles        | Each data root has a layer, domain, snapshot id, commit policy, and retention rule                           |
+| Product-root data bulk                     | `policy-engine/data/` contains ignored raw data and local databases                                                | Product-root data contains only small fixtures, gold sets, contracts, registry seeds, and manifest templates |
+| Manifest portability                       | Some manifests rely on machine-local absolute paths                                                                | Published manifests use logical artifact URIs plus sha256; local paths are optional cache hints              |
+| Frontend generated state                   | `node_modules`, build outputs, coverage, storybook, and Playwright reports can dominate the tree                   | Generated frontend state is ignored, hidden, and cleanable; tracked generated clients are registered         |
+| Python cache noise                         | Thousands of local `__pycache__`/`.pyc` files can appear across source, tests, tools, and benchmarks               | Clean/doctor command removes caches and IDE excludes hide them                                               |
 
 ---
 
 ## 14. Cross-Module Dependencies (Current)
 
-```
+```text
 academic/batch/*       --imports--> batch_common/{manifest, thermal, paths}
 academic/batch/*       --imports--> ir.analytics.{literature, context, causal_graph, transportability}
 academic/knowledge/*   --imports--> ir.analytics.{literature, transportability}

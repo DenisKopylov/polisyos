@@ -11,7 +11,12 @@ import { useSyncExternalStore } from "react";
  * | standard| 1024–1280px   | Full sidebar, 3-column grid      |
  * | expanded| > 1280px      | Full layout + extra panel space  |
  */
-export type Breakpoint = "mobile" | "tablet" | "compact" | "standard" | "expanded";
+export type Breakpoint =
+  | "mobile"
+  | "tablet"
+  | "compact"
+  | "standard"
+  | "expanded";
 
 const BREAKPOINTS: [Breakpoint, number][] = [
   ["expanded", 1281],

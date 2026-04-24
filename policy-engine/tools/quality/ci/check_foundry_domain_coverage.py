@@ -144,8 +144,7 @@ def evaluate_foundry_domain_coverage(
     targets: tuple[DomainTarget, ...] = FOUNDRY_DOMAIN_TARGETS,
 ) -> tuple[list[DomainCoverage], list[str]]:
     summaries = [
-        summarize_domain(coverage_payload, target, repo_root=repo_root)
-        for target in targets
+        summarize_domain(coverage_payload, target, repo_root=repo_root) for target in targets
     ]
 
     findings: list[str] = []

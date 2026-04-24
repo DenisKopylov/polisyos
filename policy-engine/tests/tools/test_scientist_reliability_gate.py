@@ -31,13 +31,10 @@ def _write_benchmark_json(path: Path, names: list[str]) -> None:
 
 def _write_junit_xml(path: Path, names: list[str]) -> None:
     testcases = "\n".join(
-        f'    <testcase classname="scientist.evidence" name="{name}" />'
-        for name in names
+        f'    <testcase classname="scientist.evidence" name="{name}" />' for name in names
     )
     path.write_text(
-        "<testsuite name=\"scientist\">"
-        f"\n{testcases}\n"
-        "</testsuite>\n",
+        f'<testsuite name="scientist">\n{testcases}\n</testsuite>\n',
         encoding="utf-8",
     )
 

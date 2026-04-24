@@ -6,6 +6,7 @@ re-exports the most common analytics contracts without mirroring every symbol
 from every analytics module. Advanced or module-specific APIs should be
 imported from their defining submodules.
 """
+
 from __future__ import annotations
 
 from typing import Any

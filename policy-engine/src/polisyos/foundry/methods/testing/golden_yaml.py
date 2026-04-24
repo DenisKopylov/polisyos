@@ -7,6 +7,7 @@ pytree comparison. This module provides:
 - GoldenRegistry: loads YAML files and runs verify_all against MethodRegistry
 - Deep comparison of actual vs expected outputs with domain-appropriate tolerances
 """
+
 from __future__ import annotations
 
 import time
@@ -18,7 +19,6 @@ import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.foundry.methods.registry import MethodRegistry
-
 
 # ---------------------------------------------------------------------------
 # Models
@@ -38,9 +38,7 @@ class GoldenTestCase(BaseModel):
     input_data: dict[str, Any]
     input_params: dict[str, Any] = Field(default_factory=dict)
     expected_output: dict[str, Any]
-    tolerances: dict[str, float] = Field(
-        default_factory=lambda: {"rtol": 1e-5, "atol": 1e-8}
-    )
+    tolerances: dict[str, float] = Field(default_factory=lambda: {"rtol": 1e-5, "atol": 1e-8})
     tags: list[str] = Field(default_factory=list)
     skip_reason: str | None = None
 
@@ -111,9 +109,7 @@ def _deep_compare(
             if hasattr(actual, "tolist"):
                 actual = actual.tolist()
             else:
-                mismatches.append(
-                    f"{path}: expected list, got {type(actual).__name__}"
-                )
+                mismatches.append(f"{path}: expected list, got {type(actual).__name__}")
                 return mismatches
         if len(actual) != len(expected):
             mismatches.append(
@@ -121,9 +117,7 @@ def _deep_compare(
             )
             return mismatches
         for i, (a, e) in enumerate(zip(actual, expected)):
-            mismatches.extend(
-                _deep_compare(a, e, rtol, atol, f"{path}[{i}]")
-            )
+            mismatches.extend(_deep_compare(a, e, rtol, atol, f"{path}[{i}]"))
         return mismatches
 
     # Leaf comparison (scalar or array)
@@ -166,6 +160,7 @@ def _to_float(v: Any) -> float:
 # ---------------------------------------------------------------------------
 # State construction helpers
 # ---------------------------------------------------------------------------
+
 
 def _try_construct_state(method_class: type, input_data: dict[str, Any]) -> Any:
     """Try to construct the expected state type for a method.
@@ -235,9 +230,7 @@ class GoldenRegistry:
     def cases_by_tag(self, tag: str) -> list[GoldenTestCase]:
         return [c for c in self.all_cases() if tag in c.tags]
 
-    def verify_case(
-        self, case: GoldenTestCase, registry: MethodRegistry
-    ) -> GoldenCaseResult:
+    def verify_case(self, case: GoldenTestCase, registry: MethodRegistry) -> GoldenCaseResult:
         t0 = time.perf_counter()
         try:
             method_class = registry.get(case.method_fqn)

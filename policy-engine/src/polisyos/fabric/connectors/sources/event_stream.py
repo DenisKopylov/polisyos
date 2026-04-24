@@ -1,12 +1,13 @@
 """Connector for newline-delimited event streams."""
+
 from __future__ import annotations
 
 import json
 import time
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, ClassVar
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
-from polisyos.core.canon import content_hash
 from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
@@ -119,7 +120,9 @@ class EventStreamConnector(BaseConnector[Any]):
             message = json.loads(raw)
             if not isinstance(message, dict):
                 message = {"value": message}
-            message.setdefault("_message_id", f"{request.dataset_id or self._topic(handle.config)}:{index}")
+            message.setdefault(
+                "_message_id", f"{request.dataset_id or self._topic(handle.config)}:{index}"
+            )
             messages.append(message)
 
         for chunk_index in range(0, len(messages), chunk_size):
@@ -176,7 +179,7 @@ class EventStreamConnector(BaseConnector[Any]):
             schema_id=schema_id,
             schema_version="1.0.0",
             version=version,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=1.0 if messages else 0.0,
             quality_tier=QualityTier.SILVER,
             quality_flags=frozenset({"stream_source"}),
@@ -226,7 +229,10 @@ class EventStreamConnector(BaseConnector[Any]):
                     message="X-Stream-ChunkSize must be an integer",
                 )
             )
-        return ValidationResult(valid=not any(i.severity == ValidationSeverity.ERROR for i in issues), issues=tuple(issues))
+        return ValidationResult(
+            valid=not any(i.severity == ValidationSeverity.ERROR for i in issues),
+            issues=tuple(issues),
+        )
 
 
 __all__ = ["EventStreamConnector"]

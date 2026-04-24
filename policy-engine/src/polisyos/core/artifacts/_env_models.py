@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Literal
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 
@@ -13,20 +13,20 @@ from polisyos.core.canon import truncated_hash
 from .manifest import ArtifactRef
 
 __all__ = [
-    "RiskLevel",
     "CPUInfo",
-    "GPUInfo",
-    "OSInfo",
-    "PythonInfo",
-    "JAXInfo",
-    "GitInfo",
-    "DependencyInfo",
     "ContainerInfo",
-    "TEEInfo",
-    "SystemLibraryInfo",
+    "DependencyInfo",
     "EnvironmentDiff",
     "EnvironmentManifest",
     "EnvironmentManifestRef",
+    "GPUInfo",
+    "GitInfo",
+    "JAXInfo",
+    "OSInfo",
+    "PythonInfo",
+    "RiskLevel",
+    "SystemLibraryInfo",
+    "TEEInfo",
 ]
 
 
@@ -227,7 +227,7 @@ class EnvironmentManifest(BaseModel):
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
     captured_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
+        default_factory=lambda: datetime.now(UTC),
         description="Timestamp of capture",
     )
 
@@ -291,7 +291,7 @@ class EnvironmentManifest(BaseModel):
         """Expose the manifest fingerprint through Pydantic serialization."""
         return self.fingerprint
 
-    def compatibility_score(self, other: "EnvironmentManifest") -> float:
+    def compatibility_score(self, other: EnvironmentManifest) -> float:
         """
         Calculate compatibility score between two environments.
 

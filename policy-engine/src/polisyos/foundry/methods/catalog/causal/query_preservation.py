@@ -1,11 +1,12 @@
 """Audit whether graph abstractions preserve the target causal query."""
+
 from __future__ import annotations
 
 import hashlib
 import json
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import cache
 from itertools import combinations
 from typing import Literal
 
@@ -60,6 +61,7 @@ class _GraphicalObligation:
 @dataclass(frozen=True)
 class GraphicalObligationTrace:
     """Record which graphical obligations were checked while preserving a causal query."""
+
     kind: str
     treatment: str
     outcome: str
@@ -72,6 +74,7 @@ class GraphicalObligationTrace:
 @dataclass(frozen=True)
 class QueryPreservationTrace:
     """Capture pass/fail status and obligation traces for an abstraction-preservation check."""
+
     fingerprint: str
     status: QueryPreservationStatus
     reason_code: str
@@ -140,8 +143,7 @@ def check_query_preservation_batch(
         composition_certificate=composition_certificate,
     )
     return {
-        fingerprint: evaluation.status
-        for fingerprint, evaluation in sorted(evaluations.items())
+        fingerprint: evaluation.status for fingerprint, evaluation in sorted(evaluations.items())
     }
 
 
@@ -319,19 +321,9 @@ def _evaluate_query_preservation(
         )
 
     query_variables = sorted(
-        {
-            obligation.treatment
-            for obligation in obligations
-        }
-        | {
-            obligation.outcome
-            for obligation in obligations
-        }
-        | {
-            variable
-            for obligation in obligations
-            for variable in obligation.conditioning
-        }
+        {obligation.treatment for obligation in obligations}
+        | {obligation.outcome for obligation in obligations}
+        | {variable for obligation in obligations for variable in obligation.conditioning}
     )
 
     if _has_latent_bridge_entries(interface_mapping):
@@ -393,10 +385,14 @@ def _evaluate_query_preservation(
                 reason_code="missing_obligation_witness",
                 query_semantics=_query_semantics(query),
                 obligations_checked=tuple(obligation_traces),
-                witness_fragment_ids=tuple(sorted({item for group in witness_sets for item in group})),
+                witness_fragment_ids=tuple(
+                    sorted({item for group in witness_sets for item in group})
+                ),
             )
 
-        evaluated_candidates: list[tuple[tuple[str, ...], GraphicalObligationTrace, str | None]] = []
+        evaluated_candidates: list[
+            tuple[tuple[str, ...], GraphicalObligationTrace, str | None]
+        ] = []
         for witness_fragment_ids in witness_candidates:
             witness_graph = _build_witness_graph(
                 witness_fragment_ids=witness_fragment_ids,
@@ -442,7 +438,9 @@ def _evaluate_query_preservation(
                 reason_code="missing_obligation_witness",
                 query_semantics=_query_semantics(query),
                 obligations_checked=tuple(obligation_traces),
-                witness_fragment_ids=tuple(sorted({item for group in witness_sets for item in group})),
+                witness_fragment_ids=tuple(
+                    sorted({item for group in witness_sets for item in group})
+                ),
             )
 
         supporting_candidates = [
@@ -450,11 +448,7 @@ def _evaluate_query_preservation(
         ]
         if supporting_candidates:
             chosen_witness, obligation_trace, assumption_boundary = next(
-                (
-                    item
-                    for item in supporting_candidates
-                    if item[2] is None
-                ),
+                (item for item in supporting_candidates if item[2] is None),
                 supporting_candidates[0],
             )
         else:
@@ -470,7 +464,9 @@ def _evaluate_query_preservation(
                 fingerprint=fingerprint,
                 status="unknown",
                 reason_code="source_obligation_not_supported",
-                source_fragment_id=witness_fragment_ids[0] if len(witness_fragment_ids) == 1 else None,
+                source_fragment_id=witness_fragment_ids[0]
+                if len(witness_fragment_ids) == 1
+                else None,
                 query_semantics=_query_semantics(query),
                 obligations_checked=tuple(obligation_traces),
                 witness_fragment_ids=combined_witness,
@@ -488,7 +484,9 @@ def _evaluate_query_preservation(
                 fingerprint=fingerprint,
                 status="unknown",
                 reason_code=reason_code,
-                source_fragment_id=witness_fragment_ids[0] if len(witness_fragment_ids) == 1 else None,
+                source_fragment_id=witness_fragment_ids[0]
+                if len(witness_fragment_ids) == 1
+                else None,
                 query_semantics=_query_semantics(query),
                 obligations_checked=tuple(obligation_traces),
                 witness_fragment_ids=combined_witness,
@@ -502,7 +500,9 @@ def _evaluate_query_preservation(
                 fingerprint=fingerprint,
                 status="broken",
                 reason_code="obligation_broken_after_composition",
-                source_fragment_id=witness_fragment_ids[0] if len(witness_fragment_ids) == 1 else None,
+                source_fragment_id=witness_fragment_ids[0]
+                if len(witness_fragment_ids) == 1
+                else None,
                 query_semantics=_query_semantics(query),
                 obligations_checked=tuple(obligation_traces),
                 witness_fragment_ids=combined_witness,
@@ -601,10 +601,7 @@ def _evaluate_latent_projection_preservation(
 
     treatment = resolutions[query.treatment_variable].composed_node
     outcome = resolutions[query.outcome_variable].composed_node
-    condition_nodes = {
-        resolutions[variable].composed_node
-        for variable in query.condition
-    }
+    condition_nodes = {resolutions[variable].composed_node for variable in query.condition}
     if treatment is None or outcome is None or None in condition_nodes:
         return QueryPreservationTrace(
             fingerprint=fingerprint,
@@ -655,9 +652,7 @@ def _evaluate_latent_projection_preservation(
         )
 
     identification_method = (
-        result.estimand_ast.identification_method
-        if result.estimand_ast is not None
-        else None
+        result.estimand_ast.identification_method if result.estimand_ast is not None else None
     )
     source_fragment_id = involved_fragments[0] if len(involved_fragments) == 1 else None
     identifying_estimand = (
@@ -678,7 +673,9 @@ def _evaluate_latent_projection_preservation(
         and adjustment_witness is not None
         and not str(identification_method or "").strip().lower().startswith("frontdoor")
     ):
-        positive_witness = {"adjustment_set": [_pretty_query_node(item) for item in adjustment_witness]}
+        positive_witness = {
+            "adjustment_set": [_pretty_query_node(item) for item in adjustment_witness]
+        }
         if str(identification_method or "").strip().lower() not in {"backdoor", "idc"}:
             identification_method = "backdoor"
     theorem_family = _theorem_family_for_identification_method(identification_method)
@@ -756,9 +753,7 @@ def _graphical_obligations_for_query(query: CausalQuery) -> tuple[_GraphicalObli
     treatment = str(query.treatment_variable).strip()
     outcome = str(query.outcome_variable).strip()
     conditioning = frozenset(
-        str(variable).strip()
-        for variable in query.condition
-        if str(variable).strip()
+        str(variable).strip() for variable in query.condition if str(variable).strip()
     )
     if not treatment or not outcome or treatment == outcome:
         return ()
@@ -1004,14 +999,10 @@ def _trace_from_query_certificate(
         ),
         required_distributions=tuple(dict(item) for item in certificate.required_distributions),
         positive_witness=(
-            dict(certificate.positive_witness)
-            if certificate.positive_witness is not None
-            else None
+            dict(certificate.positive_witness) if certificate.positive_witness is not None else None
         ),
         hedge_witness=(
-            dict(certificate.hedge_witness)
-            if certificate.hedge_witness is not None
-            else None
+            dict(certificate.hedge_witness) if certificate.hedge_witness is not None else None
         ),
     )
 
@@ -1038,29 +1029,17 @@ def _positive_witness_for_identified_result(result: object) -> dict[str, object]
 
     if identification_method == "frontdoor":
         mediators = sorted(
-            {
-                _pretty_query_node(item)
-                for item in all_variables
-                if item not in {treatment, outcome}
-            }
+            {_pretty_query_node(item) for item in all_variables if item not in {treatment, outcome}}
         )
         return {"mediators": mediators}
     if identification_method == "backdoor":
         adjustment_set = sorted(
-            {
-                _pretty_query_node(item)
-                for item in all_variables
-                if item not in {treatment, outcome}
-            }
+            {_pretty_query_node(item) for item in all_variables if item not in {treatment, outcome}}
         )
         return {"adjustment_set": adjustment_set}
     if identification_method == "proxy_adjustment":
         proxy_variables = sorted(
-            {
-                _pretty_query_node(item)
-                for item in all_variables
-                if item not in {treatment, outcome}
-            }
+            {_pretty_query_node(item) for item in all_variables if item not in {treatment, outcome}}
         )
         return {"proxy_variables": proxy_variables}
     if identification_method == "idc":
@@ -1105,11 +1084,9 @@ def _find_adjustment_witness(
 
     common_ancestors = tuple(
         sorted(
-            (
-                ancestors(graph, frozenset({treatment}), include_self=False)
-                & ancestors(graph, frozenset({outcome}), include_self=False)
-                & set(candidate_pool)
-            )
+            ancestors(graph, frozenset({treatment}), include_self=False)
+            & ancestors(graph, frozenset({outcome}), include_self=False)
+            & set(candidate_pool)
         )
     )
     if common_ancestors:
@@ -1166,10 +1143,7 @@ def _resolve_composed_obligations(
     for obligation in obligations:
         treatment = resolutions[obligation.treatment].composed_node
         outcome = resolutions[obligation.outcome].composed_node
-        conditioning = {
-            resolutions[variable].composed_node
-            for variable in obligation.conditioning
-        }
+        conditioning = {resolutions[variable].composed_node for variable in obligation.conditioning}
         if treatment is None or outcome is None or None in conditioning:
             return None
         resolved.append(
@@ -1195,9 +1169,7 @@ def _build_variable_resolutions(
         for entry in interface_mapping.entries
         for binding in entry.bindings
     }
-    interface_by_canonical = {
-        entry.canonical_node_id: entry for entry in interface_mapping.entries
-    }
+    interface_by_canonical = {entry.canonical_node_id: entry for entry in interface_mapping.entries}
     interface_by_variable_name: dict[str, list[tuple[str, str, str]]] = {}
     for entry in interface_mapping.entries:
         for binding in entry.bindings:
@@ -1224,7 +1196,9 @@ def _build_variable_resolutions(
         if entry is not None:
             resolutions[token] = _ResolvedVariable(
                 composed_node=entry.canonical_node_id,
-                local_nodes={binding.fragment_id: binding.variable_name for binding in entry.bindings},
+                local_nodes={
+                    binding.fragment_id: binding.variable_name for binding in entry.bindings
+                },
             )
             continue
 
@@ -1242,8 +1216,7 @@ def _build_variable_resolutions(
         if len(unique_interface_nodes) == 1:
             canonical_node = next(iter(unique_interface_nodes))
             local_nodes = {
-                fragment_id: variable_name
-                for _, fragment_id, variable_name in interface_candidates
+                fragment_id: variable_name for _, fragment_id, variable_name in interface_candidates
             }
             resolutions[token] = _ResolvedVariable(
                 composed_node=canonical_node,
@@ -1308,7 +1281,9 @@ def _build_latent_projection_resolutions(
         if entry is not None and token in projected_nodes:
             resolutions[token] = _ResolvedVariable(
                 composed_node=entry.canonical_node_id,
-                local_nodes={binding.fragment_id: binding.variable_name for binding in entry.bindings},
+                local_nodes={
+                    binding.fragment_id: binding.variable_name for binding in entry.bindings
+                },
             )
             continue
 
@@ -1322,12 +1297,13 @@ def _build_latent_projection_resolutions(
                 continue
 
         interface_candidates = interface_by_variable_name.get(token, [])
-        unique_interface_nodes = {item[0] for item in interface_candidates if item[0] in projected_nodes}
+        unique_interface_nodes = {
+            item[0] for item in interface_candidates if item[0] in projected_nodes
+        }
         if len(unique_interface_nodes) == 1:
             canonical_node = next(iter(unique_interface_nodes))
             local_nodes = {
-                fragment_id: variable_name
-                for _, fragment_id, variable_name in interface_candidates
+                fragment_id: variable_name for _, fragment_id, variable_name in interface_candidates
             }
             resolutions[token] = _ResolvedVariable(
                 composed_node=canonical_node,
@@ -1419,7 +1395,7 @@ def _build_composed_latent_projection(
 
     observed_nodes = set(node_set) - hidden_nodes
 
-    @lru_cache(maxsize=None)
+    @cache
     def observed_descendants_from_hidden(node: str) -> frozenset[str]:
         descendants_set: set[str] = set()
         for child in sorted(adjacency.get(node, set())):
@@ -1475,7 +1451,10 @@ def _build_composed_latent_projection(
         return "latent_projection_directed_cycle"
     graph_type = (
         GraphType.ADMG
-        if any(edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW for edge in projected_edge_list)
+        if any(
+            edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW
+            for edge in projected_edge_list
+        )
         else GraphType.DAG
     )
     return _LatentProjectionContext(
@@ -1487,7 +1466,9 @@ def _build_composed_latent_projection(
             metadata={
                 "hidden_interface_nodes": sorted(hidden_nodes),
                 "interface_mapping_entry_ids": [
-                    entry.interface_id for entry in interface_mapping.entries if entry.alignment_type == "latent_bridge"
+                    entry.interface_id
+                    for entry in interface_mapping.entries
+                    if entry.alignment_type == "latent_bridge"
                 ],
             },
         ),
@@ -1562,10 +1543,7 @@ def _candidate_witness_fragment_sets(
     topology: Mapping[str, set[str]],
 ) -> list[tuple[str, ...]]:
     variables = [obligation.treatment, obligation.outcome, *sorted(obligation.conditioning)]
-    candidate_sets = {
-        variable: set(resolutions[variable].local_nodes)
-        for variable in variables
-    }
+    candidate_sets = {variable: set(resolutions[variable].local_nodes) for variable in variables}
     candidates: list[tuple[str, ...]] = []
     for size in range(1, len(fragment_ids) + 1):
         for subset in combinations(fragment_ids, size):
@@ -1619,7 +1597,10 @@ def _build_witness_graph(
     }
     graph_type = (
         GraphType.ADMG
-        if any(fragment_graphs[fragment_id].graph_type is GraphType.ADMG for fragment_id in witness_fragment_ids)
+        if any(
+            fragment_graphs[fragment_id].graph_type is GraphType.ADMG
+            for fragment_id in witness_fragment_ids
+        )
         else GraphType.DAG
     )
     node_set: set[str] = set()
@@ -1662,7 +1643,7 @@ def _build_witness_graph(
         edges=[merged_edges[key] for key in sorted(merged_edges)],
         discovery_method="query_preservation_witness",
         metadata={
-            "witness_fragment_ids": list(sorted(witness_fragment_ids)),
+            "witness_fragment_ids": sorted(witness_fragment_ids),
             "cycle_contracts": [
                 _fragment_cycle_contract_summary(fragments[fragment_id])
                 for fragment_id in sorted(witness_fragment_ids)
@@ -1688,7 +1669,11 @@ def _witness_edge_key(edge: CausalEdge) -> tuple[str, str, str, str, int]:
 
 def _merge_witness_edge(existing: CausalEdge | None, incoming: CausalEdge) -> CausalEdge:
     if existing is None:
-        combined = incoming.compute_combined_confidence() if incoming.sources else incoming.combined_confidence
+        combined = (
+            incoming.compute_combined_confidence()
+            if incoming.sources
+            else incoming.combined_confidence
+        )
         return incoming.model_copy(update={"combined_confidence": combined})
 
     merged = CausalEdge(
@@ -1699,7 +1684,9 @@ def _merge_witness_edge(existing: CausalEdge | None, incoming: CausalEdge) -> Ca
         lag=existing.lag,
         sources=sorted(set(existing.sources) | set(incoming.sources), key=lambda item: item.value),
         data_confidence=max(
-            value for value in (existing.data_confidence, incoming.data_confidence) if value is not None
+            value
+            for value in (existing.data_confidence, incoming.data_confidence)
+            if value is not None
         )
         if any(value is not None for value in (existing.data_confidence, incoming.data_confidence))
         else None,
@@ -1714,14 +1701,20 @@ def _merge_witness_edge(existing: CausalEdge | None, incoming: CausalEdge) -> Ca
         )
         else None,
         llm_confidence=max(
-            value for value in (existing.llm_confidence, incoming.llm_confidence) if value is not None
+            value
+            for value in (existing.llm_confidence, incoming.llm_confidence)
+            if value is not None
         )
         if any(value is not None for value in (existing.llm_confidence, incoming.llm_confidence))
         else None,
         expert_confidence=max(
-            value for value in (existing.expert_confidence, incoming.expert_confidence) if value is not None
+            value
+            for value in (existing.expert_confidence, incoming.expert_confidence)
+            if value is not None
         )
-        if any(value is not None for value in (existing.expert_confidence, incoming.expert_confidence))
+        if any(
+            value is not None for value in (existing.expert_confidence, incoming.expert_confidence)
+        )
         else None,
         simulation_confidence=max(
             value
@@ -1733,7 +1726,8 @@ def _merge_witness_edge(existing: CausalEdge | None, incoming: CausalEdge) -> Ca
             for value in (existing.simulation_confidence, incoming.simulation_confidence)
         )
         else None,
-        unsupported_by_evidence=existing.unsupported_by_evidence and incoming.unsupported_by_evidence,
+        unsupported_by_evidence=existing.unsupported_by_evidence
+        and incoming.unsupported_by_evidence,
         evidence_refs=sorted(set(existing.evidence_refs) | set(incoming.evidence_refs)),
         metadata={**existing.metadata, **incoming.metadata},
     )
@@ -1745,7 +1739,10 @@ def _merge_witness_edge(existing: CausalEdge | None, incoming: CausalEdge) -> Ca
             for value in (existing.combined_confidence, incoming.combined_confidence)
             if value is not None
         )
-        if any(value is not None for value in (existing.combined_confidence, incoming.combined_confidence))
+        if any(
+            value is not None
+            for value in (existing.combined_confidence, incoming.combined_confidence)
+        )
         else None
     )
     return merged.model_copy(update={"combined_confidence": combined_confidence})
@@ -1787,9 +1784,7 @@ def _obligation_evaluation(
 ) -> tuple[bool, str]:
     if obligation.kind != "backdoor_adjustment":
         return False, ""
-    seed = frozenset(
-        {obligation.treatment, obligation.outcome, *obligation.conditioning}
-    )
+    seed = frozenset({obligation.treatment, obligation.outcome, *obligation.conditioning})
     if not seed.issubset(set(graph.nodes)):
         return False, ""
     forbidden_adjustment = descendants(
@@ -1962,13 +1957,13 @@ def _edge_signature(edge: CausalEdge) -> dict[str, object]:
 
 __all__ = [
     "GraphicalObligationTrace",
-    "QueryPreservationTrace",
     "QueryPreservationStatus",
-    "evaluate_query_preservation",
-    "evaluate_query_preservation_batch",
+    "QueryPreservationTrace",
     "check_query_preservation",
     "check_query_preservation_batch",
+    "evaluate_query_preservation",
+    "evaluate_query_preservation_batch",
     "negative_certificate_from_query_preservation_trace",
-    "update_query_preservation_cache",
     "update_query_preservation_artifact_refs",
+    "update_query_preservation_cache",
 ]

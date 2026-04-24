@@ -3,14 +3,19 @@
 Combines SensitivityResult (E-value, RV, Rosenbaum gamma) with optional
 BoundsReport and NegativeCertificate when robustness thresholds are breached.
 """
+
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.analytics.partial_identification import BoundsReport
-from polisyos.ir.analytics.sensitivity import SensitivityResult
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.partial_identification import BoundsReport
+    from polisyos.ir.analytics.sensitivity import SensitivityResult
+else:
+    from polisyos.ir.analytics.partial_identification import BoundsReport
+    from polisyos.ir.analytics.sensitivity import SensitivityResult
 
 
 class SensitivityReport(BaseModel):
@@ -60,7 +65,7 @@ class SensitivityReport(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _derive_assessment(self) -> "SensitivityReport":
+    def _derive_assessment(self) -> SensitivityReport:
         sr = self.sensitivity_result
 
         # Determine assessment

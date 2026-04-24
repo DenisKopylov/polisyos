@@ -1,4 +1,5 @@
 """Tests for the MetricsRegistry singleton."""
+
 from __future__ import annotations
 
 import time

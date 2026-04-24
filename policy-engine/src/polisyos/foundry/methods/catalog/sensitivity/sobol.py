@@ -1,7 +1,9 @@
 """Public sensitivity sobol module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -30,6 +32,7 @@ def _result_slot() -> frozenset[SlotSpec]:
 )
 class SobolFirstOrderEstimator:
     """Estimate first-order Sobol indices for variance-based sensitivity analysis."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -39,9 +42,18 @@ class SobolFirstOrderEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("outputs_a", SlotType.VECTOR, Unit("response", "value"), shape=("n_samples",)),
-                SlotSpec("outputs_b", SlotType.VECTOR, Unit("response", "value"), shape=("n_samples",)),
-                SlotSpec("mixed_outputs", SlotType.MATRIX, Unit("response", "value"), shape=("n_features", "n_samples")),
+                SlotSpec(
+                    "outputs_a", SlotType.VECTOR, Unit("response", "value"), shape=("n_samples",)
+                ),
+                SlotSpec(
+                    "outputs_b", SlotType.VECTOR, Unit("response", "value"), shape=("n_samples",)
+                ),
+                SlotSpec(
+                    "mixed_outputs",
+                    SlotType.MATRIX,
+                    Unit("response", "value"),
+                    shape=("n_features", "n_samples"),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -78,7 +90,9 @@ class SobolFirstOrderEstimator:
         variance = float(np.var(np.concatenate([outputs_a, outputs_b]), ddof=1))
         if variance <= 0.0:
             raise ValueError("variance must be positive for Sobol indices")
-        first_order = 1.0 - np.mean((outputs_b[None, :] - mixed_outputs) ** 2, axis=1) / (2.0 * variance)
+        first_order = 1.0 - np.mean((outputs_b[None, :] - mixed_outputs) ** 2, axis=1) / (
+            2.0 * variance
+        )
         return {
             "result": {
                 "first_order_indices": np.clip(first_order, 0.0, 1.0).tolist(),

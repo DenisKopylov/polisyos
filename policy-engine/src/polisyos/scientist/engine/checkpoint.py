@@ -1,4 +1,5 @@
 """Checkpoint, locking, and resume primitives for Scientist workflow execution."""
+
 from __future__ import annotations
 
 import asyncio
@@ -133,6 +134,7 @@ class CheckpointMetadataConflictError(CheckpointCorruptedError):
 
 class CheckpointMetadata(BaseModel):
     """Replay metadata recorded after a node commits a recoverable workflow transition."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(CHECKPOINT_SCHEMA_VERSION, pattern=r"^\d+\.\d+$")
@@ -157,6 +159,7 @@ class CheckpointMetadata(BaseModel):
 
 class CheckpointArtifact(BaseModel):
     """Checkpoint artifact public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     metadata: CheckpointMetadata
@@ -167,6 +170,7 @@ class CheckpointArtifact(BaseModel):
 
 class CheckpointHead(BaseModel):
     """Checkpoint head public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -209,6 +213,7 @@ class CheckpointHistory(BaseModel):
 @dataclass(frozen=True)
 class CheckpointWriteResult:
     """Summary of a checkpoint write, including the persisted artifact ref and latency."""
+
     checkpoint_ref: ArtifactRef
     sequence_number: int
     duration_ms: int
@@ -232,6 +237,7 @@ class CreatedCheckpoint:
 
 class CheckpointHook(Protocol):
     """Checkpoint hook public type."""
+
     def on_node_complete(
         self,
         *,
@@ -242,8 +248,7 @@ class CheckpointHook(Protocol):
         workflow_id: str,
         workflow_fingerprint: str,
         cache_entry_ref: ArtifactRef | None,
-    ) -> CheckpointWriteResult | None:
-        ...
+    ) -> CheckpointWriteResult | None: ...
 
 
 class AsyncCheckpointHook(Protocol):
@@ -259,13 +264,13 @@ class AsyncCheckpointHook(Protocol):
         workflow_id: str,
         workflow_fingerprint: str,
         cache_entry_ref: ArtifactRef | None,
-    ) -> CheckpointWriteResult | None:
-        ...
+    ) -> CheckpointWriteResult | None: ...
 
 
 @dataclass
 class RunLockHandle:
     """Run lock handle public type."""
+
     run_id: str
     path: Path
     fd: int
@@ -325,7 +330,8 @@ class FileSystemCheckpointStore:
 
 
 def _validate_checkpoint_schema(
-    checkpoint_version: str, current_version: str,
+    checkpoint_version: str,
+    current_version: str,
 ) -> None:
     """Validate that *checkpoint_version* is compatible with *current_version*."""
     try:
@@ -372,7 +378,9 @@ def _is_checkpoint_op(value: Any, kind: str) -> bool:
     return isinstance(value, dict) and value.get(_CHECKPOINT_OP_KEY) == kind
 
 
-def _build_state_delta(previous: Any, current: Any) -> tuple[dict[str, Any] | None, tuple[str, ...]]:
+def _build_state_delta(
+    previous: Any, current: Any
+) -> tuple[dict[str, Any] | None, tuple[str, ...]]:
     delta, changed_paths = _diff_checkpoint_value(previous, current, path="")
     if delta is _NO_DIFF:
         return None, ()
@@ -440,9 +448,7 @@ def _apply_checkpoint_op(value: Any, op: dict[str, Any], *, root: bool = False) 
         if _is_checkpoint_op(child_op, _CHECKPOINT_OP_PATCH) and (
             key not in patched or not isinstance(current_child, dict)
         ):
-            raise CheckpointCorruptedError(
-                f"checkpoint patch expected existing dict at {key!r}"
-            )
+            raise CheckpointCorruptedError(f"checkpoint patch expected existing dict at {key!r}")
         new_value = _apply_checkpoint_op(current_child, child_op)
         if new_value is _NO_DIFF:
             patched.pop(key, None)
@@ -463,16 +469,9 @@ def gc_checkpoints(
         return 0
 
     cutoff = datetime.now(UTC) - timedelta(hours=float(policy.max_age_hours))
-    keep_ref_id = (
-        str(current_head_ref.artifact_id)
-        if current_head_ref is not None
-        else None
-    )
+    keep_ref_id = str(current_head_ref.artifact_id) if current_head_ref is not None else None
 
-    entry_by_ref = {
-        str(entry.checkpoint_ref.artifact_id): entry
-        for entry in history.entries
-    }
+    entry_by_ref = {str(entry.checkpoint_ref.artifact_id): entry for entry in history.entries}
 
     retained: list[CheckpointHistoryEntry] = []
     retained_non_head = 0
@@ -490,10 +489,7 @@ def gc_checkpoints(
             if not must_keep:
                 retained_non_head += 1
 
-    retained_ids = {
-        str(entry.checkpoint_ref.artifact_id)
-        for entry in retained
-    }
+    retained_ids = {str(entry.checkpoint_ref.artifact_id) for entry in retained}
     pending_ids = list(retained_ids)
     while pending_ids:
         current_id = pending_ids.pop()
@@ -570,9 +566,7 @@ class CASCheckpointHook:
 
         sequence_number = self._sequence
         current_state = state.model_dump(mode="python", by_alias=True, exclude_none=False)
-        merged_completed_nodes = _dedupe_aliases(
-            [*self._completed_nodes, *completed_nodes]
-        )
+        merged_completed_nodes = _dedupe_aliases([*self._completed_nodes, *completed_nodes])
         try:
             created = create_checkpoint(
                 self._store,
@@ -677,9 +671,7 @@ class CASCheckpointHook:
 
         sequence_number = self._sequence
         current_state = state.model_dump(mode="python", by_alias=True, exclude_none=False)
-        merged_completed_nodes = _dedupe_aliases(
-            [*self._completed_nodes, *completed_nodes]
-        )
+        merged_completed_nodes = _dedupe_aliases([*self._completed_nodes, *completed_nodes])
         try:
             created = await create_checkpoint_async(
                 self._async_store,
@@ -786,9 +778,7 @@ class CASCheckpointHook:
             "run_dir": str(self._run_dir),
             "sequence_start": self._sequence,
             "checkpoint_policy": self._policy,
-            "cache_entry_refs": [
-                ref.model_dump(mode="json") for ref in self._cache_entry_refs
-            ],
+            "cache_entry_refs": [ref.model_dump(mode="json") for ref in self._cache_entry_refs],
             "completed_nodes": list(self._completed_nodes),
             "gc_policy": self._gc_policy.model_dump(mode="json"),
             "previous_checkpoint_ref": (
@@ -865,9 +855,7 @@ def restore_checkpoint_hook_from_runtime_metadata(
         run_dir=Path(run_dir),
         store_config=store_config,
         sequence_start=max(0, int(metadata.get("sequence_start", 0) or 0)),
-        checkpoint_policy=normalize_checkpoint_policy(
-            metadata.get("checkpoint_policy", "strict")
-        ),
+        checkpoint_policy=normalize_checkpoint_policy(metadata.get("checkpoint_policy", "strict")),
         initial_cache_entry_refs=cache_entry_refs,
         initial_completed_nodes=list(metadata.get("completed_nodes", [])),
         gc_policy=gc_policy,
@@ -941,11 +929,7 @@ def _build_resume_workflow_spec(
         return workflow.model_copy(update={"nodes": []})
     resumed_nodes = [
         inv.model_copy(
-            update={
-                "depends_on": [
-                    dep for dep in inv.depends_on if dep not in completed_set
-                ]
-            }
+            update={"depends_on": [dep for dep in inv.depends_on if dep not in completed_set]}
         )
         for inv in workflow.nodes
         if inv.alias not in completed_set
@@ -1227,19 +1211,13 @@ def _load_local_checkpoint_json(path: Path, *, label: str) -> dict[str, Any]:
     try:
         raw_text = path.read_text(encoding="utf-8")
     except OSError as exc:
-        raise CheckpointCorruptedError(
-            f"{label} at {path} could not be read: {exc}"
-        ) from exc
+        raise CheckpointCorruptedError(f"{label} at {path} could not be read: {exc}") from exc
     try:
         raw = json.loads(raw_text)
     except json.JSONDecodeError as exc:
-        raise CheckpointCorruptedError(
-            f"{label} at {path} is not valid JSON: {exc}"
-        ) from exc
+        raise CheckpointCorruptedError(f"{label} at {path} is not valid JSON: {exc}") from exc
     if not isinstance(raw, dict):
-        raise CheckpointCorruptedError(
-            f"{label} at {path} must decode to a JSON object"
-        )
+        raise CheckpointCorruptedError(f"{label} at {path} must decode to a JSON object")
     return raw
 
 
@@ -1283,9 +1261,7 @@ def append_checkpoint_history(run_dir: Path, head: CheckpointHead) -> None:
     history = load_checkpoint_history(run_dir) or CheckpointHistory()
     ref_id = str(head.checkpoint_ref.artifact_id)
     filtered = [
-        entry
-        for entry in history.entries
-        if str(entry.checkpoint_ref.artifact_id) != ref_id
+        entry for entry in history.entries if str(entry.checkpoint_ref.artifact_id) != ref_id
     ]
     filtered.append(
         CheckpointHistoryEntry(
@@ -1341,9 +1317,7 @@ def _checkpoint_history_entry_identity(
         str(entry.checkpoint_ref.artifact_id),
         entry.node_alias,
         entry.snapshot_mode,
-        None
-        if entry.base_checkpoint_ref is None
-        else str(entry.base_checkpoint_ref.artifact_id),
+        None if entry.base_checkpoint_ref is None else str(entry.base_checkpoint_ref.artifact_id),
         entry.chain_depth,
     )
 
@@ -1364,10 +1338,7 @@ def _latest_history_entry(
         return None
     max_sequence = max(entry.sequence_number for entry in entries)
     latest_entries = [entry for entry in entries if entry.sequence_number == max_sequence]
-    latest_identities = {
-        _checkpoint_history_entry_identity(entry)
-        for entry in latest_entries
-    }
+    latest_identities = {_checkpoint_history_entry_identity(entry) for entry in latest_entries}
     if len(latest_identities) > 1:
         raise CheckpointMetadataConflictError(
             "checkpoint history contains multiple conflicting latest entries"
@@ -1386,7 +1357,9 @@ def _checkpoint_head_artifact_mismatches(
         mismatches.append("snapshot_mode")
     if checkpoint.metadata.chain_depth != head.chain_depth:
         mismatches.append("chain_depth")
-    head_base = None if head.base_checkpoint_ref is None else str(head.base_checkpoint_ref.artifact_id)
+    head_base = (
+        None if head.base_checkpoint_ref is None else str(head.base_checkpoint_ref.artifact_id)
+    )
     checkpoint_base = (
         None
         if checkpoint.base_checkpoint_ref is None
@@ -1482,9 +1455,7 @@ def materialize_checkpoint_state(
     try:
         checkpoint = load_checkpoint(store, checkpoint_ref)
     except (ValidationError, ValueError, TypeError) as exc:
-        raise CheckpointCorruptedError(
-            f"checkpoint artifact payload is invalid: {exc}"
-        ) from exc
+        raise CheckpointCorruptedError(f"checkpoint artifact payload is invalid: {exc}") from exc
 
     if checkpoint.metadata.snapshot_mode == "full":
         if checkpoint.state is None:
@@ -1520,9 +1491,7 @@ def resolve_latest_checkpoint(
     try:
         checkpoint = load_checkpoint(store, head.checkpoint_ref)
     except (ValidationError, ValueError, TypeError) as exc:
-        raise CheckpointCorruptedError(
-            f"checkpoint artifact payload is invalid: {exc}"
-        ) from exc
+        raise CheckpointCorruptedError(f"checkpoint artifact payload is invalid: {exc}") from exc
     if checkpoint.metadata.run_id != run_id:
         raise CheckpointCorruptedError(
             f"checkpoint run_id mismatch: expected={run_id} got={checkpoint.metadata.run_id}"
@@ -1591,10 +1560,13 @@ def acquire_run_lock(
                     )
             os.close(fd)
             if attempt < max_attempts - 1:
-                delay = retry_delay_s * (2 ** attempt)
+                delay = retry_delay_s * (2**attempt)
                 logger.info(
                     "Lock for run %s held; retrying in %.1fs (attempt %d/%d)",
-                    run_id, delay, attempt + 1, max_attempts,
+                    run_id,
+                    delay,
+                    attempt + 1,
+                    max_attempts,
                 )
                 time.sleep(delay)
                 continue
@@ -1678,7 +1650,6 @@ def resume_from_checkpoint(
     )
     from polisyos.scientist.workflows.default import default_workflow_spec
 
-
     if isinstance(run_id, CheckpointResumeRequest):
         request = run_id
         run_id = request.run_id
@@ -1701,7 +1672,8 @@ def resume_from_checkpoint(
         head, checkpoint = resolved
 
         _validate_checkpoint_schema(
-            checkpoint.metadata.schema_version, CHECKPOINT_SCHEMA_VERSION,
+            checkpoint.metadata.schema_version,
+            CHECKPOINT_SCHEMA_VERSION,
         )
 
         restored_state = ExperimentState.model_validate(checkpoint.state)
@@ -1718,22 +1690,21 @@ def resume_from_checkpoint(
         )
         invocations = {inv.alias: inv for inv in workflow_spec.nodes}
         cacheable_completed = [
-            alias for alias in checkpoint.metadata.completed_nodes
+            alias
+            for alias in checkpoint.metadata.completed_nodes
             if alias in invocations
             and str(invocations[alias].node_id) not in _CHECKPOINT_CACHE_DISABLED_NODE_IDS
         ]
-        if (
-            checkpoint_resume_strategy == "require_cache_seed"
-            and len(checkpoint.metadata.cache_entry_refs) < len(cacheable_completed)
-        ):
+        if checkpoint_resume_strategy == "require_cache_seed" and len(
+            checkpoint.metadata.cache_entry_refs
+        ) < len(cacheable_completed):
             raise CheckpointCorruptedError(
                 "checkpoint resume requires cache seed refs for completed cacheable nodes; "
                 "pass resume_strategy='allow_replay' only if re-running completed nodes is safe"
             )
-        if (
-            checkpoint_resume_strategy == "allow_replay"
-            and len(checkpoint.metadata.cache_entry_refs) < len(cacheable_completed)
-        ):
+        if checkpoint_resume_strategy == "allow_replay" and len(
+            checkpoint.metadata.cache_entry_refs
+        ) < len(cacheable_completed):
             emit_degraded_path(
                 component="scientist.checkpoint",
                 operation="resume",

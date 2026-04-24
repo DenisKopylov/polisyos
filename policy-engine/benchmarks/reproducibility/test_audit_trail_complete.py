@@ -60,7 +60,11 @@ from benchmarks.harness import (  # noqa: E402
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.REPRODUCIBILITY
@@ -73,6 +77,7 @@ CIRCUIT = BenchmarkCircuit.REPRODUCIBILITY
 
 def _build_frontdoor():
     from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+
     return CausalGraphModel(
         schema_version="1.0",
         graph_type=GraphType.ADMG,
@@ -87,6 +92,7 @@ def _build_frontdoor():
 
 def _build_backdoor():
     from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+
     return CausalGraphModel(
         schema_version="1.0",
         graph_type=GraphType.DAG,
@@ -100,6 +106,7 @@ def _build_backdoor():
 
 def _build_direct():
     from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+
     return CausalGraphModel(
         schema_version="1.0",
         graph_type=GraphType.DAG,
@@ -124,6 +131,7 @@ def _is_valid_iso8601(ts: str) -> bool:
 def _audit(graph, treatment, outcome):
     from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
     from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult
+
     engine = CausalEngine()
     id_result = engine.identify(treatment=treatment, outcome=outcome, graph=graph)
     if not isinstance(id_result, IdentificationResult):
@@ -198,9 +206,7 @@ def _case_backdoor_estimand_fields() -> BenchmarkCase:
         # estimand_fingerprint should be a 16-char hex string
         fp = b.estimand_fingerprint
         if len(fp) != 16 or not all(c in "0123456789abcdef" for c in fp.lower()):
-            raise AssertionError(
-                f"estimand_fingerprint should be 16-char hex, got {fp!r}"
-            )
+            raise AssertionError(f"estimand_fingerprint should be 16-char hex, got {fp!r}")
         return True
 
     return BenchmarkCase(
@@ -227,9 +233,7 @@ def _case_direct_proof_steps_non_empty() -> BenchmarkCase:
         # Each proof step must have rule_name
         for step in b.proof_steps:
             if not step.rule_name:
-                raise AssertionError(
-                    f"All proof steps must have rule_name; got empty: {step}"
-                )
+                raise AssertionError(f"All proof steps must have rule_name; got empty: {step}")
         return True
 
     return BenchmarkCase(
@@ -246,9 +250,14 @@ def _case_fusion_proof_steps_in_result() -> BenchmarkCase:
     """Multi-study fusion FusionResult: proof_steps tuple non-empty."""
 
     def runner():
-        from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
-        from polisyos.ir.analytics.data_fusion import FusionDataset
         from polisyos.foundry.methods.catalog.causal.data_fusion import multi_study_fusion
+        from polisyos.ir.analytics.causal_graph import (
+            CausalEdge,
+            CausalGraphModel,
+            EdgeMark,
+            GraphType,
+        )
+        from polisyos.ir.analytics.data_fusion import FusionDataset
 
         graph = CausalGraphModel(
             schema_version="1.0",
@@ -280,9 +289,7 @@ def _case_fusion_proof_steps_in_result() -> BenchmarkCase:
 
     def checker(r) -> bool:
         if not r.proof_steps:
-            raise AssertionError(
-                "FusionResult.proof_steps must be non-empty for successful mZ-ID"
-            )
+            raise AssertionError("FusionResult.proof_steps must be non-empty for successful mZ-ID")
         if not r.identification_algorithm:
             raise AssertionError("FusionResult.identification_algorithm must be non-empty")
         return True
@@ -309,11 +316,11 @@ def _case_algorithm_version_pattern() -> BenchmarkCase:
             raise AssertionError("algorithm_version must be non-empty")
         # Must contain a version number hint like 'v1', 'v2', or 'experimental'
         av_lower = av.lower()
-        has_version_marker = any(marker in av_lower for marker in ("v1", "v2", "v3", "experimental", "id_"))
+        has_version_marker = any(
+            marker in av_lower for marker in ("v1", "v2", "v3", "experimental", "id_")
+        )
         if not has_version_marker:
-            raise AssertionError(
-                f"algorithm_version should contain version marker, got {av!r}"
-            )
+            raise AssertionError(f"algorithm_version should contain version marker, got {av!r}")
         return True
 
     return BenchmarkCase(
@@ -346,7 +353,9 @@ def build_audit_trail_harness() -> BenchmarkHarness:
 # ---------------------------------------------------------------------------
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     return build_report_payload(
         report,
         suite_id="reproducibility_audit",

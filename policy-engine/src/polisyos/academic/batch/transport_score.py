@@ -7,11 +7,10 @@ from collections import Counter, defaultdict
 from datetime import UTC, datetime
 from functools import lru_cache
 from statistics import median
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.knowledge.skg_store import (
     ensure_skg_schema,
     hash_context_profile_id,
@@ -19,6 +18,9 @@ from polisyos.academic.knowledge.skg_store import (
 )
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.common.logger import get_logger
+
+if TYPE_CHECKING:
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 logger = get_logger(__name__)
 
@@ -51,7 +53,8 @@ def _significant_moderators(moderators: list[dict[str, Any]]) -> list[dict[str, 
     return [
         moderator
         for moderator in moderators
-        if moderator.get("interaction_pvalue") is not None and float(moderator["interaction_pvalue"]) < 0.10
+        if moderator.get("interaction_pvalue") is not None
+        and float(moderator["interaction_pvalue"]) < 0.10
     ]
 
 
@@ -71,10 +74,7 @@ def _moderation_penalty_amount(moderators: list[dict[str, Any]]) -> float:
     significant = _significant_moderators(moderators)
     strong_penalty = min(0.20, 0.05 * len(significant))
     # Soft penalty for moderators with directional signal but no p-value
-    soft_signal = [
-        m for m in moderators
-        if m not in significant and _has_significance_signal(m)
-    ]
+    soft_signal = [m for m in moderators if m not in significant and _has_significance_signal(m)]
     soft_penalty = min(0.10, 0.02 * len(soft_signal))
     return min(0.30, strong_penalty + soft_penalty)
 
@@ -92,7 +92,11 @@ def _build_context_profiles(
     country_filter: tuple[str, ...] | None = None,
 ) -> int:
     """Aggregate context attributes into context profiles by country+time_period."""
-    evidence_filter = evidence_filter if evidence_filter is not None else _context_attr_filter_clause(con, skg_version=skg_version)
+    evidence_filter = (
+        evidence_filter
+        if evidence_filter is not None
+        else _context_attr_filter_clause(con, skg_version=skg_version)
+    )
     country_values = tuple(country for country in (country_filter or ()) if country)
     country_clause = ""
     params: list[Any] = [skg_version]
@@ -106,8 +110,9 @@ def _build_context_profiles(
         "value_qualitative, confidence, COUNT(*) as n_articles "
         "FROM ac_skg_context_attributes "
         f"WHERE skg_version = ? {evidence_filter} AND country_code IS NOT NULL AND country_code != '' {country_clause}"
-        "GROUP BY country_code, time_period, canonical_name, attribute_value, value_qualitative, confidence"
-    , params).fetchall()
+        "GROUP BY country_code, time_period, canonical_name, attribute_value, value_qualitative, confidence",
+        params,
+    ).fetchall()
 
     if not rows:
         return 0
@@ -243,7 +248,9 @@ def _match_moderators_for_edge(
         candidate_ids: range | set[int] = range(len(candidates))
     else:
         candidates, by_src_token, by_dst_token = fuzzy_index
-        candidate_ids = _candidate_ids_for_tokens(src_tokens, by_src_token) & _candidate_ids_for_tokens(dst_tokens, by_dst_token)
+        candidate_ids = _candidate_ids_for_tokens(
+            src_tokens, by_src_token
+        ) & _candidate_ids_for_tokens(dst_tokens, by_dst_token)
 
     for candidate_id in candidate_ids:
         mod_src_tokens, mod_dst_tokens, moderators = candidates[candidate_id]
@@ -284,7 +291,9 @@ def _find_profile_attribute(profile: dict[str, Any], moderator_name: str) -> dic
     return None
 
 
-def _aggregate_context_rows(rows: list[tuple[Any, ...]], *, context_id: str, time_period: str) -> dict[str, Any]:
+def _aggregate_context_rows(
+    rows: list[tuple[Any, ...]], *, context_id: str, time_period: str
+) -> dict[str, Any]:
     grouped: dict[str, list[tuple[Any, Any, float]]] = defaultdict(list)
     for canonical_name, value, value_qualitative, confidence in rows:
         grouped[str(canonical_name)].append((value, value_qualitative, float(confidence or 0.5)))
@@ -295,7 +304,9 @@ def _aggregate_context_rows(rows: list[tuple[Any, ...]], *, context_id: str, tim
         qualitative_values = [str(label) for _, label, _ in values if label]
         attributes[canonical_name] = {
             "value": float(median(numeric_values)) if numeric_values else None,
-            "value_qualitative": Counter(qualitative_values).most_common(1)[0][0] if qualitative_values else None,
+            "value_qualitative": Counter(qualitative_values).most_common(1)[0][0]
+            if qualitative_values
+            else None,
             "confidence": max((conf for _, _, conf in values), default=0.5),
         }
     return {
@@ -329,7 +340,11 @@ def _load_target_context_profile(
 
     countries = list(config.transport_target_country_codes)
     time_period = str(config.transport_target_time_period or "")
-    evidence_filter = evidence_filter if evidence_filter is not None else _context_attr_filter_clause(con, skg_version=skg_version)
+    evidence_filter = (
+        evidence_filter
+        if evidence_filter is not None
+        else _context_attr_filter_clause(con, skg_version=skg_version)
+    )
     rows = con.execute(
         """
         SELECT canonical_name, attribute_value, value_qualitative, confidence
@@ -359,7 +374,11 @@ def _load_source_context_for_edge(
 ) -> dict[str, Any] | None:
     if not article_refs:
         return None
-    evidence_filter = evidence_filter if evidence_filter is not None else _context_attr_filter_clause(con, skg_version=skg_version)
+    evidence_filter = (
+        evidence_filter
+        if evidence_filter is not None
+        else _context_attr_filter_clause(con, skg_version=skg_version)
+    )
     rows = con.execute(
         """
         SELECT canonical_name, attribute_value, value_qualitative, confidence
@@ -383,12 +402,12 @@ def _load_context_rows_by_article(
     evidence_filter: str,
 ) -> dict[str, list[tuple[Any, ...]]]:
     rows = con.execute(
-        """
+        f"""
         SELECT openalex_id, canonical_name, attribute_value, value_qualitative, confidence
         FROM ac_skg_context_attributes
         WHERE skg_version = ? {evidence_filter}
           AND openalex_id IS NOT NULL AND openalex_id != ''
-        """.format(evidence_filter=evidence_filter),
+        """,
         [skg_version],
     ).fetchall()
     by_article: dict[str, list[tuple[Any, ...]]] = defaultdict(list)
@@ -441,7 +460,9 @@ def _context_similarity(
         source_label = str(source_attr.get("value_qualitative") or "").strip().lower()
         target_label = str(target_attr.get("value_qualitative") or "").strip().lower()
         if source_label and target_label:
-            scores.append(1.0 if source_label == target_label else _token_overlap(source_label, target_label))
+            scores.append(
+                1.0 if source_label == target_label else _token_overlap(source_label, target_label)
+            )
 
     if not scores:
         return 0.0
@@ -491,7 +512,9 @@ def run_transport_score(config: AcademicBatchConfig) -> dict[str, int]:
     try:
         ensure_skg_schema(con)
 
-        version_row = con.execute("SELECT COALESCE(MAX(version_id), 0) FROM ac_skg_versions").fetchone()
+        version_row = con.execute(
+            "SELECT COALESCE(MAX(version_id), 0) FROM ac_skg_versions"
+        ).fetchone()
         skg_version = int(version_row[0]) if version_row else 0
         if skg_version == 0:
             logger.info("No SKG version found, skipping transport_score")
@@ -563,8 +586,12 @@ def run_transport_score(config: AcademicBatchConfig) -> dict[str, int]:
             penalty = _moderation_penalty_amount(moderators)
             source_refs = json.loads(str(article_refs_json or "[]"))
             article_refs = [str(item) for item in source_refs if item]
-            source_context_profile = _source_context_from_article_index(article_refs, context_rows_by_article)
-            similarity = _context_similarity(source_context_profile, target_context_profile, moderators)
+            source_context_profile = _source_context_from_article_index(
+                article_refs, context_rows_by_article
+            )
+            similarity = _context_similarity(
+                source_context_profile, target_context_profile, moderators
+            )
             has_relevant = any(_has_significance_signal(m) for m in moderators)
             if target_context_profile is not None and has_relevant:
                 if source_context_profile is not None and similarity > 0.0:

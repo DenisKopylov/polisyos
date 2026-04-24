@@ -33,14 +33,16 @@ SUITE_ID = "temporal_gold"
 def _build_payload(mode: str, *, quiet: bool) -> dict[str, object]:
     harness = BenchmarkHarness()
     for fixture in gold_fixtures():
-        harness.register(
-            benchmark_case_from_fixture(fixture, circuit=BenchmarkCircuit.ESTIMATION)
-        )
+        harness.register(benchmark_case_from_fixture(fixture, circuit=BenchmarkCircuit.ESTIMATION))
 
     report = harness.run(circuit=BenchmarkCircuit.ESTIMATION)
     evaluations = extract_temporal_evaluations(report)
     scorecard = build_gold_scorecard(evaluations)
-    suite_status = "passed" if resolve_mode(mode).value == "smoke" else ("passed" if scorecard["passes_all"] else "failed")
+    suite_status = (
+        "passed"
+        if resolve_mode(mode).value == "smoke"
+        else ("passed" if scorecard["passes_all"] else "failed")
+    )
     preflight = build_preflight(
         mode=mode,
         benchmark_tier=resolve_tier(mode=resolve_mode(mode)).value,

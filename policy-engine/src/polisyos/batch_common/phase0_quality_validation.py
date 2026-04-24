@@ -172,7 +172,9 @@ def evaluate_phase0_quality(
     if proxy_share_pct is not None:
         metrics["proxy_share_pct"] = round(float(proxy_share_pct), 3)
     if temporal_extrapolation_share_pct is not None:
-        metrics["temporal_extrapolation_share_pct"] = round(float(temporal_extrapolation_share_pct), 3)
+        metrics["temporal_extrapolation_share_pct"] = round(
+            float(temporal_extrapolation_share_pct), 3
+        )
 
     return Phase0QualityReport(checks=checks, metrics=metrics)
 
@@ -198,9 +200,7 @@ def _warning_checks(
             value=None if dataset_coverage_pct is None else round(float(dataset_coverage_pct), 3),
             threshold=thresholds.min_dataset_coverage_pct,
             message=(
-                "dataset coverage metric was not provided"
-                if dataset_coverage_pct is None
-                else ""
+                "dataset coverage metric was not provided" if dataset_coverage_pct is None else ""
             ),
         )
     )
@@ -224,7 +224,8 @@ def _warning_checks(
             passed=(
                 True
                 if temporal_extrapolation_share_pct is None
-                else temporal_extrapolation_share_pct <= thresholds.max_temporal_extrapolation_share_pct
+                else temporal_extrapolation_share_pct
+                <= thresholds.max_temporal_extrapolation_share_pct
             ),
             severity="warning",
             value=(
@@ -244,8 +245,8 @@ def _warning_checks(
 
 
 __all__ = [
-    "Phase0QualityThresholds",
     "Phase0QualityCheck",
     "Phase0QualityReport",
+    "Phase0QualityThresholds",
     "evaluate_phase0_quality",
 ]

@@ -1,4 +1,5 @@
 """Exports Scholar source-discovery helpers that normalize manual, URL, and file seeds."""
+
 from __future__ import annotations
 
 from .http_fetch import fetch_url

@@ -9,13 +9,15 @@ Architecture laws:
 - Law H: Deterministic ordering for reproducible builds
 - Law I: Static vs Dynamic parameter separation
 """
+
 from __future__ import annotations
 
 import graphlib
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import Enum
 from types import MappingProxyType
-from typing import Any, Iterator, Mapping, Sequence, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from polisyos.foundry.methods.base import MethodSignature, _stable_digest
@@ -24,14 +26,13 @@ from polisyos.foundry.methods.linker import LinkResult, SlotBinding, SlotLinker
 from polisyos.foundry.methods.registry import MethodRegistry
 
 if TYPE_CHECKING:
-    from polisyos.foundry.methods.backends.chain_executor import ExecutorMode
-    from polisyos.foundry.methods.backends.chain_executor import FxRateProvider
+    from polisyos.foundry.methods.backends.chain_executor import ExecutorMode, FxRateProvider
 
 __all__ = [
-    "MethodNode",
+    "CompiledMethodChain",
     "CompositionDAG",
     "MethodComposer",
-    "CompiledMethodChain",
+    "MethodNode",
     "SemanticValidationLevel",
 ]
 
@@ -207,8 +208,7 @@ class CompositionDAG:
                     cycle_nodes = list(arg)
                     break
             cycle_fqns = [
-                self.nodes[uid].method_fqn if uid in self.nodes else str(uid)
-                for uid in cycle_nodes
+                self.nodes[uid].method_fqn if uid in self.nodes else str(uid) for uid in cycle_nodes
             ]
             if not cycle_fqns:
                 cycle_fqns = ["<cycle>"]
@@ -299,8 +299,12 @@ class CompositionDAG:
 
     def freeze(self) -> FrozenCompositionDAG:
         nodes = MappingProxyType(dict(self.nodes))
-        successors = MappingProxyType({nid: frozenset(succs) for nid, succs in self.successors.items()})
-        predecessors = MappingProxyType({nid: frozenset(preds) for nid, preds in self.predecessors.items()})
+        successors = MappingProxyType(
+            {nid: frozenset(succs) for nid, succs in self.successors.items()}
+        )
+        predecessors = MappingProxyType(
+            {nid: frozenset(preds) for nid, preds in self.predecessors.items()}
+        )
         edges = MappingProxyType(dict(self.edges))
         return FrozenCompositionDAG(
             nodes=nodes,
@@ -534,8 +538,7 @@ class MethodComposer:
                 if link_result.target_id is not None:
                     target_label = f"{target_label} ({str(link_result.target_id)[:8]})"
                 warnings.append(
-                    f"Unconnected inputs in {target_label}: "
-                    f"{list(link_result.unconnected_inputs)}"
+                    f"Unconnected inputs in {target_label}: {list(link_result.unconnected_inputs)}"
                 )
 
         return warnings
@@ -561,7 +564,8 @@ class MethodComposer:
         # Backward compat: accept bool
         if isinstance(validate_semantics, bool):
             validate_semantics = (
-                SemanticValidationLevel.STRICT if validate_semantics
+                SemanticValidationLevel.STRICT
+                if validate_semantics
                 else SemanticValidationLevel.OFF
             )
 
@@ -584,7 +588,8 @@ class MethodComposer:
         # Compute composition-aware cache keys (includes upstream context)
         frozen_dag = self._dag.freeze()
         cache_keys = self._compute_composition_cache_keys(
-            frozen_dag, req_predecessors,
+            frozen_dag,
+            req_predecessors,
         )
 
         chain = CompiledMethodChain(
@@ -598,23 +603,19 @@ class MethodComposer:
 
         if validate_semantics != SemanticValidationLevel.OFF:
             from polisyos.foundry.methods.semantic_validator import CrossMethodValidator
+
             strict = validate_semantics == SemanticValidationLevel.STRICT
             validator = CrossMethodValidator(strict=strict)
             report = validator.validate_chain(chain)
 
             if report.errors and strict:
-                raise ValueError(
-                    f"Chain failed semantic validation:\n{report.summary()}"
-                )
+                raise ValueError(f"Chain failed semantic validation:\n{report.summary()}")
 
             if report.warnings or (report.errors and not strict):
-                all_issues = list(report.warnings) + (
-                    list(report.errors) if not strict else []
-                )
-                semantic_warnings = tuple(
-                    f"[semantic] {issue.message}" for issue in all_issues
-                )
+                all_issues = list(report.warnings) + (list(report.errors) if not strict else [])
+                semantic_warnings = tuple(f"[semantic] {issue.message}" for issue in all_issues)
                 from dataclasses import replace as _replace
+
                 chain = _replace(chain, warnings=chain.warnings + semantic_warnings)
 
         return chain
@@ -694,9 +695,9 @@ class CompiledMethodChain:
         target_fqn = self.signatures[target_id].fqn
         result: list[SlotBinding] = []
         for binding in self.bindings:
-            if binding.target_node_id == target_id:
-                result.append(binding)
-            elif binding.target_node_id is None and binding.target_method == target_fqn:
+            if binding.target_node_id == target_id or (
+                binding.target_node_id is None and binding.target_method == target_fqn
+            ):
                 result.append(binding)
         return result
 
@@ -721,9 +722,9 @@ class CompiledMethodChain:
         params_per_node: Mapping[UUID, Mapping[str, Any]] | None = None,
         seed: int = 0,
         registry: MethodRegistry | None = None,
-        executor_mode: "ExecutorMode" = "sequential",
+        executor_mode: ExecutorMode = "sequential",
         async_node_timeout_sec: float | None = None,
-        fx_rate_provider: "FxRateProvider" | None = None,
+        fx_rate_provider: FxRateProvider | None = None,
     ) -> Any:
         from polisyos.foundry.methods.backends.chain_executor import (
             execute_heterogeneous_chain,

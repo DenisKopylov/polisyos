@@ -14,7 +14,7 @@ class _FakeBoundLogger:
         self.calls: list[tuple[str, Any, tuple[Any, ...], dict[str, Any]]] = []
         self.configure_calls = 0
 
-    def bind(self, **kwargs: Any) -> "_FakeBoundLogger":
+    def bind(self, **kwargs: Any) -> _FakeBoundLogger:
         del kwargs
         return self
 

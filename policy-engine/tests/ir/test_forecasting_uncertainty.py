@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from pydantic import ValidationError
@@ -10,8 +10,8 @@ from polisyos.ir.analytics.forecasting_uncertainty import (
     FanChartSpec,
     ForecastCalibrationMethod,
     ForecastCoverageDiagnostic,
-    ForecastIntervalSemantics,
     ForecastingUncertaintyBundle,
+    ForecastIntervalSemantics,
     HorizonDiagnosticState,
     HorizonInterval,
     HorizonPolicyRule,
@@ -24,7 +24,7 @@ from polisyos.ir.schema_catalog import get_ir_type
 
 
 def _now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _sample_bundle() -> ForecastingUncertaintyBundle:

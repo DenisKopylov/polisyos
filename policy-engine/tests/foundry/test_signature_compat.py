@@ -27,6 +27,7 @@ Architecture notes
   in the current registry (= breaking change without a baseline update).
 - New FQNs added to the registry do NOT cause test failure (additive only).
 """
+
 from __future__ import annotations
 
 import json
@@ -42,6 +43,7 @@ _ALLOW_BREAKING_ENV = "FOUNDRY_ALLOW_BREAKING"
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _load_baseline() -> dict[str, str]:
     """Return {fqn: signature_hash} from the committed baseline file."""
@@ -94,6 +96,7 @@ def _is_major_bump(old_fqn: str, new_fqns: set[str]) -> bool:
 # Test
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture(scope="module")
 def _current_hashes(module_registry):
     """Current registry signature hashes (module-scoped for performance)."""
@@ -129,9 +132,7 @@ class TestSignatureCompat:
             if fqn not in _current_hashes:
                 # FQN removed — check if a major bump replaces it
                 if not _is_major_bump(fqn, current_fqns):
-                    breaking.append(
-                        f"REMOVED (no major-version replacement): {fqn}"
-                    )
+                    breaking.append(f"REMOVED (no major-version replacement): {fqn}")
             elif _current_hashes[fqn] != old_hash:
                 breaking.append(
                     f"SIGNATURE CHANGED: {fqn}\n"

@@ -26,7 +26,9 @@ def test_foundry_v2_registered_methods_define_shapes_for_non_scalar_slots() -> N
             if slot.slot_type is SlotType.SCALAR:
                 assert slot.shape == ()
             else:
-                assert slot.shape, f"{signature.fqn}:{slot.name} is missing non-scalar shape metadata"
+                assert slot.shape, (
+                    f"{signature.fqn}:{slot.name} is missing non-scalar shape metadata"
+                )
 
 
 def test_foundry_v2_snapshot_excludes_aggregate_wrapper_registrations() -> None:

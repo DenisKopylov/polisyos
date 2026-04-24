@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 _VALID_TIERS = frozenset({"catalog", "fetchable", "transport_ready"})
 _VALID_RUN_LANES = frozenset({"catalog", "empirical", "enrichment"})
@@ -29,6 +31,7 @@ class SourceSpec:
     discovery or also in empirical transport/backfill stages; ``seed_from`` models dependency
     expansion between catalog and derived sources.
     """
+
     name: str
     family: str
     wave: str
@@ -69,13 +72,18 @@ class SourceSpec:
         if profile_name == "preflight_core":
             return self.enabled and self.publish_blocking and self.run_lane == "empirical"
         if profile_name == "observations_backfill":
-            return self.enabled and self.execution_tier == "transport_ready" and self.run_lane == "empirical"
+            return (
+                self.enabled
+                and self.execution_tier == "transport_ready"
+                and self.run_lane == "empirical"
+            )
         raise ValueError(f"Unsupported dataset run profile: {profile_name}")
 
 
 @dataclass(frozen=True, slots=True)
 class SourceRegistry:
     """Validated in-memory source registry used by staged dataset harvest waves."""
+
     version: int
     sources: tuple[SourceSpec, ...] = field(default_factory=tuple)
 
@@ -117,7 +125,7 @@ def load_source_registry(path: Path) -> SourceRegistry:
     """Load YAML source registry from disk."""
     import yaml
 
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         payload = yaml.safe_load(fh) or {}
 
     if not isinstance(payload, dict):
@@ -150,7 +158,8 @@ def load_source_registry(path: Path) -> SourceRegistry:
                 publish_blocking=bool(row.get("publish_blocking", execution_tier != "catalog")),
                 update_frequency=str(row.get("update_frequency", "")).strip(),
                 metrics_required=bool(row.get("metrics_required", False)),
-                history_policy=str(row.get("history_policy", "full_snapshot")).strip() or "full_snapshot",
+                history_policy=str(row.get("history_policy", "full_snapshot")).strip()
+                or "full_snapshot",
                 default_lookback_days=_int_or_none(row.get("default_lookback_days")),
                 max_rows_per_snapshot=_int_or_none(row.get("max_rows_per_snapshot")),
                 max_bytes_per_snapshot=_int_or_none(row.get("max_bytes_per_snapshot")),
@@ -159,10 +168,26 @@ def load_source_registry(path: Path) -> SourceRegistry:
                 agency_allowlist=tuple(str(v) for v in (row.get("agency_allowlist") or [])),
                 exclude_agencies=tuple(str(v) for v in (row.get("exclude_agencies") or [])),
                 seed_from=str(row.get("seed_from", "")).strip(),
-                format_allowlist=tuple(str(v).strip().upper() for v in (row.get("format_allowlist") or []) if str(v).strip()),
-                format_denylist=tuple(str(v).strip().upper() for v in (row.get("format_denylist") or []) if str(v).strip()),
-                keyword_allowlist=tuple(str(v).strip().lower() for v in (row.get("keyword_allowlist") or []) if str(v).strip()),
-                keyword_denylist=tuple(str(v).strip().lower() for v in (row.get("keyword_denylist") or []) if str(v).strip()),
+                format_allowlist=tuple(
+                    str(v).strip().upper()
+                    for v in (row.get("format_allowlist") or [])
+                    if str(v).strip()
+                ),
+                format_denylist=tuple(
+                    str(v).strip().upper()
+                    for v in (row.get("format_denylist") or [])
+                    if str(v).strip()
+                ),
+                keyword_allowlist=tuple(
+                    str(v).strip().lower()
+                    for v in (row.get("keyword_allowlist") or [])
+                    if str(v).strip()
+                ),
+                keyword_denylist=tuple(
+                    str(v).strip().lower()
+                    for v in (row.get("keyword_denylist") or [])
+                    if str(v).strip()
+                ),
                 require_curated_resources=bool(row.get("require_curated_resources", False)),
             )
         )

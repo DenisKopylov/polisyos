@@ -5,8 +5,6 @@ from __future__ import annotations
 import asyncio
 from unittest.mock import AsyncMock
 
-import pytest
-
 from polisyos.scientist.engine.runner.autoscaler import (
     AutoScalePolicy,
     AutoScaler,
@@ -34,7 +32,9 @@ class TestAutoScaler:
     def test_high_load_scales_up(self) -> None:
         pool = _mock_pool(total=10, active=9)
         policy = AutoScalePolicy(
-            scale_up_threshold=0.8, max_workers=20, cooldown_s=0,
+            scale_up_threshold=0.8,
+            max_workers=20,
+            cooldown_s=0,
         )
         scaler = AutoScaler(pool, policy)
         decision = asyncio.run(scaler.evaluate())
@@ -44,7 +44,9 @@ class TestAutoScaler:
     def test_low_load_scales_down(self) -> None:
         pool = _mock_pool(total=10, active=1)
         policy = AutoScalePolicy(
-            scale_down_threshold=0.2, min_workers=2, cooldown_s=0,
+            scale_down_threshold=0.2,
+            min_workers=2,
+            cooldown_s=0,
         )
         scaler = AutoScaler(pool, policy)
         decision = asyncio.run(scaler.evaluate())
@@ -61,12 +63,14 @@ class TestAutoScaler:
     def test_cooldown_prevents_scaling(self) -> None:
         pool = _mock_pool(total=10, active=9)
         policy = AutoScalePolicy(
-            scale_up_threshold=0.8, cooldown_s=999,
+            scale_up_threshold=0.8,
+            cooldown_s=999,
         )
         scaler = AutoScaler(pool, policy)
         # First evaluation should scale
         # But set last_scale_at to now to simulate cooldown
         import time
+
         scaler._last_scale_at = time.monotonic()
         decision = asyncio.run(scaler.evaluate())
         assert decision.direction is ScaleDirection.NONE
@@ -75,7 +79,9 @@ class TestAutoScaler:
     def test_max_workers_cap(self) -> None:
         pool = _mock_pool(total=15, active=14)
         policy = AutoScalePolicy(
-            scale_up_threshold=0.8, max_workers=15, cooldown_s=0,
+            scale_up_threshold=0.8,
+            max_workers=15,
+            cooldown_s=0,
         )
         scaler = AutoScaler(pool, policy)
         decision = asyncio.run(scaler.evaluate())
@@ -85,7 +91,9 @@ class TestAutoScaler:
     def test_min_workers_floor(self) -> None:
         pool = _mock_pool(total=2, active=0)
         policy = AutoScalePolicy(
-            scale_down_threshold=0.2, min_workers=2, cooldown_s=0,
+            scale_down_threshold=0.2,
+            min_workers=2,
+            cooldown_s=0,
         )
         scaler = AutoScaler(pool, policy)
         decision = asyncio.run(scaler.evaluate())

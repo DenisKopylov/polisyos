@@ -4,6 +4,7 @@ Freshness: 2026-04-17
 Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/app.py`, `src/polisyos/runtime/http/{jwt_auth_middleware.py,cell_router_middleware.py,authz_middleware.py,fail_closed_middleware.py,dev_identity_middleware.py,security.py}`, `src/polisyos/runtime/http/routes/auth.py`, `src/polisyos/core/security/settings.py`
 Validation:
+
 - `uv run pytest -q tests/runtime/http/test_auth_api.py tests/runtime/http/test_runtime_api_authz.py tests/runtime/http/test_api_maturity.py`
 - `uv run pytest -q tests/core/security/test_auth_middlewares.py tests/core/security/test_router.py tests/core/security/test_tenant_context.py`
 
@@ -33,6 +34,7 @@ Public-path bypasses are limited to `/health`, `/ready`, `/metrics`, and
 - Non-public HTTP routes require `Authorization: Bearer <token>`.
 - Missing or empty bearer tokens return `401` with code
   `missing_bearer_token`.
+
 - The configured identity provider resolves `UserIdentityClaims`.
 - If `POLISYOS_CELL_ID` is set, JWT validation also enforces that cell binding.
 - MFA failures return `403 mfa_required`.
@@ -44,9 +46,11 @@ Public-path bypasses are limited to `/health`, `/ready`, `/metrics`, and
 
 - `FailClosedAccessScopeMiddleware` still denies non-public requests without an
   access scope.
+
 - `DevelopmentFixtureIdentityMiddleware` is installed only when fixture
   identity is explicitly enabled through
   `POLISYOS_ENABLE_DEV_FIXTURE_IDENTITY` or the app factory override.
+
 - The fixture identity is fixed to tenant
   `aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa`, cell `cell-a`, role `analyst`, and
   user `fixture-analyst`.
@@ -58,13 +62,17 @@ handlers run.
 
 - The effective tenant comes from JWT claims first, then from `X-Tenant-ID`
   when claims are absent.
+
 - If both JWT claims and `X-Tenant-ID` are present, they must match or the
   request fails with `403 tenant_binding_mismatch`.
+
 - Missing tenant routing metadata fails closed with
   `401 missing_tenant_id`.
+
 - Unknown or unregistered tenants fail with `403 tenant_not_found`.
 - If the JWT claims are bound to a different cell than the routed tenant, the
   request fails with `403 cell_binding_mismatch`.
+
 - Successful routing sets `request.state.tenant_id`, `cell_id`, and
   `cell_tier`, enters `tenant_scope(...)`, and emits `X-Cell-ID` and
   `X-Cell-Tier` response headers.
@@ -74,11 +82,14 @@ handlers run.
 - `JWTAuthMiddleware` derives `AccessScope` from authenticated user claims.
 - `AuthzMiddleware` consumes that scope plus resource metadata attached by route
   dependencies and services.
+
 - Requests without any access scope fail closed with
   `403 missing_access_scope` when the authz middleware is active.
+
 - OPA decisions are evaluated per request through `AuthzInput.for_http_request(...)`.
 - Denied OPA decisions return `403 authorization_denied` when enforce mode is
   active.
+
 - If shadow mode is enabled, the request is allowed but the response carries
   `X-PolicyOS-Authz-Shadow-Deny: true`.
 
@@ -91,6 +102,7 @@ handlers run.
 - Delegation is denied when the verifier is not configured, the peer identity
   is missing, the peer is untrusted, or
   `POLISYOS_SERVICE_SPIFFE_ID` is unset.
+
 - Verified delegation claims replace the request access scope before OPA
   evaluation.
 
@@ -103,6 +115,7 @@ handlers run.
 - Roles are mapped to runtime permissions in `routes/auth.py`.
 - `feature_overrides.enableReviewCollaboration` is derived from the
   `runs.review` permission.
+
 - Without a usable access scope or claims, the endpoint fails closed rather
   than manufacturing an identity.
 
@@ -116,6 +129,7 @@ re-check tenant scoping at the resource boundary.
 - Unscoped artifacts can return `403 artifact_tenant_unscoped`.
 - Cross-tenant debug compare requires an explicit capability and otherwise
   returns `403 cross_tenant_compare_forbidden`.
+
 - Cross-tenant violations raised deeper in Core map to
   `403 cross_tenant_access_denied`.
 
@@ -124,5 +138,6 @@ re-check tenant scoping at the resource boundary.
 - OPA timeouts return `504 authz_dependency_timeout`.
 - Open OPA breaker state or unreachable authz dependencies return
   `503 authz_dependency_unavailable`.
+
 - When runtime security is required by the execution profile, app bootstrap
   fails if the identity provider, cell registry, or OPA client is missing.

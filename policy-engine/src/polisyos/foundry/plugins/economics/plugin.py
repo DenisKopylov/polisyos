@@ -1,7 +1,8 @@
 """Public economics plugin module API."""
+
 from __future__ import annotations
 
-from typing import Callable, Sequence
+from collections.abc import Callable, Sequence
 
 import jax
 import jax.numpy as jnp
@@ -142,9 +143,7 @@ class EconomicsPlugin(DomainPlugin[EconomicState]):
         ax.hist(wealth, bins=50, density=True, alpha=0.7)
         ax.set_xlabel("Wealth")
         ax.set_ylabel("Density")
-        ax.set_title(
-            f"Wealth Distribution (Gini: {float(state.distributions.gini_wealth):.3f})"
-        )
+        ax.set_title(f"Wealth Distribution (Gini: {float(state.distributions.gini_wealth):.3f})")
 
         return ax
 

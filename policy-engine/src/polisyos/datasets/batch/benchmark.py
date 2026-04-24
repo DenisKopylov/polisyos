@@ -5,15 +5,19 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import duckdb
 
 from polisyos.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
 from polisyos.batch_common.manifest import write_stage_manifest
-from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.knowledge.search import DatasetCatalogGraph
-from polisyos.datasets.knowledge.types import DatasetSearchResult, MetricBindingMatch
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.datasets.batch.config import DatasetBatchConfig
+    from polisyos.datasets.knowledge.types import DatasetSearchResult, MetricBindingMatch
 
 READINESS_THRESHOLDS: dict[str, float] = {
     "benchmark_search_top5_relevance_pct": 80.0,
@@ -46,8 +50,20 @@ _EXPLICIT_METRIC_ALIASES: dict[str, tuple[str, ...]] = {
     "gdp_per_capita": ("gdp",),
     "inflation": ("inflation_rate", "cpi", "avg_price"),
     "migration": ("net_migration", "refugee", "population"),
-    "health_outcomes": ("life_expectancy", "infant_mortality", "maternal_mortality", "healthy_life_expectancy", "health_spending"),
-    "education_outcomes": ("enrollment", "completion", "school_enrollment", "education_spending", "literacy"),
+    "health_outcomes": (
+        "life_expectancy",
+        "infant_mortality",
+        "maternal_mortality",
+        "healthy_life_expectancy",
+        "health_spending",
+    ),
+    "education_outcomes": (
+        "enrollment",
+        "completion",
+        "school_enrollment",
+        "education_spending",
+        "literacy",
+    ),
     "labor_force_participation": ("employment_rate",),
     "institutional_quality": ("state_capacity", "corruption_level", "rule_of_law"),
 }
@@ -99,7 +115,9 @@ def readiness_thresholds_for_profile(run_profile: str) -> dict[str, float]:
 def active_readiness_thresholds_for_profile(run_profile: str) -> dict[str, float]:
     """Return only the benchmark thresholds that should be enforced for ``run_profile``."""
     thresholds = readiness_thresholds_for_profile(run_profile)
-    skipped = _PROFILE_THRESHOLD_SKIPS.get(str(run_profile or "prod_full").strip() or "prod_full", frozenset())
+    skipped = _PROFILE_THRESHOLD_SKIPS.get(
+        str(run_profile or "prod_full").strip() or "prod_full", frozenset()
+    )
     return {name: value for name, value in thresholds.items() if name not in skipped}
 
 
@@ -473,12 +491,18 @@ def _table_exists(con: duckdb.DuckDBPyConnection, table_name: str) -> bool:
     return row is not None
 
 
-def _rest_manifest_metrics(config: DatasetBatchConfig) -> tuple[dict[str, int], dict[str, int], list[str]]:
+def _rest_manifest_metrics(
+    config: DatasetBatchConfig,
+) -> tuple[dict[str, int], dict[str, int], list[str]]:
     rest_rows_by_source: dict[str, int] = {}
     rest_bytes_by_source: dict[str, int] = {}
     history_budget_exceeded_sources: list[str] = []
     registry = {spec.name: spec for spec in config.load_registry().sources}
-    for source_dir in sorted([path for path in config.raw_dir.iterdir() if path.is_dir()]) if config.raw_dir.exists() else []:
+    for source_dir in (
+        sorted([path for path in config.raw_dir.iterdir() if path.is_dir()])
+        if config.raw_dir.exists()
+        else []
+    ):
         spec = registry.get(source_dir.name)
         if spec is None or spec.family != "rest":
             continue
@@ -488,13 +512,17 @@ def _rest_manifest_metrics(config: DatasetBatchConfig) -> tuple[dict[str, int], 
         payload_path = snapshots[-1] / "payload.jsonl"
         row_count = 0
         if payload_path.exists():
-            with open(payload_path, "r", encoding="utf-8") as fh:
+            with open(payload_path, encoding="utf-8") as fh:
                 row_count = sum(1 for line in fh if line.strip())
         payload_bytes = int(payload_path.stat().st_size) if payload_path.exists() else 0
         rest_rows_by_source[spec.name] = row_count
         rest_bytes_by_source[spec.name] = payload_bytes
-        rows_exceeded = spec.max_rows_per_snapshot is not None and row_count > int(spec.max_rows_per_snapshot)
-        bytes_exceeded = spec.max_bytes_per_snapshot is not None and payload_bytes > int(spec.max_bytes_per_snapshot)
+        rows_exceeded = spec.max_rows_per_snapshot is not None and row_count > int(
+            spec.max_rows_per_snapshot
+        )
+        bytes_exceeded = spec.max_bytes_per_snapshot is not None and payload_bytes > int(
+            spec.max_bytes_per_snapshot
+        )
         if rows_exceeded or bytes_exceeded:
             history_budget_exceeded_sources.append(spec.name)
     return rest_rows_by_source, rest_bytes_by_source, history_budget_exceeded_sources
@@ -513,7 +541,7 @@ def _latest_source_manifest(source_dir: Path) -> Path | None:
 def _load_json_list(path: Path) -> list[dict[str, object]]:
     if not path.exists():
         return []
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         payload = json.load(fh)
     if not isinstance(payload, list):
         return []
@@ -527,7 +555,7 @@ def _load_bulk_equivalence_manifests(config: DatasetBatchConfig) -> list[dict[st
     payloads: list[dict[str, object]] = []
     for path in sorted(root.rglob("*.json")):
         try:
-            with open(path, "r", encoding="utf-8") as fh:
+            with open(path, encoding="utf-8") as fh:
                 payload = json.load(fh)
         except Exception:
             continue
@@ -536,7 +564,9 @@ def _load_bulk_equivalence_manifests(config: DatasetBatchConfig) -> list[dict[st
     return payloads
 
 
-def _bulk_equivalence_metrics(config: DatasetBatchConfig) -> tuple[list[dict[str, object]], dict[str, float | int]]:
+def _bulk_equivalence_metrics(
+    config: DatasetBatchConfig,
+) -> tuple[list[dict[str, object]], dict[str, float | int]]:
     manifests = _load_bulk_equivalence_manifests(config)
     total_compared = sum(int(item.get("compared_series", 0) or 0) for item in manifests)
     total_mismatches = sum(int(item.get("mismatches", 0) or 0) for item in manifests)
@@ -545,7 +575,11 @@ def _bulk_equivalence_metrics(config: DatasetBatchConfig) -> tuple[list[dict[str
         for item in manifests
         if bool(item.get("blocking")) and str(item.get("source") or "").strip()
     }
-    mismatch_rate = round((float(total_mismatches) / max(float(total_compared), 1.0)) * 100.0, 2) if total_compared > 0 else 0.0
+    mismatch_rate = (
+        round((float(total_mismatches) / max(float(total_compared), 1.0)) * 100.0, 2)
+        if total_compared > 0
+        else 0.0
+    )
     return manifests, {
         "benchmark_bulk_equivalence_mismatch_rate": mismatch_rate,
         "benchmark_bulk_equivalence_blocking_sources_total": len(blocking_sources),
@@ -558,20 +592,28 @@ def _load_core_ingest_context(
 ) -> dict[str, object]:
     stage_state: dict[str, object] = {}
     if config.stage_state_path.exists():
-        with open(config.stage_state_path, "r", encoding="utf-8") as fh:
+        with open(config.stage_state_path, encoding="utf-8") as fh:
             loaded = json.load(fh)
         if isinstance(loaded, dict):
-            stage_state = loaded.get("core_sources_ingest", {}) if isinstance(loaded.get("core_sources_ingest"), dict) else {}
+            stage_state = (
+                loaded.get("core_sources_ingest", {})
+                if isinstance(loaded.get("core_sources_ingest"), dict)
+                else {}
+            )
     metadata = stage_state.get("metadata", {}) if isinstance(stage_state, dict) else {}
     if not isinstance(metadata, dict):
         metadata = {}
     stage_status = str(stage_state.get("status") or "").strip()
     observation_count = 0
     if _table_exists(con, "ds_observations"):
-        observation_count = int(con.execute("SELECT count(*) FROM ds_observations").fetchone()[0] or 0)
+        observation_count = int(
+            con.execute("SELECT count(*) FROM ds_observations").fetchone()[0] or 0
+        )
     completed_shards = 0
     if config.manifests_dir.joinpath("completed_observation_shards.json").exists():
-        completed_shards = len(_load_json_list(config.manifests_dir / "completed_observation_shards.json"))
+        completed_shards = len(
+            _load_json_list(config.manifests_dir / "completed_observation_shards.json")
+        )
     blocked_by_source = {
         str(key): int(value)
         for key, value in (metadata.get("blocked_by_source", {}) or {}).items()
@@ -682,7 +724,9 @@ def _run_source_preflight_benchmark(
         else {}
     )
     registry_counts = (
-        _source_counts(con, query="SELECT provider, COUNT(*) FROM ds_registry_datasets GROUP BY provider")
+        _source_counts(
+            con, query="SELECT provider, COUNT(*) FROM ds_registry_datasets GROUP BY provider"
+        )
         if _table_exists(con, "ds_registry_datasets")
         else {}
     )
@@ -715,11 +759,11 @@ def _run_source_preflight_benchmark(
     summary_payload: dict[str, object] = {}
     summary_path = config.manifests_dir / "observation_source_summary.json"
     if summary_path.exists():
-        with open(summary_path, "r", encoding="utf-8") as fh:
+        with open(summary_path, encoding="utf-8") as fh:
             loaded = json.load(fh)
         if isinstance(loaded, dict):
             summary_payload = loaded
-    completed_payload = _load_json_list(config.manifests_dir / "completed_observation_shards.json")
+    _load_json_list(config.manifests_dir / "completed_observation_shards.json")
     failed_payload = _load_json_list(config.manifests_dir / "failed_observation_shards.json")
     deferred_payload = _load_json_list(config.manifests_dir / "deferred_observation_plans.json")
     errors_by_source: dict[str, list[str]] = {}
@@ -733,26 +777,26 @@ def _run_source_preflight_benchmark(
     ready = 0
     auth_failures = 0
     quota_blocked_total = 0
-    blocked_sources = {
-        str(key)
-        for key in (core_ingest_context.get("blocked_by_source", {}) or {}).keys()
-    }
+    blocked_sources = {str(key) for key in (core_ingest_context.get("blocked_by_source", {}) or {})}
     quota_blocked_sources = {
-        str(key)
-        for key in (core_ingest_context.get("quota_wait_seconds_by_source", {}) or {}).keys()
+        str(key) for key in (core_ingest_context.get("quota_wait_seconds_by_source", {}) or {})
     }
     core_ingest_blocked = bool(core_ingest_context.get("blocked"))
     for spec in blocking_sources:
         manifest_path = _latest_source_manifest(config.raw_dir / spec.name)
         raw_count = 0
         if manifest_path is not None:
-            with open(manifest_path, "r", encoding="utf-8") as fh:
+            with open(manifest_path, encoding="utf-8") as fh:
                 manifest = json.load(fh)
             raw_count = int(manifest.get("count", 0) or 0)
         summary = summary_payload.get(spec.name, {})
         completed = int(summary.get("complete", 0) or 0) if isinstance(summary, dict) else 0
-        complete_with_rows = int(summary.get("complete_with_rows", 0) or 0) if isinstance(summary, dict) else 0
-        complete_empty = int(summary.get("complete_empty", 0) or 0) if isinstance(summary, dict) else 0
+        complete_with_rows = (
+            int(summary.get("complete_with_rows", 0) or 0) if isinstance(summary, dict) else 0
+        )
+        complete_empty = (
+            int(summary.get("complete_empty", 0) or 0) if isinstance(summary, dict) else 0
+        )
         deferred = int(summary.get("deferred", 0) or 0) if isinstance(summary, dict) else 0
         failed = int(summary.get("failed", 0) or 0) if isinstance(summary, dict) else 0
         empirical_rows = int(summary.get("rows", 0) or 0) if isinstance(summary, dict) else 0
@@ -765,7 +809,9 @@ def _run_source_preflight_benchmark(
         registry_count = int(registry_counts.get(spec.name, 0))
         binding_count = int(binding_counts.get(spec.name, 0))
         schema_count = int(schema_counts.get(spec.name, 0))
-        auth_or_env_failure = any(_auth_or_env_error(error) for error in errors_by_source.get(spec.name, []))
+        auth_or_env_failure = any(
+            _auth_or_env_error(error) for error in errors_by_source.get(spec.name, [])
+        )
         if auth_or_env_failure:
             auth_failures += 1
 
@@ -774,7 +820,13 @@ def _run_source_preflight_benchmark(
         has_execution_artifacts = binding_count > 0 or schema_count > 0 or registry_count > 0
         has_empirical_rows = complete_with_rows > 0 or empirical_rows > 0
 
-        if raw_count <= 0 and dataset_count <= 0 and completed <= 0 and deferred <= 0 and failed <= 0:
+        if (
+            raw_count <= 0
+            and dataset_count <= 0
+            and completed <= 0
+            and deferred <= 0
+            and failed <= 0
+        ):
             status = "missing"
         elif failed > 0 or auth_or_env_failure:
             status = "failed_with_manifest"
@@ -790,9 +842,21 @@ def _run_source_preflight_benchmark(
             empirical_status = "complete_empty"
 
         if empirical_required:
-            source_ready = raw_count > 0 and has_graph_presence and has_empirical_rows and failed == 0 and not auth_or_env_failure
+            source_ready = (
+                raw_count > 0
+                and has_graph_presence
+                and has_empirical_rows
+                and failed == 0
+                and not auth_or_env_failure
+            )
         else:
-            source_ready = raw_count > 0 and has_graph_presence and has_execution_artifacts and failed == 0 and not auth_or_env_failure
+            source_ready = (
+                raw_count > 0
+                and has_graph_presence
+                and has_execution_artifacts
+                and failed == 0
+                and not auth_or_env_failure
+            )
         if source_ready:
             ready += 1
 
@@ -999,9 +1063,13 @@ def _run_retrieval_benchmark(
     ready_hits = 0
 
     for metric_id in suite.retrieval_metrics:
-        matched_metric_id, bindings = _resolve_metric_bindings_with_aliases(graph, metric_id, top_k=5)
+        matched_metric_id, bindings = _resolve_metric_bindings_with_aliases(
+            graph, metric_id, top_k=5
+        )
         ready_binding = next((item for item in bindings if _binding_ready(item)), None)
-        target = graph.resolve_fetch_target(ready_binding.catalog_dataset_id) if ready_binding else None
+        target = (
+            graph.resolve_fetch_target(ready_binding.catalog_dataset_id) if ready_binding else None
+        )
         binding_hit = ready_binding is not None
         target_hit = target is not None and bool(target.connector_id and target.request_dataset_id)
         ready = binding_hit and target_hit
@@ -1106,7 +1174,9 @@ def _run_transport_benchmark(
         "benchmark_transport_alignment_pct": _pct(alignment_hits, total),
         "benchmark_transport_observation_pct": _pct(observation_hits, total),
         "benchmark_transport_ready_pct": _pct(ready_hits, total),
-        "benchmark_transport_alignment_without_observation_pct": _pct(alignment_without_observations, total),
+        "benchmark_transport_alignment_without_observation_pct": _pct(
+            alignment_without_observations, total
+        ),
         "benchmark_transport_stage_blocked_variables_total": blocked_variables,
     }
     return {"variables": variable_results}, metrics
@@ -1124,7 +1194,9 @@ def _run_foundry_benchmark(
     fitness_hits = 0
 
     for metric_id in suite.foundry_metrics:
-        matched_metric_id, bindings = _resolve_metric_bindings_with_aliases(graph, metric_id, top_k=10)
+        matched_metric_id, bindings = _resolve_metric_bindings_with_aliases(
+            graph, metric_id, top_k=10
+        )
         selected_binding: MetricBindingMatch | None = None
         selected_distribution_id = ""
         selected_fetch_target = None
@@ -1144,7 +1216,9 @@ def _run_foundry_benchmark(
                         [dataset_id],
                     ).fetchone()
                 )
-            binding_distribution_id = str(binding.distribution_id or (fetch_target.distribution_id if fetch_target else ""))
+            binding_distribution_id = str(
+                binding.distribution_id or (fetch_target.distribution_id if fetch_target else "")
+            )
             binding_parser_supported = False
             binding_machine_readable = False
             if has_distributions and binding_distribution_id:
@@ -1185,7 +1259,9 @@ def _run_foundry_benchmark(
 
         dataset_id = selected_binding.catalog_dataset_id if selected_binding else ""
         execution_tier = str(selected_binding.execution_tier) if selected_binding else "catalog"
-        matched_metric_id = str(selected_binding.metric_id) if selected_binding else matched_metric_id
+        matched_metric_id = (
+            str(selected_binding.metric_id) if selected_binding else matched_metric_id
+        )
         fitness_hits += int(fit)
         metric_results.append(
             {
@@ -1197,7 +1273,9 @@ def _run_foundry_benchmark(
                 "schema_ready": schema_ready,
                 "parser_supported": parser_supported,
                 "machine_readable": machine_readable,
-                "fetch_target_ready": bool(selected_fetch_target and selected_fetch_target.request_dataset_id),
+                "fetch_target_ready": bool(
+                    selected_fetch_target and selected_fetch_target.request_dataset_id
+                ),
                 "fit": fit,
             }
         )
@@ -1253,7 +1331,9 @@ def run_benchmark(
     metrics.update(preflight_metrics)
     metrics.update(bulk_equivalence_metrics)
     metrics["benchmark_partial_eval"] = int(bool(core_ingest_context.get("partial_eval")))
-    metrics["publishable_core_pending"] = int(core_ingest_context.get("publishable_core_pending", 0) or 0)
+    metrics["publishable_core_pending"] = int(
+        core_ingest_context.get("publishable_core_pending", 0) or 0
+    )
     metrics["backfill_pending"] = int(core_ingest_context.get("backfill_pending", 0) or 0)
     metrics["benchmark_source_core_completion_pct_avg"] = round(
         float(sum((core_ingest_context.get("source_core_completion_pct") or {}).values()))
@@ -1265,7 +1345,9 @@ def run_benchmark(
         / max(float(len(core_ingest_context.get("source_full_completion_pct") or {})), 1.0),
         2,
     )
-    rest_rows_by_source, rest_bytes_by_source, history_budget_exceeded_sources = _rest_manifest_metrics(config)
+    rest_rows_by_source, rest_bytes_by_source, history_budget_exceeded_sources = (
+        _rest_manifest_metrics(config)
+    )
     metrics["history_budget_exceeded_sources_total"] = len(history_budget_exceeded_sources)
 
     report = {

@@ -1,4 +1,5 @@
 """Store rollout tensors and compute PPO training targets for agent-simulation learning."""
+
 from __future__ import annotations
 
 import chex
@@ -16,10 +17,11 @@ from polisyos.foundry.agent_sim.actor_critic import (
 @chex.dataclass(frozen=True)
 class Transition:
     """Transition public type."""
-    observation: Float[Array, "obs_dim"]
-    action: Float[Array, "action_dim"]
+
+    observation: Float[Array, obs_dim]
+    action: Float[Array, action_dim]
     reward: Float[Array, ""]
-    next_observation: Float[Array, "obs_dim"]
+    next_observation: Float[Array, obs_dim]
     done: Bool[Array, ""]
     value: Float[Array, ""]
 
@@ -27,6 +29,7 @@ class Transition:
 @chex.dataclass(frozen=True)
 class Trajectory:
     """Trajectory public type."""
+
     observations: Float[Array, "T n_agents obs_dim"]
     actions: Float[Array, "T n_agents action_dim"]
     rewards: Float[Array, "T n_agents"]
@@ -39,7 +42,7 @@ class Trajectory:
 
 def compute_returns_and_advantages(
     trajectory: Trajectory,
-    final_value: Float[Array, "n_agents"],
+    final_value: Float[Array, n_agents],
     *,
     gamma: float = 0.99,
     gae_lambda: float = 0.95,

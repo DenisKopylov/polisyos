@@ -4,9 +4,8 @@ Trinity Contracts: Typed references for ProblemFrame, PolicySpec, ModelSpec.
 These references follow the existing ArtifactRef pattern from foundry.py/fabric.py,
 providing compile-time type safety and runtime validation.
 """
-from __future__ import annotations
 
-from typing import Literal
+from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
 

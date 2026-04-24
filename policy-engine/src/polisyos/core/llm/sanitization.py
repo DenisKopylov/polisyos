@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import re
+from contextlib import suppress
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -92,10 +93,7 @@ class PromptSanitizer:
         if isinstance(value, tuple):
             return tuple(self.sanitize_payload(item) for item in value)
         if isinstance(value, dict):
-            return {
-                key: self.sanitize_payload(item)
-                for key, item in value.items()
-            }
+            return {key: self.sanitize_payload(item) for key, item in value.items()}
         return value
 
     def restore_payload(self, value: Any) -> Any:
@@ -107,10 +105,7 @@ class PromptSanitizer:
         if isinstance(value, tuple):
             return tuple(self.restore_payload(item) for item in value)
         if isinstance(value, dict):
-            return {
-                key: self.restore_payload(item)
-                for key, item in value.items()
-            }
+            return {key: self.restore_payload(item) for key, item in value.items()}
         return value
 
     def sanitize_messages(
@@ -133,11 +128,9 @@ class PromptSanitizer:
         if response is None:
             return None
         if hasattr(response, "content"):
-            try:
+            with suppress(AttributeError, TypeError, ValueError):
                 response.content = self.restore_text(str(response.content or ""))
-            except (AttributeError, TypeError, ValueError):
-                pass
-        if hasattr(response, "tool_calls") and getattr(response, "tool_calls") is not None:
+        if hasattr(response, "tool_calls") and response.tool_calls is not None:
             try:
                 for tool_call in response.tool_calls:
                     if hasattr(tool_call, "arguments"):
@@ -145,10 +138,8 @@ class PromptSanitizer:
             except (AttributeError, TypeError, ValueError):
                 pass
         if hasattr(response, "raw"):
-            try:
+            with suppress(AttributeError, TypeError, ValueError):
                 response.raw = self.restore_payload(response.raw)
-            except (AttributeError, TypeError, ValueError):
-                pass
         if isinstance(response, str):
             return self.restore_text(response)
         if isinstance(response, (dict, list, tuple)):
@@ -175,7 +166,7 @@ class PromptSanitizer:
         existing = self._secret_to_placeholder.get(secret)
         if existing:
             return existing
-        digest = hashlib.sha256(f"{label}:{secret}".encode("utf-8")).hexdigest()[:16]
+        digest = hashlib.sha256(f"{label}:{secret}".encode()).hexdigest()[:16]
         placeholder = f"[{self.placeholder_prefix}_{label.upper()}_{digest}]"
         self._secret_to_placeholder[secret] = placeholder
         self._placeholder_to_secret[placeholder] = secret

@@ -1,4 +1,5 @@
 """Research-backed Phase 0 benchmark and recommendation surface for forecasting uncertainty."""
+
 from __future__ import annotations
 
 import math
@@ -209,7 +210,10 @@ _RECOMMENDATIONS: tuple[ForecastRecommendationCell, ...] = (
         ForecastBenchmarkRegime.STABLE_MEDIUM,
         1,
         4,
-        (ForecastResearchStrategy.GAUSSIAN_RECONCILIATION, ForecastResearchStrategy.COHERENT_BOOTSTRAP),
+        (
+            ForecastResearchStrategy.GAUSSIAN_RECONCILIATION,
+            ForecastResearchStrategy.COHERENT_BOOTSTRAP,
+        ),
         "Medium stable hierarchies can use Gaussian or coherent bootstrap depending diagnostics.",
     ),
     ForecastRecommendationCell(
@@ -383,7 +387,9 @@ def _generate_base_signal(
     if regime is ForecastBenchmarkRegime.POLICY_BREAKS:
         break_start = max(n_obs - 10, total // 2)
         signal[break_start:] = signal[break_start:] + 5.0
-        signal[break_start:] = signal[break_start:] + 0.20 * np.arange(total - break_start, dtype=float)
+        signal[break_start:] = signal[break_start:] + 0.20 * np.arange(
+            total - break_start, dtype=float
+        )
         shock_index = min(n_obs + max(horizon // 3, 1), total - 1)
         signal[shock_index:] = signal[shock_index:] - 3.0
     return signal
@@ -405,12 +411,21 @@ def _build_scenario(
     common = _generate_base_signal(regime, n_obs=n_obs, horizon=horizon_max, seed=seed + 3)
     seasonal_shift = np.sin((2.0 * math.pi * np.arange(n_obs + horizon_max, dtype=float)) / 6.0)
     series_1 = common + 0.4 * seasonal_shift + rng.normal(0.0, 0.25, size=n_obs + horizon_max)
-    series_2 = common - 2.5 + 0.6 * np.roll(seasonal_shift, 1) + rng.normal(0.0, 0.25, size=n_obs + horizon_max)
+    series_2 = (
+        common
+        - 2.5
+        + 0.6 * np.roll(seasonal_shift, 1)
+        + rng.normal(0.0, 0.25, size=n_obs + horizon_max)
+    )
     history_multivariate = np.column_stack([series_1[:n_obs], series_2[:n_obs]])
     future_multivariate = np.column_stack([series_1[n_obs:], series_2[n_obs:]])
 
     bottom_1 = 0.55 * base + 8.0 + rng.normal(0.0, 0.20, size=n_obs + horizon_max)
-    bottom_2 = 0.45 * base + 5.0 + 0.8 * np.cos((2.0 * math.pi * np.arange(n_obs + horizon_max, dtype=float)) / 12.0)
+    bottom_2 = (
+        0.45 * base
+        + 5.0
+        + 0.8 * np.cos((2.0 * math.pi * np.arange(n_obs + horizon_max, dtype=float)) / 12.0)
+    )
     bottom_2 = bottom_2 + rng.normal(0.0, 0.20, size=n_obs + horizon_max)
     bottom_history = np.vstack([bottom_1[:n_obs], bottom_2[:n_obs]])
     bottom_future = np.vstack([bottom_1[n_obs:], bottom_2[n_obs:]])
@@ -464,12 +479,16 @@ def _interval_lookup(bundle: Any) -> dict[int, Any]:
 def _build_bottom_forecasts(history: np.ndarray, horizon: int) -> np.ndarray:
     forecasts = []
     for row in history:
-        result = ExponentialSmoothingEstimator.pure_step({"series": row}, {"horizon": horizon, "alpha": 0.3, "beta": 0.1})
+        result = ExponentialSmoothingEstimator.pure_step(
+            {"series": row}, {"horizon": horizon, "alpha": 0.3, "beta": 0.1}
+        )
         forecasts.append(np.asarray(result["result"]["forecast"], dtype=float))
     return np.vstack(forecasts)
 
 
-def _build_bottom_sample_paths(history: np.ndarray, point_forecasts: np.ndarray, *, n_paths: int, seed: int) -> np.ndarray:
+def _build_bottom_sample_paths(
+    history: np.ndarray, point_forecasts: np.ndarray, *, n_paths: int, seed: int
+) -> np.ndarray:
     rng = np.random.default_rng(seed)
     scales = []
     for row in history:
@@ -479,14 +498,17 @@ def _build_bottom_sample_paths(history: np.ndarray, point_forecasts: np.ndarray,
     scales_arr = np.asarray(scales, dtype=float)
     noise = rng.normal(
         loc=0.0,
-        scale=scales_arr[None, :, None] * np.sqrt(np.arange(1, point_forecasts.shape[1] + 1, dtype=float))[None, None, :],
+        scale=scales_arr[None, :, None]
+        * np.sqrt(np.arange(1, point_forecasts.shape[1] + 1, dtype=float))[None, None, :],
         size=(n_paths, point_forecasts.shape[0], point_forecasts.shape[1]),
     )
     return point_forecasts[None, :, :] + noise
 
 
 def _build_ensemble_member_matrix(history: np.ndarray, horizon: int) -> np.ndarray:
-    ets = ExponentialSmoothingEstimator.pure_step({"series": history}, {"horizon": horizon, "alpha": 0.3, "beta": 0.1})
+    ets = ExponentialSmoothingEstimator.pure_step(
+        {"series": history}, {"horizon": horizon, "alpha": 0.3, "beta": 0.1}
+    )
     theta = ThetaMethodEstimator.pure_step({"series": history}, {"horizon": horizon, "alpha": 0.2})
     prophet = ProphetEstimator.pure_step({"series": history}, {"horizon": horizon, "period": 12})
     return np.vstack(
@@ -528,7 +550,9 @@ def _evaluate_method_once(
         return result["forecasting_uncertainty_bundle"], actual, ()
     if method_fqn == "forecasting.reconciliation.bottom_up@1.0.0":
         bottom_forecasts = _build_bottom_forecasts(scenario.bottom_history, horizon_max)
-        bottom_sample_paths = _build_bottom_sample_paths(scenario.bottom_history, bottom_forecasts, n_paths=48, seed=seed + 101)
+        bottom_sample_paths = _build_bottom_sample_paths(
+            scenario.bottom_history, bottom_forecasts, n_paths=48, seed=seed + 101
+        )
         result = BottomUpReconciliationEstimator.pure_step(
             {
                 "bottom_forecasts": bottom_forecasts,
@@ -541,7 +565,9 @@ def _evaluate_method_once(
         actual = {h: future_reconciled[:, h - 1] for h in horizons}
         return result["forecasting_uncertainty_bundle"], actual, ("coherent_path_proxy",)
     if method_fqn == "forecasting.decomposition.stl@1.0.0":
-        result = STLDecompositionEstimator.pure_step({"series": scenario.history_univariate}, {"period": 12})
+        result = STLDecompositionEstimator.pure_step(
+            {"series": scenario.history_univariate}, {"period": 12}
+        )
         return result["forecasting_uncertainty_bundle"], {}, ("attached_output_only",)
     if method_fqn == "forecasting.multivariate.vec_forecast@1.0.0":
         result = VECForecastEstimator.pure_step(
@@ -586,7 +612,9 @@ def run_phase0_forecasting_benchmark(
             final_bundle = None
 
             for trial in range(n_trials):
-                scenario_seed = base_seed + 1000 * trial + (_stable_method_seed(method_fqn, regime) % 997)
+                scenario_seed = (
+                    base_seed + 1000 * trial + (_stable_method_seed(method_fqn, regime) % 997)
+                )
                 scenario = _build_scenario(regime, horizons=selected_horizons, seed=scenario_seed)
                 bundle, actual_by_horizon, trial_notes = _evaluate_method_once(
                     method_fqn,
@@ -630,7 +658,9 @@ def run_phase0_forecasting_benchmark(
             research_recommendation = {
                 h: tuple(
                     strategy.value
-                    for strategy in lookup_phase0_forecasting_recommendation(method_fqn, regime, h).strategies
+                    for strategy in lookup_phase0_forecasting_recommendation(
+                        method_fqn, regime, h
+                    ).strategies
                 )
                 for h in selected_horizons
             }

@@ -12,8 +12,8 @@ from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_a
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.protocol import ArtifactStore
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.scientist.search.artifact_minimality import (
     ArtifactFunction,
     ArtifactMinimalityMixin,
@@ -22,9 +22,7 @@ from polisyos.scientist.search.artifact_minimality import (
 
 ActionableStoreFactory = Callable[[Path], ArtifactStore]
 
-ACTIONABLE_SIDE_INFORMATION_SCHEMA_NAME = (
-    "polisyos.scientist.search.ActionableSideInformation"
-)
+ACTIONABLE_SIDE_INFORMATION_SCHEMA_NAME = "polisyos.scientist.search.ActionableSideInformation"
 
 
 def _build_actionable_store(root: Path) -> ArtifactStore:
@@ -107,7 +105,11 @@ def resolve_actionable_store(
     if context is None:
         return None
     context_store = context.get("store")
-    if context_store is not None and hasattr(context_store, "get_bytes") and hasattr(context_store, "put_json"):
+    if (
+        context_store is not None
+        and hasattr(context_store, "get_bytes")
+        and hasattr(context_store, "put_json")
+    ):
         return context_store
     cas_root = context.get("cas_root") or context.get("cas_dir")
     if cas_root is None:

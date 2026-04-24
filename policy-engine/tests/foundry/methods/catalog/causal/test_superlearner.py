@@ -1,11 +1,11 @@
 """Tests for Super Learner nuisance model (Phase 6)."""
+
 from __future__ import annotations
 
 import numpy as np
 import pytest
 
 from polisyos.foundry.methods.catalog.causal.superlearner import (
-    FittedSuperLearner,
     SuperLearnerConfig,
     SuperLearnerNuisance,
     SuperLearnerNuisanceModel,
@@ -15,10 +15,10 @@ from polisyos.foundry.methods.catalog.causal.superlearner import (
     _project_simplex,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def rng():
@@ -47,6 +47,7 @@ def binary_data(rng):
 # _project_simplex
 # ---------------------------------------------------------------------------
 
+
 class TestProjectSimplex:
     def test_sum_to_one(self, rng):
         v = rng.normal(0, 1, 5)
@@ -71,6 +72,7 @@ class TestProjectSimplex:
 # ---------------------------------------------------------------------------
 # _nnls_weights
 # ---------------------------------------------------------------------------
+
 
 class TestNNLSWeights:
     def test_weights_sum_to_one(self, rng):
@@ -98,6 +100,7 @@ class TestNNLSWeights:
 # ---------------------------------------------------------------------------
 # FittedSuperLearner.predict
 # ---------------------------------------------------------------------------
+
 
 class TestFittedSuperLearnerPredict:
     def test_predict_shape(self, linear_data, rng):
@@ -128,6 +131,7 @@ class TestFittedSuperLearnerPredict:
 # ---------------------------------------------------------------------------
 # SuperLearnerNuisance.fit
 # ---------------------------------------------------------------------------
+
 
 class TestSuperLearnerNuisanceFit:
     def test_weights_sum_to_one(self, linear_data):
@@ -160,9 +164,7 @@ class TestSuperLearnerNuisanceFit:
     def test_superlearner_not_worse_than_worst_learner(self, linear_data):
         """SL CV risk <= max individual learner CV risk."""
         X, Y = linear_data
-        fitted = SuperLearnerNuisance.fit(
-            X, Y, library=["ols", "ridge"], v_folds=3
-        )
+        fitted = SuperLearnerNuisance.fit(X, Y, library=["ols", "ridge"], v_folds=3)
         sl_preds = fitted.predict(X)
         sl_mse = np.mean((Y - sl_preds) ** 2)
         worst_learner_cv = max(fitted.cv_risk.values())
@@ -173,9 +175,7 @@ class TestSuperLearnerNuisanceFit:
     def test_large_library_with_rf_fallback(self, linear_data):
         """rf learner requested; even if sklearn absent, fit completes."""
         X, Y = linear_data
-        fitted = SuperLearnerNuisance.fit(
-            X, Y, library=["ols", "ridge", "rf"], v_folds=3
-        )
+        fitted = SuperLearnerNuisance.fit(X, Y, library=["ols", "ridge", "rf"], v_folds=3)
         assert fitted.weights.sum() > 0.99
 
     def test_binary_outcome_sigmoid_activated(self, binary_data):
@@ -195,6 +195,7 @@ class TestSuperLearnerNuisanceFit:
 # ---------------------------------------------------------------------------
 # SuperLearnerNuisanceModel (Foundry method wrapper)
 # ---------------------------------------------------------------------------
+
 
 class TestSuperLearnerNuisanceModel:
     def test_pure_step_returns_expected_keys(self, linear_data):

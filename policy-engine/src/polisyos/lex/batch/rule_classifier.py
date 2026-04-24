@@ -32,7 +32,10 @@ _SKIP_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"^\s*СХЕМА\b", re.IGNORECASE),
     re.compile(r"^\s*ЗАЯВКА\b", re.IGNORECASE),
     # Just a date or number reference
-    re.compile(r"^\d{1,2}\s+(?:січня|лютого|березня|квітня|травня|червня|липня|серпня|вересня|жовтня|листопада|грудня)\s+\d{4}\s*(?:року|р\.?)?\s*$", re.IGNORECASE),
+    re.compile(
+        r"^\d{1,2}\s+(?:січня|лютого|березня|квітня|травня|червня|липня|серпня|вересня|жовтня|листопада|грудня)\s+\d{4}\s*(?:року|р\.?)?\s*$",
+        re.IGNORECASE,
+    ),
 ]
 
 _MIN_TEXT_LENGTH = 40  # provisions shorter than this are skipped
@@ -150,7 +153,9 @@ def _looks_like_composition_member(text: str) -> bool:
     lower = compact.lower()
     if not compact.startswith(("-", "–", "—", "•")):
         return False
-    if re.search(r"\b(виконувати|забезпечувати|сплатити|з['’`ʼ]?ясувати|надіслати|опитати)\b", lower):
+    if re.search(
+        r"\b(виконувати|забезпечувати|сплатити|з['’`ʼ]?ясувати|надіслати|опитати)\b", lower
+    ):
         return False
     role_hits = sum(1 for word in _ROLE_WORDS if word in lower)
     uppercase_hits = len(_UPPERCASE_TOKEN_RE.findall(compact))
@@ -188,13 +193,19 @@ def _looks_like_table_scaffold(text: str) -> bool:
         return True
 
     if compact.startswith("*") and compact.endswith("*"):
-        cells = [cell.strip(" *|-:") for cell in re.split(r"\*+|\|+| {2,}", compact) if cell.strip(" *|-:")]
+        cells = [
+            cell.strip(" *|-:")
+            for cell in re.split(r"\*+|\|+| {2,}", compact)
+            if cell.strip(" *|-:")
+        ]
         if len(cells) <= 1:
             return True
         if len(cells) >= 2 and all(len(cell) <= 3 for cell in cells):
             return True
 
-    return compact.startswith("*") and digits == 0 and not _TABLE_SCAFFOLD_KEEP_CUES_RE.search(compact)
+    return (
+        compact.startswith("*") and digits == 0 and not _TABLE_SCAFFOLD_KEEP_CUES_RE.search(compact)
+    )
 
 
 def classify_provision(text: str, citation: str = "", doc_title: str = "") -> ClassificationResult:
@@ -208,7 +219,9 @@ def classify_provision(text: str, citation: str = "", doc_title: str = "") -> Cl
     stripped = text.strip()
     compact = _compact_spaces(stripped)
     title_lower = (doc_title or "").lower()
-    short_allow = bool(_AUTO_IMPERATIVE_ITEM.search(stripped) or _AUTO_TABLE_THRESHOLD.match(compact))
+    short_allow = bool(
+        _AUTO_IMPERATIVE_ITEM.search(stripped) or _AUTO_TABLE_THRESHOLD.match(compact)
+    )
 
     # --- Skip checks ---
     if len(stripped) < _MIN_TEXT_LENGTH and not short_allow:
@@ -238,63 +251,78 @@ def classify_provision(text: str, citation: str = "", doc_title: str = "") -> Cl
         if _TITLE_APPROVAL_RE.search(title_lower):
             return ClassificationResult(
                 action="auto",
-                auto_statements=[{
-                    "subject_uk": "орган, що прийняв акт",
-                    "predicate": "approves",
-                    "object_uk": obj,
-                    "norm_type": "procedure",
-                    "fact_text": f"Затверджено додаток: {obj}",
-                    "source_quote_uk": compact[:240],
-                    "confidence": "0.92",
-                }],
+                auto_statements=[
+                    {
+                        "subject_uk": "орган, що прийняв акт",
+                        "predicate": "approves",
+                        "object_uk": obj,
+                        "norm_type": "procedure",
+                        "fact_text": f"Затверджено додаток: {obj}",
+                        "source_quote_uk": compact[:240],
+                        "confidence": "0.92",
+                    }
+                ],
             )
         if _TITLE_AMEND_RE.search(title_lower):
             return ClassificationResult(
                 action="auto",
-                auto_statements=[{
-                    "subject_uk": "орган, що прийняв акт",
-                    "predicate": "amends",
-                    "object_uk": obj,
-                    "norm_type": "amendment",
-                    "fact_text": f"Внесено зміни/доповнення: {obj}",
-                    "source_quote_uk": compact[:240],
-                    "confidence": "0.90",
-                }],
+                auto_statements=[
+                    {
+                        "subject_uk": "орган, що прийняв акт",
+                        "predicate": "amends",
+                        "object_uk": obj,
+                        "norm_type": "amendment",
+                        "fact_text": f"Внесено зміни/доповнення: {obj}",
+                        "source_quote_uk": compact[:240],
+                        "confidence": "0.90",
+                    }
+                ],
             )
 
     m = _AUTO_IMPERATIVE_ITEM.match(stripped)
     if m:
         lemma = (m.group("lemma") or "").strip()
         obj = (m.group("object") or "").strip(" .;:")
-        subject = "заявник" if any(key in (title_lower + " " + compact.lower()) for key in ("заявка", "сертифікац", "заявник")) else "адресат акта"
+        subject = (
+            "заявник"
+            if any(
+                key in (title_lower + " " + compact.lower())
+                for key in ("заявка", "сертифікац", "заявник")
+            )
+            else "адресат акта"
+        )
         fact_text = f"Необхідно {lemma}"
         if obj:
             fact_text += f" {obj}"
         return ClassificationResult(
             action="auto",
-            auto_statements=[{
-                "subject_uk": subject,
-                "predicate": "requires",
-                "object_uk": obj or lemma,
-                "norm_type": "obligation",
-                "fact_text": fact_text,
-                "source_quote_uk": compact[:240],
-                "confidence": "0.88",
-            }],
+            auto_statements=[
+                {
+                    "subject_uk": subject,
+                    "predicate": "requires",
+                    "object_uk": obj or lemma,
+                    "norm_type": "obligation",
+                    "fact_text": fact_text,
+                    "source_quote_uk": compact[:240],
+                    "confidence": "0.88",
+                }
+            ],
         )
 
     if _AUTO_APPLICANT_HEADER.search(stripped):
         return ClassificationResult(
             action="auto",
-            auto_statements=[{
-                "subject_uk": "заявник",
-                "predicate": "requires",
-                "object_uk": "виконувати умови сертифікації",
-                "norm_type": "obligation",
-                "fact_text": "Заявник зобов'язується виконувати умови сертифікації",
-                "source_quote_uk": compact[:240],
-                "confidence": "0.87",
-            }],
+            auto_statements=[
+                {
+                    "subject_uk": "заявник",
+                    "predicate": "requires",
+                    "object_uk": "виконувати умови сертифікації",
+                    "norm_type": "obligation",
+                    "fact_text": "Заявник зобов'язується виконувати умови сертифікації",
+                    "source_quote_uk": compact[:240],
+                    "confidence": "0.87",
+                }
+            ],
         )
 
     m = _AUTO_TABLE_THRESHOLD.match(compact)
@@ -304,15 +332,17 @@ def classify_provision(text: str, citation: str = "", doc_title: str = "") -> Cl
         if label and value:
             return ClassificationResult(
                 action="auto",
-                auto_statements=[{
-                    "subject_uk": "цей акт",
-                    "predicate": "sets_threshold",
-                    "object_uk": label,
-                    "norm_type": "procedure",
-                    "fact_text": f"Встановлено значення {value} для {label}",
-                    "source_quote_uk": compact[:240],
-                    "confidence": "0.9",
-                }],
+                auto_statements=[
+                    {
+                        "subject_uk": "цей акт",
+                        "predicate": "sets_threshold",
+                        "object_uk": label,
+                        "norm_type": "procedure",
+                        "fact_text": f"Встановлено значення {value} для {label}",
+                        "source_quote_uk": compact[:240],
+                        "confidence": "0.9",
+                    }
+                ],
             )
 
     m = _AUTO_APPROVE.search(stripped)
@@ -320,15 +350,17 @@ def classify_provision(text: str, citation: str = "", doc_title: str = "") -> Cl
         obj = m.group(1).strip().rstrip(".")
         return ClassificationResult(
             action="auto",
-            auto_statements=[{
-                "subject_uk": "орган, що прийняв акт",
-                "predicate": "approves",
-                "object_uk": obj,
-                "norm_type": "procedure",
-                "fact_text": f"Затверджено: {obj}",
-                "source_quote_uk": stripped[:200],
-                "confidence": "0.9",
-            }],
+            auto_statements=[
+                {
+                    "subject_uk": "орган, що прийняв акт",
+                    "predicate": "approves",
+                    "object_uk": obj,
+                    "norm_type": "procedure",
+                    "fact_text": f"Затверджено: {obj}",
+                    "source_quote_uk": stripped[:200],
+                    "confidence": "0.9",
+                }
+            ],
         )
 
     m = _AUTO_REPEAL.search(stripped)
@@ -336,15 +368,17 @@ def classify_provision(text: str, citation: str = "", doc_title: str = "") -> Cl
         obj = m.group(1).strip().rstrip(".") or "перелічені акти"
         return ClassificationResult(
             action="auto",
-            auto_statements=[{
-                "subject_uk": "орган, що прийняв акт",
-                "predicate": "repeals",
-                "object_uk": obj,
-                "norm_type": "repeal",
-                "fact_text": f"Визнано такими, що втратили чинність: {obj}",
-                "source_quote_uk": stripped[:200],
-                "confidence": "0.9",
-            }],
+            auto_statements=[
+                {
+                    "subject_uk": "орган, що прийняв акт",
+                    "predicate": "repeals",
+                    "object_uk": obj,
+                    "norm_type": "repeal",
+                    "fact_text": f"Визнано такими, що втратили чинність: {obj}",
+                    "source_quote_uk": stripped[:200],
+                    "confidence": "0.9",
+                }
+            ],
         )
 
     m = _AUTO_ENTRY_INTO_FORCE.search(stripped)
@@ -355,30 +389,34 @@ def classify_provision(text: str, citation: str = "", doc_title: str = "") -> Cl
             fact += f" {detail}"
         return ClassificationResult(
             action="auto",
-            auto_statements=[{
-                "subject_uk": "цей акт",
-                "predicate": "enters_into_force",
-                "object_uk": detail or "з дня опублікування",
-                "norm_type": "entry_into_force",
-                "fact_text": fact,
-                "source_quote_uk": stripped[:200],
-                "confidence": "0.9",
-            }],
+            auto_statements=[
+                {
+                    "subject_uk": "цей акт",
+                    "predicate": "enters_into_force",
+                    "object_uk": detail or "з дня опублікування",
+                    "norm_type": "entry_into_force",
+                    "fact_text": fact,
+                    "source_quote_uk": stripped[:200],
+                    "confidence": "0.9",
+                }
+            ],
         )
 
     m = _AUTO_AMEND.search(stripped)
     if m and len(stripped) < 300:
         return ClassificationResult(
             action="auto",
-            auto_statements=[{
-                "subject_uk": "орган, що прийняв акт",
-                "predicate": "amends",
-                "object_uk": "зазначений акт",
-                "norm_type": "amendment",
-                "fact_text": "Внесено зміни до акту",
-                "source_quote_uk": stripped[:200],
-                "confidence": "0.85",
-            }],
+            auto_statements=[
+                {
+                    "subject_uk": "орган, що прийняв акт",
+                    "predicate": "amends",
+                    "object_uk": "зазначений акт",
+                    "norm_type": "amendment",
+                    "fact_text": "Внесено зміни до акту",
+                    "source_quote_uk": stripped[:200],
+                    "confidence": "0.85",
+                }
+            ],
         )
 
     m = _AUTO_DELEGATE.search(stripped)
@@ -386,30 +424,34 @@ def classify_provision(text: str, citation: str = "", doc_title: str = "") -> Cl
         obj = m.group(1).strip().rstrip(".")
         return ClassificationResult(
             action="auto",
-            auto_statements=[{
-                "subject_uk": "орган, що прийняв акт",
-                "predicate": "delegates",
-                "object_uk": obj,
-                "norm_type": "delegation",
-                "fact_text": f"Доручено: {obj}",
-                "source_quote_uk": stripped[:200],
-                "confidence": "0.85",
-            }],
+            auto_statements=[
+                {
+                    "subject_uk": "орган, що прийняв акт",
+                    "predicate": "delegates",
+                    "object_uk": obj,
+                    "norm_type": "delegation",
+                    "fact_text": f"Доручено: {obj}",
+                    "source_quote_uk": stripped[:200],
+                    "confidence": "0.85",
+                }
+            ],
         )
 
     m = _AUTO_DEFINE.search(stripped)
     if m and len(stripped) < 500:
         return ClassificationResult(
             action="auto",
-            auto_statements=[{
-                "subject_uk": "цей акт",
-                "predicate": "defines",
-                "object_uk": "терміни та визначення",
-                "norm_type": "definition",
-                "fact_text": "Визначено терміни, що вживаються в акті",
-                "source_quote_uk": stripped[:200],
-                "confidence": "0.87",
-            }],
+            auto_statements=[
+                {
+                    "subject_uk": "цей акт",
+                    "predicate": "defines",
+                    "object_uk": "терміни та визначення",
+                    "norm_type": "definition",
+                    "fact_text": "Визначено терміни, що вживаються в акті",
+                    "source_quote_uk": stripped[:200],
+                    "confidence": "0.87",
+                }
+            ],
         )
 
     m = _AUTO_BUDGET.search(stripped)
@@ -418,15 +460,17 @@ def classify_provision(text: str, citation: str = "", doc_title: str = "") -> Cl
         obj = detail or "фінансування заходів"
         return ClassificationResult(
             action="auto",
-            auto_statements=[{
-                "subject_uk": "орган, що прийняв акт",
-                "predicate": "is_funded_by",
-                "object_uk": obj,
-                "norm_type": "procedure",
-                "fact_text": f"Передбачено фінансування: {obj}",
-                "source_quote_uk": stripped[:200],
-                "confidence": "0.84",
-            }],
+            auto_statements=[
+                {
+                    "subject_uk": "орган, що прийняв акт",
+                    "predicate": "is_funded_by",
+                    "object_uk": obj,
+                    "norm_type": "procedure",
+                    "fact_text": f"Передбачено фінансування: {obj}",
+                    "source_quote_uk": stripped[:200],
+                    "confidence": "0.84",
+                }
+            ],
         )
 
     m = _AUTO_REGISTER.search(stripped)
@@ -434,15 +478,17 @@ def classify_provision(text: str, citation: str = "", doc_title: str = "") -> Cl
         obj = m.group(1).strip().rstrip(".")
         return ClassificationResult(
             action="auto",
-            auto_statements=[{
-                "subject_uk": "орган, що прийняв акт",
-                "predicate": "requires",
-                "object_uk": obj,
-                "norm_type": "procedure",
-                "fact_text": f"Зареєструвати/опублікувати в: {obj}",
-                "source_quote_uk": stripped[:200],
-                "confidence": "0.88",
-            }],
+            auto_statements=[
+                {
+                    "subject_uk": "орган, що прийняв акт",
+                    "predicate": "requires",
+                    "object_uk": obj,
+                    "norm_type": "procedure",
+                    "fact_text": f"Зареєструвати/опублікувати в: {obj}",
+                    "source_quote_uk": stripped[:200],
+                    "confidence": "0.88",
+                }
+            ],
         )
 
     m = _AUTO_CONTROL.search(stripped)
@@ -450,15 +496,17 @@ def classify_provision(text: str, citation: str = "", doc_title: str = "") -> Cl
         obj = m.group(1).strip().rstrip(".")
         return ClassificationResult(
             action="auto",
-            auto_statements=[{
-                "subject_uk": "орган, що прийняв акт",
-                "predicate": "delegates",
-                "object_uk": obj,
-                "norm_type": "delegation",
-                "fact_text": f"Контроль покладено на: {obj}",
-                "source_quote_uk": stripped[:200],
-                "confidence": "0.86",
-            }],
+            auto_statements=[
+                {
+                    "subject_uk": "орган, що прийняв акт",
+                    "predicate": "delegates",
+                    "object_uk": obj,
+                    "norm_type": "delegation",
+                    "fact_text": f"Контроль покладено на: {obj}",
+                    "source_quote_uk": stripped[:200],
+                    "confidence": "0.86",
+                }
+            ],
         )
 
     # --- Default: LLM ---

@@ -1,40 +1,46 @@
 """Validation-report contracts used when IR payload repair or schema checks fail."""
+
 from __future__ import annotations
 
 import difflib
 import json
-from datetime import datetime, timezone
-from typing import Any, Iterable, List, Optional, Union
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class ValidationIssue(BaseModel):
     """Represent one normalized validation failure that governance/reporting can persist."""
-    loc: List[Union[str, int]]
+
+    loc: list[str | int]
     message: str
     error_type: str
-    input_value: Optional[Any] = None
-    path: Optional[str] = None
-    code: Optional[str] = None
-    expected: Optional[Any] = None
-    actual: Optional[Any] = None
-    severity: Optional[str] = None
+    input_value: Any | None = None
+    path: str | None = None
+    code: str | None = None
+    expected: Any | None = None
+    actual: Any | None = None
+    severity: str | None = None
     model_config = ConfigDict(extra="forbid")
 
 
 class ValidationReport(BaseModel):
     """Bundle issue summaries, optional repair notes, and diffs for a failed validation pass."""
+
     error_summary: str
-    issues: List[ValidationIssue]
-    repair_attempt: Optional[str] = None
-    diff_before_after: Optional[str] = None
-    normalized_payload: Optional[dict[str, Any]] = None
-    generated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    issues: list[ValidationIssue]
+    repair_attempt: str | None = None
+    diff_before_after: str | None = None
+    normalized_payload: dict[str, Any] | None = None
+    generated_at: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
     model_config = ConfigDict(extra="forbid")
 
 
-def _json_dump(payload: Any) -> List[str]:
+def _json_dump(payload: Any) -> list[str]:
     text = json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True)
     return text.splitlines()
 
@@ -53,9 +59,9 @@ def diff_payloads(before: Any, after: Any) -> str:
     return "\n".join(diff)
 
 
-def issues_from_validation_error(error: ValidationError) -> List[ValidationIssue]:
+def issues_from_validation_error(error: ValidationError) -> list[ValidationIssue]:
     """Convert a Pydantic ``ValidationError`` into stable ``ValidationIssue`` records."""
-    issues: List[ValidationIssue] = []
+    issues: list[ValidationIssue] = []
     for entry in error.errors():
         loc = list(entry.get("loc", ()))
         issues.append(

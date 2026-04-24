@@ -8,7 +8,6 @@ from polisyos.academic.batch.parser import (
     reconstruct_abstract,
 )
 
-
 # ---------------------------------------------------------------------------
 # Abstract reconstruction
 # ---------------------------------------------------------------------------

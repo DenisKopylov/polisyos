@@ -1,4 +1,5 @@
 """Persistence helpers for external cross-backend equivalence certificates."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -18,8 +19,8 @@ from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon.canon_json import CanonSpec, from_canonical_bytes
 from polisyos.core.security.slsa.models import (
     BuildDefinition,
-    BuildMetadata,
     BuilderInfo,
+    BuildMetadata,
     DigestSet,
     InTotoStatement,
     ResourceDescriptor,
@@ -28,10 +29,10 @@ from polisyos.core.security.slsa.models import (
     Subject,
 )
 from polisyos.foundry.methods.equivalence.protocol import (
-    CrossBackendEquivalenceCertificate,
     EQUIVALENCE_CERTIFICATE_KIND,
     EQUIVALENCE_CERTIFICATE_SCHEMA,
     EQUIVALENCE_CERTIFICATE_SCHEMA_VERSION,
+    CrossBackendEquivalenceCertificate,
 )
 
 if TYPE_CHECKING:
@@ -59,8 +60,8 @@ def persist_equivalence_certificate(
     *,
     store: ArtifactStore,
     certificate: CrossBackendEquivalenceCertificate,
-    producer: "ProducerInfo | None" = None,
-    inputs: list["InputRef"] | None = None,
+    producer: ProducerInfo | None = None,
+    inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
     """Persist a certificate as an external CAS artifact."""
 
@@ -98,8 +99,8 @@ def persist_attested_equivalence_certificate(
     *,
     store: FileSystemCAS,
     certificate: CrossBackendEquivalenceCertificate,
-    producer: "ProducerInfo | None" = None,
-    inputs: list["InputRef"] | None = None,
+    producer: ProducerInfo | None = None,
+    inputs: list[InputRef] | None = None,
     signer: Ed25519Signer | None = None,
     signer_identity: str | None = None,
     builder_id: str = EQUIVALENCE_BUILDER_ID,
@@ -173,7 +174,7 @@ def _build_equivalence_attestation(
     *,
     certificate: CrossBackendEquivalenceCertificate,
     certificate_ref: ArtifactRef,
-    inputs: list["InputRef"],
+    inputs: list[InputRef],
     builder_id: str,
     signer_identity: str | None,
     signature_key_id: str | None,

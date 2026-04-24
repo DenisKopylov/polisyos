@@ -1,7 +1,8 @@
 """Public spatial registry boot module API."""
+
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from .advanced import (
     GaussianProcessKrigingEstimator,
@@ -20,6 +21,7 @@ from .analysis import (
     MoranIEstimator,
     SpatialDurbinEstimator,
 )
+
 
 def register_spatial_methods() -> Sequence[type]:
     """Register spatial methods."""

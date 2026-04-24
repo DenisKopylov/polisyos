@@ -17,7 +17,6 @@ from polisyos.ir.analytics.literature import (
     UncertaintyBudget,
 )
 
-
 # ---------------------------------------------------------------------------
 # PaperKind enum
 # ---------------------------------------------------------------------------
@@ -212,7 +211,9 @@ def test_causal_claim_with_new_fields() -> None:
 
 def test_causal_claim_roundtrip_with_new_fields() -> None:
     """Serialize and deserialize CausalClaim with new fields."""
-    ids = IdentificationStrategy(identification_method="DiD", design_assumptions=["parallel trends"])
+    ids = IdentificationStrategy(
+        identification_method="DiD", design_assumptions=["parallel trends"]
+    )
     cc = CausalClaim(
         cause_variable="x",
         effect_variable="y",
@@ -308,7 +309,9 @@ def test_aer_roundtrip_with_new_fields() -> None:
         extraction_timestamp="t",
         extraction_confidence=0.85,
         paper_kind=PaperKind.HETEROGENEITY_ANALYSIS,
-        heterogeneity_results=[HeterogeneityResult(moderator="trust", interaction_coefficient=-0.2)],
+        heterogeneity_results=[
+            HeterogeneityResult(moderator="trust", interaction_coefficient=-0.2)
+        ],
         moderation_edges=[
             ModerationEdge(base_cause="a", base_effect="b", moderator="trust", confidence=0.7)
         ],

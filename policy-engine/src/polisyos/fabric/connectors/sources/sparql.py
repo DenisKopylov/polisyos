@@ -17,19 +17,14 @@ from __future__ import annotations
 import json as _json
 import re
 import time
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, ClassVar
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
 import aiohttp
 import pandas as pd
 
 from polisyos.core.canon import content_hash as compute_content_hash
-from polisyos.fabric.safety import (
-    UnsafeFilterExpressionError,
-    escape_sparql_literal,
-    validate_sparql_iri_token,
-    validate_sparql_variable_name,
-)
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,
@@ -48,6 +43,12 @@ from polisyos.fabric.connectors.types import (
     ValidationIssue,
     ValidationResult,
     ValidationSeverity,
+)
+from polisyos.fabric.safety import (
+    UnsafeFilterExpressionError,
+    escape_sparql_literal,
+    validate_sparql_iri_token,
+    validate_sparql_variable_name,
 )
 from polisyos.ir.connectors import (
     ConnectorCapability,
@@ -159,22 +160,26 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
             timeout = aiohttp.ClientTimeout(total=10)
             data = {"query": "ASK { ?s ?p ?o } LIMIT 1"}
             async with session.post(
-                url, data=data,
+                url,
+                data=data,
                 headers={"Accept": "application/sparql-results+json"},
                 timeout=timeout,
             ) as resp:
                 if resp.status < 400:
                     return HealthStatus(
-                        healthy=True, message="HTTP 200",
+                        healthy=True,
+                        message="HTTP 200",
                         latency_ms=self._elapsed_ms(started),
                     )
                 return HealthStatus(
-                    healthy=False, message=f"HTTP {resp.status}",
+                    healthy=False,
+                    message=f"HTTP {resp.status}",
                     latency_ms=self._elapsed_ms(started),
                 )
         except Exception as exc:
             return HealthStatus(
-                healthy=False, message=str(exc),
+                healthy=False,
+                message=str(exc),
                 latency_ms=self._elapsed_ms(started),
             )
 
@@ -220,7 +225,8 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
             data["default-graph-uri"] = default_graph
 
         async with session.post(
-            url, data=data,
+            url,
+            data=data,
             headers={"Accept": "application/sparql-results+json"},
             timeout=timeout,
         ) as resp:
@@ -246,7 +252,7 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
             quality_tier=QualityTier.BRONZE,
             bytes_transferred=len(raw),
             completeness=frame_completeness(df) if not df.empty else 1.0,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             fetch_duration_ms=duration_ms,
             content_hash=chash,
             etag=headers.get("ETag"),
@@ -282,9 +288,9 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
             if (
                 handle.config.headers.get("X-SPARQL-AllowInlineQuery", "")
                 and SPARQLConnector._allow_inline_query(handle.config)
-                and request.dataset_id.strip().upper().startswith(
-                    ("SELECT", "ASK", "CONSTRUCT", "DESCRIBE")
-                )
+                and request.dataset_id.strip()
+                .upper()
+                .startswith(("SELECT", "ASK", "CONSTRUCT", "DESCRIBE"))
             ):
                 if request.filters:
                     raise UnsafeFilterExpressionError(
@@ -315,7 +321,9 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
                 f"SPARQL template does not allow filters: {', '.join(unexpected)}"
             )
 
-        missing = sorted(name for name in declared if name not in filter_map or not filter_map[name])
+        missing = sorted(
+            name for name in declared if name not in filter_map or not filter_map[name]
+        )
         if missing:
             raise UnsafeFilterExpressionError(
                 f"Missing SPARQL placeholder values: {', '.join(missing)}"

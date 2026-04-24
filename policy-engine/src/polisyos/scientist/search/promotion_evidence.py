@@ -14,9 +14,7 @@ from polisyos.scientist.autotune.models import BenchmarkEvaluation, BenchmarkSpl
 from polisyos.scientist.replay.verification import load_replay_verification_report
 from polisyos.scientist.search.adversarial import load_platform_meta_evaluation_report
 
-PROMOTION_EVIDENCE_BUNDLE_SCHEMA_NAME = (
-    "polisyos.scientist.search.PromotionEvidenceBundle"
-)
+PROMOTION_EVIDENCE_BUNDLE_SCHEMA_NAME = "polisyos.scientist.search.PromotionEvidenceBundle"
 
 
 class PromotionEvidenceBundle(BaseModel):
@@ -87,7 +85,9 @@ class PromotionEvidenceBundle(BaseModel):
         if self.evaluation_ref is not None:
             manifest = _require_manifest(store, self.evaluation_ref, role="evaluation_ref")
             if manifest.kind != "scientist.policy_evaluation_vector":
-                raise ValueError("PromotionEvidenceBundle evaluation_ref must be a policy evaluation vector.")
+                raise ValueError(
+                    "PromotionEvidenceBundle evaluation_ref must be a policy evaluation vector."
+                )
             if not any(
                 item.artifact_id == self.candidate_ref.artifact_id and item.role == "candidate"
                 for item in manifest.inputs
@@ -132,9 +132,14 @@ class PromotionEvidenceBundle(BaseModel):
                 raise ValueError(
                     "PromotionEvidenceBundle adversarial_meta_evaluation_ref has unexpected kind."
                 )
-            report = load_platform_meta_evaluation_report(store, self.adversarial_meta_evaluation_ref)
+            report = load_platform_meta_evaluation_report(
+                store, self.adversarial_meta_evaluation_ref
+            )
             source_selection = report.source_refs.get("selection_evaluation_ref")
-            if self.selection_evaluation_ref is not None and source_selection != self.selection_evaluation_ref:
+            if (
+                self.selection_evaluation_ref is not None
+                and source_selection != self.selection_evaluation_ref
+            ):
                 raise ValueError(
                     "PromotionEvidenceBundle adversarial_meta_evaluation_ref is stale for the current selection evidence."
                 )
@@ -173,7 +178,9 @@ class PromotionEvidenceBundle(BaseModel):
                     "PromotionEvidenceBundle replay_verification_ref belongs to another run."
                 )
         if self.calibration_report_ref is not None:
-            manifest = _require_manifest(store, self.calibration_report_ref, role="calibration_report_ref")
+            manifest = _require_manifest(
+                store, self.calibration_report_ref, role="calibration_report_ref"
+            )
             if manifest.kind != "scientist.search.calibration_report":
                 raise ValueError(
                     "PromotionEvidenceBundle calibration_report_ref has unexpected kind."
@@ -181,7 +188,9 @@ class PromotionEvidenceBundle(BaseModel):
         if self.governance_report_ref is not None:
             _require_manifest(store, self.governance_report_ref, role="governance_report_ref")
         if self.stress_test_report_ref is not None:
-            manifest = _require_manifest(store, self.stress_test_report_ref, role="stress_test_report_ref")
+            manifest = _require_manifest(
+                store, self.stress_test_report_ref, role="stress_test_report_ref"
+            )
             if manifest.kind != "scientist.stress_test_report":
                 raise ValueError(
                     "PromotionEvidenceBundle stress_test_report_ref has unexpected kind."
@@ -200,10 +209,14 @@ def _assert_expected_refs(
             continue
         if isinstance(expected, list):
             if list(actual) != expected:
-                raise ValueError(f"PromotionEvidenceBundle {key} is stale for the current run snapshot.")
+                raise ValueError(
+                    f"PromotionEvidenceBundle {key} is stale for the current run snapshot."
+                )
             continue
         if actual != expected:
-            raise ValueError(f"PromotionEvidenceBundle {key} is stale for the current run snapshot.")
+            raise ValueError(
+                f"PromotionEvidenceBundle {key} is stale for the current run snapshot."
+            )
 
 
 def _require_manifest(
@@ -233,8 +246,7 @@ def _validate_benchmark_ref(
         or manifest.kind.endswith(".evaluation")
         or (
             manifest.artifact_schema is not None
-            and manifest.artifact_schema.name
-            == "polisyos.scientist.autotune.BenchmarkEvaluation"
+            and manifest.artifact_schema.name == "polisyos.scientist.autotune.BenchmarkEvaluation"
         )
     ):
         raise ValueError(f"PromotionEvidenceBundle {role} has unexpected kind.")

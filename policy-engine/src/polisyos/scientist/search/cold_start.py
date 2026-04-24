@@ -44,6 +44,7 @@ _BURN_IN_REPORT_SCHEMA = SchemaInfo(
 
 class BurnInCohort(str, Enum):
     """Burn in cohort public type."""
+
     CALIBRATION = "calibration"
     LESSON_SEEDING = "lesson_seeding"
 
@@ -97,9 +98,7 @@ class _EmbeddedResultsWorkflowEngine:
         else:
             payload = candidate.get("expected_stage3") or candidate.get("expected_stage4") or {}
 
-        if isinstance(payload, dict) and (
-            "simulation_results" in payload or "feedback" in payload
-        ):
+        if isinstance(payload, dict) and ("simulation_results" in payload or "feedback" in payload):
             return {
                 "simulation_results": dict(payload.get("simulation_results", {})),
                 "feedback": dict(payload.get("feedback", {"verdict": "APPROVE"})),
@@ -173,7 +172,11 @@ def run_burn_in(
 ) -> BurnInRunReport:
     """Run calibration and lesson-seeding cohorts through the funnel."""
 
-    tracker = correlation_tracker or getattr(orchestrator, "_correlation_tracker", None) or CorrelationTracker()
+    tracker = (
+        correlation_tracker
+        or getattr(orchestrator, "_correlation_tracker", None)
+        or CorrelationTracker()
+    )
     registry = lesson_registry or getattr(orchestrator, "_lesson_registry", None)
     active_sentinel_set = sentinel_set
     if active_sentinel_set is None and config.sentinel_set_ref and store is not None:
@@ -192,7 +195,10 @@ def run_burn_in(
 
     for candidate in calibration_candidates:
         outcome = orchestrator.advance(
-            orchestrator.submit(candidate, {"source_run_id": config.run_id, "burn_in_cohort": BurnInCohort.CALIBRATION.value}),
+            orchestrator.submit(
+                candidate,
+                {"source_run_id": config.run_id, "burn_in_cohort": BurnInCohort.CALIBRATION.value},
+            ),
             policy="burn_in",
         )
         actual_level4_candidates += int(4 in outcome.stage_results)
@@ -214,7 +220,13 @@ def run_burn_in(
 
     for candidate in config.dumb_candidates:
         outcome = orchestrator.advance(
-            orchestrator.submit(candidate, {"source_run_id": config.run_id, "burn_in_cohort": BurnInCohort.LESSON_SEEDING.value}),
+            orchestrator.submit(
+                candidate,
+                {
+                    "source_run_id": config.run_id,
+                    "burn_in_cohort": BurnInCohort.LESSON_SEEDING.value,
+                },
+            ),
             policy="full",
         )
         actual_level4_candidates += int(4 in outcome.stage_results)
@@ -232,16 +244,16 @@ def run_burn_in(
     metrics = tracker.compute_metrics()
     sentinel_pass_rate = metrics.get("sentinel_pass_rate")
     if sentinel_pass_rate is None and sentinel_observations:
-        sentinel_pass_rate = sum(
-            1 for obs in sentinel_observations if obs.stage_a_passed
-        ) / len(sentinel_observations)
+        sentinel_pass_rate = sum(1 for obs in sentinel_observations if obs.stage_a_passed) / len(
+            sentinel_observations
+        )
 
     level4_execution_rate = (
-        actual_level4_candidates / baseline_level4_candidates
-        if baseline_level4_candidates
-        else 0.0
+        actual_level4_candidates / baseline_level4_candidates if baseline_level4_candidates else 0.0
     )
-    expensive_stage_load_reduction = 1.0 - level4_execution_rate if baseline_level4_candidates else 0.0
+    expensive_stage_load_reduction = (
+        1.0 - level4_execution_rate if baseline_level4_candidates else 0.0
+    )
     acceptance_criteria = {
         "false_negative_rate_lt_2pct": float(metrics.get("false_negative_rate", 0.0)) < 0.02,
         "spearman_gt_0_6": float(metrics.get("spearman_correlation", 0.0)) > 0.6,

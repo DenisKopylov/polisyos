@@ -5,6 +5,7 @@ cross-layer CAS refs, create `ExecutionContext`, register builtin/discovered
 nodes, enforce run locks/checkpoint policy, and delegate to the selected
 `WorkflowSpec`.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -77,6 +78,7 @@ if TYPE_CHECKING:
 
     class QuotaRegistry(Protocol):
         def get_enforcer(self, tenant_id: str) -> QuotaEnforcer: ...
+
 
 DEFAULT_CAS_ROOT = Path(".polisyos")
 _WORKFLOW_BUILDER_IMPORT_ERRORS = (ImportError, ModuleNotFoundError)
@@ -154,6 +156,7 @@ def _maybe_namespace_store(store: ArtifactStore) -> ArtifactStore:
         return store
     try:
         from polisyos.core.security.namespace import NamespacedArtifactStore
+
         cell_id = get_current_cell_id()
         return cast(
             "ArtifactStore",
@@ -167,6 +170,7 @@ def _maybe_create_provenance_dag(run_id: str) -> object | None:
     """Try to create a RunProvenanceDAG; return None if unavailable."""
     try:
         from polisyos.scientist.provenance.run_dag import RunProvenanceDAG
+
         tenant_id = get_current_tenant_id_or_none()
         return cast("object", RunProvenanceDAG(run_id=run_id, tenant_id=tenant_id))
     except (*_WORKFLOW_BUILDER_IMPORT_ERRORS, *_WORKFLOW_BUILDER_PROVENANCE_ERRORS):
@@ -521,11 +525,14 @@ def run_policy_design_workflow(
         registry_bundle_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
     if registry_bundle_ref is None:
         registry_bundle_ref = build_default_registry(store)
-    registry_bundle_ref = _pin_cross_layer_input_ref(
-        state,
-        input_key=INPUT_REGISTRY_BUNDLE_REF,
-        provided_ref=registry_bundle_ref,
-    ) or registry_bundle_ref
+    registry_bundle_ref = (
+        _pin_cross_layer_input_ref(
+            state,
+            input_key=INPUT_REGISTRY_BUNDLE_REF,
+            provided_ref=registry_bundle_ref,
+        )
+        or registry_bundle_ref
+    )
     if graph_prior_bundle_ref is None:
         graph_prior_bundle_ref = _artifact_ref_or_none(
             state.inputs.get(INPUT_GRAPH_PRIOR_BUNDLE_REF)
@@ -643,6 +650,7 @@ def run_discovery_workflow(
     finally:
         lock.release()
 
+
 def run_default_workflow(
     initial_state: ExperimentState,
     *,
@@ -719,12 +727,18 @@ def run_default_workflow(
         workflow = default_workflow_spec()
         if runner_config.backend != "local":
             import asyncio
+
             runner = build_workflow_runner(runner_config)
-            return asyncio.run(runner.execute_workflow(
-                workflow, state, ctx, registry,
-                checkpoint_hook=checkpoint_hook,
-                max_parallelism=runner_config.max_parallelism,
-            ))
+            return asyncio.run(
+                runner.execute_workflow(
+                    workflow,
+                    state,
+                    ctx,
+                    registry,
+                    checkpoint_hook=checkpoint_hook,
+                    max_parallelism=runner_config.max_parallelism,
+                )
+            )
 
         executor = WorkflowExecutor(ctx, registry, checkpoint_hook=checkpoint_hook)
         return executor.execute(workflow, state)

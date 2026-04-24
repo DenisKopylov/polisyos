@@ -1,4 +1,5 @@
 """Adapts on-disk core run manifests and traces into runtime service records."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -24,6 +25,7 @@ logger = get_logger(__name__)
 @dataclass(frozen=True)
 class CoreRunAdapterResult:
     """Normalized view of one core run as exposed through runtime HTTP services."""
+
     run_id: str
     status: str
     started_at: datetime | None

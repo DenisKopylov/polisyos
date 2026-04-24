@@ -1,8 +1,8 @@
 """Define execution-data view requests for panel, snapshot, and network slices."""
+
 from __future__ import annotations
 
 from enum import Enum
-from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -39,20 +39,20 @@ class DataViewRequest(BaseModel):
     request_id: str
     run_id: str
     view_type: DataViewType
-    metrics: List[str] = Field(..., description="List of columns to select.")
-    filters: List[DataFilter] = Field(default_factory=list)
-    step_start: Optional[int] = None
-    step_end: Optional[int] = None
-    aggregation: Optional[str] = Field(default="mean", pattern=r"^(mean|sum|count|min|max)$")
+    metrics: list[str] = Field(..., description="List of columns to select.")
+    filters: list[DataFilter] = Field(default_factory=list)
+    step_start: int | None = None
+    step_end: int | None = None
+    aggregation: str | None = Field(default="mean", pattern=r"^(mean|sum|count|min|max)$")
     access_tier: AccessTier
-    ego_node_id: Optional[str] = Field(None, description="Center node for network query")
+    ego_node_id: str | None = Field(None, description="Center node for network query")
     hop_depth: int = Field(1, ge=1, le=5, description="Search depth")
-    relation_types: Optional[List[str]] = None
+    relation_types: list[str] | None = None
 
     model_config = ConfigDict(extra="forbid")
 
     @model_validator(mode="after")
-    def validate_request(self) -> "DataViewRequest":
+    def validate_request(self) -> DataViewRequest:
         if not self.metrics:
             raise ValueError("DataViewRequest.metrics must not be empty")
         if self.view_type == DataViewType.NETWORK:

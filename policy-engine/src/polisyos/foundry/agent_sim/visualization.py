@@ -1,9 +1,10 @@
 """Render static and interactive visualizations for agent-training traces and outputs."""
+
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence
 
 import jax.numpy as jnp
 import numpy as np
@@ -16,9 +17,7 @@ def _import_matplotlib():
 
         return plt, animation
     except ImportError as exc:
-        raise ImportError(
-            "matplotlib required for visualization: pip install matplotlib"
-        ) from exc
+        raise ImportError("matplotlib required for visualization: pip install matplotlib") from exc
 
 
 def _import_plotly():
@@ -35,6 +34,7 @@ def _import_plotly():
 @dataclass
 class VisualizationConfig:
     """Configure file format, style, and output folder for training visualizations."""
+
     output_dir: Path = Path("./viz_output")
     format: str = "png"
     dpi: int = 150
@@ -45,6 +45,7 @@ class VisualizationConfig:
 
 class TrainingVisualizer:
     """Training visualizer public type."""
+
     def __init__(self, config: VisualizationConfig | None = None):
         self.config = config or VisualizationConfig()
         self.config.output_dir.mkdir(parents=True, exist_ok=True)
@@ -65,8 +66,10 @@ class TrainingVisualizer:
         plt, _ = _import_matplotlib()
         plt.style.use(self.config.style)
 
-        n_plots = 1 + int(rewards is not None) + int(
-            policy_losses is not None and value_losses is not None
+        n_plots = (
+            1
+            + int(rewards is not None)
+            + int(policy_losses is not None and value_losses is not None)
         )
 
         fig, axes = plt.subplots(1, n_plots, figsize=self.config.figsize)
@@ -462,9 +465,7 @@ class TrainingVisualizer:
         )
 
         save_to = (
-            Path(save_path)
-            if save_path
-            else self.config.output_dir / f"{variable}_animation.gif"
+            Path(save_path) if save_path else self.config.output_dir / f"{variable}_animation.gif"
         )
         anim.save(save_to, writer="pillow", fps=1000 / interval)
         plt.close()

@@ -8,7 +8,6 @@ Extends ``BaseSearchStrategy`` with:
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -79,7 +78,8 @@ class NeuralSearchStrategy(BaseSearchStrategy):
         self._warm_data.extend(valid)
         logger.info(
             "Neural strategy warm-started with %d evaluations (%d valid)",
-            len(evaluations), len(valid),
+            len(evaluations),
+            len(valid),
         )
 
     def suggest(
@@ -98,13 +98,14 @@ class NeuralSearchStrategy(BaseSearchStrategy):
 
         if len(all_evals) < self._config.n_initial:
             return self._sobol_candidate(
-                len(evaluations), source="neural_sobol_init",
+                len(evaluations),
+                source="neural_sobol_init",
             )
 
         # Try fitting a GP surrogate
         try:
             return self._suggest_from_surrogate(all_evals, pending)
-        except Exception:  # noqa: BLE001
+        except Exception:
             logger.warning(
                 "Neural surrogate fitting failed, falling back to random",
                 exc_info=True,
@@ -118,6 +119,7 @@ class NeuralSearchStrategy(BaseSearchStrategy):
     ) -> PolicyCandidate:
         """Fit GP and optimise acquisition function."""
         from polisyos.scientist.search.strategies._deps import (
+            ExactMarginalLogLikelihood,
             ExpectedImprovement,
             SingleTaskGP,
             Standardize,
@@ -125,14 +127,17 @@ class NeuralSearchStrategy(BaseSearchStrategy):
             optimize_acqf,
             require_botorch,
             require_torch,
-            ExactMarginalLogLikelihood,
         )
 
         torch = require_torch()
         require_botorch()
 
         # Build training data
-        valid = evaluations[-self._config.transfer_top_k:] if self._config.transfer_top_k else evaluations
+        valid = (
+            evaluations[-self._config.transfer_top_k :]
+            if self._config.transfer_top_k
+            else evaluations
+        )
         train_x = torch.tensor(
             [list(e.params_normalized) for e in valid if e.params_normalized],
             dtype=torch.double,
@@ -158,8 +163,11 @@ class NeuralSearchStrategy(BaseSearchStrategy):
         bounds[1] = 1.0
 
         candidate, acq_value = optimize_acqf(
-            acqf, bounds=bounds,
-            q=1, num_restarts=12, raw_samples=256,
+            acqf,
+            bounds=bounds,
+            q=1,
+            num_restarts=12,
+            raw_samples=256,
         )
 
         vector = tuple(candidate.squeeze(0).tolist())

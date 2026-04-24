@@ -1,4 +1,5 @@
 """Tests for continuous calibration diagnostics."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -26,7 +27,9 @@ def test_evaluate_continuous_matches_existing_backtesting_curve_behavior() -> No
     assert report.task == "continuous"
     assert report.metrics.ece == expected.ece
     assert report.metrics.mce == expected.max_ce
-    assert report.curves["interval_coverage"][0].mean_observed == expected.points[0].empirical_coverage
+    assert (
+        report.curves["interval_coverage"][0].mean_observed == expected.points[0].empirical_coverage
+    )
     assert "ece" in report.metrics.intervals
 
 

@@ -21,9 +21,9 @@ from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.simulate.run_metric_validation import RunMetricValidationNode
 from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_METRICS_REF,
     ARTIFACT_METRIC_OBSERVATION_BUNDLE_REF,
     ARTIFACT_METRIC_VALIDATION_REPORT_REF,
+    ARTIFACT_METRICS_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
 )
 from polisyos.scientist.validation.metrics import persist_metric_observation_bundle
@@ -32,8 +32,12 @@ from polisyos.scientist.validation.metrics import persist_metric_observation_bun
 def test_run_metric_validation_node_persists_report_and_updates_simulation_result(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
-    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_metric_validation_node")
-    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.metric_validation.node"))
+    run = RunContext.start(
+        store=store, registry_bundle=registry_bundle, run_id="R_metric_validation_node"
+    )
+    ctx = ExecutionContext(
+        store=store, run=run, logger=logging.getLogger("test.metric_validation.node")
+    )
 
     exec_plan_payload = store.put_json(
         {"order": ["noop"]},
@@ -120,4 +124,3 @@ def test_run_metric_validation_node_persists_report_and_updates_simulation_resul
     updated_simulation_result = SimulationResult.model_validate(updated_sim_payload)
     assert updated_simulation_result.metric_observation_bundle_ref == bundle_ref
     assert updated_simulation_result.metric_validation_report_ref == metric_validation_ref
-

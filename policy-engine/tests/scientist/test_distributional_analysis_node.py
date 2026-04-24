@@ -1,14 +1,20 @@
 from __future__ import annotations
 
-from dataclasses import replace
 import logging
+from dataclasses import replace
 
 import jax.numpy as jnp
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
-from polisyos.core.contracts.foundry import ExecPlanRef, Metrics, MetricsRef, SimulationResult, StateSnapshotRef
+from polisyos.core.contracts.foundry import (
+    ExecPlanRef,
+    Metrics,
+    MetricsRef,
+    SimulationResult,
+    StateSnapshotRef,
+)
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.foundry.contracts.state import GlobalState

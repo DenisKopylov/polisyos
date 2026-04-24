@@ -1,7 +1,8 @@
 """Public conflicts score docs module API."""
+
 from __future__ import annotations
 
-from datetime import timezone
+from datetime import UTC
 from decimal import ROUND_HALF_UP, Decimal
 from urllib.parse import urlparse
 
@@ -67,14 +68,12 @@ def score_doc_trust_assessments(
     metas = [load_doc_meta(cas, artifact_id) for artifact_id in unique_artifacts]
     reference_time = max(meta.retrieved_at for meta in metas)
     if reference_time.tzinfo is None:
-        reference_time = reference_time.replace(tzinfo=timezone.utc)
+        reference_time = reference_time.replace(tzinfo=UTC)
 
     assessments: dict[str, TrustAssessment] = {}
     for meta in metas:
         source_type = str(meta.props.get("source_type", "")).strip().lower()
-        source_score = policy.source_type_weights.get(
-            source_type, policy.default_doc_trust
-        )
+        source_score = policy.source_type_weights.get(source_type, policy.default_doc_trust)
 
         suffix = _host_suffix(meta.canonical_url)
         host_score = (
@@ -88,7 +87,7 @@ def score_doc_trust_assessments(
 
         retrieved_at = meta.retrieved_at
         if retrieved_at.tzinfo is None:
-            retrieved_at = retrieved_at.replace(tzinfo=timezone.utc)
+            retrieved_at = retrieved_at.replace(tzinfo=UTC)
         freshness_days = int((reference_time - retrieved_at).total_seconds() // 86_400)
         freshness = _freshness_score(max(0, freshness_days))
 

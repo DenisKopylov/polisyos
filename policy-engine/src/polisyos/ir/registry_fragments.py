@@ -1,10 +1,10 @@
 """Public IR registry fragments module API."""
+
 from __future__ import annotations
 
-from typing import Any, Iterable, Literal, Sequence
+from typing import TYPE_CHECKING, Annotated, Any, Literal
 
 from pydantic import Field
-from typing_extensions import Annotated
 
 from polisyos.ir.canon import content_hash, to_canonical_bytes
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
@@ -17,7 +17,13 @@ from polisyos.ir.kernel.slots import SlotRegistry
 from polisyos.ir.kernel.trust import TrustRegistry
 from polisyos.ir.kernel.units import UnitsRegistry
 from polisyos.ir.predicate import PredicateRegistry, PrivacyPolicyRegistry
-from polisyos.ir.public_surface import RegistryItemId
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+
+    from polisyos.ir.public_surface import RegistryItemId
+else:
+    from polisyos.ir.public_surface import RegistryItemId
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
@@ -26,6 +32,7 @@ RESERVED_NAMESPACE_PREFIXES: tuple[str, ...] = ("core.", "world.")
 
 class RegistryFragmentMeta(KernelModel):
     """Registry fragment meta public type."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     fragment_id: str = Field(..., pattern=ID_PATTERN)
     namespace: str = Field(..., pattern=ID_PATTERN)
@@ -36,6 +43,7 @@ class RegistryFragmentMeta(KernelModel):
 
 class TimeAxisSpec(KernelModel):
     """Time axis spec data model."""
+
     axis_id: str = Field(..., pattern=ID_PATTERN)
     description: str | None = None
     notes: list[str] = Field(default_factory=list)
@@ -43,6 +51,7 @@ class TimeAxisSpec(KernelModel):
 
 class TimeAxisRegistry(KernelModel):
     """Time axis registry implementation."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     axes: dict[str, TimeAxisSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
@@ -50,6 +59,7 @@ class TimeAxisRegistry(KernelModel):
 
 class GeoAreaSpec(KernelModel):
     """Geo area spec data model."""
+
     geo_id: str = Field(..., pattern=ID_PATTERN)
     name: str | None = None
     kind: str | None = None
@@ -58,6 +68,7 @@ class GeoAreaSpec(KernelModel):
 
 class GeoRegistry(KernelModel):
     """Geo registry implementation."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     areas: dict[str, GeoAreaSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
@@ -65,6 +76,7 @@ class GeoRegistry(KernelModel):
 
 class ActorTypeSpec(KernelModel):
     """Actor type spec data model."""
+
     actor_type_id: str = Field(..., pattern=ID_PATTERN)
     name: str | None = None
     description: str | None = None
@@ -73,6 +85,7 @@ class ActorTypeSpec(KernelModel):
 
 class ActorRegistry(KernelModel):
     """Actor registry implementation."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     actor_types: dict[str, ActorTypeSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
@@ -80,6 +93,7 @@ class ActorRegistry(KernelModel):
 
 class ConceptSpec(KernelModel):
     """Concept spec data model."""
+
     concept_id: str = Field(..., pattern=ID_PATTERN)
     name: str | None = None
     description: str | None = None
@@ -88,6 +102,7 @@ class ConceptSpec(KernelModel):
 
 class ConceptRegistry(KernelModel):
     """Concept registry implementation."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     concepts: dict[str, ConceptSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
@@ -95,6 +110,7 @@ class ConceptRegistry(KernelModel):
 
 class RegistryBundle(KernelModel):
     """Registry bundle data model."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     units: UnitsRegistry | None = None
     trust: TrustRegistry | None = None
@@ -115,6 +131,7 @@ class RegistryBundle(KernelModel):
 
 class UnitsFragment(KernelModel):
     """Units fragment public type."""
+
     kind: Literal["units"] = "units"
     meta: RegistryFragmentMeta
     payload: UnitsRegistry
@@ -122,6 +139,7 @@ class UnitsFragment(KernelModel):
 
 class TrustFragment(KernelModel):
     """Trust fragment public type."""
+
     kind: Literal["trust"] = "trust"
     meta: RegistryFragmentMeta
     payload: TrustRegistry
@@ -129,6 +147,7 @@ class TrustFragment(KernelModel):
 
 class PredicatesFragment(KernelModel):
     """Predicates fragment public type."""
+
     kind: Literal["predicates"] = "predicates"
     meta: RegistryFragmentMeta
     payload: PredicateRegistry
@@ -136,6 +155,7 @@ class PredicatesFragment(KernelModel):
 
 class PrivacyFragment(KernelModel):
     """Privacy fragment public type."""
+
     kind: Literal["privacy"] = "privacy"
     meta: RegistryFragmentMeta
     payload: PrivacyPolicyRegistry
@@ -143,6 +163,7 @@ class PrivacyFragment(KernelModel):
 
 class MetricsFragment(KernelModel):
     """Metrics fragment public type."""
+
     kind: Literal["metrics"] = "metrics"
     meta: RegistryFragmentMeta
     payload: MetricRegistry
@@ -150,6 +171,7 @@ class MetricsFragment(KernelModel):
 
 class MechanismsFragment(KernelModel):
     """Mechanisms fragment public type."""
+
     kind: Literal["mechanisms"] = "mechanisms"
     meta: RegistryFragmentMeta
     payload: MechanismTypeRegistry
@@ -157,6 +179,7 @@ class MechanismsFragment(KernelModel):
 
 class SlotsFragment(KernelModel):
     """Slots fragment public type."""
+
     kind: Literal["slots"] = "slots"
     meta: RegistryFragmentMeta
     payload: SlotRegistry
@@ -164,6 +187,7 @@ class SlotsFragment(KernelModel):
 
 class SelectorFieldsFragment(KernelModel):
     """Selector fields fragment public type."""
+
     kind: Literal["selector_fields"] = "selector_fields"
     meta: RegistryFragmentMeta
     payload: SelectorFieldRegistry
@@ -171,6 +195,7 @@ class SelectorFieldsFragment(KernelModel):
 
 class MergeRulesFragment(KernelModel):
     """Merge rules fragment public type."""
+
     kind: Literal["merge_rules"] = "merge_rules"
     meta: RegistryFragmentMeta
     payload: MergeRuleRegistry
@@ -178,6 +203,7 @@ class MergeRulesFragment(KernelModel):
 
 class ConstraintsFragment(KernelModel):
     """Constraints fragment public type."""
+
     kind: Literal["constraints"] = "constraints"
     meta: RegistryFragmentMeta
     payload: ConstraintRegistry
@@ -185,6 +211,7 @@ class ConstraintsFragment(KernelModel):
 
 class TimeFragment(KernelModel):
     """Time fragment public type."""
+
     kind: Literal["time"] = "time"
     meta: RegistryFragmentMeta
     payload: TimeAxisRegistry
@@ -192,6 +219,7 @@ class TimeFragment(KernelModel):
 
 class GeoFragment(KernelModel):
     """Geo fragment public type."""
+
     kind: Literal["geo"] = "geo"
     meta: RegistryFragmentMeta
     payload: GeoRegistry
@@ -199,6 +227,7 @@ class GeoFragment(KernelModel):
 
 class ActorsFragment(KernelModel):
     """Actors fragment public type."""
+
     kind: Literal["actors"] = "actors"
     meta: RegistryFragmentMeta
     payload: ActorRegistry
@@ -206,6 +235,7 @@ class ActorsFragment(KernelModel):
 
 class ConceptsFragment(KernelModel):
     """Concepts fragment public type."""
+
     kind: Literal["concepts"] = "concepts"
     meta: RegistryFragmentMeta
     payload: ConceptRegistry
@@ -232,11 +262,13 @@ RegistryFragment = Annotated[
 
 class ComposePolicy(KernelModel):
     """Compose policy data model."""
+
     mode: Literal["error_on_conflict", "prefer_higher_priority"] = "error_on_conflict"
 
 
 class RegistryComposeRequest(KernelModel):
     """Registry compose request data model."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     fragments: list[RegistryFragment]
     base_registries: RegistryBundle | None = None
@@ -245,6 +277,7 @@ class RegistryComposeRequest(KernelModel):
 
 class RegistryConflict(KernelModel):
     """Registry conflict public type."""
+
     registry_kind: str
     item_key: RegistryItemId
     conflict_kind: Literal[
@@ -266,6 +299,7 @@ class RegistryConflict(KernelModel):
 
 class RegistryComposeResult(KernelModel):
     """Registry compose result data model."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     composed: RegistryBundle | None = None
     conflicts: list[RegistryConflict] = Field(default_factory=list)
@@ -301,33 +335,26 @@ def _topological_sort_fragments(
     fragments: Sequence[RegistryFragment],
 ) -> tuple[list[RegistryFragment], dict[str, list[str]]]:
     fragments_by_id = {
-        fragment.meta.fragment_id: fragment
-        for fragment in _sorted_fragments(fragments)
+        fragment.meta.fragment_id: fragment for fragment in _sorted_fragments(fragments)
     }
     dependency_map = {
         fragment_id: [
-            dep
-            for dep in dict.fromkeys(fragment.meta.depends_on)
-            if dep in fragments_by_id
+            dep for dep in dict.fromkeys(fragment.meta.depends_on) if dep in fragments_by_id
         ]
         for fragment_id, fragment in fragments_by_id.items()
     }
     reverse_dependencies: dict[str, list[str]] = {
-        fragment_id: []
-        for fragment_id in fragments_by_id
+        fragment_id: [] for fragment_id in fragments_by_id
     }
     for fragment_id, dependencies in dependency_map.items():
         for dependency in dependencies:
             reverse_dependencies.setdefault(dependency, []).append(fragment_id)
 
     indegree = {
-        fragment_id: len(dependencies)
-        for fragment_id, dependencies in dependency_map.items()
+        fragment_id: len(dependencies) for fragment_id, dependencies in dependency_map.items()
     }
     ready = [
-        fragments_by_id[fragment_id]
-        for fragment_id, degree in indegree.items()
-        if degree == 0
+        fragments_by_id[fragment_id] for fragment_id, degree in indegree.items() if degree == 0
     ]
     ready = _sorted_fragments(ready)
     ordered: list[RegistryFragment] = []
@@ -435,10 +462,7 @@ def _build_composed_bundle(
     registry_item_buckets: dict[str, dict[str, Any]],
 ) -> RegistryBundle:
     predicates = base.predicates
-    if (
-        "predicates.scalars" in registry_item_buckets
-        or "predicates.edges" in registry_item_buckets
-    ):
+    if "predicates.scalars" in registry_item_buckets or "predicates.edges" in registry_item_buckets:
         predicates = PredicateRegistry(
             scalars=registry_item_buckets.get("predicates.scalars", {}),
             edges=registry_item_buckets.get("predicates.edges", {}),
@@ -451,68 +475,94 @@ def _build_composed_bundle(
             base.units,
             kind="units",
             items=registry_item_buckets["units"],
-        ) if "units" in registry_item_buckets else base.units,
+        )
+        if "units" in registry_item_buckets
+        else base.units,
         trust=_apply_items_to_registry(
             base.trust,
             kind="trust",
             items=registry_item_buckets["trust"],
-        ) if "trust" in registry_item_buckets else base.trust,
+        )
+        if "trust" in registry_item_buckets
+        else base.trust,
         predicates=predicates,
         privacy=_apply_items_to_registry(
             base.privacy,
             kind="privacy",
             items=registry_item_buckets["privacy"],
-        ) if "privacy" in registry_item_buckets else base.privacy,
+        )
+        if "privacy" in registry_item_buckets
+        else base.privacy,
         metrics=_apply_items_to_registry(
             base.metrics,
             kind="metrics",
             items=registry_item_buckets["metrics"],
-        ) if "metrics" in registry_item_buckets else base.metrics,
+        )
+        if "metrics" in registry_item_buckets
+        else base.metrics,
         mechanisms=_apply_items_to_registry(
             base.mechanisms,
             kind="mechanisms",
             items=registry_item_buckets["mechanisms"],
-        ) if "mechanisms" in registry_item_buckets else base.mechanisms,
+        )
+        if "mechanisms" in registry_item_buckets
+        else base.mechanisms,
         slots=_apply_items_to_registry(
             base.slots,
             kind="slots",
             items=registry_item_buckets["slots"],
-        ) if "slots" in registry_item_buckets else base.slots,
+        )
+        if "slots" in registry_item_buckets
+        else base.slots,
         selector_fields=_apply_items_to_registry(
             base.selector_fields,
             kind="selector_fields",
             items=registry_item_buckets["selector_fields"],
-        ) if "selector_fields" in registry_item_buckets else base.selector_fields,
+        )
+        if "selector_fields" in registry_item_buckets
+        else base.selector_fields,
         merge_rules=_apply_items_to_registry(
             base.merge_rules,
             kind="merge_rules",
             items=registry_item_buckets["merge_rules"],
-        ) if "merge_rules" in registry_item_buckets else base.merge_rules,
+        )
+        if "merge_rules" in registry_item_buckets
+        else base.merge_rules,
         constraints=_apply_items_to_registry(
             base.constraints,
             kind="constraints",
             items=registry_item_buckets["constraints"],
-        ) if "constraints" in registry_item_buckets else base.constraints,
+        )
+        if "constraints" in registry_item_buckets
+        else base.constraints,
         time=_apply_items_to_registry(
             base.time,
             kind="time",
             items=registry_item_buckets["time"],
-        ) if "time" in registry_item_buckets else base.time,
+        )
+        if "time" in registry_item_buckets
+        else base.time,
         geo=_apply_items_to_registry(
             base.geo,
             kind="geo",
             items=registry_item_buckets["geo"],
-        ) if "geo" in registry_item_buckets else base.geo,
+        )
+        if "geo" in registry_item_buckets
+        else base.geo,
         actors=_apply_items_to_registry(
             base.actors,
             kind="actors",
             items=registry_item_buckets["actors"],
-        ) if "actors" in registry_item_buckets else base.actors,
+        )
+        if "actors" in registry_item_buckets
+        else base.actors,
         concepts=_apply_items_to_registry(
             base.concepts,
             kind="concepts",
             items=registry_item_buckets["concepts"],
-        ) if "concepts" in registry_item_buckets else base.concepts,
+        )
+        if "concepts" in registry_item_buckets
+        else base.concepts,
         notes=list(base.notes),
     )
 
@@ -684,10 +734,7 @@ def _apply_fragment_items(
 def compose_registry_fragments(request: RegistryComposeRequest) -> RegistryComposeResult:
     """Compose registry fragments helper."""
     fragments = _sorted_fragments(request.fragments)
-    fragments_by_id = {
-        fragment.meta.fragment_id: fragment
-        for fragment in fragments
-    }
+    fragments_by_id = {fragment.meta.fragment_id: fragment for fragment in fragments}
     fragment_ids = set(fragments_by_id)
 
     conflicts: list[RegistryConflict] = []
@@ -718,9 +765,7 @@ def compose_registry_fragments(request: RegistryComposeRequest) -> RegistryCompo
 
     dependency_map = {
         fragment_id: [
-            dep
-            for dep in dict.fromkeys(fragment.meta.depends_on)
-            if dep in fragments_by_id
+            dep for dep in dict.fromkeys(fragment.meta.depends_on) if dep in fragments_by_id
         ]
         for fragment_id, fragment in fragments_by_id.items()
     }
@@ -740,15 +785,8 @@ def compose_registry_fragments(request: RegistryComposeRequest) -> RegistryCompo
             blocked_unresolved_from_missing[fragment_id] = bad_deps
             changed = True
 
-    eligible_ids = (
-        fragment_ids
-        - set(blocked_missing)
-        - set(blocked_unresolved_from_missing)
-    )
-    eligible_fragments = [
-        fragments_by_id[fragment_id]
-        for fragment_id in eligible_ids
-    ]
+    eligible_ids = fragment_ids - set(blocked_missing) - set(blocked_unresolved_from_missing)
+    eligible_fragments = [fragments_by_id[fragment_id] for fragment_id in eligible_ids]
     ordered_fragments, _ = _topological_sort_fragments(eligible_fragments)
     ordered_ids = {fragment.meta.fragment_id for fragment in ordered_fragments}
     unresolved_cycle_candidates = eligible_ids - ordered_ids
@@ -758,9 +796,8 @@ def compose_registry_fragments(request: RegistryComposeRequest) -> RegistryCompo
             unresolved_cycle_candidates,
             dependency_map,
         ):
-            is_self_cycle = (
-                len(component) == 1
-                and component[0] in dependency_map.get(component[0], [])
+            is_self_cycle = len(component) == 1 and component[0] in dependency_map.get(
+                component[0], []
             )
             if len(component) == 1 and not is_self_cycle:
                 continue
@@ -888,9 +925,7 @@ def compose_registry_fragments(request: RegistryComposeRequest) -> RegistryCompo
             registry_item_buckets[registry_kind] = bucket
 
     blocking_conflicts = [
-        conflict
-        for conflict in conflicts
-        if conflict.conflict_kind != "duplicate_identical"
+        conflict for conflict in conflicts if conflict.conflict_kind != "duplicate_identical"
     ]
 
     if blocking_conflicts and request.policy.mode == "error_on_conflict":
@@ -921,31 +956,31 @@ def compose_registry_fragments(request: RegistryComposeRequest) -> RegistryCompo
 
 
 __all__ = [
-    "RegistryFragmentMeta",
-    "RegistryFragment",
+    "RESERVED_NAMESPACE_PREFIXES",
+    "ActorRegistry",
+    "ActorsFragment",
+    "ComposePolicy",
+    "ConceptRegistry",
+    "ConceptsFragment",
+    "ConstraintsFragment",
+    "GeoFragment",
+    "GeoRegistry",
+    "MechanismsFragment",
+    "MergeRulesFragment",
+    "MetricsFragment",
+    "PredicatesFragment",
+    "PrivacyFragment",
     "RegistryBundle",
     "RegistryComposeRequest",
     "RegistryComposeResult",
     "RegistryConflict",
-    "ComposePolicy",
-    "UnitsFragment",
-    "TrustFragment",
-    "PredicatesFragment",
-    "PrivacyFragment",
-    "MetricsFragment",
-    "MechanismsFragment",
-    "SlotsFragment",
+    "RegistryFragment",
+    "RegistryFragmentMeta",
     "SelectorFieldsFragment",
-    "MergeRulesFragment",
-    "ConstraintsFragment",
-    "TimeFragment",
-    "GeoFragment",
-    "ActorsFragment",
-    "ConceptsFragment",
+    "SlotsFragment",
     "TimeAxisRegistry",
-    "GeoRegistry",
-    "ActorRegistry",
-    "ConceptRegistry",
+    "TimeFragment",
+    "TrustFragment",
+    "UnitsFragment",
     "compose_registry_fragments",
-    "RESERVED_NAMESPACE_PREFIXES",
 ]

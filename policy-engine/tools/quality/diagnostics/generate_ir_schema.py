@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
-from pathlib import Path
+
 from tools._lib.imports import repo_root_from
 
 

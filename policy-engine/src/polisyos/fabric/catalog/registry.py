@@ -5,11 +5,12 @@ This registry coexists with ManifestRegistry:
 - ManifestRegistry: dataset-level (file granularity)
 - DataContractRegistry: metric-level (column granularity)
 """
+
 from __future__ import annotations
 
 import json
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 from pydantic import ValidationError
 
@@ -66,7 +67,9 @@ class DataContractRegistry:
         self.contracts_path = curated_dir / filename
         self._strict = strict
 
-        self._contracts = GenericRegistry[str, DataContract](key_fn=lambda contract: contract.metric_id)
+        self._contracts = GenericRegistry[str, DataContract](
+            key_fn=lambda contract: contract.metric_id
+        )
         self._bindings_cache: dict[str, MetricBinding] = {}
         self._collection: DataContractCollection | None = None
 
@@ -101,9 +104,7 @@ class DataContractRegistry:
         for contract in self._collection.contracts:
             self._contracts.register(contract, override=True)
 
-        logger.info(
-            f"Loaded {self._contracts.count} data contracts from {self.contracts_path}"
-        )
+        logger.info(f"Loaded {self._contracts.count} data contracts from {self.contracts_path}")
 
     def get(self, metric_id: str) -> DataContract:
         """

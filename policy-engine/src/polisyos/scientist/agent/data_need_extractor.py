@@ -162,7 +162,6 @@ class LLMDataNeedExtractorAgent:
             logger.debug("Falling back to mock data-need extraction after parse error: %s", exc)
         return await self._fallback.extract_data_needs(problem_frame)
 
-
     def _enrich_with_catalog(self, needs: list[DataNeedSpec]) -> list[DataNeedSpec]:
         """Validate metric availability via DatasetCatalogGraph if present."""
         if self._dataset_catalog is None:

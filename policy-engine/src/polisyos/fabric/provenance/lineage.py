@@ -1,11 +1,13 @@
 """Fabric field/value lineage helpers built on top of the core provenance graph."""
+
 from __future__ import annotations
 
 import json
 import re
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Iterable, Sequence
+from datetime import UTC, datetime
+from typing import Any
 
 from polisyos.core.canon import truncated_hash
 from polisyos.fabric.provenance.core import (
@@ -19,15 +21,15 @@ from polisyos.fabric.provenance.core import (
 
 __all__ = [
     "FabricLineageTracker",
+    "ImpactAnalysis",
     "LineageNodeSnapshot",
     "LineageTrace",
-    "ImpactAnalysis",
-    "trace_value_origin",
-    "trace_claim_origin",
-    "trace_column_lineage",
-    "impact_analysis",
     "export_openlineage_json",
     "export_visualization_graph",
+    "impact_analysis",
+    "trace_claim_origin",
+    "trace_column_lineage",
+    "trace_value_origin",
 ]
 
 
@@ -46,7 +48,7 @@ LINEAGE_KIND_QUERY_RESULT_FIELD = "query_result_field"
 
 
 def _utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _slug(value: str) -> str:
@@ -255,7 +257,9 @@ class FabricLineageTracker:
         parameters: dict[str, Any],
         evidence_refs: Sequence[Any] | None = None,
     ) -> tuple[str, dict[str, str]]:
-        signature = _stable_suffix(stage_name, parameters, tuple(input_columns), tuple(output_columns))
+        signature = _stable_suffix(
+            stage_name, parameters, tuple(input_columns), tuple(output_columns)
+        )
         activity_id = f"transform.{_slug(stage_name)}.{signature}"
         self.graph.add_activity(
             ProvenanceActivity(
@@ -527,14 +531,22 @@ class FabricLineageTracker:
             if column_text in group_by:
                 mapping[column_text] = [column_text]
                 continue
-            if isinstance(aggregations, dict) and column_text in aggregations and column_text in input_columns:
+            if (
+                isinstance(aggregations, dict)
+                and column_text in aggregations
+                and column_text in input_columns
+            ):
                 mapping[column_text] = [column_text]
                 continue
             if stage_name == "filter" or stage_name == "validate":
-                mapping[column_text] = [column_text] if column_text in input_columns else list(input_columns)
+                mapping[column_text] = (
+                    [column_text] if column_text in input_columns else list(input_columns)
+                )
                 continue
             if stage_name.startswith("harmonize_") or stage_name.startswith("impute_"):
-                mapping[column_text] = [column_text] if column_text in input_columns else list(input_columns)
+                mapping[column_text] = (
+                    [column_text] if column_text in input_columns else list(input_columns)
+                )
                 continue
             mapping[column_text] = list(input_columns)
         return mapping
@@ -561,23 +573,31 @@ def _walk_graph(
             for edge in graph.edges:
                 edge_key = (edge.source_id, edge.target_id, edge.relation.value)
                 if direction == "upstream":
-                    if edge.relation == RelationType.WAS_DERIVED_FROM and edge.source_id == node_id:
-                        kept_edges.add(edge_key)
-                        next_frontier.add(edge.target_id)
-                    elif edge.relation == RelationType.WAS_GENERATED_BY and edge.source_id == node_id:
-                        kept_edges.add(edge_key)
-                        next_frontier.add(edge.target_id)
-                    elif edge.relation == RelationType.USED and edge.source_id == node_id:
+                    if (
+                        (
+                            edge.relation == RelationType.WAS_DERIVED_FROM
+                            and edge.source_id == node_id
+                        )
+                        or (
+                            edge.relation == RelationType.WAS_GENERATED_BY
+                            and edge.source_id == node_id
+                        )
+                        or (edge.relation == RelationType.USED and edge.source_id == node_id)
+                    ):
                         kept_edges.add(edge_key)
                         next_frontier.add(edge.target_id)
                 else:
-                    if edge.relation == RelationType.WAS_DERIVED_FROM and edge.target_id == node_id:
-                        kept_edges.add(edge_key)
-                        next_frontier.add(edge.source_id)
-                    elif edge.relation == RelationType.WAS_GENERATED_BY and edge.target_id == node_id:
-                        kept_edges.add(edge_key)
-                        next_frontier.add(edge.source_id)
-                    elif edge.relation == RelationType.USED and edge.target_id == node_id:
+                    if (
+                        (
+                            edge.relation == RelationType.WAS_DERIVED_FROM
+                            and edge.target_id == node_id
+                        )
+                        or (
+                            edge.relation == RelationType.WAS_GENERATED_BY
+                            and edge.target_id == node_id
+                        )
+                        or (edge.relation == RelationType.USED and edge.target_id == node_id)
+                    ):
                         kept_edges.add(edge_key)
                         next_frontier.add(edge.source_id)
         frontier = next_frontier - visited
@@ -696,7 +716,7 @@ def impact_analysis(
             f"No source field lineage found for schema_id={source_schema_id!r}, field={field!r}"
         )
     root_id = sorted(roots)[0]
-    visited, edges = _walk_graph(
+    visited, _edges = _walk_graph(
         graph,
         roots=[root_id],
         direction="downstream",
@@ -718,7 +738,9 @@ def impact_analysis(
     )
 
     def _ids(kind: str) -> tuple[str, ...]:
-        return tuple(sorted(node.node_id for node in nodes if node.kind == kind and node.node_id != root_id))
+        return tuple(
+            sorted(node.node_id for node in nodes if node.kind == kind and node.node_id != root_id)
+        )
 
     return ImpactAnalysis(
         root_id=root_id,
@@ -819,9 +841,7 @@ def export_visualization_graph(graph: ProvenanceCoreGraph) -> dict[str, Any]:
             "kind": _node_kind(graph, node_id),
             "attributes": _node_attributes(graph, node_id),
         }
-        for node_id in sorted(
-            set(graph.entities) | set(graph.activities) | set(graph.agents)
-        )
+        for node_id in sorted(set(graph.entities) | set(graph.activities) | set(graph.agents))
     ]
     edges = [
         {

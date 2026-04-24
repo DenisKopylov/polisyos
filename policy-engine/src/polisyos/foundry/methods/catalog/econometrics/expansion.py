@@ -1,8 +1,10 @@
 """Estimate vector autoregression, synthetic DiD, and spatial autoregressive extensions."""
+
 from __future__ import annotations
 
 import math
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -28,7 +30,7 @@ from .advanced import (
     _safe_float,
     _time_series_payload,
 )
-from .protocols import EconometricResult, TimeSeriesData
+from .protocols import TimeSeriesData
 
 
 def _z_value(confidence_level: float) -> float:
@@ -46,6 +48,7 @@ def _normal_pvalue(z_score: float) -> float:
 )
 class VECMEstimator:
     """Estimate a cointegrated VECM with error correction; avoid series that are not integrated/cointegrated."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -55,7 +58,12 @@ class VECMEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("endog", SlotType.TENSOR, Unit("timeseries", "value"), shape=("n_obs", "n_series")),
+                SlotSpec(
+                    "endog",
+                    SlotType.TENSOR,
+                    Unit("timeseries", "value"),
+                    shape=("n_obs", "n_series"),
+                ),
             }
         ),
         output_slots=_result_output_slots(),
@@ -147,6 +155,7 @@ class VECMEstimator:
 )
 class BayesianVAREstimator:
     """Estimate a shrinkage-stabilized Bayesian VAR for multivariate forecasting; avoid if priors are not defensible or sample size is tiny."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scipy")
 
@@ -156,7 +165,12 @@ class BayesianVAREstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("endog", SlotType.TENSOR, Unit("timeseries", "value"), shape=("n_obs", "n_series")),
+                SlotSpec(
+                    "endog",
+                    SlotType.TENSOR,
+                    Unit("timeseries", "value"),
+                    shape=("n_obs", "n_series"),
+                ),
             }
         ),
         output_slots=_result_output_slots(),
@@ -289,6 +303,7 @@ def _project_simplex(weights: np.ndarray) -> np.ndarray:
 )
 class SyntheticDiDEstimator:
     """Estimate synthetic DiD effects by combining donor weighting and DiD; avoid weak donor pre-fit or too few controls."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -298,7 +313,12 @@ class SyntheticDiDEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("outcome", SlotType.MATRIX, Unit("outcome", "value"), shape=("n_units", "n_periods")),
+                SlotSpec(
+                    "outcome",
+                    SlotType.MATRIX,
+                    Unit("outcome", "value"),
+                    shape=("n_units", "n_periods"),
+                ),
                 SlotSpec("treatment", SlotType.VECTOR, Unit("binary", "flag"), shape=("n_units",)),
                 SlotSpec("time_treatment", SlotType.SCALAR, Unit("time", "index")),
             }
@@ -365,7 +385,11 @@ class SyntheticDiDEstimator:
         synthetic_post = weights @ controls_post
         effect_series = (treated_post - synthetic_post) - (np.mean(treated_pre - synthetic_pre))
         ate = float(np.mean(effect_series))
-        se = float(np.std(effect_series, ddof=1) / np.sqrt(effect_series.shape[0])) if effect_series.shape[0] > 1 else 0.0
+        se = (
+            float(np.std(effect_series, ddof=1) / np.sqrt(effect_series.shape[0]))
+            if effect_series.shape[0] > 1
+            else 0.0
+        )
         result = _build_regression_result(
             method_name="synthetic_did",
             params={"ate_sdid": ate},
@@ -402,6 +426,7 @@ def _row_normalize(weights_matrix: np.ndarray) -> np.ndarray:
 )
 class SpatialAutoregressiveEstimator:
     """Estimate spatial lag dependence under a valid spatial-weights matrix; avoid misspecified or non-row-normalized spatial links."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -412,7 +437,9 @@ class SpatialAutoregressiveEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("endog", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")
+                ),
                 SlotSpec(
                     "weights_matrix",
                     SlotType.MATRIX,
@@ -460,11 +487,12 @@ class SpatialAutoregressiveEstimator:
         fit = sm.OLS(y, design).fit(cov_type="HC1")
         confidence_level = float(params.get("confidence_level", 0.95))
         z = _z_value(confidence_level)
-        names = ["const", "rho"] + [
-            f"x{i}" for i in range(x.shape[1])
-        ]
+        names = ["const", "rho"] + [f"x{i}" for i in range(x.shape[1])]
         intervals = {
-            names[idx]: (float(fit.params[idx] - z * fit.bse[idx]), float(fit.params[idx] + z * fit.bse[idx]))
+            names[idx]: (
+                float(fit.params[idx] - z * fit.bse[idx]),
+                float(fit.params[idx] + z * fit.bse[idx]),
+            )
             for idx in range(len(names))
         }
         result = _build_regression_result(

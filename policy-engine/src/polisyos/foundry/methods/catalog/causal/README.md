@@ -21,20 +21,20 @@ estimation, transportability, policy learning, diagnostics and strategic respons
 
 ## Public API
 
-| Type/Function | Description |
-|---|---|
-| `ensure_causal_methods_registered()` | Registers the causal family into a registry. |
-| `register_causal_methods()` | Returns the canonical list used by the bootstrap. |
-| `CausalEngine` | Core engine for causal graph/effect orchestration. |
-| `CausalEstimator` | Base protocol for causal estimators. |
-| `DoWhyIdentifyEstimate` | Identification-plus-estimation path. |
-| `DoWhyRefute` | Refutation / placebo diagnostics. |
-| `StrategicSolveResult` | Result model for strategic response solving. |
-| `solve_strategic_response()` | Solves the strategic response bundle. |
-| `build_strategic_response_bundle()` | Builds the strategic response input bundle. |
-| `OptimalPolicyLearner` | Learner for policy-selection oriented causal workflows. |
-| `CheckTransportability` | Transportability gate for cross-context use. |
-| `transport_bounds()` | Computes transportability bounds. |
+| Type/Function                        | Description                                             |
+| ------------------------------------ | ------------------------------------------------------- |
+| `ensure_causal_methods_registered()` | Registers the causal family into a registry.            |
+| `register_causal_methods()`          | Returns the canonical list used by the bootstrap.       |
+| `CausalEngine`                       | Core engine for causal graph/effect orchestration.      |
+| `CausalEstimator`                    | Base protocol for causal estimators.                    |
+| `DoWhyIdentifyEstimate`              | Identification-plus-estimation path.                    |
+| `DoWhyRefute`                        | Refutation / placebo diagnostics.                       |
+| `StrategicSolveResult`               | Result model for strategic response solving.            |
+| `solve_strategic_response()`         | Solves the strategic response bundle.                   |
+| `build_strategic_response_bundle()`  | Builds the strategic response input bundle.             |
+| `OptimalPolicyLearner`               | Learner for policy-selection oriented causal workflows. |
+| `CheckTransportability`              | Transportability gate for cross-context use.            |
+| `transport_bounds()`                 | Computes transportability bounds.                       |
 
 → Full reference: [docs/reference/foundry/index.md](../../../../../../docs/reference/foundry/index.md)
 

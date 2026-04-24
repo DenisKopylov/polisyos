@@ -1,20 +1,25 @@
 """Public kernel values module API."""
+
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Annotated, Any, Literal
 
 from pydantic import BeforeValidator, Field, model_validator
-from typing_extensions import Annotated
 
 from .base import KernelModel, reject_floats_deep
-from .numbers import DecimalValue
+
+if TYPE_CHECKING:
+    from .numbers import DecimalValue
+else:
+    from .numbers import DecimalValue
 
 ParamValue = Annotated[Any, BeforeValidator(reject_floats_deep)]
 
 
 class MoneyValue(KernelModel):
     """Money value public type."""
+
     amount: DecimalValue
     currency: str = Field(..., pattern=r"^[A-Z]{3}$")
     nominal_year: int | None = Field(None, ge=1900, le=2100)
@@ -22,11 +27,12 @@ class MoneyValue(KernelModel):
 
 class RateValue(KernelModel):
     """Rate value public type."""
+
     value: DecimalValue
     base: Literal["ratio", "percent"] = "ratio"
 
     @model_validator(mode="after")
-    def validate_range(self) -> "RateValue":
+    def validate_range(self) -> RateValue:
         lower = Decimal("0")
         upper = Decimal("1") if self.base == "ratio" else Decimal("100")
         if self.value < lower or self.value > upper:
@@ -41,11 +47,13 @@ class RateValue(KernelModel):
 
 class CountValue(KernelModel):
     """Count value public type."""
+
     value: int = Field(..., ge=0)
     label: str | None = Field(None, max_length=64)
 
 
 class DurationValue(KernelModel):
     """Duration value public type."""
+
     value: int = Field(..., ge=0)
     unit: Literal["step", "day", "month", "quarter", "year"] = "step"

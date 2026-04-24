@@ -49,6 +49,14 @@ function toStringList(value: unknown): string[] {
     .filter((item): item is string => Boolean(item));
 }
 
+function extractEffectSizePoint(value: unknown): number | null {
+  const direct = asNumber(value);
+  if (direct !== null) {
+    return direct;
+  }
+  return asNumber(asRecord(value)?.point);
+}
+
 export function parseMetricValidationFamilyAdjustment(
   value: unknown,
 ): MetricValidationFamilyAdjustment | null {
@@ -113,8 +121,7 @@ function parseMetricValidationComparisonRow(
   const candidateModelId = asString(record.candidate_model_id);
 
   return {
-    id:
-      `${baselineModelId ?? "baseline"}:${candidateModelId ?? "candidate"}:${metricId}:${index}`,
+    id: `${baselineModelId ?? "baseline"}:${candidateModelId ?? "candidate"}:${metricId}:${index}`,
     metricId,
     metricLabel: toDisplayLabel(metricId),
     metricDirection: asString(record.metric_direction),
@@ -128,9 +135,12 @@ function parseMetricValidationComparisonRow(
     sampleSizeEffective: asNumber(record.sample_size_effective),
     resamplingMethod: asString(record.resampling_method),
     testId,
-    testLabel: asString(significance?.test_label) ?? asString(record.test_label),
+    testLabel:
+      asString(significance?.test_label) ?? asString(record.test_label),
     statistic: asNumber(significance?.statistic) ?? asNumber(record.statistic),
-    effectSize: asNumber(significance?.effect_size) ?? asNumber(record.effect_size),
+    effectSize:
+      extractEffectSizePoint(significance?.effect_size) ??
+      extractEffectSizePoint(record.effect_size),
     ciLow: asNumber(significance?.ci_low) ?? asNumber(record.ci_low),
     ciHigh: asNumber(significance?.ci_high) ?? asNumber(record.ci_high),
     ciLevel: asNumber(significance?.ci_level) ?? asNumber(record.ci_level),

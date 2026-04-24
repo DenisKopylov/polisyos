@@ -35,15 +35,17 @@ Fixture layout on disk::
 If dataset_id is not provided, it defaults to "unknown" so the layout
 remains consistent with the documented structure.
 """
+
 from __future__ import annotations
 
 import base64
 import json
 import time
+from collections.abc import Iterable
 from dataclasses import MISSING, dataclass
 from enum import Enum, auto
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 from unittest.mock import patch
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
@@ -57,9 +59,9 @@ from polisyos.core.canon import content_hash
 class SimulatorMode(Enum):
     """Operating mode for APISimulator."""
 
-    REPLAY = auto()      # Serve from fixture; fail if missing
-    RECORD = auto()      # Proxy to network, save fixture
-    SYNTHETIC = auto()   # Generate schema-conformant random data
+    REPLAY = auto()  # Serve from fixture; fail if missing
+    RECORD = auto()  # Proxy to network, save fixture
+    SYNTHETIC = auto()  # Generate schema-conformant random data
 
 
 @dataclass(frozen=True)
@@ -107,7 +109,7 @@ class SimulatorFixture:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "SimulatorFixture":
+    def from_dict(cls, data: dict[str, Any]) -> SimulatorFixture:
         kwargs: dict[str, Any] = {}
         for name, field in cls.__dataclass_fields__.items():
             if name in data:
@@ -126,7 +128,7 @@ class SimulatorFixture:
         path.write_text(json.dumps(self.to_dict(), indent=2), encoding="utf-8")
 
     @classmethod
-    def read(cls, path: Path) -> "SimulatorFixture":
+    def read(cls, path: Path) -> SimulatorFixture:
         """Load fixture from path."""
         return cls.from_dict(json.loads(path.read_text(encoding="utf-8")))
 
@@ -298,7 +300,7 @@ class APISimulator:
     # Context manager
     # ------------------------------------------------------------------
 
-    async def __aenter__(self) -> "APISimulator":
+    async def __aenter__(self) -> APISimulator:
         """
         Monkey-patch aiohttp.ClientSession to route through the simulator.
 
@@ -343,12 +345,14 @@ class APISimulator:
         canonical_url = _canonicalize_url(str(url), kwargs.get("params"))
         req_hash = _request_hash(method, canonical_url, body_kind, body_bytes)
 
-        self._call_log.append({
-            "method": method,
-            "url": canonical_url,
-            "hash": req_hash,
-            "timestamp": time.monotonic(),
-        })
+        self._call_log.append(
+            {
+                "method": method,
+                "url": canonical_url,
+                "hash": req_hash,
+                "timestamp": time.monotonic(),
+            }
+        )
 
         match self.mode:
             case SimulatorMode.REPLAY:
@@ -418,9 +422,9 @@ class APISimulator:
             status_code=status,
             headers=headers,
             body=base64.b64encode(body_bytes).decode(),
-            captured_at=__import__("datetime").datetime.now(
-                __import__("datetime").timezone.utc
-            ).isoformat(),
+            captured_at=__import__("datetime")
+            .datetime.now(__import__("datetime").timezone.utc)
+            .isoformat(),
             request_url=url,
             request_method=method,
             request_hash=req_hash,
@@ -444,8 +448,7 @@ class APISimulator:
         """
         if self.schema is None:
             raise ValueError(
-                "SYNTHETIC mode requires a DataSchema. "
-                "Pass schema= to APISimulator()."
+                "SYNTHETIC mode requires a DataSchema. Pass schema= to APISimulator()."
             )
 
         from polisyos.fabric.connectors.testing.contracts import (
@@ -478,8 +481,7 @@ class APISimulator:
     def assert_called_with(self, url: str, method: str = "GET") -> None:
         """Assert that at least one call matches the given URL and method."""
         matches = [
-            c for c in self._call_log
-            if c["url"] == url and c["method"].upper() == method.upper()
+            c for c in self._call_log if c["url"] == url and c["method"].upper() == method.upper()
         ]
         assert matches, (
             f"APISimulator: no call to {method} {url} was recorded.\n"
@@ -514,7 +516,7 @@ class _MockResponse:
     async def text(self, **kwargs: Any) -> str:
         return self._body.decode("utf-8")
 
-    async def __aenter__(self) -> "_MockResponse":
+    async def __aenter__(self) -> _MockResponse:
         return self
 
     async def __aexit__(self, *_: Any) -> None:

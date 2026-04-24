@@ -16,8 +16,8 @@ from polisyos.ir.analytics.dynamic_regime import (
     StrategicAdaptationMode,
     TemporalIdentificationCertificate,
     TemporalIdentificationTheoremFamily,
-    TemporalInterventionTrajectory,
     TemporalInterventionSemantics,
+    TemporalInterventionTrajectory,
     TemporalLawObject,
     TemporalObservabilityRegime,
     TemporalPathRepresentation,
@@ -250,7 +250,9 @@ def test_event_process_query_supports_irregular_grid_weighting_backend() -> None
 
 
 def test_continuous_time_query_rejects_invalid_horizon_and_blank_time_scale() -> None:
-    with pytest.raises(ValidationError, match="horizon_start must be strictly less than horizon_end"):
+    with pytest.raises(
+        ValidationError, match="horizon_start must be strictly less than horizon_end"
+    ):
         _query(horizon_start=5.0, horizon_end=5.0)
 
     with pytest.raises(ValidationError, match="string fields must be non-empty"):
@@ -527,9 +529,7 @@ def test_rough_path_bundle_is_supported_only_with_semantic_attachment() -> None:
     assert bundle.runtime_eligible is True
     assert bundle.path_semantics_attachment is not None
     assert bundle.path_semantics_scope is TemporalPathSemanticsScope.REPRESENTED_PATH
-    assert bundle.path_semantics_disclosure_notes == (
-        "claim_scope_limited_to_represented_path",
-    )
+    assert bundle.path_semantics_disclosure_notes == ("claim_scope_limited_to_represented_path",)
 
 
 def test_truncated_signature_bundle_requires_logsignature_attachment() -> None:
@@ -547,9 +547,7 @@ def test_truncated_signature_bundle_requires_logsignature_attachment() -> None:
                     "future_leakage_ruled_out": True,
                     "intervention_type": RoughPathInterventionType.POLICY_OVERRIDE.value,
                     "graph_criterion": RoughPathGraphCriterion.NONE.value,
-                    "proof_artifact_ref": _rough_path_certificate_ref("1").model_dump(
-                        mode="json"
-                    ),
+                    "proof_artifact_ref": _rough_path_certificate_ref("1").model_dump(mode="json"),
                     "sampling_ignorability_checked": True,
                     "lift_faithfulness_checked": False,
                 }

@@ -66,7 +66,9 @@ def test_probabilistic_entity_resolution_is_explainable_and_reversible(tmp_path:
     assert any(item.evidence_type == "identifier_overlap" for item in candidate.evidence)
 
     store = EntityMatchStore(FileSystemCAS(tmp_path / "cas"))
-    batch_ref = store.persist_candidates(matches, method=resolver.method, metadata={"fixture": "true"})
+    batch_ref = store.persist_candidates(
+        matches, method=resolver.method, metadata={"fixture": "true"}
+    )
     loaded = store.load_candidates(batch_ref.artifact_id)
     assert loaded.candidates[0].match_id == candidate.match_id
 
@@ -90,12 +92,22 @@ def _build_graph_snapshot() -> WorldGraphSnapshot:
         WorldGraphNodeRecord(node_id="conflict.gdp", kind="conflict.record", label="GDP conflict"),
     ]
     edges = [
-        WorldGraphEdgeRecord(source_id="source.worldbank", target_id="entity.usa", kind="source.describes"),
-        WorldGraphEdgeRecord(source_id="source.unesco", target_id="entity.usa", kind="source.describes"),
-        WorldGraphEdgeRecord(source_id="entity.usa", target_id="metric.gdp", kind="metric.references"),
+        WorldGraphEdgeRecord(
+            source_id="source.worldbank", target_id="entity.usa", kind="source.describes"
+        ),
+        WorldGraphEdgeRecord(
+            source_id="source.unesco", target_id="entity.usa", kind="source.describes"
+        ),
+        WorldGraphEdgeRecord(
+            source_id="entity.usa", target_id="metric.gdp", kind="metric.references"
+        ),
         WorldGraphEdgeRecord(source_id="entity.usa", target_id="policy.tax", kind="policy.impacts"),
-        WorldGraphEdgeRecord(source_id="entity.usa", target_id="conflict.gdp", kind="conflict.flagged"),
-        WorldGraphEdgeRecord(source_id="conflict.gdp", target_id="metric.gdp", kind="conflict.about"),
+        WorldGraphEdgeRecord(
+            source_id="entity.usa", target_id="conflict.gdp", kind="conflict.flagged"
+        ),
+        WorldGraphEdgeRecord(
+            source_id="conflict.gdp", target_id="metric.gdp", kind="conflict.about"
+        ),
     ]
     return WorldGraphSnapshot(nodes, edges)
 

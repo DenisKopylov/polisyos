@@ -13,7 +13,9 @@ from pathlib import Path
 
 
 def _fetch_json(url: str) -> dict[str, object]:
-    request = urllib.request.Request(url, headers={"User-Agent": "policy-engine/ukraine-data-harvester"})
+    request = urllib.request.Request(
+        url, headers={"User-Agent": "policy-engine/ukraine-data-harvester"}
+    )
     with urllib.request.urlopen(request, timeout=60) as response:
         return json.loads(response.read().decode("utf-8"))
 
@@ -60,10 +62,12 @@ def main(argv: list[str] | None = None) -> int:
         params = {"limit": str(args.limit)}
         if offset:
             params["offset"] = str(offset)
-        url = "https://public.api.openprocurement.org/api/2.5/contracts?" + urllib.parse.urlencode(params)
+        url = "https://public.api.openprocurement.org/api/2.5/contracts?" + urllib.parse.urlencode(
+            params
+        )
         try:
             payload = _fetch_json(url)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             state["failures"].append(
                 {
                     "page_no": page_no,
@@ -73,11 +77,15 @@ def main(argv: list[str] | None = None) -> int:
                 }
             )
             state["status"] = "paused_on_error"
-            state_path.write_text(json.dumps(state, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
+            state_path.write_text(
+                json.dumps(state, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8"
+            )
             return 1
 
         page_path = feed_root / f"page_{page_no:07d}.json"
-        page_path.write_text(json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8")
+        page_path.write_text(
+            json.dumps(payload, ensure_ascii=True, sort_keys=True), encoding="utf-8"
+        )
         next_page = payload.get("next_page") or {}
         offset = next_page.get("offset")
         completed_pages = page_no
@@ -86,7 +94,9 @@ def main(argv: list[str] | None = None) -> int:
         state["last_offset"] = offset
         state["last_updated_at"] = dt.datetime.now(dt.UTC).isoformat()
         state["status"] = "running"
-        state_path.write_text(json.dumps(state, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
+        state_path.write_text(
+            json.dumps(state, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8"
+        )
         print(
             f"[ok] page={page_no} items={len(payload.get('data', []))} offset={offset}",
             flush=True,
@@ -94,13 +104,17 @@ def main(argv: list[str] | None = None) -> int:
         if not offset:
             state["status"] = "completed"
             state["finished_at"] = dt.datetime.now(dt.UTC).isoformat()
-            state_path.write_text(json.dumps(state, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
+            state_path.write_text(
+                json.dumps(state, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8"
+            )
             return 0
         time.sleep(max(0.0, args.sleep_seconds))
 
     state["status"] = "checkpoint_reached"
     state["finished_at"] = dt.datetime.now(dt.UTC).isoformat()
-    state_path.write_text(json.dumps(state, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
+    state_path.write_text(
+        json.dumps(state, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8"
+    )
     return 0
 
 

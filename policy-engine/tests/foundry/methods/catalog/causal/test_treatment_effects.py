@@ -114,8 +114,12 @@ def test_tmle_helper_and_aipw_helper_share_stable_contract():
     state = _make_state()
     params = _params()
 
-    aipw_result, aipw_bundle = fit_aipw_ate(state["X"], state["treatment"], state["outcome"], params)
-    tmle_result, tmle_bundle = fit_tmle_ate(state["X"], state["treatment"], state["outcome"], params)
+    aipw_result, aipw_bundle = fit_aipw_ate(
+        state["X"], state["treatment"], state["outcome"], params
+    )
+    tmle_result, tmle_bundle = fit_tmle_ate(
+        state["X"], state["treatment"], state["outcome"], params
+    )
 
     assert aipw_result.interval_method.startswith("bootstrap_eif")
     assert tmle_result.interval_method.startswith("bootstrap_eif")

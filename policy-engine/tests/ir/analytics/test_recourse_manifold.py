@@ -66,13 +66,9 @@ def _minimal_manifold() -> InterventionCostManifold:
         ),
         primitive_costs=(
             PrimitiveCost(node="education", cost_kind="constant", base_cost=5.0),
-            PrimitiveCost(
-                node="income", cost_kind="linear", base_cost=1.0, slope=0.001
-            ),
+            PrimitiveCost(node="income", cost_kind="linear", base_cost=1.0, slope=0.001),
         ),
-        coupling_costs=(
-            CouplingCost(kind="budget", nodes=("income", "education"), limit=1_000.0),
-        ),
+        coupling_costs=(CouplingCost(kind="budget", nodes=("income", "education"), limit=1_000.0),),
         equivalence_mode=EquivalenceMode.SAME_COUNTERFACTUAL_DISTRIBUTION,
     )
 
@@ -114,17 +110,13 @@ def test_manifold_rejects_missing_channel_for_mutable_node() -> None:
             semantics=RecourseSemantics.COUNTERFACTUAL_UNIT,
             mutable_nodes=("income",),
             action_channels=(),
-            domains=(
-                ActionDomain(node="income", kind="interval", lower=0.0, upper=1.0),
-            ),
-            primitive_costs=(
-                PrimitiveCost(node="income", cost_kind="constant", base_cost=1.0),
-            ),
+            domains=(ActionDomain(node="income", kind="interval", lower=0.0, upper=1.0),),
+            primitive_costs=(PrimitiveCost(node="income", cost_kind="constant", base_cost=1.0),),
         )
 
 
 def test_query_rejects_bounded_point_probability_combo() -> None:
-    manifold = _minimal_manifold()
+    _minimal_manifold()
     from polisyos.ir.refs import InterventionCostManifoldRef
 
     manifold_ref = InterventionCostManifoldRef(
@@ -268,9 +260,7 @@ def test_feasibility_certificate_flags_missing_prerequisites() -> None:
                 values=("master",),
             ),
         ),
-        primitive_costs=(
-            PrimitiveCost(node="education", cost_kind="constant", base_cost=5.0),
-        ),
+        primitive_costs=(PrimitiveCost(node="education", cost_kind="constant", base_cost=5.0),),
         prerequisite_refs=(),
     )
     action = InterventionProgram(
@@ -312,9 +302,7 @@ def test_feasibility_certificate_accepts_action_scoped_prerequisites() -> None:
                 values=("master",),
             ),
         ),
-        primitive_costs=(
-            PrimitiveCost(node="education", cost_kind="constant", base_cost=5.0),
-        ),
+        primitive_costs=(PrimitiveCost(node="education", cost_kind="constant", base_cost=5.0),),
         prerequisite_refs=(),
     )
     action = InterventionProgram(

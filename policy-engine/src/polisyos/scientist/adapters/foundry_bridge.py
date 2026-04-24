@@ -1,4 +1,5 @@
 """Default Foundry port implementation used by workflow builders and simulation nodes."""
+
 from __future__ import annotations
 
 import json
@@ -109,7 +110,7 @@ def _maybe_attach_sbom(
 
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
-    except Exception:  # noqa: BLE001
+    except Exception:
         return result
 
     sbom_ref = store.put_json(
@@ -161,10 +162,7 @@ def _tee_env_scope(attestation: AttestationResult | None):
 
 
 def _sanitize_env_mapping(values: dict[str, str]) -> dict[str, str]:
-    return {
-        key: _sanitize_env_value(key, value)
-        for key, value in values.items()
-    }
+    return {key: _sanitize_env_value(key, value) for key, value in values.items()}
 
 
 def _sanitize_env_value(key: str, value: str) -> str:

@@ -1,10 +1,18 @@
 """Shared graph-dependence contracts used across survey, spatial, and econometrics methods."""
+
 from __future__ import annotations
 
 from typing import Any, ClassVar, Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 
 
 def _to_numpy(value: Any) -> np.ndarray:
@@ -37,7 +45,7 @@ class DependenceGraphSpec(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_weights(self) -> "DependenceGraphSpec":
+    def _validate_weights(self) -> DependenceGraphSpec:
         if not isinstance(self.W, np.ndarray) or self.W.ndim != 2:
             raise ValueError("W must be a 2D numpy array")
         if self.W.shape[0] != self.W.shape[1]:
@@ -81,7 +89,7 @@ class DependenceDiagnosticData(BaseModel):
         return tuple(str(item) for item in value)
 
     @model_validator(mode="after")
-    def _validate_alignment(self) -> "DependenceDiagnosticData":
+    def _validate_alignment(self) -> DependenceDiagnosticData:
         if not isinstance(self.residuals, np.ndarray) or self.residuals.ndim != 1:
             raise ValueError("residuals must be a 1D numpy array")
         if self.residuals.shape[0] < 3:
@@ -95,7 +103,9 @@ class DependenceDiagnosticData(BaseModel):
             raise ValueError("area_ids length must match residuals")
         for graph in self.candidate_graphs:
             if graph.W.shape != (n_obs, n_obs):
-                raise ValueError(f"candidate graph {graph.graph_id!r} does not align with residuals")
+                raise ValueError(
+                    f"candidate graph {graph.graph_id!r} does not align with residuals"
+                )
         return self
 
     @field_serializer("residuals", mode="plain", when_used="json")

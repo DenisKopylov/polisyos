@@ -4,12 +4,14 @@ Resilience & Reliability Patterns for Data Connectors.
 This module provides production-grade resilience patterns that protect
 external API calls from transient failures, cascade failures, and overload.
 """
+
 from __future__ import annotations
 
 import threading
+from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from functools import wraps
-from typing import Any, Awaitable, Callable, Mapping, TypeVar
+from typing import Any, TypeVar
 
 from polisyos.common.logger import get_logger
 
@@ -145,9 +147,7 @@ def resolve_resilience_config(
         retry_policy = RetryPolicy(**retry_spec)
 
     circuit_breaker = None
-    if isinstance(circuit_spec, CircuitBreaker):
-        circuit_breaker = circuit_spec
-    elif isinstance(circuit_spec, CircuitBreakerConfig):
+    if isinstance(circuit_spec, (CircuitBreaker, CircuitBreakerConfig)):
         circuit_breaker = circuit_spec
     elif isinstance(circuit_spec, Mapping):
         circuit_breaker = CircuitBreakerConfig(**circuit_spec)
@@ -177,12 +177,12 @@ def _default_rate_limiter_id(
     for key in ("handle", "connection", "connection_handle"):
         handle = kwargs.get(key)
         if handle is not None and hasattr(handle, "connector_id"):
-            connector_id = getattr(handle, "connector_id")
+            connector_id = handle.connector_id
             break
     if connector_id is None:
         for arg in args:
             if hasattr(arg, "connector_id"):
-                connector_id = getattr(arg, "connector_id")
+                connector_id = arg.connector_id
                 break
 
     domain = None
@@ -342,31 +342,31 @@ def apply_resilience(
 
 
 __all__ = [
-    # Retry
-    "RetryPolicy",
-    "RetryExhaustedError",
-    "with_retry",
-    "is_retryable_error",
+    "AdaptiveRateLimiter",
+    "CacheFallback",
     # Circuit Breaker
     "CircuitBreaker",
     "CircuitBreakerConfig",
-    "CircuitState",
     "CircuitOpenError",
-    "with_circuit_breaker",
-    # Rate Limiter
-    "RateLimiter",
-    "AdaptiveRateLimiter",
-    "RateLimiterConfig",
-    "with_rate_limit",
+    "CircuitState",
+    "FallbackChain",
     # Fallback
     "FallbackStrategy",
-    "FallbackChain",
-    "CacheFallback",
     "MockFallback",
     "RaiseFallback",
-    "with_fallback",
+    # Rate Limiter
+    "RateLimiter",
+    "RateLimiterConfig",
     # Resilience integration
     "ResilienceConfig",
-    "resolve_resilience_config",
+    "RetryExhaustedError",
+    # Retry
+    "RetryPolicy",
     "apply_resilience",
+    "is_retryable_error",
+    "resolve_resilience_config",
+    "with_circuit_breaker",
+    "with_fallback",
+    "with_rate_limit",
+    "with_retry",
 ]

@@ -1,0 +1,12 @@
+mappings:
+  health_spending:
+    - canonical_var: health_outcomes
+      confidence: 0.78
+      proxy_penalty: 0.15
+      country_overrides:
+        UA: 0.12
+      year_overrides:
+        - country_codes: ["PL"]
+          start_year: 2023
+          end_year: 2025
+          proxy_penalty: 0.18

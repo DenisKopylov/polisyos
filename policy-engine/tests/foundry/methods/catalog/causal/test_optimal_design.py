@@ -9,10 +9,11 @@ Covers:
 Reference:
   Henckel, Perković & Maathuis (2022). JRSS-B.
 """
+
 from __future__ import annotations
 
-import pytest
 import numpy as np
+import pytest
 
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
@@ -25,7 +26,6 @@ from polisyos.ir.analytics.experiment_plan import (
     OptimalAdjustmentResult,
     OptimalIVResult,
 )
-
 
 # ---------------------------------------------------------------------------
 # Shared helpers
@@ -136,11 +136,15 @@ class TestOSet:
         )
 
         # C1 and C2 both confound X and Y
-        graph = _dag([
-            ("C1", "X"), ("C1", "Y"),
-            ("C2", "X"), ("C2", "Y"),
-            ("X", "Y"),
-        ])
+        graph = _dag(
+            [
+                ("C1", "X"),
+                ("C1", "Y"),
+                ("C2", "X"),
+                ("C2", "Y"),
+                ("X", "Y"),
+            ]
+        )
         result = optimal_adjustment_set(graph, "X", "Y")
 
         assert "C1" in result.o_set
@@ -221,7 +225,9 @@ class TestMinimumCostIdentification:
 
         graph = _dag([("X", "Y")])
         plan = minimum_cost_identification(
-            graph, "X", "Y",
+            graph,
+            "X",
+            "Y",
             available_interventions={"Z": 10.0},
         )
 
@@ -239,7 +245,9 @@ class TestMinimumCostIdentification:
         # Confounded graph: X←U→Y (bidirected)
         graph = _bidir(_dag([("X", "Y")]), "X", "Y")
         plan = minimum_cost_identification(
-            graph, "X", "Y",
+            graph,
+            "X",
+            "Y",
             available_interventions={},
         )
 
@@ -256,7 +264,9 @@ class TestMinimumCostIdentification:
         graph = _dag([("Z1", "X"), ("Z2", "X"), ("X", "Y")])
         # Already identified observationally, so cost=0 regardless
         plan = minimum_cost_identification(
-            graph, "X", "Y",
+            graph,
+            "X",
+            "Y",
             available_interventions={"Z1": 100.0, "Z2": 5.0},
         )
 

@@ -22,12 +22,12 @@
 
 ## Public API
 
-| Type/Function | Description |
-|---|---|
-| `assemble_norm_pack()` | Main provider-or-pipeline builder for `NormPack` |
-| `NormPackBuildRequest`, `NormPackBuildResult` | Input/output contracts for pack assembly |
-| `NormPackBudgets` | Resource budgets for doc/provision/claim selection |
-| `select_sources.py` | Source and active-version selection logic |
+| Type/Function                                 | Description                                        |
+| --------------------------------------------- | -------------------------------------------------- |
+| `assemble_norm_pack()`                        | Main provider-or-pipeline builder for `NormPack`   |
+| `NormPackBuildRequest`, `NormPackBuildResult` | Input/output contracts for pack assembly           |
+| `NormPackBudgets`                             | Resource budgets for doc/provision/claim selection |
+| `select_sources.py`                           | Source and active-version selection logic          |
 
 Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 

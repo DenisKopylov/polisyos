@@ -1,4 +1,5 @@
 """Atomic filesystem helpers for Fabric mutable metadata."""
+
 from __future__ import annotations
 
 import contextlib

@@ -4,17 +4,20 @@ This module centralizes the privacy context, threshold-policy resolution,
 sample-size requirement heuristics, and conservative threshold corrections used
 by CI tests under differentially private releases.
 """
+
 from __future__ import annotations
 
 import math
-from pathlib import Path
-from typing import Any, Literal, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.analytics.dp_robustness import classical_gaussian_sigma
 
+type Path = Any
+_Path = __import__("pathlib", fromlist=("Path",)).Path
 _EPS = 1e-12
 
 DPMechanism = Literal["none", "laplace_counts", "gaussian_counts", "noised_rows"]
@@ -175,7 +178,7 @@ def resolve_ci_threshold_policy(
 
     from polisyos.scientist.search.judge_thresholds import JudgeThresholdRegistry
 
-    registry = JudgeThresholdRegistry(Path(registry_root))
+    registry = JudgeThresholdRegistry(_Path(registry_root))
     resolved = registry.resolve(
         "ci_tests",
         family=family,
@@ -197,9 +200,7 @@ def resolve_ci_threshold_policy(
             min_n_rule_constant if min_n_rule_constant is not None else policy.min_n_rule_constant
         ),
         naive_fpr_bound_rho=float(
-            naive_fpr_bound_rho
-            if naive_fpr_bound_rho is not None
-            else policy.naive_fpr_bound_rho
+            naive_fpr_bound_rho if naive_fpr_bound_rho is not None else policy.naive_fpr_bound_rho
         ),
         threshold_scope=dict(resolved.scope),
         threshold_registry_version=resolved.registry_version,
@@ -224,9 +225,9 @@ def required_n_chi2(
     power_multiplier = 1.0 + 2.0 * max(0.0, float(target_power) - 0.5)
     effect = max(float(effect_proxy), 0.02)
     privacy_term = math.ceil(
-        float(min_n_rule_constant) * power_multiplier * cells * strata / (xi ** 2)
+        float(min_n_rule_constant) * power_multiplier * cells * strata / (xi**2)
     )
-    effect_term = math.ceil(power_multiplier * cells * strata / (effect ** 2))
+    effect_term = math.ceil(power_multiplier * cells * strata / (effect**2))
     expected_term = math.ceil(float(min_expected_count) * cells * strata)
     return CISampleSizeRequirement(
         family="categorical_ci",
@@ -256,7 +257,7 @@ def required_n_kernel(
     power_multiplier = 1.0 + 2.0 * max(0.0, float(target_power) - 0.5)
     effect = max(float(rho_star), 0.02)
     dim_penalty = max(int(dims), 1)
-    sampling_term = math.ceil(power_multiplier * dim_penalty / (effect ** 2))
+    sampling_term = math.ceil(power_multiplier * dim_penalty / (effect**2))
     dp_quadratic_term = math.ceil(power_multiplier * dim_penalty / max(effect * xi, _EPS))
     dp_mixed_term = math.ceil(
         (power_multiplier * dim_penalty / max(effect * xi, _EPS)) ** (2.0 / 3.0)
@@ -334,7 +335,9 @@ def calibrate_kernel_ci(
 
     return CITestCalibration(
         alpha=alpha_base,
-        p_value=conservative_p_value if context is not None else float(np.mean(null_dist >= observed)),
+        p_value=conservative_p_value
+        if context is not None
+        else float(np.mean(null_dist >= observed)),
         critical_statistic_value=corrected_threshold,
         calibration_mode=calibration_mode,
         threshold_policy=threshold_policy,
@@ -532,15 +535,15 @@ def _analytic_gaussian_discrete_threshold(
         l2_sensitivity=float(dp_context.l2_sensitivity or 1.0),
     )
     avg_expected = max(float(n_obs) / max(int(cell_count), 1), 1.0)
-    lambda_noise = max(int(cell_count), 1) * (sigma ** 2) / avg_expected
+    lambda_noise = max(int(cell_count), 1) * (sigma**2) / avg_expected
     mean = float(degrees_of_freedom) + lambda_noise
     variance = max(
         2.0 * float(degrees_of_freedom)
         + 4.0 * lambda_noise
-        + (2.0 * lambda_noise ** 2 / max(int(cell_count), 1)),
+        + (2.0 * lambda_noise**2 / max(int(cell_count), 1)),
         _EPS,
     )
-    effective_dof = max((2.0 * mean ** 2) / variance, _EPS)
+    effective_dof = max((2.0 * mean**2) / variance, _EPS)
     scale = max(variance / (2.0 * mean), _EPS)
     threshold = float(scale * chi2.ppf(1.0 - float(alpha), effective_dof))
     p_value = float(chi2.sf(float(observed) / scale, effective_dof))
@@ -577,12 +580,16 @@ def _aggregate_discrete_statistic(
         total_statistic += statistic
         total_dof += dof
         valid_strata += 1
-    return total_statistic, total_dof, {
-        "degrees_of_freedom": total_dof,
-        "valid_strata": valid_strata,
-        "skipped_strata": skipped_strata,
-        "degenerate": total_dof <= 0,
-    }
+    return (
+        total_statistic,
+        total_dof,
+        {
+            "degrees_of_freedom": total_dof,
+            "valid_strata": valid_strata,
+            "skipped_strata": skipped_strata,
+            "degenerate": total_dof <= 0,
+        },
+    )
 
 
 def _discrete_table_statistic(

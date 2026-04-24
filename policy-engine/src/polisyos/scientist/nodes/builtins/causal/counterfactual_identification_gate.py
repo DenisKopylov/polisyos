@@ -5,10 +5,12 @@ persisted readiness bundle and an optional allow-list of required query ids,
 then writes a compact gate summary into `state.params` for downstream search and
 governance diagnostics.
 """
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any
 
 from pydantic import ValidationError
 
@@ -27,9 +29,7 @@ from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_CAUSAL_READINESS_BUNDLE_REF
 
 _METADATA = ComponentMetadata(
-    component_id=ComponentId.parse(
-        "scientist.node_counterfactual_identification_gate@1.0.0"
-    ),
+    component_id=ComponentId.parse("scientist.node_counterfactual_identification_gate@1.0.0"),
     kind=ComponentKind.SCIENTIST_NODE,
     abi_targets={"world_abi": "1.x"},
     display_name="Counterfactual Identification Gate",
@@ -214,11 +214,7 @@ def evaluate_counterfactual_readiness_bundle(
             },
         )
 
-    failing = [
-        item
-        for item in results
-        if not _is_identified_counterfactual(item)
-    ]
+    failing = [item for item in results if not _is_identified_counterfactual(item)]
     if not failing:
         return CounterfactualGateDecision(
             blocked=False,
@@ -240,9 +236,7 @@ def evaluate_counterfactual_readiness_bundle(
             "algorithm_version": primary.algorithm_version,
             "normalized_reason": primary.normalized_reason,
             "required_query_ids": [item.query_id for item in results],
-            "failing_queries": [
-                _counterfactual_failure_payload(item) for item in failing
-            ],
+            "failing_queries": [_counterfactual_failure_payload(item) for item in failing],
         },
     )
 

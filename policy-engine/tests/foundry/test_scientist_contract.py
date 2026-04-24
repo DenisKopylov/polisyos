@@ -14,33 +14,37 @@ Contract properties tested:
 4. The stable_hash is deterministic across two builds with the same inputs.
 5. MethodCatalogEntry.runnable reflects backend availability correctly.
 """
+
 from __future__ import annotations
 
 import json
 
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 # Fields the Scientist planner nodes must read from a MethodCatalogEntry
-SCIENTIST_REQUIRED_ENTRY_FIELDS = frozenset({
-    "fqn",
-    "name",
-    "namespace",
-    "description",
-    "tags",
-    "runnable",
-    "backend",
-})
+SCIENTIST_REQUIRED_ENTRY_FIELDS = frozenset(
+    {
+        "fqn",
+        "name",
+        "namespace",
+        "description",
+        "tags",
+        "runnable",
+        "backend",
+    }
+)
 
-SCIENTIST_REQUIRED_SNAPSHOT_FIELDS = frozenset({
-    "schema_version",
-    "entries",
-    "generated_at",
-})
+SCIENTIST_REQUIRED_SNAPSHOT_FIELDS = frozenset(
+    {
+        "schema_version",
+        "entries",
+        "generated_at",
+    }
+)
 
 
 # ---------------------------------------------------------------------------
@@ -58,6 +62,7 @@ def snapshot():
             from polisyos.foundry.methods.catalog_snapshot import (
                 build_method_catalog_snapshot,
             )
+
             return build_method_catalog_snapshot(registry=reg)
         except Exception as exc:
             pytest.skip(f"Cannot build snapshot: {exc}")
@@ -85,9 +90,7 @@ def test_all_entries_have_required_fields(snapshot) -> None:
     for entry in snapshot.entries:
         entry_dict = json.loads(entry.model_dump_json())
         missing = SCIENTIST_REQUIRED_ENTRY_FIELDS - set(entry_dict.keys())
-        assert not missing, (
-            f"Entry {entry.fqn!r} missing required fields: {missing}"
-        )
+        assert not missing, f"Entry {entry.fqn!r} missing required fields: {missing}"
 
 
 def test_snapshot_is_json_serialisable(snapshot) -> None:
@@ -119,11 +122,10 @@ def test_fqn_format_valid_for_scientist(snapshot) -> None:
     The Scientist parses FQNs to extract namespace and method name.
     """
     import re
+
     fqn_pattern = re.compile(r"^[\w.]+\.\w+@\d+\.\d+\.\d+")
     for entry in snapshot.entries:
-        assert fqn_pattern.match(entry.fqn), (
-            f"FQN {entry.fqn!r} does not match expected pattern"
-        )
+        assert fqn_pattern.match(entry.fqn), f"FQN {entry.fqn!r} does not match expected pattern"
 
 
 def test_backend_field_is_known_value(snapshot) -> None:
@@ -132,6 +134,7 @@ def test_backend_field_is_known_value(snapshot) -> None:
     The Scientist uses this to filter methods by available hardware.
     """
     from polisyos.foundry.methods.base import ComputeBackend
+
     known_backends = {b.value for b in ComputeBackend}
     for entry in snapshot.entries:
         assert entry.backend in known_backends, (
@@ -157,9 +160,7 @@ def test_snapshot_tags_are_string_lists(snapshot) -> None:
     for entry in snapshot.entries:
         assert isinstance(entry.tags, list)
         for tag in entry.tags:
-            assert isinstance(tag, str), (
-                f"Entry {entry.fqn!r} has non-string tag: {tag!r}"
-            )
+            assert isinstance(tag, str), f"Entry {entry.fqn!r} has non-string tag: {tag!r}"
 
 
 # ---------------------------------------------------------------------------

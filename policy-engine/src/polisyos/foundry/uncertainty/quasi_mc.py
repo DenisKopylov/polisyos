@@ -1,4 +1,5 @@
 """Public uncertainty quasi mc module API."""
+
 from __future__ import annotations
 
 import math

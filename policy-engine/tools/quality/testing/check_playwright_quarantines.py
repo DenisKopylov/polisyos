@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Validate Playwright flaky/quarantine tags against the shared quarantine registry."""
+
 from __future__ import annotations
 
 import argparse
@@ -8,6 +9,7 @@ import tomllib
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
+
 from tools._lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
@@ -132,9 +134,7 @@ def _validate_registry(
     for testcase in tagged_tests:
         by_title.setdefault(testcase.title, []).append(testcase)
 
-    duplicate_titles = {
-        title: cases for title, cases in by_title.items() if len(cases) > 1
-    }
+    duplicate_titles = {title: cases for title, cases in by_title.items() if len(cases) > 1}
     for title, cases in sorted(duplicate_titles.items()):
         references = ", ".join(case.normalized_path for case in cases)
         errors.append(

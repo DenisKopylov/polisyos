@@ -113,8 +113,18 @@ def test_run_burn_in_bypasses_cheap_rejection_but_seeds_lessons(tmp_path) -> Non
         orchestrator=orchestrator,
         config=BurnInConfig(
             run_id="burn-in-1",
-            regular_candidates=[{"semantic": {"interventions": [{"type": "tax"}], "objectives": [{"name": "gdp"}]}}],
-            dumb_candidates=[{"bad": True, "semantic": {"interventions": [{"type": "bad"}], "objectives": [{"name": "gdp"}]}}],
+            regular_candidates=[
+                {"semantic": {"interventions": [{"type": "tax"}], "objectives": [{"name": "gdp"}]}}
+            ],
+            dumb_candidates=[
+                {
+                    "bad": True,
+                    "semantic": {
+                        "interventions": [{"type": "bad"}],
+                        "objectives": [{"name": "gdp"}],
+                    },
+                }
+            ],
         ),
         correlation_tracker=tracker,
         lesson_registry=lesson_registry,

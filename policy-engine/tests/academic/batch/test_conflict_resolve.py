@@ -50,8 +50,13 @@ def test_conflict_resolve_detects_directional_conflict(tmp_path) -> None:
 
     assert metrics["claim_sets"] == 1
     assert metrics["contested_sets"] == 1
-    conflict_rows = [json.loads(line) for line in config.conflict_sets_path.read_text(encoding="utf-8").splitlines()]
+    conflict_rows = [
+        json.loads(line)
+        for line in config.conflict_sets_path.read_text(encoding="utf-8").splitlines()
+    ]
     assert conflict_rows[0]["status"] == "contested"
-    resolution_rows = [json.loads(line) for line in config.conflict_resolutions_path.read_text(encoding="utf-8").splitlines()]
+    resolution_rows = [
+        json.loads(line)
+        for line in config.conflict_resolutions_path.read_text(encoding="utf-8").splitlines()
+    ]
     assert resolution_rows[0]["runtime_support"] == "MIXED"
-

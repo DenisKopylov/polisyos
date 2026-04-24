@@ -5,6 +5,7 @@ the machine-checked graph obligations, the bridge equations that must be solved
 by an estimator, and the non-graphical assumptions that make the proximal
 identification argument sound.
 """
+
 from __future__ import annotations
 
 from enum import Enum
@@ -304,9 +305,7 @@ class ProximalMediationCertificate(BaseModel):
         if not self.bridge_equations:
             raise ValueError("proximal mediation certificate must declare bridge equations")
         if not self.completeness_conditions:
-            raise ValueError(
-                "proximal mediation certificate must declare completeness conditions"
-            )
+            raise ValueError("proximal mediation certificate must declare completeness conditions")
         failed_checks = [item.check for item in self.graph_checks if item.status == "fail"]
         if failed_checks:
             raise ValueError(
@@ -540,10 +539,14 @@ def _default_fallback_disposition(
             if report.severity is BridgePlausibilitySeverity.RED
             else BridgeFallbackDisposition.REQUIRE_BOUNDS
         )
-    if report.suspected_failure_mode in {
-        BridgeFailureMode.WEAK_COMPLETENESS,
-        BridgeFailureMode.NONUNIQUE_SOLUTION,
-    } and report.functional_invariant_to_nonuniqueness is not True:
+    if (
+        report.suspected_failure_mode
+        in {
+            BridgeFailureMode.WEAK_COMPLETENESS,
+            BridgeFailureMode.NONUNIQUE_SOLUTION,
+        }
+        and report.functional_invariant_to_nonuniqueness is not True
+    ):
         return BridgeFallbackDisposition.REQUIRE_BOUNDS
     if report.severity is BridgePlausibilitySeverity.RED:
         return BridgeFallbackDisposition.REQUIRE_BOUNDS
@@ -554,23 +557,23 @@ __all__ = [
     "BridgeFailureMode",
     "BridgeFallbackDisposition",
     "BridgeFunctionSpec",
+    "BridgePlausibilityReport",
+    "BridgePlausibilitySeverity",
+    "IdentifiedFunctional",
+    "ProximalAssumption",
+    "ProximalGraphCheck",
+    "ProximalGraphClass",
+    "ProximalIdentificationCertificate",
     "ProximalMediationBridgeEquation",
     "ProximalMediationCertificate",
     "ProximalMediationCompletenessCondition",
     "ProximalMediationQuerySpec",
     "ProximalMediationTopology",
-    "BridgePlausibilityReport",
-    "BridgePlausibilitySeverity",
-    "IdentifiedFunctional",
-    "load_bridge_plausibility_report",
-    "load_proximal_identification_certificate",
-    "persist_bridge_plausibility_report",
-    "ProximalAssumption",
-    "ProximalGraphCheck",
-    "ProximalGraphClass",
-    "ProximalIdentificationCertificate",
     "ProximalQuerySpec",
     "ProxyAnnotation",
     "SpatialProxySpec",
+    "load_bridge_plausibility_report",
+    "load_proximal_identification_certificate",
+    "persist_bridge_plausibility_report",
     "persist_proximal_identification_certificate",
 ]

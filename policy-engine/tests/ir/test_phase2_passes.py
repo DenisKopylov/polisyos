@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.artifacts import put_json_artifact
@@ -36,6 +36,9 @@ from polisyos.ir.registry_fragments import (
     UnitsFragment,
 )
 from polisyos.ir.trinity import TrinityBundle
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _units_fragment(fragment_id: str) -> UnitsFragment:
@@ -159,10 +162,7 @@ def test_slot_mechanism_reachability_flags_orphan_mechanisms() -> None:
     reachability = result.require("slot_mechanism_reachability")
 
     assert reachability.orphan_mechanisms == ["queue"]
-    assert any(
-        diagnostic.code == "orphan_mechanism"
-        for diagnostic in result.diagnostics
-    )
+    assert any(diagnostic.code == "orphan_mechanism" for diagnostic in result.diagnostics)
 
 
 def test_cross_model_type_check_and_unused_artifact_analysis_cover_execution_outputs(
@@ -239,9 +239,9 @@ def test_cross_model_type_check_and_unused_artifact_analysis_cover_execution_out
     result = pipeline.run(context)
 
     assert result.require("cross_model_type_check").missing_ref_count == 0
-    assert result.require("artifact_lineage_graph").produced_by(
-        used_ref["artifact_id"]
-    ) == ("task.bounds",)
+    assert result.require("artifact_lineage_graph").produced_by(used_ref["artifact_id"]) == (
+        "task.bounds",
+    )
     assert result.require("artifact_lineage_graph").derived_from(used_ref["artifact_id"]) == (
         upstream_ref["artifact_id"],
     )

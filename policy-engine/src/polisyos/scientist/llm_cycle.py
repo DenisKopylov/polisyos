@@ -1,4 +1,5 @@
 """Public scientist llm cycle module API."""
+
 from __future__ import annotations
 
 import graphlib
@@ -20,6 +21,7 @@ from polisyos.core.contracts.execution_plan import (
     GovernanceConstraint,
     IterationState,
     IterationStateRef,
+    MethodCatalogEntry,
     MethodCatalogSnapshot,
     MethodDagNode,
     PlanDataNeed,
@@ -31,6 +33,7 @@ from polisyos.core.contracts.execution_plan import (
     StopCriteria,
 )
 from polisyos.foundry.methods import MethodRegistry, check_linkable
+from polisyos.foundry.methods.base import parse_fqn
 from polisyos.foundry.methods.selection import (
     method_selection_payload,
     suggest_adapter_methods,
@@ -84,12 +87,10 @@ def build_default_execution_plan(
         ),
         stop_criteria=StopCriteria(),
         governance_constraints=[
-            GovernanceConstraint.model_validate(item)
-            for item in list(governance_constraints or [])
+            GovernanceConstraint.model_validate(item) for item in list(governance_constraints or [])
         ],
         expected_outputs=[
-            ExpectedOutputSpec.model_validate(item)
-            for item in list(expected_outputs or [])
+            ExpectedOutputSpec.model_validate(item) for item in list(expected_outputs or [])
         ],
     )
 
@@ -132,6 +133,12 @@ def preflight_execution_plan(
                 target_fqn=node.method_fqn,
                 limit=3,
                 registry=registry,
+            )
+            alternatives = _prepend_namespace_migration_alternatives(
+                alternatives,
+                catalog_entries=catalog_entries,
+                target_fqn=node.method_fqn,
+                limit=3,
             )
             diagnostics.append(
                 PreflightDiagnostic(
@@ -293,6 +300,40 @@ def preflight_execution_plan(
     )
 
 
+def _prepend_namespace_migration_alternatives(
+    alternatives: list[MethodCatalogEntry],
+    *,
+    catalog_entries: dict[str, MethodCatalogEntry],
+    target_fqn: str,
+    limit: int,
+) -> list[MethodCatalogEntry]:
+    """Prefer exact leaf-name moves such as ``optimization`` -> ``optimization.linear``."""
+    try:
+        namespace, name, version = parse_fqn(target_fqn)
+    except ValueError:
+        return alternatives[: max(0, int(limit))]
+
+    namespace_prefix = f"{namespace}."
+    suffix = f".{name}@{version}"
+    promoted = [
+        entry
+        for entry in catalog_entries.values()
+        if entry.runnable is not False
+        and entry.variant == name
+        and entry.family.startswith(namespace_prefix)
+        and entry.fqn.endswith(suffix)
+    ]
+
+    ordered: list[MethodCatalogEntry] = []
+    seen: set[str] = set()
+    for entry in [*promoted, *alternatives]:
+        if entry.fqn in seen:
+            continue
+        seen.add(entry.fqn)
+        ordered.append(entry)
+    return ordered[: max(0, int(limit))]
+
+
 def evaluate_iteration(
     *,
     issue_count: int,
@@ -312,7 +353,11 @@ def evaluate_iteration(
         eval_verdict = "REPLAN_PARAMS"
     else:
         eval_verdict = "REPLAN_METHOD"
-    budget_score = max(0.0, min(1.0, float(budget_remaining_ratio))) if budget_remaining_ratio is not None else 1.0
+    budget_score = (
+        max(0.0, min(1.0, float(budget_remaining_ratio)))
+        if budget_remaining_ratio is not None
+        else 1.0
+    )
     base = max(0.0, min(1.0, retrieval_quality))
     penalty = max(0.0, min(1.0, float(issue_count) / 10.0))
     total = max(0.0, min(1.0, (base * 0.4) + (1.0 - penalty) * 0.4 + budget_score * 0.2))

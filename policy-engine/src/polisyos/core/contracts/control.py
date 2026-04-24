@@ -53,6 +53,7 @@ def _default_supported_locales() -> list[Literal["en", "uk"]]:
 def _default_supported_execution_profiles() -> list[ExecutionProfile]:
     return list(_SUPPORTED_EXECUTION_PROFILES)
 
+
 # ---------------------------------------------------------------------------
 # Data source binding
 # ---------------------------------------------------------------------------
@@ -74,6 +75,7 @@ class PolicyFlags(BaseModel):
     `allow_mock_fallback=True` is privileged in governed/production profiles and
     may be rejected by the runtime execution-policy resolver.
     """
+
     model_config = ConfigDict(extra="forbid")
 
     allow_mock_fallback: bool = False
@@ -81,6 +83,7 @@ class PolicyFlags(BaseModel):
 
 class DecisionValidityEventRequest(BaseModel):
     """Request an append-only decision-validity event and lifecycle re-evaluation."""
+
     model_config = ConfigDict(extra="forbid")
 
     trigger_type: DecisionTriggerType
@@ -95,6 +98,7 @@ class DecisionValidityEventRequest(BaseModel):
 
 class DecisionValidityEventResponse(BaseModel):
     """Return the persisted event identity and aggregate impact of the update."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -107,6 +111,7 @@ class DecisionValidityEventResponse(BaseModel):
 
 class DecisionValidityPendingReview(BaseModel):
     """Describe one unresolved human-review gate for a decision packet."""
+
     model_config = ConfigDict(extra="forbid")
 
     event_id: str
@@ -117,6 +122,7 @@ class DecisionValidityPendingReview(BaseModel):
 
 class DecisionValidityLifecycleSummary(BaseModel):
     """Return event history, transitions, scheduled jobs, and reissue candidates."""
+
     model_config = ConfigDict(extra="forbid")
 
     events: list[DecisionDependencyEvent] = Field(default_factory=list)
@@ -129,6 +135,7 @@ class DecisionValidityLifecycleSummary(BaseModel):
 
 class DecisionValiditySummaryResponse(BaseModel):
     """Expose the current decision-validity verdict and its lifecycle context."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -144,7 +151,9 @@ class DecisionValiditySummaryResponse(BaseModel):
     evaluation_ref: ArtifactRef | None = None
     decision_lineage_key: str
     recommended_action: str
-    lifecycle: DecisionValidityLifecycleSummary = Field(default_factory=DecisionValidityLifecycleSummary)
+    lifecycle: DecisionValidityLifecycleSummary = Field(
+        default_factory=DecisionValidityLifecycleSummary
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -209,6 +218,7 @@ class NaturalLanguageRunRequest(BaseModel):
 
 class RunLaunchResponse(BaseModel):
     """Return the accepted/rejected control-job id and effective execution profile."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -226,6 +236,7 @@ class RunLaunchResponse(BaseModel):
 
 class DatasetFetchSpecRequest(BaseModel):
     """Describe one direct connector/dataset fetch request for data ingestion."""
+
     model_config = ConfigDict(extra="forbid")
 
     connector_id: str
@@ -241,7 +252,7 @@ class IngestRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     datasets: list[DatasetFetchSpecRequest] = Field(default_factory=list)
-    fetch_plans: list["FetchPlan"] = Field(default_factory=list)
+    fetch_plans: list[FetchPlan] = Field(default_factory=list)
     source: str = "dashboard"
     license_name: str = "open"
     cache_policy: str = "default"
@@ -254,7 +265,7 @@ class IngestRequest(BaseModel):
     produce_input_bindings: bool = False
 
     @model_validator(mode="after")
-    def _validate_fetch_inputs(self) -> "IngestRequest":
+    def _validate_fetch_inputs(self) -> IngestRequest:
         if not self.datasets and not self.fetch_plans:
             raise ValueError("Either datasets or fetch_plans must be provided")
         return self
@@ -262,6 +273,7 @@ class IngestRequest(BaseModel):
 
 class IngestResponse(BaseModel):
     """Return ingestion outputs, warning messages, and replay/cursor references."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -284,6 +296,7 @@ class IngestResponse(BaseModel):
 
 class DataNeed(BaseModel):
     """Describe one metric/geography/time requirement to resolve into fetch plans."""
+
     model_config = ConfigDict(extra="forbid")
 
     metric: str = Field(..., min_length=1, max_length=256)
@@ -297,6 +310,7 @@ class DataNeed(BaseModel):
 
 class MetricCandidate(BaseModel):
     """Represent one catalog-backed source candidate for a requested metric."""
+
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: str = Field(..., min_length=1)
@@ -318,6 +332,7 @@ class MetricCandidate(BaseModel):
 
 class DiscoveryCandidate(BaseModel):
     """Represent one explore-lane candidate discovered from source metadata search."""
+
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: str
@@ -338,6 +353,7 @@ class DiscoveryCandidate(BaseModel):
 
 class FetchPlanFallback(BaseModel):
     """Describe one connector/dataset fallback to try when the primary plan fails."""
+
     model_config = ConfigDict(extra="forbid")
 
     connector_id: str
@@ -350,6 +366,7 @@ class FetchPlanFallback(BaseModel):
 
 class FetchPlan(BaseModel):
     """Encode one executable data-fetch plan produced by resolver/discovery flows."""
+
     model_config = ConfigDict(extra="forbid")
 
     plan_id: str = Field(..., min_length=1)
@@ -371,6 +388,7 @@ class FetchPlan(BaseModel):
 
 class FetchPreview(BaseModel):
     """Return a bounded sample, quality flags, and coverage status for one plan."""
+
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     status: PreviewStatus = "ok"
@@ -389,6 +407,7 @@ class FetchPreview(BaseModel):
 
 class DataContextMetric(BaseModel):
     """Summarize one fetched metric included in a data-context payload."""
+
     model_config = ConfigDict(extra="forbid")
 
     metric_id: str
@@ -403,6 +422,7 @@ class DataContextMetric(BaseModel):
 
 class DataContext(BaseModel):
     """Aggregate fetched metrics and catalog index counters for an agent run."""
+
     model_config = ConfigDict(extra="forbid")
 
     metrics: list[DataContextMetric] = Field(default_factory=list)
@@ -413,6 +433,7 @@ class DataContext(BaseModel):
 
 class PromotionCandidate(BaseModel):
     """Represent one explore-lane source proposed for promotion into fastlane."""
+
     model_config = ConfigDict(extra="forbid")
 
     promotion_id: str
@@ -430,6 +451,7 @@ class PromotionCandidate(BaseModel):
 
 class IndexStats(BaseModel):
     """Report catalog index size, source coverage, and last-update counters."""
+
     model_config = ConfigDict(extra="forbid")
 
     index_docs_total: int = Field(default=0, ge=0)
@@ -442,6 +464,7 @@ class IndexStats(BaseModel):
 
 class DataResolveRequest(BaseModel):
     """Request fastlane/hybrid resolution of data needs into concrete fetch plans."""
+
     model_config = ConfigDict(extra="forbid")
 
     data_needs: list[DataNeed] = Field(..., min_length=1)
@@ -451,6 +474,7 @@ class DataResolveRequest(BaseModel):
 
 class DataResolveResponse(BaseModel):
     """Return selected fetch plans, ranked candidates, and resolver warnings."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -462,6 +486,7 @@ class DataResolveResponse(BaseModel):
 
 class DataDiscoverRequest(BaseModel):
     """Request explore-lane candidate discovery within explicit time/cost budgets."""
+
     model_config = ConfigDict(extra="forbid")
 
     data_needs: list[DataNeed] = Field(..., min_length=1)
@@ -474,6 +499,7 @@ class DataDiscoverRequest(BaseModel):
 
 class DataDiscoverResponse(BaseModel):
     """Return discovery candidates plus index telemetry and soft warning messages."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -485,6 +511,7 @@ class DataDiscoverResponse(BaseModel):
 
 class DataPreviewRequest(BaseModel):
     """Request a bounded preview for one fetch plan with optional fallback handling."""
+
     model_config = ConfigDict(extra="forbid")
 
     fetch_plan: FetchPlan
@@ -493,6 +520,7 @@ class DataPreviewRequest(BaseModel):
 
 class DataPreviewResponse(BaseModel):
     """Wrap one `FetchPreview` payload with standard API metadata."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -501,6 +529,7 @@ class DataPreviewResponse(BaseModel):
 
 class CausalFrontierAreaRecord(BaseModel):
     """Inline representation of one area-level SAE row."""
+
     model_config = ConfigDict(extra="forbid")
 
     area_id: str = Field(..., min_length=1)
@@ -514,6 +543,7 @@ class CausalFrontierAreaRecord(BaseModel):
 
 class CausalFrontierEdgeRecord(BaseModel):
     """Inline representation of one adjacency edge with optional frontier metadata."""
+
     model_config = ConfigDict(extra="forbid")
 
     src_area_id: str = Field(..., min_length=1)
@@ -527,6 +557,7 @@ class CausalFrontierEdgeRecord(BaseModel):
 
 class CausalFrontierExposureRecord(BaseModel):
     """Optional spillover/exposure row aligned to one area."""
+
     model_config = ConfigDict(extra="forbid")
 
     area_id: str = Field(..., min_length=1)
@@ -537,6 +568,7 @@ class CausalFrontierExposureRecord(BaseModel):
 
 class CausalFrontierOutputRefs(BaseModel):
     """Artifact references emitted by runtime causal-frontier SAE execution."""
+
     model_config = ConfigDict(extra="forbid")
 
     dependence_ref: ArtifactRef | None = None
@@ -548,6 +580,7 @@ class CausalFrontierOutputRefs(BaseModel):
 
 class CausalFrontierSAEEstimate(BaseModel):
     """Output row for `sae_estimates.parquet` and runtime API responses."""
+
     model_config = ConfigDict(extra="forbid")
 
     area_id: str
@@ -560,6 +593,7 @@ class CausalFrontierSAEEstimate(BaseModel):
 
 class CausalFrontierSAERequest(BaseModel):
     """Run boundary-constrained small-area estimation from inline rows or one bundle dir."""
+
     model_config = ConfigDict(extra="forbid")
 
     bundle_dir: str | None = None
@@ -581,7 +615,7 @@ class CausalFrontierSAERequest(BaseModel):
     persist_artifacts: bool = False
 
     @model_validator(mode="after")
-    def _validate_request_shape(self) -> "CausalFrontierSAERequest":
+    def _validate_request_shape(self) -> CausalFrontierSAERequest:
         if self.bundle_dir is None and (not self.areas or not self.edges):
             raise ValueError("provide either bundle_dir or both areas and edges")
         if self.green_threshold > self.red_threshold:
@@ -591,6 +625,7 @@ class CausalFrontierSAERequest(BaseModel):
 
 class CausalFrontierSAEResponse(BaseModel):
     """Runtime response for causal-frontier small-area estimation."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -604,6 +639,7 @@ class CausalFrontierSAEResponse(BaseModel):
 
 class DataCatalogSearchResponse(BaseModel):
     """Return catalog search matches and the total result count for a query."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -614,6 +650,7 @@ class DataCatalogSearchResponse(BaseModel):
 
 class IndexStatsResponse(BaseModel):
     """Wrap catalog index telemetry with standard API metadata."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -622,6 +659,7 @@ class IndexStatsResponse(BaseModel):
 
 class PromotionCandidatesResponse(BaseModel):
     """Return pending/approved/rejected source-promotion candidates."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -630,6 +668,7 @@ class PromotionCandidatesResponse(BaseModel):
 
 class PromotionDecisionRequest(BaseModel):
     """Capture an optional reviewer reason for approving or rejecting promotion."""
+
     model_config = ConfigDict(extra="forbid")
 
     reason: str | None = None
@@ -637,6 +676,7 @@ class PromotionDecisionRequest(BaseModel):
 
 class PromotionDecisionResponse(BaseModel):
     """Return the stored promotion status and whether bindings were updated."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -653,6 +693,7 @@ class PromotionDecisionResponse(BaseModel):
 
 class ConnectorInfo(BaseModel):
     """Describe one discovered connector and the datasets/profiles it exposes."""
+
     model_config = ConfigDict(extra="forbid")
 
     connector_id: str
@@ -666,6 +707,7 @@ class ConnectorInfo(BaseModel):
 
 class ConnectorsListResponse(BaseModel):
     """Return all visible connectors with standard API metadata."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -679,6 +721,7 @@ class ConnectorsListResponse(BaseModel):
 
 class SourceProfileInfo(BaseModel):
     """Describe one curated data-source profile available to retrieval flows."""
+
     model_config = ConfigDict(extra="forbid")
 
     profile_id: str
@@ -695,6 +738,7 @@ class SourceProfileInfo(BaseModel):
 
 class SourceProfilesListResponse(BaseModel):
     """Return all curated source profiles with standard API metadata."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -708,6 +752,7 @@ class SourceProfilesListResponse(BaseModel):
 
 class ModelProfileInfo(BaseModel):
     """Describe one LLM model profile exposed to NL control-plane requests."""
+
     model_config = ConfigDict(extra="forbid")
 
     profile_id: str
@@ -725,6 +770,7 @@ class ModelProfileInfo(BaseModel):
 
 class ModelProfilesListResponse(BaseModel):
     """Return all enabled model profiles with standard API metadata."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -738,6 +784,7 @@ class ModelProfilesListResponse(BaseModel):
 
 class BindingProfileInfo(BaseModel):
     """Describe one schema-binding profile used to normalize ingested datasets."""
+
     model_config = ConfigDict(extra="forbid")
 
     profile_id: str
@@ -752,6 +799,7 @@ class BindingProfileInfo(BaseModel):
 
 class BindingProfilesListResponse(BaseModel):
     """Return binding profile metadata with standard API metadata."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -765,6 +813,7 @@ class BindingProfilesListResponse(BaseModel):
 
 class CacheEntryInfo(BaseModel):
     """Expose one materialized data-cache entry and its validity window."""
+
     model_config = ConfigDict(extra="forbid")
 
     cache_key: str
@@ -778,6 +827,7 @@ class CacheEntryInfo(BaseModel):
 
 class CacheStatusResponse(BaseModel):
     """Return cache inventory and aggregate storage usage."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -796,6 +846,7 @@ IngestRequest.model_rebuild()
 
 class CapabilityFeatureInfo(BaseModel):
     """Describe one runtime feature flag and its rollout stage/disable reason."""
+
     model_config = ConfigDict(extra="forbid")
 
     key: str
@@ -809,6 +860,7 @@ class CapabilityFeatureInfo(BaseModel):
 
 class CapabilityManifestResponse(BaseModel):
     """Expose stable runtime capabilities, defaults, security posture, and limits."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -831,6 +883,7 @@ class CapabilityManifestResponse(BaseModel):
 
 class ControlJobResponse(BaseModel):
     """Represent one durable control-plane job and its progress/error state."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -851,6 +904,7 @@ class ControlJobResponse(BaseModel):
 
 class ControlWorkerLeaseInfo(BaseModel):
     """Expose one worker lease heartbeat and currently leased job."""
+
     model_config = ConfigDict(extra="forbid")
 
     worker_id: str
@@ -866,6 +920,7 @@ class ControlWorkerLeaseInfo(BaseModel):
 
 class ControlWorkersResponse(BaseModel):
     """Return worker leases filtered by active-only mode."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -875,6 +930,7 @@ class ControlWorkersResponse(BaseModel):
 
 class ControlOutboxEventInfo(BaseModel):
     """Describe one durable outbox event and its publish retry state."""
+
     model_config = ConfigDict(extra="forbid")
 
     event_id: str
@@ -892,6 +948,7 @@ class ControlOutboxEventInfo(BaseModel):
 
 class ControlOutboxEventsResponse(BaseModel):
     """Return outbox events filtered by publish state."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -937,6 +994,7 @@ class LexTriggerRequest(BaseModel):
 
 class LexTriggerResponse(BaseModel):
     """Return accepted/rejected Lex pipeline launch metadata."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -949,6 +1007,7 @@ class LexTriggerResponse(BaseModel):
 
 class LexPipelineStatusResponse(BaseModel):
     """Expose Lex pipeline state, stage progress counters, and failure text."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -960,6 +1019,7 @@ class LexPipelineStatusResponse(BaseModel):
 
 class LexGraphStatsResponse(BaseModel):
     """Return graph-cardinality and top-distribution telemetry for the Lex store."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -983,6 +1043,7 @@ class LexSearchRequest(BaseModel):
 
 class LexSearchResultItem(BaseModel):
     """Represent one ranked Lex fact hit with citation and canonicalized metadata."""
+
     model_config = ConfigDict(extra="forbid")
 
     fact_id: str
@@ -1006,6 +1067,7 @@ class LexSearchResultItem(BaseModel):
 
 class LexSearchResponse(BaseModel):
     """Return ranked Lex fact matches for a text query."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -1015,6 +1077,12 @@ class LexSearchResponse(BaseModel):
 
 
 __all__ = [
+    "BindingProfileInfo",
+    "BindingProfilesListResponse",
+    "CacheEntryInfo",
+    "CachePolicyType",
+    "CacheStatusResponse",
+    "CandidateLane",
     "CausalFrontierAreaRecord",
     "CausalFrontierEdgeRecord",
     "CausalFrontierExposureRecord",
@@ -1022,12 +1090,6 @@ __all__ = [
     "CausalFrontierSAEEstimate",
     "CausalFrontierSAERequest",
     "CausalFrontierSAEResponse",
-    "BindingProfileInfo",
-    "BindingProfilesListResponse",
-    "CandidateLane",
-    "CacheEntryInfo",
-    "CachePolicyType",
-    "CacheStatusResponse",
     "CheckpointPolicyType",
     "ConnectorInfo",
     "ConnectorsListResponse",
@@ -1038,7 +1100,6 @@ __all__ = [
     "ControlOutboxEventsResponse",
     "ControlWorkerLeaseInfo",
     "ControlWorkersResponse",
-    "DataSourceBinding",
     "DataCatalogSearchResponse",
     "DataContext",
     "DataContextMetric",
@@ -1047,15 +1108,16 @@ __all__ = [
     "DataNeed",
     "DataPreviewRequest",
     "DataPreviewResponse",
+    "DataResolveRequest",
+    "DataResolveResponse",
+    "DataSourceBinding",
+    "DatasetFetchSpecRequest",
     "DecisionValidityEventRequest",
     "DecisionValidityEventResponse",
     "DecisionValidityLifecycleSummary",
     "DecisionValidityPendingReview",
     "DecisionValiditySummaryResponse",
-    "DataResolveRequest",
-    "DataResolveResponse",
     "DiscoveryCandidate",
-    "DatasetFetchSpecRequest",
     "ExecutionMode",
     "ExecutionProfile",
     "FetchPlan",
@@ -1075,10 +1137,10 @@ __all__ = [
     "LexSearchResultItem",
     "LexTriggerRequest",
     "LexTriggerResponse",
-    "NaturalLanguageRunRequest",
     "MetricCandidate",
     "ModelProfileInfo",
     "ModelProfilesListResponse",
+    "NaturalLanguageRunRequest",
     "PolicyFlags",
     "PreviewStatus",
     "PromotionCandidate",

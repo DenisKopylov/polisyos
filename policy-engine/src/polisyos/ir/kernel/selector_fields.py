@@ -1,4 +1,5 @@
 """Selector-field definitions that bind targeting selectors to slot scopes and state paths."""
+
 from __future__ import annotations
 
 from pydantic import Field, model_validator
@@ -9,6 +10,7 @@ from .slots import SlotScope
 
 class SelectorFieldSpec(KernelModel):
     """Describe one target selector field that interventions may use to address entities."""
+
     field_id: str = Field(..., pattern=ID_PATTERN)
     scope: SlotScope
     state_path: str | None = Field(None, max_length=200)
@@ -17,12 +19,13 @@ class SelectorFieldSpec(KernelModel):
 
 class SelectorFieldRegistry(KernelModel):
     """Registry of selector fields that ``link_trinity`` uses to validate targeting payloads."""
+
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     fields: dict[str, SelectorFieldSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_fields(self) -> "SelectorFieldRegistry":
+    def validate_fields(self) -> SelectorFieldRegistry:
         for key, spec in self.fields.items():
             if not key or not isinstance(key, str):
                 raise ValueError("selector field id must be a non-empty string")

@@ -1,4 +1,5 @@
 """Public planning run source verification module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -64,24 +65,41 @@ class RunSourceVerificationNode:
     source-verification report ref and updated verification-cycle counters used
     by drafting, gap review, and governance.
     """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        if state.source_verification_report_ref is not None and ARTIFACT_SOURCE_VERIFICATION_REPORT_REF in state.artifacts_index:
+        if (
+            state.source_verification_report_ref is not None
+            and ARTIFACT_SOURCE_VERIFICATION_REPORT_REF in state.artifacts_index
+        ):
             return NodeOutcome(status="ok", state=state)
 
-        request_ref = state.policy_request_ref or state.artifacts_index.get(ARTIFACT_POLICY_REQUEST_FRAME_REF)
-        candidate_ref = state.legal_candidate_pack_ref or state.artifacts_index.get(ARTIFACT_LEGAL_CANDIDATE_PACK_REF)
-        source_ref = state.legal_source_pack_ref or state.artifacts_index.get(ARTIFACT_LEGAL_SOURCE_PACK_REF)
+        request_ref = state.policy_request_ref or state.artifacts_index.get(
+            ARTIFACT_POLICY_REQUEST_FRAME_REF
+        )
+        candidate_ref = state.legal_candidate_pack_ref or state.artifacts_index.get(
+            ARTIFACT_LEGAL_CANDIDATE_PACK_REF
+        )
+        source_ref = state.legal_source_pack_ref or state.artifacts_index.get(
+            ARTIFACT_LEGAL_SOURCE_PACK_REF
+        )
         if request_ref is None or candidate_ref is None or source_ref is None:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="warn", message="Missing policy verification inputs; source verification skipped.")],
+                events=[
+                    NodeEvent(
+                        level="warn",
+                        message="Missing policy verification inputs; source verification skipped.",
+                    )
+                ],
             )
-        frame = load_policy_request_frame(ctx.store, PolicyRequestFrameRef.model_validate(request_ref.model_dump()))
+        frame = load_policy_request_frame(
+            ctx.store, PolicyRequestFrameRef.model_validate(request_ref.model_dump())
+        )
         candidate_pack = load_legal_candidate_pack(
             ctx.store, LegalCandidatePackRef.model_validate(candidate_ref.model_dump())
         )
@@ -110,7 +128,10 @@ class RunSourceVerificationNode:
                 NodeEvent(
                     level="info",
                     message="Source verification completed.",
-                    attrs={"verified_claims": len(report.verified_claims), "gaps": len(report.unresolved_critical_gaps)},
+                    attrs={
+                        "verified_claims": len(report.verified_claims),
+                        "gaps": len(report.unresolved_critical_gaps),
+                    },
                 )
             ],
         )

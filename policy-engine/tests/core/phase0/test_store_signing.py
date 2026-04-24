@@ -61,9 +61,7 @@ def test_verify_signature_invalid_sidecar_format(tmp_path: Path) -> None:
         b"unsigned",
         PutOptions(kind="test.bytes", media_type="application/octet-stream"),
     )
-    sig_path = store._sig_path(
-        ref.artifact_id
-    )
+    sig_path = store._sig_path(ref.artifact_id)
     sig_path.write_text("{not valid json}", encoding="utf-8")
 
     result = store.verify_signature(ref.artifact_id, verifier)

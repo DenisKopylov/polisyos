@@ -50,9 +50,7 @@ def resolve_execution_policy(profile: SourceProfile) -> SourceExecutionPolicy:
         profile_id=profile.profile_id,
         max_concurrency=max(1, int(profile.max_concurrency or 1)),
         requests_per_hour=(
-            int(profile.requests_per_hour)
-            if profile.requests_per_hour is not None
-            else None
+            int(profile.requests_per_hour) if profile.requests_per_hour is not None else None
         ),
         supports_async_large_responses=bool(profile.supports_async_large_responses),
         schema_preflight=bool(profile.schema_preflight),
@@ -68,34 +66,22 @@ def resolve_execution_policy(profile: SourceProfile) -> SourceExecutionPolicy:
             profile.fallback_on_capability_failure or "plan_without_capability"
         ),
         core_group_limit=(
-            int(profile.core_group_limit)
-            if profile.core_group_limit is not None
-            else None
+            int(profile.core_group_limit) if profile.core_group_limit is not None else None
         ),
         backfill_group_limit=(
-            int(profile.backfill_group_limit)
-            if profile.backfill_group_limit is not None
-            else None
+            int(profile.backfill_group_limit) if profile.backfill_group_limit is not None else None
         ),
         max_sync_cells=(
-            int(profile.max_sync_cells)
-            if profile.max_sync_cells is not None
-            else None
+            int(profile.max_sync_cells) if profile.max_sync_cells is not None else None
         ),
         max_async_cells=(
-            int(profile.max_async_cells)
-            if profile.max_async_cells is not None
-            else None
+            int(profile.max_async_cells) if profile.max_async_cells is not None else None
         ),
         capability_cache_ttl_hours=max(1, int(profile.capability_cache_ttl_hours or 24)),
         negative_cache_ttl_hours=max(1, int(profile.negative_cache_ttl_hours or 24)),
         soft_negative_cache_ttl_hours=max(
             1,
-            int(
-                profile.soft_negative_cache_ttl_hours
-                or profile.negative_cache_ttl_hours
-                or 24
-            ),
+            int(profile.soft_negative_cache_ttl_hours or profile.negative_cache_ttl_hours or 24),
         ),
     )
 

@@ -2,7 +2,10 @@ import { cn, formatDate } from "@/lib/utils";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { Card, Button, Badge, Input } from "@/shared/ui/primitives";
 
-import { useClerkHistory, type HistorySearchResult } from "../hooks/useClerkHistory";
+import {
+  useClerkHistory,
+  type HistorySearchResult,
+} from "../hooks/useClerkHistory";
 
 type ConversationHistorySearchProps = {
   onClose?: () => void;
@@ -16,8 +19,8 @@ function SessionCard({
   onLoad,
   onDelete,
 }: {
-  locale: "en" | "uk";
-  t: (path: string, vars?: Record<string, string | number>) => string;
+  locale: ReturnType<typeof useI18n>["locale"];
+  t: ReturnType<typeof useI18n>["t"];
   result: HistorySearchResult;
   onLoad: () => void;
   onDelete: () => void;
@@ -29,11 +32,7 @@ function SessionCard({
     <Card className="p-3 transition-colors hover:bg-[var(--surface)]">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <button
-            type="button"
-            onClick={onLoad}
-            className="text-left"
-          >
+          <button type="button" onClick={onLoad} className="text-left">
             <p className="truncate text-sm font-semibold text-[var(--ink)]">
               {session.title}
             </p>
@@ -58,7 +57,10 @@ function SessionCard({
                   key={match.messageId}
                   className="rounded-lg bg-[var(--surface)] px-2 py-1 text-xs text-[var(--slate)]"
                 >
-                  <Badge kind={match.role === "user" ? "info" : "neutral"} className="mr-1 text-[9px]">
+                  <Badge
+                    kind={match.role === "user" ? "info" : "neutral"}
+                    className="mr-1 text-[9px]"
+                  >
                     {match.role}
                   </Badge>
                   {match.snippet}
@@ -112,7 +114,9 @@ export function ConversationHistorySearch({
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold">{t("clerk.conversationHistory")}</h3>
+          <h3 className="text-sm font-semibold">
+            {t("clerk.conversationHistory")}
+          </h3>
           <Badge kind="neutral">{totalSessions}</Badge>
         </div>
         <div className="flex gap-2">

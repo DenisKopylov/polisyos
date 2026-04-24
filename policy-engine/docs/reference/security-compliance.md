@@ -51,8 +51,10 @@ Runtime enforcement is controlled by:
 
 - `POLISYOS_JWT_ALLOWED_KIDS`: comma-separated active/next `kid` values accepted
   during the rotation window;
+
 - `POLISYOS_JWT_REVOKED_KIDS`: comma-separated `kid` values rejected even when
   present in JWKS;
+
 - `POLISYOS_JWKS_CACHE_TTL_SECONDS`: JWKS client/cache lifetime.
 
 Runtime bootstrap should construct the identity provider from
@@ -107,14 +109,14 @@ Unsafe cookie-authenticated requests without a matching header fail with
 Security/compliance review for the runtime API should link claims to current
 middleware tests rather than only to architecture prose.
 
-| Control area | Runtime behavior | Validation anchor |
-|---|---|---|
-| JWT claim normalization | bearer tokens populate `request.state.access_scope` and `authenticated_tenant_id` | `tests/core/security/test_auth_middlewares.py` |
-| Tenant/header binding | authenticated tenant and `X-Tenant-ID` mismatch fails closed | `tests/core/security/test_auth_middlewares.py`, `tests/core/security/test_router.py` |
-| Tenant context discipline | code requiring tenant scope raises when context is absent | `tests/core/security/test_tenant_context.py` |
-| Runtime read authorization | cross-tenant run/artifact access returns typed `403` problems | `tests/runtime/http/test_runtime_api_authz.py` |
-| Property coverage | run/artifact tenant guards fail closed across generated tenant combinations | `tests/runtime/http/test_access_invariants_properties.py` |
-| OPA dependency posture | timeout or denial returns typed deny/timeout responses | `tests/runtime/http/test_runtime_api_authz.py` |
+| Control area               | Runtime behavior                                                                  | Validation anchor                                                                    |
+| -------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| JWT claim normalization    | bearer tokens populate `request.state.access_scope` and `authenticated_tenant_id` | `tests/core/security/test_auth_middlewares.py`                                       |
+| Tenant/header binding      | authenticated tenant and `X-Tenant-ID` mismatch fails closed                      | `tests/core/security/test_auth_middlewares.py`, `tests/core/security/test_router.py` |
+| Tenant context discipline  | code requiring tenant scope raises when context is absent                         | `tests/core/security/test_tenant_context.py`                                         |
+| Runtime read authorization | cross-tenant run/artifact access returns typed `403` problems                     | `tests/runtime/http/test_runtime_api_authz.py`                                       |
+| Property coverage          | run/artifact tenant guards fail closed across generated tenant combinations       | `tests/runtime/http/test_access_invariants_properties.py`                            |
+| OPA dependency posture     | timeout or denial returns typed deny/timeout responses                            | `tests/runtime/http/test_runtime_api_authz.py`                                       |
 
 Focused local check:
 

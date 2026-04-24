@@ -114,10 +114,7 @@ export const useChatStore = create<ChatState>()(
 
       addSystemMessage: (message) => {
         set((state) => ({
-          messages: [
-            ...state.messages,
-            { ...message, role: "system" },
-          ],
+          messages: [...state.messages, { ...message, role: "system" }],
         }));
       },
 
@@ -143,7 +140,12 @@ export const useChatStore = create<ChatState>()(
       setCurrentRunId: (runId) => set({ currentRunId: runId }),
 
       clearHistory: () =>
-        set({ messages: [], isStreaming: false, currentRunId: null, activeSessionId: null }),
+        set({
+          messages: [],
+          isStreaming: false,
+          currentRunId: null,
+          activeSessionId: null,
+        }),
 
       saveSession: (title) => {
         const state = get();
@@ -188,18 +190,13 @@ export const useChatStore = create<ChatState>()(
       deleteSession: (sessionId) => {
         set((state) => ({
           sessions: state.sessions.filter((s) => s.id !== sessionId),
-          messages:
-            state.activeSessionId === sessionId ? [] : state.messages,
+          messages: state.activeSessionId === sessionId ? [] : state.messages,
           isStreaming:
             state.activeSessionId === sessionId ? false : state.isStreaming,
           currentRunId:
-            state.activeSessionId === sessionId
-              ? null
-              : state.currentRunId,
+            state.activeSessionId === sessionId ? null : state.currentRunId,
           activeSessionId:
-            state.activeSessionId === sessionId
-              ? null
-              : state.activeSessionId,
+            state.activeSessionId === sessionId ? null : state.activeSessionId,
         }));
       },
 

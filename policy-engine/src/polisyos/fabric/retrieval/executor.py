@@ -35,6 +35,7 @@ logger = get_logger(__name__)
 @dataclass(frozen=True)
 class ExecutePlanResult:
     """Preview/execute outcome showing the chosen fetch plan, metric payload, and fallback usage."""
+
     preview: FetchPreview
     metric: DataContextMetric | None
     used_plan: FetchPlan
@@ -91,7 +92,9 @@ class FetchExecutor:
     async def _preview_async(self, plan: FetchPlan, *, allow_fallback: bool) -> ExecutePlanResult:
         preview = await self._fetch_preview(plan)
         if preview.coverage_ok:
-            return ExecutePlanResult(preview=preview, metric=None, used_plan=plan, fallback_used=False)
+            return ExecutePlanResult(
+                preview=preview, metric=None, used_plan=plan, fallback_used=False
+            )
         if allow_fallback and plan.fallbacks:
             fallback_plan = self._fallback_to_plan(plan, plan.fallbacks[0])
             nested = await self._preview_async(fallback_plan, allow_fallback=True)
@@ -125,7 +128,9 @@ class FetchExecutor:
                 fallback_used=True,
             )
         if not preview.coverage_ok:
-            return ExecutePlanResult(preview=preview, metric=None, used_plan=plan, fallback_used=False)
+            return ExecutePlanResult(
+                preview=preview, metric=None, used_plan=plan, fallback_used=False
+            )
 
         full_result = await self._fetch(
             plan=plan,
@@ -146,7 +151,9 @@ class FetchExecutor:
             source_lane=plan.source_lane,
             sample_rows=sample_rows,
         )
-        return ExecutePlanResult(preview=preview, metric=metric, used_plan=plan, fallback_used=False)
+        return ExecutePlanResult(
+            preview=preview, metric=metric, used_plan=plan, fallback_used=False
+        )
 
     async def _fetch_preview(self, plan: FetchPlan) -> FetchPreview:
         started = datetime.now(UTC)
@@ -223,7 +230,9 @@ class FetchExecutor:
             payload_bytes = None
             try:
                 payload_bytes = len(
-                    json.dumps(result.data, ensure_ascii=True, sort_keys=True, default=str).encode("utf-8")
+                    json.dumps(result.data, ensure_ascii=True, sort_keys=True, default=str).encode(
+                        "utf-8"
+                    )
                 )
             except Exception:
                 payload_bytes = None
@@ -272,7 +281,8 @@ class FetchExecutor:
                 "to_metric_id": fallback_metric_id,
                 "from_connector_id": plan.connector_id,
                 "to_connector_id": fallback.connector_id,
-                "route": fallback_metadata.get("resolution_route") or updated_metadata.get("resolution_route", ""),
+                "route": fallback_metadata.get("resolution_route")
+                or updated_metadata.get("resolution_route", ""),
             }
         )
         updated_metadata.update(fallback_metadata)

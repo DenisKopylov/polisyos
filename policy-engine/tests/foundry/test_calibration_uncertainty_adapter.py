@@ -5,9 +5,9 @@ from polisyos.foundry.calibration.report import (
     CalibrationUncertainty,
 )
 from polisyos.foundry.calibration.uncertainty_adapter import (
-    summarize_bayesian_calibration_posterior,
     envelope_from_calibration_param,
     envelopes_from_calibration,
+    summarize_bayesian_calibration_posterior,
 )
 from polisyos.ir.analytics.uncertainty import IntervalSemantics, UncertaintySource
 
@@ -68,12 +68,18 @@ def test_summarize_bayesian_calibration_posterior_supports_emulator_diagnostics(
             "node.transfer": [1.1, 1.0, 1.2, 1.05, 0.98],
         },
         credible_mass=0.9,
-        emulator_diagnostics={"emulator_name": "gp_surrogate", "emulator_noise_std": {"node.tax_rate": 0.01}},
+        emulator_diagnostics={
+            "emulator_name": "gp_surrogate",
+            "emulator_noise_std": {"node.tax_rate": 0.01},
+        },
         posterior_diagnostics={"r_hat_max": 1.01},
     )
 
     assert summary.posterior_means["node.tax_rate"] > 0.0
-    assert summary.parameter_envelopes["node.tax_rate"].interval_semantics == IntervalSemantics.CREDIBLE_INTERVAL
+    assert (
+        summary.parameter_envelopes["node.tax_rate"].interval_semantics
+        == IntervalSemantics.CREDIBLE_INTERVAL
+    )
     assert summary.parameter_envelopes["node.tax_rate"].source == UncertaintySource.CALIBRATION
     assert summary.diagnostics["calibration_mode"] == "bayesian_emulator"
     assert summary.uncertainty_decomposition["node.tax_rate"]["aleatoric"] is not None

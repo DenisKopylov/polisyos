@@ -14,9 +14,7 @@ from typing import Any
 def component_roots(snapshot_root: Path) -> list[Path]:
     roots = [snapshot_root]
     shard_glob = f"{snapshot_root.name}_shard*"
-    shard_roots = sorted(
-        path for path in snapshot_root.parent.glob(shard_glob) if path.is_dir()
-    )
+    shard_roots = sorted(path for path in snapshot_root.parent.glob(shard_glob) if path.is_dir())
     roots.extend(shard_roots)
     return roots
 
@@ -60,7 +58,9 @@ def _claim_tokens(*values: Any) -> set[str]:
     return tokens
 
 
-def _stable_claim_id(*, paper_id: str, cause: str, effect: str, direction: str, claim_text: str) -> str:
+def _stable_claim_id(
+    *, paper_id: str, cause: str, effect: str, direction: str, claim_text: str
+) -> str:
     payload = "|".join(
         [
             _normalized_text(paper_id).lower(),
@@ -154,25 +154,64 @@ def _infer_design_family(*values: Any) -> str:
     text = " ".join(_normalized_text(value).lower() for value in values if _normalized_text(value))
     if not text:
         return "unclear"
-    if any(term in text for term in ("randomized", "randomised", "field experiment", "random tax audit", "rct")):
+    if any(
+        term in text
+        for term in ("randomized", "randomised", "field experiment", "random tax audit", "rct")
+    ):
         return "rct"
-    if any(term in text for term in ("instrumental variable", "instrumental variables", "2sls", "tsls", "iv ")):
+    if any(
+        term in text
+        for term in ("instrumental variable", "instrumental variables", "2sls", "tsls", "iv ")
+    ):
         return "iv"
-    if any(term in text for term in ("difference-in-differences", "difference in differences", " did ", "(did)", "did)")):
+    if any(
+        term in text
+        for term in (
+            "difference-in-differences",
+            "difference in differences",
+            " did ",
+            "(did)",
+            "did)",
+        )
+    ):
         return "did"
-    if any(term in text for term in ("regression discontinuity", "rdd", "fuzzy regression discontinuity")):
+    if any(
+        term in text
+        for term in ("regression discontinuity", "rdd", "fuzzy regression discontinuity")
+    ):
         return "rdd"
     if "synthetic control" in text:
         return "synthetic_control"
-    if any(term in text for term in ("fixed effects", "fixed effect", "panel data", "panel regression", "panel model")):
+    if any(
+        term in text
+        for term in (
+            "fixed effects",
+            "fixed effect",
+            "panel data",
+            "panel regression",
+            "panel model",
+        )
+    ):
         return "panel_fe"
-    if any(term in text for term in ("ordinary least squares", "ols", "cross-sectional", "cross sectional")):
+    if any(
+        term in text
+        for term in ("ordinary least squares", "ols", "cross-sectional", "cross sectional")
+    ):
         return "ols"
     if any(term in text for term in ("meta-analysis", "meta analysis")):
         return "meta_analysis"
     if any(term in text for term in ("critical review", "narrative review", "survey", "review")):
         return "review"
-    if any(term in text for term in ("theoretical", "dsge", "keynesian", "structural model", "structural estimation")):
+    if any(
+        term in text
+        for term in (
+            "theoretical",
+            "dsge",
+            "keynesian",
+            "structural model",
+            "structural estimation",
+        )
+    ):
         return "theoretical"
     return "unclear"
 
@@ -225,7 +264,7 @@ def load_jsonl(path: Path) -> list[dict]:
     rows: list[dict] = []
     if not path.exists():
         return rows
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -276,7 +315,9 @@ def _load_component_rows(snapshot_root: Path, filename: str, key_field: str) -> 
 
 
 def _selected_work_lookup(snapshot_root: Path) -> dict[str, dict[str, Any]]:
-    rows = _load_component_rows(snapshot_root, "topic_selection/selected_global_works.jsonl", "work_id")
+    rows = _load_component_rows(
+        snapshot_root, "topic_selection/selected_global_works.jsonl", "work_id"
+    )
     lookup: dict[str, dict[str, Any]] = {}
     for row in rows:
         work_id = str(row.get("work_id") or "")
@@ -306,9 +347,7 @@ def build_candidate_pools(snapshot_root: Path, out_dir: Path) -> tuple[Path, Pat
     work_records = _work_record_lookup(snapshot_root)
     adjudications = {
         str(row.get("claim_id") or ""): row
-        for row in _load_component_rows(
-            snapshot_root, "claim_adjudications.jsonl", "claim_id"
-        )
+        for row in _load_component_rows(snapshot_root, "claim_adjudications.jsonl", "claim_id")
         if str(row.get("claim_id") or "")
     }
 
@@ -319,7 +358,12 @@ def build_candidate_pools(snapshot_root: Path, out_dir: Path) -> tuple[Path, Pat
         for row in article_rows:
             work = selected_works.get(str(row.get("openalex_id") or ""), {})
             work_record = work_records.get(str(row.get("openalex_id") or ""), {})
-            abstract = reconstruct_abstract(work) or _normalized_text(work_record.get("abstract")) or row.get("citation_summary") or ""
+            abstract = (
+                reconstruct_abstract(work)
+                or _normalized_text(work_record.get("abstract"))
+                or row.get("citation_summary")
+                or ""
+            )
             screen_fh.write(
                 json.dumps(
                     {
@@ -340,8 +384,15 @@ def build_candidate_pools(snapshot_root: Path, out_dir: Path) -> tuple[Path, Pat
         for row in article_rows:
             work = selected_works.get(str(row.get("openalex_id") or ""), {})
             work_record = work_records.get(str(row.get("openalex_id") or ""), {})
-            abstract = reconstruct_abstract(work) or _normalized_text(work_record.get("abstract")) or row.get("citation_summary") or ""
-            study_design = _normalized_text(row.get("methodology") or work_record.get("study_design"))
+            abstract = (
+                reconstruct_abstract(work)
+                or _normalized_text(work_record.get("abstract"))
+                or row.get("citation_summary")
+                or ""
+            )
+            study_design = _normalized_text(
+                row.get("methodology") or work_record.get("study_design")
+            )
             for claim in row.get("causal_claims") or []:
                 if not isinstance(claim, dict):
                     continue
@@ -377,11 +428,14 @@ def build_candidate_pools(snapshot_root: Path, out_dir: Path) -> tuple[Path, Pat
                         abstract,
                     )
                 )
-                source_basis = _normalized_text(
-                    (adjudication or {}).get("source_basis")
-                    or claim.get("source_basis")
-                    or row.get("source_basis")
-                ) or "abstract_only"
+                source_basis = (
+                    _normalized_text(
+                        (adjudication or {}).get("source_basis")
+                        or claim.get("source_basis")
+                        or row.get("source_basis")
+                    )
+                    or "abstract_only"
+                )
                 if not claim_id:
                     claim_id = _stable_claim_id(
                         paper_id=str(row.get("openalex_id") or ""),
@@ -408,7 +462,9 @@ def build_candidate_pools(snapshot_root: Path, out_dir: Path) -> tuple[Path, Pat
                             "source_basis": source_basis,
                             "design_family_hint": design_family_hint,
                             "supporting_spans": supporting_spans,
-                            "suggested_bucket": claim_bucket({**claim, **enriched_claim}, adjudication),
+                            "suggested_bucket": claim_bucket(
+                                {**claim, **enriched_claim}, adjudication
+                            ),
                             "paper_relevant_for_policy_causal_extraction": "",
                             "claim_present": "",
                             "claim_type": "",
@@ -429,7 +485,9 @@ def build_candidate_pools(snapshot_root: Path, out_dir: Path) -> tuple[Path, Pat
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Build academic gold candidate pools from a snapshot")
+    parser = argparse.ArgumentParser(
+        description="Build academic gold candidate pools from a snapshot"
+    )
     parser.add_argument("--snapshot-root", required=True)
     parser.add_argument("--out-dir", default="")
     args = parser.parse_args()

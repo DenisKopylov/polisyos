@@ -88,7 +88,9 @@ def test_run_causal_contract_execution_node_persists_aggregate_and_primary_refs(
     assert len(bundle.temporal_results) == 1
     assert bundle.bounds_results[0].status == "ok"
     assert bundle.temporal_results[0].status == "ok"
-    assert isinstance(outcome.state.artifacts_index[ARTIFACT_CAUSAL_EXECUTION_BUNDLE_REF], ArtifactRef)
+    assert isinstance(
+        outcome.state.artifacts_index[ARTIFACT_CAUSAL_EXECUTION_BUNDLE_REF], ArtifactRef
+    )
 
 
 def test_run_causal_contract_execution_task_assertion_is_not_swallowed(tmp_path) -> None:

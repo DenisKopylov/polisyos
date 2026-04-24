@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from polisyos.synthetic_world import SyntheticWorld, SyntheticWorldDGP, WorldFamily, phase0_seed_world_specs
+from polisyos.synthetic_world import (
+    SyntheticWorld,
+    SyntheticWorldDGP,
+    WorldFamily,
+    phase0_seed_world_specs,
+)
 
 
 def _required_targets(family: WorldFamily) -> set[str]:
@@ -75,7 +80,15 @@ def test_phase0_seed_worlds_cover_all_phase0_families_and_publish_truth_manifest
 
 
 def test_cross_sectional_world_supports_yaml_loading_and_replay() -> None:
-    fixture = Path(__file__).resolve().parents[2] / "src" / "polisyos" / "synthetic_world" / "configs" / "examples" / "phase0_cross_sectional.yaml"
+    fixture = (
+        Path(__file__).resolve().parents[2]
+        / "src"
+        / "polisyos"
+        / "synthetic_world"
+        / "configs"
+        / "examples"
+        / "phase0_cross_sectional.yaml"
+    )
     spec = SyntheticWorldDGP.from_path(fixture)
     world_a = SyntheticWorld.from_spec(spec)
     world_b = SyntheticWorld.from_yaml(fixture)
@@ -112,7 +125,11 @@ def test_evaluate_supports_scalar_and_vector_truth_targets() -> None:
 
 
 def test_survey_repeated_cross_section_supports_prefix_queries_and_plots() -> None:
-    spec = next(item for item in phase0_seed_world_specs() if item.family is WorldFamily.SURVEY_REPEATED_CROSS_SECTION)
+    spec = next(
+        item
+        for item in phase0_seed_world_specs()
+        if item.family is WorldFamily.SURVEY_REPEATED_CROSS_SECTION
+    )
     world = SyntheticWorld.from_spec(spec)
     truth = world.truth(prefixes=["survey.", "forecast."])
 
@@ -123,7 +140,9 @@ def test_survey_repeated_cross_section_supports_prefix_queries_and_plots() -> No
     prediction = {
         "ml.classification.probability": {
             "values": classification_truth.targets["ml.classification.probability"]["values"],
-            "labels": world.truth(targets=["ml.classification.label"]).targets["ml.classification.label"]["values"],
+            "labels": world.truth(targets=["ml.classification.label"]).targets[
+                "ml.classification.label"
+            ]["values"],
         }
     }
     evaluation = world.evaluate(predictions=prediction, hooks=("calibration",))
@@ -132,7 +151,11 @@ def test_survey_repeated_cross_section_supports_prefix_queries_and_plots() -> No
 
 
 def test_truth_spec_filters_families_but_preserves_explicit_extra_targets() -> None:
-    base_spec = next(item for item in phase0_seed_world_specs() if item.family is WorldFamily.SURVEY_REPEATED_CROSS_SECTION)
+    base_spec = next(
+        item
+        for item in phase0_seed_world_specs()
+        if item.family is WorldFamily.SURVEY_REPEATED_CROSS_SECTION
+    )
     spec = base_spec.model_copy(
         update={
             "truth": base_spec.truth.model_copy(
@@ -160,13 +183,21 @@ def test_artifact_manifest_carries_versions_and_replay_refs() -> None:
     assert artifact.truth_schema_version == "1.0.0"
     assert artifact.artifact_schema_version == "1.0.0"
     assert artifact.replay_key
-    assert artifact.latent_artifact_ref and artifact.latent_artifact_ref.startswith("synthetic-world://latent/")
-    assert artifact.observed_artifact_ref and artifact.observed_artifact_ref.startswith("synthetic-world://observed/")
-    assert artifact.truth_artifact_ref and artifact.truth_artifact_ref.startswith("synthetic-world://truth/")
+    assert artifact.latent_artifact_ref and artifact.latent_artifact_ref.startswith(
+        "synthetic-world://latent/"
+    )
+    assert artifact.observed_artifact_ref and artifact.observed_artifact_ref.startswith(
+        "synthetic-world://observed/"
+    )
+    assert artifact.truth_artifact_ref and artifact.truth_artifact_ref.startswith(
+        "synthetic-world://truth/"
+    )
 
 
 def test_truth_subset_filters_interval_payloads() -> None:
-    spec = next(item for item in phase0_seed_world_specs() if item.family is WorldFamily.PANEL_DYNAMIC)
+    spec = next(
+        item for item in phase0_seed_world_specs() if item.family is WorldFamily.PANEL_DYNAMIC
+    )
     world = SyntheticWorld.from_spec(spec)
     full_truth = world.truth(targets=["forecast.h1.interval_90"])
     unit_id = full_truth.targets["forecast.h1.interval_90"]["coords"]["unit_id"][0]
@@ -182,7 +213,9 @@ def test_evaluate_metric_filters_accept_suffix_and_qualified_metric_names() -> N
     spec = phase0_seed_world_specs()[0]
     world = SyntheticWorld.from_spec(spec)
     classification_truth = world.truth(targets=["ml.classification.probability"])
-    labels = world.truth(targets=["ml.classification.label"]).targets["ml.classification.label"]["values"]
+    labels = world.truth(targets=["ml.classification.label"]).targets["ml.classification.label"][
+        "values"
+    ]
     prediction = {
         "ml.classification.probability": {
             "values": classification_truth.targets["ml.classification.probability"]["values"],
@@ -191,7 +224,9 @@ def test_evaluate_metric_filters_accept_suffix_and_qualified_metric_names() -> N
     }
 
     suffix_run = world.evaluate(predictions=prediction, metrics=("brier",))
-    qualified_run = world.evaluate(predictions=prediction, metrics=("ml.classification.probability.log_loss",))
+    qualified_run = world.evaluate(
+        predictions=prediction, metrics=("ml.classification.probability.log_loss",)
+    )
 
     assert set(suffix_run.metrics) == {"ml.classification.probability.brier"}
     assert set(qualified_run.metrics) == {"ml.classification.probability.log_loss"}

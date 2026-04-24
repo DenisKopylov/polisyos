@@ -1,11 +1,12 @@
 """Public storage duckdb adapter module API."""
+
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping, Sequence
-from contextlib import contextmanager
-from typing import Any, Iterator
 import threading
+from collections.abc import Iterator, Mapping, Sequence
+from contextlib import contextmanager
+from typing import Any
 
 import pandas as pd
 

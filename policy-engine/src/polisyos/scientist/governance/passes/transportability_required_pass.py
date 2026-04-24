@@ -1,4 +1,5 @@
 """Require transportability evidence whenever causal effects cross source/target contexts."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -94,8 +95,7 @@ def _issues_from_cross_graph_profile(
                     pass_id="transportability_required",
                     path=["cross_graph", assessment.need.need_id],
                     message=(
-                        "Unified evidence profile marks this need as unsupported "
-                        "for transport."
+                        "Unified evidence profile marks this need as unsupported for transport."
                     ),
                     severity=severity,
                     code="TRANSPORT_REQUIRED_MISSING",
@@ -103,21 +103,19 @@ def _issues_from_cross_graph_profile(
                 )
             )
             continue
-        if (
-            assessment.transport_status in {
-                TransportStatus.PARTIALLY_IDENTIFIED,
-                TransportStatus.BOUNDED_NON_IDENTIFIED,
-            }
-            or assessment.observability_status
-            in {ObservabilityStatus.MISSING, ObservabilityStatus.PROXY_ONLY}
-        ):
+        if assessment.transport_status in {
+            TransportStatus.PARTIALLY_IDENTIFIED,
+            TransportStatus.BOUNDED_NON_IDENTIFIED,
+        } or assessment.observability_status in {
+            ObservabilityStatus.MISSING,
+            ObservabilityStatus.PROXY_ONLY,
+        }:
             issues.append(
                 ComplianceIssue(
                     pass_id="transportability_required",
                     path=["cross_graph", assessment.need.need_id],
                     message=(
-                        "Unified evidence profile requires transportability review "
-                        "before reuse."
+                        "Unified evidence profile requires transportability review before reuse."
                     ),
                     severity=IssueSeverity.WARNING,
                     code="TRANSPORT_REQUIRED_MISSING",
@@ -171,9 +169,7 @@ def _resolve_report_value(ctx: PassContext, raw_value: Any) -> CausalEffectRepor
                 reason="report_parse_failed",
                 exc=exc,
                 details={
-                    "raw_value_keys": (
-                        sorted(raw_value) if isinstance(raw_value, dict) else None
-                    )
+                    "raw_value_keys": (sorted(raw_value) if isinstance(raw_value, dict) else None)
                 },
             )
             return _load_report_from_ref(ctx, raw_value)
@@ -277,9 +273,7 @@ def _has_transportability_result(report: CausalEffectReport) -> bool:
 
 def _severity_for_partial_transport(ctx: PassContext) -> IssueSeverity:
     return (
-        IssueSeverity.BLOCKER
-        if ctx.profile.level is ProfileLevel.STRICT
-        else IssueSeverity.WARNING
+        IssueSeverity.BLOCKER if ctx.profile.level is ProfileLevel.STRICT else IssueSeverity.WARNING
     )
 
 
@@ -287,9 +281,7 @@ def _unsupported_transport_severity(ctx: PassContext) -> IssueSeverity:
     if _state_transport_required(ctx.state):
         return IssueSeverity.BLOCKER
     return (
-        IssueSeverity.BLOCKER
-        if ctx.profile.level is ProfileLevel.STRICT
-        else IssueSeverity.WARNING
+        IssueSeverity.BLOCKER if ctx.profile.level is ProfileLevel.STRICT else IssueSeverity.WARNING
     )
 
 
@@ -323,8 +315,7 @@ def _issue_for_transport_result(
             severity=_severity_for_partial_transport(ctx),
             code="TRANSPORT_PARTIAL_IDENTIFICATION",
             suggestion=(
-                "Review partial-identification regions or add stronger "
-                "target-context evidence."
+                "Review partial-identification regions or add stronger target-context evidence."
             ),
         )
     if transport.status is TransportabilityStatus.BOUNDED_NON_IDENTIFIED:

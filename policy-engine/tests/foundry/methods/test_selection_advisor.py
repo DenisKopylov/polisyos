@@ -117,12 +117,17 @@ def test_method_advisor_returns_ranked_payload_and_capability_matrix() -> None:
         "causal.treatment_effects.proxy_score@1.0.0",
     ]
     assert [row["fqn"] for row in result.payload] == [entry.fqn for entry in result.recommended]
-    assert [row["fqn"] for row in result.capability_matrix] == [entry.fqn for entry in result.recommended]
+    assert [row["fqn"] for row in result.capability_matrix] == [
+        entry.fqn for entry in result.recommended
+    ]
     assert result.capability_matrix[0]["truthfulness_tier"] == "exact"
     assert result.payload[0]["truthfulness_tier"] == "exact"
     assert result.payload[0]["implementation_depth_tier"] == "production_method"
     assert result.payload[0]["advisor_score"] > result.payload[1]["advisor_score"]
-    assert result.payload[0]["truthfulness_depth_score"] > result.payload[1]["truthfulness_depth_score"]
+    assert (
+        result.payload[0]["truthfulness_depth_score"]
+        > result.payload[1]["truthfulness_depth_score"]
+    )
     assert [item.fqn for item in result.score_trace] == [
         "causal.treatment_effects.tmle@1.0.0",
         "causal.treatment_effects.proxy_score@1.0.0",
@@ -335,7 +340,8 @@ def test_method_advisor_uses_declared_hmc_and_nuts_truthfulness_before_runtime_h
         entries=tuple(
             entry
             for entry in full_snapshot.entries
-            if entry.fqn in {
+            if entry.fqn
+            in {
                 "bayesian.sampling.hmc@1.0.0",
                 "bayesian.sampling.nuts@1.0.0",
             }

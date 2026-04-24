@@ -1,4 +1,5 @@
 """Public compile formalize verified policy module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -54,6 +55,7 @@ class FormalizeVerifiedPolicyNode:
     request frame and policy option set, and writes `inputs.trinity_bundle_ref`
     plus a `policy_trinity_generated` marker for downstream compile stages.
     """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -61,11 +63,17 @@ class FormalizeVerifiedPolicyNode:
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         if INPUT_TRINITY_BUNDLE_REF in state.inputs:
             return NodeOutcome(status="ok", state=state)
-        request_ref = state.policy_request_ref or state.artifacts_index.get(ARTIFACT_POLICY_REQUEST_FRAME_REF)
-        option_ref = state.policy_option_set_ref or state.artifacts_index.get(ARTIFACT_POLICY_OPTION_SET_REF)
+        request_ref = state.policy_request_ref or state.artifacts_index.get(
+            ARTIFACT_POLICY_REQUEST_FRAME_REF
+        )
+        option_ref = state.policy_option_set_ref or state.artifacts_index.get(
+            ARTIFACT_POLICY_OPTION_SET_REF
+        )
         if request_ref is None or option_ref is None:
             return NodeOutcome(status="skip", state=state)
-        frame = load_policy_request_frame(ctx.store, PolicyRequestFrameRef.model_validate(request_ref.model_dump()))
+        frame = load_policy_request_frame(
+            ctx.store, PolicyRequestFrameRef.model_validate(request_ref.model_dump())
+        )
         option_set = load_policy_option_set(
             ctx.store, PolicyOptionSetRef.model_validate(option_ref.model_dump())
         )
@@ -79,7 +87,9 @@ class FormalizeVerifiedPolicyNode:
             status="ok",
             state=new_state,
             artifacts=[trinity_ref],
-            events=[NodeEvent(level="info", message="Verified policy formalized into Trinity bundle.")],
+            events=[
+                NodeEvent(level="info", message="Verified policy formalized into Trinity bundle.")
+            ],
         )
 
 

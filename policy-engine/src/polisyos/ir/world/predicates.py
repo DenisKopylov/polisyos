@@ -1,4 +1,5 @@
 """World-graph predicate ids shared by claim, provenance, and relation exports."""
+
 from __future__ import annotations
 
 from polisyos.ir.world.abi import EdgeKind

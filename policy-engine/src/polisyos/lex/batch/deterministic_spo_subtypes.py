@@ -5,7 +5,12 @@ from __future__ import annotations
 from polisyos.lex.batch import deterministic_spo as _base
 from polisyos.lex.batch.quality_filters import has_explicit_threshold_cue
 
-_BASE_EXPORTS = {'re', 'canonicalize_action', 'canonicalize_norm_type', 'extract_thresholds_from_text'}
+_BASE_EXPORTS = {
+    "re",
+    "canonicalize_action",
+    "canonicalize_norm_type",
+    "extract_thresholds_from_text",
+}
 for _name in dir(_base):
     if _name.startswith("_") or _name in _BASE_EXPORTS:
         globals().setdefault(_name, getattr(_base, _name))
@@ -19,25 +24,32 @@ _WORD_THRESHOLD_ROW_RE = re.compile(
     re.IGNORECASE,
 )
 
+
 def _approval_object_hint(text: str) -> str:
-    lines = [_compact for _compact in (" ".join(line.split()) for line in text.splitlines()) if _compact]
+    lines = [
+        _compact for _compact in (" ".join(line.split()) for line in text.splitlines()) if _compact
+    ]
     skip_markers = ("розпорядженням", "постановою", "наказом", "від ", "n ", "№")
     for line in lines:
         lower = line.lower()
         if any(marker in lower for marker in skip_markers):
             continue
-        if lower.startswith(("затверджено", "схвалено", "погоджено", "затвердити", "схвалити", "погодити")):
+        if lower.startswith(
+            ("затверджено", "схвалено", "погоджено", "затвердити", "схвалити", "погодити")
+        ):
             continue
         if len(line) >= 5:
             return _clip_text(line, 220)
     return ""
 
 
-def _extract_amendment_bundle_candidates(*, text: str, doc_title: str) -> tuple[list[SPOCandidate], list[str]]:
+def _extract_amendment_bundle_candidates(
+    *, text: str, doc_title: str
+) -> tuple[list[SPOCandidate], list[str]]:
     cleaned = text.strip()
     if not cleaned:
         return [], []
-    quote = _clip_text(cleaned, size=360)
+    _clip_text(cleaned, size=360)
     candidates: list[SPOCandidate] = []
     reason_codes: list[str] = []
     seen_keys: set[tuple[str, str]] = set()
@@ -50,7 +62,9 @@ def _extract_amendment_bundle_candidates(*, text: str, doc_title: str) -> tuple[
         if citation_match or wording_match or amend_match:
             amend_target = doc_title or "зазначений акт"
             if citation_match:
-                amend_target = f"стаття/пункт {citation_match.group(1)} {doc_title or 'зазначеного акту'}"
+                amend_target = (
+                    f"стаття/пункт {citation_match.group(1)} {doc_title or 'зазначеного акту'}"
+                )
             elif wording_match:
                 amend_target = _clip_text(wording_match.group("object").strip(" .;:"), 220)
             else:
@@ -219,7 +233,9 @@ def _extract_approval_bundle_candidates(
                     "subtype_delegate_bundle",
                 )
 
-        requirement_match = _SUBJECT_REQUIRE_RE.search(analysis_fragment) or _APPLICATION_IMPERSONAL_REQUIRE_RE.search(analysis_fragment)
+        requirement_match = _SUBJECT_REQUIRE_RE.search(
+            analysis_fragment
+        ) or _APPLICATION_IMPERSONAL_REQUIRE_RE.search(analysis_fragment)
         if requirement_match:
             object_uk = _clip_text(
                 (requirement_match.groupdict().get("object") or "").strip(" .;:"),
@@ -344,7 +360,9 @@ def _extract_threshold_row_candidates_inner(
     analysis_text = _combine_with_context(cleaned, context_prefix)
     thresholds = [
         threshold
-        for threshold in extract_thresholds_from_text(analysis_text, applies_to=doc_title or "регульований показник")
+        for threshold in extract_thresholds_from_text(
+            analysis_text, applies_to=doc_title or "регульований показник"
+        )
         if str(getattr(threshold, "unit", "") or "").strip().lower() != "year"
         or has_explicit_threshold_cue(analysis_text)
     ]
@@ -360,7 +378,11 @@ def _extract_threshold_row_candidates_inner(
         reasons: list[str] = []
         subject = _clip_text(subject_hint or "регульований показник", 160)
         for threshold in raw_thresholds:
-            value_text = str(getattr(threshold, "value_text", "") or getattr(threshold, "value_decimal", "") or "").strip()
+            value_text = str(
+                getattr(threshold, "value_text", "")
+                or getattr(threshold, "value_decimal", "")
+                or ""
+            ).strip()
             unit = str(getattr(threshold, "unit", "") or "").strip()
             if not value_text:
                 continue
@@ -427,7 +449,9 @@ def _extract_threshold_row_candidates_inner(
         if multi_match:
             subject_uk = _clip_text(multi_match.group("subject").strip(" .;:"), 160)
             unit = str(multi_match.group("unit") or "").strip()
-            raw_values = [value for value in re.split(r"\s+", multi_match.group("values").strip()) if value]
+            raw_values = [
+                value for value in re.split(r"\s+", multi_match.group("values").strip()) if value
+            ]
             multi_candidates = [
                 _build_candidate(
                     subject_uk=subject_uk or "регульований показник",
@@ -442,11 +466,15 @@ def _extract_threshold_row_candidates_inner(
                 for value in raw_values
             ]
             if multi_candidates:
-                return multi_candidates, ["subtype_threshold_multivalue_row"] * len(multi_candidates)
+                return multi_candidates, ["subtype_threshold_multivalue_row"] * len(
+                    multi_candidates
+                )
         condition_match = _CONDITION_THRESHOLD_RE.search(cleaned)
         if condition_match:
             value_label = f"{condition_match.group('lemma').strip()} {condition_match.group('value').strip()} {condition_match.group('unit').strip()}"
-            subject_hint = _clip_text(cleaned[: max(12, condition_match.start())].strip(" .;:-"), 160)
+            subject_hint = _clip_text(
+                cleaned[: max(12, condition_match.start())].strip(" .;:-"), 160
+            )
             return [
                 _build_candidate(
                     subject_uk=subject_hint or doc_title or "регульований показник",
@@ -572,7 +600,9 @@ def _extract_application_requirement_candidates(
                 "subtype_application_requirement",
             )
 
-        impersonal_require_match = _APPLICATION_IMPERSONAL_REQUIRE_RE.search(chunk) or _APPLICATION_IMPERSONAL_REQUIRE_RE.search(analysis_chunk)
+        impersonal_require_match = _APPLICATION_IMPERSONAL_REQUIRE_RE.search(
+            chunk
+        ) or _APPLICATION_IMPERSONAL_REQUIRE_RE.search(analysis_chunk)
         if impersonal_require_match:
             object_uk = _clip_text(impersonal_require_match.group("object").strip(" .;:"), 220)
             if object_uk:
@@ -589,7 +619,9 @@ def _extract_application_requirement_candidates(
                     "subtype_application_requirement_impersonal",
                 )
 
-        impersonal_permission_match = _APPLICATION_IMPERSONAL_PERMISSION_RE.search(chunk) or _APPLICATION_IMPERSONAL_PERMISSION_RE.search(analysis_chunk)
+        impersonal_permission_match = _APPLICATION_IMPERSONAL_PERMISSION_RE.search(
+            chunk
+        ) or _APPLICATION_IMPERSONAL_PERMISSION_RE.search(analysis_chunk)
         if impersonal_permission_match:
             object_uk = _clip_text(impersonal_permission_match.group("object").strip(" .;:"), 220)
             if object_uk:
@@ -608,7 +640,9 @@ def _extract_application_requirement_candidates(
 
         subject_permission_matches = list(_APPLICATION_SUBJECT_PERMISSION_RE.finditer(chunk))
         if not subject_permission_matches:
-            subject_permission_matches = list(_APPLICATION_SUBJECT_PERMISSION_RE.finditer(analysis_chunk))
+            subject_permission_matches = list(
+                _APPLICATION_SUBJECT_PERMISSION_RE.finditer(analysis_chunk)
+            )
         for match in subject_permission_matches:
             subject_uk = _clip_text(match.group("subject").strip(" ,;:"), 140)
             object_uk = _clip_text(match.group("object").strip(" .;:"), 220)
@@ -617,7 +651,11 @@ def _extract_application_requirement_candidates(
                     _build_candidate(
                         subject_uk=subject_uk,
                         predicate="grants",
-                        object_uk=(f"має право {object_uk}" if "право" in match.group("lemma").lower() else object_uk),
+                        object_uk=(
+                            f"має право {object_uk}"
+                            if "право" in match.group("lemma").lower()
+                            else object_uk
+                        ),
                         norm_type="permission",
                         fact_text=f"{subject_uk} {match.group('lemma').strip().lower()} {object_uk}",
                         quote=chunk_quote,
@@ -626,7 +664,9 @@ def _extract_application_requirement_candidates(
                     "subtype_application_requirement_subject_permission",
                 )
 
-        completeness_match = _APPLICATION_COMPLETENESS_RE.search(chunk) or _APPLICATION_COMPLETENESS_RE.search(analysis_chunk)
+        completeness_match = _APPLICATION_COMPLETENESS_RE.search(
+            chunk
+        ) or _APPLICATION_COMPLETENESS_RE.search(analysis_chunk)
         if completeness_match:
             subject_uk = _clip_text(completeness_match.group("subject").strip(" .;:"), 180)
             object_uk = _clip_text(completeness_match.group("object").strip(" .;:"), 220)
@@ -644,7 +684,9 @@ def _extract_application_requirement_candidates(
                     "subtype_application_requirement_completeness",
                 )
 
-        passive_requirement_match = _PASSIVE_REQUIREMENT_RE.search(chunk) or _PASSIVE_REQUIREMENT_RE.search(analysis_chunk)
+        passive_requirement_match = _PASSIVE_REQUIREMENT_RE.search(
+            chunk
+        ) or _PASSIVE_REQUIREMENT_RE.search(analysis_chunk)
         if passive_requirement_match:
             object_uk = _clip_text(passive_requirement_match.group("object").strip(" .;:"), 220)
             if object_uk:
@@ -679,7 +721,9 @@ def _extract_application_requirement_candidates(
             ),
             "subtype_application_bullet_requirement",
         )
-    condition_match = _APPLICATION_CONDITION_RE.search(_combine_with_context(cleaned, context_prefix))
+    condition_match = _APPLICATION_CONDITION_RE.search(
+        _combine_with_context(cleaned, context_prefix)
+    )
     if condition_match:
         _append_candidate(
             _build_candidate(

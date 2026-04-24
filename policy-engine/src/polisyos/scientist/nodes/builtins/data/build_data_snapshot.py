@@ -1,4 +1,5 @@
 """Public data build data snapshot module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
@@ -61,7 +62,7 @@ class BuildDataSnapshotNode:
     def spec(self) -> NodeSpec:
         return _SPEC
 
-    def bind(self, params: dict[str, Any]) -> "BuildDataSnapshotNode":
+    def bind(self, params: dict[str, Any]) -> BuildDataSnapshotNode:
         if not params:
             return self
         allow_fabric = params.get("allow_fabric", self.allow_fabric)

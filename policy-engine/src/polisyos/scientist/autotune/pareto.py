@@ -85,7 +85,8 @@ class ParetoPromoter:
         return False
 
     def _extract_objectives(
-        self, evaluations: list[BenchmarkEvaluation],
+        self,
+        evaluations: list[BenchmarkEvaluation],
     ) -> list[dict[str, float]]:
         return [self._eval_objectives(ev) for ev in evaluations]
 
@@ -103,7 +104,9 @@ class ParetoPromoter:
         for policy in self._policies:
             value = ev.primary_value(split=policy.compare_split, metric=policy.primary_metric)
             if value is None:
-                value = float("inf") if policy.direction == MetricDirection.MINIMIZE else float("-inf")
+                value = (
+                    float("inf") if policy.direction == MetricDirection.MINIMIZE else float("-inf")
+                )
             # Normalize: higher is always better
             if policy.direction == MetricDirection.MINIMIZE:
                 values.append(-value)
@@ -127,18 +130,15 @@ class ParetoPromoter:
         return at_least_one_better
 
     def _find_non_dominated(
-        self, objectives: list[tuple[float, ...]],
+        self,
+        objectives: list[tuple[float, ...]],
     ) -> list[int]:
         if not objectives:
             return []
         objective_count = len(objectives[0])
         if objective_count == 1:
             best_value = max(item[0] for item in objectives)
-            return [
-                index
-                for index, point in enumerate(objectives)
-                if point[0] == best_value
-            ]
+            return [index for index, point in enumerate(objectives) if point[0] == best_value]
         if objective_count == 2:
             return self._find_non_dominated_2d(objectives)
         if objective_count == 3:
@@ -175,10 +175,7 @@ class ParetoPromoter:
         while cursor < len(ranked):
             first_value = objectives[ranked[cursor]][0]
             group: list[int] = []
-            while (
-                cursor < len(ranked)
-                and objectives[ranked[cursor]][0] == first_value
-            ):
+            while cursor < len(ranked) and objectives[ranked[cursor]][0] == first_value:
                 group.append(ranked[cursor])
                 cursor += 1
 
@@ -214,10 +211,7 @@ class ParetoPromoter:
         while cursor < len(ranked):
             first_value = objectives[ranked[cursor]][0]
             group: list[int] = []
-            while (
-                cursor < len(ranked)
-                and objectives[ranked[cursor]][0] == first_value
-            ):
+            while cursor < len(ranked) and objectives[ranked[cursor]][0] == first_value:
                 group.append(ranked[cursor])
                 cursor += 1
 
@@ -249,11 +243,7 @@ class ParetoPromoter:
         for candidate in candidates:
             if self._is_dominated_2d(merged, point=candidate):
                 continue
-            merged = [
-                point
-                for point in merged
-                if not self._dominates_vector(candidate, point)
-            ]
+            merged = [point for point in merged if not self._dominates_vector(candidate, point)]
             merged.append(candidate)
         merged.sort(key=lambda point: (point[0], point[1]), reverse=True)
         reduced: list[tuple[float, float]] = []
@@ -292,7 +282,8 @@ class ParetoPromoter:
         return at_least_one_better
 
     def _reference_point(
-        self, objectives: list[tuple[float, ...]],
+        self,
+        objectives: list[tuple[float, ...]],
     ) -> dict[str, float]:
         """Worst value per objective as reference point."""
         if not objectives:

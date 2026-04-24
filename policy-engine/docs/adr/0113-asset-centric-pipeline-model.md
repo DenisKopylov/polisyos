@@ -1,9 +1,11 @@
 # ADR-0113: Asset-Centric Pipeline Model
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context

@@ -4,14 +4,13 @@ from __future__ import annotations
 
 import json
 import time
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor  # noqa: F401 - legacy facade
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import duckdb
 
 from polisyos.common.logger import get_logger
-from polisyos.lex.batch.config import BatchConfig
 from polisyos.lex.batch.doc_family import classify_doc_family, infer_doc_type_category
 from polisyos.lex.batch.pipeline_helpers import (
     _active_references_dir,
@@ -24,8 +23,8 @@ from polisyos.lex.batch.pipeline_helpers import (
     _check_structure_quality_gate,
     _chunked,
     _doc_content_hash,
-    _extract_provisions_worker,
     _group_docs_by_spo_settings,
+    _load_doc_metadata_manifest,
     _process_structure_chunk,
     _should_extract_spo_from_span,
     _should_route_llm_gap_fill,
@@ -34,27 +33,31 @@ from polisyos.lex.batch.pipeline_helpers import (
     _statement_category_set,
     _to_provision_spans,
     _write_doc_domain,
-    _load_doc_metadata_manifest,
     _write_doc_metadata_manifest,
     _write_jsonl_rows,
+    extract_provisions_worker,
 )
 from polisyos.lex.batch.pipeline_types import (
     LLMGateStats,
     PipelineStats,
+    SPOLLMSettings,
     StratifiedAuditSampler,
     StructureQualityStats,
-    SPOLLMSettings,
 )
 from polisyos.lex.batch.progress import ProgressTracker
 from polisyos.lex.batch.provisions_io import read_provisions
 
 if TYPE_CHECKING:
+    from polisyos.lex.batch.config import BatchConfig
     from polisyos.lex.batch.llm_gate import GateRuntime
-    from polisyos.lex.batch.spo_extractor import GonkaClient
+    from polisyos.lex.batch.spo_extractor import SPOClient
     from polisyos.lex.batch.structurer import ProvisionSpan
     from polisyos.lex.batch.xml_parser import NPADocument
 
 logger = get_logger(__name__)
+
+_extract_provisions_worker = extract_provisions_worker
+
 
 async def _process_spo_chunk(
     *,
@@ -62,12 +65,15 @@ async def _process_spo_chunk(
     progress: ProgressTracker,
     docs_chunk: list[NPADocument],
     structure_cache: dict[str, list[dict]],
-    spo_client: GonkaClient | None,
+    spo_client: SPOClient | None,
     gate_runtime: GateRuntime,
     gate_stats: LLMGateStats,
 ) -> int:
     """Run SPO extraction for one document chunk with deterministic-first gating."""
-    from polisyos.lex.batch.deterministic_spo import extract_deterministic_spo, extract_family_retry_spo
+    from polisyos.lex.batch.deterministic_spo import (
+        extract_deterministic_spo,
+        extract_family_retry_spo,
+    )
     from polisyos.lex.batch.domain_classifier import classify_domains
     from polisyos.lex.batch.jurisdictions import get_jurisdiction_plugin
     from polisyos.lex.batch.llm_gate import build_gate_features, decide_route
@@ -113,7 +119,9 @@ async def _process_spo_chunk(
     # Maps text_hash → (doc_id, anchor_path) of the first occurrence.
     # Duplicate provisions get their SPO results cloned from the first.
     dedup_map: dict[str, tuple[str, str]] = {}  # text_hash → (doc_id, anchor)
-    dedup_pending: dict[str, list[tuple[str, ProvisionSpan]]] = {}  # text_hash → [(doc_id, span), ...]
+    dedup_pending: dict[
+        str, list[tuple[str, ProvisionSpan]]
+    ] = {}  # text_hash → [(doc_id, span), ...]
 
     total_spo = 0
     for doc in docs_chunk:
@@ -302,7 +310,10 @@ async def _process_spo_chunk(
                                 )
                             )
                         except Exception:
-                            logger.debug("Failed to validate SPOCandidate from rule classifier for doc {}", doc_id)
+                            logger.debug(
+                                "Failed to validate SPOCandidate from rule classifier for doc {}",
+                                doc_id,
+                            )
                             continue
                     if candidates:
                         result = SPOExtractionResult(
@@ -333,7 +344,11 @@ async def _process_spo_chunk(
                 threshold_bearing=span.threshold_bearing,
                 context_prefix=span.context_prefix,
             )
-            if not deterministic.candidates and quality_family in {"law", "appendix_heavy", "treaty_protocol"}:
+            if not deterministic.candidates and quality_family in {
+                "law",
+                "appendix_heavy",
+                "treaty_protocol",
+            }:
                 retry_deterministic = extract_family_retry_spo(
                     text=span.text,
                     citation_label=span.citation_label,
@@ -349,7 +364,9 @@ async def _process_spo_chunk(
 
             gate_stats.llm_candidate_total += 1
             llm_share = gate_stats.llm_primary_sent_total / max(1, gate_stats.llm_candidate_total)
-            gap_fill_share = gate_stats.llm_gap_fill_sent_total / max(1, gate_stats.llm_candidate_total)
+            gap_fill_share = gate_stats.llm_gap_fill_sent_total / max(
+                1, gate_stats.llm_candidate_total
+            )
             features = build_gate_features(
                 text=span.text,
                 deterministic_confidence=deterministic.confidence,
@@ -369,11 +386,13 @@ async def _process_spo_chunk(
                 threshold_bearing=span.threshold_bearing,
                 jurisdiction_plugin=jurisdiction_plugin,
             )
-            gap_fill_eligible, gap_fill_priority, gap_fill_reason_codes = _should_route_llm_gap_fill(
-                config=config,
-                span=span,
-                quality_family=quality_family,
-                deterministic_candidates=deterministic.candidates,
+            gap_fill_eligible, gap_fill_priority, gap_fill_reason_codes = (
+                _should_route_llm_gap_fill(
+                    config=config,
+                    span=span,
+                    quality_family=quality_family,
+                    deterministic_candidates=deterministic.candidates,
+                )
             )
             decision = decide_route(
                 gate_enabled=config.llm_gate_enabled,
@@ -392,13 +411,14 @@ async def _process_spo_chunk(
                 audit_sample_rate=config.llm_gate_audit_sample_rate,
                 audit_seed=f"{doc_id}:{span.anchor_path}",
             )
-            reason_codes = sorted(set(decision.reason_codes + deterministic.reason_codes + gap_fill_reason_codes))
+            reason_codes = sorted(
+                set(decision.reason_codes + deterministic.reason_codes + gap_fill_reason_codes)
+            )
             audit_eligible = not _should_skip_audit_for_span(span)
             forced_audit_sample = False
             if (
                 audit_eligible
-                and
-                decision.route not in {"llm", "llm_gap_fill", "audit_llm"}
+                and decision.route not in {"llm", "llm_gap_fill", "audit_llm"}
                 and audit_sampler.should_force_sample(
                     family=quality_family,
                     subtype=span.legal_unit_subtype,
@@ -409,7 +429,7 @@ async def _process_spo_chunk(
                 decision = type(decision)(
                     route="audit_llm",
                     score=decision.score,
-                    reason_codes=sorted(set(reason_codes + ["stratified_audit_quota"])),
+                    reason_codes=sorted({*reason_codes, "stratified_audit_quota"}),
                 )
                 reason_codes = list(decision.reason_codes)
                 forced_audit_sample = True
@@ -418,7 +438,7 @@ async def _process_spo_chunk(
                 decision = type(decision)(
                     route=fallback_route,
                     score=decision.score,
-                    reason_codes=sorted(set(reason_codes + ["audit_skip_low_signal_label"])),
+                    reason_codes=sorted({*reason_codes, "audit_skip_low_signal_label"}),
                 )
                 reason_codes = list(decision.reason_codes)
 
@@ -431,7 +451,8 @@ async def _process_spo_chunk(
                         statements=deterministic.candidates,
                         prompt_version="deterministic_spo_v1",
                         extract_passes=0,
-                        low_confidence=deterministic.confidence < config.llm_gate_auto_conf_threshold,
+                        low_confidence=deterministic.confidence
+                        < config.llm_gate_auto_conf_threshold,
                         extraction_source="rule_auto",
                         gate_score=decision.score,
                         gate_reason_codes=reason_codes,
@@ -452,13 +473,15 @@ async def _process_spo_chunk(
                     "gate_reason_codes": list(reason_codes),
                     **_span_signal_payload(span),
                 }
-                fallback_rows_by_anchor.setdefault(doc_id, {})[span.anchor_path] = _build_llm_fallback_row(
-                    doc_id=doc_id,
-                    span=span,
-                    deterministic_candidates=deterministic.candidates,
-                    gate_score=decision.score,
-                    gate_reason_codes=reason_codes,
-                    source_tag="llm_timeout_fallback",
+                fallback_rows_by_anchor.setdefault(doc_id, {})[span.anchor_path] = (
+                    _build_llm_fallback_row(
+                        doc_id=doc_id,
+                        span=span,
+                        deterministic_candidates=deterministic.candidates,
+                        gate_score=decision.score,
+                        gate_reason_codes=reason_codes,
+                        source_tag="llm_timeout_fallback",
+                    )
                 )
                 gate_stats.llm_sent_total += 1
                 gate_stats.llm_primary_sent_total += 1
@@ -469,24 +492,28 @@ async def _process_spo_chunk(
                 spans_by_doc_gap_fill.setdefault(doc_id, []).append(span)
                 gap_fill_settings_by_doc[doc_id] = routing_plan.llm_settings
                 for reason_code in gap_fill_reason_codes:
-                    gate_stats.llm_gap_fill_trigger_counts[reason_code] = int(
-                        gate_stats.llm_gap_fill_trigger_counts.get(reason_code, 0) or 0
-                    ) + 1
+                    gate_stats.llm_gap_fill_trigger_counts[reason_code] = (
+                        int(gate_stats.llm_gap_fill_trigger_counts.get(reason_code, 0) or 0) + 1
+                    )
                 gate_meta_by_anchor_gap_fill.setdefault(doc_id, {})[span.anchor_path] = {
                     "gate_score": float(decision.score),
                     "gate_reason_codes": list(reason_codes),
                     **_span_signal_payload(span),
                 }
-                fallback_rows_by_anchor_gap_fill.setdefault(doc_id, {})[span.anchor_path] = _build_llm_fallback_row(
-                    doc_id=doc_id,
-                    span=span,
-                    deterministic_candidates=deterministic.candidates,
-                    gate_score=decision.score,
-                    gate_reason_codes=reason_codes,
-                    source_tag="llm_gap_fill_timeout_fallback",
+                fallback_rows_by_anchor_gap_fill.setdefault(doc_id, {})[span.anchor_path] = (
+                    _build_llm_fallback_row(
+                        doc_id=doc_id,
+                        span=span,
+                        deterministic_candidates=deterministic.candidates,
+                        gate_score=decision.score,
+                        gate_reason_codes=reason_codes,
+                        source_tag="llm_gap_fill_timeout_fallback",
+                    )
                 )
                 gap_fill_family_by_anchor[(doc_id, span.anchor_path)] = quality_family
-                gap_fill_subtype_by_anchor[(doc_id, span.anchor_path)] = span.legal_unit_subtype or ""
+                gap_fill_subtype_by_anchor[(doc_id, span.anchor_path)] = (
+                    span.legal_unit_subtype or ""
+                )
                 gate_stats.llm_sent_total += 1
                 gate_stats.llm_gap_fill_sent_total += 1
                 continue
@@ -505,13 +532,15 @@ async def _process_spo_chunk(
                     "gate_reason_codes": list(reason_codes),
                     **_span_signal_payload(span),
                 }
-                fallback_rows_by_anchor_audit.setdefault(doc_id, {})[span.anchor_path] = _build_llm_fallback_row(
-                    doc_id=doc_id,
-                    span=span,
-                    deterministic_candidates=deterministic.candidates,
-                    gate_score=decision.score,
-                    gate_reason_codes=reason_codes,
-                    source_tag="audit_llm_timeout_fallback",
+                fallback_rows_by_anchor_audit.setdefault(doc_id, {})[span.anchor_path] = (
+                    _build_llm_fallback_row(
+                        doc_id=doc_id,
+                        span=span,
+                        deterministic_candidates=deterministic.candidates,
+                        gate_score=decision.score,
+                        gate_reason_codes=reason_codes,
+                        source_tag="audit_llm_timeout_fallback",
+                    )
                 )
                 audit_baseline.setdefault(doc_id, {})[span.anchor_path] = {
                     "baseline_count": len(deterministic.candidates),
@@ -556,7 +585,9 @@ async def _process_spo_chunk(
 
     failed_doc_ids_total: set[str] = set()
     if llm_available and docs_for_llm:
-        for llm_settings, llm_docs in _group_docs_by_spo_settings(docs_for_llm, llm_settings_by_doc):
+        for llm_settings, llm_docs in _group_docs_by_spo_settings(
+            docs_for_llm, llm_settings_by_doc
+        ):
             for docs_batch in _chunked(llm_docs, config.spo_batch_docs):
                 batch_spo, failed_ids = await _call_extract_spo_for_documents(
                     extract_spo_for_documents,
@@ -591,28 +622,34 @@ async def _process_spo_chunk(
                 failed_doc_ids_total.update(failed_ids)
 
     if llm_available and docs_for_gap_fill:
+
         def _gap_fill_sink(row: dict[str, object]) -> None:
             doc_id = str(row.get("doc_id") or "")
             anchor = str(row.get("provision_anchor") or "")
             family = gap_fill_family_by_anchor.get((doc_id, anchor), "other")
-            subtype = gap_fill_subtype_by_anchor.get((doc_id, anchor), str(row.get("legal_unit_subtype") or ""))
-            gate_stats.llm_gap_fill_family_counts[family] = int(
-                gate_stats.llm_gap_fill_family_counts.get(family, 0) or 0
-            ) + 1
+            subtype = gap_fill_subtype_by_anchor.get(
+                (doc_id, anchor), str(row.get("legal_unit_subtype") or "")
+            )
+            gate_stats.llm_gap_fill_family_counts[family] = (
+                int(gate_stats.llm_gap_fill_family_counts.get(family, 0) or 0) + 1
+            )
             if subtype:
-                gate_stats.llm_gap_fill_subtype_counts[subtype] = int(
-                    gate_stats.llm_gap_fill_subtype_counts.get(subtype, 0) or 0
-                ) + 1
+                gate_stats.llm_gap_fill_subtype_counts[subtype] = (
+                    int(gate_stats.llm_gap_fill_subtype_counts.get(subtype, 0) or 0) + 1
+                )
             gate_stats.llm_gap_fill_added_statements_total += int(
                 row.get("llm_gap_fill_added_statement_count", 0) or 0
             )
             extraction_source = str(row.get("extraction_source") or "")
             if extraction_source.endswith("timeout_fallback"):
                 gate_stats.llm_gap_fill_timeout_fallback_total += 1
-                gate_stats.llm_gap_fill_timeout_family_counts[family] = int(
-                    gate_stats.llm_gap_fill_timeout_family_counts.get(family, 0) or 0
-                ) + 1
-            elif extraction_source == "llm_gap_fill" and int(row.get("llm_gap_fill_llm_statement_count", 0) or 0) == 0:
+                gate_stats.llm_gap_fill_timeout_family_counts[family] = (
+                    int(gate_stats.llm_gap_fill_timeout_family_counts.get(family, 0) or 0) + 1
+                )
+            elif (
+                extraction_source == "llm_gap_fill"
+                and int(row.get("llm_gap_fill_llm_statement_count", 0) or 0) == 0
+            ):
                 gate_stats.llm_gap_fill_empty_responses_total += 1
                 gate_stats.llm_gap_fill_null_yield_total += 1
                 statements = row.get("statements")
@@ -623,7 +660,9 @@ async def _process_spo_chunk(
                 elif baseline_count > 0:
                     gate_stats.llm_gap_fill_null_yield_preserved_baseline_total += 1
 
-        for gap_fill_settings, gap_fill_docs in _group_docs_by_spo_settings(docs_for_gap_fill, gap_fill_settings_by_doc):
+        for gap_fill_settings, gap_fill_docs in _group_docs_by_spo_settings(
+            docs_for_gap_fill, gap_fill_settings_by_doc
+        ):
             for docs_batch in _chunked(gap_fill_docs, config.spo_batch_docs):
                 batch_spo, failed_ids = await _call_extract_spo_for_documents(
                     extract_spo_for_documents,
@@ -673,7 +712,9 @@ async def _process_spo_chunk(
             baseline_meta = audit_baseline.get(doc_id, {}).get(anchor, {})
             baseline_count = int(baseline_meta.get("baseline_count", 0) or 0)
             miss = llm_count > baseline_count
-            llm_categories = _statement_category_set(statements if isinstance(statements, list) else [])
+            llm_categories = _statement_category_set(
+                statements if isinstance(statements, list) else []
+            )
             baseline_categories = {
                 str(item)
                 for item in baseline_meta.get("baseline_categories", [])
@@ -726,24 +767,34 @@ async def _process_spo_chunk(
                     "primary_clause_miss_categories": primary_clause_miss_categories,
                     "secondary_clause_miss_categories": secondary_clause_miss_categories,
                     "empty_spo_only": bool(baseline_meta.get("empty_spo_only", False)),
-                    "llm_timeout_fallback": str(row.get("extraction_source") or "").endswith("timeout_fallback"),
+                    "llm_timeout_fallback": str(row.get("extraction_source") or "").endswith(
+                        "timeout_fallback"
+                    ),
                     "doc_type_category": str(baseline_meta.get("doc_type_category") or ""),
                     "quality_family": str(baseline_meta.get("quality_family") or "other"),
                     "gate_reason_codes": list(baseline_meta.get("gate_reason_codes") or []),
-                    "search_only_structure": bool(baseline_meta.get("search_only_structure", False)),
+                    "search_only_structure": bool(
+                        baseline_meta.get("search_only_structure", False)
+                    ),
                     "struct_kind": str(baseline_meta.get("struct_kind") or ""),
                     "section_role": str(baseline_meta.get("section_role") or ""),
                     "legal_unit_subtype": str(baseline_meta.get("legal_unit_subtype") or ""),
-                    "legal_unit_micro_subtype": str(baseline_meta.get("legal_unit_micro_subtype") or ""),
+                    "legal_unit_micro_subtype": str(
+                        baseline_meta.get("legal_unit_micro_subtype") or ""
+                    ),
                     "route_class": str(baseline_meta.get("route_class") or ""),
-                    "empty_spo_retry_eligible": bool(baseline_meta.get("empty_spo_retry_eligible", False)),
+                    "empty_spo_retry_eligible": bool(
+                        baseline_meta.get("empty_spo_retry_eligible", False)
+                    ),
                     "audit_miss_prone": bool(baseline_meta.get("audit_miss_prone", False)),
                     "reference_bearing": bool(baseline_meta.get("reference_bearing", False)),
                     "threshold_bearing": bool(baseline_meta.get("threshold_bearing", False)),
                 }
             )
 
-        for audit_settings, audit_docs in _group_docs_by_spo_settings(docs_for_audit_llm, audit_settings_by_doc):
+        for audit_settings, audit_docs in _group_docs_by_spo_settings(
+            docs_for_audit_llm, audit_settings_by_doc
+        ):
             for docs_batch in _chunked(audit_docs, config.spo_batch_docs):
                 batch_spo, failed_ids = await _call_extract_spo_for_documents(
                     extract_spo_for_documents,
@@ -781,11 +832,16 @@ async def _process_spo_chunk(
         if audit_rows:
             _write_jsonl_rows(str(config.llm_gate_audit_path), audit_rows, append=True)
             if config.pattern_feedback_enabled:
-                from polisyos.lex.batch.feedback import build_feedback_queue_rows, write_candidate_patterns
+                from polisyos.lex.batch.feedback import (
+                    build_feedback_queue_rows,
+                    write_candidate_patterns,
+                )
 
                 feedback_rows = build_feedback_queue_rows(audit_rows)
                 if feedback_rows:
-                    _write_jsonl_rows(str(config.pattern_feedback_queue_path), feedback_rows, append=True)
+                    _write_jsonl_rows(
+                        str(config.pattern_feedback_queue_path), feedback_rows, append=True
+                    )
                     write_candidate_patterns(
                         feedback_rows=feedback_rows,
                         output_dir=config.pattern_candidates_dir,
@@ -799,13 +855,27 @@ async def _process_spo_chunk(
                     miss_rate,
                 )
             gate_stats.circuit_breaker_hits = gate_runtime.circuit_breaker_hits
-    gate_stats.timeout_retry_groups_total += int(timeout_retry_telemetry["timeout_retry_groups_total"])
-    gate_stats.timeout_retry_success_total += int(timeout_retry_telemetry["timeout_retry_success_total"])
-    gate_stats.timeout_retry_failure_total += int(timeout_retry_telemetry["timeout_retry_failure_total"])
-    gate_stats.retry_followup_passes_run += int(timeout_retry_telemetry["retry_followup_passes_run"])
-    gate_stats.retry_followup_pending_items_total += int(timeout_retry_telemetry["retry_followup_pending_items_total"])
-    gate_stats.retry_followup_recovered_items_total += int(timeout_retry_telemetry["retry_followup_recovered_items_total"])
-    gate_stats.retry_followup_items_exhausted_total += int(timeout_retry_telemetry["retry_followup_items_exhausted_total"])
+    gate_stats.timeout_retry_groups_total += int(
+        timeout_retry_telemetry["timeout_retry_groups_total"]
+    )
+    gate_stats.timeout_retry_success_total += int(
+        timeout_retry_telemetry["timeout_retry_success_total"]
+    )
+    gate_stats.timeout_retry_failure_total += int(
+        timeout_retry_telemetry["timeout_retry_failure_total"]
+    )
+    gate_stats.retry_followup_passes_run += int(
+        timeout_retry_telemetry["retry_followup_passes_run"]
+    )
+    gate_stats.retry_followup_pending_items_total += int(
+        timeout_retry_telemetry["retry_followup_pending_items_total"]
+    )
+    gate_stats.retry_followup_recovered_items_total += int(
+        timeout_retry_telemetry["retry_followup_recovered_items_total"]
+    )
+    gate_stats.retry_followup_items_exhausted_total += int(
+        timeout_retry_telemetry["retry_followup_items_exhausted_total"]
+    )
 
     # --- Resolve dedup pending: clone SPO results for duplicate provisions ---
     if dedup_pending:
@@ -819,7 +889,7 @@ async def _process_spo_chunk(
             orig_spo_path = config.spo_results_dir / _sp(orig_doc_id) / f"{orig_doc_id}.jsonl"
             orig_row: dict | None = None
             if orig_spo_path.exists():
-                with open(orig_spo_path, "r", encoding="utf-8") as fh:
+                with open(orig_spo_path, encoding="utf-8") as fh:
                     for line in fh:
                         line = line.strip()
                         if not line:
@@ -851,9 +921,12 @@ async def _process_spo_chunk(
 
     for doc_id in docs_to_mark_done:
         if doc_id not in failed_doc_ids_total:
-            doc_hash = _doc_content_hash(next(
-                (d.text for d in docs_chunk if d.card.doc_id == doc_id), "",
-            ))
+            doc_hash = _doc_content_hash(
+                next(
+                    (d.text for d in docs_chunk if d.card.doc_id == doc_id),
+                    "",
+                )
+            )
             progress.mark_done(doc_id, "spo_extracted", content_hash=doc_hash)
 
     logger.info(
@@ -904,7 +977,7 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
         if run_spo and not llm_available:
             logger.warning("GONKA_API_KEY not set — running deterministic SPO only (no LLM calls).")
 
-        spo_client = None
+        spo_client: SPOClient | None = None
         if run_spo and llm_available:
             from polisyos.lex.batch.spo_extractor import GonkaClient, GonkaClientPool
 
@@ -942,7 +1015,11 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
                     "Using Gonka key pool: {} keys, per_key_concurrency={}, global_concurrency_cap={}, approx total rps={:.2f}",
                     len(llm_keys),
                     config.max_concurrent_llm,
-                    getattr(spo_client, "dispatch_worker_hint", len(llm_keys) * config.max_concurrent_llm),
+                    getattr(
+                        spo_client,
+                        "dispatch_worker_hint",
+                        len(llm_keys) * config.max_concurrent_llm,
+                    ),
                     len(llm_keys) * config.rate_limit_rps,
                 )
             else:
@@ -1036,7 +1113,8 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
 
                 # --max-docs: count only docs that still need work
                 is_new = _target_stage is None or not progress.is_done(
-                    doc.card.doc_id, _target_stage,
+                    doc.card.doc_id,
+                    _target_stage,
                 )
                 if is_new:
                     new_docs_count += 1
@@ -1046,9 +1124,7 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
                 chunk.append(doc)
 
                 # Flush chunk when full OR when --max-docs limit reached
-                reached_limit = (
-                    config.max_docs is not None and new_docs_count >= config.max_docs
-                )
+                reached_limit = config.max_docs is not None and new_docs_count >= config.max_docs
                 if not reached_limit and len(chunk) < max(1, config.xml_parse_chunk):
                     continue
 
@@ -1060,9 +1136,13 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
                         docs_chunk=chunk,
                     )
                     stats.total_provisions += added
-                    structure_quality_stats.provision_docs_total += chunk_structure_stats.provision_docs_total
+                    structure_quality_stats.provision_docs_total += (
+                        chunk_structure_stats.provision_docs_total
+                    )
                     structure_quality_stats.full_only_docs += chunk_structure_stats.full_only_docs
-                    structure_quality_stats.duplicate_anchor_docs += chunk_structure_stats.duplicate_anchor_docs
+                    structure_quality_stats.duplicate_anchor_docs += (
+                        chunk_structure_stats.duplicate_anchor_docs
+                    )
                     structure_elapsed += time.monotonic() - st
                     _check_structure_quality_gate(
                         config=config,
@@ -1101,9 +1181,13 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
                         docs_chunk=chunk,
                     )
                     stats.total_provisions += added
-                    structure_quality_stats.provision_docs_total += chunk_structure_stats.provision_docs_total
+                    structure_quality_stats.provision_docs_total += (
+                        chunk_structure_stats.provision_docs_total
+                    )
                     structure_quality_stats.full_only_docs += chunk_structure_stats.full_only_docs
-                    structure_quality_stats.duplicate_anchor_docs += chunk_structure_stats.duplicate_anchor_docs
+                    structure_quality_stats.duplicate_anchor_docs += (
+                        chunk_structure_stats.duplicate_anchor_docs
+                    )
                     structure_elapsed += time.monotonic() - st
                     _check_structure_quality_gate(
                         config=config,
@@ -1162,7 +1246,9 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
                 "audit_miss_total": gate_stats.audit_miss_total,
                 "audit_miss_rate_pct": round(gate_stats.audit_miss_rate_pct, 3),
                 "audit_miss_category_counts": gate_stats.audit_miss_category_counts,
-                "audit_miss_rate_pct_before_gap_fill_baseline": round(gate_stats.audit_miss_rate_pct, 3),
+                "audit_miss_rate_pct_before_gap_fill_baseline": round(
+                    gate_stats.audit_miss_rate_pct, 3
+                ),
                 "audit_miss_rate_pct_after_gap_fill": round(gate_stats.audit_miss_rate_pct, 3),
                 "circuit_breaker_hits": gate_stats.circuit_breaker_hits,
                 "safe_pass_active": int(bool(gate_runtime.safe_pass_active)) if gate_runtime else 0,
@@ -1219,7 +1305,7 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
                         "llm_gap_fill_enabled": config.llm_gap_fill_enabled,
                         "llm_gap_fill_max_share": config.llm_gap_fill_max_share,
                         "metrics": stats.llm_gate_metrics,
-                },
+                    },
                     fh,
                     ensure_ascii=False,
                     indent=2,
@@ -1237,9 +1323,14 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
     if needs_doc_metadata and not doc_metadata:
         doc_metadata = _load_doc_metadata_manifest(config.output_dir)
         if doc_metadata:
-            logger.info("Loaded {} documents from doc_metadata manifest (skipped XML parse).", len(doc_metadata))
+            logger.info(
+                "Loaded {} documents from doc_metadata manifest (skipped XML parse).",
+                len(doc_metadata),
+            )
             if config.doc_id_filter:
-                filtered = {did: m for did, m in doc_metadata.items() if did in config.doc_id_filter}
+                filtered = {
+                    did: m for did, m in doc_metadata.items() if did in config.doc_id_filter
+                }
                 stats.total_docs = len(filtered)
             else:
                 stats.total_docs = len(doc_metadata)
@@ -1286,15 +1377,15 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
             spo_results_dir=Path(_active_spo_results_dir(config)),
             provisions_dir=config.provisions_dir,
             references_dir=(
-                Path(_active_references_dir(config))
-                if config.extract_references_enabled
-                else None
+                Path(_active_references_dir(config)) if config.extract_references_enabled else None
             ),
             domains_dir=config.domains_dir if config.extract_domains_enabled else None,
             doc_metadata=doc_metadata,
             db_path=config.db_path,
             resolution_cards_path=config.cards_path,
-            feedback_queue_path=config.pattern_feedback_queue_path if config.pattern_feedback_enabled else None,
+            feedback_queue_path=config.pattern_feedback_queue_path
+            if config.pattern_feedback_enabled
+            else None,
             insert_batch_size=config.graph_insert_batch,
         )
         stats.entities = graph_stats.entities
@@ -1310,10 +1401,18 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
         stats.llm_gate_metrics["amendments_total"] = graph_stats.amendments
         stats.llm_gate_metrics["amendments_with_target_total"] = graph_stats.amendments_with_target
         stats.llm_gate_metrics["amendment_docs_total"] = graph_stats.amendment_docs_total
-        stats.llm_gate_metrics["amendment_docs_with_target_total"] = graph_stats.amendment_docs_with_target
-        stats.llm_gate_metrics["reference_resolution_audit_total"] = graph_stats.reference_resolution_audit
-        stats.llm_gate_metrics["reference_resolution_resolved_total"] = graph_stats.reference_resolution_resolved
-        stats.llm_gate_metrics["reference_resolution_partial_total"] = graph_stats.reference_resolution_partial
+        stats.llm_gate_metrics["amendment_docs_with_target_total"] = (
+            graph_stats.amendment_docs_with_target
+        )
+        stats.llm_gate_metrics["reference_resolution_audit_total"] = (
+            graph_stats.reference_resolution_audit
+        )
+        stats.llm_gate_metrics["reference_resolution_resolved_total"] = (
+            graph_stats.reference_resolution_resolved
+        )
+        stats.llm_gate_metrics["reference_resolution_partial_total"] = (
+            graph_stats.reference_resolution_partial
+        )
         stats.llm_gate_metrics["pattern_feedback_queue_total"] = graph_stats.pattern_feedback_queue
         from polisyos.lex.batch.consistency_checker import detect_consistency_issues
 
@@ -1376,9 +1475,13 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
             float(report.get("duplicate_anchor_rate_pct", 0.0)),
         )
         if gate.skipped_checks:
-            logger.info("Quality checks skipped due to low sample size: {}", ", ".join(gate.skipped_checks))
+            logger.info(
+                "Quality checks skipped due to low sample size: {}", ", ".join(gate.skipped_checks)
+            )
         if gate.warning_failed_checks:
-            logger.warning("Quality warning checks failed: {}", ", ".join(gate.warning_failed_checks))
+            logger.warning(
+                "Quality warning checks failed: {}", ", ".join(gate.warning_failed_checks)
+            )
         if gate.hotspot_failed_checks:
             logger.warning(
                 "Quality hotspot checks failed (triage-only): {}",
@@ -1391,8 +1494,7 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
             )
         if (not gate.passed) and config.quality_fail_on_critical:
             raise RuntimeError(
-                f"Quality gates failed: {', '.join(gate.failed_checks)}. "
-                f"Report: {gate.report}"
+                f"Quality gates failed: {', '.join(gate.failed_checks)}. Report: {gate.report}"
             )
 
     if "export_claims" in config.stages:
@@ -1444,14 +1546,28 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
             stats.quality_gate_passed = bool(gate_passed) if gate_passed is not None else None
         if stats.quality_passed is None:
             stats.quality_passed = stats.quality_gate_passed
-        if not stats.quality_gate_failed_checks and isinstance(qc_metrics.get("quality_gate_failed_checks"), list):
-            stats.quality_gate_failed_checks = list(qc_metrics.get("quality_gate_failed_checks", []))
+        if not stats.quality_gate_failed_checks and isinstance(
+            qc_metrics.get("quality_gate_failed_checks"), list
+        ):
+            stats.quality_gate_failed_checks = list(
+                qc_metrics.get("quality_gate_failed_checks", [])
+            )
             stats.quality_failed_checks = list(stats.quality_gate_failed_checks)
-        if not stats.quality_hotspot_failed_checks and isinstance(qc_metrics.get("quality_hotspot_failed_checks"), list):
-            stats.quality_hotspot_failed_checks = list(qc_metrics.get("quality_hotspot_failed_checks", []))
-        if not stats.quality_warning_failed_checks and isinstance(qc_metrics.get("quality_gate_warning_failed_checks"), list):
-            stats.quality_warning_failed_checks = list(qc_metrics.get("quality_gate_warning_failed_checks", []))
-        if not stats.quality_skipped_checks and isinstance(qc_metrics.get("quality_gate_skipped_checks"), list):
+        if not stats.quality_hotspot_failed_checks and isinstance(
+            qc_metrics.get("quality_hotspot_failed_checks"), list
+        ):
+            stats.quality_hotspot_failed_checks = list(
+                qc_metrics.get("quality_hotspot_failed_checks", [])
+            )
+        if not stats.quality_warning_failed_checks and isinstance(
+            qc_metrics.get("quality_gate_warning_failed_checks"), list
+        ):
+            stats.quality_warning_failed_checks = list(
+                qc_metrics.get("quality_gate_warning_failed_checks", [])
+            )
+        if not stats.quality_skipped_checks and isinstance(
+            qc_metrics.get("quality_gate_skipped_checks"), list
+        ):
             stats.quality_skipped_checks = list(qc_metrics.get("quality_gate_skipped_checks", []))
         stats.qc_passed = bool(qc_metrics.get("qc_passed", qc_report.passed))
         stats.qc_failed_checks = list(qc_metrics.get("qc_failed_checks", []))
@@ -1482,7 +1598,9 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
         "facts_normative": stats.normative_facts,
         "reference_edges": stats.reference_edges,
         "llm_gate_metrics": stats.llm_gate_metrics,
-        "llm_request_log_path": str(config.llm_request_log_path) if config.spo_request_log_enabled else "",
+        "llm_request_log_path": str(config.llm_request_log_path)
+        if config.spo_request_log_enabled
+        else "",
         "quality_gate_passed": stats.quality_gate_passed,
         "quality_passed": stats.quality_passed,
         "quality_gate_failed_checks": stats.quality_gate_failed_checks,

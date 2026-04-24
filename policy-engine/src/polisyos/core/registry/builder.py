@@ -1,4 +1,5 @@
 """Materialize immutable registry bundle artifacts in CAS."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -197,9 +198,7 @@ def build_registry_bundle(
     if trust_ref is not None:
         inputs.append(InputRef(artifact_id=trust_ref.artifact_id, role="trust_registry"))
     if predicate_ref is not None:
-        inputs.append(
-            InputRef(artifact_id=predicate_ref.artifact_id, role="predicate_registry")
-        )
+        inputs.append(InputRef(artifact_id=predicate_ref.artifact_id, role="predicate_registry"))
     if privacy_ref is not None:
         inputs.append(InputRef(artifact_id=privacy_ref.artifact_id, role="privacy_registry"))
 

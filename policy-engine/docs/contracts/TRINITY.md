@@ -1,6 +1,7 @@
 # Trinity Contracts (ProblemFrame, PolicySpec, ModelSpec)
 
 ## Rationale
+
 PolicySurfaceIR bundled the entire problem definition, policy actions, and model
 assumptions into a single artifact. This made sensitivity analysis difficult and
 blurred ownership boundaries. The Trinity split enforces separation of concerns:
@@ -13,22 +14,27 @@ This enables testing one policy across multiple world models while keeping goals
 stable across policy iterations.
 
 ## Artifact Overview
+
 ProblemFrame (Why)
+
 - Objectives, KPIs, success criteria.
 - Hard and soft constraints.
 - Stakeholders and narrative context.
 
 PolicySpec (What)
+
 - Policy interventions and targeting.
 - Mechanism bindings and tunable parameters.
 - Optional global scheduling and metadata.
 
 ModelSpec (How)
+
 - Data snapshot and registry bundle references.
 - Agent configuration and assumptions.
 - Environment parameters and fidelity level.
 
 Typed references are provided in `polisyos.core.contracts.trinity`:
+
 - ProblemFrameRef
 - PolicySpecRef
 - ModelSpecRef
@@ -36,7 +42,9 @@ Typed references are provided in `polisyos.core.contracts.trinity`:
 - TrinityManifest
 
 ## Usage Examples
+
 Minimal ProblemFrame:
+
 ```python
 from decimal import Decimal
 
@@ -58,6 +66,7 @@ problem = ProblemFrame(
 ```
 
 Minimal PolicySpec:
+
 ```python
 from decimal import Decimal
 
@@ -85,6 +94,7 @@ policy = PolicySpec(
 ```
 
 Minimal ModelSpec:
+
 ```python
 from polisyos.ir.model_spec import ModelSpec, FidelityLevel
 
@@ -96,6 +106,7 @@ model = ModelSpec(
 ```
 
 Typed reference bundle:
+
 ```python
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.trinity import (
@@ -114,6 +125,7 @@ bundle = TrinityBundle(
 ```
 
 ## Migration Path (Phase 2)
+
 PolicySurfaceIR is deprecated but still supported for backward compatibility.
 Canonical migration utilities live under `polisyos.ir.legacy.migrations`:
 
@@ -128,13 +140,16 @@ surface_ir, report = migrate_trinity_to_surface_ir(bundle)
 ```
 
 ## JSON Schema Snapshots
+
 Schema snapshots are generated via `tools/diagnostics/gen_schema.py` and stored under `schemas/snapshots/ir/`:
+
 - `trinity_bundle.schema.json`
 - `problem_frame.schema.json`
 - `policy_spec.schema.json`
 - `model_spec.schema.json`
 
 Example schema fragment (ProblemFrame):
+
 ```json
 {
   "title": "ProblemFrame",
@@ -150,9 +165,9 @@ Example schema fragment (ProblemFrame):
 
 ## D1-L4 Validation Links
 
-| Link type | Current anchor |
-|-----------|----------------|
-| Source plan phase | D1-L4 Phase 0 canon/CAS and registry/linker, Phase 1 schema compatibility |
-| Contract tests | `tests/contract/test_trinity_contracts.py`, `tests/contract/test_trinity_migration.py`, `tests/contract/test_trinity_linker_contract.py`, `tests/ir/test_trinity_loaders.py` |
-| Schema snapshots | `schemas/snapshots/ir/trinity_bundle.schema.json`, `schemas/snapshots/ir/problem_frame.schema.json`, `schemas/snapshots/ir/policy_spec.schema.json`, `schemas/snapshots/ir/model_spec.schema.json` |
-| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |
+| Link type           | Current anchor                                                                                                                                                                                     |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source plan phase   | D1-L4 Phase 0 canon/CAS and registry/linker, Phase 1 schema compatibility                                                                                                                          |
+| Contract tests      | `tests/contract/test_trinity_contracts.py`, `tests/contract/test_trinity_migration.py`, `tests/contract/test_trinity_linker_contract.py`, `tests/ir/test_trinity_loaders.py`                       |
+| Schema snapshots    | `schemas/snapshots/ir/trinity_bundle.schema.json`, `schemas/snapshots/ir/problem_frame.schema.json`, `schemas/snapshots/ir/policy_spec.schema.json`, `schemas/snapshots/ir/model_spec.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                             |

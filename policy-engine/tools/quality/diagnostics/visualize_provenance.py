@@ -7,6 +7,7 @@ Supports:
 - W3C PROV-JSON format
 - Loading from audit package (.polisyos-audit.tar.gz)
 """
+
 from __future__ import annotations
 
 import argparse
@@ -132,16 +133,14 @@ def export_core_to_dot(graph: dict[str, Any]) -> str:
     lines = [
         "digraph Provenance {",
         "    rankdir=BT;",
-        "    node [fontname=\"Helvetica\"];",
-        "    edge [fontname=\"Helvetica\", fontsize=10];",
+        '    node [fontname="Helvetica"];',
+        '    edge [fontname="Helvetica", fontsize=10];',
         "",
     ]
     for entity in graph.get("entities", []):
         eid = str(entity["entity_id"]).replace("-", "_")
         label = str(entity.get("label", entity["entity_id"]))[:30]
-        lines.append(
-            f'    {eid} [label="{label}", shape=box, style=filled, fillcolor=lightblue];'
-        )
+        lines.append(f'    {eid} [label="{label}", shape=box, style=filled, fillcolor=lightblue];')
     for activity in graph.get("activities", []):
         aid = str(activity["activity_id"]).replace("-", "_")
         label = str(activity.get("label", activity["activity_id"]))[:30]
@@ -237,7 +236,9 @@ def main() -> int:
         return 1
 
     if args.verify:
-        issues = verify_prov_json(payload) if input_format == "prov-json" else verify_core_graph(payload)
+        issues = (
+            verify_prov_json(payload) if input_format == "prov-json" else verify_core_graph(payload)
+        )
         if issues:
             print("VERIFICATION FAILED", file=sys.stderr)
             for issue in issues:

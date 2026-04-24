@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import os
 import uuid
+from collections.abc import Iterable
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -75,7 +76,7 @@ class InformedCriticConfig(BaseModel):
     failure_pattern_threshold: int = Field(default=3, ge=1, le=20)
 
     @classmethod
-    def from_env(cls) -> "InformedCriticConfig":
+    def from_env(cls) -> InformedCriticConfig:
         kwargs: dict[str, Any] = {}
         if os.getenv("POLISYOS_FEASIBILITY_CHECK_ENABLED", "").lower() == "false":
             kwargs["enable_feasibility_check"] = False
@@ -295,7 +296,9 @@ class InformedCriticAgent:
                     )
                 )
                 self._metrics.record_critic_preemptive_catch(catch_type="feasibility_empty")
-            elif result.matching_count > 0 and result.match_ratio < self._feasibility_min_match_ratio:
+            elif (
+                result.matching_count > 0 and result.match_ratio < self._feasibility_min_match_ratio
+            ):
                 issues.append(
                     CritiqueIssue(
                         issue_id=f"feasibility_tiny_target_{idx}",
@@ -348,9 +351,7 @@ class InformedCriticAgent:
                             },
                         )
                     )
-                    self._metrics.record_critic_preemptive_catch(
-                        catch_type="budget_exhausted"
-                    )
+                    self._metrics.record_critic_preemptive_catch(catch_type="budget_exhausted")
 
         return issues
 
@@ -373,7 +374,9 @@ class InformedCriticAgent:
             return []
 
         issues: list[CritiqueIssue] = []
-        for prohibition in (norm for norm in norm_pack.norms if norm.rule_type == RuleType.PROHIBITION):
+        for prohibition in (
+            norm for norm in norm_pack.norms if norm.rule_type == RuleType.PROHIBITION
+        ):
             prohibition_tokens = set(self._keywords(prohibition.description))
             if not prohibition_tokens:
                 continue
@@ -407,7 +410,10 @@ class InformedCriticAgent:
         for issue in list(pre_issues) + list(inner_issues):
             signature = self._issue_signature(issue, domain=domain)
             current = merged.get(signature)
-            if current is None or _SEVERITY_ORDER[issue.severity] > _SEVERITY_ORDER[current.severity]:
+            if (
+                current is None
+                or _SEVERITY_ORDER[issue.severity] > _SEVERITY_ORDER[current.severity]
+            ):
                 merged[signature] = issue
         return list(merged.values())
 

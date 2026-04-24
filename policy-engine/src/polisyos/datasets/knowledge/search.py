@@ -2,21 +2,25 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from pathlib import Path
 import re
 import time
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from polisyos.common.logger import get_logger
 from polisyos.datasets.knowledge.store import DatasetCatalogStore
-from polisyos.datasets.knowledge.types import (
-    DatasetSearchResult,
-    DistributionResult,
-    MetricBindingMatch,
-    ResolvedFetchTarget,
-)
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.datasets.knowledge.types import (
+        DatasetSearchResult,
+        DistributionResult,
+        MetricBindingMatch,
+        ResolvedFetchTarget,
+    )
 
 logger = get_logger(__name__)
 _TEXT_QUERY_EXPANSIONS: tuple[tuple[str, str], ...] = (
@@ -197,6 +201,7 @@ _SOURCE_QUERY_HINTS: dict[str, tuple[str, ...]] = {
 @dataclass(frozen=True)
 class SearchFilters:
     """Search filters public type."""
+
     sources: tuple[str, ...] = ()
     formats: tuple[str, ...] = ()
     countries: tuple[str, ...] = ()
@@ -210,6 +215,7 @@ class SearchFilters:
 @dataclass(frozen=True)
 class QueryMetrics:
     """Query metrics data model."""
+
     query: str
     vector_search_ms: float = 0.0
     text_search_ms: float = 0.0
@@ -268,7 +274,9 @@ class DatasetCatalogGraph:
         except Exception as exc:
             self._embedding_disabled = True
             if not self._embedding_warning_logged:
-                logger.warning("Failed to enable query embeddings; falling back to text-only search: {}", exc)
+                logger.warning(
+                    "Failed to enable query embeddings; falling back to text-only search: {}", exc
+                )
                 self._embedding_warning_logged = True
             return None
 
@@ -280,9 +288,7 @@ class DatasetCatalogGraph:
         queries = [query]
         extras: list[str] = []
         tokens = {
-            token
-            for token in re.split(r"[^\w]+", normalized, flags=re.UNICODE)
-            if len(token) >= 2
+            token for token in re.split(r"[^\w]+", normalized, flags=re.UNICODE) if len(token) >= 2
         }
         for needle, expansion in _TEXT_QUERY_EXPANSIONS:
             if needle in normalized or any(needle in token for token in tokens):
@@ -338,7 +344,9 @@ class DatasetCatalogGraph:
         haystack = DatasetCatalogGraph._dataset_haystack(item)
         tokens = [
             token
-            for token in dict.fromkeys(re.split(r"[^\w]+", _normalize_text(query), flags=re.UNICODE))
+            for token in dict.fromkeys(
+                re.split(r"[^\w]+", _normalize_text(query), flags=re.UNICODE)
+            )
             if len(token) >= 2
         ]
         return [token for token in tokens if token in haystack]
@@ -348,11 +356,15 @@ class DatasetCatalogGraph:
         expanded = DatasetCatalogGraph._expanded_text_queries(query)
         if len(expanded) <= 1:
             return []
-        return expanded[-1].split()[len(query.split()):]
+        return expanded[-1].split()[len(query.split()) :]
 
     @staticmethod
     def _freshness_boost(item: DatasetSearchResult) -> float:
-        candidate_year = _safe_year(item.last_updated) or _safe_year(item.coverage.time_end) or _safe_year(item.temporal_end)
+        candidate_year = (
+            _safe_year(item.last_updated)
+            or _safe_year(item.coverage.time_end)
+            or _safe_year(item.temporal_end)
+        )
         if candidate_year is None:
             return 0.0
         if candidate_year >= 2024:
@@ -367,7 +379,9 @@ class DatasetCatalogGraph:
     def _metric_boost(item: DatasetSearchResult, query: str) -> float:
         normalized_query = _normalize_text(query)
         metric_tokens = {_normalize_text(metric) for metric in item.polisyos_metrics if metric}
-        base = 0.25 if any(metric and metric in normalized_query for metric in metric_tokens) else 0.0
+        base = (
+            0.25 if any(metric and metric in normalized_query for metric in metric_tokens) else 0.0
+        )
         # Source-metric affinity: authoritative source for this metric gets extra boost
         affinity = _SOURCE_METRIC_AFFINITY.get(
             (item.source or "", next(iter(metric_tokens), "")), 0.0
@@ -378,7 +392,11 @@ class DatasetCatalogGraph:
     def _source_boost(item: DatasetSearchResult, query: str) -> float:
         hints = _SOURCE_QUERY_HINTS.get(item.source or "", ())
         normalized_query = _normalize_text(query)
-        return 0.3 if hints and any(_normalize_text(hint) in normalized_query for hint in hints) else 0.0
+        return (
+            0.3
+            if hints and any(_normalize_text(hint) in normalized_query for hint in hints)
+            else 0.0
+        )
 
     @staticmethod
     def _tier_boost(item: DatasetSearchResult) -> float:
@@ -403,7 +421,9 @@ class DatasetCatalogGraph:
             if not allowed_formats.intersection({fmt.strip().lower() for fmt in item.formats}):
                 return False
         if filters.countries:
-            allowed_countries = {country.strip().upper() for country in filters.countries if country.strip()}
+            allowed_countries = {
+                country.strip().upper() for country in filters.countries if country.strip()
+            }
             item_countries = {country.strip().upper() for country in item.coverage.countries}
             if item.spatial:
                 item_countries.add(item.spatial.strip().upper())
@@ -415,15 +435,23 @@ class DatasetCatalogGraph:
                 return False
         if filters.execution_tier and item.execution_tier != filters.execution_tier:
             return False
-        if filters.min_quality_score is not None and item.quality.execution_readiness_score < float(filters.min_quality_score):
+        if filters.min_quality_score is not None and item.quality.execution_readiness_score < float(
+            filters.min_quality_score
+        ):
             return False
         item_start = _safe_year(item.coverage.time_start) or _safe_year(item.temporal_start)
         item_end = _safe_year(item.coverage.time_end) or _safe_year(item.temporal_end)
-        if filters.year_min is not None and item_end is not None and item_end < int(filters.year_min):
+        if (
+            filters.year_min is not None
+            and item_end is not None
+            and item_end < int(filters.year_min)
+        ):
             return False
-        if filters.year_max is not None and item_start is not None and item_start > int(filters.year_max):
-            return False
-        return True
+        return not (
+            filters.year_max is not None
+            and item_start is not None
+            and item_start > int(filters.year_max)
+        )
 
     def _with_explanation(
         self,
@@ -452,7 +480,9 @@ class DatasetCatalogGraph:
             "matched_terms": self._match_terms(item, query),
             "expansion_terms": self._expansion_terms(query),
         }
-        return item.model_copy(update={"similarity": final_score, "search_explanation": explanation})
+        return item.model_copy(
+            update={"similarity": final_score, "search_explanation": explanation}
+        )
 
     def search_datasets(
         self,
@@ -485,7 +515,9 @@ class DatasetCatalogGraph:
                 after_filter=len(filtered),
                 returned=len(results),
                 top_score=float(results[0].similarity) if results else 0.0,
-                mean_score=float(sum(item.similarity for item in results) / len(results)) if results else 0.0,
+                mean_score=float(sum(item.similarity for item in results) / len(results))
+                if results
+                else 0.0,
             )
             return [
                 self._with_explanation(
@@ -493,7 +525,11 @@ class DatasetCatalogGraph:
                     query=query,
                     text_score=float(item.similarity),
                     vector_score=0.0,
-                    final_score=float(item.similarity) + self._metric_boost(item, query) + self._source_boost(item, query) + self._freshness_boost(item) + self._tier_boost(item),
+                    final_score=float(item.similarity)
+                    + self._metric_boost(item, query)
+                    + self._source_boost(item, query)
+                    + self._freshness_boost(item)
+                    + self._tier_boost(item),
                     explain=explain,
                 )
                 for item in results
@@ -522,7 +558,13 @@ class DatasetCatalogGraph:
         ranked_pairs: list[tuple[str, float]] = []
         for dataset_id, base_score in scores.items():
             item = result_map[dataset_id]
-            final_score = base_score + self._metric_boost(item, query) + self._source_boost(item, query) + self._freshness_boost(item) + self._tier_boost(item)
+            final_score = (
+                base_score
+                + self._metric_boost(item, query)
+                + self._source_boost(item, query)
+                + self._freshness_boost(item)
+                + self._tier_boost(item)
+            )
             ranked_pairs.append((dataset_id, final_score))
         ranked = sorted(ranked_pairs, key=lambda pair: pair[1], reverse=True)
         out: list[DatasetSearchResult] = []
@@ -574,7 +616,9 @@ class DatasetCatalogGraph:
         related = self.search_datasets(
             query,
             top_k=max(top_k * 3, 10),
-            filters=SearchFilters(metrics=tuple(base_dataset.polisyos_metrics)) if base_dataset.polisyos_metrics else None,
+            filters=SearchFilters(metrics=tuple(base_dataset.polisyos_metrics))
+            if base_dataset.polisyos_metrics
+            else None,
         )
         deduped = [item for item in related if item.id != dataset_id]
         return deduped[:top_k]
@@ -583,13 +627,19 @@ class DatasetCatalogGraph:
     def last_query_metrics(self) -> QueryMetrics | None:
         return self._last_query_metrics
 
-    def find_by_polisyos_metric(self, metric_name: str, *, top_k: int = 20) -> list[DatasetSearchResult]:
+    def find_by_polisyos_metric(
+        self, metric_name: str, *, top_k: int = 20
+    ) -> list[DatasetSearchResult]:
         return self._store.find_by_polisyos_metric(metric_name, top_k=top_k)
 
-    def find_by_variables(self, variables: list[str], *, top_k: int = 20) -> list[DatasetSearchResult]:
+    def find_by_variables(
+        self, variables: list[str], *, top_k: int = 20
+    ) -> list[DatasetSearchResult]:
         return self._store.find_by_variables(variables, top_k=top_k)
 
-    def resolve_metric_bindings(self, metric_name: str, *, top_k: int = 20) -> list[MetricBindingMatch]:
+    def resolve_metric_bindings(
+        self, metric_name: str, *, top_k: int = 20
+    ) -> list[MetricBindingMatch]:
         return self._store.resolve_metric_bindings(metric_name, top_k=top_k)
 
     def resolve_fetch_target(self, dataset_id: str) -> ResolvedFetchTarget | None:

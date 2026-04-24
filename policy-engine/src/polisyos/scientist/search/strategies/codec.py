@@ -115,11 +115,7 @@ class ScalarParameterCodec:
 
     def encode(self, candidate: dict[str, Any]) -> dict[str, Any]:
         if not self.parameter_paths:
-            return {
-                key: value
-                for key, value in candidate.items()
-                if key != "semantic"
-            }
+            return {key: value for key, value in candidate.items() if key != "semantic"}
 
         params: dict[str, Any] = {}
         for param_name, path in self.parameter_paths.items():

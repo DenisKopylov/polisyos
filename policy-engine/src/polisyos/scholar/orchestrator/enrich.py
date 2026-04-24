@@ -1,16 +1,14 @@
 """Public orchestrator enrich module API."""
+
 from __future__ import annotations
 
 import time
 import warnings
 from collections import Counter
 from dataclasses import replace
-from datetime import datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import (
     ENTRY_POINT_GROUP_LEX_EXTRACTORS,
     ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS,
@@ -57,7 +55,6 @@ from polisyos.scholar.orchestrator.bundle import (
     persist_bundle_and_event,
 )
 from polisyos.scholar.policies import ScholarPolicy
-from polisyos.scholar.search.models import WebEvidenceBundle
 from polisyos.scholar.types import (
     AcquireResult,
     ClaimsPipelineRefs,
@@ -66,6 +63,13 @@ from polisyos.scholar.types import (
     EnrichResultV1,
     ReconcileRefs,
 )
+
+if TYPE_CHECKING:
+    from datetime import datetime
+    from pathlib import Path
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.scholar.search.models import WebEvidenceBundle
 
 logger = get_logger(__name__)
 
@@ -369,8 +373,7 @@ def _web_evidence_payload(
             for snippet in bundle.snippets
         ],
         "claim_supports": [
-            support.model_dump(mode="json", exclude_none=True)
-            for support in bundle.claim_supports
+            support.model_dump(mode="json", exclude_none=True) for support in bundle.claim_supports
         ],
     }
 
@@ -767,9 +770,7 @@ def enrich_topic(
         conflict_set_artifact_ids=reconcile_refs.conflict_set_artifact_ids,
         conflict_resolution_artifact_ids=reconcile_refs.conflict_resolution_artifact_ids,
         trust_assessment_ids=reconcile_refs.trust_assessment_ids,
-        trust_assessment_artifact_ids_by_id=(
-            reconcile_refs.trust_assessment_artifact_ids_by_id
-        ),
+        trust_assessment_artifact_ids_by_id=(reconcile_refs.trust_assessment_artifact_ids_by_id),
         quality_report_ids=reconcile_refs.quality_report_ids,
         quality_report_artifact_ids=reconcile_refs.quality_report_artifact_ids,
         web_evidence=web_evidence_payload,
@@ -823,7 +824,9 @@ def enrich_topic(
             "snippets_count": len(web_evidence_payload.get("snippets") or []),
             "claim_supports_count": len(web_evidence_payload.get("claim_supports") or []),
             "uncertainty_notes": list(web_evidence_payload.get("uncertainty_notes") or []),
-        } if web_evidence_payload else {},
+        }
+        if web_evidence_payload
+        else {},
         artifacts={
             "doc_meta_artifact_ids": selected_doc_meta_ids,
             "claim_set_artifact_ids": sorted(set(normalized_claim_set_artifact_ids)),

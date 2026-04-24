@@ -1,17 +1,18 @@
 """Expose posterior-inference and Bayesian regression/mixture methods."""
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
 from polisyos.foundry.methods.registry import MethodRegistry
 
+from ._registry_boot import register_bayesian_methods
 from .advanced import (
     BayesianGaussianMixtureEstimator,
-    BayesianHMCRegressionEstimator,
     BayesianHierarchicalRegressionEstimator,
+    BayesianHMCRegressionEstimator,
     BayesianNUTSRegressionEstimator,
     DirichletProcessMixtureEstimator,
 )
-from ._registry_boot import register_bayesian_methods
 from .frontier import (
     AffineNormalizingFlowPosteriorAdapter,
     BayesianBARTRegressorEstimator,
@@ -44,16 +45,16 @@ __all__ = [
     "BayesianGaussianMixtureEstimator",
     "BayesianHMCRegressionEstimator",
     "BayesianHierarchicalRegressionEstimator",
-    "BayesianNUTSRegressionEstimator",
     "BayesianLinearRegressionEstimator",
+    "BayesianNUTSRegressionEstimator",
     "DirichletProcessMixtureEstimator",
     "ExpectationPropagationGaussianEstimator",
     "FactorGraphBeliefPropagationEstimator",
     "PosteriorResult",
+    "SVGDRegressionEstimator",
     "SimulationBasedNLEEstimator",
     "SimulationBasedNPEEstimator",
     "SimulationBasedNREEstimator",
-    "SVGDRegressionEstimator",
     "TruthfulnessEvidence",
     "TruthfulnessTier",
     "ensure_bayesian_methods_registered",

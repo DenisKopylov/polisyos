@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import pandas as pd
@@ -12,7 +12,7 @@ from polisyos.ir.connectors import DataVersion, FetchResult, QualityTier, Versio
 
 
 def _fetch_result(data) -> FetchResult:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     return FetchResult(
         data=data,
         row_count=len(data),
@@ -36,7 +36,9 @@ def test_row_isolation_quarantines_bad_transform_rows_without_losing_batch(tmp_p
 
     class FakePipeline:
         def compile(self):
-            return SimpleNamespace(stages=[SimpleNamespace(name="validate", transform=ValidationTransform())])
+            return SimpleNamespace(
+                stages=[SimpleNamespace(name="validate", transform=ValidationTransform())]
+            )
 
         def apply(self, data, context=None):
             del context

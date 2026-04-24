@@ -1,4 +1,5 @@
 """Provider bundle helpers for connector-ingestion entrypoints."""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -50,23 +51,11 @@ def resolve_ingestion_dependencies(
 ) -> IngestionDependencies:
     """Resolve connector-ingestion dependencies once at the API boundary."""
     if registry is None:
-        registry = (
-            registry_factory()
-            if registry_factory is not None
-            else _default_registry()
-        )
+        registry = registry_factory() if registry_factory is not None else _default_registry()
     if tracer is None:
-        tracer = (
-            tracer_factory()
-            if tracer_factory is not None
-            else _default_tracer()
-        )
+        tracer = tracer_factory() if tracer_factory is not None else _default_tracer()
     if metrics is None:
-        metrics = (
-            metrics_factory()
-            if metrics_factory is not None
-            else _default_metrics()
-        )
+        metrics = metrics_factory() if metrics_factory is not None else _default_metrics()
     return IngestionDependencies(
         registry=registry,
         tracer=tracer,

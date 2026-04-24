@@ -1,10 +1,18 @@
 """Typed contracts for generative network estimators and design-stage outputs."""
+
 from __future__ import annotations
 
 from typing import Any, ClassVar, Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 
 from .protocols import NetworkData
 
@@ -35,7 +43,7 @@ class EdgeListNetworkData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "EdgeListNetworkData":
+    def _validate_shapes(self) -> EdgeListNetworkData:
         if not isinstance(self.edge_index, np.ndarray) or self.edge_index.ndim != 2:
             raise ValueError("edge_index must be a 2D numpy array")
         if self.edge_index.shape[1] != 2:
@@ -102,7 +110,9 @@ class EdgeListNetworkData(BaseModel):
             metadata=dict(self.metadata),
         )
 
-    @field_serializer("edge_index", "edge_weight", "node_features", "node_states", mode="plain", when_used="json")
+    @field_serializer(
+        "edge_index", "edge_weight", "node_features", "node_states", mode="plain", when_used="json"
+    )
     def _serialize_numpy(self, value: Any) -> Any:
         if isinstance(value, np.ndarray):
             return value.tolist()
@@ -211,7 +221,7 @@ class DiffusionNullResult(BaseModel):
 
 __all__ = [
     "DiffusionNullResult",
-    "EdgeListNetworkData",
     "ERGMResult",
+    "EdgeListNetworkData",
     "SBMStratificationResult",
 ]

@@ -2,15 +2,17 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from polisyos.ir.kernel.values import MoneyValue, RateValue
-from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.norm_pack import NormPack, NormRef, NormRule, RuleType
 from polisyos.ir.governance.problem_frame import (
     ConstraintSpec,
     ConstraintType,
     ProblemDomain,
+)
+from polisyos.ir.governance.problem_frame import (
     ProblemFrame as IRProblemFrame,
 )
+from polisyos.ir.kernel.values import MoneyValue, RateValue
+from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.norm_pack import NormPack, NormRef, NormRule, RuleType
 from polisyos.scientist.agent.constitution import ConstitutionGenerator, KnownPitfall
 from polisyos.scientist.agent.protocols import ProblemFrame as AgentProblemFrame
 

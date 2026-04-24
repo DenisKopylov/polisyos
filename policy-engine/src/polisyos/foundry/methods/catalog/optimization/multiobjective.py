@@ -1,8 +1,10 @@
 """Public optimization multiobjective module API."""
+
 from __future__ import annotations
 
 import time
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -42,6 +44,7 @@ def _serialize_result(result: OptimizationResult) -> dict[str, Any]:
 )
 class MultiObjectiveNSGA2Estimator:
     """Search Pareto-efficient policy designs with NSGA-II when objectives conflict."""
+
     runtime_stack: ClassVar[tuple[str, ...]] = ("pymoo", "numpy")
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -96,13 +99,17 @@ class MultiObjectiveNSGA2Estimator:
     )
 
     @staticmethod
-    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> Mapping[str, Any]:
+    def materialize_input(
+        bound_inputs: Mapping[str, Any], fallback_state: Any
+    ) -> Mapping[str, Any]:
         payload = _mapping_payload(fallback_state) if isinstance(fallback_state, Mapping) else {}
         payload.update(bound_inputs)
         return payload
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    def pure_step(
+        state: Mapping[str, Any], params: Mapping[str, Any]
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
         from pymoo.algorithms.moo.nsga2 import NSGA2
         from pymoo.core.problem import ElementwiseProblem
         from pymoo.optimize import minimize

@@ -60,7 +60,11 @@ from benchmarks.harness import (  # noqa: E402
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.DISCOVERY
@@ -69,8 +73,7 @@ CIRCUIT = BenchmarkCircuit.DISCOVERY
 # Sachs 11-node consensus network
 # ---------------------------------------------------------------------------
 
-SACHS_NODES = ["Raf", "Mek", "Erk", "Akt", "PKA", "PKC", "P38", "Jnk",
-               "Plcg", "PIP2", "PIP3"]
+SACHS_NODES = ["Raf", "Mek", "Erk", "Akt", "PKA", "PKC", "P38", "Jnk", "Plcg", "PIP2", "PIP3"]
 _N = len(SACHS_NODES)
 _IDX = {v: i for i, v in enumerate(SACHS_NODES)}
 
@@ -132,7 +135,6 @@ def _simulate_linear_gaussian(coef: np.ndarray, n: int, rng: np.random.Generator
     If ``coef`` is not lower-triangular, a topological ordering is computed.
     """
     # Topological sort (Kahn's algorithm)
-    in_degree = np.sum(coef != 0, axis=1).astype(int)  # parents count per node
     # Build parent map
     parents: list[list[int]] = [[] for _ in range(_N)]
     for i in range(_N):
@@ -213,7 +215,9 @@ def _fisher_z_pvalue(r: float, n: int, k: int) -> float:
     stat = abs(z) * se_inv
     # Two-sided: 2 * P(Z > stat)
     t = 1.0 / (1.0 + 0.2316419 * stat)
-    poly = t * (0.319381530 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))))
+    poly = t * (
+        0.319381530 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429)))
+    )
     sf = poly * math.exp(-0.5 * stat * stat)
     return min(1.0, 2.0 * sf)
 
@@ -288,7 +292,7 @@ def _orient_v_structures(
     for k in range(n):
         neighbours = [i for i in range(n) if adj[k, i]]
         for i, j in combinations(neighbours, 2):
-            if adj[i, j]:   # shielded triple — skip
+            if adj[i, j]:  # shielded triple — skip
                 continue
             sep = sep_sets.get(frozenset({i, j}), frozenset())
             if k not in sep:
@@ -337,7 +341,7 @@ def _skeleton_metrics(pred_adj: np.ndarray, true_adj: np.ndarray) -> dict[str, f
             if pred_adj[i, j] and pred_adj[j, i]:
                 continue  # undirected, skip
             if true_adj[i, j] and (not pred_adj[i, j] or pred_adj[j, i]):
-                shd += 1   # reversed or undirected where directed needed
+                shd += 1  # reversed or undirected where directed needed
 
     return {"precision": prec, "recall": rec, "shd": shd}
 
@@ -379,7 +383,7 @@ def _sachs_case(
         data = (data - data.mean(axis=0)) / (data.std(axis=0) + 1e-10)
 
         skel_adj, sep_sets = _pc_skeleton(data, alpha=alpha)
-        directed = _orient_v_structures(skel_adj, sep_sets)
+        _orient_v_structures(skel_adj, sep_sets)
 
         true_adj = _sachs_adj()
         metrics = _skeleton_metrics(skel_adj, true_adj)

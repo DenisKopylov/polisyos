@@ -1,9 +1,11 @@
 # ADR-042: Janus-Atlas Dual Brand
 
 ## Status
-Proposed
+
+Approved
 
 ## Date
+
 2026-04-22
 
 ## Context
@@ -36,12 +38,14 @@ Options considered:
 ## Decision
 
 1. PolicyOS maintains **two** brand artefacts:
+
    - `AtlasBrand` — the existing mark. Continues unchanged as an API
      surface for consumers (`<AtlasBrand size={24 | 32 | 48} />`).
    - `JanusGlyph` — a new gated-engine mark, introduced in Phase 1.1
      (`<JanusGlyph size={16 | 24 | 32} variant="mark" | "line" |
-     "serif-punctuation" intent={…} inverted={…} />`).
+"serif-punctuation" intent={…} inverted={…} />`).
 2. The two marks **never appear on the same viewport**. Role assignment:
+
    - Atlas: marketing surfaces, landing page, login, favicon on
      unauthenticated routes, email signatures, external documents.
    - Janus: product chrome (top rail, side rail, sigil bar on decision
@@ -52,11 +56,12 @@ Options considered:
    proposition. No other glyph carries this role.
 4. Favicon alternation is implemented by swapping `<link rel="icon">`
    in the `<head>` based on route authentication state.
-5. Recognition of the updated Atlas mark is gated by a blind test on
-   10 existing users; if fewer than 8 recognise the mark as the same
-   product, the Atlas refresh is rolled back.
+5. Recognition of the updated Atlas mark is gated by a repository-backed
+   recognizability evidence sheet plus a 16 px visual-regression baseline,
+   not by an untracked ad hoc blind test.
 
 Source of truth:
+
 - `frontend/runtime-dashboard/src/shared/brand/JanusGlyph.tsx`
 - `frontend/runtime-dashboard/src/shared/brand/AtlasBrand.tsx`
 - `frontend/runtime-dashboard/public/atlas/logo-janus.svg`
@@ -68,8 +73,10 @@ Source of truth:
 - A new ESLint rule in `eslint-plugin-local` forbids `<AtlasBrand />` in
   files under `src/features/**` and forbids `<JanusGlyph />` in files
   under `src/app/marketing/**`; this encodes the role separation.
+
 - Design review gains a new checklist item: "Are both brands present on
   the same viewport? If so — block."
+
 - Marketing collateral regenerations (Phase 1.1, week 3) touch landing
   page assets only; in-product chrome is unaffected by Atlas edits.
 
@@ -86,6 +93,7 @@ Files created or modified in Phase 1.1:
 - Modified: `frontend/runtime-dashboard/public/atlas/logo-mark-inverse.svg`
 - Modified: `frontend/runtime-dashboard/src/app/providers/RouteIconProvider.tsx`
   (favicon alternation)
+
 - New ESLint rule:
   `frontend/runtime-dashboard/eslint-plugin-local/rules/brand-role-separation.js`
 
@@ -94,6 +102,7 @@ Files created or modified in Phase 1.1:
 - Related: [ADR-045](ADR-045-glyph-alphabet-limit-10.md) — the ten
   radicals are a separate alphabet from the two brand marks and do not
   count against this rule.
+
 - Related: [ADR-046](ADR-046-authored-text-registry.md) — the
   AuthoredText registry is a textual analogue of the dual-brand role
   separation.

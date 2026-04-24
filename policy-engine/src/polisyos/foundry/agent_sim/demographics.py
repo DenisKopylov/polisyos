@@ -1,4 +1,5 @@
 """Summarize population age structure and mobility signals from simulation state."""
+
 from __future__ import annotations
 
 import jax
@@ -8,7 +9,9 @@ from polisyos.foundry.agent_sim.distributions import compute_quantiles_hard, sof
 from polisyos.foundry.agent_sim.state import AgentState
 
 
-def compute_demographic_metrics(agents: AgentState, *, steps_per_year: int = 12) -> dict[str, jnp.ndarray]:
+def compute_demographic_metrics(
+    agents: AgentState, *, steps_per_year: int = 12
+) -> dict[str, jnp.ndarray]:
     """Summarize age structure, dependency ratios, and fertility from the current population."""
     active = agents.active
     n_active = jnp.sum(active.astype(jnp.float32))
@@ -94,9 +97,7 @@ def compute_intergenerational_mobility(
     cov_log = jnp.sum((log_parent - mean_log_parent) * (log_child - mean_log_child) * valid) / (
         n_valid + 1e-8
     )
-    var_log_parent = jnp.sum((log_parent - mean_log_parent) ** 2 * valid) / (
-        n_valid + 1e-8
-    )
+    var_log_parent = jnp.sum((log_parent - mean_log_parent) ** 2 * valid) / (n_valid + 1e-8)
     elasticity = cov_log / (var_log_parent + 1e-8)
 
     return {

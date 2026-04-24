@@ -1,8 +1,9 @@
 """Tenant quota limits and state models."""
+
 from __future__ import annotations
 
-from decimal import Decimal
 from datetime import date
+from decimal import Decimal
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -10,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class TenantQuotaLimits(BaseModel):
     """Per-tenant resource limits."""
+
     model_config = ConfigDict(extra="forbid")
 
     max_concurrent_runs: int = Field(default=10, ge=1)
@@ -23,6 +25,7 @@ class TenantQuotaLimits(BaseModel):
 
 class TenantQuotaState(BaseModel):
     """Mutable per-tenant quota usage tracking."""
+
     model_config = ConfigDict(extra="forbid")
 
     tenant_id: str

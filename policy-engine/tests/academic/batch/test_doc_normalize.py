@@ -59,12 +59,21 @@ def test_doc_normalize_writes_structured_substrate(tmp_path, monkeypatch) -> Non
 
     assert metrics["docs_total"] == 1
     assert metrics["usable_docs"] == 1
-    ready_rows = [json.loads(line) for line in config.doc_ready_queue_path.read_text(encoding="utf-8").splitlines()]
+    ready_rows = [
+        json.loads(line)
+        for line in config.doc_ready_queue_path.read_text(encoding="utf-8").splitlines()
+    ]
     assert ready_rows[0]["work_id"] == "W1"
     assert ready_rows[0]["fulltext"]["source_kind"] == "publisher_xml"
-    substrate_rows = [json.loads(line) for line in config.doc_substrate_path.read_text(encoding="utf-8").splitlines()]
+    substrate_rows = [
+        json.loads(line)
+        for line in config.doc_substrate_path.read_text(encoding="utf-8").splitlines()
+    ]
     assert substrate_rows[0]["doc_family"] == "empirical_rct"
-    routing_rows = [json.loads(line) for line in config.doc_routing_path.read_text(encoding="utf-8").splitlines()]
+    routing_rows = [
+        json.loads(line)
+        for line in config.doc_routing_path.read_text(encoding="utf-8").splitlines()
+    ]
     routing_lanes = {row["lane"] for row in routing_rows[0]["routing"]}
     assert {"claim", "numeric", "context", "mechanism"} <= routing_lanes
     assert config.doc_json_path.exists()
@@ -116,16 +125,26 @@ def test_doc_normalize_uses_pub2tei_when_xml_source_is_available(tmp_path, monke
             "error_class": "",
         }
 
-    monkeypatch.setattr("polisyos.academic.batch.doc_normalize.fetch_full_text_result_for_work", _fake_fetch)
-    monkeypatch.setattr("polisyos.academic.batch.doc_normalize._fetch_source_document", _fake_source)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.doc_normalize.fetch_full_text_result_for_work", _fake_fetch
+    )
+    monkeypatch.setattr(
+        "polisyos.academic.batch.doc_normalize._fetch_source_document", _fake_source
+    )
     monkeypatch.setattr("polisyos.academic.batch.doc_normalize._call_pub2tei", _fake_pub2tei)
 
     metrics = asyncio.run(run_doc_normalize(config))
 
     assert metrics["pub2tei_docs"] == 1
-    substrate_rows = [json.loads(line) for line in config.doc_substrate_path.read_text(encoding="utf-8").splitlines()]
+    substrate_rows = [
+        json.loads(line)
+        for line in config.doc_substrate_path.read_text(encoding="utf-8").splitlines()
+    ]
     assert substrate_rows[0]["tei_source"] == "pub2tei"
-    sections = [json.loads(line) for line in config.doc_sections_path.read_text(encoding="utf-8").splitlines()]
+    sections = [
+        json.loads(line)
+        for line in config.doc_sections_path.read_text(encoding="utf-8").splitlines()
+    ]
     assert sections[0]["section_name"] == "results"
 
 
@@ -174,14 +193,23 @@ def test_doc_normalize_uses_grobid_when_pdf_source_is_available(tmp_path, monkey
             "error_class": "",
         }
 
-    monkeypatch.setattr("polisyos.academic.batch.doc_normalize.fetch_full_text_result_for_work", _fake_fetch)
-    monkeypatch.setattr("polisyos.academic.batch.doc_normalize._fetch_source_document", _fake_source)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.doc_normalize.fetch_full_text_result_for_work", _fake_fetch
+    )
+    monkeypatch.setattr(
+        "polisyos.academic.batch.doc_normalize._fetch_source_document", _fake_source
+    )
     monkeypatch.setattr("polisyos.academic.batch.doc_normalize._call_grobid", _fake_grobid)
 
     metrics = asyncio.run(run_doc_normalize(config))
 
     assert metrics["grobid_docs"] == 1
-    substrate_rows = [json.loads(line) for line in config.doc_substrate_path.read_text(encoding="utf-8").splitlines()]
+    substrate_rows = [
+        json.loads(line)
+        for line in config.doc_substrate_path.read_text(encoding="utf-8").splitlines()
+    ]
     assert substrate_rows[0]["tei_source"] == "grobid"
-    tables = [json.loads(line) for line in config.doc_tables_path.read_text(encoding="utf-8").splitlines()]
+    tables = [
+        json.loads(line) for line in config.doc_tables_path.read_text(encoding="utf-8").splitlines()
+    ]
     assert tables[0]["structure_source"] == "tei_figure_table"

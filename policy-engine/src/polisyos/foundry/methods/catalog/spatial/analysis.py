@@ -1,16 +1,13 @@
 """Public spatial analysis module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
-from polisyos.ir.analytics.dependence_structure import (
-    build_dependence_structure,
-    persist_dependence_structure,
-)
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -22,6 +19,11 @@ from polisyos.foundry.methods.base import (
     SlotType,
     Unit,
     foundry_method,
+)
+from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
+from polisyos.ir.analytics.dependence_structure import (
+    build_dependence_structure,
+    persist_dependence_structure,
 )
 
 from .protocols import AccessibilityData, GravityFlowData, SpatialData, SpatialResult
@@ -128,6 +130,7 @@ def _spatial_weights(data: SpatialData, *, decay: float = 1.0) -> np.ndarray:
 )
 class MoranIEstimator:
     """Estimate Moran's I for spatial autocorrelation diagnostics."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scipy")
 
@@ -137,9 +140,19 @@ class MoranIEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("coordinates", SlotType.MATRIX, Unit("coordinate", "value"), shape=("n_obs", "n_dims")),
+                SlotSpec(
+                    "coordinates",
+                    SlotType.MATRIX,
+                    Unit("coordinate", "value"),
+                    shape=("n_obs", "n_dims"),
+                ),
                 SlotSpec("values", SlotType.VECTOR, Unit("value", "value"), shape=("n_obs",)),
-                SlotSpec("weights_matrix", SlotType.MATRIX, Unit("spatial_weight", "value"), shape=("n_obs", "n_obs")),
+                SlotSpec(
+                    "weights_matrix",
+                    SlotType.MATRIX,
+                    Unit("spatial_weight", "value"),
+                    shape=("n_obs", "n_obs"),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -194,12 +207,20 @@ class MoranIEstimator:
             perm_stats = []
             for _ in range(n_perm):
                 z_perm = rng.permutation(z)
-                perm_stats.append(float((y.shape[0] / w_sum) * ((z_perm @ weights @ z_perm) / max(z_perm @ z_perm, 1e-12))))
+                perm_stats.append(
+                    float(
+                        (y.shape[0] / w_sum)
+                        * ((z_perm @ weights @ z_perm) / max(z_perm @ z_perm, 1e-12))
+                    )
+                )
             p_value = float(np.mean(np.abs(np.asarray(perm_stats)) >= abs(statistic)))
         return {
             "result": SpatialResult(
                 method_name="moran_i",
-                statistics={"moran_i": statistic, "p_value": float(p_value) if p_value is not None else np.nan},
+                statistics={
+                    "moran_i": statistic,
+                    "p_value": float(p_value) if p_value is not None else np.nan,
+                },
                 dependence_ref=dependence_ref,
                 metadata={"n_permutations": n_perm},
             )
@@ -213,6 +234,7 @@ class MoranIEstimator:
 )
 class GWREstimator:
     """Fit geographically weighted regressions when coefficients vary across space."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scipy")
 
@@ -222,9 +244,19 @@ class GWREstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("coordinates", SlotType.MATRIX, Unit("coordinate", "value"), shape=("n_obs", "n_dims")),
+                SlotSpec(
+                    "coordinates",
+                    SlotType.MATRIX,
+                    Unit("coordinate", "value"),
+                    shape=("n_obs", "n_dims"),
+                ),
                 SlotSpec("values", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "features",
+                    SlotType.MATRIX,
+                    Unit("feature", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -299,6 +331,7 @@ class GWREstimator:
 )
 class SpatialDurbinEstimator:
     """Fit spatial Durbin models when spillovers enter both outcome and covariates."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -308,10 +341,25 @@ class SpatialDurbinEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("coordinates", SlotType.MATRIX, Unit("coordinate", "value"), shape=("n_obs", "n_dims")),
+                SlotSpec(
+                    "coordinates",
+                    SlotType.MATRIX,
+                    Unit("coordinate", "value"),
+                    shape=("n_obs", "n_dims"),
+                ),
                 SlotSpec("values", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
-                SlotSpec("weights_matrix", SlotType.MATRIX, Unit("spatial_weight", "value"), shape=("n_obs", "n_obs")),
+                SlotSpec(
+                    "features",
+                    SlotType.MATRIX,
+                    Unit("feature", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
+                SlotSpec(
+                    "weights_matrix",
+                    SlotType.MATRIX,
+                    Unit("spatial_weight", "value"),
+                    shape=("n_obs", "n_obs"),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -360,7 +408,11 @@ class SpatialDurbinEstimator:
         wx = weights @ x
         design = sm.add_constant(np.column_stack([wy, x, wx]), has_constant="add")
         fit = sm.OLS(y, design).fit(cov_type="HC1")
-        names = ["const", "rho"] + [f"x{i}" for i in range(x.shape[1])] + [f"wx{i}" for i in range(x.shape[1])]
+        names = (
+            ["const", "rho"]
+            + [f"x{i}" for i in range(x.shape[1])]
+            + [f"wx{i}" for i in range(x.shape[1])]
+        )
         statistics = {
             "r_squared": float(getattr(fit, "rsquared", np.nan)),
             "adj_r_squared": float(getattr(fit, "rsquared_adj", np.nan)),
@@ -385,6 +437,7 @@ class SpatialDurbinEstimator:
 )
 class GravityModelEstimator:
     """Estimate gravity-model flows between origins and destinations."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy", "scipy")
 
@@ -394,11 +447,33 @@ class GravityModelEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("origin_coords", SlotType.MATRIX, Unit("coordinate", "value"), shape=("n_origins", "n_dims")),
-                SlotSpec("destination_coords", SlotType.MATRIX, Unit("coordinate", "value"), shape=("n_destinations", "n_dims")),
-                SlotSpec("origin_mass", SlotType.VECTOR, Unit("mass", "value"), shape=("n_origins",)),
-                SlotSpec("destination_mass", SlotType.VECTOR, Unit("mass", "value"), shape=("n_destinations",)),
-                SlotSpec("observed_flows", SlotType.MATRIX, Unit("flow", "value"), shape=("n_origins", "n_destinations")),
+                SlotSpec(
+                    "origin_coords",
+                    SlotType.MATRIX,
+                    Unit("coordinate", "value"),
+                    shape=("n_origins", "n_dims"),
+                ),
+                SlotSpec(
+                    "destination_coords",
+                    SlotType.MATRIX,
+                    Unit("coordinate", "value"),
+                    shape=("n_destinations", "n_dims"),
+                ),
+                SlotSpec(
+                    "origin_mass", SlotType.VECTOR, Unit("mass", "value"), shape=("n_origins",)
+                ),
+                SlotSpec(
+                    "destination_mass",
+                    SlotType.VECTOR,
+                    Unit("mass", "value"),
+                    shape=("n_destinations",),
+                ),
+                SlotSpec(
+                    "observed_flows",
+                    SlotType.MATRIX,
+                    Unit("flow", "value"),
+                    shape=("n_origins", "n_destinations"),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -435,9 +510,14 @@ class GravityModelEstimator:
         from scipy.spatial.distance import cdist
 
         del params
-        data = state if isinstance(state, GravityFlowData) else GravityFlowData.model_validate(state)
+        data = (
+            state if isinstance(state, GravityFlowData) else GravityFlowData.model_validate(state)
+        )
         flows = np.asarray(data.observed_flows, dtype=float)
-        dist = cdist(np.asarray(data.origin_coords, dtype=float), np.asarray(data.destination_coords, dtype=float))
+        dist = cdist(
+            np.asarray(data.origin_coords, dtype=float),
+            np.asarray(data.destination_coords, dtype=float),
+        )
         rows = []
         target = []
         for i in range(flows.shape[0]):
@@ -478,6 +558,7 @@ class GravityModelEstimator:
 )
 class AccessibilityIndexEstimator:
     """Estimate accessibility scores to jobs or services over a spatial network."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scipy")
 
@@ -487,10 +568,30 @@ class AccessibilityIndexEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("origin_coords", SlotType.MATRIX, Unit("coordinate", "value"), shape=("n_origins", "n_dims")),
-                SlotSpec("destination_coords", SlotType.MATRIX, Unit("coordinate", "value"), shape=("n_destinations", "n_dims")),
-                SlotSpec("opportunity_mass", SlotType.VECTOR, Unit("opportunity", "value"), shape=("n_destinations",)),
-                SlotSpec("travel_cost_matrix", SlotType.MATRIX, Unit("cost", "value"), shape=("n_origins", "n_destinations")),
+                SlotSpec(
+                    "origin_coords",
+                    SlotType.MATRIX,
+                    Unit("coordinate", "value"),
+                    shape=("n_origins", "n_dims"),
+                ),
+                SlotSpec(
+                    "destination_coords",
+                    SlotType.MATRIX,
+                    Unit("coordinate", "value"),
+                    shape=("n_destinations", "n_dims"),
+                ),
+                SlotSpec(
+                    "opportunity_mass",
+                    SlotType.VECTOR,
+                    Unit("opportunity", "value"),
+                    shape=("n_destinations",),
+                ),
+                SlotSpec(
+                    "travel_cost_matrix",
+                    SlotType.MATRIX,
+                    Unit("cost", "value"),
+                    shape=("n_origins", "n_destinations"),
+                ),
             }
         ),
         output_slots=frozenset(
@@ -501,7 +602,9 @@ class AccessibilityIndexEstimator:
                     Unit("spatial", "json"),
                     contract_id=SpatialResult.contract_id,
                 ),
-                SlotSpec("scores", SlotType.VECTOR, Unit("accessibility", "value"), shape=("n_origins",)),
+                SlotSpec(
+                    "scores", SlotType.VECTOR, Unit("accessibility", "value"), shape=("n_origins",)
+                ),
             }
         ),
         parameters=(ParameterSpec(name="decay", default=1.0),),
@@ -525,7 +628,9 @@ class AccessibilityIndexEstimator:
     )
 
     @staticmethod
-    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> AccessibilityData:
+    def materialize_input(
+        bound_inputs: Mapping[str, Any], fallback_state: Any
+    ) -> AccessibilityData:
         payload = _accessibility_payload(fallback_state)
         payload.update(bound_inputs)
         return AccessibilityData.model_validate(payload)
@@ -534,15 +639,23 @@ class AccessibilityIndexEstimator:
     def pure_step(state: AccessibilityData, params: Mapping[str, Any]) -> dict[str, Any]:
         from scipy.spatial.distance import cdist
 
-        data = state if isinstance(state, AccessibilityData) else AccessibilityData.model_validate(state)
+        data = (
+            state
+            if isinstance(state, AccessibilityData)
+            else AccessibilityData.model_validate(state)
+        )
         decay = max(1e-8, float(params.get("decay", 1.0)))
         travel_cost = (
             np.asarray(data.travel_cost_matrix, dtype=float)
             if data.travel_cost_matrix is not None
-            else cdist(np.asarray(data.origin_coords, dtype=float), np.asarray(data.destination_coords, dtype=float))
+            else cdist(
+                np.asarray(data.origin_coords, dtype=float),
+                np.asarray(data.destination_coords, dtype=float),
+            )
         )
         scores = np.sum(
-            np.asarray(data.opportunity_mass, dtype=float)[None, :] / np.power(np.maximum(travel_cost, 1e-8), decay),
+            np.asarray(data.opportunity_mass, dtype=float)[None, :]
+            / np.power(np.maximum(travel_cost, 1e-8), decay),
             axis=1,
         )
         return {
@@ -562,8 +675,8 @@ class AccessibilityIndexEstimator:
 
 __all__ = [
     "AccessibilityIndexEstimator",
-    "GravityModelEstimator",
     "GWREstimator",
+    "GravityModelEstimator",
     "MoranIEstimator",
     "SpatialDurbinEstimator",
 ]

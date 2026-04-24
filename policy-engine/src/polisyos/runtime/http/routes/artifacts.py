@@ -1,4 +1,5 @@
 """Public routes artifacts module API."""
+
 from __future__ import annotations
 
 import mimetypes
@@ -62,7 +63,7 @@ if router is not None:
     def get_artifact_batch(
         body: ArtifactBatchRequest,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> ArtifactBatchResponse:
         parsed_ids = _parse_artifact_ids(body.artifact_ids)
         views = []
@@ -95,7 +96,7 @@ if router is not None:
         artifact_id: str,
         request: Request,
         response: Response,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> ArtifactManifestResponse | Response:
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
@@ -137,7 +138,7 @@ if router is not None:
         request: Request,
         response: Response,
         max_bytes: int | None = Query(default=None, ge=1024, le=2_000_000),
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> ArtifactContentResponse | Response:
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
@@ -172,9 +173,8 @@ if router is not None:
                 last_modified=manifest.created_at,
             )
             add_artifact_link_relations(raw_response, artifact_id=str(parsed_id))
-            raw_response.headers["Content-Disposition"] = (
-                f'inline; filename="{_artifact_filename(str(parsed_id), manifest.kind, manifest.media_type)}"'
-            )
+            filename = _artifact_filename(str(parsed_id), manifest.kind, manifest.media_type)
+            raw_response.headers["Content-Disposition"] = f'inline; filename="{filename}"'
             record_data_access_audit(
                 request,
                 resource_id=str(parsed_id),
@@ -203,7 +203,7 @@ if router is not None:
         response: Response,
         max_depth: int | None = Query(default=None, ge=1, le=256),
         max_nodes: int | None = Query(default=None, ge=1, le=20000),
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> ArtifactLineageResponse | Response:
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
@@ -250,7 +250,7 @@ if router is not None:
         artifact_id: str,
         request: Request,
         response: Response,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> ArtifactSchemaResponse | Response:
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
@@ -295,9 +295,7 @@ if router is not None:
             "200": {
                 "description": "Raw artifact bytes",
                 "content": {
-                    "application/octet-stream": {
-                        "schema": {"type": "string", "format": "binary"}
-                    }
+                    "application/octet-stream": {"schema": {"type": "string", "format": "binary"}}
                 },
             }
         },
@@ -305,7 +303,7 @@ if router is not None:
     def download_artifact_content(
         artifact_id: str,
         request: Request,
-        ctx: RuntimeApiContext = Depends(get_runtime_api_context),  # noqa: B008
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> Response:
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
@@ -337,9 +335,8 @@ if router is not None:
         response = Response(content=payload, media_type=manifest.media_type)
         set_immutable_resource_headers(response, etag=etag, last_modified=manifest.created_at)
         add_artifact_link_relations(response, artifact_id=str(parsed_id))
-        response.headers["Content-Disposition"] = (
-            f'attachment; filename="{_artifact_filename(str(parsed_id), manifest.kind, manifest.media_type)}"'
-        )
+        filename = _artifact_filename(str(parsed_id), manifest.kind, manifest.media_type)
+        response.headers["Content-Disposition"] = f'attachment; filename="{filename}"'
         record_data_access_audit(
             request,
             resource_id=str(parsed_id),
@@ -373,11 +370,7 @@ def _accepts_raw_representation(request: Request, *, media_type: str) -> bool:
     accept = str(request.headers.get("accept", "")).strip().lower()
     if not accept or accept == "*/*":
         return True
-    accepted = {
-        token.split(";", 1)[0].strip()
-        for token in accept.split(",")
-        if token.strip()
-    }
+    accepted = {token.split(";", 1)[0].strip() for token in accept.split(",") if token.strip()}
     normalized_media_type = media_type.lower()
     return (
         "*/*" in accepted
@@ -391,11 +384,7 @@ def _prefers_raw_representation(request: Request, *, media_type: str) -> bool:
     accept = str(request.headers.get("accept", "")).strip().lower()
     if not accept or accept == "*/*":
         return False
-    accepted = {
-        token.split(";", 1)[0].strip()
-        for token in accept.split(",")
-        if token.strip()
-    }
+    accepted = {token.split(";", 1)[0].strip() for token in accept.split(",") if token.strip()}
     if "application/json" in accepted:
         return False
     if _accepts_raw_representation(request, media_type=media_type):

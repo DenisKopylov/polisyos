@@ -60,7 +60,11 @@ def test_merge_stage_keeps_parsed_records_when_extracted_exists(tmp_path) -> Non
 
     stats = merge_and_dedup(config)
     assert stats["parsed_files"] == 2
-    rows = [json.loads(line) for line in config.merged_records_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    rows = [
+        json.loads(line)
+        for line in config.merged_records_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
     assert len(rows) == 1
     assert rows[0]["abstract"] == "Parsed abstract"
     assert rows[0]["extraction_mode"] == "resolve_extract"
@@ -72,7 +76,10 @@ def test_publish_manifest_contains_pipeline_name(tmp_path) -> None:
     config.db_path.parent.mkdir(parents=True, exist_ok=True)
     config.db_path.write_text("db", encoding="utf-8")
     config.qc_report_path.write_text(
-        json.dumps({"metrics": {"runtime_demanded_canonical_resolution_rate_pct": 95.0}}, ensure_ascii=False),
+        json.dumps(
+            {"metrics": {"runtime_demanded_canonical_resolution_rate_pct": 95.0}},
+            ensure_ascii=False,
+        ),
         encoding="utf-8",
     )
     config.benchmark_report_path.write_text(
@@ -96,7 +103,10 @@ def test_publish_manifest_contains_pipeline_name(tmp_path) -> None:
         encoding="utf-8",
     )
     (config.manifests_dir / "resolve_extract.json").write_text(
-        json.dumps({"metrics": {"records": 10, "provider_timeout_count": 1, "watchdog_timeout_count": 0}}, ensure_ascii=False),
+        json.dumps(
+            {"metrics": {"records": 10, "provider_timeout_count": 1, "watchdog_timeout_count": 0}},
+            ensure_ascii=False,
+        ),
         encoding="utf-8",
     )
 

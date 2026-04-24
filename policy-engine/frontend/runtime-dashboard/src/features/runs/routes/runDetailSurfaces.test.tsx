@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
@@ -137,10 +137,17 @@ vi.mock("@/api/hooks/useRunAgents", () => ({
   useSuspenseRunAgents: (...args: unknown[]) => useRunAgentsMock(...args),
 }));
 
-vi.mock("@/features/artifacts", () => ({
-  renderArtifactViewer: (...args: unknown[]) =>
-    renderArtifactViewerMock(...args),
-}));
+vi.mock("@/features/artifacts", async () => {
+  const actual = await vi.importActual<typeof import("@/features/artifacts")>(
+    "@/features/artifacts",
+  );
+
+  return {
+    ...actual,
+    renderArtifactViewer: (...args: unknown[]) =>
+      renderArtifactViewerMock(...args),
+  };
+});
 
 vi.mock("@/features/runs/components/AgentPipelinePanel", () => ({
   default: ({ payload }: { payload: { mode?: string } }) => (
@@ -265,7 +272,17 @@ function createSummary(overrides: Record<string, unknown> = {}) {
           },
         ],
       },
-      keyMetrics: [{ formatted: "+1.2", name: "GDP", unit: "%", value: 1.2 }],
+      keyMetrics: [
+        {
+          ciLevel: 0.95,
+          ciLower: 0.8,
+          ciUpper: 1.6,
+          formatted: "+1.2",
+          name: "GDP",
+          unit: "%",
+          value: 1.2,
+        },
+      ],
       policySummary: "Policy summary",
       verdict: "APPROVE",
     },
@@ -291,6 +308,10 @@ function createSummary(overrides: Record<string, unknown> = {}) {
     ],
     governanceQuery: { error: null, isError: false, isLoading: false },
     pipeline: {
+      decision_packet_ref: {
+        artifact_id: "artifact-1",
+        kind: "scientist.decision_packet",
+      },
       evaluator: { scores: { total_score: 0.91 }, verdict: "APPROVE" },
       iteration_lifecycle: { state: "completed" },
       mode: "nl",
@@ -585,7 +606,7 @@ describe("run detail surfaces", () => {
 
   it("renders required-state and action branches in RunDetailLayout", async () => {
     renderNestedRunDetail("/runs");
-    expect(screen.getByText("Run id is required.")).toBeInTheDocument();
+    expect(screen.getByText("pages.runs.requiredRunId")).toBeInTheDocument();
 
     useRunInspectorMock.mockReturnValue(
       createSummary({
@@ -617,11 +638,23 @@ describe("run detail surfaces", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("pages.runs.uncertaintyTitle")).toBeInTheDocument();
     expect(
+      screen.getByTestId("run-detail-uncertainty-visual"),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("run-detail-uncertainty-visual")).getAllByText(
+        "GDP",
+      ).length,
+    ).toBeGreaterThan(0);
+    expect(
       screen.getByText(
         "Inflation Dataset is queued on Explorelane with 82% confidence.",
       ),
     ).toBeInTheDocument();
     expect(screen.getByText("Decision Card")).toBeInTheDocument();
+    expect(screen.getByTestId("run-reading-view-link")).toHaveAttribute(
+      "href",
+      "/artifacts/artifact-1?tab=content&view=reading",
+    );
   });
 
   it("renders comparison, report, and deck pages", async () => {
@@ -671,6 +704,10 @@ describe("run detail surfaces", () => {
 
     expect(screen.getByTestId("run-tab-overview")).toBeInTheDocument();
     expect(screen.getAllByText("Policy summary").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("overview-reading-view-link")).toHaveAttribute(
+      "href",
+      "/artifacts/artifact-1?tab=content&view=reading",
+    );
     expect(screen.getByText("Issue one")).toBeInTheDocument();
     expect(screen.getByText("Inflation")).toBeInTheDocument();
     expect(screen.getByText("start")).toBeInTheDocument();

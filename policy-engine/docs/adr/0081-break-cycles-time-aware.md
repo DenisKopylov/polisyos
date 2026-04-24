@@ -1,12 +1,15 @@
-# ADR-0081: _break_cycles time-aware: skip for PCMCI output (tags={"time-series"})
+# ADR-0081: \_break_cycles time-aware: skip for PCMCI output (tags={"time-series"})
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-02-28
 
 ## Context
+
 The `_break_cycles` step in graph reconciliation removes feedback edges to produce a
 DAG from a cyclic or partially directed graph. This is correct for cross-sectional
 causal discovery outputs (PC, GES), where cycles indicate estimation artefacts. However,
@@ -16,6 +19,7 @@ loop, not an artefact. Blindly breaking these cycles destroys valid temporal cau
 structure and leads to incorrect identification in Phase 12.
 
 ## Decision
+
 1. Add a `tags: set[str]` field to `CausalDiscoveryReport` (IR artifact) that
    discovery catalog entries populate. PCMCI sets `tags={"time-series"}`.
 2. `_break_cycles` checks for the `"time-series"` tag; if present, it skips cycle
@@ -30,12 +34,17 @@ structure and leads to incorrect identification in Phase 12.
    its existing heuristic (remove the lowest-confidence edge per cycle).
 
 ## Consequences
+
 ### Positive
+
 - Preserves legitimate temporal feedback structure from PCMCI.
 - `unroll_time_graph` makes the temporal DAG explicit, enabling standard identification.
 - Tag-based dispatch is extensible to other discovery-method categories in the future.
+
 ### Negative
+
 - Time-unrolled graphs can be large (nodes x max_lag), increasing memory and compute.
 - `unroll_time_graph` requires `max_lag` metadata that must be propagated from the
   discovery step.
+
 - Two code paths (skip vs. break) increase test matrix for graph reconciliation.

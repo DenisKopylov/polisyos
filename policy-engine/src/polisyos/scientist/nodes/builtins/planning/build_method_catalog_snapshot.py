@@ -1,4 +1,5 @@
 """Public planning build method catalog snapshot module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -54,6 +55,7 @@ class BuildMethodCatalogSnapshotNode:
     It writes the method-catalog snapshot and causal capability contract refs used
     to verify that the requested execution plan only targets supported methods.
     """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC

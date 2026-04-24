@@ -18,35 +18,39 @@ training helpers, and contract-aware wiring adapters.
 - [state.py](state.py) for the standalone agent-sim `GlobalState`.
 - [executor.py](executor.py) for `PureExecutor` and deterministic mechanism
   ordering.
+
 - [distribution_executor.py](distribution_executor.py),
   [graph_executor.py](graph_executor.py), and
   [population_executor.py](population_executor.py) for specialized executor
   layers.
+
 - [training.py](training.py), [jit_training.py](jit_training.py), and
   [government_policy.py](government_policy.py) for learning-oriented flows.
+
 - [wiring/contracts.py](wiring/contracts.py) and
   [wiring/executors.py](wiring/executors.py) for contract-aware runtime
   adapters.
 
 ## Public Entrypoints
 
-| Entrypoint | Description |
-|---|---|
-| `GlobalState` | Standalone ABM/RL state bundle for agent-sim workloads. |
-| `PureExecutor` | Deterministic base executor for agent-sim steps. |
-| `create_distribution_aware_executor()` | Adds distribution metric updates. |
-| `create_graph_aware_executor()` | Adds graph-aware updates and metrics. |
-| `create_population_manager()` | Initializes lifecycle slot allocation and bookkeeping. |
-| `ContractsPopulationAwareExecutor` | Contract-aware executor for population and firm lifecycle updates. |
-| `ContractsGraphAwareExecutor` | Contract-aware procurement shock propagation. |
-| `ContractsDistributionAwareExecutor` | Contract-aware transfer/tax/distribution execution path. |
-| `train_actor_critic()` | Baseline actor-critic training loop. |
+| Entrypoint                             | Description                                                        |
+| -------------------------------------- | ------------------------------------------------------------------ |
+| `GlobalState`                          | Standalone ABM/RL state bundle for agent-sim workloads.            |
+| `PureExecutor`                         | Deterministic base executor for agent-sim steps.                   |
+| `create_distribution_aware_executor()` | Adds distribution metric updates.                                  |
+| `create_graph_aware_executor()`        | Adds graph-aware updates and metrics.                              |
+| `create_population_manager()`          | Initializes lifecycle slot allocation and bookkeeping.             |
+| `ContractsPopulationAwareExecutor`     | Contract-aware executor for population and firm lifecycle updates. |
+| `ContractsGraphAwareExecutor`          | Contract-aware procurement shock propagation.                      |
+| `ContractsDistributionAwareExecutor`   | Contract-aware transfer/tax/distribution execution path.           |
+| `train_actor_critic()`                 | Baseline actor-critic training loop.                               |
 
 ## Depends On / Depended On By
 
 - Depends on: JAX/chex numerical stack, `polisyos.foundry.contracts` fidelity
   and wiring state contracts, and optional graph/distribution/training helpers
   within this package tree.
+
 - Depended on by: `polisyos.foundry.plugins`, contract-aware runtime wiring,
   ABM benchmarks, and simulation-heavy research flows.
 

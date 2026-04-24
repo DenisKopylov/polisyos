@@ -7,6 +7,7 @@ executes each tier in parallel via ``asyncio.TaskGroup`` +
 Feature-flagged via ``POLISYOS_ASYNC_EXECUTOR=1`` and opt-in through
 ``run_selected_workflow``.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -125,7 +126,9 @@ class AsyncWorkflowExecutor:
         self._pre_node_state_keys: dict[str, set[str]] = {}
 
     async def execute(
-        self, workflow: WorkflowSpec, state: ExperimentState,
+        self,
+        workflow: WorkflowSpec,
+        state: ExperimentState,
     ) -> WorkflowExecutionResult:
         _validate_aliases(workflow.nodes)
         invocations = {inv.alias: inv for inv in workflow.nodes}
@@ -140,7 +143,9 @@ class AsyncWorkflowExecutor:
 
         if self._ctx.metrics is not None:
             self._ctx.metrics.record_workflow_state(
-                run_id=state.run_id, workflow_id=workflow.workflow_id, state="running",
+                run_id=state.run_id,
+                workflow_id=workflow.workflow_id,
+                state="running",
             )
 
         initial_state = snapshot_state(state)
@@ -170,10 +175,15 @@ class AsyncWorkflowExecutor:
             for tier_index, tier in enumerate(tiers):
                 if abort:
                     for alias in tier:
-                        records.append(NodeRunRecord(
-                            alias=alias, node_id=str(invocations[alias].node_id),
-                            status="skip", duration_ms=0, skip_reason="upstream_failed",
-                        ))
+                        records.append(
+                            NodeRunRecord(
+                                alias=alias,
+                                node_id=str(invocations[alias].node_id),
+                                status="skip",
+                                duration_ms=0,
+                                skip_reason="upstream_failed",
+                            )
+                        )
                         blocked.add(alias)
                     continue
 
@@ -181,13 +191,19 @@ class AsyncWorkflowExecutor:
                 for alias in tier:
                     inv = invocations[alias]
                     if any(dep in failed or dep in blocked for dep in inv.depends_on):
-                        records.append(NodeRunRecord(
-                            alias=alias, node_id=str(inv.node_id),
-                            status="skip", duration_ms=0, skip_reason="upstream_failed",
-                        ))
+                        records.append(
+                            NodeRunRecord(
+                                alias=alias,
+                                node_id=str(inv.node_id),
+                                status="skip",
+                                duration_ms=0,
+                                skip_reason="upstream_failed",
+                            )
+                        )
                         blocked.add(alias)
                         self._ctx.run.emit(
-                            f"scientist.node.{alias}", "NODE_SKIP",
+                            f"scientist.node.{alias}",
+                            "NODE_SKIP",
                             metrics={"duration_ms": 0, "status_ok": 0},
                         )
                         continue
@@ -197,35 +213,50 @@ class AsyncWorkflowExecutor:
                             cond_result = evaluate_condition(inv.condition.expr, state)
                         except ConditionSyntaxError as exc:
                             self._ctx.logger.error(
-                                "Condition syntax error for node %s: %s", alias, exc,
+                                "Condition syntax error for node %s: %s",
+                                alias,
+                                exc,
                             )
                             cond_result = False
 
                         if not cond_result:
                             if inv.condition.on_false == "fail":
-                                records.append(NodeRunRecord(
-                                    alias=alias, node_id=str(inv.node_id),
-                                    status="fail", duration_ms=0,
-                                    error=NodeError(
-                                        code="node.condition_false",
-                                        message=f"Condition not met: {inv.condition.expr}",
-                                        details={"expr": inv.condition.expr, "on_false": "fail"},
-                                    ),
-                                ))
+                                records.append(
+                                    NodeRunRecord(
+                                        alias=alias,
+                                        node_id=str(inv.node_id),
+                                        status="fail",
+                                        duration_ms=0,
+                                        error=NodeError(
+                                            code="node.condition_false",
+                                            message=f"Condition not met: {inv.condition.expr}",
+                                            details={
+                                                "expr": inv.condition.expr,
+                                                "on_false": "fail",
+                                            },
+                                        ),
+                                    )
+                                )
                                 failed.add(alias)
                                 self._ctx.run.emit(
-                                    f"scientist.node.{alias}", "NODE_FAIL",
+                                    f"scientist.node.{alias}",
+                                    "NODE_FAIL",
                                     metrics={"duration_ms": 0, "status_ok": 0},
                                 )
                             else:
-                                records.append(NodeRunRecord(
-                                    alias=alias, node_id=str(inv.node_id),
-                                    status="skip", duration_ms=0,
-                                    skip_reason="condition_false",
-                                ))
+                                records.append(
+                                    NodeRunRecord(
+                                        alias=alias,
+                                        node_id=str(inv.node_id),
+                                        status="skip",
+                                        duration_ms=0,
+                                        skip_reason="condition_false",
+                                    )
+                                )
                                 condition_skipped.add(alias)
                                 self._ctx.run.emit(
-                                    f"scientist.node.{alias}", "NODE_SKIP",
+                                    f"scientist.node.{alias}",
+                                    "NODE_SKIP",
                                     metrics={"duration_ms": 0, "status_ok": 0},
                                 )
                             continue
@@ -245,8 +276,12 @@ class AsyncWorkflowExecutor:
                 if len(runnable) == 1:
                     alias = runnable[0]
                     record, state, node_failed = await self._run_single_node(
-                        alias, invocations[alias], state, workflow,
-                        workflow_fingerprint, completed_nodes,
+                        alias,
+                        invocations[alias],
+                        state,
+                        workflow,
+                        workflow_fingerprint,
+                        completed_nodes,
                         tier_index=tier_index,
                     )
                     records.append(record)
@@ -277,8 +312,12 @@ class AsyncWorkflowExecutor:
                         )
 
                     tier_records, state, tier_failed = await self._run_parallel_tier(
-                        runnable, invocations, state, workflow,
-                        workflow_fingerprint, completed_nodes,
+                        runnable,
+                        invocations,
+                        state,
+                        workflow,
+                        workflow_fingerprint,
+                        completed_nodes,
                         tier_index=tier_index,
                     )
                     records.extend(tier_records)
@@ -313,7 +352,8 @@ class AsyncWorkflowExecutor:
         if self._workflow_timeout_s is not None:
             try:
                 await asyncio.wait_for(
-                    _execute_tiers(), timeout=self._workflow_timeout_s,
+                    _execute_tiers(),
+                    timeout=self._workflow_timeout_s,
                 )
             except TimeoutError as exc:
                 raise WorkflowTimeoutError(
@@ -332,7 +372,9 @@ class AsyncWorkflowExecutor:
                 node_count=len(records),
             )
             self._ctx.metrics.record_workflow_state(
-                run_id=state.run_id, workflow_id=workflow.workflow_id, state=overall_status,
+                run_id=state.run_id,
+                workflow_id=workflow.workflow_id,
+                state=overall_status,
             )
 
         report = WorkflowReport(
@@ -376,10 +418,12 @@ class AsyncWorkflowExecutor:
 
         errors_payload = [
             {"node": r.alias, "code": r.error.code, "message": r.error.message}
-            for r in records if r.status == "fail" and r.error is not None
+            for r in records
+            if r.status == "fail" and r.error is not None
         ]
         run_ref = self._ctx.run.finalize(
-            status=overall_status, errors=errors_payload or None,
+            status=overall_status,
+            errors=errors_payload or None,
         )
 
         return WorkflowExecutionResult(state=final_state, report=report, run_ref=run_ref)
@@ -436,7 +480,11 @@ class AsyncWorkflowExecutor:
     ) -> tuple[NodeRunRecord, ExperimentState, bool]:
         """Execute a single node (same semantics as sync executor)."""
         outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
-            alias, inv, state, workflow, tier_index=tier_index,
+            alias,
+            inv,
+            state,
+            workflow,
+            tier_index=tier_index,
         )
         if outcome.status == "ok":
             state = outcome.state
@@ -444,14 +492,20 @@ class AsyncWorkflowExecutor:
 
         if outcome.status == "ok" and self._checkpoint_hook is not None:
             state = await self._handle_checkpoint(
-                state, alias, str(inv.node_id),
-                [*completed_nodes, alias], workflow, workflow_fingerprint,
+                state,
+                alias,
+                str(inv.node_id),
+                [*completed_nodes, alias],
+                workflow,
+                workflow_fingerprint,
                 cache_entry_ref=cache_entry_ref,
             )
 
         record = NodeRunRecord(
-            alias=alias, node_id=str(inv.node_id),
-            status=outcome.status, duration_ms=duration_ms,
+            alias=alias,
+            node_id=str(inv.node_id),
+            status=outcome.status,
+            duration_ms=duration_ms,
             artifacts=list(outcome.artifacts),
             error=outcome.error,
         )
@@ -477,12 +531,20 @@ class AsyncWorkflowExecutor:
             if cancel_event.is_set():
                 results[alias] = (
                     NodeOutcome(
-                        status="skip", state=state,
-                        events=[NodeEvent(
-                            level="info", message="Cancelled by fail_fast",
-                            code="node.cancelled", attrs={},
-                        )],
-                    ), 0, False, None,
+                        status="skip",
+                        state=state,
+                        events=[
+                            NodeEvent(
+                                level="info",
+                                message="Cancelled by fail_fast",
+                                code="node.cancelled",
+                                attrs={},
+                            )
+                        ],
+                    ),
+                    0,
+                    False,
+                    None,
                 )
                 return
 
@@ -491,18 +553,23 @@ class AsyncWorkflowExecutor:
             if self._semaphore_timeout_s is not None:
                 try:
                     await asyncio.wait_for(
-                        semaphore.acquire(), timeout=self._semaphore_timeout_s,
+                        semaphore.acquire(),
+                        timeout=self._semaphore_timeout_s,
                     )
                 except TimeoutError:
                     results[alias] = (
                         NodeOutcome(
-                            status="fail", state=state,
+                            status="fail",
+                            state=state,
                             error=NodeError(
                                 code="node.semaphore_timeout",
                                 message=f"Node {alias} timed out waiting for execution slot",
                                 details={"timeout_s": self._semaphore_timeout_s},
                             ),
-                        ), 0, False, None,
+                        ),
+                        0,
+                        False,
+                        None,
                     )
                     return
             else:
@@ -510,13 +577,17 @@ class AsyncWorkflowExecutor:
             sem_wait_s = time.perf_counter() - sem_wait_start
             if self._ctx.metrics is not None and sem_wait_s > 0.001:
                 self._ctx.metrics.record_semaphore_wait(
-                    tier_index=tier_index, wait_seconds=sem_wait_s,
+                    tier_index=tier_index,
+                    wait_seconds=sem_wait_s,
                     workflow_id=workflow.workflow_id,
                 )
 
             try:
                 outcome, duration_ms, cache_hit, cache_entry_ref = await self._execute_node(
-                    alias, invocations[alias], state, workflow,
+                    alias,
+                    invocations[alias],
+                    state,
+                    workflow,
                     tier_index=tier_index,
                 )
                 results[alias] = (outcome, duration_ms, cache_hit, cache_entry_ref)
@@ -539,11 +610,16 @@ class AsyncWorkflowExecutor:
 
         for alias in aliases:
             outcome, duration_ms, _cache_hit, cache_entry_ref = results[alias]
-            records.append(NodeRunRecord(
-                alias=alias, node_id=str(invocations[alias].node_id),
-                status=outcome.status, duration_ms=duration_ms,
-                artifacts=list(outcome.artifacts), error=outcome.error,
-            ))
+            records.append(
+                NodeRunRecord(
+                    alias=alias,
+                    node_id=str(invocations[alias].node_id),
+                    status=outcome.status,
+                    duration_ms=duration_ms,
+                    artifacts=list(outcome.artifacts),
+                    error=outcome.error,
+                )
+            )
             if outcome.status == "ok":
                 ok_outcomes[alias] = outcome
                 if cache_entry_ref is not None:
@@ -569,9 +645,7 @@ class AsyncWorkflowExecutor:
                 )
                 conflict_details: dict[str, Any] = {
                     "tier_index": tier_index,
-                    "conflict_paths": [
-                        conflict.path for conflict in merge_result.conflict_details
-                    ],
+                    "conflict_paths": [conflict.path for conflict in merge_result.conflict_details],
                     "conflict_policy": self._merge_conflict_policy.value,
                 }
                 if conflict_ref is not None:
@@ -669,13 +743,16 @@ class AsyncWorkflowExecutor:
         self._ctx.run.emit(f"scientist.node.{alias}", "NODE_STARTED")
         if self._ctx.audit is not None:
             self._ctx.audit.append(
-                run_id=state.run_id, actor="engine",
+                run_id=state.run_id,
+                actor="engine",
                 action="NODE_STARTED",
                 metadata={"alias": alias, "node_id": node_id},
             )
         if self._ctx.metrics is not None:
             self._ctx.metrics.record_node_started(
-                alias=alias, node_id=node_id, workflow_id=workflow.workflow_id,
+                alias=alias,
+                node_id=node_id,
+                workflow_id=workflow.workflow_id,
             )
 
         started = time.perf_counter()
@@ -687,7 +764,9 @@ class AsyncWorkflowExecutor:
         if _should_cache(node_id):
             try:
                 cache_key = compute_idempotency_key(
-                    spec=node.spec, state=state, bind_params=inv.params,
+                    spec=node.spec,
+                    state=state,
+                    bind_params=inv.params,
                 )
             except (AttributeError, TypeError, ValueError) as exc:
                 _executor_degraded(
@@ -704,19 +783,26 @@ class AsyncWorkflowExecutor:
                 new_alerts = self._budget_middleware.check_thresholds()
                 for level in new_alerts:
                     self._ctx.run.emit(
-                        "scientist.budget", "BUDGET_ALERT",
+                        "scientist.budget",
+                        "BUDGET_ALERT",
                         metrics={"threshold_pct": level},
                     )
             except BudgetExhaustedError as budget_exc:
                 duration_ms = int((time.perf_counter() - started) * 1000)
-                return NodeOutcome(
-                    status="fail", state=state,
-                    error=NodeError(
-                        code="node.budget_exhausted",
-                        message=str(budget_exc),
-                        details={},
+                return (
+                    NodeOutcome(
+                        status="fail",
+                        state=state,
+                        error=NodeError(
+                            code="node.budget_exhausted",
+                            message=str(budget_exc),
+                            details={},
+                        ),
                     ),
-                ), duration_ms, False, None
+                    duration_ms,
+                    False,
+                    None,
+                )
 
         cached_outcome: NodeOutcome | None = None
         retry_stats: dict[str, int] = {}
@@ -740,7 +826,9 @@ class AsyncWorkflowExecutor:
             retry_policy = inv.retry or RetryPolicy()
             try:
                 raw_outcome = await execute_with_retry_async(
-                    node, self._ctx, node_state,
+                    node,
+                    self._ctx,
+                    node_state,
                     retry_policy=retry_policy,
                     timeout_s=inv.timeout_s,
                     alias=alias,
@@ -750,30 +838,43 @@ class AsyncWorkflowExecutor:
             except NodeTimeoutError as exc:
                 self._ctx.logger.error("Node %s timed out", alias)
                 outcome = NodeOutcome(
-                    status="fail", state=node_state,
-                    error=NodeError(code="node.timeout", message=str(exc),
-                                    details={"timeout_s": inv.timeout_s}),
+                    status="fail",
+                    state=node_state,
+                    error=NodeError(
+                        code="node.timeout", message=str(exc), details={"timeout_s": inv.timeout_s}
+                    ),
                 )
             except RetryExhaustedError as exc:
                 self._ctx.logger.error("Node %s exhausted retries", alias)
                 outcome = NodeOutcome(
-                    status="fail", state=node_state,
-                    error=NodeError(code="node.retry_exhausted", message=str(exc),
-                                    details={"max_retries": retry_policy.max_retries}),
+                    status="fail",
+                    state=node_state,
+                    error=NodeError(
+                        code="node.retry_exhausted",
+                        message=str(exc),
+                        details={"max_retries": retry_policy.max_retries},
+                    ),
                 )
             except ValidationError as exc:
                 outcome = NodeOutcome(
-                    status="fail", state=node_state,
-                    error=NodeError(code="node.invalid_outcome",
-                                    message="Node returned invalid outcome",
-                                    details={"error": str(exc)}),
+                    status="fail",
+                    state=node_state,
+                    error=NodeError(
+                        code="node.invalid_outcome",
+                        message="Node returned invalid outcome",
+                        details={"error": str(exc)},
+                    ),
                 )
             except _EXECUTOR_DEGRADED_ERRORS as exc:
                 self._ctx.logger.exception("Node %s failed", alias)
                 outcome = NodeOutcome(
-                    status="fail", state=node_state,
-                    error=NodeError(code="node.exception", message=str(exc),
-                                    details={"type": exc.__class__.__name__}),
+                    status="fail",
+                    state=node_state,
+                    error=NodeError(
+                        code="node.exception",
+                        message=str(exc),
+                        details={"type": exc.__class__.__name__},
+                    ),
                 )
 
             # Cache store
@@ -807,8 +908,10 @@ class AsyncWorkflowExecutor:
 
         # Enrich span with post-execution attributes
         enrich_node_span_result(
-            span_attrs, status=outcome.status,
-            duration_ms=duration_ms, cache_hit=cache_hit,
+            span_attrs,
+            status=outcome.status,
+            duration_ms=duration_ms,
+            cache_hit=cache_hit,
         )
         for key, value in span_attrs.items():
             set_span_attribute(None, key, value)  # best-effort; span from tracer
@@ -818,16 +921,19 @@ class AsyncWorkflowExecutor:
             try:
                 ended_at = datetime.now(UTC)
                 started_at = datetime.fromtimestamp(
-                    ended_at.timestamp() - duration_ms / 1000, tz=UTC,
+                    ended_at.timestamp() - duration_ms / 1000,
+                    tz=UTC,
                 )
                 if outcome.status == "ok":
                     # Collect input refs from upstream dependencies
                     input_refs: list[Any] = []
-                    for dep in (inv.depends_on or []):
+                    for dep in inv.depends_on or []:
                         input_refs.extend(self._node_outputs.get(dep, []))
                     self._provenance_dag.record_node_execution(
-                        alias=alias, node_id=node_id,
-                        started_at=started_at, ended_at=ended_at,
+                        alias=alias,
+                        node_id=node_id,
+                        started_at=started_at,
+                        ended_at=ended_at,
                         input_refs=input_refs,
                         output_refs=list(outcome.artifacts),
                         params=dict(inv.params) if inv.params else {},
@@ -839,9 +945,9 @@ class AsyncWorkflowExecutor:
                     post_keys = set(outcome.state.artifacts_index.keys())
                     keys_added = sorted(post_keys - pre_keys)
                     keys_modified = sorted(
-                        k for k in pre_keys & post_keys
-                        if outcome.state.artifacts_index.get(k)
-                        != state.artifacts_index.get(k)
+                        k
+                        for k in pre_keys & post_keys
+                        if outcome.state.artifacts_index.get(k) != state.artifacts_index.get(k)
                     )
                     if keys_added or keys_modified:
                         self._provenance_dag.record_state_mutation(
@@ -851,14 +957,16 @@ class AsyncWorkflowExecutor:
                         )
                 elif outcome.status == "fail":
                     self._provenance_dag.record_node_failure(
-                        alias=alias, node_id=node_id,
+                        alias=alias,
+                        node_id=node_id,
                         error=str(outcome.error.message) if outcome.error else "Unknown",
                         traceback=(
                             outcome.error.details.get("type", "")
                             if outcome.error and outcome.error.details
                             else None
                         ),
-                        started_at=started_at, ended_at=ended_at,
+                        started_at=started_at,
+                        ended_at=ended_at,
                     )
             except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
                 envelope = _executor_degraded(
@@ -882,7 +990,8 @@ class AsyncWorkflowExecutor:
         _log_node_events(self._ctx.logger, alias, outcome.events)
         status_event = {"ok": "NODE_OK", "skip": "NODE_SKIP", "fail": "NODE_FAIL"}[outcome.status]
         self._ctx.run.emit(
-            f"scientist.node.{alias}", status_event,
+            f"scientist.node.{alias}",
+            status_event,
             outputs=outcome.artifacts,
             metrics={"duration_ms": duration_ms, "status_ok": 1 if outcome.status == "ok" else 0},
         )
@@ -890,7 +999,8 @@ class AsyncWorkflowExecutor:
         if self._ctx.audit is not None:
             audit_action = "NODE_COMPLETED" if outcome.status == "ok" else "NODE_FAILED"
             self._ctx.audit.append(
-                run_id=state.run_id, actor="engine",
+                run_id=state.run_id,
+                actor="engine",
                 action=audit_action,
                 artifact_refs=list(outcome.artifacts) if outcome.artifacts else None,
                 metadata={
@@ -905,10 +1015,13 @@ class AsyncWorkflowExecutor:
         if self._ctx.metrics is not None:
             actual_retry_count = max(0, retry_stats.get("attempts", 1) - 1)
             self._ctx.metrics.record_node_completed(
-                alias=alias, node_id=node_id,
+                alias=alias,
+                node_id=node_id,
                 workflow_id=workflow.workflow_id,
-                status=outcome.status, duration_ms=duration_ms,
-                cache_hit=cache_hit, retry_count=actual_retry_count,
+                status=outcome.status,
+                duration_ms=duration_ms,
+                cache_hit=cache_hit,
+                retry_count=actual_retry_count,
             )
 
         return outcome, duration_ms, cache_hit, cache_entry_ref
@@ -953,7 +1066,8 @@ class AsyncWorkflowExecutor:
             )
             if self._ctx.audit is not None:
                 self._ctx.audit.append(
-                    run_id=state.run_id, actor="engine",
+                    run_id=state.run_id,
+                    actor="engine",
                     action="CHECKPOINT_CREATED",
                     artifact_refs=[result.checkpoint_ref],
                     metadata={
@@ -1026,7 +1140,8 @@ class AsyncWorkflowExecutor:
                 kind="scientist.workflow_spec",
                 media_type="application/json",
                 schema=SchemaInfo(
-                    name="polisyos.scientist.engine.WorkflowSpec", version="1.0",
+                    name="polisyos.scientist.engine.WorkflowSpec",
+                    version="1.0",
                 ),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
@@ -1053,7 +1168,8 @@ class AsyncWorkflowExecutor:
                 kind="scientist.workflow_report",
                 media_type="application/json",
                 schema=SchemaInfo(
-                    name="polisyos.scientist.engine.WorkflowReport", version="1.0",
+                    name="polisyos.scientist.engine.WorkflowReport",
+                    version="1.0",
                 ),
             ),
         )

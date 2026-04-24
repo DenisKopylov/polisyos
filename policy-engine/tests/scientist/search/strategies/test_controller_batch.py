@@ -4,7 +4,11 @@ from contextlib import contextmanager
 from typing import Any
 
 from polisyos.scientist.search.controller import SearchConfig, SearchController
-from polisyos.scientist.search.objective import CompositeObjective, ObjectiveValue, OptimizationDirection
+from polisyos.scientist.search.objective import (
+    CompositeObjective,
+    ObjectiveValue,
+    OptimizationDirection,
+)
 from polisyos.scientist.search.stopping import MaxIterations
 
 
@@ -135,4 +139,3 @@ def test_controller_uses_resource_arbiter_for_stage_b() -> None:
     )
     _ = controller.run({"user_request": "arbiter"})
     assert arbiter.owners == ["jax", "jax"]
-

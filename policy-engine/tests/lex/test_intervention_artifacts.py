@@ -35,9 +35,7 @@ def _registry() -> LexProvisionMappingRegistry:
 
 
 def test_artifact_loaders_read_c6a_fixture_payloads() -> None:
-    intervention_map = load_lex_intervention_map_entries(
-        _FIXTURE_DIR / "lex_intervention_map.json"
-    )
+    intervention_map = load_lex_intervention_map_entries(_FIXTURE_DIR / "lex_intervention_map.json")
     knob_dictionary = load_intervention_knob_dictionary_entries(
         _FIXTURE_DIR / "intervention_knob_dictionary.json"
     )
@@ -75,18 +73,20 @@ def test_registry_resolve_builds_directive_from_fixture_artifacts() -> None:
 
 
 def test_registry_rejects_duplicate_map_and_dictionary_entries() -> None:
-    intervention_map = load_lex_intervention_map_entries(
-        _FIXTURE_DIR / "lex_intervention_map.json"
-    )
+    intervention_map = load_lex_intervention_map_entries(_FIXTURE_DIR / "lex_intervention_map.json")
     knob_dictionary = load_intervention_knob_dictionary_entries(
         _FIXTURE_DIR / "intervention_knob_dictionary.json"
     )
 
     with pytest.raises(ValueError, match="duplicate intervention mapping"):
-        LexProvisionMappingRegistry(intervention_map_entries=[intervention_map[0], intervention_map[0]])
+        LexProvisionMappingRegistry(
+            intervention_map_entries=[intervention_map[0], intervention_map[0]]
+        )
 
     with pytest.raises(ValueError, match="duplicate knob dictionary entry"):
-        LexProvisionMappingRegistry(knob_dictionary_entries=[knob_dictionary[0], knob_dictionary[0]])
+        LexProvisionMappingRegistry(
+            knob_dictionary_entries=[knob_dictionary[0], knob_dictionary[0]]
+        )
 
 
 def test_registry_rejects_unknown_knob_override() -> None:

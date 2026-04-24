@@ -32,12 +32,12 @@ flowchart TB
 
 ## What The Freeze Actually Enforces
 
-| Control | Purpose |
-|---|---|
-| import policy and exceptions | keep subsystem boundaries explicit |
-| generated snapshot checks | stop schema/OpenAPI/docs drift from becoming normal |
-| docs accuracy checks | ensure published names, workflows, and paths still exist |
-| merge ratchets | keep new changes from lowering the acceptance bar |
+| Control                      | Purpose                                                  |
+| ---------------------------- | -------------------------------------------------------- |
+| import policy and exceptions | keep subsystem boundaries explicit                       |
+| generated snapshot checks    | stop schema/OpenAPI/docs drift from becoming normal      |
+| docs accuracy checks         | ensure published names, workflows, and paths still exist |
+| merge ratchets               | keep new changes from lowering the acceptance bar        |
 
 ## Why It Matters
 

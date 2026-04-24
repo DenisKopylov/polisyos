@@ -1,4 +1,5 @@
 """Cross-sectional SCM template."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -6,15 +7,20 @@ from typing import Any
 import numpy as np
 
 from polisyos.synthetic_world.models import SyntheticWorldDGP
-from polisyos.synthetic_world.operators import apply_entity_sampling, apply_measurement_error, apply_missingness, static_treatment_assignments
+from polisyos.synthetic_world.operators import (
+    apply_entity_sampling,
+    apply_measurement_error,
+    apply_missingness,
+    static_treatment_assignments,
+)
 from polisyos.synthetic_world.targets import (
     exact_linear_regression_posterior,
     register_binary_classification_targets,
-    register_latent_state_targets,
-    register_prior_targets,
     register_cross_sectional_causal_targets,
     register_cross_sectional_econometrics_targets,
     register_distributional_targets,
+    register_latent_state_targets,
+    register_prior_targets,
     register_regression_targets,
     register_survey_targets,
 )
@@ -55,13 +61,7 @@ def materialize_cross_sectional_world(spec: SyntheticWorldDGP) -> MaterializedWo
     y1 = baseline + treatment_effect + epsilon
     observed_outcome = np.where(treatment == 1, y1, y0)
     positive_class_probability = 1.0 / (
-        1.0
-        + np.exp(
-            -(
-                observed_outcome
-                / max(spec.classification_temperature, 1.0e-6)
-            )
-        )
+        1.0 + np.exp(-(observed_outcome / max(spec.classification_temperature, 1.0e-6)))
     )
     labels = rng.binomial(1, positive_class_probability).astype(int)
 
@@ -147,7 +147,8 @@ def materialize_cross_sectional_world(spec: SyntheticWorldDGP) -> MaterializedWo
     )
     truth_registry.update(
         register_regression_targets(
-            conditional_mean=baseline[sampled_index] + propensity[sampled_index] * treatment_effect[sampled_index],
+            conditional_mean=baseline[sampled_index]
+            + propensity[sampled_index] * treatment_effect[sampled_index],
             conditional_variance=np.full(sampled_index.shape[0], spec.noise_scale**2, dtype=float),
             unit_ids=unit_ids,
         )
@@ -187,7 +188,9 @@ def materialize_cross_sectional_world(spec: SyntheticWorldDGP) -> MaterializedWo
     )
     coefficient_names = ["intercept", "treatment"] + [f"feature_{idx}" for idx in range(n_features)]
     prior_scale = 5.0
-    prior_predictive_std = np.sqrt(np.sum((design * prior_scale) ** 2, axis=1) + spec.noise_scale**2)
+    prior_predictive_std = np.sqrt(
+        np.sum((design * prior_scale) ** 2, axis=1) + spec.noise_scale**2
+    )
     truth_registry.update(
         register_prior_targets(
             parameter_names=coefficient_names,

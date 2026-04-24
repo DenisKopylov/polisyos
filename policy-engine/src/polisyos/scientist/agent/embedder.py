@@ -73,10 +73,7 @@ class TFIDFEmbedder:
         self._vocab = {term: idx for idx, term in enumerate(top_terms)}
 
         # Compute IDF: log(N / (1 + df))
-        self._idf = [
-            math.log(n_docs / (1 + df.get(term, 0)))
-            for term in top_terms
-        ]
+        self._idf = [math.log(n_docs / (1 + df.get(term, 0))) for term in top_terms]
         self._fitted = True
 
     def embed(self, texts: list[str]) -> list[list[float]]:

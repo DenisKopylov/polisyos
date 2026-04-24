@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import json
+from typing import TYPE_CHECKING
 
 import duckdb
 
@@ -12,12 +12,14 @@ from polisyos.lex.batch.amendment_metrics import (
     AmendmentQualityMetrics,
     collect_amendment_quality_metrics,
 )
-from polisyos.lex.batch.config import BatchConfig
 from polisyos.lex.batch.quality_report import (
     QualityGateThresholds,
     build_quality_report,
     evaluate_quality_gates,
 )
+
+if TYPE_CHECKING:
+    from polisyos.lex.batch.config import BatchConfig
 
 _BLOCKING_HALLUCINATION_FLAGS = ("phantom_number", "phantom_article_reference")
 _ADVISORY_HALLUCINATION_FLAGS = ("ungrounded_subject", "norm_type_mismatch")
@@ -55,8 +57,7 @@ def _hallucination_flag_condition(flags: tuple[str, ...]) -> str:
     if not flags:
         return "FALSE"
     return " OR ".join(
-        f"LOWER(COALESCE(hallucination_flags_json, '')) LIKE '%{flag.lower()}%'"
-        for flag in flags
+        f"LOWER(COALESCE(hallucination_flags_json, '')) LIKE '%{flag.lower()}%'" for flag in flags
     )
 
 
@@ -99,7 +100,9 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
             if _table_exists(con, "lex_provisions"):
                 provisions = int(con.execute("SELECT COUNT(*) FROM lex_provisions").fetchone()[0])
             if _table_exists(con, "lex_high_confidence_norms"):
-                high_confidence_norms = int(con.execute("SELECT COUNT(*) FROM lex_high_confidence_norms").fetchone()[0])
+                high_confidence_norms = int(
+                    con.execute("SELECT COUNT(*) FROM lex_high_confidence_norms").fetchone()[0]
+                )
             if _table_exists(con, "lex_pattern_feedback_queue"):
                 pattern_feedback_queue_total = int(
                     con.execute("SELECT COUNT(*) FROM lex_pattern_feedback_queue").fetchone()[0]
@@ -112,7 +115,9 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
                 unresolved_contradictions = int(con.execute(unresolved_sql).fetchone()[0])
             amendment_metrics = collect_amendment_quality_metrics(con)
             if _table_exists(con, "lex_doc_temporal"):
-                doc_temporal_total = int(con.execute("SELECT COUNT(*) FROM lex_doc_temporal").fetchone()[0])
+                doc_temporal_total = int(
+                    con.execute("SELECT COUNT(*) FROM lex_doc_temporal").fetchone()[0]
+                )
                 doc_temporal_resolved_total = int(
                     con.execute(
                         """
@@ -142,7 +147,9 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
                         """
                     ).fetchone()[0]
                 )
-                doc_temporal_resolved_pct = _safe_pct(doc_temporal_resolved_total, doc_temporal_total)
+                doc_temporal_resolved_pct = _safe_pct(
+                    doc_temporal_resolved_total, doc_temporal_total
+                )
                 current_like_doc_temporal_unknown_pct = _safe_pct(
                     current_like_docs_unknown,
                     current_like_docs_total,
@@ -158,7 +165,9 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
             if normative_table and _column_exists(con, normative_table, "fused_confidence"):
                 low_confidence_normative_available = True
                 low_confidence_normative_total = int(
-                    con.execute(f"SELECT COUNT(*) FROM {normative_table}{normative_where}").fetchone()[0]
+                    con.execute(
+                        f"SELECT COUNT(*) FROM {normative_table}{normative_where}"
+                    ).fetchone()[0]
                 )
                 normative_ready_total = int(
                     con.execute(
@@ -189,12 +198,18 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
                     low_confidence_normative_total,
                 )
 
-            hallucination_table = normative_table or ("lex_facts" if _table_exists(con, "lex_facts") else "")
+            hallucination_table = normative_table or (
+                "lex_facts" if _table_exists(con, "lex_facts") else ""
+            )
             hallucination_where = normative_where if hallucination_table == normative_table else ""
-            if hallucination_table and _column_exists(con, hallucination_table, "hallucination_flags_json"):
+            if hallucination_table and _column_exists(
+                con, hallucination_table, "hallucination_flags_json"
+            ):
                 hallucination_metric_available = True
                 hallucination_total_checked = int(
-                    con.execute(f"SELECT COUNT(*) FROM {hallucination_table}{hallucination_where}").fetchone()[0]
+                    con.execute(
+                        f"SELECT COUNT(*) FROM {hallucination_table}{hallucination_where}"
+                    ).fetchone()[0]
                 )
                 hallucination_flagged = int(
                     con.execute(
@@ -238,8 +253,12 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
                     hallucination_advisory_flagged,
                     hallucination_total_checked,
                 )
-            if _table_exists(con, "lex_facts") and _column_exists(con, "lex_facts", "temporal_resolution_status"):
-                fact_temporal_total = int(con.execute("SELECT COUNT(*) FROM lex_facts").fetchone()[0])
+            if _table_exists(con, "lex_facts") and _column_exists(
+                con, "lex_facts", "temporal_resolution_status"
+            ):
+                fact_temporal_total = int(
+                    con.execute("SELECT COUNT(*) FROM lex_facts").fetchone()[0]
+                )
                 fact_temporal_resolved_total = int(
                     con.execute(
                         """
@@ -248,7 +267,9 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
                         """
                     ).fetchone()[0]
                 )
-                fact_temporal_resolved_pct = _safe_pct(fact_temporal_resolved_total, fact_temporal_total)
+                fact_temporal_resolved_pct = _safe_pct(
+                    fact_temporal_resolved_total, fact_temporal_total
+                )
                 temporal_interval_inversions = int(
                     con.execute(
                         """
@@ -315,10 +336,14 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
     metrics["hallucination_advisory_rate_pct"] = round(hallucination_advisory_rate_pct, 3)
     metrics["doc_temporal_total"] = doc_temporal_total
     metrics["doc_temporal_resolved_pct"] = round(doc_temporal_resolved_pct, 3)
-    metrics["current_like_doc_temporal_unknown_pct"] = round(current_like_doc_temporal_unknown_pct, 3)
+    metrics["current_like_doc_temporal_unknown_pct"] = round(
+        current_like_doc_temporal_unknown_pct, 3
+    )
     metrics["fact_temporal_resolved_pct"] = round(fact_temporal_resolved_pct, 3)
     metrics["temporal_interval_inversions"] = temporal_interval_inversions
-    checks.append(QCCheck(name="provisions_nonzero", passed=provisions > 0, value=provisions, threshold=1))
+    checks.append(
+        QCCheck(name="provisions_nonzero", passed=provisions > 0, value=provisions, threshold=1)
+    )
 
     # Quality gates on SPO extraction files.
     spo_results_dir = (
@@ -359,13 +384,16 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
             value=0 if gate.passed else len(gate.failed_checks),
             threshold=0,
             message=", ".join(gate.failed_checks),
-            status="failed" if gate.failed_checks else ("unstable" if gate.skipped_checks else "passed"),
+            status="failed"
+            if gate.failed_checks
+            else ("unstable" if gate.skipped_checks else "passed"),
         )
     )
     checks.append(
         QCCheck(
             name="primary_llm_saved_pct",
-            passed=float(gate.report.get("primary_llm_saved_pct", 0.0) or 0.0) >= config.quality_min_llm_saved_pct,
+            passed=float(gate.report.get("primary_llm_saved_pct", 0.0) or 0.0)
+            >= config.quality_min_llm_saved_pct,
             severity="warning",
             value=float(gate.report.get("primary_llm_saved_pct", 0.0) or 0.0),
             threshold=config.quality_min_llm_saved_pct,
@@ -375,7 +403,8 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
         QCCheck(
             name="current_like_doc_temporal_unknown_pct",
             passed=(
-                current_like_doc_temporal_unknown_pct <= config.quality_max_current_like_temporal_unknown_pct
+                current_like_doc_temporal_unknown_pct
+                <= config.quality_max_current_like_temporal_unknown_pct
                 if doc_temporal_total > 0
                 else True
             ),
@@ -385,7 +414,9 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
             message="" if doc_temporal_total > 0 else "unstable: lex_doc_temporal unavailable",
             status=(
                 "passed"
-                if doc_temporal_total > 0 and current_like_doc_temporal_unknown_pct <= config.quality_max_current_like_temporal_unknown_pct
+                if doc_temporal_total > 0
+                and current_like_doc_temporal_unknown_pct
+                <= config.quality_max_current_like_temporal_unknown_pct
                 else ("failed" if doc_temporal_total > 0 else "unstable")
             ),
         )
@@ -407,7 +438,9 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
                 if hallucination_metric_available and hallucination_total_checked > 0
                 else True
             ),
-            severity="critical" if hallucination_metric_available and hallucination_total_checked > 0 else "warning",
+            severity="critical"
+            if hallucination_metric_available and hallucination_total_checked > 0
+            else "warning",
             value=round(hallucination_blocking_rate_pct, 3),
             threshold=config.quality_max_hallucination_rate_pct,
             message=(
@@ -417,7 +450,9 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
             ),
             status=(
                 "passed"
-                if hallucination_metric_available and hallucination_total_checked > 0 and hallucination_blocking_rate_pct <= config.quality_max_hallucination_rate_pct
+                if hallucination_metric_available
+                and hallucination_total_checked > 0
+                and hallucination_blocking_rate_pct <= config.quality_max_hallucination_rate_pct
                 else (
                     "failed"
                     if hallucination_metric_available and hallucination_total_checked > 0
@@ -444,7 +479,9 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
             ),
             status=(
                 "passed"
-                if hallucination_metric_available and hallucination_total_checked > 0 and hallucination_advisory_rate_pct <= config.quality_max_hallucination_rate_pct
+                if hallucination_metric_available
+                and hallucination_total_checked > 0
+                and hallucination_advisory_rate_pct <= config.quality_max_hallucination_rate_pct
                 else (
                     "failed"
                     if hallucination_metric_available and hallucination_total_checked > 0
@@ -471,7 +508,9 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
             ),
             status=(
                 "passed"
-                if hallucination_metric_available and hallucination_total_checked > 0 and hallucination_rate_pct <= config.quality_max_hallucination_rate_pct
+                if hallucination_metric_available
+                and hallucination_total_checked > 0
+                and hallucination_rate_pct <= config.quality_max_hallucination_rate_pct
                 else (
                     "failed"
                     if hallucination_metric_available and hallucination_total_checked > 0
@@ -498,7 +537,9 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
             ),
             status=(
                 "passed"
-                if low_confidence_normative_available and low_confidence_normative_total > 0 and low_confidence_normative_pct <= config.quality_max_low_confidence_normative_pct
+                if low_confidence_normative_available
+                and low_confidence_normative_total > 0
+                and low_confidence_normative_pct <= config.quality_max_low_confidence_normative_pct
                 else (
                     "failed"
                     if low_confidence_normative_available and low_confidence_normative_total > 0
@@ -518,10 +559,13 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
             severity="warning",
             value=unresolved_contradictions,
             threshold=config.quality_max_unresolved_contradictions,
-            message="" if consistency_metric_available else "unstable: consistency table unavailable",
+            message=""
+            if consistency_metric_available
+            else "unstable: consistency table unavailable",
             status=(
                 "passed"
-                if consistency_metric_available and unresolved_contradictions <= config.quality_max_unresolved_contradictions
+                if consistency_metric_available
+                and unresolved_contradictions <= config.quality_max_unresolved_contradictions
                 else ("failed" if consistency_metric_available else "unstable")
             ),
         )
@@ -530,7 +574,8 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
         QCCheck(
             name="amendment_extraction_coverage_pct",
             passed=(
-                amendment_metrics.amendment_extraction_coverage_pct >= config.quality_min_amendment_extraction_coverage_pct
+                amendment_metrics.amendment_extraction_coverage_pct
+                >= config.quality_min_amendment_extraction_coverage_pct
                 if amendment_metrics.available and amendment_metrics.amendment_candidate_docs > 0
                 else True
             ),
@@ -546,10 +591,12 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
                 "passed"
                 if amendment_metrics.available
                 and amendment_metrics.amendment_candidate_docs > 0
-                and amendment_metrics.amendment_extraction_coverage_pct >= config.quality_min_amendment_extraction_coverage_pct
+                and amendment_metrics.amendment_extraction_coverage_pct
+                >= config.quality_min_amendment_extraction_coverage_pct
                 else (
                     "failed"
-                    if amendment_metrics.available and amendment_metrics.amendment_candidate_docs > 0
+                    if amendment_metrics.available
+                    and amendment_metrics.amendment_candidate_docs > 0
                     else "unstable"
                 )
             ),
@@ -559,30 +606,36 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
         QCCheck(
             name="amendment_target_resolution_pct",
             passed=(
-                amendment_metrics.amendment_target_resolution_pct >= config.quality_min_amendment_target_resolution_pct
-                if amendment_metrics.available and amendment_metrics.expected_single_target_amendment_docs_total > 0
+                amendment_metrics.amendment_target_resolution_pct
+                >= config.quality_min_amendment_target_resolution_pct
+                if amendment_metrics.available
+                and amendment_metrics.expected_single_target_amendment_docs_total > 0
                 else True
             ),
             severity=(
                 "critical"
-                if amendment_metrics.available and amendment_metrics.expected_single_target_amendment_docs_total > 0
+                if amendment_metrics.available
+                and amendment_metrics.expected_single_target_amendment_docs_total > 0
                 else "warning"
             ),
             value=round(amendment_metrics.amendment_target_resolution_pct, 3),
             threshold=config.quality_min_amendment_target_resolution_pct,
             message=(
                 ""
-                if amendment_metrics.available and amendment_metrics.expected_single_target_amendment_docs_total > 0
+                if amendment_metrics.available
+                and amendment_metrics.expected_single_target_amendment_docs_total > 0
                 else "unstable: amendment target metric unavailable"
             ),
             status=(
                 "passed"
                 if amendment_metrics.available
                 and amendment_metrics.expected_single_target_amendment_docs_total > 0
-                and amendment_metrics.amendment_target_resolution_pct >= config.quality_min_amendment_target_resolution_pct
+                and amendment_metrics.amendment_target_resolution_pct
+                >= config.quality_min_amendment_target_resolution_pct
                 else (
                     "failed"
-                    if amendment_metrics.available and amendment_metrics.expected_single_target_amendment_docs_total > 0
+                    if amendment_metrics.available
+                    and amendment_metrics.expected_single_target_amendment_docs_total > 0
                     else "unstable"
                 )
             ),
@@ -642,7 +695,9 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
     checks.append(
         QCCheck(
             name="reference_resolution_coverage_pct",
-            passed=(reference_coverage >= config.quality_min_reference_resolution_coverage_pct) if reference_rows_total >= config.quality_min_reference_rows_for_rate else True,
+            passed=(reference_coverage >= config.quality_min_reference_resolution_coverage_pct)
+            if reference_rows_total >= config.quality_min_reference_rows_for_rate
+            else True,
             severity="warning",
             value=reference_coverage,
             threshold=config.quality_min_reference_resolution_coverage_pct,
@@ -666,7 +721,7 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
     benchmark_passed: bool | None = None
     benchmark_failed_checks: list[str] = []
     if config.benchmark_report_path.exists():
-        with open(config.benchmark_report_path, "r", encoding="utf-8") as fh:
+        with open(config.benchmark_report_path, encoding="utf-8") as fh:
             benchmark_payload = json.load(fh)
         benchmark_metrics = benchmark_payload.get("metrics", {})
         benchmark_readiness = benchmark_payload.get("readiness", {})
@@ -676,7 +731,9 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
             metrics["benchmark_metrics"] = benchmark_metrics
         metrics["benchmark_passed"] = benchmark_passed
         metrics["benchmark_failed_checks"] = benchmark_failed_checks
-        metrics["benchmark_advisory_failed_checks"] = list(benchmark_readiness.get("advisory_failed_checks", []))
+        metrics["benchmark_advisory_failed_checks"] = list(
+            benchmark_readiness.get("advisory_failed_checks", [])
+        )
 
     # Local embedding artifact presence.
     artifact_names = (
@@ -696,17 +753,17 @@ def run_qc(config: BatchConfig, *, fail_fast: bool = True) -> QCReport:
             severity="critical" if embedding_required else "warning",
             value=len(missing),
             threshold=0,
-            message=(", ".join(missing)) if embedding_required else "optional: embeddings not required for this run",
-            status=(
-                "passed"
-                if (not missing or not embedding_required)
-                else "failed"
-            ),
+            message=(", ".join(missing))
+            if embedding_required
+            else "optional: embeddings not required for this run",
+            status=("passed" if (not missing or not embedding_required) else "failed"),
         )
     )
 
     report = QCReport(scope="lex", checks=checks, metrics=metrics)
-    qc_failed_checks = [check.name for check in report.checks if not check.passed and check.severity == "critical"]
+    qc_failed_checks = [
+        check.name for check in report.checks if not check.passed and check.severity == "critical"
+    ]
     report.metrics["qc_passed"] = report.passed
     report.metrics["qc_failed_checks"] = qc_failed_checks
     report.metrics["release_passed"] = bool(gate.passed and report.passed)

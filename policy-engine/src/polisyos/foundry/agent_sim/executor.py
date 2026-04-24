@@ -1,8 +1,10 @@
 """Public agent sim executor module API."""
+
 from __future__ import annotations
 
+from collections.abc import Iterable
 from functools import partial
-from typing import Any, Iterable
+from typing import Any
 
 import jax
 import jax.numpy as jnp
@@ -57,9 +59,7 @@ class PureExecutor:
         self.mechanisms = list(mechanisms)
         self.order = MechanismOrder(self.mechanisms)
         if prng_config is None:
-            prng_config = {
-                mech.spec.name: idx for idx, mech in enumerate(self.mechanisms)
-            }
+            prng_config = {mech.spec.name: idx for idx, mech in enumerate(self.mechanisms)}
         self.prng_config = dict(prng_config)
         self.aggregate_every = aggregate_every
         self.compute_gini = compute_gini

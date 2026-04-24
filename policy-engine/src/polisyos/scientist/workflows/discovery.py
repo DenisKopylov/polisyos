@@ -1,4 +1,5 @@
 """Discovery-only workflow spec for blueprint-native graph/utility prior extraction."""
+
 from __future__ import annotations
 
 from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec

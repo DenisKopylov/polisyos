@@ -44,6 +44,7 @@ _CATEGORY_PRIORITY = (
 @dataclass(frozen=True)
 class SmokeProfile:
     """Smoke profile data model."""
+
     name: str
     sample_docs: int
     scan_docs: int
@@ -161,6 +162,7 @@ SMOKE_PROFILES: dict[str, SmokeProfile] = {
 @dataclass(frozen=True)
 class SmokeCandidate:
     """Smoke candidate public type."""
+
     doc_id: str
     name: str
     doc_type: str
@@ -258,7 +260,7 @@ def select_smoke_candidates(
 
     categories = _category_order(set(category_buckets))
     cue_target = min(max(4, sample_docs // 4), sum(len(bucket) for bucket in cue_buckets.values()))
-    cue_indexes = {category: 0 for category in cue_buckets}
+    cue_indexes = dict.fromkeys(cue_buckets, 0)
 
     while len(selected) < cue_target:
         added = False
@@ -278,7 +280,7 @@ def select_smoke_candidates(
         if not added:
             break
 
-    category_indexes = {category: 0 for category in category_buckets}
+    category_indexes = dict.fromkeys(category_buckets, 0)
     target_total = min(sample_docs, len(candidates))
     while len(selected) < target_total:
         added = False
@@ -308,7 +310,9 @@ def write_smoke_plan(
     scan_total: int,
 ) -> Path:
     """Write smoke plan helper."""
-    counts_by_category = Counter(candidate.doc_type_category or "other" for candidate, _ in selected)
+    counts_by_category = Counter(
+        candidate.doc_type_category or "other" for candidate, _ in selected
+    )
     counts_by_cue = Counter(cue for candidate, _ in selected for cue in candidate.structure_cues)
     payload = {
         "kind": "lex_smoke_plan",
@@ -344,7 +348,7 @@ def _jsonl_rows(path: Path) -> list[dict[str, Any]]:
     if not path.exists():
         return []
     rows: list[dict[str, Any]] = []
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -366,14 +370,13 @@ def _summarize_doc(output_dir: Path, plan_entry: dict[str, Any]) -> dict[str, An
     resolved_rows = _jsonl_rows(_doc_jsonl_path(output_dir / "resolved_references", doc_id))
 
     non_full_provisions = sum(
-        1
-        for row in provision_rows
-        if str(row.get("kind") or "") not in {"full_text", "full_chunk"}
+        1 for row in provision_rows if str(row.get("kind") or "") not in {"full_text", "full_chunk"}
     )
     fallback_provisions = sum(
         1
         for row in provision_rows
-        if bool(row.get("is_fallback_chunk")) or not bool(row.get("fallback_allowed_for_reasoning", True))
+        if bool(row.get("is_fallback_chunk"))
+        or not bool(row.get("fallback_allowed_for_reasoning", True))
     )
     empty_spo_rows = 0
     spo_statement_total = 0
@@ -417,7 +420,11 @@ def _summarize_doc(output_dir: Path, plan_entry: dict[str, Any]) -> dict[str, An
                 if trust_tier == "normative_fact":
                     normative_statement_total += 1
                 quote = str(statement.get("source_quote_uk") or "").strip()
-                if (not quote) or statement.get("source_quote_start") is None or statement.get("source_quote_end") is None:
+                if (
+                    (not quote)
+                    or statement.get("source_quote_start") is None
+                    or statement.get("source_quote_end") is None
+                ):
                     grounded_missing_quote_total += 1
 
     flags: list[str] = []
@@ -444,7 +451,9 @@ def _summarize_doc(output_dir: Path, plan_entry: dict[str, Any]) -> dict[str, An
         "selection_reason": plan_entry.get("selection_reason", ""),
         "structure_cues": plan_entry.get("structure_cues", []),
         "text_length": int(plan_entry.get("text_length") or 0),
-        "dominant_legal_unit_subtype": subtype_counts.most_common(1)[0][0] if subtype_counts else "",
+        "dominant_legal_unit_subtype": subtype_counts.most_common(1)[0][0]
+        if subtype_counts
+        else "",
         "legal_unit_subtype_counts": dict(sorted(subtype_counts.items())),
         "provisions_total": len(provision_rows),
         "non_full_provisions": non_full_provisions,
@@ -478,12 +487,14 @@ def build_smoke_report(
     stats: PipelineStats,
 ) -> tuple[Path, Path]:
     """Build smoke report."""
-    with open(plan_path, "r", encoding="utf-8") as fh:
+    with open(plan_path, encoding="utf-8") as fh:
         plan = json.load(fh)
 
     quality_report = build_quality_report(
         provisions_dir=output_dir / "provisions",
-        spo_results_dir=output_dir / "spo_grounded" if (output_dir / "spo_grounded").exists() else output_dir / "spo_results",
+        spo_results_dir=output_dir / "spo_grounded"
+        if (output_dir / "spo_grounded").exists()
+        else output_dir / "spo_results",
         llm_gate_manifest_path=output_dir / "manifests" / "llm_gate.json",
         llm_gate_audit_path=output_dir / "llm_gate_audit.jsonl",
     )
@@ -491,13 +502,13 @@ def build_smoke_report(
     consumer_manifest: dict[str, Any] = {}
     consumer_manifest_path = output_dir / "publish" / "consumer_readiness.json"
     if consumer_manifest_path.exists():
-        with open(consumer_manifest_path, "r", encoding="utf-8") as fh:
+        with open(consumer_manifest_path, encoding="utf-8") as fh:
             consumer_manifest = json.load(fh)
 
     benchmark_manifest: dict[str, Any] = {}
     benchmark_manifest_path = output_dir / "benchmark_report.json"
     if benchmark_manifest_path.exists():
-        with open(benchmark_manifest_path, "r", encoding="utf-8") as fh:
+        with open(benchmark_manifest_path, encoding="utf-8") as fh:
             benchmark_manifest = json.load(fh)
 
     doc_summaries = [
@@ -506,14 +517,28 @@ def build_smoke_report(
         if isinstance(entry, dict)
     ]
     top_problem_docs = [
-        row for row in sorted(doc_summaries, key=lambda row: (len(row["flags"]), -row["grounded_statement_total"]), reverse=True)
+        row
+        for row in sorted(
+            doc_summaries,
+            key=lambda row: (len(row["flags"]), -row["grounded_statement_total"]),
+            reverse=True,
+        )
         if row["flags"]
     ][:10]
     problem_doc_groups: dict[tuple[str, str], dict[str, Any]] = defaultdict(
-        lambda: {"docs_total": 0, "flags_total": 0, "grounded_total": 0, "normative_total": 0, "doc_ids": []}
+        lambda: {
+            "docs_total": 0,
+            "flags_total": 0,
+            "grounded_total": 0,
+            "normative_total": 0,
+            "doc_ids": [],
+        }
     )
     for row in top_problem_docs:
-        key = (str(row.get("doc_type_category") or "other"), str(row.get("dominant_legal_unit_subtype") or "unknown"))
+        key = (
+            str(row.get("doc_type_category") or "other"),
+            str(row.get("dominant_legal_unit_subtype") or "unknown"),
+        )
         group = problem_doc_groups[key]
         group["docs_total"] += 1
         group["flags_total"] += len(row["flags"])
@@ -528,12 +553,20 @@ def build_smoke_report(
         }
         for (family, subtype), payload in sorted(
             problem_doc_groups.items(),
-            key=lambda item: (item[1]["flags_total"], item[1]["docs_total"], -item[1]["grounded_total"]),
+            key=lambda item: (
+                item[1]["flags_total"],
+                item[1]["docs_total"],
+                -item[1]["grounded_total"],
+            ),
             reverse=True,
         )
     ][:8]
     top_good_docs = sorted(
-        [row for row in doc_summaries if row["grounded_statement_total"] > 0 or row["resolved_references_total"] > 0],
+        [
+            row
+            for row in doc_summaries
+            if row["grounded_statement_total"] > 0 or row["resolved_references_total"] > 0
+        ],
         key=lambda row: (
             row["normative_statement_total"],
             row["grounded_statement_total"],
@@ -584,12 +617,24 @@ def build_smoke_report(
         "benchmark_report": benchmark_manifest,
         "document_summary": {
             "selected_docs_total": len(doc_summaries),
-            "with_non_full_structure": sum(1 for row in doc_summaries if row["non_full_provisions"] > 0),
-            "with_grounded_facts": sum(1 for row in doc_summaries if row["grounded_statement_total"] > 0),
-            "with_normative_facts": sum(1 for row in doc_summaries if row["normative_statement_total"] > 0),
-            "with_resolved_refs": sum(1 for row in doc_summaries if row["resolved_references_total"] > 0),
-            "with_timeout_fallbacks": sum(1 for row in doc_summaries if row["timeout_fallback_rows"] > 0),
-            "with_error_fallbacks": sum(1 for row in doc_summaries if row["error_fallback_rows"] > 0),
+            "with_non_full_structure": sum(
+                1 for row in doc_summaries if row["non_full_provisions"] > 0
+            ),
+            "with_grounded_facts": sum(
+                1 for row in doc_summaries if row["grounded_statement_total"] > 0
+            ),
+            "with_normative_facts": sum(
+                1 for row in doc_summaries if row["normative_statement_total"] > 0
+            ),
+            "with_resolved_refs": sum(
+                1 for row in doc_summaries if row["resolved_references_total"] > 0
+            ),
+            "with_timeout_fallbacks": sum(
+                1 for row in doc_summaries if row["timeout_fallback_rows"] > 0
+            ),
+            "with_error_fallbacks": sum(
+                1 for row in doc_summaries if row["error_fallback_rows"] > 0
+            ),
         },
         "top_problem_docs": top_problem_docs,
         "top_problem_doc_groups": top_problem_doc_groups,
@@ -599,7 +644,9 @@ def build_smoke_report(
             "publish_manifest_path": str(output_dir / "publish" / "manifest.json"),
             "consumer_manifest_path": str(consumer_manifest_path),
             "benchmark_report_path": str(benchmark_manifest_path),
-            "claim_summary_path": str(output_dir / "claim_exports" / "normative_claim_sets_summary.json"),
+            "claim_summary_path": str(
+                output_dir / "claim_exports" / "normative_claim_sets_summary.json"
+            ),
         },
     }
 
@@ -746,7 +793,9 @@ def run_smoke(
     cas_root_env = str(os.environ.get("POLISYOS_CAS_ROOT", "") or "").strip()
     fact_log_root_env = str(os.environ.get("POLISYOS_FACT_LOG_ROOT", "") or "").strip()
     cas_root = Path(cas_root_env).expanduser() if cas_root_env else (output_dir / "cas")
-    fact_log_root = Path(fact_log_root_env).expanduser() if fact_log_root_env else (output_dir / "fact_log")
+    fact_log_root = (
+        Path(fact_log_root_env).expanduser() if fact_log_root_env else (output_dir / "fact_log")
+    )
     enable_claim_cas = True
 
     config = BatchConfig(
@@ -761,20 +810,32 @@ def run_smoke(
         max_concurrent_llm=profile.parallel_llm,
         rate_limit_rps=profile.gonka_rate_limit_rps,
         max_retries=profile.max_retries,
-        spo_rate_warmup_seconds=45.0 if spo_rate_warmup_seconds is None else float(spo_rate_warmup_seconds),
-        spo_rate_warmup_start_scale=3.0 if spo_rate_warmup_start_scale is None else float(spo_rate_warmup_start_scale),
-        spo_adaptive_rate_enabled=True if spo_adaptive_rate_enabled is None else bool(spo_adaptive_rate_enabled),
+        spo_rate_warmup_seconds=45.0
+        if spo_rate_warmup_seconds is None
+        else float(spo_rate_warmup_seconds),
+        spo_rate_warmup_start_scale=3.0
+        if spo_rate_warmup_start_scale is None
+        else float(spo_rate_warmup_start_scale),
+        spo_adaptive_rate_enabled=True
+        if spo_adaptive_rate_enabled is None
+        else bool(spo_adaptive_rate_enabled),
         spo_adaptive_rate_recovery_factor=(
-            0.97 if spo_adaptive_rate_recovery_factor is None else float(spo_adaptive_rate_recovery_factor)
+            0.97
+            if spo_adaptive_rate_recovery_factor is None
+            else float(spo_adaptive_rate_recovery_factor)
         ),
         spo_adaptive_rate_penalty_multiplier=(
-            1.35 if spo_adaptive_rate_penalty_multiplier is None else float(spo_adaptive_rate_penalty_multiplier)
+            1.35
+            if spo_adaptive_rate_penalty_multiplier is None
+            else float(spo_adaptive_rate_penalty_multiplier)
         ),
         spo_adaptive_rate_max_scale=(
             8.0 if spo_adaptive_rate_max_scale is None else float(spo_adaptive_rate_max_scale)
         ),
         spo_retryable_followup_worker_scale=(
-            0.5 if spo_retryable_followup_worker_scale is None else float(spo_retryable_followup_worker_scale)
+            0.5
+            if spo_retryable_followup_worker_scale is None
+            else float(spo_retryable_followup_worker_scale)
         ),
         spo_retryable_followup_dispatch_rps_scale=(
             0.5
@@ -782,7 +843,9 @@ def run_smoke(
             else float(spo_retryable_followup_dispatch_rps_scale)
         ),
         spo_retryable_followup_client_rate_scale=(
-            0.5 if spo_retryable_followup_client_rate_scale is None else float(spo_retryable_followup_client_rate_scale)
+            0.5
+            if spo_retryable_followup_client_rate_scale is None
+            else float(spo_retryable_followup_client_rate_scale)
         ),
         spo_retryable_followup_client_concurrency_scale=(
             0.5
@@ -802,10 +865,14 @@ def run_smoke(
         spo_request_batch_size=profile.spo_request_batch_size,
         spo_request_batch_chars=profile.spo_request_batch_chars,
         spo_adaptive_batch_downshift_enabled=(
-            True if spo_adaptive_batch_downshift_enabled is None else bool(spo_adaptive_batch_downshift_enabled)
+            True
+            if spo_adaptive_batch_downshift_enabled is None
+            else bool(spo_adaptive_batch_downshift_enabled)
         ),
         spo_adaptive_batch_soft_chars_share=(
-            0.80 if spo_adaptive_batch_soft_chars_share is None else float(spo_adaptive_batch_soft_chars_share)
+            0.80
+            if spo_adaptive_batch_soft_chars_share is None
+            else float(spo_adaptive_batch_soft_chars_share)
         ),
         spo_group_timeout_seconds=profile.spo_group_timeout_seconds,
         spo_max_provisions_per_doc=profile.spo_max_provisions_per_doc,

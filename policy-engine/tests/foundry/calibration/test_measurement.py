@@ -88,7 +88,9 @@ def test_measurement_adapter_zeroes_missing_coverage_and_downweights_censoring()
     bundle = CalibrationTargetBundleCompiler().compile(_panel())
     target_id = bundle.targets[0].target_id
     adapter = DefaultMeasurementAwareLossAdapter()
-    config = MeasurementAwareLossConfig(censoring_discount=0.25, regime_boundary_discount=0.5, shock_discount=0.5)
+    config = MeasurementAwareLossConfig(
+        censoring_discount=0.25, regime_boundary_discount=0.5, shock_discount=0.5
+    )
 
     adapted = adapter.adapt(
         targets=(bundle.targets[0],),
@@ -119,7 +121,9 @@ def test_compiler_bundle_to_measurement_loss_has_finite_gradient() -> None:
 
     def loss_fn(scale: jax.Array) -> jax.Array:
         prediction = scale * jnp.ones_like(bundle.observed_value[target_id])
-        pointwise = pointwise_base_loss(prediction, bundle.observed_value[target_id], cfg, scale=1.0)
+        pointwise = pointwise_base_loss(
+            prediction, bundle.observed_value[target_id], cfg, scale=1.0
+        )
         adapted = adapter.adapt(
             targets=(target,),
             base_weights=1.0,

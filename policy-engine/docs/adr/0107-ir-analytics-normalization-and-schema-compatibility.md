@@ -34,10 +34,13 @@ The migration layer owns a schema compatibility registry with four modes:
 
 - `FULL`: same-major producer/consumer payloads are directly readable in both
   directions unless a narrower rule is registered.
+
 - `BACKWARD`: newer consumer code can directly read older producer payloads for
   the declared compatible line.
+
 - `FORWARD`: older consumer code can directly read declared newer producer
   payloads only when the rule explicitly allows it.
+
 - `NONE`: direct read compatibility is not promised; a registered migration or
   rejection is required.
 

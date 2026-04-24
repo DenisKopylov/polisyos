@@ -5,9 +5,10 @@ from __future__ import annotations
 import asyncio
 import json
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Callable, ClassVar, Generic, TypeVar
+from typing import Any, ClassVar, Generic, TypeVar
 
 import aiohttp
 
@@ -200,7 +201,7 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
 
         async def _raw_request(
             *,
-            handle: ConnectionHandle,  # noqa: ARG001
+            handle: ConnectionHandle,
             session: aiohttp.ClientSession,
             url: str,
             params: dict[str, str],

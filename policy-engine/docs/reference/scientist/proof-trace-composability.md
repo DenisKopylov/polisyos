@@ -1,4 +1,5 @@
 # Proof Trace Composability
+
 Related references: [Scientist Causal Validity](causal-validity.md), [Run causal analysis](../../how-to/run-causal-analysis.md), [Causal engine research agenda](../../archive/plans/CAUSAL_ENGINE_RESEARCH_AGENDA.md).
 
 Owner: `@scientist-owners`  

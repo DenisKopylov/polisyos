@@ -7,6 +7,7 @@ Workflow:
 
 from __future__ import annotations
 
+import contextlib
 import json
 import time
 from dataclasses import dataclass
@@ -196,7 +197,7 @@ def _load_manifest(path: Path) -> dict[str, Any]:
             "batches": [],
             "builds": [],
         }
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         raw = json.load(fh)
     if not isinstance(raw, dict):
         raise ValueError(f"Invalid manifest format: {path}")
@@ -431,7 +432,9 @@ def submit_embedding_batches(
             pending_texts = []
             pending_tokens = 0
 
-        for row_id, row_values in _iter_table_rows(db_path=db_path, spec=spec, chunk_size=chunk_size):
+        for row_id, row_values in _iter_table_rows(
+            db_path=db_path, spec=spec, chunk_size=chunk_size
+        ):
             text = text_builder(row_values)
             text = limiter.truncate_to_tokens(text, max_tokens=max_input_tokens)
             token_count = limiter.count(text)
@@ -498,7 +501,7 @@ class _ShardWriter:
 
 def _load_request_map(path: Path) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -558,10 +561,7 @@ def collect_embedding_batches(
         raise ValueError("Invalid batch manifest format: 'batches' must be a list.")
 
     client = OpenAI(api_key=api_key)
-    writers = {
-        key: _ShardWriter(shards_root=paths["shards"], table=key)
-        for key in TABLE_SPECS
-    }
+    writers = {key: _ShardWriter(shards_root=paths["shards"], table=key) for key in TABLE_SPECS}
     completed_now = 0
     pending_now = 0
     failed_now = 0
@@ -630,7 +630,9 @@ def collect_embedding_batches(
             if not isinstance(data, list):
                 continue
 
-            vectors = [d.get("embedding") for d in sorted(data, key=lambda d: int(d.get("index", 0)))]
+            vectors = [
+                d.get("embedding") for d in sorted(data, key=lambda d: int(d.get("index", 0)))
+            ]
             vectors = [v for v in vectors if isinstance(v, list)]
             ids = list(mapping["ids"])
             size = min(len(ids), len(vectors))
@@ -683,7 +685,6 @@ def build_hnsw_from_shards(
 ) -> dict[str, int]:
     """Build final *.npz + *.hnsw artifacts from shard files."""
     import hnswlib
-
 
     paths = _ensure_dirs(output_dir)
     indexes_built = 0
@@ -744,10 +745,8 @@ def build_hnsw_from_shards(
         vectors_built += cursor
         indexes_built += 1
 
-        try:
+        with contextlib.suppress(FileNotFoundError):
             tmp_vectors_path.unlink()
-        except FileNotFoundError:
-            pass
 
     return {
         "indexes_built": indexes_built,

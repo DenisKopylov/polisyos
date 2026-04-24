@@ -1,8 +1,9 @@
 """Shared helpers for file-like connector families."""
+
 from __future__ import annotations
 
 import io
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -14,7 +15,9 @@ from polisyos.fabric.connectors.contracts import infer_schema
 from polisyos.ir.connectors import DataVersion, VersionStrategy
 
 
-def _strip_internal_headers(headers: dict[str, str], *, prefixes: tuple[str, ...]) -> dict[str, str]:
+def _strip_internal_headers(
+    headers: dict[str, str], *, prefixes: tuple[str, ...]
+) -> dict[str, str]:
     return {
         key: value
         for key, value in headers.items()
@@ -53,7 +56,9 @@ def parse_file_config(config) -> dict[str, str]:
     }
 
 
-async def read_location_bytes(config, *, prefixes: tuple[str, ...] = ("X-File-",)) -> tuple[bytes, dict[str, str]]:
+async def read_location_bytes(
+    config, *, prefixes: tuple[str, ...] = ("X-File-",)
+) -> tuple[bytes, dict[str, str]]:
     """Read bytes from file/http(s) locations without eager heavy imports."""
 
     url = str(config.url)
@@ -64,7 +69,7 @@ async def read_location_bytes(config, *, prefixes: tuple[str, ...] = ("X-File-",
         return path.read_bytes(), {
             "Last-Modified": datetime.fromtimestamp(
                 path.stat().st_mtime,
-                tz=timezone.utc,
+                tz=UTC,
             ).isoformat(),
         }
     if scheme in {"s3", "gs", "gcs", "az", "azure", "abfs", "adl"}:
@@ -162,7 +167,7 @@ def content_version(
 ) -> DataVersion:
     """Build a version envelope preferring transport-native version hints."""
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     digest = "sha256:" + content_hash(data)
     if etag:
         return DataVersion(

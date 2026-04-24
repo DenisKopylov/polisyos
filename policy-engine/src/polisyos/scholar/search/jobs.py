@@ -10,7 +10,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from polisyos.core.artifacts.async_store import ensure_async_artifact_store
+from polisyos.core.artifacts.async_store import (
+    AsyncArtifactStoreAdapter,  # noqa: F401 - legacy monkeypatch surface
+    ensure_async_artifact_store,
+)
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
@@ -110,9 +113,7 @@ class DeepResearchJobManager:
                 job_id=job_id,
                 status="pending",
                 checkpoint_artifact_id=checkpoint_artifact_id,
-                latest_event=checkpoint.progress_events[-1]
-                if checkpoint.progress_events
-                else None,
+                latest_event=checkpoint.progress_events[-1] if checkpoint.progress_events else None,
                 result_bundle=checkpoint.bundle,
                 error=checkpoint.error,
             )

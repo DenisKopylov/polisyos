@@ -15,7 +15,9 @@ def _method_or_skip(registry, fqn):
 
 class TestTransitionMatrix:
     def test_basic(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "distributional.mobility.transition_matrix@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "distributional.mobility.transition_matrix@1.0.0"
+        )
         rng = np.random.default_rng(42)
         state = {
             "origin_classes": rng.integers(0, 5, size=100),
@@ -25,7 +27,9 @@ class TestTransitionMatrix:
         assert isinstance(result, dict)
 
     def test_output_finite(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "distributional.mobility.transition_matrix@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "distributional.mobility.transition_matrix@1.0.0"
+        )
         state = {
             "origin_classes": np.array([0, 0, 1, 1, 2]),
             "destination_classes": np.array([0, 1, 1, 2, 2]),
@@ -37,7 +41,9 @@ class TestTransitionMatrix:
                 assert np.all(np.isfinite(arr))
 
     def test_persists_typed_mobility_report(self, isolated_registry, tmp_path) -> None:
-        method = _method_or_skip(isolated_registry, "distributional.mobility.transition_matrix@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "distributional.mobility.transition_matrix@1.0.0"
+        )
         store = FileSystemCAS(tmp_path / "cas")
         result = method.pure_step(
             {
@@ -116,7 +122,10 @@ class TestTransitionMatrix:
         assert report.diagnostics.balance is not None
         assert report.diagnostics.balance.max_abs_smd_before is not None
         assert report.diagnostics.balance.max_abs_smd_after is not None
-        assert report.diagnostics.balance.max_abs_smd_after < report.diagnostics.balance.max_abs_smd_before
+        assert (
+            report.diagnostics.balance.max_abs_smd_after
+            < report.diagnostics.balance.max_abs_smd_before
+        )
 
         upward_bounds = report.bounds.summary_bounds["upward_rate"]
         upward_rate = float(report.point_estimate.mobility_stats["upward_rate"])
@@ -209,10 +218,7 @@ class TestTransitionMatrix:
         report = result["result"]
         assert report.analysis_type == "refreshment_transition_matrix"
         assert report.attrition.refreshment_sample is True
-        assert (
-            report.attrition.mechanism_assumed
-            == "selection_on_unobservables_refreshment"
-        )
+        assert report.attrition.mechanism_assumed == "selection_on_unobservables_refreshment"
         assert report.attrition.weight_model is not None
         assert report.attrition.weight_model.family == "additive_nonignorable_logit_refreshment"
         np.testing.assert_allclose(
@@ -225,7 +231,9 @@ class TestTransitionMatrix:
         assert transition[1, 1] > transition[1, 0]
         assert report.bounds.sharpness_status == "sharp_with_known_marginals"
         assert report.bounds.bundle_ref is not None
-        assert "refreshment_additive_nonignorable_logit_structural_fit" in report.diagnostics.warnings
+        assert (
+            "refreshment_additive_nonignorable_logit_structural_fit" in report.diagnostics.warnings
+        )
 
         bounds_bundle = load_bounds_bundle(store, report.bounds.bundle_ref)
         assert bounds_bundle.metadata["summary_bounds"]["upward_rate"] == [0.0, 0.25]
@@ -233,7 +241,9 @@ class TestTransitionMatrix:
 
 class TestIntergenerationalElasticity:
     def test_basic(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "distributional.mobility.intergenerational_elasticity@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "distributional.mobility.intergenerational_elasticity@1.0.0"
+        )
         rng = np.random.default_rng(42)
         state = {
             "parent_values": np.abs(rng.normal(50, 10, size=50)) + 1.0,

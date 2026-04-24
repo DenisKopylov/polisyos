@@ -4,6 +4,7 @@ Covers cost/token/latency metric emission from LLMBudgetEnforcer,
 budget utilization gauge, cost anomaly detection, and graceful
 behaviour when MetricsRegistry is absent.
 """
+
 from __future__ import annotations
 
 import json
@@ -16,10 +17,10 @@ from polisyos.scientist.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.llm.budget_enforcer import LLMBudgetEnforcer
 from polisyos.scientist.llm.cost_anomaly import CostAnomalyDetector
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_enforcer(
     *,
@@ -53,8 +54,8 @@ def _mock_response(prompt_tokens: int = 100, completion_tokens: int = 50) -> Mag
 # Cost histogram
 # ---------------------------------------------------------------------------
 
-class TestPostRecordEmitsCostHistogram:
 
+class TestPostRecordEmitsCostHistogram:
     def test_cost_histogram_recorded(self) -> None:
         enforcer = _make_enforcer()
         resp = _mock_response()
@@ -72,8 +73,8 @@ class TestPostRecordEmitsCostHistogram:
 # Token counts
 # ---------------------------------------------------------------------------
 
-class TestPostRecordEmitsTokenCounts:
 
+class TestPostRecordEmitsTokenCounts:
     def test_token_recording_does_not_crash(self) -> None:
         enforcer = _make_enforcer()
         resp = _mock_response(prompt_tokens=500, completion_tokens=200)
@@ -84,8 +85,8 @@ class TestPostRecordEmitsTokenCounts:
 # Latency
 # ---------------------------------------------------------------------------
 
-class TestLatencyMeasured:
 
+class TestLatencyMeasured:
     def test_invoke_measures_latency(self) -> None:
         enforcer = _make_enforcer()
         enforcer._client.invoke.return_value = _mock_response()
@@ -102,8 +103,8 @@ class TestLatencyMeasured:
 # Budget utilization gauge
 # ---------------------------------------------------------------------------
 
-class TestBudgetUtilizationGauge:
 
+class TestBudgetUtilizationGauge:
     def test_utilization_updated_after_spend(self) -> None:
         enforcer = _make_enforcer(max_usd=Decimal("10"))
         resp = _mock_response()
@@ -121,8 +122,8 @@ class TestBudgetUtilizationGauge:
 # Cost anomaly detector
 # ---------------------------------------------------------------------------
 
-class TestCostAnomalyDetectorNormal:
 
+class TestCostAnomalyDetectorNormal:
     def test_no_anomaly_on_uniform_costs(self) -> None:
         detector = CostAnomalyDetector(window_size=10)
         for _ in range(20):
@@ -130,7 +131,6 @@ class TestCostAnomalyDetectorNormal:
 
 
 class TestCostAnomalyDetectorSpike:
-
     def test_detects_large_spike(self) -> None:
         detector = CostAnomalyDetector(window_size=20, z_threshold=3.0)
         for _ in range(20):
@@ -139,7 +139,6 @@ class TestCostAnomalyDetectorSpike:
 
 
 class TestCostAnomalyDetectorEmptyWindow:
-
     def test_first_call_not_anomaly(self) -> None:
         detector = CostAnomalyDetector()
         assert detector.check(999.0) is False
@@ -154,8 +153,8 @@ class TestCostAnomalyDetectorEmptyWindow:
 # Graceful without registry
 # ---------------------------------------------------------------------------
 
-class TestMetricsGracefulWithoutRegistry:
 
+class TestMetricsGracefulWithoutRegistry:
     def test_post_record_works_when_get_metrics_raises(self) -> None:
         enforcer = _make_enforcer()
         resp = _mock_response()
@@ -171,13 +170,16 @@ class TestMetricsGracefulWithoutRegistry:
 # Grafana dashboard template
 # ---------------------------------------------------------------------------
 
-class TestGrafanaDashboard:
 
+class TestGrafanaDashboard:
     def test_dashboard_json_valid(self) -> None:
         import pathlib
+
         dashboard_path = (
             pathlib.Path(__file__).resolve().parents[3]
-            / "deploy" / "grafana" / "scientist_llm_cost.json"
+            / "deploy"
+            / "grafana"
+            / "scientist_llm_cost.json"
         )
         data = json.loads(dashboard_path.read_text())
         assert "panels" in data

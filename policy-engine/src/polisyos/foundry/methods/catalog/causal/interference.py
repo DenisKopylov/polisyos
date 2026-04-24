@@ -47,8 +47,8 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.foundry.methods.catalog.network.generative_protocols import SBMStratificationResult
 from polisyos.foundry.methods.catalog.causal.protocols import NetworkCausalData
+from polisyos.foundry.methods.catalog.network.generative_protocols import SBMStratificationResult
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.evidence_bundle import ProofStep as IRProofStep
 from polisyos.ir.analytics.interference import (
@@ -226,7 +226,7 @@ def build_block_stratified_network_causal_data(
         "sbm_design",
         {
             "method_name": stratified.method_name,
-            "effective_blocks": int(len(np.unique(labels))),
+            "effective_blocks": len(np.unique(labels)),
             "overall_stability": stratified.stability.get("overall_stability"),
         },
     )
@@ -1547,7 +1547,7 @@ def _triangle_weight_sums_by_node(
 
     triangle_set = set(triangles)
     expected_nodes = {node for triangle in triangles for node in triangle}
-    sums_by_node: dict[str, float] = {node: 0.0 for node in expected_nodes}
+    sums_by_node: dict[str, float] = dict.fromkeys(expected_nodes, 0.0)
     seen_triangles: set[tuple[str, str, str]] = set()
 
     if isinstance(payload, Mapping):
@@ -2776,24 +2776,24 @@ def _contrast_compute_maup_invariance_certificate(
     certificate_warnings.extend(cert_ref_warnings)
 
     if estimand not in _SUPPORTED_MAUP_ESTIMANDS:
-        blocker_codes.append("MAUP_E_UNSUPPORTED_EXPOSURE")
-        warnings.append(f"Unsupported MAUP estimand '{estimand}'.")
+        certificate_blockers.append("MAUP_E_UNSUPPORTED_EXPOSURE")
+        certificate_warnings.append(f"Unsupported MAUP estimand '{estimand}'.")
         return MAUPInvarianceCertificate(
             status="not_identified",
             estimand="spillover",
             effect_scale="mean_difference",
             partitions_tested=0,
             recommended_mode=_recommended_maup_mode("not_identified"),
-            blocker_codes=_dedupe_preserve_order(blocker_codes),
-            warnings=_dedupe_preserve_order(warnings),
+            blocker_codes=_dedupe_preserve_order(certificate_blockers),
+            warnings=_dedupe_preserve_order(certificate_warnings),
             interaction_complex_ref=interaction_complex_ref,
             interference_certificate_ref=interference_certificate_ref,
             metadata=metadata,
         )
 
     if alpha_low > alpha_high:
-        blocker_codes.append("MAUP_E_UNSUPPORTED_EXPOSURE")
-        warnings.append(
+        certificate_blockers.append("MAUP_E_UNSUPPORTED_EXPOSURE")
+        certificate_warnings.append(
             "alpha_low must be less than or equal to alpha_high for MAUP certification."
         )
         return MAUPInvarianceCertificate(
@@ -2802,8 +2802,8 @@ def _contrast_compute_maup_invariance_certificate(
             effect_scale="mean_difference",
             partitions_tested=0,
             recommended_mode=_recommended_maup_mode("not_identified"),
-            blocker_codes=_dedupe_preserve_order(blocker_codes),
-            warnings=_dedupe_preserve_order(warnings),
+            blocker_codes=_dedupe_preserve_order(certificate_blockers),
+            warnings=_dedupe_preserve_order(certificate_warnings),
             interaction_complex_ref=interaction_complex_ref,
             interference_certificate_ref=interference_certificate_ref,
             metadata=metadata,
@@ -2815,16 +2815,16 @@ def _contrast_compute_maup_invariance_certificate(
             data.metadata.get("partitions_selected_post_outcome", False),
         )
     ):
-        blocker_codes.append("MAUP_E_OUTCOME_LEAKAGE")
-        warnings.append("Candidate partitions were flagged as post-outcome selections.")
+        certificate_blockers.append("MAUP_E_OUTCOME_LEAKAGE")
+        certificate_warnings.append("Candidate partitions were flagged as post-outcome selections.")
         return MAUPInvarianceCertificate(
             status="block",
             estimand=estimand,  # type: ignore[arg-type]
             effect_scale="mean_difference",
             partitions_tested=0,
             recommended_mode=_recommended_maup_mode("block"),
-            blocker_codes=_dedupe_preserve_order(blocker_codes),
-            warnings=_dedupe_preserve_order(warnings),
+            blocker_codes=_dedupe_preserve_order(certificate_blockers),
+            warnings=_dedupe_preserve_order(certificate_warnings),
             interaction_complex_ref=interaction_complex_ref,
             interference_certificate_ref=interference_certificate_ref,
             metadata=metadata,
@@ -2833,30 +2833,32 @@ def _contrast_compute_maup_invariance_certificate(
     try:
         partitions = _resolve_maup_partitions(data, params)
     except (TypeError, ValueError) as exc:
-        blocker_codes.append("MAUP_E_BAD_PARTITION")
-        warnings.append(str(exc))
+        certificate_blockers.append("MAUP_E_BAD_PARTITION")
+        certificate_warnings.append(str(exc))
         return MAUPInvarianceCertificate(
             status="not_identified",
             estimand=estimand,  # type: ignore[arg-type]
             effect_scale="mean_difference",
             partitions_tested=0,
             recommended_mode=_recommended_maup_mode("not_identified"),
-            blocker_codes=_dedupe_preserve_order(blocker_codes),
-            warnings=_dedupe_preserve_order(warnings),
+            blocker_codes=_dedupe_preserve_order(certificate_blockers),
+            warnings=_dedupe_preserve_order(certificate_warnings),
             interaction_complex_ref=interaction_complex_ref,
             interference_certificate_ref=interference_certificate_ref,
             metadata=metadata,
         )
 
     if not partitions:
-        warnings.append("No candidate partitions were provided; MAUP certificate not tested.")
+        certificate_warnings.append(
+            "No candidate partitions were provided; MAUP certificate not tested."
+        )
         return MAUPInvarianceCertificate(
             status="not_tested",
             estimand=estimand,  # type: ignore[arg-type]
             effect_scale="mean_difference",
             partitions_tested=0,
             recommended_mode=_recommended_maup_mode("not_tested"),
-            warnings=_dedupe_preserve_order(warnings),
+            warnings=_dedupe_preserve_order(certificate_warnings),
             interaction_complex_ref=interaction_complex_ref,
             interference_certificate_ref=interference_certificate_ref,
             metadata=metadata,
@@ -2874,9 +2876,9 @@ def _contrast_compute_maup_invariance_certificate(
     metadata["micro_cell_counts"] = dict(micro_estimate.cell_counts)
 
     if micro_estimate.theta is None or micro_estimate.se is None:
-        blocker_codes.extend(micro_estimate.blocker_codes)
-        blocker_codes.append("MAUP_E_UNIDENTIFIED")
-        warnings.extend(micro_estimate.warnings)
+        certificate_blockers.extend(micro_estimate.blocker_codes)
+        certificate_blockers.append("MAUP_E_UNIDENTIFIED")
+        certificate_warnings.extend(micro_estimate.warnings)
         return MAUPInvarianceCertificate(
             status="not_identified",
             estimand=estimand,  # type: ignore[arg-type]
@@ -2887,8 +2889,8 @@ def _contrast_compute_maup_invariance_certificate(
             min_positivity=micro_estimate.min_positivity,
             min_ess=micro_estimate.ess_min,
             recommended_mode=_recommended_maup_mode("not_identified"),
-            blocker_codes=_dedupe_preserve_order(blocker_codes),
-            warnings=_dedupe_preserve_order(warnings),
+            blocker_codes=_dedupe_preserve_order(certificate_blockers),
+            warnings=_dedupe_preserve_order(certificate_warnings),
             interaction_complex_ref=interaction_complex_ref,
             interference_certificate_ref=interference_certificate_ref,
             metadata=metadata,
@@ -2914,7 +2916,7 @@ def _contrast_compute_maup_invariance_certificate(
             )
         except ValueError:
             invalid_partitions.append(partition_id)
-            blocker_codes.append("MAUP_E_BAD_PARTITION")
+            certificate_blockers.append("MAUP_E_BAD_PARTITION")
             continue
 
         residual, exact_lumpable, aggregate_operator = _contrast_compute_lumpability_residual(
@@ -2979,7 +2981,7 @@ def _contrast_compute_maup_invariance_certificate(
         )
 
     if invalid_partitions:
-        warnings.append(f"Skipped invalid partitions: {', '.join(invalid_partitions)}.")
+        certificate_warnings.append(f"Skipped invalid partitions: {', '.join(invalid_partitions)}.")
         metadata["invalid_partitions"] = tuple(invalid_partitions)
 
     if not checks:
@@ -2993,8 +2995,8 @@ def _contrast_compute_maup_invariance_certificate(
             min_positivity=min(min_pos_candidates),
             min_ess=min(min_ess_candidates),
             recommended_mode=_recommended_maup_mode("not_identified"),
-            blocker_codes=_dedupe_preserve_order(blocker_codes or ["MAUP_E_BAD_PARTITION"]),
-            warnings=_dedupe_preserve_order(warnings),
+            blocker_codes=_dedupe_preserve_order(certificate_blockers or ["MAUP_E_BAD_PARTITION"]),
+            warnings=_dedupe_preserve_order(certificate_warnings),
             interaction_complex_ref=interaction_complex_ref,
             interference_certificate_ref=interference_certificate_ref,
             metadata=metadata,
@@ -3016,8 +3018,8 @@ def _contrast_compute_maup_invariance_certificate(
 
     all_check_blockers = [code for check in checks for code in check.blocker_codes]
     all_check_warnings = [warning for check in checks for warning in check.warnings]
-    blocker_codes.extend(all_check_blockers)
-    warnings.extend(all_check_warnings)
+    certificate_blockers.extend(all_check_blockers)
+    certificate_warnings.extend(all_check_warnings)
 
     max_residual = max(
         check.lumpability_residual for check in checks if check.lumpability_residual is not None
@@ -3037,10 +3039,10 @@ def _contrast_compute_maup_invariance_certificate(
         "MAUP_E_SINGULAR_COV",
         "MAUP_E_BAD_PARTITION",
     }
-    has_hard_block = any(code in hard_block_codes for code in blocker_codes)
+    has_hard_block = any(code in hard_block_codes for code in certificate_blockers)
     if has_hard_block:
         status = "block"
-    elif warnings:
+    elif certificate_warnings:
         status = "warn"
     else:
         status = "pass"
@@ -3071,8 +3073,8 @@ def _contrast_compute_maup_invariance_certificate(
         near_invariance=near_invariance,
         recommended_mode=_recommended_maup_mode(status),
         partition_checks=tuple(checks),
-        blocker_codes=_dedupe_preserve_order(blocker_codes),
-        warnings=_dedupe_preserve_order(warnings),
+        blocker_codes=_dedupe_preserve_order(certificate_blockers),
+        warnings=_dedupe_preserve_order(certificate_warnings),
         interaction_complex_ref=interaction_complex_ref,
         interference_certificate_ref=interference_certificate_ref,
         metadata=metadata,
@@ -3320,7 +3322,7 @@ def _support_metrics(
     alpha_low: float,
     treatment_threshold: float,
 ) -> tuple[float | None, float | None]:
-    n_obs = int(len(treatment))
+    n_obs = len(treatment)
     if n_obs == 0:
         return None, None
     high = np.asarray(exposure, dtype=float) >= alpha_high
@@ -3940,7 +3942,9 @@ def _aggregate_partition_array(
     normalized_rule = _normalize_hodge_aggregation_rule(rule)
 
     if array.ndim == 1:
-        weighted_values = array * weights if normalized_rule == "population_weighted_mean" else array
+        weighted_values = (
+            array * weights if normalized_rule == "population_weighted_mean" else array
+        )
         totals = np.bincount(inverse, weights=weighted_values, minlength=n_blocks).astype(float)
         if normalized_rule == "sum":
             return totals
@@ -4114,12 +4118,16 @@ def _compute_zone_spillover_score(
             theta = centered_exposure
             warnings.append("spillover_probe_flat_unscaled")
 
-    return theta, {
-        "spillover_effect": spillover_effect,
-        "spillover_se": spillover_se,
-        "direct_effect": direct_effect,
-        "direct_se": direct_se,
-    }, tuple(warnings)
+    return (
+        theta,
+        {
+            "spillover_effect": spillover_effect,
+            "spillover_se": spillover_se,
+            "direct_effect": direct_effect,
+            "direct_se": direct_se,
+        },
+        tuple(warnings),
+    )
 
 
 def _build_spatial_hodge_profile(
@@ -4244,18 +4252,22 @@ def compute_spatial_hodge_diagnostics(
 
     raw_aggregation_rule = params.get("aggregation_rule", data.metadata.get("aggregation_rule"))
     aggregation_rule = _normalize_hodge_aggregation_rule(raw_aggregation_rule)
-    declared_scale_id = str(
-        params.get("scale_id", data.metadata.get("scale_id", "declared"))
-    ).strip() or "declared"
-    declared_zoning_id = str(
-        params.get("zoning_id", data.metadata.get("zoning_id", "observed_support"))
-    ).strip() or "observed_support"
+    declared_scale_id = (
+        str(params.get("scale_id", data.metadata.get("scale_id", "declared"))).strip() or "declared"
+    )
+    declared_zoning_id = (
+        str(params.get("zoning_id", data.metadata.get("zoning_id", "observed_support"))).strip()
+        or "observed_support"
+    )
     max_triangles = max(1, int(params.get("hodge_max_triangles", 4096)))
     weight_spec = _resolve_weight_spec_label(spatial_result, weight_metadata, params)
 
     warnings: list[str] = []
     raw_aggregation_label = None if raw_aggregation_rule is None else str(raw_aggregation_rule)
-    if raw_aggregation_label is not None and aggregation_rule != raw_aggregation_label.strip().lower():
+    if (
+        raw_aggregation_label is not None
+        and aggregation_rule != raw_aggregation_label.strip().lower()
+    ):
         warnings.append("aggregation_rule_normalized_to_mean")
 
     micro_labels = np.arange(data.n_units, dtype=int)
@@ -4264,7 +4276,9 @@ def compute_spatial_hodge_diagnostics(
             outcome=np.asarray(data.outcome, dtype=float),
             treatment=np.asarray(data.treatment, dtype=float),
             weights=np.asarray(W, dtype=float),
-            covariates=None if data.covariates is None else np.asarray(data.covariates, dtype=float),
+            covariates=None
+            if data.covariates is None
+            else np.asarray(data.covariates, dtype=float),
             labels=micro_labels,
             scale_id=declared_scale_id,
             zoning_id=declared_zoning_id,
@@ -4474,7 +4488,7 @@ def _run_partial_interference(
 
     C = data.cluster_id
     clusters = np.unique(C)
-    n_clusters = int(len(clusters))
+    n_clusters = len(clusters)
     avg_cluster_size = float(n / n_clusters)
 
     # Compute exposure
@@ -4507,7 +4521,7 @@ def _run_partial_interference(
 
     # Stratum masks: (treatment==a) & exposure near alpha
     def _potential_outcome_stratum(a_val: float, alpha: float) -> tuple[float, np.ndarray]:
-        in_stratum = (A == a_val) & (np.abs(f - alpha) <= alpha_bw)
+        in_stratum = (a_val == A) & (np.abs(f - alpha) <= alpha_bw)
         if in_stratum.sum() < 2:
             return float("nan"), np.full(n, float("nan"))
         ps_a = ps if a_val == 1.0 else (1.0 - ps)
@@ -4529,7 +4543,7 @@ def _run_partial_interference(
 
     # Fallback: simple cluster-level means when strata are sparse
     def _fallback_mean(a_val: float) -> float:
-        mask = A == a_val
+        mask = a_val == A
         return float(Y[mask].mean()) if mask.sum() > 0 else float("nan")
 
     if math.isnan(mu11):
@@ -4548,7 +4562,7 @@ def _run_partial_interference(
         """Mean cluster-level variance."""
         if np.any(np.isnan(scores)):
             return float("nan")
-        cluster_means = np.array([scores[C == c].mean() for c in clusters], dtype=float)
+        cluster_means = np.array([scores[c == C].mean() for c in clusters], dtype=float)
         return float(np.var(cluster_means, ddof=1) / n_clusters)
 
     var_de = _cluster_var(sc11 - sc10) if not np.any(np.isnan(sc11 + sc10)) else float("nan")
@@ -4652,7 +4666,7 @@ def _run_network_aipw(
         e_indicator: np.ndarray,
     ) -> tuple[float, float]:
         """AIPW estimator for E[Y(a, e_type)] where e_type is high/low."""
-        stratum = (A == a_val) & (e_indicator > 0)
+        stratum = (a_val == A) & (e_indicator > 0)
         if stratum.sum() < 3:
             return float("nan"), float("nan")
 
@@ -4786,8 +4800,12 @@ def _run_spatial_interference(
             n_treated,
             "coordinates or adjacency_matrix required for SpatialInterferenceEstimator",
         )
-        certificate = compute_maup_invariance_certificate(data, base_report, params) if compute_maup else None
-        diagnostics = compute_spatial_hodge_diagnostics(data, base_report, params) if compute_hodge else None
+        certificate = (
+            compute_maup_invariance_certificate(data, base_report, params) if compute_maup else None
+        )
+        diagnostics = (
+            compute_spatial_hodge_diagnostics(data, base_report, params) if compute_hodge else None
+        )
         return {
             "result": SpatialResult(
                 **base_report.model_dump(mode="python"),
@@ -4813,8 +4831,16 @@ def _run_spatial_interference(
                 n_treated,
                 f"bandwidth must be positive, got {bw}",
             )
-            certificate = compute_maup_invariance_certificate(data, base_report, params) if compute_maup else None
-            diagnostics = compute_spatial_hodge_diagnostics(data, base_report, params) if compute_hodge else None
+            certificate = (
+                compute_maup_invariance_certificate(data, base_report, params)
+                if compute_maup
+                else None
+            )
+            diagnostics = (
+                compute_spatial_hodge_diagnostics(data, base_report, params)
+                if compute_hodge
+                else None
+            )
             return {
                 "result": SpatialResult(
                     **base_report.model_dump(mode="python"),
@@ -4837,7 +4863,7 @@ def _run_spatial_interference(
         base_features = np.column_stack([base_features, data.covariates])
 
     def _ipw_mean(a_val: float, e_ind: np.ndarray) -> tuple[float, float]:
-        stratum = (A == a_val) & (e_ind > 0)
+        stratum = (a_val == A) & (e_ind > 0)
         if stratum.sum() < 2:
             return float("nan"), float("nan")
         try:
@@ -4909,8 +4935,12 @@ def _run_spatial_interference(
         assumptions=assumptions,
         warnings=warnings,
     )
-    diagnostics = compute_spatial_hodge_diagnostics(data, base_report, params) if compute_hodge else None
-    certificate = compute_maup_invariance_certificate(data, base_report, params) if compute_maup else None
+    diagnostics = (
+        compute_spatial_hodge_diagnostics(data, base_report, params) if compute_hodge else None
+    )
+    certificate = (
+        compute_maup_invariance_certificate(data, base_report, params) if compute_maup else None
+    )
     if diagnostics is not None:
         summary = _summarize_spatial_hodge_diagnostics(diagnostics)
         updated_metadata = dict(base_report.metadata)
@@ -5727,13 +5757,13 @@ class BipartiteInterferenceEstimator:
 
 
 __all__ = [
+    "BipartiteInterferenceEstimator",
     "InterferenceAugmentedGraph",
     "InterferenceIdentificationResult",
-    "build_block_stratified_network_causal_data",
-    "build_interference_topology_contracts",
-    "identify_interference_effect",
-    "BipartiteInterferenceEstimator",
     "NetworkAIPWEstimator",
     "PartialInterferenceEstimator",
     "SpatialInterferenceEstimator",
+    "build_block_stratified_network_causal_data",
+    "build_interference_topology_contracts",
+    "identify_interference_effect",
 ]

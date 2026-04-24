@@ -1,18 +1,18 @@
 """Public analytics abstraction module API."""
+
 from __future__ import annotations
 
+import math
 from collections import deque
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from itertools import product
-import math
 from enum import Enum
-from typing import Any, Literal
+from itertools import product
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.ir.analytics.structural_causal_model import NodeMechanism, StructuralCausalModelSpec
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import (
@@ -20,6 +20,12 @@ from polisyos.ir.refs import (
     ArtifactRefModel,
     FiniteStateAbstractionMapRef,
 )
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.structural_causal_model import (
+        NodeMechanism,
+        StructuralCausalModelSpec,
+    )
 
 _FINITE_STATE_ABSTRACTION_MAP_SCHEMA_NAME = "ir.finite_state_abstraction_map"
 _FINITE_STATE_ABSTRACTION_MAP_SCHEMA_VERSION = "1.0"
@@ -91,9 +97,7 @@ def _metadata_string_tuple(metadata: dict[str, Any], key: str) -> tuple[str, ...
     raw = metadata.get(key)
     if not isinstance(raw, (tuple, list)):
         raise ValueError(f"metadata.{key} must be a non-empty tuple/list of strings")
-    normalized = tuple(
-        _ensure_non_empty(str(item), field_name=f"metadata.{key}") for item in raw
-    )
+    normalized = tuple(_ensure_non_empty(str(item), field_name=f"metadata.{key}") for item in raw)
     if not normalized:
         raise ValueError(f"metadata.{key} must be non-empty")
     return normalized
@@ -121,8 +125,7 @@ def _validate_estimand_error_bounds(
     missing = sorted(set(preserved_queries) - set(raw))
     if missing:
         raise ValueError(
-            "metadata.estimand_error_bounds must cover every preserved_query; "
-            f"missing={missing}"
+            f"metadata.estimand_error_bounds must cover every preserved_query; missing={missing}"
         )
     for query, bound in raw.items():
         _ensure_non_empty(str(query), field_name="metadata.estimand_error_bounds.query")
@@ -206,10 +209,7 @@ def _normalize_error_bound_spec(
     )
     if tightness_status not in CONTINUOUS_ABSTRACTION_TIGHTNESS_STATUSES:
         allowed = sorted(CONTINUOUS_ABSTRACTION_TIGHTNESS_STATUSES)
-        raise ValueError(
-            "metadata.error_bound_spec.tightness_status must be one of "
-            f"{allowed}"
-        )
+        raise ValueError(f"metadata.error_bound_spec.tightness_status must be one of {allowed}")
     if (
         abstraction_family is not None
         and abstraction_family != "continuous_linear_gaussian"
@@ -261,9 +261,7 @@ def _normalize_error_bound_spec(
     if global_state_bound is not None:
         normalized["global_state_bound"] = float(global_state_bound)
     if recommendation_margin_required is not None:
-        normalized["recommendation_margin_required"] = float(
-            recommendation_margin_required
-        )
+        normalized["recommendation_margin_required"] = float(recommendation_margin_required)
     if gain_matrix_spectral_radius is not None:
         normalized["gain_matrix_spectral_radius"] = float(gain_matrix_spectral_radius)
 
@@ -284,9 +282,7 @@ def _normalize_error_bound_spec(
                 field_name=f"metadata.error_bound_spec.{optional_key}",
             )
             if normalized_confidence is None:
-                raise ValueError(
-                    f"metadata.error_bound_spec.{optional_key} must be non-negative"
-                )
+                raise ValueError(f"metadata.error_bound_spec.{optional_key} must be non-negative")
             normalized[optional_key] = float(normalized_confidence)
             continue
         normalized[optional_key] = _ensure_non_empty(
@@ -298,7 +294,7 @@ def _normalize_error_bound_spec(
 
 
 def abstraction_estimand_error_bounds(
-    certificate: "AbstractionCertificate",
+    certificate: AbstractionCertificate,
 ) -> dict[str, float]:
     raw = certificate.metadata.get("estimand_error_bounds")
     if not isinstance(raw, dict):
@@ -311,20 +307,20 @@ def abstraction_estimand_error_bounds(
         )
         if normalized_bound is None:
             raise ValueError(f"estimand_error_bounds.{query} must be non-negative")
-        normalized[_ensure_non_empty(str(query), field_name="estimand_error_bounds.query")] = (
-            float(normalized_bound)
+        normalized[_ensure_non_empty(str(query), field_name="estimand_error_bounds.query")] = float(
+            normalized_bound
         )
     return normalized
 
 
 def abstraction_allowed_intervention_family(
-    certificate: "AbstractionCertificate",
+    certificate: AbstractionCertificate,
 ) -> str | None:
     return _optional_metadata_string(certificate.metadata, "allowed_intervention_family")
 
 
 def abstraction_error_bound_spec(
-    certificate: "AbstractionCertificate",
+    certificate: AbstractionCertificate,
 ) -> dict[str, Any]:
     if "error_bound_spec" not in certificate.metadata:
         return {}
@@ -341,7 +337,7 @@ def abstraction_error_bound_spec(
 
 
 def abstraction_recommendation_margin_required(
-    certificate: "AbstractionCertificate",
+    certificate: AbstractionCertificate,
 ) -> float | None:
     spec = abstraction_error_bound_spec(certificate)
     raw = spec.get("recommendation_margin_required")
@@ -357,7 +353,7 @@ def abstraction_recommendation_margin_required(
 
 
 def abstraction_preserves_query(
-    certificate: "AbstractionCertificate",
+    certificate: AbstractionCertificate,
     query: str,
     *,
     allow_prefix_match: bool = False,
@@ -373,6 +369,7 @@ def abstraction_preserves_query(
 
 class AbstractionPreservationType(str, Enum):
     """Abstraction preservation type public type."""
+
     EXACT = "exact"
     APPROXIMATE = "approximate"
     POLICY_VALUE_ONLY = "policy_value_only"
@@ -394,7 +391,7 @@ class VariableStateAbstraction(BaseModel):
         return _ensure_non_empty(str(value), field_name=str(info.field_name))
 
     @model_validator(mode="after")
-    def _validate_state_map(self) -> "VariableStateAbstraction":
+    def _validate_state_map(self) -> VariableStateAbstraction:
         if not self.state_map:
             raise ValueError("state_map must be non-empty")
         for micro_state, macro_state in self.state_map.items():
@@ -413,7 +410,7 @@ class FiniteStateAbstractionMap(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_unique_variables(self) -> "FiniteStateAbstractionMap":
+    def _validate_unique_variables(self) -> FiniteStateAbstractionMap:
         if not self.variable_maps:
             raise ValueError("variable_maps must be non-empty")
         micro_vars = [item.micro_variable for item in self.variable_maps]
@@ -525,9 +522,7 @@ class ContinuousApproximateAbstractionConfig(BaseModel):
         for variable, raw_bounds in value.items():
             name = _ensure_non_empty(str(variable), field_name="intervention_ranges.variable")
             if not isinstance(raw_bounds, (tuple, list)) or len(raw_bounds) != 2:
-                raise ValueError(
-                    "intervention_ranges entries must be length-2 tuples/lists"
-                )
+                raise ValueError("intervention_ranges entries must be length-2 tuples/lists")
             lower = _ensure_finite(raw_bounds[0], field_name=f"intervention_ranges.{name}.lower")
             upper = _ensure_finite(raw_bounds[1], field_name=f"intervention_ranges.{name}.upper")
             if lower is None or upper is None:
@@ -535,9 +530,7 @@ class ContinuousApproximateAbstractionConfig(BaseModel):
                     f"intervention_ranges.{name} must contain finite lower/upper bounds"
                 )
             if lower > upper:
-                raise ValueError(
-                    f"intervention_ranges.{name} must satisfy lower <= upper"
-                )
+                raise ValueError(f"intervention_ranges.{name} must satisfy lower <= upper")
             normalized[name] = (float(lower), float(upper))
         return normalized
 
@@ -615,31 +608,23 @@ class ContinuousApproximateAbstractionConfig(BaseModel):
                     field_name=f"gain_matrix.{child_name}.{parent_name}",
                 )
                 if gain is None:
-                    raise ValueError(
-                        f"gain_matrix.{child_name}.{parent_name} must be non-negative"
-                    )
+                    raise ValueError(f"gain_matrix.{child_name}.{parent_name} must be non-negative")
                 parent_row[parent_name] = float(gain)
             normalized[child_name] = parent_row
         return normalized
 
     @model_validator(mode="after")
-    def _validate_family_requirements(self) -> "ContinuousApproximateAbstractionConfig":
-        if self.family == "continuous_linear_gaussian":
-            if self.distribution_metric is None:
-                object.__setattr__(self, "distribution_metric", "wasserstein_2_gaussian")
+    def _validate_family_requirements(self) -> ContinuousApproximateAbstractionConfig:
+        if self.family == "continuous_linear_gaussian" and self.distribution_metric is None:
+            object.__setattr__(self, "distribution_metric", "wasserstein_2_gaussian")
         if self.family == "continuous_lipschitz_dag":
             if not self.local_mechanism_defects:
-                raise ValueError(
-                    "continuous_lipschitz_dag requires local_mechanism_defects"
-                )
+                raise ValueError("continuous_lipschitz_dag requires local_mechanism_defects")
             if not self.gain_matrix:
                 raise ValueError("continuous_lipschitz_dag requires gain_matrix")
             if self.distribution_metric is None:
                 object.__setattr__(self, "distribution_metric", "wasserstein_1")
-        if (
-            not self.policy_value_weights
-            and self.value_lipschitz_constant is None
-        ):
+        if not self.policy_value_weights and self.value_lipschitz_constant is None:
             raise ValueError(
                 "continuous approximate abstraction requires either policy_value_weights "
                 "or value_lipschitz_constant"
@@ -677,13 +662,17 @@ class AbstractionCertificate(BaseModel):
         return _ensure_non_negative_finite(value, field_name="error_bound")
 
     @model_validator(mode="after")
-    def _validate_contract(self) -> "AbstractionCertificate":
+    def _validate_contract(self) -> AbstractionCertificate:
         _validate_artifact_ref(self.micro_graph_ref, field_name="micro_graph_ref")
         _validate_artifact_ref(self.macro_graph_ref, field_name="macro_graph_ref")
-        if self.preservation_type in {
-            AbstractionPreservationType.EXACT,
-            AbstractionPreservationType.INVALID,
-        } and self.error_bound is not None:
+        if (
+            self.preservation_type
+            in {
+                AbstractionPreservationType.EXACT,
+                AbstractionPreservationType.INVALID,
+            }
+            and self.error_bound is not None
+        ):
             raise ValueError(
                 "exact and invalid abstraction certificates must not publish a numeric error_bound"
             )
@@ -692,10 +681,7 @@ class AbstractionCertificate(BaseModel):
             and not self.preserved_queries
         ):
             raise ValueError("exact abstraction certificates must list preserved_queries")
-        if (
-            self.preservation_type is AbstractionPreservationType.INVALID
-            and self.preserved_queries
-        ):
+        if self.preservation_type is AbstractionPreservationType.INVALID and self.preserved_queries:
             raise ValueError("invalid abstraction certificates must not list preserved_queries")
         if self.preservation_type is AbstractionPreservationType.APPROXIMATE:
             self._validate_approximate_transport_contract()
@@ -889,7 +875,13 @@ def _extract_finite_state_table(
             )
         return (
             state_space,
-            {(): _normalized_distribution(root_distribution, state_space=state_space, field_name=f"{mechanism.variable}.distribution")},
+            {
+                (): _normalized_distribution(
+                    root_distribution,
+                    state_space=state_space,
+                    field_name=f"{mechanism.variable}.distribution",
+                )
+            },
         )
 
     raw_entries = params.get("conditional_distribution", params.get("conditional_probabilities"))
@@ -902,7 +894,9 @@ def _extract_finite_state_table(
     parent_tuple = tuple(mechanism.parents)
     for idx, entry in enumerate(raw_entries):
         if not isinstance(entry, dict):
-            raise ValueError(f"{mechanism.variable}.conditional_distribution[{idx}] must be a mapping")
+            raise ValueError(
+                f"{mechanism.variable}.conditional_distribution[{idx}] must be a mapping"
+            )
         raw_when = entry.get("when")
         raw_distribution = entry.get("distribution")
         if not isinstance(raw_when, dict) or not isinstance(raw_distribution, dict):
@@ -914,12 +908,16 @@ def _extract_finite_state_table(
                 f"{mechanism.variable}.conditional_distribution[{idx}].when must match parents exactly"
             )
         assignment = {
-            parent: _ensure_non_empty(raw_when[parent], field_name=f"{mechanism.variable}.when.{parent}")
+            parent: _ensure_non_empty(
+                raw_when[parent], field_name=f"{mechanism.variable}.when.{parent}"
+            )
             for parent in parent_tuple
         }
         key = _conditional_key(parent_tuple, assignment)
         if key in table:
-            raise ValueError(f"{mechanism.variable}.conditional_distribution contains duplicate parent assignments")
+            raise ValueError(
+                f"{mechanism.variable}.conditional_distribution contains duplicate parent assignments"
+            )
         table[key] = _normalized_distribution(
             raw_distribution,
             state_space=state_space,
@@ -987,22 +985,17 @@ def verify_finite_state_exact_abstraction(
             macro_mechanism = macro_mechanisms[macro_variable]
 
             mapped_parents = tuple(
-                abstraction_map.micro_to_macro.get(parent, "")
-                for parent in micro_mechanism.parents
+                abstraction_map.micro_to_macro.get(parent, "") for parent in micro_mechanism.parents
             )
             if mapped_parents != tuple(macro_mechanism.parents):
-                notes.append(
-                    f"parent_structure_mismatch:{micro_variable}->{macro_variable}"
-                )
+                notes.append(f"parent_structure_mismatch:{micro_variable}->{macro_variable}")
                 raise ValueError(notes[-1])
 
             micro_state_space, micro_table = _extract_finite_state_table(micro_mechanism)
             macro_state_space, macro_table = _extract_finite_state_table(macro_mechanism)
 
             if set(variable_map.state_map) != set(micro_state_space):
-                notes.append(
-                    f"state_map_must_cover_micro_state_space:{micro_variable}"
-                )
+                notes.append(f"state_map_must_cover_micro_state_space:{micro_variable}")
                 raise ValueError(notes[-1])
             if not set(variable_map.state_map.values()).issubset(set(macro_state_space)):
                 notes.append(
@@ -1044,9 +1037,7 @@ def verify_finite_state_exact_abstraction(
                     )
                     raise ValueError(notes[-1])
                 if not _distributions_match(first_candidate, macro_distribution):
-                    notes.append(
-                        f"macro_distribution_mismatch:{micro_variable}->{macro_variable}"
-                    )
+                    notes.append(f"macro_distribution_mismatch:{micro_variable}->{macro_variable}")
                     raise ValueError(notes[-1])
 
         return AbstractionCertificate(
@@ -1056,7 +1047,9 @@ def verify_finite_state_exact_abstraction(
             preservation_type=AbstractionPreservationType.EXACT,
             preserved_queries=tuple(preserved_queries or ("observational", "interventional")),
             error_bound=None,
-            validation_notes=tuple(notes) if notes else ("exact_finite_state_abstraction_verified",),
+            validation_notes=tuple(notes)
+            if notes
+            else ("exact_finite_state_abstraction_verified",),
         )
     except ValueError:
         return AbstractionCertificate(
@@ -1080,7 +1073,7 @@ class _GaussianInterventionalSummary:
 def _topological_order(scm: StructuralCausalModelSpec) -> tuple[str, ...]:
     if scm.graph.graph_type.value != "dag":
         raise ValueError("continuous abstraction requires DAG SCMs")
-    indegree = {node: 0 for node in scm.graph.nodes}
+    indegree = dict.fromkeys(scm.graph.nodes, 0)
     children: dict[str, list[str]] = {node: [] for node in scm.graph.nodes}
     for edge in scm.graph.edges:
         indegree[edge.dst] += 1
@@ -1118,8 +1111,7 @@ def _continuous_default_preserved_queries(
     if not isinstance(preserved_queries, (tuple, list)):
         raise ValueError("preserved_queries must be a tuple/list when provided")
     normalized = tuple(
-        _ensure_non_empty(str(item), field_name="preserved_queries")
-        for item in preserved_queries
+        _ensure_non_empty(str(item), field_name="preserved_queries") for item in preserved_queries
     )
     if not normalized:
         raise ValueError("preserved_queries must be non-empty when provided")
@@ -1201,8 +1193,7 @@ def _policy_value_weights_for_order(
     unknown = sorted(set(config.policy_value_weights) - set(macro_order))
     if unknown:
         raise ValueError(
-            "policy_value_weights reference unknown macro variables: "
-            + ", ".join(unknown)
+            "policy_value_weights reference unknown macro variables: " + ", ".join(unknown)
         )
     return np.asarray(
         [float(config.policy_value_weights.get(variable, 0.0)) for variable in macro_order],
@@ -1298,8 +1289,7 @@ def _linear_gaussian_interventional_summary(
     missing = sorted(set(order) - set(mechanism_by_variable))
     if missing:
         raise ValueError(
-            "continuous_linear_gaussian requires mechanisms for every node; "
-            f"missing={missing}"
+            f"continuous_linear_gaussian requires mechanisms for every node; missing={missing}"
         )
     index_by_variable = {variable: idx for idx, variable in enumerate(order)}
     mean = np.zeros(len(order), dtype=float)
@@ -1327,13 +1317,10 @@ def _linear_gaussian_interventional_summary(
         for parent in mechanism.parents:
             parent_idx = index_by_variable[parent]
             if parent_idx >= idx:
-                raise ValueError(
-                    f"{variable} parents must appear earlier in topological order"
-                )
+                raise ValueError(f"{variable} parents must appear earlier in topological order")
 
         mean[idx] = intercept + sum(
-            coefficients[parent] * mean[index_by_variable[parent]]
-            for parent in mechanism.parents
+            coefficients[parent] * mean[index_by_variable[parent]] for parent in mechanism.parents
         )
         for prev_idx in range(idx):
             covariance[idx, prev_idx] = sum(
@@ -1348,9 +1335,7 @@ def _linear_gaussian_interventional_summary(
         )
         parent_indices = [index_by_variable[parent] for parent in mechanism.parents]
         parent_cov = covariance[np.ix_(parent_indices, parent_indices)]
-        covariance[idx, idx] = float(
-            coeff_vector @ parent_cov @ coeff_vector + (noise_std**2)
-        )
+        covariance[idx, idx] = float(coeff_vector @ parent_cov @ coeff_vector + (noise_std**2))
 
     return _GaussianInterventionalSummary(order=order, mean=mean, covariance=covariance)
 
@@ -1364,7 +1349,9 @@ def _continuous_intervention_vertices(
     corners: list[dict[str, float]] = []
     bounds = [ranges[variable] for variable in variables]
     for vertex in product(*bounds):
-        corners.append({variable: float(value) for variable, value in zip(variables, vertex, strict=False)})
+        corners.append(
+            {variable: float(value) for variable, value in zip(variables, vertex, strict=False)}
+        )
     return tuple(corners)
 
 
@@ -1391,10 +1378,7 @@ def _abstract_micro_summary_into_macro_space(
         micro_variable = micro_by_macro[macro_variable].micro_variable
         micro_idx = micro_indices[micro_variable]
         transform = transforms_by_macro[macro_variable]
-        mean[idx] = (
-            transform.scale * micro_summary.mean[micro_idx]
-            + transform.shift
-        )
+        mean[idx] = transform.scale * micro_summary.mean[micro_idx] + transform.shift
     for row, macro_row in enumerate(macro_order):
         row_micro = micro_by_macro[macro_row].micro_variable
         row_idx = micro_indices[row_micro]
@@ -1404,9 +1388,7 @@ def _abstract_micro_summary_into_macro_space(
             col_idx = micro_indices[col_micro]
             col_scale = transforms_by_macro[macro_col].scale
             covariance[row, col] = (
-                row_scale
-                * col_scale
-                * micro_summary.covariance[row_idx, col_idx]
+                row_scale * col_scale * micro_summary.covariance[row_idx, col_idx]
             )
     return _GaussianInterventionalSummary(order=macro_order, mean=mean, covariance=covariance)
 
@@ -1428,11 +1410,7 @@ def _gaussian_wasserstein_2(
     left_sqrt = _psd_matrix_sqrt(left_covariance)
     inner = left_sqrt @ right_covariance @ left_sqrt
     trace_term = float(
-        np.trace(
-            left_covariance
-            + right_covariance
-            - (2.0 * _psd_matrix_sqrt(inner))
-        )
+        np.trace(left_covariance + right_covariance - (2.0 * _psd_matrix_sqrt(inner)))
     )
     return float(math.sqrt(max(mean_term + max(trace_term, 0.0), 0.0)))
 
@@ -1494,9 +1472,7 @@ def _continuous_certificate_metadata(
             ),
             config.proof_obligations_satisfied,
         ),
-        "estimand_error_bounds": {
-            query: float(error_bound) for query in preserved_queries
-        },
+        "estimand_error_bounds": {query: float(error_bound) for query in preserved_queries},
         "diagnostics": diagnostics,
         "non_preserved_queries": _continuous_non_preserved_queries(config),
         "error_bound_spec": error_bound_spec,
@@ -1530,9 +1506,7 @@ def _verify_continuous_linear_gaussian_abstraction(
     state_weights = _state_weights_for_order(config, macro_order)
     policy_weights = _policy_value_weights_for_order(config, macro_order)
     derived_lipschitz = _weighted_l1_lipschitz_constant(policy_weights, state_weights)
-    value_lipschitz_constant = float(
-        max(config.value_lipschitz_constant or 0.0, derived_lipschitz)
-    )
+    value_lipschitz_constant = float(max(config.value_lipschitz_constant or 0.0, derived_lipschitz))
     if value_lipschitz_constant <= _EXACT_MATCH_TOLERANCE and not np.any(
         np.abs(policy_weights) > _EXACT_MATCH_TOLERANCE
     ):
@@ -1673,8 +1647,7 @@ def _verify_continuous_lipschitz_dag_abstraction(
     missing_defects = sorted(set(macro_order) - set(config.local_mechanism_defects))
     if missing_defects:
         raise ValueError(
-            "local_mechanism_defects must cover every macro variable; "
-            f"missing={missing_defects}"
+            f"local_mechanism_defects must cover every macro variable; missing={missing_defects}"
         )
 
     gain_matrix = np.zeros((len(macro_order), len(macro_order)), dtype=float)
@@ -1683,9 +1656,7 @@ def _verify_continuous_lipschitz_dag_abstraction(
             raise ValueError(f"gain_matrix references unknown child variable '{child}'")
         for parent, gain in parent_gains.items():
             if parent not in macro_indices:
-                raise ValueError(
-                    f"gain_matrix references unknown parent variable '{parent}'"
-                )
+                raise ValueError(f"gain_matrix references unknown parent variable '{parent}'")
             if parent not in macro_parents[child]:
                 raise ValueError(
                     f"gain_matrix parent '{parent}' is not a declared parent of '{child}'"
@@ -1708,13 +1679,9 @@ def _verify_continuous_lipschitz_dag_abstraction(
     state_weights = _state_weights_for_order(config, macro_order)
     policy_weights = _policy_value_weights_for_order(config, macro_order)
     derived_lipschitz = _weighted_l1_lipschitz_constant(policy_weights, state_weights)
-    value_lipschitz_constant = float(
-        max(config.value_lipschitz_constant or 0.0, derived_lipschitz)
-    )
+    value_lipschitz_constant = float(max(config.value_lipschitz_constant or 0.0, derived_lipschitz))
     if value_lipschitz_constant <= _EXACT_MATCH_TOLERANCE:
-        raise ValueError(
-            "continuous_lipschitz_dag requires non-zero value_lipschitz_constant"
-        )
+        raise ValueError("continuous_lipschitz_dag requires non-zero value_lipschitz_constant")
 
     global_state_bound = float(state_weights @ global_error)
     error_bound = float(value_lipschitz_constant * global_state_bound)
@@ -1834,8 +1801,8 @@ __all__ = [
     "FiniteStateAbstractionMap",
     "VariableStateAbstraction",
     "abstraction_allowed_intervention_family",
-    "abstraction_estimand_error_bounds",
     "abstraction_error_bound_spec",
+    "abstraction_estimand_error_bounds",
     "abstraction_preserves_query",
     "abstraction_recommendation_margin_required",
     "load_abstraction_certificate",

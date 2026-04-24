@@ -222,8 +222,25 @@ _OVERRIDES: dict[tuple[str, str], dict[str, Any]] = {
         "dependencies": ("workspace.doctor",),
         "aliases": ("./scripts/bootstrap",),
     },
+    ("workspace", "docs-style"): {
+        "dependencies": (),
+    },
     ("workspace", "ci-parity"): {
         "aliases": ("./scripts/ci-parity",),
+    },
+    ("workspace", "format-check"): {
+        "dependencies": (),
+    },
+    ("workspace", "lint-fast"): {
+        "dependencies": (),
+    },
+    ("workspace", "lint-full"): {
+        "dependencies": (
+            "workspace.lint-fast",
+            "workspace.format-check",
+            "workspace.python-base-mypy",
+            "workspace.python-base-basedpyright",
+        ),
     },
     ("workspace", "core-runtime-closeout"): {
         "aliases": ("./scripts/core-runtime-closeout",),
@@ -412,7 +429,7 @@ def render_reference_docs() -> str:
         "## D1-L5 Source Phase Map",
         "",
         "| Source phase | Focus | Current evidence |",
-        "|---|---|---|",
+        "| ------------ | ----- | ---------------- |",
     ]
     for phase, focus, evidence in SOURCE_PHASE_MAP:
         lines.append(f"| {phase} | {focus} | {evidence} |")
@@ -432,7 +449,7 @@ def render_reference_docs() -> str:
             "## Documentation Impact",
             "",
             "| Output cluster | Exact files | Source of truth | Validation |",
-            "|---|---|---|---|",
+            "| -------------- | ----------- | --------------- | ---------- |",
             "| Generated command reference | `docs/reference/tools.md` | `tools.registry` command metadata, dependency graph edges, lifecycle status metadata | `uv run polisyos-tools docs --output docs/reference/tools.md` |",
             "| Tooling READMEs | `tools/README.md`, `tools/validation/README.md`, `tools/devx/workspace/README.md`, `tools/devx/architecture/README.md` | canonical CLI behavior, workspace gates, validation helpers, architecture guardrails | `uv run polisyos-tools workspace ci-parity --skip-browser` |",
             "| Shared D1-L5 how-to/reference pages | `docs/how-to/operate-ci-cd-platform.md`, `docs/how-to/manage-generated-artifacts.md`, `docs/how-to/release-policy.md`, `docs/reference/quality-gates.md`, `docs/reference/dependency-platform.md`, `docs/reference/merge-governance.md`, `docs/reference/ratchet-policy.md` | repo workflows, generated-artifact guardrails, release tooling, ratchet policy docs | `uv run polisyos-tools architecture guardrails check` |",
@@ -440,14 +457,14 @@ def render_reference_docs() -> str:
             "## Backlog",
             "",
             "| Gap | Priority | Tracking note |",
-            "|---|---|---|",
+            "| --- | -------- | ------------- |",
             "| No missing required D1-L5 output pages | - | All required D1-L5 files listed in `docs/DOCUMENTATION_SOTA_PLAN.md` are present. |",
             "| Additional per-category README expansion outside the D1 scope | P3 | Further category-local docs can land in D2 without blocking the D1 closure criteria. |",
             "",
             "## Zones",
             "",
             "| Zone | Categories |",
-            "|---|---|",
+            "| ---- | ---------- |",
         ]
     )
     for zone in zones():
@@ -460,7 +477,8 @@ def render_reference_docs() -> str:
             [
                 "| Category | Command | Status | Canonical | Summary | Replacement | "
                 "Aliases | Dependencies |",
-                "|---|---|---|---|---|---|---|---|",
+                "| -------- | ------- | ------ | --------- | ------- | ----------- | "
+                "------- | ------------ |",
             ]
         )
         for category in categories_for_zone(zone):
@@ -479,7 +497,7 @@ def render_reference_docs() -> str:
             "## Compatibility Wrappers",
             "",
             "| Legacy Path | Canonical Command |",
-            "|---|---|",
+            "| ----------- | ----------------- |",
         ]
     )
     for legacy_path, replacement in sorted(LEGACY_ENTRYPOINTS.items()):
@@ -491,7 +509,7 @@ def render_reference_docs() -> str:
             "## Deprecated And Quarantined Commands",
             "",
             "| Category | Command | Status | Replacement | Reason |",
-            "|---|---|---|---|---|",
+            "| -------- | ------- | ------ | ----------- | ------ |",
         ]
     )
     if lifecycle_specs:

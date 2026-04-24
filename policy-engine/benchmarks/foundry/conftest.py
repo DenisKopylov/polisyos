@@ -6,6 +6,7 @@ All data generators produce tiny datasets suitable for MacBook Air M2 (16GB):
 - Bayesian: ≤64 samples, 32 warmup, 1 chain
 - Optimization: ≤5 variables
 """
+
 from __future__ import annotations
 
 from typing import Any

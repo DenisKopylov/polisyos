@@ -31,8 +31,9 @@ from ..store import PutOptions
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from .config import ArtifactStoreConfig
     from polisyos.core.observability import MetricsRegistry
+
+    from .config import ArtifactStoreConfig
 
 
 def _default_metrics() -> MetricsRegistry:
@@ -118,7 +119,7 @@ class S3ArtifactStore:
         if callable(recorder):
             recorder(backend="s3", reason=reason)
 
-    def artifact_store_config(self) -> "ArtifactStoreConfig":
+    def artifact_store_config(self) -> ArtifactStoreConfig:
         """Return declarative config needed to rebuild this store instance."""
         from .config import ArtifactStoreConfig
 
@@ -154,7 +155,7 @@ class S3ArtifactStore:
         cached = self._cache_read(artifact_id, ".blob")
         if cached is None:
             resp = self._s3().get_object(Bucket=self._bucket, Key=self._blob_key(artifact_id))
-            data = cast(bytes, resp["Body"].read())
+            data = cast("bytes", resp["Body"].read())
             self._cache_write(artifact_id, ".blob", data)
         else:
             data = cached
@@ -177,9 +178,7 @@ class S3ArtifactStore:
                 self._record_integrity_failure(reason=type(exc).__name__)
                 raise
             return manifest
-        resp = self._s3().get_object(
-            Bucket=self._bucket, Key=self._manifest_key(artifact_id)
-        )
+        resp = self._s3().get_object(Bucket=self._bucket, Key=self._manifest_key(artifact_id))
         raw = resp["Body"].read()
         self._cache_write(artifact_id, ".manifest.json", raw)
         manifest = ArtifactManifest.model_validate_json(raw.decode("utf-8"))
@@ -282,9 +281,7 @@ class S3ArtifactStore:
     def iter_artifact_ids(self) -> list[ArtifactID]:
         ids: list[ArtifactID] = []
         paginator = self._s3().get_paginator("list_objects_v2")
-        for page in paginator.paginate(
-            Bucket=self._bucket, Prefix=f"{self._prefix}/sha256/"
-        ):
+        for page in paginator.paginate(Bucket=self._bucket, Prefix=f"{self._prefix}/sha256/"):
             for obj in page.get("Contents", []):
                 key = obj["Key"]
                 if key.endswith(".manifest.json"):

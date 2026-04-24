@@ -4,6 +4,7 @@ The package-level `compile` export is a stable alias of
 `polisyos.foundry.compile.api.compile`. It is resolved lazily so tooling can
 inspect the package without paying the import cost of the compiler stack.
 """
+
 from __future__ import annotations
 
 import importlib

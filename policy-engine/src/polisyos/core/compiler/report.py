@@ -1,4 +1,5 @@
 """Compiler report contracts plus CAS persistence helpers for link and compile results."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
 
 class CompileReport(KernelModel):
     """High-level status report emitted by Foundry compilation and lowering workflows."""
+
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     ok: bool
     policy_ref: ArtifactRef | None = None

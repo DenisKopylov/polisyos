@@ -5,12 +5,12 @@ JSON/parquet artifacts describe provision mappings, knob dictionaries, and progr
 then ``LexProvisionMappingRegistry.resolve`` materializes a ``LexProvisionDirective`` that can
 be compiled into IR intervention contracts.
 """
+
 from __future__ import annotations
 
 import json
-from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 from pydantic import Field, field_validator, model_validator
@@ -23,6 +23,9 @@ from polisyos.ir.kernel.values import ParamValue
 from polisyos.ir.observation.bundles import StrategicResponseSpecsBundle
 from polisyos.ir.observation.contracts import IdentificationMode, StrategicResponseChannel
 from polisyos.ir.trinity import TrinityBundle
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping, Sequence
 
 _JSON_LIST_KEYS = ("entries", "mappings", "items", "data")
 
@@ -45,7 +48,7 @@ class LexInterventionMapEntry(KernelModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_strategy_channels(self) -> "LexInterventionMapEntry":
+    def _validate_strategy_channels(self) -> LexInterventionMapEntry:
         if self.strategic_response_expected and not self.transmission_channels:
             raise ValueError(
                 "transmission_channels are required when strategic_response_expected=True"
@@ -138,8 +141,17 @@ def load_provision_program_crosswalk_entries(
 ) -> list[ProvisionProgramCrosswalkEntry]:
     """Load provision/program crosswalk entries from a parquet artifact."""
 
-    frame = pd.read_parquet(Path(path))
-    records = frame.to_dict(orient="records")
+    resolved_path = Path(path)
+    if resolved_path.exists():
+        frame = pd.read_parquet(resolved_path)
+        records = frame.to_dict(orient="records")
+    else:
+        json_fallback = resolved_path.with_suffix(".json")
+        if resolved_path.suffix != ".parquet" or not json_fallback.exists():
+            frame = pd.read_parquet(resolved_path)
+            records = frame.to_dict(orient="records")
+        else:
+            records = _load_json_payload(json_fallback)
     return [ProvisionProgramCrosswalkEntry.model_validate(row) for row in records]
 
 
@@ -171,13 +183,11 @@ class LexProvisionMappingRegistry:
         intervention_map_path: str | Path,
         knob_dictionary_path: str | Path,
         crosswalk_path: str | Path | None = None,
-    ) -> "LexProvisionMappingRegistry":
+    ) -> LexProvisionMappingRegistry:
         """Build a registry from exported mapping, knob, and optional crosswalk artifacts."""
         return cls(
             intervention_map_entries=load_lex_intervention_map_entries(intervention_map_path),
-            knob_dictionary_entries=load_intervention_knob_dictionary_entries(
-                knob_dictionary_path
-            ),
+            knob_dictionary_entries=load_intervention_knob_dictionary_entries(knob_dictionary_path),
             crosswalk_entries=(
                 load_provision_program_crosswalk_entries(crosswalk_path)
                 if crosswalk_path is not None
@@ -228,9 +238,7 @@ class LexProvisionMappingRegistry:
             else ProvisionProgramCrosswalkEntry.model_validate(entry)
         )
         if resolved.provision_ref in self._crosswalk_entries:
-            raise ValueError(
-                f"duplicate provision crosswalk entry for '{resolved.provision_ref}'"
-            )
+            raise ValueError(f"duplicate provision crosswalk entry for '{resolved.provision_ref}'")
         self._crosswalk_entries[resolved.provision_ref] = resolved
         return resolved
 
@@ -319,8 +327,7 @@ class LexProvisionMappingRegistry:
 
         if remaining_overrides:
             raise KeyError(
-                "unknown knob_value_overrides: "
-                + ", ".join(sorted(remaining_overrides))
+                "unknown knob_value_overrides: " + ", ".join(sorted(remaining_overrides))
             )
 
         resolved_metadata = dict(metadata or {})

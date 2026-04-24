@@ -245,13 +245,11 @@ _ACTION_SYNONYMS: dict[str, str] = {
     # repeals / invalidation
     "recognizes_as_invalid": "repeals",
     "recognize_as_invalid": "repeals",
-    "recognizes_as_invalid": "repeals",
     "declares_void": "repeals",
     "has_decision_invalidated": "repeals",
     # sanctions / fines / punishment
     "imposes_fine": "sanctions",
     "impose_fine": "sanctions",
-    "imposes_fine": "sanctions",
     "shall_be_fined": "sanctions",
     "is_punishable_by": "sanctions",
     "imposes_punishment": "sanctions",
@@ -477,9 +475,15 @@ def _heuristic_norm_type(token: str) -> str | None:
         return "entry_into_force"
     if any(key in token for key in ("definition", "declar", "statement", "inclusion", "term")):
         return "definition"
-    if any(key in token for key in ("procedure", "regulation", "rule", "act", "decree", "approval", "scope")):
+    if any(
+        key in token
+        for key in ("procedure", "regulation", "rule", "act", "decree", "approval", "scope")
+    ):
         return "procedure"
-    if any(key in token for key in ("obligation", "directive", "binding", "imperative", "must", "require")):
+    if any(
+        key in token
+        for key in ("obligation", "directive", "binding", "imperative", "must", "require")
+    ):
         return "obligation"
     return None
 
@@ -489,27 +493,68 @@ def _heuristic_action(token: str) -> str | None:
     # Sanctions / fines / punishment (check early — "fine" can appear in "define")
     if any(key in token for key in ("fine", "punish", "responsib", "штраф")):
         return "sanctions"
-    if any(key in token for key in ("inconsistent", "contradict", "prohibit", "forbid", "must_not", "cannot",
-                                     "заборон", "суперечи")):
+    if any(
+        key in token
+        for key in (
+            "inconsistent",
+            "contradict",
+            "prohibit",
+            "forbid",
+            "must_not",
+            "cannot",
+            "заборон",
+            "суперечи",
+        )
+    ):
         return "prohibits"
     if any(key in token for key in ("approve", "adopt", "ratif", "затверд")):
         return "approves"
-    if any(key in token for key in ("amend", "replace", "замін", "виклад", "зміню", "внос", "аменд")):
+    if any(
+        key in token for key in ("amend", "replace", "замін", "виклад", "зміню", "внос", "аменд")
+    ):
         return "amends"
     if any(key in token for key in ("repeal", "supersed", "invalid", "void", "втрат")):
         return "repeals"
     if any(key in token for key in ("delegate", "assign", "appoint", "subordinat", "призначи")):
         return "delegates"
-    if any(key in token for key in ("grant", "allocat", "compensat", "provide", "right_to", "entitled",
-                                     "eligible", "право", "звільн")):
+    if any(
+        key in token
+        for key in (
+            "grant",
+            "allocat",
+            "compensat",
+            "provide",
+            "right_to",
+            "entitled",
+            "eligible",
+            "право",
+            "звільн",
+        )
+    ):
         return "grants"
     if any(key in token for key in ("finance", "fund", "фінанс")):
         return "is_funded_by"
-    if any(key in token for key in ("threshold", "limit", "cap", "taxable", "percent", "rate", "reduce",
-                                     "quota", "volume", "count", "становить")):
+    if any(
+        key in token
+        for key in (
+            "threshold",
+            "limit",
+            "cap",
+            "taxable",
+            "percent",
+            "rate",
+            "reduce",
+            "quota",
+            "volume",
+            "count",
+            "становить",
+        )
+    ):
         return "sets_threshold"
-    if any(key in token for key in ("enter_into_force", "start_from", "effective_from", "introduce_into",
-                                     "набира")):
+    if any(
+        key in token
+        for key in ("enter_into_force", "start_from", "effective_from", "introduce_into", "набира")
+    ):
         return "enters_into_force"
     if any(key in token for key in ("establish", "create", "constitute", "створ")):
         return "establishes"
@@ -519,14 +564,50 @@ def _heuristic_action(token: str) -> str | None:
         return "defines"
     if any(key in token for key in ("exclud", "exempt", "виключ", "не_застосов")):
         return "excludes"
-    if any(key in token for key in ("apply", "use", "seal", "conduct", "located", "part_of",
-                                     "subject_to", "consist", "belong", "contain", "cover",
-                                     "розгляд", "містить", "включа", "складаю")):
+    if any(
+        key in token
+        for key in (
+            "apply",
+            "use",
+            "seal",
+            "conduct",
+            "located",
+            "part_of",
+            "subject_to",
+            "consist",
+            "belong",
+            "contain",
+            "cover",
+            "розгляд",
+            "містить",
+            "включа",
+            "складаю",
+        )
+    ):
         return "applies_to"
-    if any(key in token for key in ("submit", "cooperate", "act_based_on", "store_and_use", "pay",
-                                     "ensure", "must_", "shall_", "develop", "produc", "notify",
-                                     "maintain", "must_know", "display", "control", "здійсню", "повідомл",
-                                     "забезпеч")):
+    if any(
+        key in token
+        for key in (
+            "submit",
+            "cooperate",
+            "act_based_on",
+            "store_and_use",
+            "pay",
+            "ensure",
+            "must_",
+            "shall_",
+            "develop",
+            "produc",
+            "notify",
+            "maintain",
+            "must_know",
+            "display",
+            "control",
+            "здійсню",
+            "повідомл",
+            "забезпеч",
+        )
+    ):
         return "requires"
     return None
 

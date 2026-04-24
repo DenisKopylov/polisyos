@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -25,9 +25,7 @@ def _report_dict(*, measurement: str = "abc123", age_seconds: int = 30) -> dict[
         "report_data_hex": "00",
         "report_hash": "report-hash",
         "signature_validated": True,
-        "collected_at": (
-            datetime.now(timezone.utc) - timedelta(seconds=age_seconds)
-        ).isoformat(),
+        "collected_at": (datetime.now(UTC) - timedelta(seconds=age_seconds)).isoformat(),
     }
 
 

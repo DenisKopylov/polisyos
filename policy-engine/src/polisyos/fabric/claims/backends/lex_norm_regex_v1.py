@@ -1,4 +1,5 @@
 """Public backends lex norm regex v 1 module API."""
+
 from __future__ import annotations
 
 import re

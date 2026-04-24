@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.engine.context import ExecutionContext
@@ -66,8 +65,7 @@ def predictive_voi_snapshot_path(
     domain = str(transfer_context.get("domain") or "unknown").strip() or "unknown"
     tenant_scope = str(transfer_context.get("tenant_hash") or "global").strip() or "global"
     safe_name = (
-        f"{task_family}::{domain}::{tenant_scope}"
-        .replace("/", "_")
+        f"{task_family}::{domain}::{tenant_scope}".replace("/", "_")
         .replace("\\", "_")
         .replace(":", "_")
     )

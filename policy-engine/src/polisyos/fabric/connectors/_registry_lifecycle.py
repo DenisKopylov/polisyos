@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Callable
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
@@ -53,7 +54,7 @@ class RegistryLifecycleMixin:
     _cache_store: Any
     _enable_caching: bool
     _cache_wrappers: dict[str, Any]
-    _contract_registry: "ContractRegistry | None"
+    _contract_registry: ContractRegistry | None
     _contract_validation_mode: Literal["strict", "warn", "disabled"]
     _contract_wrappers: dict[str, Any]
     _schema_invalidation_callback_registered: bool
@@ -80,7 +81,7 @@ class RegistryLifecycleMixin:
 
     def configure_contracts(
         self,
-        contract_registry: "ContractRegistry | None",
+        contract_registry: ContractRegistry | None,
         *,
         validation_mode: Literal["strict", "warn", "disabled"] = "strict",
         reset_wrappers: bool = True,
@@ -241,7 +242,8 @@ class RegistryLifecycleMixin:
                         )
             if wired:
                 logger.info(
-                    "Default configs bootstrapped from profiles", wired=wired,
+                    "Default configs bootstrapped from profiles",
+                    wired=wired,
                 )
         except Exception as exc:
             logger.debug(
@@ -263,7 +265,7 @@ class RegistryLifecycleMixin:
             return False
 
     @staticmethod
-    def _close_pools_sync(pools: list["ConnectionPool"]) -> None:
+    def _close_pools_sync(pools: list[ConnectionPool]) -> None:
         if not pools:
             return
         if RegistryLifecycleMixin._has_running_loop():
@@ -277,7 +279,7 @@ class RegistryLifecycleMixin:
 
         asyncio.run(_close_all())
 
-    async def _close_pools_async(self, pools: list["ConnectionPool"]) -> None:
+    async def _close_pools_async(self, pools: list[ConnectionPool]) -> None:
         if not pools:
             return
         await asyncio.gather(*(pool.close_all() for pool in pools))
@@ -285,13 +287,13 @@ class RegistryLifecycleMixin:
     def _pop_registered_connector_and_pools(
         self,
         connector_id: str,
-    ) -> tuple[str | None, list["ConnectionPool"]]:
+    ) -> tuple[str | None, list[ConnectionPool]]:
         try:
             fqid = self._resolve_id(connector_id)
         except ConnectorNotFoundError:
             return None, []
 
-        pools_to_close: list["ConnectionPool"] = []
+        pools_to_close: list[ConnectionPool] = []
 
         with self._instance_lock:
             entry = self._connectors.unregister(fqid)
@@ -312,11 +314,11 @@ class RegistryLifecycleMixin:
 
     def register(
         self,
-        connector_class: type["SourceConnector"],
-        config: "ConnectionConfig | None" = None,
+        connector_class: type[SourceConnector],
+        config: ConnectionConfig | None = None,
         *,
         override: bool = False,
-        factory: Callable[[], "SourceConnector"] | None = None,
+        factory: Callable[[], SourceConnector] | None = None,
     ) -> str:
         """
         Register a connector class with optional default config.
@@ -465,9 +467,9 @@ class RegistryLifecycleMixin:
 
     def _apply_resilience_if_configured(
         self,
-        connector: "SourceConnector",
+        connector: SourceConnector,
         entry: ConnectorEntry,
-    ) -> "SourceConnector":
+    ) -> SourceConnector:
         """
         Apply resilience wrappers to connector fetch if configured.
 
@@ -491,7 +493,7 @@ class RegistryLifecycleMixin:
                     config=config,
                     cache_store=self._cache_store,
                 )
-                setattr(connector, "_resilience_wrapped", True)
+                connector._resilience_wrapped = True
         except Exception as exc:
             logger.warning(
                 "Failed to apply resilience wrappers",
@@ -504,10 +506,10 @@ class RegistryLifecycleMixin:
 
     def _apply_slo_metrics_wrapper(
         self,
-        connector: "SourceConnector",
+        connector: SourceConnector,
         *,
         connector_id: str,
-    ) -> "SourceConnector":
+    ) -> SourceConnector:
         metrics = _default_metrics()
         try:
             with self._instance_lock:
@@ -526,7 +528,7 @@ class RegistryLifecycleMixin:
                     return result
 
                 connector.fetch = _wrapped_fetch  # type: ignore[method-assign]
-                setattr(connector, "_slo_request_wrapped", True)
+                connector._slo_request_wrapped = True
         except Exception as exc:
             logger.warning(
                 "Failed to wrap connector fetch with SLO metrics",
@@ -538,10 +540,10 @@ class RegistryLifecycleMixin:
 
     def _apply_contract_validation_wrapper(
         self,
-        connector: "SourceConnector",
+        connector: SourceConnector,
         *,
         fqid: str,
-    ) -> "SourceConnector":
+    ) -> SourceConnector:
         if self._contract_registry is None or self._contract_validation_mode == "disabled":
             return connector
         try:

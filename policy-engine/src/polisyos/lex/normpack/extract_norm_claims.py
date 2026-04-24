@@ -1,15 +1,14 @@
 """Public normpack extract norm claims module API."""
+
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.claims import ClaimNormalizeOptions, normalize_claims
 from polisyos.fabric.claims.backends import resolve_extractor
 from polisyos.fabric.claims.canonicalize import canonical_unit, canonicalize_id
@@ -28,10 +27,8 @@ from polisyos.fabric.world.events import (
     build_deterministic_world_event,
     persist_world_event_with_facts,
 )
-from polisyos.ir.fact_log import FactSegmentManifest
 from polisyos.ir.kernel.base import ID_PATTERN, reject_floats_deep
 from polisyos.ir.world.claim import Claim, ClaimSourceKind
-from polisyos.ir.world.doc import DocMeta
 from polisyos.ir.world.event import (
     EventKind,
     ProvActivityType,
@@ -42,6 +39,13 @@ from polisyos.ir.world.ids import claim_id_from_payload
 from polisyos.lex.common import collapse_ws
 from polisyos.lex.normpack.policies import NORM_CLAIM_EXTRACT_PIPELINE_ID, NORM_CLAIM_SET_KIND
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.ir.fact_log import FactSegmentManifest
+    from polisyos.ir.world.doc import DocMeta
+
 logger = get_logger(__name__)
 
 _ID_RE = re.compile(ID_PATTERN)
@@ -50,6 +54,7 @@ _ID_RE = re.compile(ID_PATTERN)
 @dataclass(frozen=True)
 class ProvisionSelection:
     """Provision selection public type."""
+
     fragment_id: str
     doc_source_id: str
     doc_version_id: str
@@ -66,6 +71,7 @@ class ProvisionSelection:
 @dataclass(frozen=True)
 class NormClaimExtractResult:
     """Norm claim extract result data model."""
+
     raw_claim_set_artifact_ids: list[str]
     raw_claim_ids: list[str]
     normalized_claim_set_artifact_ids: list[str]
@@ -90,8 +96,8 @@ def _to_datetime_utc(value: str | None) -> datetime | None:
         else:
             parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
             if parsed.tzinfo is None:
-                parsed = parsed.replace(tzinfo=timezone.utc)
-        return parsed.astimezone(timezone.utc)
+                parsed = parsed.replace(tzinfo=UTC)
+        return parsed.astimezone(UTC)
     except Exception:
         logger.debug("Failed to parse datetime value: %r", value)
         return None
@@ -172,14 +178,10 @@ def _candidate_to_norm_claim(
     if not isinstance(lex_meta, dict):
         lex_meta = {}
     effective_from_raw = (
-        lex_meta.get("effective_from")
-        if isinstance(lex_meta.get("effective_from"), str)
-        else None
+        lex_meta.get("effective_from") if isinstance(lex_meta.get("effective_from"), str) else None
     )
     effective_to_raw = (
-        lex_meta.get("effective_to")
-        if isinstance(lex_meta.get("effective_to"), str)
-        else None
+        lex_meta.get("effective_to") if isinstance(lex_meta.get("effective_to"), str) else None
     )
     valid_from = _to_datetime_utc(effective_from_raw)
     valid_to = _to_datetime_utc(effective_to_raw)
@@ -374,8 +376,7 @@ def extract_norm_claims(
         doc_claims = [
             claim
             for claim in deduped_claims
-            if claim.citations
-            and claim.citations[0].doc.doc_version_id == doc_version_id
+            if claim.citations and claim.citations[0].doc.doc_version_id == doc_version_id
         ]
         doc_claims.sort(key=lambda row: row.claim_id)
 
@@ -410,10 +411,7 @@ def extract_norm_claims(
             ("doc_meta", per_doc[0].doc_meta_artifact_id),
             ("normalized_ref", meta.normalized_ref),
             ("provision_index", per_doc[0].provision_index_artifact_id),
-        ] + [
-            ("claim", claim_artifact_id_by_id[claim.claim_id])
-            for claim in doc_claims
-        ]
+        ] + [("claim", claim_artifact_id_by_id[claim.claim_id]) for claim in doc_claims]
         claim_set_artifact_id = persist_claim_set(
             cas=cas,
             payload=claim_set_payload,
@@ -463,9 +461,7 @@ def extract_norm_claims(
     normalized_claim_set_artifact_ids: list[str] = []
     normalized_claim_ids: list[str] = []
     if normalize_claim_sets and raw_claim_set_artifact_ids:
-        normalize_segment_base = (
-            f"{segment_name or 'lex_normpack_extract_norm_claims'}_normalize"
-        )
+        normalize_segment_base = f"{segment_name or 'lex_normpack_extract_norm_claims'}_normalize"
         for claim_set_artifact_id in sorted(set(raw_claim_set_artifact_ids)):
             suffix = claim_set_artifact_id.split(":", 1)[-1][:12]
             normalized = normalize_claims(

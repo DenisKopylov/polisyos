@@ -1,4 +1,5 @@
 """Bounded Scientist operational monitoring hooks and alert helpers."""
+
 from __future__ import annotations
 
 from collections import Counter, deque

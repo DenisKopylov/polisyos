@@ -52,7 +52,7 @@ def test_wvs_fetch_with_mock_http(monkeypatch) -> None:
         }
         return payload, headers, json.dumps(payload).encode("utf-8")
 
-    async def _fake_get_session(self, _handle):  # noqa: ARG001
+    async def _fake_get_session(self, _handle):
         return object()
 
     monkeypatch.setattr(WVSConnector, "_request_json", staticmethod(_fake_request_json))
@@ -101,7 +101,7 @@ def test_wvs_fetch_wave_closest_fallback(monkeypatch) -> None:
             return fallback_payload, headers, json.dumps(fallback_payload).encode("utf-8")
         return empty_payload, headers, json.dumps(empty_payload).encode("utf-8")
 
-    async def _fake_get_session(self, _handle):  # noqa: ARG001
+    async def _fake_get_session(self, _handle):
         return object()
 
     monkeypatch.setattr(WVSConnector, "_request_json", staticmethod(_fake_request_json))

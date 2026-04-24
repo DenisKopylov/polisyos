@@ -5,6 +5,7 @@ governance passes are mandatory for each observation family and how stable IR
 pass identifiers map onto concrete runtime pass names. The resolved mapping is
 embedded into bundle manifests before causal-readiness or execution stages run.
 """
+
 from __future__ import annotations
 
 from enum import Enum
@@ -43,7 +44,7 @@ class GovernancePassAlias(KernelModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_alias(self) -> "GovernancePassAlias":
+    def validate_alias(self) -> GovernancePassAlias:
         if self.status == GovernancePassAliasStatus.RUNTIME and self.runtime_pass_id is None:
             raise ValueError("runtime_pass_id is required for runtime alias entries")
         return self
@@ -61,7 +62,7 @@ class GovernancePassAliasRegistry(KernelModel):
     aliases: dict[str, GovernancePassAlias] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_aliases(self) -> "GovernancePassAliasRegistry":
+    def validate_aliases(self) -> GovernancePassAliasRegistry:
         for key, alias in self.aliases.items():
             if key != alias.canonical_pass_id:
                 raise ValueError(
@@ -74,7 +75,7 @@ class GovernancePassAliasRegistry(KernelModel):
         return self.aliases.get(canonical_pass_id)
 
     @classmethod
-    def default(cls) -> "GovernancePassAliasRegistry":
+    def default(cls) -> GovernancePassAliasRegistry:
         """Build the built-in alias table for currently known governance passes."""
         return cls(
             aliases={
@@ -162,7 +163,7 @@ class ObservationFamilyPolicy(KernelModel):
     requires_strategic_response_check: bool = False
 
     @model_validator(mode="after")
-    def validate_policy(self) -> "ObservationFamilyPolicy":
+    def validate_policy(self) -> ObservationFamilyPolicy:
         ensure_unique_ids(
             self.mandatory_governance_passes,
             key_fn=lambda item: item,
@@ -182,7 +183,7 @@ class ObservationFamilyPolicyRegistry(KernelModel):
     policies: dict[str, ObservationFamilyPolicy] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_policies(self) -> "ObservationFamilyPolicyRegistry":
+    def validate_policies(self) -> ObservationFamilyPolicyRegistry:
         for family in ObservationFamily:
             if family.value not in self.policies:
                 raise ValueError(f"missing observation family policy: {family.value}")
@@ -211,7 +212,7 @@ class ObservationFamilyPolicyRegistry(KernelModel):
         }
 
     @classmethod
-    def default(cls) -> "ObservationFamilyPolicyRegistry":
+    def default(cls) -> ObservationFamilyPolicyRegistry:
         return cls(
             policies={
                 ObservationFamily.BUDGET_FLOWS.value: ObservationFamilyPolicy(
@@ -346,7 +347,7 @@ class GovernancePassMappingRegistry(KernelModel):
     family_passes: dict[str, list[str]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_mapping(self) -> "GovernancePassMappingRegistry":
+    def validate_mapping(self) -> GovernancePassMappingRegistry:
         ensure_unique_ids(
             self.global_mandatory_passes,
             key_fn=lambda item: item,
@@ -379,7 +380,7 @@ class GovernancePassMappingRegistry(KernelModel):
         policy_registry: ObservationFamilyPolicyRegistry,
         *,
         global_mandatory_passes: list[str] | None = None,
-    ) -> "GovernancePassMappingRegistry":
+    ) -> GovernancePassMappingRegistry:
         """Build a bundle-friendly pass mapping from a family policy registry."""
         return cls(
             global_mandatory_passes=list(

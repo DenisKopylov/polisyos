@@ -1,4 +1,5 @@
 """Tests for fail-closed execution with typed FailureCard."""
+
 from __future__ import annotations
 
 import time
@@ -18,13 +19,6 @@ from polisyos.core.contracts.foundry import (
     ProgramNode,
     ProgramOp,
 )
-from polisyos.foundry._executor_models import (
-    ExecutionStrictness,
-    FailureCard,
-    FailureKind,
-    FailureSeverity,
-    get_state_path,
-)
 from polisyos.foundry._executor_graph import (
     _MAX_FAILURE_CARDS,
     _append_failure_card,
@@ -32,21 +26,27 @@ from polisyos.foundry._executor_graph import (
     _hash_traceback,
     execute_program_graph,
 )
+from polisyos.foundry._executor_models import (
+    ExecutionStrictness,
+    FailureCard,
+    FailureKind,
+    FailureSeverity,
+    get_state_path,
+)
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.methods.exceptions import (
+    BackendAdaptationError,
+    ContractViolationError,
+    MethodExecutionAbortError,
+    SelectorEvaluationError,
+    ShapeMismatchError,
+    StatePathTraversalError,
+)
 from polisyos.foundry.methods.lifecycle import (
     LifecycleLog,
     LifecycleManager,
     LifecycleTransitionError,
     MethodLifecycle,
-)
-from polisyos.foundry.methods.exceptions import (
-    BackendAdaptationError,
-    ContractViolationError,
-    MethodExecutionAbortError,
-    ProgramNodeValidationError,
-    SelectorEvaluationError,
-    ShapeMismatchError,
-    StatePathTraversalError,
 )
 from polisyos.ir.kernel import (
     DEFAULT_MECHANISM_REGISTRY,
@@ -238,10 +238,7 @@ class TestFailureCard:
             retry_eligible=False,
         )
         cards: list[FailureCard] = []
-        dropped = sum(
-            _append_failure_card(cards, card)
-            for _ in range(_MAX_FAILURE_CARDS + 3)
-        )
+        dropped = sum(_append_failure_card(cards, card) for _ in range(_MAX_FAILURE_CARDS + 3))
         assert len(cards) == _MAX_FAILURE_CARDS
         assert dropped == 3
 
@@ -382,7 +379,9 @@ class TestPathTraversal:
 class TestLifecycleHardening:
     def test_invalid_transition_raises_even_in_non_strict_mode(self):
         log = LifecycleLog()
-        LifecycleManager.transition(log, "tests.method@1.0.0", MethodLifecycle.DEFINED, strict=False)
+        LifecycleManager.transition(
+            log, "tests.method@1.0.0", MethodLifecycle.DEFINED, strict=False
+        )
         LifecycleManager.transition(log, "tests.method@1.0.0", MethodLifecycle.REGISTERED)
 
         with pytest.raises(LifecycleTransitionError):

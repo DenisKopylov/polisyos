@@ -1,4 +1,5 @@
 """Public ir migration report module API."""
+
 from __future__ import annotations
 
 from typing import Literal
@@ -12,6 +13,7 @@ SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
 class MigrationWarning(KernelModel):
     """Migration warning public type."""
+
     code: str
     message: str
     path: str | None = None
@@ -19,6 +21,7 @@ class MigrationWarning(KernelModel):
 
 class MigrationAction(KernelModel):
     """Migration action public type."""
+
     kind: Literal["copy", "default", "drop", "transform", "split", "merge"]
     from_path: str | None = None
     to_path: str | None = None
@@ -28,6 +31,7 @@ class MigrationAction(KernelModel):
 
 class MigrationReport(KernelModel):
     """Migration report data model."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     migration_id: str
     source_format: str
@@ -40,7 +44,7 @@ class MigrationReport(KernelModel):
 
 
 __all__ = [
-    "MigrationReport",
     "MigrationAction",
+    "MigrationReport",
     "MigrationWarning",
 ]

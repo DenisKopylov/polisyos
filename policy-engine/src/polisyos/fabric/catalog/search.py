@@ -7,8 +7,8 @@ the ranked search plan that led to each candidate.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import List, Sequence
 
 from polisyos.common.logger import logger
 
@@ -64,7 +64,7 @@ class SearchResponse:
         plan_steps: Explainable ordered search-plan steps
     """
 
-    results: List[SearchResult]
+    results: list[SearchResult]
     needs_disambiguation: bool
     query: str
     total_candidates: int = 0
@@ -95,7 +95,7 @@ class MetricSearcher:
 
     def __init__(
         self,
-        contracts: List[DataContract],
+        contracts: list[DataContract],
         *,
         bindings: Sequence[SourceBinding] | None = None,
         threshold: float = 0.7,
@@ -106,7 +106,7 @@ class MetricSearcher:
         self._max_results = max_results
         self._bindings: list[SourceBinding] = list(bindings or [])
 
-        self._alias_index: dict[str, List[str]] = {}
+        self._alias_index: dict[str, list[str]] = {}
         self._build_alias_index(contracts)
         self._semantic_index = SemanticCatalogIndex(contracts, self._bindings)
 
@@ -139,10 +139,7 @@ class MetricSearcher:
         """Build reverse alias -> metric_id mapping."""
 
         for contract in contracts:
-            searchable = [
-                contract.metric_id,
-                contract.display_name.lower(),
-            ] + contract.aliases
+            searchable = [contract.metric_id, contract.display_name.lower(), *contract.aliases]
 
             last_segment = contract.metric_id.split(".")[-1]
             searchable.append(last_segment)
@@ -351,13 +348,9 @@ class MetricSearcher:
                 f"Query coverage {coverage:.2f}.",
             ]
             if match.supporting_tokens:
-                explanations.append(
-                    "Supporting tokens: " + ", ".join(match.supporting_tokens)
-                )
+                explanations.append("Supporting tokens: " + ", ".join(match.supporting_tokens))
             if lexical is not None and lexical.matched_alias:
-                explanations.append(
-                    f"Lexical hint preserved from alias '{lexical.matched_alias}'."
-                )
+                explanations.append(f"Lexical hint preserved from alias '{lexical.matched_alias}'.")
             vector_metadata = {
                 "source": match.vector_metadata.source,
                 "schema_version": match.vector_metadata.schema_version,
@@ -384,7 +377,7 @@ class MetricSearcher:
             )
         return results
 
-    def _needs_disambiguation(self, results: List[SearchResult]) -> bool:
+    def _needs_disambiguation(self, results: list[SearchResult]) -> bool:
         """
         Determine if disambiguation is required.
 
@@ -436,7 +429,7 @@ class MetricSearcher:
 
         return min(1.0, jaccard + substring_boost + prefix_boost)
 
-    def _tokenize(self, text: str) -> List[str]:
+    def _tokenize(self, text: str) -> list[str]:
         """Tokenize text into normalized words."""
 
         normalized = text.replace("_", " ").replace(".", " ").replace("-", " ")
@@ -465,5 +458,6 @@ class MetricSearcher:
                 f"Ambiguous query '{query}'. Please specify one of:\n" + "\n".join(options)
             )
 
-        assert response.best_match is not None
+        if response.best_match is None:
+            raise ValueError(f"No best match available for '{query}'.")
         return response.best_match.binding

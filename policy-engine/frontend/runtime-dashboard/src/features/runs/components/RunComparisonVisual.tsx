@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { Card } from "@/shared/ui/primitives";
 import {
   BarChart,
@@ -39,6 +40,8 @@ export function RunComparisonVisual({
   metrics,
   className,
 }: RunComparisonVisualProps) {
+  const { t } = useI18n();
+
   // Bar chart data
   const barData = useMemo(
     () =>
@@ -78,7 +81,9 @@ export function RunComparisonVisual({
         <Card className="space-y-3">
           <div className="flex items-center gap-2">
             <span className="size-3 rounded-full bg-[var(--chart-primary)]" />
-            <h4 className="text-sm font-semibold">Base: {baseRunId}</h4>
+            <h4 className="text-sm font-semibold">
+              {t("pages.runs.compare.visual.baseRun", { runId: baseRunId })}
+            </h4>
           </div>
           <div className="grid grid-cols-2 gap-2">
             {metrics.slice(0, 6).map((m) => (
@@ -99,7 +104,11 @@ export function RunComparisonVisual({
         <Card className="space-y-3">
           <div className="flex items-center gap-2">
             <span className="size-3 rounded-full bg-[var(--chart-secondary)]" />
-            <h4 className="text-sm font-semibold">Target: {targetRunId}</h4>
+            <h4 className="text-sm font-semibold">
+              {t("pages.runs.compare.visual.targetRun", {
+                runId: targetRunId,
+              })}
+            </h4>
           </div>
           <div className="grid grid-cols-2 gap-2">
             {metrics.slice(0, 6).map((m) => {
@@ -140,7 +149,9 @@ export function RunComparisonVisual({
       {/* Parallel coordinates view */}
       {metrics.length >= 3 && (
         <Card className="space-y-3">
-          <h4 className="text-sm font-semibold">Multi-metric comparison</h4>
+          <h4 className="text-sm font-semibold">
+            {t("pages.runs.compare.visual.multiMetricComparison")}
+          </h4>
           <ParallelCoordinatesChart
             axes={parallelAxes}
             data={parallelData}
@@ -150,11 +161,13 @@ export function RunComparisonVisual({
           <div className="flex gap-4 text-xs">
             <div className="flex items-center gap-1.5">
               <span className="h-0.5 w-4 bg-[var(--chart-primary)] opacity-40" />
-              <span className="text-muted">Base</span>
+              <span className="text-muted">
+                {t("pages.runs.compare.columns.base")}
+              </span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="h-0.5 w-4 bg-[var(--chart-primary)]" />
-              <span>Target</span>
+              <span>{t("pages.runs.compare.columns.target")}</span>
             </div>
           </div>
         </Card>
@@ -162,7 +175,9 @@ export function RunComparisonVisual({
 
       {/* Delta bar chart */}
       <Card className="space-y-3">
-        <h4 className="text-sm font-semibold">Delta overview</h4>
+        <h4 className="text-sm font-semibold">
+          {t("pages.runs.compare.visual.deltaOverview")}
+        </h4>
         <BarChart
           data={metrics.map((m) => ({
             label: m.label,

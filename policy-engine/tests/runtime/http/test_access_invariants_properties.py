@@ -17,7 +17,6 @@ from polisyos.runtime.http.dependencies import (
 )
 from polisyos.runtime.http.errors import RuntimeHTTPError
 
-
 _TENANT_IDS = st.text(alphabet=ascii_lowercase + digits, min_size=1, max_size=24)
 _ARTIFACT_ID = ArtifactID.model_validate("sha256:" + "a" * 64)
 

@@ -15,10 +15,10 @@
 
 ## Entry points
 
-| Контур | Data path | HTTP path |
-|---|---|---|
-| Runtime authz | `data.polisyos.authz.decision` | `/v1/data/polisyos/authz/decision` |
-| Deploy gate | `data.polisyos.deploy.decision` | `/v1/data/polisyos/deploy/decision` |
+| Контур        | Data path                       | HTTP path                           |
+| ------------- | ------------------------------- | ----------------------------------- |
+| Runtime authz | `data.polisyos.authz.decision`  | `/v1/data/polisyos/authz/decision`  |
+| Deploy gate   | `data.polisyos.deploy.decision` | `/v1/data/polisyos/deploy/decision` |
 
 ## Модули
 

@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
-from collections import defaultdict
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
 import hashlib
 import json
 import math
-from pathlib import Path
 import re
-from typing import Any, Iterable, Mapping, Sequence
+from collections import defaultdict
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
 
 from .contract import DataContract
 from .providers import resolve_catalog_providers
@@ -159,9 +160,7 @@ class SemanticEvaluationReport:
     @property
     def false_positive_failures(self) -> int:
         return sum(
-            1
-            for item in self.outcomes
-            if item.case.expected_metric_id is None and not item.passed
+            1 for item in self.outcomes if item.case.expected_metric_id is None and not item.passed
         )
 
     @property
@@ -175,7 +174,7 @@ class SemanticEvaluationReport:
                 bucket["passed"] += 1
         return summary
 
-    def meets_thresholds(self, benchmark: "SemanticEvaluationBenchmarkPack") -> bool:
+    def meets_thresholds(self, benchmark: SemanticEvaluationBenchmarkPack) -> bool:
         return (
             self.pass_rate >= benchmark.minimum_pass_rate
             and self.expected_recall >= benchmark.minimum_expected_recall
@@ -199,7 +198,7 @@ class SemanticEvaluationBenchmarkPack:
     def from_mapping(
         cls,
         payload: Mapping[str, Any],
-    ) -> "SemanticEvaluationBenchmarkPack":
+    ) -> SemanticEvaluationBenchmarkPack:
         case_payloads = payload.get("cases", ())
         cases = tuple(
             SemanticEvaluationCase(
@@ -233,7 +232,7 @@ class SemanticEvaluationBenchmarkPack:
     def from_path(
         cls,
         path: str | Path,
-    ) -> "SemanticEvaluationBenchmarkPack":
+    ) -> SemanticEvaluationBenchmarkPack:
         payload = json.loads(Path(path).read_text("utf-8"))
         return cls.from_mapping(payload)
 
@@ -292,7 +291,9 @@ def _metric_fingerprint(contract: DataContract, bindings: Sequence[SourceBinding
             profile_payloads=profile_payloads,
         ),
     }
-    encoded = json.dumps(payload, ensure_ascii=True, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    encoded = json.dumps(payload, ensure_ascii=True, sort_keys=True, separators=(",", ":")).encode(
+        "utf-8"
+    )
     return hashlib.sha256(encoded).hexdigest()
 
 
@@ -327,7 +328,9 @@ def _vectorize(tokens: Iterable[str], *, dimensions: int) -> tuple[float, ...]:
 def _cosine_similarity(left: Sequence[float], right: Sequence[float]) -> float:
     if len(left) != len(right):
         raise ValueError("semantic vectors must share the same dimensionality")
-    return float(sum(l * r for l, r in zip(left, right)))
+    return float(
+        sum(left_value * right_value for left_value, right_value in zip(left, right, strict=False))
+    )
 
 
 def _binding_profile_context(bindings: Sequence[SourceBinding]) -> dict[str, dict[str, object]]:
@@ -356,9 +359,13 @@ def _profile_capability_tokens(profile_payload: dict[str, object]) -> list[str]:
     ):
         if bool(profile_payload.get(key)):
             capability_bits.append(key.replace("_", " "))
-    capability_bits.extend(str(item) for item in profile_payload.get("tags", []) if str(item).strip())
     capability_bits.extend(
-        str(item) for item in profile_payload.get("dataset_discovery_hints", []) if str(item).strip()
+        str(item) for item in profile_payload.get("tags", []) if str(item).strip()
+    )
+    capability_bits.extend(
+        str(item)
+        for item in profile_payload.get("dataset_discovery_hints", [])
+        if str(item).strip()
     )
     return capability_bits
 
@@ -566,15 +573,13 @@ class SemanticCatalogIndex:
         tokens = tuple(_normalize_tokens(text))
         connector_ids = sorted({binding.connector_id for binding in bindings})
         dataset_ids = sorted({binding.dataset_id for binding in bindings})
-        profile_ids = sorted(
-            {binding.profile_id for binding in bindings if binding.profile_id}
-        )
+        profile_ids = sorted({binding.profile_id for binding in bindings if binding.profile_id})
         profile_payloads = _binding_profile_context(bindings)
         vector_metadata = SemanticVectorMetadata(
             source=",".join(connector_ids) or contract.source_system,
             schema_version="catalog-semantic-v1",
             embedding_model=self._embedding_model,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             invalidation_policy="rebuild_on_contract_or_binding_change",
             fingerprint=fingerprint,
         )
@@ -589,18 +594,31 @@ class SemanticCatalogIndex:
                 "dataset_ids": dataset_ids,
                 "profile_ids": profile_ids,
                 "schema_description": ".".join(
-                    part for part in (contract.source_system, contract.source_table, contract.source_column) if part
+                    part
+                    for part in (
+                        contract.source_system,
+                        contract.source_table,
+                        contract.source_column,
+                    )
+                    if part
                 ),
                 "metadata_enrichment": {
                     "contract_aliases": list(contract.aliases),
                     "contract_tags": list(contract.tags),
-                    "binding_aliases": sorted({alias for binding in bindings for alias in binding.aliases}),
+                    "binding_aliases": sorted(
+                        {alias for binding in bindings for alias in binding.aliases}
+                    ),
                     "binding_tags": sorted({tag for binding in bindings for tag in binding.tags}),
                     "binding_metadata_keys": sorted(
                         {key for binding in bindings for key in binding.metadata}
                     ),
                     "binding_metadata_values": sorted(
-                        {str(value) for binding in bindings for value in binding.metadata.values() if str(value).strip()}
+                        {
+                            str(value)
+                            for binding in bindings
+                            for value in binding.metadata.values()
+                            if str(value).strip()
+                        }
                     ),
                     "profile_display_names": sorted(
                         {
@@ -623,11 +641,11 @@ class SemanticCatalogIndex:
 
 __all__ = [
     "SemanticCatalogDocument",
+    "SemanticCatalogIndex",
     "SemanticEvaluationBenchmarkPack",
     "SemanticEvaluationCase",
     "SemanticEvaluationOutcome",
     "SemanticEvaluationReport",
-    "SemanticCatalogIndex",
     "SemanticSearchMatch",
     "SemanticVectorMetadata",
 ]

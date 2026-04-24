@@ -11,6 +11,7 @@ import {
 } from "recharts";
 
 import type { CalibrationModel } from "@/lib/domain/simulation";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { Select, chartTheme } from "@/shared/ui";
 
 type CalibrationReportProps = {
@@ -20,6 +21,7 @@ type CalibrationReportProps = {
 export default function CalibrationReport({
   calibration,
 }: CalibrationReportProps) {
+  const { t } = useI18n();
   const [selectedSeriesTarget, setSelectedSeriesTarget] = useState<string>(
     calibration?.series[0]?.target ?? "",
   );
@@ -43,9 +45,11 @@ export default function CalibrationReport({
   if (!calibration) {
     return (
       <section className="bg-canvas/40 border-line rounded-xl border border-dashed p-4">
-        <h3 className="mb-1 text-lg font-semibold">Calibration Report</h3>
+        <h3 className="mb-1 text-lg font-semibold">
+          {t("pages.artifacts.simulation.calibrationReport.title")}
+        </h3>
         <p className="text-muted text-sm">
-          Calibration report not detected for this artifact.
+          {t("pages.artifacts.simulation.calibrationReport.unavailable")}
         </p>
       </section>
     );
@@ -59,30 +63,42 @@ export default function CalibrationReport({
   return (
     <section className="border-line bg-panel space-y-3 rounded-xl border p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-lg font-semibold">Calibration Report</h3>
+        <h3 className="text-lg font-semibold">
+          {t("pages.artifacts.simulation.calibrationReport.title")}
+        </h3>
         <p className="text-muted text-sm">
-          Total loss:{" "}
-          {calibration.totalLoss !== null
-            ? calibration.totalLoss.toFixed(4)
-            : "-"}
+          {t("pages.artifacts.simulation.calibrationReport.totalLoss", {
+            value:
+              calibration.totalLoss !== null
+                ? calibration.totalLoss.toFixed(4)
+                : "-",
+          })}
         </p>
       </div>
 
       <div className="grid gap-2 md:grid-cols-4">
         <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
-          <p className="text-muted text-xs uppercase">Loss steps</p>
+          <p className="text-muted text-xs uppercase">
+            {t("pages.artifacts.simulation.calibrationReport.lossSteps")}
+          </p>
           <p className="font-semibold">{calibration.lossHistory.length}</p>
         </div>
         <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
-          <p className="text-muted text-xs uppercase">Fit targets</p>
+          <p className="text-muted text-xs uppercase">
+            {t("pages.artifacts.simulation.calibrationReport.fitTargets")}
+          </p>
           <p className="font-semibold">{calibration.fitRows.length}</p>
         </div>
         <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
-          <p className="text-muted text-xs uppercase">Calibrated params</p>
+          <p className="text-muted text-xs uppercase">
+            {t("pages.artifacts.simulation.calibrationReport.calibratedParams")}
+          </p>
           <p className="font-semibold">{calibration.params.length}</p>
         </div>
         <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
-          <p className="text-muted text-xs uppercase">Uncertainty</p>
+          <p className="text-muted text-xs uppercase">
+            {t("pages.artifacts.simulation.calibrationReport.uncertainty")}
+          </p>
           <p className="font-semibold">
             {calibration.uncertaintyMethod ?? "-"}
           </p>
@@ -107,13 +123,17 @@ export default function CalibrationReport({
                 stroke={chartTheme.secondary}
                 strokeWidth={2}
                 dot={false}
-                name="Loss"
+                name={t("pages.artifacts.simulation.calibrationReport.loss")}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
       ) : (
-        <p className="text-muted text-sm">Loss history is unavailable.</p>
+        <p className="text-muted text-sm">
+          {t(
+            "pages.artifacts.simulation.calibrationReport.lossHistoryUnavailable",
+          )}
+        </p>
       )}
 
       {calibration.fitRows.length > 0 ? (
@@ -121,8 +141,16 @@ export default function CalibrationReport({
           <table className="min-w-full border-collapse text-sm">
             <thead>
               <tr className="border-line text-muted border-b text-left text-xs tracking-wide uppercase">
-                <th className="px-3 py-2">Target</th>
-                <th className="px-3 py-2">R²</th>
+                <th className="px-3 py-2">
+                  {t(
+                    "pages.artifacts.simulation.calibrationReport.columns.target",
+                  )}
+                </th>
+                <th className="px-3 py-2">
+                  {t(
+                    "pages.artifacts.simulation.calibrationReport.columns.rSquared",
+                  )}
+                </th>
                 <th className="px-3 py-2">RMSE</th>
                 <th className="px-3 py-2">MAE</th>
                 <th className="px-3 py-2">MSE</th>
@@ -161,7 +189,9 @@ export default function CalibrationReport({
       {calibration.params.length > 0 ? (
         <div className="bg-canvas/20 border-line rounded-xl border p-3">
           <p className="text-muted mb-2 text-xs font-semibold uppercase">
-            Parameter Estimates
+            {t(
+              "pages.artifacts.simulation.calibrationReport.parameterEstimates",
+            )}
           </p>
           <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
             {calibration.params.map((param) => (
@@ -186,7 +216,9 @@ export default function CalibrationReport({
         <div className="bg-canvas/20 border-line space-y-2 rounded-xl border p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-muted text-xs font-semibold uppercase">
-              Observed vs Fitted
+              {t(
+                "pages.artifacts.simulation.calibrationReport.observedVsFitted",
+              )}
             </p>
             <Select
               value={selectedSeries?.target ?? ""}
@@ -221,7 +253,9 @@ export default function CalibrationReport({
                     stroke={chartTheme.tertiary}
                     strokeWidth={2}
                     dot={false}
-                    name="Observed"
+                    name={t(
+                      "pages.artifacts.simulation.calibrationReport.observed",
+                    )}
                   />
                   <Line
                     type="monotone"
@@ -229,7 +263,9 @@ export default function CalibrationReport({
                     stroke={chartTheme.success}
                     strokeWidth={2}
                     dot={false}
-                    name="Fitted"
+                    name={t(
+                      "pages.artifacts.simulation.calibrationReport.fitted",
+                    )}
                   />
                 </LineChart>
               </ResponsiveContainer>

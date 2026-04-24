@@ -1,7 +1,8 @@
 """Enforce uncertainty-envelope thresholds on simulation and causal outputs."""
+
 from __future__ import annotations
 
-from typing import Any, List
+from typing import Any
 
 from pydantic import ValidationError
 
@@ -34,7 +35,7 @@ class ConfidencePass(ValidatorPass):
     def estimated_cost_ms(self) -> int:
         return 50
 
-    def validate(self, ctx: PassContext) -> List[ComplianceIssue]:
+    def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
         issues: list[ComplianceIssue] = []
 
         store = _resolve_store(ctx.state)
@@ -193,7 +194,11 @@ class ConfidencePass(ValidatorPass):
 
 def _resolve_store(state: dict[str, Any]) -> FileSystemCAS | None:
     store = state.get("_store")
-    return store if store is not None and hasattr(store, "get_bytes") and hasattr(store, "put_json") else None
+    return (
+        store
+        if store is not None and hasattr(store, "get_bytes") and hasattr(store, "put_json")
+        else None
+    )
 
 
 def _resolve_simulation_result_id(state: dict[str, Any]) -> ArtifactID | None:

@@ -1,10 +1,11 @@
 """Combine multiple uncertainty envelopes into one downstream-facing summary envelope."""
+
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from enum import Enum
 from statistics import NormalDist
-from typing import Sequence
 
 from polisyos.ir.analytics.uncertainty import (
     CertificateKind,
@@ -23,6 +24,7 @@ from .covariance import extract_std
 
 class AggregationStrategy(str, Enum):
     """Choose how competing uncertainty envelopes should be merged for downstream use."""
+
     WIDEST = "widest"
     PRECISION_WEIGHTED = "precision_weighted"
     BAYESIAN_COMBINATION = "bayesian_combination"
@@ -79,6 +81,7 @@ def aggregate_envelopes(
 # ------------------------------------------------------------------
 # Widest (original implementation)
 # ------------------------------------------------------------------
+
 
 def _widest(
     envelopes: Sequence[UncertaintyEnvelope],
@@ -149,6 +152,7 @@ def _widest(
 # Precision-weighted (inverse-variance weighting)
 # ------------------------------------------------------------------
 
+
 def _precision_weighted(
     envelopes: Sequence[UncertaintyEnvelope],
     confidence_level: float,
@@ -161,9 +165,10 @@ def _precision_weighted(
     precisions = [1.0 / (s * s) for s in stds]
     total_precision = sum(precisions)
 
-    point = sum(
-        p * float(env.point_estimate) for p, env in zip(precisions, envelopes)
-    ) / total_precision
+    point = (
+        sum(p * float(env.point_estimate) for p, env in zip(precisions, envelopes))
+        / total_precision
+    )
     combined_var = 1.0 / total_precision
     combined_std = math.sqrt(combined_var)
 
@@ -206,6 +211,7 @@ def _precision_weighted(
 # ------------------------------------------------------------------
 # Bayesian combination (Gaussian conjugate update)
 # ------------------------------------------------------------------
+
 
 def _bayesian_combination(
     envelopes: Sequence[UncertaintyEnvelope],

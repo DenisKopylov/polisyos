@@ -5,31 +5,32 @@ request-time contract normalization plus column allow-listing/masking. They are 
 read-only: provenance, conflict resolution, and claim normalization happen earlier during
 document/claim ingestion, then this module exposes the materialized result tables.
 """
+
 from __future__ import annotations
 
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, Iterator, Mapping, Sequence
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 
 from polisyos.core.security.access_scope import AccessScope
-from polisyos.ir.fact_log import canonical_tx_time
-from polisyos.fabric.safety import validate_sql_identifier
 from polisyos.core.security.db_backend import DatabaseBackend
+from polisyos.fabric.safety import validate_sql_identifier
 from polisyos.fabric.security import (
     AccessAuditEvent,
+    DataClassification,
+    JsonlAccessAuditLog,
+    RowAccessPolicy,
     apply_requested_column_guard,
     cardinality_bucket,
     classification_allowed,
     current_trace_id,
-    DataClassification,
-    JsonlAccessAuditLog,
     mask_dataframe_columns,
     normalize_allowed_columns,
     normalize_classification,
-    RowAccessPolicy,
 )
 from polisyos.fabric.temporal import parse_datetime_utc
 from polisyos.fabric.world.store.snapshots import (
@@ -37,6 +38,7 @@ from polisyos.fabric.world.store.snapshots import (
     get_world_snapshot_adapter,
     resolve_world_snapshot,
 )
+from polisyos.ir.fact_log import canonical_tx_time
 from polisyos.ir.world.predicates import (
     WORLD_ARTIFACT_ID,
     WORLD_KIND,
@@ -50,8 +52,10 @@ else:
     try:  # pragma: no cover - import guard for environments without duckdb
         from polisyos.fabric.io.db import SimulationDB
     except ModuleNotFoundError:  # pragma: no cover
+
         class SimulationDB:  # type: ignore[no-redef]
             pass
+
 
 _TABLES: dict[str, str] = {
     "world_nodes": "world.world_nodes",
@@ -129,6 +133,7 @@ class WorldQueryRequest:
     limit: Maximum number of rows to return. Must be between ``1`` and ``100000``.
         allowed_columns: Optional allow-list; unauthorized columns are rejected or masked out.
     """
+
     table: str
     columns: tuple[str, ...] = ("*",)
     where: Mapping[str, Any] | None = None
@@ -242,8 +247,7 @@ def execute_world_query(
         limit = _normalize_limit(request.limit)
 
         query = (
-            f"SELECT {columns_sql} FROM {source.sql}{where_sql}{order_by_sql} "
-            f"LIMIT {placeholder}"
+            f"SELECT {columns_sql} FROM {source.sql}{where_sql}{order_by_sql} LIMIT {placeholder}"
         )
         params = list(source.params) + params
         params.append(limit)
@@ -672,11 +676,7 @@ def _normalize_as_of_valid_time(value: str | int | None) -> str | int | None:
     if isinstance(value, int):
         return value
     try:
-        return (
-            parse_datetime_utc(value, what="as_of_valid_time")
-            .isoformat()
-            .replace("+00:00", "Z")
-        )
+        return parse_datetime_utc(value, what="as_of_valid_time").isoformat().replace("+00:00", "Z")
     except Exception:
         # Some valid-time domains are stringly typed rather than timestamp typed.
         return value
@@ -822,30 +822,28 @@ def _emit_access_audit(
         return
     scope = request.access_scope
     request_filters = {
-        key: value
-        for key, value in (request.where or {}).items()
-        if value is not None
+        key: value for key, value in (request.where or {}).items() if value is not None
     }
     event = AccessAuditEvent(
         actor=scope.user_sub if scope is not None else "",
         tenant=scope.tenant_id if scope is not None else "",
         table=request.table,
-        query=json_safe({
-            "where": request_filters,
-            "limit": request.limit,
-            "order_by": list(request.order_by),
-            "as_of_tx_time": request.as_of_tx_time,
-            "as_of_valid_time": request.as_of_valid_time,
-            "snapshot_id": request.snapshot_id,
-            "branch": request.branch,
-        }),
+        query=json_safe(
+            {
+                "where": request_filters,
+                "limit": request.limit,
+                "order_by": list(request.order_by),
+                "as_of_tx_time": request.as_of_tx_time,
+                "as_of_valid_time": request.as_of_valid_time,
+                "snapshot_id": request.snapshot_id,
+                "branch": request.branch,
+            }
+        ),
         columns=tuple(str(column) for column in columns if str(column).strip()),
         classification=classification,
         decision=decision,
         denied_reason=denied_reason,
-        masking=tuple(
-            sorted(normalize_allowed_columns(request.allowed_columns) or frozenset())
-        ),
+        masking=tuple(sorted(normalize_allowed_columns(request.allowed_columns) or frozenset())),
         cardinality_bucket=cardinality_bucket(row_count),
         purpose_of_use=request.purpose_of_use,
         trace_id=current_trace_id(),
@@ -865,7 +863,7 @@ __all__ = [
     "WorldQueryError",
     "WorldQueryRequest",
     "execute_world_query",
-    "query_world_table",
     "query_claims",
     "query_events",
+    "query_world_table",
 ]

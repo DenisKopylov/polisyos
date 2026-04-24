@@ -1,4 +1,5 @@
 """Public decide run policy promotion module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -33,6 +34,7 @@ from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import 
     _parse_model,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    load_ambiguity_certificate,
     load_prior_knowledge_bundle_for_state,
     resolve_effective_latent_discovery_bundle_for_state,
 )
@@ -117,6 +119,7 @@ _SPEC = NodeSpec(
 @dataclass(frozen=True)
 class RunPolicyPromotionNode:
     """Run policy promotion node implementation."""
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -259,7 +262,9 @@ def _ensure_candidate_ref(
     return persist_policy_candidate_schema(
         ctx.store,
         candidate,
-        inputs=[InputRef(artifact_id=ref.artifact_id, role=key) for key, ref in state.inputs.items()],
+        inputs=[
+            InputRef(artifact_id=ref.artifact_id, role=key) for key, ref in state.inputs.items()
+        ],
     )
 
 
@@ -283,6 +288,7 @@ def _resolve_policy_evaluation(
                 cross_graph_profile=_load_cross_graph_profile(ctx, state),
                 governance_report=_load_governance_report(ctx, state),
                 uncertainty_envelope=_load_search_uncertainty(ctx, state),
+                ambiguity_certificate=load_ambiguity_certificate(ctx, state),
             )
         )
     ref = ctx.store.put_json(
@@ -341,7 +347,10 @@ def _build_selection_benchmark_evaluation(
         candidate_ref=candidate_ref,
         selection_metrics={
             "score": base_score,
-            **{name: channel.higher_is_better for name, channel in evaluation_vector.primary.items()},
+            **{
+                name: channel.higher_is_better
+                for name, channel in evaluation_vector.primary.items()
+            },
         },
         holdout_metrics={"score": base_score},
         sample_counts={BenchmarkSplit.SELECTION.value: 100},
@@ -352,7 +361,9 @@ def _build_selection_benchmark_evaluation(
 
 
 def _load_benchmark_evaluation(ctx: ExecutionContext, ref: ArtifactRef) -> BenchmarkEvaluation:
-    return BenchmarkEvaluation.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
+    return BenchmarkEvaluation.model_validate(
+        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    )
 
 
 def _load_distributional_report(ctx: ExecutionContext, state: ExperimentState):
@@ -364,21 +375,29 @@ def _load_causal_report(ctx: ExecutionContext, state: ExperimentState) -> Causal
     ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     if ref is None:
         return None
-    return CausalEffectReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
+    return CausalEffectReport.model_validate(
+        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    )
 
 
-def _load_governance_report(ctx: ExecutionContext, state: ExperimentState) -> GovernanceReport | None:
+def _load_governance_report(
+    ctx: ExecutionContext, state: ExperimentState
+) -> GovernanceReport | None:
     ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
     if ref is None:
         return None
-    return GovernanceReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
+    return GovernanceReport.model_validate(
+        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    )
 
 
 def _load_governance_report_from_ref(
     ctx: ExecutionContext,
     ref: ArtifactRef,
 ) -> GovernanceReport | None:
-    return GovernanceReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
+    return GovernanceReport.model_validate(
+        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    )
 
 
 def _load_cross_graph_profile(ctx: ExecutionContext, state: ExperimentState):

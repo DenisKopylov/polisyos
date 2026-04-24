@@ -255,15 +255,15 @@ def _extract_provenance_artifact_id(value: Any) -> ArtifactID | None:
             try:
                 return ArtifactID.model_validate(inner)
             except (TypeError, ValueError) as exc:
-                logger.debug("Failed to parse artifact id from nested provenance payload %s: %s", inner, exc)
+                logger.debug(
+                    "Failed to parse artifact id from nested provenance payload %s: %s", inner, exc
+                )
                 return None
     if isinstance(value, str):
         try:
             return ArtifactID.model_validate(value)
         except (TypeError, ValueError) as exc:
-            logger.debug(
-                "Failed to parse provenance artifact id from value %s: %s", value, exc
-            )
+            logger.debug("Failed to parse provenance artifact id from value %s: %s", value, exc)
             return None
     return None
 

@@ -1,6 +1,7 @@
 import { lazy, Suspense, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
+import type { ArtifactView } from "@/features/artifacts/domain/searchParams";
 import { useI18n } from "@/i18n/LocaleProvider";
 import {
   asArray,
@@ -21,6 +22,8 @@ const TrinityCard = lazy(() => import("./trinity/TrinityCard"));
 type ArtifactViewerProps = {
   kind: string;
   preview: unknown;
+  view?: ArtifactView;
+  onViewChange?: (nextView: ArtifactView) => void;
 };
 
 type ArtifactViewerSummaryItem = {
@@ -654,7 +657,12 @@ function hasTypedViewer(kind: string): boolean {
   );
 }
 
-function buildTypedViewerNode(kind: string, preview: unknown): ReactNode {
+function buildTypedViewerNode({
+  kind,
+  onViewChange,
+  preview,
+  view,
+}: ArtifactViewerProps): ReactNode {
   if (kind === "ir.trinity_bundle") {
     return (
       <Suspense
@@ -677,7 +685,12 @@ function buildTypedViewerNode(kind: string, preview: unknown): ReactNode {
           <ArtifactViewerFallback messageKey="pages.artifacts.viewers.loadingDecision" />
         }
       >
-        <DecisionCardView payload={preview} artifactKind={kind} />
+        <DecisionCardView
+          payload={preview}
+          artifactKind={kind}
+          viewMode={view}
+          onViewModeChange={onViewChange}
+        />
       </Suspense>
     );
   }
@@ -867,12 +880,14 @@ function buildSummaryItems(
 
 export function getArtifactViewerDescriptor({
   kind,
+  onViewChange,
   preview,
+  view,
 }: ArtifactViewerProps): ArtifactViewerDescriptor {
   const viewerTitle = kind;
   const relatedRefs = extractRelatedRefs(preview);
   const title = viewerTitle;
-  const typedNode = buildTypedViewerNode(kind, preview);
+  const typedNode = buildTypedViewerNode({ kind, onViewChange, preview, view });
 
   return {
     title,
@@ -884,10 +899,17 @@ export function getArtifactViewerDescriptor({
 
 function ArtifactViewerDescriptorAdapter({
   kind,
+  onViewChange,
   preview,
+  view,
 }: ArtifactViewerProps) {
   const { t, label } = useI18n();
-  const descriptor = getArtifactViewerDescriptor({ kind, preview });
+  const descriptor = getArtifactViewerDescriptor({
+    kind,
+    onViewChange,
+    preview,
+    view,
+  });
   const title = label("artifactKinds", kind, descriptor.title);
   const summaryItems = buildSummaryItems(kind, preview, t);
 
@@ -910,11 +932,20 @@ function ArtifactViewerDescriptorAdapter({
 
 export function renderArtifactViewer({
   kind,
+  onViewChange,
   preview,
+  view,
 }: ArtifactViewerProps): ReactNode {
   if (!hasTypedViewer(kind)) {
     return <JsonPreview data={preview} />;
   }
 
-  return <ArtifactViewerDescriptorAdapter kind={kind} preview={preview} />;
+  return (
+    <ArtifactViewerDescriptorAdapter
+      kind={kind}
+      onViewChange={onViewChange}
+      preview={preview}
+      view={view}
+    />
+  );
 }

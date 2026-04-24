@@ -1,4 +1,5 @@
 """Environment-driven configuration for Sigstore-backed SLSA attestation workflows."""
+
 from __future__ import annotations
 
 import os
@@ -12,6 +13,7 @@ from polisyos.common.env_parsing import parse_bool, parse_float, parse_int
 
 class SlsaMode(str, Enum):
     """Slsa mode public type."""
+
     OFF = "off"
     LOCAL = "local"
     PRIVATE = "private"
@@ -20,6 +22,7 @@ class SlsaMode(str, Enum):
 
 class SlsaPolicy(str, Enum):
     """Whether SLSA signing is optional or must succeed before a run is accepted."""
+
     BEST_EFFORT = "best_effort"
     REQUIRED = "required"
 
@@ -43,9 +46,7 @@ class SLSAConfig(BaseModel):
     timeout_seconds: float = 30.0
     max_retries: int = 2
 
-    local_transparency_log: Path = Field(
-        default=Path(".polisyos/security/slsa/transparency.jsonl")
-    )
+    local_transparency_log: Path = Field(default=Path(".polisyos/security/slsa/transparency.jsonl"))
 
     retain_ed25519_signatures: bool = True
 
@@ -58,11 +59,9 @@ class SLSAConfig(BaseModel):
         return self.policy == SlsaPolicy.REQUIRED
 
     @classmethod
-    def from_env(cls) -> "SLSAConfig":
+    def from_env(cls) -> SLSAConfig:
         mode_raw = os.getenv("POLISYOS_SLSA_MODE", SlsaMode.OFF.value).strip().lower()
-        policy_raw = os.getenv(
-            "POLISYOS_SLSA_POLICY", SlsaPolicy.BEST_EFFORT.value
-        ).strip().lower()
+        policy_raw = os.getenv("POLISYOS_SLSA_POLICY", SlsaPolicy.BEST_EFFORT.value).strip().lower()
 
         try:
             mode = SlsaMode(mode_raw)
@@ -92,7 +91,8 @@ class SLSAConfig(BaseModel):
                 )
             ),
             retain_ed25519_signatures=parse_bool(
-                os.getenv("POLISYOS_SLSA_RETAIN_ED25519"), True,
+                os.getenv("POLISYOS_SLSA_RETAIN_ED25519"),
+                True,
             ),
         )
 
@@ -101,7 +101,7 @@ class SLSAConfig(BaseModel):
         *,
         mode: str | None = None,
         policy: str | None = None,
-    ) -> "SLSAConfig":
+    ) -> SLSAConfig:
         resolved_mode = self.mode
         resolved_policy = self.policy
 

@@ -5,6 +5,7 @@ specification-curve robustness, transportability, interference fit, and
 strategic-response plausibility into a promotion-oriented score. Missing
 evidence channels become explicit gap flags instead of silently inflating rank.
 """
+
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
@@ -20,9 +21,11 @@ from polisyos.ir.analytics.transportability import TransportabilityResult, Trans
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
 from polisyos.scientist.discovery.utility_judge import DownstreamUtilityReport
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
-from polisyos.scientist.governance.calibration import CalibrationAdversarialResult, CalibrationGovernanceReport
+from polisyos.scientist.governance.calibration import (
+    CalibrationAdversarialResult,
+    CalibrationGovernanceReport,
+)
 from polisyos.scientist.governance.stress_scenarios import StressScenarioKind, StressScenarioResult
-
 
 _WEIGHTS: dict[str, float] = {
     "calibration_fit_score": 0.20,
@@ -118,7 +121,9 @@ class CalibrationLeaderboard:
             stress_robustness_score=(
                 None if stress_scenarios is None else _clamp(stress_scenarios.robustness_score)
             ),
-            specification_curve_robustness=self._score_specification_curve(specification_curve_input),
+            specification_curve_robustness=self._score_specification_curve(
+                specification_curve_input
+            ),
             transportability_score=_score_transportability(
                 downstream_utility_report,
                 transportability_result,
@@ -154,7 +159,9 @@ class CalibrationLeaderboard:
             metadata=dict(metadata or {}),
         )
 
-    def rank(self, entries: Sequence[CalibrationLeaderboardEntry]) -> list[CalibrationLeaderboardEntry]:
+    def rank(
+        self, entries: Sequence[CalibrationLeaderboardEntry]
+    ) -> list[CalibrationLeaderboardEntry]:
         """Rank entries by promotion eligibility, composite score, and tie-breakers."""
 
         ranked = sorted(
@@ -168,10 +175,7 @@ class CalibrationLeaderboard:
                 item.entry_id,
             ),
         )
-        return [
-            entry.model_copy(update={"rank": index + 1})
-            for index, entry in enumerate(ranked)
-        ]
+        return [entry.model_copy(update={"rank": index + 1}) for index, entry in enumerate(ranked)]
 
     def _score_specification_curve(
         self,
@@ -242,10 +246,7 @@ def _score_interference(
     if network_interference_report is None or interference_certificate is None:
         return None
     effective_mode = interference_certificate.mode_used or interference_certificate.fallback_mode
-    if (
-        network_interference_report.status != "success"
-        or effective_mode == "unsupported"
-    ):
+    if network_interference_report.status != "success" or effective_mode == "unsupported":
         return 0.0
     mode_score = 1.0 if effective_mode == "pairwise" else 0.85
     error_bound = interference_certificate.reduction_error_bound

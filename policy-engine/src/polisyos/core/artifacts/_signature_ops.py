@@ -1,4 +1,5 @@
 """Signature helper operations for `FileSystemCAS`."""
+
 from __future__ import annotations
 
 import threading
@@ -232,9 +233,7 @@ def verify_all_signatures(
     valid = sum(1 for item in details if item.status == SignatureVerificationStatus.VALID)
     unsigned = sum(1 for item in details if item.status == SignatureVerificationStatus.UNSIGNED)
     invalid = sum(1 for item in details if item.status == SignatureVerificationStatus.INVALID)
-    untrusted = sum(
-        1 for item in details if item.status == SignatureVerificationStatus.UNTRUSTED
-    )
+    untrusted = sum(1 for item in details if item.status == SignatureVerificationStatus.UNTRUSTED)
     revoked = sum(1 for item in details if item.status == SignatureVerificationStatus.REVOKED)
     errors = sum(1 for item in details if item.status == SignatureVerificationStatus.ERROR)
     return BulkVerificationReport(

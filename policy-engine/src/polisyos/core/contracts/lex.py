@@ -8,7 +8,7 @@ This module is the canonical ABI for Lex backends.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Literal, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -147,12 +147,14 @@ class ChangeProposalRef(ArtifactRef):
 
 class NormDiffRef(ArtifactRef):
     """Artifact reference for a diff between two norm-pack revisions."""
+
     kind: str = "lex.norm_diff"
     media_type: str = "application/json"
 
 
 class NormImpactReportRef(ArtifactRef):
     """Artifact reference for a report estimating policy impact from legal changes."""
+
     kind: str = "lex.norm_impact_report"
     media_type: str = "application/json"
 
@@ -179,6 +181,7 @@ class LegalEvaluationRequest(BaseModel):
 
 class LegalReport(BaseModel):
     """Legality evaluation result with jurisdictional context, issues, and summary counts."""
+
     model_config = ConfigDict(extra="forbid")
 
     context: LegalContext
@@ -189,6 +192,7 @@ class LegalReport(BaseModel):
 
 class ChangeProposal(BaseModel):
     """Change proposal public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     context: LegalContext | None = None
@@ -197,20 +201,20 @@ class ChangeProposal(BaseModel):
 
 
 __all__ = [
-    "NormPack",
-    "NormRule",
-    "NormRef",
-    "RuleType",
-    "RuleBackend",
-    "IssueSeverity",
-    "ComplianceIssue",
-    "LegalContext",
-    "FoundryRefs",
-    "LegalReportRef",
+    "ChangeProposal",
     "ChangeProposalRef",
-    "NormDiffRef",
-    "NormImpactReportRef",
+    "ComplianceIssue",
+    "FoundryRefs",
+    "IssueSeverity",
+    "LegalContext",
     "LegalEvaluationRequest",
     "LegalReport",
-    "ChangeProposal",
+    "LegalReportRef",
+    "NormDiffRef",
+    "NormImpactReportRef",
+    "NormPack",
+    "NormRef",
+    "NormRule",
+    "RuleBackend",
+    "RuleType",
 ]

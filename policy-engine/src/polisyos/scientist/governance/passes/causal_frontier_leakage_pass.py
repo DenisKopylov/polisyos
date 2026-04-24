@@ -1,4 +1,5 @@
 """Governance pass for causal-frontier boundary leakage diagnostics."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -59,7 +60,9 @@ class CausalFrontierLeakagePass(ValidatorPass):
             "cross-frontier effects are substantively expected."
         )
         if singletons_after_cut:
-            suggestion += " Review small post-cut components because variance can inflate near the boundary."
+            suggestion += (
+                " Review small post-cut components because variance can inflate near the boundary."
+            )
 
         return [
             ComplianceIssue(

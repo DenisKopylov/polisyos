@@ -8,6 +8,7 @@ import urllib.request
 from csv import DictReader
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import duckdb
 
@@ -18,19 +19,25 @@ from polisyos.datasets.batch.benchmark import (
     active_readiness_thresholds_for_profile,
     readiness_thresholds_for_profile,
 )
-from polisyos.datasets.batch.config import DatasetBatchConfig
+
+if TYPE_CHECKING:
+    from polisyos.datasets.batch.config import DatasetBatchConfig
 
 logger = get_logger(__name__)
 
 
 def _is_smoke_like_run(config: DatasetBatchConfig) -> bool:
-    return config.is_sampled_run or config.uses_custom_registry or config.run_profile == "preflight_core"
+    return (
+        config.is_sampled_run
+        or config.uses_custom_registry
+        or config.run_profile == "preflight_core"
+    )
 
 
 def _line_count(path: Path) -> int:
     if not path.exists():
         return 0
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         return sum(1 for _ in fh)
 
 
@@ -45,9 +52,9 @@ def _source_counts_towards_description_qc(spec: object) -> bool:
     run_lane = str(getattr(spec, "run_lane", "") or "").strip().lower()
     if run_lane == "enrichment":
         return False
-    if family in {"sdmx", "who", "uis", "worldbank", "unpd", "wvs"} and run_lane == "empirical":
-        return False
-    return True
+    return not (
+        family in {"sdmx", "who", "uis", "worldbank", "unpd", "wvs"} and run_lane == "empirical"
+    )
 
 
 def _url_is_reachable(url: str, *, timeout: int = 10) -> bool:
@@ -91,10 +98,16 @@ def _previous_snapshot_root(config: DatasetBatchConfig) -> Path | None:
         [path for path in parent.iterdir() if path.is_dir() and (path / "datasets").exists()],
         key=lambda item: (item.name, item.stat().st_mtime_ns),
     )
-    older_by_name = [path for path in siblings if path.resolve() != current and path.name < current.name]
+    older_by_name = [
+        path for path in siblings if path.resolve() != current and path.name < current.name
+    ]
     if older_by_name:
         return older_by_name[-1]
-    older_by_time = [path for path in siblings if path.resolve() != current and path.stat().st_mtime_ns <= current.stat().st_mtime_ns]
+    older_by_time = [
+        path
+        for path in siblings
+        if path.resolve() != current and path.stat().st_mtime_ns <= current.stat().st_mtime_ns
+    ]
     return older_by_time[-1] if older_by_time else None
 
 
@@ -102,7 +115,7 @@ def _manifest_count_for_snapshot(snapshot_root: Path, source: str) -> int | None
     manifest_path = _latest_manifest(snapshot_root / "datasets" / "raw" / source)
     if manifest_path is None:
         return None
-    with open(manifest_path, "r", encoding="utf-8") as fh:
+    with open(manifest_path, encoding="utf-8") as fh:
         manifest = json.load(fh)
     payload = Path(manifest.get("payload", ""))
     return _line_count(payload)
@@ -119,10 +132,7 @@ def _table_exists(con: duckdb.DuckDBPyConnection, table_name: str) -> bool:
 def _table_columns(con: duckdb.DuckDBPyConnection, table_name: str) -> set[str]:
     if not _table_exists(con, table_name):
         return set()
-    return {
-        str(row[1])
-        for row in con.execute(f"PRAGMA table_info('{table_name}')").fetchall()
-    }
+    return {str(row[1]) for row in con.execute(f"PRAGMA table_info('{table_name}')").fetchall()}
 
 
 def _scalar(con: duckdb.DuckDBPyConnection, sql: str, params: list[object] | None = None) -> float:
@@ -138,7 +148,7 @@ def _column_expr(columns: set[str], column: str, fallback: str) -> str:
 def _duplicate_ratio(config: DatasetBatchConfig, merged_total: int) -> float:
     if not config.duplicates_report_path.exists() or merged_total <= 0:
         return 0.0
-    with open(config.duplicates_report_path, "r", encoding="utf-8") as fh:
+    with open(config.duplicates_report_path, encoding="utf-8") as fh:
         duplicate_rows = sum(1 for index, _line in enumerate(fh) if index > 0)
     return round((100.0 * duplicate_rows) / merged_total, 3)
 
@@ -147,7 +157,7 @@ def _duplicate_rows_by_source(config: DatasetBatchConfig) -> dict[str, int]:
     if not config.duplicates_report_path.exists():
         return {}
     counts: dict[str, int] = {}
-    with open(config.duplicates_report_path, "r", encoding="utf-8", newline="") as fh:
+    with open(config.duplicates_report_path, encoding="utf-8", newline="") as fh:
         reader = DictReader(fh)
         for row in reader:
             source = str(row.get("source") or "").strip()
@@ -305,17 +315,21 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
     benchmark_payload: dict[str, object] = {}
     benchmark_metrics: dict[str, object] = {}
     if config.benchmark_report_path.exists():
-        with open(config.benchmark_report_path, "r", encoding="utf-8") as fh:
+        with open(config.benchmark_report_path, encoding="utf-8") as fh:
             loaded_benchmark = json.load(fh)
         if isinstance(loaded_benchmark, dict):
             benchmark_payload = loaded_benchmark
             if isinstance(loaded_benchmark.get("metrics"), dict):
                 benchmark_metrics = loaded_benchmark.get("metrics") or {}
-    evaluation_mode = str(benchmark_payload.get("evaluation_mode") or "full-eval").strip() or "full-eval"
+    evaluation_mode = (
+        str(benchmark_payload.get("evaluation_mode") or "full-eval").strip() or "full-eval"
+    )
     partial_eval = evaluation_mode == "partial-eval"
     metrics["qc_evaluation_mode"] = evaluation_mode
 
-    source_dirs = [p for p in config.raw_dir.iterdir() if p.is_dir()] if config.raw_dir.exists() else []
+    source_dirs = (
+        [p for p in config.raw_dir.iterdir() if p.is_dir()] if config.raw_dir.exists() else []
+    )
     manifest_actual_counts: dict[str, int] = {}
 
     parity_failures = 0
@@ -324,7 +338,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
         manifest_path = _latest_manifest(source_dir)
         if not manifest_path:
             continue
-        with open(manifest_path, "r", encoding="utf-8") as fh:
+        with open(manifest_path, encoding="utf-8") as fh:
             manifest = json.load(fh)
         payload = Path(manifest.get("payload", ""))
         declared = int(manifest.get("count", 0))
@@ -357,14 +371,18 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
         manifest_path = _latest_manifest(config.raw_dir / source)
         payload_path = None
         if manifest_path is not None:
-            with open(manifest_path, "r", encoding="utf-8") as fh:
+            with open(manifest_path, encoding="utf-8") as fh:
                 payload = json.load(fh)
             payload_path = Path(payload.get("payload", ""))
         payload_bytes = _file_size(payload_path) if payload_path else 0
         rest_rows_by_source[source] = actual_rows
         rest_bytes_by_source[source] = payload_bytes
-        rows_exceeded = spec.max_rows_per_snapshot is not None and actual_rows > int(spec.max_rows_per_snapshot)
-        bytes_exceeded = spec.max_bytes_per_snapshot is not None and payload_bytes > int(spec.max_bytes_per_snapshot)
+        rows_exceeded = spec.max_rows_per_snapshot is not None and actual_rows > int(
+            spec.max_rows_per_snapshot
+        )
+        bytes_exceeded = spec.max_bytes_per_snapshot is not None and payload_bytes > int(
+            spec.max_bytes_per_snapshot
+        )
         if rows_exceeded or bytes_exceeded:
             history_budget_exceeded_sources.append(source)
             checks.append(
@@ -394,18 +412,16 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
     anomaly_checks_skipped = int(smoke_like)
 
     if previous_snapshot_root is not None and not anomaly_checks_skipped:
-        execution_sources = {
-            spec.name
-            for spec in registry_specs.values()
-            if spec.publish_blocking
-        }
+        execution_sources = {spec.name for spec in registry_specs.values() if spec.publish_blocking}
         for source, actual in sorted(manifest_actual_counts.items()):
             previous = _manifest_count_for_snapshot(previous_snapshot_root, source)
             if previous is None:
                 continue
             spec = registry_specs.get(source)
-            critical_source = source in set(config.promoted_sources) or source in execution_sources or bool(
-                spec.publish_blocking if spec else False
+            critical_source = (
+                source in set(config.promoted_sources)
+                or source in execution_sources
+                or bool(spec.publish_blocking if spec else False)
             )
             if previous > 0 and actual == 0:
                 anomalies_total += 1
@@ -489,7 +505,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
     empty_title = 0
     empty_desc = 0
     if config.merged_records_path.exists():
-        with open(config.merged_records_path, "r", encoding="utf-8") as fh:
+        with open(config.merged_records_path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -515,8 +531,24 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
     metrics["duplicate_ratio_pct"] = _duplicate_ratio(config, merged_total)
     metrics["duplicate_rows_by_source"] = _duplicate_rows_by_source(config)
 
-    checks.append(QCCheck(name="empty_title_pct", group="catalog-health", passed=title_pct <= 5.0, value=title_pct, threshold=5.0))
-    checks.append(QCCheck(name="empty_description_pct", group="catalog-health", passed=desc_pct <= 60.0, value=desc_pct, threshold=60.0))
+    checks.append(
+        QCCheck(
+            name="empty_title_pct",
+            group="catalog-health",
+            passed=title_pct <= 5.0,
+            value=title_pct,
+            threshold=5.0,
+        )
+    )
+    checks.append(
+        QCCheck(
+            name="empty_description_pct",
+            group="catalog-health",
+            passed=desc_pct <= 60.0,
+            value=desc_pct,
+            threshold=60.0,
+        )
+    )
 
     reachable = 0
     checked = 0
@@ -530,7 +562,11 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
         finally:
             con.close()
 
-        urls = [str(r[0]) for r in rows if isinstance(r[0], str) and r[0].startswith(("http://", "https://"))]
+        urls = [
+            str(r[0])
+            for r in rows
+            if isinstance(r[0], str) and r[0].startswith(("http://", "https://"))
+        ]
         random.seed(42)
         sample = random.sample(urls, k=min(20, len(urls))) if urls else []
         for url in sample:
@@ -730,9 +766,11 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
 
                 core_ingest_manifest = config.manifests_dir / "core_sources_ingest.json"
                 if core_ingest_manifest.exists():
-                    with open(core_ingest_manifest, "r", encoding="utf-8") as fh:
+                    with open(core_ingest_manifest, encoding="utf-8") as fh:
                         ingest_manifest = json.load(fh)
-                    ingest_metrics = ingest_manifest.get("metrics") if isinstance(ingest_manifest, dict) else {}
+                    ingest_metrics = (
+                        ingest_manifest.get("metrics") if isinstance(ingest_manifest, dict) else {}
+                    )
                     if isinstance(ingest_metrics, dict):
                         for key in (
                             "observations_attempted",
@@ -747,7 +785,9 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                     if spec.execution_tier != "catalog"
                 )
                 for source in execution_sources:
-                    dataset_count = _scalar(con, "SELECT count(*) FROM ds_datasets WHERE source = ?", [source])
+                    dataset_count = _scalar(
+                        con, "SELECT count(*) FROM ds_datasets WHERE source = ?", [source]
+                    )
                     if dataset_count <= 0:
                         continue
 
@@ -773,8 +813,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
 
                     readiness_source_avg = _scalar(
                         con,
-                        f"SELECT avg({readiness_expr}) "
-                        "FROM ds_datasets WHERE source = ?",
+                        f"SELECT avg({readiness_expr}) FROM ds_datasets WHERE source = ?",
                         [source],
                     )
                     checks.append(
@@ -801,7 +840,9 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                             message=f"Latest raw snapshot row count for promoted source '{source}'",
                         )
                     )
-                    dataset_count = _scalar(con, "SELECT count(*) FROM ds_datasets WHERE source = ?", [source])
+                    dataset_count = _scalar(
+                        con, "SELECT count(*) FROM ds_datasets WHERE source = ?", [source]
+                    )
                     if dataset_count <= 0:
                         continue
 
@@ -875,7 +916,9 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
         if isinstance(benchmark_metrics, dict):
             readiness_thresholds = readiness_thresholds_for_profile(config.run_profile)
             active_thresholds = active_readiness_thresholds_for_profile(config.run_profile)
-            vector_index_available = bool(benchmark_metrics.get("benchmark_search_vector_index_available", 0))
+            vector_index_available = bool(
+                benchmark_metrics.get("benchmark_search_vector_index_available", 0)
+            )
             for key, value in benchmark_metrics.items():
                 if isinstance(value, (int, float)):
                     metrics[key] = value

@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import json
 import math
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 
@@ -14,6 +13,9 @@ from polisyos.datasets.knowledge.proxy_penalties import (
     resolve_proxy_penalty,
 )
 from polisyos.datasets.knowledge.types import DatasetMatch, PStarZResult
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 _TEMPORAL_VOLATILITY: dict[str, float] = {
     "institutional_quality": 0.02,
@@ -185,10 +187,12 @@ class DatasetRegistry:
                             conditional=True,
                             condition_on=requested_conditions,
                         )
-                        interpolated_value, interp_confidence, support_year, imputation_method = _interpolate_observation(
-                            series,
-                            target_year=year,
-                            max_lag=_max_temporal_lag(canonical_var),
+                        interpolated_value, interp_confidence, support_year, imputation_method = (
+                            _interpolate_observation(
+                                series,
+                                target_year=year,
+                                max_lag=_max_temporal_lag(canonical_var),
+                            )
                         )
                         if interpolated_value is None:
                             conditional_failure_reason = "conditional_filter_unavailable"
@@ -216,10 +220,12 @@ class DatasetRegistry:
                             conditional=False,
                             condition_on=None,
                         )
-                        interpolated_value, interp_confidence, support_year, imputation_method = _interpolate_observation(
-                            series,
-                            target_year=year,
-                            max_lag=_max_temporal_lag(canonical_var),
+                        interpolated_value, _interp_confidence, support_year, imputation_method = (
+                            _interpolate_observation(
+                                series,
+                                target_year=year,
+                                max_lag=_max_temporal_lag(canonical_var),
+                            )
                         )
                         if interpolated_value is None:
                             continue
@@ -246,7 +252,9 @@ class DatasetRegistry:
                     penalties["proxy"] = effective_proxy_penalty
                     uncertainty_sources.append("proxy_penalty")
                     weight *= max(0.0, 1.0 - effective_proxy_penalty)
-                temporal_penalty = _temporal_penalty(canonical_var, support_year_value or year, year)
+                temporal_penalty = _temporal_penalty(
+                    canonical_var, support_year_value or year, year
+                )
                 if temporal_penalty > 0:
                     penalties["temporal"] = temporal_penalty
                     uncertainty_sources.append("temporal_distance")
@@ -270,14 +278,19 @@ class DatasetRegistry:
                         "penalties": penalties,
                         "uncertainty_sources": sorted(set(uncertainty_sources)),
                         "support_year": support_year_value,
-                        "imputation_method": imputation_method if "imputation" in penalties else None,
+                        "imputation_method": imputation_method
+                        if "imputation" in penalties
+                        else None,
                         "imputation_penalty": imputation_penalty,
                     }
                 )
 
             if estimates:
                 total_weight = sum(float(item["weight"]) for item in estimates) or 1.0
-                weighted_mean = sum(float(item["value"]) * float(item["weight"]) for item in estimates) / total_weight
+                weighted_mean = (
+                    sum(float(item["value"]) * float(item["weight"]) for item in estimates)
+                    / total_weight
+                )
                 distribution = [float(item["value"]) for item in estimates]
                 direct_exact = [
                     item
@@ -287,7 +300,9 @@ class DatasetRegistry:
                     and float(item["penalties"].get("temporal", 0.0)) == 0.0
                     and float(item["penalties"].get("imputation", 0.0)) == 0.0
                     and item["match"].temporal_match in {"exact", "overlap", "wave_closest"}
-                    and (item.get("support_year") == year or item["match"].actual_survey_year == year)
+                    and (
+                        item.get("support_year") == year or item["match"].actual_survey_year == year
+                    )
                 ]
                 if direct_exact:
                     best_exact = max(direct_exact, key=lambda item: float(item["weight"]))
@@ -299,7 +314,11 @@ class DatasetRegistry:
                         dataset_id=best_match.dataset_id,
                         raw_variable=best_match.raw_variable,
                         is_proxy=bool(best_match.is_proxy),
-                        proxy_chain=([f"{best_match.raw_variable} -> {canonical_var}"] if best_match.is_proxy else []),
+                        proxy_chain=(
+                            [f"{best_match.raw_variable} -> {canonical_var}"]
+                            if best_match.is_proxy
+                            else []
+                        ),
                         confidence=float(best_exact["weight"]),
                         penalty_breakdown=dict(best_exact["penalties"]),
                         is_conditional=is_conditional,
@@ -312,33 +331,38 @@ class DatasetRegistry:
                         uncertainty_sources=list(best_exact["uncertainty_sources"]),
                         imputation_method=best_exact.get("imputation_method"),
                         imputation_penalty=float(best_exact.get("imputation_penalty", 0.0) or 0.0),
-                        data_support_year=int(best_exact.get("support_year")) if best_exact.get("support_year") is not None else None,
+                        data_support_year=int(best_exact.get("support_year"))
+                        if best_exact.get("support_year") is not None
+                        else None,
                         data_support_country=country_code,
                     )
                 max_weight_item = max(estimates, key=lambda item: float(item["weight"]))
                 if len(distribution) > 1:
-                    variance = sum(
-                        float(item["weight"]) * ((float(item["value"]) - weighted_mean) ** 2)
-                        for item in estimates
-                    ) / total_weight
+                    variance = (
+                        sum(
+                            float(item["weight"]) * ((float(item["value"]) - weighted_mean) ** 2)
+                            for item in estimates
+                        )
+                        / total_weight
+                    )
                     std_error = math.sqrt(max(variance, 0.0) / len(distribution))
                     distribution_type = "normal"
                 else:
-                    std_error = abs(weighted_mean) * max(0.05, 1.0 - float(max_weight_item["weight"])) * 0.5
+                    std_error = (
+                        abs(weighted_mean) * max(0.05, 1.0 - float(max_weight_item["weight"])) * 0.5
+                    )
                     distribution_type = "bounded"
                 ci_low = weighted_mean - 1.96 * std_error
                 ci_high = weighted_mean + 1.96 * std_error
                 merged_penalties: dict[str, float] = {}
                 uncertainty_sources = sorted(
-                    {
-                        source
-                        for item in estimates
-                        for source in item["uncertainty_sources"]
-                    }
+                    {source for item in estimates for source in item["uncertainty_sources"]}
                 )
                 for item in estimates:
                     for key, value in dict(item["penalties"]).items():
-                        merged_penalties[key] = max(float(value), float(merged_penalties.get(key, 0.0)))
+                        merged_penalties[key] = max(
+                            float(value), float(merged_penalties.get(key, 0.0))
+                        )
                 best_match = max_weight_item["match"]
                 return PStarZResult(
                     canonical_variable=canonical_var,
@@ -346,7 +370,11 @@ class DatasetRegistry:
                     dataset_id=best_match.dataset_id,
                     raw_variable=best_match.raw_variable,
                     is_proxy=bool(best_match.is_proxy),
-                    proxy_chain=([f"{best_match.raw_variable} -> {canonical_var}"] if best_match.is_proxy else []),
+                    proxy_chain=(
+                        [f"{best_match.raw_variable} -> {canonical_var}"]
+                        if best_match.is_proxy
+                        else []
+                    ),
                     confidence=float(max_weight_item["weight"]),
                     penalty_breakdown=merged_penalties,
                     is_conditional=is_conditional,
@@ -359,7 +387,9 @@ class DatasetRegistry:
                     uncertainty_sources=uncertainty_sources,
                     imputation_method=max_weight_item.get("imputation_method"),
                     imputation_penalty=float(max_weight_item.get("imputation_penalty", 0.0) or 0.0),
-                    data_support_year=int(max_weight_item.get("support_year")) if max_weight_item.get("support_year") is not None else None,
+                    data_support_year=int(max_weight_item.get("support_year"))
+                    if max_weight_item.get("support_year") is not None
+                    else None,
                     data_support_country=country_code,
                 )
 
@@ -672,7 +702,11 @@ def _interpolate_observation(
         left_year, left_value = before[-1]
         right_year, right_value = after[0]
         gap = right_year - left_year
-        if gap <= 0 or abs(target_year - left_year) > max_lag or abs(right_year - target_year) > max_lag:
+        if (
+            gap <= 0
+            or abs(target_year - left_year) > max_lag
+            or abs(right_year - target_year) > max_lag
+        ):
             return None, 0.0, None, None
         fraction = (target_year - left_year) / gap
         interpolated = left_value + fraction * (right_value - left_value)

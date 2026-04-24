@@ -10,6 +10,7 @@ Covers:
   P10-7  CounterfactualNode IR: to_latex, EstimandNode union, make_counterfactual_estimand
   P10-8  MissingDataCausalData protocol: valid, shape mismatch, variable_names mismatch
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -20,10 +21,10 @@ import pytest
 
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 
-
 # ---------------------------------------------------------------------------
 # Shared helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_engine() -> CausalEngine:
     return CausalEngine(registry=None, knowledge_base=None)
@@ -32,8 +33,12 @@ def _make_engine() -> CausalEngine:
 def _mock_mgraph_meta(recoverable: bool = True) -> MagicMock:
     """Build a minimal MGraph-like mock."""
     from polisyos.ir.analytics.causal_graph import (
-        CausalEdge, CausalGraphModel, EdgeMark, GraphType,
+        CausalEdge,
+        CausalGraphModel,
+        EdgeMark,
+        GraphType,
     )
+
     base_graph = CausalGraphModel(
         graph_type=GraphType.DAG,
         nodes=["X", "Y"],
@@ -48,6 +53,7 @@ def _mock_mgraph_meta(recoverable: bool = True) -> MagicMock:
 # ---------------------------------------------------------------------------
 # P10-1: identify_with_missing_data
 # ---------------------------------------------------------------------------
+
 
 class TestIdentifyWithMissingData:
     def setup_method(self) -> None:
@@ -66,6 +72,7 @@ class TestIdentifyWithMissingData:
 
         from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult
         from polisyos.ir.analytics.negative_certificate import NegativeCertificate
+
         assert isinstance(result, (IdentificationResult, NegativeCertificate))
 
     def test_non_recoverable_returns_negative_cert(self) -> None:
@@ -84,7 +91,8 @@ class TestIdentifyWithMissingData:
         ):
             result = self.engine.identify_with_missing_data("X", "Y", meta)
 
-        from polisyos.ir.analytics.negative_certificate import NegativeCertificate, BlockingType
+        from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
+
         assert isinstance(result, NegativeCertificate)
         assert result.blocking_type == BlockingType.MISSINGNESS_NOT_RECOVERABLE
         assert result.quantitative_diagnostics["recoverability"]["status"] == "not_recoverable"
@@ -103,7 +111,8 @@ class TestIdentifyWithMissingData:
         ):
             result = self.engine.identify_with_missing_data("X", "Y", meta)
 
-        from polisyos.ir.analytics.negative_certificate import NegativeCertificate, BlockingType
+        from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
+
         assert isinstance(result, NegativeCertificate)
         assert result.blocking_type == BlockingType.MISSING_DISTRIBUTION
 
@@ -117,6 +126,7 @@ class TestIdentifyWithMissingData:
             # Should still produce some result (IdentificationResult or NegativeCertificate)
             from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult
             from polisyos.ir.analytics.negative_certificate import NegativeCertificate
+
             result = self.engine.identify_with_missing_data("X", "Y", meta)
             assert isinstance(result, (IdentificationResult, NegativeCertificate))
 
@@ -124,6 +134,7 @@ class TestIdentifyWithMissingData:
 # ---------------------------------------------------------------------------
 # P10-2: mediation_analysis
 # ---------------------------------------------------------------------------
+
 
 class TestMediationAnalysis:
     def setup_method(self) -> None:
@@ -145,6 +156,7 @@ class TestMediationAnalysis:
 
     def test_linear_method_returns_result(self) -> None:
         from polisyos.foundry.methods.catalog.causal.mediation import NaturalEffectEstimator
+
         data = self._make_mediation_data()
         mock_result = {"result": {"acme": 0.2, "ade": 0.15, "total_effect": 0.35}}
         with patch.object(NaturalEffectEstimator, "pure_step", return_value=mock_result):
@@ -154,7 +166,10 @@ class TestMediationAnalysis:
         assert result is not None
 
     def test_cde_method_returns_result(self) -> None:
-        from polisyos.foundry.methods.catalog.causal.mediation import ControlledDirectEffectEstimator
+        from polisyos.foundry.methods.catalog.causal.mediation import (
+            ControlledDirectEffectEstimator,
+        )
+
         data = self._make_mediation_data()
         mock_result = {"result": {"cde": 0.25, "n_obs": 200}}
         with patch.object(ControlledDirectEffectEstimator, "pure_step", return_value=mock_result):
@@ -171,12 +186,13 @@ class TestMediationAnalysis:
             )
 
     def test_dispatches_correct_estimator_for_semiparametric(self) -> None:
-        from polisyos.foundry.methods.catalog.causal.path_specific import PathSpecificEffectEstimator
+        from polisyos.foundry.methods.catalog.causal.path_specific import (
+            PathSpecificEffectEstimator,
+        )
+
         data = self._make_mediation_data()
         mock_result = {"mediation_result": {"nde": 0.3, "nie": 0.1, "total_effect": 0.4}}
-        with patch.object(
-            PathSpecificEffectEstimator, "pure_step", return_value=mock_result
-        ):
+        with patch.object(PathSpecificEffectEstimator, "pure_step", return_value=mock_result):
             result = self.engine.mediation_analysis(
                 data, treatment="T", outcome="Y", mediators=["M"], method="semiparametric"
             )
@@ -184,11 +200,10 @@ class TestMediationAnalysis:
 
     def test_dispatches_correct_estimator_for_linear(self) -> None:
         from polisyos.foundry.methods.catalog.causal.mediation import NaturalEffectEstimator
+
         data = self._make_mediation_data()
         mock_result = {"result": {"acme": 0.2, "ade": 0.15, "total_effect": 0.35}}
-        with patch.object(
-            NaturalEffectEstimator, "pure_step", return_value=mock_result
-        ):
+        with patch.object(NaturalEffectEstimator, "pure_step", return_value=mock_result):
             result = self.engine.mediation_analysis(
                 data, treatment="T", outcome="Y", mediators=["M"], method="linear"
             )
@@ -199,12 +214,14 @@ class TestMediationAnalysis:
 # P10-3: interference_effect
 # ---------------------------------------------------------------------------
 
+
 class TestInterferenceEffect:
     def setup_method(self) -> None:
         self.engine = _make_engine()
 
     def _make_network_data(self) -> Any:
         from polisyos.foundry.methods.catalog.causal.protocols import NetworkCausalData
+
         rng = np.random.default_rng(1)
         n = 100
         return NetworkCausalData(
@@ -215,7 +232,10 @@ class TestInterferenceEffect:
         )
 
     def test_partial_method_dispatches(self) -> None:
-        from polisyos.foundry.methods.catalog.causal.interference import PartialInterferenceEstimator
+        from polisyos.foundry.methods.catalog.causal.interference import (
+            PartialInterferenceEstimator,
+        )
+
         data = self._make_network_data()
         mock_result = {"result": MagicMock()}
         with patch.object(PartialInterferenceEstimator, "pure_step", return_value=mock_result):
@@ -224,6 +244,7 @@ class TestInterferenceEffect:
 
     def test_network_aipw_method_dispatches(self) -> None:
         from polisyos.foundry.methods.catalog.causal.interference import NetworkAIPWEstimator
+
         data = self._make_network_data()
         mock_result = {"result": MagicMock()}
         with patch.object(NetworkAIPWEstimator, "pure_step", return_value=mock_result):
@@ -231,7 +252,10 @@ class TestInterferenceEffect:
         assert result is not None
 
     def test_spatial_method_dispatches(self) -> None:
-        from polisyos.foundry.methods.catalog.causal.interference import SpatialInterferenceEstimator
+        from polisyos.foundry.methods.catalog.causal.interference import (
+            SpatialInterferenceEstimator,
+        )
+
         data = self._make_network_data()
         mock_result = {"result": MagicMock()}
         with patch.object(SpatialInterferenceEstimator, "pure_step", return_value=mock_result):
@@ -239,7 +263,10 @@ class TestInterferenceEffect:
         assert result is not None
 
     def test_bipartite_method_dispatches(self) -> None:
-        from polisyos.foundry.methods.catalog.causal.interference import BipartiteInterferenceEstimator
+        from polisyos.foundry.methods.catalog.causal.interference import (
+            BipartiteInterferenceEstimator,
+        )
+
         data = self._make_network_data()
         mock_result = {"result": MagicMock()}
         with patch.object(BipartiteInterferenceEstimator, "pure_step", return_value=mock_result):
@@ -256,6 +283,7 @@ class TestInterferenceEffect:
 # P10-4: counterfactual_query
 # ---------------------------------------------------------------------------
 
+
 class TestCounterfactualQuery:
     def setup_method(self) -> None:
         self.engine = _make_engine()
@@ -263,12 +291,17 @@ class TestCounterfactualQuery:
     def _make_ncm_query_data(self) -> Any:
         """Build a minimal NCMQueryData using the correct NCMSpec field names."""
         from polisyos.foundry.methods.catalog.causal.protocols import NCMQueryData
-        from polisyos.ir.analytics.ncm import NCMSpec, StructuralEquation, ExogenousSpec
+        from polisyos.ir.analytics.ncm import ExogenousSpec, NCMSpec, StructuralEquation
+
         ncm = NCMSpec(
             endogenous_vars=["T", "Y"],
             structural_equations=[
-                StructuralEquation(variable="T", parents=[], exogenous="U_T", equation_type="linear"),
-                StructuralEquation(variable="Y", parents=["T"], exogenous="U_Y", equation_type="linear"),
+                StructuralEquation(
+                    variable="T", parents=[], exogenous="U_T", equation_type="linear"
+                ),
+                StructuralEquation(
+                    variable="Y", parents=["T"], exogenous="U_Y", equation_type="linear"
+                ),
             ],
             exogenous_specs=[
                 ExogenousSpec(variable="U_T", associated_endogenous="T"),
@@ -284,56 +317,76 @@ class TestCounterfactualQuery:
 
     def test_pn_query_dispatches_to_actual_causality(self) -> None:
         from polisyos.foundry.methods.catalog.causal.actual_causality import ActualCausalityEngine
+
         ncm_data = self._make_ncm_query_data()
         mock_result = {"pn_result": {"point_estimate": 0.8, "lower": 0.6, "upper": 1.0}}
         with patch.object(ActualCausalityEngine, "pure_step", return_value=mock_result):
             result = self.engine.counterfactual_query(
-                ncm_data, query="pn", evidence={"T": 1, "Y": 1},
-                treatment="T", outcome="Y",
+                ncm_data,
+                query="pn",
+                evidence={"T": 1, "Y": 1},
+                treatment="T",
+                outcome="Y",
             )
         assert "pn_result" in result
 
     def test_ps_query_dispatches_to_actual_causality(self) -> None:
         from polisyos.foundry.methods.catalog.causal.actual_causality import ActualCausalityEngine
+
         ncm_data = self._make_ncm_query_data()
         mock_result = {"ps_result": {"point_estimate": 0.7}}
         with patch.object(ActualCausalityEngine, "pure_step", return_value=mock_result):
             result = self.engine.counterfactual_query(
-                ncm_data, query="ps", evidence={"T": 0, "Y": 0},
-                treatment="T", outcome="Y",
+                ncm_data,
+                query="ps",
+                evidence={"T": 0, "Y": 0},
+                treatment="T",
+                outcome="Y",
             )
         assert "ps_result" in result
 
     def test_pns_query_dispatches_to_actual_causality(self) -> None:
         from polisyos.foundry.methods.catalog.causal.actual_causality import ActualCausalityEngine
+
         ncm_data = self._make_ncm_query_data()
         mock_result = {"pns_result": {"point_estimate": 0.65}}
         with patch.object(ActualCausalityEngine, "pure_step", return_value=mock_result):
             result = self.engine.counterfactual_query(
-                ncm_data, query="pns", evidence={},
-                treatment="T", outcome="Y",
+                ncm_data,
+                query="pns",
+                evidence={},
+                treatment="T",
+                outcome="Y",
             )
         assert "pns_result" in result
 
     def test_all_query_dispatches_to_actual_causality(self) -> None:
         from polisyos.foundry.methods.catalog.causal.actual_causality import ActualCausalityEngine
+
         ncm_data = self._make_ncm_query_data()
         mock_result = {"pn_result": {}, "ps_result": {}, "pns_result": {}}
         with patch.object(ActualCausalityEngine, "pure_step", return_value=mock_result):
             result = self.engine.counterfactual_query(
-                ncm_data, query="all", evidence={},
-                treatment="T", outcome="Y",
+                ncm_data,
+                query="all",
+                evidence={},
+                treatment="T",
+                outcome="Y",
             )
         assert result is not None
 
     def test_abduction_query_dispatches_to_ncm_engine(self) -> None:
         from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+
         ncm_data = self._make_ncm_query_data()
         mock_result = {"counterfactual_result": {"world_summaries": [], "n_worlds": 0}}
         with patch.object(NCMEngineMethod, "pure_step", return_value=mock_result):
             result = self.engine.counterfactual_query(
-                ncm_data, query="abduction", evidence={"T": 1},
-                treatment="T", outcome="Y",
+                ncm_data,
+                query="abduction",
+                evidence={"T": 1},
+                treatment="T",
+                outcome="Y",
             )
         assert result is not None
 
@@ -341,7 +394,9 @@ class TestCounterfactualQuery:
         ncm_data = self._make_ncm_query_data()
         with pytest.raises(ValueError, match="Unknown counterfactual query"):
             self.engine.counterfactual_query(
-                ncm_data, query="invalid_query", evidence={},
+                ncm_data,
+                query="invalid_query",
+                evidence={},
             )
 
 
@@ -349,12 +404,14 @@ class TestCounterfactualQuery:
 # P10-5: fairness_audit
 # ---------------------------------------------------------------------------
 
+
 class TestFairnessAudit:
     def setup_method(self) -> None:
         self.engine = _make_engine()
 
     def _make_fairness_data(self) -> Any:
         from polisyos.foundry.methods.catalog.causal.protocols import FairnessObservationalData
+
         rng = np.random.default_rng(2)
         n = 200
         return FairnessObservationalData(
@@ -366,6 +423,7 @@ class TestFairnessAudit:
 
     def test_tv_decomposition_dispatches(self) -> None:
         from polisyos.foundry.methods.catalog.causal.fairness import TVFairnessDecomposer
+
         data = self._make_fairness_data()
         mock_result = {"fairness_report": MagicMock()}
         with patch.object(TVFairnessDecomposer, "pure_step", return_value=mock_result):
@@ -374,6 +432,7 @@ class TestFairnessAudit:
 
     def test_path_specific_dispatches(self) -> None:
         from polisyos.foundry.methods.catalog.causal.fairness import PathSpecificFairnessEstimator
+
         data = self._make_fairness_data()
         mock_result = {"fairness_report": MagicMock()}
         with patch.object(PathSpecificFairnessEstimator, "pure_step", return_value=mock_result):
@@ -382,6 +441,7 @@ class TestFairnessAudit:
 
     def test_counterfactual_dispatches(self) -> None:
         from polisyos.foundry.methods.catalog.causal.fairness import CounterfactualFairnessEstimator
+
         data = self._make_fairness_data()
         mock_result = {"fairness_report": MagicMock()}
         with patch.object(CounterfactualFairnessEstimator, "pure_step", return_value=mock_result):
@@ -398,6 +458,7 @@ class TestFairnessAudit:
 # P10-6: data_fusion
 # ---------------------------------------------------------------------------
 
+
 class TestDataFusion:
     def setup_method(self) -> None:
         self.engine = _make_engine()
@@ -405,16 +466,28 @@ class TestDataFusion:
     def _make_fusion_data(self) -> Any:
         from polisyos.foundry.methods.catalog.causal.protocols import MultiStudyFusionData
         from polisyos.ir.analytics.causal_graph import (
-            CausalEdge, CausalGraphModel, EdgeMark, GraphType,
+            CausalEdge,
+            CausalGraphModel,
+            EdgeMark,
+            GraphType,
         )
+
         graph = CausalGraphModel(
             graph_type=GraphType.DAG,
             nodes=["X", "Y"],
             edges=[CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)],
         )
         return MultiStudyFusionData(
-            datasets=[{"dataset_ref": "obs", "domain_id": "source", "n_obs": 500,
-                        "available_interventions": [], "selection_bias_vars": [], "quality_score": 0.9}],
+            datasets=[
+                {
+                    "dataset_ref": "obs",
+                    "domain_id": "source",
+                    "n_obs": 500,
+                    "available_interventions": [],
+                    "selection_bias_vars": [],
+                    "quality_score": 0.9,
+                }
+            ],
             graph=graph,
             treatment="X",
             outcome="Y",
@@ -422,6 +495,7 @@ class TestDataFusion:
 
     def test_dispatches_to_data_fusion_engine(self) -> None:
         from polisyos.foundry.methods.catalog.causal.data_fusion import DataFusionEngine
+
         data = self._make_fusion_data()
         mock_result = {"fusion_result": {"estimand_ast": None, "notes": "ok"}}
         with patch.object(DataFusionEngine, "pure_step", return_value=mock_result):
@@ -430,6 +504,7 @@ class TestDataFusion:
 
     def test_different_modes_pass_mode_param(self) -> None:
         from polisyos.foundry.methods.catalog.causal.data_fusion import DataFusionEngine
+
         data = self._make_fusion_data()
         captured_params: list[dict] = []
 
@@ -447,9 +522,11 @@ class TestDataFusion:
 # P10-7: CounterfactualNode IR
 # ---------------------------------------------------------------------------
 
+
 class TestCounterfactualNode:
     def test_to_latex_simple(self) -> None:
-        from polisyos.ir.analytics.estimand import CounterfactualNode, DistributionDomain
+        from polisyos.ir.analytics.estimand import CounterfactualNode
+
         node = CounterfactualNode(variable="Y", intervention={"X": 1})
         latex = node.to_latex()
         assert "Y" in latex
@@ -457,17 +534,18 @@ class TestCounterfactualNode:
 
     def test_to_latex_with_conditioning(self) -> None:
         from polisyos.ir.analytics.estimand import CounterfactualNode
-        node = CounterfactualNode(
-            variable="Y", intervention={"X": 1}, conditioning=("Z", "W")
-        )
+
+        node = CounterfactualNode(variable="Y", intervention={"X": 1}, conditioning=("Z", "W"))
         latex = node.to_latex()
         assert "Z" in latex
         assert "W" in latex
 
     def test_node_participates_in_estimand_union(self) -> None:
         from polisyos.ir.analytics.estimand import (
-            CounterfactualNode, EstimandAST, DistributionDomain,
+            CounterfactualNode,
+            EstimandAST,
         )
+
         node = CounterfactualNode(variable="Y", intervention={"X": 1})
         ast = EstimandAST(
             query_str="P(Y_{X=1})",
@@ -481,11 +559,11 @@ class TestCounterfactualNode:
 
     def test_make_counterfactual_estimand_factory(self) -> None:
         from polisyos.ir.analytics.estimand import (
-            make_counterfactual_estimand, CounterfactualNode,
+            CounterfactualNode,
+            make_counterfactual_estimand,
         )
-        ast = make_counterfactual_estimand(
-            variable="Y", intervention={"X": 1}, conditioning=("Z",)
-        )
+
+        ast = make_counterfactual_estimand(variable="Y", intervention={"X": 1}, conditioning=("Z",))
         assert isinstance(ast.root, CounterfactualNode)
         assert ast.treatment == "X"
         assert ast.outcome == "Y"
@@ -495,40 +573,54 @@ class TestCounterfactualNode:
 
     def test_collect_domains_with_counterfactual(self) -> None:
         from polisyos.ir.analytics.estimand import (
-            CounterfactualNode, DistributionDomain, EstimandAST,
+            CounterfactualNode,
+            DistributionDomain,
+            EstimandAST,
         )
+
         node = CounterfactualNode(
             variable="Y", intervention={"X": 1}, domain=DistributionDomain.TARGET
         )
         ast = EstimandAST(
-            query_str="test", root=node,
-            treatment="X", outcome="Y", all_variables=("Y", "X"),
+            query_str="test",
+            root=node,
+            treatment="X",
+            outcome="Y",
+            all_variables=("Y", "X"),
         )
         domains = ast.required_domains()
         assert DistributionDomain.TARGET in domains
 
     def test_required_datasets_with_counterfactual(self) -> None:
         from polisyos.ir.analytics.estimand import (
-            CounterfactualNode, EstimandAST,
+            CounterfactualNode,
+            EstimandAST,
         )
-        node = CounterfactualNode(
-            variable="Y", intervention={"X": 1}, dataset_ref="my_dataset"
-        )
+
+        node = CounterfactualNode(variable="Y", intervention={"X": 1}, dataset_ref="my_dataset")
         ast = EstimandAST(
-            query_str="test", root=node,
-            treatment="X", outcome="Y", all_variables=("Y", "X"),
+            query_str="test",
+            root=node,
+            treatment="X",
+            outcome="Y",
+            all_variables=("Y", "X"),
         )
         refs = ast.required_datasets()
         assert "my_dataset" in refs
 
     def test_collect_dist_refs_counterfactual_is_leaf(self) -> None:
         from polisyos.ir.analytics.estimand import (
-            CounterfactualNode, EstimandAST,
+            CounterfactualNode,
+            EstimandAST,
         )
+
         node = CounterfactualNode(variable="Y", intervention={"X": 1})
         ast = EstimandAST(
-            query_str="test", root=node,
-            treatment="X", outcome="Y", all_variables=("Y", "X"),
+            query_str="test",
+            root=node,
+            treatment="X",
+            outcome="Y",
+            all_variables=("Y", "X"),
         )
         # Leaf node — no DistributionRef children
         refs = ast.collect_distribution_refs()
@@ -536,11 +628,13 @@ class TestCounterfactualNode:
 
     def test_counterfactual_node_world_index(self) -> None:
         from polisyos.ir.analytics.estimand import CounterfactualNode
+
         node = CounterfactualNode(variable="Y", intervention={"X": 0}, world_index=1)
         assert node.world_index == 1
 
     def test_counterfactual_node_frozen(self) -> None:
         from polisyos.ir.analytics.estimand import CounterfactualNode
+
         node = CounterfactualNode(variable="Y", intervention={"X": 1})
         with pytest.raises(Exception):  # frozen=True
             node.variable = "Z"  # type: ignore[misc]
@@ -550,9 +644,11 @@ class TestCounterfactualNode:
 # P10-8: MissingDataCausalData protocol
 # ---------------------------------------------------------------------------
 
+
 class TestMissingDataCausalData:
     def test_valid_construction(self) -> None:
         from polisyos.foundry.methods.catalog.causal.protocols import MissingDataCausalData
+
         n, p = 100, 3
         data = MissingDataCausalData(
             observed_data=np.random.randn(n, p),
@@ -566,6 +662,7 @@ class TestMissingDataCausalData:
 
     def test_nan_values_accepted(self) -> None:
         from polisyos.foundry.methods.catalog.causal.protocols import MissingDataCausalData
+
         n, p = 50, 2
         obs = np.random.randn(n, p)
         obs[5, 0] = np.nan  # missing value
@@ -579,8 +676,10 @@ class TestMissingDataCausalData:
         assert np.isnan(data.observed_data[5, 0])
 
     def test_shape_mismatch_raises_validation_error(self) -> None:
-        from polisyos.foundry.methods.catalog.causal.protocols import MissingDataCausalData
         from pydantic import ValidationError
+
+        from polisyos.foundry.methods.catalog.causal.protocols import MissingDataCausalData
+
         with pytest.raises((ValidationError, ValueError)):
             MissingDataCausalData(
                 observed_data=np.random.randn(50, 3),
@@ -591,8 +690,10 @@ class TestMissingDataCausalData:
             )
 
     def test_variable_names_mismatch_raises_validation_error(self) -> None:
-        from polisyos.foundry.methods.catalog.causal.protocols import MissingDataCausalData
         from pydantic import ValidationError
+
+        from polisyos.foundry.methods.catalog.causal.protocols import MissingDataCausalData
+
         with pytest.raises((ValidationError, ValueError)):
             MissingDataCausalData(
                 observed_data=np.random.randn(50, 3),
@@ -604,8 +705,10 @@ class TestMissingDataCausalData:
 
     def test_contract_id_class_var(self) -> None:
         from polisyos.foundry.methods.catalog.causal.protocols import MissingDataCausalData
+
         assert "missing_data_causal_data" in MissingDataCausalData.contract_id
 
     def test_in_protocols_all(self) -> None:
         from polisyos.foundry.methods.catalog.causal import protocols
+
         assert "MissingDataCausalData" in protocols.__all__

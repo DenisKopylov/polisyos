@@ -75,18 +75,14 @@ class TestAlignmentCertificationPolicy:
         assert result.effective_confidence == 0.0
 
     def test_harmonic_composition(self) -> None:
-        policy = AlignmentCertificationPolicy(
-            composition_rule="harmonic", tau_min=0.55
-        )
+        policy = AlignmentCertificationPolicy(composition_rule="harmonic", tau_min=0.55)
         chain = [_cert(confidence=0.8), _cert(confidence=0.6)]
         result = policy.validate_chain(chain)
         expected = 2 * 0.8 * 0.6 / (0.8 + 0.6)
         assert result.effective_confidence == pytest.approx(expected, abs=0.01)
 
     def test_multiplicative_composition(self) -> None:
-        policy = AlignmentCertificationPolicy(
-            composition_rule="multiplicative", tau_min=0.55
-        )
+        policy = AlignmentCertificationPolicy(composition_rule="multiplicative", tau_min=0.55)
         chain = [_cert(confidence=0.8), _cert(confidence=0.7)]
         result = policy.validate_chain(chain)
         assert result.effective_confidence == pytest.approx(0.56, abs=0.01)

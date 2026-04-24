@@ -10,12 +10,10 @@ from pydantic import Field, model_validator
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, fingerprint, from_canonical_bytes
-from polisyos.ir.governance.policy_spec import PolicySpec
-from polisyos.ir.governance.problem_frame import KPISpec, ObjectiveSpec, ProblemFrame
+from polisyos.ir.governance.problem_frame import KPISpec, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec, schedule_range
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 from polisyos.ir.kernel.values import MoneyValue, ParamValue
-from polisyos.ir.model_spec import AssumptionSpec, ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.constraint_context import extract_budget_envelope
 
@@ -65,7 +63,7 @@ class BudgetAllocationEntry(KernelModel):
     notes: list[str] = Field(default_factory=list, max_length=10)
 
     @model_validator(mode="after")
-    def _validate_non_negative(self) -> "BudgetAllocationEntry":
+    def _validate_non_negative(self) -> BudgetAllocationEntry:
         if self.amount.amount < Decimal("0"):
             raise ValueError("budget allocation amount must be non-negative")
         return self
@@ -139,7 +137,7 @@ class PolicyCandidateSchema(KernelModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_policy_candidate(self) -> "PolicyCandidateSchema":
+    def _validate_policy_candidate(self) -> PolicyCandidateSchema:
         bundle = self.trinity_bundle
         policy_spec = bundle.policy_spec
         problem_frame = bundle.problem_frame
@@ -158,9 +156,7 @@ class PolicyCandidateSchema(KernelModel):
         parameter_map = {parameter.param_id: parameter for parameter in policy_spec.parameters}
         constraint_ids = {
             constraint.constraint_id for constraint in problem_frame.hard_constraints
-        } | {
-            constraint.constraint_id for constraint in problem_frame.soft_constraints
-        }
+        } | {constraint.constraint_id for constraint in problem_frame.soft_constraints}
         metric_ids = _known_metric_ids(problem_frame)
 
         for step in self.rollout_plan:
@@ -263,10 +259,7 @@ class PolicyCandidateSchema(KernelModel):
                     )
 
         for variant in self.fallback_variants:
-            if (
-                variant.trinity_bundle.problem_frame.problem_id
-                != bundle.problem_frame.problem_id
-            ):
+            if variant.trinity_bundle.problem_frame.problem_id != bundle.problem_frame.problem_id:
                 raise ValueError(
                     f"fallback variant '{variant.variant_id}' changes ProblemFrame identity"
                 )
@@ -284,7 +277,11 @@ class PolicyCandidateSchema(KernelModel):
             intervention = intervention_map[step.intervention_id]
             effective_schedule = step.schedule or intervention.schedule
             start_step, _ = schedule_range(effective_schedule)
-            if previous_order is not None and step.order == previous_order and previous_start is None:
+            if (
+                previous_order is not None
+                and step.order == previous_order
+                and previous_start is None
+            ):
                 previous_start = start_step
             if previous_start is not None and start_step < previous_start:
                 raise ValueError(
@@ -300,7 +297,7 @@ class PolicyCandidateSchema(KernelModel):
         *,
         candidate_id: str | None = None,
         metadata: dict[str, Any] | None = None,
-    ) -> "PolicyCandidateSchema":
+    ) -> PolicyCandidateSchema:
         rollout_plan = [
             RolloutStep(
                 step_id=f"rollout_{index + 1}",
@@ -401,12 +398,12 @@ def _validate_unique_ids(items: list[Any], attr: str) -> None:
 
 
 __all__ = [
+    "POLICY_CANDIDATE_SCHEMA_NAME",
+    "POLICY_CANDIDATE_SCHEMA_VERSION",
     "BudgetAllocationEntry",
     "FallbackVariant",
     "HarmEnvelope",
     "MonitoringSignalSpec",
-    "POLICY_CANDIDATE_SCHEMA_NAME",
-    "POLICY_CANDIDATE_SCHEMA_VERSION",
     "ParameterScheduleEntry",
     "PolicyAssumptionSpec",
     "PolicyCandidateSchema",

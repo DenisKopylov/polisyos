@@ -5,9 +5,11 @@ Fabric/UDF sources, resample raw target series onto a shared time axis, and
 derive per-target normalization scales. They do not mutate synthetic runtime
 state and they do not execute mechanisms.
 """
+
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping, Tuple
+from collections.abc import Mapping
+from typing import Any
 
 import jax.numpy as jnp
 import numpy as np
@@ -49,7 +51,9 @@ def _align_by_length(values: np.ndarray, steps: int, fill_value: float | None) -
         return values
     if values.shape[0] > steps:
         return values[:steps]
-    pad_value = fill_value if fill_value is not None else float(values[-1]) if values.size > 0 else 0.0
+    pad_value = (
+        fill_value if fill_value is not None else float(values[-1]) if values.size > 0 else 0.0
+    )
     pad_len = steps - values.shape[0]
     padding = np.full((pad_len,), pad_value, dtype=values.dtype)
     return np.concatenate([values, padding], axis=0)
@@ -122,7 +126,7 @@ def fetch_targets(
     *,
     udf_engine: Any | None = None,
     fetcher: Any | None = None,
-) -> Dict[str, object]:
+) -> dict[str, object]:
     """Fetch raw observed target series through a custom fetcher or UDF engine.
 
     Args:
@@ -140,7 +144,7 @@ def fetch_targets(
     """
     if udf_engine is None and fetcher is None:
         raise ValueError("fetch_targets requires udf_engine or fetcher")
-    raw_targets: Dict[str, object] = {}
+    raw_targets: dict[str, object] = {}
     for target in config.targets:
         if target.fabric_query is None:
             continue
@@ -153,7 +157,9 @@ def fetch_targets(
     return raw_targets
 
 
-def extract_fabric_series(result: Any, target: CalibrationTarget, request: DataViewRequest) -> object:
+def extract_fabric_series(
+    result: Any, target: CalibrationTarget, request: DataViewRequest
+) -> object:
     """Extract a calibration series from dict/tuple/table-shaped query results.
 
     Raises:
@@ -194,7 +200,7 @@ def prepare_targets(
     steps: int,
     time_axis: list[float] | None = None,
     default_eps: float = 1e-8,
-) -> Tuple[Dict[str, jnp.ndarray], Dict[str, float], Dict[str, list[float]]]:
+) -> tuple[dict[str, jnp.ndarray], dict[str, float], dict[str, list[float]]]:
     """Resample raw observed targets into JAX arrays and compute normalization scales.
 
     Args:
@@ -214,11 +220,11 @@ def prepare_targets(
         ValueError: If a target-specific `align.steps` conflicts with the
             explicit `time_axis` length.
     """
-    aligned: Dict[str, jnp.ndarray] = {}
-    scales: Dict[str, float] = {}
-    time_axes: Dict[str, list[float]] = {}
+    aligned: dict[str, jnp.ndarray] = {}
+    scales: dict[str, float] = {}
+    time_axes: dict[str, list[float]] = {}
 
-    targets_by_id: Dict[str, CalibrationTarget] = {t.target_id: t for t in config.targets}
+    targets_by_id: dict[str, CalibrationTarget] = {t.target_id: t for t in config.targets}
     for target_id, raw in raw_targets.items():
         target_cfg = targets_by_id.get(target_id)
         if target_cfg is None:
@@ -226,7 +232,9 @@ def prepare_targets(
         values, time = _normalize_raw_target(raw)
         if time_axis is not None:
             if target_cfg.align.steps is not None and target_cfg.align.steps != len(time_axis):
-                raise ValueError(f"Target '{target_id}' align.steps conflicts with config.time_axis")
+                raise ValueError(
+                    f"Target '{target_id}' align.steps conflicts with config.time_axis"
+                )
             target_steps = len(time_axis)
             target_time_axis = np.asarray(time_axis, dtype=float)
             report_time_axis = target_time_axis

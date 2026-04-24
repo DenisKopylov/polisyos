@@ -1,8 +1,10 @@
 """Load canonical Trinity bundles from dict, JSON, YAML, or bytes payloads."""
+
 from __future__ import annotations
 
 import json
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 from pydantic import ValidationError
 
@@ -11,6 +13,7 @@ from polisyos.ir.trinity import TrinityBundle
 
 class PolicyLoadError(ValueError):
     """Raise when a payload cannot be parsed or validated as a Trinity bundle."""
+
     pass
 
 

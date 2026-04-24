@@ -1,0 +1,77 @@
+name: Repository Hygiene
+
+on:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * *"
+
+jobs:
+  hygiene-fast:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: policy-engine
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: open-policy-agent/setup-opa@v2
+        with:
+          version: latest
+      - run: pip install uv
+      - run: uv sync --frozen --extra lint --extra docs --extra runtime --extra ml
+      - name: Install frontend dependencies
+        run: |
+          for workspace in \
+            frontend/runtime-dashboard \
+            frontend/runtime-api-client \
+            frontend/runtime-reference-shell
+          do
+            npm ci --prefix "$workspace"
+          done
+      - run: uv run polisyos-tools workspace docs-style
+      - run: uv run polisyos-tools workspace format-check
+      - run: uv run polisyos-tools workspace lint-fast
+
+  hygiene-full:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: policy-engine
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: azure/setup-helm@v4
+      - uses: open-policy-agent/setup-opa@v2
+        with:
+          version: latest
+      - run: pip install uv
+      - run: >
+          uv sync --frozen --extra lint --extra docs --extra test --extra runtime
+          --extra ml --extra research
+      - name: Install frontend dependencies
+        run: |
+          for workspace in \
+            frontend/runtime-dashboard \
+            frontend/runtime-api-client \
+            frontend/runtime-reference-shell
+          do
+            npm ci --prefix "$workspace"
+          done
+      - run: uv run polisyos-tools workspace lint-full

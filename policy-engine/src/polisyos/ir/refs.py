@@ -64,6 +64,34 @@ class ForecastingUncertaintyBundleRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class GEUncertaintyBundleRef(ArtifactRefModel):
+    """Stable handle for persisted general-equilibrium uncertainty summaries."""
+
+    kind: Literal["ir.ge_uncertainty_bundle"] = "ir.ge_uncertainty_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class WelfareBundleRef(ArtifactRefModel):
+    """Stable handle for persisted welfare aggregation summaries."""
+
+    kind: Literal["ir.welfare_bundle"] = "ir.welfare_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class SocialWeightManifestRef(ArtifactRefModel):
+    """Stable handle for persisted state-dependent social-weight manifests."""
+
+    kind: Literal["ir.social_weight_manifest"] = "ir.social_weight_manifest"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class WelfareSampleBundleRef(ArtifactRefModel):
+    """Stable handle for persisted welfare draws or extrema samples."""
+
+    kind: Literal["ir.welfare_sample_bundle"] = "ir.welfare_sample_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class EstimandASTRef(ArtifactRefModel):
     """Stable handle for a persisted normalized estimand AST."""
 
@@ -138,6 +166,13 @@ class SurveyQualityCertificateRef(ArtifactRefModel):
     """Stable handle for persisted survey-quality certificates."""
 
     kind: Literal["ir.survey_quality_certificate"] = "ir.survey_quality_certificate"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class MetricValidationReportRef(ArtifactRefModel):
+    """Stable handle for persisted metric-validation reports."""
+
+    kind: Literal["scientist.metric_validation_report"] = "scientist.metric_validation_report"
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -503,10 +538,26 @@ class DistributionalReportRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class ChannelDecompositionArtifactRef(ArtifactRefModel):
+    """Stable handle for persisted joint behavioral-fiscal channel decompositions."""
+
+    kind: Literal["ir.channel_decomposition_artifact"] = "ir.channel_decomposition_artifact"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class DistributionalEffectBundleRef(ArtifactRefModel):
     """Stable handle for persisted subgroup-effect bundles that feed distributional reporting."""
 
     kind: Literal["ir.distributional_effect_bundle"] = "ir.distributional_effect_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class EndogenousGroupInequalityDecompositionRef(ArtifactRefModel):
+    """Stable handle for persisted endogenous-group inequality decompositions."""
+
+    kind: Literal["ir.endogenous_group_inequality_decomposition"] = (
+        "ir.endogenous_group_inequality_decomposition"
+    )
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -570,6 +621,43 @@ class MeanFieldEquilibriumCertificateRef(ArtifactRefModel):
     """Stable handle for persisted mean-field equilibrium certificates."""
 
     kind: Literal["ir.mean_field_equilibrium_certificate"] = "ir.mean_field_equilibrium_certificate"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class MechanismFamilySpecRef(ArtifactRefModel):
+    """Stable handle for persisted mechanism-family specifications."""
+
+    kind: Literal["ir.mechanism_family_spec"] = "ir.mechanism_family_spec"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class IncentiveCompatibilityCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted incentive-compatibility certificates."""
+
+    kind: Literal["ir.incentive_compatibility_certificate"] = (
+        "ir.incentive_compatibility_certificate"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class MechanismWelfareLossBoundRef(ArtifactRefModel):
+    """Stable handle for persisted mechanism welfare-loss bounds."""
+
+    kind: Literal["ir.mechanism_welfare_loss_bound"] = "ir.mechanism_welfare_loss_bound"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class OptimizationAmbiguityCertificateRef(ArtifactRefModel):
+    """Stable handle for persisted optimization ambiguity certificates."""
+
+    kind: Literal["ir.optimization_ambiguity_certificate"] = "ir.optimization_ambiguity_certificate"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class FiscalFeedbackLinkRef(ArtifactRefModel):
+    """Stable handle for persisted microsim-to-optimization fiscal feedback links."""
+
+    kind: Literal["ir.fiscal_feedback_link"] = "ir.fiscal_feedback_link"
     media_type: Literal["application/json"] = "application/json"
 
 
@@ -683,92 +771,104 @@ class OptimalRecourseInterventionBundleRef(ArtifactRefModel):
 
 
 __all__ = [
-    "AbstractionCertificateRef",
     "ABMAlignmentReportRef",
+    "AbstractionCertificateRef",
     "AlignmentReportRef",
+    "ArtifactRefModel",
     "BacktestReportRef",
     "BoundsBundleRef",
     "BoundsTighteningLogRef",
-    "CompositionCertificateRef",
-    "CompositionFailureCardBundleRef",
+    "BridgePlausibilityReportRef",
     "CausalAssumptionCardRef",
+    "CausalBlockBridgeRef",
+    "CausalCapabilityContractRef",
     "CausalDiscoveryReportRef",
     "CausalEffectReportRef",
+    "CausalExecutionBundleRef",
     "CausalGraphModelRef",
-    "DataReadinessReportRef",
-    "SurveyQualityCertificateRef",
-    "MicrosimCalibrationReportRef",
-    "DependenceStructureRef",
-    "MobilityReportRef",
-    "LiteratureCausalPriorRef",
-    "InterfaceMappingRef",
+    "CausalModelEnsembleRef",
+    "CausalQueryResultRef",
+    "CausalReadinessBundleRef",
     "CausalSensitivityResultRef",
-    "TransportabilityResultRef",
-    "CausalCapabilityContractRef",
+    "ChannelDecompositionArtifactRef",
+    "CompositionCertificateRef",
+    "CompositionFailureCardBundleRef",
     "ContextAdaptiveParameterBundleRef",
     "ContinuousTimeQueryRef",
+    "CounterfactualResultRef",
     "CrossGraphEvidenceProfileRef",
-    "CausalBlockBridgeRef",
-    "InteractionComplexRef",
-    "InterferenceCertificateRef",
-    "MAUPInvarianceCertificateRef",
-    "SpatialHodgeDiagnosticsRef",
-    "InterventionCertificateRef",
-    "InterventionCostManifoldRef",
-    "InterventionQueryRef",
-    "OptimalRecourseInterventionBundleRef",
-    "OptimalRecourseInterventionQueryRef",
-    "RecourseFeasibilityCertificateRef",
-    "RecourseProofBundleRef",
-    "LatentBridgeHypothesisRef",
-    "SCMFragmentRef",
-    "StructuralCausalModelSpecRef",
-    "CausalQueryResultRef",
-    "TemporalInterventionTrajectoryRef",
-    "TemporalIdentificationCertificateRef",
-    "DynamicTreatmentRegimeRef",
-    "EffectTrajectoryBundleRef",
-    "FiniteStateAbstractionMapRef",
-    "FrontierSketchRef",
-    "TwinNetworkResultRef",
-    "CausalModelEnsembleRef",
+    "DPRobustnessCertificateRef",
+    "DataReadinessReportRef",
+    "DependenceStructureRef",
     "DistributionalBoundsBundleRef",
     "DistributionalDualCertificateRef",
     "DistributionalEffectBundleRef",
     "DistributionalProofArtifactRef",
     "DistributionalReportRef",
-    "DPRobustnessCertificateRef",
+    "DynamicTreatmentRegimeRef",
+    "EffectTrajectoryBundleRef",
+    "EndogenousGroupInequalityDecompositionRef",
     "EstimandASTRef",
     "EvidenceBundleRef",
-    "KernelEstimatorSpecRef",
-    "OperatorEffectBundleRef",
-    "ArtifactRefModel",
+    "FiniteStateAbstractionMapRef",
+    "FiscalFeedbackLinkRef",
+    "ForecastingUncertaintyBundleRef",
+    "FrontierSketchRef",
+    "GEUncertaintyBundleRef",
     "HTEResultRef",
-    "NegativeCertificateRef",
-    "NormativeArbitrationResultRef",
-    "PolicyRecommendationRef",
-    "ProofBundleRef",
-    "ProofComposabilityCertificateRef",
-    "ProofWitnessIndexRef",
-    "BridgePlausibilityReportRef",
-    "LocalIndependenceWeightingCertificateRef",
-    "PrivacyAwareTransportCertificateRef",
-    "ProximalIdentificationCertificateRef",
-    "RegimeShiftIdentificationCertificateRef",
-    "RecoverabilityCertificateRef",
-    "RoughPathInterventionCertificateRef",
+    "IncentiveCompatibilityCertificateRef",
+    "InteractionComplexRef",
+    "InterfaceMappingRef",
+    "InterferenceCertificateRef",
+    "InterventionCertificateRef",
+    "InterventionCostManifoldRef",
+    "InterventionQueryRef",
     "JointDecisionCertificateRef",
-    "CausalReadinessBundleRef",
-    "CausalExecutionBundleRef",
+    "KernelEstimatorSpecRef",
+    "LatentBridgeHypothesisRef",
+    "LiteratureCausalPriorRef",
+    "LocalIndependenceWeightingCertificateRef",
+    "MAUPInvarianceCertificateRef",
     "MeanFieldEquilibriumCertificateRef",
     "MeanFieldMacroSimulationConfigRef",
     "MeanFieldPerturbationSpecRef",
+    "MechanismFamilySpecRef",
+    "MechanismWelfareLossBoundRef",
+    "MetricValidationReportRef",
+    "MicrosimCalibrationReportRef",
+    "MobilityReportRef",
+    "NCMSpecRef",
+    "NegativeCertificateRef",
+    "NormativeArbitrationResultRef",
+    "OperatorEffectBundleRef",
+    "OptimalRecourseInterventionBundleRef",
+    "OptimalRecourseInterventionQueryRef",
+    "OptimizationAmbiguityCertificateRef",
+    "PolicyRecommendationRef",
+    "PrivacyAwareTransportCertificateRef",
+    "ProofBundleRef",
+    "ProofComposabilityCertificateRef",
+    "ProofWitnessIndexRef",
+    "ProximalIdentificationCertificateRef",
+    "RecourseFeasibilityCertificateRef",
+    "RecourseProofBundleRef",
+    "RecoverabilityCertificateRef",
+    "RegimeShiftIdentificationCertificateRef",
+    "RoughPathInterventionCertificateRef",
+    "SCMFragmentRef",
+    "SocialWeightManifestRef",
+    "SpatialHodgeDiagnosticsRef",
     "StrategicPayoffTableRef",
     "StrategicResponseBundleRef",
     "StrategicSCMRef",
-    "ForecastingUncertaintyBundleRef",
+    "StructuralCausalModelSpecRef",
+    "SurveyQualityCertificateRef",
+    "TemporalIdentificationCertificateRef",
+    "TemporalInterventionTrajectoryRef",
+    "TransportabilityResultRef",
+    "TwinNetworkResultRef",
     "UncertaintyEnvelopeRef",
-    "NCMSpecRef",
-    "CounterfactualResultRef",
     "VariableAlignmentCertificateRef",
+    "WelfareBundleRef",
+    "WelfareSampleBundleRef",
 ]

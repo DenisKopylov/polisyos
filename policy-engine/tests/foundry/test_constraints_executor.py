@@ -4,15 +4,19 @@ from decimal import Decimal
 
 import jax.numpy as jnp
 import pytest
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import CompileRequest
 from polisyos.core.registry import build_registry_bundle, load_registry_bundle_content
+from polisyos.foundry._executor_models import ExecutionStrictness
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry._executor_models import ExecutionStrictness
 from polisyos.foundry.executor import execute_program_graph
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import ConstraintSpec as ProblemConstraintSpec
+from polisyos.ir.governance.problem_frame import ConstraintType, ProblemDomain, ProblemFrame
 from polisyos.ir.kernel import (
     DEFAULT_MECHANISM_REGISTRY,
     DEFAULT_MERGE_RULE_REGISTRY,
@@ -23,9 +27,6 @@ from polisyos.ir.kernel import (
 )
 from polisyos.ir.kernel.constraints import ConstraintRegistry, ConstraintSpec
 from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.governance.policy_spec import PolicySpec
-from polisyos.ir.governance.problem_frame import ConstraintSpec as ProblemConstraintSpec
-from polisyos.ir.governance.problem_frame import ConstraintType, ProblemDomain, ProblemFrame
 from polisyos.ir.trinity import TrinityBundle
 
 CTX_REF = "sha256:0000000000000000000000000000000000000000000000000000000000000000"
@@ -101,7 +102,9 @@ def test_constraint_operators(
         PutOptions(
             kind="ir.trinity_bundle",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=policy_bundle.schema_version),
+            schema=SchemaInfo(
+                name="polisyos.ir.TrinityBundle", version=policy_bundle.schema_version
+            ),
         ),
     )
     result = compile_foundry(
@@ -113,9 +116,7 @@ def test_constraint_operators(
         ),
     )
     assert result.ok
-    program_ref = next(
-        ref.ref for ref in result.derived_refs if ref.role == "program_graph"
-    )
+    program_ref = next(ref.ref for ref in result.derived_refs if ref.role == "program_graph")
     exec_plan_ref = result.exec_plan_ref
     assert exec_plan_ref is not None
 
@@ -188,7 +189,9 @@ def test_soft_constraint_violation_persists_penalty_without_failing_execute(tmp_
         PutOptions(
             kind="ir.trinity_bundle",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=policy_bundle.schema_version),
+            schema=SchemaInfo(
+                name="polisyos.ir.TrinityBundle", version=policy_bundle.schema_version
+            ),
         ),
     )
     compile_result = compile_foundry(
@@ -226,7 +229,9 @@ def test_soft_constraint_violation_persists_penalty_without_failing_execute(tmp_
 
     assert exec_result.constraint_report_ref is not None
     assert exec_result.constraint_hard_fail is False
-    report_payload = from_canonical_bytes(store.get_bytes(exec_result.constraint_report_ref.artifact_id))
+    report_payload = from_canonical_bytes(
+        store.get_bytes(exec_result.constraint_report_ref.artifact_id)
+    )
     assert report_payload["ok"] is True
     assert report_payload["hard_fail"] is False
     assert report_payload["penalty_total"] == 2.0

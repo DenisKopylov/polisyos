@@ -35,7 +35,9 @@ def test_survey_quality_certificate_builds_from_recoverable_missingness_assessme
         missingness_assessment=assessment,
     )
 
-    assert certificate.missingness_class is AdministrativeMissingnessClass.REGISTRATION_NOT_REGISTERED
+    assert (
+        certificate.missingness_class is AdministrativeMissingnessClass.REGISTRATION_NOT_REGISTERED
+    )
     assert certificate.missingness_status is MissingnessAssessmentStatus.RECOVERABLE
     assert certificate.overall_pass is True
     assert certificate.evidence_refs == ["artifact://ops/registration_snapshot"]

@@ -11,8 +11,8 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Generator
 
 _logger = logging.getLogger(__name__)
 _LOCK_METRICS_RUNTIME_ERRORS = (
@@ -70,7 +70,7 @@ class LockMetrics:
             _heartbeat_failures.add(1, attributes={"backend": self._backend})
 
     @contextmanager
-    def measure_acquire(self) -> Generator[None, None, None]:
+    def measure_acquire(self) -> Generator[None]:
         """Context manager that records acquire duration and contention."""
         t0 = time.monotonic()
         success = False

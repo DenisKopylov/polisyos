@@ -1,10 +1,16 @@
 from __future__ import annotations
 
-from decimal import Decimal
 import logging
+from decimal import Decimal
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.contracts.foundry import LoweredIR, LoweredMechanism, ProgramGraph, ProgramNode, ProgramOp
+from polisyos.core.contracts.foundry import (
+    LoweredIR,
+    LoweredMechanism,
+    ProgramGraph,
+    ProgramNode,
+    ProgramOp,
+)
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.abstraction import (
@@ -22,8 +28,8 @@ from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import OptimizationDirection, SelectorOperator
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
-    build_runtime_abstraction_metadata,
     build_policy_parameter_override_bundle,
+    build_runtime_abstraction_metadata,
 )
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_ABSTRACTION_CERTIFICATE_REF
 from polisyos.scientist.policy_design.schema import (
@@ -111,9 +117,9 @@ def test_build_policy_parameter_override_bundle_maps_candidate_parameter_to_prog
     candidate = _candidate().model_copy(
         update={
             "parameter_schedule": [
-                _candidate().parameter_schedule[0].model_copy(
-                    update={"scheduled_value": Decimal("0.15")}
-                )
+                _candidate()
+                .parameter_schedule[0]
+                .model_copy(update={"scheduled_value": Decimal("0.15")})
             ]
         }
     )

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import ast
 import json
-from pathlib import Path
 import textwrap
+from pathlib import Path
 
 from hypothesis import assume, given
 from hypothesis import strategies as st

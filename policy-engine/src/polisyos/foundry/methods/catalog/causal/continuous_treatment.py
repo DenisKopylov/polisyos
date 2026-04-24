@@ -39,7 +39,8 @@ Vegetabile, B.G., Griffin, B.A., Coffman, D.L., Cefalu, M., Robbins, M.W.
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -68,7 +69,6 @@ from polisyos.foundry.methods.catalog.causal.protocols import (
     ContinuousTreatmentData,
     DoseResponseResult,
 )
-
 
 # ---------------------------------------------------------------------------
 # Private helpers
@@ -111,7 +111,7 @@ def _build_polynomial_features(
     if degree >= 2:
         cols.extend([T * T, R * R, T * R])
     if degree >= 3:
-        cols.extend([T ** 3, T * T * R, T * R * R, R ** 3])
+        cols.extend([T**3, T * T * R, T * R * R, R**3])
     return np.column_stack(cols)
 
 
@@ -284,35 +284,66 @@ class GeneralizedPropensityScoreEstimator:
         name="gps",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset([
-            SlotSpec(name="outcome", slot_type=SlotType.VECTOR,
-                     description="(n,) outcome vector", unit=Unit("dimensionless", ""),
-                     shape=("n_obs",)),
-            SlotSpec(name="treatment", slot_type=SlotType.VECTOR,
-                     description="(n,) continuous treatment", unit=Unit("dimensionless", ""),
-                     shape=("n_obs",)),
-            SlotSpec(name="covariates", slot_type=SlotType.MATRIX,
-                     description="(n, p) covariate matrix", unit=Unit("dimensionless", ""),
-                     shape=("n_obs", "n_features")),
-        ]),
-        output_slots=frozenset([
-            SlotSpec(name="dose_response_result", slot_type=SlotType.SCALAR,
-                     description="DoseResponseResult dict", unit=Unit("dimensionless", "")),
-        ]),
+        input_slots=frozenset(
+            [
+                SlotSpec(
+                    name="outcome",
+                    slot_type=SlotType.VECTOR,
+                    description="(n,) outcome vector",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    name="treatment",
+                    slot_type=SlotType.VECTOR,
+                    description="(n,) continuous treatment",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    name="covariates",
+                    slot_type=SlotType.MATRIX,
+                    description="(n, p) covariate matrix",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs", "n_features"),
+                ),
+            ]
+        ),
+        output_slots=frozenset(
+            [
+                SlotSpec(
+                    name="dose_response_result",
+                    slot_type=SlotType.SCALAR,
+                    description="DoseResponseResult dict",
+                    unit=Unit("dimensionless", ""),
+                ),
+            ]
+        ),
         parameters=(
-            ParameterSpec(name="n_bootstrap", default=200,
-                          description="Bootstrap resamples for SE estimation",
-                          bounds=(10, 5000)),
-            ParameterSpec(name="polynomial_degree", default=2,
-                          description="Degree of (T, R) polynomial outcome model",
-                          bounds=(1, 3)),
-            ParameterSpec(name="n_eval_points", default=20,
-                          description="Grid size if evaluation_points not provided",
-                          bounds=(5, 200)),
-            ParameterSpec(name="eval_range", default=(0.05, 0.95),
-                          description="(lo, hi) quantile range for evaluation grid"),
-            ParameterSpec(name="seed", default=0,
-                          description="Random seed for bootstrap"),
+            ParameterSpec(
+                name="n_bootstrap",
+                default=200,
+                description="Bootstrap resamples for SE estimation",
+                bounds=(10, 5000),
+            ),
+            ParameterSpec(
+                name="polynomial_degree",
+                default=2,
+                description="Degree of (T, R) polynomial outcome model",
+                bounds=(1, 3),
+            ),
+            ParameterSpec(
+                name="n_eval_points",
+                default=20,
+                description="Grid size if evaluation_points not provided",
+                bounds=(5, 200),
+            ),
+            ParameterSpec(
+                name="eval_range",
+                default=(0.05, 0.95),
+                description="(lo, hi) quantile range for evaluation grid",
+            ),
+            ParameterSpec(name="seed", default=0, description="Random seed for bootstrap"),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -328,8 +359,7 @@ class GeneralizedPropensityScoreEstimator:
             "Generalised Propensity Score (Hirano & Imbens 2004). "
             "Assumes T|X ~ Normal and a polynomial outcome model."
         ),
-        tags=frozenset({"causal", "continuous_treatment", "dose_response", "gps",
-                        "observational"}),
+        tags=frozenset({"causal", "continuous_treatment", "dose_response", "gps", "observational"}),
         citations=(
             "Hirano, K. & Imbens, G.W. (2004). The Propensity Score with "
             "Continuous Multivalued Treatments.",
@@ -377,7 +407,10 @@ class GeneralizedPropensityScoreEstimator:
 
         dr = _gps_dose_response(Y, T, X, eval_pts, polynomial_degree=poly_degree)
         se = _bootstrap_dose_response(
-            Y, T, X, eval_pts,
+            Y,
+            T,
+            X,
+            eval_pts,
             n_bootstrap=n_bootstrap,
             polynomial_degree=poly_degree,
             seed=seed,
@@ -406,8 +439,16 @@ class GeneralizedPropensityScoreEstimator:
 @foundry_method(
     namespace="causal.continuous_treatment",
     version="1.0.0",
-    tags=frozenset({"causal", "continuous_treatment", "dose_response",
-                    "doubly_robust", "kernel", "semiparametric"}),
+    tags=frozenset(
+        {
+            "causal",
+            "continuous_treatment",
+            "dose_response",
+            "doubly_robust",
+            "kernel",
+            "semiparametric",
+        }
+    ),
 )
 class KernelDoseResponseEstimator:
     """Doubly-robust kernel dose-response estimator (Kennedy et al. 2017).
@@ -430,34 +471,62 @@ class KernelDoseResponseEstimator:
         name="kernel_dr",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset([
-            SlotSpec(name="outcome", slot_type=SlotType.VECTOR,
-                     description="(n,) outcome", unit=Unit("dimensionless", ""),
-                     shape=("n_obs",)),
-            SlotSpec(name="treatment", slot_type=SlotType.VECTOR,
-                     description="(n,) continuous treatment", unit=Unit("dimensionless", ""),
-                     shape=("n_obs",)),
-            SlotSpec(name="covariates", slot_type=SlotType.MATRIX,
-                     description="(n, p) covariates", unit=Unit("dimensionless", ""),
-                     shape=("n_obs", "n_features")),
-        ]),
-        output_slots=frozenset([
-            SlotSpec(name="dose_response_result", slot_type=SlotType.SCALAR,
-                     description="DoseResponseResult dict", unit=Unit("dimensionless", "")),
-        ]),
+        input_slots=frozenset(
+            [
+                SlotSpec(
+                    name="outcome",
+                    slot_type=SlotType.VECTOR,
+                    description="(n,) outcome",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    name="treatment",
+                    slot_type=SlotType.VECTOR,
+                    description="(n,) continuous treatment",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    name="covariates",
+                    slot_type=SlotType.MATRIX,
+                    description="(n, p) covariates",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs", "n_features"),
+                ),
+            ]
+        ),
+        output_slots=frozenset(
+            [
+                SlotSpec(
+                    name="dose_response_result",
+                    slot_type=SlotType.SCALAR,
+                    description="DoseResponseResult dict",
+                    unit=Unit("dimensionless", ""),
+                ),
+            ]
+        ),
         parameters=(
-            ParameterSpec(name="n_folds", default=5,
-                          description="K-fold cross-fitting folds", bounds=(2, 20)),
-            ParameterSpec(name="bandwidth", default=None,
-                          description="Kernel bandwidth h. None → Silverman rule"),
-            ParameterSpec(name="n_eval_points", default=30,
-                          description="Grid size", bounds=(5, 200)),
-            ParameterSpec(name="eval_range", default=(0.05, 0.95),
-                          description="Quantile range for evaluation grid"),
-            ParameterSpec(name="min_gps", default=1e-4,
-                          description="GPS clipping floor", bounds=(1e-10, 0.1)),
-            ParameterSpec(name="seed", default=42,
-                          description="Random seed for cross-fitting"),
+            ParameterSpec(
+                name="n_folds", default=5, description="K-fold cross-fitting folds", bounds=(2, 20)
+            ),
+            ParameterSpec(
+                name="bandwidth",
+                default=None,
+                description="Kernel bandwidth h. None → Silverman rule",
+            ),
+            ParameterSpec(
+                name="n_eval_points", default=30, description="Grid size", bounds=(5, 200)
+            ),
+            ParameterSpec(
+                name="eval_range",
+                default=(0.05, 0.95),
+                description="Quantile range for evaluation grid",
+            ),
+            ParameterSpec(
+                name="min_gps", default=1e-4, description="GPS clipping floor", bounds=(1e-10, 0.1)
+            ),
+            ParameterSpec(name="seed", default=42, description="Random seed for cross-fitting"),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -473,17 +542,16 @@ class KernelDoseResponseEstimator:
             "continuous-treatment ATE with cross-fitted GPS and outcome model. "
             "Consistent at √(nh) rate under either nuisance model misspecification."
         ),
-        tags=frozenset({"causal", "continuous_treatment", "semiparametric",
-                        "doubly_robust", "kernel", "eif"}),
+        tags=frozenset(
+            {"causal", "continuous_treatment", "semiparametric", "doubly_robust", "kernel", "eif"}
+        ),
         citations=(
             "Kennedy, E.H., Ma, Z., McHugh, M.D. & Small, D.S. (2017). "
             "Non-parametric methods for doubly robust estimation of continuous "
             "treatment effects. JRSS-B 79(4).",
         ),
         equations={
-            "eif": (
-                "ψᵢ(t) = K_h(Tᵢ−t)/f(Tᵢ|Xᵢ)·(Yᵢ−μ(Tᵢ,Xᵢ)) + μ(t,Xᵢ)"
-            ),
+            "eif": ("ψᵢ(t) = K_h(Tᵢ−t)/f(Tᵢ|Xᵢ)·(Yᵢ−μ(Tᵢ,Xᵢ)) + μ(t,Xᵢ)"),
             "beta_hat": "β̂(t) = n⁻¹ Σᵢ ψᵢ(t)",
         },
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
@@ -493,8 +561,7 @@ class KernelDoseResponseEstimator:
             "misspecified, or for valid semiparametric inference."
         ),
         when_not_to_use=(
-            "Avoid for n < 100 — bandwidth selection degrades. "
-            "Use GPS for small samples."
+            "Avoid for n < 100 — bandwidth selection degrades. Use GPS for small samples."
         ),
         prerequisites=(),
         diagnostic_checks=(
@@ -531,9 +598,7 @@ class KernelDoseResponseEstimator:
         gps_oof = np.zeros(n, dtype=float)
         for train_idx, val_idx in _kfold_indices(n, n_folds, seed=seed):
             beta_t, sigma = _fit_gps_model(X[train_idx], T[train_idx])
-            gps_oof[val_idx] = _predict_gps(
-                X[val_idx], T[val_idx], beta_t, sigma
-            )
+            gps_oof[val_idx] = _predict_gps(X[val_idx], T[val_idx], beta_t, sigma)
         gps_oof = np.clip(gps_oof, min_gps, None)
 
         # ---- Out-of-fold outcome model μ(T, X) ----
@@ -541,7 +606,9 @@ class KernelDoseResponseEstimator:
 
         # ---- EIF-based dose-response ----
         eif_scores: ContinuousEIFScores = compute_eif_continuous_ate(
-            Y, T, X,
+            Y,
+            T,
+            X,
             gps_observed=gps_oof,
             outcome_fn=outcome_fn,
             eval_points=eval_pts,
@@ -561,8 +628,9 @@ class KernelDoseResponseEstimator:
 @foundry_method(
     namespace="causal.continuous_treatment",
     version="1.0.0",
-    tags=frozenset({"causal", "continuous_treatment", "shift_intervention",
-                    "doubly_robust", "mtp"}),
+    tags=frozenset(
+        {"causal", "continuous_treatment", "shift_intervention", "doubly_robust", "mtp"}
+    ),
 )
 class ShiftInterventionEstimator:
     """Modified treatment policy shift intervention E[Y(A+δ)] − E[Y(A)].
@@ -582,34 +650,58 @@ class ShiftInterventionEstimator:
         name="shift",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset([
-            SlotSpec(name="outcome", slot_type=SlotType.VECTOR,
-                     description="(n,) outcome", unit=Unit("dimensionless", ""),
-                     shape=("n_obs",)),
-            SlotSpec(name="treatment", slot_type=SlotType.VECTOR,
-                     description="(n,) continuous treatment A", unit=Unit("dimensionless", ""),
-                     shape=("n_obs",)),
-            SlotSpec(name="covariates", slot_type=SlotType.MATRIX,
-                     description="(n, p) covariates", unit=Unit("dimensionless", ""),
-                     shape=("n_obs", "n_features")),
-        ]),
-        output_slots=frozenset([
-            SlotSpec(name="shift_effect", slot_type=SlotType.SCALAR,
-                     description="E[Y(A+δ)] − E[Y(A)] estimate dict",
-                     unit=Unit("dimensionless", "")),
-        ]),
+        input_slots=frozenset(
+            [
+                SlotSpec(
+                    name="outcome",
+                    slot_type=SlotType.VECTOR,
+                    description="(n,) outcome",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    name="treatment",
+                    slot_type=SlotType.VECTOR,
+                    description="(n,) continuous treatment A",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    name="covariates",
+                    slot_type=SlotType.MATRIX,
+                    description="(n, p) covariates",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs", "n_features"),
+                ),
+            ]
+        ),
+        output_slots=frozenset(
+            [
+                SlotSpec(
+                    name="shift_effect",
+                    slot_type=SlotType.SCALAR,
+                    description="E[Y(A+δ)] − E[Y(A)] estimate dict",
+                    unit=Unit("dimensionless", ""),
+                ),
+            ]
+        ),
         parameters=(
-            ParameterSpec(name="delta", default=1.0,
-                          description="Shift amount δ"),
-            ParameterSpec(name="n_folds", default=5,
-                          description="K-fold cross-fitting", bounds=(2, 20)),
-            ParameterSpec(name="min_density_ratio", default=0.01,
-                          description="Lower clipping bound for density ratio",
-                          bounds=(1e-6, 1.0)),
-            ParameterSpec(name="max_density_ratio", default=100.0,
-                          description="Upper clipping bound for density ratio"),
-            ParameterSpec(name="seed", default=42,
-                          description="Random seed"),
+            ParameterSpec(name="delta", default=1.0, description="Shift amount δ"),
+            ParameterSpec(
+                name="n_folds", default=5, description="K-fold cross-fitting", bounds=(2, 20)
+            ),
+            ParameterSpec(
+                name="min_density_ratio",
+                default=0.01,
+                description="Lower clipping bound for density ratio",
+                bounds=(1e-6, 1.0),
+            ),
+            ParameterSpec(
+                name="max_density_ratio",
+                default=100.0,
+                description="Upper clipping bound for density ratio",
+            ),
+            ParameterSpec(name="seed", default=42, description="Random seed"),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N,
@@ -624,16 +716,13 @@ class ShiftInterventionEstimator:
             "Doubly-robust shift intervention effect E[Y(A+δ)] − E[Y(A)]. "
             "Useful for answering 'what if every unit received δ more treatment?'"
         ),
-        tags=frozenset({"causal", "continuous_treatment", "shift", "mtp",
-                        "doubly_robust"}),
+        tags=frozenset({"causal", "continuous_treatment", "shift", "mtp", "doubly_robust"}),
         citations=(
             "Díaz, I. & van der Laan, M.J. (2012). Population intervention "
             "causal effects based on stochastic interventions. Biometrics 68(2).",
         ),
         equations={
-            "psi": (
-                "ψᵢ = [μ(A+δ,X) − μ(A,X)] + f(A|X)/f(A−δ|X)·(Y − μ(A,X))"
-            ),
+            "psi": ("ψᵢ = [μ(A+δ,X) − μ(A,X)] + f(A|X)/f(A−δ|X)·(Y − μ(A,X))"),
             "tau": "τ̂(δ) = n⁻¹ Σᵢ ψᵢ",
         },
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
@@ -677,28 +766,20 @@ class ShiftInterventionEstimator:
         # We need f(T|X) and f(T-δ|X) from the same parametric model.
         # Fit once per fold, then evaluate at T and T-δ for val units.
 
-        gps_at_t = np.zeros(n, dtype=float)       # f(Tᵢ|Xᵢ)
+        gps_at_t = np.zeros(n, dtype=float)  # f(Tᵢ|Xᵢ)
         gps_at_t_minus = np.zeros(n, dtype=float)  # f(Tᵢ−δ|Xᵢ)
 
         for train_idx, val_idx in _kfold_indices(n, n_folds, seed=seed):
             beta_t, sigma = _fit_gps_model(X[train_idx], T[train_idx])
-            gps_at_t[val_idx] = _predict_gps(
-                X[val_idx], T[val_idx], beta_t, sigma
-            )
-            gps_at_t_minus[val_idx] = _predict_gps(
-                X[val_idx], T[val_idx] - delta, beta_t, sigma
-            )
+            gps_at_t[val_idx] = _predict_gps(X[val_idx], T[val_idx], beta_t, sigma)
+            gps_at_t_minus[val_idx] = _predict_gps(X[val_idx], T[val_idx] - delta, beta_t, sigma)
 
         raw_density_ratio = gps_at_t / np.clip(gps_at_t_minus, 1e-12, None)
         clipped_density_ratio = np.clip(raw_density_ratio, min_dr, max_dr)
         density_ratio_sum = float(np.sum(clipped_density_ratio))
-        density_ratio_sq_sum = float(np.sum(clipped_density_ratio ** 2))
-        density_ratio_ess = float(
-            density_ratio_sum ** 2 / max(density_ratio_sq_sum, 1e-12)
-        )
-        n_clipped_ratio = int(
-            np.sum((raw_density_ratio < min_dr) | (raw_density_ratio > max_dr))
-        )
+        density_ratio_sq_sum = float(np.sum(clipped_density_ratio**2))
+        density_ratio_ess = float(density_ratio_sum**2 / max(density_ratio_sq_sum, 1e-12))
+        n_clipped_ratio = int(np.sum((raw_density_ratio < min_dr) | (raw_density_ratio > max_dr)))
 
         # ---- Out-of-fold outcome model ----
         outcome_fn = _build_oof_outcome_fn(Y, T, X, n_folds, seed=seed)
@@ -710,7 +791,9 @@ class ShiftInterventionEstimator:
             return _predict_gps(x_mat, t_vec, beta_g, sigma_g)
 
         eif: EIFScores = compute_eif_shift_intervention(
-            Y, T, X,
+            Y,
+            T,
+            X,
             density_fn=density_fn,
             outcome_fn=outcome_fn,
             delta=delta,
@@ -763,8 +846,9 @@ class ShiftInterventionEstimator:
 @foundry_method(
     namespace="causal.continuous_treatment",
     version="1.0.0",
-    tags=frozenset({"causal", "continuous_treatment", "entropy_balancing",
-                    "weighting", "dose_response"}),
+    tags=frozenset(
+        {"causal", "continuous_treatment", "entropy_balancing", "weighting", "dose_response"}
+    ),
 )
 class EntropyBalancingContinuousEstimator:
     """Entropy-balancing weights for continuous treatment dose-response.
@@ -784,39 +868,73 @@ class EntropyBalancingContinuousEstimator:
         name="entropy_balancing",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset([
-            SlotSpec(name="outcome", slot_type=SlotType.VECTOR,
-                     description="(n,) outcome", unit=Unit("dimensionless", ""),
-                     shape=("n_obs",)),
-            SlotSpec(name="treatment", slot_type=SlotType.VECTOR,
-                     description="(n,) continuous treatment", unit=Unit("dimensionless", ""),
-                     shape=("n_obs",)),
-            SlotSpec(name="covariates", slot_type=SlotType.MATRIX,
-                     description="(n, p) covariates", unit=Unit("dimensionless", ""),
-                     shape=("n_obs", "n_features")),
-        ]),
-        output_slots=frozenset([
-            SlotSpec(name="dose_response_result", slot_type=SlotType.SCALAR,
-                     description="DoseResponseResult dict", unit=Unit("dimensionless", "")),
-        ]),
+        input_slots=frozenset(
+            [
+                SlotSpec(
+                    name="outcome",
+                    slot_type=SlotType.VECTOR,
+                    description="(n,) outcome",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    name="treatment",
+                    slot_type=SlotType.VECTOR,
+                    description="(n,) continuous treatment",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    name="covariates",
+                    slot_type=SlotType.MATRIX,
+                    description="(n, p) covariates",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs", "n_features"),
+                ),
+            ]
+        ),
+        output_slots=frozenset(
+            [
+                SlotSpec(
+                    name="dose_response_result",
+                    slot_type=SlotType.SCALAR,
+                    description="DoseResponseResult dict",
+                    unit=Unit("dimensionless", ""),
+                ),
+            ]
+        ),
         parameters=(
-            ParameterSpec(name="bandwidth", default=None,
-                          description="Kernel bandwidth h. None → Silverman"),
-            ParameterSpec(name="n_eval_points", default=20,
-                          description="Grid size", bounds=(5, 200)),
-            ParameterSpec(name="eval_range", default=(0.05, 0.95),
-                          description="Quantile range for evaluation grid"),
-            ParameterSpec(name="max_iter", default=200,
-                          description="Newton iterations for balancing", bounds=(20, 2000)),
-            ParameterSpec(name="tol", default=1e-6,
-                          description="Convergence tolerance for Newton"),
-            ParameterSpec(name="moment_order", default=1,
-                          description="Order of moment constraints (1 or 2)",
-                          bounds=(1, 2)),
-            ParameterSpec(name="n_bootstrap", default=200,
-                          description="Bootstrap resamples for SE", bounds=(10, 2000)),
-            ParameterSpec(name="seed", default=0,
-                          description="Random seed for bootstrap"),
+            ParameterSpec(
+                name="bandwidth", default=None, description="Kernel bandwidth h. None → Silverman"
+            ),
+            ParameterSpec(
+                name="n_eval_points", default=20, description="Grid size", bounds=(5, 200)
+            ),
+            ParameterSpec(
+                name="eval_range",
+                default=(0.05, 0.95),
+                description="Quantile range for evaluation grid",
+            ),
+            ParameterSpec(
+                name="max_iter",
+                default=200,
+                description="Newton iterations for balancing",
+                bounds=(20, 2000),
+            ),
+            ParameterSpec(name="tol", default=1e-6, description="Convergence tolerance for Newton"),
+            ParameterSpec(
+                name="moment_order",
+                default=1,
+                description="Order of moment constraints (1 or 2)",
+                bounds=(1, 2),
+            ),
+            ParameterSpec(
+                name="n_bootstrap",
+                default=200,
+                description="Bootstrap resamples for SE",
+                bounds=(10, 2000),
+            ),
+            ParameterSpec(name="seed", default=0, description="Random seed for bootstrap"),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -831,8 +949,9 @@ class EntropyBalancingContinuousEstimator:
             "Entropy-balancing dose-response estimator for continuous treatments. "
             "Reweights units to balance covariate moments at each treatment level."
         ),
-        tags=frozenset({"causal", "continuous_treatment", "entropy_balancing",
-                        "weighting", "nonparametric"}),
+        tags=frozenset(
+            {"causal", "continuous_treatment", "entropy_balancing", "weighting", "nonparametric"}
+        ),
         citations=(
             "Vegetabile, B.G. et al. (2021). Nonparametric estimation of "
             "population average dose-response curves using entropy balancing "
@@ -855,9 +974,7 @@ class EntropyBalancingContinuousEstimator:
             "satisfy. Use GPS or kernel-DR instead."
         ),
         prerequisites=(),
-        diagnostic_checks=(
-            "Verify covariate balance: Σᵢ wᵢ(t)·X̄ᵢ ≈ X̄.",
-        ),
+        diagnostic_checks=("Verify covariate balance: Σᵢ wᵢ(t)·X̄ᵢ ≈ X̄.",),
         typical_min_obs=100,
         output_interpretation=(
             "dose_response_result.dose_response[j] = Σᵢ wᵢ(t_j)·Yᵢ. "
@@ -889,7 +1006,7 @@ class EntropyBalancingContinuousEstimator:
         # Moment basis: mean of X columns (first-order moments)
         # We balance φ(X) = [1, X] (intercept forces weights to sum to 1).
         if moment_order == 1:
-            phi = np.column_stack([np.ones(n), X])   # (n, p+1)
+            phi = np.column_stack([np.ones(n), X])  # (n, p+1)
         else:
             phi = np.column_stack([np.ones(n), X, X * X])  # (n, 2p+1)
         phi_bar = phi.mean(axis=0)  # target moments = population mean
@@ -916,12 +1033,10 @@ class EntropyBalancingContinuousEstimator:
                     break
 
                 # Hessian: H = Σᵢ wᵢ φᵢ φᵢᵀ − (Σᵢ wᵢ φᵢ)(Σᵢ wᵢ φᵢ)ᵀ
-                wphiT = (w[:, None] * phi)  # (n, q)
+                wphiT = w[:, None] * phi  # (n, q)
                 H = wphiT.T @ phi - np.outer(grad + phi_bar, grad + phi_bar)
                 try:
-                    delta_alpha = np.linalg.solve(
-                        H + 1e-8 * np.eye(H.shape[0]), grad
-                    )
+                    delta_alpha = np.linalg.solve(H + 1e-8 * np.eye(H.shape[0]), grad)
                 except np.linalg.LinAlgError:
                     break
                 alpha -= delta_alpha
@@ -966,8 +1081,8 @@ class EntropyBalancingContinuousEstimator:
 
 
 __all__ = [
+    "EntropyBalancingContinuousEstimator",
     "GeneralizedPropensityScoreEstimator",
     "KernelDoseResponseEstimator",
     "ShiftInterventionEstimator",
-    "EntropyBalancingContinuousEstimator",
 ]

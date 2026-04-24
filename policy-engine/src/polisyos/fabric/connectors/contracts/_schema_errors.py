@@ -1,6 +1,7 @@
 """
 Exception hierarchy for schema validation and type coercion errors.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -59,6 +60,4 @@ class SchemaCompatibilityError(SchemaError):
         self.source_schema = source_schema
         self.target_schema = target_schema
         self.reason = reason
-        super().__init__(
-            f"Schema '{source_schema}' incompatible with '{target_schema}': {reason}"
-        )
+        super().__init__(f"Schema '{source_schema}' incompatible with '{target_schema}': {reason}")

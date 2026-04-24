@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
-from pathlib import Path
 import textwrap
+from pathlib import Path
 
 import pytest
 
@@ -25,8 +25,10 @@ def test_scaffold_governance_pass_writes_expected_templates(tmp_path: Path) -> N
     )
 
     assert exit_code == 0
-    assert source.read_text(encoding="utf-8") == textwrap.dedent(
-        """
+    assert (
+        source.read_text(encoding="utf-8")
+        == textwrap.dedent(
+            """
         from __future__ import annotations
 
         from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
@@ -67,8 +69,9 @@ def test_scaffold_governance_pass_writes_expected_templates(tmp_path: Path) -> N
 
                 return []
         """
-    ).lstrip()
-    assert "assert issues[0].code == \"SAMPLE_POLICY_ARTIFACT_MISSING\"" in tests.read_text(
+        ).lstrip()
+    )
+    assert 'assert issues[0].code == "SAMPLE_POLICY_ARTIFACT_MISSING"' in tests.read_text(
         encoding="utf-8"
     )
 

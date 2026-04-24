@@ -201,15 +201,23 @@ def extract_policyos_result(
             return selection_manifest
         return benchmark_selection_manifest_from_params(
             {
-                "propensity_backend": next(iter(nuisance_diagnostics.get("propensity_backends", [])), None)
+                "propensity_backend": next(
+                    iter(nuisance_diagnostics.get("propensity_backends", [])), None
+                )
                 or nuisance_contract.get("propensity_backend"),
-                "outcome_backend": next(iter(nuisance_diagnostics.get("outcome_backends", [])), None)
+                "outcome_backend": next(
+                    iter(nuisance_diagnostics.get("outcome_backends", [])), None
+                )
                 or nuisance_contract.get("outcome_backend"),
-                "propensity_backend_candidates": nuisance_contract.get("propensity_backend_candidates"),
+                "propensity_backend_candidates": nuisance_contract.get(
+                    "propensity_backend_candidates"
+                ),
                 "outcome_backend_candidates": nuisance_contract.get("outcome_backend_candidates"),
                 "selection_objective": nuisance_contract.get("selection_objective"),
                 "split_policy": nuisance_contract.get("overlap_diagnostic_policy"),
-                "calibration_mode": next(iter(nuisance_diagnostics.get("calibration_modes", [])), None),
+                "calibration_mode": next(
+                    iter(nuisance_diagnostics.get("calibration_modes", [])), None
+                ),
             }
         )
 
@@ -221,10 +229,17 @@ def extract_policyos_result(
         if interval is not None and len(interval) == 2:
             ate_ci_lower = float(interval[0])
             ate_ci_upper = float(interval[1])
-        elif getattr(report, "ci_lower", None) is not None and getattr(report, "ci_upper", None) is not None:
+        elif (
+            getattr(report, "ci_lower", None) is not None
+            and getattr(report, "ci_upper", None) is not None
+        ):
             ate_ci_lower = float(report.ci_lower)
             ate_ci_upper = float(report.ci_upper)
-        elif hte is not None and getattr(hte, "ate_ci_lower", None) is not None and getattr(hte, "ate_ci_upper", None) is not None:
+        elif (
+            hte is not None
+            and getattr(hte, "ate_ci_lower", None) is not None
+            and getattr(hte, "ate_ci_upper", None) is not None
+        ):
             ate_ci_lower = float(hte.ate_ci_lower)
             ate_ci_upper = float(hte.ate_ci_upper)
         else:
@@ -243,7 +258,9 @@ def extract_policyos_result(
             cate_ci_upper_values = np.asarray(getattr(hte, "cate_ci_upper_values"), dtype=float)
 
         feature_importances = None
-        raw_feature_importances = getattr(hte, "feature_importances", None) if hte is not None else None
+        raw_feature_importances = (
+            getattr(hte, "feature_importances", None) if hte is not None else None
+        )
         if raw_feature_importances is not None:
             n_features = int(np.asarray(data.covariates).shape[1])
             feature_importances = _normalize_feature_importances(
@@ -299,7 +316,9 @@ def extract_policyos_result(
             cate_ci_upper_values = np.asarray(payload.get("cate_ci_upper_values"), dtype=float)
 
         feature_importances = None
-        raw_feature_importances = payload.get("feature_importances") or payload.get("cate_feature_importances")
+        raw_feature_importances = payload.get("feature_importances") or payload.get(
+            "cate_feature_importances"
+        )
         if raw_feature_importances is not None:
             n_features = int(np.asarray(data.covariates).shape[1])
             feature_importances = _normalize_feature_importances(
@@ -340,5 +359,6 @@ def extract_policyos_result(
         cate_pred=None,
         feature_importances=None,
         failed=True,
-        fail_reason=fail_reason or f"unsupported PolicyOS benchmark payload from {method_class.__name__}",
+        fail_reason=fail_reason
+        or f"unsupported PolicyOS benchmark payload from {method_class.__name__}",
     )

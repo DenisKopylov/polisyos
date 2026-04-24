@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import platform
 import sys
 from pathlib import Path
@@ -300,7 +299,6 @@ class TestCaptureEnvironment:
         json_str = manifest.model_dump_json()
 
         hostname = platform.node()
-        username = os.environ.get("USER", os.environ.get("USERNAME", ""))
 
         assert "hostname" not in json_str.lower() or hostname not in json_str
         assert "username" not in json_str.lower()

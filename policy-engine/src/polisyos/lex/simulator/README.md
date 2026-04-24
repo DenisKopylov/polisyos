@@ -20,14 +20,14 @@ diff и impact analysis до того, как изменения попадут 
 
 ## Public API
 
-| Type/Function | Description |
-|---|---|
-| `NormPackMutator` | Deterministic mutation builder for baseline `NormPack` |
-| `MutationIntent` | Structured description of requested norm changes |
-| `diff_norm_packs()` | Compute structured diff between old and new packs |
-| `NormDiff`, `NormChange`, `NormChangeType` | Diff result contracts |
-| `NormImpactAnalyzer` | Run governance-based impact analysis over pack deltas |
-| `NormImpactReport`, `ComplianceDelta`, `ComplianceTransition`, `AffectedKPI` | Final impact-report models |
+| Type/Function                                                                | Description                                            |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `NormPackMutator`                                                            | Deterministic mutation builder for baseline `NormPack` |
+| `MutationIntent`                                                             | Structured description of requested norm changes       |
+| `diff_norm_packs()`                                                          | Compute structured diff between old and new packs      |
+| `NormDiff`, `NormChange`, `NormChangeType`                                   | Diff result contracts                                  |
+| `NormImpactAnalyzer`                                                         | Run governance-based impact analysis over pack deltas  |
+| `NormImpactReport`, `ComplianceDelta`, `ComplianceTransition`, `AffectedKPI` | Final impact-report models                             |
 
 Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 

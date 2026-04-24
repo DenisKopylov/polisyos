@@ -1,13 +1,10 @@
+export { default as RunDetailLayout } from "./routes/RunDetailLayout";
+export { default as RunsListPage } from "./routes/RunsListPage";
 export {
-  runDeckLoader,
   runDeckRouteHandle,
-  runDetailLoader,
   runDetailRouteHandle,
-  runReportLoader,
   runReportRouteHandle,
-  runsCompareLoader,
   runsCompareRouteHandle,
-  runsListLoader,
   runsListRouteHandle,
   runsRoutes,
-} from "@/features/runs/route";
+} from "./route";

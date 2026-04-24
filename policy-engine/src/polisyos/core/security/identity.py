@@ -1,4 +1,5 @@
 """Identity primitives for user/service authentication in Zero Trust mode."""
+
 from __future__ import annotations
 
 import os
@@ -119,9 +120,7 @@ class UserIdentityClaims(_PydanticBaseModel):
     email: str = ""
     tenant_id: str = Field(min_length=1)
     cell_id: str | None = None
-    roles: frozenset[PolicyOSRole] = Field(
-        default_factory=lambda: frozenset({PolicyOSRole.VIEWER})
-    )
+    roles: frozenset[PolicyOSRole] = Field(default_factory=lambda: frozenset({PolicyOSRole.VIEWER}))
     mfa_verified: bool = False
     iss: str = Field(min_length=1)
     aud: str
@@ -186,9 +185,7 @@ def map_roles_from_claims(payload: dict[str, Any], *, client_id: str) -> frozens
                 raw_roles.update(str(item) for item in client_roles)
 
     mapped = {
-        mapped_role
-        for source_role, mapped_role in role_map.items()
-        if source_role in raw_roles
+        mapped_role for source_role, mapped_role in role_map.items() if source_role in raw_roles
     }
     if not mapped:
         mapped.add(PolicyOSRole.VIEWER)
@@ -321,7 +318,13 @@ class SPIFFEIdentityProvider:
         try:
             self._workload_client = workload_client_type(spiffe_socket=self._spiffe_socket)
             return self._workload_client
-        except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:  # pragma: no cover - depends on runtime SPIRE env
+        except (
+            AttributeError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ) as exc:  # pragma: no cover - depends on runtime SPIRE env
             raise IdentityNotAvailableError(
                 f"Cannot connect SPIRE agent at {self._spiffe_socket}: {exc}"
             ) from exc
@@ -368,7 +371,13 @@ class SPIFFEIdentityProvider:
                 issued_at=cert.not_valid_before_utc.timestamp(),
                 expires_at=cert.not_valid_after_utc.timestamp(),
             )
-        except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:  # pragma: no cover - runtime SPIRE dependency
+        except (
+            AttributeError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ) as exc:  # pragma: no cover - runtime SPIRE dependency
             self._record_identity_failure(reason="spiffe_fetch_failed", provider="spiffe")
             raise IdentityNotAvailableError(str(exc)) from exc
 

@@ -20,6 +20,7 @@ from polisyos.scientist.engine.metrics import (
     build_engine_metrics,
     get_metrics_exporter_health,
 )
+from polisyos.scientist.engine.operational_monitoring import ScientistOperationalMonitor
 from polisyos.scientist.engine.protocol import NodeOutcome
 from polisyos.scientist.engine.retry import (
     RetryExhaustedError,
@@ -28,7 +29,6 @@ from polisyos.scientist.engine.retry import (
 )
 from polisyos.scientist.engine.runner.serialization import serialize_context_meta
 from polisyos.scientist.engine.state import ExperimentState
-from polisyos.scientist.engine.operational_monitoring import ScientistOperationalMonitor
 from polisyos.scientist.llm.provider_verification import ProviderCapabilityVerification
 from polisyos.scientist.provenance.run_dag import RunProvenanceDAG
 from polisyos.scientist.replay_backend import list_dead_letters, replay_dead_letter

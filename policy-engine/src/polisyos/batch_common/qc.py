@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @dataclass(frozen=True)
@@ -55,7 +57,6 @@ class QCReport:
                 for c in self.checks
             ],
         }
-
 
 
 def write_qc_report(path: Path, report: QCReport) -> Path:

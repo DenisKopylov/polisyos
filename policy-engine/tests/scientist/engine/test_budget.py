@@ -1,4 +1,5 @@
 """Tests for BudgetState, BudgetLimit, BudgetExhaustedError."""
+
 from __future__ import annotations
 
 from decimal import Decimal
@@ -21,7 +22,9 @@ class TestBudgetLimit:
 
     def test_with_soft_limit(self):
         limit = BudgetLimit(
-            key="run", max_usd=Decimal("10.00"), soft_limit_usd=Decimal("8.00"),
+            key="run",
+            max_usd=Decimal("10.00"),
+            soft_limit_usd=Decimal("8.00"),
         )
         assert limit.soft_limit_usd == Decimal("8.00")
 

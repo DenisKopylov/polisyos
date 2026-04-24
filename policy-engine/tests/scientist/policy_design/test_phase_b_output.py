@@ -2,20 +2,28 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from polisyos.core.artifacts.store import FileSystemCAS
+import pytest
+
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
     CrossGraphEvidenceSummary,
-    EvidenceSourceKind,
-    EvidenceSourceState,
-    EvidenceSourceStatus,
     EvidenceNeed,
     EvidenceNeedAssessment,
     EvidenceNeedType,
+    EvidenceSourceKind,
+    EvidenceSourceState,
+    EvidenceSourceStatus,
     EvidenceStatus,
     LegalStatus,
     ObservabilityStatus,
     TransportStatus,
+)
+from polisyos.ir.analytics.decision_layer import (
+    SocialWeightManifestArtifact,
+    build_optimization_ambiguity_certificate,
+    persist_optimization_ambiguity_certificate,
+    persist_social_weight_manifest,
 )
 from polisyos.ir.analytics.distributional import (
     CohortDimension,
@@ -27,6 +35,16 @@ from polisyos.ir.analytics.distributional import (
     WinnersLosersEntry,
     WinnersLosersTable,
 )
+from polisyos.ir.analytics.welfare import (
+    GEUncertaintyBundle,
+    GEUncertaintyRepresentation,
+    WelfareBundle,
+    WelfareIntervalSemantics,
+    WelfareMethod,
+    WelfareStatus,
+    persist_ge_uncertainty_bundle,
+    persist_welfare_bundle,
+)
 from polisyos.ir.governance.policy_spec import InterventionSpec, ParameterSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import (
     ConstraintSpec,
@@ -37,6 +55,7 @@ from polisyos.ir.governance.problem_frame import (
 )
 from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.model_spec import AssumptionSpec, AssumptionType, ModelSpec
+from polisyos.ir.refs import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import OptimizationDirection, SelectorOperator
 from polisyos.scientist.policy_design.objectives import (
@@ -47,14 +66,15 @@ from polisyos.scientist.policy_design.objectives import (
     PolicyEvaluationVector,
 )
 from polisyos.scientist.policy_design.output import (
-    PolicyArtifactBuildInput,
     PolicyArtifactBuilder,
+    PolicyArtifactBuildInput,
     PolicyBrief,
     load_champion_policy_dossier,
     load_policy_artifact_bundle,
     load_policy_brief,
     load_replayable_audit_bundle,
 )
+from polisyos.scientist.policy_design.phase3 import Phase3CertificateStatus
 from polisyos.scientist.policy_design.schema import (
     BudgetAllocationEntry,
     MonitoringSignalSpec,
@@ -384,6 +404,71 @@ def _translator_compliance() -> TranslatorComplianceResult:
     return TranslatorComplianceResult(passed=True, findings=[])
 
 
+def _phase3_passed(store: FileSystemCAS) -> Phase3CertificateStatus:
+    matrix_ref = store.put_json(
+        {"matrix": [[1]]},
+        PutOptions(kind="ir.welfare_multiplier_matrix", media_type="application/json"),
+    )
+    social_weight_ref = persist_social_weight_manifest(
+        store,
+        SocialWeightManifestArtifact(
+            manifest_ref="swr://phase-b-output/test@1.0.0#weights",
+            method_fqn="policy.welfare.state_dependent_inverse_social_weights@1.0.0",
+            normalization="mean_one",
+            income_grid=(0.0, 1.0),
+            weights_on_grid=(1.0, 1.0),
+            state_keys=("income",),
+        ),
+    )
+    ge_ref = persist_ge_uncertainty_bundle(
+        store,
+        GEUncertaintyBundle(
+            model_class="linearized_ge_io",
+            representation=GEUncertaintyRepresentation.MULTIPLIER_INTERVALS,
+            multiplier_shape=(1, 1),
+            point_multiplier_ref=ArtifactRefModel.model_validate(
+                matrix_ref.model_dump(mode="json")
+            ),
+            lower_multiplier_ref=ArtifactRefModel.model_validate(
+                matrix_ref.model_dump(mode="json")
+            ),
+            upper_multiplier_ref=ArtifactRefModel.model_validate(
+                matrix_ref.model_dump(mode="json")
+            ),
+        ),
+    )
+    welfare_ref = persist_welfare_bundle(
+        store,
+        WelfareBundle(
+            welfare_measure="net_social_welfare",
+            model_class="linearized_ge_io",
+            ge_multiplier_semantics="leontief_inverse",
+            social_weight_ref=social_weight_ref,
+            ge_uncertainty_ref=ge_ref,
+            point_estimate=1.0,
+            credible_interval=(0.9, 1.1),
+            robust_interval=(0.8, 1.2),
+            interval_semantics=WelfareIntervalSemantics.MIXED_NESTED,
+            method_used=WelfareMethod.MIXED_NESTED,
+            status=WelfareStatus.OK,
+        ),
+    )
+    ambiguity_ref = persist_optimization_ambiguity_certificate(
+        store,
+        build_optimization_ambiguity_certificate(
+            {"mode": "not_applicable"},
+            mode="not_applicable",
+            source_kind="test",
+            overall_status="pass",
+        ),
+    )
+    return Phase3CertificateStatus(
+        welfare_bundle_ref=welfare_ref,
+        ambiguity_certificate_ref=ambiguity_ref,
+        gate_passed=True,
+    )
+
+
 def _uncertainty() -> UncertaintyEnvelope:
     return UncertaintyEnvelope.from_partial(
         {
@@ -437,6 +522,7 @@ def test_policy_artifact_builder_round_trip(tmp_path) -> None:
             judge_verdict=JudgeVerdict(per_judge={}, composite_decision="promote"),
             readiness_contract=readiness,
             readiness_ref=readiness_ref,
+            phase3_gate=_phase3_passed(store),
             policy_brief=_policy_brief(),
             translator_compliance=_translator_compliance(),
             distributional_report=_distributional_report(),
@@ -453,10 +539,29 @@ def test_policy_artifact_builder_round_trip(tmp_path) -> None:
     audit = load_replayable_audit_bundle(store, bundle.replayable_audit_bundle_ref)
 
     assert bundle.policy_brief_ref is not None
+    assert bundle.welfare_bundle_ref == bundle.phase3_gate.welfare_bundle_ref
+    assert bundle.ambiguity_certificate_ref == bundle.phase3_gate.ambiguity_certificate_ref
     assert dossier.readiness_level == DecisionReadiness.RECOMMENDATION_READY.value
     assert "Low income" in brief.subgroup_harms
     assert audit.readiness_ref is not None
     assert "policy_brief_ref" in audit.artifact_refs
+
+
+def test_policy_artifact_builder_refuses_forged_phase3_gate(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    candidate = _candidate()
+
+    with pytest.raises(ValueError, match="Phase 3 certificate"):
+        PolicyArtifactBuilder().build(
+            store,
+            PolicyArtifactBuildInput(
+                loop_id="loop_policy",
+                run_id="run_policy",
+                candidate=candidate,
+                candidate_hash=candidate.candidate_hash(),
+                phase3_gate=Phase3CertificateStatus(gate_passed=True),
+            ),
+        )
 
 
 def test_policy_artifact_builder_surfaces_degraded_evidence_channels(tmp_path) -> None:
@@ -493,6 +598,7 @@ def test_policy_artifact_builder_surfaces_degraded_evidence_channels(tmp_path) -
             judge_verdict=JudgeVerdict(per_judge={}, composite_decision="promote"),
             readiness_contract=readiness,
             readiness_ref=readiness_ref,
+            phase3_gate=_phase3_passed(store),
             policy_brief=_policy_brief(),
             translator_compliance=_translator_compliance(),
             distributional_report=_distributional_report(),

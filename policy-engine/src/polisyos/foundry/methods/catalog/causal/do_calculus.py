@@ -37,7 +37,8 @@ Pearl, J. (2009). Causality: Models, Reasoning, and Inference, 2nd ed. Cambridge
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
     ancestors,
@@ -45,16 +46,6 @@ from polisyos.foundry.methods.catalog.causal.admg_ops import (
     remove_incoming_edges,
     remove_outgoing_edges,
 )
-from polisyos.ir.analytics.estimand import (
-    DistributionRef,
-    EstimandAST,
-    IntegralNode,
-    NuisanceNode,
-    ProductNode,
-    RatioNode,
-    SumNode,
-)
-from polisyos.ir.analytics.evidence_bundle import ProofStep as IRProofStep
 from polisyos.foundry.methods.catalog.causal.sigma_calculus import (
     apply_sigma_rule1,
     apply_sigma_rule2,
@@ -63,6 +54,15 @@ from polisyos.foundry.methods.catalog.causal.sigma_calculus import (
     sigma_identify,
     sigma_z_identify,
 )
+from polisyos.ir.analytics.estimand import (
+    DistributionRef,
+    EstimandAST,
+    IntegralNode,
+    ProductNode,
+    RatioNode,
+    SumNode,
+)
+from polisyos.ir.analytics.evidence_bundle import ProofStep as IRProofStep
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.causal_graph import CausalGraphModel
@@ -78,7 +78,7 @@ CtfPostPass = Callable[[EstimandAST, "CausalGraphModel"], tuple[EstimandAST, lis
 
 def apply_rule1(
     dist_ref: DistributionRef,
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     z_vars: frozenset[str],
 ) -> tuple[DistributionRef, IRProofStep] | None:
     """Rule 1: Delete *z_vars* from the conditioning of *dist_ref*.
@@ -108,16 +108,14 @@ def apply_rule1(
     cond_set = X | W
     # Check both directions: m-separation is symmetric but the Bayes Ball
     # implementation is directional. AND ensures we never fire incorrectly.
-    if not (m_separation(g_x_bar, Y, z, cond_set) and
-            m_separation(g_x_bar, z, Y, cond_set)):
+    if not (m_separation(g_x_bar, Y, z, cond_set) and m_separation(g_x_bar, z, Y, cond_set)):
         return None  # Y not ⊥ Z | X,W in G_{X̄}
 
     new_ref = dist_ref.model_copy(update={"conditioning": tuple(sorted(W))})
     step = IRProofStep(
         rule_name="RULE1",
         description=(
-            f"Rule 1: deleted {sorted(z)} from conditioning "
-            f"(Y⊥Z|X,W in G_{{X̄}} with X={sorted(X)})"
+            f"Rule 1: deleted {sorted(z)} from conditioning (Y⊥Z|X,W in G_{{X̄}} with X={sorted(X)})"
         ),
         variables_affected=tuple(sorted(z)),
         graph_subset=f"G_{{X̄}}: incoming edges to {sorted(X)} removed",
@@ -136,7 +134,7 @@ def apply_rule1(
 
 def apply_rule2(
     dist_ref: DistributionRef,
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     z_vars: frozenset[str],
 ) -> tuple[DistributionRef, IRProofStep] | None:
     """Rule 2: Move *z_vars* from ``intervention_set`` to ``conditioning``.
@@ -166,26 +164,26 @@ def apply_rule2(
     g_x_bar = remove_incoming_edges(graph, X)
     g_xbar_z_under = remove_outgoing_edges(g_x_bar, z)
     cond_set = X | W
-    if not (m_separation(g_xbar_z_under, Y, z, cond_set) and
-            m_separation(g_xbar_z_under, z, Y, cond_set)):
+    if not (
+        m_separation(g_xbar_z_under, Y, z, cond_set)
+        and m_separation(g_xbar_z_under, z, Y, cond_set)
+    ):
         return None  # Y not ⊥ Z | X,W in G_{X̄Z̲}
 
     new_intervention = tuple(sorted(frozenset(dist_ref.intervention_set) - z))
     new_conditioning = tuple(sorted(frozenset(dist_ref.conditioning) | z))
-    new_ref = dist_ref.model_copy(update={
-        "intervention_set": new_intervention,
-        "conditioning": new_conditioning,
-    })
+    new_ref = dist_ref.model_copy(
+        update={
+            "intervention_set": new_intervention,
+            "conditioning": new_conditioning,
+        }
+    )
     step = IRProofStep(
         rule_name="RULE2",
-        description=(
-            f"Rule 2: moved {sorted(z)} from do() to conditioning "
-            f"(Y⊥Z|X,W in G_{{X̄Z̲}})"
-        ),
+        description=(f"Rule 2: moved {sorted(z)} from do() to conditioning (Y⊥Z|X,W in G_{{X̄Z̲}})"),
         variables_affected=tuple(sorted(z)),
         graph_subset=(
-            f"G_{{X̄Z̲}}: incoming to {sorted(X)} removed, "
-            f"outgoing from {sorted(z)} removed"
+            f"G_{{X̄Z̲}}: incoming to {sorted(X)} removed, outgoing from {sorted(z)} removed"
         ),
         rule_formal_name="do-calculus Rule 2 — Action/Observation Exchange",
         applicable_theorem="Pearl (1995) Theorem 1; Pearl (2009) Theorem 3.4.1",
@@ -205,7 +203,7 @@ def apply_rule2(
 
 def apply_rule3(
     dist_ref: DistributionRef,
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     z_vars: frozenset[str],
 ) -> tuple[DistributionRef, IRProofStep] | None:
     """Rule 3: Delete *z_vars* from ``intervention_set``.
@@ -240,8 +238,10 @@ def apply_rule3(
 
     g_xbar_zw_bar = remove_incoming_edges(g_x_bar, z_w)
     cond_set = X | W
-    if not (m_separation(g_xbar_zw_bar, Y, z_w, cond_set) and
-            m_separation(g_xbar_zw_bar, z_w, Y, cond_set)):
+    if not (
+        m_separation(g_xbar_zw_bar, Y, z_w, cond_set)
+        and m_separation(g_xbar_zw_bar, z_w, Y, cond_set)
+    ):
         return None  # Y not ⊥ Z(W) | X,W in G_{X̄Z̄(W)}
 
     new_intervention = tuple(sorted(frozenset(dist_ref.intervention_set) - z_w))
@@ -249,8 +249,7 @@ def apply_rule3(
     step = IRProofStep(
         rule_name="RULE3",
         description=(
-            f"Rule 3: deleted do({sorted(z_w)}) from intervention set "
-            f"(Y⊥Z(W)|X,W in G_{{X̄Z̄(W)}})"
+            f"Rule 3: deleted do({sorted(z_w)}) from intervention set (Y⊥Z(W)|X,W in G_{{X̄Z̄(W)}})"
         ),
         variables_affected=tuple(sorted(z_w)),
         graph_subset=(
@@ -260,8 +259,7 @@ def apply_rule3(
         rule_formal_name="do-calculus Rule 3 — Deletion of Actions",
         applicable_theorem="Pearl (1995) Theorem 1; Pearl (2009) Theorem 3.4.1",
         graph_state_before=(
-            f"G_{{X̄Z̄(W)}}: G with incoming edges to {sorted(X)} "
-            f"and Z(W)={sorted(z_w)} removed"
+            f"G_{{X̄Z̄(W)}}: G with incoming edges to {sorted(X)} and Z(W)={sorted(z_w)} removed"
         ),
         graph_state_after=f"Z(W)={sorted(z_w)} m-separated → removed from do()",
     )
@@ -275,7 +273,7 @@ def apply_rule3(
 
 def _try_all_rules(
     dist_ref: DistributionRef,
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
 ) -> tuple[DistributionRef, list[IRProofStep]]:
     """Try all 3 rules on a single DistributionRef, returning the simplified form.
 
@@ -322,7 +320,7 @@ def _try_all_rules(
 
 def _rewrite_node(
     node: object,
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
 ) -> tuple[object, list[IRProofStep]]:
     """Recursively rewrite an EstimandNode, returning (rewritten_node, steps).
 
@@ -360,10 +358,12 @@ def _rewrite_node(
         steps.extend(num_steps)
         steps.extend(den_steps)
         if new_num is not node.numerator or new_den is not node.denominator:
-            node = node.model_copy(update={
-                "numerator": new_num,
-                "denominator": new_den,
-            })
+            node = node.model_copy(
+                update={
+                    "numerator": new_num,
+                    "denominator": new_den,
+                }
+            )
         return node, steps
 
     if isinstance(node, IntegralNode):
@@ -400,7 +400,7 @@ def _resolve_ctf_postpass(
 
 def rewrite_estimand(
     ast: EstimandAST,
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     max_iterations: int = 20,
     *,
     ctf_postpass: CtfPostPass | None = None,
@@ -448,14 +448,15 @@ def rewrite_estimand(
     all_steps.extend(ctf_steps)
     return simplified, all_steps
 
+
 __all__ = [
     "apply_rule1",
     "apply_rule2",
     "apply_rule3",
-    "rewrite_estimand",
     "apply_sigma_rule1",
     "apply_sigma_rule2",
     "apply_sigma_rule3",
+    "rewrite_estimand",
     "rewrite_estimand_with_selection",
     "sigma_identify",
     "sigma_z_identify",

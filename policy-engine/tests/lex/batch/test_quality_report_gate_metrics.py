@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.lex.batch.quality_report import (
     QualityGateThresholds,
     build_quality_report,
     evaluate_quality_gates,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _write_jsonl(path: Path, rows: list[dict]) -> None:
@@ -17,7 +20,9 @@ def _write_jsonl(path: Path, rows: list[dict]) -> None:
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
-def test_quality_report_includes_gate_metrics_and_treats_raw_audit_miss_as_warning(tmp_path: Path) -> None:
+def test_quality_report_includes_gate_metrics_and_treats_raw_audit_miss_as_warning(
+    tmp_path: Path,
+) -> None:
     provisions_dir = tmp_path / "provisions"
     spo_results_dir = tmp_path / "spo_results"
     llm_gate_manifest = tmp_path / "manifests" / "llm_gate.json"
@@ -29,7 +34,13 @@ def test_quality_report_includes_gate_metrics_and_treats_raw_audit_miss_as_warni
     )
     _write_jsonl(
         spo_results_dir / "aa" / "doc1.jsonl",
-        [{"statements": [{"source_quote_uk": "x", "source_quote_start": 0, "source_quote_end": 1}]}],
+        [
+            {
+                "statements": [
+                    {"source_quote_uk": "x", "source_quote_start": 0, "source_quote_end": 1}
+                ]
+            }
+        ],
     )
 
     llm_gate_manifest.parent.mkdir(parents=True, exist_ok=True)
@@ -50,7 +61,9 @@ def test_quality_report_includes_gate_metrics_and_treats_raw_audit_miss_as_warni
                     "timeout_retry_success_total": 3,
                     "timeout_retry_failure_total": 1,
                     "deferred_reason_counts": {"deferred_no_llm": 2, "circuit_breaker_open": 1},
-                    "top_gap_fill_subtypes": [{"legal_unit_subtype": "core_normative_clause", "count": 8}],
+                    "top_gap_fill_subtypes": [
+                        {"legal_unit_subtype": "core_normative_clause", "count": 8}
+                    ],
                     "top_gap_fill_families": [{"family": "law", "count": 9}],
                     "top_timeout_gap_fill_families": [{"family": "appendix_heavy", "count": 2}],
                 }
@@ -61,8 +74,20 @@ def test_quality_report_includes_gate_metrics_and_treats_raw_audit_miss_as_warni
     _write_jsonl(
         llm_gate_audit,
         [
-            {"doc_id": "doc1", "provision_anchor": "art:1", "baseline_count": 0, "llm_count": 1, "miss": True},
-            {"doc_id": "doc1", "provision_anchor": "art:2", "baseline_count": 1, "llm_count": 1, "miss": False},
+            {
+                "doc_id": "doc1",
+                "provision_anchor": "art:1",
+                "baseline_count": 0,
+                "llm_count": 1,
+                "miss": True,
+            },
+            {
+                "doc_id": "doc1",
+                "provision_anchor": "art:2",
+                "baseline_count": 1,
+                "llm_count": 1,
+                "miss": False,
+            },
         ],
     )
 
@@ -95,12 +120,12 @@ def test_quality_report_includes_gate_metrics_and_treats_raw_audit_miss_as_warni
             max_oov_action_rate_pct=100.0,
             max_missing_quote_rate_pct=100.0,
             max_duplicate_anchor_rate_pct=100.0,
-                max_audit_miss_rate_pct=3.0,
-                min_llm_saved_pct=50.0,
-                min_audit_samples_for_rate=1,
-                min_provision_docs_for_doc_rate=1,
-                min_spo_rows_for_row_rate=1,
-                min_statements_for_statement_rate=1,
+            max_audit_miss_rate_pct=3.0,
+            min_llm_saved_pct=50.0,
+            min_audit_samples_for_rate=1,
+            min_provision_docs_for_doc_rate=1,
+            min_spo_rows_for_row_rate=1,
+            min_statements_for_statement_rate=1,
         ),
     )
     assert gate.passed is True

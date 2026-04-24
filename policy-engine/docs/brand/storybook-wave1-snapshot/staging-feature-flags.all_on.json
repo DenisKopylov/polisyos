@@ -1,0 +1,12 @@
+{
+  "profile": "all_on",
+  "version": 1,
+  "updatedAt": 1776816000000,
+  "ttlMs": 300000,
+  "flags": "all_on",
+  "notes": [
+    "Wave 1 closeout staging manifest.",
+    "The runtime dashboard accepts all_on and all_off manifest profiles.",
+    "This keeps the staging review aligned with Phase 1.8 without renaming legacy runtime keys during closeout."
+  ]
+}

@@ -5,7 +5,7 @@ from polisyos.foundry.methods.catalog.causal.protocols import ParameterTransferD
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 from polisyos.ir.analytics.literature import EvidenceParameter
 from polisyos.ir.analytics.parameters import ContextAdaptiveParameterBundle, ParameterApplicability
-from polisyos.ir.analytics.transportability import TransportMode, TransportabilityStatus
+from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
 
 
 def test_parameter_transfer_builds_bridge_payload() -> None:

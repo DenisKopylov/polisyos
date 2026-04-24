@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import duckdb
 
 from polisyos.batch_common.manifest import write_publish_manifest
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _table_count(db_path: Path, table_name: str) -> int:
@@ -26,7 +29,7 @@ def _table_count(db_path: Path, table_name: str) -> int:
 def _load_json(path: Path) -> dict:
     if not path.exists():
         return {}
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         payload = json.load(fh)
     return payload if isinstance(payload, dict) else {}
 
@@ -66,30 +69,75 @@ def _write_consumer_readiness_manifest(*, output_dir: Path, require_embeddings: 
     qc_payload = _load_json(output_dir / "qc_report.json")
     benchmark_payload = _load_json(output_dir / "benchmark_report.json")
     smoke_payload = _load_json(output_dir / "smoke" / "smoke_report.json")
-    benchmark_readiness = benchmark_payload.get("readiness", {}) if isinstance(benchmark_payload.get("readiness"), dict) else {}
-    quality_metrics = qc_payload.get("metrics", {}) if isinstance(qc_payload.get("metrics"), dict) else {}
+    benchmark_readiness = (
+        benchmark_payload.get("readiness", {})
+        if isinstance(benchmark_payload.get("readiness"), dict)
+        else {}
+    )
+    quality_metrics = (
+        qc_payload.get("metrics", {}) if isinstance(qc_payload.get("metrics"), dict) else {}
+    )
     qc_failed_checks = list(quality_metrics.get("qc_failed_checks", []))
     release_failed_checks = list(quality_metrics.get("release_failed_checks", []))
     if not require_embeddings:
-        qc_failed_checks = [check for check in qc_failed_checks if check != "embedding_artifacts_present"]
-        release_failed_checks = [check for check in release_failed_checks if check != "embedding_artifacts_present"]
-    family_breakdown = quality_metrics.get("doc_family_breakdown", {}) if isinstance(quality_metrics.get("doc_family_breakdown"), dict) else {}
-    subtype_breakdown = quality_metrics.get("legal_unit_subtype_breakdown", {}) if isinstance(quality_metrics.get("legal_unit_subtype_breakdown"), dict) else {}
-    top_problem_subtypes = quality_metrics.get("top_problem_subtypes", []) if isinstance(quality_metrics.get("top_problem_subtypes"), list) else []
-    top_unresolved_subtype_families = quality_metrics.get("top_unresolved_subtype_families", []) if isinstance(quality_metrics.get("top_unresolved_subtype_families"), list) else []
-    top_gap_fill_subtypes = quality_metrics.get("top_gap_fill_subtypes", []) if isinstance(quality_metrics.get("top_gap_fill_subtypes"), list) else []
-    top_gap_fill_families = quality_metrics.get("top_gap_fill_families", []) if isinstance(quality_metrics.get("top_gap_fill_families"), list) else []
-    top_timeout_gap_fill_families = quality_metrics.get("top_timeout_gap_fill_families", []) if isinstance(quality_metrics.get("top_timeout_gap_fill_families"), list) else []
-    top_problem_doc_groups = smoke_payload.get("top_problem_doc_groups", []) if isinstance(smoke_payload.get("top_problem_doc_groups"), list) else []
-    top_problem_docs = smoke_payload.get("top_problem_docs", []) if isinstance(smoke_payload.get("top_problem_docs"), list) else []
-    quality_gate_passed = bool(quality_metrics.get("quality_gate_passed", qc_payload.get("passed", False)))
+        qc_failed_checks = [
+            check for check in qc_failed_checks if check != "embedding_artifacts_present"
+        ]
+        release_failed_checks = [
+            check for check in release_failed_checks if check != "embedding_artifacts_present"
+        ]
+    family_breakdown = (
+        quality_metrics.get("doc_family_breakdown", {})
+        if isinstance(quality_metrics.get("doc_family_breakdown"), dict)
+        else {}
+    )
+    subtype_breakdown = (
+        quality_metrics.get("legal_unit_subtype_breakdown", {})
+        if isinstance(quality_metrics.get("legal_unit_subtype_breakdown"), dict)
+        else {}
+    )
+    top_problem_subtypes = (
+        quality_metrics.get("top_problem_subtypes", [])
+        if isinstance(quality_metrics.get("top_problem_subtypes"), list)
+        else []
+    )
+    top_unresolved_subtype_families = (
+        quality_metrics.get("top_unresolved_subtype_families", [])
+        if isinstance(quality_metrics.get("top_unresolved_subtype_families"), list)
+        else []
+    )
+    top_gap_fill_subtypes = (
+        quality_metrics.get("top_gap_fill_subtypes", [])
+        if isinstance(quality_metrics.get("top_gap_fill_subtypes"), list)
+        else []
+    )
+    top_gap_fill_families = (
+        quality_metrics.get("top_gap_fill_families", [])
+        if isinstance(quality_metrics.get("top_gap_fill_families"), list)
+        else []
+    )
+    top_timeout_gap_fill_families = (
+        quality_metrics.get("top_timeout_gap_fill_families", [])
+        if isinstance(quality_metrics.get("top_timeout_gap_fill_families"), list)
+        else []
+    )
+    top_problem_doc_groups = (
+        smoke_payload.get("top_problem_doc_groups", [])
+        if isinstance(smoke_payload.get("top_problem_doc_groups"), list)
+        else []
+    )
+    top_problem_docs = (
+        smoke_payload.get("top_problem_docs", [])
+        if isinstance(smoke_payload.get("top_problem_docs"), list)
+        else []
+    )
+    quality_gate_passed = bool(
+        quality_metrics.get("quality_gate_passed", qc_payload.get("passed", False))
+    )
     qc_passed = not qc_failed_checks
     benchmark_passed = bool(benchmark_readiness.get("passed", False))
     release_passed = bool(quality_gate_passed and qc_passed)
-    release_ready = (
-        readiness["consumer_ready"]
-        and release_passed
-    )
+    release_ready = readiness["consumer_ready"] and release_passed
 
     manifest_path = output_dir / "publish" / "consumer_readiness.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -105,8 +153,12 @@ def _write_consumer_readiness_manifest(*, output_dir: Path, require_embeddings: 
                     "qc_passed": qc_passed,
                     "benchmark_passed": benchmark_passed,
                     "release_passed": release_passed,
-                    "quality_gate_failed_checks": quality_metrics.get("quality_gate_failed_checks", []),
-                    "quality_hotspot_failed_checks": quality_metrics.get("quality_hotspot_failed_checks", []),
+                    "quality_gate_failed_checks": quality_metrics.get(
+                        "quality_gate_failed_checks", []
+                    ),
+                    "quality_hotspot_failed_checks": quality_metrics.get(
+                        "quality_hotspot_failed_checks", []
+                    ),
                     "qc_failed_checks": qc_failed_checks,
                     "benchmark_failed_checks": benchmark_readiness.get("failed_checks", []),
                     "release_failed_checks": release_failed_checks,
@@ -128,29 +180,69 @@ def _write_consumer_readiness_manifest(*, output_dir: Path, require_embeddings: 
                     "top_timeout_gap_fill_families": top_timeout_gap_fill_families,
                     "top_problem_doc_groups": top_problem_doc_groups,
                     "top_problem_docs": top_problem_docs[:10],
-                    "quality_gate_failed_checks": quality_metrics.get("quality_gate_failed_checks", []),
-                    "quality_hotspot_failed_checks": quality_metrics.get("quality_hotspot_failed_checks", []),
-                    "quality_gate_warning_failed_checks": quality_metrics.get("quality_gate_warning_failed_checks", []),
-                    "quality_gate_skipped_checks": quality_metrics.get("quality_gate_skipped_checks", []),
-                    "high_confidence_norms_total": quality_metrics.get("high_confidence_norms", tables["lex_high_confidence_norms"]),
-                    "normative_ready_total": quality_metrics.get("normative_ready_total", tables["lex_normative_ready_facts"]),
-                    "normative_ready_share_pct": quality_metrics.get("normative_ready_share_pct", 0.0),
+                    "quality_gate_failed_checks": quality_metrics.get(
+                        "quality_gate_failed_checks", []
+                    ),
+                    "quality_hotspot_failed_checks": quality_metrics.get(
+                        "quality_hotspot_failed_checks", []
+                    ),
+                    "quality_gate_warning_failed_checks": quality_metrics.get(
+                        "quality_gate_warning_failed_checks", []
+                    ),
+                    "quality_gate_skipped_checks": quality_metrics.get(
+                        "quality_gate_skipped_checks", []
+                    ),
+                    "high_confidence_norms_total": quality_metrics.get(
+                        "high_confidence_norms", tables["lex_high_confidence_norms"]
+                    ),
+                    "normative_ready_total": quality_metrics.get(
+                        "normative_ready_total", tables["lex_normative_ready_facts"]
+                    ),
+                    "normative_ready_share_pct": quality_metrics.get(
+                        "normative_ready_share_pct", 0.0
+                    ),
                     "llm_gap_fill_metrics": {
-                        "llm_gap_fill_sent_total": quality_metrics.get("llm_gap_fill_sent_total", 0),
-                        "llm_gap_fill_added_statements_total": quality_metrics.get("llm_gap_fill_added_statements_total", 0),
-                        "baseline_vs_gap_fill_added_statements_total": quality_metrics.get("baseline_vs_gap_fill_added_statements_total", 0),
-                        "llm_gap_fill_timeout_fallback_total": quality_metrics.get("llm_gap_fill_timeout_fallback_total", 0),
-                        "llm_gap_fill_empty_responses_total": quality_metrics.get("llm_gap_fill_empty_responses_total", 0),
-                        "gap_fill_null_yield_total": quality_metrics.get("gap_fill_null_yield_total", 0),
-                        "gap_fill_null_yield_pct": quality_metrics.get("gap_fill_null_yield_pct", 0.0),
-                        "gap_fill_null_yield_persisted_empty_total": quality_metrics.get("gap_fill_null_yield_persisted_empty_total", 0),
-                        "gap_fill_null_yield_preserved_baseline_total": quality_metrics.get("gap_fill_null_yield_preserved_baseline_total", 0),
-                        "llm_gap_fill_gain_rate_pct": quality_metrics.get("llm_gap_fill_gain_rate_pct", 0.0),
+                        "llm_gap_fill_sent_total": quality_metrics.get(
+                            "llm_gap_fill_sent_total", 0
+                        ),
+                        "llm_gap_fill_added_statements_total": quality_metrics.get(
+                            "llm_gap_fill_added_statements_total", 0
+                        ),
+                        "baseline_vs_gap_fill_added_statements_total": quality_metrics.get(
+                            "baseline_vs_gap_fill_added_statements_total", 0
+                        ),
+                        "llm_gap_fill_timeout_fallback_total": quality_metrics.get(
+                            "llm_gap_fill_timeout_fallback_total", 0
+                        ),
+                        "llm_gap_fill_empty_responses_total": quality_metrics.get(
+                            "llm_gap_fill_empty_responses_total", 0
+                        ),
+                        "gap_fill_null_yield_total": quality_metrics.get(
+                            "gap_fill_null_yield_total", 0
+                        ),
+                        "gap_fill_null_yield_pct": quality_metrics.get(
+                            "gap_fill_null_yield_pct", 0.0
+                        ),
+                        "gap_fill_null_yield_persisted_empty_total": quality_metrics.get(
+                            "gap_fill_null_yield_persisted_empty_total", 0
+                        ),
+                        "gap_fill_null_yield_preserved_baseline_total": quality_metrics.get(
+                            "gap_fill_null_yield_preserved_baseline_total", 0
+                        ),
+                        "llm_gap_fill_gain_rate_pct": quality_metrics.get(
+                            "llm_gap_fill_gain_rate_pct", 0.0
+                        ),
                         "primary_llm_saved_pct": quality_metrics.get("primary_llm_saved_pct", 0.0),
                         "llm_saved_pct_legacy": quality_metrics.get("llm_saved_pct", 0.0),
-                        "gap_fill_trigger_counts": quality_metrics.get("gap_fill_trigger_counts", {}),
-                        "audit_miss_rate_pct_before_gap_fill_baseline": quality_metrics.get("audit_miss_rate_pct_before_gap_fill_baseline", 0.0),
-                        "audit_miss_rate_pct_after_gap_fill": quality_metrics.get("audit_miss_rate_pct_after_gap_fill", 0.0),
+                        "gap_fill_trigger_counts": quality_metrics.get(
+                            "gap_fill_trigger_counts", {}
+                        ),
+                        "audit_miss_rate_pct_before_gap_fill_baseline": quality_metrics.get(
+                            "audit_miss_rate_pct_before_gap_fill_baseline", 0.0
+                        ),
+                        "audit_miss_rate_pct_after_gap_fill": quality_metrics.get(
+                            "audit_miss_rate_pct_after_gap_fill", 0.0
+                        ),
                     },
                 },
                 "benchmark_summary": {
@@ -197,7 +289,9 @@ def run_publish(output_dir: Path, *, require_embeddings: bool = True) -> Path:
         manifest_path=manifest_path,
         pipeline="lex",
         artifacts=existing,
-        qc_report_path=(output_dir / "qc_report.json") if (output_dir / "qc_report.json").exists() else None,
+        qc_report_path=(output_dir / "qc_report.json")
+        if (output_dir / "qc_report.json").exists()
+        else None,
         extra={
             "component_dir": str(output_dir),
             "consumer_readiness_manifest": str(consumer_manifest),

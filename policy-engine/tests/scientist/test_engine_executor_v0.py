@@ -325,8 +325,7 @@ def test_executor_logs_cache_write_bypass_as_node_event(tmp_path, monkeypatch, c
 
     assert result.report.status == "ok"
     assert any(
-        "Node result cache write bypassed" in record.getMessage()
-        for record in caplog.records
+        "Node result cache write bypassed" in record.getMessage() for record in caplog.records
     )
 
 
@@ -351,8 +350,7 @@ def test_executor_logs_provenance_recording_degraded_as_node_event(tmp_path, cap
 
     assert result.report.status == "ok"
     assert any(
-        "Node provenance recording degraded" in record.getMessage()
-        for record in caplog.records
+        "Node provenance recording degraded" in record.getMessage() for record in caplog.records
     )
 
 

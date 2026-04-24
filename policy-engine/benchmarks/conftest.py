@@ -114,6 +114,7 @@ def y0_available() -> bool:
     """True if the optional y0 library is installed."""
     try:
         import y0  # noqa: F401
+
         return True
     except ImportError:
         return False
@@ -123,6 +124,7 @@ def dowhy_available() -> bool:
     """True if the optional DoWhy library is installed."""
     try:
         import dowhy  # noqa: F401
+
         return True
     except ImportError:
         return False

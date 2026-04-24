@@ -1,4 +1,5 @@
 """Public causal composition failure cards module API."""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -24,6 +25,7 @@ _COMPOSITION_FAILURE_CARD_BUNDLE_SCHEMA_VERSION = "1.0"
 
 class CompositionFailureCardBundle(BaseModel):
     """Composition failure card bundle data model."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -83,7 +85,8 @@ def build_composition_failure_cards(
             )
         )
     if alignment_report.incompatible_pairs or any(
-        "incompatible" in reason or "missing alignment coverage" in reason for reason in lowered_reasons
+        "incompatible" in reason or "missing alignment coverage" in reason
+        for reason in lowered_reasons
     ):
         cards.append(
             TypedFailureCard(
@@ -93,7 +96,9 @@ def build_composition_failure_cards(
                 description="Semantic alignment is incompatible for strict fragment composition.",
                 remediation_hint="Provide compatible interface evidence or remove the conflicting fragment stitch.",
                 metadata={
-                    "incompatible_pairs": [list(pair) for pair in alignment_report.incompatible_pairs],
+                    "incompatible_pairs": [
+                        list(pair) for pair in alignment_report.incompatible_pairs
+                    ],
                     "blocking_reasons": [
                         reason
                         for reason in blocking_reasons
@@ -116,7 +121,9 @@ def build_composition_failure_cards(
                         reason for reason in blocking_reasons if "unobserved" in reason.lower()
                     ],
                     "interface_ids": [
-                        entry.interface_id for entry in interface_mapping.entries if not entry.observed
+                        entry.interface_id
+                        for entry in interface_mapping.entries
+                        if not entry.observed
                     ],
                 },
             )
@@ -258,7 +265,9 @@ def build_composition_failure_cards(
                 remediation_hint="Expose an observed interface before claiming exact_observed_dag_adjustment_v1 completeness.",
                 metadata={
                     "interface_ids": [
-                        entry.interface_id for entry in interface_mapping.entries if not entry.observed
+                        entry.interface_id
+                        for entry in interface_mapping.entries
+                        if not entry.observed
                     ]
                 },
             )

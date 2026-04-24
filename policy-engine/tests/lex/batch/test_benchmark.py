@@ -49,7 +49,9 @@ def _seed_benchmark_db(db_path) -> None:
                 """
             )
         con.execute("CREATE TABLE lex_doc_domains (doc_id VARCHAR, domain VARCHAR)")
-        con.execute("CREATE TABLE lex_rule_thresholds (threshold_id VARCHAR, fact_id VARCHAR, metric VARCHAR)")
+        con.execute(
+            "CREATE TABLE lex_rule_thresholds (threshold_id VARCHAR, fact_id VARCHAR, metric VARCHAR)"
+        )
         con.execute("CREATE TABLE lex_entities (entity_id VARCHAR, mention_count INTEGER)")
         con.execute(
             """
@@ -200,7 +202,7 @@ def _seed_benchmark_db(db_path) -> None:
                 "",
                 "",
                 "",
-                "[{\"metric\":\"minimum_amount\",\"value_text\":\"10 відсотків\",\"operator\":\">=\"}]",
+                '[{"metric":"minimum_amount","value_text":"10 відсотків","operator":">="}]',
                 "Мінімальний розмір внеску становить 10 відсотків.",
                 "",
                 "exact_quote",
@@ -221,8 +223,8 @@ def _seed_benchmark_db(db_path) -> None:
                 "doc_threshold",
             ),
         ]
-        grounded_rows = [row[:14] + ("grounded_fact",) + row[15:] for row in base_rows]
-        normative_rows = [row[:14] + ("normative_fact",) + row[15:] for row in base_rows]
+        grounded_rows = [(*row[:14], "grounded_fact", *row[15:]) for row in base_rows]
+        normative_rows = [(*row[:14], "normative_fact", *row[15:]) for row in base_rows]
         for table_name, rows in (
             ("lex_facts", grounded_rows),
             ("lex_fact_grounded", grounded_rows),
@@ -277,7 +279,11 @@ def _seed_benchmark_db(db_path) -> None:
             [
                 ("doc_amend", "Про внесення змін до Закону України про ліцензування", "Закон"),
                 ("doc_amend_2", "Про внесення змін до Постанови про звітність", "Постанова"),
-                ("doc_amend_multi", "Про внесення змін до деяких законодавчих актів України", "Закон"),
+                (
+                    "doc_amend_multi",
+                    "Про внесення змін до деяких законодавчих актів України",
+                    "Закон",
+                ),
             ],
         )
         con.executemany(
@@ -322,10 +328,40 @@ def test_run_benchmark_writes_report_and_metrics(tmp_path) -> None:
     payload = json.loads(outcome.report_path.read_text(encoding="utf-8"))
     assert payload["kind"] == "lex_benchmark"
     assert payload["sections"]["search"]["cases"]
-    assert payload["sections"]["quality_capabilities"]["sections"]["entity_resolution"]["entities_total"] == 4
-    assert payload["sections"]["quality_capabilities"]["sections"]["reference_resolution"]["references_total"] == 6
-    assert payload["sections"]["quality_capabilities"]["sections"]["amendments"]["amendments_total"] == 3
-    assert payload["sections"]["quality_capabilities"]["sections"]["amendments"]["amendment_target_expected_total"] == 2
-    assert payload["sections"]["quality_capabilities"]["sections"]["amendments"]["single_target_amendment_docs_total"] == 2
-    assert payload["sections"]["quality_capabilities"]["sections"]["amendments"]["resolved_single_target_amendment_docs_total"] == 2
-    assert payload["sections"]["quality_capabilities"]["sections"]["consistency"]["issues_total"] == 5
+    assert (
+        payload["sections"]["quality_capabilities"]["sections"]["entity_resolution"][
+            "entities_total"
+        ]
+        == 4
+    )
+    assert (
+        payload["sections"]["quality_capabilities"]["sections"]["reference_resolution"][
+            "references_total"
+        ]
+        == 6
+    )
+    assert (
+        payload["sections"]["quality_capabilities"]["sections"]["amendments"]["amendments_total"]
+        == 3
+    )
+    assert (
+        payload["sections"]["quality_capabilities"]["sections"]["amendments"][
+            "amendment_target_expected_total"
+        ]
+        == 2
+    )
+    assert (
+        payload["sections"]["quality_capabilities"]["sections"]["amendments"][
+            "single_target_amendment_docs_total"
+        ]
+        == 2
+    )
+    assert (
+        payload["sections"]["quality_capabilities"]["sections"]["amendments"][
+            "resolved_single_target_amendment_docs_total"
+        ]
+        == 2
+    )
+    assert (
+        payload["sections"]["quality_capabilities"]["sections"]["consistency"]["issues_total"] == 5
+    )

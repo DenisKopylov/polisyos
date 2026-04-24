@@ -1,4 +1,5 @@
 """Track C — Compiler: tests for C1-C5 additions to estimand_compiler.py."""
+
 import pytest
 
 from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
@@ -27,7 +28,6 @@ from polisyos.ir.analytics.estimand import (
     make_frontdoor_estimand,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -36,9 +36,7 @@ from polisyos.ir.analytics.estimand import (
 def _make_dml_ast(n_covariates: int = 6) -> EstimandAST:
     """Backdoor AST with enough covariates to trigger DML_COMPATIBLE."""
     adj = tuple(f"Z{i}" for i in range(n_covariates))
-    return make_backdoor_estimand(
-        treatment="T", outcome="Y", adjustment_set=adj, dataset_ref="ds1"
-    )
+    return make_backdoor_estimand(treatment="T", outcome="Y", adjustment_set=adj, dataset_ref="ds1")
 
 
 def _make_iv_ast_by_marker() -> EstimandAST:
@@ -402,7 +400,9 @@ class TestC3bPolicyRouting:
         rec = recommend_estimator(ast, n_obs=500)
         eg = compile_to_method_dag_nodes(ast, rec, run_id="c3b-1")
 
-        shift_node = next(n for n in eg.nodes if n.method_fqn == "causal.continuous_treatment.shift")
+        shift_node = next(
+            n for n in eg.nodes if n.method_fqn == "causal.continuous_treatment.shift"
+        )
         assert shift_node.params["delta"] == pytest.approx(0.25)
         assert any(n.method_fqn == "causal.diagnostics.policy_overlap" for n in eg.nodes)
 
@@ -412,7 +412,9 @@ class TestC3bPolicyRouting:
         eg = compile_to_method_dag_nodes(ast, rec, run_id="c3b-2")
 
         plugin_node = next(n for n in eg.nodes if n.method_fqn == "causal.stochastic.policy_plugin")
-        overlap_node = next(n for n in eg.nodes if n.method_fqn == "causal.diagnostics.policy_overlap")
+        overlap_node = next(
+            n for n in eg.nodes if n.method_fqn == "causal.diagnostics.policy_overlap"
+        )
         assert overlap_node.depends_on == (plugin_node.node_id,)
 
     def test_incremental_policy_prefers_binary_policy_tmle_family(self):
@@ -568,49 +570,37 @@ class TestC4SkipIfFailed:
 
 class TestC5FrontdoorNuisanceSchedule:
     def test_frontdoor_compile_has_two_nuisance_nodes(self):
-        ast = make_frontdoor_estimand(
-            treatment="T", outcome="Y", mediator="M", dataset_ref="ds1"
-        )
+        ast = make_frontdoor_estimand(treatment="T", outcome="Y", mediator="M", dataset_ref="ds1")
         rec, eg = compile_estimand(ast, run_id="c5-1", n_obs=500)
         nuisance_nodes = [n for n in eg.nodes if n.is_nuisance]
         assert len(nuisance_nodes) == 2
 
     def test_frontdoor_nuisance_schedule_has_two_entries(self):
-        ast = make_frontdoor_estimand(
-            treatment="T", outcome="Y", mediator="M", dataset_ref="ds1"
-        )
+        ast = make_frontdoor_estimand(treatment="T", outcome="Y", mediator="M", dataset_ref="ds1")
         rec, eg = compile_estimand(ast, run_id="c5-2", n_obs=500)
         assert len(eg.nuisance_schedule) == 2
 
     def test_frontdoor_nuisance_schedule_ids_are_valid(self):
-        ast = make_frontdoor_estimand(
-            treatment="T", outcome="Y", mediator="M", dataset_ref="ds1"
-        )
+        ast = make_frontdoor_estimand(treatment="T", outcome="Y", mediator="M", dataset_ref="ds1")
         rec, eg = compile_estimand(ast, run_id="c5-3", n_obs=500)
         all_ids = {n.node_id for n in eg.nodes}
         for nid in eg.nuisance_schedule:
             assert nid in all_ids
 
     def test_frontdoor_mediator_nuisance_node_present(self):
-        ast = make_frontdoor_estimand(
-            treatment="T", outcome="Y", mediator="M", dataset_ref="ds1"
-        )
+        ast = make_frontdoor_estimand(treatment="T", outcome="Y", mediator="M", dataset_ref="ds1")
         rec, eg = compile_estimand(ast, run_id="c5-4", n_obs=500)
         fqns = [n.method_fqn for n in eg.nodes]
         assert any("mediator_density" in fqn for fqn in fqns)
 
     def test_frontdoor_outcome_nuisance_node_present(self):
-        ast = make_frontdoor_estimand(
-            treatment="T", outcome="Y", mediator="M", dataset_ref="ds1"
-        )
+        ast = make_frontdoor_estimand(treatment="T", outcome="Y", mediator="M", dataset_ref="ds1")
         rec, eg = compile_estimand(ast, run_id="c5-5", n_obs=500)
         fqns = [n.method_fqn for n in eg.nodes]
         assert any("outcome_given_mediator" in fqn for fqn in fqns)
 
     def test_frontdoor_mediation_estimator_depends_on_nuisance_nodes(self):
-        ast = make_frontdoor_estimand(
-            treatment="T", outcome="Y", mediator="M", dataset_ref="ds1"
-        )
+        ast = make_frontdoor_estimand(treatment="T", outcome="Y", mediator="M", dataset_ref="ds1")
         rec, eg = compile_estimand(ast, run_id="c5-6", n_obs=500)
         nuisance_ids = {n.node_id for n in eg.nodes if n.is_nuisance}
         med_node = next(n for n in eg.nodes if "causal_mediation" in n.method_fqn)
@@ -618,18 +608,14 @@ class TestC5FrontdoorNuisanceSchedule:
         assert nuisance_ids.issubset(set(med_node.depends_on))
 
     def test_frontdoor_mediation_estimator_skip_if_failed_nuisance(self):
-        ast = make_frontdoor_estimand(
-            treatment="T", outcome="Y", mediator="M", dataset_ref="ds1"
-        )
+        ast = make_frontdoor_estimand(treatment="T", outcome="Y", mediator="M", dataset_ref="ds1")
         rec, eg = compile_estimand(ast, run_id="c5-7", n_obs=500)
         nuisance_ids = {n.node_id for n in eg.nodes if n.is_nuisance}
         med_node = next(n for n in eg.nodes if "causal_mediation" in n.method_fqn)
         assert nuisance_ids.issubset(set(med_node.skip_if_failed))
 
     def test_frontdoor_nuisance_schedule_subset_of_all_node_ids(self):
-        ast = make_frontdoor_estimand(
-            treatment="T", outcome="Y", mediator="M", dataset_ref="ds1"
-        )
+        ast = make_frontdoor_estimand(treatment="T", outcome="Y", mediator="M", dataset_ref="ds1")
         rec, eg = compile_estimand(ast, run_id="c5-8", n_obs=500)
         all_ids = {n.node_id for n in eg.nodes}
         assert set(eg.nuisance_schedule).issubset(all_ids)

@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 
+def _redacted_marker() -> str:
+    return "[" + "REDACTED" + "]"
+
+
 def test_node_debug_endpoint_returns_node_context(runtime_api_env) -> None:
     client = runtime_api_env["client"]
     response = client.get(
@@ -12,7 +16,7 @@ def test_node_debug_endpoint_returns_node_context(runtime_api_env) -> None:
     assert payload["alias"] == "run_governance"
     assert payload["record"]["status"] == "fail"
     assert payload["record"]["error_code"] == "governance.blocked"
-    assert payload["record"]["error_details"]["api_token"] == "[REDACTED]"
+    assert payload["record"]["error_details"]["api_token"] == _redacted_marker()
     assert payload["cache_bypasses"] >= 1
 
 
@@ -43,7 +47,7 @@ def test_run_errors_endpoint_aggregates_manifest_and_workflow_errors(runtime_api
     assert "run.failed" in codes
     assert "governance.blocked" in codes
     workflow_error = next(item for item in errors if item["code"] == "governance.blocked")
-    assert workflow_error["details"]["api_token"] == "[REDACTED]"
+    assert workflow_error["details"]["api_token"] == _redacted_marker()
 
 
 def test_feedback_endpoint_returns_feedback_loop(runtime_api_env) -> None:

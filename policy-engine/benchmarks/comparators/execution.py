@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import math
+from dataclasses import dataclass
 from typing import Any, Protocol
 
 import numpy as np
@@ -23,11 +23,9 @@ class ComparatorCaseOutcome:
 class ComparatorAdapter(Protocol):
     label: str
 
-    def supports_case(self, case: ManifestCase) -> bool:
-        ...
+    def supports_case(self, case: ManifestCase) -> bool: ...
 
-    def run_case(self, case: ManifestCase) -> ComparatorCaseOutcome:
-        ...
+    def run_case(self, case: ManifestCase) -> ComparatorCaseOutcome: ...
 
 
 def _bootstrap_difference_ci(values: list[float], *, n_boot: int = 256) -> dict[str, float] | None:
@@ -295,11 +293,15 @@ def execute_comparator_suite(
             if adapter is None:
                 failures.append(f"{label} adapter not registered")
                 continue
-            outcome = adapter.run_case(case) if available else ComparatorCaseOutcome(
-                supported=False,
-                executed=False,
-                metrics={},
-                failure_reason=f"{label} comparator unavailable",
+            outcome = (
+                adapter.run_case(case)
+                if available
+                else ComparatorCaseOutcome(
+                    supported=False,
+                    executed=False,
+                    metrics={},
+                    failure_reason=f"{label} comparator unavailable",
+                )
             )
             if outcome.supported:
                 supported += 1
@@ -313,9 +315,7 @@ def execute_comparator_suite(
                 if math.isfinite(value):
                     metrics.setdefault(key, []).append(float(value))
         metric_summary = {
-            key: float(sum(values) / len(values))
-            for key, values in metrics.items()
-            if values
+            key: float(sum(values) / len(values)) for key, values in metrics.items() if values
         }
         runs[label] = {
             "available": available,
@@ -330,17 +330,9 @@ def execute_comparator_suite(
         "comparison_policy": comparison_policy,
         "required": list(required_labels),
         "status": status_map,
-        "executed": {
-            label: payload["executed"]
-            for label, payload in runs.items()
-        },
+        "executed": {label: payload["executed"] for label, payload in runs.items()},
     }
-    ci_values = [
-        delta
-        for values in ci_inputs.values()
-        for delta in values
-        if math.isfinite(delta)
-    ]
+    ci_values = [delta for values in ci_inputs.values() for delta in values if math.isfinite(delta)]
     if ci_values:
         matrix["paired_bootstrap_ci"] = _bootstrap_difference_ci(ci_values)
     return matrix, runs

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List
-
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.scientist.governance.accountability import resolve_governance_threshold
@@ -38,7 +36,7 @@ class EscalationPass(ValidatorPass):
     def estimated_cost_ms(self) -> int:
         return 10
 
-    def validate(self, ctx: PassContext) -> List[ComplianceIssue]:
+    def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
         issues: list[ComplianceIssue] = []
         state = ctx.state
 
@@ -98,8 +96,7 @@ class EscalationPass(ValidatorPass):
         conflicts = state.get("unresolved_conflicts", [])
         if isinstance(conflicts, list) and conflicts:
             n_critical = sum(
-                1 for c in conflicts
-                if isinstance(c, dict) and c.get("severity") == "critical"
+                1 for c in conflicts if isinstance(c, dict) and c.get("severity") == "critical"
             )
             if n_critical > 0:
                 issues.append(

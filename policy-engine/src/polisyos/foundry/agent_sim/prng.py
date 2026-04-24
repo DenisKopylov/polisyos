@@ -1,4 +1,5 @@
 """Public agent sim prng module API."""
+
 from __future__ import annotations
 
 import chex
@@ -10,6 +11,7 @@ from jaxtyping import Array, Int
 @chex.dataclass(frozen=True)
 class PRNGState:
     """Track the master key and logical step counter for deterministic sampling."""
+
     master_key: chex.PRNGKey
     step_counter: Int[Array, ""]
 

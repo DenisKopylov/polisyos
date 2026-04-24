@@ -64,13 +64,15 @@ class TestFallbackRouter:
     @pytest.mark.asyncio
     async def test_all_endpoints_down(self, two_endpoints):
         router = FallbackRouter(two_endpoints)
-        with patch(
-            "polisyos.scientist.llm.fallback_router.GatewayLLMClient.generate",
-            new_callable=AsyncMock,
-            side_effect=RuntimeError("down"),
+        with (
+            patch(
+                "polisyos.scientist.llm.fallback_router.GatewayLLMClient.generate",
+                new_callable=AsyncMock,
+                side_effect=RuntimeError("down"),
+            ),
+            pytest.raises(RuntimeError, match="All LLM endpoints exhausted"),
         ):
-            with pytest.raises(RuntimeError, match="All LLM endpoints exhausted"):
-                await router.generate(user="hi")
+            await router.generate(user="hi")
 
     @pytest.mark.asyncio
     async def test_failover_emits_degraded_path(self, two_endpoints):
@@ -84,12 +86,15 @@ class TestFallbackRouter:
             return _ok_response("secondary")
 
         router = FallbackRouter(two_endpoints)
-        with patch(
-            "polisyos.scientist.llm.fallback_router.GatewayLLMClient.generate",
-            side_effect=_mock_generate,
-        ), patch(
-            "polisyos.scientist.llm.fallback_router.emit_degraded_path",
-        ) as degraded:
+        with (
+            patch(
+                "polisyos.scientist.llm.fallback_router.GatewayLLMClient.generate",
+                side_effect=_mock_generate,
+            ),
+            patch(
+                "polisyos.scientist.llm.fallback_router.emit_degraded_path",
+            ) as degraded,
+        ):
             result = await router.generate(user="hi")
 
         assert result.content == "secondary"
@@ -98,13 +103,15 @@ class TestFallbackRouter:
     @pytest.mark.asyncio
     async def test_keyboard_interrupt_is_not_swallowed(self, two_endpoints):
         router = FallbackRouter(two_endpoints)
-        with patch(
-            "polisyos.scientist.llm.fallback_router.GatewayLLMClient.generate",
-            new_callable=AsyncMock,
-            side_effect=KeyboardInterrupt("stop"),
+        with (
+            patch(
+                "polisyos.scientist.llm.fallback_router.GatewayLLMClient.generate",
+                new_callable=AsyncMock,
+                side_effect=KeyboardInterrupt("stop"),
+            ),
+            pytest.raises(KeyboardInterrupt, match="stop"),
         ):
-            with pytest.raises(KeyboardInterrupt, match="stop"):
-                await router.generate(user="hi")
+            await router.generate(user="hi")
 
     def test_endpoint_health_reporting(self, two_endpoints):
         router = FallbackRouter(two_endpoints)

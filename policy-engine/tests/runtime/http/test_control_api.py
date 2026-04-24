@@ -106,7 +106,11 @@ class TestCapabilities:
         assert "durable_control_plane" in feature_keys
         assert "control_plane_local_waiver" in feature_keys
         assert body["constraints"]["max_parallel_models"] == 16
-        assert body["constraints"]["durable_control_profiles"] == ["research", "governed", "production"]
+        assert body["constraints"]["durable_control_profiles"] == [
+            "research",
+            "governed",
+            "production",
+        ]
 
     def test_get_control_workers_returns_worker_leases(self, runtime_api_env):
         client = runtime_api_env["client"]
@@ -120,7 +124,7 @@ class TestCapabilities:
 
     def test_get_control_outbox_returns_events(self, runtime_api_env):
         service = runtime_api_env["app"].state._control_service
-        record = service._control_store.enqueue_outbox_event(  # noqa: SLF001
+        record = service._control_store.enqueue_outbox_event(
             topic="control.fixture",
             event_key="fixture-event",
             payload={"fixture": True},
@@ -162,7 +166,10 @@ class TestDecisionValidity:
         assert response.status_code == 200
         body = response.json()
         assert body["run_id"] == runtime_api_env["core_run_id"]
-        assert body["decision_packet_ref"]["artifact_id"] == runtime_api_env["decision_packet_artifact_id"]
+        assert (
+            body["decision_packet_ref"]["artifact_id"]
+            == runtime_api_env["decision_packet_artifact_id"]
+        )
         assert body["status"] == "warning"
         assert body["decision_lineage_key"] == runtime_api_env["decision_packet_artifact_id"]
         assert body["evaluation_ref"]["kind"] == "scientist.decision_validity_evaluation"
@@ -189,7 +196,10 @@ class TestDecisionValidity:
         )
         assert response.status_code == 200
         body = response.json()
-        assert body["decision_packet_ref"]["artifact_id"] == runtime_api_env["decision_packet_artifact_id"]
+        assert (
+            body["decision_packet_ref"]["artifact_id"]
+            == runtime_api_env["decision_packet_artifact_id"]
+        )
         assert body["status"] == "requires_human_review"
         assert body["review_required"] is True
         assert body["lifecycle"]["events"][0]["trigger_type"] == "context_profile_drift"
@@ -304,7 +314,7 @@ class TestLaunchNlRun:
 class TestDataIngestion:
     def test_ingest_data_accepted(self, runtime_api_env):
         client = runtime_api_env["client"]
-        mock_result = IngestionResult(datasets_fetched=1)
+        IngestionResult(datasets_fetched=1)
         with patch(
             "polisyos.fabric.ingestion.run_connectors_ingestion",
             return_value=None,

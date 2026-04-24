@@ -1,7 +1,9 @@
 """Public causal forest dr module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -135,7 +137,9 @@ class ForestDRLearnerEstimator:
                 post_periods=0,
                 assumptions=dict(ForestDRLearnerEstimator.metadata.assumptions),
             )
-            return wrap_causal_output(report, warnings=[report.status_reason or "backend unavailable"])
+            return wrap_causal_output(
+                report, warnings=[report.status_reason or "backend unavailable"]
+            )
 
         data = build_hte_data(state)
         alpha = 1.0 - float(params.get("confidence_level", 0.95))
@@ -228,7 +232,9 @@ class ForestDRLearnerEstimator:
             assumptions=dict(ForestDRLearnerEstimator.metadata.assumptions),
             method_params={
                 "n_estimators": int(params.get("n_estimators", 500)),
-                "feature_importance_method": str(params.get("feature_importance_method", "tree_based")),
+                "feature_importance_method": str(
+                    params.get("feature_importance_method", "tree_based")
+                ),
             },
             metadata={
                 "hte_result_present": True,

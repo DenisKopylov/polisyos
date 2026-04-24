@@ -4,14 +4,13 @@
 temporal metadata, while ``resolve_active_version`` applies inclusive date semantics and
 deterministic tie-breaking to select the revision used by NormPack assembly.
 """
+
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-import pandas as pd
-
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.world import (
     append_world_segment_index,
     emit_world_node_facts,
@@ -54,6 +53,11 @@ from polisyos.lex.types import (
     LexVersionIndexOptions,
     LexVersionIndexResult,
 )
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+    from polisyos.core.artifacts.store import FileSystemCAS
 
 _FACT_COLUMNS = ["fact_id", "subject_id", "predicate_id", "object_value", "target_id", "tx_time"]
 
@@ -181,12 +185,16 @@ def build_version_index(
             lex_props = meta.props.get("lex") if isinstance(meta.props, dict) else None
             if not isinstance(lex_props, dict):
                 lex_props = {}
-            temporal_props = lex_props.get("temporal") if isinstance(lex_props.get("temporal"), dict) else {}
+            temporal_props = (
+                lex_props.get("temporal") if isinstance(lex_props.get("temporal"), dict) else {}
+            )
 
             published_at = temporal_props.get("published_at") or lex_props.get("published_at")
             effective_from = temporal_props.get("effective_from") or lex_props.get("effective_from")
             effective_to = temporal_props.get("effective_to") or lex_props.get("effective_to")
-            temporal_resolution_status = str(temporal_props.get("temporal_resolution_status") or "").strip().lower()
+            temporal_resolution_status = (
+                str(temporal_props.get("temporal_resolution_status") or "").strip().lower()
+            )
 
             if published_at is not None and not isinstance(published_at, str):
                 quality_issues.append(f"invalid_iso:published_at:{doc_version_id}")
@@ -272,7 +280,7 @@ def build_version_index(
         doc_source_props = DocSourcePropsV1(
             doc_source_id=doc_source_id,
             version_index_ref=version_index_artifact_id,
-            updated_at_iso=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            updated_at_iso=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             notes=[],
         )
         doc_source_props_artifact_id = persist_doc_source_props(cas, doc_source_props)
@@ -293,8 +301,7 @@ def build_version_index(
 
         input_refs = [WorldObjectRef(world_id=doc_source_id)]
         input_refs.extend(
-            WorldObjectRef(world_id=doc_version_id)
-            for doc_version_id in doc_version_ids
+            WorldObjectRef(world_id=doc_version_id) for doc_version_id in doc_version_ids
         )
         input_refs.extend(
             WorldObjectRef(artifact_id=entry.doc_meta_artifact_id) for entry in entries
@@ -420,16 +427,9 @@ def resolve_active_version(
         if strat.mode != "by_version_index_v1":
             raise LexValidationError(f"unsupported resolve mode: {strat.mode}")
         if strat.as_of_semantics != "date_inclusive":
-            raise LexValidationError(
-                f"unsupported as_of_semantics: {strat.as_of_semantics}"
-            )
-        if (
-            strat.tie_breaker
-            != "effective_from_then_published_then_doc_version_id"
-        ):
-            raise LexValidationError(
-                f"unsupported tie_breaker: {strat.tie_breaker}"
-            )
+            raise LexValidationError(f"unsupported as_of_semantics: {strat.as_of_semantics}")
+        if strat.tie_breaker != "effective_from_then_published_then_doc_version_id":
+            raise LexValidationError(f"unsupported tie_breaker: {strat.tie_breaker}")
 
         explanation: list[str] = []
         as_of_date = _parse_iso_date(
@@ -540,9 +540,7 @@ def resolve_active_version(
         return ActiveVersionResult(
             doc_source_id=doc_source_id,
             as_of_iso=as_of_norm,
-            selected_doc_version_id=(
-                None if selected is None else str(selected["doc_version_id"])
-            ),
+            selected_doc_version_id=(None if selected is None else str(selected["doc_version_id"])),
             selected_doc_meta_artifact_id=(
                 None if selected is None else str(selected["doc_meta_artifact_id"])
             ),

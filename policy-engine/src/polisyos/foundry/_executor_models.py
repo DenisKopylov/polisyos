@@ -1,7 +1,7 @@
 """Executor data models and shared low-level CAS helpers."""
+
 from __future__ import annotations
 
-import dataclasses
 from dataclasses import dataclass, field
 from enum import Enum
 from io import BytesIO
@@ -19,18 +19,18 @@ from polisyos.core.contracts.foundry import ConstraintReportRef
 from polisyos.foundry.methods.exceptions import StatePathTraversalError
 
 __all__ = [
-    "ExecuteArtifacts",
     "ApplyArtifacts",
-    "FailureSeverity",
-    "FailureKind",
-    "FailureCard",
+    "ExecuteArtifacts",
     "ExecutionStrictness",
+    "FailureCard",
+    "FailureKind",
+    "FailureSeverity",
     "artifact_id",
+    "get_state_path",
     "load_model",
     "load_payload",
-    "put_tensor",
     "load_tensor",
-    "get_state_path",
+    "put_tensor",
     "set_state_path",
 ]
 
@@ -88,8 +88,10 @@ class ExecutionStrictness(str, Enum):
 @dataclass(frozen=True)
 class ExecuteArtifacts:
     """CAS references and diagnostics produced by an execute call."""
+
     state_delta_ref: ArtifactRef
     metrics_ref: ArtifactRef
+    derived_artifacts: tuple[tuple[str, ArtifactRef], ...] = ()
     constraint_report_ref: ConstraintReportRef | None = None
     constraint_hard_fail: bool = False
     environment_ref: EnvironmentManifestRef | None = None
@@ -103,6 +105,7 @@ class ExecuteArtifacts:
 @dataclass(frozen=True)
 class ApplyArtifacts:
     """CAS references produced after applying state changes."""
+
     state_snapshot_ref: ArtifactRef
 
 
@@ -120,7 +123,7 @@ def artifact_id(value: ArtifactRef | ArtifactID | str) -> ArtifactID:
     return ArtifactID.model_validate(value)
 
 
-def load_model(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str, model_cls):  # noqa: ANN201
+def load_model(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str, model_cls):
     """Load model."""
     data = store.get_bytes(artifact_id(ref))
     payload = from_canonical_bytes(data)

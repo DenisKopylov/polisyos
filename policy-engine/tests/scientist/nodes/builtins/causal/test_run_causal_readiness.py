@@ -22,8 +22,8 @@ from polisyos.ir.refs import CausalReadinessBundleRef, TransportabilityResultRef
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.causal.run_causal_readiness import (
-    RunCausalReadinessNode,
     _SPEC,
+    RunCausalReadinessNode,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_READINESS_BUNDLE_REF,
@@ -357,9 +357,11 @@ def test_run_causal_readiness_graph_assertion_is_not_swallowed(tmp_path) -> None
         },
     )
 
-    with patch(
-        "polisyos.scientist.nodes.builtins.causal.run_causal_readiness.load_causal_graph_model",
-        side_effect=AssertionError("graph invariant"),
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.causal.run_causal_readiness.load_causal_graph_model",
+            side_effect=AssertionError("graph invariant"),
+        ),
+        pytest.raises(AssertionError, match="graph invariant"),
     ):
-        with pytest.raises(AssertionError, match="graph invariant"):
-            RunCausalReadinessNode().execute(ctx, state)
+        RunCausalReadinessNode().execute(ctx, state)

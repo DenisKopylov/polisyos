@@ -7,9 +7,10 @@ Verifies that compile_estimand:
 - Simplified AST after pre-pass may change EstimandShape classification
 """
 
-import pytest
-import sys
 import os
+import sys
+
+import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../../../src"))
 
@@ -49,6 +50,7 @@ def _make_causal_graph():
     """Build a minimal CausalGraphModel T → Y ← Z."""
     try:
         from polisyos.ir.analytics.causal_graph import CausalGraphModel
+
         return CausalGraphModel(
             nodes=["T", "Y", "Z"],
             edges=[("T", "Y"), ("Z", "Y"), ("Z", "T")],
@@ -78,6 +80,7 @@ class TestDoCalculusPrePass:
     def test_graph_none_preserves_existing_proof_steps(self):
         """Existing proof_steps are preserved when causal_graph=None."""
         from polisyos.ir.analytics.evidence_bundle import ProofStep
+
         ast = _make_simple_ast()
         ps = ProofStep(
             rule_name="MANUAL",
@@ -85,14 +88,13 @@ class TestDoCalculusPrePass:
             variables_affected=("T",),
             graph_subset="G",
         )
-        _, graph = compile_estimand(
-            ast, run_id="r3", n_obs=200, proof_steps=(ps,)
-        )
+        _, graph = compile_estimand(ast, run_id="r3", n_obs=200, proof_steps=(ps,))
         assert any(s.rule_name == "MANUAL" for s in graph.proof_steps)
 
     def test_do_calculus_proof_steps_merged(self):
         """Proof steps from rewrite_estimand appear before manually-added steps."""
         from polisyos.ir.analytics.evidence_bundle import ProofStep
+
         ast = _make_simple_ast()
         g = _make_causal_graph()
         if g is None:
@@ -104,8 +106,11 @@ class TestDoCalculusPrePass:
             graph_subset="G",
         )
         _, graph = compile_estimand(
-            ast, run_id="r4", n_obs=200,
-            causal_graph=g, proof_steps=(manual_ps,),
+            ast,
+            run_id="r4",
+            n_obs=200,
+            causal_graph=g,
+            proof_steps=(manual_ps,),
         )
         # Manual step should be present
         assert any(s.rule_name == "MANUAL" for s in graph.proof_steps)
@@ -113,9 +118,7 @@ class TestDoCalculusPrePass:
     def test_invalid_graph_falls_through_gracefully(self):
         """A broken/incompatible graph object should not raise — pre-pass skipped."""
         ast = _make_simple_ast()
-        rec, graph = compile_estimand(
-            ast, run_id="r5", n_obs=200, causal_graph="not-a-graph"
-        )
+        rec, graph = compile_estimand(ast, run_id="r5", n_obs=200, causal_graph="not-a-graph")
         assert graph is not None
         assert len(graph.nodes) >= 1
 

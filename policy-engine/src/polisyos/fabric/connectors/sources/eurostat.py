@@ -1,16 +1,17 @@
 """Eurostat connector implementation for REST JSON, SDMX, and async bulk workflows."""
+
 from __future__ import annotations
 
 import json
 import time
-import xml.etree.ElementTree as ET
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, ClassVar
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
 import pandas as pd
+from defusedxml import ElementTree as ET
 
 from polisyos.core.canon import content_hash as compute_content_hash
-from polisyos.fabric.safety import safe_path_segment
 from polisyos.fabric.connectors.base import (
     AsyncFetchLease,
     ConnectionHandle,
@@ -28,6 +29,7 @@ from polisyos.fabric.connectors.sources.http_common import (
     safe_int,
 )
 from polisyos.fabric.connectors.types import DatasetDescriptor, FetchError, RateLimitError
+from polisyos.fabric.safety import safe_path_segment
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,
@@ -58,15 +60,9 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
     namespace: ClassVar[str] = "eurostat"
     short_id: ClassVar[str] = "data"
     connector_id: ClassVar[str] = f"{namespace}.{short_id}"
-    _BASE_URL: ClassVar[str] = (
-        "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data"
-    )
-    _SDMX_BASE_URL: ClassVar[str] = (
-        "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1"
-    )
-    _ASYNC_BASE_URL: ClassVar[str] = (
-        "https://ec.europa.eu/eurostat/api/dissemination/1.0/async"
-    )
+    _BASE_URL: ClassVar[str] = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data"
+    _SDMX_BASE_URL: ClassVar[str] = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1"
+    _ASYNC_BASE_URL: ClassVar[str] = "https://ec.europa.eu/eurostat/api/dissemination/1.0/async"
     resilience_profile: ClassVar[HTTPResilienceProfile] = HTTPResilienceProfile(base_delay=1.5)
 
     capabilities: ClassVar[ConnectorCapability] = (
@@ -168,7 +164,7 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
             )
 
         frame = self._parse_jsonstat(body, dataset_id)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return self._build_fetch_result(
             data=frame,
             row_count=len(frame),
@@ -198,7 +194,9 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
         dataset_id: str,
     ) -> DatasetCapabilitySnapshot:
         session = await self._get_session(handle)
-        base = handle.config.headers.get("X-EUROSTAT-SDMX-BASE-URL", self._SDMX_BASE_URL).rstrip("/")
+        base = handle.config.headers.get("X-EUROSTAT-SDMX-BASE-URL", self._SDMX_BASE_URL).rstrip(
+            "/"
+        )
         dataset_segment = safe_path_segment(dataset_id, what="Eurostat dataset id")
         url = f"{base}/structure/dataflow/ESTAT/{dataset_segment}"
         params = {"references": "descendants", "detail": "referencepartial"}
@@ -223,7 +221,7 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
             constraint_hash=constraint_hash,
             estimated_cardinality=self._estimate_constraint_cardinality(allowed_positions),
             version_hint=self._extract_dataflow_version(body, dataset_id),
-            last_checked_at=datetime.now(timezone.utc),
+            last_checked_at=datetime.now(UTC),
         )
 
     async def fetch_async(
@@ -314,7 +312,7 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
                 return lease.model_copy(update={"status": "processing"})
             if "NO_RESULTS" in fault:
                 frame = pd.DataFrame(columns=EUROSTAT_GENERIC_SCHEMA.field_names())
-                now = datetime.now(timezone.utc)
+                now = datetime.now(UTC)
                 return self._build_fetch_result(
                     data=frame,
                     row_count=0,
@@ -353,7 +351,7 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
                 request_params={"lease_id": lease.lease_id},
             )
         frame = self._parse_jsonstat(body, lease.dataset_id)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return self._build_fetch_result(
             data=frame,
             row_count=len(frame),
@@ -400,10 +398,14 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
         return json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
     def _async_base_url(self, handle: ConnectionHandle) -> str:
-        return handle.config.headers.get("X-EUROSTAT-ASYNC-BASE-URL", self._ASYNC_BASE_URL).rstrip("/")
+        return handle.config.headers.get("X-EUROSTAT-ASYNC-BASE-URL", self._ASYNC_BASE_URL).rstrip(
+            "/"
+        )
 
     def _sdmx_base_url(self, handle: ConnectionHandle) -> str:
-        return handle.config.headers.get("X-EUROSTAT-SDMX-BASE-URL", self._SDMX_BASE_URL).rstrip("/")
+        return handle.config.headers.get("X-EUROSTAT-SDMX-BASE-URL", self._SDMX_BASE_URL).rstrip(
+            "/"
+        )
 
     def _build_async_request(
         self,
@@ -576,7 +578,9 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
             dimensions = components.get("dimensionList") or components.get("dimensions") or {}
             values = dimensions.get("dimensions") or dimensions.get("dimension") or dimensions
             if isinstance(values, list):
-                names = [str(dim.get("id") or "").strip() for dim in values if isinstance(dim, dict)]
+                names = [
+                    str(dim.get("id") or "").strip() for dim in values if isinstance(dim, dict)
+                ]
                 names = [name for name in names if name]
                 if names:
                     return names
@@ -613,11 +617,7 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
                             token = str(value).strip()
                         if token:
                             bucket.add(token)
-        return {
-            key: sorted(values)
-            for key, values in allowed.items()
-            if values
-        }
+        return {key: sorted(values) for key, values in allowed.items() if values}
 
     @staticmethod
     def _estimate_constraint_cardinality(allowed_positions: dict[str, list[str]]) -> int:

@@ -1,7 +1,9 @@
 """Estimate binary and multinomial discrete-choice models for choice probabilities."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -39,6 +41,7 @@ def _ols_coef(X: np.ndarray, y: np.ndarray) -> np.ndarray:
 )
 class LogitEstimator:
     """Estimate binary choice probabilities under a logistic latent-index model; avoid strong IIA violations in multinomial settings."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -48,7 +51,9 @@ class LogitEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
                 SlotSpec("y", SlotType.VECTOR, Unit("outcome", "binary"), shape=("n_obs",)),
             }
         ),
@@ -121,6 +126,7 @@ class LogitEstimator:
 )
 class ProbitEstimator:
     """Estimate binary choice probabilities under a Gaussian latent-index model; avoid when a heavy-tailed link is required."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -130,7 +136,9 @@ class ProbitEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
                 SlotSpec("y", SlotType.VECTOR, Unit("outcome", "binary"), shape=("n_obs",)),
             }
         ),
@@ -201,6 +209,7 @@ class ProbitEstimator:
 )
 class MultinomialLogitEstimator:
     """Estimate multi-class choice shares under IIA; avoid nested-substitution patterns that violate IIA."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -210,7 +219,9 @@ class MultinomialLogitEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
                 SlotSpec("y", SlotType.VECTOR, Unit("outcome", "category"), shape=("n_obs",)),
             }
         ),
@@ -229,7 +240,9 @@ class MultinomialLogitEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Multinomial logit via gradient descent (softmax regression).",
-        tags=frozenset({"econometrics", "discrete-choice", "multinomial-logit", "softmax", "cross-section"}),
+        tags=frozenset(
+            {"econometrics", "discrete-choice", "multinomial-logit", "softmax", "cross-section"}
+        ),
         equations={"mnl": "P(y=j|X) = exp(X*beta_j) / sum_k exp(X*beta_k)"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -296,6 +309,7 @@ class MultinomialLogitEstimator:
 )
 class MixedLogitEstimator:
     """Estimate random-coefficient choice heterogeneity; avoid tiny samples where simulation noise dominates."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -305,7 +319,9 @@ class MixedLogitEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
                 SlotSpec("y", SlotType.VECTOR, Unit("outcome", "binary"), shape=("n_obs",)),
             }
         ),
@@ -324,7 +340,15 @@ class MixedLogitEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Mixed logit with normally distributed random coefficients (simulated).",
-        tags=frozenset({"econometrics", "discrete-choice", "mixed-logit", "random-coefficients", "cross-section"}),
+        tags=frozenset(
+            {
+                "econometrics",
+                "discrete-choice",
+                "mixed-logit",
+                "random-coefficients",
+                "cross-section",
+            }
+        ),
         equations={"mixed": "P = (1/R) sum_r P(y|X, beta_r), beta_r ~ N(mu, sigma)"},
         determinism_tier=DeterminismTier.STATISTICAL,
         required_deps=("numpy",),
@@ -364,7 +388,9 @@ class MixedLogitEstimator:
             sim_probs += _logistic(X_aug @ beta_r)
         sim_probs /= n_draws
 
-        log_lik = float(np.sum(y * np.log(sim_probs + 1e-12) + (1 - y) * np.log(1 - sim_probs + 1e-12)))
+        log_lik = float(
+            np.sum(y * np.log(sim_probs + 1e-12) + (1 - y) * np.log(1 - sim_probs + 1e-12))
+        )
 
         return {
             "result": {
@@ -384,6 +410,7 @@ class MixedLogitEstimator:
 )
 class BLPEstimator:
     """Estimate differentiated-product demand with endogenous prices and instruments; avoid weak instruments or missing market shares."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -393,9 +420,21 @@ class BLPEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("market_shares", SlotType.VECTOR, Unit("share", "proportion"), shape=("n_products",)),
-                SlotSpec("X", SlotType.MATRIX, Unit("characteristic", "value"), shape=("n_products", "n_chars")),
-                SlotSpec("prices", SlotType.VECTOR, Unit("price", "currency"), shape=("n_products",)),
+                SlotSpec(
+                    "market_shares",
+                    SlotType.VECTOR,
+                    Unit("share", "proportion"),
+                    shape=("n_products",),
+                ),
+                SlotSpec(
+                    "X",
+                    SlotType.MATRIX,
+                    Unit("characteristic", "value"),
+                    shape=("n_products", "n_chars"),
+                ),
+                SlotSpec(
+                    "prices", SlotType.VECTOR, Unit("price", "currency"), shape=("n_products",)
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -411,7 +450,9 @@ class BLPEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Simplified BLP demand estimation via logit inversion (no random coefficients).",
         tags=frozenset({"econometrics", "discrete-choice", "blp", "demand", "io", "cross-section"}),
-        citations=("Berry, S., Levinsohn, J. & Pakes, A. (1995). Automobile Prices in Market Equilibrium. Econometrica.",),
+        citations=(
+            "Berry, S., Levinsohn, J. & Pakes, A. (1995). Automobile Prices in Market Equilibrium. Econometrica.",
+        ),
         equations={"logit_inversion": "delta_j = ln(s_j) - ln(s_0)"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),

@@ -1,16 +1,17 @@
 """Tests for NaN guard runtime checks."""
+
 from __future__ import annotations
 
 import jax.numpy as jnp
 import pytest
 
-from polisyos.foundry.runtime.nan_guard import (
-    NaNGuard,
-    create_nan_guard_for_profile,
-)
 from polisyos.foundry.methods.exceptions import (
     NaNGuardConfigurationError,
     NaNGuardEvaluationError,
+)
+from polisyos.foundry.runtime.nan_guard import (
+    NaNGuard,
+    create_nan_guard_for_profile,
 )
 
 

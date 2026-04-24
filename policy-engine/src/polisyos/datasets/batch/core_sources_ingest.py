@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import csv
 import gzip
 import hashlib
@@ -18,7 +19,7 @@ from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta
 from itertools import islice
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
 import aiohttp
@@ -30,7 +31,6 @@ from polisyos.batch_common.manifest import write_raw_manifest, write_stage_manif
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
 from polisyos.datasets.batch.checkpoints import load_json, write_json
-from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.knowledge.country_codes import (
     country_scope_members,
     iso2_to_iso3,
@@ -51,18 +51,21 @@ from polisyos.fabric.connectors.base import (
     DatasetCapabilitySnapshot,
     FetchRequest,
 )
+from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
 from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
 from polisyos.fabric.connectors.profiles.resolver import (
     resolve_connection_config,
     resolve_execution_policy,
 )
-from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
 from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
 from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
 from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
 from polisyos.fabric.connectors.sources.unpd import UNPDConnector
 from polisyos.fabric.connectors.sources.who import WHOConnector
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+
+if TYPE_CHECKING:
+    from polisyos.datasets.batch.config import DatasetBatchConfig
 
 logger = get_logger(__name__)
 
@@ -130,12 +133,14 @@ _SOURCE_LANE_DEFAULTS: dict[str, int] = {
     "wvs": 1,
 }
 _SERIAL_HARVEST_FAMILIES: frozenset[str] = frozenset({"ckan"})
-_SERIAL_HARVEST_SOURCES: frozenset[str] = frozenset({
-    "data_gov_ua_broad",
-    "data_gov_ro_broad",
-    "data_gov_md_broad",
-    "data_gov_pl_broad",
-})
+_SERIAL_HARVEST_SOURCES: frozenset[str] = frozenset(
+    {
+        "data_gov_ua_broad",
+        "data_gov_ro_broad",
+        "data_gov_md_broad",
+        "data_gov_pl_broad",
+    }
+)
 _OBSERVATION_PROGRESS_INTERVAL_SECONDS = 60.0
 _FETCH_RESULT_CACHE_SIZE = 256
 _OBSERVATION_UNSUPPORTED_EMPTY_THRESHOLD = 2
@@ -185,6 +190,7 @@ _ILO_INFERRED_DIMENSION_TOKENS: frozenset[str] = frozenset(
 @dataclass
 class CoreSourcesIngestStats:
     """Core sources ingest stats public type."""
+
     registry_datasets: int = 0
     variable_alignments: int = 0
     observations: int = 0
@@ -211,6 +217,7 @@ class CoreSourcesIngestStats:
 @dataclass(frozen=True)
 class ObservationInsertStats:
     """Observation insert stats public type."""
+
     attempted: int = 0
     inserted: int = 0
     replaced: int = 0
@@ -219,7 +226,7 @@ class ObservationInsertStats:
     def written(self) -> int:
         return int(self.inserted + self.replaced)
 
-    def __add__(self, other: object) -> "ObservationInsertStats":
+    def __add__(self, other: object) -> ObservationInsertStats:
         if not isinstance(other, ObservationInsertStats):
             return NotImplemented
         return ObservationInsertStats(
@@ -228,7 +235,7 @@ class ObservationInsertStats:
             replaced=self.replaced + other.replaced,
         )
 
-    def __radd__(self, other: object) -> "ObservationInsertStats":
+    def __radd__(self, other: object) -> ObservationInsertStats:
         if other == 0:
             return self
         return self.__add__(other)
@@ -237,6 +244,7 @@ class ObservationInsertStats:
 @dataclass(frozen=True)
 class CatalogTransportDataset:
     """Catalog transport dataset public type."""
+
     catalog_dataset_id: str
     source: str
     title: str
@@ -260,6 +268,7 @@ class CatalogTransportDataset:
 @dataclass(frozen=True)
 class ObservationPlan:
     """Observation plan data model."""
+
     dataset_id: str
     source: str
     raw_variable: str
@@ -276,6 +285,7 @@ class ObservationPlan:
 @dataclass(frozen=True)
 class ObservationShard:
     """Observation shard public type."""
+
     shard_id: str
     plan: ObservationPlan
     country_code: str | None
@@ -294,6 +304,7 @@ class ObservationShard:
 @dataclass(frozen=True)
 class SupportSketch:
     """Support sketch public type."""
+
     sketch_id: str
     plan: ObservationPlan
     dataset_version: str
@@ -310,6 +321,7 @@ class SupportSketch:
 @dataclass(frozen=True)
 class ObservationShardResult:
     """Observation shard result data model."""
+
     shard_id: str
     status: str
     source: str
@@ -326,6 +338,7 @@ class ObservationShardResult:
 @dataclass(frozen=True)
 class DeferredObservationPlan:
     """Deferred observation plan data model."""
+
     shard_id: str
     source: str
     dataset_id: str
@@ -342,6 +355,7 @@ class DeferredObservationPlan:
 @dataclass(frozen=True)
 class ObservationFetchKey:
     """Observation fetch key public type."""
+
     source: str
     request_dataset_id: str
     filters_json: str
@@ -353,6 +367,7 @@ class ObservationFetchKey:
 @dataclass(frozen=True)
 class ObservationFetchPayload:
     """Observation fetch payload public type."""
+
     rows: list[dict[str, Any]]
     request_count: int = 0
     bytes_downloaded: int = 0
@@ -364,6 +379,7 @@ class ObservationFetchPayload:
 @dataclass(frozen=True)
 class ObservationWriteItem:
     """Observation write item public type."""
+
     shard: ObservationShard
     payload: ObservationFetchPayload
     ack: asyncio.Future[ObservationInsertStats]
@@ -376,12 +392,15 @@ class ObservationWriteItem:
     def estimated_bytes(self) -> int:
         if self.payload.bytes_downloaded > 0:
             return int(self.payload.bytes_downloaded)
-        return len(json.dumps(self.payload.rows, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+        return len(
+            json.dumps(self.payload.rows, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        )
 
 
 @dataclass(frozen=True)
 class ObservationResultItem:
     """Observation result item public type."""
+
     result: ObservationShardResult
     support_key: str = ""
     mark_unsupported: bool = False
@@ -418,6 +437,7 @@ class _ObservationRuntimeMetrics:
 @dataclass
 class WriterFlushState:
     """Writer flush state data model."""
+
     buffered_rows: int = 0
     buffered_bytes: int = 0
     flush_count: int = 0
@@ -481,7 +501,7 @@ def _configure_observation_writer_connection(
 
 
 def _iter_observation_write_item_batches(
-    buffer: list["ObservationWriteItem"],
+    buffer: list[ObservationWriteItem],
     *,
     max_rows: int = _OBSERVATION_WRITER_TRANSACTION_ROWS,
     max_items: int = _OBSERVATION_WRITER_TRANSACTION_ITEMS,
@@ -492,7 +512,9 @@ def _iter_observation_write_item_batches(
     normalized_max_items = max(int(max_items), 1)
     for item in buffer:
         projected_rows = current_rows + max(int(item.row_count), 0)
-        if current and (projected_rows > normalized_max_rows or len(current) >= normalized_max_items):
+        if current and (
+            projected_rows > normalized_max_rows or len(current) >= normalized_max_items
+        ):
             yield current
             current = []
             current_rows = 0
@@ -744,7 +766,10 @@ def _serialize_observation_plan(plan: ObservationPlan) -> dict[str, Any]:
         "connector_id": plan.connector_id,
         "profile_id": plan.profile_id,
         "request_dataset_id": plan.request_dataset_id,
-        "default_filters": {str(key): [str(value) for value in values] for key, values in plan.default_filters.items()},
+        "default_filters": {
+            str(key): [str(value) for value in values]
+            for key, values in plan.default_filters.items()
+        },
         "update_frequency": plan.update_frequency,
         "source_watermark": plan.source_watermark,
         "dataset_version": plan.dataset_version,
@@ -783,7 +808,9 @@ def _serialize_observation_shard(shard: ObservationShard) -> dict[str, Any]:
         "country_codes": list(shard.country_codes),
         "start_year": int(shard.start_year),
         "end_year": int(shard.end_year),
-        "filters": {str(key): [str(value) for value in values] for key, values in shard.filters.items()},
+        "filters": {
+            str(key): [str(value) for value in values] for key, values in shard.filters.items()
+        },
         "split_depth": int(shard.split_depth),
         "phase": str(shard.phase or "publishable_core"),
         "acquisition_method": str(shard.acquisition_method or ""),
@@ -917,11 +944,10 @@ def _load_support_sketch_state(state: dict[str, Any]) -> dict[str, SupportSketch
     return sketches
 
 
-def _serialize_support_sketch_state(sketches: dict[str, SupportSketch]) -> dict[str, dict[str, Any]]:
-    return {
-        key: _serialize_support_sketch(sketch)
-        for key, sketch in sketches.items()
-    }
+def _serialize_support_sketch_state(
+    sketches: dict[str, SupportSketch],
+) -> dict[str, dict[str, Any]]:
+    return {key: _serialize_support_sketch(sketch) for key, sketch in sketches.items()}
 
 
 def _load_work_package_state(state: dict[str, Any]) -> dict[str, ObservationShard]:
@@ -933,11 +959,10 @@ def _load_work_package_state(state: dict[str, Any]) -> dict[str, ObservationShar
     return work_packages
 
 
-def _serialize_work_package_state(work_packages: dict[str, ObservationShard]) -> dict[str, dict[str, Any]]:
-    return {
-        key: _serialize_observation_shard(shard)
-        for key, shard in work_packages.items()
-    }
+def _serialize_work_package_state(
+    work_packages: dict[str, ObservationShard],
+) -> dict[str, dict[str, Any]]:
+    return {key: _serialize_observation_shard(shard) for key, shard in work_packages.items()}
 
 
 def _serialize_capability_snapshot(snapshot: DatasetCapabilitySnapshot) -> dict[str, Any]:
@@ -965,18 +990,11 @@ def _load_capability_snapshot_state(state: dict[str, Any]) -> dict[str, DatasetC
 def _serialize_capability_snapshot_state(
     snapshots: dict[str, DatasetCapabilitySnapshot],
 ) -> dict[str, dict[str, Any]]:
-    return {
-        key: _serialize_capability_snapshot(snapshot)
-        for key, snapshot in snapshots.items()
-    }
+    return {key: _serialize_capability_snapshot(snapshot) for key, snapshot in snapshots.items()}
 
 
 def _normalize_dimension_order(values: Any) -> tuple[str, ...]:
-    return tuple(
-        str(value).strip()
-        for value in list(values or [])
-        if str(value).strip()
-    )
+    return tuple(str(value).strip() for value in list(values or []) if str(value).strip())
 
 
 def _infer_ilo_dimension_order(request_dataset_id: str) -> tuple[str, ...]:
@@ -1014,7 +1032,9 @@ def _hydrate_support_sketch_dimension_orders(
         dimension_order = _normalize_dimension_order(sketch.dimension_order)
         if not dimension_order:
             snapshot = capability_snapshots.get(_capability_snapshot_cache_key(sketch.plan))
-            dimension_order = _normalize_dimension_order(snapshot.dimension_order if snapshot is not None else ())
+            dimension_order = _normalize_dimension_order(
+                snapshot.dimension_order if snapshot is not None else ()
+            )
         if not dimension_order:
             dimension_order = _infer_dimension_order_for_plan(sketch.plan)
         if dimension_order != sketch.dimension_order:
@@ -1041,7 +1061,9 @@ def _hydrate_work_package_dimension_orders(
                 dimension_order = _normalize_dimension_order(sketch.dimension_order)
         if not dimension_order:
             snapshot = capability_snapshots.get(_capability_snapshot_cache_key(shard.plan))
-            dimension_order = _normalize_dimension_order(snapshot.dimension_order if snapshot is not None else ())
+            dimension_order = _normalize_dimension_order(
+                snapshot.dimension_order if snapshot is not None else ()
+            )
         if not dimension_order:
             dimension_order = _infer_dimension_order_for_plan(shard.plan)
         if dimension_order != shard.dimension_order:
@@ -1120,7 +1142,9 @@ async def _run_core_sources_ingest_async(config: DatasetBatchConfig) -> CoreSour
         _ensure_registry_tables(con)
         catalog_datasets = _load_catalog_transport_datasets(con, config)
         if catalog_datasets:
-            catalog_alignments = _build_catalog_alignments(catalog_datasets, _seed_alignments_path())
+            catalog_alignments = _build_catalog_alignments(
+                catalog_datasets, _seed_alignments_path()
+            )
             stats.registry_datasets = _upsert_catalog_registry_datasets(con, catalog_datasets)
             stats.variable_alignments = _upsert_catalog_alignments(con, catalog_alignments)
             _upsert_alignment_audit(con, catalog_alignments)
@@ -1303,7 +1327,11 @@ def _migrate_dimensionless_ilo_capability_snapshots(
         source = str(payload.get("source") or "").strip().lower()
         if source != "ilo":
             continue
-        if tuple(str(value).strip() for value in list(payload.get("dimension_order") or []) if str(value).strip()):
+        if tuple(
+            str(value).strip()
+            for value in list(payload.get("dimension_order") or [])
+            if str(value).strip()
+        ):
             continue
         capability_snapshots.pop(cache_key, None)
         migrated += 1
@@ -1361,7 +1389,9 @@ def _load_observation_checkpoint_state(config: DatasetBatchConfig) -> dict[str, 
         unsupported_signatures = {}
     if not isinstance(empty_signatures, dict):
         empty_signatures = {}
-    if (not unsupported_signatures and not empty_signatures) and isinstance(legacy_support_cache, dict):
+    if (not unsupported_signatures and not empty_signatures) and isinstance(
+        legacy_support_cache, dict
+    ):
         migrated_unsupported, migrated_empty = _migrate_legacy_support_cache(legacy_support_cache)
         unsupported_signatures = migrated_unsupported
         empty_signatures = migrated_empty
@@ -1389,7 +1419,9 @@ def _load_observation_checkpoint_state(config: DatasetBatchConfig) -> dict[str, 
         deferred,
         async_fetch_leases,
     )
-    migrated_capability_snapshots = _migrate_dimensionless_ilo_capability_snapshots(capability_snapshots)
+    migrated_capability_snapshots = _migrate_dimensionless_ilo_capability_snapshots(
+        capability_snapshots
+    )
     if migrated_deferred > 0 or migrated_retryable > 0 or migrated_capability_snapshots > 0:
         _write_observation_checkpoint_state(
             config,
@@ -1401,7 +1433,9 @@ def _load_observation_checkpoint_state(config: DatasetBatchConfig) -> dict[str, 
             inflight_leases=inflight_leases if isinstance(inflight_leases, dict) else {},
             async_fetch_leases=async_fetch_leases,
             capability_snapshots=capability_snapshots,
-            capability_failures=capability_failures if isinstance(capability_failures, dict) else {},
+            capability_failures=capability_failures
+            if isinstance(capability_failures, dict)
+            else {},
             source_budgets=source_budgets if isinstance(source_budgets, dict) else {},
             writer_state=writer_state if isinstance(writer_state, dict) else {},
             support_sketches=support_sketches if isinstance(support_sketches, dict) else {},
@@ -1483,7 +1517,9 @@ def _support_cache_key(
     *,
     capability: DatasetCapabilitySnapshot | None = None,
 ) -> str:
-    filters_json = json.dumps(shard.filters, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    filters_json = json.dumps(
+        shard.filters, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    )
     country_codes = tuple(
         code
         for code in (shard.country_codes or ((shard.country_code,) if shard.country_code else ()))
@@ -1543,9 +1579,7 @@ def _empty_signature_cache_hit(entry: dict[str, Any], *, now: datetime) -> bool:
         return False
     if "updated_at" not in entry and "expires_at" not in entry:
         return False
-    if not _support_cache_entry_active(entry, now=now):
-        return False
-    return True
+    return _support_cache_entry_active(entry, now=now)
 
 
 def _update_unsupported_signature_cache(
@@ -1629,11 +1663,7 @@ def _source_completion_pct_by_phase(
     completed: dict[str, Any],
     selected_phases: set[str],
 ) -> tuple[dict[str, float], dict[str, float]]:
-    completed_ids = {
-        str(shard_id)
-        for shard_id in completed.keys()
-        if str(shard_id).strip()
-    }
+    completed_ids = {str(shard_id) for shard_id in completed if str(shard_id).strip()}
     core_totals: dict[str, int] = {}
     core_done: dict[str, int] = {}
     full_totals: dict[str, int] = {}
@@ -1653,18 +1683,14 @@ def _source_completion_pct_by_phase(
     sources = sorted(set(full_totals) | set(core_totals))
     core_pct = {
         source: round(
-            100.0
-            * float(core_done.get(source, 0))
-            / max(float(core_totals.get(source, 0)), 1.0),
+            100.0 * float(core_done.get(source, 0)) / max(float(core_totals.get(source, 0)), 1.0),
             2,
         )
         for source in sources
     }
     full_pct = {
         source: round(
-            100.0
-            * float(full_done.get(source, 0))
-            / max(float(full_totals.get(source, 0)), 1.0),
+            100.0 * float(full_done.get(source, 0)) / max(float(full_totals.get(source, 0)), 1.0),
             2,
         )
         for source in sources
@@ -1700,7 +1726,9 @@ def _shard_supported_by_capability(
         return True
     allowed_geo = _capability_dimension_values(snapshot, "geo", "country", "ref_area")
     if allowed_geo:
-        requested_countries = shard.country_codes or ((shard.country_code,) if shard.country_code else ())
+        requested_countries = shard.country_codes or (
+            (shard.country_code,) if shard.country_code else ()
+        )
         for country_code in requested_countries:
             iso2 = str(country_code or "").strip().upper()
             iso3 = _to_iso3(iso2)
@@ -1708,9 +1736,12 @@ def _shard_supported_by_capability(
             allowed = {str(value).strip().upper() for value in allowed_geo if str(value).strip()}
             if iso2 not in allowed and iso3 not in allowed and numeric not in allowed:
                 return False
-    if shard.country_code and not shard.country_codes and allowed_geo and shard.country_code not in allowed_geo:
-            return False
-    return True
+    return not (
+        shard.country_code
+        and not shard.country_codes
+        and allowed_geo
+        and shard.country_code not in allowed_geo
+    )
 
 
 def _split_shard_by_filter_values(
@@ -1767,7 +1798,9 @@ def _split_shard_by_country_group(shard: ObservationShard) -> list[ObservationSh
             continue
         filters = dict(shard.filters)
         if shard.plan.source == "eurostat":
-            filters = _eurostat_filters_for_countries(group, base_filters=_strip_geo_filters(filters))
+            filters = _eurostat_filters_for_countries(
+                group, base_filters=_strip_geo_filters(filters)
+            )
         elif shard.plan.source in {"oecd", "ilo"}:
             filters = _sdmx_filters_for_countries(group, base_filters=_strip_geo_filters(filters))
         country_code = group[0] if len(group) == 1 else None
@@ -1833,7 +1866,9 @@ def _estimate_shard_cardinality(
             elif shard.country_code:
                 count = 1
             else:
-                allowed = _capability_dimension_values(snapshot, normalized, "geo", "country", "ref_area")
+                allowed = _capability_dimension_values(
+                    snapshot, normalized, "geo", "country", "ref_area"
+                )
                 count = len(allowed)
         elif lowered in {"time", "time_period"}:
             filter_values = filter_map.get(normalized) or filter_map.get(lowered) or []
@@ -1893,7 +1928,11 @@ def _planner_split_shard_from_capability(
     if estimated <= 0 or estimated <= max_cells:
         return [shard]
     max_async = _policy_int_attr(policy, "max_async_cells", 0)
-    if _policy_bool_attr(policy, "supports_async_fetch", False) and max_async > 0 and estimated <= max_async:
+    if (
+        _policy_bool_attr(policy, "supports_async_fetch", False)
+        and max_async > 0
+        and estimated <= max_async
+    ):
         return [shard]
     if shard.start_year < shard.end_year:
         synthetic_413 = RuntimeError(f"payload cardinality split {estimated}>{max_cells}")
@@ -1905,14 +1944,22 @@ def _planner_split_shard_from_capability(
     preferred_dims = tuple(snapshot.dimension_order or ())
     for key in preferred_dims:
         normalized_key = str(key).strip()
-        if not normalized_key or normalized_key.lower() in {"geo", "country", "ref_area", "time", "time_period"}:
+        if not normalized_key or normalized_key.lower() in {
+            "geo",
+            "country",
+            "ref_area",
+            "time",
+            "time_period",
+        }:
             continue
         allowed = _capability_dimension_values(snapshot, normalized_key)
         if len(allowed) > 1:
             split_values = list(shard.filters.get(normalized_key) or allowed)
             split_values = [str(value) for value in split_values if str(value).strip()]
             if len(split_values) > 1:
-                split = _split_shard_by_filter_values(shard, split_key=normalized_key, values=split_values)
+                split = _split_shard_by_filter_values(
+                    shard, split_key=normalized_key, values=split_values
+                )
                 if split:
                     return split
     return [shard]
@@ -1934,7 +1981,9 @@ def _load_source_budget_windows(state: dict[str, Any]) -> dict[str, _SourceBudge
             continue
         started_at = str(payload.get("window_started_at") or "").strip()
         try:
-            window_started_at = datetime.fromisoformat(started_at) if started_at else datetime.now(UTC)
+            window_started_at = (
+                datetime.fromisoformat(started_at) if started_at else datetime.now(UTC)
+            )
         except ValueError:
             window_started_at = datetime.now(UTC)
         out[str(source)] = _SourceBudgetWindow(
@@ -1944,7 +1993,9 @@ def _load_source_budget_windows(state: dict[str, Any]) -> dict[str, _SourceBudge
     return out
 
 
-def _serialize_source_budget_windows(state: dict[str, _SourceBudgetWindow]) -> dict[str, dict[str, Any]]:
+def _serialize_source_budget_windows(
+    state: dict[str, _SourceBudgetWindow],
+) -> dict[str, dict[str, Any]]:
     return {
         source: {
             "window_started_at": bucket.window_started_at.isoformat(),
@@ -2084,7 +2135,12 @@ def _wvs_bulk_csv_path() -> Path:
 
 
 def _wvs_registry_path() -> Path:
-    return Path(__file__).resolve().parents[4] / "data" / "dataset_catalog" / "wvs_indicator_registry.yaml"
+    return (
+        Path(__file__).resolve().parents[4]
+        / "data"
+        / "dataset_catalog"
+        / "wvs_indicator_registry.yaml"
+    )
 
 
 _wvs_registry_cache: dict[str, dict] | None = None
@@ -2104,7 +2160,9 @@ def _load_wvs_registry() -> dict[str, dict]:
 
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
         indicators = data.get("indicators", {}) if isinstance(data, dict) else {}
-        _wvs_registry_cache = {str(k).strip().upper(): v for k, v in indicators.items() if isinstance(v, dict)}
+        _wvs_registry_cache = {
+            str(k).strip().upper(): v for k, v in indicators.items() if isinstance(v, dict)
+        }
     except Exception:
         logger.warning("Failed to load WVS indicator registry")
         _wvs_registry_cache = {}
@@ -2168,17 +2226,32 @@ def _load_wvs_bulk_duckdb(
     target_countries = {
         iso2_to_iso3(c) for c in country_scope_members(country_scope) if iso2_to_iso3(c)
     }
+    if not target_countries:
+        return {indicator: [] for indicator in indicators}
 
     # Build DuckDB query selecting only needed columns
     # Columns: COUNTRY_ALPHA, S020 (survey_year), S002VS (wave), S017 (weight), + indicators
-    select_cols = ["COUNTRY_ALPHA", "S020", "S002VS", "S017", "S018"] + indicators
+    select_cols = ["COUNTRY_ALPHA", "S020", "S002VS", "S017", "S018", *indicators]
     # Quote columns that might clash with reserved words
     quoted_cols = [f'"{c}"' for c in select_cols]
 
     con = duckdb.connect(":memory:")
     try:
-        query = f"SELECT {', '.join(quoted_cols)} FROM read_csv_auto(?, header=true, all_varchar=false)"
-        rows = con.execute(query, [str(csv_path)]).fetchall()
+        country_placeholders = ", ".join("?" for _ in sorted(target_countries))
+        query = (
+            f"SELECT {', '.join(quoted_cols)} "
+            "FROM read_csv("
+            "?, header=true, delim=',', quote='\"', escape='\"', all_varchar=true, "
+            "strict_mode=false, ignore_errors=true, null_padding=true, max_line_size=2000000"
+            ") "
+            f'WHERE "COUNTRY_ALPHA" IN ({country_placeholders}) '
+            'AND try_cast("S020" AS INTEGER) BETWEEN ? AND ?'
+        )
+        start_year, end_year = year_window
+        rows = con.execute(
+            query,
+            [str(csv_path), *sorted(target_countries), int(start_year), int(end_year)],
+        ).fetchall()
     except Exception as exc:
         logger.warning("DuckDB CSV read failed, falling back to per-indicator reader: {}", exc)
         con.close()
@@ -2186,7 +2259,11 @@ def _load_wvs_bulk_duckdb(
         result = {}
         for ind in indicators:
             try:
-                result[ind] = _load_wvs_bulk_rows(ind, country_scope=country_scope)
+                result[ind] = _load_wvs_bulk_rows(
+                    ind,
+                    country_scope=country_scope,
+                    year_window=year_window,
+                )
             except Exception:
                 result[ind] = []
         return result
@@ -2266,18 +2343,20 @@ def _load_wvs_bulk_duckdb(
         for (country_code, survey_year, wave), bucket in sorted(aggregates[ind].items()):
             if bucket.sample_size <= 0 or bucket.weighted_total <= 0:
                 continue
-            ind_rows.append({
-                "country_code": country_code,
-                "survey_year": survey_year,
-                "wave": wave,
-                "value": bucket.weighted_value / bucket.weighted_total,
-                "sample_size": bucket.sample_size,
-                "weighted_sample_size": round(bucket.weighted_total, 6),
-                "sample_weight_field": bucket.weight_field,
-                "aggregation_method": agg_method,
-                "data_shape": "survey_repeated_cross_section",
-                "observation_grain": "country_survey_year_wave",
-            })
+            ind_rows.append(
+                {
+                    "country_code": country_code,
+                    "survey_year": survey_year,
+                    "wave": wave,
+                    "value": bucket.weighted_value / bucket.weighted_total,
+                    "sample_size": bucket.sample_size,
+                    "weighted_sample_size": round(bucket.weighted_total, 6),
+                    "sample_weight_field": bucket.weight_field,
+                    "aggregation_method": agg_method,
+                    "data_shape": "survey_repeated_cross_section",
+                    "observation_grain": "country_survey_year_wave",
+                }
+            )
         result[ind] = ind_rows
     return result
 
@@ -2395,24 +2474,17 @@ def _ensure_registry_tables(con: duckdb.DuckDBPyConnection) -> None:
         """
     )
     con.execute(
-        "CREATE INDEX IF NOT EXISTS idx_registry_provider "
-        "ON ds_registry_datasets(provider)"
+        "CREATE INDEX IF NOT EXISTS idx_registry_provider ON ds_registry_datasets(provider)"
     )
     con.execute(
-        "CREATE INDEX IF NOT EXISTS idx_va_canonical "
-        "ON ds_variable_alignments(canonical_var)"
+        "CREATE INDEX IF NOT EXISTS idx_va_canonical ON ds_variable_alignments(canonical_var)"
+    )
+    con.execute("CREATE INDEX IF NOT EXISTS idx_va_dataset ON ds_variable_alignments(dataset_id)")
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_alignment_audit_dataset ON ds_alignment_audit(dataset_id)"
     )
     con.execute(
-        "CREATE INDEX IF NOT EXISTS idx_va_dataset "
-        "ON ds_variable_alignments(dataset_id)"
-    )
-    con.execute(
-        "CREATE INDEX IF NOT EXISTS idx_alignment_audit_dataset "
-        "ON ds_alignment_audit(dataset_id)"
-    )
-    con.execute(
-        "CREATE INDEX IF NOT EXISTS idx_obs_country_year "
-        "ON ds_observations(country_code, year)"
+        "CREATE INDEX IF NOT EXISTS idx_obs_country_year ON ds_observations(country_code, year)"
     )
     con.execute(
         "CREATE INDEX IF NOT EXISTS idx_obs_dataset_raw "
@@ -2429,8 +2501,7 @@ def _ensure_registry_tables(con: duckdb.DuckDBPyConnection) -> None:
 def _ensure_observation_provenance_columns(con: duckdb.DuckDBPyConnection) -> None:
     try:
         columns = {
-            str(row[1])
-            for row in con.execute("PRAGMA table_info('ds_observations')").fetchall()
+            str(row[1]) for row in con.execute("PRAGMA table_info('ds_observations')").fetchall()
         }
     except Exception:
         return
@@ -2475,14 +2546,10 @@ def _load_catalog_transport_datasets(
         return []
 
     dataset_columns = {
-        str(row[1])
-        for row in con.execute("PRAGMA table_info('ds_datasets')").fetchall()
+        str(row[1]) for row in con.execute("PRAGMA table_info('ds_datasets')").fetchall()
     }
     distribution_columns = (
-        {
-            str(row[1])
-            for row in con.execute("PRAGMA table_info('ds_distributions')").fetchall()
-        }
+        {str(row[1]) for row in con.execute("PRAGMA table_info('ds_distributions')").fetchall()}
         if "ds_distributions" in tables
         else set()
     )
@@ -2496,7 +2563,9 @@ def _load_catalog_transport_datasets(
     if "ds_distributions" not in tables:
         distribution_join = ""
     elif "preferred_distribution_id" in dataset_columns and "id" in distribution_columns:
-        distribution_join = "LEFT JOIN ds_distributions AS dist ON dist.id = d.preferred_distribution_id"
+        distribution_join = (
+            "LEFT JOIN ds_distributions AS dist ON dist.id = d.preferred_distribution_id"
+        )
     elif "dataset_id" in distribution_columns:
         distribution_join = """
         LEFT JOIN LATERAL (
@@ -2515,8 +2584,7 @@ def _load_catalog_transport_datasets(
     else:
         source_filter = sorted(_TRANSPORT_SOURCES)
     source_specs = {
-        str(spec.name or "").strip().lower(): spec
-        for spec in config.load_registry().sources
+        str(spec.name or "").strip().lower(): spec for spec in config.load_registry().sources
     }
 
     placeholders = ", ".join("?" for _ in source_filter)
@@ -2526,39 +2594,39 @@ def _load_catalog_transport_datasets(
             d.source,
             d.title,
             COALESCE(d.description, ''),
-            COALESCE(NULLIF({_dataset_expr('source_dataset_id', "''")}, ''), NULLIF(d.dataset_id, ''), d.id),
-            COALESCE({_dataset_expr('update_frequency', "''")}, ''),
-            COALESCE({_dataset_expr('last_updated', _dataset_expr('updated_at', 'CURRENT_DATE::VARCHAR'))}::VARCHAR, CURRENT_DATE::VARCHAR),
+            COALESCE(NULLIF({_dataset_expr("source_dataset_id", "''")}, ''), NULLIF(d.dataset_id, ''), d.id),
+            COALESCE({_dataset_expr("update_frequency", "''")}, ''),
+            COALESCE({_dataset_expr("last_updated", _dataset_expr("updated_at", "CURRENT_DATE::VARCHAR"))}::VARCHAR, CURRENT_DATE::VARCHAR),
             json_object(
-                'countries', COALESCE({_dataset_expr('coverage_countries', '[]')}, []),
-                'regions', COALESCE({_dataset_expr('coverage_regions', '[]')}, []),
+                'countries', COALESCE({_dataset_expr("coverage_countries", "[]")}, []),
+                'regions', COALESCE({_dataset_expr("coverage_regions", "[]")}, []),
                 'time_range',
                     CASE
-                        WHEN COALESCE({_dataset_expr('coverage_time_start', _dataset_expr('temporal_start', "''"))}, '') != ''
-                             OR COALESCE({_dataset_expr('coverage_time_end', _dataset_expr('temporal_end', "''"))}, '') != ''
-                        THEN COALESCE({_dataset_expr('coverage_time_start', _dataset_expr('temporal_start', "''"))}, '')
+                        WHEN COALESCE({_dataset_expr("coverage_time_start", _dataset_expr("temporal_start", "''"))}, '') != ''
+                             OR COALESCE({_dataset_expr("coverage_time_end", _dataset_expr("temporal_end", "''"))}, '') != ''
+                        THEN COALESCE({_dataset_expr("coverage_time_start", _dataset_expr("temporal_start", "''"))}, '')
                              || ':'
-                             || COALESCE({_dataset_expr('coverage_time_end', _dataset_expr('temporal_end', "''"))}, '')
+                             || COALESCE({_dataset_expr("coverage_time_end", _dataset_expr("temporal_end", "''"))}, '')
                         ELSE ''
                     END,
-                'granularity', COALESCE({_dataset_expr('coverage_granularity', "''")}, 'annual')
+                'granularity', COALESCE({_dataset_expr("coverage_granularity", "''")}, 'annual')
             ) AS coverage_json,
             json_object(
                 'access_type', 'open',
-                'api_endpoint', COALESCE({_dataset_expr('access_api_endpoint', "''")}, ''),
-                'bulk_download_url', COALESCE({_dataset_expr('access_bulk_download_url', "''")}, ''),
-                'license', COALESCE({_dataset_expr('access_license', 'd.license')}, d.license, ''),
-                'auth_required', COALESCE({_dataset_expr('access_auth_required', 'FALSE')}, FALSE)
+                'api_endpoint', COALESCE({_dataset_expr("access_api_endpoint", "''")}, ''),
+                'bulk_download_url', COALESCE({_dataset_expr("access_bulk_download_url", "''")}, ''),
+                'license', COALESCE({_dataset_expr("access_license", "d.license")}, d.license, ''),
+                'auth_required', COALESCE({_dataset_expr("access_auth_required", "FALSE")}, FALSE)
             ) AS access_json,
-            COALESCE({_dataset_expr('execution_tier', "'transport_ready'")}, 'transport_ready'),
+            COALESCE({_dataset_expr("execution_tier", "'transport_ready'")}, 'transport_ready'),
             COALESCE(d.variables, []),
             COALESCE(d.keywords, []),
             COALESCE(d.themes, []),
             COALESCE(d.polisyos_metrics, []),
-            COALESCE({_distribution_expr('connector_type', "''")}, ''),
-            COALESCE({_distribution_expr('profile_id', "''")}, ''),
-            COALESCE(NULLIF({_distribution_expr('source_locator', "''")}, ''), COALESCE(NULLIF({_dataset_expr('source_dataset_id', "''")}, ''), NULLIF(d.dataset_id, ''), d.id)),
-            COALESCE(CAST({_distribution_expr('default_filters', "'{}'::JSON")} AS VARCHAR), '{{}}')
+            COALESCE({_distribution_expr("connector_type", "''")}, ''),
+            COALESCE({_distribution_expr("profile_id", "''")}, ''),
+            COALESCE(NULLIF({_distribution_expr("source_locator", "''")}, ''), COALESCE(NULLIF({_dataset_expr("source_dataset_id", "''")}, ''), NULLIF(d.dataset_id, ''), d.id)),
+            COALESCE(CAST({_distribution_expr("default_filters", "'{}'::JSON")} AS VARCHAR), '{{}}')
         FROM ds_datasets AS d
         {distribution_join}
         WHERE d.source IN ({placeholders})
@@ -2572,8 +2640,7 @@ def _load_catalog_transport_datasets(
         source = str(row[1] or "")
         source_spec = source_specs.get(source.lower())
         execution_tier = str(
-            row[9]
-            or (source_spec.execution_tier if source_spec is not None else "transport_ready")
+            row[9] or (source_spec.execution_tier if source_spec is not None else "transport_ready")
         )
         if execution_tier == "catalog" and source not in {"who", "unpd", "unesco_uis"}:
             continue
@@ -2629,7 +2696,15 @@ def _resolve_catalog_update_frequency(
     coverage = _load_json_dict(coverage_json)
     coverage_granularity = str(coverage.get("granularity") or "").strip().lower()
     if not normalized_frequency:
-        if coverage_granularity in {"annual", "quarterly", "monthly", "weekly", "daily", "wave", "irregular"}:
+        if coverage_granularity in {
+            "annual",
+            "quarterly",
+            "monthly",
+            "weekly",
+            "daily",
+            "wave",
+            "irregular",
+        }:
             return coverage_granularity
         return ""
     if normalized_source != "eurostat" or normalized_frequency not in {"monthly", "quarterly"}:
@@ -2692,7 +2767,9 @@ def _build_catalog_alignments(
     best: dict[tuple[str, str, str], VariableAlignment] = {}
     for dataset in datasets:
         candidate_vars = _candidate_variables(dataset)
-        dataset_text_tokens = _tokenize(" ".join((dataset.title, dataset.description, *candidate_vars, *dataset.keywords)))
+        dataset_text_tokens = _tokenize(
+            " ".join((dataset.title, dataset.description, *candidate_vars, *dataset.keywords))
+        )
 
         for raw_var in candidate_vars:
             for seed in seed_by_var.get(raw_var.strip().upper(), []):
@@ -2712,7 +2789,9 @@ def _build_catalog_alignments(
 
         for metric in dataset.polisyos_metrics:
             if metric in _CANONICAL_ROOTS:
-                raw_var = dataset.source_dataset_id or (candidate_vars[0] if candidate_vars else metric)
+                raw_var = dataset.source_dataset_id or (
+                    candidate_vars[0] if candidate_vars else metric
+                )
                 _remember_alignment(
                     best,
                     VariableAlignment(
@@ -2725,7 +2804,9 @@ def _build_catalog_alignments(
                     ),
                 )
             for proxy_alignment in metric_proxy_alignments(metric):
-                raw_var = dataset.source_dataset_id or (candidate_vars[0] if candidate_vars else metric)
+                raw_var = dataset.source_dataset_id or (
+                    candidate_vars[0] if candidate_vars else metric
+                )
                 _remember_alignment(
                     best,
                     VariableAlignment(
@@ -2745,8 +2826,19 @@ def _build_catalog_alignments(
             for canonical_var in _CANONICAL_ROOTS
             if _tokenize(canonical_var.replace("_", " ")) & dataset_text_tokens
         ]
-        if dataset.source in {"worldbank", "eurostat", "oecd", "ilo", "who", "unpd", "wvs", "unesco_uis"}:
-            semantic_candidates.extend(metric for metric in dataset.polisyos_metrics if metric in _CANONICAL_ROOTS)
+        if dataset.source in {
+            "worldbank",
+            "eurostat",
+            "oecd",
+            "ilo",
+            "who",
+            "unpd",
+            "wvs",
+            "unesco_uis",
+        }:
+            semantic_candidates.extend(
+                metric for metric in dataset.polisyos_metrics if metric in _CANONICAL_ROOTS
+            )
         semantic_candidates = sorted(set(semantic_candidates))[:20]
         for canonical_var in semantic_candidates:
             for alignment in align_semantic(
@@ -2872,7 +2964,7 @@ def _build_alignment_audit_rows(
                 if candidate.canonical_var != alignment.canonical_var
             ][:3]
             audit_id = hashlib.sha256(
-                f"{alignment.dataset_id}|{alignment.dataset_var}|{alignment.canonical_var}".encode("utf-8")
+                f"{alignment.dataset_id}|{alignment.dataset_var}|{alignment.canonical_var}".encode()
             ).hexdigest()[:24]
             rows.append(
                 (
@@ -2914,7 +3006,9 @@ def _build_catalog_observation_plans(
             continue
         if alignment.confidence < 0.55:
             continue
-        request_dataset_id = dataset.request_dataset_id or dataset.source_dataset_id or alignment.dataset_var
+        request_dataset_id = (
+            dataset.request_dataset_id or dataset.source_dataset_id or alignment.dataset_var
+        )
         if not request_dataset_id:
             continue
         key = (dataset.catalog_dataset_id, alignment.dataset_var, alignment.canonical_var)
@@ -2976,37 +3070,45 @@ def _observation_failure_budget_per_source(config: DatasetBatchConfig) -> int | 
 # that will actually return rows, instead of sorting by hashed dataset_id
 # (which is effectively random and caused WHO preflight failures).
 _PREFLIGHT_HIGH_COVERAGE_INDICATORS: dict[str, frozenset[str]] = {
-    "who": frozenset({
-        "WHOSIS_000001",  # Life expectancy at birth
-        "WHOSIS_000002",  # Healthy life expectancy (HALE)
-        "MDG_0000000001",  # Under-five mortality rate
-        "NCD_BMI_30A",  # Prevalence of obesity
-        "SA_0000001688",  # Total alcohol per capita consumption
-        "WHS7_104",  # Infant mortality rate
-        "WHS9_95",  # Maternal mortality ratio
-        "NCD_CCS_Diab",  # Diabetes prevalence
-    }),
-    "unesco_uis": frozenset({
-        "CR.1",  # Completion rate, primary
-        "SE.ADT.LITR.ZS",  # Adult literacy rate
-        "UIS.NERA.1",  # Net enrolment rate, primary
-    }),
-    "wvs": frozenset({
-        "A165",  # Social trust (most people can be trusted)
-        "E069_17",  # Confidence: Justice System/Courts
-        "A009",  # State of health (subjective)
-        "E117",  # Having a democratic political system
-        "E035",  # Income equality
-        "Y022",  # Welzel equality sub-index
-    }),
-    "worldbank": frozenset({
-        "NY.GDP.PCAP.CD",  # GDP per capita
-        "SP.DYN.LE00.IN",  # Life expectancy at birth
-        "SE.ADT.LITR.ZS",  # Adult literacy rate
-        "SL.UEM.TOTL.ZS",  # Unemployment total
-        "SI.POV.GINI",  # GINI index
-        "SH.XPD.CHEX.GD.ZS",  # Health expenditure (% of GDP)
-    }),
+    "who": frozenset(
+        {
+            "WHOSIS_000001",  # Life expectancy at birth
+            "WHOSIS_000002",  # Healthy life expectancy (HALE)
+            "MDG_0000000001",  # Under-five mortality rate
+            "NCD_BMI_30A",  # Prevalence of obesity
+            "SA_0000001688",  # Total alcohol per capita consumption
+            "WHS7_104",  # Infant mortality rate
+            "WHS9_95",  # Maternal mortality ratio
+            "NCD_CCS_Diab",  # Diabetes prevalence
+        }
+    ),
+    "unesco_uis": frozenset(
+        {
+            "CR.1",  # Completion rate, primary
+            "SE.ADT.LITR.ZS",  # Adult literacy rate
+            "UIS.NERA.1",  # Net enrolment rate, primary
+        }
+    ),
+    "wvs": frozenset(
+        {
+            "A165",  # Social trust (most people can be trusted)
+            "E069_17",  # Confidence: Justice System/Courts
+            "A009",  # State of health (subjective)
+            "E117",  # Having a democratic political system
+            "E035",  # Income equality
+            "Y022",  # Welzel equality sub-index
+        }
+    ),
+    "worldbank": frozenset(
+        {
+            "NY.GDP.PCAP.CD",  # GDP per capita
+            "SP.DYN.LE00.IN",  # Life expectancy at birth
+            "SE.ADT.LITR.ZS",  # Adult literacy rate
+            "SL.UEM.TOTL.ZS",  # Unemployment total
+            "SI.POV.GINI",  # GINI index
+            "SH.XPD.CHEX.GD.ZS",  # Health expenditure (% of GDP)
+        }
+    ),
 }
 
 
@@ -3056,16 +3158,25 @@ def _limit_observation_plans(
 
     # Collect canonical vars that are important for transport benchmark.
     # Prioritise plans that cover canonical vars not yet covered by other sources.
-    _TRANSPORT_BENCHMARK_VARS: frozenset[str] = frozenset({
-        "gdp_per_capita", "unemployment_rate", "inflation", "migration",
-        "health_outcomes", "education_outcomes", "social_trust",
-        "poverty_rate", "labor_force_participation", "institutional_quality",
-    })
+    _TRANSPORT_BENCHMARK_VARS: frozenset[str] = frozenset(
+        {
+            "gdp_per_capita",
+            "unemployment_rate",
+            "inflation",
+            "migration",
+            "health_outcomes",
+            "education_outcomes",
+            "social_trust",
+            "poverty_rate",
+            "labor_force_participation",
+            "institutional_quality",
+        }
+    )
     covered_transport_vars: set[str] = set()
 
     out: list[ObservationPlan] = []
     trimmed = 0
-    for source, source_plans in grouped.items():
+    for _source, source_plans in grouped.items():
         selected: list[ObservationPlan] = []
         seen_keys: set[tuple[str, str, str]] = set()
         seen_canonical: set[str] = set()
@@ -3074,7 +3185,12 @@ def _limit_observation_plans(
         transport_first = sorted(
             source_plans,
             key=lambda p: (
-                0 if (p.canonical_var in _TRANSPORT_BENCHMARK_VARS and p.canonical_var not in covered_transport_vars) else 1,
+                0
+                if (
+                    p.canonical_var in _TRANSPORT_BENCHMARK_VARS
+                    and p.canonical_var not in covered_transport_vars
+                )
+                else 1,
                 _preflight_indicator_priority(p),
                 p.canonical_var,
             ),
@@ -3160,7 +3276,11 @@ def _recommended_transport_for_plan(
     if source == "unpd":
         return str(preferred_transport or "api_grouped")
     if source in {"oecd", "ilo"}:
-        if source == "ilo" and phase == "long_tail_backfill" and _policy_attr(policy, "bulk_download_url", None):
+        if (
+            source == "ilo"
+            and phase == "long_tail_backfill"
+            and _policy_attr(policy, "bulk_download_url", None)
+        ):
             return "bulk_file"
         return str(preferred_transport or "api_grouped")
     if source == "eurostat":
@@ -3178,10 +3298,14 @@ def _recommended_transport_for_plan(
             ),
             snapshot=capability,
             policy=policy,
-                config=config,
+            config=config,
         ):
             return "api_async"
-        if _policy_bool_attr(policy, "supports_async_fetch", False) and source == "eurostat" and not config.is_sampled_run:
+        if (
+            _policy_bool_attr(policy, "supports_async_fetch", False)
+            and source == "eurostat"
+            and not config.is_sampled_run
+        ):
             return str(preferred_transport or "api_sync")
     return str(
         (
@@ -3196,14 +3320,10 @@ def _recommended_transport_for_plan(
 def _transport_for_phase(sketch: SupportSketch, *, phase: str) -> str:
     if phase == "long_tail_backfill":
         return str(
-            sketch.recommended_backfill_transport
-            or sketch.recommended_core_transport
-            or "default"
+            sketch.recommended_backfill_transport or sketch.recommended_core_transport or "default"
         )
     return str(
-        sketch.recommended_core_transport
-        or sketch.recommended_backfill_transport
-        or "default"
+        sketch.recommended_core_transport or sketch.recommended_backfill_transport or "default"
     )
 
 
@@ -3227,7 +3347,9 @@ def _supported_countries_for_plan(
     allowed = _capability_dimension_values(capability, "geo", "country", "ref_area")
     if not allowed:
         return countries
-    return tuple(country for country in countries if _country_supported_by_capability(country, allowed))
+    return tuple(
+        country for country in countries if _country_supported_by_capability(country, allowed)
+    )
 
 
 def _support_time_range_for_plan(
@@ -3252,11 +3374,17 @@ def _build_support_sketches(
         capability = plan_capabilities.get(_capability_snapshot_cache_key(plan))
         policy = source_policies[plan.source]
         time_range = _support_time_range_for_plan(plan, config=config)
-        estimated_cardinality = int(capability.estimated_cardinality or 0) if capability is not None else 0
-        allowed_dimension_values = {
-            str(key): tuple(str(value) for value in values if str(value).strip())
-            for key, values in dict(capability.allowed_positions or {}).items()
-        } if capability is not None and capability.allowed_positions else {}
+        estimated_cardinality = (
+            int(capability.estimated_cardinality or 0) if capability is not None else 0
+        )
+        allowed_dimension_values = (
+            {
+                str(key): tuple(str(value) for value in values if str(value).strip())
+                for key, values in dict(capability.allowed_positions or {}).items()
+            }
+            if capability is not None and capability.allowed_positions
+            else {}
+        )
         recommended_core_transport = _recommended_transport_for_plan(
             plan,
             phase="publishable_core",
@@ -3282,7 +3410,9 @@ def _build_support_sketches(
                 )
                 or plan.request_dataset_id
             ),
-            supported_countries=_supported_countries_for_plan(plan, config=config, capability=capability),
+            supported_countries=_supported_countries_for_plan(
+                plan, config=config, capability=capability
+            ),
             time_range=time_range,
             allowed_dimension_values=allowed_dimension_values,
             estimated_cardinality=estimated_cardinality,
@@ -3291,7 +3421,8 @@ def _build_support_sketches(
             recommended_backfill_transport=recommended_backfill_transport,
             dimension_order=_normalize_dimension_order(
                 capability.dimension_order if capability is not None else ()
-            ) or _infer_dimension_order_for_plan(plan),
+            )
+            or _infer_dimension_order_for_plan(plan),
         )
     return sketches
 
@@ -3349,7 +3480,10 @@ def _phase_windows_for_sketch(
             ),
         )
         if len(windows) <= 1:
-            return [(window_start, window_end, "publishable_core") for window_start, window_end in windows]
+            return [
+                (window_start, window_end, "publishable_core")
+                for window_start, window_end in windows
+            ]
         phased: list[tuple[int, int, str]] = []
         for index, (window_start, window_end) in enumerate(windows):
             phase = "publishable_core" if index == len(windows) - 1 else "long_tail_backfill"
@@ -3417,7 +3551,9 @@ async def _ingest_catalog_observations(
     config: DatasetBatchConfig,
 ) -> CoreSourcesIngestStats:
     if _legacy_serial_mode_enabled():
-        logger.warning("Using legacy serial observation ingest because POLISYOS_DATASET_LEGACY_SERIAL is enabled")
+        logger.warning(
+            "Using legacy serial observation ingest because POLISYOS_DATASET_LEGACY_SERIAL is enabled"
+        )
         return await _ingest_catalog_observations_legacy(db_path, plans, config=config)
     return await _ingest_catalog_observations_parallel(db_path, plans, config=config)
 
@@ -3438,11 +3574,15 @@ async def _ingest_catalog_observations_parallel(
     completed = checkpoint_state["completed"]
     failed = checkpoint_state["failed"]
     deferred = checkpoint_state["deferred"]
-    unsupported_signatures = _prune_expired_support_cache(checkpoint_state["unsupported_signatures"])
+    unsupported_signatures = _prune_expired_support_cache(
+        checkpoint_state["unsupported_signatures"]
+    )
     empty_signatures = _prune_expired_support_cache(checkpoint_state["empty_signatures"])
     inflight_leases = checkpoint_state["inflight_leases"]
     async_fetch_leases = checkpoint_state["async_fetch_leases"]
-    capability_failures = _prune_expired_capability_failures(checkpoint_state["capability_failures"])
+    capability_failures = _prune_expired_capability_failures(
+        checkpoint_state["capability_failures"]
+    )
     capability_cache = _ObservationCapabilityCache(
         _load_capability_snapshot_state(checkpoint_state["capability_snapshots"])
     )
@@ -3453,9 +3593,11 @@ async def _ingest_catalog_observations_parallel(
     publishable_core_complete = bool(checkpoint_state["publishable_core_complete"])
     planner_signature = str(checkpoint_state["planner_signature"] or "")
     persisted_capability_snapshots = await capability_cache.snapshot()
-    persisted_support_sketches, hydrated_support_sketches = _hydrate_support_sketch_dimension_orders(
-        persisted_support_sketches,
-        capability_snapshots=persisted_capability_snapshots,
+    persisted_support_sketches, hydrated_support_sketches = (
+        _hydrate_support_sketch_dimension_orders(
+            persisted_support_sketches,
+            capability_snapshots=persisted_capability_snapshots,
+        )
     )
     persisted_work_packages, hydrated_work_packages = _hydrate_work_package_dimension_orders(
         persisted_work_packages,
@@ -3498,7 +3640,9 @@ async def _ingest_catalog_observations_parallel(
 
     source_queues: dict[str, asyncio.Queue[ObservationShard]] = {}
     source_policies: dict[str, SourceExecutionPolicy] = {
-        plan.source: _resolve_source_execution_policy(source=plan.source, profile_id=plan.profile_id)
+        plan.source: _resolve_source_execution_policy(
+            source=plan.source, profile_id=plan.profile_id
+        )
         for plan in plans
     }
     plan_capabilities: dict[str, DatasetCapabilitySnapshot | None] = {}
@@ -3537,9 +3681,12 @@ async def _ingest_catalog_observations_parallel(
         sleep_seconds: float,
     ) -> None:
         async with runtime_lock:
-            runtime_metrics.blocked_by_source[source] = runtime_metrics.blocked_by_source.get(source, 0) + 1
+            runtime_metrics.blocked_by_source[source] = (
+                runtime_metrics.blocked_by_source.get(source, 0) + 1
+            )
             runtime_metrics.quota_wait_seconds_by_source[source] = round(
-                runtime_metrics.quota_wait_seconds_by_source.get(source, 0.0) + float(sleep_seconds),
+                runtime_metrics.quota_wait_seconds_by_source.get(source, 0.0)
+                + float(sleep_seconds),
                 3,
             )
 
@@ -3559,11 +3706,17 @@ async def _ingest_catalog_observations_parallel(
         )
         if result.status.startswith("complete"):
             stats.completed_shards += 1
-            runtime_metrics.completed_by_source[source] = runtime_metrics.completed_by_source.get(source, 0) + 1
-            runtime_metrics.rows_by_source[source] = runtime_metrics.rows_by_source.get(source, 0) + int(result.row_count)
+            runtime_metrics.completed_by_source[source] = (
+                runtime_metrics.completed_by_source.get(source, 0) + 1
+            )
+            runtime_metrics.rows_by_source[source] = runtime_metrics.rows_by_source.get(
+                source, 0
+            ) + int(result.row_count)
             if result.status == "complete_empty":
                 stats.empty_shards += 1
-                runtime_metrics.empty_by_source[source] = runtime_metrics.empty_by_source.get(source, 0) + 1
+                runtime_metrics.empty_by_source[source] = (
+                    runtime_metrics.empty_by_source.get(source, 0) + 1
+                )
         else:
             stats.failures += 1
             if result.status == "failed":
@@ -3571,7 +3724,9 @@ async def _ingest_catalog_observations_parallel(
             else:
                 stats.deferred_shards += 1
             reason_key = (result.error or result.status).split("\n", 1)[0][:120]
-            runtime_metrics.deferred_by_reason[reason_key] = runtime_metrics.deferred_by_reason.get(reason_key, 0) + 1
+            runtime_metrics.deferred_by_reason[reason_key] = (
+                runtime_metrics.deferred_by_reason.get(reason_key, 0) + 1
+            )
 
     async def _persist_runtime_state() -> None:
         capability_state = _serialize_capability_snapshot_state(await capability_cache.snapshot())
@@ -3584,14 +3739,24 @@ async def _ingest_catalog_observations_parallel(
             capability_failure_state = dict(capability_failures)
             sketch_state = _serialize_support_sketch_state(support_sketches)
             work_package_state = _serialize_work_package_state(work_packages)
-            source_core_completion_pct, source_full_completion_pct = _source_completion_pct_by_phase(
-                work_packages,
-                completed=completed,
-                selected_phases=selected_phases,
+            source_core_completion_pct, source_full_completion_pct = (
+                _source_completion_pct_by_phase(
+                    work_packages,
+                    completed=completed,
+                    selected_phases=selected_phases,
+                )
             )
-            total_inflight = sum(int(value) for value in runtime_metrics.inflight_by_source.values())
-            backlog_total = sum(int(value) for value in runtime_metrics.queue_backlog_by_source.values())
-            blocked_sources = {key: int(value) for key, value in runtime_metrics.blocked_by_source.items() if int(value) > 0}
+            total_inflight = sum(
+                int(value) for value in runtime_metrics.inflight_by_source.values()
+            )
+            backlog_total = sum(
+                int(value) for value in runtime_metrics.queue_backlog_by_source.values()
+            )
+            blocked_sources = {
+                key: int(value)
+                for key, value in runtime_metrics.blocked_by_source.items()
+                if int(value) > 0
+            }
             current_phase = phase_state["value"]
             if runtime_metrics.writer_backlog_rows > 0:
                 current_phase = "writing"
@@ -3607,10 +3772,15 @@ async def _ingest_catalog_observations_parallel(
             total_deferred = max(int(stats.deferred_shards + stats.failed_shards), 0)
             total_requests = max(int(sum(runtime_metrics.request_count_by_source.values())), 0)
             total_rows = max(int(sum(runtime_metrics.rows_by_source.values())), 0)
-            rows_per_request = round(float(total_rows) / float(total_requests), 2) if total_requests > 0 else 0.0
+            rows_per_request = (
+                round(float(total_rows) / float(total_requests), 2) if total_requests > 0 else 0.0
+            )
             elapsed_total = max(time.monotonic() - start_monotonic, 0.0)
             time_to_publishable_core = (
-                round(float(phase_timings["publishable_core_completed_at"] or 0.0) - start_monotonic, 3)
+                round(
+                    float(phase_timings["publishable_core_completed_at"] or 0.0) - start_monotonic,
+                    3,
+                )
                 if phase_timings["publishable_core_completed_at"] is not None
                 else None
             )
@@ -3622,7 +3792,9 @@ async def _ingest_catalog_observations_parallel(
                 "completed_by_source": dict(runtime_metrics.completed_by_source),
                 "blocked_by_source": blocked_sources,
                 "quota_wait_seconds_by_source": dict(runtime_metrics.quota_wait_seconds_by_source),
-                "capability_failures_by_source": _capability_failures_by_source(capability_failure_state),
+                "capability_failures_by_source": _capability_failures_by_source(
+                    capability_failure_state
+                ),
                 "empty_ratio_by_source": {
                     source: round(
                         float(runtime_metrics.empty_by_source.get(source, 0))
@@ -3653,8 +3825,13 @@ async def _ingest_catalog_observations_parallel(
                 "bytes_downloaded_by_source": dict(runtime_metrics.bytes_downloaded_by_source),
                 "request_count_by_source": dict(runtime_metrics.request_count_by_source),
                 "rows_per_request": rows_per_request,
-                "empty_fetch_ratio": round(float(total_empty) / max(float(total_completed), 1.0), 4),
-                "deferred_ratio": round(float(total_deferred) / max(float(runtime_metrics.planned_work_packages), 1.0), 4),
+                "empty_fetch_ratio": round(
+                    float(total_empty) / max(float(total_completed), 1.0), 4
+                ),
+                "deferred_ratio": round(
+                    float(total_deferred) / max(float(runtime_metrics.planned_work_packages), 1.0),
+                    4,
+                ),
                 "time_to_publishable_core": time_to_publishable_core,
                 "time_to_full_backfill": round(elapsed_total, 3) if pending["count"] <= 0 else None,
                 "subphases": {
@@ -3663,14 +3840,18 @@ async def _ingest_catalog_observations_parallel(
                         "count": len(support_sketches),
                     },
                     "publishable_core": {
-                        "status": "complete" if publishable_core_complete else ("running" if "publishable_core" in selected_phases else "skipped"),
+                        "status": "complete"
+                        if publishable_core_complete
+                        else ("running" if "publishable_core" in selected_phases else "skipped"),
                         "remaining": int(core_pending["count"]),
                     },
                     "long_tail_backfill": {
                         "status": (
                             "complete"
                             if pending["count"] <= 0 and "long_tail_backfill" in selected_phases
-                            else ("running" if "long_tail_backfill" in selected_phases else "skipped")
+                            else (
+                                "running" if "long_tail_backfill" in selected_phases else "skipped"
+                            )
                         ),
                         "remaining": int(max(pending["count"] - core_pending["count"], 0)),
                     },
@@ -3738,11 +3919,17 @@ async def _ingest_catalog_observations_parallel(
             )
             if result.status.startswith("complete"):
                 stats.completed_shards += 1
-                runtime_metrics.completed_by_source[source] = runtime_metrics.completed_by_source.get(source, 0) + 1
-                runtime_metrics.rows_by_source[source] = runtime_metrics.rows_by_source.get(source, 0) + int(result.row_count)
+                runtime_metrics.completed_by_source[source] = (
+                    runtime_metrics.completed_by_source.get(source, 0) + 1
+                )
+                runtime_metrics.rows_by_source[source] = runtime_metrics.rows_by_source.get(
+                    source, 0
+                ) + int(result.row_count)
                 if result.status == "complete_empty":
                     stats.empty_shards += 1
-                    runtime_metrics.empty_by_source[source] = runtime_metrics.empty_by_source.get(source, 0) + 1
+                    runtime_metrics.empty_by_source[source] = (
+                        runtime_metrics.empty_by_source.get(source, 0) + 1
+                    )
             else:
                 stats.failures += 1
                 if result.status == "failed":
@@ -3750,9 +3937,13 @@ async def _ingest_catalog_observations_parallel(
                 else:
                     stats.deferred_shards += 1
                 reason_key = (result.error or result.status).split("\n", 1)[0][:120]
-                runtime_metrics.deferred_by_reason[reason_key] = runtime_metrics.deferred_by_reason.get(reason_key, 0) + 1
+                runtime_metrics.deferred_by_reason[reason_key] = (
+                    runtime_metrics.deferred_by_reason.get(reason_key, 0) + 1
+                )
             pending["count"] -= 1
-            phase = str(work_packages.get(result.shard_id).phase if result.shard_id in work_packages else "")
+            phase = str(
+                work_packages.get(result.shard_id).phase if result.shard_id in work_packages else ""
+            )
             if phase == "publishable_core":
                 core_pending["count"] = max(core_pending["count"] - 1, 0)
                 if core_pending["count"] <= 0 and not publishable_core_complete:
@@ -3795,9 +3986,12 @@ async def _ingest_catalog_observations_parallel(
                             con=con,
                             plan=item.shard.plan,
                             rows=item.payload.rows,
-                            acquisition_method=item.payload.acquisition_method or item.shard.acquisition_method,
-                            source_watermark=item.payload.source_watermark or item.shard.source_watermark,
-                            dataset_version=item.payload.dataset_version or item.shard.dataset_version,
+                            acquisition_method=item.payload.acquisition_method
+                            or item.shard.acquisition_method,
+                            source_watermark=item.payload.source_watermark
+                            or item.shard.source_watermark,
+                            dataset_version=item.payload.dataset_version
+                            or item.shard.dataset_version,
                         )
                         current_pairs.append((item, insert_stats))
                     con.execute("COMMIT")
@@ -3805,7 +3999,9 @@ async def _ingest_catalog_observations_parallel(
                     try:
                         con.execute("ROLLBACK")
                     except Exception:
-                        logger.debug("DuckDB rollback failed during observation writer flush", exc_info=True)
+                        logger.debug(
+                            "DuckDB rollback failed during observation writer flush", exc_info=True
+                        )
                     raise
                 ack_pairs.extend(current_pairs)
         except Exception as exc:
@@ -3826,7 +4022,9 @@ async def _ingest_catalog_observations_parallel(
             con.execute("CHECKPOINT")
 
         async with runtime_lock:
-            runtime_metrics.writer_backlog_rows = max(runtime_metrics.writer_backlog_rows - total_rows, 0)
+            runtime_metrics.writer_backlog_rows = max(
+                runtime_metrics.writer_backlog_rows - total_rows, 0
+            )
             runtime_metrics.writer_flush_count = writer_state.flush_count
             runtime_metrics.writer_flush_latency_ms = writer_state.last_flush_latency_ms
             for item, insert_stats in ack_pairs:
@@ -3870,7 +4068,8 @@ async def _ingest_catalog_observations_parallel(
                 should_flush = (
                     writer_state.buffered_rows >= _OBSERVATION_WRITER_FLUSH_ROWS
                     or writer_state.buffered_bytes >= _OBSERVATION_WRITER_FLUSH_BYTES
-                    or (time.monotonic() - writer_state.last_flush_at) >= _OBSERVATION_WRITER_FLUSH_SECONDS
+                    or (time.monotonic() - writer_state.last_flush_at)
+                    >= _OBSERVATION_WRITER_FLUSH_SECONDS
                 )
                 if should_flush:
                     await _flush_writer_buffer(con, buffer)
@@ -3991,10 +4190,14 @@ async def _ingest_catalog_observations_parallel(
     publishable_core_complete = core_pending["count"] <= 0
     if "publishable_core" in selected_phases and not publishable_core_complete:
         phase_state["value"] = "publishable_core"
-        phase_timings["publishable_core_started_at"] = phase_timings["publishable_core_started_at"] or time.monotonic()
+        phase_timings["publishable_core_started_at"] = (
+            phase_timings["publishable_core_started_at"] or time.monotonic()
+        )
     elif "long_tail_backfill" in selected_phases:
         phase_state["value"] = "long_tail_backfill"
-        phase_timings["long_tail_backfill_started_at"] = phase_timings["long_tail_backfill_started_at"] or time.monotonic()
+        phase_timings["long_tail_backfill_started_at"] = (
+            phase_timings["long_tail_backfill_started_at"] or time.monotonic()
+        )
     else:
         phase_state["value"] = "deferred"
 
@@ -4058,7 +4261,9 @@ async def _ingest_catalog_observations_parallel(
             empty_signatures=empty_signatures,
             inflight_leases=inflight_leases,
             async_fetch_leases=async_fetch_leases,
-            capability_snapshots=_serialize_capability_snapshot_state(await capability_cache.snapshot()),
+            capability_snapshots=_serialize_capability_snapshot_state(
+                await capability_cache.snapshot()
+            ),
             capability_failures=capability_failures,
             source_budgets=_serialize_source_budget_windows(budget_windows),
             writer_state=_serialize_writer_state(writer_state),
@@ -4123,7 +4328,9 @@ async def _ingest_catalog_observations_parallel(
                 if capability is not None:
                     plan_capabilities[capability_key] = capability
 
-            if capability is not None and not _shard_supported_by_capability(shard, snapshot=capability):
+            if capability is not None and not _shard_supported_by_capability(
+                shard, snapshot=capability
+            ):
                 support_key = _support_cache_key(shard, capability=capability)
                 await _finalize_result(
                     ObservationShardResult(
@@ -4175,7 +4382,9 @@ async def _ingest_catalog_observations_parallel(
                 now = datetime.now(UTC)
                 cached_support = unsupported_signatures.get(support_key, {})
                 cached_empty = empty_signatures.get(support_key, {})
-                if isinstance(cached_support, dict) and _support_cache_proves_unsupported(cached_support, now=now):
+                if isinstance(cached_support, dict) and _support_cache_proves_unsupported(
+                    cached_support, now=now
+                ):
                     skip_result = ObservationShardResult(
                         shard_id=shard.shard_id,
                         status="complete_empty",
@@ -4188,7 +4397,9 @@ async def _ingest_catalog_observations_parallel(
                         end_year=shard.end_year,
                         error="support_cache:unsupported",
                     )
-                elif isinstance(cached_empty, dict) and _empty_signature_cache_hit(cached_empty, now=now):
+                elif isinstance(cached_empty, dict) and _empty_signature_cache_hit(
+                    cached_empty, now=now
+                ):
                     skip_result = ObservationShardResult(
                         shard_id=shard.shard_id,
                         status="complete_empty",
@@ -4206,7 +4417,9 @@ async def _ingest_catalog_observations_parallel(
                         "source": source,
                         "started_at": datetime.now(UTC).isoformat(),
                     }
-                    runtime_metrics.inflight_by_source[source] = runtime_metrics.inflight_by_source.get(source, 0) + 1
+                    runtime_metrics.inflight_by_source[source] = (
+                        runtime_metrics.inflight_by_source.get(source, 0) + 1
+                    )
                     runtime_metrics.async_jobs_open = len(async_fetch_leases)
 
             if skip_result is not None:
@@ -4244,10 +4457,18 @@ async def _ingest_catalog_observations_parallel(
                         record_result=_record_fetch_metrics,
                         budget_wait_observer=_record_budget_block,
                     )
-                    row_limit = _observation_payload_row_limit(shard.plan) if config.is_sampled_run else None
+                    row_limit = (
+                        _observation_payload_row_limit(shard.plan)
+                        if config.is_sampled_run
+                        else None
+                    )
                     if row_limit is not None and len(rows) > row_limit:
                         split_shards = []
-                        if not (config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core"):
+                        if not (
+                            config.is_sampled_run
+                            or config.preflight_only
+                            or config.run_profile == "preflight_core"
+                        ):
                             split_shards = await _split_shard_for_retry_async(
                                 shard,
                                 RuntimeError(f"HTTP 413 simulated for payload rows={len(rows)}"),
@@ -4361,7 +4582,9 @@ async def _ingest_catalog_observations_parallel(
                 )
                 insert_stats = await ack
 
-                shard_status = "complete_with_rows" if insert_stats.written > 0 else "complete_empty"
+                shard_status = (
+                    "complete_with_rows" if insert_stats.written > 0 else "complete_empty"
+                )
                 if shard_status == "complete_empty":
                     _log_rate_limited_warning(
                         f"observation-empty:{shard.plan.source}:{shard.plan.request_dataset_id}",
@@ -4396,7 +4619,9 @@ async def _ingest_catalog_observations_parallel(
                 async with runtime_lock:
                     inflight_leases.pop(shard.shard_id, None)
                     async_fetch_leases.pop(shard.shard_id, None)
-                    runtime_metrics.inflight_by_source[source] = max(runtime_metrics.inflight_by_source.get(source, 1) - 1, 0)
+                    runtime_metrics.inflight_by_source[source] = max(
+                        runtime_metrics.inflight_by_source.get(source, 1) - 1, 0
+                    )
                     runtime_metrics.queue_backlog_by_source[source] = queue.qsize()
                     runtime_metrics.async_jobs_open = len(async_fetch_leases)
 
@@ -4415,10 +4640,8 @@ async def _ingest_catalog_observations_parallel(
             task.cancel()
         await writer_queue.put(None)
         progress_task.cancel()
-        try:
+        with contextlib.suppress(asyncio.CancelledError):
             await progress_task
-        except asyncio.CancelledError:
-            pass
         if advisory_prewarm_tasks:
             await asyncio.gather(*advisory_prewarm_tasks, return_exceptions=True)
         try:
@@ -4449,9 +4672,13 @@ async def _ingest_catalog_observations_legacy(
     stats = CoreSourcesIngestStats()
     cache = _ConnectorSessionCache()
     checkpoint_payload = load_json(config.observation_ingest_checkpoint_path, default={})
-    completed = checkpoint_payload.get("completed", {}) if isinstance(checkpoint_payload, dict) else {}
+    completed = (
+        checkpoint_payload.get("completed", {}) if isinstance(checkpoint_payload, dict) else {}
+    )
     failed = checkpoint_payload.get("failed", {}) if isinstance(checkpoint_payload, dict) else {}
-    deferred = checkpoint_payload.get("deferred", {}) if isinstance(checkpoint_payload, dict) else {}
+    deferred = (
+        checkpoint_payload.get("deferred", {}) if isinstance(checkpoint_payload, dict) else {}
+    )
     if not isinstance(completed, dict):
         completed = {}
     if not isinstance(failed, dict):
@@ -4470,13 +4697,20 @@ async def _ingest_catalog_observations_legacy(
         with duckdb.connect(str(db_path)) as con:
             while shard_queue:
                 shard = shard_queue.popleft()
-                if _shard_completed(config, shard, completed=completed, failed=failed, deferred=deferred):
+                if _shard_completed(
+                    config, shard, completed=completed, failed=failed, deferred=deferred
+                ):
                     continue
                 try:
-                    policy = _resolve_source_execution_policy(source=shard.plan.source, profile_id=shard.plan.profile_id)
+                    policy = _resolve_source_execution_policy(
+                        source=shard.plan.source, profile_id=shard.plan.profile_id
+                    )
                     logger.info(
                         "Fetching observation shard {}: source={}, request_dataset_id={}, country={}",
-                        shard.shard_id, shard.plan.source, shard.plan.request_dataset_id, shard.country_code,
+                        shard.shard_id,
+                        shard.plan.source,
+                        shard.plan.request_dataset_id,
+                        shard.country_code,
                     )
                     rows = await _fetch_observation_rows_with_retries(
                         shard,
@@ -4540,10 +4774,16 @@ async def _ingest_catalog_observations_legacy(
                         stats.deferred_shards += int(status == "deferred")
                     logger.warning("Observation shard {} failed: {}", shard.shard_id, exc)
                     continue
-                row_limit = _observation_payload_row_limit(shard.plan) if config.is_sampled_run else None
+                row_limit = (
+                    _observation_payload_row_limit(shard.plan) if config.is_sampled_run else None
+                )
                 if row_limit is not None and len(rows) > row_limit:
                     split_shards: list[ObservationShard] = []
-                    if not (config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core"):
+                    if not (
+                        config.is_sampled_run
+                        or config.preflight_only
+                        or config.run_profile == "preflight_core"
+                    ):
                         split_shards = _split_shard_for_retry(
                             shard,
                             RuntimeError(f"HTTP 413 simulated for payload rows={len(rows)}"),
@@ -4565,7 +4805,9 @@ async def _ingest_catalog_observations_legacy(
                         row_count=len(rows),
                         error=f"oversized_payload:{len(rows)}>{row_limit}",
                     )
-                    _record_shard_result(config, result=result, completed=completed, failed=failed, deferred=deferred)
+                    _record_shard_result(
+                        config, result=result, completed=completed, failed=failed, deferred=deferred
+                    )
                     _append_shard_result(
                         result=result,
                         completed_results=completed_results,
@@ -4578,12 +4820,17 @@ async def _ingest_catalog_observations_legacy(
                     continue
                 insert_stats = _insert_generic_observations(con=con, plan=shard.plan, rows=rows)
                 _merge_observation_stats(stats, insert_stats, source=shard.plan.source)
-                shard_status = "complete_with_rows" if insert_stats.written > 0 else "complete_empty"
+                shard_status = (
+                    "complete_with_rows" if insert_stats.written > 0 else "complete_empty"
+                )
                 if shard_status == "complete_empty":
                     stats.empty_shards += 1
                     logger.warning(
                         "Observation shard {} returned 0 rows: source={}, request_dataset_id={}, country={}",
-                        shard.shard_id, shard.plan.source, shard.plan.request_dataset_id, shard.country_code,
+                        shard.shard_id,
+                        shard.plan.source,
+                        shard.plan.request_dataset_id,
+                        shard.country_code,
                     )
                 result = ObservationShardResult(
                     shard_id=shard.shard_id,
@@ -4597,7 +4844,9 @@ async def _ingest_catalog_observations_legacy(
                     end_year=shard.end_year,
                     row_count=insert_stats.written,
                 )
-                _record_shard_result(config, result=result, completed=completed, failed=failed, deferred=deferred)
+                _record_shard_result(
+                    config, result=result, completed=completed, failed=failed, deferred=deferred
+                )
                 _append_shard_result(
                     result=result,
                     completed_results=completed_results,
@@ -4637,8 +4886,12 @@ async def _fetch_observation_rows_with_retries(
     fetch_key = ObservationFetchKey(
         source=shard.plan.source,
         request_dataset_id=shard.plan.request_dataset_id,
-        filters_json=json.dumps(shard.filters, ensure_ascii=False, sort_keys=True, separators=(",", ":")),
-        countries_json=json.dumps(_shard_countries(shard, config=config), ensure_ascii=False, separators=(",", ":")),
+        filters_json=json.dumps(
+            shard.filters, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        ),
+        countries_json=json.dumps(
+            _shard_countries(shard, config=config), ensure_ascii=False, separators=(",", ":")
+        ),
         start_year=shard.start_year,
         end_year=shard.end_year,
     )
@@ -4721,9 +4974,7 @@ def _counts_toward_observation_failure_budget(exc: Exception) -> bool:
     text = str(exc or "").strip().lower()
     if "rate limit exceeded" in text:
         return False
-    if "circuit" in text and "retry in" in text:
-        return False
-    return True
+    return not ("circuit" in text and "retry in" in text)
 
 
 def _observation_retry_delay_seconds(exc: Exception, *, attempt: int) -> float | None:
@@ -4881,7 +5132,9 @@ async def _describe_observation_plan(
         cached_failure = capability_failures.get(key, {})
         if (
             isinstance(cached_failure, dict)
-            and _policy_str_attr(policy, "fallback_on_capability_failure", "plan_without_capability")
+            and _policy_str_attr(
+                policy, "fallback_on_capability_failure", "plan_without_capability"
+            )
             == "plan_without_capability"
             and _capability_failure_supports_fallback(cached_failure, now=datetime.now(UTC))
         ):
@@ -4930,7 +5183,9 @@ async def _describe_observation_plan(
                         exc=exc,
                     )
                 if (
-                    _policy_str_attr(policy, "fallback_on_capability_failure", "plan_without_capability")
+                    _policy_str_attr(
+                        policy, "fallback_on_capability_failure", "plan_without_capability"
+                    )
                     == "plan_without_capability"
                 ):
                     return None
@@ -4965,10 +5220,11 @@ async def _fetch_observation_rows(
     plan = shard.plan
     start_year = shard.start_year
     end_year = shard.end_year
-    if (
-        str(shard.acquisition_method or "").strip().lower() == "bulk_file"
-        and plan.source in {"eurostat", "ilo", "unesco_uis"}
-    ):
+    if str(shard.acquisition_method or "").strip().lower() == "bulk_file" and plan.source in {
+        "eurostat",
+        "ilo",
+        "unesco_uis",
+    }:
         try:
             return await _fetch_remote_bulk_rows(
                 shard,
@@ -5033,9 +5289,8 @@ async def _fetch_observation_rows(
             end_year=end_year,
         )
         if (
-            (config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core")
-            and request_filters
-        ):
+            config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core"
+        ) and request_filters:
             stripped = _strip_geo_filters(request_filters)
             if stripped != request_filters:
                 requests.extend(
@@ -5083,7 +5338,11 @@ async def _fetch_observation_rows(
             state_lock=state_lock,
             record_result=record_result,
             budget_wait_observer=budget_wait_observer,
-            stop_after_first_success=bool(config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core"),
+            stop_after_first_success=bool(
+                config.is_sampled_run
+                or config.preflight_only
+                or config.run_profile == "preflight_core"
+            ),
         )
 
     if plan.source in {"oecd", "ilo"}:
@@ -5112,9 +5371,8 @@ async def _fetch_observation_rows(
             capability_snapshot=capability_snapshot,
         )
         if (
-            (config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core")
-            and request_filters
-        ):
+            config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core"
+        ) and request_filters:
             stripped = _strip_geo_filters(request_filters)
             if stripped != request_filters:
                 requests.extend(
@@ -5139,7 +5397,11 @@ async def _fetch_observation_rows(
             state_lock=state_lock,
             record_result=record_result,
             budget_wait_observer=budget_wait_observer,
-            stop_after_first_success=bool(config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core"),
+            stop_after_first_success=bool(
+                config.is_sampled_run
+                or config.preflight_only
+                or config.run_profile == "preflight_core"
+            ),
         )
 
     if plan.source == "who":
@@ -5346,7 +5608,9 @@ def _chunked_observation_requests(
 ) -> list[FetchRequest]:
     window_start = start_year if start_year is not None else _DEFAULT_OBSERVATION_YEAR_WINDOW[0]
     window_end = end_year if end_year is not None else _DEFAULT_OBSERVATION_YEAR_WINDOW[1]
-    window_years = _observation_time_window_years(source=source, update_frequency=plan.update_frequency)
+    window_years = _observation_time_window_years(
+        source=source, update_frequency=plan.update_frequency
+    )
     requests: list[FetchRequest] = []
     for window_start, window_end in _year_windows(window_start, window_end, window_years):
         requests.append(
@@ -5391,7 +5655,9 @@ def _build_observation_shards(
     config: DatasetBatchConfig,
 ) -> list[ObservationShard]:
     source_policies = {
-        plan.source: _resolve_source_execution_policy(source=plan.source, profile_id=plan.profile_id)
+        plan.source: _resolve_source_execution_policy(
+            source=plan.source, profile_id=plan.profile_id
+        )
         for plan in plans
     }
     sketches = _build_support_sketches(
@@ -5522,7 +5788,9 @@ async def _split_shard_for_retry_async(
     if (
         shard.plan.source == "eurostat"
         and status_code in {405, 413}
-        and not (config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core")
+        and not (
+            config.is_sampled_run or config.preflight_only or config.run_profile == "preflight_core"
+        )
     ):
         current_transport = str(shard.acquisition_method or "").strip().lower()
         next_transport = ""
@@ -5585,7 +5853,9 @@ async def _probe_shard_split_dimensions(
         if shard.plan.source == "eurostat":
             connector, handle = await cache.get_eurostat()
         elif shard.plan.source in {"oecd", "ilo"}:
-            profile_id = shard.plan.profile_id or ("oecd_sdmx" if shard.plan.source == "oecd" else "ilo_sdmx")
+            profile_id = shard.plan.profile_id or (
+                "oecd_sdmx" if shard.plan.source == "oecd" else "ilo_sdmx"
+            )
             connector, handle = await cache.get_sdmx(profile_id)
         else:
             return []
@@ -5692,7 +5962,14 @@ def _probe_dimension_split_key(
             continue
         for key, value in row.items():
             normalized_key = str(key or "").strip()
-            if normalized_key.lower() in {"value", "time", "time_period", "geo", "country", "ref_area"}:
+            if normalized_key.lower() in {
+                "value",
+                "time",
+                "time_period",
+                "geo",
+                "country",
+                "ref_area",
+            }:
                 continue
             normalized_value = str(value or "").strip()
             if not normalized_value:
@@ -5736,9 +6013,9 @@ def _shard_completed(
         return False
     if shard.shard_id in completed:
         return True
-    if config.resume_mode == "smart" and (shard.shard_id in failed or shard.shard_id in deferred):
-        return True
-    return False
+    return bool(
+        config.resume_mode == "smart" and (shard.shard_id in failed or shard.shard_id in deferred)
+    )
 
 
 def _record_shard_result(
@@ -5886,24 +6163,29 @@ async def _legacy_ingest_observations(db_path: Path) -> CoreSourcesIngestStats:
                                 date_end=datetime(2022, 12, 31, tzinfo=UTC),
                             ),
                         )
-                        _merge_observation_stats(stats, _insert_generic_observations(
-                            con=con,
-                            plan=ObservationPlan(
-                                dataset_id="WB_WGI",
-                                source="worldbank",
-                                raw_variable=indicator,
-                                canonical_var=canonical_var,
-                                connector_id="worldbank.wdi",
-                                profile_id="worldbank_wdi",
-                                request_dataset_id=indicator,
-                                default_filters={},
-                                update_frequency="annual",
+                        _merge_observation_stats(
+                            stats,
+                            _insert_generic_observations(
+                                con=con,
+                                plan=ObservationPlan(
+                                    dataset_id="WB_WGI",
+                                    source="worldbank",
+                                    raw_variable=indicator,
+                                    canonical_var=canonical_var,
+                                    connector_id="worldbank.wdi",
+                                    profile_id="worldbank_wdi",
+                                    request_dataset_id=indicator,
+                                    default_filters={},
+                                    update_frequency="annual",
+                                ),
+                                rows=_records_from_payload(result.data),
                             ),
-                            rows=_records_from_payload(result.data),
-                        ))
+                        )
                     except Exception as exc:
                         stats.failures += 1
-                        logger.warning("Legacy WGI ingest failed for {}/{}: {}", country, indicator, exc)
+                        logger.warning(
+                            "Legacy WGI ingest failed for {}/{}: {}", country, indicator, exc
+                        )
 
                 for indicator, canonical_var in _LEGACY_WDI_INDICATORS.items():
                     try:
@@ -5916,35 +6198,43 @@ async def _legacy_ingest_observations(db_path: Path) -> CoreSourcesIngestStats:
                                 date_end=datetime(2022, 12, 31, tzinfo=UTC),
                             ),
                         )
-                        _merge_observation_stats(stats, _insert_generic_observations(
-                            con=con,
-                            plan=ObservationPlan(
-                                dataset_id="WB_WDI",
-                                source="worldbank",
-                                raw_variable=indicator,
-                                canonical_var=canonical_var,
-                                connector_id="worldbank.wdi",
-                                profile_id="worldbank_wdi",
-                                request_dataset_id=indicator,
-                                default_filters={},
-                                update_frequency="annual",
+                        _merge_observation_stats(
+                            stats,
+                            _insert_generic_observations(
+                                con=con,
+                                plan=ObservationPlan(
+                                    dataset_id="WB_WDI",
+                                    source="worldbank",
+                                    raw_variable=indicator,
+                                    canonical_var=canonical_var,
+                                    connector_id="worldbank.wdi",
+                                    profile_id="worldbank_wdi",
+                                    request_dataset_id=indicator,
+                                    default_filters={},
+                                    update_frequency="annual",
+                                ),
+                                rows=_records_from_payload(result.data),
                             ),
-                            rows=_records_from_payload(result.data),
-                        ))
+                        )
                     except Exception as exc:
                         stats.failures += 1
-                        logger.warning("Legacy WDI ingest failed for {}/{}: {}", country, indicator, exc)
+                        logger.warning(
+                            "Legacy WDI ingest failed for {}/{}: {}", country, indicator, exc
+                        )
 
             wvs_indicators = _wvs_legacy_indicators()
             if wvs_indicators:
                 try:
                     wvs_bulk = _load_wvs_bulk_duckdb(
                         list(wvs_indicators.keys()),
-                        country_scope=config.country_scope if hasattr(config, "country_scope") else "core_blocking",
+                        country_scope="core_blocking",
                         year_window=(1981, 2023),
                     )
-                    logger.info("WVS DuckDB bulk load: {} indicators, {} total rows",
-                                len(wvs_bulk), sum(len(v) for v in wvs_bulk.values()))
+                    logger.info(
+                        "WVS DuckDB bulk load: {} indicators, {} total rows",
+                        len(wvs_bulk),
+                        sum(len(v) for v in wvs_bulk.values()),
+                    )
                 except Exception as exc:
                     logger.warning("WVS DuckDB bulk load failed: {}", exc)
                     wvs_bulk = {}
@@ -5989,8 +6279,18 @@ def _upsert_legacy_registry_datasets(con: duckdb.DuckDBPyConnection) -> int:
             "WB_WGI",
             "worldbank",
             "World Governance Indicators",
-            json.dumps({"countries": [], "time_range": "1996-2023", "granularity": "country-year"}, separators=(",", ":")),
-            json.dumps({"access_type": "open", "api_endpoint": "https://api.worldbank.org/v2", "license": "CC-BY-4.0"}, separators=(",", ":")),
+            json.dumps(
+                {"countries": [], "time_range": "1996-2023", "granularity": "country-year"},
+                separators=(",", ":"),
+            ),
+            json.dumps(
+                {
+                    "access_type": "open",
+                    "api_endpoint": "https://api.worldbank.org/v2",
+                    "license": "CC-BY-4.0",
+                },
+                separators=(",", ":"),
+            ),
             "annual",
             last_updated,
         ),
@@ -5998,8 +6298,18 @@ def _upsert_legacy_registry_datasets(con: duckdb.DuckDBPyConnection) -> int:
             "WB_WDI",
             "worldbank",
             "World Development Indicators",
-            json.dumps({"countries": [], "time_range": "1960-2023", "granularity": "country-year"}, separators=(",", ":")),
-            json.dumps({"access_type": "open", "api_endpoint": "https://api.worldbank.org/v2", "license": "CC-BY-4.0"}, separators=(",", ":")),
+            json.dumps(
+                {"countries": [], "time_range": "1960-2023", "granularity": "country-year"},
+                separators=(",", ":"),
+            ),
+            json.dumps(
+                {
+                    "access_type": "open",
+                    "api_endpoint": "https://api.worldbank.org/v2",
+                    "license": "CC-BY-4.0",
+                },
+                separators=(",", ":"),
+            ),
             "annual",
             last_updated,
         ),
@@ -6007,8 +6317,19 @@ def _upsert_legacy_registry_datasets(con: duckdb.DuckDBPyConnection) -> int:
             "WVS_W7",
             "wvs",
             "World Values Survey Time Series 1981-2022",
-            json.dumps({"countries": [], "time_range": "1981-2022", "granularity": "country-survey-wave"}, separators=(",", ":")),
-            json.dumps({"access_type": "local_bulk_file", "api_endpoint": "", "bulk_download_url": "data/raw/wvs/WVS_Time_Series_1981-2022_csv_v5_0.csv", "license": "WVS terms"}, separators=(",", ":")),
+            json.dumps(
+                {"countries": [], "time_range": "1981-2022", "granularity": "country-survey-wave"},
+                separators=(",", ":"),
+            ),
+            json.dumps(
+                {
+                    "access_type": "local_bulk_file",
+                    "api_endpoint": "",
+                    "bulk_download_url": "data/raw/wvs/WVS_Time_Series_1981-2022_csv_v5_0.csv",
+                    "license": "WVS terms",
+                },
+                separators=(",", ":"),
+            ),
             "wave",
             last_updated,
         ),
@@ -6016,8 +6337,14 @@ def _upsert_legacy_registry_datasets(con: duckdb.DuckDBPyConnection) -> int:
             "IMF_SHADOW",
             "imf",
             "IMF Shadow Economy Estimates",
-            json.dumps({"countries": [], "time_range": "1990-2022", "granularity": "country-year"}, separators=(",", ":")),
-            json.dumps({"access_type": "open", "api_endpoint": "", "license": "IMF terms"}, separators=(",", ":")),
+            json.dumps(
+                {"countries": [], "time_range": "1990-2022", "granularity": "country-year"},
+                separators=(",", ":"),
+            ),
+            json.dumps(
+                {"access_type": "open", "api_endpoint": "", "license": "IMF terms"},
+                separators=(",", ":"),
+            ),
             "annual",
             last_updated,
         ),
@@ -6203,13 +6530,19 @@ def _bulk_materialization_lock(path: Path) -> asyncio.Lock:
 
 def _bulk_dataset_version_token(shard: ObservationShard) -> str:
     return _safe_path_token(
-        shard.dataset_version or shard.plan.dataset_version or shard.plan.request_dataset_id or "dataset"
+        shard.dataset_version
+        or shard.plan.dataset_version
+        or shard.plan.request_dataset_id
+        or "dataset"
     )
 
 
 def _bulk_dataset_token(shard: ObservationShard) -> str:
     return _safe_path_token(
-        shard.plan.request_dataset_id or shard.plan.raw_variable or shard.plan.dataset_id or "dataset"
+        shard.plan.request_dataset_id
+        or shard.plan.raw_variable
+        or shard.plan.dataset_id
+        or "dataset"
     )
 
 
@@ -6434,10 +6767,13 @@ async def _resolve_eurostat_bulk_download(
     inventory_url = "https://ec.europa.eu/eurostat/api/dissemination/files/inventory?type=data"
     if not inventory_path.exists():
         await _http_download_to_path(inventory_url, inventory_path)
-    with open(inventory_path, "r", encoding="utf-8", newline="") as fh:
+    with open(inventory_path, encoding="utf-8", newline="") as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
-            if str(row.get("Code") or "").strip() != str(shard.plan.request_dataset_id or "").strip():
+            if (
+                str(row.get("Code") or "").strip()
+                != str(shard.plan.request_dataset_id or "").strip()
+            ):
                 continue
             url = str(row.get("Data download url (tsv)") or "").strip()
             if url:
@@ -6446,23 +6782,29 @@ async def _resolve_eurostat_bulk_download(
 
 
 def _iter_eurostat_bulk_records(tsv_path: Path) -> Any:
-    with open(tsv_path, "r", encoding="utf-8", newline="") as fh:
+    with open(tsv_path, encoding="utf-8", newline="") as fh:
         reader = csv.reader(fh, delimiter="\t")
         header = next(reader, [])
         if not header:
             return
         dimension_key = str(header[0] or "")
-        dimension_names = [segment.strip() for segment in dimension_key.split("\\", 1)[0].split(",") if segment.strip()]
+        dimension_names = [
+            segment.strip()
+            for segment in dimension_key.split("\\", 1)[0].split(",")
+            if segment.strip()
+        ]
         time_labels = [str(value or "").strip() for value in header[1:]]
         for row in reader:
             if not row:
                 continue
             dimension_values = [segment.strip() for segment in str(row[0] or "").split(",")]
             base = {
-                dimension_names[index]: dimension_values[index] if index < len(dimension_values) else ""
+                dimension_names[index]: dimension_values[index]
+                if index < len(dimension_values)
+                else ""
                 for index in range(len(dimension_names))
             }
-            for time_label, raw_value in zip(time_labels, row[1:]):
+            for time_label, raw_value in zip(time_labels, row[1:], strict=False):
                 value = _bulk_parse_numeric(raw_value)
                 if value is None:
                     continue
@@ -6588,7 +6930,9 @@ def _write_bulk_raw_manifest(
         count=row_count,
         filters={
             "dataset_id": shard.plan.request_dataset_id,
-            "dataset_version": shard.dataset_version or shard.plan.dataset_version or shard.plan.request_dataset_id,
+            "dataset_version": shard.dataset_version
+            or shard.plan.dataset_version
+            or shard.plan.request_dataset_id,
             "acquisition_method": shard.acquisition_method,
         },
         parser_version="bulk-v1",
@@ -6648,7 +6992,9 @@ async def _materialize_ilo_bulk_dataset(
     normalized_path = _bulk_normalized_path(config, shard=shard)
     dataset_version = _bulk_dataset_version_token(shard)
     raw_dir = _bulk_raw_dir(config, source="ilo", dataset_version=dataset_version)
-    raw_url = f"https://rplumber.ilo.org/data/indicator?id={shard.plan.request_dataset_id}&format=.csv.gz"
+    raw_url = (
+        f"https://rplumber.ilo.org/data/indicator?id={shard.plan.request_dataset_id}&format=.csv.gz"
+    )
     raw_path = raw_dir / f"{_bulk_dataset_token(shard)}.csv.gz"
     download = await _http_download_to_path(raw_url, raw_path)
     await _record_bulk_download_result(
@@ -6707,7 +7053,9 @@ async def _materialize_uis_bulk_dataset(
     if normalized_path.exists():
         return {
             "normalized_path": normalized_path,
-            "raw_path": next((raw_dir / Path(urlparse(url).path).name for url in sorted_links), page_path),
+            "raw_path": next(
+                (raw_dir / Path(urlparse(url).path).name for url in sorted_links), page_path
+            ),
             "bulk_url": sorted_links[0],
             "row_count": _parquet_row_count(normalized_path),
             "source_watermark": "",
@@ -6742,11 +7090,15 @@ async def _materialize_uis_bulk_dataset(
                 "raw_path": archive_path,
                 "bulk_url": archive_url,
                 "row_count": row_count,
-                "source_watermark": str(download.get("etag") or download.get("last_modified") or ""),
+                "source_watermark": str(
+                    download.get("etag") or download.get("last_modified") or ""
+                ),
                 "bytes_downloaded": int(download.get("bytes_downloaded", 0) or 0),
             }
         normalized_path.unlink(missing_ok=True)
-    raise RuntimeError(f"UNESCO UIS bulk archive did not contain indicator {shard.plan.request_dataset_id}")
+    raise RuntimeError(
+        f"UNESCO UIS bulk archive did not contain indicator {shard.plan.request_dataset_id}"
+    )
 
 
 async def _ensure_remote_bulk_materialized(
@@ -6833,14 +7185,16 @@ def _bulk_query_rows(
     country_values = _bulk_country_values(source, countries)
     if country_column and country_values:
         placeholders = ", ".join("?" for _ in country_values)
-        where.append(f"upper(cast({_quote_identifier(country_column)} AS VARCHAR)) IN ({placeholders})")
+        where.append(
+            f"upper(cast({_quote_identifier(country_column)} AS VARCHAR)) IN ({placeholders})"
+        )
         params.extend(country_values)
     if year_column:
         where.append(f"{year_expr} BETWEEN ? AND ?")
         params.extend([int(year_range[0]), int(year_range[1])])
     for key, values in sorted((filters or {}).items()):
         actual = lower_map.get(str(key).strip().lower())
-        if actual is None or actual == country_column or actual == year_column:
+        if actual in (country_column, year_column) or actual is None:
             continue
         prepared = [str(value).strip().upper() for value in values if str(value).strip()]
         if not prepared:
@@ -6878,7 +7232,9 @@ def _bulk_series_sample(
     if not series_columns:
         return 1, [{}]
     select_clause = ", ".join(_quote_identifier(column) for column in series_columns)
-    hash_expr = ", ".join(f"coalesce(cast({_quote_identifier(column)} AS VARCHAR), '')" for column in series_columns)
+    hash_expr = ", ".join(
+        f"coalesce(cast({_quote_identifier(column)} AS VARCHAR), '')" for column in series_columns
+    )
     with duckdb.connect() as con:
         total_row = con.execute(
             f"SELECT count(*) FROM (SELECT DISTINCT {select_clause} FROM read_parquet(?))",
@@ -6900,9 +7256,7 @@ def _bulk_series_sample(
 
 def _bulk_series_constraints(series: dict[str, Any]) -> dict[str, Any]:
     return {
-        str(key): value
-        for key, value in dict(series or {}).items()
-        if value not in (None, "", [])
+        str(key): value for key, value in dict(series or {}).items() if value not in (None, "", [])
     }
 
 
@@ -6977,7 +7331,14 @@ def _equivalence_signature(rows: list[dict[str, Any]]) -> tuple[int, str]:
             or condition.get("MAGNITUDE")
             or ""
         )
-        tuples.append((country_code, year if year is not None else survey_year, round(float(value), 12), str(unit)))
+        tuples.append(
+            (
+                country_code,
+                year if year is not None else survey_year,
+                round(float(value), 12),
+                str(unit),
+            )
+        )
     tuples.sort()
     payload = json.dumps(tuples, ensure_ascii=False, separators=(",", ":"))
     return len(tuples), hashlib.sha256(payload.encode("utf-8")).hexdigest()
@@ -7029,9 +7390,7 @@ async def _fetch_bulk_equivalence_api_rows(
     elif source == "unesco_uis":
         connector, handle = await cache.get_unesco_uis()
         country_code = str(
-            series_constraints.get("country_code")
-            or series_constraints.get("country")
-            or ""
+            series_constraints.get("country_code") or series_constraints.get("country") or ""
         ).strip()
         request = FetchRequest(
             dataset_id=shard.plan.request_dataset_id,
@@ -7093,7 +7452,9 @@ async def _ensure_bulk_equivalence_manifest(
     if manifest_path.exists():
         return
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    total_series, sampled = _bulk_series_sample(source=shard.plan.source, normalized_path=normalized_path)
+    total_series, sampled = _bulk_series_sample(
+        source=shard.plan.source, normalized_path=normalized_path
+    )
     if total_series <= 0:
         write_json(
             manifest_path,
@@ -7101,7 +7462,9 @@ async def _ensure_bulk_equivalence_manifest(
                 "status": "empty",
                 "source": shard.plan.source,
                 "dataset_id": shard.plan.request_dataset_id,
-                "dataset_version": shard.dataset_version or shard.plan.dataset_version or shard.plan.request_dataset_id,
+                "dataset_version": shard.dataset_version
+                or shard.plan.dataset_version
+                or shard.plan.request_dataset_id,
                 "series_total": 0,
                 "sampled_series": 0,
                 "compared_series": 0,
@@ -7162,13 +7525,18 @@ async def _ensure_bulk_equivalence_manifest(
                 "status": "ok",
                 "source": shard.plan.source,
                 "dataset_id": shard.plan.request_dataset_id,
-                "dataset_version": shard.dataset_version or shard.plan.dataset_version or shard.plan.request_dataset_id,
+                "dataset_version": shard.dataset_version
+                or shard.plan.dataset_version
+                or shard.plan.request_dataset_id,
                 "series_total": int(total_series),
                 "sampled_series": len(sampled),
                 "compared_series": int(compared),
                 "mismatches": int(mismatches),
                 "mismatch_rate": mismatch_rate,
-                "blocking": bool(mismatches > 0 and _bulk_equivalence_source_is_blocking(config, shard.plan.source)),
+                "blocking": bool(
+                    mismatches > 0
+                    and _bulk_equivalence_source_is_blocking(config, shard.plan.source)
+                ),
                 "bulk_url": bulk_url,
                 "raw_path": str(raw_path),
                 "normalized_path": str(normalized_path),
@@ -7188,12 +7556,16 @@ async def _ensure_bulk_equivalence_manifest(
                 "status": "error",
                 "source": shard.plan.source,
                 "dataset_id": shard.plan.request_dataset_id,
-                "dataset_version": shard.dataset_version or shard.plan.dataset_version or shard.plan.request_dataset_id,
+                "dataset_version": shard.dataset_version
+                or shard.plan.dataset_version
+                or shard.plan.request_dataset_id,
                 "series_total": int(total_series),
                 "sampled_series": len(sampled),
                 "compared_series": int(compared),
                 "mismatches": int(mismatches),
-                "mismatch_rate": round((float(mismatches) / max(float(compared), 1.0)) * 100.0, 2) if compared else 0.0,
+                "mismatch_rate": round((float(mismatches) / max(float(compared), 1.0)) * 100.0, 2)
+                if compared
+                else 0.0,
                 "blocking": False,
                 "bulk_url": bulk_url,
                 "raw_path": str(raw_path),
@@ -7247,16 +7619,14 @@ def _load_wvs_bulk_rows(
     raw_variable: str,
     *,
     country_scope: str = "core_blocking",
+    year_window: tuple[int, int] | None = None,
 ) -> list[dict[str, Any]]:
     indicator = str(raw_variable or "").strip().upper()
     csv_path = _wvs_bulk_csv_path()
     if not indicator:
         return []
     if not csv_path.exists():
-        raise RuntimeError(
-            "WVS bulk CSV is required for production ingest: "
-            f"{csv_path}"
-        )
+        raise RuntimeError(f"WVS bulk CSV is required for production ingest: {csv_path}")
 
     target_countries = {
         iso2_to_iso3(country)
@@ -7265,7 +7635,7 @@ def _load_wvs_bulk_rows(
     }
     aggregates: dict[tuple[str, int, int | None], _WVSObservationAccumulator] = {}
 
-    with open(csv_path, "r", encoding="utf-8-sig", newline="") as fh:
+    with open(csv_path, encoding="utf-8-sig", newline="") as fh:
         reader = csv.DictReader(fh)
         for row in reader:
             country_iso3 = str(row.get("COUNTRY_ALPHA") or "").strip().upper()
@@ -7277,6 +7647,8 @@ def _load_wvs_bulk_rows(
 
             survey_year = _as_int(row.get("S020"))
             if survey_year is None:
+                continue
+            if year_window is not None and not (year_window[0] <= survey_year <= year_window[1]):
                 continue
             wave = _as_int(row.get("S002VS"))
             value = _normalize_wvs_response_value(indicator, row.get(indicator))
@@ -7367,10 +7739,7 @@ def _normalize_observation_row(
     if not country_code:
         return None
 
-    survey_year = _as_int(
-        payload.pop("survey_year", None)
-        or payload.pop("SurveyYear", None)
-    )
+    survey_year = _as_int(payload.pop("survey_year", None) or payload.pop("SurveyYear", None))
     wave = _as_int(payload.pop("wave", None) or payload.pop("Wave", None))
 
     raw_year = (
@@ -7512,7 +7881,9 @@ async def _http_get_json(
             return await resp.json(content_type=None)
 
 
-def _sdmx_filters_for_country(country_code: str, *, base_filters: dict[str, list[str]]) -> dict[str, list[str]]:
+def _sdmx_filters_for_country(
+    country_code: str, *, base_filters: dict[str, list[str]]
+) -> dict[str, list[str]]:
     iso3 = _to_iso3(country_code)
     merged = {key: list(values) for key, values in (base_filters or {}).items()}
     for key, value in (
@@ -7542,7 +7913,9 @@ def _sdmx_filters_for_countries(
     return merged
 
 
-def _eurostat_filters_for_country(country_code: str, *, base_filters: dict[str, list[str]]) -> dict[str, list[str]]:
+def _eurostat_filters_for_country(
+    country_code: str, *, base_filters: dict[str, list[str]]
+) -> dict[str, list[str]]:
     merged = {key: list(values) for key, values in (base_filters or {}).items()}
     merged["geo"] = [country_code]
     return merged
@@ -7562,11 +7935,7 @@ def _eurostat_filters_for_countries(
 
 def _strip_geo_filters(filters: dict[str, list[str]]) -> dict[str, list[str]]:
     blocked = {"geo", "country", "ref_area", "REF_AREA"}
-    return {
-        key: list(values)
-        for key, values in (filters or {}).items()
-        if key not in blocked
-    }
+    return {key: list(values) for key, values in (filters or {}).items() if key not in blocked}
 
 
 def _observation_countries(source: str, *, config: DatasetBatchConfig) -> tuple[str, ...]:
@@ -7685,8 +8054,7 @@ def _canonicalize_observation_request_filters(
     capability_snapshot: DatasetCapabilitySnapshot | None = None,
 ) -> dict[str, list[str]]:
     canonical = {
-        str(key): _dedupe_filter_values(list(values))
-        for key, values in (filters or {}).items()
+        str(key): _dedupe_filter_values(list(values)) for key, values in (filters or {}).items()
     }
     if source != "ilo":
         return {key: values for key, values in canonical.items() if values}
@@ -7694,9 +8062,15 @@ def _canonicalize_observation_request_filters(
     geo_key = _preferred_sdmx_geo_key(source, capability_snapshot=capability_snapshot)
     geo_values: list[str] = []
     for key in ("REF_AREA", "ref_area"):
-        geo_values.extend(str(value).strip().upper() for value in canonical.get(key, []) if str(value).strip())
+        geo_values.extend(
+            str(value).strip().upper() for value in canonical.get(key, []) if str(value).strip()
+        )
     for key in ("country", "geo"):
-        geo_values.extend(_to_iso3(str(value).strip().upper()) for value in canonical.get(key, []) if str(value).strip())
+        geo_values.extend(
+            _to_iso3(str(value).strip().upper())
+            for value in canonical.get(key, [])
+            if str(value).strip()
+        )
     geo_values = _dedupe_filter_values(geo_values)
     for key in ("REF_AREA", "ref_area", "country", "geo"):
         canonical.pop(key, None)

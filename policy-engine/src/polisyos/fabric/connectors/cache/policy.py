@@ -1,9 +1,10 @@
 """Cache policy system for connector cache entries."""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 from polisyos.fabric.connectors.base import FetchRequest, FetchResult
@@ -15,6 +16,7 @@ if TYPE_CHECKING:
 @dataclass(frozen=True, slots=True)
 class EvictionContext:
     """Eviction context public type."""
+
     total_entries: int
     total_size_bytes: int
     recently_accessed_keys: set[str]
@@ -29,14 +31,14 @@ class CachePolicy(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def is_valid(self, metadata: "CacheMetadata") -> bool:
+    def is_valid(self, metadata: CacheMetadata) -> bool:
         raise NotImplementedError
 
     @abstractmethod
     def compute_expiry(self, request: FetchRequest, result: FetchResult[Any]) -> datetime | None:
         raise NotImplementedError
 
-    def should_evict(self, metadata: "CacheMetadata", context: EvictionContext) -> bool:
+    def should_evict(self, metadata: CacheMetadata, context: EvictionContext) -> bool:
         return False
 
 
@@ -51,13 +53,13 @@ class TTLPolicy(CachePolicy):
     def policy_id(self) -> str:
         return self._policy_id
 
-    def is_valid(self, metadata: "CacheMetadata") -> bool:
+    def is_valid(self, metadata: CacheMetadata) -> bool:
         if metadata.expires_at is None:
             return True
-        return datetime.now(timezone.utc) < metadata.expires_at
+        return datetime.now(UTC) < metadata.expires_at
 
     def compute_expiry(self, request: FetchRequest, result: FetchResult[Any]) -> datetime:
-        return datetime.now(timezone.utc) + self._ttl
+        return datetime.now(UTC) + self._ttl
 
 
 class StaticDataPolicy(CachePolicy):
@@ -65,7 +67,7 @@ class StaticDataPolicy(CachePolicy):
 
     policy_id = "static_eternal"
 
-    def is_valid(self, metadata: "CacheMetadata") -> bool:
+    def is_valid(self, metadata: CacheMetadata) -> bool:
         return True
 
     def compute_expiry(self, request: FetchRequest, result: FetchResult[Any]) -> None:
@@ -80,13 +82,13 @@ class VolatileDataPolicy(CachePolicy):
     def __init__(self, ttl_minutes: int = 5) -> None:
         self._ttl = timedelta(minutes=ttl_minutes)
 
-    def is_valid(self, metadata: "CacheMetadata") -> bool:
+    def is_valid(self, metadata: CacheMetadata) -> bool:
         if metadata.expires_at is None:
             return True
-        return datetime.now(timezone.utc) < metadata.expires_at
+        return datetime.now(UTC) < metadata.expires_at
 
     def compute_expiry(self, request: FetchRequest, result: FetchResult[Any]) -> datetime:
-        return datetime.now(timezone.utc) + self._ttl
+        return datetime.now(UTC) + self._ttl
 
 
 class SmartExpiryPolicy(CachePolicy):
@@ -94,13 +96,13 @@ class SmartExpiryPolicy(CachePolicy):
 
     policy_id = "smart_adaptive"
 
-    def is_valid(self, metadata: "CacheMetadata") -> bool:
+    def is_valid(self, metadata: CacheMetadata) -> bool:
         if metadata.expires_at is None:
             return True
-        return datetime.now(timezone.utc) < metadata.expires_at
+        return datetime.now(UTC) < metadata.expires_at
 
     def compute_expiry(self, request: FetchRequest, result: FetchResult[Any]) -> datetime:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         if request.date_end:
             if request.date_end > now:
@@ -108,7 +110,9 @@ class SmartExpiryPolicy(CachePolicy):
 
             if request.date_start and request.date_start <= request.date_end:
                 window_span = request.date_end - request.date_start
-                if request.date_end >= now - timedelta(hours=1) and window_span <= timedelta(days=7):
+                if request.date_end >= now - timedelta(hours=1) and window_span <= timedelta(
+                    days=7
+                ):
                     return now + timedelta(minutes=5)
 
             delta = now - request.date_end
@@ -136,12 +140,12 @@ class LRUPolicy(CachePolicy):
     def is_valid(self, metadata: CacheMetadata) -> bool:
         if metadata.expires_at is None:
             return True
-        return datetime.now(timezone.utc) < metadata.expires_at
+        return datetime.now(UTC) < metadata.expires_at
 
     def compute_expiry(self, request: FetchRequest, result: FetchResult[Any]) -> None:
         return None
 
-    def should_evict(self, metadata: "CacheMetadata", context: EvictionContext) -> bool:
+    def should_evict(self, metadata: CacheMetadata, context: EvictionContext) -> bool:
         if context.total_entries <= self.max_entries:
             return False
         return metadata.cache_key not in context.recently_accessed_keys
@@ -158,15 +162,15 @@ class SizeBoundedPolicy(CachePolicy):
     def policy_id(self) -> str:
         return self._policy_id
 
-    def is_valid(self, metadata: "CacheMetadata") -> bool:
+    def is_valid(self, metadata: CacheMetadata) -> bool:
         if metadata.expires_at is None:
             return True
-        return datetime.now(timezone.utc) < metadata.expires_at
+        return datetime.now(UTC) < metadata.expires_at
 
     def compute_expiry(self, request: FetchRequest, result: FetchResult[Any]) -> None:
         return None
 
-    def should_evict(self, metadata: "CacheMetadata", context: EvictionContext) -> bool:
+    def should_evict(self, metadata: CacheMetadata, context: EvictionContext) -> bool:
         return context.total_size_bytes > self.max_size_bytes
 
 

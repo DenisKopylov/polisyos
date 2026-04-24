@@ -17,8 +17,8 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 if TYPE_CHECKING:
     from polisyos.core.canon.canon_json import CanonSpec
 
-    from .ids import ArtifactID
     from ._integrity_ops import VerificationReport
+    from .ids import ArtifactID
     from .manifest import ArtifactManifest, ArtifactRef
     from .write_contract import ArtifactWriteOptions
 

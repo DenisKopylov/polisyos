@@ -11,13 +11,13 @@ source .venv/bin/activate
 
 # Load environment variables
 if [ -f .env ]; then
-    set -a
-    source .env
-    set +a
-    echo "Loaded .env"
+  set -a
+  source .env
+  set +a
+  echo "Loaded .env"
 else
-    echo "ERROR: .env not found"
-    exit 1
+  echo "ERROR: .env not found"
+  exit 1
 fi
 
 export PYTHONPATH=src
@@ -25,19 +25,19 @@ export PYTHONUNBUFFERED=1
 
 # Validate topics
 TOPICS_DIR="/data/topics"
-TOPIC_FILE_COUNT=$(ls "$TOPICS_DIR"/relevant_topics_*.csv 2>/dev/null | wc -l)
+TOPIC_FILE_COUNT=$(ls "$TOPICS_DIR"/relevant_topics_*.csv 2> /dev/null | wc -l)
 if [ "$TOPIC_FILE_COUNT" -eq 0 ]; then
-    echo "ERROR: No relevant_topics_*.csv found in $TOPICS_DIR"
-    exit 1
+  echo "ERROR: No relevant_topics_*.csv found in $TOPICS_DIR"
+  exit 1
 fi
 echo "Topics directory: $TOPICS_DIR ($TOPIC_FILE_COUNT domain files)"
 
 # Count Gonka keys
 KEY_COUNT=0
 for var in GONKA_API_KEY GONKA_API_KEY_1 GONKA_API_KEY_2 GONKA_API_KEY_3 GONKA_API_KEY_4 GONKA_API_KEY_5; do
-    if [ -n "${!var:-}" ]; then
-        KEY_COUNT=$((KEY_COUNT + 1))
-    fi
+  if [ -n "${!var:-}" ]; then
+    KEY_COUNT=$((KEY_COUNT + 1))
+  fi
 done
 echo "Gonka API keys: $KEY_COUNT"
 

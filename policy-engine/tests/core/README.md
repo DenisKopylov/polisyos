@@ -8,8 +8,10 @@ primitives. The slice currently contains `69` `test_*.py` files.
 
 - Keep the platform substrate stable for `ir`, `fabric`, `foundry`,
   `scientist`, and `runtime`.
+
 - Catch regressions in security boundaries, component discovery, and registry
   contracts before they leak into higher layers.
+
 - Preserve the phase0 CAS, canon, signing, run-context, and observability
   guarantees that many other slices reuse.
 
@@ -17,8 +19,10 @@ primitives. The slice currently contains `69` `test_*.py` files.
 
 - [`../../src/polisyos/core/README.md`](../../src/polisyos/core/README.md) for
   the code-side subsystem boundary.
+
 - [`phase0/README.md`](phase0/README.md) for the deepest artifact/run/canon
   coverage.
+
 - `security/`, `components/`, and `contracts/` when the change touches auth,
   package facades, or typed execution contracts.
 
@@ -26,30 +30,36 @@ primitives. The slice currently contains `69` `test_*.py` files.
 
 - `tests/core/` root: `10` direct tests for cache, pipeline, registry, hashing,
   scoring, and discovery primitives.
+
 - `tests/core/phase0/`: `23` tests for artifacts, canon, signing,
   observability, and run lifecycle.
+
 - `tests/core/security/`: `20` tests for identity, authz, tenant, router, and
   related runtime guards.
+
 - `tests/core/components/`: `4` tests for component discovery and legacy entry
   point compatibility.
+
 - `tests/core/contracts/`: `2` tests for execution-plan and facade-level
   contract checks.
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - [`../../src/polisyos/core/README.md`](../../src/polisyos/core/README.md)
 - `src/polisyos/core/security`, `src/polisyos/core/components`,
   `src/polisyos/core/contracts`
+
 - `tests/conftest.py` and `tests/core/phase0/conftest.py`
 
-**Depended on by**
+### Depended On By
 
 - [`../contract/README.md`](../contract/README.md),
   [`../runtime/README.md`](../runtime/README.md),
   [`../foundry/README.md`](../foundry/README.md), and
   [`../scientist/README.md`](../scientist/README.md)
+
 - The fast local loop described in [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
 
 ## Common Commands

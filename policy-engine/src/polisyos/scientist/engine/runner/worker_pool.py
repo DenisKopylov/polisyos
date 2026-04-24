@@ -13,7 +13,6 @@ from typing import Any, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict
 
-
 type JsonValue = str | int | float | bool | None | dict[str, Any] | list[Any]
 
 

@@ -1,8 +1,10 @@
 """Public agent sim jit training module API."""
+
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from typing import Callable, NamedTuple, Sequence
+from typing import NamedTuple
 
 import equinox as eqx
 import jax
@@ -14,9 +16,9 @@ from polisyos.foundry.agent_sim.credit_assignment import CreditConfig, compute_c
 from polisyos.foundry.agent_sim.executor import PureExecutor
 from polisyos.foundry.agent_sim.metrics import (
     MetricDefinition,
-    MetricType,
     MetricsBuffer,
     MetricsCollector,
+    MetricType,
     _safe_histogram_bins,
     standard_training_metrics,
     training_loss_metrics,
@@ -28,12 +30,12 @@ from polisyos.foundry.agent_sim.state import GlobalState
 from polisyos.foundry.agent_sim.temporal import build_temporal_observations
 from polisyos.foundry.agent_sim.temporal_mechanisms import TemporalConsumptionMechanism
 from polisyos.foundry.agent_sim.training_config import TrainingConfigBase
-from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
 @dataclass(frozen=True)
 class JITTrainingConfig(TrainingConfigBase):
     """Configure the fully JIT-compiled actor-critic training loop."""
+
     credit_config: CreditConfig | None = None
     collect_metrics: bool = True
     metrics_frequency: int = 1
@@ -41,6 +43,7 @@ class JITTrainingConfig(TrainingConfigBase):
 
 class TrainingCarry(NamedTuple):
     """Training carry public type."""
+
     params: object
     opt_state: optax.OptState
     rng_key: jax.Array
@@ -51,6 +54,7 @@ class TrainingCarry(NamedTuple):
 
 class TrainingMetricsCarry(NamedTuple):
     """JAX-friendly carry for metric-enabled training."""
+
     params: object
     opt_state: optax.OptState
     rng_key: jax.Array
@@ -411,9 +415,7 @@ def create_jit_trainer_with_metrics(
                 )
                 return loss, metrics
 
-            (loss_val, metrics), grads = jax.value_and_grad(loss_fn, has_aux=True)(
-                cur_params
-            )
+            (loss_val, metrics), grads = jax.value_and_grad(loss_fn, has_aux=True)(cur_params)
             updates, next_opt_state = optimizer.update(grads, cur_opt_state, cur_params)
             next_params = optax.apply_updates(cur_params, updates)
             return (next_params, next_opt_state), (loss_val, metrics)
@@ -473,9 +475,7 @@ def create_jit_trainer_with_metrics(
 
         def episode_step(carry: TrainingMetricsCarry, idx):
             key1, key2 = jax.random.split(carry.rng_key)
-            trajectory, final_state = _collect_trajectory_jit(
-                carry.params, initial_state, key1
-            )
+            trajectory, final_state = _collect_trajectory_jit(carry.params, initial_state, key1)
             new_params, new_opt_state, loss, metrics, train_stats = _ppo_update_jit(
                 carry.params, carry.opt_state, trajectory
             )

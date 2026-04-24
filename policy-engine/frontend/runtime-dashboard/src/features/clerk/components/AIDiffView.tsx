@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { Card, Button, Badge } from "@/shared/ui/primitives";
 
@@ -16,19 +17,28 @@ type AIDiffViewProps = {
   onAcceptAll?: () => void;
   onRejectAll?: () => void;
   onDecisionsComplete?: (
-    decisions: { section: DiffSection; decision: SectionDecision; editedText?: string }[],
+    decisions: {
+      section: DiffSection;
+      decision: SectionDecision;
+      editedText?: string;
+    }[],
   ) => void;
   className?: string;
 };
 
-function computeLineDiff(before: string, after: string): { before: DiffLine[]; after: DiffLine[] } {
+function computeLineDiff(
+  before: string,
+  after: string,
+): { before: DiffLine[]; after: DiffLine[] } {
   const beforeLines = before.split("\n");
   const afterLines = after.split("\n");
 
   // Simple LCS-based diff
   const m = beforeLines.length;
   const n = afterLines.length;
-  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  const dp: number[][] = Array.from({ length: m + 1 }, () =>
+    Array(n + 1).fill(0),
+  );
 
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
@@ -112,11 +122,13 @@ function DiffSectionCard({
   index,
   decision,
   onDecision,
+  t,
 }: {
   section: DiffSection;
   index: number;
   decision: SectionDecision;
   onDecision: (d: SectionDecision) => void;
+  t: ReturnType<typeof useI18n>["t"];
 }) {
   const { before, after } = useMemo(
     () => computeLineDiff(section.before, section.after),
@@ -125,11 +137,14 @@ function DiffSectionCard({
   const [showEdit, setShowEdit] = useState(false);
   const [editText, setEditText] = useState(section.after);
 
-  const decisionBadge: Record<SectionDecision, { kind: "ok" | "fail" | "warn" | "neutral"; label: string }> = {
-    pending: { kind: "neutral", label: "Pending" },
-    accepted: { kind: "ok", label: "Accepted" },
-    rejected: { kind: "fail", label: "Rejected" },
-    edited: { kind: "warn", label: "Edited" },
+  const decisionBadge: Record<
+    SectionDecision,
+    { kind: "ok" | "fail" | "warn" | "neutral"; label: string }
+  > = {
+    pending: { kind: "neutral", label: t("clerk.diff.pending") },
+    accepted: { kind: "ok", label: t("clerk.diff.accepted") },
+    rejected: { kind: "fail", label: t("clerk.diff.rejected") },
+    edited: { kind: "warn", label: t("clerk.diff.edited") },
   };
 
   return (
@@ -138,7 +153,7 @@ function DiffSectionCard({
       <div className="flex items-center justify-between gap-3 border-b border-[var(--line)] px-4 py-2">
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold text-[var(--slate)]">
-            Section {index + 1}
+            {t("clerk.diff.section", { index: index + 1 })}
           </span>
           {section.sectionLabel && (
             <span className="text-xs text-[var(--ink)]">
@@ -157,7 +172,7 @@ function DiffSectionCard({
             onClick={() => onDecision("accepted")}
             disabled={decision === "accepted"}
           >
-            Accept
+            {t("clerk.diff.accept")}
           </Button>
           <Button
             type="button"
@@ -166,7 +181,7 @@ function DiffSectionCard({
             onClick={() => onDecision("rejected")}
             disabled={decision === "rejected"}
           >
-            Reject
+            {t("clerk.diff.reject")}
           </Button>
           <Button
             type="button"
@@ -177,7 +192,7 @@ function DiffSectionCard({
               if (!showEdit) setEditText(section.after);
             }}
           >
-            Edit
+            {t("clerk.diff.edit")}
           </Button>
         </div>
       </div>
@@ -186,14 +201,14 @@ function DiffSectionCard({
       {!showEdit ? (
         <div className="flex divide-x divide-[var(--line)]">
           <div className="flex-1">
-            <div className="bg-[var(--surface)] px-3 py-1 text-[10px] font-semibold uppercase text-[var(--slate)]">
-              Current
+            <div className="bg-[var(--surface)] px-3 py-1 text-[10px] font-semibold text-[var(--slate)] uppercase">
+              {t("clerk.diff.current")}
             </div>
             <DiffPanel lines={before} side="before" />
           </div>
           <div className="flex-1">
-            <div className="bg-[var(--surface)] px-3 py-1 text-[10px] font-semibold uppercase text-[var(--slate)]">
-              Proposed
+            <div className="bg-[var(--surface)] px-3 py-1 text-[10px] font-semibold text-[var(--slate)] uppercase">
+              {t("clerk.diff.proposed")}
             </div>
             <DiffPanel lines={after} side="after" />
           </div>
@@ -203,7 +218,7 @@ function DiffSectionCard({
           <textarea
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
-            className="w-full rounded-lg border border-[var(--line)] bg-[var(--surface)] p-3 font-mono text-xs leading-relaxed focus:border-[var(--teal)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
+            className="w-full rounded-lg border border-[var(--line)] bg-[var(--surface)] p-3 font-mono text-xs leading-relaxed focus:border-[var(--teal)] focus:ring-2 focus:ring-[var(--focus-ring)] focus:outline-none"
             rows={10}
           />
           <div className="mt-2 flex justify-end gap-2">
@@ -213,7 +228,7 @@ function DiffSectionCard({
               size="sm"
               onClick={() => setShowEdit(false)}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               type="button"
@@ -224,7 +239,7 @@ function DiffSectionCard({
                 setShowEdit(false);
               }}
             >
-              Apply edit
+              {t("clerk.diff.applyEdit")}
             </Button>
           </div>
         </div>
@@ -240,8 +255,9 @@ export function AIDiffView({
   onDecisionsComplete,
   className,
 }: AIDiffViewProps) {
-  const [decisions, setDecisions] = useState<SectionDecision[]>(
-    () => sections.map(() => "pending"),
+  const { t } = useI18n();
+  const [decisions, setDecisions] = useState<SectionDecision[]>(() =>
+    sections.map(() => "pending"),
   );
 
   const handleDecision = (index: number, decision: SectionDecision) => {
@@ -253,33 +269,50 @@ export function AIDiffView({
   };
 
   const allDecided = decisions.every((d) => d !== "pending");
-  const acceptedCount = decisions.filter((d) => d === "accepted" || d === "edited").length;
+  const acceptedCount = decisions.filter(
+    (d) => d === "accepted" || d === "edited",
+  ).length;
 
   return (
     <div className={cn("space-y-3", className)}>
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <h4 className="text-sm font-semibold">AI Policy Draft Review</h4>
+          <h4 className="text-sm font-semibold">
+            {t("clerk.diff.reviewTitle")}
+          </h4>
           <Badge kind="info">
-            {acceptedCount}/{sections.length} accepted
+            {t("clerk.diff.acceptedSummary", {
+              accepted: acceptedCount,
+              total: sections.length,
+            })}
           </Badge>
         </div>
         <div className="flex gap-2">
           {onAcceptAll && (
-            <Button type="button" variant="ghost" size="sm" onClick={() => {
-              setDecisions(sections.map(() => "accepted"));
-              onAcceptAll();
-            }}>
-              Accept all
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setDecisions(sections.map(() => "accepted"));
+                onAcceptAll();
+              }}
+            >
+              {t("clerk.diff.acceptAll")}
             </Button>
           )}
           {onRejectAll && (
-            <Button type="button" variant="ghost" size="sm" onClick={() => {
-              setDecisions(sections.map(() => "rejected"));
-              onRejectAll();
-            }}>
-              Reject all
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setDecisions(sections.map(() => "rejected"));
+                onRejectAll();
+              }}
+            >
+              {t("clerk.diff.rejectAll")}
             </Button>
           )}
           {allDecided && onDecisionsComplete && (
@@ -289,11 +322,14 @@ export function AIDiffView({
               size="sm"
               onClick={() =>
                 onDecisionsComplete(
-                  sections.map((s, i) => ({ section: s, decision: decisions[i] })),
+                  sections.map((s, i) => ({
+                    section: s,
+                    decision: decisions[i],
+                  })),
                 )
               }
             >
-              Apply decisions
+              {t("clerk.diff.applyDecisions")}
             </Button>
           )}
         </div>
@@ -306,6 +342,7 @@ export function AIDiffView({
           section={section}
           index={i}
           decision={decisions[i]}
+          t={t}
           onDecision={(d) => handleDecision(i, d)}
         />
       ))}

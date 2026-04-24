@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import json
-from collections import Counter
+import urllib.parse
 from collections.abc import Mapping, Sequence
 from typing import Any
-import urllib.parse
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -132,10 +131,7 @@ class RubricReflexionEvaluator:
         """Evaluate one candidate response against the Reflexion rubric."""
         normalized_output_data = dict(output_data or {})
         normalized_citations = [dict(item) for item in (citations or [])]
-        normalized_tools = [
-            _coerce_tool_result_payload(item)
-            for item in (tool_results or [])
-        ]
+        normalized_tools = [_coerce_tool_result_payload(item) for item in (tool_results or [])]
         quality_score = _quality_score(objective=objective, output_text=output_text)
         grounding_score = _grounding_score(
             output_text=output_text,
@@ -205,10 +201,7 @@ class RubricReflexionEvaluator:
         if previous is not None:
             score_delta = current.overall_score - previous.overall_score
             evidence_delta = current.evidence_count - previous.evidence_count
-            if (
-                score_delta < self.config.min_improvement_delta
-                and evidence_delta <= 0
-            ):
+            if score_delta < self.config.min_improvement_delta and evidence_delta <= 0:
                 return True, "score_plateau"
         return False, ""
 
@@ -366,9 +359,7 @@ def _quality_score(*, objective: str, output_text: str) -> float:
         structure_score = 0.7
 
     generic_penalty = 0.15 if text.lower() in {"done", "ok", "final answer"} else 0.0
-    return _clamp01(
-        0.50 * overlap + 0.35 * length_score + 0.15 * structure_score - generic_penalty
-    )
+    return _clamp01(0.50 * overlap + 0.35 * length_score + 0.15 * structure_score - generic_penalty)
 
 
 def _grounding_score(
@@ -409,9 +400,8 @@ def _schema_score(
     expected_output_schema: Mapping[str, Any],
 ) -> float:
     if any(item.get("error") is not None for item in tool_results):
-        tool_success_score = (
-            sum(1 for item in tool_results if item.get("error") is None)
-            / max(len(tool_results), 1)
+        tool_success_score = sum(1 for item in tool_results if item.get("error") is None) / max(
+            len(tool_results), 1
         )
     else:
         tool_success_score = 1.0
@@ -504,7 +494,9 @@ def _retry_advice(
     if any(issue.startswith("quality_below_threshold") for issue in blocking_issues):
         hints.append("Expand the answer with concrete task-specific reasoning and conclusions.")
     if any(issue.startswith("grounding_below_threshold") for issue in blocking_issues):
-        hints.append("Fetch or attach more source-backed evidence and cite snippets/URLs explicitly.")
+        hints.append(
+            "Fetch or attach more source-backed evidence and cite snippets/URLs explicitly."
+        )
     if any(issue.startswith("schema_below_threshold") for issue in blocking_issues):
         hints.append("Repair the output schema and avoid repeating invalid tool arguments.")
     if any(issue.startswith("compliance_below_threshold") for issue in blocking_issues):
@@ -512,9 +504,7 @@ def _retry_advice(
     tool_errors = extract_tool_error_patterns(tool_results)
     if tool_errors:
         hints.append(
-            "Do not repeat these failed tool/error patterns: "
-            + ", ".join(tool_errors[:12])
-            + "."
+            "Do not repeat these failed tool/error patterns: " + ", ".join(tool_errors[:12]) + "."
         )
     return " ".join(hints).strip()
 

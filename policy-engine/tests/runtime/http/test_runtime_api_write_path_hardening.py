@@ -128,7 +128,7 @@ def test_control_store_timeout_opens_circuit_and_returns_503_or_504(
     store_target = app.state._control_service._control_store._target
     original_get_job = store_target.get_job
 
-    def _slow_get_job(job_id_value: str):  # noqa: ANN001
+    def _slow_get_job(job_id_value: str):
         time.sleep(0.2)
         return original_get_job(job_id_value)
 
@@ -159,7 +159,7 @@ def test_feedback_evaluate_returns_504_when_cas_is_slow(
     store_target = app.state.runtime_api_ctx.feedback._store._target
     original_get_bytes = store_target.get_bytes
 
-    def _slow_get_bytes(artifact_id):  # noqa: ANN001
+    def _slow_get_bytes(artifact_id):
         time.sleep(0.2)
         return original_get_bytes(artifact_id)
 

@@ -73,7 +73,10 @@ def test_design_based_clustering_ratio_ht_returns_point_identified() -> None:
 
     assert assessment.estimands["triangle_count"].estimate == pytest.approx(1.0)
     assert assessment.estimands["wedge_count"].estimate == pytest.approx(3.0)
-    assert assessment.estimands["clustering"].identification_status is NetworkIdentificationStatus.POINT_IDENTIFIED
+    assert (
+        assessment.estimands["clustering"].identification_status
+        is NetworkIdentificationStatus.POINT_IDENTIFIED
+    )
     assert assessment.estimands["clustering"].estimate == pytest.approx(1.0)
 
 
@@ -95,7 +98,13 @@ def test_bounds_mode_returns_sharp_component_and_path_regions() -> None:
     request = NetworkMissingnessRequest(
         mode="bounds_only",
         frame_observed=True,
-        estimands=("edge_count", "average_degree", "degree_bounds", "giant_component", "shortest_paths"),
+        estimands=(
+            "edge_count",
+            "average_degree",
+            "degree_bounds",
+            "giant_component",
+            "shortest_paths",
+        ),
         confirmed_absence_mask=confirmed_absence,
         shortest_path_pairs=(("a", "d"),),
     )
@@ -104,7 +113,9 @@ def test_bounds_mode_returns_sharp_component_and_path_regions() -> None:
 
     assert assessment.estimands["edge_count"].identification_region == (1, 5)
     assert assessment.estimands["average_degree"].identification_region == pytest.approx((0.5, 2.5))
-    assert assessment.estimands["giant_component"].identification_region == pytest.approx((0.5, 1.0))
+    assert assessment.estimands["giant_component"].identification_region == pytest.approx(
+        (0.5, 1.0)
+    )
     assert assessment.estimands["shortest_paths"].identification_region == {"(a,d)": (2, None)}
     assert assessment.estimands["degree_bounds"].identification_region["a"] == (1, 2)
 

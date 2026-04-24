@@ -1,6 +1,7 @@
 """
 Property-based tests for Instrumental Variables econometrics methods.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -95,9 +96,7 @@ def test_iv_output_has_report_key(data: dict) -> None:
     beta_true=st.floats(min_value=-5.0, max_value=5.0, allow_nan=False),
 )
 @settings(max_examples=20, deadline=20_000)
-def test_iv_strong_instrument_estimate_near_true(
-    n_obs: int, beta_true: float
-) -> None:
+def test_iv_strong_instrument_estimate_near_true(n_obs: int, beta_true: float) -> None:
     """With a strong instrument, the 2SLS estimate should be close to beta_true."""
     try:
         from polisyos.foundry.methods.catalog.econometrics._registry_boot import (

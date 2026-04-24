@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from polisyos.core.contracts.scholar import FreshnessMetadata, FreshnessStatus
 from polisyos.scholar.freshness import (
@@ -14,7 +14,7 @@ from polisyos.scholar.types import KnowledgeBundlePayloadV1
 
 
 def test_freshness_status_transitions() -> None:
-    now = datetime(2026, 2, 1, tzinfo=timezone.utc)
+    now = datetime(2026, 2, 1, tzinfo=UTC)
     meta = FreshnessMetadata(
         created_at=now - timedelta(days=10),
         source_freshness_at=now - timedelta(days=10),
@@ -31,7 +31,7 @@ def test_freshness_status_transitions() -> None:
 
 
 def test_freshness_policy_respects_cooldown() -> None:
-    now = datetime(2026, 2, 1, tzinfo=timezone.utc)
+    now = datetime(2026, 2, 1, tzinfo=UTC)
     meta = FreshnessMetadata(
         created_at=now - timedelta(days=60),
         source_freshness_at=now - timedelta(days=60),
@@ -65,7 +65,7 @@ def test_policy_threshold_resolution_overrides_defaults() -> None:
 
 
 def test_freshness_policy_honors_next_retry_from_runtime_state() -> None:
-    now = datetime(2026, 2, 1, tzinfo=timezone.utc)
+    now = datetime(2026, 2, 1, tzinfo=UTC)
     freshness = FreshnessMetadata(
         created_at=now - timedelta(days=90),
         source_freshness_at=now - timedelta(days=90),
@@ -92,7 +92,7 @@ def test_freshness_policy_honors_next_retry_from_runtime_state() -> None:
 
 
 def test_build_freshness_metadata_is_deterministic_with_source_timestamp() -> None:
-    ts = datetime(2025, 12, 31, 0, 0, tzinfo=timezone.utc)
+    ts = datetime(2025, 12, 31, 0, 0, tzinfo=UTC)
     meta = build_freshness_metadata(
         domain="labor",
         source_freshness_at=ts,

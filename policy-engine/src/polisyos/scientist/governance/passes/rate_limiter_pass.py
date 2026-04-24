@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any, List
-
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 
@@ -38,7 +36,7 @@ class RateLimiterPass(ValidatorPass):
     def estimated_cost_ms(self) -> int:
         return 5
 
-    def validate(self, ctx: PassContext) -> List[ComplianceIssue]:
+    def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
         issues: list[ComplianceIssue] = []
 
         usage = ctx.state.get("usage", {})

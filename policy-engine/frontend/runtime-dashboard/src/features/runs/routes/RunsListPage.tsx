@@ -389,6 +389,20 @@ export default function RunsList() {
     };
   }
 
+  function focusActiveExplorerRow() {
+    const activeRow =
+      explorerRef.current?.querySelector<HTMLElement>(
+        "[data-run-row-id][tabindex='0']",
+      ) ?? null;
+
+    if (activeRow) {
+      activeRow.focus();
+      return;
+    }
+
+    explorerRef.current?.focus();
+  }
+
   function updateParams(next: {
     status?: string;
     from?: string;
@@ -467,6 +481,13 @@ export default function RunsList() {
 
   return (
     <div className="space-y-4" data-testid="runs-list-page">
+      <button
+        type="button"
+        className="border-line bg-panel text-text sr-only top-4 left-4 z-50 rounded-full border px-4 py-2 text-sm font-semibold focus:not-sr-only focus:absolute"
+        onClick={focusActiveExplorerRow}
+      >
+        {t("pages.runs.skipToExplorer")}
+      </button>
       <Card>
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.5fr)_minmax(320px,1fr)]">
           <div>
@@ -716,7 +737,7 @@ export default function RunsList() {
             </div>
           </div>
 
-          <div ref={explorerRef} data-testid="runs-explorer">
+          <div ref={explorerRef} data-testid="runs-explorer" tabIndex={-1}>
             <div aria-atomic="true" aria-live="polite" className="sr-only">
               {activeRunAnnouncement}
             </div>

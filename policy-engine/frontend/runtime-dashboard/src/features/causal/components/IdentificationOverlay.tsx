@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 
 import type { CausalEdgeData } from "../types";
 
@@ -11,6 +12,7 @@ export function IdentificationOverlay({
   edges,
   className,
 }: IdentificationOverlayProps) {
+  const { t } = useI18n();
   const identified = edges.filter((e) => e.status === "identified").length;
   const unidentified = edges.filter((e) => e.status === "unidentified").length;
   const boundsOnly = edges.filter((e) => e.status === "bounds_only").length;
@@ -22,7 +24,7 @@ export function IdentificationOverlay({
         className,
       )}
     >
-      <p className="mb-2 font-semibold">Identification Status</p>
+      <p className="mb-2 font-semibold">{t("causal.identification.title")}</p>
       <div className="space-y-1.5">
         <div className="flex items-center gap-2">
           <span
@@ -30,7 +32,7 @@ export function IdentificationOverlay({
             style={{ background: "var(--chart-primary)" }}
           />
           <span>
-            Identified{" "}
+            {t("causal.edgeStatus.identified")}{" "}
             <span className="font-bold text-[var(--chart-primary)]">
               {identified}
             </span>
@@ -46,7 +48,7 @@ export function IdentificationOverlay({
             }}
           />
           <span>
-            Unidentified{" "}
+            {t("causal.edgeStatus.unidentified")}{" "}
             <span className="font-bold text-[var(--chart-alert)]">
               {unidentified}
             </span>
@@ -62,7 +64,7 @@ export function IdentificationOverlay({
             }}
           />
           <span>
-            Bounds only{" "}
+            {t("causal.edgeStatus.boundsOnly")}{" "}
             <span className="font-bold text-[var(--color-confidence-medium)]">
               {boundsOnly}
             </span>

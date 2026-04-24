@@ -4,9 +4,9 @@ Canonical tooling surface for Foundry ABI maintenance tasks.
 
 ## Commands
 
-| Command | Purpose |
-|---|---|
-| `generate_stubs.py` | Regenerate `.pyi` stubs for the public Foundry methods API |
+| Command                        | Purpose                                                                            |
+| ------------------------------ | ---------------------------------------------------------------------------------- |
+| `generate_stubs.py`            | Regenerate `.pyi` stubs for the public Foundry methods API                         |
 | `update_signature_baseline.py` | Refresh the committed Foundry signature baseline after an approved breaking change |
 
 ## Canonical usage

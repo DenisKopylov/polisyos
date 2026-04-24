@@ -66,4 +66,3 @@ def classify_domains(*, text: str, doc_id: str) -> DomainClassification:
     scores.sort(key=lambda row: row.score, reverse=True)
     top_domain = scores[0].domain if scores else None
     return DomainClassification(doc_id=doc_id, top_domain=top_domain, scores=scores)
-

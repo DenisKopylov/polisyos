@@ -1,8 +1,10 @@
 """Public causal meta learners module API."""
+
 from __future__ import annotations
 
 import inspect
-from typing import Any, Callable, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -214,7 +216,9 @@ def _selection_r_risk(
         and np.isfinite(cate).all()
     ):
         return float("inf")
-    return float(np.mean(np.square(residual - cate * treatment_residual) * np.square(treatment_residual)))
+    return float(
+        np.mean(np.square(residual - cate * treatment_residual) * np.square(treatment_residual))
+    )
 
 
 def _selection_overlap_penalty(
@@ -257,7 +261,9 @@ def _selection_dr_ate_overlap_score(
         and np.isfinite(cate).all()
     ):
         return float("inf")
-    dr_signal = mu + treatment * (outcome - mu) / prop - (1.0 - treatment) * (outcome - mu) / (1.0 - prop)
+    dr_signal = (
+        mu + treatment * (outcome - mu) / prop - (1.0 - treatment) * (outcome - mu) / (1.0 - prop)
+    )
     target_ate = float(np.mean(dr_signal))
     ate_gap = abs(float(np.mean(cate)) - target_ate)
     rrisk = _selection_r_risk(outcome, treatment, mu, prop, cate)
@@ -286,8 +292,16 @@ def _holdout_split(treatment: np.ndarray, *, seed: int) -> tuple[np.ndarray, np.
     control = indices[treatment <= 0.5]
     rng.shuffle(treated)
     rng.shuffle(control)
-    treated_eval = treated[: max(1, int(round(0.2 * treated.size)))] if treated.size else np.array([], dtype=int)
-    control_eval = control[: max(1, int(round(0.2 * control.size)))] if control.size else np.array([], dtype=int)
+    treated_eval = (
+        treated[: max(1, int(round(0.2 * treated.size)))]
+        if treated.size
+        else np.array([], dtype=int)
+    )
+    control_eval = (
+        control[: max(1, int(round(0.2 * control.size)))]
+        if control.size
+        else np.array([], dtype=int)
+    )
     eval_idx = np.sort(np.concatenate([treated_eval, control_eval]))
     if eval_idx.size >= treatment.size:
         eval_idx = np.sort(indices[: max(1, treatment.size // 5)])
@@ -586,7 +600,9 @@ class MetaLearnerEstimator:
             feature_importance_method=str(params.get("feature_importance_method", "permutation")),
             rng=rng,
         )
-        feature_importance_method = str(params.get("feature_importance_method", "permutation")).strip().lower()
+        feature_importance_method = (
+            str(params.get("feature_importance_method", "permutation")).strip().lower()
+        )
         feature_importances = extracted["feature_importances"]
         if feature_importance_method == "permutation":
             feature_importances = _permutation_feature_importances(
@@ -631,22 +647,23 @@ class MetaLearnerEstimator:
             econml_params={
                 "learner_type": learner_type,
                 "base_model": selected_base_model,
-                "base_model_candidates": [str(value) for value in params.get("base_model_candidates", []) or []],
+                "base_model_candidates": [
+                    str(value) for value in params.get("base_model_candidates", []) or []
+                ],
             },
             feature_display_map={name: name for name in data.feature_names},
             metadata={
                 "warnings": list(extracted["warnings"]),
                 "feature_importance_method": feature_importance_method,
-                "heterogeneity_signal": float(np.std(extracted["cate_values"], ddof=1)) if len(extracted["cate_values"]) > 1 else 0.0,
+                "heterogeneity_signal": float(np.std(extracted["cate_values"], ddof=1))
+                if len(extracted["cate_values"]) > 1
+                else 0.0,
                 "selection_objective": str(params.get("selection_objective", "r_risk")),
                 "split_policy": str(params.get("split_policy", "holdout_r_risk")),
                 "selected_outcome_backend": selected_base_model,
                 "tested_outcome_backends": [
                     str(value)
-                    for value in (
-                        params.get("base_model_candidates")
-                        or [selected_base_model]
-                    )
+                    for value in (params.get("base_model_candidates") or [selected_base_model])
                 ],
                 "candidate_r_risk": selection_scores,
             },
@@ -669,7 +686,9 @@ class MetaLearnerEstimator:
             method_params={
                 "learner_type": learner_type,
                 "base_model": selected_base_model,
-                "base_model_candidates": [str(value) for value in params.get("base_model_candidates", []) or []],
+                "base_model_candidates": [
+                    str(value) for value in params.get("base_model_candidates", []) or []
+                ],
                 "selection_objective": str(params.get("selection_objective", "r_risk")),
                 "split_policy": str(params.get("split_policy", "holdout_r_risk")),
                 "feature_importance_method": str(

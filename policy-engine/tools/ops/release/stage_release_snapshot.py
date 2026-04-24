@@ -8,7 +8,6 @@ from pathlib import Path
 
 from build_release_notes import load_fragments, validate_required_curated_sections
 
-
 REQUIRED_CURATED_SECTIONS = ["compatibility", "migration", "api", "limitations"]
 
 
@@ -41,7 +40,7 @@ def main() -> int:
         raise SystemExit(f"No unreleased fragments found in {source_dir}")
     validate_required_curated_sections(fragments, REQUIRED_CURATED_SECTIONS)
 
-    target_dir = (Path(args.release_root).resolve() / args.version)
+    target_dir = Path(args.release_root).resolve() / args.version
     if target_dir.exists():
         has_files = any(target_dir.glob("*.toml"))
         if has_files and not args.force:

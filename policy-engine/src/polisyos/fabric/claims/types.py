@@ -4,6 +4,7 @@ These dataclasses describe how extractors consume chunked text, how normalizatio
 payloads into canonical ids/units/numeric forms, and how both stages expose artifact/world-event
 references for conflict resolution and downstream NormPack assembly.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -16,6 +17,7 @@ from polisyos.ir.fact_log import FactSegmentManifest
 @dataclass(frozen=True)
 class ClaimExtractOptions:
     """Extraction controls for chunk-based claim parsers and generated evidence bundles."""
+
     require_chunks: bool = True
     max_chunks: int | None = None
     extract_mode: Literal["chunks_only", "structure_then_chunks"] = "chunks_only"
@@ -34,6 +36,7 @@ class ClaimExtractOptions:
 @dataclass(frozen=True)
 class ClaimNormalizeOptions:
     """Canonicalization controls for predicates, units, numeric values, and invalid-claim handling."""
+
     normalize_units: bool = True
     normalize_predicates: bool = True
     parse_numeric: bool = True
@@ -59,6 +62,7 @@ class ClaimNormalizeOptions:
 @dataclass(frozen=True)
 class ClaimExtractResult:
     """Result contract for claim-set extraction and its associated world/evidence artifacts."""
+
     doc_source_id: str
     doc_version_id: str
     doc_meta_artifact_id: str
@@ -75,6 +79,7 @@ class ClaimExtractResult:
 @dataclass(frozen=True)
 class ClaimNormalizeResult:
     """Result contract for normalized claim sets and ``PROV_WAS_DERIVED_FROM`` edges."""
+
     doc_source_id: str
     doc_version_id: str
     doc_meta_artifact_id: str
@@ -94,6 +99,7 @@ class ClaimNormalizeResult:
 @dataclass(frozen=True)
 class ChunkContext:
     """Read-only chunk slice passed to extractor backends with provenance-safe fragment ids."""
+
     fragment_id: str
     doc_version_id: str
     offset_start: int
@@ -104,6 +110,7 @@ class ChunkContext:
 @dataclass(frozen=True)
 class ClaimCandidate:
     """Extractor-emitted claim candidate before canonical claim-id normalization."""
+
     predicate_id: str
     value_text: str
     citation_fragment_id: str
@@ -117,10 +124,10 @@ class ClaimCandidate:
 
 
 __all__ = [
+    "ChunkContext",
     "ClaimCandidate",
     "ClaimExtractOptions",
     "ClaimExtractResult",
     "ClaimNormalizeOptions",
     "ClaimNormalizeResult",
-    "ChunkContext",
 ]

@@ -1,7 +1,6 @@
 """Validate distributional fairness and vulnerable-group losses after simulation."""
-from __future__ import annotations
 
-from typing import List
+from __future__ import annotations
 
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
@@ -31,6 +30,7 @@ class EquityPass(ValidatorPass):
     profiles emit blockers while other profiles downgrade most findings to
     warnings.
     """
+
     @property
     def pass_id(self) -> str:
         return "equity"
@@ -39,7 +39,7 @@ class EquityPass(ValidatorPass):
     def estimated_cost_ms(self) -> int:
         return 25
 
-    def validate(self, ctx: PassContext) -> List[ComplianceIssue]:
+    def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
         if self.pass_id not in ctx.profile.pass_ids:
             return []
 
@@ -122,7 +122,9 @@ class EquityPass(ValidatorPass):
                     message=(
                         f"Losers share {losers_share:.1%} exceeds threshold {max_losers_share:.1%}."
                     ),
-                    severity=severity if ctx.profile.level == ProfileLevel.STRICT else IssueSeverity.WARNING,
+                    severity=severity
+                    if ctx.profile.level == ProfileLevel.STRICT
+                    else IssueSeverity.WARNING,
                     code="EQUITY_EXCESSIVE_LOSERS",
                     suggestion="Narrow intervention scope or add transition support.",
                 )
@@ -152,12 +154,8 @@ class EquityPass(ValidatorPass):
             load_model=load_distributional_report,
             severity=severity,
             code="EQUITY_REPORT_INVALID",
-            message=(
-                "Equity pass could not validate or load the distributional report."
-            ),
-            suggestion=(
-                "Rebuild the distributional report before fairness governance checks."
-            ),
+            message=("Equity pass could not validate or load the distributional report."),
+            suggestion=("Rebuild the distributional report before fairness governance checks."),
             log=logger,
         )
 

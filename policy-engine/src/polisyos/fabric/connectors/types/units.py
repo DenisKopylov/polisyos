@@ -25,6 +25,7 @@ Example:
     >>> assert speed_kmh.is_compatible_with(speed_ms)
     >>> value_ms = speed_kmh.convert_to(speed_ms, 90.0)  # 90 km/h -> 25 m/s
 """
+
 from __future__ import annotations
 
 from polisyos.fabric.connectors.types._units_base import (
@@ -48,13 +49,13 @@ from polisyos.fabric.connectors.types._units_registry import (
 )
 
 __all__ = [
-    "Unit",
-    "UnitRegistry",
-    "ConversionFactor",
-    "UnitParseError",
-    "UnitConversionError",
-    "MetricPrefix",
     "BaseUnit",
+    "ConversionFactor",
+    "MetricPrefix",
+    "Unit",
+    "UnitConversionError",
+    "UnitParseError",
+    "UnitRegistry",
     "get_unit_registry",
     "parse_unit",
 ]

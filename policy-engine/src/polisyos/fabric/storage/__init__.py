@@ -1,4 +1,5 @@
 """Storage abstraction for Fabric consumers."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -16,9 +17,9 @@ if TYPE_CHECKING:
     from polisyos.fabric.storage.memory_adapter import InMemoryStorageAdapter
 
 __all__ = [
-    "StoragePort",
     "DuckDBStorageAdapter",
     "InMemoryStorageAdapter",
+    "StoragePort",
     "TenantScopedCAS",
     "infer_tenant_id_from_cas_root",
     "resolve_cas_store",

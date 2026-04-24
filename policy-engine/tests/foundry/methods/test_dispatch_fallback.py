@@ -1,26 +1,25 @@
 """
 Tests for pluggable fallback strategy in MethodDispatcher (Phase 7).
 """
+
 from __future__ import annotations
 
 from typing import Any, ClassVar
 
 import pytest
 
+from polisyos.foundry.methods.backends.dispatch import (
+    FallbackStrategy,
+    MethodDispatcher,
+    SignatureAwareFallback,
+)
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
     FidelityLevel,
     MethodMetadata,
     MethodSignature,
-    ParameterSpec,
 )
-from polisyos.foundry.methods.backends.dispatch import (
-    FallbackStrategy,
-    MethodDispatcher,
-    SignatureAwareFallback,
-)
-
 
 # =============================================================================
 # Fixtures
@@ -65,7 +64,6 @@ class _DummyMethodClass:
 
 
 class TestSignatureAwareFallback:
-
     def test_fallback_skips_incompatible_backend(self):
         """Method with supports_grad=True should NOT fall back to NumPy."""
         strategy = SignatureAwareFallback()
@@ -144,7 +142,6 @@ class _AlwaysSolverFallback:
 
 
 class TestCustomFallbackStrategy:
-
     @pytest.fixture(autouse=True)
     def _reset(self):
         MethodDispatcher.reset_instance()

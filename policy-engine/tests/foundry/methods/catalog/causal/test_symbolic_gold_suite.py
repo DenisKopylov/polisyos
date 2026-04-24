@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import math
-
 import numpy as np
 import pytest
 
@@ -31,6 +29,8 @@ from polisyos.foundry.methods.catalog.causal.path_specific import _recanting_wit
 from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
     RecoverabilityStatus,
     full_law_identify,
+)
+from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
     test_recoverability as recoverability_test,
 )
 from polisyos.foundry.methods.catalog.causal.sigma_calculus import (
@@ -59,9 +59,9 @@ from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCer
 from polisyos.ir.analytics.transportability import (
     SNode,
     SNodeOrigin,
-    TransportMode,
     TransportabilityResult,
     TransportabilityStatus,
+    TransportMode,
     build_selection_diagram,
 )
 
@@ -437,7 +437,9 @@ def test_symbolic_gold_id_star_cases(
     assert _canon(result.query_str) == _canon(expected_query)
     assert result.estimand_ast is not None
     assert isinstance(result.estimand_ast.root, expected_root)
-    _assert_rule_subsequence(result, ("ID_STAR_STEP1", "ID_STAR_STEP2", "ID_STAR_STEP3", "ID_STAR_STEP5"))
+    _assert_rule_subsequence(
+        result, ("ID_STAR_STEP1", "ID_STAR_STEP2", "ID_STAR_STEP3", "ID_STAR_STEP5")
+    )
 
 
 @pytest.mark.parametrize(
@@ -938,9 +940,15 @@ CYCLIC_CASES = (
                 },
             ),
         ),
-        IdentificationStatus.IDENTIFIED,
-        r"\mathbb{E}[B \mid do(A), A]",
-        ("CYCLIC_START", "CYCLIC_SCC", "CYCLIC_WELL_POSED", "CYCLIC_SIGMA_WARN", "CYCLIC_SOLVER"),
+        IdentificationStatus.ORACLE_NEEDED,
+        None,
+        (
+            "CYCLIC_START",
+            "CYCLIC_SCC",
+            "CYCLIC_WELL_POSED",
+            "CYCLIC_SIGMA_WARN",
+            "CYCLIC_FRONTIER_BOUNDARY",
+        ),
     ),
     (
         "cyclic_non_well_posed",
@@ -961,7 +969,13 @@ CYCLIC_CASES = (
         ),
         IdentificationStatus.HEDGE_FOUND,
         None,
-        ("CYCLIC_START", "CYCLIC_SCC", "CYCLIC_WELL_POSED", "CYCLIC_SIGMA_WARN", "CYCLIC_NON_WELL_POSED"),
+        (
+            "CYCLIC_START",
+            "CYCLIC_SCC",
+            "CYCLIC_WELL_POSED",
+            "CYCLIC_SIGMA_WARN",
+            "CYCLIC_NON_WELL_POSED",
+        ),
     ),
 )
 
@@ -983,8 +997,11 @@ def test_symbolic_gold_cyclic_cases(
     if expected_formula is not None:
         assert result.estimand_ast is not None
         assert _canon(result.estimand_ast.to_latex()) == _canon(expected_formula)
-    else:
+    elif expected_status is IdentificationStatus.HEDGE_FOUND:
         assert result.hedge_certificate is not None
+    else:
+        assert result.estimand_ast is None
+        assert result.hedge_certificate is None
     _assert_rule_subsequence(result, expected_trace)
 
 
@@ -996,7 +1013,10 @@ def test_symbolic_gold_sigma_rule1() -> None:
         intervention_set=("X",),
         conditioning=("Z",),
     )
-    rewritten, step = apply_sigma_rule1(ref, graph, frozenset({"Z"}), frozenset({"Z"})) or (None, None)
+    rewritten, step = apply_sigma_rule1(ref, graph, frozenset({"Z"}), frozenset({"Z"})) or (
+        None,
+        None,
+    )
 
     assert rewritten is not None
     assert rewritten.conditioning == ()
@@ -1012,7 +1032,10 @@ def test_symbolic_gold_sigma_rule2() -> None:
         intervention_set=("X", "Z"),
         conditioning=(),
     )
-    rewritten, step = apply_sigma_rule2(ref, graph, frozenset({"Z"}), frozenset({"Z"})) or (None, None)
+    rewritten, step = apply_sigma_rule2(ref, graph, frozenset({"Z"}), frozenset({"Z"})) or (
+        None,
+        None,
+    )
 
     assert rewritten is not None
     assert rewritten.intervention_set == ("X",)
@@ -1029,7 +1052,10 @@ def test_symbolic_gold_sigma_rule3() -> None:
         intervention_set=("X", "Z"),
         conditioning=(),
     )
-    rewritten, step = apply_sigma_rule3(ref, graph, frozenset({"Z"}), frozenset({"Z"})) or (None, None)
+    rewritten, step = apply_sigma_rule3(ref, graph, frozenset({"Z"}), frozenset({"Z"})) or (
+        None,
+        None,
+    )
 
     assert rewritten is not None
     assert rewritten.intervention_set == ("X",)
@@ -1300,7 +1326,13 @@ PROOF_TRACE_CASES = (
                 },
             ),
         ),
-        ("CYCLIC_START", "CYCLIC_SCC", "CYCLIC_WELL_POSED", "CYCLIC_SIGMA_WARN", "CYCLIC_SOLVER"),
+        (
+            "CYCLIC_START",
+            "CYCLIC_SCC",
+            "CYCLIC_WELL_POSED",
+            "CYCLIC_SIGMA_WARN",
+            "CYCLIC_FRONTIER_BOUNDARY",
+        ),
     ),
 )
 

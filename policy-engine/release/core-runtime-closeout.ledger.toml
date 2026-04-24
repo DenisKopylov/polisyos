@@ -12,17 +12,13 @@ code_evidence = [
   "src/polisyos/runtime/http/authz_middleware.py",
   "src/polisyos/runtime/http/app.py",
 ]
-test_evidence = [
-  "tests/runtime/http/test_runtime_api_authz.py",
-]
+test_evidence = ["tests/runtime/http/test_runtime_api_authz.py"]
 docs_evidence = [
   "docs/adr/0023-cell-based-tenant-isolation.md",
   "docs/reference/security-compliance.md",
 ]
 ops_evidence = []
-ci_evidence = [
-  ".github/workflows/core-runtime-release-gate.yml",
-]
+ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
 id = "WS-0B"
@@ -45,12 +41,8 @@ docs_evidence = [
   "docs/runbooks/idempotency-incident.md",
   "docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md",
 ]
-ops_evidence = [
-  "ops/prometheus/rules/runtime_operability_alerts.yml",
-]
-ci_evidence = [
-  ".github/workflows/core-runtime-release-gate.yml",
-]
+ops_evidence = ["ops/prometheus/rules/runtime_operability_alerts.yml"]
+ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
 id = "WS-0C"
@@ -76,9 +68,7 @@ docs_evidence = [
   "docs/runbooks/artifact-corruption-recovery.md",
 ]
 ops_evidence = []
-ci_evidence = [
-  ".github/workflows/core-runtime-release-gate.yml",
-]
+ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
 id = "WS-0D"
@@ -96,15 +86,9 @@ test_evidence = [
   "tests/common/test_async_tools.py",
   "tests/runtime/http/test_review_collaboration_service.py",
 ]
-docs_evidence = [
-  "docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md",
-]
-ops_evidence = [
-  "ops/grafana/dashboards/runtime-operability.json",
-]
-ci_evidence = [
-  ".github/workflows/core-runtime-release-gate.yml",
-]
+docs_evidence = ["docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md"]
+ops_evidence = ["ops/grafana/dashboards/runtime-operability.json"]
+ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
 id = "WS-1A"
@@ -121,16 +105,9 @@ test_evidence = [
   "tests/runtime/http/test_error_semantics.py",
   "tests/runtime/http/test_runtime_api_authz.py",
 ]
-docs_evidence = [
-  "docs/runbooks/cas-opa-outage.md",
-  "docs/runbooks/runtime-api-outage.md",
-]
-ops_evidence = [
-  "ops/prometheus/rules/runtime_operability_alerts.yml",
-]
-ci_evidence = [
-  ".github/workflows/core-runtime-release-gate.yml",
-]
+docs_evidence = ["docs/runbooks/cas-opa-outage.md", "docs/runbooks/runtime-api-outage.md"]
+ops_evidence = ["ops/prometheus/rules/runtime_operability_alerts.yml"]
+ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
 id = "WS-1B"
@@ -309,14 +286,9 @@ test_evidence = [
   "tests/runtime/http/test_runs_api.py",
   "tests/runtime/http/test_runtime_api_observability.py",
 ]
-docs_evidence = [
-  "docs/reference/quality-gates.md",
-  "docs/reference/ratchet-policy.md",
-]
+docs_evidence = ["docs/reference/quality-gates.md", "docs/reference/ratchet-policy.md"]
 ops_evidence = []
-ci_evidence = [
-  ".github/workflows/core-runtime-release-gate.yml",
-]
+ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
 id = "WS-1C"
@@ -333,13 +305,9 @@ test_evidence = [
   "tests/runtime/http/test_access_invariants_properties.py",
   "tests/performance/test_runtime_hot_paths.py",
 ]
-docs_evidence = [
-  "docs/reference/quality-gates.md",
-]
+docs_evidence = ["docs/reference/quality-gates.md"]
 ops_evidence = []
-ci_evidence = [
-  ".github/workflows/core-runtime-release-gate.yml",
-]
+ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
 id = "WS-1D"
@@ -365,9 +333,7 @@ ops_evidence = [
   "ops/grafana/dashboards/runtime-operability.json",
   "ops/grafana/dashboards/slo-overview.json",
 ]
-ci_evidence = [
-  ".github/workflows/core-runtime-release-gate.yml",
-]
+ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
 id = "WS-2A"
@@ -424,9 +390,7 @@ docs_evidence = [
   "docs/runbooks/artifact-corruption-recovery.md",
 ]
 ops_evidence = []
-ci_evidence = [
-  ".github/workflows/core-runtime-release-gate.yml",
-]
+ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
 id = "WS-2B"
@@ -491,9 +455,7 @@ docs_evidence = [
   "docs/reference/operations/observability-topology.md",
   "docs/runbooks/cache-rebuild-storm.md",
 ]
-ops_evidence = [
-  "ops/grafana/dashboards/runtime-operability.json",
-]
+ops_evidence = ["ops/grafana/dashboards/runtime-operability.json"]
 ci_evidence = [
   ".github/workflows/core-runtime-release-gate.yml",
   ".github/workflows/core-runtime-long-soak.yml",
@@ -682,9 +644,7 @@ docs_evidence = [
   "docs/reference/configuration-env-registry.md",
 ]
 ops_evidence = []
-ci_evidence = [
-  ".github/workflows/core-runtime-release-gate.yml",
-]
+ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
 id = "WS-2D"
@@ -716,9 +676,7 @@ docs_evidence = [
   "frontend/runtime-api-client/README.md",
 ]
 ops_evidence = []
-ci_evidence = [
-  ".github/workflows/core-runtime-release-gate.yml",
-]
+ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
 id = "WS-3A"
@@ -726,9 +684,7 @@ title = "ADR, Diagrams and Runbooks"
 status = "implemented"
 summary = "The requested ADR package, architecture diagrams, and operator runbooks exist as repo-tracked platform contract assets."
 blocking_gaps = []
-code_evidence = [
-  "tools/architecture/scaffold.py",
-]
+code_evidence = ["tools/architecture/scaffold.py"]
 test_evidence = []
 docs_evidence = [
   "docs/adr/0097-runtime-rate-limiting-and-idempotency.md",
@@ -743,13 +699,8 @@ docs_evidence = [
   "docs/runbooks/cache-rebuild-storm.md",
   "docs/runbooks/idempotency-incident.md",
 ]
-ops_evidence = [
-  "ops/prometheus/README.md",
-  "ops/grafana/README.md",
-]
-ci_evidence = [
-  ".github/workflows/core-runtime-release-gate.yml",
-]
+ops_evidence = ["ops/prometheus/README.md", "ops/grafana/README.md"]
+ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
 id = "WS-3B"
@@ -762,19 +713,10 @@ code_evidence = [
   "src/polisyos/runtime/http/csrf.py",
   "src/polisyos/runtime/http/compliance.py",
 ]
-test_evidence = [
-  "tests/runtime/http/test_runtime_security_compliance.py",
-]
-docs_evidence = [
-  "docs/reference/security-compliance.md",
-  "docs/runbooks/key-rotation.md",
-]
-ops_evidence = [
-  "ops/prometheus/rules/audit_chain_alerts.yml",
-]
-ci_evidence = [
-  ".github/workflows/core-runtime-release-gate.yml",
-]
+test_evidence = ["tests/runtime/http/test_runtime_security_compliance.py"]
+docs_evidence = ["docs/reference/security-compliance.md", "docs/runbooks/key-rotation.md"]
+ops_evidence = ["ops/prometheus/rules/audit_chain_alerts.yml"]
+ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]
 
 [[workstreams]]
 id = "WS-3C"
@@ -782,19 +724,11 @@ title = "CI Ratchets and Release Gates"
 status = "implemented"
 summary = "The root-level core-runtime release gate now enforces typing, ratchets, targeted contracts, mutation/performance slices, and release-review evidence packaging."
 blocking_gaps = []
-code_evidence = [
-  "tools/validation/check_ci_ratchets.py",
-  "tools/architecture/guardrails.py",
-]
+code_evidence = ["tools/validation/check_ci_ratchets.py", "tools/architecture/guardrails.py"]
 test_evidence = [
   "tests/runtime/http/test_architecture_boundaries.py",
   "tests/tools/test_acceptance_audit.py",
 ]
-docs_evidence = [
-  "docs/reference/quality-gates.md",
-  "docs/reference/ratchet-policy.md",
-]
+docs_evidence = ["docs/reference/quality-gates.md", "docs/reference/ratchet-policy.md"]
 ops_evidence = []
-ci_evidence = [
-  ".github/workflows/core-runtime-release-gate.yml",
-]
+ci_evidence = [".github/workflows/core-runtime-release-gate.yml"]

@@ -6,6 +6,7 @@
 
 - a PR or rollout plan that crosses package, schema, API, generated-client,
   infra, or operational runbook boundaries;
+
 - the proposed rollout order and owner;
 - the validation and mitigation evidence for the affected surfaces.
 
@@ -13,6 +14,7 @@
 
 - a reviewer decision about migration class, rollout order, rollback stance, and
   migration-owner clarity;
+
 - a concrete list of missing rollout metadata when the change is not yet ready.
 
 ## Commands
@@ -26,12 +28,12 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_ru
 
 ## 1. Migration Classes
 
-| Class | What it means | Expected reviewer stance | Default rollback stance |
-|---|---|---|---|
-| Additive safe | Backward-compatible change with no required consumer action | Normal review, standard PR gates | revert or ship follow-up if needed |
-| Additive with consumer sync | Additive change, but generated clients or downstream consumers must update in lockstep | Confirm sync plan and owner | revert before consumer cutover, or stage follow-up immediately |
-| Destructive / freeze-window required | Removes or invalidates a previously supported path | Require explicit freeze window and migration owner | mitigation usually means restore compatibility or ship a new migration |
-| Forward-only operational migration | Data/backfill/ops move that should not be reversed mechanically | Require runbook and mitigation plan | mitigate with a new forward migration, not a blind rollback |
+| Class                                | What it means                                                                          | Expected reviewer stance                           | Default rollback stance                                                |
+| ------------------------------------ | -------------------------------------------------------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------- |
+| Additive safe                        | Backward-compatible change with no required consumer action                            | Normal review, standard PR gates                   | revert or ship follow-up if needed                                     |
+| Additive with consumer sync          | Additive change, but generated clients or downstream consumers must update in lockstep | Confirm sync plan and owner                        | revert before consumer cutover, or stage follow-up immediately         |
+| Destructive / freeze-window required | Removes or invalidates a previously supported path                                     | Require explicit freeze window and migration owner | mitigation usually means restore compatibility or ship a new migration |
+| Forward-only operational migration   | Data/backfill/ops move that should not be reversed mechanically                        | Require runbook and mitigation plan                | mitigate with a new forward migration, not a blind rollback            |
 
 ## 2. The Reviewer Checklist
 
@@ -87,12 +89,12 @@ Reviewer rule:
 
 ## Rollback / Mitigation Guidance
 
-| Migration class | Preferred response if rollout goes wrong |
-|---|---|
-| Additive safe | revert or disable the new call path |
-| Additive with consumer sync | pause the consumer cutover, keep additive compatibility surface live |
+| Migration class                      | Preferred response if rollout goes wrong                                                          |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| Additive safe                        | revert or disable the new call path                                                               |
+| Additive with consumer sync          | pause the consumer cutover, keep additive compatibility surface live                              |
 | Destructive / freeze-window required | restore compatibility or ship a new corrective release; do not mutate already published artifacts |
-| Forward-only operational migration | follow the documented mitigation path and capture lessons in the runbook |
+| Forward-only operational migration   | follow the documented mitigation path and capture lessons in the runbook                          |
 
 ## 5. What “Migration Owner” Means
 
@@ -111,7 +113,9 @@ If a reviewer cannot identify that owner, the PR is missing rollout governance m
 
 - If the PR claims to be additive but also requires synchronized client or
   operator action, reclassify it as consumer-sync or destructive as appropriate.
+
 - If rollback is described only as "revert the PR" for a forward-only operation,
   the mitigation plan is incomplete.
+
 - If docs or runbooks lag behind the rollout order, treat that as a rollout
   blocker rather than a post-merge cleanup item.

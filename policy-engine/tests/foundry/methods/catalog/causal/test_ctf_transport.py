@@ -127,7 +127,9 @@ def test_ctf_transport_multi_domain() -> None:
     query = CtfQuery(outcome="Y", intervention=(("X", 1.0),), kind="single_world")
     source_domains = [
         SourceDomain(domain_id="source_obs", s_nodes=frozenset({"Y"}), dataset_ref="study_obs"),
-        SourceDomain(domain_id="source_rct", z_interventions=frozenset({"X"}), dataset_ref="study_rct"),
+        SourceDomain(
+            domain_id="source_rct", z_interventions=frozenset({"X"}), dataset_ref="study_rct"
+        ),
     ]
     selection_diagram = build_ctf_selection_diagram(graph=graph, source_domains=source_domains)
 

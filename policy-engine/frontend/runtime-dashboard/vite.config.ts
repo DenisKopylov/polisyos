@@ -27,6 +27,7 @@ export default defineConfig({
       filename: "sw.js",
       injectManifest: {
         globPatterns: ["**/*.{css,js,html,woff2,png,svg}"],
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
       },
       registerType: "autoUpdate",
       srcDir: "src",

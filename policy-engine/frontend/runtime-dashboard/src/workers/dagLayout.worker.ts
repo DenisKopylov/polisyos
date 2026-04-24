@@ -71,7 +71,10 @@ function computeHierarchicalLayout(
     const current = queue[i]!;
     i++;
     for (const child of childrenOf.get(current) ?? []) {
-      const childRank = Math.max(ranks.get(child) ?? 0, (ranks.get(current) ?? 0) + 1);
+      const childRank = Math.max(
+        ranks.get(child) ?? 0,
+        (ranks.get(current) ?? 0) + 1,
+      );
       ranks.set(child, childRank);
       if (!queue.includes(child)) queue.push(child);
     }
@@ -118,7 +121,10 @@ function computeHierarchicalLayout(
         edges.push({
           source: pid,
           target: node.id,
-          points: [[from.x, from.y], [to.x, to.y]],
+          points: [
+            [from.x, from.y],
+            [to.x, to.y],
+          ],
         });
       }
     }

@@ -61,12 +61,11 @@ for _p in [str(_SRC), str(_BENCH_ROOT.parent)]:
 # Local imports
 # ---------------------------------------------------------------------------
 
-from benchmarks.harness import (  # noqa: E402
-    BenchmarkCase,
-    BenchmarkCircuit,
-    BenchmarkHarness,
-    BenchmarkReport,
-    Verdict,
+from benchmarks.comparators import (
+    ForestDRLearnerComparator,
+    build_research_acceptance_comparator_status,
+    comparator_degraded_reasons,
+    comparator_required_modules,
 )
 from benchmarks.estimator_profiles import (  # noqa: E402
     benchmark_selection_manifest_from_params,
@@ -78,14 +77,16 @@ from benchmarks.estimator_profiles import (  # noqa: E402
     policyos_nuisance_params,
     policyos_xlearner_params,
 )
-from benchmarks.comparators import (
-    ForestDRLearnerComparator,
-    build_research_acceptance_comparator_status,
-    comparator_degraded_reasons,
-    comparator_required_modules,
+from benchmarks.harness import (  # noqa: E402
+    BenchmarkCase,
+    BenchmarkCircuit,
+    BenchmarkHarness,
+    BenchmarkReport,
+    Verdict,
 )
 from benchmarks.method_registry import build_method_registry, infer_method_group
 from benchmarks.policyos_runner import extract_policyos_result, invoke_policyos_method
+from benchmarks.reporting import build_preflight, build_report_payload, print_preflight
 from benchmarks.research_metrics import (
     eceth,
     feature_importance_stability,
@@ -96,7 +97,6 @@ from benchmarks.research_metrics import (
     summarize_prioritization_metrics,
     summarize_selection_manifest,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight
 from benchmarks.runtime import (
     BenchmarkMode,
     BenchmarkTier,
@@ -105,7 +105,6 @@ from benchmarks.runtime import (
     resolve_mode,
     resolve_tier,
 )
-
 from polisyos.foundry.methods.catalog.causal.protocols import (  # noqa: E402
     HTEObservationalData,
 )
@@ -198,6 +197,7 @@ def _hte_causal_bcf_params(
         )
     return params
 
+
 # ---------------------------------------------------------------------------
 # DGP: ground-truth CATE with known effect modifiers
 # ---------------------------------------------------------------------------
@@ -206,11 +206,12 @@ def _hte_causal_bcf_params(
 @dataclasses.dataclass
 class HTEGroundTruth:
     """Ground-truth specification for one HTE DGP."""
+
     data: HTEObservationalData
-    cate_true: np.ndarray          # shape (n,)
+    cate_true: np.ndarray  # shape (n,)
     ate_true: float
     effect_modifier_indices: list[int]  # which columns of X drive τ
-    tau_std: float                 # std of τ(X)
+    tau_std: float  # std of τ(X)
     dgp_name: str
 
 
@@ -247,7 +248,9 @@ def _dgp_sparse_linear_hte(
     Y = X @ beta0 + cate_true * T + 0.5 * rng.standard_normal(n)
 
     data = HTEObservationalData(
-        outcome=Y, treatment=T, covariates=X,
+        outcome=Y,
+        treatment=T,
+        covariates=X,
         feature_names=[f"X{j}" for j in range(p)],
     )
     return HTEGroundTruth(
@@ -291,7 +294,9 @@ def _dgp_nonlinear_hte(
     Y = mu0 + cate_true * T + 0.5 * rng.standard_normal(n)
 
     data = HTEObservationalData(
-        outcome=Y, treatment=T, covariates=X,
+        outcome=Y,
+        treatment=T,
+        covariates=X,
         feature_names=[f"X{j}" for j in range(p)],
     )
     return HTEGroundTruth(
@@ -330,7 +335,9 @@ def _dgp_binary_subgroup_hte(
     Y = X @ beta0 + cate_true * T + 0.5 * rng.standard_normal(n)
 
     data = HTEObservationalData(
-        outcome=Y, treatment=T, covariates=X,
+        outcome=Y,
+        treatment=T,
+        covariates=X,
         feature_names=[f"X{j}" for j in range(p)],
     )
     return HTEGroundTruth(
@@ -366,14 +373,16 @@ def _dgp_no_hte(
     Y = X @ beta0 + cate_true * T + 0.5 * rng.standard_normal(n)
 
     data = HTEObservationalData(
-        outcome=Y, treatment=T, covariates=X,
+        outcome=Y,
+        treatment=T,
+        covariates=X,
         feature_names=[f"X{j}" for j in range(p)],
     )
     return HTEGroundTruth(
         data=data,
         cate_true=cate_true,
         ate_true=float(ate),
-        effect_modifier_indices=[],   # no true modifiers
+        effect_modifier_indices=[],  # no true modifiers
         tau_std=0.0,
         dgp_name="no_hte",
     )
@@ -402,9 +411,7 @@ class HTEEstimResult:
     fail_reason: str = ""
 
 
-def _baseline_t_learner_rf(
-    gt: HTEGroundTruth, rng: np.random.Generator
-) -> HTEEstimResult:
+def _baseline_t_learner_rf(gt: HTEGroundTruth, rng: np.random.Generator) -> HTEEstimResult:
     """T-Learner with Random Forests — computes feature importances from RF."""
     from numpy.linalg import lstsq
 
@@ -413,6 +420,7 @@ def _baseline_t_learner_rf(
 
     try:
         from sklearn.ensemble import RandomForestRegressor
+
         m1 = RandomForestRegressor(n_estimators=100, random_state=0, n_jobs=1)
         m0 = RandomForestRegressor(n_estimators=100, random_state=0, n_jobs=1)
         m1.fit(X[mask1], Y[mask1])
@@ -432,6 +440,7 @@ def _baseline_t_learner_rf(
             Xb = np.column_stack([Xa, np.ones(len(Ya))])
             c, _, _, _ = lstsq(Xb, Ya, rcond=None)
             return c, Xb
+
         c1, _ = _lfit(X[mask1], Y[mask1])
         c0, _ = _lfit(X[mask0], Y[mask0])
         Xb = np.column_stack([X, np.ones(len(Y))])
@@ -450,16 +459,16 @@ def _baseline_t_learner_rf(
     ci_hi = float(np.percentile(boot_ates, 97.5))
 
     return HTEEstimResult(
-        cate_pred=cate_pred, ate_pred=ate_pred,
-        ate_ci_lower=ci_lo, ate_ci_upper=ci_hi,
+        cate_pred=cate_pred,
+        ate_pred=ate_pred,
+        ate_ci_lower=ci_lo,
+        ate_ci_upper=ci_hi,
         feature_importances=fi,
         method_name="t_learner_rf",
     )
 
 
-def _baseline_s_learner_linear(
-    gt: HTEGroundTruth, rng: np.random.Generator
-) -> HTEEstimResult:
+def _baseline_s_learner_linear(gt: HTEGroundTruth, rng: np.random.Generator) -> HTEEstimResult:
     """S-Learner with linear model — interactions T×X give modifier signal."""
     from numpy.linalg import lstsq
 
@@ -493,8 +502,10 @@ def _baseline_s_learner_linear(
     ci_hi = float(np.percentile(boot_ates, 97.5))
 
     return HTEEstimResult(
-        cate_pred=cate_pred, ate_pred=ate_pred,
-        ate_ci_lower=ci_lo, ate_ci_upper=ci_hi,
+        cate_pred=cate_pred,
+        ate_pred=ate_pred,
+        ate_ci_lower=ci_lo,
+        ate_ci_upper=ci_hi,
         feature_importances=fi,
         method_name="s_learner_linear",
     )
@@ -635,9 +646,8 @@ def _run_policy_os_hte(
             fail_reason=extracted.fail_reason,
         )
 
-    selection_manifest = (
-        extracted.selection_manifest
-        or benchmark_selection_manifest_from_params(params, method_label=method_class.__name__)
+    selection_manifest = extracted.selection_manifest or benchmark_selection_manifest_from_params(
+        params, method_label=method_class.__name__
     )
     cate_pred = extracted.cate_pred if extracted.cate_pred is not None else np.array([])
     cate_raw = extracted.cate_raw if extracted.cate_raw is not None else cate_pred
@@ -835,14 +845,26 @@ def _crossfit_causal_isotonic_calibration(
     truth = np.asarray(cate_true, dtype=float).reshape(-1)
     raw = np.asarray(cate_raw, dtype=float).reshape(-1)
     if truth.size == 0 or raw.size == 0 or truth.size != raw.size:
-        return raw, {"calibration_mode": "identity", "split_policy": "none", "calibration_applied": False}
+        return raw, {
+            "calibration_mode": "identity",
+            "split_policy": "none",
+            "calibration_applied": False,
+        }
     if truth.size < 32 or np.unique(raw).size < 4:
-        return raw, {"calibration_mode": "identity", "split_policy": "insufficient_support", "calibration_applied": False}
+        return raw, {
+            "calibration_mode": "identity",
+            "split_policy": "insufficient_support",
+            "calibration_applied": False,
+        }
 
     try:
         from sklearn.isotonic import IsotonicRegression
     except Exception:
-        return raw, {"calibration_mode": "identity", "split_policy": "isotonic_unavailable", "calibration_applied": False}
+        return raw, {
+            "calibration_mode": "identity",
+            "split_policy": "isotonic_unavailable",
+            "calibration_applied": False,
+        }
 
     n_splits = 5 if truth.size >= 160 else 3
     rng = np.random.default_rng(seed)
@@ -850,7 +872,11 @@ def _crossfit_causal_isotonic_calibration(
     rng.shuffle(shuffled)
     folds = [fold for fold in np.array_split(shuffled, n_splits) if fold.size > 0]
     if len(folds) < 2:
-        return raw, {"calibration_mode": "identity", "split_policy": "insufficient_folds", "calibration_applied": False}
+        return raw, {
+            "calibration_mode": "identity",
+            "split_policy": "insufficient_folds",
+            "calibration_applied": False,
+        }
 
     calibrated = np.array(raw, copy=True)
     for fold in folds:
@@ -866,9 +892,8 @@ def _crossfit_causal_isotonic_calibration(
 
     raw_eceth = eceth(truth, raw)
     calibrated_eceth = eceth(truth, calibrated)
-    if (
-        not math.isfinite(calibrated_eceth)
-        or (math.isfinite(raw_eceth) and calibrated_eceth > raw_eceth + 1e-9)
+    if not math.isfinite(calibrated_eceth) or (
+        math.isfinite(raw_eceth) and calibrated_eceth > raw_eceth + 1e-9
     ):
         return raw, {
             "calibration_mode": "identity_best_raw",
@@ -915,7 +940,7 @@ class HTECaseResult:
     cate_rms: float | None
     ate_bias: float
     ate_bias_abs: float
-    ate_bias_relative: float    # bias / tau_std
+    ate_bias_relative: float  # bias / tau_std
     precision_k: float | None
     recall_k: float | None
     ate_ci_covers: bool
@@ -958,49 +983,53 @@ def _run_hte_case(
                 est: HTEEstimResult = fn(gt, rng)
                 elapsed_s = time.perf_counter() - started_at
                 if est.failed or len(est.cate_pred) == 0:
-                    per_method[name].append(HTECaseResult(
-                        method_name=name,
-                        pehe=float("inf"),
-                        cate_rms=None,
-                        ate_bias=float("nan"),
-                        ate_bias_abs=float("nan"),
-                        ate_bias_relative=float("nan"),
-                        precision_k=None,
-                        recall_k=None,
-                        ate_ci_covers=False,
-                        ate_ci_width=float("nan"),
-                        eceth=None,
-                        r_risk=None,
-                        rate=None,
-                        policy_value_top_q=None,
-                        calibration_mode=None,
-                        failed=True,
-                        elapsed_s=elapsed_s,
-                    ))
+                    per_method[name].append(
+                        HTECaseResult(
+                            method_name=name,
+                            pehe=float("inf"),
+                            cate_rms=None,
+                            ate_bias=float("nan"),
+                            ate_bias_abs=float("nan"),
+                            ate_bias_relative=float("nan"),
+                            precision_k=None,
+                            recall_k=None,
+                            ate_ci_covers=False,
+                            ate_ci_width=float("nan"),
+                            eceth=None,
+                            r_risk=None,
+                            rate=None,
+                            policy_value_top_q=None,
+                            calibration_mode=None,
+                            failed=True,
+                            elapsed_s=elapsed_s,
+                        )
+                    )
                     continue
 
                 raw_cate = est.cate_raw if est.cate_raw is not None else est.cate_pred
                 raw_cate = np.asarray(raw_cate, dtype=float).reshape(-1)
                 if raw_cate.size != gt.cate_true.size:
-                    per_method[name].append(HTECaseResult(
-                        method_name=name,
-                        pehe=float("inf"),
-                        cate_rms=None,
-                        ate_bias=float("nan"),
-                        ate_bias_abs=float("nan"),
-                        ate_bias_relative=float("nan"),
-                        precision_k=None,
-                        recall_k=None,
-                        ate_ci_covers=False,
-                        ate_ci_width=float("nan"),
-                        eceth=None,
-                        r_risk=None,
-                        rate=None,
-                        policy_value_top_q=None,
-                        calibration_mode=None,
-                        failed=True,
-                        elapsed_s=elapsed_s,
-                    ))
+                    per_method[name].append(
+                        HTECaseResult(
+                            method_name=name,
+                            pehe=float("inf"),
+                            cate_rms=None,
+                            ate_bias=float("nan"),
+                            ate_bias_abs=float("nan"),
+                            ate_bias_relative=float("nan"),
+                            precision_k=None,
+                            recall_k=None,
+                            ate_ci_covers=False,
+                            ate_ci_width=float("nan"),
+                            eceth=None,
+                            r_risk=None,
+                            rate=None,
+                            policy_value_top_q=None,
+                            calibration_mode=None,
+                            failed=True,
+                            elapsed_s=elapsed_s,
+                        )
+                    )
                     continue
 
                 calibrated_cate, calibration_meta = _crossfit_causal_isotonic_calibration(
@@ -1023,84 +1052,88 @@ def _run_hte_case(
                 heterogeneity_test = _heterogeneity_null_test(cate_eval, ate_true=gt.ate_true)
                 feature_importances = None
                 if est.feature_importances is not None:
-                    feature_importances = np.asarray(est.feature_importances, dtype=float).reshape(-1)
+                    feature_importances = np.asarray(est.feature_importances, dtype=float).reshape(
+                        -1
+                    )
                     if feature_importances.size == 0 or not np.isfinite(feature_importances).all():
                         feature_importances = None
                 if homogeneous_signal and not heterogeneity_test["rejected"]:
                     feature_importances = None
                 if feature_importances is not None and not homogeneous_signal:
-                    prec_k = _precision_at_k(
-                        feature_importances, gt.effect_modifier_indices
-                    )
-                    rec_k = _recall_at_k(
-                        feature_importances, gt.effect_modifier_indices
-                    )
+                    prec_k = _precision_at_k(feature_importances, gt.effect_modifier_indices)
+                    rec_k = _recall_at_k(feature_importances, gt.effect_modifier_indices)
                 if homogeneous_signal and not heterogeneity_test["rejected"]:
                     ate_center = float(np.mean(cate_eval))
                     cate_eval = np.full_like(cate_eval, ate_center, dtype=float)
                     cate_rms = 0.0
                     feature_importances = None
 
-                per_method[name].append(HTECaseResult(
-                    method_name=name,
-                    pehe=p,
-                    cate_rms=cate_rms,
-                    ate_bias=bias,
-                    ate_bias_abs=abs(bias),
-                    ate_bias_relative=bias_rel,
-                    precision_k=prec_k,
-                    recall_k=rec_k,
-                    ate_ci_covers=bool(
-                        math.isfinite(est.ate_ci_lower)
-                        and math.isfinite(est.ate_ci_upper)
-                        and est.ate_ci_lower <= gt.ate_true <= est.ate_ci_upper
-                    ),
-                    ate_ci_width=(
-                        float(est.ate_ci_upper - est.ate_ci_lower)
-                        if math.isfinite(est.ate_ci_lower) and math.isfinite(est.ate_ci_upper)
-                        else float("nan")
-                    ),
-                    eceth=eceth(gt.cate_true, cate_eval),
-                    r_risk=r_risk(
-                        gt.data.outcome,
-                        gt.data.treatment,
-                        eval_outcome_main,
-                        eval_propensity,
-                        cate_eval,
-                    ),
-                    rate=rank_weighted_ate(gt.cate_true, cate_eval),
-                    policy_value_top_q=policy_value_top_q(gt.cate_true, cate_eval),
-                    calibration_mode=str(
-                        calibration_meta.get("calibration_mode")
-                        or (est.hte_metadata or {}).get("calibration_mode")
-                        or "identity"
-                    ),
-                    selection_manifest=dict(est.selection_manifest or {}),
-                    feature_importances=feature_importances.tolist() if feature_importances is not None else None,
-                    heterogeneity_null_rejected=bool(heterogeneity_test["rejected"]),
-                    failed=False,
-                    elapsed_s=elapsed_s,
-                ))
+                per_method[name].append(
+                    HTECaseResult(
+                        method_name=name,
+                        pehe=p,
+                        cate_rms=cate_rms,
+                        ate_bias=bias,
+                        ate_bias_abs=abs(bias),
+                        ate_bias_relative=bias_rel,
+                        precision_k=prec_k,
+                        recall_k=rec_k,
+                        ate_ci_covers=bool(
+                            math.isfinite(est.ate_ci_lower)
+                            and math.isfinite(est.ate_ci_upper)
+                            and est.ate_ci_lower <= gt.ate_true <= est.ate_ci_upper
+                        ),
+                        ate_ci_width=(
+                            float(est.ate_ci_upper - est.ate_ci_lower)
+                            if math.isfinite(est.ate_ci_lower) and math.isfinite(est.ate_ci_upper)
+                            else float("nan")
+                        ),
+                        eceth=eceth(gt.cate_true, cate_eval),
+                        r_risk=r_risk(
+                            gt.data.outcome,
+                            gt.data.treatment,
+                            eval_outcome_main,
+                            eval_propensity,
+                            cate_eval,
+                        ),
+                        rate=rank_weighted_ate(gt.cate_true, cate_eval),
+                        policy_value_top_q=policy_value_top_q(gt.cate_true, cate_eval),
+                        calibration_mode=str(
+                            calibration_meta.get("calibration_mode")
+                            or (est.hte_metadata or {}).get("calibration_mode")
+                            or "identity"
+                        ),
+                        selection_manifest=dict(est.selection_manifest or {}),
+                        feature_importances=feature_importances.tolist()
+                        if feature_importances is not None
+                        else None,
+                        heterogeneity_null_rejected=bool(heterogeneity_test["rejected"]),
+                        failed=False,
+                        elapsed_s=elapsed_s,
+                    )
+                )
             except Exception:
-                per_method[name].append(HTECaseResult(
-                    method_name=name,
-                    pehe=float("inf"),
-                    cate_rms=None,
-                    ate_bias=float("nan"),
-                    ate_bias_abs=float("nan"),
-                    ate_bias_relative=float("nan"),
-                    precision_k=None,
-                    recall_k=None,
-                    ate_ci_covers=False,
-                    ate_ci_width=float("nan"),
-                    eceth=None,
-                    r_risk=None,
-                    rate=None,
-                    policy_value_top_q=None,
-                    calibration_mode=None,
-                    failed=True,
-                    elapsed_s=time.perf_counter() - started_at,
-                ))
+                per_method[name].append(
+                    HTECaseResult(
+                        method_name=name,
+                        pehe=float("inf"),
+                        cate_rms=None,
+                        ate_bias=float("nan"),
+                        ate_bias_abs=float("nan"),
+                        ate_bias_relative=float("nan"),
+                        precision_k=None,
+                        recall_k=None,
+                        ate_ci_covers=False,
+                        ate_ci_width=float("nan"),
+                        eceth=None,
+                        r_risk=None,
+                        rate=None,
+                        policy_value_top_q=None,
+                        calibration_mode=None,
+                        failed=True,
+                        elapsed_s=time.perf_counter() - started_at,
+                    )
+                )
 
     return per_method
 
@@ -1109,10 +1142,12 @@ def _aggregate(results: list[HTECaseResult]) -> dict[str, float]:
     valid = [r for r in results if not r.failed]
     if not valid:
         return {
-            "pehe_mean": float("inf"), "ate_bias_rel_mean": float("nan"),
+            "pehe_mean": float("inf"),
+            "ate_bias_rel_mean": float("nan"),
             "ate_bias_abs_mean": float("nan"),
             "cate_rms_mean": float("nan"),
-            "precision_k_mean": float("nan"), "recall_k_mean": float("nan"),
+            "precision_k_mean": float("nan"),
+            "recall_k_mean": float("nan"),
             "ate_ci_coverage_mean": float("nan"),
             "ate_ci_width_mean": float("nan"),
             "eceth_mean": float("nan"),
@@ -1127,7 +1162,9 @@ def _aggregate(results: list[HTECaseResult]) -> dict[str, float]:
     pehe_vals = [r.pehe for r in valid if math.isfinite(r.pehe)]
     bias_vals = [r.ate_bias_relative for r in valid if math.isfinite(r.ate_bias_relative)]
     abs_bias_vals = [r.ate_bias_abs for r in valid if math.isfinite(r.ate_bias_abs)]
-    cate_rms_vals = [r.cate_rms for r in valid if r.cate_rms is not None and math.isfinite(r.cate_rms)]
+    cate_rms_vals = [
+        r.cate_rms for r in valid if r.cate_rms is not None and math.isfinite(r.cate_rms)
+    ]
     prec_vals = [r.precision_k for r in valid if r.precision_k is not None]
     rec_vals = [r.recall_k for r in valid if r.recall_k is not None]
     ci_width_vals = [r.ate_ci_width for r in valid if math.isfinite(r.ate_ci_width)]
@@ -1153,12 +1190,20 @@ def _aggregate(results: list[HTECaseResult]) -> dict[str, float]:
         "rate_mean": float(np.mean(rate_vals)) if rate_vals else float("nan"),
         "policy_value_top_q_mean": float(np.mean(policy_vals)) if policy_vals else float("nan"),
         "heterogeneity_null_rejection_rate": float(
-            np.mean([1.0 if r.heterogeneity_null_rejected else 0.0 for r in valid if r.heterogeneity_null_rejected is not None])
-        ) if any(r.heterogeneity_null_rejected is not None for r in valid) else float("nan"),
+            np.mean(
+                [
+                    1.0 if r.heterogeneity_null_rejected else 0.0
+                    for r in valid
+                    if r.heterogeneity_null_rejected is not None
+                ]
+            )
+        )
+        if any(r.heterogeneity_null_rejected is not None for r in valid)
+        else float("nan"),
         "failure_rate": (n_total - len(valid)) / n_total,
-        "elapsed_s_mean": float(
-            np.mean([r.elapsed_s for r in results if r.elapsed_s is not None])
-        ) if any(r.elapsed_s is not None for r in results) else float("nan"),
+        "elapsed_s_mean": float(np.mean([r.elapsed_s for r in results if r.elapsed_s is not None]))
+        if any(r.elapsed_s is not None for r in results)
+        else float("nan"),
     }
 
 
@@ -1180,19 +1225,22 @@ def _cate_quality_case(
 
     def runner() -> dict[str, list[HTECaseResult]]:
         return _run_hte_case(
-            dgp_fn=dgp_fn, dgp_kwargs=dgp_kwargs,
-            n_obs=n_obs, n_reps=n_reps,
-            method_fns=method_fns, base_seed=seed,
+            dgp_fn=dgp_fn,
+            dgp_kwargs=dgp_kwargs,
+            n_obs=n_obs,
+            n_reps=n_reps,
+            method_fns=method_fns,
+            base_seed=seed,
         )
 
     def checker(results: dict[str, list[HTECaseResult]]) -> bool:
-        baseline_names = {"t_learner_rf", "s_learner_linear"}
         policy_os_names = [k for k in results if infer_method_group(k) == "policy_os_competitive"]
 
         if not policy_os_names:
             return True
 
         agg = {name: _aggregate(v) for name, v in results.items()}
+        baseline_names = {"t_learner_rf", "s_learner_linear"}
 
         # Best baseline PEHE
         baseline_pehe = [
@@ -1215,7 +1263,10 @@ def _cate_quality_case(
                 and a["heterogeneity_null_rejection_rate"] < 0.5
             )
             if null_not_rejected:
-                if math.isfinite(a.get("cate_rms_mean", float("nan"))) and a["cate_rms_mean"] > 0.10:
+                if (
+                    math.isfinite(a.get("cate_rms_mean", float("nan")))
+                    and a["cate_rms_mean"] > 0.10
+                ):
                     issues.append(
                         f"{pname}: cate_rms={a['cate_rms_mean']:.3f} > 0.10 under homogeneous null"
                     )
@@ -1226,11 +1277,18 @@ def _cate_quality_case(
                         f"{pehe_multiplier}× best={best_pehe:.3f}"
                     )
 
-            if math.isfinite(a["ate_bias_rel_mean"]) and a["ate_bias_rel_mean"] > max_ate_bias_relative:
+            if (
+                math.isfinite(a["ate_bias_rel_mean"])
+                and a["ate_bias_rel_mean"] > max_ate_bias_relative
+            ):
                 issues.append(
                     f"{pname}: ATE relative bias={a['ate_bias_rel_mean']:.3f} > {max_ate_bias_relative}"
                 )
-            if name == "no_hte_homogeneous" and math.isfinite(a["ate_bias_abs_mean"]) and a["ate_bias_abs_mean"] > max_ate_bias_absolute:
+            if (
+                name == "no_hte_homogeneous"
+                and math.isfinite(a["ate_bias_abs_mean"])
+                and a["ate_bias_abs_mean"] > max_ate_bias_absolute
+            ):
                 issues.append(
                     f"{pname}: ATE absolute bias={a['ate_bias_abs_mean']:.3f} > {max_ate_bias_absolute}"
                 )
@@ -1264,13 +1322,15 @@ def _modifier_detection_case(
 
     def runner() -> dict[str, list[HTECaseResult]]:
         return _run_hte_case(
-            dgp_fn=dgp_fn, dgp_kwargs=dgp_kwargs,
-            n_obs=n_obs, n_reps=n_reps,
-            method_fns=method_fns, base_seed=seed,
+            dgp_fn=dgp_fn,
+            dgp_kwargs=dgp_kwargs,
+            n_obs=n_obs,
+            n_reps=n_reps,
+            method_fns=method_fns,
+            base_seed=seed,
         )
 
     def checker(results: dict[str, list[HTECaseResult]]) -> bool:
-        baseline_names = {"t_learner_rf", "s_learner_linear"}
         policy_os_names = [k for k in results if infer_method_group(k) == "policy_os_competitive"]
 
         if not policy_os_names:
@@ -1336,17 +1396,19 @@ def _pipeline_integrity_case(
             started_at = time.perf_counter()
             try:
                 est = fn(gt, rng)
-                outputs.append({
-                    "method": mname,
-                    "failed": est.failed,
-                    "fail_reason": est.fail_reason,
-                    "ate_pred": est.ate_pred,
-                    "ci_lower": est.ate_ci_lower,
-                    "ci_upper": est.ate_ci_upper,
-                    "n_cate": len(est.cate_pred),
-                    "n_obs": n_obs,
-                    "elapsed_s": time.perf_counter() - started_at,
-                })
+                outputs.append(
+                    {
+                        "method": mname,
+                        "failed": est.failed,
+                        "fail_reason": est.fail_reason,
+                        "ate_pred": est.ate_pred,
+                        "ci_lower": est.ate_ci_lower,
+                        "ci_upper": est.ate_ci_upper,
+                        "n_cate": len(est.cate_pred),
+                        "n_obs": n_obs,
+                        "elapsed_s": time.perf_counter() - started_at,
+                    }
+                )
             except Exception as exc:
                 outputs.append(
                     {
@@ -1383,9 +1445,7 @@ def _pipeline_integrity_case(
             n_cate = out.get("n_cate", 0)
             n_obs_expected = out.get("n_obs", -1)
             if n_cate > 0 and n_cate != n_obs_expected:
-                issues.append(
-                    f"{mname}: cate_values length={n_cate} != n_obs={n_obs_expected}"
-                )
+                issues.append(f"{mname}: cate_values length={n_cate} != n_obs={n_obs_expected}")
 
         if issues:
             raise AssertionError(f"pipeline::{name}: " + "; ".join(issues))
@@ -1422,11 +1482,11 @@ def _make_method_fns(
     fns["s_learner_linear"] = lambda gt, rng: _baseline_s_learner_linear(gt, rng)
 
     try:
-        from polisyos.foundry.methods.catalog.causal.causal_bcf import CausalBCF
         from polisyos.foundry.methods.catalog.causal.advanced_designs import (
             DRLearnerEstimator,
             RLearnerEstimator,
         )
+        from polisyos.foundry.methods.catalog.causal.causal_bcf import CausalBCF
 
         fns["policy_os_causal_bcf"] = lambda gt, rng: _run_policy_os_hte(
             CausalBCF,
@@ -1454,6 +1514,7 @@ def _make_method_fns(
 
     try:
         from polisyos.foundry.methods.catalog.causal.cate import CausalForestEstimator
+
         fns["policy_os_causal_forest"] = lambda gt, rng: _run_policy_os_hte(
             CausalForestEstimator,
             gt,
@@ -1464,6 +1525,7 @@ def _make_method_fns(
 
     try:
         from polisyos.foundry.methods.catalog.causal.meta_learners import MetaLearnerEstimator
+
         fns["policy_os_xlearner_cf"] = lambda gt, rng: _run_policy_os_hte(
             MetaLearnerEstimator,
             gt,
@@ -1486,6 +1548,7 @@ def _make_method_fns(
         try:
             if method_profile == "exploratory_hte":
                 from polisyos.foundry.methods.catalog.causal.dml import DoubleMachineLearning
+
                 fns["external_dml_econml"] = lambda gt, rng: _run_policy_os_hte(
                     DoubleMachineLearning,
                     gt,
@@ -1521,52 +1584,78 @@ def build_interpretable_hte_harness(
     # DGP specs
     dgp_specs = [
         # (name, dgp_fn, dgp_kwargs, n_modifiers_present)
-        ("sparse_linear_2mod",    _dgp_sparse_linear_hte,  {"p": 20, "n_modifiers": 2, "ate": 1.0, "modifier_strength": 0.5, "confounding": 0.5}, True),
-        ("sparse_linear_5mod",    _dgp_sparse_linear_hte,  {"p": 20, "n_modifiers": 5, "ate": 1.0, "modifier_strength": 0.4, "confounding": 0.3}, True),
-        ("nonlinear_3mod",        _dgp_nonlinear_hte,      {"p": 20, "n_modifiers": 3, "ate": 1.0, "confounding": 0.5}, True),
-        ("binary_subgroup",       _dgp_binary_subgroup_hte, {"p": 15, "ate_positive": 2.0, "ate_negative": -0.5, "confounding": 0.3}, True),
-        ("no_hte_homogeneous",    _dgp_no_hte,             {"p": 15, "ate": 1.0, "confounding": 0.5}, False),
+        (
+            "sparse_linear_2mod",
+            _dgp_sparse_linear_hte,
+            {"p": 20, "n_modifiers": 2, "ate": 1.0, "modifier_strength": 0.5, "confounding": 0.5},
+            True,
+        ),
+        (
+            "sparse_linear_5mod",
+            _dgp_sparse_linear_hte,
+            {"p": 20, "n_modifiers": 5, "ate": 1.0, "modifier_strength": 0.4, "confounding": 0.3},
+            True,
+        ),
+        (
+            "nonlinear_3mod",
+            _dgp_nonlinear_hte,
+            {"p": 20, "n_modifiers": 3, "ate": 1.0, "confounding": 0.5},
+            True,
+        ),
+        (
+            "binary_subgroup",
+            _dgp_binary_subgroup_hte,
+            {"p": 15, "ate_positive": 2.0, "ate_negative": -0.5, "confounding": 0.3},
+            True,
+        ),
+        ("no_hte_homogeneous", _dgp_no_hte, {"p": 15, "ate": 1.0, "confounding": 0.5}, False),
     ]
     if fast_mode:
         dgp_specs = dgp_specs[:1]
 
     for name, dgp_fn, dgp_kwargs, has_modifiers in dgp_specs:
         # CATE quality case
-        harness.register(_cate_quality_case(
-            name=name,
-            dgp_fn=dgp_fn,
-            dgp_kwargs=dgp_kwargs,
-            n_obs=n_obs,
-            n_reps=n_reps,
-            method_fns=method_fns,
-            pehe_multiplier=2.0,
-            max_ate_bias_relative=0.5,
-            max_failure_rate=0.25,
-            seed=seed,
-        ))
-
-        # Effect modifier detection case (only for DGPs with true modifiers)
-        if has_modifiers:
-            harness.register(_modifier_detection_case(
+        harness.register(
+            _cate_quality_case(
                 name=name,
                 dgp_fn=dgp_fn,
                 dgp_kwargs=dgp_kwargs,
                 n_obs=n_obs,
                 n_reps=n_reps,
                 method_fns=method_fns,
-                min_precision_k=0.5,
+                pehe_multiplier=2.0,
+                max_ate_bias_relative=0.5,
+                max_failure_rate=0.25,
                 seed=seed,
-            ))
+            )
+        )
+
+        # Effect modifier detection case (only for DGPs with true modifiers)
+        if has_modifiers:
+            harness.register(
+                _modifier_detection_case(
+                    name=name,
+                    dgp_fn=dgp_fn,
+                    dgp_kwargs=dgp_kwargs,
+                    n_obs=n_obs,
+                    n_reps=n_reps,
+                    method_fns=method_fns,
+                    min_precision_k=0.5,
+                    seed=seed,
+                )
+            )
 
         # Pipeline integrity case
-        harness.register(_pipeline_integrity_case(
-            name=name,
-            dgp_fn=dgp_fn,
-            dgp_kwargs=dgp_kwargs,
-            n_obs=n_obs,
-            method_fns=method_fns,
-            seed=seed,
-        ))
+        harness.register(
+            _pipeline_integrity_case(
+                name=name,
+                dgp_fn=dgp_fn,
+                dgp_kwargs=dgp_kwargs,
+                n_obs=n_obs,
+                method_fns=method_fns,
+                seed=seed,
+            )
+        )
 
     return harness
 
@@ -1604,8 +1693,12 @@ def _component_summary(report: BenchmarkReport) -> dict[str, Any]:
     for payload in buckets.values():
         total = payload["total"]
         payload["pass_rate"] = payload["passed"] / total if total else 0.0
-        payload["failed_cases"] = [case["name"] for case in payload["cases"] if case["verdict"] != Verdict.PASS.value]
-        payload["over_budget_cases"] = [case["name"] for case in payload["cases"] if case["over_budget"]]
+        payload["failed_cases"] = [
+            case["name"] for case in payload["cases"] if case["verdict"] != Verdict.PASS.value
+        ]
+        payload["over_budget_cases"] = [
+            case["name"] for case in payload["cases"] if case["over_budget"]
+        ]
     thresholds = {
         "cate_quality": {"min_passed": 4, "min_total": 5},
         "modifier_detection": {"min_passed": 4, "min_total": 4},
@@ -1641,7 +1734,11 @@ def _hte_case_details(case: Any) -> dict[str, Any]:
     if isinstance(payload, dict):
         method_metrics: dict[str, Any] = {}
         for method_name, method_results in payload.items():
-            if isinstance(method_results, list) and method_results and isinstance(method_results[0], HTECaseResult):
+            if (
+                isinstance(method_results, list)
+                and method_results
+                and isinstance(method_results[0], HTECaseResult)
+            ):
                 method_metrics[str(method_name)] = _aggregate(method_results)
         if method_metrics:
             metrics["method_summary"] = method_metrics
@@ -1679,7 +1776,9 @@ def _iter_hte_case_results(report: BenchmarkReport) -> dict[str, list[HTECaseRes
 def _hte_selection_manifest(report: BenchmarkReport) -> dict[str, Any]:
     out: dict[str, Any] = {}
     for method_name, records in _iter_hte_case_results(report).items():
-        selection_records = [record.selection_manifest for record in records if record.selection_manifest]
+        selection_records = [
+            record.selection_manifest for record in records if record.selection_manifest
+        ]
         if selection_records:
             out[method_name] = summarize_selection_manifest(selection_records)
     return out
@@ -1723,7 +1822,9 @@ def _hte_prioritization_metrics(report: BenchmarkReport) -> dict[str, Any]:
             for record in records
             if not record.failed and record.feature_importances
         ]
-        summary["feature_importance_stability_mean"] = feature_importance_stability(importance_vectors)
+        summary["feature_importance_stability_mean"] = feature_importance_stability(
+            importance_vectors
+        )
         out[method_name] = summary
     return out
 
@@ -1743,12 +1844,12 @@ def main() -> None:
     parser.add_argument("--mode", choices=[mode.value for mode in BenchmarkMode], default=None)
     parser.add_argument("--tier", choices=[tier.value for tier in BenchmarkTier], default=None)
     parser.add_argument(
-        "--only-cate", action="store_true",
-        help="Run only CATE quality cases (skip modifier detection and pipeline)"
+        "--only-cate",
+        action="store_true",
+        help="Run only CATE quality cases (skip modifier detection and pipeline)",
     )
     parser.add_argument(
-        "--only-modifiers", action="store_true",
-        help="Run only modifier detection cases"
+        "--only-modifiers", action="store_true", help="Run only modifier detection cases"
     )
     parser.add_argument(
         "--method-profile",
@@ -1760,17 +1861,29 @@ def main() -> None:
 
     mode = resolve_mode(args.mode)
     tier = resolve_tier(args.tier, mode=mode)
-    module_status = dependency_status(["numpy", "scipy", "sklearn", "econml", "zepid", "stochtree", "dowhy", "y0", "lightgbm"])
+    module_status = dependency_status(
+        ["numpy", "scipy", "sklearn", "econml", "zepid", "stochtree", "dowhy", "y0", "lightgbm"]
+    )
     comparator_status = build_research_acceptance_comparator_status()
     degraded_reasons = []
     if comparator_status["econml"] != "available":
-        degraded_reasons.append("econml-backed HTE estimators unavailable; running reduced benchmark set")
+        degraded_reasons.append(
+            "econml-backed HTE estimators unavailable; running reduced benchmark set"
+        )
     if tier is BenchmarkTier.LOCAL_EVIDENCE:
         degraded_reasons.append("local_evidence tier uses thermal-safe synthetic defaults")
     degraded_reasons.extend(comparator_degraded_reasons(comparator_status))
-    planned_n_obs = 450 if tier is BenchmarkTier.LOCAL_EVIDENCE and args.n_obs == 600 else args.n_obs
-    planned_n_reps = 6 if tier is BenchmarkTier.LOCAL_EVIDENCE and args.n_reps == 10 else args.n_reps
-    dataset_family = "hte_cate" if args.only_cate else ("hte_modifiers" if args.only_modifiers else "hte_interpretable")
+    planned_n_obs = (
+        450 if tier is BenchmarkTier.LOCAL_EVIDENCE and args.n_obs == 600 else args.n_obs
+    )
+    planned_n_reps = (
+        6 if tier is BenchmarkTier.LOCAL_EVIDENCE and args.n_reps == 10 else args.n_reps
+    )
+    dataset_family = (
+        "hte_cate"
+        if args.only_cate
+        else ("hte_modifiers" if args.only_modifiers else "hte_interpretable")
+    )
 
     preflight = build_preflight(
         mode=mode.value,
@@ -1869,9 +1982,7 @@ def main() -> None:
                 indent=2,
             )
 
-    n_fail = sum(
-        1 for cr in report.cases if cr.verdict not in (Verdict.PASS.value, Verdict.PASS)
-    )
+    n_fail = sum(1 for cr in report.cases if cr.verdict not in (Verdict.PASS.value, Verdict.PASS))
     sys.exit(0 if n_fail == 0 else 2)
 
 

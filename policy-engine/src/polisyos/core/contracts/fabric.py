@@ -1,8 +1,9 @@
 """Stable DTOs for Fabric query planning, evidence bundles, and materialized data views."""
+
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Any, Literal
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -12,56 +13,63 @@ from .uncertainty import UncertaintyEnvelopeRef
 
 class DataViewRequestRef(ArtifactRef):
     """Artifact reference for the original Fabric data-view request payload."""
+
     kind: str = "ir.data_view_request"
     media_type: str = "application/json"
 
 
 class QueryPlanRef(ArtifactRef):
     """Artifact reference for the query plan emitted before Fabric data retrieval runs."""
+
     kind: str = "fabric.query_plan"
     media_type: str = "application/json"
 
 
 class FabricResultRef(ArtifactRef):
     """Artifact reference for the top-level Fabric result bundle returned to callers."""
+
     kind: str = "fabric.result_bundle"
     media_type: str = "application/json"
 
 
 class EvidenceBundleRef(ArtifactRef):
     """Artifact reference for the evidence bundle backing a Fabric result."""
+
     kind: str = "fabric.evidence_bundle"
     media_type: str = "application/json"
 
 
 class UncertaintyBoundsRef(ArtifactRef):
     """Artifact reference for numeric uncertainty bounds attached to a Fabric result."""
+
     kind: str = "fabric.uncertainty_bounds"
     media_type: str = "application/json"
 
 
 class WarningsRef(ArtifactRef):
     """Artifact reference for machine-readable warnings emitted during Fabric retrieval."""
+
     kind: str = "fabric.warnings"
     media_type: str = "application/json"
 
 
 class DataSnapshotRef(ArtifactRef):
     """Artifact reference for a materialized snapshot of retrieved data and its metadata."""
+
     kind: str = "fabric.data_snapshot"
     media_type: str = "application/json"
 
 
 class HistoricalSemanticDiffReportRef(ArtifactRef):
     """Historical semantic diff report ref data model."""
-    kind: str = (
-        "fabric.historical_semantic_diff_report"
-    )
+
+    kind: str = "fabric.historical_semantic_diff_report"
     media_type: str = "application/json"
 
 
 class QueryPlanStep(BaseModel):
     """Query plan step public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     op: str
@@ -70,6 +78,7 @@ class QueryPlanStep(BaseModel):
 
 class QueryPlan(BaseModel):
     """Ordered retrieval plan describing which engine steps should satisfy a data request."""
+
     model_config = ConfigDict(extra="forbid")
 
     request_ref: DataViewRequestRef
@@ -81,6 +90,7 @@ class QueryPlan(BaseModel):
 
 class EvidenceStep(BaseModel):
     """Evidence step public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     op: str
@@ -99,6 +109,7 @@ class ProvenanceCoreRefModel(BaseModel):
 
 class EvidenceBundle(BaseModel):
     """Provenance bundle describing inputs, transforms, and trust metadata for retrieved data."""
+
     model_config = ConfigDict(extra="forbid")
 
     sources: list[ArtifactRef] = Field(default_factory=list)
@@ -111,6 +122,7 @@ class EvidenceBundle(BaseModel):
 
 class UncertaintyBounds(BaseModel):
     """Uncertainty bounds public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -122,6 +134,7 @@ class UncertaintyBounds(BaseModel):
 
 class WarningsBundle(BaseModel):
     """Collection of warning records emitted while planning or serving a Fabric request."""
+
     model_config = ConfigDict(extra="forbid")
 
     warnings: list[WarningRecord] = Field(default_factory=list)
@@ -129,6 +142,7 @@ class WarningsBundle(BaseModel):
 
 class FabricResult(BaseModel):
     """Top-level Fabric output linking retrieved data to plans, evidence, and uncertainty."""
+
     model_config = ConfigDict(extra="forbid")
 
     request_ref: DataViewRequestRef
@@ -146,6 +160,7 @@ class FabricResult(BaseModel):
 
 class DataSnapshot(BaseModel):
     """Snapshot of retrieved data plus the artifact references needed to audit its quality."""
+
     model_config = ConfigDict(extra="forbid")
 
     data_ref: ArtifactRef

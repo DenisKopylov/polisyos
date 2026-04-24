@@ -15,7 +15,6 @@ from typing import Any
 
 from tools._lib.imports import repo_root_from
 
-
 ACIC_BASE = "https://raw.githubusercontent.com/IBM/causallib/master/causallib/datasets/data/acic_challenge_2016"
 LBIDD_BASE = "https://raw.githubusercontent.com/IBM-HRL-MLHLS/IBM-Causal-Inference-Benchmarking-Framework/master/data/LBIDD"
 REALCAUSE_BASE = "https://raw.githubusercontent.com/bradyneal/realcause/master/realcause_datasets"
@@ -53,7 +52,12 @@ PROFILES: dict[str, BenchmarkProfile] = {
 def _download(url: str, destination: Path, *, refresh: bool) -> dict[str, Any]:
     destination.parent.mkdir(parents=True, exist_ok=True)
     if destination.exists() and not refresh:
-        return {"path": str(destination), "status": "cached", "url": url, "bytes": destination.stat().st_size}
+        return {
+            "path": str(destination),
+            "status": "cached",
+            "url": url,
+            "bytes": destination.stat().st_size,
+        }
 
     with urllib.request.urlopen(url, timeout=60) as response:
         payload = response.read()
@@ -74,7 +78,9 @@ def _prepare_acic(root: Path, *, refresh: bool) -> list[dict[str, Any]]:
     entries = [_download(f"{ACIC_BASE}/x.csv", target_root / "x.csv", refresh=refresh)]
     for index in range(1, 11):
         file_name = f"zymu_{index}.csv"
-        entries.append(_download(f"{ACIC_BASE}/{file_name}", target_root / file_name, refresh=refresh))
+        entries.append(
+            _download(f"{ACIC_BASE}/{file_name}", target_root / file_name, refresh=refresh)
+        )
     return entries
 
 
@@ -119,10 +125,7 @@ def _prepare_lbidd(root: Path, *, profile: BenchmarkProfile, refresh: bool) -> l
         with factual_path.open() as factual_handle:
             factual_rows = list(csv.DictReader(factual_handle))
         with cf_path.open() as cf_handle:
-            cf_rows = {
-                str(row["sample_id"]): row
-                for row in csv.DictReader(cf_handle)
-            }
+            cf_rows = {str(row["sample_id"]): row for row in csv.DictReader(cf_handle)}
         with normalized_path.open("w", newline="") as out_handle:
             writer = csv.DictWriter(
                 out_handle,
@@ -146,7 +149,9 @@ def _prepare_lbidd(root: Path, *, profile: BenchmarkProfile, refresh: bool) -> l
     return entries
 
 
-def _prepare_realcause(root: Path, *, profile: BenchmarkProfile, refresh: bool) -> list[dict[str, Any]]:
+def _prepare_realcause(
+    root: Path, *, profile: BenchmarkProfile, refresh: bool
+) -> list[dict[str, Any]]:
     target_root = root / "realcause" / "realcause_datasets"
     entries: list[dict[str, Any]] = []
     for family, sample_indices in profile.realcause_samples.items():
@@ -168,9 +173,11 @@ def _write_env_file(root: Path) -> Path:
         "\n".join(
             [
                 "#!/usr/bin/env bash",
-                "export ACIC_DATA_DIR=\"${ACIC_DATA_DIR:-" + str(root / "acic") + "}\"",
-                "export LBIDD_DATA_DIR=\"${LBIDD_DATA_DIR:-" + str(root / "lbidd") + "}\"",
-                "export REALCAUSE_DATA_DIR=\"${REALCAUSE_DATA_DIR:-" + str(root / "realcause") + "}\"",
+                'export ACIC_DATA_DIR="${ACIC_DATA_DIR:-' + str(root / "acic") + '}"',
+                'export LBIDD_DATA_DIR="${LBIDD_DATA_DIR:-' + str(root / "lbidd") + '}"',
+                'export REALCAUSE_DATA_DIR="${REALCAUSE_DATA_DIR:-'
+                + str(root / "realcause")
+                + '}"',
                 "",
             ]
         )
@@ -193,7 +200,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     repo_root = repo_root_from(__file__)
-    data_root = Path(args.data_root).expanduser() if args.data_root else repo_root / "data" / "raw" / "benchmarks" / "local_real"
+    data_root = (
+        Path(args.data_root).expanduser()
+        if args.data_root
+        else repo_root / "data" / "raw" / "benchmarks" / "local_real"
+    )
     profile = PROFILES[args.profile]
 
     manifest = {
@@ -219,22 +230,22 @@ def main(argv: list[str] | None = None) -> int:
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
 
     total_bytes = sum(
-        int(entry["bytes"])
-        for entries in manifest["downloads"].values()
-        for entry in entries
+        int(entry["bytes"]) for entries in manifest["downloads"].values() for entry in entries
     )
-    print(json.dumps(
-        {
-            "profile": profile.name,
-            "data_root": str(data_root),
-            "manifest": str(manifest_path),
-            "env_file": str(env_file),
-            "downloaded_bytes": total_bytes,
-            "lbidd_scaling_files": profile.lbidd_scaling_files,
-            "realcause_samples": profile.realcause_samples,
-        },
-        indent=2,
-    ))
+    print(
+        json.dumps(
+            {
+                "profile": profile.name,
+                "data_root": str(data_root),
+                "manifest": str(manifest_path),
+                "env_file": str(env_file),
+                "downloaded_bytes": total_bytes,
+                "lbidd_scaling_files": profile.lbidd_scaling_files,
+                "realcause_samples": profile.realcause_samples,
+            },
+            indent=2,
+        )
+    )
     return 0
 
 

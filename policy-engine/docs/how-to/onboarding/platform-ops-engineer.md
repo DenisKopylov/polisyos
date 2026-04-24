@@ -43,13 +43,13 @@ docker compose -f docker-compose.observability.yml up
 
 ## Start Here By Task
 
-| Task | Primary doc |
-|---|---|
-| Runtime deploy and env surface | [Deploy Runtime](../deploy-runtime.md) |
-| Control-plane launch/poll/ops flow | [Use Control Plane](../use-control-plane.md) |
-| CI/CD and required local parity | [Operate the CI/CD Platform](../operate-ci-cd-platform.md) |
-| Versioning and rollout expectations | [Release Policy](../release-policy.md) |
-| Replay, restore, rollback drills | [Replay or Restore Workflow](../../runbooks/replay-or-restore.md) |
+| Task                                | Primary doc                                                       |
+| ----------------------------------- | ----------------------------------------------------------------- |
+| Runtime deploy and env surface      | [Deploy Runtime](../deploy-runtime.md)                            |
+| Control-plane launch/poll/ops flow  | [Use Control Plane](../use-control-plane.md)                      |
+| CI/CD and required local parity     | [Operate the CI/CD Platform](../operate-ci-cd-platform.md)        |
+| Versioning and rollout expectations | [Release Policy](../release-policy.md)                            |
+| Replay, restore, rollback drills    | [Replay or Restore Workflow](../../runbooks/replay-or-restore.md) |
 
 ## First Productive Slice
 
@@ -64,8 +64,10 @@ docker compose -f docker-compose.observability.yml up
 
 - если проблема ушла в code-level route/DTO drift, верните change владельцу
   backend/frontend lane;
+
 - не выполняйте destructive cleanup поверх retained artifacts без опоры на
   runbook;
+
 - если release/control issue стал security/compliance issue, переведите review в
   [Security / Compliance Reviewer](security-compliance-reviewer.md).
 
@@ -73,7 +75,9 @@ docker compose -f docker-compose.observability.yml up
 
 - `doctor` падает только на optional surface: фиксируйте это как environment gap,
   а не как общий bootstrap failure;
+
 - `ci-parity` слишком тяжелый для локального цикла: используйте `verify`, а
   parity оставьте на pre-PR closeout;
+
 - recovery instructions кажутся неполными: обновляйте runbook сразу, пока
   реальный контекст еще свежий.

@@ -126,6 +126,7 @@ class TestIntelligentRetry:
         class _FakeResp:
             status = 400
             headers = {}
+
             async def text(self):
                 nonlocal attempt_count
                 attempt_count += 1
@@ -133,16 +134,20 @@ class TestIntelligentRetry:
 
         class _FakeSession:
             closed = False
+
             def post(self, *a, **kw):
                 return _AsyncCtx(_FakeResp())
+
             async def close(self):
                 pass
 
         class _AsyncCtx:
             def __init__(self, resp):
                 self._resp = resp
+
             async def __aenter__(self):
                 return self._resp
+
             async def __aexit__(self, *args):
                 pass
 
@@ -172,6 +177,7 @@ class TestIntelligentRetry:
             def __init__(self, status):
                 self.status = status
                 self.headers = {}
+
             async def text(self):
                 nonlocal call_count
                 call_count += 1
@@ -181,17 +187,21 @@ class TestIntelligentRetry:
 
         class _FakeSession:
             closed = False
+
             def post(self, *a, **kw):
                 s = 429 if call_count == 0 else 200
                 return _AsyncCtx(_FakeResp(s))
+
             async def close(self):
                 pass
 
         class _AsyncCtx:
             def __init__(self, resp):
                 self._resp = resp
+
             async def __aenter__(self):
                 return self._resp
+
             async def __aexit__(self, *args):
                 pass
 

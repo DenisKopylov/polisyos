@@ -5,7 +5,7 @@
 set -euo pipefail
 
 usage() {
-  cat <<'EOF'
+  cat << 'EOF'
 Usage:
   bash tools/cloud/pipeline/run_remaining_stages.sh --snapshot-root PATH --dry-run
   bash tools/cloud/pipeline/run_remaining_stages.sh --snapshot-root PATH --yes
@@ -35,11 +35,11 @@ while [[ $# -gt 0 ]]; do
       TOPICS_DIR="${2:?--topics-dir requires a value}"
       shift 2
       ;;
-    --dry-run|--yes)
+    --dry-run | --yes)
       MODE_FLAG="$1"
       shift
       ;;
-    -h|--help)
+    -h | --help)
       usage
       exit 0
       ;;

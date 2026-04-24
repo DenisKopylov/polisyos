@@ -127,10 +127,13 @@ IR registry использует четыре режима:
 
 - additive optional fields обычно `BACKWARD`, если старый payload валиден у
   нового reader без silent defaults loss;
+
 - field removal и rename не считаются совместимыми сами по себе, им нужен
   explicit dual-read alias или migration;
+
 - canonical defaults должны быть записаны в compatibility rule, если reader
   проставляет или нормализует отсутствующее поле;
+
 - unknown canonical `_type` не является compatibility escape hatch и
   fail-closed по ADR-0104.
 

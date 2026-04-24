@@ -1,4 +1,5 @@
 """Tests for CachingArtifactStore."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock

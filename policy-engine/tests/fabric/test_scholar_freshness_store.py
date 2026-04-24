@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from polisyos.scholar.freshness_store import FreshnessStateStore
 
@@ -8,7 +8,7 @@ from polisyos.scholar.freshness_store import FreshnessStateStore
 def test_state_store_roundtrip(tmp_path) -> None:
     store = FreshnessStateStore(tmp_path / "cas")
     key = FreshnessStateStore.make_key("intent", "bundle")
-    now = datetime(2026, 2, 1, tzinfo=timezone.utc)
+    now = datetime(2026, 2, 1, tzinfo=UTC)
 
     store.record_check(key, now=now)
     first = store.load(key)

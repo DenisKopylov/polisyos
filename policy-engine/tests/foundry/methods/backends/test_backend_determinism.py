@@ -5,6 +5,7 @@ Verifies that JAX and NumPy backends produce numerically equivalent results
 for methods that support both backends, and that methods are deterministic
 with the same seed.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -15,7 +16,8 @@ import pytest
 # ---------------------------------------------------------------------------
 
 try:
-    import jax  # noqa: F401
+    import jax
+
     JAX_AVAILABLE = True
 except ImportError:
     JAX_AVAILABLE = False
@@ -37,6 +39,7 @@ def registered_registry(isolated_registry):
 
     ensure_all_methods_registered(isolated_registry)
     return isolated_registry
+
 
 @pytest.fixture(scope="module")
 def sample_panel_data():
@@ -66,13 +69,17 @@ def sample_regression_data():
 # Determinism: same backend, same seed → identical results
 # ---------------------------------------------------------------------------
 
+
 class TestSeedDeterminism:
     """Methods must be deterministic when given the same seed."""
 
-    @pytest.mark.parametrize("fqn", [
-        "distributional.inequality.theil@1.0.0",
-        "distributional.inequality.atkinson@1.0.0",
-    ])
+    @pytest.mark.parametrize(
+        "fqn",
+        [
+            "distributional.inequality.theil@1.0.0",
+            "distributional.inequality.atkinson@1.0.0",
+        ],
+    )
     def test_same_seed_same_output(self, fqn, registered_registry):
         """Running the same method twice with the same seed yields identical outputs."""
         method_cls = registered_registry.get(fqn)
@@ -89,8 +96,7 @@ class TestSeedDeterminism:
             v1, v2 = result1[key], result2[key]
             if isinstance(v1, np.ndarray) and np.issubdtype(v1.dtype, np.floating):
                 np.testing.assert_array_equal(
-                    v1, v2,
-                    err_msg=f"Non-determinism in {fqn} output key '{key}'"
+                    v1, v2, err_msg=f"Non-determinism in {fqn} output key '{key}'"
                 )
 
 
@@ -98,19 +104,19 @@ class TestSeedDeterminism:
 # Cross-backend numerical equivalence
 # ---------------------------------------------------------------------------
 
+
 def _get_method_pairs(registry) -> list[tuple[str, str]]:
     """Find method FQNs that exist in both JAX and NumPy variants."""
     pairs = []
     try:
         from polisyos.foundry.methods.base import ComputeBackend
+
         all_entries = list(registry.snapshot().values())
         jax_fqns = {
-            e.signature.fqn for e in all_entries
-            if e.signature.backend == ComputeBackend.JAX
+            e.signature.fqn for e in all_entries if e.signature.backend == ComputeBackend.JAX
         }
         numpy_fqns = {
-            e.signature.fqn for e in all_entries
-            if e.signature.backend == ComputeBackend.NUMPY
+            e.signature.fqn for e in all_entries if e.signature.backend == ComputeBackend.NUMPY
         }
         shared = jax_fqns & numpy_fqns
         pairs = [(fqn, fqn) for fqn in sorted(shared)[:5]]
@@ -166,6 +172,5 @@ class TestCrossBackendEquivalence:
             v2 = result2.output[key]
             if isinstance(v1, np.ndarray) and np.issubdtype(v1.dtype, np.floating):
                 np.testing.assert_allclose(
-                    v1, v2, rtol=1e-10,
-                    err_msg=f"Inconsistent results for {fqn} key '{key}'"
+                    v1, v2, rtol=1e-10, err_msg=f"Inconsistent results for {fqn} key '{key}'"
                 )

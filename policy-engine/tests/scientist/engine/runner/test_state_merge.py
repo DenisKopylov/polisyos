@@ -16,6 +16,7 @@ from polisyos.scientist.engine.state_merge import MergeConflictPolicy
 
 def _make_ref(name: str) -> ArtifactRef:
     import hashlib
+
     sha = "sha256:" + hashlib.sha256(name.encode()).hexdigest()
     return ArtifactRef(artifact_id=sha, kind="test", media_type="application/octet-stream")
 

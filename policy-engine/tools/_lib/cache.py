@@ -20,7 +20,9 @@ BASELINE_NAMESPACE = "_baselines"
 def stable_json_hash(payload: Any) -> str:
     """Return a deterministic SHA-256 hash for JSON-compatible metadata."""
 
-    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode(
+        "utf-8"
+    )
     return hashlib.sha256(encoded).hexdigest()
 
 
@@ -121,7 +123,16 @@ def git_changed_files(
 
     if include_untracked:
         untracked_result = subprocess.run(
-            ["git", "-C", str(repo_root), "ls-files", "--others", "--exclude-standard", "--", *path_args],
+            [
+                "git",
+                "-C",
+                str(repo_root),
+                "ls-files",
+                "--others",
+                "--exclude-standard",
+                "--",
+                *path_args,
+            ],
             check=False,
             capture_output=True,
             text=True,
@@ -156,8 +167,7 @@ def baseline_matches(
     if record is None:
         return False
     return (
-        str(record.get("fingerprint") or "") == fingerprint
-        and int(record.get("exit_code", 1)) == 0
+        str(record.get("fingerprint") or "") == fingerprint and int(record.get("exit_code", 1)) == 0
     )
 
 

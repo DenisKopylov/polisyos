@@ -15,6 +15,7 @@ deep-import baseline, workflow policy и README/runbook/ADR templates.
   `architecture/generated_artifacts.toml`,
   `architecture/deep_import_baseline.json`,
   `architecture/guardrail_exceptions.toml`.
+
 - Generated docs it owns:
   `docs/reference/public-surface.md`,
   `docs/reference/generated-artifacts.md`,
@@ -22,18 +23,19 @@ deep-import baseline, workflow policy и README/runbook/ADR templates.
 
 ## Public Entrypoints
 
-| Entrypoint | Purpose |
-| --- | --- |
-| `uv run polisyos-tools architecture guardrails sync` | Пересобрать inventories и generated architecture reference pages. |
-| `uv run polisyos-tools architecture guardrails check` | Проверить manifests, baselines, workflow/toolchain guardrails и README policy. |
-| `uv run polisyos-tools architecture scaffold package-readme ...` | Сгенерировать README scaffold по текущему template/policy. |
-| `uv run polisyos-tools architecture scaffold connector ...` | Делегировать connector scaffold в canonical tooling path. |
-| `uv run polisyos-tools architecture scaffold {governance-pass,runtime-route,benchmark,adr,runbook} ...` | Создать golden-path шаблоны для новых surfaces. |
+| Entrypoint                                                                                              | Purpose                                                                        |
+| ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `uv run polisyos-tools architecture guardrails sync`                                                    | Пересобрать inventories и generated architecture reference pages.              |
+| `uv run polisyos-tools architecture guardrails check`                                                   | Проверить manifests, baselines, workflow/toolchain guardrails и README policy. |
+| `uv run polisyos-tools architecture scaffold package-readme ...`                                        | Сгенерировать README scaffold по текущему template/policy.                     |
+| `uv run polisyos-tools architecture scaffold connector ...`                                             | Делегировать connector scaffold в canonical tooling path.                      |
+| `uv run polisyos-tools architecture scaffold {governance-pass,runtime-route,benchmark,adr,runbook} ...` | Создать golden-path шаблоны для новых surfaces.                                |
 
 ## Depends On / Depended On By
 
 - **Depends on:** `architecture/*.toml`, generated docs under `docs/reference/`,
   workflow files under `.github/workflows/`, package facades и README policy.
+
 - **Depended on by:** platform maintainers, docs/reference refresh, package
   owners, CI architecture checks и новый subsystem scaffolding.
 
@@ -42,19 +44,19 @@ deep-import baseline, workflow policy и README/runbook/ADR templates.
 Команды ниже smoke-tested на `2026-04-17`, если явно не помечены как
 `conceptual`.
 
-| Command | Purpose | Status |
-| --- | --- | --- |
-| `uv run polisyos-tools architecture scaffold package-readme --module polisyos.example --output src/polisyos/example/README.md --dry-run` | Проверить README scaffold без записи файлов. | `smoke-tested` |
-| `uv run polisyos-tools architecture scaffold connector --name MySource --type REST --dry-run` | Проверить connector scaffold через unified architecture surface. | `smoke-tested` |
-| `uv run polisyos-tools architecture guardrails check` | Прогнать full guardrail validation по manifests и generated docs. | `conceptual` (широкий repo-wide gate) |
-| `uv run polisyos-tools architecture guardrails sync --skip-deep-import-baseline` | Регенерировать inventories без переписи deep-import freeze. | `conceptual` (обновляет checked-in артефакты) |
+| Command                                                                                                                                  | Purpose                                                           | Status                                        |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------- |
+| `uv run polisyos-tools architecture scaffold package-readme --module polisyos.example --output src/polisyos/example/README.md --dry-run` | Проверить README scaffold без записи файлов.                      | `smoke-tested`                                |
+| `uv run polisyos-tools architecture scaffold connector --name MySource --type REST --dry-run`                                            | Проверить connector scaffold через unified architecture surface.  | `smoke-tested`                                |
+| `uv run polisyos-tools architecture guardrails check`                                                                                    | Прогнать full guardrail validation по manifests и generated docs. | `conceptual` (широкий repo-wide gate)         |
+| `uv run polisyos-tools architecture guardrails sync --skip-deep-import-baseline`                                                         | Регенерировать inventories без переписи deep-import freeze.       | `conceptual` (обновляет checked-in артефакты) |
 
 ## Test And Verification
 
-| Command | What it verifies | Status |
-| --- | --- | --- |
-| `uv run pytest -q tests/tools/test_architecture_phase3.py tests/runtime/http/test_architecture_boundaries.py` | Guardrails, scaffold policy и architecture-boundary invariants. | `conceptual` |
-| `uv run polisyos-tools validation check-docs-accuracy --repo-root .` | Generated architecture reference pages остаются publishable. | `smoke-tested` |
+| Command                                                                                                       | What it verifies                                                | Status         |
+| ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | -------------- |
+| `uv run pytest -q tests/tools/test_architecture_phase3.py tests/runtime/http/test_architecture_boundaries.py` | Guardrails, scaffold policy и architecture-boundary invariants. | `conceptual`   |
+| `uv run polisyos-tools validation check-docs-accuracy --repo-root .`                                          | Generated architecture reference pages остаются publishable.    | `smoke-tested` |
 
 ## Reference Docs
 
@@ -68,8 +70,11 @@ deep-import baseline, workflow policy и README/runbook/ADR templates.
 
 - `guardrails.py` — source of truth для public-surface inventory, deep-import
   baseline и README freshness policy.
+
 - `scaffold.py` — единый golden-path scaffold surface; новые README/runbook/ADR
   шаблоны должны идти через него, а не через ad hoc copy-paste.
+
 - Connector scaffold остаётся доступным и из architecture surface, и из
   `polisyos-tools connectors`.
+
 - Last updated: 2026-04-17

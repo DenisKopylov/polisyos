@@ -11,22 +11,75 @@ Usage::
         s_nodes=s_nodes, n_obs=500,
     )
 """
+
 from __future__ import annotations
 
 import dataclasses
 import hashlib
 import json
+import logging
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 from polisyos.foundry.methods.catalog._phase1_artifacts import (
     is_government_dataset,
     resolve_dataset_context,
 )
-from polisyos.ir.canon import CanonSpec
+from polisyos.foundry.methods.catalog.causal.admg_ops import (
+    ancestors,
+    do_operator,
+    has_directed_cycle,
+    induced_subgraph,
+)
+from polisyos.foundry.methods.catalog.causal.cyclic_id import (
+    cyclic_id_algorithm,
+    well_posedness_check,
+)
+from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
+    CyclicExecutionBlock,
+    ExecutorGraph,
+    ExecutorNode,
+    compile_estimand,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    CtfQuery,
+    IdentificationResult,
+    IdentificationStatus,
+    ProofStep,
+    conditional_intervention_id,
+    dynamic_intervention_id,
+    id_star_algorithm,
+    id_with_oracle_fallback,
+    idc_algorithm,
+    idc_star_algorithm,
+    multi_outcome_id,
+    mz_id_algorithm,
+    # Phase-5 additions
+    sid_algorithm,
+    tr_algorithm,
+    z_id_algorithm,
+)
+from polisyos.foundry.methods.catalog.causal.local_independence_id import (
+    build_temporal_identification_certificate,
+    li_id_algorithm,
+)
+from polisyos.foundry.methods.catalog.causal.proof_trace_composability import (
+    build_witness_index_from_proof_steps,
+    check_proof_trace_composability,
+)
+from polisyos.foundry.methods.catalog.causal.proximal_identify import (
+    proximal_identify_v1,
+    proximal_spatial_identify_v1,
+)
+from polisyos.foundry.methods.catalog.causal.schema_resolver import (
+    SchemaResolutionReport,
+    SchemaResolver,
+)
 from polisyos.ir.analytics.causal import (
     DataReadinessReport,
     EstimationStatus,
@@ -35,13 +88,13 @@ from polisyos.ir.analytics.causal import (
     build_dynamic_proof_bundle,
     persist_data_readiness_report,
     persist_proof_bundle,
-    proof_bundle_from_negative_certificate,
     proof_bundle_from_identification_result,
+    proof_bundle_from_negative_certificate,
     proof_bundle_from_proximal_certificate,
 )
-from polisyos.ir.analytics.survey_quality import load_survey_quality_certificate
-from polisyos.ir.analytics.dual_certificate import hydrate_bounds_bundle_with_dual_certificate
 from polisyos.ir.analytics.causal_graph import CausalGraphModel, EdgeMark, GraphType
+from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
+from polisyos.ir.analytics.dual_certificate import hydrate_bounds_bundle_with_dual_certificate
 from polisyos.ir.analytics.dynamic_causal_semantics import (
     DynamicReductionStatus,
     DynamicScopeStatement,
@@ -56,9 +109,23 @@ from polisyos.ir.analytics.dynamic_causal_semantics import (
     WellPosednessStatus,
     WellPosednessWitness,
 )
-from polisyos.ir.analytics.frontier import (
-    FrontierSketch,
-    persist_frontier_sketch,
+from polisyos.ir.analytics.dynamic_regime import (
+    ContinuousTimeQuery,
+    DynamicTreatmentRegime,
+    EffectTrajectoryBundle,
+    InterventionInterpolationPolicy,
+    StrategicAdaptationMode,
+    TemporalIdentificationCertificate,
+    TemporalIdentificationTheoremFamily,
+    TemporalInterventionTrajectory,
+    TemporalQueryMode,
+    TemporalSamplingScheme,
+    load_temporal_intervention_trajectory,
+    persist_continuous_time_query,
+    persist_dynamic_treatment_regime,
+    persist_effect_trajectory_bundle,
+    persist_temporal_identification_certificate,
+    persist_temporal_intervention_trajectory,
 )
 from polisyos.ir.analytics.estimand import (
     DistributionLawQuery,
@@ -72,6 +139,21 @@ from polisyos.ir.analytics.estimand import (
     StochasticPolicy,
     make_distribution_law_estimand,
 )
+from polisyos.ir.analytics.evidence_bundle import (
+    CompilationStep,
+    DataProvenance,
+    EstimationStep,
+    EvidenceBundle,
+    _fingerprint,
+    persist_causal_evidence_bundle,
+)
+from polisyos.ir.analytics.evidence_bundle import (
+    ProofStep as IRProofStep,
+)
+from polisyos.ir.analytics.frontier import (
+    FrontierSketch,
+    persist_frontier_sketch,
+)
 from polisyos.ir.analytics.interventions import (
     CompositeIntervention,
     ConditionalIntervention,
@@ -83,8 +165,8 @@ from polisyos.ir.analytics.interventions import (
     InterventionFallbackMode,
     InterventionIdentificationStatus,
     InterventionQuery,
-    MTPIntervention,
     ModifiedTreatmentPolicySpec,
+    MTPIntervention,
     NodeIntervention,
     PathIntervention,
     QueryTarget,
@@ -116,33 +198,6 @@ from polisyos.ir.analytics.local_independence import (
     TreatmentIntensityInterventionSpec,
     persist_local_independence_weighting_certificate,
 )
-from polisyos.ir.analytics.proximal import (
-    BridgePlausibilityReport,
-    ProximalIdentificationCertificate,
-    ProxyAnnotation,
-    persist_bridge_plausibility_report,
-    persist_proximal_identification_certificate,
-)
-from polisyos.ir.governance.phase1 import (
-    build_phase1_gate_summary,
-    load_phase1_flagship_dataset_ids,
-)
-from polisyos.ir.refs import SurveyQualityCertificateRef
-from polisyos.ir.analytics.recoverability import (
-    JointDecisionCertificate,
-    RecoverabilityCertificate,
-    persist_joint_decision_certificate,
-    persist_recoverability_certificate,
-)
-from polisyos.ir.analytics.evidence_bundle import (
-    CompilationStep,
-    DataProvenance,
-    EstimationStep,
-    EvidenceBundle,
-    ProofStep as IRProofStep,
-    _fingerprint,
-    persist_causal_evidence_bundle,
-)
 from polisyos.ir.analytics.negative_certificate import (
     BlockingType,
     EpistemicTier,
@@ -162,87 +217,39 @@ from polisyos.ir.analytics.proof_composability import (
     persist_proof_composability_certificate,
     persist_proof_witness_index,
 )
-from polisyos.ir.analytics.dynamic_regime import (
-    ContinuousTimeQuery,
-    DynamicTreatmentRegime,
-    EffectTrajectoryBundle,
-    InterventionInterpolationPolicy,
-    StrategicAdaptationMode,
-    TemporalIdentificationCertificate,
-    TemporalIdentificationTheoremFamily,
-    TemporalInterventionTrajectory,
-    TemporalQueryMode,
-    TemporalSamplingScheme,
-    load_temporal_intervention_trajectory,
-    persist_continuous_time_query,
-    persist_dynamic_treatment_regime,
-    persist_effect_trajectory_bundle,
-    persist_temporal_identification_certificate,
-    persist_temporal_intervention_trajectory,
+from polisyos.ir.analytics.proximal import (
+    BridgePlausibilityReport,
+    ProximalIdentificationCertificate,
+    ProxyAnnotation,
+    persist_bridge_plausibility_report,
+    persist_proximal_identification_certificate,
 )
+from polisyos.ir.analytics.recoverability import (
+    JointDecisionCertificate,
+    RecoverabilityCertificate,
+    persist_joint_decision_certificate,
+    persist_recoverability_certificate,
+)
+from polisyos.ir.analytics.survey_quality import load_survey_quality_certificate
 from polisyos.ir.artifacts import ArtifactStore, InputRef, put_json_artifact
+from polisyos.ir.canon import CanonSpec
+from polisyos.ir.governance.phase1 import (
+    build_phase1_gate_summary,
+    load_phase1_flagship_dataset_ids,
+)
 from polisyos.ir.refs import (
     ArtifactRefModel,
     DynamicTreatmentRegimeRef,
+    SurveyQualityCertificateRef,
     TemporalIdentificationCertificateRef,
     TemporalInterventionTrajectoryRef,
 )
-from polisyos.foundry.methods.catalog.causal.id_engine import (
-    CtfQuery,
-    IdentificationResult,
-    IdentificationStatus,
-    ProofStep,
-    id_algorithm,
-    id_star_algorithm,
-    idc_star_algorithm,
-    idc_algorithm,
-    id_with_oracle_fallback,
-    z_id_algorithm,
-    mz_id_algorithm,
-    tr_algorithm,
-    # Phase-5 additions
-    sid_algorithm,
-    conditional_intervention_id,
-    dynamic_intervention_id,
-    joint_id_algorithm,
-    multi_outcome_id,
-)
-from polisyos.foundry.methods.catalog.causal.local_independence_id import (
-    build_temporal_identification_certificate,
-    li_id_algorithm,
-)
-from polisyos.foundry.methods.catalog.causal.proof_trace_composability import (
-    build_witness_index_from_proof_steps,
-    check_proof_trace_composability,
-)
-from polisyos.foundry.methods.catalog.causal.proximal_identify import (
-    proximal_identify_v1,
-    proximal_spatial_identify_v1,
-)
-from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
-from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
-    compile_estimand,
-    CyclicExecutionBlock,
-    ExecutorGraph,
-    ExecutorNode,
-)
-from polisyos.foundry.methods.catalog.causal.admg_ops import (
-    ancestors,
-    do_operator,
-    has_directed_cycle,
-    induced_subgraph,
-)
-from polisyos.foundry.methods.catalog.causal.cyclic_id import (
-    cyclic_id_algorithm,
-    well_posedness_check,
-)
-from polisyos.foundry.methods.catalog.causal.schema_resolver import (
-    SchemaResolver,
-    SchemaResolutionReport,
-)
 
 if TYPE_CHECKING:
+    from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
+    from polisyos.ir.analytics.dynamic_regime import GComputationResult
     from polisyos.ir.analytics.mgraph import MGraphMetadata
+    from polisyos.ir.analytics.proximal import ProximalMediationCertificate
     from polisyos.ir.analytics.recoverability import JointDecisionCertificate
 
 
@@ -695,9 +702,7 @@ class CausalEngine:
             intervention_scope=intervention_scope,
             scope_statement=self._dynamic_scope_statement(
                 covered_families=("query_relevant_acyclic_reduction",),
-                notes=(
-                    "Validated only when the mutilated ancestral subgraph is acyclic.",
-                ),
+                notes=("Validated only when the mutilated ancestral subgraph is acyclic.",),
             ),
         )
 
@@ -823,8 +828,7 @@ class CausalEngine:
                 "the intervention response is not machine-checkably well defined."
             ),
             technical_detail=str(
-                witness.warning
-                or f"{witness.family}:{witness.method}:{witness.status.value}"
+                witness.warning or f"{witness.family}:{witness.method}:{witness.status.value}"
             ),
             suggested_experiments=NegativeCertificate.auto_suggest_experiments(
                 BlockingType.SEMANTICS_NOT_WELL_DEFINED,
@@ -880,7 +884,9 @@ class CausalEngine:
             )
 
         if counterfactual_query is not None:
-            has_ctf_transport_context = bool(s_nodes) or bool(source_domains) or bool(z_interventions)
+            has_ctf_transport_context = (
+                bool(s_nodes) or bool(source_domains) or bool(z_interventions)
+            )
             if has_ctf_transport_context:
                 from polisyos.foundry.methods.catalog.causal.ctf_transport import (
                     build_ctf_selection_diagram,
@@ -1079,7 +1085,9 @@ class CausalEngine:
                         result,
                         metadata={
                             **dict(getattr(result, "metadata", {}) or {}),
-                            "recoverability_certificate": joint.recoverability.model_dump(mode="json"),
+                            "recoverability_certificate": joint.recoverability.model_dump(
+                                mode="json"
+                            ),
                             "joint_decision": joint.model_dump(mode="json"),
                             "computable_functionals": list(joint.computable_functionals),
                         },
@@ -1118,9 +1126,8 @@ class CausalEngine:
                 return dataclasses.replace(
                     result,
                     proof_steps=list(result.proof_steps) + recovery_steps,
-                    trace=list(result.trace) + [
-                        "identify: joint recoverability direct-query path passed"
-                    ],
+                    trace=list(result.trace)
+                    + ["identify: joint recoverability direct-query path passed"],
                     metadata={
                         **dict(getattr(result, "metadata", {}) or {}),
                         "recoverability_certificate": joint.recoverability.model_dump(mode="json"),
@@ -1160,9 +1167,7 @@ class CausalEngine:
         if s_nodes and z_interventions:
             from polisyos.foundry.methods.catalog.causal.id_engine import SourceDomain
 
-            s_var_names = frozenset(
-                getattr(sn, "target_variable", str(sn)) for sn in s_nodes
-            )
+            s_var_names = frozenset(getattr(sn, "target_variable", str(sn)) for sn in s_nodes)
             domain = SourceDomain(
                 domain_id="combined",
                 s_nodes=s_var_names,
@@ -1341,9 +1346,7 @@ class CausalEngine:
                 }
             )
 
-        blocked_reason = (
-            "Dynamic query requires a theorem-backed cyclic reduction before the proof kernel can proceed."
-        )
+        blocked_reason = "Dynamic query requires a theorem-backed cyclic reduction before the proof kernel can proceed."
         blocked_attachment = self._build_blocked_cyclic_attachment(
             graph=graph,
             treatment=treatment,
@@ -1354,7 +1357,9 @@ class CausalEngine:
             transformation_trace=(
                 "well_posedness_gate",
                 "dynamic_context_check",
-                "reduction_failed" if has_directed_cycle(reduced_graph) else "unsupported_dynamic_query",
+                "reduction_failed"
+                if has_directed_cycle(reduced_graph)
+                else "unsupported_dynamic_query",
             ),
         )
         if witness.status is not WellPosednessStatus.PROVED:
@@ -1463,10 +1468,10 @@ class CausalEngine:
         eliminability_checked = bool(
             metadata.get("eliminability_verified", bool(eliminable_processes))
         )
-        independent_censoring_checked = bool(
-            metadata.get("independent_censoring_verified", False)
-        )
-        if not independent_censoring_checked and metadata.get("identification_via_reweighting", False):
+        independent_censoring_checked = bool(metadata.get("independent_censoring_verified", False))
+        if not independent_censoring_checked and metadata.get(
+            "identification_via_reweighting", False
+        ):
             independent_censoring_checked = True
         weighting_components = tuple(
             str(item)
@@ -1492,9 +1497,7 @@ class CausalEngine:
                 x_set=intervention_targets,
                 y_set=(query.outcome_process,),
                 z_set=tuple(
-                    str(item)
-                    for item in metadata.get("conditioning_processes", ())
-                    if str(item)
+                    str(item) for item in metadata.get("conditioning_processes", ()) if str(item)
                 ),
                 holds=validated,
                 criterion=oracle_kind,
@@ -1525,9 +1528,7 @@ class CausalEngine:
                 ),
                 eliminable_processes=eliminable_processes,
                 process_family=process_family,
-                policy_semantics=str(
-                    metadata.get("policy_semantics") or "intensity_replacement"
-                ),
+                policy_semantics=str(metadata.get("policy_semantics") or "intensity_replacement"),
                 censoring_mode=str(
                     metadata.get("censoring_semantics")
                     or metadata.get("censoring_mode")
@@ -1544,9 +1545,7 @@ class CausalEngine:
                 ),
             ),
             scope_statement=self._dynamic_scope_statement(
-                covered_families=(
-                    ("causally_valid_local_independence",) if validated else ()
-                ),
+                covered_families=(("causally_valid_local_independence",) if validated else ()),
                 notes=(
                     "Continuous-time proofs require causal-validity and eliminability metadata; otherwise the proof kernel stays oracle-needed.",
                 ),
@@ -1606,9 +1605,7 @@ class CausalEngine:
                     step=int(item.get("step", index)),
                     removed=removed,
                     justification_kind=str(
-                        item.get("justification_kind")
-                        or item.get("kind")
-                        or "delta_separation"
+                        item.get("justification_kind") or item.get("kind") or "delta_separation"
                     ),
                     witness=(
                         str(item.get("witness")).strip()
@@ -1630,16 +1627,16 @@ class CausalEngine:
         metadata = dict(query.metadata or {})
         continuous = attachment.continuous_time_attachment
         markov_certificate = attachment.markov_criterion_certificate
-        oracle = (
-            continuous.graphical_oracle
-            if continuous is not None
-            else GraphicalOracleKind.MU
+        oracle = continuous.graphical_oracle if continuous is not None else GraphicalOracleKind.MU
+        process_family = (
+            str(
+                metadata.get("process_family")
+                or (continuous.process_family if continuous is not None else "counting_process")
+                or "counting_process"
+            )
+            .strip()
+            .lower()
         )
-        process_family = str(
-            metadata.get("process_family")
-            or (continuous.process_family if continuous is not None else "counting_process")
-            or "counting_process"
-        ).strip().lower()
         if process_family not in {"counting_process", "marked_point_process", "event_log"}:
             process_family = "counting_process"
         theorem_family = str(
@@ -1669,7 +1666,9 @@ class CausalEngine:
             metadata.get("elimination_sequence")
         )
         eliminability_checked = bool(
-            metadata.get("eliminability_verified", bool(eliminable_processes or elimination_sequence))
+            metadata.get(
+                "eliminability_verified", bool(eliminable_processes or elimination_sequence)
+            )
         )
         independent_censoring_checked = bool(
             metadata.get("independent_censoring_verified", proof_status == "identified")
@@ -1706,9 +1705,7 @@ class CausalEngine:
             proof_trace.append("LI_RESEARCH_BOUNDARY")
         if markov_certificate is not None:
             proof_trace.extend(
-                item
-                for item in markov_certificate.transformation_trace
-                if item not in proof_trace
+                item for item in markov_certificate.transformation_trace if item not in proof_trace
             )
 
         certificate = LocalIndependenceWeightingCertificate(
@@ -1726,7 +1723,9 @@ class CausalEngine:
                 time_scale=query.time_scale,
                 contrast_policy=str(metadata.get("contrast_policy") or "pi"),
                 contrast_baseline=str(
-                    metadata.get("contrast_baseline") or metadata.get("baseline_policy") or "natural_or_pi0"
+                    metadata.get("contrast_baseline")
+                    or metadata.get("baseline_policy")
+                    or "natural_or_pi0"
                 ),
             ),
             graph=LocalIndependenceGraphSpec(
@@ -1745,9 +1744,7 @@ class CausalEngine:
                     metadata.get("lig_graph_ref") or metadata.get("graph_ref") or ""
                 ).strip()
                 or None,
-                latent_projection_ref=str(
-                    metadata.get("latent_projection_ref") or ""
-                ).strip()
+                latent_projection_ref=str(metadata.get("latent_projection_ref") or "").strip()
                 or None,
                 nodes=self._continuous_time_string_tuple(metadata.get("graph_nodes")),
                 edges=self._continuous_time_graph_edges(metadata.get("graph_edges")),
@@ -1757,13 +1754,10 @@ class CausalEngine:
             treatment_intervention=TreatmentIntensityInterventionSpec(
                 node=treatment_node,
                 predictable_wrt=self._continuous_time_string_tuple(
-                    metadata.get("conditioning_processes")
-                    or metadata.get("predictable_wrt")
+                    metadata.get("conditioning_processes") or metadata.get("predictable_wrt")
                 ),
                 lambda_pi_ref=str(metadata.get("lambda_pi_ref") or "").strip() or None,
-                absolute_continuity_assumed=bool(
-                    metadata.get("absolute_continuity_assumed", True)
-                ),
+                absolute_continuity_assumed=bool(metadata.get("absolute_continuity_assumed", True)),
                 bound_note=str(metadata.get("bound_note") or "").strip() or None,
             ),
             censoring_intervention=CensoringInterventionSpec(
@@ -1779,8 +1773,7 @@ class CausalEngine:
             identification=LocalIndependenceIdentificationSpec(
                 theorem_reference=theorem_reference,
                 weight_components=self._continuous_time_string_tuple(
-                    metadata.get("weight_components")
-                    or ("W_treatment", "W_censoring")
+                    metadata.get("weight_components") or ("W_treatment", "W_censoring")
                 ),
                 formula_hint=str(metadata.get("formula_hint") or "").strip() or None,
                 marginalize_over=self._continuous_time_string_tuple(
@@ -1794,7 +1787,11 @@ class CausalEngine:
                     checked=independent_censoring_checked,
                     criterion=str(
                         metadata.get("independent_censoring_criterion")
-                        or ("mu_separation" if oracle is GraphicalOracleKind.MU else "delta_separation")
+                        or (
+                            "mu_separation"
+                            if oracle is GraphicalOracleKind.MU
+                            else "delta_separation"
+                        )
                     ),
                     statement=str(
                         metadata.get("independent_censoring_statement")
@@ -1855,7 +1852,9 @@ class CausalEngine:
 
     @staticmethod
     def _normalize_temporal_identification_certificate(
-        identification_certificate: TemporalIdentificationCertificate | dict[str, Any] | None = None,
+        identification_certificate: TemporalIdentificationCertificate
+        | dict[str, Any]
+        | None = None,
         *,
         query: ContinuousTimeQuery | None = None,
     ) -> TemporalIdentificationCertificate | None:
@@ -1932,9 +1931,7 @@ class CausalEngine:
         notes = dict(certificate.notes or {})
         return {
             "theorem_family": certificate.theorem_family.value,
-            "identified_functionals": [
-                item.value for item in certificate.identified_functionals
-            ],
+            "identified_functionals": [item.value for item in certificate.identified_functionals],
             "intervention_semantics": certificate.intervention_semantics.value,
             "observability_regime": certificate.observability_regime.value,
             "law_object": certificate.law_object.value,
@@ -1955,9 +1952,7 @@ class CausalEngine:
                 query,
                 certificate,
             ),
-            "tree_like_invariant_estimand": bool(
-                notes.get("tree_like_invariant_estimand", False)
-            ),
+            "tree_like_invariant_estimand": bool(notes.get("tree_like_invariant_estimand", False)),
         }
 
     @classmethod
@@ -1968,8 +1963,7 @@ class CausalEngine:
     ) -> DynamicSemanticsAttachment:
         metadata = dict(query.metadata or {})
         intervention_targets = cls._continuous_time_string_tuple(
-            metadata.get("intervention_targets")
-            or metadata.get("observed_intervention_channel")
+            metadata.get("intervention_targets") or metadata.get("observed_intervention_channel")
         )
         supported = cls._temporal_identification_scope_is_supported(query, certificate)
         notes = [
@@ -1978,7 +1972,10 @@ class CausalEngine:
             f"observability_regime={certificate.observability_regime.value}",
             f"law_object={certificate.law_object.value}",
         ]
-        if certificate.theorem_family is TemporalIdentificationTheoremFamily.NCDE_FIXED_OBSERVED_CHANNEL_V1:
+        if (
+            certificate.theorem_family
+            is TemporalIdentificationTheoremFamily.NCDE_FIXED_OBSERVED_CHANNEL_V1
+        ):
             notes.append(
                 "Canonical control representative is required for neural CDE identification."
             )
@@ -2018,9 +2015,7 @@ class CausalEngine:
                 },
             ),
             scope_statement=DynamicScopeStatement(
-                covered_families=(
-                    (certificate.theorem_family.value,) if supported else ()
-                ),
+                covered_families=((certificate.theorem_family.value,) if supported else ()),
                 excluded_families=(
                     ()
                     if supported
@@ -2034,7 +2029,9 @@ class CausalEngine:
         self,
         query: ContinuousTimeQuery,
         *,
-        identification_certificate: TemporalIdentificationCertificate | dict[str, Any] | None = None,
+        identification_certificate: TemporalIdentificationCertificate
+        | dict[str, Any]
+        | None = None,
         query_ref: str | None = None,
     ) -> ProofBundle:
         temporal_certificate = self._normalize_temporal_identification_certificate(
@@ -2062,9 +2059,7 @@ class CausalEngine:
                     query.metadata.get("preferred_backend", "linear_sde")
                 ).strip(),
                 "outcome_process": query.outcome_process,
-                "temporal_identification_certificate": temporal_certificate.model_dump(
-                    mode="json"
-                ),
+                "temporal_identification_certificate": temporal_certificate.model_dump(mode="json"),
                 "identification_scope": scope_snapshot,
             }
             temporal_certificate_ref = None
@@ -2138,9 +2133,7 @@ class CausalEngine:
             ],
         }
         if certificate_ref is not None:
-            metadata["local_independence_certificate_ref"] = self._serialize_ref(
-                certificate_ref
-            )
+            metadata["local_independence_certificate_ref"] = self._serialize_ref(certificate_ref)
         temporal_certificate_ref = None
         if proof_status == "identified":
             temporal_certificate = build_temporal_identification_certificate(certificate)
@@ -2204,7 +2197,9 @@ class CausalEngine:
         if isinstance(intervention, EdgeIntervention):
             return frozenset(item.source for item in intervention.assignments)
         if isinstance(intervention, PathIntervention):
-            heads = [path[0] for path in (*intervention.active_paths, *intervention.frozen_paths) if path]
+            heads = [
+                path[0] for path in (*intervention.active_paths, *intervention.frozen_paths) if path
+            ]
             return frozenset(heads)
         if isinstance(intervention, TransportIntervention):
             if intervention.base_intervention is None:
@@ -2451,7 +2446,8 @@ class CausalEngine:
         ]
         return NegativeCertificate(
             blocking_type=BlockingType.INTERVENTION_TYPECHECK,
-            blocking_description=certificate.fallback.fallback_explanation or "ill-typed intervention composition",
+            blocking_description=certificate.fallback.fallback_explanation
+            or "ill-typed intervention composition",
             technical_detail=render_intervention_query(query),
             quantitative_diagnostics={
                 **certificate.proofbundle_metadata,
@@ -2788,8 +2784,7 @@ class CausalEngine:
             query=query,
             algorithm_version="sigma_transport_v1",
             trace_message=(
-                "soft transport currently supports atomic node or stochastic "
-                "base interventions"
+                "soft transport currently supports atomic node or stochastic base interventions"
             ),
         )
 
@@ -2848,9 +2843,7 @@ class CausalEngine:
                 blocking_description=certificate.blocking_description,
                 algorithm_version=PROXIMAL_MEDIATION_V1_THEOREM,
                 constructive_message=certificate.constructive_message,
-                proof_trace=list(
-                    certificate.quantitative_diagnostics.get("proof_trace", ()) or ()
-                ),
+                proof_trace=list(certificate.quantitative_diagnostics.get("proof_trace", ()) or ()),
                 negative_payload={
                     "blocking_type": certificate.blocking_type.value,
                     "blocking_description": certificate.blocking_description,
@@ -2953,7 +2946,15 @@ class CausalEngine:
                         "Recorded completeness and cross-world assumptions as explicit "
                         "oracle-level obligations and resolved the governance gate for execution."
                     ),
-                    variables_affected=tuple(sorted({mediator, *certificate.variable_roles.get("Z", ()), *certificate.variable_roles.get("W", ())})),
+                    variables_affected=tuple(
+                        sorted(
+                            {
+                                mediator,
+                                *certificate.variable_roles.get("Z", ()),
+                                *certificate.variable_roles.get("W", ()),
+                            }
+                        )
+                    ),
                     graph_subset=graph.graph_type.value,
                     rule_formal_name="Oracle gate",
                     applicable_theorem=PROXIMAL_MEDIATION_V1_THEOREM,
@@ -3035,7 +3036,9 @@ class CausalEngine:
         diagnostics = {
             "path_specific_mode": report.mode.value,
             "path_policy_hash": (
-                compilation.path_policy_hash if compilation is not None else report.metadata.get("path_policy_hash")
+                compilation.path_policy_hash
+                if compilation is not None
+                else report.metadata.get("path_policy_hash")
             ),
             "district_partition": (
                 [list(item) for item in compilation.district_partition]
@@ -3052,11 +3055,7 @@ class CausalEngine:
             ),
             "witnesses": [item.model_dump(mode="json") for item in report.witnesses],
             "witness_variables": sorted(
-                {
-                    variable
-                    for witness in report.witnesses
-                    for variable in witness.variables
-                }
+                {variable for witness in report.witnesses for variable in witness.variables}
             ),
         }
         if compilation is not None and compilation.compiled_estimand_ast is not None:
@@ -3074,7 +3073,11 @@ class CausalEngine:
                         *(
                             compilation.relevant_nodes
                             if compilation is not None
-                            else [node for path in intervention.active_paths + intervention.frozen_paths for node in path]
+                            else [
+                                node
+                                for path in intervention.active_paths + intervention.frozen_paths
+                                for node in path
+                            ]
                         ),
                     }
                 )
@@ -3107,7 +3110,9 @@ class CausalEngine:
                             "Constructed a path-specific effect query from the declared "
                             "active and frozen paths."
                         ),
-                        variables_affected=tuple(sorted({treatment_name, outcome_name, *mediators})),
+                        variables_affected=tuple(
+                            sorted({treatment_name, outcome_name, *mediators})
+                        ),
                         graph_subset=graph.graph_type.value,
                         rule_formal_name="Path-specific effect construction",
                         applicable_theorem="Avin, Shpitser & Pearl (2005), IJCAI",
@@ -3120,7 +3125,9 @@ class CausalEngine:
                             "Compiled the path policy into a district-local symbolic plan "
                             "with explicit frontier labels."
                         ),
-                        variables_affected=tuple(sorted(compilation.relevant_nodes if compilation is not None else ())),
+                        variables_affected=tuple(
+                            sorted(compilation.relevant_nodes if compilation is not None else ())
+                        ),
                         graph_subset=graph.graph_type.value,
                         rule_formal_name="District-local path compilation",
                         applicable_theorem=report.theorem_family,
@@ -3138,9 +3145,7 @@ class CausalEngine:
             )
             return self._decorate_identification_result_with_intervention_query(result, query)
 
-        witness_kinds = {
-            item.kind for item in report.witnesses
-        }
+        witness_kinds = {item.kind for item in report.witnesses}
         if report.mode is PathSpecificDecisionMode.EXACT_WITH_EXPERIMENTS:
             all_variables = tuple(
                 sorted(
@@ -3187,7 +3192,9 @@ class CausalEngine:
                             "Constructed a path-specific effect query from the declared "
                             "active and frozen paths."
                         ),
-                        variables_affected=tuple(sorted({treatment_name, outcome_name, *mediators})),
+                        variables_affected=tuple(
+                            sorted({treatment_name, outcome_name, *mediators})
+                        ),
                         graph_subset=graph.graph_type.value,
                         rule_formal_name="Path-specific effect construction",
                         applicable_theorem="Avin, Shpitser & Pearl (2005), IJCAI",
@@ -3201,7 +3208,9 @@ class CausalEngine:
                             "district-local formula that can be discharged once the "
                             "required surrogate distributions are bound."
                         ),
-                        variables_affected=tuple(sorted(compilation.relevant_nodes if compilation is not None else ())),
+                        variables_affected=tuple(
+                            sorted(compilation.relevant_nodes if compilation is not None else ())
+                        ),
                         graph_subset=graph.graph_type.value,
                         rule_formal_name="Surrogate-experiment path compilation",
                         applicable_theorem=report.theorem_family,
@@ -3243,9 +3252,7 @@ class CausalEngine:
                 "Conditional path-specific queries are not yet certified in the native backend."
             )
         elif PathSpecificWitnessKind.EDGE_INCONSISTENCY in witness_kinds:
-            blocking_description = (
-                "The path-specific policy is edge-inconsistent: at least one edge is both active and frozen."
-            )
+            blocking_description = "The path-specific policy is edge-inconsistent: at least one edge is both active and frozen."
         elif PathSpecificWitnessKind.TOTAL_EFFECT_NOT_IDENTIFIED in witness_kinds:
             blocking_description = (
                 "The corresponding total/interventional effect is not observationally identified."
@@ -3264,7 +3271,8 @@ class CausalEngine:
             blocking_type=BlockingType.SEMANTICS_NOT_WELL_DEFINED,
             blocking_description=blocking_description,
             algorithm_version="path_intervention_v1",
-            constructive_message=report.constructive_message or (
+            constructive_message=report.constructive_message
+            or (
                 "Collect interventional data on the mediator-specific channels or "
                 "restate the query as an edge/node intervention that avoids natural "
                 "value cross-world semantics."
@@ -3420,7 +3428,9 @@ class CausalEngine:
             )
             return self._decorate_identification_result_with_intervention_query(result, query)
 
-        base_status = str(interference_result.base_identification_status or interference_result.status)
+        base_status = str(
+            interference_result.base_identification_status or interference_result.status
+        )
         blocking_type = (
             BlockingType.HEDGE_STRUCTURE
             if base_status == IdentificationStatus.HEDGE_FOUND.value
@@ -3707,8 +3717,14 @@ class CausalEngine:
                             variables_affected=tuple(
                                 sorted(
                                     {
-                                        *(item.source for item in effective_intervention.assignments),
-                                        *(item.target for item in effective_intervention.assignments),
+                                        *(
+                                            item.source
+                                            for item in effective_intervention.assignments
+                                        ),
+                                        *(
+                                            item.target
+                                            for item in effective_intervention.assignments
+                                        ),
                                     }
                                 )
                             ),
@@ -3990,9 +4006,9 @@ class CausalEngine:
                     "identification_status": result.status.value,
                     "algorithm_version": str(getattr(result, "algorithm_version", "") or ""),
                     "proof_trace": list(result.trace or []),
-                    "recoverability": dict(
-                        getattr(result, "metadata", {}) or {}
-                    ).get("recoverability_certificate"),
+                    "recoverability": dict(getattr(result, "metadata", {}) or {}).get(
+                        "recoverability_certificate"
+                    ),
                 },
                 constructive_message=(
                     "Inspect blocking_r_nodes in the proof trace. "
@@ -4015,12 +4031,8 @@ class CausalEngine:
             return self._hedge_to_negative_cert(result)
 
         # Convert mz-ID ORACLE_NEEDED + S-nodes to NegativeCertificate
-        if (
-            result.status == IdentificationStatus.ORACLE_NEEDED
-            and (
-                (source_domains and len(source_domains) > 1)
-                or (s_nodes and z_int)
-            )
+        if result.status == IdentificationStatus.ORACLE_NEEDED and (
+            (source_domains and len(source_domains) > 1) or (s_nodes and z_int)
         ):
             return self._mz_id_failure_to_negative_cert(
                 result=result,
@@ -4083,8 +4095,8 @@ class CausalEngine:
     ) -> IdentificationResult:
         """Run tr_algorithm via a SelectionDiagram built from s_nodes."""
         try:
-            from polisyos.ir.analytics.transportability import SelectionDiagram, SNode
             from polisyos.ir.analytics.context import ContextProfile
+            from polisyos.ir.analytics.transportability import SelectionDiagram, SNode
 
             # Build minimal SelectionDiagram
             if s_nodes and isinstance(s_nodes[0], SNode):
@@ -4246,7 +4258,9 @@ class CausalEngine:
             suggested_experiments=(
                 suggested
                 if blocking_type is BlockingType.HEDGE_STRUCTURE
-                else NegativeCertificate.auto_suggest_experiments(blocking_type, missing_vars=missing_vars)
+                else NegativeCertificate.auto_suggest_experiments(
+                    blocking_type, missing_vars=missing_vars
+                )
             ),
             quantitative_diagnostics=quant_diagnostics,
             constructive_message=constructive_message,
@@ -4273,9 +4287,7 @@ class CausalEngine:
         # Collect unresolved S-node variable names
         unresolved_s_vars: frozenset[str] = frozenset()
         if s_nodes:
-            unresolved_s_vars = frozenset(
-                getattr(sn, "target_variable", str(sn)) for sn in s_nodes
-            )
+            unresolved_s_vars = frozenset(getattr(sn, "target_variable", str(sn)) for sn in s_nodes)
         elif source_domains:
             # Collect all S-node variables from all source domains
             all_s: set[str] = set()
@@ -4290,9 +4302,7 @@ class CausalEngine:
         if hedge_cert is not None:
             minimal = getattr(hedge_cert, "minimal_required_s_nodes", frozenset())
             if minimal:
-                missing_domains = [
-                    f"domain_with_experiment_on_{v}" for v in sorted(minimal)
-                ]
+                missing_domains = [f"domain_with_experiment_on_{v}" for v in sorted(minimal)]
 
         return NegativeCertificate.from_mz_id_failure(
             treatment=tx,
@@ -4366,10 +4376,7 @@ class CausalEngine:
             proof_bundle = proof_bundle_from_negative_certificate(
                 completed,
                 query_ref=(
-                    str(
-                        completed.quantitative_diagnostics.get("intervention_query_string")
-                        or ""
-                    )
+                    str(completed.quantitative_diagnostics.get("intervention_query_string") or "")
                     or _query_str_from_io(treatment, outcome)
                 ),
                 theorem_family=str(
@@ -4377,8 +4384,7 @@ class CausalEngine:
                 )
                 or None,
                 status_raw=str(
-                    completed.quantitative_diagnostics.get("identification_status")
-                    or ""
+                    completed.quantitative_diagnostics.get("identification_status") or ""
                 )
                 or None,
             )
@@ -4419,7 +4425,8 @@ class CausalEngine:
         cert_payload = metadata.get("proximal_mediation_certificate")
         if (
             cert_payload is not None
-            and getattr(identification_outcome, "status", None) is IdentificationStatus.ORACLE_NEEDED
+            and getattr(identification_outcome, "status", None)
+            is IdentificationStatus.ORACLE_NEEDED
         ):
             try:
                 from polisyos.foundry.methods.catalog.causal.proximal_mediation import (
@@ -4523,9 +4530,11 @@ class CausalEngine:
             except Exception as exc:
                 notes.append(f"Proximal mediation bounds completion failed: {exc}")
         if bounds_bundle is None and y is not None and t is not None:
-            bounds_bundle, bounds_notes, dual_certificate_payload = self._compute_generic_bounds_bundle(
-                y=y,
-                t=t,
+            bounds_bundle, bounds_notes, dual_certificate_payload = (
+                self._compute_generic_bounds_bundle(
+                    y=y,
+                    t=t,
+                )
             )
             notes.extend(bounds_notes)
         elif bounds_bundle is None:
@@ -4630,22 +4639,20 @@ class CausalEngine:
                 EpistemicTier.DIAGNOSTIC_GUIDANCE if sensitivity_sweep is not None else None
             ),
             suggested_experiments=suggestions,
-            experiments_tier=(
-                EpistemicTier.DIAGNOSTIC_GUIDANCE if suggestions else None
-            ),
+            experiments_tier=(EpistemicTier.DIAGNOSTIC_GUIDANCE if suggestions else None),
             notes=tuple(notes),
         )
 
         diagnostics = {
             **dict(negative_cert.quantitative_diagnostics),
             **fallback_result.to_diagnostics_dict(),
-            "graph_type": graph.graph_type.value if hasattr(graph.graph_type, "value") else str(graph.graph_type),
+            "graph_type": graph.graph_type.value
+            if hasattr(graph.graph_type, "value")
+            else str(graph.graph_type),
         }
         constructive_parts = [negative_cert.constructive_message.strip()]
         if bounds_result is not None and bounds_tier is not None:
-            constructive_parts.append(
-                f"Tier 1/2 fallback produced {bounds_tier.value} bounds."
-            )
+            constructive_parts.append(f"Tier 1/2 fallback produced {bounds_tier.value} bounds.")
         if parametric_rescue is not None:
             constructive_parts.append(
                 "An additional assumption-dependent rescue is available, but it is valid only under the stated parametric assumptions."
@@ -4752,7 +4759,9 @@ class CausalEngine:
             data_dict.get(outcome_name),
             data_dict.get("outcome"),
         )
-        t_raw = next((candidate for candidate in treatment_candidates if candidate is not None), None)
+        t_raw = next(
+            (candidate for candidate in treatment_candidates if candidate is not None), None
+        )
         y_raw = next((candidate for candidate in outcome_candidates if candidate is not None), None)
         if t_raw is None or y_raw is None:
             return None, None, []
@@ -4785,7 +4794,9 @@ class CausalEngine:
         from polisyos.foundry.methods.catalog.causal.lp_bounds import auto_bounds_with_metadata
 
         auto_bounds_kwargs: dict[str, Any] = {}
-        if not _looks_discrete_vector(t, max_levels=8) or not _looks_discrete_vector(y, max_levels=8):
+        if not _looks_discrete_vector(t, max_levels=8) or not _looks_discrete_vector(
+            y, max_levels=8
+        ):
             auto_bounds_kwargs = {
                 "max_cardinality": 4,
                 "initial_bins": 4,
@@ -4883,7 +4894,9 @@ class CausalEngine:
         treatment_name = _singleton_query_name(treatment, "treatment")
         outcome_name = _singleton_query_name(outcome, "outcome")
         if treatment_name is None or outcome_name is None:
-            return None, ["Linearity rescue currently supports single treatment and single outcome only."]
+            return None, [
+                "Linearity rescue currently supports single treatment and single outcome only."
+            ]
 
         iv_rescue, iv_notes = _linear_iv_rescue_result(
             graph=graph,
@@ -4967,9 +4980,7 @@ class CausalEngine:
             proof_steps=tuple(identification_result.proof_steps),
             causal_graph=graph,
             identification_metadata=identification_metadata,
-            recoverability_certificate=(
-                identification_metadata.get("recoverability_certificate")
-            ),
+            recoverability_certificate=(identification_metadata.get("recoverability_certificate")),
             data_readiness=(
                 data_readiness_report
                 if data_readiness_report is not None
@@ -4995,9 +5006,10 @@ class CausalEngine:
             return executor_graph
 
         from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
-            classify_estimand,
             EstimandShape,
+            classify_estimand,
         )
+
         shape = classify_estimand(ast)
         if shape == EstimandShape.COUNTERFACTUAL_IDENTIFIED:
             return executor_graph
@@ -5040,9 +5052,7 @@ class CausalEngine:
 
         if not new_nodes:
             return executor_graph
-        return dataclasses.replace(
-            executor_graph, nodes=(*executor_graph.nodes, *new_nodes)
-        )
+        return dataclasses.replace(executor_graph, nodes=(*executor_graph.nodes, *new_nodes))
 
     def _execute_cyclic_block(
         self,
@@ -5103,9 +5113,7 @@ class CausalEngine:
             "warnings": (
                 []
                 if converged
-                else [
-                    "CyclicExecutionBlock did not converge within the iteration budget."
-                ]
+                else ["CyclicExecutionBlock did not converge within the iteration budget."]
             ),
         }
         if last_report is not None:
@@ -5175,6 +5183,7 @@ class CausalEngine:
                     if not getattr(node, "is_nuisance", False):
                         try:
                             from polisyos.ir.analytics.causal import CausalMethod
+
                             last_report = CausalEffectReport(
                                 method=getattr(CausalMethod, "AIPW", "unknown"),
                                 status=EstimationStatus.NUMERICAL_FAILURE,
@@ -5207,6 +5216,7 @@ class CausalEngine:
                     # Main estimator failure → build report and stop
                     try:
                         from polisyos.ir.analytics.causal import CausalMethod
+
                         last_report = CausalEffectReport(
                             method=getattr(CausalMethod, "AIPW", "unknown"),
                             status=EstimationStatus.NUMERICAL_FAILURE,
@@ -5465,6 +5475,7 @@ class CausalEngine:
             Compiled ExecutorGraph (for CompilationStep records).
         """
         from polisyos.foundry.methods.catalog.causal.id_engine import _internal_proof_step_to_ir
+
         query_str = (
             _identification_query_str(identification_result)
             if isinstance(identification_result, IdentificationResult)
@@ -5472,8 +5483,7 @@ class CausalEngine:
         )
         if not query_str and negative_certificate is not None:
             query_str = str(
-                negative_certificate.quantitative_diagnostics.get("intervention_query_string")
-                or ""
+                negative_certificate.quantitative_diagnostics.get("intervention_query_string") or ""
             )
         if proof_bundle is not None:
             proof_payload = proof_bundle
@@ -5660,14 +5670,17 @@ class CausalEngine:
             )
         if not query_str:
             query_str = str(proof_payload.query_ref or "")
-        fallback_payload = (
-            fallback_result
-            or (negative_certificate.fallback_result if negative_certificate is not None else None)
+        fallback_payload = fallback_result or (
+            negative_certificate.fallback_result if negative_certificate is not None else None
         )
         bounds_payload = bounds_bundle or (
             negative_certificate.bounds_bundle if negative_certificate is not None else None
         )
-        if bounds_payload is None and fallback_result is not None and fallback_result.bounds is not None:
+        if (
+            bounds_payload is None
+            and fallback_result is not None
+            and fallback_result.bounds is not None
+        ):
             bounds_payload = bounds_bundle_from_partial_identification_result(
                 fallback_result.bounds,
                 metadata={
@@ -5681,7 +5694,11 @@ class CausalEngine:
             )
         if bounds_payload is not None and not isinstance(bounds_payload, BoundsBundle):
             bounds_payload = BoundsBundle.model_validate(bounds_payload)
-        if bounds_payload is None and fallback_payload is not None and fallback_payload.bounds is not None:
+        if (
+            bounds_payload is None
+            and fallback_payload is not None
+            and fallback_payload.bounds is not None
+        ):
             bounds_payload = bounds_bundle_from_partial_identification_result(
                 fallback_payload.bounds,
                 metadata={
@@ -5754,13 +5771,19 @@ class CausalEngine:
                 continue
             sr = outputs.get("sensitivity_result")
             if sr is not None:
-                e_val = getattr(sr, "e_value", None) if not isinstance(sr, dict) else sr.get("e_value")
+                e_val = (
+                    getattr(sr, "e_value", None) if not isinstance(sr, dict) else sr.get("e_value")
+                )
                 if e_val is not None:
                     try:
                         diag["e_value"] = float(e_val)
                     except (TypeError, ValueError):
                         pass
-                rb = getattr(sr, "rosenbaum_gamma", None) if not isinstance(sr, dict) else sr.get("rosenbaum_gamma")
+                rb = (
+                    getattr(sr, "rosenbaum_gamma", None)
+                    if not isinstance(sr, dict)
+                    else sr.get("rosenbaum_gamma")
+                )
                 if rb is not None:
                     try:
                         diag["rosenbaum_gamma"] = float(rb)
@@ -5834,17 +5857,11 @@ class CausalEngine:
                     diag["kernel_semantics_passed"] = (
                         1.0 if bool(kernel_semantics["passed"]) else 0.0
                     )
-                if (
-                    "characteristic" in kernel_semantics
-                    and "kernel_characteristic" not in diag
-                ):
+                if "characteristic" in kernel_semantics and "kernel_characteristic" not in diag:
                     diag["kernel_characteristic"] = (
                         1.0 if bool(kernel_semantics["characteristic"]) else 0.0
                     )
-                if (
-                    "weak_metrizing" in kernel_semantics
-                    and "kernel_weak_metrizing" not in diag
-                ):
+                if "weak_metrizing" in kernel_semantics and "kernel_weak_metrizing" not in diag:
                     diag["kernel_weak_metrizing"] = (
                         1.0 if bool(kernel_semantics["weak_metrizing"]) else 0.0
                     )
@@ -5937,9 +5954,7 @@ class CausalEngine:
                         "kernel_target_representation": (
                             resolved_kernel_spec.target_representation.value
                         ),
-                        "kernel_consistency_claim": (
-                            resolved_kernel_spec.consistency_claim.value
-                        ),
+                        "kernel_consistency_claim": (resolved_kernel_spec.consistency_claim.value),
                         "kernel_lowering_disposition": (
                             resolved_kernel_spec.lowering_disposition.value
                         ),
@@ -5969,6 +5984,7 @@ class CausalEngine:
                     classify_estimand,
                     recommend_estimator,
                 )
+
                 shape_val = ""
                 strategy_val = ""
                 if ast is not None:
@@ -5982,9 +5998,7 @@ class CausalEngine:
                         except Exception:
                             pass
                 nuisance_fqns = tuple(
-                    n.method_fqn
-                    for n in executor_graph.nodes
-                    if getattr(n, "is_nuisance", False)
+                    n.method_fqn for n in executor_graph.nodes if getattr(n, "is_nuisance", False)
                 )
                 compilation_steps.append(
                     CompilationStep(
@@ -5992,7 +6006,9 @@ class CausalEngine:
                         estimation_strategy=strategy_val,
                         n_executor_nodes=len(executor_graph.nodes),
                         nuisance_components=nuisance_fqns,
-                        compiler_warnings=tuple(str(w) for w in getattr(executor_graph, "warnings", ())),
+                        compiler_warnings=tuple(
+                            str(w) for w in getattr(executor_graph, "warnings", ())
+                        ),
                     )
                 )
             except Exception:
@@ -6001,7 +6017,9 @@ class CausalEngine:
         # -- 5.1: EstimationStep per executor node -----------------------
         estimation_steps: list[EstimationStep] = []
         if executor_graph is not None and node_outputs:
-            import hashlib, json as _json
+            import hashlib
+            import json as _json
+
             for node in executor_graph.nodes:
                 nid = node.node_id
                 out = (node_outputs or {}).get(nid, {})
@@ -6033,11 +6051,12 @@ class CausalEngine:
         dashboard_dict: dict[str, Any] | None = None
         try:
             from polisyos.ir.analytics.diagnostic_dashboard import DiagnosticDashboardData
+
             dashboard = DiagnosticDashboardData.from_node_outputs(
                 run_id=run_id,
                 query_str=query_str,
                 node_outputs=node_outputs or {},
-                created_at=datetime.now(timezone.utc).isoformat(),
+                created_at=datetime.now(UTC).isoformat(),
             )
             dashboard_dict = dashboard.model_dump(mode="json")
         except Exception:
@@ -6046,7 +6065,10 @@ class CausalEngine:
         # -- 5.4: CausalQualityReport ------------------------------------
         quality_dict: dict[str, Any] | None = None
         try:
-            from polisyos.foundry.methods.catalog.causal.quality_aggregator import QualityScoreAggregator
+            from polisyos.foundry.methods.catalog.causal.quality_aggregator import (
+                QualityScoreAggregator,
+            )
+
             quality_report = QualityScoreAggregator().score(
                 run_id=run_id,
                 query_str=query_str,
@@ -6094,7 +6116,7 @@ class CausalEngine:
                         else proof_payload.theorem_family
                     )
                 ),
-                created_at=datetime.now(timezone.utc).isoformat(),
+                created_at=datetime.now(UTC).isoformat(),
                 graph_fingerprint=graph_fp,
                 estimand_fingerprint=estimand_fp,
                 compilation_steps=tuple(compilation_steps),
@@ -6126,19 +6148,18 @@ class CausalEngine:
                 witness_index,
                 inputs=witness_inputs,
             )
-        if proof_trace_ref is not None or witness_index_ref is not None or witness_index is not None:
+        if (
+            proof_trace_ref is not None
+            or witness_index_ref is not None
+            or witness_index is not None
+        ):
             metadata_update = dict(proof_payload.metadata)
             if proof_trace_ref is not None:
                 metadata_update["proof_trace_ref"] = proof_trace_ref.model_dump(mode="json")
             if witness_index_ref is not None:
                 metadata_update["witness_index_ref"] = witness_index_ref.model_dump(mode="json")
-            proof_support_projection_hash = (
-                proof_payload.proof_support_projection_hash
-                or (
-                    witness_index.proof_support_projection_hash
-                    if witness_index is not None
-                    else None
-                )
+            proof_support_projection_hash = proof_payload.proof_support_projection_hash or (
+                witness_index.proof_support_projection_hash if witness_index is not None else None
             )
             metadata_update["proof_support_projection_hash"] = proof_support_projection_hash
             metadata_update.setdefault(
@@ -6242,10 +6263,7 @@ class CausalEngine:
                     readiness_update["joint_decision_ref"] = proof_payload.joint_decision_ref
                 if readiness_update:
                     readiness_payload = readiness_payload.model_copy(update=readiness_update)
-                if (
-                    resolved_dp_certificate is not None
-                    and readiness_payload.dp_distortion is None
-                ):
+                if resolved_dp_certificate is not None and readiness_payload.dp_distortion is None:
                     from polisyos.ir.analytics.dp_robustness import apply_dp_readiness_gate
 
                     readiness_payload = apply_dp_readiness_gate(
@@ -6294,8 +6312,8 @@ class CausalEngine:
                     resolved_kernel_spec,
                     inputs=kernel_inputs,
                 )
-                method_config["kernel_estimator_spec_ref"] = (
-                    kernel_estimator_spec_ref.model_dump(mode="json")
+                method_config["kernel_estimator_spec_ref"] = kernel_estimator_spec_ref.model_dump(
+                    mode="json"
                 )
 
         return EvidenceBundle(
@@ -6320,7 +6338,7 @@ class CausalEngine:
                     else proof_payload.theorem_family
                 )
             ),
-            created_at=datetime.now(timezone.utc).isoformat(),
+            created_at=datetime.now(UTC).isoformat(),
             graph_fingerprint=graph_fp,
             estimand_fingerprint=estimand_fp,
             compilation_steps=tuple(compilation_steps),
@@ -6444,7 +6462,9 @@ class CausalEngine:
             return None, bundle, negative_cert
 
         if proximal_certificate is not None:
-            is_spatial_proximal = bool(getattr(proximal_certificate.proxies, "spatial_proxy_specs", ()))
+            is_spatial_proximal = bool(
+                getattr(proximal_certificate.proxies, "spatial_proxy_specs", ())
+            )
             if is_spatial_proximal:
                 proximal_state = _derive_spatial_proximal_bridge_state(
                     data_dict=data_dict,
@@ -6461,9 +6481,7 @@ class CausalEngine:
                 )
             proximal_output: dict[str, Any] | None = None
             proximal_metrics: dict[str, Any] = {
-                "bridge_functions_count": proof_bundle.metadata.get(
-                    "bridge_functions_count"
-                ),
+                "bridge_functions_count": proof_bundle.metadata.get("bridge_functions_count"),
                 "graph_checks_count": proof_bundle.metadata.get("graph_checks_count"),
             }
             if proximal_state is not None:
@@ -6496,9 +6514,7 @@ class CausalEngine:
                     updated_metadata.update(
                         {
                             "weight_matrix_hash": weight_matrix_hash,
-                            "spatial_model_family": str(
-                                proximal_state.get("model_family", "sdm")
-                            ),
+                            "spatial_model_family": str(proximal_state.get("model_family", "sdm")),
                         }
                     )
                     proof_bundle = proof_bundle.model_copy(update={"metadata": updated_metadata})
@@ -6522,9 +6538,7 @@ class CausalEngine:
                             "bridge_proxy_association": bridge_report_payload.get(
                                 "proxy_association_score"
                             ),
-                            "bridge_moran_i": bridge_report_payload.get(
-                                "moran_i_bridge_residual"
-                            ),
+                            "bridge_moran_i": bridge_report_payload.get("moran_i_bridge_residual"),
                             "bridge_ring_instability": bridge_report_payload.get(
                                 "ring_sensitivity_instability"
                             ),
@@ -6550,7 +6564,9 @@ class CausalEngine:
             if proximal_output is not None:
                 proximal_report = proximal_output.get("report")
                 node_outputs = {
-                    "spatial_proximal_bridge" if is_spatial_proximal else "proximal_bridge": proximal_output
+                    "spatial_proximal_bridge"
+                    if is_spatial_proximal
+                    else "proximal_bridge": proximal_output
                 }
                 negative_payload = proximal_output.get("negative_certificate")
                 bounds_payload = proximal_output.get("bounds_bundle")
@@ -6603,9 +6619,9 @@ class CausalEngine:
 
         assert resolved_id_result is not None
 
-        proximal_mediation_payload = dict(
-            getattr(resolved_id_result, "metadata", {}) or {}
-        ).get("proximal_mediation_certificate")
+        proximal_mediation_payload = dict(getattr(resolved_id_result, "metadata", {}) or {}).get(
+            "proximal_mediation_certificate"
+        )
         if proximal_mediation_payload is not None:
             from polisyos.foundry.methods.catalog.causal.proximal_mediation import (
                 PROXIMAL_MEDIATION_V1_THEOREM,
@@ -6752,9 +6768,10 @@ class CausalEngine:
                     data_readiness_report=readiness_report,
                 )
                 return None, bundle, proximal_negative_cert
-            if proximal_report is not None and getattr(
-                proximal_report, "status", None
-            ) is EstimationStatus.SUCCESS:
+            if (
+                proximal_report is not None
+                and getattr(proximal_report, "status", None) is EstimationStatus.SUCCESS
+            ):
                 bundle = self.audit(
                     resolved_id_result,
                     proximal_report,
@@ -6831,7 +6848,10 @@ class CausalEngine:
 
         # G4: validate query structure and KB feasibility before compiling
         from polisyos.foundry.methods.catalog.causal.query_validator import CausalQueryValidator
-        val_report = CausalQueryValidator().validate(graph, resolved_id_result.estimand_ast, self._kb)
+
+        val_report = CausalQueryValidator().validate(
+            graph, resolved_id_result.estimand_ast, self._kb
+        )
         if val_report.has_errors():
             neg_cert = NegativeCertificate(
                 blocking_type=BlockingType.MISSING_DISTRIBUTION,
@@ -7026,7 +7046,11 @@ class CausalEngine:
                 compilation_steps=bundle.compilation_steps,
             )
             # Attach snapshot to bundle metadata for downstream consumers
-            bundle = dataclasses.replace(bundle, snapshot=snapshot) if hasattr(bundle, "snapshot") else bundle
+            bundle = (
+                dataclasses.replace(bundle, snapshot=snapshot)
+                if hasattr(bundle, "snapshot")
+                else bundle
+            )
             # Store on engine instance for programmatic access
             self._last_snapshot = snapshot
         except Exception:
@@ -7127,11 +7151,11 @@ class CausalEngine:
 
     def dynamic_causal_effect(
         self,
-        data: "DynamicTreatmentData",
-        regime: "DynamicTreatmentRegime | None" = None,
+        data: DynamicTreatmentData,
+        regime: DynamicTreatmentRegime | None = None,
         method: str = "ice_g",
-        run_id: "str | None" = None,
-    ) -> "GComputationResult":
+        run_id: str | None = None,
+    ) -> GComputationResult:
         """Estimate the causal effect of a dynamic treatment regime.
 
         Bypasses the standard identify → compile → estimate → audit pipeline
@@ -7153,10 +7177,10 @@ class CausalEngine:
             treatment="treatment",
             outcome="outcome",
         )
-        from polisyos.foundry.methods.catalog.causal.causal_rl import (  # noqa: F401
+        from polisyos.foundry.methods.catalog.causal.causal_rl import (
             CausalBandit,
         )
-        from polisyos.foundry.methods.catalog.causal.dtr import (  # noqa: F401
+        from polisyos.foundry.methods.catalog.causal.dtr import (
             ALearningDTR,
             DoublyRobustDTR,
             OutcomeWeightedLearning,
@@ -7182,8 +7206,7 @@ class CausalEngine:
         method_cls = _method_dispatch.get(method)
         if method_cls is None:
             raise ValueError(
-                f"Unknown dynamic method {method!r}. "
-                f"Choose from: {sorted(_method_dispatch)}"
+                f"Unknown dynamic method {method!r}. Choose from: {sorted(_method_dispatch)}"
             )
 
         params: dict[str, object] = {}
@@ -7225,7 +7248,9 @@ class CausalEngine:
         regime: DynamicTreatmentRegime | None = None,
         intervention: TemporalInterventionTrajectory | dict[str, Any] | None = None,
         method: str = "linear_sde",
-        identification_certificate: TemporalIdentificationCertificate | dict[str, Any] | None = None,
+        identification_certificate: TemporalIdentificationCertificate
+        | dict[str, Any]
+        | None = None,
     ) -> Any:
         """Estimate a temporal effect trajectory and optionally persist its bundle."""
 
@@ -7241,11 +7266,11 @@ class CausalEngine:
                 outcome=readiness_outcome,
             )
         from polisyos.foundry.methods.catalog.causal.dtr import estimate_dtr_trajectory
-        from polisyos.foundry.methods.catalog.causal.g_computation import (
-            estimate_g_computation_trajectory,
-        )
         from polisyos.foundry.methods.catalog.causal.event_process_weighting import (
             estimate_event_process_weighting_trajectory,
+        )
+        from polisyos.foundry.methods.catalog.causal.g_computation import (
+            estimate_g_computation_trajectory,
         )
         from polisyos.foundry.methods.catalog.causal.protocols import (
             DynamicTreatmentData,
@@ -7317,9 +7342,8 @@ class CausalEngine:
                     except Exception:
                         event_process_data = EventProcessObservationalData.model_validate(data)
 
-        if (
-            effective_query.query_mode is TemporalQueryMode.OPTIMAL_POLICY_DISCOVERY
-            and (panel_data is not None or regime is not None)
+        if effective_query.query_mode is TemporalQueryMode.OPTIMAL_POLICY_DISCOVERY and (
+            panel_data is not None or regime is not None
         ):
             raise TemporalCompileError(
                 "query_mode_conflict",
@@ -7389,8 +7413,7 @@ class CausalEngine:
                 identification_certificate=resolved_identification_certificate,
                 intervention_contract_status=(
                     "derived_optimal_policy"
-                    if effective_query.query_mode
-                    is TemporalQueryMode.OPTIMAL_POLICY_DISCOVERY
+                    if effective_query.query_mode is TemporalQueryMode.OPTIMAL_POLICY_DISCOVERY
                     else None
                 ),
                 method=estimator_method,
@@ -7451,8 +7474,8 @@ class CausalEngine:
             try:
                 payload = proof_payload.metadata.get("temporal_identification_certificate")
                 if payload is not None:
-                    proof_temporal_certificate = self._normalize_temporal_identification_certificate(
-                        payload
+                    proof_temporal_certificate = (
+                        self._normalize_temporal_identification_certificate(payload)
                     )
             except Exception:
                 pass
@@ -7528,9 +7551,7 @@ class CausalEngine:
                 key: value
                 for key, value in {
                     "path_semantics": trajectory.metadata.get("path_semantics"),
-                    "rough_path_certificate": trajectory.metadata.get(
-                        "rough_path_certificate"
-                    ),
+                    "rough_path_certificate": trajectory.metadata.get("rough_path_certificate"),
                     "rough_path_identification_status": trajectory.metadata.get(
                         "rough_path_identification_status"
                     ),
@@ -7639,7 +7660,6 @@ class CausalEngine:
             )
         return trajectory
 
-
     # ------------------------------------------------------------------
     # identify_with_missing_data
     # ------------------------------------------------------------------
@@ -7651,7 +7671,7 @@ class CausalEngine:
         mgraph_meta: Any,
         *,
         run_id: str | None = None,
-    ) -> "IdentificationResult | NegativeCertificate":
+    ) -> IdentificationResult | NegativeCertificate:
         """Identify P(Y|do(X)) from incomplete data via M-graph recoverability.
 
         Routes through the Mohan-Pearl (2021) RecoverabilityTest before
@@ -7669,7 +7689,7 @@ class CausalEngine:
         IdentificationResult or NegativeCertificate
         """
         from polisyos.foundry.methods.catalog.causal.missing_data import RecoverabilityTest
-        from polisyos.ir.analytics.negative_certificate import NegativeCertificate, BlockingType
+        from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
 
         # Step 1: test recoverability via M-graph criterion
         mgraph_dict: dict[str, Any] = {}
@@ -7745,8 +7765,8 @@ class CausalEngine:
         data: Any,
         treatment: str,
         outcome: str,
-        mediators: "list[str]",
-        graph: "CausalGraphModel | None" = None,
+        mediators: list[str],
+        graph: CausalGraphModel | None = None,
         *,
         method: str = "semiparametric",
         run_id: str | None = None,
@@ -7772,12 +7792,12 @@ class CausalEngine:
             treatment=treatment,
             outcome=outcome,
         )
+        from polisyos.foundry.methods.catalog.causal.mediation import (
+            ControlledDirectEffectEstimator,
+            NaturalEffectEstimator,
+        )
         from polisyos.foundry.methods.catalog.causal.path_specific import (
             PathSpecificEffectEstimator,
-        )
-        from polisyos.foundry.methods.catalog.causal.mediation import (
-            NaturalEffectEstimator,
-            ControlledDirectEffectEstimator,
         )
 
         _method_dispatch: dict[str, type] = {
@@ -7788,8 +7808,7 @@ class CausalEngine:
         method_cls = _method_dispatch.get(method)
         if method_cls is None:
             raise ValueError(
-                f"Unknown mediation method {method!r}. "
-                f"Choose from: {sorted(_method_dispatch)}"
+                f"Unknown mediation method {method!r}. Choose from: {sorted(_method_dispatch)}"
             )
 
         params: dict[str, Any] = {
@@ -7860,8 +7879,7 @@ class CausalEngine:
         method_cls = _method_dispatch.get(method)
         if method_cls is None:
             raise ValueError(
-                f"Unknown interference method {method!r}. "
-                f"Choose from: {sorted(_method_dispatch)}"
+                f"Unknown interference method {method!r}. Choose from: {sorted(_method_dispatch)}"
             )
 
         params: dict[str, Any] = {
@@ -7880,10 +7898,10 @@ class CausalEngine:
         self,
         ncm: Any,
         query: str,
-        evidence: "dict[str, Any]",
+        evidence: dict[str, Any],
         *,
-        treatment: "str | None" = None,
-        outcome: "str | None" = None,
+        treatment: str | None = None,
+        outcome: str | None = None,
         treatment_value: Any = 1,
         outcome_value: Any = 1,
         run_id: str | None = None,
@@ -7914,6 +7932,7 @@ class CausalEngine:
 
         # Build NCMQueryData-compatible state
         from polisyos.foundry.methods.catalog.causal.protocols import NCMQueryData
+
         if isinstance(ncm, NCMQueryData):
             state: dict[str, Any] = {"ncm_query_data": ncm}
         elif hasattr(ncm, "model_dump"):
@@ -7936,7 +7955,9 @@ class CausalEngine:
             "treatment_variable": treatment or "",
             "outcome_variable": outcome or "",
             "treatment_value": treatment_value,
-            "outcome_threshold": float(outcome_value) if isinstance(outcome_value, (int, float)) else 0.5,
+            "outcome_threshold": float(outcome_value)
+            if isinstance(outcome_value, (int, float))
+            else 0.5,
         }
 
         query_upper = query.upper() if query not in ncm_queries else query
@@ -7967,7 +7988,7 @@ class CausalEngine:
         data: Any,
         protected: str,
         outcome: str,
-        graph: "CausalGraphModel | None" = None,
+        graph: CausalGraphModel | None = None,
         *,
         method: str = "tv_decomposition",
         run_id: str | None = None,
@@ -7992,13 +8013,13 @@ class CausalEngine:
             treatment=protected,
             outcome=outcome,
         )
+        from polisyos.foundry.methods.catalog.causal.causal_fairness import (
+            CausalFairnessEngine,
+        )
         from polisyos.foundry.methods.catalog.causal.fairness import (
             CounterfactualFairnessEstimator,
             PathSpecificFairnessEstimator,
             TVFairnessDecomposer,
-        )
-        from polisyos.foundry.methods.catalog.causal.causal_fairness import (
-            CausalFairnessEngine,
         )
 
         _method_dispatch: dict[str, type] = {
@@ -8011,8 +8032,7 @@ class CausalEngine:
         method_cls = _method_dispatch.get(method)
         if method_cls is None:
             raise ValueError(
-                f"Unknown fairness method {method!r}. "
-                f"Choose from: {sorted(_method_dispatch)}"
+                f"Unknown fairness method {method!r}. Choose from: {sorted(_method_dispatch)}"
             )
 
         params: dict[str, Any] = {
@@ -8068,9 +8088,7 @@ class CausalEngine:
         outcome = data_dict.get("outcome", "") or getattr(data, "outcome", "")
         datasets = data_dict.get("datasets", []) or getattr(data, "datasets", [])
         counterfactual_query = (
-            data_dict.get("counterfactual_query")
-            if isinstance(data_dict, dict)
-            else None
+            data_dict.get("counterfactual_query") if isinstance(data_dict, dict) else None
         ) or getattr(data, "counterfactual_query", None)
 
         state: dict[str, Any] = {}
@@ -8078,6 +8096,7 @@ class CausalEngine:
             state["graph"] = graph
         elif isinstance(graph, dict):
             from polisyos.ir.analytics.causal_graph import CausalGraphModel
+
             try:
                 state["graph"] = CausalGraphModel.model_validate(graph)
             except Exception:
@@ -8109,7 +8128,7 @@ def _infer_sample_size(
         return None
     for value in data_dict.values():
         try:
-            size = int(len(value))  # type: ignore[arg-type]
+            size = len(value)  # type: ignore[arg-type]
         except Exception:
             continue
         if size >= 0:
@@ -8274,12 +8293,7 @@ def _derive_proximal_bridge_state(
         proxy_variables=certificate.proxies.outcome_inducing,
         n_obs=n_obs,
     )
-    if (
-        treatment_vector is None
-        or outcome_vector is None
-        or z_proxy is None
-        or w_proxy is None
-    ):
+    if treatment_vector is None or outcome_vector is None or z_proxy is None or w_proxy is None:
         return None
     if any(item.shape[0] != n_obs for item in (treatment_vector, z_proxy, w_proxy)):
         return None
@@ -8428,9 +8442,7 @@ def _derive_spatial_proximal_bridge_state(
         return None
 
     model_family = str(
-        data_dict.get("model_family")
-        or certificate.metadata.get("spatial_model_family")
-        or "sdm"
+        data_dict.get("model_family") or certificate.metadata.get("spatial_model_family") or "sdm"
     ).lower()
     return {
         "outcome": outcome_vector[mask].astype(float),
@@ -8462,7 +8474,7 @@ def _derive_spatial_proximal_bridge_state(
 def _derive_proximal_mediation_state(
     *,
     data_dict: dict[str, Any] | None,
-    certificate: "ProximalMediationCertificate",
+    certificate: ProximalMediationCertificate,
 ) -> dict[str, np.ndarray] | None:
     """Build the proximal mediation estimator state from certificate variable roles."""
 
@@ -8500,8 +8512,7 @@ def _derive_proximal_mediation_state(
         return None
     n_obs = int(outcome_vector.shape[0])
     if any(
-        vector.shape[0] != n_obs
-        for vector in (treatment_vector, mediator_vector, z_proxy, w_proxy)
+        vector.shape[0] != n_obs for vector in (treatment_vector, mediator_vector, z_proxy, w_proxy)
     ):
         return None
 
@@ -8632,11 +8643,11 @@ def _ensure_readiness_registry(registry: Any) -> Any | None:
     if registry is not None:
         return registry
     try:
-        from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
-        from polisyos.foundry.methods.registry import MethodRegistry
         from polisyos.foundry.methods.catalog.causal._registry_boot import (
             register_causal_methods,
         )
+        from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
+        from polisyos.foundry.methods.registry import MethodRegistry
     except Exception:
         return None
 
@@ -8790,7 +8801,11 @@ def _derive_direct_positivity_state(
         time_treatment = data_dict.get("time_treatment")
         if outcome_matrix.ndim == 2 and outcome_matrix.shape[1] > 1:
             try:
-                boundary = int(time_treatment) if time_treatment is not None else outcome_matrix.shape[1] - 1
+                boundary = (
+                    int(time_treatment)
+                    if time_treatment is not None
+                    else outcome_matrix.shape[1] - 1
+                )
             except Exception:
                 boundary = outcome_matrix.shape[1] - 1
             boundary = max(1, min(boundary, outcome_matrix.shape[1]))
@@ -9103,6 +9118,7 @@ def _resolve_missingness_assessment(
 
 def _extract_recoverability_summary(payload: Any) -> dict[str, Any] | None:
     """Extract a compact recoverability summary from results or proof artifacts."""
+
     def _compact(candidate: dict[str, Any]) -> dict[str, Any]:
         if "recoverability" in candidate and isinstance(candidate["recoverability"], dict):
             return _compact(dict(candidate["recoverability"]))
@@ -9450,7 +9466,9 @@ def _build_twin_network_payload(state: dict[str, Any], params: dict[str, Any]) -
         payload.update(HybridSCMFit.pure_step(scm_payload, {}))
 
     scm_spec = payload["scm_spec"]
-    treatment_variable = str(payload.get("treatment_variable") or params.get("treatment_variable") or "")
+    treatment_variable = str(
+        payload.get("treatment_variable") or params.get("treatment_variable") or ""
+    )
     outcome_variable = str(payload.get("outcome_variable") or params.get("outcome_variable") or "")
     if not treatment_variable or not outcome_variable:
         raise ValueError("Twin-network execution requires treatment and outcome variables.")
@@ -9459,7 +9477,9 @@ def _build_twin_network_payload(state: dict[str, Any], params: dict[str, Any]) -
     if not isinstance(factual_condition, dict) or not factual_condition:
         factual_condition = _first_observed_condition(payload, scm_spec)
 
-    factual_treatment_value = payload.get("factual_treatment_value", params.get("factual_treatment_value"))
+    factual_treatment_value = payload.get(
+        "factual_treatment_value", params.get("factual_treatment_value")
+    )
     if factual_treatment_value is None:
         factual_treatment_value = factual_condition.get(
             treatment_variable,
@@ -9573,9 +9593,7 @@ def _candidate_linear_instruments(
         if edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW
     }
     parents_of_treatment = sorted(
-        src
-        for src, dst in directed_edges
-        if dst == treatment and src not in {treatment, outcome}
+        src for src, dst in directed_edges if dst == treatment and src not in {treatment, outcome}
     )
 
     candidates: list[str] = []
@@ -9655,10 +9673,7 @@ def _extract_aligned_numeric_columns(
         finite_mask &= np.isfinite(arr)
     if not finite_mask.any():
         return None
-    return {
-        name: arr[finite_mask]
-        for name, arr in arrays.items()
-    }
+    return {name: arr[finite_mask] for name, arr in arrays.items()}
 
 
 def _linear_iv_effect(
@@ -9708,11 +9723,15 @@ def _linear_iv_effect(
         explained = max(rss_reduced - rss_full, 0.0)
         first_stage_f = float((explained / q) / (rss_full / denom_df))
 
-    return estimate, standard_error, {
-        "first_stage_f": first_stage_f,
-        "n_obs": n_obs,
-        "n_instruments": int(instruments.shape[1]),
-    }
+    return (
+        estimate,
+        standard_error,
+        {
+            "first_stage_f": first_stage_f,
+            "n_obs": n_obs,
+            "n_instruments": int(instruments.shape[1]),
+        },
+    )
 
 
 def _linear_iv_rescue_result(
@@ -9729,7 +9748,9 @@ def _linear_iv_rescue_result(
         outcome=outcome,
     )
     if not instruments:
-        return None, ["Linearity rescue: no graph-valid observed instrument was found for the direct IV/2SLS path."]
+        return None, [
+            "Linearity rescue: no graph-valid observed instrument was found for the direct IV/2SLS path."
+        ]
 
     aligned = _extract_aligned_numeric_columns(
         data_dict=data_dict,
@@ -9745,7 +9766,9 @@ def _linear_iv_rescue_result(
     z = np.column_stack([aligned[instrument] for instrument in instruments])
     estimate, standard_error, diagnostics = _linear_iv_effect(y=y, t=t, instruments=z)
     if estimate is None:
-        message = diagnostics.get("failure_reason", "linear-IV solver could not produce a stable estimate")
+        message = diagnostics.get(
+            "failure_reason", "linear-IV solver could not produce a stable estimate"
+        )
         return None, [f"Linearity rescue: IV/2SLS path failed: {message}."]
 
     method = "wald_iv" if len(instruments) == 1 else "linear_2sls"
@@ -9775,7 +9798,9 @@ def _linear_iv_rescue_result(
         diagnostics=diagnostics,
         warnings=tuple(warnings),
     )
-    return rescue, [f"Added linearity rescue via {method} using instrument(s): {', '.join(instruments)}."]
+    return rescue, [
+        f"Added linearity rescue via {method} using instrument(s): {', '.join(instruments)}."
+    ]
 
 
 def _wright_path_tracing_rescue_result(
@@ -9848,7 +9873,9 @@ def _wright_subgraph_spec(
     graph: CausalGraphModel,
     treatment: str,
     outcome: str,
-) -> tuple[tuple[str, ...] | None, tuple[tuple[str, str], ...], tuple[tuple[str, str], ...], list[str]]:
+) -> tuple[
+    tuple[str, ...] | None, tuple[tuple[str, str], ...], tuple[tuple[str, str], ...], list[str]
+]:
     """Build the ancestor subgraph specification used by the general Wright solver."""
     directed_edges_all = tuple(
         (edge.src, edge.dst)
@@ -9869,9 +9896,7 @@ def _wright_subgraph_spec(
                 frontier.append(parent)
 
     directed_edges = tuple(
-        (src, dst)
-        for src, dst in directed_edges_all
-        if src in needed and dst in needed
+        (src, dst) for src, dst in directed_edges_all if src in needed and dst in needed
     )
     bidirected_edges = tuple(
         tuple(sorted((edge.src, edge.dst)))
@@ -9885,16 +9910,35 @@ def _wright_subgraph_spec(
 
     node_order = _topological_order_from_edges(tuple(sorted(needed)), directed_edges)
     if node_order is None:
-        return None, (), (), ["Linearity rescue: Wright/path tracing skipped because the ancestor subgraph is cyclic."]
+        return (
+            None,
+            (),
+            (),
+            [
+                "Linearity rescue: Wright/path tracing skipped because the ancestor subgraph is cyclic."
+            ],
+        )
     if len(node_order) > 6:
-        return None, (), (), [
-            "Linearity rescue: Wright/path tracing skipped because the ancestor subgraph is larger than 6 observed nodes."
-        ]
+        return (
+            None,
+            (),
+            (),
+            [
+                "Linearity rescue: Wright/path tracing skipped because the ancestor subgraph is larger than 6 observed nodes."
+            ],
+        )
 
     children = _children_from_directed_edges(directed_edges)
     paths = list(_enumerate_directed_paths(children, treatment, outcome))
     if not paths:
-        return None, (), (), ["Linearity rescue: Wright/path tracing skipped because there is no directed treatment-to-outcome path."]
+        return (
+            None,
+            (),
+            (),
+            [
+                "Linearity rescue: Wright/path tracing skipped because there is no directed treatment-to-outcome path."
+            ],
+        )
 
     return node_order, directed_edges, bidirected_edges, []
 
@@ -10057,10 +10101,13 @@ def _solve_linear_path_system(
         "n_unknown_params": n_unknown,
         "n_equations": n_equations,
         "n_multistart_successes": len(stable),
-        "path_formula_terms": len(_enumerate_directed_paths(_children_from_directed_edges(directed_edges), treatment, outcome)),
+        "path_formula_terms": len(
+            _enumerate_directed_paths(
+                _children_from_directed_edges(directed_edges), treatment, outcome
+            )
+        ),
         "edge_coefficients": {
-            f"{src}->{dst}": float(best_b[index[src], index[dst]])
-            for src, dst in directed_edges
+            f"{src}->{dst}": float(best_b[index[src], index[dst]]) for src, dst in directed_edges
         },
     }
     formula = _wright_formula_string(

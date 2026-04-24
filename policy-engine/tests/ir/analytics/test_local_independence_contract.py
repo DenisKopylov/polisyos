@@ -14,9 +14,9 @@ from polisyos.ir.analytics.local_independence import (
     LocalIndependenceRuntimeRequirements,
     LocalIndependenceTarget,
     LocalIndependenceWeightingCertificate,
+    TreatmentIntensityInterventionSpec,
     load_local_independence_weighting_certificate,
     persist_local_independence_weighting_certificate,
-    TreatmentIntensityInterventionSpec,
 )
 
 
@@ -51,9 +51,7 @@ def _certificate() -> LocalIndependenceWeightingCertificate:
             value=0.0,
         ),
         identification=LocalIndependenceIdentificationSpec(
-            theorem_reference=(
-                "Røysland–Ryalen–Nygård–Didelez (2024/2025), Theorem 2",
-            ),
+            theorem_reference=("Røysland–Ryalen–Nygård–Didelez (2024/2025), Theorem 2",),
             weight_components=("W_treatment", "W_censoring"),
             marginalize_over=("U",),
         ),

@@ -1,7 +1,13 @@
 import { useMemo } from "react";
 
 import { cn } from "@/lib/utils";
-import { chartTheme, ciColors, categoricalPalette, chartDefaults } from "./theme";
+import { useI18n } from "@/i18n/LocaleProvider";
+import {
+  chartTheme,
+  ciColors,
+  categoricalPalette,
+  chartDefaults,
+} from "./theme";
 import { ChartDataTable } from "./accessibility";
 
 // ---------------------------------------------------------------------------
@@ -56,6 +62,7 @@ export function MetaLearnerViz({
   title,
   className,
 }: MetaLearnerVizProps) {
+  const { t } = useI18n();
   const showHistogram = distribution && distribution.length > 0;
   const svgHeight = showHistogram
     ? PADDING.top + LOLLIPOP_H + GAP + HIST_H + PADDING.bottom
@@ -75,14 +82,19 @@ export function MetaLearnerViz({
   const valPad = valRange * 0.1;
 
   function toX(v: number) {
-    return PADDING.left + PLOT_W * ((v - (minVal - valPad)) / (valRange + 2 * valPad));
+    return (
+      PADDING.left +
+      PLOT_W * ((v - (minVal - valPad)) / (valRange + 2 * valPad))
+    );
   }
   const zeroX = toX(0);
 
   const rowH = Math.min(28, LOLLIPOP_H / Math.max(estimates.length, 1));
 
   // Histogram Y scale
-  const maxCount = distribution ? Math.max(...distribution.map((b) => b.count), 1) : 1;
+  const maxCount = distribution
+    ? Math.max(...distribution.map((b) => b.count), 1)
+    : 1;
   const histTop = PADDING.top + LOLLIPOP_H + GAP;
 
   function toHistY(count: number) {
@@ -168,7 +180,7 @@ export function MetaLearnerViz({
                 fontWeight={600}
                 fill={chartTheme.success}
               >
-                ATE = {ate.toFixed(3)}
+                {t("shared.charts.metaLearner.ate", { value: ate.toFixed(3) })}
               </text>
             </>
           )}
@@ -188,7 +200,9 @@ export function MetaLearnerViz({
                   fontSize={chartDefaults.tickFontSize}
                   fill={chartTheme.axis}
                 >
-                  {est.label.length > 18 ? `${est.label.slice(0, 17)}…` : est.label}
+                  {est.label.length > 18
+                    ? `${est.label.slice(0, 17)}…`
+                    : est.label}
                 </text>
 
                 {/* CI whisker */}
@@ -238,7 +252,7 @@ export function MetaLearnerViz({
                 fontWeight={600}
                 fill={chartTheme.axis}
               >
-                CATE distribution
+                {t("shared.charts.metaLearner.cateDistribution")}
               </text>
 
               {distribution.map((bin, i) => {
@@ -297,7 +311,10 @@ export function MetaLearnerViz({
 
       <ChartDataTable
         caption={title ?? "Meta-Learner CATE data"}
-        columns={["CATE", ...(estimates.some((e) => e.ci) ? ["CI Lower", "CI Upper"] : [])]}
+        columns={[
+          "CATE",
+          ...(estimates.some((e) => e.ci) ? ["CI Lower", "CI Upper"] : []),
+        ]}
         rows={tableRows}
       />
     </figure>

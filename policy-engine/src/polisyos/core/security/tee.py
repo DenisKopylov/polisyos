@@ -1,10 +1,11 @@
 """Verify TEE attestation reports and enforce confidential-compute policy gates."""
+
 from __future__ import annotations
 
 import json
 import os
 from abc import abstractmethod
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Protocol, runtime_checkable
@@ -17,6 +18,7 @@ from polisyos.core.canon import content_hash, truncated_hash
 
 class TEEPlatform(str, Enum):
     """Enumerate supported attestation platforms for verifier selection."""
+
     SEV_SNP = "sev-snp"
     TDX = "tdx"
     NITRO = "nitro"
@@ -24,6 +26,7 @@ class TEEPlatform(str, Enum):
 
 class AttestationStatus(str, Enum):
     """Describe whether a verifier trusted, rejected, skipped, or could not fetch a report."""
+
     VERIFIED = "verified"
     FAILED = "failed"
     SKIPPED = "skipped"
@@ -74,6 +77,7 @@ class AttestationPolicy(BaseModel):
     `fail_closed=True` means missing/invalid attestation should deny protected
     execution paths instead of silently downgrading trust.
     """
+
     model_config = ConfigDict(extra="forbid")
 
     enabled: bool = True
@@ -101,6 +105,7 @@ class AttestationPolicy(BaseModel):
 
 class AttestationResult(BaseModel):
     """Return verifier status plus normalized report facts and policy digest."""
+
     model_config = ConfigDict(extra="forbid")
 
     status: AttestationStatus
@@ -179,19 +184,22 @@ class SEVSNPVerifier:
         nonce: bytes | None = None,
         timeout_seconds: float = 10.0,
     ) -> AttestationReport:
-        """Load an attestation report from `POLISYOS_TEE_REPORT_PATH` or fail if no provider exists."""
+        """Load an env-configured attestation report or fail if no provider exists."""
         del timeout_seconds
         path = self._resolve_report_path()
         if path is not None:
             try:
                 payload = json.loads(path.read_text(encoding="utf-8"))
                 report = AttestationReport.model_validate(payload)
-            except (TypeError, ValueError) as exc:  # noqa: BLE001
+            except (TypeError, ValueError) as exc:
                 raise AttestationFetchError(f"Failed to parse attestation report: {exc}") from exc
 
-            if nonce is not None and report.report_data_hex:
-                if not _report_data_matches_nonce(report.report_data_hex, nonce):
-                    raise AttestationFetchError("Attestation report nonce does not match challenge")
+            if (
+                nonce is not None
+                and report.report_data_hex
+                and not _report_data_matches_nonce(report.report_data_hex, nonce)
+            ):
+                raise AttestationFetchError("Attestation report nonce does not match challenge")
             return report
 
         if Path("/dev/sev-guest").exists():
@@ -221,7 +229,7 @@ class SEVSNPVerifier:
         if nonce is not None and not _report_data_matches_nonce(report.report_data_hex, nonce):
             errors.append("report_data nonce mismatch")
 
-        age_seconds = (datetime.now(timezone.utc) - report.collected_at).total_seconds()
+        age_seconds = (datetime.now(UTC) - report.collected_at).total_seconds()
         if age_seconds > policy.max_report_age_seconds:
             errors.append(
                 f"attestation report expired: age={int(age_seconds)}s "
@@ -233,17 +241,18 @@ class SEVSNPVerifier:
             errors.append("launch measurement mismatch")
 
         if report.tcb_version < policy.min_tcb_version:
-            errors.append(
-                f"tcb_version too old: {report.tcb_version} < {policy.min_tcb_version}"
-            )
+            errors.append(f"tcb_version too old: {report.tcb_version} < {policy.min_tcb_version}")
 
         if report.guest_svn < policy.min_guest_svn:
             errors.append(f"guest_svn too old: {report.guest_svn} < {policy.min_guest_svn}")
 
         expected_host_data = policy.normalized_expected_host_data()
-        if policy.require_host_data_match and expected_host_data:
-            if report.normalized_host_data() != expected_host_data:
-                errors.append("host_data mismatch")
+        if (
+            policy.require_host_data_match
+            and expected_host_data
+            and report.normalized_host_data() != expected_host_data
+        ):
+            errors.append("host_data mismatch")
 
         if policy.require_signature_validation and not report.signature_validated:
             errors.append("signature_validated=false")

@@ -1,4 +1,5 @@
 """Public claims citations module API."""
+
 from __future__ import annotations
 
 from polisyos.ir.citations import CitationRef, DocumentRef

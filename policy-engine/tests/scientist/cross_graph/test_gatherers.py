@@ -40,7 +40,9 @@ class TestAcademicGatherer:
 
         g = AcademicGatherer()
         result = g.assess(
-            _need(), concepts=[], context={
+            _need(),
+            concepts=[],
+            context={
                 "academic_query": MagicMock(),
                 "_assess_academic_need": lambda *a, **kw: mock_result,
             },
@@ -90,10 +92,7 @@ class TestAcademicGatherer:
         assert result.metadata["literature_prior_ref"] == "artifact://prior-1"
         assert result.metadata["environment_audit_summary"]["status"] == "warning"
         assert result.diagnostics
-        assert (
-            result.diagnostics[0].code
-            == "cross_graph.academic.environment_audit_advisory"
-        )
+        assert result.diagnostics[0].code == "cross_graph.academic.environment_audit_advisory"
 
     def test_serialize_value_assertion_is_not_swallowed(self):
         class _BrokenPayload:

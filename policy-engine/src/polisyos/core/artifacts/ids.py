@@ -1,4 +1,5 @@
 """Define the stable `ArtifactID` ABI for CAS-backed content addresses."""
+
 from __future__ import annotations
 
 import re
@@ -38,7 +39,7 @@ class ArtifactID(RootModel[str]):
         return f"{cls.prefix}{hex64}"
 
     @classmethod
-    def from_sha256_hex(cls, hex64: str) -> "ArtifactID":
+    def from_sha256_hex(cls, hex64: str) -> ArtifactID:
         """Build an `ArtifactID` from a raw 64-hex digest.
 
         Args:

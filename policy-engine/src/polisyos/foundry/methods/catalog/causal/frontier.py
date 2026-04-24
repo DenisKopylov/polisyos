@@ -1,9 +1,11 @@
 """Frontier causal estimators for proximal, distributional, and network-aware effects."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import is_dataclass
 from statistics import NormalDist
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -26,7 +28,9 @@ from polisyos.foundry.methods.catalog.causal._common import (
     build_success_report,
     wrap_causal_output,
 )
-from polisyos.foundry.methods.catalog.causal.density_ratio import compute_scalar_distributional_effect
+from polisyos.foundry.methods.catalog.causal.density_ratio import (
+    compute_scalar_distributional_effect,
+)
 from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
 from polisyos.foundry.methods.catalog.causal.treatment_effects import _logistic_propensity
 from polisyos.ir.analytics.causal import CausalMethod, DiagnosticTest, EstimationStatus
@@ -95,7 +99,9 @@ def _spatial_proximal_bridge_output_slots() -> frozenset[SlotSpec]:
     )
 
 
-def _observational_payload(state: Any) -> tuple[np.ndarray, np.ndarray, np.ndarray | None, Mapping[str, Any]]:
+def _observational_payload(
+    state: Any,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray | None, Mapping[str, Any]]:
     if isinstance(state, HTEObservationalData):
         return (
             np.asarray(state.outcome, dtype=float),
@@ -266,7 +272,9 @@ def _serialize_distributional_result(result: Any) -> dict[str, Any]:
                 "counterfactual_value": float(c),
                 "shift": float(s),
             }
-            for q, b, c, s in zip(quantiles, baseline_values, counterfactual_values, shifts, strict=False)
+            for q, b, c, s in zip(
+                quantiles, baseline_values, counterfactual_values, shifts, strict=False
+            )
         ]
         payload["quantile_shift"] = quantile_shift
     tail_risk = payload.get("tail_risk")
@@ -359,7 +367,7 @@ def _proxy_sieve_basis(proxy: np.ndarray, *, max_degree: int = 3) -> np.ndarray:
     columns: list[np.ndarray] = []
     for col in range(arr.shape[1]):
         centered = arr[:, col] - float(np.mean(arr[:, col]))
-        columns.extend(centered ** degree for degree in range(1, max_degree + 1))
+        columns.extend(centered**degree for degree in range(1, max_degree + 1))
     return _standardized_columns(np.column_stack(columns))
 
 
@@ -404,11 +412,7 @@ def _bridge_operator_diagnostics(
     effective_rank = float(np.sum(finite_values > threshold))
     positive = finite_values[finite_values > threshold]
     sigma_min = float(np.min(positive)) if positive.size else 0.0
-    ill_posedness = (
-        float(max_sigma / sigma_min)
-        if sigma_min > 1.0e-12
-        else float("inf")
-    )
+    ill_posedness = float(max_sigma / sigma_min) if sigma_min > 1.0e-12 else float("inf")
     return effective_rank, sigma_min, ill_posedness, proxy_association
 
 
@@ -605,9 +609,7 @@ def _build_bridge_plausibility_report(
         residual_interval=residual_interval,
         effective_rank=float(effective_rank),
         sigma_min=float(sigma_min),
-        ill_posedness_index=(
-            float(ill_posedness) if np.isfinite(ill_posedness) else None
-        ),
+        ill_posedness_index=(float(ill_posedness) if np.isfinite(ill_posedness) else None),
         proxy_association_score=float(proxy_association),
         bridge_existence_supported=bridge_supported,
         completeness_plausible=completeness_plausible,
@@ -721,8 +723,7 @@ def _epsilon_relaxed_spatial_bounds(
     epsilon_value = max(0.0, float(epsilon or 0.0))
     width = max(
         0.05 * abs(point_estimate),
-        outcome_scale
-        * (residual_upper + epsilon_value + 0.5 * instability + 0.25 * moran_penalty),
+        outcome_scale * (residual_upper + epsilon_value + 0.5 * instability + 0.25 * moran_penalty),
         1.0e-3,
     )
     return PartialIdentificationResult(
@@ -892,9 +893,7 @@ def _fit_spatial_proximal_linear(
     )
     denom = float(np.sum((outcome - np.mean(outcome)) ** 2))
     bridge_r2 = (
-        1.0 - float(np.sum((outcome - structural_fitted) ** 2)) / denom
-        if denom > 1.0e-12
-        else 0.0
+        1.0 - float(np.sum((outcome - structural_fitted) ** 2)) / denom if denom > 1.0e-12 else 0.0
     )
 
     return {
@@ -970,7 +969,9 @@ def _proxy_ring_instability(
     return float(spread / scale)
 
 
-def _buffer_exclusion_falsification(spatial_proxy_specs: tuple[Mapping[str, Any], ...]) -> bool | None:
+def _buffer_exclusion_falsification(
+    spatial_proxy_specs: tuple[Mapping[str, Any], ...],
+) -> bool | None:
     if not spatial_proxy_specs:
         return None
     for raw_spec in spatial_proxy_specs:
@@ -987,9 +988,10 @@ def _buffer_exclusion_falsification(spatial_proxy_specs: tuple[Mapping[str, Any]
         buffer_radius = int(raw_spec.get("buffer_radius") or 0)
         spillover_radius = int(raw_spec.get("spillover_radius_claim") or 1)
         proxy_construction = str(raw_spec.get("proxy_construction", "ring_lag"))
-        if proxy_construction in {"ring_lag", "buffered_ring_lag"} and max(
-            min_lag, buffer_radius
-        ) <= spillover_radius:
+        if (
+            proxy_construction in {"ring_lag", "buffered_ring_lag"}
+            and max(min_lag, buffer_radius) <= spillover_radius
+        ):
             return True
     return False
 
@@ -1079,10 +1081,21 @@ class ProximalBridgeEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-                SlotSpec("covariates", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-                SlotSpec("treatment_proxy", SlotType.VECTOR, Unit("proxy", "value"), shape=("n_obs",)),
-                SlotSpec("outcome_proxy", SlotType.VECTOR, Unit("proxy", "value"), shape=("n_obs",)),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "covariates",
+                    SlotType.MATRIX,
+                    Unit("covariate", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
+                SlotSpec(
+                    "treatment_proxy", SlotType.VECTOR, Unit("proxy", "value"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "outcome_proxy", SlotType.VECTOR, Unit("proxy", "value"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=_proximal_bridge_output_slots(),
@@ -1123,7 +1136,9 @@ class ProximalBridgeEstimator:
     )
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any] | HTEObservationalData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: Mapping[str, Any] | HTEObservationalData, params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         try:
             outcome, treatment, covariates, _ = _observational_payload(state)
             if covariates is None:
@@ -1148,7 +1163,11 @@ class ProximalBridgeEstimator:
                 post_periods=0,
                 assumptions=dict(ProximalBridgeEstimator.metadata.assumptions),
             )
-            return wrap_causal_output(report, warnings=[report.status_reason or "input invalid"], extras={"proximal_result": None})
+            return wrap_causal_output(
+                report,
+                warnings=[report.status_reason or "input invalid"],
+                extras={"proximal_result": None},
+            )
 
         ridge = float(params.get("ridge", 1.0e-4))
         seed = int(params.get("__seed__", 0))
@@ -1175,8 +1194,12 @@ class ProximalBridgeEstimator:
             x_sel = x[sel]
             y1_proxy = _predicted_proxy(1.0, indices)
             y0_proxy = _predicted_proxy(0.0, indices)
-            d1 = np.column_stack([np.ones(x_sel.shape[0]), np.ones(x_sel.shape[0]), x_sel, y1_proxy])
-            d0 = np.column_stack([np.ones(x_sel.shape[0]), np.zeros(x_sel.shape[0]), x_sel, y0_proxy])
+            d1 = np.column_stack(
+                [np.ones(x_sel.shape[0]), np.ones(x_sel.shape[0]), x_sel, y1_proxy]
+            )
+            d0 = np.column_stack(
+                [np.ones(x_sel.shape[0]), np.zeros(x_sel.shape[0]), x_sel, y0_proxy]
+            )
             return (d1 @ bridge_coef) - (d0 @ bridge_coef)
 
         effect = _unit_effect()
@@ -1189,8 +1212,14 @@ class ProximalBridgeEstimator:
         )
         bridge_pred = bridge_design @ bridge_coef
         denom = float(np.sum((outcome - np.mean(outcome)) ** 2))
-        bridge_r2 = 1.0 - float(np.sum((outcome - bridge_pred) ** 2)) / denom if denom > 1.0e-12 else 0.0
-        proxy_strength = float(abs(np.corrcoef(treatment_proxy, outcome_proxy)[0, 1])) if np.std(treatment_proxy) > 1.0e-12 and np.std(outcome_proxy) > 1.0e-12 else 0.0
+        bridge_r2 = (
+            1.0 - float(np.sum((outcome - bridge_pred) ** 2)) / denom if denom > 1.0e-12 else 0.0
+        )
+        proxy_strength = (
+            float(abs(np.corrcoef(treatment_proxy, outcome_proxy)[0, 1]))
+            if np.std(treatment_proxy) > 1.0e-12 and np.std(outcome_proxy) > 1.0e-12
+            else 0.0
+        )
         bridge_report = _build_bridge_plausibility_report(
             outcome=outcome,
             treatment=treatment,
@@ -1341,8 +1370,15 @@ class SpatialProximalBridgeEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-                SlotSpec("covariates", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "covariates",
+                    SlotType.MATRIX,
+                    Unit("covariate", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
                 SlotSpec(
                     "weight_matrix",
                     SlotType.MATRIX,
@@ -1421,7 +1457,9 @@ class SpatialProximalBridgeEstimator:
     )
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any] | HTEObservationalData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: Mapping[str, Any] | HTEObservationalData, params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         try:
             outcome, treatment, covariates, _ = _observational_payload(state)
             if covariates is None:
@@ -1445,7 +1483,9 @@ class SpatialProximalBridgeEstimator:
                 raise ValueError(
                     "spatial proximal bridge estimation requires at least 80 observations"
                 )
-            model_family = str(params.get("model_family") or mapping.get("model_family") or "sdm").lower()
+            model_family = str(
+                params.get("model_family") or mapping.get("model_family") or "sdm"
+            ).lower()
             if model_family not in {"sdm", "sarar"}:
                 raise ValueError("model_family must be one of {'sdm', 'sarar'}")
         except Exception as exc:
@@ -1731,9 +1771,7 @@ class SpatialProximalBridgeEstimator:
             "ring_sensitivity_instability": float(
                 bridge_report.ring_sensitivity_instability or 0.0
             ),
-            "buffer_exclusion_falsification": bool(
-                bridge_report.buffer_exclusion_falsification
-            )
+            "buffer_exclusion_falsification": bool(bridge_report.buffer_exclusion_falsification)
             if bridge_report.buffer_exclusion_falsification is not None
             else None,
             "stability_clipped": bool(fitted["stability_clipped"]),
@@ -1775,8 +1813,15 @@ class DistributionalTreatmentEffectEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-                SlotSpec("covariates", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "covariates",
+                    SlotType.MATRIX,
+                    Unit("covariate", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
             }
         ),
         output_slots=_causal_frontier_output_slots("distributional_result"),
@@ -1818,7 +1863,9 @@ class DistributionalTreatmentEffectEstimator:
     )
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any] | HTEObservationalData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: Mapping[str, Any] | HTEObservationalData, params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         try:
             outcome, treatment, covariates, _ = _observational_payload(state)
             if covariates is None:
@@ -1841,7 +1888,11 @@ class DistributionalTreatmentEffectEstimator:
                 post_periods=0,
                 assumptions=dict(DistributionalTreatmentEffectEstimator.metadata.assumptions),
             )
-            return wrap_causal_output(report, warnings=[report.status_reason or "input invalid"], extras={"distributional_result": None})
+            return wrap_causal_output(
+                report,
+                warnings=[report.status_reason or "input invalid"],
+                extras={"distributional_result": None},
+            )
 
         y_treated = outcome[treated_mask]
         y_control = outcome[control_mask]
@@ -1859,7 +1910,10 @@ class DistributionalTreatmentEffectEstimator:
         )
         point_estimate = float(np.mean(y_treated) - np.mean(y_control))
         confidence_interval = _bootstrap_effect_interval(
-            lambda idx: float(np.mean(y_treated[idx]) - np.mean(y_control[np.minimum(idx, y_control.shape[0] - 1)])),
+            lambda idx: float(
+                np.mean(y_treated[idx])
+                - np.mean(y_control[np.minimum(idx, y_control.shape[0] - 1)])
+            ),
             n_obs=min(y_treated.shape[0], y_control.shape[0]),
             n_bootstrap=int(params.get("n_bootstrap", 200)),
             seed=int(params.get("__seed__", 0)),
@@ -1907,9 +1961,21 @@ class NetworkHeterogeneousEffectEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-                SlotSpec("covariates", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-                SlotSpec("adjacency_matrix", SlotType.MATRIX, Unit("network", "adjacency"), shape=("n_obs", "n_obs")),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "covariates",
+                    SlotType.MATRIX,
+                    Unit("covariate", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
+                SlotSpec(
+                    "adjacency_matrix",
+                    SlotType.MATRIX,
+                    Unit("network", "adjacency"),
+                    shape=("n_obs", "n_obs"),
+                ),
             }
         ),
         output_slots=_causal_frontier_output_slots("network_hte_result"),
@@ -1949,7 +2015,9 @@ class NetworkHeterogeneousEffectEstimator:
     )
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any] | HTEObservationalData, params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: Mapping[str, Any] | HTEObservationalData, params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         try:
             outcome, treatment, covariates, _ = _observational_payload(state)
             if covariates is None:
@@ -1970,15 +2038,23 @@ class NetworkHeterogeneousEffectEstimator:
                 post_periods=0,
                 assumptions=dict(NetworkHeterogeneousEffectEstimator.metadata.assumptions),
             )
-            return wrap_causal_output(report, warnings=[report.status_reason or "input invalid"], extras={"network_hte_result": None})
+            return wrap_causal_output(
+                report,
+                warnings=[report.status_reason or "input invalid"],
+                extras={"network_hte_result": None},
+            )
 
         n_obs = outcome.shape[0]
         degree = np.sum(np.clip(adjacency, 0.0, None), axis=1)
         exposure = (adjacency @ treatment) / np.maximum(degree, 1.0)
         feature_index = min(int(params.get("feature_index", 0)), covariates.shape[1] - 1)
         heterogeneity = np.asarray(covariates[:, feature_index], dtype=float)
-        propensity = _logistic_propensity(np.asarray(covariates, dtype=float), treatment.astype(float))
-        stabilized_weight = treatment / np.clip(propensity, 0.05, 0.95) + (1.0 - treatment) / np.clip(1.0 - propensity, 0.05, 0.95)
+        propensity = _logistic_propensity(
+            np.asarray(covariates, dtype=float), treatment.astype(float)
+        )
+        stabilized_weight = treatment / np.clip(propensity, 0.05, 0.95) + (
+            1.0 - treatment
+        ) / np.clip(1.0 - propensity, 0.05, 0.95)
 
         design = np.column_stack(
             [
@@ -2013,18 +2089,27 @@ class NetworkHeterogeneousEffectEstimator:
         group_effects: list[dict[str, Any]] = []
         for group_idx in range(n_groups):
             if group_idx == n_groups - 1:
-                mask = (heterogeneity >= group_edges[group_idx]) & (heterogeneity <= group_edges[group_idx + 1])
+                mask = (heterogeneity >= group_edges[group_idx]) & (
+                    heterogeneity <= group_edges[group_idx + 1]
+                )
             else:
-                mask = (heterogeneity >= group_edges[group_idx]) & (heterogeneity < group_edges[group_idx + 1])
+                mask = (heterogeneity >= group_edges[group_idx]) & (
+                    heterogeneity < group_edges[group_idx + 1]
+                )
             if not np.any(mask):
                 continue
             group_effects.append(
                 {
                     "group_index": group_idx + 1,
-                    "feature_interval": [float(group_edges[group_idx]), float(group_edges[group_idx + 1])],
+                    "feature_interval": [
+                        float(group_edges[group_idx]),
+                        float(group_edges[group_idx + 1]),
+                    ],
                     "n_obs": int(np.sum(mask)),
                     "direct_effect": float(np.mean(direct_effect[mask])),
-                    "spillover_effect": float(np.mean(coef[2] + coef[4] * treatment[mask] + coef[6] * heterogeneity[mask])),
+                    "spillover_effect": float(
+                        np.mean(coef[2] + coef[4] * treatment[mask] + coef[6] * heterogeneity[mask])
+                    ),
                     "mean_exposure": float(np.mean(exposure[mask])),
                 }
             )
@@ -2052,7 +2137,10 @@ class NetworkHeterogeneousEffectEstimator:
             extras={
                 "network_hte_result": {
                     "point_estimate": point_estimate,
-                    "confidence_interval": [float(confidence_interval[0]), float(confidence_interval[1])],
+                    "confidence_interval": [
+                        float(confidence_interval[0]),
+                        float(confidence_interval[1]),
+                    ],
                     "group_effects": group_effects,
                     "coefficients": [float(value) for value in coef.tolist()],
                     "mean_exposure": float(np.mean(exposure)),

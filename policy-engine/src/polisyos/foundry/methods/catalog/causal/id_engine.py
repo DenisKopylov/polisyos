@@ -56,8 +56,8 @@ from polisyos.foundry.methods.catalog.causal.admg_ops import (
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.estimand import (
-    CounterfactualNode,
     ConditionalInterventionNode,
+    CounterfactualNode,
     CrossWorldNode,
     DistributionDomain,
     DistributionRef,
@@ -65,17 +65,15 @@ from polisyos.ir.analytics.estimand import (
     ModifiedTreatmentPolicyNode,
     NestedCounterfactualNode,
     ProductNode,
-    ProxyAdjustmentNode,
     RatioNode,
     SideCondition,
     SideConditionKind,
     StochasticInterventionNode,
     StochasticPolicy,
     SumNode,
-    make_z_transport_estimand,
     make_frontdoor_estimand,
+    make_z_transport_estimand,
 )
-
 
 # ---------------------------------------------------------------------------
 # Internal result types (dataclasses, not Pydantic)
@@ -98,7 +96,7 @@ class ProofStep:
 class RequiredDataSpec:
     """Specification of data needed to achieve identification."""
 
-    missing_distributions: tuple[Any, ...]   # tuple of DistributionRef objects
+    missing_distributions: tuple[Any, ...]  # tuple of DistributionRef objects
     suggested_experiment: str | None = None
     alternative_identification: str | None = None
 
@@ -119,11 +117,11 @@ class HedgeCertificate:
 
     treatment: frozenset[str]
     outcome: frozenset[str]
-    hedge_forest: frozenset[str]        # F  — larger component
-    hedge_root: frozenset[str]          # F' — smaller component (⊆ F)
-    c_component_witness: frozenset[str] # the c-component triggering non-ID
+    hedge_forest: frozenset[str]  # F  — larger component
+    hedge_root: frozenset[str]  # F' — smaller component (⊆ F)
+    c_component_witness: frozenset[str]  # the c-component triggering non-ID
     description: str = ""
-    required_data: "RequiredDataSpec | None" = None
+    required_data: RequiredDataSpec | None = None
     minimal_required_s_nodes: frozenset[str] = dataclasses.field(default_factory=frozenset)
     # ^ minimum set of S-nodes (selection variables) that, if resolved,
     #   would make transport potentially identifiable via tr_algorithm.
@@ -133,10 +131,11 @@ class HedgeCertificate:
 
 class IdentificationStatus(str, Enum):
     """Classify whether a causal query is identified, blocked, ambiguous, or oracle-gated."""
+
     IDENTIFIED = "identified"
-    HEDGE_FOUND = "hedge_found"       # non-identifiable, certificate returned
-    PAG_AMBIGUOUS = "pag_ambiguous"   # PAG input, result depends on orientation
-    ORACLE_NEEDED = "oracle_needed"       # beyond native impl scope
+    HEDGE_FOUND = "hedge_found"  # non-identifiable, certificate returned
+    PAG_AMBIGUOUS = "pag_ambiguous"  # PAG input, result depends on orientation
+    ORACLE_NEEDED = "oracle_needed"  # beyond native impl scope
     NOT_RECOVERABLE = "not_recoverable"  # M-graph Stage 1 failure: P(V) not recoverable
 
 
@@ -150,7 +149,7 @@ class IdentificationResult:
     trace: list[str]
     required_distributions: list[DistributionRef]
     algorithm_version: str = "id_v1"
-    proof_steps: list["ProofStep"] = dataclasses.field(default_factory=list)
+    proof_steps: list[ProofStep] = dataclasses.field(default_factory=list)
     query_str: str = ""
     metadata: dict[str, Any] = dataclasses.field(default_factory=dict)
 
@@ -185,7 +184,7 @@ def _pag_id_algorithm(
     domain: DistributionDomain,
     _depth: int,
     _trace: list[str],
-    _pag_steps: list["ProofStep"] | None = None,
+    _pag_steps: list[ProofStep] | None = None,
 ) -> IdentificationResult:
     """PAG-ID per Malinsky & Spirtes (2017).
 
@@ -221,12 +220,12 @@ def _pag_id_algorithm(
     # Orientation pre-pass: apply R1–R3 to resolve CIRCLE marks (all policies)
     # ------------------------------------------------------------------
     n_circles_before = sum(
-        1 for e in graph.edges
-        if e.mark_src is EdgeMark.CIRCLE or e.mark_dst is EdgeMark.CIRCLE
+        1 for e in graph.edges if e.mark_src is EdgeMark.CIRCLE or e.mark_dst is EdgeMark.CIRCLE
     )
     oriented_pag, _orient_warnings = apply_pag_orientation_rules(graph)
     n_circles_after = sum(
-        1 for e in oriented_pag.edges
+        1
+        for e in oriented_pag.edges
         if e.mark_src is EdgeMark.CIRCLE or e.mark_dst is EdgeMark.CIRCLE
     )
     n_resolved = n_circles_before - n_circles_after
@@ -236,17 +235,19 @@ def _pag_id_algorithm(
             f"[depth={_depth}] PAG-ID orientation pre-pass: "
             f"resolved {n_resolved} CIRCLE marks ({n_circles_before}→{n_circles_after})"
         )
-        pag_steps.append(ProofStep(
-            rule_name="PAG_ORIENT_R1",
-            antecedent_vars=(),
-            consequent_vars=(),
-            applied_to_graph_state=(
-                f"R1-R3 orientation pass resolved {n_resolved} CIRCLE marks "
-                f"({n_circles_before}→{n_circles_after} circles remain)"
-            ),
-            graph_state_before=f"{n_circles_before} CIRCLE marks before orientation",
-            depth=_depth,
-        ))
+        pag_steps.append(
+            ProofStep(
+                rule_name="PAG_ORIENT_R1",
+                antecedent_vars=(),
+                consequent_vars=(),
+                applied_to_graph_state=(
+                    f"R1-R3 orientation pass resolved {n_resolved} CIRCLE marks "
+                    f"({n_circles_before}→{n_circles_after} circles remain)"
+                ),
+                graph_state_before=f"{n_circles_before} CIRCLE marks before orientation",
+                depth=_depth,
+            )
+        )
 
     # ------------------------------------------------------------------ OPTIMISTIC
     if policy is PAGIdentificationPolicy.OPTIMISTIC:
@@ -256,6 +257,7 @@ def _pag_id_algorithm(
         for e in oriented_pag.edges:
             if e.mark_src is EdgeMark.CIRCLE or e.mark_dst is EdgeMark.CIRCLE:
                 from polisyos.ir.analytics.causal_graph import CausalEdge
+
                 committed_edges.append(
                     CausalEdge(
                         src=e.src,
@@ -270,19 +272,22 @@ def _pag_id_algorithm(
             else:
                 committed_edges.append(e)
 
-        pag_steps.append(ProofStep(
-            rule_name="PAG_OPTIMISTIC_COMMIT",
-            antecedent_vars=(),
-            consequent_vars=tuple(sorted(outcome)),
-            applied_to_graph_state=(
-                f"OPTIMISTIC policy: committing {n_committed} remaining CIRCLE marks "
-                f"to directed edges after R1-R3 pre-pass"
-            ),
-            graph_state_before=f"oriented PAG with {n_circles_after} remaining circles",
-            depth=_depth,
-        ))
+        pag_steps.append(
+            ProofStep(
+                rule_name="PAG_OPTIMISTIC_COMMIT",
+                antecedent_vars=(),
+                consequent_vars=tuple(sorted(outcome)),
+                applied_to_graph_state=(
+                    f"OPTIMISTIC policy: committing {n_committed} remaining CIRCLE marks "
+                    f"to directed edges after R1-R3 pre-pass"
+                ),
+                graph_state_before=f"oriented PAG with {n_circles_after} remaining circles",
+                depth=_depth,
+            )
+        )
 
         from polisyos.ir.analytics.causal_graph import GraphType as GT
+
         dag_graph = CausalGraphModel(
             schema_version=oriented_pag.schema_version,
             graph_type=GT.DAG,
@@ -303,9 +308,7 @@ def _pag_id_algorithm(
             _depth=_depth + 1,
             _trace=_trace,
         )
-        _trace.append(
-            f"[depth={_depth}] PAG-ID OPTIMISTIC: status={result.status.value}"
-        )
+        _trace.append(f"[depth={_depth}] PAG-ID OPTIMISTIC: status={result.status.value}")
         combined_steps = pag_steps + list(result.proof_steps)
         return dataclasses.replace(
             result,
@@ -330,17 +333,19 @@ def _pag_id_algorithm(
         _trace.append(
             f"[depth={_depth}] PAG-ID CONSERVATIVE: CIRCLE edges create ambiguity → PAG_AMBIGUOUS"
         )
-        pag_steps.append(ProofStep(
-            rule_name="PAG_CONSERVATIVE_BLOCK",
-            antecedent_vars=tuple(sorted(treatment)),
-            consequent_vars=tuple(sorted(outcome)),
-            applied_to_graph_state=(
-                f"CONSERVATIVE policy: {n_circles_after} unresolved CIRCLE marks create "
-                f"backdoor ambiguity; pag_reachable∩X={sorted(pag_reachable & treatment)}"
-            ),
-            graph_state_before=f"oriented PAG with {n_circles_after} remaining circles",
-            depth=_depth,
-        ))
+        pag_steps.append(
+            ProofStep(
+                rule_name="PAG_CONSERVATIVE_BLOCK",
+                antecedent_vars=tuple(sorted(treatment)),
+                consequent_vars=tuple(sorted(outcome)),
+                applied_to_graph_state=(
+                    f"CONSERVATIVE policy: {n_circles_after} unresolved CIRCLE marks create "
+                    f"backdoor ambiguity; pag_reachable∩X={sorted(pag_reachable & treatment)}"
+                ),
+                graph_state_before=f"oriented PAG with {n_circles_after} remaining circles",
+                depth=_depth,
+            )
+        )
         return IdentificationResult(
             status=IdentificationStatus.PAG_AMBIGUOUS,
             estimand_ast=None,
@@ -354,18 +359,20 @@ def _pag_id_algorithm(
     # No CIRCLE ambiguity (conservative) or PROBABILISTIC policy:
     # run standard ID on the oriented PAG
     if policy is PAGIdentificationPolicy.PROBABILISTIC:
-        pag_steps.append(ProofStep(
-            rule_name="PAG_PROBABILISTIC",
-            antecedent_vars=(),
-            consequent_vars=tuple(sorted(outcome)),
-            applied_to_graph_state=(
-                f"PROBABILISTIC policy: running ID on oriented PAG with "
-                f"{n_circles_after} remaining circles; "
-                f"id_confidence_under_pag={oriented_pag.id_confidence_under_pag}"
-            ),
-            graph_state_before=f"oriented PAG with {n_circles_after} remaining circles",
-            depth=_depth,
-        ))
+        pag_steps.append(
+            ProofStep(
+                rule_name="PAG_PROBABILISTIC",
+                antecedent_vars=(),
+                consequent_vars=tuple(sorted(outcome)),
+                applied_to_graph_state=(
+                    f"PROBABILISTIC policy: running ID on oriented PAG with "
+                    f"{n_circles_after} remaining circles; "
+                    f"id_confidence_under_pag={oriented_pag.id_confidence_under_pag}"
+                ),
+                graph_state_before=f"oriented PAG with {n_circles_after} remaining circles",
+                depth=_depth,
+            )
+        )
 
     result = id_algorithm(
         treatment=treatment,
@@ -377,9 +384,7 @@ def _pag_id_algorithm(
         _depth=_depth + 1,
         _trace=_trace,
     )
-    _trace.append(
-        f"[depth={_depth}] PAG-ID ({policy.value}): base status={result.status.value}"
-    )
+    _trace.append(f"[depth={_depth}] PAG-ID ({policy.value}): base status={result.status.value}")
     if (
         result.status is IdentificationStatus.IDENTIFIED
         and oriented_pag.id_confidence_under_pag is not None
@@ -411,9 +416,9 @@ def _check_hedge_condition(
     components_g_minus_x: list[frozenset[str]],
     dataset_ref: str | None,
     _depth: int,
-    _steps: list["ProofStep"],
+    _steps: list[ProofStep],
     _trace: list[str],
-) -> "HedgeCertificate | None":
+) -> HedgeCertificate | None:
     """Check the Step 4a hedge condition and return a certificate or None.
 
     A hedge (F, F') is detected when:
@@ -450,8 +455,7 @@ def _check_hedge_condition(
     required_data = RequiredDataSpec(
         missing_distributions=missing_dists,
         suggested_experiment=(
-            f"Randomize treatment for: {sorted(hedge_root & X)}"
-            if hedge_root & X else None
+            f"Randomize treatment for: {sorted(hedge_root & X)}" if hedge_root & X else None
         ),
         alternative_identification=None,
     )
@@ -476,13 +480,15 @@ def _check_hedge_condition(
         required_data=required_data,
         minimal_required_s_nodes=frozenset(minimal_s),
     )
-    _steps.append(ProofStep(
-        rule_name="HEDGE",
-        antecedent_vars=tuple(sorted(X)),
-        consequent_vars=tuple(sorted(Y)),
-        applied_to_graph_state=f"C(G)=single component, hedge forest={sorted(V)}",
-        depth=_depth,
-    ))
+    _steps.append(
+        ProofStep(
+            rule_name="HEDGE",
+            antecedent_vars=tuple(sorted(X)),
+            consequent_vars=tuple(sorted(Y)),
+            applied_to_graph_state=f"C(G)=single component, hedge forest={sorted(V)}",
+            depth=_depth,
+        )
+    )
     _trace.append(f"[depth={_depth}] HEDGE detected: {cert.description}")
     return cert
 
@@ -697,13 +703,15 @@ def id_algorithm(
             dataset_ref=dataset_ref,
         )
         _trace.append(f"[depth={_depth}] Step 1: X=∅ → P({sorted(Y)}|{sorted(conditioning)})")
-        _steps.append(ProofStep(
-            rule_name="RULE1",
-            antecedent_vars=(),
-            consequent_vars=tuple(sorted(Y)),
-            applied_to_graph_state=f"X=∅, marginalise over An({sorted(Y)})",
-            depth=_depth,
-        ))
+        _steps.append(
+            ProofStep(
+                rule_name="RULE1",
+                antecedent_vars=(),
+                consequent_vars=tuple(sorted(Y)),
+                applied_to_graph_state=f"X=∅, marginalise over An({sorted(Y)})",
+                depth=_depth,
+            )
+        )
         ast = _wrap_root(leaf, treatment=treatment, outcome=outcome, method="id_step1")
         return IdentificationResult(
             status=IdentificationStatus.IDENTIFIED,
@@ -720,13 +728,15 @@ def id_algorithm(
     an_y_full = ancestors(graph, Y) & V
     if an_y_full != V:
         _trace.append(f"[depth={_depth}] Step 2: restricting to An(Y)={sorted(an_y_full)}")
-        _steps.append(ProofStep(
-            rule_name="ANCESTRAL_COLLAPSE",
-            antecedent_vars=tuple(sorted(V)),
-            consequent_vars=tuple(sorted(an_y_full)),
-            applied_to_graph_state=f"restrict to An({sorted(Y)})",
-            depth=_depth,
-        ))
+        _steps.append(
+            ProofStep(
+                rule_name="ANCESTRAL_COLLAPSE",
+                antecedent_vars=tuple(sorted(V)),
+                consequent_vars=tuple(sorted(an_y_full)),
+                applied_to_graph_state=f"restrict to An({sorted(Y)})",
+                depth=_depth,
+            )
+        )
         sub_g = induced_subgraph(graph, an_y_full)
         sub_x = X & an_y_full
         inner = id_algorithm(
@@ -750,13 +760,15 @@ def id_algorithm(
     if W:
         new_x = X | W
         _trace.append(f"[depth={_depth}] Step 3: extending X with W={sorted(W)}")
-        _steps.append(ProofStep(
-            rule_name="RULE3",
-            antecedent_vars=tuple(sorted(W)),
-            consequent_vars=tuple(sorted(new_x)),
-            applied_to_graph_state=f"extend X with non-ancestor W={sorted(W)}",
-            depth=_depth,
-        ))
+        _steps.append(
+            ProofStep(
+                rule_name="RULE3",
+                antecedent_vars=tuple(sorted(W)),
+                consequent_vars=tuple(sorted(new_x)),
+                applied_to_graph_state=f"extend X with non-ancestor W={sorted(W)}",
+                depth=_depth,
+            )
+        )
         inner = id_algorithm(
             treatment=new_x,
             outcome=Y,
@@ -798,9 +810,7 @@ def id_algorithm(
     if frontdoor_mediator is not None:
         x_name = next(iter(sorted(X)))
         y_name = next(iter(sorted(Y)))
-        _trace.append(
-            f"[depth={_depth}] Frontdoor shortcut: mediator={frontdoor_mediator}"
-        )
+        _trace.append(f"[depth={_depth}] Frontdoor shortcut: mediator={frontdoor_mediator}")
         frontdoor_ast = make_frontdoor_estimand(
             treatment=x_name,
             outcome=y_name,
@@ -833,9 +843,7 @@ def id_algorithm(
     # ------------------------------------------------------------------
     g_minus_x = induced_subgraph(graph, V - X)
     components_g_minus_x = c_components(g_minus_x)
-    _trace.append(
-        f"[depth={_depth}] Step 4: C(G\\X)={[sorted(c) for c in components_g_minus_x]}"
-    )
+    _trace.append(f"[depth={_depth}] Step 4: C(G\\X)={[sorted(c) for c in components_g_minus_x]}")
 
     # ------------------------------------------------------------------
     # Step 4a: Hedge check — single component spanning V \ X
@@ -866,19 +874,21 @@ def id_algorithm(
     # ------------------------------------------------------------------
     y_component: frozenset[str] | None = None
     for comp in components_g_minus_x:
-        if Y <= comp:
+        if comp >= Y:
             y_component = comp
             break
 
     if y_component is not None:
         _trace.append(f"[depth={_depth}] Step 5: Y ⊆ Si={sorted(y_component)}")
-        _steps.append(ProofStep(
-            rule_name="C_COMPONENT",
-            antecedent_vars=tuple(sorted(y_component)),
-            consequent_vars=tuple(sorted(Y)),
-            applied_to_graph_state=f"Y in c-component Si={sorted(y_component)} of G\\X",
-            depth=_depth,
-        ))
+        _steps.append(
+            ProofStep(
+                rule_name="C_COMPONENT",
+                antecedent_vars=tuple(sorted(y_component)),
+                consequent_vars=tuple(sorted(Y)),
+                applied_to_graph_state=f"Y in c-component Si={sorted(y_component)} of G\\X",
+                depth=_depth,
+            )
+        )
         # Check Step 6 first: is Si a subset of a c-component Sj in G?
         comps_g_full = c_components(graph)
         containing_sj: frozenset[str] | None = None
@@ -922,13 +932,15 @@ def id_algorithm(
     # ------------------------------------------------------------------
     # Step 7: No identification rule applies — ORACLE_NEEDED
     # ------------------------------------------------------------------
-    _steps.append(ProofStep(
-        rule_name="ORACLE",
-        antecedent_vars=tuple(sorted(X)),
-        consequent_vars=tuple(sorted(Y)),
-        applied_to_graph_state="no ID rule applies",
-        depth=_depth,
-    ))
+    _steps.append(
+        ProofStep(
+            rule_name="ORACLE",
+            antecedent_vars=tuple(sorted(X)),
+            consequent_vars=tuple(sorted(Y)),
+            applied_to_graph_state="no ID rule applies",
+            depth=_depth,
+        )
+    )
     _trace.append(f"[depth={_depth}] Step 7: no rule applies → ORACLE_NEEDED")
     return IdentificationResult(
         status=IdentificationStatus.ORACLE_NEEDED,
@@ -965,14 +977,16 @@ def idc_algorithm(
     # Trivial case: Z = ∅ — IDC reduces to a plain ID call
     # ------------------------------------------------------------------
     if not conditions:
-        idc_steps.append(ProofStep(
-            rule_name="IDC_TRIVIAL_Z",
-            antecedent_vars=(),
-            consequent_vars=tuple(sorted(outcome)),
-            applied_to_graph_state="IDC with Z=∅: reduces trivially to ID(Y, X, G)",
-            graph_state_before="Z=∅ — no conditioning variables",
-            depth=0,
-        ))
+        idc_steps.append(
+            ProofStep(
+                rule_name="IDC_TRIVIAL_Z",
+                antecedent_vars=(),
+                consequent_vars=tuple(sorted(outcome)),
+                applied_to_graph_state="IDC with Z=∅: reduces trivially to ID(Y, X, G)",
+                graph_state_before="Z=∅ — no conditioning variables",
+                depth=0,
+            )
+        )
         trace.append("idc_algorithm: Z=∅, delegating to id_algorithm")
         inner = id_algorithm(
             treatment=treatment,
@@ -990,19 +1004,21 @@ def idc_algorithm(
     # ------------------------------------------------------------------
     # Emit IDC_DECOMPOSE proof step
     # ------------------------------------------------------------------
-    idc_steps.append(ProofStep(
-        rule_name="IDC_DECOMPOSE",
-        antecedent_vars=tuple(sorted(treatment | conditions)),
-        consequent_vars=tuple(sorted(outcome)),
-        applied_to_graph_state=(
-            f"IDC: ratio = ID({sorted(outcome | conditions)},{sorted(treatment)},G)"
-            f" / ID({sorted(conditions)},{sorted(treatment)},G)"
-        ),
-        graph_state_before=(
-            f"Query P(Y|do(X),Z): Y={sorted(outcome)}, X={sorted(treatment)}, Z={sorted(conditions)}"
-        ),
-        depth=0,
-    ))
+    idc_steps.append(
+        ProofStep(
+            rule_name="IDC_DECOMPOSE",
+            antecedent_vars=tuple(sorted(treatment | conditions)),
+            consequent_vars=tuple(sorted(outcome)),
+            applied_to_graph_state=(
+                f"IDC: ratio = ID({sorted(outcome | conditions)},{sorted(treatment)},G)"
+                f" / ID({sorted(conditions)},{sorted(treatment)},G)"
+            ),
+            graph_state_before=(
+                f"Query P(Y|do(X),Z): Y={sorted(outcome)}, X={sorted(treatment)}, Z={sorted(conditions)}"
+            ),
+            depth=0,
+        )
+    )
 
     # ------------------------------------------------------------------
     # Numerator: ID(Y ∪ Z, X, G)
@@ -1045,17 +1061,19 @@ def idc_algorithm(
     # ------------------------------------------------------------------
     # Positivity side-condition step
     # ------------------------------------------------------------------
-    idc_steps.append(ProofStep(
-        rule_name="IDC_POSITIVITY",
-        antecedent_vars=tuple(sorted(conditions)),
-        consequent_vars=tuple(sorted(conditions)),
-        applied_to_graph_state=(
-            f"IDC positivity required: P({sorted(conditions)}|do({sorted(treatment)})) > 0"
-            f" in support of X={sorted(treatment)}"
-        ),
-        graph_state_before=f"denominator: ID({sorted(conditions)},{sorted(treatment)},G)",
-        depth=0,
-    ))
+    idc_steps.append(
+        ProofStep(
+            rule_name="IDC_POSITIVITY",
+            antecedent_vars=tuple(sorted(conditions)),
+            consequent_vars=tuple(sorted(conditions)),
+            applied_to_graph_state=(
+                f"IDC positivity required: P({sorted(conditions)}|do({sorted(treatment)})) > 0"
+                f" in support of X={sorted(treatment)}"
+            ),
+            graph_state_before=f"denominator: ID({sorted(conditions)},{sorted(treatment)},G)",
+            depth=0,
+        )
+    )
 
     # ------------------------------------------------------------------
     # Combine: numerator / denominator
@@ -1083,11 +1101,7 @@ def idc_algorithm(
     )
     all_dists = num_result.required_distributions + denom_result.required_distributions
     trace.append("idc_algorithm: IDENTIFIED via ratio")
-    all_proof_steps = (
-        idc_steps
-        + list(num_result.proof_steps)
-        + list(denom_result.proof_steps)
-    )
+    all_proof_steps = idc_steps + list(num_result.proof_steps) + list(denom_result.proof_steps)
     return IdentificationResult(
         status=IdentificationStatus.IDENTIFIED,
         estimand_ast=combined_ast,
@@ -1274,7 +1288,7 @@ def tr_algorithm(
     *,
     treatment: frozenset[str],
     outcome: frozenset[str],
-    selection_diagram: "Any",  # SelectionDiagram — avoid circular import
+    selection_diagram: Any,  # SelectionDiagram — avoid circular import
     dataset_ref: str | None = None,
 ) -> IdentificationResult:
     """Bareinboim-Pearl TR algorithm for transportability.
@@ -1451,7 +1465,7 @@ def find_hedge(
     outcome: frozenset[str],
     graph: CausalGraphModel,
     available_vars: frozenset[str] | None = None,
-) -> "HedgeCertificate | None":
+) -> HedgeCertificate | None:
     """Find a hedge (Shpitser & Pearl 2006, Thm 3) without running full ID.
 
     Returns a :class:`HedgeCertificate` if P(Y|do(X)) is provably
@@ -1498,7 +1512,7 @@ def find_hedge(
     bi_edges = extract_bidirected_edges(graph)
 
     for si in comps_minus_x:
-        if not (Y <= si):
+        if not (si >= Y):
             continue  # F' must contain Y
         # Find Sj ∈ C(G) such that Si ⊆ Sj and Sj ∩ X ≠ ∅
         for sj in comps_g:
@@ -1530,9 +1544,7 @@ def find_hedge(
                             )
                             for xi in sorted(sj & X)
                         ),
-                        suggested_experiment=(
-                            f"Randomize: {sorted(sj & X)}" if sj & X else None
-                        ),
+                        suggested_experiment=(f"Randomize: {sorted(sj & X)}" if sj & X else None),
                     ),
                     minimal_required_s_nodes=frozenset(minimal_s),
                 )
@@ -1545,7 +1557,7 @@ def find_thicket(
     outcome: frozenset[str],
     graph: CausalGraphModel,
     available_vars: frozenset[str] | None = None,
-) -> list["HedgeCertificate"]:
+) -> list[HedgeCertificate]:
     """Find ALL minimal hedges blocking P(Y|do(X)) identification.
 
     A *thicket* is the set of minimal, non-redundant hedges.  Returns an empty
@@ -1583,7 +1595,7 @@ def find_thicket(
     seen: set[tuple[frozenset[str], frozenset[str]]] = set()
 
     for si in comps_minus_x:
-        if not (Y <= si):
+        if not (si >= Y):
             continue
         for sj in comps_g:
             if not (si <= sj and sj & X):
@@ -1599,38 +1611,37 @@ def find_thicket(
                     minimal_s.add(v_node)
                 elif v_node in X and u in si:
                     minimal_s.add(u)
-            all_certs.append(HedgeCertificate(
-                treatment=X,
-                outcome=Y,
-                hedge_forest=sj,
-                hedge_root=si,
-                c_component_witness=si,
-                description=(
-                    f"Hedge (F={sorted(sj)}, F'={sorted(si)}): "
-                    f"P({sorted(Y)}|do({sorted(X)})) is NOT identifiable."
-                ),
-                required_data=RequiredDataSpec(
-                    missing_distributions=tuple(
-                        DistributionRef(
-                            domain=DistributionDomain.EXPERIMENTAL,
-                            variables=tuple(sorted(Y)),
-                            intervention_set=(xi,),
-                        )
-                        for xi in sorted(sj & X)
+            all_certs.append(
+                HedgeCertificate(
+                    treatment=X,
+                    outcome=Y,
+                    hedge_forest=sj,
+                    hedge_root=si,
+                    c_component_witness=si,
+                    description=(
+                        f"Hedge (F={sorted(sj)}, F'={sorted(si)}): "
+                        f"P({sorted(Y)}|do({sorted(X)})) is NOT identifiable."
                     ),
-                    suggested_experiment=(
-                        f"Randomize: {sorted(sj & X)}" if sj & X else None
+                    required_data=RequiredDataSpec(
+                        missing_distributions=tuple(
+                            DistributionRef(
+                                domain=DistributionDomain.EXPERIMENTAL,
+                                variables=tuple(sorted(Y)),
+                                intervention_set=(xi,),
+                            )
+                            for xi in sorted(sj & X)
+                        ),
+                        suggested_experiment=(f"Randomize: {sorted(sj & X)}" if sj & X else None),
                     ),
-                ),
-                minimal_required_s_nodes=frozenset(minimal_s),
-            ))
+                    minimal_required_s_nodes=frozenset(minimal_s),
+                )
+            )
 
     # Filter to minimal hedges: keep cert c if no other cert c' has c'.hedge_root ⊂ c.hedge_root
     minimal_certs: list[HedgeCertificate] = []
     for cert in all_certs:
         dominated = any(
-            other is not cert and other.hedge_root < cert.hedge_root
-            for other in all_certs
+            other is not cert and other.hedge_root < cert.hedge_root for other in all_certs
         )
         if not dominated:
             minimal_certs.append(cert)
@@ -1644,7 +1655,7 @@ def find_thicket(
 # ---------------------------------------------------------------------------
 
 
-def _internal_proof_step_to_ir(step: "ProofStep") -> "Any":
+def _internal_proof_step_to_ir(step: ProofStep) -> Any:
     """Convert an id_engine internal ``ProofStep`` to ``evidence_bundle.ProofStep``.
 
     Maps internal rule names (which follow ID-algorithm step numbering) to
@@ -1871,7 +1882,9 @@ def _internal_proof_step_to_ir(step: "ProofStep") -> "Any":
             step.applied_to_graph_state,
         )
     )
-    step_id = f"{step.rule_name.lower()}_{hashlib.sha256(step_id_payload.encode()).hexdigest()[:12]}"
+    step_id = (
+        f"{step.rule_name.lower()}_{hashlib.sha256(step_id_payload.encode()).hexdigest()[:12]}"
+    )
     return IRProofStep(
         rule_name=step.rule_name,
         description=step.applied_to_graph_state,
@@ -1898,7 +1911,6 @@ def _wrap_root(
     method: str,
 ) -> EstimandAST:
     """Wrap a single root node into an EstimandAST."""
-    from polisyos.ir.analytics.estimand import EstimandNode
 
     t_str = next(iter(sorted(treatment))) if len(treatment) == 1 else str(sorted(treatment))
     y_str = next(iter(sorted(outcome))) if len(outcome) == 1 else str(sorted(outcome))
@@ -1933,7 +1945,9 @@ def _make_conditional_dist(
                 variables=conditioning,
                 description="Positivity required for conditioning variables",
             ),
-        ) if conditioning else (),
+        )
+        if conditioning
+        else (),
     )
 
 
@@ -1960,6 +1974,7 @@ def _step5_formula(
     # Get topological order over V (directed edges in G)
     try:
         from polisyos.foundry.methods.catalog.causal.admg_ops import topological_order
+
         topo = topological_order(graph)
         topo_in_V = [n for n in topo if n in V]
     except ValueError:
@@ -2054,8 +2069,7 @@ def _step6_formula(
     induced subgraph G[Sj] with X restricted to X ∩ Sj.
     """
     trace.append(
-        f"[depth={depth}] Step 6: Si={sorted(si)} ⊂ Sj={sorted(sj)}, "
-        f"recursing on subgraph G[Sj]"
+        f"[depth={depth}] Step 6: Si={sorted(si)} ⊂ Sj={sorted(sj)}, recursing on subgraph G[Sj]"
     )
     sub_g_sj = induced_subgraph(graph, sj)
     sub_x = X & sj
@@ -2100,7 +2114,7 @@ def _oracle_y0(
 ) -> IdentificationResult:
     """Attempt identification via the Y0 Python package."""
     try:
-        import y0  # type: ignore[import-not-found]  # noqa: F401
+        import y0  # type: ignore[import-not-found]
     except ImportError:
         return dataclasses.replace(
             native_result,
@@ -2108,16 +2122,22 @@ def _oracle_y0(
         )
 
     try:
-        from y0.graph import NxMixedGraph  # type: ignore[import-not-found]
         from y0.algorithm.identify import identify  # type: ignore[import-not-found]
         from y0.dsl import Variable  # type: ignore[import-not-found]
+        from y0.graph import NxMixedGraph  # type: ignore[import-not-found]
 
         nx_graph = graph.to_networkx()
         mixed = NxMixedGraph.from_mixed_edges(
-            directed=[(e.src, e.dst) for e in graph.edges
-                      if e.mark_src is EdgeMark.TAIL and e.mark_dst is EdgeMark.ARROW],
-            undirected=[(e.src, e.dst) for e in graph.edges
-                        if e.mark_src is EdgeMark.ARROW and e.mark_dst is EdgeMark.ARROW],
+            directed=[
+                (e.src, e.dst)
+                for e in graph.edges
+                if e.mark_src is EdgeMark.TAIL and e.mark_dst is EdgeMark.ARROW
+            ],
+            undirected=[
+                (e.src, e.dst)
+                for e in graph.edges
+                if e.mark_src is EdgeMark.ARROW and e.mark_dst is EdgeMark.ARROW
+            ],
         )
         y_vars = [Variable(v) for v in sorted(outcome)]
         x_vars = [Variable(v) for v in sorted(treatment)]
@@ -2133,7 +2153,9 @@ def _oracle_y0(
             ast = EstimandAST(
                 query_str=f"P({sorted(outcome)}|do({sorted(treatment)}))",
                 root=leaf,
-                treatment=next(iter(sorted(treatment))) if len(treatment) == 1 else str(sorted(treatment)),
+                treatment=next(iter(sorted(treatment)))
+                if len(treatment) == 1
+                else str(sorted(treatment)),
                 outcome=next(iter(sorted(outcome))) if len(outcome) == 1 else str(sorted(outcome)),
                 all_variables=tuple(sorted(treatment | outcome)),
                 identification_method="y0_oracle",
@@ -2149,7 +2171,7 @@ def _oracle_y0(
             native_result,
             trace=[*native_result.trace, "oracle_y0: not identified"],
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return dataclasses.replace(
             native_result,
             trace=[*native_result.trace, f"oracle_y0 error: {exc}"],
@@ -2191,9 +2213,7 @@ def _oracle_dosearch(
         ]
         graph_str = "\n".join(directed_edges + bidirected_edges)
         data_str = f"p({', '.join(sorted(graph.nodes))})"
-        query_str = (
-            f"p({', '.join(sorted(outcome))} | do({', '.join(sorted(treatment))}))"
-        )
+        query_str = f"p({', '.join(sorted(outcome))} | do({', '.join(sorted(treatment))}))"
         result = dosearch.dosearch(
             data=ro.StrVector([data_str]),
             query=ro.StrVector([query_str]),
@@ -2210,7 +2230,9 @@ def _oracle_dosearch(
             ast = EstimandAST(
                 query_str=f"P({sorted(outcome)}|do({sorted(treatment)}))",
                 root=leaf,
-                treatment=next(iter(sorted(treatment))) if len(treatment) == 1 else str(sorted(treatment)),
+                treatment=next(iter(sorted(treatment)))
+                if len(treatment) == 1
+                else str(sorted(treatment)),
                 outcome=next(iter(sorted(outcome))) if len(outcome) == 1 else str(sorted(outcome)),
                 all_variables=tuple(sorted(treatment | outcome)),
                 identification_method="dosearch_oracle",
@@ -2226,7 +2248,7 @@ def _oracle_dosearch(
             native_result,
             trace=[*native_result.trace, "oracle_dosearch: not identified"],
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return dataclasses.replace(
             native_result,
             trace=[*native_result.trace, f"oracle_dosearch error: {exc}"],
@@ -2286,7 +2308,9 @@ def z_id_algorithm(
 
     # Step 0: No z-interventions — fall back to standard ID
     if not z_interventions:
-        _trace.append(f"[depth={_depth}] z_id: no Z-interventions → standard id_with_oracle_fallback")
+        _trace.append(
+            f"[depth={_depth}] z_id: no Z-interventions → standard id_with_oracle_fallback"
+        )
         return id_with_oracle_fallback(
             treatment=treatment,
             outcome=outcome,
@@ -2311,8 +2335,7 @@ def z_id_algorithm(
                 antecedent_vars=tuple(sorted(z_interventions)),
                 consequent_vars=tuple(sorted(outcome)),
                 applied_to_graph_state=(
-                    f"Direct Z-transport: Σ_Z P_z(Y|X,Z)·P*(Z) "
-                    f"with Z={sorted(z_interventions)}"
+                    f"Direct Z-transport: Σ_Z P_z(Y|X,Z)·P*(Z) with Z={sorted(z_interventions)}"
                 ),
                 depth=_depth,
             )
@@ -2350,7 +2373,9 @@ def z_id_algorithm(
             required_distributions=[],
         )
 
-    _trace.append(f"[depth={_depth}] z_id: first pass status={first_pass.status}, trying idc fallback")
+    _trace.append(
+        f"[depth={_depth}] z_id: first pass status={first_pass.status}, trying idc fallback"
+    )
 
     # Step 3: Try IDC with each Z-variable as instrument
     best: IdentificationResult = first_pass
@@ -2389,7 +2414,7 @@ def z_id_algorithm(
                 )
                 if best.status is IdentificationStatus.IDENTIFIED:
                     break
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
     return dataclasses.replace(best, proof_steps=_steps + list(best.proof_steps))
@@ -2495,7 +2520,9 @@ def _mz_factorize_by_c_component(
                 if has_s and has_z:
                     aug_comp = augment_with_s_nodes(comp_graph, domain.s_nodes & comp)
                     comp_result = z_id_algorithm(
-                        treatment=comp_treatment if comp_treatment else treatment & frozenset(comp_graph.nodes),
+                        treatment=comp_treatment
+                        if comp_treatment
+                        else treatment & frozenset(comp_graph.nodes),
                         outcome=comp_outcome,
                         z_interventions=domain.z_interventions & comp,
                         graph=aug_comp,
@@ -2503,7 +2530,9 @@ def _mz_factorize_by_c_component(
                     )
                 elif has_z:
                     comp_result = z_id_algorithm(
-                        treatment=comp_treatment if comp_treatment else treatment & frozenset(comp_graph.nodes),
+                        treatment=comp_treatment
+                        if comp_treatment
+                        else treatment & frozenset(comp_graph.nodes),
                         outcome=comp_outcome,
                         z_interventions=domain.z_interventions & comp,
                         graph=comp_graph,
@@ -2511,13 +2540,15 @@ def _mz_factorize_by_c_component(
                     )
                 else:
                     comp_result = id_with_oracle_fallback(
-                        treatment=comp_treatment if comp_treatment else treatment & frozenset(comp_graph.nodes),
+                        treatment=comp_treatment
+                        if comp_treatment
+                        else treatment & frozenset(comp_graph.nodes),
                         outcome=comp_outcome,
                         graph=comp_graph,
                         oracle="none",
                         dataset_ref=eff_dataset,
                     )
-            except Exception:  # noqa: BLE001
+            except Exception:
                 continue
 
             if comp_result.status is IdentificationStatus.IDENTIFIED:
@@ -2526,9 +2557,7 @@ def _mz_factorize_by_c_component(
                 break  # First domain that works is sufficient
 
         if best_comp is None:
-            _trace.append(
-                f"mz_factorize: c-component {sorted(comp)} not identified by any domain"
-            )
+            _trace.append(f"mz_factorize: c-component {sorted(comp)} not identified by any domain")
             return None  # Factorisation fails
 
         # Record domain selection for this component
@@ -2562,16 +2591,16 @@ def _mz_factorize_by_c_component(
         return None
 
     # Build combined estimand
-    combined_root = factor_nodes[0] if len(factor_nodes) == 1 else ProductNode(factors=tuple(factor_nodes))
+    combined_root = (
+        factor_nodes[0] if len(factor_nodes) == 1 else ProductNode(factors=tuple(factor_nodes))
+    )
     combined_ast = EstimandAST(
         query_str=f"P({sorted(outcome)}|do({sorted(treatment)}))",
         root=combined_root,
         treatment=(
             next(iter(sorted(treatment))) if len(treatment) == 1 else str(sorted(treatment))
         ),
-        outcome=(
-            next(iter(sorted(outcome))) if len(outcome) == 1 else str(sorted(outcome))
-        ),
+        outcome=(next(iter(sorted(outcome))) if len(outcome) == 1 else str(sorted(outcome))),
         all_variables=tuple(sorted(treatment | outcome)),
         identification_method="mz_id_factorization",
     )
@@ -2583,15 +2612,12 @@ def _mz_factorize_by_c_component(
             antecedent_vars=tuple(sorted(treatment | outcome)),
             consequent_vars=tuple(sorted(outcome)),
             applied_to_graph_state=(
-                f"mz-ID factorisation over {len(factor_nodes)} c-component(s) "
-                f"of G[An(Y)] succeeded"
+                f"mz-ID factorisation over {len(factor_nodes)} c-component(s) of G[An(Y)] succeeded"
             ),
             depth=0,
         )
     )
-    _trace.append(
-        f"mz_factorize: factorisation succeeded over {len(factor_nodes)} c-component(s)"
-    )
+    _trace.append(f"mz_factorize: factorisation succeeded over {len(factor_nodes)} c-component(s)")
 
     return IdentificationResult(
         status=IdentificationStatus.IDENTIFIED,
@@ -2650,9 +2676,7 @@ def mz_id_algorithm(
     # Prune source domains that cannot contribute to identifying outcome
     pruned = _prune_source_domains(outcome, graph, source_domains)
     if len(pruned) < len(source_domains):
-        _trace.append(
-            f"mz_id: pruned {len(source_domains) - len(pruned)} irrelevant domain(s)"
-        )
+        _trace.append(f"mz_id: pruned {len(source_domains) - len(pruned)} irrelevant domain(s)")
         source_domains = pruned
 
     identified_results: list[tuple[int, IdentificationResult]] = []  # (domain_idx, result)
@@ -2675,8 +2699,12 @@ def mz_id_algorithm(
         elif has_s:
             # Domain has only S-nodes: use tr_algorithm with a minimal SelectionDiagram
             try:
-                from polisyos.ir.analytics.context import ContextProfile  # noqa: PLC0415
-                from polisyos.ir.analytics.transportability import SelectionDiagram, SNode  # noqa: PLC0415
+                from polisyos.ir.analytics.context import ContextProfile
+                from polisyos.ir.analytics.transportability import (
+                    SelectionDiagram,
+                    SNode,
+                )
+
                 s_node_list = [
                     SNode(
                         target_variable=sv,
@@ -2701,7 +2729,7 @@ def mz_id_algorithm(
                     selection_diagram=sd_obj,
                     dataset_ref=dataset_ref or domain.dataset_ref,
                 )
-            except Exception:  # noqa: BLE001
+            except Exception:
                 result = id_with_oracle_fallback(
                     treatment=treatment,
                     outcome=outcome,
@@ -2735,6 +2763,7 @@ def mz_id_algorithm(
     # Return best IDENTIFIED result — prefer the domain with more z_interventions
     # (more experimental information → more reliable estimand).
     if identified_results:
+
         def _z_count_for_pair(pair: tuple[int, IdentificationResult]) -> int:
             d_idx, _ = pair
             return len(source_domains[d_idx].z_interventions)
@@ -2866,9 +2895,7 @@ def _make_policy_estimand_ast(
 
     if policy.policy_type == "shift":
         policy_expr = policy.policy_expr or (
-            f"{t_str}+{policy.shift_delta}"
-            if policy.shift_delta is not None
-            else f"shift({t_str})"
+            f"{t_str}+{policy.shift_delta}" if policy.shift_delta is not None else f"shift({t_str})"
         )
         root_node = ModifiedTreatmentPolicyNode(
             treatment_var=t_str,
@@ -3058,16 +3085,18 @@ def sid_algorithm(
                 dataset_ref=dataset_ref,
                 domain=domain,
             )
-            _steps.append(ProofStep(
-                rule_name=_SID_CONDITIONAL,
-                antecedent_vars=tuple(sorted(treatment)),
-                consequent_vars=tuple(sorted(outcome)),
-                applied_to_graph_state=(
-                    f"Conditional policy do(X|Z={sorted(policy.conditioning_vars)}) "
-                    f"→ conditional_intervention_id; inner status={cond_result.status.value}"
-                ),
-                depth=0,
-            ))
+            _steps.append(
+                ProofStep(
+                    rule_name=_SID_CONDITIONAL,
+                    antecedent_vars=tuple(sorted(treatment)),
+                    consequent_vars=tuple(sorted(outcome)),
+                    applied_to_graph_state=(
+                        f"Conditional policy do(X|Z={sorted(policy.conditioning_vars)}) "
+                        f"→ conditional_intervention_id; inner status={cond_result.status.value}"
+                    ),
+                    depth=0,
+                )
+            )
             return dataclasses.replace(
                 cond_result,
                 proof_steps=_steps + list(cond_result.proof_steps),
@@ -3096,16 +3125,18 @@ def sid_algorithm(
         )
         _trace = list(base_result.trace)
         if base_result.status is IdentificationStatus.IDENTIFIED:
-            _steps.append(ProofStep(
-                rule_name=_SID_DAG_POLICY,
-                antecedent_vars=tuple(sorted(treatment)),
-                consequent_vars=tuple(sorted(outcome)),
-                applied_to_graph_state=(
-                    "Policy g-formula fast path: replaced the treatment mechanism "
-                    "with the policy factor inside the DAG truncated factorization."
-                ),
-                depth=0,
-            ))
+            _steps.append(
+                ProofStep(
+                    rule_name=_SID_DAG_POLICY,
+                    antecedent_vars=tuple(sorted(treatment)),
+                    consequent_vars=tuple(sorted(outcome)),
+                    applied_to_graph_state=(
+                        "Policy g-formula fast path: replaced the treatment mechanism "
+                        "with the policy factor inside the DAG truncated factorization."
+                    ),
+                    depth=0,
+                )
+            )
     else:
         # General fallback: use the recursive ID kernel for P(Y|do(X=x)).
         base_result = id_algorithm(
@@ -3150,16 +3181,18 @@ def sid_algorithm(
     inner_do_node = base_result.estimand_ast.root  # type: ignore[union-attr]
 
     rule = _SID_SHIFT if policy.policy_type == "shift" else _SID_POLICY_WRAP
-    _steps.append(ProofStep(
-        rule_name=rule,
-        antecedent_vars=tuple(sorted(treatment)),
-        consequent_vars=tuple(sorted(outcome)),
-        applied_to_graph_state=(
-            f"policy_type={policy.policy_type}; "
-            f"wrapped P({y_str}|do({t_str})) in StochasticInterventionNode"
-        ),
-        depth=0,
-    ))
+    _steps.append(
+        ProofStep(
+            rule_name=rule,
+            antecedent_vars=tuple(sorted(treatment)),
+            consequent_vars=tuple(sorted(outcome)),
+            applied_to_graph_state=(
+                f"policy_type={policy.policy_type}; "
+                f"wrapped P({y_str}|do({t_str})) in StochasticInterventionNode"
+            ),
+            depth=0,
+        )
+    )
     wrapper_kind = (
         "ModifiedTreatmentPolicyNode"
         if policy.policy_type == "shift"
@@ -3170,7 +3203,9 @@ def sid_algorithm(
         f"(policy_type={policy.policy_type})"
     )
 
-    identification_method = "sid_shift" if policy.policy_type == "shift" else f"sid_{policy.policy_type}"
+    identification_method = (
+        "sid_shift" if policy.policy_type == "shift" else f"sid_{policy.policy_type}"
+    )
     base_side_conditions = (
         tuple(base_result.estimand_ast.side_conditions)
         if base_result.estimand_ast is not None
@@ -3184,7 +3219,8 @@ def sid_algorithm(
         domain=domain,
         dataset_ref=dataset_ref,
         identification_method=identification_method,
-        side_conditions=base_side_conditions + _policy_side_conditions(
+        side_conditions=base_side_conditions
+        + _policy_side_conditions(
             treatment=treatment,
             policy=policy,
         ),
@@ -3285,19 +3321,19 @@ def conditional_intervention_id(
         domain=domain,
         dataset_ref=dataset_ref,
     )
-    _steps.append(ProofStep(
-        rule_name=_SID_CONDITIONAL,
-        antecedent_vars=tuple(sorted(treatment)),
-        consequent_vars=tuple(sorted(outcome)),
-        applied_to_graph_state=(
-            f"do(X|Z={z_sorted}): standard ID succeeded; "
-            f"wrapped in ConditionalInterventionNode(condition_vars={z_sorted})"
-        ),
-        depth=0,
-    ))
-    _trace.append(
-        f"[COND-DO] IDENTIFIED — wrapped in ConditionalInterventionNode(Z={z_sorted})"
+    _steps.append(
+        ProofStep(
+            rule_name=_SID_CONDITIONAL,
+            antecedent_vars=tuple(sorted(treatment)),
+            consequent_vars=tuple(sorted(outcome)),
+            applied_to_graph_state=(
+                f"do(X|Z={z_sorted}): standard ID succeeded; "
+                f"wrapped in ConditionalInterventionNode(condition_vars={z_sorted})"
+            ),
+            depth=0,
+        )
     )
+    _trace.append(f"[COND-DO] IDENTIFIED — wrapped in ConditionalInterventionNode(Z={z_sorted})")
 
     ast = EstimandAST(
         query_str=f"P({y_str}|do({t_str}|Z={z_sorted}))",
@@ -3368,14 +3404,9 @@ def dynamic_intervention_id(
 
     if covariate_sequence is None:
         reserved = set(treatment_sequence) | {outcome}
-        covariate_sequence = [
-            v for v in sorted(all_nodes - reserved)
-        ]
+        covariate_sequence = [v for v in sorted(all_nodes - reserved)]
 
-    _trace.append(
-        f"[DYN-ID] dynamic_intervention_id("
-        f"A={treatment_sequence}, Y={outcome}, T={T})"
-    )
+    _trace.append(f"[DYN-ID] dynamic_intervention_id(A={treatment_sequence}, Y={outcome}, T={T})")
 
     # --- Sequential ignorability check (graphical) ---
     si_satisfied = True
@@ -3407,13 +3438,15 @@ def dynamic_intervention_id(
     if not si_satisfied:
         warning_str = "; ".join(si_warnings)
         _trace.append(f"[DYN-ID] Sequential ignorability check: WARNINGS — {warning_str}")
-        _steps.append(ProofStep(
-            rule_name=_DYNAMIC_GFORMULA,
-            antecedent_vars=tuple(treatment_sequence),
-            consequent_vars=(outcome,),
-            applied_to_graph_state=f"Sequential ignorability warnings: {warning_str}",
-            depth=0,
-        ))
+        _steps.append(
+            ProofStep(
+                rule_name=_DYNAMIC_GFORMULA,
+                antecedent_vars=tuple(treatment_sequence),
+                consequent_vars=(outcome,),
+                applied_to_graph_state=f"Sequential ignorability warnings: {warning_str}",
+                depth=0,
+            )
+        )
         # Still emit the g-formula estimand with a side-condition warning
         # (the estimand is correct *if* the user asserts SI holds)
 
@@ -3426,13 +3459,15 @@ def dynamic_intervention_id(
         history_treatments = tuple(treatment_sequence[:t_idx])
         history_covariates = tuple(covariate_sequence[:t_idx])
         cond_set = history_treatments + history_covariates
-        factors.append(DistributionRef(
-            domain=domain,
-            variables=(lt,),
-            conditioning=cond_set,
-            dataset_ref=dataset_ref,
-            intervention_set=(),
-        ))
+        factors.append(
+            DistributionRef(
+                domain=domain,
+                variables=(lt,),
+                conditioning=cond_set,
+                dataset_ref=dataset_ref,
+                intervention_set=(),
+            )
+        )
 
     # Outcome model E[Y | full treatment + covariate history]
     outcome_factor = DistributionRef(
@@ -3453,25 +3488,30 @@ def dynamic_intervention_id(
     else:
         inner_node = outcome_factor
 
-    root = SumNode(
-        summation_vars=all_covariate_vars,
-        operand=inner_node,
-    ) if all_covariate_vars else inner_node
-
-    si_note = "sequential_ignorability_assumed" if si_satisfied else "sequential_ignorability_warnings"
-    _steps.append(ProofStep(
-        rule_name=_DYNAMIC_GFORMULA,
-        antecedent_vars=tuple(treatment_sequence),
-        consequent_vars=(outcome,),
-        applied_to_graph_state=(
-            f"g-formula T={T}: "
-            f"{len(covariate_sequence)} time-varying covariates; {si_note}"
-        ),
-        depth=0,
-    ))
-    _trace.append(
-        f"[DYN-ID] IDENTIFIED via g-formula (T={T}, {si_note})"
+    root = (
+        SumNode(
+            summation_vars=all_covariate_vars,
+            operand=inner_node,
+        )
+        if all_covariate_vars
+        else inner_node
     )
+
+    si_note = (
+        "sequential_ignorability_assumed" if si_satisfied else "sequential_ignorability_warnings"
+    )
+    _steps.append(
+        ProofStep(
+            rule_name=_DYNAMIC_GFORMULA,
+            antecedent_vars=tuple(treatment_sequence),
+            consequent_vars=(outcome,),
+            applied_to_graph_state=(
+                f"g-formula T={T}: {len(covariate_sequence)} time-varying covariates; {si_note}"
+            ),
+            depth=0,
+        )
+    )
+    _trace.append(f"[DYN-ID] IDENTIFIED via g-formula (T={T}, {si_note})")
 
     t_label = str(treatment_sequence)
     ast = EstimandAST(
@@ -3554,10 +3594,7 @@ def joint_id_algorithm(
     t_str = str(sorted(treatments)) if len(treatments) != 1 else next(iter(sorted(treatments)))
     y_str = str(sorted(outcomes)) if len(outcomes) != 1 else next(iter(sorted(outcomes)))
 
-    _trace.append(
-        f"[JOINT-ID] joint_id_algorithm("
-        f"X={sorted(treatments)}, Y={sorted(outcomes)})"
-    )
+    _trace.append(f"[JOINT-ID] joint_id_algorithm(X={sorted(treatments)}, Y={sorted(outcomes)})")
 
     # Degenerate case: single treatment, single outcome → standard ID
     if len(outcomes) == 1 and len(treatments) == 1:
@@ -3574,19 +3611,18 @@ def joint_id_algorithm(
     g_minus_x = induced_subgraph(graph, available_vars - treatments)
     comps = c_components(g_minus_x)  # list[frozenset[str]]
 
-    _trace.append(
-        f"[JOINT-ID] c-components of G\\X: {[sorted(c) for c in comps]}"
+    _trace.append(f"[JOINT-ID] c-components of G\\X: {[sorted(c) for c in comps]}")
+    _steps.append(
+        ProofStep(
+            rule_name=_JOINT_FACTOR_DECOMPOSE,
+            antecedent_vars=tuple(sorted(treatments)),
+            consequent_vars=tuple(sorted(outcomes)),
+            applied_to_graph_state=(
+                f"c-components of G\\X computed once: {[sorted(c) for c in comps]}"
+            ),
+            depth=0,
+        )
     )
-    _steps.append(ProofStep(
-        rule_name=_JOINT_FACTOR_DECOMPOSE,
-        antecedent_vars=tuple(sorted(treatments)),
-        consequent_vars=tuple(sorted(outcomes)),
-        applied_to_graph_state=(
-            f"c-components of G\\X computed once: "
-            f"{[sorted(c) for c in comps]}"
-        ),
-        depth=0,
-    ))
 
     # Step 2: group outcomes by c-component
     comp_outcome_groups: list[tuple[frozenset[str], frozenset[str]]] = []
@@ -3637,9 +3673,7 @@ def joint_id_algorithm(
             break
 
         factor_estimands.append(factor_result.estimand_ast.root)  # type: ignore[union-attr]
-        _trace.append(
-            f"[JOINT-ID] Factor for Y_group={sorted(y_group)} IDENTIFIED"
-        )
+        _trace.append(f"[JOINT-ID] Factor for Y_group={sorted(y_group)} IDENTIFIED")
 
     if not all_identified:
         _trace.append("[JOINT-ID] Joint identification FAILED — returning last failed result")
@@ -3656,19 +3690,19 @@ def joint_id_algorithm(
     else:
         joint_root = ProductNode(factors=tuple(factor_estimands))
 
-    _steps.append(ProofStep(
-        rule_name=_JOINT_FACTOR_DECOMPOSE,
-        antecedent_vars=tuple(sorted(treatments)),
-        consequent_vars=tuple(sorted(outcomes)),
-        applied_to_graph_state=(
-            f"Joint identification SUCCEEDED: "
-            f"{len(factor_estimands)} factors combined into ProductNode"
-        ),
-        depth=0,
-    ))
-    _trace.append(
-        f"[JOINT-ID] IDENTIFIED — {len(factor_estimands)} factor(s) as ProductNode"
+    _steps.append(
+        ProofStep(
+            rule_name=_JOINT_FACTOR_DECOMPOSE,
+            antecedent_vars=tuple(sorted(treatments)),
+            consequent_vars=tuple(sorted(outcomes)),
+            applied_to_graph_state=(
+                f"Joint identification SUCCEEDED: "
+                f"{len(factor_estimands)} factors combined into ProductNode"
+            ),
+            depth=0,
+        )
     )
+    _trace.append(f"[JOINT-ID] IDENTIFIED — {len(factor_estimands)} factor(s) as ProductNode")
 
     ast = EstimandAST(
         query_str=f"P({y_str}|do({t_str}))",
@@ -3683,9 +3717,9 @@ def joint_id_algorithm(
         estimand_ast=ast,
         hedge_certificate=None,
         trace=_trace,
-        required_distributions=list(dict.fromkeys(
-            (str(d), d) for d in all_required
-        ).values()) if all_required else [],
+        required_distributions=list(dict.fromkeys((str(d), d) for d in all_required).values())
+        if all_required
+        else [],
         algorithm_version="joint_id_v1",
         proof_steps=_steps,
     )
@@ -3725,18 +3759,13 @@ def multi_outcome_id(
         available_vars = frozenset(graph.nodes)
 
     _trace: list[str] = []
-    _trace.append(
-        f"[MULTI-ID] multi_outcome_id("
-        f"X={sorted(treatment)}, Y_list={outcomes})"
-    )
+    _trace.append(f"[MULTI-ID] multi_outcome_id(X={sorted(treatment)}, Y_list={outcomes})")
 
     # Shared c-component decomposition
     g_minus_x = induced_subgraph(graph, available_vars - treatment)
     comps = c_components(g_minus_x)
 
-    _trace.append(
-        f"[MULTI-ID] Shared c-components of G\\X: {[sorted(c) for c in comps]}"
-    )
+    _trace.append(f"[MULTI-ID] Shared c-components of G\\X: {[sorted(c) for c in comps]}")
 
     # Map each outcome to its c-component for efficient sub-graph selection
     outcome_to_comp: dict[str, frozenset[str]] = {}
@@ -3779,9 +3808,7 @@ def multi_outcome_id(
             proof_steps=[shared_step] + list(result.proof_steps),
             algorithm_version="multi_outcome_id_v1",
         )
-        _trace.append(
-            f"[MULTI-ID] Y={y_var} → {result.status.value}"
-        )
+        _trace.append(f"[MULTI-ID] Y={y_var} → {result.status.value}")
 
     return results
 
@@ -3972,9 +3999,7 @@ def _ctf_parents(graph: CausalGraphModel, node: str) -> set[str]:
     return {
         edge.src
         for edge in graph.edges
-        if edge.mark_src is EdgeMark.TAIL
-        and edge.mark_dst is EdgeMark.ARROW
-        and edge.dst == node
+        if edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.ARROW and edge.dst == node
     }
 
 
@@ -4113,9 +4138,7 @@ def _build_counterfactual_graph(
     normalized_query: _NormalizedCtfQuery,
 ) -> tuple[CausalGraphModel, dict[str, tuple[tuple[str, float], ...]]]:
     nodes = list(graph.nodes)
-    intervention_by_node: dict[str, tuple[tuple[str, float], ...]] = {
-        node: () for node in graph.nodes
-    }
+    intervention_by_node: dict[str, tuple[tuple[str, float], ...]] = dict.fromkeys(graph.nodes, ())
     for world in normalized_query.worlds:
         for node in graph.nodes:
             world_node = f"{node}__{world.key}"
@@ -4150,13 +4173,23 @@ def _build_counterfactual_graph(
             for world in normalized_query.worlds:
                 if edge.dst in dict(world.intervention):
                     continue
-                _add_edge(f"{edge.src}__{world.key}", f"{edge.dst}__{world.key}", EdgeMark.TAIL, EdgeMark.ARROW)
+                _add_edge(
+                    f"{edge.src}__{world.key}",
+                    f"{edge.dst}__{world.key}",
+                    EdgeMark.TAIL,
+                    EdgeMark.ARROW,
+                )
         elif edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW:
             _add_edge(edge.src, edge.dst, EdgeMark.ARROW, EdgeMark.ARROW)
             for world in normalized_query.worlds:
                 if edge.src in dict(world.intervention) or edge.dst in dict(world.intervention):
                     continue
-                _add_edge(f"{edge.src}__{world.key}", f"{edge.dst}__{world.key}", EdgeMark.ARROW, EdgeMark.ARROW)
+                _add_edge(
+                    f"{edge.src}__{world.key}",
+                    f"{edge.dst}__{world.key}",
+                    EdgeMark.ARROW,
+                    EdgeMark.ARROW,
+                )
 
     base_bidirected_pairs = [
         tuple(sorted((edge.src, edge.dst)))
@@ -4218,8 +4251,7 @@ def _build_counterfactual_graph(
             **dict(graph.metadata),
             "derived_view": "counterfactual_graph",
             "counterfactual_worlds": {
-                world.key: dict(world.intervention)
-                for world in normalized_query.worlds
+                world.key: dict(world.intervention) for world in normalized_query.worlds
             },
         },
     )
@@ -4267,11 +4299,7 @@ def _reduce_counterfactual_graph(
     intervention_by_node: dict[str, tuple[tuple[str, float], ...]],
 ) -> tuple[CausalGraphModel, set[str], dict[str, float], bool]:
     worlds = sorted(
-        {
-            intervention
-            for intervention in intervention_by_node.values()
-            if intervention
-        }
+        {intervention for intervention in intervention_by_node.values() if intervention}
     )
     world_lookup = {intervention: idx for idx, intervention in enumerate(worlds)}
 
@@ -4286,12 +4314,16 @@ def _reduce_counterfactual_graph(
     for node in topological_order(base_graph):
         for intervention in worlds:
             copy_node = _copy_name(node, intervention)
-            if node in current_graph.nodes and copy_node in current_graph.nodes and _ctf_lemma24_holds(
-                current_graph,
-                node,
-                copy_node,
-                event_assignments,
-                intervention_by_node,
+            if (
+                node in current_graph.nodes
+                and copy_node in current_graph.nodes
+                and _ctf_lemma24_holds(
+                    current_graph,
+                    node,
+                    copy_node,
+                    event_assignments,
+                    intervention_by_node,
+                )
             ):
                 keep, drop = _ctf_choose_merge_target(node, copy_node)
                 if (
@@ -4351,9 +4383,7 @@ def _reduce_counterfactual_graph(
         current_graph = induced_subgraph(current_graph, an_mentioned)
         focus_nodes = {node for node in focus_nodes if node in an_mentioned}
         event_assignments = {
-            node: value
-            for node, value in event_assignments.items()
-            if node in an_mentioned
+            node: value for node, value in event_assignments.items() if node in an_mentioned
         }
     return current_graph, focus_nodes, event_assignments, inconsistent
 
@@ -4422,7 +4452,9 @@ def _format_counterfactual_query_str(
     conditioning: tuple[str, ...],
 ) -> str:
     head = _format_counterfactual_head(outcome, intervention)
-    rhs_terms = [f"{name}={_format_assignment(value)}" for name, value in evidence] + list(conditioning)
+    rhs_terms = [f"{name}={_format_assignment(value)}" for name, value in evidence] + list(
+        conditioning
+    )
     if rhs_terms:
         return f"P({head} | {', '.join(rhs_terms)})"
     return f"P({head})"
@@ -4447,10 +4479,11 @@ def _format_cross_world_query_str(
     conditioning: tuple[str, ...],
 ) -> str:
     head = ", ".join(
-        _format_counterfactual_head(outcome, intervention)
-        for intervention in interventions
+        _format_counterfactual_head(outcome, intervention) for intervention in interventions
     )
-    rhs_terms = [f"{name}={_format_assignment(value)}" for name, value in evidence] + list(conditioning)
+    rhs_terms = [f"{name}={_format_assignment(value)}" for name, value in evidence] + list(
+        conditioning
+    )
     if rhs_terms:
         return f"P({head} | {', '.join(rhs_terms)})"
     return f"P({head})"
@@ -4522,7 +4555,11 @@ def _counterfactual_ast(
         sorted(
             {
                 query.outcome,
-                *(name for outcome_world in normalized_query.outcome_worlds for name, _ in outcome_world),
+                *(
+                    name
+                    for outcome_world in normalized_query.outcome_worlds
+                    for name, _ in outcome_world
+                ),
                 *(name for name, _ in normalized_query.evidence),
                 *normalized_query.conditioning,
             }
@@ -4530,11 +4567,7 @@ def _counterfactual_ast(
     )
     treatment_vars = tuple(
         sorted(
-            {
-                name
-                for outcome_world in normalized_query.outcome_worlds
-                for name, _ in outcome_world
-            }
+            {name for outcome_world in normalized_query.outcome_worlds for name, _ in outcome_world}
         )
     )
     treatment = (
@@ -4610,8 +4643,7 @@ def id_star_algorithm(
     }
     focus_nodes.update(normalized_query.conditioning)
     event_assignments = {
-        _ctf_node_name(name, (), world_lookup): value
-        for name, value in normalized_query.evidence
+        _ctf_node_name(name, (), world_lookup): value for name, value in normalized_query.evidence
     }
     trace.append(
         f"[ID* depth={_depth}] raw G* has {len(cf_graph.nodes)} nodes and {len(cf_graph.edges)} edges"
@@ -4764,7 +4796,11 @@ def id_star_algorithm(
                 status=base_result.status,
                 estimand_ast=None,
                 hedge_certificate=base_result.hedge_certificate,
-                trace=[*trace, *base_result.trace, f"[ID* depth={_depth}] district reduction failed"],
+                trace=[
+                    *trace,
+                    *base_result.trace,
+                    f"[ID* depth={_depth}] district reduction failed",
+                ],
                 required_distributions=base_result.required_distributions,
                 algorithm_version="id_star_v2",
                 proof_steps=[*proof_steps, *base_result.proof_steps],
@@ -4799,7 +4835,10 @@ def id_star_algorithm(
         trace=[*trace, *(step for result in reduced_results for step in result.trace)],
         required_distributions=required_distributions,
         algorithm_version="id_star_v2",
-        proof_steps=[*proof_steps, *(step for result in reduced_results for step in result.proof_steps)],
+        proof_steps=[
+            *proof_steps,
+            *(step for result in reduced_results for step in result.proof_steps),
+        ],
         query_str=ast.query_str,
     )
 

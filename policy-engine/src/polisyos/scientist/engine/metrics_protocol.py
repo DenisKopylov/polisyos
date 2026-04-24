@@ -3,6 +3,7 @@
 Defines :class:`EngineMetricsCollector` (a ``runtime_checkable`` protocol) and
 a no-op implementation for cases where metrics collection is disabled.
 """
+
 from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
@@ -13,7 +14,11 @@ class EngineMetricsCollector(Protocol):
     """Interface for recording Scientist engine execution metrics."""
 
     def record_node_started(
-        self, *, alias: str, node_id: str, workflow_id: str,
+        self,
+        *,
+        alias: str,
+        node_id: str,
+        workflow_id: str,
     ) -> None: ...  # pragma: no cover
 
     def record_node_completed(
@@ -29,23 +34,46 @@ class EngineMetricsCollector(Protocol):
     ) -> None: ...  # pragma: no cover
 
     def record_tier_completed(
-        self, *, tier_index: int, tier_size: int, duration_ms: int, workflow_id: str,
+        self,
+        *,
+        tier_index: int,
+        tier_size: int,
+        duration_ms: int,
+        workflow_id: str,
     ) -> None: ...  # pragma: no cover
 
     def record_workflow_completed(
-        self, *, workflow_id: str, status: str, duration_ms: int, node_count: int,
+        self,
+        *,
+        workflow_id: str,
+        status: str,
+        duration_ms: int,
+        node_count: int,
     ) -> None: ...  # pragma: no cover
 
     def record_backpressure(
-        self, *, tier_index: int, queued_tasks: int, active_tasks: int, workflow_id: str,
+        self,
+        *,
+        tier_index: int,
+        queued_tasks: int,
+        active_tasks: int,
+        workflow_id: str,
     ) -> None: ...  # pragma: no cover
 
     def record_semaphore_wait(
-        self, *, tier_index: int, wait_seconds: float, workflow_id: str,
+        self,
+        *,
+        tier_index: int,
+        wait_seconds: float,
+        workflow_id: str,
     ) -> None: ...  # pragma: no cover
 
     def record_workflow_state(
-        self, *, run_id: str, workflow_id: str, state: str,
+        self,
+        *,
+        run_id: str,
+        workflow_id: str,
+        state: str,
     ) -> None: ...  # pragma: no cover
 
     def record_trace_correlation(

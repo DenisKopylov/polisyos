@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from polisyos.scientist.autotune.dedup import TrialDeduplicator, TrialFingerprint
 from polisyos.scientist.autotune.models import MutationArtifact
 

@@ -4,10 +4,11 @@
 mechanism parameter domains through these bijectors. The helpers are pure JAX
 transformations and do not touch CAS or mutate mechanism state in place.
 """
+
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Callable, Iterable, List, Sequence
+from collections.abc import Callable, Sequence
+from dataclasses import dataclass
 
 import jax
 import jax.numpy as jnp
@@ -87,9 +88,7 @@ def make_bijector(lower: float | None, upper: float | None, eps: float = 1e-6) -
                 eps=eps,
             ),
             log_det_jacobian=lambda u: (
-                jnp.log(jax.nn.sigmoid(u))
-                + jnp.log1p(-jax.nn.sigmoid(u))
-                + jnp.log(width)
+                jnp.log(jax.nn.sigmoid(u)) + jnp.log1p(-jax.nn.sigmoid(u)) + jnp.log(width)
             ),
         )
     return _identity()
@@ -116,9 +115,7 @@ def logit_bijector(eps: float = 1e-8) -> Bijector:
     return Bijector(
         forward=lambda u: jax.nn.sigmoid(u),
         inverse=lambda x: stable_logit(x, eps=eps),
-        log_det_jacobian=lambda u: (
-            jnp.log(jax.nn.sigmoid(u)) + jnp.log(1.0 - jax.nn.sigmoid(u))
-        ),
+        log_det_jacobian=lambda u: (jnp.log(jax.nn.sigmoid(u)) + jnp.log(1.0 - jax.nn.sigmoid(u))),
     )
 
 
@@ -186,13 +183,15 @@ def inverse_bijector(b: Bijector) -> Bijector:
 # ---------------------------------------------------------------------------
 
 
-def to_unconstrained(values: Sequence[jnp.ndarray], bijectors: Sequence[Bijector]) -> List[jnp.ndarray]:
+def to_unconstrained(
+    values: Sequence[jnp.ndarray], bijectors: Sequence[Bijector]
+) -> list[jnp.ndarray]:
     """Transform constrained parameter values into optimizer coordinates."""
     return [b.inverse(v) for b, v in zip(bijectors, values)]
 
 
 def from_unconstrained(
     unconstrained: Sequence[jnp.ndarray], bijectors: Sequence[Bijector]
-) -> List[jnp.ndarray]:
+) -> list[jnp.ndarray]:
     """Transform optimizer coordinates back into constrained parameter values."""
     return [b.forward(u) for b, u in zip(bijectors, unconstrained)]

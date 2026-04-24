@@ -9,10 +9,12 @@ solve arbitrary MNAR identification:
 * Optional `reference_X` / `reference_design_weights` inputs switch the method
   into a probability-reference data-integration regime.
 """
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -322,8 +324,7 @@ def _build_fold_plan(
     seed: int,
 ) -> _FoldPlan:
     use_design_folds = (
-        np.unique(strata.astype(str)).size > 1
-        or np.unique(clusters.astype(str)).size > 1
+        np.unique(strata.astype(str)).size > 1 or np.unique(clusters.astype(str)).size > 1
     )
     if use_design_folds:
         schedule = build_psu_stratified_cross_fit_schedule(
@@ -414,7 +415,9 @@ def _cross_fit_response(
     for fold in folds:
         train_mask = np.ones(n, dtype=bool)
         train_mask[fold] = False
-        beta = _fit_weighted_logistic(features[train_mask], response[train_mask], weights[train_mask])
+        beta = _fit_weighted_logistic(
+            features[train_mask], response[train_mask], weights[train_mask]
+        )
         rho_hat[fold] = _predict_logistic(features[fold], beta)
 
     guarded, truncated = _apply_observability_guard(
@@ -473,7 +476,11 @@ def _cross_fit_outcome(
                 prediction_counts += 1.0
     prediction_counts = np.where(prediction_counts <= 0.0, 1.0, prediction_counts)
     preds = preds / prediction_counts
-    return preds, {"min_train_respondents": int(min_train_respondents if np.isfinite(min_train_respondents) else 0)}
+    return preds, {
+        "min_train_respondents": int(
+            min_train_respondents if np.isfinite(min_train_respondents) else 0
+        )
+    }
 
 
 def _cross_fit_reference_membership(
@@ -511,7 +518,16 @@ def _cross_fit_reference_membership(
 
     membership_prob = np.clip(membership_prob, 0.02, 0.98)
     odds = membership_prob / np.clip(1.0 - membership_prob, 0.02, None)
-    return odds, membership_prob, {"membership_probability_range": [float(np.min(membership_prob)), float(np.max(membership_prob))]}
+    return (
+        odds,
+        membership_prob,
+        {
+            "membership_probability_range": [
+                float(np.min(membership_prob)),
+                float(np.max(membership_prob)),
+            ]
+        },
+    )
 
 
 def _weighted_brier_gain(y: np.ndarray, p_hat: np.ndarray, weights: np.ndarray) -> float:
@@ -613,9 +629,7 @@ def _design_linearized_variance(
             dtype=float,
         )
         z_bar = float(np.mean(z_hi))
-        total += float(
-            clusters_h.size / (clusters_h.size - 1.0) * np.sum((z_hi - z_bar) ** 2)
-        )
+        total += float(clusters_h.size / (clusters_h.size - 1.0) * np.sum((z_hi - z_bar) ** 2))
         used = True
     if used:
         return max(total, 0.0)
@@ -635,21 +649,30 @@ def _replicate_variance(
         if n_reps <= 1:
             return 0.0, None
         estimates = np.array(
-            [estimate_fn(analytic_replicates[idx], reference_replicates[idx]) for idx in range(n_reps)],
+            [
+                estimate_fn(analytic_replicates[idx], reference_replicates[idx])
+                for idx in range(n_reps)
+            ],
             dtype=float,
         )
     elif analytic_replicates is not None:
         if analytic_replicates.shape[0] <= 1:
             return 0.0, None
         estimates = np.array(
-            [estimate_fn(analytic_replicates[idx], None) for idx in range(analytic_replicates.shape[0])],
+            [
+                estimate_fn(analytic_replicates[idx], None)
+                for idx in range(analytic_replicates.shape[0])
+            ],
             dtype=float,
         )
     else:
         if reference_replicates is None or reference_replicates.shape[0] <= 1:
             return 0.0, None
         estimates = np.array(
-            [estimate_fn(None, reference_replicates[idx]) for idx in range(reference_replicates.shape[0])],
+            [
+                estimate_fn(None, reference_replicates[idx])
+                for idx in range(reference_replicates.shape[0])
+            ],
             dtype=float,
         )
     return float(np.var(estimates, ddof=1)), estimates
@@ -796,7 +819,9 @@ def _estimate_one_sample(
         )
 
     pseudo_outcome = m_hat.copy()
-    pseudo_outcome[observed_mask] += (Y[observed_mask] - m_hat[observed_mask]) / rho_hat[observed_mask]
+    pseudo_outcome[observed_mask] += (Y[observed_mask] - m_hat[observed_mask]) / rho_hat[
+        observed_mask
+    ]
     estimate = _weighted_mean(pseudo_outcome, base_weights)
 
     centered_signal = pseudo_outcome - estimate
@@ -805,6 +830,7 @@ def _estimate_one_sample(
     variance_mode = variance_mode_requested
     replicate_estimates: np.ndarray | None = None
     if variance_mode_requested is SurveyVarianceMode.REPLICATE and replicate_weights is not None:
+
         def _rep_fn(analytic_rep: np.ndarray | None, _: np.ndarray | None) -> float:
             if analytic_rep is None:
                 return estimate
@@ -843,20 +869,16 @@ def _estimate_one_sample(
     overlap_score = float(np.mean(rho_hat >= max(0.05, min_observability)))
 
     basis = _diagnostic_basis(response_features_base, diagnostic_basis_spec)
-    design_moments = (
-        (
-            base_weights[:, None]
-            * ((response / rho_hat) - 1.0)[:, None]
-            * basis
-        ).sum(axis=0)
-        / max(float(np.sum(base_weights)), 1e-12)
-    )
+    design_moments = (base_weights[:, None] * ((response / rho_hat) - 1.0)[:, None] * basis).sum(
+        axis=0
+    ) / max(float(np.sum(base_weights)), 1e-12)
     residual_term = np.zeros_like(Y, dtype=float)
-    residual_term[observed_mask] = (Y[observed_mask] - m_hat[observed_mask]) / rho_hat[observed_mask]
+    residual_term[observed_mask] = (Y[observed_mask] - m_hat[observed_mask]) / rho_hat[
+        observed_mask
+    ]
     outcome_scale = max(_weighted_std(Y[observed_mask], base_weights[observed_mask]), 1e-6)
-    imputation_moments = (
-        (base_weights[:, None] * residual_term[:, None] * basis).sum(axis=0)
-        / max(float(np.sum(base_weights)), 1e-12)
+    imputation_moments = (base_weights[:, None] * residual_term[:, None] * basis).sum(axis=0) / max(
+        float(np.sum(base_weights)), 1e-12
     )
     design_score = float(np.max(np.abs(design_moments)))
     imputation_score = float(np.max(np.abs(imputation_moments)) / outcome_scale)
@@ -1004,7 +1026,11 @@ def _estimate_reference_integration(
     rho_hat = rho_base
     m_ref = m_ref_base
 
-    if regime is SurveyRequestedRegime.MNAR_SHADOW and shadow is not None and reference_shadow is not None:
+    if (
+        regime is SurveyRequestedRegime.MNAR_SHADOW
+        and shadow is not None
+        and reference_shadow is not None
+    ):
         outcome_features_shadow = _augment_outcome_features(X, shadow)
         reference_outcome_features_shadow = _augment_outcome_features(reference_X, reference_shadow)
         m_shadow, outcome_info_shadow = _cross_fit_outcome(
@@ -1070,20 +1096,22 @@ def _estimate_reference_integration(
     )
 
     correction_weights = np.zeros_like(base_weights, dtype=float)
-    correction_weights[observed_mask] = (
-        base_weights[observed_mask]
-        / (rho_hat[observed_mask] * selection_odds[observed_mask])
+    correction_weights[observed_mask] = base_weights[observed_mask] / (
+        rho_hat[observed_mask] * selection_odds[observed_mask]
     )
     reference_total = max(float(np.sum(reference_weights)), 1e-12)
     baseline = _weighted_mean(m_ref, reference_weights)
     correction = float(
-        np.sum(correction_weights[observed_mask] * (Y[observed_mask] - m_hat[observed_mask])) / reference_total
+        np.sum(correction_weights[observed_mask] * (Y[observed_mask] - m_hat[observed_mask]))
+        / reference_total
     )
     estimate = float(baseline + correction)
 
     analytic_linearized = np.zeros_like(base_weights, dtype=float)
     analytic_linearized[observed_mask] = (
-        correction_weights[observed_mask] * (Y[observed_mask] - m_hat[observed_mask]) / reference_total
+        correction_weights[observed_mask]
+        * (Y[observed_mask] - m_hat[observed_mask])
+        / reference_total
     )
     reference_linearized = reference_weights * (m_ref - baseline) / reference_total
     linearized = np.concatenate([reference_linearized, analytic_linearized])
@@ -1105,6 +1133,7 @@ def _estimate_reference_integration(
     if variance_mode_requested is SurveyVarianceMode.REPLICATE and (
         replicate_weights is not None or reference_replicates is not None
     ):
+
         def _rep_fn(analytic_rep: np.ndarray | None, reference_rep: np.ndarray | None) -> float:
             rep_analytic = base_weights if analytic_rep is None else analytic_rep
             rep_reference = reference_weights if reference_rep is None else reference_rep
@@ -1166,15 +1195,12 @@ def _estimate_reference_integration(
         - np.sum(reference_weights[:, None] * reference_basis, axis=0) / reference_total
     )
     outcome_scale = max(_weighted_std(Y[observed_mask], base_weights[observed_mask]), 1e-6)
-    imputation_moments = (
-        np.sum(
-            correction_weights[:, None]
-            * np.where(observed_mask[:, None], (Y - m_hat)[:, None], 0.0)
-            * analytic_basis,
-            axis=0,
-        )
-        / max(reference_total * outcome_scale, 1e-12)
-    )
+    imputation_moments = np.sum(
+        correction_weights[:, None]
+        * np.where(observed_mask[:, None], (Y - m_hat)[:, None], 0.0)
+        * analytic_basis,
+        axis=0,
+    ) / max(reference_total * outcome_scale, 1e-12)
     design_score = float(np.max(np.abs(design_moments)))
     imputation_score = float(np.max(np.abs(imputation_moments)))
 
@@ -1202,7 +1228,9 @@ def _estimate_reference_integration(
     crossfit_info.update(membership_info)
 
     pseudo_outcome = np.zeros_like(base_weights, dtype=float)
-    pseudo_outcome[observed_mask] = correction_weights[observed_mask] * (Y[observed_mask] - m_hat[observed_mask])
+    pseudo_outcome[observed_mask] = correction_weights[observed_mask] * (
+        Y[observed_mask] - m_hat[observed_mask]
+    )
 
     return _CoreEstimate(
         estimate=estimate,
@@ -1272,10 +1300,19 @@ class DesignMissingnessDREstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
                 SlotSpec("Y", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("response_indicator", SlotType.VECTOR, Unit("indicator", "binary"), shape=("n_obs",)),
-                SlotSpec("base_weights", SlotType.VECTOR, Unit("weight", "value"), shape=("n_obs",)),
+                SlotSpec(
+                    "response_indicator",
+                    SlotType.VECTOR,
+                    Unit("indicator", "binary"),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    "base_weights", SlotType.VECTOR, Unit("weight", "value"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -1401,7 +1438,9 @@ class DesignMissingnessDREstimator:
         reference_replicates: np.ndarray | None = None
         if reference_X is not None or reference_weights is not None:
             if reference_X is None or reference_weights is None:
-                raise ValueError("reference_X and reference_design_weights must be provided together")
+                raise ValueError(
+                    "reference_X and reference_design_weights must be provided together"
+                )
             if reference_X.shape[1] != X.shape[1]:
                 raise ValueError("reference_X must have the same number of columns as X")
             n_ref = reference_X.shape[0]
@@ -1433,7 +1472,9 @@ class DesignMissingnessDREstimator:
             pass
 
         if reference_X is not None and design_model not in {"logit", "known_weights"}:
-            raise NotImplementedError("Reference integration currently supports logit / known_weights design models only")
+            raise NotImplementedError(
+                "Reference integration currently supports logit / known_weights design models only"
+            )
 
         if reference_X is None:
             estimate_result = _estimate_one_sample(
@@ -1576,7 +1617,9 @@ class DesignMissingnessDREstimator:
                 metric_name="min_observability",
                 metric_value=estimate_result.positivity_min,
                 threshold_value=max(min_observability, 0.05),
-                notes=["The method reports any truncation through crossfit diagnostics; clipping is never silent."],
+                notes=[
+                    "The method reports any truncation through crossfit diagnostics; clipping is never silent."
+                ],
             ),
             _component(
                 component_id="weight_stability",
@@ -1686,7 +1729,10 @@ class DesignMissingnessDREstimator:
         if variance_status is SurveyAssumptionStatus.FAIL:
             blocking_reasons.append("variance_not_estimable")
 
-        if missingness_assessment is not None and missingness_assessment.status is MissingnessAssessmentStatus.NOT_RECOVERABLE:
+        if (
+            missingness_assessment is not None
+            and missingness_assessment.status is MissingnessAssessmentStatus.NOT_RECOVERABLE
+        ):
             blocking_reasons.append("missingness_not_recoverable")
 
         if regime is SurveyRequestedRegime.MNAR_SHADOW:
@@ -1708,16 +1754,24 @@ class DesignMissingnessDREstimator:
             )
             if missingness_assessment is None:
                 validation_status = SurveyAssumptionStatus.WARN
-                validation_notes = ["No external missingness assessment was supplied; identification rests entirely on the shadow branch."]
+                validation_notes = [
+                    "No external missingness assessment was supplied; identification rests entirely on the shadow branch."
+                ]
             elif missingness_assessment.status is MissingnessAssessmentStatus.RECOVERABLE:
                 validation_status = SurveyAssumptionStatus.PASS
-                validation_notes = ["Administrative missingness assessment is recoverable and compatible with identified estimation."]
+                validation_notes = [
+                    "Administrative missingness assessment is recoverable and compatible with identified estimation."
+                ]
             elif missingness_assessment.status is MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE:
                 validation_status = SurveyAssumptionStatus.WARN
-                validation_notes = ["Administrative missingness assessment is only partially recoverable; shadow identification remains a maintained working restriction."]
+                validation_notes = [
+                    "Administrative missingness assessment is only partially recoverable; shadow identification remains a maintained working restriction."
+                ]
             else:
                 validation_status = SurveyAssumptionStatus.FAIL
-                validation_notes = ["Administrative missingness assessment marked the regime as not recoverable without stronger structure."]
+                validation_notes = [
+                    "Administrative missingness assessment marked the regime as not recoverable without stronger structure."
+                ]
 
             identification_assumptions.extend(
                 [
@@ -1772,7 +1826,9 @@ class DesignMissingnessDREstimator:
                     layer=SurveyAssumptionLayer.IDENTIFICATION,
                     statement="Population-MAR given observed covariates and design features remains a maintained working assumption, not a theorem proven by diagnostics.",
                     status=SurveyAssumptionStatus.WARN,
-                    notes=["The design and imputation channels provide operational support, not proof of ignorability."],
+                    notes=[
+                        "The design and imputation channels provide operational support, not proof of ignorability."
+                    ],
                 )
             )
             if _missingness_requires_guardrail(missingness_assessment):
@@ -1794,7 +1850,9 @@ class DesignMissingnessDREstimator:
         elif regime_validated is SurveyValidatedRegime.IMPUTATION_VALID_ONLY:
             regime_warning = "consistency relies on outcome/imputation specification"
         elif regime_validated is SurveyValidatedRegime.MNAR_SHADOW_IDENTIFIED:
-            regime_warning = "identified MNAR branch relies on shadow-variable control-function restrictions"
+            regime_warning = (
+                "identified MNAR branch relies on shadow-variable control-function restrictions"
+            )
 
         overall_pass = (
             regime_validated

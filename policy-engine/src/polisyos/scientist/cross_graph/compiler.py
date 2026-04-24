@@ -1,4 +1,5 @@
 """Compiler and config for turning policy bundles into cross-graph evidence profiles."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -79,6 +80,7 @@ _CROSS_GRAPH_MODEL_ERRORS = (TypeError, ValueError, ValidationError)
 
 class CrossGraphEvidenceConfig(BaseModel):
     """Runtime configuration describing which evidence backends, ontology, and context the compiler should use."""
+
     model_config = ConfigDict(extra="forbid")
 
     enabled: bool = True
@@ -144,6 +146,7 @@ class _TransportResult:
 
 class CrossGraphEvidenceCompiler:
     """Compile a Trinity bundle into evidence-need assessments across legal, dataset, and academic channels."""
+
     def __init__(self, config: CrossGraphEvidenceConfig) -> None:
         self.config = config
 
@@ -158,9 +161,7 @@ class CrossGraphEvidenceCompiler:
     ) -> CrossGraphEvidenceProfile:
         policy_domain = self.config.policy_domain or bundle.problem_frame.domain.value
         jurisdiction = (
-            self.config.jurisdiction
-            or self.config.country_code
-            or _country_code(target_context)
+            self.config.jurisdiction or self.config.country_code or _country_code(target_context)
         )
         target_year = self.config.target_year or _target_year(target_context)
 
@@ -474,9 +475,7 @@ def extract_evidence_needs(
             parameter_need_keys.add(unique_key)
             needs.append(
                 _parameter_need(
-                    source_path=(
-                        f"policy_spec.interventions[{index}].params.{param_key}"
-                    ),
+                    source_path=(f"policy_spec.interventions[{index}].params.{param_key}"),
                     parameter_name=param_key,
                     param_path=param_key,
                     intervention_id=intervention.intervention_id,
@@ -568,7 +567,10 @@ class _LegalGraphAdapter:
                 {
                     *(constraint.legal_source for constraint in constraint_set.hard_constraints),
                     *(constraint.legal_source for constraint in constraint_set.soft_constraints),
-                    *(constraint.legal_source for constraint in constraint_set.data_license_constraints),
+                    *(
+                        constraint.legal_source
+                        for constraint in constraint_set.data_license_constraints
+                    ),
                 }
             )
         )
@@ -749,9 +751,7 @@ def _assess_dataset_need(
             year_range=year_range,
         )
         direct_matches = [
-            match
-            for match in matches
-            if not match.is_proxy and match.coverage_match != "none"
+            match for match in matches if not match.is_proxy and match.coverage_match != "none"
         ]
         if direct_matches:
             best = direct_matches[0]
@@ -784,7 +784,9 @@ def _assess_dataset_need(
             status=ObservabilityStatus.PROXY_ONLY,
             confidence=0.6,
             requires_expert_review=True,
-            recommended_actions=("Review proxy-chain quality before relying on this evidence need.",),
+            recommended_actions=(
+                "Review proxy-chain quality before relying on this evidence need.",
+            ),
             provenance_refs=tuple(sorted(set(proxy_refs))),
             diagnostics=(),
         )
@@ -849,7 +851,13 @@ def _assess_academic_need(
         critical_quality_flags = {
             flag
             for flag in set(best.quality_flags) | set(best.transport_notes)
-            if flag in {"raw_parameter_fallback", "no_uncertainty", "context_mismatch", "canonical_gap_resolved"}
+            if flag
+            in {
+                "raw_parameter_fallback",
+                "no_uncertainty",
+                "context_mismatch",
+                "canonical_gap_resolved",
+            }
         }
         status = (
             EvidenceStatus.SUPPORTED
@@ -911,7 +919,9 @@ def _assess_academic_need(
         best_trust = float(best_row.confidence or 0.0)
         credible_rows = [row for row in support_rows if float(row.confidence or 0.0) >= 0.25]
         has_conflict = any(bool(row.conflict_flag) for row in credible_rows)
-        has_moderated_conflict = any(str(row.resolution_status or "") == "moderated" for row in credible_rows)
+        has_moderated_conflict = any(
+            str(row.resolution_status or "") == "moderated" for row in credible_rows
+        )
         transport_records = []
         transport_reasons: list[str] = []
         best_transport_confidence: float | None = None
@@ -922,32 +932,45 @@ def _assess_academic_need(
             )
             if transport_records:
                 best_transport_confidence = max(
-                    float(record.transport_confidence or 0.0)
-                    for record in transport_records
+                    float(record.transport_confidence or 0.0) for record in transport_records
                 )
                 if best_transport_confidence < 0.45:
                     transport_reasons.append("weak_transfer_evidence")
                 if not any(record.matched_moderators_count > 0 for record in transport_records):
                     transport_reasons.append("moderator_mismatch")
-                if not any(float(record.context_match_reward or 0.0) > 0.0 for record in transport_records):
+                if not any(
+                    float(record.context_match_reward or 0.0) > 0.0 for record in transport_records
+                ):
                     transport_reasons.append("source_context_missing")
             else:
                 transport_reasons.append("transport_score_unavailable")
         status = EvidenceStatus.MIXED
-        if best_trust >= 0.7 and int(best_row.n_unique_works or 0) >= 2 and (not has_conflict or has_moderated_conflict):
+        if (
+            best_trust >= 0.7
+            and int(best_row.n_unique_works or 0) >= 2
+            and (not has_conflict or has_moderated_conflict)
+        ):
             status = EvidenceStatus.SUPPORTED
         elif not credible_rows:
             status = EvidenceStatus.UNSUPPORTED
-        if status is EvidenceStatus.SUPPORTED and best_transport_confidence is not None and best_transport_confidence < 0.45:
+        if (
+            status is EvidenceStatus.SUPPORTED
+            and best_transport_confidence is not None
+            and best_transport_confidence < 0.45
+        ):
             status = EvidenceStatus.MIXED
         recommended_actions: list[str] = []
         if status is EvidenceStatus.MIXED and has_conflict:
             recommended_actions.append("Review mixed evidence directions for this causal edge.")
         if has_moderated_conflict:
-            recommended_actions.append("Directional disagreement appears moderator-explained rather than purely contradictory.")
+            recommended_actions.append(
+                "Directional disagreement appears moderator-explained rather than purely contradictory."
+            )
         for reason in transport_reasons:
             if reason == "transport_score_unavailable":
-                recommended_actions.append("Transport rationale: target_profile_missing_or_transport_score_unavailable.")
+                recommended_actions.append(
+                    "Transport rationale: target_profile_missing_or_transport_score_unavailable."
+                )
             elif reason == "moderator_mismatch":
                 recommended_actions.append("Transport rationale: moderator_mismatch.")
             elif reason == "source_context_missing":
@@ -1010,7 +1033,9 @@ def _assess_academic_need(
         status=EvidenceStatus.INSUFFICIENT,
         confidence=0.3,
         requires_expert_review=True,
-        recommended_actions=("Add academic ontology bridges or literature evidence for this need.",),
+        recommended_actions=(
+            "Add academic ontology bridges or literature evidence for this need.",
+        ),
         provenance_refs=(),
         diagnostics=(),
         best_context_distance=None,
@@ -1026,7 +1051,9 @@ def _academic_result_from_gatherer(result: Any) -> _AcademicResult:
     except ValueError:
         status = EvidenceStatus.INSUFFICIENT
     metadata = dict(getattr(result, "metadata", {}) or {})
-    transport_reasons = tuple(str(item) for item in list(metadata.get("transport_reasons", []) or []))
+    transport_reasons = tuple(
+        str(item) for item in list(metadata.get("transport_reasons", []) or [])
+    )
     confidence = max(0.0, min(1.0, float(getattr(result, "confidence", 0.0) or 0.0)))
     return _AcademicResult(
         status=status,
@@ -1036,7 +1063,9 @@ def _academic_result_from_gatherer(result: Any) -> _AcademicResult:
             or bool(metadata.get("environment_audit_summary"))
         ),
         recommended_actions=(),
-        provenance_refs=tuple(str(item) for item in list(getattr(result, "provenance_refs", []) or [])),
+        provenance_refs=tuple(
+            str(item) for item in list(getattr(result, "provenance_refs", []) or [])
+        ),
         diagnostics=tuple(getattr(result, "diagnostics", []) or ()),
         best_context_distance=None,
         transport_confidence=confidence,
@@ -1097,9 +1126,7 @@ def _literature_prior_notes(
     if literature_prior_ref:
         notes.append(f"literature_prior_ref:{literature_prior_ref}")
     if literature_prior.environment_audit is not None:
-        notes.append(
-            f"environment_audit_status:{literature_prior.environment_audit.status}"
-        )
+        notes.append(f"environment_audit_status:{literature_prior.environment_audit.status}")
     return notes
 
 
@@ -1217,11 +1244,17 @@ def _compose_transportability_view(
             confidence=0.0,
             requires_expert_review=True,
             blocking_reasons=("transport_status=unsupported",),
-            recommended_actions=("Generate target-context evidence or run transportability analysis.",),
+            recommended_actions=(
+                "Generate target-context evidence or run transportability analysis.",
+            ),
             diagnostics=(),
         )
 
-    if evidence_result.status in {EvidenceStatus.SUPPORTED, EvidenceStatus.MIXED, EvidenceStatus.INSUFFICIENT}:
+    if evidence_result.status in {
+        EvidenceStatus.SUPPORTED,
+        EvidenceStatus.MIXED,
+        EvidenceStatus.INSUFFICIENT,
+    }:
         if observability_status is ObservabilityStatus.DIRECT:
             return _TransportResult(
                 status=TransportStatus.IDENTIFIED,
@@ -1249,7 +1282,9 @@ def _compose_transportability_view(
                 confidence=0.0,
                 requires_expert_review=True,
                 blocking_reasons=("transport_status=bounded_non_identified",),
-                recommended_actions=("Acquire target-context data before reusing external evidence.",),
+                recommended_actions=(
+                    "Acquire target-context data before reusing external evidence.",
+                ),
                 diagnostics=(),
             )
 
@@ -1620,11 +1655,17 @@ def _parameter_candidate_score(candidate: ParameterCandidate) -> float:
         uncertainty_factor = 0.6
     if "context_mismatch" in candidate.transport_notes:
         transport_factor *= 0.8
-    if "canonical_gap_resolved" in candidate.quality_flags or "canonical_gap_resolved" in candidate.transport_notes:
+    if (
+        "canonical_gap_resolved" in candidate.quality_flags
+        or "canonical_gap_resolved" in candidate.transport_notes
+    ):
         review_penalty *= 0.9
     return max(
         0.0,
-        min(1.0, strength_weight * transport_factor * review_penalty * layer_factor * uncertainty_factor),
+        min(
+            1.0,
+            strength_weight * transport_factor * review_penalty * layer_factor * uncertainty_factor,
+        ),
     )
 
 
@@ -1642,7 +1683,9 @@ def _parameter_reason_to_action(reason: str) -> str:
     if reason == "context_mismatch":
         return "Context mismatch detected between source evidence and target context."
     if reason == "canonical_gap_resolved":
-        return "Verify the canonical mapping between the requested parameter and literature variable."
+        return (
+            "Verify the canonical mapping between the requested parameter and literature variable."
+        )
     return ""
 
 
@@ -1702,7 +1745,14 @@ def _need_key_value(need: EvidenceNeed, key_name: str) -> str | None:
 
 
 def _source_system_for_key(key_name: str) -> str:
-    if key_name in {"metric_id", "parameter_name", "param_path", "intervention_kind", "constraint_id", "slot_id"}:
+    if key_name in {
+        "metric_id",
+        "parameter_name",
+        "param_path",
+        "intervention_kind",
+        "constraint_id",
+        "slot_id",
+    }:
         return "trinity"
     if key_name in {"cause", "effect"}:
         return "academic"
@@ -1777,7 +1827,9 @@ def _build_summary(assessments: list[EvidenceNeedAssessment]) -> CrossGraphEvide
     )
     status = (
         "warning"
-        if blocking_need_ids or requires_expert_review_count or any(assessment.diagnostics for assessment in assessments)
+        if blocking_need_ids
+        or requires_expert_review_count
+        or any(assessment.diagnostics for assessment in assessments)
         else "ok"
     )
     return CrossGraphEvidenceSummary(
@@ -1785,7 +1837,9 @@ def _build_summary(assessments: list[EvidenceNeedAssessment]) -> CrossGraphEvide
         total_needs=len(assessments),
         requires_expert_review_count=requires_expert_review_count,
         blocking_need_ids=blocking_need_ids,
-        legal_status_counts=_status_counts(assessment.legal_status.value for assessment in assessments),
+        legal_status_counts=_status_counts(
+            assessment.legal_status.value for assessment in assessments
+        ),
         observability_status_counts=_status_counts(
             assessment.observability_status.value for assessment in assessments
         ),
@@ -1895,11 +1949,15 @@ def build_fragment_alignment_ontology_warnings(
     for certificate in certificates:
         if getattr(certificate, "alignment_type", None) == "incompatible":
             continue
-        if getattr(certificate, "alignment_type", None) is not None and getattr(
-            getattr(certificate, "alignment_type", None),
-            "value",
-            None,
-        ) == "incompatible":
+        if (
+            getattr(certificate, "alignment_type", None) is not None
+            and getattr(
+                getattr(certificate, "alignment_type", None),
+                "value",
+                None,
+            )
+            == "incompatible"
+        ):
             continue
 
         concept_a = _resolve_alignment_concept(

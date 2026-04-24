@@ -4,25 +4,27 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Callable, Iterable
+from typing import TYPE_CHECKING
 
 from polisyos.lex.batch.canonicalizers import (
     canonicalize_action,
     canonicalize_norm_type,
     extract_thresholds_from_text,
 )
+from polisyos.lex.batch.patterns import (
+    AMENDMENT_CORE_RE,
+    THRESHOLD_CORE_RE,
+    TREATY_TITLE_RE,
+)
 from polisyos.lex.batch.quality_filters import (
     has_explicit_threshold_cue,
     is_synthetic_subject,
     is_threshold_noise_context,
 )
-from polisyos.lex.batch.patterns import (
-    AMENDMENT_CORE_RE,
-    NORMATIVE_CORE_RE,
-    THRESHOLD_CORE_RE,
-    TREATY_TITLE_RE,
-)
 from polisyos.lex.knowledge.types import SPOCandidate, ThresholdAtom
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
 
 
 @dataclass(frozen=True)
@@ -475,7 +477,7 @@ def _clip_text(text: str, size: int = 220) -> str:
     chunk = " ".join(text.strip().split())
     if len(chunk) <= size:
         return chunk
-    return f"{chunk[:size - 1]}…"
+    return f"{chunk[: size - 1]}…"
 
 
 def _filtered_thresholds(
@@ -514,12 +516,13 @@ def _iter_sentences(text: str, *, split_newlines: bool = False) -> Iterable[str]
         yield stripped
         return
     for part in parts:
-        subparts = [chunk.strip() for chunk in _INLINE_SUBCLAUSE_SPLIT_RE.split(part) if chunk.strip()]
+        subparts = [
+            chunk.strip() for chunk in _INLINE_SUBCLAUSE_SPLIT_RE.split(part) if chunk.strip()
+        ]
         if not subparts:
             yield part
             continue
-        for subpart in subparts:
-            yield subpart
+        yield from subparts
 
 
 def _iter_semantic_clauses(text: str) -> Iterable[str]:
@@ -550,9 +553,7 @@ def _iter_distinct_chunks(text: str) -> Iterable[str]:
         sources.extend(list(_iter_semantic_clauses(source)))
     sources.extend(list(_iter_list_items(text)))
     sources.extend(
-        part.strip()
-        for part in re.split(r"(?=(?:\d+\.\d+|\d+[.)])\s+)", text)
-        if part.strip()
+        part.strip() for part in re.split(r"(?=(?:\d+\.\d+|\d+[.)])\s+)", text) if part.strip()
     )
     for raw in sources:
         compact = " ".join(str(raw).split())
@@ -578,9 +579,7 @@ def _looks_like_form_scaffold_line(text: str) -> bool:
         return True
     if _FORM_SCAFFOLD_LINE_RE.search(compact):
         return True
-    if _FORM_CHECKBOX_RE.search(compact) and len(compact) <= 64:
-        return True
-    return False
+    return bool(_FORM_CHECKBOX_RE.search(compact) and len(compact) <= 64)
 
 
 def _normalize_inherited_list_item(text: str) -> str:
@@ -593,7 +592,7 @@ def _normalize_inherited_list_item(text: str) -> str:
     )
     compact = re.sub(r"^(?:[-\u2013\u2014\u2022]+\s*)+", "", compact)
     compact = re.sub(r"^[^0-9A-Za-zА-Яа-яІіЇїЄєҐґ]+", "", compact)
-    compact = compact.strip(' "\'«»')
+    compact = compact.strip(" \"'«»")
     return compact
 
 
@@ -674,7 +673,11 @@ def _iter_retry_chunks(text: str, *, quality_family: str, struct_kind: str) -> I
     if quality_family in {"law", "treaty_protocol"}:
         base_chunks.extend(_iter_sentences(text))
     base_chunks.extend(_iter_semantic_clauses(text))
-    if quality_family == "appendix_heavy" or struct_kind in {"paragraph", "enumeration_item", "table_row"}:
+    if quality_family == "appendix_heavy" or struct_kind in {
+        "paragraph",
+        "enumeration_item",
+        "table_row",
+    }:
         base_chunks.extend(part.strip() for part in text.splitlines() if part.strip())
     for chunk in base_chunks:
         compact = " ".join(chunk.split())
@@ -701,7 +704,10 @@ def _token_count(text: str) -> int:
 
 def _is_compact_clause(*, subject: str, object_text: str, sentence: str) -> bool:
     object_lower = object_text.lower()
-    if any(marker in object_lower for marker in (", який", ", яка", ", яке", ", що", ";")) and _token_count(object_text) > 14:
+    if (
+        any(marker in object_lower for marker in (", який", ", яка", ", яке", ", що", ";"))
+        and _token_count(object_text) > 14
+    ):
         return False
     return (
         len(sentence) <= 280
@@ -711,6 +717,7 @@ def _is_compact_clause(*, subject: str, object_text: str, sentence: str) -> bool
         and _token_count(subject) <= 16
         and _token_count(object_text) <= 24
     )
+
 
 from polisyos.lex.batch.deterministic_spo_articles import (
     _extract_structured_article_candidates,
@@ -729,7 +736,9 @@ from polisyos.lex.batch.deterministic_spo_subtypes import (
 )
 
 
-def _needs_residual_clause_pass(*, text: str, legal_unit_subtype: str, candidate_count: int) -> bool:
+def _needs_residual_clause_pass(
+    *, text: str, legal_unit_subtype: str, candidate_count: int
+) -> bool:
     if legal_unit_subtype not in {
         "core_normative_clause",
         "exception_clause",
@@ -742,7 +751,9 @@ def _needs_residual_clause_pass(*, text: str, legal_unit_subtype: str, candidate
     multi_clause_cues = text.count(";") + text.count("\n") + text.count(":")
     if multi_clause_cues > 0:
         return True
-    if re.search(r",\s*(?:а\s+також|зокрема|при\s+цьому|у\s+разі|за\s+умови)\b", text, re.IGNORECASE):
+    if re.search(
+        r",\s*(?:а\s+також|зокрема|при\s+цьому|у\s+разі|за\s+умови)\b", text, re.IGNORECASE
+    ):
         return True
     return candidate_count <= 1 and len(text.split()) >= 18
 
@@ -779,13 +790,35 @@ def extract_deterministic_spo(
         "registry_catalog_row",
         "table_scaffold",
     }:
-        return DeterministicExtraction(candidates=[], confidence=0.0, reason_codes=[f"search_only_subtype:{subtype}"])
+        return DeterministicExtraction(
+            candidates=[], confidence=0.0, reason_codes=[f"search_only_subtype:{subtype}"]
+        )
 
-    subtype_extractors: tuple[tuple[str, Callable[[], tuple[list[SPOCandidate], list[str]]]], ...] = (
-        ("amendment_bundle", lambda: _extract_amendment_bundle_candidates(text=cleaned, doc_title=doc_title)),
-        ("approval_bundle", lambda: _extract_approval_bundle_candidates(text=cleaned, doc_title=doc_title, context_prefix=context_prefix)),
-        ("tariff_threshold_row", lambda: _extract_threshold_row_candidates(text=cleaned, doc_title=doc_title, context_prefix=context_prefix)),
-        ("application_requirement", lambda: _extract_application_requirement_candidates(text=cleaned, context_prefix=context_prefix)),
+    subtype_extractors: tuple[
+        tuple[str, Callable[[], tuple[list[SPOCandidate], list[str]]]], ...
+    ] = (
+        (
+            "amendment_bundle",
+            lambda: _extract_amendment_bundle_candidates(text=cleaned, doc_title=doc_title),
+        ),
+        (
+            "approval_bundle",
+            lambda: _extract_approval_bundle_candidates(
+                text=cleaned, doc_title=doc_title, context_prefix=context_prefix
+            ),
+        ),
+        (
+            "tariff_threshold_row",
+            lambda: _extract_threshold_row_candidates(
+                text=cleaned, doc_title=doc_title, context_prefix=context_prefix
+            ),
+        ),
+        (
+            "application_requirement",
+            lambda: _extract_application_requirement_candidates(
+                text=cleaned, context_prefix=context_prefix
+            ),
+        ),
         (
             "core_normative_clause",
             lambda: _extract_core_normative_fallback_candidates(
@@ -806,10 +839,12 @@ def extract_deterministic_spo(
             reason_codes.extend(subtype_reason_codes)
 
     if subtype in {"amendment_bundle", "approval_bundle"} and context_prefix:
-        inherited_candidates, inherited_reason_codes = _extract_context_inherited_appendix_candidates(
-            text=cleaned,
-            context_prefix=context_prefix,
-            doc_title=doc_title,
+        inherited_candidates, inherited_reason_codes = (
+            _extract_context_inherited_appendix_candidates(
+                text=cleaned,
+                context_prefix=context_prefix,
+                doc_title=doc_title,
+            )
         )
         if inherited_candidates:
             candidates.extend(inherited_candidates)
@@ -951,7 +986,9 @@ def extract_deterministic_spo(
     ):
         best = thresholds[0]
         threshold_desc = str(best.value_text or best.value_decimal or "числовий поріг").strip()
-        threshold_subject = subject if subject and not is_synthetic_subject(subject) else "регульований показник"
+        threshold_subject = (
+            subject if subject and not is_synthetic_subject(subject) else "регульований показник"
+        )
         candidates.append(
             _build_candidate(
                 subject_uk=threshold_subject,
@@ -1142,11 +1179,7 @@ def extract_deterministic_spo(
             "sanction_clause",
         }
         or quality_family in {"law", "appendix_heavy", "treaty_protocol"}
-    ) and (
-        len(cleaned.split()) >= 8
-        or _SEMANTIC_TAIL_MARKER_RE.search(cleaned)
-        or context_prefix
-    ):
+    ) and (len(cleaned.split()) >= 8 or _SEMANTIC_TAIL_MARKER_RE.search(cleaned) or context_prefix):
         tail_candidates, tail_reason_codes = _extract_semantic_tail_candidates(
             text=cleaned,
             doc_title=doc_title,
@@ -1202,7 +1235,9 @@ def extract_deterministic_spo(
             reason_codes.extend(residual_reason_codes)
 
     if subtype == "citation_only" and not candidates:
-        return DeterministicExtraction(candidates=[], confidence=0.0, reason_codes=["citation_only"])
+        return DeterministicExtraction(
+            candidates=[], confidence=0.0, reason_codes=["citation_only"]
+        )
 
     if not candidates:
         return DeterministicExtraction(candidates=[], confidence=0.0, reason_codes=["no_match"])
@@ -1290,17 +1325,24 @@ def extract_deterministic_spo(
     confidence = max(confidence, max_pattern_confidence)
     if constitutional_doc and has_article_semantics:
         confidence = max(confidence, 0.87)
-    if subtype in {"amendment_bundle", "approval_bundle", "tariff_threshold_row", "application_requirement"}:
+    if subtype in {
+        "amendment_bundle",
+        "approval_bundle",
+        "tariff_threshold_row",
+        "application_requirement",
+    }:
         confidence = max(confidence, 0.84)
     if reference_bearing and subtype in {"amendment_bundle", "approval_bundle"}:
         confidence = max(confidence, 0.87)
-    if quality_family == "appendix_heavy" and subtype in {"application_requirement", "tariff_threshold_row"}:
+    if quality_family == "appendix_heavy" and subtype in {
+        "application_requirement",
+        "tariff_threshold_row",
+    }:
         confidence = max(confidence, 0.85)
     confidence = min(0.95, confidence)
 
     normalized_candidates = [
-        candidate.model_copy(update={"confidence": confidence})
-        for candidate in candidates
+        candidate.model_copy(update={"confidence": confidence}) for candidate in candidates
     ]
     return DeterministicExtraction(
         candidates=normalized_candidates,
@@ -1323,7 +1365,9 @@ def extract_family_retry_spo(
     """Second-pass deterministic retry for law and appendix-heavy empty rows."""
     family = (quality_family or "").strip().lower()
     if family not in {"law", "appendix_heavy", "treaty_protocol"}:
-        return DeterministicExtraction(candidates=[], confidence=0.0, reason_codes=["retry_not_applicable"])
+        return DeterministicExtraction(
+            candidates=[], confidence=0.0, reason_codes=["retry_not_applicable"]
+        )
 
     merged_candidates: list[SPOCandidate] = []
     merged_reason_codes: list[str] = []
@@ -1350,12 +1394,13 @@ def extract_family_retry_spo(
         merged_reason_codes.extend(extraction.reason_codes)
 
     if not merged_candidates:
-        return DeterministicExtraction(candidates=[], confidence=0.0, reason_codes=["retry_no_match"])
+        return DeterministicExtraction(
+            candidates=[], confidence=0.0, reason_codes=["retry_no_match"]
+        )
 
     confidence = min(0.9, max(candidate.confidence for candidate in merged_candidates))
     merged_candidates = [
-        candidate.model_copy(update={"confidence": confidence})
-        for candidate in merged_candidates
+        candidate.model_copy(update={"confidence": confidence}) for candidate in merged_candidates
     ]
     return DeterministicExtraction(
         candidates=merged_candidates,

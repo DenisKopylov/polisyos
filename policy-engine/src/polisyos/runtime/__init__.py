@@ -6,6 +6,7 @@ to keep import-time side effects predictable for CLI tools and libraries.
 
 The symbols listed in `__all__` are the stable replay surface for callers.
 """
+
 from __future__ import annotations
 
 import importlib
@@ -26,12 +27,12 @@ if TYPE_CHECKING:
     )
 
 __all__ = [
-    "ReplayStrategy",
-    "ReplayPlan",
     "CompletenessLevel",
     "CompletenessReport",
-    "VerificationMode",
+    "ReplayPlan",
+    "ReplayStrategy",
     "VerificationConfig",
+    "VerificationMode",
     "VerificationResult",
     "build_replay_plan",
     "completeness_check",

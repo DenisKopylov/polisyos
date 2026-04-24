@@ -38,7 +38,7 @@ __all__ = [
 # Lazy imports for stage implementations to avoid heavy dependencies at import time.
 
 
-def __getattr__(name: str) -> Any:  # noqa: N807
+def __getattr__(name: str) -> Any:
     if name == "Level0StaticValidator":
         from polisyos.scientist.search.funnel.level0_static import Level0StaticValidator
 

@@ -20,25 +20,28 @@ filters, batch normalization/sharding, legal evaluation, and the simulator diff
 
 - `tests/lex/` root: `4` tests for API transport constraints, interventions,
   and knowledge-store filters.
+
 - `tests/lex/batch/`: `37` tests for canonicalizers, structuring, SPO
   normalization, quality reports, manifests, and sharding.
+
 - `tests/lex/legal_evaluation/`: `1` test for legal-evaluation integration.
 - `tests/lex/simulator/`: `3` tests for norm-pack diff, mutator semantics, and
   impact analysis.
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - [`../../src/polisyos/lex/README.md`](../../src/polisyos/lex/README.md)
 - [`../../src/polisyos/lex/batch/README.md`](../../src/polisyos/lex/batch/README.md)
 - [`../../src/polisyos/lex/simulator/README.md`](../../src/polisyos/lex/simulator/README.md)
 - `src/polisyos/ir/norm_pack`
 
-**Depended on by**
+### Depended On By
 
 - [`../fabric/README.md`](../fabric/README.md) for fabric-driven legal/document
   pipelines
+
 - [`../scientist/README.md`](../scientist/README.md) for policy/governance flows
   that consume lex artifacts
 

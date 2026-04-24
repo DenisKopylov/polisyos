@@ -1,9 +1,11 @@
 # ADR-0101: Runtime Audit Trail Model
 
 ## Status
+
 Accepted
 
 ## Date
+
 2026-04-12
 
 ## Context
@@ -23,9 +25,11 @@ This ADR defines the canonical model.
 ## Decision
 
 1. Runtime audit is split into two append-only streams under the runtime root:
+
    - mutation audit for state-changing HTTP paths;
    - data-access audit for read/download/preview paths.
 2. Mutation audit records include, at minimum:
+
    - timestamp;
    - `request_id`;
    - `tenant_id`;
@@ -38,6 +42,7 @@ This ADR defines the canonical model.
    - before/after hash when applicable;
    - idempotency key when present.
 3. Data-access audit records include, at minimum:
+
    - timestamp;
    - `request_id`;
    - `tenant_id`;
@@ -59,11 +64,13 @@ This ADR defines the canonical model.
 - Compliance review no longer depends on reconstructing history from raw logs.
 - Incident response has one correlation model for reads, writes, and replay
   behavior.
+
 - Tenant and actor attribution become first-class operating data.
 
 ### Negative
 
 - Audit persistence is now part of runtime operational state and must be covered
   by retention and recovery policy.
+
 - Debugging tools must respect the distinction between operator-facing audit
   data and public client-facing responses.

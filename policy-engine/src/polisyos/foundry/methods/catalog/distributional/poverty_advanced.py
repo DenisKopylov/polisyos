@@ -1,8 +1,10 @@
 """Public distributional poverty advanced module API."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from itertools import product
-from typing import Any, ClassVar, Mapping, Sequence
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -76,7 +78,9 @@ def _normalize_category_label(value: Any, *, field_name: str) -> tuple[str, Any]
     )
 
 
-def _coerce_category_orders(raw_orders: Any, *, n_dims: int) -> tuple[tuple[tuple[str, Any], ...], ...]:
+def _coerce_category_orders(
+    raw_orders: Any, *, n_dims: int
+) -> tuple[tuple[tuple[str, Any], ...], ...]:
     if raw_orders is None:
         raise ValueError("category_orders parameter is required")
     if not isinstance(raw_orders, Sequence) or isinstance(raw_orders, (str, bytes)):
@@ -103,11 +107,15 @@ def _coerce_category_orders(raw_orders: Any, *, n_dims: int) -> tuple[tuple[tupl
     return tuple(normalized_orders)
 
 
-def _coerce_numeric_category_orders(raw_orders: Any, *, n_dims: int) -> tuple[tuple[float, ...], ...]:
+def _coerce_numeric_category_orders(
+    raw_orders: Any, *, n_dims: int
+) -> tuple[tuple[float, ...], ...]:
     if raw_orders is None:
         raise ValueError("numeric category_orders are required")
     if not isinstance(raw_orders, Sequence) or isinstance(raw_orders, (str, bytes)):
-        raise TypeError("numeric category_orders must be a sequence of per-dimension category orders")
+        raise TypeError(
+            "numeric category_orders must be a sequence of per-dimension category orders"
+        )
     if len(raw_orders) != n_dims:
         raise ValueError("numeric category_orders length must match number of dimensions")
 
@@ -117,7 +125,9 @@ def _coerce_numeric_category_orders(raw_orders: Any, *, n_dims: int) -> tuple[tu
             raise TypeError(f"numeric category_orders[{dim_index}] must be a sequence")
         values = tuple(float(value) for value in raw_order)
         if len(values) < 2:
-            raise ValueError(f"numeric category_orders[{dim_index}] must contain at least two categories")
+            raise ValueError(
+                f"numeric category_orders[{dim_index}] must contain at least two categories"
+            )
         if any(not np.isfinite(value) for value in values):
             raise ValueError(
                 f"numeric category_orders[{dim_index}] must contain only finite numeric values"
@@ -219,12 +229,18 @@ def _resolve_threshold_weights(
             schedules.append(schedule)
         return tuple(schedules)
 
-    if not isinstance(raw_threshold_weights, Sequence) or isinstance(raw_threshold_weights, (str, bytes)):
-        raise TypeError("threshold_weights must be None, 'equal', 'af_last', or a per-dimension sequence")
+    if not isinstance(raw_threshold_weights, Sequence) or isinstance(
+        raw_threshold_weights, (str, bytes)
+    ):
+        raise TypeError(
+            "threshold_weights must be None, 'equal', 'af_last', or a per-dimension sequence"
+        )
     if len(raw_threshold_weights) != n_dims:
         raise ValueError("threshold_weights length must match number of dimensions")
 
-    for dim_index, (order, raw_schedule) in enumerate(zip(category_orders, raw_threshold_weights, strict=True)):
+    for dim_index, (order, raw_schedule) in enumerate(
+        zip(category_orders, raw_threshold_weights, strict=True)
+    ):
         if not isinstance(raw_schedule, Sequence) or isinstance(raw_schedule, (str, bytes)):
             raise TypeError(f"threshold_weights[{dim_index}] must be a sequence")
         schedule = np.asarray(raw_schedule, dtype=float)
@@ -252,7 +268,9 @@ def _build_delta_lookups(
     threshold_weights: tuple[np.ndarray, ...],
 ) -> tuple[np.ndarray, ...]:
     lookups: list[np.ndarray] = []
-    for order, cutoff, schedule in zip(category_orders, deprivation_cutoffs, threshold_weights, strict=True):
+    for order, cutoff, schedule in zip(
+        category_orders, deprivation_cutoffs, threshold_weights, strict=True
+    ):
         n_categories = len(order)
         lookup = np.zeros(n_categories + 1, dtype=float)
         if int(cutoff) > 0:
@@ -311,11 +329,11 @@ def _coerce_cutoff_grid(
             name=f"cutoff_grid[{dim_index}]",
             expected_dims=len(raw_candidates),
         )
-        valid_candidates = sorted({int(value) for value in candidates.tolist()} | {int(current_cutoff)})
+        valid_candidates = sorted(
+            {int(value) for value in candidates.tolist()} | {int(current_cutoff)}
+        )
         if valid_candidates[0] < 1 or valid_candidates[-1] >= len(order):
-            raise ValueError(
-                f"cutoff_grid[{dim_index}] must stay within [1, {len(order) - 1}]"
-            )
+            raise ValueError(f"cutoff_grid[{dim_index}] must stay within [1, {len(order) - 1}]")
         normalized_grid.append(tuple(valid_candidates))
     return tuple(normalized_grid)
 
@@ -338,11 +356,13 @@ def _compute_ordinal_core(
         [lookup[rank_matrix[:, dim_index]] for dim_index, lookup in enumerate(delta_lookups)]
     )
     severity_scores = delta_matrix @ weights
-    transformed_scores = severity_scores ** beta
+    transformed_scores = severity_scores**beta
     censored_scores = transformed_scores * poor_mask.astype(float)
 
     headcount_h = float(np.mean(poor_mask))
-    ordinal_intensity_a = float(np.mean(transformed_scores[poor_mask])) if np.any(poor_mask) else 0.0
+    ordinal_intensity_a = (
+        float(np.mean(transformed_scores[poor_mask])) if np.any(poor_mask) else 0.0
+    )
     ordinal_adjusted_headcount_q = float(np.mean(censored_scores))
     af_m0 = float(np.mean(breadth_scores * poor_mask.astype(float)))
 
@@ -436,7 +456,10 @@ def _build_cutoff_diagnostics(
         upper_bound = float(weights[dim_index] / n_steps + margin_share)
         neighbors: list[dict[str, Any]] = []
 
-        for direction, candidate_cutoff in (("tighten", int(deprivation_cutoffs[dim_index]) - 1), ("relax", int(deprivation_cutoffs[dim_index]) + 1)):
+        for direction, candidate_cutoff in (
+            ("tighten", int(deprivation_cutoffs[dim_index]) - 1),
+            ("relax", int(deprivation_cutoffs[dim_index]) + 1),
+        ):
             if candidate_cutoff < 1 or candidate_cutoff >= len(category_orders[dim_index]):
                 continue
             trial_cutoffs = deprivation_cutoffs.copy()
@@ -455,14 +478,18 @@ def _build_cutoff_diagnostics(
                 beta=beta,
             )
             delta_q = abs(float(trial_core["ordinal_adjusted_headcount_q"]) - baseline_q)
-            flip_share = float(np.mean(np.asarray(trial_core["poor_mask"], dtype=bool) != baseline_poor))
+            flip_share = float(
+                np.mean(np.asarray(trial_core["poor_mask"], dtype=bool) != baseline_poor)
+            )
             neighbors.append(
                 {
                     "direction": direction,
                     "candidate_cutoff": int(candidate_cutoff),
                     "delta_q": float(delta_q),
                     "flip_share": flip_share,
-                    "ordinal_adjusted_headcount_q": float(trial_core["ordinal_adjusted_headcount_q"]),
+                    "ordinal_adjusted_headcount_q": float(
+                        trial_core["ordinal_adjusted_headcount_q"]
+                    ),
                     "headcount_h": float(trial_core["headcount_h"]),
                     "ordinal_intensity_a": float(trial_core["ordinal_intensity_a"]),
                     "local_upper_bound": upper_bound,
@@ -515,7 +542,9 @@ def _build_cutoff_diagnostics(
             evaluations[tuple(int(value) for value in candidate_cutoffs.tolist())] = {
                 "headcount_h": float(candidate_core["headcount_h"]),
                 "ordinal_intensity_a": float(candidate_core["ordinal_intensity_a"]),
-                "ordinal_adjusted_headcount_q": float(candidate_core["ordinal_adjusted_headcount_q"]),
+                "ordinal_adjusted_headcount_q": float(
+                    candidate_core["ordinal_adjusted_headcount_q"]
+                ),
                 "poor_mask": np.asarray(candidate_core["poor_mask"], dtype=bool),
             }
 
@@ -532,7 +561,10 @@ def _build_cutoff_diagnostics(
                         neighbors.append(candidate_tuple)
             slope = max(
                 (
-                    abs(payload["ordinal_adjusted_headcount_q"] - evaluations[neighbor]["ordinal_adjusted_headcount_q"])
+                    abs(
+                        payload["ordinal_adjusted_headcount_q"]
+                        - evaluations[neighbor]["ordinal_adjusted_headcount_q"]
+                    )
                     for neighbor in neighbors
                 ),
                 default=0.0,
@@ -611,7 +643,9 @@ def _coerce_recoding_scenarios(
             name = f"recoding_{scenario_index}"
             raw_orders = raw_scenario
         scenario_orders = _coerce_numeric_category_orders(raw_orders, n_dims=len(category_orders))
-        for dim_index, (baseline_order, scenario_order) in enumerate(zip(category_orders, scenario_orders, strict=True)):
+        for dim_index, (baseline_order, scenario_order) in enumerate(
+            zip(category_orders, scenario_orders, strict=True)
+        ):
             if len(baseline_order) != len(scenario_order):
                 raise ValueError(
                     f"comparator_recodings[{scenario_index}] dimension {dim_index} "
@@ -675,7 +709,9 @@ def _build_legacy_gap_envelope(
         rows.append({"name": scenario["name"], "ordinal_adjusted_gap_q": float(q_gap)})
 
     values = np.asarray([row["ordinal_adjusted_gap_q"] for row in rows], dtype=float)
-    baseline_value = next(row["ordinal_adjusted_gap_q"] for row in rows if row["name"] == "baseline")
+    baseline_value = next(
+        row["ordinal_adjusted_gap_q"] for row in rows if row["name"] == "baseline"
+    )
     return {
         "baseline_q_gap": float(baseline_value),
         "q_gap_min": float(np.min(values)),
@@ -692,6 +728,7 @@ def _build_legacy_gap_envelope(
 )
 class MultidimensionalPovertyEstimator:
     """Estimate multidimensional poverty when policy runs combine several deprivation indicators."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -716,9 +753,7 @@ class MultidimensionalPovertyEstimator:
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="k_threshold", default=0.33, bounds=(0.0, 1.0)),
-        ),
+        parameters=(ParameterSpec(name="k_threshold", default=0.33, bounds=(0.0, 1.0)),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
@@ -729,7 +764,9 @@ class MultidimensionalPovertyEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Alkire-Foster multidimensional poverty index (MPI): H * A = M0.",
-        tags=frozenset({"distributional", "poverty", "multidimensional", "alkire-foster", "cross-section"}),
+        tags=frozenset(
+            {"distributional", "poverty", "multidimensional", "alkire-foster", "cross-section"}
+        ),
         when_to_use="Multidimensional poverty measurement across health, education, living standards; UNDP MPI-style analysis",
         output_interpretation="M0 = H * A: headcount ratio times average intensity. Higher = more multidimensional poverty. Policy improves if post-policy M0 decreases.",
     )
@@ -888,7 +925,9 @@ class OrdinalMultidimensionalPovertyEstimator:
             name="deprivation_cutoffs",
             expected_dims=n_dims,
         )
-        for dim_index, (cutoff, order) in enumerate(zip(deprivation_cutoffs, category_orders, strict=True)):
+        for dim_index, (cutoff, order) in enumerate(
+            zip(deprivation_cutoffs, category_orders, strict=True)
+        ):
             if cutoff < 1 or cutoff >= len(order):
                 raise ValueError(
                     f"deprivation_cutoffs[{dim_index}] must fall in [1, {len(order) - 1}]"

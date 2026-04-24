@@ -263,8 +263,7 @@ def test_functional_runner_emits_graph_hypotheses_for_tabular_data() -> None:
     assert result.graph.graph_type is GraphType.DAG
     assert result.graph.edges
     assert any(
-        "functional_portfolio_runner_uses_builtin_proxy" in warning
-        for warning in result.warnings
+        "functional_portfolio_runner_uses_builtin_proxy" in warning for warning in result.warnings
     )
 
 

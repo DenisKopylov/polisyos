@@ -89,7 +89,7 @@ export function ComplianceBadge({ className }: ComplianceBadgeProps) {
                 <p className="text-xs font-medium">
                   {item.standard}: {item.label}
                 </p>
-                <p className="text-[10px] text-muted-foreground">
+                <p className="text-muted-foreground text-[10px]">
                   {t(item.description)}
                 </p>
               </div>

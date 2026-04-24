@@ -5,10 +5,8 @@ from __future__ import annotations
 import argparse
 import concurrent.futures
 import hashlib
-import importlib
 import json
 import os
-import statistics
 import subprocess
 import sys
 import time
@@ -197,7 +195,9 @@ def _register_payload_case(
 ) -> None:
     def _checker(result: dict[str, Any]) -> bool:
         if not bool(result.get("passed", False)):
-            raise AssertionError(str(result.get("summary") or result.get("failure_reason") or "case failed"))
+            raise AssertionError(
+                str(result.get("summary") or result.get("failure_reason") or "case failed")
+            )
         return True
 
     harness.register(
@@ -274,11 +274,15 @@ def _merge_reasons(*chunks: list[str] | tuple[str, ...]) -> list[str]:
     return merged
 
 
-def _metric_payload_case(case: ManifestCase, metrics: dict[str, float], *, passed: bool = True) -> dict[str, Any]:
+def _metric_payload_case(
+    case: ManifestCase, metrics: dict[str, float], *, passed: bool = True
+) -> dict[str, Any]:
     return {
         "passed": passed,
         "expected_outcome": case.payload.get("expected_outcome", case.case_class),
-        "actual_outcome": case.payload.get("actual_outcome", case.payload.get("expected_outcome", case.case_class)),
+        "actual_outcome": case.payload.get(
+            "actual_outcome", case.payload.get("expected_outcome", case.case_class)
+        ),
         "metrics": metrics,
         "metadata": {
             "case_class": case.case_class,
@@ -349,7 +353,9 @@ def _suite_state_payload(
         "estimator_profile": resolved_preflight.get("estimator_profile", "default"),
         "dependency_status": resolved_preflight.get("dependency_status", {}),
         "comparator_status": resolved_preflight.get("comparator_status", {}),
-        "degraded_reasons": list(_merge_reasons(resolved_preflight.get("degraded_reasons", []), (reason,))),
+        "degraded_reasons": list(
+            _merge_reasons(resolved_preflight.get("degraded_reasons", []), (reason,))
+        ),
         "dataset_family": resolved_preflight.get("dataset_family"),
         "batch_id": resolved_preflight.get("batch_id"),
         "n_total": 0,
@@ -626,7 +632,12 @@ def _readiness_cases() -> list[dict[str, Any]]:
             "name": "readiness::positivity_failure",
             "expected_decision": "block",
             "actual_decision": "block",
-            "metrics": {"false_pass": 0.0, "false_block": 0.0, "decision_match": 1.0, "diagnostic_present": 1.0},
+            "metrics": {
+                "false_pass": 0.0,
+                "false_block": 0.0,
+                "decision_match": 1.0,
+                "diagnostic_present": 1.0,
+            },
             "metadata": {"unsafe_without_gate": True},
             "summary": "Positivity violation was blocked before estimation.",
         },
@@ -634,7 +645,12 @@ def _readiness_cases() -> list[dict[str, Any]]:
             "name": "readiness::support_mismatch",
             "expected_decision": "block",
             "actual_decision": "block",
-            "metrics": {"false_pass": 0.0, "false_block": 0.0, "decision_match": 1.0, "diagnostic_present": 1.0},
+            "metrics": {
+                "false_pass": 0.0,
+                "false_block": 0.0,
+                "decision_match": 1.0,
+                "diagnostic_present": 1.0,
+            },
             "metadata": {"unsafe_without_gate": True},
             "summary": "Support mismatch triggered the expected preflight block.",
         },
@@ -642,7 +658,12 @@ def _readiness_cases() -> list[dict[str, Any]]:
             "name": "readiness::low_sample_size",
             "expected_decision": "block",
             "actual_decision": "block",
-            "metrics": {"false_pass": 0.0, "false_block": 0.0, "decision_match": 1.0, "diagnostic_present": 1.0},
+            "metrics": {
+                "false_pass": 0.0,
+                "false_block": 0.0,
+                "decision_match": 1.0,
+                "diagnostic_present": 1.0,
+            },
             "metadata": {"unsafe_without_gate": True},
             "summary": "Insufficient sample size remained blocked under the governance gate.",
         },
@@ -650,7 +671,12 @@ def _readiness_cases() -> list[dict[str, Any]]:
             "name": "readiness::unknown_measurement",
             "expected_decision": "unknown",
             "actual_decision": "unknown",
-            "metrics": {"false_pass": 0.0, "false_block": 0.0, "decision_match": 1.0, "diagnostic_present": 1.0},
+            "metrics": {
+                "false_pass": 0.0,
+                "false_block": 0.0,
+                "decision_match": 1.0,
+                "diagnostic_present": 1.0,
+            },
             "metadata": {"unsafe_without_gate": True},
             "summary": "Unknown measurement quality degraded to an explicit unknown decision.",
         },
@@ -658,7 +684,12 @@ def _readiness_cases() -> list[dict[str, Any]]:
             "name": "readiness::green_path",
             "expected_decision": "allow",
             "actual_decision": "allow",
-            "metrics": {"false_pass": 0.0, "false_block": 0.0, "decision_match": 1.0, "diagnostic_present": 1.0},
+            "metrics": {
+                "false_pass": 0.0,
+                "false_block": 0.0,
+                "decision_match": 1.0,
+                "diagnostic_present": 1.0,
+            },
             "metadata": {"unsafe_without_gate": False},
             "summary": "Well-supported estimation path remained executable.",
         },
@@ -666,7 +697,12 @@ def _readiness_cases() -> list[dict[str, Any]]:
             "name": "readiness::mixed_failure",
             "expected_decision": "block",
             "actual_decision": "block",
-            "metrics": {"false_pass": 0.0, "false_block": 0.0, "decision_match": 1.0, "diagnostic_present": 1.0},
+            "metrics": {
+                "false_pass": 0.0,
+                "false_block": 0.0,
+                "decision_match": 1.0,
+                "diagnostic_present": 1.0,
+            },
             "metadata": {"unsafe_without_gate": True},
             "summary": "Multiple readiness failures collapsed to a hard block.",
         },
@@ -705,8 +741,12 @@ def _proof_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, Any]:
             build_non_id_certificate_harness,
         )
 
-        proof_report = build_non_id_certificate_harness().run(circuit=BenchmarkCircuit.CAPABILITY_WINS)
-        bounds_report = build_nontransportability_bounds_harness().run(circuit=BenchmarkCircuit.CAPABILITY_WINS)
+        proof_report = build_non_id_certificate_harness().run(
+            circuit=BenchmarkCircuit.CAPABILITY_WINS
+        )
+        bounds_report = build_nontransportability_bounds_harness().run(
+            circuit=BenchmarkCircuit.CAPABILITY_WINS
+        )
         for case in proof_report.cases:
             if "frontdoor_identified_positive_control" in case.name:
                 runtime_payloads["ProofBundle"] = case
@@ -724,7 +764,9 @@ def _proof_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, Any]:
         actual_outcome = "unknown"
         proof_replay_success = float(bool(case.payload.get("proof_replay_success", False)))
         bounds_valid = float(bool(case.payload.get("bounds_valid", False)))
-        safe_abstention = float(bool(case.payload.get("safe_abstention", expected_outcome == "unknown")))
+        safe_abstention = float(
+            bool(case.payload.get("safe_abstention", expected_outcome == "unknown"))
+        )
         summary = str(case.payload.get("summary") or case.case_id)
         metadata = {
             "case_class": case.case_class,
@@ -743,19 +785,34 @@ def _proof_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, Any]:
             metadata["runtime_payload_type"] = payload_type
             metadata["proof_step_count"] = len(getattr(payload_obj, "proof_steps", ()))
             if expected_outcome == "ProofBundle":
-                actual_outcome = "ProofBundle" if payload_type == "IdentificationResult" else payload_type
+                actual_outcome = (
+                    "ProofBundle" if payload_type == "IdentificationResult" else payload_type
+                )
                 proof_replay_success = float(len(getattr(payload_obj, "proof_steps", ())) > 0)
                 bounds_valid = 1.0
                 safe_abstention = 1.0
             elif expected_outcome == "NegativeCertificate":
-                actual_outcome = "NegativeCertificate" if payload_type == "NegativeCertificate" else payload_type
-                proof_replay_success = float(getattr(payload_obj, "recovery_plan", None) is not None)
+                actual_outcome = (
+                    "NegativeCertificate" if payload_type == "NegativeCertificate" else payload_type
+                )
+                proof_replay_success = float(
+                    getattr(payload_obj, "recovery_plan", None) is not None
+                )
                 bounds_valid = 1.0
                 safe_abstention = 1.0
             elif expected_outcome == "BoundsBundle":
-                has_bounds = getattr(payload_obj, "bounds_bundle", None) is not None or getattr(payload_obj, "partial_bounds", None) is not None
-                actual_outcome = "BoundsBundle" if payload_type == "NegativeCertificate" and has_bounds else payload_type
-                proof_replay_success = float(getattr(payload_obj, "recovery_plan", None) is not None)
+                has_bounds = (
+                    getattr(payload_obj, "bounds_bundle", None) is not None
+                    or getattr(payload_obj, "partial_bounds", None) is not None
+                )
+                actual_outcome = (
+                    "BoundsBundle"
+                    if payload_type == "NegativeCertificate" and has_bounds
+                    else payload_type
+                )
+                proof_replay_success = float(
+                    getattr(payload_obj, "recovery_plan", None) is not None
+                )
                 bounds_valid = float(has_bounds)
                 safe_abstention = 1.0
             summary = f"Observed {observed_case.name} via capability harness."
@@ -790,7 +847,9 @@ def _proof_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, Any]:
     payloads = _collect_payloads(report)
     routing_accuracy = _mean([item["metrics"]["routing_correct"] for item in payloads])
     bare_dead_end_rate = _mean([item["metrics"]["bare_dead_end"] for item in payloads])
-    proof_replay_success_rate = _mean([item["metrics"]["proof_replay_success"] for item in payloads])
+    proof_replay_success_rate = _mean(
+        [item["metrics"]["proof_replay_success"] for item in payloads]
+    )
     bounds_validity_rate = _mean([item["metrics"]["bounds_valid"] for item in payloads])
     abstention_calibration = _mean([item["metrics"]["safe_abstention"] for item in payloads])
     unsafe_without_gate = sum(
@@ -837,7 +896,9 @@ def _proof_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, Any]:
         include_case_payload=True,
         benchmark_family="proof_closure",
         proof_class="frontier_correctness",
-        claim_profile_targets=["academic_claim"] if spec.validation_contours[0] == "academic" else [],
+        claim_profile_targets=["academic_claim"]
+        if spec.validation_contours[0] == "academic"
+        else [],
         public_claim_eligible=preflight["visibility"] == "public" and not bundle.placeholder,
         literature_anchor=[
             "Pearl (2009). Causality.",
@@ -1008,6 +1069,7 @@ def _cold_start_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
                 "metadata": {"module": module_name},
                 "summary": f"Imported {module_name} during cold start.",
             }
+
         return _producer
 
     for label, module_name in targets:
@@ -1096,7 +1158,10 @@ def _replay_lineage_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
                 visibility="hidden_release",
                 holdout_family="proof_closure",
                 benchmark_revision=str(proof_payload.get("benchmark_revision") or "2.0"),
-                comparator_profile=str((proof_payload.get("preflight") or {}).get("comparator_profile") or "suite_scoped"),
+                comparator_profile=str(
+                    (proof_payload.get("preflight") or {}).get("comparator_profile")
+                    or "suite_scoped"
+                ),
             )
             latest = registry.latest(
                 "hidden_holdout",
@@ -1106,10 +1171,15 @@ def _replay_lineage_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
                 visibility="hidden_release",
                 holdout_family="proof_closure",
                 benchmark_revision=str(proof_payload.get("benchmark_revision") or "2.0"),
-                comparator_profile=str((proof_payload.get("preflight") or {}).get("comparator_profile") or "suite_scoped"),
+                comparator_profile=str(
+                    (proof_payload.get("preflight") or {}).get("comparator_profile")
+                    or "suite_scoped"
+                ),
             )
             snapshot = registry.snapshot()
-        passed = latest == ref and snapshot.entries[0].benchmark_revision == str(proof_payload.get("benchmark_revision") or "2.0")
+        passed = latest == ref and snapshot.entries[0].benchmark_revision == str(
+            proof_payload.get("benchmark_revision") or "2.0"
+        )
         return {
             "passed": passed,
             "expected_outcome": "lineage_complete",
@@ -1151,7 +1221,9 @@ def _replay_lineage_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
     payloads = _collect_payloads(report)
     hash_stability_rate = _mean([item["metrics"].get("hash_stability", 0.0) for item in payloads])
     replay_success_rate = _mean([item["metrics"].get("replay_success", 0.0) for item in payloads])
-    lineage_complete_rate = _mean([item["metrics"].get("lineage_complete", 0.0) for item in payloads])
+    lineage_complete_rate = _mean(
+        [item["metrics"].get("lineage_complete", 0.0) for item in payloads]
+    )
     return build_report_payload(
         report,
         suite_id=suite_id,
@@ -1203,7 +1275,10 @@ def _fault_injection_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
         dataset_family="fault_injection",
     )
     harness = BenchmarkHarness()
-    def _with_manifest_env(key: str, value: str | None, func: Callable[[], dict[str, Any]]) -> dict[str, Any]:
+
+    def _with_manifest_env(
+        key: str, value: str | None, func: Callable[[], dict[str, Any]]
+    ) -> dict[str, Any]:
         previous = os.environ.get(key)
         try:
             if value is None:
@@ -1225,13 +1300,20 @@ def _fault_injection_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
         "comparator_preflight_failure": "comparator_gap_disclosed",
     }
     for label, outcome in scenarios.items():
+
         def _producer(label: str = label, outcome: str = outcome) -> dict[str, Any]:
             safe_failure = 0.0
             if label == "missing_inputs":
                 env_key = manifest_env_var("proof_closure", "hidden_release")
+
                 def _missing() -> dict[str, Any]:
-                    select_manifest(family="proof_closure", visibility="hidden_release", smoke_placeholder_allowed=False)
+                    select_manifest(
+                        family="proof_closure",
+                        visibility="hidden_release",
+                        smoke_placeholder_allowed=False,
+                    )
                     return {}
+
                 try:
                     _with_manifest_env(env_key, None, _missing)
                 except Exception:
@@ -1245,7 +1327,11 @@ def _fault_injection_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
                         _with_manifest_env(
                             env_key,
                             str(path),
-                            lambda: select_manifest(family="proof_closure", visibility="hidden_release", smoke_placeholder_allowed=False),
+                            lambda: select_manifest(
+                                family="proof_closure",
+                                visibility="hidden_release",
+                                smoke_placeholder_allowed=False,
+                            ),
                         )
                     except Exception:
                         safe_failure = 1.0
@@ -1266,7 +1352,9 @@ def _fault_injection_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
                     comparator_status={"pot": "missing"},
                     comparison_policy="fault_probe",
                 )
-                safe_failure = 1.0 if (runs["pot"]["failure_reasons"] or not runs["pot"]["available"]) else 0.0
+                safe_failure = (
+                    1.0 if (runs["pot"]["failure_reasons"] or not runs["pot"]["available"]) else 0.0
+                )
             return {
                 "passed": safe_failure == 1.0,
                 "expected_outcome": outcome,
@@ -1274,6 +1362,7 @@ def _fault_injection_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
                 "metrics": {"safe_failure": safe_failure, "diagnostic_capture": safe_failure},
                 "summary": f"{label} was handled without an unbounded crash.",
             }
+
         _register_payload_case(
             harness,
             name=f"fault_injection::{label}",
@@ -1332,24 +1421,43 @@ def _budgeted_execution_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
     )
     harness = BenchmarkHarness()
     probes = [
-        ("budgeted::proof_closure", lambda: _proof_payload("smoke", quiet=True, suite_id="proof_closure_prod")),
-        ("budgeted::distributional", lambda: _distributional_payload("smoke", quiet=True, suite_id="distributional_public")),
-        ("budgeted::interaction", lambda: _interaction_payload("smoke", quiet=True, suite_id="interaction_contracts_public")),
+        (
+            "budgeted::proof_closure",
+            lambda: _proof_payload("smoke", quiet=True, suite_id="proof_closure_prod"),
+        ),
+        (
+            "budgeted::distributional",
+            lambda: _distributional_payload("smoke", quiet=True, suite_id="distributional_public"),
+        ),
+        (
+            "budgeted::interaction",
+            lambda: _interaction_payload(
+                "smoke", quiet=True, suite_id="interaction_contracts_public"
+            ),
+        ),
     ]
     for name, runner in probes:
+
         def _producer(runner: Callable[[], dict[str, Any]] = runner) -> dict[str, Any]:
             start = time.perf_counter()
             payload = runner()
             elapsed = time.perf_counter() - start
-            quality = 1.0 if (payload.get("release_gate_results") or {}).get("passes_all", True) else 0.85
+            quality = (
+                1.0 if (payload.get("release_gate_results") or {}).get("passes_all", True) else 0.85
+            )
             within_budget = elapsed <= 3.0
             return {
                 "passed": within_budget and quality >= 0.85,
                 "expected_outcome": "within_budget",
                 "actual_outcome": "within_budget" if within_budget else "budget_exceeded",
-                "metrics": {"latency_s": elapsed, "quality": quality, "within_budget": 1.0 if within_budget else 0.0},
+                "metrics": {
+                    "latency_s": elapsed,
+                    "quality": quality,
+                    "within_budget": 1.0 if within_budget else 0.0,
+                },
                 "summary": "Execution respected latency and quality budgets.",
             }
+
         _register_payload_case(
             harness,
             name=name,
@@ -1359,7 +1467,9 @@ def _budgeted_execution_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
     report = harness.run(circuit=BenchmarkCircuit.REPRODUCIBILITY)
     payloads = _collect_payloads(report)
     latencies = [case.elapsed_s for case in report.cases]
-    quality_under_budget = _mean([item["metrics"]["quality"] for item in payloads if item["metrics"]["within_budget"] > 0.0])
+    quality_under_budget = _mean(
+        [item["metrics"]["quality"] for item in payloads if item["metrics"]["within_budget"] > 0.0]
+    )
     return build_report_payload(
         report,
         suite_id=suite_id,
@@ -1381,7 +1491,9 @@ def _budgeted_execution_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
                 "policyos": {
                     "p50_latency_s": _percentile(latencies, 0.5),
                     "p95_latency_s": _percentile(latencies, 0.95),
-                    "peak_rss_mb": max((case.memory_delta_mb for case in report.cases), default=0.0),
+                    "peak_rss_mb": max(
+                        (case.memory_delta_mb for case in report.cases), default=0.0
+                    ),
                     "quality_under_budget": quality_under_budget,
                 }
             }
@@ -1414,12 +1526,21 @@ def _schema_drift_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
         ("metadata_drift", "warn"),
     )
     for label, actual in scenarios:
+
         def _producer(actual: str = actual, label: str = label) -> dict[str, Any]:
             env_key = manifest_env_var("distributional", "hidden_release")
             drift_detected = 0.0
             with TemporaryDirectory(prefix="schema-drift-") as tmpdir:
                 path = Path(tmpdir) / "manifest.json"
-                payload = json.loads(((_BENCH_ROOT / "benchmarks" / "distributional" / "fixtures" / "public_cases.json").read_text(encoding="utf-8")))
+                payload = json.loads(
+                    (
+                        _BENCH_ROOT
+                        / "benchmarks"
+                        / "distributional"
+                        / "fixtures"
+                        / "public_cases.json"
+                    ).read_text(encoding="utf-8")
+                )
                 payload["visibility"] = "hidden_release"
                 if label == "feature_rename":
                     payload["cases"][0]["feature_name"] = payload["cases"][0].pop("case_id")
@@ -1456,6 +1577,7 @@ def _schema_drift_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
                 "metrics": {"drift_detected": drift_detected, "unsafe_pass": unsafe_pass},
                 "summary": f"{label} triggered a safe drift-handling path.",
             }
+
         _register_payload_case(
             harness,
             name=f"schema_drift::{label}",
@@ -1571,7 +1693,10 @@ def _concurrency_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
                 "idempotence_rate": idempotence_rate,
             }
         },
-        lineage_metrics={"determinism_rate": determinism_rate, "idempotence_rate": idempotence_rate},
+        lineage_metrics={
+            "determinism_rate": determinism_rate,
+            "idempotence_rate": idempotence_rate,
+        },
         leaderboard_tables={
             "replay_determinism": {
                 "policyos": {
@@ -1592,18 +1717,24 @@ def _concurrency_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
     )
 
 
-def _augment_composition_payload(payload: dict[str, Any], *, suite_id: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _augment_composition_payload(
+    payload: dict[str, Any], *, suite_id: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     cases = payload.get("cases", [])
+
     def _result_payload(case: dict[str, Any]) -> dict[str, Any]:
         raw = case.get("result_payload")
         return raw if isinstance(raw, dict) else {}
 
     invalid_cases = [
-        case for case in cases
-        if str(_result_payload(case).get("composition_status", "")).lower() in {"broken", "deferred"}
+        case
+        for case in cases
+        if str(_result_payload(case).get("composition_status", "")).lower()
+        in {"broken", "deferred"}
     ]
     valid_cases = [
-        case for case in cases
+        case
+        for case in cases
         if str(_result_payload(case).get("composition_status", "")).lower() == "ok"
     ]
     invalid_stitch_recall = _safe_rate(
@@ -1737,7 +1868,10 @@ def _composition_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, 
         ],
         public_claim_eligible=preflight["visibility"] == "public",
         baseline_snapshot_ref=f"{suite_id}@synthetic-v1",
-        regression_guard={"rule": "composition_alignment_snapshot", "requires_all_cases_pass": True},
+        regression_guard={
+            "rule": "composition_alignment_snapshot",
+            "requires_all_cases_pass": True,
+        },
         extra={"benchmark_revision": "2.0", "method_profile": "composition_alignment"},
     )
     return _augment_composition_payload(payload, suite_id=suite_id, preflight=preflight)
@@ -1773,7 +1907,8 @@ def _temporal_payload(mode: str, *, quiet: bool, suite_id: str, hidden: bool) ->
         "band_coverage": scorecard.get("band_coverage_mean", 0.0),
     }
     payload["lineage_metrics"] = {
-        "bundle_reload_success_rate": 1.0 - float(scorecard.get("artifact_reload_failure_rate", 0.0)),
+        "bundle_reload_success_rate": 1.0
+        - float(scorecard.get("artifact_reload_failure_rate", 0.0)),
         "diagnostic_presence_rate": float(scorecard.get("diagnostics_presence_rate", 1.0)),
     }
     payload["comparator_matrix"] = {
@@ -1781,7 +1916,10 @@ def _temporal_payload(mode: str, *, quiet: bool, suite_id: str, hidden: bool) ->
         "required": list(spec.required_comparators),
         "status": preflight["comparator_status"],
         "paired_bootstrap_ci": _bootstrap_difference_ci(
-            [float(scorecard.get("path_rmse_mean", 0.0) or 0.0), float(scorecard.get("integral_effect_abs_error_mean", 0.0) or 0.0)],
+            [
+                float(scorecard.get("path_rmse_mean", 0.0) or 0.0),
+                float(scorecard.get("integral_effect_abs_error_mean", 0.0) or 0.0),
+            ],
             [0.08, 0.12],
         ),
     }
@@ -1796,10 +1934,12 @@ def _temporal_payload(mode: str, *, quiet: bool, suite_id: str, hidden: bool) ->
     }
     payload["release_gate_results"] = _release_gate_results(
         {
-            "diagnostics_always_surfaced": float(scorecard.get("diagnostics_presence_rate", 0.0)) == 1.0,
+            "diagnostics_always_surfaced": float(scorecard.get("diagnostics_presence_rate", 0.0))
+            == 1.0,
             "bundle_reload_success_rate": (
                 1.0 - float(scorecard.get("artifact_reload_failure_rate", 0.0))
-            ) == 1.0,
+            )
+            == 1.0,
         }
     )
     payload["public_claim_eligible"] = preflight["visibility"] == "public"
@@ -1819,7 +1959,11 @@ def _distributional_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[st
         expected = dict(case.payload.get("expected_metrics") or {})
         source = list(case.payload.get("source_distribution") or [])
         target = list(case.payload.get("target_distribution") or [])
-        mass_conservation = 1.0 if source and target and len(source) == len(target) else float(expected.get("mass_conservation_rate", 0.0))
+        mass_conservation = (
+            1.0
+            if source and target and len(source) == len(target)
+            else float(expected.get("mass_conservation_rate", 0.0))
+        )
         metrics = {
             "wasserstein_error": float(expected.get("wasserstein_error", 0.0)),
             "quantile_error": float(expected.get("quantile_error", 0.0)),
@@ -1839,8 +1983,12 @@ def _distributional_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[st
         "wasserstein_error": _mean([item["metrics"]["wasserstein_error"] for item in payloads]),
         "quantile_error": _mean([item["metrics"]["quantile_error"] for item in payloads]),
         "tail_risk_error": _mean([item["metrics"]["tail_risk_error"] for item in payloads]),
-        "mass_conservation_rate": _mean([item["metrics"]["mass_conservation_rate"] for item in payloads]),
-        "subgroup_monotonicity_rate": _mean([item["metrics"]["subgroup_monotonicity_rate"] for item in payloads]),
+        "mass_conservation_rate": _mean(
+            [item["metrics"]["mass_conservation_rate"] for item in payloads]
+        ),
+        "subgroup_monotonicity_rate": _mean(
+            [item["metrics"]["subgroup_monotonicity_rate"] for item in payloads]
+        ),
     }
     comparator_matrix, comparator_runs = execute_comparator_suite(
         cases=bundle.cases,
@@ -1907,8 +2055,12 @@ def _strategic_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, An
     metrics = {
         "leader_value_error": _mean([item["metrics"]["leader_value_error"] for item in payloads]),
         "best_response_gap": _mean([item["metrics"]["best_response_gap"] for item in payloads]),
-        "exploitability_proxy": _mean([item["metrics"]["exploitability_proxy"] for item in payloads]),
-        "budget_enforcement_rate": _mean([item["metrics"]["budget_enforcement_rate"] for item in payloads]),
+        "exploitability_proxy": _mean(
+            [item["metrics"]["exploitability_proxy"] for item in payloads]
+        ),
+        "budget_enforcement_rate": _mean(
+            [item["metrics"]["budget_enforcement_rate"] for item in payloads]
+        ),
     }
     comparator_matrix, comparator_runs = execute_comparator_suite(
         cases=bundle.cases,
@@ -1956,7 +2108,9 @@ def _abstraction_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, 
     for case in bundle.cases:
         expected = dict(case.payload.get("expected_metrics") or {})
         metrics = {
-            "micro_macro_exact_match_rate": float(expected.get("micro_macro_exact_match_rate", 0.0)),
+            "micro_macro_exact_match_rate": float(
+                expected.get("micro_macro_exact_match_rate", 0.0)
+            ),
             "certificate_validity_rate": float(expected.get("certificate_validity_rate", 0.0)),
             "leakage_detection_rate": float(expected.get("leakage_detection_rate", 0.0)),
         }
@@ -1969,9 +2123,15 @@ def _abstraction_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, 
     report = harness.run(circuit=BenchmarkCircuit.CAPABILITY_WINS)
     payloads = _collect_payloads(report)
     metrics = {
-        "micro_macro_exact_match_rate": _mean([item["metrics"]["micro_macro_exact_match_rate"] for item in payloads]),
-        "certificate_validity_rate": _mean([item["metrics"]["certificate_validity_rate"] for item in payloads]),
-        "leakage_detection_rate": _mean([item["metrics"]["leakage_detection_rate"] for item in payloads]),
+        "micro_macro_exact_match_rate": _mean(
+            [item["metrics"]["micro_macro_exact_match_rate"] for item in payloads]
+        ),
+        "certificate_validity_rate": _mean(
+            [item["metrics"]["certificate_validity_rate"] for item in payloads]
+        ),
+        "leakage_detection_rate": _mean(
+            [item["metrics"]["leakage_detection_rate"] for item in payloads]
+        ),
     }
     return build_report_payload(
         report,
@@ -1984,7 +2144,11 @@ def _abstraction_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, 
         public_claim_eligible=preflight["visibility"] == "public" and not bundle.placeholder,
         aggregate_metrics={"abstraction_exactness_summary": metrics},
         certificate_metrics=metrics,
-        comparator_matrix={"comparison_policy": "suppressed_no_honest_comparator", "required": [], "status": {}},
+        comparator_matrix={
+            "comparison_policy": "suppressed_no_honest_comparator",
+            "required": [],
+            "status": {},
+        },
         ablation_matrix={
             "no_certificate_validation": {
                 "certificate_validity_rate": max(0.0, metrics["certificate_validity_rate"] - 0.5),
@@ -2012,6 +2176,7 @@ def _discovery_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, An
         dataset_family="discovery_governance",
     )
     harness = BenchmarkHarness()
+
     def _discovery_case_payload(case: ManifestCase) -> dict[str, Any]:
         expected = dict(case.payload.get("expected_metrics") or {})
         source_suite = str(case.payload.get("source_suite") or "")
@@ -2020,7 +2185,9 @@ def _discovery_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, An
         if source_suite == "discovery_sachs":
             from benchmarks.discovery.sachs_benchmark import build_sachs_harness
 
-            report = build_sachs_harness(seeds=[42], n_obs=200).run(circuit=BenchmarkCircuit.DISCOVERY)
+            report = build_sachs_harness(seeds=[42], n_obs=200).run(
+                circuit=BenchmarkCircuit.DISCOVERY
+            )
             result = report.cases[0].result_payload
             shd = float(getattr(result, "shd", 0.0))
             n_true_edges = float(getattr(result, "n_true_edges", 1.0))
@@ -2037,7 +2204,9 @@ def _discovery_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, An
         elif source_suite == "discovery_tuebingen":
             from benchmarks.discovery.tuebingen_benchmark import build_tuebingen_harness
 
-            report = build_tuebingen_harness(n_obs=120, seed=42).run(circuit=BenchmarkCircuit.DISCOVERY)
+            report = build_tuebingen_harness(n_obs=120, seed=42).run(
+                circuit=BenchmarkCircuit.DISCOVERY
+            )
             result = report.cases[0].result_payload
             accuracy = float(getattr(result, "accuracy", 0.0))
             metrics = {
@@ -2065,10 +2234,16 @@ def _discovery_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, An
     report = harness.run(circuit=BenchmarkCircuit.DISCOVERY)
     payloads = _collect_payloads(report)
     metrics = {
-        "constraint_precision": _mean([item["metrics"]["constraint_precision"] for item in payloads]),
+        "constraint_precision": _mean(
+            [item["metrics"]["constraint_precision"] for item in payloads]
+        ),
         "constraint_recall": _mean([item["metrics"]["constraint_recall"] for item in payloads]),
-        "disputed_edge_calibration": _mean([item["metrics"]["disputed_edge_calibration"] for item in payloads]),
-        "ranking_utility_correlation": _mean([item["metrics"]["ranking_utility_correlation"] for item in payloads]),
+        "disputed_edge_calibration": _mean(
+            [item["metrics"]["disputed_edge_calibration"] for item in payloads]
+        ),
+        "ranking_utility_correlation": _mean(
+            [item["metrics"]["ranking_utility_correlation"] for item in payloads]
+        ),
         "cap_violation_rate": _mean([item["metrics"]["cap_violation_rate"] for item in payloads]),
         "SHD": _mean([item["metrics"]["SHD"] for item in payloads]),
         "SID": _mean([item["metrics"]["SID"] for item in payloads]),
@@ -2123,6 +2298,7 @@ def _interaction_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, 
         dataset_family="interaction_contracts",
     )
     from polisyos.ir.analytics.interference import InteractionComplex, InterferenceCertificate
+
     harness = BenchmarkHarness()
 
     def _interaction_case_payload(case: ManifestCase) -> dict[str, Any]:
@@ -2152,13 +2328,26 @@ def _interaction_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, 
         expected = dict(case.payload.get("expected_metrics") or {})
         supported = complex_ is None or len(getattr(complex_, "nodes", ())) > 0
         metrics = {
-            "certificate_completeness_rate": float(expected.get("certificate_completeness_rate", 0.0 if not supported else 1.0)),
-            "unsupported_failure_correctness": float(expected.get("unsupported_failure_correctness", 0.0 if certificate.fallback_mode != "unsupported" else 1.0)),
-            "interference_regression_rate": float(expected.get("interference_regression_rate", 1.0)),
+            "certificate_completeness_rate": float(
+                expected.get("certificate_completeness_rate", 0.0 if not supported else 1.0)
+            ),
+            "unsupported_failure_correctness": float(
+                expected.get(
+                    "unsupported_failure_correctness",
+                    0.0 if certificate.fallback_mode != "unsupported" else 1.0,
+                )
+            ),
+            "interference_regression_rate": float(
+                expected.get("interference_regression_rate", 1.0)
+            ),
         }
         payload = _metric_payload_case(case, metrics, passed=supported)
-        payload["expected_outcome"] = "unsupported" if case.gates.get("unsupported_is_valid") else "supported"
-        payload["actual_outcome"] = "unsupported" if certificate.fallback_mode == "unsupported" else "supported"
+        payload["expected_outcome"] = (
+            "unsupported" if case.gates.get("unsupported_is_valid") else "supported"
+        )
+        payload["actual_outcome"] = (
+            "unsupported" if certificate.fallback_mode == "unsupported" else "supported"
+        )
         payload["passed"] = payload["actual_outcome"] == payload["expected_outcome"]
         return payload
 
@@ -2172,9 +2361,15 @@ def _interaction_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, 
     report = harness.run(circuit=BenchmarkCircuit.CAPABILITY_WINS)
     payloads = _collect_payloads(report)
     metrics = {
-        "certificate_completeness_rate": _mean([item["metrics"]["certificate_completeness_rate"] for item in payloads]),
-        "unsupported_failure_correctness": _mean([item["metrics"]["unsupported_failure_correctness"] for item in payloads]),
-        "interference_regression_rate": _mean([item["metrics"]["interference_regression_rate"] for item in payloads]),
+        "certificate_completeness_rate": _mean(
+            [item["metrics"]["certificate_completeness_rate"] for item in payloads]
+        ),
+        "unsupported_failure_correctness": _mean(
+            [item["metrics"]["unsupported_failure_correctness"] for item in payloads]
+        ),
+        "interference_regression_rate": _mean(
+            [item["metrics"]["interference_regression_rate"] for item in payloads]
+        ),
     }
     return build_report_payload(
         report,
@@ -2187,13 +2382,18 @@ def _interaction_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, 
         public_claim_eligible=preflight["visibility"] == "public" and not bundle.placeholder,
         aggregate_metrics={"interaction_contracts_summary": metrics},
         certificate_metrics=metrics,
-        comparator_matrix={"comparison_policy": "suppressed_no_honest_comparator", "required": [], "status": {}},
+        comparator_matrix={
+            "comparison_policy": "suppressed_no_honest_comparator",
+            "required": [],
+            "status": {},
+        },
         comparator_runs={},
         leaderboard_tables={"epistemic_correctness": {"policyos": metrics}},
         release_gate_results=_release_gate_results(
             {
                 "certificate_completeness": metrics["certificate_completeness_rate"] == 1.0,
-                "unsupported_failure_correctness": metrics["unsupported_failure_correctness"] == 1.0,
+                "unsupported_failure_correctness": metrics["unsupported_failure_correctness"]
+                == 1.0,
             }
         ),
         case_details_builder=_payload_case_details,
@@ -2203,9 +2403,15 @@ def _interaction_payload(mode: str, *, quiet: bool, suite_id: str) -> dict[str, 
 
 
 _BUILDERS: dict[str, Callable[[str], dict[str, Any]]] = {
-    "proof_closure_prod": lambda mode, quiet: _proof_payload(mode, quiet=quiet, suite_id="proof_closure_prod"),
-    "proof_closure_public": lambda mode, quiet: _proof_payload(mode, quiet=quiet, suite_id="proof_closure_public"),
-    "proof_closure_hidden_release": lambda mode, quiet: _proof_payload(mode, quiet=quiet, suite_id="proof_closure_hidden_release"),
+    "proof_closure_prod": lambda mode, quiet: _proof_payload(
+        mode, quiet=quiet, suite_id="proof_closure_prod"
+    ),
+    "proof_closure_public": lambda mode, quiet: _proof_payload(
+        mode, quiet=quiet, suite_id="proof_closure_public"
+    ),
+    "proof_closure_hidden_release": lambda mode, quiet: _proof_payload(
+        mode, quiet=quiet, suite_id="proof_closure_hidden_release"
+    ),
     "readiness_governance": _readiness_payload,
     "cold_start_import": _cold_start_payload,
     "replay_lineage": _replay_lineage_payload,
@@ -2213,18 +2419,46 @@ _BUILDERS: dict[str, Callable[[str], dict[str, Any]]] = {
     "budgeted_execution": _budgeted_execution_payload,
     "schema_drift": _schema_drift_payload,
     "concurrency_determinism": _concurrency_payload,
-    "composition_alignment_public": lambda mode, quiet: _composition_payload(mode, quiet=quiet, suite_id="composition_alignment_public"),
-    "composition_alignment_hidden_release": lambda mode, quiet: _composition_payload(mode, quiet=quiet, suite_id="composition_alignment_hidden_release"),
-    "temporal_paths_public": lambda mode, quiet: _temporal_payload(mode, quiet=quiet, suite_id="temporal_paths_public", hidden=False),
-    "temporal_paths_hidden_release": lambda mode, quiet: _temporal_payload(mode, quiet=quiet, suite_id="temporal_paths_hidden_release", hidden=True),
-    "distributional_public": lambda mode, quiet: _distributional_payload(mode, quiet=quiet, suite_id="distributional_public"),
-    "distributional_hidden_release": lambda mode, quiet: _distributional_payload(mode, quiet=quiet, suite_id="distributional_hidden_release"),
-    "strategic_solver_public": lambda mode, quiet: _strategic_payload(mode, quiet=quiet, suite_id="strategic_solver_public"),
-    "strategic_solver_hidden_release": lambda mode, quiet: _strategic_payload(mode, quiet=quiet, suite_id="strategic_solver_hidden_release"),
-    "abstraction_exactness_public": lambda mode, quiet: _abstraction_payload(mode, quiet=quiet, suite_id="abstraction_exactness_public"),
-    "abstraction_exactness_hidden_release": lambda mode, quiet: _abstraction_payload(mode, quiet=quiet, suite_id="abstraction_exactness_hidden_release"),
-    "discovery_governance_public": lambda mode, quiet: _discovery_payload(mode, quiet=quiet, suite_id="discovery_governance_public"),
-    "discovery_governance_hidden_release": lambda mode, quiet: _discovery_payload(mode, quiet=quiet, suite_id="discovery_governance_hidden_release"),
-    "interaction_contracts_public": lambda mode, quiet: _interaction_payload(mode, quiet=quiet, suite_id="interaction_contracts_public"),
-    "interaction_contracts_hidden_release": lambda mode, quiet: _interaction_payload(mode, quiet=quiet, suite_id="interaction_contracts_hidden_release"),
+    "composition_alignment_public": lambda mode, quiet: _composition_payload(
+        mode, quiet=quiet, suite_id="composition_alignment_public"
+    ),
+    "composition_alignment_hidden_release": lambda mode, quiet: _composition_payload(
+        mode, quiet=quiet, suite_id="composition_alignment_hidden_release"
+    ),
+    "temporal_paths_public": lambda mode, quiet: _temporal_payload(
+        mode, quiet=quiet, suite_id="temporal_paths_public", hidden=False
+    ),
+    "temporal_paths_hidden_release": lambda mode, quiet: _temporal_payload(
+        mode, quiet=quiet, suite_id="temporal_paths_hidden_release", hidden=True
+    ),
+    "distributional_public": lambda mode, quiet: _distributional_payload(
+        mode, quiet=quiet, suite_id="distributional_public"
+    ),
+    "distributional_hidden_release": lambda mode, quiet: _distributional_payload(
+        mode, quiet=quiet, suite_id="distributional_hidden_release"
+    ),
+    "strategic_solver_public": lambda mode, quiet: _strategic_payload(
+        mode, quiet=quiet, suite_id="strategic_solver_public"
+    ),
+    "strategic_solver_hidden_release": lambda mode, quiet: _strategic_payload(
+        mode, quiet=quiet, suite_id="strategic_solver_hidden_release"
+    ),
+    "abstraction_exactness_public": lambda mode, quiet: _abstraction_payload(
+        mode, quiet=quiet, suite_id="abstraction_exactness_public"
+    ),
+    "abstraction_exactness_hidden_release": lambda mode, quiet: _abstraction_payload(
+        mode, quiet=quiet, suite_id="abstraction_exactness_hidden_release"
+    ),
+    "discovery_governance_public": lambda mode, quiet: _discovery_payload(
+        mode, quiet=quiet, suite_id="discovery_governance_public"
+    ),
+    "discovery_governance_hidden_release": lambda mode, quiet: _discovery_payload(
+        mode, quiet=quiet, suite_id="discovery_governance_hidden_release"
+    ),
+    "interaction_contracts_public": lambda mode, quiet: _interaction_payload(
+        mode, quiet=quiet, suite_id="interaction_contracts_public"
+    ),
+    "interaction_contracts_hidden_release": lambda mode, quiet: _interaction_payload(
+        mode, quiet=quiet, suite_id="interaction_contracts_hidden_release"
+    ),
 }

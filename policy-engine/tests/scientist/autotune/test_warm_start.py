@@ -4,12 +4,10 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-import pytest
-
 from polisyos.scientist.autotune.warm_start import WarmStartBridge
+from polisyos.scientist.search.objective import ObjectiveValue, OptimizationDirection
 from polisyos.scientist.search.strategies.transfer import RunFingerprint
 from polisyos.scientist.search.strategies.types import Evaluation, EvaluationStatus
-from polisyos.scientist.search.objective import ObjectiveValue, OptimizationDirection
 
 
 def _make_eval(candidate_id: str, score: float, run_id: str = "") -> Evaluation:
@@ -17,7 +15,9 @@ def _make_eval(candidate_id: str, score: float, run_id: str = "") -> Evaluation:
         candidate_id=candidate_id,
         params={"x": 0.5},
         params_normalized=(0.5,),
-        objectives=[ObjectiveValue(name="score", raw_value=score, direction=OptimizationDirection.MINIMIZE)],
+        objectives=[
+            ObjectiveValue(name="score", raw_value=score, direction=OptimizationDirection.MINIMIZE)
+        ],
         scalar_score=score,
         stage_a_passed=True,
         status=EvaluationStatus.SUCCESS,
@@ -71,7 +71,9 @@ class TestWarmStartBridge:
     def test_evaluations_to_benchmarks(self):
         evals = [_make_eval("c1", 0.8, "run1")]
         benchmarks = WarmStartBridge.evaluations_to_benchmarks(
-            evals, loop_id="loop1", primary_metric="score",
+            evals,
+            loop_id="loop1",
+            primary_metric="score",
         )
         assert len(benchmarks) == 1
         assert benchmarks[0].loop_id == "loop1"

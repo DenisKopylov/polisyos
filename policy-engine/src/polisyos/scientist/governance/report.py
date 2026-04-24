@@ -5,6 +5,7 @@ and downstream consumers that need a verdict plus links to persisted decision
 artifacts. The models are intentionally compact so node-level reports and
 calibration-specific reports can be normalized into the same public envelope.
 """
+
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -26,6 +27,7 @@ class GovernanceReportLinks(BaseModel):
     change-proposal refs, while Scientist calibration attaches verified-policy
     and source-verification refs when those reports exist.
     """
+
     model_config = ConfigDict(extra="forbid")
 
     legal_report_ref: LegalReportRef | None = None

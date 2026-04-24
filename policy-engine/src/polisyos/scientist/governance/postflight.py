@@ -1,7 +1,6 @@
 """Public governance postflight module API."""
-from __future__ import annotations
 
-from typing import Optional, Tuple
+from __future__ import annotations
 
 from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.ir.governance.gate import GateDecision, GateVerdict
@@ -11,8 +10,8 @@ from .preflight import preflight_checks
 
 def postflight_checks(
     state: dict,
-    profile: Optional[ValidationProfile] = None,
-) -> Tuple[dict, Optional[GateDecision]]:
+    profile: ValidationProfile | None = None,
+) -> tuple[dict, GateDecision | None]:
     """
     Post-flight governance using the validation pipeline.
 

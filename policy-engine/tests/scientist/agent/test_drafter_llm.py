@@ -1,7 +1,8 @@
 """Tests for polisyos.scientist.agent._drafter_llm — LLM resolution and cost estimation."""
+
 from __future__ import annotations
 
-from unittest.mock import MagicMock, PropertyMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -9,10 +10,10 @@ from polisyos.scientist.agent._drafter_llm import _DrafterLLMMixin
 from polisyos.scientist.agent.drafter_models import MultiPassConfig
 from polisyos.scientist.llm import TracedLLMClient
 
-
 # ---------------------------------------------------------------------------
 # Harness
 # ---------------------------------------------------------------------------
+
 
 class _LLMHarness(_DrafterLLMMixin):
     def __init__(self, *, config=None, inner=None, llm=None):
@@ -29,6 +30,7 @@ def harness():
 # ---------------------------------------------------------------------------
 # _resolve_llm
 # ---------------------------------------------------------------------------
+
 
 class TestResolveLLM:
     def test_explicit_client_returned(self):
@@ -55,6 +57,7 @@ class TestResolveLLM:
 # _normalize_critique_llm
 # ---------------------------------------------------------------------------
 
+
 class TestNormalizeCritiqueLLM:
     def test_no_critique_model_returns_llm(self):
         h = _LLMHarness(config=MultiPassConfig(critique_model=None))
@@ -79,9 +82,12 @@ class TestNormalizeCritiqueLLM:
 # _estimate_cost
 # ---------------------------------------------------------------------------
 
+
 class TestEstimateCost:
     def test_delegates_to_core(self, harness):
-        with patch("polisyos.scientist.agent._drafter_llm.estimate_cost", return_value=0.05) as mock:
+        with patch(
+            "polisyos.scientist.agent._drafter_llm.estimate_cost", return_value=0.05
+        ) as mock:
             cost = harness._estimate_cost(
                 model="claude-3-sonnet",
                 prompt_tokens=100,
@@ -107,6 +113,7 @@ class TestEstimateCostFromText:
 # ---------------------------------------------------------------------------
 # _inner_model_name / _critique_model_name
 # ---------------------------------------------------------------------------
+
 
 class TestInnerModelName:
     def test_from_inner_llm(self):

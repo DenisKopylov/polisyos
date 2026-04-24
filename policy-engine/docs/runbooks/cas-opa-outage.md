@@ -13,14 +13,14 @@ Rollback path: keep authz fail-closed, move to read-only or reduced-write mode, 
 
 ## Operational Metadata
 
-| Field | Value |
-|---|---|
-| Primary owner | `@runtime-owners` |
-| Coordination owner | `@platform-owners` |
-| Security owner | security/compliance owner when OPA, trust stores, or identity are involved |
-| Last tested | 2026-04-17, D1-L1 documentation validation pass |
-| Evidence anchors | `tests/runtime/http/test_runtime_api_authz.py`, `tests/runtime/http/test_control_hardening.py`, `tests/runtime/http/test_resilience_guards.py` |
-| Rollback posture | keep authz fail-closed, move to read-only or reduced-write mode, never bypass integrity verification to restore traffic |
+| Field              | Value                                                                                                                                          |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary owner      | `@runtime-owners`                                                                                                                              |
+| Coordination owner | `@platform-owners`                                                                                                                             |
+| Security owner     | security/compliance owner when OPA, trust stores, or identity are involved                                                                     |
+| Last tested        | 2026-04-17, D1-L1 documentation validation pass                                                                                                |
+| Evidence anchors   | `tests/runtime/http/test_runtime_api_authz.py`, `tests/runtime/http/test_control_hardening.py`, `tests/runtime/http/test_resilience_guards.py` |
+| Rollback posture   | keep authz fail-closed, move to read-only or reduced-write mode, never bypass integrity verification to restore traffic                        |
 
 ## Symptom
 
@@ -28,6 +28,7 @@ Rollback path: keep authz fail-closed, move to read-only or reduced-write mode, 
 - write paths fail before durable side effects complete;
 - authz starts denying previously healthy traffic because OPA is unavailable or
   its circuit breaker is open;
+
 - `/ready` returns `degraded` and dependency state points to storage/authz
   degradation.
 
@@ -58,6 +59,7 @@ Rollback path: keep authz fail-closed, move to read-only or reduced-write mode, 
 
 2. Check one known-good read and one authz-protected path with the same token.
 3. Determine whether the failing branch is:
+
    - CAS availability;
    - integrity mismatch;
    - OPA reachability/policy decision shape.
@@ -71,8 +73,10 @@ Rollback path: keep authz fail-closed, move to read-only or reduced-write mode, 
 - if OPA is the only failing dependency, keep fail-closed authz posture and
   reduce blast radius by pausing sensitive write workloads rather than bypassing
   policy silently;
+
 - if CAS is degraded, move runtime to read-only or reduced-write posture until
   durability is trustworthy again;
+
 - rollback recent config/credential changes before changing code paths;
 - do not disable integrity verification to "get traffic through";
 - open the dedicated corruption or key-rotation runbook if the problem is not a
@@ -105,7 +109,7 @@ Rollback path: keep authz fail-closed, move to read-only or reduced-write mode, 
 
 ### Action Items
 
-| Action item | Owner | Due date | Status |
-|---|---|---|---|
-| Improve dependency-specific dashboard or alert for the failing branch | `@platform-owners` | YYYY-MM-DD | open |
-| Close the storage/authz reliability gap that caused the outage | affected owner | YYYY-MM-DD | open |
+| Action item                                                           | Owner              | Due date   | Status |
+| --------------------------------------------------------------------- | ------------------ | ---------- | ------ |
+| Improve dependency-specific dashboard or alert for the failing branch | `@platform-owners` | YYYY-MM-DD | open   |
+| Close the storage/authz reliability gap that caused the outage        | affected owner     | YYYY-MM-DD | open   |

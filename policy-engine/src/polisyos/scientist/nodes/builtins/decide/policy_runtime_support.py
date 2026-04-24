@@ -1,4 +1,5 @@
 """Public decide policy runtime support module API."""
+
 from __future__ import annotations
 
 import hashlib
@@ -14,6 +15,7 @@ from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.foundry import Metrics
 from polisyos.core.contracts.scientist import DiscoveryArtifactBundleRef, PriorKnowledgeBundleRef
+from polisyos.foundry.methods.catalog.optimization.protocols import AmbiguityCertificate
 from polisyos.foundry.validation import normalize_phase2_artifact_family
 from polisyos.ir.analytics.causal import CausalEffectReport, load_data_readiness_report
 from polisyos.ir.analytics.causal_discovery import LatentDiscoveryBundle
@@ -57,6 +59,7 @@ from polisyos.scientist.policy_design.objectives import (
     PolicyEvaluationBundle,
     PolicyEvaluationVector,
 )
+from polisyos.scientist.policy_design.phase3 import resolve_phase3_gate
 from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
     persist_policy_candidate_schema,
@@ -90,6 +93,7 @@ _POLICY_RUNTIME_LOAD_ERRORS = (
 @dataclass(frozen=True)
 class PolicyRuntimeProvenance:
     """Policy runtime provenance public type."""
+
     backend_kind: str
     fidelity_mode: str
     promotable_source: bool
@@ -101,6 +105,7 @@ class PolicyRuntimeProvenance:
 @dataclass(frozen=True)
 class PolicyRuntimeEvaluationArtifact:
     """Policy runtime evaluation artifact public type."""
+
     simulation_metrics: dict[str, float]
     simulation_results: dict[str, Any]
     evaluation_vector: PolicyEvaluationVector
@@ -111,6 +116,7 @@ class PolicyRuntimeEvaluationArtifact:
 @dataclass(frozen=True)
 class LatentDiscoveryBundleResolution:
     """Latent discovery bundle resolution public type."""
+
     bundle: LatentDiscoveryBundle | None
     status: Literal["ok", "missing", "unreadable"] = "missing"
     source_bundle_ref: DiscoveryArtifactBundleRef | None = None
@@ -123,9 +129,7 @@ class LatentDiscoveryBundleResolution:
         payload: dict[str, Any] = {
             "status": self.status,
             "error_code": self.error_code or "latent_discovery_bundle_unreadable",
-            "error_message": (
-                self.error_message or "latent discovery bundle could not be loaded"
-            ),
+            "error_message": (self.error_message or "latent discovery bundle could not be loaded"),
         }
         if self.source_bundle_ref is not None:
             payload["source_bundle_ref"] = self.source_bundle_ref.model_dump(mode="json")
@@ -134,6 +138,7 @@ class LatentDiscoveryBundleResolution:
 
 class PolicyEvaluationBackend(Protocol):
     """Policy evaluation backend implementation."""
+
     backend_kind: str
 
     def evaluate(
@@ -147,12 +152,14 @@ class PolicyEvaluationBackend(Protocol):
         causal_effect_report: CausalEffectReport | None,
         cross_graph_profile: CrossGraphEvidenceProfile | None,
         governance_report: GovernanceReport | None,
+        ambiguity_certificate: AmbiguityCertificate | dict[str, Any] | None = None,
     ) -> PolicyRuntimeEvaluationArtifact: ...
 
 
 @dataclass(frozen=True)
 class ProductionPolicyEvaluationBackend:
     """Production policy evaluation backend implementation."""
+
     backend_kind: str = "production"
 
     def evaluate(
@@ -166,6 +173,7 @@ class ProductionPolicyEvaluationBackend:
         causal_effect_report: CausalEffectReport | None,
         cross_graph_profile: CrossGraphEvidenceProfile | None,
         governance_report: GovernanceReport | None,
+        ambiguity_certificate: AmbiguityCertificate | dict[str, Any] | None = None,
     ) -> PolicyRuntimeEvaluationArtifact:
         metrics, source_components, notes = _build_evidence_driven_simulation_metrics(
             candidate,
@@ -177,6 +185,9 @@ class ProductionPolicyEvaluationBackend:
             cross_graph_profile=cross_graph_profile,
             governance_report=governance_report,
         )
+        source_components_list = list(source_components)
+        if ambiguity_certificate is not None:
+            source_components_list.append("ambiguity_certificate")
         evaluation_vector = ObjectiveStack().evaluate(
             PolicyEvaluationBundle(
                 candidate=candidate,
@@ -186,9 +197,10 @@ class ProductionPolicyEvaluationBackend:
                 cross_graph_profile=cross_graph_profile,
                 governance_report=governance_report,
                 uncertainty_envelope=uncertainty,
+                ambiguity_certificate=ambiguity_certificate,
                 metadata={
                     "generated_by": f"policy_runtime::{self.backend_kind}::{fidelity}",
-                    "source_components": list(source_components),
+                    "source_components": list(dict.fromkeys(source_components_list)),
                 },
             )
         )
@@ -197,17 +209,14 @@ class ProductionPolicyEvaluationBackend:
             and causal_effect_report is not None
             and uncertainty is not None
             and governance_report is not None
-            and (
-                bool(simulation_metrics)
-                or "causal_effect_report" in source_components
-            )
+            and (bool(simulation_metrics) or "causal_effect_report" in source_components)
         )
         provenance = PolicyRuntimeProvenance(
             backend_kind=self.backend_kind,
             fidelity_mode=fidelity,
             promotable_source=promotable_source,
             degradation_mode=None if promotable_source or fidelity != "full" else "research_only",
-            source_components=source_components,
+            source_components=tuple(dict.fromkeys(source_components_list)),
             notes=notes,
         )
         return PolicyRuntimeEvaluationArtifact(
@@ -218,6 +227,7 @@ class ProductionPolicyEvaluationBackend:
                 uncertainty=uncertainty,
                 base_metrics=metrics,
                 provenance=provenance,
+                ambiguity_certificate=ambiguity_certificate,
             ),
             evaluation_vector=evaluation_vector,
             fidelity=fidelity,
@@ -228,6 +238,7 @@ class ProductionPolicyEvaluationBackend:
 @dataclass(frozen=True)
 class SyntheticPolicyEvaluationBackend:
     """Synthetic policy evaluation backend implementation."""
+
     backend_kind: str = "synthetic"
 
     def evaluate(
@@ -241,6 +252,7 @@ class SyntheticPolicyEvaluationBackend:
         causal_effect_report: CausalEffectReport | None,
         cross_graph_profile: CrossGraphEvidenceProfile | None,
         governance_report: GovernanceReport | None,
+        ambiguity_certificate: AmbiguityCertificate | dict[str, Any] | None = None,
     ) -> PolicyRuntimeEvaluationArtifact:
         del simulation_metrics, causal_effect_report, cross_graph_profile
         metrics = _build_runtime_simulation_metrics(
@@ -258,15 +270,28 @@ class SyntheticPolicyEvaluationBackend:
                 cross_graph_profile=None,
                 governance_report=governance_report,
                 uncertainty_envelope=uncertainty,
-                metadata={"generated_by": f"policy_runtime::{self.backend_kind}::{fidelity}"},
+                ambiguity_certificate=ambiguity_certificate,
+                metadata={
+                    "generated_by": f"policy_runtime::{self.backend_kind}::{fidelity}",
+                    "source_components": (
+                        ["synthetic_policy_runtime", "ambiguity_certificate"]
+                        if ambiguity_certificate is not None
+                        else ["synthetic_policy_runtime"]
+                    ),
+                },
             )
+        )
+        source_components = (
+            ("synthetic_policy_runtime", "ambiguity_certificate")
+            if ambiguity_certificate is not None
+            else ("synthetic_policy_runtime",)
         )
         provenance = PolicyRuntimeProvenance(
             backend_kind=self.backend_kind,
             fidelity_mode=fidelity,
             promotable_source=False,
             degradation_mode="research_only",
-            source_components=("synthetic_policy_runtime",),
+            source_components=source_components,
             notes=("Synthetic backend is test-only and not promotion-safe.",),
         )
         return PolicyRuntimeEvaluationArtifact(
@@ -277,6 +302,7 @@ class SyntheticPolicyEvaluationBackend:
                 uncertainty=uncertainty,
                 base_metrics=metrics,
                 provenance=provenance,
+                ambiguity_certificate=ambiguity_certificate,
             ),
             evaluation_vector=evaluation_vector,
             fidelity=fidelity,
@@ -296,7 +322,9 @@ def ensure_policy_candidate_ref(
     return persist_policy_candidate_schema(
         ctx.store,
         candidate,
-        inputs=[InputRef(artifact_id=ref.artifact_id, role=key) for key, ref in state.inputs.items()],
+        inputs=[
+            InputRef(artifact_id=ref.artifact_id, role=key) for key, ref in state.inputs.items()
+        ],
     )
 
 
@@ -321,6 +349,7 @@ def resolve_policy_evaluation(
                 cross_graph_profile=load_cross_graph_profile(ctx, state),
                 governance_report=load_governance_report(ctx, state),
                 uncertainty_envelope=load_search_uncertainty(ctx, state),
+                ambiguity_certificate=load_ambiguity_certificate(ctx, state),
             )
         )
     ref = persist_policy_evaluation_vector(
@@ -413,6 +442,7 @@ def build_policy_runtime_evaluation(
     causal_effect_report: CausalEffectReport | None,
     cross_graph_profile: CrossGraphEvidenceProfile | None,
     governance_report: GovernanceReport | None,
+    ambiguity_certificate: AmbiguityCertificate | dict[str, Any] | None = None,
 ) -> PolicyRuntimeEvaluationArtifact:
     """Build policy runtime evaluation."""
     return backend.evaluate(
@@ -424,6 +454,7 @@ def build_policy_runtime_evaluation(
         distributional_report=distributional_report,
         causal_effect_report=causal_effect_report,
         cross_graph_profile=cross_graph_profile,
+        ambiguity_certificate=ambiguity_certificate,
     )
 
 
@@ -434,12 +465,21 @@ def build_policy_simulation_results(
     uncertainty: UncertaintyEnvelope | None,
     base_metrics: dict[str, float] | None = None,
     provenance: PolicyRuntimeProvenance | None = None,
+    ambiguity_certificate: AmbiguityCertificate | dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build policy simulation results."""
     metrics = dict(base_metrics or {})
-    policy_value = float(metrics.get("policy_value", _channel_higher_is_better(evaluation, "policy_value")))
-    employment = float(metrics.get("employment", _channel_higher_is_better(evaluation, "employment")))
-    welfare = float(metrics.get("welfare", _channel_higher_is_better(evaluation, "welfare", fallback=policy_value)))
+    policy_value = float(
+        metrics.get("policy_value", _channel_higher_is_better(evaluation, "policy_value"))
+    )
+    employment = float(
+        metrics.get("employment", _channel_higher_is_better(evaluation, "employment"))
+    )
+    welfare = float(
+        metrics.get(
+            "welfare", _channel_higher_is_better(evaluation, "welfare", fallback=policy_value)
+        )
+    )
     budget_pressure = float(metrics.get("budget_penalty", _budget_pressure(evaluation)))
     gov_balance = float(metrics.get("gov_balance", -abs(budget_pressure)))
     ate = float(metrics.get("ate", policy_value))
@@ -456,6 +496,7 @@ def build_policy_simulation_results(
         )
     if not evaluation.feasible:
         ci_width = max(ci_width, 0.35)
+    ambiguity_payload = _ambiguity_certificate_payload(ambiguity_certificate)
     return {
         "policy_value": policy_value,
         "employment": employment,
@@ -479,7 +520,13 @@ def build_policy_simulation_results(
         "evaluation_degradation_mode": (
             provenance.degradation_mode if provenance is not None else None
         ),
-        "evaluation_source_components": list(provenance.source_components) if provenance is not None else [],
+        "evaluation_source_components": list(provenance.source_components)
+        if provenance is not None
+        else [],
+        "ambiguity_certificate": ambiguity_payload,
+        "ambiguity_certificate_status": (
+            ambiguity_payload.get("overall_status") if isinstance(ambiguity_payload, dict) else None
+        ),
     }
 
 
@@ -536,7 +583,7 @@ def build_vulnerabilities(
                 )
             )
     if causal_report is not None and getattr(causal_report, "confidence", None) is not None:
-        confidence = float(getattr(causal_report, "confidence"))
+        confidence = float(causal_report.confidence)
         if confidence < 0.5:
             vulnerabilities.append(
                 Vulnerability(
@@ -592,15 +639,21 @@ def load_causal_report(ctx: ExecutionContext, state: ExperimentState) -> CausalE
     ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     if ref is None:
         return None
-    return CausalEffectReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
+    return CausalEffectReport.model_validate(
+        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    )
 
 
-def load_governance_report(ctx: ExecutionContext, state: ExperimentState) -> GovernanceReport | None:
+def load_governance_report(
+    ctx: ExecutionContext, state: ExperimentState
+) -> GovernanceReport | None:
     """Load governance report."""
     ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
     if ref is None:
         return None
-    return GovernanceReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
+    return GovernanceReport.model_validate(
+        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    )
 
 
 def load_cross_graph_profile(ctx: ExecutionContext, state: ExperimentState):
@@ -623,18 +676,16 @@ def load_prior_knowledge_bundle_for_state(
                 raw_ref
                 if isinstance(raw_ref, PriorKnowledgeBundleRef)
                 else PriorKnowledgeBundleRef.model_validate(
-                    raw_ref.model_dump(mode="json")
-                    if hasattr(raw_ref, "model_dump")
-                    else raw_ref
+                    raw_ref.model_dump(mode="json") if hasattr(raw_ref, "model_dump") else raw_ref
                 )
             )
             return load_prior_knowledge_bundle(ctx.store, ref)
         except _POLICY_RUNTIME_LOAD_ERRORS:
             return None
 
-    bundle_ref = state.artifacts_index.get(ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF) or state.params.get(
-        "discovery_artifact_bundle_ref"
-    )
+    bundle_ref = state.artifacts_index.get(
+        ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF
+    ) or state.params.get("discovery_artifact_bundle_ref")
     if bundle_ref is None:
         return None
     try:
@@ -658,9 +709,9 @@ def resolve_latent_discovery_bundle_for_state(
     state: ExperimentState,
 ) -> LatentDiscoveryBundleResolution:
     """Resolve latent discovery bundle for state."""
-    bundle_ref = state.artifacts_index.get(ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF) or state.params.get(
-        "discovery_artifact_bundle_ref"
-    )
+    bundle_ref = state.artifacts_index.get(
+        ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF
+    ) or state.params.get("discovery_artifact_bundle_ref")
     if bundle_ref is None:
         return LatentDiscoveryBundleResolution(bundle=None, status="missing")
     discovery_ref: DiscoveryArtifactBundleRef | None = None
@@ -800,6 +851,46 @@ def load_search_uncertainty(ctx: ExecutionContext, state: ExperimentState):
     return to_search_uncertainty_envelope(load_uncertainty_envelope(ctx.store, ref))
 
 
+def load_ambiguity_certificate(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> AmbiguityCertificate | None:
+    """Load a moment-DRO ambiguity certificate from runtime params or artifacts."""
+
+    for key in (
+        "ambiguity_certificate",
+        "moment_dro_certificate",
+    ):
+        certificate = _parse_ambiguity_certificate(state.params.get(key))
+        if certificate is not None:
+            return certificate
+
+    for container_key in (
+        "optimization_result",
+        "moment_dro_result",
+        "result",
+        "simulation_results",
+    ):
+        container = state.params.get(container_key)
+        if isinstance(container, Mapping):
+            certificate = _parse_ambiguity_certificate(container.get("ambiguity_certificate"))
+            if certificate is not None:
+                return certificate
+
+    for ref_key in ("ambiguity_certificate_ref", "moment_dro_certificate_ref"):
+        ref = maybe_artifact_ref(state.params.get(ref_key))
+        if ref is None:
+            continue
+        try:
+            payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+        except _POLICY_RUNTIME_LOAD_ERRORS:
+            continue
+        certificate = _parse_ambiguity_certificate(payload)
+        if certificate is not None:
+            return certificate
+    return None
+
+
 def resolve_funnel_outcome(state: ExperimentState) -> FunnelOutcome | None:
     """Resolve funnel outcome."""
     for key in ("funnel_outcome", "_funnel_outcome"):
@@ -826,7 +917,9 @@ def load_benchmark_evaluation(
     ref: ArtifactRef,
 ) -> BenchmarkEvaluation:
     """Load benchmark evaluation."""
-    return BenchmarkEvaluation.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
+    return BenchmarkEvaluation.model_validate(
+        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    )
 
 
 def load_governance_report_from_ref(
@@ -834,7 +927,9 @@ def load_governance_report_from_ref(
     ref: ArtifactRef,
 ) -> GovernanceReport:
     """Load governance report from ref."""
-    return GovernanceReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
+    return GovernanceReport.model_validate(
+        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    )
 
 
 def run_promotion_with_evidence(
@@ -896,8 +991,7 @@ def run_promotion_with_evidence(
     )
     if missing:
         raise ValueError(
-            "PromotionEvidenceBundle is incomplete for promotion: "
-            + ", ".join(sorted(missing))
+            "PromotionEvidenceBundle is incomplete for promotion: " + ", ".join(sorted(missing))
         )
 
     hidden_holdout_ref = evidence_bundle.hidden_holdout_evaluation_ref
@@ -927,9 +1021,7 @@ def run_promotion_with_evidence(
     latent_discovery_bundle = latent_resolution.bundle
     uncertainty = load_search_uncertainty(ctx, state)
     l2_result = (
-        promotion_context.get("_funnel_L2_result")
-        if isinstance(promotion_context, dict)
-        else None
+        promotion_context.get("_funnel_L2_result") if isinstance(promotion_context, dict) else None
     )
     l2_feedback = dict(getattr(l2_result, "feedback", {}) or {})
     data_readiness_report_ref = maybe_artifact_ref(l2_feedback.get("data_readiness_report_ref"))
@@ -954,10 +1046,14 @@ def run_promotion_with_evidence(
             else str(evidence_metadata.get("estimator_name"))
         ),
         query_type=(
-            None if evidence_metadata.get("query_type") is None else str(evidence_metadata.get("query_type"))
+            None
+            if evidence_metadata.get("query_type") is None
+            else str(evidence_metadata.get("query_type"))
         ),
     )
-    claim_mode = str(evidence_metadata.get("claim_mode") or "estimation").strip().lower() or "estimation"
+    claim_mode = (
+        str(evidence_metadata.get("claim_mode") or "estimation").strip().lower() or "estimation"
+    )
     query_type = (
         str(evidence_metadata.get("query_type"))
         if evidence_metadata.get("query_type") is not None
@@ -984,6 +1080,7 @@ def run_promotion_with_evidence(
     )
     loop_id = expected_loop_id
     runtime_provenance = dict(evaluation_provenance or {})
+    phase3_gate = resolve_phase3_gate(ctx, state, candidate=candidate)
     judge_input = coordinator.build_input_bundle(
         candidate=candidate,
         funnel_outcome=resolve_funnel_outcome(state),
@@ -1056,6 +1153,7 @@ def run_promotion_with_evidence(
         evaluation_provenance_notes=[
             str(item) for item in list(runtime_provenance.get("notes", []) or [])
         ],
+        phase3_gate=phase3_gate,
     )
     promotion_policy = PromotionPolicy(
         loop_id=loop_id,
@@ -1109,9 +1207,7 @@ def _build_runtime_simulation_metrics(
         -1.0,
         min(
             1.5,
-            (0.25 + basis * 0.8)
-            + (0.02 * len(objectives))
-            - (0.015 * subgroup_count),
+            (0.25 + basis * 0.8) + (0.02 * len(objectives)) - (0.015 * subgroup_count),
         ),
     )
     welfare = (policy_value * 0.65) + (employment * 0.35)
@@ -1157,7 +1253,10 @@ def _build_evidence_driven_simulation_metrics(
     }.get(fidelity, 1.0)
 
     point_estimate = None
-    if causal_effect_report is not None and getattr(causal_effect_report, "point_estimate", None) is not None:
+    if (
+        causal_effect_report is not None
+        and getattr(causal_effect_report, "point_estimate", None) is not None
+    ):
         point_estimate = float(causal_effect_report.point_estimate)
         source_components.append("causal_effect_report")
     elif "ate" in metrics:
@@ -1202,7 +1301,9 @@ def _build_evidence_driven_simulation_metrics(
     metrics.setdefault("ate", point_estimate)
 
     ci_width = None
-    if causal_effect_report is not None and getattr(causal_effect_report, "confidence_interval", None):
+    if causal_effect_report is not None and getattr(
+        causal_effect_report, "confidence_interval", None
+    ):
         low, high = causal_effect_report.confidence_interval
         try:
             ci_width = abs(float(high) - float(low))
@@ -1242,6 +1343,34 @@ def _parse_policy_evaluation(value: Any) -> PolicyEvaluationVector | None:
     return None
 
 
+def _parse_ambiguity_certificate(value: Any) -> AmbiguityCertificate | None:
+    if isinstance(value, AmbiguityCertificate):
+        return value
+    if isinstance(value, Mapping):
+        payload: Mapping[str, Any] = value
+        nested = payload.get("ambiguity_certificate")
+        if isinstance(nested, Mapping) or isinstance(nested, AmbiguityCertificate):
+            nested_certificate = _parse_ambiguity_certificate(nested)
+            if nested_certificate is not None:
+                return nested_certificate
+        try:
+            return AmbiguityCertificate.from_mapping(payload)
+        except _POLICY_RUNTIME_VALIDATION_ERRORS:
+            return None
+    return None
+
+
+def _ambiguity_certificate_payload(
+    value: AmbiguityCertificate | dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    certificate = _parse_ambiguity_certificate(value)
+    if certificate is not None:
+        return certificate.to_payload()
+    if isinstance(value, dict):
+        return dict(value)
+    return None
+
+
 def _channel_higher_is_better(
     evaluation: PolicyEvaluationVector,
     name: str,
@@ -1274,10 +1403,7 @@ def _employment_signal_from_distribution(
     winners = list(getattr(winners_losers, "winners", None) or [])
     if not winners:
         return float(fallback)
-    deltas = [
-        float(getattr(item, "key_metric_delta", 0.0) or 0.0)
-        for item in winners
-    ]
+    deltas = [float(getattr(item, "key_metric_delta", 0.0) or 0.0) for item in winners]
     if not deltas:
         return float(fallback)
     return float(sum(deltas) / max(len(deltas), 1))
@@ -1330,6 +1456,7 @@ __all__ = [
     "build_selection_benchmark_evaluation",
     "build_vulnerabilities",
     "ensure_policy_candidate_ref",
+    "load_ambiguity_certificate",
     "load_benchmark_evaluation",
     "load_causal_report",
     "load_cross_graph_profile",

@@ -1,9 +1,11 @@
 # ADR-0118: Release Train and SemVer Contracts
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context
@@ -32,5 +34,6 @@ Adopt release-train discipline:
 
 - Extends: ADR-0010 (CAS artifact signing) for release artifact governance,
   ADR-0100 (runtime API versioning and deprecation policy).
+
 - Related: ADR-0114 (schema registry), ADR-0123 (ArtifactRef governance),
   ADR-0128 (hermetic reproducibility).

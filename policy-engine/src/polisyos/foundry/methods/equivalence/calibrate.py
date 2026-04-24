@@ -1,9 +1,11 @@
 """Calibration harness for backend-equivalence certificates."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta
-from typing import Any, Mapping
+from typing import Any
 
 import numpy as np
 
@@ -31,8 +33,8 @@ from polisyos.foundry.methods.equivalence.canonicalize import (
 from polisyos.foundry.methods.equivalence.protocol import (
     CrossBackendEquivalenceCertificate,
     EquivalenceRuntimeEnvelope,
-    EquivalenceVerificationReport,
     EquivalenceVerdict,
+    EquivalenceVerificationReport,
     FieldToleranceSpec,
 )
 from polisyos.foundry.methods.equivalence.verify import (
@@ -317,8 +319,7 @@ def _runner_for_backend(
 
 def _path_selected(*, path: str, policy: EquivalencePolicy) -> bool:
     if policy.include_prefixes and not any(
-        path == prefix or path.startswith(f"{prefix}.")
-        for prefix in policy.include_prefixes
+        path == prefix or path.startswith(f"{prefix}.") for prefix in policy.include_prefixes
     ):
         return False
     if any(path == prefix or path.startswith(f"{prefix}.") for prefix in policy.exclude_prefixes):
@@ -333,10 +334,18 @@ def _merge_runtime_envelopes(
     envelopes: tuple[EquivalenceRuntimeEnvelope, ...],
     pin_runtime_fingerprints: bool,
 ) -> EquivalenceRuntimeEnvelope:
-    source_versions = _common_string_mapping(tuple(env.source_library_versions for env in envelopes))
-    target_versions = _common_string_mapping(tuple(env.target_library_versions for env in envelopes))
-    source_execution_device = _common_or_none(tuple(env.source_execution_device for env in envelopes))
-    target_execution_device = _common_or_none(tuple(env.target_execution_device for env in envelopes))
+    source_versions = _common_string_mapping(
+        tuple(env.source_library_versions for env in envelopes)
+    )
+    target_versions = _common_string_mapping(
+        tuple(env.target_library_versions for env in envelopes)
+    )
+    source_execution_device = _common_or_none(
+        tuple(env.source_execution_device for env in envelopes)
+    )
+    target_execution_device = _common_or_none(
+        tuple(env.target_execution_device for env in envelopes)
+    )
     source_tier = _common_or_none(tuple(env.source_determinism_tier for env in envelopes))
     target_tier = _common_or_none(tuple(env.target_determinism_tier for env in envelopes))
     source_route_key = _common_mapping(tuple(env.source_route_key for env in envelopes))
@@ -368,7 +377,7 @@ def _merge_runtime_envelopes(
 
 
 def _aggregate_case_verdicts(
-    reports: tuple[EquivalenceVerificationReport, ...]
+    reports: tuple[EquivalenceVerificationReport, ...],
 ) -> EquivalenceVerdict:
     if any(report.verdict is EquivalenceVerdict.UNKNOWN for report in reports):
         return EquivalenceVerdict.UNKNOWN
@@ -401,14 +410,10 @@ def _calibration_ci_measured_budget(
         composition_kind="parallel",
     )
     abs_samples = [
-        float(budget["abs_tol_p99"])
-        for budget in measured
-        if budget.get("abs_tol_p99") is not None
+        float(budget["abs_tol_p99"]) for budget in measured if budget.get("abs_tol_p99") is not None
     ]
     rel_samples = [
-        float(budget["rel_tol_p99"])
-        for budget in measured
-        if budget.get("rel_tol_p99") is not None
+        float(budget["rel_tol_p99"]) for budget in measured if budget.get("rel_tol_p99") is not None
     ]
     composed["budget_source"] = "ci_measured"
     composed["canary_suite_id"] = battery_id
@@ -433,21 +438,19 @@ def _certificate_id(
     target_backend: ComputeBackend,
 ) -> str:
     timestamp = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
-    return (
-        f"xbeq:{method_fqn}:{source_backend.value}__{target_backend.value}:{timestamp}"
-    )
+    return f"xbeq:{method_fqn}:{source_backend.value}__{target_backend.value}:{timestamp}"
 
 
 def _expires_at(policy: EquivalencePolicy) -> str | None:
     if policy.certificate_ttl_days is None:
         return None
-    expires_at = datetime.now(UTC).replace(microsecond=0) + timedelta(days=policy.certificate_ttl_days)
+    expires_at = datetime.now(UTC).replace(microsecond=0) + timedelta(
+        days=policy.certificate_ttl_days
+    )
     return expires_at.isoformat().replace("+00:00", "Z")
 
 
-def _common_string_mapping(
-    mappings: tuple[Mapping[str, str], ...]
-) -> dict[str, str]:
+def _common_string_mapping(mappings: tuple[Mapping[str, str], ...]) -> dict[str, str]:
     if not mappings:
         return {}
     keys = set(mappings[0])
@@ -463,9 +466,7 @@ def _common_string_mapping(
     return common
 
 
-def _common_mapping(
-    mappings: tuple[Mapping[str, Any], ...]
-) -> dict[str, Any]:
+def _common_mapping(mappings: tuple[Mapping[str, Any], ...]) -> dict[str, Any]:
     if not mappings:
         return {}
     keys = set(mappings[0])

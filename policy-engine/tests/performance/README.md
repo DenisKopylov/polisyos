@@ -8,14 +8,17 @@ extended benchmark stacks, and scientist/runtime performance paths.
 
 - Catch performance regressions that should not be treated as ordinary unit
   failures.
+
 - Keep runtime hot paths and benchmark orchestration behavior visible in the
   main test tree.
+
 - Provide a stable landing page for the `performance` taxonomy lane.
 
 ## Where To Start
 
 - `test_runtime_hot_paths.py` and `test_scientist_runtime_paths.py` for runtime
   path regressions.
+
 - `test_extended_benchmark_stack.py` for wider benchmark/evidence coverage.
 - [`../../docs/how-to/run-benchmarks.md`](../../docs/how-to/run-benchmarks.md)
   for the supported benchmark command surface.
@@ -33,13 +36,13 @@ extended benchmark stacks, and scientist/runtime performance paths.
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - Benchmark tooling under `tools/benchmarks` / `tools/research/benchmarks`
 - Runtime and scientist hot-path code
 - `pytest-benchmark` / performance-oriented optional dependencies
 
-**Depended on by**
+### Depended On By
 
 - The `performance` lane described in [`../TESTING_POLICY.md`](../TESTING_POLICY.md)
 - Release and evidence workflows that need stable benchmark/regression checks

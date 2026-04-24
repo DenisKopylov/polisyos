@@ -1,4 +1,5 @@
 """Define component metadata contracts used by discovery, compliance, and registry resolution."""
+
 from __future__ import annotations
 
 import re
@@ -14,6 +15,7 @@ _BASE_ID_RE = re.compile(r"^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$")
 
 class ComponentKind(str, Enum):
     """Classify a plugin by the host subsystem and ABI family it implements."""
+
     IR_FRAGMENT = "ir_fragment"
     FOUNDRY_METHOD = "foundry_method"
     FABRIC_CONNECTOR = "fabric_connector"
@@ -26,6 +28,7 @@ class ComponentKind(str, Enum):
 
 class ComponentDep(BaseModel):
     """Declare a semver dependency on another component base ID and optional kind."""
+
     model_config = ConfigDict(extra="forbid")
 
     base_id: str

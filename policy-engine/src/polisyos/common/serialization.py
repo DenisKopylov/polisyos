@@ -1,4 +1,5 @@
 """Convert nested runtime objects to JSON-safe data and fast serialized payloads."""
+
 from __future__ import annotations
 
 import dataclasses
@@ -140,19 +141,13 @@ class JsonDataVisitor:
             items = [(field.name, getattr(value, field.name)) for field in fields]
             if self._policy.sort_keys:
                 items = sorted(items, key=lambda pair: pair[0])
-            return {
-                str(key): self._visit(item, depth=depth + 1)
-                for key, item in items
-            }
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
 
         if isinstance(value, Mapping):
             items = list(value.items())
             if self._policy.sort_keys:
                 items = sorted(items, key=lambda pair: str(pair[0]))
-            return {
-                str(key): self._visit(item, depth=depth + 1)
-                for key, item in items
-            }
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
 
         if isinstance(value, (list, tuple)):
             return [self._visit(item, depth=depth + 1) for item in value]
@@ -230,7 +225,7 @@ def stable_json_dumps(value: Any, *, ensure_ascii: bool = True, sort_keys: bool 
     payload = to_python_data(value, sort_keys=sort_keys, unsupported="error")
     if orjson is not None and not ensure_ascii:
         option = orjson.OPT_SORT_KEYS if sort_keys else 0
-        return cast(bytes, orjson.dumps(payload, option=option)).decode("utf-8")
+        return cast("bytes", orjson.dumps(payload, option=option)).decode("utf-8")
     return json.dumps(
         payload,
         ensure_ascii=ensure_ascii,
@@ -244,7 +239,7 @@ def fast_json_dumps_bytes(value: Any, *, sort_keys: bool = False) -> bytes:
     payload = to_python_data(value, sort_keys=sort_keys, unsupported="error")
     if orjson is not None:
         option = orjson.OPT_SORT_KEYS if sort_keys else 0
-        return cast(bytes, orjson.dumps(payload, option=option))
+        return cast("bytes", orjson.dumps(payload, option=option))
     rendered = json.dumps(
         payload,
         ensure_ascii=False,

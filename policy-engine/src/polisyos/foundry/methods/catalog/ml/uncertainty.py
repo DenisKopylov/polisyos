@@ -1,7 +1,9 @@
 """Calibrate predictive uncertainty envelopes for ML regression outputs."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -83,6 +85,7 @@ def _effective_sample_size(weights: np.ndarray) -> float:
 )
 class ConformalPredictionEstimator:
     """Build split-conformal prediction intervals under exchangeability; avoid nonstationary test distributions without recalibration."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -186,7 +189,9 @@ class ConformalPredictionEstimator:
             if shift_mode == "adaptive":
                 positive = weights[weights > 0.0]
                 if positive.size == 0:
-                    raise ValueError("adaptive shift mode requires at least one positive importance weight")
+                    raise ValueError(
+                        "adaptive shift mode requires at least one positive importance weight"
+                    )
                 lower_clip = float(np.quantile(positive, 0.05))
                 upper_clip = float(np.quantile(positive, 0.95))
                 weights = np.clip(weights, lower_clip, upper_clip)

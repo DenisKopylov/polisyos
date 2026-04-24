@@ -194,15 +194,17 @@ def run_coverage_monte_carlo(
                 except Exception:
                     continue
 
-            results.append(CoverageResult(
-                estimator=est_name,
-                regime=dgp.regime,
-                dgp_name=dgp.name,
-                n_runs=n_valid,
-                n_covered=n_covered,
-                mean_width=float(np.mean(widths)) if widths else float("nan"),
-                mean_bias=float(np.mean(biases)) if biases else float("nan"),
-            ))
+            results.append(
+                CoverageResult(
+                    estimator=est_name,
+                    regime=dgp.regime,
+                    dgp_name=dgp.name,
+                    n_runs=n_valid,
+                    n_covered=n_covered,
+                    mean_width=float(np.mean(widths)) if widths else float("nan"),
+                    mean_bias=float(np.mean(biases)) if biases else float("nan"),
+                )
+            )
 
     return results
 
@@ -212,8 +214,10 @@ def print_coverage_report(results: list[CoverageResult]) -> None:
     print("\n" + "=" * 75)
     print("Monte Carlo Coverage Validation Report")
     print("=" * 75)
-    print(f"{'Estimator':<10} {'Regime':<12} {'DGP':<20} "
-          f"{'Coverage':<10} {'Width':<10} {'Bias':<10} {'Runs':<6}")
+    print(
+        f"{'Estimator':<10} {'Regime':<12} {'DGP':<20} "
+        f"{'Coverage':<10} {'Width':<10} {'Bias':<10} {'Runs':<6}"
+    )
     print("-" * 75)
 
     all_pass = True
@@ -222,13 +226,17 @@ def print_coverage_report(results: list[CoverageResult]) -> None:
         status = "OK" if cov >= 0.90 else "FAIL"
         if cov < 0.90:
             all_pass = False
-        print(f"{r.estimator:<10} {r.regime:<12} {r.dgp_name:<20} "
-              f"{cov:<10.3f} {r.mean_width:<10.3f} {r.mean_bias:<+10.4f} "
-              f"{r.n_runs:<6} {status}")
+        print(
+            f"{r.estimator:<10} {r.regime:<12} {r.dgp_name:<20} "
+            f"{cov:<10.3f} {r.mean_width:<10.3f} {r.mean_bias:<+10.4f} "
+            f"{r.n_runs:<6} {status}"
+        )
 
     print("-" * 75)
-    print(f"Overall: {'PASS' if all_pass else 'NEEDS WORK'} "
-          f"(target: all estimators >= 0.90 at nominal 0.95)")
+    print(
+        f"Overall: {'PASS' if all_pass else 'NEEDS WORK'} "
+        f"(target: all estimators >= 0.90 at nominal 0.95)"
+    )
     print("=" * 75)
 
 

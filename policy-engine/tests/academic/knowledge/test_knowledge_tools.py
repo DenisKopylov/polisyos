@@ -64,7 +64,9 @@ class _MockScholarGraph:
             ),
         ]
 
-    def get_parameter_prior(self, variable, domain=None, country=None, *, prefer_simulation_ready=True):
+    def get_parameter_prior(
+        self, variable, domain=None, country=None, *, prefer_simulation_ready=True
+    ):
         del prefer_simulation_ready
         if variable == "min_wage_elasticity":
             return ParameterPrior(
@@ -143,7 +145,9 @@ class _MockLegalGraph:
             )
         ]
 
-    def find_legal_constraints(self, *, query=None, top_k=50, jurisdiction="UA", domain=None, as_of=None):
+    def find_legal_constraints(
+        self, *, query=None, top_k=50, jurisdiction="UA", domain=None, as_of=None
+    ):
         return self.hybrid_search(
             query or "constraints",
             top_k=top_k,
@@ -153,7 +157,9 @@ class _MockLegalGraph:
             as_of=as_of,
         )
 
-    def search_facts_with_threshold(self, metric, *, top_k=50, jurisdiction="UA", domain=None, as_of=None):
+    def search_facts_with_threshold(
+        self, metric, *, top_k=50, jurisdiction="UA", domain=None, as_of=None
+    ):
         return self.hybrid_search(
             metric,
             top_k=top_k,
@@ -372,7 +378,9 @@ def test_toolkit_policy_verified_legal_pack_methods() -> None:
     assert candidate_pack.fact_hits[0].doc_id == "doc-1"
     assert candidate_pack.anchor_coverage_hints["lf-1"] == ["art:1"]
 
-    source_pack = toolkit.expand_legal_source_pack(candidate_pack, max_source_docs=10, max_reference_hops=2)
+    source_pack = toolkit.expand_legal_source_pack(
+        candidate_pack, max_source_docs=10, max_reference_hops=2
+    )
     assert len(source_pack.source_bundles) == 1
     bundle = source_pack.source_bundles[0]
     assert bundle.primary_anchors[0].context_prefix == ["Розділ I. Загальні положення"]

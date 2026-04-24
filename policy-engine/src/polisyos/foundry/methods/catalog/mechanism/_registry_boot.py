@@ -1,4 +1,5 @@
 """Public mechanism registry boot module API."""
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.catalog.mechanism.runtime import (

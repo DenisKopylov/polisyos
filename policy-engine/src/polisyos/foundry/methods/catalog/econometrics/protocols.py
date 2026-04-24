@@ -1,9 +1,11 @@
 """Define econometric input/output contracts and the shared estimator protocol."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import Enum
 from statistics import NormalDist
-from typing import TYPE_CHECKING, Any, ClassVar, Literal, Mapping, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, Protocol, runtime_checkable
 
 import numpy as np
 from pydantic import (
@@ -66,7 +68,7 @@ class PanelData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "PanelData":
+    def _validate_shapes(self) -> PanelData:
         if _is_repeated_cross_section(self.metadata):
             raise ValueError(
                 "panel estimators require longitudinal panel data; received repeated cross-section/survey data. "
@@ -124,7 +126,15 @@ class PanelData(BaseModel):
 
         return self
 
-    @field_serializer("dependent", "exog", "entity_ids", "time_ids", "instrument_ids", mode="plain", when_used="json")
+    @field_serializer(
+        "dependent",
+        "exog",
+        "entity_ids",
+        "time_ids",
+        "instrument_ids",
+        mode="plain",
+        when_used="json",
+    )
     def _serialize_numpy_fields(self, value: Any) -> Any:
         if isinstance(value, np.ndarray):
             return value.tolist()
@@ -149,14 +159,14 @@ class PanelData(BaseModel):
     @classmethod
     def from_dataframe(
         cls,
-        df: "pd.DataFrame",
+        df: pd.DataFrame,
         *,
         dependent_col: str,
         exog_cols: list[str],
         entity_col: str,
         time_col: str,
         instrument_cols: list[str] | None = None,
-    ) -> "PanelData":
+    ) -> PanelData:
         frame = df.copy()
         frame = frame.sort_values([entity_col, time_col])
         return cls(
@@ -190,7 +200,7 @@ class TimeSeriesData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "TimeSeriesData":
+    def _validate_shapes(self) -> TimeSeriesData:
         if not isinstance(self.endog, np.ndarray) or self.endog.ndim not in {1, 2}:
             raise ValueError("endog must be 1D or 2D numpy array")
         if self.endog.shape[0] < 8:
@@ -282,7 +292,7 @@ class ThresholdStateField(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_state_payload(self) -> "ThresholdStateField":
+    def _validate_state_payload(self) -> ThresholdStateField:
         for name, count in self.regime_counts.items():
             if int(count) < 0:
                 raise ValueError(f"regime_counts.{name} must be non-negative")
@@ -328,7 +338,7 @@ class ThresholdRegressionData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_threshold_shapes(self) -> "ThresholdRegressionData":
+    def _validate_threshold_shapes(self) -> ThresholdRegressionData:
         if not isinstance(self.dependent, np.ndarray) or self.dependent.ndim != 1:
             raise ValueError("dependent must be a 1D numpy array")
         if not isinstance(self.exog, np.ndarray) or self.exog.ndim != 2:
@@ -461,7 +471,7 @@ class ConfidenceSetSegment(BaseModel):
     upper: float
 
     @model_validator(mode="after")
-    def _validate_bounds(self) -> "ConfidenceSetSegment":
+    def _validate_bounds(self) -> ConfidenceSetSegment:
         if not np.isfinite(self.lower) or not np.isfinite(self.upper):
             raise ValueError("confidence-set segment bounds must be finite")
         if self.lower > self.upper:
@@ -489,7 +499,7 @@ class PostSelectionInterval(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_segments(self) -> "PostSelectionInterval":
+    def _validate_segments(self) -> PostSelectionInterval:
         if not self.parameter.strip():
             raise ValueError("parameter must be non-empty")
         previous_upper: float | None = None
@@ -540,7 +550,7 @@ class OrthogonalityNuisanceDiagnostic(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_numeric_fields(self) -> "OrthogonalityNuisanceDiagnostic":
+    def _validate_numeric_fields(self) -> OrthogonalityNuisanceDiagnostic:
         for field_name in (
             "orthogonality_score",
             "nuisance_rmse_y",
@@ -575,7 +585,7 @@ class IdentificationDiagnostic(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_stat_fields(self) -> "IdentificationDiagnostic":
+    def _validate_stat_fields(self) -> IdentificationDiagnostic:
         if self.weak_iv_stat is not None and not np.isfinite(self.weak_iv_stat):
             raise ValueError("weak_iv_stat must be finite")
         if self.critical_value is not None and not np.isfinite(self.critical_value):
@@ -596,7 +606,7 @@ class IntervalDisagreementDiagnostic(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_ratio(self) -> "IntervalDisagreementDiagnostic":
+    def _validate_ratio(self) -> IntervalDisagreementDiagnostic:
         if self.ci_disagreement_ratio is not None and not np.isfinite(self.ci_disagreement_ratio):
             raise ValueError("ci_disagreement_ratio must be finite")
         return self
@@ -652,7 +662,7 @@ class VolatilityRegimeSegment(BaseModel):
     diagnostics: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_segment_payload(self) -> "VolatilityRegimeSegment":
+    def _validate_segment_payload(self) -> VolatilityRegimeSegment:
         if self.end_index < self.start_index:
             raise ValueError("end_index must be >= start_index")
         for bucket_name, bucket in (
@@ -679,7 +689,7 @@ class VolatilityBreak(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_break_payload(self) -> "VolatilityBreak":
+    def _validate_break_payload(self) -> VolatilityBreak:
         if self.detection_score is not None and not np.isfinite(self.detection_score):
             raise ValueError("detection_score must be finite when provided")
         return self
@@ -702,7 +712,7 @@ class VolatilityCoverageSummary(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_diagnostic_levels(self) -> "VolatilityCoverageSummary":
+    def _validate_diagnostic_levels(self) -> VolatilityCoverageSummary:
         for level in self.diagnostic_levels:
             if not 0.0 < float(level) < 1.0:
                 raise ValueError("diagnostic_levels must stay inside (0, 1)")
@@ -727,7 +737,7 @@ class NonstationaryVolatilitySummary(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_summary_counts(self) -> "NonstationaryVolatilitySummary":
+    def _validate_summary_counts(self) -> NonstationaryVolatilitySummary:
         if self.segments and self.n_regimes < len(self.segments):
             raise ValueError("n_regimes must be >= the number of segment records")
         return self
@@ -768,7 +778,7 @@ class EconometricResult(BaseModel):
     cross_sectional_dependence_diagnostic: CrossSectionalDependenceDiagnostic | None = None
 
     @model_validator(mode="after")
-    def _validate_numerics(self) -> "EconometricResult":
+    def _validate_numerics(self) -> EconometricResult:
         for bucket_name, bucket in (
             ("params", self.params),
             ("std_errors", self.std_errors),
@@ -851,8 +861,12 @@ class EconometricResult(BaseModel):
             hi = point
 
         tier = self.coverage_guarantee_tier
-        is_heuristic_ci = tier in {"HEURISTIC_POST_SELECTION", "NONE"} if tier is not None else False
-        gate_eligible = tier not in {"HEURISTIC_POST_SELECTION", "NONE"} if tier is not None else True
+        is_heuristic_ci = (
+            tier in {"HEURISTIC_POST_SELECTION", "NONE"} if tier is not None else False
+        )
+        gate_eligible = (
+            tier not in {"HEURISTIC_POST_SELECTION", "NONE"} if tier is not None else True
+        )
 
         return UncertaintyEnvelope(
             point_estimate=point,
@@ -940,7 +954,7 @@ class CrossSectionalDependenceDiagnostic(BaseModel):
     shared_artifacts_ref: str | None = None
 
     @model_validator(mode="after")
-    def _validate_numeric_ranges(self) -> "CrossSectionalDependenceDiagnostic":
+    def _validate_numeric_ranges(self) -> CrossSectionalDependenceDiagnostic:
         if self.alpha_hat is not None and not np.isfinite(self.alpha_hat):
             raise ValueError("alpha_hat must be finite")
         if self.alpha_ci is not None:
@@ -955,6 +969,7 @@ class CrossSectionalDependenceDiagnostic(BaseModel):
 @runtime_checkable
 class EconometricEstimator(Protocol):
     """Declare the protocol shared by econometric estimators returning `EconometricResult` payloads."""
+
     signature: ClassVar[MethodSignature]
     metadata: ClassVar[MethodMetadata]
 
@@ -973,10 +988,10 @@ class EconometricEstimator(Protocol):
 
 __all__ = [
     "ConfidenceSetSegment",
-    "CrossSectionalDependenceDiagnostic",
     "CoverageGuaranteeTier",
-    "EconometricEstimator",
+    "CrossSectionalDependenceDiagnostic",
     "EconometricDiagnosticResult",
+    "EconometricEstimator",
     "EconometricResult",
     "IdentificationDiagnostic",
     "IntervalDisagreementDiagnostic",

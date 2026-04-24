@@ -12,22 +12,24 @@ breaking/non-breaking API changes.
 - Signature baseline refresh: `tools/devx/foundry/update_signature_baseline.py`.
 - Written outputs:
   `src/polisyos/foundry/methods/{base,registry,composer}.pyi`.
+
 - Baseline artifact:
   `tests/foundry/fixtures/signature_baseline.json`.
 
 ## Public Entrypoints
 
-| Entrypoint | Purpose |
-| --- | --- |
-| `uv run polisyos-tools foundry generate-stubs [--dry-run]` | Регенерировать public method stubs для Foundry facade. |
-| `uv run polisyos-tools foundry update-signature-baseline [--dry-run]` | Пересчитать stable digests и обновить signature baseline. |
-| `python tools/foundry/<tool>.py ...` | Compatibility wrappers для старых tool paths. |
-| `scripts/generate_stubs.py`, `scripts/update_signature_baseline.py` | Historical wrappers, retained only during migration window. |
+| Entrypoint                                                            | Purpose                                                     |
+| --------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `uv run polisyos-tools foundry generate-stubs [--dry-run]`            | Регенерировать public method stubs для Foundry facade.      |
+| `uv run polisyos-tools foundry update-signature-baseline [--dry-run]` | Пересчитать stable digests и обновить signature baseline.   |
+| `python tools/foundry/<tool>.py ...`                                  | Compatibility wrappers для старых tool paths.               |
+| `scripts/generate_stubs.py`, `scripts/update_signature_baseline.py`   | Historical wrappers, retained only during migration window. |
 
 ## Depends On / Depended On By
 
 - **Depends on:** `polisyos.foundry.methods.*`, `mypy.stubgen`, registry
   snapshotting в `MethodRegistry`, baseline fixture under `tests/foundry`.
+
 - **Depended on by:** Foundry public-surface reviews, signature compatibility
   tests, release closeout и manual ABI drift investigations.
 
@@ -36,19 +38,19 @@ breaking/non-breaking API changes.
 Команды ниже smoke-tested на `2026-04-17`, если явно не помечены как
 `conceptual`.
 
-| Command | Purpose | Status |
-| --- | --- | --- |
-| `uv run polisyos-tools foundry generate-stubs --dry-run` | Проверить stub generation без записи `.pyi` файлов. | `smoke-tested` (команда запускается, но текущая env-конфигурация не исполняет `mypy.stubgen`) |
-| `uv run polisyos-tools foundry update-signature-baseline --dry-run` | Проверить signature diff без переписи baseline fixture. | `smoke-tested` (сейчас падает на `RegistrySnapshot`/`.items()` mismatch) |
-| `uv run polisyos-tools foundry generate-stubs` | Записать regenerated `.pyi` stubs в `src/polisyos/foundry/methods/`. | `conceptual` (изменяет checked-in artifacts) |
-| `uv run polisyos-tools foundry update-signature-baseline` | Обновить `tests/foundry/fixtures/signature_baseline.json`. | `conceptual` (изменяет checked-in artifact) |
+| Command                                                             | Purpose                                                              | Status                                                                                        |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `uv run polisyos-tools foundry generate-stubs --dry-run`            | Проверить stub generation без записи `.pyi` файлов.                  | `smoke-tested` (команда запускается, но текущая env-конфигурация не исполняет `mypy.stubgen`) |
+| `uv run polisyos-tools foundry update-signature-baseline --dry-run` | Проверить signature diff без переписи baseline fixture.              | `smoke-tested` (сейчас падает на `RegistrySnapshot`/`.items()` mismatch)                      |
+| `uv run polisyos-tools foundry generate-stubs`                      | Записать regenerated `.pyi` stubs в `src/polisyos/foundry/methods/`. | `conceptual` (изменяет checked-in artifacts)                                                  |
+| `uv run polisyos-tools foundry update-signature-baseline`           | Обновить `tests/foundry/fixtures/signature_baseline.json`.           | `conceptual` (изменяет checked-in artifact)                                                   |
 
 ## Test And Verification
 
-| Command | What it verifies | Status |
-| --- | --- | --- |
-| `uv run pytest -q tests/foundry/test_signature_compat.py tests/tools/test_phase4_consolidation.py` | Signature drift contract и zoned-tooling compatibility. | `conceptual` |
-| `uv run polisyos-tools list --by-zone` | Foundry tooling category корректно зарегистрирована в unified CLI. | `smoke-tested` |
+| Command                                                                                            | What it verifies                                                   | Status         |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | -------------- |
+| `uv run pytest -q tests/foundry/test_signature_compat.py tests/tools/test_phase4_consolidation.py` | Signature drift contract и zoned-tooling compatibility.            | `conceptual`   |
+| `uv run polisyos-tools list --by-zone`                                                             | Foundry tooling category корректно зарегистрирована в unified CLI. | `smoke-tested` |
 
 ## Reference Docs
 
@@ -61,8 +63,11 @@ breaking/non-breaking API changes.
 
 - Stub generation сейчас покрывает `polisyos.foundry.methods.base`,
   `registry` и `composer`.
+
 - Signature baseline хранится в тестовых fixtures и нужен для осознанного ABI
   review, а не для silent drift.
+
 - Legacy wrapper paths ещё присутствуют, но канонический surface — только
   `polisyos-tools foundry ...`.
+
 - Last updated: 2026-04-17

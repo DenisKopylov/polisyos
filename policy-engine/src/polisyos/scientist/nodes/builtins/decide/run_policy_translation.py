@@ -1,4 +1,5 @@
 """Public decide run policy translation module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -25,9 +26,11 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_POLICY_BRIEF_REF,
     ARTIFACT_STRESS_TEST_REPORT_REF,
 )
-from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
-from polisyos.scientist.policy_design.output import PolicyArtifactBuildInput, PolicyArtifactBuilder
-from polisyos.scientist.policy_design.translator import PolicyTranslatorWorker, TranslatorInputBundle
+from polisyos.scientist.policy_design.output import PolicyArtifactBuilder, PolicyArtifactBuildInput
+from polisyos.scientist.policy_design.translator import (
+    PolicyTranslatorWorker,
+    TranslatorInputBundle,
+)
 from polisyos.scientist.search.judge_stack import JudgeVerdict, PolicyPromotionResult
 from polisyos.scientist.search.pareto_registry import ParetoRegistrySnapshot
 from polisyos.scientist.search.readiness import DecisionReadiness, DecisionReadinessContract
@@ -68,6 +71,7 @@ _SPEC = NodeSpec(
 @dataclass(frozen=True)
 class RunPolicyTranslationNode:
     """Run policy translation node implementation."""
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -85,7 +89,11 @@ class RunPolicyTranslationNode:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="info", message="Readiness does not require PolicyBrief translation.")],
+                events=[
+                    NodeEvent(
+                        level="info", message="Readiness does not require PolicyBrief translation."
+                    )
+                ],
             )
 
         promotion_result = _parse_model(
@@ -96,7 +104,12 @@ class RunPolicyTranslationNode:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="info", message="Promotion path did not produce a promoted artifact; skip translation.")],
+                events=[
+                    NodeEvent(
+                        level="info",
+                        message="Promotion path did not produce a promoted artifact; skip translation.",
+                    )
+                ],
             )
 
         candidate, candidate_ref = _resolve_candidate(ctx, state)
@@ -110,15 +123,17 @@ class RunPolicyTranslationNode:
                 ),
             )
 
-        build_input = _policy_build_input(ctx, state, candidate, candidate_ref, readiness, promotion_result)
+        build_input = _policy_build_input(
+            ctx, state, candidate, candidate_ref, readiness, promotion_result
+        )
         builder = PolicyArtifactBuilder()
-        constraint_report = builder._build_constraint_report(build_input)  # noqa: SLF001
-        subgroup_report = builder._build_subgroup_report(build_input)  # noqa: SLF001
-        uncertainty_report = builder._build_uncertainty_report(build_input)  # noqa: SLF001
-        transport_report = builder._build_transportability_report(build_input)  # noqa: SLF001
-        gate_packet = builder._build_governance_gate_packet(build_input)  # noqa: SLF001
-        implementation_plan = builder._build_implementation_plan(build_input)  # noqa: SLF001
-        dossier = builder._build_dossier(  # noqa: SLF001
+        constraint_report = builder._build_constraint_report(build_input)
+        subgroup_report = builder._build_subgroup_report(build_input)
+        uncertainty_report = builder._build_uncertainty_report(build_input)
+        transport_report = builder._build_transportability_report(build_input)
+        gate_packet = builder._build_governance_gate_packet(build_input)
+        implementation_plan = builder._build_implementation_plan(build_input)
+        dossier = builder._build_dossier(
             source=build_input,
             constraint_report=constraint_report,
             subgroup_report=subgroup_report,
@@ -136,7 +151,9 @@ class RunPolicyTranslationNode:
             implementation_plan=implementation_plan,
             run_id=state.run_id,
         )
-        brief, brief_ref = PolicyTranslatorWorker().translate_and_persist(ctx.store, translator_bundle)
+        brief, brief_ref = PolicyTranslatorWorker().translate_and_persist(
+            ctx.store, translator_bundle
+        )
 
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.params["policy_brief"] = brief.model_dump(mode="json")
@@ -178,7 +195,9 @@ def _policy_build_input(
 ) -> PolicyArtifactBuildInput:
     evaluation_vector = _parse_model(
         state.params.get("policy_evaluation"),
-        __import__("polisyos.scientist.policy_design.objectives", fromlist=["PolicyEvaluationVector"]).PolicyEvaluationVector,
+        __import__(
+            "polisyos.scientist.policy_design.objectives", fromlist=["PolicyEvaluationVector"]
+        ).PolicyEvaluationVector,
     )
     judge_verdict = _parse_model(state.params.get("judge_verdict"), JudgeVerdict)
     if judge_verdict is None:
@@ -191,7 +210,9 @@ def _policy_build_input(
         candidate_ref=candidate_ref,
         evaluation_vector=evaluation_vector,
         evaluation_ref=None,
-        pareto_snapshot=_parse_model(state.params.get("pareto_registry_snapshot"), ParetoRegistrySnapshot),
+        pareto_snapshot=_parse_model(
+            state.params.get("pareto_registry_snapshot"), ParetoRegistrySnapshot
+        ),
         promotion_result=promotion_result,
         judge_verdict=judge_verdict,
         readiness_contract=readiness,

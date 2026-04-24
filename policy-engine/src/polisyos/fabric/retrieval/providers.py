@@ -45,29 +45,13 @@ def resolve_retrieval_providers(
     """Resolve the retrieval provider bundle, defaulting only at the outer boundary."""
 
     if registry is None:
-        registry = (
-            registry_factory()
-            if registry_factory is not None
-            else _default_registry()
-        )
+        registry = registry_factory() if registry_factory is not None else _default_registry()
     if profiles is None:
-        profiles = (
-            profiles_factory()
-            if profiles_factory is not None
-            else _default_profiles()
-        )
+        profiles = profiles_factory() if profiles_factory is not None else _default_profiles()
     if tracer is None:
-        tracer = (
-            tracer_factory()
-            if tracer_factory is not None
-            else _default_tracer()
-        )
+        tracer = tracer_factory() if tracer_factory is not None else _default_tracer()
     if metrics is None:
-        metrics = (
-            metrics_factory()
-            if metrics_factory is not None
-            else _default_metrics()
-        )
+        metrics = metrics_factory() if metrics_factory is not None else _default_metrics()
     return RetrievalProviders(
         registry=registry,
         profiles=profiles,

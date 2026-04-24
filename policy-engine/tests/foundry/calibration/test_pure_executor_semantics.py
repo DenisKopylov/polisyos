@@ -5,7 +5,13 @@ import jax.numpy as jnp
 import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.contracts.foundry import ExecPlan, ProgramEdge, ProgramGraph, ProgramGraphRef, ProgramNode
+from polisyos.core.contracts.foundry import (
+    ExecPlan,
+    ProgramEdge,
+    ProgramGraph,
+    ProgramGraphRef,
+    ProgramNode,
+)
 from polisyos.foundry.calibration.pure_executor import apply_nodes, compile_program
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.ir.kernel import (
@@ -122,9 +128,7 @@ def test_apply_nodes_flushes_visible_state_on_dependency_boundary(monkeypatch) -
     class _IncomeReader:
         def emit_patches(self, state, key, *, target_mask=None):
             del target_mask
-            return {
-                "agents.reported_income": [{"value": jnp.asarray(state.agents.income)}]
-            }, key
+            return {"agents.reported_income": [{"value": jnp.asarray(state.agents.income)}]}, key
 
     def _factory(mechanism_type, params, **kwargs):
         del params, kwargs
@@ -164,7 +168,10 @@ def test_apply_nodes_flushes_visible_state_on_dependency_boundary(monkeypatch) -
         slot_registry=DEFAULT_SLOT_REGISTRY,
         merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
         base_state=GlobalState.empty(n_agents=2, n_firms=1),
-        parameter_loader=lambda _: {"params": {}, "schedule": {"start_step": 0, "duration_steps": 1}},
+        parameter_loader=lambda _: {
+            "params": {},
+            "schedule": {"start_step": 0, "duration_steps": 1},
+        },
     )
 
     next_state, _ = apply_nodes(
@@ -227,7 +234,10 @@ def test_apply_nodes_preserves_batched_merge_for_independent_writers(monkeypatch
         slot_registry=DEFAULT_SLOT_REGISTRY,
         merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
         base_state=GlobalState.empty(n_agents=2, n_firms=1),
-        parameter_loader=lambda _: {"params": {}, "schedule": {"start_step": 0, "duration_steps": 1}},
+        parameter_loader=lambda _: {
+            "params": {},
+            "schedule": {"start_step": 0, "duration_steps": 1},
+        },
     )
 
     next_state, _ = apply_nodes(

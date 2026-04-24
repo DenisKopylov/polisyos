@@ -132,6 +132,7 @@ def parse_tool_calls_from_response(
 # Backoff helper
 # ---------------------------------------------------------------------------
 
+
 def _tool_backoff_delay(consecutive_failures: int) -> float:
     """Exponential backoff with full jitter for transient tool failures."""
     base = min(1.0 * (2.0 ** (consecutive_failures - 1)), 30.0)
@@ -169,7 +170,7 @@ def _is_transient_tool_error(result: ToolCallResult) -> bool:
 
 def _dependency_layers(
     parsed_calls: list[ParsedToolCall],
-    tool_dependencies: "ToolDependencyGraph | None",
+    tool_dependencies: ToolDependencyGraph | None,
 ) -> list[list[ParsedToolCall]]:
     if tool_dependencies is None:
         return [list(parsed_calls)] if parsed_calls else []
@@ -193,9 +194,7 @@ def _dependency_layers(
         remaining: list[ParsedToolCall] = []
         for tc in pending:
             dependencies = [
-                dep
-                for dep in tool_dependencies.edges.get(tc.name, [])
-                if dep in requested_names
+                dep for dep in tool_dependencies.edges.get(tc.name, []) if dep in requested_names
             ]
             if all(dep in completed_names for dep in dependencies):
                 layer.append(tc)
@@ -216,7 +215,7 @@ def _dependencies_satisfied(
     *,
     completed_tools: set[str],
     requested_tools: set[str],
-    tool_dependencies: "ToolDependencyGraph | None",
+    tool_dependencies: ToolDependencyGraph | None,
 ) -> bool:
     if tool_dependencies is None:
         return True
@@ -381,9 +380,9 @@ async def run_tool_loop(
     max_iterations: int = 10,
     budget_enforcer: Any | None = None,
     audit_log: Any | None = None,
-    convergence_config: "ConvergenceConfig | None" = None,
+    convergence_config: ConvergenceConfig | None = None,
     persistent_memory: Any | None = None,
-    tool_dependencies: "ToolDependencyGraph | None" = None,
+    tool_dependencies: ToolDependencyGraph | None = None,
     reflexion_evaluator: RubricReflexionEvaluator | None = None,
     compaction_config: ToolLoopCompactionConfig | None = None,
     tool_discovery_threshold: int = 24,
@@ -457,6 +456,7 @@ async def run_tool_loop(
     if persistent_memory is not None:
         try:
             from polisyos.scientist.agent.persistent_memory import MemoryQuery
+
             if hasattr(persistent_memory, "recall_reflexion_memories"):
                 prior_entries = persistent_memory.recall_reflexion_memories(
                     problem_statement=user,
@@ -652,17 +652,21 @@ async def run_tool_loop(
                     )
                 executable_calls.append(tc)
 
-            executed_results = await asyncio.gather(
-                *[
-                    _execute_tool_call(
-                        tool_registry=tool_registry,
-                        tool_call=tc,
-                        ready_at_by_tool=tool_retry_ready_at,
-                    )
-                    for tc in executable_calls
-                ],
-                return_exceptions=True,
-            ) if executable_calls else []
+            executed_results = (
+                await asyncio.gather(
+                    *[
+                        _execute_tool_call(
+                            tool_registry=tool_registry,
+                            tool_call=tc,
+                            ready_at_by_tool=tool_retry_ready_at,
+                        )
+                        for tc in executable_calls
+                    ],
+                    return_exceptions=True,
+                )
+                if executable_calls
+                else []
+            )
             executed_by_id = {
                 tc.id: (
                     result
@@ -824,11 +828,9 @@ def _compact_tool_transcript(
         return
 
     tool_indexes = [
-        index
-        for index, message in enumerate(messages)
-        if message.get("role") == "tool"
+        index for index, message in enumerate(messages) if message.get("role") == "tool"
     ]
-    preserved_tool_indexes = set(tool_indexes[-config.keep_recent_tool_results:])
+    preserved_tool_indexes = set(tool_indexes[-config.keep_recent_tool_results :])
     compacted_rounds = 0
     scan_start = _compaction_prefix_length(messages)
     dropped_messages = 0
@@ -860,8 +862,7 @@ def _compact_tool_transcript(
     summary_exists = (
         summary_index < len(messages)
         and messages[summary_index].get("role") == "system"
-        and _COMPACTION_NOTICE_MARKER
-        in str(messages[summary_index].get("content") or "")
+        and _COMPACTION_NOTICE_MARKER in str(messages[summary_index].get("content") or "")
     )
 
     reserve_summary_slots = 0 if summary_exists else 1
@@ -881,10 +882,7 @@ def _compact_tool_transcript(
         return
     summary_parts = [
         _COMPACTION_NOTICE_MARKER,
-        (
-            f"Older tool outputs were compacted in-place across {compacted_rounds} "
-            "tool message(s)."
-        ),
+        (f"Older tool outputs were compacted in-place across {compacted_rounds} tool message(s)."),
     ]
     if dropped_messages > 0:
         summary_parts.append(
@@ -898,8 +896,7 @@ def _compact_tool_transcript(
     if (
         len(messages) > summary_index
         and messages[summary_index].get("role") == "system"
-        and _COMPACTION_NOTICE_MARKER
-        in str(messages[summary_index].get("content") or "")
+        and _COMPACTION_NOTICE_MARKER in str(messages[summary_index].get("content") or "")
     ):
         messages[summary_index] = summary
     else:
@@ -932,15 +929,13 @@ def _compaction_prefix_length(messages: list[dict[str, Any]]) -> int:
     if (
         index < len(messages)
         and messages[index].get("role") == "system"
-        and _COMPACTION_NOTICE_MARKER
-        not in str(messages[index].get("content") or "")
+        and _COMPACTION_NOTICE_MARKER not in str(messages[index].get("content") or "")
     ):
         index += 1
     if (
         index < len(messages)
         and messages[index].get("role") == "system"
-        and _COMPACTION_NOTICE_MARKER
-        in str(messages[index].get("content") or "")
+        and _COMPACTION_NOTICE_MARKER in str(messages[index].get("content") or "")
     ):
         index += 1
     if index < len(messages) and messages[index].get("role") == "user":
@@ -953,8 +948,7 @@ def _compaction_summary_index(messages: list[dict[str, Any]]) -> int:
     if (
         messages
         and messages[0].get("role") == "system"
-        and _COMPACTION_NOTICE_MARKER
-        in str(messages[0].get("content") or "")
+        and _COMPACTION_NOTICE_MARKER in str(messages[0].get("content") or "")
     ):
         return 0
     if messages and messages[0].get("role") == "system":

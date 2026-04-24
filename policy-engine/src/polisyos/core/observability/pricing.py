@@ -1,14 +1,16 @@
 """Public observability pricing module API."""
+
 from __future__ import annotations
 
 import os
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Mapping
 
 
 @dataclass(frozen=True)
 class LLMPrice:
     """LLM price public type."""
+
     input_per_token_usd: float
     output_per_token_usd: float
 
@@ -38,7 +40,9 @@ def pricing_table() -> Mapping[str, LLMPrice]:
     """
     default = PRICING_DEFAULTS["default"]
     try:
-        default_input = float(os.getenv("POLISYOS_LLM_DEFAULT_INPUT_USD", str(default.input_per_token_usd)))
+        default_input = float(
+            os.getenv("POLISYOS_LLM_DEFAULT_INPUT_USD", str(default.input_per_token_usd))
+        )
     except ValueError:
         default_input = default.input_per_token_usd
     try:

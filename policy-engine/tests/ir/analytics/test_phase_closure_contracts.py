@@ -13,7 +13,6 @@ from polisyos.ir.analytics.frontier import (
     parse_research_plan_stage_index,
 )
 
-
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
@@ -103,7 +102,9 @@ def test_phase_manifest_partition_matches_expected_stage_sets() -> None:
 
 
 def test_non_execution_grade_stages_have_machine_readable_boundaries() -> None:
-    non_execution = [stage for stage in all_stage_declarations() if stage.closure_state != "execution_grade"]
+    non_execution = [
+        stage for stage in all_stage_declarations() if stage.closure_state != "execution_grade"
+    ]
 
     assert non_execution
     for stage in non_execution:

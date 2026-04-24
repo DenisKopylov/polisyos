@@ -30,12 +30,10 @@ class TestLockMetrics:
 
     def test_measure_acquire_failure(self) -> None:
         m = LockMetrics(backend="test")
-        with pytest.raises(RuntimeError):
-            with m.measure_acquire():
-                raise RuntimeError("fail")
+        with pytest.raises(RuntimeError), m.measure_acquire():
+            raise RuntimeError("fail")
 
     def test_measure_acquire_does_not_swallow_assertion_errors(self) -> None:
         m = LockMetrics(backend="test")
-        with pytest.raises(AssertionError, match="bug"):
-            with m.measure_acquire():
-                raise AssertionError("bug")
+        with pytest.raises(AssertionError, match="bug"), m.measure_acquire():
+            raise AssertionError("bug")

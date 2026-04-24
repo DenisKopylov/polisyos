@@ -1,4 +1,5 @@
 """State snapshot persistence — load, put, flatten, nest, build."""
+
 from __future__ import annotations
 
 import dataclasses
@@ -162,9 +163,7 @@ def _flatten_state(obj: Any, prefix: str = "") -> Iterable[tuple[str, np.ndarray
         if isinstance(current, (bool, int, float, np.bool_, np.integer, np.floating)):
             yield key, np.asarray(current)
             continue
-        raise TypeError(
-            f"Unsupported snapshot value at '{key}': {type(current).__name__}"
-        )
+        raise TypeError(f"Unsupported snapshot value at '{key}': {type(current).__name__}")
 
 
 def _nest_state(flat: dict[str, np.ndarray]) -> dict[str, Any]:
@@ -219,7 +218,7 @@ def _resolve_nested_dataclass_type(field_type: Any) -> tuple[type[Any] | None, b
     return None, False
 
 
-def _build_dataclass(cls, data: dict[str, Any], *, blob: Any | None = None) -> Any:  # noqa: ANN001
+def _build_dataclass(cls, data: dict[str, Any], *, blob: Any | None = None) -> Any:
     if not dataclasses.is_dataclass(cls):
         raise ValueError(f"Expected dataclass type, got: {cls}")
     kwargs: dict[str, Any] = {}
@@ -276,10 +275,7 @@ def _validate_snapshot_blob(snapshot: StateSnapshot, data: bytes) -> None:
     if snapshot.checksum_sha256 is not None:
         actual = hashlib.sha256(data).hexdigest()
         if actual != snapshot.checksum_sha256:
-            raise ValueError(
-                "Snapshot checksum mismatch: "
-                f"{actual} != {snapshot.checksum_sha256}"
-            )
+            raise ValueError(f"Snapshot checksum mismatch: {actual} != {snapshot.checksum_sha256}")
 
 
 def _put_snapshot_blob_two_phase(

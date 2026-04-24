@@ -1,4 +1,5 @@
 """Normalization backends that turn source bytes into text for downstream doc stages."""
+
 from __future__ import annotations
 
 from .pdf import normalize_pdf_to_text_v1

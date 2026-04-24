@@ -48,7 +48,6 @@ def test_private_public_pem_roundtrip() -> None:
     assert signer.key_id == pair.key_id
 
 
-
 def test_sign_verify_roundtrip_valid() -> None:
     pair = KeyPair.generate()
     signer = Ed25519Signer.from_pem(pair.private_pem())

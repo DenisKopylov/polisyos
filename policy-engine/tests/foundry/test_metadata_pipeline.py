@@ -9,6 +9,7 @@ Validates that:
   - DataCharacteristics penalises methods when n_obs < typical_min_obs
   - MethodMetadata.stable_digest is sensitive to changes in the new fields
 """
+
 from __future__ import annotations
 
 import pytest
@@ -24,10 +25,10 @@ from polisyos.foundry.methods.selection import (
     rank_method_catalog_entries,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _snapshot():
     ensure_all_methods_registered()
@@ -42,14 +43,11 @@ def _entries():
 # 1. Coverage: all enrichable entries have when_to_use populated
 # ---------------------------------------------------------------------------
 
+
 def test_all_entries_have_when_to_use_populated() -> None:
     """Every snapshot entry that has a description should also have when_to_use."""
     entries = _entries()
-    missing = [
-        entry.fqn
-        for entry in entries
-        if entry.description and not entry.when_to_use
-    ]
+    missing = [entry.fqn for entry in entries if entry.description and not entry.when_to_use]
     assert not missing, (
         f"{len(missing)} entries have description but empty when_to_use:\n"
         + "\n".join(f"  {fqn}" for fqn in sorted(missing)[:20])
@@ -60,9 +58,7 @@ def test_all_entries_have_output_interpretation_populated() -> None:
     """Every snapshot entry with a description should also have output_interpretation."""
     entries = _entries()
     missing = [
-        entry.fqn
-        for entry in entries
-        if entry.description and not entry.output_interpretation
+        entry.fqn for entry in entries if entry.description and not entry.output_interpretation
     ]
     assert not missing, (
         f"{len(missing)} entries have description but empty output_interpretation:\n"
@@ -73,6 +69,7 @@ def test_all_entries_have_output_interpretation_populated() -> None:
 # ---------------------------------------------------------------------------
 # 2. typical_min_obs validity
 # ---------------------------------------------------------------------------
+
 
 def test_typical_min_obs_is_none_or_positive() -> None:
     entries = _entries()
@@ -137,6 +134,7 @@ def test_spot_check_entry_has_rich_metadata(fqn: str) -> None:
 # 4. method_selection_payload includes semantic fields
 # ---------------------------------------------------------------------------
 
+
 def test_method_selection_payload_includes_when_to_use_for_enriched_entries() -> None:
     entries = _entries()
     enriched = [e for e in entries if e.when_to_use and e.runnable][:5]
@@ -144,7 +142,9 @@ def test_method_selection_payload_includes_when_to_use_for_enriched_entries() ->
 
     payload = method_selection_payload(enriched)
     for item in payload:
-        assert "when_to_use" in item, f"method_selection_payload missing when_to_use for {item['fqn']}"
+        assert "when_to_use" in item, (
+            f"method_selection_payload missing when_to_use for {item['fqn']}"
+        )
 
 
 def test_method_selection_payload_includes_output_interpretation() -> None:
@@ -195,6 +195,7 @@ def test_method_selection_payload_omits_empty_semantic_fields() -> None:
 # 5. authoring_catalog_payload structure
 # ---------------------------------------------------------------------------
 
+
 def test_authoring_catalog_payload_structure() -> None:
     snapshot = _snapshot()
     payload = authoring_catalog_payload(snapshot)
@@ -242,12 +243,21 @@ def test_authoring_catalog_payload_families_carry_rich_metadata() -> None:
 # 6. DataCharacteristics-aware scoring
 # ---------------------------------------------------------------------------
 
+
 def test_data_characteristics_penalises_underpowered_method() -> None:
     """A method with typical_min_obs=200 should rank lower when n_obs=20."""
     entries = _entries()
     # Find an entry with a large typical_min_obs
-    large_min = [e for e in entries if e.typical_min_obs is not None and e.typical_min_obs >= 200 and e.runnable]
-    small_min = [e for e in entries if e.typical_min_obs is not None and e.typical_min_obs <= 30 and e.runnable]
+    large_min = [
+        e
+        for e in entries
+        if e.typical_min_obs is not None and e.typical_min_obs >= 200 and e.runnable
+    ]
+    small_min = [
+        e
+        for e in entries
+        if e.typical_min_obs is not None and e.typical_min_obs <= 30 and e.runnable
+    ]
     assert large_min and small_min, "Need both large- and small-min-obs methods for this test"
 
     small_data = DataCharacteristics(n_obs=20)
@@ -274,8 +284,7 @@ def test_data_characteristics_penalises_underpowered_method() -> None:
 def test_data_characteristics_instrument_availability_affects_iv_ranking() -> None:
     entries = _entries()
     iv_entries = [
-        e for e in entries
-        if "iv" in e.family.lower() or any("iv" == t.lower() for t in e.tags)
+        e for e in entries if "iv" in e.family.lower() or any(t.lower() == "iv" for t in e.tags)
     ]
     assert iv_entries, "No IV entries found"
 
@@ -299,6 +308,7 @@ def test_data_characteristics_instrument_availability_affects_iv_ranking() -> No
 # ---------------------------------------------------------------------------
 # 7. MethodMetadata stable_digest is sensitive to new fields
 # ---------------------------------------------------------------------------
+
 
 def test_method_metadata_stable_digest_changes_with_when_to_use() -> None:
     base = MethodMetadata(description="test method")
@@ -358,9 +368,11 @@ def test_method_metadata_new_fields_appear_in_stable_dict() -> None:
 # 8. Snapshot entries propagate fields from MethodMetadata
 # ---------------------------------------------------------------------------
 
+
 def test_snapshot_entry_when_to_use_matches_metadata_for_known_method() -> None:
     """The snapshot entry's when_to_use must come from the registered MethodMetadata."""
     from polisyos.foundry.methods.registry import MethodRegistry
+
     ensure_all_methods_registered()
     reg = MethodRegistry.get_instance()
 
@@ -379,6 +391,4 @@ def test_snapshot_total_enriched_entry_count() -> None:
     """At least 80 entries in the snapshot should have when_to_use populated."""
     entries = _entries()
     enriched = [e for e in entries if e.when_to_use]
-    assert len(enriched) >= 80, (
-        f"Expected ≥80 enriched entries, got {len(enriched)}"
-    )
+    assert len(enriched) >= 80, f"Expected ≥80 enriched entries, got {len(enriched)}"

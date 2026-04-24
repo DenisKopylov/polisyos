@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import UTC, datetime
-from typing import Any, Callable
+from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.ir.analytics.causal import CausalEffectReport, EstimationStatus
@@ -58,9 +59,7 @@ class Level5RefutationGovernanceStage(FunnelStage):
         self._platform_meta_evaluator = platform_meta_evaluator
         self._estimated_cost_usd = float(estimated_cost_usd)
         self._cost_per_second_usd = float(cost_per_second_usd)
-        self._hidden_holdout_degradation_threshold = float(
-            hidden_holdout_degradation_threshold
-        )
+        self._hidden_holdout_degradation_threshold = float(hidden_holdout_degradation_threshold)
         self._require_hidden_holdout = bool(require_hidden_holdout)
         self._require_platform_meta = bool(require_platform_meta)
         self._store = store
@@ -84,9 +83,7 @@ class Level5RefutationGovernanceStage(FunnelStage):
     ) -> FunnelStageResult:
         start = datetime.now(UTC)
         prior_result = _prior_result(context)
-        objective_value = (
-            float(prior_result.objective_value) if prior_result is not None else 0.0
-        )
+        objective_value = float(prior_result.objective_value) if prior_result is not None else 0.0
         failure_cards: list[TypedFailureCard] = []
         terminal_action = None
 
@@ -369,10 +366,7 @@ def _holdout_degradation(
 ) -> float | None:
     if selection is None or hidden_holdout is None:
         return None
-    shared_metrics = sorted(
-        set(selection.selection_metrics)
-        & set(hidden_holdout.holdout_metrics)
-    )
+    shared_metrics = sorted(set(selection.selection_metrics) & set(hidden_holdout.holdout_metrics))
     if not shared_metrics:
         return None
     metric = shared_metrics[0]
@@ -397,8 +391,7 @@ def _runtime_split_failure_card(
         failure_type="benchmark_split_type_mismatch",
         severity=FailureSeverity.BLOCKER,
         description=(
-            f"{label} must use runtime benchmark split '{expected.value}', "
-            f"got '{observed.value}'."
+            f"{label} must use runtime benchmark split '{expected.value}', got '{observed.value}'."
         ),
         uncertainty_type=UncertaintyType.OPTIMIZATION,
         remediation_hint="Attach an evaluation artifact with the correct runtime split type.",
@@ -427,34 +420,40 @@ def _level5_uncertainty_envelope(
     model_level = 0.5
     if stress_report is not None and stress_report.robustness_score is not None:
         model_level = min(1.0, max(0.0, 1.0 - float(stress_report.robustness_score)))
-    optimization_level = 1.0 if platform_meta is not None and not platform_meta.promotion_safe else 0.25
-    return envelope.with_update(
-        UncertaintyType.TRANSPORT,
-        UncertaintyEstimate(
-            level=transport_level,
-            source="level5_hidden_holdout",
-            quantification_method="holdout_delta",
-            is_reducible=True,
-            recommended_action="Refresh or expand holdout evaluation if degradation persists.",
-        ),
-    ).with_update(
-        UncertaintyType.MODEL,
-        UncertaintyEstimate(
-            level=model_level,
-            source="level5_stress_refutation",
-            quantification_method="stress_report_robustness",
-            is_reducible=True,
-            recommended_action="Address high-severity stress vulnerabilities before promotion.",
-        ),
-    ).with_update(
-        UncertaintyType.OPTIMIZATION,
-        UncertaintyEstimate(
-            level=optimization_level,
-            source="level5_platform_meta",
-            quantification_method="meta_guard_status",
-            is_reducible=True,
-            recommended_action="Recalibrate cheap-to-expensive routing if promotion guardrails fired.",
-        ),
+    optimization_level = (
+        1.0 if platform_meta is not None and not platform_meta.promotion_safe else 0.25
+    )
+    return (
+        envelope.with_update(
+            UncertaintyType.TRANSPORT,
+            UncertaintyEstimate(
+                level=transport_level,
+                source="level5_hidden_holdout",
+                quantification_method="holdout_delta",
+                is_reducible=True,
+                recommended_action="Refresh or expand holdout evaluation if degradation persists.",
+            ),
+        )
+        .with_update(
+            UncertaintyType.MODEL,
+            UncertaintyEstimate(
+                level=model_level,
+                source="level5_stress_refutation",
+                quantification_method="stress_report_robustness",
+                is_reducible=True,
+                recommended_action="Address high-severity stress vulnerabilities before promotion.",
+            ),
+        )
+        .with_update(
+            UncertaintyType.OPTIMIZATION,
+            UncertaintyEstimate(
+                level=optimization_level,
+                source="level5_platform_meta",
+                quantification_method="meta_guard_status",
+                is_reducible=True,
+                recommended_action="Recalibrate cheap-to-expensive routing if promotion guardrails fired.",
+            ),
+        )
     )
 
 
@@ -509,20 +508,20 @@ def _build_actionable_side_information(
         transport_failures.extend(
             need.need.need_id
             for need in cross_graph_profile.needs
-            if need.transport_status in {
+            if need.transport_status
+            in {
                 TransportStatus.UNSUPPORTED,
                 TransportStatus.BOUNDED_NON_IDENTIFIED,
             }
-            or need.evidence_status in {
+            or need.evidence_status
+            in {
                 EvidenceStatus.INSUFFICIENT,
                 EvidenceStatus.UNSUPPORTED,
             }
         )
     identifiability_blockers = []
     if causal_report is not None and causal_report.status is not EstimationStatus.SUCCESS:
-        identifiability_blockers.append(
-            causal_report.status_reason or causal_report.status.value
-        )
+        identifiability_blockers.append(causal_report.status_reason or causal_report.status.value)
     compute_budget_explanation = {}
     if prior_result is not None:
         compute_budget_explanation["level4_usd"] = float(prior_result.compute_actual_usd)
@@ -543,9 +542,7 @@ def _build_actionable_side_information(
         profiler_output={
             "stage_name": "funnel_L5_refutation_governance",
             "duration_seconds": float(duration_seconds),
-            "platform_meta_status": None
-            if platform_meta is None
-            else platform_meta.overall_status,
+            "platform_meta_status": None if platform_meta is None else platform_meta.overall_status,
         },
         timeout_diagnostics={},
         identifiability_blockers=identifiability_blockers,

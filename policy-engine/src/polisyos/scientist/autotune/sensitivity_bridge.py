@@ -11,13 +11,14 @@ logger = logging.getLogger(__name__)
 def _try_import_doe():
     """Lazy import of DOE analysis module."""
     try:
+        import numpy as np
+
         from polisyos.scientist.doe.analysis import analyze_sensitivity
         from polisyos.scientist.doe.designs import (
             ParameterSpec,
             SensitivityMethod,
             SensitivityPlan,
         )
-        import numpy as np
 
         return analyze_sensitivity, ParameterSpec, SensitivityMethod, SensitivityPlan, np
     except ImportError:
@@ -101,19 +102,23 @@ class SensitivityBridge:
             samples = saltelli.sample(problem, N=n_trajectories)
 
         # Evaluate
-        outputs = np.array([
-            evaluator({p.name: samples[i, j] for j, p in enumerate(param_specs)})
-            for i in range(samples.shape[0])
-        ])
+        outputs = np.array(
+            [
+                evaluator({p.name: samples[i, j] for j, p in enumerate(param_specs)})
+                for i in range(samples.shape[0])
+            ]
+        )
 
         result = analyze_sensitivity(plan, samples, outputs)
 
         # Extract ranking from indices
         ranking = sorted(
             result.parameter_names,
-            key=lambda name: abs(result.indices.get(name, {}).get("mu_star", 0.0)
-                                 if "mu_star" in result.indices.get(name, {})
-                                 else result.indices.get(name, {}).get("S1", 0.0)),
+            key=lambda name: abs(
+                result.indices.get(name, {}).get("mu_star", 0.0)
+                if "mu_star" in result.indices.get(name, {})
+                else result.indices.get(name, {}).get("S1", 0.0)
+            ),
             reverse=True,
         )
 

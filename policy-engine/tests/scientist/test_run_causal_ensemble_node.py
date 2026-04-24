@@ -14,7 +14,6 @@ from polisyos.ir.analytics.causal_graph import (
     GraphType,
     load_causal_graph_model,
 )
-from polisyos.ir.refs import CausalGraphModelRef
 from polisyos.ir.analytics.structural_causal_model import (
     MechanismFamily,
     MechanismSource,
@@ -22,14 +21,15 @@ from polisyos.ir.analytics.structural_causal_model import (
     StructuralCausalModelSpec,
     persist_structural_causal_model_spec,
 )
+from polisyos.ir.refs import CausalGraphModelRef
 from polisyos.scientist.compute.job_spec import JobKey, JobResult
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.causal.run_causal_ensemble import RunCausalEnsembleNode
 from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_ENVELOPE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
+    ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
 )
 
@@ -240,9 +240,13 @@ def test_run_causal_ensemble_node_applies_budget_cap_10(
 
     outcome = RunCausalEnsembleNode().execute(ctx, state)
     assert outcome.status == "ok"
-    ensemble = load_causal_model_ensemble(ctx.store, outcome.state.artifacts_index[ARTIFACT_CAUSAL_ENSEMBLE_REF])
+    ensemble = load_causal_model_ensemble(
+        ctx.store, outcome.state.artifacts_index[ARTIFACT_CAUSAL_ENSEMBLE_REF]
+    )
     assert len(ensemble.members) == 10
-    assert "deterministic cap applied" in str(outcome.state.params.get("causal_ensemble_warning", ""))
+    assert "deterministic cap applied" in str(
+        outcome.state.params.get("causal_ensemble_warning", "")
+    )
 
 
 def test_run_causal_ensemble_node_builds_consensus_graph_from_three_members(
@@ -316,7 +320,9 @@ def test_run_causal_ensemble_node_builds_consensus_graph_from_three_members(
     outcome = RunCausalEnsembleNode().execute(ctx, state)
     assert outcome.status == "ok"
 
-    ensemble = load_causal_model_ensemble(ctx.store, outcome.state.artifacts_index[ARTIFACT_CAUSAL_ENSEMBLE_REF])
+    ensemble = load_causal_model_ensemble(
+        ctx.store, outcome.state.artifacts_index[ARTIFACT_CAUSAL_ENSEMBLE_REF]
+    )
     assert len(ensemble.members) == 3
     assert ensemble.consensus_graph_ref is not None
     assert pytest.approx(ensemble.edge_inclusion_frequency["X→M"], rel=1e-6) == (2.0 / 3.0)

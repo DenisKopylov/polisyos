@@ -28,7 +28,7 @@ export const FEATURE_FLAG_CACHE_TTL_MS = 5 * 60 * 1000;
 
 const featureFlagManifestEnvelopeSchema = z
   .object({
-    flags: z.record(z.string(), z.unknown()).optional(),
+    flags: z.unknown().optional(),
     ttlMs: z.number().int().positive().optional(),
     ttl_ms: z.number().int().positive().optional(),
     updatedAt: z.number().int().positive().optional(),
@@ -59,6 +59,32 @@ function coerceBooleanFlag(rawValue: unknown): boolean | undefined {
     return false;
   }
   return undefined;
+}
+
+function buildProfileFeatureFlagOverrides(
+  enabled: boolean,
+): FeatureFlagOverrides {
+  return Object.fromEntries(
+    FEATURE_FLAG_KEYS.map((key) => [key, enabled]),
+  ) as FeatureFlagOverrides;
+}
+
+function readFeatureFlagProfile(
+  rawValue: unknown,
+): FeatureFlagOverrides | null {
+  if (typeof rawValue !== "string") {
+    return null;
+  }
+
+  const normalized = rawValue.trim().toLowerCase();
+  if (normalized === "all_on" || normalized === "all-on") {
+    return buildProfileFeatureFlagOverrides(true);
+  }
+  if (normalized === "all_off" || normalized === "all-off") {
+    return buildProfileFeatureFlagOverrides(false);
+  }
+
+  return null;
 }
 
 function readBooleanFlag(rawValue: string | undefined, fallback: boolean) {
@@ -114,6 +140,12 @@ function parseFeatureFlagManifest(rawValue: string | undefined) {
   if (!rawValue || !rawValue.trim()) {
     return null;
   }
+
+  const profile = readFeatureFlagProfile(rawValue);
+  if (profile) {
+    return profile;
+  }
+
   try {
     return JSON.parse(rawValue) as unknown;
   } catch {
@@ -124,6 +156,11 @@ function parseFeatureFlagManifest(rawValue: string | undefined) {
 export function normalizeFeatureFlagOverrides(
   rawValue: unknown,
 ): FeatureFlagOverrides {
+  const profile = readFeatureFlagProfile(rawValue);
+  if (profile) {
+    return profile;
+  }
+
   if (!rawValue || typeof rawValue !== "object") {
     return {};
   }

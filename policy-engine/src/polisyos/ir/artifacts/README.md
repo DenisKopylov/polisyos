@@ -21,14 +21,14 @@ store contract, schema metadata и helpers, через которые `analytics
 
 ## Public API
 
-| Type/Function | Description |
-|---|---|
-| `ArtifactID` | Валидируемый canonical artifact identifier |
-| `ArtifactStore` | Protocol для CAS backends |
-| `PutOptions`, `StorePutOptions` | Метаданные записи, schema info и lineage inputs |
-| `normalize_artifact_ref()`, `normalize_input_refs()` | Нормализуют typed refs перед persistence |
-| `put_json_artifact()` | Сохраняет canonical JSON artifact и возвращает standardized ref payload |
-| `get_json_artifact()` | Загружает artifact bytes и декодирует их в JSON object |
+| Type/Function                                        | Description                                                             |
+| ---------------------------------------------------- | ----------------------------------------------------------------------- |
+| `ArtifactID`                                         | Валидируемый canonical artifact identifier                              |
+| `ArtifactStore`                                      | Protocol для CAS backends                                               |
+| `PutOptions`, `StorePutOptions`                      | Метаданные записи, schema info и lineage inputs                         |
+| `normalize_artifact_ref()`, `normalize_input_refs()` | Нормализуют typed refs перед persistence                                |
+| `put_json_artifact()`                                | Сохраняет canonical JSON artifact и возвращает standardized ref payload |
+| `get_json_artifact()`                                | Загружает artifact bytes и декодирует их в JSON object                  |
 
 Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
 

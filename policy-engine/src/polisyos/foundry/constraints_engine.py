@@ -1,11 +1,13 @@
 """Public foundry constraints engine module API."""
+
 from __future__ import annotations
 
 import ast
 import operator as op_module
+from collections.abc import Iterable
 from decimal import Decimal, InvalidOperation
 from enum import Enum
-from typing import Any, Iterable
+from typing import Any
 
 import numpy as np
 
@@ -18,8 +20,8 @@ from polisyos.core.contracts.foundry import (
 from polisyos.ir.kernel import SlotRegistry
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 
-from ._numeric import decimal_from_numeric, require_finite_numpy, validate_quantile
 from ._executor_models import get_state_path
+from ._numeric import decimal_from_numeric, require_finite_numpy, validate_quantile
 
 
 class AggregationFunction(str, Enum):
@@ -68,7 +70,9 @@ def check_constraints(
         extra_events: list[dict[str, Any]] = []
 
         if np.ndim(state_value) == 0:
-            actual = decimal_from_numeric(state_value, label=f"constraint '{constraint.constraint_id}' actual")
+            actual = decimal_from_numeric(
+                state_value, label=f"constraint '{constraint.constraint_id}' actual"
+            )
             violated_override = None
         else:
             actual, extra_events, violated_override = _aggregate(
@@ -260,18 +264,26 @@ def _aggregate(
         )
 
     if aggregation == AggregationFunction.MIN:
-        actual = decimal_from_numeric(np.min(flat), label=f"constraint '{constraint.constraint_id}' min")
+        actual = decimal_from_numeric(
+            np.min(flat), label=f"constraint '{constraint.constraint_id}' min"
+        )
     elif aggregation == AggregationFunction.MAX:
-        actual = decimal_from_numeric(np.max(flat), label=f"constraint '{constraint.constraint_id}' max")
+        actual = decimal_from_numeric(
+            np.max(flat), label=f"constraint '{constraint.constraint_id}' max"
+        )
     elif aggregation == AggregationFunction.MEAN:
-        actual = decimal_from_numeric(np.mean(flat), label=f"constraint '{constraint.constraint_id}' mean")
+        actual = decimal_from_numeric(
+            np.mean(flat), label=f"constraint '{constraint.constraint_id}' mean"
+        )
     elif aggregation == AggregationFunction.MEDIAN:
         actual = decimal_from_numeric(
             np.median(flat),
             label=f"constraint '{constraint.constraint_id}' median",
         )
     elif aggregation == AggregationFunction.SUM:
-        actual = decimal_from_numeric(np.sum(flat), label=f"constraint '{constraint.constraint_id}' sum")
+        actual = decimal_from_numeric(
+            np.sum(flat), label=f"constraint '{constraint.constraint_id}' sum"
+        )
     elif aggregation == AggregationFunction.QUANTILE:
         q = validate_quantile(
             constraint.quantile_param,
@@ -352,9 +364,7 @@ def _resolve_weights(
             f"expected {expected_size}, got {weights.size}"
         )
     if np.any(weights < 0):
-        raise ValueError(
-            f"Constraint '{constraint.constraint_id}' weights must be non-negative"
-        )
+        raise ValueError(f"Constraint '{constraint.constraint_id}' weights must be non-negative")
     total = float(np.sum(weights))
     if total <= 0.0:
         raise ValueError(
@@ -427,9 +437,7 @@ def _safe_eval_expression(expression: str, slot_values: dict[str, Decimal]) -> D
             return decimal_from_numeric(node.value, label="constraint constant")
         if isinstance(node, ast.Name):
             if node.id not in slot_values:
-                raise ValueError(
-                    f"Unknown slot reference '{node.id}' in expression '{expression}'"
-                )
+                raise ValueError(f"Unknown slot reference '{node.id}' in expression '{expression}'")
             return slot_values[node.id]
         if isinstance(node, ast.BinOp):
             op_func = _ALLOWED_BINOPS.get(type(node.op))
@@ -463,8 +471,6 @@ def _safe_eval_expression(expression: str, slot_values: dict[str, Decimal]) -> D
                 op_func(float(_eval_node(node.operand))),
                 label=f"expression '{expression}'",
             )
-        raise ValueError(
-            f"Disallowed AST node {type(node).__name__} in expression '{expression}'"
-        )
+        raise ValueError(f"Disallowed AST node {type(node).__name__} in expression '{expression}'")
 
     return _eval_node(tree)

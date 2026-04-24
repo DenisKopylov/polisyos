@@ -18,17 +18,17 @@ ENV_FILE="${ASSETS_DIR}/.env.server_${N}"
 TOPIC_FILE=""
 
 if [[ -f "${ASSETS_DIR}/relevant_topics_shard_${N}.csv" ]]; then
-    TOPIC_FILE="${ASSETS_DIR}/relevant_topics_shard_${N}.csv"
+  TOPIC_FILE="${ASSETS_DIR}/relevant_topics_shard_${N}.csv"
 elif [[ -f "${ASSETS_DIR}/topics_shard_${N}.csv" ]]; then
-    TOPIC_FILE="${ASSETS_DIR}/topics_shard_${N}.csv"
+  TOPIC_FILE="${ASSETS_DIR}/topics_shard_${N}.csv"
 else
-    echo "ERROR: shard CSV not found for shard ${N} under ${ASSETS_DIR}" >&2
-    exit 1
+  echo "ERROR: shard CSV not found for shard ${N} under ${ASSETS_DIR}" >&2
+  exit 1
 fi
 
 if [[ ! -f "${ENV_FILE}" ]]; then
-    echo "ERROR: env file not found for shard ${N}: ${ENV_FILE}" >&2
-    exit 1
+  echo "ERROR: env file not found for shard ${N}: ${ENV_FILE}" >&2
+  exit 1
 fi
 
 echo "=== Deploying shard $N to root@${IP} ==="
@@ -38,37 +38,37 @@ echo ""
 # --- 0. Wait for cloud-init to finish ---
 echo "[0/5] Checking cloud-init status..."
 for attempt in 1 2 3 4 5 6; do
-    if ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "root@${IP}" "test -f /root/cloud-init-done.txt" 2>/dev/null; then
-        echo "  Cloud-init complete!"
-        break
-    fi
-    if [ "$attempt" -eq 6 ]; then
-        echo "  WARNING: cloud-init may not be done yet. Continuing anyway..."
-    else
-        echo "  Cloud-init not ready, waiting 30s... (attempt $attempt/6)"
-        sleep 30
-    fi
+  if ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "root@${IP}" "test -f /root/cloud-init-done.txt" 2> /dev/null; then
+    echo "  Cloud-init complete!"
+    break
+  fi
+  if [ "$attempt" -eq 6 ]; then
+    echo "  WARNING: cloud-init may not be done yet. Continuing anyway..."
+  else
+    echo "  Cloud-init not ready, waiting 30s... (attempt $attempt/6)"
+    sleep 30
+  fi
 done
 
 # --- 1. Upload project code ---
 echo "[1/5] Uploading project code..."
 ssh "root@${IP}" "mkdir -p /opt/polisyos"
 rsync -azP --timeout=60 \
-    --exclude='.venv' \
-    --exclude='__pycache__' \
-    --exclude='.git' \
-    --exclude='node_modules' \
-    --exclude='storybook-static' \
-    --exclude='test-results' \
-    --exclude='output' \
-    --exclude='data' \
-    --exclude='cloud_deploy' \
-    --exclude='tools/cloud/deploy/assets' \
-    --exclude='coverage' \
-    --exclude='.mypy_cache' \
-    --exclude='.pytest_cache' \
-    --exclude='.ruff_cache' \
-    "$PROJECT_ROOT/" "root@${IP}:/opt/polisyos/policy-engine/"
+  --exclude='.venv' \
+  --exclude='__pycache__' \
+  --exclude='.git' \
+  --exclude='node_modules' \
+  --exclude='storybook-static' \
+  --exclude='test-results' \
+  --exclude='output' \
+  --exclude='data' \
+  --exclude='cloud_deploy' \
+  --exclude='tools/cloud/deploy/assets' \
+  --exclude='coverage' \
+  --exclude='.mypy_cache' \
+  --exclude='.pytest_cache' \
+  --exclude='.ruff_cache' \
+  "$PROJECT_ROOT/" "root@${IP}:/opt/polisyos/policy-engine/"
 
 # --- 2. Upload .env ---
 echo "[2/5] Uploading .env for account $N..."
@@ -78,18 +78,18 @@ scp "${ENV_FILE}" "root@${IP}:/opt/polisyos/policy-engine/.env"
 echo "[3/5] Uploading topics shard $N..."
 ssh "root@${IP}" "mkdir -p /data/topics"
 scp "${TOPIC_FILE}" "root@${IP}:/data/topics/relevant_topics_shard.csv"
-TOPIC_COUNT=$(ssh "root@${IP}" "wc -l < /data/topics/relevant_topics_shard.csv" 2>/dev/null || echo "?")
+TOPIC_COUNT=$(ssh "root@${IP}" "wc -l < /data/topics/relevant_topics_shard.csv" 2> /dev/null || echo "?")
 echo "  Uploaded $TOPIC_COUNT topics"
 
 # --- 4. Upload shared cache (optional) ---
 CACHE_DIR="${CACHE_PATH:-}"
 if [ -n "$CACHE_DIR" ] && [ -d "$CACHE_DIR" ]; then
-    echo "[4/5] Uploading shared cache from $CACHE_DIR..."
-    ssh "root@${IP}" "mkdir -p /data/cache"
-    rsync -azP --timeout=120 "$CACHE_DIR/" "root@${IP}:/data/cache/"
+  echo "[4/5] Uploading shared cache from $CACHE_DIR..."
+  ssh "root@${IP}" "mkdir -p /data/cache"
+  rsync -azP --timeout=120 "$CACHE_DIR/" "root@${IP}:/data/cache/"
 else
-    echo "[4/5] No cache (set CACHE_PATH to upload). Creating empty cache dir..."
-    ssh "root@${IP}" "mkdir -p /data/cache"
+  echo "[4/5] No cache (set CACHE_PATH to upload). Creating empty cache dir..."
+  ssh "root@${IP}" "mkdir -p /data/cache"
 fi
 
 # --- 5. Install Python + dependencies ---

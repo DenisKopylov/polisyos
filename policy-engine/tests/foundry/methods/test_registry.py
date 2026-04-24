@@ -9,12 +9,14 @@ Test Coverage:
 - Secondary index queries
 - Edge cases and error handling
 """
+
 from __future__ import annotations
 
 import concurrent.futures
 import threading
 import time
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 from unittest.mock import MagicMock
 
 import pytest
@@ -37,8 +39,8 @@ from polisyos.foundry.methods.exceptions import (
 )
 from polisyos.foundry.methods.registry import (
     MethodRegistry,
-    get_registry_audit_log,
     get_registry,
+    get_registry_audit_log,
 )
 from polisyos.foundry.methods.resolution import (
     ResolutionPolicy,
@@ -48,7 +50,6 @@ from polisyos.foundry.methods.resolution import (
     is_compatible_upgrade,
     resolve_version,
 )
-
 
 # =============================================================================
 # Fixtures
@@ -141,14 +142,10 @@ def create_mock_method(
     """
     if input_slots is None:
         unit = Unit("none", "1")
-        input_slots = frozenset({
-            SlotSpec(name="input", slot_type=SlotType.SCALAR, unit=unit)
-        })
+        input_slots = frozenset({SlotSpec(name="input", slot_type=SlotType.SCALAR, unit=unit)})
     if output_slots is None:
         unit = Unit("none", "1")
-        output_slots = frozenset({
-            SlotSpec(name="output", slot_type=SlotType.SCALAR, unit=unit)
-        })
+        output_slots = frozenset({SlotSpec(name="output", slot_type=SlotType.SCALAR, unit=unit)})
 
     sig = MethodSignature(
         name=name,
@@ -311,39 +308,27 @@ class TestResolveVersion:
             resolve_version(["1.0.0-alpha.1"], None, ResolutionPolicy.LATEST)
 
     def test_latest_compatible_same_major(self, versions: list[str]):
-        result = resolve_version(
-            versions, "1.0.0", ResolutionPolicy.LATEST_COMPATIBLE
-        )
+        result = resolve_version(versions, "1.0.0", ResolutionPolicy.LATEST_COMPATIBLE)
         assert result == "1.5.0"
 
     def test_latest_compatible_respects_constraint(self, versions: list[str]):
         constraint = VersionConstraint(major=2)
-        result = resolve_version(
-            versions, None, ResolutionPolicy.LATEST_COMPATIBLE, constraint
-        )
+        result = resolve_version(versions, None, ResolutionPolicy.LATEST_COMPATIBLE, constraint)
         assert result == "2.1.0"
 
     def test_latest_compatible_zero_major_respects_minor(self):
         versions = ["0.2.3", "0.2.9", "0.3.0"]
-        result = resolve_version(
-            versions, "0.2.3", ResolutionPolicy.LATEST_COMPATIBLE
-        )
+        result = resolve_version(versions, "0.2.3", ResolutionPolicy.LATEST_COMPATIBLE)
         assert result == "0.2.9"
 
     def test_latest_compatible_no_match_raises(self, versions: list[str]):
         constraint = VersionConstraint(major=3)
         with pytest.raises(ResolutionError) as exc:
-            resolve_version(
-                versions, None, ResolutionPolicy.LATEST_COMPATIBLE, constraint
-            )
+            resolve_version(versions, None, ResolutionPolicy.LATEST_COMPATIBLE, constraint)
         assert exc.value.policy == ResolutionPolicy.LATEST_COMPATIBLE
 
-    def test_latest_compatible_derives_constraint_from_requested(
-        self, versions: list[str]
-    ):
-        result = resolve_version(
-            versions, "1.1.0", ResolutionPolicy.LATEST_COMPATIBLE
-        )
+    def test_latest_compatible_derives_constraint_from_requested(self, versions: list[str]):
+        result = resolve_version(versions, "1.1.0", ResolutionPolicy.LATEST_COMPATIBLE)
         assert result == "1.5.0"
 
     def test_empty_available_raises(self):
@@ -447,10 +432,7 @@ class TestConcurrentRegistration:
             return fqns
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
-            futures = [
-                executor.submit(register_methods, i)
-                for i in range(num_threads)
-            ]
+            futures = [executor.submit(register_methods, i) for i in range(num_threads)]
             all_fqns = []
             for future in concurrent.futures.as_completed(futures):
                 all_fqns.extend(future.result())
@@ -482,9 +464,7 @@ class TestConcurrentRegistration:
         def writer(thread_id: int, iterations: int):
             for i in range(iterations):
                 try:
-                    method = create_mock_method(
-                        f"new_{i}", f"writer_{thread_id}", "1.0.0"
-                    )
+                    method = create_mock_method(f"new_{i}", f"writer_{thread_id}", "1.0.0")
                     registry.register(method)
                     with lock:
                         results["writes"] += 1
@@ -563,9 +543,7 @@ class TestRegistration:
 
     def test_register_missing_metadata_raises(self):
         registry = MethodRegistry()
-        sig = create_method_signature(
-            "test", "ns", "1.0.0", frozenset(), frozenset()
-        )
+        sig = create_method_signature("test", "ns", "1.0.0", frozenset(), frozenset())
 
         class BadMethod:
             signature = sig
@@ -658,10 +636,7 @@ class TestLazyLoading:
         registry.register_lazy(sig, meta, slow_factory)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            futures = [
-                executor.submit(registry.get, "ns.test@1.0.0")
-                for _ in range(5)
-            ]
+            futures = [executor.submit(registry.get, "ns.test@1.0.0") for _ in range(5)]
             results = [future.result() for future in futures]
 
         assert all(result is results[0] for result in results)
@@ -776,34 +751,48 @@ class TestQueries:
     """Tests for query functionality."""
 
     @pytest.fixture
-    def populated_registry(
-        self, income_slot: SlotSpec, tax_slot: SlotSpec
-    ) -> MethodRegistry:
+    def populated_registry(self, income_slot: SlotSpec, tax_slot: SlotSpec) -> MethodRegistry:
         registry = MethodRegistry()
 
-        registry.register(create_mock_method(
-            "flat_tax", "fiscal.taxation", "1.0.0",
-            tags=frozenset({"fiscal", "simple"}),
-            input_slots=frozenset({income_slot}),
-            output_slots=frozenset({tax_slot}),
-        ))
-        registry.register(create_mock_method(
-            "progressive_tax", "fiscal.taxation", "1.0.0",
-            tags=frozenset({"fiscal", "complex"}),
-            input_slots=frozenset({income_slot}),
-            output_slots=frozenset({tax_slot}),
-        ))
+        registry.register(
+            create_mock_method(
+                "flat_tax",
+                "fiscal.taxation",
+                "1.0.0",
+                tags=frozenset({"fiscal", "simple"}),
+                input_slots=frozenset({income_slot}),
+                output_slots=frozenset({tax_slot}),
+            )
+        )
+        registry.register(
+            create_mock_method(
+                "progressive_tax",
+                "fiscal.taxation",
+                "1.0.0",
+                tags=frozenset({"fiscal", "complex"}),
+                input_slots=frozenset({income_slot}),
+                output_slots=frozenset({tax_slot}),
+            )
+        )
 
-        registry.register(create_mock_method(
-            "budget_allocator", "fiscal.budget", "1.0.0",
-            tags=frozenset({"fiscal", "budget"}),
-            input_slots=frozenset({tax_slot}),
-        ))
+        registry.register(
+            create_mock_method(
+                "budget_allocator",
+                "fiscal.budget",
+                "1.0.0",
+                tags=frozenset({"fiscal", "budget"}),
+                input_slots=frozenset({tax_slot}),
+            )
+        )
 
-        registry.register(create_mock_method(
-            "gdp_calculator", "economic.aggregate", "1.0.0",
-            tags=frozenset({"macro"}),
-        ))
+        registry.register(
+            create_mock_method(
+                "gdp_calculator",
+                "economic.aggregate",
+                "1.0.0",
+                tags=frozenset({"macro"}),
+            )
+        )
 
         return registry
 
@@ -835,10 +824,12 @@ class TestQueries:
         assert names == {"flat_tax", "progressive_tax"}
 
     def test_query_combined_criteria(self, populated_registry: MethodRegistry):
-        results = list(populated_registry.query(
-            namespace="fiscal.taxation",
-            tags={"complex"},
-        ))
+        results = list(
+            populated_registry.query(
+                namespace="fiscal.taxation",
+                tags={"complex"},
+            )
+        )
         assert len(results) == 1
         assert results[0].name == "progressive_tax"
 
@@ -852,9 +843,7 @@ class TestQueries:
         assert fqns == sorted(fqns)
 
     def test_find_connectable(self, populated_registry: MethodRegistry):
-        results = list(populated_registry.find_connectable(
-            "fiscal.taxation.flat_tax@1.0.0"
-        ))
+        results = list(populated_registry.find_connectable("fiscal.taxation.flat_tax@1.0.0"))
         assert any(r.name == "budget_allocator" for r in results)
 
 
@@ -909,12 +898,8 @@ class TestListing:
 
     def test_list_tags(self):
         registry = MethodRegistry()
-        registry.register(create_mock_method(
-            "a", "ns", "1.0.0", tags=frozenset({"tag1", "tag2"})
-        ))
-        registry.register(create_mock_method(
-            "b", "ns", "1.0.0", tags=frozenset({"tag2", "tag3"})
-        ))
+        registry.register(create_mock_method("a", "ns", "1.0.0", tags=frozenset({"tag1", "tag2"})))
+        registry.register(create_mock_method("b", "ns", "1.0.0", tags=frozenset({"tag2", "tag3"})))
 
         tags = registry.list_tags()
 
@@ -976,11 +961,7 @@ class TestSnapshot:
             "ns",
             "1.0.0",
             frozenset(),
-            frozenset(
-                {
-                    SlotSpec(name="value", slot_type=SlotType.SCALAR, unit=unitless)
-                }
-            ),
+            frozenset({SlotSpec(name="value", slot_type=SlotType.SCALAR, unit=unitless)}),
         )
         metadata = MethodMetadata(description="lazy snapshot")
         lazy_method = create_mock_method("lazy", "ns", "1.0.0")
@@ -1044,12 +1025,8 @@ class TestStatsAndDebug:
     def test_stats(self):
         registry = MethodRegistry()
 
-        registry.register(create_mock_method(
-            "a", "ns1", "1.0.0", tags=frozenset({"tag1"})
-        ))
-        registry.register(create_mock_method(
-            "b", "ns2", "1.0.0", tags=frozenset({"tag2"})
-        ))
+        registry.register(create_mock_method("a", "ns1", "1.0.0", tags=frozenset({"tag1"})))
+        registry.register(create_mock_method("b", "ns2", "1.0.0", tags=frozenset({"tag2"})))
 
         sig = create_method_signature("c", "ns3", "1.0.0", frozenset(), frozenset())
         meta = MethodMetadata(description="lazy")

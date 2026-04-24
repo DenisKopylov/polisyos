@@ -1,8 +1,9 @@
 """Public engine registry module API."""
+
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Iterable
 
 from pydantic import ValidationError
 
@@ -35,6 +36,7 @@ _NODE_DISCOVERY_ERRORS = (
 @dataclass(slots=True)
 class NodeBootstrapReport:
     """Node bootstrap report data model."""
+
     registered: list[str] = field(default_factory=list)
     duplicates: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
@@ -72,9 +74,13 @@ class NodeRegistry(BaseRegistry[str, Node]):
         if super().get(node_id_str) is not None and not override:
             raise ValueError(f"Duplicate node_id: {node_id_str}")
         component_versions = self.find("component_key", component_key)
-        if component_versions and any(
-            str(row.spec.metadata.component_id) != node_id_str for row in component_versions
-        ) and not override:
+        if (
+            component_versions
+            and any(
+                str(row.spec.metadata.component_id) != node_id_str for row in component_versions
+            )
+            and not override
+        ):
             existing = str(component_versions[0].spec.metadata.component_id)
             raise ValueError(
                 f"Conflicting node versions for {component_key}: {existing} vs {node_id_str}"
@@ -93,8 +99,7 @@ class NodeRegistry(BaseRegistry[str, Node]):
             raise TypeError("ComponentProvider.create() must return a Node instance")
         if str(metadata.component_id) != str(node.spec.metadata.component_id):
             raise ValueError(
-                "Provider metadata component_id must match "
-                "node.spec.metadata.component_id"
+                "Provider metadata component_id must match node.spec.metadata.component_id"
             )
         self.register(node)
 
@@ -172,9 +177,7 @@ def discover_nodes(
         if metadata.kind != ComponentKind.SCIENTIST_NODE:
             continue
         if not (metadata.capabilities & Capability.SCIENTIST_NODE):
-            bootstrap_report.errors.append(
-                f"{component_id}: missing SCIENTIST_NODE capability"
-            )
+            bootstrap_report.errors.append(f"{component_id}: missing SCIENTIST_NODE capability")
             continue
 
         existing = BaseRegistry.get(registry, component_id)

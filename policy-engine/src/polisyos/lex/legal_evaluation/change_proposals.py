@@ -1,9 +1,9 @@
 """Derive actionable change proposals from failed legal-evaluation findings."""
+
 from __future__ import annotations
 
 from decimal import Decimal
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
@@ -11,6 +11,9 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.lex import ChangeProposalRef, LegalReportRef
 from polisyos.lex.errors import LexNotReadyError, LexValidationError
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _decimal_to_text(value: Decimal) -> str:

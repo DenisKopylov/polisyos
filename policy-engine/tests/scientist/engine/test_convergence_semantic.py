@@ -14,10 +14,10 @@ from polisyos.scientist.engine.convergence import (
     _linear_regression_slope,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helper: mock embedder
 # ---------------------------------------------------------------------------
+
 
 class MockEmbedder:
     """Returns a fixed embedding or an echo of the input text."""
@@ -61,6 +61,7 @@ class ConstantEmbedder:
 # Cosine similarity
 # ---------------------------------------------------------------------------
 
+
 class TestCosineSimilarity:
     def test_identical_vectors(self):
         assert _cosine_similarity([1, 0, 0], [1, 0, 0]) == pytest.approx(1.0)
@@ -79,6 +80,7 @@ class TestCosineSimilarity:
 # Linear regression slope
 # ---------------------------------------------------------------------------
 
+
 class TestLinearRegressionSlope:
     def test_increasing_sequence(self):
         slope = _linear_regression_slope([0.0, 1.0, 2.0, 3.0])
@@ -95,6 +97,7 @@ class TestLinearRegressionSlope:
 # ---------------------------------------------------------------------------
 # Backward compat: classic strategies unchanged
 # ---------------------------------------------------------------------------
+
 
 class TestClassicStrategies:
     def test_absolute_delta_unchanged(self):
@@ -127,6 +130,7 @@ class TestClassicStrategies:
 # ---------------------------------------------------------------------------
 # Embedding cosine strategy
 # ---------------------------------------------------------------------------
+
 
 class TestEmbeddingCosine:
     def test_identical_texts_converge(self):
@@ -183,6 +187,7 @@ class TestEmbeddingCosine:
 # Statistical plateau
 # ---------------------------------------------------------------------------
 
+
 class TestStatisticalPlateau:
     def test_flat_series_converges(self):
         cfg = ConvergenceConfig(
@@ -214,6 +219,7 @@ class TestStatisticalPlateau:
 # ---------------------------------------------------------------------------
 # Budget projection
 # ---------------------------------------------------------------------------
+
 
 class TestBudgetProjection:
     def test_flat_trend_converges(self):
@@ -248,6 +254,7 @@ class TestBudgetProjection:
 # ---------------------------------------------------------------------------
 # Multi-signal composite
 # ---------------------------------------------------------------------------
+
 
 class TestMultiSignal:
     def test_all_signals_converged(self):
@@ -284,6 +291,7 @@ class TestMultiSignal:
 # ---------------------------------------------------------------------------
 # Reset
 # ---------------------------------------------------------------------------
+
 
 class TestDetectorReset:
     def test_reset_clears_all_state(self):

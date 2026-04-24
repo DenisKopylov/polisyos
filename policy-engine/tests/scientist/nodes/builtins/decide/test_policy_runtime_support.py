@@ -1,9 +1,9 @@
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,
     EstimationStatus,
 )
-from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.ir.analytics.causal_discovery import (
     AlgebraicConstraintReport,
     CausalDiscoveryReport,
@@ -15,8 +15,8 @@ from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, Gra
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.scientist.discovery.aggregator import EvidenceWeightedAggregator
 from polisyos.scientist.discovery.output import (
-    DiscoveryArtifactBuildInput,
     DiscoveryArtifactBuilder,
+    DiscoveryArtifactBuildInput,
 )
 from polisyos.scientist.discovery.portfolio import PortfolioCandidate, PortfolioRunResult
 from polisyos.scientist.discovery.priors import GraphPriorBuilder, PriorKnowledgeBundle
@@ -245,9 +245,7 @@ def test_runtime_marks_unreadable_discovery_bundle_ref_as_latent_resolution_erro
             prior_knowledge_bundle=PriorKnowledgeBundle(),
         ),
     )
-    broken_ref = bundle_ref.model_copy(
-        update={"artifact_id": ArtifactID.from_sha256_hex("f" * 64)}
-    )
+    broken_ref = bundle_ref.model_copy(update={"artifact_id": ArtifactID.from_sha256_hex("f" * 64)})
     state = minimal_state.model_copy(
         update={
             "artifacts_index": {

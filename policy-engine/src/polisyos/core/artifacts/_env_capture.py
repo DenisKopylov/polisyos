@@ -7,7 +7,8 @@ import os
 import platform
 import re
 import sys
-from datetime import datetime, timezone
+from contextlib import suppress
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -59,7 +60,7 @@ def _capture_cpu_info() -> CPUInfo:
 
     if sys.platform == "linux":
         try:
-            with open("/proc/cpuinfo", "r", encoding="utf-8") as f:
+            with open("/proc/cpuinfo", encoding="utf-8") as f:
                 cpuinfo = f.read()
 
             match = re.search(r"model name\s*:\s*(.+)", cpuinfo)
@@ -93,7 +94,7 @@ def _capture_cpu_info() -> CPUInfo:
                 core_pairs.add((phys_id, core_id))
             if core_pairs:
                 core_count = len(core_pairs)
-        except (IOError, OSError):
+        except OSError:
             pass
 
     elif sys.platform == "darwin":
@@ -143,14 +144,14 @@ def _get_cudnn_version() -> str | None:
 
     for path in cudnn_paths:
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 content = f.read()
             major = re.search(r"CUDNN_MAJOR\s+(\d+)", content)
             minor = re.search(r"CUDNN_MINOR\s+(\d+)", content)
             patch = re.search(r"CUDNN_PATCHLEVEL\s+(\d+)", content)
             if major and minor and patch:
                 return f"{major.group(1)}.{minor.group(1)}.{patch.group(1)}"
-        except (IOError, OSError):
+        except OSError:
             continue
 
     return None
@@ -185,10 +186,8 @@ def _capture_gpu_info() -> GPUInfo:
                 if gpu_info.model_name is None:
                     gpu_info.model_name = parts[0]
             if len(parts) > 1 and gpu_info.memory_gb is None:
-                try:
+                with suppress(ValueError):
                     gpu_info.memory_gb = float(parts[1]) / 1024
-                except ValueError:
-                    pass
             if len(parts) > 2 and gpu_info.cuda_driver_version is None:
                 gpu_info.cuda_driver_version = parts[2]
             if len(parts) > 3:
@@ -300,14 +299,11 @@ def _capture_jax_info() -> JAXInfo:
             xla_flags_env = os.environ.get("XLA_FLAGS", "")
             jax_info.xla_flags = parse_xla_flags(xla_flags_env)
 
-            jax_info.deterministic_ops_enabled = (
-                "--xla_gpu_deterministic_ops=true" in xla_flags_env
-            )
+            jax_info.deterministic_ops_enabled = "--xla_gpu_deterministic_ops=true" in xla_flags_env
             jax_info.x64_enabled = bool(getattr(jax.config, "x64_enabled", False))
 
             try:
                 from jax._src import lib as jaxlib_internal
-
 
                 xla_version = getattr(jaxlib_internal, "xla_extension_version", None)
                 if xla_version is not None:
@@ -376,8 +372,8 @@ def _capture_dependency_info(project_root: Path | None = None) -> DependencyInfo
         return None
 
     try:
-        mtime = datetime.fromtimestamp(lockfile.stat().st_mtime, tz=timezone.utc)
-    except (IOError, OSError):
+        mtime = datetime.fromtimestamp(lockfile.stat().st_mtime, tz=UTC)
+    except OSError:
         mtime = None
 
     key_packages: dict[str, str] = {}
@@ -410,13 +406,13 @@ def _capture_container_info() -> ContainerInfo:
         container_runtime = "podman"
 
     try:
-        with open("/proc/1/cgroup", "r", encoding="utf-8") as f:
+        with open("/proc/1/cgroup", encoding="utf-8") as f:
             cgroup = f.read()
         if "docker" in cgroup or "kubepods" in cgroup or "containerd" in cgroup:
             in_container = True
             if "docker" in cgroup:
                 container_runtime = container_runtime or "docker"
-    except (IOError, OSError):
+    except OSError:
         pass
 
     docker_image_sha = os.environ.get("DOCKER_IMAGE_SHA256")
@@ -522,11 +518,11 @@ def _candidate_library_dirs() -> list[str]:
 def _system_library_info(path: Path) -> SystemLibraryInfo | None:
     try:
         stat = path.stat()
-    except (IOError, OSError):
+    except OSError:
         return None
 
     digest = hash_file(path, max_bytes=MAX_LIBRARY_BYTES)
-    modified_at = datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc)
+    modified_at = datetime.fromtimestamp(stat.st_mtime, tz=UTC)
     return SystemLibraryInfo(
         filename=path.name,
         sha256=digest,

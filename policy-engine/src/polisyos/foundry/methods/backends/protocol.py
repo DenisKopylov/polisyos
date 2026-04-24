@@ -6,19 +6,22 @@ materialized state/params, invoke the implementation on a concrete backend,
 and return `MethodResult` with timing, solver status, and reproducibility
 metadata.
 """
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Mapping, Protocol
+from typing import Any, Protocol
 
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 from polisyos.foundry.methods.backends.validated import ValidatedBound
+from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 
 
 class SolverStatus(str, Enum):
     """Normalize solver termination statuses reported by optimization backends."""
+
     OPTIMAL = "optimal"
     FEASIBLE = "feasible"
     INFEASIBLE = "infeasible"
@@ -85,11 +88,9 @@ class MethodRunner(Protocol):
     """
 
     @property
-    def supported_backends(self) -> frozenset[ComputeBackend]:
-        ...
+    def supported_backends(self) -> frozenset[ComputeBackend]: ...
 
-    def is_available(self) -> bool:
-        ...
+    def is_available(self) -> bool: ...
 
     def execute(
         self,

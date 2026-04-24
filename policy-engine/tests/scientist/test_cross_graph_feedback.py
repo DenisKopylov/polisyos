@@ -11,10 +11,10 @@ from polisyos.ir.analytics.cross_graph import (
 )
 from polisyos.ir.analytics.transportability import TransportMode
 from polisyos.scientist.cross_graph.feedback import (
+    AcademicBenchmarkScenario,
     AcademicBenchmarkSuite,
     BenchmarkCausalEdge,
     BenchmarkScholarQuery,
-    AcademicBenchmarkScenario,
     build_need_backlog,
     evaluate_benchmark_suite,
 )

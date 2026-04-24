@@ -1,4 +1,5 @@
 """Tests for replay diff — WS4 provenance replay verification."""
+
 from __future__ import annotations
 
 import sys

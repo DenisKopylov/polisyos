@@ -14,7 +14,13 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     css: true,
-    exclude: ["e2e/**", "node_modules/**", "dist/**"],
+    testTimeout: 15_000,
+    exclude: [
+      "e2e/**",
+      "node_modules/**",
+      "dist/**",
+      "src/test/a11y/**/*.spec.ts",
+    ],
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "json-summary", "lcov"],

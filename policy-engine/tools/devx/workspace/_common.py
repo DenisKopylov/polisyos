@@ -10,11 +10,47 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
+
 from tools._lib.imports import repo_root_from
-from typing import Mapping, Sequence
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
 
 PRODUCT_ROOT = repo_root_from(__file__)
-FRONTEND_ROOT = PRODUCT_ROOT / "frontend" / "runtime-dashboard"
+
+
+def git_root_from(start: Path) -> Path:
+    """Resolve the enclosing Git worktree root, falling back to the product root."""
+
+    git_binary = shutil.which("git")
+    if git_binary is None:
+        return start.resolve()
+
+    try:
+        completed = subprocess.run(
+            [git_binary, "rev-parse", "--show-toplevel"],
+            cwd=start,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return start.resolve()
+
+    resolved = completed.stdout.strip()
+    if not resolved:
+        return start.resolve()
+    return Path(resolved).resolve()
+
+
+GIT_ROOT = git_root_from(PRODUCT_ROOT)
+FRONTEND_WORKSPACES: tuple[Path, ...] = (
+    PRODUCT_ROOT / "frontend" / "runtime-dashboard",
+    PRODUCT_ROOT / "frontend" / "runtime-api-client",
+    PRODUCT_ROOT / "frontend" / "runtime-reference-shell",
+)
+FRONTEND_ROOT = FRONTEND_WORKSPACES[0]
 PYTHON_BASELINE = "3.14"
 NODE_BASELINE = "22"
 UV_BASELINE = "0.9.21"
@@ -95,7 +131,12 @@ def run_command(spec: CommandSpec) -> None:
     env = None
     if spec.env:
         env = {**os.environ, **spec.env}
-    subprocess.run(list(spec.argv), cwd=spec.cwd, check=True, env=env)
+    subprocess.run(
+        list(spec.argv),
+        cwd=spec.cwd,
+        check=True,
+        env=env,
+    )
 
 
 def is_env_set(name: str, environ: Mapping[str, str] | None = None) -> bool:
@@ -186,7 +227,8 @@ def surface_status(
         raise KeyError(surface)
 
     requirements = OPTIONAL_SURFACES[surface]["requirements"]
-    assert isinstance(requirements, tuple)
+    if not isinstance(requirements, tuple):
+        raise TypeError(f"Optional surface {surface!r} has an invalid requirements contract.")
 
     for group in requirements:
         if all(is_env_set(name, env) for name in group):

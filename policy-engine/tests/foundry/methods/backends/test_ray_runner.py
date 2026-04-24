@@ -4,6 +4,7 @@ Tests for RayMethodRunner and RayChainExecutor (T4.3).
 All Ray-specific tests are skipped when Ray is not installed.
 The import-level tests always run and verify graceful degradation.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -12,9 +13,11 @@ import pytest
 # Availability helpers
 # ---------------------------------------------------------------------------
 
+
 def _ray_installed() -> bool:
     try:
-        import ray  # noqa: F401
+        import ray
+
         return True
     except ImportError:
         return False
@@ -27,27 +30,30 @@ _ray_mark = pytest.mark.skipif(not _ray_installed(), reason="ray not installed")
 # Import-level tests (always run)
 # ---------------------------------------------------------------------------
 
+
 class TestRayImports:
     def test_runner_importable(self):
         from polisyos.foundry.methods.backends.ray_runner import (
             RayMethodRunner,
             RayNotAvailableError,
-            RayTaskResult,
         )
+
         assert callable(RayMethodRunner)
         assert issubclass(RayNotAvailableError, RuntimeError)
 
     def test_chain_executor_importable(self):
         from polisyos.foundry.methods.backends.ray_chain_executor import (
-            RayChainExecutor,
             RayChainExecutionError,
+            RayChainExecutor,
         )
+
         assert callable(RayChainExecutor)
         assert issubclass(RayChainExecutionError, RuntimeError)
 
     def test_runner_not_available_without_ray(self):
         """When Ray is not installed, is_available() returns False gracefully."""
         from polisyos.foundry.methods.backends.ray_runner import RayMethodRunner
+
         runner = RayMethodRunner()
         # If ray IS installed but not initialised, is_available() still returns False.
         # If ray is NOT installed, also returns False.
@@ -62,6 +68,7 @@ class TestRayImports:
             RayNotAvailableError,
             _ray_available,
         )
+
         if _ray_available():
             pytest.skip("Ray is installed — this test only applies when Ray is absent")
 
@@ -81,12 +88,12 @@ class TestRayImports:
     def test_chain_executor_not_available_raises(self):
         from polisyos.foundry.methods.backends.ray_chain_executor import (
             RayChainExecutor,
-            RayChainExecutionError,
         )
         from polisyos.foundry.methods.backends.ray_runner import (
             RayNotAvailableError,
             _ray_available,
         )
+
         if _ray_available():
             pytest.skip("Ray is installed — this test only applies when Ray is absent")
 
@@ -98,17 +105,20 @@ class TestRayImports:
 
     def test_repr_runner(self):
         from polisyos.foundry.methods.backends.ray_runner import RayMethodRunner
+
         r = repr(RayMethodRunner(num_cpus=2.0, memory=1024, timeout=30.0))
         assert "RayMethodRunner" in r
         assert "num_cpus" in r
 
     def test_repr_chain_executor(self):
         from polisyos.foundry.methods.backends.ray_chain_executor import RayChainExecutor
+
         r = repr(RayChainExecutor(num_cpus_per_node=4.0))
         assert "RayChainExecutor" in r
 
     def test_task_result_dataclass(self):
         from polisyos.foundry.methods.backends.ray_runner import RayTaskResult
+
         tr = RayTaskResult(
             method_fqn="a.b@1.0.0",
             output={"x": 1},
@@ -120,6 +130,7 @@ class TestRayImports:
 
     def test_chain_error_str(self):
         from polisyos.foundry.methods.backends.ray_chain_executor import RayChainExecutionError
+
         err = RayChainExecutionError(failures=[("a.b@1.0.0", ValueError("bad"))])
         s = str(err)
         assert "a.b@1.0.0" in s
@@ -130,24 +141,26 @@ class TestRayImports:
 # Integration tests (only when Ray is installed and initialised)
 # ---------------------------------------------------------------------------
 
+
 @_ray_mark
 class TestRayRunnerIntegration:
     @pytest.fixture(autouse=True)
     def ray_init(self):
         import ray
+
         if not ray.is_initialized():
             ray.init(num_cpus=2, ignore_reinit_error=True)
-        yield
+        return
         # Do not shutdown after each test — keep the cluster running.
 
     def test_runner_is_available(self):
         from polisyos.foundry.methods.backends.ray_runner import RayMethodRunner
+
         runner = RayMethodRunner()
         assert runner.is_available()
 
     def test_run_simple_pure_step(self):
         """Basic end-to-end: submit pure_step, get result back."""
-        import numpy as np
         from polisyos.foundry.methods.backends.ray_runner import (
             RayMethodRunner,
             RayTaskResult,

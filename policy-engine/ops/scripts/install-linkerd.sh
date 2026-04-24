@@ -24,8 +24,8 @@ linkerd install \
   --set proxy.memory.request=20Mi \
   --set proxy.memory.limit=64Mi \
   --set proxy.cpu.request=10m \
-  --set proxy.cpu.limit=200m \
-  | kubectl apply -f -
+  --set proxy.cpu.limit=200m |
+  kubectl apply -f -
 
 echo "Installing Linkerd Viz extension"
 linkerd viz install | kubectl apply -f -

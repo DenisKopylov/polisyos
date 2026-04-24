@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import UTC, datetime
-from typing import Any, Callable
+from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.scientist.search.actionable_side_information import (
@@ -57,9 +58,7 @@ class Level6PromotionStage(FunnelStage):
     ) -> FunnelStageResult:
         start = datetime.now(UTC)
         prior_result = _prior_result(context)
-        objective_value = (
-            float(prior_result.objective_value) if prior_result is not None else 0.0
-        )
+        objective_value = float(prior_result.objective_value) if prior_result is not None else 0.0
         promotion_payload = context.get("promotion_result")
         if promotion_payload is None and self._promotion_runner is not None:
             promotion_payload = self._promotion_runner(candidate, context)
@@ -114,9 +113,7 @@ class Level6PromotionStage(FunnelStage):
                 {
                     "promotion_reason": promotion_decision.reason,
                     "judge_verdict": judge_verdict.model_dump(mode="json"),
-                    "decision_readiness_contract": readiness_contract.model_dump(
-                        mode="json"
-                    ),
+                    "decision_readiness_contract": readiness_contract.model_dump(mode="json"),
                     "readiness_level": readiness_contract.readiness_level.value,
                 }
             )

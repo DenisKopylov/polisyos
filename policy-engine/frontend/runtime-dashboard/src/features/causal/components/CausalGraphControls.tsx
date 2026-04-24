@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 
 import type { LayoutAlgorithm, OverlayMode } from "../types";
@@ -13,17 +14,12 @@ type CausalGraphControlsProps = {
   className?: string;
 };
 
-const LAYOUTS: { value: LayoutAlgorithm; label: string }[] = [
-  { value: "hierarchical", label: "Hierarchical" },
-  { value: "sugiyama", label: "Sugiyama" },
-  { value: "force", label: "Force" },
-];
-
-const OVERLAYS: { value: OverlayMode; label: string }[] = [
-  { value: "none", label: "None" },
-  { value: "identification", label: "Identification" },
-  { value: "transport", label: "Transport" },
-  { value: "adjustment_set", label: "Adjustment set" },
+const LAYOUTS: LayoutAlgorithm[] = ["hierarchical", "sugiyama", "force"];
+const OVERLAYS: OverlayMode[] = [
+  "none",
+  "identification",
+  "transport",
+  "adjustment_set",
 ];
 
 export function CausalGraphControls({
@@ -36,6 +32,20 @@ export function CausalGraphControls({
   onFitView,
   className,
 }: CausalGraphControlsProps) {
+  const { t } = useI18n();
+
+  const layoutLabels: Record<LayoutAlgorithm, string> = {
+    hierarchical: t("causal.layout.hierarchical"),
+    sugiyama: t("causal.layout.sugiyama"),
+    force: t("causal.layout.force"),
+  };
+  const overlayLabels: Record<OverlayMode, string> = {
+    none: t("causal.overlay.none"),
+    identification: t("causal.overlay.identification"),
+    transport: t("causal.overlay.transport"),
+    adjustment_set: t("causal.overlay.adjustmentSet"),
+  };
+
   return (
     <div
       className={cn(
@@ -43,28 +53,30 @@ export function CausalGraphControls({
         className,
       )}
       role="toolbar"
-      aria-label="Graph controls"
+      aria-label={t("causal.controls.graphControls")}
     >
       {/* Layout selector */}
       <div className="flex items-center gap-1.5">
-        <span className="text-muted text-xs font-medium">Layout</span>
+        <span className="text-muted text-xs font-medium">
+          {t("causal.controls.layout")}
+        </span>
         <div className="border-line flex rounded-lg border">
-          {LAYOUTS.map((l) => (
+          {LAYOUTS.map((layoutValue) => (
             <button
-              key={l.value}
+              key={layoutValue}
               type="button"
               className={cn(
                 "px-2 py-1 text-xs font-medium transition-colors",
-                layout === l.value
+                layout === layoutValue
                   ? "bg-[var(--chart-primary)] text-white"
                   : "text-muted hover:text-inherit",
-                l.value === "hierarchical" && "rounded-l-lg",
-                l.value === "force" && "rounded-r-lg",
+                layoutValue === "hierarchical" && "rounded-l-lg",
+                layoutValue === "force" && "rounded-r-lg",
               )}
-              onClick={() => onLayoutChange(l.value)}
-              aria-pressed={layout === l.value}
+              onClick={() => onLayoutChange(layoutValue)}
+              aria-pressed={layout === layoutValue}
             >
-              {l.label}
+              {layoutLabels[layoutValue]}
             </button>
           ))}
         </div>
@@ -75,15 +87,17 @@ export function CausalGraphControls({
 
       {/* Overlay selector */}
       <div className="flex items-center gap-1.5">
-        <span className="text-muted text-xs font-medium">Overlay</span>
+        <span className="text-muted text-xs font-medium">
+          {t("causal.controls.overlay")}
+        </span>
         <select
           value={overlay}
           onChange={(e) => onOverlayChange(e.target.value as OverlayMode)}
           className="bg-surface border-line rounded-lg border px-2 py-1 text-xs"
         >
-          {OVERLAYS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
+          {OVERLAYS.map((overlayValue) => (
+            <option key={overlayValue} value={overlayValue}>
+              {overlayLabels[overlayValue]}
             </option>
           ))}
         </select>
@@ -97,26 +111,26 @@ export function CausalGraphControls({
         <button
           type="button"
           onClick={onZoomIn}
-          className="text-muted hover:text-inherit rounded-lg p-1 text-sm"
-          aria-label="Zoom in"
+          className="text-muted rounded-lg p-1 text-sm hover:text-inherit"
+          aria-label={t("causal.controls.zoomIn")}
         >
           +
         </button>
         <button
           type="button"
           onClick={onZoomOut}
-          className="text-muted hover:text-inherit rounded-lg p-1 text-sm"
-          aria-label="Zoom out"
+          className="text-muted rounded-lg p-1 text-sm hover:text-inherit"
+          aria-label={t("causal.controls.zoomOut")}
         >
-          −
+          -
         </button>
         <button
           type="button"
           onClick={onFitView}
-          className="text-muted hover:text-inherit rounded-lg px-2 py-1 text-xs font-medium"
-          aria-label="Fit to view"
+          className="text-muted rounded-lg px-2 py-1 text-xs font-medium hover:text-inherit"
+          aria-label={t("causal.controls.fitToView")}
         >
-          Fit
+          {t("causal.controls.fit")}
         </button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 
+import { useI18n } from "@/i18n/LocaleProvider";
 import type { TrinityDiffSummary } from "@/lib/domain/trinity";
 import { diffTrinityBundles } from "@/lib/domain/trinity";
 
@@ -20,8 +21,11 @@ function hasChanges(diff: TrinityDiffSummary): boolean {
 export default function TrinityDiff({
   currentPayload,
   previousPayload,
-  previousTitle = "previous bundle",
+  previousTitle,
 }: TrinityDiffProps) {
+  const { t } = useI18n();
+  const resolvedPreviousTitle =
+    previousTitle ?? t("pages.artifacts.trinity.previousBundle");
   const diff = useMemo(() => {
     if (!previousPayload) {
       return null;
@@ -32,7 +36,9 @@ export default function TrinityDiff({
   if (!previousPayload) {
     return (
       <div className="bg-canvas/40 border-line text-muted rounded-xl border border-dashed p-3 text-sm">
-        Trinity diff unavailable: {previousTitle} not found in payload.
+        {t("pages.artifacts.trinity.diffUnavailableNotFound", {
+          title: resolvedPreviousTitle,
+        })}
       </div>
     );
   }
@@ -40,7 +46,7 @@ export default function TrinityDiff({
   if (!diff) {
     return (
       <div className="bg-canvas/40 border-line text-muted rounded-xl border border-dashed p-3 text-sm">
-        Trinity diff unavailable: unable to parse one of bundles.
+        {t("pages.artifacts.trinity.diffUnavailableParse")}
       </div>
     );
   }
@@ -48,7 +54,9 @@ export default function TrinityDiff({
   if (!hasChanges(diff)) {
     return (
       <div className="bg-success/10 border-line text-success rounded-xl border p-3 text-sm">
-        No intervention-level changes detected versus {previousTitle}.
+        {t("pages.artifacts.trinity.noChanges", {
+          title: resolvedPreviousTitle,
+        })}
       </div>
     );
   }
@@ -56,7 +64,9 @@ export default function TrinityDiff({
   return (
     <div className="grid gap-3 md:grid-cols-3">
       <div className="border-line rounded-xl border p-3">
-        <p className="text-muted mb-2 text-xs font-semibold uppercase">Added</p>
+        <p className="text-muted mb-2 text-xs font-semibold uppercase">
+          {t("pages.artifacts.trinity.added")}
+        </p>
         {diff.addedInterventions.length > 0 ? (
           <ul className="space-y-1 text-sm">
             {diff.addedInterventions.map((id) => (
@@ -66,13 +76,13 @@ export default function TrinityDiff({
             ))}
           </ul>
         ) : (
-          <p className="text-muted text-sm">None</p>
+          <p className="text-muted text-sm">{t("common.none")}</p>
         )}
       </div>
 
       <div className="border-line rounded-xl border p-3">
         <p className="text-muted mb-2 text-xs font-semibold uppercase">
-          Removed
+          {t("pages.artifacts.trinity.removed")}
         </p>
         {diff.removedInterventions.length > 0 ? (
           <ul className="space-y-1 text-sm">
@@ -83,13 +93,13 @@ export default function TrinityDiff({
             ))}
           </ul>
         ) : (
-          <p className="text-muted text-sm">None</p>
+          <p className="text-muted text-sm">{t("common.none")}</p>
         )}
       </div>
 
       <div className="border-line rounded-xl border p-3">
         <p className="text-muted mb-2 text-xs font-semibold uppercase">
-          Changed Params
+          {t("pages.artifacts.trinity.changedParams")}
         </p>
         {diff.changedInterventions.length > 0 ? (
           <ul className="space-y-2 text-sm">
@@ -103,7 +113,7 @@ export default function TrinityDiff({
             ))}
           </ul>
         ) : (
-          <p className="text-muted text-sm">None</p>
+          <p className="text-muted text-sm">{t("common.none")}</p>
         )}
       </div>
     </div>

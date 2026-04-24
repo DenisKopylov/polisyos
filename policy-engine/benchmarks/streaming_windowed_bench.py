@@ -33,22 +33,22 @@ def _get_rss_mb() -> float:
     return usage.ru_maxrss / 1024
 
 
-def _generate_mock_chunks(
-    num_chunks: int, rows_per_chunk: int
-) -> list[dict]:
+def _generate_mock_chunks(num_chunks: int, rows_per_chunk: int) -> list[dict]:
     """Generate mock chunk data for benchmarking."""
     chunks = []
     for i in range(num_chunks):
-        chunks.append({
-            "chunk_index": i,
-            "row_count": rows_per_chunk,
-            "is_first": i == 0,
-            "is_last": i == num_chunks - 1,
-            "data": [
-                {"time": f"2025-{(i % 12) + 1:02d}", "value": float(j + i * rows_per_chunk)}
-                for j in range(rows_per_chunk)
-            ],
-        })
+        chunks.append(
+            {
+                "chunk_index": i,
+                "row_count": rows_per_chunk,
+                "is_first": i == 0,
+                "is_last": i == num_chunks - 1,
+                "data": [
+                    {"time": f"2025-{(i % 12) + 1:02d}", "value": float(j + i * rows_per_chunk)}
+                    for j in range(rows_per_chunk)
+                ],
+            }
+        )
     return chunks
 
 
@@ -58,9 +58,7 @@ def run_benchmark(num_chunks: int, rows_per_chunk: int) -> None:
     mock_chunks = _generate_mock_chunks(num_chunks, rows_per_chunk)
     total_rows = num_chunks * rows_per_chunk
 
-    manifest = {
-        "datasets": [{"connector_id": "bench.conn", "dataset_id": "bench_ds"}]
-    }
+    manifest = {"datasets": [{"connector_id": "bench.conn", "dataset_id": "bench_ds"}]}
 
     with tempfile.TemporaryDirectory(prefix="polisyos_bench_") as tmpdir:
         cas_root = Path(tmpdir) / ".polisyos"
@@ -88,9 +86,7 @@ def run_benchmark(num_chunks: int, rows_per_chunk: int) -> None:
         rows_per_sec = total_rows / elapsed if elapsed > 0 else float("inf")
 
         # Measure CAS directory size
-        cas_size_bytes = sum(
-            f.stat().st_size for f in cas_root.rglob("*") if f.is_file()
-        )
+        cas_size_bytes = sum(f.stat().st_size for f in cas_root.rglob("*") if f.is_file())
 
         print("=" * 60)
         print("Streaming Windowed Benchmark Results")
@@ -115,9 +111,7 @@ def run_benchmark(num_chunks: int, rows_per_chunk: int) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Streaming windowed benchmark")
     parser.add_argument("--chunks", type=int, default=50, help="Number of chunks")
-    parser.add_argument(
-        "--rows-per-chunk", type=int, default=100, help="Rows per chunk"
-    )
+    parser.add_argument("--rows-per-chunk", type=int, default=100, help="Rows per chunk")
     args = parser.parse_args()
 
     print(f"Running benchmark: {args.chunks} chunks x {args.rows_per_chunk} rows/chunk")

@@ -7,12 +7,9 @@ import json
 import logging
 from collections import defaultdict
 from datetime import UTC, datetime
-from typing import Any
-
-logger = logging.getLogger(__name__)
+from typing import TYPE_CHECKING, Any
 
 from polisyos.academic.batch.claim_ids import stable_claim_id
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.batch.prompts import (
     CLAIM_ADJUDICATION_SCHEMA_HINT,
 )
@@ -35,6 +32,11 @@ from polisyos.scientist.autotune.claim_adjudication import (
     select_prompt_variant,
 )
 
+if TYPE_CHECKING:
+    from polisyos.academic.batch.config import AcademicBatchConfig
+
+logger = logging.getLogger(__name__)
+
 
 def _load_article_results(config: AcademicBatchConfig) -> list[ArticleExtractionResult]:
     rows: list[ArticleExtractionResult] = []
@@ -46,7 +48,7 @@ def _load_article_results(config: AcademicBatchConfig) -> list[ArticleExtraction
     )
     if not source_path.exists():
         return rows
-    with open(source_path, "r", encoding="utf-8") as fh:
+    with open(source_path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -62,7 +64,7 @@ def _retracted_work_ids(config: AcademicBatchConfig) -> set[str]:
     work_ids: set[str] = set()
     if not config.merged_records_path.exists():
         return work_ids
-    with open(config.merged_records_path, "r", encoding="utf-8") as fh:
+    with open(config.merged_records_path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -73,7 +75,9 @@ def _retracted_work_ids(config: AcademicBatchConfig) -> set[str]:
                 continue
             if not isinstance(row, dict):
                 continue
-            if bool(row.get("is_retracted")) or bool((row.get("metadata") or {}).get("is_retracted")):
+            if bool(row.get("is_retracted")) or bool(
+                (row.get("metadata") or {}).get("is_retracted")
+            ):
                 work_id = str(row.get("id") or row.get("openalex_id") or "").strip()
                 if work_id:
                     work_ids.add(work_id)
@@ -83,7 +87,9 @@ def _retracted_work_ids(config: AcademicBatchConfig) -> set[str]:
 def _intra_paper_contradictions(rows: list[ArticleExtractionResult]) -> set[str]:
     contradictory_claim_ids: set[str] = set()
     for result in rows:
-        grouped: dict[tuple[str, str], dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
+        grouped: dict[tuple[str, str], dict[str, list[str]]] = defaultdict(
+            lambda: defaultdict(list)
+        )
         for claim in result.causal_claims:
             key = (claim.cause_variable, claim.effect_variable)
             grouped[key][claim.direction.value].append(_claim_id_for(result, claim))
@@ -123,7 +129,11 @@ def _support_score(value: SupportStatus) -> float:
 
 def _source_basis_from(value: Any) -> SourceBasis:
     normalized = str(value or "").strip().lower()
-    return SourceBasis.ABSTRACT_ONLY if normalized == SourceBasis.ABSTRACT_ONLY.value else SourceBasis.FULLTEXT
+    return (
+        SourceBasis.ABSTRACT_ONLY
+        if normalized == SourceBasis.ABSTRACT_ONLY.value
+        else SourceBasis.FULLTEXT
+    )
 
 
 def _claim_type_from(value: Any) -> ClaimType:
@@ -188,38 +198,59 @@ def _claim_id_for(result: ArticleExtractionResult, claim: CausalClaim) -> str:
 
 _DESIGN_TIER: dict[DesignFamily, int] = {
     # Tier 1: Strong causal identification
-    DesignFamily.RCT: 1, DesignFamily.IV: 1, DesignFamily.DID: 1,
-    DesignFamily.RDD: 1, DesignFamily.SYNTHETIC_CONTROL: 1,
+    DesignFamily.RCT: 1,
+    DesignFamily.IV: 1,
+    DesignFamily.DID: 1,
+    DesignFamily.RDD: 1,
+    DesignFamily.SYNTHETIC_CONTROL: 1,
     # Tier 2: Quasi-causal
-    DesignFamily.PANEL_FE: 2, DesignFamily.EVENT_STUDY: 2,
+    DesignFamily.PANEL_FE: 2,
+    DesignFamily.EVENT_STUDY: 2,
     DesignFamily.QUASI_EXPERIMENTAL_OTHER: 2,
-    DesignFamily.QUASI_EXPERIMENTAL_DID: 2, DesignFamily.QUASI_EXPERIMENTAL_RDD: 2,
+    DesignFamily.QUASI_EXPERIMENTAL_DID: 2,
+    DesignFamily.QUASI_EXPERIMENTAL_RDD: 2,
     # Tier 3: Empirical without identification
-    DesignFamily.OLS: 3, DesignFamily.OLS_CROSS_SECTIONAL: 3,
-    DesignFamily.STRUCTURAL_MODEL: 3, DesignFamily.TIME_SERIES_COINTEGRATION: 3,
+    DesignFamily.OLS: 3,
+    DesignFamily.OLS_CROSS_SECTIONAL: 3,
+    DesignFamily.STRUCTURAL_MODEL: 3,
+    DesignFamily.TIME_SERIES_COINTEGRATION: 3,
     # Tier 4: Synthesis / aggregation
-    DesignFamily.META_ANALYSIS: 4, DesignFamily.REVIEW: 4,
-    DesignFamily.REVIEW_NARRATIVE: 4, DesignFamily.REVIEW_META_ANALYSIS: 4,
+    DesignFamily.META_ANALYSIS: 4,
+    DesignFamily.REVIEW: 4,
+    DesignFamily.REVIEW_NARRATIVE: 4,
+    DesignFamily.REVIEW_META_ANALYSIS: 4,
     # Tier 5: No identification
-    DesignFamily.THEORETICAL: 5, DesignFamily.UNCLEAR: 5,
+    DesignFamily.THEORETICAL: 5,
+    DesignFamily.UNCLEAR: 5,
 }
 _TIER_VALIDITY_BASE = {1: 0.65, 2: 0.50, 3: 0.40, 4: 0.55, 5: 0.25}
 _TIER_CREDIBILITY = {
-    1: CausalCredibility.MODERATE, 2: CausalCredibility.MODERATE,
-    3: CausalCredibility.WEAK, 4: CausalCredibility.MODERATE,
+    1: CausalCredibility.MODERATE,
+    2: CausalCredibility.MODERATE,
+    3: CausalCredibility.WEAK,
+    4: CausalCredibility.MODERATE,
     5: CausalCredibility.WEAK,
 }
 
 
-def _fallback_adjudication(result: ArticleExtractionResult, claim: CausalClaim) -> ClaimAdjudicationResult:
+def _fallback_adjudication(
+    result: ArticleExtractionResult, claim: CausalClaim
+) -> ClaimAdjudicationResult:
     claim_id = _claim_id_for(result, claim)
-    source_basis = claim.source_basis if isinstance(claim.source_basis, SourceBasis) else result.source_basis
+    source_basis = (
+        claim.source_basis if isinstance(claim.source_basis, SourceBasis) else result.source_basis
+    )
 
     tier = _DESIGN_TIER.get(claim.design_family_hint, 5)
     span_count = len(claim.supporting_spans)
     is_explicit = claim.claim_explicitness.value == "explicit"
 
-    validity = min(1.0, _TIER_VALIDITY_BASE[tier] + min(0.15, 0.05 * max(0, span_count - 1)) + (0.05 if is_explicit else 0.0))
+    validity = min(
+        1.0,
+        _TIER_VALIDITY_BASE[tier]
+        + min(0.15, 0.05 * max(0, span_count - 1))
+        + (0.05 if is_explicit else 0.0),
+    )
     publishable = bool(span_count > 0 and (tier <= 2 or (tier == 4 and is_explicit)))
 
     return ClaimAdjudicationResult(
@@ -249,15 +280,21 @@ def _normalize_adjudication_payload(
     pass_index: int,
     total_passes: int,
 ) -> dict[str, Any]:
-    source_basis = _source_basis_from(parsed.get("source_basis") or claim.source_basis.value or result.source_basis.value)
+    source_basis = _source_basis_from(
+        parsed.get("source_basis") or claim.source_basis.value or result.source_basis.value
+    )
     claim_type = _claim_type_from(parsed.get("claim_type") or ClaimType.ASSOCIATION.value)
     design_family = _design_family_from(
         parsed.get("design_family") or claim.design_family_hint.value or DesignFamily.UNCLEAR.value,
         fallback=claim.design_family_hint,
     )
-    causal_credibility = _credibility_from(parsed.get("causal_credibility") or CausalCredibility.UNCLEAR.value)
+    causal_credibility = _credibility_from(
+        parsed.get("causal_credibility") or CausalCredibility.UNCLEAR.value
+    )
     risk_of_bias = _risk_of_bias_from(parsed.get("risk_of_bias") or RiskOfBias.UNCLEAR.value)
-    support_status = _support_status_from(parsed.get("support_status") or SupportStatus.INSUFFICIENT.value)
+    support_status = _support_status_from(
+        parsed.get("support_status") or SupportStatus.INSUFFICIENT.value
+    )
     paper_asserts = _coerce_float(parsed.get("paper_asserts_causality_score"), 0.4)
     adjudication_confidence = _coerce_float(parsed.get("adjudication_confidence"), 0.5)
 
@@ -274,8 +311,11 @@ def _normalize_adjudication_payload(
     publishable = bool(parsed.get("publishable_edge", False))
     if source_basis == SourceBasis.ABSTRACT_ONLY and causal_credibility == CausalCredibility.STRONG:
         _strong_abstract_designs = {
-            DesignFamily.RCT, DesignFamily.IV, DesignFamily.DID,
-            DesignFamily.RDD, DesignFamily.SYNTHETIC_CONTROL,
+            DesignFamily.RCT,
+            DesignFamily.IV,
+            DesignFamily.DID,
+            DesignFamily.RDD,
+            DesignFamily.SYNTHETIC_CONTROL,
         }
         if design_family not in _strong_abstract_designs:
             publishable = False
@@ -298,8 +338,12 @@ def _normalize_adjudication_payload(
         "publishable_edge": publishable,
         "adjudication_notes": str(parsed.get("adjudication_notes") or ""),
         "consensus_passes": total_passes,
-        "consensus_stability": 1.0 if total_passes <= 1 else max(0.0, min(1.0, 1.0 / max(1, pass_index + 1))),
+        "consensus_stability": 1.0
+        if total_passes <= 1
+        else max(0.0, min(1.0, 1.0 / max(1, pass_index + 1))),
     }
+
+
 async def _adjudicate_with_llm(
     *,
     client: Any,
@@ -419,8 +463,12 @@ Method spans:
 """.strip()
     response = await pool.chat_json(model=model, prompt=prompt, temperature=0.0)
     if response.http_status != 200 or not response.parsed:
-        logger.warning("LLM FAIL (status=%s, error=%s) %s — fallback",
-                       response.http_status, response.error_class, result.openalex_id)
+        logger.warning(
+            "LLM FAIL (status=%s, error=%s) %s — fallback",
+            response.http_status,
+            response.error_class,
+            result.openalex_id,
+        )
         return _fallback_adjudication(result, claim)
     payload = _normalize_adjudication_payload(
         result=result,
@@ -430,8 +478,13 @@ Method spans:
         total_passes=1,
     )
     adj = ClaimAdjudicationResult.model_validate(payload)
-    logger.info("LLM OK %s validity=%.2f publish=%s latency=%.0fms",
-                result.openalex_id, adj.claim_validity_score, adj.publishable_edge, response.latency_ms)
+    logger.info(
+        "LLM OK %s validity=%.2f publish=%s latency=%.0fms",
+        result.openalex_id,
+        adj.claim_validity_score,
+        adj.publishable_edge,
+        response.latency_ms,
+    )
     return adj
 
 
@@ -439,6 +492,7 @@ async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | f
     """Run claim adjudicate with checkpoint support."""
     import time as _time
     from pathlib import Path
+
     from polisyos.academic.batch.resolve_extract import GonkaMultiKeyPool
 
     started_at = datetime.now(UTC).isoformat()
@@ -465,7 +519,7 @@ async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | f
     checkpoint_path = Path(str(config.claim_adjudication_passes_path) + ".checkpoint.jsonl")
     done_claim_ids: set[str] = set()
     if checkpoint_path.exists():
-        with open(checkpoint_path, "r", encoding="utf-8") as fh:
+        with open(checkpoint_path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -482,11 +536,19 @@ async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | f
                             llm_calls += 1
                 except json.JSONDecodeError:
                     continue
-        logger.info("claim_adjudicate: resumed from checkpoint — %d claims already done (%d llm, %d fallback)",
-                    len(done_claim_ids), llm_calls, deterministic_fallbacks)
+        logger.info(
+            "claim_adjudicate: resumed from checkpoint — %d claims already done (%d llm, %d fallback)",
+            len(done_claim_ids),
+            llm_calls,
+            deterministic_fallbacks,
+        )
 
-    logger.info("claim_adjudicate: %d articles, %d claims, keys=%d",
-                len(rows), total_claims, len(config.gonka_api_keys))
+    logger.info(
+        "claim_adjudicate: %d articles, %d claims, keys=%d",
+        len(rows),
+        total_claims,
+        len(config.gonka_api_keys),
+    )
 
     if not config.gonka_api_keys:
         for result in rows:
@@ -498,11 +560,17 @@ async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | f
                 row = {**fallback.model_dump(mode="json"), "pass_index": 0}
                 pass_rows.append(row)
                 deterministic_fallbacks += 1
-        logger.info("claim_adjudicate: all %d claims adjudicated via deterministic fallback", deterministic_fallbacks)
+        logger.info(
+            "claim_adjudicate: all %d claims adjudicated via deterministic fallback",
+            deterministic_fallbacks,
+        )
     else:
         async with GonkaMultiKeyPool(config) as pool:
-            logger.info("claim_adjudicate: pool started with %d clients, aggregate RPS=%.1f",
-                        pool.client_count, pool.theoretical_aggregate_rps)
+            logger.info(
+                "claim_adjudicate: pool started with %d clients, aggregate RPS=%.1f",
+                pool.client_count,
+                pool.theoretical_aggregate_rps,
+            )
             sem = asyncio.Semaphore(config.article_max_concurrent_llm)
             completed_count = len(done_claim_ids)
             batch_size = 200
@@ -513,7 +581,9 @@ async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | f
             # Open checkpoint file for appending new results
             checkpoint_fh = open(checkpoint_path, "a", encoding="utf-8")
 
-            async def _run_one(pass_index: int, result: ArticleExtractionResult, claim: CausalClaim) -> tuple[int, ClaimAdjudicationResult]:
+            async def _run_one(
+                pass_index: int, result: ArticleExtractionResult, claim: CausalClaim
+            ) -> tuple[int, ClaimAdjudicationResult]:
                 if not claim.supporting_spans:
                     return pass_index, _fallback_adjudication(result, claim)
                 async with sem:
@@ -527,7 +597,9 @@ async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | f
                             search_config=search_config,
                         )
                     except Exception:
-                        logger.warning("LLM exception for %s — fallback", result.openalex_id, exc_info=True)
+                        logger.warning(
+                            "LLM exception for %s — fallback", result.openalex_id, exc_info=True
+                        )
                         adjudication = _fallback_adjudication(result, claim)
                 return pass_index, adjudication
 
@@ -541,12 +613,16 @@ async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | f
                     work_items.append((0, result, claim))
 
             total_items = len(work_items) + len(done_claim_ids)
-            logger.info("claim_adjudicate: %d remaining work items (of %d total), batches of %d",
-                        len(work_items), total_items, batch_size)
+            logger.info(
+                "claim_adjudicate: %d remaining work items (of %d total), batches of %d",
+                len(work_items),
+                total_items,
+                batch_size,
+            )
 
             try:
                 for batch_start in range(0, len(work_items), batch_size):
-                    batch = work_items[batch_start:batch_start + batch_size]
+                    batch = work_items[batch_start : batch_start + batch_size]
                     tasks = [asyncio.create_task(_run_one(pi, res, cl)) for pi, res, cl in batch]
                     for task in asyncio.as_completed(tasks):
                         pass_index, adjudication = await task
@@ -571,16 +647,25 @@ async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | f
                             elapsed = _time.monotonic() - t0
                             rate = (completed_count - len(done_claim_ids)) / max(elapsed, 1.0)
                             remaining = (total_items - completed_count) / max(rate, 0.01)
-                            logger.info("progress: %d/%d (llm=%d fallback=%d) %.1f/s ETA %.0fm",
-                                        completed_count, total_items, llm_calls, deterministic_fallbacks,
-                                        rate, remaining / 60.0)
+                            logger.info(
+                                "progress: %d/%d (llm=%d fallback=%d) %.1f/s ETA %.0fm",
+                                completed_count,
+                                total_items,
+                                llm_calls,
+                                deterministic_fallbacks,
+                                rate,
+                                remaining / 60.0,
+                            )
             finally:
                 checkpoint_fh.flush()
                 checkpoint_fh.close()
 
     # Write final sorted results
     with open(config.claim_adjudication_passes_path, "w", encoding="utf-8") as fh:
-        for row in sorted(pass_rows, key=lambda item: (str(item.get("claim_id") or ""), int(item.get("pass_index") or 0))):
+        for row in sorted(
+            pass_rows,
+            key=lambda item: (str(item.get("claim_id") or ""), int(item.get("pass_index") or 0)),
+        ):
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")
 
     # Clean up checkpoint after successful completion
@@ -602,7 +687,12 @@ async def run_claim_adjudicate(config: AcademicBatchConfig) -> dict[str, int | f
         artifacts=[config.claim_adjudication_passes_path],
         started_at=started_at,
     )
-    logger.info("claim_adjudicate DONE: %d claims, %d llm, %d fallback", metrics["claims"], llm_calls, deterministic_fallbacks)
+    logger.info(
+        "claim_adjudicate DONE: %d claims, %d llm, %d fallback",
+        metrics["claims"],
+        llm_calls,
+        deterministic_fallbacks,
+    )
     return metrics
 
 
@@ -623,7 +713,7 @@ def run_consensus_aggregate(config: AcademicBatchConfig) -> dict[str, int | floa
         )
         return {"claims": 0, "published": 0}
 
-    with open(config.claim_adjudication_passes_path, "r", encoding="utf-8") as fh:
+    with open(config.claim_adjudication_passes_path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -637,7 +727,11 @@ def run_consensus_aggregate(config: AcademicBatchConfig) -> dict[str, int | floa
     for rows in grouped.values():
         item = aggregate_claim_rows(rows, search_config)
         if item.claim_id in contradiction_ids:
-            notes = " | ".join(part for part in [item.adjudication_notes, "intra_paper_direction_contradiction"] if part)
+            notes = " | ".join(
+                part
+                for part in [item.adjudication_notes, "intra_paper_direction_contradiction"]
+                if part
+            )
             item = item.model_copy(
                 update={
                     "publishable_edge": False,

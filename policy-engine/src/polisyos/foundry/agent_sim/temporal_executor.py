@@ -1,7 +1,8 @@
 """Public agent sim temporal executor module API."""
+
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.executor import PureExecutor

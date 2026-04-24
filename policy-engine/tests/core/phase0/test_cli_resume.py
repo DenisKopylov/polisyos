@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from polisyos.core.components.cli import main
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.components.cli import main
 from polisyos.scientist.engine.checkpoint import create_checkpoint, update_checkpoint_head
 from polisyos.scientist.engine.state import ExperimentState
 

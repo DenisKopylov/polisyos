@@ -49,7 +49,11 @@ function getNestedValue(obj: unknown, path: string): unknown {
   return current;
 }
 
-function handleSort(data: unknown[], key: string, direction: "asc" | "desc"): unknown[] {
+function handleSort(
+  data: unknown[],
+  key: string,
+  direction: "asc" | "desc",
+): unknown[] {
   const multiplier = direction === "asc" ? 1 : -1;
   return [...data].sort((a, b) => {
     const va = getNestedValue(a, key);
@@ -67,7 +71,9 @@ function handleSort(data: unknown[], key: string, direction: "asc" | "desc"): un
 function handleAggregate(
   data: Array<Record<string, unknown>>,
   groupBy: string,
-  metrics: TransformRequest & { type: "aggregate" } extends { metrics: infer M } ? M : never,
+  metrics: TransformRequest & { type: "aggregate" } extends { metrics: infer M }
+    ? M
+    : never,
 ): unknown[] {
   const groups = new Map<string, Array<Record<string, unknown>>>();
   for (const item of data) {
@@ -78,7 +84,10 @@ function handleAggregate(
   }
 
   return Array.from(groups, ([key, items]) => {
-    const result: Record<string, unknown> = { [groupBy]: key, _count: items.length };
+    const result: Record<string, unknown> = {
+      [groupBy]: key,
+      _count: items.length,
+    };
     for (const metric of metrics) {
       const values = items
         .map((item) => getNestedValue(item, metric.field))
@@ -89,13 +98,17 @@ function handleAggregate(
           break;
         case "avg":
           result[`${metric.field}_avg`] =
-            values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+            values.length > 0
+              ? values.reduce((a, b) => a + b, 0) / values.length
+              : 0;
           break;
         case "min":
-          result[`${metric.field}_min`] = values.length > 0 ? Math.min(...values) : null;
+          result[`${metric.field}_min`] =
+            values.length > 0 ? Math.min(...values) : null;
           break;
         case "max":
-          result[`${metric.field}_max`] = values.length > 0 ? Math.max(...values) : null;
+          result[`${metric.field}_max`] =
+            values.length > 0 ? Math.max(...values) : null;
           break;
         case "count":
           result[`${metric.field}_count`] = values.length;

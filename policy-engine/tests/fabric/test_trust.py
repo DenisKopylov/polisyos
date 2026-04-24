@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -29,7 +29,7 @@ def _source_spec() -> DocSourceSpec:
         official_id=None,
         source_locator=None,
         license="public",
-        retrieved_at=datetime(2026, 1, 2, tzinfo=timezone.utc),
+        retrieved_at=datetime(2026, 1, 2, tzinfo=UTC),
         jurisdiction="US",
         language="en",
         source_type="official",

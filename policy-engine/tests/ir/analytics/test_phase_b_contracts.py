@@ -6,12 +6,12 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentOverallStatus,
     AlignmentReport,
-    AlignmentReviewStatus,
-    AlignmentVerificationConfig,
     AlignmentReviewerState,
+    AlignmentReviewStatus,
     AlignmentType,
-    MetadataCheckStatus,
+    AlignmentVerificationConfig,
     MeasurementComparabilityGrade,
+    MetadataCheckStatus,
     VariableAlignmentCertificate,
     build_alignment_report,
     load_alignment_report,
@@ -22,24 +22,24 @@ from polisyos.ir.analytics.alignment_certification import (
     verify_fragment_bundle_alignment,
 )
 from polisyos.ir.analytics.cross_graph import (
-    CompositionPolicy,
     CompositionCertificate,
+    CompositionPolicy,
     CycleScope,
     CycleType,
     CycleWitness,
     GraphAuditGuarantee,
     InterfaceRole,
     InterventionalClosure,
-    completeness_scope_for_composition,
-    load_composition_certificate,
-    load_interface_mapping,
     MarkovSemantics,
     SCMFragment,
     SolverKind,
     UniquenessScope,
+    completeness_scope_for_composition,
+    load_composition_certificate,
+    load_interface_mapping,
+    load_scm_fragment,
     persist_composition_certificate,
     persist_interface_mapping,
-    load_scm_fragment,
     persist_scm_fragment,
 )
 from polisyos.ir.refs import (
@@ -132,8 +132,12 @@ def _certificate(
         alignment_type=alignment_type,
         measurement_model_a_ref="artifact:mm:education",
         measurement_model_b_ref="artifact:mm:labor",
-        transform_ref="artifact:transform:edu" if alignment_type is AlignmentType.SCALE_LINKED else None,
-        proxy_evidence_ref="artifact:proxy:evidence" if alignment_type is AlignmentType.PROXY else None,
+        transform_ref="artifact:transform:edu"
+        if alignment_type is AlignmentType.SCALE_LINKED
+        else None,
+        proxy_evidence_ref="artifact:proxy:evidence"
+        if alignment_type is AlignmentType.PROXY
+        else None,
         latent_bridge_ref=(
             "artifact:latent:bridge" if alignment_type is AlignmentType.LATENT_BRIDGE else None
         ),
@@ -227,9 +231,7 @@ def test_scm_fragment_rejects_non_sigma_cycle_auto_compose() -> None:
             cycle_type=CycleType.SIMPLE_CYCLIC,
             cycle_scope=CycleScope.INTERNAL_SCC,
             cycle_witnesses=[
-                _cycle_witness().model_copy(
-                    update={"markov_semantics": MarkovSemantics.NONE}
-                )
+                _cycle_witness().model_copy(update={"markov_semantics": MarkovSemantics.NONE})
             ],
             allowed_alignment_types=["exact", "scale_linked"],
             graph_audit_guarantee=GraphAuditGuarantee.SEMANTIC_ONLY,
@@ -334,7 +336,9 @@ def test_build_alignment_report_marks_incompatible_and_deduplicates_assumptions(
     assert report.overall_status is AlignmentOverallStatus.INCOMPATIBLE
     assert report.review_status is AlignmentReviewStatus.CLEAR
     assert report.measurement_comparability_grade is MeasurementComparabilityGrade.INSUFFICIENT
-    assert report.incompatible_pairs == [("education:years_of_education", "labor:years_of_education")]
+    assert report.incompatible_pairs == [
+        ("education:years_of_education", "labor:years_of_education")
+    ]
     assert report.alignment_assumptions == ["manual review", "proxy stability"]
     assert report.ontology_mismatch_warnings == ["employment mismatch"]
 
@@ -517,7 +521,9 @@ def test_verify_fragment_alignment_marks_human_verified_proxy_as_aligned() -> No
     report, mapping = verify_fragment_alignment(
         fragment_a,
         fragment_b,
-        config=AlignmentVerificationConfig(human_verified_pairs=["governance_a:RL.EST|governance_b:GE.EST"]),
+        config=AlignmentVerificationConfig(
+            human_verified_pairs=["governance_a:RL.EST|governance_b:GE.EST"]
+        ),
     )
 
     assert report.overall_status is AlignmentOverallStatus.ALIGNED
@@ -584,9 +590,7 @@ def test_verify_fragment_alignment_emits_explicit_incompatible_for_unrelated_int
     assert report.review_status is AlignmentReviewStatus.CLEAR
     assert len(report.per_variable_certificates) == 1
     assert report.per_variable_certificates[0].alignment_type is AlignmentType.INCOMPATIBLE
-    assert report.incompatible_pairs == [
-        ("labor:employment_rate", "health:hospital_occupancy")
-    ]
+    assert report.incompatible_pairs == [("labor:employment_rate", "health:hospital_occupancy")]
     assert mapping.entries == []
 
 
@@ -612,7 +616,9 @@ def test_verify_fragment_alignment_emits_latent_bridge_and_ontology_warning() ->
     report, _ = verify_fragment_alignment(
         fragment_a,
         fragment_b,
-        config=AlignmentVerificationConfig(explicit_latent_bridges={pair_key: "artifact:latent:bridge"}),
+        config=AlignmentVerificationConfig(
+            explicit_latent_bridges={pair_key: "artifact:latent:bridge"}
+        ),
         ontology=[
             {
                 "concept_id": "concept.labor.employment",
@@ -716,7 +722,7 @@ def test_verify_fragment_bundle_alignment_merges_pairwise_mapping() -> None:
 
 def test_interface_mapping_and_composition_certificate_round_trip(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
-    report, mapping = verify_fragment_alignment(
+    _report, mapping = verify_fragment_alignment(
         SCMFragment(
             fragment_id="a",
             graph_ref="artifact:graph:a",
@@ -912,7 +918,7 @@ def test_verify_fragment_alignment_rejects_hard_metadata_mismatch() -> None:
 
     assert report.overall_status is AlignmentOverallStatus.INCOMPATIBLE
     assert report.per_variable_certificates[0].alignment_type is AlignmentType.INCOMPATIBLE
-    assert {check.key: check.status for check in report.per_variable_certificates[0].metadata_checks} == {
-        "population": MetadataCheckStatus.MISMATCH
-    }
+    assert {
+        check.key: check.status for check in report.per_variable_certificates[0].metadata_checks
+    } == {"population": MetadataCheckStatus.MISMATCH}
     assert mapping.entries == []

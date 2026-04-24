@@ -1,4 +1,5 @@
 """Mechanism registry definitions that describe runtime inputs, outputs, and parameter contracts."""
+
 from __future__ import annotations
 
 from decimal import Decimal
@@ -12,6 +13,7 @@ from .base import ID_PATTERN, KernelModel
 
 class ParamType(str, Enum):
     """Param type public type."""
+
     DECIMAL = "decimal"
     INT = "int"
     BOOL = "bool"
@@ -27,6 +29,7 @@ class ParamType(str, Enum):
 
 class ParamSpec(KernelModel):
     """Define one mechanism parameter, including type, bounds, units, and trainability metadata."""
+
     param_id: str = Field(..., max_length=128)
     required: bool = False
     value_type: ParamType = ParamType.DECIMAL
@@ -44,6 +47,7 @@ class ParamSpec(KernelModel):
 
 class MechanismTypeSpec(KernelModel):
     """Describe one mechanism contract, including params plus slot read/write side effects."""
+
     mechanism_id: str = Field(..., pattern=ID_PATTERN)
     params: dict[str, ParamSpec] = Field(default_factory=dict)
     reads_slots: list[str] = Field(default_factory=list)
@@ -54,12 +58,13 @@ class MechanismTypeSpec(KernelModel):
 
 class MechanismTypeRegistry(KernelModel):
     """Registry of mechanism contracts that ``link_trinity`` resolves before execution."""
+
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     mechanisms: dict[str, MechanismTypeSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_registry(self) -> "MechanismTypeRegistry":
+    def validate_registry(self) -> MechanismTypeRegistry:
         for key, spec in self.mechanisms.items():
             if not key or not isinstance(key, str):
                 raise ValueError("mechanism id must be a non-empty string")

@@ -6,10 +6,10 @@ import importlib
 from typing import Any
 
 __all__ = [
-    "LegalKnowledgeGraph",
     "LegalEntity",
     "LegalFact",
     "LegalFactResult",
+    "LegalKnowledgeGraph",
     "LegalProvision",
     "LegalProvisionResult",
     "LegalSearchResult",

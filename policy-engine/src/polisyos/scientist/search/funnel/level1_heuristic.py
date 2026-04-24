@@ -11,15 +11,15 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Callable
 from datetime import UTC, datetime
-from typing import Any, Callable, Dict, List
+from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.scientist.search.funnel._rules import (
     check_forbidden_combinations,
     compute_conflict_score,
 )
-from polisyos.scientist.search.transfer_context import resolve_transfer_context
 from polisyos.scientist.search.funnel.types import (
     CheapSignalVector,
     FunnelStage,
@@ -29,11 +29,12 @@ from polisyos.scientist.search.funnel.types import (
     UncertaintyEstimate,
     UncertaintyType,
 )
+from polisyos.scientist.search.transfer_context import resolve_transfer_context
 
 logger = get_logger(__name__)
 
 
-def _candidate_structure_hash(candidate: Dict[str, Any]) -> str:
+def _candidate_structure_hash(candidate: dict[str, Any]) -> str:
     """Stable hash of the candidate's intervention+objective structure."""
     semantic = candidate.get("semantic", {})
     interventions = semantic.get("interventions", [])
@@ -42,17 +43,11 @@ def _candidate_structure_hash(candidate: Dict[str, Any]) -> str:
     # Extract structural fingerprint (types only, not parameter values).
     sig = {
         "intervention_types": sorted(
-            iv.get("type", iv.get("intervention_type", ""))
-            for iv in interventions
+            iv.get("type", iv.get("intervention_type", "")) for iv in interventions
         ),
-        "objective_names": sorted(
-            obj.get("name", obj.get("objective", ""))
-            for obj in objectives
-        ),
+        "objective_names": sorted(obj.get("name", obj.get("objective", "")) for obj in objectives),
     }
-    return hashlib.sha256(
-        json.dumps(sig, sort_keys=True).encode()
-    ).hexdigest()[:16]
+    return hashlib.sha256(json.dumps(sig, sort_keys=True).encode()).hexdigest()[:16]
 
 
 class Level1CheapHeuristic(FunnelStage):
@@ -61,7 +56,7 @@ class Level1CheapHeuristic(FunnelStage):
     def __init__(
         self,
         failure_pattern_cache: dict[str, float] | None = None,
-        domain_prior_provider: Callable[[Dict[str, Any]], Dict[str, float]] | None = None,
+        domain_prior_provider: Callable[[dict[str, Any]], dict[str, float]] | None = None,
         conflict_rules: dict[str, dict[str, float]] | None = None,
         evaluated_hashes: set[str] | None = None,
         lesson_registry: Any | None = None,
@@ -106,11 +101,11 @@ class Level1CheapHeuristic(FunnelStage):
 
     def evaluate(
         self,
-        candidate: Dict[str, Any],
-        context: Dict[str, Any],
+        candidate: dict[str, Any],
+        context: dict[str, Any],
     ) -> FunnelStageResult:
         start = datetime.now(UTC)
-        cards: List[TypedFailureCard] = []
+        cards: list[TypedFailureCard] = []
 
         # Inherit L0 structural validity from context if available.
         l0_result = context.get("_funnel_L0_result")
@@ -122,8 +117,7 @@ class Level1CheapHeuristic(FunnelStage):
         interventions = semantic.get("interventions", [])
         objectives = semantic.get("objectives", [])
         intervention_types = [
-            iv.get("type", iv.get("intervention_type", ""))
-            for iv in interventions
+            iv.get("type", iv.get("intervention_type", "")) for iv in interventions
         ]
         intervention_types = [t for t in intervention_types if t]
 
@@ -139,16 +133,20 @@ class Level1CheapHeuristic(FunnelStage):
         domain_priors = self._get_domain_priors(candidate)
         if domain_priors:
             causal_identifiability = domain_priors.get(
-                "causal_identifiability", causal_identifiability,
+                "causal_identifiability",
+                causal_identifiability,
             )
             transportability_risk = domain_priors.get(
-                "transportability_risk", transportability_risk,
+                "transportability_risk",
+                transportability_risk,
             )
             uncertainty_prior = domain_priors.get(
-                "uncertainty_prior", uncertainty_prior,
+                "uncertainty_prior",
+                uncertainty_prior,
             )
             expected_harm_proxy = domain_priors.get(
-                "expected_harm_proxy", expected_harm_proxy,
+                "expected_harm_proxy",
+                expected_harm_proxy,
             )
 
         # 3. Positivity risk — structural heuristic.
@@ -165,7 +163,8 @@ class Level1CheapHeuristic(FunnelStage):
         s_nodes = causal_graph.get("s_nodes", [])
         if s_nodes:
             transportability_risk = max(
-                transportability_risk, min(1.0, len(s_nodes) * 0.3),
+                transportability_risk,
+                min(1.0, len(s_nodes) * 0.3),
             )
 
         # 5. Policy conflict.
@@ -325,8 +324,8 @@ class Level1CheapHeuristic(FunnelStage):
 
     def _get_domain_priors(
         self,
-        candidate: Dict[str, Any],
-    ) -> Dict[str, float]:
+        candidate: dict[str, Any],
+    ) -> dict[str, float]:
         """Fetch domain priors from the provider, with timeout guard."""
         if self._domain_prior_provider is None:
             return {}
@@ -336,7 +335,7 @@ class Level1CheapHeuristic(FunnelStage):
             logger.debug("Domain prior provider failed; using defaults.", exc_info=True)
             return {}
 
-    def record_evaluated(self, candidate: Dict[str, Any]) -> None:
+    def record_evaluated(self, candidate: dict[str, Any]) -> None:
         """Register a candidate hash as evaluated (for info-gain tracking)."""
         self._evaluated_hashes.add(_candidate_structure_hash(candidate))
 
@@ -344,13 +343,13 @@ class Level1CheapHeuristic(FunnelStage):
         self,
         lesson_registry: Any,
         *,
-        candidate: Dict[str, Any],
-        context: Dict[str, Any],
+        candidate: dict[str, Any],
+        context: dict[str, Any],
         stage_name: str,
         candidate_hash: str,
-        intervention_types: List[str],
-        objectives: List[Dict[str, Any]],
-    ) -> List[Any]:
+        intervention_types: list[str],
+        objectives: list[dict[str, Any]],
+    ) -> list[Any]:
         if lesson_registry is None or not hasattr(lesson_registry, "query"):
             return []
         try:
@@ -360,10 +359,7 @@ class Level1CheapHeuristic(FunnelStage):
                 candidate=candidate,
                 context=context,
             )
-            objective_tags = [
-                obj.get("name", obj.get("objective", ""))
-                for obj in objectives
-            ]
+            objective_tags = [obj.get("name", obj.get("objective", "")) for obj in objectives]
             tags = [
                 *(tag for tag in intervention_types if tag),
                 *(tag for tag in objective_tags if tag),

@@ -3,11 +3,12 @@
 The stage slices normalized text into deterministic ranges, persists chunk fragments, stores a
 chunk manifest artifact, updates ``DocMeta.chunks_ref``, and emits a ``CHUNK_DOC`` world event.
 """
+
 from __future__ import annotations
 
 import re
 from dataclasses import asdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -202,7 +203,7 @@ def chunk_doc(
     meta_ref = persist_doc_meta(cas, meta2)
     meta_artifact_id = str(meta_ref.artifact_id)
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     agent = ProvAgent(
         agent_id="prov.agent.fabric_docs",
         agent_type=ProvAgentType.SYSTEM,
@@ -273,7 +274,8 @@ def chunk_doc(
     )
     append_world_segment_index(manifest, fact_log_root=fact_log_root)
 
-    assert meta2.normalized_ref is not None
+    if meta2.normalized_ref is None:
+        raise DocValidationError("document chunking did not persist normalized text")
     return DocChunkResult(
         doc_source_id=meta2.doc_source_id,
         doc_version_id=meta2.doc_version_id,

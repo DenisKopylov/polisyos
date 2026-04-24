@@ -21,14 +21,14 @@ After P5, import graph and package-cycle closure is complete (`package_cycles_co
 
 Current split points:
 
-| Area | Current bootstrap path | Problem |
-| --- | --- | --- |
-| Fabric connectors | `fabric/connectors/_registry_lifecycle.py` -> `fabric/connectors/discovery.py` (`polisyos.connectors`) | Connectors bypass `core.components`; no shared metadata/compliance flow |
-| Foundry methods | `foundry/methods/discovery.py` (`polisyos.methods`) + optional `components_bridge.py` | Two parallel entry models and duplicate bootstrap logic |
-| Lex evaluators | `lex/legal_evaluation/evaluator_registry.py` -> per-call `discover_components(...)` | Repeated discovery/index build and local registry-specific flow |
-| Scholar/Lex extractors | `fabric/claims/extractor_registry.py` -> per-call `discover_components(...)` | Same duplication pattern as evaluators |
-| Norm pack providers | `lex/normpack/provider_registry.py` -> per-call `discover_components(...)` | Same duplication pattern as evaluators |
-| Scientist nodes | `scientist/engine/registry.py` discovery path + separate builtin registration in `scientist/workflows/builder.py` | Runtime uses mixed registration models |
+| Area                   | Current bootstrap path                                                                                            | Problem                                                                 |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Fabric connectors      | `fabric/connectors/_registry_lifecycle.py` -> `fabric/connectors/discovery.py` (`polisyos.connectors`)            | Connectors bypass `core.components`; no shared metadata/compliance flow |
+| Foundry methods        | `foundry/methods/discovery.py` (`polisyos.methods`) + optional `components_bridge.py`                             | Two parallel entry models and duplicate bootstrap logic                 |
+| Lex evaluators         | `lex/legal_evaluation/evaluator_registry.py` -> per-call `discover_components(...)`                               | Repeated discovery/index build and local registry-specific flow         |
+| Scholar/Lex extractors | `fabric/claims/extractor_registry.py` -> per-call `discover_components(...)`                                      | Same duplication pattern as evaluators                                  |
+| Norm pack providers    | `lex/normpack/provider_registry.py` -> per-call `discover_components(...)`                                        | Same duplication pattern as evaluators                                  |
+| Scientist nodes        | `scientist/engine/registry.py` discovery path + separate builtin registration in `scientist/workflows/builder.py` | Runtime uses mixed registration models                                  |
 
 Additional inconsistencies:
 
@@ -82,6 +82,7 @@ P6 adds connector support to `core.components`:
 2. `Capability.FABRIC_CONNECTOR` as a type capability.
 3. Discovery group constant: `ENTRY_POINT_GROUP_FABRIC_CONNECTORS = "polisyos.fabric_connectors"`.
 4. Compliance mapping MUST enforce:
+
    - kind-capability alignment (`FABRIC_CONNECTOR` <-> `Capability.FABRIC_CONNECTOR`),
    - required ABI key alternatives for connectors (`fabric_connectors_api` or `fabric_api`).
 
@@ -99,9 +100,11 @@ After P6 merge:
 Through `2026-05-31`:
 
 1. Legacy entry-point groups remain supported via adapters:
+
    - `polisyos.connectors`
    - `polisyos.methods`
 2. Legacy APIs remain callable:
+
    - `polisyos.fabric.connectors.discovery.discover_connectors`
    - `polisyos.foundry.methods.discovery.bootstrap_registry`
 3. Legacy paths MUST emit `DeprecationWarning` and route through canonical component bootstrap flow where possible.
@@ -114,14 +117,18 @@ Through `2026-05-31`:
 Required updates:
 
 1. Extend metadata/capabilities/compliance:
+
    - `src/polisyos/core/components/metadata.py`
    - `src/polisyos/core/components/capabilities.py`
    - `src/polisyos/core/components/compliance.py`
 2. Extend discovery groups and mapping:
+
    - `src/polisyos/core/components/discovery.py`
 3. Update public exports:
+
    - `src/polisyos/core/components/__init__.py`
 4. Update docs:
+
    - `src/polisyos/core/components/README.md`
 
 Hard constraints:
@@ -135,14 +142,17 @@ Hard constraints:
 Required implementation:
 
 1. Add bridge module:
+
    - `src/polisyos/fabric/connectors/components_bridge.py`
 2. Bridge responsibilities:
+
    - query components by `ComponentKind.FABRIC_CONNECTOR`,
    - validate metadata against host ABI,
    - create connector class/object from component factory,
    - enforce protocol compliance (`validate_protocol_compliance`),
    - register into `ConnectorRegistry` via existing `register(...)` API.
 3. Add report model aligned with existing bridges:
+
    - `registered`, `duplicates`, `errors`.
 
 Compatibility adapter:
@@ -156,10 +166,12 @@ Required changes:
 
 1. Keep `src/polisyos/foundry/methods/components_bridge.py` as canonical bridge for method registration.
 2. Rework `src/polisyos/foundry/methods/discovery.py`:
+
    - `bootstrap_registry(...)` becomes compatibility facade,
    - prefer component-driven flow first,
    - support legacy `polisyos.methods` adapters during compatibility window.
 3. Update method bootstrap callsites to prefer component flow:
+
    - `src/polisyos/scientist/compute/runner.py`.
 
 Hard constraints:
@@ -172,6 +184,7 @@ Hard constraints:
 Required changes:
 
 1. Add optional `components_index` input to existing bootstrap helpers:
+
    - `src/polisyos/lex/legal_evaluation/evaluator_registry.py`
    - `src/polisyos/fabric/claims/extractor_registry.py`
    - `src/polisyos/lex/normpack/provider_registry.py`
@@ -193,10 +206,12 @@ Required new module:
 Required public API:
 
 1. `build_components_index(...)`:
+
    - one call to `discover_components(...)`,
    - builds `ComponentRegistry`,
    - returns index + discovery report.
 2. `bootstrap_plugin_registries(...)`:
+
    - consumes `ComponentRegistry`,
    - invokes bridges for connectors/methods/evaluators/extractors/providers/nodes,
    - returns aggregated bootstrap report.
@@ -251,10 +266,13 @@ Deprecation requirements:
 ### 7.1 Mandatory artifact updates
 
 1. `p1_refactor_queue.md`
+
    - mark `Q7` as `Done` when unified bootstrap is merged.
 2. `import_debt_register.csv`
+
    - P6 SHOULD not introduce new temporary architecture debt rows.
 3. `import_exceptions.toml` and `import_exceptions_registry.md`
+
    - no new long-lived exceptions; temporary compatibility exceptions (if any) MUST have owner/expiry.
 
 ### 7.2 Required verification commands
@@ -315,13 +333,13 @@ P6 is complete only if all criteria are met:
 
 ## 9. Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| External plugin breakage due to new component requirements | High | Keep one-release legacy adapters and explicit migration examples |
-| Bootstrap order drift causes behavior changes | High | Stable sort by `component_id`, idempotency tests, deterministic conflict policy |
-| Performance regression from heavier metadata validation | Medium | One-pass discovery/index cache and report reuse across modules |
+| Risk                                                                    | Impact | Mitigation                                                                       |
+| ----------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------- |
+| External plugin breakage due to new component requirements              | High   | Keep one-release legacy adapters and explicit migration examples                 |
+| Bootstrap order drift causes behavior changes                           | High   | Stable sort by `component_id`, idempotency tests, deterministic conflict policy  |
+| Performance regression from heavier metadata validation                 | Medium | One-pass discovery/index cache and report reuse across modules                   |
 | Duplicate registration conflicts between builtin and discovered plugins | Medium | Explicit precedence policy and conflict reporting in aggregated bootstrap report |
-| Scope creep into runtime-registry redesign | Medium | Keep registries intact; change only discovery/bootstrap surfaces |
+| Scope creep into runtime-registry redesign                              | Medium | Keep registries intact; change only discovery/bootstrap surfaces                 |
 
 ## 10. Post-P6 Follow-Ups (Out of Scope)
 
@@ -345,52 +363,67 @@ This confirms P6 is a consolidation phase, not a cycle-break phase.
 ### 12.1 Core component model extended
 
 1. Added connector type to component model:
+
    - `src/polisyos/core/components/metadata.py` (`ComponentKind.FABRIC_CONNECTOR`)
    - `src/polisyos/core/components/capabilities.py` (`Capability.FABRIC_CONNECTOR`)
 2. Added connector discovery group and mapping:
+
    - `src/polisyos/core/components/discovery.py` (`ENTRY_POINT_GROUP_FABRIC_CONNECTORS`)
 3. Added compliance rules for connectors:
+
    - `src/polisyos/core/components/compliance.py`
    - kind/capability alignment for `FABRIC_CONNECTOR`
    - ABI alternatives `fabric_connectors_api | fabric_api`
 4. Added unified bootstrap module:
+
    - `src/polisyos/core/components/bootstrap.py`
    - `build_components_index(...)`
    - `bootstrap_plugin_registries(...)`
 5. Updated public surface and docs:
+
    - `src/polisyos/core/components/__init__.py`
    - `src/polisyos/core/components/README.md`
 
 ### 12.2 Connector and method compatibility bridges
 
 1. Added canonical connector bridge and component wrappers:
+
    - `src/polisyos/fabric/connectors/components.py`
    - `src/polisyos/fabric/connectors/components_bridge.py`
 2. Rewired connector registry bootstrap to component-driven flow:
+
    - `src/polisyos/fabric/connectors/_registry_lifecycle.py`
 3. Added deprecation warning for legacy connector discovery API:
+
    - `src/polisyos/fabric/connectors/discovery.py` (`discover_connectors`)
 4. Reworked method bootstrap compatibility facade:
+
    - `src/polisyos/foundry/methods/discovery.py`
    - legacy `polisyos.methods` entry points adapted to component entries
 
 ### 12.3 Runtime adoption of shared component index
 
 1. Runner method fallback now prefers component bootstrap:
+
    - `src/polisyos/scientist/compute/runner.py`
 2. Evaluator/extractor/provider bootstrap helpers accept optional `components_index`:
+
    - `src/polisyos/lex/legal_evaluation/evaluator_registry.py`
    - `src/polisyos/fabric/claims/extractor_registry.py`
    - `src/polisyos/lex/normpack/provider_registry.py`
 3. Scientist node discovery supports prebuilt index and deterministic dev-scan override:
+
    - `src/polisyos/scientist/engine/registry.py`
 4. Builtin Scientist registry builder overlays discovered nodes:
+
    - `src/polisyos/scientist/workflows/builder.py`
 5. Lex/Scholar/NormPack runtime paths now reuse one component discovery pass per flow:
+
    - `src/polisyos/lex/api.py`
    - `src/polisyos/scholar/orchestrator/enrich.py`
    - `src/polisyos/lex/normpack/assemble_pack.py`
 6. Added CLI dry-run command for unified bootstrap:
+
    - `src/polisyos/core/components/_cli_components.py`
    - `src/polisyos/core/components/cli_parts.py`
    - command: `polisyos components bootstrap ...`
@@ -398,8 +431,10 @@ This confirms P6 is a consolidation phase, not a cycle-break phase.
 ### 12.4 Entry-point and governance updates
 
 1. Added canonical connector component entry-point group:
+
    - `pyproject.toml` (`[project.entry-points.\"polisyos.fabric_connectors\"]`)
 2. Closed refactor queue item:
+
    - `p1_refactor_queue.md` (`Q7 -> Done`, `2026-02-10`)
 
 ### 12.5 Tests added
@@ -415,9 +450,11 @@ This confirms P6 is a consolidation phase, not a cycle-break phase.
 Executed locally:
 
 1. Targeted regression + new P6 tests:
+
    - `python3 -m pytest tests/core/components/test_connector_kind_compliance.py tests/fabric/connectors/test_components_bridge.py tests/scientist/test_node_registry_components_bootstrap.py tests/core/components/test_unified_bootstrap_idempotency.py tests/test_components_discovery.py tests/test_components_bridge.py tests/fabric/test_scholar_extractor_components.py tests/scientist/test_engine_registry_v0.py`
    - Result: `14 passed`
 2. Architecture metrics and freeze blocking check:
+
    - `python3 tools/lint/collect_arch_metrics.py ...`
    - `python3 tools/lint/compare_baseline.py --mode blocking ...`
    - Result: `[OK] Architecture freeze checks passed.`

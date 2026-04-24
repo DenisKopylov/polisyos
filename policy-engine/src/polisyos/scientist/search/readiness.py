@@ -18,6 +18,7 @@ from polisyos.ir.analytics.causal import DataReadinessReport, load_data_readines
 from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, EvidenceSourceState
 from polisyos.scientist.discovery.priors import PriorKnowledgeBundle
 from polisyos.scientist.policy_design.objectives import ConstraintStatus, PolicyEvaluationVector
+from polisyos.scientist.policy_design.phase3 import Phase3CertificateStatus
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from polisyos.scientist.search.artifact_minimality import (
     ArtifactFunction,
@@ -27,13 +28,14 @@ from polisyos.scientist.search.artifact_minimality import (
 from polisyos.scientist.search.uncertainty import UncertaintyEnvelope, UncertaintyType
 
 if TYPE_CHECKING:
-    from polisyos.scientist.search.judge_stack import JudgeName, JudgeVerdict
+    from polisyos.scientist.search.judge_stack import JudgeVerdict
 
 READINESS_CONTRACT_SCHEMA_NAME = "polisyos.scientist.search.DecisionReadinessContract"
 
 
 class DecisionReadiness(str, Enum):
     """Decision readiness public type."""
+
     RESEARCH_ARTIFACT = "research_artifact"
     ANALYST_ADVISORY = "analyst_advisory"
     EXTERNAL_BRIEFING = "external_briefing"
@@ -85,6 +87,7 @@ class DecisionReadinessContract(ArtifactMinimalityMixin):
     assumptions_must_be_surfaced: list[str]
     expiry_conditions: list[str]
     evidence_depth_required: str
+    phase3_gate: Phase3CertificateStatus = Field(default_factory=Phase3CertificateStatus.missing)
     assessments: list[ReadinessAssessment] = Field(default_factory=list)
     metadata: dict[str, object] = Field(default_factory=dict)
 
@@ -183,7 +186,7 @@ class DecisionReadinessEvaluator:
         self,
         *,
         candidate: PolicyCandidateSchema,
-        judge_verdict: "JudgeVerdict",
+        judge_verdict: JudgeVerdict,
         uncertainty_envelope: UncertaintyEnvelope,
         evaluation_vector: PolicyEvaluationVector | None = None,
         cross_graph_profile: CrossGraphEvidenceProfile | None = None,
@@ -193,6 +196,7 @@ class DecisionReadinessEvaluator:
         data_readiness_report: DataReadinessReport | None = None,
         data_readiness_report_ref: ArtifactRef | None = None,
         claim_mode: Literal["proof_only", "bounds", "estimation"] = "estimation",
+        phase3_gate: Phase3CertificateStatus | None = None,
     ) -> DecisionReadinessContract:
         pending_human_gate = judge_verdict.composite_decision == "defer_to_human"
         support_summary = _resolve_evidence_support_summary(
@@ -206,6 +210,11 @@ class DecisionReadinessEvaluator:
             evidence_support_summary=support_summary,
         )
         runtime_metadata = dict(evidence_metadata or {})
+        resolved_phase3_gate = (
+            phase3_gate
+            or _resolve_phase3_gate(runtime_metadata)
+            or Phase3CertificateStatus.missing()
+        )
         resolved_artifact_family = normalize_phase2_artifact_family(
             str(runtime_metadata.get("artifact_family") or ""),
             estimator_name=(
@@ -214,7 +223,9 @@ class DecisionReadinessEvaluator:
                 else str(runtime_metadata.get("estimator_name"))
             ),
             query_type=(
-                None if runtime_metadata.get("query_type") is None else str(runtime_metadata.get("query_type"))
+                None
+                if runtime_metadata.get("query_type") is None
+                else str(runtime_metadata.get("query_type"))
             ),
         )
         runtime_metadata["artifact_family"] = resolved_artifact_family
@@ -256,6 +267,8 @@ class DecisionReadinessEvaluator:
             readiness_cap_reason = "evaluation_source_not_promotable"
         elif degradation_mode in {"research_only", "no_promotion"}:
             readiness_cap_reason = "evaluation_degradation_mode"
+        elif resolved_phase3_gate is not None and not resolved_phase3_gate.gate_passed:
+            readiness_cap_reason = "phase3_gate_blocked"
         elif _phase2_closure_blocks_readiness(phase2_family_summary):
             readiness_cap_reason = _phase2_readiness_cap_reason(phase2_family_summary)
         elif claim_mode != "proof_only" and resolved_data_readiness is not None:
@@ -274,6 +287,8 @@ class DecisionReadinessEvaluator:
             data_readiness_report=resolved_data_readiness,
             claim_mode=claim_mode,
         )
+        if resolved_phase3_gate is not None and not resolved_phase3_gate.gate_passed:
+            readiness_cap = DecisionReadiness.RESEARCH_ARTIFACT
 
         assessments: list[ReadinessAssessment] = []
         selected = self._requirements[-1]
@@ -284,6 +299,7 @@ class DecisionReadinessEvaluator:
                 uncertainty_envelope=uncertainty_envelope,
                 actual_evidence_depth=actual_evidence_depth,
                 pending_human_gate=pending_human_gate,
+                phase3_gate=resolved_phase3_gate,
             )
             if readiness_cap is not None and requirement.readiness_level != readiness_cap:
                 reasons = [*reasons, f"readiness_capped:{readiness_cap.value}"]
@@ -345,10 +361,24 @@ class DecisionReadinessEvaluator:
             "cross_graph_source_statuses": (
                 {
                     key: value.status.value
-                    for key, value in (cross_graph_profile.source_statuses.items() if cross_graph_profile is not None else [])
+                    for key, value in (
+                        cross_graph_profile.source_statuses.items()
+                        if cross_graph_profile is not None
+                        else []
+                    )
                 }
             ),
+            "phase3_gate_passed": (
+                resolved_phase3_gate.gate_passed if resolved_phase3_gate is not None else False
+            ),
+            "phase3_blocking_reasons": (
+                list(resolved_phase3_gate.blocking_reasons)
+                if resolved_phase3_gate is not None
+                else list(Phase3CertificateStatus.missing().blocking_reasons)
+            ),
         }
+        if resolved_phase3_gate is not None:
+            metadata["phase3_gate"] = resolved_phase3_gate.model_dump(mode="json")
         if phase2_closure is not None:
             metadata["phase2_closure"] = dict(phase2_closure)
         if phase2_family_summary is not None:
@@ -383,9 +413,7 @@ class DecisionReadinessEvaluator:
                     metadata["latent_resolution_label"] = str(resolution_label)
                 separated_pairs = latent_metadata.get("separated_pairs")
                 if isinstance(separated_pairs, list):
-                    metadata["latent_separated_pairs"] = [
-                        str(value) for value in separated_pairs
-                    ]
+                    metadata["latent_separated_pairs"] = [str(value) for value in separated_pairs]
         if latent_resolution_error is not None:
             metadata["latent_discovery_resolution_error"] = dict(latent_resolution_error)
         if readiness_cap is not None:
@@ -419,6 +447,7 @@ class DecisionReadinessEvaluator:
             assumptions_must_be_surfaced=surfaced,
             expiry_conditions=expiry,
             evidence_depth_required=selected.evidence_depth_required,
+            phase3_gate=resolved_phase3_gate or Phase3CertificateStatus.missing(),
             assessments=assessments,
             metadata=metadata,
         )
@@ -472,10 +501,11 @@ def _uncertainty_bounds(
 def _assessment_failures(
     *,
     requirement: ReadinessRequirement,
-    judge_verdict: "JudgeVerdict",
+    judge_verdict: JudgeVerdict,
     uncertainty_envelope: UncertaintyEnvelope,
     actual_evidence_depth: str,
     pending_human_gate: bool,
+    phase3_gate: Phase3CertificateStatus | None = None,
 ) -> list[str]:
     reasons: list[str] = []
     for judge_name in requirement.required_judges_passed:
@@ -505,7 +535,30 @@ def _assessment_failures(
     if requirement.replicated_evidence_required and actual_evidence_depth != "replicated":
         reasons.append("replicated_evidence_required")
 
+    if (
+        phase3_gate is not None
+        and not phase3_gate.gate_passed
+        and requirement.readiness_level is not DecisionReadiness.RESEARCH_ARTIFACT
+    ):
+        reasons.extend(list(phase3_gate.blocking_reasons))
+
     return reasons
+
+
+def _resolve_phase3_gate(
+    evidence_metadata: dict[str, object],
+) -> Phase3CertificateStatus | None:
+    payload = evidence_metadata.get("phase3_gate")
+    if payload is None:
+        return None
+    if isinstance(payload, Phase3CertificateStatus):
+        return payload
+    if isinstance(payload, dict):
+        try:
+            return Phase3CertificateStatus.model_validate(payload)
+        except (TypeError, ValueError):
+            return None
+    return None
 
 
 def _resolve_readiness_cap(
@@ -531,10 +584,14 @@ def _resolve_readiness_cap(
     artifact_family = normalize_phase2_artifact_family(
         str(evidence_metadata.get("artifact_family") or ""),
         estimator_name=(
-            None if evidence_metadata.get("estimator_name") is None else str(evidence_metadata.get("estimator_name"))
+            None
+            if evidence_metadata.get("estimator_name") is None
+            else str(evidence_metadata.get("estimator_name"))
         ),
         query_type=(
-            None if evidence_metadata.get("query_type") is None else str(evidence_metadata.get("query_type"))
+            None
+            if evidence_metadata.get("query_type") is None
+            else str(evidence_metadata.get("query_type"))
         ),
     )
     phase2_closure = _resolve_phase2_closure(evidence_metadata)
@@ -595,14 +652,21 @@ def _resolve_phase2_closure(
     ref_payload = evidence_metadata.get("phase2_closure_report_ref")
     if ref_payload is not None and store is not None:
         try:
-            ref = ref_payload if isinstance(ref_payload, ArtifactRef) else ArtifactRef.model_validate(ref_payload)
-            from polisyos.foundry.validation.phase2_closure import load_foundry_phase2_closure_report
+            ref = (
+                ref_payload
+                if isinstance(ref_payload, ArtifactRef)
+                else ArtifactRef.model_validate(ref_payload)
+            )
+            from polisyos.foundry.validation.phase2_closure import (
+                load_foundry_phase2_closure_report,
+            )
 
             report = load_foundry_phase2_closure_report(store, ref)
             return {
                 "phase": report.phase_id,
                 "artifact_families": {
-                    key: value.model_dump(mode="json") for key, value in report.artifact_families.items()
+                    key: value.model_dump(mode="json")
+                    for key, value in report.artifact_families.items()
                 },
             }
         except Exception:
@@ -673,9 +737,7 @@ def _phase2_readiness_cap_reason(
     if not isinstance(family_summary, dict):
         return "phase2_closure_incomplete"
     family = str(
-        family_summary.get("artifact_family")
-        or family_summary.get("family")
-        or "phase2"
+        family_summary.get("artifact_family") or family_summary.get("family") or "phase2"
     ).strip()
     return f"phase2_closure_incomplete:{family}"
 
@@ -758,7 +820,7 @@ def _surface_assumptions(
     *,
     candidate: PolicyCandidateSchema,
     evaluation_vector: PolicyEvaluationVector | None,
-    judge_verdict: "JudgeVerdict",
+    judge_verdict: JudgeVerdict,
     cross_graph_profile: CrossGraphEvidenceProfile | None,
     prior_knowledge_bundle: PriorKnowledgeBundle | None,
     evidence_support_summary: dict[str, object],
@@ -778,7 +840,10 @@ def _surface_assumptions(
                 surfaced.append(f"Hard constraint near binding: {name}")
     surfaced.extend(_evidence_channel_notes(cross_graph_profile, prior_knowledge_bundle))
     requested_depth = str(candidate.metadata.get("evidence_depth", "")).strip().lower()
-    if requested_depth in {"meta_analytic", "replicated"} and actual_evidence_depth == "single_study":
+    if (
+        requested_depth in {"meta_analytic", "replicated"}
+        and actual_evidence_depth == "single_study"
+    ):
         surfaced.append(
             "Evidence depth remains single_study because academic prior support coverage is unavailable or incomplete."
         )
@@ -836,9 +901,10 @@ def _supports_advanced_evidence_depth(
 ) -> bool:
     if prior_knowledge_bundle is None or prior_knowledge_bundle.status != "ok":
         return False
-    return bool(evidence_support_summary.get("available", False)) and float(
-        evidence_support_summary.get("coverage_ratio", 0.0) or 0.0
-    ) >= 0.8
+    return (
+        bool(evidence_support_summary.get("available", False))
+        and float(evidence_support_summary.get("coverage_ratio", 0.0) or 0.0) >= 0.8
+    )
 
 
 def _evidence_channel_notes(
@@ -850,9 +916,7 @@ def _evidence_channel_notes(
         for source_name, status in cross_graph_profile.source_statuses.items():
             if status.status is EvidenceSourceState.AVAILABLE:
                 continue
-            notes.append(
-                f"Evidence channel unavailable: {source_name} ({status.status.value})."
-            )
+            notes.append(f"Evidence channel unavailable: {source_name} ({status.status.value}).")
     if prior_knowledge_bundle is not None:
         for source_name, status in prior_knowledge_bundle.source_statuses.items():
             if status.status is EvidenceSourceState.AVAILABLE:

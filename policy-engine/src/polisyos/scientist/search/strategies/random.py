@@ -17,4 +17,3 @@ class RandomSearchStrategy(BaseSearchStrategy):
         del pending
         self._iteration = len(evaluations)
         return self._random_candidate(source="random")
-

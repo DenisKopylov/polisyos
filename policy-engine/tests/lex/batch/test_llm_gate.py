@@ -174,7 +174,7 @@ def test_gate_prioritizes_approval_appendix_item() -> None:
         audit_max_miss_rate_pct=3.0,
     )
     features = build_gate_features(
-        text='2. Положення про порядок підтримки ліквідності банківської системи (додаток N 2).',
+        text="2. Положення про порядок підтримки ліквідності банківської системи (додаток N 2).",
         deterministic_confidence=0.18,
         reference_count=0,
         fallback_chunk=False,
@@ -246,7 +246,7 @@ def test_gate_allows_small_budget_overflow_for_high_value_legal_span() -> None:
         audit_max_miss_rate_pct=3.0,
     )
     features = build_gate_features(
-        text='2. Положення про порядок підтримки ліквідності банківської системи (додаток N 2).',
+        text="2. Положення про порядок підтримки ліквідності банківської системи (додаток N 2).",
         deterministic_confidence=0.18,
         reference_count=0,
         fallback_chunk=False,

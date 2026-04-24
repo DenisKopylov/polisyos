@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+import contextlib
 import re
 from difflib import SequenceMatcher
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import duckdb
 
 from polisyos.academic.knowledge.canonical_resolver import CanonicalVariableResolver
 from polisyos.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 _CANONICAL_NAME_RE = re.compile(r"^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*){0,3}$")
 
@@ -119,10 +123,8 @@ class VariableCanonizer:
             for raw_name, canonical_name in rows:
                 if raw_name and canonical_name:
                     self._cache[str(raw_name)] = str(canonical_name)
-            try:
+            with contextlib.suppress(Exception):
                 self._resolver = CanonicalVariableResolver.from_connection(con)
-            except Exception:
-                pass
         finally:
             con.close()
 
@@ -189,7 +191,12 @@ class VariableCanonizer:
             self._persist_mapping(normalized, canonical_name, approved=bool(resolved.approved))
             if not resolved.approved:
                 self._pending_review.append((raw_name, canonical_name))
-            return canonical_name, resolved.method not in {"exact", "synonym", "hierarchy", "exact_alias"}
+            return canonical_name, resolved.method not in {
+                "exact",
+                "synonym",
+                "hierarchy",
+                "exact_alias",
+            }
 
         fuzzy = self._fuzzy_match(normalized)
         if fuzzy:

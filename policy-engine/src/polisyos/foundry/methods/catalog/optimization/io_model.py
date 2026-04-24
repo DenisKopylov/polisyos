@@ -1,8 +1,10 @@
 """Public optimization io model module API."""
+
 from __future__ import annotations
 
 import time
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 from numpy.linalg import LinAlgError
@@ -340,5 +342,6 @@ class LeontiefInputOutput:
                 "n_samples": len(totals),
             },
         )
+
 
 __all__ = ["LeontiefInputOutput"]

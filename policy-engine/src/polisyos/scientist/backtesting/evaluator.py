@@ -1,4 +1,5 @@
 """Compare replay predictions against held-out outcomes and produce backtest scenarios."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -89,7 +90,7 @@ class PredictionEvaluator:
                         ci_upper=hi,
                     )
                 )
-                squared_errors.append(abs_err ** 2)
+                squared_errors.append(abs_err**2)
                 absolute_errors.append(abs_err)
                 if rel_err is not None:
                     percentage_errors.append(rel_err * 100.0)

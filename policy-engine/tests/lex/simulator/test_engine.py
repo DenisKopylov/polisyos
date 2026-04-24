@@ -1,10 +1,13 @@
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.norm_pack import NormPack, NormRule, RuleType
 from polisyos.lex.simulator.engine import NormImpactAnalyzer
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _rule(norm_id: str, desc: str) -> NormRule:
@@ -32,4 +35,3 @@ def test_norm_impact_analyzer_persists_report_and_diff(tmp_path: Path) -> None:
     assert report.norms_modified == 1
     assert report.norm_diff_ref is not None
     assert report.cas_artifact_id is not None
-

@@ -391,7 +391,9 @@ class TestDistributedExecutionBackends:
         assert isinstance(_resolve_execution_backend("ray"), RayExecutionBackend)
         assert isinstance(_resolve_execution_backend("celery"), CeleryExecutionBackend)
 
-    def test_partitioned_ingestion_uses_dask_client_submit(self, monkeypatch, tmp_path: Path) -> None:
+    def test_partitioned_ingestion_uses_dask_client_submit(
+        self, monkeypatch, tmp_path: Path
+    ) -> None:
         import polisyos.fabric.data_plane.orchestrator as orchestrator
 
         serializer = _InMemoryJobSerializer()
@@ -485,7 +487,9 @@ class TestDistributedExecutionBackends:
         assert len(remote_payloads) == 2
         assert fake_ray.shutdown_called is True
 
-    def test_partitioned_ingestion_uses_celery_task_submission(self, monkeypatch, tmp_path: Path) -> None:
+    def test_partitioned_ingestion_uses_celery_task_submission(
+        self, monkeypatch, tmp_path: Path
+    ) -> None:
         import polisyos.fabric.data_plane.orchestrator as orchestrator
 
         serializer = _InMemoryJobSerializer()

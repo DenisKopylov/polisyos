@@ -1,4 +1,5 @@
 """Run-level provenance DAG builder."""
+
 from __future__ import annotations
 
 import uuid
@@ -51,12 +52,14 @@ class RunProvenanceDAG:
         self._llm_records: deque[LLMCallRecord] = deque(maxlen=self._max_llm_records)
 
         # Register the run itself as a system agent
-        self._graph.add_agent(ProvenanceAgent(
-            agent_id=f"agent:system:{run_id}",
-            agent_type=AgentType.SYSTEM,
-            label=f"Scientist run {run_id}",
-            metadata={"run_id": run_id},
-        ))
+        self._graph.add_agent(
+            ProvenanceAgent(
+                agent_id=f"agent:system:{run_id}",
+                agent_type=AgentType.SYSTEM,
+                label=f"Scientist run {run_id}",
+                metadata={"run_id": run_id},
+            )
+        )
 
     @property
     def graph(self) -> ProvenanceCoreGraph:
@@ -82,14 +85,16 @@ class RunProvenanceDAG:
 
         # Create activity for the node execution
         # Use SIMULATION_STEP as closest existing ActivityType for node execution
-        self._graph.add_activity(ProvenanceActivity(
-            activity_id=activity_id,
-            activity_type=ActivityType.SIMULATION_STEP,
-            label=f"Node execution: {alias} ({node_id})",
-            started_at=started_at,
-            ended_at=ended_at,
-            parameters=params or {},
-        ))
+        self._graph.add_activity(
+            ProvenanceActivity(
+                activity_id=activity_id,
+                activity_type=ActivityType.SIMULATION_STEP,
+                label=f"Node execution: {alias} ({node_id})",
+                started_at=started_at,
+                ended_at=ended_at,
+                parameters=params or {},
+            )
+        )
 
         # Associate with system agent
         self._graph.add_association(
@@ -99,16 +104,18 @@ class RunProvenanceDAG:
         )
 
         # Register input entities and usage edges
-        for ref in (input_refs or []):
+        for ref in input_refs or []:
             artifact_id = getattr(ref, "artifact_id", str(ref))
             entity_id = f"entity:artifact:{artifact_id}"
             if entity_id not in self._graph.entities:
-                self._graph.add_entity(ProvenanceEntity(
-                    entity_id=entity_id,
-                    entity_type=EntityType.DATASET,
-                    label=f"Artifact {artifact_id}",
-                    created_at=started_at,
-                ))
+                self._graph.add_entity(
+                    ProvenanceEntity(
+                        entity_id=entity_id,
+                        entity_type=EntityType.DATASET,
+                        label=f"Artifact {artifact_id}",
+                        created_at=started_at,
+                    )
+                )
             self._graph.add_usage(
                 activity_id=activity_id,
                 entity_id=entity_id,
@@ -116,15 +123,17 @@ class RunProvenanceDAG:
             )
 
         # Register output entities and generation edges
-        for ref in (output_refs or []):
+        for ref in output_refs or []:
             artifact_id = getattr(ref, "artifact_id", str(ref))
             entity_id = f"entity:artifact:{artifact_id}"
-            self._graph.add_entity(ProvenanceEntity(
-                entity_id=entity_id,
-                entity_type=EntityType.DATASET,
-                label=f"Artifact {artifact_id}",
-                created_at=ended_at,
-            ))
+            self._graph.add_entity(
+                ProvenanceEntity(
+                    entity_id=entity_id,
+                    entity_type=EntityType.DATASET,
+                    label=f"Artifact {artifact_id}",
+                    created_at=ended_at,
+                )
+            )
             self._graph.add_generation(
                 entity_id=entity_id,
                 activity_id=activity_id,
@@ -132,7 +141,7 @@ class RunProvenanceDAG:
             )
 
             # Derive output from each input
-            for in_ref in (input_refs or []):
+            for in_ref in input_refs or []:
                 in_artifact_id = getattr(in_ref, "artifact_id", str(in_ref))
                 in_entity_id = f"entity:artifact:{in_artifact_id}"
                 self._graph.add_derivation(
@@ -180,31 +189,35 @@ class RunProvenanceDAG:
         # Register model as agent
         model_agent_id = f"agent:model:{model_id}"
         if model_agent_id not in self._graph.agents:
-            self._graph.add_agent(ProvenanceAgent(
-                agent_id=model_agent_id,
-                agent_type=AgentType.MODEL,
-                label=f"LLM model: {model_id}",
-                metadata={"model_id": model_id},
-            ))
+            self._graph.add_agent(
+                ProvenanceAgent(
+                    agent_id=model_agent_id,
+                    agent_type=AgentType.MODEL,
+                    label=f"LLM model: {model_id}",
+                    metadata={"model_id": model_id},
+                )
+            )
 
         # Register the LLM call as a query activity
         activity_id = f"activity:llm_call:{call_id}"
-        self._graph.add_activity(ProvenanceActivity(
-            activity_id=activity_id,
-            activity_type=ActivityType.QUERY,
-            label=f"LLM call: {model_id} for {node_alias}",
-            started_at=now,
-            ended_at=now,
-            parameters={
-                "model_id": model_id,
-                "temperature": temperature,
-                "seed": seed,
-                "system_prompt_hash": system_prompt_hash,
-                "input_tokens": input_tokens,
-                "output_tokens": output_tokens,
-                "cost_usd": str(cost_usd) if cost_usd else None,
-            },
-        ))
+        self._graph.add_activity(
+            ProvenanceActivity(
+                activity_id=activity_id,
+                activity_type=ActivityType.QUERY,
+                label=f"LLM call: {model_id} for {node_alias}",
+                started_at=now,
+                ended_at=now,
+                parameters={
+                    "model_id": model_id,
+                    "temperature": temperature,
+                    "seed": seed,
+                    "system_prompt_hash": system_prompt_hash,
+                    "input_tokens": input_tokens,
+                    "output_tokens": output_tokens,
+                    "cost_usd": str(cost_usd) if cost_usd else None,
+                },
+            )
+        )
 
         # Associate LLM call with model agent
         self._graph.add_association(
@@ -234,24 +247,28 @@ class RunProvenanceDAG:
         ended = ended_at or now
         activity_id = f"activity:error:{self._run_id}:{alias}"
 
-        self._graph.add_activity(ProvenanceActivity(
-            activity_id=activity_id,
-            activity_type=ActivityType.ERROR,
-            label=f"Node failure: {alias} ({node_id})",
-            started_at=started,
-            ended_at=ended,
-            parameters={"error": error, "node_id": node_id},
-        ))
+        self._graph.add_activity(
+            ProvenanceActivity(
+                activity_id=activity_id,
+                activity_type=ActivityType.ERROR,
+                label=f"Node failure: {alias} ({node_id})",
+                started_at=started,
+                ended_at=ended,
+                parameters={"error": error, "node_id": node_id},
+            )
+        )
 
         # Register error entity with traceback
         error_entity_id = f"entity:error:{self._run_id}:{alias}"
-        self._graph.add_entity(ProvenanceEntity(
-            entity_id=error_entity_id,
-            entity_type=EntityType.ERROR_TRACE,
-            label=f"Error trace: {alias}",
-            created_at=ended,
-            attributes={"error": error, **({"traceback": traceback} if traceback else {})},
-        ))
+        self._graph.add_entity(
+            ProvenanceEntity(
+                entity_id=error_entity_id,
+                entity_type=EntityType.ERROR_TRACE,
+                label=f"Error trace: {alias}",
+                created_at=ended,
+                attributes={"error": error, **({"traceback": traceback} if traceback else {})},
+            )
+        )
         self._graph.add_generation(
             entity_id=error_entity_id,
             activity_id=activity_id,
@@ -277,14 +294,16 @@ class RunProvenanceDAG:
         now = timestamp or datetime.now(UTC)
         activity_id = f"activity:governance:{self._run_id}:{pass_id}"
 
-        self._graph.add_activity(ProvenanceActivity(
-            activity_id=activity_id,
-            activity_type=ActivityType.GOVERNANCE,
-            label=f"Governance: {pass_id} → {decision}",
-            started_at=now,
-            ended_at=now,
-            parameters={"pass_id": pass_id, "decision": decision, "reason": reason},
-        ))
+        self._graph.add_activity(
+            ProvenanceActivity(
+                activity_id=activity_id,
+                activity_type=ActivityType.GOVERNANCE,
+                label=f"Governance: {pass_id} → {decision}",
+                started_at=now,
+                ended_at=now,
+                parameters={"pass_id": pass_id, "decision": decision, "reason": reason},
+            )
+        )
 
         self._graph.add_association(
             activity_id=activity_id,
@@ -293,16 +312,18 @@ class RunProvenanceDAG:
         )
 
         # Link evidence refs as input entities
-        for ref in (evidence_refs or []):
+        for ref in evidence_refs or []:
             artifact_id = getattr(ref, "artifact_id", str(ref))
             entity_id = f"entity:artifact:{artifact_id}"
             if entity_id not in self._graph.entities:
-                self._graph.add_entity(ProvenanceEntity(
-                    entity_id=entity_id,
-                    entity_type=EntityType.DATASET,
-                    label=f"Evidence {artifact_id}",
-                    created_at=now,
-                ))
+                self._graph.add_entity(
+                    ProvenanceEntity(
+                        entity_id=entity_id,
+                        entity_type=EntityType.DATASET,
+                        label=f"Evidence {artifact_id}",
+                        created_at=now,
+                    )
+                )
             self._graph.add_usage(
                 activity_id=activity_id,
                 entity_id=entity_id,
@@ -320,24 +341,28 @@ class RunProvenanceDAG:
         now = timestamp or datetime.now(UTC)
         activity_id = f"activity:checkpoint:{self._run_id}:{alias}:{sequence_number}"
 
-        self._graph.add_activity(ProvenanceActivity(
-            activity_id=activity_id,
-            activity_type=ActivityType.CHECKPOINT,
-            label=f"Checkpoint after {alias} (#{sequence_number})",
-            started_at=now,
-            ended_at=now,
-            parameters={"alias": alias, "sequence_number": sequence_number},
-        ))
+        self._graph.add_activity(
+            ProvenanceActivity(
+                activity_id=activity_id,
+                activity_type=ActivityType.CHECKPOINT,
+                label=f"Checkpoint after {alias} (#{sequence_number})",
+                started_at=now,
+                ended_at=now,
+                parameters={"alias": alias, "sequence_number": sequence_number},
+            )
+        )
 
         # Register checkpoint entity
         artifact_id = getattr(checkpoint_ref, "artifact_id", str(checkpoint_ref))
         entity_id = f"entity:checkpoint:{artifact_id}"
-        self._graph.add_entity(ProvenanceEntity(
-            entity_id=entity_id,
-            entity_type=EntityType.CHECKPOINT,
-            label=f"Checkpoint {artifact_id}",
-            created_at=now,
-        ))
+        self._graph.add_entity(
+            ProvenanceEntity(
+                entity_id=entity_id,
+                entity_type=EntityType.CHECKPOINT,
+                label=f"Checkpoint {artifact_id}",
+                created_at=now,
+            )
+        )
         self._graph.add_generation(
             entity_id=entity_id,
             activity_id=activity_id,
@@ -400,4 +425,5 @@ class RunProvenanceDAG:
     def to_prov_json(self) -> dict[str, Any]:
         """Export as W3C PROV-JSON."""
         from polisyos.scientist.provenance.prov_json import to_prov_json
+
         return to_prov_json(self._graph)

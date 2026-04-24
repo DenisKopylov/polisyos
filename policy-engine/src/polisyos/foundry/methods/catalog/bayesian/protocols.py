@@ -1,18 +1,24 @@
 """Define posterior-result contracts and small sampling utilities for Bayesian methods."""
+
 from __future__ import annotations
 
 import base64
+from collections.abc import Mapping
 from enum import Enum
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.observability.truthfulness import (
     TruthfulnessReceipt,
-    TruthfulnessTier as ReceiptTruthfulnessTier,
-    parse_truthfulness_tier as parse_receipt_truthfulness_tier,
     validate_truthfulness_receipt,
+)
+from polisyos.core.observability.truthfulness import (
+    TruthfulnessTier as ReceiptTruthfulnessTier,
+)
+from polisyos.core.observability.truthfulness import (
+    parse_truthfulness_tier as parse_receipt_truthfulness_tier,
 )
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
@@ -87,11 +93,10 @@ def _normalise_truthfulness_value(value: Any) -> float | int | str | bool:
     return str(value)
 
 
-def _safe_truthfulness_diagnostics(payload: Mapping[str, Any]) -> dict[str, float | int | str | bool]:
-    return {
-        str(key): _normalise_truthfulness_value(value)
-        for key, value in payload.items()
-    }
+def _safe_truthfulness_diagnostics(
+    payload: Mapping[str, Any],
+) -> dict[str, float | int | str | bool]:
+    return {str(key): _normalise_truthfulness_value(value) for key, value in payload.items()}
 
 
 def _truthfulness_benchmark_regime(metadata: Mapping[str, Any]) -> str | None:
@@ -284,14 +289,19 @@ def _approximate_benchmark_assessment(
         metric is not None for metric in (coverage_error, tail_error, posterior_sbc_error)
     )
     if explicit is not None:
-        offline_ok = bool(explicit) and benchmark_regime is not None and coverage_tolerance is not None
+        offline_ok = (
+            bool(explicit) and benchmark_regime is not None and coverage_tolerance is not None
+        )
     else:
         offline_ok = (
             benchmark_regime is not None
             and coverage_tolerance is not None
             and evidence_present
             and (coverage_error is None or coverage_error <= coverage_tolerance)
-            and (tail_error is None or tail_error <= max(coverage_tolerance, 1.5 * coverage_tolerance))
+            and (
+                tail_error is None
+                or tail_error <= max(coverage_tolerance, 1.5 * coverage_tolerance)
+            )
             and (posterior_sbc_error is None or posterior_sbc_error <= coverage_tolerance)
         )
     assumptions = {
@@ -497,7 +507,9 @@ def compute_sampler_chain_diagnostics(
     return {
         "rhat_max": float(np.max(rhat_values)) if rhat_values.size else 1.0,
         "ess_bulk_min": float(np.min(ess_bulk_values)) if ess_bulk_values.size else total_draws,
-        "ess_tail_min": float(np.min(np.asarray(ess_tail_values, dtype=float))) if ess_tail_values else total_draws,
+        "ess_tail_min": float(np.min(np.asarray(ess_tail_values, dtype=float)))
+        if ess_tail_values
+        else total_draws,
         "quantile_mcse_relative_max": _quantile_stability_relative_max(
             split_chains,
             credible_mass=credible_mass,
@@ -611,7 +623,8 @@ def _infer_variational_evidence(
         downgrade_reasons.append("optimizer_not_converged")
     basis = (
         "variational_reference_posterior_calibration"
-        if _truthfulness_metric(diagnostics, metadata, key="reference_interval_shift_max") is not None
+        if _truthfulness_metric(diagnostics, metadata, key="reference_interval_shift_max")
+        is not None
         else "variational_joint_psis_calibration"
     )
     if not benchmark_ok and basis == "variational_reference_posterior_calibration":
@@ -641,7 +654,8 @@ def _infer_ep_evidence(
     kurtosis_proxy = _truthfulness_metric(diagnostics, metadata, key="site_kurtosis_proxy")
     assumptions_checked = {
         **benchmark_assumptions,
-        "cavity_precision_positive": cavity_precision_min is not None and cavity_precision_min > 0.0,
+        "cavity_precision_positive": cavity_precision_min is not None
+        and cavity_precision_min > 0.0,
         "site_precision_stable": site_precision_cv is not None and site_precision_cv <= 1.5,
         "site_residual_small": site_residual is not None and site_residual <= 1.0,
         "near_gaussian_proxy_ok": (
@@ -749,7 +763,8 @@ def _infer_flow_evidence(
         "support_evidence_ok": support_ok,
         "source_mean_shift_ok": mean_shift is not None and mean_shift <= 0.5,
         "source_covariance_match_ok": cov_error is not None and cov_error <= 0.35,
-        "source_interval_shift_ok": interval_shift is not None and interval_shift <= shift_tolerance,
+        "source_interval_shift_ok": interval_shift is not None
+        and interval_shift <= shift_tolerance,
         "jacobian_conditioning_ok": condition_number is not None and condition_number <= 1.0e6,
     }
     downgrade_reasons = [] if source_supported else list(benchmark_reasons)
@@ -794,8 +809,12 @@ def _infer_sbi_evidence(
         diagnostics=diagnostics,
         metadata=metadata,
     )
-    neighborhood_count = _truthfulness_metric(diagnostics, metadata, key="observed_neighborhood_count")
-    neighborhood_radius = _truthfulness_metric(diagnostics, metadata, key="observed_neighborhood_radius_quantile")
+    neighborhood_count = _truthfulness_metric(
+        diagnostics, metadata, key="observed_neighborhood_count"
+    )
+    neighborhood_radius = _truthfulness_metric(
+        diagnostics, metadata, key="observed_neighborhood_radius_quantile"
+    )
     posterior_sbc_error = _truthfulness_metric(diagnostics, metadata, key="posterior_sbc_error")
     local_c2st = _truthfulness_metric(diagnostics, metadata, key="local_c2st_score")
     ppc_mahalanobis = _truthfulness_metric(diagnostics, metadata, key="ppc_mahalanobis")
@@ -808,9 +827,8 @@ def _infer_sbi_evidence(
             and neighborhood_radius is not None
             and neighborhood_radius <= 0.25
         ),
-        "posterior_sbc_ok": posterior_sbc_error is not None and (
-            coverage_tolerance is not None and posterior_sbc_error <= coverage_tolerance
-        ),
+        "posterior_sbc_ok": posterior_sbc_error is not None
+        and (coverage_tolerance is not None and posterior_sbc_error <= coverage_tolerance),
         "local_c2st_ok": local_c2st is not None and local_c2st <= 0.6,
         "ppc_ok": ppc_mahalanobis is not None and ppc_mahalanobis <= 2.5,
     }
@@ -853,11 +871,15 @@ def _infer_factor_graph_approximate_evidence(
     message_tol = _truthfulness_metric(diagnostics, metadata, key="message_residual_tolerance")
     if message_tol is None:
         message_tol = _truthfulness_metric(metadata, key="graph_exact_tolerance")
-    crosscheck_error = _truthfulness_metric(diagnostics, metadata, key="subgraph_crosscheck_max_error")
+    crosscheck_error = _truthfulness_metric(
+        diagnostics, metadata, key="subgraph_crosscheck_max_error"
+    )
     coverage_tolerance = _truthfulness_coverage_tolerance(metadata)
     assumptions_checked = {
         **benchmark_assumptions,
-        "message_residual_ok": final_delta is not None and message_tol is not None and final_delta <= message_tol,
+        "message_residual_ok": final_delta is not None
+        and message_tol is not None
+        and final_delta <= message_tol,
         "subgraph_crosscheck_ok": (
             crosscheck_error is not None
             and coverage_tolerance is not None
@@ -894,14 +916,17 @@ def _infer_mixture_evidence(
     shift_tolerance = _approximate_shift_tolerance(_truthfulness_coverage_tolerance(metadata))
     weight_shift = _truthfulness_metric(diagnostics, metadata, key="multistart_weight_shift_max")
     mean_shift = _truthfulness_metric(diagnostics, metadata, key="multistart_mean_shift_max")
-    collapse_fraction = _truthfulness_metric(diagnostics, metadata, key="component_collapse_fraction")
+    collapse_fraction = _truthfulness_metric(
+        diagnostics, metadata, key="component_collapse_fraction"
+    )
     responsibility_entropy = _truthfulness_metric(diagnostics, metadata, key="entropy")
     assumptions_checked = {
         **benchmark_assumptions,
         "multistart_weight_stable": weight_shift is not None and weight_shift <= shift_tolerance,
         "multistart_mean_stable": mean_shift is not None and mean_shift <= 0.5,
         "component_collapse_ok": collapse_fraction is not None and collapse_fraction <= 0.25,
-        "responsibility_entropy_ok": responsibility_entropy is not None and responsibility_entropy >= 0.05,
+        "responsibility_entropy_ok": responsibility_entropy is not None
+        and responsibility_entropy >= 0.05,
     }
     downgrade_reasons = list(benchmark_reasons)
     if weight_shift is None:
@@ -966,7 +991,9 @@ def _infer_asymptotic_evidence(
     quantile_mcse = float(diagnostics.get("quantile_mcse_relative_max", np.nan))
     divergences = float(diagnostics.get("divergences", 0.0))
     assumptions_checked = {
-        "finite_run_diagnostics_present": all(np.isfinite(value) for value in (rhat, ess_bulk, ess_tail, quantile_mcse)),
+        "finite_run_diagnostics_present": all(
+            np.isfinite(value) for value in (rhat, ess_bulk, ess_tail, quantile_mcse)
+        ),
         "rhat_ok": np.isfinite(rhat) and rhat <= 1.05,
         "ess_bulk_ok": np.isfinite(ess_bulk) and ess_bulk >= 20.0,
         "ess_tail_ok": np.isfinite(ess_tail) and ess_tail >= 10.0,
@@ -1010,19 +1037,27 @@ def _infer_truthfulness_evidence(payload: Mapping[str, Any]) -> TruthfulnessEvid
     diagnostics_summary = payload.get("diagnostics_summary", {}) or {}
     sampler_family = str(payload.get("sampler_family", "") or "").strip().lower()
 
-    if method_name == "factor_graph_belief_propagation" and bool(metadata.get("graph_exact_regime")):
+    if method_name == "factor_graph_belief_propagation" and bool(
+        metadata.get("graph_exact_regime")
+    ):
         assumptions_checked = {
             "graph_exact_regime": True,
             "messages_converged": float(diagnostics.get("final_delta", np.inf))
             <= float(metadata.get("graph_exact_tolerance", np.inf)),
         }
-        tier = TruthfulnessTier.EXACT if all(assumptions_checked.values()) else TruthfulnessTier.APPROXIMATE_UNCALIBRATED
+        tier = (
+            TruthfulnessTier.EXACT
+            if all(assumptions_checked.values())
+            else TruthfulnessTier.APPROXIMATE_UNCALIBRATED
+        )
         return TruthfulnessEvidence(
             tier=tier,
             basis="tree_sum_product_exact_certificate",
             assumptions_checked=assumptions_checked,
             diagnostics=_safe_truthfulness_diagnostics(diagnostics),
-            downgrade_reasons=[] if tier is TruthfulnessTier.EXACT else ["exact_graph_regime_not_certified"],
+            downgrade_reasons=[]
+            if tier is TruthfulnessTier.EXACT
+            else ["exact_graph_regime_not_certified"],
             benchmark_regime=_truthfulness_benchmark_regime(metadata),
             coverage_tolerance=_truthfulness_coverage_tolerance(metadata),
         )
@@ -1039,7 +1074,9 @@ def _infer_truthfulness_evidence(payload: Mapping[str, Any]) -> TruthfulnessEvid
 
     if sampler_family == "mcmc" or method_name in _ASYMPTOTIC_METHOD_BASES:
         return _infer_asymptotic_evidence(
-            basis=_ASYMPTOTIC_METHOD_BASES.get(method_name, "asymptotic_sampler_runtime_diagnostics"),
+            basis=_ASYMPTOTIC_METHOD_BASES.get(
+                method_name, "asymptotic_sampler_runtime_diagnostics"
+            ),
             diagnostics=diagnostics,
             metadata=metadata,
             diagnostic_gates=diagnostic_gates,
@@ -1068,13 +1105,17 @@ def _infer_truthfulness_evidence(payload: Mapping[str, Any]) -> TruthfulnessEvid
     )
     return TruthfulnessEvidence(
         tier=tier,
-        basis=_APPROXIMATE_METHOD_BASES.get(method_name, "approximation_without_runtime_calibration"),
+        basis=_APPROXIMATE_METHOD_BASES.get(
+            method_name, "approximation_without_runtime_calibration"
+        ),
         assumptions_checked={
             "runtime_calibration_passed": tier is TruthfulnessTier.APPROXIMATE_CALIBRATED,
             "benchmark_regime_declared": _truthfulness_benchmark_regime(metadata) is not None,
         },
         diagnostics=_safe_truthfulness_diagnostics(diagnostics),
-        downgrade_reasons=[] if tier is TruthfulnessTier.APPROXIMATE_CALIBRATED else ["runtime_calibration_evidence_missing"],
+        downgrade_reasons=[]
+        if tier is TruthfulnessTier.APPROXIMATE_CALIBRATED
+        else ["runtime_calibration_evidence_missing"],
         benchmark_regime=_truthfulness_benchmark_regime(metadata),
         coverage_tolerance=_truthfulness_coverage_tolerance(metadata),
     )
@@ -1082,6 +1123,7 @@ def _infer_truthfulness_evidence(payload: Mapping[str, Any]) -> TruthfulnessEvid
 
 class PosteriorResult(BaseModel):
     """Store posterior draws, intervals, diagnostics, and model metadata."""
+
     contract_id: ClassVar[str] = "foundry.bayesian.posterior_result.v2"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -1120,7 +1162,11 @@ class PosteriorResult(BaseModel):
             return payload
         if "truthfulness_tier" in payload and "truthfulness" not in payload:
             raw_tier = payload["truthfulness_tier"]
-            tier = raw_tier if isinstance(raw_tier, TruthfulnessTier) else TruthfulnessTier(str(raw_tier))
+            tier = (
+                raw_tier
+                if isinstance(raw_tier, TruthfulnessTier)
+                else TruthfulnessTier(str(raw_tier))
+            )
             payload["truthfulness_tier"] = tier
             payload["truthfulness"] = TruthfulnessEvidence(
                 tier=tier,
@@ -1130,7 +1176,9 @@ class PosteriorResult(BaseModel):
         if "truthfulness" in payload and "truthfulness_tier" in payload:
             raw_tier = payload["truthfulness_tier"]
             payload["truthfulness_tier"] = (
-                raw_tier if isinstance(raw_tier, TruthfulnessTier) else TruthfulnessTier(str(raw_tier))
+                raw_tier
+                if isinstance(raw_tier, TruthfulnessTier)
+                else TruthfulnessTier(str(raw_tier))
             )
             payload["truthfulness"] = TruthfulnessEvidence.model_validate(payload["truthfulness"])
             return payload
@@ -1161,7 +1209,9 @@ class PosteriorResult(BaseModel):
         if candidate is not None:
             return validate_truthfulness_receipt(candidate)
         return TruthfulnessReceipt(
-            runtime_truthfulness_tier=self._receipt_tier_from_posterior_tier(self.truthfulness_tier),
+            runtime_truthfulness_tier=self._receipt_tier_from_posterior_tier(
+                self.truthfulness_tier
+            ),
             truthfulness_scope="posterior",
             diagnostics={
                 **self.truthfulness.diagnostics,
@@ -1170,11 +1220,14 @@ class PosteriorResult(BaseModel):
             degradation_reasons=tuple(self.truthfulness.downgrade_reasons),
         )
 
-    def to_uncertainty_envelope(self, *, param_name: str | None = None) -> UncertaintyEnvelope | None:
+    def to_uncertainty_envelope(
+        self, *, param_name: str | None = None
+    ) -> UncertaintyEnvelope | None:
         candidate = param_name
         if candidate is None:
             ordered = [
-                name for name in sorted(self.posterior_means)
+                name
+                for name in sorted(self.posterior_means)
                 if name not in {"sigma", "obs_noise", "noise_scale"}
             ]
             if not ordered:
@@ -1332,12 +1385,12 @@ def metropolis_sample(
 
 
 __all__ = [
+    "PosteriorResult",
     "TruthfulnessEvidence",
     "TruthfulnessTier",
     "augment_sampler_diagnostics",
     "canonical_draws_artifact",
     "compute_sampler_chain_diagnostics",
-    "PosteriorResult",
     "credible_interval",
     "flatten_chain_draws",
     "metropolis_sample",

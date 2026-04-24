@@ -12,13 +12,17 @@ migration primitives. Keep domain logic out of this package.
 - `src/polisyos/common/__init__.py` for the lazy facade contract.
 - `src/polisyos/common/serialization.py` for canonical JSON helpers and
   round-trip guarantees.
+
 - `src/polisyos/common/timestamps.py` for aware-UTC parsing and formatting.
 - `src/polisyos/common/async_tools.py` for sync/async bridge utilities and the
   shared executor.
+
 - `src/polisyos/common/config.py` and `src/polisyos/common/jax_env.py` for
   early-process bootstrap behavior.
+
 - `src/polisyos/common/migrations/README.md` for package-local artifact
   migrations.
+
 - `src/polisyos/common/env_parsing.py` if you are working on bootstrap
   internals; it is intentionally not part of the exported facade.
 
@@ -28,6 +32,7 @@ migration primitives. Keep domain logic out of this package.
 - Lazy facade exports from `src/polisyos/common/__init__.py`:
   `async_tools`, `config`, `jax_env`, `logger`, `migrations`,
   `serialization`, `timestamps`
+
 - Internal-but-frequently-touched helper: `env_parsing.py`; do not treat it as
   stable public surface without updating the facade and
   [Public Surface](../../../docs/reference/public-surface.md).
@@ -47,6 +52,7 @@ Run commands from the repository root `policy-engine/`.
 
 - Smoke-tested:
   `PYTHONPATH=src:. uv run python -c "import polisyos.common as common; print(sorted(common.__all__))"`
+
 - Smoke-tested:
   `PYTHONPATH=src:. uv run python -c "from polisyos.common.migrations.manifest import MANIFEST_CURRENT_VERSION; print(MANIFEST_CURRENT_VERSION)"`
 
@@ -56,6 +62,7 @@ Run commands from the repository root `policy-engine/`.
 
 - Smoke-tested:
   `uv run pytest -q tests/common/test_async_tools.py tests/common/test_config_bootstrap.py tests/common/test_fast_json_serialization.py tests/common/test_serialization_properties.py tests/common/test_timestamps.py tests/common/test_migrations_purity.py`
+
 - Conceptual release gate: `uv run python tools/workspace/core_runtime_mypy.py`
 - Conceptual release gate:
   `uv run python tools/workspace/core_runtime_basedpyright.py`

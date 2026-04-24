@@ -240,7 +240,9 @@ def _cmd_scientist_stress_test(args: Any) -> int:
             self._specs = specs
             self._rng = np.random.default_rng(seed)
 
-        def generate(self, history: list[Any], current_best: dict[str, Any] | None, context: dict[str, Any]) -> dict[str, Any]:
+        def generate(
+            self, history: list[Any], current_best: dict[str, Any] | None, context: dict[str, Any]
+        ) -> dict[str, Any]:
             del history, current_best, context
             candidate: dict[str, Any] = {"semantic": {"interventions": []}}
             for spec in self._specs:
@@ -261,7 +263,9 @@ def _cmd_scientist_stress_test(args: Any) -> int:
         cas=cas,
     )
 
-    rendered = json.dumps(report.model_dump(mode="json"), ensure_ascii=True, indent=2, sort_keys=True)
+    rendered = json.dumps(
+        report.model_dump(mode="json"), ensure_ascii=True, indent=2, sort_keys=True
+    )
     if args.output:
         Path(args.output).write_text(rendered, encoding="utf-8")
         print(f"stress_report={args.output}")

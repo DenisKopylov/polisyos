@@ -1,4 +1,5 @@
 """Fixtures for YAML-based golden regression tests."""
+
 from __future__ import annotations
 
 from pathlib import Path

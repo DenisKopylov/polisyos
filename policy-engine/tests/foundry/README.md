@@ -22,8 +22,10 @@ support. The slice currently contains `329` `test_*.py` files.
 
 - `tests/foundry/` root: `72` tests for compile/execute, runtime semantics,
   determinism, numerics, and high-level contracts.
+
 - `tests/foundry/methods/`: `203` tests for registry, protocol/compiler
   plumbing, backends, and catalog coverage.
+
 - `tests/foundry/agent_sim/`: `12` tests for simulation and monitoring paths.
 - `tests/foundry/calibration/`: `11` tests for calibration behavior.
 - `tests/foundry/runtime/`: `4` tests for runtime-adjacent execution behavior.
@@ -32,18 +34,19 @@ support. The slice currently contains `329` `test_*.py` files.
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - [`../../src/polisyos/foundry/README.md`](../../src/polisyos/foundry/README.md)
 - [`../../src/polisyos/foundry/methods/README.md`](../../src/polisyos/foundry/methods/README.md)
 - `src/polisyos/core`
 - `src/polisyos/ir`
 
-**Depended on by**
+### Depended On By
 
 - [`../scientist/README.md`](../scientist/README.md),
   [`../runtime/README.md`](../runtime/README.md), and
   [`../performance/README.md`](../performance/README.md)
+
 - Demo and benchmark flows that rely on stable compile/execute behavior
 
 ## Common Commands

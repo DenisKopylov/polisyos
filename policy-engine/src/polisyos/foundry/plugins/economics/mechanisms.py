@@ -1,4 +1,5 @@
 """Public economics mechanisms module API."""
+
 from __future__ import annotations
 
 import equinox as eqx

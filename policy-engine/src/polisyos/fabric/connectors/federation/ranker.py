@@ -4,9 +4,10 @@ Source ranking for federation - scores connectors by relevance.
 Implements multi-factor scoring algorithm that considers trust, completeness,
 freshness, and latency to rank data sources for a given composition request.
 """
+
 from __future__ import annotations
 
-from datetime import timedelta, timezone
+from datetime import UTC, timedelta
 
 from polisyos.common.logger import get_logger
 from polisyos.core.evaluation import WeightedScorer
@@ -15,8 +16,8 @@ from polisyos.fabric.connectors.federation.types import (
     RankedSource,
     RankingWeights,
 )
-from polisyos.fabric.finite import ensure_non_negative_finite, ensure_probability
 from polisyos.fabric.connectors.quality.report import DataQualityReport
+from polisyos.fabric.finite import ensure_non_negative_finite, ensure_probability
 from polisyos.fabric.temporal import utc_now
 from polisyos.ir.connectors import ConnectorMetadataSpec, TrustLevel
 
@@ -151,9 +152,7 @@ class SourceRanker:
             return 0.25
         return 0.0
 
-    def _calculate_completeness_score(
-        self, quality_report: DataQualityReport | None
-    ) -> float:
+    def _calculate_completeness_score(self, quality_report: DataQualityReport | None) -> float:
         """Calculate completeness score (0.0-1.0) from quality report."""
         if quality_report is None:
             return 0.5
@@ -201,7 +200,7 @@ class SourceRanker:
 
         now = utc_now()
         if last_updated.tzinfo is None:
-            last_updated = last_updated.replace(tzinfo=timezone.utc)
+            last_updated = last_updated.replace(tzinfo=UTC)
 
         age_hours = max(0.0, (now - last_updated).total_seconds() / 3600.0)
         if max_staleness is not None and age_hours > max_staleness.total_seconds() / 3600.0:
@@ -247,7 +246,7 @@ class SourceRanker:
             return False
         now = utc_now()
         if last_updated.tzinfo is None:
-            last_updated = last_updated.replace(tzinfo=timezone.utc)
+            last_updated = last_updated.replace(tzinfo=UTC)
         return (now - last_updated) > max_staleness
 
     def explain_score(self, ranked_source: RankedSource) -> str:

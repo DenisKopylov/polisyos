@@ -78,12 +78,7 @@ export function ShareDialog({
               className="border-0 pl-9 text-sm focus-visible:ring-0"
             />
           </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={handleCopy}
-          >
+          <Button type="button" variant="ghost" size="sm" onClick={handleCopy}>
             {copied ? (
               <Check className="h-4 w-4 text-emerald-500" />
             ) : (

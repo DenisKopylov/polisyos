@@ -7,6 +7,7 @@ topology, records oracle-level completeness assumptions explicitly, and falls
 back to bounds when those obligations are not accepted or the nested bridge
 appears numerically unsafe.
 """
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -14,7 +15,6 @@ from typing import Any
 
 import numpy as np
 
-from polisyos.foundry.methods.catalog.causal.admg_ops import has_directed_cycle
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -32,6 +32,7 @@ from polisyos.foundry.methods.catalog.causal._common import (
     build_success_report,
     wrap_causal_output,
 )
+from polisyos.foundry.methods.catalog.causal.admg_ops import has_directed_cycle
 from polisyos.foundry.methods.catalog.causal.frontier import (
     _bootstrap_effect_interval,
     _bridge_diagnostic_tests,
@@ -180,7 +181,9 @@ def proximal_mediation_bounds_bundle(
     bundle = bounds_bundle_from_partial_identification_result(
         partial,
         estimand_type=(
-            "proximal_mediation_psi" if str(target_effect).lower() == "psi" else "path_specific_effect"
+            "proximal_mediation_psi"
+            if str(target_effect).lower() == "psi"
+            else "path_specific_effect"
         ),
         warnings=list(warnings or []),
         metadata={
@@ -283,7 +286,9 @@ def _normalize_execution_state(
         for name in x_names:
             column = _coerce_vector(state.get(name))
             if column is None or column.shape[0] != n_obs:
-                raise ValueError("covariate columns must be aligned when covariates matrix is absent")
+                raise ValueError(
+                    "covariate columns must be aligned when covariates matrix is absent"
+                )
             covariate_columns.append(column)
         covariates = (
             np.column_stack(covariate_columns)
@@ -372,7 +377,9 @@ def _estimate_proximal_mediation_components(
     h1_design = np.column_stack([np.ones(x1.shape[0]), w1_hat, m1, x1])
     h1_coef = _weighted_least_squares(h1_design, y1, ridge=ridge)
 
-    h1_all_design = np.column_stack([np.ones(outcome.shape[0]), outcome_proxy, mediator, covariates])
+    h1_all_design = np.column_stack(
+        [np.ones(outcome.shape[0]), outcome_proxy, mediator, covariates]
+    )
     h1_values = h1_all_design @ h1_coef
 
     x0 = covariates[mask_a0]
@@ -808,16 +815,25 @@ class ProximalMediationEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
                 SlotSpec("mediator", SlotType.VECTOR, Unit("mediator", "value"), shape=("n_obs",)),
-                SlotSpec("covariates", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-                SlotSpec("treatment_proxy", SlotType.VECTOR, Unit("proxy", "value"), shape=("n_obs",)),
-                SlotSpec("outcome_proxy", SlotType.VECTOR, Unit("proxy", "value"), shape=("n_obs",)),
+                SlotSpec(
+                    "covariates",
+                    SlotType.MATRIX,
+                    Unit("covariate", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
+                SlotSpec(
+                    "treatment_proxy", SlotType.VECTOR, Unit("proxy", "value"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "outcome_proxy", SlotType.VECTOR, Unit("proxy", "value"), shape=("n_obs",)
+                ),
             }
         ),
-        output_slots=frozenset(
-            _proximal_mediation_output_slots()
-        ),
+        output_slots=frozenset(_proximal_mediation_output_slots()),
         parameters=(
             ParameterSpec("theorem_family", default=PROXIMAL_MEDIATION_V1_THEOREM),
             ParameterSpec("oracle_gate", default="required"),
@@ -861,6 +877,11 @@ class ProximalMediationEstimator:
         when_not_to_use=(
             "Do not use for arbitrary path-specific graphs, unsupported proxy "
             "topologies, or when oracle assumptions are not accepted."
+        ),
+        output_interpretation=(
+            "Outputs a proximal mediation report with bridge diagnostics, an "
+            "identified effect when certified, or explicit partial-identification "
+            "bounds and negative-certificate details when the oracle gate fails."
         ),
     )
 
@@ -959,8 +980,7 @@ class ProximalMediationEstimator:
                     "oracle-level completeness/cross-world assumptions were not accepted."
                 ),
                 technical_detail=(
-                    "Execution downgraded to bounds because oracle_gate "
-                    f"was '{oracle_gate}'."
+                    f"Execution downgraded to bounds because oracle_gate was '{oracle_gate}'."
                 ),
                 quantitative_diagnostics={
                     "oracle_gate": oracle_gate,
@@ -1024,9 +1044,7 @@ class ProximalMediationEstimator:
             negative_certificate = negative_certificate_from_bridge_plausibility_report(
                 bridge_report,
                 estimand_type=(
-                    "proximal_mediation_psi"
-                    if target_effect == "psi"
-                    else "path_specific_effect"
+                    "proximal_mediation_psi" if target_effect == "psi" else "path_specific_effect"
                 ),
                 bounds_bundle=bounds_bundle,
                 missing_vars=("additional_treatment_proxy", "additional_outcome_proxy"),
@@ -1136,9 +1154,7 @@ class ProximalMediationEstimator:
             seed=seed,
         )
         estimand_name = (
-            "proximal_mediation_psi"
-            if target_effect == "psi"
-            else f"proximal_{target_effect}"
+            "proximal_mediation_psi" if target_effect == "psi" else f"proximal_{target_effect}"
         )
         report = build_success_report(
             method=CausalMethod.PROXIMAL_BRIDGE,

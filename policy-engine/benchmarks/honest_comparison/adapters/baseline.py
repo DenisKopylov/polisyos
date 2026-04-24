@@ -17,8 +17,12 @@ class OLSBaseline:
         return False
 
     def fit_predict(
-        self, X: np.ndarray, T: np.ndarray, Y: np.ndarray,
-        config: dict[str, Any], seed: int,
+        self,
+        X: np.ndarray,
+        T: np.ndarray,
+        Y: np.ndarray,
+        config: dict[str, Any],
+        seed: int,
     ) -> EstimatorResult:
         n, p = X.shape
         # Regress Y on [X, T] via OLS
@@ -37,8 +41,10 @@ class OLSBaseline:
         se = float(np.std(boot_ates, ddof=1))
 
         return EstimatorResult(
-            ate=ate, ate_se=se,
-            ci_lower=ate - 1.96 * se, ci_upper=ate + 1.96 * se,
+            ate=ate,
+            ate_se=se,
+            ci_lower=ate - 1.96 * se,
+            ci_upper=ate + 1.96 * se,
         )
 
 
@@ -50,8 +56,12 @@ class NaiveDiffMeans:
         return False
 
     def fit_predict(
-        self, X: np.ndarray, T: np.ndarray, Y: np.ndarray,
-        config: dict[str, Any], seed: int,
+        self,
+        X: np.ndarray,
+        T: np.ndarray,
+        Y: np.ndarray,
+        config: dict[str, Any],
+        seed: int,
     ) -> EstimatorResult:
         treated = T.astype(bool)
         ate = float(np.mean(Y[treated]) - np.mean(Y[~treated]))
@@ -70,6 +80,8 @@ class NaiveDiffMeans:
         se = float(np.nanstd(boot_ates, ddof=1))
 
         return EstimatorResult(
-            ate=ate, ate_se=se,
-            ci_lower=ate - 1.96 * se, ci_upper=ate + 1.96 * se,
+            ate=ate,
+            ate_se=se,
+            ci_lower=ate - 1.96 * se,
+            ci_upper=ate + 1.96 * se,
         )

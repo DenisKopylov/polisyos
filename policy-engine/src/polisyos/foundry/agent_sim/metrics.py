@@ -1,9 +1,10 @@
 """Define reusable training and rollout metrics for agent-simulation experiments."""
+
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Callable, Sequence
 
 import chex
 import jax
@@ -14,6 +15,7 @@ from polisyos.foundry.agent_sim.state import GlobalState
 
 class MetricType(str, Enum):
     """Metric type public type."""
+
     SCALAR = "scalar"
     HISTOGRAM = "histogram"
     TRAJECTORY = "trajectory"
@@ -23,6 +25,7 @@ class MetricType(str, Enum):
 @dataclass(frozen=True)
 class MetricDefinition:
     """Metric definition public type."""
+
     name: str
     metric_type: MetricType
     compute_fn: Callable[[GlobalState], jnp.ndarray]
@@ -33,6 +36,7 @@ class MetricDefinition:
 @chex.dataclass(frozen=True)
 class MetricsBuffer:
     """Metrics buffer public type."""
+
     scalars: dict[str, jnp.ndarray]
     histograms: dict[str, jnp.ndarray]
     write_idx: jnp.ndarray
@@ -46,13 +50,10 @@ class MetricsBuffer:
         *,
         max_size: int = 10000,
         n_bins: int = 50,
-    ) -> "MetricsBuffer":
-        scalars = {
-            name: jnp.zeros((max_size,), dtype=jnp.float32) for name in scalar_names
-        }
+    ) -> MetricsBuffer:
+        scalars = {name: jnp.zeros((max_size,), dtype=jnp.float32) for name in scalar_names}
         histograms = {
-            name: jnp.zeros((max_size, n_bins), dtype=jnp.float32)
-            for name in histogram_names
+            name: jnp.zeros((max_size, n_bins), dtype=jnp.float32) for name in histogram_names
         }
         return cls(
             scalars=scalars,
@@ -61,18 +62,15 @@ class MetricsBuffer:
             max_size=int(max_size),
         )
 
-    def write_scalar_at(
-        self, name: str, value: jnp.ndarray, idx: jnp.ndarray
-    ) -> "MetricsBuffer":
+    def write_scalar_at(self, name: str, value: jnp.ndarray, idx: jnp.ndarray) -> MetricsBuffer:
         if name not in self.scalars:
             return self
         new_scalars = {
-            k: (v.at[idx].set(value) if k == name else v)
-            for k, v in self.scalars.items()
+            k: (v.at[idx].set(value) if k == name else v) for k, v in self.scalars.items()
         }
         return self.replace(scalars=new_scalars)
 
-    def write_scalar(self, name: str, value: jnp.ndarray) -> "MetricsBuffer":
+    def write_scalar(self, name: str, value: jnp.ndarray) -> MetricsBuffer:
         idx = self.write_idx % self.max_size
         return self.write_scalar_at(name, value, idx)
 
@@ -82,7 +80,7 @@ class MetricsBuffer:
         values: jnp.ndarray,
         bins: jnp.ndarray,
         idx: jnp.ndarray,
-    ) -> "MetricsBuffer":
+    ) -> MetricsBuffer:
         if name not in self.histograms:
             return self
         values = jnp.ravel(values)
@@ -92,24 +90,22 @@ class MetricsBuffer:
         hist, _ = jnp.histogram(safe_values, bins=bins, weights=weights)
         hist = hist / jnp.maximum(jnp.sum(hist), 1.0)
         new_histograms = {
-            k: (v.at[idx].set(hist) if k == name else v)
-            for k, v in self.histograms.items()
+            k: (v.at[idx].set(hist) if k == name else v) for k, v in self.histograms.items()
         }
         return self.replace(histograms=new_histograms)
 
-    def write_histogram(
-        self, name: str, values: jnp.ndarray, bins: jnp.ndarray
-    ) -> "MetricsBuffer":
+    def write_histogram(self, name: str, values: jnp.ndarray, bins: jnp.ndarray) -> MetricsBuffer:
         idx = self.write_idx % self.max_size
         return self.write_histogram_at(name, values, bins, idx)
 
-    def advance(self, step: int = 1) -> "MetricsBuffer":
+    def advance(self, step: int = 1) -> MetricsBuffer:
         return self.replace(write_idx=self.write_idx + int(step))
 
 
 @chex.dataclass(frozen=True, init=False, mappable_dataclass=False)
 class MetricsCollector:
     """Metrics collector public type."""
+
     definitions: tuple[MetricDefinition, ...]
     buffer: MetricsBuffer
     step_counter: jnp.ndarray
@@ -123,21 +119,17 @@ class MetricsCollector:
     ):
         object.__setattr__(self, "definitions", tuple(definitions))
         if buffer is None:
-            scalar_names = [
-                d.name for d in self.definitions if d.metric_type == MetricType.SCALAR
-            ]
+            scalar_names = [d.name for d in self.definitions if d.metric_type == MetricType.SCALAR]
             histogram_names = [
                 d.name for d in self.definitions if d.metric_type == MetricType.HISTOGRAM
             ]
-            buffer = MetricsBuffer.create(
-                scalar_names, histogram_names, max_size=max_history
-            )
+            buffer = MetricsBuffer.create(scalar_names, histogram_names, max_size=max_history)
         object.__setattr__(self, "buffer", buffer)
         if step_counter is None:
             step_counter = jnp.array(0, dtype=jnp.int32)
         object.__setattr__(self, "step_counter", step_counter)
 
-    def collect(self, state: GlobalState) -> "MetricsCollector":
+    def collect(self, state: GlobalState) -> MetricsCollector:
         buffer = self.buffer
         idx = buffer.write_idx % buffer.max_size
 
@@ -172,6 +164,7 @@ class MetricsCollector:
 
 def standard_training_metrics() -> list[MetricDefinition]:
     """Declare the default state metrics tracked during agent training."""
+
     def _active_mean(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
         active_f = active.astype(jnp.float32)
         denom = jnp.maximum(jnp.sum(active_f), 1.0)
@@ -207,17 +200,13 @@ def standard_training_metrics() -> list[MetricDefinition]:
         MetricDefinition(
             name="wealth_distribution",
             metric_type=MetricType.HISTOGRAM,
-            compute_fn=lambda s: jnp.where(
-                s.agents.active, s.agents.wealth, jnp.nan
-            ),
+            compute_fn=lambda s: jnp.where(s.agents.active, s.agents.wealth, jnp.nan),
             frequency=10,
         ),
         MetricDefinition(
             name="income_distribution",
             metric_type=MetricType.HISTOGRAM,
-            compute_fn=lambda s: jnp.where(
-                s.agents.active, s.agents.income, jnp.nan
-            ),
+            compute_fn=lambda s: jnp.where(s.agents.active, s.agents.income, jnp.nan),
             frequency=10,
         ),
     ]
@@ -261,8 +250,6 @@ def _safe_histogram_bins(values: jnp.ndarray, n_bins: int) -> jnp.ndarray:
     safe_max = jnp.max(jnp.where(finite, values, -jnp.inf))
     has_finite = jnp.any(finite)
     min_val = jax.lax.select(has_finite, safe_min, jnp.array(0.0, dtype=values.dtype))
-    max_val = jax.lax.select(
-        has_finite, safe_max, jnp.array(1.0, dtype=values.dtype)
-    )
+    max_val = jax.lax.select(has_finite, safe_max, jnp.array(1.0, dtype=values.dtype))
     max_val = jnp.where(max_val <= min_val, min_val + 1.0, max_val)
     return jnp.linspace(min_val - 1e-6, max_val + 1e-6, int(n_bins) + 1)

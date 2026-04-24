@@ -94,14 +94,8 @@ source_modules = [
   "polisyos.scientist",
   "polisyos.scholar",
 ]
-forbidden_modules = [
-  "polisyos.data_forge.kernel",
-  "polisyos.data_forge.domains",
-]
-ignore_imports = [
-  "polisyos.data_forge.read_api",
-  "polisyos.data_forge.read_api.*",
-]
+forbidden_modules = ["polisyos.data_forge.kernel", "polisyos.data_forge.domains"]
+ignore_imports = ["polisyos.data_forge.read_api", "polisyos.data_forge.read_api.*"]
 
 # ---------------------------------------------------------------------------
 # Foundry / Lex neutrality.
@@ -132,10 +126,7 @@ forbidden_modules = [
   "polisyos.data_forge.kernel",
   "polisyos.data_forge.domains",
 ]
-ignore_imports = [
-  "polisyos.data_forge.read_api",
-  "polisyos.data_forge.read_api.*",
-]
+ignore_imports = ["polisyos.data_forge.read_api", "polisyos.data_forge.read_api.*"]
 
 # ---------------------------------------------------------------------------
 # Runtime-private: HTTP/services/app factories must not be imported by
@@ -180,10 +171,7 @@ forbidden_modules = [
   "polisyos.data_forge.kernel",
   "polisyos.data_forge.domains",
 ]
-ignore_imports = [
-  "polisyos.data_forge.read_api",
-  "polisyos.data_forge.read_api.*",
-]
+ignore_imports = ["polisyos.data_forge.read_api", "polisyos.data_forge.read_api.*"]
 
 # ---------------------------------------------------------------------------
 # Packs must only consume public facades.

@@ -4,13 +4,13 @@
 
 ## Что находится в директории
 
-| Артефакт | Назначение |
-| --- | --- |
-| `abi_models.py` | Реестр ABI (`ABI_MODELS`): что и как версионируется в `snapshots/{ir,fabric}` |
-| `snapshots/ir/*.schema.json`, `snapshots/fabric/*.schema.json` | JSON Schema baseline для semantic diff |
-| `snapshots/*/_manifest.json` | Метаданные генерации и хеши (`sha256_full`, `sha256_semantic`) |
-| `snapshots/connectors/contracts.json` | Snapshot контрактов source-коннекторов |
-| `runtime_api_v1.openapi.json` | Коммитный OpenAPI контракт Runtime API v1 |
+| Артефакт                                                       | Назначение                                                                    |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `abi_models.py`                                                | Реестр ABI (`ABI_MODELS`): что и как версионируется в `snapshots/{ir,fabric}` |
+| `snapshots/ir/*.schema.json`, `snapshots/fabric/*.schema.json` | JSON Schema baseline для semantic diff                                        |
+| `snapshots/*/_manifest.json`                                   | Метаданные генерации и хеши (`sha256_full`, `sha256_semantic`)                |
+| `snapshots/connectors/contracts.json`                          | Snapshot контрактов source-коннекторов                                        |
+| `runtime_api_v1.openapi.json`                                  | Коммитный OpenAPI контракт Runtime API v1                                     |
 
 ## Актуальное состояние (2026-03-03)
 
@@ -52,17 +52,17 @@ src/polisyos/runtime/http/app.py
 
 ## Связи с соседними директориями
 
-| Директория | Роль относительно `schemas/` |
-| --- | --- |
-| `src/polisyos/ir` | Источник Pydantic ABI-моделей для `snapshots/ir` |
-| `src/polisyos/ir/world/abi.py` | Источник enum ABI (`edge_kind`, `node_kind`) для `snapshots/fabric` |
+| Директория                                          | Роль относительно `schemas/`                                            |
+| --------------------------------------------------- | ----------------------------------------------------------------------- |
+| `src/polisyos/ir`                                   | Источник Pydantic ABI-моделей для `snapshots/ir`                        |
+| `src/polisyos/ir/world/abi.py`                      | Источник enum ABI (`edge_kind`, `node_kind`) для `snapshots/fabric`     |
 | `src/polisyos/fabric/connectors/sources/_contracts` | Источник connector-контрактов для `snapshots/connectors/contracts.json` |
-| `src/polisyos/runtime/http` | Источник OpenAPI контракта для `runtime_api_v1.openapi.json` |
-| `tools/diagnostics` | Генерация ABI snapshot и semantic diff (`gen_schema.py`, `abi_diff.py`) |
-| `tools/connectors` | Drift/compatibility проверка и обновление connector snapshot |
-| `tools/runtime` | Экспорт OpenAPI, hardening+drift checks, генерация runtime клиента |
-| `frontend/runtime-api-client` | Коммитный runtime SDK (TS/JS) |
-| `frontend/runtime-dashboard` | Генерация OpenAPI типов для UI (`npm run generate:api`) |
+| `src/polisyos/runtime/http`                         | Источник OpenAPI контракта для `runtime_api_v1.openapi.json`            |
+| `tools/diagnostics`                                 | Генерация ABI snapshot и semantic diff (`gen_schema.py`, `abi_diff.py`) |
+| `tools/connectors`                                  | Drift/compatibility проверка и обновление connector snapshot            |
+| `tools/runtime`                                     | Экспорт OpenAPI, hardening+drift checks, генерация runtime клиента      |
+| `frontend/runtime-api-client`                       | Коммитный runtime SDK (TS/JS)                                           |
+| `frontend/runtime-dashboard`                        | Генерация OpenAPI типов для UI (`npm run generate:api`)                 |
 
 ## Рабочие команды (из `policy-engine/`)
 

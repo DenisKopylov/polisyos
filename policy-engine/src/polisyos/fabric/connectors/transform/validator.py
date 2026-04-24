@@ -1,4 +1,5 @@
 """Data quality validation transform and rules."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -20,9 +21,9 @@ from polisyos.fabric.connectors.transform.pipeline import (
 )
 
 __all__ = [
-    "ValidationRule",
     "CompletenessRule",
     "RangeRule",
+    "ValidationRule",
     "ValidationTransform",
 ]
 
@@ -32,11 +33,9 @@ class ValidationRule(Protocol):
 
     name: str
 
-    def validate(self, data: pd.DataFrame, context: TransformContext) -> list[str]:
-        ...
+    def validate(self, data: pd.DataFrame, context: TransformContext) -> list[str]: ...
 
-    def required_fields(self) -> set[str]:
-        ...
+    def required_fields(self) -> set[str]: ...
 
 
 @dataclass

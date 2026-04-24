@@ -1,15 +1,24 @@
 """Tests for agent_sim training configuration."""
+
 from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
 import pytest
 
-from polisyos.foundry.agent_sim import ActorCritic, build_temporal_observations, create_temporal_executor
+from polisyos.foundry.agent_sim import (
+    ActorCritic,
+    build_temporal_observations,
+    create_temporal_executor,
+)
 from polisyos.foundry.agent_sim.actor_critic import compute_log_prob, sample_actions
 from polisyos.foundry.agent_sim.prng import get_mechanism_key
 from polisyos.foundry.agent_sim.rewards import compute_agent_reward
-from polisyos.foundry.agent_sim.training import TrainingConfig, collect_trajectory, train_actor_critic
+from polisyos.foundry.agent_sim.training import (
+    TrainingConfig,
+    collect_trajectory,
+    train_actor_critic,
+)
 
 
 class TestTrainingConfig:

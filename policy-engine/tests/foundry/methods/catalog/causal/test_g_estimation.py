@@ -1,19 +1,20 @@
 """Tests for G-estimation (Structural Nested Mean Model)."""
+
 from __future__ import annotations
 
 import importlib
-import numpy as np
-import pytest
 import sys
 
+import numpy as np
+import pytest
+
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog.causal.g_estimation import StructuralNestedMeanModel
 from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
+from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics.causal import EstimationStatus
 from polisyos.ir.analytics.dynamic_regime import SNMMResult
-
 
 # ---------------------------------------------------------------------------
 # DGP helpers
@@ -84,9 +85,7 @@ class TestStructuralNestedMeanModel:
         assert isinstance(snmm, SNMMResult)
         # ψ_0 from last stage should be close to 1.0
         psi_main = snmm.psi_estimates[0]
-        assert abs(psi_main - 1.0) < 0.25, (
-            f"Expected ψ ≈ 1.0, got {psi_main:.4f}"
-        )
+        assert abs(psi_main - 1.0) < 0.25, f"Expected ψ ≈ 1.0, got {psi_main:.4f}"
 
     def test_psi_zero_under_no_effect(self):
         """When true ψ = 0, estimate should be near zero."""

@@ -1,4 +1,5 @@
 """HTTP middleware for tenant-to-cell routing."""
+
 from __future__ import annotations
 
 import time
@@ -240,5 +241,6 @@ class CellRouterMiddleware(_BaseHTTPMiddleware):
             incident_type="cross_tenant_access",
             cell_id=cell_id,
         )
+
 
 __all__ = ["TENANT_HEADER", "CellRouterMiddleware"]

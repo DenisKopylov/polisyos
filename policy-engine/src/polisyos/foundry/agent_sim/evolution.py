@@ -1,8 +1,9 @@
 """Run derivative-free evolution strategies for agent-simulation policy search."""
+
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 import equinox as eqx
 import jax
@@ -17,6 +18,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 @dataclass(frozen=True)
 class ESConfig:
     """Configure evolution-strategy search over repeated simulation rollouts."""
+
     population_size: int = 64
     n_generations: int = 100
     sigma: float = 0.02
@@ -92,6 +94,7 @@ def run_evolution_strategies(
 @dataclass(frozen=True)
 class CMAESConfig:
     """Configure CMA-ES policy search when covariance adaptation matters."""
+
     population_size: int = 64
     n_generations: int = 100
     sigma_init: float = 0.5
@@ -121,9 +124,7 @@ def run_cma_es(
     cs = (mu_eff + 2) / (n_params + mu_eff + 5)
     c1 = 2 / ((n_params + 1.3) ** 2 + mu_eff)
     cmu = min(1 - c1, 2 * (mu_eff - 2 + 1 / mu_eff) / ((n_params + 2) ** 2 + mu_eff))
-    damps = 1 + 2 * jnp.maximum(
-        0.0, jnp.sqrt((mu_eff - 1) / (n_params + 1)) - 1
-    ) + cs
+    damps = 1 + 2 * jnp.maximum(0.0, jnp.sqrt((mu_eff - 1) / (n_params + 1)) - 1) + cs
     chi_n = jnp.sqrt(n_params) * (1 - 1 / (4 * n_params) + 1 / (21 * n_params**2))
 
     def evaluate_params(flat_p: jnp.ndarray, key: jax.Array) -> jnp.ndarray:
@@ -162,13 +163,13 @@ def run_cma_es(
         ps = (1 - cs) * ps + jnp.sqrt(cs * (2 - cs) * mu_eff) * (mean - old_mean) / sigma
         norm_ps = jnp.linalg.norm(ps) / jnp.maximum(chi_n, 1e-8)
         hsig = norm_ps < (1.4 + 2 / (n_params + 1))
-        pc = (1 - cc) * pc + hsig * jnp.sqrt(cc * (2 - cc) * mu_eff) * (
-            mean - old_mean
-        ) / sigma
+        pc = (1 - cc) * pc + hsig * jnp.sqrt(cc * (2 - cc) * mu_eff) * (mean - old_mean) / sigma
 
         artmp = (selected - old_mean) / sigma
-        c_diag = (1 - c1 - cmu) * c_diag + c1 * pc**2 + cmu * jnp.sum(
-            weights[:, None] * artmp**2, axis=0
+        c_diag = (
+            (1 - c1 - cmu) * c_diag
+            + c1 * pc**2
+            + cmu * jnp.sum(weights[:, None] * artmp**2, axis=0)
         )
         sigma = sigma * jnp.exp((cs / damps) * (norm_ps - 1))
 

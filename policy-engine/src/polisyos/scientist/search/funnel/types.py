@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Dict, Literal
+from typing import Any, Literal
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.search.failure_cards import TypedFailureCard
@@ -14,7 +14,6 @@ from polisyos.scientist.search.uncertainty import (
     UncertaintyEstimate,
     UncertaintyType,
 )
-
 
 # ---------------------------------------------------------------------------
 # §8.5 — CheapSignalVector
@@ -112,8 +111,8 @@ class FunnelStage(SearchStage):
     @abstractmethod
     def evaluate(
         self,
-        candidate: Dict[str, Any],
-        context: Dict[str, Any],
+        candidate: dict[str, Any],
+        context: dict[str, Any],
     ) -> FunnelStageResult:
         """Evaluate a candidate and return a funnel-aware result."""
         ...

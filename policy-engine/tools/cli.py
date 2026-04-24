@@ -12,7 +12,13 @@ from pathlib import Path
 import click
 
 from tools._lib.fs import atomic_write_text
-from tools._lib.output import OUTPUT_FORMATS, OutputFormat, ToolMessage, ToolResult, format_tool_result
+from tools._lib.output import (
+    OUTPUT_FORMATS,
+    OutputFormat,
+    ToolMessage,
+    ToolResult,
+    format_tool_result,
+)
 from tools._lib.preflight import PreflightStatus, run_preflight
 from tools._lib.runner import ToolExecutionError, ToolSpec, ToolStatus, invoke_tool_main
 from tools._lib.timing import (
@@ -45,8 +51,7 @@ def _preflight_result(spec: ToolSpec) -> ToolResult | None:
     if preflight.status == PreflightStatus.OK:
         return None
     messages = tuple(
-        ToolMessage(level=issue.status.value, message=issue.message)
-        for issue in preflight.issues
+        ToolMessage(level=issue.status.value, message=issue.message) for issue in preflight.issues
     )
     return ToolResult(
         tool=spec.qualified_name,
@@ -252,9 +257,17 @@ def _make_tool_command(spec: ToolSpec) -> click.Command:
         show_default=True,
         help="Format for unified CLI boundary messages.",
     )
-    @click.option("--skip-preflight", is_flag=True, help="Skip dependency and lifecycle preflight checks.")
-    @click.option("--allow-degraded", is_flag=True, help="Run a tool even when preflight reports degraded mode.")
-    @click.option("--allow-deprecated", is_flag=True, help="Run deprecated or quarantined legacy tools.")
+    @click.option(
+        "--skip-preflight", is_flag=True, help="Skip dependency and lifecycle preflight checks."
+    )
+    @click.option(
+        "--allow-degraded",
+        is_flag=True,
+        help="Run a tool even when preflight reports degraded mode.",
+    )
+    @click.option(
+        "--allow-deprecated", is_flag=True, help="Run deprecated or quarantined legacy tools."
+    )
     @click.option(
         "--timing-log",
         type=click.Path(path_type=Path, dir_okay=False, writable=True),

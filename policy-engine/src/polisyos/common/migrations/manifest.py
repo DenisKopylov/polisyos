@@ -1,4 +1,5 @@
 """Public migrations manifest module API."""
+
 from __future__ import annotations
 
 from polisyos.common.migrations.base import ArtifactPayload, register_migration

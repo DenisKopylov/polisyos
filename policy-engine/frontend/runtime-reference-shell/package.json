@@ -1,0 +1,23 @@
+{
+  "name": "@polisyos/runtime-reference-shell",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22 <23"
+  },
+  "scripts": {
+    "lint": "eslint app.js scripts/check-architecture.mjs eslint.config.mjs --max-warnings=0",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "check:architecture": "node ./scripts/check-architecture.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1",
+    "typescript": "^5.7.3"
+  }
+}

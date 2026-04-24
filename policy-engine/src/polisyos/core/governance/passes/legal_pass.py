@@ -1,7 +1,8 @@
 """Public passes legal pass module API."""
+
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING
 
 from polisyos.core.backends import BackendDispatcher, BackendNotAvailableError
 from polisyos.core.contracts.lex import ComplianceIssue
@@ -20,13 +21,13 @@ if TYPE_CHECKING:
     from polisyos.ir.norm_pack import NormPack
 
 
-_BACKEND_REGISTRY: Dict[str, type["RuleBackend"]] = {
+_BACKEND_REGISTRY: dict[str, type[RuleBackend]] = {
     "stub": StubBackend,
     "expr_ast": ExpressionASTBackend,
 }
 
 
-def _build_backend(backend_id: str) -> "RuleBackend":
+def _build_backend(backend_id: str) -> RuleBackend:
     backend_cls = _BACKEND_REGISTRY.get(backend_id)
     if backend_cls is None:
         raise BackendNotAvailableError(backend_id, reason="unknown backend")
@@ -45,7 +46,7 @@ class LegalPass(ValidatorPass):
 
     def __init__(
         self,
-        backend: "RuleBackend | str | None" = None,
+        backend: RuleBackend | str | None = None,
         enabled: bool = False,
     ) -> None:
         """
@@ -60,14 +61,13 @@ class LegalPass(ValidatorPass):
         if backend is None:
             self._backend = StubBackend()
         elif isinstance(backend, str):
-            dispatcher = BackendDispatcher[str, RuleBackend](factory=_build_backend)
+            dispatcher = BackendDispatcher(factory=_build_backend)
             try:
                 self._backend = dispatcher.resolve(backend)
-            except BackendNotAvailableError:
+            except BackendNotAvailableError as exc:
                 raise ValueError(
-                    f"Unknown backend: {backend}. "
-                    f"Available: {list(_BACKEND_REGISTRY.keys())}"
-                )
+                    f"Unknown backend: {backend}. Available: {list(_BACKEND_REGISTRY.keys())}"
+                ) from exc
         else:
             self._backend = backend
         self._enabled = enabled
@@ -84,7 +84,7 @@ class LegalPass(ValidatorPass):
     def requires_data(self) -> bool:
         return True
 
-    def validate(self, ctx: PassContext) -> List[ComplianceIssue]:
+    def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
         if not self._enabled and ctx.profile.level != ProfileLevel.STRICT:
             return []
 
@@ -107,7 +107,7 @@ class LegalPass(ValidatorPass):
             for issue in backend_issues
         ]
 
-    def _resolve_norms(self, ctx: PassContext) -> "NormPack | None":
+    def _resolve_norms(self, ctx: PassContext) -> NormPack | None:
         """
         Resolve applicable NormPack from context.
 

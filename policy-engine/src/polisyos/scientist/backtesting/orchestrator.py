@@ -1,4 +1,5 @@
 """Replay historical validation plans and aggregate trust calibration/audit outputs."""
+
 from __future__ import annotations
 
 import json
@@ -165,7 +166,9 @@ class BacktestOrchestrator:
             artifact_id = ArtifactID.model_validate(plan.historical_data_ref)
             payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
             if not isinstance(payload, dict):
-                raise ValueError(f"historical_data_ref must point to a JSON object: {plan.historical_data_ref}")
+                raise ValueError(
+                    f"historical_data_ref must point to a JSON object: {plan.historical_data_ref}"
+                )
             return cast("dict[str, Any]", payload)
         assert plan.historical_data_path is not None
         file_payload = json.loads(Path(plan.historical_data_path).read_text(encoding="utf-8"))
@@ -324,7 +327,9 @@ class BacktestOrchestrator:
                 finite = series[np.isfinite(series)]
                 if finite.size == 0:
                     baseline = 0.0
-                    warnings.append(f"metric '{metric}' has no finite pre-intervention values; baseline=0 used")
+                    warnings.append(
+                        f"metric '{metric}' has no finite pre-intervention values; baseline=0 used"
+                    )
                 elif finite.size == 1:
                     baseline = float(finite[-1])
                 else:
@@ -354,7 +359,9 @@ class BacktestOrchestrator:
         trust_eligible = not degraded
         trust_score, trust_grade = (None, None)
         if trust_eligible:
-            trust_score, trust_grade = self._trust_scorer.compute(scenarios=scenarios, biases=biases)
+            trust_score, trust_grade = self._trust_scorer.compute(
+                scenarios=scenarios, biases=biases
+            )
 
         return BacktestReport(
             schema_version="1.0",
@@ -363,7 +370,9 @@ class BacktestOrchestrator:
             overall_rmse=float(np.mean(rmse_values)) if rmse_values else None,
             overall_mae=float(np.mean(mae_values)) if mae_values else None,
             overall_mape=float(np.mean(mape_values)) if mape_values else None,
-            overall_coverage_probability=float(np.mean(coverage_values)) if coverage_values else None,
+            overall_coverage_probability=float(np.mean(coverage_values))
+            if coverage_values
+            else None,
             n_scenarios=len(scenarios),
             n_metrics_evaluated=sum(len(item.outcome_comparisons) for item in scenarios),
             detected_biases=biases,

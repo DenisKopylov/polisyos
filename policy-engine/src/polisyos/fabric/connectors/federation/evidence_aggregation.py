@@ -4,10 +4,11 @@ Evidence aggregation for multi-source composition.
 Extends the evidence system to support composite evidence bundles that
 track provenance across multiple sources with deterministic identifiers.
 """
+
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import content_hash, to_canonical_bytes
@@ -20,8 +21,8 @@ from polisyos.fabric.connectors.federation.types import (
     CompositionStrategy,
     MergeLogEntry,
 )
-from polisyos.fabric.finite import ensure_probability
 from polisyos.fabric.evidence import persist_provenance_graph
+from polisyos.fabric.finite import ensure_probability
 from polisyos.fabric.provenance.core import (
     ActivityType,
     AgentType,
@@ -33,7 +34,7 @@ from polisyos.fabric.provenance.core import (
     ProvenanceEntity,
 )
 
-_DETERMINISTIC_TIMESTAMP = datetime(1970, 1, 1, tzinfo=timezone.utc)
+_DETERMINISTIC_TIMESTAMP = datetime(1970, 1, 1, tzinfo=UTC)
 
 
 def build_composite_evidence_bundle(
@@ -136,7 +137,7 @@ def _build_composite_provenance(
     )
 
     graph_id = f"composition_{digest[:8]}"
-    timestamp = _DETERMINISTIC_TIMESTAMP if deterministic else datetime.now(timezone.utc)
+    timestamp = _DETERMINISTIC_TIMESTAMP if deterministic else datetime.now(UTC)
 
     graph = ProvenanceCoreGraph(
         graph_id=graph_id,

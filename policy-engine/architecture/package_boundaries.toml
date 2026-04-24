@@ -285,12 +285,7 @@ frozen = true
 migration_target = "polisyos.data_forge.domains.legal"
 migration_shim_id = "polisyos-lex-batch-to-data-forge-legal"
 sunset_phase = "Phase 4"
-allowed_dependencies = [
-  "polisyos.common",
-  "polisyos.ir",
-  "polisyos.core",
-  "polisyos.fabric",
-]
+allowed_dependencies = ["polisyos.common", "polisyos.ir", "polisyos.core", "polisyos.fabric"]
 forbidden_dependencies = [
   "polisyos.runtime",
   "polisyos.scientist",

@@ -7,6 +7,14 @@ import { llmProfilesQueryOptions } from "@/api/hooks/useLlmProfiles";
 import { runsQueryOptions } from "@/api/hooks/useRuns";
 import { sourceProfilesQueryOptions } from "@/api/hooks/useSourceProfiles";
 import { runsSampleQueryOptions } from "@/features/runs";
+import {
+  readStoredThemePreference,
+  type ThemePreference,
+} from "@/app/providers/ThemeProvider";
+import {
+  readPreferencesFromStorage,
+  type Density,
+} from "@/app/state/usePreferencesStore";
 import type { InterfaceMode } from "@/app/providers/InterfaceModeProvider";
 import type { FeatureFlagKey, FeatureFlags } from "@/lib/featureFlags";
 
@@ -35,6 +43,11 @@ export type WorkspacePrefetchKey =
   | "runs"
   | "runsSample"
   | "sourceProfiles";
+
+export type WorkspaceAppearancePreferences = {
+  density: Density;
+  theme: ThemePreference;
+};
 
 type WorkspaceBootstrapQueryOptions =
   | ReturnType<typeof capabilitiesQueryOptions>
@@ -235,4 +248,11 @@ export function buildBootstrapQueryOptions(
     case "sourceProfiles":
       return sourceProfilesQueryOptions();
   }
+}
+
+export function readWorkspaceAppearancePreferences(): WorkspaceAppearancePreferences {
+  return {
+    density: readPreferencesFromStorage().density,
+    theme: readStoredThemePreference() ?? "system",
+  };
 }

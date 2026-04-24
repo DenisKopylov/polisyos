@@ -1,1 +1,1 @@
-from fixtures.runtime_http import *  # noqa: F401,F403
+from fixtures.runtime_http import *  # noqa: F403 - pytest fixture barrel

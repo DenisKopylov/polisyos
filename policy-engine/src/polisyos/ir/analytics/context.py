@@ -1,4 +1,5 @@
 """Public analytics context module API."""
+
 from __future__ import annotations
 
 import logging
@@ -13,6 +14,7 @@ _EXPECTED_ENRICHMENT_ERRORS = (LookupError, OSError, RuntimeError, TypeError, Va
 
 class ContextProfileInferenceLevel(str, Enum):
     """Context profile inference level public type."""
+
     INFERRED_BASIC = "inferred_basic"
     ENRICHED = "enriched"
     MANUAL = "manual"
@@ -20,6 +22,7 @@ class ContextProfileInferenceLevel(str, Enum):
 
 class IncomeLevel(str, Enum):
     """Income level public type."""
+
     LOW = "low"
     LOWER_MIDDLE = "lower_middle"
     UPPER_MIDDLE = "upper_middle"
@@ -87,7 +90,7 @@ class ContextProfile(BaseModel):
 
         return tuple(self._enrichment_issues)
 
-    def distance_to(self, other: "ContextProfile") -> float:
+    def distance_to(self, other: ContextProfile) -> float:
         """
         Context distance in [0,1] for transportability scoring.
 
@@ -145,17 +148,14 @@ class ContextProfile(BaseModel):
         wvs: Any,
         wdi: Any,
         year: int | None = None,
-    ) -> "ContextProfile":
+    ) -> ContextProfile:
         """
         Best-effort enrichment of inferred context using optional datasource clients.
 
         Clients are intentionally duck-typed to keep this IR package dependency-light.
         """
         resolved_year = (
-            year
-            or self.publication_year
-            or _extract_year_from_period(self.time_period)
-            or 2020
+            year or self.publication_year or _extract_year_from_period(self.time_period) or 2020
         )
         wgi_result = _safe_get_indicators(wgi, "wgi", self.context_id, resolved_year)
         wdi_result = _safe_get_indicators(wdi, "wdi", self.context_id, resolved_year)
@@ -421,7 +421,7 @@ def _safe_get_wvs_indicators(client: Any, context_id: str, year: int) -> _Dataso
         )
         return _DatasourceFetchResult(
             payload=None,
-            issues=tuple([*issues, *invalid.issues]),
+            issues=(*issues, *invalid.issues),
         )
     return _DatasourceFetchResult(payload=payload, issues=tuple(issues))
 

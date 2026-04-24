@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { Badge, Card } from "@/shared/ui/primitives";
 import type { BadgeKind } from "@/shared/ui/Badge";
@@ -22,14 +23,6 @@ type NegativeCertificateCardProps = {
   className?: string;
 };
 
-const BLOCKING_LABELS: Record<string, { label: string; kind: BadgeKind }> = {
-  identification_failure: { label: "Not Identified", kind: "fail" },
-  data_insufficient: { label: "Insufficient Data", kind: "fail" },
-  assumption_violation: { label: "Assumption Violated", kind: "fail" },
-  bounds_only: { label: "Bounds Only", kind: "warn" },
-  transport_failure: { label: "Transport Failed", kind: "warn" },
-};
-
 const FEASIBILITY_KIND: Record<string, BadgeKind> = {
   high: "ok",
   medium: "warn",
@@ -44,7 +37,38 @@ export function NegativeCertificateCard({
   suggestedExperiments = [],
   className,
 }: NegativeCertificateCardProps) {
-  const blocking = BLOCKING_LABELS[blockingType] ?? {
+  const { t } = useI18n();
+  const blockingLabels: Record<string, { label: string; kind: BadgeKind }> = {
+    identification_failure: {
+      kind: "fail",
+      label: t(
+        "shared.ui.negativeCertificateCard.blockingLabels.identificationFailure",
+      ),
+    },
+    data_insufficient: {
+      kind: "fail",
+      label: t(
+        "shared.ui.negativeCertificateCard.blockingLabels.dataInsufficient",
+      ),
+    },
+    assumption_violation: {
+      kind: "fail",
+      label: t(
+        "shared.ui.negativeCertificateCard.blockingLabels.assumptionViolation",
+      ),
+    },
+    bounds_only: {
+      kind: "warn",
+      label: t("shared.ui.negativeCertificateCard.blockingLabels.boundsOnly"),
+    },
+    transport_failure: {
+      kind: "warn",
+      label: t(
+        "shared.ui.negativeCertificateCard.blockingLabels.transportFailure",
+      ),
+    },
+  };
+  const blocking = blockingLabels[blockingType] ?? {
     label: blockingType,
     kind: "fail" as const,
   };
@@ -59,7 +83,7 @@ export function NegativeCertificateCard({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
           <h3 className="text-lg font-semibold">
-            Why a precise answer is unavailable
+            {t("shared.ui.negativeCertificateCard.title")}
           </h3>
           <p className="text-muted text-sm leading-relaxed">{reason}</p>
         </div>
@@ -74,8 +98,8 @@ export function NegativeCertificateCard({
 
       {assumptions.length > 0 && (
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-            Violated assumptions
+          <p className="text-muted mb-2 text-xs font-semibold tracking-wide uppercase">
+            {t("shared.ui.negativeCertificateCard.assumptions")}
           </p>
           <ul className="space-y-1 text-sm">
             {assumptions.map((a) => (
@@ -92,8 +116,8 @@ export function NegativeCertificateCard({
 
       {suggestedExperiments.length > 0 && (
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-            Suggested experiments
+          <p className="text-muted mb-2 text-xs font-semibold tracking-wide uppercase">
+            {t("shared.ui.negativeCertificateCard.suggestedExperiments")}
           </p>
           <div className="space-y-2">
             {suggestedExperiments.map((exp) => (
@@ -104,8 +128,12 @@ export function NegativeCertificateCard({
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm font-medium">{exp.description}</p>
                   {exp.feasibility && (
-                    <Badge kind={FEASIBILITY_KIND[exp.feasibility] ?? "neutral"}>
-                      {exp.feasibility}
+                    <Badge
+                      kind={FEASIBILITY_KIND[exp.feasibility] ?? "neutral"}
+                    >
+                      {t(
+                        `shared.ui.negativeCertificateCard.feasibility.${exp.feasibility}`,
+                      )}
                     </Badge>
                   )}
                 </div>

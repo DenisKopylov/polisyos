@@ -8,6 +8,7 @@ Test Categories:
 4. BACKEND - Verify ExpressionASTBackend integration
 5. EDGE_CASES - Division by zero, missing variables, etc.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -22,41 +23,44 @@ from polisyos.core.governance.legal.backends.expr_ast import (
     SafeExpressionEvaluator,
 )
 from polisyos.core.governance.passes.base import IssueSeverity
-from polisyos.ir.norm_pack import NormPack, NormRule, NormRef, RuleType
+from polisyos.ir.norm_pack import NormPack, NormRule, RuleType
 
 
 class TestSecurityRejection:
     """Verify that dangerous constructs are rejected."""
 
-    @pytest.mark.parametrize("malicious_expr,attack_name", [
-        ("__import__('os').system('echo hack')", "import_attack"),
-        ("eval('1+1')", "eval_attack"),
-        ("exec('x=1')", "exec_attack"),
-        ("open('/etc/passwd').read()", "file_attack"),
-        ("print('hello')", "print_call"),
-        ("len([1,2,3])", "builtin_call"),
-        ("max(1, 2)", "max_call"),
-        ("list(range(10))", "constructor_call"),
-        ("x.__class__.__bases__[0].__subclasses__()", "class_escape"),
-        ("''.__class__.__mro__[1].__subclasses__()", "string_escape"),
-        ("x.__dict__", "dict_access"),
-        ("x.method()", "method_call"),
-        ("globals()['__builtins__']", "globals_access"),
-        ("x[0]", "subscript"),
-        ("{'a': 1}['a']", "dict_subscript"),
-        ("import os", "import_statement"),
-        ("from os import system", "from_import"),
-        ("while True: pass", "infinite_loop"),
-        ("for i in range(10**9): pass", "billion_loop"),
-        ("[x for x in range(10)]", "list_comp"),
-        ("{x for x in range(10)}", "set_comp"),
-        ("{x: x for x in range(10)}", "dict_comp"),
-        ("(x for x in range(10))", "generator"),
-        ("lambda: 1", "lambda"),
-        ("(lambda: 1)()", "iife_lambda"),
-        ("(x := 1)", "walrus"),
-        ("f'{__import__(\"os\")}'", "fstring_import"),
-    ])
+    @pytest.mark.parametrize(
+        "malicious_expr,attack_name",
+        [
+            ("__import__('os').system('echo hack')", "import_attack"),
+            ("eval('1+1')", "eval_attack"),
+            ("exec('x=1')", "exec_attack"),
+            ("open('/etc/passwd').read()", "file_attack"),
+            ("print('hello')", "print_call"),
+            ("len([1,2,3])", "builtin_call"),
+            ("max(1, 2)", "max_call"),
+            ("list(range(10))", "constructor_call"),
+            ("x.__class__.__bases__[0].__subclasses__()", "class_escape"),
+            ("''.__class__.__mro__[1].__subclasses__()", "string_escape"),
+            ("x.__dict__", "dict_access"),
+            ("x.method()", "method_call"),
+            ("globals()['__builtins__']", "globals_access"),
+            ("x[0]", "subscript"),
+            ("{'a': 1}['a']", "dict_subscript"),
+            ("import os", "import_statement"),
+            ("from os import system", "from_import"),
+            ("while True: pass", "infinite_loop"),
+            ("for i in range(10**9): pass", "billion_loop"),
+            ("[x for x in range(10)]", "list_comp"),
+            ("{x for x in range(10)}", "set_comp"),
+            ("{x: x for x in range(10)}", "dict_comp"),
+            ("(x for x in range(10))", "generator"),
+            ("lambda: 1", "lambda"),
+            ("(lambda: 1)()", "iife_lambda"),
+            ("(x := 1)", "walrus"),
+            ("f'{__import__(\"os\")}'", "fstring_import"),
+        ],
+    )
     def test_rejects_malicious_expression(
         self,
         malicious_expr: str,
@@ -66,8 +70,7 @@ class TestSecurityRejection:
         is_valid, error = ASTPolicy.validate(malicious_expr)
 
         assert not is_valid, (
-            f"SECURITY FAILURE: {attack_name} should be rejected!\n"
-            f"Expression: {malicious_expr}"
+            f"SECURITY FAILURE: {attack_name} should be rejected!\nExpression: {malicious_expr}"
         )
         assert error is not None
 
@@ -238,9 +241,7 @@ class TestSafeExpressionEvaluator:
         evaluator = SafeExpressionEvaluator(context)
 
         assert evaluator.evaluate("budget_deficit_pct < 3.0") is True
-        assert evaluator.evaluate(
-            "has_budget_data and budget_deficit_pct <= 3.0"
-        ) is True
+        assert evaluator.evaluate("has_budget_data and budget_deficit_pct <= 3.0") is True
 
     def test_mixed_chained_comparison(self, context: dict) -> None:
         evaluator = SafeExpressionEvaluator(context)
@@ -253,7 +254,7 @@ class TestSafeExpressionEvaluator:
         evaluator.evaluate("y > 1")
         evaluator.evaluate("z > 1")
 
-        assert len(evaluator._ast_cache) == 2  # noqa: SLF001 - cache policy regression test
+        assert len(evaluator._ast_cache) == 2
 
 
 class TestEdgeCases:
@@ -430,18 +431,22 @@ class TestRegressions:
 
     def test_short_circuit_and(self) -> None:
         """Verify short-circuit evaluation for 'and'."""
-        evaluator = SafeExpressionEvaluator({
-            "should_check": False,
-        })
+        evaluator = SafeExpressionEvaluator(
+            {
+                "should_check": False,
+            }
+        )
 
         result = evaluator.evaluate("should_check and missing_var")
         assert result is False
 
     def test_short_circuit_or(self) -> None:
         """Verify short-circuit evaluation for 'or'."""
-        evaluator = SafeExpressionEvaluator({
-            "already_true": True,
-        })
+        evaluator = SafeExpressionEvaluator(
+            {
+                "already_true": True,
+            }
+        )
 
         result = evaluator.evaluate("already_true or missing_var")
         assert result is True

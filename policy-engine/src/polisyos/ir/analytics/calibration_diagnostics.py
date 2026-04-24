@@ -1,11 +1,12 @@
 """Typed IR contracts for probabilistic calibration diagnostics."""
+
 from __future__ import annotations
 
 from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.observability.truthfulness import (
+from polisyos.ir.analytics._truthfulness import (
     TruthfulnessReceipt,
     TruthfulnessScope,
     TruthfulnessTier,

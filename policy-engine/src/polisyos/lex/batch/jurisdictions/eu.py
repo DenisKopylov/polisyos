@@ -13,6 +13,7 @@ from polisyos.lex.batch.jurisdictions.protocol import (
 
 class EUJurisdiction(JurisdictionPlugin):
     """EU jurisdiction public type."""
+
     @property
     def jurisdiction_code(self) -> str:
         return "EU"
@@ -31,22 +32,34 @@ class EUJurisdiction(JurisdictionPlugin):
             ),
             subpoint_re=re.compile(r"^\s*\(([ivxlcdm]+)\)\s+", re.IGNORECASE),
             paragraph_re=None,
-            section_heading_re=re.compile(r"^[\s]*(?:Chapter|Section|Title)\s+([IVXLCDM]+|\d+)", re.IGNORECASE),
+            section_heading_re=re.compile(
+                r"^[\s]*(?:Chapter|Section|Title)\s+([IVXLCDM]+|\d+)", re.IGNORECASE
+            ),
         )
 
     def normative_signal_patterns(self) -> NormativeSignalPatterns:
         return NormativeSignalPatterns(
             obligation_re=re.compile(r"\bshall\b|\bmust\b|\bis required to\b", re.IGNORECASE),
-            prohibition_re=re.compile(r"\bshall not\b|\bmust not\b|\bprohibited\b|\bforbidden\b", re.IGNORECASE),
-            permission_re=re.compile(r"\bmay\b|\bis entitled to\b|\bhas the right to\b", re.IGNORECASE),
+            prohibition_re=re.compile(
+                r"\bshall not\b|\bmust not\b|\bprohibited\b|\bforbidden\b", re.IGNORECASE
+            ),
+            permission_re=re.compile(
+                r"\bmay\b|\bis entitled to\b|\bhas the right to\b", re.IGNORECASE
+            ),
             approval_re=re.compile(r"\badopt\b|\bapprove\b|\bestablish\b", re.IGNORECASE),
-            amendment_re=re.compile(r"\bamend(?:ed|ment)?\b|\breplace(?:d|ment)?\b|\bdelete\b", re.IGNORECASE),
-            temporal_re=re.compile(r"\benter(?:s)? into force\b|\bwithin \d+ (?:days|months|years)\b", re.IGNORECASE),
+            amendment_re=re.compile(
+                r"\bamend(?:ed|ment)?\b|\breplace(?:d|ment)?\b|\bdelete\b", re.IGNORECASE
+            ),
+            temporal_re=re.compile(
+                r"\benter(?:s)? into force\b|\bwithin \d+ (?:days|months|years)\b", re.IGNORECASE
+            ),
             reference_re=re.compile(
                 r"\bArticle\s+\d+(?:\(\d+\))?\b|\bRegulation\b|\bDirective\b|\bDecision\b",
                 re.IGNORECASE,
             ),
-            threshold_re=re.compile(r"\b\d+(?:[.,]\d+)?\s*%\b|\bat least\b|\bnot more than\b", re.IGNORECASE),
+            threshold_re=re.compile(
+                r"\b\d+(?:[.,]\d+)?\s*%\b|\bat least\b|\bnot more than\b", re.IGNORECASE
+            ),
         )
 
     def reference_patterns(self) -> tuple[tuple[str, re.Pattern[str], float], ...]:
@@ -90,4 +103,3 @@ class EUJurisdiction(JurisdictionPlugin):
             "Recommendation": 5,
             "Opinion": 6,
         }
-

@@ -6,32 +6,7 @@ components, uncertainty adapters, and the optional JAX-backed `Calibrator`.
 Imports that depend on JAX stay guarded so non-calibration environments can
 still import the package and inspect the stable model contracts.
 """
-from .identifiability import (
-    IdentifiabilityReport,
-    IdentifiabilityStatus,
-    ParamIdentifiability,
-    diagnose_identifiability,
-)
-from .auxiliary import AuxLossComponent, InterferenceLossComponent
-from .report import (
-    CalibrationFitMetrics,
-    CalibrationFitQuality,
-    CalibrationReport,
-    CalibrationSeriesComparison,
-    CalibrationUncertainty,
-    put_calibration_config,
-    put_calibration_report,
-)
-from .measurement import (
-    CalibrationTargetBundle,
-    CalibrationTargetBundleManifest,
-    DefaultMeasurementAwareLossAdapter,
-    MeasurementAwareLossAdapter,
-    MeasurementAwareLossConfig,
-    MeasurementAwareTarget,
-    compute_effective_weight,
-)
-from .uncertainty_adapter import envelope_from_calibration_param, envelopes_from_calibration
+
 from .dp_ci import (
     CIFPRInflationBound,
     CISampleSizeRequirement,
@@ -46,8 +21,32 @@ from .dp_ci import (
     required_n_kernel,
     resolve_ci_threshold_policy,
 )
+from .identifiability import (
+    IdentifiabilityReport,
+    IdentifiabilityStatus,
+    ParamIdentifiability,
+    diagnose_identifiability,
+)
+from .report import (
+    CalibrationFitMetrics,
+    CalibrationFitQuality,
+    CalibrationReport,
+    CalibrationSeriesComparison,
+    CalibrationUncertainty,
+    put_calibration_config,
+    put_calibration_report,
+)
+from .robust_set_selector import (
+    RobustSetCalibrator,
+    SetSizeSelector,
+    build_robust_set_spec_from_samples,
+    gaussian_parametric_radius,
+    select_robust_set_size,
+)
+from .uncertainty_adapter import envelope_from_calibration_param, envelopes_from_calibration
 
 try:  # pragma: no cover - optional JAX dependency
+    from .auxiliary import AuxLossComponent, InterferenceLossComponent
     from .bijectors import (
         affine_bijector,
         chain_bijector,
@@ -58,6 +57,15 @@ try:  # pragma: no cover - optional JAX dependency
     )
     from .calibrator import Calibrator, CalibratorInputs
     from .hessian import HessianResult, compute_hessian
+    from .measurement import (
+        CalibrationTargetBundle,
+        CalibrationTargetBundleManifest,
+        DefaultMeasurementAwareLossAdapter,
+        MeasurementAwareLossAdapter,
+        MeasurementAwareLossConfig,
+        MeasurementAwareTarget,
+        compute_effective_weight,
+    )
     from .multi_start import MultiStartResult, SingleRunResult
     from .pure_executor import StaticBundle, compile_program, run_pure_scan
 except (ImportError, ModuleNotFoundError, SyntaxError, IndentationError):  # pragma: no cover
@@ -70,6 +78,15 @@ except (ImportError, ModuleNotFoundError, SyntaxError, IndentationError):  # pra
     compute_hessian = None  # type: ignore[assignment]
     MultiStartResult = None  # type: ignore[assignment]
     SingleRunResult = None  # type: ignore[assignment]
+    AuxLossComponent = None  # type: ignore[assignment]
+    InterferenceLossComponent = None  # type: ignore[assignment]
+    CalibrationTargetBundle = None  # type: ignore[assignment]
+    CalibrationTargetBundleManifest = None  # type: ignore[assignment]
+    DefaultMeasurementAwareLossAdapter = None  # type: ignore[assignment]
+    MeasurementAwareLossAdapter = None  # type: ignore[assignment]
+    MeasurementAwareLossConfig = None  # type: ignore[assignment]
+    MeasurementAwareTarget = None  # type: ignore[assignment]
+    compute_effective_weight = None  # type: ignore[assignment]
     log_bijector = None  # type: ignore[assignment]
     logit_bijector = None  # type: ignore[assignment]
     softplus_bijector = None  # type: ignore[assignment]
@@ -78,53 +95,58 @@ except (ImportError, ModuleNotFoundError, SyntaxError, IndentationError):  # pra
     inverse_bijector = None  # type: ignore[assignment]
 
 __all__ = [
-    "Calibrator",
-    "CalibratorInputs",
-    "StaticBundle",
-    "compile_program",
-    "run_pure_scan",
-    "CalibrationReport",
-    "CalibrationSeriesComparison",
+    "AuxLossComponent",
+    "CIFPRInflationBound",
+    "CISampleSizeRequirement",
+    "CITestCalibration",
+    "CITestThresholdPolicy",
     "CalibrationFitMetrics",
     "CalibrationFitQuality",
-    "CalibrationUncertainty",
-    "envelope_from_calibration_param",
-    "envelopes_from_calibration",
-    "put_calibration_config",
-    "put_calibration_report",
-    "HessianResult",
-    "compute_hessian",
-    "CalibrationTargetBundleManifest",
+    "CalibrationReport",
+    "CalibrationSeriesComparison",
     "CalibrationTargetBundle",
-    "AuxLossComponent",
+    "CalibrationTargetBundleManifest",
+    "CalibrationUncertainty",
+    "Calibrator",
+    "CalibratorInputs",
+    "DPContext",
     "DefaultMeasurementAwareLossAdapter",
+    "HessianResult",
     "IdentifiabilityReport",
     "IdentifiabilityStatus",
     "InterferenceLossComponent",
     "MeasurementAwareLossAdapter",
     "MeasurementAwareLossConfig",
     "MeasurementAwareTarget",
-    "compute_effective_weight",
-    "ParamIdentifiability",
-    "diagnose_identifiability",
     "MultiStartResult",
+    "ParamIdentifiability",
+    "RobustSetCalibrator",
+    "SetSizeSelector",
     "SingleRunResult",
-    "CIFPRInflationBound",
-    "CISampleSizeRequirement",
-    "CITestCalibration",
-    "CITestThresholdPolicy",
-    "DPContext",
+    "StaticBundle",
+    "affine_bijector",
+    "build_robust_set_spec_from_samples",
     "calibrate_discrete_ci",
     "calibrate_kernel_ci",
+    "chain_bijector",
     "coerce_dp_context",
+    "compile_program",
+    "compute_effective_weight",
+    "compute_hessian",
+    "diagnose_identifiability",
     "effective_privacy_xi",
+    "envelope_from_calibration_param",
+    "envelopes_from_calibration",
+    "gaussian_parametric_radius",
+    "inverse_bijector",
+    "log_bijector",
+    "logit_bijector",
+    "put_calibration_config",
+    "put_calibration_report",
     "required_n_chi2",
     "required_n_kernel",
     "resolve_ci_threshold_policy",
-    "log_bijector",
-    "logit_bijector",
+    "run_pure_scan",
+    "select_robust_set_size",
     "softplus_bijector",
-    "affine_bijector",
-    "chain_bijector",
-    "inverse_bijector",
 ]

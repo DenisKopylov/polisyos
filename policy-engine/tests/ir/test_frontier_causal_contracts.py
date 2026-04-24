@@ -132,9 +132,7 @@ def test_invariance_and_temporal_frontier_contracts_validate() -> None:
                 source_method=TemporalDiscoveryMethod.PCMCI_PLUS,
             )
         ],
-        regime_segments=[
-            RegimeSwitchSegment(regime_id="r1", start_index=0, end_index=24)
-        ],
+        regime_segments=[RegimeSwitchSegment(regime_id="r1", start_index=0, end_index=24)],
         equivalence_class=EquivalenceClassSummary(
             class_type=EquivalenceClassType.PAG,
             compelled_edges=("X->Y@lag1",),

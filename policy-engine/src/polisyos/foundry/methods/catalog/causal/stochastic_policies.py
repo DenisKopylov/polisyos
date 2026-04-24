@@ -24,8 +24,9 @@ surface.
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from statistics import NormalDist
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -91,7 +92,9 @@ def _result_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
             SlotSpec("result", SlotType.SCALAR, Unit("result", "json")),
-            SlotSpec("policy_weights", SlotType.VECTOR, Unit("weight", "importance"), shape=("n_obs",)),
+            SlotSpec(
+                "policy_weights", SlotType.VECTOR, Unit("weight", "importance"), shape=("n_obs",)
+            ),
         }
     )
 
@@ -99,7 +102,9 @@ def _result_slots() -> frozenset[SlotSpec]:
 def _policy_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
-            SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
+            SlotSpec(
+                "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+            ),
             SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
             SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
         }
@@ -109,7 +114,9 @@ def _policy_slots() -> frozenset[SlotSpec]:
 def _general_policy_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
-            SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
+            SlotSpec(
+                "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+            ),
             SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "value"), shape=("n_obs",)),
             SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
         }
@@ -299,7 +306,7 @@ def _effect_summary_from_scores(
 
 def _normal_pdf(x: np.ndarray, mean: np.ndarray, sd: float) -> np.ndarray:
     z = (x - mean) / max(sd, 1e-12)
-    return np.exp(-0.5 * z ** 2) / max(sd * np.sqrt(2.0 * np.pi), 1e-12)
+    return np.exp(-0.5 * z**2) / max(sd * np.sqrt(2.0 * np.pi), 1e-12)
 
 
 def _fit_continuous_outcome_surface(
@@ -307,7 +314,7 @@ def _fit_continuous_outcome_surface(
     treatment: np.ndarray,
     outcome: np.ndarray,
 ) -> np.ndarray:
-    features = np.column_stack([np.ones(len(X)), treatment, treatment ** 2, X])
+    features = np.column_stack([np.ones(len(X)), treatment, treatment**2, X])
     beta, *_ = np.linalg.lstsq(features, outcome, rcond=None)
     return np.asarray(beta, dtype=float)
 
@@ -320,17 +327,13 @@ def _predict_continuous_outcome_surface(
     policy_arr = np.asarray(policy_values, dtype=float)
     base = beta[0] + X @ beta[3:]
     if policy_arr.ndim == 0:
-        return base + beta[1] * policy_arr + beta[2] * policy_arr ** 2
+        return base + beta[1] * policy_arr + beta[2] * policy_arr**2
     if policy_arr.ndim == 1:
         if policy_arr.shape[0] == X.shape[0]:
-            return base + beta[1] * policy_arr + beta[2] * policy_arr ** 2
-        return (
-            base[:, None]
-            + beta[1] * policy_arr[None, :]
-            + beta[2] * (policy_arr[None, :] ** 2)
-        )
+            return base + beta[1] * policy_arr + beta[2] * policy_arr**2
+        return base[:, None] + beta[1] * policy_arr[None, :] + beta[2] * (policy_arr[None, :] ** 2)
     if policy_arr.ndim == 2:
-        return base[:, None] + beta[1] * policy_arr + beta[2] * (policy_arr ** 2)
+        return base[:, None] + beta[1] * policy_arr + beta[2] * (policy_arr**2)
     raise ValueError("policy_values must be scalar, vector, or matrix")
 
 
@@ -392,11 +395,15 @@ def _resolve_continuous_policy(
             samples = raw
         else:
             raise ValueError("policy_samples must have shape (n_draws,) or (n_obs, n_draws)")
-        return samples, {
-            "policy_family": "sampled_policy",
-            "policy_source": "state.policy_samples",
-            "n_integration_points": int(samples.shape[1]),
-        }, None
+        return (
+            samples,
+            {
+                "policy_family": "sampled_policy",
+                "policy_source": "state.policy_samples",
+                "n_integration_points": int(samples.shape[1]),
+            },
+            None,
+        )
 
     policy_expr = str(params.get("policy_expr", "") or "").strip()
     if "policy_grid" in state and "policy_density" in state:
@@ -409,22 +416,24 @@ def _resolve_continuous_policy(
         elif density_raw.ndim == 2 and density_raw.shape == (n, grid.shape[0]):
             density = density_raw
         else:
-            raise ValueError(
-                "policy_density must have shape (n_grid,) or (n_obs, n_grid)"
-            )
+            raise ValueError("policy_density must have shape (n_grid,) or (n_obs, n_grid)")
         normalized = _normalize_policy_density(density)
         density_at_observed = np.asarray(
             [np.interp(treatment[i], grid, normalized[i], left=0.0, right=0.0) for i in range(n)],
             dtype=float,
         )
-        return normalized, {
-            "policy_family": "explicit_density_grid",
-            "policy_source": "state.policy_density",
-            "n_integration_points": int(grid.shape[0]),
-            "policy_grid_min": float(np.min(grid)),
-            "policy_grid_max": float(np.max(grid)),
-            "policy_grid": grid.tolist(),
-        }, density_at_observed
+        return (
+            normalized,
+            {
+                "policy_family": "explicit_density_grid",
+                "policy_source": "state.policy_density",
+                "n_integration_points": int(grid.shape[0]),
+                "policy_grid_min": float(np.min(grid)),
+                "policy_grid_max": float(np.max(grid)),
+                "policy_grid": grid.tolist(),
+            },
+            density_at_observed,
+        )
 
     gaussian_policy = _parse_gaussian_policy_expr(policy_expr)
     if gaussian_policy is not None:
@@ -433,14 +442,18 @@ def _resolve_continuous_policy(
         grid = np.linspace(mean - 4.0 * sd, mean + 4.0 * sd, max(n_grid, 11))
         density = _normalize_policy_density(_normal_pdf(grid, np.full_like(grid, mean), sd))
         density_at_observed = _normal_pdf(treatment, np.full_like(treatment, mean), sd)
-        return np.broadcast_to(density[None, :], (n, grid.shape[0])), {
-            "policy_family": "gaussian",
-            "policy_source": "params.policy_expr",
-            "policy_mean": mean,
-            "policy_sd": sd,
-            "n_integration_points": int(grid.shape[0]),
-            "policy_grid": grid.tolist(),
-        }, density_at_observed
+        return (
+            np.broadcast_to(density[None, :], (n, grid.shape[0])),
+            {
+                "policy_family": "gaussian",
+                "policy_source": "params.policy_expr",
+                "policy_mean": mean,
+                "policy_sd": sd,
+                "n_integration_points": int(grid.shape[0]),
+                "policy_grid": grid.tolist(),
+            },
+            density_at_observed,
+        )
 
     raise ValueError(
         "Unsupported stochastic policy specification for continuous treatment. "
@@ -468,7 +481,7 @@ def _result_payload(
 ) -> dict[str, Any]:
     n = int(policy_prob_treated.shape[0])
     weight_sum = float(np.sum(clipped_weights))
-    ess = float(weight_sum ** 2 / max(float(np.sum(clipped_weights ** 2)), 1e-12))
+    ess = float(weight_sum**2 / max(float(np.sum(clipped_weights**2)), 1e-12))
     result: dict[str, Any] = {
         "policy_value": policy_value,
         "standard_error": se,
@@ -532,7 +545,7 @@ def _plugin_result_payload(
         result["policy_treatment_mean"] = float(policy_treatment_mean)
     if clipped_weights is not None and raw_weights is not None and clipped_weights.size > 0:
         weight_sum = float(np.sum(clipped_weights))
-        ess = float(weight_sum ** 2 / max(float(np.sum(clipped_weights ** 2)), 1e-12))
+        ess = float(weight_sum**2 / max(float(np.sum(clipped_weights**2)), 1e-12))
         result.update(
             {
                 "effective_sample_size": ess,
@@ -856,7 +869,7 @@ class PolicyTMLEEstimator:
 
         q_obs = np.where(T > 0.5, mu1, mu0)
         residual = Y - q_obs
-        denom = max(float(np.sum(clipped_weights ** 2)), 1e-12)
+        denom = max(float(np.sum(clipped_weights**2)), 1e-12)
         raw_epsilon = float(np.sum(clipped_weights * residual) / denom)
         epsilon = float(np.clip(raw_epsilon, -targeting_step_limit, targeting_step_limit))
 
@@ -899,7 +912,7 @@ class PolicyTMLEEstimator:
 
 
 __all__ = [
-    "PolicyPluginEstimator",
     "PolicyAIPWEstimator",
+    "PolicyPluginEstimator",
     "PolicyTMLEEstimator",
 ]

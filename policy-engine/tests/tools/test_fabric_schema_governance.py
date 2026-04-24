@@ -43,8 +43,12 @@ def _contract(
 
 
 def test_breaking_change_requires_approved_major_bump_metadata() -> None:
-    baseline = build_snapshot_payload([_contract(version=SchemaVersion(1, 0, 0), include_extra=True)])
-    current = build_snapshot_payload([_contract(version=SchemaVersion(2, 0, 0), include_extra=False)])
+    baseline = build_snapshot_payload(
+        [_contract(version=SchemaVersion(1, 0, 0), include_extra=True)]
+    )
+    current = build_snapshot_payload(
+        [_contract(version=SchemaVersion(2, 0, 0), include_extra=False)]
+    )
 
     errors, plans = validate_against_baseline(baseline, current)
 
@@ -56,7 +60,9 @@ def test_breaking_change_requires_approved_major_bump_metadata() -> None:
 
 def test_compatible_addition_produces_migration_plan() -> None:
     baseline = build_snapshot_payload([_contract(version=SchemaVersion(1, 0, 0))])
-    current = build_snapshot_payload([_contract(version=SchemaVersion(1, 1, 0), include_extra=True)])
+    current = build_snapshot_payload(
+        [_contract(version=SchemaVersion(1, 1, 0), include_extra=True)]
+    )
 
     errors, plans = validate_against_baseline(baseline, current)
 
@@ -79,7 +85,9 @@ def test_runtime_registry_and_ci_snapshot_share_contract_versions() -> None:
 
 
 def test_breaking_change_with_governance_metadata_passes_major_gate() -> None:
-    baseline = build_snapshot_payload([_contract(version=SchemaVersion(1, 0, 0), include_extra=True)])
+    baseline = build_snapshot_payload(
+        [_contract(version=SchemaVersion(1, 0, 0), include_extra=True)]
+    )
     approval = SchemaApprovalMetadata(
         owner="fabric-owner",
         reviewer="fabric-reviewer",
@@ -101,7 +109,9 @@ def test_breaking_change_with_governance_metadata_passes_major_gate() -> None:
 
 def test_evidence_payload_includes_impacted_surfaces_and_migrations() -> None:
     baseline = build_snapshot_payload([_contract(version=SchemaVersion(1, 0, 0))])
-    current = build_snapshot_payload([_contract(version=SchemaVersion(1, 1, 0), include_extra=True)])
+    current = build_snapshot_payload(
+        [_contract(version=SchemaVersion(1, 1, 0), include_extra=True)]
+    )
 
     evidence = build_evidence_payload(baseline, current)
 
@@ -115,7 +125,4 @@ def test_evidence_payload_includes_impacted_surfaces_and_migrations() -> None:
     ]
     assert contract_evidence["recommended_version_bump"] == "minor"
     assert contract_evidence["migration_plan"]["sql_statements"]
-    assert any(
-        "ADD COLUMN" in sql
-        for sql in contract_evidence["migration_plan"]["sql_statements"]
-    )
+    assert any("ADD COLUMN" in sql for sql in contract_evidence["migration_plan"]["sql_statements"])

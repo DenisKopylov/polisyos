@@ -1,4 +1,5 @@
 """Tests for run_tool_loop and parse_tool_calls_from_response."""
+
 from __future__ import annotations
 
 import asyncio
@@ -28,6 +29,7 @@ from polisyos.scientist.agent.tools.tool_loop import (
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class MockToolCallAttr:
@@ -87,6 +89,7 @@ def _make_registry_with_echo() -> ToolRegistry:
 # ---------------------------------------------------------------------------
 # parse_tool_calls_from_response
 # ---------------------------------------------------------------------------
+
 
 class TestParseToolCalls:
     def test_from_tool_calls_attr(self):
@@ -168,6 +171,7 @@ class TestParseToolCalls:
 # ---------------------------------------------------------------------------
 # run_tool_loop
 # ---------------------------------------------------------------------------
+
 
 class TestRunToolLoop:
     @pytest.mark.asyncio
@@ -337,7 +341,9 @@ class TestRunToolLoop:
             audit_log=audit,
         )
 
-        actions = [c.kwargs.get("action") or c[1].get("action", "") for c in audit.append.call_args_list]
+        actions = [
+            c.kwargs.get("action") or c[1].get("action", "") for c in audit.append.call_args_list
+        ]
         assert "TOOL_INVOKED" in actions
         assert "TOOL_COMPLETED" in actions
         assert result.degraded_events == []
@@ -346,7 +352,8 @@ class TestRunToolLoop:
     async def test_token_tracking(self):
         client = AsyncMock()
         client.generate.return_value = MockResponse(
-            content="done", usage=MockUsage(total_tokens=150),
+            content="done",
+            usage=MockUsage(total_tokens=150),
         )
 
         registry = _make_registry_with_echo()
@@ -489,6 +496,7 @@ class TestRunToolLoop:
         def _make_async_tool(name: str):
             async def _tool() -> dict[str, str]:
                 return await _run_tool(name)
+
             return _tool
 
         for name in ("slow_one", "slow_two"):
@@ -541,6 +549,7 @@ class TestRunToolLoop:
         def _make_async_tool(name: str):
             async def _tool() -> dict[str, str]:
                 return await _run_tool(name)
+
             return _tool
 
         for name in ("first_tool", "second_tool"):
@@ -718,9 +727,7 @@ class TestRunToolLoop:
         }
 
         tool_messages = [
-            message
-            for message in third_call_messages
-            if message.get("role") == "tool"
+            message for message in third_call_messages if message.get("role") == "tool"
         ]
         assert json.loads(tool_messages[0]["content"])["compacted_tool_result"] is True
         assert json.loads(tool_messages[-1]["content"]) == {"echoed": "second"}

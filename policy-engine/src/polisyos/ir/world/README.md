@@ -22,13 +22,13 @@ claims, provenance events, conflict sets, trust assessments и quality reports.
 
 ## Public API
 
-| Type/Function | Description |
-|---|---|
-| `DocMeta`, `DocFragment` | Контракты документа и его canonical fragments |
-| `Claim`, `ClaimSourceKind` | Evidence claim и тип источника |
-| `ConflictSet`, `ConflictSetResolution` | Canonical representation claim conflicts |
-| `WorldEvent`, `WorldObjectRef` | Provenance events и ссылки на world objects |
-| `TrustAssessment`, `QualityReport` | Trust/quality evaluation contracts |
+| Type/Function                                              | Description                                       |
+| ---------------------------------------------------------- | ------------------------------------------------- |
+| `DocMeta`, `DocFragment`                                   | Контракты документа и его canonical fragments     |
+| `Claim`, `ClaimSourceKind`                                 | Evidence claim и тип источника                    |
+| `ConflictSet`, `ConflictSetResolution`                     | Canonical representation claim conflicts          |
+| `WorldEvent`, `WorldObjectRef`                             | Provenance events и ссылки на world objects       |
+| `TrustAssessment`, `QualityReport`                         | Trust/quality evaluation contracts                |
 | `claim_id_from_payload()`, `world_event_id_from_payload()` | Deterministic ID builders для core world entities |
 
 Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)

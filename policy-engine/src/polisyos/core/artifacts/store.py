@@ -1,4 +1,5 @@
 """Implement the filesystem CAS boundary for blobs, manifests, lineage, and signatures."""
+
 from __future__ import annotations
 
 import re
@@ -13,6 +14,8 @@ from ..observability.config import is_hpc_observability_enabled
 from ._atomic_write import AtomicFileWriter as _AtomicFileWriter
 from ._integrity_ops import (
     ArtifactIntegrityError,
+)
+from ._integrity_ops import (
     VerificationReport as VerificationReport,
 )
 from ._integrity_ops import (
@@ -89,8 +92,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
 
-    from .backends.config import ArtifactStoreConfig
     from ..observability import MetricsRegistry, PolicyOSTracer
+    from .backends.config import ArtifactStoreConfig
 
 
 PutOptions = ArtifactWriteOptions
@@ -135,11 +138,13 @@ class FileSystemCAS:
         self._files = _AtomicFileWriter()
         self._manifests = _ManifestLifecycle(self._files)
         observability_enabled = is_hpc_observability_enabled()
-        self._tracer = tracer if tracer is not None else (
-            _default_tracer() if observability_enabled else None
+        self._tracer = (
+            tracer if tracer is not None else (_default_tracer() if observability_enabled else None)
         )
-        self._metrics = metrics if metrics is not None else (
-            _default_metrics() if observability_enabled else None
+        self._metrics = (
+            metrics
+            if metrics is not None
+            else (_default_metrics() if observability_enabled else None)
         )
         self._hpc_enabled = self._tracer is not None or self._metrics is not None
         self._signing_config = signing_config or SigningConfig.from_env()
@@ -155,7 +160,7 @@ class FileSystemCAS:
         """Return deterministic blob/manifest paths for external CAS tooling."""
         return self._paths(artifact_id)
 
-    def artifact_store_config(self) -> "ArtifactStoreConfig":
+    def artifact_store_config(self) -> ArtifactStoreConfig:
         """Return declarative config needed to rebuild this store instance."""
         from .backends.config import ArtifactStoreConfig
 

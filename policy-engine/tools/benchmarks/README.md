@@ -10,10 +10,12 @@ Canonical implementation lives under `tools/research/benchmarks/`.
 - `tools/research/benchmarks/` owns executable/orchestration code:
   `run_all`, `run_parallel`, local SOTA profile runners, release summary
   generation, real-data preparation, JAX/lex smoke probes.
+
 - root `benchmarks/` owns benchmark-domain code:
   suites, fixtures, comparators, scorecards, reporting, runtime helpers,
   `harness.py`, `metrics.py`, `suite_registry.py`, and other support modules
   imported by suites.
+
 - root `benchmarks/*.py` and `benchmarks/*.sh` executables are deprecated
   compatibility wrappers.
 
@@ -39,4 +41,5 @@ uv run polisyos-tools benchmarks benchmark-lex-llm-sweep --help
 
 - default benchmark orchestration reports still land in `benchmarks/_reports/`
   or `tools/research/benchmarks/_reports/` depending on the entry point;
+
 - report schemas are preserved across the reorganization.

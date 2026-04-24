@@ -1,17 +1,20 @@
 """Execute a composed method DAG and convert slot bindings across backend outputs."""
+
 from __future__ import annotations
 
 import asyncio
-import threading
-from collections import OrderedDict
-import time as _time
-from dataclasses import dataclass, field
 import re
-from typing import Any, Callable, Mapping, Literal, Protocol
+import threading
+import time as _time
+from collections import OrderedDict
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass, field
+from typing import Any, Literal, Protocol
 from uuid import UUID
 
 import numpy as np
 
+from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods._logging import get_foundry_logger
 from polisyos.foundry.methods.backends.adapters import adapt_state
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
@@ -20,15 +23,6 @@ from polisyos.foundry.methods.backends.protocol import (
     MethodTiming,
     ReproducibilityInfo,
 )
-from polisyos.foundry.methods.base import ComputeBackend
-from polisyos.foundry.methods.base import _stable_digest
-from polisyos.foundry.methods.exceptions import MethodContractError
-from polisyos.foundry.methods.io import (
-    dematerialize_method_output,
-    materialize_method_input,
-    validate_value_for_slot,
-)
-from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.foundry.methods.backends.runtime_fingerprint import (
     capture_backend_runtime_fingerprint,
     capture_versions,
@@ -37,8 +31,15 @@ from polisyos.foundry.methods.backends.runtime_fingerprint import (
     runtime_stack_for,
     safe_version,
 )
+from polisyos.foundry.methods.base import ComputeBackend, _stable_digest
+from polisyos.foundry.methods.exceptions import MethodContractError
+from polisyos.foundry.methods.io import (
+    dematerialize_method_output,
+    materialize_method_input,
+    validate_value_for_slot,
+)
+from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.foundry.methods.types.checker import ShapeAdapterKind
-from polisyos.core.observability.determinism import DeterminismTier
 
 try:
     from polisyos.foundry.methods.backends.async_chain_executor import AsyncChainExecutor
@@ -59,8 +60,7 @@ class FxRateProvider(Protocol):
         source_symbol: str,
         target_symbol: str,
         context: Any | None = None,
-    ) -> float:
-        ...
+    ) -> float: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -177,6 +177,7 @@ class LevelAwareExecutor:
 @dataclass(frozen=True, slots=True)
 class ChainExecutionResult:
     """Collect the final composed state plus per-node backend results."""
+
     final_state: Any
     node_results: tuple[tuple[UUID, MethodResult], ...]
     reproducibility_contract: Mapping[str, Any] = field(default_factory=dict)
@@ -192,8 +193,7 @@ def _build_chain_reproducibility_contract(
     composition_kind: str,
 ) -> dict[str, Any]:
     budgets = [
-        dict(result.reproducibility.observed_tolerance_budget or {})
-        for _, result in node_results
+        dict(result.reproducibility.observed_tolerance_budget or {}) for _, result in node_results
     ]
     tiers = [result.reproducibility.determinism_tier for _, result in node_results]
     composed_budget = compose_observed_tolerance_budgets(
@@ -201,13 +201,8 @@ def _build_chain_reproducibility_contract(
         determinism_tiers=tiers,
         composition_kind=composition_kind,
     )
-    observed_tier = (
-        composed_budget.get("downgraded_to")
-        or (
-            None
-            if meet_determinism_tiers(tiers) is None
-            else meet_determinism_tiers(tiers).value
-        )
+    observed_tier = composed_budget.get("downgraded_to") or (
+        None if meet_determinism_tiers(tiers) is None else meet_determinism_tiers(tiers).value
     )
     executed_backends = list(
         dict.fromkeys(result.reproducibility.backend.value for _, result in node_results)
@@ -230,9 +225,7 @@ def _build_level_parallel_reproducibility_contract(
     level_tiers: list[DeterminismTier | None] = []
     for level in levels:
         level_results = [
-            (node_id, result_by_node[node_id])
-            for node_id in level
-            if node_id in result_by_node
+            (node_id, result_by_node[node_id]) for node_id in level if node_id in result_by_node
         ]
         if not level_results:
             continue
@@ -240,9 +233,7 @@ def _build_level_parallel_reproducibility_contract(
             level_results,
             composition_kind="concat",
         )
-        level_budgets.append(
-            dict(level_contract.get("observed_tolerance_budget") or {})
-        )
+        level_budgets.append(dict(level_contract.get("observed_tolerance_budget") or {}))
         level_tiers.append(
             meet_determinism_tiers(
                 [result.reproducibility.determinism_tier for _, result in level_results]
@@ -253,13 +244,10 @@ def _build_level_parallel_reproducibility_contract(
         determinism_tiers=level_tiers,
         composition_kind="serial",
     )
-    observed_tier = (
-        composed_budget.get("downgraded_to")
-        or (
-            None
-            if meet_determinism_tiers(level_tiers) is None
-            else meet_determinism_tiers(level_tiers).value
-        )
+    observed_tier = composed_budget.get("downgraded_to") or (
+        None
+        if meet_determinism_tiers(level_tiers) is None
+        else meet_determinism_tiers(level_tiers).value
     )
     executed_backends = list(
         dict.fromkeys(result.reproducibility.backend.value for _, result in node_results)
@@ -340,6 +328,7 @@ def _resolve_dynamic_payload(
     params: Mapping[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any], tuple[str, ...]]:
     from polisyos.foundry.methods.compiler import _resolve_params  # lazy: compiler imports jax
+
     return _resolve_params(signature, params)
 
 
@@ -348,7 +337,10 @@ def _pack_dynamic_values(
     dynamic_names: tuple[str, ...],
     params: Mapping[str, Any],
 ) -> tuple[Any, ...]:
-    from polisyos.foundry.methods.compiler import _normalize_dynamic_value  # lazy: compiler imports jax
+    from polisyos.foundry.methods.compiler import (
+        _normalize_dynamic_value,
+    )  # lazy: compiler imports jax
+
     merged = dict(dynamic_defaults)
     merged.update(params)
     return tuple(_normalize_dynamic_value(merged[name]) for name in dynamic_names)
@@ -691,10 +683,7 @@ def _execute_sequential_chain(
         node_id = node_order[index]
         next_node_id = node_order[index + 1] if index + 1 < len(node_order) else None
 
-        if (
-            next_node_id is not None
-            and _can_fuse_pair(chain, node_id, next_node_id)
-        ):
+        if next_node_id is not None and _can_fuse_pair(chain, node_id, next_node_id):
             node_a = chain.get_node(node_id)
             node_b = chain.get_node(next_node_id)
             signature_a = chain.get_signature(node_id)
@@ -998,7 +987,10 @@ def _execute_ray_chain(
     seed: int = 0,
     registry: MethodRegistry | None = None,
 ) -> ChainExecutionResult:
-    from polisyos.foundry.methods.backends.ray_chain_executor import RayChainExecutor  # lazy to avoid circular
+    from polisyos.foundry.methods.backends.ray_chain_executor import (
+        RayChainExecutor,
+    )  # lazy to avoid circular
+
     del seed
     executor = RayChainExecutor(registry=registry)
     return executor.execute(chain, initial_state=state, params_per_node=params_per_node)
@@ -1103,10 +1095,7 @@ def _apply_binding_adapters(
         except Exception as exc:
             raise MethodContractError(
                 binding.target_method,
-                (
-                    f"FX rate lookup failed for {source_symbol}->{target_symbol}: "
-                    f"{exc}"
-                ),
+                (f"FX rate lookup failed for {source_symbol}->{target_symbol}: {exc}"),
             ) from exc
         try:
             value = np.asarray(value) * fx_rate

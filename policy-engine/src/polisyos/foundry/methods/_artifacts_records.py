@@ -5,10 +5,12 @@ Provides frozen dataclasses used by MethodArtifact, ChainArtifact,
 and ExecutionEvidence for slot bindings, timing, device info, and
 chain node tracking.
 """
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Mapping
+from typing import TYPE_CHECKING, Any
 
 from ._artifacts_fingerprint import _float_payload
 
@@ -18,10 +20,10 @@ if TYPE_CHECKING:
     from .linker import SlotBinding
 
 __all__ = [
-    "SlotBindingRecord",
-    "MethodTiming",
-    "DeviceInfo",
     "ChainNodeRecord",
+    "DeviceInfo",
+    "MethodTiming",
+    "SlotBindingRecord",
 ]
 
 
@@ -45,10 +47,10 @@ class SlotBindingRecord:
     @classmethod
     def from_binding(
         cls,
-        binding: "SlotBinding",
+        binding: SlotBinding,
         *,
         node_id_map: Mapping[UUID, str] | None = None,
-    ) -> "SlotBindingRecord":
+    ) -> SlotBindingRecord:
         source_node_id = None
         target_node_id = None
         if binding.source_node_id is not None:
@@ -106,9 +108,7 @@ class MethodTiming:
             "duration_seconds": _float_payload(self.duration_seconds),
         }
         if self.jit_compile_time_seconds is not None:
-            result["jit_compile_time_seconds"] = _float_payload(
-                self.jit_compile_time_seconds
-            )
+            result["jit_compile_time_seconds"] = _float_payload(self.jit_compile_time_seconds)
         return result
 
 
@@ -127,7 +127,7 @@ class DeviceInfo:
     solver_version: str = ""
 
     @classmethod
-    def current(cls) -> "DeviceInfo":
+    def current(cls) -> DeviceInfo:
         """Capture current JAX device information."""
         import jax
         import jaxlib

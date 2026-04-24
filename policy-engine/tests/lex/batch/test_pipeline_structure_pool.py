@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import asyncio
 import sys
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.lex.batch.config import BatchConfig
 from polisyos.lex.batch.pipeline import _process_structure_chunk
 from polisyos.lex.batch.progress import ProgressTracker
 from polisyos.lex.batch.xml_parser import NPACard, NPADocument
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class _RaisingProcessPool:
@@ -45,11 +48,7 @@ def test_process_structure_chunk_falls_back_to_thread_pool(
             reg_date="2026-01-02",
             reg_number="1/1",
         ),
-        text=(
-            "Додаток 1\n"
-            "Найменування посад   Місячні посадові оклади\n"
-            "Ректор   300\n"
-        ),
+        text=("Додаток 1\nНайменування посад   Місячні посадові оклади\nРектор   300\n"),
     )
 
     monkeypatch.setattr("polisyos.lex.batch.pipeline.ProcessPoolExecutor", _RaisingProcessPool)

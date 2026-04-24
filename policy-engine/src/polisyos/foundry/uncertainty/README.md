@@ -19,15 +19,15 @@ output metric uncertainty in Foundry simulations.
 
 ## Public API
 
-| Type/Function | Description |
-|---|---|
-| `PropagationConfig` | Configures confidence and propagation strategy. |
-| `PropagationDispatcher` | Selects and executes propagation strategies. |
-| `PropagationResult` | Output record for a propagated metric envelope. |
-| `PropagationStrategy` | Protocol for propagation implementations. |
-| `QuasiMCSampler` | Quasi-Monte-Carlo sampler for sampling-based propagation. |
-| `aggregate_envelopes()` | Combines multiple envelopes into one. |
-| `compute_first_order_indices()` | Sensitivity helper for variance attribution. |
+| Type/Function                   | Description                                               |
+| ------------------------------- | --------------------------------------------------------- |
+| `PropagationConfig`             | Configures confidence and propagation strategy.           |
+| `PropagationDispatcher`         | Selects and executes propagation strategies.              |
+| `PropagationResult`             | Output record for a propagated metric envelope.           |
+| `PropagationStrategy`           | Protocol for propagation implementations.                 |
+| `QuasiMCSampler`                | Quasi-Monte-Carlo sampler for sampling-based propagation. |
+| `aggregate_envelopes()`         | Combines multiple envelopes into one.                     |
+| `compute_first_order_indices()` | Sensitivity helper for variance attribution.              |
 
 → Full reference: [docs/reference/foundry/index.md](../../../../docs/reference/foundry/index.md)
 

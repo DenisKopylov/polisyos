@@ -1,10 +1,12 @@
 """Builds component indexes and fans them out into runtime-specific registries."""
+
 from __future__ import annotations
 
 import importlib
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 from .discovery import discover_components
 from .registry import ComponentEntry, ComponentRegistry, DuplicateComponentIdPolicy
@@ -13,6 +15,7 @@ from .registry import ComponentEntry, ComponentRegistry, DuplicateComponentIdPol
 @dataclass(slots=True)
 class BootstrapDomainReport:
     """Per-domain bootstrap outcome with registrations, duplicates, and discovery failures."""
+
     registered: list[str] = field(default_factory=list)
     duplicates: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
@@ -26,6 +29,7 @@ class BootstrapDomainReport:
 @dataclass(slots=True)
 class BootstrapReport:
     """Aggregate bootstrap result spanning every registry hydrated from discovered components."""
+
     components_total: int = 0
     sources_processed: int = 0
     discovery_errors: list[str] = field(default_factory=list)
@@ -84,9 +88,8 @@ def bootstrap_plugin_registries(
 
     if bootstrap_connectors:
         bridge_module = importlib.import_module("polisyos.fabric.connectors.components_bridge")
-        bootstrap_connector_registry_from_components = getattr(
-            bridge_module,
-            "bootstrap_connector_registry_from_components",
+        bootstrap_connector_registry_from_components = (
+            bridge_module.bootstrap_connector_registry_from_components
         )
         report.domains["connectors"] = _as_domain_report(
             bootstrap_connector_registry_from_components(
@@ -96,40 +99,41 @@ def bootstrap_plugin_registries(
 
     if bootstrap_methods:
         bridge_module = importlib.import_module("polisyos.foundry.methods.components_bridge")
-        bootstrap_method_registry_from_components = getattr(
-            bridge_module,
-            "bootstrap_method_registry_from_components",
+        bootstrap_method_registry_from_components = (
+            bridge_module.bootstrap_method_registry_from_components
         )
         report.domains["methods"] = _as_domain_report(
             bootstrap_method_registry_from_components(components_index)
         )
 
     if bootstrap_evaluators:
-        evaluator_module = importlib.import_module("polisyos.lex.legal_evaluation.evaluator_registry")
-        bootstrap_component_evaluators = getattr(evaluator_module, "bootstrap_component_evaluators")
+        evaluator_module = importlib.import_module(
+            "polisyos.lex.legal_evaluation.evaluator_registry"
+        )
+        bootstrap_component_evaluators = evaluator_module.bootstrap_component_evaluators
         report.domains["evaluators"] = _as_domain_report(
             bootstrap_component_evaluators(components_index)
         )
 
     if bootstrap_extractors:
         extractor_module = importlib.import_module("polisyos.fabric.claims.extractor_registry")
-        bootstrap_component_extractors = getattr(extractor_module, "bootstrap_component_extractors")
+        bootstrap_component_extractors = extractor_module.bootstrap_component_extractors
         report.domains["extractors"] = _as_domain_report(
             bootstrap_component_extractors(components_index)
         )
 
     if bootstrap_providers:
         provider_module = importlib.import_module("polisyos.lex.normpack.provider_registry")
-        bootstrap_component_providers = getattr(provider_module, "bootstrap_component_providers")
+        bootstrap_component_providers = provider_module.bootstrap_component_providers
         report.domains["providers"] = _as_domain_report(
             bootstrap_component_providers(components_index)
         )
 
     if bootstrap_nodes:
         node_module = importlib.import_module("polisyos.scientist.engine.registry")
-        NodeRegistry = getattr(node_module, "NodeRegistry")
-        discover_nodes = getattr(node_module, "discover_nodes")
-        registry = NodeRegistry()
+        node_registry_cls = node_module.NodeRegistry
+        discover_nodes = node_module.discover_nodes
+        registry = node_registry_cls()
         node_report = discover_nodes(registry, components_index=components_index)
         report.domains["nodes"] = _as_domain_report(node_report)
 
@@ -157,6 +161,6 @@ def _as_list(raw: Any, attr: str) -> list[str]:
 __all__ = [
     "BootstrapDomainReport",
     "BootstrapReport",
-    "build_components_index",
     "bootstrap_plugin_registries",
+    "build_components_index",
 ]

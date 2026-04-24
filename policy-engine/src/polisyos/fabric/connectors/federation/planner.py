@@ -4,10 +4,10 @@ Federation planner for multi-source composition.
 Generates optimized execution plans by querying the connector registry,
 ranking sources, and determining the optimal fetch strategy.
 """
+
 from __future__ import annotations
 
 from polisyos.common.logger import get_logger
-from polisyos.fabric.temporal import utc_now
 from polisyos.fabric.connectors.base import FetchRequest
 from polisyos.fabric.connectors.contracts.registry import SchemaRegistry
 from polisyos.fabric.connectors.federation.ranker import SourceRanker
@@ -22,6 +22,7 @@ from polisyos.fabric.connectors.federation.types import (
 )
 from polisyos.fabric.connectors.quality.report import DataQualityReport
 from polisyos.fabric.connectors.registry import ConnectorPreferences, ConnectorRegistry
+from polisyos.fabric.temporal import utc_now
 
 logger = get_logger(__name__)
 
@@ -170,7 +171,7 @@ class FederationPlanner:
         if not columns and descriptor.metadata:
             metadata_columns = descriptor.metadata.get("columns")
             if isinstance(metadata_columns, (list, tuple, set)):
-                columns = set(str(c) for c in metadata_columns)
+                columns = {str(c) for c in metadata_columns}
 
         if not key_columns and descriptor.metadata:
             metadata_keys = descriptor.metadata.get("key_columns")
@@ -324,9 +325,7 @@ class FederationPlanner:
         request: CompositionRequest,
     ) -> list[PlannedSource]:
         primary_ids = {s.connector_id for s in primary_sources}
-        fallback_candidates = [
-            s for s in ranked_sources if s.connector_id not in primary_ids
-        ]
+        fallback_candidates = [s for s in ranked_sources if s.connector_id not in primary_ids]
 
         selected = fallback_candidates[:max_fallbacks]
         return [self._planned_source(source, request) for source in selected]

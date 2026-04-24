@@ -6,6 +6,7 @@ pure runners in `polisyos.scientist.causal.readiness`, and persists a unified
 `CausalReadinessBundle` plus primary transport/strategic artifacts for later
 governance passes.
 """
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -97,7 +98,13 @@ _SPEC = NodeSpec(
     ],
 )
 
-_CAUSAL_READINESS_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError, FileNotFoundError, OSError)
+_CAUSAL_READINESS_VALIDATION_ERRORS = (
+    TypeError,
+    ValueError,
+    ValidationError,
+    FileNotFoundError,
+    OSError,
+)
 
 
 def _coerce_bundle(model: type[Any], payload: Any) -> Any | None:
@@ -160,9 +167,9 @@ class RunCausalReadinessNode:
             "counterfactual": state.params.get("counterfactual_check_bundle"),
             "interference": state.params.get("interference_loss_spec_bundle"),
         }
-        if not any(value is not None for value in bundle_payloads.values()) and not state.params.get(
-            "strategic_channel_inputs"
-        ):
+        if not any(
+            value is not None for value in bundle_payloads.values()
+        ) and not state.params.get("strategic_channel_inputs"):
             return NodeOutcome(
                 status="skip",
                 state=state,
@@ -185,10 +192,14 @@ class RunCausalReadinessNode:
                 ),
             )
         try:
-            graph_ref = CausalGraphModelRef.model_validate(graph_ref_payload.model_dump(mode="json"))
+            graph_ref = CausalGraphModelRef.model_validate(
+                graph_ref_payload.model_dump(mode="json")
+            )
             graph = load_causal_graph_model(ctx.store, graph_ref)
             proxy_bundle = _coerce_bundle(ProxyIdentificationBundle, bundle_payloads["proxy"])
-            transport_bundle = _coerce_bundle(TransportabilityCheckBundle, bundle_payloads["transport"])
+            transport_bundle = _coerce_bundle(
+                TransportabilityCheckBundle, bundle_payloads["transport"]
+            )
             strategic_bundle = _coerce_bundle(
                 StrategicResponseSpecsBundle,
                 bundle_payloads["strategic"],
@@ -212,7 +223,9 @@ class RunCausalReadinessNode:
             causal_component_ref = (
                 graph_input
                 if causal_component_payload is None
-                else ArtifactRefModel.model_validate(causal_component_payload.model_dump(mode="json"))
+                else ArtifactRefModel.model_validate(
+                    causal_component_payload.model_dump(mode="json")
+                )
             )
         except _CAUSAL_READINESS_VALIDATION_ERRORS as exc:
             return NodeOutcome(
@@ -289,19 +302,21 @@ class RunCausalReadinessNode:
                 f"artifacts_index.{ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF}",
             ),
         ).state
-        next_state.artifacts_index[ARTIFACT_CAUSAL_READINESS_BUNDLE_REF] = ArtifactRef.model_validate(
-            readiness_ref.model_dump(mode="json")
+        next_state.artifacts_index[ARTIFACT_CAUSAL_READINESS_BUNDLE_REF] = (
+            ArtifactRef.model_validate(readiness_ref.model_dump(mode="json"))
         )
         for item in transport_results:
             if item.result_ref is not None:
-                next_state.artifacts_index[ARTIFACT_TRANSPORTABILITY_RESULT_REF] = ArtifactRef.model_validate(
-                    item.result_ref.model_dump(mode="json")
+                next_state.artifacts_index[ARTIFACT_TRANSPORTABILITY_RESULT_REF] = (
+                    ArtifactRef.model_validate(item.result_ref.model_dump(mode="json"))
                 )
                 break
         for item in strategic_results:
             if item.strategic_response_bundle_ref is not None:
-                next_state.artifacts_index[ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF] = ArtifactRef.model_validate(
-                    item.strategic_response_bundle_ref.model_dump(mode="json")
+                next_state.artifacts_index[ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF] = (
+                    ArtifactRef.model_validate(
+                        item.strategic_response_bundle_ref.model_dump(mode="json")
+                    )
                 )
                 break
 

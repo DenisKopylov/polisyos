@@ -1,4 +1,5 @@
 """Compile continuous-time causal queries into executable temporal plans."""
+
 from __future__ import annotations
 
 import math
@@ -16,14 +17,14 @@ from polisyos.foundry.methods.catalog.causal.protocols import (
 from polisyos.ir.analytics.dynamic_regime import (
     ContinuousTimeQuery,
     InterventionInterpolationPolicy,
-    TemporalSamplingScheme,
     TemporalIdentificationCertificate,
     TemporalIdentificationTheoremFamily,
-    TemporalInterventionTrajectory,
     TemporalInterventionSemantics,
+    TemporalInterventionTrajectory,
     TemporalLawObject,
     TemporalObservabilityRegime,
     TemporalQueryMode,
+    TemporalSamplingScheme,
     TemporalTargetFunctional,
     _rough_path_attachment_from_metadata,
     _rough_path_certificate_from_metadata,
@@ -33,6 +34,7 @@ from polisyos.ir.analytics.dynamic_regime import (
 
 class TemporalBackendTarget(str, Enum):
     """Declare which temporal backend should execute a compiled causal plan."""
+
     LINEAR_SDE = "linear_sde"
     ODE = "ode"
     NEURAL_SDE = "neural_sde"
@@ -47,6 +49,7 @@ class TemporalBackendTarget(str, Enum):
 
 class TemporalComparatorSemantics(str, Enum):
     """Capture how untreated comparators and event-time baselines are interpreted."""
+
     UNTREATED_COUNTERFACTUAL = "untreated_counterfactual"
     NEVER_TREAT_BASELINE = "never_treat_baseline"
     POLICY_BASELINE = "policy_baseline"
@@ -54,12 +57,14 @@ class TemporalComparatorSemantics(str, Enum):
 
 class TemporalFallbackMode(str, Enum):
     """Describe whether temporal execution should fail closed or use discrete fallback."""
+
     NONE = "none"
     DISCRETE_TIME = "discrete_time"
 
 
 class TemporalDataContract(str, Enum):
     """Declare which temporal data bundle a compiled causal plan expects at execution time."""
+
     PANEL_OBSERVATIONAL = "panel_observational_data"
     DYNAMIC_TREATMENT = "dynamic_treatment_data"
     EVENT_PROCESS_OBSERVATIONAL = "event_process_observational_data"
@@ -146,7 +151,7 @@ class TemporalExecutionPlan(BaseModel):
         return casted
 
     @model_validator(mode="after")
-    def _validate_grid(self) -> "TemporalExecutionPlan":
+    def _validate_grid(self) -> TemporalExecutionPlan:
         if len(self.time_grid) != len(self.time_index_positions):
             raise ValueError("time_grid and time_index_positions must have equal length")
         if len(self.time_grid) != len(self.materialized_intervention_values):
@@ -183,7 +188,9 @@ def _validate_neural_identification_scope(
         errors["strategic_adaptation_mode"] = strategic_mode
 
     if query.target_functional not in set(certificate.identified_functionals):
-        errors["identified_functionals"] = [item.value for item in certificate.identified_functionals]
+        errors["identified_functionals"] = [
+            item.value for item in certificate.identified_functionals
+        ]
 
     if certificate.intervention_semantics is not TemporalInterventionSemantics.SURGICAL_REPLACEMENT:
         errors["intervention_semantics"] = certificate.intervention_semantics.value
@@ -253,8 +260,13 @@ def _validate_event_process_identification_scope(
     if query.query_mode is not TemporalQueryMode.FIXED_INTERVENTION:
         errors["query_mode"] = query.query_mode.value
     if query.target_functional not in set(certificate.identified_functionals):
-        errors["identified_functionals"] = [item.value for item in certificate.identified_functionals]
-    if certificate.intervention_semantics is not TemporalInterventionSemantics.INTENSITY_REPLACEMENT:
+        errors["identified_functionals"] = [
+            item.value for item in certificate.identified_functionals
+        ]
+    if (
+        certificate.intervention_semantics
+        is not TemporalInterventionSemantics.INTENSITY_REPLACEMENT
+    ):
         errors["intervention_semantics"] = certificate.intervention_semantics.value
     if certificate.observability_regime is not TemporalObservabilityRegime.OBSERVED_FILTRATION:
         errors["observability_regime"] = certificate.observability_regime.value
@@ -281,9 +293,7 @@ def _identification_scope_snapshot(
     strategic_mode = str(query.metadata.get("strategic_adaptation_mode", "absent")).strip().lower()
     return {
         "theorem_family": certificate.theorem_family.value,
-        "identified_functionals": [
-            item.value for item in certificate.identified_functionals
-        ],
+        "identified_functionals": [item.value for item in certificate.identified_functionals],
         "intervention_semantics": certificate.intervention_semantics.value,
         "observability_regime": certificate.observability_regime.value,
         "law_object": certificate.law_object.value,
@@ -301,9 +311,7 @@ def _identification_scope_snapshot(
         "interpolation_policy": query.interpolation_policy.value,
         "strategic_adaptation_mode": strategic_mode or "absent",
         "scope_covered": True,
-        "tree_like_invariant_estimand": bool(
-            notes.get("tree_like_invariant_estimand", False)
-        ),
+        "tree_like_invariant_estimand": bool(notes.get("tree_like_invariant_estimand", False)),
     }
 
 
@@ -381,7 +389,9 @@ def compile_temporal_estimand(
         }
     )
     if query.target_functional not in supported_functionals:
-        allowed = ", ".join(item.value for item in sorted(supported_functionals, key=lambda item: item.value))
+        allowed = ", ".join(
+            item.value for item in sorted(supported_functionals, key=lambda item: item.value)
+        )
         raise TemporalCompileError(
             "unsupported_target_functional",
             f"Only {allowed} are implemented for the selected temporal backend.",
@@ -407,9 +417,7 @@ def compile_temporal_estimand(
         )
         if scope_errors:
             reason_code = (
-                "unsupported_rough_path_scope"
-                if len(scope_errors) > 1
-                else scope_errors[0]
+                "unsupported_rough_path_scope" if len(scope_errors) > 1 else scope_errors[0]
             )
             raise TemporalCompileError(
                 reason_code,
@@ -473,7 +481,12 @@ def compile_temporal_estimand(
                 certificate=certificate,
             )
         materialized, contract, observed_grid, grid_source = _coerce_event_process_data(data)
-    elif not rough_backend and preferred_backend not in {"linear_sde", "ode", "neural_sde", "neural_cde"}:
+    elif not rough_backend and preferred_backend not in {
+        "linear_sde",
+        "ode",
+        "neural_sde",
+        "neural_cde",
+    }:
         raise TemporalCompileError(
             "unsupported_backend_target",
             "Unsupported temporal backend target.",
@@ -492,8 +505,7 @@ def compile_temporal_estimand(
             },
         )
     in_horizon = np.where(
-        (observed_grid >= query.horizon_start - 1e-8)
-        & (observed_grid <= query.horizon_end + 1e-8)
+        (observed_grid >= query.horizon_start - 1e-8) & (observed_grid <= query.horizon_end + 1e-8)
     )[0]
     if in_horizon.size < 2:
         raise TemporalCompileError(
@@ -524,7 +536,9 @@ def compile_temporal_estimand(
             interpolation_policy=query.interpolation_policy,
             comparator_semantics=_comparator_for_contract(contract),
             resolved_intervention=intervention,
-            materialized_intervention_values=tuple(float(value) for value in materialized_intervention.tolist()),
+            materialized_intervention_values=tuple(
+                float(value) for value in materialized_intervention.tolist()
+            ),
             time_grid=tuple(float(value) for value in clipped_grid),
             time_index_positions=tuple(int(value) for value in in_horizon.tolist()),
             step_size=step_size,
@@ -539,7 +553,9 @@ def compile_temporal_estimand(
             ),
             metadata={
                 "preferred_backend": preferred_backend,
-                "process_family": str(materialized.metadata.get("process_family", "counting_process")),
+                "process_family": str(
+                    materialized.metadata.get("process_family", "counting_process")
+                ),
                 "grid_aligned": True,
                 "materialized_contract_id": getattr(materialized, "contract_id", ""),
                 "data_time_scale": data_time_scale or query.time_scale,
@@ -567,7 +583,9 @@ def compile_temporal_estimand(
             interpolation_policy=query.interpolation_policy,
             comparator_semantics=_comparator_for_contract(contract),
             resolved_intervention=intervention,
-            materialized_intervention_values=tuple(float(value) for value in materialized_intervention.tolist()),
+            materialized_intervention_values=tuple(
+                float(value) for value in materialized_intervention.tolist()
+            ),
             time_grid=tuple(float(value) for value in clipped_grid),
             time_index_positions=tuple(int(value) for value in in_horizon.tolist()),
             step_size=step_size,
@@ -628,7 +646,9 @@ def compile_temporal_estimand(
             interpolation_policy=query.interpolation_policy,
             comparator_semantics=_comparator_for_contract(contract),
             resolved_intervention=intervention,
-            materialized_intervention_values=tuple(float(value) for value in materialized_intervention.tolist()),
+            materialized_intervention_values=tuple(
+                float(value) for value in materialized_intervention.tolist()
+            ),
             time_grid=tuple(float(value) for value in clipped_grid),
             time_index_positions=tuple(int(value) for value in in_horizon.tolist()),
             step_size=step_size,
@@ -679,7 +699,9 @@ def compile_temporal_estimand(
         interpolation_policy=query.interpolation_policy,
         comparator_semantics=_comparator_for_contract(contract),
         resolved_intervention=intervention,
-        materialized_intervention_values=tuple(float(value) for value in materialized_intervention.tolist()),
+        materialized_intervention_values=tuple(
+            float(value) for value in materialized_intervention.tolist()
+        ),
         time_grid=tuple(float(value) for value in clipped_grid),
         time_index_positions=tuple(int(value) for value in in_horizon.tolist()),
         step_size=step_size,

@@ -19,7 +19,7 @@ def load_json(path: Path, *, default: Any) -> Any:
     if not path.exists():
         return default
     try:
-        with open(path, "r", encoding="utf-8") as fh:
+        with open(path, encoding="utf-8") as fh:
             return json.load(fh)
     except json.JSONDecodeError:
         return default

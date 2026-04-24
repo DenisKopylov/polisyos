@@ -1,4 +1,5 @@
 """Public autotune reflexion module API."""
+
 from __future__ import annotations
 
 import json
@@ -12,11 +13,11 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.scientist.agent.failure_card import FailureCard, FailureSeverity, FailureSource
 
 from .models import (
+    BenchmarkedEvaluator,
     BenchmarkEvaluation,
     BenchmarkSplit,
     BenchmarkSplitManifest,
     BenchmarkSuite,
-    BenchmarkedEvaluator,
     MetricDirection,
     MutationArtifact,
     PromotionPolicy,
@@ -33,6 +34,7 @@ REFLEXION_LOOP_ID = "reflexion_routing"
 
 class RecoverableRoutingDecision(str, Enum):
     """Recoverable routing decision public type."""
+
     RETURN_TO_FORMALIZER = "return_to_formalizer"
     RETURN_TO_DRAFTER = "return_to_drafter"
     ESCALATE_TO_HUMAN = "escalate_to_human"
@@ -40,6 +42,7 @@ class RecoverableRoutingDecision(str, Enum):
 
 class ReflexionRoutingRule(BaseModel):
     """Reflexion routing rule data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     error_codes: list[str] = Field(default_factory=list)
@@ -50,13 +53,16 @@ class ReflexionRoutingRule(BaseModel):
 
 class ReflexionRoutingConfig(MutationArtifact):
     """Reflexion routing config data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = REFLEXION_LOOP_ID
     rules: list[ReflexionRoutingRule] = Field(default_factory=list)
 
 
-def build_baseline_reflexion_routing_config(_context: dict[str, Any] | None = None) -> ReflexionRoutingConfig:
+def build_baseline_reflexion_routing_config(
+    _context: dict[str, Any] | None = None,
+) -> ReflexionRoutingConfig:
     """Build baseline reflexion routing config."""
     return ReflexionRoutingConfig()
 
@@ -106,6 +112,7 @@ def load_reflexion_routing_config(
 
 class ReflexionRoutingEvaluator(BenchmarkedEvaluator):
     """Reflexion routing evaluator public type."""
+
     def __init__(
         self,
         *,
@@ -122,19 +129,32 @@ class ReflexionRoutingEvaluator(BenchmarkedEvaluator):
         suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
         config = load_model_artifact(store, candidate_ref, ReflexionRoutingConfig)
         if suite.dataset_path is None or suite.split_manifest_path is None:
-            raise ValueError("Reflexion benchmark suite requires dataset_path and split_manifest_path")
+            raise ValueError(
+                "Reflexion benchmark suite requires dataset_path and split_manifest_path"
+            )
         rows = _read_jsonl(Path(suite.dataset_path))
         split_manifest = read_split_manifest(Path(suite.split_manifest_path))
         selection_metrics = _reflexion_metrics(
             config=config,
-            rows=[row for row in rows if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.SELECTION],
+            rows=[
+                row
+                for row in rows
+                if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.SELECTION
+            ],
         )
         holdout_metrics = _reflexion_metrics(
             config=config,
-            rows=[row for row in rows if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.HOLDOUT],
+            rows=[
+                row
+                for row in rows
+                if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.HOLDOUT
+            ],
         )
         guardrails = {
-            "unsafe_nonhuman_route_rate_zero": float(holdout_metrics.get("unsafe_nonhuman_route_rate", 1.0)) == 0.0,
+            "unsafe_nonhuman_route_rate_zero": float(
+                holdout_metrics.get("unsafe_nonhuman_route_rate", 1.0)
+            )
+            == 0.0,
         }
         return BenchmarkEvaluation(
             loop_id=REFLEXION_LOOP_ID,
@@ -154,6 +174,7 @@ class ReflexionRoutingEvaluator(BenchmarkedEvaluator):
 
 class ReflexionRoutingRuntimeLoader(ChampionBackedRuntimeLoader[ReflexionRoutingConfig]):
     """Reflexion routing runtime loader implementation."""
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(
             loop_id=REFLEXION_LOOP_ID,
@@ -166,6 +187,7 @@ class ReflexionRoutingRuntimeLoader(ChampionBackedRuntimeLoader[ReflexionRouting
 
 class ReflexionReplayRecorder:
     """Reflexion replay recorder public type."""
+
     def __init__(self) -> None:
         self._records: list[dict[str, Any]] = []
 
@@ -185,7 +207,9 @@ class ReflexionReplayRecorder:
                     mode="json",
                     exclude={"can_retry", "content_hash"},
                 ),
-                "decision_outcomes": {str(key): bool(value) for key, value in decision_outcomes.items()},
+                "decision_outcomes": {
+                    str(key): bool(value) for key, value in decision_outcomes.items()
+                },
                 "unsafe_for_nonhuman": bool(unsafe_for_nonhuman),
                 "metadata": dict(metadata or {}),
             }
@@ -202,7 +226,15 @@ class ReflexionReplayRecorder:
         suite_version: str = "1.0",
         holdout_fraction: float = 0.2,
     ) -> BenchmarkSuite:
-        root = (output_dir or (default_cas_root() / "autotune" / REFLEXION_LOOP_ID / datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ"))).resolve()
+        root = (
+            output_dir
+            or (
+                default_cas_root()
+                / "autotune"
+                / REFLEXION_LOOP_ID
+                / datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+            )
+        ).resolve()
         root.mkdir(parents=True, exist_ok=True)
         dataset_path = root / "replay_cases.jsonl"
         split_path = root / "split_manifest.json"
@@ -215,8 +247,12 @@ class ReflexionReplayRecorder:
             suite_id=suite_id,
             suite_version=suite_version,
             id_field="case_id",
-            selection_ids=[str(row["case_id"]) for row in self._records[: max(0, total - holdout_count)]],
-            holdout_ids=[str(row["case_id"]) for row in self._records[max(0, total - holdout_count) :]],
+            selection_ids=[
+                str(row["case_id"]) for row in self._records[: max(0, total - holdout_count)]
+            ],
+            holdout_ids=[
+                str(row["case_id"]) for row in self._records[max(0, total - holdout_count) :]
+            ],
         )
         split_path.write_text(split_manifest.model_dump_json(indent=2), encoding="utf-8")
         return BenchmarkSuite(
@@ -266,13 +302,18 @@ def _reflexion_metrics(
         chosen = route_recoverable_failure(card, config=config)
         if chosen is None:
             chosen = _default_recoverable_route(card)
-        outcomes = {str(key): bool(value) for key, value in dict(row.get("decision_outcomes") or {}).items()}
+        outcomes = {
+            str(key): bool(value) for key, value in dict(row.get("decision_outcomes") or {}).items()
+        }
         success = bool(outcomes.get(chosen, False))
         if success:
             success_count += 1
         if not success and any(value for value in outcomes.values()):
             wasted_count += 1
-        if bool(row.get("unsafe_for_nonhuman")) and chosen != RecoverableRoutingDecision.ESCALATE_TO_HUMAN.value:
+        if (
+            bool(row.get("unsafe_for_nonhuman"))
+            and chosen != RecoverableRoutingDecision.ESCALATE_TO_HUMAN.value
+        ):
             unsafe_count += 1
     total = len(rows)
     return {
@@ -293,7 +334,7 @@ def _default_recoverable_route(card: FailureCard) -> str:
 
 def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if line:

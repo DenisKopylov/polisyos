@@ -1,0 +1,5349 @@
+# WVS Indicator Registry
+# Auto-generated from Excel codebook + CSV response type inference.
+# Curate canonical_candidates for high-priority indicators.
+# Total indicators: 1049
+
+version: 1
+indicators:
+  A001:
+    title: "Important in life: Family"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A002:
+    title: "Important in life: Friends"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A003:
+    title: "Important in life: Leisure time"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A004:
+    title: "Important in life: Politics"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A005:
+    title: "Important in life: Work"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A006:
+    title: "Important in life: Religion"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A007:
+    title: "Important in life: Service to others"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  A008:
+    title: "Feeling of happiness"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A009:
+    title: "State of health (subjective)"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [health_outcomes]
+  A010:
+    title: "Ever felt very excited or interested"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A011:
+    title: "Ever felt restless"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A012:
+    title: "Ever felt proud because someone complimented you"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A013:
+    title: "Ever felt very lonely or remote from other people"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A014:
+    title: "Ever felt pleased about having accomplished something"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A015:
+    title: "Ever felt bored"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A016:
+    title: "Ever felt on top of the world"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A017:
+    title: "Ever felt depressed or very unhappy"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A018:
+    title: "Ever felt that things were going your way"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A019:
+    title: "Ever felt upset because somebody criticized you"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A025:
+    title: "Respect and love for parents"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [1, 2, 3, 4]
+  A026:
+    title: "Parents responsibilities to their children"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4]
+  A027:
+    title: "Important child qualities: Good manners"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 7]
+  A029:
+    title: "Important child qualities: independence"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A030:
+    title: "Important child qualities: Hard work"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A032:
+    title: "Important child qualities: feeling of responsibility"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A034:
+    title: "Important child qualities: imagination"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A035:
+    title: "Important child qualities: tolerance and respect for other people"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A038:
+    title: "Important child qualities: thrift saving money and things"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A039:
+    title: "Important child qualities: determination perseverance"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A040:
+    title: "Important child qualities: religious faith"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A041:
+    title: "Important child qualities: unselfishness"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A042:
+    title: "Important child qualities: obedience"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A043B:
+    title: "Important child qualities: Self-expression"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A043:
+    title: "A043"
+    response_type: unknown
+    aggregation: weighted_mean
+    sub_items: [A043B]
+  A044:
+    title: "What children should learn 1"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  A045:
+    title: "What children should learn 2"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  A046:
+    title: "Abortion when the mothers health is at risk"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A047:
+    title: "Abortion when child physically handicapped"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A048:
+    title: "Abortion when woman not married"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A049:
+    title: "Abortion if not wanting more children"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A057:
+    title: "Spend time with parents or other relatives"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [4]
+  A058:
+    title: "Spend time with friends"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [4]
+  A059:
+    title: "Spend time with colleagues from work"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [4]
+  A060:
+    title: "Spend time with people at your church, mosque or synagogue"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [4]
+  A061:
+    title: "Spend time with people at sport, culture, communal organization"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [4]
+  A062:
+    title: "How often discusses political matters with friends"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 7]
+    canonical_candidates: [social_capital]
+  A063:
+    title: "Persuading friends, relatives or fellow workers"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  A064:
+    title: "Member: Belong to social welfare service for elderly"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A065:
+    title: "Member: Belong to religious organization"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4, 7]
+  A066:
+    title: "Member: Belong to education, arts, music or cultural activities"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4, 7]
+  A067:
+    title: "Member: Belong to labour unions"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4, 7]
+  A068:
+    title: "Member: Belong to political parties"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4, 7]
+  A069:
+    title: "Member: Belong to local political actions"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A070:
+    title: "Member: Belong to human rights"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A071:
+    title: "Member: Belong to conservation, the environment, ecology, animal rights"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [4, 7]
+    sub_items: [A071B, A071C]
+  A071C:
+    title: "Member: Belong to animal rights"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A071B:
+    title: "Member: Belong to conservation, the environment, ecology"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A072:
+    title: "Member: Belong to professional associations"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4, 7]
+  A073:
+    title: "Member: Belong to youth work"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A074:
+    title: "Member: Belong to sports or recreation"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4, 7]
+  A075:
+    title: "Member: Belong to women´s group"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4, 7]
+  A076:
+    title: "Member: Belong to peace movement"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A077:
+    title: "Member: Belong to organization concerned with health"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A078:
+    title: "Belong: Consumer groups"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [7]
+  A079:
+    title: "Member: Belong to other groups"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4, 7]
+  A080:
+    title: "Member: Belong to none"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+    sub_items: [A080_02, A080_01]
+  A080_02:
+    title: "Member:  Self-help group, mutual aid group"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [7]
+  A080_01:
+    title: "Member: Humanitarian or charitable organization"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [7]
+  A081:
+    title: "Voluntary work: Unpaid work social welfare service for elderly, handicapped or deprived people"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A082:
+    title: "Voluntary work: Unpaid work religious or church organization"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A083:
+    title: "Voluntary work: Unpaid work education, arts, music or cultural activities"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A084:
+    title: "Voluntary work: Unpaid work labour unions"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A085:
+    title: "Voluntary work: Unpaid work political parties or groups"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A086:
+    title: "Voluntary work: Unpaid work local political action groups"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A087:
+    title: "Voluntary work: Unpaid work human rights"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A088C:
+    title: "Voluntary work: Unpaid work animal rights"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A088:
+    title: "Voluntary work: Unpaid work environment, conservation, animal rights"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [4]
+    sub_items: [A088B, A088C]
+  A088B:
+    title: "Voluntary work: Unpaid work environment, conservation, ecology"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A089:
+    title: "Voluntary work: Unpaid work professional associations"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A090:
+    title: "Voluntary work: Unpaid work youth work"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A091:
+    title: "Voluntary work: Unpaid work sports or recreation"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A092:
+    title: "Voluntary work: Unpaid work women´s group"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A093:
+    title: "Voluntary work: Unpaid work peace movement"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A094:
+    title: "Voluntary work: Unpaid work organization concerned with health"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A096:
+    title: "Voluntary work: Unpaid work other groups"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4]
+  A097:
+    title: "Voluntary work: Unpaid work none"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A098:
+    title: "Active/Inactive membership of church or religious organization"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 3, 5, 6, 7]
+  A099:
+    title: "Active/Inactive membership of sport or recreation"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [3, 5, 6, 7]
+  A100:
+    title: "Active/Inactive membership of art, music, educational"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 3, 5, 6, 7]
+  A101:
+    title: "Active/Inactive membership of labour unions"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 3, 5, 6, 7]
+  A102:
+    title: "Active/Inactive membership of political party"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 3, 5, 6, 7]
+  A103:
+    title: "Active/Inactive membership of environmental organization"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 3, 5, 6, 7]
+  A104:
+    title: "Active/Inactive membership of professional organization"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 3, 5, 6, 7]
+  A105:
+    title: "Active/Inactive membership of charitable/humanitarian organization"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 3, 5, 6, 7]
+  A106:
+    title: "Active/Inactive membership of any other organization"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [3, 5, 6, 7]
+    sub_items: [A106B, A106C, A106D]
+  A106B:
+    title: "Active/Inactive membership: Consumer organization"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [6, 7]
+  A106C:
+    title: "Active/Inactive membership: Self-help group, mutual aid group"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [6, 7]
+  A106D:
+    title: "Active/Inactive membership: Women’s group"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  A107:
+    title: "Reasons voluntary work: Solidarity with the poor and disadvantaged"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  A108:
+    title: "Reasons voluntary work: Compassion for those in need"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  A109:
+    title: "Reasons voluntary work: Opportunity to repay something"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  A110:
+    title: "Reasons voluntary work: Sense of duty, moral, obligation"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  A111:
+    title: "Reasons voluntary work: Identifying with people who suffer"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  A112:
+    title: "Reasons voluntary work: Time on my hands"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  A113:
+    title: "Reasons voluntary work: Personal satisfaction"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  A114:
+    title: "Reasons voluntary work: Religious belief"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  A115:
+    title: "Reasons voluntary work: Help disadvantaged people"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  A116:
+    title: "Reasons voluntary work: Make a contribution to my local community"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  A117:
+    title: "Reasons voluntary work: Bring about social or political change"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  A118:
+    title: "Reasons voluntary work: For social reasons"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  A119:
+    title: "Reasons voluntary work: Gain new skills and useful experience"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  A120:
+    title: "Reasons voluntary work: Did not want to, but could not refuse"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  A124_24:
+    title: "Neighbours: Christians"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 7]
+  A124_35:
+    title: "Neighbours: White people"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 5]
+  A124_42:
+    title: "Neighbours: Unmarried couples living together"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [5, 6, 7]
+  A124_45:
+    title: "Neighbours: Sunnis"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4, 5]
+  A124_53:
+    title: "Neighbours: Kildani"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  A124_46:
+    title: "Neighbours: Shia"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4, 5]
+  A124_58:
+    title: "Neighbours: Americans"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  A124_09:
+    title: "Neighbours: Homosexuals"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 3, 4, 5, 6, 7]
+  A124_61:
+    title: "Neighbours: Russians"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  A124_04:
+    title: "Neighbours: Emotionally unstable people"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5]
+  A124_50:
+    title: "Neighbours: Kuwaiti"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4, 5]
+  A124_28:
+    title: "Neighbours: People with large families"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A124_16:
+    title: "Neighbours: People not from country of origin"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4, 5]
+  A124_59:
+    title: "Neighbours: Chaldean"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  A124_29:
+    title: "Neighbours: Hindus"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A124_07:
+    title: "Neighbours: People who have AIDS"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 3, 4, 5, 6, 7]
+  A124_47:
+    title: "Neighbours: French"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4, 5]
+  A124_05:
+    title: "Neighbours: Muslims"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 7]
+  A124_06:
+    title: "Neighbours: Immigrants/foreign workers"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  A124_14:
+    title: "Neighbours: Militant minority"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [4, 5]
+  A124_33:
+    title: "Neighbours: Jews, Arabs, Asians, gypsies, etc"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3]
+  A124_57:
+    title: "Neighbours: Europeans/Pakeha"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  A124_34:
+    title: "Neighbours: Black people"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 5]
+  A124_03:
+    title: "Neighbours: Heavy drinkers"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  A124_43:
+    title: "Neighbours: People who speak a different language"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [5, 6, 7]
+  A124_25:
+    title: "Neighbours: Witchdoctors and related labels"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  A124_48:
+    title: "Neighbours: British"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4, 5]
+  A124_30:
+    title: "Neighbours: North-American persons"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 4]
+  A124:
+    title: "A124"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    sub_items: [A124_01, A124_02, A124_03, A124_04, A124_05, A124_06, A124_07, A124_08, A124_09, A124_10, A124_11, A124_12, A124_13, A124_14, A124_15, A124_16, A124_17, A124_18, A124_19, A124_20, A124_21, A124_22, A124_23, A124_24, A124_25, A124_27, A124_28, A124_29, A124_30, A124_31, A124_32, A124_33, A124_34, A124_35, A124_36, A124_37, A124_38, A124_42, A124_43, A124_45, A124_46, A124_47, A124_48, A124_49, A124_50, A124_51, A124_52, A124_53, A124_54, A124_55, A124_56, A124_57, A124_58, A124_59, A124_60, A124_61]
+  A124_08:
+    title: "Neighbours: Drug addicts"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 3, 4, 5, 6, 7]
+  A124_51:
+    title: "Neighbours: Turkish"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4, 5]
+  A124_22:
+    title: "Neighbours: Spiritists"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  A124_17:
+    title: "Neighbours: Gypsies"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+  A124_11:
+    title: "Neighbours: Evangelists"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4, 5]
+  A124_54:
+    title: "Neighbours: Indigenes; Aborigenes"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  A124_37:
+    title: "Neighbours: Indians"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 5]
+  A124_15:
+    title: "Neighbours: Zoroastrians"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  A124_49:
+    title: "Neighbours: Iranian"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4, 5]
+  A124_31:
+    title: "Neighbours: Haitians"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3]
+  A124_01:
+    title: "Neighbours: People with a criminal record"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5]
+  A124_10:
+    title: "Neighbours: Jews"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 3, 4, 5, 7]
+  A124_20:
+    title: "Neighbours: Indians or Lebanese"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  A124_36:
+    title: "Neighbours: Coloured people"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 5]
+  A124_56:
+    title: "Neighbours: Pacific Islanders"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  A124_27:
+    title: "Neighbours: Right wing extremists"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  A124_32:
+    title: "Neighbours: Members of new religious movements"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3]
+  A124_38:
+    title: "Neighbours: Kurds, Esids"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 4, 5]
+  A124_02:
+    title: "Neighbours: People of a different race"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  A124_19:
+    title: "Neighbours: Trafficants"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 4]
+  A124_12:
+    title: "Neighbours: People of a different religion"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [3, 4, 5, 6, 7]
+  A124_18:
+    title: "Neighbours: Political Extremists"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5]
+  A124_55:
+    title: "Neighbours: Maori"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  A124_52:
+    title: "Neighbours: Jordanian"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4, 5]
+  A124_60:
+    title: "Neighbours: Mapuches"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  A124_13:
+    title: "Neighbours: People of the same religion"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  A124_21:
+    title: "Neighbours: Chinese or Philippino Chinese"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  A124_23:
+    title: "Neighbours: Protestants"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  A165:
+    title: "Most people can be trusted"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_trust]
+  A168A:
+    title: "Do you think most people try to take advantage of you (10 point scale)"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6]
+  A168:
+    title: "Do you think most people try to take advantage of you"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [4, 6]
+    sub_items: [A168A]
+  A169:
+    title: "Good human relationships"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [3, 4]
+  A170:
+    title: "Satisfaction with your life"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  A173:
+    title: "How much freedom of choice and control"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [cultural_cluster]
+  A174:
+    title: "Membership consumer organisation"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [5]
+  A189:
+    title: "Schwartz: It is important to this person to think up new ideas and be creative"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6]
+  A190:
+    title: "Schwartz: It is important to this person to be rich"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6]
+  A191:
+    title: "Schwartz: It is important to this person living in secure surroundings"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6]
+  A192:
+    title: "Schwartz: It is important to this person to have a good time"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6]
+  A193:
+    title: "Schwartz: It is important to this person to help the people nearby"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6]
+  A194:
+    title: "Schwartz: It is important to this person being very successful"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6]
+  A195:
+    title: "Schwartz: It is important to this person adventure and taking risks"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6]
+  A196:
+    title: "Schwartz: It is important to this person to always behave properly"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6]
+  A197:
+    title: "Schwartz: It is important to this person looking after the environment"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6]
+  A198:
+    title: "Schwartz: It is important to this person tradition"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6]
+  A199:
+    title: "Schwartz: It is important to this person to do something for the good of society"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A200:
+    title: "Social position: People in their 20s"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A201:
+    title: "Social position: People in their 40s"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A202:
+    title: "Social position: People in their 70s"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A203:
+    title: "Is a 30-year old boss acceptable"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A204:
+    title: "People over 70: are seen as friendly"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A205:
+    title: "People over 70: are seen as competent"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A206:
+    title: "People over 70: viewed with respect"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A207:
+    title: "Is a 70-year old boss acceptable"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A208:
+    title: "Older people are not respected much these days"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A209:
+    title: "Older people get more than their fair share from the government"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A210:
+    title: "Older people are a burden on society"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A211:
+    title: "Companies that employ young people perform better than those that employ people of different ages"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A212:
+    title: "Old people have too much political influence"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A213:
+    title: "I see myself as someone who: is reserved"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A214:
+    title: "I see myself as someone who: is generally trusting"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+    canonical_candidates: [social_trust]
+  A215:
+    title: "I see myself as someone who: tends to be lazy"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A216:
+    title: "I see myself as someone who: is relaxed, handles stress well"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A217:
+    title: "I see myself as someone who: has few artistic interests"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A218:
+    title: "I see myself as someone who: is outgoing, sociable"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A219:
+    title: "I see myself as someone who: tends to find fault with others"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A220:
+    title: "I see myself as someone who: does a thorough job"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A221:
+    title: "I see myself as someone who: gets nervous easily"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  A222:
+    title: "I see myself as someone who: has an active imagination"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  B001:
+    title: "Would give part of my income for the environment"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 4, 5]
+  B002:
+    title: "Increase in taxes if used to prevent environmental pollution"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5]
+  B003:
+    title: "Government should reduce environmental pollution"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 4, 5]
+  B004:
+    title: "Would buy things at a 20% higher price if it helped to protect environment"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  B005:
+    title: "All talk about the environment make people anxious"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  B006:
+    title: "Combatting unemployment, we have to accept environmental problems"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  B007:
+    title: "Protecting environment and fighting pollution is less urgent than suggested"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  B008:
+    title: "Protecting environment vs. Economic growth"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+  B009:
+    title: "Human & nature"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [3, 4]
+  B010:
+    title: "[Country]s environmental problems can be solved without any international agreements to handle them"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  B011:
+    title: "Environmental action: chosen products that are better for environment"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [3]
+  B012:
+    title: "Environmental action: recycle"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [3]
+  B013:
+    title: "Environmental action: reduce water consumption"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [3]
+  B014:
+    title: "Environmental action: attend meeting, signed petition"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [3]
+  B015:
+    title: "Environmental action: contributed to environmental organization"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [3]
+  B016:
+    title: "Tradition vs. high economic growth"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [3]
+  B017:
+    title: "Humanity has a bright or bleak future"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [3]
+  B018:
+    title: "Environmental problems in your community: Poor water quality."
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  B019:
+    title: "Environmental problems in your community: Poor air quality."
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  B020:
+    title: "Environmental problems in your community: Poor sewage and sanitation."
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  B021:
+    title: "Environmental problems in the world: Global warming or the greenhouse effect."
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  B022:
+    title: "Environmental problems in the world: Loss of plant or animal species or biodiversity."
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  B023:
+    title: "Environmental problems in the world: Pollution of rivers, lakes and oceans."
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  B030:
+    title: "Past two years: given money to ecological organization"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  B031:
+    title: "Past two years: participated in demonstration for environment"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  C001:
+    title: "Jobs scarce: Men should have more right to a job than women (3 categories)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+    sub_items: [C001_01]
+  C001_01:
+    title: "Jobs scarce: Men should have more right to a job than women (5 categories)"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [7]
+  C002_01:
+    title: "Jobs scarce: Employers should give priority to (nation) people than immigrants (5 categories)"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [7]
+  C002:
+    title: "Jobs scarce: Employers should give priority to (nation) people than immigrants (3 categories)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+    sub_items: [C002_01]
+  C004:
+    title: "Jobs scarce: older people should be forced to retire"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3]
+  C005:
+    title: "Unfair to give work to handicapped people when able bodied people can´t find jobs"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  C006:
+    title: "Satisfaction with financial situation of household"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  C008:
+    title: "Work compared with Leisure"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [3, 4]
+  C009:
+    title: "First choice, if looking for a job"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5]
+  C010:
+    title: "Second choice if looking for a job"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5]
+  C011:
+    title: "Important in a job: good pay"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 7]
+  C012:
+    title: "Important in a job: not too much pressure"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4]
+  C013:
+    title: "Important in a job: good job security"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4]
+  C014:
+    title: "Important in a job: a respected job"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4]
+  C015:
+    title: "Important in a job: good hours"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 7]
+  C016:
+    title: "Important in a job: an opportunity to use initiative"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 7]
+  C017:
+    title: "Important in a job: generous holidays"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 7]
+  C018:
+    title: "Important in a job: that you can achieve something"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 7]
+  C019:
+    title: "Important in a job: a responsible job"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 7]
+  C020:
+    title: "Important in a job: a job that is interesting"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4]
+  C021:
+    title: "Important in a job: a job that meets one´s abilities"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4]
+  C022:
+    title: "Important in a job: pleasant people to work with"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  C023:
+    title: "Important in a job: good chances for promotion"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  C024:
+    title: "Important in a job: a useful job for society"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  C025:
+    title: "Important in a job: meeting people"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  C027:
+    title: "C027"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    sub_items: [C027_90]
+  C031:
+    title: "Degree of pride in your work"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  C033:
+    title: "Job satisfaction"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+  C034:
+    title: "Freedom decision taking in job"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+  C036:
+    title: "To develop talents you need to have a job"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [4, 5, 7]
+  C037:
+    title: "Humiliating to receive money without having to work for it"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [4, 5]
+  C038:
+    title: "People who don´t work turn lazy"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [4, 5, 7]
+  C039:
+    title: "Work is a duty towards society"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [4, 5, 7]
+  C040:
+    title: "People should not have to work if they don´t want to"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [4]
+  C041:
+    title: "Work should come first even if it means less spare time"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [4, 5, 7]
+  C042:
+    title: "C042"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    sub_items: [C042B1, C042B2, C042B3, C042B4, C042B5, C042B6, C042B7]
+  C042B4:
+    title: "Why people work: I wouldn´t work if work interfered my life"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  C042B6:
+    title: "Why people work: I never had a paid job"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  C042B2:
+    title: "Why people work: I do the best I can regardless of pay"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  C042B5:
+    title: "Why people work: work most important in my life"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  C042B1:
+    title: "Why people work: work is like a business transaction"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  C042B3:
+    title: "Why people work: I wouldn’t work if I didn’t have to"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  C042B7:
+    title: "Why people work: don’t know"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  C059:
+    title: "Fairness: One secretary is paid more"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5]
+  C060:
+    title: "How business and industry should be managed"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4]
+  C061:
+    title: "Following instructions at work"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4]
+  C062:
+    title: "Work: until satisfied with results"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  C063:
+    title: "Work: accomplish personal goals"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  C064:
+    title: "Work: stay up late to finish"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  D001_B:
+    title: "How much you trust: Your family (B)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  D001:
+    title: "How much do you trust your family"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+    sub_items: [D001_B]
+  D002:
+    title: "Satisfaction with home life"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+  D003:
+    title: "Sharing with partner: attitudes towards religion"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  D004:
+    title: "Sharing with partner: moral standards"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  D005:
+    title: "Sharing with partner: social attitudes"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  D006:
+    title: "Sharing with partner: political views"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  D007:
+    title: "Sharing with partner: sexual attitudes"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  D008:
+    title: "Sharing with partner: no sharing attitudes"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  D009:
+    title: "Sharing with partner: don´t know or missing"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  D010:
+    title: "Sharing with parents: attitudes towards religion"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  D011:
+    title: "Sharing with parents: moral standards´"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  D012:
+    title: "Sharing with parents: social attitudes"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  D013:
+    title: "Sharing with parents: political views"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  D014:
+    title: "Sharing with parents: sexual attitudes"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  D015:
+    title: "Sharing with parents: no sharing attitudes"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  D016:
+    title: "Sharing with parents: don´t know or missing"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  D017:
+    title: "Ideal number of children"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4]
+  D018:
+    title: "Child needs a home with father and mother"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5]
+  D019:
+    title: "A woman has to have children to be fulfilled"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4]
+  D022:
+    title: "Marriage is an out-dated institution"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5]
+  D023:
+    title: "Woman as a single parent"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5]
+  D024:
+    title: "Enjoy sexual freedom"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3]
+  D025:
+    title: "If only one child allowed: boy or girl"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  D026:
+    title: "D026"
+    response_type: likert_5
+    aggregation: weighted_mean
+    sub_items: [D026_03, D026_05]
+  D026_05:
+    title: "It is childs duty to take care of ill parent"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [7]
+  D026_03:
+    title: "Duty towards society to have children"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [7]
+  D027:
+    title: "Important for succesful marriage: Faithfulness"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 7]
+  D028:
+    title: "Important for succesful marriage: Adequate income"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 7]
+  D029:
+    title: "Important for succesful marriage: Same social background"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  D030:
+    title: "Important for succesful marriage: Respect and appreciation"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  D031:
+    title: "Important for succesful marriage: Religious beliefs"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  D032:
+    title: "Important for succesful marriage: Good housing"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 7]
+  D033:
+    title: "Important for succesful marriage: Agreement on politics"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  D034:
+    title: "Important in succesful marriage: Understanding and tolerance"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  D035:
+    title: "Important for succesful marriage: Apart from in-laws"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  D036:
+    title: "Important for succesful marriage: Happy sexual relationship"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  D037:
+    title: "Important for succesful marriage: Sharing household chores"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 7]
+  D038:
+    title: "Important for succesful marriage: Children"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 7]
+  D043:
+    title: "Important for succesful marriage: Tastes and interests in common"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  D054:
+    title: "One of main goals in life has been to make my parents proud"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+  D055:
+    title: "Make effort to live up to what my friends expect"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5]
+  D056:
+    title: "Relationship working mother"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4]
+  D057:
+    title: "Being a housewife just as fulfilling"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+  D058:
+    title: "Husband and wife should both contribute to income"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4]
+  D059:
+    title: "Men make better political leaders than women do"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+    canonical_candidates: [gender_equality]
+  D060:
+    title: "University is more important for a boy than for a girl"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+    canonical_candidates: [gender_equality]
+  D061:
+    title: "Pre-school child suffers with working mother"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 6, 7]
+  D062:
+    title: "Women want a home and children"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 7]
+  D063_B:
+    title: "Job best way for women to be independent (b)"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  D063:
+    title: "Job best way for women to be independent"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+    sub_items: [D063_B]
+  D066:
+    title: "Problem if women have more income than husband (4 categories)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+    sub_items: [D066_B, D066_01]
+  D066_01:
+    title: "Problem if women have more income than husband (5 categories)"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [7]
+  D066_B:
+    title: "Problem if women have more income than husband (3 categories)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  D067:
+    title: "Traits in a woman: Woman wearing weil"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  D068:
+    title: "Traits in a woman: Woman good mother"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  D069:
+    title: "Traits in a woman: Woman good wife"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  D070:
+    title: "Traits in a woman: Woman religious"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  D071:
+    title: "Traits in a woman: Woman educated"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  D072:
+    title: "Traits in a woman: Woman being independent"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  D073:
+    title: "Traits in a woman: Woman having work outside home"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  D074:
+    title: "Traits in a woman: Woman maintaining her family"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  D075:
+    title: "Traits in a woman: Woman being sociable"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  D076:
+    title: "More than one wife"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  D077:
+    title: "Wife must obey"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  D078:
+    title: "Men make better business executives than women do"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  D079:
+    title: "I seek to be myself rather than to follow others"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  D080:
+    title: "I decide my goals in life by myself"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  D081:
+    title: "Homosexual couples are as good parents as other couples"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [7]
+  E001:
+    title: "Aims of country: first choice"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+  E002:
+    title: "Aims of country: second choice"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+  E003:
+    title: "Aims of respondent: first choice"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  E004:
+    title: "Aims of respondent: second choice"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  E005:
+    title: "Most important: first choice"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+  E006:
+    title: "Most important: second choice"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+  E007:
+    title: "National goals: Maintaining order in the nation"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  E008:
+    title: "National goals: Giving people more say"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  E009:
+    title: "National goals: Fighting rising prices"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  E010:
+    title: "National goals: free speech"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  E012:
+    title: "Willingness to fight for country"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  E014:
+    title: "Future changes: Less emphasis on money and material possessions"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4]
+  E015:
+    title: "Future changes: Less importance placed on work"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  E016:
+    title: "Future changes: More emphasis on technology"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  E017:
+    title: "Future changes: More emphasis on individual"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  E018:
+    title: "Future changes: Greater respect for authority"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  E019:
+    title: "Future changes: More emphasis on family life"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5]
+  E020:
+    title: "Future changes: A simple and more natural lifestyle"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  E022:
+    title: "Opinion about scientific advances"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5]
+  E023:
+    title: "Interest in politics"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [social_capital]
+  E025:
+    title: "Political action: Signing a petition"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    sub_items: [E025B]
+    canonical_candidates: [social_capital]
+  E025B:
+    title: "Political action recently done: signing a petition"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [5, 6]
+  E026:
+    title: "Political action: joining in boycotts"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    sub_items: [E026B]
+  E026B:
+    title: "Political action recently done: joining in boycotts"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [5, 6]
+  E027:
+    title: "Political action: attending lawful/peaceful demonstrations"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  E028:
+    title: "Political action: joining unofficial strikes"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 6, 7]
+    sub_items: [E028B]
+  E028B:
+    title: "Political acition recently done: Joining strikes"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  E029:
+    title: "Political action: occupying buildings or factories"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4]
+  E032:
+    title: "Freedom or equality"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  E033:
+    title: "Self positioning in political scale"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  E034:
+    title: "Basic kinds of attitudes concerning society"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 7]
+  E035:
+    title: "Income equality"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+    canonical_candidates: [inequality]
+  E036:
+    title: "Private vs state ownership of business"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+  E037:
+    title: "Government responsibility"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+  E038:
+    title: "Job taking of the unemployed"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+  E039:
+    title: "Competition good or harmful"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+  E040:
+    title: "Hard work brings success"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2, 3, 5, 6, 7]
+  E041:
+    title: "Wealth accumulation"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2, 3, 5, 6]
+  E045:
+    title: "Major changes in life"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2, 3]
+  E046:
+    title: "New and old ideas"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2, 3, 4]
+  E047:
+    title: "Personal characteristics: Changes, worry or welcome possibility"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+  E048:
+    title: "Personal characteristics: I usually count on being successful in everything I do"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  E049:
+    title: "Personal characteristics: I enjoy convincing others of my opinion"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  E050:
+    title: "Personal characteristics: I serve as a model for others"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  E051:
+    title: "Personal characteristics: I am good at getting what I want"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  E052:
+    title: "Personal characteristics: I own many things others envy me for"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  E053:
+    title: "Personal characteristics: I like to assume responsibility"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  E054:
+    title: "Personal characteristics: I am rarely unsure about how I should behave"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  E055:
+    title: "Personal characteristics: I often give others advice"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  E056:
+    title: "Personal characteristics: None of the above"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  E057:
+    title: "The economic system needs fundamental changes"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  E058:
+    title: "Our government should be made much more open to the public"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  E059:
+    title: "Allow more freedom for individuals"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  E060:
+    title: "I could do nothing about an unjust law"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  E061:
+    title: "Political reform is moving too rapidly"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  E062:
+    title: "Importation of goods"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [3]
+  E063:
+    title: "Current society: Egalitarian vs. competitive society"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E064:
+    title: "Current society: Extensive welfare vs. low taxes"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E065:
+    title: "Current society: Regulated vs. responsible society"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E066:
+    title: "Society aimed:  egalitarian vs. competitive"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E067:
+    title: "Society aimed: extensive welfare vs. low taxes"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E068:
+    title: "Society aimed: regulated vs. responsible society"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E069_34:
+    title: "Confidence: SADC/SADEC"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E069_43:
+    title: "Confidence: CIS"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  E069_42:
+    title: "Confidence: CARICOM"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5, 6]
+  E069_23:
+    title: "Confidence: The Organization for African Unity-OAU"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6]
+  E069_08:
+    title: "Confidence: The Civil Services"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  E069_28:
+    title: "Confidence: The ECO"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E069_47:
+    title: "Confidence: The American Forces"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  E069_60:
+    title: "Confidence: Mainland government"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  E069_27:
+    title: "Confidence: The SAARC"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 4, 6, 7]
+  E069_03:
+    title: "Confidence: Education System"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 5, 7]
+  E069_13:
+    title: "Confidence: Major Companies"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [public_trust]
+  E069_52:
+    title: "Confidence: Evangelic Church"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  E069_30:
+    title: "Confidence: The Free Commerce Treaty (Tratado de libre comercio)"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 4, 6, 7]
+  E069_17:
+    title: "Confidence: Justice System/Courts"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 5, 6, 7]
+    canonical_candidates: [judicial_quality, institutional_quality]
+  E069_46:
+    title: "Confidence: Non governmental Organizations (NGOs)"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  E069_51:
+    title: "Confidence: Religious leaders"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  E069_39:
+    title: "Confidence: The Civil Society Groups"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E069_44:
+    title: "Confidence: Confidence in CER with Australia"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5, 6]
+  E069_31:
+    title: "Confidence: The United American States Organization (Organización de Estados Unidos Americanos - OEA)"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 4, 5]
+  E069_58:
+    title: "Confidence: The Arab Maghreb Union"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  E069_25:
+    title: "Confidence: The Andean pact"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 4]
+  E069_19:
+    title: "Confidence: NATO"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 4, 5, 7]
+  E069_56:
+    title: "Confidence: The Organization of American States (OAE)"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E069:
+    title: "E069"
+    response_type: likert_4
+    aggregation: weighted_mean
+    sub_items: [E069_01, E069_02, E069_03, E069_04, E069_05, E069_06, E069_07, E069_08, E069_09, E069_10, E069_11, E069_12, E069_13, E069_14, E069_15, E069_17, E069_18, E069_18A, E069_19, E069_20, E069_21, E069_22, E069_23, E069_24, E069_25, E069_26, E069_27, E069_28, E069_29, E069_30, E069_31, E069_32, E069_33, E069_34, E069_35, E069_38, E069_39, E069_40, E069_41, E069_42, E069_43, E069_44, E069_45, E069_46, E069_47, E069_48, E069_49, E069_51, E069_52, E069_54, E069_55, E069_56, E069_57, E069_58, E069_59, E069_60, E069_61, E069_62, E069_63, E069_64, E069_65, E069_66, E069_67]
+  E069_09:
+    title: "Confidence: Social Security System"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 7]
+  E069_32:
+    title: "Confidence: The “Movimiento en pro de Vieques”(Puerto Rico)"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E069_45:
+    title: "Confidence: International Monetary Found (IMF)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 7]
+  E069_20:
+    title: "Confidence: The United Nations"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+  E069_40:
+    title: "Confidence: Charitable or humanitarian organizations"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  E069_48:
+    title: "Confidence: The non-Iraqi television"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  E069_67:
+    title: "Confidence: The African Union (AU)"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [7]
+  E069_61:
+    title: "Confidence: The World Trade Organization (WTO)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E069_49:
+    title: "Confidence: TV News"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  E069_22:
+    title: "Confidence: The Association of South East Asian Nations -ASEAN"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 4, 6, 7]
+  E069_57:
+    title: "Confidence: UNASUR"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  E069_64:
+    title: "Confidence: Elections"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E069_05:
+    title: "Confidence: Labour Unions"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  E069_66:
+    title: "Confidence: UNDP United Nations Development Programme"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [7]
+  E069_18:
+    title: "Confidence: The European Union"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+    canonical_candidates: [public_trust]
+  E069_24:
+    title: "Confidence: The NAFTA"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+  E069_35:
+    title: "Confidence: East African Cooperation (EAC)"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E069_59:
+    title: "Confidence: Cooperation Council for the Arab states of Gulf (GCC)"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E069_29:
+    title: "Confidence: The APEC"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+  E069_14:
+    title: "Confidence: The Environmental Protection Movement"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+  E069_10:
+    title: "Confidence: Television"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+  E069_38:
+    title: "Confidence: The Presidency"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E069_55:
+    title: "Confidence: The Organization of the Islamic World"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E069_54:
+    title: "Confidence: Universities"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E069_33:
+    title: "Confidence: Local/Regional Government"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4, 5]
+  E069_41:
+    title: "Confidence: Banks"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  E069_63:
+    title: "Confidence: The World Bank"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E069_06:
+    title: "Confidence: The Police"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [public_trust]
+  E069_18A:
+    title: "Confidence: Major regional organization (combined from country-specific)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+  E069_15:
+    title: "Confidence: The Women´s Movement"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+  E069_07:
+    title: "Confidence: Parliament"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [public_trust, institutional_quality]
+  E069_62:
+    title: "Confidence: The World Health Organization (WHO)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E069_65:
+    title: "Confidence: International Criminal Court (ICC)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E069_12:
+    title: "Confidence: The Political Parties"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+    canonical_candidates: [public_trust]
+  E069_21:
+    title: "Confidence: The Arab League"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4, 5, 6, 7]
+  E069_04:
+    title: "Confidence: The Press"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    canonical_candidates: [public_trust]
+  E069_11:
+    title: "Confidence: The Government"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+    canonical_candidates: [public_trust, institutional_quality]
+  E069_01:
+    title: "Confidence: Churches"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  E069_02:
+    title: "Confidence: Armed Forces"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  E069_26:
+    title: "Confidence: The Mercosur"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+  E104:
+    title: "Approval: Ecology movement or nature protection"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  E105:
+    title: "Approval: Anti-nuclear energy movement"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  E106:
+    title: "Approval: Disarmament movement"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  E107:
+    title: "Approval: Human rights movement"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  E108:
+    title: "Approval: Women’s movement"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  E109:
+    title: "Approval: Anti-apartheid movement"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  E110:
+    title: "Satisfaction with the way democracy develops"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4]
+    canonical_candidates: [democracy_quality]
+  E111:
+    title: "Rate political system for governing country"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [3, 4]
+  E111_01:
+    title: "Satisfaction with the political system performance"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [7]
+  E112:
+    title: "Rate political system as it was before"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [3, 4]
+  E113:
+    title: "Rate political system in ten years"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [3, 4]
+  E114:
+    title: "Political system: Having a strong leader"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+  E115:
+    title: "Political system: Having experts make decisions"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+  E116:
+    title: "Political system: Having the army rule"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+  E117B:
+    title: "Political system: Having a system governed by religious law in which there are no political parties or elections"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E117:
+    title: "Political system: Having a democratic political system"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+    sub_items: [E117B]
+    canonical_candidates: [democracy_quality]
+  E118:
+    title: "Firm party leader vs. Cooperating party leader"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [3]
+  E119:
+    title: "Government order vs. freedom"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [3]
+  E120:
+    title: "In democracy, the economic system runs badly"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4]
+  E121:
+    title: "Democracies are indecisive and have too much squabbling"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4]
+  E122:
+    title: "Democracies aren´t good at maintaining order"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4]
+  E123:
+    title: "Democracy may have problems but is better"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4]
+  E124:
+    title: "Respect for individual human rights nowadays"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+  E125:
+    title: "Satisfaction with the people in national office"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4]
+  E127:
+    title: "Free market economy right for country future"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [3]
+  E128:
+    title: "Country is run by big interest vs. for all people’s benefit"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [2, 3, 4]
+  E129B:
+    title: "How much more foreign aid this country should contribute"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [5]
+  E129A:
+    title: "Amount of foreign aid of this country"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  E129C:
+    title: "Be willing to pay higher taxes in order to increase country´s foreign aid"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [5]
+  E129:
+    title: "Economic aid to poorer countries"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [4]
+    sub_items: [E129A, E129B, E129C, E129D]
+  E129D:
+    title: "Economic aid to poorer countries (favor/against)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  E130:
+    title: "Poverty compared to 10 years ago"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  E131:
+    title: "Why are people in need"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [3]
+  E132:
+    title: "Chance to escape from poverty"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [3]
+  E133:
+    title: "How much is the government doing against poverty"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  E134:
+    title: "Amount of help for less developed countries"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  E135:
+    title: "Who should decide: international peacekeeping"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [4, 5]
+  E136:
+    title: "Who should decide: protection of the environment"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [4, 5]
+  E137:
+    title: "Who should decide: aid to developing countries"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [4, 5]
+  E138:
+    title: "Who should decide: refugees"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [4, 5]
+  E139:
+    title: "Who should decide: human rights"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [4, 5]
+  E140:
+    title: "Country cannot solve environmental problems by itself"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [4]
+  E141:
+    title: "Country cannot solve crime problems by itself"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [4]
+  E142:
+    title: "Country cannot solve employment problems by itself"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [4]
+  E143:
+    title: "Immigrant policy"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 7]
+  E150:
+    title: "How often follows politics in the news"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [4]
+  E179_WVS7LOC:
+    title: "Which party would you vote for if there were a national election tomorrow (Local names)"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+  E179:
+    title: "E179"
+    response_type: continuous
+    aggregation: weighted_mean
+    sub_items: [E179WVS, E179_WVS7LOC]
+  E179WVS:
+    title: "Which party would you vote for: first choice (WVS)"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+  E180:
+    title: "E180"
+    response_type: continuous
+    aggregation: weighted_mean
+    sub_items: [E180WVS]
+  E180WVS:
+    title: "Which party would you vote for: second choice (WVS)"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6]
+  E182:
+    title: "Party that would never vote"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [3, 4, 5]
+  E184:
+    title: "Aggression from neighbouring country"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E185:
+    title: "Exploitation of local resources"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E186:
+    title: "Cultural invasion by the west"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E188:
+    title: "Frequency watches TV"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4]
+  E189:
+    title: "TV most important entertainment"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [4]
+  E190:
+    title: "Why are there people living in need: first"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  E191:
+    title: "Why are there people living in need: second"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  E192:
+    title: "Least liked group in society"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [3]
+  E193:
+    title: "Least liked allow: hold office"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [3]
+  E194:
+    title: "Least liked allow: teach"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [3]
+  E195:
+    title: "Least liked allow: demonstrate"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [3]
+  E196:
+    title: "Extent of political corruption"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+    canonical_candidates: [corruption_level]
+  E198:
+    title: "Using violence for political goals not justified"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3]
+  E203:
+    title: "Rapid implementation of market reforms have negative impact on national stability"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E204:
+    title: "Effect of market economic reforms"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E205:
+    title: "Political parties serve the social and political needs of people"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E206:
+    title: "Free and fair elections will reduce terrorism"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E207:
+    title: "[Country] should have close relations with France"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E208:
+    title: "[Country] should have close relations with United States"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E209:
+    title: "Would persist to immigrate abroad if R´s economic situation was better"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E211:
+    title: "Opinion about the problem of Palestine and Israel"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E212:
+    title: "Opinion about 11th september airliners crash action by religious fundamentalists"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E213:
+    title: "Woman should not work outside unless forced to do so"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E214:
+    title: "Western democracy is the best political system for country"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E215:
+    title: "It is necessary to fight terrorism by military means"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E216:
+    title: "[Country] needs foreign military cooperation to combat terrorism"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  E217:
+    title: "Science and technology are making our lives healthier, easier, and more comfortable"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  E218:
+    title: "Because of science and technology, there will be more opportunities for the next generation"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  E219:
+    title: "Science and technology make our way of life change too fast"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5]
+  E220:
+    title: "We depend too much on science and not enough on faith"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  E221B:
+    title: "Political action recently done: Attending peaceful/lawful demonstrations"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [5, 6]
+  E221:
+    title: "E221"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    sub_items: [E221B]
+  E222B:
+    title: "Political action recently done: Other"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [5, 6]
+  E222:
+    title: "Political action: Other"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6]
+    sub_items: [E222B]
+  E224:
+    title: "Democracy: Governments tax the rich and subsidize the poor."
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  E225:
+    title: "Democracy: Religious authorities interpret the laws."
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  E226:
+    title: "Democracy: People choose their leaders in free elections."
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  E227:
+    title: "Democracy: People receive state aid for unemployment."
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  E228:
+    title: "Democracy: The army takes over when government is incompetent."
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  E229:
+    title: "Democracy: Civil rights protect people’s liberty against oppression."
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  E230:
+    title: "Democracy: The economy is prospering."
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5]
+  E231:
+    title: "Democracy: Criminals are severely punished."
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5]
+  E232:
+    title: "Democracy: People can change the laws in referendums."
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5]
+  E233:
+    title: "Democracy: Women have the same rights as men."
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+    sub_items: [E233A, E233B]
+    canonical_candidates: [gender_equality]
+  E233B:
+    title: "Democracy: People obey their rulers"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E233A:
+    title: "Democracy: The state makes people's incomes equal"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E234:
+    title: "The world is better off, or worse off, because of science and technology"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  E235:
+    title: "Importance of democracy"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  E236:
+    title: "Democraticness in own country"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  E237:
+    title: "Heard of the Millennium Development Goals"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [5]
+  E238:
+    title: "Most serious problem of the world: 1st choice"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [5, 6]
+  E239:
+    title: "Most serious problem of the world: 2nd choice"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [5]
+  E240:
+    title: "Most serious problem for own country: 1st choice"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [5]
+  E241:
+    title: "Most serious problem for own country: 2nd choice"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [5]
+  E242:
+    title: "MDG: Reduce extreme poverty"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  E243:
+    title: "MDG: Increase primary education"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  E244:
+    title: "MDG: Reduce child mortality"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  E245:
+    title: "MDG: Fight HIV"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  E246:
+    title: "MDG: Improve housing conditions"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  E247:
+    title: "Priority: Global poverty versus National problems"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5]
+  E248:
+    title: "Information source: Daily newspaper"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [5, 6]
+    sub_items: [E248B]
+  E248B:
+    title: "Information source: Daily newspaper (B)"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E249:
+    title: "Information source: News broadcasts on radio or TV"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [5]
+  E250:
+    title: "Information source: Printed magazines"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [5, 6]
+    sub_items: [E250B]
+  E250B:
+    title: "Information source: Printed magazines (B)"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  E251:
+    title: "Information source: In depth reports on radio or TV"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [5]
+  E252:
+    title: "Information source: Books"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [5]
+  E253:
+    title: "Information source: Internet, Email"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [5]
+    sub_items: [E253B]
+  E253B:
+    title: "Information source: Social media (Facebook, Twitter, etc.)"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [7]
+  E254B:
+    title: "Information source: Talk with friends or colleagues (B)"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E254:
+    title: "Information source: Talk with friends or colleagues"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [5, 6]
+    sub_items: [E254B]
+  E255:
+    title: "How often use of PC"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6]
+  E256:
+    title: "General party preference"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [5]
+  E257:
+    title: "Voted in recent parliament elections"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [5]
+  E258B:
+    title: "Information source: TV news (B)"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E258:
+    title: "Information source: TV news"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [6]
+    sub_items: [E258B]
+  E259B:
+    title: "Information source: Radio news (B)"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E259:
+    title: "Information source: Radio news"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [6]
+    sub_items: [E259B]
+  E260B:
+    title: "Information source: Mobile phone (B)"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E260:
+    title: "Information source: Mobile phone"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [6]
+    sub_items: [E260B]
+  E261:
+    title: "Information source: Email"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [6]
+    sub_items: [E261B]
+  E261B:
+    title: "Information source: Email (B)"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E262B:
+    title: "Information source: Internet (B)"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E262:
+    title: "Information source: Internet"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [6]
+    sub_items: [E262B]
+  E263:
+    title: "Vote in elections: local level"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E264:
+    title: "Vote in elections: National level"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E265_09:
+    title: "How often in country's elections: Voters are offered a genuine choice in the elections"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E265_10:
+    title: "How often in country´s elections: Women have equal opportunities to run the office"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E265_03:
+    title: "How often in country's elections: TV news favors the governing party"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E265_04:
+    title: "How often in country's elections: Voters are bribed"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E265_07:
+    title: "How often in country's elections: Rich people buy elections"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E265_01:
+    title: "How often in country's elections: Votes are counted fairly"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E265_06:
+    title: "How often in country's elections: Election officials are fair"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E265:
+    title: "E265"
+    response_type: likert_4
+    aggregation: weighted_mean
+    sub_items: [E265_01, E265_02, E265_03, E265_04, E265_05, E265_06, E265_07, E265_08, E265_09, E265_10]
+  E265_08:
+    title: "How often in country's elections: Voters are threatened with  violence at the polls"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E265_02:
+    title: "How often in country's elections: Opposition candidates are prevented from running"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E265_05:
+    title: "How often in country's elections: Journalists provide fair coverage of elections"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E266:
+    title: "Some people think that having honest elections makes a lot of difference in their lives;  other people think that it doesn’t matter much"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  E267:
+    title: "Importance of having honest elections in whether or not this country develops economically"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  E268:
+    title: "Scale corruption in [my country] - pay a bribe, give a gift, do a favor to other to get things"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [7]
+  E269:
+    title: "Groups of people involved in corruption: State authorities"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E270:
+    title: "Groups of people involved in corruption: Business executives"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E271:
+    title: "Groups of people involved in corruption: Local authorities"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E272:
+    title: "Groups of people involved in corruption: Civil service providers (police, judiciary, civil servants, doctors, teachers)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E273:
+    title: "Groups of people involved in corruption: Journalists and media"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E274:
+    title: "Frequency ordinary people pay a bribe, give a gift or do a favor to local officials/service providers in order to get services"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E275:
+    title: "Degree of agreement: On the whole, women are less corrupt than men"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  E276:
+    title: "Risk in this country to be held accountable for giving or receiving a bribe, gift or favor in return for public service"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [7]
+  E277:
+    title: "Standard of living comparing with your parents"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E278:
+    title: "Should international organizations prioritize, being effective or being democratic"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [7]
+  E279:
+    title: "Five countries have permanent seats on the Security Council of the United Nations. Which ones of the following is not a member?"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E280:
+    title: "Where are the headquarters of the International Monetary Fund (IMF) located?"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E281:
+    title: "Which of the following problems does the organization Amnesty International deal with?"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E282:
+    title: "Political actions using Internet: Searching information about politics and political events"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E283:
+    title: "Political actions using Internet: Signing an electronic petition"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E284:
+    title: "Political actions using Internet: Encouraging other people to take any form of political action"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E285:
+    title: "Political actions using Internet: Organizing political activities, events, protests"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E286:
+    title: "Social activism: Donating to a group or campaign"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+    canonical_candidates: [social_capital]
+  E287:
+    title: "Social activism: Contacting a government official"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E288:
+    title: "Social activism: Encouraging others to take action about political issues"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E289:
+    title: "Social activism: Encouraging others to vote"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  E290:
+    title: "Justifiable: Political violence"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [7]
+  E291:
+    title: "How much would you say the political system in your country allows people like you to have a say in what the government does?"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [7]
+  F001:
+    title: "Thinking about meaning and purpose of life"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6]
+  F003:
+    title: "Thinking about death"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  F004:
+    title: "Life is meaningful because God exits"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  F005:
+    title: "Try to get the best out of life"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  F006:
+    title: "Death is inevitable"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  F007:
+    title: "Death has meaning if you believe in God"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  F008:
+    title: "Death is a natural resting point"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  F009:
+    title: "Sorrow has meaning if you believe in God"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  F010:
+    title: "Life has no meaning"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2]
+  F022:
+    title: "Statement: good and evil"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4]
+  F024:
+    title: "F024"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+  F025:
+    title: "Religious denominations - major groups"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    sub_items: [F025_WVS]
+  F025old:
+    title: "Religious denomination"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5]
+  F025_WVS:
+    title: "Religious denomination - detailed list"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  F027:
+    title: "Which former religious denomination"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [2]
+  F028B:
+    title: "How often to you pray"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [6, 7]
+  F028:
+    title: "How often do you attend religious services"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    sub_items: [F028B]
+  F029:
+    title: "Raised religiously"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 3]
+  F031:
+    title: "Important: Religious service birth"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  F032:
+    title: "Important: Religious service marriage"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  F033:
+    title: "Important: Religious service death"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  F034:
+    title: "Religious person"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  F035:
+    title: "Churches give answers: moral problems"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4, 5]
+  F036:
+    title: "Churches give answers: the problems of family life"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4, 5]
+  F037:
+    title: "Churches give answers: people´s spiritual needs"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4, 5]
+  F038:
+    title: "Churches give answers: the social problems"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4, 5]
+  F040:
+    title: "Churches speak out on: disarmament"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  F041:
+    title: "Churches speak out on: abortion"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  F042:
+    title: "Churches speak out on: third world problems"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  F043:
+    title: "Churches speak out on: extramarital affairs"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  F044:
+    title: "Churches speak out on: unemployment"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  F045:
+    title: "Churches speak out on: racial discrimination"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  F046:
+    title: "Churches speak out on: euthanasia"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  F047:
+    title: "Churches speak out on: homosexuality"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  F048:
+    title: "Churches speak out on: ecology and environmental issues"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  F049:
+    title: "Churches speak out on: government policy"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  F050:
+    title: "Believe in: God"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 6, 7]
+  F051:
+    title: "Believe in: life after death"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 7]
+  F052:
+    title: "Believe in: people have a soul"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4]
+  F053:
+    title: "Believe in: hell"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 6, 7]
+  F054:
+    title: "Believe in: heaven"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 7]
+  F055:
+    title: "Believe in: Sin"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3]
+  F057:
+    title: "Believe in: re-incarnation"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 7]
+  F059:
+    title: "Believe in: devil"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3]
+  F060:
+    title: "Believe in: resurrection of the dead"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2]
+  F062:
+    title: "Personal God vs. Spirit or Life Force"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 7]
+  F063:
+    title: "How important is God in your life"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  F064:
+    title: "Get comfort and strength from religion"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4]
+  F065:
+    title: "Moments of prayer, meditation..."
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 4, 5]
+  F066:
+    title: "Pray to God outside of religious services (I)"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [4]
+  F067:
+    title: "Pray to God outside of religious services (ii)"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  F102:
+    title: "Politicians who don´t believe in God are unfit for public office"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [4, 5]
+  F103:
+    title: "Religious leaders should not influence how people vote"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [4, 5]
+  F104:
+    title: "Better if more people with strong religious beliefs in public office"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [4, 5]
+  F105:
+    title: "Religious leaders should not influence government"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [4, 5]
+  F108:
+    title: "Government protects freedom"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+    canonical_candidates: [democracy_quality]
+  F109:
+    title: "Government protects religion"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F110:
+    title: "Laws: people’s wishes"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F111:
+    title: "Only laws of the Shari´a"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F114A:
+    title: "Justifiable: Claiming government benefits to which you are not entitled"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  F114:
+    title: "F114"
+    response_type: likert_10
+    aggregation: weighted_mean
+    sub_items: [F114A, F114E, F114B, F114C, F114D]
+  F114B:
+    title: "Justifiable: Stealing property"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [6, 7]
+  F114D:
+    title: "Justifiable: Violence against other people"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [6, 7]
+  F114E:
+    title: "Justifiable: Terrorism as a political, ideological or religious mean"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [7]
+  F114C:
+    title: "Justifiable: Parents beating children"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [6, 7]
+  F115:
+    title: "Justifiable: Avoiding a fare on public transport"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  F116:
+    title: "Justifiable: Cheating on taxes"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  F117:
+    title: "Justifiable: Someone accepting a bribe"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  F118:
+    title: "Justifiable: Homosexuality"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  F119:
+    title: "Justifiable: Prostitution"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  F120:
+    title: "Justifiable: Abortion"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  F121:
+    title: "Justifiable: Divorce"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  F122:
+    title: "Justifiable: Euthanasia"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  F123:
+    title: "Justifiable: Suicide"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  F124:
+    title: "Justifiable: Drinking alcohol"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F125:
+    title: "Justifiable: Joyriding"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+  F126:
+    title: "Justifiable: Taking soft drugs"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2, 7]
+  F127:
+    title: "Justifiable: Llying"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+  F128:
+    title: "Justifiable: Adultery"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+  F129:
+    title: "Justifiable: Throwing away litter"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+  F130:
+    title: "Justifiable: Driving under influence of alcohol"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+  F132:
+    title: "Justifiable: Having casual sex"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [7]
+  F135:
+    title: "Justifiable: Sex under the legal age of consent"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+    sub_items: [F135A]
+  F135A:
+    title: "Justifiable: Sex before marriage"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [6, 7]
+  F136:
+    title: "Justifiable: Political assassination"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+  F139:
+    title: "Justifiable: Buy stolen goods"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3]
+  F140:
+    title: "Justifiable: Keeping money that you have found"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+  F141:
+    title: "Justifiable: Fighting with the police"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+  F142:
+    title: "Justifiable: Failing to report damage you’ve done accidentally to a parked vehicle"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+  F143:
+    title: "Justifiable: Threatening workers who refuse to join a strike"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+  F144_02:
+    title: "Justifiable: Death penalty"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [7]
+  F144:
+    title: "Justifiable: Klling in self-defence"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2]
+    sub_items: [F144_02]
+  F164:
+    title: "Islam requires woman to dress modestly but does not require cover face with veil"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F165:
+    title: "Violation of Islam for male and female university students to attend classes together"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F166:
+    title: "By requiring man treat all wives equally, Islam true intent is prohibit taking more than one wife"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F167:
+    title: "Monarchy is a form of government that is compatible with Islam"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F168:
+    title: "Democracy is a Western form of government that is not compatible with Islam"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F169:
+    title: "Nationalism is incompatible with Islam because Islam requires ´ummah´"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F170:
+    title: "If Palestinian state established and peace with Israel, Islam would not oppose existence of Israel"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F171:
+    title: "If country pursues policies harmful to Muslims, Islam permits killing civilians in that country"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F172:
+    title: "A truly Islamic country should not have a parliament with the right to pass laws"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F173:
+    title: "Islam requires that political rights of non Muslims should be inferior to those of Muslims"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F174:
+    title: "Islams requires country with majority of Muslims be governed by men of Islamic learning"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F175:
+    title: "Religions limit democratic processes"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F176:
+    title: "Some US Policies toward other countries are good and some are bad"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F177:
+    title: "While US policies toward other countries are often bad, most ordinary americans are good people"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F178:
+    title: "The culture of US and other Western countries has many positive attributes"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F179:
+    title: "Exposure to the culture of the US and other Western countries harmful effect on our country"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F186:
+    title: "Religion is a cause of terrorism"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F187:
+    title: "The content of [Country] education contributes to religious extremism"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F188:
+    title: "Which is more important as a basis for marriage:  parents´ approval or love"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F189:
+    title: "When you were growing up, did your father or mother have more influence in the affairs of the house"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F190:
+    title: "How frequently do you perform the five prescribed prayers of the Islam"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F191:
+    title: "How frequently do you perform in the mosque"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F192:
+    title: "If you feel sad and want to talk to someone, to whom do you usually turn to"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F193:
+    title: "Civil marriage is very important because it helps maintain the family"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F194:
+    title: "How important: daily prayer"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F195:
+    title: "How important: building a prosperous society"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F196:
+    title: "How important: forming a happy secure family"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F197:
+    title: "How important: building a successful professional future"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  F198:
+    title: "Fate versus control"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5]
+  F199:
+    title: "Justifiable: For a man to beat his wife"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  F200:
+    title: "Meaning of religion: To follow religious norms and ceremonies vs To do good to other people"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [6, 7]
+  F201:
+    title: "Meaning of religion: To make sense of life after death vs To make sense of life in this world"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [6, 7]
+  F202:
+    title: "Whenever science and religion conflict,  religion is always right"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  F203:
+    title: "The only acceptable religion  is my religion"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  F204:
+    title: "All religions should be taught in public schools"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  F205:
+    title: "People who belong to different religions are probably just as moral as those who belong to mine"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  F206:
+    title: "Degree of agreement: Nowadays one often has trouble deciding which moral rules are the right ones to follow"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [7]
+  G001:
+    title: "Geographical groups belonging to first"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4]
+    sub_items: [G001CS]
+  G001CS:
+    title: "Geographical groups belonging to first (country specific)"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2, 3, 4]
+  G002:
+    title: "Geographical groups belonging to second"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4]
+    sub_items: [G002CS]
+  G002CS:
+    title: "Geographical groups belonging to second  (country specific)"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2, 3, 4]
+  G003CS:
+    title: "Geographical groups belonging to least of all (country specific)"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G003:
+    title: "G003"
+    response_type: unknown
+    aggregation: weighted_mean
+    sub_items: [G003CS]
+  G005:
+    title: "Citizen of [country]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  G006:
+    title: "How proud of nationality"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  G007_17:
+    title: "Trust: Your friends"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007:
+    title: "G007"
+    response_type: likert_5
+    aggregation: weighted_mean
+    sub_items: [G007_01, G007_02, G007_03, G007_04, G007_05, G007_06, G007_07, G007_08, G007_09, G007_10, G007_11, G007_12, G007_13, G007_16, G007_17, G007_18, G007_18_B, G007_19, G007_20, G007_21, G007_22, G007_28, G007_30, G007_31, G007_32, G007_33_B, G007_34_B, G007_35_B, G007_36_B, G007_37, G007_39, G007_40, G007_41, G007_42, G007_43, G007_44, G007_45, G007_48, G007_49, G007_50, G007_51, G007_52, G007_53, G007_54, G007_55, G007_56, G007_57, G007_58, G007_59, G007_60, G007_61, G007_62, G007_63, G007_64, G007_65, G007_66, G007_67]
+  G007_62:
+    title: "Trust: Christians"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  G007_63:
+    title: "Trust: Kurds"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  G007_55:
+    title: "Trust: Slovaks"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_22:
+    title: "Trust: Asian South Africans"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_28:
+    title: "Trust: Moroccans"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_48:
+    title: "Trust: Mapuche Indians"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_13:
+    title: "Trust: Czechs"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_30:
+    title: "Trust: Portuguese"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_66:
+    title: "Trust: Shi´i"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  G007_33_B:
+    title: "Trust: People you know personally (B)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  G007_05:
+    title: "Trust: Chinese residents in Japan"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_40:
+    title: "Trust: Chinese"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_37:
+    title: "Trust: Americans"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_12:
+    title: "Trust: Ghanaians"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_49:
+    title: "Trust: Pascuences"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_18_B:
+    title: "Trust: Your neighborhood (B)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  G007_18:
+    title: "Trust: Your neighborhood"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_34_B:
+    title: "Trust: People you meet for the first time (B)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  G007_52:
+    title: "Trust: Chinese Zhuan Nationality"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_21:
+    title: "Trust: Coloured South Africans"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_39:
+    title: "Trust: Russians"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_41:
+    title: "Trust: Italians"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_54:
+    title: "Trust: English"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_03:
+    title: "Trust: Nepalis"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_42:
+    title: "Trust: Latin Americans"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_43:
+    title: "Trust: Japanese"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_11:
+    title: "Trust: Yorubas"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_32:
+    title: "Trust: Soviet Union people"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_16:
+    title: "Trust: West Germans"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_20:
+    title: "Trust: Black South Africans"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_19:
+    title: "Trust: White South Africans"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_56:
+    title: "Trust: Gypsies"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_10:
+    title: "Trust: Igbos"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_45:
+    title: "Trust: Germans"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_61:
+    title: "Trust: Canadian people in general"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  G007_65:
+    title: "Trust: Relatives"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  G007_06:
+    title: "Trust: Mestizo"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_44:
+    title: "Trust: Blacks"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_50:
+    title: "Confianza: Argentinos"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_36_B:
+    title: "Trust: People of another nationality (B)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  G007_35_B:
+    title: "Trust: People of another religion (B)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  G007_09:
+    title: "Trust: Hausas"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_02:
+    title: "Trust: French Canadians"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_31:
+    title: "Trust: Koreans"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_53:
+    title: "Trust: Chinese Hui Nationality"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_67:
+    title: "Trust: Sunni"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  G007_04:
+    title: "Trust: Korean residents in Japan"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_57:
+    title: "Trust: Poles"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_59:
+    title: "Trust: Indian Non-Hindus"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_60:
+    title: "Trust: Pakistanis"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_51:
+    title: "Trust: Peruvians"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_08:
+    title: "Trust: Central Americans"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_64:
+    title: "Trust: People in general"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+    canonical_candidates: [social_trust]
+  G007_58:
+    title: "Trust: Indian Hindus"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_07:
+    title: "Trust: Indians"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G007_01:
+    title: "Trust: Other people in country"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2]
+  G015:
+    title: "Which of the following best describes you"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [3]
+    sub_items: [G015B]
+  G015B:
+    title: "Which of the following best describes you (B)"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [4]
+  G016:
+    title: "Language at home"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+  G017:
+    title: "Born in this country: birth country"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2, 3]
+  G018:
+    title: "When came to country"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [2, 3]
+  G019:
+    title: "I see myself as a world citizen"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6]
+  G020:
+    title: "I see myself as member of my local community"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6]
+  G021:
+    title: "I see myself as citizen of the [country] nation"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6]
+  G022O:
+    title: "I see myself as citizen of the [Northeast Asia Region]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  G022H:
+    title: "I see myself as citizen of [a country other than mine]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  G022M:
+    title: "I see myself as citizen of [ASEAN]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5, 6]
+  G022L:
+    title: "I see myself as citizen of [Arab Maghreb Union]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5, 6]
+  G022P:
+    title: "I see myself as citizen of the [UNASUR]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  G022G:
+    title: "I see myself as citizen of [my province or region]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  G022K:
+    title: "I see myself as citizen of [The African Union]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5, 6]
+  G022C:
+    title: "I see myself as citizen of the [European Union]"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6]
+  G022D:
+    title: "I see myself as citizen of [APEC]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5, 6]
+  G022R:
+    title: "I see myself as part of the Cooperation Council for the Arab states of Gulf (GCC)"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  G022N:
+    title: "I see myself as citizen of [Arab Union]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5, 6]
+  G022:
+    title: "G022"
+    response_type: likert_4
+    aggregation: weighted_mean
+    sub_items: [G022A, G022B, G022C, G022D, G022E, G022F, G022G, G022H, G022I, G022J, G022K, G022L, G022M, G022N, G022O, G022P, G022Q, G022R]
+  G022J:
+    title: "I see myself as citizen of [The Caribbean]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  G022S:
+    title: "I see myself as part of  [SAARC]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  G022F:
+    title: "I see myself as citizen of [Mercosur]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5, 6]
+  G022B:
+    title: "I see myself as citizen of [North America]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5, 6]
+  G022Q:
+    title: "I see myself as citizen of the [Islamic nation]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  G022I:
+    title: "I see myself as citizen of [CIS]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  G022A:
+    title: "I see myself as citizen of [Latinamerica]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5, 6]
+  G022E:
+    title: "I see myself as citizen of [ASIA]"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5, 6]
+  G023:
+    title: "I see myself as an autonomous individual"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6]
+  G024:
+    title: "What thing are you proud of in your country -1st"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G025:
+    title: "What thing are you proud of in your country -2nd"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  G026_01:
+    title: "Mother's Country of origin"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  G026:
+    title: "Mother immigrant"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [5, 6, 7]
+    sub_items: [G026_01]
+  G027B:
+    title: "Respondent citizen"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [6, 7]
+  G027A:
+    title: "Respondent immigrant"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [6, 7]
+  G027:
+    title: "Father immigrant"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [5, 6, 7]
+    sub_items: [G027_01, G027A, G027B]
+  G027_01:
+    title: "Father's Country of origin"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  G028:
+    title: "Requirements for citizenship: having ancestors from my country"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  G029:
+    title: "Requirements for citizenship: being born on my country’s soil"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  G030:
+    title: "Requirements for citizenship: adopting the customs of my country"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  G031:
+    title: "Requirements for citizenship: abiding by my country´s laws"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5]
+  G032:
+    title: "Ethnic diversity"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5]
+  G052:
+    title: "Evaluate the impact of immigrants on the development of [your country]"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [7]
+  G053:
+    title: "Effects of immigrants on the development of [your country]: Fill useful jobs in the workforce"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  G054:
+    title: "Effects of immigrants on the development of [your country]: Strengthen cultural diversity"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  G055:
+    title: "Effects of immigrants on the development of [your country]: Increase the crime rate"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  G056:
+    title: "Effects of immigrants on the development of [your country]: Give asylum to political refugees"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  G057:
+    title: "Effects of immigrants on the development of [your country]: Increase the risks of terrorism"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  G058:
+    title: "Effects of immigrants on the development of [your country]: Help poor people establish new lives"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  G059:
+    title: "Effects of immigrants on the development of [your country]: Increase unemployment"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  G060:
+    title: "Effects of immigrants on the development of [your country]: Lead to social conflict"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  G062:
+    title: "How close you feel: Continent; e.g. Europe, Asia etc.]"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  G063:
+    title: "How close you feel: World"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  G255:
+    title: "How close you feel: Your [village, town or city]"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  G256:
+    title: "Feel close to your district, region"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [7]
+  G257:
+    title: "Feel close to your country"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [7]
+  H001:
+    title: "Secure in neighborhood"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  H002_02:
+    title: "Frequency in your neighborhood: Alcohol consumed in the streets"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  H002_01:
+    title: "Frequency in your neighborhood: Robberies"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  H002:
+    title: "H002"
+    response_type: likert_4
+    aggregation: weighted_mean
+    sub_items: [H002_01, H002_02, H002_03, H002_04, H002_05]
+  H002_04:
+    title: "Frequency in your neighborhood: Racist behavior"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  H002_05:
+    title: "Frequency in your neighborhood: Drug sale in streets"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  H002_03:
+    title: "Frequency in your neighborhood: Police or military interfere with people’s private life"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  H003_02:
+    title: "Things done for reasons of security: Preferred not to go out at night"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [6, 7]
+  H003_01:
+    title: "Things done for reasons of security: Didn’t carry much money"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [6, 7]
+  H003_03:
+    title: "Things done for reasons of security: Carried a knife, gun or other weapon"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [6, 7]
+  H003:
+    title: "H003"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    sub_items: [H003_01, H003_02, H003_03]
+  H004:
+    title: "Respondent was victim of a crime during the past year"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [6, 7]
+  H005:
+    title: "Respondent's family was victim of a crime during last year"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [6, 7]
+  H006:
+    title: "H006"
+    response_type: likert_4
+    aggregation: weighted_mean
+    sub_items: [H006_01, H006_02, H006_03, H006_04, H006_05, H006_06]
+  H006_02:
+    title: "Worries: Not being able to give one's children a good education"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  H006_06:
+    title: "Worries: Government wire-tapping or reading my mail or email"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  H006_04:
+    title: "Worries: A terrorist attack"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  H006_01:
+    title: "Worries: Losing my job or not finding a job"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  H006_05:
+    title: "Worries: A civil war"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  H006_03:
+    title: "Worries: A war involving my country"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  H007:
+    title: "Under some conditions, war is necessary to obtain justice"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  H008_09:
+    title: "In the last 12 month, how often have you or your family: Gone without a safe shelter over your head"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  H008_05:
+    title: "How frequently do the following things occur in your neighborhood: Street violence and fights"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  H008_04:
+    title: "Frequency you/family (last 12 month): Gone without a cash income"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  H008:
+    title: "H008"
+    response_type: likert_4
+    aggregation: weighted_mean
+    sub_items: [H008_01, H008_02, H008_03, H008_04, H008_05, H008_06, H008_07, H008_08, H008_09]
+  H008_01:
+    title: "Frequency you/family (last 12 month): Gone without enough food to eat"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  H008_02:
+    title: "Frequency you/family (last 12 month): Felt unsafe from crime in your own home"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  H008_07:
+    title: "Freedom and Equality - Which more important"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [7]
+  H008_08:
+    title: "Freedom and securiy - Which more important"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [7]
+  H008_06:
+    title: "How frequently do the following things occur in your neighborhood: Sexual harassment"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  H008_03:
+    title: "Frequency you/family (last 12 month): Gone without needed medicine or treatment that you needed"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [6, 7]
+  H009:
+    title: "Government has the right: Keep people under video surveillance in public areas"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  H010:
+    title: "Government has the right: Monitor all e-mails and any other information exchanged on the Internet"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  H011:
+    title: "Government has the right: Collect information about anyone living in [COUNTRY] without their knowledge"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  I001:
+    title: "One of the bad effects of science is that it breaks down people’s ideas of right and wrong"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [6, 7]
+  I002:
+    title: "It is not important for me to know about science in my daily life"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [6, 7]
+  PWGHT:
+    title: "Population size weight"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [7]
+  V001A:
+    title: "Fathers country of birth - ISO 3166-1 code"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  V001:
+    title: "Father born in country"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+    sub_items: [V001A]
+  V002A:
+    title: "Mothers country of birth - ISO 3166-1 code"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  V002:
+    title: "Mother born in country"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+    sub_items: [V002A]
+  V004:
+    title: "V004"
+    response_type: continuous
+    aggregation: weighted_mean
+    sub_items: [V004AF_01, V004AM_01, V004RF, V004RM]
+  V004AM_01:
+    title: "Highest educational level attained - Respondent´s Mother ISCED"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  V004RM:
+    title: "Highest educational level attained - Respondent´s Mother (Recoded)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  V004RF:
+    title: "Highest educational level attained - Respondent´s Father (Recoded)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  V004AF_01:
+    title: "Highest educational level attained - Respondent´s Father ISCED"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  V097:
+    title: "V097"
+    response_type: continuous
+    aggregation: weighted_mean
+    sub_items: [V097EF]
+  V097EF:
+    title: "Respondent´s Father - Occupational group (when respondent was 14 years old) (WVS)"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  W002:
+    title: "W002"
+    response_type: continuous
+    aggregation: weighted_mean
+    sub_items: [W002A_01, W002D, W002R]
+  W002A_01:
+    title: "Highest educational level attained - Respondent´s Spouse ISCED"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  W002R:
+    title: "educational level partner (recoded)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [7]
+  W002D:
+    title: "Country specific: Education level partner"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  W003:
+    title: "Employment status - Responent´s Spouse"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [7]
+  W006:
+    title: "W006"
+    response_type: continuous
+    aggregation: weighted_mean
+    sub_items: [W006E]
+  W006E:
+    title: "Respondent´s Spouse - Occupational group (WVS)"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  X001:
+    title: "Sex"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  X002:
+    title: "Year of birth"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    sub_items: [X002_02A]
+  X002_02A:
+    title: "Respondents country of birth - ISO 3166-1 code"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  X003R:
+    title: "Age recoded (6 intervals)"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  X003R2:
+    title: "Age recoded (3 intervals)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  X003:
+    title: "Age"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    sub_items: [X003R, X003R2]
+  X007:
+    title: "Marital status"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  X008:
+    title: "Have you been married before"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [2]
+  X010:
+    title: "Where r lived after married"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [4]
+  X011:
+    title: "How many children do you have"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    sub_items: [X011A]
+  X011A:
+    title: "Have you had any children"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1]
+  X012:
+    title: "How many are still living at home"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [2]
+  X013:
+    title: "Number of people in household"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 7]
+  X023R:
+    title: "What age did you complete your education (recoded in intervals)"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2, 7]
+  X023:
+    title: "What age did you complete your education"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 3, 4, 5, 6]
+    sub_items: [X023R]
+  X024B:
+    title: "Respondent - literate"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  X024:
+    title: "X024"
+    response_type: unknown
+    aggregation: weighted_mean
+    sub_items: [X024B]
+  X025:
+    title: "Highest educational level attained"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6]
+    sub_items: [X025A_01, X025CSWVS, X025LIT, X025R]
+  X025R:
+    title: "Education level (recoded)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+  X025LIT:
+    title: "Was the respondent literate"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [6]
+  X025CSWVS:
+    title: "Education (country specific)"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+  X025A_01:
+    title: "Highest educational level attained - Respondent ISCED-2011"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  X026:
+    title: "Do you live with your parents"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  X028:
+    title: "Employment status"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  X031:
+    title: "Are you supervising someone"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [5, 6]
+  X036:
+    title: "Profession/job"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6]
+    sub_items: [X036E]
+  X036E:
+    title: "Respondent - Occupational group (WVS)"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [7]
+  X040:
+    title: "Are you the chief wage earner in your house"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  X041:
+    title: "Is the chief wage earner employed now"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [2, 3, 4, 5, 6]
+  X043:
+    title: "Chief wage earner profession/job"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5]
+  X044:
+    title: "Family savings during past year"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [3, 4, 5, 6, 7]
+  X045:
+    title: "Social class (subjective)"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [1, 3, 4, 5, 6, 7]
+    sub_items: [X045B]
+  X045B:
+    title: "Social class (subjective) with 6 categories"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [5]
+  X046:
+    title: "Socio-economic status of respondent"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2]
+  X047_WVS:
+    title: "Scale of incomes"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  X047R_WVS:
+    title: "Subjective income level (recoded in 3 groups)"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  X047:
+    title: "X047"
+    response_type: likert_10
+    aggregation: weighted_mean
+    sub_items: [X047_WVS, X047CS, X047R_WVS]
+  X047CS:
+    title: "Scale of incomes (Country specific)"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5]
+  X048:
+    title: "X048"
+    response_type: continuous
+    aggregation: weighted_mean
+    sub_items: [X048WVS, X048ISO]
+  X048ISO:
+    title: "Region ISO 3166-2"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  X048WVS:
+    title: "Region where the interview was conducted (WVS)"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  X049:
+    title: "Settlement size"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+    sub_items: [X049CS]
+  X049CS:
+    title: "Settlement size (country specific)"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6]
+  X049A:
+    title: "Settlement size_5 groups"
+    response_type: unknown
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+  X050C:
+    title: "Urban/Rural habitat"
+    response_type: binary_12
+    aggregation: weighted_share_response_1
+    waves: [4, 5, 7]
+  X050:
+    title: "Type of habitat"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2]
+    sub_items: [X050B, X050C]
+  X050B:
+    title: "Settlement type where interview was conducted"
+    response_type: likert_5
+    aggregation: weighted_mean
+    waves: [7]
+  X051:
+    title: "Ethnic group"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  X052:
+    title: "Institution of occupation"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [5, 6, 7]
+  X053:
+    title: "Nature of tasks: manual vs. Cognitive"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6]
+  X054:
+    title: "Nature of tasks: routine vs. Creative"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6]
+  X055:
+    title: "Nature of tasks: independence"
+    response_type: likert_10
+    aggregation: weighted_mean
+    waves: [5, 6]
+  Y001:
+    title: "Post-Materialist index 12-item"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [2, 3, 4, 5, 6, 7]
+  Y002:
+    title: "Post-Materialist index 4-item"
+    response_type: likert_4
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y003:
+    title: "Autonomy Index"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y010:
+    title: "SACSECVAL.- Welzel Overall Secular Values"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y011:
+    title: "DEFIANCE.- Welzel defiance sub-index"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    sub_items: [Y011A, Y011B, Y011C]
+  Y011A:
+    title: "AUTHORITY - Welzel defiance - 1: Inverse respect for authority"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y011C:
+    title: "DEVOUT- Welzel defiance - 3: Inverse devoutness"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y011B:
+    title: "NATIONALISM - Welzel defiance - 2: Inverse national pride"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y012:
+    title: "DISBELIEF.- Welzel disbelief sub-index"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    sub_items: [Y012A, Y012B, Y012C]
+  Y012A:
+    title: "RELIGIMP - Welzel disbelief- 1: Inverse importance of religion"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y012C:
+    title: "RELIGPRAC - Welzel disbelief- 3: Inverse religious practice"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y012B:
+    title: "RELIGBEL - Welzel disbelief- 2: Inverse religious person"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y013C:
+    title: "NORM3 - Welzel relativism- 3: Inverse norm conform3"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y013:
+    title: "RELATIVISM.- Welzel relativism"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    sub_items: [Y013A, Y013B, Y013C]
+  Y013B:
+    title: "NORM2 - Welzel relativism- 2: Inverse norm conform2"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y013A:
+    title: "NORM1 - Welzel relativism- 1: Inverse norm conform1"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y014C:
+    title: "TRUSTCOURTS- Welzel scepticism- 3: Inverse trust in courts"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y014:
+    title: "SCEPTICISM.- Welzel scepticism index"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    sub_items: [Y014A, Y014B, Y014C]
+  Y014A:
+    title: "TRUSTARMY- Welzel scepticism- 1: Inverse trust in army"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y014B:
+    title: "TRUSTPOLICE- Welzel scepticism- 2: Inverse trust in police"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y020:
+    title: "RESEMAVAL.- Welzel emancipative values"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y021B:
+    title: "IMAGIN- Welzel autonomy-2: Imagination as kid quality"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y021:
+    title: "AUTONOMY.- Wezel Autonomy subindex"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    sub_items: [Y021A, Y021B, Y021C]
+  Y021C:
+    title: "NONOBED- Welzel autonomy-3: Obedience as kid quality"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y021A:
+    title: "INDEP- Welzel autonomy-1: Independence as kid quality"
+    response_type: binary_mentioned
+    aggregation: weighted_share_mentioned
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y022A:
+    title: "WOMJOB- Welzel equality-1: Gender equality: job"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y022C:
+    title: "WOMEDU- Welzel equality-3: Gender equality: education"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y022:
+    title: "EQUALITY.- Welzel equality sub-index"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    sub_items: [Y022A, Y022B, Y022C]
+    canonical_candidates: [gender_equality]
+  Y022B:
+    title: "WOMPOL- Welzel equality-2: Gender equality: politics"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y023C:
+    title: "DIVORLIB- Welzel choice-3: Divorce acceptable"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y023:
+    title: "CHOICE.- Welzel choice sub-index"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    sub_items: [Y023A, Y023B, Y023C]
+  Y023B:
+    title: "ABORTLIB- Welzel choice-2: Abortion acceptable"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y023A:
+    title: "HOMOLIB- Welzel choice-1: Homosexuality acceptance"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y024C:
+    title: "VOI2_00- Welzel voice-3 (auxiliary)"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y024A:
+    title: "VOICE1- Welzel voice-1"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y024B:
+    title: "VOICE2- Welzel voice-2"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+  Y024:
+    title: "VOICE.- Welzel voice sub-index"
+    response_type: continuous
+    aggregation: weighted_mean
+    waves: [1, 2, 3, 4, 5, 6, 7]
+    sub_items: [Y024A, Y024B, Y024C]

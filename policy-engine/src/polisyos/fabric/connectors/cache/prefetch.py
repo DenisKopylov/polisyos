@@ -1,4 +1,5 @@
 """Predictive prefetching scheduler for connector cache."""
+
 from __future__ import annotations
 
 import asyncio
@@ -27,6 +28,7 @@ def _default_metrics() -> MetricsRegistry:
 @dataclass(order=True, frozen=True, slots=True)
 class PrefetchJob:
     """Prefetch job public type."""
+
     sort_key: tuple[int, float] = field(init=False, repr=False)
     dataset_id: str
     connector_id: str
@@ -105,11 +107,7 @@ class PrefetchScheduler:
 
     async def stop(self) -> None:
         self._running = False
-        tasks = [
-            task
-            for task in (self._scheduler_task, self._worker_task)
-            if task is not None
-        ]
+        tasks = [task for task in (self._scheduler_task, self._worker_task) if task is not None]
         tasks.extend(self._requeue_tasks)
         for task in tasks:
             task.cancel()

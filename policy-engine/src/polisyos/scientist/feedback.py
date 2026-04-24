@@ -1,9 +1,11 @@
 """Public scientist feedback module API."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
@@ -57,6 +59,7 @@ from polisyos.scientist.feedback_utils import (
 @dataclass(frozen=True)
 class FeedbackArtifacts:
     """Feedback artifacts public type."""
+
     monitoring_contract_ref: str | None = None
     monitoring_report_ref: str | None = None
     compare_report_ref: str | None = None
@@ -95,8 +98,7 @@ def build_monitoring_contract_from_packet(
         refute_margin = max(abs(baseline_value) * 0.2, overall_rmse, confirm_margin * 2.0)
         metric_override = (
             override.get("metrics", {}).get(metric_id, {})
-            if isinstance(override, Mapping)
-            and isinstance(override.get("metrics"), Mapping)
+            if isinstance(override, Mapping) and isinstance(override.get("metrics"), Mapping)
             else {}
         )
         metrics.append(
@@ -156,6 +158,7 @@ def build_parameter_override_bundle(
 
 class DecisionFeedbackService:
     """Decision feedback service implementation."""
+
     def __init__(self, store: ArtifactStore) -> None:
         self._store = store
         self._decision_validity = DecisionValidityService(store)
@@ -433,9 +436,7 @@ class DecisionFeedbackService:
         parameter_override_bundle_ref: str | None = None
 
         refuted_metrics = [
-            item
-            for item in monitoring_report.metrics
-            if item.verdict == MonitoringVerdict.REFUTED
+            item for item in monitoring_report.metrics if item.verdict == MonitoringVerdict.REFUTED
         ]
         if refuted_metrics:
             config = CalibrationConfig(
@@ -697,12 +698,8 @@ class DecisionFeedbackService:
         model_posture = {
             "left_backtest_mode_effective": left_feedback.get("backtest_mode_effective"),
             "right_backtest_mode_effective": right_feedback.get("backtest_mode_effective"),
-            "left_backtest_trust_eligible": left_feedback.get(
-                "backtest_trust_eligible"
-            ),
-            "right_backtest_trust_eligible": right_feedback.get(
-                "backtest_trust_eligible"
-            ),
+            "left_backtest_trust_eligible": left_feedback.get("backtest_trust_eligible"),
+            "right_backtest_trust_eligible": right_feedback.get("backtest_trust_eligible"),
         }
         changed = changed or (
             model_posture["left_backtest_mode_effective"]
@@ -741,10 +738,9 @@ class DecisionFeedbackService:
             right_packet_ref,
             packet_payload=dict(right_packet_payload),
         )
-        changed = (
-            left_governance.get("verdict") != right_governance.get("verdict")
-            or left_validity.get("status") != right_validity.get("status")
-        )
+        changed = left_governance.get("verdict") != right_governance.get(
+            "verdict"
+        ) or left_validity.get("status") != right_validity.get("status")
         return CompareDeltaSection(
             changed=changed,
             summary={

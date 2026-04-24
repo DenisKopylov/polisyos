@@ -24,12 +24,12 @@ flowchart LR
 
 ## Boundary Responsibilities
 
-| Layer | Lex owns | Downstream consumer |
-|---|---|---|
-| Corpus ingest | document bytes, structure, anchors, active versioning | legal references and citation-grade inputs |
-| NormPack assembly | normative snapshot selection and diffing | Scientist governance and policy design |
-| Intervention compilation | executable intervention specs and temporal sequences | Foundry and Scientist |
-| Legal evaluation | legality and compliance deltas against NormPack state | runtime/reporting and governance |
+| Layer                    | Lex owns                                              | Downstream consumer                        |
+| ------------------------ | ----------------------------------------------------- | ------------------------------------------ |
+| Corpus ingest            | document bytes, structure, anchors, active versioning | legal references and citation-grade inputs |
+| NormPack assembly        | normative snapshot selection and diffing              | Scientist governance and policy design     |
+| Intervention compilation | executable intervention specs and temporal sequences  | Foundry and Scientist                      |
+| Legal evaluation         | legality and compliance deltas against NormPack state | runtime/reporting and governance           |
 
 ## Why Lex Is Separate
 

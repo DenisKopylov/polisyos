@@ -1,11 +1,13 @@
 """Legacy iterative search controller for ask/evaluate search loops."""
+
 from __future__ import annotations
 
 import os
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 from uuid import uuid4
 
 from pydantic import ValidationError
@@ -86,12 +88,12 @@ class SearchIteration:
     """Record one ask/evaluate step and the evaluator feedback used for future proposals."""
 
     iteration: int
-    candidate: Dict[str, Any]
+    candidate: dict[str, Any]
     objective_value: float
-    objective_details: List[ObjectiveValue]
+    objective_details: list[ObjectiveValue]
     is_promising: bool
     stage_a_passed: bool
-    stage_b_result: Dict[str, Any] | None
+    stage_b_result: dict[str, Any] | None
     duration_seconds: float
     policy_evaluation: Any | None = None
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
@@ -103,16 +105,16 @@ class SearchResult:
 
     search_id: str
     status: SearchStatus
-    best_candidate: Dict[str, Any] | None
+    best_candidate: dict[str, Any] | None
     best_objective: float
     iterations_completed: int
-    history: List[SearchIteration]
+    history: list[SearchIteration]
     stopping_reason: str | None
     total_duration_seconds: float
     stage_a_evaluations: int
     stage_b_evaluations: int
-    pareto_front: List[Dict[str, Any]] = field(default_factory=list)
-    telemetry: Dict[str, Any] = field(default_factory=dict)
+    pareto_front: list[dict[str, Any]] = field(default_factory=list)
+    telemetry: dict[str, Any] = field(default_factory=dict)
 
 
 class CandidateGenerator(Protocol):
@@ -120,10 +122,10 @@ class CandidateGenerator(Protocol):
 
     def generate(
         self,
-        history: List[SearchIteration],
-        current_best: Dict[str, Any] | None,
-        context: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        history: list[SearchIteration],
+        current_best: dict[str, Any] | None,
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
         """Propose one candidate payload for the next evaluator round.
 
         Args:
@@ -141,11 +143,11 @@ class BatchCandidateGenerator(CandidateGenerator, Protocol):
 
     def generate_batch(
         self,
-        history: List[SearchIteration],
-        current_best: Dict[str, Any] | None,
-        context: Dict[str, Any],
+        history: list[SearchIteration],
+        current_best: dict[str, Any] | None,
+        context: dict[str, Any],
         batch_size: int,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Generate multiple candidates for parallel Stage B evaluation."""
 
 
@@ -168,10 +170,10 @@ class SearchConfig:
     log_level: str = "INFO"
     batch_size: int = 1
     resource_arbiter: Any | None = None
-    transfer_manager: "TransferLearningManager | None" = None
-    initial_evaluations: List[Dict[str, Any]] = field(default_factory=list)
-    policy_objective_stack: "ObjectiveStack | None" = None
-    pareto_registry: "ParetoRegistry | None" = None
+    transfer_manager: TransferLearningManager | None = None
+    initial_evaluations: list[dict[str, Any]] = field(default_factory=list)
+    policy_objective_stack: ObjectiveStack | None = None
+    pareto_registry: ParetoRegistry | None = None
 
 
 class SearchController:
@@ -206,12 +208,12 @@ class SearchController:
         self._stage_a = stage_a_evaluator
         self._stage_b = stage_b_evaluator
 
-        self._history: List[SearchIteration] = []
-        self._best_candidate: Dict[str, Any] | None = None
+        self._history: list[SearchIteration] = []
+        self._best_candidate: dict[str, Any] | None = None
         self._best_objective: float = float("inf")
         self._status = SearchStatus.NOT_STARTED
         self._search_id = ""
-        self._pareto_front: List[Dict[str, Any]] = []
+        self._pareto_front: list[dict[str, Any]] = []
         self._pareto_points: list[FrontierPoint] = []
 
         self._stage_a_count = 0
@@ -238,8 +240,8 @@ class SearchController:
 
     def run(
         self,
-        initial_context: Dict[str, Any],
-        initial_candidate: Dict[str, Any] | None = None,
+        initial_context: dict[str, Any],
+        initial_candidate: dict[str, Any] | None = None,
     ) -> SearchResult:
         """Execute ask/evaluate iterations until the stopping criterion fires.
 
@@ -256,7 +258,7 @@ class SearchController:
         start_time = datetime.now(UTC)
         self._status = SearchStatus.RUNNING
         self._config.stopping.reset()
-        self._pareto_front: List[Dict[str, Any]] = []
+        self._pareto_front: list[dict[str, Any]] = []
         self._pareto_points = []
         self._search_id = search_id
 
@@ -325,7 +327,7 @@ class SearchController:
             )
 
         total_duration = (datetime.now(UTC) - start_time).total_seconds()
-        telemetry: Dict[str, Any] = {}
+        telemetry: dict[str, Any] = {}
         if self._diversity_tracker is not None:
             telemetry["diversity_unique_mechanisms_total"] = (
                 self._diversity_tracker.unique_mechanisms_total
@@ -352,9 +354,9 @@ class SearchController:
     def _generate_candidates(
         self,
         iteration: int,
-        initial_candidate: Dict[str, Any] | None,
-        context: Dict[str, Any],
-    ) -> List[Dict[str, Any]]:
+        initial_candidate: dict[str, Any] | None,
+        context: dict[str, Any],
+    ) -> list[dict[str, Any]]:
         if iteration == 0 and initial_candidate is not None:
             return [initial_candidate]
 
@@ -413,9 +415,9 @@ class SearchController:
 
     def _evaluate_candidate(
         self,
-        candidate: Dict[str, Any],
+        candidate: dict[str, Any],
         iteration: int,
-        context: Dict[str, Any],
+        context: dict[str, Any],
     ) -> None:
         iter_start = datetime.now(UTC)
         is_sentinel = extract_sentinel_metadata(candidate) is not None
@@ -427,13 +429,11 @@ class SearchController:
             self._stage_a_count += 1
             stage_a_score, stage_a_passed = self._stage_a(candidate, context)
             if not stage_a_passed:
-                logger.debug(
-                    f"Iteration {iteration}: Stage A rejected (score={stage_a_score:.4f})"
-                )
+                logger.debug(f"Iteration {iteration}: Stage A rejected (score={stage_a_score:.4f})")
 
-        stage_b_result: Dict[str, Any] | None = None
+        stage_b_result: dict[str, Any] | None = None
         objective_value = float("inf")
-        objective_details: List[ObjectiveValue] = []
+        objective_details: list[ObjectiveValue] = []
         policy_evaluation = None
         iter_duration = 0.0
 
@@ -492,10 +492,10 @@ class SearchController:
 
     def _build_generation_context(
         self,
-        context: Dict[str, Any],
+        context: dict[str, Any],
         *,
         iteration: int,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         enriched = dict(context)
         enriched["search_state"] = {
             "iteration": int(iteration),
@@ -540,7 +540,7 @@ class SearchController:
             enriched.update(execution_plan_context)
         return enriched
 
-    def _build_lesson_hints(self, context: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _build_lesson_hints(self, context: dict[str, Any]) -> list[dict[str, Any]]:
         lesson_registry = context.get("lesson_registry")
         if lesson_registry is None:
             return []
@@ -591,9 +591,9 @@ class SearchController:
 
     def _resolve_policy_evaluation(
         self,
-        candidate: Dict[str, Any],
-        stage_b_result: Dict[str, Any] | None,
-    ) -> "PolicyEvaluationVector | None":
+        candidate: dict[str, Any],
+        stage_b_result: dict[str, Any] | None,
+    ) -> PolicyEvaluationVector | None:
         if not stage_b_result:
             return None
 
@@ -637,9 +637,8 @@ class SearchController:
         if objective_stack is None:
             return None
 
-        raw_bundle = (
-            stage_b_result.get("policy_evaluation_bundle")
-            or stage_b_result.get("_policy_evaluation_bundle")
+        raw_bundle = stage_b_result.get("policy_evaluation_bundle") or stage_b_result.get(
+            "_policy_evaluation_bundle"
         )
         if raw_bundle is None:
             return None
@@ -659,9 +658,8 @@ class SearchController:
             return None
 
         if bundle.candidate is None:
-            candidate_schema = (
-                stage_b_result.get("_policy_candidate_schema")
-                or stage_b_result.get("policy_candidate")
+            candidate_schema = stage_b_result.get("_policy_candidate_schema") or stage_b_result.get(
+                "policy_candidate"
             )
             if isinstance(candidate_schema, PolicyCandidateSchema):
                 bundle = bundle.model_copy(update={"candidate": candidate_schema})
@@ -674,9 +672,7 @@ class SearchController:
                     if isinstance(candidate_payload, dict):
                         bundle = bundle.model_copy(
                             update={
-                                "candidate": PolicyCandidateSchema.model_validate(
-                                    candidate_payload
-                                )
+                                "candidate": PolicyCandidateSchema.model_validate(candidate_payload)
                             }
                         )
                 except _SEARCH_DEGRADED_ERRORS as exc:
@@ -714,10 +710,10 @@ class SearchController:
     def _update_policy_or_legacy_frontier(
         self,
         *,
-        candidate: Dict[str, Any],
-        objective_details: List[ObjectiveValue],
-        policy_evaluation: "PolicyEvaluationVector | None",
-        stage_b_result: Dict[str, Any] | None,
+        candidate: dict[str, Any],
+        objective_details: list[ObjectiveValue],
+        policy_evaluation: PolicyEvaluationVector | None,
+        stage_b_result: dict[str, Any] | None,
     ) -> None:
         registry = self._config.pareto_registry
         if policy_evaluation is not None and registry is not None:
@@ -743,18 +739,14 @@ class SearchController:
                 evaluation=policy_evaluation,
                 candidate_id=policy_evaluation.candidate_id,
                 candidate_ref=(stage_b_result or {}).get("candidate_ref"),
-                policy_family=(
-                    str(policy_evaluation.metadata.get("policy_family") or "") or None
-                ),
+                policy_family=(str(policy_evaluation.metadata.get("policy_family") or "") or None),
                 promotion_metadata={
                     "iteration": len(self._history),
                     "feedback": dict((stage_b_result or {}).get("feedback", {})),
                 },
                 seed_payload=dict(candidate),
                 task_family=(
-                    transfer_context.task_family
-                    if transfer_context is not None
-                    else None
+                    transfer_context.task_family if transfer_context is not None else None
                 ),
                 domain=(transfer_context.domain if transfer_context is not None else None),
                 transfer_context=transfer_context,
@@ -768,9 +760,9 @@ class SearchController:
     @staticmethod
     def _policy_candidate_hash(
         *,
-        candidate: Dict[str, Any],
-        policy_evaluation: "PolicyEvaluationVector",
-        stage_b_result: Dict[str, Any],
+        candidate: dict[str, Any],
+        policy_evaluation: PolicyEvaluationVector,
+        stage_b_result: dict[str, Any],
     ) -> str:
         metadata_hash = str(policy_evaluation.metadata.get("candidate_hash", "")).strip()
         explicit = stage_b_result.get("candidate_hash")
@@ -782,8 +774,8 @@ class SearchController:
 
     def _update_pareto_front(
         self,
-        candidate: Dict[str, Any],
-        objectives: List[ObjectiveValue],
+        candidate: dict[str, Any],
+        objectives: list[ObjectiveValue],
     ) -> None:
         """Update the Pareto front with a new candidate if non-dominated."""
         self._pareto_points = update_legacy_pareto_front(
@@ -795,11 +787,11 @@ class SearchController:
         self._pareto_front = [point.as_payload() for point in self._pareto_points]
 
     @staticmethod
-    def _dominates(a: List[float], b: List[float]) -> bool:
+    def _dominates(a: list[float], b: list[float]) -> bool:
         """Return True if *a* dominates *b* (all <= and at least one <)."""
         return dominates(a, b)
 
-    def _to_history_dict(self, iteration: SearchIteration) -> Dict[str, Any]:
+    def _to_history_dict(self, iteration: SearchIteration) -> dict[str, Any]:
         """Convert iteration to dict for stopping criteria."""
         return {
             "iteration": iteration.iteration,
@@ -812,12 +804,12 @@ class SearchController:
         self,
         *,
         portfolio: Any,
-        evaluator: Callable[[Any, Dict[str, Any]], Any],
+        evaluator: Callable[[Any, dict[str, Any]], Any],
         mode: str = "enumerate",
         max_evaluations: int = 100,
-        base_benefits: Dict[str, float] | None = None,
-        initial_context: Dict[str, Any] | None = None,
-    ) -> List[Any]:
+        base_benefits: dict[str, float] | None = None,
+        initial_context: dict[str, Any] | None = None,
+    ) -> list[Any]:
         """Run discrete portfolio optimization over policy combinations.
 
         Returns a list of `PortfolioEvaluationResult`, sorted by objective descending.
@@ -852,7 +844,7 @@ class SearchController:
                 max_combinations=max_evaluations,
             )
 
-        results: List[PortfolioEvaluationResult] = []
+        results: list[PortfolioEvaluationResult] = []
         for combination in combinations[:max_evaluations]:
             raw = evaluator(combination, context)
             if isinstance(raw, PortfolioEvaluationResult):

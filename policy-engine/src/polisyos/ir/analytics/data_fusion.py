@@ -6,13 +6,12 @@ Provides lightweight Pydantic contracts for fusion results and combination plans
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
-
+from pydantic import BaseModel, ConfigDict
 
 __all__ = [
+    "DataCombinationPlan",
     "FusionDataset",
     "FusionResult",
-    "DataCombinationPlan",
     "ValidityReport",
 ]
 

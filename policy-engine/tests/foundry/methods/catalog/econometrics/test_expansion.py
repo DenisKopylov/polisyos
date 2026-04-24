@@ -5,7 +5,10 @@ import pytest
 
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.causal import PanelObservationalData
-from polisyos.foundry.methods.econometrics import TimeSeriesData, ensure_econometric_methods_registered
+from polisyos.foundry.methods.econometrics import (
+    TimeSeriesData,
+    ensure_econometric_methods_registered,
+)
 from polisyos.foundry.methods.registry import MethodRegistry
 
 
@@ -20,7 +23,10 @@ def _reset_globals():
 
 def _time_series() -> TimeSeriesData:
     rng = np.random.default_rng(11)
-    endog = np.cumsum(rng.normal(size=(48, 2)), axis=0) + np.array([0.2, -0.15]) * np.arange(48)[:, None]
+    endog = (
+        np.cumsum(rng.normal(size=(48, 2)), axis=0)
+        + np.array([0.2, -0.15]) * np.arange(48)[:, None]
+    )
     return TimeSeriesData(endog=endog)
 
 

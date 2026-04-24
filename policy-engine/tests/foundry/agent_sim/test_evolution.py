@@ -1,9 +1,8 @@
 """Tests for agent_sim evolutionary strategies config."""
+
 from __future__ import annotations
 
-import pytest
-
-from polisyos.foundry.agent_sim.evolution import ESConfig, CMAESConfig
+from polisyos.foundry.agent_sim.evolution import CMAESConfig, ESConfig
 from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 

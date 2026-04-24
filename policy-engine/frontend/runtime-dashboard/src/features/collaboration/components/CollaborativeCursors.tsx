@@ -50,7 +50,7 @@ function CursorOverlay({ cursor }: CursorOverlayProps) {
       <motion.div
         initial={{ opacity: 0, x: 4 }}
         animate={{ opacity: 1, x: 0 }}
-        className="ml-3 mt-0.5 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-semibold text-white shadow-md"
+        className="mt-0.5 ml-3 rounded-full px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap text-white shadow-md"
         style={{ backgroundColor: cursor.accentColor }}
       >
         {cursor.displayName}
@@ -64,16 +64,11 @@ function CursorOverlay({ cursor }: CursorOverlayProps) {
  * Mount this as a child of the collaboration surface container
  * (must have `position: relative` and `overflow: hidden`).
  */
-export function CollaborativeCursors({
-  className,
-}: CollaborativeCursorsProps) {
+export function CollaborativeCursors({ className }: CollaborativeCursorsProps) {
   const cursors = useCollaborationStore((s) => s.cursors);
 
   const visibleCursors = useMemo(
-    () =>
-      cursors.filter(
-        (c) => Number.isFinite(c.x) && Number.isFinite(c.y),
-      ),
+    () => cursors.filter((c) => Number.isFinite(c.x) && Number.isFinite(c.y)),
     [cursors],
   );
 

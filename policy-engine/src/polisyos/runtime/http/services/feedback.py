@@ -1,4 +1,5 @@
 """Expose monitoring, compare, and reissue workflows for decision feedback."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -27,6 +28,7 @@ if TYPE_CHECKING:
 @dataclass(frozen=True)
 class PreparedReissue:
     """Carry a new run id, reissued experiment-state payload, and feedback refs."""
+
     reissued_run_id: str
     state_payload: dict[str, Any]
     monitoring_report_ref: str | None
@@ -36,6 +38,7 @@ class PreparedReissue:
 
 class FeedbackService:
     """Bridge runtime run records with Scientist decision-feedback artifacts."""
+
     def __init__(self, *, store: ArtifactStore, run_index: RunIndexService) -> None:
         self._store = store
         self._run_index = run_index
@@ -175,9 +178,21 @@ class FeedbackService:
         if plan is None:
             raise ValueError("reissue_plan_load_failed")
 
-        inputs = _mapping_dict(original_state.get("inputs")) if isinstance(original_state, Mapping) else {}
-        params = _mapping_dict(original_state.get("params")) if isinstance(original_state, Mapping) else {}
-        budgets = _mapping_dict(original_state.get("budgets")) if isinstance(original_state, Mapping) else {}
+        inputs = (
+            _mapping_dict(original_state.get("inputs"))
+            if isinstance(original_state, Mapping)
+            else {}
+        )
+        params = (
+            _mapping_dict(original_state.get("params"))
+            if isinstance(original_state, Mapping)
+            else {}
+        )
+        budgets = (
+            _mapping_dict(original_state.get("budgets"))
+            if isinstance(original_state, Mapping)
+            else {}
+        )
         new_run = new_run_id()
         if plan.parameter_override_bundle_ref is not None:
             inputs[INPUT_PARAMETER_OVERRIDE_BUNDLE_REF] = {
@@ -188,7 +203,9 @@ class FeedbackService:
         params["reissued_from_run_id"] = run.run_id
         params["reissue_plan_ref"] = reissue_plan_ref
         if feedback_view.monitoring_report is not None:
-            params["feedback_refuted_metric_ids"] = list(feedback_view.monitoring_report.refuted_metric_ids)
+            params["feedback_refuted_metric_ids"] = list(
+                feedback_view.monitoring_report.refuted_metric_ids
+            )
         return PreparedReissue(
             reissued_run_id=new_run,
             state_payload={
@@ -196,7 +213,9 @@ class FeedbackService:
                 "inputs": inputs,
                 "params": params,
                 "budgets": budgets,
-                "execution_profile": original_state.get("execution_profile") if isinstance(original_state, Mapping) else None,
+                "execution_profile": original_state.get("execution_profile")
+                if isinstance(original_state, Mapping)
+                else None,
             },
             monitoring_report_ref=monitoring_report_ref,
             compare_report_ref=compare_report_ref,

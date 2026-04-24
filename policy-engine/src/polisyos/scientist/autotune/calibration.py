@@ -1,4 +1,5 @@
 """Public autotune calibration module API."""
+
 from __future__ import annotations
 
 import json
@@ -31,6 +32,7 @@ CALIBRATION_LOOP_ID = "calibration_meta"
 
 class CalibrationMetaSearchConfig(MutationArtifact):
     """Calibration meta search config data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = CALIBRATION_LOOP_ID
@@ -117,7 +119,9 @@ def _clone_calibration_config(base_config: CalibrationConfig) -> CalibrationConf
             "grad_norm": base_config.grad_norm.model_copy(deep=False),
             "hessian": base_config.hessian.model_copy(deep=False),
             "multi_start": (
-                None if base_config.multi_start is None else base_config.multi_start.model_copy(deep=False)
+                None
+                if base_config.multi_start is None
+                else base_config.multi_start.model_copy(deep=False)
             ),
             "constraint_loss": base_config.constraint_loss.model_copy(deep=False),
             "prior_loss": base_config.prior_loss.model_copy(deep=False),
@@ -128,7 +132,9 @@ def _clone_calibration_config(base_config: CalibrationConfig) -> CalibrationConf
     )
 
 
-def build_baseline_calibration_meta_config(_context: dict[str, Any] | None = None) -> CalibrationMetaSearchConfig:
+def build_baseline_calibration_meta_config(
+    _context: dict[str, Any] | None = None,
+) -> CalibrationMetaSearchConfig:
     """Build baseline calibration meta config."""
     return CalibrationMetaSearchConfig()
 
@@ -160,6 +166,7 @@ def apply_calibration_meta_overrides(
 
 class CalibrationMetaEvaluator(BenchmarkedEvaluator):
     """Calibration meta evaluator public type."""
+
     def __init__(
         self,
         *,
@@ -192,13 +199,21 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
         )
         selection_reports = _run_calibration_cases(
             config=config,
-            rows=[row for row in rows if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.SELECTION],
+            rows=[
+                row
+                for row in rows
+                if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.SELECTION
+            ],
             runner=runner,
             context=context,
         )
         holdout_reports = _run_calibration_cases(
             config=config,
-            rows=[row for row in rows if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.HOLDOUT],
+            rows=[
+                row
+                for row in rows
+                if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.HOLDOUT
+            ],
             runner=runner,
             context=context,
         )
@@ -207,7 +222,9 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
         uncertainty_margin = float(context.get("uncertainty_regression_tolerance", 0.05) or 0.05)
         guardrails = {
             "no_divergence": float(holdout_metrics.get("divergence_rate", 1.0)) == 0.0,
-            "uncertainty_not_worse": float(holdout_metrics.get("uncertainty_conditioning_score", 0.0))
+            "uncertainty_not_worse": float(
+                holdout_metrics.get("uncertainty_conditioning_score", 0.0)
+            )
             >= (champion_uncertainty - uncertainty_margin),
         }
         return BenchmarkEvaluation(
@@ -246,7 +263,11 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
         metrics = _calibration_metrics(
             _run_calibration_cases(
                 config=cfg,
-                rows=[row for row in rows if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.HOLDOUT],
+                rows=[
+                    row
+                    for row in rows
+                    if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.HOLDOUT
+                ],
                 runner=runner,
                 context=context,
             )
@@ -256,6 +277,7 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
 
 class CalibrationMetaRuntimeLoader(ChampionBackedRuntimeLoader[CalibrationMetaSearchConfig]):
     """Calibration meta runtime loader implementation."""
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(
             loop_id=CALIBRATION_LOOP_ID,
@@ -321,7 +343,9 @@ def _calibration_metrics(reports: list[CalibrationReport]) -> dict[str, float]:
         uncertainty_scores.append(_uncertainty_score(report))
         if _has_divergence(report):
             divergence += 1
-    composite = (_avg(fit_scores) * 0.7) + (_avg(runtime_scores) * 0.15) + (_avg(uncertainty_scores) * 0.15)
+    composite = (
+        (_avg(fit_scores) * 0.7) + (_avg(runtime_scores) * 0.15) + (_avg(uncertainty_scores) * 0.15)
+    )
     return {
         "sample_count": float(len(reports)),
         "aggregate_fit_quality": composite,
@@ -371,7 +395,7 @@ def _avg(values: list[float]) -> float:
 
 def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if line:

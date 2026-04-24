@@ -9,7 +9,7 @@ from polisyos.academic.knowledge.parameter_selector import ParameterSelector
 from polisyos.academic.knowledge.skg_query import SKGQuery
 from polisyos.ir.analytics.causal_graph import CausalGraphModel, GraphType
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
-from polisyos.ir.analytics.transportability import TransportMode, TransportabilityStatus
+from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
 
 
 def _seed_params(db_path, rows: list[tuple[str, str, str]]) -> None:

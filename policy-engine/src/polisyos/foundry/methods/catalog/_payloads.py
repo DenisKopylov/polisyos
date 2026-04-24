@@ -1,7 +1,9 @@
 """Public catalog payloads module API."""
+
 from __future__ import annotations
 
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 
 def filter_model_mapping(model_cls: type, payload: Mapping[str, Any]) -> dict[str, Any]:

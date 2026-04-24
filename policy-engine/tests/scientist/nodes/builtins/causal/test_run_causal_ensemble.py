@@ -66,7 +66,9 @@ def test_causal_ensemble_member_assertion_is_not_swallowed(
         update={
             "params": {
                 "causal_ensemble_enabled": True,
-                "causal_ensemble_members": [{"structural_causal_model_spec_ref": "sha256:" + "a" * 64}],
+                "causal_ensemble_members": [
+                    {"structural_causal_model_spec_ref": "sha256:" + "a" * 64}
+                ],
             },
         },
     )
@@ -116,7 +118,11 @@ def test_run_causal_ensemble_uses_branch_state_for_success_outputs(
     state.params.update(
         {
             "causal_ensemble_enabled": True,
-            "causal_query": {"query_type": "ate", "treatment_variable": "X", "outcome_variable": "Y"},
+            "causal_query": {
+                "query_type": "ate",
+                "treatment_variable": "X",
+                "outcome_variable": "Y",
+            },
             "nested": {"baseline": True},
         }
     )

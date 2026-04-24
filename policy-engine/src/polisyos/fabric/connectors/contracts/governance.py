@@ -1,11 +1,11 @@
 """Governance metadata for Fabric schema and contract evolution."""
+
 from __future__ import annotations
 
 import re
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-
 
 _ADR_RE = re.compile(r"^(?:ADR-)?\d{4}$")
 
@@ -87,9 +87,7 @@ class SchemaApprovalMetadata(BaseModel):
         if not self.adr_refs:
             errors.append("adr_refs must include at least one ADR for breaking schema changes")
         if self.migration_status == MigrationStatus.NOT_NEEDED:
-            errors.append(
-                "migration_status cannot be not_needed for breaking schema changes"
-            )
+            errors.append("migration_status cannot be not_needed for breaking schema changes")
         return errors
 
 

@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
-from polisyos.datasets.batch.source_registry import SourceSpec
+if TYPE_CHECKING:
+    from polisyos.datasets.batch.source_registry import SourceSpec
 
 _EXTENSION_FORMATS = {
     ".csv": "CSV",

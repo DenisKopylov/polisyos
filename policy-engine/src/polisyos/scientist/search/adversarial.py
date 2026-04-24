@@ -1,16 +1,19 @@
 """Public search adversarial module API."""
+
 from __future__ import annotations
 
 import math
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.contracts.scientist import PlatformMetaEvaluationReportRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.contracts.scientist import PlatformMetaEvaluationReportRef
 from polisyos.ir.world.ids import stable_world_id_from_canon
+from polisyos.scientist.autotune.models import BenchmarkEvaluation, BenchmarkSplit
 from polisyos.scientist.doe.designs import AdversarialPlan, AdversarialStrategy
 from polisyos.scientist.doe.sampling import generate_adversarial_samples
 from polisyos.scientist.doe.stress_report import (
@@ -18,26 +21,22 @@ from polisyos.scientist.doe.stress_report import (
     Vulnerability,
     VulnerabilityType,
 )
-from polisyos.scientist.search.sentinels import SentinelObservation, SentinelSet
-from polisyos.scientist.search.stages import CorrelationTracker
 from polisyos.scientist.search.controller import SearchIteration
 from polisyos.scientist.search.objective import (
     CompositeObjective,
     ObjectiveValue,
     OptimizationDirection,
 )
+from polisyos.scientist.search.sentinels import SentinelObservation, SentinelSet
+from polisyos.scientist.search.stages import CorrelationTracker
 from polisyos.scientist.search.stopping import (
     CompositeStoppingCriterion,
     MaxIterations,
     StoppingCondition,
     StoppingCriterion,
 )
-from polisyos.scientist.autotune.models import BenchmarkEvaluation, BenchmarkSplit
 
-
-PLATFORM_META_EVALUATION_SCHEMA_NAME = (
-    "polisyos.scientist.PlatformMetaEvaluationReport"
-)
+PLATFORM_META_EVALUATION_SCHEMA_NAME = "polisyos.scientist.PlatformMetaEvaluationReport"
 
 
 class PlatformMetaEvaluationConfig(BaseModel):
@@ -125,11 +124,7 @@ class PlatformMetaEvaluator:
             self._calibration_drift_replay(bundle),
         ]
         triggered_guards = sorted(
-            {
-                guard
-                for result in attack_results
-                for guard in result.triggered_guards
-            }
+            {guard for result in attack_results for guard in result.triggered_guards}
         )
         recommendations = _dedupe_text(
             [item for result in attack_results for item in result.recommendations]
@@ -143,12 +138,7 @@ class PlatformMetaEvaluator:
                 1 for result in attack_results if result.status == "skipped"
             ),
         }
-        metrics.update(
-            {
-                f"{result.attack_type}_status": result.status
-                for result in attack_results
-            }
-        )
+        metrics.update({f"{result.attack_type}_status": result.status for result in attack_results})
         return PlatformMetaEvaluationReport(
             overall_status=overall_status,
             promotion_safe=not failures,
@@ -172,15 +162,19 @@ class PlatformMetaEvaluator:
                 passed=True,
                 summary="Sentinel attack skipped because sentinel inputs were not provided.",
             )
-        observed_pass_rate = sum(
-            1 for item in observations if item.stage_a_passed
-        ) / max(len(observations), 1)
+        observed_pass_rate = sum(1 for item in observations if item.stage_a_passed) / max(
+            len(observations), 1
+        )
         expected_floor = max(
             self._config.sentinel_pass_floor,
-            float(getattr(bundle.sentinel_set, "pass_rate_floor", self._config.sentinel_pass_floor)),
+            float(
+                getattr(bundle.sentinel_set, "pass_rate_floor", self._config.sentinel_pass_floor)
+            ),
         )
         alert_codes = _tracker_alert_codes(bundle.correlation_tracker)
-        guard_present = "SENTINEL_FAILURE" in alert_codes or _observed_routing_mode(bundle) != "normal"
+        guard_present = (
+            "SENTINEL_FAILURE" in alert_codes or _observed_routing_mode(bundle) != "normal"
+        )
         if observed_pass_rate >= expected_floor:
             status = "passed"
             passed = True
@@ -188,9 +182,8 @@ class PlatformMetaEvaluator:
         else:
             passed = guard_present
             status = "passed" if passed else "failed"
-            summary = (
-                "Sentinel pass rate fell below the configured floor and the platform "
-                + ("raised the expected guard." if passed else "did not surface a guard.")
+            summary = "Sentinel pass rate fell below the configured floor and the platform " + (
+                "raised the expected guard." if passed else "did not surface a guard."
             )
         recommendations = []
         if observed_pass_rate < expected_floor and not guard_present:
@@ -239,8 +232,7 @@ class PlatformMetaEvaluator:
         invalid_rotations = [
             evaluation.resolved_runtime_split_type().value
             for evaluation in holdouts
-            if evaluation.resolved_runtime_split_type()
-            is not BenchmarkSplit.ROTATING_CHALLENGE
+            if evaluation.resolved_runtime_split_type() is not BenchmarkSplit.ROTATING_CHALLENGE
         ]
         if invalid_rotations:
             return PlatformAttackResult(
@@ -258,11 +250,7 @@ class PlatformMetaEvaluator:
             )
         shared_metrics = sorted(
             set(bundle.selection_evaluation.selection_metrics)
-            & {
-                metric
-                for evaluation in holdouts
-                for metric in evaluation.holdout_metrics
-            }
+            & {metric for evaluation in holdouts for metric in evaluation.holdout_metrics}
         )
         metric = shared_metrics[0] if shared_metrics else None
         deltas: list[float] = []
@@ -270,15 +258,23 @@ class PlatformMetaEvaluator:
             selection_value = float(bundle.selection_evaluation.selection_metrics[metric])
             for evaluation in holdouts:
                 holdout_value = float(evaluation.holdout_metrics.get(metric, selection_value))
-                delta = 0.0 if selection_value <= 0.0 else max(0.0, (selection_value - holdout_value) / selection_value)
+                delta = (
+                    0.0
+                    if selection_value <= 0.0
+                    else max(0.0, (selection_value - holdout_value) / selection_value)
+                )
                 deltas.append(delta)
         flip_rate = 0.0
         if bundle.rotated_promotion_decisions and bundle.base_promotion_decision is not None:
             flip_rate = sum(
-                1 for item in bundle.rotated_promotion_decisions if item != bundle.base_promotion_decision
+                1
+                for item in bundle.rotated_promotion_decisions
+                if item != bundle.base_promotion_decision
             ) / len(bundle.rotated_promotion_decisions)
         elif deltas:
-            flip_rate = sum(1 for item in deltas if item > self._config.max_hidden_holdout_degradation) / len(deltas)
+            flip_rate = sum(
+                1 for item in deltas if item > self._config.max_hidden_holdout_degradation
+            ) / len(deltas)
         worst_delta = max(deltas) if deltas else 0.0
         disagreement_concentration = sum(1 for item in deltas if item > 0.0) / max(len(deltas), 1)
         passed = (
@@ -297,7 +293,9 @@ class PlatformMetaEvaluator:
             recommendations=(
                 []
                 if passed
-                else ["Refresh hidden holdout composition or demote the candidate to research-only readiness."]
+                else [
+                    "Refresh hidden holdout composition or demote the candidate to research-only readiness."
+                ]
             ),
             metrics={
                 "promotion_flip_rate": flip_rate,
@@ -341,7 +339,9 @@ class PlatformMetaEvaluator:
             )
         recommendations = []
         if not passed:
-            recommendations.append("Disable predictive VOI until paired cheap/expensive calibration is restored.")
+            recommendations.append(
+                "Disable predictive VOI until paired cheap/expensive calibration is restored."
+            )
         return PlatformAttackResult(
             attack_type="calibration_drift_replay",
             status=status,
@@ -440,7 +440,9 @@ def run_stress_test(
         total_evaluated += 1
         try:
             result = stage_b_evaluator(candidate, runtime_context)
-            objective = float(base_objective.evaluate(result.get("simulation_results", {})).raw_value)
+            objective = float(
+                base_objective.evaluate(result.get("simulation_results", {})).raw_value
+            )
         except Exception as exc:
             vulnerabilities.append(
                 Vulnerability(
@@ -497,14 +499,18 @@ def run_stress_test(
         for idx in range(remaining):
             candidate = candidate_generator.generate(history, best_candidate, runtime_context)  # type: ignore[attr-defined]
             result = stage_b_evaluator(candidate, runtime_context)
-            objective = float(base_objective.evaluate(result.get("simulation_results", {})).raw_value)
+            objective = float(
+                base_objective.evaluate(result.get("simulation_results", {})).raw_value
+            )
             negated_objective = -objective
             history.append(
                 SearchIteration(
                     iteration=idx,
                     candidate=dict(candidate),
                     objective_value=negated_objective,
-                    objective_details=list(base_objective.evaluate_detailed(result.get("simulation_results", {}))),
+                    objective_details=list(
+                        base_objective.evaluate_detailed(result.get("simulation_results", {}))
+                    ),
                     is_promising=True,
                     stage_a_passed=True,
                     stage_b_result=result,
@@ -544,7 +550,9 @@ def run_stress_test(
             if stop_check.should_stop:
                 break
 
-    vulnerabilities = _deduplicate_vulnerabilities(vulnerabilities)[: adversarial_plan.collect_top_k]
+    vulnerabilities = _deduplicate_vulnerabilities(vulnerabilities)[
+        : adversarial_plan.collect_top_k
+    ]
     if worst_case_objective == float("-inf"):
         worst_case_objective = float("nan")
 

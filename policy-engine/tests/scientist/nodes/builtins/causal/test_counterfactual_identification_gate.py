@@ -70,7 +70,9 @@ def test_counterfactual_gate_blocks_when_query_not_identified(
     assert outcome.error.code == node_errors.ERROR_COUNTERFACTUAL_GATE_BLOCKED
     assert outcome.state.params["counterfactual_gate_blocked"] is True
     assert outcome.state.params["counterfactual_gate_summary"]["query_id"] == "cf_blocked"
-    assert outcome.state.params["counterfactual_gate_summary"]["normalized_reason"] == "hedge_detected"
+    assert (
+        outcome.state.params["counterfactual_gate_summary"]["normalized_reason"] == "hedge_detected"
+    )
 
 
 def test_counterfactual_gate_bundle_assertion_is_not_swallowed(

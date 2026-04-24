@@ -1,4 +1,5 @@
 """Public causal build literature prior module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -161,7 +162,11 @@ class BuildLiteraturePriorNode:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="info", message="No causal variables; skip literature prior build.")],
+                events=[
+                    NodeEvent(
+                        level="info", message="No causal variables; skip literature prior build."
+                    )
+                ],
             )
 
         try:

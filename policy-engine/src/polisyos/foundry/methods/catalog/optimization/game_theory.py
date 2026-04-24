@@ -1,7 +1,9 @@
 """Public optimization game theory module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -31,6 +33,7 @@ def _result_slot() -> frozenset[SlotSpec]:
 )
 class NashEquilibriumEstimator:
     """Compute Nash equilibria for strategic policy or mechanism-design games."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -40,8 +43,18 @@ class NashEquilibriumEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("payoff_A", SlotType.MATRIX, Unit("payoff", "value"), shape=("n_strategies_A", "n_strategies_B")),
-                SlotSpec("payoff_B", SlotType.MATRIX, Unit("payoff", "value"), shape=("n_strategies_A", "n_strategies_B")),
+                SlotSpec(
+                    "payoff_A",
+                    SlotType.MATRIX,
+                    Unit("payoff", "value"),
+                    shape=("n_strategies_A", "n_strategies_B"),
+                ),
+                SlotSpec(
+                    "payoff_B",
+                    SlotType.MATRIX,
+                    Unit("payoff", "value"),
+                    shape=("n_strategies_A", "n_strategies_B"),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -61,7 +74,9 @@ class NashEquilibriumEstimator:
         description="Nash equilibrium finder for two-player normal-form games via support enumeration and gradient.",
         tags=frozenset({"optimization", "game-theory", "nash-equilibrium", "two-player"}),
         citations=("Nash, J. (1950). Equilibrium Points in N-Person Games. PNAS.",),
-        equations={"nash": "sigma_A = argmax E[u_A(a, sigma_B)]; sigma_B = argmax E[u_B(sigma_A, b)]"},
+        equations={
+            "nash": "sigma_A = argmax E[u_A(a, sigma_B)]; sigma_B = argmax E[u_B(sigma_A, b)]"
+        },
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
         when_to_use="Strategic interaction between agents; mechanism design; market competition analysis",
@@ -82,8 +97,14 @@ class NashEquilibriumEstimator:
         for i in range(m):
             for j in range(n_s):
                 if A[i, j] == np.max(A[:, j]) and B[i, j] == np.max(B[i, :]):
-                    pure_nash.append({"player_A_strategy": i, "player_B_strategy": j,
-                                      "payoff_A": float(A[i, j]), "payoff_B": float(B[i, j])})
+                    pure_nash.append(
+                        {
+                            "player_A_strategy": i,
+                            "player_B_strategy": j,
+                            "payoff_A": float(A[i, j]),
+                            "payoff_B": float(B[i, j]),
+                        }
+                    )
 
         # Mixed strategy via multiplicative weights update
         p = np.ones(m) / m

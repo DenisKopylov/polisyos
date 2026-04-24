@@ -13,6 +13,7 @@ consumers:
 
 - Stage `9.1`: theorem-backed latent-cardinality production for the narrow
   `ME-LiNGLaH-S` / `ME-LiNGLaH-S-Int` envelope.
+
 - Stage `9.2`: automatic latent-separation input assembly and deterministic
   diagnostic recomputation from structured upstream evidence blocks.
 
@@ -68,6 +69,7 @@ The producer accepts two input modes:
 
 - raw `data` + `design`, which are recomputed with the existing numeric
   diagnostic path
+
 - structured upstream evidence blocks
   - `measurement_block`
   - `proxy_block`
@@ -77,8 +79,10 @@ The runtime remains fail-closed:
 
 - `measurement_error`, `proxy_mismatch`, and `latent_confounding` are emitted
   only when the required blocks are present and non-conflicting
+
 - `mixed` and `unresolved` remain the default when evidence is incomplete or
   contradictory
+
 - trust may rise to `conditional` or `validated`, but readiness stays
   `proof_only`
 

@@ -27,12 +27,13 @@ IR remains a **pure contract/kernel** with deterministic, side-effect-free opera
 ### 2.1 Norms today
 
 - `polisyos.ir.norm_pack` defines:
-  - `NormPack`, `NormRule`, `NormRef`, `RuleType`  
-  - `Applicability` is currently **underspecified** and embedded in `norm_pack.py`.  
+  - `NormPack`, `NormRule`, `NormRef`, `RuleType`
+  - `Applicability` is currently **underspecified** and embedded in `norm_pack.py`.
   - `NormRef` is **not citation-grade**: it stores `source_document: str` + optional `version: str`.
   - IR includes `parse_expr_syntax()` which only does `ast.parse(..., mode="eval")` (good: IR does not import Scientist backends).
 
 Files:
+
 - `policy-engine/src/polisyos/ir/norm_pack.py`
 - Documentation: `policy-engine/src/polisyos/ir/README.md` section “NormPack”
 
@@ -52,6 +53,7 @@ Files:
   - It validates params, units, slots, selector fields, constraints, merge rules for `PolicySurfaceIR`.
 
 File:
+
 - `policy-engine/src/polisyos/ir/linker.py`
 
 ### 2.4 Registry bundle contracts exist (useful for E1.3)
@@ -59,6 +61,7 @@ File:
 - `polisyos.ir.registry_fragments` defines `RegistryBundle`, plus `ActorRegistry`, `ConceptRegistry`, `GeoRegistry`, `TimeAxisRegistry`, and fragment composition utilities.
 
 File:
+
 - `policy-engine/src/polisyos/ir/registry_fragments.py`
 
 This is the **correct** IR-level “registries bundle” type for `link_trinity()` (pure input).
@@ -74,10 +77,13 @@ This is the **correct** IR-level “registries bundle” type for `link_trinity(
 ### 3.1 New IR modules (contracts)
 
 1. `polisyos/ir/citations.py`
+
    - Unified citation/source reference primitive (document → version → fragment/anchor/offset).
 2. `polisyos/ir/applicability.py`
+
    - Declarative applicability structures for norms (jurisdiction/time + subject/object + exceptions/conditions).
 3. `polisyos/ir/linker/` package (replace `linker.py` module)
+
    - `reports.py`: stable `LinkIssue`/`LinkReport` contracts (issue code enums, stable fields)
    - `link_trinity.py`: pure contract `link_trinity()`
    - `legacy_surface.py`: legacy `link_policy()` (moved, deprecated)
@@ -85,13 +91,15 @@ This is the **correct** IR-level “registries bundle” type for `link_trinity(
 
 ### 3.2 Updated contracts
 
-4. Update `polisyos/ir/norm_pack.py`:
+1. Update `polisyos/ir/norm_pack.py`:
+
    - Adopt `CitationRef` and `NormApplicability` (from new modules).
    - Keep backward compatibility for legacy `NormRef.source_document/version` but mark deprecated.
 
 ### 3.3 Documentation + deprecation markers
 
-5. Update docs (minimum):
+1. Update docs (minimum):
+
    - `policy-engine/src/polisyos/ir/README.md`:
      - Mark legacy sections as deprecated (surface IR, legacy linker).
      - Document new citations/applicability/link_trinity.
@@ -119,7 +127,7 @@ The IR citation primitive MUST:
 
 - `AnchorKind`: enum of supported anchor kinds (minimum set):
   - `article`, `section`, `clause`, `paragraph`, `page`, `table`, `figure`, `heading`, `chunk`, `other`
-- `FragmentLocator`: declarative pointer *within a specific document version*:
+- `FragmentLocator`: declarative pointer _within a specific document version_:
   - `anchor_kind: AnchorKind`
   - `anchor_path: str | None` (human + machine-readable label; e.g. `"Art.126(2)(b)"`, `"§3 p.2"`)
   - `offset_start: int | None`, `offset_end: int | None` (character offsets in canonical normalized text)
@@ -149,7 +157,7 @@ The IR citation primitive MUST:
   - Validation:
     - Must have either `fragment_id` or `locator` (or both)
     - If `locator` is present, then `doc.doc_version_id` or `doc.doc_version_ref` MUST be present
-    - If both `fragment_id` and `locator` are present, they must refer to the same fragment *logically* (IR does not verify; consumer may).
+    - If both `fragment_id` and `locator` are present, they must refer to the same fragment _logically_ (IR does not verify; consumer may).
 
 #### 4.2.2 JSON example
 
@@ -259,6 +267,7 @@ Semantics (normative, required for consumers):
   6. **none** of `exceptions` match (exceptions are treated as applicability blocks that negate applicability)
 
 Notes:
+
 - Context shape is owned by Lex backend; IR only defines data contract.
 - For MVP, many fields can be empty → “unconstrained”.
 
@@ -269,18 +278,34 @@ Notes:
   "schema_version": "1.0",
   "jurisdiction": { "any_of": ["ua"], "all_of": [], "none_of": [] },
   "time": { "valid_from": "2024-01-01", "valid_to": null },
-  "subject": { "actors": { "any_of": ["employer"], "all_of": [], "none_of": [] }, "concepts": { "any_of": [], "all_of": [], "none_of": [] } },
-  "object": { "actors": { "any_of": ["employee"], "all_of": [], "none_of": [] }, "concepts": { "any_of": ["wage"], "all_of": [], "none_of": [] } },
+  "subject": {
+    "actors": { "any_of": ["employer"], "all_of": [], "none_of": [] },
+    "concepts": { "any_of": [], "all_of": [], "none_of": [] }
+  },
+  "object": {
+    "actors": { "any_of": ["employee"], "all_of": [], "none_of": [] },
+    "concepts": { "any_of": ["wage"], "all_of": [], "none_of": [] }
+  },
   "conditions": [
-    { "language": "expr_ast", "expr": "employment_status == 'employed'", "notes": [] }
+    {
+      "language": "expr_ast",
+      "expr": "employment_status == 'employed'",
+      "notes": []
+    }
   ],
   "exceptions": [
     {
       "schema_version": "1.0",
       "jurisdiction": { "any_of": ["ua"], "all_of": [], "none_of": [] },
       "time": { "valid_from": "2020-01-01", "valid_to": "2020-12-31" },
-      "subject": { "actors": { "any_of": ["intern"], "all_of": [], "none_of": [] }, "concepts": { "any_of": [], "all_of": [], "none_of": [] } },
-      "object": { "actors": { "any_of": [], "all_of": [], "none_of": [] }, "concepts": { "any_of": ["wage"], "all_of": [], "none_of": [] } },
+      "subject": {
+        "actors": { "any_of": ["intern"], "all_of": [], "none_of": [] },
+        "concepts": { "any_of": [], "all_of": [], "none_of": [] }
+      },
+      "object": {
+        "actors": { "any_of": [], "all_of": [], "none_of": [] },
+        "concepts": { "any_of": ["wage"], "all_of": [], "none_of": [] }
+      },
       "conditions": [],
       "exceptions": [],
       "notes": ["Temporary internship exception"]
@@ -322,9 +347,11 @@ Update `NormRef` and `NormRule` to be compatible with citation primitives and ap
 #### 6.1.1 `NormRef` (citation-grade)
 
 Current:
+
 - `provision_id`, `source_document`, `version`
 
 Target:
+
 - Keep `provision_id` (stable symbolic id for the provision; useful for legal corpus normalization)
 - Add `citations: list[CitationRef]`
 - Deprecate legacy fields:
@@ -332,6 +359,7 @@ Target:
   - `version: str | None` (DEPRECATED)
 
 Validation rules:
+
 - For ABI v1 (migration-friendly):
   - At least one of these MUST be present:
     - `citations` is non-empty
@@ -342,6 +370,7 @@ Validation rules:
 #### 6.1.2 `NormRule.applicability`
 
 Replace embedded `Applicability` in `norm_pack.py` with:
+
 - `from polisyos.ir.analytics.applicability import NormApplicability`
 - `NormRule.applicability: NormApplicability = Field(default_factory=NormApplicability)`
 
@@ -361,6 +390,7 @@ At minimum:
   - show new `CitationRef` usage
 
 Optionally:
+
 - Add `warnings.warn(..., DeprecationWarning)` when legacy fields are used **in helper/conversion code** (avoid warnings on pure model validation unless explicitly requested).
 
 ## 7) Work 3.3 — Linker contracts and reports (Trinity linking)
@@ -380,15 +410,18 @@ Linker contracts MUST:
 ### 7.2 Package restructure: `polisyos.ir.linker` becomes a package
 
 Current:
+
 - `polisyos/ir/linker.py` (single module)
 
 Target:
+
 - `polisyos/ir/linker/__init__.py`
 - `polisyos/ir/linker/reports.py`
 - `polisyos/ir/linker/link_trinity.py`
 - `polisyos/ir/linker/legacy_surface.py`
 
 Compatibility goal:
+
 - Keep `from polisyos.ir.linker import LinkReport, LinkIssue, link_policy, link_trinity` working.
 
 ### 7.3 `LinkIssue` / `LinkReport` ABI
@@ -396,6 +429,7 @@ Compatibility goal:
 #### 7.3.1 Link severity
 
 Define:
+
 - `LinkSeverity = "error" | "warning" | "info"` (enum)
 
 #### 7.3.2 Stable issue codes
@@ -426,6 +460,7 @@ Recommended additional codes (align with existing linker behavior):
 - `unknown_jurisdiction` (for applicability refs)
 
 Rule:
+
 - Codes are stable ABI. Adding new codes is backward compatible. Renaming/removing codes is a breaking change.
 
 #### 7.3.3 Path + identifiers
@@ -473,6 +508,7 @@ Guidelines for `data` (normative keys, per code):
 - `notes: list[str]`
 
 Optional:
+
 - `stats` (counts by severity) can be added later; keep additive-only.
 
 ### 7.4 Pure function contract: `link_trinity()`
@@ -491,6 +527,7 @@ def link_trinity(
 ```
 
 Where:
+
 - `TrinityBundle` is `polisyos.ir.trinity.TrinityBundle`
 - `RegistryBundle` is `polisyos.ir.registry_fragments.RegistryBundle`
 - `strict=True` means:
@@ -510,6 +547,7 @@ For Trinity policies, the linker requires (by default):
 - `registries.constraints` (required if ProblemFrame constraints use constraint ids)
 
 If any required registry is missing:
+
 - emit `LinkIssue(code="incompatible_constraint" or dedicated "missing_registry")`  
   **Recommendation**: introduce `LinkIssueCode.missing_registry` as an additive improvement (allowed), but E1.3 minimum does not mandate it.
 
@@ -545,6 +583,7 @@ Define `LinkedIntervention`:
 - `schedule_end: int`
 
 Notes:
+
 - These bindings are intentionally “thin”: they allow downstream compilation and provenance without embedding full registry specs.
 - This is ABI-safe because it only depends on stable ids already in IR registries.
 
@@ -562,6 +601,7 @@ This section defines behavior precisely so different implementations match.
 For each `intervention` in `bundle.policy_spec.interventions`:
 
 1. **Mechanism exists**
+
    - lookup `registries.mechanisms.mechanisms[intervention.kind]`
    - if missing:
      - emit `LinkIssue(code="unknown_mechanism", severity="error")`
@@ -570,6 +610,7 @@ For each `intervention` in `bundle.policy_spec.interventions`:
      - continue (skip further checks for this intervention)
 
 2. **Param validation**
+
    - for each `ParamSpec` in the mechanism:
      - if required and missing → `missing_param`
      - if present:
@@ -585,12 +626,14 @@ For each `intervention` in `bundle.policy_spec.interventions`:
      - any extra param keys produce `unknown_param` warnings/errors (severity policy is up to implementation; recommended `warning`)
 
 3. **Slot usage**
+
    - compute `(reads_slots, writes_slots) = resolve_mechanism_slots(mech, intervention.params)`
    - for each slot_id in reads+writes:
      - if `registries.slots.slots` does not contain it:
        - emit `LinkIssue(code="missing_slot", severity="error", data={"slot_id": slot_id})`
 
 4. **Selector field validation**
+
    - collect selector fields from `intervention.target` recursively
    - for each field:
      - if missing in `registries.selector_fields.fields`:
@@ -599,16 +642,19 @@ For each `intervention` in `bundle.policy_spec.interventions`:
      - emit `selector_scope_mismatch`
 
 5. **Schedule normalization for bindings**
+
    - use `schedule_range(intervention.schedule)` to compute `(start,end)`
    - store in `LinkedIntervention`
 
 #### 7.5.3 Step B — ProblemFrame vs metric/units registries
 
 1. Objectives:
+
    - for each `ObjectiveSpec.metric_id`:
      - if missing in `registries.metrics.metrics` → `unknown_metric` (severity error)
      - if metric has `unit_id` and unit missing → `unknown_unit`
 2. KPIs:
+
    - same as objectives plus `KPISpec.unit_id` validation (if present)
 
 #### 7.5.4 Step C — ProblemFrame constraints vs constraint/slot/unit registries
@@ -648,6 +694,7 @@ If enabled (default):
       - conflict → `merge_rule_conflict` (severity error)
 
 Notes:
+
 - The exact merge compatibility rules should mirror `polisyos.ir.linker` legacy behavior:
   - SUM only for numeric/decimal slots
   - OVERRIDE allowed for most
@@ -773,18 +820,21 @@ This section is the engineering breakdown for implementing E1.3.
 ### 10.1 Citations module
 
 1. Add `polisyos/ir/citations.py`:
+
    - implement enums + models + validators
 2. Add minimal tests for citation validation
 
 ### 10.2 Applicability module
 
 1. Add `polisyos/ir/applicability.py`:
+
    - implement `TimeWindow`, `IdSelector`, `ApplicabilityEntitySelector`, `ConditionExpr`, `NormApplicability`
 2. Add tests
 
 ### 10.3 NormPack migration
 
 1. Update `polisyos/ir/norm_pack.py`:
+
    - import and use `NormApplicability`
    - update `NormRef` to support `citations: list[CitationRef]`
    - keep legacy `source_document/version` fields (optional) with docs marked deprecated
@@ -793,6 +843,7 @@ This section is the engineering breakdown for implementing E1.3.
 ### 10.4 Linker package migration + Trinity linker
 
 1. Replace `polisyos/ir/linker.py` with package `polisyos/ir/linker/`:
+
    - move existing code to `legacy_surface.py`
    - create `reports.py` with new stable contracts
    - create `link_trinity.py` implementing algorithm in §7.5
@@ -821,14 +872,17 @@ E1.3 is complete when all are true:
 1. IR defines unified citation primitive (`polisyos.ir.citations`) that can express doc→version→fragment/anchor/offset and references evidence/provenance by artifact id.
 2. IR defines applicability as declarative data (`polisyos.ir.analytics.applicability`) with jurisdiction/time + subject/object + exceptions/conditions.
 3. IR provides `link_trinity()` as a pure contract:
+
    - signature is stable
    - inputs are TrinityBundle + RegistryBundle
    - output includes linked bindings + LinkReport
 4. Link reports are structured with stable codes and stable field paths/ids.
 5. Legacy is explicitly frozen:
+
    - docs mark surface IR + legacy linker as deprecated
    - no new features land in `polisyos.ir.legacy.*`
 6. Tests cover:
+
    - citation validation
    - applicability validation
    - trinity linker issue reporting (at least: `unknown_unit`, `missing_slot`, `incompatible_constraint`)
@@ -837,9 +891,9 @@ E1.3 is complete when all are true:
 
 ## D1-L4 Validation Links
 
-| Link type | Current anchor |
-|-----------|----------------|
-| Source plan phase | D1-L4 Phase 0 registry/linker containment and Phase 1 schema compatibility |
-| Contract tests | `tests/contract/test_citations_contract.py`, `tests/contract/test_applicability_contract.py`, `tests/contract/test_trinity_linker_contract.py`, `tests/contract/test_world_abi_contract.py` |
-| Schema snapshots | `schemas/snapshots/ir/norm_pack.schema.json`, `schemas/snapshots/ir/norm_ref.schema.json`, `schemas/snapshots/ir/norm_rule.schema.json`, `schemas/snapshots/ir/trinity_bundle.schema.json` |
-| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |
+| Link type           | Current anchor                                                                                                                                                                              |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source plan phase   | D1-L4 Phase 0 registry/linker containment and Phase 1 schema compatibility                                                                                                                  |
+| Contract tests      | `tests/contract/test_citations_contract.py`, `tests/contract/test_applicability_contract.py`, `tests/contract/test_trinity_linker_contract.py`, `tests/contract/test_world_abi_contract.py` |
+| Schema snapshots    | `schemas/snapshots/ir/norm_pack.schema.json`, `schemas/snapshots/ir/norm_ref.schema.json`, `schemas/snapshots/ir/norm_rule.schema.json`, `schemas/snapshots/ir/trinity_bundle.schema.json`  |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                      |

@@ -1,10 +1,10 @@
 """Run norm-pack evaluation against policy inputs and emit legal compliance artifacts."""
+
 from __future__ import annotations
 
 import re
 from datetime import datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
@@ -46,6 +46,9 @@ from polisyos.lex.legal_evaluation.backends.simple_v1 import (
 from polisyos.lex.legal_evaluation.change_proposals import propose_changes_impl
 from polisyos.lex.legal_evaluation.context_builder import LegalContextBuilder
 from polisyos.lex.normpack.select_sources import normalize_as_of
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = get_logger(__name__)
 
@@ -113,7 +116,6 @@ def _load_trinity_bundle_refs(
 
     try:
         from polisyos.core.contracts.trinity import TrinityBundle as TrinityRefsBundle
-
 
         refs_bundle = TrinityRefsBundle.model_validate(payload)
         return refs_bundle.policy_spec_ref, refs_bundle.model_spec_ref

@@ -1,4 +1,5 @@
 """Public decide build policy output bundle module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -52,6 +53,7 @@ from polisyos.scientist.policy_design.output import (
     PolicyBrief,
     load_policy_artifact_bundle,
 )
+from polisyos.scientist.policy_design.phase3 import resolve_phase3_gate
 from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
     load_policy_candidate_schema,
@@ -143,6 +145,7 @@ _SPEC = NodeSpec(
 @dataclass(frozen=True)
 class BuildPolicyOutputBundleNode:
     """Build policy output bundle node implementation."""
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -262,6 +265,19 @@ class BuildPolicyOutputBundleNode:
             ),
         )
         upstream_audit_refs, actionable_side_information_refs = _collect_upstream_refs(state)
+        phase3_gate = resolve_phase3_gate(ctx, state, candidate=candidate)
+        if not phase3_gate.gate_passed:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_MISSING_INPUT,
+                    message=(
+                        "Policy output bundle is blocked by Phase 3 certificate gate: "
+                        + ", ".join(phase3_gate.blocking_reasons)
+                    ),
+                ),
+            )
 
         build_input = PolicyArtifactBuildInput(
             loop_id=str(state.params.get("policy_loop_id") or state.run_id),
@@ -285,6 +301,7 @@ class BuildPolicyOutputBundleNode:
             calibration_validation_bundle_ref=calibration_validation_ref,
             policy_brief=policy_brief,
             translator_compliance=translator_compliance,
+            phase3_gate=phase3_gate,
             constraint_findings=_string_list(state.params.get("constraint_findings")),
             mutation_hints=_string_list(state.params.get("mutation_hints")),
             audit_refs=upstream_audit_refs,
@@ -314,7 +331,9 @@ class BuildPolicyOutputBundleNode:
         new_state.policy_brief_ref = bundle.policy_brief_ref
         new_state.champion_policy_dossier_ref = bundle.champion_policy_dossier_ref
         new_state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF] = bundle_ref
-        new_state.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF] = bundle.policy_frontier_report_ref
+        new_state.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF] = (
+            bundle.policy_frontier_report_ref
+        )
         new_state.artifacts_index[ARTIFACT_CHAMPION_POLICY_DOSSIER_REF] = (
             bundle.champion_policy_dossier_ref
         )
@@ -334,9 +353,7 @@ class BuildPolicyOutputBundleNode:
         new_state.artifacts_index[ARTIFACT_GOVERNANCE_GATE_PACKET_REF] = (
             bundle.governance_gate_packet_ref
         )
-        new_state.artifacts_index[ARTIFACT_IMPLEMENTATION_PLAN_REF] = (
-            bundle.implementation_plan_ref
-        )
+        new_state.artifacts_index[ARTIFACT_IMPLEMENTATION_PLAN_REF] = bundle.implementation_plan_ref
         new_state.artifacts_index[ARTIFACT_REJECTED_ALTERNATIVES_SUMMARY_REF] = (
             bundle.rejected_alternatives_summary_ref
         )
@@ -362,7 +379,7 @@ class BuildPolicyOutputBundleNode:
                         "has_readiness": bundle.decision_readiness_contract_ref is not None,
                         "has_stress_test": bundle.stress_test_report_ref is not None,
                     },
-                )
+                ),
             ],
         )
 
@@ -392,7 +409,9 @@ def _resolve_candidate(
     trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is None:
         return None, None
-    bundle = TrinityBundle.model_validate(from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id)))
+    bundle = TrinityBundle.model_validate(
+        from_canonical_bytes(ctx.store.get_bytes(trinity_ref.artifact_id))
+    )
     return (
         PolicyCandidateSchema.from_trinity_bundle(
             bundle,
@@ -486,10 +505,7 @@ def _dedupe_artifact_refs(items: list[ArtifactRef]) -> list[ArtifactRef]:
 
 
 def _snapshot_runtime_params(params: dict[str, Any]) -> dict[str, Any]:
-    return {
-        str(key): _snapshot_runtime_value(value)
-        for key, value in params.items()
-    }
+    return {str(key): _snapshot_runtime_value(value) for key, value in params.items()}
 
 
 def _snapshot_runtime_value(value: Any) -> Any:
@@ -498,10 +514,7 @@ def _snapshot_runtime_value(value: Any) -> Any:
     if isinstance(value, list):
         return [_snapshot_runtime_value(item) for item in value]
     if isinstance(value, dict):
-        return {
-            str(key): _snapshot_runtime_value(item)
-            for key, item in value.items()
-        }
+        return {str(key): _snapshot_runtime_value(item) for key, item in value.items()}
     if isinstance(value, ArtifactRef):
         return value.model_dump(mode="json")
     model_dump = getattr(value, "model_dump", None)

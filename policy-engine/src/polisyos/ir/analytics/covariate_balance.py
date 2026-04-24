@@ -4,7 +4,10 @@ Captures per-variable SMD (standardised mean difference) and aggregate balance
 statistics for use in the DiagnosticDashboard.  Populated by the causal engine
 after weighting / matching, or computed directly from raw covariate data.
 """
+
 from __future__ import annotations
+
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -47,8 +50,8 @@ class CovariateBalanceReport(BaseModel):
 
 
 def compute_smd(
-    X_treated: "Any",  # array-like (n_treated, p)
-    X_control: "Any",  # array-like (n_control, p)
+    x_treated: Any,  # array-like (n_treated, p)
+    x_control: Any,  # array-like (n_control, p)
     *,
     column_names: list[str] | None = None,
     threshold: float = 0.1,
@@ -57,9 +60,9 @@ def compute_smd(
 
     Parameters
     ----------
-    X_treated:
+    x_treated:
         Covariate matrix for treated units, shape (n_treated, p).
-    X_control:
+    x_control:
         Covariate matrix for control units, shape (n_control, p).
     column_names:
         Optional list of variable names.  If None, uses 'x0', 'x1', …
@@ -68,23 +71,23 @@ def compute_smd(
     """
     import numpy as np
 
-    Xt = np.asarray(X_treated, dtype=float)
-    Xc = np.asarray(X_control, dtype=float)
+    xt = np.asarray(x_treated, dtype=float)
+    xc = np.asarray(x_control, dtype=float)
 
-    if Xt.ndim == 1:
-        Xt = Xt[:, None]
-    if Xc.ndim == 1:
-        Xc = Xc[:, None]
+    if xt.ndim == 1:
+        xt = xt[:, None]
+    if xc.ndim == 1:
+        xc = xc[:, None]
 
-    p = Xt.shape[1]
+    p = xt.shape[1]
     names = column_names if column_names and len(column_names) == p else [f"x{i}" for i in range(p)]
 
     smd_dict: dict[str, float] = {}
     for j, name in enumerate(names):
-        mean_t = float(np.mean(Xt[:, j]))
-        mean_c = float(np.mean(Xc[:, j]))
-        var_t = float(np.var(Xt[:, j], ddof=1)) if Xt.shape[0] > 1 else 0.0
-        var_c = float(np.var(Xc[:, j], ddof=1)) if Xc.shape[0] > 1 else 0.0
+        mean_t = float(np.mean(xt[:, j]))
+        mean_c = float(np.mean(xc[:, j]))
+        var_t = float(np.var(xt[:, j], ddof=1)) if xt.shape[0] > 1 else 0.0
+        var_c = float(np.var(xc[:, j], ddof=1)) if xc.shape[0] > 1 else 0.0
         pooled_sd = float(np.sqrt((var_t + var_c) / 2.0))
         smd = abs(mean_t - mean_c) / max(pooled_sd, 1e-12)
         smd_dict[name] = round(smd, 6)

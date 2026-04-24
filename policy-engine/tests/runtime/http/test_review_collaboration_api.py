@@ -37,13 +37,16 @@ class TestReviewCollaborationApi:
         client = runtime_api_env["client"]
         review_id = "run:R_core_api_001:promotion:promotion_fixture_001"
 
-        with client.websocket_connect(
-            f"/api/v1/review/live?channel=review.cursor&review_id={review_id}"
-            "&participant_id=alice&display_name=Alice"
-        ) as alice_cursor, client.websocket_connect(
-            f"/api/v1/review/live?channel=review.cursor&review_id={review_id}"
-            "&participant_id=bob&display_name=Bob"
-        ) as bob_cursor:
+        with (
+            client.websocket_connect(
+                f"/api/v1/review/live?channel=review.cursor&review_id={review_id}"
+                "&participant_id=alice&display_name=Alice"
+            ) as alice_cursor,
+            client.websocket_connect(
+                f"/api/v1/review/live?channel=review.cursor&review_id={review_id}"
+                "&participant_id=bob&display_name=Bob"
+            ) as bob_cursor,
+        ):
             assert alice_cursor.receive_json()["cursors"] == []
             assert bob_cursor.receive_json()["cursors"] == []
 
@@ -62,13 +65,16 @@ class TestReviewCollaborationApi:
             assert left_for_alice["cursors"] == []
             assert left_for_bob["cursors"] == []
 
-        with client.websocket_connect(
-            f"/api/v1/review/live?channel=review.lock&review_id={review_id}"
-            "&participant_id=alice&display_name=Alice"
-        ) as alice_lock, client.websocket_connect(
-            f"/api/v1/review/live?channel=review.lock&review_id={review_id}"
-            "&participant_id=bob&display_name=Bob"
-        ) as bob_lock:
+        with (
+            client.websocket_connect(
+                f"/api/v1/review/live?channel=review.lock&review_id={review_id}"
+                "&participant_id=alice&display_name=Alice"
+            ) as alice_lock,
+            client.websocket_connect(
+                f"/api/v1/review/live?channel=review.lock&review_id={review_id}"
+                "&participant_id=bob&display_name=Bob"
+            ) as bob_lock,
+        ):
             assert alice_lock.receive_json()["lock"] is None
             assert bob_lock.receive_json()["lock"] is None
 

@@ -73,8 +73,10 @@ Rollback path: revert or minimally fix the docs/nav/config change that broke pub
 - если broken docs change очевиден, откатите его или подготовьте minimal fix PR;
 - если build ломает nav drift, временно снимите broken entry только вместе с
   replacement page или redirect note;
+
 - если publication gate blocked, но source docs критичны для incident response,
   распространите temporary internal link to rendered artifact or PR preview;
+
 - не публикуйте site с `--strict` выключенным как permanent workaround.
 
 ## Escalation Owner
@@ -106,8 +108,8 @@ Rollback path: revert or minimally fix the docs/nav/config change that broke pub
 
 ### Action Items
 
-| Action item | Owner | Due date | Status |
-|---|---|---|---|
-| Strengthen the check that should have caught the docs failure earlier | `@docs-owners` | YYYY-MM-DD | open |
-| Fix the nav/content/tooling gap that blocked publication | affected owner | YYYY-MM-DD | open |
-| Improve docs pipeline observability or ownership routing | `@platform-owners` | YYYY-MM-DD | open |
+| Action item                                                           | Owner              | Due date   | Status |
+| --------------------------------------------------------------------- | ------------------ | ---------- | ------ |
+| Strengthen the check that should have caught the docs failure earlier | `@docs-owners`     | YYYY-MM-DD | open   |
+| Fix the nav/content/tooling gap that blocked publication              | affected owner     | YYYY-MM-DD | open   |
+| Improve docs pipeline observability or ownership routing              | `@platform-owners` | YYYY-MM-DD | open   |

@@ -91,7 +91,7 @@ class _GoldenFakePool:
 
 
 def _load_fixture(path: Path) -> dict[str, Any]:
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         loaded = json.load(fh)
     if not isinstance(loaded, dict):
         raise TypeError(f"Fixture payload must be an object: {path}")
@@ -126,14 +126,10 @@ def _project_result(payload: dict[str, Any]) -> dict[str, Any]:
         ],
         "source_context": {
             "context_id": (
-                str(source_context.get("context_id"))
-                if isinstance(source_context, dict)
-                else ""
+                str(source_context.get("context_id")) if isinstance(source_context, dict) else ""
             ),
             "income_level": (
-                str(source_context.get("income_level"))
-                if isinstance(source_context, dict)
-                else ""
+                str(source_context.get("income_level")) if isinstance(source_context, dict) else ""
             ),
         },
     }
@@ -162,8 +158,13 @@ def test_article_extraction_known_article_golden(monkeypatch, tmp_path: Path) ->
         encoding="utf-8",
     )
 
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _GoldenFakePool)
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work", _fake_fetch_full_text)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _GoldenFakePool
+    )
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
+        _fake_fetch_full_text,
+    )
 
     metrics = asyncio.run(run_article_extract(config))
     assert int(metrics["successful_llm_extractions_per_topic"]) == 1

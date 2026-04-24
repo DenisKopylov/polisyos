@@ -4,10 +4,10 @@
 
 ## Что здесь живёт
 
-| Скрипт | Назначение |
-| --- | --- |
-| `guardrails.py` | Генерирует и проверяет public-surface inventory, deep-import baseline, workflow/toolchain guardrails и generated-artifact lifecycle docs |
-| `scaffold.py` | Unified scaffold entrypoint для package README, connector, governance pass, runtime route, benchmark, ADR и runbook; package README scaffold now includes the Phase 7 change-ratchet fields for new surfaces |
+| Скрипт          | Назначение                                                                                                                                                                                                   |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `guardrails.py` | Генерирует и проверяет public-surface inventory, deep-import baseline, workflow/toolchain guardrails и generated-artifact lifecycle docs                                                                     |
+| `scaffold.py`   | Unified scaffold entrypoint для package README, connector, governance pass, runtime route, benchmark, ADR и runbook; package README scaffold now includes the Phase 7 change-ratchet fields for new surfaces |
 
 ## Типовой запуск
 

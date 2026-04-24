@@ -1,10 +1,11 @@
 """Property-based tests for BudgetState arithmetic."""
+
 from __future__ import annotations
 
 from decimal import Decimal
 
 import pytest
-from hypothesis import given, settings, assume, HealthCheck
+from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
 
 from polisyos.scientist.engine.budget import BudgetLimit, BudgetState

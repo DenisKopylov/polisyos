@@ -1,10 +1,11 @@
 """Public slsa rekor module API."""
+
 from __future__ import annotations
 
 import json
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import httpx
@@ -87,7 +88,7 @@ class RekorClient:
 
         log_index = last_idx + 1
         log_id = str(uuid.uuid4())
-        now = int(datetime.now(timezone.utc).timestamp())
+        now = int(datetime.now(UTC).timestamp())
         created_at = _utc_now_iso()
 
         record = {
@@ -166,16 +167,9 @@ class RekorClient:
         )
 
 
-
 def _sha256(payload: bytes) -> str:
     return content_hash(payload)
 
 
-
 def _utc_now_iso() -> str:
-    return (
-        datetime.now(timezone.utc)
-        .replace(microsecond=0)
-        .isoformat()
-        .replace("+00:00", "Z")
-    )
+    return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")

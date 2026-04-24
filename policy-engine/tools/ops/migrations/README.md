@@ -4,10 +4,10 @@
 
 ## Скрипты
 
-| Скрипт | Что делает | Статус |
-|---|---|---|
-| `migrate_duckdb_to_pg.py` | Перенос tenant-scoped таблиц из DuckDB в PostgreSQL (`--duckdb-path`, `--pg-dsn`, `--tenant-id`) | manual/Ops |
-| `migrate.py` | Миграция `policy_ir` / `dataset_manifest` / `run_manifest` между версиями | canonical CLI/module surface |
+| Скрипт                    | Что делает                                                                                       | Статус                       |
+| ------------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------- |
+| `migrate_duckdb_to_pg.py` | Перенос tenant-scoped таблиц из DuckDB в PostgreSQL (`--duckdb-path`, `--pg-dsn`, `--tenant-id`) | manual/Ops                   |
+| `migrate.py`              | Миграция `policy_ir` / `dataset_manifest` / `run_manifest` между версиями                        | canonical CLI/module surface |
 
 ## Связь с другими директориями
 

@@ -104,8 +104,7 @@ class ExecutionBackend(Protocol):
     async def execute(
         self,
         jobs: list[Callable[[], Awaitable[PartitionExecutionResult]]],
-    ) -> list[PartitionExecutionResult]:
-        ...
+    ) -> list[PartitionExecutionResult]: ...
 
 
 class LocalAsyncExecutionBackend:
@@ -122,7 +121,9 @@ class LocalAsyncExecutionBackend:
     ) -> list[PartitionExecutionResult]:
         semaphore = asyncio.Semaphore(self.max_concurrency)
 
-        async def _run(job: Callable[[], Awaitable[PartitionExecutionResult]]) -> PartitionExecutionResult:
+        async def _run(
+            job: Callable[[], Awaitable[PartitionExecutionResult]],
+        ) -> PartitionExecutionResult:
             async with semaphore:
                 return await job()
 
@@ -312,9 +313,7 @@ def run_partitioned_ingestion(
     resolved_root = Path(cas_root)
     if any(partition.tenant_id for partition in plan.partitions):
         tenant_id = next(
-            partition.tenant_id
-            for partition in plan.partitions
-            if partition.tenant_id is not None
+            partition.tenant_id for partition in plan.partitions if partition.tenant_id is not None
         )
         resolved_root = tenant_scoped_cas_root(cas_root, tenant_id)
 
@@ -442,8 +441,7 @@ def run_partitioned_ingestion(
         return _job
 
     jobs: list[Callable[[], Awaitable[PartitionExecutionResult]]] = [
-        _make_partition_job(partition)
-        for partition in plan.partitions
+        _make_partition_job(partition) for partition in plan.partitions
     ]
     result: list[PartitionExecutionResult] = run_coro_sync(backend_impl.execute(jobs))
     return result
@@ -469,9 +467,7 @@ def run_orchestrated_ingestion(
     from polisyos.fabric.ingestion import run_connectors_ingestion
 
     resolved_cas_root = (
-        tenant_scoped_cas_root(cas_root, tenant_id)
-        if tenant_id is not None
-        else Path(cas_root)
+        tenant_scoped_cas_root(cas_root, tenant_id) if tenant_id is not None else Path(cas_root)
     )
 
     evidence_ref = run_connectors_ingestion(
@@ -523,9 +519,7 @@ async def _build_snapshot_from_evidence_async(
     """Build a DataSnapshot from evidence bundle artifacts in CAS."""
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 
-    evidence_payload = from_canonical_bytes(
-        await store.get_bytes(evidence_ref.artifact_id)
-    )
+    evidence_payload = from_canonical_bytes(await store.get_bytes(evidence_ref.artifact_id))
     evidence_bundle = EvidenceBundle.model_validate(evidence_payload)
 
     if not evidence_bundle.sources:
@@ -546,9 +540,7 @@ async def _build_snapshot_from_evidence_async(
         ArtifactWriteOptions(
             kind="fabric.quality_report",
             media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.fabric.DataQualityReport", version="1.0"
-            ),
+            schema=SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -578,9 +570,7 @@ async def _build_snapshot_from_evidence_async(
         ArtifactWriteOptions(
             kind="fabric.data_snapshot",
             media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.core.DataSnapshot", version="0.2.0"
-            ),
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
             inputs=snapshot_inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -668,7 +658,9 @@ def _execute_serialized_partition_job(payload: bytes) -> dict[str, Any]:
     return asdict(result)
 
 
-def _coerce_partition_result(payload: PartitionExecutionResult | dict[str, Any]) -> PartitionExecutionResult:
+def _coerce_partition_result(
+    payload: PartitionExecutionResult | dict[str, Any],
+) -> PartitionExecutionResult:
     if isinstance(payload, PartitionExecutionResult):
         return payload
     if isinstance(payload, dict):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
@@ -9,8 +9,8 @@ import duckdb
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.claims.persist import load_json_artifact
+from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.world.materialize import materialize_world_duckdb_from_fact_log
 from polisyos.ir.citations import CitationRef, DocumentRef
 from polisyos.ir.norm_pack import NormPack
@@ -38,7 +38,7 @@ def _ua_source(*, official_id: str, effective_from: str) -> LegalDocSource:
         published_at_iso=effective_from,
         effective_from_iso=effective_from,
         effective_to_iso=None,
-        retrieved_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+        retrieved_at=datetime(2026, 1, 1, tzinfo=UTC),
     )
 
 

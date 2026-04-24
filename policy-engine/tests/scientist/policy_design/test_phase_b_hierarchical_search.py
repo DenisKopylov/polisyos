@@ -14,7 +14,6 @@ from polisyos.scientist.policy_design.search import (
     HierarchicalSearchCoordinator,
 )
 from polisyos.scientist.policy_design.translator import TranslatorInputBundle
-from polisyos.scientist.search.objective import GDPGrowthObjective
 from polisyos.scientist.search.pareto_registry import ParetoRegistry
 from polisyos.scientist.search.readiness import DecisionReadiness, DecisionReadinessContract
 from polisyos.scientist.search.transfer_context import TransferContext
@@ -54,7 +53,10 @@ def test_build_parameter_search_spec_extracts_bounds_and_paths() -> None:
     spec = coordinator.build_parameter_search_spec(_candidate())
 
     assert "tax_rate" in spec.parameter_paths
-    assert any(bound.name == "tax_rate" and bound.lower == 0.05 and bound.upper == 0.2 for bound in spec.search_space.bounds)
+    assert any(
+        bound.name == "tax_rate" and bound.lower == 0.05 and bound.upper == 0.2
+        for bound in spec.search_space.bounds
+    )
     assert any(bound.name.startswith("schedule::") for bound in spec.search_space.bounds)
 
 
@@ -98,7 +100,9 @@ def test_parameter_search_updates_shared_pareto_registry(tmp_path) -> None:
         stage_b_evaluator=lambda candidate_payload, context: {
             "simulation_results": {
                 "gdp_change": float(
-                    candidate_payload["trinity_bundle"]["policy_spec"]["interventions"][0]["params"]["rate"]
+                    candidate_payload["trinity_bundle"]["policy_spec"]["interventions"][0][
+                        "params"
+                    ]["rate"]
                 )
             },
             "policy_evaluation": _evaluation_vector(structure.candidate).model_dump(mode="json"),
@@ -111,7 +115,9 @@ def test_parameter_search_updates_shared_pareto_registry(tmp_path) -> None:
     assert snapshot.frontiers["global_feasible"]
 
 
-def test_parameter_search_uses_transfer_warm_start_without_mixing_seed_only_entries(tmp_path) -> None:
+def test_parameter_search_uses_transfer_warm_start_without_mixing_seed_only_entries(
+    tmp_path,
+) -> None:
     candidate = _candidate()
     registry = ParetoRegistry(tmp_path / "registry")
     registry.update(
@@ -153,7 +159,9 @@ def test_parameter_search_uses_transfer_warm_start_without_mixing_seed_only_entr
     assert all(entry.seed_only is False for entry in snapshot.entries.values())
 
 
-def test_parameter_search_does_not_promote_infeasible_candidates_to_feasible_frontier(tmp_path) -> None:
+def test_parameter_search_does_not_promote_infeasible_candidates_to_feasible_frontier(
+    tmp_path,
+) -> None:
     candidate = _candidate()
     registry = ParetoRegistry(tmp_path / "registry")
     coordinator = HierarchicalSearchCoordinator(
@@ -204,7 +212,10 @@ def test_generate_structure_candidates_marks_degraded_hybrid_seeds_when_gateway_
     assert len({item.candidate_hash for item in hybrid}) == len(hybrid)
     assert all(item.metadata["hybrid_gateway_available"] is False for item in hybrid)
     assert all(item.metadata["hybrid_degraded_reason"] == "gateway_unavailable" for item in hybrid)
-    assert any(item.candidate.transport_assumptions or item.candidate.evidence_assumptions for item in hybrid)
+    assert any(
+        item.candidate.transport_assumptions or item.candidate.evidence_assumptions
+        for item in hybrid
+    )
 
 
 def test_narrative_search_does_not_mutate_readiness_or_frontier(tmp_path) -> None:

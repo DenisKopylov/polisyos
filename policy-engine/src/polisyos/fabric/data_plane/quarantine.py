@@ -1,4 +1,5 @@
 """CAS-backed dead-letter quarantine storage, reporting, and deterministic replay."""
+
 from __future__ import annotations
 
 import json
@@ -157,7 +158,10 @@ def _record_dlq_metric(
     if not index_path.exists():
         resolved_metrics.set_fabric_dlq_count(0.0, queue_name="fabric.quarantine")
         return
-    with file_lock(_quarantine_index_lock_path(store)), index_path.open("r", encoding="utf-8") as handle:
+    with (
+        file_lock(_quarantine_index_lock_path(store)),
+        index_path.open("r", encoding="utf-8") as handle,
+    ):
         count = sum(1 for line in handle if line.strip())
     resolved_metrics.set_fabric_dlq_count(float(count), queue_name="fabric.quarantine")
 
@@ -285,7 +289,11 @@ def load_quarantine_record(
 ) -> QuarantineRecord:
     """Load one quarantine record from CAS."""
 
-    aid = artifact_id if isinstance(artifact_id, ArtifactID) else _artifact_ref_from_str(str(artifact_id))
+    aid = (
+        artifact_id
+        if isinstance(artifact_id, ArtifactID)
+        else _artifact_ref_from_str(str(artifact_id))
+    )
     payload = from_canonical_bytes(store.get_bytes(aid))
     if not isinstance(payload, dict):
         raise TypeError("quarantine record payload must be a JSON object")
@@ -336,7 +344,10 @@ def list_quarantine_records(
     if not index_path.exists():
         return []
     rows: list[tuple[str, QuarantineRecord]] = []
-    with file_lock(_quarantine_index_lock_path(store)), index_path.open("r", encoding="utf-8") as handle:
+    with (
+        file_lock(_quarantine_index_lock_path(store)),
+        index_path.open("r", encoding="utf-8") as handle,
+    ):
         for line in handle:
             raw = line.strip()
             if not raw:
@@ -439,9 +450,9 @@ def reprocess_quarantine_records(
                     "record_id": record.record_id,
                     "source": record.source,
                     "reason": record.reason,
-                    "replayed_at": utc_now(drop_microseconds=True).isoformat().replace(
-                        "+00:00", "Z"
-                    ),
+                    "replayed_at": utc_now(drop_microseconds=True)
+                    .isoformat()
+                    .replace("+00:00", "Z"),
                     "result": replay_result,
                 },
                 ArtifactWriteOptions(

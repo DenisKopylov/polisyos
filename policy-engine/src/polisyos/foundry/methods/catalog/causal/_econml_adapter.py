@@ -1,4 +1,5 @@
 """Materialize CATE/HTE payloads and optional EconML diagnostics for causal methods."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -13,7 +14,7 @@ ECONML_IMPORT_ERROR: Exception | None = None
 ECONML_AVAILABLE = False
 
 try:  # pragma: no cover - depends on optional dependency
-    import econml  # noqa: F401
+    import econml
 
     ECONML_AVAILABLE = True
 except Exception as exc:  # pragma: no cover - optional dependency
@@ -28,6 +29,7 @@ SHAP_MIN_ROWS_FOR_SUBSAMPLE = 500
 @dataclass(frozen=True)
 class HTEData:
     """Carry treatment, outcome, covariate, and confounder arrays for HTE estimators."""
+
     y: np.ndarray
     t: np.ndarray
     x: np.ndarray
@@ -66,7 +68,9 @@ def build_hte_data(state: Any) -> HTEData:
     confounder_names = (
         list(data.confounder_names)
         if data.confounder_names is not None
-        else [f"w{i}" for i in range(w.shape[1])] if w is not None else []
+        else [f"w{i}" for i in range(w.shape[1])]
+        if w is not None
+        else []
     )
     return HTEData(
         y=np.asarray(data.outcome, dtype=float),
@@ -220,9 +224,7 @@ def _extract_shap_importances(
     if x.shape[0] > SHAP_MAX_ROWS:
         idx = rng.choice(np.arange(x.shape[0]), size=SHAP_MAX_ROWS, replace=False)
         x_eval = x[idx]
-        warnings.append(
-            f"SHAP evaluation rows capped at {SHAP_MAX_ROWS} (from {x.shape[0]})"
-        )
+        warnings.append(f"SHAP evaluation rows capped at {SHAP_MAX_ROWS} (from {x.shape[0]})")
     else:
         x_eval = x
 
@@ -321,7 +323,7 @@ def extract_cate_from_estimator(
         lo, hi = estimator.effect_interval(x, alpha=alpha)
         ci_lower = _align_metric_length(lo, n_samples=n_samples)
         ci_upper = _align_metric_length(hi, n_samples=n_samples)
-    except Exception:  # noqa: BLE001 - econml estimator API varies per backend
+    except Exception:
         warnings.append("Estimator does not provide effect_interval; per-row CIs omitted")
 
     cate_std = np.full(n_samples, np.nan, dtype=float)
@@ -331,7 +333,7 @@ def extract_cate_from_estimator(
             getattr(inference, "std_point", np.nan),
             n_samples=n_samples,
         )
-    except Exception:  # noqa: BLE001 - econml estimator API varies per backend
+    except Exception:
         warnings.append("Estimator does not provide effect_inference; per-row std omitted")
 
     ate = float(np.mean(cate))
@@ -347,10 +349,14 @@ def extract_cate_from_estimator(
         pvalue = getattr(native_ate_inference, "pvalue", None)
         if pvalue is not None:
             ate_p_value = float(np.asarray(pvalue).ravel()[0])
-    except Exception:  # noqa: BLE001 - econml estimator API varies per backend
+    except Exception:
         native_ate_inference = None
 
-    ate_se = _extract_ate_standard_error(native_ate_inference) if native_ate_inference is not None else None
+    ate_se = (
+        _extract_ate_standard_error(native_ate_inference)
+        if native_ate_inference is not None
+        else None
+    )
     if ate_se is None:
         guarded_se = _guarded_ate_standard_error(cate, cate_std)
         if guarded_se is None and np.isfinite(cate).sum() > 1:
@@ -445,8 +451,8 @@ def build_cate_quantile_subgroups(
 
 __all__ = [
     "HTEData",
-    "require_econml",
+    "build_cate_quantile_subgroups",
     "build_hte_data",
     "extract_cate_from_estimator",
-    "build_cate_quantile_subgroups",
+    "require_econml",
 ]

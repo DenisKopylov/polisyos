@@ -1,4 +1,5 @@
 """Public autotune cheap stage module API."""
+
 from __future__ import annotations
 
 import json
@@ -29,6 +30,7 @@ CHEAP_STAGE_LOOP_ID = "cheap_stage"
 
 class CheapStageTuningConfig(MutationArtifact):
     """Cheap stage tuning config data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = CHEAP_STAGE_LOOP_ID
@@ -83,6 +85,7 @@ def resolve_cheap_stage_threshold(
 
 class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
     """Cheap stage benchmark evaluator public type."""
+
     def __init__(
         self,
         *,
@@ -206,6 +209,7 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
 
 class CheapStageRuntimeLoader(ChampionBackedRuntimeLoader[CheapStageTuningConfig]):
     """Cheap stage runtime loader implementation."""
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(
             loop_id=CHEAP_STAGE_LOOP_ID,
@@ -242,10 +246,7 @@ def write_correlation_dataset(
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")
     total = len(records)
     holdout_count = max(1, int(round(total * holdout_fraction))) if total else 0
-    selection_ids = [
-        str(row["candidate_hash"])
-        for row in records[: max(0, total - holdout_count)]
-    ]
+    selection_ids = [str(row["candidate_hash"]) for row in records[: max(0, total - holdout_count)]]
     holdout_ids = [str(row["candidate_hash"]) for row in records[max(0, total - holdout_count) :]]
     split_manifest = BenchmarkSplitManifest(
         suite_id=suite_id,
@@ -284,7 +285,7 @@ def cheap_stage_search_loop_spec(
 
 def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if line:
@@ -298,11 +299,7 @@ def _records_for_split(
     split_manifest: BenchmarkSplitManifest,
     split: BenchmarkSplit,
 ) -> list[dict[str, Any]]:
-    return [
-        row
-        for row in records
-        if split_manifest.split_for(str(row["candidate_hash"])) == split
-    ]
+    return [row for row in records if split_manifest.split_for(str(row["candidate_hash"])) == split]
 
 
 def _cheap_stage_metrics(

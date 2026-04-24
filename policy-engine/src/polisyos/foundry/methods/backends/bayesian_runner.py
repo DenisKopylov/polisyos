@@ -1,26 +1,28 @@
 """Public backends bayesian runner module API."""
+
 from __future__ import annotations
 
 import json
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any
 
 import numpy as np
 
 from polisyos.core.canon import truncated_hash
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.backends.runtime_fingerprint import (
-    capture_backend_runtime_fingerprint,
-    capture_versions,
-    runtime_stack_for,
-    safe_version,
-)
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodRunner,
     MethodTiming,
     ReproducibilityInfo,
+)
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    capture_backend_runtime_fingerprint,
+    capture_versions,
+    runtime_stack_for,
+    safe_version,
 )
 from polisyos.foundry.methods.backends.validated import VALIDATED_EXECUTION_PARAM_NAMES
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
@@ -168,7 +170,9 @@ def bayesian_backend_health(method_class: type | None = None) -> BayesianBackend
     availability = {status.engine: status.available for status in engine_statuses}
 
     if variant in {"npe", "nle", "nre"}:
-        default_runtime = "sbi" if availability.get("sbi") and availability.get("torch") else "unavailable"
+        default_runtime = (
+            "sbi" if availability.get("sbi") and availability.get("torch") else "unavailable"
+        )
     elif variant == "bart":
         default_runtime = (
             "pymc_bart"
@@ -227,7 +231,9 @@ def _resolve_runtime_backend(
             method_variant=variant,
             health=health,
         )
-    if requested == "sbi" and not (availability.get("sbi", False) and availability.get("torch", False)):
+    if requested == "sbi" and not (
+        availability.get("sbi", False) and availability.get("torch", False)
+    ):
         raise BayesianBackendUnavailableError(
             requested_runtime=requested,
             method_variant=variant,
@@ -262,6 +268,7 @@ def _version_packages_for_runtime(runtime_backend: str) -> tuple[str, ...]:
 
 class BayesianRunner(MethodRunner):
     """Bayesian runner public type."""
+
     @property
     def supported_backends(self) -> frozenset[ComputeBackend]:
         return frozenset({ComputeBackend.BAYESIAN})

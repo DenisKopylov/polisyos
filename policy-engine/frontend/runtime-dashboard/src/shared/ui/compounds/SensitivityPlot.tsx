@@ -50,16 +50,27 @@ export function SensitivityPlot({
   const plotH = height - padding.top - padding.bottom;
 
   function toX(gamma: number): number {
-    return padding.left + plotW * ((gamma - (minX - xPad)) / (xRange + 2 * xPad));
+    return (
+      padding.left + plotW * ((gamma - (minX - xPad)) / (xRange + 2 * xPad))
+    );
   }
 
   function toY(val: number): number {
-    return padding.top + plotH * (1 - (val - (minY - yPad)) / (yRange + 2 * yPad));
+    return (
+      padding.top + plotH * (1 - (val - (minY - yPad)) / (yRange + 2 * yPad))
+    );
   }
 
-  const upperPath = sorted.map((p, i) => `${i === 0 ? "M" : "L"}${toX(p.gamma)},${toY(p.upperBound)}`).join(" ");
-  const lowerPath = sorted.map((p, i) => `${i === 0 ? "M" : "L"}${toX(p.gamma)},${toY(p.lowerBound)}`).join(" ");
-  const fillPath = `${upperPath} ${[...sorted].reverse().map((p, i) => `${i === 0 ? "L" : "L"}${toX(p.gamma)},${toY(p.lowerBound)}`).join(" ")} Z`;
+  const upperPath = sorted
+    .map((p, i) => `${i === 0 ? "M" : "L"}${toX(p.gamma)},${toY(p.upperBound)}`)
+    .join(" ");
+  const lowerPath = sorted
+    .map((p, i) => `${i === 0 ? "M" : "L"}${toX(p.gamma)},${toY(p.lowerBound)}`)
+    .join(" ");
+  const fillPath = `${upperPath} ${[...sorted]
+    .reverse()
+    .map((p, i) => `${i === 0 ? "L" : "L"}${toX(p.gamma)},${toY(p.lowerBound)}`)
+    .join(" ")} Z`;
 
   const robustLabel = breakdownGamma
     ? `Robust up to \u0393=${breakdownGamma.toFixed(1)}`
@@ -141,7 +152,11 @@ export function SensitivityPlot({
             stroke={chartTheme.axis}
           />
           {sorted
-            .filter((_, i) => i % Math.ceil(sorted.length / 6) === 0 || i === sorted.length - 1)
+            .filter(
+              (_, i) =>
+                i % Math.ceil(sorted.length / 6) === 0 ||
+                i === sorted.length - 1,
+            )
             .map((p) => (
               <text
                 key={p.gamma}

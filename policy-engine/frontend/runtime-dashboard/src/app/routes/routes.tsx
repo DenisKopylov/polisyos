@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 
 import AppShell from "@/app/layout/AppShell";
+import { RouteIconProvider } from "@/app/providers/RouteIconProvider";
 import { useTelemetry } from "@/app/providers/TelemetryProvider";
 import { RunsLiveProvider } from "@/app/providers/RunsLiveProvider";
 import { RuntimeApiProvider } from "@/app/providers/RuntimeApiProvider";
@@ -150,13 +151,21 @@ function AppFrame() {
   ]);
 
   if (chromeless) {
-    return <Outlet />;
+    return (
+      <>
+        <RouteIconProvider />
+        <Outlet />
+      </>
+    );
   }
 
   return (
-    <AppShell>
-      <Outlet />
-    </AppShell>
+    <>
+      <RouteIconProvider />
+      <AppShell>
+        <Outlet />
+      </AppShell>
+    </>
   );
 }
 

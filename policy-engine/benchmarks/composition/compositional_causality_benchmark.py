@@ -16,10 +16,21 @@ for _path in (str(_SRC), str(_BENCH_ROOT)):
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
-from benchmarks.harness import BenchmarkCase, BenchmarkCircuit, BenchmarkHarness, BenchmarkReport  # noqa: E402
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
+from benchmarks.harness import (  # noqa: E402
+    BenchmarkCase,
+    BenchmarkCircuit,
+    BenchmarkHarness,
+    BenchmarkReport,
+)
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import BenchmarkMode, resolve_mode  # noqa: E402
-from polisyos.foundry.methods.catalog.causal.graph_reconciliation import ComposeSCMFragments  # noqa: E402
+from polisyos.foundry.methods.catalog.causal.graph_reconciliation import (
+    ComposeSCMFragments,  # noqa: E402
+)
 from polisyos.foundry.methods.catalog.causal.protocols import FragmentCompositionData  # noqa: E402
 from polisyos.foundry.methods.catalog.causal.query_preservation import (  # noqa: E402
     evaluate_query_preservation_batch,
@@ -38,7 +49,6 @@ from polisyos.scientist.backtesting.composition_bridge import (  # noqa: E402
     normalize_interface_mapping,
     replay_fragment_composition_case,
 )
-
 
 CIRCUIT = BenchmarkCircuit.CAPABILITY_WINS
 _FIXTURE_PATH = Path(__file__).resolve().parent / "fixtures" / "composition_cases.json"
@@ -92,12 +102,13 @@ def _spec_from_payload(payload: dict[str, Any]) -> CompositionBenchmarkSpec:
             else None
         ),
         ontology=tuple(payload.get("ontology", ())),
-        expected_failure_types=tuple(str(item) for item in payload.get("expected_failure_types", ())),
+        expected_failure_types=tuple(
+            str(item) for item in payload.get("expected_failure_types", ())
+        ),
         expected_ontology_warning=bool(payload.get("expected_ontology_warning", False)),
         use_scientist_bridge=bool(payload.get("use_scientist_bridge", False)),
         direct_stitch_pairs=tuple(
-            tuple(str(part) for part in item)
-            for item in payload.get("direct_stitch_pairs", ())
+            tuple(str(part) for part in item) for item in payload.get("direct_stitch_pairs", ())
         ),
     )
 
@@ -121,8 +132,7 @@ def _run_spec(spec: CompositionBenchmarkSpec) -> dict[str, Any]:
                 for fragment in spec.fragments
             },
             source_fragment_graph_refs={
-                fragment.fragment_id: str(fragment.graph_ref)
-                for fragment in spec.fragments
+                fragment.fragment_id: str(fragment.graph_ref) for fragment in spec.fragments
             },
             metadata={
                 "alignment_report_ref": f"artifact:alignment:{spec.name}",
@@ -156,8 +166,7 @@ def _run_spec(spec: CompositionBenchmarkSpec) -> dict[str, Any]:
             interface_mapping=mapping,
         )
         query_reasons = {
-            fingerprint: trace.reason_code
-            for fingerprint, trace in sorted(traces.items())
+            fingerprint: trace.reason_code for fingerprint, trace in sorted(traces.items())
         }
         query_traces = {
             fingerprint: {
@@ -223,7 +232,8 @@ def _run_spec(spec: CompositionBenchmarkSpec) -> dict[str, Any]:
             and payload["failure_cards"] == replay.failure_cards
             and payload["alignment_signature"] == replay.alignment_signature
             and payload["interface_mapping_signature"] == replay.interface_mapping_signature
-            and payload["composition_certificate_signature"] == replay.composition_certificate_signature
+            and payload["composition_certificate_signature"]
+            == replay.composition_certificate_signature
             and payload["composed_graph_signature"] == replay.composed_graph_signature
         )
     return payload
@@ -312,7 +322,11 @@ def _benchmark_case(spec: CompositionBenchmarkSpec) -> BenchmarkCase:
         circuit=CIRCUIT,
         runner=lambda spec=spec: _run_spec(spec),
         checker=_checker(spec),
-        tags=("composition", "semantic_alignment", *(("scientist_bridge",) if spec.use_scientist_bridge else ())),
+        tags=(
+            "composition",
+            "semantic_alignment",
+            *(("scientist_bridge",) if spec.use_scientist_bridge else ()),
+        ),
         timeout_s=20.0,
     )
 
@@ -439,7 +453,9 @@ def _case_details_builder(case: Any) -> dict[str, Any]:
     }
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     return build_report_payload(
         report,
         suite_id="capability_compositional_causality",

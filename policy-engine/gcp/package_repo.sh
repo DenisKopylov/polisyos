@@ -7,13 +7,13 @@ OUT_DIR="${OUT_DIR:-${WORKSPACE_ROOT}/tmp/gcp_bundle}"
 BUCKET_NAME="${BUCKET_NAME:-}"
 UPLOAD="${UPLOAD:-0}"
 TIMESTAMP="$(date -u +%Y%m%d-%H%M%S)"
-GIT_SHA="$(git -C "${WORKSPACE_ROOT}" rev-parse --short HEAD 2>/dev/null || echo local)"
+GIT_SHA="$(git -C "${WORKSPACE_ROOT}" rev-parse --short HEAD 2> /dev/null || echo local)"
 ARCHIVE_PATH="${OUT_DIR}/policy-engine-${TIMESTAMP}-${GIT_SHA}.tar.gz"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 
 mkdir -p "${OUT_DIR}"
 
-"${PYTHON_BIN}" - <<'PY' "${WORKSPACE_ROOT}" "${ARCHIVE_PATH}"
+"${PYTHON_BIN}" - "${WORKSPACE_ROOT}" "${ARCHIVE_PATH}" << 'PY'
 from __future__ import annotations
 
 import os

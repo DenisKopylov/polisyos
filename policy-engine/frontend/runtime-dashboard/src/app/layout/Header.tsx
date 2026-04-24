@@ -17,7 +17,7 @@ import { isRunInReview, useRunsSample } from "@/features/runs";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { SUPPORTED_LOCALES } from "@/i18n/locale";
 import { formatTime } from "@/lib/utils";
-import { AtlasBrand } from "@/shared/brand/AtlasBrand";
+import { JanusGlyph } from "@/shared/brand/JanusGlyph";
 import { Badge, Button } from "@/shared/ui";
 
 function resolveHealthBadge(
@@ -70,8 +70,8 @@ export default function Header() {
       <div className="topbar-copy">
         {atlasEnabled ? (
           <div className="topbar-brand-chip">
-            <AtlasBrand
-              alt={t("shell.title")}
+            <JanusGlyph
+              decorative
               inverted={theme === "dark"}
               size={24}
               variant="mark"

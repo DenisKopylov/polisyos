@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.data_plane.benchmarks import (
@@ -135,9 +135,7 @@ def test_benchmark_world_materialization_reports_baseline(tmp_path: Path):
         facts,
         fact_log_root=tmp_path,
         segment_name="bench-world",
-    ).model_copy(
-        update={"stats": {"tenant_id": "tenant-a", "dataset_id": "world"}}
-    )
+    ).model_copy(update={"stats": {"tenant_id": "tenant-a", "dataset_id": "world"}})
     append_world_segment_index(manifest, fact_log_root=tmp_path)
     manifests = load_world_fact_manifests(tmp_path)
 

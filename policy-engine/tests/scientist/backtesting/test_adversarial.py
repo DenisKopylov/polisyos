@@ -5,7 +5,6 @@ from __future__ import annotations
 import math
 
 import numpy as np
-import pytest
 
 from polisyos.scientist.backtesting.adversarial import AdversarialGenerator
 

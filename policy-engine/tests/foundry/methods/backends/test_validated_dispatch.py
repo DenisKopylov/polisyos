@@ -23,10 +23,22 @@ def _reset_registry_and_dispatcher() -> None:
     MethodDispatcher.reset_instance()
 
 
-def _make_state(income: np.ndarray | list[float]) -> SurveyMicroData:
+def _passing_microsim_gate() -> dict[str, object]:
+    return {
+        "decision": "pass",
+        "can_run_microsim": True,
+        "compatibility_status": "compatible",
+        "blocking_reasons": [],
+    }
+
+
+def _make_state(
+    income: np.ndarray | list[float], *, certified_for_microsim: bool = False
+) -> SurveyMicroData:
     return SurveyMicroData(
         market_income=np.asarray(income, dtype=float),
         weights=np.ones(len(income), dtype=float),
+        microsim_calibration_report=_passing_microsim_gate() if certified_for_microsim else None,
     )
 
 
@@ -86,7 +98,7 @@ def test_required_mode_marks_methods_without_registered_certifier() -> None:
     result = dispatcher.dispatch(
         method_class=method_cls,
         signature=method_cls.signature,
-        state=_make_state([4000.0, 12000.0, 22000.0]),
+        state=_make_state([4000.0, 12000.0, 22000.0], certified_for_microsim=True),
         params={"validated_mode": "required"},
         seed=23,
     )
@@ -123,8 +135,48 @@ def test_bilevel_required_mode_emits_certified_residual_bound() -> None:
     assert result.validated_bound.status is ValidatedStatus.RIGOROUS_ENCLOSURE
     assert result.validated_bound.quantity == "bilevel_fixed_point_residual_inf"
     assert float(result.validated_bound.upper) <= 1e-8
-    assert result.artifacts["validated_uncertainty_envelope"]["interval_semantics"] == "deterministic_bounds"
+    assert (
+        result.artifacts["validated_uncertainty_envelope"]["interval_semantics"]
+        == "deterministic_bounds"
+    )
     assert result.output["result"]["converged"] is True
+
+
+def test_bilevel_required_mode_emits_leader_objective_interval_when_bounds_active() -> None:
+    ensure_optimization_methods_registered()
+    registry = MethodRegistry.get_instance()
+    dispatcher = MethodDispatcher.get_instance()
+    method_cls = registry.get("optimization.bilevel.bilevel@1.1.0")
+
+    result = dispatcher.dispatch(
+        method_class=method_cls,
+        signature=method_cls.signature,
+        state={
+            "c_upper": np.array([1.0], dtype=float),
+            "c_lower": np.array([0.5], dtype=float),
+            "A_upper": np.array([[1.0]], dtype=float),
+            "b_upper": np.array([1.0], dtype=float),
+            "A_lower": np.array([[1.0]], dtype=float),
+            "b_lower": np.array([1.0], dtype=float),
+            "follower_model": {
+                "kind": "quartic_counterexample",
+                "lambda": 10.0,
+            },
+        },
+        params={"validated_mode": "required", "ambiguity_mode": "auto"},
+        seed=37,
+    )
+
+    assert result.validated_bound is not None
+    assert result.validated_bound.status is ValidatedStatus.RIGOROUS_ENCLOSURE
+    assert result.validated_bound.quantity == "leader_objective_interval"
+    assert float(result.validated_bound.lower) <= -10.0
+    assert float(result.validated_bound.upper) >= 10.0
+    assert result.output["result"]["ambiguity_certificate"]["mode"] == "leader_objective_bounds"
+    assert (
+        result.artifacts["validated_uncertainty_envelope"]["interval_semantics"]
+        == "deterministic_bounds"
+    )
 
 
 def test_welfare_required_mode_emits_discounted_bound_and_irr_witness() -> None:
@@ -152,4 +204,7 @@ def test_welfare_required_mode_emits_discounted_bound_and_irr_witness() -> None:
     irr_certificate = result.validated_bound.witness["irr_certificate"]
     assert irr_certificate is not None
     assert irr_certificate["status"] == "rigorous_unique_root"
-    assert result.artifacts["validated_uncertainty_envelope"]["interval_semantics"] == "deterministic_bounds"
+    assert (
+        result.artifacts["validated_uncertainty_envelope"]["interval_semantics"]
+        == "deterministic_bounds"
+    )

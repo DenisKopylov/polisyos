@@ -8,16 +8,15 @@ Verifies:
 - Clean contracts pass silently
 - MethodMetadata.contracts field is preserved through decorator rebuilds
 """
-from __future__ import annotations
 
-import os
+from __future__ import annotations
 
 import numpy as np
 import pytest
 
 from polisyos.foundry.methods.base import (
-    ComputeBackend,
     ComplexityClass,
+    ComputeBackend,
     FidelityLevel,
     MethodContracts,
     MethodMetadata,
@@ -31,7 +30,6 @@ from polisyos.foundry.methods.base import (
 )
 from polisyos.foundry.methods.exceptions import ContractViolationError
 
-
 _UNIT = Unit(dimension="dimensionless", symbol="-")
 _SLOT = SlotSpec("outcome", SlotType.VECTOR, _UNIT)
 
@@ -39,6 +37,7 @@ _SLOT = SlotSpec("outcome", SlotType.VECTOR, _UNIT)
 # ---------------------------------------------------------------------------
 # MethodContracts dataclass
 # ---------------------------------------------------------------------------
+
 
 class TestMethodContractsDataclass:
     def test_default_empty_tuples(self):
@@ -66,6 +65,7 @@ class TestMethodContractsDataclass:
 # ---------------------------------------------------------------------------
 # Contract checking helpers
 # ---------------------------------------------------------------------------
+
 
 class TestCheckContractsPre:
     def test_passing_precondition(self):
@@ -131,6 +131,7 @@ class TestCheckContractsPost:
 # ContractViolationError
 # ---------------------------------------------------------------------------
 
+
 class TestContractViolationError:
     def test_attributes(self):
         err = ContractViolationError("ns.method@1.0.0", "precondition", "x > 0")
@@ -145,6 +146,7 @@ class TestContractViolationError:
 
     def test_is_foundry_method_error(self):
         from polisyos.foundry.methods.exceptions import FoundryMethodError
+
         err = ContractViolationError("x@1.0.0", "precondition", "True")
         assert isinstance(err, FoundryMethodError)
 
@@ -153,12 +155,14 @@ class TestContractViolationError:
 # Integration: contracts enforced in POLISYOS_STRICT=1
 # ---------------------------------------------------------------------------
 
-@pytest.fixture()
+
+@pytest.fixture
 def strict_env(monkeypatch):
     monkeypatch.setenv("POLISYOS_STRICT", "1")
     yield
     # Clean up any singleton state that might have strict wrapping
     from polisyos.foundry.methods.registry import MethodRegistry
+
     MethodRegistry.reset_instance()
 
 
@@ -175,7 +179,10 @@ class TestContractsInStrictMode:
             output_slots=frozenset({SlotSpec("y", SlotType.VECTOR, _UNIT)}),
             parameters=(),
             fidelity=FidelityLevel.LOW,
-            complexity=ComplexityClass.O_1, supports_jit=False, supports_vmap=False, supports_grad=False,
+            complexity=ComplexityClass.O_1,
+            supports_jit=False,
+            supports_vmap=False,
+            supports_grad=False,
         )
 
         @foundry_method(
@@ -209,7 +216,10 @@ class TestContractsInStrictMode:
             output_slots=frozenset({SlotSpec("y", SlotType.VECTOR, _UNIT)}),
             parameters=(),
             fidelity=FidelityLevel.LOW,
-            complexity=ComplexityClass.O_1, supports_jit=False, supports_vmap=False, supports_grad=False,
+            complexity=ComplexityClass.O_1,
+            supports_jit=False,
+            supports_vmap=False,
+            supports_grad=False,
         )
 
         @foundry_method(
@@ -250,7 +260,10 @@ class TestContractsInStrictMode:
             output_slots=frozenset({SlotSpec("result", SlotType.SCALAR, _UNIT)}),
             parameters=(),
             fidelity=FidelityLevel.LOW,
-            complexity=ComplexityClass.O_1, supports_jit=False, supports_vmap=False, supports_grad=False,
+            complexity=ComplexityClass.O_1,
+            supports_jit=False,
+            supports_vmap=False,
+            supports_grad=False,
         )
 
         @foundry_method(namespace="test.contracts", version="1.0.0")

@@ -78,7 +78,9 @@ def test_recursive_compile_lowers_operator_apply_with_dependency() -> None:
 
     graph = recursive_compile(ast, run_id="operator-apply")
     method_fqns = [node.method_fqn for node in graph.nodes]
-    apply_node = next(node for node in graph.nodes if node.method_fqn == "causal.operator.apply_probe")
+    apply_node = next(
+        node for node in graph.nodes if node.method_fqn == "causal.operator.apply_probe"
+    )
     operator_node = next(
         node for node in graph.nodes if node.method_fqn == "causal.operator.operator_r_learner"
     )

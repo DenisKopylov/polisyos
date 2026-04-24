@@ -217,11 +217,7 @@ async def test_replay_dead_letter_reexecutes_node(tmp_path) -> None:
             self.spec = type(
                 "Spec",
                 (),
-                {
-                    "metadata": type(
-                        "Metadata", (), {"component_id": "test.node@1.0.0"}
-                    )()
-                },
+                {"metadata": type("Metadata", (), {"component_id": "test.node@1.0.0"})()},
             )()
 
         def execute(self, ctx, state):

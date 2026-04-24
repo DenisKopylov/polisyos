@@ -18,7 +18,7 @@
 
 Матрица является единственным источником правды и хранится в `import_policy.toml`.
 
-## 3) Legacy / _legacy policy
+## 3) Legacy / \_legacy policy
 
 - `polisyos.ir.legacy.*`: deprecated/compat. Допустимы только `polisyos.ir.*` и внешние allowlist (stdlib + `pydantic` + `typing_extensions`). Всё остальное — только через исключение с expiry.
 - `polisyos.scientist._legacy.*`: допустимо внутри scientist, но **запрещено импортировать снизу** (из любых модулей вне `polisyos.scientist.*`).
@@ -26,6 +26,7 @@
 ## 4) Правило “только через контракты”
 
 Межмодульное взаимодействие разрешено:
+
 - через IR‑контракты (`polisyos.ir.*`), или
 - через CAS‑артефакты/refs (строки/refs), индексируемые Fabric.
 

@@ -4,9 +4,10 @@ These DTOs are written into CAS artifacts, control-plane responses, and
 decision-validity event logs. `schema_version` and enum values are part of the
 stable wire contract consumed by Runtime and Scientist services.
 """
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, Literal
 
@@ -14,11 +15,12 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 def _utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class DecisionValidityStatus(str, Enum):
     """Enumerate lifecycle states assigned to a decision packet evaluation."""
+
     ACTIVE = "active"
     WARNING = "warning"
     STALE = "stale"
@@ -29,6 +31,7 @@ class DecisionValidityStatus(str, Enum):
 
 class DecisionDependencyKind(str, Enum):
     """Classify the dependency keys watched by a decision-validity envelope."""
+
     NORM_PACK = "norm_pack"
     LEGAL_REPORT = "legal_report"
     NORM_REFERENCE = "norm_reference"
@@ -48,6 +51,7 @@ class DecisionDependencyKind(str, Enum):
 
 class DecisionTriggerType(str, Enum):
     """Identify the external or internal event that changed packet validity."""
+
     LAW_CHANGE = "law_change"
     DATASET_SUPERSEDED = "dataset_superseded"
     HISTORICAL_SEMANTIC_REVISION = "historical_semantic_revision"
@@ -63,6 +67,7 @@ class DecisionTriggerType(str, Enum):
 
 class DecisionDependencyRef(BaseModel):
     """Describe one dependency tracked by a decision-validity envelope."""
+
     model_config = ConfigDict(extra="forbid")
 
     kind: DecisionDependencyKind
@@ -74,6 +79,7 @@ class DecisionDependencyRef(BaseModel):
 
 class DecisionBasisSection(BaseModel):
     """Group dependency refs and optional summary metadata for one basis domain."""
+
     model_config = ConfigDict(extra="forbid")
 
     dependencies: list[DecisionDependencyRef] = Field(default_factory=list)
@@ -82,6 +88,7 @@ class DecisionBasisSection(BaseModel):
 
 class DecisionTriggerSpec(BaseModel):
     """Declare one trigger and the dependency keys it should watch."""
+
     model_config = ConfigDict(extra="forbid")
 
     trigger_type: DecisionTriggerType
@@ -92,6 +99,7 @@ class DecisionTriggerSpec(BaseModel):
 
 class DecisionTriggerRecord(BaseModel):
     """Record one evaluated trigger and its resulting packet status."""
+
     model_config = ConfigDict(extra="forbid")
 
     trigger_type: DecisionTriggerType
@@ -104,6 +112,7 @@ class DecisionTriggerRecord(BaseModel):
 
 class DecisionValidityEnvelope(BaseModel):
     """Persist the dependency surface and watched triggers for one decision packet."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
@@ -135,6 +144,7 @@ class DecisionValidityEnvelope(BaseModel):
 
 class DecisionValidityEvaluation(BaseModel):
     """Store the current validity verdict, trigger evidence, and reissue hints."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
@@ -157,6 +167,7 @@ DecisionLifecycleJobKind = Literal["evaluation", "scheduled_monitoring"]
 
 class DecisionDependencyEvent(BaseModel):
     """Represent one append-only dependency event emitted into the control-plane log."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
@@ -174,6 +185,7 @@ class DecisionDependencyEvent(BaseModel):
 
 class DecisionValidityTransition(BaseModel):
     """Capture one status transition for a tracked decision packet."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
@@ -191,6 +203,7 @@ class DecisionValidityTransition(BaseModel):
 
 class DecisionLifecycleJob(BaseModel):
     """Describe a scheduled or completed control-plane follow-up job."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")

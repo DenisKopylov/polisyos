@@ -1,4 +1,5 @@
 """Causal-frontier small-area estimation with boundary-constrained graph smoothing."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
@@ -78,13 +79,21 @@ def _validate_small_area_inputs(
     if policy_indicator.ndim != 1:
         raise ValueError("policy_indicator must be a 1D vector")
     n_areas = y_direct.shape[0]
-    if x_covariates.shape[0] != n_areas or sampling_var.shape[0] != n_areas or policy_indicator.shape[0] != n_areas:
+    if (
+        x_covariates.shape[0] != n_areas
+        or sampling_var.shape[0] != n_areas
+        or policy_indicator.shape[0] != n_areas
+    ):
         raise ValueError("y_direct, X, sampling_var, and policy_indicator must align on n_areas")
     if n_areas < 3:
         raise ValueError("causal-frontier SAE requires at least 3 areas")
     if x_covariates.shape[1] < 1:
         raise ValueError("X must contain at least one covariate")
-    if not np.all(np.isfinite(y_direct)) or not np.all(np.isfinite(x_covariates)) or not np.all(np.isfinite(sampling_var)):
+    if (
+        not np.all(np.isfinite(y_direct))
+        or not np.all(np.isfinite(x_covariates))
+        or not np.all(np.isfinite(sampling_var))
+    ):
         raise ValueError("y_direct, X, and sampling_var must be finite")
     if not np.all(np.isfinite(policy_indicator)):
         raise ValueError("policy_indicator must be finite")
@@ -132,10 +141,7 @@ def _coerce_graph(
     if raw_graphs is not None:
         if not isinstance(raw_graphs, Sequence):
             raise TypeError("candidate_graphs must be a sequence of graph specifications")
-        normalized = [
-            _normalize_graph(item, graph_id=None, n_areas=n_areas)
-            for item in raw_graphs
-        ]
+        normalized = [_normalize_graph(item, graph_id=None, n_areas=n_areas) for item in raw_graphs]
         if not normalized:
             raise ValueError("candidate_graphs must contain at least one graph")
         if isinstance(requested_graph_id, str) and requested_graph_id.strip():
@@ -191,7 +197,9 @@ def _coerce_frontier_mask(
     area_ids: Sequence[str] | None = None,
 ) -> np.ndarray:
     if raw_mask is None:
-        raise KeyError("missing required frontier specification: provide frontier_mask or frontier_edges")
+        raise KeyError(
+            "missing required frontier specification: provide frontier_mask or frontier_edges"
+        )
 
     try:
         matrix = np.asarray(raw_mask, dtype=float)
@@ -232,7 +240,9 @@ def _parse_frontier_edge(edge: Any) -> tuple[Any, Any, bool]:
             return edge[0], edge[1], True
         if len(edge) >= 3:
             return edge[0], edge[1], bool(edge[2])
-    raise TypeError("frontier edge must be a mapping or a tuple/list like (src, dst[, frontier_flag])")
+    raise TypeError(
+        "frontier edge must be a mapping or a tuple/list like (src, dst[, frontier_flag])"
+    )
 
 
 def _resolve_area_index(
@@ -364,9 +374,7 @@ def _fit_frontier_smoother(
         "coefficient_names": coefficient_names,
         "beta": coefficients[: x_covariates.shape[1]],
         "tau": float(coefficients[x_covariates.shape[1]]),
-        "spillover_gamma": (
-            float(coefficients[-1]) if spillover_exposure is not None else None
-        ),
+        "spillover_gamma": (float(coefficients[-1]) if spillover_exposure is not None else None),
         "smooth_field": smooth_field,
         "regression_mean": regression_mean,
         "residual": residual,
@@ -463,10 +471,21 @@ class CausalFrontierFayHerriotEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("y_direct", SlotType.VECTOR, Unit("estimate", "value"), shape=("n_areas",)),
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_areas", "n_covariates")),
-                SlotSpec("sampling_var", SlotType.VECTOR, Unit("variance", "value"), shape=("n_areas",)),
-                SlotSpec("policy_indicator", SlotType.VECTOR, Unit("policy", "value"), shape=("n_areas",)),
+                SlotSpec(
+                    "y_direct", SlotType.VECTOR, Unit("estimate", "value"), shape=("n_areas",)
+                ),
+                SlotSpec(
+                    "X",
+                    SlotType.MATRIX,
+                    Unit("covariate", "value"),
+                    shape=("n_areas", "n_covariates"),
+                ),
+                SlotSpec(
+                    "sampling_var", SlotType.VECTOR, Unit("variance", "value"), shape=("n_areas",)
+                ),
+                SlotSpec(
+                    "policy_indicator", SlotType.VECTOR, Unit("policy", "value"), shape=("n_areas",)
+                ),
                 SlotSpec("graph", SlotType.SCALAR, Unit("graph", "json")),
                 SlotSpec("frontier_mask", SlotType.SCALAR, Unit("graph", "json")),
             }
@@ -548,7 +567,9 @@ class CausalFrontierFayHerriotEstimator:
         if component_ridge < 0.0:
             raise ValueError("component_ridge must be non-negative")
         if not 0.0 <= green_threshold <= red_threshold:
-            raise ValueError("green_threshold must be <= red_threshold and both must be non-negative")
+            raise ValueError(
+                "green_threshold must be <= red_threshold and both must be non-negative"
+            )
 
         unrestricted_fit = _fit_frontier_smoother(
             y_direct=y_direct,
@@ -639,7 +660,9 @@ class CausalFrontierFayHerriotEstimator:
             "diagnostics": diagnostics,
         }
 
-        artifact_store = resolve_artifact_store(state if isinstance(state, Mapping) else None, params)
+        artifact_store = resolve_artifact_store(
+            state if isinstance(state, Mapping) else None, params
+        )
         dependence_structure = dependence_structure_from_graph_diagnostic(
             diagnostics,
             regime="areal",

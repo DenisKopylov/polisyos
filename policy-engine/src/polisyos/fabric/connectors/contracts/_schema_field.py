@@ -6,11 +6,12 @@ Provides:
 - FieldSpec: Pydantic model for a single data field (column) specification
 - FIELD_NAME_PATTERN: regex for valid snake_case field names
 """
+
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Mapping
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -279,13 +280,11 @@ class FieldSpec(BaseModel):
             if self.semantic_type != other.semantic_type:
                 return False
 
-        if self.additivity and other.additivity:
-            if self.additivity != other.additivity:
-                return False
+        if self.additivity and other.additivity and self.additivity != other.additivity:
+            return False
 
-        if self.unit and other.unit:
-            if self.unit.unit_id != other.unit.unit_id:
-                return False
+        if self.unit and other.unit and self.unit.unit_id != other.unit.unit_id:
+            return False
 
         if not self.data_type.is_compatible_with(other.data_type):
             if not other.data_type.is_compatible_with(self.data_type):
@@ -311,12 +310,11 @@ class FieldSpec(BaseModel):
                     f"{self.semantic_type} vs {other.semantic_type}"
                 )
 
-        if self.additivity and other.additivity:
-            if self.additivity != other.additivity:
-                raise ValueError(
-                    "Cannot widen fields with conflicting additivity: "
-                    f"{self.additivity} vs {other.additivity}"
-                )
+        if self.additivity and other.additivity and self.additivity != other.additivity:
+            raise ValueError(
+                "Cannot widen fields with conflicting additivity: "
+                f"{self.additivity} vs {other.additivity}"
+            )
 
         if self.data_type.is_compatible_with(other.data_type):
             widened_type = other.data_type

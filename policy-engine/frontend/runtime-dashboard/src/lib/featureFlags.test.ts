@@ -1,4 +1,5 @@
 import {
+  FEATURE_FLAG_KEYS,
   FEATURE_FLAG_MANIFEST_CACHE_KEY,
   normalizeFeatureFlagManifest,
   readCachedFeatureFlagManifest,
@@ -26,6 +27,34 @@ describe("featureFlags", () => {
       enableDarkMode: false,
       enableLexKnowledge: true,
       enablePlatformHealth: true,
+    });
+  });
+
+  it("supports all_on and all_off manifest profiles", () => {
+    expect(normalizeFeatureFlagOverrides("all_on")).toEqual(
+      Object.fromEntries(FEATURE_FLAG_KEYS.map((key) => [key, true])),
+    );
+
+    expect(normalizeFeatureFlagManifest("all_off", "remote")?.flags).toEqual(
+      Object.fromEntries(FEATURE_FLAG_KEYS.map((key) => [key, false])),
+    );
+
+    expect(
+      normalizeFeatureFlagManifest(
+        {
+          flags: "all_on",
+          ttlMs: 60_000,
+          updatedAt: 123,
+          version: 3,
+        },
+        "remote",
+      ),
+    ).toMatchObject({
+      flags: Object.fromEntries(FEATURE_FLAG_KEYS.map((key) => [key, true])),
+      source: "remote",
+      ttlMs: 60_000,
+      updatedAt: 123,
+      version: 3,
     });
   });
 

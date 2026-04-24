@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import asyncio
 import json
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -16,8 +17,10 @@ from polisyos.scientist.backtesting.adversarial import AdversarialGenerator
 from polisyos.scientist.doe.designs import (
     AdversarialPlan,
     AdversarialStrategy,
-    ParameterSpec as DOEParameterSpec,
     ScenarioSweep,
+)
+from polisyos.scientist.doe.designs import (
+    ParameterSpec as DOEParameterSpec,
 )
 from polisyos.scientist.doe.stress_report import StressTestReport
 from polisyos.scientist.engine.budget import BudgetState
@@ -33,6 +36,7 @@ from polisyos.scientist.search.objective import CompositeObjective
 
 class ScenarioAttackSurface(BaseModel):
     """Scenario attack surface public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: str = Field(min_length=1)
@@ -45,6 +49,7 @@ class ScenarioAttackSurface(BaseModel):
 
 class AdversarialScenarioProposal(BaseModel):
     """Adversarial scenario proposal public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     scenario_id: str = Field(min_length=1)
@@ -57,6 +62,7 @@ class AdversarialScenarioProposal(BaseModel):
 
 class AdversarialScenarioBundle(BaseModel):
     """Scenario pack describing the adversarial probes prepared for a policy candidate."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -69,6 +75,7 @@ class AdversarialScenarioBundle(BaseModel):
 
 class ScenarioAdversaryConfig(BaseModel):
     """Budget, sampling, and fallback controls for the LLM-assisted policy adversary."""
+
     model_config = ConfigDict(extra="forbid")
 
     model_name: str = "gpt-5.4"
@@ -84,6 +91,7 @@ class ScenarioAdversaryConfig(BaseModel):
 
 class AdversaryExecutionResult(BaseModel):
     """Result bundle returned after scenario proposal, DOE compilation, and stress execution."""
+
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     scenario_bundle: AdversarialScenarioBundle

@@ -1,4 +1,5 @@
 """Public http openapi contract module API."""
+
 from __future__ import annotations
 
 from copy import deepcopy
@@ -243,8 +244,16 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                 "mechanism_assumed": "mar_given_observables",
                 "refreshment_sample": False,
                 "positivity_floor": 0.05,
-                "weight_model": {"family": "provided_probabilities", "features": [], "metadata": {}},
-                "outcome_model": {"family": "weighted_linear_probability", "features": ["x_0"], "metadata": {}},
+                "weight_model": {
+                    "family": "provided_probabilities",
+                    "features": [],
+                    "metadata": {},
+                },
+                "outcome_model": {
+                    "family": "weighted_linear_probability",
+                    "features": ["x_0"],
+                    "metadata": {},
+                },
             },
             "point_estimate": {
                 "joint_matrix": [[0.25, 0.25], [0.25, 0.25]],
@@ -258,7 +267,13 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                     "shorrocks_index": 0.5,
                 },
             },
-            "uncertainty": {"method": "aipw_point_only", "standard_errors": {}, "confidence_intervals": {}, "bootstrap": {}, "covariance_ref": None},
+            "uncertainty": {
+                "method": "aipw_point_only",
+                "standard_errors": {},
+                "confidence_intervals": {},
+                "bootstrap": {},
+                "covariance_ref": None,
+            },
             "bounds": {
                 "bundle_ref": {
                     "artifact_id": _ARTIFACT_ID_SAMPLE,
@@ -338,7 +353,10 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                     "upper_bound": 0.4,
                     "bound_width": 0.3,
                     "certificate_ref": None,
-                    "assumptions_used": ["observed_stayers_are_lower_bounds", "known_row_marginals"],
+                    "assumptions_used": [
+                        "observed_stayers_are_lower_bounds",
+                        "known_row_marginals",
+                    ],
                     "bounds_type": "sharp_lp",
                     "display_label": "sharp_transport_bounds_row_marginals",
                     "certificate_kind": None,
@@ -672,7 +690,11 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                             "model_variant_id": "gpt_4_1_mini_1",
                             "latency_ms": 1480,
                             "cost_usd": 0.00145,
-                            "token_usage": {"prompt_tokens": 411, "completion_tokens": 92, "total_tokens": 503},
+                            "token_usage": {
+                                "prompt_tokens": 411,
+                                "completion_tokens": 92,
+                                "total_tokens": 503,
+                            },
                         },
                     ],
                     "notes": [],
@@ -1096,13 +1118,49 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
         "meta": _META_NO_SOURCE,
         "artifact": {
             "artifact_id": _ARTIFACT_ID_SAMPLE,
-            "kind": "scientist.workflow_report",
+            "kind": "scientist.decision_packet",
             "media_type": "application/json",
             "mode": "json",
             "size_bytes": 1024,
             "max_bytes": 4096,
             "truncated": False,
-            "preview": {"status": "fail"},
+            "preview": {
+                "policy_answer": "Approve the targeted SME bridge support package.",
+                "document_outline": [
+                    {
+                        "section_id": "policy_answer",
+                        "section_type": "policy",
+                        "title": "Recommendation",
+                    }
+                ],
+                "metric_significance_by_metric": {
+                    "gdp_change": {
+                        "effect_size": 0.23,
+                        "p_value": 0.02,
+                        "test_label": "Paired t test",
+                    }
+                },
+            },
+            "decision_packet_preview": {
+                "document_outline": [
+                    {
+                        "section_id": "policy_answer",
+                        "section_type": "policy",
+                        "title": "Recommendation",
+                    }
+                ],
+                "metric_significance_by_metric": {
+                    "gdp_change": {
+                        "effect_size": {
+                            "point": 0.23,
+                            "ci_95": [0.12, 0.34],
+                            "method": "analytic",
+                        },
+                        "p_value": 0.02,
+                        "test_label": "Paired t test",
+                    }
+                },
+            },
         },
     },
     "get_artifact_lineage": {
@@ -1177,7 +1235,10 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
         "run_id": "R_nl_abcdef02",
         "job_id": "job_nl_abcdef02",
         "effective_execution_profile": "dev",
-        "message": "Natural-language run R_nl_abcdef02 accepted. Agent circuit was queued in mock mode: mock agents.",
+        "message": (
+            "Natural-language run R_nl_abcdef02 accepted. "
+            "Agent circuit was queued in mock mode: mock agents."
+        ),
     },
     "reissue_run": {
         "meta": _META_CORE_RUN,
@@ -1228,8 +1289,15 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
         "supported_execution_profiles": ["dev", "research", "governed", "production"],
         "worker_backend": "embedded",
         "state_store_backend": "sqlite",
-        "security_posture": {"required": False, "middleware_required": False, "authz_shadow_allowed": True},
-        "fallback_rules": {"mock_fallback_allowed": True, "policy_flag_required_for_mock_fallback": False},
+        "security_posture": {
+            "required": False,
+            "middleware_required": False,
+            "authz_shadow_allowed": True,
+        },
+        "fallback_rules": {
+            "mock_fallback_allowed": True,
+            "policy_flag_required_for_mock_fallback": False,
+        },
         "workspaces": [
             "command_center",
             "scenario_composer",
@@ -1242,7 +1310,9 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
             {
                 "key": "natural_language_runs",
                 "label": "Natural-language runs",
-                "description": "Use the agent circuit to transform NL requests into executable policy runs.",
+                "description": (
+                    "Use the agent circuit to transform NL requests into executable policy runs."
+                ),
                 "category": "runs",
                 "enabled": True,
                 "stage": "active",
@@ -1818,9 +1888,11 @@ def validate_runtime_openapi_contract(schema: dict[str, Any]) -> list[str]:
                 else:
                     for link_name in required_links:
                         if link_name not in links:
-                            violations.append(
-                                f"{method.upper()} {path}: missing success response link {link_name}"
+                            rendered = (
+                                f"{method.upper()} {path}: "
+                                f"missing success response link {link_name}"
                             )
+                            violations.append(rendered)
 
         for status_code in ("400", "401", "403", "404", "406", "422", "500"):
             response = responses.get(status_code)

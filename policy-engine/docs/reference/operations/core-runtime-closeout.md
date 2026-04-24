@@ -40,6 +40,7 @@ This performs the Wave 0 structural checks:
 
 - every `WS-*` heading in `CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md`
   exists in the ledger exactly once;
+
 - every evidence path in the ledger exists;
 - implemented workstreams carry no blocking gaps;
 - partial/missing/reopened workstreams declare explicit blocking gaps.

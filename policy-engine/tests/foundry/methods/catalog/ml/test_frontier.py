@@ -20,7 +20,13 @@ def _reset_globals():
 def _make_tabular(seed: int = 101) -> TabularData:
     rng = np.random.default_rng(seed)
     x = rng.normal(size=(120, 6))
-    y = 1.1 + 1.4 * x[:, 0] - 0.8 * x[:, 1] + 0.6 * x[:, 0] * x[:, 2] + rng.normal(scale=0.25, size=120)
+    y = (
+        1.1
+        + 1.4 * x[:, 0]
+        - 0.8 * x[:, 1]
+        + 0.6 * x[:, 0] * x[:, 2]
+        + rng.normal(scale=0.25, size=120)
+    )
     return TabularData(features=x, target=y, feature_names=[f"x{i}" for i in range(x.shape[1])])
 
 
@@ -55,7 +61,9 @@ def test_graph_conv_runs_on_node_regression() -> None:
         adjacency[idx, (idx - 1) % n_nodes] = 1.0
         adjacency[idx, (idx + 1) % n_nodes] = 1.0
     neighbor_signal = (adjacency @ node_features[:, 0]) / 2.0
-    target = 0.8 * node_features[:, 0] + 0.6 * neighbor_signal + rng.normal(scale=0.15, size=n_nodes)
+    target = (
+        0.8 * node_features[:, 0] + 0.6 * neighbor_signal + rng.normal(scale=0.15, size=n_nodes)
+    )
 
     method_cls = registry.get("ml.graph.graph_conv@1.0.0")
     result = dispatcher.dispatch(

@@ -40,7 +40,8 @@ Foundry method
 from __future__ import annotations
 
 import dataclasses
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import numpy as np
 
@@ -58,6 +59,8 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 
+if TYPE_CHECKING:
+    from polisyos.foundry.methods.catalog.causal.protocols import DoseResponseResult
 
 # ---------------------------------------------------------------------------
 # Data containers
@@ -81,7 +84,7 @@ class EIFScores:
 
     def variance(self) -> float:
         """E[ψ²] — the semiparametric efficiency bound for this estimand."""
-        return float(np.mean(self.scores ** 2))
+        return float(np.mean(self.scores**2))
 
     def variance_lower_bound(self) -> float:
         """Asymptotic variance lower bound = E[ψ²] / n."""
@@ -98,6 +101,7 @@ class EIFScores:
     def ci(self, alpha: float = 0.05) -> tuple[float, float]:
         """Wald CI at level (1 - alpha)."""
         from scipy import stats  # lazy; falls back to 1.96 if unavailable
+
         try:
             z = float(stats.norm.ppf(1 - alpha / 2))
         except Exception:
@@ -208,7 +212,9 @@ class SecondOrderEIF:
         }
 
 
-def _validate_1d_array(name: str, values: np.ndarray, *, expected_size: int | None = None) -> np.ndarray:
+def _validate_1d_array(
+    name: str, values: np.ndarray, *, expected_size: int | None = None
+) -> np.ndarray:
     arr = np.asarray(values, dtype=float).ravel()
     if expected_size is not None and arr.size != expected_size:
         raise ValueError(f"{name} must have the same length as first_order_scores")
@@ -364,7 +370,9 @@ def compute_second_order_eif(
         rank = 1
     nuisance_basis = u[:, :rank] @ np.diag(singular_values[:rank])
     nuisance_basis_norms = np.linalg.norm(nuisance_basis, axis=0)
-    nuisance_basis = nuisance_basis / np.where(nuisance_basis_norms > 0.0, nuisance_basis_norms, 1.0)
+    nuisance_basis = nuisance_basis / np.where(
+        nuisance_basis_norms > 0.0, nuisance_basis_norms, 1.0
+    )
     full_design = np.column_stack([np.ones(scores.size), nuisance_basis])
     coeffs, *_ = np.linalg.lstsq(full_design, scores, rcond=None)
     corrected_estimate = float(coeffs[0])
@@ -529,10 +537,7 @@ def compute_eif_subgroup_mean(
     psi = (
         group_indicator
         / max(group_probability, min_group_probability)
-        * (
-            treatment_indicator * (Y - outcome_model) / treatment_probability
-            + outcome_model
-        )
+        * (treatment_indicator * (Y - outcome_model) / treatment_probability + outcome_model)
     )
     return EIFScores(estimand_type="subgroup_mean", scores=psi, n_obs=len(psi))
 
@@ -593,17 +598,9 @@ def compute_eif_late(
     mu0_z1 = np.asarray(mu0_z1, dtype=float)  # E[T|Z=0,X] (first-stage, instrument=0)
 
     # Reduced-form numerator (EIF for E[Y(1)] - E[Y(0)] via Wald)
-    num_scores = (
-        Z * (Y - mu1_z1) / e_z
-        - (1 - Z) * (Y - mu0_z0) / (1 - e_z)
-        + (mu1_z1 - mu0_z0)
-    )
+    num_scores = Z * (Y - mu1_z1) / e_z - (1 - Z) * (Y - mu0_z0) / (1 - e_z) + (mu1_z1 - mu0_z0)
     # First-stage denominator (EIF for compliance E[T(1)] - E[T(0)])
-    den_scores = (
-        Z * (T - mu1_z0) / e_z
-        - (1 - Z) * (T - mu0_z1) / (1 - e_z)
-        + (mu1_z0 - mu0_z1)
-    )
+    den_scores = Z * (T - mu1_z0) / e_z - (1 - Z) * (T - mu0_z1) / (1 - e_z) + (mu1_z0 - mu0_z1)
     pi_c = float(np.mean(den_scores))
     if abs(pi_c) < min_compliance:
         pi_c = min_compliance
@@ -673,12 +670,12 @@ def compute_eif_frontdoor(
     # P(T=1|M) is correctly specified.  For a fully non-parametric estimator,
     # pass pre-computed mu_y_given_m_t1 and mu_y_given_m_t0 separately.
     # See Fulcher et al. (2020), Section 4.2 for the full EIF derivation.
-    structural_1 = np.where(T > 0.5, mu_y, 0.0)   # E[Y|M,T=1] for treated
-    structural_0 = np.where(T <= 0.5, mu_y, 0.0)   # E[Y|M,T=0] for control
+    structural_1 = np.where(T > 0.5, mu_y, 0.0)  # E[Y|M,T=1] for treated
+    structural_0 = np.where(T <= 0.5, mu_y, 0.0)  # E[Y|M,T=0] for control
     # Pool via IPW to get both sides for all obs
     mu_y_t1 = structural_1 / np.where(T > 0.5, p1, 1.0)
     mu_y_t0 = structural_0 / np.where(T <= 0.5, p0, 1.0)
-    diff_mu = p1 * mu_y_t1 + p0 * mu_y_t0 - mu_y   # ≈ Σ_t E[Y|M,t]P(t) − E[Y|M,T]
+    diff_mu = p1 * mu_y_t1 + p0 * mu_y_t0 - mu_y  # ≈ Σ_t E[Y|M,t]P(t) − E[Y|M,T]
 
     # Density ratio: [P(M|T=1) - P(M|T=0)] / P(M|T=T_i)
     p_m_given_T = np.where(T > 0.5, p_m_t1, p_m_t0)
@@ -686,9 +683,9 @@ def compute_eif_frontdoor(
     density_ratio = (p_m_t1 - p_m_t0) / p_m_given_T_safe
 
     psi = (
-        (p_m_t1 - p_m_t0) * diff_mu          # structural × marginal mediator contrast
+        (p_m_t1 - p_m_t0) * diff_mu  # structural × marginal mediator contrast
         + (T / p1 - (1 - T) / p0) * diff_mu  # mediator residual (IPW weighted)
-        + density_ratio * (Y - mu_y)          # outcome residual
+        + density_ratio * (Y - mu_y)  # outcome residual
     )
     return EIFScores(estimand_type="frontdoor", scores=psi, n_obs=len(psi))
 
@@ -795,13 +792,23 @@ def compute_eif_nie(
     EIFScores with estimand_type='nie'
     """
     # ATE EIF (Robins, Rotnitzky & Zhao 1994)
-    eif_ate = compute_eif_ate(Y, T, propensity, outcome_model_t1, outcome_model_t0,
-                              min_propensity=min_propensity)
+    eif_ate = compute_eif_ate(
+        Y, T, propensity, outcome_model_t1, outcome_model_t0, min_propensity=min_propensity
+    )
     # NDE EIF
-    eif_nde = compute_eif_nde(Y, T, M, X, propensity,
-                               mediator_density_t1, mediator_density_t0,
-                               outcome_model_t1, outcome_model_t0,
-                               min_propensity=min_propensity, min_density=min_density)
+    eif_nde = compute_eif_nde(
+        Y,
+        T,
+        M,
+        X,
+        propensity,
+        mediator_density_t1,
+        mediator_density_t0,
+        outcome_model_t1,
+        outcome_model_t0,
+        min_propensity=min_propensity,
+        min_density=min_density,
+    )
     nie_scores = eif_ate.scores - eif_nde.scores
     return EIFScores(estimand_type="nie", scores=nie_scores, n_obs=len(nie_scores))
 
@@ -876,12 +883,12 @@ def compute_efficiency_bound(
     EfficiencyBound
     """
     n = eif.n_obs
-    eif_var = eif.variance()        # E[ψ²] — stored for diagnostics
+    eif_var = eif.variance()  # E[ψ²] — stored for diagnostics
     # Semiparametric Cramér-Rao bound: E[ψ²]/n  (second moment, NOT centered variance).
     # The EIF is mean-zero by construction (E[ψ] = 0), so E[ψ²] = Var(ψ) only at
     # the true parameter value.  Using the raw second moment is the standard convention
     # in semiparametric efficiency theory (Bickel et al. 1993, van der Laan & Robins 2003).
-    bound_var = float(np.mean(eif.scores ** 2)) / max(n, 1)
+    bound_var = float(np.mean(eif.scores**2)) / max(n, 1)
     bound_se = float(np.sqrt(bound_var))
     est = eif.point_estimate()
     se_eif = eif.standard_error()
@@ -890,7 +897,7 @@ def compute_efficiency_bound(
     # Relative efficiency: 1.0 = perfectly efficient; >1.0 = estimator wastes variance
     rel_eff = 1.0
     if estimator_se is not None and estimator_se > 0 and bound_se > 0:
-        rel_eff = (estimator_se ** 2) / bound_var
+        rel_eff = (estimator_se**2) / bound_var
 
     notes = []
     if eif_var < 1e-12:
@@ -937,7 +944,7 @@ def compare_estimator_efficiency(
     rel_effs: dict[str, float] = {}
     for name, se in estimator_ses.items():
         if se > 0:
-            rel_effs[name] = (se ** 2) / max(bound_var, 1e-30)
+            rel_effs[name] = (se**2) / max(bound_var, 1e-30)
         else:
             rel_effs[name] = float("inf")
 
@@ -996,17 +1003,28 @@ class SemiparametricEfficiencyBoundMethod:
         name="efficiency_bound",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("Y", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-            SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-            SlotSpec("propensity", SlotType.VECTOR, Unit("propensity", "probability"), shape=("n_obs",)),
-            SlotSpec("mu1", SlotType.VECTOR, Unit("outcome_model", "value"), shape=("n_obs",)),
-            SlotSpec("mu0", SlotType.VECTOR, Unit("outcome_model", "value"), shape=("n_obs",)),
-        }),
-        output_slots=frozenset({
-            SlotSpec("efficiency_bound", SlotType.SCALAR, Unit("bound", "json")),
-            SlotSpec("eif_scores", SlotType.VECTOR, Unit("eif", "score"), shape=("n_obs",)),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec("Y", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "propensity",
+                    SlotType.VECTOR,
+                    Unit("propensity", "probability"),
+                    shape=("n_obs",),
+                ),
+                SlotSpec("mu1", SlotType.VECTOR, Unit("outcome_model", "value"), shape=("n_obs",)),
+                SlotSpec("mu0", SlotType.VECTOR, Unit("outcome_model", "value"), shape=("n_obs",)),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec("efficiency_bound", SlotType.SCALAR, Unit("bound", "json")),
+                SlotSpec("eif_scores", SlotType.VECTOR, Unit("eif", "score"), shape=("n_obs",)),
+            }
+        ),
         parameters=(
             ParameterSpec(name="estimand_type", default="ate"),
             ParameterSpec(name="min_propensity", default=1e-4, bounds=(1e-8, 0.49)),
@@ -1027,10 +1045,19 @@ class SemiparametricEfficiencyBoundMethod:
             "via the efficient influence function. Reports relative efficiency of "
             "a supplied estimator SE against the bound."
         ),
-        tags=frozenset({
-            "causal", "semiparametric", "efficiency", "eif", "cramér-rao",
-            "aipw", "ate", "att", "late",
-        }),
+        tags=frozenset(
+            {
+                "causal",
+                "semiparametric",
+                "efficiency",
+                "eif",
+                "cramér-rao",
+                "aipw",
+                "ate",
+                "att",
+                "late",
+            }
+        ),
         citations=(
             "Bickel, P.J. et al. (1993). Efficient and Adaptive Estimation for Semiparametric Models. Springer.",
             "van der Vaart, A.W. (1998). Asymptotic Statistics. Cambridge UP.",
@@ -1039,10 +1066,10 @@ class SemiparametricEfficiencyBoundMethod:
             "Tchetgen Tchetgen, E.J. & Shpitser, I. (2012). Semiparametric Theory for Causal Mediation. Ann. Stat.",
         ),
         equations={
-            "eif_ate":  "ψ_ATE = (μ₁−μ₀) + T(Y−μ₁)/e − (1−T)(Y−μ₀)/(1−e)",
-            "eif_att":  "ψ_ATT = T/p₁·(Y−μ₁) − (1−T)/p₁·e/(1−e)·(Y−μ₀) − (T/p₁−1)·(μ₁−μ₀)",
-            "bound":    "V* = E[ψ²] / n",
-            "rel_eff":  "η = SE²_estimator / V*",
+            "eif_ate": "ψ_ATE = (μ₁−μ₀) + T(Y−μ₁)/e − (1−T)(Y−μ₀)/(1−e)",
+            "eif_att": "ψ_ATT = T/p₁·(Y−μ₁) − (1−T)/p₁·e/(1−e)·(Y−μ₀) − (T/p₁−1)·(μ₁−μ₀)",
+            "bound": "V* = E[ψ²] / n",
+            "rel_eff": "η = SE²_estimator / V*",
         },
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -1126,8 +1153,8 @@ class ContinuousEIFScores:
     estimator for the dose-response curve β(t) = E[Y(t)].
     """
 
-    eval_points: np.ndarray    # (n_eval,)
-    scores: np.ndarray         # (n_obs, n_eval) — centred EIF per eval point
+    eval_points: np.ndarray  # (n_eval,)
+    scores: np.ndarray  # (n_obs, n_eval) — centred EIF per eval point
     dose_response: np.ndarray  # (n_eval,) — β̂(t)
     standard_errors: np.ndarray  # (n_eval,) — SE(β̂(t))
     bandwidth: float
@@ -1136,16 +1163,20 @@ class ContinuousEIFScores:
         """Return (lower, upper) confidence bands at level 1-alpha (Wald)."""
         try:
             from scipy import stats as _stats
+
             z = float(_stats.norm.ppf(1.0 - alpha / 2))
         except Exception:
             z = 1.96
-        return (self.dose_response - z * self.standard_errors,
-                self.dose_response + z * self.standard_errors)
+        return (
+            self.dose_response - z * self.standard_errors,
+            self.dose_response + z * self.standard_errors,
+        )
 
-    def to_dose_response_result(self) -> "DoseResponseResult":  # type: ignore[name-defined]
+    def to_dose_response_result(self) -> DoseResponseResult:  # type: ignore[name-defined]
         """Convert to DoseResponseResult IR model."""
         # Import here to avoid circular import; protocols imported lazily.
         from polisyos.foundry.methods.catalog.causal.protocols import DoseResponseResult
+
         lo, hi = self.ci()
         return DoseResponseResult(
             treatment_grid=self.eval_points,
@@ -1291,11 +1322,11 @@ def compute_eif_shift_intervention(
     T = np.asarray(T, dtype=float)
     X = np.asarray(X, dtype=float)
 
-    mu_shifted = outcome_fn(T + delta, X)   # μ(A+δ, X)
-    mu_original = outcome_fn(T, X)          # μ(A, X)
+    mu_shifted = outcome_fn(T + delta, X)  # μ(A+δ, X)
+    mu_original = outcome_fn(T, X)  # μ(A, X)
 
-    f_num = density_fn(T, X)                # f(A|X)
-    f_denom = density_fn(T - delta, X)      # f(A−δ|X)
+    f_num = density_fn(T, X)  # f(A|X)
+    f_denom = density_fn(T - delta, X)  # f(A−δ|X)
     ratio = np.clip(
         f_num / np.maximum(f_denom, 1e-12),
         min_density_ratio,
@@ -1353,14 +1384,10 @@ def compute_eif_multi_treatment_ate(
     mu_k = outcome_fn(k, X)
     mu_ref = outcome_fn(k_ref, X)
 
-    ind_k = (T == k).astype(float)
-    ind_ref = (T == k_ref).astype(float)
+    ind_k = (k == T).astype(float)
+    ind_ref = (k_ref == T).astype(float)
 
-    psi = (
-        (mu_k - mu_ref)
-        + ind_k * (Y - mu_k) / p_k
-        - ind_ref * (Y - mu_ref) / p_ref
-    )
+    psi = (mu_k - mu_ref) + ind_k * (Y - mu_k) / p_k - ind_ref * (Y - mu_ref) / p_ref
 
     return EIFScores(
         estimand_type=f"multi_ate_{k}_vs_{k_ref}",

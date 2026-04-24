@@ -5,15 +5,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
+
 from tools._lib.imports import repo_root_from
-import sys
 
 sys.path.insert(0, str(repo_root_from(__file__)))
 
 from .build_academic_gold_candidates import build_candidate_pools, load_jsonl
-
 
 INTRO_LINES = [
     "Вы размечаете не истинность экономических законов, а статус и качество причинных утверждений в академических работах для policy-oriented causal knowledge graph.",
@@ -149,30 +149,48 @@ def _claim_items(claim_rows: list[dict]) -> list[dict]:
 def _validation_summary(screen_rows: list[dict], claim_rows: list[dict]) -> dict[str, object]:
     total_screen = len(screen_rows)
     total_claims = len(claim_rows)
-    screen_without_abstract = sum(1 for row in screen_rows if not str(row.get("abstract") or "").strip())
-    claims_without_text = sum(1 for row in claim_rows if not str(row.get("claim_text") or "").strip())
-    claims_without_supporting_spans = sum(1 for row in claim_rows if not (row.get("supporting_spans") or []))
-    claims_without_source_basis = sum(1 for row in claim_rows if not str(row.get("source_basis") or "").strip())
+    screen_without_abstract = sum(
+        1 for row in screen_rows if not str(row.get("abstract") or "").strip()
+    )
+    claims_without_text = sum(
+        1 for row in claim_rows if not str(row.get("claim_text") or "").strip()
+    )
+    claims_without_supporting_spans = sum(
+        1 for row in claim_rows if not (row.get("supporting_spans") or [])
+    )
+    claims_without_source_basis = sum(
+        1 for row in claim_rows if not str(row.get("source_basis") or "").strip()
+    )
     claims_without_design_family_hint = sum(
         1 for row in claim_rows if not str(row.get("design_family_hint") or "").strip()
     )
-    abstract_only_claims = sum(1 for row in claim_rows if str(row.get("source_basis") or "") == "abstract_only")
+    abstract_only_claims = sum(
+        1 for row in claim_rows if str(row.get("source_basis") or "") == "abstract_only"
+    )
 
-    claim_text_coverage_pct = round(
-        ((total_claims - claims_without_text) / total_claims) * 100.0, 3
-    ) if total_claims else 100.0
-    supporting_span_coverage_pct = round(
-        ((total_claims - claims_without_supporting_spans) / total_claims) * 100.0, 3
-    ) if total_claims else 100.0
-    source_basis_coverage_pct = round(
-        ((total_claims - claims_without_source_basis) / total_claims) * 100.0, 3
-    ) if total_claims else 100.0
-    design_family_hint_coverage_pct = round(
-        ((total_claims - claims_without_design_family_hint) / total_claims) * 100.0, 3
-    ) if total_claims else 100.0
-    abstract_only_share_pct = round(
-        (abstract_only_claims / total_claims) * 100.0, 3
-    ) if total_claims else 0.0
+    claim_text_coverage_pct = (
+        round(((total_claims - claims_without_text) / total_claims) * 100.0, 3)
+        if total_claims
+        else 100.0
+    )
+    supporting_span_coverage_pct = (
+        round(((total_claims - claims_without_supporting_spans) / total_claims) * 100.0, 3)
+        if total_claims
+        else 100.0
+    )
+    source_basis_coverage_pct = (
+        round(((total_claims - claims_without_source_basis) / total_claims) * 100.0, 3)
+        if total_claims
+        else 100.0
+    )
+    design_family_hint_coverage_pct = (
+        round(((total_claims - claims_without_design_family_hint) / total_claims) * 100.0, 3)
+        if total_claims
+        else 100.0
+    )
+    abstract_only_share_pct = (
+        round((abstract_only_claims / total_claims) * 100.0, 3) if total_claims else 0.0
+    )
 
     return {
         "screen_items_total": total_screen,
@@ -214,12 +232,16 @@ def _validate_thresholds(
         errors.append(
             f"source_basis_coverage_pct={summary['source_basis_coverage_pct']} < {min_source_basis_coverage_pct}"
         )
-    if float(summary["design_family_hint_coverage_pct"]) < float(min_design_family_hint_coverage_pct):
+    if float(summary["design_family_hint_coverage_pct"]) < float(
+        min_design_family_hint_coverage_pct
+    ):
         errors.append(
             "design_family_hint_coverage_pct="
             f"{summary['design_family_hint_coverage_pct']} < {min_design_family_hint_coverage_pct}"
         )
-    if max_abstract_only_share_pct is not None and float(summary["abstract_only_share_pct"]) > float(max_abstract_only_share_pct):
+    if max_abstract_only_share_pct is not None and float(
+        summary["abstract_only_share_pct"]
+    ) > float(max_abstract_only_share_pct):
         errors.append(
             f"abstract_only_share_pct={summary['abstract_only_share_pct']} > {max_abstract_only_share_pct}"
         )
@@ -243,11 +265,13 @@ def build_bundle(
 ) -> None:
     screen_candidates_path, claim_candidates_path = build_candidate_pools(snapshot_root, out_dir)
     screen_rows = [
-        row for row in load_jsonl(screen_candidates_path)
+        row
+        for row in load_jsonl(screen_candidates_path)
         if _matches_source_basis(row, source_basis_filter)
     ]
     claim_rows = [
-        row for row in load_jsonl(claim_candidates_path)
+        row
+        for row in load_jsonl(claim_candidates_path)
         if _matches_source_basis(row, source_basis_filter)
     ]
     validation = _validation_summary(screen_rows, claim_rows)
@@ -347,9 +371,7 @@ def main() -> None:
     component_dir = snapshot_root / "academic"
     out_dir = Path(args.out_dir) if args.out_dir else component_dir / "gold_candidates"
     bundle_path = (
-        Path(args.bundle_path)
-        if args.bundle_path
-        else out_dir / "expert_review_bundle.json"
+        Path(args.bundle_path) if args.bundle_path else out_dir / "expert_review_bundle.json"
     )
     validation_path = (
         Path(args.validation_path)

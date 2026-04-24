@@ -54,12 +54,23 @@ class EnsembleSurrogate:
         try:
             from polisyos.scientist.search.strategies._deps import (
                 ExactMarginalLogLikelihood as _EML,
+            )
+            from polisyos.scientist.search.strategies._deps import (
                 Normalize as _Norm,
+            )
+            from polisyos.scientist.search.strategies._deps import (
                 SingleTaskGP as _SGP,
+            )
+            from polisyos.scientist.search.strategies._deps import (
                 Standardize as _Std,
+            )
+            from polisyos.scientist.search.strategies._deps import (
                 fit_gpytorch_mll as _fit,
+            )
+            from polisyos.scientist.search.strategies._deps import (
                 require_torch,
             )
+
             self._torch = require_torch()
             self._SGP = _SGP
             self._Normalize = _Norm
@@ -72,6 +83,7 @@ class EnsembleSurrogate:
 
         try:
             from sklearn.ensemble import RandomForestRegressor
+
             self._RFR = RandomForestRegressor
             self._rf_ready = True
         except ImportError:
@@ -90,7 +102,8 @@ class EnsembleSurrogate:
             self._fit_rf(X, y)
 
     def predict(
-        self, X: list[list[float]],
+        self,
+        X: list[list[float]],
     ) -> tuple[list[float], list[float]]:
         """Return ensemble (mean, std) predictions for each row in *X*.
 

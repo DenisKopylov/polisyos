@@ -62,16 +62,14 @@ class FeasibilityProbe(Protocol):
         *,
         selector_expr: SelectorExpr,
         data_snapshot_ref: str,
-    ) -> PopulationQueryResult:
-        ...
+    ) -> PopulationQueryResult: ...
 
     async def check_attribute_exists(
         self,
         *,
         attribute_name: str,
         data_snapshot_ref: str,
-    ) -> bool:
-        ...
+    ) -> bool: ...
 
     async def estimate_budget_impact(
         self,
@@ -80,8 +78,7 @@ class FeasibilityProbe(Protocol):
         amount_per_agent: float,
         data_snapshot_ref: str,
         budget_limit: float | None,
-    ) -> BudgetImpactResult:
-        ...
+    ) -> BudgetImpactResult: ...
 
 
 class NullFeasibilityProbe:
@@ -319,7 +316,7 @@ class StateSnapshotFeasibilityProbe:
     def _active_mask(self, state: Any, expected_size: int) -> np.ndarray:
         agents = getattr(state, "agents", None)
         if agents is not None and hasattr(agents, "active"):
-            active = np.asarray(getattr(agents, "active")).astype(bool)
+            active = np.asarray(agents.active).astype(bool)
             if active.shape[0] == expected_size:
                 return active
         return np.ones(expected_size, dtype=bool)
@@ -329,10 +326,10 @@ class StateSnapshotFeasibilityProbe:
         if agents is None:
             raise ValueError("State has no 'agents' attribute")
         if hasattr(agents, "size"):
-            return int(getattr(agents, "size"))
+            return int(agents.size)
         # Fallback to wealth length if available.
         if hasattr(agents, "wealth"):
-            return int(np.asarray(getattr(agents, "wealth")).shape[0])
+            return int(np.asarray(agents.wealth).shape[0])
         raise ValueError("Unable to infer agent count")
 
     @staticmethod
@@ -359,9 +356,7 @@ class StateSnapshotFeasibilityProbe:
     @classmethod
     def _to_namespace(cls, value: Any) -> Any:
         if isinstance(value, dict):
-            return SimpleNamespace(
-                **{k: cls._to_namespace(v) for k, v in value.items()}
-            )
+            return SimpleNamespace(**{k: cls._to_namespace(v) for k, v in value.items()})
         return value
 
     @staticmethod
@@ -382,7 +377,9 @@ class StateSnapshotFeasibilityProbe:
                 return text
         return value
 
-    def _apply_operator(self, values: np.ndarray, operator: SelectorOperator, raw_value: Any) -> np.ndarray:
+    def _apply_operator(
+        self, values: np.ndarray, operator: SelectorOperator, raw_value: Any
+    ) -> np.ndarray:
         value = raw_value
         if isinstance(value, list):
             coerced_list = [self._coerce_scalar(item) for item in value]

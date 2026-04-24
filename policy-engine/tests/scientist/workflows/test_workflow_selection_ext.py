@@ -1,12 +1,13 @@
 """Extended workflow selection heuristic tests."""
+
 from __future__ import annotations
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import (
-    INPUT_TRINITY_BUNDLE_REF,
     INPUT_RESEARCH_INTENT_REF,
+    INPUT_TRINITY_BUNDLE_REF,
 )
 from polisyos.scientist.workflows.selection import resolve_workflow_id
 

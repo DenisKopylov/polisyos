@@ -1,13 +1,14 @@
 """
 Phase 2.12 Integration & Governance - verification suite.
 """
+
 from __future__ import annotations
 
 import asyncio
 import subprocess
 import sys
 import textwrap
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, ClassVar
 
@@ -25,11 +26,10 @@ from polisyos.ir.connectors import (
     VersionStrategy,
 )
 
-
 _FIXED_VERSION = DataVersion(
     strategy=VersionStrategy.TIMESTAMP,
     value="2024-06-15T12:00:00+00:00",
-    timestamp=datetime(2024, 6, 15, 12, 0, 0, tzinfo=timezone.utc),
+    timestamp=datetime(2024, 6, 15, 12, 0, 0, tzinfo=UTC),
 )
 
 _MOCK_DATA = [
@@ -64,14 +64,16 @@ class MockIntegrationConnector:
     async def health_check(self, handle: ConnectionHandle):
         return None
 
-    async def fetch(self, handle: ConnectionHandle, request: FetchRequest) -> FetchResult[list[dict]]:
+    async def fetch(
+        self, handle: ConnectionHandle, request: FetchRequest
+    ) -> FetchResult[list[dict]]:
         return FetchResult(
             data=_MOCK_DATA,
             row_count=len(_MOCK_DATA),
             schema_id="test.integration_mock.agents",
             schema_version="1.0.0",
             version=_FIXED_VERSION,
-            fetched_at=datetime(2024, 6, 15, 12, 0, 0, tzinfo=timezone.utc),
+            fetched_at=datetime(2024, 6, 15, 12, 0, 0, tzinfo=UTC),
             completeness=1.0,
             quality_flags=frozenset(),
         )
@@ -115,9 +117,9 @@ class TestEndToEndConnectorFlow:
         assert all("agent_id" in row for row in result.data)
 
     def test_evidence_bundle_is_produced(self, tmp_path: Path) -> None:
-        from polisyos.fabric.ingestion import run_connectors_ingestion
         from polisyos.core.artifacts.ids import ArtifactID
         from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.fabric.ingestion import run_connectors_ingestion
 
         cas_root = tmp_path / ".polisyos"
 
@@ -170,9 +172,7 @@ class TestEndToEndConnectorFlow:
         assert evidence_ref is not None
 
         store = FileSystemCAS(cas_root)
-        artifact_manifest = store.get_manifest(
-            ArtifactID.model_validate(evidence_ref.artifact_id)
-        )
+        artifact_manifest = store.get_manifest(ArtifactID.model_validate(evidence_ref.artifact_id))
         assert artifact_manifest.kind == "fabric.evidence_bundle"
 
     def test_run_connectors_ingestion_uses_injected_registry_and_store_factory(
@@ -180,11 +180,11 @@ class TestEndToEndConnectorFlow:
         tmp_path: Path,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        from polisyos.fabric.ingestion import run_connectors_ingestion
         from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.fabric.ingestion import run_connectors_ingestion
 
         class DummySpan:
-            def __enter__(self) -> "DummySpan":
+            def __enter__(self) -> DummySpan:
                 return self
 
             def __exit__(self, exc_type, exc, tb) -> bool:
@@ -271,6 +271,7 @@ class TestEndToEndConnectorFlow:
         assert build_calls == [cas_root]
         assert tracer.names
         assert tracer.names[0] == "fabric.data_plane.ingest"
+
 
 class TestLintConnectors:
     def test_detects_scientist_import(self, tmp_path: Path) -> None:

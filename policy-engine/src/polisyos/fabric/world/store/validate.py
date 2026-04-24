@@ -1,4 +1,5 @@
 """Public store validate module API."""
+
 from __future__ import annotations
 
 import re
@@ -57,14 +58,10 @@ def validate_doc_meta_ids(meta: DocMeta) -> None:
         official_id=meta.official_id,
     )
     if meta.doc_source_id != expected_source:
-        raise WorldIDError(
-            f"doc_source_id mismatch: {meta.doc_source_id} != {expected_source}"
-        )
+        raise WorldIDError(f"doc_source_id mismatch: {meta.doc_source_id} != {expected_source}")
     expected_version = doc_version_id_from_raw_artifact(raw_artifact_id=meta.raw_ref)
     if meta.doc_version_id != expected_version:
-        raise WorldIDError(
-            f"doc_version_id mismatch: {meta.doc_version_id} != {expected_version}"
-        )
+        raise WorldIDError(f"doc_version_id mismatch: {meta.doc_version_id} != {expected_version}")
 
 
 def validate_doc_fragment_ids(fragment: DocFragment) -> None:
@@ -75,9 +72,7 @@ def validate_doc_fragment_ids(fragment: DocFragment) -> None:
         text_artifact_id=fragment.text_hash,
     )
     if fragment.fragment_id != expected_fragment:
-        raise WorldIDError(
-            f"fragment_id mismatch: {fragment.fragment_id} != {expected_fragment}"
-        )
+        raise WorldIDError(f"fragment_id mismatch: {fragment.fragment_id} != {expected_fragment}")
 
 
 def validate_claim_id(claim: Claim) -> None:
@@ -99,8 +94,7 @@ def validate_conflict_set_id(conflict_set: ConflictSet) -> None:
     expected = conflict_set_id_from_key(conflict_key=conflict_set.conflict_key)
     if conflict_set.conflict_set_id != expected:
         raise WorldIDError(
-            "conflict_set_id mismatch: "
-            f"{conflict_set.conflict_set_id} != {expected}"
+            f"conflict_set_id mismatch: {conflict_set.conflict_set_id} != {expected}"
         )
 
 
@@ -112,8 +106,7 @@ def validate_trust_assessment_id(assessment: TrustAssessment) -> None:
     expected = trust_assessment_id_from_payload(payload=payload)
     if assessment.trust_assessment_id != expected:
         raise WorldIDError(
-            "trust_assessment_id mismatch: "
-            f"{assessment.trust_assessment_id} != {expected}"
+            f"trust_assessment_id mismatch: {assessment.trust_assessment_id} != {expected}"
         )
 
 
@@ -124,9 +117,7 @@ def validate_quality_report_id(report: QualityReport) -> None:
     payload.pop("quality_report_id", None)
     expected = quality_report_id_from_payload(payload=payload)
     if report.quality_report_id != expected:
-        raise WorldIDError(
-            f"quality_report_id mismatch: {report.quality_report_id} != {expected}"
-        )
+        raise WorldIDError(f"quality_report_id mismatch: {report.quality_report_id} != {expected}")
 
 
 def validate_fact_is_world_abi(fact: Fact, *, strict_edge_kinds: bool = False) -> None:
@@ -134,9 +125,7 @@ def validate_fact_is_world_abi(fact: Fact, *, strict_edge_kinds: bool = False) -
     if _ID_RE.fullmatch(fact.subject_id) is None:
         raise WorldFactError(f"subject_id '{fact.subject_id}' does not match {ID_PATTERN}")
     if _ID_RE.fullmatch(fact.predicate_id) is None:
-        raise WorldFactError(
-            f"predicate_id '{fact.predicate_id}' does not match {ID_PATTERN}"
-        )
+        raise WorldFactError(f"predicate_id '{fact.predicate_id}' does not match {ID_PATTERN}")
 
     if fact.predicate_id.startswith(WORLD_REL_PREFIX):
         if fact.target_id is None:
@@ -145,9 +134,7 @@ def validate_fact_is_world_abi(fact: Fact, *, strict_edge_kinds: bool = False) -
             raise WorldFactError("world.rel.* facts require object_value=None")
         edge_kind = fact.predicate_id[len(WORLD_REL_PREFIX) :]
         if _ID_RE.fullmatch(edge_kind) is None:
-            raise WorldFactError(
-                f"edge kind '{edge_kind}' does not match {ID_PATTERN}"
-            )
+            raise WorldFactError(f"edge kind '{edge_kind}' does not match {ID_PATTERN}")
         if strict_edge_kinds:
             allowed = {kind.value for kind in EdgeKind}
             if edge_kind not in allowed:
@@ -159,22 +146,16 @@ def validate_fact_is_world_abi(fact: Fact, *, strict_edge_kinds: bool = False) -
             raise WorldFactError("world attribute facts require object_value")
         if fact.predicate_id.startswith("world."):
             if fact.predicate_id not in _ALLOWED_WORLD_ATTRS:
-                raise WorldFactError(
-                    f"unsupported world attribute predicate '{fact.predicate_id}'"
-                )
+                raise WorldFactError(f"unsupported world attribute predicate '{fact.predicate_id}'")
         if fact.predicate_id == WORLD_KIND:
             value = _enum_value(fact.object_value)
             if value not in {kind.value for kind in NodeKind}:
-                raise WorldFactError(
-                    f"world.kind value '{fact.object_value}' not in NodeKind"
-                )
-        if fact.predicate_id in {WORLD_ARTIFACT_ID, WORLD_PROPS_REF}:
-            if not isinstance(fact.object_value, str) or _ARTIFACT_RE.fullmatch(
-                fact.object_value
-            ) is None:
-                raise WorldFactError(
-                    f"{fact.predicate_id} must match {ARTIFACT_ID_PATTERN}"
-                )
+                raise WorldFactError(f"world.kind value '{fact.object_value}' not in NodeKind")
+        if fact.predicate_id in {WORLD_ARTIFACT_ID, WORLD_PROPS_REF} and (
+            not isinstance(fact.object_value, str)
+            or _ARTIFACT_RE.fullmatch(fact.object_value) is None
+        ):
+            raise WorldFactError(f"{fact.predicate_id} must match {ARTIFACT_ID_PATTERN}")
 
 
 def validate_world_facts(facts: list[Fact]) -> None:

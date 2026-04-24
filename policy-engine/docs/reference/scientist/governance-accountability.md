@@ -1,4 +1,5 @@
 # Scientist Governance Accountability
+
 Related reference: [Calibration Governance](calibration-governance.md), [Governance Passes](governance-passes.md).
 
 Owner: `@scientist-owners`
@@ -11,16 +12,16 @@ or notebook-only analysis.
 
 ## What The Artifact Contains
 
-| Section | Meaning |
-|------|---------|
-| `threshold_registry` | Canonical threshold values, rationale, severity, observed metric, and pass/fail state |
-| `calibration` | Brier score, log score, ECE, ENCE, and reliability-diagram bins |
-| `fairness` | Equalized-odds gap, demographic parity gap, calibration-by-group, intersectional gap, counterfactual fairness summary |
-| `adaptive_threshold` | Deterministic threshold search with fairness-accuracy frontier and selected operating point |
-| `risk` | Stress summary, tail exceedance delta, and CVaR / expected-shortfall drift |
-| `model_card` | Compact model-card section for intended use, primary metrics, and limitations |
-| `datasheet` | Dataset name/version, protected axes, data sources, and known coverage limits |
-| `escalation_policy` | Explicit human-review policy, triggers, rationale, and documented rules |
+| Section              | Meaning                                                                                                               |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `threshold_registry` | Canonical threshold values, rationale, severity, observed metric, and pass/fail state                                 |
+| `calibration`        | Brier score, log score, ECE, ENCE, and reliability-diagram bins                                                       |
+| `fairness`           | Equalized-odds gap, demographic parity gap, calibration-by-group, intersectional gap, counterfactual fairness summary |
+| `adaptive_threshold` | Deterministic threshold search with fairness-accuracy frontier and selected operating point                           |
+| `risk`               | Stress summary, tail exceedance delta, and CVaR / expected-shortfall drift                                            |
+| `model_card`         | Compact model-card section for intended use, primary metrics, and limitations                                         |
+| `datasheet`          | Dataset name/version, protected axes, data sources, and known coverage limits                                         |
+| `escalation_policy`  | Explicit human-review policy, triggers, rationale, and documented rules                                               |
 
 ## Default Decision Path
 
@@ -30,6 +31,7 @@ surfaced in three operator-facing places:
 - the persisted `scientist.governance_accountability_artifact` CAS object;
 - `CalibrationValidationBundle.readout_summary()` and the decision packet's
   `payload["calibration_validation"]` section;
+
 - `ChampionPolicyDossier.accountability_summary` and the policy artifact bundle.
 
 On the Ukraine D4 path the artifact is also materialized as

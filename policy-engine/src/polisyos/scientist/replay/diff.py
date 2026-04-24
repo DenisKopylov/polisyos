@@ -1,8 +1,10 @@
 """Semantic replay diff — structural comparison of workflow outputs."""
+
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -21,6 +23,7 @@ class ReplayDiffInputError(PolicyOSError):
 
 class DiffToleranceConfig(BaseModel):
     """Configuration for structural comparison tolerances."""
+
     model_config = ConfigDict(extra="forbid")
 
     numeric_rtol: float = 1e-5
@@ -40,6 +43,7 @@ class DiffToleranceConfig(BaseModel):
 
 class FieldDiff(BaseModel):
     """Diff result for a single field."""
+
     model_config = ConfigDict(extra="forbid")
 
     path: str
@@ -51,6 +55,7 @@ class FieldDiff(BaseModel):
 
 class ReplayDiffResult(BaseModel):
     """Result of comparing original and replayed workflow outputs."""
+
     model_config = ConfigDict(extra="forbid")
 
     overall_similarity: float = Field(ge=0.0, le=1.0)
@@ -68,7 +73,7 @@ def compute_replay_diff(
     original: dict[str, Any],
     replayed: dict[str, Any],
     config: DiffToleranceConfig | None = None,
-    comparators: "ComparatorRegistry | None" = None,
+    comparators: ComparatorRegistry | None = None,
 ) -> ReplayDiffResult:
     """Compute structural diff between original and replayed outputs.
 
@@ -120,9 +125,12 @@ def _validate_diff_inputs(
 
 
 def _compare_recursive(
-    a: Any, b: Any, path: str,
-    cfg: DiffToleranceConfig, diffs: list[FieldDiff],
-    comparators: "ComparatorRegistry | None" = None,
+    a: Any,
+    b: Any,
+    path: str,
+    cfg: DiffToleranceConfig,
+    diffs: list[FieldDiff],
+    comparators: ComparatorRegistry | None = None,
 ) -> None:
     """Recursively compare two values and accumulate diffs."""
     if path in cfg.ignore_fields:
@@ -137,10 +145,15 @@ def _compare_recursive(
         if comp is not None:
             sim = comp(a, b, cfg)
             if sim < 1.0:
-                diffs.append(FieldDiff(
-                    path=path, original=a, replayed=b,
-                    similarity=sim, tolerance_met=sim >= 0.95,
-                ))
+                diffs.append(
+                    FieldDiff(
+                        path=path,
+                        original=a,
+                        replayed=b,
+                        similarity=sim,
+                        tolerance_met=sim >= 0.95,
+                    )
+                )
             return
 
     if isinstance(a, dict) and isinstance(b, dict):
@@ -148,15 +161,25 @@ def _compare_recursive(
         for key in sorted(all_keys):
             child_path = f"{path}.{key}" if path else key
             if key not in a:
-                diffs.append(FieldDiff(
-                    path=child_path, original=None, replayed=b[key],
-                    similarity=0.0, tolerance_met=False,
-                ))
+                diffs.append(
+                    FieldDiff(
+                        path=child_path,
+                        original=None,
+                        replayed=b[key],
+                        similarity=0.0,
+                        tolerance_met=False,
+                    )
+                )
             elif key not in b:
-                diffs.append(FieldDiff(
-                    path=child_path, original=a[key], replayed=None,
-                    similarity=0.0, tolerance_met=False,
-                ))
+                diffs.append(
+                    FieldDiff(
+                        path=child_path,
+                        original=a[key],
+                        replayed=None,
+                        similarity=0.0,
+                        tolerance_met=False,
+                    )
+                )
             else:
                 _compare_recursive(a[key], b[key], child_path, cfg, diffs, comparators)
         return
@@ -175,12 +198,15 @@ def _compare_recursive(
                 cfg.distribution_p_threshold,
             )
             if sim < 1.0:
-                diffs.append(FieldDiff(
-                    path=path,
-                    original=f"<distribution n={len(a)}>",
-                    replayed=f"<distribution n={len(b)}>",
-                    similarity=sim, tolerance_met=tol_met,
-                ))
+                diffs.append(
+                    FieldDiff(
+                        path=path,
+                        original=f"<distribution n={len(a)}>",
+                        replayed=f"<distribution n={len(b)}>",
+                        similarity=sim,
+                        tolerance_met=tol_met,
+                    )
+                )
             return
 
         # Reordered list matching
@@ -199,15 +225,25 @@ def _compare_recursive(
         for i in range(max_len):
             child_path = f"{path}[{i}]"
             if i >= len(a):
-                diffs.append(FieldDiff(
-                    path=child_path, original=None, replayed=b[i],
-                    similarity=0.0, tolerance_met=False,
-                ))
+                diffs.append(
+                    FieldDiff(
+                        path=child_path,
+                        original=None,
+                        replayed=b[i],
+                        similarity=0.0,
+                        tolerance_met=False,
+                    )
+                )
             elif i >= len(b):
-                diffs.append(FieldDiff(
-                    path=child_path, original=a[i], replayed=None,
-                    similarity=0.0, tolerance_met=False,
-                ))
+                diffs.append(
+                    FieldDiff(
+                        path=child_path,
+                        original=a[i],
+                        replayed=None,
+                        similarity=0.0,
+                        tolerance_met=False,
+                    )
+                )
             else:
                 _compare_recursive(a[i], b[i], child_path, cfg, diffs, comparators)
         return
@@ -217,34 +253,49 @@ def _compare_recursive(
         sim = _numeric_similarity(a, b, cfg.numeric_rtol, cfg.numeric_atol)
         if sim < 1.0:
             within = math.isclose(a, b, rel_tol=cfg.numeric_rtol, abs_tol=cfg.numeric_atol)
-            diffs.append(FieldDiff(
-                path=path, original=a, replayed=b,
-                similarity=sim, tolerance_met=within,
-            ))
+            diffs.append(
+                FieldDiff(
+                    path=path,
+                    original=a,
+                    replayed=b,
+                    similarity=sim,
+                    tolerance_met=within,
+                )
+            )
         return
 
     if isinstance(a, str) and isinstance(b, str):
         sim = _string_similarity(a, b)
         if sim < 1.0:
-            diffs.append(FieldDiff(
-                path=path, original=a, replayed=b,
-                similarity=sim,
-                tolerance_met=sim >= cfg.string_similarity_threshold,
-            ))
+            diffs.append(
+                FieldDiff(
+                    path=path,
+                    original=a,
+                    replayed=b,
+                    similarity=sim,
+                    tolerance_met=sim >= cfg.string_similarity_threshold,
+                )
+            )
         return
 
     # Type mismatch or other types
     if a != b:
         sim = 1.0 if a == b else 0.0
-        diffs.append(FieldDiff(
-            path=path, original=a, replayed=b,
-            similarity=sim, tolerance_met=False,
-        ))
+        diffs.append(
+            FieldDiff(
+                path=path,
+                original=a,
+                replayed=b,
+                similarity=sim,
+                tolerance_met=False,
+            )
+        )
 
 
 # ---------------------------------------------------------------------------
 # Distribution comparison
 # ---------------------------------------------------------------------------
+
 
 def _is_numeric_list(lst: list[Any]) -> bool:
     """Check if all elements are numeric."""
@@ -252,11 +303,14 @@ def _is_numeric_list(lst: list[Any]) -> bool:
 
 
 def _distribution_similarity(
-    a: list[float], b: list[float], p_threshold: float,
+    a: list[float],
+    b: list[float],
+    p_threshold: float,
 ) -> tuple[float, bool]:
     """KS-test based distribution comparison with graceful fallback."""
     try:
         from scipy.stats import ks_2samp
+
         stat, p_value = ks_2samp(a, b)
         return (1.0 - stat, p_value >= p_threshold)
     except ImportError:
@@ -274,10 +328,15 @@ def _distribution_similarity(
 # Reordered list matching
 # ---------------------------------------------------------------------------
 
+
 def _compare_list_by_key(
-    a: list[Any], b: list[Any], path: str, key_field: str,
-    cfg: DiffToleranceConfig, diffs: list[FieldDiff],
-    comparators: "ComparatorRegistry | None" = None,
+    a: list[Any],
+    b: list[Any],
+    path: str,
+    key_field: str,
+    cfg: DiffToleranceConfig,
+    diffs: list[FieldDiff],
+    comparators: ComparatorRegistry | None = None,
 ) -> None:
     """Match list elements by a key field, then compare matched pairs."""
     b_index: dict[Any, Any] = {}
@@ -295,26 +354,37 @@ def _compare_list_by_key(
             child_path = f"{path}[{key_field}={key_val}]"
             _compare_recursive(item_a, b_index[key_val], child_path, cfg, diffs, comparators)
         else:
-            diffs.append(FieldDiff(
-                path=f"{path}[{key_field}={key_val}]",
-                original=item_a, replayed=None,
-                similarity=0.0, tolerance_met=False,
-            ))
+            diffs.append(
+                FieldDiff(
+                    path=f"{path}[{key_field}={key_val}]",
+                    original=item_a,
+                    replayed=None,
+                    similarity=0.0,
+                    tolerance_met=False,
+                )
+            )
 
     for item_b in b:
         if isinstance(item_b, dict) and key_field in item_b:
             if item_b[key_field] not in matched_b_keys:
-                diffs.append(FieldDiff(
-                    path=f"{path}[{key_field}={item_b[key_field]}]",
-                    original=None, replayed=item_b,
-                    similarity=0.0, tolerance_met=False,
-                ))
+                diffs.append(
+                    FieldDiff(
+                        path=f"{path}[{key_field}={item_b[key_field]}]",
+                        original=None,
+                        replayed=item_b,
+                        similarity=0.0,
+                        tolerance_met=False,
+                    )
+                )
 
 
 def _compare_list_greedy(
-    a: list[Any], b: list[Any], path: str,
-    cfg: DiffToleranceConfig, diffs: list[FieldDiff],
-    comparators: "ComparatorRegistry | None" = None,
+    a: list[Any],
+    b: list[Any],
+    path: str,
+    cfg: DiffToleranceConfig,
+    diffs: list[FieldDiff],
+    comparators: ComparatorRegistry | None = None,
 ) -> None:
     """Greedy similarity-based list matching (order-independent)."""
     used_b: set[int] = set()
@@ -333,17 +403,27 @@ def _compare_list_greedy(
             child_path = f"{path}[~{i}]"
             _compare_recursive(item_a, b[best_j], child_path, cfg, diffs, comparators)
         else:
-            diffs.append(FieldDiff(
-                path=f"{path}[{i}]", original=item_a, replayed=None,
-                similarity=0.0, tolerance_met=False,
-            ))
+            diffs.append(
+                FieldDiff(
+                    path=f"{path}[{i}]",
+                    original=item_a,
+                    replayed=None,
+                    similarity=0.0,
+                    tolerance_met=False,
+                )
+            )
 
     for j, item_b in enumerate(b):
         if j not in used_b:
-            diffs.append(FieldDiff(
-                path=f"{path}[+{j}]", original=None, replayed=item_b,
-                similarity=0.0, tolerance_met=False,
-            ))
+            diffs.append(
+                FieldDiff(
+                    path=f"{path}[+{j}]",
+                    original=None,
+                    replayed=item_b,
+                    similarity=0.0,
+                    tolerance_met=False,
+                )
+            )
 
 
 def _quick_similarity(a: Any, b: Any, cfg: DiffToleranceConfig) -> float:
@@ -368,6 +448,7 @@ def _quick_similarity(a: Any, b: Any, cfg: DiffToleranceConfig) -> float:
 # ---------------------------------------------------------------------------
 # Leaf comparison helpers
 # ---------------------------------------------------------------------------
+
 
 def _numeric_similarity(a: float, b: float, rtol: float, atol: float) -> float:
     """Compute similarity between two numbers using rtol/atol."""
@@ -414,9 +495,10 @@ def _is_timestamp_field(path: str) -> bool:
 # Diff report persistence
 # ---------------------------------------------------------------------------
 
+
 def save_diff_report(
     result: ReplayDiffResult,
-    store: "ArtifactStore",
+    store: ArtifactStore,
     run_id: str,
 ) -> Any:
     """Persist diff report to CAS as a JSON artifact."""
@@ -435,6 +517,7 @@ def save_diff_report(
 # Comparator registry (re-exported from comparators module)
 # ---------------------------------------------------------------------------
 
+
 class ComparatorRegistry:
     """Registry of custom field comparators for replay diff."""
 
@@ -450,6 +533,7 @@ class ComparatorRegistry:
         if path in self._comparators:
             return self._comparators[path]
         import fnmatch
+
         for pattern, comp in self._comparators.items():
             if fnmatch.fnmatch(path, pattern):
                 return comp

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import duckdb
 
@@ -10,6 +10,9 @@ from polisyos.lex.legal_evaluation.transport_constraints import (
     LegalToDAGMappingType,
     is_transport_blocked,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _prepare_lex_db(db_path: Path) -> None:

@@ -36,9 +36,7 @@ class BindingProfileRegistry:
 
     def register(self, profile: BindingProfile, *, override: bool = False) -> None:
         if profile.profile_id in self._profiles and not override:
-            raise ValueError(
-                f"Binding profile '{profile.profile_id}' already registered"
-            )
+            raise ValueError(f"Binding profile '{profile.profile_id}' already registered")
         self._profiles[profile.profile_id] = profile
 
     def get(self, profile_id: str) -> BindingProfile | None:

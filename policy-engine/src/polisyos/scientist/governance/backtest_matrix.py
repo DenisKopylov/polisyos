@@ -6,6 +6,7 @@ them through the backtesting orchestrator, and persists a single
 uses the resulting gap flags and worst-kind summary to block promotions when a
 required observational regime is missing or weak.
 """
+
 from __future__ import annotations
 
 from collections import defaultdict
@@ -18,7 +19,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.backtest import BacktestReportRef
-from polisyos.ir.analytics.backtest import BacktestReport, BacktestScenario, persist_backtest_report
+from polisyos.ir.analytics.backtest import BacktestScenario, persist_backtest_report
 from polisyos.ir.observation.bundles import BacktestPlanBundle
 from polisyos.ir.observation.contracts import ObservationFamily
 from polisyos.scientist.backtesting.orchestrator import BacktestOrchestrator, _collapse_modes
@@ -147,7 +148,9 @@ class BacktestMatrixRunner:
                         status="gap",
                         gap_flag=gap_flag,
                         observation_families=list(_BACKTEST_KIND_FAMILIES[kind]),
-                        notes=["No BacktestPlanBundle was supplied for this required backtest kind."],
+                        notes=[
+                            "No BacktestPlanBundle was supplied for this required backtest kind."
+                        ],
                     )
                 )
                 continue

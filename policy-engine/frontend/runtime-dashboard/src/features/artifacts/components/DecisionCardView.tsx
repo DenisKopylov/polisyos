@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -11,18 +11,39 @@ import {
 } from "recharts";
 
 import MetricValidationComparisonTable from "@/features/artifacts/components/MetricValidationComparisonTable";
+import type { ArtifactView } from "@/features/artifacts/domain/searchParams";
+import {
+  MonographLayout,
+  buildDecisionPacketDocument,
+} from "@/features/artifacts/reading-view/MonographLayout";
+import { ReadingViewToggle } from "@/features/artifacts/reading-view/ReadingViewToggle";
+import { useFeatureFlag } from "@/app/providers/FeatureFlagProvider";
+import { useI18n } from "@/i18n/LocaleProvider";
 import type { BadgeKind } from "@/shared/ui";
-import { DecisionCard, ProvenanceStrip, Select, chartTheme } from "@/shared/ui";
+import {
+  Button,
+  DecisionCard,
+  ProvenanceStrip,
+  Select,
+  chartTheme,
+} from "@/shared/ui";
+import { UncertaintyBand } from "@/shared/charts";
 import { EvidenceSigil } from "@/shared/brand/EvidenceSigil";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
 import type { DecisionCardViewModel } from "@/lib/domain/decision";
 import { parseDecisionCardPayload } from "@/lib/domain/decision";
+import { useGlobalShortcut } from "@/lib/hooks/useKeyboardShortcuts";
 import { formatDate, formatDuration } from "@/lib/utils";
+import { triggerPrint } from "@/shared/export/printExport";
 
 type DecisionCardViewProps = {
   payload: unknown;
   artifactKind: string;
+  viewMode?: ArtifactView;
+  onViewModeChange?: (nextViewMode: ArtifactView) => void;
 };
+
+type Translate = ReturnType<typeof useI18n>["t"];
 
 function verdictKind(verdict: DecisionCardViewModel["verdict"]) {
   if (verdict === "APPROVE") {
@@ -53,33 +74,41 @@ function diagnosticBadgeKind(
   return "neutral";
 }
 
-function decisionEyebrowItems(card: DecisionCardViewModel): ProvenanceItem[] {
+function decisionEyebrowItems(
+  card: DecisionCardViewModel,
+  t: Translate,
+): ProvenanceItem[] {
   const items: ProvenanceItem[] = [
     {
       id: "intervention",
       glyph: "intervention",
-      label: `${card.interventionCount} interventions`,
+      label: t("pages.artifacts.decisionCard.eyebrowInterventions", {
+        count: card.interventionCount,
+      }),
     },
   ];
   if (card.issues.blockerCount > 0) {
     items.push({
       id: "governance",
       glyph: "blocker",
-      label: "Blocked",
+      label: t("pages.artifacts.decisionCard.eyebrowBlocked"),
       intent: "blocked",
     });
   } else {
     items.push({
       id: "governance",
       glyph: "governance-pass",
-      label: "Governance pass",
+      label: t("pages.artifacts.decisionCard.eyebrowGovernancePass"),
       intent: "verified",
     });
   }
   items.push({
     id: "evidence",
     glyph: "evidence",
-    label: card.confidence === "HIGH" ? "Strong evidence" : "Weak evidence",
+    label:
+      card.confidence === "HIGH"
+        ? t("pages.artifacts.decisionCard.eyebrowStrongEvidence")
+        : t("pages.artifacts.decisionCard.eyebrowWeakEvidence"),
     intent: card.confidence === "HIGH" ? "verified" : "pending",
     strokeStyle: card.confidence === "HIGH" ? "solid" : "dashed",
   });
@@ -103,13 +132,80 @@ function bundleHashFromCard(card: DecisionCardViewModel): string {
   return hash.toString(16).padStart(16, "0");
 }
 
+function uncertaintyBands(metric: DecisionCardViewModel["keyMetrics"][number]) {
+  if (metric.ciLower === null || metric.ciUpper === null) {
+    return [];
+  }
+  return [
+    {
+      lower: metric.ciLower,
+      upper: metric.ciUpper,
+      level: metric.ciLevel ?? 0.95,
+    },
+  ];
+}
+
 export default function DecisionCardView({
   payload,
   artifactKind,
+  viewMode,
+  onViewModeChange,
 }: DecisionCardViewProps) {
+  const { t } = useI18n();
+  const narrativeViewEnabled = useFeatureFlag("enableNarrativeView");
   const card = useMemo(() => parseDecisionCardPayload(payload), [payload]);
+  const readingDocument = useMemo(
+    () => buildDecisionPacketDocument(payload),
+    [payload],
+  );
+  const [localViewMode, setLocalViewMode] = useState<ArtifactView>("default");
   const [selectedBreakdown, setSelectedBreakdown] = useState<string>(
     card?.distributional?.breakdowns[0]?.dimensionLabel ?? "",
+  );
+  const printButtonRef = useRef<HTMLButtonElement | null>(null);
+  const resolvedViewMode = viewMode ?? localViewMode;
+  const isReadingView = resolvedViewMode === "reading";
+
+  const canUseReadingView =
+    narrativeViewEnabled &&
+    artifactKind === "scientist.decision_packet" &&
+    readingDocument !== null;
+
+  function setReadingViewMode(nextViewMode: ArtifactView) {
+    if (viewMode === undefined) {
+      setLocalViewMode(nextViewMode);
+    }
+    onViewModeChange?.(nextViewMode);
+  }
+
+  useEffect(() => {
+    if (!canUseReadingView && isReadingView) {
+      setReadingViewMode("default");
+    }
+  }, [canUseReadingView, isReadingView]);
+
+  useEffect(() => {
+    if (isReadingView) {
+      printButtonRef.current?.focus();
+    }
+  }, [isReadingView]);
+
+  useGlobalShortcut(
+    "decision-reading-view",
+    { key: "r" },
+    t("pages.artifacts.decisionCard.readingViewShortcut"),
+    () => {
+      if (!canUseReadingView) {
+        return;
+      }
+      startTransition(() => {
+        setReadingViewMode(isReadingView ? "default" : "reading");
+      });
+    },
+    {
+      enabled: canUseReadingView,
+      group: t("pages.artifacts.decisionCard.readingViewShortcutGroup"),
+    },
   );
 
   const activeBreakdown = useMemo(() => {
@@ -129,29 +225,83 @@ export default function DecisionCardView({
   if (!card) {
     return (
       <div className="bg-canvas/30 border-line rounded-xl border border-dashed p-4">
-        <h3 className="mb-1 text-lg font-semibold">Decision Card</h3>
+        <h3 className="mb-1 text-lg font-semibold">
+          {t("pages.artifacts.decisionCard.title")}
+        </h3>
         <p className="text-muted text-sm">
-          Unable to parse decision payload. Artifact kind: {artifactKind}
+          {t("pages.artifacts.decisionCard.parseError", { artifactKind })}
         </p>
       </div>
     );
   }
 
+  const printTargetId = `decision-packet-viewer-${card.runId.replace(/[^a-z0-9_-]+/gi, "-")}`;
+
+  const actions = canUseReadingView ? (
+    <div className="reading-view-toggle sticky top-4 z-[var(--z-sticky)] ml-auto flex w-fit items-center gap-2 print:hidden">
+      <Button
+        ref={printButtonRef}
+        size="sm"
+        type="button"
+        variant="ghost"
+        onClick={() =>
+          triggerPrint({
+            contentSelector: `#${printTargetId}`,
+            includeTimestamp: true,
+            title: t("pages.artifacts.decisionCard.printTitle", {
+              runId: card.runId,
+            }),
+          })
+        }
+      >
+        {t("pages.runs.report.printPdf")}
+      </Button>
+      <ReadingViewToggle
+        onPressedChange={(nextPressed) => {
+          startTransition(() => {
+            setReadingViewMode(nextPressed ? "reading" : "default");
+          });
+        }}
+        pressed={isReadingView}
+      />
+    </div>
+  ) : null;
+
+  if (canUseReadingView && isReadingView && readingDocument) {
+    return (
+      <div className="space-y-4" id={printTargetId}>
+        {actions}
+        <MonographLayout document={readingDocument} />
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" id={printTargetId}>
+      {actions}
       <DecisionCard
-        title={`Run ${card.runId}`}
+        title={t("pages.artifacts.decisionCard.runTitle", {
+          runId: card.runId,
+        })}
         subtitle={
           <>
-            <span>Decision card ({card.sourceKind})</span>
+            <span>
+              {t("pages.artifacts.decisionCard.subtitle", {
+                sourceKind: card.sourceKind,
+              })}
+            </span>
             <span className="text-muted mx-2">·</span>
-            <span>Generated: {formatDate(card.generatedAt)}</span>
+            <span>
+              {t("pages.artifacts.decisionCard.generatedAt", {
+                date: formatDate(card.generatedAt),
+              })}
+            </span>
           </>
         }
         eyebrow={
           <ProvenanceStrip
-            title="Decision packet"
-            items={decisionEyebrowItems(card)}
+            title={t("pages.artifacts.decisionCard.eyebrowTitle")}
+            items={decisionEyebrowItems(card, t)}
             density="compact"
           />
         }
@@ -180,29 +330,35 @@ export default function DecisionCardView({
         }))}
         meta={[
           {
-            label: "Interventions",
+            label: t("pages.artifacts.decisionCard.metaInterventions"),
             value: card.interventionCount,
           },
           {
-            label: "Issues",
-            value: `blockers ${card.issues.blockerCount} | warnings ${card.issues.warningCount} | info ${card.issues.infoCount}`,
+            label: t("pages.artifacts.decisionCard.metaIssues"),
+            value: t("pages.artifacts.decisionCard.metaIssuesSummary", {
+              blockers: card.issues.blockerCount,
+              info: card.issues.infoCount,
+              warnings: card.issues.warningCount,
+            }),
           },
           {
-            label: "Blocked passes",
+            label: t("pages.artifacts.decisionCard.metaBlockedPasses"),
             value:
               card.issues.blockedPasses.length > 0
                 ? card.issues.blockedPasses.join(", ")
                 : "-",
           },
           {
-            label: "Duration",
+            label: t("pages.artifacts.decisionCard.metaDuration"),
             value: formatDuration(card.totalDurationMs),
           },
         ]}
       />
 
       <section className="border-line bg-panel rounded-xl border p-4">
-        <h4 className="mb-2 text-base font-semibold">Key metrics</h4>
+        <h4 className="mb-2 text-base font-semibold">
+          {t("pages.artifacts.decisionCard.keyMetrics")}
+        </h4>
         {card.keyMetrics.length > 0 ? (
           <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
             {card.keyMetrics.map((metric) => (
@@ -223,18 +379,39 @@ export default function DecisionCardView({
                       : ""}
                   </p>
                 ) : null}
-                {metric.testLabel || metric.pValue !== null || metric.pAdj !== null ? (
+                {uncertaintyBands(metric).length > 0 ? (
+                  <UncertaintyBand
+                    estimate={metric.value}
+                    bands={uncertaintyBands(metric)}
+                    label={t("pages.artifacts.decisionCard.intervalLabel", {
+                      metric: metric.name,
+                    })}
+                    unit={metric.unit ? ` ${metric.unit}` : ""}
+                    disputed={Boolean(metric.assumptionWarnings?.length)}
+                    identifiability={
+                      metric.assumptionWarnings?.length
+                        ? "estimated"
+                        : "identified"
+                    }
+                    className="mt-3"
+                    height={78}
+                  />
+                ) : null}
+                {metric.testLabel ||
+                metric.pValue != null ||
+                metric.pAdj != null ? (
                   <p className="text-muted text-xs">
-                    {metric.testLabel ?? "Stat test"}
-                    {metric.pAdj !== null
+                    {metric.testLabel ??
+                      t("pages.artifacts.decisionCard.statTest")}
+                    {metric.pAdj != null
                       ? `, p_adj=${metric.pAdj.toFixed(4)}`
-                      : metric.pValue !== null
+                      : metric.pValue != null
                         ? `, p=${metric.pValue.toFixed(4)}`
                         : ""}
-                    {metric.significant !== null
+                    {metric.significant != null
                       ? metric.significant
-                        ? ", significant"
-                        : ", not significant"
+                        ? `, ${t("pages.artifacts.decisionCard.significant")}`
+                        : `, ${t("pages.artifacts.decisionCard.notSignificant")}`
                       : ""}
                   </p>
                 ) : null}
@@ -243,13 +420,13 @@ export default function DecisionCardView({
           </div>
         ) : (
           <p className="text-muted text-sm">
-            No key metrics in decision payload.
+            {t("pages.artifacts.decisionCard.emptyMetrics")}
           </p>
         )}
       </section>
 
       <MetricValidationComparisonTable
-        title="Metric validation"
+        title={t("pages.artifacts.decisionCard.metricValidation")}
         comparisons={card.metricComparisons}
         familyAdjustment={card.metricValidationFamilyAdjustment}
       />
@@ -257,7 +434,9 @@ export default function DecisionCardView({
       {card.distributional ? (
         <section className="border-line bg-panel rounded-xl border p-4">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-            <h4 className="text-base font-semibold">Distributional impact</h4>
+            <h4 className="text-base font-semibold">
+              {t("pages.artifacts.decisionCard.distributionalImpact")}
+            </h4>
             {card.distributional.breakdowns.length > 1 ? (
               <Select
                 value={activeBreakdown?.dimensionLabel ?? ""}
@@ -278,30 +457,40 @@ export default function DecisionCardView({
 
           <div className="grid gap-2 md:grid-cols-4">
             <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
-              <p className="text-muted text-xs uppercase">Gini</p>
+              <p className="text-muted text-xs uppercase">
+                {t("pages.artifacts.decisionCard.gini")}
+              </p>
               <p className="font-semibold">
-                {card.distributional.giniBefore?.toFixed(4) ?? "-"} to{" "}
+                {card.distributional.giniBefore?.toFixed(4) ?? "-"}{" "}
+                {t("pages.artifacts.decisionCard.to")}{" "}
                 {card.distributional.giniAfter?.toFixed(4) ?? "-"}
               </p>
               <p className="text-muted text-xs">
-                delta {card.distributional.giniDelta?.toFixed(4) ?? "-"}
+                {t("pages.artifacts.decisionCard.delta")}{" "}
+                {card.distributional.giniDelta?.toFixed(4) ?? "-"}
               </p>
             </div>
             <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
-              <p className="text-muted text-xs uppercase">Winners / Losers</p>
+              <p className="text-muted text-xs uppercase">
+                {t("pages.artifacts.decisionCard.winnersLosers")}
+              </p>
               <p className="font-semibold">
                 {card.distributional.winnersCount} /{" "}
                 {card.distributional.losersCount}
               </p>
             </div>
             <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
-              <p className="text-muted text-xs uppercase">Winner share</p>
+              <p className="text-muted text-xs uppercase">
+                {t("pages.artifacts.decisionCard.winnerShare")}
+              </p>
               <p className="font-semibold">
                 {(card.distributional.winnersShare * 100).toFixed(0)}%
               </p>
             </div>
             <div className="bg-canvas/30 border-line rounded-lg border p-2 text-sm">
-              <p className="text-muted text-xs uppercase">Vulnerable losers</p>
+              <p className="text-muted text-xs uppercase">
+                {t("pages.artifacts.decisionCard.vulnerableLosers")}
+              </p>
               <p className="font-semibold">
                 {card.distributional.vulnerableLosersCount}
               </p>

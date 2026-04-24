@@ -1,7 +1,9 @@
 """Estimate advanced quasi-experimental and meta-learner causal designs."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -156,6 +158,7 @@ def _truncate_pseudo_outcome(
 )
 class RegressionKinkDesignEstimator:
     """Estimate a kink-discontinuity effect under a smooth running-variable design; avoid fuzzy/noisy kinks without a clear slope break."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -165,7 +168,9 @@ class RegressionKinkDesignEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("running_var", SlotType.VECTOR, Unit("running", "value"), shape=("n_obs",)),
+                SlotSpec(
+                    "running_var", SlotType.VECTOR, Unit("running", "value"), shape=("n_obs",)
+                ),
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
             }
         ),
@@ -185,8 +190,12 @@ class RegressionKinkDesignEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Regression Kink Design: estimate effect from slope change at kink point.",
         tags=frozenset({"causal", "regression-kink", "rkd", "quasi-experimental"}),
-        citations=("Card, D. et al. (2015). Inference on Causal Effects in a Generalized Regression Kink Design. Econometrica.",),
-        equations={"rkd": "RKD = lim(dY/dX from right - dY/dX from left) / (change in policy slope)"},
+        citations=(
+            "Card, D. et al. (2015). Inference on Causal Effects in a Generalized Regression Kink Design. Econometrica.",
+        ),
+        equations={
+            "rkd": "RKD = lim(dY/dX from right - dY/dX from left) / (change in policy slope)"
+        },
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
         when_to_use="Policy with kinked assignment rule (slope change at cutoff, not level); want to estimate treatment effect at kink",
@@ -253,6 +262,7 @@ class RegressionKinkDesignEstimator:
 )
 class BunchingEstimator:
     """Estimate excess-mass responses around a notch/kink; avoid when the counterfactual density is not locally smooth."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -262,7 +272,9 @@ class BunchingEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("running_var", SlotType.VECTOR, Unit("running", "value"), shape=("n_obs",)),
+                SlotSpec(
+                    "running_var", SlotType.VECTOR, Unit("running", "value"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -362,6 +374,7 @@ class BunchingEstimator:
 )
 class MarginalTreatmentEffectEstimator:
     """Estimate an MTE curve under a valid continuous instrument and monotone selection; avoid weak or discrete instruments."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -371,16 +384,20 @@ class MarginalTreatmentEffectEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-                SlotSpec("instrument", SlotType.VECTOR, Unit("instrument", "value"), shape=("n_obs",)),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "instrument", SlotType.VECTOR, Unit("instrument", "value"), shape=("n_obs",)
+                ),
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="n_grid_points", default=20),
-        ),
+        parameters=(ParameterSpec(name="n_grid_points", default=20),),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -391,8 +408,12 @@ class MarginalTreatmentEffectEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Marginal Treatment Effect via local IV (Heckman & Vytlacil).",
-        tags=frozenset({"causal", "mte", "marginal-treatment-effect", "local-iv", "essential-heterogeneity"}),
-        citations=("Heckman, J.J. & Vytlacil, E. (2005). Structural Equations, Treatment Effects. Econometrica.",),
+        tags=frozenset(
+            {"causal", "mte", "marginal-treatment-effect", "local-iv", "essential-heterogeneity"}
+        ),
+        citations=(
+            "Heckman, J.J. & Vytlacil, E. (2005). Structural Equations, Treatment Effects. Econometrica.",
+        ),
         equations={"mte": "MTE(x, u_D) = d/dp E[Y|X=x, P(Z)=p] evaluated at p=u_D"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -430,7 +451,9 @@ class MarginalTreatmentEffectEstimator:
         p_score = np.clip(1.0 / (1.0 + np.exp(-eta)), 0.01, 0.99)
 
         # Step 2: Local polynomial of E[Y|P(Z)=p] and derivative
-        grid = np.linspace(float(np.percentile(p_score, 5)), float(np.percentile(p_score, 95)), n_grid)
+        grid = np.linspace(
+            float(np.percentile(p_score, 5)), float(np.percentile(p_score, 95)), n_grid
+        )
         bw = max(float(np.std(p_score)), 1e-6) * n ** (-0.2)
 
         mte_values = []
@@ -468,6 +491,7 @@ class MarginalTreatmentEffectEstimator:
 )
 class ShiftShareIVEstimator:
     """Estimate a shift-share IV effect from exposure shares and shocks; avoid when shares or shocks are not plausibly exogenous."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -477,10 +501,24 @@ class ShiftShareIVEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("shares", SlotType.MATRIX, Unit("share", "fraction"), shape=("n_regions", "n_industries")),
-                SlotSpec("shifts", SlotType.VECTOR, Unit("shift", "value"), shape=("n_industries",)),
-                SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_regions",)),
-                SlotSpec("controls", SlotType.MATRIX, Unit("control", "value"), shape=("n_regions", "n_controls")),
+                SlotSpec(
+                    "shares",
+                    SlotType.MATRIX,
+                    Unit("share", "fraction"),
+                    shape=("n_regions", "n_industries"),
+                ),
+                SlotSpec(
+                    "shifts", SlotType.VECTOR, Unit("shift", "value"), shape=("n_industries",)
+                ),
+                SlotSpec(
+                    "outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_regions",)
+                ),
+                SlotSpec(
+                    "controls",
+                    SlotType.MATRIX,
+                    Unit("control", "value"),
+                    shape=("n_regions", "n_controls"),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -513,7 +551,9 @@ class ShiftShareIVEstimator:
             "Bartik, T.J. (1991). Who Benefits from State and Local Economic Development Policies?",
             "Borusyak, K., Hull, P. & Jaravel, X. (2022). Quasi-Experimental Shift-Share Research Designs. ReStud.",
         ),
-        equations={"ssiv": "B_i = sum_k s_{ik} * g_k (Bartik instrument); 2SLS with B as instrument"},
+        equations={
+            "ssiv": "B_i = sum_k s_{ik} * g_k (Bartik instrument); 2SLS with B as instrument"
+        },
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
         when_to_use="Bartik/shift-share IV; identify local labor demand shocks from national industry growth × local industry shares",
@@ -554,11 +594,11 @@ class ShiftShareIVEstimator:
         for k in range(K):
             s_k = S[:, k]
             se_terms[k] = float(np.sum(s_k * resid) * G[k])
-        var_robust = float(np.sum(se_terms ** 2)) / max(float(np.sum(B ** 2)) ** 2, 1e-12)
+        var_robust = float(np.sum(se_terms**2)) / max(float(np.sum(B**2)) ** 2, 1e-12)
         se_robust = float(np.sqrt(max(var_robust, 0.0)))
 
         # Standard SE
-        sigma2 = float(np.sum(resid ** 2) / max(n - X_iv.shape[1], 1))
+        sigma2 = float(np.sum(resid**2) / max(n - X_iv.shape[1], 1))
         try:
             cov = sigma2 * np.linalg.inv(X_iv.T @ X_iv)
             se_standard = float(np.sqrt(max(cov[1, 1], 0.0)))
@@ -566,7 +606,7 @@ class ShiftShareIVEstimator:
             se_standard = float("inf")
 
         # Rotemberg weights
-        denom = float(np.sum(B ** 2))
+        denom = float(np.sum(B**2))
         rotemberg = np.zeros(K)
         for k in range(K):
             rotemberg[k] = float(G[k] * np.sum(S[:, k] * B)) / max(denom, 1e-12)
@@ -578,7 +618,7 @@ class ShiftShareIVEstimator:
                 "exposure_robust_se": se_robust,
                 "reduced_form": reduced_form,
                 "rotemberg_weights": rotemberg.tolist(),
-                "hhi_shares": float(np.mean(np.sum(S ** 2, axis=1))),
+                "hhi_shares": float(np.mean(np.sum(S**2, axis=1))),
                 "n_regions": n,
                 "n_industries": K,
             }
@@ -592,6 +632,7 @@ class ShiftShareIVEstimator:
 )
 class DRLearnerEstimator:
     """Estimate heterogeneous treatment effects with doubly robust nuisance correction; avoid severe overlap violations."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -601,8 +642,12 @@ class DRLearnerEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
             }
         ),
@@ -632,7 +677,9 @@ class DRLearnerEstimator:
         description="Doubly Robust Learner for heterogeneous treatment effect estimation (CATE).",
         tags=frozenset({"causal", "hte", "dr-learner", "cate", "doubly-robust"}),
         citations=("Kennedy, E.H. (2023). Towards Optimal Doubly Robust Estimation of HTE. EJS.",),
-        equations={"dr_learner": "pseudo-outcome = mu1(X) - mu0(X) + T*(Y-mu1)/(e) - (1-T)*(Y-mu0)/(1-e); regress on X"},
+        equations={
+            "dr_learner": "pseudo-outcome = mu1(X) - mu0(X) + T*(Y-mu1)/(e) - (1-T)*(Y-mu0)/(1-e); regress on X"
+        },
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
         when_to_use="Heterogeneous treatment effects using doubly-robust Robinson decomposition; cross-fitting for semiparametric efficiency",
@@ -717,7 +764,9 @@ class DRLearnerEstimator:
                 _feature_importances_from_array(
                     feature_importances if feature_importances is not None else np.array([]),
                     [f"x{i}" for i in range(X.shape[1])],
-                    method="permutation" if config.feature_importance_mode == "permutation" else "model_based",
+                    method="permutation"
+                    if config.feature_importance_mode == "permutation"
+                    else "model_based",
                 ),
             )
 
@@ -743,7 +792,9 @@ class DRLearnerEstimator:
                         "bootstrap_draws": config.bootstrap_draws,
                         "feature_importance_mode": config.feature_importance_mode,
                     },
-                    "heterogeneity_signal": float(np.std(cate_pred, ddof=1)) if cate_pred.size > 1 else 0.0,
+                    "heterogeneity_signal": float(np.std(cate_pred, ddof=1))
+                    if cate_pred.size > 1
+                    else 0.0,
                 }
             }
         except Exception as exc:
@@ -772,6 +823,7 @@ class DRLearnerEstimator:
 )
 class RLearnerEstimator:
     """Estimate CATE by residualizing outcome/treatment and learning tau(x); avoid unstable nuisance fits or near-zero propensities."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -781,8 +833,12 @@ class RLearnerEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
             }
         ),
@@ -813,7 +869,9 @@ class RLearnerEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="R-Learner (Robinson decomposition) for CATE estimation.",
         tags=frozenset({"causal", "hte", "r-learner", "cate", "robinson"}),
-        citations=("Nie, X. & Wager, S. (2021). Quasi-Oracle Estimation of Heterogeneous Treatment Effects. Biometrika.",),
+        citations=(
+            "Nie, X. & Wager, S. (2021). Quasi-Oracle Estimation of Heterogeneous Treatment Effects. Biometrika.",
+        ),
         equations={"r_learner": "Y - m(X) = tau(X)*(T - e(X)) + eps; minimize weighted loss"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -875,9 +933,13 @@ class RLearnerEstimator:
         feature_importance_payload = _suppress_importances_if_homogeneous(
             cate_pred,
             _feature_importances_from_array(
-                tau_fit.feature_importances if tau_fit.feature_importances is not None else np.array([]),
+                tau_fit.feature_importances
+                if tau_fit.feature_importances is not None
+                else np.array([]),
                 [f"x{i}" for i in range(X.shape[1])],
-                method="permutation" if config.feature_importance_mode == "permutation" else "model_based",
+                method="permutation"
+                if config.feature_importance_mode == "permutation"
+                else "model_based",
             ),
         )
 
@@ -904,7 +966,9 @@ class RLearnerEstimator:
                     "bootstrap_draws": config.bootstrap_draws,
                     "feature_importance_mode": config.feature_importance_mode,
                 },
-                "heterogeneity_signal": float(np.std(cate_pred, ddof=1)) if cate_pred.size > 1 else 0.0,
+                "heterogeneity_signal": float(np.std(cate_pred, ddof=1))
+                if cate_pred.size > 1
+                else 0.0,
             }
         }
 

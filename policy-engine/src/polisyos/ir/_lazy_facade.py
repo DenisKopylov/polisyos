@@ -1,4 +1,5 @@
 """Shared helpers for package-level lazy facades."""
+
 from __future__ import annotations
 
 import importlib
@@ -18,9 +19,7 @@ def resolve_lazy_export(
         module_name, attr_name = exports[name]
     except KeyError as exc:
         module_name = namespace.get("__name__", "<unknown>")
-        raise AttributeError(
-            f"module {module_name!r} has no attribute {name!r}"
-        ) from exc
+        raise AttributeError(f"module {module_name!r} has no attribute {name!r}") from exc
     module = importlib.import_module(module_name)
     value = getattr(module, attr_name)
     namespace[name] = value

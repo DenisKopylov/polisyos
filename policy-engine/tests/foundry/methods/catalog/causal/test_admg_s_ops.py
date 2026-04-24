@@ -1,5 +1,4 @@
 """Tests for S-node graph operations in admg_ops.py (Phase 1)."""
-import pytest
 
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
     augment_with_s_nodes,

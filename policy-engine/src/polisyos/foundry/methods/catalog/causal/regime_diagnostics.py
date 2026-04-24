@@ -68,9 +68,7 @@ def diagnose_regime(
     w_sum = float(np.sum(weights))
     ess = w_sum**2 / float(np.sum(weights**2)) if w_sum > 0 else 0.0
 
-    clipping_fraction = float(
-        np.mean((e <= clip_bounds[0]) | (e >= clip_bounds[1]))
-    )
+    clipping_fraction = float(np.mean((e <= clip_bounds[0]) | (e >= clip_bounds[1])))
 
     # Normalized treatment variation: mean(|e - 0.5| / 0.5)
     overlap_ntv = float(np.mean(np.abs(e - 0.5) / 0.5))

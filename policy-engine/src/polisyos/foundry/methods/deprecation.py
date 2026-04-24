@@ -46,21 +46,22 @@ Audit
     report = audit.report()
     report.print()
 """
+
 from __future__ import annotations
 
-import functools
 import warnings
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Callable, ClassVar, TypeVar
+from datetime import UTC, datetime
+from typing import Any, TypeVar
 
 __all__ = [
+    "DeprecationAudit",
+    "DeprecationAuditReport",
     "DeprecationInfo",
     "MethodRetiredException",
     "deprecate_method",
     "tag_deprecated_in_registry",
-    "DeprecationAudit",
-    "DeprecationAuditReport",
 ]
 
 T = TypeVar("T", bound=type)
@@ -75,14 +76,12 @@ T = TypeVar("T", bound=type)
 class DeprecationInfo:
     """Deprecation metadata attached to a method class."""
 
-    since: str                  # SemVer — when deprecated
-    removal: str                # SemVer — when removed
-    replacement: str | None     # FQN of replacement method
-    reason: str                 # Machine-readable reason code
-    retired: bool = False       # If True, pure_step raises immediately
-    recorded_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
-    )
+    since: str  # SemVer — when deprecated
+    removal: str  # SemVer — when removed
+    replacement: str | None  # FQN of replacement method
+    reason: str  # Machine-readable reason code
+    retired: bool = False  # If True, pure_step raises immediately
+    recorded_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
 
 class MethodRetiredException(Exception):
@@ -156,13 +155,16 @@ def deprecate_method(
         fqn_str = getattr(getattr(cls, "signature", None), "fqn", cls.__name__)
 
         if retired:
+
             @staticmethod  # type: ignore[misc]
             def _retired_pure_step(state: Any, params: Any) -> Any:
                 raise MethodRetiredException(fqn_str, info)
 
             cls.pure_step = _retired_pure_step  # type: ignore[method-assign]
         else:
-            original_step = pure_step_attr if callable(pure_step_attr) else staticmethod(pure_step_attr)
+            original_step = (
+                pure_step_attr if callable(pure_step_attr) else staticmethod(pure_step_attr)
+            )
 
             @staticmethod  # type: ignore[misc]
             def _deprecated_pure_step(state: Any, params: Any) -> Any:
@@ -180,10 +182,12 @@ def deprecate_method(
         # Add deprecation tags to metadata if present
         meta = getattr(cls, "metadata", None)
         if meta is not None and hasattr(meta, "tags"):
-            extra = frozenset({
-                f"deprecated:{since}",
-                f"removal:{removal}",
-            })
+            extra = frozenset(
+                {
+                    f"deprecated:{since}",
+                    f"removal:{removal}",
+                }
+            )
             try:
                 object.__setattr__(meta, "tags", meta.tags | extra)  # type: ignore[arg-type]
             except (AttributeError, TypeError):
@@ -271,10 +275,7 @@ class DeprecationAuditReport:
             for e in sorted(self.entries, key=lambda x: x.since):
                 status = "[RETIRED]" if e.retired else "[deprecated]"
                 repl = e.replacement or "-"
-                print(
-                    f"  {e.fqn:<44} {e.since:<7} {e.removal:<8} {repl}"
-                    f"  {status}"
-                )
+                print(f"  {e.fqn:<44} {e.since:<7} {e.removal:<8} {repl}  {status}")
         else:
             print("  No deprecated methods found.")
 
@@ -330,18 +331,20 @@ class DeprecationAudit:
             tags = set(getattr(getattr(method_class, "metadata", None), "tags", set()))
             tags_match = any(t.startswith("deprecated:") for t in tags)
 
-            entries.append(DeprecationAuditEntry(
-                fqn=reg_entry.fqn,
-                since=dep_info.since,
-                removal=dep_info.removal,
-                replacement=dep_info.replacement,
-                reason=dep_info.reason,
-                retired=dep_info.retired,
-                tags_match=tags_match,
-            ))
+            entries.append(
+                DeprecationAuditEntry(
+                    fqn=reg_entry.fqn,
+                    since=dep_info.since,
+                    removal=dep_info.removal,
+                    replacement=dep_info.replacement,
+                    reason=dep_info.reason,
+                    retired=dep_info.retired,
+                    tags_match=tags_match,
+                )
+            )
 
         return DeprecationAuditReport(
-            generated_at=datetime.now(timezone.utc).isoformat(),
+            generated_at=datetime.now(UTC).isoformat(),
             entries=entries,
         )
 
@@ -353,16 +356,18 @@ class DeprecationAudit:
             if dep_info is None:
                 continue
             fqn = getattr(getattr(cls, "signature", None), "fqn", cls.__name__)
-            entries.append(DeprecationAuditEntry(
-                fqn=fqn,
-                since=dep_info.since,
-                removal=dep_info.removal,
-                replacement=dep_info.replacement,
-                reason=dep_info.reason,
-                retired=dep_info.retired,
-                tags_match=False,
-            ))
+            entries.append(
+                DeprecationAuditEntry(
+                    fqn=fqn,
+                    since=dep_info.since,
+                    removal=dep_info.removal,
+                    replacement=dep_info.replacement,
+                    reason=dep_info.reason,
+                    retired=dep_info.retired,
+                    tags_match=False,
+                )
+            )
         return DeprecationAuditReport(
-            generated_at=datetime.now(timezone.utc).isoformat(),
+            generated_at=datetime.now(UTC).isoformat(),
             entries=entries,
         )

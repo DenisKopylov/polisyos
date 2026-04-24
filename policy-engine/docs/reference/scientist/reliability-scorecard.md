@@ -1,4 +1,5 @@
 # Scientist Reliability Scorecard
+
 Related reference: [Operations](../operations/index.md).
 
 Owner: `@scientist-owners`
@@ -18,33 +19,33 @@ builder is `build_scientist_reliability_scorecard_from_evidence(...)`.
 
 ### Scenarios
 
-| Scorecard key | Required passing test case(s) |
-|---|---|
-| `happy_path` | `test_linear_scientist_workflow_happy_path` |
-| `tool_failure_with_retry` | `test_linear_scientist_workflow_tool_failure_retries_and_succeeds` |
-| `checkpoint_resume` | `test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes` |
-| `governance_rejection` | `test_linear_scientist_workflow_governance_rejection_stops_decision_publication` |
+| Scorecard key                     | Required passing test case(s)                                                       |
+| --------------------------------- | ----------------------------------------------------------------------------------- |
+| `happy_path`                      | `test_linear_scientist_workflow_happy_path`                                         |
+| `tool_failure_with_retry`         | `test_linear_scientist_workflow_tool_failure_retries_and_succeeds`                  |
+| `checkpoint_resume`               | `test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes`            |
+| `governance_rejection`            | `test_linear_scientist_workflow_governance_rejection_stops_decision_publication`    |
 | `fairness_calibration_regression` | `test_linear_scientist_workflow_post_deploy_regression_triggers_alerts_and_reissue` |
 
 ### Benchmarks
 
-| Scorecard key | Required benchmark name(s) |
-|---|---|
-| `node_latency` | `test_scientist_node_chain_latency` |
-| `checkpoint_io` | `test_scientist_checkpoint_io_hot_path`, `test_scientist_async_checkpoint_io_hot_path` |
-| `state_serialization` | `test_scientist_state_serialization_hot_path` |
-| `state_copy` | `test_scientist_state_branch_hot_path` |
-| `fan_out_merge` | `test_scientist_fan_out_merge_hot_path` |
-| `failure_index_search` | `test_scientist_failure_index_search_hot_path` |
-| `search_pareto` | `test_scientist_search_pareto_hot_path` |
+| Scorecard key          | Required benchmark name(s)                                                             |
+| ---------------------- | -------------------------------------------------------------------------------------- |
+| `node_latency`         | `test_scientist_node_chain_latency`                                                    |
+| `checkpoint_io`        | `test_scientist_checkpoint_io_hot_path`, `test_scientist_async_checkpoint_io_hot_path` |
+| `state_serialization`  | `test_scientist_state_serialization_hot_path`                                          |
+| `state_copy`           | `test_scientist_state_branch_hot_path`                                                 |
+| `fan_out_merge`        | `test_scientist_fan_out_merge_hot_path`                                                |
+| `failure_index_search` | `test_scientist_failure_index_search_hot_path`                                         |
+| `search_pareto`        | `test_scientist_search_pareto_hot_path`                                                |
 
 ### Operational Signals
 
-| Scorecard key | Required passing test case(s) |
-|---|---|
-| `metrics_exporter` | `test_metrics_exporter_operational_signal` |
+| Scorecard key       | Required passing test case(s)               |
+| ------------------- | ------------------------------------------- |
+| `metrics_exporter`  | `test_metrics_exporter_operational_signal`  |
 | `trace_correlation` | `test_trace_correlation_operational_signal` |
-| `dlq_replay` | `test_dlq_replay_operational_signal` |
+| `dlq_replay`        | `test_dlq_replay_operational_signal`        |
 | `bounded_retention` | `test_bounded_retention_operational_signal` |
 | `monitoring_alerts` | `test_monitoring_alerts_operational_signal` |
 
@@ -66,12 +67,12 @@ Missing evidence is recorded as:
 
 ## Gate Mapping
 
-| Gate | Current role |
-|---|---|
-| `tools/ci/check_scientist_reliability.py` | Builds the scorecard from benchmark JSON plus JUnit XML evidence. |
-| `tools/ci/check_scientist_phase0_gate.py` | Separate Phase 0 acceptance barrier for async/lifecycle, idempotency, budget, masking, env hardening, and statistical hotfixes. |
-| `tools/ci/check_scientist_phase1_gate.py` | Phase 1 barrier that embeds the reliability scorecard and adds error-semantics/branch-state ratchets. |
-| `tools/ci/check_scientist_phase2_ratchet.py` | Maintainability debt ratchet for selected Scientist hot paths. |
+| Gate                                         | Current role                                                                                                                    |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `tools/ci/check_scientist_reliability.py`    | Builds the scorecard from benchmark JSON plus JUnit XML evidence.                                                               |
+| `tools/ci/check_scientist_phase0_gate.py`    | Separate Phase 0 acceptance barrier for async/lifecycle, idempotency, budget, masking, env hardening, and statistical hotfixes. |
+| `tools/ci/check_scientist_phase1_gate.py`    | Phase 1 barrier that embeds the reliability scorecard and adds error-semantics/branch-state ratchets.                           |
+| `tools/ci/check_scientist_phase2_ratchet.py` | Maintainability debt ratchet for selected Scientist hot paths.                                                                  |
 
 ## Minimum Evidence Build Commands
 

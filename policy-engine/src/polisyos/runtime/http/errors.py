@@ -1,4 +1,5 @@
 """Serialize runtime exceptions into RFC 7807-style `application/problem+json` payloads."""
+
 from __future__ import annotations
 
 import re
@@ -257,7 +258,7 @@ def problem_response(
     if extensions:
         content.update(extensions)
     return cast(
-        _Response,
+        "_Response",
         json_response(
             status_code=status_code,
             content=content,
@@ -269,6 +270,7 @@ def problem_response(
 @dataclass(frozen=True)
 class RuntimeHTTPError(Exception):
     """Carry a typed HTTP error that is converted to `RuntimeApiProblem`."""
+
     status_code: int
     error: str
     detail: str

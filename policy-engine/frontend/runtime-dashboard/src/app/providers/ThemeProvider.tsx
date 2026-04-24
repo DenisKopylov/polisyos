@@ -14,13 +14,14 @@ export const SUPPORTED_THEMES = ["light", "dark", "system"] as const;
 export type ThemePreference = (typeof SUPPORTED_THEMES)[number];
 export type ResolvedTheme = Exclude<ThemePreference, "system">;
 
-const THEME_STORAGE_KEY = "polisyos.runtime.theme";
+export const THEME_STORAGE_KEY = "polisyos.runtime.theme";
 const THEME_COLOR_BY_RESOLVED_THEME: Record<ResolvedTheme, string> = {
-  dark: "#0b121a",
+  dark: "#120f0e",
   light: "#fbf8f2",
 };
 
 type ThemeContextValue = {
+  isSystemTheme: boolean;
   resolvedTheme: ResolvedTheme;
   setTheme: (theme: ThemePreference) => void;
   theme: ThemePreference;
@@ -35,7 +36,7 @@ function isThemePreference(
   return value === "light" || value === "dark" || value === "system";
 }
 
-function readStoredTheme(): ThemePreference | null {
+export function readStoredThemePreference(): ThemePreference | null {
   if (typeof window === "undefined") {
     return null;
   }
@@ -48,7 +49,7 @@ function readStoredTheme(): ThemePreference | null {
 }
 
 function resolveThemePreference(): ThemePreference {
-  return readStoredTheme() ?? "system";
+  return readStoredThemePreference() ?? "system";
 }
 
 function resolveSystemTheme(): ResolvedTheme {
@@ -64,9 +65,17 @@ function resolveTheme(theme: ThemePreference): ResolvedTheme {
   return theme === "system" ? resolveSystemTheme() : theme;
 }
 
-function updateDocumentTheme(resolved: ResolvedTheme) {
+function updateDocumentTheme(
+  preference: ThemePreference,
+  resolved: ResolvedTheme,
+) {
   document.documentElement.dataset.theme = resolved;
-  document.documentElement.style.colorScheme = resolved;
+  document.documentElement.dataset.themePreference = preference;
+  if (preference === "system") {
+    document.documentElement.style.removeProperty("color-scheme");
+  } else {
+    document.documentElement.style.colorScheme = resolved;
+  }
   let themeColorMeta = document.querySelector('meta[name="theme-color"]');
   if (!themeColorMeta) {
     themeColorMeta = document.createElement("meta");
@@ -91,7 +100,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     if (!darkModeEnabled) {
       setResolvedTheme("light");
-      updateDocumentTheme("light");
+      updateDocumentTheme("light", "light");
       return;
     }
 
@@ -99,7 +108,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
     const applyTheme = (preference: ThemePreference) => {
       const nextResolved = resolveTheme(preference);
       setResolvedTheme(nextResolved);
-      updateDocumentTheme(nextResolved);
+      updateDocumentTheme(preference, nextResolved);
     };
 
     applyTheme(theme);
@@ -130,21 +139,19 @@ export function ThemeProvider({ children }: PropsWithChildren) {
 
   const value = useMemo<ThemeContextValue>(
     () => ({
+      isSystemTheme: darkModeEnabled && theme === "system",
       resolvedTheme,
-      setTheme: (nextTheme) => setThemeState(nextTheme),
+      setTheme: (nextTheme) =>
+        setThemeState(darkModeEnabled ? nextTheme : "light"),
       theme: darkModeEnabled ? theme : "light",
       toggleTheme: () => {
         setThemeState((current) => {
           if (!darkModeEnabled) {
             return "light";
           }
-          if (current === "system") {
-            return "dark";
-          }
-          if (current === "dark") {
-            return "light";
-          }
-          return "system";
+          const currentResolved =
+            current === "system" ? resolveSystemTheme() : current;
+          return currentResolved === "dark" ? "light" : "dark";
         });
       },
     }),

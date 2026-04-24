@@ -71,9 +71,7 @@ class WebSocketSubscription implements RealtimeSubscription {
   }
 }
 
-export class WebSocketRealtimeTransport
-  implements RealtimeTransport<WebSocketRealtimeSubscriptionRequest>
-{
+export class WebSocketRealtimeTransport implements RealtimeTransport<WebSocketRealtimeSubscriptionRequest> {
   subscribe(
     request: WebSocketRealtimeSubscriptionRequest,
     handlers: RealtimeSubscriptionHandlers,

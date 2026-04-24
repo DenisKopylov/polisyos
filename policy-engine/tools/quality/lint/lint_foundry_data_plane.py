@@ -42,7 +42,7 @@ class _StateSnapshotAssumptionVisitor(ast.NodeVisitor):
         self.path = path
         self.violations: list[Violation] = []
 
-    def visit_Compare(self, node: ast.Compare) -> None:  # noqa: N802
+    def visit_Compare(self, node: ast.Compare) -> None:
         if not _contains_data_ref_kind(node):
             self.generic_visit(node)
             return
@@ -95,7 +95,7 @@ def _check_workflow_has_p8_nodes(repo_root: Path) -> list[Violation]:
     if not path.exists():
         return [Violation(path=path, lineno=1, message="default workflow file not found")]
     text = path.read_text(encoding="utf-8")
-    required_aliases = ("alias=\"bind_foundry_inputs\"", "alias=\"run_data_plane_gate\"")
+    required_aliases = ('alias="bind_foundry_inputs"', 'alias="run_data_plane_gate"')
     violations: list[Violation] = []
     for alias in required_aliases:
         if alias not in text:
@@ -180,17 +180,21 @@ def _check_constraint_slots_have_state_path(repo_root: Path) -> list[Violation]:
             continue
         slot = DEFAULT_SLOT_REGISTRY.slots.get(cspec.slot_id)
         if slot is None:
-            violations.append(Violation(
-                path=constraints_file,
-                lineno=1,
-                message=f"constraint '{cid}' references unknown slot '{cspec.slot_id}'",
-            ))
+            violations.append(
+                Violation(
+                    path=constraints_file,
+                    lineno=1,
+                    message=f"constraint '{cid}' references unknown slot '{cspec.slot_id}'",
+                )
+            )
         elif not slot.state_path:
-            violations.append(Violation(
-                path=constraints_file,
-                lineno=1,
-                message=f"constraint '{cid}' slot '{cspec.slot_id}' has no state_path",
-            ))
+            violations.append(
+                Violation(
+                    path=constraints_file,
+                    lineno=1,
+                    message=f"constraint '{cid}' slot '{cspec.slot_id}' has no state_path",
+                )
+            )
     return violations
 
 
@@ -231,14 +235,16 @@ def _check_mechanisms_registered(repo_root: Path) -> list[Violation]:
                     class_name = class_name[: -len("Mechanism")]
                 inferred_id = _camel_to_snake(class_name)
                 if inferred_id not in registered_ids:
-                    violations.append(Violation(
-                        path=py_file,
-                        lineno=node.lineno,
-                        message=(
-                            f"mechanism class '{node.name}' (inferred id '{inferred_id}') "
-                            f"not found in DEFAULT_MECHANISM_REGISTRY"
-                        ),
-                    ))
+                    violations.append(
+                        Violation(
+                            path=py_file,
+                            lineno=node.lineno,
+                            message=(
+                                f"mechanism class '{node.name}' (inferred id '{inferred_id}') "
+                                f"not found in DEFAULT_MECHANISM_REGISTRY"
+                            ),
+                        )
+                    )
                 break  # only check first matching base
     return violations
 
@@ -272,11 +278,13 @@ def _check_input_binding_slot_refs(repo_root: Path) -> list[Violation]:
         if isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
             slot_id = node.value.value
             if slot_id not in valid_slots:
-                violations.append(Violation(
-                    path=bindings_path,
-                    lineno=node.value.lineno,
-                    message=f"input binding references non-existent slot '{slot_id}'",
-                ))
+                violations.append(
+                    Violation(
+                        path=bindings_path,
+                        lineno=node.value.lineno,
+                        message=f"input binding references non-existent slot '{slot_id}'",
+                    )
+                )
     return violations
 
 

@@ -19,7 +19,7 @@ Optional but strongly encouraged fields:
 - `title`: short label for the change
 - `component`: subsystem or surface (`platform`, `runtime-dashboard`, `schemas`, ...)
 - `compatibility`: compatibility note if operators or consumers must care
-- `surface_classification`: supported-surface impact in the format ``public_stable: polisyos.runtime`` / ``public_experimental: polisyos.scholar`` / ``internal: internal-only`` when the change touches a classified package surface
+- `surface_classification`: supported-surface impact in the format `public_stable: polisyos.runtime` / `public_experimental: polisyos.scholar` / `internal: internal-only` when the change touches a classified package surface
 - `migration`: migration guidance if rollout steps are needed
 - `api`: schema/runtime/API surface note
 - `limitations`: known limitation that should ship with the release notes

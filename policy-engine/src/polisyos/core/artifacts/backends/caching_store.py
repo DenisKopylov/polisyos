@@ -138,7 +138,7 @@ class CachingArtifactStore:
         remote_ids = set(self._remote.iter_artifact_ids())
         return sorted(local_ids | remote_ids, key=lambda a: a.hex)
 
-    def artifact_store_config(self) -> "ArtifactStoreConfig | None":
+    def artifact_store_config(self) -> ArtifactStoreConfig | None:
         """Return declarative config needed to rebuild this cached store."""
         from .config import ArtifactStoreConfig, infer_artifact_store_config
 

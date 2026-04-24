@@ -13,13 +13,13 @@ Rollback path: keep the previous trusted key through the grace window when possi
 
 ## Operational Metadata
 
-| Field | Value |
-|---|---|
-| Primary owner | `@platform-owners` |
-| Security owner | security/compliance owner for emergency rotations |
-| Last tested | 2026-04-17, D1-L1 documentation validation pass |
+| Field            | Value                                                                                                                                                          |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary owner    | `@platform-owners`                                                                                                                                             |
+| Security owner   | security/compliance owner for emergency rotations                                                                                                              |
+| Last tested      | 2026-04-17, D1-L1 documentation validation pass                                                                                                                |
 | Evidence anchors | `tests/core/security/test_identity.py`, `tests/core/security/test_sbom.py`, `tests/core/phase0/test_store_signing.py`, `docs/reference/security-compliance.md` |
-| Rollback posture | keep previous trusted keys through the grace window; emergency revocation records the affected key/window explicitly |
+| Rollback posture | keep previous trusted keys through the grace window; emergency revocation records the affected key/window explicitly                                           |
 
 ## Symptom
 
@@ -49,10 +49,12 @@ Rollback path: keep the previous trusted key through the grace window when possi
 ## First Triage Steps
 
 1. Confirm current trust-store state:
+
    - `trusted/`
    - `revoked/`
    - `identities.json`
 2. Confirm current JWT rotation state:
+
    - identity-provider active signing `kid`;
    - `POLISYOS_JWT_ALLOWED_KIDS`;
    - `POLISYOS_JWT_REVOKED_KIDS`;
@@ -105,7 +107,7 @@ Rollback path: keep the previous trusted key through the grace window when possi
 
 ### Action Items
 
-| Action item | Owner | Due date | Status |
-|---|---|---|---|
-| Improve trust-store distribution or validation automation | `@platform-owners` | YYYY-MM-DD | open |
-| Add compromise drill or documentation if emergency handling was slow | security owner | YYYY-MM-DD | open |
+| Action item                                                          | Owner              | Due date   | Status |
+| -------------------------------------------------------------------- | ------------------ | ---------- | ------ |
+| Improve trust-store distribution or validation automation            | `@platform-owners` | YYYY-MM-DD | open   |
+| Add compromise drill or documentation if emergency handling was slow | security owner     | YYYY-MM-DD | open   |

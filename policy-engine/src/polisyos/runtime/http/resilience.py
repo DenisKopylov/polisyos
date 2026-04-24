@@ -1,4 +1,5 @@
 """Dependency guards for runtime slow/unavailable CAS, OPA, and control-store paths."""
+
 from __future__ import annotations
 
 import asyncio

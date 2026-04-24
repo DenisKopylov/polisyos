@@ -28,13 +28,13 @@ flowchart LR
 
 ## What IR Owns
 
-| Concern | Current IR role |
-|---|---|
-| Contract vocabulary | Trinity, analytics, governance, observation, world, refs, transport |
-| Compatibility | schema versions, migration registry, additive-vs-breaking decisions |
-| Reflection | schema catalog, public-surface inventory, bridge metadata |
-| Canonical storage boundary | JSON-first canonical form and manifest linkage |
-| Interoperability | transport manifests, ecosystem bridges, PROV-O mapping |
+| Concern                    | Current IR role                                                     |
+| -------------------------- | ------------------------------------------------------------------- |
+| Contract vocabulary        | Trinity, analytics, governance, observation, world, refs, transport |
+| Compatibility              | schema versions, migration registry, additive-vs-breaking decisions |
+| Reflection                 | schema catalog, public-surface inventory, bridge metadata           |
+| Canonical storage boundary | JSON-first canonical form and manifest linkage                      |
+| Interoperability           | transport manifests, ecosystem bridges, PROV-O mapping              |
 
 ## What IR Does Not Own
 
@@ -62,7 +62,9 @@ through the [schema catalog](../reference/ir/schema-catalog.md) and
 
 - Fabric can publish connector and world artifacts without baking its own
   compatibility rules into downstream consumers.
+
 - Foundry can compile Trinity and analytics contracts without inventing
   consumer-local schema policy.
+
 - Scientist can publish governance and decision artifacts that stay readable
   across workflow and runtime revisions.

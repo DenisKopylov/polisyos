@@ -1,4 +1,5 @@
 """Discover Foundry plugins from built-ins, entry points, and local search paths."""
+
 from __future__ import annotations
 
 import importlib
@@ -6,8 +7,8 @@ import importlib.util
 import logging
 import sys
 import warnings
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 from polisyos.foundry.plugins.core import DomainPlugin, PluginRegistry, get_registry
 
@@ -78,7 +79,9 @@ def _discover_installed_plugins(prefix: str) -> list[DomainPlugin]:
                 if hasattr(module, "create_plugin"):
                     plugins.append(module.create_plugin())
             except Exception:
-                logger.warning("Failed to load plugin package '%s'", dist.project_name, exc_info=True)
+                logger.warning(
+                    "Failed to load plugin package '%s'", dist.project_name, exc_info=True
+                )
                 continue
 
     return plugins
@@ -171,11 +174,7 @@ def create_simple_plugin(
                     PluginCapability.REWARDS,
                     PluginCapability.OBJECTIVES,
                 ),
-                **{
-                    k: v
-                    for k, v in kwargs.items()
-                    if k in ["author", "tags", "dependencies"]
-                },
+                **{k: v for k, v in kwargs.items() if k in ["author", "tags", "dependencies"]},
             )
 
         def create_initial_state(self, config, rng_key):

@@ -12,14 +12,14 @@ Pearl's three-step Abduction–Action–Prediction algorithm:
 The factual and counterfactual worlds share the *same* U realisation,
 which is what creates the individual-level correlation between Y(x₀) and Y(x₁).
 """
+
 from __future__ import annotations
 
 import math
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.ir.analytics.causal_queries import InterventionSpec
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -30,6 +30,11 @@ from polisyos.ir.analytics.uncertainty import (
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import TwinNetworkResultRef
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.causal_queries import InterventionSpec
+else:
+    from polisyos.ir.analytics.causal_queries import InterventionSpec
 
 
 class TwinWorldSample(BaseModel):
@@ -115,9 +120,12 @@ class TwinNetworkResult(BaseModel):
     # ── Validators ────────────────────────────────────────────────────────────
 
     @field_validator(
-        "po_factual_mean", "po_factual_std",
-        "po_counter_mean", "po_counter_std",
-        "ite_mean", "ite_std",
+        "po_factual_mean",
+        "po_factual_std",
+        "po_counter_mean",
+        "po_counter_std",
+        "ite_mean",
+        "ite_std",
         "computation_time_seconds",
         mode="before",
     )
@@ -147,7 +155,9 @@ class TwinNetworkResult(BaseModel):
             raise ValueError("po_correlation must be finite")
         return float(max(-1.0, min(1.0, casted)))
 
-    @field_validator("ite_distribution", "po_factual_distribution", "po_counter_distribution", mode="before")
+    @field_validator(
+        "ite_distribution", "po_factual_distribution", "po_counter_distribution", mode="before"
+    )
     @classmethod
     def _coerce_distribution(cls, value: Any) -> Any:
         if value is None:
@@ -163,7 +173,7 @@ class TwinNetworkResult(BaseModel):
         return normalized
 
     @model_validator(mode="after")
-    def _validate_result(self) -> "TwinNetworkResult":
+    def _validate_result(self) -> TwinNetworkResult:
         lo, hi = self.ite_ci
         if lo > hi:
             raise ValueError("ite_ci lower cannot exceed upper")
@@ -199,6 +209,7 @@ class TwinNetworkResult(BaseModel):
 
 # ── Persistence helpers ────────────────────────────────────────────────────────
 
+
 def persist_twin_network_result(
     store: ArtifactStore,
     result: TwinNetworkResult,
@@ -230,8 +241,8 @@ def load_twin_network_result(
 
 
 __all__ = [
-    "TwinWorldSample",
     "TwinNetworkResult",
-    "persist_twin_network_result",
+    "TwinWorldSample",
     "load_twin_network_result",
+    "persist_twin_network_result",
 ]

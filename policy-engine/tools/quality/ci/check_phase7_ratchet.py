@@ -5,8 +5,8 @@ from __future__ import annotations
 import argparse
 import re
 import subprocess
+from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import Callable, Iterable
 
 DECLARATION_LABEL = "This PR introduces a new subsystem or major surface."
 REQUIRED_LABELS = (
@@ -22,7 +22,9 @@ PACKAGE_PREFIX = "policy-engine/src/polisyos/"
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Check Phase 7 PR ratchet evidence")
     parser.add_argument("--repo-root", default=".", help="Workspace root containing policy-engine/")
-    parser.add_argument("--pr-body-file", required=True, help="Path to the pull request body markdown")
+    parser.add_argument(
+        "--pr-body-file", required=True, help="Path to the pull request body markdown"
+    )
     parser.add_argument("--base-ref", required=True, help="Base git ref/SHA to diff against")
     parser.add_argument("--head-ref", default="HEAD", help="Head git ref/SHA to diff against")
     return parser
@@ -31,9 +33,7 @@ def _build_parser() -> argparse.ArgumentParser:
 def checkbox_checked(body: str, label: str) -> bool:
     """Return whether a markdown checkbox line containing `label` is checked."""
 
-    pattern = re.compile(
-        rf"(?mi)^\s*-\s*\[(?P<state>[ xX])\]\s*.*{re.escape(label)}\s*$"
-    )
+    pattern = re.compile(rf"(?mi)^\s*-\s*\[(?P<state>[ xX])\]\s*.*{re.escape(label)}\s*$")
     match = pattern.search(body)
     return bool(match and match.group("state").lower() == "x")
 

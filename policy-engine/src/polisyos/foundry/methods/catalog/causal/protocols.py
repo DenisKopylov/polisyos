@@ -1,7 +1,9 @@
 """Define causal catalog data contracts and the common estimator protocol."""
+
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar, Mapping, Protocol, runtime_checkable
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, ClassVar, Protocol, runtime_checkable
 
 import numpy as np
 from pydantic import (
@@ -14,10 +16,10 @@ from pydantic import (
 )
 
 from polisyos.foundry.methods.base import MethodMetadata, MethodSignature
+from polisyos.ir.analytics.alignment_certification import AlignmentReport
 from polisyos.ir.analytics.causal import CausalEffectReport
 from polisyos.ir.analytics.causal_graph import CausalGraphModel
 from polisyos.ir.analytics.causal_queries import CausalQuery
-from polisyos.ir.analytics.alignment_certification import AlignmentReport
 from polisyos.ir.analytics.cross_graph import InterfaceMapping, SCMFragment
 from polisyos.ir.analytics.literature import LiteratureCausalPrior
 from polisyos.ir.analytics.parameters import ContextAdaptiveParameterBundle
@@ -72,7 +74,7 @@ class PanelObservationalData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "PanelObservationalData":
+    def _validate_shapes(self) -> PanelObservationalData:
         if _is_repeated_cross_section(self.metadata):
             raise ValueError(
                 "panel methods require dense panel data; received repeated cross-section/survey data. "
@@ -175,14 +177,14 @@ class PanelObservationalData(BaseModel):
     @classmethod
     def from_dataframe(
         cls,
-        df: "pd.DataFrame",
+        df: pd.DataFrame,
         *,
         unit_col: str,
         time_col: str,
         outcome_col: str,
         treatment_col: str,
         time_treatment: int,
-    ) -> "PanelObservationalData":
+    ) -> PanelObservationalData:
         frame = df.copy()
         frame = frame.sort_values([unit_col, time_col])
         panel = frame.pivot(index=unit_col, columns=time_col, values=outcome_col)
@@ -231,7 +233,7 @@ class HTEObservationalData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "HTEObservationalData":
+    def _validate_shapes(self) -> HTEObservationalData:
         if not isinstance(self.outcome, np.ndarray) or self.outcome.ndim != 1:
             raise ValueError("outcome must be a 1D numpy array")
         if not isinstance(self.treatment, np.ndarray) or self.treatment.ndim != 1:
@@ -323,7 +325,7 @@ class TimeSeriesCausalData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "TimeSeriesCausalData":
+    def _validate_shapes(self) -> TimeSeriesCausalData:
         if not isinstance(self.data, np.ndarray) or self.data.ndim != 2:
             raise ValueError("data must be a 2D numpy array: (n_timesteps, n_variables)")
         if self.data.shape[0] < 3:
@@ -375,7 +377,7 @@ class TabularCausalDiscoveryData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "TabularCausalDiscoveryData":
+    def _validate_shapes(self) -> TabularCausalDiscoveryData:
         if not isinstance(self.data, np.ndarray) or self.data.ndim != 2:
             raise ValueError("data must be a 2D numpy array: (n_samples, n_variables)")
         if self.data.shape[0] < 2:
@@ -471,10 +473,10 @@ class GraphCausalData(_GraphCausalDataBase):
         column_names: list[str],
         treatment: str,
         outcome: str,
-        graph: "CausalGraphModel",
+        graph: CausalGraphModel,
         graph_ref: str | None = None,
         covariates: list[str] | None = None,
-    ) -> "GraphCausalData":
+    ) -> GraphCausalData:
         graph_dot = graph.to_dot() if hasattr(graph, "to_dot") else None
         return cls(
             data=data,
@@ -521,7 +523,7 @@ class SCMFitData(BaseModel):
         raise ValueError("graph must be CausalGraphModel or dict payload")
 
     @model_validator(mode="after")
-    def _validate_payload(self) -> "SCMFitData":
+    def _validate_payload(self) -> SCMFitData:
         if not isinstance(self.data, np.ndarray) or self.data.ndim != 2:
             raise ValueError("data must be a 2D numpy array")
         if self.data.shape[0] < 2:
@@ -547,9 +549,7 @@ class SCMFitData(BaseModel):
                 raise ValueError("literature_priors values must be dict[parent, prior]")
             for parent_name, stats in per_parent.items():
                 if parent_name != "__intercept__" and parent_name not in graph_vars:
-                    raise ValueError(
-                        f"literature prior parent '{parent_name}' not in graph nodes"
-                    )
+                    raise ValueError(f"literature prior parent '{parent_name}' not in graph nodes")
                 if not isinstance(stats, dict):
                     raise ValueError("literature prior stats must be dict with mean/std")
                 mean = stats.get("mean")
@@ -605,7 +605,7 @@ class SCMQueryData(BaseModel):
         raise ValueError("query must be CausalQuery or dict payload")
 
     @model_validator(mode="after")
-    def _validate_payload(self) -> "SCMQueryData":
+    def _validate_payload(self) -> SCMQueryData:
         nodes = set(self.scm_spec.graph.nodes)
         if self.query.treatment_variable not in nodes:
             raise ValueError(
@@ -681,6 +681,7 @@ class TwinNetworkQueryData(BaseModel):
     @classmethod
     def _coerce_treatment_value(cls, value: Any) -> Any:
         import math as _math
+
         casted = float(value)
         if not _math.isfinite(casted):
             raise ValueError("treatment values must be finite")
@@ -690,6 +691,7 @@ class TwinNetworkQueryData(BaseModel):
     @classmethod
     def _coerce_condition(cls, value: Any) -> Any:
         import math as _math
+
         if value is None:
             return {}
         if not isinstance(value, dict):
@@ -706,21 +708,17 @@ class TwinNetworkQueryData(BaseModel):
         return normalized
 
     @model_validator(mode="after")
-    def _validate_payload(self) -> "TwinNetworkQueryData":
+    def _validate_payload(self) -> TwinNetworkQueryData:
         nodes = set(self.scm_spec.graph.nodes)
         if self.treatment_variable not in nodes:
             raise ValueError(
                 f"treatment_variable '{self.treatment_variable}' not in SCM graph nodes"
             )
         if self.outcome_variable not in nodes:
-            raise ValueError(
-                f"outcome_variable '{self.outcome_variable}' not in SCM graph nodes"
-            )
+            raise ValueError(f"outcome_variable '{self.outcome_variable}' not in SCM graph nodes")
         unknown = sorted(set(self.factual_condition) - nodes)
         if unknown:
-            raise ValueError(
-                f"factual_condition variables not in SCM graph nodes: {unknown}"
-            )
+            raise ValueError(f"factual_condition variables not in SCM graph nodes: {unknown}")
         return self
 
 
@@ -765,7 +763,7 @@ class UnifiedDiscoveryData(BaseModel):
     variable_names: list[str]
     domain_labels: Any | None = None  # shape: (n_obs,)
     literature_prior: LiteratureCausalPrior | None = None
-    llm_hints: list["LLMStructuralHint"] = Field(default_factory=list)
+    llm_hints: list[LLMStructuralHint] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("data", "domain_labels", mode="before")
@@ -776,7 +774,7 @@ class UnifiedDiscoveryData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "UnifiedDiscoveryData":
+    def _validate_shapes(self) -> UnifiedDiscoveryData:
         if not isinstance(self.data, np.ndarray) or self.data.ndim != 2:
             raise ValueError("data must be a 2D numpy array: (n_obs, n_vars)")
         if self.data.shape[0] < 2:
@@ -795,9 +793,7 @@ class UnifiedDiscoveryData(BaseModel):
             if not isinstance(self.domain_labels, np.ndarray) or self.domain_labels.ndim != 1:
                 raise ValueError("domain_labels must be a 1D numpy array when provided")
             if self.domain_labels.shape[0] != self.data.shape[0]:
-                raise ValueError(
-                    "len(domain_labels) must match data.shape[0] when provided"
-                )
+                raise ValueError("len(domain_labels) must match data.shape[0] when provided")
         return self
 
     @field_serializer("data", "domain_labels", mode="plain", when_used="json")
@@ -829,7 +825,7 @@ class LiteraturePriorBuildData(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_variables(self) -> "LiteraturePriorBuildData":
+    def _validate_variables(self) -> LiteraturePriorBuildData:
         if not self.variables:
             raise ValueError("variables must contain at least one variable name")
         if any(not str(item).strip() for item in self.variables):
@@ -953,7 +949,7 @@ class FragmentCompositionData(BaseModel):
         return output
 
     @model_validator(mode="after")
-    def _validate_fragment_composition(self) -> "FragmentCompositionData":
+    def _validate_fragment_composition(self) -> FragmentCompositionData:
         if len({fragment.fragment_id for fragment in self.fragments}) != len(self.fragments):
             raise ValueError("fragments must have unique fragment_id values")
         fragment_ids = {fragment.fragment_id for fragment in self.fragments}
@@ -966,13 +962,19 @@ class FragmentCompositionData(BaseModel):
         if self.interface_mapping.fragment_ids:
             missing = set(self.interface_mapping.fragment_ids) - fragment_ids
             if missing:
-                raise ValueError(f"interface_mapping references unknown fragments: {sorted(missing)}")
+                raise ValueError(
+                    f"interface_mapping references unknown fragments: {sorted(missing)}"
+                )
         if self.alignment_report.fragment_ids:
             missing = set(self.alignment_report.fragment_ids) - fragment_ids
             if missing:
-                raise ValueError(f"alignment_report references unknown fragments: {sorted(missing)}")
+                raise ValueError(
+                    f"alignment_report references unknown fragments: {sorted(missing)}"
+                )
         if self.source_fragment_refs and set(self.source_fragment_refs) != fragment_ids:
-            raise ValueError("source_fragment_refs keys must exactly match fragments.fragment_id values")
+            raise ValueError(
+                "source_fragment_refs keys must exactly match fragments.fragment_id values"
+            )
         if self.source_fragment_graph_refs and set(self.source_fragment_graph_refs) != fragment_ids:
             raise ValueError(
                 "source_fragment_graph_refs keys must exactly match fragments.fragment_id values"
@@ -999,7 +1001,7 @@ class RDDObservationalData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "RDDObservationalData":
+    def _validate_shapes(self) -> RDDObservationalData:
         if not isinstance(self.outcome, np.ndarray) or self.outcome.ndim != 1:
             raise ValueError("outcome must be a 1D numpy array")
         if not isinstance(self.running_variable, np.ndarray) or self.running_variable.ndim != 1:
@@ -1030,6 +1032,7 @@ class RDDObservationalData(BaseModel):
 @runtime_checkable
 class CausalEstimator(Protocol):
     """Declare the protocol shared by causal estimators that emit report envelopes."""
+
     signature: ClassVar[MethodSignature]
     metadata: ClassVar[MethodMetadata]
 
@@ -1096,6 +1099,7 @@ class NCMQueryData(BaseModel):
     @classmethod
     def _coerce_ncm_spec(cls, value: Any) -> Any:
         from polisyos.ir.analytics.ncm import NCMSpec as _NCMSpec
+
         if isinstance(value, _NCMSpec):
             return value
         if isinstance(value, dict):
@@ -1106,6 +1110,7 @@ class NCMQueryData(BaseModel):
     @classmethod
     def _coerce_evidence(cls, value: Any) -> dict[str, float]:
         import math as _math
+
         if value is None:
             return {}
         if not isinstance(value, dict):
@@ -1119,8 +1124,9 @@ class NCMQueryData(BaseModel):
         return out
 
     @model_validator(mode="after")
-    def _validate_vars_in_spec(self) -> "NCMQueryData":
+    def _validate_vars_in_spec(self) -> NCMQueryData:
         from polisyos.ir.analytics.ncm import NCMSpec as _NCMSpec
+
         ncm = self.ncm_spec
         if not isinstance(ncm, _NCMSpec):
             return self
@@ -1136,9 +1142,7 @@ class NCMQueryData(BaseModel):
 
         unknown_evidence = sorted(set(self.evidence) - known)
         if unknown_evidence and known:
-            raise ValueError(
-                f"NCMQueryData: evidence variables not in NCM: {unknown_evidence}"
-            )
+            raise ValueError(f"NCMQueryData: evidence variables not in NCM: {unknown_evidence}")
 
         for w_idx, interv in enumerate(self.interventions):
             unknown_interv = sorted(set(interv) - known)
@@ -1149,7 +1153,7 @@ class NCMQueryData(BaseModel):
         return self
 
 
-def envelope_from_report(report: CausalEffectReport) -> "UncertaintyEnvelope | None":
+def envelope_from_report(report: CausalEffectReport) -> UncertaintyEnvelope | None:
     """Envelope from report helper."""
     return report.to_uncertainty_envelope()
 
@@ -1200,7 +1204,7 @@ class DynamicTreatmentData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "DynamicTreatmentData":
+    def _validate_shapes(self) -> DynamicTreatmentData:
         if not isinstance(self.outcome, np.ndarray) or self.outcome.ndim != 1:
             raise ValueError("outcome must be a 1D numpy array: (n_units,)")
         if not np.isfinite(self.outcome).all():
@@ -1210,13 +1214,8 @@ class DynamicTreatmentData(BaseModel):
         if n_units < 10:
             raise ValueError("DynamicTreatmentData requires at least 10 units")
 
-        if (
-            not isinstance(self.treatment_sequence, np.ndarray)
-            or self.treatment_sequence.ndim != 2
-        ):
-            raise ValueError(
-                "treatment_sequence must be a 2D numpy array: (n_units, n_periods)"
-            )
+        if not isinstance(self.treatment_sequence, np.ndarray) or self.treatment_sequence.ndim != 2:
+            raise ValueError("treatment_sequence must be a 2D numpy array: (n_units, n_periods)")
         if self.treatment_sequence.shape[0] != n_units:
             raise ValueError(
                 f"treatment_sequence has {self.treatment_sequence.shape[0]} units "
@@ -1228,10 +1227,7 @@ class DynamicTreatmentData(BaseModel):
         if not np.isin(self.treatment_sequence, [0, 1]).all():
             raise ValueError("treatment_sequence must be binary (0/1)")
 
-        if (
-            not isinstance(self.covariate_sequence, np.ndarray)
-            or self.covariate_sequence.ndim != 3
-        ):
+        if not isinstance(self.covariate_sequence, np.ndarray) or self.covariate_sequence.ndim != 3:
             raise ValueError(
                 "covariate_sequence must be a 3D numpy array: (n_units, n_periods, n_covariates)"
             )
@@ -1269,21 +1265,16 @@ class DynamicTreatmentData(BaseModel):
                 not isinstance(self.behavior_policy_probs, np.ndarray)
                 or self.behavior_policy_probs.ndim != 2
             ):
-                raise ValueError(
-                    "behavior_policy_probs must be a 2D array: (n_units, n_periods)"
-                )
+                raise ValueError("behavior_policy_probs must be a 2D array: (n_units, n_periods)")
             if self.behavior_policy_probs.shape != (n_units, n_periods):
                 raise ValueError(
                     f"behavior_policy_probs shape {self.behavior_policy_probs.shape} "
                     f"does not match ({n_units}, {n_periods})"
                 )
             if not (
-                np.all(self.behavior_policy_probs > 0)
-                and np.all(self.behavior_policy_probs < 1)
+                np.all(self.behavior_policy_probs > 0) and np.all(self.behavior_policy_probs < 1)
             ):
-                raise ValueError(
-                    "behavior_policy_probs must be strictly in (0, 1)"
-                )
+                raise ValueError("behavior_policy_probs must be strictly in (0, 1)")
 
         return self
 
@@ -1351,7 +1342,7 @@ class EventProcessObservationalData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "EventProcessObservationalData":
+    def _validate_shapes(self) -> EventProcessObservationalData:
         if not isinstance(self.outcome_events, np.ndarray) or self.outcome_events.ndim != 2:
             raise ValueError("outcome_events must be a 2D numpy array: (n_units, n_periods)")
         if self.outcome_events.shape[0] < 2:
@@ -1485,7 +1476,7 @@ class NetworkCausalData(BaseModel):
         return np.asarray(v, dtype=int)
 
     @model_validator(mode="after")
-    def _validate_network_data(self) -> "NetworkCausalData":
+    def _validate_network_data(self) -> NetworkCausalData:
         if not isinstance(self.outcome, np.ndarray) or self.outcome.ndim != 1:
             raise ValueError("outcome must be a 1D numpy array: (n_units,)")
         if not np.isfinite(self.outcome).all():
@@ -1499,8 +1490,7 @@ class NetworkCausalData(BaseModel):
             raise ValueError("treatment must be a 1D numpy array: (n_units,)")
         if self.treatment.shape[0] != n:
             raise ValueError(
-                f"treatment length {self.treatment.shape[0]} does not match "
-                f"outcome length {n}"
+                f"treatment length {self.treatment.shape[0]} does not match outcome length {n}"
             )
         if not np.isin(self.treatment, [0.0, 1.0]).all():
             raise ValueError("treatment must be binary (0/1)")
@@ -1510,22 +1500,18 @@ class NetworkCausalData(BaseModel):
                 raise ValueError("covariates must be a 2D array: (n_units, n_features)")
             if self.covariates.shape[0] != n:
                 raise ValueError(
-                    f"covariates has {self.covariates.shape[0]} rows but "
-                    f"outcome has {n} units"
+                    f"covariates has {self.covariates.shape[0]} rows but outcome has {n} units"
                 )
 
         if self.adjacency_matrix is not None:
             if self.adjacency_matrix.shape != (n, n):
                 raise ValueError(
-                    f"adjacency_matrix must be ({n}, {n}), "
-                    f"got {self.adjacency_matrix.shape}"
+                    f"adjacency_matrix must be ({n}, {n}), got {self.adjacency_matrix.shape}"
                 )
 
         if self.cluster_id is not None:
             if self.cluster_id.ndim != 1 or self.cluster_id.shape[0] != n:
-                raise ValueError(
-                    f"cluster_id must be a 1D array of length {n}"
-                )
+                raise ValueError(f"cluster_id must be a 1D array of length {n}")
 
         if self.coordinates is not None:
             if self.coordinates.ndim != 2 or self.coordinates.shape[0] != n:
@@ -1533,9 +1519,7 @@ class NetworkCausalData(BaseModel):
                     f"coordinates must be (n_units, 2|3), got shape {self.coordinates.shape}"
                 )
             if self.coordinates.shape[1] not in (2, 3):
-                raise ValueError(
-                    "coordinates second dimension must be 2 (2-D) or 3 (3-D)"
-                )
+                raise ValueError("coordinates second dimension must be 2 (2-D) or 3 (3-D)")
 
         if self.bipartite_edges is not None:
             if self.bipartite_edges.ndim != 2 or self.bipartite_edges.shape[1] != 2:
@@ -1609,9 +1593,9 @@ class StochasticInterventionData(BaseModel):
     contract_id: ClassVar[str] = "foundry.causal.stochastic_intervention_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
-    outcome: Any          # (n_obs,)
-    treatment: Any        # (n_obs,)
-    covariates: Any       # (n_obs, n_features)
+    outcome: Any  # (n_obs,)
+    treatment: Any  # (n_obs,)
+    covariates: Any  # (n_obs, n_features)
 
     shift_delta: float | None = None
     """Additive shift δ for modified treatment policy A + δ."""
@@ -1647,7 +1631,7 @@ class StochasticInterventionData(BaseModel):
         return np.asarray(v, dtype=float)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "StochasticInterventionData":
+    def _validate_shapes(self) -> StochasticInterventionData:
         outcome = np.asarray(self.outcome)
         treatment = np.asarray(self.treatment)
         covariates = np.asarray(self.covariates)
@@ -1668,8 +1652,7 @@ class StochasticInterventionData(BaseModel):
             pw = np.asarray(self.policy_weights)
             if pw.shape[0] != n:
                 raise ValueError(
-                    f"policy_weights length {pw.shape[0]} "
-                    f"does not match outcome length {n}"
+                    f"policy_weights length {pw.shape[0]} does not match outcome length {n}"
                 )
         return self
 
@@ -1702,11 +1685,11 @@ class ProxyMeasurementData(BaseModel):
     contract_id: ClassVar[str] = "foundry.causal.proxy_measurement_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
-    outcome: Any               # (n_obs,)
-    treatment_proxy: Any       # (n_obs,) or (n_obs, k)
-    covariates: Any | None = None           # (n_obs, p)
-    validation_true_treatment: Any | None = None   # (n_val,)
-    validation_proxy: Any | None = None    # (n_val,)
+    outcome: Any  # (n_obs,)
+    treatment_proxy: Any  # (n_obs,) or (n_obs, k)
+    covariates: Any | None = None  # (n_obs, p)
+    validation_true_treatment: Any | None = None  # (n_val,)
+    validation_proxy: Any | None = None  # (n_val,)
 
     error_variance: float | None = None
     """σ²_ε — known measurement error variance (for SIMEX)."""
@@ -1736,7 +1719,7 @@ class ProxyMeasurementData(BaseModel):
         return np.asarray(v, dtype=float)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "ProxyMeasurementData":
+    def _validate_shapes(self) -> ProxyMeasurementData:
         Y = np.asarray(self.outcome)
         T_proxy = np.asarray(self.treatment_proxy)
 
@@ -1752,8 +1735,7 @@ class ProxyMeasurementData(BaseModel):
             cov = np.asarray(self.covariates)
             if cov.shape[0] != n:
                 raise ValueError(
-                    f"covariates first dimension {cov.shape[0]} "
-                    f"does not match outcome length {n}"
+                    f"covariates first dimension {cov.shape[0]} does not match outcome length {n}"
                 )
         if self.validation_true_treatment is not None:
             vt = np.asarray(self.validation_true_treatment)
@@ -1765,8 +1747,9 @@ class ProxyMeasurementData(BaseModel):
             raise ValueError("error_rate_bound must be in [0, 0.5)")
         return self
 
-    @field_serializer("outcome", "treatment_proxy", "covariates",
-                      "validation_true_treatment", "validation_proxy")
+    @field_serializer(
+        "outcome", "treatment_proxy", "covariates", "validation_true_treatment", "validation_proxy"
+    )
     def _serialize_numpy(self, v: Any) -> Any:
         if isinstance(v, np.ndarray):
             return v.tolist()
@@ -1783,7 +1766,8 @@ class ProxyMeasurementData(BaseModel):
 
 # Resolve forward references for NCMQueryData (NCMSpec defined in separate module)
 try:
-    from polisyos.ir.analytics.ncm import NCMSpec as _NCMSpec  # noqa: F401
+    from polisyos.ir.analytics.ncm import NCMSpec as _NCMSpec
+
     NCMQueryData.model_rebuild()
 except Exception:
     pass
@@ -1804,9 +1788,9 @@ class ContinuousTreatmentData(BaseModel):
     contract_id: ClassVar[str] = "foundry.causal.continuous_treatment_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
-    outcome: Any          # ndarray (n_obs,)
-    treatment: Any        # ndarray (n_obs,) — continuous float
-    covariates: Any       # ndarray (n_obs, n_features)
+    outcome: Any  # ndarray (n_obs,)
+    treatment: Any  # ndarray (n_obs,) — continuous float
+    covariates: Any  # ndarray (n_obs, n_features)
     evaluation_points: Any | None = None  # ndarray (n_eval,) grid for β(t)
     feature_names: tuple[str, ...] | None = None
 
@@ -1818,7 +1802,7 @@ class ContinuousTreatmentData(BaseModel):
         return np.asarray(value, dtype=float)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "ContinuousTreatmentData":
+    def _validate_shapes(self) -> ContinuousTreatmentData:
         if not isinstance(self.outcome, np.ndarray) or self.outcome.ndim != 1:
             raise ValueError("outcome must be a 1D numpy array")
         if not isinstance(self.treatment, np.ndarray) or self.treatment.ndim != 1:
@@ -1848,8 +1832,9 @@ class ContinuousTreatmentData(BaseModel):
                 raise ValueError("evaluation_points contains non-finite values")
         return self
 
-    @field_serializer("outcome", "treatment", "covariates", "evaluation_points",
-                      mode="plain", when_used="json")
+    @field_serializer(
+        "outcome", "treatment", "covariates", "evaluation_points", mode="plain", when_used="json"
+    )
     def _serialize_numpy(self, v: Any) -> Any:
         if isinstance(v, np.ndarray):
             return v.tolist()
@@ -1872,17 +1857,23 @@ class DoseResponseResult(BaseModel):
 
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
-    treatment_grid: Any       # ndarray (n_eval,)
-    dose_response: Any        # ndarray (n_eval,) — β̂(t)
+    treatment_grid: Any  # ndarray (n_eval,)
+    dose_response: Any  # ndarray (n_eval,) — β̂(t)
     confidence_band_lower: Any  # ndarray (n_eval,) — β̂(t) - 1.96·SE
     confidence_band_upper: Any  # ndarray (n_eval,) — β̂(t) + 1.96·SE
-    standard_errors: Any      # ndarray (n_eval,)
+    standard_errors: Any  # ndarray (n_eval,)
     method: str
     n_obs: int
     bandwidth: float | None = None
 
-    @field_validator("treatment_grid", "dose_response", "confidence_band_lower",
-                     "confidence_band_upper", "standard_errors", mode="before")
+    @field_validator(
+        "treatment_grid",
+        "dose_response",
+        "confidence_band_lower",
+        "confidence_band_upper",
+        "standard_errors",
+        mode="before",
+    )
     @classmethod
     def _coerce_numpy(cls, value: Any) -> Any:
         if value is None:
@@ -1890,7 +1881,7 @@ class DoseResponseResult(BaseModel):
         return np.asarray(value, dtype=float)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "DoseResponseResult":
+    def _validate_shapes(self) -> DoseResponseResult:
         n = self.treatment_grid.shape[0]
         for field_name, arr in [
             ("dose_response", self.dose_response),
@@ -1902,9 +1893,15 @@ class DoseResponseResult(BaseModel):
                 raise ValueError(f"{field_name} length must match treatment_grid length")
         return self
 
-    @field_serializer("treatment_grid", "dose_response", "confidence_band_lower",
-                      "confidence_band_upper", "standard_errors",
-                      mode="plain", when_used="json")
+    @field_serializer(
+        "treatment_grid",
+        "dose_response",
+        "confidence_band_lower",
+        "confidence_band_upper",
+        "standard_errors",
+        mode="plain",
+        when_used="json",
+    )
     def _serialize_numpy(self, v: Any) -> Any:
         if isinstance(v, np.ndarray):
             return v.tolist()
@@ -1924,9 +1921,9 @@ class MultiTreatmentData(BaseModel):
     contract_id: ClassVar[str] = "foundry.causal.multi_treatment_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
-    outcome: Any           # ndarray (n_obs,)
-    treatment: Any         # ndarray (n_obs,) integer labels 0..K-1
-    covariates: Any        # ndarray (n_obs, n_features)
+    outcome: Any  # ndarray (n_obs,)
+    treatment: Any  # ndarray (n_obs,) integer labels 0..K-1
+    covariates: Any  # ndarray (n_obs, n_features)
     treatment_levels: tuple[int, ...] | None = None  # auto-detected if None
     reference_level: int = 0
     feature_names: tuple[str, ...] | None = None
@@ -1946,7 +1943,7 @@ class MultiTreatmentData(BaseModel):
         return np.asarray(value, dtype=int)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "MultiTreatmentData":
+    def _validate_shapes(self) -> MultiTreatmentData:
         if not isinstance(self.outcome, np.ndarray) or self.outcome.ndim != 1:
             raise ValueError("outcome must be a 1D numpy array")
         if not isinstance(self.treatment, np.ndarray) or self.treatment.ndim != 1:
@@ -2008,11 +2005,11 @@ class MultiTreatmentResult(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     levels: tuple[int | str, ...]
-    arm_means: dict[str, float]                          # E[Y(k)] per arm
-    ate_vs_reference: dict[str, float]                   # E[Y(k)] - E[Y(ref)]
+    arm_means: dict[str, float]  # E[Y(k)] per arm
+    ate_vs_reference: dict[str, float]  # E[Y(k)] - E[Y(ref)]
     standard_errors: dict[str, float]
     confidence_intervals: dict[str, tuple[float, float]]  # 95% CI per arm
-    pairwise_contrasts: dict[str, float]                 # "k1_vs_k2" → ATE
+    pairwise_contrasts: dict[str, float]  # "k1_vs_k2" → ATE
     n_obs_per_arm: dict[str, int]
     method: str
 
@@ -2054,7 +2051,7 @@ class FairnessObservationalData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "FairnessObservationalData":
+    def _validate_shapes(self) -> FairnessObservationalData:
         if not isinstance(self.outcome, np.ndarray) or self.outcome.ndim != 1:
             raise ValueError("outcome must be a 1D numpy array (n_obs,)")
         if not isinstance(self.protected, np.ndarray) or self.protected.ndim != 1:
@@ -2085,10 +2082,7 @@ class FairnessObservationalData(BaseModel):
             if not np.isfinite(self.mediators).all():
                 raise ValueError("mediators contains non-finite values")
 
-        if (
-            self.feature_names is not None
-            and len(self.feature_names) != self.covariates.shape[1]
-        ):
+        if self.feature_names is not None and len(self.feature_names) != self.covariates.shape[1]:
             raise ValueError("feature_names length must match covariates column count")
 
         if (
@@ -2100,7 +2094,9 @@ class FairnessObservationalData(BaseModel):
 
         return self
 
-    @field_serializer("outcome", "protected", "covariates", "mediators", mode="plain", when_used="json")
+    @field_serializer(
+        "outcome", "protected", "covariates", "mediators", mode="plain", when_used="json"
+    )
     def _serialize_numpy_fields(self, value: Any) -> Any:
         if isinstance(value, np.ndarray):
             return value.tolist()
@@ -2149,7 +2145,7 @@ class MissingDataCausalData(BaseModel):
     """Outcome variable name Y."""
 
     @model_validator(mode="after")
-    def _check_shapes(self) -> "MissingDataCausalData":
+    def _check_shapes(self) -> MissingDataCausalData:
         n, p = self.observed_data.shape
         if self.missingness_indicators.shape != (n, p):
             raise ValueError(

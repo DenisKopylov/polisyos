@@ -1,4 +1,5 @@
 """Representation-learning and latent-confounder contracts."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -38,7 +39,7 @@ class LatentVariableSpec(BaseModel):
     regularization_weight: float | None = Field(default=None, ge=0.0)
 
     @model_validator(mode="after")
-    def validate_latent(self) -> "LatentVariableSpec":
+    def validate_latent(self) -> LatentVariableSpec:
         ensure_unique_ids(self.parents, key_fn=lambda item: item, label="latent parent")
         ensure_unique_ids(
             self.observed_children,
@@ -65,7 +66,7 @@ class RepresentationEncoderSpec(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_encoder(self) -> "RepresentationEncoderSpec":
+    def validate_encoder(self) -> RepresentationEncoderSpec:
         ensure_unique_ids(self.input_fields, key_fn=lambda item: item, label="encoder input_field")
         for latent_id, dimension in self.latent_dimensions.items():
             if not latent_id.strip():
@@ -95,7 +96,7 @@ class LatentConfounderContract(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_contract(self) -> "LatentConfounderContract":
+    def validate_contract(self) -> LatentConfounderContract:
         ensure_unique_ids(
             self.observed_covariates,
             key_fn=lambda item: item,
@@ -136,7 +137,7 @@ class RepresentationLearningResult(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_result(self) -> "RepresentationLearningResult":
+    def validate_result(self) -> RepresentationLearningResult:
         ensure_unique_ids(
             self.learned_latent_ids,
             key_fn=lambda item: item,

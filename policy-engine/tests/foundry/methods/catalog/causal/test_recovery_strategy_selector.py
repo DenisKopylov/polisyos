@@ -11,6 +11,8 @@ from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
 from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
     _recoverability_certificate_from_result,
     ordered_recovery,
+)
+from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
     test_recoverability as run_recoverability_check,
 )
 from polisyos.foundry.methods.catalog.causal.recovery_strategy_selector import (
@@ -18,13 +20,13 @@ from polisyos.foundry.methods.catalog.causal.recovery_strategy_selector import (
     build_compile_time_recovery_summary,
     select_recovery_strategy,
 )
+from polisyos.ir.analytics.mgraph import MissingnessKind, build_mgraph, extract_mgraph_metadata
 from polisyos.ir.analytics.recoverability import (
     RecoverabilityEstimatorFamily,
     RecoverabilityNuisanceKind,
     RecoverabilityProofForm,
     RecoveryScope,
 )
-from polisyos.ir.analytics.mgraph import MissingnessKind, build_mgraph, extract_mgraph_metadata
 
 
 def _make_mcar_recovery_ast():

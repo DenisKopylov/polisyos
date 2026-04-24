@@ -18,7 +18,6 @@ from polisyos.scientist.engine.trace_attributes import (
     enrich_node_span_result,
 )
 
-
 # ---------------------------------------------------------------------------
 # Attribute constants
 # ---------------------------------------------------------------------------

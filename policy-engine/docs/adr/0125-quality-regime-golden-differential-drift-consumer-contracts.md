@@ -1,9 +1,11 @@
 # ADR-0125: Quality Regime for Data Forge Assets
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context
@@ -32,6 +34,7 @@ evidence into published snapshot manifests.
 
 - LLM and upstream-data non-determinism can be handled structurally instead of
   by weakening all tests.
+
 - Consumers can fail closed before reading stale or incompatible artifacts.
 - Data Forge domain migrations cannot close while their old-vs-new differential
   evidence is missing.

@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import List
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.foundry.calibration.hessian import HessianResult
+if TYPE_CHECKING:
+    from polisyos.foundry.calibration.hessian import HessianResult
+else:  # pragma: no cover - import guard for environments without JAX
+    HessianResult = Any
 
 
 class IdentifiabilityStatus(str, Enum):
@@ -35,7 +38,7 @@ class IdentifiabilityReport(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    params: List[ParamIdentifiability] = Field(default_factory=list)
+    params: list[ParamIdentifiability] = Field(default_factory=list)
     n_identified: int = 0
     n_sloppy: int = 0
     n_non_identified: int = 0

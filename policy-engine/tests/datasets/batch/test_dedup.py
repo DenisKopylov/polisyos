@@ -1,10 +1,13 @@
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.batch.dedup import merge_and_dedup
 from polisyos.datasets.knowledge.types import DatasetRecord
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _write_jsonl(path: Path, rows: list[DatasetRecord]) -> None:

@@ -1,11 +1,9 @@
 """Tests for SelectionDiagramBuilder (Track 2 — transportability infrastructure)."""
-import pytest
 
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.transportability import (
     SelectionDiagram,
     SelectionDiagramBuilder,
-    SNode,
     SNodeRole,
 )
 
@@ -33,11 +31,7 @@ class TestSelectionDiagramBuilder:
 
     def test_add_single_sigma_variable(self):
         graph = _dag([("X", "Y")])
-        diagram = (
-            SelectionDiagramBuilder(graph)
-            .add_sigma_variable("X", severity="high")
-            .build()
-        )
+        diagram = SelectionDiagramBuilder(graph).add_sigma_variable("X", severity="high").build()
         assert len(diagram.s_nodes) == 1
         assert diagram.s_nodes[0].target_variable == "X"
         assert diagram.s_nodes[0].severity == "high"
@@ -66,11 +60,7 @@ class TestSelectionDiagramBuilder:
 
     def test_base_graph_preserved(self):
         graph = _dag([("X", "Z"), ("Z", "Y"), ("U", "X"), ("U", "Y")])
-        diagram = (
-            SelectionDiagramBuilder(graph)
-            .add_sigma_variable("Z")
-            .build()
-        )
+        diagram = SelectionDiagramBuilder(graph).add_sigma_variable("Z").build()
         assert diagram.base_graph is graph
 
     def test_chaining_returns_self(self):
@@ -82,21 +72,13 @@ class TestSelectionDiagramBuilder:
     def test_context_distance_computed(self):
         """Context distance should be non-negative even with default ContextProfiles."""
         graph = _dag([("X", "Y")])
-        diagram = (
-            SelectionDiagramBuilder(graph)
-            .add_sigma_variable("X")
-            .build()
-        )
+        diagram = SelectionDiagramBuilder(graph).add_sigma_variable("X").build()
         assert diagram.context_distance >= 0.0
 
     def test_s_node_s_variables_populated(self):
         """sigma_variables (SigmaVariable list) should be auto-populated from s_nodes."""
         graph = _dag([("X", "Y")])
-        diagram = (
-            SelectionDiagramBuilder(graph)
-            .add_sigma_variable("X")
-            .build()
-        )
+        diagram = SelectionDiagramBuilder(graph).add_sigma_variable("X").build()
         # SelectionDiagram should have sigma_variables derived from s_nodes
         sigma_vars = getattr(diagram, "sigma_variables", None)
         if sigma_vars is not None:

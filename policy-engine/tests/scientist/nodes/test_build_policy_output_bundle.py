@@ -7,6 +7,22 @@ from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.scientist import GovernanceAccountabilityArtifactRef
+from polisyos.ir.analytics.decision_layer import (
+    SocialWeightManifestArtifact,
+    build_optimization_ambiguity_certificate,
+    persist_optimization_ambiguity_certificate,
+    persist_social_weight_manifest,
+)
+from polisyos.ir.analytics.welfare import (
+    GEUncertaintyBundle,
+    GEUncertaintyRepresentation,
+    WelfareBundle,
+    WelfareIntervalSemantics,
+    WelfareMethod,
+    WelfareStatus,
+    persist_ge_uncertainty_bundle,
+    persist_welfare_bundle,
+)
 from polisyos.ir.governance.policy_spec import InterventionSpec, ParameterSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import (
     ConstraintSpec,
@@ -17,6 +33,7 @@ from polisyos.ir.governance.problem_frame import (
 )
 from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.model_spec import AssumptionSpec, AssumptionType, ModelSpec
+from polisyos.ir.refs import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import OptimizationDirection, SelectorOperator
 from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
@@ -38,8 +55,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
+    ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF,
     ARTIFACT_POLICY_BRIEF_REF,
     ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
+    ARTIFACT_WELFARE_BUNDLE_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
@@ -198,6 +217,73 @@ def _translator_compliance() -> TranslatorComplianceResult:
     return TranslatorComplianceResult(passed=True, findings=[])
 
 
+def _phase3_ready_refs(cas_store) -> tuple[ArtifactRef, ArtifactRef]:
+    matrix_ref = cas_store.put_json(
+        {"matrix": [[1]]},
+        PutOptions(kind="ir.welfare_multiplier_matrix", media_type="application/json"),
+    )
+    social_weight_ref = persist_social_weight_manifest(
+        cas_store,
+        SocialWeightManifestArtifact(
+            manifest_ref="swr://policy.welfare/test@1.0.0#phase3",
+            method_fqn="policy.welfare.state_dependent_inverse_social_weights@1.0.0",
+            normalization="mean_one",
+            income_grid=(0.0, 1.0),
+            weights_on_grid=(1.0, 1.0),
+            state_keys=("income",),
+            manifest_payload={
+                "ref": "swr://policy.welfare/test@1.0.0#phase3",
+                "income_grid": [0.0, 1.0],
+                "weights_on_grid": [1.0, 1.0],
+            },
+        ),
+    )
+    ge_ref = persist_ge_uncertainty_bundle(
+        cas_store,
+        GEUncertaintyBundle(
+            model_class="linearized_ge_io",
+            representation=GEUncertaintyRepresentation.MULTIPLIER_INTERVALS,
+            multiplier_shape=(1, 1),
+            point_multiplier_ref=ArtifactRefModel.model_validate(
+                matrix_ref.model_dump(mode="json")
+            ),
+            lower_multiplier_ref=ArtifactRefModel.model_validate(
+                matrix_ref.model_dump(mode="json")
+            ),
+            upper_multiplier_ref=ArtifactRefModel.model_validate(
+                matrix_ref.model_dump(mode="json")
+            ),
+        ),
+    )
+    welfare_ref = persist_welfare_bundle(
+        cas_store,
+        WelfareBundle(
+            welfare_measure="net_social_welfare",
+            model_class="linearized_ge_io",
+            ge_multiplier_semantics="leontief_inverse",
+            social_weight_ref=social_weight_ref,
+            ge_uncertainty_ref=ge_ref,
+            point_estimate=1.0,
+            credible_interval=(0.9, 1.1),
+            robust_interval=(0.8, 1.2),
+            interval_semantics=WelfareIntervalSemantics.MIXED_NESTED,
+            method_used=WelfareMethod.MIXED_NESTED,
+            status=WelfareStatus.OK,
+        ),
+    )
+    ambiguity_ref = persist_optimization_ambiguity_certificate(
+        cas_store,
+        build_optimization_ambiguity_certificate(
+            {"mode": "not_applicable", "note": "deterministic path"},
+            mode="not_applicable",
+            source_kind="test",
+            overall_status="pass",
+            note="deterministic path",
+        ),
+    )
+    return welfare_ref, ambiguity_ref
+
+
 def test_build_policy_output_bundle_skips_outside_policy_mode(execution_context, minimal_state):
     outcome = BuildPolicyOutputBundleNode().execute(execution_context, minimal_state)
     assert outcome.status == "skip"
@@ -205,6 +291,7 @@ def test_build_policy_output_bundle_skips_outside_policy_mode(execution_context,
 
 def test_build_policy_output_bundle_writes_refs(execution_context, minimal_state, cas_store):
     candidate = _candidate()
+    welfare_ref, ambiguity_ref = _phase3_ready_refs(cas_store)
     state = minimal_state.model_copy(deep=True)
     state.params.update(
         {
@@ -217,6 +304,8 @@ def test_build_policy_output_bundle_writes_refs(execution_context, minimal_state
             "translator_compliance": _translator_compliance().model_dump(mode="json"),
         }
     )
+    state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
+    state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
 
     outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
 
@@ -228,7 +317,12 @@ def test_build_policy_output_bundle_writes_refs(execution_context, minimal_state
         outcome.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF],
     )
     assert bundle.policy_brief_ref is not None
-    assert outcome.state.policy_output_bundle_ref == outcome.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF]
+    assert bundle.welfare_bundle_ref == welfare_ref
+    assert bundle.ambiguity_certificate_ref == ambiguity_ref
+    assert (
+        outcome.state.policy_output_bundle_ref
+        == outcome.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF]
+    )
 
 
 def test_build_policy_output_bundle_propagates_actionable_side_information(
@@ -237,6 +331,7 @@ def test_build_policy_output_bundle_propagates_actionable_side_information(
     cas_store,
 ):
     candidate = _candidate()
+    welfare_ref, ambiguity_ref = _phase3_ready_refs(cas_store)
     side_info_ref = persist_actionable_side_information(
         cas_store,
         ActionableSideInformation(candidate_id=candidate.candidate_id),
@@ -276,6 +371,8 @@ def test_build_policy_output_bundle_propagates_actionable_side_information(
             "funnel_outcome": funnel_outcome,
         }
     )
+    state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
+    state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
 
     outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
 
@@ -295,7 +392,9 @@ def test_build_policy_output_bundle_propagates_actionable_side_information(
     ]
 
 
-def test_build_policy_output_bundle_fails_when_required_inputs_missing(execution_context, minimal_state):
+def test_build_policy_output_bundle_fails_when_required_inputs_missing(
+    execution_context, minimal_state
+):
     state = minimal_state.model_copy(deep=True)
     state.params.update({"workflow_id": "scientist_policy_design", "policy_mode": True})
 
@@ -305,12 +404,39 @@ def test_build_policy_output_bundle_fails_when_required_inputs_missing(execution
     assert outcome.error is not None
 
 
+def test_build_policy_output_bundle_refuses_when_phase3_gate_missing(
+    execution_context,
+    minimal_state,
+):
+    candidate = _candidate()
+    state = minimal_state.model_copy(deep=True)
+    state.params.update(
+        {
+            "workflow_id": "scientist_policy_design",
+            "policy_mode": True,
+            "policy_candidate_schema": candidate.model_dump(mode="json"),
+            "policy_evaluation": _evaluation_vector(candidate).model_dump(mode="json"),
+            "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
+            "policy_brief": _policy_brief().model_dump(mode="json"),
+            "translator_compliance": _translator_compliance().model_dump(mode="json"),
+        }
+    )
+
+    outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert "phase3.welfare_missing" in outcome.error.message
+    assert ARTIFACT_POLICY_OUTPUT_BUNDLE_REF not in outcome.state.artifacts_index
+
+
 def test_build_policy_output_bundle_embeds_calibration_validation_summary(
     execution_context,
     minimal_state,
     cas_store,
 ) -> None:
     candidate = _candidate()
+    welfare_ref, ambiguity_ref = _phase3_ready_refs(cas_store)
     state = minimal_state.model_copy(deep=True)
     candidate_ref = ArtifactRef(
         artifact_id="sha256:" + "1" * 64,
@@ -376,6 +502,8 @@ def test_build_policy_output_bundle_embeds_calibration_validation_summary(
         }
     )
     state.artifacts_index[ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF] = calibration_validation_ref
+    state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
+    state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
 
     outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
 
@@ -397,6 +525,7 @@ def test_build_policy_output_bundle_degrades_invalid_distributional_report(
     cas_store,
 ) -> None:
     candidate = _candidate()
+    welfare_ref, ambiguity_ref = _phase3_ready_refs(cas_store)
     invalid_ref = cas_store.put_json(
         ["invalid"],
         PutOptions(kind="ir.distributional_report", media_type="application/json"),
@@ -414,6 +543,8 @@ def test_build_policy_output_bundle_degrades_invalid_distributional_report(
         }
     )
     state.artifacts_index[ARTIFACT_DISTRIBUTIONAL_REPORT_REF] = invalid_ref
+    state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
+    state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
 
     outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
 
@@ -432,6 +563,7 @@ def test_build_policy_output_bundle_degrades_invalid_uncertainty_envelope(
     cas_store,
 ) -> None:
     candidate = _candidate()
+    welfare_ref, ambiguity_ref = _phase3_ready_refs(cas_store)
     invalid_ref = cas_store.put_json(
         ["invalid"],
         PutOptions(kind="ir.uncertainty_envelope", media_type="application/json"),
@@ -449,6 +581,8 @@ def test_build_policy_output_bundle_degrades_invalid_uncertainty_envelope(
         }
     )
     state.artifacts_index[ARTIFACT_CAUSAL_ENVELOPE_REF] = invalid_ref
+    state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
+    state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
 
     outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
 
@@ -466,6 +600,7 @@ def test_build_policy_output_bundle_uses_branch_state_for_declared_outputs(
     minimal_state,
 ):
     candidate = _candidate()
+    welfare_ref, ambiguity_ref = _phase3_ready_refs(execution_context.store)
     state = minimal_state.model_copy(deep=True)
     state.params.update(
         {
@@ -479,6 +614,8 @@ def test_build_policy_output_bundle_uses_branch_state_for_declared_outputs(
             "nested": {"baseline": True},
         }
     )
+    state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
+    state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
     observed: dict[str, tuple[str, ...]] = {}
 
     def _spy_branch(base_state, *, write_paths=()):
@@ -526,7 +663,9 @@ def test_decision_packet_not_mutated_when_policy_bundle_absent(tmp_path) -> None
 
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
-    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_no_policy")
+    run = RunContext.start(
+        store=store, registry_bundle=registry_bundle, run_id="R_packet_no_policy"
+    )
     import logging
 
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))

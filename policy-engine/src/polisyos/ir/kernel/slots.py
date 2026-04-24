@@ -1,4 +1,5 @@
 """Slot registry definitions for stateful runtime variables and their merge semantics."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -13,6 +14,7 @@ from .units import UnitRef
 
 class SlotKind(str, Enum):
     """Slot kind public type."""
+
     STOCK = "stock"
     FLOW = "flow"
     PARAMETER = "parameter"
@@ -20,6 +22,7 @@ class SlotKind(str, Enum):
 
 class SlotScope(str, Enum):
     """Slot scope public type."""
+
     GLOBAL = "global"
     PER_AGENT = "per_agent"
     PER_FIRM = "per_firm"
@@ -29,6 +32,7 @@ class SlotScope(str, Enum):
 
 class SlotValueType(str, Enum):
     """Slot value type public type."""
+
     BOOL = "bool"
     INT = "int"
     DECIMAL = "decimal"
@@ -76,12 +80,13 @@ class SlotSpec(KernelModel):
 
 class SlotRegistry(KernelModel):
     """Registry of runtime slots that policy bundles reference when binding reads, writes, and units."""
+
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     slots: dict[str, SlotSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_slots(self) -> "SlotRegistry":
+    def validate_slots(self) -> SlotRegistry:
         for key, spec in self.slots.items():
             if not key or not isinstance(key, str):
                 raise ValueError("slot_id must be a non-empty string")

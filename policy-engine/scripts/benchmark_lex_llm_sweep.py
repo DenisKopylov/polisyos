@@ -14,5 +14,7 @@ _TARGET = "tools.benchmarks.benchmark_lex_llm_sweep"
 
 
 if __name__ == "__main__":
-    warn_legacy_entrypoint("scripts/benchmark_lex_llm_sweep.py", "polisyos-tools benchmarks benchmark-lex-llm-sweep")
+    warn_legacy_entrypoint(
+        "scripts/benchmark_lex_llm_sweep.py", "polisyos-tools benchmarks benchmark-lex-llm-sweep"
+    )
     raise SystemExit(run_module_entrypoint(_TARGET))

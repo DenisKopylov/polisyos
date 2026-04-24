@@ -1,16 +1,14 @@
 """Public world claim module API."""
+
 from __future__ import annotations
 
 import re
-from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Annotated, Any
 
 from pydantic import BeforeValidator, Field, field_validator, model_validator
-from typing_extensions import Annotated
 
-from polisyos.ir.citations import CitationRef
 from polisyos.ir.kernel.base import (
     ARTIFACT_ID_PATTERN,
     ID_PATTERN,
@@ -18,6 +16,15 @@ from polisyos.ir.kernel.base import (
     reject_float,
     reject_floats_deep,
 )
+
+if TYPE_CHECKING:
+    from datetime import datetime
+
+    from polisyos.ir.citations import CitationRef
+else:
+    from datetime import datetime
+
+    from polisyos.ir.citations import CitationRef
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
@@ -29,6 +36,7 @@ DecimalValue = Annotated[Decimal, BeforeValidator(reject_float)]
 
 class ClaimSourceKind(str, Enum):
     """Claim source kind public type."""
+
     DOC = "doc"
     DATASET = "dataset"
     SIMULATION = "simulation"
@@ -38,6 +46,7 @@ class ClaimSourceKind(str, Enum):
 
 class Claim(KernelModel):
     """Claim public type."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     claim_id: str = Field(..., pattern=ID_PATTERN)
     predicate_id: str = Field(..., pattern=ID_PATTERN)
@@ -76,7 +85,7 @@ class Claim(KernelModel):
         return values
 
     @model_validator(mode="after")
-    def validate_claim(self) -> "Claim":
+    def validate_claim(self) -> Claim:
         if self.subject_id is None and self.subject_text is None:
             raise ValueError("claim requires subject_id or subject_text")
         if self.source_kind == ClaimSourceKind.DOC:

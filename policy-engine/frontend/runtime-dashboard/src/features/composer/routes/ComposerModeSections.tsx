@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   useFieldArray,
@@ -16,14 +23,18 @@ import type { ModelProfileInfo } from "@/api/hooks/useLlmProfiles";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { cn, formatCurrency, formatDate, formatNumber } from "@/lib/utils";
 import { PrefetchLink } from "@/app/routes/PrefetchLink";
+import { Glyph } from "@/shared/brand/Glyph";
+import type { GlyphName } from "@/shared/brand/glyph-vocabulary";
 import {
   ApiErrorAlert,
   Badge,
   Button,
-  Card,
   Input,
   Label,
   PanelSkeleton,
+  Radio,
+  Select,
+  Textarea,
 } from "@/shared/ui";
 import {
   buildNaturalLanguageLaunchRequest,
@@ -85,6 +96,13 @@ const EMPTY_GOVERNANCE_CONSTRAINT = {
   severity: "warning",
 };
 
+const CAPABILITY_GLYPHS: Record<string, GlyphName> = {
+  auto_materialization: "evidence",
+  multimodel_nl: "counterfactual",
+  promotion_lane: "transport",
+  required_preflight: "governance-pass",
+};
+
 function providerBadge(provider: string) {
   const normalized = provider.toLowerCase();
   if (normalized === "openai") return "bg-green-500/10 text-green-700";
@@ -92,6 +110,134 @@ function providerBadge(provider: string) {
   if (normalized === "google") return "bg-sky-500/10 text-sky-700";
   if (normalized === "gonka") return "bg-orange-500/10 text-orange-700";
   return "bg-text/10 text-text";
+}
+
+function resolveCapabilityGlyph(key: string): GlyphName {
+  return CAPABILITY_GLYPHS[key] ?? "intervention";
+}
+
+function resolveLaunchBadgeKind(
+  status: string,
+): "ok" | "warn" | "fail" | "neutral" {
+  const normalized = status.trim().toLowerCase();
+  if (["accepted", "completed", "success", "succeeded"].includes(normalized)) {
+    return "ok";
+  }
+  if (["blocked", "error", "failed", "rejected"].includes(normalized)) {
+    return "fail";
+  }
+  if (["pending", "queued", "review"].includes(normalized)) {
+    return "warn";
+  }
+  return "neutral";
+}
+
+function AtlasFormSection({
+  children,
+  description,
+  eyebrow,
+  glyph,
+  title,
+  tone = "default",
+  trailing,
+}: {
+  children: ReactNode;
+  description?: string;
+  eyebrow: string;
+  glyph: GlyphName;
+  title: string;
+  tone?: "accent" | "default";
+  trailing?: ReactNode;
+}) {
+  return (
+    <section
+      className={cn(
+        "rounded-[28px] border p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] md:p-6",
+        tone === "accent"
+          ? "border-[rgba(28,139,130,0.14)] bg-[linear-gradient(145deg,rgba(28,139,130,0.12),rgba(181,139,43,0.07)),rgba(255,255,255,0.76)]"
+          : "border-[rgba(23,25,29,0.08)] bg-white/70",
+      )}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="max-w-3xl space-y-3">
+          <div className="flex items-center gap-3">
+            <span className="grid size-10 place-items-center rounded-full bg-[rgba(23,25,29,0.06)]">
+              <Glyph decorative name={glyph} size={16} />
+            </span>
+            <div>
+              <p className="eyebrow">{eyebrow}</p>
+              <h3 className="text-xl font-semibold tracking-[-0.03em]">
+                {title}
+              </h3>
+            </div>
+          </div>
+          {description ? (
+            <p className="text-muted text-sm leading-6">{description}</p>
+          ) : null}
+        </div>
+        {trailing}
+      </div>
+      <div className="mt-5 space-y-4">{children}</div>
+    </section>
+  );
+}
+
+function AtlasMetricTile({
+  hint,
+  label,
+  value,
+}: {
+  hint?: string;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-[22px] border border-[rgba(23,25,29,0.07)] bg-white/64 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
+      <span className="text-muted block text-xs tracking-[0.12em] uppercase">
+        {label}
+      </span>
+      <strong className="mt-2 block text-2xl font-semibold tracking-[-0.04em]">
+        {value}
+      </strong>
+      {hint ? (
+        <p className="text-muted mt-2 text-sm leading-6">{hint}</p>
+      ) : null}
+    </div>
+  );
+}
+
+function AtlasRail({ children }: { children: ReactNode }) {
+  return (
+    <aside className="xl:sticky xl:top-6">
+      <div className="space-y-5 rounded-[30px] bg-[linear-gradient(180deg,rgba(38,49,58,0.98),rgba(20,22,26,0.96))] p-5 text-[#f5f0e6] shadow-[0_26px_40px_rgba(23,25,29,0.18)] md:p-6">
+        {children}
+      </div>
+    </aside>
+  );
+}
+
+function AtlasRailSection({
+  children,
+  eyebrow,
+  title,
+}: {
+  children: ReactNode;
+  eyebrow: string;
+  title: string;
+}) {
+  return (
+    <section className="space-y-3 border-t border-white/10 pt-5 first:border-t-0 first:pt-0">
+      <div>
+        <p className="font-mono text-[11px] tracking-[0.12em] text-white/52 uppercase">
+          {eyebrow}
+        </p>
+        <h4 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-[#fff8ef]">
+          {title}
+        </h4>
+      </div>
+      {children}
+    </section>
+  );
 }
 
 function buildWorkflowDefaults(
@@ -175,25 +321,21 @@ function buildNaturalLanguageDefaults(
 
 function LaunchReceipt({ runId, status }: RecentLaunch) {
   return (
-    <div className="bg-surface/80 border-line rounded-2xl border p-3 text-sm">
+    <div className="rounded-[18px] border border-white/10 bg-white/5 p-3 text-sm">
       <div className="flex items-center justify-between gap-2">
         <PrefetchLink
           to={`/runs/${runId}/overview`}
           prefetch="intent"
-          className="text-accent font-mono text-xs hover:underline"
+          className="font-mono text-xs text-white/88 hover:text-white hover:underline"
         >
           {runId}
         </PrefetchLink>
-        <span
-          className={cn(
-            "rounded-full px-2 py-1 text-[11px] font-semibold tracking-wide uppercase",
-            status === "accepted"
-              ? "bg-green-500/10 text-green-600"
-              : "bg-red-500/10 text-red-500",
-          )}
+        <Badge
+          kind={resolveLaunchBadgeKind(status)}
+          className="px-2 py-1 text-[10px]"
         >
           {status}
-        </span>
+        </Badge>
       </div>
     </div>
   );
@@ -216,10 +358,10 @@ function ModelProfileCard({
       onClick={onToggle}
       data-testid={`llm-profile-${profile.model_id}`}
       className={cn(
-        "w-full rounded-2xl border p-3 text-left transition",
+        "w-full rounded-[22px] border p-4 text-left transition-colors",
         selected
-          ? "bg-accent/10 border-accent"
-          : "bg-surface/80 hover:border-accent/40 border-line",
+          ? "border-[rgba(28,139,130,0.35)] bg-[linear-gradient(180deg,rgba(28,139,130,0.16),rgba(255,255,255,0.78))]"
+          : "border-[rgba(23,25,29,0.07)] bg-white/68 hover:border-[rgba(28,139,130,0.22)]",
       )}
     >
       <div className="flex items-start justify-between gap-2">
@@ -265,13 +407,47 @@ function FieldError({ message }: { message?: string }) {
 
 function ArrayActions({ onAdd, label }: { label: string; onAdd: () => void }) {
   return (
-    <button
-      type="button"
-      onClick={onAdd}
-      className="text-accent text-xs font-semibold underline"
-    >
+    <Button type="button" onClick={onAdd} size="sm" variant="ghost">
       {label}
-    </button>
+    </Button>
+  );
+}
+
+function AtlasRadioCard({
+  checked,
+  id,
+  label,
+  meta,
+  name,
+  onChange,
+  value,
+}: {
+  checked: boolean;
+  id: string;
+  label: string;
+  meta?: string;
+  name?: string;
+  onChange: () => void;
+  value: string;
+}) {
+  return (
+    <Label
+      htmlFor={id}
+      className="atlas-choice-card"
+      data-selected={checked ? "true" : "false"}
+    >
+      <Radio
+        id={id}
+        name={name}
+        value={value}
+        checked={checked}
+        onChange={onChange}
+      />
+      <span className="atlas-choice-card__body">
+        <span className="atlas-choice-card__title">{label}</span>
+        {meta ? <span className="atlas-choice-card__meta">{meta}</span> : null}
+      </span>
+    </Label>
   );
 }
 
@@ -298,30 +474,30 @@ function WorkflowParamList({
         return (
           <div
             key={field.id}
-            className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
+            className="grid gap-3 rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
           >
             <div>
               <Label htmlFor={keyInputId} className="text-muted text-xs">
                 {keyPlaceholder}
               </Label>
-              <input
+              <Input
                 id={keyInputId}
                 {...register(`customParams.${index}.key`)}
                 aria-label={`${keyPlaceholder} ${index + 1}`}
                 placeholder={keyPlaceholder}
-                className="atlas-input mt-1"
+                className="mt-1"
               />
             </div>
             <div>
               <Label htmlFor={valueInputId} className="text-muted text-xs">
                 {valuePlaceholder}
               </Label>
-              <input
+              <Input
                 id={valueInputId}
                 {...register(`customParams.${index}.value`)}
                 aria-label={`${valuePlaceholder} ${index + 1}`}
                 placeholder={valuePlaceholder}
-                className="atlas-input mt-1"
+                className="mt-1"
               />
             </div>
             <div className="flex items-end">
@@ -342,8 +518,10 @@ function WorkflowParamList({
 
 function ExpectedOutputsEditor<TFieldValues extends ComposerDraftValues>({
   addLabel,
+  description,
   baseId,
   descriptionPlaceholder,
+  eyebrow,
   fields,
   kindPlaceholder,
   labelText,
@@ -353,8 +531,10 @@ function ExpectedOutputsEditor<TFieldValues extends ComposerDraftValues>({
   removeLabel,
 }: {
   addLabel: string;
+  description: string;
   baseId: string;
   descriptionPlaceholder: string;
+  eyebrow: string;
   fields: Array<{ id: string }>;
   kindPlaceholder: string;
   labelText: string;
@@ -364,11 +544,20 @@ function ExpectedOutputsEditor<TFieldValues extends ComposerDraftValues>({
   removeLabel: string;
 }) {
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <h3 className="text-lg font-semibold">{labelText}</h3>
-        <ArrayActions onAdd={onAppend} label={addLabel} />
-      </div>
+    <AtlasFormSection
+      eyebrow={eyebrow}
+      glyph="evidence"
+      title={labelText}
+      description={description}
+      trailing={
+        <div className="flex items-center gap-2">
+          <Badge kind="neutral" className="px-2 py-1 text-[10px]">
+            {formatNumber(fields.length)}
+          </Badge>
+          <ArrayActions onAdd={onAppend} label={addLabel} />
+        </div>
+      }
+    >
       <div className="space-y-3">
         {fields.map((field, index) => {
           const kindId = `${baseId}-kind-${index}`;
@@ -376,31 +565,29 @@ function ExpectedOutputsEditor<TFieldValues extends ComposerDraftValues>({
           return (
             <div
               key={field.id}
-              className="bg-surface/75 border-line grid gap-3 rounded-2xl border p-4 md:grid-cols-[220px_minmax(0,1fr)_auto]"
+              className="grid gap-3 rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4 md:grid-cols-[220px_minmax(0,1fr)_auto]"
             >
               <div>
                 <Label htmlFor={kindId} className="text-muted text-xs">
                   {kindPlaceholder}
                 </Label>
-                <input
+                <Input
                   id={kindId}
                   {...register(`expectedOutputs.${index}.kind` as never)}
                   placeholder={kindPlaceholder}
-                  className="atlas-input mt-1"
+                  className="mt-1"
                 />
               </div>
               <div>
                 <Label htmlFor={descriptionId} className="text-muted text-xs">
                   {descriptionPlaceholder}
                 </Label>
-                <textarea
+                <Textarea
                   id={descriptionId}
-                  {...register(
-                    `expectedOutputs.${index}.description` as never,
-                  )}
+                  {...register(`expectedOutputs.${index}.description` as never)}
                   rows={2}
                   placeholder={descriptionPlaceholder}
-                  className="atlas-textarea mt-1"
+                  className="mt-1"
                 />
               </div>
               <div className="flex items-end">
@@ -417,13 +604,15 @@ function ExpectedOutputsEditor<TFieldValues extends ComposerDraftValues>({
           );
         })}
       </div>
-    </div>
+    </AtlasFormSection>
   );
 }
 
 function GovernanceConstraintsEditor<TFieldValues extends ComposerDraftValues>({
   addLabel,
+  description,
   baseId,
+  eyebrow,
   fields,
   labelFn,
   labelText,
@@ -432,10 +621,13 @@ function GovernanceConstraintsEditor<TFieldValues extends ComposerDraftValues>({
   register,
   removeLabel,
   rulePlaceholder,
+  severityLabel,
   scopePlaceholder,
 }: {
   addLabel: string;
+  description: string;
   baseId: string;
+  eyebrow: string;
   fields: Array<{ id: string }>;
   labelFn: ReturnType<typeof useI18n>["label"];
   labelText: string;
@@ -444,14 +636,24 @@ function GovernanceConstraintsEditor<TFieldValues extends ComposerDraftValues>({
   register: UseFormRegister<TFieldValues>;
   removeLabel: string;
   rulePlaceholder: string;
+  severityLabel: string;
   scopePlaceholder: string;
 }) {
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <h3 className="text-lg font-semibold">{labelText}</h3>
-        <ArrayActions onAdd={onAppend} label={addLabel} />
-      </div>
+    <AtlasFormSection
+      eyebrow={eyebrow}
+      glyph="governance-pass"
+      title={labelText}
+      description={description}
+      trailing={
+        <div className="flex items-center gap-2">
+          <Badge kind="neutral" className="px-2 py-1 text-[10px]">
+            {formatNumber(fields.length)}
+          </Badge>
+          <ArrayActions onAdd={onAppend} label={addLabel} />
+        </div>
+      }
+    >
       <div className="space-y-3">
         {fields.map((field, index) => {
           const scopeId = `${baseId}-scope-${index}`;
@@ -460,40 +662,40 @@ function GovernanceConstraintsEditor<TFieldValues extends ComposerDraftValues>({
           return (
             <div
               key={field.id}
-              className="bg-surface/75 border-line grid gap-3 rounded-2xl border p-4 md:grid-cols-[160px_minmax(0,1fr)_160px_auto]"
+              className="grid gap-6 rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4 md:grid-cols-[160px_minmax(0,1fr)_160px_auto]"
             >
               <div>
                 <Label htmlFor={scopeId} className="text-muted text-xs">
                   {scopePlaceholder}
                 </Label>
-                <input
+                <Input
                   id={scopeId}
                   {...register(`governanceConstraints.${index}.scope` as never)}
                   placeholder={scopePlaceholder}
-                  className="atlas-input mt-1"
+                  className="mt-1"
                 />
               </div>
               <div>
                 <Label htmlFor={ruleId} className="text-muted text-xs">
                   {rulePlaceholder}
                 </Label>
-                <input
+                <Input
                   id={ruleId}
                   {...register(`governanceConstraints.${index}.rule` as never)}
                   placeholder={rulePlaceholder}
-                  className="atlas-input mt-1"
+                  className="mt-1"
                 />
               </div>
               <div>
                 <Label htmlFor={severityId} className="text-muted text-xs">
-                  Severity
+                  {severityLabel}
                 </Label>
-                <select
+                <Select
                   id={severityId}
                   {...register(
                     `governanceConstraints.${index}.severity` as never,
                   )}
-                  className="atlas-select mt-1"
+                  className="mt-1"
                 >
                   <option value="info">
                     {labelFn("governanceSeverity", "info", "info")}
@@ -504,7 +706,7 @@ function GovernanceConstraintsEditor<TFieldValues extends ComposerDraftValues>({
                   <option value="blocker">
                     {labelFn("governanceSeverity", "blocker", "blocker")}
                   </option>
-                </select>
+                </Select>
               </div>
               <div className="flex items-end">
                 <Button
@@ -520,7 +722,7 @@ function GovernanceConstraintsEditor<TFieldValues extends ComposerDraftValues>({
           );
         })}
       </div>
-    </div>
+    </AtlasFormSection>
   );
 }
 
@@ -532,21 +734,21 @@ function RecentLaunchesSection({
   const { t } = useI18n();
 
   return (
-    <div className="space-y-3">
-      <h4 className="text-lg font-semibold">
-        {t("pages.composer.recentLaunches")}
-      </h4>
+    <AtlasRailSection
+      eyebrow={t("pages.composer.steps.launch")}
+      title={t("pages.composer.recentLaunches")}
+    >
       <div className="space-y-2">
         {recentLaunches.map((launch) => (
           <LaunchReceipt key={launch.runId} {...launch} />
         ))}
         {recentLaunches.length === 0 ? (
-          <p className="text-muted text-sm">
+          <p className="text-sm text-white/72">
             {t("pages.composer.noLaunchReceipts")}
           </p>
         ) : null}
       </div>
-    </div>
+    </AtlasRailSection>
   );
 }
 
@@ -558,75 +760,208 @@ function CapabilityHighlightsSection({
   const { t } = useI18n();
 
   return (
-    <div className="space-y-3">
-      <h4 className="text-lg font-semibold">
-        {t("pages.composer.runtimeSignalsTitle")}
-      </h4>
+    <AtlasRailSection
+      eyebrow={t("pages.composer.capabilityContext")}
+      title={t("pages.composer.runtimeSignalsTitle")}
+    >
       <div className="space-y-2">
         {capabilityHighlights.map((feature) => (
           <div
             key={feature.key}
-            className="bg-surface/75 border-line rounded-2xl border p-3"
+            className="rounded-[18px] border border-white/10 bg-white/5 p-3"
           >
-            <strong className="block">{feature.label}</strong>
-            <span className="text-muted mt-1 block text-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="grid size-8 place-items-center rounded-full bg-white/8">
+                  <Glyph
+                    decorative
+                    intent="verified"
+                    name={resolveCapabilityGlyph(feature.key)}
+                    size={14}
+                  />
+                </span>
+                <strong className="block text-[#fff8ef]">
+                  {feature.label}
+                </strong>
+              </div>
+              <Badge kind="neutral" className="bg-white/10 text-white/70">
+                {feature.key}
+              </Badge>
+            </div>
+            <span className="mt-2 block text-sm leading-6 text-white/70">
               {feature.description || feature.key}
             </span>
           </div>
         ))}
       </div>
-    </div>
+    </AtlasRailSection>
   );
 }
 
 function SummaryCards({
+  constraintCount,
+  expectedOutputsCount,
   preflightEnabled,
-  selectedProfiles,
-  totalProfiles,
-  capabilityCount,
 }: {
-  capabilityCount: number;
+  constraintCount: number;
+  expectedOutputsCount: number;
   preflightEnabled: boolean;
-  selectedProfiles: number;
-  totalProfiles: number;
 }) {
   const { t } = useI18n();
 
   return (
-    <div className="space-y-3">
-      <div className="bg-surface/75 border-line rounded-2xl border p-4">
-        <span className="text-muted text-xs tracking-wide uppercase">
-          {t("pages.composer.plan")}
-        </span>
-        <strong className="mt-2 block text-lg font-semibold">
-          {preflightEnabled
-            ? t("pages.composer.preflightRequired")
-            : t("pages.composer.preflightOptional")}
-        </strong>
+    <AtlasRailSection
+      eyebrow={t("pages.composer.summaryTitle")}
+      title={t("pages.composer.summaryHeading")}
+    >
+      <div className="grid gap-3">
+        <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
+          <span className="block font-mono text-[11px] tracking-[0.12em] text-white/52 uppercase">
+            {t("pages.composer.plan")}
+          </span>
+          <strong className="mt-2 block text-lg font-semibold text-[#fff8ef]">
+            {preflightEnabled
+              ? t("pages.composer.preflightRequired")
+              : t("pages.composer.preflightOptional")}
+          </strong>
+        </div>
+        <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
+          <span className="block font-mono text-[11px] tracking-[0.12em] text-white/52 uppercase">
+            {t("pages.composer.expectedOutputs")}
+          </span>
+          <strong className="mt-2 block text-lg font-semibold text-[#fff8ef]">
+            {formatNumber(expectedOutputsCount)}
+          </strong>
+        </div>
+        <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
+          <span className="block font-mono text-[11px] tracking-[0.12em] text-white/52 uppercase">
+            {t("pages.composer.governanceConstraints")}
+          </span>
+          <strong className="mt-2 block text-lg font-semibold text-[#fff8ef]">
+            {formatNumber(constraintCount)}
+          </strong>
+        </div>
       </div>
-      <div className="bg-surface/75 border-line rounded-2xl border p-4">
-        <span className="text-muted text-xs tracking-wide uppercase">
-          {t("pages.composer.modelComparison")}
-        </span>
-        <strong className="mt-2 block text-lg font-semibold">
-          {selectedProfiles > 0
-            ? t("pages.composer.selectedProfiles", {
-                selected: formatNumber(selectedProfiles),
-                available: formatNumber(totalProfiles),
-              })
-            : t("pages.composer.noModelProfiles")}
-        </strong>
-      </div>
-      <div className="bg-surface/75 border-line rounded-2xl border p-4">
-        <span className="text-muted text-xs tracking-wide uppercase">
-          {t("pages.composer.capabilityContext")}
-        </span>
-        <strong className="mt-2 block text-lg font-semibold">
-          {t("pages.composer.capabilitiesVisible", {
-            count: formatNumber(capabilityCount),
+    </AtlasRailSection>
+  );
+}
+
+function ModelSelectionRail({
+  addCustomModel,
+  formError,
+  llmModelInput,
+  llmProfiles,
+  llmProfilesError,
+  llmProfilesLoading,
+  onModelInputChange,
+  selectedLlmModels,
+  selectedProfiles,
+  toggleModel,
+}: {
+  addCustomModel: () => void;
+  formError?: string;
+  llmModelInput: string;
+  llmProfiles: ModelProfileInfo[];
+  llmProfilesError: unknown;
+  llmProfilesLoading: boolean;
+  onModelInputChange: (value: string) => void;
+  selectedLlmModels: string[];
+  selectedProfiles: ModelProfileInfo[];
+  toggleModel: (modelId: string) => void;
+}) {
+  const { t } = useI18n();
+
+  return (
+    <AtlasRailSection
+      eyebrow={t("pages.composer.selectedProfileSummary")}
+      title={t("pages.composer.modelComparison")}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm text-white/72">
+          {t("pages.composer.selectedProfiles", {
+            selected: formatNumber(selectedProfiles.length),
+            available: formatNumber(llmProfiles.length),
           })}
-        </strong>
+        </span>
+        <Badge kind="neutral" className="bg-white/10 text-white/70">
+          {formatNumber(selectedLlmModels.length)}
+        </Badge>
       </div>
+      <div className="flex gap-2">
+        <Input
+          type="text"
+          value={llmModelInput}
+          onChange={(event) => onModelInputChange(event.target.value)}
+          aria-label={t("pages.composer.modelComparison")}
+          placeholder={t("pages.composer.modelPlaceholder")}
+          className="border-white/10 bg-white/10 text-white placeholder:text-white/40"
+        />
+        <Button type="button" onClick={addCustomModel} variant="ghost">
+          {t("pages.composer.addModel")}
+        </Button>
+      </div>
+      {formError ? <p className="text-danger text-xs">{formError}</p> : null}
+      {llmProfilesLoading ? (
+        <PanelSkeleton rows={3} className="border-0 bg-transparent p-0" />
+      ) : null}
+      {llmProfilesError ? (
+        <ApiErrorAlert
+          title={t("pages.composer.modelProfilesLoadError")}
+          error={llmProfilesError}
+        />
+      ) : null}
+      {!llmProfilesLoading && !llmProfilesError ? (
+        <div className="space-y-2">
+          {llmProfiles.slice(0, 4).map((profile) => (
+            <ModelProfileCard
+              key={profile.profile_id}
+              profile={profile}
+              selected={selectedLlmModels.includes(profile.model_id)}
+              onToggle={() => toggleModel(profile.model_id)}
+            />
+          ))}
+        </div>
+      ) : null}
+    </AtlasRailSection>
+  );
+}
+
+function ComposerSectionHeader({
+  actions,
+  eyebrow,
+  subtitle,
+  title,
+}: {
+  actions: ReactNode;
+  eyebrow: string;
+  subtitle: string;
+  title: string;
+}) {
+  return (
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="max-w-3xl">
+        <p className="eyebrow">{eyebrow}</p>
+        <h2 className="mt-2 text-[clamp(1.8rem,3vw,2.6rem)] leading-[0.98] font-extrabold tracking-[-0.05em]">
+          {title}
+        </h2>
+        <p className="topbar-subtitle mt-3">{subtitle}</p>
+      </div>
+      <div className="topbar-actions">{actions}</div>
+    </div>
+  );
+}
+
+function ComposerActionRow({
+  action,
+  help,
+}: {
+  action: ReactNode;
+  help: string;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-[24px] border border-[rgba(23,25,29,0.08)] bg-white/70 px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
+      <p className="text-muted text-sm leading-6">{help}</p>
+      {action}
     </div>
   );
 }
@@ -645,7 +980,7 @@ function DraftNotice({
   }
 
   return (
-    <div className="bg-warning/5 border-warning/25 rounded-2xl border p-4">
+    <div className="rounded-[24px] border border-[rgba(181,139,43,0.26)] bg-[linear-gradient(180deg,rgba(181,139,43,0.12),rgba(255,255,255,0.76))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-sm font-semibold">
@@ -686,9 +1021,8 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
   const persistenceDisabledRef = useRef(false);
   const { isDirty } = useFormState({ control: form.control });
   const dirtyRef = useRef(false);
-  const [restoredDraft, setRestoredDraft] = useState<ComposerDraftRecord | null>(
-    null,
-  );
+  const [restoredDraft, setRestoredDraft] =
+    useState<ComposerDraftRecord | null>(null);
 
   useEffect(() => {
     dirtyRef.current = isDirty;
@@ -781,7 +1115,7 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
   }, [defaults, discardDraft, form]);
 
   return {
-    activeDraft: (drafts[draftKey] ?? restoredDraft) ?? null,
+    activeDraft: drafts[draftKey] ?? restoredDraft ?? null,
     discardDraft,
     isDirty,
     resetForm,
@@ -836,6 +1170,10 @@ export function WorkflowComposerSection({
     control: form.control,
     name: "dataSourceType",
   });
+  const workflowCheckpointPolicy = useWatch({
+    control: form.control,
+    name: "checkpointPolicy",
+  });
 
   const removeOutput = useCallback(
     (index: number) => {
@@ -882,61 +1220,67 @@ export function WorkflowComposerSection({
 
   return (
     <section className="grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_360px]">
-      <Card className="space-y-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="eyebrow">{t("pages.composer.workflow")}</p>
-            <h2>{t("pages.composer.workflowHeading")}</h2>
-            <p className="topbar-subtitle">{t("pages.composer.subtitle")}</p>
-          </div>
-          <div className="topbar-actions">
-            <Badge kind={isDirty ? "warn" : "ok"}>
-              {isDirty
-                ? t("pages.composer.unsavedChanges")
-                : t("pages.composer.savedState")}
-            </Badge>
-            <Button type="button" onClick={resetForm} variant="ghost">
-              {t("pages.composer.reset")}
-            </Button>
-          </div>
-        </div>
+      <div className="space-y-5">
+        <ComposerSectionHeader
+          eyebrow={t("pages.composer.workflow")}
+          title={t("pages.composer.workflowHeading")}
+          subtitle={t("pages.composer.subtitle")}
+          actions={
+            <>
+              <Badge kind={isDirty ? "warn" : "ok"}>
+                {isDirty
+                  ? t("pages.composer.unsavedChanges")
+                  : t("pages.composer.savedState")}
+              </Badge>
+              <Button type="button" onClick={resetForm} variant="ghost">
+                {t("pages.composer.reset")}
+              </Button>
+            </>
+          }
+        />
 
         <DraftNotice activeDraft={activeDraft} onDiscard={discardDraft} />
 
         <form className="space-y-5" onSubmit={submit}>
-          <div className="grid gap-5 lg:grid-cols-2">
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <Label htmlFor="workflow-operator-brief" className="eyebrow">
-                {t("pages.composer.operatorBrief")}
-              </Label>
-              <textarea
-                id="workflow-operator-brief"
-                {...form.register("executionIntent")}
-                data-testid="composer-operator-brief"
-                rows={4}
-                placeholder={t("pages.composer.operatorBriefPlaceholder")}
-                className="atlas-textarea mt-3"
-              />
-            </div>
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <p className="eyebrow">{t("pages.composer.dataSourceBinding")}</p>
-              <div className="mt-3 space-y-2">
-                {(
-                  [
-                    ["snapshot", t("pages.composer.dataSource.snapshot")],
-                    ["bindings", t("pages.composer.dataSource.bindings")],
-                    ["view", t("pages.composer.dataSource.view")],
-                  ] as const
-                ).map(([value, itemLabel]) => (
-                  <Label
-                    key={value}
-                    htmlFor={`workflow-data-source-${value}`}
-                    className="flex items-center gap-2 text-sm font-normal"
-                  >
-                    <input
+          <AtlasFormSection
+            eyebrow={t("pages.composer.steps.workflow")}
+            glyph="intervention"
+            title={t("pages.composer.operatorBrief")}
+            description={t("pages.composer.stepBodies.workflow")}
+            tone="accent"
+          >
+            <div className="grid gap-5 lg:grid-cols-2">
+              <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
+                <Label htmlFor="workflow-operator-brief" className="eyebrow">
+                  {t("pages.composer.operatorBrief")}
+                </Label>
+                <Textarea
+                  id="workflow-operator-brief"
+                  {...form.register("executionIntent")}
+                  data-testid="composer-operator-brief"
+                  rows={4}
+                  placeholder={t("pages.composer.operatorBriefPlaceholder")}
+                  className="mt-3"
+                />
+              </div>
+              <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
+                <p className="eyebrow">
+                  {t("pages.composer.dataSourceBinding")}
+                </p>
+                <div className="mt-3 space-y-2">
+                  {(
+                    [
+                      ["snapshot", t("pages.composer.dataSource.snapshot")],
+                      ["bindings", t("pages.composer.dataSource.bindings")],
+                      ["view", t("pages.composer.dataSource.view")],
+                    ] as const
+                  ).map(([value, itemLabel]) => (
+                    <AtlasRadioCard
+                      key={value}
                       id={`workflow-data-source-${value}`}
-                      type="radio"
+                      name="workflow-data-source"
                       value={value}
+                      label={itemLabel}
                       checked={dataSourceType === value}
                       onChange={() =>
                         form.setValue("dataSourceType", value, {
@@ -944,116 +1288,165 @@ export function WorkflowComposerSection({
                         })
                       }
                     />
-                    <span>{itemLabel}</span>
-                  </Label>
-                ))}
+                  ))}
+                </div>
+                <Label
+                  htmlFor="workflow-data-source-ref"
+                  className="text-muted mt-4 block text-xs"
+                >
+                  {t("pages.composer.dataSourceBinding")}
+                </Label>
+                <Input
+                  id="workflow-data-source-ref"
+                  {...form.register("dataSourceRef")}
+                  placeholder={t("pages.composer.placeholders.sha256")}
+                  className="atlas-input--mono mt-1"
+                />
+                <FieldError
+                  message={form.formState.errors.dataSourceRef?.message}
+                />
               </div>
-              <Label
-                htmlFor="workflow-data-source-ref"
-                className="text-muted mt-4 block text-xs"
-              >
-                {t("pages.composer.dataSourceBinding")}
-              </Label>
-              <input
-                id="workflow-data-source-ref"
-                {...form.register("dataSourceRef")}
-                placeholder="sha256:..."
-                className="atlas-input atlas-input--mono mt-1"
-              />
-              <FieldError message={form.formState.errors.dataSourceRef?.message} />
             </div>
-          </div>
+          </AtlasFormSection>
 
-          <div className="grid gap-3 lg:grid-cols-3">
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <Label htmlFor="workflow-trinity-ref" className="text-sm font-semibold">
-                {t("pages.composer.trinityBundleRef")}
-              </Label>
-              <input
-                id="workflow-trinity-ref"
-                {...form.register("trinityRef")}
-                placeholder="sha256:trinity"
-                className="atlas-input atlas-input--mono mt-3"
+          <AtlasFormSection
+            eyebrow={t("pages.composer.steps.evidence")}
+            glyph="evidence"
+            title={t("pages.composer.plan")}
+            description={t("pages.composer.stepBodies.evidence")}
+          >
+            <div className="grid gap-3 md:grid-cols-3">
+              <AtlasMetricTile
+                label={t("pages.composer.checkpointPolicy")}
+                value={
+                  workflowCheckpointPolicy === "lenient"
+                    ? t("pages.composer.checkpointOptions.lenient")
+                    : workflowCheckpointPolicy === "disabled"
+                      ? t("pages.composer.checkpointOptions.disabled")
+                      : t("pages.composer.checkpointOptions.strict")
+                }
+              />
+              <AtlasMetricTile
+                label={t("pages.composer.expectedOutputs")}
+                value={formatNumber(workflowOutputs.fields.length)}
+              />
+              <AtlasMetricTile
+                label={t("pages.composer.governanceConstraints")}
+                value={formatNumber(workflowConstraints.fields.length)}
               />
             </div>
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <Label
-                htmlFor="workflow-policy-spec-ref"
-                className="text-sm font-semibold"
-              >
-                {t("pages.composer.policySpecRef")}
-              </Label>
-              <input
-                id="workflow-policy-spec-ref"
-                {...form.register("policySpecRef")}
-                placeholder="sha256:policy-spec"
-                className="atlas-input atlas-input--mono mt-3"
-              />
+            <div className="grid gap-3 lg:grid-cols-3">
+              <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
+                <Label
+                  htmlFor="workflow-trinity-ref"
+                  className="text-sm font-semibold"
+                >
+                  {t("pages.composer.trinityBundleRef")}
+                </Label>
+                <Input
+                  id="workflow-trinity-ref"
+                  {...form.register("trinityRef")}
+                  placeholder={t("pages.composer.placeholders.trinity")}
+                  className="atlas-input--mono mt-3"
+                />
+              </div>
+              <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
+                <Label
+                  htmlFor="workflow-policy-spec-ref"
+                  className="text-sm font-semibold"
+                >
+                  {t("pages.composer.policySpecRef")}
+                </Label>
+                <Input
+                  id="workflow-policy-spec-ref"
+                  {...form.register("policySpecRef")}
+                  placeholder={t("pages.composer.placeholders.policySpec")}
+                  className="atlas-input--mono mt-3"
+                />
+              </div>
+              <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
+                <Label
+                  htmlFor="workflow-model-spec-ref"
+                  className="text-sm font-semibold"
+                >
+                  {t("pages.composer.modelSpecRef")}
+                </Label>
+                <Input
+                  id="workflow-model-spec-ref"
+                  {...form.register("modelSpecRef")}
+                  placeholder={t("pages.composer.placeholders.modelSpec")}
+                  className="atlas-input--mono mt-3"
+                />
+              </div>
             </div>
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <Label
-                htmlFor="workflow-model-spec-ref"
-                className="text-sm font-semibold"
-              >
-                {t("pages.composer.modelSpecRef")}
-              </Label>
-              <input
-                id="workflow-model-spec-ref"
-                {...form.register("modelSpecRef")}
-                placeholder="sha256:model-spec"
-                className="atlas-input atlas-input--mono mt-3"
-              />
-            </div>
-          </div>
+          </AtlasFormSection>
 
-          <div className="grid gap-3 md:grid-cols-3">
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <Label
-                htmlFor="workflow-checkpoint-policy"
-                className="text-sm font-semibold"
-              >
-                {t("pages.composer.checkpointPolicy")}
-              </Label>
-              <select
-                id="workflow-checkpoint-policy"
-                {...form.register("checkpointPolicy")}
-                className="atlas-select mt-3"
-              >
-                <option value="strict">
-                  {t("pages.composer.checkpointOptions.strict")}
-                </option>
-                <option value="lenient">
-                  {t("pages.composer.checkpointOptions.lenient")}
-                </option>
-                <option value="disabled">
-                  {t("pages.composer.checkpointOptions.disabled")}
-                </option>
-              </select>
+          <AtlasFormSection
+            eyebrow={t("pages.composer.steps.guardrails")}
+            glyph="governance-pass"
+            title={t("pages.composer.checkpointPolicy")}
+            description={t("pages.composer.stepBodies.guardrails")}
+          >
+            <div className="grid gap-3 md:grid-cols-[minmax(0,240px)_minmax(0,1fr)]">
+              <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
+                <Label
+                  htmlFor="workflow-checkpoint-policy"
+                  className="text-sm font-semibold"
+                >
+                  {t("pages.composer.checkpointPolicy")}
+                </Label>
+                <Select
+                  id="workflow-checkpoint-policy"
+                  {...form.register("checkpointPolicy")}
+                  className="mt-3"
+                >
+                  <option value="strict">
+                    {t("pages.composer.checkpointOptions.strict")}
+                  </option>
+                  <option value="lenient">
+                    {t("pages.composer.checkpointOptions.lenient")}
+                  </option>
+                  <option value="disabled">
+                    {t("pages.composer.checkpointOptions.disabled")}
+                  </option>
+                </Select>
+              </div>
+              <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-semibold">
+                    {t("pages.composer.customParams")}
+                  </span>
+                  <ArrayActions
+                    onAdd={() => workflowParams.append({ key: "", value: "" })}
+                    label={t("pages.composer.addParam")}
+                  />
+                </div>
+                <div className="mt-4">
+                  <WorkflowParamList
+                    fields={
+                      workflowParams.fields as Array<
+                        { id: string } & ParamFormValue
+                      >
+                    }
+                    register={form.register}
+                    onRemove={workflowParams.remove}
+                    removeLabel={t("common.remove")}
+                    keyPlaceholder={t("pages.composer.paramKey")}
+                    valuePlaceholder={t("pages.composer.paramValue")}
+                  />
+                </div>
+              </div>
             </div>
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <span className="text-sm font-semibold">
-                {t("pages.composer.expectedOutputs")}
-              </span>
-              <strong className="mt-3 block text-2xl font-semibold">
-                {formatNumber(workflowOutputs.fields.length)}
-              </strong>
-            </div>
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <span className="text-sm font-semibold">
-                {t("pages.composer.governanceConstraints")}
-              </span>
-              <strong className="mt-3 block text-2xl font-semibold">
-                {formatNumber(workflowConstraints.fields.length)}
-              </strong>
-            </div>
-          </div>
+          </AtlasFormSection>
 
           <ExpectedOutputsEditor
             addLabel={t("pages.composer.addOutput")}
             baseId="workflow-output"
+            description={t("pages.composer.stepBodies.evidence")}
             descriptionPlaceholder={t(
               "pages.composer.expectedOutputDescriptionPlaceholder",
             )}
+            eyebrow={t("pages.composer.steps.evidence")}
             fields={workflowOutputs.fields}
             kindPlaceholder={t("pages.composer.expectedOutputKindPlaceholder")}
             labelText={t("pages.composer.expectedOutputs")}
@@ -1066,6 +1459,8 @@ export function WorkflowComposerSection({
           <GovernanceConstraintsEditor
             addLabel={t("pages.composer.addConstraint")}
             baseId="workflow-constraint"
+            description={t("pages.composer.stepBodies.guardrails")}
+            eyebrow={t("pages.composer.steps.guardrails")}
             fields={workflowConstraints.fields}
             labelFn={label}
             labelText={t("pages.composer.governanceConstraints")}
@@ -1076,66 +1471,44 @@ export function WorkflowComposerSection({
             register={form.register}
             removeLabel={t("common.remove")}
             rulePlaceholder={t("pages.composer.constraintRulePlaceholder")}
+            severityLabel={t("pages.composer.severity")}
             scopePlaceholder={t("pages.composer.constraintScopePlaceholder")}
           />
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-lg font-semibold">
-                {t("pages.composer.customParams")}
-              </h3>
-              <ArrayActions
-                onAdd={() => workflowParams.append({ key: "", value: "" })}
-                label={t("pages.composer.addParam")}
-              />
-            </div>
-            <WorkflowParamList
-              fields={workflowParams.fields as Array<{ id: string } & ParamFormValue>}
-              register={form.register}
-              onRemove={workflowParams.remove}
-              removeLabel={t("common.remove")}
-              keyPlaceholder={t("pages.composer.paramKey")}
-              valuePlaceholder={t("pages.composer.paramValue")}
-            />
-          </div>
 
           {launchRunMutation.error ? (
             <ApiErrorAlert error={launchRunMutation.error} />
           ) : null}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-muted text-sm">{t("pages.composer.workflowHelp")}</p>
-            <Button
-              type="submit"
-              data-testid="composer-launch-workflow"
-              disabled={launchRunMutation.isPending || !form.formState.isValid}
-              variant="primary"
-            >
-              {launchRunMutation.isPending
-                ? t("pages.composer.launchingWorkflow")
-                : t("pages.composer.launchWorkflow")}
-            </Button>
-          </div>
-        </form>
-      </Card>
-
-      <div className="space-y-5">
-        <Card className="space-y-4">
-          <div className="panel-header">
-            <div>
-              <p className="eyebrow">{t("pages.composer.summaryTitle")}</p>
-              <h3>{t("pages.composer.summaryHeading")}</h3>
-            </div>
-          </div>
-          <SummaryCards
-            capabilityCount={capabilityHighlights.length}
-            preflightEnabled={preflightEnabled}
-            selectedProfiles={0}
-            totalProfiles={0}
+          <ComposerActionRow
+            help={t("pages.composer.workflowHelp")}
+            action={
+              <Button
+                type="submit"
+                data-testid="composer-launch-workflow"
+                disabled={
+                  launchRunMutation.isPending || !form.formState.isValid
+                }
+                variant="primary"
+              >
+                {launchRunMutation.isPending
+                  ? t("pages.composer.launchingWorkflow")
+                  : t("pages.composer.launchWorkflow")}
+              </Button>
+            }
           />
-          <CapabilityHighlightsSection capabilityHighlights={capabilityHighlights} />
-          <RecentLaunchesSection recentLaunches={recentLaunches} />
-        </Card>
+        </form>
       </div>
+
+      <AtlasRail>
+        <SummaryCards
+          constraintCount={workflowConstraints.fields.length}
+          expectedOutputsCount={workflowOutputs.fields.length}
+          preflightEnabled={preflightEnabled}
+        />
+        <CapabilityHighlightsSection
+          capabilityHighlights={capabilityHighlights}
+        />
+        <RecentLaunchesSection recentLaunches={recentLaunches} />
+      </AtlasRail>
     </section>
   );
 }
@@ -1271,169 +1644,224 @@ export function NaturalLanguageComposerSection({
 
   return (
     <section className="grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_360px]">
-      <Card className="space-y-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="eyebrow">{t("pages.composer.naturalLanguage")}</p>
-            <h2>{t("pages.composer.nlHeading")}</h2>
-            <p className="topbar-subtitle">{t("pages.composer.subtitle")}</p>
-          </div>
-          <div className="topbar-actions">
-            <Badge kind={isDirty ? "warn" : "ok"}>
-              {isDirty
-                ? t("pages.composer.unsavedChanges")
-                : t("pages.composer.savedState")}
-            </Badge>
-            <Button type="button" onClick={resetForm} variant="ghost">
-              {t("pages.composer.reset")}
-            </Button>
-          </div>
-        </div>
+      <div className="space-y-5">
+        <ComposerSectionHeader
+          eyebrow={t("pages.composer.naturalLanguage")}
+          title={t("pages.composer.nlHeading")}
+          subtitle={t("pages.composer.subtitle")}
+          actions={
+            <>
+              <Badge kind={isDirty ? "warn" : "ok"}>
+                {isDirty
+                  ? t("pages.composer.unsavedChanges")
+                  : t("pages.composer.savedState")}
+              </Badge>
+              <Button type="button" onClick={resetForm} variant="ghost">
+                {t("pages.composer.reset")}
+              </Button>
+            </>
+          }
+        />
 
         <DraftNotice activeDraft={activeDraft} onDiscard={discardDraft} />
 
         <form className="space-y-5" onSubmit={submit}>
-          <div className="bg-surface/75 border-line rounded-2xl border p-4">
-            <Label htmlFor="composer-nl-brief" className="eyebrow">
-              {t("pages.composer.nlBrief")}
-            </Label>
-            <textarea
-              id="composer-nl-brief"
-              {...form.register("nlRequest")}
-              data-testid="composer-nl-brief"
-              rows={5}
-              maxLength={10_000}
-              placeholder={t("pages.composer.nlBriefPlaceholder")}
-              className="atlas-textarea mt-3"
-            />
-            <div className="text-muted mt-2 flex items-center justify-between gap-3 text-xs">
-              <FieldError message={form.formState.errors.nlRequest?.message} />
-              <span>{(nlRequest ?? "").length}/10000</span>
+          <AtlasFormSection
+            eyebrow={t("pages.composer.steps.workflow")}
+            glyph="counterfactual"
+            title={t("pages.composer.nlBrief")}
+            description={t("pages.composer.stepBodies.workflow")}
+            tone="accent"
+          >
+            <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
+              <Label htmlFor="composer-nl-brief" className="eyebrow">
+                {t("pages.composer.nlBrief")}
+              </Label>
+              <Textarea
+                id="composer-nl-brief"
+                {...form.register("nlRequest")}
+                data-testid="composer-nl-brief"
+                rows={5}
+                maxLength={10_000}
+                placeholder={t("pages.composer.nlBriefPlaceholder")}
+                className="mt-3"
+              />
+              <div className="text-muted mt-2 flex items-center justify-between gap-3 text-xs">
+                <FieldError
+                  message={form.formState.errors.nlRequest?.message}
+                />
+                <span>{(nlRequest ?? "").length}/10000</span>
+              </div>
             </div>
-          </div>
+          </AtlasFormSection>
 
-          <div className="grid gap-5 lg:grid-cols-2">
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <Label htmlFor="nl-operator-brief" className="eyebrow">
-                {t("pages.composer.operatorBrief")}
-              </Label>
-              <textarea
-                id="nl-operator-brief"
-                {...form.register("executionIntent")}
-                rows={4}
-                placeholder={t("pages.composer.operatorBriefPlaceholder")}
-                className="atlas-textarea mt-3"
-              />
+          <AtlasFormSection
+            eyebrow={t("pages.composer.steps.evidence")}
+            glyph="evidence"
+            title={t("pages.composer.operatorBrief")}
+            description={t("pages.composer.stepBodies.evidence")}
+          >
+            <div className="grid gap-5 lg:grid-cols-2">
+              <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
+                <Label htmlFor="nl-operator-brief" className="eyebrow">
+                  {t("pages.composer.operatorBrief")}
+                </Label>
+                <Textarea
+                  id="nl-operator-brief"
+                  {...form.register("executionIntent")}
+                  rows={4}
+                  placeholder={t("pages.composer.operatorBriefPlaceholder")}
+                  className="mt-3"
+                />
+              </div>
+              <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
+                <Label
+                  htmlFor="nl-domain-hint"
+                  className="text-sm font-semibold"
+                >
+                  {t("pages.composer.domainHint")}
+                </Label>
+                <Select
+                  id="nl-domain-hint"
+                  {...form.register("domainHint")}
+                  className="mt-3"
+                >
+                  <option value="custom">
+                    {t("pages.composer.domainOptions.custom")}
+                  </option>
+                  <option value="labor">
+                    {t("pages.composer.domainOptions.labor")}
+                  </option>
+                  <option value="trade">
+                    {t("pages.composer.domainOptions.trade")}
+                  </option>
+                  <option value="energy">
+                    {t("pages.composer.domainOptions.energy")}
+                  </option>
+                  <option value="public_finance">
+                    {t("pages.composer.domainOptions.public_finance")}
+                  </option>
+                </Select>
+                <Label
+                  htmlFor="composer-nl-data-snapshot"
+                  className="text-muted mt-4 block text-xs"
+                >
+                  {t("pages.composer.dataSourceBinding")}
+                </Label>
+                <Input
+                  id="composer-nl-data-snapshot"
+                  {...form.register("nlDataSourceRef")}
+                  data-testid="composer-nl-data-snapshot"
+                  placeholder={t("pages.composer.placeholders.dataSnapshot")}
+                  className="atlas-input--mono mt-1"
+                />
+              </div>
             </div>
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <Label htmlFor="nl-domain-hint" className="text-sm font-semibold">
-                {t("pages.composer.domainHint")}
-              </Label>
-              <select
-                id="nl-domain-hint"
-                {...form.register("domainHint")}
-                className="atlas-select mt-3"
-              >
-                <option value="custom">
-                  {t("pages.composer.domainOptions.custom")}
-                </option>
-                <option value="labor">
-                  {t("pages.composer.domainOptions.labor")}
-                </option>
-                <option value="trade">
-                  {t("pages.composer.domainOptions.trade")}
-                </option>
-                <option value="energy">
-                  {t("pages.composer.domainOptions.energy")}
-                </option>
-                <option value="public_finance">
-                  {t("pages.composer.domainOptions.public_finance")}
-                </option>
-              </select>
-              <Label
-                htmlFor="composer-nl-data-snapshot"
-                className="text-muted mt-4 block text-xs"
-              >
-                {t("pages.composer.dataSourceBinding")}
-              </Label>
-              <input
-                id="composer-nl-data-snapshot"
-                {...form.register("nlDataSourceRef")}
-                data-testid="composer-nl-data-snapshot"
-                placeholder="sha256:data-snapshot"
-                className="atlas-input atlas-input--mono mt-1"
-              />
-            </div>
-          </div>
+          </AtlasFormSection>
 
-          <div className="grid gap-3 md:grid-cols-4">
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <Label htmlFor="nl-max-iterations" className="text-sm font-semibold">
-                {t("pages.composer.maxIterations")}
-              </Label>
-              <input
-                id="nl-max-iterations"
-                type="number"
-                min={1}
-                max={maxIterationsConstraint}
-                {...form.register("maxIterations", { valueAsNumber: true })}
-                className="atlas-input mt-3"
+          <AtlasFormSection
+            eyebrow={t("pages.composer.steps.nl")}
+            glyph="transport"
+            title={t("pages.composer.orchestration")}
+            description={t("pages.composer.stepBodies.nl")}
+          >
+            <div className="grid gap-3 md:grid-cols-4">
+              <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
+                <Label
+                  htmlFor="nl-max-iterations"
+                  className="text-sm font-semibold"
+                >
+                  {t("pages.composer.maxIterations")}
+                </Label>
+                <Input
+                  id="nl-max-iterations"
+                  type="number"
+                  min={1}
+                  max={maxIterationsConstraint}
+                  {...form.register("maxIterations", { valueAsNumber: true })}
+                  className="mt-3"
+                />
+              </div>
+              <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
+                <Label
+                  htmlFor="nl-max-parallel-models"
+                  className="text-sm font-semibold"
+                >
+                  {t("pages.composer.maxParallelModels")}
+                </Label>
+                <Input
+                  id="nl-max-parallel-models"
+                  type="number"
+                  min={1}
+                  max={maxParallelConstraint}
+                  disabled={!multimodelEnabled}
+                  {...form.register("maxParallelModels", {
+                    valueAsNumber: true,
+                  })}
+                  className="mt-3"
+                />
+              </div>
+              <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
+                <Label
+                  htmlFor="nl-run-budget"
+                  className="text-sm font-semibold"
+                >
+                  {t("pages.composer.runBudgetUsd")}
+                </Label>
+                <Input
+                  id="nl-run-budget"
+                  {...form.register("runBudgetUsd")}
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  className="mt-3"
+                />
+              </div>
+              <div className="rounded-[22px] border border-[rgba(23,25,29,0.06)] bg-white/58 p-4">
+                <Label
+                  htmlFor="nl-per-model-budget"
+                  className="text-sm font-semibold"
+                >
+                  {t("pages.composer.perModelBudgetUsd")}
+                </Label>
+                <Input
+                  id="nl-per-model-budget"
+                  {...form.register("perModelBudgetUsd")}
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  className="mt-3"
+                />
+              </div>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              <AtlasMetricTile
+                label={t("pages.composer.expectedOutputs")}
+                value={formatNumber(nlOutputs.fields.length)}
+              />
+              <AtlasMetricTile
+                label={t("pages.composer.governanceConstraints")}
+                value={formatNumber(nlConstraints.fields.length)}
+              />
+              <AtlasMetricTile
+                label={t("pages.composer.maxParallelModels")}
+                value={
+                  multimodelEnabled
+                    ? formatNumber(form.watch("maxParallelModels") ?? 1)
+                    : t("common.disabled")
+                }
               />
             </div>
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <Label
-                htmlFor="nl-max-parallel-models"
-                className="text-sm font-semibold"
-              >
-                {t("pages.composer.maxParallelModels")}
-              </Label>
-              <input
-                id="nl-max-parallel-models"
-                type="number"
-                min={1}
-                max={maxParallelConstraint}
-                disabled={!multimodelEnabled}
-                {...form.register("maxParallelModels", { valueAsNumber: true })}
-                className="atlas-input mt-3"
-              />
-            </div>
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <Label htmlFor="nl-run-budget" className="text-sm font-semibold">
-                {t("pages.composer.runBudgetUsd")}
-              </Label>
-              <input
-                id="nl-run-budget"
-                {...form.register("runBudgetUsd")}
-                type="number"
-                min={0}
-                step="0.01"
-                className="atlas-input mt-3"
-              />
-            </div>
-            <div className="bg-surface/75 border-line rounded-2xl border p-4">
-              <Label
-                htmlFor="nl-per-model-budget"
-                className="text-sm font-semibold"
-              >
-                {t("pages.composer.perModelBudgetUsd")}
-              </Label>
-              <input
-                id="nl-per-model-budget"
-                {...form.register("perModelBudgetUsd")}
-                type="number"
-                min={0}
-                step="0.01"
-                className="atlas-input mt-3"
-              />
-            </div>
-          </div>
+          </AtlasFormSection>
 
           <ExpectedOutputsEditor
             addLabel={t("pages.composer.addOutput")}
             baseId="nl-output"
+            description={t("pages.composer.stepBodies.evidence")}
             descriptionPlaceholder={t(
               "pages.composer.expectedOutputDescriptionPlaceholder",
             )}
+            eyebrow={t("pages.composer.steps.evidence")}
             fields={nlOutputs.fields}
             kindPlaceholder={t("pages.composer.expectedOutputKindPlaceholder")}
             labelText={t("pages.composer.expectedOutputs")}
@@ -1446,6 +1874,8 @@ export function NaturalLanguageComposerSection({
           <GovernanceConstraintsEditor
             addLabel={t("pages.composer.addConstraint")}
             baseId="nl-constraint"
+            description={t("pages.composer.stepBodies.guardrails")}
+            eyebrow={t("pages.composer.steps.guardrails")}
             fields={nlConstraints.fields}
             labelFn={label}
             labelText={t("pages.composer.governanceConstraints")}
@@ -1454,97 +1884,54 @@ export function NaturalLanguageComposerSection({
             register={form.register}
             removeLabel={t("common.remove")}
             rulePlaceholder={t("pages.composer.constraintRulePlaceholder")}
+            severityLabel={t("pages.composer.severity")}
             scopePlaceholder={t("pages.composer.constraintScopePlaceholder")}
           />
 
           {launchNlMutation.error ? (
             <ApiErrorAlert error={launchNlMutation.error} />
           ) : null}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-muted text-sm">{t("pages.composer.nlHelp")}</p>
-            <Button
-              type="submit"
-              data-testid="composer-launch-nl"
-              disabled={launchNlMutation.isPending || !form.formState.isValid}
-              variant="primary"
-            >
-              {launchNlMutation.isPending
-                ? t("pages.composer.launchingNaturalLanguage")
-                : t("pages.composer.launchNaturalLanguage")}
-            </Button>
-          </div>
-        </form>
-      </Card>
-
-      <div className="space-y-5">
-        <Card className="space-y-4">
-          <div className="panel-header">
-            <div>
-              <p className="eyebrow">{t("pages.composer.summaryTitle")}</p>
-              <h3>{t("pages.composer.summaryHeading")}</h3>
-            </div>
-          </div>
-          <SummaryCards
-            capabilityCount={capabilityHighlights.length}
-            preflightEnabled={preflightEnabled}
-            selectedProfiles={selectedProfiles.length}
-            totalProfiles={llmProfiles.length}
-          />
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <h4 className="text-lg font-semibold">
-                {t("pages.composer.modelComparison")}
-              </h4>
-              <span className="text-muted text-xs">
-                {t("pages.composer.selectedProfiles", {
-                  selected: formatNumber(selectedProfiles.length),
-                  available: formatNumber(llmProfiles.length),
-                })}
-              </span>
-            </div>
-            <div className="flex gap-2">
-              <Input
-                type="text"
-                value={llmModelInput}
-                onChange={(event) => setLlmModelInput(event.target.value)}
-                aria-label={t("pages.composer.modelComparison")}
-                placeholder="openai/gpt-5.4"
-              />
-              <Button type="button" onClick={addCustomModel} variant="ghost">
-                {t("pages.composer.addModel")}
+          <ComposerActionRow
+            help={t("pages.composer.nlHelp")}
+            action={
+              <Button
+                type="submit"
+                data-testid="composer-launch-nl"
+                disabled={launchNlMutation.isPending || !form.formState.isValid}
+                variant="primary"
+              >
+                {launchNlMutation.isPending
+                  ? t("pages.composer.launchingNaturalLanguage")
+                  : t("pages.composer.launchNaturalLanguage")}
               </Button>
-            </div>
-            <FieldError
-              message={form.formState.errors.selectedLlmModels?.message}
-            />
-            {llmProfilesLoading ? (
-              <PanelSkeleton rows={3} className="border-0 bg-transparent p-0" />
-            ) : null}
-            {llmProfilesError ? (
-              <ApiErrorAlert
-                title={t("pages.composer.modelProfilesLoadError")}
-                error={llmProfilesError}
-              />
-            ) : null}
-            {!llmProfilesLoading && !llmProfilesError ? (
-              <div className="space-y-2">
-                {llmProfiles.slice(0, 4).map((profile) => (
-                  <ModelProfileCard
-                    key={profile.profile_id}
-                    profile={profile}
-                    selected={selectedLlmModels.includes(profile.model_id)}
-                    onToggle={() => toggleModel(profile.model_id)}
-                  />
-                ))}
-              </div>
-            ) : null}
-          </div>
-
-          <CapabilityHighlightsSection capabilityHighlights={capabilityHighlights} />
-          <RecentLaunchesSection recentLaunches={recentLaunches} />
-        </Card>
+            }
+          />
+        </form>
       </div>
+
+      <AtlasRail>
+        <SummaryCards
+          constraintCount={nlConstraints.fields.length}
+          expectedOutputsCount={nlOutputs.fields.length}
+          preflightEnabled={preflightEnabled}
+        />
+        <ModelSelectionRail
+          addCustomModel={addCustomModel}
+          formError={form.formState.errors.selectedLlmModels?.message}
+          llmModelInput={llmModelInput}
+          llmProfiles={llmProfiles}
+          llmProfilesError={llmProfilesError}
+          llmProfilesLoading={llmProfilesLoading}
+          onModelInputChange={setLlmModelInput}
+          selectedLlmModels={selectedLlmModels}
+          selectedProfiles={selectedProfiles}
+          toggleModel={toggleModel}
+        />
+        <CapabilityHighlightsSection
+          capabilityHighlights={capabilityHighlights}
+        />
+        <RecentLaunchesSection recentLaunches={recentLaunches} />
+      </AtlasRail>
     </section>
   );
 }

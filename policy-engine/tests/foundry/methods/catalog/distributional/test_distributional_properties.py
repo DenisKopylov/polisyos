@@ -1,11 +1,15 @@
 """Property-based tests for distributional / inequality methods."""
+
 from __future__ import annotations
+
 import sys
+
 import numpy as np
 import pytest
 
 try:
-    from hypothesis import given, settings, HealthCheck
+    from hypothesis import HealthCheck, given, settings
+
     HYPOTHESIS_AVAILABLE = True
 except ImportError:
     HYPOTHESIS_AVAILABLE = False
@@ -22,7 +26,11 @@ def _method_or_skip(registry, fqn):
 
 class TestGiniProperties:
     @given(data=distribution_strategy())
-    @settings(max_examples=30, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=30,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_gini_output_finite(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "distributional.inequality.lorenz_curve@1.0.0")
         state = {"values": data["income"]}
@@ -36,7 +44,11 @@ class TestGiniProperties:
             pass
 
     @given(data=distribution_strategy())
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_gini_in_range(self, data, isolated_registry):
         """Gini coefficient should be in [0, 1]."""
         method = _method_or_skip(isolated_registry, "distributional.inequality.lorenz_curve@1.0.0")
@@ -51,7 +63,11 @@ class TestGiniProperties:
             pass
 
     @given(data=distribution_strategy())
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_gini_deterministic(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "distributional.inequality.lorenz_curve@1.0.0")
         state = {"values": data["income"]}
@@ -65,7 +81,11 @@ class TestGiniProperties:
 
 class TestFGTPovertyProperties:
     @given(data=distribution_strategy())
-    @settings(max_examples=25, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=25,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_fgt_output_finite(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "distributional.poverty.fgt@1.0.0")
         state = {
@@ -83,7 +103,11 @@ class TestFGTPovertyProperties:
             pass
 
     @given(data=distribution_strategy())
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_headcount_ratio_in_range(self, data, isolated_registry):
         """FGT(0) = headcount ratio should be in [0, 1]."""
         method = _method_or_skip(isolated_registry, "distributional.poverty.fgt@1.0.0")

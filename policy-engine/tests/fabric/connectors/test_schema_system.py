@@ -1,8 +1,9 @@
 """Tests for the Data Schema & Contract System."""
+
 from __future__ import annotations
 
-from pathlib import Path
 import tempfile
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -23,13 +24,13 @@ from polisyos.fabric.connectors.contracts import (
     InferenceResult,
     MigrationPlan,
     MigrationStatus,
-    SchemaEvolution,
     SchemaApprovalMetadata,
+    SchemaEvolution,
     SchemaHints,
     SchemaInference,
     SchemaNotFoundError,
-    SchemaRiskLevel,
     SchemaRegistry,
+    SchemaRiskLevel,
     SchemaType,
     SchemaVersion,
     SchemaVersionConflictError,
@@ -39,7 +40,6 @@ from polisyos.fabric.connectors.contracts import (
     infer_schema,
     validate_dataframe_against_schema,
 )
-
 
 # =============================================================================
 # Fixtures
@@ -779,9 +779,7 @@ class TestSchemaEvolution:
         report = evolution.compare(old, new)
 
         assert report.is_compatible
-        assert any(
-            c.change_type == ChangeType.FIELD_MADE_NULLABLE for c in report.changes
-        )
+        assert any(c.change_type == ChangeType.FIELD_MADE_NULLABLE for c in report.changes)
 
     def test_mixed_bounds_emit_relaxed_and_tightened_changes(
         self, evolution: SchemaEvolution
@@ -804,9 +802,7 @@ class TestSchemaEvolution:
         assert ChangeType.BOUNDS_TIGHTENED in change_types
         assert not report.is_compatible
 
-    def test_allowed_values_empty_set_is_constraint(
-        self, evolution: SchemaEvolution
-    ) -> None:
+    def test_allowed_values_empty_set_is_constraint(self, evolution: SchemaEvolution) -> None:
         empty = FieldSpec(
             name="status",
             data_type=SchemaType.CATEGORY,
@@ -843,8 +839,7 @@ class TestSchemaEvolution:
         )
         report = evolution.compare(old, new)
         assert any(
-            change.change_type == ChangeType.ALLOWED_VALUES_EXPANDED
-            for change in report.changes
+            change.change_type == ChangeType.ALLOWED_VALUES_EXPANDED for change in report.changes
         )
 
     def test_precision_removal_is_relaxation(self, evolution: SchemaEvolution) -> None:
@@ -861,10 +856,7 @@ class TestSchemaEvolution:
 
         report = evolution.compare(old, new)
         assert report.is_compatible
-        assert any(
-            change.change_type == ChangeType.PRECISION_WIDENED
-            for change in report.changes
-        )
+        assert any(change.change_type == ChangeType.PRECISION_WIDENED for change in report.changes)
 
     def test_generate_migration_sql(self, evolution: SchemaEvolution) -> None:
         """Test SQL migration generation."""

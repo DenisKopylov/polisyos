@@ -104,7 +104,7 @@ resolve_account_num() {
   printf '%s\n' "$((ACCOUNT_START_NUM + shard_index))"
 }
 
-gcloud config set project "${PROJECT_ID}" >/dev/null
+gcloud config set project "${PROJECT_ID}" > /dev/null
 
 echo "=== Launch worker group ==="
 echo "project=${PROJECT_ID} queue=${QUEUE_NAME} status=${STATUS_PASS} run_label=${RUN_LABEL}"
@@ -170,7 +170,7 @@ for i in "${SHARD_INDEX_LIST[@]}"; do
     META="${META},resume-cache-prefix=${RESUME_CACHE_ROOT}"
   fi
 
-  if gcloud compute instances describe "${INSTANCE_NAME}" --zone="${INSTANCE_ZONE}" >/dev/null 2>&1; then
+  if gcloud compute instances describe "${INSTANCE_NAME}" --zone="${INSTANCE_ZONE}" > /dev/null 2>&1; then
     if [ "${SKIP_EXISTING}" = "1" ]; then
       echo "Skipping existing instance ${INSTANCE_NAME} in ${INSTANCE_ZONE}"
       continue
@@ -202,7 +202,7 @@ for i in "${SHARD_INDEX_LIST[@]}"; do
     )
   fi
 
-  gcloud "${CREATE_ARGS[@]}" >/dev/null
+  gcloud "${CREATE_ARGS[@]}" > /dev/null
 
   printf "  %-18s zone=%-15s account=%-2s status=%-8s disk=%-11s max_docs=%s\n" \
     "${INSTANCE_NAME}" "${INSTANCE_ZONE}" "${ACCOUNT_NUM}" "${STATUS_PASS}" "${BOOT_DISK_TYPE}" "${MAX_DOCS}"

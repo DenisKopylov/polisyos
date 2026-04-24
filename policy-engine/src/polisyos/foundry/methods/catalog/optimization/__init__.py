@@ -1,31 +1,53 @@
 """Expose optimization methods and register them into the shared Foundry catalog."""
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
 from polisyos.foundry.methods.registry import MethodRegistry
 
-from .advanced_stochastic import BilevelOptimizationEstimator, ChanceConstrainedEstimator
-from .combinatorial import KnapsackEstimator, VehicleRoutingEstimator
-from .convex import QuadraticProgramEstimator, RobustOptimizationEstimator
 from ._registry_boot import register_optimization_methods
+from .advanced_stochastic import (
+    BilevelOptimizationEstimator,
+    ChanceConstrainedEstimator,
+    LegacyBilevelOptimizationEstimator,
+    compute_incumbent_objective_bounds,
+)
+from .auction import PublicReserveAuctionEstimator
+from .combinatorial import KnapsackEstimator, VehicleRoutingEstimator
+from .convex import (
+    QuadraticProgramEstimator,
+    RobustOptimizationEstimator,
+    SetBasedRobustLinearEstimator,
+)
 from .game_theory import NashEquilibriumEstimator
 from .io_model import LeontiefInputOutput
 from .lp import ResourceLP
 from .milp import BudgetMILP
+from .moment_dro import MomentConstrainedDROEstimator
 from .multiobjective import MultiObjectiveNSGA2Estimator
-from .sequential import (
-    DynamicProgrammingEstimator,
-    SecondOrderConeProgramEstimator,
-    TwoStageStochasticProgramEstimator,
-)
 from .protocols import (
     AllocationItem,
+    AmbiguityCertificate,
+    AuctionFormatRecommendation,
+    AuctionReserveProblem,
+    ConstraintCertificate,
+    DiagnosticResult,
     InputOutputMethod,
     IOModelResult,
+    MomentBound,
+    MomentDROConstraint,
+    MomentDROProblem,
+    OptimizationAmbiguityCertificate,
     OptimizationMethod,
     OptimizationProblem,
     OptimizationResult,
     ResourceConstraint,
+    parse_auction_reserve_problem,
+)
+from .sequential import (
+    DynamicProgrammingEstimator,
+    SecondOrderConeProgramEstimator,
+    TwoStageStochasticProgramEstimator,
 )
 
 
@@ -41,26 +63,41 @@ def ensure_optimization_methods_registered(registry: MethodRegistry | None = Non
 
 __all__ = [
     "AllocationItem",
+    "AmbiguityCertificate",
+    "AuctionFormatRecommendation",
+    "AuctionReserveProblem",
+    "BilevelOptimizationEstimator",
     "BudgetMILP",
+    "ChanceConstrainedEstimator",
+    "ConstraintCertificate",
+    "DiagnosticResult",
+    "DynamicProgrammingEstimator",
     "IOModelResult",
     "InputOutputMethod",
+    "KnapsackEstimator",
+    "LegacyBilevelOptimizationEstimator",
     "LeontiefInputOutput",
+    "MomentBound",
+    "MomentConstrainedDROEstimator",
+    "MomentDROConstraint",
+    "MomentDROProblem",
     "MultiObjectiveNSGA2Estimator",
+    "NashEquilibriumEstimator",
+    "OptimizationAmbiguityCertificate",
     "OptimizationMethod",
     "OptimizationProblem",
     "OptimizationResult",
+    "PublicReserveAuctionEstimator",
     "QuadraticProgramEstimator",
-    "RobustOptimizationEstimator",
-    "SecondOrderConeProgramEstimator",
-    "TwoStageStochasticProgramEstimator",
-    "DynamicProgrammingEstimator",
     "ResourceConstraint",
     "ResourceLP",
-    "KnapsackEstimator",
+    "RobustOptimizationEstimator",
+    "SecondOrderConeProgramEstimator",
+    "SetBasedRobustLinearEstimator",
+    "TwoStageStochasticProgramEstimator",
     "VehicleRoutingEstimator",
-    "NashEquilibriumEstimator",
-    "BilevelOptimizationEstimator",
-    "ChanceConstrainedEstimator",
+    "compute_incumbent_objective_bounds",
     "ensure_optimization_methods_registered",
+    "parse_auction_reserve_problem",
     "register_optimization_methods",
 ]

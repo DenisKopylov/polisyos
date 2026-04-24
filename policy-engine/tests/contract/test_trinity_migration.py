@@ -1,4 +1,5 @@
 """Contract tests for Trinity-only migration helpers."""
+
 from __future__ import annotations
 
 import pytest

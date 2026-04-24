@@ -1,9 +1,11 @@
 """Shared artifact/model resolution helpers for governance passes."""
+
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, ValidationError
 
@@ -121,11 +123,11 @@ def _normalize_ref(
     if hasattr(raw_ref, "model_dump"):
         payload = raw_ref.model_dump(mode="json")
     elif hasattr(raw_ref, "artifact_id"):
-        payload = {"artifact_id": getattr(raw_ref, "artifact_id")}
+        payload = {"artifact_id": raw_ref.artifact_id}
         if hasattr(raw_ref, "kind"):
-            payload["kind"] = getattr(raw_ref, "kind")
+            payload["kind"] = raw_ref.kind
         if hasattr(raw_ref, "media_type"):
-            payload["media_type"] = getattr(raw_ref, "media_type")
+            payload["media_type"] = raw_ref.media_type
     else:
         payload = raw_ref
     return ref_model.model_validate(payload)

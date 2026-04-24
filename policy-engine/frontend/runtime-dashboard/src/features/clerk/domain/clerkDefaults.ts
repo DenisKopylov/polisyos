@@ -1,4 +1,4 @@
-import type { NaturalLanguageLaunchFormValues } from "@/features/composer/domain/forms";
+import type { NaturalLanguageLaunchFormValues } from "@/features/composer";
 
 export const CLERK_DEFAULT_DOMAIN_HINTS = [
   "labor",
@@ -29,8 +29,16 @@ export function buildClerkFormDefaults(
       { kind: "governance_summary", description: "Governance review" },
     ],
     governanceConstraints: [
-      { scope: "legal", rule: "Comply with applicable legislation", severity: "error" },
-      { scope: "budget", rule: "Stay within fiscal constraints", severity: "warning" },
+      {
+        scope: "legal",
+        rule: "Comply with applicable legislation",
+        severity: "error",
+      },
+      {
+        scope: "budget",
+        rule: "Stay within fiscal constraints",
+        severity: "warning",
+      },
     ],
   };
 }

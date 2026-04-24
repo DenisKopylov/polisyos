@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -236,7 +236,9 @@ def build_c7_synthetic_fixture(tmp_path: Path) -> C7SyntheticFixture:
         incomes = base_income * seasonal + 25.0 * treated_mask + rng.normal(0.0, 8.0, size=N_AGENTS)
         employment_score = np.where(agent_employer >= 0, 0.75, 0.2) + 0.05 * period_index
         consumption = incomes * (0.72 + 0.05 * base_risk)
-        distress_signal = 0.15 + 0.01 * agent_cell + 0.03 * period_index + 0.2 * (agent_employer < 0)
+        distress_signal = (
+            0.15 + 0.01 * agent_cell + 0.03 * period_index + 0.2 * (agent_employer < 0)
+        )
         network_exposure = 0.1 + 0.005 * (agent_indices % 31) + 0.02 * treated_mask
         outcome_score = (
             4.0
@@ -429,7 +431,9 @@ def build_c7_synthetic_fixture(tmp_path: Path) -> C7SyntheticFixture:
     for hh_idx in household_cell_indices:
         member_mask = agent_household_cell == hh_idx
         member_ids = agent_indices[member_mask]
-        last_incomes = [latest_agent_rows[f"agent_{member_id:04d}"]["income"] for member_id in member_ids]
+        last_incomes = [
+            latest_agent_rows[f"agent_{member_id:04d}"]["income"] for member_id in member_ids
+        ]
         household_cell_rows.append(
             {
                 "household_cell_id": int(hh_idx),
@@ -451,7 +455,9 @@ def build_c7_synthetic_fixture(tmp_path: Path) -> C7SyntheticFixture:
         budget_weight = 1.0 + (idx % 5) / 10.0
         procurement_weight = 0.6 + (idx % 3) / 10.0
         budget_edges.append(GraphEdge(src_id=node_id, dst_id=budget_dst, weight=budget_weight))
-        procurement_edges.append(GraphEdge(src_id=node_id, dst_id=procurement_dst, weight=procurement_weight))
+        procurement_edges.append(
+            GraphEdge(src_id=node_id, dst_id=procurement_dst, weight=procurement_weight)
+        )
         network_edge_rows.append(
             {
                 "src_id": node_id,
@@ -482,7 +488,9 @@ def build_c7_synthetic_fixture(tmp_path: Path) -> C7SyntheticFixture:
             }
             for node_id in node_ids
         },
-        node_states={node_id: float(latest_agent_rows[node_id]["treatment"]) for node_id in node_ids},
+        node_states={
+            node_id: float(latest_agent_rows[node_id]["treatment"]) for node_id in node_ids
+        },
         cluster_ids={node_id: int(agent_cell[idx] % 8) for idx, node_id in enumerate(node_ids)},
         coordinates={
             node_id: (
@@ -566,9 +574,12 @@ def build_c7_synthetic_fixture(tmp_path: Path) -> C7SyntheticFixture:
         "agents": {
             "age": (20 + latest_agent_numeric % 45).tolist(),
             "skill_level": base_skill.tolist(),
-            "income": [latest_agent_rows[f"agent_{idx:04d}"]["income"] for idx in latest_agent_numeric],
+            "income": [
+                latest_agent_rows[f"agent_{idx:04d}"]["income"] for idx in latest_agent_numeric
+            ],
             "reported_income": [
-                0.92 * latest_agent_rows[f"agent_{idx:04d}"]["income"] for idx in latest_agent_numeric
+                0.92 * latest_agent_rows[f"agent_{idx:04d}"]["income"]
+                for idx in latest_agent_numeric
             ],
             "risk_aversion": base_risk.tolist(),
             "is_employed": (agent_employer >= 0).tolist(),
@@ -768,13 +779,13 @@ def expected_compile_all_artifact_keys() -> set[str]:
 
 
 __all__ = [
-    "C7SyntheticFixture",
     "N_AGENTS",
     "N_CELLS",
     "N_FIRMS",
     "N_HOUSEHOLD_CELLS",
     "N_PERIODS",
     "SEED",
+    "C7SyntheticFixture",
     "build_c7_synthetic_fixture",
     "expected_compile_all_artifact_keys",
     "persist_c7_synthetic_snapshot",

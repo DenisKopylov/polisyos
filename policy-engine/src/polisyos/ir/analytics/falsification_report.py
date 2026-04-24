@@ -4,11 +4,12 @@ Aggregates the results of placebo, refutation, independence, and invariance
 tests into a single machine-readable object.  Used by the DiagnosticDashboard
 and the QualityScoreAggregator.
 """
+
 from __future__ import annotations
 
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 
 class FalsificationTestKind(str, Enum):
@@ -90,7 +91,7 @@ class FalsificationReport(BaseModel):
     """Names of critical tests that failed (blocks downstream quality score)."""
 
     @classmethod
-    def from_tests(cls, tests: list[FalsificationTest]) -> "FalsificationReport":
+    def from_tests(cls, tests: list[FalsificationTest]) -> FalsificationReport:
         """Build a FalsificationReport from a list of FalsificationTest results."""
         n_passed = sum(1 for t in tests if t.passed)
         n_failed = sum(1 for t in tests if not t.passed)
@@ -109,7 +110,7 @@ class FalsificationReport(BaseModel):
         node_outputs: dict[str, dict],
         *,
         alpha: float = 0.05,
-    ) -> "FalsificationReport":
+    ) -> FalsificationReport:
         """Build from CausalEngine node_outputs that contain DoWhyRefute results.
 
         Looks for any node output that has a 'refutation_result' key.
@@ -138,7 +139,8 @@ class FalsificationReport(BaseModel):
                     statistic=stat,
                     p_value=p_val,
                     interpretation=refute.get("interpretation", ""),
-                    is_critical=kind in {
+                    is_critical=kind
+                    in {
                         FalsificationTestKind.PLACEBO_TREATMENT,
                         FalsificationTestKind.INDEPENDENCE_TEST,
                     },
@@ -147,7 +149,7 @@ class FalsificationReport(BaseModel):
         return cls.from_tests(tests)
 
     @classmethod
-    def from_parallel_trends(cls, result: dict) -> "FalsificationReport":
+    def from_parallel_trends(cls, result: dict) -> FalsificationReport:
         """Build a single-test FalsificationReport from a ParallelTrendsCheck result dict."""
         passed = bool(result.get("passed", True))
         test = FalsificationTest(
@@ -156,16 +158,14 @@ class FalsificationReport(BaseModel):
             passed=passed,
             statistic=result.get("statistic"),
             p_value=result.get("p_value"),
-            interpretation=(
-                "Pre-treatment slope equality: " + ("passed" if passed else "FAILED")
-            ),
+            interpretation=("Pre-treatment slope equality: " + ("passed" if passed else "FAILED")),
             is_critical=True,
         )
         return cls.from_tests([test])
 
 
 __all__ = [
-    "FalsificationTestKind",
-    "FalsificationTest",
     "FalsificationReport",
+    "FalsificationTest",
+    "FalsificationTestKind",
 ]

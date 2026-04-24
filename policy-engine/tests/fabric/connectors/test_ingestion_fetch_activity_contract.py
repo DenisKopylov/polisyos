@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from polisyos.fabric.provenance.lineage import FabricLineageTracker
 from polisyos.fabric.ingestion import _build_connector_provenance_graph
+from polisyos.fabric.provenance.lineage import FabricLineageTracker
 
 
 def test_provenance_graph_includes_normalized_fetch_activity_fields() -> None:
-    started_at = datetime.now(timezone.utc)
-    ended_at = datetime.now(timezone.utc)
+    started_at = datetime.now(UTC)
+    ended_at = datetime.now(UTC)
     datasets = [
         {
             "connector_id": "worldbank.wdi",
@@ -50,8 +50,8 @@ def test_provenance_graph_includes_normalized_fetch_activity_fields() -> None:
 
 
 def test_provenance_graph_merges_transform_lineage_graphs() -> None:
-    started_at = datetime.now(timezone.utc)
-    ended_at = datetime.now(timezone.utc)
+    started_at = datetime.now(UTC)
+    ended_at = datetime.now(UTC)
     tracker = FabricLineageTracker("transform-lineage")
     tracker.register_source_dataset(
         connector_id="worldbank.wdi",

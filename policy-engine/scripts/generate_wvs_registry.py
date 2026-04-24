@@ -14,5 +14,7 @@ _TARGET = "tools.data.generate_wvs_registry"
 
 
 if __name__ == "__main__":
-    warn_legacy_entrypoint("scripts/generate_wvs_registry.py", "polisyos-tools data generate-wvs-registry")
+    warn_legacy_entrypoint(
+        "scripts/generate_wvs_registry.py", "polisyos-tools data generate-wvs-registry"
+    )
     raise SystemExit(run_module_entrypoint(_TARGET))

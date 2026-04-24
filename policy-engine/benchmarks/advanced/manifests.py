@@ -46,12 +46,30 @@ class ManifestBundle:
 
 
 DEFAULT_PUBLIC_MANIFESTS: dict[str, Path] = {
-    "proof_closure": Path(__file__).resolve().parents[1] / "proof_closure" / "fixtures" / "public_cases.json",
-    "distributional": Path(__file__).resolve().parents[1] / "distributional" / "fixtures" / "public_cases.json",
-    "discovery_governance": Path(__file__).resolve().parents[1] / "governance" / "fixtures" / "public_cases.json",
-    "strategic_solver": Path(__file__).resolve().parents[1] / "strategic" / "fixtures" / "public_cases.json",
-    "abstraction_exactness": Path(__file__).resolve().parents[1] / "abstraction" / "fixtures" / "public_cases.json",
-    "interaction_contracts": Path(__file__).resolve().parents[1] / "interaction" / "fixtures" / "public_cases.json",
+    "proof_closure": Path(__file__).resolve().parents[1]
+    / "proof_closure"
+    / "fixtures"
+    / "public_cases.json",
+    "distributional": Path(__file__).resolve().parents[1]
+    / "distributional"
+    / "fixtures"
+    / "public_cases.json",
+    "discovery_governance": Path(__file__).resolve().parents[1]
+    / "governance"
+    / "fixtures"
+    / "public_cases.json",
+    "strategic_solver": Path(__file__).resolve().parents[1]
+    / "strategic"
+    / "fixtures"
+    / "public_cases.json",
+    "abstraction_exactness": Path(__file__).resolve().parents[1]
+    / "abstraction"
+    / "fixtures"
+    / "public_cases.json",
+    "interaction_contracts": Path(__file__).resolve().parents[1]
+    / "interaction"
+    / "fixtures"
+    / "public_cases.json",
 }
 
 
@@ -68,7 +86,9 @@ def load_public_manifest(family: str) -> ManifestBundle:
     path = DEFAULT_PUBLIC_MANIFESTS.get(family)
     if path is None:
         raise FileNotFoundError(f"No public manifest configured for family {family!r}")
-    return _load_manifest(path=path, family=family, source="repo_public_manifest", placeholder=False)
+    return _load_manifest(
+        path=path, family=family, source="repo_public_manifest", placeholder=False
+    )
 
 
 def select_manifest(
@@ -143,7 +163,9 @@ def _load_manifest(
         )
     visibility = str(payload.get("visibility") or "public")
     revision = str(payload.get("revision") or "1.0")
-    cases = tuple(_parse_case(payload_family, revision, item, visibility) for item in payload.get("cases", ()))
+    cases = tuple(
+        _parse_case(payload_family, revision, item, visibility) for item in payload.get("cases", ())
+    )
     if not cases:
         raise ValueError(f"Manifest {path} does not define any cases")
     return ManifestBundle(
@@ -173,9 +195,7 @@ def _parse_case(
     }
     missing = sorted(required.difference(payload))
     if missing:
-        raise ValueError(
-            f"Manifest case missing required keys {missing} for family {family!r}"
-        )
+        raise ValueError(f"Manifest case missing required keys {missing} for family {family!r}")
     visibility = str(payload.get("visibility") or default_visibility)
     gates = dict(payload.get("gates") or {})
     baseline_overlap = tuple(str(item) for item in payload.get("baseline_overlap", ()))
@@ -191,7 +211,23 @@ def _parse_case(
         gates=gates,
         tags=tags,
         revision=str(payload.get("revision") or revision),
-        payload={key: value for key, value in payload.items() if key not in {"case_id", "family", "visibility", "case_class", "inputs_ref", "oracle_ref", "baseline_overlap", "gates", "tags", "revision"}},
+        payload={
+            key: value
+            for key, value in payload.items()
+            if key
+            not in {
+                "case_id",
+                "family",
+                "visibility",
+                "case_class",
+                "inputs_ref",
+                "oracle_ref",
+                "baseline_overlap",
+                "gates",
+                "tags",
+                "revision",
+            }
+        },
     )
 
 

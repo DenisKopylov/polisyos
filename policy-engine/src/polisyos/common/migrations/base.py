@@ -1,8 +1,9 @@
 """Registers and executes version-to-version migrations for persisted artifacts."""
+
 from __future__ import annotations
 
 import copy
-from typing import Callable
+from collections.abc import Callable
 
 ArtifactPayload = dict[str, object]
 MigrationDecorator = Callable[["MigrationFn"], "MigrationFn"]
@@ -18,6 +19,7 @@ def register_migration(
     to_version: str,
 ) -> MigrationDecorator:
     """Register migration."""
+
     def decorator(fn: MigrationFn) -> MigrationFn:
         _MIGRATIONS.setdefault(artifact, {})[from_version] = (to_version, fn)
         return fn

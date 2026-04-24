@@ -14,12 +14,18 @@ import subprocess
 import sys
 import threading
 from pathlib import Path
+
 from tools._lib.imports import repo_root_from
 
 if __package__ in {None, ""}:
     sys.path.insert(0, str(repo_root_from(__file__)))
 
-from tools._lib.fs import atomic_write_bytes, atomic_write_json, exclusive_lock, write_json_exclusive
+from tools._lib.fs import (
+    atomic_write_bytes,
+    atomic_write_json,
+    exclusive_lock,
+    write_json_exclusive,
+)
 
 
 def _parse_date(value: str) -> dt.date:
@@ -78,15 +84,25 @@ def _read_completion_marker(path: Path) -> dict[str, object]:
     return data
 
 
-def _fetch_day(day: dt.date, destination: Path, completion_marker: Path) -> tuple[str, int | None, str | None]:
+def _fetch_day(
+    day: dt.date, destination: Path, completion_marker: Path
+) -> tuple[str, int | None, str | None]:
     if completion_marker.exists():
         try:
             metadata = _read_completion_marker(completion_marker)
         except ValueError as exc:
             return day.isoformat(), None, str(exc)
         if destination.exists() and destination.stat().st_size > 0:
-            return day.isoformat(), int(metadata.get("size_bytes") or destination.stat().st_size), None
-        return day.isoformat(), None, f"completion marker exists but payload is missing: {completion_marker}"
+            return (
+                day.isoformat(),
+                int(metadata.get("size_bytes") or destination.stat().st_size),
+                None,
+            )
+        return (
+            day.isoformat(),
+            None,
+            f"completion marker exists but payload is missing: {completion_marker}",
+        )
 
     url = (
         "https://api.spending.gov.ua/api/v2/api/transactions/"
@@ -95,7 +111,11 @@ def _fetch_day(day: dt.date, destination: Path, completion_marker: Path) -> tupl
     command = ["curl", "--fail", "--location", "--retry", "5", "--retry-all-errors", url]
     completed = subprocess.run(command, capture_output=True, check=False)
     if completed.returncode != 0:
-        return day.isoformat(), None, (completed.stderr or completed.stdout).decode("utf-8", "replace")[-2000:]
+        return (
+            day.isoformat(),
+            None,
+            (completed.stderr or completed.stdout).decode("utf-8", "replace")[-2000:],
+        )
     payload = completed.stdout
     if not payload.strip().startswith((b"{", b"[")):
         return day.isoformat(), None, "unexpected non-json payload"
@@ -155,7 +175,11 @@ def main(argv: list[str] | None = None) -> int:
             for day in _daterange(args.start_date, args.end_date):
                 destination = _day_destination(daily_root, day)
                 completion_marker = _completion_marker(daily_root, day)
-                if completion_marker.exists() and destination.exists() and destination.stat().st_size > 0:
+                if (
+                    completion_marker.exists()
+                    and destination.exists()
+                    and destination.stat().st_size > 0
+                ):
                     state["completed_days"].append(day.isoformat())
                     continue
                 pending.append((day, destination, completion_marker))

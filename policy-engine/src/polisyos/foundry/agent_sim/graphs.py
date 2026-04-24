@@ -1,4 +1,5 @@
 """Create, mutate, and aggregate graph structures used by agent-simulation mechanisms."""
+
 from __future__ import annotations
 
 import chex
@@ -10,6 +11,7 @@ from jaxtyping import Array, Bool, Float, Int
 
 class EdgeType:
     """Enumerate the social, economic, and informational edge labels used in runtime graphs."""
+
     SOCIAL_FRIEND = 0
     SOCIAL_FAMILY = 1
     ECONOMIC_EMPLOYER = 2
@@ -21,10 +23,11 @@ class EdgeType:
 @chex.dataclass(frozen=True)
 class EdgeList:
     """Store a sparse graph as parallel sender and receiver arrays for JAX execution."""
-    senders: Int[Array, "n_edges"]
-    receivers: Int[Array, "n_edges"]
-    weights: Float[Array, "n_edges"]
-    edge_types: Int[Array, "n_edges"]
+
+    senders: Int[Array, n_edges]
+    receivers: Int[Array, n_edges]
+    weights: Float[Array, n_edges]
+    edge_types: Int[Array, n_edges]
     n_nodes: int
     n_edges: int
     is_directed: bool = True
@@ -33,11 +36,12 @@ class EdgeList:
 @chex.dataclass(frozen=True)
 class FixedSizeEdgeList:
     """Store a capacity-bounded graph that can be mutated in-place during simulation."""
-    senders: Int[Array, "max_edges"]
-    receivers: Int[Array, "max_edges"]
-    weights: Float[Array, "max_edges"]
-    edge_types: Int[Array, "max_edges"]
-    active: Bool[Array, "max_edges"]
+
+    senders: Int[Array, max_edges]
+    receivers: Int[Array, max_edges]
+    weights: Float[Array, max_edges]
+    edge_types: Int[Array, max_edges]
+    active: Bool[Array, max_edges]
     n_nodes: int
     max_edges: int
     n_active_edges: Int[Array, ""]
@@ -46,15 +50,16 @@ class FixedSizeEdgeList:
 @chex.dataclass(frozen=True)
 class GraphState:
     """Track graph structure plus degree caches used by runtime executors."""
+
     edges: EdgeList | FixedSizeEdgeList
-    node_to_edges_start: Int[Array, "n_nodes_plus_one"]
+    node_to_edges_start: Int[Array, n_nodes_plus_one]
     sorted_by_receiver: Bool[Array, ""]
-    in_degrees: Int[Array, "n_nodes"]
-    out_degrees: Int[Array, "n_nodes"]
+    in_degrees: Int[Array, n_nodes]
+    out_degrees: Int[Array, n_nodes]
     last_structure_update: Int[Array, ""]
 
     @classmethod
-    def empty(cls, n_nodes: int) -> "GraphState":
+    def empty(cls, n_nodes: int) -> GraphState:
         empty_edges = EdgeList(
             senders=jnp.zeros((0,), dtype=jnp.int32),
             receivers=jnp.zeros((0,), dtype=jnp.int32),
@@ -77,6 +82,7 @@ class GraphState:
 @chex.dataclass(frozen=True)
 class MultiEdgeList:
     """Provide per-edge-type views over a shared runtime edge list."""
+
     all_edges: EdgeList
 
     def get_edges_by_type(self, edge_type: int) -> EdgeList:
@@ -235,9 +241,7 @@ def create_spatial_graph(
             is_directed=False,
         )
 
-    edge_distances = jnp.sqrt(
-        jnp.sum((positions[senders] - positions[receivers]) ** 2, axis=-1)
-    )
+    edge_distances = jnp.sqrt(jnp.sum((positions[senders] - positions[receivers]) ** 2, axis=-1))
     weights = 1.0 / (edge_distances + 0.1)
     return EdgeList(
         senders=senders,
@@ -455,6 +459,7 @@ def multi_hop_aggregation(
     active: jnp.ndarray | None = None,
 ) -> jnp.ndarray:
     """Propagate messages across repeated hops with exponential decay."""
+
     def body(hop, carry):
         current, aggregated = carry
         messages = aggregate_messages(
@@ -556,6 +561,7 @@ def compute_degrees(
 
 class DynamicGraphUpdater:
     """Evolve graph structure by removing stale edges and sampling new ones."""
+
     def __init__(
         self,
         *,
@@ -589,9 +595,7 @@ class DynamicGraphUpdater:
         senders = jnp.concatenate([senders, new_senders])
         receivers = jnp.concatenate([receivers, new_receivers])
         weights = jnp.concatenate([weights, jnp.ones_like(new_senders, dtype=jnp.float32)])
-        edge_types = jnp.concatenate(
-            [edge_types, jnp.zeros_like(new_senders, dtype=jnp.int32)]
-        )
+        edge_types = jnp.concatenate([edge_types, jnp.zeros_like(new_senders, dtype=jnp.int32)])
         n_edges = int(senders.shape[0])
         return EdgeList(
             senders=senders,
@@ -644,8 +648,8 @@ class DynamicGraphUpdater:
             accept = accept_rand < accept_prob
             candidate_receivers = jnp.where(accept, candidate_receivers, edges.receivers)
 
-        slot_active = jnp.zeros((edges.max_edges,), dtype=jnp.bool_).at[update_slots].set(
-            update_mask
+        slot_active = (
+            jnp.zeros((edges.max_edges,), dtype=jnp.bool_).at[update_slots].set(update_mask)
         )
         senders = jnp.where(slot_active, candidate_senders, edges.senders)
         receivers = jnp.where(slot_active, candidate_receivers, edges.receivers)

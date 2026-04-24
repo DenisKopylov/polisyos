@@ -7,6 +7,10 @@ pre-commit:
     eslint:
       glob: "*.{js,mjs,ts,tsx}"
       run: npx eslint --fix {staged_files}
+    check-contrast:
+      run: node --experimental-strip-types ../../tools/design/check-contrast.ts
+    check-reduced-motion:
+      run: node --experimental-strip-types ../../tools/design/check-reduced-motion.ts
 
 pre-push:
   commands:

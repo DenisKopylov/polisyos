@@ -13,6 +13,7 @@ Covers three related concepts:
 
 All models use ``ConfigDict(extra="forbid", frozen=True)`` per project standard.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -25,7 +26,6 @@ from polisyos.ir._validation import (
     ensure_finite_numeric,
     ensure_unique_ids,
 )
-
 
 # ── PN / PS / PNS ─────────────────────────────────────────────────────────────
 
@@ -75,7 +75,7 @@ class PNResult(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_result(self) -> "PNResult":
+    def validate_result(self) -> PNResult:
         ensure_finite_numeric(self.treatment_value, field_name="treatment_value")
         ensure_finite_numeric(self.counterfactual_value, field_name="counterfactual_value")
         if self.pn_ci is not None:
@@ -121,7 +121,7 @@ class PSResult(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_result(self) -> "PSResult":
+    def validate_result(self) -> PSResult:
         ensure_finite_numeric(self.treatment_value, field_name="treatment_value")
         ensure_finite_numeric(self.counterfactual_value, field_name="counterfactual_value")
         if self.ps_ci is not None:
@@ -172,7 +172,7 @@ class PNSResult(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_result(self) -> "PNSResult":
+    def validate_result(self) -> PNSResult:
         ensure_finite_numeric(self.treatment_value, field_name="treatment_value")
         ensure_finite_numeric(self.counterfactual_value, field_name="counterfactual_value")
         if self.pns_ci is not None:
@@ -242,7 +242,7 @@ class PNPSBounds(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_bounds(self) -> "PNPSBounds":
+    def validate_bounds(self) -> PNPSBounds:
         ensure_finite_numeric(self.p_y1_x1, field_name="p_y1_x1")
         ensure_finite_numeric(self.p_y1_x0, field_name="p_y1_x0")
         if self.p_x1 is not None:
@@ -288,7 +288,7 @@ class ContingencySet(BaseModel):
     """Number of contingency variables (|W|)."""
 
     @model_validator(mode="after")
-    def validate_contingency(self) -> "ContingencySet":
+    def validate_contingency(self) -> ContingencySet:
         ensure_unique_ids(self.variables, key_fn=lambda item: item, label="contingency.variables")
         if self.size != len(self.variables):
             raise ValueError("contingency size must match variables length")
@@ -380,7 +380,7 @@ class HPResult(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_result(self) -> "HPResult":
+    def validate_result(self) -> HPResult:
         ensure_finite_numeric(self.cause_value, field_name="cause_value")
         ensure_finite_numeric(
             self.counterfactual_cause_value,
@@ -455,10 +455,10 @@ def _validate_optional_bounds(
 
 
 __all__ = [
-    "PNResult",
-    "PSResult",
-    "PNSResult",
-    "PNPSBounds",
     "ContingencySet",
     "HPResult",
+    "PNPSBounds",
+    "PNResult",
+    "PNSResult",
+    "PSResult",
 ]

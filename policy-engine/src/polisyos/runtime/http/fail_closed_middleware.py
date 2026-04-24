@@ -1,12 +1,14 @@
 """Fail-closed perimeter guard for deployments without the full security chain."""
+
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.runtime.http.errors import problem_response
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
     from starlette.middleware.base import BaseHTTPMiddleware as _BaseHTTPMiddleware
     from starlette.requests import Request
     from starlette.responses import Response

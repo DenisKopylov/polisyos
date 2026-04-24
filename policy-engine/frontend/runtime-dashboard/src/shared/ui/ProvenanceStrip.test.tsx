@@ -36,9 +36,7 @@ describe("ProvenanceStrip", () => {
   });
 
   it("renders trailing content", () => {
-    render(
-      <ProvenanceStrip items={items} trailing={<span>trailing</span>} />,
-    );
+    render(<ProvenanceStrip items={items} trailing={<span>trailing</span>} />);
     expect(screen.getByText("trailing")).toBeInTheDocument();
   });
 });

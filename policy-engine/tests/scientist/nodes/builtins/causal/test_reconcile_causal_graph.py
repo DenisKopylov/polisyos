@@ -118,9 +118,7 @@ def test_reconcile_fragment_load_assertion_is_not_swallowed(
     state = minimal_state.model_copy(
         update={
             "params": {
-                "scm_fragment_refs": [
-                    str(artifact_ref_factory(kind="ir.scm_fragment").artifact_id)
-                ]
+                "scm_fragment_refs": [str(artifact_ref_factory(kind="ir.scm_fragment").artifact_id)]
             }
         },
     )

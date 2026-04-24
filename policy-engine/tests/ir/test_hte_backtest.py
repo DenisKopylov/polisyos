@@ -145,10 +145,9 @@ def test_policy_recommendation_normalizes_targeting_efficiency_consistently() ->
     assert normalized["targeting_efficiency"] == pytest.approx(2.0)
     assert recommendation.targeting_efficiency == pytest.approx(2.0)
     assert recommendation.model_copy(deep=True).targeting_efficiency == pytest.approx(2.0)
-    assert (
-        PolicyRecommendation.model_validate(recommendation.model_dump(mode="json")).targeting_efficiency
-        == pytest.approx(2.0)
-    )
+    assert PolicyRecommendation.model_validate(
+        recommendation.model_dump(mode="json")
+    ).targeting_efficiency == pytest.approx(2.0)
 
 
 def test_policy_recommendation_is_frozen_report_contract() -> None:

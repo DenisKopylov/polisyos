@@ -1,17 +1,19 @@
 # ADR-045: Closed Glyph Alphabet — Ten Radicals
 
 ## Status
-Proposed
+
+Approved
 
 ## Date
+
 2026-04-22
 
 ## Context
 
 Phase 1.1 of the design plan introduces ten semantic glyphs — the
-*radicals* — as the non-textual visual vocabulary of PolicyOS. The
-radicals map one-to-one (or sometimes one-to-two) onto the 18-term
-domain vocabulary. They are geometrically constrained (§
+_radicals_ — as the non-textual visual vocabulary of PolicyOS. The
+radicals currently map onto a 29-term domain vocabulary while remaining
+geometrically constrained (§
 [GLYPH_SPECIFICATION](../brand/GLYPH_SPECIFICATION.md)) and
 semantically scarce.
 
@@ -40,6 +42,7 @@ Options considered:
    canonical list and geometry live in
    [GLYPH_SPECIFICATION](../brand/GLYPH_SPECIFICATION.md).
 2. Adding a radical requires a new ADR that:
+
    - names the incoming radical, its geometry, and the vocabulary
      term it serves;
    - names the outgoing radical being retired;
@@ -60,10 +63,13 @@ Options considered:
    ([ADR-042](ADR-042-janus-atlas-dual-brand.md)).
 
 Source of truth:
+
 - [GLYPH_SPECIFICATION](../brand/GLYPH_SPECIFICATION.md) — the canonical
   list and geometry.
+
 - `frontend/runtime-dashboard/src/shared/brand/glyph-vocabulary.ts` — the
   code-level mapping from domain term to radical.
+
 - `frontend/runtime-dashboard/public/atlas/glyphs/*.svg` — the ten
   SVG assets, one per radical.
 
@@ -73,10 +79,13 @@ Source of truth:
   stroke-style or diacritic modifier, (b) rely on prose and a
   ProvenanceStrip entry, or (c) go through the retire-and-replace
   ADR flow.
+
 - The alphabet stays learnable. A new analyst can be trained on the ten
   in under an hour; a sixty-glyph alphabet is a second font.
+
 - The product team may feel occasional friction when a domain request
   wants a unique mark; the ADR trail makes that friction productive.
+
 - Marketing and documentation can reproduce the complete alphabet on a
   single page — this becomes part of the brand surface.
 
@@ -86,12 +95,15 @@ Files created or maintained by this ADR:
 
 - Maintained: `policy-engine/docs/brand/GLYPH_SPECIFICATION.md` (the
   ten radicals).
+
 - Maintained: `frontend/runtime-dashboard/src/shared/brand/glyph-vocabulary.ts`.
 - Maintained: the ten SVG files under
   `frontend/runtime-dashboard/public/atlas/glyphs/`.
+
 - New test: `frontend/runtime-dashboard/src/shared/brand/glyph-vocabulary.test.ts`
   (parses the specification markdown, enumerates radicals, asserts
   parity with the vocabulary map).
+
 - New lint rule: `eslint-plugin-local/rules/no-raw-emoji-in-jsx.js`
   (blocks Unicode radical characters from appearing as literals in
   JSX, forcing use of `<Glyph />`).
@@ -100,6 +112,7 @@ Files created or maintained by this ADR:
 
 - Related: [ADR-042](ADR-042-janus-atlas-dual-brand.md) — the brand
   marks are not radicals and do not count against the limit.
+
 - Related: [ADR-046](ADR-046-authored-text-registry.md) — the textual
   counterpart of visual scarcity: authored text has a bounded set of
   author kinds.

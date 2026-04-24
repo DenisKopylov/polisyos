@@ -1,6 +1,7 @@
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal_discovery import (
+    LATENT_CARDINALITY_EVIDENCE_KEY,
     AlgebraicConstraintFamily,
     AlgebraicConstraintReport,
     CausalDiscoveryReport,
@@ -20,7 +21,6 @@ from polisyos.ir.analytics.causal_discovery import (
     LatentIdentifiabilityStatus,
     LatentPromotionEvidence,
     LatentTrustLevel,
-    LATENT_CARDINALITY_EVIDENCE_KEY,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
@@ -120,12 +120,8 @@ def _conditional_promotion_evidence() -> LatentPromotionEvidence:
         rival_explanation_audit_ref=_promotion_ref(
             "d", kind="scientist.latent.rival_explanation_audit"
         ),
-        external_evidence_refs=[
-            _promotion_ref("e", kind="scientist.latent.external_evidence")
-        ],
-        replication_refs=[
-            _promotion_ref("f", kind="scientist.latent.replication")
-        ],
+        external_evidence_refs=[_promotion_ref("e", kind="scientist.latent.external_evidence")],
+        replication_refs=[_promotion_ref("f", kind="scientist.latent.replication")],
         hidden_benchmark_ref=_promotion_ref("g", kind="scientist.latent.hidden_benchmark"),
         reviewer_decision_ref=_promotion_ref("h", kind="scientist.latent.reviewer_decision"),
         scope_regime=["linear_nongaussian", "metric_invariant"],
@@ -324,9 +320,7 @@ def test_merge_latent_bundle_preserves_cardinality_metadata() -> None:
     assert merged.metadata["model_class"] == "ME-LiNGLaH-S"
     assert merged.metadata["identifiability_status"] == "full"
     assert merged.metadata["latent_blocks"][0]["latent_id"] == "U_01"
-    assert merged.metadata["ambiguity_notes"] == [
-        "moderator_role_requires_interaction_extension"
-    ]
+    assert merged.metadata["ambiguity_notes"] == ["moderator_role_requires_interaction_extension"]
     assert merged.latent_cardinality_spec() is not None
     assert merged.latent_cardinality_spec().latent_blocks[0].role is LatentCausalRole.MEDIATOR
 
@@ -381,9 +375,7 @@ def test_merge_latent_bundle_validates_replicated_separation_diagnostics() -> No
     assert merged.readiness_cap == "proof_only"
     assert merged.promotion_allowed is False
     assert (
-        merged.metadata["separation_diagnostics"]["replication"][
-            "independent_discovery_hypothesis"
-        ]
+        merged.metadata["separation_diagnostics"]["replication"]["independent_discovery_hypothesis"]
         is True
     )
 
@@ -406,9 +398,7 @@ def test_merge_latent_bundle_keeps_research_when_any_separation_source_is_incomp
         metadata={"separation_diagnostics": _separation_diagnostics()},
     )
     incomplete_bundle = latent_bundle.model_copy(
-        update={
-            "metadata": {"separation_diagnostics": _incomplete_separation_diagnostics()}
-        }
+        update={"metadata": {"separation_diagnostics": _incomplete_separation_diagnostics()}}
     )
     hypotheses = [
         _hypothesis(
@@ -829,7 +819,9 @@ def test_discovery_artifact_builder_persists_source_reports_and_merges_latent_bu
     )
     assert source_reports["pc_main"].algebraic_constraints is not None
     assert (
-        source_reports["pc_main"].algebraic_constraints.violated_constraints_preview[0].constraint_id
+        source_reports["pc_main"]
+        .algebraic_constraints.violated_constraints_preview[0]
+        .constraint_id
         == "ci:X_Y"
     )
     assert merged_latent is not None
@@ -837,9 +829,7 @@ def test_discovery_artifact_builder_persists_source_reports_and_merges_latent_bu
     assert merged_latent.promotion_allowed is False
     assert merged_latent.metadata["source_hypothesis_ids"] == ["pc_main"]
     assert audit.latent_discovery_summary["resolution_label"] == "latent_confounding"
-    assert audit.latent_discovery_summary["separated_pairs"] == [
-        "measurement_vs_confounding"
-    ]
+    assert audit.latent_discovery_summary["separated_pairs"] == ["measurement_vs_confounding"]
 
 
 def test_discovery_artifact_builder_uses_automatic_latent_producer_paths(tmp_path) -> None:

@@ -1,4 +1,5 @@
 """Public run context module API."""
+
 from __future__ import annotations
 
 import json
@@ -154,6 +155,7 @@ def new_run_id() -> str:
 @dataclass
 class RunContext:
     """Run context public type."""
+
     store: ArtifactStore
     trace: TraceSink
     run_manifest: RunManifest

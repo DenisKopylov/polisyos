@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.openalex.client import OpenAlexClient, OpenAlexRequest
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.common.logger import get_logger
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 logger = get_logger(__name__)
 
@@ -42,12 +45,7 @@ def _build_filter_expr(cause: str, effect: str) -> str:
     cause_terms = cause.replace(".", " ").replace("_", " ").strip()
     effect_terms = effect.replace(".", " ").replace("_", " ").strip()
     search_query = f"{cause_terms} {effect_terms}"
-    return (
-        f"default.search:{search_query},"
-        f"type:article,"
-        f"has_abstract:true,"
-        f"publication_year:>2005"
-    )
+    return f"default.search:{search_query},type:article,has_abstract:true,publication_year:>2005"
 
 
 async def run_demand_harvest(config: AcademicBatchConfig) -> dict[str, int]:
@@ -94,7 +92,9 @@ async def run_demand_harvest(config: AcademicBatchConfig) -> dict[str, int]:
             try:
                 response = await client.list_works(req)
             except Exception:
-                logger.warning("demand_harvest: failed to fetch for %s -> %s", cause, effect, exc_info=True)
+                logger.warning(
+                    "demand_harvest: failed to fetch for %s -> %s", cause, effect, exc_info=True
+                )
                 continue
 
             results = response.get("results") or []
@@ -115,7 +115,9 @@ async def run_demand_harvest(config: AcademicBatchConfig) -> dict[str, int]:
 
             logger.info(
                 "demand_harvest: %s -> %s yielded %d works",
-                cause, effect, count,
+                cause,
+                effect,
+                count,
             )
 
     config.demand_harvest_works_path.parent.mkdir(parents=True, exist_ok=True)
@@ -136,7 +138,9 @@ async def run_demand_harvest(config: AcademicBatchConfig) -> dict[str, int]:
         artifacts=[config.demand_harvest_works_path],
         started_at=started_at,
     )
-    logger.info("demand_harvest: harvested %d works for %d needs", len(harvested_works), len(backlog))
+    logger.info(
+        "demand_harvest: harvested %d works for %d needs", len(harvested_works), len(backlog)
+    )
     return metrics
 
 

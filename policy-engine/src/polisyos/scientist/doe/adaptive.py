@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
 
 import numpy as np
 
@@ -91,7 +91,10 @@ class AdaptiveSampler:
 
             current_indices = self._extract_primary_indices(result)
             stability = self._compute_stability(
-                prev_ranking, result.ranking, prev_indices, current_indices,
+                prev_ranking,
+                result.ranking,
+                prev_indices,
+                current_indices,
             )
 
             rnd = AdaptiveRound(
@@ -156,8 +159,12 @@ class AdaptiveSampler:
             for j in range(i + 1, n):
                 total += 1
                 # Check if relative order is preserved
-                prev_pos_i = prev_ranking.index(curr_ranking[i]) if curr_ranking[i] in prev_ranking else n
-                prev_pos_j = prev_ranking.index(curr_ranking[j]) if curr_ranking[j] in prev_ranking else n
+                prev_pos_i = (
+                    prev_ranking.index(curr_ranking[i]) if curr_ranking[i] in prev_ranking else n
+                )
+                prev_pos_j = (
+                    prev_ranking.index(curr_ranking[j]) if curr_ranking[j] in prev_ranking else n
+                )
                 if prev_pos_i < prev_pos_j:
                     concordant += 1
 

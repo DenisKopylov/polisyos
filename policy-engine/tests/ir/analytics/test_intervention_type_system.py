@@ -57,9 +57,7 @@ def test_intervention_language_covers_stage_13_1_minimum_types() -> None:
     expressions = (
         base_node,
         ConditionalIntervention(
-            assignments=(
-                ConditionalPolicy(target="A", policy_expr="g(W)", history_vars=("W",)),
-            )
+            assignments=(ConditionalPolicy(target="A", policy_expr="g(W)", history_vars=("W",)),)
         ),
         StochasticIntervention(
             policies=(
@@ -80,9 +78,7 @@ def test_intervention_language_covers_stage_13_1_minimum_types() -> None:
                 ),
             )
         ),
-        EdgeIntervention(
-            assignments=(EdgeAssignment(source="A", target="M", value=1),)
-        ),
+        EdgeIntervention(assignments=(EdgeAssignment(source="A", target="M", value=1),)),
         PathIntervention(active_paths=(("A", "M", "Y"),), natural_value_vars=("M",)),
         TransportIntervention(
             source_domain="source",
@@ -141,8 +137,7 @@ def test_mtp_after_node_assignment_is_blocked_by_natdeps() -> None:
     proof_bundle = proof_bundle_from_intervention_certificate(certificate)
 
     assert (
-        certificate.identification_status
-        is InterventionIdentificationStatus.BLOCKED_BY_TYPECHECK
+        certificate.identification_status is InterventionIdentificationStatus.BLOCKED_BY_TYPECHECK
     )
     assert certificate.composition_check is not None
     assert certificate.composition_check.status is InterventionCompositionStatus.BLOCKED
@@ -281,9 +276,7 @@ def test_estimand_ast_supports_edge_and_mtp_nodes() -> None:
         dataset_ref="inner_ds",
     )
     edge_node = EdgeInterventionNode(
-        assignments=(
-            EdgeInterventionAssignment(source="A", target="Y", value_expr="1"),
-        ),
+        assignments=(EdgeInterventionAssignment(source="A", target="Y", value_expr="1"),),
         inner_node=inner,
         dataset_ref="edge_ds",
     )

@@ -1,4 +1,5 @@
 """Tests for ArtifactStoreConfig and build_artifact_store factory."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -8,10 +9,10 @@ from pydantic import ValidationError
 
 from polisyos.core.artifacts.backends.config import (
     ArtifactStoreConfig,
-    build_async_artifact_store,
     build_artifact_store,
-    infer_async_artifact_store_config,
+    build_async_artifact_store,
     infer_artifact_store_config,
+    infer_async_artifact_store_config,
 )
 from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS

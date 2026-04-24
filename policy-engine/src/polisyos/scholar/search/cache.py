@@ -108,7 +108,9 @@ class UrlFetchCache:
                     kind="scholar.web_fetch_payload",
                     media_type=result.content_type,
                     schema=SchemaInfo(name="polisyos.scholar.web_fetch_payload", version="1.0"),
-                    producer=ProducerInfo(component="polisyos.scholar.search.cache", version="1.0.0"),
+                    producer=ProducerInfo(
+                        component="polisyos.scholar.search.cache", version="1.0.0"
+                    ),
                 ),
             )
             artifact_id = str(ref.artifact_id)

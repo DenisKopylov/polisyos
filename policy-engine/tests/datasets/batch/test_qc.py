@@ -5,8 +5,8 @@ from pathlib import Path
 
 import duckdb
 
-from polisyos.datasets.batch.benchmark import READINESS_THRESHOLDS
 from polisyos.batch_common.manifest import write_raw_manifest
+from polisyos.datasets.batch.benchmark import READINESS_THRESHOLDS
 from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.batch.qc import _url_is_reachable, run_qc
 
@@ -57,7 +57,9 @@ def test_qc_writes_coverage_heatmap_when_observations_exist(tmp_path) -> None:
     )
 
     config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
-    config.merged_records_path.write_text('{"title":"Dataset","description":"Desc","source":"worldbank"}\n', encoding="utf-8")
+    config.merged_records_path.write_text(
+        '{"title":"Dataset","description":"Desc","source":"worldbank"}\n', encoding="utf-8"
+    )
 
     con = duckdb.connect(str(config.db_path))
     con.execute(
@@ -103,12 +105,12 @@ def test_qc_supports_legacy_dataset_schema_without_coverage_columns(tmp_path) ->
     )
 
     config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
-    config.merged_records_path.write_text('{"title":"Dataset","description":"Desc","source":"unesco_uis"}\n', encoding="utf-8")
+    config.merged_records_path.write_text(
+        '{"title":"Dataset","description":"Desc","source":"unesco_uis"}\n', encoding="utf-8"
+    )
 
     con = duckdb.connect(str(config.db_path))
-    con.execute(
-        "CREATE TABLE ds_distributions (url VARCHAR, dataset_id VARCHAR, format VARCHAR)"
-    )
+    con.execute("CREATE TABLE ds_distributions (url VARCHAR, dataset_id VARCHAR, format VARCHAR)")
     con.execute(
         "CREATE TABLE ds_datasets ("
         "id VARCHAR, source VARCHAR, title VARCHAR, description VARCHAR, spatial VARCHAR, "
@@ -170,7 +172,9 @@ def test_qc_loads_benchmark_thresholds(tmp_path) -> None:
         payload_path=payload,
         count=1,
     )
-    config.merged_records_path.write_text('{"title":"Dataset","description":"Desc"}\n', encoding="utf-8")
+    config.merged_records_path.write_text(
+        '{"title":"Dataset","description":"Desc"}\n', encoding="utf-8"
+    )
     with open(config.benchmark_report_path, "w", encoding="utf-8") as fh:
         json.dump(
             {
@@ -214,7 +218,9 @@ def test_qc_uses_preflight_threshold_contract(tmp_path) -> None:
         payload_path=payload,
         count=1,
     )
-    config.merged_records_path.write_text('{"title":"Dataset","description":"Desc"}\n', encoding="utf-8")
+    config.merged_records_path.write_text(
+        '{"title":"Dataset","description":"Desc"}\n', encoding="utf-8"
+    )
     with open(config.benchmark_report_path, "w", encoding="utf-8") as fh:
         json.dump(
             {
@@ -260,7 +266,9 @@ def test_qc_marks_transport_failures_as_diagnostic_for_partial_eval(tmp_path) ->
         payload_path=payload,
         count=1,
     )
-    config.merged_records_path.write_text('{"title":"Dataset","description":"Desc"}\n', encoding="utf-8")
+    config.merged_records_path.write_text(
+        '{"title":"Dataset","description":"Desc"}\n', encoding="utf-8"
+    )
     with open(config.benchmark_report_path, "w", encoding="utf-8") as fh:
         json.dump(
             {
@@ -398,7 +406,9 @@ def test_qc_detects_source_anomaly_against_previous_snapshot(tmp_path) -> None:
         count=0,
     )
 
-    current_config.merged_records_path.write_text('{"title":"Dataset","description":"Desc"}\n', encoding="utf-8")
+    current_config.merged_records_path.write_text(
+        '{"title":"Dataset","description":"Desc"}\n', encoding="utf-8"
+    )
     con = duckdb.connect(str(current_config.db_path))
     con.execute("CREATE TABLE IF NOT EXISTS ds_distributions (url VARCHAR)")
     con.execute("CHECKPOINT")
@@ -441,7 +451,9 @@ def test_qc_skips_source_anomaly_detection_for_sampled_run(tmp_path) -> None:
         count=0,
     )
 
-    current_config.merged_records_path.write_text('{"title":"Dataset","description":"Desc"}\n', encoding="utf-8")
+    current_config.merged_records_path.write_text(
+        '{"title":"Dataset","description":"Desc"}\n', encoding="utf-8"
+    )
     con = duckdb.connect(str(current_config.db_path))
     con.execute("CREATE TABLE IF NOT EXISTS ds_distributions (url VARCHAR)")
     con.execute("CHECKPOINT")
@@ -484,7 +496,9 @@ def test_qc_does_not_flag_first_time_source_onboarding_as_anomaly(tmp_path) -> N
         count=2,
     )
 
-    current_config.merged_records_path.write_text('{"title":"Dataset","description":"Desc"}\n', encoding="utf-8")
+    current_config.merged_records_path.write_text(
+        '{"title":"Dataset","description":"Desc"}\n', encoding="utf-8"
+    )
     con = duckdb.connect(str(current_config.db_path))
     con.execute("CREATE TABLE IF NOT EXISTS ds_distributions (url VARCHAR)")
     con.execute("CHECKPOINT")
@@ -527,7 +541,9 @@ def test_qc_resets_wvs_anomaly_baseline_after_local_file_cutover(tmp_path) -> No
         count=20,
     )
 
-    current_config.merged_records_path.write_text('{"title":"Dataset","description":"Desc"}\n', encoding="utf-8")
+    current_config.merged_records_path.write_text(
+        '{"title":"Dataset","description":"Desc"}\n', encoding="utf-8"
+    )
     con = duckdb.connect(str(current_config.db_path))
     con.execute("CREATE TABLE IF NOT EXISTS ds_distributions (url VARCHAR)")
     con.execute("CHECKPOINT")
@@ -554,7 +570,9 @@ def test_qc_relaxes_search_threshold_for_sampled_text_only_benchmark(tmp_path) -
         payload_path=payload,
         count=1,
     )
-    config.merged_records_path.write_text('{"title":"Dataset","description":"Desc"}\n', encoding="utf-8")
+    config.merged_records_path.write_text(
+        '{"title":"Dataset","description":"Desc"}\n', encoding="utf-8"
+    )
     with open(config.benchmark_report_path, "w", encoding="utf-8") as fh:
         json.dump(
             {
@@ -601,7 +619,9 @@ def test_qc_counts_promoted_alignment_on_execution_grade_internal_ids(tmp_path) 
         payload_path=payload,
         count=1,
     )
-    config.merged_records_path.write_text('{"title":"Dataset","description":"Desc"}\n', encoding="utf-8")
+    config.merged_records_path.write_text(
+        '{"title":"Dataset","description":"Desc"}\n', encoding="utf-8"
+    )
     with open(config.benchmark_report_path, "w", encoding="utf-8") as fh:
         json.dump(
             {
@@ -688,10 +708,17 @@ def test_qc_description_gate_ignores_metadata_sparse_empirical_sources(tmp_path)
 
     config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
     with open(config.merged_records_path, "w", encoding="utf-8") as fh:
-        fh.write(json.dumps({"source": "eurostat", "title": "Eurostat dataset", "description": ""}) + "\n")
+        fh.write(
+            json.dumps({"source": "eurostat", "title": "Eurostat dataset", "description": ""})
+            + "\n"
+        )
         fh.write(
             json.dumps(
-                {"source": "data_gov_ua_broad", "title": "Municipal budget", "description": "Budget dataset"}
+                {
+                    "source": "data_gov_ua_broad",
+                    "title": "Municipal budget",
+                    "description": "Budget dataset",
+                }
             )
             + "\n"
         )
@@ -713,13 +740,13 @@ def test_url_reachability_uses_get_fallback_when_head_is_rejected(monkeypatch) -
         def __init__(self, status: int) -> None:
             self.status = status
 
-        def __enter__(self) -> "_Response":
+        def __enter__(self) -> _Response:
             return self
 
-        def __exit__(self, exc_type, exc, tb) -> bool:  # noqa: ANN001
+        def __exit__(self, exc_type, exc, tb) -> bool:
             return False
 
-    def _fake_urlopen(request, timeout=10):  # noqa: ARG001
+    def _fake_urlopen(request, timeout=10):
         if request.get_method() == "HEAD":
             raise RuntimeError("HEAD not supported")
         return _Response(status=206)

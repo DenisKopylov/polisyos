@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { Card } from "@/shared/ui/primitives";
 
 export type ReasoningStepType =
@@ -99,7 +100,7 @@ function StepNode({
       <div className={cn("pb-5", isLast && "pb-0", "min-w-0 flex-1")}>
         <div className="flex flex-wrap items-center gap-2">
           <span
-            className="text-xs font-semibold uppercase tracking-wide"
+            className="text-xs font-semibold tracking-wide uppercase"
             style={{ color: config.color }}
           >
             {config.label}
@@ -153,6 +154,7 @@ export function ReasoningChainDisplay({
   title = "AI Reasoning Chain",
   className,
 }: ReasoningChainDisplayProps) {
+  const { t } = useI18n();
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   const toggle = useCallback((id: string) => {
@@ -172,10 +174,7 @@ export function ReasoningChainDisplay({
     setExpanded(new Set());
   }, []);
 
-  const totalDuration = steps.reduce(
-    (sum, s) => sum + (s.durationMs ?? 0),
-    0,
-  );
+  const totalDuration = steps.reduce((sum, s) => sum + (s.durationMs ?? 0), 0);
 
   return (
     <Card className={cn("space-y-4", className)}>
@@ -184,7 +183,9 @@ export function ReasoningChainDisplay({
         <div className="flex items-center gap-3">
           {totalDuration > 0 && (
             <span className="text-muted text-xs">
-              Total: {formatDuration(totalDuration)}
+              {t("shared.ui.reasoningChain.totalDuration", {
+                duration: formatDuration(totalDuration),
+              })}
             </span>
           )}
           <button

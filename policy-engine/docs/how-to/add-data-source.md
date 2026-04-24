@@ -40,19 +40,19 @@ discoverability.
 
 ## 1. Выберите ближайшую family
 
-| Источник | Стартовый класс |
-|---|---|
-| HTTP/REST JSON | `RestJsonConnector`, `WHOConnector`, `WorldBankConnector` |
-| SDMX | `SDMXSourceConnector`, `EurostatConnector` |
-| CKAN | `CKANCatalogConnector`, `CKANResourceConnector` |
-| Socrata / Opendatasoft | `SocrataConnector`, `OpendatasoftConnector` |
-| SPARQL | `SPARQLConnector` |
-| CSV, JSONL, Parquet, Excel | `FileTabularConnector` |
-| S3/GCS/Azure-style object | `ObjectStorageConnector` |
-| SQLite/DuckDB read-only SQL | `SQLQueryConnector` |
-| GraphQL | `GraphQLConnector` |
-| GeoJSON | `GeoJSONConnector` |
-| JSONL event stream | `EventStreamConnector` |
+| Источник                    | Стартовый класс                                           |
+| --------------------------- | --------------------------------------------------------- |
+| HTTP/REST JSON              | `RestJsonConnector`, `WHOConnector`, `WorldBankConnector` |
+| SDMX                        | `SDMXSourceConnector`, `EurostatConnector`                |
+| CKAN                        | `CKANCatalogConnector`, `CKANResourceConnector`           |
+| Socrata / Opendatasoft      | `SocrataConnector`, `OpendatasoftConnector`               |
+| SPARQL                      | `SPARQLConnector`                                         |
+| CSV, JSONL, Parquet, Excel  | `FileTabularConnector`                                    |
+| S3/GCS/Azure-style object   | `ObjectStorageConnector`                                  |
+| SQLite/DuckDB read-only SQL | `SQLQueryConnector`                                       |
+| GraphQL                     | `GraphQLConnector`                                        |
+| GeoJSON                     | `GeoJSONConnector`                                        |
+| JSONL event stream          | `EventStreamConnector`                                    |
 
 Если нужен новый custom connector, начните со scaffold:
 
@@ -69,12 +69,12 @@ workflow-доках канонический boundary теперь `polisyos-too
 
 Минимальная surface:
 
-| Method | Что должно быть реализовано |
-|---|---|
-| `connect()` / `disconnect()` | Validate config, create/release handle, close sessions and pools deterministically. |
-| `health_check()` | Lightweight source probe returning `HealthStatus`. |
-| `fetch()` | Return `FetchResult` with `row_count`, `schema_id`, `schema_version`, `DataVersion`, UTC `fetched_at`, `completeness`, and provenance-friendly hashes/metadata. |
-| `validate_config()` | Reject missing auth, unsafe paths/query settings, unsupported formats, or unbounded execution settings. |
+| Method                       | Что должно быть реализовано                                                                                                                                     |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `connect()` / `disconnect()` | Validate config, create/release handle, close sessions and pools deterministically.                                                                             |
+| `health_check()`             | Lightweight source probe returning `HealthStatus`.                                                                                                              |
+| `fetch()`                    | Return `FetchResult` with `row_count`, `schema_id`, `schema_version`, `DataVersion`, UTC `fetched_at`, `completeness`, and provenance-friendly hashes/metadata. |
+| `validate_config()`          | Reject missing auth, unsafe paths/query settings, unsupported formats, or unbounded execution settings.                                                         |
 
 Если family поддерживает discovery или streaming, добавьте
 `list_datasets()`, `get_dataset_schema()`, `fetch_stream()`, async fetch lease
@@ -92,14 +92,18 @@ helpers, или source-specific capability methods.
 
 - Не интерполируйте untrusted identifiers/literals в SQL, SPARQL, SoQL, ODSQL,
   REST paths, GraphQL data paths или file/object paths.
+
 - Используйте Fabric safety helpers, включая `safe_path_segment()`,
   `validate_data_path()` and `extract_bounded_data_path()`, либо
   family-specific identifier validators.
+
 - Используйте только timezone-aware UTC datetimes.
 - Reject or quarantine `NaN`, `Inf`, out-of-range quality scores and invalid
   row-count bounds.
+
 - Keep resolver caches, prefetch queues, audit logs, and per-source maps
   bounded by TTL/LRU/maxsize.
+
 - Runtime imports из `polisyos.scientist.*` and `polisyos.foundry.*` запрещены.
 
 ## 4. Зарегистрируйте connector
@@ -187,8 +191,10 @@ uv run pytest tests/fabric/data_plane/test_streaming_runtime.py tests/fabric/dat
 
 - Если connector не виден в registry, проверьте export в `sources/__init__.py`
   и built-in profile wiring.
+
 - Если schema-governance gate сигналит breaking drift, либо добавьте одобренный
   major-bump metadata block, либо откатите accidental schema change.
+
 - Если source-specific tests unstable из-за живого upstream, переходите на
   recorded fixtures или replay-oriented integration path.
 
@@ -201,6 +207,7 @@ uv run pytest tests/fabric/data_plane/test_streaming_runtime.py tests/fabric/dat
 - Schema contract added or intentionally omitted with a documented reason.
 - Registry, protocol, contract, source-specific, and schema-governance tests
   pass.
+
 - Quality/lineage examples point to current artifacts or executable tests.
 
 ## Связанные документы

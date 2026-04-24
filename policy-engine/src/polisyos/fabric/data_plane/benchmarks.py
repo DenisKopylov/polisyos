@@ -1,11 +1,13 @@
 """Benchmark helpers for Fabric streaming, ingestion, and world materialization paths."""
+
 from __future__ import annotations
 
 import time
 import tracemalloc
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Callable, Sequence
+from datetime import UTC, datetime
+from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -14,8 +16,8 @@ from polisyos.fabric.data_plane.cursor_store import CursorStore
 from polisyos.fabric.data_plane.orchestrator import (
     ExecutionBackend,
     IngestionResult,
-    PartitionExecutionResult,
     PartitionedIngestionPlan,
+    PartitionExecutionResult,
     run_partitioned_ingestion,
 )
 from polisyos.fabric.data_plane.streaming import (
@@ -231,8 +233,7 @@ def persist_fabric_benchmark_report(
             media_type="application/json",
             schema=SchemaInfo(name="fabric.ScaleBenchmarkReport", version="1.0"),
             inputs=[
-                InputRef(artifact_id=ref.artifact_id, role="benchmark_input")
-                for ref in input_refs
+                InputRef(artifact_id=ref.artifact_id, role="benchmark_input") for ref in input_refs
             ]
             or None,
         ),
@@ -243,7 +244,7 @@ def persist_fabric_benchmark_report(
 def _capture_sync(
     operation: Callable[[], Any],
 ) -> tuple[Any, datetime, float, int]:
-    started_at = datetime.now(timezone.utc)
+    started_at = datetime.now(UTC)
     tracing_before = tracemalloc.is_tracing()
     baseline_peak = tracemalloc.get_traced_memory()[1] if tracing_before else 0
     if not tracing_before:
@@ -264,7 +265,7 @@ def _capture_sync(
 async def _capture_async(
     operation: Callable[[], Any],
 ) -> tuple[Any, datetime, float, int]:
-    started_at = datetime.now(timezone.utc)
+    started_at = datetime.now(UTC)
     tracing_before = tracemalloc.is_tracing()
     baseline_peak = tracemalloc.get_traced_memory()[1] if tracing_before else 0
     if not tracing_before:
@@ -293,17 +294,14 @@ def _build_report(
     labels: dict[str, str],
     metadata: dict[str, Any],
 ) -> FabricBenchmarkReport:
-    finished_at = datetime.now(timezone.utc)
+    finished_at = datetime.now(UTC)
     throughput = (
         float(units_processed) / elapsed_seconds
         if elapsed_seconds > 0 and units_processed > 0
         else 0.0
     )
     return FabricBenchmarkReport(
-        benchmark_id=(
-            f"{benchmark_kind}:"
-            f"{started_at.strftime('%Y%m%d%H%M%S%f')}"
-        ),
+        benchmark_id=(f"{benchmark_kind}:{started_at.strftime('%Y%m%d%H%M%S%f')}"),
         benchmark_kind=benchmark_kind,
         started_at=started_at,
         finished_at=finished_at,

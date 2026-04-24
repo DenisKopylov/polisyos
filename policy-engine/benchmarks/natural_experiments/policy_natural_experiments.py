@@ -32,7 +32,11 @@ from benchmarks.harness import (  # noqa: E402
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import BenchmarkMode, resolve_mode  # noqa: E402
 from polisyos.foundry.methods.catalog.causal.did import (  # noqa: E402
     DifferenceInDifferences,
@@ -40,7 +44,6 @@ from polisyos.foundry.methods.catalog.causal.did import (  # noqa: E402
 )
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData  # noqa: E402
 from polisyos.ir.analytics.causal import EstimationStatus  # noqa: E402
-
 
 CIRCUIT = BenchmarkCircuit.ESTIMATION
 
@@ -247,11 +250,13 @@ def _case_staggered_adoption() -> BenchmarkCase:
 
 def build_harness() -> BenchmarkHarness:
     harness = BenchmarkHarness()
-    harness.register_many([
-        _case_clean_rollout(),
-        _case_placebo_null(),
-        _case_staggered_adoption(),
-    ])
+    harness.register_many(
+        [
+            _case_clean_rollout(),
+            _case_placebo_null(),
+            _case_staggered_adoption(),
+        ]
+    )
     return harness
 
 
@@ -303,7 +308,8 @@ def _aggregate_metrics(report: BenchmarkReport) -> dict[str, Any]:
         "n_successful_cases": sum(
             1
             for case in report.cases
-            if getattr((case.result_payload or {}).get("report"), "status", None) is EstimationStatus.SUCCESS
+            if getattr((case.result_payload or {}).get("report"), "status", None)
+            is EstimationStatus.SUCCESS
         ),
         "ranking_summary": {
             "aggregate": {

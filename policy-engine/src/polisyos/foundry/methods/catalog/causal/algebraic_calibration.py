@@ -4,6 +4,7 @@ The first production-calibrated algebraic family is tetrad testing.  This
 module keeps the calibration contract separate from graph discovery so the
 offline benchmark suite and the runtime severity map share the same thresholds.
 """
+
 from __future__ import annotations
 
 import math
@@ -508,8 +509,7 @@ def _tetrad_value(
 ) -> float:
     cov = _covariance(matrix)
     return float(
-        cov[left_pairs[0]] * cov[left_pairs[1]]
-        - cov[right_pairs[0]] * cov[right_pairs[1]]
+        cov[left_pairs[0]] * cov[left_pairs[1]] - cov[right_pairs[0]] * cov[right_pairs[1]]
     )
 
 
@@ -614,9 +614,7 @@ def run_tetrad_calibration_case(
                 )
             std = float(np.std(bootstrap_values, ddof=1))
             abs_z = (
-                0.0
-                if std <= 1e-12 and abs(observed) <= 1e-12
-                else abs(observed) / max(std, 1e-12)
+                0.0 if std <= 1e-12 and abs(observed) <= 1e-12 else abs(observed) / max(std, 1e-12)
             )
             if case.route == "modified_bootstrap_tetrad":
                 center = float(np.mean(bootstrap_values))
@@ -793,21 +791,15 @@ def summarize_tetrad_type_errors(
             continue
         null_items = [item for item in items if not item.expected_violation]
         alt_items = [item for item in items if item.expected_violation]
-        false_alarms = [
-            item for item in null_items if item.severity in {"warning", "blocker"}
-        ]
-        blocker_false_alarms = [
-            item for item in null_items if item.severity == "blocker"
-        ]
+        false_alarms = [item for item in null_items if item.severity in {"warning", "blocker"}]
+        blocker_false_alarms = [item for item in null_items if item.severity == "blocker"]
         misses = [item for item in alt_items if item.severity == "info"]
         warning_or_blocker_hits = [
             item for item in alt_items if item.severity in {"warning", "blocker"}
         ]
         summary[scenario_kind] = {
             "n_cases": float(total),
-            "false_alarm_rate": (
-                len(false_alarms) / float(len(null_items)) if null_items else 0.0
-            ),
+            "false_alarm_rate": (len(false_alarms) / float(len(null_items)) if null_items else 0.0),
             "blocker_false_alarm_rate": (
                 len(blocker_false_alarms) / float(len(null_items)) if null_items else 0.0
             ),

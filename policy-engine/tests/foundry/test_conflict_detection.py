@@ -1,4 +1,5 @@
 """Tests for compile-time conflict detection."""
+
 from __future__ import annotations
 
 from polisyos.core.artifacts.ids import ArtifactID

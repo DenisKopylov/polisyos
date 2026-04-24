@@ -5,14 +5,16 @@ generates synthetic traces with `run_pure_scan()`, compares them to either raw
 target series or a `CalibrationTargetBundle`, applies measurement-aware and
 auxiliary penalties, and returns a persisted-report-ready `CalibrationReport`.
 """
+
 from __future__ import annotations
 
 import json
 import time
+from collections.abc import Callable, Mapping, Sequence
 from contextlib import nullcontext
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Callable, Dict, Mapping, Sequence
+from datetime import UTC, datetime
+from typing import Any
 
 import jax
 import jax.numpy as jnp
@@ -71,6 +73,8 @@ from polisyos.ir.kernel import (
     SelectorFieldRegistry,
     SlotRegistry,
 )
+
+
 @dataclass
 class CalibratorInputs:
     """Bundle the runtime contracts and callbacks required by `Calibrator.run()`.
@@ -224,7 +228,9 @@ class CalibrationMetricsCollector:
             )
 
 
-def _compute_scale_local(arr: jnp.ndarray, target_cfg: CalibrationTarget, default_eps: float = 1e-8) -> float:
+def _compute_scale_local(
+    arr: jnp.ndarray, target_cfg: CalibrationTarget, default_eps: float = 1e-8
+) -> float:
     if not target_cfg.loss.relative:
         return 1.0
     method = target_cfg.loss.scale
@@ -405,7 +411,7 @@ class Calibrator:
         registry = self.inputs.constraint_registry
         if registry is None:
             raise ValueError("constraint_loss enabled but constraint_registry is missing")
-        constraint_values: Dict[str, float] = {}
+        constraint_values: dict[str, float] = {}
         if cfg.constraint_values:
             constraint_values.update(cfg.constraint_values)
         if self.inputs.constraint_values:
@@ -460,7 +466,9 @@ class Calibrator:
         groups_map: dict[str, list[int]] = {}
         group_order: list[str] = []
         for ref in refs:
-            matched = [idx for idx, handle in enumerate(all_handles) if _match_trainable(handle, ref)]
+            matched = [
+                idx for idx, handle in enumerate(all_handles) if _match_trainable(handle, ref)
+            ]
             if not matched:
                 raise ValueError(f"Trainable ref did not match any parameters: {ref.model_dump()}")
             for idx in matched:
@@ -488,14 +496,10 @@ class Calibrator:
             if lower is not None and upper is not None and lower > upper:
                 raise ValueError(f"Tied group '{group_id}' has incompatible bounds")
             means = [
-                all_handles[i].prior_mean
-                for i in indices
-                if all_handles[i].prior_mean is not None
+                all_handles[i].prior_mean for i in indices if all_handles[i].prior_mean is not None
             ]
             stds = [
-                all_handles[i].prior_std
-                for i in indices
-                if all_handles[i].prior_std is not None
+                all_handles[i].prior_std for i in indices if all_handles[i].prior_std is not None
             ]
             prior_mean = None
             prior_std = None
@@ -569,9 +573,11 @@ class Calibrator:
             if handle.path not in metric_paths:
                 metric_paths.append(handle.path)
 
-        raw_targets: Dict[str, object] = {}
+        raw_targets: dict[str, object] = {}
         measurement_bundle = self.inputs.measurement_bundle
-        measurement_adapter = self.inputs.measurement_loss_adapter or DefaultMeasurementAwareLossAdapter()
+        measurement_adapter = (
+            self.inputs.measurement_loss_adapter or DefaultMeasurementAwareLossAdapter()
+        )
         measurement_config = self.inputs.measurement_loss_config or MeasurementAwareLossConfig()
         measurement_targets = (
             {target.target_id: target for target in measurement_bundle.targets}
@@ -616,14 +622,20 @@ class Calibrator:
                 raise ValueError("measurement_bundle does not contain observed targets")
             missing_targets = [t.target_id for t in targets if t.target_id not in aligned_targets]
             if missing_targets:
-                raise ValueError(f"Missing measurement target series for: {', '.join(missing_targets)}")
+                raise ValueError(
+                    f"Missing measurement target series for: {', '.join(missing_targets)}"
+                )
             missing_specs = [t.target_id for t in targets if t.target_id not in measurement_targets]
             if missing_specs:
-                raise ValueError(f"Missing measurement target metadata for: {', '.join(missing_specs)}")
+                raise ValueError(
+                    f"Missing measurement target metadata for: {', '.join(missing_specs)}"
+                )
             steps = int(next(iter(aligned_targets.values())).shape[0])
             for target_id, arr in aligned_targets.items():
                 if int(arr.shape[0]) != steps:
-                    raise ValueError(f"Measurement target '{target_id}' length does not match shared step count")
+                    raise ValueError(
+                        f"Measurement target '{target_id}' length does not match shared step count"
+                    )
             if self.inputs.controls_seq is not None and len(self.inputs.controls_seq) != steps:
                 raise ValueError("controls_seq length must match calibration steps")
             scales = {
@@ -631,7 +643,9 @@ class Calibrator:
                 for target in targets
             }
             time_axes = {
-                target.target_id: _measurement_time_axis(measurement_bundle.time_axis.get(target.target_id))
+                target.target_id: _measurement_time_axis(
+                    measurement_bundle.time_axis.get(target.target_id)
+                )
                 for target in targets
             }
 
@@ -787,7 +801,9 @@ class Calibrator:
                 scale = scales.get(target.target_id, 1.0) if cfg_loss.relative else 1.0
                 if not measurement_enabled:
                     losses.append(
-                        compute_base_loss(predicted, aligned_targets[target.target_id], cfg_loss, scale)
+                        compute_base_loss(
+                            predicted, aligned_targets[target.target_id], cfg_loss, scale
+                        )
                     )
                     continue
 
@@ -811,7 +827,9 @@ class Calibrator:
                     lag_days_estimate=measurement_bundle.lag_days_estimate.get(target.target_id),
                     schema_regime_id=measurement_bundle.schema_regime_id.get(target.target_id),
                     shock_mask=measurement_bundle.shock_mask.get(target.target_id),
-                    identification_mode=measurement_bundle.identification_mode.get(target.target_id),
+                    identification_mode=measurement_bundle.identification_mode.get(
+                        target.target_id
+                    ),
                     config=measurement_config,
                 )
                 losses.append(
@@ -928,9 +946,7 @@ class Calibrator:
                 if arr.size == 1:
                     param_names.append(group.group_id)
                 else:
-                    param_names.extend(
-                        f"{group.group_id}[{idx}]" for idx in range(int(arr.size))
-                    )
+                    param_names.extend(f"{group.group_id}[{idx}]" for idx in range(int(arr.size)))
             if len(param_names) != n_params:
                 return [f"param_{idx}" for idx in range(n_params)]
             return param_names
@@ -949,7 +965,9 @@ class Calibrator:
                 return (
                     None,
                     None,
-                    [f"Hessian skipped: parameter count {n_params} exceeds {cfg.hessian.max_params}"],
+                    [
+                        f"Hessian skipped: parameter count {n_params} exceeds {cfg.hessian.max_params}"
+                    ],
                 )
 
             param_names = _param_names_for_groups(theta_groups)
@@ -971,10 +989,10 @@ class Calibrator:
                     weights_vec=weights_vec if measurement_enabled else None,
                 )
                 total = (
-                    jnp.sum(base_vec)
-                    if measurement_enabled
-                    else jnp.sum(base_vec * weights_vec)
-                ) if base_vec.size else jnp.array(0.0)
+                    (jnp.sum(base_vec) if measurement_enabled else jnp.sum(base_vec * weights_vec))
+                    if base_vec.size
+                    else jnp.array(0.0)
+                )
                 total = (
                     total
                     + _constraint_penalty(traces_local)
@@ -998,7 +1016,12 @@ class Calibrator:
             identifiability_report = None
             try:
                 identifiability_report = diagnose_identifiability(hessian_result)
-            except (FloatingPointError, RuntimeError, TypeError, ValueError) as exc:  # pragma: no cover - defensive
+            except (
+                FloatingPointError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ) as exc:  # pragma: no cover - defensive
                 local_diagnostics.append(f"Identifiability diagnostics failed: {exc}")
             return hessian_result, identifiability_report, local_diagnostics
 
@@ -1012,7 +1035,9 @@ class Calibrator:
             for i in range(1, ms.n_starts):
                 k = jax.random.fold_in(key, i)
                 u_perturbed = [
-                    v + jax.random.normal(jax.random.fold_in(k, j), shape=v.shape) * ms.perturbation_scale
+                    v
+                    + jax.random.normal(jax.random.fold_in(k, j), shape=v.shape)
+                    * ms.perturbation_scale
                     for j, v in enumerate(u)
                 ]
                 start_points.append((u_perturbed, i))
@@ -1027,6 +1052,9 @@ class Calibrator:
             u_state = u_init
             weights_state = weights
             best_loss = float("inf")
+            best_eval_loss = float("inf")
+            best_u_state = u_state
+            best_weights_state = weights_state
             patience = 0
             init_base_vec = None
             early_stop_triggered = False
@@ -1036,6 +1064,8 @@ class Calibrator:
                 for step in range(cfg.max_steps):
                     step_idx = jnp.array(step, dtype=jnp.int32)
                     step_start = time.perf_counter() if hpc_enabled else None
+                    prev_u_state = u_state
+                    prev_weights_state = weights_state
                     (
                         u_state,
                         weights_state,
@@ -1053,6 +1083,10 @@ class Calibrator:
                     grad_norm_float = float(grad_norm)
                     loss_history.append(loss_float)
                     grad_norm_history.append(grad_norm_float)
+                    if loss_float < best_eval_loss:
+                        best_eval_loss = loss_float
+                        best_u_state = prev_u_state
+                        best_weights_state = prev_weights_state
 
                     if hpc_enabled:
                         collector.record_step(
@@ -1098,20 +1132,28 @@ class Calibrator:
                         span.set_attribute("calibration.convergence_reason", convergence_reason)
                         span.set_attribute("calibration.total_steps", total_steps)
 
-            final_loss = float(loss_history[-1]) if loss_history else float("inf")
+            run_u_state = best_u_state if np.isfinite(best_eval_loss) else u_state
+            run_weights_state = best_weights_state if np.isfinite(best_eval_loss) else weights_state
+            final_loss = (
+                best_eval_loss
+                if np.isfinite(best_eval_loss)
+                else (float(loss_history[-1]) if loss_history else float("inf"))
+            )
             run_hessian_result = None
             run_identifiability = None
             if len(start_points) > 1 and cfg.hessian.enabled:
-                theta_groups_run = from_unconstrained(u_state, group_bijectors)
-                run_hessian_result, run_identifiability, hessian_diags = _compute_run_hessian_summary(
-                    theta_groups_run,
-                    weights_state,
+                theta_groups_run = from_unconstrained(run_u_state, group_bijectors)
+                run_hessian_result, run_identifiability, hessian_diags = (
+                    _compute_run_hessian_summary(
+                        theta_groups_run,
+                        run_weights_state,
+                    )
                 )
                 _ms_diagnostics.extend(hessian_diags)
             multi_start_runs.append(
                 {
-                    "u_state": u_state,
-                    "weights_state": weights_state,
+                    "u_state": run_u_state,
+                    "weights_state": run_weights_state,
                     "loss_history": loss_history,
                     "grad_norm_history": grad_norm_history,
                     "final_loss": final_loss,
@@ -1127,8 +1169,11 @@ class Calibrator:
         if len(multi_start_runs) > 1:
             from polisyos.foundry.calibration.multi_start import (
                 SingleRunResult as _SR,
+            )
+            from polisyos.foundry.calibration.multi_start import (
                 select_best as _select_best,
             )
+
             _single_results = [
                 _SR(
                     loss=r["final_loss"],
@@ -1142,7 +1187,9 @@ class Calibrator:
                 for r in multi_start_runs
             ]
             best_idx, selection_reason = _select_best(_single_results, cfg.multi_start)
-            diagnostics.append(f"Multi-start: selected run {best_idx}/{len(multi_start_runs)} ({selection_reason})")
+            diagnostics.append(
+                f"Multi-start: selected run {best_idx}/{len(multi_start_runs)} ({selection_reason})"
+            )
             selected_run = multi_start_runs[best_idx]
             u_state = selected_run["u_state"]
             weights_state = selected_run["weights_state"]
@@ -1160,7 +1207,7 @@ class Calibrator:
         final_theta_groups = from_unconstrained(u_state, group_bijectors)
         final_theta = _expand_group_values(final_theta_groups)
         final_bundle = apply_trainable_values(bundle, final_theta)
-        calibrated_params: Dict[str, float] = {}
+        calibrated_params: dict[str, float] = {}
         for handle, value in zip(final_bundle.trainables, final_theta):
             node_id = final_bundle.nodes[handle.node_index].node_id
             calibrated_params[f"{node_id}.{handle.field_name}"] = float(value)
@@ -1172,8 +1219,7 @@ class Calibrator:
         )
         if measurement_enabled:
             per_target_final = {
-                tid: float(final_target_losses[idx])
-                for idx, tid in enumerate(target_ids)
+                tid: float(final_target_losses[idx]) for idx, tid in enumerate(target_ids)
             }
         else:
             per_target_final = {
@@ -1192,8 +1238,8 @@ class Calibrator:
             metric_paths=metric_paths,
             controls_seq=self.inputs.controls_seq,
         )
-        series_comparison: Dict[str, CalibrationSeriesComparison] = {}
-        per_target_metrics: Dict[str, CalibrationFitMetrics] = {}
+        series_comparison: dict[str, CalibrationSeriesComparison] = {}
+        per_target_metrics: dict[str, CalibrationFitMetrics] = {}
         all_real: list[np.ndarray] = []
         all_model: list[np.ndarray] = []
 
@@ -1275,10 +1321,14 @@ class Calibrator:
                         weights_vec=weights_state if measurement_enabled else None,
                     )
                     total = (
-                        jnp.sum(base_vec)
-                        if measurement_enabled
-                        else jnp.sum(base_vec * weights_state)
-                    ) if base_vec.size else jnp.array(0.0)
+                        (
+                            jnp.sum(base_vec)
+                            if measurement_enabled
+                            else jnp.sum(base_vec * weights_state)
+                        )
+                        if base_vec.size
+                        else jnp.array(0.0)
+                    )
                     total = (
                         total
                         + _constraint_penalty(traces_local)
@@ -1332,19 +1382,27 @@ class Calibrator:
                         std=_as_float_list(std_jnp),
                         damping=float(cfg.hessian.damping),
                         hessian_rank=rank,
-                        hessian_condition=None
-                        if not np.isfinite(condition)
-                        else float(condition),
+                        hessian_condition=None if not np.isfinite(condition) else float(condition),
                         non_identifiable=non_identifiable,
                     )
-                except (FloatingPointError, RuntimeError, TypeError, ValueError) as exc:  # pragma: no cover - defensive
+                except (
+                    FloatingPointError,
+                    RuntimeError,
+                    TypeError,
+                    ValueError,
+                ) as exc:  # pragma: no cover - defensive
                     diagnostics.append(f"Hessian computation failed: {exc}")
 
         identifiability_report = None
         if hessian_result is not None:
             try:
                 identifiability_report = diagnose_identifiability(hessian_result)
-            except (FloatingPointError, RuntimeError, TypeError, ValueError) as exc:  # pragma: no cover - defensive
+            except (
+                FloatingPointError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ) as exc:  # pragma: no cover - defensive
                 diagnostics.append(f"Identifiability diagnostics failed: {exc}")
 
         fidelity_stats = _inspect_bundle_fidelity(bundle)
@@ -1366,7 +1424,7 @@ class Calibrator:
                 "temperature": cfg.fidelity.temperature,
                 "forced_override": cfg.fidelity.force_override,
                 "jax_platform": _jax_platform(),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "fidelity_stats": fidelity_stats,
             },
         )

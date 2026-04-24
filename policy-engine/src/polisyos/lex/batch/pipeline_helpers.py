@@ -12,14 +12,18 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypeVar
 
 from polisyos.common.logger import get_logger
-from polisyos.lex.batch.config import BatchConfig
 from polisyos.lex.batch.doc_family import infer_doc_type_category
-from polisyos.lex.batch.pipeline_types import SPODocRoutingPlan, SPOLLMSettings, StructureQualityStats
-from polisyos.lex.batch.progress import ProgressTracker
-from polisyos.lex.batch.provisions_io import read_provisions, write_provisions
+from polisyos.lex.batch.pipeline_types import (
+    SPODocRoutingPlan,
+    SPOLLMSettings,
+    StructureQualityStats,
+)
+from polisyos.lex.batch.provisions_io import write_provisions
 from polisyos.lex.batch.temporal_resolver import resolve_document_temporal
 
 if TYPE_CHECKING:
+    from polisyos.lex.batch.config import BatchConfig
+    from polisyos.lex.batch.progress import ProgressTracker
     from polisyos.lex.batch.structurer import ProvisionSpan
     from polisyos.lex.batch.xml_parser import NPADocument
 
@@ -134,25 +138,24 @@ def _should_skip_audit_for_span(span: ProvisionSpan) -> bool:
     text = " ".join((span.text or "").split()).strip()
     if not text:
         return True
-    if (span.route_class or "") == "search_only" or (span.legal_unit_subtype or "") == "form_scaffold":
+    if (span.route_class or "") == "search_only" or (
+        span.legal_unit_subtype or ""
+    ) == "form_scaffold":
         return True
-    if span.legal_unit_subtype in {"application_requirement", "core_normative_clause"}:
-        if (
-            len(text.split()) <= 18
-            and not text.endswith((".", ";", ":"))
-            and not _NORMATIVE_SPAN_SIGNAL_RE.search(text)
-            and not _REFERENCE_SPAN_SIGNAL_RE.search(text)
-            and not _THRESHOLD_SPAN_SIGNAL_RE.search(text)
-            and _AUDIT_LOW_SIGNAL_FORM_LABEL_RE.match(text)
-        ):
-            return True
-    if (
+    if span.legal_unit_subtype in {"application_requirement", "core_normative_clause"} and (
+        len(text.split()) <= 18
+        and not text.endswith((".", ";", ":"))
+        and not _NORMATIVE_SPAN_SIGNAL_RE.search(text)
+        and not _REFERENCE_SPAN_SIGNAL_RE.search(text)
+        and not _THRESHOLD_SPAN_SIGNAL_RE.search(text)
+        and _AUDIT_LOW_SIGNAL_FORM_LABEL_RE.match(text)
+    ):
+        return True
+    return bool(
         span.legal_unit_subtype in {"core_normative_clause", "tariff_threshold_row"}
         and _AUDIT_FRONT_MATTER_RE.search(text)
         and not _NORMATIVE_SPAN_SIGNAL_RE.search(text)
-    ):
-        return True
-    return False
+    )
 
 
 def _contains_gap_fill_tail_marker(text: str, markers: list[str]) -> bool:
@@ -238,18 +241,18 @@ def _should_route_llm_gap_fill(
             bool(span.threshold_bearing),
         )
     )
-    if quality_family == "appendix_heavy" and subtype == "core_normative_clause" and strong_appendix_signal:
+    if (
+        quality_family == "appendix_heavy"
+        and subtype == "core_normative_clause"
+        and strong_appendix_signal
+    ):
         reasons.append("appendix_core_strong_signal")
     if subtype == "sanction_clause" and det_count <= 1:
         reasons.append("sanction_low_det")
     if subtype == "tariff_threshold_row" and det_count <= 1:
         reasons.append("tariff_threshold_low_det")
     _GAP_FILL_AUDIT_MISS_SUBTYPES = {"sanction_clause", "tariff_threshold_row"}
-    if (
-        span.audit_miss_prone
-        and det_count <= 1
-        and subtype in _GAP_FILL_AUDIT_MISS_SUBTYPES
-    ):
+    if span.audit_miss_prone and det_count <= 1 and subtype in _GAP_FILL_AUDIT_MISS_SUBTYPES:
         reasons.append("audit_miss_prone_low_det")
     if tail_hit:
         reasons.append("tail_marker")
@@ -309,10 +312,14 @@ def _span_reasoning_score(
         score += 3
 
     if quality_family == "appendix_heavy" and section_role == "catalog_entry":
-        if not _NORMATIVE_SPAN_SIGNAL_RE.search(text) and not _THRESHOLD_SPAN_SIGNAL_RE.search(text):
+        if not _NORMATIVE_SPAN_SIGNAL_RE.search(text) and not _THRESHOLD_SPAN_SIGNAL_RE.search(
+            text
+        ):
             score -= 3
     if _PURE_CATALOG_TITLE_RE.search(doc_title) and section_role == "catalog_entry":
-        if not _NORMATIVE_SPAN_SIGNAL_RE.search(text) and not _THRESHOLD_SPAN_SIGNAL_RE.search(text):
+        if not _NORMATIVE_SPAN_SIGNAL_RE.search(text) and not _THRESHOLD_SPAN_SIGNAL_RE.search(
+            text
+        ):
             score -= 4
     return score
 
@@ -328,7 +335,13 @@ def _prioritize_reasoning_spans(
         return []
     scored: list[tuple[int, int, ProvisionSpan]] = []
     for idx, span in enumerate(spans):
-        scored.append(((_span_reasoning_score(span, doc_title=doc_title, quality_family=quality_family)), idx, span))
+        scored.append(
+            (
+                (_span_reasoning_score(span, doc_title=doc_title, quality_family=quality_family)),
+                idx,
+                span,
+            )
+        )
     scored.sort(
         key=lambda item: (
             item[0],
@@ -430,7 +443,9 @@ def _build_spo_doc_routing_plan(
             quality_family=quality_family,
             limit=span_limit,
         )
-        llm_allowed = not (pure_catalog_title and search_only_ratio >= 0.97 and total_provisions >= 1200)
+        llm_allowed = not (
+            pure_catalog_title and search_only_ratio >= 0.97 and total_provisions >= 1200
+        )
         llm_settings = SPOLLMSettings(
             task_batch_size=min(base_settings.task_batch_size, 16),
             request_batch_size=min(base_settings.request_batch_size, 2),
@@ -443,7 +458,11 @@ def _build_spo_doc_routing_plan(
         )
     elif large_batch:
         flags.append("adaptive_batching")
-        span_limit = base_limit if config.spo_max_provisions_per_doc is not None else min(reasoning_total, 16)
+        span_limit = (
+            base_limit
+            if config.spo_max_provisions_per_doc is not None
+            else min(reasoning_total, 16)
+        )
         if span_limit < reasoning_total:
             selected_spans = _prioritize_reasoning_spans(
                 reasoning_spans,
@@ -615,6 +634,7 @@ or unicode-only whitespace that survives ``str.strip``)."""
 def _strip_all_whitespace(text: str) -> str:
     """Remove ALL unicode whitespace including NBSP / zero-width chars."""
     import re
+
     return re.sub(r"\s+", "", text)
 
 
@@ -629,7 +649,9 @@ def _should_extract_spo_from_span(span: ProvisionSpan) -> bool:
         return False
     if span.is_fallback_chunk:
         subtype = (span.legal_unit_subtype or "").strip().lower()
-        high_precision_fallback = subtype in {"amendment_bundle", "approval_bundle"} and len(span.text) <= 3600
+        high_precision_fallback = (
+            subtype in {"amendment_bundle", "approval_bundle"} and len(span.text) <= 3600
+        )
         if not high_precision_fallback:
             return False
     if (span.route_class or "").strip().lower() == "search_only":
@@ -638,9 +660,7 @@ def _should_extract_spo_from_span(span: ProvisionSpan) -> bool:
         return False
     if span.section_role in {"table_header", "appendix_section"}:
         return False
-    if span.section_role == "fallback_recall" and not high_precision_fallback:
-        return False
-    return True
+    return not (span.section_role == "fallback_recall" and not high_precision_fallback)
 
 
 def _extract_provisions_worker(payload: dict) -> list[dict]:
@@ -690,7 +710,10 @@ def _extract_provisions_worker(payload: dict) -> list[dict]:
     ]
 
 
-def _chunked(items: list[T], size: int) -> list[list[T]]:
+extract_provisions_worker = _extract_provisions_worker
+
+
+def _chunked[T](items: list[T], size: int) -> list[list[T]]:
     chunk_size = max(1, size)
     return [items[i : i + chunk_size] for i in range(0, len(items), chunk_size)]
 
@@ -735,18 +758,15 @@ def _statement_category_set(statements: list[Any]) -> list[str]:
             payload = statement.model_dump(mode="python")
         if not isinstance(payload, dict):
             continue
-        action = str(
-            payload.get("action_canon")
-            or payload.get("predicate")
-            or ""
-        ).strip().lower()
-        norm_type = str(
-            payload.get("norm_type_canon")
-            or payload.get("norm_type")
-            or ""
-        ).strip().lower()
+        action = str(payload.get("action_canon") or payload.get("predicate") or "").strip().lower()
+        norm_type = (
+            str(payload.get("norm_type_canon") or payload.get("norm_type") or "").strip().lower()
+        )
         thresholds = payload.get("thresholds")
-        if str(payload.get("condition_text_uk") or "").strip() or str(payload.get("exception_text_uk") or "").strip():
+        if (
+            str(payload.get("condition_text_uk") or "").strip()
+            or str(payload.get("exception_text_uk") or "").strip()
+        ):
             categories.add("condition")
         if str(payload.get("sanction_text_uk") or "").strip():
             categories.add("sanction")
@@ -773,7 +793,9 @@ def _statement_category_set(statements: list[Any]) -> list[str]:
     return sorted(categories)
 
 
-def _write_doc_metadata_manifest(*, output_dir: Path, doc_metadata: dict[str, dict[str, Any]]) -> Path:
+def _write_doc_metadata_manifest(
+    *, output_dir: Path, doc_metadata: dict[str, dict[str, Any]]
+) -> Path:
     manifests_dir = output_dir / "manifests"
     manifests_dir.mkdir(parents=True, exist_ok=True)
     manifest_path = manifests_dir / "doc_metadata.json"
@@ -796,14 +818,12 @@ def _load_doc_metadata_manifest(output_dir: Path) -> dict[str, dict[str, Any]]:
     manifest_path = output_dir / "manifests" / "doc_metadata.json"
     if not manifest_path.exists():
         return {}
-    with open(manifest_path, "r", encoding="utf-8") as fh:
+    with open(manifest_path, encoding="utf-8") as fh:
         payload = json.load(fh)
     if isinstance(payload, dict):
         source = payload.get("documents") if isinstance(payload.get("documents"), dict) else payload
         return {
-            str(doc_id): dict(meta)
-            for doc_id, meta in source.items()
-            if isinstance(meta, dict)
+            str(doc_id): dict(meta) for doc_id, meta in source.items() if isinstance(meta, dict)
         }
     return {}
 
@@ -823,9 +843,7 @@ def _to_provision_spans(prov_dicts: list[dict]) -> list[ProvisionSpan]:
                 offset_end=int(p["offset_end"]),
                 text=str(p["text"]),
                 parent_anchor=(
-                    str(p.get("parent_anchor"))
-                    if p.get("parent_anchor") is not None
-                    else None
+                    str(p.get("parent_anchor")) if p.get("parent_anchor") is not None else None
                 ),
                 depth=int(p.get("depth") or 0),
                 token_est=int(p.get("token_est") or 0),
@@ -835,15 +853,9 @@ def _to_provision_spans(prov_dicts: list[dict]) -> list[ProvisionSpan]:
                 section_role=str(p.get("section_role") or ""),
                 lineage_path=str(p.get("lineage_path") or p["anchor_path"]),
                 appendix_id=(
-                    str(p.get("appendix_id"))
-                    if p.get("appendix_id") is not None
-                    else None
+                    str(p.get("appendix_id")) if p.get("appendix_id") is not None else None
                 ),
-                table_id=(
-                    str(p.get("table_id"))
-                    if p.get("table_id") is not None
-                    else None
-                ),
+                table_id=(str(p.get("table_id")) if p.get("table_id") is not None else None),
                 legal_unit_subtype=str(p.get("legal_unit_subtype") or ""),
                 legal_unit_micro_subtype=str(p.get("legal_unit_micro_subtype") or ""),
                 route_class=str(p.get("route_class") or ""),
@@ -943,11 +955,7 @@ async def _call_extract_spo_for_documents(
     if any(param.kind == inspect.Parameter.VAR_KEYWORD for param in signature.parameters.values()):
         return await extract_fn(client, documents, provisions_by_doc, **kwargs)
 
-    filtered_kwargs = {
-        key: value
-        for key, value in kwargs.items()
-        if key in signature.parameters
-    }
+    filtered_kwargs = {key: value for key, value in kwargs.items() if key in signature.parameters}
     return await extract_fn(client, documents, provisions_by_doc, **filtered_kwargs)
 
 
@@ -1045,7 +1053,9 @@ async def _process_structure_chunk(
             except Exception as exc:  # pragma: no cover
                 logger.warning("Structure extraction failed for {}: {}", doc_id, exc)
                 continue
-            doc_type_category = str(doc_meta_by_id.get(doc_id, {}).get("doc_type_category") or "other")
+            doc_type_category = str(
+                doc_meta_by_id.get(doc_id, {}).get("doc_type_category") or "other"
+            )
             for row in result:
                 if not isinstance(row, dict):
                     continue
@@ -1080,6 +1090,7 @@ __all__ = [
     "_chunked",
     "_doc_content_hash",
     "_group_docs_by_spo_settings",
+    "_load_doc_metadata_manifest",
     "_process_structure_chunk",
     "_should_extract_spo_from_span",
     "_should_route_llm_gap_fill",
@@ -1089,7 +1100,7 @@ __all__ = [
     "_structure_gate_report",
     "_to_provision_spans",
     "_write_doc_domain",
-    "_load_doc_metadata_manifest",
     "_write_doc_metadata_manifest",
     "_write_jsonl_rows",
+    "extract_provisions_worker",
 ]

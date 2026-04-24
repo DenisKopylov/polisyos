@@ -1,15 +1,19 @@
 """Public simulator cli module API."""
+
 from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.norm_pack import NormPack
 
-from .report import NormImpactReport
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.store import FileSystemCAS
+
+    from .report import NormImpactReport
 
 
 def load_norm_pack(cas: FileSystemCAS, ref_or_path: str) -> NormPack:
@@ -68,4 +72,3 @@ def render_impact_markdown(report: NormImpactReport) -> str:
         lines.append("")
 
     return "\n".join(lines)
-

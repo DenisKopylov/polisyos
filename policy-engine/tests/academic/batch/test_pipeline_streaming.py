@@ -34,8 +34,12 @@ def test_pipeline_streams_doc_normalize_into_resolve_extract(monkeypatch, tmp_pa
         assert cfg.doc_ready_queue_path.exists()
         return {"records": 1, "successful_llm_extractions_per_topic": 1}
 
-    monkeypatch.setattr("polisyos.academic.batch.doc_normalize.run_doc_normalize", _fake_doc_normalize)
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.run_resolve_extract", _fake_resolve_extract)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.doc_normalize.run_doc_normalize", _fake_doc_normalize
+    )
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.run_resolve_extract", _fake_resolve_extract
+    )
 
     stats = asyncio.run(run_academic_pipeline(config))
 

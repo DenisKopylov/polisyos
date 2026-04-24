@@ -1,4 +1,5 @@
 # Scientist Causal Runners
+
 Related explanation: [Causal Engine](../../explanation/causal-engine.md).
 Additional reference: [Causal validity bundle](causal-validity.md), [WS-3A acceptance report](causal-validity-acceptance.md).
 
@@ -9,14 +10,14 @@ The `polisyos.scientist.causal` package provides pure runner-style APIs used by 
 
 ## Runner Catalog
 
-| API | Input IR | Output IR / entries | Role |
-|-----|----------|---------------------|------|
-| `BoundsEstimationRunner` | `BoundsEstimationTask` | bounds-estimation entries and bundle refs | Execute bounded-identification tasks and persist bundle artifacts |
-| `ProxyIdentificationRunner` | `ProxyIdentificationBundle` | proxy readiness entries | Score proxy validity against the reconciled graph |
-| `TransportabilityChecker` | `TransportabilityCheckBundle` | transportability readiness entries and result refs | Compile transportability checks against calendars and regime metadata |
-| `StrategicResponseRunner` | `StrategicResponseSpecsBundle` | strategic readiness entries and strategic-response bundle refs | Evaluate adaptation channels and strategic closure readiness |
-| `CounterfactualQueryRunner` | `CounterfactualCheckBundle` | counterfactual readiness entries | Determine whether required counterfactual queries are identified |
-| `build_interference_readiness_entries()` | `InterferenceLossSpecBundle` | interference readiness entries | Normalize interference-loss requirements into readiness metadata |
+| API                                      | Input IR                       | Output IR / entries                                            | Role                                                                  |
+| ---------------------------------------- | ------------------------------ | -------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `BoundsEstimationRunner`                 | `BoundsEstimationTask`         | bounds-estimation entries and bundle refs                      | Execute bounded-identification tasks and persist bundle artifacts     |
+| `ProxyIdentificationRunner`              | `ProxyIdentificationBundle`    | proxy readiness entries                                        | Score proxy validity against the reconciled graph                     |
+| `TransportabilityChecker`                | `TransportabilityCheckBundle`  | transportability readiness entries and result refs             | Compile transportability checks against calendars and regime metadata |
+| `StrategicResponseRunner`                | `StrategicResponseSpecsBundle` | strategic readiness entries and strategic-response bundle refs | Evaluate adaptation channels and strategic closure readiness          |
+| `CounterfactualQueryRunner`              | `CounterfactualCheckBundle`    | counterfactual readiness entries                               | Determine whether required counterfactual queries are identified      |
+| `build_interference_readiness_entries()` | `InterferenceLossSpecBundle`   | interference readiness entries                                 | Normalize interference-loss requirements into readiness metadata      |
 
 ## Default-Path Validity Surface
 
@@ -40,12 +41,12 @@ is implemented but lacks validation and benchmark evidence, it remains
 experimental or offline-gated and must not be described as a default-path SOTA
 capability.
 
-| Claim | Required artifact or status | Evidence |
-|-------|-----------------------------|----------|
-| Default-path causal estimate is confidence-visible | `scientist.causal_validity_bundle.confidence` and decision-packet `causal_validity` section | `tests/scientist/test_causal_evaluation_node.py`, `tests/scientist/test_decision_packet_node_v3.py` |
-| Sensitivity and robustness are auditable | `checks.sensitivity`, sensitivity result ref, robustness summary | `tests/foundry/methods/catalog/causal/test_validity_eval_pack.py` |
-| Transportability, proxy, strategic, interference, and counterfactual readiness are explicit | Readiness entries and `run_causal_readiness` outputs, including blocker summaries where required | `tests/scientist/nodes/builtins/causal/test_run_causal_readiness.py`, `tests/scientist/nodes/builtins/causal/test_counterfactual_identification_gate.py` |
-| Frontier causal methods are not default-on | `FrontierRuntimeReport.capabilities[*].status` plus `offline_validation_ref` and `benchmark_pack_ref` before offline availability | `tests/scientist/test_frontier_runtime.py`, [frontier-runtime.md](frontier-runtime.md) |
+| Claim                                                                                       | Required artifact or status                                                                                                       | Evidence                                                                                                                                                 |
+| ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Default-path causal estimate is confidence-visible                                          | `scientist.causal_validity_bundle.confidence` and decision-packet `causal_validity` section                                       | `tests/scientist/test_causal_evaluation_node.py`, `tests/scientist/test_decision_packet_node_v3.py`                                                      |
+| Sensitivity and robustness are auditable                                                    | `checks.sensitivity`, sensitivity result ref, robustness summary                                                                  | `tests/foundry/methods/catalog/causal/test_validity_eval_pack.py`                                                                                        |
+| Transportability, proxy, strategic, interference, and counterfactual readiness are explicit | Readiness entries and `run_causal_readiness` outputs, including blocker summaries where required                                  | `tests/scientist/nodes/builtins/causal/test_run_causal_readiness.py`, `tests/scientist/nodes/builtins/causal/test_counterfactual_identification_gate.py` |
+| Frontier causal methods are not default-on                                                  | `FrontierRuntimeReport.capabilities[*].status` plus `offline_validation_ref` and `benchmark_pack_ref` before offline availability | `tests/scientist/test_frontier_runtime.py`, [frontier-runtime.md](frontier-runtime.md)                                                                   |
 
 ## Phase 2 Research-Result Closure Notes
 

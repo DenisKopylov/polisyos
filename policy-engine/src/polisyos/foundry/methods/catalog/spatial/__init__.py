@@ -1,4 +1,5 @@
 """Expose spatial-analysis methods and register them into the Foundry catalog."""
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -38,19 +39,19 @@ def ensure_spatial_methods_registered(registry: MethodRegistry | None = None) ->
 __all__ = [
     "AccessibilityData",
     "AccessibilityIndexEstimator",
-    "GravityFlowData",
-    "GaussianProcessKrigingEstimator",
-    "GravityModelEstimator",
     "GWREstimator",
+    "GaussianProcessKrigingEstimator",
+    "GravityFlowData",
+    "GravityModelEstimator",
     "InverseDistanceWeightingEstimator",
     "MAUPSensitivityProfileEstimator",
     "MoranIEstimator",
-    "SpatialMicrosimulationEstimator",
-    "SpatialSARARPanelEstimator",
-    "SpatialSLXPanelEstimator",
     "SpatialData",
     "SpatialDurbinEstimator",
+    "SpatialMicrosimulationEstimator",
     "SpatialResult",
+    "SpatialSARARPanelEstimator",
+    "SpatialSLXPanelEstimator",
     "TwoStepFCAAccessibilityEstimator",
     "ZoneBalanceDesignEstimator",
     "ensure_spatial_methods_registered",

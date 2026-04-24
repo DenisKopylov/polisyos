@@ -1,4 +1,5 @@
 """Public builtins errors module API."""
+
 from __future__ import annotations
 
 # Canonical node error codes (E1.7)

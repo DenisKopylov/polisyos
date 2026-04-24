@@ -32,14 +32,16 @@ SUITE_ID = "temporal_hidden"
 def _build_payload(mode: str, *, quiet: bool) -> dict[str, object]:
     harness = BenchmarkHarness()
     for fixture in hidden_fixtures():
-        harness.register(
-            benchmark_case_from_fixture(fixture, circuit=BenchmarkCircuit.ESTIMATION)
-        )
+        harness.register(benchmark_case_from_fixture(fixture, circuit=BenchmarkCircuit.ESTIMATION))
 
     report = harness.run(circuit=BenchmarkCircuit.ESTIMATION)
     evaluations = extract_temporal_evaluations(report)
     hidden_summary = build_hidden_summary(evaluations)
-    suite_status = "passed" if resolve_mode(mode).value == "smoke" else ("passed" if hidden_summary["passes_all"] else "failed")
+    suite_status = (
+        "passed"
+        if resolve_mode(mode).value == "smoke"
+        else ("passed" if hidden_summary["passes_all"] else "failed")
+    )
     preflight = build_preflight(
         mode=mode,
         benchmark_tier=resolve_tier(mode=resolve_mode(mode)).value,
@@ -82,7 +84,8 @@ def _build_payload(mode: str, *, quiet: bool) -> dict[str, object]:
                 "safe_rejection_rate": hidden_summary["safe_rejection_rate"] == 1.0,
                 "diagnostics_presence_rate": hidden_summary["diagnostics_presence_rate"] == 1.0,
                 "fallback_success_rate": hidden_summary["fallback_success_rate"] == 1.0,
-                "artifact_reload_failure_rate": hidden_summary["artifact_reload_failure_rate"] == 0.0,
+                "artifact_reload_failure_rate": hidden_summary["artifact_reload_failure_rate"]
+                == 0.0,
             },
             "passes_all": bool(hidden_summary.get("passes_all")),
         },

@@ -52,4 +52,3 @@ def test_mutator_is_deterministic_for_same_ops_and_intent() -> None:
     pack_2 = NormPackMutator(base).modify_norm("n.a", description="A+").build(intent)
 
     assert pack_1.pack_id == pack_2.pack_id
-

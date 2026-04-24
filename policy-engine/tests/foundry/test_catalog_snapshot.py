@@ -27,7 +27,9 @@ def test_method_catalog_snapshot_contains_stable_entries() -> None:
     assert first.schema_version == "2.0"
 
 
-@pytest.mark.skipif(_Y0_INSTALLED, reason="y0 is installed — symbolic_identify reports causal_available=True")
+@pytest.mark.skipif(
+    _Y0_INSTALLED, reason="y0 is installed — symbolic_identify reports causal_available=True"
+)
 def test_method_catalog_snapshot_carries_causal_capability_posture() -> None:
     ensure_all_methods_registered()
     snapshot = build_method_catalog_snapshot(run_id="R_catalog")
@@ -87,12 +89,17 @@ def test_method_catalog_snapshot_includes_non_causal_families() -> None:
     assert "spatial.microsim.smsm@1.0.0" in fqns
     assert "spatial.design.maup_profile@1.0.0" in fqns
     assert "spatial.design.zone_balance@1.0.0" in fqns
+    assert "microsim.calibration.inverse_behavioral_calibration@1.0.0" in fqns
 
     # Phase 0: Policy domain
     assert "policy.welfare.cost_benefit_analysis@1.0.0" in fqns
     assert "policy.welfare.atkinson_swf@1.0.0" in fqns
     assert "policy.welfare.sufficient_statistics_welfare@1.0.0" in fqns
     assert "policy.mcda.topsis@1.0.0" in fqns
+    assert "policy.mcda.rank_stability@1.0.0" in fqns
+    assert "policy.mcda.robust_topsis@1.0.0" in fqns
+    assert "policy.mcda.robust_ahp@1.0.0" in fqns
+    assert "policy.mcda.robust_electre@1.0.0" in fqns
     assert "policy.evaluation.budget_impact@1.0.0" in fqns
     assert "policy.evaluation.foundation_model_policy_analysis@1.0.0" in fqns
     assert "policy.macro.fiscal_multiplier@1.0.0" in fqns
@@ -200,7 +207,9 @@ def test_method_catalog_snapshot_uses_conservative_effective_determinism_tier() 
     snapshot = build_method_catalog_snapshot(run_id="R_catalog")
 
     entry = next(
-        item for item in snapshot.entries if item.fqn == "bayesian.regression.linear_regression@1.0.0"
+        item
+        for item in snapshot.entries
+        if item.fqn == "bayesian.regression.linear_regression@1.0.0"
     )
 
     assert entry.capability_matrix["declared_determinism_tier"] == "statistical"
@@ -214,7 +223,9 @@ def test_method_catalog_snapshot_exposes_declared_truthfulness_scope_from_metada
     snapshot = build_method_catalog_snapshot(run_id="R_catalog")
 
     entry = next(
-        item for item in snapshot.entries if item.fqn == "bayesian.regression.linear_regression@1.0.0"
+        item
+        for item in snapshot.entries
+        if item.fqn == "bayesian.regression.linear_regression@1.0.0"
     )
 
     assert entry.declared_truthfulness_tier == "asymptotic"
@@ -259,9 +270,7 @@ def test_method_capability_matrix_exports_truthfulness_and_semantics() -> None:
     snapshot = build_method_catalog_snapshot(run_id="R_catalog")
 
     matrix = build_method_capability_matrix(snapshot, runnable_only=True)
-    row = next(
-        item for item in matrix if item["fqn"] == "survey.weighting.horvitz_thompson@1.0.0"
-    )
+    row = next(item for item in matrix if item["fqn"] == "survey.weighting.horvitz_thompson@1.0.0")
 
     assert row["truthfulness_tier"] == "unverified"
     assert row["implementation_depth_tier"] == "production_method"

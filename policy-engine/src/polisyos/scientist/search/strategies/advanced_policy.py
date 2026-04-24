@@ -86,8 +86,7 @@ class AdvancedSearchPolicyConfig(BaseModel):
     @property
     def offline_gate_passed(self) -> bool:
         experimental = [
-            name for name in self.requested_policies
-            if name != "constraint_propagation"
+            name for name in self.requested_policies if name != "constraint_propagation"
         ]
         return not experimental or bool(self.offline_validation_ref)
 
@@ -101,7 +100,7 @@ class AdvancedSearchPolicyReport(BaseModel):
     requested_policies: list[str] = Field(default_factory=list)
     offline_validation_ref: str | None = None
     offline_gate_passed: bool = False
-    rollout_status: "AdvancedSearchPolicyRolloutStatus"
+    rollout_status: AdvancedSearchPolicyRolloutStatus
     default_enable_eligible: bool = False
     default_enable_blockers: list[str] = Field(default_factory=list)
     capabilities: dict[str, str] = Field(default_factory=dict)
@@ -169,9 +168,7 @@ class ExplicitConstraintPropagator:
         metrics: Mapping[str, float],
     ) -> ConstraintPropagationResult:
         candidate_id = (
-            candidate.candidate_id
-            if isinstance(candidate, PolicyCandidate)
-            else str(candidate)
+            candidate.candidate_id if isinstance(candidate, PolicyCandidate) else str(candidate)
         )
         warnings: list[str] = []
         blockers: list[str] = []
@@ -229,8 +226,7 @@ class ASHAScheduler:
     def decide(self, evaluations: Sequence[Evaluation], current: Evaluation) -> ASHADecision:
         fidelity = _evaluation_fidelity(current)
         peers = [
-            item for item in evaluations
-            if item.is_valid and _evaluation_fidelity(item) == fidelity
+            item for item in evaluations if item.is_valid and _evaluation_fidelity(item) == fidelity
         ]
         if current not in peers and current.is_valid:
             peers.append(current)
@@ -502,10 +498,7 @@ class LearnedRoutingPolicy:
             for key, value in item.features.items():
                 totals[item.route][key] += weight * float(value)
         self._route_centroids = {
-            route: {
-                key: value / max(weights[route], 1e-9)
-                for key, value in values.items()
-            }
+            route: {key: value / max(weights[route], 1e-9) for key, value in values.items()}
             for route, values in totals.items()
         }
 
@@ -586,9 +579,7 @@ def build_advanced_search_policy_report(
     """Build an offline-gating report for advanced search policies."""
 
     requested = config.requested_policies
-    experimental_requested = [
-        name for name in requested if name != "constraint_propagation"
-    ]
+    experimental_requested = [name for name in requested if name != "constraint_propagation"]
     blockers: list[str] = []
     if not config.offline_gate_passed:
         blockers.append("missing_offline_validation_ref")
@@ -607,9 +598,7 @@ def build_advanced_search_policy_report(
             "enabled" if config.enable_constraint_propagation else "disabled"
         ),
         "population_based_training": (
-            "enabled"
-            if config.enable_population_based_training
-            else "available_offline_gated"
+            "enabled" if config.enable_population_based_training else "available_offline_gated"
         ),
     }
     default_enable_eligible = (
@@ -642,7 +631,7 @@ def _evaluation_fidelity(evaluation: Evaluation) -> int:
 
 
 def _deterministic_rng(seed: int) -> random.Random:
-    return random.Random(seed)  # noqa: S311 - deterministic search sampling, not crypto.
+    return random.Random(seed)
 
 
 def _squared_distance(left: Mapping[str, float], right: Mapping[str, float]) -> float:

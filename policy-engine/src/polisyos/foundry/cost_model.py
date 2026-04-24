@@ -1,4 +1,5 @@
 """Public foundry cost model module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -15,9 +16,7 @@ class CostEstimate(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    estimated_compile_ms: int = Field(
-        ..., ge=0, description="Estimated JAX/XLA compilation time"
-    )
+    estimated_compile_ms: int = Field(..., ge=0, description="Estimated JAX/XLA compilation time")
     estimated_run_ms: int = Field(..., ge=0, description="Estimated execution time per call")
     estimated_total_ms: int = Field(..., ge=0, description="Total estimated time")
 
@@ -96,7 +95,7 @@ class CostModel:
 
     def estimate(
         self,
-        program_graph: "ProgramGraph",
+        program_graph: ProgramGraph,
         n_agents: int,
         time_steps: int,
         *,
@@ -156,11 +155,7 @@ class CostModel:
         utilization = total_ms / budget.max_total_ms if budget.max_total_ms > 0 else 0.0
         calibrated_ratio = len(self._historical) / max(mechanism_count, 1)
         confidence = (
-            "high"
-            if calibrated_ratio > 0.8
-            else "medium"
-            if calibrated_ratio > 0.3
-            else "low"
+            "high" if calibrated_ratio > 0.8 else "medium" if calibrated_ratio > 0.3 else "low"
         )
 
         return CostEstimate(
@@ -176,13 +171,18 @@ class CostModel:
             confidence=confidence,
         )
 
-    def _is_mechanism_node(self, node: "ProgramNode") -> bool:
+    def _is_mechanism_node(self, node: ProgramNode) -> bool:
         if node.node_kind in {"mechanism", "method"}:
             return True
-        if node.node_kind == "op" and node.op and node.op.op_kind in {
-            "apply_mechanism",
-            "apply_method",
-        }:
+        if (
+            node.node_kind == "op"
+            and node.op
+            and node.op.op_kind
+            in {
+                "apply_mechanism",
+                "apply_method",
+            }
+        ):
             return True
         return False
 

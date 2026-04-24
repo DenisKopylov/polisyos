@@ -1,12 +1,13 @@
 """Metric prefix enum and prefix-factor lookup table."""
+
 from __future__ import annotations
 
 from decimal import Decimal
 from enum import Enum
 
 __all__ = [
-    "MetricPrefix",
     "PREFIX_FACTORS",
+    "MetricPrefix",
 ]
 
 
@@ -42,10 +43,10 @@ class MetricPrefix(Enum):
     YOCTO = ("y", Decimal("1e-24"))
 
     # Common non-SI prefixes used in data
-    MIO = ("Mio", Decimal("1e6"))      # Million (common in European data)
-    MRD = ("Mrd", Decimal("1e9"))      # Milliard (European billion)
-    BN = ("Bn", Decimal("1e9"))        # Billion (US)
-    TN = ("Tn", Decimal("1e12"))       # Trillion
+    MIO = ("Mio", Decimal("1e6"))  # Million (common in European data)
+    MRD = ("Mrd", Decimal("1e9"))  # Milliard (European billion)
+    BN = ("Bn", Decimal("1e9"))  # Billion (US)
+    TN = ("Tn", Decimal("1e12"))  # Trillion
 
     def __init__(self, symbol: str, factor: Decimal):
         self._symbol = symbol
@@ -60,7 +61,7 @@ class MetricPrefix(Enum):
         return self._factor
 
     @classmethod
-    def from_symbol(cls, symbol: str) -> "MetricPrefix" | None:
+    def from_symbol(cls, symbol: str) -> MetricPrefix | None:
         """Look up a prefix by its symbol."""
         for prefix in cls:
             if prefix.symbol == symbol:
@@ -69,19 +70,19 @@ class MetricPrefix(Enum):
 
 
 # Prefix lookup table for parsing
-PREFIX_FACTORS: dict[str, Decimal] = {
-    prefix.symbol: prefix.factor for prefix in MetricPrefix
-}
+PREFIX_FACTORS: dict[str, Decimal] = {prefix.symbol: prefix.factor for prefix in MetricPrefix}
 
 # Additional aliases
-PREFIX_FACTORS.update({
-    "K": Decimal("1e3"),      # Uppercase K for kilo (common variant)
-    "MM": Decimal("1e6"),     # MM for millions (financial notation)
-    "B": Decimal("1e9"),      # B for billions
-    "bio": Decimal("1e9"),    # bio for billions (European)
-    "tril": Decimal("1e12"),  # trillion abbreviation
-    "micro": Decimal("1e-6"),
-    "nano": Decimal("1e-9"),
-    "pico": Decimal("1e-12"),
-    "u": Decimal("1e-6"),
-})
+PREFIX_FACTORS.update(
+    {
+        "K": Decimal("1e3"),  # Uppercase K for kilo (common variant)
+        "MM": Decimal("1e6"),  # MM for millions (financial notation)
+        "B": Decimal("1e9"),  # B for billions
+        "bio": Decimal("1e9"),  # bio for billions (European)
+        "tril": Decimal("1e12"),  # trillion abbreviation
+        "micro": Decimal("1e-6"),
+        "nano": Decimal("1e-9"),
+        "pico": Decimal("1e-12"),
+        "u": Decimal("1e-6"),
+    }
+)

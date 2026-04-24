@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -47,7 +47,7 @@ def _contract(schema: DataSchema) -> ConnectorSchemaContract:
 
 
 def _result() -> FetchResult:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     version = DataVersion(
         strategy=VersionStrategy.CONTENT_HASH,
         value="sha256:" + "1" * 64,
@@ -66,7 +66,7 @@ def _result() -> FetchResult:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def cache(tmp_path):
     cas = FileSystemCAS(tmp_path / ".polisyos")
     return ConnectorCacheStore(cas, TTLPolicy(ttl=timedelta(hours=1)))
@@ -107,4 +107,3 @@ def test_schema_change_invalidation_trigger(cache: ConnectorCacheStore) -> None:
     v2 = _contract(_schema(SchemaVersion(1, 1, 0), with_extra=True))
     registry.register(v2)
     assert cache.get(request, connector_id="test.cache") is None
-

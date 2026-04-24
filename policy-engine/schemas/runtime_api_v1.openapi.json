@@ -479,6 +479,16 @@
             "title": "Artifact Id",
             "type": "string"
           },
+          "decision_packet_preview": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionPacketPreview"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "kind": {
             "title": "Kind",
             "type": "string"
@@ -3169,6 +3179,688 @@
           "run_id"
         ],
         "title": "DecisionMonitoringReport",
+        "type": "object"
+      },
+      "DecisionPacketAuthoredBlock": {
+        "additionalProperties": false,
+        "description": "Typed authored-text block embedded in decision-packet previews.",
+        "properties": {
+          "author": {
+            "anyOf": [
+              {
+                "enum": [
+                  "citation",
+                  "human",
+                  "drafter",
+                  "formalizer",
+                  "critic"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Author"
+          },
+          "author_agent_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Author Agent Version"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "reviewed_by_human": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed By Human"
+          },
+          "sources": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timestamp"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "title": "DecisionPacketAuthoredBlock",
+        "type": "object"
+      },
+      "DecisionPacketEffectSize": {
+        "additionalProperties": false,
+        "description": "Structured uncertainty payload used by typed decision-packet previews.",
+        "properties": {
+          "ci_80": {
+            "anyOf": [
+              {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ci 80"
+          },
+          "ci_95": {
+            "anyOf": [
+              {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ci 95"
+          },
+          "disputed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disputed"
+          },
+          "identifiability": {
+            "anyOf": [
+              {
+                "enum": [
+                  "identified",
+                  "estimated",
+                  "assumed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identifiability"
+          },
+          "method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Method"
+          },
+          "point": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Point"
+          },
+          "quantiles": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantiles"
+          }
+        },
+        "title": "DecisionPacketEffectSize",
+        "type": "object"
+      },
+      "DecisionPacketMetricComparisonRow": {
+        "additionalProperties": false,
+        "description": "Typed metric-comparison row embedded in decision-packet previews.",
+        "properties": {
+          "alpha": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alpha"
+          },
+          "assumption_warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Assumption Warnings",
+            "type": "array"
+          },
+          "baseline_model_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Model Id"
+          },
+          "baseline_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Value"
+          },
+          "calibration_warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Calibration Warnings",
+            "type": "array"
+          },
+          "candidate_model_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Model Id"
+          },
+          "candidate_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Value"
+          },
+          "delta_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta Value"
+          },
+          "effect_size": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionPacketEffectSize"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "family_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Family Id"
+          },
+          "family_scope": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Family Scope"
+          },
+          "metric_direction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metric Direction"
+          },
+          "metric_id": {
+            "title": "Metric Id",
+            "type": "string"
+          },
+          "p_adj": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P Adj"
+          },
+          "p_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P Value"
+          },
+          "resampling_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resampling Method"
+          },
+          "sample_size_effective": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sample Size Effective"
+          },
+          "significant": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Significant"
+          },
+          "statistic": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statistic"
+          },
+          "test_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Id"
+          },
+          "test_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Label"
+          }
+        },
+        "required": [
+          "metric_id"
+        ],
+        "title": "DecisionPacketMetricComparisonRow",
+        "type": "object"
+      },
+      "DecisionPacketMetricSignificance": {
+        "additionalProperties": false,
+        "description": "Typed metric-significance entry embedded in decision-packet previews.",
+        "properties": {
+          "alpha": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alpha"
+          },
+          "assumption_warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Assumption Warnings",
+            "type": "array"
+          },
+          "baseline_model_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Model Id"
+          },
+          "baseline_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Value"
+          },
+          "calibration_warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Calibration Warnings",
+            "type": "array"
+          },
+          "candidate_model_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Model Id"
+          },
+          "candidate_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Value"
+          },
+          "delta_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta Value"
+          },
+          "effect_size": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionPacketEffectSize"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metric_direction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metric Direction"
+          },
+          "p_adj": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P Adj"
+          },
+          "p_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P Value"
+          },
+          "significant": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Significant"
+          },
+          "test_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Id"
+          },
+          "test_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Label"
+          }
+        },
+        "title": "DecisionPacketMetricSignificance",
+        "type": "object"
+      },
+      "DecisionPacketOutlineEntry": {
+        "additionalProperties": false,
+        "description": "Typed outline entry surfaced for decision-packet previews.",
+        "properties": {
+          "section_id": {
+            "title": "Section Id",
+            "type": "string"
+          },
+          "section_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section Type"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "section_id",
+          "title"
+        ],
+        "title": "DecisionPacketOutlineEntry",
+        "type": "object"
+      },
+      "DecisionPacketPreview": {
+        "additionalProperties": true,
+        "description": "Typed additive sidecar for decision-packet artifact previews.",
+        "properties": {
+          "blocks": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionPacketAuthoredBlock"
+            },
+            "title": "Blocks",
+            "type": "array"
+          },
+          "document_outline": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionPacketOutlineEntry"
+            },
+            "title": "Document Outline",
+            "type": "array"
+          },
+          "evidence_summary_blocks": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionPacketAuthoredBlock"
+            },
+            "title": "Evidence Summary Blocks",
+            "type": "array"
+          },
+          "metric_significance_by_metric": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/DecisionPacketMetricSignificance"
+            },
+            "title": "Metric Significance By Metric",
+            "type": "object"
+          },
+          "metric_validation_comparison_rows": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionPacketMetricComparisonRow"
+            },
+            "title": "Metric Validation Comparison Rows",
+            "type": "array"
+          },
+          "narrative_blocks": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionPacketAuthoredBlock"
+            },
+            "title": "Narrative Blocks",
+            "type": "array"
+          }
+        },
+        "title": "DecisionPacketPreview",
         "type": "object"
       },
       "DecisionReissuePlan": {
@@ -9790,12 +10482,49 @@
                     "value": {
                       "artifact": {
                         "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                        "kind": "scientist.workflow_report",
+                        "decision_packet_preview": {
+                          "document_outline": [
+                            {
+                              "section_id": "policy_answer",
+                              "section_type": "policy",
+                              "title": "Recommendation"
+                            }
+                          ],
+                          "metric_significance_by_metric": {
+                            "gdp_change": {
+                              "effect_size": {
+                                "ci_95": [
+                                  0.12,
+                                  0.34
+                                ],
+                                "method": "analytic",
+                                "point": 0.23
+                              },
+                              "p_value": 0.02,
+                              "test_label": "Paired t test"
+                            }
+                          }
+                        },
+                        "kind": "scientist.decision_packet",
                         "max_bytes": 4096,
                         "media_type": "application/json",
                         "mode": "json",
                         "preview": {
-                          "status": "fail"
+                          "document_outline": [
+                            {
+                              "section_id": "policy_answer",
+                              "section_type": "policy",
+                              "title": "Recommendation"
+                            }
+                          ],
+                          "metric_significance_by_metric": {
+                            "gdp_change": {
+                              "effect_size": 0.23,
+                              "p_value": 0.02,
+                              "test_label": "Paired t test"
+                            }
+                          },
+                          "policy_answer": "Approve the targeted SME bridge support package."
                         },
                         "size_bytes": 1024,
                         "truncated": false

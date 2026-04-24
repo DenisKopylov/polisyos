@@ -4,13 +4,15 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from collections.abc import Iterable
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 
 from polisyos.ir.analytics.literature import EvidenceStrength
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 SKG_DDL = """
 CREATE TABLE IF NOT EXISTS ac_skg_articles (
@@ -299,6 +301,7 @@ CITATION_IMPACT_CAP = 1.15
 @dataclass(frozen=True)
 class ArticleEvidence:
     """Article evidence public type."""
+
     strength: str
     extraction_confidence: float
     publication_year: int | None = None
@@ -311,6 +314,7 @@ class ArticleEvidence:
 @dataclass(frozen=True)
 class WeightedDirectionSummary:
     """Weighted direction summary data model."""
+
     dominant_direction: str
     agreement_score: float
     is_contested: bool
@@ -337,7 +341,15 @@ def _coerce_article_evidence(row: ArticleEvidence | tuple[Any, ...]) -> ArticleE
             retracted=bool(retracted),
         )
     if len(row) >= 7:
-        strength, extraction_confidence, publication_year, sample_size, source_basis, retracted, fwci = row[:7]
+        (
+            strength,
+            extraction_confidence,
+            publication_year,
+            sample_size,
+            source_basis,
+            retracted,
+            fwci,
+        ) = row[:7]
         return ArticleEvidence(
             strength=str(strength),
             extraction_confidence=float(extraction_confidence or 0.0),
@@ -381,7 +393,9 @@ def _citation_factor(fwci: float | None) -> float:
 def _effective_evidence_weight(evidence: ArticleEvidence) -> float:
     if evidence.retracted:
         return 0.0
-    base = EVIDENCE_WEIGHTS.get(str(evidence.strength), EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value])
+    base = EVIDENCE_WEIGHTS.get(
+        str(evidence.strength), EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value]
+    )
     weight = (
         base
         * _temporal_weight(evidence.publication_year)
@@ -422,9 +436,7 @@ def aggregate_edge_confidence(articles: Iterable[ArticleEvidence | tuple[Any, ..
     combined = 1.0 - math.prod(1.0 - min(weight, 0.99) for weight in weights)
 
     # Determine floor from strongest evidence type present
-    strongest_base = max(
-        EVIDENCE_WEIGHTS.get(str(row.strength), 0.0) for row in valid
-    )
+    strongest_base = max(EVIDENCE_WEIGHTS.get(str(row.strength), 0.0) for row in valid)
     # Find the matching floor key
     floor = 0.10
     for strength_key, base_weight in EVIDENCE_WEIGHTS.items():
@@ -464,7 +476,9 @@ def weighted_direction_summary(
         key=lambda item: (item[1], item[0]),
     )[0]
     agreement = float(direction_weights[dominant_direction] / total)
-    significant = [direction for direction, weight in direction_weights.items() if (weight / total) > 0.15]
+    significant = [
+        direction for direction, weight in direction_weights.items() if (weight / total) > 0.15
+    ]
     is_contested = len(significant) > 1
 
     if is_contested:
@@ -474,7 +488,10 @@ def weighted_direction_summary(
                 continue
             non_dominant.extend(_coerce_article_evidence(item) for item in items)
         if non_dominant:
-            strongest = max(non_dominant, key=lambda row: (_effective_evidence_weight(row), edge_strength_rank(row.strength)))
+            strongest = max(
+                non_dominant,
+                key=lambda row: (_effective_evidence_weight(row), edge_strength_rank(row.strength)),
+            )
             dissent_strength = strongest.strength
             dissent_year = strongest.publication_year
 
@@ -557,7 +574,7 @@ def hash_edge_id(src: str, dst: str, direction: str) -> str:
     """Hash edge ID helper."""
     import hashlib
 
-    payload = f"{src}|{dst}|{direction}".encode("utf-8")
+    payload = f"{src}|{dst}|{direction}".encode()
     return hashlib.sha256(payload).hexdigest()[:24]
 
 
@@ -565,7 +582,7 @@ def hash_param_id(canonical_name: str, openalex_id: str) -> str:
     """Hash param ID helper."""
     import hashlib
 
-    payload = f"{canonical_name}|{openalex_id}".encode("utf-8")
+    payload = f"{canonical_name}|{openalex_id}".encode()
     return hashlib.sha256(payload).hexdigest()[:24]
 
 
@@ -573,7 +590,7 @@ def hash_contested_edge_id(src_family: str, dst_family: str) -> str:
     """Hash contested edge ID helper."""
     import hashlib
 
-    payload = f"contested|{src_family}|{dst_family}".encode("utf-8")
+    payload = f"contested|{src_family}|{dst_family}".encode()
     return hashlib.sha256(payload).hexdigest()[:24]
 
 
@@ -581,7 +598,7 @@ def hash_context_attr_id(canonical_name: str, openalex_id: str, country_code: st
     """Hash context attr ID helper."""
     import hashlib
 
-    payload = f"ctx_attr|{canonical_name}|{openalex_id}|{country_code}".encode("utf-8")
+    payload = f"ctx_attr|{canonical_name}|{openalex_id}|{country_code}".encode()
     return hashlib.sha256(payload).hexdigest()[:24]
 
 
@@ -589,7 +606,7 @@ def hash_moderation_edge_id(base_cause: str, base_effect: str, moderator: str) -
     """Hash moderation edge ID helper."""
     import hashlib
 
-    payload = f"mod_edge|{base_cause}|{base_effect}|{moderator}".encode("utf-8")
+    payload = f"mod_edge|{base_cause}|{base_effect}|{moderator}".encode()
     return hashlib.sha256(payload).hexdigest()[:24]
 
 
@@ -597,7 +614,7 @@ def hash_transport_score_id(edge_id: str, target_context_id: str) -> str:
     """Hash transport score ID helper."""
     import hashlib
 
-    payload = f"transport|{edge_id}|{target_context_id}".encode("utf-8")
+    payload = f"transport|{edge_id}|{target_context_id}".encode()
     return hashlib.sha256(payload).hexdigest()[:24]
 
 
@@ -605,7 +622,7 @@ def hash_context_profile_id(context_id: str, time_period: str) -> str:
     """Hash context profile ID helper."""
     import hashlib
 
-    payload = f"ctx_prof|{context_id}|{time_period}".encode("utf-8")
+    payload = f"ctx_prof|{context_id}|{time_period}".encode()
     return hashlib.sha256(payload).hexdigest()[:24]
 
 
@@ -668,23 +685,23 @@ def normalize_strength(value: Any) -> str:
 
 
 __all__ = [
-    "SKG_DDL",
-    "EVIDENCE_WEIGHTS",
     "ABSTRACT_ONLY_PENALTY",
+    "EVIDENCE_WEIGHTS",
+    "SKG_DDL",
     "ArticleEvidence",
     "WeightedDirectionSummary",
     "aggregate_edge_confidence",
-    "weighted_direction_summary",
     "ensure_skg_schema",
-    "next_skg_version",
     "finalize_skg_version",
-    "hash_edge_id",
-    "hash_param_id",
     "hash_context_attr_id",
-    "hash_moderation_edge_id",
-    "hash_transport_score_id",
     "hash_context_profile_id",
+    "hash_edge_id",
+    "hash_moderation_edge_id",
+    "hash_param_id",
+    "hash_transport_score_id",
+    "next_skg_version",
+    "normalize_strength",
     "parent_canonical_name",
     "strongest_strength",
-    "normalize_strength",
+    "weighted_direction_summary",
 ]

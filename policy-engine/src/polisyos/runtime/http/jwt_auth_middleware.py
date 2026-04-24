@@ -1,4 +1,5 @@
 """JWT authentication middleware for PolicyOS runtime HTTP services."""
+
 from __future__ import annotations
 
 import contextvars
@@ -169,8 +170,7 @@ class JWTAuthMiddleware(_BaseHTTPMiddleware):
                 status_code=403,
                 code="tenant_binding_mismatch",
                 detail=(
-                    f"Header {self._tenant_header}={header_tenant!r} "
-                    "does not match token tenant"
+                    f"Header {self._tenant_header}={header_tenant!r} does not match token tenant"
                 ),
                 request_id=request_id,
                 instance=path,
@@ -188,5 +188,6 @@ class JWTAuthMiddleware(_BaseHTTPMiddleware):
         finally:
             _current_user.reset(user_token)
             reset_current_access_scope(scope_token)
+
 
 __all__ = ["JWTAuthMiddleware", "get_current_user"]

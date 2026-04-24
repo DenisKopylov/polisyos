@@ -1,7 +1,9 @@
 """Public distributional metrics module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -55,6 +57,7 @@ def _distributional_output_slot() -> frozenset[SlotSpec]:
 )
 class LorenzCurveEstimator:
     """Trace Lorenz-curve coordinates for inequality diagnostics and downstream plotting."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -115,6 +118,7 @@ class LorenzCurveEstimator:
 )
 class AtkinsonIndexEstimator:
     """Estimate Atkinson inequality indices when welfare aversion matters."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -174,6 +178,7 @@ class AtkinsonIndexEstimator:
 )
 class GeneralizedEntropyEstimator:
     """Estimate generalized-entropy indices for decomposable inequality audits."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -215,7 +220,7 @@ class GeneralizedEntropyEstimator:
         elif abs(alpha - 1.0) < 1e-9:
             ge = float(np.mean(ratio * np.log(ratio)))
         else:
-            ge = float((np.mean(ratio ** alpha) - 1.0) / (alpha * (alpha - 1.0)))
+            ge = float((np.mean(ratio**alpha) - 1.0) / (alpha * (alpha - 1.0)))
         return {"result": {"generalized_entropy": ge, "alpha": alpha}}
 
 
@@ -226,6 +231,7 @@ class GeneralizedEntropyEstimator:
 )
 class FGTPovertyEstimator:
     """Estimate Foster-Greer-Thorbecke poverty gaps for poverty-oriented policy comparisons."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -267,7 +273,7 @@ class FGTPovertyEstimator:
         alpha = max(0.0, float(params.get("alpha", 0.0)))
         poverty_gap = np.clip((poverty_line - values) / poverty_line, 0.0, None)
         headcount = float(np.mean(poverty_gap > 0))
-        fgt = float(np.mean(poverty_gap ** alpha))
+        fgt = float(np.mean(poverty_gap**alpha))
         return {
             "result": {
                 "fgt": fgt,

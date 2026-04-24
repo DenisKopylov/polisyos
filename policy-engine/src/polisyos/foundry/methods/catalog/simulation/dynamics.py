@@ -1,7 +1,9 @@
 """Simulate system-dynamics, queue, compartmental, and agent-population mechanisms."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -137,6 +139,7 @@ def _build_agent_sim_mechanism(name: str, cfg: Mapping[str, Any]) -> Any:
 )
 class StockFlowSystemDynamicsEstimator:
     """Simulate deterministic stock-flow trajectories under a linear flow matrix; avoid strongly nonlinear feedbacks not encoded in the matrix."""
+
     method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
@@ -147,8 +150,15 @@ class StockFlowSystemDynamicsEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("initial_stocks", SlotType.VECTOR, Unit("stock", "level"), shape=("n_stocks",)),
-                SlotSpec("flow_matrix", SlotType.MATRIX, Unit("flow", "rate"), shape=("n_stocks", "n_stocks")),
+                SlotSpec(
+                    "initial_stocks", SlotType.VECTOR, Unit("stock", "level"), shape=("n_stocks",)
+                ),
+                SlotSpec(
+                    "flow_matrix",
+                    SlotType.MATRIX,
+                    Unit("flow", "rate"),
+                    shape=("n_stocks", "n_stocks"),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -216,6 +226,7 @@ class StockFlowSystemDynamicsEstimator:
 )
 class QueueDiscreteEventEstimator:
     """Simulate queue evolution under arrival/service rates and optional capacity; avoid when per-job event logs are required."""
+
     method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
@@ -246,9 +257,7 @@ class QueueDiscreteEventEstimator:
         description="Queue simulation using the Foundry discrete-event runtime mechanism.",
         tags=frozenset({"simulation", "discrete-event", "queue", "structural"}),
         when_to_use="Service system modeling; waiting-time analysis; congestion and capacity policy analysis",
-        citations=(
-            "Banks, J. et al. (2005). Discrete-Event System Simulation. Prentice Hall.",
-        ),
+        citations=("Banks, J. et al. (2005). Discrete-Event System Simulation. Prentice Hall.",),
         output_interpretation="Final queue length after simulation. Compare to steady-state M/M/1 rho=lambda/mu. Capacity hit = queue grows unbounded.",
     )
 
@@ -288,6 +297,7 @@ class QueueDiscreteEventEstimator:
 )
 class SIRCompartmentalEstimator:
     """Simulate SIR epidemic dynamics under homogeneous mixing; avoid latent-incubation processes that need an exposed compartment."""
+
     method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
@@ -368,6 +378,7 @@ class SIRCompartmentalEstimator:
 )
 class SEIRCompartmentalEstimator:
     """Simulate SEIR epidemic dynamics with an exposed compartment; avoid highly networked contact structure that violates homogeneous mixing."""
+
     method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
@@ -453,6 +464,7 @@ class SEIRCompartmentalEstimator:
 )
 class AgentPopulationSimulationEstimator:
     """Replay selected agent-sim mechanisms over synthetic microstate; avoid treating the output as observed data without a separate measurement layer."""
+
     method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
     runtime_stack: ClassVar[tuple[str, ...]] = ("jax",)
@@ -464,8 +476,12 @@ class AgentPopulationSimulationEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("initial_wealth", SlotType.VECTOR, Unit("wealth", "amount"), shape=("n_agents",)),
-                SlotSpec("initial_income", SlotType.VECTOR, Unit("income", "amount"), shape=("n_agents",)),
+                SlotSpec(
+                    "initial_wealth", SlotType.VECTOR, Unit("wealth", "amount"), shape=("n_agents",)
+                ),
+                SlotSpec(
+                    "initial_income", SlotType.VECTOR, Unit("income", "amount"), shape=("n_agents",)
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -529,13 +545,17 @@ class AgentPopulationSimulationEstimator:
             wealth=initial_wealth,
             income=initial_income,
             consumption=_agent_sim_vector(state, "initial_consumption", n_agents, default=5.0),
-            active=jnp.asarray(state.get("active_mask", jnp.ones(n_agents, dtype=jnp.bool_)), dtype=jnp.bool_),
+            active=jnp.asarray(
+                state.get("active_mask", jnp.ones(n_agents, dtype=jnp.bool_)), dtype=jnp.bool_
+            ),
         )
         policy = initial_state.policy.replace(
             tax_rate=jnp.asarray(_float(state.get("tax_rate"), 0.2), dtype=jnp.float32),
             transfer_rate=jnp.asarray(_float(state.get("transfer_rate"), 0.0), dtype=jnp.float32),
             interest_rate=jnp.asarray(_float(state.get("interest_rate"), 0.01), dtype=jnp.float32),
-            expected_interest_rate=jnp.asarray(_float(state.get("expected_interest_rate"), 0.01), dtype=jnp.float32),
+            expected_interest_rate=jnp.asarray(
+                _float(state.get("expected_interest_rate"), 0.01), dtype=jnp.float32
+            ),
         )
         initial_state = initial_state.replace(agents=agents, policy=policy)
 

@@ -5,13 +5,13 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import to_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
-    ExecuteRequest,
     ExecPlanRef,
+    ExecuteRequest,
+    FoundryInputBindingReportRef,
     FoundryInputBindingRule,
-    FoundryInputBindingTransform,
     FoundryInputBindings,
     FoundryInputBindingsRef,
-    FoundryInputBindingReportRef,
+    FoundryInputBindingTransform,
     StateSnapshotRef,
 )
 
@@ -39,9 +39,7 @@ def test_foundry_input_bindings_contract_is_canonical() -> None:
                 ],
             )
         ],
-        bound_state_snapshot_ref=StateSnapshotRef(
-            artifact_id=ArtifactID.from_sha256_hex("3" * 64)
-        ),
+        bound_state_snapshot_ref=StateSnapshotRef(artifact_id=ArtifactID.from_sha256_hex("3" * 64)),
         quality_report_ref=_ref("fabric.quality_report", "4"),
     )
     to_canonical_bytes(bindings)

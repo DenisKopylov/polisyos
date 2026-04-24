@@ -5,6 +5,7 @@ the sufficient graphical and filtration-based conditions under which a policy
 effect for a continuous-time event process is identified via intensity
 reweighting.
 """
+
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -46,7 +47,14 @@ class LocalIndependenceTarget(BaseModel):
     contrast_policy: str = "pi"
     contrast_baseline: str = "natural_or_pi0"
 
-    @field_validator("functional", "outcome_process", "time_scale", "contrast_policy", "contrast_baseline", mode="before")
+    @field_validator(
+        "functional",
+        "outcome_process",
+        "time_scale",
+        "contrast_policy",
+        "contrast_baseline",
+        mode="before",
+    )
     @classmethod
     def _validate_strings(cls, value: object, info: Any) -> str:
         return _clean_string(value, field_name=str(info.field_name))
@@ -167,7 +175,9 @@ class IndependentCensoringCheck(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     checked: bool = False
-    criterion: Literal["delta_separation", "mu_separation", "graph_structure", "unknown"] = "unknown"
+    criterion: Literal["delta_separation", "mu_separation", "graph_structure", "unknown"] = (
+        "unknown"
+    )
     statement: str | None = None
     conditioning_set: tuple[str, ...] = ()
     blocked_trails: tuple[str, ...] = ()
@@ -413,14 +423,14 @@ __all__ = [
     "IndependentCensoringCheck",
     "IntensityModelRequirement",
     "LocalIndependenceEdge",
-    "LocalIndependenceGraphicalChecks",
     "LocalIndependenceGraphSpec",
+    "LocalIndependenceGraphicalChecks",
     "LocalIndependenceIdentificationSpec",
     "LocalIndependenceRuntimeRequirements",
     "LocalIndependenceTarget",
     "LocalIndependenceWeightingCertificate",
     "LocalIndependenceWeightingCertificateRef",
+    "TreatmentIntensityInterventionSpec",
     "load_local_independence_weighting_certificate",
     "persist_local_independence_weighting_certificate",
-    "TreatmentIntensityInterventionSpec",
 ]

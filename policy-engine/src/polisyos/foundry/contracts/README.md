@@ -17,36 +17,40 @@ aware simulation adapters.
 
 - [state.py](state.py) for `GlobalState`, agent/firm/market arrays, multiscale
   cells, and runtime-only simulation substate.
+
 - [mechanism.py](mechanism.py) for patch-oriented `Mechanism`,
   `ComplexMechanism`, `PatchRecord`, and `PatchMap`.
+
 - [fidelity.py](fidelity.py) for runtime fidelity levels.
 - [../layout.py](../layout.py) for slot-to-state-path materialization that
   targets these contracts.
+
 - [../executor.py](../executor.py) for snapshot and state-delta helpers that
   apply these contracts at runtime.
 
 ## Public Entrypoints
 
-| Entrypoint | Description |
-|---|---|
-| `AgentState` | Household/agent state arrays used by runtime execution. |
-| `FirmState` | Firm production and finance arrays. |
-| `MarketState` | Aggregate market tensors. |
-| `CellState` | Regional/sectoral aggregate state. |
-| `HouseholdCellState` | Household-cell welfare aggregates. |
-| `ProcurementGraphState` | Procurement graph runtime tensors. |
-| `AgentSimRuntimeState` | RNG and runtime-only distribution/network state. |
-| `GlobalState` | Top-level compile/execute state contract. |
-| `Mechanism` | Patch-first mechanism contract. |
-| `ComplexMechanism` | Marker for complex mechanisms that still emit patches only. |
-| `PatchRecord` / `PatchMap` | Patch payload structures used by merge/runtime helpers. |
-| `FidelityLevel` | Runtime fidelity enum. |
+| Entrypoint                 | Description                                                 |
+| -------------------------- | ----------------------------------------------------------- |
+| `AgentState`               | Household/agent state arrays used by runtime execution.     |
+| `FirmState`                | Firm production and finance arrays.                         |
+| `MarketState`              | Aggregate market tensors.                                   |
+| `CellState`                | Regional/sectoral aggregate state.                          |
+| `HouseholdCellState`       | Household-cell welfare aggregates.                          |
+| `ProcurementGraphState`    | Procurement graph runtime tensors.                          |
+| `AgentSimRuntimeState`     | RNG and runtime-only distribution/network state.            |
+| `GlobalState`              | Top-level compile/execute state contract.                   |
+| `Mechanism`                | Patch-first mechanism contract.                             |
+| `ComplexMechanism`         | Marker for complex mechanisms that still emit patches only. |
+| `PatchRecord` / `PatchMap` | Patch payload structures used by merge/runtime helpers.     |
+| `FidelityLevel`            | Runtime fidelity enum.                                      |
 
 ## Depends On / Depended On By
 
 - Depends on: JAX/chex/equinox runtime libraries and
   `polisyos.foundry.agent_sim.distributions` for the embedded
   `DistributionState`.
+
 - Depended on by: Foundry executor and registry layers, runtime mechanisms,
   calibration pure-executor flows, agent-sim wiring, quickstart, and
   release-acceptance paths.

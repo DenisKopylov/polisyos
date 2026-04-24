@@ -1,4 +1,5 @@
 """Public causal transport bounds module API."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -36,7 +37,9 @@ def _extract_arrays(data: Mapping[str, Any] | None) -> tuple[np.ndarray, np.ndar
     return y, t
 
 
-def _resolved_count(selection_diagram: SelectionDiagram, constraints: Mapping[str, Any] | None) -> int:
+def _resolved_count(
+    selection_diagram: SelectionDiagram, constraints: Mapping[str, Any] | None
+) -> int:
     if not constraints:
         return 0
     resolved = constraints.get("resolved_s_nodes") or constraints.get("eliminated_s_nodes")
@@ -76,14 +79,18 @@ def _manski_like_pid(data: Mapping[str, Any] | None) -> PartialIdentificationRes
             display_label="Worst-case transport ignorance bounds",
         )
     pid = compute_manski_bounds(
-        outcome_conditioned=np.array([
-            float(np.mean(outcome[~treated])),
-            float(np.mean(outcome[treated])),
-        ]),
-        treatment_probs=np.array([
-            float(np.mean(~treated)),
-            float(np.mean(treated)),
-        ]),
+        outcome_conditioned=np.array(
+            [
+                float(np.mean(outcome[~treated])),
+                float(np.mean(outcome[treated])),
+            ]
+        ),
+        treatment_probs=np.array(
+            [
+                float(np.mean(~treated)),
+                float(np.mean(treated)),
+            ]
+        ),
         outcome_support=(float(np.min(outcome)), float(np.max(outcome))),
     )
     return pid.model_copy(
@@ -133,7 +140,10 @@ def _intersect_or_envelope(
     if lower <= upper:
         return (float(lower), float(upper)), False
     return (
-        (float(min(base_interval[0], other.lower_bound)), float(max(base_interval[1], other.upper_bound))),
+        (
+            float(min(base_interval[0], other.lower_bound)),
+            float(max(base_interval[1], other.upper_bound)),
+        ),
         True,
     )
 
@@ -183,7 +193,9 @@ def transport_bounds(
     else:
         relaxed_interval = (ignorance_pid.lower_bound, ignorance_pid.upper_bound)
 
-    combined_interval, inconsistent_components = _intersect_or_envelope(relaxed_interval, target_pid)
+    combined_interval, inconsistent_components = _intersect_or_envelope(
+        relaxed_interval, target_pid
+    )
     lower, upper = combined_interval
 
     assumptions_used = [
@@ -203,13 +215,13 @@ def transport_bounds(
     component_results = [result for result in (source_pid, target_pid) if result is not None]
     if informative_weight < 1.0 or not component_results:
         component_results.append(ignorance_pid)
-    all_sharp = bool(component_results) and all(result.bounds_type == "sharp_lp" for result in component_results)
+    all_sharp = bool(component_results) and all(
+        result.bounds_type == "sharp_lp" for result in component_results
+    )
     exact_transport = unresolved == 0 and all_sharp and not inconsistent_components
 
     relaxation_gap_candidates = [
-        result.relaxation_gap
-        for result in component_results
-        if result.relaxation_gap is not None
+        result.relaxation_gap for result in component_results if result.relaxation_gap is not None
     ]
     ignorance_width = ignorance_pid.bound_width
     final_width = upper - lower
@@ -217,9 +229,7 @@ def transport_bounds(
         relaxation_gap = 0.0
     else:
         relaxation_gap = float(
-            max(
-                [0.0, ignorance_width - final_width, *relaxation_gap_candidates]
-            )
+            max([0.0, ignorance_width - final_width, *relaxation_gap_candidates])
         )
 
     min_conf = min((result.confidence for result in component_results), default=0.05)

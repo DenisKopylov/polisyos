@@ -8,13 +8,10 @@ from tools.ci import check_scientist_phase0_gate
 
 def _write_junit_xml(path: Path, names: list[str]) -> None:
     testcases = "\n".join(
-        f'    <testcase classname="scientist.phase0" name="{name}" />'
-        for name in names
+        f'    <testcase classname="scientist.phase0" name="{name}" />' for name in names
     )
     path.write_text(
-        "<testsuite name=\"scientist-phase0\">"
-        f"\n{testcases}\n"
-        "</testsuite>\n",
+        f'<testsuite name="scientist-phase0">\n{testcases}\n</testsuite>\n',
         encoding="utf-8",
     )
 

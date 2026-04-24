@@ -37,12 +37,13 @@ Example ConnectionConfig
 ...     "rate_limit_rps": 10.0,
 ... }
 """
+
 from __future__ import annotations
 
 import asyncio
 import json
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, ClassVar
 
@@ -50,11 +51,6 @@ import aiohttp
 
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import streaming_hash
-from polisyos.fabric.safety import (
-    UnsafeDataPathError,
-    extract_bounded_data_path,
-    validate_data_path,
-)
 from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
@@ -77,6 +73,11 @@ from polisyos.fabric.connectors.types import (
     ValidationResult,
     ValidationSeverity,
 )
+from polisyos.fabric.safety import (
+    UnsafeDataPathError,
+    extract_bounded_data_path,
+    validate_data_path,
+)
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,
@@ -96,14 +97,15 @@ def _parse_http_datetime(value: str | None) -> datetime | None:
     try:
         from email.utils import parsedate_to_datetime
 
-
         parsed = parsedate_to_datetime(value)
         if parsed.tzinfo is None:
-            parsed = parsed.replace(tzinfo=timezone.utc)
+            parsed = parsed.replace(tzinfo=UTC)
         return parsed
     except (TypeError, ValueError):
         logger.debug(
-            "Failed to parse HTTP datetime value %r", value, exc_info=True,
+            "Failed to parse HTTP datetime value %r",
+            value,
+            exc_info=True,
         )
         return None
 
@@ -335,9 +337,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                     state["rate_limit_remaining"] = None
 
             try:
-                page_data: list[dict[str, Any]] = _extract_nested(
-                    body["json"], cfg["data_path"]
-                )
+                page_data: list[dict[str, Any]] = _extract_nested(body["json"], cfg["data_path"])
             except (KeyError, TypeError) as exc:
                 raise FetchError(
                     message=f"Data extraction failed at path '{cfg['data_path']}': {exc}",
@@ -361,7 +361,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
             content_hash=streaming_hash(payload_chunks, prefix=True),
             etag=etag if not etag_mismatch else None,
             last_modified=last_modified if not last_modified_mismatch else None,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
         )
 
         return FetchResult(
@@ -370,7 +370,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
             schema_id=f"{self.connector_id}.{request.dataset_id}",
             schema_version="1.0.0",
             version=version,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=1.0,
             quality_tier=QualityTier.SILVER,
             fetch_duration_ms=round(duration_ms, 2),
@@ -484,11 +484,15 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                     request_params={"url": url},
                 ) from exc
 
-        return {
-            "json": body_json,
-            "_raw": raw,
-            "headers": headers,
-        }, headers, bytes_xferred
+        return (
+            {
+                "json": body_json,
+                "_raw": raw,
+                "headers": headers,
+            },
+            headers,
+            bytes_xferred,
+        )
 
     # ------------------------------------------------------------------
     # Config validation

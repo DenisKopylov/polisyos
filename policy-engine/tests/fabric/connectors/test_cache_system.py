@@ -1,14 +1,19 @@
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 import time
-from datetime import datetime, timedelta, timezone
+from concurrent.futures import ThreadPoolExecutor
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 
 import pandas as pd
 import pytest
 
 from polisyos.core.artifacts import FileSystemCAS
-from polisyos.fabric.connectors.base import FetchRequest, FetchResult
+from polisyos.fabric.connectors.base import (
+    ConnectionConfig,
+    ConnectionHandle,
+    FetchRequest,
+    FetchResult,
+)
 from polisyos.fabric.connectors.cache import (
     CachingConnectorProxy,
     ConnectorCacheStore,
@@ -22,6 +27,7 @@ from polisyos.fabric.connectors.cache import (
     TTLPolicy,
 )
 from polisyos.fabric.connectors.cache.store import ResultSerializer
+from polisyos.fabric.connectors.types import FreshnessResult, FreshnessStatus
 from polisyos.fabric.security import ArtifactGovernanceError, DataClassification
 from polisyos.ir.connectors import (
     ConnectorCapability,
@@ -31,15 +37,13 @@ from polisyos.ir.connectors import (
     QualityTier,
     VersionStrategy,
 )
-from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
-from polisyos.fabric.connectors.types import FreshnessResult, FreshnessStatus
 
 
 def _make_version() -> DataVersion:
     return DataVersion(
         strategy=VersionStrategy.TIMESTAMP,
         value="now",
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
     )
 
 
@@ -50,7 +54,7 @@ def _make_result(data, *, bytes_transferred: int = 0) -> FetchResult:
         schema_id="test.schema",
         schema_version="1.0",
         version=_make_version(),
-        fetched_at=datetime.now(timezone.utc),
+        fetched_at=datetime.now(UTC),
         completeness=1.0,
         quality_tier=QualityTier.SILVER,
         bytes_transferred=bytes_transferred,
@@ -82,7 +86,7 @@ class _GaugeStub:
 
 
 class _SpanStub:
-    def __enter__(self) -> "_SpanStub":
+    def __enter__(self) -> _SpanStub:
         return self
 
     def __exit__(self, exc_type, exc, tb) -> bool:
@@ -102,13 +106,13 @@ class _TracerStub:
     def __init__(self) -> None:
         self.names: list[str] = []
 
-    def start_as_current_span(self, name: str, attributes=None):  # noqa: ANN001
+    def start_as_current_span(self, name: str, attributes=None):
         del attributes
         self.names.append(name)
         return _SpanStub()
 
 
-@pytest.fixture()
+@pytest.fixture
 def cache(tmp_path):
     cas = FileSystemCAS(tmp_path / ".polisyos")
     policy = TTLPolicy(ttl=timedelta(hours=1))
@@ -292,7 +296,7 @@ def test_size_bounded_eviction_keeps_store_under_limit(tmp_path):
     cas = FileSystemCAS(tmp_path / ".polisyos")
     cache = ConnectorCacheStore(
         cas,
-        SizeBoundedPolicy(max_size_gb=limit_bytes / float(1024 ** 3)),
+        SizeBoundedPolicy(max_size_gb=limit_bytes / float(1024**3)),
     )
     req1 = FetchRequest(dataset_id="test.one")
     req2 = FetchRequest(dataset_id="test.two")
@@ -353,12 +357,12 @@ def test_smart_expiry_policy_treats_future_windows_as_short_lived():
     policy = SmartExpiryPolicy()
     request = FetchRequest(
         dataset_id="test.stream",
-        date_start=datetime.now(timezone.utc) - timedelta(hours=1),
-        date_end=datetime.now(timezone.utc) + timedelta(hours=1),
+        date_start=datetime.now(UTC) - timedelta(hours=1),
+        date_end=datetime.now(UTC) + timedelta(hours=1),
     )
 
     expires_at = policy.compute_expiry(request, _make_result({"x": 1}))
-    ttl = expires_at - datetime.now(timezone.utc)
+    ttl = expires_at - datetime.now(UTC)
 
     assert ttl <= timedelta(minutes=6)
 
@@ -582,7 +586,9 @@ def test_invalidation_orchestrator_uses_file_signatures(tmp_path):
         cache_store.put(request, _make_result({"x": 1}), connector_id="test.mock")
 
         source_file.write_text('{"value": 2, "extra": true}', encoding="utf-8")
-        orchestrator = InvalidationOrchestrator(cache_store, MockRegistry(MockConnector()), InvalidationTrigger())
+        orchestrator = InvalidationOrchestrator(
+            cache_store, MockRegistry(MockConnector()), InvalidationTrigger()
+        )
 
         events = await orchestrator.scan_and_invalidate()
         assert len(events) == 1

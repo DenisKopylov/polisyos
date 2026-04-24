@@ -1,4 +1,5 @@
 """Game/mechanism-design contracts for strategic policy authoring."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -6,6 +7,7 @@ from enum import Enum
 from pydantic import Field, model_validator
 
 from polisyos.ir._validation import ensure_finite_numeric, ensure_unique_ids
+from polisyos.ir.governance.mechanism_semantics import MechanismSemanticsSpec
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 
 
@@ -44,7 +46,7 @@ class BayesianTypeSpec(KernelModel):
     prior_probabilities: dict[str, float] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_type_support(self) -> "BayesianTypeSpec":
+    def validate_type_support(self) -> BayesianTypeSpec:
         ensure_unique_ids(self.type_space, key_fn=lambda item: item, label="bayesian type")
         if self.prior_probabilities:
             if set(self.prior_probabilities) != set(self.type_space):
@@ -73,7 +75,7 @@ class ExtensiveFormNode(KernelModel):
     terminal_payoffs: dict[str, float] | None = None
 
     @model_validator(mode="after")
-    def validate_node(self) -> "ExtensiveFormNode":
+    def validate_node(self) -> ExtensiveFormNode:
         if self.parent_node_id == self.node_id:
             raise ValueError("parent_node_id cannot equal node_id")
         if self.terminal_payoffs is not None:
@@ -124,7 +126,7 @@ class RepeatedGameMetadata(KernelModel):
     public_signal_fields: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def validate_repeated_game(self) -> "RepeatedGameMetadata":
+    def validate_repeated_game(self) -> RepeatedGameMetadata:
         if self.horizon is RepeatedGameHorizon.ONE_SHOT:
             if self.n_rounds is not None or self.discount_factor is not None:
                 raise ValueError(
@@ -159,12 +161,13 @@ class MechanismDesignSpec(KernelModel):
     action_spaces: dict[str, tuple[str, ...]] = Field(default_factory=dict)
     extensive_form_nodes: list[ExtensiveFormNode] = Field(default_factory=list)
     bayesian_types: list[BayesianTypeSpec] = Field(default_factory=list)
+    semantics: MechanismSemanticsSpec | None = None
     constraints: list[MechanismDesignConstraint] = Field(default_factory=list)
     repeated_game: RepeatedGameMetadata | None = None
     objective: str | None = Field(None, max_length=240)
 
     @model_validator(mode="after")
-    def validate_design(self) -> "MechanismDesignSpec":
+    def validate_design(self) -> MechanismDesignSpec:
         ensure_unique_ids(self.players, key_fn=lambda item: item, label="mechanism player")
         if set(self.action_spaces) != set(self.players):
             raise ValueError("action_spaces must match players exactly")
@@ -223,6 +226,13 @@ class MechanismDesignSpec(KernelModel):
                 raise ValueError("bayesian_types must match players exactly")
         elif self.bayesian_types:
             raise ValueError("bayesian_types are only valid for bayesian games")
+
+        if self.semantics is not None:
+            self.semantics.validate_against_declared_structure(
+                players=self.players,
+                action_spaces=self.action_spaces,
+                type_spaces={item.player_id: item.type_space for item in self.bayesian_types},
+            )
         return self
 
 
@@ -233,6 +243,7 @@ __all__ = [
     "MechanismDesignConstraint",
     "MechanismDesignSpec",
     "MechanismGameRepresentation",
+    "MechanismSemanticsSpec",
     "RepeatedGameHorizon",
     "RepeatedGameMetadata",
 ]

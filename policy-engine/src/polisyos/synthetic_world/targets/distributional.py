@@ -1,4 +1,5 @@
 """Distributional truth targets."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -17,7 +18,9 @@ def register_distributional_targets(
     grid = np.quantile(arr, np.linspace(0.05, 0.95, 7))
     sorted_arr = np.sort(arr)
     empirical_cdf = np.searchsorted(sorted_arr, grid, side="right") / max(sorted_arr.shape[0], 1)
-    density, density_edges = np.histogram(arr, bins=min(12, max(arr.shape[0] // 8, 4)), density=True)
+    density, density_edges = np.histogram(
+        arr, bins=min(12, max(arr.shape[0] // 8, 4)), density=True
+    )
     density_grid = 0.5 * (density_edges[:-1] + density_edges[1:])
     targets: dict[str, dict[str, Any]] = {
         "distributional.quantile.p10": {"value": float(np.quantile(arr, 0.10))},

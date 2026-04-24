@@ -33,6 +33,10 @@ import dataclasses
 import uuid
 from typing import TYPE_CHECKING
 
+from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
+    ExecutorGraph,
+    ExecutorNode,
+)
 from polisyos.ir.analytics.estimand import (
     DistributionDomain,
     DistributionRef,
@@ -49,10 +53,6 @@ from polisyos.ir.analytics.estimand import (
     SumNode,
 )
 from polisyos.ir.analytics.evidence_bundle import ProofStep as IRProofStep
-from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
-    ExecutorGraph,
-    ExecutorNode,
-)
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.knowledge_base import DataKnowledgeBase
@@ -81,7 +81,7 @@ class LoweringContext:
     """Mutable state passed through the recursive lowering traversal."""
 
     run_id: str
-    knowledge_base: "DataKnowledgeBase | None"
+    knowledge_base: DataKnowledgeBase | None
     n_obs: int | None
     covariate_dim: int | None
     nodes: list[ExecutorNode] = dataclasses.field(default_factory=list)
@@ -204,6 +204,7 @@ def lower_distribution_ref(node: DistributionRef, ctx: LoweringContext) -> str:
     if ctx.knowledge_base is not None:
         try:
             from polisyos.ir.analytics.knowledge_base import DistributionAvailability
+
             avail, dataset_ref = ctx.knowledge_base.can_identify_distribution(node)
             if avail == DistributionAvailability.AVAILABLE:
                 return ctx.emit(
@@ -258,6 +259,7 @@ def lower_nuisance_node(node: NuisanceNode, ctx: LoweringContext) -> str:
     extra_params: dict = {}
     try:
         from polisyos.foundry.methods.catalog.causal.nuisance_resolver import NuisanceResolver
+
         spec = NuisanceResolver().resolve_for_nuisance_node(
             node, n_obs=ctx.n_obs, covariate_dim=ctx.covariate_dim
         )
@@ -280,9 +282,7 @@ def lower_nuisance_node(node: NuisanceNode, ctx: LoweringContext) -> str:
     )
 
 
-def lower_sum_node(
-    node: SumNode, ctx: LoweringContext, domain: DistributionDomain
-) -> str:
+def lower_sum_node(node: SumNode, ctx: LoweringContext, domain: DistributionDomain) -> str:
     """Lower SumNode: recursively lower operand, then emit a marginalizer."""
     operand_id = lower_node(node.operand, ctx, domain)
     return ctx.emit(
@@ -292,9 +292,7 @@ def lower_sum_node(
     )
 
 
-def lower_product_node(
-    node: ProductNode, ctx: LoweringContext, domain: DistributionDomain
-) -> str:
+def lower_product_node(node: ProductNode, ctx: LoweringContext, domain: DistributionDomain) -> str:
     """Lower ProductNode: recursively lower all factors, then emit a product combiner."""
     child_ids = [lower_node(f, ctx, domain) for f in node.factors]
     return ctx.emit(
@@ -304,9 +302,7 @@ def lower_product_node(
     )
 
 
-def lower_ratio_node(
-    node: RatioNode, ctx: LoweringContext, domain: DistributionDomain
-) -> str:
+def lower_ratio_node(node: RatioNode, ctx: LoweringContext, domain: DistributionDomain) -> str:
     """Lower RatioNode: lower numerator and denominator, then emit a ratio combiner."""
     num_id = lower_node(node.numerator, ctx, domain)
     den_id = lower_node(node.denominator, ctx, domain)
@@ -447,7 +443,7 @@ def recursive_compile(
     run_id: str,
     n_obs: int | None = None,
     covariate_dim: int | None = None,
-    knowledge_base: "DataKnowledgeBase | None" = None,
+    knowledge_base: DataKnowledgeBase | None = None,
     proof_steps: list[IRProofStep] | None = None,
 ) -> ExecutorGraph:
     """Compile any EstimandAST to an ExecutorGraph via recursive tree traversal.
@@ -516,16 +512,16 @@ def recursive_compile(
 
 __all__ = [
     "LoweringContext",
-    "lower_node",
     "lower_distribution_ref",
+    "lower_expectation_node",
+    "lower_integral_node",
+    "lower_node",
     "lower_nuisance_node",
-    "lower_sum_node",
+    "lower_operator_apply_node",
+    "lower_operator_target_node",
     "lower_product_node",
     "lower_ratio_node",
-    "lower_expectation_node",
-    "lower_operator_target_node",
-    "lower_operator_apply_node",
-    "lower_integral_node",
     "lower_recovered_dist_node",
+    "lower_sum_node",
     "recursive_compile",
 ]

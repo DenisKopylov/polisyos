@@ -1,11 +1,15 @@
 """Property-based tests for microsimulation methods: tax-benefit, dynamic micro."""
+
 from __future__ import annotations
+
 import sys
+
 import numpy as np
 import pytest
 
 try:
-    from hypothesis import given, settings, HealthCheck
+    from hypothesis import HealthCheck, given, settings
+
     HYPOTHESIS_AVAILABLE = True
 except ImportError:
     HYPOTHESIS_AVAILABLE = False
@@ -22,7 +26,11 @@ def _method_or_skip(registry, fqn):
 
 class TestTaxBenefitProperties:
     @given(data=microsim_strategy())
-    @settings(max_examples=25, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=25,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_tax_benefit_output_finite(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "microsim.policy.tax_benefit_calculator@1.0.0")
         state = {
@@ -40,7 +48,11 @@ class TestTaxBenefitProperties:
             pass
 
     @given(data=microsim_strategy())
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_tax_benefit_disposable_income_non_negative(self, data, isolated_registry):
         """Disposable income (income - tax + benefits) should be >= 0 for positive income."""
         method = _method_or_skip(isolated_registry, "microsim.policy.tax_benefit_calculator@1.0.0")
@@ -58,7 +70,11 @@ class TestTaxBenefitProperties:
             pass
 
     @given(data=microsim_strategy())
-    @settings(max_examples=15, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=15,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_tax_benefit_deterministic(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "microsim.policy.tax_benefit_calculator@1.0.0")
         state = {
@@ -75,7 +91,11 @@ class TestTaxBenefitProperties:
 
 class TestStaticMicrosimProperties:
     @given(data=microsim_strategy())
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_static_microsim_output_dict(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "microsim.static.static_microsim@1.0.0")
         state = {
@@ -89,7 +109,11 @@ class TestStaticMicrosimProperties:
             pass
 
     @given(data=microsim_strategy())
-    @settings(max_examples=15, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=15,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_static_microsim_output_shape(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "microsim.static.static_microsim@1.0.0")
         state = {

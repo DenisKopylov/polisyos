@@ -1,0 +1,27 @@
+extends: default
+
+ignore: |
+  .venv/
+  .venv_codex/
+  .pytest_cache/
+  .mypy_cache/
+  .ruff_cache/
+  frontend/runtime-dashboard/node_modules/
+  docs/archive/
+  ops/helm/*/templates/
+  ops/helm/*/tests/
+  policy-engine/ops/helm/*/templates/
+  policy-engine/ops/helm/*/tests/
+  data/raw/
+  benchmark-results/
+  coverage/
+  dist/
+  site/
+  storybook-static/
+
+rules:
+  comments-indentation: disable
+  document-start: disable
+  line-length: disable
+  truthy:
+    check-keys: false

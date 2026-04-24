@@ -1,4 +1,5 @@
 """Public kernel base module API."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -16,6 +17,7 @@ ARTIFACT_ID_PATTERN = r"^sha256:[0-9a-f]{64}$"
 
 class KernelModel(BaseModel):
     """Kernel model public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 

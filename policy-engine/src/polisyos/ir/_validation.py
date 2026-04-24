@@ -4,14 +4,17 @@ These helpers are intentionally small and dependency-light so governance,
 kernel, observation, and analytics contracts can share one message policy for
 common invariant categories.
 """
+
 from __future__ import annotations
 
 import math
-from collections.abc import Callable, Collection, Iterable, Sequence
 from decimal import Decimal, InvalidOperation
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from polisyos.ir.types import SelectorOperator
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Iterable, Sequence
 
 T = TypeVar("T")
 K = TypeVar("K", str, int, float, bool, Decimal, tuple)
@@ -127,7 +130,7 @@ def ensure_non_empty_dotted_path(
     return ".".join(segments)
 
 
-def ensure_pairwise_disjoint(
+def ensure_pairwise_disjoint[K: (str, int, float, bool, Decimal, tuple)](
     groups: Sequence[tuple[str, Collection[K]]],
     *,
     label: str,
@@ -165,16 +168,16 @@ def selector_stats(node: object) -> tuple[int, int]:
     if kind == "predicate":
         return 1, 1
     if kind == "not":
-        depth, nodes = selector_stats(getattr(node, "clause"))
+        depth, nodes = selector_stats(node.clause)
         return depth + 1, nodes + 1
     if kind == "quantifier":
-        depth, nodes = selector_stats(getattr(node, "clause"))
+        depth, nodes = selector_stats(node.clause)
         return depth + 1, nodes + 1
     if kind == "temporal":
-        depth, nodes = selector_stats(getattr(node, "clause"))
+        depth, nodes = selector_stats(node.clause)
         return depth + 1, nodes + 1
     if kind == "aggregate":
-        where = getattr(node, "where")
+        where = node.where
         if where is None:
             return 1, 1
         depth, nodes = selector_stats(where)
@@ -182,7 +185,7 @@ def selector_stats(node: object) -> tuple[int, int]:
     if kind in {"all_of", "any_of"}:
         depths: list[int] = []
         total = 1
-        for clause in getattr(node, "clauses"):
+        for clause in node.clauses:
             depth, nodes = selector_stats(clause)
             depths.append(depth)
             total += nodes

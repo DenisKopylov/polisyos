@@ -1,4 +1,5 @@
 """Request explicit human review when a STRICT run still carries review-sensitive graph state."""
+
 from __future__ import annotations
 
 from polisyos.common.logger import get_logger
@@ -58,7 +59,7 @@ class HumanReviewRequiredPass(ValidatorPass):
                 message=f"Human review requested for {len(review_items)} governance item(s).",
                 severity=IssueSeverity.INFO,
                 code="HUMAN_REVIEW_REQUESTED",
-            )
+            ),
         ]
 
 

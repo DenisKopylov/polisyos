@@ -87,7 +87,7 @@ class GraphHypothesis(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_edge_confidence(self) -> "GraphHypothesis":
+    def _validate_edge_confidence(self) -> GraphHypothesis:
         for key, value in self.edge_confidence.items():
             if not key:
                 raise ValueError("edge_confidence keys must be non-empty")
@@ -326,11 +326,11 @@ def load_graph_hypothesis(
 
 
 __all__ = [
+    "GRAPH_HYPOTHESIS_SCHEMA_NAME",
+    "GRAPH_HYPOTHESIS_SCHEMA_VERSION",
     "ComputeFootprint",
     "DiscoveryAlgorithmFamily",
     "DiscoveryMethod",
-    "GRAPH_HYPOTHESIS_SCHEMA_NAME",
-    "GRAPH_HYPOTHESIS_SCHEMA_VERSION",
     "GraphHypothesis",
     "bootstrap_confidence_for_edge",
     "default_method_assumptions",

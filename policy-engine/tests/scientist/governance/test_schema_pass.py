@@ -26,9 +26,7 @@ class TestSchemaPass:
 
     def test_valid_ir_no_issues(self, pass_context_factory, strict_profile):
         ir = _make_valid_ir(num_interventions=2)
-        with patch(
-            "polisyos.scientist.governance.passes.schema_pass.TrinityBundle.model_validate"
-        ):
+        with patch("polisyos.scientist.governance.passes.schema_pass.TrinityBundle.model_validate"):
             ctx = pass_context_factory(ir=ir, profile=strict_profile)
             issues = SchemaPass().validate(ctx)
             assert issues == []
@@ -45,22 +43,25 @@ class TestSchemaPass:
         report_mock = MagicMock()
         report_mock.issues = [validation_issue]
 
-        with patch(
-            "polisyos.scientist.governance.passes.schema_pass.TrinityBundle.model_validate",
-            side_effect=ValidationError.from_exception_data(
-                title="TrinityBundle",
-                line_errors=[
-                    {
-                        "type": "missing",
-                        "loc": ("policy_spec", "name"),
-                        "msg": "Field required",
-                        "input": {},
-                    }
-                ],
+        with (
+            patch(
+                "polisyos.scientist.governance.passes.schema_pass.TrinityBundle.model_validate",
+                side_effect=ValidationError.from_exception_data(
+                    title="TrinityBundle",
+                    line_errors=[
+                        {
+                            "type": "missing",
+                            "loc": ("policy_spec", "name"),
+                            "msg": "Field required",
+                            "input": {},
+                        }
+                    ],
+                ),
             ),
-        ), patch(
-            "polisyos.scientist.governance.passes.schema_pass.build_validation_report",
-            return_value=report_mock,
+            patch(
+                "polisyos.scientist.governance.passes.schema_pass.build_validation_report",
+                return_value=report_mock,
+            ),
         ):
             ctx = pass_context_factory(ir=ir, profile=strict_profile)
             issues = SchemaPass().validate(ctx)
@@ -72,9 +73,7 @@ class TestSchemaPass:
         ir = _make_valid_ir(num_interventions=0)
         ir.policy_spec.interventions = []
 
-        with patch(
-            "polisyos.scientist.governance.passes.schema_pass.TrinityBundle.model_validate"
-        ):
+        with patch("polisyos.scientist.governance.passes.schema_pass.TrinityBundle.model_validate"):
             ctx = pass_context_factory(ir=ir, profile=strict_profile)
             issues = SchemaPass().validate(ctx)
             assert any(i.code == "NO_INTERVENTIONS" for i in issues)
@@ -84,9 +83,7 @@ class TestSchemaPass:
     def test_single_intervention_passes(self, pass_context_factory, strict_profile):
         ir = _make_valid_ir(num_interventions=1)
 
-        with patch(
-            "polisyos.scientist.governance.passes.schema_pass.TrinityBundle.model_validate"
-        ):
+        with patch("polisyos.scientist.governance.passes.schema_pass.TrinityBundle.model_validate"):
             ctx = pass_context_factory(ir=ir, profile=strict_profile)
             issues = SchemaPass().validate(ctx)
             assert issues == []

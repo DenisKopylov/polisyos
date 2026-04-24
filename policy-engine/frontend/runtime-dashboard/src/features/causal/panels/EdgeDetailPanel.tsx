@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { Card } from "@/shared/ui/primitives";
 import { GradedErrorBar } from "@/shared/charts";
@@ -11,21 +12,27 @@ type EdgeDetailPanelProps = {
   className?: string;
 };
 
-const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  identified: { label: "Identified", color: "var(--chart-primary)" },
-  unidentified: { label: "Unidentified", color: "var(--chart-alert)" },
-  bounds_only: {
-    label: "Bounds only",
-    color: "var(--color-confidence-medium)",
-  },
-};
-
 export function EdgeDetailPanel({
   edge,
   onClose,
   className,
 }: EdgeDetailPanelProps) {
-  const status = STATUS_CONFIG[edge.status] ?? STATUS_CONFIG.identified;
+  const { t } = useI18n();
+  const statusConfig: Record<string, { label: string; color: string }> = {
+    identified: {
+      color: "var(--chart-primary)",
+      label: t("causal.edgeStatus.identified"),
+    },
+    unidentified: {
+      color: "var(--chart-alert)",
+      label: t("causal.edgeStatus.unidentified"),
+    },
+    bounds_only: {
+      color: "var(--color-confidence-medium)",
+      label: t("causal.edgeStatus.boundsOnly"),
+    },
+  };
+  const status = statusConfig[edge.status] ?? statusConfig.identified;
 
   return (
     <Card className={cn("w-80 space-y-4 overflow-y-auto", className)}>
@@ -33,7 +40,7 @@ export function EdgeDetailPanel({
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="text-lg font-semibold">
-            {edge.source} → {edge.target}
+            {edge.source} {"->"} {edge.target}
           </h3>
           <span
             className="inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-semibold"
@@ -48,8 +55,8 @@ export function EdgeDetailPanel({
         <button
           type="button"
           onClick={onClose}
-          className="text-muted hover:text-inherit text-lg leading-none"
-          aria-label="Close panel"
+          className="text-muted text-lg leading-none hover:text-inherit"
+          aria-label={t("common.close")}
         >
           {"\u00D7"}
         </button>
@@ -59,7 +66,7 @@ export function EdgeDetailPanel({
       {edge.estimate != null && (
         <div className="space-y-2">
           <p className="text-muted text-xs font-semibold uppercase">
-            Effect estimate
+            {t("causal.edgeDetail.effectEstimate")}
           </p>
           <p className="font-mono text-2xl font-bold">
             {edge.estimate >= 0 ? "+" : ""}
@@ -68,8 +75,11 @@ export function EdgeDetailPanel({
           {edge.ci && (
             <>
               <p className="text-muted text-xs">
-                {edge.ci.level}% CI: [{edge.ci.lower.toFixed(4)},{" "}
-                {edge.ci.upper.toFixed(4)}]
+                {t("causal.edgeDetail.confidenceInterval", {
+                  level: edge.ci.level,
+                  lower: edge.ci.lower.toFixed(4),
+                  upper: edge.ci.upper.toFixed(4),
+                })}
               </p>
               <GradedErrorBar
                 estimate={edge.estimate}
@@ -100,7 +110,7 @@ export function EdgeDetailPanel({
       {edge.methodology && (
         <div>
           <p className="text-muted mb-1.5 text-xs font-semibold uppercase">
-            Methodology
+            {t("causal.edgeDetail.methodology")}
           </p>
           <MethodologyBadge methodology={edge.methodology} />
         </div>
@@ -118,16 +128,17 @@ export function EdgeDetailPanel({
         />
         <span>
           {edge.transportable
-            ? "Transportable across contexts"
-            : "Not transportable"}
+            ? t("causal.edgeDetail.transportable")
+            : t("causal.edgeDetail.notTransportable")}
         </span>
       </div>
 
       {/* Literature support */}
       {edge.literatureCount != null && (
         <p className="text-muted text-sm">
-          {edge.literatureCount} literature source
-          {edge.literatureCount !== 1 ? "s" : ""}
+          {t("causal.edgeDetail.literatureSources", {
+            count: edge.literatureCount,
+          })}
         </p>
       )}
 
@@ -135,7 +146,7 @@ export function EdgeDetailPanel({
       {edge.meta && Object.keys(edge.meta).length > 0 && (
         <div>
           <p className="text-muted mb-1 text-xs font-semibold uppercase">
-            Metadata
+            {t("causal.edgeDetail.metadata")}
           </p>
           <div className="space-y-0.5">
             {Object.entries(edge.meta).map(([k, v]) => (

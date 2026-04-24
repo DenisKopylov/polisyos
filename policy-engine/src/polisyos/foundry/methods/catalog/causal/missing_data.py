@@ -23,30 +23,14 @@ from __future__ import annotations
 
 import itertools
 import logging
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
 _logger = logging.getLogger(__name__)
 
-from polisyos.ir.analytics.administrative_missingness import (
-    AdministrativeMissingnessClass,
-    AdministrativeMissingnessDirection,
-    AdministrativeMissingnessMetadata,
-    AdministrativeMissingnessScenarioFamily,
-    AdministrativeMissingnessUnitScope,
-    MissingnessAssessmentReport,
-    MissingnessAssessmentProvenance,
-    MissingnessAssessmentStatus,
-    MissingnessEstimandRisk,
-    MissingnessEvidenceItem,
-    MissingnessImplicationFailure,
-    MissingnessProofStep,
-    MissingnessRecoverabilitySummary,
-    MissingnessTestabilityAudit,
-    extract_administrative_missingness_metadata,
-)
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -59,6 +43,23 @@ from polisyos.foundry.methods.base import (
     SlotType,
     Unit,
     foundry_method,
+)
+from polisyos.ir.analytics.administrative_missingness import (
+    AdministrativeMissingnessClass,
+    AdministrativeMissingnessDirection,
+    AdministrativeMissingnessMetadata,
+    AdministrativeMissingnessScenarioFamily,
+    AdministrativeMissingnessUnitScope,
+    MissingnessAssessmentProvenance,
+    MissingnessAssessmentReport,
+    MissingnessAssessmentStatus,
+    MissingnessEstimandRisk,
+    MissingnessEvidenceItem,
+    MissingnessImplicationFailure,
+    MissingnessProofStep,
+    MissingnessRecoverabilitySummary,
+    MissingnessTestabilityAudit,
+    extract_administrative_missingness_metadata,
 )
 
 
@@ -166,9 +167,7 @@ _CLASS_DEFAULT_DIRECTIONS = {
     AdministrativeMissingnessClass.SYSTEM_CHANGE_OR_SCHEMA_BREAK: (
         AdministrativeMissingnessDirection.NOT_CAPTURED
     ),
-    AdministrativeMissingnessClass.RETENTION_EXPIRED: (
-        AdministrativeMissingnessDirection.DELETED
-    ),
+    AdministrativeMissingnessClass.RETENTION_EXPIRED: (AdministrativeMissingnessDirection.DELETED),
     AdministrativeMissingnessClass.LEGAL_RESTRICTION_OR_REDACTION: (
         AdministrativeMissingnessDirection.WITHHELD
     ),
@@ -311,7 +310,9 @@ def _scenario_requirements(
                     "matured_cohorts_observed",
                 ),
                 {
-                    "time_variable": (metadata.time_variable,) if metadata and metadata.time_variable else (),
+                    "time_variable": (metadata.time_variable,)
+                    if metadata and metadata.time_variable
+                    else (),
                     "processing_lag_covariates": (
                         tuple(metadata.processing_lag_covariates) if metadata else ()
                     ),
@@ -336,7 +337,9 @@ def _scenario_requirements(
             (
                 ("time_variable", "retention_window_observed"),
                 {
-                    "time_variable": (metadata.time_variable,) if metadata and metadata.time_variable else (),
+                    "time_variable": (metadata.time_variable,)
+                    if metadata and metadata.time_variable
+                    else (),
                 },
             ),
         )
@@ -385,14 +388,10 @@ def _scenario_requirements(
             "eligibility_covariates",
         )
         requirement_vars = {
-            "registration_indicator": (
-                metadata.registration_indicator,
-            )
+            "registration_indicator": (metadata.registration_indicator,)
             if metadata and metadata.registration_indicator
             else (),
-            "eligibility_covariates": (
-                tuple(metadata.eligibility_covariates) if metadata else ()
-            ),
+            "eligibility_covariates": (tuple(metadata.eligibility_covariates) if metadata else ()),
         }
         return requirement_names, requirement_vars
 
@@ -402,9 +401,7 @@ def _scenario_requirements(
             "compliance_driver_covariates",
         )
         requirement_vars = {
-            "compliance_indicator": (
-                metadata.compliance_indicator,
-            )
+            "compliance_indicator": (metadata.compliance_indicator,)
             if metadata and metadata.compliance_indicator
             else (),
             "compliance_driver_covariates": (
@@ -421,9 +418,7 @@ def _scenario_requirements(
         system_vars: tuple[str, ...] = ()
         if metadata is not None:
             system_vars = tuple(
-                item
-                for item in (metadata.system_version_variable, metadata.time_variable)
-                if item
+                item for item in (metadata.system_version_variable, metadata.time_variable) if item
             )
         requirement_vars = {
             "system_version_or_time": system_vars,
@@ -464,32 +459,32 @@ def _infer_scenario_family(
     nodes = tuple(str(node) for node in getattr(graph, "nodes", ()))
     lowered = {node: node.lower() for node in nodes}
     registration_hits = tuple(
-        node for node, label in lowered.items() if any(token in label for token in _REGISTRATION_KEYWORDS)
+        node
+        for node, label in lowered.items()
+        if any(token in label for token in _REGISTRATION_KEYWORDS)
     )
     compliance_hits = tuple(
-        node for node, label in lowered.items() if any(token in label for token in _COMPLIANCE_KEYWORDS)
+        node
+        for node, label in lowered.items()
+        if any(token in label for token in _COMPLIANCE_KEYWORDS)
     )
     system_hits = tuple(
-        node for node, label in lowered.items() if any(token in label for token in _SYSTEM_CHANGE_KEYWORDS)
+        node
+        for node, label in lowered.items()
+        if any(token in label for token in _SYSTEM_CHANGE_KEYWORDS)
     )
     scores = {
         AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED: len(registration_hits),
         AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED: len(compliance_hits),
         AdministrativeMissingnessScenarioFamily.SYSTEM_CHANGE_BASED: len(system_hits),
     }
-    non_zero = {
-        family: score
-        for family, score in scores.items()
-        if score > 0
-    }
+    non_zero = {family: score for family, score in scores.items() if score > 0}
     if not non_zero:
         return AdministrativeMissingnessScenarioFamily.UNKNOWN, 0.0, ()
     sorted_scores = sorted(non_zero.items(), key=lambda item: item[1], reverse=True)
     top_family, top_score = sorted_scores[0]
     if len(sorted_scores) > 1 and sorted_scores[1][1] == top_score:
-        all_hits = tuple(
-            _stable_names([*registration_hits, *compliance_hits, *system_hits])
-        )
+        all_hits = tuple(_stable_names([*registration_hits, *compliance_hits, *system_hits]))
         confidence = min(0.75, 0.35 + 0.1 * float(top_score))
         return AdministrativeMissingnessScenarioFamily.HYBRID, confidence, all_hits
     hits_map = {
@@ -593,7 +588,9 @@ def _identification_assumptions_for_assessment(
     assumptions: list[str] = []
     if scenario_family is AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED:
         indicator = metadata.registration_indicator if metadata else "registration_indicator"
-        drivers = ", ".join(metadata.eligibility_covariates) if metadata else "eligibility_covariates"
+        drivers = (
+            ", ".join(metadata.eligibility_covariates) if metadata else "eligibility_covariates"
+        )
         for target in target_variables:
             assumptions.append(f"{target} ⟂ {indicator} | {drivers}")
         assumptions.append(f"0 < P({indicator}=1 | {drivers}) < 1")
@@ -655,7 +652,9 @@ def _testable_implications_for_assessment(
 ) -> tuple[str, ...]:
     implications: list[str] = []
     if scenario_family is AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED:
-        implications.extend(("registration_indicator_observed", "population_frame_coverage_audited"))
+        implications.extend(
+            ("registration_indicator_observed", "population_frame_coverage_audited")
+        )
     if scenario_family is AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED:
         implications.extend(("process_log_sequence_complete", "compliance_indicator_observed"))
     if scenario_class is AdministrativeMissingnessClass.SERVICE_UNAVAILABLE_OFFICE_CLOSED:
@@ -929,11 +928,7 @@ def assess_administrative_missingness(
     from polisyos.ir.analytics.causal_graph import CausalGraphModel
     from polisyos.ir.analytics.mgraph import extract_mgraph_metadata
 
-    parsed_graph = (
-        CausalGraphModel.model_validate(graph)
-        if isinstance(graph, dict)
-        else graph
-    )
+    parsed_graph = CausalGraphModel.model_validate(graph) if isinstance(graph, dict) else graph
     meta = mgraph_meta or extract_mgraph_metadata(parsed_graph)
     administrative_meta = extract_administrative_missingness_metadata(parsed_graph)
     scenario_family, scenario_confidence, inferred_covariates = _infer_scenario_family(
@@ -1056,7 +1051,13 @@ def assess_administrative_missingness(
                 mgraph_meta=meta,
             )
             metadata_payload_full_law = {
-                "status": str(getattr(getattr(full_law_result, "status", None), "value", getattr(full_law_result, "status", ""))),
+                "status": str(
+                    getattr(
+                        getattr(full_law_result, "status", None),
+                        "value",
+                        getattr(full_law_result, "status", ""),
+                    )
+                ),
                 "treatment": sorted(treatment_set),
                 "outcome": sorted(outcome_set),
                 "algorithm_version": str(getattr(full_law_result, "algorithm_version", "") or ""),
@@ -1069,7 +1070,15 @@ def assess_administrative_missingness(
                     for step in list(getattr(full_law_result, "proof_steps", []) or [])
                 ],
                 "identified": (
-                    str(getattr(getattr(full_law_result, "status", None), "value", getattr(full_law_result, "status", ""))).strip().lower()
+                    str(
+                        getattr(
+                            getattr(full_law_result, "status", None),
+                            "value",
+                            getattr(full_law_result, "status", ""),
+                        )
+                    )
+                    .strip()
+                    .lower()
                     == "identified"
                 ),
             }
@@ -1203,7 +1212,7 @@ def assess_administrative_missingness(
 @foundry_method(
     namespace="causal.missing_data",
     version="1.0.0",
-    tags={"causal", "missing-data", "administrative-missingness", "m-graph"},
+    tags={"causal", "missing-data", "administrative-missingness", "m-graph", "structural"},
 )
 class AdministrativeMissingnessAssessment:
     """Assess administrative missingness patterns and recoverability for an M-graph."""
@@ -1239,14 +1248,17 @@ class AdministrativeMissingnessAssessment:
             "Classify registration/compliance/system-change missingness patterns, "
             "run M-graph recoverability, and optionally audit testable implications."
         ),
-        tags=frozenset({
-            "causal",
-            "missing-data",
-            "administrative-missingness",
-            "recoverability",
-            "m-graph",
-            "readiness",
-        }),
+        tags=frozenset(
+            {
+                "causal",
+                "missing-data",
+                "administrative-missingness",
+                "recoverability",
+                "m-graph",
+                "readiness",
+                "structural",
+            }
+        ),
         citations=(
             "Mohan, K. & Pearl, J. (2021). Graphical Models for Processing Missing Data.",
             "Nabi, R., Bhattacharya, R. & Shpitser, I. (2020). Full law identification in graphical models of missing data.",
@@ -1273,11 +1285,7 @@ class AdministrativeMissingnessAssessment:
         from polisyos.ir.analytics.mgraph import extract_mgraph_metadata
 
         raw = state["mgraph_data"]
-        graph = (
-            CausalGraphModel.model_validate(raw)
-            if isinstance(raw, dict)
-            else raw
-        )
+        graph = CausalGraphModel.model_validate(raw) if isinstance(raw, dict) else raw
         data = state.get("data")
         meta = extract_mgraph_metadata(graph)
         report = assess_administrative_missingness(
@@ -1432,7 +1440,9 @@ def _g_test_from_table(table: np.ndarray) -> tuple[float, float, dict[str, Any]]
     return float(statistic), p_value, {"degrees_of_freedom": int(dof), "degenerate": False}
 
 
-def _conditional_g_test(x: np.ndarray, y: np.ndarray, z: np.ndarray) -> tuple[float, float, dict[str, Any]]:
+def _conditional_g_test(
+    x: np.ndarray, y: np.ndarray, z: np.ndarray
+) -> tuple[float, float, dict[str, Any]]:
     if z.ndim == 1:
         z = z[:, None]
     strata: dict[tuple[str, ...], list[int]] = {}
@@ -1456,22 +1466,30 @@ def _conditional_g_test(x: np.ndarray, y: np.ndarray, z: np.ndarray) -> tuple[fl
         total_dof += int(meta["degrees_of_freedom"])
 
     if total_dof <= 0 or valid_strata == 0:
-        return 0.0, 1.0, {
-            "degrees_of_freedom": 0,
-            "valid_strata": valid_strata,
-            "skipped_strata": skipped_strata,
-            "degenerate": True,
-        }
+        return (
+            0.0,
+            1.0,
+            {
+                "degrees_of_freedom": 0,
+                "valid_strata": valid_strata,
+                "skipped_strata": skipped_strata,
+                "degenerate": True,
+            },
+        )
 
     from scipy.stats import chi2
 
     p_value = float(chi2.sf(float(total_statistic), total_dof))
-    return float(total_statistic), p_value, {
-        "degrees_of_freedom": int(total_dof),
-        "valid_strata": valid_strata,
-        "skipped_strata": skipped_strata,
-        "degenerate": False,
-    }
+    return (
+        float(total_statistic),
+        p_value,
+        {
+            "degrees_of_freedom": int(total_dof),
+            "valid_strata": valid_strata,
+            "skipped_strata": skipped_strata,
+            "degenerate": False,
+        },
+    )
 
 
 def _mixed_kernel_test(
@@ -1511,7 +1529,9 @@ def _mixed_kernel_test(
             "passed": bool(raw["passed"]),
             "critical_value": float(raw["critical_value"]),
             "alpha": float(raw.get("alpha", alpha)),
-            "critical_statistic_value": float(raw.get("critical_statistic_value", raw["critical_value"])),
+            "critical_statistic_value": float(
+                raw.get("critical_statistic_value", raw["critical_value"])
+            ),
             "calibration_mode": raw.get("calibration_mode"),
             "dp_context_summary": raw.get("dp_context_summary"),
             "naive_fpr_inflation_bound": raw.get("naive_fpr_inflation_bound"),
@@ -1553,7 +1573,9 @@ def _mixed_kernel_test(
         "passed": bool(raw["passed"]),
         "critical_value": float(raw["critical_value"]),
         "alpha": float(raw.get("alpha", alpha)),
-        "critical_statistic_value": float(raw.get("critical_statistic_value", raw["critical_value"])),
+        "critical_statistic_value": float(
+            raw.get("critical_statistic_value", raw["critical_value"])
+        ),
         "calibration_mode": raw.get("calibration_mode"),
         "dp_context_summary": raw.get("dp_context_summary"),
         "naive_fpr_inflation_bound": raw.get("naive_fpr_inflation_bound"),
@@ -1587,9 +1609,7 @@ def _get_column(
             raise KeyError(f"Missing data column for variable {variable!r}")
         return _coerce_series(data[variable])
     if variable_order is None:
-        raise ValueError(
-            "variable_order is required when data is provided as an ndarray"
-        )
+        raise ValueError("variable_order is required when data is provided as an ndarray")
     try:
         idx = variable_order.index(variable)
     except ValueError as exc:
@@ -1608,9 +1628,7 @@ def _raw_column(
             raise KeyError(f"Missing data column for variable {variable!r}")
         return _raw_series(data[variable])
     if variable_order is None:
-        raise ValueError(
-            "variable_order is required when data is provided as an ndarray"
-        )
+        raise ValueError("variable_order is required when data is provided as an ndarray")
     try:
         idx = variable_order.index(variable)
     except ValueError as exc:
@@ -1638,9 +1656,7 @@ def _minimal_separating_sets(
                     y_set=frozenset({y}),
                     z_set=frozenset(z),
                 ):
-                    implications.append(
-                        ConditionalIndependence(x=x, y=y, z=tuple(sorted(z)))
-                    )
+                    implications.append(ConditionalIndependence(x=x, y=y, z=tuple(sorted(z))))
                     found = True
                     break
             if found:
@@ -1703,10 +1719,7 @@ def test_mgraph_implications(
     for implication in implications:
         raw_x = _raw_column(data, implication.x, variable_order)
         raw_y = _raw_column(data, implication.y, variable_order)
-        raw_z_cols = [
-            _raw_column(data, name, variable_order)
-            for name in implication.z
-        ]
+        raw_z_cols = [_raw_column(data, name, variable_order) for name in implication.z]
         all_columns = [raw_x, raw_y, *raw_z_cols]
         mask = _complete_case_mask(all_columns)
         if not np.any(mask):
@@ -1714,15 +1727,13 @@ def test_mgraph_implications(
 
         raw_x_obs = raw_x[mask]
         raw_y_obs = raw_y[mask]
-        z_raw = (
-            np.column_stack([col[mask] for col in raw_z_cols])
-            if raw_z_cols
-            else None
-        )
+        z_raw = np.column_stack([col[mask] for col in raw_z_cols]) if raw_z_cols else None
         x = _get_column(data, implication.x, variable_order)[mask]
         y = _get_column(data, implication.y, variable_order)[mask]
         z_numeric = (
-            np.column_stack([_get_column(data, name, variable_order)[mask] for name in implication.z])
+            np.column_stack(
+                [_get_column(data, name, variable_order)[mask] for name in implication.z]
+            )
             if implication.z
             else None
         )
@@ -1993,10 +2004,18 @@ class RecoverabilityTest:
             "Test recoverability of a query P(S) from incomplete data using "
             "the Mohan & Pearl (2021) M-graph graphical criterion."
         ),
-        tags=frozenset({
-            "causal", "missing-data", "recoverability", "m-graph",
-            "mcar", "mar", "mnar", "structural",
-        }),
+        tags=frozenset(
+            {
+                "causal",
+                "missing-data",
+                "recoverability",
+                "m-graph",
+                "mcar",
+                "mar",
+                "mnar",
+                "structural",
+            }
+        ),
         citations=(
             "Mohan, K. & Pearl, J. (2021). Graphical Models for Processing "
             "Missing Data. Journal of the American Statistical Association.",
@@ -2005,8 +2024,7 @@ class RecoverabilityTest:
         ),
         equations={
             "criterion": (
-                "P(S) recoverable iff ∀V_i∈S: R_{V_i} ∉ desc(V_i) "
-                "in G[V∪R \\ proxy_nodes]"
+                "P(S) recoverable iff ∀V_i∈S: R_{V_i} ∉ desc(V_i) in G[V∪R \\ proxy_nodes]"
             ),
         },
         determinism_tier=DeterminismTier.STRICT_CPU,
@@ -2032,19 +2050,11 @@ class RecoverabilityTest:
         from polisyos.ir.analytics.mgraph import extract_mgraph_metadata
 
         raw = state["mgraph_data"]
-        graph = (
-            CausalGraphModel.model_validate(raw)
-            if isinstance(raw, dict)
-            else raw
-        )
+        graph = CausalGraphModel.model_validate(raw) if isinstance(raw, dict) else raw
         meta = extract_mgraph_metadata(graph)
 
         qvars_raw = params.get("query_variables", [])
-        query_vars = (
-            frozenset(qvars_raw)
-            if qvars_raw
-            else frozenset(meta.substantive_vars)
-        )
+        query_vars = frozenset(qvars_raw) if qvars_raw else frozenset(meta.substantive_vars)
 
         result = test_recoverability(
             query_vars=query_vars,
@@ -2111,13 +2121,13 @@ class OrderedRecovery:
         namespace="",
         version="0.0.0",
         input_slots=frozenset({_json_slot("mgraph_data")}),
-        output_slots=frozenset({
-            _json_slot("recovery_estimand"),
-            _json_slot("ordered_recovery_steps"),
-        }),
-        parameters=(
-            ParameterSpec(name="dataset_ref", default=None),
+        output_slots=frozenset(
+            {
+                _json_slot("recovery_estimand"),
+                _json_slot("ordered_recovery_steps"),
+            }
         ),
+        parameters=(ParameterSpec(name="dataset_ref", default=None),),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
@@ -2131,10 +2141,17 @@ class OrderedRecovery:
             "Recover full-data joint P(V) from incomplete data using the "
             "ordered fixing operator (Mohan, Pearl & Tian 2013)."
         ),
-        tags=frozenset({
-            "causal", "missing-data", "ordered-recovery", "m-graph",
-            "estimand", "fixing-operator", "structural",
-        }),
+        tags=frozenset(
+            {
+                "causal",
+                "missing-data",
+                "ordered-recovery",
+                "m-graph",
+                "estimand",
+                "fixing-operator",
+                "structural",
+            }
+        ),
         citations=(
             "Mohan, K., Pearl, J. & Tian, J. (2013). Missing Data as a Causal "
             "and Probabilistic Problem. UAI 2013.",
@@ -2172,11 +2189,7 @@ class OrderedRecovery:
         from polisyos.ir.analytics.mgraph import extract_mgraph_metadata
 
         raw = state["mgraph_data"]
-        graph = (
-            CausalGraphModel.model_validate(raw)
-            if isinstance(raw, dict)
-            else raw
-        )
+        graph = CausalGraphModel.model_validate(raw) if isinstance(raw, dict) else raw
         meta = extract_mgraph_metadata(graph)
         dataset_ref = params.get("dataset_ref")
 
@@ -2189,18 +2202,21 @@ class OrderedRecovery:
         # Extract proof steps from the estimand's root factors
         steps = []
         from polisyos.ir.analytics.estimand import ProductNode, RecoveredDistNode
+
         if isinstance(estimand.root, ProductNode):
             for i, factor in enumerate(estimand.root.factors):
                 if isinstance(factor, RecoveredDistNode):
-                    steps.append({
-                        "rule_name": "ORDERED_RECOVERY_STEP",
-                        "variable": factor.variable,
-                        "conditioning": list(factor.conditioning),
-                        "missingness_kind": factor.missingness_kind,
-                        "missingness_indicator": factor.missingness_indicator,
-                        "proxy_variable": factor.proxy_variable,
-                        "depth": i,
-                    })
+                    steps.append(
+                        {
+                            "rule_name": "ORDERED_RECOVERY_STEP",
+                            "variable": factor.variable,
+                            "conditioning": list(factor.conditioning),
+                            "missingness_kind": factor.missingness_kind,
+                            "missingness_indicator": factor.missingness_indicator,
+                            "proxy_variable": factor.proxy_variable,
+                            "depth": i,
+                        }
+                    )
 
         return {
             "recovery_estimand": estimand.model_dump(mode="json"),
@@ -2243,11 +2259,13 @@ class FullLawIdentify:
         name="full_law_identify",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            _json_slot("mgraph_data"),
-            _json_slot("treatment"),
-            _json_slot("outcome"),
-        }),
+        input_slots=frozenset(
+            {
+                _json_slot("mgraph_data"),
+                _json_slot("treatment"),
+                _json_slot("outcome"),
+            }
+        ),
         output_slots=frozenset({_json_slot("identification_result")}),
         parameters=(
             ParameterSpec(name="oracle", default="none"),
@@ -2266,10 +2284,16 @@ class FullLawIdentify:
             "Identify causal effects from incomplete data via the full law pipeline "
             "(Nabi, Bhattacharya & Shpitser 2020): recover P(V) then identify P(Y|do(X))."
         ),
-        tags=frozenset({
-            "causal", "missing-data", "full-law", "identification",
-            "m-graph", "id-algorithm",
-        }),
+        tags=frozenset(
+            {
+                "causal",
+                "missing-data",
+                "full-law",
+                "identification",
+                "m-graph",
+                "id-algorithm",
+            }
+        ),
         citations=(
             "Nabi, R., Bhattacharya, R. & Shpitser, I. (2020). Full law identification "
             "in graphical models of missing data.",
@@ -2307,11 +2331,7 @@ class FullLawIdentify:
         from polisyos.ir.analytics.mgraph import extract_mgraph_metadata
 
         raw = state["mgraph_data"]
-        graph = (
-            CausalGraphModel.model_validate(raw)
-            if isinstance(raw, dict)
-            else raw
-        )
+        graph = CausalGraphModel.model_validate(raw) if isinstance(raw, dict) else raw
         meta = extract_mgraph_metadata(graph)
 
         treatment_raw = state["treatment"]
@@ -2340,9 +2360,7 @@ class FullLawIdentify:
         )
 
         estimand_dict = (
-            result.estimand_ast.model_dump(mode="json")
-            if result.estimand_ast is not None
-            else None
+            result.estimand_ast.model_dump(mode="json") if result.estimand_ast is not None else None
         )
 
         return {
@@ -2385,10 +2403,12 @@ class MGraphImplicationTester:
         name="mgraph_implication_test",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            _json_slot("mgraph_data"),
-            _json_slot("data"),
-        }),
+        input_slots=frozenset(
+            {
+                _json_slot("mgraph_data"),
+                _json_slot("data"),
+            }
+        ),
         output_slots=frozenset({_json_slot("test_report")}),
         parameters=(
             ParameterSpec(name="alpha", default=0.05),
@@ -2412,10 +2432,16 @@ class MGraphImplicationTester:
             "Generate testable M-graph implications via m-separation and run a "
             "BH-corrected conditional-independence test suite."
         ),
-        tags=frozenset({
-            "causal", "missing-data", "m-graph", "implication-test",
-            "conditional-independence", "falsification",
-        }),
+        tags=frozenset(
+            {
+                "causal",
+                "missing-data",
+                "m-graph",
+                "implication-test",
+                "conditional-independence",
+                "falsification",
+            }
+        ),
         citations=(
             "Mohan, K. & Pearl, J. (2021). Graphical Models for Processing Missing Data.",
             "Fisher, R.A. (1924). The distribution of the partial correlation coefficient.",
@@ -2444,9 +2470,7 @@ class MGraphImplicationTester:
 
         raw_graph = state["mgraph_data"]
         graph = (
-            CausalGraphModel.model_validate(raw_graph)
-            if isinstance(raw_graph, dict)
-            else raw_graph
+            CausalGraphModel.model_validate(raw_graph) if isinstance(raw_graph, dict) else raw_graph
         )
         meta = extract_mgraph_metadata(graph)
 
@@ -2482,15 +2506,15 @@ class MGraphImplicationTester:
 
 
 __all__ = [
+    "AdministrativeMissingnessAssessment",
     "ConditionalIndependence",
+    "FullLawIdentify",
     "ImplicationTestResult",
+    "MGraphImplicationTester",
+    "OrderedRecovery",
+    "RecoverabilityTest",
     "TestReport",
     "assess_administrative_missingness",
-    "testable_implications",
     "test_mgraph_implications",
-    "AdministrativeMissingnessAssessment",
-    "RecoverabilityTest",
-    "OrderedRecovery",
-    "FullLawIdentify",
-    "MGraphImplicationTester",
+    "testable_implications",
 ]

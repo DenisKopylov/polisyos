@@ -1,12 +1,15 @@
 # ADR-0072: Phase 12b full do-calculus via y0/causaleffect bridge, not from-scratch s-ID
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-02-28
 
 ## Context
+
 Phase 12b requires symbolic identification of causal effects in the presence of
 selection bias and transportability constraints (generalised s-ID). Implementing the
 full do-calculus engine from scratch would be a multi-month effort with high risk of
@@ -17,6 +20,7 @@ correctness guarantees. A thin Python bridge can delegate symbolic identificatio
 while keeping the rest of the pipeline in-process.
 
 ## Decision
+
 1. Add `y0` (Python, pip-installable) as an optional dependency gated behind the
    `[causal-symbolic]` extra.
 2. Build a `Y0IdentificationBridge` adapter in `foundry/methods/causal/` that
@@ -30,12 +34,17 @@ while keeping the rest of the pipeline in-process.
 5. Defer `causaleffect` R bridge to the backlog; `y0` covers the critical path.
 
 ## Consequences
+
 ### Positive
+
 - Leverages a well-tested symbolic engine, reducing correctness risk substantially.
 - Keeps the critical fast-path (backdoor criterion) in pure Python with no extra deps.
 - `y0` is pure Python with minimal transitive dependencies.
+
 ### Negative
+
 - Adds an optional dependency that must be version-pinned and monitored for breakage.
 - `NxMixedGraph` conversion requires a NetworkX intermediate, adding a copy step
   (mitigated by caching the converted graph on the IR artifact).
+
 - Long-term maintainability depends on the `y0` project remaining active.

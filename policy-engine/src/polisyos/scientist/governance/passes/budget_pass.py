@@ -1,7 +1,6 @@
 """Validate run budgets and graph complexity before expensive execution stages."""
-from __future__ import annotations
 
-from typing import List
+from __future__ import annotations
 
 from polisyos.core.governance.passes.base import (
     ComplianceIssue,
@@ -30,8 +29,8 @@ class BudgetPass(ValidatorPass):
     def estimated_cost_ms(self) -> int:
         return 5
 
-    def validate(self, ctx: PassContext) -> List[ComplianceIssue]:
-        issues: List[ComplianceIssue] = []
+    def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
+        issues: list[ComplianceIssue] = []
         ir = ctx.ir
 
         max_sim_runs = ctx.get_budget("max_sim_runs", float("inf"))
@@ -102,4 +101,4 @@ class BudgetPass(ValidatorPass):
         return issues
 
 
-__all__ = ["BudgetPass", "ComputeBudget", "EvidenceBudget", "ComplexityBudget"]
+__all__ = ["BudgetPass", "ComplexityBudget", "ComputeBudget", "EvidenceBudget"]

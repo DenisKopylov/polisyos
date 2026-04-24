@@ -1,8 +1,9 @@
 """Tests for cross-thread/service context propagation."""
+
 from __future__ import annotations
 
-from contextvars import ContextVar
 from concurrent.futures import ThreadPoolExecutor
+from contextvars import ContextVar
 
 from opentelemetry.context import attach, detach
 

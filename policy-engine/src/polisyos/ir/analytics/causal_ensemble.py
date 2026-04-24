@@ -1,8 +1,8 @@
 """Represent structural-uncertainty ensembles over causal graph candidates."""
+
 from __future__ import annotations
 
 import math
-from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -41,7 +41,7 @@ class CausalModelEnsemble(BaseModel):
     edge_inclusion_frequency: dict[str, float] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_members_and_frequency(self) -> "CausalModelEnsemble":
+    def _validate_members_and_frequency(self) -> CausalModelEnsemble:
         n_members = len(self.members)
         if n_members < 1:
             raise ValueError("CausalModelEnsemble must contain at least one member")
@@ -145,8 +145,8 @@ def load_causal_model_ensemble(
 
 
 __all__ = [
-    "EnsembleMember",
     "CausalModelEnsemble",
-    "persist_causal_model_ensemble",
+    "EnsembleMember",
     "load_causal_model_ensemble",
+    "persist_causal_model_ensemble",
 ]

@@ -29,12 +29,12 @@ flowchart LR
 
 ## Current Boundary
 
-| Contract family | Purpose |
-|---|---|
-| core observation records and panels | store measured values with scope, regime, and trust metadata |
-| family policies and registries | define required governance and fallback identification modes |
-| readiness bundles | record whether proxy, transportability, interference, and related checks passed |
-| execution bundles | carry bounded or executed causal tasks into downstream artifacts |
+| Contract family                     | Purpose                                                                         |
+| ----------------------------------- | ------------------------------------------------------------------------------- |
+| core observation records and panels | store measured values with scope, regime, and trust metadata                    |
+| family policies and registries      | define required governance and fallback identification modes                    |
+| readiness bundles                   | record whether proxy, transportability, interference, and related checks passed |
+| execution bundles                   | carry bounded or executed causal tasks into downstream artifacts                |
 
 This is the bridge that keeps Fabric quality signals, IR contracts, Foundry
 calibration, and Scientist readiness/governance aligned.

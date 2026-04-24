@@ -1,8 +1,10 @@
 """Public trinity loaders module API."""
+
 from __future__ import annotations
 
 import json
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemFrame
@@ -12,6 +14,7 @@ from polisyos.ir.trinity import TRINITY_BUNDLE_SCHEMA_VERSION, TrinityBundle
 
 class TrinityLoadError(ValueError):
     """Trinity load error exception."""
+
     pass
 
 
@@ -42,7 +45,11 @@ def _parse_bytes_payload(payload: bytes, *, fmt: str) -> Any:
 
 def _normalize_payload(payload: Any, *, fmt: str) -> Any:
     if isinstance(payload, (str, bytes)):
-        return _parse_str_payload(payload, fmt=fmt) if isinstance(payload, str) else _parse_bytes_payload(payload, fmt=fmt)
+        return (
+            _parse_str_payload(payload, fmt=fmt)
+            if isinstance(payload, str)
+            else _parse_bytes_payload(payload, fmt=fmt)
+        )
     return payload
 
 
@@ -57,9 +64,7 @@ def _ensure_schema_version(payload: Mapping[str, Any], *, target: str) -> None:
     if version is None:
         raise TrinityLoadError("schema_version is required")
     if str(version) != target:
-        raise TrinityLoadError(
-            f"Unsupported schema_version '{version}'; expected '{target}'"
-        )
+        raise TrinityLoadError(f"Unsupported schema_version '{version}'; expected '{target}'")
 
 
 def load_problem_frame(
@@ -140,8 +145,8 @@ def load_trinity_bundle(
 
 __all__ = [
     "TrinityLoadError",
-    "load_problem_frame",
-    "load_policy_spec",
     "load_model_spec",
+    "load_policy_spec",
+    "load_problem_frame",
     "load_trinity_bundle",
 ]

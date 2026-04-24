@@ -974,9 +974,7 @@ def _changed_scan_scope(
         return set(iter_py_files(config.src_root)), True
 
     changed_python = {
-        path.resolve()
-        for path in changed_under_src
-        if path.suffix == ".py" and path.exists()
+        path.resolve() for path in changed_under_src if path.suffix == ".py" and path.exists()
     }
     return changed_python, False
 
@@ -1056,9 +1054,7 @@ def _apply_exceptions(
         ):
             continue
         if exception.expires < today:
-            expired_exceptions.append(
-                ExceptionMatch(exception=exception, ref=ref, message=message)
-            )
+            expired_exceptions.append(ExceptionMatch(exception=exception, ref=ref, message=message))
             return Violation(
                 ref=ref,
                 code="ARCH000",
@@ -1151,11 +1147,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         fail_on_cycles=args.fail_on_cycles,
         scan_mode=scan_mode,
     )
-    if baseline_label and args.skip_if_unchanged and baseline_matches(
-        cache_root,
-        CACHE_NAMESPACE,
-        baseline_label,
-        fingerprint=fingerprint,
+    if (
+        baseline_label
+        and args.skip_if_unchanged
+        and baseline_matches(
+            cache_root,
+            CACHE_NAMESPACE,
+            baseline_label,
+            fingerprint=fingerprint,
+        )
     ):
         return _emit_tool_result(
             ToolResult(
@@ -1393,7 +1393,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     sccs = strongly_connected_components(package_graph)
     cycles = [sorted(group) for group in sccs if len(group) > 1]
     if scan_mode == "changed-only":
-        cycles = _filter_cycles_for_changed_files(cycles, config=config, changed_files=changed_files)
+        cycles = _filter_cycles_for_changed_files(
+            cycles, config=config, changed_files=changed_files
+        )
 
     exit_code = 0
     if violations:

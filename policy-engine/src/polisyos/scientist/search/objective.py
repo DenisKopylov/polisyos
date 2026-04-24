@@ -1,10 +1,11 @@
 """Public search objective module API."""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Protocol
+from typing import Any, Protocol
 
 
 class OptimizationDirection(str, Enum):
@@ -62,7 +63,7 @@ class SearchObjective(Protocol):
     def direction(self) -> OptimizationDirection:
         """Optimization direction."""
 
-    def evaluate(self, results: Dict[str, Any]) -> ObjectiveValue:
+    def evaluate(self, results: dict[str, Any]) -> ObjectiveValue:
         """
         Evaluate objective from simulation results.
 
@@ -87,20 +88,18 @@ class BaseObjective(ABC):
 
     @property
     @abstractmethod
-    def name(self) -> str:
-        ...
+    def name(self) -> str: ...
 
     @property
     @abstractmethod
-    def direction(self) -> OptimizationDirection:
-        ...
+    def direction(self) -> OptimizationDirection: ...
 
     @abstractmethod
-    def _extract_value(self, results: Dict[str, Any]) -> float:
+    def _extract_value(self, results: dict[str, Any]) -> float:
         """Extract raw metric value from results dict."""
         ...
 
-    def evaluate(self, results: Dict[str, Any]) -> ObjectiveValue:
+    def evaluate(self, results: dict[str, Any]) -> ObjectiveValue:
         raw = self._extract_value(results)
 
         is_satisfied = True
@@ -136,7 +135,7 @@ class GDPGrowthObjective(BaseObjective):
     def direction(self) -> OptimizationDirection:
         return OptimizationDirection.MAXIMIZE
 
-    def _extract_value(self, results: Dict[str, Any]) -> float:
+    def _extract_value(self, results: dict[str, Any]) -> float:
         return float(results.get("gdp_change", 0.0))
 
 
@@ -151,7 +150,7 @@ class BudgetDeficitObjective(BaseObjective):
     def direction(self) -> OptimizationDirection:
         return OptimizationDirection.MINIMIZE
 
-    def _extract_value(self, results: Dict[str, Any]) -> float:
+    def _extract_value(self, results: dict[str, Any]) -> float:
         balance = results.get("gov_balance", 0.0)
         if balance is None:
             balance = -results.get("budget_deficit", 0.0)
@@ -169,7 +168,7 @@ class InequalityObjective(BaseObjective):
     def direction(self) -> OptimizationDirection:
         return OptimizationDirection.MINIMIZE
 
-    def _extract_value(self, results: Dict[str, Any]) -> float:
+    def _extract_value(self, results: dict[str, Any]) -> float:
         return float(results.get("gini_coefficient", 0.5))
 
 
@@ -184,7 +183,7 @@ class EmploymentObjective(BaseObjective):
     def direction(self) -> OptimizationDirection:
         return OptimizationDirection.MAXIMIZE
 
-    def _extract_value(self, results: Dict[str, Any]) -> float:
+    def _extract_value(self, results: dict[str, Any]) -> float:
         return float(results.get("employment_rate", 0.0))
 
 
@@ -205,7 +204,7 @@ class CompositeObjective:
         ])
     """
 
-    objectives: List[SearchObjective] = field(default_factory=list)
+    objectives: list[SearchObjective] = field(default_factory=list)
 
     @property
     def name(self) -> str:
@@ -215,7 +214,7 @@ class CompositeObjective:
     def direction(self) -> OptimizationDirection:
         return OptimizationDirection.MINIMIZE
 
-    def evaluate(self, results: Dict[str, Any]) -> ObjectiveValue:
+    def evaluate(self, results: dict[str, Any]) -> ObjectiveValue:
         """Evaluate all objectives and return weighted sum."""
         if not self.objectives:
             return ObjectiveValue(
@@ -239,7 +238,7 @@ class CompositeObjective:
             is_satisfied=all_satisfied,
         )
 
-    def evaluate_detailed(self, results: Dict[str, Any]) -> List[ObjectiveValue]:
+    def evaluate_detailed(self, results: dict[str, Any]) -> list[ObjectiveValue]:
         """Return individual objective evaluations for analysis."""
         return [obj.evaluate(results) for obj in self.objectives]
 

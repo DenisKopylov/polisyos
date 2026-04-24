@@ -1,4 +1,5 @@
 """Workflow spec for verified-answer generation without hierarchical policy search."""
+
 from __future__ import annotations
 
 from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
@@ -136,6 +137,11 @@ def policy_verified_workflow_spec() -> WorkflowSpec:
                 depends_on=["run_simulation"],
             ),
             NodeInvocation(
+                alias="propagate_welfare",
+                node_id="scientist.node_propagate_welfare@1.0.0",
+                depends_on=["run_simulation"],
+            ),
+            NodeInvocation(
                 alias="propagate_uncertainty",
                 node_id="scientist.node_propagate_uncertainty@1.0.0",
                 depends_on=["run_simulation"],
@@ -187,6 +193,7 @@ def policy_verified_workflow_spec() -> WorkflowSpec:
                     "run_causal_evaluation",
                     "build_verified_policy_report",
                     "run_metric_validation",
+                    "propagate_welfare",
                 ],
             ),
         ],

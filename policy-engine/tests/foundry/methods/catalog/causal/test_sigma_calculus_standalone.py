@@ -8,7 +8,13 @@ from polisyos.foundry.methods.catalog.causal.sigma_calculus import (
     sigma_z_identify,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
-from polisyos.ir.analytics.estimand import CounterfactualNode, DistributionDomain, DistributionRef, EstimandAST, ProductNode
+from polisyos.ir.analytics.estimand import (
+    CounterfactualNode,
+    DistributionDomain,
+    DistributionRef,
+    EstimandAST,
+    ProductNode,
+)
 
 
 def _dag(
@@ -59,7 +65,9 @@ def test_sigma_identify_full_pipeline() -> None:
     graph = _dag([("Z", "X"), ("X", "Y")], extra_nodes=("W",))
     ast = _ast(_dist_ref(variables=("Y",), intervention_set=("X", "Z"), conditioning=("W",)))
 
-    result_ast, steps = sigma_identify(ast, graph, selection_vars=frozenset({"W"}), max_iterations=5)
+    result_ast, steps = sigma_identify(
+        ast, graph, selection_vars=frozenset({"W"}), max_iterations=5
+    )
 
     assert isinstance(result_ast, EstimandAST)
     assert any(step.rule_name == "RULE2" for step in steps)

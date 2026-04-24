@@ -41,7 +41,10 @@ export function forceLayout(
 
   const pos: Vec2[] = nodes.map((_, i) => {
     const angle = (2 * Math.PI * i) / nodes.length;
-    return { x: cx + radius * Math.cos(angle), y: cy + radius * Math.sin(angle) };
+    return {
+      x: cx + radius * Math.cos(angle),
+      y: cy + radius * Math.sin(angle),
+    };
   });
   const vel: Vec2[] = nodes.map(() => ({ x: 0, y: 0 }));
 
@@ -96,7 +99,10 @@ export function forceLayout(
   }
 
   // Normalize positions to start from padding
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  let minX = Infinity,
+    minY = Infinity,
+    maxX = -Infinity,
+    maxY = -Infinity;
   for (const p of pos) {
     minX = Math.min(minX, p.x);
     minY = Math.min(minY, p.y);

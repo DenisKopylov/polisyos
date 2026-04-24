@@ -14,7 +14,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -22,7 +22,10 @@ from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, pu
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import FrontierSketchRef
 
-from ..refs import ArtifactRefModel
+if TYPE_CHECKING:
+    from ..refs import ArtifactRefModel
+else:
+    from ..refs import ArtifactRefModel
 
 StageClosureState = Literal["execution_grade", "narrow_accepted", "deferred_or_refuted"]
 ValidationSeverity = Literal["info", "error"]
@@ -184,7 +187,7 @@ class PhaseStageDeclaration(BaseModel):
         return _clean_optional_string(value, field_name=str(info.field_name))
 
     @model_validator(mode="after")
-    def _validate_closure_state_fields(self) -> "PhaseStageDeclaration":
+    def _validate_closure_state_fields(self) -> PhaseStageDeclaration:
         if self.closure_state != "execution_grade":
             if self.boundary_reason is None:
                 raise ValueError("boundary_reason is required for non-execution closure states")
@@ -218,7 +221,9 @@ class PhaseClosureManifest(BaseModel):
         if not isinstance(value, (list, tuple)):
             raise ValueError("stages must be a tuple/list of stage declarations")
         stages = tuple(
-            item if isinstance(item, PhaseStageDeclaration) else PhaseStageDeclaration.model_validate(item)
+            item
+            if isinstance(item, PhaseStageDeclaration)
+            else PhaseStageDeclaration.model_validate(item)
             for item in value
         )
         if not stages:
@@ -226,7 +231,7 @@ class PhaseClosureManifest(BaseModel):
         return stages
 
     @model_validator(mode="after")
-    def _validate_unique_stage_ids(self) -> "PhaseClosureManifest":
+    def _validate_unique_stage_ids(self) -> PhaseClosureManifest:
         stage_ids = [stage.stage_id for stage in self.stages]
         if len(set(stage_ids)) != len(stage_ids):
             raise ValueError("phase manifest contains duplicate stage_id values")
@@ -1655,13 +1660,17 @@ def phase_stage_declaration(phase_id: str, stage_id: str) -> PhaseStageDeclarati
 
     resolved_phase_id = _clean_stage_token(phase_id, field_name="phase_id")
     resolved_stage_id = _clean_stage_token(stage_id, field_name="stage_id")
-    manifest = next((item for item in ALL_PHASE_CLOSURE_MANIFESTS if item.phase_id == resolved_phase_id), None)
+    manifest = next(
+        (item for item in ALL_PHASE_CLOSURE_MANIFESTS if item.phase_id == resolved_phase_id), None
+    )
     if manifest is None:
         raise KeyError(f"Unknown phase_id: {resolved_phase_id}")
     try:
         return manifest.stage_map()[resolved_stage_id]
     except KeyError as exc:
-        raise KeyError(f"Unknown stage_id {resolved_stage_id!r} for phase {resolved_phase_id!r}") from exc
+        raise KeyError(
+            f"Unknown stage_id {resolved_stage_id!r} for phase {resolved_phase_id!r}"
+        ) from exc
 
 
 def stage_declaration(stage_id: str) -> tuple[str, PhaseStageDeclaration]:
@@ -1752,7 +1761,9 @@ def parse_research_plan_stage_index(
 ) -> tuple[dict[str, DocumentStageEntry], dict[str, tuple[str, ...]]]:
     """Parse the source plan and return first-occurrence stage headings plus duplicates."""
 
-    resolved_plan_path = Path(plan_path) if plan_path is not None else _default_repo_root() / _DEFAULT_PLAN_DOC_PATH
+    resolved_plan_path = (
+        Path(plan_path) if plan_path is not None else _default_repo_root() / _DEFAULT_PLAN_DOC_PATH
+    )
     lines = resolved_plan_path.read_text(encoding="utf-8").splitlines()
     stage_entries: dict[str, DocumentStageEntry] = {}
     duplicates: dict[str, list[str]] = {}
@@ -1865,7 +1876,7 @@ def build_phase_closure_validation_report(
                 )
             )
 
-    for stage_id, locations in duplicate_document_stages.items():
+    for stage_id, _locations in duplicate_document_stages.items():
         issues.append(
             PhaseClosureValidationIssue(
                 severity="info",
@@ -1914,7 +1925,11 @@ def build_phase_closure_validation_report(
         for stage in manifest.stages:
             missing_paths = tuple(missing_paths_by_stage.get(stage.stage_id, ()))
             issue_codes = tuple(stage_issue_codes.get(stage.stage_id, ()))
-            status: ValidationStatus = "incomplete" if any(code != "duplicate_document_stage_heading" for code in issue_codes if code) else "complete"
+            status: ValidationStatus = (
+                "incomplete"
+                if any(code != "duplicate_document_stage_heading" for code in issue_codes if code)
+                else "complete"
+            )
             if missing_paths:
                 status = "incomplete"
             stage_results.append(
@@ -1978,13 +1993,13 @@ def build_phase_closure_validation_report(
 
 __all__ = [
     "ALL_PHASE_CLOSURE_MANIFESTS",
-    "DocumentStageEntry",
-    "FrontierSketch",
-    "FrontierSketchRef",
     "PHASE1_CLOSURE_MANIFEST",
     "PHASE2_CLOSURE_MANIFEST",
     "PHASE3_CLOSURE_MANIFEST",
     "PHASE4_CLOSURE_MANIFEST",
+    "DocumentStageEntry",
+    "FrontierSketch",
+    "FrontierSketchRef",
     "PhaseClosureManifest",
     "PhaseClosureValidationIssue",
     "PhaseClosureValidationReport",

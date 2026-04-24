@@ -5,23 +5,24 @@
 selection-history telemetry, and returns the `MethodResult` produced by the
 backend runtime.
 """
+
 from __future__ import annotations
 
 import threading
 import time as _time
+from collections.abc import Mapping
 from dataclasses import dataclass, replace
-from typing import Any, Mapping, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from polisyos.core.backends import BackendDispatcher
 from polisyos.core.backends import BackendNotAvailableError as CoreBackendNotAvailableError
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.observability.truthfulness import extract_truthfulness_receipt
+from polisyos.foundry.methods._logging import _infer_n_obs, get_foundry_logger
 from polisyos.foundry.methods.backends.circuit_breaker import (
     BackendCircuitOpenError,
-    CircuitBreaker,
     get_circuit_breaker_registry,
 )
-from polisyos.foundry.methods._logging import _infer_n_obs, get_foundry_logger
 from polisyos.foundry.methods.backends.protocol import MethodResult, MethodRunner, MethodTiming
 from polisyos.foundry.methods.backends.runtime_fingerprint import (
     augment_observed_tolerance_budget,
@@ -34,13 +35,13 @@ from polisyos.foundry.methods.backends.validated import (
     validated_bound_to_envelopes,
 )
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
-from polisyos.foundry.methods.exceptions import FoundryMethodError
 from polisyos.foundry.methods.equivalence import (
     EquivalenceCertificateResolver,
     assess_certificate_applicability,
     attach_equivalence_ref,
     get_default_equivalence_resolver,
 )
+from polisyos.foundry.methods.exceptions import FoundryMethodError
 from polisyos.foundry.methods.output_monitor import _emit_anomaly_metric, get_output_monitor
 from polisyos.foundry.methods.selection_history import (
     AdvisorExecutionContext,
@@ -118,42 +119,28 @@ def _record_execution(
                 else receipt.truthfulness_scope.value
             ),
             truthfulness_status=(
-                None
-                if receipt is None or receipt.status is None
-                else receipt.status.value
+                None if receipt is None or receipt.status is None else receipt.status.value
             ),
             truthfulness_evidence_ref=None if receipt is None else receipt.evidence_ref,
             query_fingerprint=(
                 None if advisor_context is None else advisor_context.query_fingerprint
             ),
-            loss_profile_id=(
-                None if advisor_context is None else advisor_context.loss_profile_id
-            ),
+            loss_profile_id=(None if advisor_context is None else advisor_context.loss_profile_id),
             candidate_fqns=(
-                ()
-                if advisor_context is None
-                else tuple(advisor_context.candidate_fqns)
+                () if advisor_context is None else tuple(advisor_context.candidate_fqns)
             ),
-            selected_rank=(
-                None if advisor_context is None else advisor_context.selected_rank
-            ),
+            selected_rank=(None if advisor_context is None else advisor_context.selected_rank),
             selection_propensity=(
-                None
-                if advisor_context is None
-                else advisor_context.selection_propensity
+                None if advisor_context is None else advisor_context.selection_propensity
             ),
             advisor_score_vector=(
-                {}
-                if advisor_context is None
-                else dict(advisor_context.advisor_score_vector)
+                {} if advisor_context is None else dict(advisor_context.advisor_score_vector)
             ),
             realized_loss_components={
                 "failure_penalty": 0.0 if success else 1.0,
             },
             shadow_loss_estimates=(
-                {}
-                if advisor_context is None
-                else dict(advisor_context.shadow_loss_estimates)
+                {} if advisor_context is None else dict(advisor_context.shadow_loss_estimates)
             ),
         )
         target_history = get_global_selection_history() if history_store is None else history_store
@@ -195,8 +182,7 @@ def _build_dispatch_artifacts(
             "selected_backend": result.reproducibility.backend.value,
             "selection_reason": decision.reason,
             "attempts": [
-                {"backend": backend.value, "outcome": outcome}
-                for backend, outcome in attempts
+                {"backend": backend.value, "outcome": outcome} for backend, outcome in attempts
             ],
             "predicted_requested_ms": decision.predicted_requested_ms,
             "predicted_selected_ms": decision.predicted_selected_ms,
@@ -214,7 +200,9 @@ def _build_dispatch_artifacts(
             "backend": result.reproducibility.backend.value,
             "wall_time_ms": float(result.timing.wall_time_ms),
             "compile_time_ms": (
-                None if result.timing.compile_time_ms is None else float(result.timing.compile_time_ms)
+                None
+                if result.timing.compile_time_ms is None
+                else float(result.timing.compile_time_ms)
             ),
             "cpu_time_ms": (
                 None if result.timing.cpu_time_ms is None else float(result.timing.cpu_time_ms)
@@ -253,9 +241,7 @@ def _apply_dispatch_contract_overlay(
             validation_status="degraded",
             downgraded_from=declared_tier,
             downgraded_to=result.reproducibility.determinism_tier.value,
-            failure_reasons=(
-                f"fallback_route:{signature.backend.value}->{backend_used.value}",
-            ),
+            failure_reasons=(f"fallback_route:{signature.backend.value}->{backend_used.value}",),
             expected_budget_updates={
                 "semantic_mode": (
                     f"{(observed_budget.get('expected_budget') or {}).get('semantic_mode', 'best_effort')}_fallback"
@@ -317,6 +303,7 @@ def _merge_dispatch_result(
 @dataclass(frozen=True)
 class BackendNotAvailableError(RuntimeError):
     """Signal that the requested backend runtime is not installed or healthy."""
+
     backend: ComputeBackend
 
     def __str__(self) -> str:
@@ -383,9 +370,7 @@ class SignatureAwareFallback:
 
     def _is_compatible(self, signature: MethodSignature, backend: ComputeBackend) -> bool:
         # JAX-specific features (vmap, grad) incompatible with NumPy
-        if backend == ComputeBackend.NUMPY and (
-            signature.supports_grad or signature.supports_vmap
-        ):
+        if backend == ComputeBackend.NUMPY and (signature.supports_grad or signature.supports_vmap):
             return False
         return True
 
@@ -412,9 +397,7 @@ class MethodDispatcher:
             availability_check=lambda runner: runner.is_available(),
         )
         self._runner_lock = threading.RLock()
-        self._fallback_strategy: FallbackStrategy = (
-            fallback_strategy or SignatureAwareFallback()
-        )
+        self._fallback_strategy: FallbackStrategy = fallback_strategy or SignatureAwareFallback()
         self._runtime_history = runtime_history
         self._runtime_predictor = runtime_predictor
         self._enable_runtime_selection = bool(enable_runtime_selection)
@@ -621,12 +604,13 @@ class MethodDispatcher:
                 validated_envelopes = validated_bound_to_envelopes(validated_bound)
                 if validated_envelopes:
                     serialized_envelopes = [
-                        envelope.model_dump(mode="json")
-                        for envelope in validated_envelopes
+                        envelope.model_dump(mode="json") for envelope in validated_envelopes
                     ]
                     validated_artifacts["validated_uncertainty_envelopes"] = serialized_envelopes
                     if len(serialized_envelopes) == 1:
-                        validated_artifacts["validated_uncertainty_envelope"] = serialized_envelopes[0]
+                        validated_artifacts["validated_uncertainty_envelope"] = (
+                            serialized_envelopes[0]
+                        )
             if (
                 validated_policy.mode is ValidatedMode.REQUIRED
                 and validated_bound is not None
@@ -705,6 +689,7 @@ class MethodDispatcher:
         flags = monitor.check_basic(result.output, expected_keys=expected_keys)
         if flags:
             import warnings
+
             for flag in flags:
                 warnings.warn(str(flag), stacklevel=3)
             _emit_anomaly_metric(signature.fqn, flags)
@@ -923,7 +908,11 @@ class MethodDispatcher:
     def _get_runtime_predictor(self) -> RuntimePredictor | None:
         if self._runtime_predictor is not None:
             return self._runtime_predictor
-        history = get_global_selection_history() if self._runtime_history is None else self._runtime_history
+        history = (
+            get_global_selection_history()
+            if self._runtime_history is None
+            else self._runtime_history
+        )
         if len(history) == 0:
             return None
         return fit_runtime_predictor_from_history(history)

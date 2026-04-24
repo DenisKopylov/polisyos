@@ -28,13 +28,25 @@ FABRIC_BOUNDARY_SOURCES = (
     REPO_ROOT / "src" / "polisyos" / "fabric" / "ingestion_providers.py",
 )
 ALLOWED_PROVIDER_BOOTSTRAP_FILES = {
-    REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "services" / "control_registry_providers.py",
+    REPO_ROOT
+    / "src"
+    / "polisyos"
+    / "runtime"
+    / "http"
+    / "services"
+    / "control_registry_providers.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "catalog" / "providers.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "ingestion_providers.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "retrieval" / "providers.py",
 }
 DEFAULT_HOOK_BOUNDARY_FILES = (
-    REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "services" / "control_registry_providers.py",
+    REPO_ROOT
+    / "src"
+    / "polisyos"
+    / "runtime"
+    / "http"
+    / "services"
+    / "control_registry_providers.py",
     REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "services" / "control.py",
     REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "cell_router_middleware.py",
     REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "jwt_auth_middleware.py",
@@ -86,7 +98,14 @@ DEFAULT_HOOK_BOUNDARY_FILES = (
     REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "_registry_lifecycle.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "transform" / "_common.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "transform" / "pipeline.py",
-    REPO_ROOT / "src" / "polisyos" / "scientist" / "nodes" / "builtins" / "simulate" / "run_simulation.py",
+    REPO_ROOT
+    / "src"
+    / "polisyos"
+    / "scientist"
+    / "nodes"
+    / "builtins"
+    / "simulate"
+    / "run_simulation.py",
     REPO_ROOT / "src" / "polisyos" / "scientist" / "agent" / "_drafter_passes.py",
     REPO_ROOT / "src" / "polisyos" / "scientist" / "agent" / "_drafter_orchestrator.py",
     REPO_ROOT / "src" / "polisyos" / "scientist" / "search" / "controller.py",
@@ -103,9 +122,7 @@ def _iter_fabric_provider_boundary_sources() -> list[Path]:
     paths: set[Path] = set()
     for source in FABRIC_BOUNDARY_SOURCES:
         if source.is_dir():
-            paths.update(
-                path for path in source.rglob("*.py") if "__pycache__" not in path.parts
-            )
+            paths.update(path for path in source.rglob("*.py") if "__pycache__" not in path.parts)
         elif source.is_file():
             paths.add(source)
     return sorted(paths)
@@ -261,10 +278,12 @@ def test_fabric_provider_boundaries_limit_singleton_and_observability_defaults()
     violations: list[str] = []
     forbidden_fragments = {
         "ConnectorRegistry.get_instance(": (
-            "use provider bundles or explicit bootstrap helpers instead of inline connector singletons"
+            "use provider bundles or explicit bootstrap helpers instead of inline "
+            "connector singletons"
         ),
         "SourceProfileRegistry.get_instance(": (
-            "use provider bundles or explicit bootstrap helpers instead of inline source-profile singletons"
+            "use provider bundles or explicit bootstrap helpers instead of inline "
+            "source-profile singletons"
         ),
         "get_tracer()": (
             "use provider bundles or explicit bootstrap helpers instead of inline tracer defaults"
@@ -304,13 +323,7 @@ def test_boundary_default_hooks_remain_isolated_to_default_helpers() -> None:
 
 def test_runtime_control_hot_path_uses_shared_executor_bridge_not_asyncio_to_thread() -> None:
     control_source = (
-        REPO_ROOT
-        / "src"
-        / "polisyos"
-        / "runtime"
-        / "http"
-        / "services"
-        / "control.py"
+        REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "services" / "control.py"
     ).read_text(encoding="utf-8")
 
     assert "asyncio.to_thread(" not in control_source, (

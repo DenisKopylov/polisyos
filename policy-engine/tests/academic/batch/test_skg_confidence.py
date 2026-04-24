@@ -43,7 +43,11 @@ def test_aggregate_edge_confidence_applies_temporal_and_sample_weighting() -> No
 
 
 def test_aggregate_edge_confidence_penalizes_abstract_only() -> None:
-    fulltext = aggregate_edge_confidence([("observational", 0.8, 2024, 500, "fulltext", False, None)])
-    abstract_only = aggregate_edge_confidence([("observational", 0.8, 2024, 500, "abstract_only", False, None)])
+    fulltext = aggregate_edge_confidence(
+        [("observational", 0.8, 2024, 500, "fulltext", False, None)]
+    )
+    abstract_only = aggregate_edge_confidence(
+        [("observational", 0.8, 2024, 500, "abstract_only", False, None)]
+    )
 
     assert abstract_only < fulltext

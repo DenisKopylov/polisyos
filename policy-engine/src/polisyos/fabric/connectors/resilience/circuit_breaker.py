@@ -8,6 +8,7 @@ State Machine:
     OPEN -> timeout expires -> HALF_OPEN (Testing)
     HALF_OPEN -> success -> CLOSED | failure -> OPEN
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -490,7 +491,9 @@ class CircuitBreaker:
                 "success_count": self._success_count,
                 "call_count": len(self._call_timestamps),
                 "opened_at": self._opened_at.isoformat() if self._opened_at else None,
-                "last_failure_at": self._last_failure_at.isoformat() if self._last_failure_at else None,
+                "last_failure_at": self._last_failure_at.isoformat()
+                if self._last_failure_at
+                else None,
                 "half_open_calls": len(self._half_open_leases),
                 "config": {
                     "failure_threshold": self.config.failure_threshold,
@@ -512,13 +515,13 @@ def _default_circuit_id[T](
     for key in ("handle", "connection", "connection_handle"):
         handle = kwargs.get(key)
         if handle is not None and hasattr(handle, "connector_id"):
-            connector_id = getattr(handle, "connector_id")
+            connector_id = handle.connector_id
             break
 
     if connector_id is None:
         for arg in args:
             if hasattr(arg, "connector_id"):
-                connector_id = getattr(arg, "connector_id")
+                connector_id = arg.connector_id
                 break
 
     dataset_id = None
@@ -527,7 +530,7 @@ def _default_circuit_id[T](
     else:
         for arg in args:
             if hasattr(arg, "dataset_id"):
-                dataset_id = getattr(arg, "dataset_id")
+                dataset_id = arg.dataset_id
                 break
 
     domain = None

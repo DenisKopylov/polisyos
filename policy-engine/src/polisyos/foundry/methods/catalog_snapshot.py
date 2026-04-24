@@ -1,7 +1,8 @@
 """Build and persist a CAS-backed snapshot of the currently registered method catalog."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
@@ -18,15 +19,14 @@ from polisyos.core.observability.determinism import (
 )
 from polisyos.core.observability.truthfulness import (
     TruthfulnessStatus,
-    TruthfulnessTier,
     parse_truthfulness_scope,
     parse_truthfulness_tier,
     reconcile_truthfulness_tiers,
 )
-from polisyos.foundry.methods.base import ComputeBackend
-from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.backends.dispatch import (
     BackendNotAvailableError as MethodBackendNotAvailableError,
+)
+from polisyos.foundry.methods.backends.dispatch import (
     MethodDispatcher,
 )
 from polisyos.foundry.methods.backends.runtime_fingerprint import (
@@ -35,6 +35,8 @@ from polisyos.foundry.methods.backends.runtime_fingerprint import (
     runtime_stack_for,
     safe_version,
 )
+from polisyos.foundry.methods.base import ComputeBackend
+from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.catalog.causal.capabilities import build_causal_capability_contract
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics.causal_capabilities import (
@@ -73,13 +75,21 @@ def build_method_catalog_snapshot(
                 entry.metadata.optional_deps,
                 runtime_stack,
             )
-            backend_available = sig.execution_backend.value in available_backends and runtime_posture.available
-            disabled_reasons = list(_disabled_reasons_for(sig.execution_backend.value, backend_available))
+            backend_available = (
+                sig.execution_backend.value in available_backends and runtime_posture.available
+            )
+            disabled_reasons = list(
+                _disabled_reasons_for(sig.execution_backend.value, backend_available)
+            )
             disabled_reasons.extend(dependency_posture["missing_required"])
         else:
             dependency_posture = _dependency_posture((), (), runtime_stack)
-            backend_available = sig.execution_backend.value in available_backends and runtime_posture.available
-            disabled_reasons = list(_disabled_reasons_for(sig.execution_backend.value, backend_available))
+            backend_available = (
+                sig.execution_backend.value in available_backends and runtime_posture.available
+            )
+            disabled_reasons = list(
+                _disabled_reasons_for(sig.execution_backend.value, backend_available)
+            )
         if not runtime_posture.available:
             disabled_reasons.append(f"runtime_posture_unavailable:{sig.execution_backend.value}")
         requirements = _causal_requirements_for_method(sig.fqn)
@@ -97,7 +107,11 @@ def build_method_catalog_snapshot(
         if causal_available is False:
             disabled_reasons.extend(causal_disabled_reasons)
         disabled_reasons = sorted(dict.fromkeys(reason for reason in disabled_reasons if reason))
-        runnable = backend_available and not dependency_posture["missing_required"] and causal_available is not False
+        runnable = (
+            backend_available
+            and not dependency_posture["missing_required"]
+            and causal_available is not False
+        )
         shape_semantics = _shape_semantics(sig)
         effect_semantics = _effect_semantics(sig, entry)
         dependency_semantics = _dependency_semantics(sig, entry)
@@ -238,13 +252,27 @@ def build_method_catalog_snapshot(
                 # Rich semantic metadata — sourced from MethodMetadata
                 description=str(entry.metadata.description) if entry is not None else "",
                 citations=list(entry.metadata.citations) if entry is not None else [],
-                assumptions=sorted(str(k) for k in entry.metadata.assumptions.keys()) if entry is not None else [],
-                when_to_use=str(getattr(entry.metadata, "when_to_use", "")) if entry is not None else "",
-                when_not_to_use=str(getattr(entry.metadata, "when_not_to_use", "")) if entry is not None else "",
-                prerequisites=list(getattr(entry.metadata, "prerequisites", ())) if entry is not None else [],
-                diagnostic_checks=list(getattr(entry.metadata, "diagnostic_checks", ())) if entry is not None else [],
-                typical_min_obs=getattr(entry.metadata, "typical_min_obs", None) if entry is not None else None,
-                output_interpretation=str(getattr(entry.metadata, "output_interpretation", "")) if entry is not None else "",
+                assumptions=sorted(str(k) for k in entry.metadata.assumptions.keys())
+                if entry is not None
+                else [],
+                when_to_use=str(getattr(entry.metadata, "when_to_use", ""))
+                if entry is not None
+                else "",
+                when_not_to_use=str(getattr(entry.metadata, "when_not_to_use", ""))
+                if entry is not None
+                else "",
+                prerequisites=list(getattr(entry.metadata, "prerequisites", ()))
+                if entry is not None
+                else [],
+                diagnostic_checks=list(getattr(entry.metadata, "diagnostic_checks", ()))
+                if entry is not None
+                else [],
+                typical_min_obs=getattr(entry.metadata, "typical_min_obs", None)
+                if entry is not None
+                else None,
+                output_interpretation=str(getattr(entry.metadata, "output_interpretation", ""))
+                if entry is not None
+                else "",
             )
         )
     snapshot_payload = {
@@ -255,11 +283,9 @@ def build_method_catalog_snapshot(
     return MethodCatalogSnapshot(
         snapshot_id=snapshot_id,
         run_id=run_id,
-        generated_at=datetime.now(timezone.utc),
+        generated_at=datetime.now(UTC),
         causal_capability_hash=contract.dependency_fingerprint if contract is not None else None,
-        causal_runtime_posture=(
-            contract.model_dump(mode="json") if contract is not None else {}
-        ),
+        causal_runtime_posture=(contract.model_dump(mode="json") if contract is not None else {}),
         entries=entries,
         notes=[f"method_count:{len(entries)}"],
     )
@@ -475,7 +501,9 @@ def _dependency_posture(
         "optional": optional_map,
         "runtime_stack": runtime_map,
         "all_required_available": all(required_map.values()) if required_map else True,
-        "missing_required": [f"missing_dependency:{dep}" for dep, ok in required_map.items() if not ok],
+        "missing_required": [
+            f"missing_dependency:{dep}" for dep, ok in required_map.items() if not ok
+        ],
         "missing_optional": [dep for dep, ok in optional_map.items() if not ok],
         "missing_runtime_stack": [dep for dep, ok in runtime_map.items() if not ok],
     }
@@ -538,8 +566,12 @@ def _shape_semantics(sig: Any) -> dict[str, Any]:
     return {
         "input_arity": len(sig.input_slots),
         "output_arity": len(sig.output_slots),
-        "input_slots": [_slot_payload(slot) for slot in sorted(sig.input_slots, key=lambda item: item.name)],
-        "output_slots": [_slot_payload(slot) for slot in sorted(sig.output_slots, key=lambda item: item.name)],
+        "input_slots": [
+            _slot_payload(slot) for slot in sorted(sig.input_slots, key=lambda item: item.name)
+        ],
+        "output_slots": [
+            _slot_payload(slot) for slot in sorted(sig.output_slots, key=lambda item: item.name)
+        ],
         "has_symbolic_dimensions": any(
             not isinstance(axis, int)
             for slot in tuple(sig.input_slots) + tuple(sig.output_slots)
@@ -602,7 +634,11 @@ def _truthfulness_notes_for_status(status: TruthfulnessStatus) -> str:
 
 
 def _truthfulness_profile(sig: Any, entry: Any) -> tuple[str, str]:
-    tags = {str(tag).strip().lower() for tag in getattr(entry.metadata, "tags", ())} if entry is not None else set()
+    tags = (
+        {str(tag).strip().lower() for tag in getattr(entry.metadata, "tags", ())}
+        if entry is not None
+        else set()
+    )
     text = " ".join(
         [
             sig.namespace.lower(),
@@ -612,20 +648,32 @@ def _truthfulness_profile(sig: Any, entry: Any) -> tuple[str, str]:
             str(getattr(entry.metadata, "description", "")).lower() if entry is not None else "",
         ]
     )
-    if any(token in text for token in ("baseline", "heuristic", "proxy", "scorecard", "random_feature")):
+    if any(
+        token in text for token in ("baseline", "heuristic", "proxy", "scorecard", "random_feature")
+    ):
         return (
             "heuristic_baseline",
             "Fast baseline or proxy implementation; do not present as equivalent depth to trainable or production estimators.",
         )
-    if any(token in text for token in ("discovery", "diagnostic", "identify", "mcda", "score", "ranking", "transport")):
+    if any(
+        token in text
+        for token in (
+            "discovery",
+            "diagnostic",
+            "identify",
+            "mcda",
+            "score",
+            "ranking",
+            "transport",
+        )
+    ):
         return (
             "structural_scoring",
             "Primarily structural/scoring logic; useful for screening, diagnostics, or planning rather than final policy estimation.",
         )
-    if (
-        entry is not None
-        and entry.metadata.side_effect_profile.value == "training"
-    ) or any(token in text for token in ("transformer", "neural", "deep", "trainable", "policy_learning")):
+    if (entry is not None and entry.metadata.side_effect_profile.value == "training") or any(
+        token in text for token in ("transformer", "neural", "deep", "trainable", "policy_learning")
+    ):
         return (
             "frontier_trainable",
             "Frontier or trainable implementation with higher operational complexity and stronger runtime/dependency expectations.",
@@ -637,7 +685,7 @@ def _truthfulness_profile(sig: Any, entry: Any) -> tuple[str, str]:
 
 
 __all__ = [
-    "build_method_catalog_snapshot",
     "build_method_capability_matrix",
+    "build_method_catalog_snapshot",
     "persist_method_catalog_snapshot",
 ]

@@ -10,7 +10,7 @@ import sys
 import time
 from collections import deque
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -27,7 +27,7 @@ MAX_WORKERS = int(os.environ.get("BENCH_WORKERS", str(max(2, _cpu - 2))))
 MODE = os.environ.get("BENCH_MODE", "smoke")
 RUN_ID = os.environ.get(
     "BENCH_RUN_ID",
-    f"parallel-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}",
+    f"parallel-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}",
 )
 
 sys.path.insert(0, str(SRC))
@@ -61,7 +61,7 @@ def _system_memory_gib() -> int:
         page_size = os.sysconf("SC_PAGE_SIZE")
         pages = os.sysconf("SC_PHYS_PAGES")
         total_bytes = int(page_size) * int(pages)
-        return max(1, int((total_bytes / (1024 ** 3)) * 0.8))
+        return max(1, int((total_bytes / (1024**3)) * 0.8))
     except (AttributeError, ValueError, OSError):
         return max(4, MAX_WORKERS * 2)
 
@@ -132,7 +132,9 @@ def _write_log(path: Path, stdout: str, stderr: str) -> None:
     )
 
 
-def _suite_status_from_artifacts(json_file: Path, exit_code: int) -> tuple[str, dict[str, Any] | None]:
+def _suite_status_from_artifacts(
+    json_file: Path, exit_code: int
+) -> tuple[str, dict[str, Any] | None]:
     if not json_file.exists():
         return ("passed" if exit_code == 0 else "error"), None
     try:
@@ -190,7 +192,9 @@ def _can_launch(job: SuiteJob, *, running: dict[str, RunningSuite]) -> bool:
     return used_memory + job.memory_gib_hint <= MEMORY_BUDGET_GIB
 
 
-def _pick_launchable_job(pending: deque[SuiteJob], *, running: dict[str, RunningSuite]) -> SuiteJob | None:
+def _pick_launchable_job(
+    pending: deque[SuiteJob], *, running: dict[str, RunningSuite]
+) -> SuiteJob | None:
     for _ in range(len(pending)):
         job = pending[0]
         if _can_launch(job, running=running):
@@ -202,7 +206,9 @@ def _pick_launchable_job(pending: deque[SuiteJob], *, running: dict[str, Running
 def main() -> int:
     suites = _parse_suites()
     if not suites:
-        print("No suites matched the current filter. Check BENCH_PROFILE / BENCH_CONTOUR / BENCH_VISIBILITY.")
+        print(
+            "No suites matched the current filter. Check BENCH_PROFILE / BENCH_CONTOUR / BENCH_VISIBILITY."
+        )
         return 1
 
     print(f"=== Parallel benchmark run: {len(suites)} suites, {MAX_WORKERS} workers ===")
@@ -211,7 +217,7 @@ def main() -> int:
     print(f"    Python        : {sys.executable}")
     print(f"    Reports       : {REPORTS}")
     print(f"    Memory budget : {MEMORY_BUDGET_GIB} GiB")
-    print(f"    Timeout mode  : informational only")
+    print("    Timeout mode  : informational only")
     print(flush=True)
 
     pending: deque[SuiteJob] = deque(suites)
@@ -271,7 +277,7 @@ def main() -> int:
         "n_blocking": blocking,
         "pass_rate": round(by_status["passed"] / len(results), 4) if results else 0.0,
         "wall_time_s": wall,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "suite_results": sorted(results, key=lambda item: item["elapsed_s"]),
     }
     (REPORTS / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")

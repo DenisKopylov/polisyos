@@ -7,23 +7,22 @@ Verifies:
 - _infer_n_obs() correctly infers observation count from state dicts
 - Logger is usable without structlog installed (stdlib fallback)
 """
+
 from __future__ import annotations
 
 import logging
 
-import pytest
-
 from polisyos.foundry.methods._logging import (
     FoundryLogger,
-    _StdlibLoggerShim,
     _infer_n_obs,
+    _StdlibLoggerShim,
     get_foundry_logger,
 )
-
 
 # ---------------------------------------------------------------------------
 # get_foundry_logger
 # ---------------------------------------------------------------------------
+
 
 class TestGetFoundryLogger:
     def test_returns_foundry_logger_protocol(self):
@@ -49,6 +48,7 @@ class TestGetFoundryLogger:
 # ---------------------------------------------------------------------------
 # _StdlibLoggerShim
 # ---------------------------------------------------------------------------
+
 
 class TestStdlibLoggerShim:
     def test_debug_emitted_at_debug_level(self, caplog):
@@ -107,24 +107,27 @@ class TestStdlibLoggerShim:
 # _infer_n_obs
 # ---------------------------------------------------------------------------
 
+
 class TestInferNObs:
     def test_infers_from_outcome(self):
         import numpy as np
+
         state = {"outcome": np.zeros(100)}
         assert _infer_n_obs(state) == 100
 
     def test_infers_from_features(self):
         import numpy as np
+
         state = {"features": np.zeros((50, 3))}
         assert _infer_n_obs(state) == 50
 
     def test_infers_from_endog(self):
         import numpy as np
+
         state = {"endog": np.zeros(200)}
         assert _infer_n_obs(state) == 200
 
     def test_infers_from_target(self):
-        import numpy as np
         state = {"target": list(range(75))}
         assert _infer_n_obs(state) == 75
 

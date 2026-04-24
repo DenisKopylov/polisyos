@@ -26,6 +26,7 @@ import {
   copyShareLink,
   exportCsv,
   exportJson,
+  ToggleButton,
 } from "@/shared/ui";
 
 const DEFAULT_CARDS = "data/data_lex/edrnpa_cards_2026-04-05.xml";
@@ -325,32 +326,26 @@ export default function LexKnowledgeGraph() {
             </label>
             <div className="flex flex-wrap gap-2">
               {(Object.keys(stages) as (keyof typeof stages)[]).map((stage) => (
-                <label
+                <ToggleButton
                   key={stage}
-                  className="hover:bg-text/5 border-line flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs"
-                >
-                  <input
-                    type="checkbox"
-                    checked={stages[stage]}
-                    onChange={() => toggleStage(stage)}
-                    className="accent-accent"
-                  />
-                  {stage}
-                </label>
-              ))}
-              <label className="hover:bg-text/5 border-line flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs">
-                <input
-                  type="checkbox"
-                  checked={resume}
-                  onChange={() => {
-                    const next = !resume;
-                    setResume(next);
-                    updateShareState({ resume: next }, { replace: true });
-                  }}
-                  className="accent-accent"
+                  data-testid={`lex-stage-${stage}`}
+                  label={stage}
+                  pressed={stages[stage]}
+                  size="sm"
+                  onPressedChange={() => toggleStage(stage)}
                 />
-                {t("pages.lex.resume")}
-              </label>
+              ))}
+              <ToggleButton
+                data-testid="lex-resume-toggle"
+                label={t("pages.lex.resume")}
+                pressed={resume}
+                size="sm"
+                onPressedChange={() => {
+                  const next = !resume;
+                  setResume(next);
+                  updateShareState({ resume: next }, { replace: true });
+                }}
+              />
             </div>
           </div>
 
@@ -539,8 +534,7 @@ export default function LexKnowledgeGraph() {
                       key={entityType.entityType}
                       className="bg-text/5 rounded-lg px-2 py-1 font-mono text-[10px]"
                     >
-                      {entityType.entityType}:{" "}
-                      {formatNumber(entityType.count)}
+                      {entityType.entityType}: {formatNumber(entityType.count)}
                     </span>
                   ))}
                 </div>

@@ -1,4 +1,5 @@
 """Tests for build_knowledge_tool_registry adapter."""
+
 from __future__ import annotations
 
 from typing import Any

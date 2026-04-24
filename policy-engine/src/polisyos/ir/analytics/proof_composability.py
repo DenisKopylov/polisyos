@@ -251,8 +251,10 @@ def infer_proof_composability_status(
     ancestors = tuple(str(item).strip() for item in (new_ancestors or ()) if str(item).strip())
     districts = tuple(tuple(item) for item in (new_district_links or ()))
 
-    if broken or reasons or any(
-        status is ProofReplayStepStatus.INVALID for status in normalized_statuses.values()
+    if (
+        broken
+        or reasons
+        or any(status is ProofReplayStepStatus.INVALID for status in normalized_statuses.values())
     ):
         return ProofComposabilityStatus.REDERIVE
 
@@ -304,9 +306,7 @@ def build_proof_composability_certificate(
         )
         for step_id, replay_status in dict(step_statuses or {}).items()
     }
-    resolved_status = (
-        status if isinstance(status, ProofComposabilityStatus) else None
-    )
+    resolved_status = status if isinstance(status, ProofComposabilityStatus) else None
     if resolved_status is None and status is not None:
         resolved_status = ProofComposabilityStatus(str(status))
     if resolved_status is None:

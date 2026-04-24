@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
@@ -38,7 +38,7 @@ def _doc_meta_base() -> dict:
     return {
         "doc_source_id": "doc.test",
         "doc_version_id": "docv.test",
-        "retrieved_at": datetime(2024, 1, 1, tzinfo=timezone.utc),
+        "retrieved_at": datetime(2024, 1, 1, tzinfo=UTC),
         "mime": "text/plain",
         "license": "cc0",
         "raw_ref": ARTIFACT_ID,
@@ -83,7 +83,7 @@ def _activity(started_at: datetime | None = None, ended_at: datetime | None = No
         activity_id="prov.activity.test",
         activity_type=ProvActivityType.FETCH_DOC,
         label="fetch",
-        started_at=started_at or datetime(2024, 1, 1, tzinfo=timezone.utc),
+        started_at=started_at or datetime(2024, 1, 1, tzinfo=UTC),
         ended_at=ended_at,
     )
 
@@ -177,8 +177,8 @@ def test_worldobjectref_requires_world_or_artifact() -> None:
 
 
 def test_activity_end_before_start_invalid() -> None:
-    started_at = datetime(2024, 1, 2, tzinfo=timezone.utc)
-    ended_at = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    started_at = datetime(2024, 1, 2, tzinfo=UTC)
+    ended_at = datetime(2024, 1, 1, tzinfo=UTC)
     with pytest.raises(ValidationError):
         _activity(started_at=started_at, ended_at=ended_at)
 
@@ -189,7 +189,7 @@ def test_worldevent_rejects_float_parameters() -> None:
             activity_id="prov.activity.test",
             activity_type=ProvActivityType.FETCH_DOC,
             label="fetch",
-            started_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            started_at=datetime(2024, 1, 1, tzinfo=UTC),
             parameters={"score": 0.1},
         )
 

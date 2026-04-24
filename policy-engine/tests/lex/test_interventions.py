@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from decimal import Decimal
 from datetime import date
+from decimal import Decimal
 
 import pytest
-from polisyos.core.artifacts.store import FileSystemCAS
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
 from polisyos.ir.governance.policy_spec import (
     InterventionSpec,
@@ -325,7 +325,9 @@ def test_strategic_response_spec_registry_returns_channels_and_hook_config() -> 
     assert entry.expected_response_type == "equilibrium_shift"
     assert entry.hook_config == {"solver": "stackelberg_exact"}
     assert registry.hook_fqn_for("procurement_threshold_change") == entry.spec.hook_fqn
-    assert registry.expected_response_type_for("procurement_threshold_change") == "equilibrium_shift"
+    assert (
+        registry.expected_response_type_for("procurement_threshold_change") == "equilibrium_shift"
+    )
     assert registry.strategic_required_for("procurement_threshold_change") is True
     bundle = registry.bundle()
     assert bundle.expectations[0].intervention_kind == "procurement_threshold_change"
@@ -407,7 +409,10 @@ def test_hierarchical_policy_search_adapter_validates_against_policy_design_api(
         policy_family="ua_wave1_policy",
     )
 
-    assert plan.coordinator_fqn == "polisyos.scientist.policy_design.search.HierarchicalSearchCoordinator"
+    assert (
+        plan.coordinator_fqn
+        == "polisyos.scientist.policy_design.search.HierarchicalSearchCoordinator"
+    )
     assert plan.search_config["max_structure_candidates"] == 3
     assert plan.level_order == ["structure", "parameter", "narrative"]
     assert coordinator._config.max_parameter_iterations == 4
@@ -421,11 +426,7 @@ def test_hierarchical_policy_search_adapter_validates_against_policy_design_api(
 def test_hierarchical_policy_search_adapter_supports_candidate_without_tunable_parameters() -> None:
     adapter = HierarchicalPolicySearchAdapter()
     bundle = _bundle().model_copy(
-        update={
-            "policy_spec": _bundle().policy_spec.model_copy(
-                update={"parameters": []}
-            )
-        }
+        update={"policy_spec": _bundle().policy_spec.model_copy(update={"parameters": []})}
     )
     coordinator = adapter.validate_policy_design_api(bundle)
     result = adapter.run_search(
@@ -523,7 +524,9 @@ def _direct_dynamic_treatment_data() -> DynamicTreatmentData:
     )
 
 
-def test_temporal_intervention_sequence_compiler_runs_three_step_sequence_and_returns_dtr_result(tmp_path) -> None:
+def test_temporal_intervention_sequence_compiler_runs_three_step_sequence_and_returns_dtr_result(
+    tmp_path,
+) -> None:
     compiler = TemporalInterventionSequenceCompiler(store=FileSystemCAS(tmp_path))
 
     result = compiler.compile(
@@ -548,7 +551,9 @@ def test_temporal_intervention_sequence_compiler_runs_three_step_sequence_and_re
     assert result.entry.dynamic_treatment_regime_ref is not None
 
 
-def test_temporal_intervention_sequence_compiler_accepts_direct_dynamic_data_and_method_override(tmp_path) -> None:
+def test_temporal_intervention_sequence_compiler_accepts_direct_dynamic_data_and_method_override(
+    tmp_path,
+) -> None:
     compiler = TemporalInterventionSequenceCompiler(store=FileSystemCAS(tmp_path))
 
     result = compiler.compile(

@@ -6,6 +6,7 @@ measurement trust tiers, schema/regime calendars mark unsafe boundary windows,
 and ``IdentificationModeRouter`` chooses the effective causal identification
 mode for a family or record before readiness checks are assembled.
 """
+
 from __future__ import annotations
 
 import math
@@ -63,7 +64,7 @@ class MeasurementTierRule(KernelModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_rule(self) -> "MeasurementTierRule":
+    def validate_rule(self) -> MeasurementTierRule:
         if self.max_coverage < self.min_coverage:
             raise ValueError("max_coverage must be >= min_coverage")
         return self
@@ -94,9 +95,11 @@ class SchemaChangepoint(KernelModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_changepoint(self) -> "SchemaChangepoint":
+    def validate_changepoint(self) -> SchemaChangepoint:
         if self.from_schema_regime_id is None and self.to_schema_regime_id is None:
-            raise ValueError("SchemaChangepoint must reference from_schema_regime_id or to_schema_regime_id")
+            raise ValueError(
+                "SchemaChangepoint must reference from_schema_regime_id or to_schema_regime_id"
+            )
         return self
 
 
@@ -113,7 +116,7 @@ class SchemaRegimeSpec(KernelModel):
     boundary_buffer_periods: int = Field(default=1, ge=0)
 
     @model_validator(mode="after")
-    def validate_regime(self) -> "SchemaRegimeSpec":
+    def validate_regime(self) -> SchemaRegimeSpec:
         if self.effective_end is not None and self.effective_end < self.effective_start:
             raise ValueError("effective_end must be >= effective_start")
         return self
@@ -135,7 +138,7 @@ class RegimeCalendarEntry(KernelModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_entry(self) -> "RegimeCalendarEntry":
+    def validate_entry(self) -> RegimeCalendarEntry:
         if self.end_date < self.start_date:
             raise ValueError("end_date must be >= start_date")
         return self
@@ -151,7 +154,7 @@ class ShockCalendarEntry(KernelModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_entry(self) -> "ShockCalendarEntry":
+    def validate_entry(self) -> ShockCalendarEntry:
         if self.end_date < self.start_date:
             raise ValueError("end_date must be >= start_date")
         return self
@@ -215,9 +218,15 @@ class ShockCalendar(KernelModel):
     entries: list[ShockCalendarEntry] = Field(default_factory=list)
     boundary_buffer_periods: int = Field(default=1, ge=0)
 
-    def contains(self, *, period_start: date, period_end: date, regime_id: str | None = None) -> bool:
+    def contains(
+        self, *, period_start: date, period_end: date, regime_id: str | None = None
+    ) -> bool:
         for entry in self.entries:
-            if regime_id is not None and entry.affected_regime_ids and regime_id not in entry.affected_regime_ids:
+            if (
+                regime_id is not None
+                and entry.affected_regime_ids
+                and regime_id not in entry.affected_regime_ids
+            ):
                 continue
             if period_start <= entry.end_date and period_end >= entry.start_date:
                 return True
@@ -235,7 +244,11 @@ class ShockCalendar(KernelModel):
             return False
         window = timedelta(days=_buffer_days(time_grain, self.boundary_buffer_periods))
         for entry in self.entries:
-            if regime_id is not None and entry.affected_regime_ids and regime_id not in entry.affected_regime_ids:
+            if (
+                regime_id is not None
+                and entry.affected_regime_ids
+                and regime_id not in entry.affected_regime_ids
+            ):
                 continue
             start_boundary_end = entry.start_date + window
             end_boundary_start = entry.end_date - window
@@ -254,10 +267,12 @@ class SchemaRegimeRegistry(KernelModel):
     changepoints: list[SchemaChangepoint] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_registry(self) -> "SchemaRegimeRegistry":
+    def validate_registry(self) -> SchemaRegimeRegistry:
         for key, spec in self.regimes.items():
             if key != spec.schema_regime_id:
-                raise ValueError(f"schema regime key mismatch: '{key}' != '{spec.schema_regime_id}'")
+                raise ValueError(
+                    f"schema regime key mismatch: '{key}' != '{spec.schema_regime_id}'"
+                )
         return self
 
     def resolve(self, schema_regime_id: str) -> SchemaRegimeSpec | None:
@@ -267,7 +282,8 @@ class SchemaRegimeRegistry(KernelModel):
         return [
             point
             for point in self.changepoints
-            if point.from_schema_regime_id == schema_regime_id or point.to_schema_regime_id == schema_regime_id
+            if point.from_schema_regime_id == schema_regime_id
+            or point.to_schema_regime_id == schema_regime_id
         ]
 
     def is_boundary(
@@ -288,19 +304,24 @@ class SchemaRegimeRegistry(KernelModel):
             if period_start <= spec.effective_end and period_end >= spec.effective_end - window:
                 return True
         for point in self.changepoints_for(schema_regime_id):
-            if period_start <= point.effective_date + window and period_end >= point.effective_date - window:
+            if (
+                period_start <= point.effective_date + window
+                and period_end >= point.effective_date - window
+            ):
                 return True
         return False
 
     @classmethod
-    def default(cls) -> "SchemaRegimeRegistry":
+    def default(cls) -> SchemaRegimeRegistry:
         return cls(
             regimes={
                 "default_schema_v1": SchemaRegimeSpec(
                     schema_regime_id="default_schema_v1",
                     source_version="1.0",
                     effective_start=date(2020, 1, 1),
-                    publication_regime_notes=["Synthetic default schema regime for calibration fixtures."],
+                    publication_regime_notes=[
+                        "Synthetic default schema regime for calibration fixtures."
+                    ],
                 )
             }
         )
@@ -320,7 +341,7 @@ class MeasurementRegistry(KernelModel):
     proxy_mappings: dict[str, ProxyMappingRule] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_registry(self) -> "MeasurementRegistry":
+    def validate_registry(self) -> MeasurementRegistry:
         for tier in MeasurementTrustTier:
             if tier.value not in self.trust_tiers:
                 raise ValueError(f"missing trust tier rule: {tier.value}")
@@ -351,7 +372,10 @@ class MeasurementRegistry(KernelModel):
             The measurement trust tier used by calibration and readiness routing.
         """
         threshold = self.coverage_threshold_for_family(record.family)
-        if record.identification_mode == IdentificationMode.PROXY_IDENTIFIED or record.proxy_source_id:
+        if (
+            record.identification_mode == IdentificationMode.PROXY_IDENTIFIED
+            or record.proxy_source_id
+        ):
             return MeasurementTrustTier.DERIVED_PROXY
         if record.source_confidence_tier == SourceConfidenceTier.EXPLORATORY:
             return MeasurementTrustTier.WEAK_ANCHOR
@@ -392,7 +416,7 @@ class MeasurementRegistry(KernelModel):
         return self.normalize_trust_weight(record.trust_weight, tier=self.tier_for_record(record))
 
     @classmethod
-    def default(cls) -> "MeasurementRegistry":
+    def default(cls) -> MeasurementRegistry:
         """Build the built-in family coverage, tier, and proxy defaults."""
         trust_tiers = {
             MeasurementTrustTier.AUTHORITATIVE_HIGH_COVERAGE.value: MeasurementTierRule(

@@ -5,6 +5,7 @@ that bridge compiled intervention parameters into synthetic `GlobalState`
 updates. Low-level helper functions inside submodules remain internal unless
 explicitly re-exported here.
 """
+
 from .contracts import (
     FirmLifecycleEventBatch,
     FirmLifecycleEventType,

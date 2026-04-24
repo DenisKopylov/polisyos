@@ -31,4 +31,6 @@ def test_phase0_quality_validation_fails_without_block_signal_for_hard_constrain
         hard_constraint_block_signal=False,
     )
     assert report.passed is False
-    assert any(check.name == "hard_constraint_block_signal" and not check.passed for check in report.checks)
+    assert any(
+        check.name == "hard_constraint_block_signal" and not check.passed for check in report.checks
+    )

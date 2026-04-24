@@ -8,6 +8,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class CountryMapping:
     """Country mapping public type."""
+
     iso2: str
     iso3: str
     numeric: str
@@ -21,7 +22,9 @@ _COUNTRIES: tuple[CountryMapping, ...] = (
     CountryMapping("DE", "DEU", "276", "Germany", ("Deutschland",), "Europe"),
     CountryMapping("PL", "POL", "616", "Poland", ("Polska",), "Europe"),
     CountryMapping("RO", "ROU", "642", "Romania", ("Romania", "Romania"), "Europe"),
-    CountryMapping("MD", "MDA", "498", "Moldova", ("Republic of Moldova", "Moldova, Republic of"), "Europe"),
+    CountryMapping(
+        "MD", "MDA", "498", "Moldova", ("Republic of Moldova", "Moldova, Republic of"), "Europe"
+    ),
     CountryMapping("CZ", "CZE", "203", "Czechia", ("Czech Republic", "Cesko"), "Europe"),
     CountryMapping("SK", "SVK", "703", "Slovakia", ("Slovak Republic", "Slovensko"), "Europe"),
     CountryMapping("HU", "HUN", "348", "Hungary", ("Magyarorszag",), "Europe"),
@@ -49,7 +52,9 @@ _COUNTRIES: tuple[CountryMapping, ...] = (
     CountryMapping("PT", "PRT", "620", "Portugal", (), "Europe"),
     CountryMapping("SE", "SWE", "752", "Sweden", ("Sverige",), "Europe"),
     CountryMapping("SI", "SVN", "705", "Slovenia", ("Slovenija",), "Europe"),
-    CountryMapping("GB", "GBR", "826", "United Kingdom", ("UK", "Britain", "Great Britain"), "Europe"),
+    CountryMapping(
+        "GB", "GBR", "826", "United Kingdom", ("UK", "Britain", "Great Britain"), "Europe"
+    ),
 )
 
 _BY_ISO2 = {country.iso2: country for country in _COUNTRIES}

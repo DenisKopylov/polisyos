@@ -1,9 +1,11 @@
 """Public backends dispatcher module API."""
+
 from __future__ import annotations
 
 import threading
+from collections.abc import Callable, Hashable, Iterable, Mapping
 from dataclasses import dataclass
-from typing import Callable, Generic, Hashable, Iterable, Mapping, TypeVar
+from typing import Generic, TypeVar
 
 K = TypeVar("K", bound=Hashable)
 V = TypeVar("V")
@@ -12,6 +14,7 @@ V = TypeVar("V")
 @dataclass(frozen=True)
 class BackendNotAvailableError(RuntimeError, Generic[K]):
     """Backend not available error exception."""
+
     backend: K
     reason: str | None = None
 

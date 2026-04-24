@@ -1,4 +1,5 @@
 """Public migrations base module API."""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -8,8 +9,8 @@ from typing import Any
 
 MigrationFn = Callable[[dict[str, Any]], dict[str, Any]]
 
-_MIGRATIONS: dict[str, dict[str, "MigrationEdge"]] = {}
-_SCHEMA_REGISTRY: dict[str, dict[str, "SchemaCompatibilityRule"]] = {}
+_MIGRATIONS: dict[str, dict[str, MigrationEdge]] = {}
+_SCHEMA_REGISTRY: dict[str, dict[str, SchemaCompatibilityRule]] = {}
 
 
 class MigrationError(ValueError):
@@ -188,6 +189,7 @@ def register_migration(
     compatibility: CompatibilityMode | str = CompatibilityMode.BACKWARD,
 ) -> Callable[[MigrationFn], MigrationFn]:
     """Register migration."""
+
     def decorator(fn: MigrationFn) -> MigrationFn:
         mode = _coerce_compatibility_mode(compatibility)
         _MIGRATIONS.setdefault(artifact, {})[from_version] = MigrationEdge(
@@ -223,8 +225,7 @@ def _apply_migration(
     migrated = fn(data)
     if not isinstance(migrated, dict):
         raise MigrationError(
-            f"Migrator for '{artifact}' from {from_version} to {to_version} "
-            "must return a dict"
+            f"Migrator for '{artifact}' from {from_version} to {to_version} must return a dict"
         )
 
     declared_version = migrated.get("schema_version")

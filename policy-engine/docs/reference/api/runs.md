@@ -1,10 +1,12 @@
 # Runs API
+
 Related explanation: [Architecture](../../explanation/architecture.md).
 
 Freshness: 2026-04-17
 Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/dependencies.py`, and `schemas/runtime_api_v1.openapi.json`
 Validation:
+
 - `uv run pytest -q tests/runtime/http/test_runs_api.py tests/runtime/http/test_timeline_api.py tests/runtime/http/test_runtime_api_authz.py`
 - `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
 
@@ -12,19 +14,19 @@ The runs surface is the read-only operational view over runtime executions. Ever
 
 ## Endpoint Summary
 
-| Method | Path | Response body | Notes |
-|--------|------|---------------|-------|
-| `GET` | `/api/v1/runs` | `RunsListResponse` | Cursor pagination with `limit`, `cursor`, `status`, `from_ts`, `to_ts` |
-| `POST` | `/api/v1/runs/batch` | `RunsBatchResponse` | Bulk read helper for dashboards and operator tools |
-| `GET` | `/api/v1/runs/{run_id}` | `RunDetailsResponse` | Full details for a single run |
-| `GET` | `/api/v1/runs/{run_id}/timeline` | `RunTimelineResponse` | Timeline events and summary |
-| `GET` | `/api/v1/runs/{run_id}/nodes` | `RunNodesResponse` | Node execution records |
-| `GET` | `/api/v1/runs/{run_id}/lineage` | `RunLineageResponse` | Artifact lineage graph |
-| `GET` | `/api/v1/runs/{run_id}/agents` | `AgentPipelineResponse` | Agent attempts, steps, scoring |
-| `GET` | `/api/v1/runs/{run_id}/evidence-context` | `RunEvidenceContextResponse` | Evidence bundle and context resolution |
-| `GET` | `/api/v1/runs/{run_id}/workflow` | `RunWorkflowResponse` | Workflow/DAG view |
-| `GET` | `/api/v1/runs/live` | `text/event-stream` | Route-only, schema-hidden global live stream |
-| `GET` | `/api/v1/runs/{run_id}/live` | `text/event-stream` | Route-only, schema-hidden per-run live stream |
+| Method | Path                                     | Response body                | Notes                                                                  |
+| ------ | ---------------------------------------- | ---------------------------- | ---------------------------------------------------------------------- |
+| `GET`  | `/api/v1/runs`                           | `RunsListResponse`           | Cursor pagination with `limit`, `cursor`, `status`, `from_ts`, `to_ts` |
+| `POST` | `/api/v1/runs/batch`                     | `RunsBatchResponse`          | Bulk read helper for dashboards and operator tools                     |
+| `GET`  | `/api/v1/runs/{run_id}`                  | `RunDetailsResponse`         | Full details for a single run                                          |
+| `GET`  | `/api/v1/runs/{run_id}/timeline`         | `RunTimelineResponse`        | Timeline events and summary                                            |
+| `GET`  | `/api/v1/runs/{run_id}/nodes`            | `RunNodesResponse`           | Node execution records                                                 |
+| `GET`  | `/api/v1/runs/{run_id}/lineage`          | `RunLineageResponse`         | Artifact lineage graph                                                 |
+| `GET`  | `/api/v1/runs/{run_id}/agents`           | `AgentPipelineResponse`      | Agent attempts, steps, scoring                                         |
+| `GET`  | `/api/v1/runs/{run_id}/evidence-context` | `RunEvidenceContextResponse` | Evidence bundle and context resolution                                 |
+| `GET`  | `/api/v1/runs/{run_id}/workflow`         | `RunWorkflowResponse`        | Workflow/DAG view                                                      |
+| `GET`  | `/api/v1/runs/live`                      | `text/event-stream`          | Route-only, schema-hidden global live stream                           |
+| `GET`  | `/api/v1/runs/{run_id}/live`             | `text/event-stream`          | Route-only, schema-hidden per-run live stream                          |
 
 Common status codes for committed endpoints: `200`, `400`, `401`, `403`, `404`, `422`, `500`.
 

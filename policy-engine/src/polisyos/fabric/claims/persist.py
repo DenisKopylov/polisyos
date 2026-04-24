@@ -1,4 +1,5 @@
 """Public claims persist module API."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -87,9 +88,7 @@ def persist_claim_set(
     """Persist claim set helper."""
     input_refs: list[InputRef] = []
     for role, artifact_id in inputs or []:
-        input_refs.append(
-            InputRef(artifact_id=ArtifactID.model_validate(artifact_id), role=role)
-        )
+        input_refs.append(InputRef(artifact_id=ArtifactID.model_validate(artifact_id), role=role))
     ref = cas.put_json(
         payload,
         opts=PutOptions(

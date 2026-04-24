@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from decimal import Decimal
 from enum import Enum
-from typing import Any, Iterable, Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -41,6 +42,7 @@ from polisyos.scientist.engine.budget import BudgetState
 # module-level cold-start time below the 15 s CI threshold.
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+from polisyos.scientist.policy_design.phase3 import Phase3CertificateStatus
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from polisyos.scientist.replay.verification import (
     ReplayVerificationReport,
@@ -60,7 +62,6 @@ from polisyos.scientist.search.judge_passes import (
 from polisyos.scientist.search.judge_thresholds import (
     JudgeThresholdEntry,
     JudgeThresholdRegistry,
-    JudgeThresholdSnapshot,
     ResolvedThresholdSet,
     ThresholdViolation,
     _check_threshold_violation,
@@ -89,6 +90,7 @@ JUDGE_VERDICT_SCHEMA_NAME = "polisyos.scientist.search.JudgeVerdict"
 
 class JudgeName(str, Enum):
     """Judge name public type."""
+
     STRUCTURAL = "structural"
     STATISTICAL = "statistical"
     ROBUSTNESS = "robustness"
@@ -130,9 +132,7 @@ class JudgeVerdict(BaseModel):
 
     @property
     def is_promotable(self) -> bool:
-        fatal_ok = all(
-            verdict.passed for verdict in self.per_judge.values() if verdict.is_fatal
-        )
+        fatal_ok = all(verdict.passed for verdict in self.per_judge.values() if verdict.is_fatal)
         return fatal_ok and self.composite_decision == "promote"
 
 
@@ -216,6 +216,7 @@ class JudgeInputBundle(BaseModel):
     evaluation_promotable_source: bool = True
     evaluation_degradation_mode: str | None = None
     evaluation_provenance_notes: list[str] = Field(default_factory=list)
+    phase3_gate: Phase3CertificateStatus | None = None
 
     def resolved_trinity_bundle(self) -> TrinityBundle:
         return self.trinity_bundle or self.candidate.trinity_bundle
@@ -416,9 +417,7 @@ class JudgeStack:
                 blocking_failures.append(verdict.failure_card)
             warnings.extend(verdict.warnings)
 
-        if any(
-            card.failure_type == "human_gate_required" for card in blocking_failures + warnings
-        ):
+        if any(card.failure_type == "human_gate_required" for card in blocking_failures + warnings):
             composite = "defer_to_human"
         elif any(not verdict.passed and verdict.is_fatal for verdict in per_judge.values()):
             composite = "reject"
@@ -707,7 +706,10 @@ class JudgeStack:
                 status = str(dp_summary.get("effective_status") or "").strip().lower()
                 if status:
                     metrics["dp_release_identified"] = 1.0 if status == "identified" else 0.0
-            if bundle.effective_claim_mode() in {"bounds", "estimation"} and report.decision in {"block", "unknown"}:
+            if bundle.effective_claim_mode() in {"bounds", "estimation"} and report.decision in {
+                "block",
+                "unknown",
+            }:
                 cards.append(
                     TypedFailureCard(
                         judge_name=JudgeName.STATISTICAL.value,
@@ -720,13 +722,11 @@ class JudgeStack:
                         ),
                         severity=FailureSeverity.BLOCKER,
                         description=(
-                            (
-                                "Data readiness is blocked by DP robustness constraints."
-                                if dp_summary is not None
-                                and str(dp_summary.get("effective_status") or "").strip().lower()
-                                in {"blocked", "unidentifiable"}
-                                else f"Data readiness decision '{report.decision}' is not promotion-safe."
-                            )
+                            "Data readiness is blocked by DP robustness constraints."
+                            if dp_summary is not None
+                            and str(dp_summary.get("effective_status") or "").strip().lower()
+                            in {"blocked", "unidentifiable"}
+                            else f"Data readiness decision '{report.decision}' is not promotion-safe."
                         ),
                         uncertainty_type=UncertaintyType.STATISTICAL,
                         metadata={
@@ -736,7 +736,10 @@ class JudgeStack:
                         },
                     )
                 )
-            elif bundle.effective_claim_mode() in {"bounds", "estimation"} and report.decision == "warn":
+            elif (
+                bundle.effective_claim_mode() in {"bounds", "estimation"}
+                and report.decision == "warn"
+            ):
                 warnings.append(
                     TypedFailureCard(
                         judge_name=JudgeName.STATISTICAL.value,
@@ -779,7 +782,10 @@ class JudgeStack:
                 metrics["selection_sample_count"] = float(
                     benchmark.sample_count(split=benchmark_split("selection"))
                 )
-            if benchmark is not None and benchmark.sample_count(split=benchmark_split("selection")) <= 0:
+            if (
+                benchmark is not None
+                and benchmark.sample_count(split=benchmark_split("selection")) <= 0
+            ):
                 cards.append(
                     TypedFailureCard(
                         judge_name=JudgeName.STATISTICAL.value,
@@ -879,9 +885,7 @@ class JudgeStack:
                         )
             else:
                 pass_context = bundle.build_pass_context({"transportability_required"})
-                transportability_required_pass_type = (
-                    load_transportability_required_pass_type()
-                )
+                transportability_required_pass_type = load_transportability_required_pass_type()
                 for issue in transportability_required_pass_type().validate(pass_context):
                     card = compliance_issue_to_failure_card(
                         issue,
@@ -985,14 +989,20 @@ class JudgeStack:
                 )
 
         if isinstance(bundle.latent_discovery_resolution_error, dict):
-            error_code = str(
-                bundle.latent_discovery_resolution_error.get("error_code")
+            error_code = (
+                str(
+                    bundle.latent_discovery_resolution_error.get("error_code")
+                    or "latent_discovery_bundle_unreadable"
+                ).strip()
                 or "latent_discovery_bundle_unreadable"
-            ).strip() or "latent_discovery_bundle_unreadable"
-            error_message = str(
-                bundle.latent_discovery_resolution_error.get("error_message")
+            )
+            error_message = (
+                str(
+                    bundle.latent_discovery_resolution_error.get("error_message")
+                    or "Latent discovery bundle could not be loaded."
+                ).strip()
                 or "Latent discovery bundle could not be loaded."
-            ).strip() or "Latent discovery bundle could not be loaded."
+            )
             cards.append(
                 TypedFailureCard(
                     judge_name=JudgeName.GOVERNANCE.value,
@@ -1032,7 +1042,10 @@ class JudgeStack:
                         metadata={"missing_requirements": latent_governance.missing_requirements},
                     )
                 )
-            elif latent_governance.promotion_allowed and not latent_governance.not_for_decision_support:
+            elif (
+                latent_governance.promotion_allowed
+                and not latent_governance.not_for_decision_support
+            ):
                 warnings.append(
                     TypedFailureCard(
                         judge_name=JudgeName.GOVERNANCE.value,
@@ -1168,7 +1181,10 @@ class JudgeStack:
                 bundle.replay_verification_ref,
             )
 
-        if bundle.effective_claim_mode() in {"bounds", "estimation"} and verification_report is None:
+        if (
+            bundle.effective_claim_mode() in {"bounds", "estimation"}
+            and verification_report is None
+        ):
             cards.append(
                 TypedFailureCard(
                     judge_name=JudgeName.REPRODUCIBILITY.value,
@@ -1182,11 +1198,9 @@ class JudgeStack:
         elif verification_report is not None:
             metrics["replay_match"] = float(verification_report.overall_similarity)
             metrics["replay_complete"] = 1.0 if verification_report.is_complete else 0.0
-            if (
-                bundle.effective_claim_mode() in {"bounds", "estimation"}
-                and str(verification_report.verification_mode).strip().lower()
-                in {"bundle_integrity", "artifact_snapshot", "skip"}
-            ):
+            if bundle.effective_claim_mode() in {"bounds", "estimation"} and str(
+                verification_report.verification_mode
+            ).strip().lower() in {"bundle_integrity", "artifact_snapshot", "skip"}:
                 cards.append(
                     TypedFailureCard(
                         judge_name=JudgeName.REPRODUCIBILITY.value,
@@ -1311,11 +1325,10 @@ class JudgeStack:
                     )
                 )
 
-        if (
-            bundle.expected_improvement is not None
-            and bundle.compute_cost_usd not in {None, 0.0}
-        ):
-            cost_efficiency = bundle.expected_improvement / max(bundle.compute_cost_usd or 0.0, 1e-9)
+        if bundle.expected_improvement is not None and bundle.compute_cost_usd not in {None, 0.0}:
+            cost_efficiency = bundle.expected_improvement / max(
+                bundle.compute_cost_usd or 0.0, 1e-9
+            )
             metrics["cost_efficiency"] = float(cost_efficiency)
             violation = _check_threshold_violation(
                 resolved,
@@ -1390,9 +1403,7 @@ class PolicyPromotionCoordinator:
         self._champion_registry = champion_registry
         self._store = store
         self._judge_stack = judge_stack or JudgeStack(store=store)
-        self._readiness_evaluator = readiness_evaluator or DecisionReadinessEvaluator(
-            store=store
-        )
+        self._readiness_evaluator = readiness_evaluator or DecisionReadinessEvaluator(store=store)
 
     def build_input_bundle(
         self,
@@ -1441,6 +1452,7 @@ class PolicyPromotionCoordinator:
         evaluation_promotable_source: bool = True,
         evaluation_degradation_mode: str | None = None,
         evaluation_provenance_notes: list[str] | None = None,
+        phase3_gate: Phase3CertificateStatus | None = None,
     ) -> JudgeInputBundle:
         return JudgeInputBundle(
             candidate=candidate,
@@ -1491,6 +1503,7 @@ class PolicyPromotionCoordinator:
             evaluation_promotable_source=evaluation_promotable_source,
             evaluation_degradation_mode=evaluation_degradation_mode,
             evaluation_provenance_notes=list(evaluation_provenance_notes or []),
+            phase3_gate=phase3_gate,
         )
 
     def coordinate_promotion(
@@ -1514,7 +1527,9 @@ class PolicyPromotionCoordinator:
             update={"data_readiness_report_ref": data_readiness_report_ref}
         )
         judge_verdict = self._judge_stack.evaluate(
-            judge_input.model_copy(update={"candidate_ref": candidate_ref, "evaluation_ref": evaluation_ref}),
+            judge_input.model_copy(
+                update={"candidate_ref": candidate_ref, "evaluation_ref": evaluation_ref}
+            ),
             active_judges=active_judges,
         )
         judge_verdict_ref = persist_judge_verdict(
@@ -1555,6 +1570,11 @@ class PolicyPromotionCoordinator:
                 "promotable_source": judge_input.evaluation_promotable_source,
                 "degradation_mode": judge_input.effective_evaluation_degradation_mode(),
                 "notes": list(judge_input.evaluation_provenance_notes),
+                "phase3_gate": (
+                    None
+                    if judge_input.phase3_gate is None
+                    else judge_input.phase3_gate.model_dump(mode="json")
+                ),
                 "phase2_closure": (
                     None if judge_input.phase2_closure is None else dict(judge_input.phase2_closure)
                 ),
@@ -1574,6 +1594,7 @@ class PolicyPromotionCoordinator:
                 ),
             },
             claim_mode=judge_input.effective_claim_mode(),
+            phase3_gate=judge_input.phase3_gate,
         )
         readiness_ref = persist_decision_readiness_contract(
             self._store,
@@ -1675,7 +1696,10 @@ class PolicyPromotionCoordinator:
         frontier_position = str(judge_input.state.get("current_pareto_position", "unknown"))
         cheap_signal = None
         fidelity_level = 4
-        if judge_input.funnel_outcome is not None and judge_input.funnel_outcome.final_result is not None:
+        if (
+            judge_input.funnel_outcome is not None
+            and judge_input.funnel_outcome.final_result is not None
+        ):
             cheap_signal = judge_input.funnel_outcome.final_result.cheap_signal
             fidelity_level = judge_input.funnel_outcome.final_result.fidelity_level
         scheduler.observe_promotion_outcome(
@@ -1807,9 +1831,7 @@ def _benchmark_runtime_split_card(
             judge_name=JudgeName.ROBUSTNESS.value,
             failure_type="benchmark_split_type_mismatch",
             severity=FailureSeverity.BLOCKER,
-            description=(
-                "Selection benchmark evaluation must declare runtime split 'selection'."
-            ),
+            description=("Selection benchmark evaluation must declare runtime split 'selection'."),
             uncertainty_type=UncertaintyType.MODEL,
             metadata={
                 "observed_split": selection.resolved_runtime_split_type().value,
@@ -1824,8 +1846,7 @@ def _benchmark_runtime_split_card(
             failure_type="benchmark_split_type_mismatch",
             severity=FailureSeverity.BLOCKER,
             description=(
-                "Hidden holdout benchmark evaluation must declare runtime split "
-                "'hidden_holdout'."
+                "Hidden holdout benchmark evaluation must declare runtime split 'hidden_holdout'."
             ),
             uncertainty_type=UncertaintyType.MODEL,
             metadata={
@@ -1877,9 +1898,7 @@ def _hidden_holdout_degradation_card_with_threshold(
         uncertainty_type=UncertaintyType.MODEL,
         metric_name="hidden_holdout_degradation",
         observed_value=delta,
-        threshold_value=(
-            violation.threshold_value if violation is not None else 0.10
-        ),
+        threshold_value=(violation.threshold_value if violation is not None else 0.10),
         threshold_direction="max",
         metadata={
             "selection_metric_name": metric,
@@ -1927,7 +1946,9 @@ def _judge_result(
     metrics = dict(metrics or {})
     thresholds = {
         name: float(entry.threshold_value)
-        for name, entry in (resolved_thresholds.entries.items() if resolved_thresholds is not None else [])
+        for name, entry in (
+            resolved_thresholds.entries.items() if resolved_thresholds is not None else []
+        )
     }
     violations = [
         violation.metric_name
@@ -2055,9 +2076,7 @@ def _resolve_dp_consumer_summary(
     if summary is not None:
         return summary
 
-    summary = _coerce_dp_summary(
-        getattr(bundle.data_readiness_report, "dp_distortion", None)
-    )
+    summary = _coerce_dp_summary(getattr(bundle.data_readiness_report, "dp_distortion", None))
     if summary is not None:
         return summary
 
@@ -2200,6 +2219,7 @@ def _attach_policy_metadata(
     updated = champion.model_copy(update={"metadata": metadata})
     registry.write_pointer(loop_id, updated)
     return updated
+
 
 def _threshold_failure_card(
     *,

@@ -1,4 +1,5 @@
 """Tests for RedisRunLock using mocked Redis client."""
+
 from __future__ import annotations
 
 import json

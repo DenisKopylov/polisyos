@@ -170,7 +170,9 @@ def test_mobility_report_v2_round_trips_with_typed_blocks(tmp_path) -> None:
     assert loaded.artifact_name == "mobility_report_v2.json"
     assert loaded.point_estimate.transition_matrix[1][1] == pytest.approx(0.8)
     assert loaded.summary_metrics["upward_mobility_rate"] == pytest.approx(0.25)
-    assert loaded.sensitivity_envelope["summary_bounds"]["upward_rate"] == pytest.approx((0.20, 0.35))
+    assert loaded.sensitivity_envelope["summary_bounds"]["upward_rate"] == pytest.approx(
+        (0.20, 0.35)
+    )
 
 
 def test_legacy_mobility_payload_is_upgraded_to_phase2_views() -> None:

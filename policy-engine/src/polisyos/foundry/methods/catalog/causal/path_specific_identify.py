@@ -15,6 +15,7 @@ The implementation is conservative but production-oriented:
 - falls back to support-implied bounds when exact identification is blocked
   and a bounded outcome support is declared.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -176,10 +177,9 @@ def _relevant_subgraph(
         }
     )
     ancestral = ancestors(graph, frozenset({outcome, *conditioning_nodes})) | path_nodes
-    descendants_from_sources = (
-        descendants(graph, frozenset({treatment, *conditioning_nodes}))
-        | frozenset({treatment, *conditioning_nodes})
-    )
+    descendants_from_sources = descendants(
+        graph, frozenset({treatment, *conditioning_nodes})
+    ) | frozenset({treatment, *conditioning_nodes})
     relevant = tuple(sorted((ancestral & descendants_from_sources) | path_nodes))
     subgraph = induced_subgraph(graph, frozenset(relevant))
     return subgraph, tuple(sorted(ancestral)), relevant
@@ -201,9 +201,7 @@ def _conditioning_witnesses(
             witnesses.append(
                 PathSpecificWitness(
                     kind=PathSpecificWitnessKind.UNSUPPORTED_CONDITIONING,
-                    detail=(
-                        f"Conditioning variable {variable} is not present in the graph."
-                    ),
+                    detail=(f"Conditioning variable {variable} is not present in the graph."),
                     variables=(variable,),
                     metadata={"reason": "missing_from_graph"},
                 )
@@ -294,13 +292,8 @@ def _district_factor_plan(
     frontier: tuple[tuple[str, str, Literal["active", "frozen"]], ...],
     node_labels: dict[str, set[str]],
 ) -> PathSpecificDistrictFactor:
-    frontier_assignments = tuple(
-        sorted(item for item in frontier if item[1] in district)
-    )
-    labels = {
-        assignment[2]
-        for assignment in frontier_assignments
-    }
+    frontier_assignments = tuple(sorted(item for item in frontier if item[1] in district))
+    labels = {assignment[2] for assignment in frontier_assignments}
     labels.update(label for node in district for label in node_labels.get(node, ()))
     if "active" in labels and "frozen" in labels:
         district_label = PathSpecificDistrictLabel.MIXED
@@ -339,22 +332,12 @@ def _recanting_witnesses(
             witnesses.append(
                 PathSpecificWitness(
                     kind=PathSpecificWitnessKind.RECANTING_WITNESS,
-                    detail=(
-                        f"Node {node} lies on both active and frozen treatment paths."
-                    ),
+                    detail=(f"Node {node} lies on both active and frozen treatment paths."),
                     variables=(node,),
                 )
             )
-    active_internal = {
-        node
-        for path in query.active_paths
-        for node in path[1:-1]
-    }
-    frozen_internal = {
-        node
-        for path in query.fixed_paths
-        for node in path[1:-1]
-    }
+    active_internal = {node for path in query.active_paths for node in path[1:-1]}
+    frozen_internal = {node for path in query.fixed_paths for node in path[1:-1]}
     for node in sorted(active_internal | frozen_internal):
         active_bypass = bool(query.fixed_paths) and any(
             node not in path[1:-1] for path in query.fixed_paths
@@ -372,8 +355,7 @@ def _recanting_witnesses(
                 forbidden=node,
             )
             and not any(
-                item.kind is PathSpecificWitnessKind.RECANTING_WITNESS
-                and item.variables == (node,)
+                item.kind is PathSpecificWitnessKind.RECANTING_WITNESS and item.variables == (node,)
                 for item in witnesses
             )
         ):
@@ -398,8 +380,7 @@ def _recanting_witnesses(
                 forbidden=node,
             )
             and not any(
-                item.kind is PathSpecificWitnessKind.RECANTING_WITNESS
-                and item.variables == (node,)
+                item.kind is PathSpecificWitnessKind.RECANTING_WITNESS and item.variables == (node,)
                 for item in witnesses
             )
         ):
@@ -415,11 +396,7 @@ def _recanting_witnesses(
                 )
             )
     for district in district_partition:
-        district_labels = {
-            label
-            for node in district
-            for label in node_labels.get(node, set())
-        }
+        district_labels = {label for node in district for label in node_labels.get(node, set())}
         if len(district) > 1 and {"active", "frozen"}.issubset(district_labels):
             witnesses.append(
                 PathSpecificWitness(
@@ -489,9 +466,7 @@ def _compiled_ast(
                         source=src,
                         target=dst,
                         value_expr=(
-                            "active_treatment"
-                            if label == "active"
-                            else "reference_treatment"
+                            "active_treatment" if label == "active" else "reference_treatment"
                         ),
                     )
                     for src, dst, label in factor.frontier_assignments
@@ -508,11 +483,7 @@ def _compiled_ast(
     else:
         root = ProductNode(factors=tuple(factor_nodes))
     sum_vars = tuple(
-        sorted(
-            node
-            for node in relevant_nodes
-            if node not in {treatment, outcome, *conditioning}
-        )
+        sorted(node for node in relevant_nodes if node not in {treatment, outcome, *conditioning})
     )
     if sum_vars:
         root = SumNode(summation_vars=sum_vars, operand=root)
@@ -635,15 +606,11 @@ def identify_path_specific(
             witnesses=(
                 PathSpecificWitness(
                     kind=PathSpecificWitnessKind.UNSUPPORTED_GRAPH_SEMANTICS,
-                    detail=(
-                        "Path-specific proof backend currently supports only DAG/ADMG inputs."
-                    ),
+                    detail=("Path-specific proof backend currently supports only DAG/ADMG inputs."),
                     metadata={"graph_type": graph.graph_type.value},
                 ),
             ),
-            proof_trace=(
-                "path_id_scale: rejected graph outside DAG/ADMG coverage",
-            ),
+            proof_trace=("path_id_scale: rejected graph outside DAG/ADMG coverage",),
             constructive_message=(
                 "Reduce the query to a DAG/ADMG view or use a counterfactual backend "
                 "with explicit support for the graph class."
@@ -714,9 +681,7 @@ def identify_path_specific(
         outcome=outcome,
         query=query,
     )
-    proof_trace.append(
-        "path_id_scale: restricted to ancestral path-relevant ADMG subgraph"
-    )
+    proof_trace.append("path_id_scale: restricted to ancestral path-relevant ADMG subgraph")
     frontier = _frontier_assignments(query)
     district_partition = tuple(tuple(sorted(item)) for item in districts(subgraph))
     parents_by_node = _directed_parents_by_node(subgraph)
@@ -924,9 +889,7 @@ def identify_path_specific(
                     ),
                     "experimental_binding_status": (
                         "single_ref_bound"
-                        if _surrogate_experimental_ref(
-                            available_experimental_distributions
-                        )
+                        if _surrogate_experimental_ref(available_experimental_distributions)
                         is not None
                         else "unbound_required"
                     ),

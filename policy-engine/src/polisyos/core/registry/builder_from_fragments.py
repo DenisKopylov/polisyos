@@ -1,4 +1,5 @@
 """Public registry builder from fragments module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -42,6 +43,7 @@ logger = get_logger(__name__)
 @dataclass(frozen=True, slots=True)
 class FragmentPrecedencePolicy:
     """Fragment precedence policy data model."""
+
     core_priority: int = 10
     pack_priority: int = 100
     dev_override_priority: int = 1000

@@ -1,4 +1,5 @@
 """Public backtesting plan module API."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -9,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 class MaskingStrategy(str, Enum):
     """How temporal backtests hide post-intervention observations from the evaluator."""
+
     DROP_POST = "drop_post"
     REPLACE_NAN = "replace_nan"
     TRUNCATE = "truncate"
@@ -16,6 +18,7 @@ class MaskingStrategy(str, Enum):
 
 class PredictionSource(str, Enum):
     """Prediction source public type."""
+
     PROVIDED = "provided"
     SCIENTIST = "scientist"
     NAIVE = "naive"
@@ -57,7 +60,7 @@ class HistoricalValidationPlan(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_plan(self) -> "HistoricalValidationPlan":
+    def _validate_plan(self) -> HistoricalValidationPlan:
         if self.historical_data_ref is None and self.historical_data_path is None:
             raise ValueError("Either historical_data_ref or historical_data_path is required")
         if not self.ground_truth_outcomes:

@@ -1,4 +1,5 @@
 """Public kernel time semantics module API."""
+
 from __future__ import annotations
 
 import calendar
@@ -23,6 +24,7 @@ def _add_months(value: date, months: int) -> date:
 
 class TimeSemantics(KernelModel):
     """Time semantics public type."""
+
     frequency: TimeFrequency
     start_date: str
     step_count: int | None = Field(None, ge=1)
@@ -30,7 +32,7 @@ class TimeSemantics(KernelModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_dates(self) -> "TimeSemantics":
+    def validate_dates(self) -> TimeSemantics:
         start = _parse_date(self.start_date)
         if self.end_date:
             end = _parse_date(self.end_date)

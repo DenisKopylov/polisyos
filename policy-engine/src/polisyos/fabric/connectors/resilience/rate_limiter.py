@@ -7,6 +7,7 @@ Implements adaptive rate limiting with:
 - Adaptive rate adjustment (AIMD algorithm)
 - Thread-safe for concurrent async contexts
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -391,6 +392,7 @@ def with_rate_limit(
     """
     Decorator to add rate limiting to async functions.
     """
+
     def decorator(func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
         limiters = BoundedResourceRegistry[RateLimiter]()
 
@@ -399,12 +401,12 @@ def with_rate_limit(
             for key in ("handle", "connection", "connection_handle"):
                 handle = kwargs.get(key)
                 if handle is not None and hasattr(handle, "connector_id"):
-                    connector_id = getattr(handle, "connector_id")
+                    connector_id = handle.connector_id
                     break
             if connector_id is None:
                 for arg in args:
                     if hasattr(arg, "connector_id"):
-                        connector_id = getattr(arg, "connector_id")
+                        connector_id = arg.connector_id
                         break
 
             domain = None
@@ -439,16 +441,16 @@ def with_rate_limit(
             return cast(
                 "RateLimiter",
                 limiters.get_or_create(
-                limiter_id,
-                lambda: (
-                    AdaptiveRateLimiter(
-                        initial_rate_rps=rate_limit_rps,
-                        config=RateLimiterConfig(rate_limit_rps=rate_limit_rps),
-                        limiter_id=limiter_id,
-                    )
-                    if adaptive
-                    else RateLimiter(rate_limit_rps=rate_limit_rps, limiter_id=limiter_id)
-                ),
+                    limiter_id,
+                    lambda: (
+                        AdaptiveRateLimiter(
+                            initial_rate_rps=rate_limit_rps,
+                            config=RateLimiterConfig(rate_limit_rps=rate_limit_rps),
+                            limiter_id=limiter_id,
+                        )
+                        if adaptive
+                        else RateLimiter(rate_limit_rps=rate_limit_rps, limiter_id=limiter_id)
+                    ),
                 ),
             )
 

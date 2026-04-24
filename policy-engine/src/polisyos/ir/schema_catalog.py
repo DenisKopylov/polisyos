@@ -1,4 +1,5 @@
 """Unified reflection catalog for IR contracts, facades, and schema snapshots."""
+
 from __future__ import annotations
 
 import dataclasses
@@ -10,7 +11,7 @@ from dataclasses import dataclass
 from enum import Enum
 from functools import lru_cache
 from pathlib import PurePosixPath
-from typing import Any, ForwardRef, get_args, get_origin
+from typing import Annotated, Any, ForwardRef, get_args, get_origin
 
 from pydantic import BaseModel, RootModel
 
@@ -27,9 +28,11 @@ except ImportError:  # pragma: no cover
         del filters, include_deprecated
         return ()
 
+
 from polisyos.ir.migrations.base import CompatibilityMode, get_schema_rule
 
 _IR_PACKAGE = "polisyos.ir"
+_MEMORY_ADDRESS_RE = re.compile(r" at 0x[0-9A-Fa-f]+")
 _SECTION_ORDER = (
     "analytics",
     "artifacts",
@@ -160,9 +163,7 @@ class IRSchemaCatalog:
         items = self.types
         if public_only:
             items = tuple(
-                entry
-                for entry in items
-                if entry.public_status is not IRPublicStatus.INTERNAL
+                entry for entry in items if entry.public_status is not IRPublicStatus.INTERNAL
             )
         if section is not None:
             items = tuple(entry for entry in items if entry.section == section)
@@ -335,10 +336,7 @@ def _build_type_info(
     fields = _fields_for(obj)
     refs = tuple(sorted({ref for field in fields for ref in field.references}))
     exported_from = tuple(
-        sorted(
-            f"{package}:{export_name}" if package != _IR_PACKAGE else f"{package}:{export_name}"
-            for package, export_name in export_map.get(fqn, set())
-        )
+        sorted(f"{package}:{export_name}" for package, export_name in export_map.get(fqn, set()))
     )
     public_status = _public_status_for(exported_from, abi_entry)
     schema_version = _schema_version_for(obj, abi_entry)
@@ -474,22 +472,26 @@ def _fields_for(obj: type[Any]) -> tuple[IRFieldInfo, ...]:
 def _default_repr(value: Any) -> str | None:
     if value is None or repr(value) == "PydanticUndefined":
         return None
-    return repr(value)
+    return _stable_repr(value)
 
 
 def _dataclass_default_repr(field: dataclasses.Field[Any]) -> str | None:
     if field.default is not dataclasses.MISSING:
-        return repr(field.default)
+        return _stable_repr(field.default)
     if field.default_factory is not dataclasses.MISSING:  # type: ignore[comparison-overlap]
         return f"{field.default_factory.__name__}()"
     return None
+
+
+def _stable_repr(value: Any) -> str:
+    return _MEMORY_ADDRESS_RE.sub("", repr(value))
 
 
 def _format_annotation(annotation: Any) -> str:
     if annotation is None:
         return "None"
     if isinstance(annotation, str):
-        return annotation
+        return _MEMORY_ADDRESS_RE.sub("", annotation)
     if isinstance(annotation, ForwardRef):
         return annotation.__forward_arg__
     origin = get_origin(annotation)
@@ -503,10 +505,10 @@ def _format_annotation(annotation: Any) -> str:
             if module.startswith(_IR_PACKAGE):
                 return f"{module}.{annotation.__qualname__}"
             return annotation.__qualname__
-        return repr(annotation).replace("typing.", "")
+        return _MEMORY_ADDRESS_RE.sub("", repr(annotation).replace("typing.", ""))
 
     args = tuple(arg for arg in get_args(annotation) if arg is not Ellipsis)
-    if str(origin).endswith("Annotated"):
+    if origin is Annotated or getattr(origin, "__qualname__", "") == "Annotated":
         return _format_annotation(args[0]) if args else "Any"
     if origin in {list, set, tuple, frozenset}:
         label = origin.__name__

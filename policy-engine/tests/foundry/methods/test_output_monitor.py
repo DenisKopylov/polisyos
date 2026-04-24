@@ -1,9 +1,8 @@
 """
 Tests for MethodOutputMonitor — anomaly detection on pure_step outputs.
 """
-from __future__ import annotations
 
-import warnings
+from __future__ import annotations
 
 import numpy as np
 import pytest
@@ -15,10 +14,10 @@ from polisyos.foundry.methods.output_monitor import (
     get_output_monitor,
 )
 
-
 # ---------------------------------------------------------------------------
 # AnomalyFlag
 # ---------------------------------------------------------------------------
+
 
 class TestAnomalyFlag:
     def test_str_includes_reason_and_severity(self):
@@ -45,6 +44,7 @@ class TestAnomalyFlag:
 # ---------------------------------------------------------------------------
 # check_basic — NaN / Inf detection
 # ---------------------------------------------------------------------------
+
 
 class TestCheckBasicNanInf:
     def setup_method(self):
@@ -105,6 +105,7 @@ class TestCheckBasicNanInf:
 # check_basic — key mismatch
 # ---------------------------------------------------------------------------
 
+
 class TestCheckBasicKeyMismatch:
     def setup_method(self):
         self.monitor = MethodOutputMonitor()
@@ -133,6 +134,7 @@ class TestCheckBasicKeyMismatch:
 # ---------------------------------------------------------------------------
 # check_statistical
 # ---------------------------------------------------------------------------
+
 
 class TestCheckStatistical:
     def setup_method(self):
@@ -177,6 +179,7 @@ class TestCheckStatistical:
 # Singleton
 # ---------------------------------------------------------------------------
 
+
 class TestSingleton:
     def test_get_output_monitor_returns_same_instance(self):
         m1 = get_output_monitor()
@@ -190,6 +193,7 @@ class TestSingleton:
 # ---------------------------------------------------------------------------
 # _try_as_array helper
 # ---------------------------------------------------------------------------
+
 
 class TestTryAsArray:
     def test_ndarray_passthrough(self):

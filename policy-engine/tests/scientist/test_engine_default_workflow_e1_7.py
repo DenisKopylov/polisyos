@@ -14,12 +14,14 @@ from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
-from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.workflows.builder import run_default_workflow
 
 
-def _put_data_snapshot(store: FileSystemCAS, state_snapshot_ref: StateSnapshotRef) -> DataSnapshotRef:
+def _put_data_snapshot(
+    store: FileSystemCAS, state_snapshot_ref: StateSnapshotRef
+) -> DataSnapshotRef:
     snapshot = DataSnapshot(data_ref=state_snapshot_ref)
     ref = store.put_json(
         snapshot,

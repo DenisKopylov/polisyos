@@ -26,7 +26,12 @@ class _FakeClient:
                     "open_access": {"is_oa": i % 2 == 0},
                     "has_fulltext": i % 4 == 0,
                     "authorships": [{"author": {"id": f"https://openalex.org/A{i % 50}"}}],
-                    "primary_location": {"source": {"id": f"https://openalex.org/S{i % 40}", "display_name": f"Journal {i % 40}"}},
+                    "primary_location": {
+                        "source": {
+                            "id": f"https://openalex.org/S{i % 40}",
+                            "display_name": f"Journal {i % 40}",
+                        }
+                    },
                 }
             )
         return {"results": rows, "meta": {"count": len(rows)}}

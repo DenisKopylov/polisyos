@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
@@ -18,8 +19,8 @@ from polisyos.core.contracts.trinity import PolicySpecRef
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.world.materialize import materialize_world_duckdb_from_fact_log
 from polisyos.ir.citations import CitationRef, DocumentRef
-from polisyos.ir.norm_pack import NormPack, NormRef, NormRule, RuleType
 from polisyos.ir.governance.policy_spec import InterventionSpec, ParameterSpec, PolicySpec
+from polisyos.ir.norm_pack import NormPack, NormRef, NormRule, RuleType
 from polisyos.ir.types import SelectorOperator
 from polisyos.lex.api import evaluate_legality
 from polisyos.lex.legal_evaluation.backends.simple_v1 import evaluate_rule_simple_v1
@@ -89,7 +90,7 @@ def _observed_numeric(*, rule_id: str, predicate_id: str, value: str) -> RuleObs
 
 
 @pytest.mark.parametrize(
-    "operator,observed,expected,expected_status",
+    ("operator", "observed", "expected", "expected_status"),
     [
         ("<", "4", "5", "PASS"),
         ("<=", "5", "5", "PASS"),

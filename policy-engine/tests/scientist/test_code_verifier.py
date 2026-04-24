@@ -77,9 +77,7 @@ def test_code_verifier_reports_assertion_failure() -> None:
 
 
 def test_code_verifier_timeout_kills_process() -> None:
-    sandbox = CodeVerificationSandbox(
-        SandboxConfig(timeout_seconds=0.1, cpu_seconds_limit=1)
-    )
+    sandbox = CodeVerificationSandbox(SandboxConfig(timeout_seconds=0.1, cpu_seconds_limit=1))
     result = sandbox.execute("while True:\n    pass")
 
     assert result.status == VerificationStatus.ERROR

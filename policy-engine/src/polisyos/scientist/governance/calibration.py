@@ -6,10 +6,12 @@ suites, optionally planning active disambiguation actions, and publishing
 lesson cards into local search memory. It is the policy-facing governance
 boundary consumed by C5b validation and leaderboard assembly.
 """
+
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Literal, Sequence
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -28,7 +30,10 @@ from polisyos.scientist.backtesting import (
     MULTIPLICITY_DISCLOSURE_SUITE_ID,
     STRATEGIC_GAMING_SUITE_ID,
 )
-from polisyos.scientist.backtesting.adversarial import ChallengeSuiteResult, run_phase_d4_challenge_suites
+from polisyos.scientist.backtesting.adversarial import (
+    ChallengeSuiteResult,
+    run_phase_d4_challenge_suites,
+)
 from polisyos.scientist.discovery.active import (
     ActiveDisambiguationPlan,
     ActiveDisambiguationPlanner,
@@ -175,7 +180,7 @@ class CalibrationAdversarialSuiteRegistry(BaseModel):
         return alias in self.suite_aliases
 
     @classmethod
-    def default(cls) -> "CalibrationAdversarialSuiteRegistry":
+    def default(cls) -> CalibrationAdversarialSuiteRegistry:
         """Build the default alias map used by policy calibration governance."""
 
         return cls(
@@ -317,8 +322,9 @@ class CalibrationGovernanceRunner:
         self._pass_lookup = {validator.pass_id: validator for validator in self._passes}
         self._pipeline = ValidationPipeline(self._passes)
         self._policy_registry = policy_registry or DEFAULT_OBSERVATION_FAMILY_POLICY_REGISTRY
-        self._mapping_registry = mapping_registry or GovernancePassMappingRegistry.from_policy_registry(
-            self._policy_registry
+        self._mapping_registry = (
+            mapping_registry
+            or GovernancePassMappingRegistry.from_policy_registry(self._policy_registry)
         )
         self._adversarial_suite_registry = (
             adversarial_suite_registry or CalibrationAdversarialSuiteRegistry.default()
@@ -445,9 +451,13 @@ class CalibrationGovernanceRunner:
         pass_state: dict[str, Any],
     ) -> _ScopeRunResult:
         real_pass_ids = [
-            pass_id for pass_id in pass_ids if not self._adversarial_suite_registry.is_alias(pass_id)
+            pass_id
+            for pass_id in pass_ids
+            if not self._adversarial_suite_registry.is_alias(pass_id)
         ]
-        missing_pass_ids = [pass_id for pass_id in real_pass_ids if pass_id not in self._pass_lookup]
+        missing_pass_ids = [
+            pass_id for pass_id in real_pass_ids if pass_id not in self._pass_lookup
+        ]
         issues = [
             ComplianceIssue(
                 pass_id=pass_id,
@@ -543,7 +553,7 @@ class CalibrationGovernanceRunner:
         self,
         bundle: CalibrationGovernanceInput,
         configured_family_aliases: dict[ObservationFamily, list[str]],
-    ) -> "_AdversarialOutcome":
+    ) -> _AdversarialOutcome:
         required = {
             "multiplicity_disclosure_adversarial": True,
             "strategic_gaming_adversarial": (

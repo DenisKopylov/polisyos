@@ -36,8 +36,7 @@ def test_duckdb_tenant_scope_validates_uuid(tmp_path: Path) -> None:
     db = SimulationDB(db_path=str(tmp_path / "sim2.duckdb"))
     backend = DuckDBLegacyBackend(db)
 
-    with pytest.raises(Exception):
-        with backend.tenant_scope("not-a-uuid"):
-            pass
+    with pytest.raises(Exception), backend.tenant_scope("not-a-uuid"):
+        pass
 
     backend.close()

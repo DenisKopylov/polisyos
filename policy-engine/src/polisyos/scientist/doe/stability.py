@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from .designs import SensitivityMethod, SensitivityPlan, SensitivityResult
+from .designs import SensitivityPlan
 
 
 @dataclass

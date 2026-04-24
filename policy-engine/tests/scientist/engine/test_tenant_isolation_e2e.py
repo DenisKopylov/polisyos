@@ -29,7 +29,6 @@ from polisyos.core.security.quota_enforcer import (
 )
 from polisyos.core.security.tenant_quota import TenantQuotaLimits, TenantQuotaState
 
-
 # ---------------------------------------------------------------------------
 # Minimal in-memory artifact store for isolation tests
 # ---------------------------------------------------------------------------
@@ -370,10 +369,7 @@ class TestConcurrentTenantStress:
             except Exception as exc:
                 errors.append(f"{tenant_id}: {exc}")
 
-        threads = [
-            threading.Thread(target=worker, args=(f"t{i}",))
-            for i in range(10)
-        ]
+        threads = [threading.Thread(target=worker, args=(f"t{i}",)) for i in range(10)]
         for t in threads:
             t.start()
         for t in threads:

@@ -11,22 +11,22 @@
 
 ## Скрипты
 
-| Скрипт | Назначение | Контур |
-|---|---|---|
-| `gen_schema.py` | Генерация/проверка ABI snapshots в `schemas/snapshots` и generated IR reference pages | `pre-commit`, `arch.yml`, `abi.yml` |
-| `generate_ir_reference_catalog.py` | Генерация/проверка `docs/reference/ir/schema-catalog.md` и `docs/reference/schemas.md` из reflection catalog | docs / ABI tooling |
-| `abi_diff.py` | Семантический diff baseline/current snapshots (`PASS/WARN/FAIL`) | `abi.yml` |
-| `check_state_reads.py` | AST-проверка соответствия `state_reads` у Scientist builtin nodes | `arch.yml` |
-| `check_scientist_node_version_bump.py` | Требует SemVer bump для измененных builtin-нод (`--base-ref`) | `arch.yml` |
-| `check_perf_regression.py` | Сравнение benchmark JSON по порогам latency/throughput | `perf.yml` |
-| `verify_scm_v3.py` | Прогон quick/full набора SCM v3 checks, генерация evidence/matrix + logs | manual verification |
-| `verify_scm_v3_fullspec.py` | Full-spec матрица DoD/Laws/SL на базе `verify_scm_v3.py`, синхронизация canonical отчетов | manual verification |
-| `check_setup.py` | Локальный smoke-check JAX/DuckDB/Pydantic и env настроек | local |
-| `capture_env.py` | `capture/compare/validate` для `EnvironmentManifest` | local |
-| `scan_fabric.py` | Генерация draft data-contracts из DuckDB схем | local |
-| `visualize_provenance.py` | Валидация/визуализация provenance (core graph, PROV-JSON, CAS, audit package) | local |
-| `check_udf_perf.py` | UDF perf gate по baseline JSON | legacy |
-| `generate_ir_schema.py` | Deprecated shim: проксирует вызов в `gen_schema.py` | deprecated |
+| Скрипт                                 | Назначение                                                                                                   | Контур                              |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------- |
+| `gen_schema.py`                        | Генерация/проверка ABI snapshots в `schemas/snapshots` и generated IR reference pages                        | `pre-commit`, `arch.yml`, `abi.yml` |
+| `generate_ir_reference_catalog.py`     | Генерация/проверка `docs/reference/ir/schema-catalog.md` и `docs/reference/schemas.md` из reflection catalog | docs / ABI tooling                  |
+| `abi_diff.py`                          | Семантический diff baseline/current snapshots (`PASS/WARN/FAIL`)                                             | `abi.yml`                           |
+| `check_state_reads.py`                 | AST-проверка соответствия `state_reads` у Scientist builtin nodes                                            | `arch.yml`                          |
+| `check_scientist_node_version_bump.py` | Требует SemVer bump для измененных builtin-нод (`--base-ref`)                                                | `arch.yml`                          |
+| `check_perf_regression.py`             | Сравнение benchmark JSON по порогам latency/throughput                                                       | `perf.yml`                          |
+| `verify_scm_v3.py`                     | Прогон quick/full набора SCM v3 checks, генерация evidence/matrix + logs                                     | manual verification                 |
+| `verify_scm_v3_fullspec.py`            | Full-spec матрица DoD/Laws/SL на базе `verify_scm_v3.py`, синхронизация canonical отчетов                    | manual verification                 |
+| `check_setup.py`                       | Локальный smoke-check JAX/DuckDB/Pydantic и env настроек                                                     | local                               |
+| `capture_env.py`                       | `capture/compare/validate` для `EnvironmentManifest`                                                         | local                               |
+| `scan_fabric.py`                       | Генерация draft data-contracts из DuckDB схем                                                                | local                               |
+| `visualize_provenance.py`              | Валидация/визуализация provenance (core graph, PROV-JSON, CAS, audit package)                                | local                               |
+| `check_udf_perf.py`                    | UDF perf gate по baseline JSON                                                                               | legacy                              |
+| `generate_ir_schema.py`                | Deprecated shim: проксирует вызов в `gen_schema.py`                                                          | deprecated                          |
 
 ## Связи с репозиторием
 

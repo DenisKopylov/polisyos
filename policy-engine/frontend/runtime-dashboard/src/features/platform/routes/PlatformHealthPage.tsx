@@ -5,6 +5,7 @@ import { useRuns } from "@/api/hooks/useRuns";
 import { usePermission } from "@/app/authz/AuthzProvider";
 import { useTelemetryReadyMark } from "@/app/providers/TelemetryProvider";
 import { PrefetchButton } from "@/app/routes/PrefetchButton";
+import { AppearanceSection } from "@/features/platform/settings/AppearanceSection";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { formatDate, formatNumber } from "@/lib/utils";
 import { ApiErrorAlert, Badge, Card, DataFreshnessBadge } from "@/shared/ui";
@@ -68,6 +69,8 @@ export default function PlatformHealth() {
           </div>
         </div>
       </Card>
+
+      <AppearanceSection />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>

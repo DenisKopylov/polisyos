@@ -8,7 +8,7 @@ the content-addressable architecture.
 
 from __future__ import annotations
 
-from typing import Any, Literal, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from pydantic import ConfigDict, Field, model_validator
 
@@ -56,18 +56,21 @@ class ScientistArtifactRef(ArtifactRef):
 
 class ExperimentStateRef(ScientistArtifactRef):
     """Artifact reference for persisted Scientist workflow state across steps and retries."""
+
     kind: str = "scientist.experiment_state"
     media_type: str = "application/json"
 
 
 class DecisionPacketRef(ScientistArtifactRef):
     """Artifact reference for the decision packet emitted when a Scientist run concludes."""
+
     kind: str = "scientist.decision_packet"
     media_type: str = "application/json"
 
 
 class GovernanceReportRef(ScientistArtifactRef):
     """Artifact reference for aggregated governance-pass findings attached to a run."""
+
     kind: str = "scientist.governance_report"
     media_type: str = "application/json"
 
@@ -90,7 +93,7 @@ class FailureCardRef(ScientistArtifactRef):
     can_retry: bool = Field(description="Whether this failure allowed retry")
 
     @classmethod
-    def from_card(cls, card: FailureCardLike) -> "FailureCardRef":
+    def from_card(cls, card: FailureCardLike) -> FailureCardRef:
         """Create a reference from a FailureCard instance."""
         source_step = getattr(card.source_step, "value", card.source_step)
         return cls(
@@ -177,9 +180,7 @@ class StressTestReportRef(ScientistArtifactRef):
 class CalibrationValidationBundleRef(ScientistArtifactRef):
     """Reference to a stored calibration-validation bundle artifact."""
 
-    kind: str = (
-        "scientist.calibration_validation_bundle"
-    )
+    kind: str = "scientist.calibration_validation_bundle"
     media_type: str = "application/json"
 
 
@@ -193,315 +194,321 @@ class MetricValidationReportRef(ScientistArtifactRef):
 class GovernanceAccountabilityArtifactRef(ScientistArtifactRef):
     """Reference to a stored governance accountability artifact."""
 
-    kind: str = (
-        "scientist.governance_accountability_artifact"
-    )
+    kind: str = "scientist.governance_accountability_artifact"
     media_type: str = "application/json"
 
 
 class PlatformMetaEvaluationReportRef(ScientistArtifactRef):
     """Reference to a stored platform meta-evaluation report artifact."""
 
-    kind: str = (
-        "scientist.platform_meta_evaluation_report"
-    )
+    kind: str = "scientist.platform_meta_evaluation_report"
     media_type: str = "application/json"
 
 
 class GraphHypothesisRef(ScientistArtifactRef):
     """Artifact reference for one discovered causal-graph hypothesis."""
+
     kind: str = "scientist.graph_hypothesis"
     media_type: str = "application/json"
 
 
 class BootstrapStabilityReportRef(ScientistArtifactRef):
     """Artifact reference for bootstrap stability diagnostics on graph structure."""
-    kind: str = (
-        "scientist.bootstrap_stability_report"
-    )
+
+    kind: str = "scientist.bootstrap_stability_report"
     media_type: str = "application/json"
 
 
 class DownstreamUtilityReportRef(ScientistArtifactRef):
     """Artifact reference for a report estimating downstream usefulness of a candidate output."""
-    kind: str = (
-        "scientist.downstream_utility_report"
-    )
+
+    kind: str = "scientist.downstream_utility_report"
     media_type: str = "application/json"
 
 
 class EdgeConfidenceMatrixRef(ScientistArtifactRef):
     """Artifact reference for edge-level confidence scores produced during discovery."""
+
     kind: str = "scientist.edge_confidence_matrix"
     media_type: str = "application/json"
 
 
 class GraphPriorBundleRef(ScientistArtifactRef):
     """Artifact reference for priors injected into graph discovery or scoring."""
+
     kind: str = "scientist.graph_prior_bundle"
     media_type: str = "application/json"
 
 
 class PriorKnowledgeBundleRef(ScientistArtifactRef):
     """Artifact reference for curated prior knowledge supplied to Scientist workflows."""
+
     kind: str = "scientist.prior_knowledge_bundle"
     media_type: str = "application/json"
 
 
 class DiscoveryTaskProfileRef(ScientistArtifactRef):
     """Artifact reference for the profile that parameterizes a discovery workflow."""
+
     kind: str = "scientist.discovery_task_profile"
     media_type: str = "application/json"
 
 
 class GraphHypothesisSetRef(ScientistArtifactRef):
     """Artifact reference for the set of competing graph hypotheses under review."""
+
     kind: str = "scientist.graph_hypothesis_set"
     media_type: str = "application/json"
 
 
 class RefutationReportRef(ScientistArtifactRef):
     """Artifact reference for a report documenting refuted discovery hypotheses."""
-    kind: str = (
-        "scientist.discovery_refutation_report"
-    )
+
+    kind: str = "scientist.discovery_refutation_report"
     media_type: str = "application/json"
 
 
 class ReproducibilityReportRef(ScientistArtifactRef):
     """Artifact reference for a discovery reproducibility assessment across reruns."""
-    kind: str = (
-        "scientist.discovery_reproducibility_report"
-    )
+
+    kind: str = "scientist.discovery_reproducibility_report"
     media_type: str = "application/json"
 
 
 class ActiveDisambiguationPlanRef(ScientistArtifactRef):
     """Artifact reference for a follow-up plan that resolves discovery ambiguities."""
-    kind: str = (
-        "scientist.active_disambiguation_plan"
-    )
+
+    kind: str = "scientist.active_disambiguation_plan"
     media_type: str = "application/json"
 
 
 class DiscoveryAuditBundleRef(ScientistArtifactRef):
     """Artifact reference for the audit bundle emitted by discovery workflows."""
+
     kind: str = "scientist.discovery_audit_bundle"
     media_type: str = "application/json"
 
 
 class DiscoveryArtifactBundleRef(ScientistArtifactRef):
     """Artifact reference for the bundle of artifacts produced during discovery."""
-    kind: str = (
-        "scientist.discovery_artifact_bundle"
-    )
+
+    kind: str = "scientist.discovery_artifact_bundle"
     media_type: str = "application/json"
 
 
 class DecisionReadinessContractRef(ScientistArtifactRef):
     """Artifact reference for criteria that must hold before a policy decision is issued."""
-    kind: str = (
-        "scientist.decision_readiness_contract"
-    )
+
+    kind: str = "scientist.decision_readiness_contract"
     media_type: str = "application/json"
 
 
 class PolicyFrontierReportRef(ScientistArtifactRef):
     """Artifact reference for the frontier report comparing policy trade-offs."""
+
     kind: str = "scientist.policy_frontier_report"
     media_type: str = "application/json"
 
 
 class ChampionPolicyDossierRef(ScientistArtifactRef):
     """Artifact reference for the dossier describing the current champion policy option."""
-    kind: str = (
-        "scientist.champion_policy_dossier"
-    )
+
+    kind: str = "scientist.champion_policy_dossier"
     media_type: str = "application/json"
 
 
 class PolicyBriefRef(ScientistArtifactRef):
     """Artifact reference for the narrative brief summarizing the recommended policy."""
+
     kind: str = "scientist.policy_brief"
     media_type: str = "application/json"
 
 
 class ConstraintSatisfactionReportRef(ScientistArtifactRef):
     """Artifact reference for the report scoring how well an option satisfies constraints."""
-    kind: str = (
-        "scientist.constraint_satisfaction_report"
-    )
+
+    kind: str = "scientist.constraint_satisfaction_report"
     media_type: str = "application/json"
 
 
 class SubgroupImpactReportRef(ScientistArtifactRef):
     """Artifact reference for subgroup-level impact analysis of a policy candidate."""
+
     kind: str = "scientist.subgroup_impact_report"
     media_type: str = "application/json"
 
 
 class UncertaintyReportRef(ScientistArtifactRef):
     """Artifact reference for uncertainty bounds or decompositions on a candidate policy."""
+
     kind: str = "scientist.uncertainty_report"
     media_type: str = "application/json"
 
 
 class TransportabilityReportRef(ScientistArtifactRef):
     """Artifact reference for a transportability assessment across populations or settings."""
+
     kind: str = "scientist.transportability_report"
     media_type: str = "application/json"
 
 
 class GovernanceGatePacketRef(ScientistArtifactRef):
     """Artifact reference for the packet submitted to governance gates before approval."""
+
     kind: str = "scientist.governance_gate_packet"
     media_type: str = "application/json"
 
 
 class ImplementationPlanRef(ScientistArtifactRef):
     """Artifact reference for the operational rollout plan of the selected policy."""
+
     kind: str = "scientist.implementation_plan"
     media_type: str = "application/json"
 
 
 class RejectedAlternativesSummaryRef(ScientistArtifactRef):
     """Artifact reference for the summary explaining why alternative options were rejected."""
-    kind: str = (
-        "scientist.rejected_alternatives_summary"
-    )
+
+    kind: str = "scientist.rejected_alternatives_summary"
     media_type: str = "application/json"
 
 
 class ReplayableAuditBundleRef(ScientistArtifactRef):
     """Artifact reference for the replay-friendly audit bundle of a decision workflow."""
+
     kind: str = "scientist.replayable_audit_bundle"
     media_type: str = "application/json"
 
 
 class PolicyArtifactBundleRef(ScientistArtifactRef):
     """Artifact reference for the bundle of final artifacts backing a policy recommendation."""
+
     kind: str = "scientist.policy_artifact_bundle"
     media_type: str = "application/json"
 
 
 class DecisionMonitoringContractRef(ScientistArtifactRef):
     """Artifact reference for post-deployment metrics, triggers, and review obligations."""
-    kind: str = (
-        "scientist.decision_monitoring_contract"
-    )
+
+    kind: str = "scientist.decision_monitoring_contract"
     media_type: str = "application/json"
 
 
 class DecisionMonitoringReportRef(ScientistArtifactRef):
     """Artifact reference for observed-vs-expected monitoring results after rollout."""
-    kind: str = (
-        "scientist.decision_monitoring_report"
-    )
+
+    kind: str = "scientist.decision_monitoring_report"
     media_type: str = "application/json"
 
 
 class DecisionCompareReportRef(ScientistArtifactRef):
     """Artifact reference for a comparison between two decisions or policy versions."""
+
     kind: str = "scientist.decision_compare_report"
     media_type: str = "application/json"
 
 
 class DecisionReissuePlanRef(ScientistArtifactRef):
     """Artifact reference for the plan to reissue or revise a prior decision."""
+
     kind: str = "scientist.decision_reissue_plan"
     media_type: str = "application/json"
 
 
 class PolicyRequestFrameRef(ScientistArtifactRef):
     """Artifact reference for the structured intake frame of a new policy request."""
+
     kind: str = "scientist.policy_request_frame"
     media_type: str = "application/json"
 
 
 class LegalCandidatePackRef(ScientistArtifactRef):
     """Artifact reference for assembled candidate legal sources during verification."""
+
     kind: str = "scientist.legal_candidate_pack"
     media_type: str = "application/json"
 
 
 class LegalSourcePackRef(ScientistArtifactRef):
     """Artifact reference for the curated legal-source pack used for verification."""
+
     kind: str = "scientist.legal_source_pack"
     media_type: str = "application/json"
 
 
 class SourceVerificationReportRef(ScientistArtifactRef):
     """Artifact reference for source-quality and legal verification diagnostics."""
-    kind: str = (
-        "scientist.source_verification_report"
-    )
+
+    kind: str = "scientist.source_verification_report"
     media_type: str = "application/json"
 
 
 class PolicyOptionSetRef(ScientistArtifactRef):
     """Artifact reference for the set of policy options under governance comparison."""
+
     kind: str = "scientist.policy_option_set"
     media_type: str = "application/json"
 
 
 class VerifiedPolicyReportRef(ScientistArtifactRef):
     """Artifact reference for the final report of a policy option that passed verification."""
+
     kind: str = "scientist.verified_policy_report"
     media_type: str = "application/json"
 
 
 __all__ = [
-    "ScientistArtifactRef",
-    "ExperimentStateRef",
-    "DecisionPacketRef",
-    "GovernanceReportRef",
-    "FailureCardLike",
-    "FailureCardRef",
-    "TrinityIRRef",
-    "CritiqueRef",
-    "TimelineRef",
-    "DecisionCardRef",
-    "CheckpointRef",
-    "SensitivityResultRef",
-    "StressTestReportRef",
-    "CalibrationValidationBundleRef",
-    "MetricValidationReportRef",
-    "GovernanceAccountabilityArtifactRef",
-    "PlatformMetaEvaluationReportRef",
-    "GraphHypothesisRef",
-    "BootstrapStabilityReportRef",
-    "DownstreamUtilityReportRef",
-    "EdgeConfidenceMatrixRef",
-    "GraphPriorBundleRef",
-    "PriorKnowledgeBundleRef",
-    "DiscoveryTaskProfileRef",
-    "GraphHypothesisSetRef",
-    "RefutationReportRef",
-    "ReproducibilityReportRef",
     "ActiveDisambiguationPlanRef",
-    "DiscoveryAuditBundleRef",
-    "DiscoveryArtifactBundleRef",
-    "DecisionReadinessContractRef",
-    "PolicyFrontierReportRef",
+    "BootstrapStabilityReportRef",
+    "CalibrationValidationBundleRef",
     "ChampionPolicyDossierRef",
-    "PolicyBriefRef",
+    "CheckpointRef",
     "ConstraintSatisfactionReportRef",
-    "SubgroupImpactReportRef",
-    "UncertaintyReportRef",
-    "TransportabilityReportRef",
-    "GovernanceGatePacketRef",
-    "ImplementationPlanRef",
-    "RejectedAlternativesSummaryRef",
-    "ReplayableAuditBundleRef",
-    "PolicyArtifactBundleRef",
+    "CritiqueRef",
+    "DecisionCardRef",
+    "DecisionCompareReportRef",
     "DecisionMonitoringContractRef",
     "DecisionMonitoringReportRef",
-    "DecisionCompareReportRef",
+    "DecisionPacketRef",
+    "DecisionReadinessContractRef",
     "DecisionReissuePlanRef",
-    "PolicyRequestFrameRef",
+    "DiscoveryArtifactBundleRef",
+    "DiscoveryAuditBundleRef",
+    "DiscoveryTaskProfileRef",
+    "DownstreamUtilityReportRef",
+    "EdgeConfidenceMatrixRef",
+    "ExperimentStateRef",
+    "FailureCardLike",
+    "FailureCardRef",
+    "GovernanceAccountabilityArtifactRef",
+    "GovernanceGatePacketRef",
+    "GovernanceReportRef",
+    "GraphHypothesisRef",
+    "GraphHypothesisSetRef",
+    "GraphPriorBundleRef",
+    "ImplementationPlanRef",
     "LegalCandidatePackRef",
     "LegalSourcePackRef",
-    "SourceVerificationReportRef",
+    "MetricValidationReportRef",
+    "PlatformMetaEvaluationReportRef",
+    "PolicyArtifactBundleRef",
+    "PolicyBriefRef",
+    "PolicyFrontierReportRef",
     "PolicyOptionSetRef",
+    "PolicyRequestFrameRef",
+    "PriorKnowledgeBundleRef",
+    "RefutationReportRef",
+    "RejectedAlternativesSummaryRef",
+    "ReplayableAuditBundleRef",
+    "ReproducibilityReportRef",
+    "ScientistArtifactRef",
+    "SensitivityResultRef",
+    "SourceVerificationReportRef",
+    "StressTestReportRef",
+    "SubgroupImpactReportRef",
+    "TimelineRef",
+    "TransportabilityReportRef",
+    "TrinityIRRef",
+    "UncertaintyReportRef",
     "VerifiedPolicyReportRef",
 ]

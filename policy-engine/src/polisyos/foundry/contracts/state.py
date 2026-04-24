@@ -1,4 +1,5 @@
 """Define the JAX-compatible Foundry state bundles threaded through runtime execution."""
+
 import chex
 import jax
 import jax.numpy as jnp
@@ -15,16 +16,16 @@ class ProcurementGraphState:
     loops without leaving the compiled execution path.
     """
 
-    senders: Int[Array, "n_edges"]
-    receivers: Int[Array, "n_edges"]
-    weights: Float[Array, "n_edges"]
-    edge_types: Int[Array, "n_edges"]
-    active: Bool[Array, "n_edges"]
+    senders: Int[Array, n_edges]
+    receivers: Int[Array, n_edges]
+    weights: Float[Array, n_edges]
+    edge_types: Int[Array, n_edges]
+    active: Bool[Array, n_edges]
     n_nodes: Int[Array, ""]
     last_update_step: Int[Array, ""]
 
     @classmethod
-    def empty(cls, n_nodes: int, *, n_edges: int = 0) -> "ProcurementGraphState":
+    def empty(cls, n_nodes: int, *, n_edges: int = 0) -> ProcurementGraphState:
         return cls(
             senders=jnp.zeros((n_edges,), dtype=jnp.int32),
             receivers=jnp.zeros((n_edges,), dtype=jnp.int32),
@@ -57,7 +58,7 @@ class AgentSimRuntimeState:
         *,
         seed: int = 0,
         n_quantiles: int = 10,
-    ) -> "AgentSimRuntimeState":
+    ) -> AgentSimRuntimeState:
         return cls(
             rng_key=jax.random.PRNGKey(int(seed)),
             procurement_graph=ProcurementGraphState.empty(n_firms),
@@ -68,29 +69,58 @@ class AgentSimRuntimeState:
         )
 
 
+@chex.dataclass(frozen=True)
+class FeedbackState:
+    """Compact fixed-point vector attached to `GlobalState` during feedback solve."""
+
+    active: Bool[Array, n_feedback]
+    values: Float[Array, n_feedback]
+    scales: Float[Array, n_feedback]
+    lower_bounds: Float[Array, n_feedback]
+    upper_bounds: Float[Array, n_feedback]
+    weights: Float[Array, n_feedback]
+    noise_estimate: Float[Array, n_feedback]
+
+    @property
+    def size(self) -> int:
+        return self.values.shape[0]
+
+    @classmethod
+    def empty(cls, n_feedback: int) -> FeedbackState:
+        return cls(
+            active=jnp.ones((n_feedback,), dtype=jnp.bool_),
+            values=jnp.zeros((n_feedback,), dtype=jnp.float32),
+            scales=jnp.ones((n_feedback,), dtype=jnp.float32),
+            lower_bounds=jnp.full((n_feedback,), -jnp.inf, dtype=jnp.float32),
+            upper_bounds=jnp.full((n_feedback,), jnp.inf, dtype=jnp.float32),
+            weights=jnp.ones((n_feedback,), dtype=jnp.float32),
+            noise_estimate=jnp.zeros((n_feedback,), dtype=jnp.float32),
+        )
+
+
 # --- 1. ЛЮДИ (Households) ---
 @chex.dataclass(frozen=True)
 class AgentState:
     """Per-agent household state stored as aligned JAX arrays."""
 
     # Active mask: True means the agent participates in the simulation.
-    active: Bool[Array, "n_agents"]
+    active: Bool[Array, n_agents]
 
     # Демография и Навыки
-    age: Int[Array, "n_agents"]
-    skill_level: Float[Array, "n_agents"]  # Влияет на зарплату
+    age: Int[Array, n_agents]
+    skill_level: Float[Array, n_agents]  # Влияет на зарплату
 
     # Финансы
-    income: Float[Array, "n_agents"]
-    reported_income: Float[Array, "n_agents"]
-    savings: Float[Array, "n_agents"]
-    consumption: Float[Array, "n_agents"]  # Сколько потратил
-    risk_aversion: Float[Array, "n_agents"]
+    income: Float[Array, n_agents]
+    reported_income: Float[Array, n_agents]
+    savings: Float[Array, n_agents]
+    consumption: Float[Array, n_agents]  # Сколько потратил
+    risk_aversion: Float[Array, n_agents]
 
     # Работа
-    is_employed: Bool[Array, "n_agents"]
-    employer_id: Int[Array, "n_agents"]  # ID фирмы (0..M-1) или -1
-    household_cell_id: Int[Array, "n_agents"] | None = None
+    is_employed: Bool[Array, n_agents]
+    employer_id: Int[Array, n_agents]  # ID фирмы (0..M-1) или -1
+    household_cell_id: Int[Array, n_agents] | None = None
 
     @property
     def size(self) -> int:
@@ -103,25 +133,25 @@ class FirmState:
     """Per-firm production, balance-sheet, and placement state arrays."""
 
     # Статика
-    sector_id: Int[Array, "n_firms"]  # 0=IT, 1=Agro...
-    productivity: Float[Array, "n_firms"]  # Технологичность (A)
+    sector_id: Int[Array, n_firms]  # 0=IT, 1=Agro...
+    productivity: Float[Array, n_firms]  # Технологичность (A)
 
     # Производственные факторы
-    capital: Float[Array, "n_firms"]  # Станки/Софт (K)
-    labor_count: Float[Array, "n_firms"]  # Текущий штат (L)
+    capital: Float[Array, n_firms]  # Станки/Софт (K)
+    labor_count: Float[Array, n_firms]  # Текущий штат (L)
 
     # Финансы
-    cash: Float[Array, "n_firms"]  # Деньги на зарплаты
-    inventory: Float[Array, "n_firms"]  # Товары на складе
-    debt: Float[Array, "n_firms"]  # Долги
+    cash: Float[Array, n_firms]  # Деньги на зарплаты
+    inventory: Float[Array, n_firms]  # Товары на складе
+    debt: Float[Array, n_firms]  # Долги
 
     # Рынок
-    wage_offer: Float[Array, "n_firms"]  # Зарплатное предложение
-    price: Float[Array, "n_firms"]  # Цена товара фирмы
-    active: Bool[Array, "n_firms"] | None = None
-    firm_id: Int[Array, "n_firms"] | None = None
-    cell_id: Int[Array, "n_firms"] | None = None
-    firm_type_id: Int[Array, "n_firms"] | None = None
+    wage_offer: Float[Array, n_firms]  # Зарплатное предложение
+    price: Float[Array, n_firms]  # Цена товара фирмы
+    active: Bool[Array, n_firms] | None = None
+    firm_id: Int[Array, n_firms] | None = None
+    cell_id: Int[Array, n_firms] | None = None
+    firm_type_id: Int[Array, n_firms] | None = None
 
     @property
     def size(self) -> int:
@@ -147,22 +177,22 @@ class MarketState:
 class CellState:
     """Per-cell regional/sectoral aggregates represented as JAX arrays."""
 
-    active: Bool[Array, "n_cells"]
-    region_code: Int[Array, "n_cells"]
-    sector_id: Int[Array, "n_cells"]
-    population: Float[Array, "n_cells"]
-    employment: Float[Array, "n_cells"]
-    output: Float[Array, "n_cells"]
-    distress_score: Float[Array, "n_cells"]
-    public_service_index: Float[Array, "n_cells"]
-    firm_count: Float[Array, "n_cells"] | None = None
+    active: Bool[Array, n_cells]
+    region_code: Int[Array, n_cells]
+    sector_id: Int[Array, n_cells]
+    population: Float[Array, n_cells]
+    employment: Float[Array, n_cells]
+    output: Float[Array, n_cells]
+    distress_score: Float[Array, n_cells]
+    public_service_index: Float[Array, n_cells]
+    firm_count: Float[Array, n_cells] | None = None
 
     @property
     def size(self) -> int:
         return self.population.shape[0]
 
     @classmethod
-    def empty(cls, n_cells: int) -> "CellState":
+    def empty(cls, n_cells: int) -> CellState:
         return cls(
             active=jnp.ones(n_cells, dtype=jnp.bool_),
             region_code=jnp.zeros(n_cells, dtype=jnp.int32),
@@ -180,19 +210,19 @@ class CellState:
 class HouseholdCellState:
     """Per-household-cell welfare aggregates used by transfer mechanisms."""
 
-    active: Bool[Array, "n_household_cells"]
-    cell_id: Int[Array, "n_household_cells"]
-    household_count: Float[Array, "n_household_cells"]
-    disposable_income: Float[Array, "n_household_cells"]
-    poverty_rate: Float[Array, "n_household_cells"]
-    transfer_intensity: Float[Array, "n_household_cells"]
+    active: Bool[Array, n_household_cells]
+    cell_id: Int[Array, n_household_cells]
+    household_count: Float[Array, n_household_cells]
+    disposable_income: Float[Array, n_household_cells]
+    poverty_rate: Float[Array, n_household_cells]
+    transfer_intensity: Float[Array, n_household_cells]
 
     @property
     def size(self) -> int:
         return self.household_count.shape[0]
 
     @classmethod
-    def empty(cls, n_household_cells: int) -> "HouseholdCellState":
+    def empty(cls, n_household_cells: int) -> HouseholdCellState:
         return cls(
             active=jnp.ones(n_household_cells, dtype=jnp.bool_),
             cell_id=jnp.zeros(n_household_cells, dtype=jnp.int32),
@@ -224,6 +254,7 @@ class GlobalState:
     cells: CellState | None = None
     household_cells: HouseholdCellState | None = None
     agent_sim_runtime: AgentSimRuntimeState | None = None
+    feedback_state: FeedbackState | None = None
 
     @classmethod
     def empty(
@@ -233,7 +264,7 @@ class GlobalState:
         *,
         n_cells: int = 0,
         n_household_cells: int = 0,
-    ) -> "GlobalState":
+    ) -> GlobalState:
         # Инициализация дефолтными значениями
         agents = AgentState(
             active=jnp.ones(n_agents, dtype=jnp.bool_),
@@ -284,6 +315,7 @@ class GlobalState:
             if n_household_cells > 0
             else None,
             agent_sim_runtime=None,
+            feedback_state=None,
             government_balance=jnp.array(0.0, dtype=jnp.float32),
             tax_rate=jnp.array(0.0, dtype=jnp.float32),
             gdp=jnp.array(0.0, dtype=jnp.float32),

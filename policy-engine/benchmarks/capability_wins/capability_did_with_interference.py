@@ -16,15 +16,23 @@ for _p in (str(_SRC), str(_BENCH_ROOT)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-from benchmarks.harness import BenchmarkCase, BenchmarkCircuit, BenchmarkHarness, BenchmarkReport  # noqa: E402
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
-from benchmarks.runtime import resolve_mode  # noqa: E402
-
 from benchmarks.capability_wins.capability_proof import (  # noqa: E402
     CapabilityProofSpec,
     build_capability_report_extra,
     make_gap_row,
 )
+from benchmarks.harness import (  # noqa: E402
+    BenchmarkCase,
+    BenchmarkCircuit,
+    BenchmarkHarness,
+    BenchmarkReport,
+)
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
+from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.CAPABILITY_WINS
 
@@ -32,7 +40,10 @@ CIRCUIT = BenchmarkCircuit.CAPABILITY_WINS
 def _did_imports():
     from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
     from polisyos.foundry.methods.catalog.causal.did import StandardDifferenceInDifferences
-    from polisyos.foundry.methods.catalog.causal.protocols import NetworkCausalData, PanelObservationalData
+    from polisyos.foundry.methods.catalog.causal.protocols import (
+        NetworkCausalData,
+        PanelObservationalData,
+    )
 
     return CausalEngine, StandardDifferenceInDifferences, NetworkCausalData, PanelObservationalData
 
@@ -80,9 +91,13 @@ def _panel_data() -> Any:
 
 def _case_interference_screen_detects_spillover() -> BenchmarkCase:
     def runner():
-        CausalEngine, StandardDifferenceInDifferences, NetworkCausalData, PanelObservationalData = _did_imports()
+        CausalEngine, StandardDifferenceInDifferences, NetworkCausalData, PanelObservationalData = (
+            _did_imports()
+        )
         engine = CausalEngine()
-        return engine.interference_effect(_network_data(), treatment="A", outcome="Y", method="partial")
+        return engine.interference_effect(
+            _network_data(), treatment="A", outcome="Y", method="partial"
+        )
 
     def checker(result: Any) -> bool:
         if not getattr(result, "is_success", False):
@@ -111,7 +126,9 @@ def _case_did_point_estimate_after_screen() -> BenchmarkCase:
     def checker(result: Any) -> bool:
         report = result["report"]
         if getattr(report, "status", None).value != "success":
-            raise AssertionError(f"Expected successful DiD report, got {getattr(report, 'status', None)}")
+            raise AssertionError(
+                f"Expected successful DiD report, got {getattr(report, 'status', None)}"
+            )
         if float(report.point_estimate) <= 0.0:
             raise AssertionError("Expected positive ATT in the synthetic DiD design")
         return True
@@ -133,7 +150,9 @@ def build_did_with_interference_harness() -> BenchmarkHarness:
     return harness
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     extra = build_capability_report_extra(
         report,
         CapabilityProofSpec(

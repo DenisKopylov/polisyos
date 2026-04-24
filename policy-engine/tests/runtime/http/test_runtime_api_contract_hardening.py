@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import json
+from importlib.util import find_spec
 from pathlib import Path
 
 import pytest
 
-try:  # pragma: no cover - optional dependency guard
-    import fastapi  # noqa: F401
-except ModuleNotFoundError:  # pragma: no cover
+if find_spec("fastapi") is None:  # pragma: no cover - optional dependency guard
     pytest.skip("fastapi is not installed", allow_module_level=True)
 
 from polisyos.runtime.http.app import export_runtime_openapi_schema
@@ -24,9 +23,9 @@ def test_openapi_contract_includes_examples_and_problem_payloads() -> None:
 def test_openapi_contract_includes_client_navigation_links() -> None:
     schema = export_runtime_openapi_schema()
     run_links = schema["paths"]["/api/v1/runs/{run_id}"]["get"]["responses"]["200"]["links"]
-    artifact_links = schema["paths"]["/api/v1/artifacts/{artifact_id}"]["get"]["responses"][
-        "200"
-    ]["links"]
+    artifact_links = schema["paths"]["/api/v1/artifacts/{artifact_id}"]["get"]["responses"]["200"][
+        "links"
+    ]
     mobility_links = schema["paths"]["/api/v1/mobility/reports/{artifact_id}"]["get"]["responses"][
         "200"
     ]["links"]
@@ -84,6 +83,21 @@ def test_generated_runtime_client_includes_mobility_wrappers() -> None:
     assert "getMobilityReport" in names
     assert "getMobilityReportBounds" in names
     assert "getMobilityReportDiagnostics" in names
+
+
+def test_generated_runtime_js_client_accepts_params_for_body_operations() -> None:
+    repo_root = Path(__file__).resolve().parents[3]
+    spec_path = repo_root / "schemas" / "runtime_api_v1.openapi.json"
+    spec = json.loads(spec_path.read_text(encoding="utf-8"))
+    operations = generate_runtime_client._extract_operations(spec)
+    rendered_js = generate_runtime_client._render_js(operations)
+
+    body_operations = [
+        operation.name for operation in operations if operation.body_schema is not None
+    ]
+
+    for operation_name in body_operations:
+        assert f"async {operation_name}(params) {{" in rendered_js
 
 
 def test_committed_runtime_client_matches_generator() -> None:

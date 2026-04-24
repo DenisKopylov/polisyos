@@ -4,6 +4,10 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.foundry.methods.catalog.causal.strategic import (
+    PerformativeLoopSpec,
+    solve_strategic_response,
+)
 from polisyos.ir.analytics.abstraction import (
     AbstractionCertificate,
     AbstractionPreservationType,
@@ -24,14 +28,14 @@ from polisyos.ir.analytics.distributional import (
     CohortDimension,
     CouplingDiagnostics,
     DiscreteDistributionSummary,
-    DistributionBin,
     DistributionalBoundUniformity,
-    DistributionalEffectBundle,
     DistributionalCouplingStatus,
+    DistributionalEffectBundle,
     DistributionalJustification,
     DistributionalProofArtifact,
     DistributionalProofTarget,
     DistributionalReport,
+    DistributionBin,
     ImpactDirection,
     MetricUnit,
     OrdinalPovertyEstimate,
@@ -54,14 +58,13 @@ from polisyos.ir.analytics.strategic import (
     FiniteStrategicPayoffTable,
     MeanFieldEquilibriumCertificate,
     MeanFieldMacroSimulationConfig,
-    MeanFieldPerturbationSpec,
     PerformativeLoopAnalysisScope,
     PerformativeLoopProofFamily,
     PerformativeLoopStabilityStatus,
     StrategicAdmissibilityRecord,
     StrategicDecompositionStatus,
-    StrategicEquilibriumDescriptor,
     StrategicEquilibriumConcept,
+    StrategicEquilibriumDescriptor,
     StrategicFallbackMode,
     StrategicGameClass,
     StrategicResponseBundle,
@@ -69,14 +72,11 @@ from polisyos.ir.analytics.strategic import (
     StrategicSolutionConcept,
     StrategicTractabilityClass,
     compile_intervention_spec_to_mean_field_perturbation,
-    strategic_admissibility_record_for,
-    strategic_admissibility_records,
     load_mean_field_equilibrium_certificate,
     load_mean_field_macro_simulation_config,
     load_mean_field_perturbation_spec,
     load_performative_shift_summary,
     load_strategic_decomposition_certificate,
-    load_strategic_decomposition_failure_card,
     load_strategic_payoff_table,
     load_strategic_response_bundle,
     load_strategic_scm,
@@ -85,12 +85,10 @@ from polisyos.ir.analytics.strategic import (
     persist_mean_field_perturbation_spec,
     persist_strategic_payoff_table,
     persist_strategic_response_bundle,
-    persist_strategic_solve_artifacts,
     persist_strategic_scm,
-)
-from polisyos.foundry.methods.catalog.causal.strategic import (
-    PerformativeLoopSpec,
-    solve_strategic_response,
+    persist_strategic_solve_artifacts,
+    strategic_admissibility_record_for,
+    strategic_admissibility_records,
 )
 from polisyos.ir.analytics.structural_causal_model import (
     MechanismFamily,
@@ -171,8 +169,12 @@ def _ordinal_poverty_estimate() -> OrdinalPovertyEstimate:
 def test_distributional_effect_bundle_round_trip_via_store(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     baseline_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
-    counterfactual_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
-    quantile_ref = persist_discrete_distribution_summary(store, _distribution_summary("quantile_proxy"))
+    counterfactual_ref = persist_discrete_distribution_summary(
+        store, _distribution_summary("income")
+    )
+    quantile_ref = persist_discrete_distribution_summary(
+        store, _distribution_summary("quantile_proxy")
+    )
     tail_ref = persist_discrete_distribution_summary(store, _distribution_summary("tail_proxy"))
     ordinal_ref = persist_ordinal_poverty_report(
         store,
@@ -259,7 +261,9 @@ def test_ordinal_poverty_report_round_trip_via_store(tmp_path) -> None:
 def test_distributional_effect_bundle_uses_weakest_link_semantics(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     baseline_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
-    counterfactual_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
+    counterfactual_ref = persist_discrete_distribution_summary(
+        store, _distribution_summary("income")
+    )
 
     bundle = DistributionalEffectBundle(
         outcome_name="income",
@@ -289,7 +293,9 @@ def test_distributional_effect_bundle_uses_weakest_link_semantics(tmp_path) -> N
 def test_distributional_effect_bundle_rejects_identified_without_proof(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     baseline_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
-    counterfactual_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
+    counterfactual_ref = persist_discrete_distribution_summary(
+        store, _distribution_summary("income")
+    )
 
     with pytest.raises(ValidationError, match="distributional_proof_ref"):
         DistributionalEffectBundle(
@@ -320,8 +326,12 @@ def test_distributional_proof_artifact_round_trip_via_store(tmp_path) -> None:
     card_ref = persist_causal_assumption_card(store, card)
 
     artifact = DistributionalProofArtifact(
-        base_proof_ref=ProofBundleRef.model_validate(_artifact_ref("a", kind="ir.proof_bundle").model_dump()),
-        estimand_ast_ref=EstimandASTRef.model_validate(_artifact_ref("b", kind="ir.estimand_ast").model_dump()),
+        base_proof_ref=ProofBundleRef.model_validate(
+            _artifact_ref("a", kind="ir.proof_bundle").model_dump()
+        ),
+        estimand_ast_ref=EstimandASTRef.model_validate(
+            _artifact_ref("b", kind="ir.estimand_ast").model_dump()
+        ),
         target=DistributionalProofTarget.CDF,
         bound_uniformity=DistributionalBoundUniformity.IDENTIFIED,
         coupling_status=DistributionalCouplingStatus.NOT_USED,
@@ -343,7 +353,9 @@ def test_distributional_proof_artifact_round_trip_via_store(tmp_path) -> None:
 def test_distributional_proof_artifact_rejects_primary_quantile_claim() -> None:
     with pytest.raises(ValidationError, match="derived distributional targets"):
         DistributionalProofArtifact(
-            base_proof_ref=ProofBundleRef.model_validate(_artifact_ref("a", kind="ir.proof_bundle").model_dump()),
+            base_proof_ref=ProofBundleRef.model_validate(
+                _artifact_ref("a", kind="ir.proof_bundle").model_dump()
+            ),
             target=DistributionalProofTarget.QUANTILE,
             bound_uniformity=DistributionalBoundUniformity.IDENTIFIED,
             coupling_status=DistributionalCouplingStatus.NOT_USED,
@@ -364,7 +376,9 @@ def test_distributional_proof_artifact_rejects_empty_marginal_claim() -> None:
 def test_distributional_proof_artifact_rejects_pointwise_only_derived_bounds() -> None:
     with pytest.raises(ValidationError, match="pointwise-only"):
         DistributionalProofArtifact(
-            base_proof_ref=ProofBundleRef.model_validate(_artifact_ref("a", kind="ir.proof_bundle").model_dump()),
+            base_proof_ref=ProofBundleRef.model_validate(
+                _artifact_ref("a", kind="ir.proof_bundle").model_dump()
+            ),
             target=DistributionalProofTarget.EXPECTED_SHORTFALL,
             derived_from_target=DistributionalProofTarget.CDF,
             bound_uniformity=DistributionalBoundUniformity.POINTWISE_ONLY,
@@ -374,10 +388,14 @@ def test_distributional_proof_artifact_rejects_pointwise_only_derived_bounds() -
         )
 
 
-def test_distributional_effect_bundle_requires_bounds_refs_for_bounded_justification(tmp_path) -> None:
+def test_distributional_effect_bundle_requires_bounds_refs_for_bounded_justification(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     baseline_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
-    counterfactual_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
+    counterfactual_ref = persist_discrete_distribution_summary(
+        store, _distribution_summary("income")
+    )
 
     with pytest.raises(ValidationError, match="distributional_bounds_refs"):
         DistributionalEffectBundle(
@@ -407,7 +425,9 @@ def test_distributional_validation_rejects_non_finite_metrics() -> None:
 def test_distributional_effect_bundle_rejects_nan_wasserstein(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     baseline_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
-    counterfactual_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
+    counterfactual_ref = persist_discrete_distribution_summary(
+        store, _distribution_summary("income")
+    )
 
     with pytest.raises(ValidationError, match="wasserstein_distance"):
         DistributionalEffectBundle(
@@ -489,7 +509,7 @@ def _payoff_table(agent: str) -> FiniteStrategicPayoffTable:
             "leader=invest|follower=comply": 5.0 if agent == "leader" else 4.0,
             "leader=invest|follower=resist": 1.0 if agent == "leader" else 0.0,
             "leader=hold|follower=comply": 3.0 if agent == "leader" else 1.0,
-            "leader=hold|follower=resist": 2.0 if agent == "leader" else 2.0,
+            "leader=hold|follower=resist": 2.0,
         },
     )
 
@@ -506,7 +526,10 @@ def _finite_state_scm(*, macro: bool, mismatch: bool = False) -> StructuralCausa
         {"when": {x_name: "0"}, "distribution": {"low": 1.0, "high": 0.0}},
         {
             "when": {x_name: "1"},
-            "distribution": {"low": 0.0 if not mismatch else 1.0, "high": 1.0 if not mismatch else 0.0},
+            "distribution": {
+                "low": 0.0 if not mismatch else 1.0,
+                "high": 1.0 if not mismatch else 0.0,
+            },
         },
     ]
     return StructuralCausalModelSpec(
@@ -711,9 +734,7 @@ def test_strategic_response_bundle_rejects_discrete_and_mfg_equilibria_together(
             equilibrium_selection_dependence="deterministic",
             equilibrium_set_ref=_artifact_ref("c", kind="ir.equilibrium_set_summary"),
             selected_equilibrium_ref=_artifact_ref("d", kind="ir.equilibrium_summary"),
-            mfg_equilibrium_ref=_artifact_ref(
-                "e", kind="ir.mean_field_equilibrium_certificate"
-            ),
+            mfg_equilibrium_ref=_artifact_ref("e", kind="ir.mean_field_equilibrium_certificate"),
             post_adaptation_policy_value_ref=_artifact_ref(
                 "f", kind="ir.post_adaptation_policy_value_summary"
             ),
@@ -801,12 +822,16 @@ def test_persist_strategic_solve_artifacts_can_attach_mfg_numerics_config(tmp_pa
     loaded_bundle = load_strategic_response_bundle(store, bundle_ref)
     assert bundle.mfg_equilibrium_ref is not None
     assert loaded_bundle.mfg_equilibrium_ref is not None
-    loaded_certificate = load_mean_field_equilibrium_certificate(store, loaded_bundle.mfg_equilibrium_ref)
+    loaded_certificate = load_mean_field_equilibrium_certificate(
+        store, loaded_bundle.mfg_equilibrium_ref
+    )
     assert loaded_certificate.provenance is not None
     assert loaded_certificate.provenance.numerics_config_ref is not None
 
 
-def test_persist_strategic_solve_artifacts_keeps_loop_certificate_without_point_shift(tmp_path) -> None:
+def test_persist_strategic_solve_artifacts_keeps_loop_certificate_without_point_shift(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path / "strategic-loop")
     leader_table_ref = persist_strategic_payoff_table(store, _payoff_table("leader"))
     follower_table_ref = persist_strategic_payoff_table(store, _payoff_table("follower"))
@@ -850,7 +875,9 @@ def test_persist_strategic_solve_artifacts_keeps_loop_certificate_without_point_
     assert shift_summary.stability_status is PerformativeLoopStabilityStatus.UNCERTIFIED
 
 
-def test_persist_strategic_solve_artifacts_defaults_to_exact_decomposition_artifacts(tmp_path) -> None:
+def test_persist_strategic_solve_artifacts_defaults_to_exact_decomposition_artifacts(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path / "strategic-decomposition")
     leader_table_ref = persist_strategic_payoff_table(store, _payoff_table("leader"))
     follower_table_ref = persist_strategic_payoff_table(store, _payoff_table("follower"))
@@ -990,11 +1017,7 @@ def test_strategic_admissibility_registry_exposes_stage_6_1_first_wave() -> None
     assert records
     assert all(isinstance(record, StrategicAdmissibilityRecord) for record in records)
 
-    aliases = {
-        alias
-        for record in records
-        for alias in record.equilibrium_concept_aliases
-    }
+    aliases = {alias for record in records for alias in record.equilibrium_concept_aliases}
     assert {
         StrategicEquilibriumConcept.MINIMAX_ZERO_SUM,
         StrategicEquilibriumConcept.MIXED_NASH_FINITE_GENERAL_SUM,

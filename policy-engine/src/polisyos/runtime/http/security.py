@@ -1,4 +1,5 @@
 """Shared runtime security helpers for HTTP and WebSocket entrypoints."""
+
 from __future__ import annotations
 
 import os

@@ -1,10 +1,12 @@
 """Estimate non-linear, event-study, volatility, and structural-break econometric models."""
+
 from __future__ import annotations
 
 import math
-from datetime import datetime, timezone
+from collections.abc import Mapping
+from datetime import UTC, datetime
 from statistics import NormalDist
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -28,8 +30,8 @@ from polisyos.ir.analytics.forecasting_uncertainty import (
     FanChartSpec,
     ForecastCalibrationMethod,
     ForecastCoverageDiagnostic,
-    ForecastIntervalSemantics,
     ForecastingUncertaintyBundle,
+    ForecastIntervalSemantics,
     HorizonDiagnosticState,
     HorizonInterval,
     HorizonPolicyRule,
@@ -131,9 +133,7 @@ def _build_regression_result(
         method_name=method_name,
         params={str(k): float(v) for k, v in params.items() if _safe_float(v) is not None},
         std_errors={
-            str(k): float(v)
-            for k, v in (std_errors or {}).items()
-            if _safe_float(v) is not None
+            str(k): float(v) for k, v in (std_errors or {}).items() if _safe_float(v) is not None
         },
         p_values={
             str(k): float(v) for k, v in (p_values or {}).items() if _safe_float(v) is not None
@@ -196,17 +196,29 @@ def _balanced_panel_arrays(
     time_ids = np.asarray(data.time_ids)
 
     for row_idx in range(data.n_obs):
-        entity = entity_ids[row_idx].item() if isinstance(entity_ids[row_idx], np.generic) else entity_ids[row_idx]
-        time = time_ids[row_idx].item() if isinstance(time_ids[row_idx], np.generic) else time_ids[row_idx]
+        entity = (
+            entity_ids[row_idx].item()
+            if isinstance(entity_ids[row_idx], np.generic)
+            else entity_ids[row_idx]
+        )
+        time = (
+            time_ids[row_idx].item()
+            if isinstance(time_ids[row_idx], np.generic)
+            else time_ids[row_idx]
+        )
         e_idx = entity_lookup[entity]
         t_idx = time_lookup[time]
         if np.isfinite(y_matrix[e_idx, t_idx]):
-            raise ValueError("nonstationary_garch requires a balanced panel without duplicate entity/time rows")
+            raise ValueError(
+                "nonstationary_garch requires a balanced panel without duplicate entity/time rows"
+            )
         y_matrix[e_idx, t_idx] = dependent[row_idx]
         x_tensor[e_idx, t_idx, :] = exog[row_idx]
 
     if np.isnan(y_matrix).any() or np.isnan(x_tensor).any():
-        raise ValueError("nonstationary_garch currently requires a balanced panel without missing cells")
+        raise ValueError(
+            "nonstationary_garch currently requires a balanced panel without missing cells"
+        )
     return y_matrix, x_tensor, entities, times
 
 
@@ -216,12 +228,10 @@ def _resolve_entity_group_map(
 ) -> tuple[dict[Any, str], str]:
     metadata = data.metadata if isinstance(data.metadata, dict) else {}
     raw = (
-        metadata.get("group_labels")
-        or metadata.get("group_assignments")
-        or metadata.get("groups")
+        metadata.get("group_labels") or metadata.get("group_assignments") or metadata.get("groups")
     )
     if raw is None:
-        return ({entity: "pooled" for entity in entities.tolist()}, "metadata_default:pooled")
+        return (dict.fromkeys(entities.tolist(), "pooled"), "metadata_default:pooled")
 
     if isinstance(raw, Mapping):
         group_map: dict[Any, str] = {}
@@ -256,8 +266,10 @@ def _resolve_entity_group_map(
 def _break_detection_score(proxy: np.ndarray, breakpoint_index: int, window: int) -> float | None:
     if breakpoint_index <= 0 or breakpoint_index >= proxy.shape[0]:
         return None
-    left = np.log(np.maximum(proxy[max(0, breakpoint_index - window):breakpoint_index], 1e-8))
-    right = np.log(np.maximum(proxy[breakpoint_index:min(proxy.shape[0], breakpoint_index + window)], 1e-8))
+    left = np.log(np.maximum(proxy[max(0, breakpoint_index - window) : breakpoint_index], 1e-8))
+    right = np.log(
+        np.maximum(proxy[breakpoint_index : min(proxy.shape[0], breakpoint_index + window)], 1e-8)
+    )
     if left.size == 0 or right.size == 0:
         return None
     return float(abs(np.mean(right) - np.mean(left)))
@@ -310,16 +322,14 @@ def _detect_group_breaks(
 
 def _segment_boundaries(total_periods: int, breakpoints: list[int] | tuple[int, ...]) -> list[int]:
     cleaned = sorted(
-        {
-            int(breakpoint)
-            for breakpoint in breakpoints
-            if 0 < int(breakpoint) < int(total_periods)
-        }
+        {int(breakpoint) for breakpoint in breakpoints if 0 < int(breakpoint) < int(total_periods)}
     )
     return [0, *cleaned, int(total_periods)]
 
 
-def _winsorize_huber_proxy(series: np.ndarray, *, kappa: float) -> tuple[np.ndarray, dict[str, float]]:
+def _winsorize_huber_proxy(
+    series: np.ndarray, *, kappa: float
+) -> tuple[np.ndarray, dict[str, float]]:
     arr = np.asarray(series, dtype=float)
     median = float(np.median(arr))
     mad = float(np.median(np.abs(arr - median)))
@@ -358,7 +368,9 @@ def _christoffersen_pvalues(covered: np.ndarray, alpha: float) -> tuple[float | 
     alpha = min(max(float(alpha), 1e-12), 1.0 - 1e-12)
     p_hat = n_miss / max(n_obs, 1)
     loglik_null = n_miss * math.log(alpha) + (n_obs - n_miss) * math.log(1.0 - alpha)
-    loglik_alt = n_miss * math.log(max(p_hat, 1e-12)) + (n_obs - n_miss) * math.log(max(1.0 - p_hat, 1e-12))
+    loglik_alt = n_miss * math.log(max(p_hat, 1e-12)) + (n_obs - n_miss) * math.log(
+        max(1.0 - p_hat, 1e-12)
+    )
     lr_uc = -2.0 * (loglik_null - loglik_alt)
     conditional = _chi_square_tail_df1(lr_uc)
 
@@ -379,9 +391,8 @@ def _christoffersen_pvalues(covered: np.ndarray, alpha: float) -> tuple[float | 
     pi = (n01 + n11) / max(total, 1)
     pi01 = n01 / max(n00 + n01, 1)
     pi11 = n11 / max(n10 + n11, 1)
-    null_loglik = (
-        (n00 + n10) * math.log(max(1.0 - pi, 1e-12))
-        + (n01 + n11) * math.log(max(pi, 1e-12))
+    null_loglik = (n00 + n10) * math.log(max(1.0 - pi, 1e-12)) + (n01 + n11) * math.log(
+        max(pi, 1e-12)
     )
     alt_loglik = (
         n00 * math.log(max(1.0 - pi01, 1e-12))
@@ -581,7 +592,9 @@ def _select_group_breaks_by_bic(
 ) -> tuple[list[int], dict[str, Any]]:
     from arch import arch_model
 
-    candidates = [tuple()] + [tuple(screened_breaks[:idx]) for idx in range(1, len(screened_breaks) + 1)]
+    candidates = [tuple()] + [
+        tuple(screened_breaks[:idx]) for idx in range(1, len(screened_breaks) + 1)
+    ]
     candidate_rows: list[dict[str, Any]] = []
     best_breaks: tuple[int, ...] = tuple()
     best_bic = float("inf")
@@ -742,7 +755,9 @@ def _evaluate_panel_volatility_scenario(
         "break_count": total_breaks,
         "sample_count": int(diagnostics["y_true"].size),
         "coverage_semantics": (
-            "blocked_holdout" if "blocked_holdout" in evaluation_modes else "in_sample_one_step_proxy"
+            "blocked_holdout"
+            if "blocked_holdout" in evaluation_modes
+            else "in_sample_one_step_proxy"
         ),
         "empirical_coverage": empirical,
         "coverage_gap": None if empirical is None else float(empirical - nominal_coverage),
@@ -791,7 +806,7 @@ def _build_nonstationary_uncertainty_bundle(
     regime_flags: tuple[str, ...],
     sample_size_assumption: str,
 ) -> ForecastingUncertaintyBundle:
-    generated_at = datetime.now(timezone.utc)
+    generated_at = datetime.now(UTC)
     quantile_levels = (0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95)
     lower_quantile = (1.0 - nominal_coverage) / 2.0
     upper_quantile = 1.0 - lower_quantile
@@ -835,11 +850,19 @@ def _build_nonstationary_uncertainty_bundle(
         ),
         coverage_diagnostic=ForecastCoverageDiagnostic(
             nominal_coverage=nominal_coverage,
-            empirical_coverage_by_horizon={} if empirical_coverage is None else {1: empirical_coverage},
+            empirical_coverage_by_horizon={}
+            if empirical_coverage is None
+            else {1: empirical_coverage},
             coverage_gap_by_horizon={} if gap is None else {1: gap},
-            mean_interval_width_by_horizon={} if mean_interval_width is None else {1: mean_interval_width},
-            conditional_coverage_pvalue_by_horizon={} if conditional_pvalue is None else {1: conditional_pvalue},
-            independence_pvalue_by_horizon={} if independence_pvalue is None else {1: independence_pvalue},
+            mean_interval_width_by_horizon={}
+            if mean_interval_width is None
+            else {1: mean_interval_width},
+            conditional_coverage_pvalue_by_horizon={}
+            if conditional_pvalue is None
+            else {1: conditional_pvalue},
+            independence_pvalue_by_horizon={}
+            if independence_pvalue is None
+            else {1: independence_pvalue},
             wis_by_horizon={} if wis is None else {1: wis},
             sample_count_by_horizon={1: sample_count},
             regime_flags=regime_flags,
@@ -883,6 +906,7 @@ def _build_nonstationary_uncertainty_bundle(
 )
 class QuantileRegressionEstimator:
     """Estimate conditional quantiles under asymmetric loss; avoid tiny samples or sparse tails."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -893,7 +917,9 @@ class QuantileRegressionEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("dependent", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")
+                ),
             }
         ),
         output_slots=_result_output_slots(),
@@ -946,7 +972,10 @@ class QuantileRegressionEstimator:
             std_errors={names[idx]: fit.bse[idx] for idx in range(len(names))},
             p_values={names[idx]: fit.pvalues[idx] for idx in range(len(names))},
             confidence_intervals=intervals,
-            diagnostics={"quantile": q, "pseudo_r_squared": _safe_float(getattr(fit, "prsquared", None))},
+            diagnostics={
+                "quantile": q,
+                "pseudo_r_squared": _safe_float(getattr(fit, "prsquared", None)),
+            },
             model_info={"library": "statsmodels", "estimator": "QuantReg"},
             n_obs=data.n_obs,
         )
@@ -965,6 +994,7 @@ class QuantileRegressionEstimator:
 )
 class EventStudyEstimator:
     """Estimate dynamic event-time effects under a valid control trend; avoid contaminated controls or weak pre-period support."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -974,7 +1004,12 @@ class EventStudyEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("outcome", SlotType.MATRIX, Unit("outcome", "value"), shape=("n_units", "n_periods")),
+                SlotSpec(
+                    "outcome",
+                    SlotType.MATRIX,
+                    Unit("outcome", "value"),
+                    shape=("n_units", "n_periods"),
+                ),
                 SlotSpec("treatment", SlotType.VECTOR, Unit("binary", "flag"), shape=("n_units",)),
                 SlotSpec("time_treatment", SlotType.SCALAR, Unit("time", "index")),
             }
@@ -997,7 +1032,9 @@ class EventStudyEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Simple event-study estimator over relative treatment time.",
         tags=frozenset({"econometrics", "event-study"}),
-        citations=("Sun, L. & Abraham, S. (2021). Estimating dynamic treatment effects in event studies.",),
+        citations=(
+            "Sun, L. & Abraham, S. (2021). Estimating dynamic treatment effects in event studies.",
+        ),
         when_to_use="Panel data with staggered or common treatment timing; plot dynamic treatment effects around event",
         typical_min_obs=50,
         output_interpretation="Coefficients at each relative period (pre/post event). Pre-period estimates should be near zero (parallel trends check).",
@@ -1050,9 +1087,13 @@ class EventStudyEstimator:
                     control_mask = np.asarray(data.treatment) == 0
                 if not control_mask.any():
                     continue
-                treated_delta = float(data.outcome[unit_idx, event_t] - data.outcome[unit_idx, baseline_t])
+                treated_delta = float(
+                    data.outcome[unit_idx, event_t] - data.outcome[unit_idx, baseline_t]
+                )
                 control_delta = float(
-                    np.mean(data.outcome[control_mask, event_t] - data.outcome[control_mask, baseline_t])
+                    np.mean(
+                        data.outcome[control_mask, event_t] - data.outcome[control_mask, baseline_t]
+                    )
                 )
                 cell_effects.append(treated_delta - control_delta)
             if not cell_effects:
@@ -1095,6 +1136,7 @@ class EventStudyEstimator:
 )
 class LocalProjectionsEstimator:
     """Estimate impulse responses horizon-by-horizon; avoid short samples with too many horizons or weak shock identification."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -1105,7 +1147,9 @@ class LocalProjectionsEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("endog", SlotType.VECTOR, Unit("timeseries", "value"), shape=("n_obs",)),
-                SlotSpec("exog", SlotType.MATRIX, Unit("shock", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "exog", SlotType.MATRIX, Unit("shock", "value"), shape=("n_obs", "n_features")
+                ),
             }
         ),
         output_slots=_result_output_slots(),
@@ -1127,7 +1171,9 @@ class LocalProjectionsEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Jorda local projections for impulse responses.",
         tags=frozenset({"econometrics", "local-projections"}),
-        citations=("Jorda, O. (2005). Estimation and Inference of Impulse Responses by Local Projections.",),
+        citations=(
+            "Jorda, O. (2005). Estimation and Inference of Impulse Responses by Local Projections.",
+        ),
         when_to_use="Flexible impulse response estimation without VAR model restrictions; non-linear or state-dependent dynamics",
         typical_min_obs=80,
         output_interpretation="IRF at each horizon h. Plot irf_h0 through irf_hH with CIs. More robust to misspecification than VAR-based IRFs.",
@@ -1204,6 +1250,7 @@ class LocalProjectionsEstimator:
 )
 class GARCHEstimator:
     """Estimate conditional volatility dynamics under GARCH-style persistence; avoid nearly homoskedastic series or too few observations."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("arch", "numpy")
 
@@ -1234,7 +1281,9 @@ class GARCHEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="GARCH volatility model for conditional heteroskedasticity.",
         tags=frozenset({"econometrics", "garch"}),
-        citations=("Bollerslev, T. (1986). Generalized autoregressive conditional heteroskedasticity.",),
+        citations=(
+            "Bollerslev, T. (1986). Generalized autoregressive conditional heteroskedasticity.",
+        ),
         when_to_use="Volatility clustering in financial/macro time series; conditional heteroskedasticity",
         typical_min_obs=200,
         output_interpretation="Conditional variance forecast. alpha+beta close to 1 = high persistence. ARCH LM test for fit.",
@@ -1260,9 +1309,7 @@ class GARCHEstimator:
             p=int(params.get("p", 1)),
             q=int(params.get("q", 1)),
             rescale=False,
-        ).fit(
-            disp="off"
-        )
+        ).fit(disp="off")
         param_names = list(fit.params.index)
         result = _build_regression_result(
             method_name="garch",
@@ -1304,8 +1351,12 @@ class NonstationaryGARCHEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("dependent", SlotType.VECTOR, Unit("timeseries", "value"), shape=("n_obs",)),
-                SlotSpec("exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "dependent", SlotType.VECTOR, Unit("timeseries", "value"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")
+                ),
                 SlotSpec("entity_ids", SlotType.VECTOR, Unit("entity", "id"), shape=("n_obs",)),
                 SlotSpec("time_ids", SlotType.VECTOR, Unit("time", "index"), shape=("n_obs",)),
             }
@@ -1384,9 +1435,16 @@ class NonstationaryGARCHEstimator:
             "binseg": VolatilityBreakDetectionMethod.BINSEG_LOG_VARIANCE.value,
             "pelt": VolatilityBreakDetectionMethod.PELT_LOG_VARIANCE.value,
         }
-        break_method_value = str(
-            params.get("break_detection_method", VolatilityBreakDetectionMethod.BINSEG_LOG_VARIANCE.value)
-        ).strip().lower()
+        break_method_value = (
+            str(
+                params.get(
+                    "break_detection_method",
+                    VolatilityBreakDetectionMethod.BINSEG_LOG_VARIANCE.value,
+                )
+            )
+            .strip()
+            .lower()
+        )
         break_method = VolatilityBreakDetectionMethod(
             break_method_aliases.get(break_method_value, break_method_value)
         )
@@ -1396,7 +1454,9 @@ class NonstationaryGARCHEstimator:
             "huber": VolatilityLossFamily.HUBER_PROXY.value,
             "huber_proxy": VolatilityLossFamily.HUBER_PROXY.value,
         }
-        loss_value = str(params.get("loss_family", VolatilityLossFamily.GAUSSIAN_QML.value)).strip().lower()
+        loss_value = (
+            str(params.get("loss_family", VolatilityLossFamily.GAUSSIAN_QML.value)).strip().lower()
+        )
         loss_family = VolatilityLossFamily(loss_aliases.get(loss_value, loss_value))
         huber_kappa = float(params.get("huber_kappa", 1.5))
         break_penalty = float(params.get("break_penalty", 4.0))
@@ -1413,7 +1473,9 @@ class NonstationaryGARCHEstimator:
             if not requested_list:
                 variance_feature_indices = ()
             elif all(isinstance(item, str) for item in requested_list):
-                variance_feature_indices = tuple(feature_names.index(str(item)) for item in requested_list)
+                variance_feature_indices = tuple(
+                    feature_names.index(str(item)) for item in requested_list
+                )
             else:
                 variance_feature_indices = tuple(int(item) for item in requested_list)
         variance_feature_names = tuple(feature_names[idx] for idx in variance_feature_indices)
@@ -1429,7 +1491,9 @@ class NonstationaryGARCHEstimator:
         break_records: list[VolatilityBreak] = []
         warnings: list[str] = []
         global_y: list[float] = []
-        global_intervals: dict[float, list[tuple[float, float]]] = {level: [] for level in all_levels}
+        global_intervals: dict[float, list[tuple[float, float]]] = {
+            level: [] for level in all_levels
+        }
         next_sigmas: list[float] = []
         next_means: list[float] = []
         global_evaluation_modes: set[str] = set()
@@ -1464,7 +1528,9 @@ class NonstationaryGARCHEstimator:
                         group_label=str(group_label),
                         breakpoint_index=breakpoint_index,
                         breakpoint_time_id=_python_scalar(times[breakpoint_index]),
-                        detection_score=_break_detection_score(proxy, breakpoint_index, min_segment_length),
+                        detection_score=_break_detection_score(
+                            proxy, breakpoint_index, min_segment_length
+                        ),
                         metadata={
                             "screening_proxy": "mean_squared_return",
                             "screened_breaks": list(screened_breaks),
@@ -1474,12 +1540,16 @@ class NonstationaryGARCHEstimator:
                 )
 
             boundaries = _segment_boundaries(times.shape[0], breakpoints)
-            for segment_index, (start_idx, end_idx) in enumerate(zip(boundaries[:-1], boundaries[1:], strict=True)):
+            for segment_index, (start_idx, end_idx) in enumerate(
+                zip(boundaries[:-1], boundaries[1:], strict=True)
+            ):
                 entity_param_rows: list[dict[str, float]] = []
                 entity_std_error_rows: list[dict[str, float]] = []
                 segment_conditional_vols: list[np.ndarray] = []
                 segment_eval_y: list[float] = []
-                segment_intervals: dict[float, list[tuple[float, float]]] = {level: [] for level in all_levels}
+                segment_intervals: dict[float, list[tuple[float, float]]] = {
+                    level: [] for level in all_levels
+                }
                 segment_next_sigmas: list[float] = []
                 segment_next_means: list[float] = []
                 loss_diagnostics: list[dict[str, float]] = []
@@ -1521,7 +1591,9 @@ class NonstationaryGARCHEstimator:
                     evaluation_modes.add(str(payload["evaluation_mode"]))
 
                 if not entity_param_rows:
-                    warnings.append(f"{group_label}:segment_{segment_index} had no successful GARCH fits")
+                    warnings.append(
+                        f"{group_label}:segment_{segment_index} had no successful GARCH fits"
+                    )
                     continue
 
                 union_params = sorted({name for row in entity_param_rows for name in row})
@@ -1533,16 +1605,22 @@ class NonstationaryGARCHEstimator:
                 for name in union_params:
                     values = [row[name] for row in entity_param_rows if name in row]
                     if len(values) > 1:
-                        aggregated_std_errors[name] = float(np.std(values, ddof=1) / np.sqrt(len(values)))
+                        aggregated_std_errors[name] = float(
+                            np.std(values, ddof=1) / np.sqrt(len(values))
+                        )
                     else:
                         source = entity_std_error_rows[0].get(name, 0.0)
                         aggregated_std_errors[name] = float(max(source, 0.0))
 
                 variance_covariate_proxy_effects: dict[str, float] = {}
                 if variance_feature_indices:
-                    x_block = x_tensor[group_entity_indices, start_idx:end_idx, :][:, :, variance_feature_indices]
+                    x_block = x_tensor[group_entity_indices, start_idx:end_idx, :][
+                        :, :, variance_feature_indices
+                    ]
                     design = x_block.reshape(-1, len(variance_feature_indices))
-                    response = np.log(np.maximum(group_returns[:, start_idx:end_idx].reshape(-1) ** 2, 1e-8))
+                    response = np.log(
+                        np.maximum(group_returns[:, start_idx:end_idx].reshape(-1) ** 2, 1e-8)
+                    )
                     if design.shape[0] > design.shape[1]:
                         design_matrix = np.column_stack([np.ones(design.shape[0]), design])
                         coef, *_ = np.linalg.lstsq(design_matrix, response, rcond=None)
@@ -1611,7 +1689,9 @@ class NonstationaryGARCHEstimator:
                                 else "in_sample_one_step_proxy"
                             ),
                             "winsorized_share_mean": float(
-                                np.mean([item.get("winsorized_share", 0.0) for item in loss_diagnostics])
+                                np.mean(
+                                    [item.get("winsorized_share", 0.0) for item in loss_diagnostics]
+                                )
                             ),
                             "break_selection": selection_metadata,
                         },
@@ -1667,7 +1747,9 @@ class NonstationaryGARCHEstimator:
                 "coverage_semantics": coverage_semantics,
                 "empirical_coverage": overall_empirical_coverage,
                 "coverage_gap": (
-                    None if overall_empirical_coverage is None else float(overall_empirical_coverage - nominal_coverage)
+                    None
+                    if overall_empirical_coverage is None
+                    else float(overall_empirical_coverage - nominal_coverage)
                 ),
                 "ece": overall_report.metrics.ece,
                 "max_calibration_error": overall_report.metrics.mce,
@@ -1678,7 +1760,7 @@ class NonstationaryGARCHEstimator:
             }
         }
         if run_policy_benchmark:
-            pooled_map = {entity: "pooled" for entity in entity_list}
+            pooled_map = dict.fromkeys(entity_list, "pooled")
             benchmark_scenarios["pooled_stationary_garch"] = _evaluate_panel_volatility_scenario(
                 scenario_name="pooled_stationary_garch",
                 y_matrix=y_matrix,
@@ -1698,24 +1780,26 @@ class NonstationaryGARCHEstimator:
                 all_levels=all_levels,
                 holdout_periods=holdout_periods,
             )
-            benchmark_scenarios["group_specific_stationary_garch"] = _evaluate_panel_volatility_scenario(
-                scenario_name="group_specific_stationary_garch",
-                y_matrix=y_matrix,
-                entities=entities,
-                group_map=group_map,
-                p=p,
-                q=q,
-                max_breaks=0,
-                min_segment_length=min_segment_length,
-                break_method=VolatilityBreakDetectionMethod.NONE,
-                break_penalty=break_penalty,
-                mean_model=mean_model,
-                distribution=distribution,
-                loss_family=loss_family,
-                huber_kappa=huber_kappa,
-                nominal_coverage=nominal_coverage,
-                all_levels=all_levels,
-                holdout_periods=holdout_periods,
+            benchmark_scenarios["group_specific_stationary_garch"] = (
+                _evaluate_panel_volatility_scenario(
+                    scenario_name="group_specific_stationary_garch",
+                    y_matrix=y_matrix,
+                    entities=entities,
+                    group_map=group_map,
+                    p=p,
+                    q=q,
+                    max_breaks=0,
+                    min_segment_length=min_segment_length,
+                    break_method=VolatilityBreakDetectionMethod.NONE,
+                    break_penalty=break_penalty,
+                    mean_model=mean_model,
+                    distribution=distribution,
+                    loss_family=loss_family,
+                    huber_kappa=huber_kappa,
+                    nominal_coverage=nominal_coverage,
+                    all_levels=all_levels,
+                    holdout_periods=holdout_periods,
+                )
             )
             benchmark_scenarios["pooled_break_garch"] = _evaluate_panel_volatility_scenario(
                 scenario_name="pooled_break_garch",
@@ -1776,7 +1860,9 @@ class NonstationaryGARCHEstimator:
             },
         )
         point_forecast = float(np.mean(next_means)) if next_means else 0.0
-        sigma_forecast = float(np.median(next_sigmas)) if next_sigmas else float(np.std(overall_y, ddof=1))
+        sigma_forecast = (
+            float(np.median(next_sigmas)) if next_sigmas else float(np.std(overall_y, ddof=1))
+        )
         sigma_forecast = max(sigma_forecast, 1e-8)
         uncertainty_bundle = _build_nonstationary_uncertainty_bundle(
             method_fqn="econometrics.panel.nonstationary_garch@1.0.0",
@@ -1848,6 +1934,7 @@ class NonstationaryGARCHEstimator:
 )
 class ChangePointEstimator:
     """Detect structural breaks in a time series; avoid using it as a causal effect estimator without an intervention design."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("ruptures", "numpy")
 
@@ -1878,7 +1965,9 @@ class ChangePointEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Structural break detection via rupture-based change point search.",
         tags=frozenset({"econometrics", "change-point"}),
-        citations=("Truong, C. et al. (2020). Selective review of offline change point detection methods.",),
+        citations=(
+            "Truong, C. et al. (2020). Selective review of offline change point detection methods.",
+        ),
         when_to_use="Time series with suspected regime shifts or structural breaks; detect when mean/variance changes",
         typical_min_obs=50,
         output_interpretation="Breakpoint indices and segment means. Penalty controls number of breaks detected. Visual inspection recommended.",

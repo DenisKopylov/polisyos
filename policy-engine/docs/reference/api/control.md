@@ -1,10 +1,12 @@
 # Control Plane API
+
 Related explanation: [Security Model](../../explanation/security-model.md).
 
 Freshness: 2026-04-17
 Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/routes/control.py`, `src/polisyos/runtime/http/services/control.py`, `src/polisyos/runtime/http/mutation_policy.py`, `src/polisyos/runtime/http/execution_policy.py`, and `schemas/runtime_api_v1.openapi.json`
 Validation:
+
 - `uv run pytest -q tests/runtime/http/test_control_api.py tests/runtime/http/test_runtime_api_write_path_hardening.py tests/runtime/http/test_control_hardening.py`
 - `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
 
@@ -28,11 +30,14 @@ All `POST /api/v1/control/*` mutations pass through
 - Per-tenant write rate limits return `429 rate_limit_exceeded`.
 - Reused `X-Idempotency-Key` values replay the original successful response
   only when tenant, method, path, and request hash match.
+
 - Reusing a key for a different payload returns `409 idempotency_key_reused`.
 - Concurrent reuse while the first request is still pending returns
   `409 idempotency_request_in_progress`.
+
 - Mutation audit entries are appended to
   `.polisyos/runtime/audit/mutations.jsonl`.
+
 - Control-store and CAS dependency guards return typed `503`/`504` problem
   responses instead of hanging worker threads silently.
 
@@ -48,52 +53,52 @@ Validation anchors:
 
 ### Run Launch And Feedback
 
-| Method | Path | Request body | Response body |
-|--------|------|--------------|---------------|
-| `POST` | `/api/v1/control/runs` | `WorkflowRunRequest` | `RunLaunchResponse` |
-| `POST` | `/api/v1/control/runs/nl` | `NaturalLanguageRunRequest` | `RunLaunchResponse` |
-| `POST` | `/api/v1/control/runs/{run_id}/feedback/evaluate` | None | `FeedbackActionResponse` |
-| `POST` | `/api/v1/control/runs/{run_id}/reissue` | None | `FeedbackActionResponse` |
-| `GET` | `/api/v1/control/jobs/{job_id}` | None | `ControlJobResponse` |
+| Method | Path                                              | Request body                | Response body            |
+| ------ | ------------------------------------------------- | --------------------------- | ------------------------ |
+| `POST` | `/api/v1/control/runs`                            | `WorkflowRunRequest`        | `RunLaunchResponse`      |
+| `POST` | `/api/v1/control/runs/nl`                         | `NaturalLanguageRunRequest` | `RunLaunchResponse`      |
+| `POST` | `/api/v1/control/runs/{run_id}/feedback/evaluate` | None                        | `FeedbackActionResponse` |
+| `POST` | `/api/v1/control/runs/{run_id}/reissue`           | None                        | `FeedbackActionResponse` |
+| `GET`  | `/api/v1/control/jobs/{job_id}`                   | None                        | `ControlJobResponse`     |
 
 ### Data Discovery, Resolution, And Ingestion
 
-| Method | Path | Request body | Response body |
-|--------|------|--------------|---------------|
-| `POST` | `/api/v1/control/data/discover` | `DataDiscoverRequest` | `DataDiscoverResponse` |
-| `POST` | `/api/v1/control/data/resolve` | `DataResolveRequest` | `DataResolveResponse` |
-| `POST` | `/api/v1/control/data/preview` | `DataPreviewRequest` | `DataPreviewResponse` |
-| `POST` | `/api/v1/control/data/ingest` | `IngestRequest` | `IngestResponse` |
-| `GET` | `/api/v1/control/data/catalog/search` | None | `DataCatalogSearchResponse` |
-| `GET` | `/api/v1/control/data/index/stats` | None | `IndexStatsResponse` |
-| `GET` | `/api/v1/control/data/promotion/candidates` | None | `PromotionCandidatesResponse` |
-| `POST` | `/api/v1/control/data/promotion/{promotion_id}/approve` | `PromotionDecisionRequest` | `PromotionDecisionResponse` |
-| `POST` | `/api/v1/control/data/promotion/{promotion_id}/reject` | `PromotionDecisionRequest` | `PromotionDecisionResponse` |
-| `GET` | `/api/v1/control/data/connectors` | None | `ConnectorsListResponse` |
-| `GET` | `/api/v1/control/data/cache` | None | `CacheStatusResponse` |
-| `GET` | `/api/v1/control/data/profiles` | None | `SourceProfilesListResponse` |
-| `GET` | `/api/v1/control/data/binding-profiles` | None | `BindingProfilesListResponse` |
-| `GET` | `/api/v1/control/capabilities` | None | `CapabilityManifestResponse` |
-| `GET` | `/api/v1/control/llm/profiles` | None | `ModelProfilesListResponse` |
+| Method | Path                                                    | Request body               | Response body                 |
+| ------ | ------------------------------------------------------- | -------------------------- | ----------------------------- |
+| `POST` | `/api/v1/control/data/discover`                         | `DataDiscoverRequest`      | `DataDiscoverResponse`        |
+| `POST` | `/api/v1/control/data/resolve`                          | `DataResolveRequest`       | `DataResolveResponse`         |
+| `POST` | `/api/v1/control/data/preview`                          | `DataPreviewRequest`       | `DataPreviewResponse`         |
+| `POST` | `/api/v1/control/data/ingest`                           | `IngestRequest`            | `IngestResponse`              |
+| `GET`  | `/api/v1/control/data/catalog/search`                   | None                       | `DataCatalogSearchResponse`   |
+| `GET`  | `/api/v1/control/data/index/stats`                      | None                       | `IndexStatsResponse`          |
+| `GET`  | `/api/v1/control/data/promotion/candidates`             | None                       | `PromotionCandidatesResponse` |
+| `POST` | `/api/v1/control/data/promotion/{promotion_id}/approve` | `PromotionDecisionRequest` | `PromotionDecisionResponse`   |
+| `POST` | `/api/v1/control/data/promotion/{promotion_id}/reject`  | `PromotionDecisionRequest` | `PromotionDecisionResponse`   |
+| `GET`  | `/api/v1/control/data/connectors`                       | None                       | `ConnectorsListResponse`      |
+| `GET`  | `/api/v1/control/data/cache`                            | None                       | `CacheStatusResponse`         |
+| `GET`  | `/api/v1/control/data/profiles`                         | None                       | `SourceProfilesListResponse`  |
+| `GET`  | `/api/v1/control/data/binding-profiles`                 | None                       | `BindingProfilesListResponse` |
+| `GET`  | `/api/v1/control/capabilities`                          | None                       | `CapabilityManifestResponse`  |
+| `GET`  | `/api/v1/control/llm/profiles`                          | None                       | `ModelProfilesListResponse`   |
 
 ### Lex Operations
 
-| Method | Path | Request body | Response body |
-|--------|------|--------------|---------------|
-| `POST` | `/api/v1/control/lex/trigger` | `LexTriggerRequest` | `LexTriggerResponse` |
-| `GET` | `/api/v1/control/lex/status/{pipeline_id}` | None | `LexPipelineStatusResponse` |
-| `GET` | `/api/v1/control/lex/graph/stats` | None | `LexGraphStatsResponse` |
-| `POST` | `/api/v1/control/lex/search` | `LexSearchRequest` | `LexSearchResponse` |
+| Method | Path                                       | Request body        | Response body               |
+| ------ | ------------------------------------------ | ------------------- | --------------------------- |
+| `POST` | `/api/v1/control/lex/trigger`              | `LexTriggerRequest` | `LexTriggerResponse`        |
+| `GET`  | `/api/v1/control/lex/status/{pipeline_id}` | None                | `LexPipelineStatusResponse` |
+| `GET`  | `/api/v1/control/lex/graph/stats`          | None                | `LexGraphStatsResponse`     |
+| `POST` | `/api/v1/control/lex/search`               | `LexSearchRequest`  | `LexSearchResponse`         |
 
 ### Operational Endpoints
 
-| Method | Path | Request body | Response body |
-|--------|------|--------------|---------------|
-| `GET` | `/api/v1/control/workers` | None | `ControlWorkersResponse` |
-| `GET` | `/api/v1/control/outbox` | None | `ControlOutboxEventsResponse` |
-| `POST` | `/api/v1/control/decision-validity/events` | `DecisionValidityEventRequest` | `DecisionValidityEventResponse` |
-| `GET` | `/api/v1/control/runs/{run_id}/decision-validity` | None | `DecisionValiditySummaryResponse` |
-| `GET` | `/api/v1/control/decision-packets/{decision_packet_ref}/decision-validity` | None | `DecisionValiditySummaryResponse` |
+| Method | Path                                                                       | Request body                   | Response body                     |
+| ------ | -------------------------------------------------------------------------- | ------------------------------ | --------------------------------- |
+| `GET`  | `/api/v1/control/workers`                                                  | None                           | `ControlWorkersResponse`          |
+| `GET`  | `/api/v1/control/outbox`                                                   | None                           | `ControlOutboxEventsResponse`     |
+| `POST` | `/api/v1/control/decision-validity/events`                                 | `DecisionValidityEventRequest` | `DecisionValidityEventResponse`   |
+| `GET`  | `/api/v1/control/runs/{run_id}/decision-validity`                          | None                           | `DecisionValiditySummaryResponse` |
+| `GET`  | `/api/v1/control/decision-packets/{decision_packet_ref}/decision-validity` | None                           | `DecisionValiditySummaryResponse` |
 
 Committed OpenAPI endpoints share the common response codes `200`, `400`,
 `401`, `403`, `404`, `422`, and `500`. Hardened write paths may additionally
@@ -392,16 +397,16 @@ http POST :8000/api/v1/control/data/ingest \
 
 ### Search And Inspection Endpoints
 
-| Method | Path | Key query parameters | Response body |
-|--------|------|----------------------|---------------|
-| `GET` | `/api/v1/control/data/catalog/search` | `metric` required, `geo`, `limit` | `DataCatalogSearchResponse` |
-| `GET` | `/api/v1/control/data/index/stats` | None | `IndexStatsResponse` |
-| `GET` | `/api/v1/control/data/connectors` | None | `ConnectorsListResponse` |
-| `GET` | `/api/v1/control/data/cache` | None | `CacheStatusResponse` |
-| `GET` | `/api/v1/control/data/profiles` | None | `SourceProfilesListResponse` |
-| `GET` | `/api/v1/control/data/binding-profiles` | None | `BindingProfilesListResponse` |
-| `GET` | `/api/v1/control/capabilities` | None | `CapabilityManifestResponse` |
-| `GET` | `/api/v1/control/llm/profiles` | None | `ModelProfilesListResponse` |
+| Method | Path                                    | Key query parameters              | Response body                 |
+| ------ | --------------------------------------- | --------------------------------- | ----------------------------- |
+| `GET`  | `/api/v1/control/data/catalog/search`   | `metric` required, `geo`, `limit` | `DataCatalogSearchResponse`   |
+| `GET`  | `/api/v1/control/data/index/stats`      | None                              | `IndexStatsResponse`          |
+| `GET`  | `/api/v1/control/data/connectors`       | None                              | `ConnectorsListResponse`      |
+| `GET`  | `/api/v1/control/data/cache`            | None                              | `CacheStatusResponse`         |
+| `GET`  | `/api/v1/control/data/profiles`         | None                              | `SourceProfilesListResponse`  |
+| `GET`  | `/api/v1/control/data/binding-profiles` | None                              | `BindingProfilesListResponse` |
+| `GET`  | `/api/v1/control/capabilities`          | None                              | `CapabilityManifestResponse`  |
+| `GET`  | `/api/v1/control/llm/profiles`          | None                              | `ModelProfilesListResponse`   |
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
@@ -445,11 +450,11 @@ http GET :8000/api/v1/control/llm/profiles "Authorization:Bearer $TOKEN"
 
 ### Promotion Endpoints
 
-| Method | Path | Request body | Response body |
-|--------|------|--------------|---------------|
-| `GET` | `/api/v1/control/data/promotion/candidates` | None | `PromotionCandidatesResponse` |
-| `POST` | `/api/v1/control/data/promotion/{promotion_id}/approve` | `PromotionDecisionRequest` | `PromotionDecisionResponse` |
-| `POST` | `/api/v1/control/data/promotion/{promotion_id}/reject` | `PromotionDecisionRequest` | `PromotionDecisionResponse` |
+| Method | Path                                                    | Request body               | Response body                 |
+| ------ | ------------------------------------------------------- | -------------------------- | ----------------------------- |
+| `GET`  | `/api/v1/control/data/promotion/candidates`             | None                       | `PromotionCandidatesResponse` |
+| `POST` | `/api/v1/control/data/promotion/{promotion_id}/approve` | `PromotionDecisionRequest` | `PromotionDecisionResponse`   |
+| `POST` | `/api/v1/control/data/promotion/{promotion_id}/reject`  | `PromotionDecisionRequest` | `PromotionDecisionResponse`   |
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \

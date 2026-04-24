@@ -24,14 +24,14 @@ demo path.
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - [`../../tools/demos/README.md`](../../tools/demos/README.md)
 - `src/polisyos/foundry`
 - `src/polisyos/scientist`
 - `src/polisyos/fabric`
 
-**Depended on by**
+### Depended On By
 
 - Manual demo validation and contributor sanity checks
 - [`../README.md`](../README.md) as the navigation entry for this slice

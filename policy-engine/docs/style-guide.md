@@ -177,6 +177,7 @@ def parse_rows(payload: bytes, *, source_name: str) -> list[Row]:
 - Для boundary objects явно назван соседний контракт/слой, который их читает или пишет.
 - Для публичных функций есть `Args`, `Returns`, `Raises`, а для entrypoints/loaders/compile
   APIs — ещё и `Example`.
+
 - Если API тривиален и реально не заслуживает длинного описания, лучше сделать короткий,
   но предметный summary, чем писать `... helper.`.
 
@@ -210,6 +211,7 @@ Documentation должна совпадать с текущей реальнос
 - Не оставляйте repo placeholders в опубликованных docs.
 - Не ссылайтесь на удалённые GitHub Actions workflows; используйте только реально существующие
   файлы из `.github/workflows/`.
+
 - Не вставляйте локальные filesystem links (`/Users/...`, `file://...`) в markdown docs.
 - Абсолютные ссылки на docs site должны соответствовать `mkdocs.yml:site_url`.
 - Внутренние markdown links должны реально резолвиться из текущего дерева `docs/`.
@@ -232,6 +234,7 @@ reference-visible symbols). Method-level gaps остаются в отчёте �
 
 - Любое изменение package facade, рекомендуемого entrypoint, generated/reference artifact location
   или subsystem navigation должно обновлять ближайший `README.md`.
+
 - Каждый package README должен содержать freshness marker:
   - `- Last updated: YYYY-MM-DD`
   - или `- Последнее обновление: YYYY-MM-DD`
@@ -325,7 +328,7 @@ One paragraph: что делает модуль, какую проблему р�
 ### Форматирование
 
 - Headers: ATX style (`#`, не underline `===`)
-- Code blocks: тройные backticks с идентификатором языка (````python`, ````yaml`, ````bash`)
+- Code blocks: тройные backticks с идентификатором языка (``python`,``yaml`, ````bash`)
 - Links: относительные пути внутри `docs/` (`[Trinity](explanation/trinity.md)`)
 - Max line length: soft 100 chars (без hard wrap в параграфах)
 - Списки: `-` для unordered, `1.` для ordered
@@ -359,7 +362,7 @@ Content...
 
 ```markdown
 | Column A | Column B | Column C |
-|----------|----------|----------|
+| -------- | -------- | -------- |
 | value    | value    | value    |
 ```
 
@@ -367,13 +370,13 @@ Content...
 
 ```markdown
 !!! warning "Важно"
-    Текст предупреждения.
+Текст предупреждения.
 
 !!! note
-    Дополнительная информация.
+Дополнительная информация.
 
 !!! example
-    Пример использования.
+Пример использования.
 ```
 
 ---
@@ -383,12 +386,12 @@ Content...
 Каждый документ в `docs/` принадлежит **одному** из четырёх типов.
 Не смешивать типы в одном документе.
 
-| Тип | Папка | Цель | Стиль |
-|-----|-------|------|-------|
-| **Tutorial** | `tutorials/` | Обучение через практику | "Сделайте X, затем Y, увидите Z" |
-| **How-to** | `how-to/` | Решение конкретной задачи | "Чтобы сделать X: шаг 1, 2, 3" |
-| **Reference** | `reference/` | Точная, полная справка | Сухое описание API, параметров, типов |
-| **Explanation** | `explanation/` | Понимание контекста | "Почему X устроен так, а не иначе" |
+| Тип             | Папка          | Цель                      | Стиль                                 |
+| --------------- | -------------- | ------------------------- | ------------------------------------- |
+| **Tutorial**    | `tutorials/`   | Обучение через практику   | "Сделайте X, затем Y, увидите Z"      |
+| **How-to**      | `how-to/`      | Решение конкретной задачи | "Чтобы сделать X: шаг 1, 2, 3"        |
+| **Reference**   | `reference/`   | Точная, полная справка    | Сухое описание API, параметров, типов |
+| **Explanation** | `explanation/` | Понимание контекста       | "Почему X устроен так, а не иначе"    |
 
 ### Признаки неправильной категоризации
 

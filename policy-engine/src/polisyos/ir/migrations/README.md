@@ -18,14 +18,14 @@ non-Trinity surface.
 
 ## Public entrypoints
 
-| Entrypoint | Use when | Defined in |
-|---|---|---|
-| `polisyos.ir.migrations.IR_ARTIFACT` | Нужно canonical artifact family name для migration registry | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.migrations.IR_CURRENT_VERSION` | Нужно узнать текущую поддерживаемую policy IR version | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.migrations.parse_version()` | Нужно распарсить `MAJOR.MINOR` version string | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.migrations.is_major_bump()` | Нужно определить, требуется ли guarded major transition | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.migrations.migrate_policy_ir()` | Нужно прогнать canonical payload через supported migration chain | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.migrations.can_read_schema()`, `negotiate_schema_version()` | Нужны compatibility checks для producers/consumers | [`base.py`](./base.py) via [`__init__.py`](./__init__.py) |
+| Entrypoint                                                               | Use when                                                         | Defined in                                                |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------- | --------------------------------------------------------- |
+| `polisyos.ir.migrations.IR_ARTIFACT`                                     | Нужно canonical artifact family name для migration registry      | [`__init__.py`](./__init__.py)                            |
+| `polisyos.ir.migrations.IR_CURRENT_VERSION`                              | Нужно узнать текущую поддерживаемую policy IR version            | [`__init__.py`](./__init__.py)                            |
+| `polisyos.ir.migrations.parse_version()`                                 | Нужно распарсить `MAJOR.MINOR` version string                    | [`__init__.py`](./__init__.py)                            |
+| `polisyos.ir.migrations.is_major_bump()`                                 | Нужно определить, требуется ли guarded major transition          | [`__init__.py`](./__init__.py)                            |
+| `polisyos.ir.migrations.migrate_policy_ir()`                             | Нужно прогнать canonical payload через supported migration chain | [`__init__.py`](./__init__.py)                            |
+| `polisyos.ir.migrations.can_read_schema()`, `negotiate_schema_version()` | Нужны compatibility checks для producers/consumers               | [`base.py`](./base.py) via [`__init__.py`](./__init__.py) |
 
 ## Depends on / depended on by
 

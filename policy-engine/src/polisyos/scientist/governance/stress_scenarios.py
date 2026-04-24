@@ -5,6 +5,7 @@ metrics under canonical shock scenarios, classify deterioration severity, and
 produce a persisted `StressTestReportRef` plus a compact robustness summary for
 leaderboard scoring.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -210,7 +211,8 @@ class StressScenarioRunner:
             fidelity_mode="stress_preset",
             worst_case_parameters={
                 "objective_multiplier": min(
-                    _SCENARIO_PRESETS[scenario].objective_multiplier for scenario in StressScenarioKind
+                    _SCENARIO_PRESETS[scenario].objective_multiplier
+                    for scenario in StressScenarioKind
                 )
             },
             worst_case_objective=min(item.stressed_objective for item in comparisons),
@@ -218,7 +220,8 @@ class StressScenarioRunner:
             critical_count=sum(1 for item in vulnerabilities if item.severity == "critical"),
             high_count=sum(1 for item in vulnerabilities if item.severity == "high"),
             medium_count=sum(1 for item in vulnerabilities if item.severity == "medium"),
-            robustness_score=sum(score for _, score in scenario_scores) / max(len(scenario_scores), 1),
+            robustness_score=sum(score for _, score in scenario_scores)
+            / max(len(scenario_scores), 1),
             metadata={
                 "stress_scenarios": [item.scenario.value for item in comparisons],
                 **dict(metadata or {}),
@@ -265,7 +268,9 @@ def persist_stress_test_report(
         PutOptions(
             kind="scientist.stress_test_report",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version=report.schema_version),
+            schema=SchemaInfo(
+                name="polisyos.scientist.StressTestReport", version=report.schema_version
+            ),
             inputs=list(inputs or []),
         ),
         canon_spec=CanonSpec(forbid_floats=False),

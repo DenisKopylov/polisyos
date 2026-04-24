@@ -6,14 +6,17 @@ import json
 import math
 from collections import defaultdict
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.openalex.client import OpenAlexClient
 from polisyos.academic.openalex.selector import SelectedTopicWork, select_all_topics
 from polisyos.academic.openalex.topic_catalog import TopicEntry, load_topics
 from polisyos.batch_common.manifest import write_stage_manifest
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 
 def _write_jsonl(path: Path, rows: list[dict]) -> None:
@@ -54,7 +57,7 @@ def _load_demand_backlog(path: Path | None) -> list[dict[str, Any]]:
                 if isinstance(item, dict):
                     rows.append(item)
         return rows
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -84,9 +87,7 @@ def _backlog_match_score(text: str, backlog_row: dict[str, Any]) -> float:
     if not clean_text:
         return 0.0
     terms = [
-        str(term).strip().lower()
-        for term in backlog_row.get("terms", [])
-        if str(term).strip()
+        str(term).strip().lower() for term in backlog_row.get("terms", []) if str(term).strip()
     ]
     if not terms:
         for key in ("cause", "effect", "parameter_name"):
@@ -169,7 +170,10 @@ def _aggregate_global_candidates(
     demand_backlog = _load_demand_backlog(config.demand_backlog_path)
     by_work: dict[str, dict[str, Any]] = {}
     bucket_counts: dict[str, int] = defaultdict(int)
-    demand_metrics: dict[str, int] = {"backlog_items": len(demand_backlog), "selected_with_backlog_signal": 0}
+    demand_metrics: dict[str, int] = {
+        "backlog_items": len(demand_backlog),
+        "selected_with_backlog_signal": 0,
+    }
     for item in selected:
         topic = topic_lookup.get(item.topic_id)
         bucket = _topic_bucket(
@@ -202,7 +206,9 @@ def _aggregate_global_candidates(
                 need_id = str(row.get("need_id") or "").strip()
                 if need_id and need_id not in matched_need_ids:
                     matched_need_ids.append(need_id)
-        adjusted_score = float(item.selection_score) + float(config.demand_backlog_boost) * demand_signal_score
+        adjusted_score = (
+            float(item.selection_score) + float(config.demand_backlog_boost) * demand_signal_score
+        )
         existing = by_work.get(item.work_id)
         if existing is None:
             by_work[item.work_id] = {
@@ -215,7 +221,9 @@ def _aggregate_global_candidates(
                 "topic_ids": [item.topic_id],
                 "topic_display_names": [item.topic_display_name],
                 "policy_blocks": [item.topic_policy_block] if item.topic_policy_block else [],
-                "policy_subblocks": [item.topic_policy_subblock] if item.topic_policy_subblock else [],
+                "policy_subblocks": [item.topic_policy_subblock]
+                if item.topic_policy_subblock
+                else [],
                 "run_ids": [item.run_id],
                 "source_files": [item.source_file] if item.source_file else [],
                 "allocation_buckets": [bucket],
@@ -223,9 +231,13 @@ def _aggregate_global_candidates(
                 "selected_at": item.selected_at,
             }
             continue
-        existing["selection_score"] = max(float(existing["selection_score"]), float(item.selection_score))
+        existing["selection_score"] = max(
+            float(existing["selection_score"]), float(item.selection_score)
+        )
         existing["priority_score"] = max(float(existing["priority_score"]), adjusted_score)
-        existing["demand_signal_score"] = max(float(existing["demand_signal_score"]), demand_signal_score)
+        existing["demand_signal_score"] = max(
+            float(existing["demand_signal_score"]), demand_signal_score
+        )
         existing["best_rank"] = min(int(existing["best_rank"]), int(item.rank))
         for key, value in (
             ("topic_ids", item.topic_id),
@@ -243,9 +255,13 @@ def _aggregate_global_candidates(
                 existing["matched_need_ids"].append(need_id)
 
     quota_plan = {
-        "policy_core": int(round(config.selected_unique_budget * config.policy_core_quota_share)),
-        "priority_domain": int(round(config.selected_unique_budget * config.priority_domain_quota_share)),
-        "priority_context": int(round(config.selected_unique_budget * config.priority_context_quota_share)),
+        "policy_core": round(config.selected_unique_budget * config.policy_core_quota_share),
+        "priority_domain": round(
+            config.selected_unique_budget * config.priority_domain_quota_share
+        ),
+        "priority_context": round(
+            config.selected_unique_budget * config.priority_context_quota_share
+        ),
     }
     quota_plan["adaptive_reserve"] = max(
         0,
@@ -260,7 +276,12 @@ def _aggregate_global_candidates(
                 for row in by_work.values()
                 if bucket_name in row["allocation_buckets"] and row["work_id"] not in taken
             ),
-            key=lambda row: (-float(row["priority_score"]), -float(row["selection_score"]), int(row["best_rank"]), str(row["work_id"])),
+            key=lambda row: (
+                -float(row["priority_score"]),
+                -float(row["selection_score"]),
+                int(row["best_rank"]),
+                str(row["work_id"]),
+            ),
         )
         for row in ranked[: quota_plan[bucket_name]]:
             taken.add(str(row["work_id"]))
@@ -273,7 +294,12 @@ def _aggregate_global_candidates(
     if reserve_needed:
         reserve_ranked = sorted(
             (row for row in by_work.values() if row["work_id"] not in taken),
-            key=lambda row: (-float(row["priority_score"]), -float(row["selection_score"]), int(row["best_rank"]), str(row["work_id"])),
+            key=lambda row: (
+                -float(row["priority_score"]),
+                -float(row["selection_score"]),
+                int(row["best_rank"]),
+                str(row["work_id"]),
+            ),
         )
         for row in reserve_ranked[:reserve_needed]:
             taken.add(str(row["work_id"]))
@@ -333,7 +359,9 @@ async def run_topic_select(config: AcademicBatchConfig) -> dict[str, int]:
     by_topic_count: defaultdict[str, int] = defaultdict(int)
     for item in selected:
         by_topic_count[item.topic_id] += 1
-    selected_global_rows, bucket_counts, demand_metrics = _aggregate_global_candidates(config, selected, topic_lookup)
+    selected_global_rows, bucket_counts, demand_metrics = _aggregate_global_candidates(
+        config, selected, topic_lookup
+    )
 
     _write_jsonl(config.selected_global_works_path, selected_global_rows)
 
@@ -359,7 +387,11 @@ async def run_topic_select(config: AcademicBatchConfig) -> dict[str, int]:
         stage="topic_select",
         status="ok",
         metrics=metrics,
-        artifacts=[config.topics_catalog_path, config.selected_topic_works_path, config.selected_global_works_path],
+        artifacts=[
+            config.topics_catalog_path,
+            config.selected_topic_works_path,
+            config.selected_global_works_path,
+        ],
         started_at=started_at,
     )
     return metrics

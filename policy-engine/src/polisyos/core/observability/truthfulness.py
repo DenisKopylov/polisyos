@@ -1,8 +1,10 @@
 """Truthfulness tiers, receipts, and reconciliation helpers."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import Enum
-from typing import Any, Mapping
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -134,7 +136,7 @@ class TruthfulnessReceipt(BaseModel):
     certificate_version: str = "1.0"
 
     @model_validator(mode="after")
-    def _reconcile_defaults(self) -> "TruthfulnessReceipt":
+    def _reconcile_defaults(self) -> TruthfulnessReceipt:
         if self.effective_truthfulness_tier is None or self.status is None:
             effective, status = reconcile_truthfulness_tiers(
                 self.declared_truthfulness_tier,
@@ -177,11 +179,17 @@ def extract_truthfulness_receipt(value: Any) -> TruthfulnessReceipt | None:
             return None
         attr = getattr(value, "truthfulness_receipt", None)
         if attr is not None:
-            return validate_truthfulness_receipt(attr)
+            if isinstance(attr, TruthfulnessReceipt):
+                return attr
+            if isinstance(attr, Mapping):
+                return validate_truthfulness_receipt(attr)
         to_receipt = getattr(value, "to_truthfulness_receipt", None)
         if callable(to_receipt):
             candidate = to_receipt()
-            return validate_truthfulness_receipt(candidate)
+            if isinstance(candidate, TruthfulnessReceipt):
+                return candidate
+            if isinstance(candidate, Mapping):
+                return validate_truthfulness_receipt(candidate)
     except (TypeError, ValueError):
         return None
     return None

@@ -1,4 +1,5 @@
 """Public decide run policy blueprint runtime module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -11,35 +12,23 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.foundry.validation import normalize_phase2_artifact_family
 from polisyos.foundry.methods.catalog.causal.strategic import (
-    build_strategic_response_bundle,
     solve_strategic_response,
     strategic_result_summary,
 )
+from polisyos.foundry.validation import normalize_phase2_artifact_family
 from polisyos.ir.analytics.abstraction import (
     AbstractionCertificate,
     load_abstraction_certificate,
 )
 from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, EvidenceSourceKind
 from polisyos.ir.analytics.strategic import (
-    EquilibriumSelectionSummary,
-    EquilibriumSetSummary,
     FiniteStrategicPayoffTable,
-    PerformativeShiftSummary,
-    PostAdaptationPolicyValueSummary,
-    StrategicClosureSummary,
     StrategicSCM,
     load_strategic_payoff_table,
-    persist_equilibrium_selection_summary,
-    persist_equilibrium_set_summary,
-    persist_performative_shift_summary,
-    persist_post_adaptation_policy_value_summary,
-    persist_strategic_closure_summary,
     persist_strategic_payoff_table,
-    persist_strategic_response_bundle,
-    persist_strategic_solve_artifacts,
     persist_strategic_scm,
+    persist_strategic_solve_artifacts,
 )
 from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.ir.refs import ArtifactRefModel
@@ -110,6 +99,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_DECISION_READINESS_CONTRACT_REF,
+    ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF,
     ARTIFACT_PLATFORM_META_EVALUATION_REPORT_REF,
     ARTIFACT_PROMOTION_EVIDENCE_BUNDLE_REF,
     ARTIFACT_REPLAYABLE_AUDIT_BUNDLE_REF,
@@ -218,6 +208,7 @@ _SPEC = NodeSpec(
         "params.audit_refs",
         "params.actionable_side_information_refs",
         "params.strategic_response",
+        f"artifacts_index.{ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF}",
         f"artifacts_index.{ARTIFACT_PROMOTION_EVIDENCE_BUNDLE_REF}",
         f"artifacts_index.{ARTIFACT_PLATFORM_META_EVALUATION_REPORT_REF}",
         f"artifacts_index.{ARTIFACT_STRESS_TEST_REPORT_REF}",
@@ -226,6 +217,7 @@ _SPEC = NodeSpec(
         f"artifacts_index.{ARTIFACT_DECISION_READINESS_CONTRACT_REF}",
     ],
     produces=[
+        ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF,
         ARTIFACT_PROMOTION_EVIDENCE_BUNDLE_REF,
         ARTIFACT_PLATFORM_META_EVALUATION_REPORT_REF,
         ARTIFACT_STRESS_TEST_REPORT_REF,
@@ -266,6 +258,7 @@ class _PolicyRuntimeWorkflowEngine(WorkflowEngine):
             causal_effect_report=initial_state.get("causal_effect_report"),
             cross_graph_profile=initial_state.get("cross_graph_profile"),
             governance_report=initial_state.get("governance_report"),
+            ambiguity_certificate=initial_state.get("ambiguity_certificate"),
         )
         return {
             "simulation_results": runtime_artifact.simulation_results,
@@ -279,7 +272,9 @@ class _PolicyRuntimeWorkflowEngine(WorkflowEngine):
                 "policy_runtime_backend_kind": runtime_artifact.provenance.backend_kind,
                 "policy_runtime_promotable_source": runtime_artifact.provenance.promotable_source,
                 "policy_runtime_degradation_mode": runtime_artifact.provenance.degradation_mode,
-                "policy_runtime_source_components": list(runtime_artifact.provenance.source_components),
+                "policy_runtime_source_components": list(
+                    runtime_artifact.provenance.source_components
+                ),
                 "policy_runtime_notes": list(runtime_artifact.provenance.notes),
                 "policy_runtime_input_signature": str(
                     initial_state.get("pinned_input_signature") or ""
@@ -306,6 +301,7 @@ class _PolicyRuntimeWorkflowEngine(WorkflowEngine):
 @dataclass(frozen=True)
 class RunPolicyBlueprintRuntimeNode:
     """Run policy blueprint runtime node implementation."""
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -330,6 +326,8 @@ class RunPolicyBlueprintRuntimeNode:
             evidence_sources=evidence_sources,
         )
         simulation_metrics = runtime_request.simulation_metrics
+        ambiguity_certificate = runtime_request.ambiguity_certificate
+        ambiguity_certificate_ref = runtime_request.ambiguity_certificate_ref
         runtime_backend = ProductionPolicyEvaluationBackend()
         input_signature = policy_runtime_input_signature(
             candidate_ref=candidate_ref,
@@ -345,6 +343,7 @@ class RunPolicyBlueprintRuntimeNode:
             causal_effect_report=causal_report,
             cross_graph_profile=cross_graph_profile,
             governance_report=governance_report,
+            ambiguity_certificate=ambiguity_certificate,
         )
         selection_vector = selection_artifact.evaluation_vector.model_copy(
             update={
@@ -360,6 +359,10 @@ class RunPolicyBlueprintRuntimeNode:
             evaluation_vector=selection_vector,
         )
         runtime_artifacts_index = dict(state.artifacts_index)
+        if ambiguity_certificate_ref is not None:
+            runtime_artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = (
+                ambiguity_certificate_ref
+            )
         strategic_output = _resolve_existing_strategic_output(state)
         if strategic_output is None:
             strategic_output = _persist_runtime_strategic_artifacts(
@@ -518,9 +521,7 @@ class RunPolicyBlueprintRuntimeNode:
             evaluation_vector=selection_vector,
             supplemental_reports=[
                 report
-                for report in (
-                    _load_stress_test_report(ctx, ref) for ref in phase_d4_stress_refs
-                )
+                for report in (_load_stress_test_report(ctx, ref) for ref in phase_d4_stress_refs)
                 if report is not None
             ],
             phase_d4_suite_ids=phase_d4_suite_ids,
@@ -544,9 +545,7 @@ class RunPolicyBlueprintRuntimeNode:
             )
         replay_bundle_ref = _resolve_replay_bundle_ref(state, existing_evidence)
         replay_verification_ref = (
-            existing_evidence.replay_verification_ref
-            if existing_evidence is not None
-            else None
+            existing_evidence.replay_verification_ref if existing_evidence is not None else None
         )
         if replay_verification_ref is None and replay_bundle_ref is not None:
             replay_verification_ref = verify_and_persist_replay_bundle(
@@ -679,8 +678,7 @@ class RunPolicyBlueprintRuntimeNode:
                 "metadata": {
                     **evidence_bundle.metadata,
                     "voi_model_status": [
-                        status.model_dump(mode="json")
-                        for status in predictive_voi.model_status()
+                        status.model_dump(mode="json") for status in predictive_voi.model_status()
                     ],
                 }
             }
@@ -757,15 +755,18 @@ class RunPolicyBlueprintRuntimeNode:
             outcome=outcome,
             fallback=selection_vector,
         )
-        stage4_feedback = dict((outcome.stage_results.get(4).feedback or {}) if outcome.stage_results.get(4) is not None else {})
+        stage4_feedback = dict(
+            (outcome.stage_results.get(4).feedback or {})
+            if outcome.stage_results.get(4) is not None
+            else {}
+        )
         evidence_bundle = evidence_bundle.model_copy(
             update={
                 "evaluation_ref": final_evaluation_ref,
                 "metadata": {
                     **evidence_bundle.metadata,
                     "voi_model_status": [
-                        status.model_dump(mode="json")
-                        for status in predictive_voi.model_status()
+                        status.model_dump(mode="json") for status in predictive_voi.model_status()
                     ],
                     "voi_scope": {
                         "task_family": str(transfer_context.get("task_family") or "policy"),
@@ -776,7 +777,10 @@ class RunPolicyBlueprintRuntimeNode:
                         "full" if outcome.stage_results.get(4) is not None else "selection_only"
                     ),
                     "promotion_grade_backend_kind": (
-                        str(stage4_feedback.get("policy_runtime_backend_kind") or selection_artifact.provenance.backend_kind)
+                        str(
+                            stage4_feedback.get("policy_runtime_backend_kind")
+                            or selection_artifact.provenance.backend_kind
+                        )
                     ),
                     "promotion_grade_promotable_source": bool(
                         stage4_feedback.get(
@@ -799,7 +803,11 @@ class RunPolicyBlueprintRuntimeNode:
                 InputRef(artifact_id=candidate_ref.artifact_id, role="candidate"),
                 InputRef(artifact_id=selection_ref.artifact_id, role="selection_evaluation"),
                 *(
-                    [InputRef(artifact_id=final_evaluation_ref.artifact_id, role="policy_evaluation")]
+                    [
+                        InputRef(
+                            artifact_id=final_evaluation_ref.artifact_id, role="policy_evaluation"
+                        )
+                    ]
                     if final_evaluation_ref is not None
                     else []
                 ),
@@ -839,24 +847,36 @@ class RunPolicyBlueprintRuntimeNode:
             ref.model_dump(mode="json") for ref in outcome.actionable_side_information_refs
         ]
         if strategic_output.strategic_response_summary is not None:
-            new_state.params["strategic_response"] = dict(strategic_output.strategic_response_summary)
+            new_state.params["strategic_response"] = dict(
+                strategic_output.strategic_response_summary
+            )
             new_state.params.setdefault("strategic_response_source", "policy_runtime")
         new_state.artifacts_index[ARTIFACT_PROMOTION_EVIDENCE_BUNDLE_REF] = evidence_ref
         if platform_meta_ref is not None:
-            new_state.artifacts_index[ARTIFACT_PLATFORM_META_EVALUATION_REPORT_REF] = platform_meta_ref
+            new_state.artifacts_index[ARTIFACT_PLATFORM_META_EVALUATION_REPORT_REF] = (
+                platform_meta_ref
+            )
         if stress_report_ref is not None:
             new_state.artifacts_index[ARTIFACT_STRESS_TEST_REPORT_REF] = stress_report_ref
+        if ambiguity_certificate_ref is not None:
+            new_state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = (
+                ambiguity_certificate_ref
+            )
 
-        promotion_feedback = dict(outcome.final_result.feedback or {}) if outcome.final_result else {}
+        promotion_feedback = (
+            dict(outcome.final_result.feedback or {}) if outcome.final_result else {}
+        )
         promotion_payload = promotion_feedback.get("promotion_result")
         if hasattr(promotion_payload, "model_dump"):
             new_state.params["policy_promotion_result"] = promotion_payload.model_dump(mode="json")
-            new_state.params["judge_verdict"] = promotion_payload.judge_verdict.model_dump(mode="json")
-            new_state.params["decision_readiness_contract"] = promotion_payload.readiness_contract.model_dump(
+            new_state.params["judge_verdict"] = promotion_payload.judge_verdict.model_dump(
                 mode="json"
             )
-            new_state.params["promotion_decision"] = promotion_payload.promotion_decision.model_dump(
-                mode="json"
+            new_state.params["decision_readiness_contract"] = (
+                promotion_payload.readiness_contract.model_dump(mode="json")
+            )
+            new_state.params["promotion_decision"] = (
+                promotion_payload.promotion_decision.model_dump(mode="json")
             )
             if promotion_payload.readiness_ref is not None:
                 new_state.artifacts_index[ARTIFACT_DECISION_READINESS_CONTRACT_REF] = (
@@ -881,6 +901,7 @@ class RunPolicyBlueprintRuntimeNode:
             artifacts=[
                 selection_ref,
                 evidence_ref,
+                *([ambiguity_certificate_ref] if ambiguity_certificate_ref is not None else []),
                 *(
                     [strategic_output.strategic_scm_ref]
                     if strategic_output.strategic_scm_ref is not None
@@ -976,7 +997,9 @@ def _candidate_search_payload(
     payload.setdefault("metadata", {})
     payload["metadata"]["task_family"] = "policy"
     payload["metadata"]["domain"] = str(
-        candidate.metadata.get("domain") or state.params.get("policy_request_domain") or state.run_id
+        candidate.metadata.get("domain")
+        or state.params.get("policy_request_domain")
+        or state.run_id
     )
     return payload
 
@@ -999,7 +1022,7 @@ def _ensure_calibration_report(
                     **dict(state.params["correlation_metrics"]),
                 },
             }
-    )
+        )
     return persist_funnel_calibration_report(ctx.store, report)
 
 
@@ -1103,7 +1126,9 @@ def _persist_runtime_strategic_artifacts(
             }
         )
         strategic_scm_ref = ArtifactRef.model_validate(
-            persist_strategic_scm(ctx.store, normalized_contract, inputs=inputs).model_dump(mode="json")
+            persist_strategic_scm(ctx.store, normalized_contract, inputs=inputs).model_dump(
+                mode="json"
+            )
         )
         abstraction_certificate = _load_runtime_abstraction_certificate(ctx, artifacts_index)
         baseline_policy_value = _selection_baseline_policy_value(selection_artifact)
@@ -1116,7 +1141,9 @@ def _persist_runtime_strategic_artifacts(
             performative_loop_spec=state.params.get("performative_loop_spec"),
             mean_field_inputs=state.params.get("mean_field_game"),
         )
-        causal_component_ref = ArtifactRefModel.model_validate(causal_report_ref.model_dump(mode="json"))
+        causal_component_ref = ArtifactRefModel.model_validate(
+            causal_report_ref.model_dump(mode="json")
+        )
         bundle, bundle_ref = persist_strategic_solve_artifacts(
             ctx.store,
             causal_component_ref=causal_component_ref,
@@ -1134,7 +1161,9 @@ def _persist_runtime_strategic_artifacts(
             mfg_solver_residual_report=result.mfg_solver_residual_report,
             mfg_mass_conservation_report=result.mfg_mass_conservation_report,
         )
-        strategic_response_bundle_ref = ArtifactRef.model_validate(bundle_ref.model_dump(mode="json"))
+        strategic_response_bundle_ref = ArtifactRef.model_validate(
+            bundle_ref.model_dump(mode="json")
+        )
         summary = strategic_result_summary(result)
         summary.update(
             {
@@ -1229,9 +1258,7 @@ def _payoff_table_signature(table: FiniteStrategicPayoffTable) -> dict[str, Any]
     return {
         "agent": table.agent,
         "strategic_agents": tuple(table.strategic_agents),
-        "action_spaces": {
-            agent: tuple(actions) for agent, actions in table.action_spaces.items()
-        },
+        "action_spaces": {agent: tuple(actions) for agent, actions in table.action_spaces.items()},
         "payoffs": {key: float(value) for key, value in table.payoffs.items()},
     }
 
@@ -1464,7 +1491,9 @@ def _merge_stress_test_reports(
     ]
     suite_scenario_counts = {
         str(key): int(value)
-        for key, value in dict(base_report.metadata.get("phase_d4_suite_scenario_counts") or {}).items()
+        for key, value in dict(
+            base_report.metadata.get("phase_d4_suite_scenario_counts") or {}
+        ).items()
         if str(key).strip()
     }
     for suite_id in replacement_suite_ids_set:
@@ -1472,7 +1501,9 @@ def _merge_stress_test_reports(
     base_total_scenarios = int(
         base_report.metadata.get(
             "base_total_scenarios_evaluated",
-            max(int(base_report.total_scenarios_evaluated) - sum(suite_scenario_counts.values()), 0),
+            max(
+                int(base_report.total_scenarios_evaluated) - sum(suite_scenario_counts.values()), 0
+            ),
         )
     )
     for supplemental in supplemental_reports:
@@ -1512,14 +1543,20 @@ def _phase_d4_suite_id_from_vulnerability(vulnerability) -> str | None:
 def _recompute_stress_test_report(report: StressTestReport) -> StressTestReport:
     return report.model_copy(
         update={
-            "critical_count": sum(1 for item in report.vulnerabilities if item.severity == "critical"),
+            "critical_count": sum(
+                1 for item in report.vulnerabilities if item.severity == "critical"
+            ),
             "high_count": sum(1 for item in report.vulnerabilities if item.severity == "high"),
             "medium_count": sum(1 for item in report.vulnerabilities if item.severity == "medium"),
             "robustness_score": max(
                 0.0,
                 1.0
                 - (
-                    sum(1 for item in report.vulnerabilities if item.severity in {"critical", "high"})
+                    sum(
+                        1
+                        for item in report.vulnerabilities
+                        if item.severity in {"critical", "high"}
+                    )
                     / max(len(report.vulnerabilities), 1)
                 ),
             ),
@@ -1535,10 +1572,7 @@ def _resolve_policy_runtime_source_statuses(
     statuses: dict[str, str] = {}
     if cross_graph_profile is not None:
         statuses.update(
-            {
-                key: value.status.value
-                for key, value in cross_graph_profile.source_statuses.items()
-            }
+            {key: value.status.value for key, value in cross_graph_profile.source_statuses.items()}
         )
 
     inferred = {
@@ -1876,9 +1910,7 @@ def _serialize_funnel_outcome(outcome: FunnelOutcome) -> dict[str, Any]:
                 "objective_value": result.objective_value,
                 "is_promising": result.is_promising,
                 "feedback": result.feedback,
-                "failure_cards": [
-                    card.model_dump(mode="json") for card in result.failure_cards
-                ],
+                "failure_cards": [card.model_dump(mode="json") for card in result.failure_cards],
                 "fidelity_level": result.fidelity_level,
                 "terminal_action": result.terminal_action,
             }
@@ -1899,7 +1931,8 @@ def _extract_level5_gate(outcome: FunnelOutcome) -> dict[str, Any]:
     if level5 is None:
         return {"passed": False, "reason": "level5_not_executed"}
     return {
-        "passed": level5.is_promising and level5.terminal_action not in {"reject", "defer_to_human"},
+        "passed": level5.is_promising
+        and level5.terminal_action not in {"reject", "defer_to_human"},
         "terminal_action": level5.terminal_action,
         "failure_count": len(level5.failure_cards),
         "critical_failures": [
@@ -1926,11 +1959,7 @@ def _resolve_degradation_mode(
         hidden_holdout_ref is not _UNSET
         or replay_bundle_ref is not _UNSET
         or governance_ref is not _UNSET
-    ) and (
-        hidden_holdout_ref is None
-        or replay_bundle_ref is None
-        or governance_ref is None
-    ):
+    ) and (hidden_holdout_ref is None or replay_bundle_ref is None or governance_ref is None):
         return "no_promotion"
     if state.params.get("calibration_drift_detected") is True:
         return "conservative_routing"
@@ -1945,18 +1974,24 @@ def _resolve_benchmark_scope(
 ) -> dict[str, str | None]:
     metadata = dict(selection_vector.metadata or {})
     candidate_metadata = dict(candidate.metadata or {})
-    query_type = str(
-        state.params.get("query_type")
-        or candidate_metadata.get("query_type")
-        or metadata.get("query_type")
-        or "policy"
-    ).strip() or None
-    estimator_name = str(
-        state.params.get("estimator_name")
-        or metadata.get("estimator_name")
-        or candidate_metadata.get("estimator_name")
-        or ""
-    ).strip() or None
+    query_type = (
+        str(
+            state.params.get("query_type")
+            or candidate_metadata.get("query_type")
+            or metadata.get("query_type")
+            or "policy"
+        ).strip()
+        or None
+    )
+    estimator_name = (
+        str(
+            state.params.get("estimator_name")
+            or metadata.get("estimator_name")
+            or candidate_metadata.get("estimator_name")
+            or ""
+        ).strip()
+        or None
+    )
     artifact_family = normalize_phase2_artifact_family(
         str(
             state.params.get("artifact_family")
@@ -1968,12 +2003,17 @@ def _resolve_benchmark_scope(
         estimator_name=estimator_name,
         query_type=query_type,
     )
-    claim_mode = str(
-        state.params.get("claim_mode")
-        or candidate_metadata.get("claim_mode")
-        or metadata.get("claim_mode")
+    claim_mode = (
+        str(
+            state.params.get("claim_mode")
+            or candidate_metadata.get("claim_mode")
+            or metadata.get("claim_mode")
+            or "estimation"
+        )
+        .strip()
+        .lower()
         or "estimation"
-    ).strip().lower() or "estimation"
+    )
     readiness_target = (
         str(
             state.params.get("readiness_target")
@@ -2023,7 +2063,9 @@ def _load_stress_test_report(
 ) -> StressTestReport | None:
     if ref is None:
         return None
-    return StressTestReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id)))
+    return StressTestReport.model_validate(
+        from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+    )
 
 
 def _extract_level4_policy_runtime_provenance(

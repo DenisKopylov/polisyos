@@ -18,7 +18,9 @@ def _iter_run_dirs(root: Path):
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Backfill decision validity state for existing runs.")
+    parser = argparse.ArgumentParser(
+        description="Backfill decision validity state for existing runs."
+    )
     parser.add_argument("--cas-root", type=Path, default=Path(".polisyos/cas"))
     parser.add_argument("--runs-root", type=Path, default=Path(".polisyos/runs"))
     parser.add_argument("--output", type=Path, default=None)

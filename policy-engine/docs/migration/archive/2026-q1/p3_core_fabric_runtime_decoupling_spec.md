@@ -21,13 +21,16 @@
 Current P1 debt cluster for this phase:
 
 1. `Q3` in `p1_refactor_queue.md` is open:
+
    - eliminate `core -> fabric/runtime` (`ARCH001-0033..0036`).
 2. Active debt rows in `import_debt_register.csv`:
+
    - `ARCH001-0033`: `src/polisyos/core/audit/prov_json.py` (`core -> fabric`)
    - `ARCH001-0034`: `src/polisyos/core/audit/_assembler_core.py` (`core -> fabric`)
    - `ARCH001-0035`: `src/polisyos/core/audit/_assembler_core.py` (`core -> runtime`)
    - `ARCH001-0036`: `src/polisyos/core/audit/_assembler_provenance.py` (`core -> fabric`)
 3. Active temporary exceptions:
+
    - `E-2026-02-CORE-FABRIC-001` (expires `2026-04-30`)
    - `E-2026-02-CORE-RUNTIME-001` (expires `2026-04-30`)
 4. Import gate on `2026-02-09` reports no unmanaged violations, but these dependencies remain allowed only via temporary exceptions.
@@ -74,8 +77,8 @@ Required direction:
 
 Canonical provenance model after P3:
 
-| Current module | Canonical P3 module |
-| --- | --- |
+| Current module                           | Canonical P3 module                         |
+| ---------------------------------------- | ------------------------------------------- |
 | `src/polisyos/fabric/provenance/core.py` | `src/polisyos/core/contracts/provenance.py` |
 
 Expected exported symbols in canonical module:
@@ -109,6 +112,7 @@ Required implementation:
 2. Update `src/polisyos/core/contracts/__init__.py` and `__all__` to export provenance symbols.
 3. Convert `src/polisyos/fabric/provenance/core.py` into compatibility re-export pointing to `core.contracts.provenance`.
 4. Preserve exact serialization behavior:
+
    - `compute_stable_id()`
    - `to_dict()/from_dict()`
    - edge relation semantics and ordering.
@@ -122,10 +126,13 @@ Hard constraint:
 Mandatory rewiring:
 
 1. `src/polisyos/core/audit/prov_json.py`
+
    - replace imports from `polisyos.fabric.provenance.core` with `polisyos.core.contracts.provenance`.
 2. `src/polisyos/core/audit/_assembler_provenance.py`
+
    - same provenance import replacement.
 3. `src/polisyos/core/audit/_assembler_core.py`
+
    - provenance import replacement.
    - remove `RunManifest as LegacyRunManifest` import from `polisyos.runtime.manifest`.
 
@@ -140,6 +147,7 @@ P3 required behavior:
 
 1. Keep equivalent error semantics without importing runtime package.
 2. Add a local core-side shape detector helper (for example in `core/audit/_manifest_compat.py`):
+
    - parse JSON object,
    - detect legacy runtime-like shape (`schema_version` + `artifacts`, missing `registry_bundle`),
    - raise explicit legacy-not-supported message.
@@ -150,11 +158,14 @@ P3 required behavior:
 Required docs sync:
 
 1. `src/polisyos/core/audit/README.md`
+
    - remove dependency note on `fabric.provenance.core` and `runtime.manifest`.
    - add dependency note on `core.contracts.provenance`.
 2. `src/polisyos/core/contracts/README.md`
+
    - add provenance contract section and ownership rationale.
 3. `src/polisyos/fabric/README.md` (or provenance docs)
+
    - mark provenance model source as core-owned with fabric facade.
 
 ## 6. Migration Plan (2 Weeks)
@@ -178,13 +189,17 @@ Required docs sync:
 ### 7.1 Mandatory artifact updates
 
 1. `import_exceptions.toml`
+
    - remove `E-2026-02-CORE-FABRIC-001`
    - remove `E-2026-02-CORE-RUNTIME-001`
 2. `import_exceptions_registry.md`
+
    - mark/remove both exception IDs from active registry.
 3. `import_debt_register.csv`
+
    - remove or mark closed: `ARCH001-0033..0036`.
 4. `p1_refactor_queue.md`
+
    - mark `Q3` as `Done` with closure date.
 
 ### 7.2 Required verification commands
@@ -241,12 +256,12 @@ P3 is complete only if all criteria are met:
 
 ## 9. Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| Stable ID drift after model move | High | Golden-record test on `compute_stable_id`, byte-for-byte serializer parity checks |
-| False legacy-manifest detection | High | Explicit detector tests for core valid / runtime legacy / malformed payload cases |
-| Compatibility break for Fabric imports | Medium | Thin re-export facade with same symbol names and types |
-| Docs/governance drift from code changes | Medium | Treat exceptions/debt/docs updates as mandatory in same closure PR set |
+| Risk                                    | Impact | Mitigation                                                                        |
+| --------------------------------------- | ------ | --------------------------------------------------------------------------------- |
+| Stable ID drift after model move        | High   | Golden-record test on `compute_stable_id`, byte-for-byte serializer parity checks |
+| False legacy-manifest detection         | High   | Explicit detector tests for core valid / runtime legacy / malformed payload cases |
+| Compatibility break for Fabric imports  | Medium | Thin re-export facade with same symbol names and types                            |
+| Docs/governance drift from code changes | Medium | Treat exceptions/debt/docs updates as mandatory in same closure PR set            |
 
 ## 10. Post-P3 Follow-Ups (Out of Scope)
 
@@ -274,33 +289,40 @@ From `lint_imports.py`:
 ### 12.1 Runtime and import-boundary outcomes
 
 1. Provenance model moved to canonical core contract module:
+
    - `src/polisyos/core/contracts/provenance.py`
 2. Fabric provenance module converted to compatibility facade:
+
    - `src/polisyos/fabric/provenance/core.py`
 3. Core audit modules rewired from `fabric.provenance.core` to `core.contracts.provenance`:
+
    - `src/polisyos/core/audit/prov_json.py`
    - `src/polisyos/core/audit/_assembler_core.py`
    - `src/polisyos/core/audit/_assembler_provenance.py`
 4. Removed runtime manifest dependency from core audit:
+
    - deleted `polisyos.runtime.manifest` import from `src/polisyos/core/audit/_assembler_core.py`
    - added shape-based legacy detector in `src/polisyos/core/audit/_manifest_compat.py`
 5. Removed residual `core -> fabric` import in security backend:
+
    - `src/polisyos/core/security/db_backend.py` no longer type-imports `polisyos.fabric.io.db`.
 
 ### 12.2 Debt and governance artifacts updated
 
 1. Removed exceptions:
+
    - `E-2026-02-CORE-FABRIC-001`
    - `E-2026-02-CORE-RUNTIME-001`
-   from:
+     from:
    - `import_exceptions.toml`
    - `import_exceptions_registry.md`
 2. Removed debt rows:
+
    - `ARCH001-0033`
    - `ARCH001-0034`
    - `ARCH001-0035`
    - `ARCH001-0036`
-   from `import_debt_register.csv`.
+     from `import_debt_register.csv`.
 3. Updated `Q3` status to Done in `p1_refactor_queue.md`.
 
 ### 12.3 Documentation updates

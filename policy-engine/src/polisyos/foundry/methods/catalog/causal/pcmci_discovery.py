@@ -1,10 +1,12 @@
 """Discover lagged causal parents in multivariate time series with PCMCI-style tests."""
+
 from __future__ import annotations
 
 import multiprocessing as mp
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -332,10 +334,7 @@ def _run_pcmci_jax_surrogate(
     if rows <= max_lag + 2:
         return _PCMCIExecutionResult(
             edges=[],
-            error=(
-                "PCMCI JAX surrogate requires more timesteps: "
-                f"rows={rows}, max_lag={max_lag}"
-            ),
+            error=(f"PCMCI JAX surrogate requires more timesteps: rows={rows}, max_lag={max_lag}"),
             timed_out=False,
         )
 
@@ -446,6 +445,7 @@ def _fallback_report(
 )
 class PCMCIDiscovery:
     """Estimate lagged links under a fixed lag window and causal sufficiency; avoid very short time series."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -595,7 +595,7 @@ class PCMCIDiscovery:
 
         base_edge_keys = [_edge_key(edge) for edge in graph.edges]
         if n_bootstrap_requested > 0 and base_edge_keys:
-            hit_counts = {key: 0 for key in base_edge_keys}
+            hit_counts = dict.fromkeys(base_edge_keys, 0)
             bootstrap_rng = np.random.default_rng(seed + 17)
 
             for idx in range(n_bootstrap_requested):
@@ -646,7 +646,7 @@ class PCMCIDiscovery:
                     key: float(hit_counts[key] / completed_bootstrap) for key in base_edge_keys
                 }
             else:
-                bootstrap_stability = {key: 0.0 for key in base_edge_keys}
+                bootstrap_stability = dict.fromkeys(base_edge_keys, 0.0)
 
         report = CausalDiscoveryReport(
             method="pcmci+",
@@ -664,9 +664,7 @@ class PCMCIDiscovery:
                 "timeout_seconds": timeout_seconds,
                 **ci_backend_metadata(ci_backend),
                 "ci_backend_runtime": (
-                    "jax_partial_corr_surrogate"
-                    if ci_backend.used == "jax"
-                    else "tigramite"
+                    "jax_partial_corr_surrogate" if ci_backend.used == "jax" else "tigramite"
                 ),
             },
         )

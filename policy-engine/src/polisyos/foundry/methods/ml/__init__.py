@@ -1,3 +1,3 @@
 """Flattened facade for ML/stat methods catalog."""
 
-from polisyos.foundry.methods.catalog.ml import *  # noqa: F401,F403
+from polisyos.foundry.methods.catalog.ml import *

@@ -1,4 +1,5 @@
 """Public contracts eurostat contracts module API."""
+
 from __future__ import annotations
 
 from polisyos.fabric.connectors.contracts import (
@@ -91,7 +92,7 @@ EUROSTAT_GENERIC_CONTRACT = ConnectorSchemaContract(
 EUROSTAT_CONTRACTS = (EUROSTAT_GENERIC_CONTRACT,)
 
 __all__ = [
-    "EUROSTAT_GENERIC_SCHEMA",
-    "EUROSTAT_GENERIC_CONTRACT",
     "EUROSTAT_CONTRACTS",
+    "EUROSTAT_GENERIC_CONTRACT",
+    "EUROSTAT_GENERIC_SCHEMA",
 ]

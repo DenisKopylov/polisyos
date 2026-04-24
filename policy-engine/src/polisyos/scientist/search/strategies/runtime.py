@@ -36,4 +36,3 @@ def apply_torch_runtime_settings(torch_module) -> str:
         interop_threads,
     )
     return device
-

@@ -1,9 +1,8 @@
 """Tests for RegistryAuditLog.export_jsonl fix (G-12)."""
+
 from __future__ import annotations
 
 import json
-
-import pytest
 
 from polisyos.foundry.methods.registry import RegistryAuditLog
 

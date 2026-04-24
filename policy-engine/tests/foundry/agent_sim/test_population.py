@@ -1,15 +1,12 @@
 """Tests for agent_sim population management."""
+
 from __future__ import annotations
 
-import jax
 import jax.numpy as jnp
 import pytest
 
 from polisyos.foundry.agent_sim.population import (
     PopulationConfig,
-    PopulationManager,
-    LifecycleConfig,
-    InheritanceConfig,
     create_population_manager,
     initialize_population,
 )

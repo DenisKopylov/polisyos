@@ -4,12 +4,12 @@ from pathlib import Path
 
 from polisyos.datasets.knowledge.variable_alignment import (
     AlignmentMethod,
+    VariableAlignment,
     align_meta_analytic,
     align_semantic,
     calibrate_alignment_confidence,
-    score_variable_pair,
     load_seed_alignments,
-    VariableAlignment,
+    score_variable_pair,
 )
 
 

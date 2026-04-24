@@ -332,7 +332,8 @@ export function useReviewCollaborationSurface({
         clientY: event.clientY,
       };
       if (cursorFrameRef.current == null) {
-        cursorFrameRef.current = window.requestAnimationFrame(flushCursorUpdate);
+        cursorFrameRef.current =
+          window.requestAnimationFrame(flushCursorUpdate);
       }
     };
     const handleFocusIn = () => {

@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+  "/api/v1/artifacts/batch": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Get Artifact Batch */
+    post: operations["get_artifact_batch"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/artifacts/{artifact_id}": {
     parameters: {
       query?: never;
@@ -30,6 +47,23 @@ export interface paths {
     };
     /** Get Artifact Content */
     get: operations["get_artifact_content"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/artifacts/{artifact_id}/download": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Download Artifact Content */
+    get: operations["download_artifact_content"];
     put?: never;
     post?: never;
     delete?: never;
@@ -83,6 +117,23 @@ export interface paths {
     get: operations["get_auth_me"];
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/control/analytics/sae/causal-frontier": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Run boundary-constrained causal-frontier small-area estimation */
+    post: operations["estimate_causal_frontier_sae"];
     delete?: never;
     options?: never;
     head?: never;
@@ -684,6 +735,91 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/mobility/bounds": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Compute Mobility Bounds */
+    post: operations["compute_mobility_bounds"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/mobility/estimate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Estimate Mobility */
+    post: operations["estimate_mobility"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/mobility/reports/{artifact_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Mobility Report */
+    get: operations["get_mobility_report"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/mobility/reports/{artifact_id}/bounds": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Mobility Report Bounds */
+    get: operations["get_mobility_report_bounds"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/mobility/reports/{artifact_id}/diagnostics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Mobility Report Diagnostics */
+    get: operations["get_mobility_report_diagnostics"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/runs": {
     parameters: {
       query?: never;
@@ -695,6 +831,23 @@ export interface paths {
     get: operations["list_runs"];
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/runs/batch": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Get Runs Batch */
+    post: operations["get_runs_batch"];
     delete?: never;
     options?: never;
     head?: never;
@@ -991,12 +1144,32 @@ export interface components {
       source_kinds?: "core_run"[];
     };
     /**
+     * ArtifactBatchRequest
+     * @description Batch artifact lookup request used to avoid client-side N+1 fetches.
+     */
+    ArtifactBatchRequest: {
+      /** Artifact Ids */
+      artifact_ids?: string[];
+    };
+    /**
+     * ArtifactBatchResponse
+     * @description Response envelope returned by the artifact batch endpoint.
+     */
+    ArtifactBatchResponse: {
+      /** Artifacts */
+      artifacts?: components["schemas"]["ArtifactManifestView"][];
+      meta: components["schemas"]["ApiMeta"];
+    };
+    /**
      * ArtifactContentPreview
      * @description Artifact content preview public type.
      */
     ArtifactContentPreview: {
       /** Artifact Id */
       artifact_id: string;
+      decision_packet_preview?:
+        | components["schemas"]["DecisionPacketPreview"]
+        | null;
       /** Kind */
       kind: string;
       /** Max Bytes */
@@ -1402,6 +1575,198 @@ export interface components {
       worker_backend: string;
       /** Workspaces */
       workspaces?: string[];
+    };
+    /**
+     * CausalFrontierAreaRecord
+     * @description Inline representation of one area-level SAE row.
+     */
+    CausalFrontierAreaRecord: {
+      /** Area Id */
+      area_id: string;
+      /** Covariates */
+      covariates?: {
+        [key: string]: number | null;
+      };
+      /** Direct Estimate */
+      direct_estimate: number;
+      /** Direct Variance */
+      direct_variance: number;
+      /** Policy Indicator */
+      policy_indicator?: number | null;
+      /** Regime Id */
+      regime_id?: string | null;
+      /** Sample Size */
+      sample_size?: number | null;
+    };
+    /**
+     * CausalFrontierEdgeRecord
+     * @description Inline representation of one adjacency edge with optional frontier metadata.
+     */
+    CausalFrontierEdgeRecord: {
+      /**
+       * Adjacency Type
+       * @default custom
+       * @enum {string}
+       */
+      adjacency_type: "contiguity" | "distance" | "custom";
+      /** Dst Area Id */
+      dst_area_id: string;
+      /**
+       * Frontier Flag
+       * @default false
+       */
+      frontier_flag: boolean;
+      /** Frontier Source */
+      frontier_source?: string | null;
+      /** Frontier Type */
+      frontier_type?: string | null;
+      /** Src Area Id */
+      src_area_id: string;
+      /**
+       * Weight
+       * @default 1
+       */
+      weight: number;
+    };
+    /**
+     * CausalFrontierExposureRecord
+     * @description Optional spillover/exposure row aligned to one area.
+     */
+    CausalFrontierExposureRecord: {
+      /** Area Id */
+      area_id: string;
+      /** Exposure Mapping Version */
+      exposure_mapping_version?: string | null;
+      /** Spillover Exposure */
+      spillover_exposure?: number | null;
+      /** Treatment */
+      treatment?: number | null;
+    };
+    /**
+     * CausalFrontierOutputRefs
+     * @description Artifact references emitted by runtime causal-frontier SAE execution.
+     */
+    CausalFrontierOutputRefs: {
+      causal_diagnostics_ref?: components["schemas"]["ArtifactRef"] | null;
+      dependence_ref?: components["schemas"]["ArtifactRef"] | null;
+      governance_artifact_ref?: components["schemas"]["ArtifactRef"] | null;
+      quality_certificate_ref?: components["schemas"]["ArtifactRef"] | null;
+      sae_estimates_ref?: components["schemas"]["ArtifactRef"] | null;
+    };
+    /**
+     * CausalFrontierSAEEstimate
+     * @description Output row for `sae_estimates.parquet` and runtime API responses.
+     */
+    CausalFrontierSAEEstimate: {
+      /** Area Id */
+      area_id: string;
+      /** Borrow Strength Neighbors */
+      borrow_strength_neighbors: number;
+      /** Component Id */
+      component_id: number;
+      /** Mse */
+      mse: number;
+      /** Theta Mean */
+      theta_mean: number;
+      /** Theta Sd */
+      theta_sd: number;
+    };
+    /**
+     * CausalFrontierSAERequest
+     * @description Run boundary-constrained small-area estimation from inline rows or one bundle dir.
+     */
+    CausalFrontierSAERequest: {
+      /**
+       * Add Intercept
+       * @default true
+       */
+      add_intercept: boolean;
+      /** Areas */
+      areas?: components["schemas"]["CausalFrontierAreaRecord"][];
+      /** Bundle Dir */
+      bundle_dir?: string | null;
+      /**
+       * Calibration Reps
+       * @default 0
+       */
+      calibration_reps: number;
+      /**
+       * Calibration Seed
+       * @default 0
+       */
+      calibration_seed: number;
+      /**
+       * Component Ridge
+       * @default 0.000001
+       */
+      component_ridge: number;
+      /**
+       * Contrast Eps
+       * @default 1e-8
+       */
+      contrast_eps: number;
+      /** Covariate Columns */
+      covariate_columns?: string[] | null;
+      /** Edges */
+      edges?: components["schemas"]["CausalFrontierEdgeRecord"][];
+      /** Exposure */
+      exposure?: components["schemas"]["CausalFrontierExposureRecord"][];
+      /**
+       * Governance Profile
+       * @default mvp
+       * @enum {string}
+       */
+      governance_profile: "fast" | "mvp" | "strict";
+      /**
+       * Green Threshold
+       * @default 0.05
+       */
+      green_threshold: number;
+      /**
+       * Lambda Spatial
+       * @default 1
+       */
+      lambda_spatial: number;
+      /** Metadata */
+      metadata?: {
+        [key: string]: unknown;
+      };
+      /** Output Dir */
+      output_dir?: string | null;
+      /**
+       * Persist Artifacts
+       * @default false
+       */
+      persist_artifacts: boolean;
+      /**
+       * Red Threshold
+       * @default 0.15
+       */
+      red_threshold: number;
+    };
+    /**
+     * CausalFrontierSAEResponse
+     * @description Runtime response for causal-frontier small-area estimation.
+     */
+    CausalFrontierSAEResponse: {
+      artifact_refs?: components["schemas"]["CausalFrontierOutputRefs"];
+      /** Diagnostics */
+      diagnostics?: {
+        [key: string]: unknown;
+      };
+      /** Estimates */
+      estimates?: components["schemas"]["CausalFrontierSAEEstimate"][];
+      /** Governance Artifact */
+      governance_artifact?: {
+        [key: string]: unknown;
+      };
+      meta: components["schemas"]["ApiMeta"];
+      /** Method Name */
+      method_name: string;
+      /** Output Bundle */
+      output_bundle?: {
+        [key: string]: string;
+      };
     };
     /**
      * CompareDeltaSection
@@ -1987,6 +2352,172 @@ export interface components {
       schema_version: string;
     };
     /**
+     * DecisionPacketAuthoredBlock
+     * @description Typed authored-text block embedded in decision-packet previews.
+     */
+    DecisionPacketAuthoredBlock: {
+      /** Author */
+      author?:
+        | ("citation" | "human" | "drafter" | "formalizer" | "critic")
+        | null;
+      /** Author Agent Version */
+      author_agent_version?: string | null;
+      /** Confidence */
+      confidence?: number | null;
+      /** Content */
+      content: string;
+      /** Id */
+      id?: string | null;
+      /** Reviewed By Human */
+      reviewed_by_human?: boolean | null;
+      /** Sources */
+      sources?: {
+        [key: string]: string;
+      }[];
+      /** Timestamp */
+      timestamp?: string | null;
+    };
+    /**
+     * DecisionPacketEffectSize
+     * @description Structured uncertainty payload used by typed decision-packet previews.
+     */
+    DecisionPacketEffectSize: {
+      /** Ci 80 */
+      ci_80?: [number, number] | null;
+      /** Ci 95 */
+      ci_95?: [number, number] | null;
+      /** Disputed */
+      disputed?: boolean | null;
+      /** Identifiability */
+      identifiability?: ("identified" | "estimated" | "assumed") | null;
+      /** Method */
+      method?: string | null;
+      /** Point */
+      point?: number | null;
+      /** Quantiles */
+      quantiles?: {
+        [key: string]: number;
+      } | null;
+    };
+    /**
+     * DecisionPacketMetricComparisonRow
+     * @description Typed metric-comparison row embedded in decision-packet previews.
+     */
+    DecisionPacketMetricComparisonRow: {
+      /** Alpha */
+      alpha?: number | null;
+      /** Assumption Warnings */
+      assumption_warnings?: string[];
+      /** Baseline Model Id */
+      baseline_model_id?: string | null;
+      /** Baseline Value */
+      baseline_value?: number | null;
+      /** Calibration Warnings */
+      calibration_warnings?: string[];
+      /** Candidate Model Id */
+      candidate_model_id?: string | null;
+      /** Candidate Value */
+      candidate_value?: number | null;
+      /** Delta Value */
+      delta_value?: number | null;
+      effect_size?: components["schemas"]["DecisionPacketEffectSize"] | null;
+      /** Family Id */
+      family_id?: string | null;
+      /** Family Scope */
+      family_scope?: string | null;
+      /** Metric Direction */
+      metric_direction?: string | null;
+      /** Metric Id */
+      metric_id: string;
+      /** P Adj */
+      p_adj?: number | null;
+      /** P Value */
+      p_value?: number | null;
+      /** Resampling Method */
+      resampling_method?: string | null;
+      /** Sample Size Effective */
+      sample_size_effective?: number | null;
+      /** Significant */
+      significant?: boolean | null;
+      /** Statistic */
+      statistic?: number | null;
+      /** Test Id */
+      test_id?: string | null;
+      /** Test Label */
+      test_label?: string | null;
+    };
+    /**
+     * DecisionPacketMetricSignificance
+     * @description Typed metric-significance entry embedded in decision-packet previews.
+     */
+    DecisionPacketMetricSignificance: {
+      /** Alpha */
+      alpha?: number | null;
+      /** Assumption Warnings */
+      assumption_warnings?: string[];
+      /** Baseline Model Id */
+      baseline_model_id?: string | null;
+      /** Baseline Value */
+      baseline_value?: number | null;
+      /** Calibration Warnings */
+      calibration_warnings?: string[];
+      /** Candidate Model Id */
+      candidate_model_id?: string | null;
+      /** Candidate Value */
+      candidate_value?: number | null;
+      /** Delta Value */
+      delta_value?: number | null;
+      effect_size?: components["schemas"]["DecisionPacketEffectSize"] | null;
+      /** Metric Direction */
+      metric_direction?: string | null;
+      /** P Adj */
+      p_adj?: number | null;
+      /** P Value */
+      p_value?: number | null;
+      /** Significant */
+      significant?: boolean | null;
+      /** Test Id */
+      test_id?: string | null;
+      /** Test Label */
+      test_label?: string | null;
+    };
+    /**
+     * DecisionPacketOutlineEntry
+     * @description Typed outline entry surfaced for decision-packet previews.
+     */
+    DecisionPacketOutlineEntry: {
+      /** Section Id */
+      section_id: string;
+      /** Section Type */
+      section_type?: string | null;
+      /** Title */
+      title: string;
+    };
+    /**
+     * DecisionPacketPreview
+     * @description Typed additive sidecar for decision-packet artifact previews.
+     */
+    DecisionPacketPreview: {
+      /** Blocks */
+      blocks?: components["schemas"]["DecisionPacketAuthoredBlock"][];
+      /** Document Outline */
+      document_outline?: components["schemas"]["DecisionPacketOutlineEntry"][];
+      /** Evidence Summary Blocks */
+      evidence_summary_blocks?: components["schemas"]["DecisionPacketAuthoredBlock"][];
+      /** Metric Significance By Metric */
+      metric_significance_by_metric?: {
+        [
+          key: string
+        ]: components["schemas"]["DecisionPacketMetricSignificance"];
+      };
+      /** Metric Validation Comparison Rows */
+      metric_validation_comparison_rows?: components["schemas"]["DecisionPacketMetricComparisonRow"][];
+      /** Narrative Blocks */
+      narrative_blocks?: components["schemas"]["DecisionPacketAuthoredBlock"][];
+    } & {
+      [key: string]: unknown;
+    };
+    /**
      * DecisionReissuePlan
      * @description Decision reissue plan data model.
      */
@@ -2424,6 +2955,12 @@ export interface components {
       filters?: {
         [key: string]: string[];
       };
+      /** Metadata */
+      metadata?: {
+        [key: string]: unknown;
+      };
+      /** Metric Id */
+      metric_id?: string | null;
       /** Profile Id */
       profile_id?: string | null;
     };
@@ -3024,6 +3561,171 @@ export interface components {
        * @default 0.5
        */
       trust_score: number;
+    };
+    /**
+     * MobilityBoundsRequest
+     * @description Request payload for runtime mobility bounds endpoints.
+     */
+    MobilityBoundsRequest: {
+      /** Column Marginals */
+      column_marginals?: number[] | null;
+      /**
+       * Headline Metric
+       * @default upward_rate
+       */
+      headline_metric: string;
+      /** Metadata */
+      metadata?: {
+        [key: string]: unknown;
+      };
+      /** Observed Joint Matrix */
+      observed_joint_matrix: number[][];
+      /**
+       * Persist Artifact
+       * @default true
+       */
+      persist_artifact: boolean;
+      /** Row Marginals */
+      row_marginals: number[];
+    };
+    /**
+     * MobilityBoundsResponse
+     * @description Response envelope returned for direct or report-linked mobility bounds.
+     */
+    MobilityBoundsResponse: {
+      /** Bounds */
+      bounds: {
+        [key: string]: unknown;
+      };
+      bounds_bundle_ref?: components["schemas"]["ArtifactRef"] | null;
+      /** Cell Bounds */
+      cell_bounds?: {
+        [key: string]: number[];
+      };
+      meta: components["schemas"]["ApiMeta"];
+      mobility_report_ref?: components["schemas"]["ArtifactRef"] | null;
+      /** Summary Bounds */
+      summary_bounds?: {
+        [key: string]: number[];
+      };
+    };
+    /**
+     * MobilityDiagnosticsResponse
+     * @description Response envelope returned when loading mobility diagnostics only.
+     */
+    MobilityDiagnosticsResponse: {
+      /** Diagnostics */
+      diagnostics: {
+        [key: string]: unknown;
+      };
+      meta: components["schemas"]["ApiMeta"];
+      mobility_report_ref: components["schemas"]["ArtifactRef"];
+    };
+    /**
+     * MobilityEstimateRequest
+     * @description Request payload for runtime mobility estimation endpoints.
+     */
+    MobilityEstimateRequest: {
+      /** Attrition Features */
+      attrition_features?: number[][] | null;
+      /** Attrition Features By Wave */
+      attrition_features_by_wave?: number[][][] | null;
+      /**
+       * Compute Bounds
+       * @default true
+       */
+      compute_bounds: boolean;
+      /** Destination Classes */
+      destination_classes?: (number | null)[];
+      /** Destination Marginals */
+      destination_marginals?: number[] | null;
+      /**
+       * Estimator
+       * @default aipw
+       * @enum {string}
+       */
+      estimator: "ipcw" | "aipw";
+      /** Feature Names */
+      feature_names?: string[];
+      /** Metadata */
+      metadata?: {
+        [key: string]: unknown;
+      };
+      /**
+       * Mode
+       * @default attrition_adjusted
+       * @enum {string}
+       */
+      mode:
+        | "complete_case"
+        | "attrition_adjusted"
+        | "sequential_attrition_adjusted"
+        | "refreshment_anchored";
+      /**
+       * Monotone
+       * @default true
+       */
+      monotone: boolean;
+      /**
+       * N Classes
+       * @default 5
+       */
+      n_classes: number;
+      /** Origin Classes */
+      origin_classes?: number[];
+      /** Panel Length */
+      panel_length?: number | null;
+      /**
+       * Persist Artifact
+       * @default true
+       */
+      persist_artifact: boolean;
+      /**
+       * Positivity Floor
+       * @default 0.05
+       */
+      positivity_floor: number;
+      /** Refreshment Destination Classes */
+      refreshment_destination_classes?: number[] | null;
+      /** Refreshment Weights */
+      refreshment_weights?: number[] | null;
+      /** Retention Indicators */
+      retention_indicators?: number[] | null;
+      /** Retention Indicators By Wave */
+      retention_indicators_by_wave?: number[][] | null;
+      /** Retention Probabilities */
+      retention_probabilities?: number[] | null;
+      /** Retention Probabilities By Wave */
+      retention_probabilities_by_wave?: number[][] | null;
+      /** Sample Weights */
+      sample_weights?: number[] | null;
+      /** Waves Used */
+      waves_used?: number[];
+    };
+    /**
+     * MobilityEstimateResponse
+     * @description Response envelope returned after estimating a mobility report.
+     */
+    MobilityEstimateResponse: {
+      bounds_bundle_ref?: components["schemas"]["ArtifactRef"] | null;
+      meta: components["schemas"]["ApiMeta"];
+      mobility_report_ref?: components["schemas"]["ArtifactRef"] | null;
+      /** Report */
+      report: {
+        [key: string]: unknown;
+      };
+    };
+    /**
+     * MobilityReportResponse
+     * @description Response envelope returned when loading one persisted mobility report.
+     */
+    MobilityReportResponse: {
+      meta: components["schemas"]["ApiMeta"];
+      mobility_report_ref: components["schemas"]["ArtifactRef"];
+      /** Report */
+      report: {
+        [key: string]: unknown;
+      };
     };
     /**
      * ModelProfileInfo
@@ -4220,6 +4922,23 @@ export interface components {
       workflow_spec_ref?: components["schemas"]["ArtifactRef"] | null;
     };
     /**
+     * RunsBatchRequest
+     * @description Batch run lookup request used to avoid client-side N+1 fetches.
+     */
+    RunsBatchRequest: {
+      /** Run Ids */
+      run_ids?: string[];
+    };
+    /**
+     * RunsBatchResponse
+     * @description Response envelope returned by the run batch endpoint.
+     */
+    RunsBatchResponse: {
+      meta: components["schemas"]["ApiMeta"];
+      /** Runs */
+      runs?: components["schemas"]["RunDetails"][];
+    };
+    /**
      * RunsListResponse
      * @description Paginated response envelope returned by the runs listing endpoint.
      */
@@ -4382,6 +5101,94 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+  get_artifact_batch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ArtifactBatchRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ArtifactBatchResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
   get_artifact_manifest: {
     parameters: {
       query?: never;
@@ -4431,6 +5238,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -4510,6 +5326,102 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  download_artifact_content: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        artifact_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Raw artifact bytes */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+          "application/octet-stream": string;
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -4597,6 +5509,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -4667,6 +5588,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -4749,12 +5679,109 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Request validation failed. */
       422: {
         headers: {
           [name: string]: unknown;
         };
         content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  estimate_causal_frontier_sae: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CausalFrontierSAERequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CausalFrontierSAEResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
@@ -4816,6 +5843,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -4897,6 +5933,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Request validation failed. */
       422: {
         headers: {
@@ -4964,6 +6009,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -5049,6 +6103,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -5117,6 +6180,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -5202,6 +6274,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -5270,6 +6351,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -5348,6 +6438,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -5434,6 +6533,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -5502,6 +6610,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -5583,6 +6700,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Request validation failed. */
       422: {
         headers: {
@@ -5656,6 +6782,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -5744,6 +6879,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -5823,6 +6967,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -5893,6 +7046,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -5979,6 +7141,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -6056,6 +7227,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -6126,6 +7306,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -6212,6 +7401,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -6282,6 +7480,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -6368,6 +7575,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -6436,6 +7652,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -6513,6 +7738,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -6599,6 +7833,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -6671,6 +7914,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -6755,6 +8007,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -6825,6 +8086,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -6909,6 +8179,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -6979,6 +8258,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -7064,6 +8352,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -7134,6 +8431,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -7218,6 +8524,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -7288,6 +8603,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -7373,6 +8697,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -7410,7 +8743,7 @@ export interface operations {
         };
         content: {
           "application/json": {
-            [key: string]: string;
+            [key: string]: unknown;
           };
         };
       };
@@ -7450,12 +8783,455 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Request validation failed. */
       422: {
         headers: {
           [name: string]: unknown;
         };
         content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  compute_mobility_bounds: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MobilityBoundsRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MobilityBoundsResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  estimate_mobility: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MobilityEstimateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MobilityEstimateResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_mobility_report: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        artifact_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MobilityReportResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_mobility_report_bounds: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        artifact_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MobilityBoundsResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_mobility_report_diagnostics: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        artifact_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MobilityDiagnosticsResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
@@ -7524,6 +9300,103 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_runs_batch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RunsBatchRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RunsBatchResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -7608,6 +9481,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -7685,6 +9567,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -7755,6 +9646,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -7843,6 +9743,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -7913,6 +9822,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -7997,6 +9915,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -8074,6 +10001,15 @@ export interface operations {
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
       /** @description Validation Error */
       422: {
         headers: {
@@ -8111,7 +10047,7 @@ export interface operations {
         };
         content: {
           "application/json": {
-            [key: string]: string;
+            [key: string]: unknown;
           };
         };
       };
@@ -8144,6 +10080,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };
@@ -8187,7 +10132,7 @@ export interface operations {
         };
         content: {
           "application/json": {
-            [key: string]: string;
+            [key: string]: unknown;
           };
         };
       };
@@ -8220,6 +10165,15 @@ export interface operations {
       };
       /** @description Requested resource does not exist. */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };

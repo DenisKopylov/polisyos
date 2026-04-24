@@ -147,8 +147,7 @@ def evaluate_latent_promotion(
         passed
         and evidence.measurement_scope
         and not evidence.structural_interpretation_rejected
-        and _INVARIANCE_RANK.get(evidence.invariance_level, 0)
-        >= _INVARIANCE_RANK["scalar"]
+        and _INVARIANCE_RANK.get(evidence.invariance_level, 0) >= _INVARIANCE_RANK["scalar"]
     )
     derived_cap: TrustLevelCap = (
         "estimation_ready"
@@ -172,7 +171,11 @@ def evaluate_latent_promotion(
 
     blockers = list(conditional_gate.blockers) + list(validated_gate.blockers)
     warnings = list(conditional_gate.warnings) + list(validated_gate.warnings)
-    if target is LatentTrustLevel.VALIDATED and not measurement_scope_allowed and evidence.measurement_scope:
+    if (
+        target is LatentTrustLevel.VALIDATED
+        and not measurement_scope_allowed
+        and evidence.measurement_scope
+    ):
         warnings.append("validated_measurement_scope_requires_scalar_invariance_or_stronger")
     passed_gates = list(conditional_gate.passed_gates) + list(validated_gate.passed_gates)
 
@@ -216,7 +219,10 @@ def _conditional_gate(evidence: LatentPromotionEvidence) -> _GateOutcome:
             blockers.append("testable_implications_missing:local_misspecification_test_refs")
 
     invariance_rank = _INVARIANCE_RANK.get(evidence.invariance_level, 0)
-    if evidence.environment_stability_ref is not None and invariance_rank >= _INVARIANCE_RANK["metric"]:
+    if (
+        evidence.environment_stability_ref is not None
+        and invariance_rank >= _INVARIANCE_RANK["metric"]
+    ):
         passed_gates.append("environment_stability_pass")
     else:
         if evidence.environment_stability_ref is None:
@@ -274,9 +280,7 @@ def _validated_gate(evidence: LatentPromotionEvidence) -> _GateOutcome:
     if invariance_rank >= _INVARIANCE_RANK["scalar"]:
         passed_gates.append("strengthened_invariance_pass")
     else:
-        blockers.append(
-            f"strengthened_invariance_missing:{evidence.invariance_level}"
-        )
+        blockers.append(f"strengthened_invariance_missing:{evidence.invariance_level}")
 
     if evidence.exclusion_test_refs:
         passed_gates.append("exclusion_test_pass")

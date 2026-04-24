@@ -23,6 +23,7 @@ Rollback path: revert the unintended contract change or regenerate all affected 
 
 - изменили Pydantic contract, route response, schema model или generated client,
   но не обновили committed artifacts;
+
 - backend route и frontend fixture были изменены независимо;
 - OpenAPI snapshot или schema snapshots собирались на stale workspace;
 - runtime contract change прошёл без обновления docs/reference surface;
@@ -37,6 +38,7 @@ Rollback path: revert the unintended contract change or regenerate all affected 
 - какой authoritative source считается источником истины:
   Python models, runtime routes, generated frontend fixtures или schema
   snapshots;
+
 - какой snapshot/file drift detected первым;
 - был ли change уже опубликован в docs или попал в release candidate.
 
@@ -73,10 +75,13 @@ Rollback path: revert the unintended contract change or regenerate all affected 
 
 - если drift непреднамеренный, откатите contract-affecting change до последнего
   green SHA;
+
 - если change намеренный, не merge-ите его без regenerated artifacts и docs
   updates в том же change set;
+
 - если frontend и backend разошлись, временно удерживайте deploy до выравнивания
   обеих сторон;
+
 - если compatibility нарушена, инициируйте ADR/contract review вместо
   молчаливого force-refresh.
 
@@ -110,8 +115,8 @@ Rollback path: revert the unintended contract change or regenerate all affected 
 
 ### Action Items
 
-| Action item | Owner | Due date | Status |
-|---|---|---|---|
-| Add a stronger freshness gate for the missed drift pattern | `@platform-owners` | YYYY-MM-DD | open |
-| Update docs and generation instructions for the affected boundary | affected owner | YYYY-MM-DD | open |
-| Tighten compatibility review for the contract family if needed | `@platform-owners` | YYYY-MM-DD | open |
+| Action item                                                       | Owner              | Due date   | Status |
+| ----------------------------------------------------------------- | ------------------ | ---------- | ------ |
+| Add a stronger freshness gate for the missed drift pattern        | `@platform-owners` | YYYY-MM-DD | open   |
+| Update docs and generation instructions for the affected boundary | affected owner     | YYYY-MM-DD | open   |
+| Tighten compatibility review for the contract family if needed    | `@platform-owners` | YYYY-MM-DD | open   |

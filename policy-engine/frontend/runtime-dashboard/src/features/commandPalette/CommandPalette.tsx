@@ -8,8 +8,6 @@ import {
   BookOpen,
   Activity,
   Sun,
-  Minimize2,
-  Maximize2,
   AlignJustify,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -24,11 +22,15 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "@/shared/ui/Command";
+import { useDensity } from "@/app/providers/DensityProvider";
 import { useTheme } from "@/app/providers/ThemeProvider";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { useGlobalShortcut } from "@/lib/hooks";
-import { WORKSPACE_ORDER, WORKSPACES, type WorkspaceKey } from "@/app/workspaces";
-import { usePreferencesStore, type Density } from "@/app/state/usePreferencesStore";
+import {
+  WORKSPACE_ORDER,
+  WORKSPACES,
+  type WorkspaceKey,
+} from "@/app/workspaces";
 
 const WORKSPACE_ICONS: Record<WorkspaceKey, LucideIcon> = {
   commandCenter: LayoutDashboard,
@@ -43,9 +45,8 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { t } = useI18n();
-  const { toggleTheme } = useTheme();
-  const setDensity = usePreferencesStore((s) => s.setDensity);
-  const density = usePreferencesStore((s) => s.density);
+  const { resolvedTheme, toggleTheme } = useTheme();
+  const { cycleDensity, density } = useDensity();
 
   useGlobalShortcut(
     "command-palette",
@@ -67,13 +68,10 @@ export function CommandPalette() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  const runCommand = useCallback(
-    (command: () => void) => {
-      setOpen(false);
-      command();
-    },
-    [],
-  );
+  const runCommand = useCallback((command: () => void) => {
+    setOpen(false);
+    command();
+  }, []);
 
   const workspaceItems = useMemo(
     () =>
@@ -85,12 +83,6 @@ export function CommandPalette() {
       }),
     [t],
   );
-
-  const densityOptions: Array<{ value: Density; label: string; Icon: LucideIcon }> = [
-    { value: "compact", label: "Compact", Icon: Minimize2 },
-    { value: "comfortable", label: "Comfortable", Icon: AlignJustify },
-    { value: "spacious", label: "Spacious", Icon: Maximize2 },
-  ];
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
@@ -126,20 +118,33 @@ export function CommandPalette() {
           >
             <Sun />
             <span>{t("commandPalette.toggleTheme")}</span>
-            <CommandShortcut>Theme</CommandShortcut>
+            <CommandShortcut>
+              {t("pages.platform.appearance.themeShortcut")}
+            </CommandShortcut>
           </CommandItem>
-          {densityOptions.map(({ value, label, Icon }) => (
-            <CommandItem
-              key={value}
-              onSelect={() => runCommand(() => setDensity(value))}
-            >
-              <Icon />
-              <span>{label}</span>
-              {density === value && (
-                <CommandShortcut>Active</CommandShortcut>
-              )}
-            </CommandItem>
-          ))}
+          <CommandItem
+            onSelect={() =>
+              runCommand(() => {
+                cycleDensity();
+              })
+            }
+          >
+            <AlignJustify />
+            <span>{t("commandPalette.cycleDensity")}</span>
+            <CommandShortcut>
+              {t("pages.platform.appearance.densityShortcut")}
+            </CommandShortcut>
+          </CommandItem>
+          <CommandSeparator />
+          <CommandItem disabled>
+            <Sun />
+            <span>
+              {t(`pages.platform.appearance.themeOptions.${resolvedTheme}`)}
+            </span>
+            <CommandShortcut>
+              {t(`pages.platform.appearance.densityOptions.${density}`)}
+            </CommandShortcut>
+          </CommandItem>
         </CommandGroup>
       </CommandList>
     </CommandDialog>

@@ -4,9 +4,11 @@ The selector treats explicit `params.workflow_id` as authoritative when it
 matches a supported DAG, otherwise it escalates based on execution profile,
 policy/discovery inputs, and evidence/transport hints.
 """
+
 from __future__ import annotations
 
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.evidence_sources import normalize_evidence_sources_config
@@ -62,7 +64,9 @@ def resolve_workflow_id(initial_state: ExperimentState) -> str:
 def _should_use_policy_verified(state: ExperimentState) -> bool:
     params = state.params
     answer_mode = str(params.get("policy_answer_mode", "") or "").strip().lower()
-    execution_profile = str(state.execution_profile or params.get("execution_profile") or "").strip().lower()
+    execution_profile = (
+        str(state.execution_profile or params.get("execution_profile") or "").strip().lower()
+    )
     if answer_mode == "verified_async" or execution_profile == "policy_verified_async":
         return True
     has_trinity = INPUT_TRINITY_BUNDLE_REF in state.inputs
@@ -80,7 +84,9 @@ def _should_use_policy_verified(state: ExperimentState) -> bool:
 
 def _should_use_policy_design(state: ExperimentState) -> bool:
     params = state.params
-    execution_profile = str(state.execution_profile or params.get("execution_profile") or "").strip().lower()
+    execution_profile = (
+        str(state.execution_profile or params.get("execution_profile") or "").strip().lower()
+    )
     if execution_profile == "policy_design":
         return True
     raw = params.get("policy_mode")
@@ -93,7 +99,9 @@ def _should_use_policy_design(state: ExperimentState) -> bool:
 
 def _should_use_discovery(state: ExperimentState) -> bool:
     params = state.params
-    execution_profile = str(state.execution_profile or params.get("execution_profile") or "").strip().lower()
+    execution_profile = (
+        str(state.execution_profile or params.get("execution_profile") or "").strip().lower()
+    )
     if execution_profile == "discovery":
         return True
     if bool(params.get("discovery_mode")):
@@ -141,7 +149,9 @@ def _context_fingerprint(raw: Any) -> str | None:
     if not isinstance(raw, Mapping):
         return None
     context_id = str(raw.get("context_id") or "").strip()
-    countries = tuple(str(item).strip().upper() for item in raw.get("countries", []) if str(item).strip())
+    countries = tuple(
+        str(item).strip().upper() for item in raw.get("countries", []) if str(item).strip()
+    )
     time_period = str(raw.get("time_period") or "").strip()
     publication_year = str(raw.get("publication_year") or "").strip()
     if not any((context_id, countries, time_period, publication_year)):
@@ -160,7 +170,9 @@ def _has_external_evidence_marker(params: Mapping[str, Any]) -> bool:
 
 
 def _execution_profile_requires_serious_workflow(state: ExperimentState) -> bool:
-    profile = str(state.execution_profile or state.params.get("execution_profile") or "").strip().lower()
+    profile = (
+        str(state.execution_profile or state.params.get("execution_profile") or "").strip().lower()
+    )
     return profile in _SERIOUS_EXECUTION_PROFILES
 
 

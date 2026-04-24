@@ -103,9 +103,7 @@ class WeightedQueueStrategy:
             preferred_pool = "cpu"
 
         candidate_names = (
-            [preferred_pool]
-            if preferred_pool is not None
-            else sorted(capacities.keys())
+            [preferred_pool] if preferred_pool is not None else sorted(capacities.keys())
         )
         if preferred_pool is None:
             candidate_names = sorted(capacities.keys())

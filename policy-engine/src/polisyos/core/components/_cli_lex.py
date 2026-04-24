@@ -66,11 +66,7 @@ def _cmd_lex_impact(args: Any) -> int:
     ValidationProfile = governance_profiles.ValidationProfile
     profile = getattr(ValidationProfile, args.profile)()
 
-    pass_ids = tuple(
-        token.strip()
-        for token in str(args.passes).split(",")
-        if token.strip()
-    )
+    pass_ids = tuple(token.strip() for token in str(args.passes).split(",") if token.strip())
     if not pass_ids:
         print("ERROR: --passes cannot be empty", file=sys.stderr)
         return 2

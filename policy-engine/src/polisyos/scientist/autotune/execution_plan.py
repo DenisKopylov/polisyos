@@ -1,4 +1,5 @@
 """Public autotune execution plan module API."""
+
 from __future__ import annotations
 
 import json
@@ -94,12 +95,14 @@ def _clone_method_dag_node(node: MethodDagNode) -> MethodDagNode:
 
 class ExecutionPlanSearchMode(str, Enum):
     """Execution plan search mode public type."""
+
     PARAMS_ONLY = "params_only"
     TOPOLOGY_STEP = "topology_step"
 
 
 class TopologyMutationKind(str, Enum):
     """Topology mutation kind public type."""
+
     SWAP_METHOD = "swap_method"
     INSERT_ADAPTER = "insert_adapter"
     DROP_OPTIONAL_NODE = "drop_optional_node"
@@ -107,6 +110,7 @@ class TopologyMutationKind(str, Enum):
 
 class TopologyMutation(BaseModel):
     """Topology mutation public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     kind: TopologyMutationKind
@@ -118,6 +122,7 @@ class TopologyMutation(BaseModel):
 
 class ExecutionPlanSearchConfig(MutationArtifact):
     """Execution plan search config data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     loop_id: str = EXECUTION_PLAN_LOOP_ID
@@ -129,7 +134,7 @@ class ExecutionPlanSearchConfig(MutationArtifact):
     topology_mutation: TopologyMutation | None = None
 
     @model_validator(mode="after")
-    def _validate_mode_constraints(self) -> "ExecutionPlanSearchConfig":
+    def _validate_mode_constraints(self) -> ExecutionPlanSearchConfig:
         dag_hash = self.method_dag_hash
         if self.mode == ExecutionPlanSearchMode.PARAMS_ONLY:
             if self.topology_mutation is not None:
@@ -165,7 +170,7 @@ class ExecutionPlanSearchConfig(MutationArtifact):
         *,
         registry: MethodRegistry | None = None,
         registry_provider: Callable[[], MethodRegistry] | None = None,
-    ) -> "ExecutionPlanSearchConfig":
+    ) -> ExecutionPlanSearchConfig:
         reg = _resolve_registry(registry, registry_provider)
         nodes = [_clone_method_dag_node(node) for node in self.method_dag]
         node_by_id = {node.node_id: node for node in nodes}
@@ -193,8 +198,12 @@ class ExecutionPlanSearchConfig(MutationArtifact):
             if not upstream_node_id:
                 upstream_node_id = target.depends_on[0] if len(target.depends_on) == 1 else ""
             if not upstream_node_id or upstream_node_id not in set(target.depends_on):
-                raise ValueError("insert_adapter mutations require upstream_node_id to identify the broken edge")
-            adapter_node_id = _unique_adapter_node_id(nodes, upstream_node_id=upstream_node_id, target_node_id=target.node_id)
+                raise ValueError(
+                    "insert_adapter mutations require upstream_node_id to identify the broken edge"
+                )
+            adapter_node_id = _unique_adapter_node_id(
+                nodes, upstream_node_id=upstream_node_id, target_node_id=target.node_id
+            )
             adapter_node = MethodDagNode(
                 node_id=adapter_node_id,
                 method_fqn=adapter_fqn,
@@ -206,15 +215,16 @@ class ExecutionPlanSearchConfig(MutationArtifact):
                 notes=[f"inserted_adapter_for:{target.node_id}"],
             )
             target.depends_on = [
-                adapter_node_id if dep_id == upstream_node_id else dep_id for dep_id in target.depends_on
+                adapter_node_id if dep_id == upstream_node_id else dep_id
+                for dep_id in target.depends_on
             ]
             nodes.append(adapter_node)
         elif mutation.kind is TopologyMutationKind.DROP_OPTIONAL_NODE:
-            downstream = [
-                node for node in nodes if target.node_id in set(node.depends_on or [])
-            ]
+            downstream = [node for node in nodes if target.node_id in set(node.depends_on or [])]
             for consumer in downstream:
-                consumer.depends_on = [dep_id for dep_id in consumer.depends_on if dep_id != target.node_id]
+                consumer.depends_on = [
+                    dep_id for dep_id in consumer.depends_on if dep_id != target.node_id
+                ]
                 for dep_id in target.depends_on:
                     if dep_id not in consumer.depends_on:
                         consumer.depends_on.append(dep_id)
@@ -233,7 +243,9 @@ class ExecutionPlanSearchConfig(MutationArtifact):
         )
 
 
-def build_baseline_execution_plan_config(context: dict[str, Any] | None = None) -> ExecutionPlanSearchConfig:
+def build_baseline_execution_plan_config(
+    context: dict[str, Any] | None = None,
+) -> ExecutionPlanSearchConfig:
     """Build baseline execution plan config."""
     baseline_plan = None if context is None else context.get("baseline_execution_plan")
     if isinstance(baseline_plan, ExecutionPlan):
@@ -243,8 +255,12 @@ def build_baseline_execution_plan_config(context: dict[str, Any] | None = None) 
             params=dict(baseline_plan.params),
             fixed_method_dag_hash=fingerprint(
                 {
-                    "method_dag": [node.model_dump(mode="json") for node in baseline_plan.method_dag],
-                    "method_edges": [edge.model_dump(mode="json") for edge in baseline_plan.method_edges],
+                    "method_dag": [
+                        node.model_dump(mode="json") for node in baseline_plan.method_dag
+                    ],
+                    "method_edges": [
+                        edge.model_dump(mode="json") for edge in baseline_plan.method_edges
+                    ],
                 },
                 canon_spec=CanonSpec(forbid_floats=False),
             ),
@@ -323,10 +339,10 @@ def suggest_execution_plan_topology_mutations(
                         )
                         _append_unique_mutation(mutations, seen, mutation)
 
-        if (
-            diagnostic.code in {"method_catalog.method_missing", "method_catalog.method_unavailable"}
-            and _is_optional_leaf_node(node, config.method_dag)
-        ):
+        if diagnostic.code in {
+            "method_catalog.method_missing",
+            "method_catalog.method_unavailable",
+        } and _is_optional_leaf_node(node, config.method_dag):
             mutation = TopologyMutation(
                 kind=TopologyMutationKind.DROP_OPTIONAL_NODE,
                 node_id=node.node_id,
@@ -361,6 +377,7 @@ def suggest_execution_plan_topology_mutations(
 
 class CapabilityAwareExecutionPlanCandidateGenerator:
     """Capability aware execution plan candidate generator implementation."""
+
     def generate(
         self,
         history: list[Any],
@@ -417,8 +434,7 @@ def build_execution_plan_generation_context(
         or context.get("method_catalog_snapshot")
     )
     preflight = _coerce_preflight(
-        _latest_stage_b_value(history, "preflight_report")
-        or context.get("preflight_report")
+        _latest_stage_b_value(history, "preflight_report") or context.get("preflight_report")
     )
     mutations: list[TopologyMutation] = []
     if catalog is not None and preflight.diagnostics:
@@ -644,6 +660,7 @@ def _mutation_note(mutation: TopologyMutation) -> str:
 
 class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
     """Execution plan benchmark evaluator public type."""
+
     def __init__(
         self,
         *,
@@ -660,7 +677,9 @@ class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
         suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
         config = load_model_artifact(store, candidate_ref, ExecutionPlanSearchConfig)
         if suite.dataset_path is None or suite.split_manifest_path is None:
-            raise ValueError("Execution plan benchmark suite requires dataset_path and split_manifest_path")
+            raise ValueError(
+                "Execution plan benchmark suite requires dataset_path and split_manifest_path"
+            )
         runner = context.get("execution_plan_runner")
         if not callable(runner):
             raise ValueError("context['execution_plan_runner'] must be callable")
@@ -676,13 +695,21 @@ class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
         )
         selection_cases = _run_execution_plan_cases(
             config=config,
-            rows=[row for row in rows if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.SELECTION],
+            rows=[
+                row
+                for row in rows
+                if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.SELECTION
+            ],
             runner=runner,
             context=context,
         )
         holdout_cases = _run_execution_plan_cases(
             config=config,
-            rows=[row for row in rows if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.HOLDOUT],
+            rows=[
+                row
+                for row in rows
+                if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.HOLDOUT
+            ],
             runner=runner,
             context=context,
         )
@@ -690,7 +717,8 @@ class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
         holdout_metrics = _execution_plan_metrics(holdout_cases)
         guardrails = {
             "no_new_blockers": float(holdout_metrics.get("blocker_free_rate", 0.0)) >= 1.0,
-            "governance_not_degraded": float(holdout_metrics.get("governance_score", 0.0)) >= champion_governance,
+            "governance_not_degraded": float(holdout_metrics.get("governance_score", 0.0))
+            >= champion_governance,
             "compatibility_ok": float(holdout_metrics.get("compatibility_rate", 0.0)) >= 1.0,
         }
         return BenchmarkEvaluation(
@@ -729,7 +757,11 @@ class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
         metrics = _execution_plan_metrics(
             _run_execution_plan_cases(
                 config=cfg,
-                rows=[row for row in rows if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.HOLDOUT],
+                rows=[
+                    row
+                    for row in rows
+                    if split_manifest.split_for(str(row["case_id"])) == BenchmarkSplit.HOLDOUT
+                ],
                 runner=runner,
                 context=context,
             )
@@ -890,7 +922,7 @@ def _avg(values: list[float]) -> float:
 
 def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if line:
@@ -899,15 +931,15 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
 
 
 __all__ = [
-    "build_execution_plan_generation_context",
-    "CapabilityAwareExecutionPlanCandidateGenerator",
     "EXECUTION_PLAN_LOOP_ID",
+    "CapabilityAwareExecutionPlanCandidateGenerator",
     "ExecutionPlanBenchmarkEvaluator",
     "ExecutionPlanSearchConfig",
     "ExecutionPlanSearchMode",
     "TopologyMutation",
     "TopologyMutationKind",
     "build_baseline_execution_plan_config",
+    "build_execution_plan_generation_context",
     "default_execution_plan_policy",
     "execution_plan_search_loop_spec",
     "suggest_execution_plan_topology_mutations",

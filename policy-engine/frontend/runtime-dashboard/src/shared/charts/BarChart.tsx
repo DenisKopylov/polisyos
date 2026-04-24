@@ -85,7 +85,11 @@ export function BarChart({
           <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} />
           {isHorizontal ? (
             <>
-              <XAxis type="number" tick={{ fontSize: chartDefaults.tickFontSize }} stroke={chartTheme.axis} />
+              <XAxis
+                type="number"
+                tick={{ fontSize: chartDefaults.tickFontSize }}
+                stroke={chartTheme.axis}
+              />
               <YAxis
                 type="category"
                 dataKey="label"
@@ -101,7 +105,10 @@ export function BarChart({
                 tick={{ fontSize: chartDefaults.tickFontSize }}
                 stroke={chartTheme.axis}
               />
-              <YAxis tick={{ fontSize: chartDefaults.tickFontSize }} stroke={chartTheme.axis} />
+              <YAxis
+                tick={{ fontSize: chartDefaults.tickFontSize }}
+                stroke={chartTheme.axis}
+              />
             </>
           )}
           <Tooltip

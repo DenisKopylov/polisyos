@@ -1,7 +1,8 @@
 """Public engine iteration state machine module API."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from polisyos.core.contracts.execution_plan import (
     EvaluatorVerdict,
@@ -29,11 +30,7 @@ _ALLOWED: dict[IterationLifecycleState, frozenset[TransitionEvent]] = {
     "stopped_no_delta": frozenset(),
     "stopped_guardrail": frozenset(),
 }
-_KNOWN_EVENTS = frozenset(
-    event
-    for allowed_events in _ALLOWED.values()
-    for event in allowed_events
-)
+_KNOWN_EVENTS = frozenset(event for allowed_events in _ALLOWED.values() for event in allowed_events)
 
 
 class IterationTransitionError(EngineError):
@@ -66,7 +63,7 @@ def transition(
             details={"state": current, "event": event},
         )
     next_state = _next_state(current, event)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     merged_notes = list(state.notes)
     merged_notes.append(f"event:{event}")
     merged_notes.extend(notes or [])
@@ -148,9 +145,9 @@ def _validate_transition_inputs(
 
 
 __all__ = [
-    "TransitionEvent",
     "IterationTransitionError",
+    "TransitionEvent",
     "can_transition",
-    "transition",
     "derive_terminal_state_from_verdict",
+    "transition",
 ]

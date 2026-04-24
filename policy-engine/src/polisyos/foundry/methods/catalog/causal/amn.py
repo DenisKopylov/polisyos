@@ -114,9 +114,7 @@ def build_amn(
 
     for variable in sorted(intervened_vars):
         candidate_nodes = [
-            f"{variable}__{world}"
-            for world in worlds
-            if f"{variable}__{world}" in amn_node_set
+            f"{variable}__{world}" for world in worlds if f"{variable}__{world}" in amn_node_set
         ]
         for left, right in combinations(candidate_nodes, 2):
             bridge_edges.append((left, right))
@@ -307,8 +305,10 @@ def verify_ctf_faithfulness(
         else:
             partial_corr = float(_np.corrcoef(arr_a[:n], arr_b[:n])[0, 1])
 
-        t_stat = abs(partial_corr) * _np.sqrt(max(n - 2, 1)) / max(
-            _np.sqrt(1.0 - partial_corr ** 2), 1e-15
+        t_stat = (
+            abs(partial_corr)
+            * _np.sqrt(max(n - 2, 1))
+            / max(_np.sqrt(1.0 - partial_corr**2), 1e-15)
         )
         from scipy.stats import t as t_dist
 
@@ -321,9 +321,9 @@ def verify_ctf_faithfulness(
 
 __all__ = [
     "AMNMetadata",
-    "build_amn",
-    "amn_d_separation",
-    "amn_ctf_independence",
     "amn_ancestral_projection",
+    "amn_ctf_independence",
+    "amn_d_separation",
+    "build_amn",
     "verify_ctf_faithfulness",
 ]

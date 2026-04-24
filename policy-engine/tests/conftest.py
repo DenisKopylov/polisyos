@@ -188,6 +188,7 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
                     )
                 )
 
+
 # --- FORCE SETTINGS FOR TESTS ---
 # Эти настройки должны сработать до любых других импортов в тестах
 
@@ -209,4 +210,4 @@ def setup_test_env():
     logger.remove()
     logger.add(lambda msg: print(msg), level="ERROR")
 
-    yield
+    return

@@ -136,7 +136,7 @@ class RoughPathInterventionCertificate(BaseModel):
     scope_notes: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def _validate_refs_and_scope(self) -> "RoughPathInterventionCertificate":
+    def _validate_refs_and_scope(self) -> RoughPathInterventionCertificate:
         for field_name in (
             "observation_operator_ref",
             "lift_operator_ref",
@@ -158,9 +158,7 @@ class RoughPathInterventionCertificate(BaseModel):
                 _validate_artifact_ref(ref, field_name=optional_field)
         if self.semantics_scope is TemporalPathSemanticsScope.LATENT_PATH:
             if self.lift_faithfulness_ref is None:
-                raise ValueError(
-                    "latent_path certificates require lift_faithfulness_ref"
-                )
+                raise ValueError("latent_path certificates require lift_faithfulness_ref")
             if self.status is RoughPathIdentificationStatus.IDENTIFIED_REPRESENTATION_ONLY:
                 raise ValueError(
                     "latent_path certificates cannot use identified_representation_only status"
@@ -192,7 +190,7 @@ class TemporalPathSemanticsAttachment(BaseModel):
     lift_faithfulness_checked: bool = False
 
     @model_validator(mode="after")
-    def _validate_attachment(self) -> "TemporalPathSemanticsAttachment":
+    def _validate_attachment(self) -> TemporalPathSemanticsAttachment:
         _validate_artifact_ref(self.proof_artifact_ref, field_name="proof_artifact_ref")
         if self.topology is RoughPathTopology.P_VARIATION and self.p_variation_order is None:
             raise ValueError("p_variation topology requires p_variation_order")
@@ -202,9 +200,7 @@ class TemporalPathSemanticsAttachment(BaseModel):
             self.semantics_scope is TemporalPathSemanticsScope.LATENT_PATH
             and not self.lift_faithfulness_checked
         ):
-            raise ValueError(
-                "latent_path semantics require lift_faithfulness_checked=true"
-            )
+            raise ValueError("latent_path semantics require lift_faithfulness_checked=true")
         return self
 
 

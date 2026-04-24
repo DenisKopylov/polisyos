@@ -1,19 +1,13 @@
 """Public validation diagnostics module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.ir.analytics.calibration_diagnostics import (
-    CalibrationCurveBin,
-    CalibrationDiagnosticIssue,
-    CalibrationDiagnosticsReport,
-    CalibrationMetrics,
-    CalibrationTestResult,
-)
-from polisyos.ir.analytics.query_validation_report import ValidationSeverity
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -26,10 +20,20 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.ir.analytics.calibration_diagnostics import (
+    CalibrationCurveBin,
+    CalibrationDiagnosticIssue,
+    CalibrationDiagnosticsReport,
+    CalibrationMetrics,
+    CalibrationTestResult,
+)
+from polisyos.ir.analytics.query_validation_report import ValidationSeverity
 
 
 def _result_slot(contract_id: str | None = None) -> frozenset[SlotSpec]:
-    return frozenset({SlotSpec("result", SlotType.SCALAR, Unit("result", "json"), contract_id=contract_id)})
+    return frozenset(
+        {SlotSpec("result", SlotType.SCALAR, Unit("result", "json"), contract_id=contract_id)}
+    )
 
 
 @foundry_method(
@@ -39,6 +43,7 @@ def _result_slot(contract_id: str | None = None) -> frozenset[SlotSpec]:
 )
 class CrossValidationEstimator:
     """Run cross-validation over a method and return fold-level diagnostics."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -48,7 +53,9 @@ class CrossValidationEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("fold_scores", SlotType.VECTOR, Unit("score", "value"), shape=("n_folds",)),
+                SlotSpec(
+                    "fold_scores", SlotType.VECTOR, Unit("score", "value"), shape=("n_folds",)
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -102,6 +109,7 @@ class CrossValidationEstimator:
 )
 class WalkForwardEstimator:
     """Backtest time-ordered models with walk-forward validation windows."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -147,7 +155,7 @@ class WalkForwardEstimator:
         n = len(actuals)
 
         mae = float(np.mean(abs_errors))
-        rmse = float(np.sqrt(np.mean(errors ** 2)))
+        rmse = float(np.sqrt(np.mean(errors**2)))
         # MAPE (guarded against zero actuals)
         nonzero = np.abs(actuals) > 1e-12
         if np.any(nonzero):
@@ -182,6 +190,7 @@ class WalkForwardEstimator:
 )
 class CalibrationDiagnosticEstimator:
     """Assess calibration quality between predicted and observed outcomes."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -191,14 +200,22 @@ class CalibrationDiagnosticEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("predicted_probs", SlotType.VECTOR, Unit("probability", "value"), shape=("n_obs",)),
-                SlotSpec("observed_outcomes", SlotType.VECTOR, Unit("outcome", "binary"), shape=("n_obs",)),
+                SlotSpec(
+                    "predicted_probs",
+                    SlotType.VECTOR,
+                    Unit("probability", "value"),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    "observed_outcomes",
+                    SlotType.VECTOR,
+                    Unit("outcome", "binary"),
+                    shape=("n_obs",),
+                ),
             }
         ),
         output_slots=_result_slot(CalibrationDiagnosticsReport.contract_id),
-        parameters=(
-            ParameterSpec(name="n_bins", default=10),
-        ),
+        parameters=(ParameterSpec(name="n_bins", default=10),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
@@ -330,9 +347,7 @@ class CalibrationDiagnosticEstimator:
                     statistic=float(ece),
                     passed=bool(ece <= 0.05 and n >= 30),
                     assumptions_ok=bool(n >= 30),
-                    notes=(
-                        "Uses holdout ECE thresholding as a conservative calibration gate.",
-                    ),
+                    notes=("Uses holdout ECE thresholding as a conservative calibration gate.",),
                 ),
             ),
             issues=tuple(issues),
@@ -350,7 +365,9 @@ class CalibrationDiagnosticEstimator:
                 "bin_counts": bin_counts,
             },
         )
-        report = report.model_copy(update={"truthfulness_receipt": report.to_truthfulness_receipt()})
+        report = report.model_copy(
+            update={"truthfulness_receipt": report.to_truthfulness_receipt()}
+        )
         return {
             "result": report,
         }

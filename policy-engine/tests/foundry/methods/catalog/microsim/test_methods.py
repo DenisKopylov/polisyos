@@ -38,7 +38,9 @@ def test_reweighting_and_static_microsim_run() -> None:
         update={
             "weights": new_weights,
             "microsim_calibration_report": calibration_result.output["microsim_calibration_report"],
-            "microsim_calibration_report_ref": calibration_result.output["microsim_calibration_report_ref"],
+            "microsim_calibration_report_ref": calibration_result.output[
+                "microsim_calibration_report_ref"
+            ],
         }
     )
     static_result = dispatcher.dispatch(
@@ -153,7 +155,12 @@ def test_nonlinear_target_populates_per_target_gaps() -> None:
         state=state,
         params={
             "targets": [
-                {"name": "weight_quantile_p50", "kind": "weight_quantile", "quantile": 0.5, "target_value": median_weight}
+                {
+                    "name": "weight_quantile_p50",
+                    "kind": "weight_quantile",
+                    "quantile": 0.5,
+                    "target_value": median_weight,
+                }
             ],
         },
         seed=97,

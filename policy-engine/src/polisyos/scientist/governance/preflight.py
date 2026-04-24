@@ -1,4 +1,5 @@
 """Public governance preflight module API."""
+
 from __future__ import annotations
 
 from pathlib import Path

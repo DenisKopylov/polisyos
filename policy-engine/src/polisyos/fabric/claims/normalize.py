@@ -4,6 +4,7 @@ This stage loads an extracted claim set, rewrites predicates/units/value text in
 recomputes deterministic ``claim_id`` values, deduplicates equivalent claims, persists a new
 claim-set artifact, and emits ``PROV_WAS_DERIVED_FROM`` edges when ids change.
 """
+
 from __future__ import annotations
 
 from dataclasses import asdict
@@ -394,9 +395,7 @@ def normalize_claims(
     if warning_rows:
         normalized_claim_set_payload["warnings"] = warning_rows
     if quarantine_record_ids:
-        normalized_claim_set_payload["quarantine_record_ids"] = sorted(
-            set(quarantine_record_ids)
-        )
+        normalized_claim_set_payload["quarantine_record_ids"] = sorted(set(quarantine_record_ids))
 
     claim_set_inputs = [("input_claim_set", claim_set_artifact_id)]
     claim_set_inputs.extend(

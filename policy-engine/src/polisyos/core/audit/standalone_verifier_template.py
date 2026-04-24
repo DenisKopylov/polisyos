@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Public audit standalone verifier template module API."""
+
 from __future__ import annotations
 
 import hashlib
@@ -30,6 +31,7 @@ class _HashLike(Protocol):
 try:
     from polisyos.core.canon import content_hash, streaming_hash
 except ImportError:  # pragma: no cover - template fallback for standalone runs
+
     def content_hash(
         payload: bytes | bytearray | memoryview[int] | str,
         *,
@@ -37,7 +39,11 @@ except ImportError:  # pragma: no cover - template fallback for standalone runs
         prefix: bool = False,
         digest_size: int | None = None,
     ) -> str:
-        raw = payload if isinstance(payload, (bytes, bytearray, memoryview)) else payload.encode("utf-8")
+        raw = (
+            payload
+            if isinstance(payload, (bytes, bytearray, memoryview))
+            else payload.encode("utf-8")
+        )
         hasher: _HashLike
         if algorithm == "blake2b":
             hasher = hashlib.blake2b(digest_size=digest_size or hashlib.blake2b().digest_size)
@@ -423,11 +429,7 @@ def _verify_slsa(
                 if isinstance(subject_sha, str):
                     index_data = json.loads((pkg_dir / "index.json").read_text("utf-8"))
                     root_ref = index_data.get("artifacts", {}).get("root_artifact_id", "")
-                    root_sha = (
-                        root_ref.removeprefix("sha256:")
-                        if isinstance(root_ref, str)
-                        else ""
-                    )
+                    root_sha = root_ref.removeprefix("sha256:") if isinstance(root_ref, str) else ""
                     if root_sha and subject_sha != root_sha:
                         failures.append("slsa subject digest does not match root_artifact_id")
                 else:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -109,7 +109,7 @@ def _build_context(tmp_path: Path, scholar: Any) -> tuple[ExecutionContext, Expe
 
 
 def test_enrich_node_refreshes_stale_bundle(tmp_path: Path) -> None:
-    now = datetime.now(timezone.utc).replace(microsecond=0)
+    now = datetime.now(UTC).replace(microsecond=0)
     fake_scholar = _FakeScholar(now=now)
     ctx, state = _build_context(tmp_path, fake_scholar)
 
@@ -142,7 +142,7 @@ def test_enrich_node_refreshes_stale_bundle(tmp_path: Path) -> None:
 
 
 def test_enrich_node_skips_refresh_during_cooldown(tmp_path: Path) -> None:
-    now = datetime.now(timezone.utc).replace(microsecond=0)
+    now = datetime.now(UTC).replace(microsecond=0)
     fake_scholar = _FakeScholar(now=now)
     ctx, state = _build_context(tmp_path, fake_scholar)
 
@@ -180,7 +180,7 @@ def test_enrich_node_failed_refresh_sets_retry_window(tmp_path: Path) -> None:
     scholar = _AlwaysFailScholar()
     ctx, state = _build_context(tmp_path, scholar)
 
-    now = datetime.now(timezone.utc).replace(microsecond=0)
+    now = datetime.now(UTC).replace(microsecond=0)
     intent_ref = _store_intent(ctx.store)
     stale_bundle = KnowledgeBundlePayloadV1(
         bundle_id="bundle.retry-window",

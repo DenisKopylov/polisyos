@@ -10,8 +10,8 @@ from benchmarks.honest_comparison.adapters.base import EstimatorResult
 
 
 def _make_base_learner(config: dict[str, Any], seed: int):
-    from sklearn.linear_model import LinearRegression
     from sklearn.ensemble import HistGradientBoostingRegressor
+    from sklearn.linear_model import LinearRegression
 
     out = config.get("outcome_model", "linear_regression")
     if out == "linear_regression":
@@ -46,8 +46,10 @@ class RawCausalMLXLearner:
         se = float(np.std(cate) / np.sqrt(len(cate)))
 
         return EstimatorResult(
-            ate=ate, ate_se=se,
-            ci_lower=ate - 1.96 * se, ci_upper=ate + 1.96 * se,
+            ate=ate,
+            ate_se=se,
+            ci_lower=ate - 1.96 * se,
+            ci_upper=ate + 1.96 * se,
             cate=cate,
         )
 
@@ -74,7 +76,9 @@ class RawCausalMLTLearner:
         se = float(np.std(cate) / np.sqrt(len(cate)))
 
         return EstimatorResult(
-            ate=ate, ate_se=se,
-            ci_lower=ate - 1.96 * se, ci_upper=ate + 1.96 * se,
+            ate=ate,
+            ate_se=se,
+            ci_lower=ate - 1.96 * se,
+            ci_upper=ate + 1.96 * se,
             cate=cate,
         )

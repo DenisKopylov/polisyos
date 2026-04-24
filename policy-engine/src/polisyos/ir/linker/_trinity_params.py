@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from polisyos.ir.governance.policy_spec import InterventionSpec
 from polisyos.ir.kernel.mechanisms import ParamType
 from polisyos.ir.kernel.units import (
     CountUnit,
@@ -17,6 +16,10 @@ from polisyos.ir.kernel.units import (
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 
 from .reports import LinkIssue, LinkIssueCode, LinkSeverity
+
+if TYPE_CHECKING:
+    from polisyos.ir.governance.policy_spec import InterventionSpec
+    from polisyos.ir.kernel.mechanisms import MechanismTypeSpec, ParamSpec
 
 _MISSING_PARAM = object()
 MAX_PARAM_PATH_DEPTH = 16
@@ -41,9 +44,7 @@ def _validate_param_structure(
             LinkIssue(
                 severity=LinkSeverity.ERROR,
                 code=LinkIssueCode.PARAM_PATH,
-                message=(
-                    f"Parameter payload nesting exceeds max depth {MAX_PARAM_PATH_DEPTH}"
-                ),
+                message=(f"Parameter payload nesting exceeds max depth {MAX_PARAM_PATH_DEPTH}"),
                 path=path,
                 ids=ids,
                 data={"max_depth": MAX_PARAM_PATH_DEPTH},
@@ -61,7 +62,7 @@ def _validate_param_structure(
                             "Dots in parameter field names are not supported; "
                             "use nested objects with dot-separated ParamSpec.param_id"
                         ),
-                        path=path + [key],
+                        path=[*path, key],
                         ids=ids,
                     )
                 )
@@ -69,7 +70,7 @@ def _validate_param_structure(
             _validate_param_structure(
                 value[key],
                 issues,
-                path=path + [key],
+                path=[*path, key],
                 ids=ids,
                 depth=depth + 1,
             )
@@ -80,7 +81,7 @@ def _validate_param_structure(
                 _validate_param_structure(
                     item,
                     issues,
-                    path=path + [index],
+                    path=[*path, index],
                     ids=ids,
                     depth=depth + 1,
                 )
@@ -148,7 +149,7 @@ def _as_rate_decimal(value: Any) -> Decimal | None:
 
 def _validate_params(
     intervention: InterventionSpec,
-    mech,
+    mech: MechanismTypeSpec,
     issues: list[LinkIssue],
     *,
     path_prefix: list[str | int],
@@ -177,7 +178,7 @@ def _validate_params(
                     severity=LinkSeverity.ERROR,
                     code=LinkIssueCode.PARAM_PATH,
                     message=str(exc),
-                    path=path_prefix + [param_id],
+                    path=[*path_prefix, param_id],
                     ids=ids,
                     data={"param_path": exc.path},
                 )
@@ -189,20 +190,18 @@ def _validate_params(
                     LinkIssue(
                         severity=LinkSeverity.ERROR,
                         code=LinkIssueCode.MISSING_PARAM,
-                        message=(
-                            f"Missing required param '{param_id}' for '{mech.mechanism_id}'"
-                        ),
-                        path=path_prefix + [param_id],
+                        message=(f"Missing required param '{param_id}' for '{mech.mechanism_id}'"),
+                        path=[*path_prefix, param_id],
                         ids=ids,
                     )
                 )
             continue
-        _validate_param_value(value, spec, issues, path_prefix + [param_id], ids)
+        _validate_param_value(value, spec, issues, [*path_prefix, param_id], ids)
         _validate_param_unit(
             value,
             spec,
             issues,
-            path_prefix + [param_id],
+            [*path_prefix, param_id],
             ids,
             units_registry,
             used_units=used_units,
@@ -211,14 +210,14 @@ def _validate_params(
         )
 
     if not allow_extra_params:
-        for key in params.keys():
+        for key in params:
             if key not in spec_params:
                 issues.append(
                     LinkIssue(
                         severity=LinkSeverity.WARNING,
                         code=LinkIssueCode.UNKNOWN_PARAM,
                         message=f"Unknown param '{key}' for '{mech.mechanism_id}'",
-                        path=path_prefix + [key],
+                        path=[*path_prefix, key],
                         ids=ids,
                     )
                 )
@@ -226,7 +225,7 @@ def _validate_params(
 
 def _validate_param_value(
     value: Any,
-    spec,
+    spec: ParamSpec,
     issues: list[LinkIssue],
     path: list[str | int],
     ids: dict[str, str],
@@ -276,18 +275,17 @@ def _validate_param_value(
         )
         return
 
-    if spec.enum_values is not None:
-        if value not in spec.enum_values:
-            issues.append(
-                LinkIssue(
-                    severity=LinkSeverity.ERROR,
-                    code=LinkIssueCode.PARAM_ENUM,
-                    message=f"Param '{spec.param_id}' must be one of {spec.enum_values}",
-                    path=path,
-                    ids=ids,
-                )
+    if spec.enum_values is not None and value not in spec.enum_values:
+        issues.append(
+            LinkIssue(
+                severity=LinkSeverity.ERROR,
+                code=LinkIssueCode.PARAM_ENUM,
+                message=f"Param '{spec.param_id}' must be one of {spec.enum_values}",
+                path=path,
+                ids=ids,
             )
-            return
+        )
+        return
 
     if spec.value_type == ParamType.RATE:
         numeric = _as_rate_decimal(value)
@@ -360,7 +358,7 @@ def _validate_param_value(
 
 def _validate_param_unit(
     value: Any,
-    spec,
+    spec: ParamSpec,
     issues: list[LinkIssue],
     path: list[str | int],
     ids: dict[str, str],
@@ -393,7 +391,7 @@ def _validate_param_unit(
                 severity=LinkSeverity.ERROR,
                 code=LinkIssueCode.UNKNOWN_UNIT,
                 message=f"Unknown unit '{spec.unit_id}' for param '{spec.param_id}'",
-                path=path + ["unit_id"],
+                path=[*path, "unit_id"],
                 ids=ids,
                 data={"unit_id": spec.unit_id, "where": "param"},
             )
@@ -405,10 +403,8 @@ def _validate_param_unit(
                 LinkIssue(
                     severity=LinkSeverity.ERROR,
                     code=LinkIssueCode.UNIT_MISMATCH,
-                    message=(
-                        f"Param '{spec.param_id}' expects money unit '{spec.unit_id}'"
-                    ),
-                    path=path + ["unit_id"],
+                    message=(f"Param '{spec.param_id}' expects money unit '{spec.unit_id}'"),
+                    path=[*path, "unit_id"],
                     ids=ids,
                 )
             )
@@ -445,7 +441,7 @@ def _validate_param_unit(
                 severity=LinkSeverity.ERROR,
                 code=LinkIssueCode.UNIT_MISMATCH,
                 message=f"Param '{spec.param_id}' expects rate unit '{spec.unit_id}'",
-                path=path + ["unit_id"],
+                path=[*path, "unit_id"],
                 ids=ids,
             )
         )
@@ -470,10 +466,8 @@ def _validate_param_unit(
             LinkIssue(
                 severity=LinkSeverity.ERROR,
                 code=LinkIssueCode.UNIT_MISMATCH,
-                message=(
-                    f"Param '{spec.param_id}' expects duration unit '{spec.unit_id}'"
-                ),
-                path=path + ["unit_id"],
+                message=(f"Param '{spec.param_id}' expects duration unit '{spec.unit_id}'"),
+                path=[*path, "unit_id"],
                 ids=ids,
             )
         )
@@ -484,7 +478,7 @@ def _validate_param_unit(
                 severity=LinkSeverity.ERROR,
                 code=LinkIssueCode.UNIT_MISMATCH,
                 message=f"Param '{spec.param_id}' expects count unit '{spec.unit_id}'",
-                path=path + ["unit_id"],
+                path=[*path, "unit_id"],
                 ids=ids,
             )
         )

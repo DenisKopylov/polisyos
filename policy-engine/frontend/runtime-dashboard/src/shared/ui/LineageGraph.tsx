@@ -108,7 +108,13 @@ export default function LineageGraph({
   return (
     <div className="bg-surface/80 border-line overflow-auto rounded-xl border p-2">
       <div className="relative" style={{ width, height }}>
-        <svg className="absolute top-0 left-0" width={width} height={height} role="img" aria-label={t("common.lineageGraph.ariaLabel")}>
+        <svg
+          className="absolute top-0 left-0"
+          width={width}
+          height={height}
+          role="img"
+          aria-label={t("common.lineageGraph.ariaLabel")}
+        >
           {edges.map((edge) => {
             const source = positions.get(edge.parent_artifact_id);
             const target = positions.get(edge.child_artifact_id);
@@ -175,7 +181,9 @@ export default function LineageGraph({
               </p>
               <div className="mt-1 flex items-center justify-between">
                 <span className="text-[11px] text-[color:var(--chart-axis)]">
-                  d={node.depth}
+                  {t("shared.ui.lineageGraph.depthValue", {
+                    depth: node.depth,
+                  })}
                 </span>
                 <Link
                   className="text-[11px] font-semibold underline"

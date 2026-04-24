@@ -1,4 +1,5 @@
 """Fieldwise comparators for cross-backend equivalence certificates."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -304,11 +305,7 @@ def _compare_norm(
         equal_nan=spec.equal_nan,
     )
     strict_tol = float(spec.strict_norm_tol or spec.strict_rtol or spec.strict_atol)
-    relaxed_tol = float(
-        spec.relaxed_norm_tol
-        if spec.relaxed_norm_tol is not None
-        else strict_tol
-    )
+    relaxed_tol = float(spec.relaxed_norm_tol if spec.relaxed_norm_tol is not None else strict_tol)
     strict_ok = bool(np.isfinite(norm_error) and norm_error <= strict_tol)
     relaxed_ok = bool(np.isfinite(norm_error) and norm_error <= relaxed_tol)
     metrics = _numeric_error_metrics(
@@ -387,13 +384,9 @@ def _compare_distributional(
             message=f"unsupported distribution metric: {metric}",
         )
 
-    strict_tol = float(
-        spec.strict_distribution_tol or spec.strict_rtol or spec.strict_atol
-    )
+    strict_tol = float(spec.strict_distribution_tol or spec.strict_rtol or spec.strict_atol)
     relaxed_tol = float(
-        spec.relaxed_distribution_tol
-        if spec.relaxed_distribution_tol is not None
-        else strict_tol
+        spec.relaxed_distribution_tol if spec.relaxed_distribution_tol is not None else strict_tol
     )
     strict_ok = bool(np.isfinite(distribution_error) and distribution_error <= strict_tol)
     relaxed_ok = bool(np.isfinite(distribution_error) and distribution_error <= relaxed_tol)
@@ -429,9 +422,7 @@ def _numeric_error_metrics(
     equal_nan: bool,
 ) -> dict[str, float]:
     paired_nan_mask = (
-        np.isnan(lhs_arr) & np.isnan(rhs_arr)
-        if equal_nan
-        else np.zeros_like(lhs_arr, dtype=bool)
+        np.isnan(lhs_arr) & np.isnan(rhs_arr) if equal_nan else np.zeros_like(lhs_arr, dtype=bool)
     )
     finite_mask = np.isfinite(lhs_arr) & np.isfinite(rhs_arr) & ~paired_nan_mask
     if not np.any(finite_mask):
@@ -467,12 +458,14 @@ def _shape_of(value: Any) -> tuple[int, ...] | None:
 def _should_use_array_comparison(lhs: Any, rhs: Any) -> bool:
     arrayish = (np.ndarray, list, tuple)
     return (
-        hasattr(lhs, "shape")
-        or hasattr(rhs, "shape")
-        or isinstance(lhs, arrayish)
-        or isinstance(rhs, arrayish)
-    ) and not isinstance(lhs, (str, bytes, bytearray)) and not isinstance(
-        rhs, (str, bytes, bytearray)
+        (
+            hasattr(lhs, "shape")
+            or hasattr(rhs, "shape")
+            or isinstance(lhs, arrayish)
+            or isinstance(rhs, arrayish)
+        )
+        and not isinstance(lhs, (str, bytes, bytearray))
+        and not isinstance(rhs, (str, bytes, bytearray))
     )
 
 
@@ -497,9 +490,7 @@ def _max_ulp_difference(
         return float("inf")
 
     paired_nan_mask = (
-        np.isnan(lhs_arr) & np.isnan(rhs_arr)
-        if equal_nan
-        else np.zeros_like(lhs_arr, dtype=bool)
+        np.isnan(lhs_arr) & np.isnan(rhs_arr) if equal_nan else np.zeros_like(lhs_arr, dtype=bool)
     )
     same_inf_mask = np.isinf(lhs_arr) & np.isinf(rhs_arr) & (lhs_arr == rhs_arr)
     finite_mask = ~(paired_nan_mask | same_inf_mask)
@@ -556,9 +547,7 @@ def _relative_norm_error(
     equal_nan: bool,
 ) -> float:
     paired_nan_mask = (
-        np.isnan(lhs_arr) & np.isnan(rhs_arr)
-        if equal_nan
-        else np.zeros_like(lhs_arr, dtype=bool)
+        np.isnan(lhs_arr) & np.isnan(rhs_arr) if equal_nan else np.zeros_like(lhs_arr, dtype=bool)
     )
     finite_mask = np.isfinite(lhs_arr) & np.isfinite(rhs_arr) & ~paired_nan_mask
     if not np.any(finite_mask):

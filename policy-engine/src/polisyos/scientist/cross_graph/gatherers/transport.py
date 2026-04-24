@@ -6,7 +6,6 @@ from typing import Any
 
 from polisyos.ir.analytics.cross_graph import (
     CanonicalConcept,
-    CrossGraphDiagnostic,
     EvidenceNeed,
     TransportStatus,
 )
@@ -42,13 +41,19 @@ class TransportGatherer:
                 evidence_result=evidence_result,
             )
             return GathererResult(
-                status=result.transport_status.value if hasattr(result.transport_status, "value") else str(result.transport_status),
+                status=result.transport_status.value
+                if hasattr(result.transport_status, "value")
+                else str(result.transport_status),
                 confidence=result.confidence if hasattr(result, "confidence") else 0.5,
                 diagnostics=list(result.diagnostics) if hasattr(result, "diagnostics") else [],
                 provenance_refs=[],
                 metadata={
-                    "transport_mode": result.transport_mode.value if hasattr(result, "transport_mode") and hasattr(result.transport_mode, "value") else "",
-                    "recommendations": list(result.recommendations) if hasattr(result, "recommendations") else [],
+                    "transport_mode": result.transport_mode.value
+                    if hasattr(result, "transport_mode") and hasattr(result.transport_mode, "value")
+                    else "",
+                    "recommendations": list(result.recommendations)
+                    if hasattr(result, "recommendations")
+                    else [],
                 },
             )
 

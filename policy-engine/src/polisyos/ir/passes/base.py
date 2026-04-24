@@ -5,6 +5,7 @@ read-only analyses can be cached, transforms declare the surfaces they update,
 and cache invalidation is driven by deterministic content fingerprints instead
 of mutable runtime state.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -66,18 +67,18 @@ class InvalidationSet:
     invalidate_all: bool = False
 
     @classmethod
-    def none(cls) -> "InvalidationSet":
+    def none(cls) -> InvalidationSet:
         return cls()
 
     @classmethod
-    def all(cls) -> "InvalidationSet":
+    def all(cls) -> InvalidationSet:
         return cls(invalidate_all=True)
 
     @classmethod
-    def from_keys(cls, *keys: str) -> "InvalidationSet":
+    def from_keys(cls, *keys: str) -> InvalidationSet:
         return cls(keys=frozenset(key for key in keys if key))
 
-    def union(self, other: "InvalidationSet") -> "InvalidationSet":
+    def union(self, other: InvalidationSet) -> InvalidationSet:
         if self.invalidate_all or other.invalidate_all:
             return InvalidationSet.all()
         return InvalidationSet(keys=self.keys | other.keys)
@@ -129,7 +130,7 @@ class PassContext:
         value: Any,
         *,
         fingerprint: str | None = None,
-    ) -> "PassContext":
+    ) -> PassContext:
         surfaces = dict(self.surfaces)
         surfaces[name] = value
         surface_fingerprints = dict(self._surface_fingerprints)
@@ -148,7 +149,7 @@ class PassContext:
         value: Any,
         *,
         fingerprint: str | None = None,
-    ) -> "PassContext":
+    ) -> PassContext:
         analyses = dict(self.analyses)
         analyses[name] = value
         analysis_fingerprints = dict(self._analysis_fingerprints)
@@ -161,7 +162,7 @@ class PassContext:
             _analysis_fingerprints=analysis_fingerprints,
         )
 
-    def extend_diagnostics(self, diagnostics: Sequence[PassDiagnostic]) -> "PassContext":
+    def extend_diagnostics(self, diagnostics: Sequence[PassDiagnostic]) -> PassContext:
         if not diagnostics:
             return self
         return PassContext(
@@ -183,7 +184,7 @@ class PassResult:
     invalidation: InvalidationSet = field(default_factory=InvalidationSet.none)
 
     @classmethod
-    def noop(cls) -> "PassResult":
+    def noop(cls) -> PassResult:
         return cls()
 
 

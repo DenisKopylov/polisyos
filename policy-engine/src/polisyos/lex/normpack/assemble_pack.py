@@ -5,16 +5,15 @@ evaluation. It selects applicable provisions, extracts/normalizes norm claims, r
 claim conflicts, converts canonical claims into ``NormRule`` objects, and persists a
 ``NormPack`` plus world provenance.
 """
+
 from __future__ import annotations
 
 import re
 from dataclasses import asdict
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.components import (
@@ -31,7 +30,6 @@ from polisyos.fabric.claims.persist import (
     load_doc_meta,
     load_json_artifact,
 )
-from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.world import (
     append_world_segment_index,
     emit_world_node_facts,
@@ -42,10 +40,9 @@ from polisyos.fabric.world.events import (
     build_deterministic_world_event,
     persist_world_event_with_facts,
 )
-from polisyos.ir.kernel.base import ID_PATTERN
+from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN
 from polisyos.ir.norm_pack import NormPack, NormRef, NormRule, RuleType
 from polisyos.ir.world.abi import NodeKind
-from polisyos.ir.world.claim import Claim
 from polisyos.ir.world.conflict import ConflictSet
 from polisyos.ir.world.event import (
     EventKind,
@@ -58,8 +55,7 @@ from polisyos.ir.world.ids import (
     stable_world_id_from_canon,
 )
 from polisyos.ir.world.trust import TrustAssessment
-from polisyos.lex.common import collapse_ws
-from polisyos.lex.common import parse_iso_date
+from polisyos.lex.common import collapse_ws, parse_iso_date
 from polisyos.lex.corpus.index import load_provision_index
 from polisyos.lex.errors import LexNotReadyError, LexValidationError
 from polisyos.lex.normpack.applicability import applicability_key, build_norm_applicability
@@ -92,6 +88,12 @@ from polisyos.lex.types import (
     SelectedDocVersion,
 )
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.fabric.io.db import SimulationDB
+    from polisyos.ir.world.claim import Claim
+
 _ID_RE = re.compile(ID_PATTERN)
 
 
@@ -111,9 +113,7 @@ def _normalize_request(
             raise LexValidationError(f"domain must match {ID_PATTERN}: {request.domain!r}")
 
     if request.selection_policy_id != DEFAULT_SELECTION_POLICY_ID:
-        raise LexValidationError(
-            "unsupported selection_policy_id: " f"{request.selection_policy_id}"
-        )
+        raise LexValidationError(f"unsupported selection_policy_id: {request.selection_policy_id}")
     for field_name, value in (
         ("selection_policy_id", request.selection_policy_id),
         ("conflict_policy_id", request.conflict_policy_id),
@@ -297,12 +297,16 @@ def _claim_set_matches_request(
     domain_norm: str | None,
     as_of_norm: str,
 ) -> bool:
-    meta_jurisdiction = (meta.jurisdiction or "").strip().casefold() if getattr(meta, "jurisdiction", None) else ""
+    meta_jurisdiction = (
+        (meta.jurisdiction or "").strip().casefold() if getattr(meta, "jurisdiction", None) else ""
+    )
     if meta_jurisdiction and meta_jurisdiction != jurisdiction_norm:
         return False
 
     payload_domain = claim_set_payload.get("domain")
-    payload_domain_norm = payload_domain.strip().casefold() if isinstance(payload_domain, str) else ""
+    payload_domain_norm = (
+        payload_domain.strip().casefold() if isinstance(payload_domain, str) else ""
+    )
     if domain_norm is not None and payload_domain_norm and payload_domain_norm != domain_norm:
         return False
 
@@ -310,7 +314,9 @@ def _claim_set_matches_request(
     if not isinstance(lex_props, dict):
         lex_props = {}
     effective_from = parse_iso_date(
-        lex_props.get("effective_from") if isinstance(lex_props.get("effective_from"), str) else None
+        lex_props.get("effective_from")
+        if isinstance(lex_props.get("effective_from"), str)
+        else None
     )
     effective_to = parse_iso_date(
         lex_props.get("effective_to") if isinstance(lex_props.get("effective_to"), str) else None
@@ -320,9 +326,7 @@ def _claim_set_matches_request(
         return True
     if effective_from is not None and effective_from > as_of_date:
         return False
-    if effective_to is not None and effective_to < as_of_date:
-        return False
-    return True
+    return not (effective_to is not None and effective_to < as_of_date)
 
 
 def _select_claim_sets(
@@ -408,9 +412,9 @@ def _select_claim_sets(
 
         maybe_provision_index_artifact_id = payload.get("provision_index_artifact_id")
         if (
-            (not isinstance(maybe_provision_index_artifact_id, str) or not maybe_provision_index_artifact_id)
-            and parent_payload is not None
-        ):
+            not isinstance(maybe_provision_index_artifact_id, str)
+            or not maybe_provision_index_artifact_id
+        ) and parent_payload is not None:
             maybe_provision_index_artifact_id = parent_payload.get("provision_index_artifact_id")
         if isinstance(maybe_provision_index_artifact_id, str) and maybe_provision_index_artifact_id:
             provision_index_artifact_ids.add(maybe_provision_index_artifact_id)
@@ -477,7 +481,7 @@ def _build_canonical_claim_ids(
         for claim_id in conflict_set.member_claim_ids
     }
 
-    winners = {winner for winner in winner_by_conflict_set.values()}
+    winners = set(winner_by_conflict_set.values())
     canonical = winners.union(set(claim_ids) - member_claim_ids)
     canonical_claim_ids = sorted(canonical)
 
@@ -810,7 +814,7 @@ def assemble_norm_pack(
     provider outputs are used only when no local documents or claim sets are available.
     """
     normalized_request, jurisdiction_norm, as_of_norm, domain_norm = _normalize_request(request)
-    run_suffix = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f")
+    run_suffix = datetime.now(UTC).strftime("%Y%m%d%H%M%S%f")
 
     warnings: list[str] = []
     if normalized_request.budgets.max_docs == 0:
@@ -829,12 +833,13 @@ def assemble_norm_pack(
         include_dev_scan=True,
     )
 
-    provider_bootstrap = discover_and_bootstrap_providers(
-        components_index=components_index
-    )
+    provider_bootstrap = discover_and_bootstrap_providers(components_index=components_index)
     if provider_bootstrap.errors:
         warnings.extend(
-            [f"warning:normpack_provider_bootstrap_error:{msg}" for msg in provider_bootstrap.errors]
+            [
+                f"warning:normpack_provider_bootstrap_error:{msg}"
+                for msg in provider_bootstrap.errors
+            ]
         )
 
     direct_claim_set_artifact_ids = sorted(set(normalized_request.claim_set_artifact_ids or []))
@@ -869,7 +874,11 @@ def assemble_norm_pack(
                 payload = load_json_artifact(cas, norm_pack_artifact_id)
                 norm_pack = NormPack.model_validate(payload)
             else:
-                norm_pack = provided if isinstance(provided, NormPack) else NormPack.model_validate(provided)
+                norm_pack = (
+                    provided
+                    if isinstance(provided, NormPack)
+                    else NormPack.model_validate(provided)
+                )
                 norm_pack_artifact_id = persist_norm_pack(
                     cas=cas,
                     norm_pack=norm_pack,
@@ -889,25 +898,27 @@ def assemble_norm_pack(
                 "conflicts": 0,
                 "rules": len(norm_pack.norms),
             }
-            world_event_id, world_event_artifact_id, world_segment_manifest = emit_norm_pack_assemble_event(
-                cas=cas,
-                fact_log_root=fact_log_root,
-                request=normalized_request,
-                jurisdiction_norm=jurisdiction_norm,
-                as_of_norm=as_of_norm,
-                domain_norm=domain_norm,
-                selected_doc_versions=[],
-                selected_fragment_ids=[],
-                norm_claim_ids=[],
-                conflict_set_ids=[],
-                trust_assessment_ids=[],
-                claim_set_artifact_ids=[],
-                provision_index_artifact_ids=[],
-                conflict_resolution_artifact_ids=[],
-                norm_pack_world_id=norm_pack_world_id,
-                semantic_facts=semantic_facts,
-                segment_name=segment_name or f"lex_normpack_provider_{run_suffix}",
-                counts=counts,
+            world_event_id, world_event_artifact_id, world_segment_manifest = (
+                emit_norm_pack_assemble_event(
+                    cas=cas,
+                    fact_log_root=fact_log_root,
+                    request=normalized_request,
+                    jurisdiction_norm=jurisdiction_norm,
+                    as_of_norm=as_of_norm,
+                    domain_norm=domain_norm,
+                    selected_doc_versions=[],
+                    selected_fragment_ids=[],
+                    norm_claim_ids=[],
+                    conflict_set_ids=[],
+                    trust_assessment_ids=[],
+                    claim_set_artifact_ids=[],
+                    provision_index_artifact_ids=[],
+                    conflict_resolution_artifact_ids=[],
+                    norm_pack_world_id=norm_pack_world_id,
+                    semantic_facts=semantic_facts,
+                    segment_name=segment_name or f"lex_normpack_provider_{run_suffix}",
+                    counts=counts,
+                )
             )
             provider_warnings = sorted(set(warnings))
             return NormPackBuildResult(
@@ -939,9 +950,7 @@ def assemble_norm_pack(
             f"warning:normpack_provider_skipped_local_docs_present:{provider_record.component_id}"
         )
 
-    extractor_bootstrap = discover_and_bootstrap_extractors(
-        components_index=components_index
-    )
+    extractor_bootstrap = discover_and_bootstrap_extractors(components_index=components_index)
     if extractor_bootstrap.errors:
         warnings.extend(
             [f"warning:extractor_bootstrap_error:{msg}" for msg in extractor_bootstrap.errors]

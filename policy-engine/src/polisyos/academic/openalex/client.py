@@ -80,7 +80,9 @@ class OpenAlexClient:
             async with self._limiter.semaphore:
                 await self._limiter.acquire()
                 try:
-                    async with self._session.get("https://api.openalex.org/works", params=params) as resp:
+                    async with self._session.get(
+                        "https://api.openalex.org/works", params=params
+                    ) as resp:
                         if resp.status == 200:
                             payload = await resp.json(content_type=None)
                             if isinstance(payload, dict):
@@ -113,9 +115,11 @@ class OpenAlexClient:
                             await asyncio.sleep(wait)
                             continue
 
-                        raise RuntimeError(f"OpenAlex non-retryable error HTTP {resp.status}: {body[:500]}")
+                        raise RuntimeError(
+                            f"OpenAlex non-retryable error HTTP {resp.status}: {body[:500]}"
+                        )
 
-                except (aiohttp.ClientError, asyncio.TimeoutError) as exc:
+                except (TimeoutError, aiohttp.ClientError) as exc:
                     last_error = exc
                     wait = min(0.5 * (2 ** (attempt - 1)), 20.0)
                     logger.warning(

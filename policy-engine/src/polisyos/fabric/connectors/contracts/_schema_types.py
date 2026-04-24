@@ -8,6 +8,7 @@ Provides:
 - TimeGranularity: temporal resolution
 - GeoGranularity: geographic resolution
 """
+
 from __future__ import annotations
 
 from enum import Enum

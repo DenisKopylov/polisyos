@@ -22,28 +22,32 @@ _logger = logging.getLogger(__name__)
 # Well-known transient exception type names from optional dependencies.
 # We match by class name to avoid importing ray / temporalio at module level.
 # ---------------------------------------------------------------------------
-_TRANSIENT_TYPE_NAMES: frozenset[str] = frozenset({
-    # Ray
-    "RayTaskError",
-    "GetTimeoutError",
-    "NodeDiedError",
-    "WorkerCrashedError",
-    "ObjectLostError",
-    # Temporal
-    "ApplicationError",  # when flagged as retryable
-    "CancelledError",
-    "RPCError",
-    # Generic
-    "ConnectionRefusedError",
-    "ConnectionResetError",
-    "ConnectionAbortedError",
-    "BrokenPipeError",
-})
+_TRANSIENT_TYPE_NAMES: frozenset[str] = frozenset(
+    {
+        # Ray
+        "RayTaskError",
+        "GetTimeoutError",
+        "NodeDiedError",
+        "WorkerCrashedError",
+        "ObjectLostError",
+        # Temporal
+        "ApplicationError",  # when flagged as retryable
+        "CancelledError",
+        "RPCError",
+        # Generic
+        "ConnectionRefusedError",
+        "ConnectionResetError",
+        "ConnectionAbortedError",
+        "BrokenPipeError",
+    }
+)
 
-_FATAL_TYPE_NAMES: frozenset[str] = frozenset({
-    "ValidationError",
-    "PydanticValidationError",
-})
+_FATAL_TYPE_NAMES: frozenset[str] = frozenset(
+    {
+        "ValidationError",
+        "PydanticValidationError",
+    }
+)
 
 
 class RemoteErrorCategory(str, Enum):

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { Card } from "@/shared/ui/primitives";
 import { AnimatedProgress } from "@/shared/charts";
 
@@ -51,9 +52,11 @@ function formatDuration(ms: number): string {
 
 export function PipelineProgressViz({
   stages,
-  title = "Pipeline Progress",
+  title,
   className,
 }: PipelineProgressVizProps) {
+  const { t } = useI18n();
+  const resolvedTitle = title ?? t("causal.pipeline.title");
   // Compute depth for each stage (BFS from roots)
   const depthMap = useMemo(() => {
     const deps = new Map(stages.map((s) => [s.id, s.dependsOn]));
@@ -89,19 +92,12 @@ export function PipelineProgressViz({
     return depth;
   }, [stages]);
 
-  const completedCount = stages.filter(
-    (s) => s.status === "completed",
-  ).length;
+  const completedCount = stages.filter((s) => s.status === "completed").length;
   const failedCount = stages.filter((s) => s.status === "failed").length;
   const progressPct =
-    stages.length > 0
-      ? Math.round((completedCount / stages.length) * 100)
-      : 0;
+    stages.length > 0 ? Math.round((completedCount / stages.length) * 100) : 0;
 
-  const totalDuration = stages.reduce(
-    (sum, s) => sum + (s.durationMs ?? 0),
-    0,
-  );
+  const totalDuration = stages.reduce((sum, s) => sum + (s.durationMs ?? 0), 0);
 
   // Group by depth
   const columns = useMemo(() => {
@@ -118,20 +114,21 @@ export function PipelineProgressViz({
   return (
     <Card className={cn("space-y-4", className)}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-lg font-semibold">{title}</h3>
+        <h3 className="text-lg font-semibold">{resolvedTitle}</h3>
         <div className="flex items-center gap-3 text-xs">
           {failedCount > 0 && (
             <span className="font-semibold text-[var(--chart-alert)]">
-              {failedCount} failed
+              {t("causal.pipeline.failedCount", { count: failedCount })}
             </span>
           )}
           <span className="text-muted">
-            {completedCount}/{stages.length} stages
+            {t("causal.pipeline.stageProgress", {
+              completed: completedCount,
+              total: stages.length,
+            })}
           </span>
           {totalDuration > 0 && (
-            <span className="text-muted">
-              {formatDuration(totalDuration)}
-            </span>
+            <span className="text-muted">{formatDuration(totalDuration)}</span>
           )}
         </div>
       </div>
@@ -140,7 +137,7 @@ export function PipelineProgressViz({
         value={progressPct}
         height={6}
         colorByConfidence
-        label={title}
+        label={resolvedTitle}
       />
 
       {/* DAG visualization */}
@@ -198,7 +195,7 @@ export function PipelineProgressViz({
       {columns.length > 1 && (
         <div className="text-muted flex items-center gap-1 text-xs">
           <span>{"\u2192"}</span>
-          <span>Stages flow left to right by dependency order</span>
+          <span>{t("causal.pipeline.flowHint")}</span>
         </div>
       )}
     </Card>

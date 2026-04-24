@@ -1,4 +1,5 @@
 """Public decide run translator compliance module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -53,6 +54,7 @@ _SPEC = NodeSpec(
 @dataclass(frozen=True)
 class RunTranslatorComplianceNode:
     """Run translator compliance node implementation."""
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -92,15 +94,17 @@ class RunTranslatorComplianceNode:
                 ),
             )
 
-        build_input = _policy_build_input(ctx, state, candidate, candidate_ref, readiness, promotion_result)
+        build_input = _policy_build_input(
+            ctx, state, candidate, candidate_ref, readiness, promotion_result
+        )
         builder = PolicyArtifactBuilder()
-        constraint_report = builder._build_constraint_report(build_input)  # noqa: SLF001
-        subgroup_report = builder._build_subgroup_report(build_input)  # noqa: SLF001
-        uncertainty_report = builder._build_uncertainty_report(build_input)  # noqa: SLF001
-        transport_report = builder._build_transportability_report(build_input)  # noqa: SLF001
-        gate_packet = builder._build_governance_gate_packet(build_input)  # noqa: SLF001
-        implementation_plan = builder._build_implementation_plan(build_input)  # noqa: SLF001
-        dossier = builder._build_dossier(  # noqa: SLF001
+        constraint_report = builder._build_constraint_report(build_input)
+        subgroup_report = builder._build_subgroup_report(build_input)
+        uncertainty_report = builder._build_uncertainty_report(build_input)
+        transport_report = builder._build_transportability_report(build_input)
+        gate_packet = builder._build_governance_gate_packet(build_input)
+        implementation_plan = builder._build_implementation_plan(build_input)
+        dossier = builder._build_dossier(
             source=build_input,
             constraint_report=constraint_report,
             subgroup_report=subgroup_report,

@@ -1,4 +1,5 @@
 """Tests for SigmaVariable, SelectionDiagramBuilder, SourceDomainSpec, MultiSourceSelectionDiagram."""
+
 import pytest
 from pydantic import ValidationError
 
@@ -14,7 +15,6 @@ from polisyos.ir.analytics.transportability import (
     SNodeRole,
     SourceDomainSpec,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -120,21 +120,14 @@ class TestSelectionDiagramBuilder:
 
     def test_add_single_sigma_variable(self):
         graph = _dag([("X", "Y")])
-        diagram = (
-            SelectionDiagramBuilder(graph)
-            .add_sigma_variable("X")
-            .build()
-        )
+        diagram = SelectionDiagramBuilder(graph).add_sigma_variable("X").build()
         assert len(diagram.s_nodes) == 1
         assert diagram.s_nodes[0].target_variable == "X"
 
     def test_add_multiple_sigma_variables(self):
         graph = _dag([("X", "Y"), ("Z", "Y")])
         diagram = (
-            SelectionDiagramBuilder(graph)
-            .add_sigma_variable("X")
-            .add_sigma_variable("Z")
-            .build()
+            SelectionDiagramBuilder(graph).add_sigma_variable("X").add_sigma_variable("Z").build()
         )
         var_names = [sn.target_variable for sn in diagram.s_nodes]
         assert "X" in var_names
@@ -153,19 +146,13 @@ class TestSelectionDiagramBuilder:
 
     def test_severity_high(self):
         graph = _dag([("X", "Y")])
-        diagram = (
-            SelectionDiagramBuilder(graph)
-            .add_sigma_variable("X", severity="high")
-            .build()
-        )
+        diagram = SelectionDiagramBuilder(graph).add_sigma_variable("X", severity="high").build()
         assert diagram.s_nodes[0].severity == "high"
 
     def test_role_mediator(self):
         graph = _dag([("X", "M"), ("M", "Y")])
         diagram = (
-            SelectionDiagramBuilder(graph)
-            .add_sigma_variable("M", role=SNodeRole.MEDIATOR)
-            .build()
+            SelectionDiagramBuilder(graph).add_sigma_variable("M", role=SNodeRole.MEDIATOR).build()
         )
         assert diagram.s_nodes[0].role == SNodeRole.MEDIATOR
 

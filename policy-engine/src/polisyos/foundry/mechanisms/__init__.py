@@ -1,4 +1,5 @@
 """Expose built-in fiscal, labor, and treasury mechanisms for Foundry runtimes."""
+
 from polisyos.foundry.mechanisms.fiscal import (
     IncomeTax,
     TaxSubsidy,

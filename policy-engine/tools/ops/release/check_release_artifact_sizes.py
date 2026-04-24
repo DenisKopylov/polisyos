@@ -11,7 +11,9 @@ from pathlib import Path
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Check release artifact size policy")
-    parser.add_argument("--assets-dir", required=True, help="Directory containing release artifacts")
+    parser.add_argument(
+        "--assets-dir", required=True, help="Directory containing release artifacts"
+    )
     parser.add_argument("--policy", required=True, help="TOML policy describing size thresholds")
     parser.add_argument("--summary", help="Optional markdown summary output path")
     parser.add_argument("--json-output", help="Optional JSON summary output path")

@@ -40,11 +40,15 @@ def _frontier_state() -> dict[str, object]:
 
 class TestCausalFrontierFayHerriot:
     def test_registered(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "survey.estimation.causal_frontier_fay_herriot@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "survey.estimation.causal_frontier_fay_herriot@1.0.0"
+        )
         assert method is not None
 
     def test_boundary_cut_exposes_positive_leakage(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "survey.estimation.causal_frontier_fay_herriot@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "survey.estimation.causal_frontier_fay_herriot@1.0.0"
+        )
         result = method.pure_step(
             _frontier_state(),
             {"lambda_spatial": 25.0, "component_ridge": 1e-4},
@@ -59,8 +63,12 @@ class TestCausalFrontierFayHerriot:
         assert result.statistics["component_ids"] == [0, 0, 0, 0, 1, 1, 1, 1]
         assert result.statistics["borrow_strength_neighbors"] == [1, 2, 2, 1, 1, 2, 2, 1]
 
-    def test_supports_named_frontier_edges_and_persists_artifacts(self, isolated_registry, tmp_path) -> None:
-        method = _method_or_skip(isolated_registry, "survey.estimation.causal_frontier_fay_herriot@1.0.0")
+    def test_supports_named_frontier_edges_and_persists_artifacts(
+        self, isolated_registry, tmp_path
+    ) -> None:
+        method = _method_or_skip(
+            isolated_registry, "survey.estimation.causal_frontier_fay_herriot@1.0.0"
+        )
         store = FileSystemCAS(tmp_path / "cas")
         result = method.pure_step(
             _frontier_state(),
@@ -78,9 +86,13 @@ class TestCausalFrontierFayHerriot:
         assert loaded.source_method == "survey.estimation.causal_frontier_fay_herriot"
 
     def test_spillover_exposure_is_carried_through_when_present(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "survey.estimation.causal_frontier_fay_herriot@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "survey.estimation.causal_frontier_fay_herriot@1.0.0"
+        )
         state = _frontier_state()
-        state["spillover_exposure"] = np.array([0.0, 0.2, 0.4, 0.8, 0.8, 0.4, 0.2, 0.0], dtype=float)
+        state["spillover_exposure"] = np.array(
+            [0.0, 0.2, 0.4, 0.8, 0.8, 0.4, 0.2, 0.0], dtype=float
+        )
         result = method.pure_step(
             state,
             {"lambda_spatial": 10.0, "component_ridge": 1e-4},

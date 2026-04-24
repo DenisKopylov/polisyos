@@ -1,4 +1,5 @@
 """Public compile lowering module API."""
+
 from __future__ import annotations
 
 from collections import Counter
@@ -33,6 +34,7 @@ CoverageStatus = Literal[
 @dataclass(frozen=True)
 class CoverageEntry:
     """Coverage entry data model."""
+
     status: CoverageStatus
     consumer: str
 
@@ -293,16 +295,16 @@ def _resolve_bindings(
         for binding in explicit_bindings:
             for intervention_id in binding.intervention_ids:
                 if intervention_id not in enabled_ids:
-                    raise ValueError(
-                        f"unknown_mechanism_binding_intervention:{intervention_id}"
-                    )
+                    raise ValueError(f"unknown_mechanism_binding_intervention:{intervention_id}")
                 seen[intervention_id] += 1
                 if seen[intervention_id] > 1:
                     raise ValueError(f"duplicate_mechanism_binding_assignment:{intervention_id}")
                 mapping[intervention_id] = (binding, False)
         missing = sorted(enabled_ids - set(mapping))
         if missing:
-            raise ValueError(f"missing_mechanism_binding_for_enabled_interventions:{','.join(missing)}")
+            raise ValueError(
+                f"missing_mechanism_binding_for_enabled_interventions:{','.join(missing)}"
+            )
         return mapping, notes
 
     for intervention in enabled_interventions:

@@ -7,12 +7,11 @@ import inspect
 import json
 import logging
 import time
-from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -52,6 +51,9 @@ from polisyos.scientist.search.latent_governance import (
     materialize_latent_bridge_governance,
 )
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+
 _VARIABLE_ALIGNMENT_CERTIFICATE_SCHEMA_NAME = "ir.variable_alignment_certificate"
 _VARIABLE_ALIGNMENT_CERTIFICATE_SCHEMA_VERSION = "1.2"
 _ALIGNMENT_REPORT_SCHEMA_NAME = "ir.alignment_report"
@@ -62,6 +64,7 @@ logger = logging.getLogger(__name__)
 
 class AlignmentCertificateType(str, Enum):
     """Alignment certificate type public type."""
+
     EXACT = "exact"
     SCALE_LINK = "scale_link"
     LATENT_LINK_IRT = "latent_link_irt"
@@ -71,6 +74,7 @@ class AlignmentCertificateType(str, Enum):
 
 class AlignmentType(str, Enum):
     """Alignment type public type."""
+
     EXACT = "exact"
     SCALE_LINKED = "scale_linked"
     PROXY = "proxy"
@@ -80,6 +84,7 @@ class AlignmentType(str, Enum):
 
 class AlignmentReviewerState(str, Enum):
     """Alignment reviewer state data model."""
+
     AUTOMATED = "automated"
     PENDING_REVIEW = "pending_review"
     HUMAN_VERIFIED = "human_verified"
@@ -87,6 +92,7 @@ class AlignmentReviewerState(str, Enum):
 
 class MeasurementComparabilityGrade(str, Enum):
     """Measurement comparability grade public type."""
+
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
@@ -95,6 +101,7 @@ class MeasurementComparabilityGrade(str, Enum):
 
 class AlignmentOverallStatus(str, Enum):
     """Alignment overall status public type."""
+
     ALIGNED = "aligned"
     PARTIALLY_ALIGNED = "partially_aligned"
     INCOMPATIBLE = "incompatible"
@@ -102,12 +109,14 @@ class AlignmentOverallStatus(str, Enum):
 
 class AlignmentReviewStatus(str, Enum):
     """Alignment review status public type."""
+
     CLEAR = "clear"
     PENDING_REVIEW = "pending_review"
 
 
 class MetadataCheckStatus(str, Enum):
     """Metadata check status public type."""
+
     MATCH = "match"
     COMPATIBLE = "compatible"
     WARNING = "warning"
@@ -204,11 +213,11 @@ class VariableAlignmentCertificate(BaseModel):
     latent_bridge_ref: str | None = None
     assumptions_introduced: list[str] = Field(default_factory=list)
     reviewer: AlignmentReviewerState = AlignmentReviewerState.AUTOMATED
-    metadata_checks: list["VariableMetadataCheck"] = Field(default_factory=list)
+    metadata_checks: list[VariableMetadataCheck] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _enforce_latent_bridge_invariants(self) -> "VariableAlignmentCertificate":
+    def _enforce_latent_bridge_invariants(self) -> VariableAlignmentCertificate:
         if self.alignment_type is AlignmentType.LATENT_BRIDGE:
             if self.latent_bridge_hypothesis_ref is None and not (
                 self.latent_bridge_ref and str(self.latent_bridge_ref).strip()
@@ -222,6 +231,7 @@ class VariableAlignmentCertificate(BaseModel):
 
 class VariableMetadataCheck(BaseModel):
     """Variable metadata check public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     key: str = Field(min_length=1)
@@ -376,8 +386,8 @@ def verify_fragment_bundle_alignment(
 @dataclass(frozen=True)
 class _FragmentPairSummary:
     fragment_pair: tuple[str, str]
-    candidates: tuple["_PairCandidate", ...]
-    positive_candidates: tuple["_PairCandidate", ...]
+    candidates: tuple[_PairCandidate, ...]
+    positive_candidates: tuple[_PairCandidate, ...]
     eligible_variables_a: tuple[str, ...]
     eligible_variables_b: tuple[str, ...]
     weight: tuple[int, int, float]
@@ -411,7 +421,8 @@ def _verify_fragment_bundle_alignment_impl(
 
     seed_alignments = _load_seed_alignments(verification_config)
     schemas = {
-        fragment.fragment_id: fragment.to_interface_schema().variables for fragment in ordered_fragments
+        fragment.fragment_id: fragment.to_interface_schema().variables
+        for fragment in ordered_fragments
     }
     fragments_by_id = {fragment.fragment_id: fragment for fragment in ordered_fragments}
     pair_summaries: dict[tuple[str, str], _FragmentPairSummary] = {}
@@ -516,7 +527,11 @@ class _PairCandidate(BaseModel):
 
 
 def _load_seed_alignments(config: AlignmentVerificationConfig) -> list[VariableAlignment]:
-    path = Path(config.seed_alignments_path) if config.seed_alignments_path else default_seed_alignments_path()
+    path = (
+        Path(config.seed_alignments_path)
+        if config.seed_alignments_path
+        else default_seed_alignments_path()
+    )
     return load_seed_alignments(path)
 
 
@@ -593,9 +608,7 @@ def _compare_variable_metadata(
         if str(key).strip()
     }
     ordered_keys = [
-        key
-        for key in _DEFAULT_METADATA_KEYS
-        if key in left_metadata or key in right_metadata
+        key for key in _DEFAULT_METADATA_KEYS if key in left_metadata or key in right_metadata
     ]
     ordered_keys.extend(
         sorted((set(left_metadata) | set(right_metadata)) - set(_DEFAULT_METADATA_KEYS))
@@ -605,7 +618,9 @@ def _compare_variable_metadata(
     warning_keys: list[str] = []
     hard_mismatch_keys: list[str] = []
     for key in ordered_keys:
-        comparator = config.metadata_comparator_overrides.get(key) or _default_metadata_comparator(key)
+        comparator = config.metadata_comparator_overrides.get(key) or _default_metadata_comparator(
+            key
+        )
         check = _run_metadata_comparator(
             key=key,
             left_value=left_metadata.get(key),
@@ -907,11 +922,7 @@ def _legacy_latent_bridge_governance_metadata(
         [
             "latent_promotion_evidence_missing",
             "latent_artifact_proof_only",
-            *(
-                ["latent_bridge_legacy_ref_only"]
-                if latent_bridge_ref
-                else []
-            ),
+            *(["latent_bridge_legacy_ref_only"] if latent_bridge_ref else []),
             *list(extra_blockers),
         ]
     )
@@ -1018,10 +1029,12 @@ def _classify_pair(
         variable_a.measurement_model_ref,
         variable_b.measurement_model_ref,
     )
-    metadata_checks, metadata_warning_keys, metadata_hard_mismatch_keys = _compare_variable_metadata(
-        variable_a=variable_a,
-        variable_b=variable_b,
-        config=config,
+    metadata_checks, metadata_warning_keys, metadata_hard_mismatch_keys = (
+        _compare_variable_metadata(
+            variable_a=variable_a,
+            variable_b=variable_b,
+            config=config,
+        )
     )
     auto_latent_bridge_hypothesis: LatentBridgeHypothesis | None = None
     if (
@@ -1039,25 +1052,25 @@ def _classify_pair(
             policy=config.latent_bridge_policy,
         )
     transform_ref = _known_transform_ref(variable_a.unit, variable_b.unit, config)
-    definitions_present = bool(str(variable_a.definition).strip() and str(variable_b.definition).strip())
+    definitions_present = bool(
+        str(variable_a.definition).strip() and str(variable_b.definition).strip()
+    )
     definition_overlap_sufficient = pair_score.definition_score >= config.min_definition_overlap
     compatible_definition_evidence = bool(definition_overlap_sufficient or not definitions_present)
     units_present = bool(str(variable_a.unit or "").strip() and str(variable_b.unit or "").strip())
     units_conflict = bool(
-        units_present
-        and transform_ref is None
-        and pair_score.unit_compatibility_score < 0.5
+        units_present and transform_ref is None and pair_score.unit_compatibility_score < 0.5
     )
     measurement_conflict = not measurement_models_compatible
-    canonical_evidence = bool(pair_score.shared_canonical_vars) or pair_score.seed_support_score > 0.0
+    canonical_evidence = (
+        bool(pair_score.shared_canonical_vars) or pair_score.seed_support_score > 0.0
+    )
     semantic_construct_evidence = bool(
         not pair_score.exact_name_match
         and pair_score.semantic_score >= config.min_exact_semantic_score
     )
     construct_evidence = bool(
-        canonical_evidence
-        or definition_overlap_sufficient
-        or semantic_construct_evidence
+        canonical_evidence or definition_overlap_sufficient or semantic_construct_evidence
     )
     hard_conflict_reasons: list[str] = []
     if pair_score.exact_name_match and definitions_present and not definition_overlap_sufficient:
@@ -1091,10 +1104,7 @@ def _classify_pair(
     same_construct = bool(
         canonical_evidence
         or semantic_construct_evidence
-        or (
-            pair_score.exact_name_match
-            and compatible_definition_evidence
-        )
+        or (pair_score.exact_name_match and compatible_definition_evidence)
     )
     scale_link_supported = bool(
         transform_ref
@@ -1110,10 +1120,7 @@ def _classify_pair(
             pair_score.overall_score >= config.min_proxy_score
             or canonical_evidence
             or semantic_construct_evidence
-            or (
-                definition_overlap_sufficient
-                and pair_score.semantic_score >= 0.35
-            )
+            or (definition_overlap_sufficient and pair_score.semantic_score >= 0.35)
         )
     )
     plausible = bool(
@@ -1210,16 +1217,7 @@ def _classify_pair(
             config=config,
         )
         priority = 0
-    elif latent_bridge_ref:
-        alignment_type = AlignmentType.LATENT_BRIDGE
-        reviewer = _reviewer_state_for_pair(
-            alignment_type=alignment_type,
-            pair_key=pair_key,
-            config=config,
-        )
-        assumptions.append("latent_bridge_evidence_required")
-        priority = 1
-    elif latent_bridge_hypothesis_ref is not None and not hard_conflict:
+    elif latent_bridge_ref or (latent_bridge_hypothesis_ref is not None and not hard_conflict):
         alignment_type = AlignmentType.LATENT_BRIDGE
         reviewer = _reviewer_state_for_pair(
             alignment_type=alignment_type,
@@ -1229,8 +1227,7 @@ def _classify_pair(
         assumptions.append("latent_bridge_evidence_required")
         priority = 1
     elif (
-        auto_latent_bridge_hypothesis_ref is not None
-        and auto_latent_bridge_hypothesis is not None
+        auto_latent_bridge_hypothesis_ref is not None and auto_latent_bridge_hypothesis is not None
     ):
         alignment_type = AlignmentType.LATENT_BRIDGE
         latent_bridge_hypothesis_ref = auto_latent_bridge_hypothesis_ref
@@ -1258,7 +1255,9 @@ def _classify_pair(
             pair_key=pair_key,
             config=config,
         )
-        assumptions.append(f"known_unit_transform:{_unit_pair_key(variable_a.unit, variable_b.unit)}")
+        assumptions.append(
+            f"known_unit_transform:{_unit_pair_key(variable_a.unit, variable_b.unit)}"
+        )
         priority = 3
     elif proxy_supported:
         alignment_type = AlignmentType.PROXY
@@ -1292,11 +1291,11 @@ def _classify_pair(
         transform_ref=transform_ref if alignment_type is AlignmentType.SCALE_LINKED else None,
         proxy_evidence_ref=proxy_ref if alignment_type is AlignmentType.PROXY else None,
         latent_bridge_hypothesis_ref=(
-            latent_bridge_hypothesis_ref
-            if alignment_type is AlignmentType.LATENT_BRIDGE
-            else None
+            latent_bridge_hypothesis_ref if alignment_type is AlignmentType.LATENT_BRIDGE else None
         ),
-        latent_bridge_ref=latent_bridge_ref if alignment_type is AlignmentType.LATENT_BRIDGE else None,
+        latent_bridge_ref=latent_bridge_ref
+        if alignment_type is AlignmentType.LATENT_BRIDGE
+        else None,
         assumptions_introduced=_dedupe_strings(assumptions),
         reviewer=reviewer,
         metadata_checks=metadata_checks,
@@ -1366,7 +1365,7 @@ def _select_pair_certificates(
         candidate = _best_coverage_candidate(
             by_b.get(variable_b, ()),
             selected_pairs=selected_pairs,
-            preferred_uncovered={key for key in sorted(all_a - used_a)},
+            preferred_uncovered=set(all_a - used_a),
             opposite_attr="variable_a",
         )
         if candidate is None:
@@ -1449,12 +1448,7 @@ def _candidate_variable_names(
     side: Literal["a", "b"],
 ) -> list[str]:
     attr = "variable_a" if side == "a" else "variable_b"
-    return sorted(
-        {
-            getattr(candidate, attr).variable_name
-            for candidate in candidates
-        }
-    )
+    return sorted({getattr(candidate, attr).variable_name for candidate in candidates})
 
 
 def _build_fragment_pair_summary(
@@ -1539,11 +1533,7 @@ def _resolve_bundle_stitch_topology(
         return True
 
     ranked_summaries = sorted(
-        (
-            summary
-            for summary in pair_summaries.values()
-            if summary.positive_candidates
-        ),
+        (summary for summary in pair_summaries.values() if summary.positive_candidates),
         key=lambda summary: (
             -summary.weight[0],
             -summary.weight[1],
@@ -1778,9 +1768,9 @@ def _build_interface_mapping(
         ]
         canonical_name = _preferred_component_name(bindings)
         digest = hashlib.sha256(
-            "|".join(f"{fragment_id}:{variable_name}" for fragment_id, variable_name in bindings).encode(
-                "utf-8"
-            )
+            "|".join(
+                f"{fragment_id}:{variable_name}" for fragment_id, variable_name in bindings
+            ).encode("utf-8")
         ).hexdigest()[:12]
         alignment_type = _component_alignment_type(component_certs)
         reviewer = _component_reviewer(component_certs)
@@ -1806,14 +1796,19 @@ def _build_interface_mapping(
                         fragment_id=fragment_id,
                         variable_name=variable_name,
                         observed=binding_details[(fragment_id, variable_name)].observed,
-                        measurement_model_ref=binding_details[(fragment_id, variable_name)].measurement_model_ref,
+                        measurement_model_ref=binding_details[
+                            (fragment_id, variable_name)
+                        ].measurement_model_ref,
                         definition=binding_details[(fragment_id, variable_name)].definition,
                         unit=binding_details[(fragment_id, variable_name)].unit,
                         metadata=dict(binding_details[(fragment_id, variable_name)].metadata),
                     )
                     for fragment_id, variable_name in bindings
                 ],
-                observed=all(binding_details[(fragment_id, variable_name)].observed for fragment_id, variable_name in bindings),
+                observed=all(
+                    binding_details[(fragment_id, variable_name)].observed
+                    for fragment_id, variable_name in bindings
+                ),
                 alignment_type=alignment_type.value,
                 reviewer=reviewer.value,
                 assumptions_introduced=assumptions,
@@ -1842,7 +1837,9 @@ def _component_reviewer(
 ) -> AlignmentReviewerState:
     if any(item.reviewer is AlignmentReviewerState.PENDING_REVIEW for item in certificates):
         return AlignmentReviewerState.PENDING_REVIEW
-    if certificates and all(item.reviewer is AlignmentReviewerState.HUMAN_VERIFIED for item in certificates):
+    if certificates and all(
+        item.reviewer is AlignmentReviewerState.HUMAN_VERIFIED for item in certificates
+    ):
         return AlignmentReviewerState.HUMAN_VERIFIED
     return AlignmentReviewerState.AUTOMATED
 
@@ -1869,9 +1866,7 @@ def _component_latent_bridge_metadata(
                 if str(item).strip()
             )
         blockers.extend(
-            str(item)
-            for item in governance.get("no_promotion_reasons", [])
-            if str(item).strip()
+            str(item) for item in governance.get("no_promotion_reasons", []) if str(item).strip()
         )
     return {
         "latent_bridge_readiness_cap": _minimum_readiness_cap(readiness_caps),
@@ -2046,9 +2041,7 @@ class AlignmentCertificationPolicy(BaseModel):
     @classmethod
     def _validate_tau_min(cls, v: float) -> float:
         if v < TAU_MIN_LOWER or v > TAU_MIN_UPPER:
-            raise ValueError(
-                f"tau_min must be in [{TAU_MIN_LOWER}, {TAU_MIN_UPPER}], got {v}"
-            )
+            raise ValueError(f"tau_min must be in [{TAU_MIN_LOWER}, {TAU_MIN_UPPER}], got {v}")
         return v
 
     def validate_chain(self, chain: list[AlignmentCertificate]) -> CertificationResult:
@@ -2064,16 +2057,12 @@ class AlignmentCertificationPolicy(BaseModel):
             )
 
         if len(chain) > self.max_chain_length:
-            violations.append(
-                f"chain length {len(chain)} exceeds max {self.max_chain_length}"
-            )
+            violations.append(f"chain length {len(chain)} exceeds max {self.max_chain_length}")
 
         allowed = set(self.allowed_types)
         for cert in chain:
             if cert.cert_type not in allowed:
-                violations.append(
-                    f"certificate type {cert.cert_type.value} not allowed by policy"
-                )
+                violations.append(f"certificate type {cert.cert_type.value} not allowed by policy")
 
         scores = [cert.confidence for cert in chain]
         if self.composition_rule == "harmonic":
@@ -2127,6 +2116,7 @@ def compute_outer_objective(
 
 TAU_GRID: tuple[float, ...] = (0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90)
 LAMBDA_GRID: tuple[float, ...] = (0.5, 1.0, 2.0)
+
 
 def _sorted_types(*items: AlignmentCertificateType) -> tuple[AlignmentCertificateType, ...]:
     return tuple(sorted(items, key=lambda x: x.value))
@@ -2380,31 +2370,31 @@ VariableAlignmentCertificate.model_rebuild()
 
 
 __all__ = [
-    "AlignmentDegradedOutcome",
-    "AlignmentDegradedOutcomeCode",
-    "AlignmentOverallStatus",
-    "AlignmentReviewStatus",
-    "AlignmentCertificateType",
-    "AlignmentCertificate",
-    "AlignmentCertificationPolicy",
-    "AlignmentReport",
-    "AlignmentVerificationConfig",
-    "AlignmentReviewerState",
-    "AlignmentType",
-    "CertificationResult",
-    "MetadataCheckStatus",
-    "MeasurementComparabilityGrade",
-    "OuterObjectiveResult",
-    "OuterSearchResult",
-    "TAU_GRID",
-    "TAU_MIN_LOWER",
-    "TAU_MIN_UPPER",
     "LAMBDA_GRID",
     "MAX_OUTER_SOLVES",
     "MAX_OUTER_WALLTIME_SEC",
+    "TAU_GRID",
+    "TAU_MIN_LOWER",
+    "TAU_MIN_UPPER",
     "TYPE_CONFIGS",
-    "VariableMetadataCheck",
+    "AlignmentCertificate",
+    "AlignmentCertificateType",
+    "AlignmentCertificationPolicy",
+    "AlignmentDegradedOutcome",
+    "AlignmentDegradedOutcomeCode",
+    "AlignmentOverallStatus",
+    "AlignmentReport",
+    "AlignmentReviewStatus",
+    "AlignmentReviewerState",
+    "AlignmentType",
+    "AlignmentVerificationConfig",
+    "CertificationResult",
+    "MeasurementComparabilityGrade",
+    "MetadataCheckStatus",
+    "OuterObjectiveResult",
+    "OuterSearchResult",
     "VariableAlignmentCertificate",
+    "VariableMetadataCheck",
     "build_alignment_report",
     "compute_outer_objective",
     "load_alignment_report",

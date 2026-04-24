@@ -1,12 +1,16 @@
 """Public foundry agent metrics module API."""
+
 from __future__ import annotations
 
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 import jax.numpy as jnp
 
 
-def normalize_action(action_val: jnp.ndarray, action_space: Mapping[str, Any] | None) -> jnp.ndarray:
+def normalize_action(
+    action_val: jnp.ndarray, action_space: Mapping[str, Any] | None
+) -> jnp.ndarray:
     """Normalize action helper."""
     if not action_space:
         return jnp.clip(action_val, 0.0, 1.0)

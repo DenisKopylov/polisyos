@@ -5,15 +5,15 @@ CLI scaffold generator for Policy OS connectors.
 Generates a compliant, test-ready connector skeleton that passes
 ConnectorTestHarness out of the box.
 """
+
 from __future__ import annotations
 
 import argparse
 import re
 import sys
 import textwrap
-from pathlib import Path
-from tools._lib.imports import repo_root_from
 
+from tools._lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SOURCE_DIR = REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "sources"
@@ -42,8 +42,7 @@ def _source_template(class_name: str, snake_name: str, connector_type: str) -> s
             "        | ConnectorCapability.RATE_LIMIT_AWARE"
         ),
         "CSV": (
-            "ConnectorCapability.FULL_FETCH\n"
-            "        | ConnectorCapability.SCHEMA_INTROSPECTION"
+            "ConnectorCapability.FULL_FETCH\n        | ConnectorCapability.SCHEMA_INTROSPECTION"
         ),
         "SQL": (
             "ConnectorCapability.FULL_FETCH\n"

@@ -35,7 +35,7 @@ resolve_zone() {
   printf '%s\n' "${ZONE}"
 }
 
-gcloud config set project "${PROJECT_ID}" >/dev/null
+gcloud config set project "${PROJECT_ID}" > /dev/null
 
 while true; do
   completed=0
@@ -44,7 +44,7 @@ while true; do
     INSTANCE_NAME="${INSTANCE_NAME_PREFIX}-${i}"
     INSTANCE_ZONE="$(resolve_zone "${i}")"
     EXIT_CODE_URI="${OUTPUT_ROOT%/}/shard_${i}/manifests/pipeline_exit_code.txt"
-    EXIT_CODE="$(gcloud storage cat "${EXIT_CODE_URI}" 2>/dev/null || true)"
+    EXIT_CODE="$(gcloud storage cat "${EXIT_CODE_URI}" 2> /dev/null || true)"
 
     if [ "${EXIT_CODE}" = "0" ]; then
       completed=$((completed + 1))
@@ -71,14 +71,14 @@ while true; do
       echo "Detected non-zero exit code for ${INSTANCE_NAME}: ${EXIT_CODE}"
     fi
 
-    STATUS="$(gcloud compute instances describe "${INSTANCE_NAME}" --zone="${INSTANCE_ZONE}" --format='get(status)' 2>/dev/null || true)"
+    STATUS="$(gcloud compute instances describe "${INSTANCE_NAME}" --zone="${INSTANCE_ZONE}" --format='get(status)' 2> /dev/null || true)"
     if [ "${STATUS}" = "TERMINATED" ]; then
       if [ -n "${EXIT_CODE}" ] && [ "${EXIT_CODE}" != "0" ]; then
         echo "Restarting ${INSTANCE_NAME} in ${INSTANCE_ZONE} because pipeline_exit_code=${EXIT_CODE}."
       else
         echo "Restarting ${INSTANCE_NAME} in ${INSTANCE_ZONE} because pipeline_exit_code.txt is missing."
       fi
-      gcloud compute instances start "${INSTANCE_NAME}" --zone="${INSTANCE_ZONE}" >/dev/null || true
+      gcloud compute instances start "${INSTANCE_NAME}" --zone="${INSTANCE_ZONE}" > /dev/null || true
     fi
   done
 

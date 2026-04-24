@@ -1,4 +1,5 @@
 # Problem Framing IR
+
 Related explanation: [Trinity](../../explanation/trinity.md).
 
 > The “why” layer: objectives, KPIs, constraints, stakeholders, and scope semantics.
@@ -19,10 +20,10 @@ Source plan phases: D1-L4 Phase 0 Trinity canon/linker contracts and Phase 5 gov
 
 ## Source Modules
 
-| Module | Focus | Key exports |
-|--------|-------|-------------|
+| Module                                 | Focus                                                  | Key exports                                                                                                |
+| -------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
 | `polisyos.ir.governance.problem_frame` | Goals, objectives, criteria, constraints, stakeholders | `ProblemFrame`, `ProblemDomain`, `KPISpec`, `SuccessCriterion`, `ProblemConstraintSpec`, `StakeholderSpec` |
-| `polisyos.ir.observation.contracts` | Entity granularity shared with the observation layer | Observation scope semantics |
+| `polisyos.ir.observation.contracts`    | Entity granularity shared with the observation layer   | Observation scope semantics                                                                                |
 
 ## Problem Frame Contracts
 
@@ -41,8 +42,8 @@ enum is documented alongside the rest of the observation contracts.
 
 ## Validation Hooks
 
-| Claim | Source of truth | Evidence |
-|-------|-----------------|----------|
-| Problem framing is the stable Trinity "why" layer | `src/polisyos/ir/governance/problem_frame.py`, `src/polisyos/ir/trinity/**` | `schemas/snapshots/ir/problem_frame.schema.json`, `tests/contract/test_trinity_contracts.py` |
-| Constraints and stakeholders remain schema-catalog visible | `src/polisyos/ir/governance/problem_frame.py` | [IR Schema Catalog](schema-catalog.md#polisyos-ir-governance-problem-frame-problemframe) |
-| Entity scope semantics align with observation contracts | `src/polisyos/ir/observation/contracts.py` | `schemas/snapshots/ir/entity_scope.schema.json`, `tests/ir/observation/test_contracts.py` |
+| Claim                                                      | Source of truth                                                             | Evidence                                                                                     |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Problem framing is the stable Trinity "why" layer          | `src/polisyos/ir/governance/problem_frame.py`, `src/polisyos/ir/trinity/**` | `schemas/snapshots/ir/problem_frame.schema.json`, `tests/contract/test_trinity_contracts.py` |
+| Constraints and stakeholders remain schema-catalog visible | `src/polisyos/ir/governance/problem_frame.py`                               | [IR Schema Catalog](schema-catalog.md#polisyos-ir-governance-problem-frame-problemframe)     |
+| Entity scope semantics align with observation contracts    | `src/polisyos/ir/observation/contracts.py`                                  | `schemas/snapshots/ir/entity_scope.schema.json`, `tests/ir/observation/test_contracts.py`    |

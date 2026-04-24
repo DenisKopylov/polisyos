@@ -31,13 +31,13 @@ function shapePath(kind: CausalNodeKind): string {
       return `M ${-HW} 0 A ${HW} ${HH} 0 1 1 ${HW} 0 A ${HW} ${HH} 0 1 1 ${-HW} 0 Z`;
     case "confounder": // Square
       return `M ${-HW} ${-HH} L ${HW} ${-HH} L ${HW} ${HH} L ${-HW} ${HH} Z`;
-    case "mediator": // Rounded rect (approx with arcs)
-    {
+    case "mediator": {
+      // Rounded rect (approx with arcs)
       const r = 12;
       return `M ${-HW + r} ${-HH} L ${HW - r} ${-HH} Q ${HW} ${-HH} ${HW} ${-HH + r} L ${HW} ${HH - r} Q ${HW} ${HH} ${HW - r} ${HH} L ${-HW + r} ${HH} Q ${-HW} ${HH} ${-HW} ${HH - r} L ${-HW} ${-HH + r} Q ${-HW} ${-HH} ${-HW + r} ${-HH} Z`;
     }
-    case "collider": // Hexagon
-    {
+    case "collider": {
+      // Hexagon
       const s = HW * 0.3;
       return `M ${-HW + s} ${-HH} L ${HW - s} ${-HH} L ${HW} 0 L ${HW - s} ${HH} L ${-HW + s} ${HH} L ${-HW} 0 Z`;
     }
@@ -135,7 +135,9 @@ export const CausalNode = memo(function CausalNode({
         className="pointer-events-none select-none"
         y={-4}
       >
-        {node.label.length > 18 ? `${node.label.slice(0, 17)}\u2026` : node.label}
+        {node.label.length > 18
+          ? `${node.label.slice(0, 17)}\u2026`
+          : node.label}
       </text>
 
       {/* Effect estimate subtitle */}

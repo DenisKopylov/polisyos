@@ -6,11 +6,15 @@ import json
 import sys
 import tempfile
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import uvicorn
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
-def _load_fixture_builder():
+
+def _load_fixture_builder() -> Callable[..., dict[str, object]]:
     policy_engine_root = Path(__file__).resolve().parents[3]
     import_roots = [
         policy_engine_root / "src",
@@ -27,7 +31,9 @@ def _load_fixture_builder():
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Serve fixture-backed runtime API for frontend e2e.")
+    parser = argparse.ArgumentParser(
+        description="Serve fixture-backed runtime API for frontend e2e."
+    )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--metadata-file", default=None)

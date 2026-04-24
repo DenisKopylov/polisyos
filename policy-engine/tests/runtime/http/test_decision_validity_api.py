@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -72,7 +72,7 @@ def test_publish_decision_validity_event_updates_registered_packets(runtime_api_
             "reason": "fixture_api_law_changed",
             "dependency_keys": ["norm::api_fixture"],
             "source_ref": "law://fixture/api",
-            "occurred_at": datetime(2026, 3, 12, 14, 0, tzinfo=timezone.utc).isoformat(),
+            "occurred_at": datetime(2026, 3, 12, 14, 0, tzinfo=UTC).isoformat(),
         },
     )
 

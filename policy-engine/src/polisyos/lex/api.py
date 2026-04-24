@@ -6,12 +6,11 @@ creates provision fragments, ``build_version_index`` and ``resolve_active_versio
 temporal document revision, ``assemble_norm_pack`` materializes a snapshot of applicable norms,
 and ``evaluate_legality`` / ``propose_changes`` bridge the snapshot into governance workflows.
 """
+
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import ENTRY_POINT_GROUP_LEX_EVALUATORS
 from polisyos.core.components.bootstrap import build_components_index
 from polisyos.core.contracts.lex import (
@@ -19,7 +18,6 @@ from polisyos.core.contracts.lex import (
     LegalEvaluationRequest,
     LegalReportRef,
 )
-from polisyos.fabric.io.db import SimulationDB
 from polisyos.lex.corpus.ingest import ingest_legal_doc_bytes as _ingest_legal_doc_bytes
 from polisyos.lex.corpus.structure import build_legal_structure as _build_legal_structure
 from polisyos.lex.corpus.versioning import (
@@ -53,6 +51,12 @@ from polisyos.lex.types import (
     NormPackBuildRequest,
     NormPackBuildResult,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.fabric.io.db import SimulationDB
 
 
 def ingest_legal_doc_bytes(

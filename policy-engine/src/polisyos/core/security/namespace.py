@@ -1,4 +1,5 @@
 """Namespace utilities for multi-tenant artifact isolation."""
+
 from __future__ import annotations
 
 import re
@@ -7,7 +8,6 @@ from typing import TYPE_CHECKING, Any, cast
 if TYPE_CHECKING:
     from polisyos.core.artifacts._integrity_ops import VerificationReport
     from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef
-    from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.artifacts.store import PutOptions
     from polisyos.core.canon import CanonSpec
 
@@ -89,19 +89,19 @@ class NamespacedArtifactStore:
 
     def has(self, artifact_id: str) -> bool:
         """Return whether a tenant-local artifact exists in the wrapped store."""
-        return cast(bool, self._inner.has(self._ns(artifact_id)))
+        return cast("bool", self._inner.has(self._ns(artifact_id)))
 
     def get_bytes(self, artifact_id: str) -> bytes:
         """Read namespaced artifact bytes from the wrapped store."""
-        return cast(bytes, self._inner.get_bytes(self._ns(artifact_id)))
+        return cast("bytes", self._inner.get_bytes(self._ns(artifact_id)))
 
     def get_manifest(self, artifact_id: str) -> ArtifactManifest:
         """Read a namespaced artifact manifest from the wrapped store."""
-        return cast(ArtifactManifest, self._inner.get_manifest(self._ns(artifact_id)))
+        return cast("ArtifactManifest", self._inner.get_manifest(self._ns(artifact_id)))
 
     def put_bytes(self, data: bytes, opts: PutOptions | None = None) -> ArtifactRef:
         """Persist artifact bytes using the wrapped store's native write contract."""
-        ref = cast(ArtifactRef, self._inner.put_bytes(data, opts))
+        ref = cast("ArtifactRef", self._inner.put_bytes(data, opts))
         return ref
 
     def put_json(
@@ -111,18 +111,16 @@ class NamespacedArtifactStore:
         canon_spec: CanonSpec | None = None,
     ) -> ArtifactRef:
         """Persist a JSON artifact using the wrapped store's native write contract."""
-        ref = cast(ArtifactRef, self._inner.put_json(obj, opts, canon_spec))
+        ref = cast("ArtifactRef", self._inner.put_json(obj, opts, canon_spec))
         return ref
 
     def verify(self, artifact_id: str) -> VerificationReport:
         """Run integrity verification for a tenant-local artifact id."""
-        return cast(VerificationReport, self._inner.verify(self._ns(artifact_id)))
+        return cast("VerificationReport", self._inner.verify(self._ns(artifact_id)))
 
     def iter_artifact_ids(self) -> list[str]:
         """Yield tenant-local ids with the namespace prefix stripped."""
         prefix = namespaced_artifact_id(self._tenant_id, self._cell_id, "")
         return [
-            aid[len(prefix):]
-            for aid in self._inner.iter_artifact_ids()
-            if aid.startswith(prefix)
+            aid[len(prefix) :] for aid in self._inner.iter_artifact_ids() if aid.startswith(prefix)
         ]

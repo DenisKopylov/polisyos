@@ -12,13 +12,13 @@ Verifies:
   - None (wildcard) × anything → compatible, no warning
 - stable_digest changes when DimVar name changes
 """
+
 from __future__ import annotations
 
 import pytest
 
-from polisyos.foundry.methods.base import DimVar, DimExpr, Shape, SlotSpec, SlotType, Unit
+from polisyos.foundry.methods.base import DimVar, SlotSpec, SlotType, Unit
 from polisyos.foundry.methods.types.checker import check_slot_compatibility
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -36,6 +36,7 @@ def _slot(name: str, shape: tuple, slot_type: SlotType = _VECTOR) -> SlotSpec:
 # ---------------------------------------------------------------------------
 # DimVar basic
 # ---------------------------------------------------------------------------
+
 
 class TestDimVar:
     def test_construction(self):
@@ -78,6 +79,7 @@ class TestDimVar:
 # SlotSpec accepts DimVar
 # ---------------------------------------------------------------------------
 
+
 class TestSlotSpecWithDimVar:
     def test_accepts_dimvar_in_shape(self):
         n_obs = DimVar("n_obs")
@@ -115,6 +117,7 @@ class TestSlotSpecWithDimVar:
 # ---------------------------------------------------------------------------
 # check_slot_compatibility with DimVar
 # ---------------------------------------------------------------------------
+
 
 class TestDimVarCompatibility:
     def test_same_dimvar_compatible_no_warning(self):

@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-from io import BytesIO
-
 import pytest
 
-from polisyos.scholar.discover.http_fetch import fetch_url
 from polisyos.core.contracts.scholar import SourceSpec
+from polisyos.scholar.discover.http_fetch import fetch_url
 from polisyos.scholar.search.cache import UrlFetchCache
 from polisyos.scholar.search.fetcher import fetch_open_page, find_in_page
 from polisyos.scholar.search.models import SearchConstraints

@@ -1,4 +1,5 @@
 """Typed IR contracts for survey raking / IPF convergence diagnostics."""
+
 from __future__ import annotations
 
 from typing import ClassVar, Literal

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import dataclasses
-from typing import Iterable, Mapping
+from collections.abc import Iterable, Mapping
 
 
 @dataclasses.dataclass(frozen=True)

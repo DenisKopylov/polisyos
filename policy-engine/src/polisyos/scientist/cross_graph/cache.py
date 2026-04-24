@@ -73,7 +73,9 @@ class EvidenceCache:
         payload = {
             "dimension": dimension,
             "need_id": need.need_id,
-            "need_type": need.need_type.value if hasattr(need.need_type, "value") else str(need.need_type),
+            "need_type": need.need_type.value
+            if hasattr(need.need_type, "value")
+            else str(need.need_type),
             "concept_ids": sorted(str(getattr(c, "concept_id", c)) for c in concepts),
         }
         raw = json.dumps(payload, sort_keys=True)

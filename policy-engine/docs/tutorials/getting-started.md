@@ -4,11 +4,11 @@
 > и выполните минимальный `compile -> execute` smoke path.
 
 !!! info "Verified with"
-    Проверено 2026-04-17 на локальном macOS workstation (Apple Silicon):
-    Python 3.14.0, Node 22.22.2, `uv 0.9.21`.
-    Реально выполнены команды `uv run polisyos --version`,
-    `uv run python -c "from polisyos.ir import ProblemFrame; from polisyos.foundry import compile_program; print(ProblemFrame.__name__, callable(compile_program))"`,
-    и `python3 -m tools.cli workspace doctor --list-surfaces`.
+Проверено 2026-04-17 на локальном macOS workstation (Apple Silicon):
+Python 3.14.0, Node 22.22.2, `uv 0.9.21`.
+Реально выполнены команды `uv run polisyos --version`,
+`uv run python -c "from polisyos.ir import ProblemFrame; from polisyos.foundry import compile_program; print(ProblemFrame.__name__, callable(compile_program))"`,
+и `python3 -m tools.cli workspace doctor --list-surfaces`.
 
 ## Что понадобится
 
@@ -146,7 +146,9 @@ python3 -m tools.cli workspace verify --backend-only --skip-doctor
 - Если вы новый contributor, начните с
   [Installation](../how-to/install.md) и
   [Contributor Start Here](../reference/contributor-start-here.md).
+
 - Если вам нужен первый аналитический walkthrough, откройте
   [First Policy Analysis](first-policy-analysis.md).
+
 - Если вы идете по роли, выберите нужный track в
   [Onboarding Tracks](../how-to/onboarding/index.md).

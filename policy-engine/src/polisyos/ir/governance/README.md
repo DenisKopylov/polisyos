@@ -21,16 +21,16 @@ governance constraints должны соблюдаться" до compile/runtime
 
 ## Public entrypoints
 
-| Entrypoint | Use when | Defined in |
-|---|---|---|
-| `polisyos.ir.governance.ProblemFrame` | Нужно описать policy problem, goals и success criteria | [`problem_frame.py`](./problem_frame.py) |
-| `polisyos.ir.governance.PolicySpec` | Нужно описать interventions, bindings и execution metadata | [`policy_spec.py`](./policy_spec.py) |
-| `polisyos.ir.governance.InterventionSpec` | Нужен contract одного intervention | [`policy_spec.py`](./policy_spec.py) |
-| `polisyos.ir.governance.TemporalInterventionSequence` | Нужен staged rollout / temporal intervention plan | [`policy_spec.py`](./policy_spec.py) |
-| `polisyos.ir.governance.ScheduleSpec` | Нужны step-based activation windows | [`schedule.py`](./schedule.py) |
-| `polisyos.ir.governance.SelectorPredicate`, `SelectorAll`, `SelectorAny`, `SelectorNot` | Нужно описать targeting surface | [`selector_expr.py`](./selector_expr.py) |
-| `polisyos.ir.governance.GateRequest`, `GateDecision`, `GateEvent` | Нужен typed governance gate protocol | [`gate.py`](./gate.py) |
-| `polisyos.ir.governance.ValidationReport` | Нужны structured validation diagnostics | [`validation.py`](./validation.py) |
+| Entrypoint                                                                              | Use when                                                   | Defined in                               |
+| --------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------- |
+| `polisyos.ir.governance.ProblemFrame`                                                   | Нужно описать policy problem, goals и success criteria     | [`problem_frame.py`](./problem_frame.py) |
+| `polisyos.ir.governance.PolicySpec`                                                     | Нужно описать interventions, bindings и execution metadata | [`policy_spec.py`](./policy_spec.py)     |
+| `polisyos.ir.governance.InterventionSpec`                                               | Нужен contract одного intervention                         | [`policy_spec.py`](./policy_spec.py)     |
+| `polisyos.ir.governance.TemporalInterventionSequence`                                   | Нужен staged rollout / temporal intervention plan          | [`policy_spec.py`](./policy_spec.py)     |
+| `polisyos.ir.governance.ScheduleSpec`                                                   | Нужны step-based activation windows                        | [`schedule.py`](./schedule.py)           |
+| `polisyos.ir.governance.SelectorPredicate`, `SelectorAll`, `SelectorAny`, `SelectorNot` | Нужно описать targeting surface                            | [`selector_expr.py`](./selector_expr.py) |
+| `polisyos.ir.governance.GateRequest`, `GateDecision`, `GateEvent`                       | Нужен typed governance gate protocol                       | [`gate.py`](./gate.py)                   |
+| `polisyos.ir.governance.ValidationReport`                                               | Нужны structured validation diagnostics                    | [`validation.py`](./validation.py)       |
 
 ## Depends on / depended on by
 

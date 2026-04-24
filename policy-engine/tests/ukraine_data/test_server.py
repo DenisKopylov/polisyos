@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.ukraine_data.models import build_default_pipeline_config
 from polisyos.ukraine_data.server import build_bootstrap_script, probe_local_server_capabilities
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_bootstrap_script_contains_server_marker_and_cli(tmp_path: Path) -> None:

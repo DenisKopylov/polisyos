@@ -1,15 +1,16 @@
 """Tests for QueryValidationReport IR schema."""
+
 import pytest
 from pydantic import ValidationError
 
 from polisyos.ir.analytics.query_validation_report import (
     QueryValidationReport,
-    ValidationError as VError,
-    ValidationIssue,
     ValidationSeverity,
     ValidationWarning,
 )
-
+from polisyos.ir.analytics.query_validation_report import (
+    ValidationError as VError,
+)
 
 # ---------------------------------------------------------------------------
 # ValidationSeverity

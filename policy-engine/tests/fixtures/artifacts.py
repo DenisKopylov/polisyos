@@ -34,17 +34,17 @@ def put_json_artifact(
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def cas_root(tmp_path: Path) -> Path:
     return tmp_path / ".polisyos"
 
 
-@pytest.fixture()
+@pytest.fixture
 def store(cas_root: Path) -> FileSystemCAS:
     return FileSystemCAS(cas_root)
 
 
-@pytest.fixture()
+@pytest.fixture
 def artifact_json_builder(store: FileSystemCAS) -> Callable[..., Any]:
     def _builder(
         payload: Any,
@@ -66,7 +66,7 @@ def artifact_json_builder(store: FileSystemCAS) -> Callable[..., Any]:
     return _builder
 
 
-@pytest.fixture()
+@pytest.fixture
 def producer() -> ProducerInfo:
     return ProducerInfo(
         component="tests.phase0",
@@ -75,7 +75,7 @@ def producer() -> ProducerInfo:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def env_info() -> EnvInfo:
     return EnvInfo(
         python=f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",

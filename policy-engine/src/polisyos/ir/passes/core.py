@@ -1,8 +1,8 @@
 """Initial compiler-grade IR passes built on top of the stable IR contracts."""
+
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field, ValidationError
 
@@ -25,6 +25,9 @@ from polisyos.ir.registry_fragments import (
     compose_registry_fragments,
 )
 from polisyos.ir.trinity import TrinityBundle
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class ArtifactRefTypeCheckResult(KernelModel):
@@ -199,9 +202,7 @@ class TrinityLinkAnalysisPass(IRAnalysis):
         if bundle is None:
             return PassResult.noop()
         trinity_bundle = (
-            bundle
-            if isinstance(bundle, TrinityBundle)
-            else TrinityBundle.model_validate(bundle)
+            bundle if isinstance(bundle, TrinityBundle) else TrinityBundle.model_validate(bundle)
         )
         registries = context.get("registry_bundle", RegistryBundle())
         registry_bundle = (
@@ -303,10 +304,10 @@ class CrossModelTypeCheckPass(IRAnalysis):
                             PassDiagnostic(
                                 code="artifact_ref_missing",
                                 severity="error",
-                            message=(
-                                f"artifact ref '{artifact_ref.artifact_id}' "
-                                "is missing from the store"
-                            ),
+                                message=(
+                                    f"artifact ref '{artifact_ref.artifact_id}' "
+                                    "is missing from the store"
+                                ),
                                 path=path,
                             )
                         )
@@ -322,10 +323,10 @@ class CrossModelTypeCheckPass(IRAnalysis):
                                 severity="error",
                                 message=(
                                     f"artifact ref '{artifact_ref.artifact_id}' expects "
-                                f"{artifact_ref.kind}/{artifact_ref.media_type} "
-                                "but manifest stores "
-                                f"{manifest.kind}/{manifest.media_type}"
-                            ),
+                                    f"{artifact_ref.kind}/{artifact_ref.media_type} "
+                                    "but manifest stores "
+                                    f"{manifest.kind}/{manifest.media_type}"
+                                ),
                                 path=path,
                             )
                         )
@@ -477,9 +478,7 @@ class SlotMechanismReachabilityPass(IRAnalysis):
                 else RegistryBundle.model_validate(registry_bundle)
             )
         if isinstance(registry_bundle, RegistryBundle) and registry_bundle.slots is not None:
-            unused_registry_slots = sorted(
-                set(registry_bundle.slots.slots) - set(reachable_slots)
-            )
+            unused_registry_slots = sorted(set(registry_bundle.slots.slots) - set(reachable_slots))
         result = SlotMechanismReachability(
             reachable_mechanisms=reachable_mechanisms,
             reachable_slots=reachable_slots,
@@ -546,9 +545,7 @@ class UnusedArtifactAnalysisPass(IRAnalysis):
             used_artifact_ids.update(lineage_graph.upstream_artifact_ids(artifact_id))
 
         graph_artifact_ids = sorted(
-            str(node.artifact_id)
-            for node in lineage_graph.nodes
-            if node.artifact_id is not None
+            str(node.artifact_id) for node in lineage_graph.nodes if node.artifact_id is not None
         )
         unused_artifact_ids = sorted(set(graph_artifact_ids) - used_artifact_ids)
         result = UnusedArtifactAnalysisResult(

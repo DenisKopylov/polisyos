@@ -11,9 +11,11 @@ The subpackages listed in `__all__` form the supported facade surface.
 from __future__ import annotations
 
 import importlib
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from types import ModuleType
+
     from . import async_tools, config, jax_env, logger, migrations, serialization, timestamps
 
 __all__ = [
@@ -27,7 +29,7 @@ __all__ = [
 ]
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> ModuleType:
     """Import one common helper module on demand."""
     if name not in __all__:
         raise AttributeError(f"module 'polisyos.common' has no attribute '{name}'")

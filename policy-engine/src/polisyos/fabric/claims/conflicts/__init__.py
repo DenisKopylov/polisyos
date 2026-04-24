@@ -1,4 +1,5 @@
 """Conflict detection and resolution surface for normalized claims about the same fact."""
+
 from __future__ import annotations
 
 from .detect import detect_conflicts
@@ -14,12 +15,12 @@ from .types import (
 )
 
 __all__ = [
+    "DEFAULT_POLICY",
     "ConflictDetectOptions",
     "ConflictDetectResult",
     "ConflictPolicy",
     "ConflictResolveOptions",
     "ConflictResolveResult",
-    "DEFAULT_POLICY",
     "RankedClaim",
     "compare_v1",
     "conflict_key_v1",

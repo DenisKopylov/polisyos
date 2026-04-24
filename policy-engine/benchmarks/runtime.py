@@ -8,9 +8,10 @@ import json
 import os
 import subprocess
 import sys
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 
 class BenchmarkMode(str, enum.Enum):
@@ -67,7 +68,10 @@ def probe_module(
     *,
     python_executable: str | None = None,
 ) -> ModuleProbe:
-    if python_executable is None or Path(python_executable).resolve() == Path(sys.executable).resolve():
+    if (
+        python_executable is None
+        or Path(python_executable).resolve() == Path(sys.executable).resolve()
+    ):
         try:
             importlib.import_module(module_name)
             return ModuleProbe(
@@ -165,13 +169,12 @@ def module_available(module_name: str, *, python_executable: str | None = None) 
 
 
 def dependency_status(module_names: Iterable[str]) -> dict[str, str]:
-    return {
-        name: probe_module(name).status
-        for name in module_names
-    }
+    return {name: probe_module(name).status for name in module_names}
 
 
-def classify_data_source(*, has_real_data: bool, synthetic_label: str = "synthetic", real_label: str = "real") -> str:
+def classify_data_source(
+    *, has_real_data: bool, synthetic_label: str = "synthetic", real_label: str = "real"
+) -> str:
     return real_label if has_real_data else synthetic_label
 
 
@@ -184,7 +187,10 @@ def acceptance_gaps(
     require_modules: dict[str, bool] | None = None,
 ) -> list[str]:
     strict_tier = tier or resolve_tier(mode=mode)
-    if mode is not BenchmarkMode.ACCEPTANCE and strict_tier is not BenchmarkTier.RESEARCH_ACCEPTANCE:
+    if (
+        mode is not BenchmarkMode.ACCEPTANCE
+        and strict_tier is not BenchmarkTier.RESEARCH_ACCEPTANCE
+    ):
         return []
 
     gaps: list[str] = []

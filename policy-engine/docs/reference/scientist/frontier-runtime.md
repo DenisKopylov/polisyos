@@ -11,12 +11,12 @@ Source of truth: `src/polisyos/scientist/frontier_runtime.py`, `src/polisyos/sci
 
 ## Capability Statuses
 
-| Status | Meaning |
-|--------|---------|
-| `disabled` | The feature flag is off and the capability cannot affect runtime behavior. |
-| `offline_gated` | The capability is wired enough to run offline, but it is blocked until validation and benchmark refs are present. |
-| `available_offline` | The capability has the evidence required for offline evaluation, but it is still not eligible to replace the baseline by default. |
-| `experimental_not_wired` | The contract surface exists, but the runtime wiring or evaluation support is still incomplete. |
+| Status                   | Meaning                                                                                                                           |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| `disabled`               | The feature flag is off and the capability cannot affect runtime behavior.                                                        |
+| `offline_gated`          | The capability is wired enough to run offline, but it is blocked until validation and benchmark refs are present.                 |
+| `available_offline`      | The capability has the evidence required for offline evaluation, but it is still not eligible to replace the baseline by default. |
+| `experimental_not_wired` | The contract surface exists, but the runtime wiring or evaluation support is still incomplete.                                    |
 
 ## Current Families
 
@@ -49,13 +49,13 @@ capability can move from `offline_gated` to `available_offline` only when both
 validation and benchmark refs are present; baseline replacement still needs an
 explicit approval flag.
 
-| Capability family | Runtime field | Evidence required before claim |
-|-------------------|---------------|--------------------------------|
-| Proximal causal inference | `enable_proximal_causal` | `offline_validation_ref`, `benchmark_pack_ref`, and causal eval tests that keep proxy assumptions visible. |
-| Bayesian or neural causal discovery | `enable_bayesian_causal_discovery`, `enable_neural_dag_learners` | Dedicated eval pack, calibrated posterior or structural-recovery diagnostics, and benchmark registry entry. |
-| Causal representation learning | `enable_causal_representation_learning` | Latent-factor validation pack and benchmark evidence before it can affect default causal reports. |
-| Adversarial scenario discovery | `enable_adversarial_scenario_discovery` | Challenge bundle and governance outcome comparison against the baseline stress set. |
-| Continuous governance loop | `enable_continuous_governance_loop` | Drift, calibration, fairness, reissue, and benchmark evidence tied to the governance accountability artifact. |
+| Capability family                   | Runtime field                                                    | Evidence required before claim                                                                                |
+| ----------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Proximal causal inference           | `enable_proximal_causal`                                         | `offline_validation_ref`, `benchmark_pack_ref`, and causal eval tests that keep proxy assumptions visible.    |
+| Bayesian or neural causal discovery | `enable_bayesian_causal_discovery`, `enable_neural_dag_learners` | Dedicated eval pack, calibrated posterior or structural-recovery diagnostics, and benchmark registry entry.   |
+| Causal representation learning      | `enable_causal_representation_learning`                          | Latent-factor validation pack and benchmark evidence before it can affect default causal reports.             |
+| Adversarial scenario discovery      | `enable_adversarial_scenario_discovery`                          | Challenge bundle and governance outcome comparison against the baseline stress set.                           |
+| Continuous governance loop          | `enable_continuous_governance_loop`                              | Drift, calibration, fairness, reissue, and benchmark evidence tied to the governance accountability artifact. |
 
 ## Benchmark Requirement
 

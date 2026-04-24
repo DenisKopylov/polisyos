@@ -18,13 +18,21 @@ References:
     Zhang, B. et al. (2013). Robust estimation of optimal dynamic treatment regimes
         for sequential treatment decisions. Biometrika, 100(3), 681-694.
 """
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Literal, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar, Literal
 
 import numpy as np
-from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.svm import SVC
+
+try:  # pragma: no cover - preferred in full scientific environments.
+    from sklearn.linear_model import LinearRegression, LogisticRegression
+    from sklearn.svm import SVC
+except ImportError:  # pragma: no cover - keeps catalog reflection importable.
+    LinearRegression = None  # type: ignore[assignment]
+    LogisticRegression = None  # type: ignore[assignment]
+    SVC = None  # type: ignore[assignment]
 
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
@@ -55,9 +63,9 @@ from polisyos.foundry.methods.catalog.causal.g_computation import (
     _fit_propensity_model,
     _ice_estimate,
     _materialize_intervention_schedule,
+    _predict_proba_safe,
     _regime_params_from_spec,
     _schedule_from_regime,
-    _predict_proba_safe,
     _simulate_regime_trajectory_ensemble,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
@@ -81,13 +89,17 @@ from polisyos.ir.analytics.dynamic_regime import (
 )
 
 _ASSUMPTIONS = {
-    "sequential_ignorability": (
-        "A_t ⊥ Y^{ā} | H_t — no unmeasured time-varying confounders"
-    ),
+    "sequential_ignorability": ("A_t ⊥ Y^{ā} | H_t — no unmeasured time-varying confounders"),
     "consistency": "Y = Y^{d} when D = d",
     "positivity": "0 < P(A_t = 1 | H_t) < 1 for all H_t in support",
     "sutva": "No interference between units",
 }
+
+
+def _require_sklearn(symbol: object, name: str) -> object:
+    if symbol is None:
+        raise ImportError(f"scikit-learn is required for DTR estimator component {name}")
+    return symbol
 
 
 # ---------------------------------------------------------------------------
@@ -118,11 +130,10 @@ def _dtr_base_params() -> tuple[ParameterSpec, ...]:
 # ---------------------------------------------------------------------------
 
 
-def _fit_q_function(
-    H_t_A: np.ndarray, pseudo_Y: np.ndarray
-) -> LinearRegression:
+def _fit_q_function(H_t_A: np.ndarray, pseudo_Y: np.ndarray) -> LinearRegression:
     """Fit Q_t(H_t, A_t) = E[pseudo_Y | H_t, A_t] via OLS."""
-    m = LinearRegression()
+    model_cls = _require_sklearn(LinearRegression, "LinearRegression")
+    m = model_cls()
     m.fit(H_t_A, pseudo_Y)
     return m
 
@@ -130,7 +141,7 @@ def _fit_q_function(
 def _q_value(
     q_model: LinearRegression,
     H_t: np.ndarray,
-    a: "float | np.ndarray",
+    a: float | np.ndarray,
     n_cov: int = 0,
 ) -> np.ndarray:
     """Predict Q_t(H_t, a) for all units under action a (scalar or per-unit array).
@@ -152,9 +163,7 @@ def _q_value(
     return q_model.predict(X)
 
 
-def _optimal_q_action(
-    q_model: LinearRegression, H_t: np.ndarray, n_cov: int = 0
-) -> np.ndarray:
+def _optimal_q_action(q_model: LinearRegression, H_t: np.ndarray, n_cov: int = 0) -> np.ndarray:
     """Return argmax_a Q(H_t, a) ∈ {0, 1} for each unit."""
     q1 = _q_value(q_model, H_t, 1.0, n_cov)
     q0 = _q_value(q_model, H_t, 0.0, n_cov)
@@ -261,9 +270,7 @@ def _build_dtr_output(
             baseline_policy_value=dtr_result.value_estimate,
         )
         if strategic_summary is not None:
-            warnings.extend(
-                warning for warning in strategic_warnings if warning not in warnings
-            )
+            warnings.extend(warning for warning in strategic_warnings if warning not in warnings)
             dtr_result.metadata["strategic_response"] = strategic_summary
             report.metadata["strategic_response"] = strategic_summary
             report.metadata["strategic_response_present"] = True
@@ -465,8 +472,7 @@ class QLearningDTR:
         ),
         equations={
             "q_backward": (
-                "Q_T(H_T, A_T) = E[Y | H_T, A_T]; "
-                "Q_t = E[max_a Q_{t+1}(H_{t+1}, a) | H_t, A_t]"
+                "Q_T(H_T, A_T) = E[Y | H_T, A_T]; Q_t = E[max_a Q_{t+1}(H_{t+1}, a) | H_t, A_t]"
             ),
             "optimal": "d*_t(H_t) = argmax_{a∈{0,1}} Q_t(H_t, a)",
         },
@@ -484,9 +490,7 @@ class QLearningDTR:
     )
 
     @staticmethod
-    def pure_step(
-        state: DynamicTreatmentData, params: Mapping[str, Any]
-    ) -> dict[str, Any]:
+    def pure_step(state: DynamicTreatmentData, params: Mapping[str, Any]) -> dict[str, Any]:
         try:
             data = _extract_dynamic_data(state)
         except Exception as exc:
@@ -543,8 +547,8 @@ class QLearningDTR:
             for t in range(n_periods - 1, -1, -1):
                 H_t = _build_history_matrix(A_b, L_b, t)
                 A_t = A_b[:, t : t + 1]
-                L_t = L_b[:, t, :]          # current covariates (also last _n_cov cols of H_t)
-                interact = A_t * L_t        # shape (n_units, n_cov)
+                L_t = L_b[:, t, :]  # current covariates (also last _n_cov cols of H_t)
+                interact = A_t * L_t  # shape (n_units, n_cov)
                 X_t = np.hstack([H_t, A_t, interact])
                 q_t = _fit_q_function(X_t, pseudo_Y)
                 q_models.insert(0, q_t)
@@ -556,8 +560,12 @@ class QLearningDTR:
             # Estimate value: apply optimal regime from stage 0
             H0 = _build_history_matrix(A_b, L_b, 0)
             a0 = _optimal_q_action(q_models[0], H0, _n_cov)
-            value = float(np.mean(_q_value(q_models[0], H0, 1.0, _n_cov) * a0
-                                  + _q_value(q_models[0], H0, 0.0, _n_cov) * (1 - a0)))
+            value = float(
+                np.mean(
+                    _q_value(q_models[0], H0, 1.0, _n_cov) * a0
+                    + _q_value(q_models[0], H0, 0.0, _n_cov) * (1 - a0)
+                )
+            )
             return value, q_models
 
         point_value, q_models_fit = _run_q_learning(Y, A_seq, L_seq)
@@ -575,8 +583,7 @@ class QLearningDTR:
 
         optimal_regime = _regime_from_q_models(q_models_fit, L_seq, A_seq, _n_cov)
         stage_coefs = tuple(
-            tuple(float(c) for c in list(m.coef_) + [float(m.intercept_)])
-            for m in q_models_fit
+            tuple(float(c) for c in list(m.coef_) + [float(m.intercept_)]) for m in q_models_fit
         )
         n_treated = int(np.sum(A_seq[:, 0]))
 
@@ -661,9 +668,7 @@ class ALearningDTR:
             "When baseline expected outcomes are hard to model; "
             "A-learning is more robust to baseline misspecification than Q-learning."
         ),
-        when_not_to_use=(
-            "Very small T (< 2) or when full Q-function is needed for planning."
-        ),
+        when_not_to_use=("Very small T (< 2) or when full Q-function is needed for planning."),
         typical_min_obs=80,
         output_interpretation=(
             "value_estimate = E[Y^{d*}] under the advantage-based optimal regime."
@@ -671,9 +676,7 @@ class ALearningDTR:
     )
 
     @staticmethod
-    def pure_step(
-        state: DynamicTreatmentData, params: Mapping[str, Any]
-    ) -> dict[str, Any]:
+    def pure_step(state: DynamicTreatmentData, params: Mapping[str, Any]) -> dict[str, Any]:
         try:
             data = _extract_dynamic_data(state)
         except Exception as exc:
@@ -735,7 +738,8 @@ class ALearningDTR:
                 # Fit outcome model with centered treatment (A-learning)
                 # μ(H_t) + γ(A_t - π_t) where γ is the blip coefficient
                 X_aug = np.hstack([H_t, A_centered.reshape(-1, 1)])
-                m = LinearRegression()
+                model_cls = _require_sklearn(LinearRegression, "LinearRegression")
+                m = model_cls()
                 m.fit(X_aug, pseudo_Y)
                 blip_coef = m.coef_[-1]  # coefficient on A_centered
                 blip_coefs.insert(0, np.array([blip_coef]))
@@ -783,9 +787,7 @@ class ALearningDTR:
             rule=rule,
             regime_coefficients=tuple(float(c[0]) for c in blip_coefs),
         )
-        stage_coefs = tuple(
-            tuple(float(c) for c in coef) for coef in blip_coefs
-        )
+        stage_coefs = tuple(tuple(float(c) for c in coef) for coef in blip_coefs)
         n_treated = int(np.sum(A_seq[:, 0]))
 
         dtr_result = DTRResult(
@@ -840,8 +842,7 @@ class OutcomeWeightedLearning:
         version="0.0.0",
         input_slots=_dynamic_input_slots(),
         output_slots=_dtr_output_slots(),
-        parameters=_dtr_base_params()
-        + (ParameterSpec("kernel", default="linear"),),
+        parameters=_dtr_base_params() + (ParameterSpec("kernel", default="linear"),),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -892,9 +893,7 @@ class OutcomeWeightedLearning:
     )
 
     @staticmethod
-    def pure_step(
-        state: DynamicTreatmentData, params: Mapping[str, Any]
-    ) -> dict[str, Any]:
+    def pure_step(state: DynamicTreatmentData, params: Mapping[str, Any]) -> dict[str, Any]:
         try:
             data = _extract_dynamic_data(state)
         except Exception as exc:
@@ -935,9 +934,7 @@ class OutcomeWeightedLearning:
             )
             return wrap_causal_output(dummy, extras={"dtr_result": None})
 
-        def _run_owl(
-            Y_b: np.ndarray, A_b: np.ndarray, L_b: np.ndarray
-        ) -> tuple[float, list[Any]]:
+        def _run_owl(Y_b: np.ndarray, A_b: np.ndarray, L_b: np.ndarray) -> tuple[float, list[Any]]:
             # Shift Y to be positive for valid OWL weights
             Y_shift = Y_b - np.min(Y_b) + 1e-3
             pseudo_Y = Y_shift.copy()
@@ -968,7 +965,8 @@ class OutcomeWeightedLearning:
                     continue
 
                 try:
-                    svm = SVC(kernel=kernel, C=1.0)
+                    svc_cls = _require_sklearn(SVC, "SVC")
+                    svm = svc_cls(kernel=kernel, C=1.0)
                     svm.fit(H_t, labels, sample_weight=w)
                 except Exception:
                     svm = None
@@ -1125,9 +1123,7 @@ class DoublyRobustDTR:
     )
 
     @staticmethod
-    def pure_step(
-        state: DynamicTreatmentData, params: Mapping[str, Any]
-    ) -> dict[str, Any]:
+    def pure_step(state: DynamicTreatmentData, params: Mapping[str, Any]) -> dict[str, Any]:
         try:
             data = _extract_dynamic_data(state)
         except Exception as exc:
@@ -1195,7 +1191,8 @@ class DoublyRobustDTR:
                 pi_t = _predict_proba_safe(pm, H_t)
                 prob_obs = np.where(A_b[:, t] == 1, pi_t, 1 - pi_t)
                 d_star_t = _apply_regime(
-                    H_t, L_t,
+                    H_t,
+                    L_t,
                     optimal_regime.rule.value,
                     optimal_regime.threshold_covariate_index,
                     optimal_regime.threshold_value,
@@ -1230,8 +1227,7 @@ class DoublyRobustDTR:
         hi = max(float(ci[1]), point_value)
 
         stage_coefs = tuple(
-            tuple(float(c) for c in list(m.coef_) + [float(m.intercept_)])
-            for m in q_models_fit
+            tuple(float(c) for c in list(m.coef_) + [float(m.intercept_)]) for m in q_models_fit
         )
         n_treated = int(np.sum(A_seq[:, 0]))
 
@@ -1258,8 +1254,8 @@ class DoublyRobustDTR:
 
 __all__ = [
     "ALearningDTR",
-    "DoublyRobustDTR",
     "DTRResult",
+    "DoublyRobustDTR",
     "OutcomeWeightedLearning",
     "QLearningDTR",
     "estimate_dtr_trajectory",

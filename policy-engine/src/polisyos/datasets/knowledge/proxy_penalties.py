@@ -15,6 +15,7 @@ except ModuleNotFoundError:  # pragma: no cover - optional dependency guard
 @dataclass(frozen=True)
 class ProxyPenaltyOverride:
     """Proxy penalty override public type."""
+
     country_codes: tuple[str, ...] = ()
     start_year: int | None = None
     end_year: int | None = None
@@ -24,6 +25,7 @@ class ProxyPenaltyOverride:
 @dataclass(frozen=True)
 class ProxyMetricAlignmentSpec:
     """Proxy metric alignment spec data model."""
+
     metric_name: str
     canonical_var: str
     confidence: float
@@ -34,16 +36,23 @@ class ProxyMetricAlignmentSpec:
 
 def default_proxy_metric_alignments_path() -> Path:
     """Default proxy metric alignments path helper."""
-    return Path(__file__).resolve().parents[4] / "data" / "dataset_catalog" / "proxy_metric_alignments.yaml"
+    return (
+        Path(__file__).resolve().parents[4]
+        / "data"
+        / "dataset_catalog"
+        / "proxy_metric_alignments.yaml"
+    )
 
 
 @lru_cache(maxsize=4)
-def load_proxy_metric_alignments(path: Path | None = None) -> dict[str, tuple[ProxyMetricAlignmentSpec, ...]]:
+def load_proxy_metric_alignments(
+    path: Path | None = None,
+) -> dict[str, tuple[ProxyMetricAlignmentSpec, ...]]:
     """Load proxy metric alignments."""
     resolved = (path or default_proxy_metric_alignments_path()).resolve()
     if not resolved.exists() or yaml is None:
         return {}
-    with open(resolved, "r", encoding="utf-8") as fh:
+    with open(resolved, encoding="utf-8") as fh:
         payload = yaml.safe_load(fh) or {}
     raw_mappings = payload.get("mappings", {})
     if not isinstance(raw_mappings, dict):
@@ -69,8 +78,12 @@ def load_proxy_metric_alignments(path: Path | None = None) -> dict[str, tuple[Pr
                                 for code in item.get("country_codes", []) or []
                                 if str(code).strip()
                             ),
-                            start_year=int(item["start_year"]) if item.get("start_year") is not None else None,
-                            end_year=int(item["end_year"]) if item.get("end_year") is not None else None,
+                            start_year=int(item["start_year"])
+                            if item.get("start_year") is not None
+                            else None,
+                            end_year=int(item["end_year"])
+                            if item.get("end_year") is not None
+                            else None,
                             proxy_penalty=float(item.get("proxy_penalty", 0.0) or 0.0),
                         )
                     )
@@ -97,7 +110,9 @@ def load_proxy_metric_alignments(path: Path | None = None) -> dict[str, tuple[Pr
     return result
 
 
-def metric_proxy_alignments(metric_name: str, path: Path | None = None) -> tuple[ProxyMetricAlignmentSpec, ...]:
+def metric_proxy_alignments(
+    metric_name: str, path: Path | None = None
+) -> tuple[ProxyMetricAlignmentSpec, ...]:
     """Metric proxy alignments helper."""
     mappings = load_proxy_metric_alignments(path)
     return mappings.get(str(metric_name or "").strip(), ())

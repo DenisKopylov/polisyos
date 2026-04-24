@@ -1,4 +1,5 @@
 """Public backends stub module API."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -23,7 +24,7 @@ class StubBackend:
 
     def evaluate(
         self,
-        norm_pack: "NormPack | None",
+        norm_pack: NormPack | None,
         context: dict[str, Any],
     ) -> list[ComplianceIssue]:
         """Always returns INFO-level 'not implemented' issues."""
@@ -41,8 +42,7 @@ class StubBackend:
                 severity=IssueSeverity.INFO,
                 code="NORM_NOT_IMPLEMENTED",
                 suggestion=(
-                    f"Implement {norm.rule_type.value} evaluator "
-                    "or use AST backend (Phase 18)"
+                    f"Implement {norm.rule_type.value} evaluator or use AST backend (Phase 18)"
                 ),
             )
             for norm in norm_pack.norms

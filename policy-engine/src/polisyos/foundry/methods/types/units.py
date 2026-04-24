@@ -7,6 +7,7 @@ Design principles:
 3. scale is for sub-unit relationships within a dimension.
 4. Unit.scale must be > 0 (used for conversion factors).
 """
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.base import Unit

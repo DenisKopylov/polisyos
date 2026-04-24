@@ -172,10 +172,7 @@ class ActiveDisambiguationPlanner:
             *self._targets_from_prior_knowledge(bundle),
         ]
         ranked = sorted(
-            (
-                target for target in targets
-                if target.priority_score >= self._config.min_priority
-            ),
+            (target for target in targets if target.priority_score >= self._config.min_priority),
             key=lambda item: (
                 item.priority_score,
                 item.downstream_impact,
@@ -234,9 +231,7 @@ class ActiveDisambiguationPlanner:
                     target_id=disputed.dispute_id,
                     target_type="disputed_edge",
                     edge_key=(
-                        disputed.candidate_edges[0].edge_key
-                        if disputed.candidate_edges
-                        else None
+                        disputed.candidate_edges[0].edge_key if disputed.candidate_edges else None
                     ),
                     description=(
                         f"Resolve disputed discovery edge around {disputed.skeleton_key}."
@@ -385,8 +380,7 @@ class ActiveDisambiguationPlanner:
     ) -> list[DisambiguationAction]:
         actions: list[DisambiguationAction] = []
         hypotheses_by_id = {
-            hypothesis.hypothesis_id: hypothesis
-            for hypothesis in bundle.hypotheses
+            hypothesis.hypothesis_id: hypothesis for hypothesis in bundle.hypotheses
         }
         for target in targets:
             action = self._action_for_target(target, bundle, hypotheses_by_id)
@@ -477,14 +471,9 @@ class ActiveDisambiguationPlanner:
         outcome = bundle.causal_query.outcome_variable
         if treatment not in graph.nodes or outcome not in graph.nodes:
             return None
-        available = (
-            dict(self._config.available_intervention_costs)
-            or {
-                node: self._config.default_intervention_cost
-                for node in graph.nodes
-                if node != outcome
-            }
-        )
+        available = dict(self._config.available_intervention_costs) or {
+            node: self._config.default_intervention_cost for node in graph.nodes if node != outcome
+        }
         try:
             adjustment = optimal_adjustment_set(graph, treatment=treatment, outcome=outcome)
             experiment_plan = minimum_cost_identification(
@@ -524,14 +513,12 @@ class ActiveDisambiguationPlanner:
             return DisambiguationAction(
                 action_type="literature_followup",
                 title="Collect fallback evidence",
-                description=suggestions[0].description or (
-                    f"Collect additional evidence for {target.target_id}."
-                ),
+                description=suggestions[0].description
+                or (f"Collect additional evidence for {target.target_id}."),
                 target_ids=[target.target_id],
                 recommended_interventions=list(suggestions[0].required_variables),
                 notes=[
-                    "Optimal design could not be constructed; using "
-                    "negative-certificate guidance."
+                    "Optimal design could not be constructed; using negative-certificate guidance."
                 ],
                 metadata={"hypothesis_id": hypothesis.hypothesis_id},
             )
@@ -579,8 +566,7 @@ class ActiveDisambiguationPlanner:
         }
         if supporting_hypothesis_ids:
             return max(
-                score_map.get(hypothesis_id, 0.0)
-                for hypothesis_id in supporting_hypothesis_ids
+                score_map.get(hypothesis_id, 0.0) for hypothesis_id in supporting_hypothesis_ids
             )
         return max(score_map.values(), default=0.5)
 
@@ -604,10 +590,7 @@ class ActiveDisambiguationPlanner:
 
     def _orientation_margin(self, entry: EdgeConfidenceEntry) -> float:
         supports = sorted(
-            (
-                _finite_unit_interval(value)
-                for value in entry.orientation_support.values()
-            ),
+            (_finite_unit_interval(value) for value in entry.orientation_support.values()),
             reverse=True,
         )
         if len(supports) < 2:
@@ -637,13 +620,11 @@ class ActiveDisambiguationPlanner:
         notes = [f"Planner status: {status}."]
         if bundle.causal_query is None:
             notes.append(
-                "Causal query missing; intervention designs could not be fully "
-                "constructed."
+                "Causal query missing; intervention designs could not be fully constructed."
             )
         if any(target.target_type == "academic_conflict" for target in targets):
             notes.append(
-                "Academic support conflicts were surfaced from the prior-knowledge "
-                "bundle."
+                "Academic support conflicts were surfaced from the prior-knowledge bundle."
             )
         return notes
 

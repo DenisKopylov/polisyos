@@ -17,17 +17,17 @@
 
 ## Public entrypoints
 
-| Entrypoint | Use when | Defined in |
-|---|---|---|
-| `polisyos.ir.trinity.TrinityBundle` | Нужен канонический контейнер для policy payload | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.trinity.ProblemFrame` | Нужен `Why`-слой Trinity | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.trinity.PolicySpec` | Нужен `What`-слой Trinity | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.trinity.ModelSpec` | Нужен `How`-слой Trinity | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.trinity.TRINITY_BUNDLE_SCHEMA_VERSION` | Нужно зафиксировать supported bundle version | [`__init__.py`](./__init__.py) |
-| `polisyos.ir.trinity.loaders.load_problem_frame()` | Нужен strict loader для `ProblemFrame` | [`loaders.py`](./loaders.py) |
-| `polisyos.ir.trinity.loaders.load_policy_spec()` | Нужен strict loader для `PolicySpec` | [`loaders.py`](./loaders.py) |
-| `polisyos.ir.trinity.loaders.load_model_spec()` | Нужен strict loader для `ModelSpec` | [`loaders.py`](./loaders.py) |
-| `polisyos.ir.trinity.loaders.load_trinity_bundle()` | Нужно загрузить и валидировать полный Trinity payload | [`loaders.py`](./loaders.py) |
+| Entrypoint                                          | Use when                                              | Defined in                     |
+| --------------------------------------------------- | ----------------------------------------------------- | ------------------------------ |
+| `polisyos.ir.trinity.TrinityBundle`                 | Нужен канонический контейнер для policy payload       | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.ProblemFrame`                  | Нужен `Why`-слой Trinity                              | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.PolicySpec`                    | Нужен `What`-слой Trinity                             | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.ModelSpec`                     | Нужен `How`-слой Trinity                              | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.TRINITY_BUNDLE_SCHEMA_VERSION` | Нужно зафиксировать supported bundle version          | [`__init__.py`](./__init__.py) |
+| `polisyos.ir.trinity.loaders.load_problem_frame()`  | Нужен strict loader для `ProblemFrame`                | [`loaders.py`](./loaders.py)   |
+| `polisyos.ir.trinity.loaders.load_policy_spec()`    | Нужен strict loader для `PolicySpec`                  | [`loaders.py`](./loaders.py)   |
+| `polisyos.ir.trinity.loaders.load_model_spec()`     | Нужен strict loader для `ModelSpec`                   | [`loaders.py`](./loaders.py)   |
+| `polisyos.ir.trinity.loaders.load_trinity_bundle()` | Нужно загрузить и валидировать полный Trinity payload | [`loaders.py`](./loaders.py)   |
 
 ## Depends on / depended on by
 

@@ -1,13 +1,12 @@
 """Transform persisted trace JSONL into stable timeline API responses."""
+
 from __future__ import annotations
 
 import threading
 import time
 from collections import OrderedDict
 from dataclasses import dataclass
-from datetime import datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.runtime import (
@@ -17,7 +16,11 @@ from polisyos.core.contracts.runtime import (
 )
 from polisyos.core.trace.record import TraceRecord
 
-from .run_index import IndexedRunRecord
+if TYPE_CHECKING:
+    from datetime import datetime
+    from pathlib import Path
+
+    from .run_index import IndexedRunRecord
 
 logger = get_logger(__name__)
 
@@ -25,6 +28,7 @@ logger = get_logger(__name__)
 @dataclass(frozen=True)
 class TimelineBuildResult:
     """Wrap the run timeline projection returned by `TimelineService`."""
+
     timeline: RunTimelineView
 
 
@@ -47,6 +51,7 @@ class _TimelineCacheEntry:
 
 class TimelineService:
     """Read trace JSONL files and summarize node/event timing for one run."""
+
     def __init__(
         self,
         *,

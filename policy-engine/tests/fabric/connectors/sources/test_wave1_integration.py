@@ -7,16 +7,16 @@ Tests verify that:
 4. Each connector can parse fixture data correctly
 5. The control plane service can dispatch to each connector
 """
+
 from __future__ import annotations
 
 import asyncio
 import json
 from pathlib import Path
-from typing import Any
 
 import pytest
 
-from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
+from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
 from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
 from polisyos.fabric.connectors.registry import ConnectorRegistry
@@ -70,7 +70,17 @@ class TestRegistryDiscovery:
 
     @pytest.mark.parametrize(
         "namespace",
-        ["worldbank", "wvs", "eurostat", "ukons", "sdmx", "ckan", "socrata", "opendatasoft", "sparql"],
+        [
+            "worldbank",
+            "wvs",
+            "eurostat",
+            "ukons",
+            "sdmx",
+            "ckan",
+            "socrata",
+            "opendatasoft",
+            "sparql",
+        ],
     )
     def test_namespace_exists(self, namespace: str):
         reg = ConnectorRegistry.get_instance()
@@ -92,7 +102,7 @@ class TestProfileResolution:
         SourceProfileRegistry.reset_instance()
 
     @pytest.mark.parametrize(
-        "profile_id,expected_url_prefix",
+        ("profile_id", "expected_url_prefix"),
         [
             ("worldbank_wdi", "https://api.worldbank.org"),
             ("eurostat_public", "https://ec.europa.eu/eurostat"),
@@ -215,61 +225,48 @@ class TestFixtureParsing:
     def test_sdmx_ecb_fixture_parses(self):
         from polisyos.fabric.connectors.sources.sdmx_source import _parse_sdmx_json
 
-        fixture = json.loads(
-            (FIXTURES_DIR / "sdmx" / "ecb_exr_response.json").read_text()
-        )
+        fixture = json.loads((FIXTURES_DIR / "sdmx" / "ecb_exr_response.json").read_text())
         df = _parse_sdmx_json(fixture)
         assert not df.empty
         assert "value" in df.columns
 
     def test_sdmx_ecb_dataflows_fixture_parses(self):
-        fixture = json.loads(
-            (FIXTURES_DIR / "sdmx" / "ecb_dataflows_response.json").read_text()
+        fixture = json.loads((FIXTURES_DIR / "sdmx" / "ecb_dataflows_response.json").read_text())
+        assert (
+            "dataSets" in fixture
+            or "data" in fixture
+            or "dataflows" in fixture
+            or "structure" in fixture
         )
-        assert "dataSets" in fixture or "data" in fixture or "dataflows" in fixture or "structure" in fixture
 
     def test_ckan_package_search_fixture(self):
-        fixture = json.loads(
-            (FIXTURES_DIR / "ckan" / "package_search_response.json").read_text()
-        )
+        fixture = json.loads((FIXTURES_DIR / "ckan" / "package_search_response.json").read_text())
         assert "result" in fixture
         results = fixture["result"]
         assert "results" in results or "count" in results
 
     def test_ckan_package_show_fixture(self):
-        fixture = json.loads(
-            (FIXTURES_DIR / "ckan" / "package_show_response.json").read_text()
-        )
+        fixture = json.loads((FIXTURES_DIR / "ckan" / "package_show_response.json").read_text())
         assert "result" in fixture
 
     def test_socrata_resource_fixture(self):
-        fixture = json.loads(
-            (FIXTURES_DIR / "socrata" / "resource_response.json").read_text()
-        )
+        fixture = json.loads((FIXTURES_DIR / "socrata" / "resource_response.json").read_text())
         assert isinstance(fixture, list)
 
     def test_socrata_views_fixture(self):
-        fixture = json.loads(
-            (FIXTURES_DIR / "socrata" / "views_response.json").read_text()
-        )
+        fixture = json.loads((FIXTURES_DIR / "socrata" / "views_response.json").read_text())
         assert isinstance(fixture, (list, dict))
 
     def test_opendatasoft_records_fixture(self):
-        fixture = json.loads(
-            (FIXTURES_DIR / "opendatasoft" / "records_response.json").read_text()
-        )
+        fixture = json.loads((FIXTURES_DIR / "opendatasoft" / "records_response.json").read_text())
         assert "results" in fixture or "records" in fixture or "total_count" in fixture
 
     def test_opendatasoft_catalog_fixture(self):
-        fixture = json.loads(
-            (FIXTURES_DIR / "opendatasoft" / "catalog_response.json").read_text()
-        )
+        fixture = json.loads((FIXTURES_DIR / "opendatasoft" / "catalog_response.json").read_text())
         assert "results" in fixture or "datasets" in fixture or "total_count" in fixture
 
     def test_sparql_select_fixture(self):
-        fixture = json.loads(
-            (FIXTURES_DIR / "sparql" / "select_response.json").read_text()
-        )
+        fixture = json.loads((FIXTURES_DIR / "sparql" / "select_response.json").read_text())
         assert "results" in fixture
         assert "bindings" in fixture["results"]
 
@@ -302,7 +299,12 @@ class TestSchemaContracts:
 
     @pytest.mark.parametrize(
         "contract_id",
-        ["worldbank.wdi.generic", "eurostat.data.generic", "ukons.datasets.generic", "sdmx.generic"],
+        [
+            "worldbank.wdi.generic",
+            "eurostat.data.generic",
+            "ukons.datasets.generic",
+            "sdmx.generic",
+        ],
     )
     def test_contract_exists(self, contract_id: str):
         from polisyos.fabric.connectors.sources._contracts import ALL_SOURCE_CONTRACTS
@@ -326,10 +328,24 @@ class TestComponentSystem:
 
     @pytest.mark.parametrize(
         "short_id",
-        ["wdi", "wave7", "data", "datasets", "source", "catalog", "resource", "soda", "ods", "endpoint"],
+        [
+            "wdi",
+            "wave7",
+            "data",
+            "datasets",
+            "source",
+            "catalog",
+            "resource",
+            "soda",
+            "ods",
+            "endpoint",
+        ],
     )
     def test_component_by_short_id(self, short_id: str):
-        from polisyos.fabric.connectors.components import _component_by_short_id, _BUILTIN_COMPONENTS
+        from polisyos.fabric.connectors.components import (
+            _BUILTIN_COMPONENTS,
+            _component_by_short_id,
+        )
 
         component = _component_by_short_id(_BUILTIN_COMPONENTS, short_id)
         assert component is not None, f"Component with short_id={short_id!r} not found"

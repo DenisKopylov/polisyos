@@ -220,6 +220,6 @@ def to_counterfactual_subgraph(
 __all__ = [
     "TwinGraphMetadata",
     "build_twin_graph",
-    "to_factual_subgraph",
     "to_counterfactual_subgraph",
+    "to_factual_subgraph",
 ]

@@ -16,7 +16,7 @@ from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.ckan_catalog import CKANCatalogConnector
 from polisyos.fabric.connectors.sources.ckan_resource import CKANResourceConnector
 from polisyos.fabric.connectors.types import FetchError
-from polisyos.ir.connectors import ConnectorCapability, VersionStrategy
+from polisyos.ir.connectors import ConnectorCapability
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "ckan"
 
@@ -37,6 +37,7 @@ def _ckan_config() -> ConnectionConfig:
 # Mock helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_fake_request_json(fixture_body):
     raw = json.dumps(fixture_body).encode("utf-8")
     headers = {"ETag": '"ckan-etag-1"', "Last-Modified": "Mon, 01 Jan 2024 00:00:00 GMT"}
@@ -49,6 +50,7 @@ def _make_fake_request_json(fixture_body):
 
 def _fake_get_session(self, _handle):
     import asyncio as _aio
+
     fut = _aio.Future()
     fut.set_result(object())
     return fut
@@ -57,6 +59,7 @@ def _fake_get_session(self, _handle):
 # ---------------------------------------------------------------------------
 # CKANCatalogConnector
 # ---------------------------------------------------------------------------
+
 
 class TestCKANCatalogMetadata:
     def test_connector_id(self):
@@ -142,7 +145,9 @@ class TestCKANCatalogHealth:
     def test_health_check_ok(self, monkeypatch):
         connector = CKANCatalogConnector()
         status_body = {"success": True, "result": {"site_title": "Test"}}
-        monkeypatch.setattr(CKANCatalogConnector, "_request_json", _make_fake_request_json(status_body))
+        monkeypatch.setattr(
+            CKANCatalogConnector, "_request_json", _make_fake_request_json(status_body)
+        )
         monkeypatch.setattr(CKANCatalogConnector, "_get_session", _fake_get_session)
 
         async def _exercise():
@@ -158,6 +163,7 @@ class TestCKANCatalogHealth:
 # ---------------------------------------------------------------------------
 # CKANResourceConnector
 # ---------------------------------------------------------------------------
+
 
 class TestCKANResourceMetadata:
     def test_connector_id(self):
@@ -256,7 +262,8 @@ class TestCKANResourceResolve:
         async def _exercise():
             handle = await connector.connect(_ckan_config())
             url, fmt = await connector._resolve_resource(
-                handle, "https://data.example.test",
+                handle,
+                "https://data.example.test",
                 "https://example.test/data.csv",
             )
             await connector.disconnect(handle)
@@ -272,7 +279,8 @@ class TestCKANResourceResolve:
         async def _exercise():
             handle = await connector.connect(_ckan_config())
             url, fmt = await connector._resolve_resource(
-                handle, "https://data.example.test",
+                handle,
+                "https://data.example.test",
                 "https://example.test/data.xlsx",
             )
             await connector.disconnect(handle)
@@ -285,13 +293,16 @@ class TestCKANResourceResolve:
     def test_resolve_package_resource(self, monkeypatch):
         connector = CKANResourceConnector()
         fixture = _load_fixture("package_show_response.json")
-        monkeypatch.setattr(CKANResourceConnector, "_request_json", _make_fake_request_json(fixture))
+        monkeypatch.setattr(
+            CKANResourceConnector, "_request_json", _make_fake_request_json(fixture)
+        )
         monkeypatch.setattr(CKANResourceConnector, "_get_session", _fake_get_session)
 
         async def _exercise():
             handle = await connector.connect(_ckan_config())
             url, fmt = await connector._resolve_resource(
-                handle, "https://data.example.test",
+                handle,
+                "https://data.example.test",
                 "gdp-annual/res-001",
             )
             await connector.disconnect(handle)

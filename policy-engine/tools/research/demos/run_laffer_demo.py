@@ -1,9 +1,8 @@
 # ruff: noqa: E402
 
 import sys
-from pathlib import Path
+
 from tools._lib.imports import repo_root_from
-from typing import Tuple
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -40,7 +39,7 @@ SEED = 42
 RISK_PENALTY_COEF = 1.0  # Тюнинг: при 2.0 почти все всегда "честные"
 
 
-def create_population(key: jax.Array, n: int) -> Tuple[jnp.ndarray, jnp.ndarray]:
+def create_population(key: jax.Array, n: int) -> tuple[jnp.ndarray, jnp.ndarray]:
     """Генерирует популяцию: Лог-нормальные доходы и Равномерный риск."""
     k1, k2 = jax.random.split(key)
     # Доходы: log-normal distribution (реалистичное распределение богатства)
@@ -186,12 +185,12 @@ def main() -> None:
         revenue.block_until_ready()
 
         results.append((tax, revenue, compliance, corr))
-        print(f"{tax*100:5.0f}%     | {revenue:15.2f} | {compliance*100:11.1f}% | {corr:9.3f}")
+        print(f"{tax * 100:5.0f}%     | {revenue:15.2f} | {compliance * 100:11.1f}% | {corr:9.3f}")
 
     total_time = time.time() - start_time
     print("-" * 55)
     print(
-        f"Симуляция завершена за {total_time:.2f} сек ({total_time/len(TAX_RATES):.2f} сек/ставка)"
+        f"Симуляция завершена за {total_time:.2f} сек ({total_time / len(TAX_RATES):.2f} сек/ставка)"
     )
 
     # 4. Анализ Кривой Лаффера
@@ -200,7 +199,7 @@ def main() -> None:
     peak_tax = results[max_rev_idx][0]
 
     print("\nИТОГ:")
-    print(f"Пик доходов достигнут при ставке: {peak_tax*100:.0f}%")
+    print(f"Пик доходов достигнут при ставке: {peak_tax * 100:.0f}%")
     if 0.1 < peak_tax < 0.9:
         print("✅ Эффект Кривой Лаффера подтвержден (пик в середине).")
     else:

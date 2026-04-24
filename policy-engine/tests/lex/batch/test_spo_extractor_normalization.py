@@ -8,11 +8,11 @@ from polisyos.lex.batch.spo_extractor import (
     _choose_verify_statements,
     _extract_batch_provisions,
     _extract_one_provision,
-    _is_json_mode_invalid_request,
     _normalize_statements,
     _parse_batch_extract_payload,
     _parse_json_object,
     _parse_spo_statements,
+    is_json_mode_invalid_request,
 )
 from polisyos.lex.batch.structurer import ProvisionSpan
 from polisyos.lex.batch.xml_parser import NPACard, NPADocument
@@ -144,8 +144,8 @@ def test_json_mode_invalid_request_detector() -> None:
         '{"error":{"message":"Invalid request.","type":"invalid_request_error",'
         '"code":"invalid_request","param":null}}'
     )
-    assert _is_json_mode_invalid_request(400, body) is True
-    assert _is_json_mode_invalid_request(429, body) is False
+    assert is_json_mode_invalid_request(400, body) is True
+    assert is_json_mode_invalid_request(429, body) is False
 
 
 def test_choose_verify_statements_accepts_loose_verify_schema() -> None:

@@ -119,11 +119,19 @@ def test_foundry_v2_distributional_and_survey_methods_dispatch() -> None:
             "action_matrix": np.array([[0.0], [0.0], [1.0], [0.0], [1.0], [1.0]]),
             "control_totals": np.array([12.0, 6.0]),
         },
-        params={"calibration_method": "linear", "variance_method": "bootstrap", "n_replicates": 8, "seed": 17},
+        params={
+            "calibration_method": "linear",
+            "variance_method": "bootstrap",
+            "n_replicates": 8,
+            "seed": 17,
+        },
         seed=17,
     )
     assert np.isfinite(adaptive_augmented_result.output["result"]["point_estimate"])
-    assert adaptive_augmented_result.output["result"]["augmentation_status"]["outcome_model"] == "linear"
+    assert (
+        adaptive_augmented_result.output["result"]["augmentation_status"]["outcome_model"]
+        == "linear"
+    )
 
     survey_semiparametric_cls = registry.get("survey.semiparametric.ate@1.0.0")
     survey_semiparametric_result = dispatcher.dispatch(
@@ -248,7 +256,12 @@ def test_foundry_v2_nonstationary_garch_dispatch() -> None:
 
     assert result.output["result"].nonstationary_volatility is not None
     assert result.output["forecasting_uncertainty_bundle"] is not None
-    assert result.output["result"].diagnostics["policy_risk_benchmark"]["proposed_profile_break_garch"]["status"] == "ok"
+    assert (
+        result.output["result"].diagnostics["policy_risk_benchmark"][
+            "proposed_profile_break_garch"
+        ]["status"]
+        == "ok"
+    )
 
 
 def test_foundry_v2_registry_excludes_removed_wrapper_fqns() -> None:

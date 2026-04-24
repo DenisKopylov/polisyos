@@ -1,4 +1,5 @@
 """Validate cross-graph evidence coverage, legality, and transport review requirements."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -35,6 +36,7 @@ class CrossGraphEvidencePass(ValidatorPass):
     review gaps. FAST profile skips the pass; STRICT upgrades default findings
     to blockers.
     """
+
     @property
     def pass_id(self) -> str:
         return "cross_graph_evidence"
@@ -158,16 +160,13 @@ class CrossGraphEvidencePass(ValidatorPass):
                         suggestion="Collect target-context evidence or run transportability analysis.",
                     )
                 )
-            elif (
-                assessment.transport_status in {
-                    TransportStatus.PARTIALLY_IDENTIFIED,
-                    TransportStatus.BOUNDED_NON_IDENTIFIED,
-                }
-                or (
-                    assessment.transport_status is TransportStatus.IDENTIFIED
-                    and assessment.transport_mode is TransportMode.TRANSPORT_FORMULA
-                    and assessment.requires_expert_review
-                )
+            elif assessment.transport_status in {
+                TransportStatus.PARTIALLY_IDENTIFIED,
+                TransportStatus.BOUNDED_NON_IDENTIFIED,
+            } or (
+                assessment.transport_status is TransportStatus.IDENTIFIED
+                and assessment.transport_mode is TransportMode.TRANSPORT_FORMULA
+                and assessment.requires_expert_review
             ):
                 issues.append(
                     ComplianceIssue(
@@ -194,12 +193,8 @@ def _resolve_profile(ctx: PassContext, *, severity: IssueSeverity):
         load_model=load_cross_graph_evidence_profile,
         severity=severity,
         code="CROSS_GRAPH_PROFILE_INVALID",
-        message=(
-            "Cross-graph evidence profile could not be validated or loaded."
-        ),
-        suggestion=(
-            "Rebuild the cross-graph evidence profile before governance review."
-        ),
+        message=("Cross-graph evidence profile could not be validated or loaded."),
+        suggestion=("Rebuild the cross-graph evidence profile before governance review."),
         log=logger,
     )
 
@@ -249,7 +244,8 @@ def _source_is_binding(profile: CrossGraphEvidenceProfile, source_name: str) -> 
         )
     if source_name == "datasets":
         return any(
-            assessment.observability_status in {ObservabilityStatus.MISSING, ObservabilityStatus.UNKNOWN}
+            assessment.observability_status
+            in {ObservabilityStatus.MISSING, ObservabilityStatus.UNKNOWN}
             for assessment in profile.needs
         )
     if source_name == "legal":

@@ -1,9 +1,11 @@
 """Public foundry registry module API."""
+
 import importlib
 import inspect
-from collections.abc import Iterator, Mapping as MappingABC
+from collections.abc import Iterator, Mapping
+from collections.abc import Mapping as MappingABC
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Mapping, Type
+from typing import Any
 
 from polisyos.foundry.contracts.fidelity import FidelityLevel as RuntimeFidelityLevel
 from polisyos.foundry.specs import (
@@ -15,13 +17,11 @@ from polisyos.foundry.specs import (
 from polisyos.ir.kernel import MechanismTypeSpec
 from polisyos.ir.model_spec import FidelityLevel as IRFidelityLevel
 
-if TYPE_CHECKING:  # pragma: no cover
-    from polisyos.foundry.contracts.mechanism import Mechanism
-
 
 @dataclass(frozen=True)
 class MechanismRuntimeDescriptor:
     """Mechanism runtime descriptor data model."""
+
     mechanism_type: str
     method_fqn: str
     mechanism_class_path: str
@@ -29,7 +29,7 @@ class MechanismRuntimeDescriptor:
     hybrid_default: RuntimeFidelityLevel
 
     @property
-    def mechanism_class(self) -> Type[Any]:
+    def mechanism_class(self) -> type[Any]:
         mechanism_class = _load_symbol(self.mechanism_class_path)
         if not inspect.isclass(mechanism_class):
             raise TypeError(
@@ -102,7 +102,7 @@ def get_mechanism_descriptor(mech_type: str) -> MechanismRuntimeDescriptor:
     return descriptors[mech_type]
 
 
-def get_mechanism_class(mech_type: str) -> Type[Any]:
+def get_mechanism_class(mech_type: str) -> type[Any]:
     """Return mechanism class."""
     return get_mechanism_descriptor(mech_type).mechanism_class
 
@@ -137,7 +137,7 @@ def resolve_runtime_fidelity(
     return resolved
 
 
-def _init_kwargs(mech_cls: Type[Any], kwargs: dict[str, Any]) -> dict[str, Any]:
+def _init_kwargs(mech_cls: type[Any], kwargs: dict[str, Any]) -> dict[str, Any]:
     signature = inspect.signature(mech_cls.__init__)
     if any(param.kind == inspect.Parameter.VAR_KEYWORD for param in signature.parameters.values()):
         return kwargs
@@ -242,9 +242,7 @@ def _extract_intervention_fields(intervention: Any) -> tuple[str, dict[str, Any]
             intervention, "kind", None
         )
         params = (
-            getattr(intervention, "parameters", None)
-            or getattr(intervention, "params", None)
-            or {}
+            getattr(intervention, "parameters", None) or getattr(intervention, "params", None) or {}
         )
     if not mechanism_type:
         raise ValueError("Intervention missing mechanism_type/kind")
@@ -321,8 +319,8 @@ def _load_symbol(path: str) -> Any:
 
 __all__ = [
     "MECHANISM_REGISTRY",
-    "MechanismRuntimeDescriptor",
     "MECHANISM_SPECS",
+    "MechanismRuntimeDescriptor",
     "MissingRuntimeMechanismSupportError",
     "UnsupportedRuntimeFidelityError",
     "create_mechanism",

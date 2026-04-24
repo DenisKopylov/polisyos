@@ -1,4 +1,5 @@
 """Public causal run abm consistency module API."""
+
 from __future__ import annotations
 
 import math
@@ -123,7 +124,7 @@ class _BridgeConfig:
     wide_tolerance_floor: float = 0.2
 
     @classmethod
-    def from_payload(cls, payload: Any) -> "_BridgeConfig":
+    def from_payload(cls, payload: Any) -> _BridgeConfig:
         if not isinstance(payload, Mapping):
             return cls()
 
@@ -499,8 +500,7 @@ def _load_continuous_abstraction_inputs(
     raw_bound_config = state.params.get("continuous_abstraction_bound_config")
     if raw_bound_config is None:
         raise ValueError(
-            "Continuous abstraction verification requires "
-            "continuous_abstraction_bound_config"
+            "Continuous abstraction verification requires continuous_abstraction_bound_config"
         )
     bound_config = (
         raw_bound_config
@@ -552,10 +552,7 @@ class RunABMConsistencyCheckNode:
                 events=[
                     NodeEvent(
                         level="info",
-                        message=(
-                            "No params.abm_macro_micro_mappings; "
-                            "skip ABM consistency check."
-                        ),
+                        message=("No params.abm_macro_micro_mappings; skip ABM consistency check."),
                     )
                 ],
             )
@@ -791,10 +788,7 @@ class RunABMConsistencyCheckNode:
                         cfg.wide_tolerance_ratio * abs(float(scm_effect)),
                     )
                     if tolerance_used >= wide_threshold:
-                        message = (
-                            variable_prefix
-                            + "wide_tolerance_consistent_warning"
-                        )
+                        message = variable_prefix + "wide_tolerance_consistent_warning"
                         _append_warning(warnings, message)
                         events.append(
                             NodeEvent(
@@ -841,7 +835,9 @@ class RunABMConsistencyCheckNode:
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.artifacts_index[ARTIFACT_ABM_ALIGNMENT_REPORT_REF] = report_ref
         if abstraction_map_ref is not None:
-            new_state.artifacts_index[ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF] = abstraction_map_ref
+            new_state.artifacts_index[ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF] = (
+                abstraction_map_ref
+            )
         if abstraction_certificate_ref is not None:
             new_state.artifacts_index[ARTIFACT_ABSTRACTION_CERTIFICATE_REF] = (
                 abstraction_certificate_ref

@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
-from polisyos.scientist.autotune.models import CandidateGenerator
 from polisyos.scientist.autotune.bayesian_generator import BayesianCandidateGenerator
 from polisyos.scientist.autotune.runtime import SequenceCandidateGenerator
 

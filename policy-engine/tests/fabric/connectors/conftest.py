@@ -4,10 +4,11 @@ pytest fixtures for connector tests (Phase 2.10+).
 This conftest is placed at tests/fabric/connectors/ so every test
 module beneath that directory inherits these fixtures automatically.
 """
+
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pandas as pd
@@ -21,16 +22,15 @@ from polisyos.fabric.connectors.base import (
 from polisyos.fabric.connectors.contracts.schema import (
     DataSchema,
     FieldSpec,
+    GeoGranularity,
     SchemaType,
     SchemaVersion,
     SemanticType,
     TimeGranularity,
-    GeoGranularity,
 )
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.connectors.testing.simulator import APISimulator, SimulatorMode
 from polisyos.ir.connectors import DataVersion, QualityTier, VersionStrategy
-
 
 # ---------------------------------------------------------------------------
 # CLI option: --record-mode
@@ -71,7 +71,7 @@ def fixtures_root(connectors_root: Path) -> Path:
 # ---------------------------------------------------------------------------
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_registry() -> ConnectorRegistry:
     """
     Provide a fresh, isolated ConnectorRegistry for each test.
@@ -109,7 +109,7 @@ def event_loop():
 # ---------------------------------------------------------------------------
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_connection_config() -> ConnectionConfig:
     """
     Minimal ConnectionConfig for unit tests.
@@ -125,17 +125,17 @@ def sample_connection_config() -> ConnectionConfig:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_fetch_request() -> FetchRequest:
     """A generic FetchRequest for harness-level tests."""
     return FetchRequest(
         dataset_id="test.sample.dataset",
-        date_start=datetime(2020, 1, 1, tzinfo=timezone.utc),
-        date_end=datetime(2024, 12, 31, tzinfo=timezone.utc),
+        date_start=datetime(2020, 1, 1, tzinfo=UTC),
+        date_end=datetime(2024, 12, 31, tzinfo=UTC),
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_schema() -> DataSchema:
     """
     Realistic 6-field schema matching the GDP-style pattern used
@@ -198,7 +198,7 @@ def sample_schema() -> DataSchema:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_dataframe() -> pd.DataFrame:
     """
     A hand-crafted DataFrame that conforms to sample_schema.
@@ -218,7 +218,7 @@ def sample_dataframe() -> pd.DataFrame:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_fetch_result(sample_dataframe: pd.DataFrame) -> FetchResult:
     """
     A FetchResult pre-populated with sample_dataframe.
@@ -227,7 +227,7 @@ def sample_fetch_result(sample_dataframe: pd.DataFrame) -> FetchResult:
     (contract checks, caching, quality gates) without running a
     connector.
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     return FetchResult(
         data=sample_dataframe,
         row_count=len(sample_dataframe),
@@ -249,7 +249,7 @@ def sample_fetch_result(sample_dataframe: pd.DataFrame) -> FetchResult:
 # ---------------------------------------------------------------------------
 
 
-@pytest.fixture()
+@pytest.fixture
 def api_simulator(request: pytest.FixtureRequest, fixtures_root: Path) -> APISimulator:
     """
     An APISimulator configured based on CLI flags.

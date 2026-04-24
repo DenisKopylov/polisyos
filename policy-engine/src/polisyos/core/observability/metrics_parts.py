@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import threading
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from ._metrics_helpers import GaugeProxy, HistogramTimer
 from ._metrics_registry_base import MetricsRegistryBase
@@ -11,9 +11,10 @@ from ._metrics_registry_base import MetricsRegistryBase
 
 class MetricsRegistry(MetricsRegistryBase):
     """Metrics registry implementation."""
+
     def time_simulation(
         self,
-        attributes: Optional[dict[str, Any]] = None,
+        attributes: dict[str, Any] | None = None,
     ) -> HistogramTimer:
         """
         Context manager for timing simulations.
@@ -27,7 +28,7 @@ class MetricsRegistry(MetricsRegistryBase):
 
     def time_governance_pass(
         self,
-        attributes: Optional[dict[str, Any]] = None,
+        attributes: dict[str, Any] | None = None,
     ) -> HistogramTimer:
         """Context manager for timing governance passes."""
         self._ensure_initialized()
@@ -35,7 +36,7 @@ class MetricsRegistry(MetricsRegistryBase):
 
     def time_slo_dag(
         self,
-        attributes: Optional[dict[str, Any]] = None,
+        attributes: dict[str, Any] | None = None,
     ) -> HistogramTimer:
         """Context manager for Scientist DAG SLO latency."""
         self._ensure_initialized()
@@ -46,7 +47,7 @@ class MetricsRegistry(MetricsRegistryBase):
         self,
         status: str,
         phase: str,
-        agent: Optional[str] = None,
+        agent: str | None = None,
     ) -> None:
         """Record a workflow run completion."""
         self._ensure_initialized()
@@ -197,9 +198,17 @@ class MetricsRegistry(MetricsRegistryBase):
                 max(0.0, float(duration_seconds)),
                 attrs,
             )
-        if row_count is not None and self.fabric_connector_rows_total is not None and row_count >= 0:
+        if (
+            row_count is not None
+            and self.fabric_connector_rows_total is not None
+            and row_count >= 0
+        ):
             self.fabric_connector_rows_total.add(int(row_count), attrs)
-        if payload_bytes is not None and self.fabric_connector_bytes_total is not None and payload_bytes >= 0:
+        if (
+            payload_bytes is not None
+            and self.fabric_connector_bytes_total is not None
+            and payload_bytes >= 0
+        ):
             self.fabric_connector_bytes_total.add(int(payload_bytes), attrs)
 
     def record_fabric_query(
@@ -351,9 +360,7 @@ class MetricsRegistry(MetricsRegistryBase):
             if prompt_tokens > 0:
                 self.llm_tokens_total.add(prompt_tokens, {**attrs, "type": "prompt"})
             if completion_tokens > 0:
-                self.llm_tokens_total.add(
-                    completion_tokens, {**attrs, "type": "completion"}
-                )
+                self.llm_tokens_total.add(completion_tokens, {**attrs, "type": "completion"})
         if self.llm_cost_usd is not None and cost_usd is not None:
             self.llm_cost_usd.record(max(0.0, float(cost_usd)), attrs)
         if self.llm_latency_ms is not None and latency_ms is not None:
@@ -410,7 +417,7 @@ class MetricsRegistry(MetricsRegistryBase):
 
     def time_informed_critic(
         self,
-        attributes: Optional[dict[str, Any]] = None,
+        attributes: dict[str, Any] | None = None,
     ) -> HistogramTimer:
         """Context manager for measuring informed critic end-to-end latency."""
         self._ensure_initialized()
@@ -479,7 +486,7 @@ class MetricsRegistry(MetricsRegistryBase):
         self,
         severity: str,
         pass_id: str,
-        error_type: Optional[str] = None,
+        error_type: str | None = None,
     ) -> None:
         """Record a validation issue."""
         self._ensure_initialized()
@@ -921,8 +928,7 @@ class MetricsRegistry(MetricsRegistryBase):
         )
 
 
-
-_metrics_registry: Optional[MetricsRegistryBase] = None
+_metrics_registry: MetricsRegistryBase | None = None
 _metrics_registry_lock = threading.Lock()
 
 
@@ -944,7 +950,8 @@ def get_metrics() -> MetricsRegistry:
             or _metrics_registry is not current_instance
         ):
             _metrics_registry = MetricsRegistry()
-    assert _metrics_registry is not None
+    if _metrics_registry is None:
+        _metrics_registry = MetricsRegistry()
     return cast("MetricsRegistry", _metrics_registry)
 
 

@@ -40,12 +40,14 @@ Rollback path: preserve original audit evidence, separate remediation from histo
 1. Start with the mutation audit stream under the runtime root:
    `runtime/audit/mutations.jsonl`.
 2. Filter by one of:
+
    - `request_id`;
    - `resource_ids`;
    - actor;
    - `tenant_id`;
    - `idempotency_key`.
 3. Correlate the selected mutation entry with:
+
    - structured logs;
    - trace spans;
    - control-plane job or run state.
@@ -57,6 +59,7 @@ Rollback path: preserve original audit evidence, separate remediation from histo
 - preserve the original audit lines before any corrective action;
 - if the investigation becomes a remediation, record the operator remediation as
   a new separate action rather than editing history;
+
 - do not copy raw backend diagnostics into customer-facing tickets without
   sanitization.
 
@@ -70,6 +73,7 @@ Rollback path: preserve original audit evidence, separate remediation from histo
 - confirm the incident ticket links to the actual request and resource IDs;
 - note whether audit data alone was sufficient or whether logs/traces were also
   required;
+
 - update the audit schema documentation if a necessary field was missing.
 
 ## Blameless Postmortem
@@ -86,7 +90,7 @@ Rollback path: preserve original audit evidence, separate remediation from histo
 
 ### Action Items
 
-| Action item | Owner | Due date | Status |
-|---|---|---|---|
-| Add missing correlation field or audit documentation | `@runtime-owners` | YYYY-MM-DD | open |
-| Improve operator tooling for audit search/export | `@platform-owners` | YYYY-MM-DD | open |
+| Action item                                          | Owner              | Due date   | Status |
+| ---------------------------------------------------- | ------------------ | ---------- | ------ |
+| Add missing correlation field or audit documentation | `@runtime-owners`  | YYYY-MM-DD | open   |
+| Improve operator tooling for audit search/export     | `@platform-owners` | YYYY-MM-DD | open   |

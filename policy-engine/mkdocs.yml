@@ -217,6 +217,7 @@ nav:
       - Compliance Evidence Map: reference/compliance-evidence-map.md
       - Ownership: reference/ownership.md
       - Quality Gates: reference/quality-gates.md
+      - Repository Hygiene: reference/repository-hygiene.md
       - Merge Governance: reference/merge-governance.md
       - Ratchet Policy: reference/ratchet-policy.md
       - Platform Changelog: reference/changelog.md

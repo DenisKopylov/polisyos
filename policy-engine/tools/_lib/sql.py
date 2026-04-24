@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Sequence
 
 IDENTIFIER_RE = re.compile(r"^[a-z_][a-z0-9_]*$")
 

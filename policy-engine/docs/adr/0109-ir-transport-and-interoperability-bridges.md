@@ -67,6 +67,7 @@ consume the bridge contracts in downstream packages.
 - Large observation payloads have a documented binary and streaming story.
 - Delta application and incremental relinking become explicit reviewable
   contracts instead of hidden implementation behavior.
+
 - Provenance export is interpretable through a standard ontology mapping.
 - External causal tooling can integrate through deterministic bridge payloads
   without hard-coupling those libraries into IR.
@@ -82,7 +83,9 @@ consume the bridge contracts in downstream packages.
 
 - **Binary-first IR**: rejected because it would weaken canonical JSON and CAS
   reviewability.
+
 - **Implicit relinking after every delta**: rejected because it hides cost and
   invalidation boundaries.
+
 - **Direct library dependencies in IR**: rejected because it would inflate the
   compatibility surface and make tooling/runtime imports less predictable.

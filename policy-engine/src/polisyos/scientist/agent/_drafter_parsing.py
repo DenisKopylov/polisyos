@@ -7,8 +7,7 @@ These are mixed into ``MultiPassLLMDrafter`` via the
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
 
 from pydantic import ValidationError
 
@@ -38,9 +37,11 @@ class _DrafterParsingMixin:
         *,
         pass_name: str,
     ) -> tuple[list[PassFinding], float | None, bool]:
-        findings, confidence_adjustment, parse_ok, _verification_code = self._parse_critique_payload(
-            raw_response,
-            pass_name=pass_name,
+        findings, confidence_adjustment, parse_ok, _verification_code = (
+            self._parse_critique_payload(
+                raw_response,
+                pass_name=pass_name,
+            )
         )
         return findings, confidence_adjustment, parse_ok
 
@@ -109,12 +110,14 @@ class _DrafterParsingMixin:
                 interventions=payload.interventions or original.interventions,
                 rationale=payload.rationale or original.rationale,
                 domain_references=original.domain_references,
-                confidence=payload.confidence if payload.confidence is not None else original.confidence,
+                confidence=payload.confidence
+                if payload.confidence is not None
+                else original.confidence,
                 alternatives_considered=(
                     payload.alternatives_considered or original.alternatives_considered
                 ),
                 raw_llm_response=raw_response,
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             ),
             True,
         )

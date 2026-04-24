@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 from unittest.mock import MagicMock
 
 import pytest
@@ -12,7 +11,7 @@ from polisyos.scientist.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.engine.condition import NodeCondition
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.executor import WorkflowExecutor
-from polisyos.scientist.engine.protocol import NodeError, NodeOutcome, NodeSpec
+from polisyos.scientist.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.engine.registry import NodeRegistry
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
@@ -23,12 +22,16 @@ _FAKE_SHA = "sha256:" + "ab" * 32
 def _make_ctx():
     store = MagicMock()
     store.put_json.return_value = ArtifactRef(
-        artifact_id=_FAKE_SHA, kind="test", media_type="application/json",
+        artifact_id=_FAKE_SHA,
+        kind="test",
+        media_type="application/json",
     )
     run = MagicMock()
     run.trace_path = None
     run.finalize.return_value = ArtifactRef(
-        artifact_id=_FAKE_SHA, kind="run", media_type="application/json",
+        artifact_id=_FAKE_SHA,
+        kind="run",
+        media_type="application/json",
     )
     return ExecutionContext(store=store, run=run, logger=MagicMock())
 
@@ -50,6 +53,7 @@ def _ok_outcome(state: ExperimentState) -> NodeOutcome:
 # Sync executor tests
 # ---------------------------------------------------------------------------
 
+
 class TestSyncConditionalNodes:
     def test_condition_true_runs_node(self) -> None:
         """Node with condition=true runs normally."""
@@ -64,7 +68,8 @@ class TestSyncConditionalNodes:
             workflow_id="test_cond_true",
             nodes=[
                 NodeInvocation(
-                    alias="step_a", node_id="test.node@1.0.0",
+                    alias="step_a",
+                    node_id="test.node@1.0.0",
                     condition=NodeCondition(expr="params.enabled == true"),
                 ),
             ],
@@ -87,7 +92,8 @@ class TestSyncConditionalNodes:
             workflow_id="test_cond_false",
             nodes=[
                 NodeInvocation(
-                    alias="step_a", node_id="test.node@1.0.0",
+                    alias="step_a",
+                    node_id="test.node@1.0.0",
                     condition=NodeCondition(expr="params.enabled == true"),
                 ),
             ],
@@ -112,7 +118,8 @@ class TestSyncConditionalNodes:
             workflow_id="test_cond_fail",
             nodes=[
                 NodeInvocation(
-                    alias="step_a", node_id="test.node@1.0.0",
+                    alias="step_a",
+                    node_id="test.node@1.0.0",
                     condition=NodeCondition(expr="params.enabled == true", on_false="fail"),
                 ),
             ],
@@ -138,11 +145,13 @@ class TestSyncConditionalNodes:
             workflow_id="test_skip_no_block",
             nodes=[
                 NodeInvocation(
-                    alias="step_a", node_id="test.node@1.0.0",
+                    alias="step_a",
+                    node_id="test.node@1.0.0",
                     condition=NodeCondition(expr="params.skip_this == false"),
                 ),
                 NodeInvocation(
-                    alias="step_b", node_id="test.node@1.0.0",
+                    alias="step_b",
+                    node_id="test.node@1.0.0",
                     depends_on=["step_a"],
                 ),
             ],
@@ -168,11 +177,13 @@ class TestSyncConditionalNodes:
             workflow_id="test_fail_blocks",
             nodes=[
                 NodeInvocation(
-                    alias="step_a", node_id="test.node@1.0.0",
+                    alias="step_a",
+                    node_id="test.node@1.0.0",
                     condition=NodeCondition(expr="params.x == true", on_false="fail"),
                 ),
                 NodeInvocation(
-                    alias="step_b", node_id="test.node@1.0.0",
+                    alias="step_b",
+                    node_id="test.node@1.0.0",
                     depends_on=["step_a"],
                 ),
             ],
@@ -198,15 +209,18 @@ class TestSyncConditionalNodes:
             workflow_id="test_branching",
             nodes=[
                 NodeInvocation(
-                    alias="path_a", node_id="test.node@1.0.0",
+                    alias="path_a",
+                    node_id="test.node@1.0.0",
                     condition=NodeCondition(expr="params.transport_required == true"),
                 ),
                 NodeInvocation(
-                    alias="path_b", node_id="test.node@1.0.0",
+                    alias="path_b",
+                    node_id="test.node@1.0.0",
                     condition=NodeCondition(expr="params.transport_required != true"),
                 ),
                 NodeInvocation(
-                    alias="merge", node_id="test.node@1.0.0",
+                    alias="merge",
+                    node_id="test.node@1.0.0",
                     depends_on=["path_a", "path_b"],
                 ),
             ],
@@ -254,7 +268,8 @@ class TestSyncConditionalNodes:
             workflow_id="test_syntax_err",
             nodes=[
                 NodeInvocation(
-                    alias="step_a", node_id="test.node@1.0.0",
+                    alias="step_a",
+                    node_id="test.node@1.0.0",
                     condition=NodeCondition(expr="!!! invalid !!!"),
                 ),
             ],
@@ -277,7 +292,8 @@ class TestSyncConditionalNodes:
             workflow_id="test_is_set",
             nodes=[
                 NodeInvocation(
-                    alias="step_a", node_id="test.node@1.0.0",
+                    alias="step_a",
+                    node_id="test.node@1.0.0",
                     condition=NodeCondition(expr="execution_profile is_set"),
                 ),
             ],
@@ -291,6 +307,7 @@ class TestSyncConditionalNodes:
 # ---------------------------------------------------------------------------
 # Async executor tests
 # ---------------------------------------------------------------------------
+
 
 class TestAsyncConditionalNodes:
     @pytest.mark.asyncio
@@ -307,7 +324,8 @@ class TestAsyncConditionalNodes:
             workflow_id="test_async_cond",
             nodes=[
                 NodeInvocation(
-                    alias="step_a", node_id="test.node@1.0.0",
+                    alias="step_a",
+                    node_id="test.node@1.0.0",
                     condition=NodeCondition(expr="params.enabled == true"),
                 ),
                 NodeInvocation(alias="step_b", node_id="test.node@1.0.0"),
@@ -337,15 +355,18 @@ class TestAsyncConditionalNodes:
             workflow_id="test_async_branch",
             nodes=[
                 NodeInvocation(
-                    alias="path_a", node_id="test.node@1.0.0",
+                    alias="path_a",
+                    node_id="test.node@1.0.0",
                     condition=NodeCondition(expr='params.mode == "a"'),
                 ),
                 NodeInvocation(
-                    alias="path_b", node_id="test.node@1.0.0",
+                    alias="path_b",
+                    node_id="test.node@1.0.0",
                     condition=NodeCondition(expr='params.mode == "b"'),
                 ),
                 NodeInvocation(
-                    alias="merge", node_id="test.node@1.0.0",
+                    alias="merge",
+                    node_id="test.node@1.0.0",
                     depends_on=["path_a", "path_b"],
                 ),
             ],
@@ -375,11 +396,13 @@ class TestAsyncConditionalNodes:
             error_policy="fail_fast",
             nodes=[
                 NodeInvocation(
-                    alias="gate_node", node_id="test.node@1.0.0",
+                    alias="gate_node",
+                    node_id="test.node@1.0.0",
                     condition=NodeCondition(expr="params.gate == true", on_false="fail"),
                 ),
                 NodeInvocation(
-                    alias="after_gate", node_id="test.node@1.0.0",
+                    alias="after_gate",
+                    node_id="test.node@1.0.0",
                     depends_on=["gate_node"],
                 ),
             ],

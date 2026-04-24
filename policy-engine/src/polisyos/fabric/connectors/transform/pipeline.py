@@ -4,14 +4,16 @@ DAG-based data transformation pipeline with lineage tracking.
 This module implements a composable, compiler-style transformation engine
 inspired by fabric/udf/passes, but operating on DataFrames instead of queries.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from types import MappingProxyType
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any
 
 import pandas as pd
 
@@ -23,19 +25,19 @@ from polisyos.core.pipeline import (
     PipelineCycleError,
     UnknownStageError,
 )
-from polisyos.fabric.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.contracts.schema import DataSchema
+from polisyos.fabric.observability import FABRIC_TRACE_NAMES
 
 __all__ = [
-    "TransformError",
-    "CopyPolicy",
-    "TransformContext",
-    "TransformLineage",
-    "TransformResult",
-    "DataTransform",
-    "TransformStage",
-    "TransformPipeline",
     "CompiledPipeline",
+    "CopyPolicy",
+    "DataTransform",
+    "TransformContext",
+    "TransformError",
+    "TransformLineage",
+    "TransformPipeline",
+    "TransformResult",
+    "TransformStage",
 ]
 
 
@@ -141,7 +143,7 @@ class TransformLineage:
     input_row_count: int
     output_row_count: int
     parameters: dict[str, Any]
-    parent_lineages: list["TransformLineage"] = field(default_factory=list)
+    parent_lineages: list[TransformLineage] = field(default_factory=list)
 
     @property
     def duration_ms(self) -> float:
@@ -290,7 +292,7 @@ class TransformPipeline:
         *,
         name: str | None = None,
         depends_on: Sequence[str] | None = None,
-    ) -> "TransformPipeline":
+    ) -> TransformPipeline:
         """
         Add a transformation stage (builder pattern).
 
@@ -308,10 +310,7 @@ class TransformPipeline:
             raise TransformError(f"Stage name '{stage_name}' already exists")
 
         if depends_on is None:
-            if self._auto_chain and self._tail:
-                resolved_deps = list(self._tail)
-            else:
-                resolved_deps = []
+            resolved_deps = list(self._tail) if self._auto_chain and self._tail else []
         else:
             resolved_deps = list(depends_on)
 
@@ -341,7 +340,7 @@ class TransformPipeline:
 
     def branch(
         self,
-        builder: Callable[["TransformPipeline"], Any],
+        builder: Callable[[TransformPipeline], Any],
         *,
         depends_on: Sequence[str] | None = None,
     ) -> list[str]:
@@ -362,7 +361,7 @@ class TransformPipeline:
 
     def fork(
         self,
-        builders: Sequence[Callable[["TransformPipeline"], Any]],
+        builders: Sequence[Callable[[TransformPipeline], Any]],
         *,
         depends_on: Sequence[str] | None = None,
     ) -> list[str]:
@@ -378,7 +377,7 @@ class TransformPipeline:
         *,
         name: str | None = None,
         depends_on: Sequence[str] | None = None,
-    ) -> "TransformPipeline":
+    ) -> TransformPipeline:
         """Join branches into a new stage with explicit dependencies."""
         return self.add_stage(transform, name=name, depends_on=depends_on)
 
@@ -394,7 +393,7 @@ class TransformPipeline:
         type_casts: dict[str, str] | None = None,
         drop_unmapped: bool = False,
         cast_to_schema: bool = True,
-    ) -> "TransformPipeline":
+    ) -> TransformPipeline:
         """Add normalization stage."""
         from polisyos.fabric.connectors.transform.normalizer import (
             NormalizationTransform,
@@ -419,7 +418,7 @@ class TransformPipeline:
         drop_unmapped: bool = False,
         warn_unmapped: bool = True,
         strict: bool = False,
-    ) -> "TransformPipeline":
+    ) -> TransformPipeline:
         """Add code harmonization stage."""
         from polisyos.fabric.connectors.transform.harmonizer import (
             CodeHarmonizationTransform,
@@ -444,7 +443,7 @@ class TransformPipeline:
         *,
         strict: bool = False,
         fill_value: float | None = None,
-    ) -> "TransformPipeline":
+    ) -> TransformPipeline:
         """Add missing value imputation stage."""
         from polisyos.fabric.connectors.transform.imputer import (
             ImputationTransform,
@@ -469,7 +468,7 @@ class TransformPipeline:
         additivity_context: dict[str, Any] | None = None,
         strict: bool = False,
         auto_infer_temporal: bool = True,
-    ) -> "TransformPipeline":
+    ) -> TransformPipeline:
         """Add aggregation stage."""
         from polisyos.fabric.connectors.transform.aggregator import (
             AggregationTransform,
@@ -492,7 +491,7 @@ class TransformPipeline:
         *,
         keep: bool = True,
         max_drop_pct: float = 0.9,
-    ) -> "TransformPipeline":
+    ) -> TransformPipeline:
         """Add row filtering stage."""
         from polisyos.fabric.connectors.transform.filter import FilterTransform
 
@@ -509,7 +508,7 @@ class TransformPipeline:
         rules: Sequence[Any],
         *,
         strict: bool = False,
-    ) -> "TransformPipeline":
+    ) -> TransformPipeline:
         """Add validation stage."""
         from polisyos.fabric.connectors.transform.validator import ValidationTransform
 
@@ -519,7 +518,7 @@ class TransformPipeline:
     # Compilation and Execution
     # ------------------------------------------------------------------
 
-    def compile(self) -> "CompiledPipeline":
+    def compile(self) -> CompiledPipeline:
         """Compile pipeline for efficient execution."""
         if self._compiled is not None:
             return self._compiled
@@ -633,7 +632,7 @@ class CompiledPipeline:
             if output_warnings:
                 all_warnings.extend(f"[{stage.name}] {w}" for w in output_warnings)
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         combined_lineage = TransformLineage(
             stage_name="pipeline",
             started_at=lineages[0].started_at if lineages else now,

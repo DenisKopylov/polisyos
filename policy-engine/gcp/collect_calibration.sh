@@ -15,19 +15,19 @@ for i in $(seq 0 $((SHARD_COUNT - 1))); do
   echo "Shard ${i}: ${REMOTE_PREFIX}"
   gcloud storage cp \
     "${REMOTE_PREFIX}/manifests/llm_requests.jsonl" \
-    "${OUT_DIR}/shard_${i}_llm_requests.jsonl" 2>/dev/null || echo "  (no llm_requests yet)"
+    "${OUT_DIR}/shard_${i}_llm_requests.jsonl" 2> /dev/null || echo "  (no llm_requests yet)"
   gcloud storage cp \
     "${REMOTE_PREFIX}/_shards/${SHARD_SLUG}/progress.jsonl" \
-    "${OUT_DIR}/shard_${i}_progress.jsonl" 2>/dev/null || echo "  (no progress yet)"
+    "${OUT_DIR}/shard_${i}_progress.jsonl" 2> /dev/null || echo "  (no progress yet)"
   gcloud storage cp \
     "${REMOTE_PREFIX}/manifests/telemetry.json" \
-    "${OUT_DIR}/shard_${i}_telemetry.json" 2>/dev/null || true
+    "${OUT_DIR}/shard_${i}_telemetry.json" 2> /dev/null || true
   gcloud storage cp \
     "${REMOTE_PREFIX}/manifests/run_config.json" \
-    "${OUT_DIR}/shard_${i}_run_config.json" 2>/dev/null || true
+    "${OUT_DIR}/shard_${i}_run_config.json" 2> /dev/null || true
   gcloud storage cp \
     "${REMOTE_PREFIX}/pipeline.log" \
-    "${OUT_DIR}/shard_${i}_pipeline.log" 2>/dev/null || true
+    "${OUT_DIR}/shard_${i}_pipeline.log" 2> /dev/null || true
 done
 
 echo ""

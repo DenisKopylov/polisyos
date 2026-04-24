@@ -23,9 +23,9 @@ from polisyos.foundry.contracts.state import (
 from polisyos.ir.governance.policy_spec import InterventionSpec
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
+from polisyos.ir.observation.contracts import MultiplexGraphLayerId
 from polisyos.ir.types import SelectorOperator
 from polisyos.lex.interventions import CompiledLexIntervention
-from polisyos.ir.observation.contracts import MultiplexGraphLayerId
 
 
 def _base_multiscale_state(*, n_agents: int = 4, n_firms: int = 3) -> GlobalState:
@@ -102,7 +102,9 @@ def test_population_executor_updates_household_counts_for_births_and_migration()
         migration_targets=migration_targets,
     )
 
-    assert np.allclose(np.asarray(next_state.household_cells.household_count), np.asarray([1.0, 2.0]))
+    assert np.allclose(
+        np.asarray(next_state.household_cells.household_count), np.asarray([1.0, 2.0])
+    )
     assert np.allclose(np.asarray(next_state.cells.population), np.asarray([1.0, 2.0, 0.0]))
     assert int(metrics["population/births_applied"]) == 1
     assert int(np.asarray(next_state.agents.age[0])) == 11
@@ -126,7 +128,9 @@ def test_graph_executor_propagates_procurement_shock_only_through_procurement_la
                 senders=np.asarray([0, 1, 0], dtype=np.int32),
                 receivers=np.asarray([1, 2, 2], dtype=np.int32),
                 weights=np.asarray([1.0, 1.0, 10.0], dtype=np.float32),
-                edge_types=np.asarray([procurement_code, procurement_code, budget_code], dtype=np.int32),
+                edge_types=np.asarray(
+                    [procurement_code, procurement_code, budget_code], dtype=np.int32
+                ),
                 active=np.asarray([True, True, True]),
                 n_nodes=np.asarray(3, dtype=np.int32),
                 last_update_step=np.asarray(-1, dtype=np.int32),
@@ -263,7 +267,14 @@ def test_c6b_wiring_runs_full_synthetic_step() -> None:
     )
     executor = ContractsDistributionAwareExecutor()
     firm_events = FirmLifecycleEventBatch.from_records(
-        [{"event_type": FirmLifecycleEventType.ENTRY, "firm_id": 30, "cell_id": 0, "firm_type_id": 3}]
+        [
+            {
+                "event_type": FirmLifecycleEventType.ENTRY,
+                "firm_id": 30,
+                "cell_id": 0,
+                "firm_type_id": 3,
+            }
+        ]
     )
     procurement_shocks = ProcurementShockBatch.from_records(
         [{"origin_firm_id": 10, "magnitude": 4.0, "decay": 0.5, "max_hops": 1}]

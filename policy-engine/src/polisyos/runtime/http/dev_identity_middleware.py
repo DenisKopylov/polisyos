@@ -1,7 +1,7 @@
 """Explicit development-only fixture identity middleware."""
+
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.security.access_scope import AccessScope
@@ -12,6 +12,8 @@ from polisyos.core.security.tenant_context import (
 from polisyos.runtime.http.security import build_fixture_identity_claims
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
     from starlette.middleware.base import BaseHTTPMiddleware as _BaseHTTPMiddleware
     from starlette.requests import Request
     from starlette.responses import Response

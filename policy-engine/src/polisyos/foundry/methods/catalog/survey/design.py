@@ -1,7 +1,9 @@
 """Public survey design module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -12,7 +14,6 @@ from polisyos.foundry.methods.base import (
     FidelityLevel,
     MethodMetadata,
     MethodSignature,
-    ParameterSpec,
     SlotSpec,
     SlotType,
     Unit,
@@ -31,6 +32,7 @@ def _result_slot() -> frozenset[SlotSpec]:
 )
 class ComplexSurveyDesignEstimator:
     """Construct and analyze complex survey designs with strata, PSU, and weights."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 

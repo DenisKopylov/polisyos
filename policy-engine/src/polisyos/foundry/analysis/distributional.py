@@ -1,7 +1,9 @@
 """Public analysis distributional module API."""
+
 from __future__ import annotations
 
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 import numpy as np
 
@@ -255,7 +257,9 @@ def build_distributional_report(
     if incomes_before is not None and incomes_after is not None:
         arr_before = np.asarray(incomes_before, dtype=np.float64)
         arr_after = np.asarray(incomes_after, dtype=np.float64)
-        report_metadata["negative_values_present"] = bool(np.any(arr_before < 0) or np.any(arr_after < 0))
+        report_metadata["negative_values_present"] = bool(
+            np.any(arr_before < 0) or np.any(arr_after < 0)
+        )
         overall_gini_before = compute_gini(arr_before)
         overall_gini_after = compute_gini(arr_after)
         palma_before = compute_palma_ratio(arr_before)

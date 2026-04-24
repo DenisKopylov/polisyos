@@ -38,10 +38,10 @@ References
 ----------
 Plecko & Bareinboim (2022); Zhang & Bareinboim (2018); Kusner et al. (2017).
 """
+
 from __future__ import annotations
 
 import json
-import math
 
 import numpy as np
 import pytest
@@ -52,8 +52,6 @@ from polisyos.foundry.methods.catalog.causal.fairness import (
     TVFairnessDecomposer,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import FairnessObservationalData
-from polisyos.ir.analytics.fairness import CausalFairnessReport, FairnessDecomposition
-
 
 # ---------------------------------------------------------------------------
 # Fixtures and helpers
@@ -141,7 +139,7 @@ def test_tv_decomposition_consistency():
     se = decomp["spurious_effect"]
     # Identity: TV = DE + IE + SE
     assert abs(tv - (de + ie + se)) < 0.05, (
-        f"Decomposition residual too large: TV={tv:.4f}, DE+IE+SE={de+ie+se:.4f}"
+        f"Decomposition residual too large: TV={tv:.4f}, DE+IE+SE={de + ie + se:.4f}"
     )
     assert decomp["decomposition_residual"] < 0.05
 
@@ -189,9 +187,7 @@ def test_ci_coverage_tv():
     tv = decomp["tv"]
     ci = decomp["tv_ci"]
     assert ci is not None, "tv_ci should not be None"
-    assert ci[0] <= tv <= ci[1], (
-        f"TV={tv:.4f} not in CI [{ci[0]:.4f}, {ci[1]:.4f}]"
-    )
+    assert ci[0] <= tv <= ci[1], f"TV={tv:.4f} not in CI [{ci[0]:.4f}, {ci[1]:.4f}]"
 
 
 def test_mediators_reduce_direct_effect():
@@ -221,16 +217,24 @@ def test_output_keys_present():
     assert "fairness_report" in result
     report = result["fairness_report"]
     required_keys = {
-        "decomposition", "counterfactual_fairness_satisfied",
-        "path_specific_fairness", "direct_discrimination",
-        "indirect_discrimination", "recommendation",
+        "decomposition",
+        "counterfactual_fairness_satisfied",
+        "path_specific_fairness",
+        "direct_discrimination",
+        "indirect_discrimination",
+        "recommendation",
     }
     assert required_keys.issubset(set(report.keys())), (
         f"Missing keys: {required_keys - set(report.keys())}"
     )
     decomp_keys = {
-        "tv", "direct_effect", "indirect_effect", "spurious_effect",
-        "decomposition_residual", "n_obs", "estimation_method",
+        "tv",
+        "direct_effect",
+        "indirect_effect",
+        "spurious_effect",
+        "decomposition_residual",
+        "n_obs",
+        "estimation_method",
     }
     assert decomp_keys.issubset(set(report["decomposition"].keys()))
 
@@ -239,9 +243,7 @@ def test_output_keys_present():
 # 8–12: Path-Specific Fairness tests
 # ---------------------------------------------------------------------------
 
-_GRAPH_WITH_MEDIATOR = (
-    "digraph { A -> M; A -> Y; M -> Y; X1 -> M; X1 -> Y; X2 -> Y }"
-)
+_GRAPH_WITH_MEDIATOR = "digraph { A -> M; A -> Y; M -> Y; X1 -> M; X1 -> Y; X2 -> Y }"
 _GRAPH_DIRECT_ONLY = "digraph { A -> Y; X1 -> Y; X2 -> Y }"
 
 
@@ -249,14 +251,17 @@ def test_path_classification_direct_is_unfair():
     """In a graph with A→Y, that path should be classified as unfair (no legitimate mediators)."""
     Y, A, X, _ = _biased_dataset(n=300, seed=7)
     state = _state(Y, A, X, graph_dot=_GRAPH_DIRECT_ONLY)
-    result = _run_psf(state, {
-        "graph_dot": _GRAPH_DIRECT_ONLY,
-        "protected_node": "A",
-        "outcome_node": "Y",
-        "legitimate_mediators": [],  # no legitimate mediators → direct A→Y is unfair
-        "effect_threshold": 0.5,  # high threshold so only checks classification, not magnitude
-        "__seed__": 7,
-    })
+    result = _run_psf(
+        state,
+        {
+            "graph_dot": _GRAPH_DIRECT_ONLY,
+            "protected_node": "A",
+            "outcome_node": "Y",
+            "legitimate_mediators": [],  # no legitimate mediators → direct A→Y is unfair
+            "effect_threshold": 0.5,  # high threshold so only checks classification, not magnitude
+            "__seed__": 7,
+        },
+    )
     pf = result["fairness_report"]["path_specific_fairness"]
     # Should have at least one path detected
     assert len(pf) > 0, "No paths found in path_specific_fairness"
@@ -270,15 +275,18 @@ def test_legitimate_mediator_path_is_fair():
     Y, A, X, M = _biased_dataset(n=300, mediator_effect=0.2, seed=8)
     assert M is not None
     state = _state(Y, A, X, M, graph_dot=_GRAPH_WITH_MEDIATOR)
-    result = _run_psf(state, {
-        "graph_dot": _GRAPH_WITH_MEDIATOR,
-        "protected_node": "A",
-        "outcome_node": "Y",
-        "legitimate_mediators": ["M"],   # M is legitimate
-        "effect_threshold": 0.05,
-        "mediator_node_names": ["M"],
-        "__seed__": 8,
-    })
+    result = _run_psf(
+        state,
+        {
+            "graph_dot": _GRAPH_WITH_MEDIATOR,
+            "protected_node": "A",
+            "outcome_node": "Y",
+            "legitimate_mediators": ["M"],  # M is legitimate
+            "effect_threshold": 0.05,
+            "mediator_node_names": ["M"],
+            "__seed__": 8,
+        },
+    )
     pf = result["fairness_report"]["path_specific_fairness"]
     # A → M → Y path should exist and be fair (M is legitimate)
     mediated_key = "A → M → Y"
@@ -292,14 +300,17 @@ def test_unfair_path_effect_positive():
     """Direct A→Y path in biased DGP should have |PSE| > 0."""
     Y, A, X, _ = _biased_dataset(n=400, direct_effect=0.4, seed=9)
     state = _state(Y, A, X, graph_dot=_GRAPH_DIRECT_ONLY)
-    result = _run_psf(state, {
-        "graph_dot": _GRAPH_DIRECT_ONLY,
-        "protected_node": "A",
-        "outcome_node": "Y",
-        "legitimate_mediators": [],
-        "effect_threshold": 0.01,  # very tight threshold
-        "__seed__": 9,
-    })
+    result = _run_psf(
+        state,
+        {
+            "graph_dot": _GRAPH_DIRECT_ONLY,
+            "protected_node": "A",
+            "outcome_node": "Y",
+            "legitimate_mediators": [],
+            "effect_threshold": 0.01,  # very tight threshold
+            "__seed__": 9,
+        },
+    )
     meta = result["fairness_report"]["metadata"]
     path_effects = meta.get("path_effects", {})
     assert len(path_effects) > 0, "No path effects computed"
@@ -313,28 +324,32 @@ def test_threshold_changes_verdict():
     """Very large threshold should classify all paths as fair."""
     Y, A, X, _ = _biased_dataset(n=300, direct_effect=0.3, seed=10)
     state = _state(Y, A, X, graph_dot=_GRAPH_DIRECT_ONLY)
-    result = _run_psf(state, {
-        "graph_dot": _GRAPH_DIRECT_ONLY,
-        "protected_node": "A",
-        "outcome_node": "Y",
-        "legitimate_mediators": [],
-        "effect_threshold": 100.0,  # unrealistically large → everything is "fair"
-        "__seed__": 10,
-    })
-    pf = result["fairness_report"]["path_specific_fairness"]
-    assert all(pf.values()), (
-        f"With threshold=100, all paths should be fair; got: {pf}"
+    result = _run_psf(
+        state,
+        {
+            "graph_dot": _GRAPH_DIRECT_ONLY,
+            "protected_node": "A",
+            "outcome_node": "Y",
+            "legitimate_mediators": [],
+            "effect_threshold": 100.0,  # unrealistically large → everything is "fair"
+            "__seed__": 10,
+        },
     )
+    pf = result["fairness_report"]["path_specific_fairness"]
+    assert all(pf.values()), f"With threshold=100, all paths should be fair; got: {pf}"
 
 
 def test_no_graph_fallback():
     """Without graph_dot, method should fall back gracefully to TV-style estimate."""
     Y, A, X, _ = _biased_dataset(n=300, seed=11)
-    result = _run_psf(_state(Y, A, X), {
-        "protected_node": "A",
-        "outcome_node": "Y",
-        "__seed__": 11,
-    })
+    result = _run_psf(
+        _state(Y, A, X),
+        {
+            "protected_node": "A",
+            "outcome_node": "Y",
+            "__seed__": 11,
+        },
+    )
     assert "fairness_report" in result
     # Should have at least one path verdict
     pf = result["fairness_report"]["path_specific_fairness"]
@@ -351,9 +366,7 @@ def test_cf_gap_near_zero_when_fair():
     Y, A, X, _ = _biased_dataset(n=400, direct_effect=0.0, seed=12)
     result = _run_cf(_state(Y, A, X), {"__seed__": 12})
     gap = result["fairness_report"]["metadata"]["counterfactual_gap"]
-    assert gap < 0.3, (
-        f"Expected small gap for unbiased DGP; got gap={gap:.4f}"
-    )
+    assert gap < 0.3, f"Expected small gap for unbiased DGP; got gap={gap:.4f}"
 
 
 def test_cf_gap_positive_when_biased():
@@ -361,18 +374,19 @@ def test_cf_gap_positive_when_biased():
     Y, A, X, _ = _biased_dataset(n=400, direct_effect=1.0, seed=13)
     result = _run_cf(_state(Y, A, X), {"__seed__": 13})
     gap = result["fairness_report"]["metadata"]["counterfactual_gap"]
-    assert gap > 0.05, (
-        f"Expected gap > 0.05 for direct_effect=1.0; got gap={gap:.4f}"
-    )
+    assert gap > 0.05, f"Expected gap > 0.05 for direct_effect=1.0; got gap={gap:.4f}"
 
 
 def test_cf_fair_field_true_when_unbiased():
     """counterfactual_fairness_satisfied=True when A has no effect."""
     Y, A, X, _ = _biased_dataset(n=500, direct_effect=0.0, seed=14)
-    result = _run_cf(_state(Y, A, X), {
-        "counterfactual_gap_threshold": 0.5,  # generous threshold
-        "__seed__": 14,
-    })
+    result = _run_cf(
+        _state(Y, A, X),
+        {
+            "counterfactual_gap_threshold": 0.5,  # generous threshold
+            "__seed__": 14,
+        },
+    )
     assert result["fairness_report"]["counterfactual_fairness_satisfied"] is True, (
         "Expected counterfactual fairness satisfied for zero-effect DGP"
     )
@@ -381,10 +395,13 @@ def test_cf_fair_field_true_when_unbiased():
 def test_cf_fair_field_false_when_biased():
     """counterfactual_fairness_satisfied=False when A has large direct effect."""
     Y, A, X, _ = _biased_dataset(n=500, direct_effect=2.0, seed=15)
-    result = _run_cf(_state(Y, A, X), {
-        "counterfactual_gap_threshold": 0.01,  # tight threshold
-        "__seed__": 15,
-    })
+    result = _run_cf(
+        _state(Y, A, X),
+        {
+            "counterfactual_gap_threshold": 0.01,  # tight threshold
+            "__seed__": 15,
+        },
+    )
     assert result["fairness_report"]["counterfactual_fairness_satisfied"] is False, (
         "Expected counterfactual fairness NOT satisfied for large-effect DGP"
     )

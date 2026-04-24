@@ -4,11 +4,12 @@ Static type checker for method slots (runs BEFORE JAX compilation).
 This module implements Law F: all slot compatibility checks happen in Python,
 operating on SlotSpec metadata only. No JAX arrays or compilation involved.
 """
+
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Sequence
 
 from polisyos.foundry.methods.base import DimVar, SlotSpec, SlotType, Unit
 
@@ -285,9 +286,7 @@ def check_slot_compatibility(
             source_slot=source,
             target_slot=target,
             reason=IncompatibilityReason.CONTRACT_MISMATCH,
-            warnings=(
-                f"Contract mismatch: {source.contract_id!r} -> {target.contract_id!r}",
-            ),
+            warnings=(f"Contract mismatch: {source.contract_id!r} -> {target.contract_id!r}",),
         )
 
     # -------------------------------------------------------------------------
@@ -607,8 +606,7 @@ def _check_shapes_broadcast_to(
             return BroadcastResult(
                 can_broadcast=False,
                 reason=(
-                    f"Dimension mismatch at axis -{i + 1}: {src_dim} -> {tgt_dim} "
-                    "(source not 1)"
+                    f"Dimension mismatch at axis -{i + 1}: {src_dim} -> {tgt_dim} (source not 1)"
                 ),
             )
 
@@ -715,16 +713,8 @@ def _check_bounds_overlap(
                 message=f"No bounds overlap: source max ({src_max}) < target min ({tgt_min})",
             )
 
-    min_contained = (
-        tgt_min is None
-        or src_min is None
-        or src_min >= tgt_min
-    )
-    max_contained = (
-        tgt_max is None
-        or src_max is None
-        or src_max <= tgt_max
-    )
+    min_contained = tgt_min is None or src_min is None or src_min >= tgt_min
+    max_contained = tgt_max is None or src_max is None or src_max <= tgt_max
 
     if min_contained and max_contained:
         return BoundsResult(has_overlap=True)

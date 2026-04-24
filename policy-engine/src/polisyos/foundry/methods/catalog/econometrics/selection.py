@@ -1,7 +1,9 @@
 """Estimate sample-selection and limited-dependent-variable econometric models."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -29,7 +31,7 @@ def _normal_cdf(z: np.ndarray) -> np.ndarray:
 
 
 def _normal_pdf(z: np.ndarray) -> np.ndarray:
-    return np.exp(-0.5 * z ** 2) / np.sqrt(2.0 * np.pi)
+    return np.exp(-0.5 * z**2) / np.sqrt(2.0 * np.pi)
 
 
 @foundry_method(
@@ -39,6 +41,7 @@ def _normal_pdf(z: np.ndarray) -> np.ndarray:
 )
 class HeckmanSelectionEstimator:
     """Correct sample-selection bias with a Heckman two-step model; avoid weak exclusion variables or non-normal selection errors."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -48,10 +51,22 @@ class HeckmanSelectionEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X_outcome", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "k_outcome")),
-                SlotSpec("X_selection", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "k_selection")),
+                SlotSpec(
+                    "X_outcome",
+                    SlotType.MATRIX,
+                    Unit("covariate", "value"),
+                    shape=("n_obs", "k_outcome"),
+                ),
+                SlotSpec(
+                    "X_selection",
+                    SlotType.MATRIX,
+                    Unit("covariate", "value"),
+                    shape=("n_obs", "k_selection"),
+                ),
                 SlotSpec("y", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("selected", SlotType.VECTOR, Unit("indicator", "binary"), shape=("n_obs",)),
+                SlotSpec(
+                    "selected", SlotType.VECTOR, Unit("indicator", "binary"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -67,7 +82,9 @@ class HeckmanSelectionEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Heckman two-step selection model (Heckit).",
         tags=frozenset({"econometrics", "selection", "heckman", "heckit", "cross-section"}),
-        citations=("Heckman, J.J. (1979). Sample Selection Bias as a Specification Error. Econometrica.",),
+        citations=(
+            "Heckman, J.J. (1979). Sample Selection Bias as a Specification Error. Econometrica.",
+        ),
         equations={
             "step1": "Probit: P(selected=1|Z) = Phi(Z*gamma)",
             "step2": "OLS: y = X*beta + rho*sigma*lambda(Z*gamma) + e",
@@ -134,6 +151,7 @@ class HeckmanSelectionEstimator:
 )
 class TobitEstimator:
     """Estimate censored outcomes under a latent-normal Tobit model; avoid truncation designs that need a different likelihood."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -143,14 +161,14 @@ class TobitEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
                 SlotSpec("y", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="lower_bound", default=0.0),
-        ),
+        parameters=(ParameterSpec(name="lower_bound", default=0.0),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -162,7 +180,9 @@ class TobitEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Tobit type I model for left-censored data.",
         tags=frozenset({"econometrics", "selection", "tobit", "censored", "cross-section"}),
-        citations=("Tobin, J. (1958). Estimation of Relationships for Limited Dependent Variables. Econometrica.",),
+        citations=(
+            "Tobin, J. (1958). Estimation of Relationships for Limited Dependent Variables. Econometrica.",
+        ),
         equations={"tobit": "y* = X*beta + e; y = max(y*, c)"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -209,6 +229,7 @@ class TobitEstimator:
 )
 class TruncatedRegressionEstimator:
     """Estimate outcomes observed only within a truncation region; avoid censoring cases where boundary values are observed."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -218,14 +239,14 @@ class TruncatedRegressionEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
                 SlotSpec("y", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="lower_bound", default=0.0),
-        ),
+        parameters=(ParameterSpec(name="lower_bound", default=0.0),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -237,7 +258,9 @@ class TruncatedRegressionEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Truncated regression model (only observe y > threshold).",
         tags=frozenset({"econometrics", "selection", "truncated", "cross-section"}),
-        equations={"truncated": "E[y|y>c] = X*beta + sigma * phi(a)/Phi(a), a = (c - X*beta)/sigma"},
+        equations={
+            "truncated": "E[y|y>c] = X*beta + sigma * phi(a)/Phi(a), a = (c - X*beta)/sigma"
+        },
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
         when_to_use="Sample truncated at a threshold so observations below the cutoff are entirely absent from data",

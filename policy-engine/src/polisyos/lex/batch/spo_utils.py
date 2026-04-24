@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
-from typing import Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from polisyos.common.logger import get_logger
 from polisyos.lex.batch.canonicalizers import (
@@ -13,9 +13,13 @@ from polisyos.lex.batch.canonicalizers import (
     canonicalize_norm_type,
     extract_thresholds_from_text,
 )
-from polisyos.lex.batch.structurer import ProvisionSpan
-from polisyos.lex.batch.xml_parser import NPADocument
 from polisyos.lex.knowledge.types import SPOCandidate
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from polisyos.lex.batch.structurer import ProvisionSpan
+    from polisyos.lex.batch.xml_parser import NPADocument
 
 logger = get_logger(__name__)
 _GroupedItemT = TypeVar("_GroupedItemT")
@@ -76,6 +80,9 @@ def _is_json_mode_invalid_request(status: int, body: str) -> bool:
     err_type = str(err.get("type") or "").strip().lower()
     err_code = str(err.get("code") or "").strip().lower()
     return err_type == "invalid_request_error" and err_code == "invalid_request"
+
+
+is_json_mode_invalid_request = _is_json_mode_invalid_request
 
 
 def _parse_spo_statements(raw_data: dict[str, Any] | None) -> list[SPOCandidate]:
@@ -192,24 +199,44 @@ def _normalize_provider_statement(stmt: dict[str, Any]) -> dict[str, Any]:
     thresholds = payload.get("thresholds")
     if not isinstance(thresholds, list):
         thresholds = []
-    payload["thresholds"] = [_normalize_threshold_item(item) for item in thresholds if isinstance(item, dict)]
+    payload["thresholds"] = [
+        _normalize_threshold_item(item) for item in thresholds if isinstance(item, dict)
+    ]
 
     if not isinstance(payload.get("links"), list):
         payload["links"] = []
 
     subject_uk = str(payload.get("subject_uk") or "").strip()
     object_uk = str(payload.get("object_uk") or "").strip()
-    payload["subject_en"] = str(payload.get("subject_en") or payload.get("actor_en") or subject_uk or "unknown_subject")
+    payload["subject_en"] = str(
+        payload.get("subject_en") or payload.get("actor_en") or subject_uk or "unknown_subject"
+    )
     payload["subject_uk"] = subject_uk or payload["subject_en"]
-    payload["object_en"] = str(payload.get("object_en") or payload.get("target_en") or object_uk or "unknown_object")
+    payload["object_en"] = str(
+        payload.get("object_en") or payload.get("target_en") or object_uk or "unknown_object"
+    )
     payload["object_uk"] = object_uk or payload["object_en"]
 
-    payload["predicate"] = str(payload.get("predicate") or payload.get("action_canon") or payload.get("action_raw") or "requires")
-    payload["norm_type"] = str(payload.get("norm_type") or payload.get("norm_type_canon") or payload.get("norm_type_raw") or "obligation")
+    payload["predicate"] = str(
+        payload.get("predicate")
+        or payload.get("action_canon")
+        or payload.get("action_raw")
+        or "requires"
+    )
+    payload["norm_type"] = str(
+        payload.get("norm_type")
+        or payload.get("norm_type_canon")
+        or payload.get("norm_type_raw")
+        or "obligation"
+    )
 
     fact_text = payload.get("fact_text")
     if not isinstance(fact_text, str) or not fact_text.strip():
-        fact_text = payload.get("fact_text_en") or payload.get("fact_text_uk") or payload.get("source_quote_uk")
+        fact_text = (
+            payload.get("fact_text_en")
+            or payload.get("fact_text_uk")
+            or payload.get("source_quote_uk")
+        )
     if not isinstance(fact_text, str) or not fact_text.strip():
         fact_text = f"{payload['subject_uk']} {payload['predicate']} {payload['object_uk']}".strip()
     payload["fact_text"] = fact_text
@@ -392,7 +419,9 @@ def _usage_counts(resp: dict[str, Any]) -> tuple[int, int, float, float, float]:
     return prompt, completion, cost_base, cost_platform, total
 
 
-def _normalize_statements(statements: list[SPOCandidate]) -> tuple[list[SPOCandidate], list[str], dict[str, int]]:
+def _normalize_statements(
+    statements: list[SPOCandidate],
+) -> tuple[list[SPOCandidate], list[str], dict[str, int]]:
     normalized: list[SPOCandidate] = []
     reasons: list[str] = []
     stats = {
@@ -462,7 +491,11 @@ def _normalize_statements(statements: list[SPOCandidate]) -> tuple[list[SPOCandi
             stats["oov_norm_type"] += 1
             reasons.append("oov_norm_type")
 
-        if not stmt.source_quote_uk.strip() or stmt.source_quote_start is None or stmt.source_quote_end is None:
+        if (
+            not stmt.source_quote_uk.strip()
+            or stmt.source_quote_start is None
+            or stmt.source_quote_end is None
+        ):
             stats["missing_quote"] += 1
             reasons.append("missing_quote")
 
@@ -581,8 +614,12 @@ def _group_items_by_request_budget(
         )
         effective_group_cap = min(current_item_cap, item_cap) if current else item_cap
         would_overflow_items = bool(current and len(current) >= effective_group_cap)
-        would_overflow_soft_chars = bool(current and soft_chars > 0 and current_chars + item_chars > soft_chars)
-        would_overflow_hard_chars = bool(current and max_chars > 0 and current_chars + item_chars > max_chars)
+        would_overflow_soft_chars = bool(
+            current and soft_chars > 0 and current_chars + item_chars > soft_chars
+        )
+        would_overflow_hard_chars = bool(
+            current and max_chars > 0 and current_chars + item_chars > max_chars
+        )
         if would_overflow_items or would_overflow_soft_chars or would_overflow_hard_chars:
             groups.append(current)
             current = []
@@ -639,7 +676,7 @@ def _materialize_fallback_row(
         )
     else:
         if base_source.endswith("timeout_fallback"):
-            row["extraction_source"] = f"{base_source[:-len('timeout_fallback')]}error_fallback"
+            row["extraction_source"] = f"{base_source[: -len('timeout_fallback')]}error_fallback"
         elif base_source.endswith("error_fallback"):
             row["extraction_source"] = base_source
         else:
@@ -666,11 +703,19 @@ def _statement_merge_key(statement: Any) -> tuple[Any, ...] | None:
         return None
     thresholds = payload.get("thresholds")
     links = payload.get("links")
-    thresholds_key = json.dumps(thresholds if isinstance(thresholds, list) else [], ensure_ascii=False, sort_keys=True)
-    links_key = json.dumps(links if isinstance(links, list) else [], ensure_ascii=False, sort_keys=True)
+    thresholds_key = json.dumps(
+        thresholds if isinstance(thresholds, list) else [], ensure_ascii=False, sort_keys=True
+    )
+    links_key = json.dumps(
+        links if isinstance(links, list) else [], ensure_ascii=False, sort_keys=True
+    )
     return (
-        _normalize_merge_text(payload.get("action_canon") or payload.get("predicate") or payload.get("action_raw")),
-        _normalize_merge_text(payload.get("fact_text_en") or payload.get("fact_text") or payload.get("fact_text_uk")),
+        _normalize_merge_text(
+            payload.get("action_canon") or payload.get("predicate") or payload.get("action_raw")
+        ),
+        _normalize_merge_text(
+            payload.get("fact_text_en") or payload.get("fact_text") or payload.get("fact_text_uk")
+        ),
         _normalize_merge_text(payload.get("temporal_text_uk")),
         _normalize_merge_text(payload.get("condition_text_uk")),
         thresholds_key,
@@ -801,4 +846,5 @@ __all__ = [
     "_statement_as_dict",
     "_statement_merge_key",
     "_usage_counts",
+    "is_json_mode_invalid_request",
 ]

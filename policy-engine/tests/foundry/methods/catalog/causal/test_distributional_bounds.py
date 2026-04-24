@@ -4,10 +4,10 @@ import pytest
 
 from polisyos.foundry.methods.catalog.causal.distributional_bounds import (
     ATKINSON_POSITIVITY_WARNING,
-    DistributionalBoundsEngineMethod,
     GINI_UNIFORM_CERTIFICATE_WARNING,
     POINTWISE_NON_UNIFORM_WARNING,
     STOCHASTIC_DOMINANCE_OUTER_WARNING,
+    DistributionalBoundsEngineMethod,
     lee_trimming_distributional_bounds,
     makarov_distributional_bounds,
     mtr_atkinson_distributional_bounds,
@@ -20,8 +20,8 @@ from polisyos.foundry.methods.catalog.causal.distributional_bounds import (
 from polisyos.ir.analytics.distributional import (
     DistributionalBoundsBundle,
     DistributionalBoundUniformity,
-    DistributionalFunctional,
     DistributionalDualCertificate,
+    DistributionalFunctional,
 )
 
 

@@ -10,7 +10,7 @@ susceptibility.  Does NOT produce welfare estimates.
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
@@ -104,11 +104,11 @@ class Level2CausalPlausibility(FunnelStage):
 
     def evaluate(
         self,
-        candidate: Dict[str, Any],
-        context: Dict[str, Any],
+        candidate: dict[str, Any],
+        context: dict[str, Any],
     ) -> FunnelStageResult:
         start = datetime.now(UTC)
-        cards: List[TypedFailureCard] = []
+        cards: list[TypedFailureCard] = []
         self._last_identification_artifacts = {}
         self._last_identification_audit_refs = []
 
@@ -143,7 +143,9 @@ class Level2CausalPlausibility(FunnelStage):
         # 3. Positivity / overlap risk
         if graph is not None:
             positivity_risk = self._estimate_positivity_risk(
-                candidate, graph, context,
+                candidate,
+                graph,
+                context,
             )
 
         # 4. Fast proxy estimation (association detection)
@@ -152,7 +154,9 @@ class Level2CausalPlausibility(FunnelStage):
         # 5. Transport / missingness compatibility
         if graph is not None:
             t_risk, t_cards = self._check_transport_compatibility(
-                graph, candidate, context_for_validation,
+                graph,
+                candidate,
+                context_for_validation,
             )
             transportability_risk = max(transportability_risk, t_risk)
             cards.extend(t_cards)
@@ -261,10 +265,10 @@ class Level2CausalPlausibility(FunnelStage):
         graph: Any,
         treatment: frozenset[str],
         outcome: frozenset[str],
-        context: Dict[str, Any],
-    ) -> tuple[float, List[TypedFailureCard]]:
+        context: dict[str, Any],
+    ) -> tuple[float, list[TypedFailureCard]]:
         """Run symbolic ID algorithm and map status to score."""
-        cards: List[TypedFailureCard] = []
+        cards: list[TypedFailureCard] = []
         try:
             from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 
@@ -315,8 +319,8 @@ class Level2CausalPlausibility(FunnelStage):
                     )
                     audit_refs.append(negative_ref)
                 if bounds_ref is not None:
-                    self._last_identification_artifacts["bounds_bundle_ref"] = bounds_ref.model_dump(
-                        mode="json"
+                    self._last_identification_artifacts["bounds_bundle_ref"] = (
+                        bounds_ref.model_dump(mode="json")
                     )
                     audit_refs.append(bounds_ref)
                 self._last_identification_audit_refs = audit_refs
@@ -416,7 +420,7 @@ class Level2CausalPlausibility(FunnelStage):
         return _to_artifact_ref(ref)
 
     @staticmethod
-    def _coerce_context_data(context: Dict[str, Any]) -> dict[str, Any] | None:
+    def _coerce_context_data(context: dict[str, Any]) -> dict[str, Any] | None:
         data = context.get("data")
         if isinstance(data, dict):
             return dict(data)
@@ -481,7 +485,7 @@ class Level2CausalPlausibility(FunnelStage):
         return None
 
     @staticmethod
-    def _infer_sample_size(context: Dict[str, Any]) -> int | None:
+    def _infer_sample_size(context: dict[str, Any]) -> int | None:
         """Infer sample size from context data or explicit metadata."""
         explicit = context.get("sample_size")
         if explicit is not None:
@@ -498,11 +502,11 @@ class Level2CausalPlausibility(FunnelStage):
             if key is None:
                 continue
             try:
-                return int(len(data[key]))
+                return len(data[key])
             except _LEVEL2_CAUSAL_RUNTIME_ERRORS:
                 continue
         try:
-            return int(len(data))
+            return len(data)
         except _LEVEL2_CAUSAL_RUNTIME_ERRORS:
             return None
 
@@ -511,9 +515,9 @@ class Level2CausalPlausibility(FunnelStage):
         graph: Any,
         treatment: frozenset[str],
         outcome: frozenset[str],
-    ) -> List[TypedFailureCard]:
+    ) -> list[TypedFailureCard]:
         """Check whether admissible adjustment sets exist."""
-        cards: List[TypedFailureCard] = []
+        cards: list[TypedFailureCard] = []
         try:
             from polisyos.foundry.methods.catalog.causal.admg_ops import (
                 ancestors,
@@ -523,9 +527,7 @@ class Level2CausalPlausibility(FunnelStage):
             # Simple backdoor criterion check: does conditioning on
             # non-descendants of treatment block all backdoor paths?
             # Candidate adjustment set: ancestors of outcome minus treatment.
-            potential_adjustments = (
-                ancestors(graph, outcome, include_self=False) - treatment
-            )
+            potential_adjustments = ancestors(graph, outcome, include_self=False) - treatment
 
             # Check if any subset achieves m-separation.
             # We try the full potential adjustment set first (greedy).
@@ -543,13 +545,11 @@ class Level2CausalPlausibility(FunnelStage):
                             failure_type="no_adjustment_set",
                             severity="warning",
                             description=(
-                                "No simple adjustment set found that blocks "
-                                "all backdoor paths."
+                                "No simple adjustment set found that blocks all backdoor paths."
                             ),
                             uncertainty_type=UncertaintyType.STRUCTURAL,
                             remediation_hint=(
-                                "Consider instrumental variables or front-door "
-                                "criterion."
+                                "Consider instrumental variables or front-door criterion."
                             ),
                         )
                     )
@@ -567,9 +567,9 @@ class Level2CausalPlausibility(FunnelStage):
 
     def _estimate_positivity_risk(
         self,
-        candidate: Dict[str, Any],
+        candidate: dict[str, Any],
         graph: Any,
-        context: Dict[str, Any],
+        context: dict[str, Any],
     ) -> float:
         """Estimate positivity/overlap risk.
 
@@ -579,10 +579,13 @@ class Level2CausalPlausibility(FunnelStage):
         # Structural estimate: more bidirected edges → higher risk.
         try:
             bidirected_count = sum(
-                1 for e in graph.edges
+                1
+                for e in graph.edges
                 if getattr(e, "edge_type", None) == "bidirected"
-                or (getattr(e, "source_mark", None) == "ARROW"
-                    and getattr(e, "target_mark", None) == "ARROW")
+                or (
+                    getattr(e, "source_mark", None) == "ARROW"
+                    and getattr(e, "target_mark", None) == "ARROW"
+                )
             )
             structural_risk = min(1.0, bidirected_count * 0.15)
         except _LEVEL2_CAUSAL_RUNTIME_ERRORS:
@@ -630,8 +633,8 @@ class Level2CausalPlausibility(FunnelStage):
 
     @staticmethod
     def _fast_proxy_estimate(
-        candidate: Dict[str, Any],
-        context: Dict[str, Any],
+        candidate: dict[str, Any],
+        context: dict[str, Any],
     ) -> float:
         """Run a fast association test (difference-in-means) on a subsample.
 
@@ -679,11 +682,11 @@ class Level2CausalPlausibility(FunnelStage):
     def _check_transport_compatibility(
         self,
         graph: Any,
-        candidate: Dict[str, Any],
-        context: Dict[str, Any],
-    ) -> tuple[float, List[TypedFailureCard]]:
+        candidate: dict[str, Any],
+        context: dict[str, Any],
+    ) -> tuple[float, list[TypedFailureCard]]:
         """Check transport and missingness compatibility via query validator."""
-        cards: List[TypedFailureCard] = []
+        cards: list[TypedFailureCard] = []
         risk = 0.0
 
         if self._query_validator is None:
@@ -708,7 +711,9 @@ class Level2CausalPlausibility(FunnelStage):
                     cards.append(
                         TypedFailureCard(
                             judge_name="L2_causal",
-                            failure_type=f"validation_{err.code}" if hasattr(err, "code") else "validation_error",
+                            failure_type=f"validation_{err.code}"
+                            if hasattr(err, "code")
+                            else "validation_error",
                             severity="warning",
                             description=str(err.message) if hasattr(err, "message") else str(err),
                             uncertainty_type=UncertaintyType.TRANSPORT,
@@ -733,17 +738,20 @@ class Level2CausalPlausibility(FunnelStage):
     @staticmethod
     def _check_refutation_susceptibility(
         graph: Any,
-    ) -> List[TypedFailureCard]:
+    ) -> list[TypedFailureCard]:
         """Flag structural features indicating high refutation susceptibility."""
-        cards: List[TypedFailureCard] = []
+        cards: list[TypedFailureCard] = []
 
         try:
             # Count bidirected edges (unmeasured confounding).
             bidirected_count = sum(
-                1 for e in graph.edges
+                1
+                for e in graph.edges
                 if getattr(e, "edge_type", None) == "bidirected"
-                or (getattr(e, "source_mark", None) == "ARROW"
-                    and getattr(e, "target_mark", None) == "ARROW")
+                or (
+                    getattr(e, "source_mark", None) == "ARROW"
+                    and getattr(e, "target_mark", None) == "ARROW"
+                )
             )
 
             if bidirected_count > 3:
@@ -758,8 +766,7 @@ class Level2CausalPlausibility(FunnelStage):
                         ),
                         uncertainty_type=UncertaintyType.STRUCTURAL,
                         remediation_hint=(
-                            "Consider sensitivity analysis or collect "
-                            "additional covariates."
+                            "Consider sensitivity analysis or collect additional covariates."
                         ),
                     )
                 )
@@ -774,7 +781,7 @@ class Level2CausalPlausibility(FunnelStage):
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _resolve_graph(candidate: Dict[str, Any]) -> Any | None:
+    def _resolve_graph(candidate: dict[str, Any]) -> Any | None:
         """Extract or construct a CausalGraphModel from the candidate."""
         # Direct graph reference.
         graph = candidate.get("causal_graph")
@@ -791,7 +798,7 @@ class Level2CausalPlausibility(FunnelStage):
 
     @staticmethod
     def _resolve_treatment_outcome(
-        candidate: Dict[str, Any],
+        candidate: dict[str, Any],
     ) -> tuple[frozenset[str], frozenset[str]]:
         """Extract treatment and outcome variable sets from the candidate."""
         semantic = candidate.get("semantic", {})

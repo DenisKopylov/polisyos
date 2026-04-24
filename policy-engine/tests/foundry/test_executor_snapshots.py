@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import hashlib
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pytest
@@ -13,18 +13,21 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.foundry._executor_models import load_model
 from polisyos.foundry._executor_snapshots import (
-    _SnapshotLeaf,
     _build_dataclass,
     _dataclass_type_hints,
     _decode_snapshot_leaf,
     _flatten_state,
     _nest_state,
     _nest_state_from_keys,
+    _SnapshotLeaf,
     _validate_snapshot_blob,
     load_state_snapshot,
     put_state_snapshot,
 )
 from polisyos.foundry.contracts.state import GlobalState
+
+if TYPE_CHECKING:
+    MissingSnapshotType = Any
 
 
 @dataclasses.dataclass(frozen=True)
@@ -41,13 +44,13 @@ class _ForwardChild:
 
 @dataclasses.dataclass(frozen=True)
 class _ForwardParent:
-    child: "_ForwardChild"
+    child: _ForwardChild
     count: int
 
 
 @dataclasses.dataclass(frozen=True)
 class _UnresolvedAnnotation:
-    value: "MissingSnapshotType"
+    value: MissingSnapshotType
 
 
 def test_snapshot_metadata_includes_version_checksum_and_entry_count(tmp_path) -> None:
@@ -92,8 +95,7 @@ def test_put_state_snapshot_does_not_publish_snapshot_when_blob_not_visible(
         put_state_snapshot(store, state=GlobalState.empty(n_agents=1, n_firms=1), step=0)
 
     persisted_kinds = [
-        store.get_manifest(artifact_id).kind
-        for artifact_id in store.iter_artifact_ids()
+        store.get_manifest(artifact_id).kind for artifact_id in store.iter_artifact_ids()
     ]
     assert "foundry.state_snapshot" not in persisted_kinds
 

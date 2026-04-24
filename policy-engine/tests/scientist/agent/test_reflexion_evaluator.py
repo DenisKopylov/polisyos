@@ -132,8 +132,7 @@ def test_evaluate_reflexion_replay_cases_reports_improvement_and_repeated_errors
                     ReflexionTrajectoryStep(
                         iteration=2,
                         output_text=(
-                            "Policy answer with cited evidence "
-                            "https://example.org/report"
+                            "Policy answer with cited evidence https://example.org/report"
                         ),
                         citations=[
                             {

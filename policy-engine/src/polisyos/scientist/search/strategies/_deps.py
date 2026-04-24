@@ -73,4 +73,3 @@ def require_botorch() -> None:
             "BoTorch/GPyTorch is required for Bayesian strategies. "
             "Install extra dependency 'search_bo'."
         ) from BOTORCH_IMPORT_ERROR
-

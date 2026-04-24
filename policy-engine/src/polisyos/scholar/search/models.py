@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
@@ -92,7 +92,7 @@ class QueryGraph(BaseModel):
     brief: ResearchBrief
     nodes: list[QueryNode] = Field(default_factory=list)
     root_node_ids: list[str] = Field(default_factory=list)
-    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     def node_by_id(self, node_id: str) -> QueryNode:
         for node in self.nodes:
@@ -127,7 +127,7 @@ class FetchResult(BaseModel):
     title: str = ""
     text: str = ""
     content_type: str = "application/octet-stream"
-    fetched_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    fetched_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     status: Literal["ok", "cached", "blocked", "error"] = "ok"
     content_sha256: str | None = None
     etag: str | None = None
@@ -191,7 +191,7 @@ class SearchQueryTrace(BaseModel):
     perspective: str
     provider: str
     hit_count: int = Field(default=0, ge=0)
-    searched_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    searched_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     error: str | None = None
 
 
@@ -223,7 +223,7 @@ class WebEvidenceBundle(BaseModel):
     snippets: list[SourceSnippet] = Field(default_factory=list)
     claim_supports: list[ClaimSupportLink] = Field(default_factory=list)
     uncertainty_notes: list[str] = Field(default_factory=list)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     partial: bool = False
     checkpoint_artifact_id: str | None = None
 
@@ -237,7 +237,7 @@ class ResearchProgressEvent(BaseModel):
     phase: str
     message: str
     progress: float = Field(default=0.0, ge=0.0, le=1.0)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     checkpoint_artifact_id: str | None = None
 
 
@@ -255,7 +255,7 @@ class ResearchJobCheckpoint(BaseModel):
     bundle: WebEvidenceBundle
     progress_events: list[ResearchProgressEvent] = Field(default_factory=list)
     error: str | None = None
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class ResearchJobStatus(BaseModel):
@@ -269,7 +269,7 @@ class ResearchJobStatus(BaseModel):
     latest_event: ResearchProgressEvent | None = None
     result_bundle: WebEvidenceBundle | None = None
     error: str | None = None
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 __all__ = [

@@ -4,6 +4,7 @@ Configuration models for schema inference.
 Contains Pydantic models that control inference behavior and
 user-provided hints to guide the inference process.
 """
+
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field

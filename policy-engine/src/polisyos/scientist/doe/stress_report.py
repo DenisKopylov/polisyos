@@ -1,4 +1,5 @@
 """Public doe stress report module API."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -8,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class VulnerabilityType(str, Enum):
     """Vulnerability type public type."""
+
     CONSTRAINT_VIOLATION = "constraint_violation"
     NUMERICAL_INSTABILITY = "numerical_instability"
     OBJECTIVE_COLLAPSE = "objective_collapse"
@@ -20,6 +22,7 @@ class VulnerabilityType(str, Enum):
 
 class Vulnerability(BaseModel):
     """Vulnerability public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     vulnerability_id: str
@@ -35,6 +38,7 @@ class Vulnerability(BaseModel):
 
 class StressTestReport(BaseModel):
     """Summary of vulnerabilities, worst cases, and scenario evidence from adversarial stress testing."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = "1.0"
@@ -53,6 +57,14 @@ class StressTestReport(BaseModel):
     medium_count: int = 0
 
     robustness_score: float | None = None
+    set_adequacy_status: str | None = None
+    coverage_empirical: float | None = Field(default=None, ge=0.0, le=1.0)
+    coverage_target: float | None = Field(default=None, ge=0.0, le=1.0)
+    inflation_mean: float | None = None
+    inflation_budget: float | None = Field(default=None, ge=0.0)
+    frontier_knee_rho: float | None = Field(default=None, ge=0.0)
+    undercoverage_vulnerability: Vulnerability | None = None
+    overconservatism_vulnerability: Vulnerability | None = None
     decision_packet_ref: str | None = None
     cas_artifact_id: str | None = None
     metadata: dict[str, object] = Field(default_factory=dict)

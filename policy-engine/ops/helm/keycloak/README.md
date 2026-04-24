@@ -15,14 +15,14 @@ Baseline chart для Keycloak (OIDC identity provider) в PolicyOS.
 
 ## Основные values
 
-| Value | По умолчанию | Назначение |
-|---|---|---|
-| `namespace` | `infra` | namespace установки |
-| `replicas` | `1` | количество pod'ов |
-| `image` | `quay.io/keycloak/keycloak:26.0.7` | образ Keycloak |
-| `service.port` | `8080` | HTTP-порт |
-| `admin.username` / `admin.password` | `admin` / `change-me` | bootstrap admin credential |
-| `resources.*` | preset | requests/limits |
+| Value                               | По умолчанию                       | Назначение                 |
+| ----------------------------------- | ---------------------------------- | -------------------------- |
+| `namespace`                         | `infra`                            | namespace установки        |
+| `replicas`                          | `1`                                | количество pod'ов          |
+| `image`                             | `quay.io/keycloak/keycloak:26.0.7` | образ Keycloak             |
+| `service.port`                      | `8080`                             | HTTP-порт                  |
+| `admin.username` / `admin.password` | `admin` / `change-me`              | bootstrap admin credential |
+| `resources.*`                       | preset                             | requests/limits            |
 
 ## Ограничения baseline
 

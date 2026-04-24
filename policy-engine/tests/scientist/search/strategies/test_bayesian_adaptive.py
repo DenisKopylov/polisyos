@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any
-
 import pytest
 
 from polisyos.scientist.search.strategies.bayesian import BayesianConfig, BayesianOptimizer
@@ -12,9 +9,7 @@ from polisyos.scientist.search.strategies.types import (
     AcquisitionType,
     Evaluation,
     EvaluationStatus,
-    PolicyCandidate,
 )
-
 
 # ---------------------------------------------------------------------------
 # Config
@@ -55,15 +50,17 @@ class TestAdaptiveAcquisition:
         """Create mock evaluations with given scores."""
         evals = []
         for i, score in enumerate(scores):
-            evals.append(Evaluation(
-                candidate_id=f"c{i}",
-                params={"x": float(i)},
-                params_normalized=(float(i) / max(1, len(scores)),),
-                objectives=[],
-                scalar_score=score,
-                stage_a_passed=True,
-                status=EvaluationStatus.SUCCESS,
-            ))
+            evals.append(
+                Evaluation(
+                    candidate_id=f"c{i}",
+                    params={"x": float(i)},
+                    params_normalized=(float(i) / max(1, len(scores)),),
+                    objectives=[],
+                    scalar_score=score,
+                    stage_a_passed=True,
+                    status=EvaluationStatus.SUCCESS,
+                )
+            )
         return evals
 
     def test_adaptive_off_returns_config(self):

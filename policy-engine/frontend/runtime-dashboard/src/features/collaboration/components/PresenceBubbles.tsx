@@ -60,7 +60,7 @@ function AvatarBubble({
           {/* Online indicator */}
           <span
             className={cn(
-              "absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-neutral-900",
+              "absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-neutral-900",
               participant.isOnline ? "bg-emerald-500" : "bg-neutral-400",
             )}
           />

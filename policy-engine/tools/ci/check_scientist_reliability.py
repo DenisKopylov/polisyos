@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Assemble the Scientist Gate 2 reliability scorecard from CI evidence."""
+
 from __future__ import annotations
 
 import argparse
@@ -109,7 +110,9 @@ def _scorecard_result(payload: dict[str, object]) -> ToolResult:
     )
     messages = tuple(
         ToolMessage(
-            level="error" if failure.startswith(("scenario_missing", "benchmark_missing", "operational_gap")) else "warning",
+            level="error"
+            if failure.startswith(("scenario_missing", "benchmark_missing", "operational_gap"))
+            else "warning",
             message=str(failure),
             rule_id="SCIENTIST_RELIABILITY_GATE",
         )

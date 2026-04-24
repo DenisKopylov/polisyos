@@ -7,13 +7,13 @@ from typing import Any, ClassVar
 import numpy as np
 import pytest
 
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.signing import (
     Ed25519Signer,
     Ed25519Verifier,
     KeyPair,
     SignatureVerificationStatus,
 )
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods import (
     ComplexityClass,
@@ -49,8 +49,8 @@ from polisyos.foundry.methods.equivalence import (
     persist_attested_equivalence_certificate,
     persist_equivalence_certificate,
     runtime_envelope_from_results,
-    verify_persisted_equivalence_certificate,
     verify_backend_equivalence,
+    verify_persisted_equivalence_certificate,
 )
 
 
@@ -295,7 +295,9 @@ def test_persist_load_and_attach_equivalence_certificate(tmp_path: Path) -> None
     assert loaded.certificate_id == certificate.certificate_id
     assert attached.cross_backend_equivalence_ref == str(ref.artifact_id)
     assert attached.artifacts["cross_backend_equivalence"]["verdict"] == "pass_strict"
-    assert attached.artifacts["cross_backend_equivalence"]["certificate_id"] == report.certificate_id
+    assert (
+        attached.artifacts["cross_backend_equivalence"]["certificate_id"] == report.certificate_id
+    )
 
 
 def test_calibrate_backend_pair_builds_certificate_from_real_runner_pair(isolated_registry) -> None:
@@ -371,7 +373,10 @@ def test_calibrate_backend_pair_builds_certificate_from_real_runner_pair(isolate
     assert any(spec.path == "output.mean" for spec in certificate.field_specs)
     assert any(spec.path == "output.shifted" for spec in certificate.field_specs)
     assert certificate.provenance["ci_measured_tolerance_budget"]["budget_source"] == "ci_measured"
-    assert certificate.provenance["ci_measured_tolerance_budget"]["canary_suite_id"] == "xbeq.synthetic.v1"
+    assert (
+        certificate.provenance["ci_measured_tolerance_budget"]["canary_suite_id"]
+        == "xbeq.synthetic.v1"
+    )
 
     numpy_result = NumpyRunner().execute(
         method_class=_PolyglotMeanMethod,

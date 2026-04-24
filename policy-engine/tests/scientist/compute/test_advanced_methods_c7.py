@@ -128,6 +128,9 @@ def test_non_survival_c7_adapters_persist_valid_artifacts(tmp_path) -> None:
     assert cell_payload["labels"].shape[0] == N_CELLS
     assert cell_payload["prototype_centers"].ndim == 2
     assert np.isfinite(np.asarray(cell_payload["prototype_centers"], dtype=float)).all()
+    assert bilevel_bundle.optimization_target == "optimization.bilevel.bilevel@1.1.0"
+    assert bilevel_bundle.ambiguity_mode == "auto"
+    assert bilevel_bundle.certificate_mode == "residual_or_bounds"
     assert bilevel_bundle.result_summary["upper_feasible"] is True
     assert bilevel_bundle.result_summary["lower_feasible"] is True
     assert heckman_rows
@@ -168,6 +171,36 @@ def test_c7_adapter_uses_injected_method_registry(tmp_path, monkeypatch) -> None
     assert store.has(result.bundle_ref.artifact_id)
     assert result.method_result_refs
     assert result.method_evidence_refs
+
+
+def test_bilevel_c7_bundle_roundtrip_with_new_params(tmp_path) -> None:
+    fixture = build_c7_synthetic_fixture(tmp_path)
+    store = FileSystemCAS(tmp_path / ".cas_bilevel_params")
+
+    result = BilevelOptimizationAdapter(store).run(
+        replace(
+            fixture.advanced_inputs,
+            bilevel_ambiguity_mode="required",
+            bilevel_tie_break="optimistic",
+            bilevel_delta_near_opt=0.25,
+            bilevel_certificate_mode="leader_objective_bounds",
+        )
+    )
+
+    bundle = load_json_bundle(
+        _write_cas_artifact(
+            store,
+            result.bundle_ref,
+            tmp_path / "bilevel_problem_bundle_v1.json",
+        ),
+        BilevelProblemBundle,
+    )
+
+    assert bundle.optimization_target == "optimization.bilevel.bilevel@1.1.0"
+    assert bundle.ambiguity_mode == "required"
+    assert bundle.tie_break == "optimistic"
+    assert bundle.delta_near_opt == pytest.approx(0.25)
+    assert bundle.certificate_mode == "leader_objective_bounds"
 
 
 @pytest.mark.skipif(

@@ -35,9 +35,9 @@ from polisyos.ir.analytics.estimand import (
     DistributionRef,
     EdgeInterventionNode,
     EstimandAST,
-    PathSpecificNode,
     OperatorApplyNode,
     OperatorTargetNode,
+    PathSpecificNode,
     ProductNode,
     RatioNode,
     SideConditionKind,
@@ -45,7 +45,6 @@ from polisyos.ir.analytics.estimand import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.contracts.execution_plan import MethodDagNode
     from polisyos.ir.analytics.knowledge_base import DataKnowledgeBase
 
 _logger = logging.getLogger(__name__)
@@ -79,21 +78,21 @@ _BINARY_POLICY_TOKENS = {
 class EstimandShape(str, Enum):
     """Canonical shapes of causal estimands that map to known estimation strategies."""
 
-    BACKDOOR = "backdoor"             # Σ_Z P(Y|X,Z)·P(Z) — adjustment formula
-    FRONTDOOR = "frontdoor"           # Σ_M P(M|X)·Σ_{X'} P(Y|M,X')·P(X')
-    IV = "iv"                         # Instrumental variable formula
-    DML_COMPATIBLE = "dml_compatible" # Backdoor with high-dim conditioning → DML
+    BACKDOOR = "backdoor"  # Σ_Z P(Y|X,Z)·P(Z) — adjustment formula
+    FRONTDOOR = "frontdoor"  # Σ_M P(M|X)·Σ_{X'} P(Y|M,X')·P(X')
+    IV = "iv"  # Instrumental variable formula
+    DML_COMPATIBLE = "dml_compatible"  # Backdoor with high-dim conditioning → DML
     TRANSPORT_REWEIGHT = "transport_reweight"  # ratio of source/target densities
-    BOUNDS_ONLY = "bounds_only"       # Non-identifiable — Manski/Lee bounds
-    UNKNOWN = "unknown"               # Could not classify
-    CATE_REQUIRED = "cate_required"   # Heterogeneous treatment effects required
+    BOUNDS_ONLY = "bounds_only"  # Non-identifiable — Manski/Lee bounds
+    UNKNOWN = "unknown"  # Could not classify
+    CATE_REQUIRED = "cate_required"  # Heterogeneous treatment effects required
     # Phase-5: Extended identification shapes
-    STOCHASTIC_INTERVENTION = "stochastic_intervention"   # σ(X; π) soft policy
-    SHIFT_INTERVENTION = "shift_intervention"             # do(X + δ) modified treatment
-    CONDITIONAL_DO = "conditional_do"                     # do(X | Z=z) subpopulation
-    JOINT_INTERVENTION = "joint_intervention"             # P(Y1,Y2|do(X1,X2))
-    MEASUREMENT_ERROR_PROXY = "measurement_error_proxy"   # Kuroki & Pearl 2014
-    CYCLIC = "cyclic"                 # Feedback-loop / fixed-point estimand
+    STOCHASTIC_INTERVENTION = "stochastic_intervention"  # σ(X; π) soft policy
+    SHIFT_INTERVENTION = "shift_intervention"  # do(X + δ) modified treatment
+    CONDITIONAL_DO = "conditional_do"  # do(X | Z=z) subpopulation
+    JOINT_INTERVENTION = "joint_intervention"  # P(Y1,Y2|do(X1,X2))
+    MEASUREMENT_ERROR_PROXY = "measurement_error_proxy"  # Kuroki & Pearl 2014
+    CYCLIC = "cyclic"  # Feedback-loop / fixed-point estimand
     COUNTERFACTUAL_IDENTIFIED = "counterfactual_identified"  # ID*/IDC* symbolic result
     PROXIMAL_MEDIATION = "proximal_mediation"  # Oracle-backed path-specific proximal template
     MISSING_DATA_RECOVERY = "missing_data_recovery"  # ordered recovery / full-law compilation
@@ -102,38 +101,38 @@ class EstimandShape(str, Enum):
 class EstimationStrategy(str, Enum):
     """Statistical estimation approach."""
 
-    PLUG_IN = "plug_in"               # simple outcome regression
-    COMPLETE_CASE = "complete_case"   # complete-case missing-data recovery
-    IPW = "ipw"                       # inverse-probability weighting
-    AUGMENTATION = "augmentation"     # augmentation / outcome-regression recovery
-    AIPW = "aipw"                     # doubly robust AIPW
-    TMLE = "tmle"                     # targeted maximum likelihood
-    DML = "dml"                       # double/debiased machine learning
+    PLUG_IN = "plug_in"  # simple outcome regression
+    COMPLETE_CASE = "complete_case"  # complete-case missing-data recovery
+    IPW = "ipw"  # inverse-probability weighting
+    AUGMENTATION = "augmentation"  # augmentation / outcome-regression recovery
+    AIPW = "aipw"  # doubly robust AIPW
+    TMLE = "tmle"  # targeted maximum likelihood
+    DML = "dml"  # double/debiased machine learning
     DENSITY_RATIO_REWEIGHT = "density_ratio_reweight"  # transport reweighting
-    MEDIATION = "mediation"           # causal mediation / frontdoor
-    IV = "iv"                         # instrumental variable
-    MANSKI_BOUNDS = "manski_bounds"   # partial identification bounds
+    MEDIATION = "mediation"  # causal mediation / frontdoor
+    IV = "iv"  # instrumental variable
+    MANSKI_BOUNDS = "manski_bounds"  # partial identification bounds
     # Phase-5: Extended estimation strategies
-    GPS_DOSE_RESPONSE = "gps_dose_response"     # generalized propensity score
-    SHIFT_TMLE = "shift_tmle"                   # TMLE for shift interventions
-    MULTI_OUTCOME_AIPW = "multi_outcome_aipw"   # shared-propensity multi-outcome AIPW
+    GPS_DOSE_RESPONSE = "gps_dose_response"  # generalized propensity score
+    SHIFT_TMLE = "shift_tmle"  # TMLE for shift interventions
+    MULTI_OUTCOME_AIPW = "multi_outcome_aipw"  # shared-propensity multi-outcome AIPW
     REGRESSION_CALIBRATION = "regression_calibration"  # Carroll 2006
-    SIMEX = "simex"                             # Cook & Stefanski 1994
-    FIXED_POINT_SOLVER = "fixed_point_solver"   # Cyclic / feedback-loop solver
-    TWIN_NETWORK_MC = "twin_network_mc"         # Twin-network/NCM Monte Carlo counterfactual
-    PROXIMAL_MEDIATION = "proximal_mediation"   # Stage 11.3 proof-kernel template
-    CME_PLUGIN = "cme_plugin"                   # Kernel conditional mean embedding
-    KERNEL_FRONTDOOR = "kernel_frontdoor"       # Nested CME frontdoor estimator
+    SIMEX = "simex"  # Cook & Stefanski 1994
+    FIXED_POINT_SOLVER = "fixed_point_solver"  # Cyclic / feedback-loop solver
+    TWIN_NETWORK_MC = "twin_network_mc"  # Twin-network/NCM Monte Carlo counterfactual
+    PROXIMAL_MEDIATION = "proximal_mediation"  # Stage 11.3 proof-kernel template
+    CME_PLUGIN = "cme_plugin"  # Kernel conditional mean embedding
+    KERNEL_FRONTDOOR = "kernel_frontdoor"  # Nested CME frontdoor estimator
     KERNEL_TRANSPORT_REWEIGHT = "kernel_transport_reweight"  # kernel transport averaging
-    DR_CME = "dr_cme"                           # doubly robust kernel distributional estimator
-    KIV = "kiv"                                 # Kernel instrumental variables
-    PROXIMAL_MINIMAX = "proximal_minimax"       # Kernel minimax bridge solver
-    OPERATOR_CME_KRR = "operator_cme_krr"       # Operator-valued CME/KRR
-    OPERATOR_R_LEARNER = "operator_r_learner"   # Orthogonal operator regression
-    OPERATOR_KIV = "operator_kiv"               # Operator-valued IV regression
+    DR_CME = "dr_cme"  # doubly robust kernel distributional estimator
+    KIV = "kiv"  # Kernel instrumental variables
+    PROXIMAL_MINIMAX = "proximal_minimax"  # Kernel minimax bridge solver
+    OPERATOR_CME_KRR = "operator_cme_krr"  # Operator-valued CME/KRR
+    OPERATOR_R_LEARNER = "operator_r_learner"  # Orthogonal operator regression
+    OPERATOR_KIV = "operator_kiv"  # Operator-valued IV regression
     OPERATOR_PROXIMAL_MINIMAX = "operator_proximal_minimax"  # Operator-valued proximal bridge
     OPERATOR_APPLY_PROBE = "operator_apply_probe"  # Apply a finite probe to an operator bundle
-    REFUSE = "refuse"                           # explicit refusal for unsafe recovery compilation
+    REFUSE = "refuse"  # explicit refusal for unsafe recovery compilation
 
 
 # ---------------------------------------------------------------------------
@@ -147,11 +146,11 @@ class EstimatorRecommendation:
 
     shape: EstimandShape
     strategy: EstimationStrategy
-    primary_method_fqn: str                   # e.g. "causal.treatment_effects.aipw@1.0.0"
+    primary_method_fqn: str  # e.g. "causal.treatment_effects.aipw@1.0.0"
     fallback_method_fqns: tuple[str, ...]
     requires_cross_fitting: bool
     requires_density_ratio: bool
-    confidence: float                         # 0-1 confidence in recommendation
+    confidence: float  # 0-1 confidence in recommendation
     notes: str = ""
 
 
@@ -192,8 +191,8 @@ class CyclicExecutionBlock(ExecutorNode):
 class ExecutorGraph:
     """Compiled execution graph for an estimand — ready for the runtime executor."""
 
-    nodes: tuple   # tuple[ExecutorNode, ...]
-    edges: tuple   # tuple[tuple[str, str], ...]
+    nodes: tuple  # tuple[ExecutorNode, ...]
+    edges: tuple  # tuple[tuple[str, str], ...]
     nuisance_schedule: tuple  # tuple[str, ...]
     total_folds: int = 1
     run_id: str = ""
@@ -247,6 +246,9 @@ def classify_estimand(ast: EstimandAST) -> EstimandShape:
         return EstimandShape.MISSING_DATA_RECOVERY
 
     # Phase-5: structural node-type detection for new AST nodes
+    from polisyos.foundry.methods.catalog.causal.recovery_strategy_selector import (
+        has_recovery_context,
+    )
     from polisyos.ir.analytics.estimand import (
         ConditionalInterventionNode,
         ModifiedTreatmentPolicyNode,
@@ -254,14 +256,16 @@ def classify_estimand(ast: EstimandAST) -> EstimandShape:
         ProxyAdjustmentNode,
         StochasticInterventionNode,
     )
-    from polisyos.foundry.methods.catalog.causal.recovery_strategy_selector import (
-        has_recovery_context,
-    )
+
     if isinstance(ast.root, ModifiedTreatmentPolicyNode):
         return EstimandShape.SHIFT_INTERVENTION
     if isinstance(ast.root, StochasticInterventionNode):
         policy_type = ast.root.policy.policy_type
-        return EstimandShape.SHIFT_INTERVENTION if policy_type == "shift" else EstimandShape.STOCHASTIC_INTERVENTION
+        return (
+            EstimandShape.SHIFT_INTERVENTION
+            if policy_type == "shift"
+            else EstimandShape.STOCHASTIC_INTERVENTION
+        )
     if isinstance(ast.root, ConditionalInterventionNode):
         return EstimandShape.CONDITIONAL_DO
     if isinstance(ast.root, ProxyAdjustmentNode):
@@ -372,7 +376,7 @@ def _has_selection_pattern(ast: EstimandAST) -> bool:
 
 
 def _extract_benchmark_covariates(
-    ast: EstimandAST, knowledge_base: "DataKnowledgeBase | None"
+    ast: EstimandAST, knowledge_base: DataKnowledgeBase | None
 ) -> list[str]:
     """Extract up to 3 observed covariates from the conditioning set for benchmarking."""
     if knowledge_base is None:
@@ -446,9 +450,7 @@ def _extract_counterfactual_executor_params(
         if evidence:
             params["factual_condition"] = evidence
             if params.get("treatment_variable") in evidence:
-                params["factual_treatment_value"] = float(
-                    evidence[params["treatment_variable"]]
-                )
+                params["factual_treatment_value"] = float(evidence[params["treatment_variable"]])
 
     params.setdefault("counterfactual_treatment_value", 1.0)
     params.setdefault("factual_treatment_value", 0.0)
@@ -757,7 +759,7 @@ def recommend_estimator(
     *,
     n_obs: int | None = None,
     covariate_dim: int | None = None,
-    knowledge_base: "DataKnowledgeBase | None" = None,
+    knowledge_base: DataKnowledgeBase | None = None,
     recoverability_certificate: Any | None = None,
     data_readiness: Any | None = None,
     identification_metadata: dict[str, Any] | None = None,
@@ -779,6 +781,8 @@ def recommend_estimator(
     """
     from polisyos.foundry.methods.catalog.causal.recovery_strategy_selector import (
         RecoveryEstimatorFamily as RecoveryFamily,
+    )
+    from polisyos.foundry.methods.catalog.causal.recovery_strategy_selector import (
         has_recovery_context,
         select_recovery_strategy,
     )
@@ -812,9 +816,7 @@ def recommend_estimator(
             )
             if kernel_spec.blocking_reasons:
                 kernel_notes = (
-                    kernel_notes
-                    + " blocking_reasons="
-                    + ",".join(kernel_spec.blocking_reasons)
+                    kernel_notes + " blocking_reasons=" + ",".join(kernel_spec.blocking_reasons)
                 )
             if kernel_spec.lowering_disposition.value in {
                 "proof_only",
@@ -869,12 +871,9 @@ def recommend_estimator(
                     fallback_method_fqns=(),
                     requires_cross_fitting=False,
                     requires_density_ratio=any(
-                        nuisance.role == "density_ratio"
-                        for nuisance in kernel_spec.nuisance_plan
+                        nuisance.role == "density_ratio" for nuisance in kernel_spec.nuisance_plan
                     ),
-                    confidence=0.82
-                    if kernel_spec.lowering_disposition.value == "ready"
-                    else 0.72,
+                    confidence=0.82 if kernel_spec.lowering_disposition.value == "ready" else 0.72,
                     notes=kernel_notes,
                 ),
                 ast,
@@ -1134,7 +1133,10 @@ def recommend_estimator(
             fallback_methods = (
                 ("causal.stochastic.policy_aipw@1.0.0", "causal.continuous_treatment.gps@1.0.0")
                 if large_n
-                else ("causal.stochastic.policy_tmle@1.0.0", "causal.continuous_treatment.gps@1.0.0")
+                else (
+                    "causal.stochastic.policy_tmle@1.0.0",
+                    "causal.continuous_treatment.gps@1.0.0",
+                )
             )
             return _apply_knowledge_base(
                 EstimatorRecommendation(
@@ -1179,9 +1181,7 @@ def recommend_estimator(
             shape=shape,
             strategy=EstimationStrategy.AIPW,
             primary_method_fqn="causal.treatment_effects.aipw@1.0.0",
-            fallback_method_fqns=(
-                "causal.treatment_effects.ipw@1.0.0",
-            ),
+            fallback_method_fqns=("causal.treatment_effects.ipw@1.0.0",),
             requires_cross_fitting=True,
             requires_density_ratio=False,
             confidence=0.85,
@@ -1198,9 +1198,7 @@ def recommend_estimator(
             shape=shape,
             strategy=EstimationStrategy.MULTI_OUTCOME_AIPW,
             primary_method_fqn="causal.multi_outcome.aipw@1.0.0",
-            fallback_method_fqns=(
-                "causal.treatment_effects.aipw@1.0.0",
-            ),
+            fallback_method_fqns=("causal.treatment_effects.aipw@1.0.0",),
             requires_cross_fitting=True,
             requires_density_ratio=False,
             confidence=0.85,
@@ -1317,7 +1315,7 @@ def recommend_estimator(
 def _strategy_for_proxy_coverage(
     proxy_frac: float,
     shape: EstimandShape,
-) -> "EstimationStrategy | None":
+) -> EstimationStrategy | None:
     """Return an overriding strategy when proxy coverage is too high for point estimation."""
     if proxy_frac >= 1.0:
         return EstimationStrategy.MANSKI_BOUNDS
@@ -1329,7 +1327,7 @@ def _strategy_for_proxy_coverage(
 def _apply_knowledge_base(
     recommendation: EstimatorRecommendation,
     ast: EstimandAST,
-    knowledge_base: "DataKnowledgeBase | None",
+    knowledge_base: DataKnowledgeBase | None,
 ) -> EstimatorRecommendation:
     """B5: Wire knowledge_base into recommendation, adjusting confidence and notes."""
     if knowledge_base is None:
@@ -1345,7 +1343,10 @@ def _apply_knowledge_base(
         feasibility_score, missing_refs = knowledge_base.score_estimand(ast)
         if feasibility_score < 0.5:
             confidence = confidence * feasibility_score
-            notes = notes + f" WARN: low data feasibility ({feasibility_score:.2f}), missing: {missing_refs}"
+            notes = (
+                notes
+                + f" WARN: low data feasibility ({feasibility_score:.2f}), missing: {missing_refs}"
+            )
 
         # check PROXY_ONLY leaves
         for dr in ast.collect_distribution_refs():
@@ -1409,7 +1410,7 @@ def compile_to_method_dag_nodes(
     *,
     run_id: str,
     use_cross_fitting: bool = True,
-    knowledge_base: "DataKnowledgeBase | None" = None,
+    knowledge_base: DataKnowledgeBase | None = None,
     causal_graph: Any | None = None,
     identification_metadata: dict[str, Any] | None = None,
     data_readiness: Any | None = None,
@@ -1424,7 +1425,9 @@ def compile_to_method_dag_nodes(
     nodes_list: list[ExecutorNode] = []
     _warnings: list[str] = []
 
-    def _infer_executor_backend(method_fqn: str) -> tuple[Literal["econml_direct", "custom", "bounds"], str | None]:
+    def _infer_executor_backend(
+        method_fqn: str,
+    ) -> tuple[Literal["econml_direct", "custom", "bounds"], str | None]:
         normalized = method_fqn.strip().lower()
         econml_map = {
             "causal.hte.causal_forest": "econml.dml.CausalForestDML",
@@ -1439,14 +1442,20 @@ def compile_to_method_dag_nodes(
             return "bounds", None
         return "custom", None
 
-    def _node(fqn: str, *, depends_on: list[str] | None = None, skip_if_failed: tuple[str, ...] = (), **params) -> str:
+    def _node(
+        fqn: str,
+        *,
+        depends_on: list[str] | None = None,
+        skip_if_failed: tuple[str, ...] = (),
+        **params,
+    ) -> str:
         node_id = f"{fqn.split('.', 2)[-1].replace('.', '_')}_{uuid.uuid4().hex[:6]}"
         fqn_parts = fqn.split("@")
         version = fqn_parts[1] if len(fqn_parts) > 1 else "1.0.0"
         method_fqn = fqn_parts[0]
         deps = tuple(depends_on) if depends_on else ()
         is_nuisance = (
-            "nuisance" in fqn        # catches causal.nuisance.* namespace
+            "nuisance" in fqn  # catches causal.nuisance.* namespace
             or "propensity" in node_id
             or "outcome_model" in node_id
         )
@@ -1467,6 +1476,7 @@ def compile_to_method_dag_nodes(
         # B4: FQN validation against registry
         try:
             from polisyos.foundry.methods.registry import MethodRegistry  # lazy import
+
             _reg = MethodRegistry.get_instance()
             fqn_full = f"{method_fqn}@{version}"
             _reg.get(fqn_full)
@@ -1491,7 +1501,10 @@ def compile_to_method_dag_nodes(
     ):
         diag_id = _node("causal.diagnostics.positivity_check@1.0.0")
 
-    if recommendation.shape is EstimandShape.CYCLIC or strategy is EstimationStrategy.FIXED_POINT_SOLVER:
+    if (
+        recommendation.shape is EstimandShape.CYCLIC
+        or strategy is EstimationStrategy.FIXED_POINT_SOLVER
+    ):
         cycle_vars = _parse_cyclic_signature(ast)
         solver_inner = ExecutorNode(
             node_id=f"cyclic_solver_{uuid.uuid4().hex[:6]}",
@@ -1605,10 +1618,13 @@ def compile_to_method_dag_nodes(
             depends_on=[diag_id] if diag_id is not None else [],
             **operator_params,
         )
-        if _operator_lift_scope_for_compile(
-            proof_bundle=proof_bundle,
-            identification_metadata=identification_metadata,
-        ) == "finite_audit_basis":
+        if (
+            _operator_lift_scope_for_compile(
+                proof_bundle=proof_bundle,
+                identification_metadata=identification_metadata,
+            )
+            == "finite_audit_basis"
+        ):
             apply_ids: list[str] = []
             for probe_ref in _operator_audit_basis_probe_refs(
                 ast=ast,
@@ -1641,9 +1657,7 @@ def compile_to_method_dag_nodes(
         operator_root = ast.root.operator
         if not isinstance(operator_root, OperatorTargetNode):
             raise ValueError("operator_apply requires an operator_target child")
-        operator_strategy = _operator_recommendation(
-            ast.model_copy(update={"root": operator_root})
-        )
+        operator_strategy = _operator_recommendation(ast.model_copy(update={"root": operator_root}))
         operator_fqn = (
             operator_strategy.primary_method_fqn
             if operator_strategy is not None
@@ -1726,20 +1740,20 @@ def compile_to_method_dag_nodes(
             depends_on=[diag_id, nuisance_med_id, nuisance_out_id],
             skip_if_failed=(nuisance_med_id, nuisance_out_id),
         )
-        _ = _node("causal.sensitivity.sensitivity_metrics@1.0.0", depends_on=[est_id], skip_if_failed=(est_id,))
+        _ = _node(
+            "causal.sensitivity.sensitivity_metrics@1.0.0",
+            depends_on=[est_id],
+            skip_if_failed=(est_id,),
+        )
 
     elif strategy is EstimationStrategy.PROXIMAL_MEDIATION:
         prox_meta = dict(identification_metadata or {})
         cert_payload = prox_meta.get("proximal_mediation_certificate")
         query_payload = (
-            dict(cert_payload.get("query", {}))
-            if isinstance(cert_payload, dict)
-            else {}
+            dict(cert_payload.get("query", {})) if isinstance(cert_payload, dict) else {}
         )
         variable_roles = (
-            dict(cert_payload.get("variable_roles", {}))
-            if isinstance(cert_payload, dict)
-            else {}
+            dict(cert_payload.get("variable_roles", {})) if isinstance(cert_payload, dict) else {}
         )
         mediator_name = None
         if isinstance(ast.root, PathSpecificNode):
@@ -1757,7 +1771,9 @@ def compile_to_method_dag_nodes(
             depends_on=[diag_id] if diag_id is not None else [],
             theorem_family="proximal_mediation_thm1_dukes_2023",
             oracle_gate=(
-                "accepted" if bool(prox_meta.get("oracle_assumptions_accepted", False)) else "required"
+                "accepted"
+                if bool(prox_meta.get("oracle_assumptions_accepted", False))
+                else "required"
             ),
             target_effect=str(query_payload.get("target_effect", "psi")),
             treatment_name=str(query_payload.get("treatment", ast.treatment)),
@@ -2012,9 +2028,8 @@ def compile_to_method_dag_nodes(
             skip_if_failed=(ml_id,),
         )
 
-    elif (
-        strategy is EstimationStrategy.PLUG_IN
-        and recommendation.primary_method_fqn.startswith("causal.stochastic.policy_")
+    elif strategy is EstimationStrategy.PLUG_IN and recommendation.primary_method_fqn.startswith(
+        "causal.stochastic.policy_"
     ):
         est_id = _node(
             recommendation.primary_method_fqn,
@@ -2042,7 +2057,9 @@ def compile_to_method_dag_nodes(
             recommendation.primary_method_fqn,
             depends_on=[prop_dml_id, out_dml_id],
         )
-        _ = _node("causal.refutation.dowhy_refute@1.0.0", depends_on=[est_id], skip_if_failed=(est_id,))
+        _ = _node(
+            "causal.refutation.dowhy_refute@1.0.0", depends_on=[est_id], skip_if_failed=(est_id,)
+        )
         _ = _node(
             "causal.sensitivity.sensitivity_metrics@1.0.0",
             depends_on=[est_id],
@@ -2075,7 +2092,9 @@ def compile_to_method_dag_nodes(
                 skip_if_failed=(est_id,),
                 **policy_params,
             )
-        _ = _node("causal.refutation.dowhy_refute@1.0.0", depends_on=[est_id], skip_if_failed=(est_id,))
+        _ = _node(
+            "causal.refutation.dowhy_refute@1.0.0", depends_on=[est_id], skip_if_failed=(est_id,)
+        )
         _ = _node(
             "causal.sensitivity.sensitivity_metrics@1.0.0",
             depends_on=[est_id],
@@ -2113,9 +2132,7 @@ def compile_to_method_dag_nodes(
             refusal_reason=recommendation.notes,
             dataset_ref=dataset_hint,
             readiness_decision=(
-                readiness_payload.get("decision")
-                if isinstance(readiness_payload, dict)
-                else None
+                readiness_payload.get("decision") if isinstance(readiness_payload, dict) else None
             ),
             readiness_blocking_reasons=(
                 tuple(str(item) for item in readiness_payload.get("blocking_reasons", ()) or ())
@@ -2133,7 +2150,11 @@ def compile_to_method_dag_nodes(
     else:
         # PLUG_IN / fallback
         est_id = _node(recommendation.primary_method_fqn, depends_on=[diag_id])
-        _ = _node("causal.sensitivity.sensitivity_metrics@1.0.0", depends_on=[est_id], skip_if_failed=(est_id,))
+        _ = _node(
+            "causal.sensitivity.sensitivity_metrics@1.0.0",
+            depends_on=[est_id],
+            skip_if_failed=(est_id,),
+        )
 
     # Build ExecutorGraph
     nodes = tuple(nodes_list)
@@ -2181,10 +2202,10 @@ def compile_estimand(
     n_obs: int | None = None,
     covariate_dim: int | None = None,
     use_cross_fitting: bool = True,
-    knowledge_base: "DataKnowledgeBase | None" = None,
+    knowledge_base: DataKnowledgeBase | None = None,
     force_recursive: bool = False,
     proof_steps: tuple = (),
-    causal_graph=None,   # CausalGraphModel | None — for do-calculus pre-pass
+    causal_graph=None,  # CausalGraphModel | None — for do-calculus pre-pass
     cf_seed: int = 42,
     recoverability_certificate: Any | None = None,
     data_readiness: Any | None = None,
@@ -2232,6 +2253,7 @@ def compile_estimand(
     if causal_graph is not None and not formula_lowering:
         try:
             from polisyos.foundry.methods.catalog.causal.do_calculus import rewrite_estimand
+
             working_ast, dc_steps = rewrite_estimand(working_ast, causal_graph)
             accumulated_proof_steps = list(dc_steps) + accumulated_proof_steps
         except Exception:
@@ -2289,6 +2311,7 @@ def compile_estimand(
     ):
         try:
             from polisyos.foundry.methods.catalog.causal.ast_lowerer import recursive_compile
+
             executor_graph = recursive_compile(
                 working_ast,
                 run_id=run_id,
@@ -2299,7 +2322,10 @@ def compile_estimand(
             )
             # inject cross-fitting even for recursive path
             executor_graph = _maybe_inject_cross_fitting(
-                executor_graph, recommendation, n_obs=n_obs, seed=cf_seed,
+                executor_graph,
+                recommendation,
+                n_obs=n_obs,
+                seed=cf_seed,
                 use_cross_fitting=use_cross_fitting,
             )
             return recommendation, executor_graph
@@ -2321,7 +2347,10 @@ def compile_estimand(
     # Step 4 — inject cross-fitting graph transform
     # ------------------------------------------------------------------
     executor_graph = _maybe_inject_cross_fitting(
-        executor_graph, recommendation, n_obs=n_obs, seed=cf_seed,
+        executor_graph,
+        recommendation,
+        n_obs=n_obs,
+        seed=cf_seed,
         use_cross_fitting=use_cross_fitting,
     )
 
@@ -2366,6 +2395,7 @@ def _maybe_inject_cross_fitting(
             inject_cross_fitting,
             recommend_n_folds,
         )
+
         n_folds = recommend_n_folds(n_obs)
         if n_folds < 2:
             return graph

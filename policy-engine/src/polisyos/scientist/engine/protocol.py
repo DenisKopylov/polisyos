@@ -1,4 +1,5 @@
 """Runtime protocol types for Scientist nodes, outcomes, and state contracts."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
@@ -17,6 +18,7 @@ NodeStatus = Literal["ok", "skip", "fail"]
 
 class NodeError(BaseModel):
     """Node error exception."""
+
     model_config = ConfigDict(extra="forbid")
 
     code: str
@@ -29,6 +31,7 @@ class NodeError(BaseModel):
 
 class NodeEvent(BaseModel):
     """Structured node event emitted for tracing, diagnostics, and operator-facing logs."""
+
     model_config = ConfigDict(extra="forbid")
 
     level: Literal["debug", "info", "warn", "error"] = "info"
@@ -39,6 +42,7 @@ class NodeEvent(BaseModel):
 
 class NodeOutcome(BaseModel):
     """Node outcome public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     status: NodeStatus
@@ -48,7 +52,7 @@ class NodeOutcome(BaseModel):
     error: NodeError | None = None
 
     @model_validator(mode="after")
-    def _validate_error(self) -> "NodeOutcome":
+    def _validate_error(self) -> NodeOutcome:
         if self.status == "fail" and self.error is None:
             raise ValueError("NodeOutcome.error must be set when status=fail")
         if self.status != "fail" and self.error is not None:
@@ -58,6 +62,7 @@ class NodeOutcome(BaseModel):
 
 class NodeSpec(BaseModel):
     """Declarative node contract that tells the DAG runtime what state a node touches."""
+
     model_config = ConfigDict(extra="forbid")
 
     metadata: ComponentMetadata
@@ -69,9 +74,12 @@ class NodeSpec(BaseModel):
 @runtime_checkable
 class Node(Protocol):
     """Protocol for executable DAG nodes that declare contracts and return `NodeOutcome`."""
+
     @property
     def spec(self) -> NodeSpec:  # pragma: no cover - protocol signature
         ...
 
-    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:  # pragma: no cover - protocol signature
+    def execute(
+        self, ctx: ExecutionContext, state: ExperimentState
+    ) -> NodeOutcome:  # pragma: no cover - protocol signature
         ...

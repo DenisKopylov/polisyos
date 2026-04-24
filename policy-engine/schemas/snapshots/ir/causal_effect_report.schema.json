@@ -75,6 +75,7 @@
         "dowhy_frontdoor",
         "proximal_bridge",
         "distributional_treatment_effect",
+        "endogenous_group_inequality_decomposition",
         "kernel_cme",
         "kernel_frontdoor",
         "kernel_transport",

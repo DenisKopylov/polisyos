@@ -26,7 +26,9 @@ const InterfaceModeContext = createContext<InterfaceModeContextValue | null>(
   null,
 );
 
-function isInterfaceMode(value: string | null | undefined): value is InterfaceMode {
+function isInterfaceMode(
+  value: string | null | undefined,
+): value is InterfaceMode {
   return value === "clerk" || value === "analyst";
 }
 
@@ -46,7 +48,8 @@ export function InterfaceModeProvider({ children }: PropsWithChildren) {
   const [mode, setModeState] = useState<InterfaceMode>(() => {
     if (!clerkModeEnabled) return "analyst";
     const stored = readStoredMode();
-    if (stored) return stored === "analyst" && !canUseAnalyst ? "clerk" : stored;
+    if (stored)
+      return stored === "analyst" && !canUseAnalyst ? "clerk" : stored;
     return canUseAnalyst ? "analyst" : "clerk";
   });
 

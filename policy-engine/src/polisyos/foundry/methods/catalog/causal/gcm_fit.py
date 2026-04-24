@@ -1,4 +1,5 @@
 """Public causal gcm fit module API."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -116,7 +117,7 @@ def _fit_additive_noise_poly(
     for i, name in enumerate(parent_names):
         col = x[:, i]
         for d in range(1, degree + 1):
-            poly_cols.append(col ** d)
+            poly_cols.append(col**d)
             poly_feature_names.append(f"{name}^{d}")
     design_poly = np.column_stack(poly_cols)
 
@@ -140,8 +141,7 @@ def _fit_additive_noise_poly(
         # Polynomial coefficients for exact residual computation
         "poly_degree": int(degree),
         "poly_coefficients": {
-            name: float(coeff_poly[idx])
-            for idx, name in enumerate(poly_feature_names)
+            name: float(coeff_poly[idx]) for idx, name in enumerate(poly_feature_names)
         },
     }
 
@@ -188,14 +188,10 @@ def _bayesian_linear_gaussian(
 
     prior_precision = np.diag(1.0 / (prior_std**2))
     posterior_precision = (
-        prior_precision
-        + (design.T @ design) / sigma2
-        + ridge * np.eye(len(names))
+        prior_precision + (design.T @ design) / sigma2 + ridge * np.eye(len(names))
     )
     posterior_cov = np.linalg.inv(posterior_precision)
-    posterior_mean = posterior_cov @ (
-        prior_precision @ prior_mean + (design.T @ y) / sigma2
-    )
+    posterior_mean = posterior_cov @ (prior_precision @ prior_mean + (design.T @ y) / sigma2)
     posterior_std = np.sqrt(np.diag(posterior_cov))
     fit_residual = y - design @ posterior_mean
 
@@ -217,9 +213,7 @@ def _compute_sensitivity_to_latent(
     column_index: dict[str, int],
 ) -> float | None:
     latent_parents = [
-        parent
-        for parent in parents
-        if parent in latent_vars or parent.startswith("U_")
+        parent for parent in parents if parent in latent_vars or parent.startswith("U_")
     ]
     if not latent_parents:
         return None
@@ -232,9 +226,7 @@ def _compute_sensitivity_to_latent(
         return 0.0
 
     observed_parents = [
-        parent
-        for parent in parents
-        if parent not in latent_parents and parent in column_index
+        parent for parent in parents if parent not in latent_parents and parent in column_index
     ]
     if observed_parents:
         x = data[:, [column_index[parent] for parent in observed_parents]]
@@ -311,8 +303,7 @@ class HybridSCMFit:
         assumptions={
             "graph_validity": "Input causal graph is valid and acyclic after PAG projection.",
             "linear_hybrid_scope": (
-                "Strict Bayesian hybrid fit is implemented "
-                "for linear-gaussian mechanisms."
+                "Strict Bayesian hybrid fit is implemented for linear-gaussian mechanisms."
             ),
             "law_h": "Mechanism params must remain JSON-serializable.",
         },
@@ -415,9 +406,7 @@ class HybridSCMFit:
                 except Exception as exc:
                     hybrid_fallback_count += 1
                     family = (
-                        MechanismFamily.ADDITIVE_NOISE
-                        if parents
-                        else MechanismFamily.EMPIRICAL
+                        MechanismFamily.ADDITIVE_NOISE if parents else MechanismFamily.EMPIRICAL
                     )
                     if has_node_data:
                         family_params = _empirical_params(y)
@@ -474,9 +463,7 @@ class HybridSCMFit:
             "unstable_due_to_latent": 1.0 if unstable_due_to_latent else 0.0,
         }
         fit_method = (
-            "hybrid"
-            if dowhy_available == 0.0
-            else _fit_method_from_summary(source_summary)
+            "hybrid" if dowhy_available == 0.0 else _fit_method_from_summary(source_summary)
         )
         scm_spec = StructuralCausalModelSpec(
             graph=projected_graph,

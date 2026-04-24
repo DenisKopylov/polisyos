@@ -1,10 +1,10 @@
 """Corpus index artifacts that connect structured legal text to later norm-pack assembly."""
+
 from __future__ import annotations
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import BeforeValidator, ConfigDict, Field, model_validator
-from typing_extensions import Annotated
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -23,6 +23,7 @@ _DOC_SOURCE_PROPS_SCHEMA = SchemaInfo(name="polisyos.lex.corpus.DocSourceProps",
 
 class ProvisionEntryV1(KernelModel):
     """Provision entry V 1 public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     provision_key: str
@@ -40,7 +41,7 @@ class ProvisionEntryV1(KernelModel):
     ] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_offsets(self) -> "ProvisionEntryV1":
+    def validate_offsets(self) -> ProvisionEntryV1:
         if self.offset_end <= self.offset_start:
             raise ValueError("offset_end must be > offset_start")
         return self
@@ -48,6 +49,7 @@ class ProvisionEntryV1(KernelModel):
 
 class ProvisionIndexV1(KernelModel):
     """Provision index V 1 public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: Literal["1.0"] = "1.0"
@@ -66,6 +68,7 @@ class ProvisionIndexV1(KernelModel):
 
 class VersionEntryV1(KernelModel):
     """Version entry V 1 public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     doc_version_id: str = Field(..., pattern=ID_PATTERN)
@@ -79,6 +82,7 @@ class VersionEntryV1(KernelModel):
 
 class VersionIndexV1(KernelModel):
     """Version index V 1 public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: Literal["1.0"] = "1.0"
@@ -91,6 +95,7 @@ class VersionIndexV1(KernelModel):
 
 class DocSourcePropsV1(KernelModel):
     """Doc source props V 1 public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: Literal["1.0"] = "1.0"

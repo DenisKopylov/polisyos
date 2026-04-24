@@ -1,4 +1,5 @@
 """LLM call provenance record."""
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -9,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class LLMCallRecord(BaseModel):
     """Records provenance metadata for a single LLM API call."""
+
     model_config = ConfigDict(extra="forbid")
 
     call_id: str

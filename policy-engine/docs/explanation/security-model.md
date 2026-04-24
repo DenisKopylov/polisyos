@@ -43,15 +43,15 @@ request is denied rather than reconciled heuristically.
 
 ## Security Layers
 
-| Layer | Default role | Operational anchor |
-|---|---|---|
-| JWT and OIDC validation | verify user claims, MFA requirements, key rotation windows | [auth and tenant model](../reference/api/auth-tenant-model.md) |
-| SPIFFE service identity | verify peer services separately from user auth | [security compliance](../reference/security-compliance.md) |
-| Cell routing and namespacing | bind requests and artifact IDs to tenant/cell scope | [runtime API outage](../runbooks/runtime-api-outage.md) |
-| OPA authorization | policy-as-code deny-by-default decisions | [CAS or OPA outage](../runbooks/cas-opa-outage.md) |
-| Idempotency and mutation guards | reduce replay, duplicate side effects, and overload | [idempotency incident](../runbooks/idempotency-incident.md) |
-| CAS signing and verification | prove integrity and signer identity for durable artifacts | [artifact signing or SBOM failure](../runbooks/artifact-signing-sbom-failure.md) |
-| Chained audit | correlate reads, writes, and governance events | [mutation audit investigation](../runbooks/mutation-audit-investigation.md) |
+| Layer                           | Default role                                               | Operational anchor                                                               |
+| ------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| JWT and OIDC validation         | verify user claims, MFA requirements, key rotation windows | [auth and tenant model](../reference/api/auth-tenant-model.md)                   |
+| SPIFFE service identity         | verify peer services separately from user auth             | [security compliance](../reference/security-compliance.md)                       |
+| Cell routing and namespacing    | bind requests and artifact IDs to tenant/cell scope        | [runtime API outage](../runbooks/runtime-api-outage.md)                          |
+| OPA authorization               | policy-as-code deny-by-default decisions                   | [CAS or OPA outage](../runbooks/cas-opa-outage.md)                               |
+| Idempotency and mutation guards | reduce replay, duplicate side effects, and overload        | [idempotency incident](../runbooks/idempotency-incident.md)                      |
+| CAS signing and verification    | prove integrity and signer identity for durable artifacts  | [artifact signing or SBOM failure](../runbooks/artifact-signing-sbom-failure.md) |
+| Chained audit                   | correlate reads, writes, and governance events             | [mutation audit investigation](../runbooks/mutation-audit-investigation.md)      |
 
 ## Compliance Posture
 

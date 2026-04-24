@@ -221,6 +221,8 @@ def test_benchmark_writes_runtime_demand_backlog_and_canonical_metrics(tmp_path)
     ]
     assert backlog_rows
     assert any(item["need_type"] == "causal_edge" for item in backlog_rows)
-    assert any("harvest_literature_for_causal_pair" in item["recommended_actions"] for item in backlog_rows)
+    assert any(
+        "harvest_literature_for_causal_pair" in item["recommended_actions"] for item in backlog_rows
+    )
     report = json.loads(config.benchmark_report_path.read_text(encoding="utf-8"))
     assert report["runtime_demand_backlog"]["items"] == len(backlog_rows)

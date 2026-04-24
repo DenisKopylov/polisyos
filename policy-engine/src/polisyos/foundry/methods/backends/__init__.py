@@ -6,6 +6,7 @@ runtime stack (`jax`, `numpy`, solver, Bayesian sampler), returning a
 `MethodSignature`, which declares the ABI, and from specialization/cache,
 which governs compilation reuse.
 """
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.backends.async_chain_executor import (
@@ -13,16 +14,16 @@ from polisyos.foundry.methods.backends.async_chain_executor import (
     AsyncChainExecutor,
     AsyncNodeError,
 )
+from polisyos.foundry.methods.backends.chain_executor import (
+    ChainExecutionResult,
+    execute_heterogeneous_chain,
+)
 from polisyos.foundry.methods.backends.circuit_breaker import (
     BackendCircuitOpenError,
     CircuitBreaker,
     CircuitBreakerRegistry,
     CircuitState,
     get_circuit_breaker_registry,
-)
-from polisyos.foundry.methods.backends.chain_executor import (
-    ChainExecutionResult,
-    execute_heterogeneous_chain,
 )
 from polisyos.foundry.methods.backends.dispatch import (
     BackendNotAvailableError,
@@ -50,11 +51,10 @@ __all__ = [
     "AsyncNodeError",
     "BackendCircuitOpenError",
     "BackendNotAvailableError",
+    "ChainExecutionResult",
     "CircuitBreaker",
     "CircuitBreakerRegistry",
     "CircuitState",
-    "get_circuit_breaker_registry",
-    "ChainExecutionResult",
     "MethodDispatcher",
     "MethodResult",
     "MethodRunner",
@@ -66,6 +66,7 @@ __all__ = [
     "ValidatedMethodFamily",
     "ValidatedMode",
     "ValidatedStatus",
-    "validated_bound_to_envelopes",
     "execute_heterogeneous_chain",
+    "get_circuit_breaker_registry",
+    "validated_bound_to_envelopes",
 ]

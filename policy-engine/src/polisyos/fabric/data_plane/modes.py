@@ -62,8 +62,7 @@ async def _persist_streaming_manifest_async(
             media_type="application/json",
             schema=SchemaInfo(name="fabric.StreamingRunManifest", version="1.0"),
             inputs=[
-                InputRef(artifact_id=ref.artifact_id, role="stream_artifact")
-                for ref in source_refs
+                InputRef(artifact_id=ref.artifact_id, role="stream_artifact") for ref in source_refs
             ],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -153,8 +152,16 @@ def run_batch_incremental(
 
     connector_id = ""
     for ds in datasets:
-        ds_connector_id = getattr(ds, "connector_id", "") or ds.get("connector_id", "") if isinstance(ds, dict) else ""
-        ds_dataset_id = getattr(ds, "dataset_id", "") or ds.get("dataset_id", "") if isinstance(ds, dict) else ""
+        ds_connector_id = (
+            getattr(ds, "connector_id", "") or ds.get("connector_id", "")
+            if isinstance(ds, dict)
+            else ""
+        )
+        ds_dataset_id = (
+            getattr(ds, "dataset_id", "") or ds.get("dataset_id", "")
+            if isinstance(ds, dict)
+            else ""
+        )
         if ds_connector_id:
             connector_id = ds_connector_id
         cursor = cursor_store.find_latest_cursor(ds_connector_id, ds_dataset_id)
@@ -162,7 +169,9 @@ def run_batch_incremental(
             incremental_cursors[ds_dataset_id] = cursor.watermark_value
             logger.info(
                 "batch_incremental: cursor found for %s:%s → %s",
-                ds_connector_id, ds_dataset_id, cursor.watermark_value,
+                ds_connector_id,
+                ds_dataset_id,
+                cursor.watermark_value,
             )
 
     # Run normal orchestrated ingestion
@@ -185,8 +194,12 @@ def run_batch_incremental(
         now = datetime.now(UTC)
 
         for ds in datasets:
-            ds_connector_id = getattr(ds, "connector_id", "") or (ds.get("connector_id", "") if isinstance(ds, dict) else "")
-            ds_dataset_id = getattr(ds, "dataset_id", "") or (ds.get("dataset_id", "") if isinstance(ds, dict) else "")
+            ds_connector_id = getattr(ds, "connector_id", "") or (
+                ds.get("connector_id", "") if isinstance(ds, dict) else ""
+            )
+            ds_dataset_id = getattr(ds, "dataset_id", "") or (
+                ds.get("dataset_id", "") if isinstance(ds, dict) else ""
+            )
 
             cursor_state = CursorState(
                 cursor_id=f"{ds_connector_id}:{ds_dataset_id}",
@@ -244,9 +257,7 @@ def run_record_mode(
 
     # Extract connector/dataset info for the session metadata
     datasets = _extract_datasets(connector_manifest)
-    connector_datasets = [
-        {"connector_id": ds[0], "dataset_id": ds[1]} for ds in datasets
-    ]
+    connector_datasets = [{"connector_id": ds[0], "dataset_id": ds[1]} for ds in datasets]
 
     with tempfile.TemporaryDirectory(prefix="polisyos_record_") as tmpdir:
         fixture_root = Path(tmpdir)
@@ -285,7 +296,8 @@ def run_record_mode(
             evidence_ref = run_coro_sync(_record_ingestion())
         except Exception:
             logger.debug(
-                "Async record ingestion failed, falling back to sync path", exc_info=True,
+                "Async record ingestion failed, falling back to sync path",
+                exc_info=True,
             )
             # Fall back to sync path if async context isn't needed
             result = run_orchestrated_ingestion(
@@ -408,7 +420,8 @@ def run_replay_mode(
             evidence_ref = run_coro_sync(_replay_ingestion())
         except Exception:
             logger.debug(
-                "Async replay ingestion failed, falling back to sync path", exc_info=True,
+                "Async replay ingestion failed, falling back to sync path",
+                exc_info=True,
             )
             # Fallback to standard orchestrated ingestion (simulator is async)
             result = run_orchestrated_ingestion(
@@ -450,9 +463,7 @@ def _sanitize_stream_rows(
         rows = [rows]
 
     signature_counts = Counter(
-        tuple(sorted(str(key) for key in row))
-        for row in rows
-        if isinstance(row, dict)
+        tuple(sorted(str(key) for key in row)) for row in rows if isinstance(row, dict)
     )
     expected_keys = max(
         signature_counts,
@@ -559,6 +570,7 @@ async def _run_streaming_windowed_async(
     from polisyos.fabric.data_plane.orchestrator import IngestionResult
     from polisyos.fabric.data_plane.streaming import process_stream_dataset
     from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
+
     store = _build_filesystem_store(cas_root)
     cursor_store = CursorStore(store, index_root=cas_root)
     datasets = _extract_datasets(connector_manifest)
@@ -738,7 +750,9 @@ def _stream_runtime_options_from_manifest(
         partition_key=partition_key,
         batch_size=int(raw_streaming.get("batch_size", 1_000)),
         checkpoint_every_chunks=int(raw_streaming.get("checkpoint_every_chunks", 1)),
-        dedupe_key_fields=tuple(raw_streaming.get("dedupe_key_fields", ("_message_id", "message_id", "id"))),
+        dedupe_key_fields=tuple(
+            raw_streaming.get("dedupe_key_fields", ("_message_id", "message_id", "id"))
+        ),
         max_dedupe_keys=int(raw_streaming.get("max_dedupe_keys", 4_096)),
         max_buffered_rows=int(raw_streaming.get("max_buffered_rows", 10_000)),
         max_buffered_bytes=int(raw_streaming.get("max_buffered_bytes", 16 * 1024 * 1024)),
@@ -929,8 +943,12 @@ def _extract_datasets(connector_manifest: Any) -> list[tuple[str, str]]:
         raw = connector_manifest.get("datasets", [])
 
     for ds in raw:
-        cid = getattr(ds, "connector_id", "") or (ds.get("connector_id", "") if isinstance(ds, dict) else "")
-        did = getattr(ds, "dataset_id", "") or (ds.get("dataset_id", "") if isinstance(ds, dict) else "")
+        cid = getattr(ds, "connector_id", "") or (
+            ds.get("connector_id", "") if isinstance(ds, dict) else ""
+        )
+        did = getattr(ds, "dataset_id", "") or (
+            ds.get("dataset_id", "") if isinstance(ds, dict) else ""
+        )
         datasets.append((cid, did))
     return datasets
 

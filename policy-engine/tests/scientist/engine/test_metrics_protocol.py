@@ -1,4 +1,5 @@
 """Tests for polisyos.scientist.engine.metrics_protocol — protocol & noop."""
+
 from __future__ import annotations
 
 from polisyos.scientist.engine.metrics_protocol import (
@@ -9,6 +10,7 @@ from polisyos.scientist.engine.metrics_protocol import (
 # ---------------------------------------------------------------------------
 # NoopEngineMetrics
 # ---------------------------------------------------------------------------
+
 
 class TestNoopEngineMetrics:
     def test_implements_protocol(self):
@@ -22,20 +24,31 @@ class TestNoopEngineMetrics:
     def test_record_node_completed(self):
         noop = NoopEngineMetrics()
         noop.record_node_completed(
-            alias="a", node_id="n", workflow_id="w",
-            status="ok", duration_ms=10, cache_hit=False, retry_count=0,
+            alias="a",
+            node_id="n",
+            workflow_id="w",
+            status="ok",
+            duration_ms=10,
+            cache_hit=False,
+            retry_count=0,
         )
 
     def test_record_tier_completed(self):
         noop = NoopEngineMetrics()
         noop.record_tier_completed(
-            tier_index=0, tier_size=2, duration_ms=50, workflow_id="w",
+            tier_index=0,
+            tier_size=2,
+            duration_ms=50,
+            workflow_id="w",
         )
 
     def test_record_workflow_completed(self):
         noop = NoopEngineMetrics()
         noop.record_workflow_completed(
-            workflow_id="w", status="ok", duration_ms=100, node_count=3,
+            workflow_id="w",
+            status="ok",
+            duration_ms=100,
+            node_count=3,
         )
 
     def test_record_trace_correlation(self):
@@ -62,6 +75,7 @@ class TestNoopEngineMetrics:
 # EngineMetricsCollector protocol (runtime checkable)
 # ---------------------------------------------------------------------------
 
+
 class _CustomCollector:
     """A custom implementation to verify protocol structural check."""
 
@@ -72,7 +86,15 @@ class _CustomCollector:
         self.calls.append("node_started")
 
     def record_node_completed(
-        self, *, alias, node_id, workflow_id, status, duration_ms, cache_hit, retry_count,
+        self,
+        *,
+        alias,
+        node_id,
+        workflow_id,
+        status,
+        duration_ms,
+        cache_hit,
+        retry_count,
     ):
         self.calls.append("node_completed")
 
@@ -92,12 +114,23 @@ class _CustomCollector:
         self.calls.append("workflow_state")
 
     def record_trace_correlation(
-        self, *, runner_backend, workflow_id, run_id, trace_id=None, span_id=None,
+        self,
+        *,
+        runner_backend,
+        workflow_id,
+        run_id,
+        trace_id=None,
+        span_id=None,
     ):
         self.calls.append("trace_correlation")
 
     def record_operational_alert(
-        self, *, alert_type, severity, workflow_id=None, run_id=None,
+        self,
+        *,
+        alert_type,
+        severity,
+        workflow_id=None,
+        run_id=None,
     ):
         self.calls.append("operational_alert")
 
@@ -111,17 +144,31 @@ class TestProtocolStructuralCheck:
         c = _CustomCollector()
         c.record_node_started(alias="a", node_id="n", workflow_id="w")
         c.record_node_completed(
-            alias="a", node_id="n", workflow_id="w",
-            status="ok", duration_ms=10, cache_hit=False, retry_count=0,
+            alias="a",
+            node_id="n",
+            workflow_id="w",
+            status="ok",
+            duration_ms=10,
+            cache_hit=False,
+            retry_count=0,
         )
         c.record_tier_completed(
-            tier_index=0, tier_size=1, duration_ms=5, workflow_id="w",
+            tier_index=0,
+            tier_size=1,
+            duration_ms=5,
+            workflow_id="w",
         )
         c.record_workflow_completed(
-            workflow_id="w", status="ok", duration_ms=50, node_count=2,
+            workflow_id="w",
+            status="ok",
+            duration_ms=50,
+            node_count=2,
         )
         assert c.calls == [
-            "node_started", "node_completed", "tier_completed", "workflow_completed",
+            "node_started",
+            "node_completed",
+            "tier_completed",
+            "workflow_completed",
         ]
 
 
@@ -132,7 +179,15 @@ class _IncompleteCollector:
         pass
 
     def record_node_completed(
-        self, *, alias, node_id, workflow_id, status, duration_ms, cache_hit, retry_count,
+        self,
+        *,
+        alias,
+        node_id,
+        workflow_id,
+        status,
+        duration_ms,
+        cache_hit,
+        retry_count,
     ):
         pass
 

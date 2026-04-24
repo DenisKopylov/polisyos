@@ -1,9 +1,11 @@
 """Configure multi-stage agent learning, policy optimization, and bilevel search loops."""
+
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from enum import Enum
-from typing import Callable, Sequence
+from typing import Any
 
 import equinox as eqx
 import jax
@@ -16,11 +18,16 @@ from polisyos.foundry.agent_sim.executor import PureExecutor
 from polisyos.foundry.agent_sim.policy import SharedPolicy
 from polisyos.foundry.agent_sim.state import GlobalState, PolicyState
 from polisyos.foundry.contracts.fidelity import FidelityLevel
+from polisyos.foundry.social_weights import (
+    prepare_social_weight_schedule,
+    social_weighted_resource,
+)
 
 
 @dataclass(frozen=True)
 class CalibrationTarget:
     """Declare an empirical metric target used by calibration-mode losses."""
+
     metric_path: str
     empirical_value: float
     weight: float = 1.0
@@ -28,6 +35,7 @@ class CalibrationTarget:
 
 class LearningMode(str, Enum):
     """Learning mode public type."""
+
     AGENTS_ADAPT = "agents_adapt"
     POLICY_OPTIMIZE = "policy_optimize"
     CALIBRATE = "calibrate"
@@ -37,6 +45,7 @@ class LearningMode(str, Enum):
 @dataclass(frozen=True)
 class ModeAConfig:
     """Tune agent-adaptation episodes and credit assignment for mode-A training runs."""
+
     n_episodes: int = 100
     steps_per_episode: int = 64
     learning_rate: float = 3e-4
@@ -48,11 +57,15 @@ class ModeAConfig:
 @dataclass(frozen=True)
 class ModeBConfig:
     """Tune policy-search iterations and welfare objectives for mode-B optimization runs."""
+
     n_iterations: int = 50
     n_steps: int = 256
     learning_rate: float = 1e-3
     objective: str = "social_welfare"
     welfare_weights: dict | None = None
+    social_weight_ref: str | None = None
+    social_weight_manifest: Mapping[str, Any] | None = None
+    social_weight_scale: float = 1.0
     freeze_agents: bool = True
     fidelity: FidelityLevel = FidelityLevel.SURROGATE_FLUID
 
@@ -60,6 +73,7 @@ class ModeBConfig:
 @dataclass(frozen=True)
 class BilevelConfig:
     """Coordinate alternating agent and policy updates for bilevel optimization runs."""
+
     outer_iterations: int = 20
     inner_episodes: int = 50
     mode_a_config: ModeAConfig | None = None
@@ -67,10 +81,24 @@ class BilevelConfig:
     alternating: bool = True
 
 
-def social_welfare_objective(state: GlobalState, weights: dict | None = None) -> jnp.ndarray:
+def social_welfare_objective(
+    state: GlobalState,
+    weights: dict | None = None,
+    *,
+    social_weight_ref: str | None = None,
+    social_weight_manifest: Mapping[str, Any] | None = None,
+    social_weight_scale: float = 1.0,
+    social_weight_schedule: Mapping[str, Any] | None = None,
+) -> jnp.ndarray:
     """Combine wealth, inequality, and consumption metrics into the default policy objective."""
     if weights is None:
         weights = {"gdp": 1.0, "neg_gini": 0.5}
+
+    if social_weight_schedule is None:
+        social_weight_schedule = prepare_social_weight_schedule(
+            social_weight_ref=social_weight_ref,
+            social_weight_manifest=social_weight_manifest,
+        )
 
     total = jnp.array(0.0, dtype=jnp.float32)
 
@@ -85,6 +113,18 @@ def social_welfare_objective(state: GlobalState, weights: dict | None = None) ->
 
     if "bottom_50_share" in weights:
         total = total + weights["bottom_50_share"] * state.distributions.bottom_50_share
+
+    if social_weight_schedule is not None:
+        total = total + (
+            float(social_weight_scale)
+            * weights.get("social_weighted_consumption", 1.0)
+            * social_weighted_resource(
+                state.agents.consumption,
+                state.agents.income,
+                state.agents.active,
+                social_weight_schedule,
+            )
+        )
 
     return total
 
@@ -129,7 +169,16 @@ def run_mode_b_jit(
 ) -> tuple[PolicyState, dict]:
     """Optimize policy parameters against a simulated welfare objective for mode B."""
     if objective_fn is None:
-        objective_fn = lambda s: social_welfare_objective(s, config.welfare_weights)
+        social_weight_schedule = prepare_social_weight_schedule(
+            social_weight_ref=config.social_weight_ref,
+            social_weight_manifest=config.social_weight_manifest,
+        )
+        objective_fn = lambda s: social_welfare_objective(
+            s,
+            config.welfare_weights,
+            social_weight_scale=config.social_weight_scale,
+            social_weight_schedule=social_weight_schedule,
+        )
 
     optimizer = optax.adam(config.learning_rate)
     opt_state = optimizer.init(policy_params)
@@ -234,9 +283,7 @@ def run_mode_a(
             int(n_steps_per_episode),
             fidelity=fidelity,
         )
-        (loss_val, grads) = eqx.filter_value_and_grad(loss_fn)(
-            agent_policy, final_state, metrics
-        )
+        (loss_val, grads) = eqx.filter_value_and_grad(loss_fn)(agent_policy, final_state, metrics)
         updates, opt_state = optimizer.update(grads, opt_state, params)
         agent_policy = eqx.apply_updates(agent_policy, updates)
         params = eqx.filter(agent_policy, eqx.is_inexact_array)

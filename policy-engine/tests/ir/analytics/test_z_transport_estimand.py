@@ -1,4 +1,5 @@
 """Tests for make_z_transport_estimand() — Z-transport estimand constructor."""
+
 import pytest
 
 from polisyos.ir.analytics.estimand import (
@@ -64,7 +65,11 @@ class TestMakeZTransportEstimand:
         factors = est.root.operand.factors
         # pz_factor is the first factor: EXPERIMENTAL domain
         pz = next(
-            (f for f in factors if isinstance(f, DistributionRef) and f.domain is DistributionDomain.EXPERIMENTAL),
+            (
+                f
+                for f in factors
+                if isinstance(f, DistributionRef) and f.domain is DistributionDomain.EXPERIMENTAL
+            ),
             None,
         )
         assert pz is not None, "No EXPERIMENTAL factor found"
@@ -73,7 +78,11 @@ class TestMakeZTransportEstimand:
         est = self._simple()
         factors = est.root.operand.factors
         ptarget = next(
-            (f for f in factors if isinstance(f, DistributionRef) and f.domain is DistributionDomain.TARGET),
+            (
+                f
+                for f in factors
+                if isinstance(f, DistributionRef) and f.domain is DistributionDomain.TARGET
+            ),
             None,
         )
         assert ptarget is not None, "No TARGET factor found"
@@ -81,26 +90,42 @@ class TestMakeZTransportEstimand:
     def test_pz_factor_variables(self):
         est = self._simple()
         factors = est.root.operand.factors
-        pz = next(f for f in factors if isinstance(f, DistributionRef) and f.domain is DistributionDomain.EXPERIMENTAL)
+        pz = next(
+            f
+            for f in factors
+            if isinstance(f, DistributionRef) and f.domain is DistributionDomain.EXPERIMENTAL
+        )
         assert "Y" in pz.variables
 
     def test_pz_factor_conditioning_contains_treatment_and_z(self):
         est = self._simple()
         factors = est.root.operand.factors
-        pz = next(f for f in factors if isinstance(f, DistributionRef) and f.domain is DistributionDomain.EXPERIMENTAL)
+        pz = next(
+            f
+            for f in factors
+            if isinstance(f, DistributionRef) and f.domain is DistributionDomain.EXPERIMENTAL
+        )
         assert "X" in pz.conditioning
         assert "Z" in pz.conditioning
 
     def test_pz_factor_intervention_set(self):
         est = self._simple()
         factors = est.root.operand.factors
-        pz = next(f for f in factors if isinstance(f, DistributionRef) and f.domain is DistributionDomain.EXPERIMENTAL)
+        pz = next(
+            f
+            for f in factors
+            if isinstance(f, DistributionRef) and f.domain is DistributionDomain.EXPERIMENTAL
+        )
         assert "X" in pz.intervention_set
 
     def test_pstar_z_variables_are_z_vars(self):
         est = self._simple()
         factors = est.root.operand.factors
-        pstar = next(f for f in factors if isinstance(f, DistributionRef) and f.domain is DistributionDomain.TARGET)
+        pstar = next(
+            f
+            for f in factors
+            if isinstance(f, DistributionRef) and f.domain is DistributionDomain.TARGET
+        )
         assert "Z" in pstar.variables
 
     # --- Required domains ---
@@ -169,7 +194,11 @@ class TestMakeZTransportEstimand:
             z_vars=("Z1", "Z2"),
         )
         factors = est.root.operand.factors
-        pz = next(f for f in factors if isinstance(f, DistributionRef) and f.domain is DistributionDomain.EXPERIMENTAL)
+        pz = next(
+            f
+            for f in factors
+            if isinstance(f, DistributionRef) and f.domain is DistributionDomain.EXPERIMENTAL
+        )
         assert "Z1" in pz.conditioning
         assert "Z2" in pz.conditioning
 

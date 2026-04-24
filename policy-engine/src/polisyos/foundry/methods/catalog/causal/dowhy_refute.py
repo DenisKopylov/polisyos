@@ -1,4 +1,5 @@
 """Public causal dowhy refute module API."""
+
 from __future__ import annotations
 
 import json
@@ -43,7 +44,6 @@ def _load_dowhy_dependencies() -> tuple[Any, Any]:
     import dowhy
     import pandas as pd
 
-
     return dowhy, pd
 
 
@@ -67,7 +67,8 @@ def _extract_standard_error(estimate: Any) -> float | None:
         scalar = _to_float_scalar(value)
     except (TypeError, ValueError) as exc:
         logger.debug(
-            "Failed to extract standard error from estimate: %s", exc,
+            "Failed to extract standard error from estimate: %s",
+            exc,
         )
         return None
     if scalar < 0:
@@ -82,7 +83,8 @@ def _extract_confidence_interval(estimate: Any) -> tuple[float, float] | None:
         interval = estimate.get_confidence_intervals()
     except (TypeError, ValueError) as exc:
         logger.debug(
-            "Failed to extract confidence intervals from estimate: %s", exc,
+            "Failed to extract confidence intervals from estimate: %s",
+            exc,
         )
         return None
     if interval is None:
@@ -142,7 +144,8 @@ def _extract_p_value(refutation: Any) -> float | None:
         value = _to_float_scalar(raw)
     except (TypeError, ValueError) as exc:
         logger.debug(
-            "Failed to parse p-value from refutation result: %s", exc,
+            "Failed to parse p-value from refutation result: %s",
+            exc,
         )
         return None
     if 0.0 <= value <= 1.0:
@@ -160,13 +163,15 @@ def _extract_refuted_estimate(refutation: Any, *, fallback: float) -> float:
                 return _to_float_scalar(candidate)
             except (TypeError, ValueError) as exc:
                 logger.debug(
-                    "Failed to convert refuted estimate attr %r: %s", attr, exc,
+                    "Failed to convert refuted estimate attr %r: %s",
+                    attr,
+                    exc,
                 )
                 continue
 
     if hasattr(refutation, "new_effect_array"):
         try:
-            values = np.asarray(getattr(refutation, "new_effect_array"), dtype=float).reshape(-1)
+            values = np.asarray(refutation.new_effect_array, dtype=float).reshape(-1)
             values = values[np.isfinite(values)]
             if values.size > 0:
                 return float(np.mean(values))
@@ -182,7 +187,9 @@ def _extract_refuted_estimate(refutation: Any, *, fallback: float) -> float:
                 return _to_float_scalar(raw_result[key])
             except (TypeError, ValueError) as exc:
                 logger.debug(
-                    "Failed to convert refutation_result[%r]: %s", key, exc,
+                    "Failed to convert refutation_result[%r]: %s",
+                    key,
+                    exc,
                 )
                 continue
 
@@ -253,8 +260,7 @@ class DoWhyRefute:
         ),
         tags=frozenset({"causal", "dowhy", "refutation", "robustness"}),
         citations=(
-            "Sharma, A., Kiciman, E. (2020). DoWhy: An End-to-End Library "
-            "for Causal Inference.",
+            "Sharma, A., Kiciman, E. (2020). DoWhy: An End-to-End Library for Causal Inference.",
         ),
         assumptions={
             "graph_correctness": "Causal graph is correctly specified.",
@@ -275,9 +281,7 @@ class DoWhyRefute:
         "frontdoor.two_stage_regression": CausalMethod.DOWHY_FRONTDOOR,
     }
 
-    _REFUTER_METHODS: ClassVar[
-        tuple[tuple[RefutationTestType, str], ...]
-    ] = (
+    _REFUTER_METHODS: ClassVar[tuple[tuple[RefutationTestType, str], ...]] = (
         (RefutationTestType.PLACEBO_TREATMENT, "placebo_treatment_refuter"),
         (RefutationTestType.RANDOM_COMMON_CAUSE, "random_common_cause"),
         (RefutationTestType.DATA_SUBSET, "data_subset_refuter"),
@@ -287,9 +291,7 @@ class DoWhyRefute:
     @staticmethod
     def pure_step(state: GraphCausalData, params: Mapping[str, Any]) -> dict[str, Any]:
         data = (
-            state
-            if isinstance(state, GraphCausalData)
-            else GraphCausalData.model_validate(state)
+            state if isinstance(state, GraphCausalData) else GraphCausalData.model_validate(state)
         )
         method_name = str(params.get("method_name", "backdoor.linear_regression"))
         estimand_type = str(params.get("estimand_type", "nonparametric-ate"))
@@ -327,7 +329,9 @@ class DoWhyRefute:
                 estimand_type=estimand_type,
                 graph_ref=data.graph_ref,
             )
-            return wrap_causal_output(report, warnings=[report.status_reason or "backend unavailable"])
+            return wrap_causal_output(
+                report, warnings=[report.status_reason or "backend unavailable"]
+            )
 
         df = pd.DataFrame(data.data, columns=data.column_names)
         try:
@@ -356,7 +360,9 @@ class DoWhyRefute:
                 estimand_type=estimand_type,
                 graph_ref=data.graph_ref,
             )
-            return wrap_causal_output(report, warnings=[report.status_reason or "estimation failed"])
+            return wrap_causal_output(
+                report, warnings=[report.status_reason or "estimation failed"]
+            )
 
         ci = _extract_confidence_interval(estimate)
         if ci is None:

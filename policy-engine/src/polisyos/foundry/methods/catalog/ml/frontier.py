@@ -1,8 +1,10 @@
 """Frontier ML estimators for tabular deep learning, graph learning, and self-supervision."""
+
 from __future__ import annotations
 
 import math
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -96,8 +98,18 @@ def _metadata_with_embedding_fidelity(
 def _graph_output_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
-            SlotSpec("node_features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_nodes", "n_features")),
-            SlotSpec("adjacency_matrix", SlotType.MATRIX, Unit("network", "adjacency"), shape=("n_nodes", "n_nodes")),
+            SlotSpec(
+                "node_features",
+                SlotType.MATRIX,
+                Unit("feature", "value"),
+                shape=("n_nodes", "n_features"),
+            ),
+            SlotSpec(
+                "adjacency_matrix",
+                SlotType.MATRIX,
+                Unit("network", "adjacency"),
+                shape=("n_nodes", "n_nodes"),
+            ),
             SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_nodes",)),
         }
     )
@@ -120,7 +132,12 @@ class FTTransformerEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "features",
+                    SlotType.MATRIX,
+                    Unit("feature", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
                 SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_obs",)),
             }
         ),
@@ -217,7 +234,12 @@ class TabNetEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "features",
+                    SlotType.MATRIX,
+                    Unit("feature", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
                 SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_obs",)),
             }
         ),
@@ -282,7 +304,9 @@ class TabNetEstimator:
         mean_mask = np.mean(np.asarray(masks, dtype=float), axis=0)
         feature_importances = {
             name: float(value)
-            for name, value in zip(_feature_names(data), mean_mask / max(float(np.sum(mean_mask)), 1.0e-12))
+            for name, value in zip(
+                _feature_names(data), mean_mask / max(float(np.sum(mean_mask)), 1.0e-12)
+            )
         }
         coefficients = {f"step_feature_{idx}": float(value) for idx, value in enumerate(coef[1:])}
         coefficients["intercept"] = float(coef[0])
@@ -326,7 +350,9 @@ class GraphNeuralNetworkEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Graph-convolution regressor that propagates neighborhood signal before fitting a node-level prediction head.",
         tags=frozenset({"ml", "graph", "gnn", "frontier"}),
-        citations=("Kipf, T. & Welling, M. (2017). Semi-supervised classification with graph convolutional networks.",),
+        citations=(
+            "Kipf, T. & Welling, M. (2017). Semi-supervised classification with graph convolutional networks.",
+        ),
         when_to_use="Node-level prediction where network topology carries predictive information beyond tabular covariates.",
         when_not_to_use="No meaningful graph, highly dynamic edge weights, or tasks demanding deep message-passing stacks.",
         typical_min_obs=30,
@@ -339,7 +365,9 @@ class GraphNeuralNetworkEstimator:
         adjacency = np.asarray(state["adjacency_matrix"], dtype=float)
         y = np.asarray(state["target"], dtype=float)
         if x.ndim != 2 or adjacency.shape != (x.shape[0], x.shape[0]) or y.shape != (x.shape[0],):
-            raise ValueError("graph payload must contain aligned node_features, adjacency_matrix, and target")
+            raise ValueError(
+                "graph payload must contain aligned node_features, adjacency_matrix, and target"
+            )
 
         hidden_dim = max(4, int(params.get("hidden_dim", 12)))
         rng = np.random.default_rng(int(params.get("__seed__", 0)))
@@ -395,7 +423,12 @@ class MaskedAutoencoderEmbeddingEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "features",
+                    SlotType.MATRIX,
+                    Unit("feature", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
             }
         ),
         output_slots=_embedding_output_slots(),
@@ -422,7 +455,9 @@ class MaskedAutoencoderEmbeddingEstimator:
     )
 
     @staticmethod
-    def pure_step(state: TabularData | Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: TabularData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         payload = _tabular_payload(state)
         data = TabularData.model_validate(payload)
         x, _, _ = _normalize_features(np.asarray(data.features, dtype=float))
@@ -445,8 +480,7 @@ class MaskedAutoencoderEmbeddingEstimator:
             np.mean(
                 np.sum(transformed * alt_transformed, axis=1)
                 / (
-                    np.linalg.norm(transformed, axis=1)
-                    * np.linalg.norm(alt_transformed, axis=1)
+                    np.linalg.norm(transformed, axis=1) * np.linalg.norm(alt_transformed, axis=1)
                     + 1.0e-12
                 )
             )
@@ -464,7 +498,8 @@ class MaskedAutoencoderEmbeddingEstimator:
                 transformed=transformed,
                 components=vt[:latent_dim, :],
                 explained_variance_ratio=[
-                    float(value / max(float(np.sum(s ** 2)), 1.0e-12)) for value in (s[:latent_dim] ** 2)
+                    float(value / max(float(np.sum(s**2)), 1.0e-12))
+                    for value in (s[:latent_dim] ** 2)
                 ],
                 embedding_fidelity_certificate=embedding_fidelity_certificate,
                 metadata=_metadata_with_embedding_fidelity(

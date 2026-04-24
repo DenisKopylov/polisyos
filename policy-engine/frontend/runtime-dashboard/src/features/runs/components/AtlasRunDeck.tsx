@@ -99,7 +99,9 @@ export function AtlasRunDeck({
         size="sm"
         type="button"
         variant="ghost"
-        onClick={() => void onExportSlide(id)}
+        onClick={() => {
+          onExportSlide(id);
+        }}
       >
         {copy.exportSlide}
       </Button>

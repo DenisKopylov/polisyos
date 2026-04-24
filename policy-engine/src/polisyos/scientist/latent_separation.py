@@ -209,7 +209,9 @@ class LatentSeparationDiagnosticInputs(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @classmethod
-    def from_mapping(cls, value: Mapping[str, Any] | None) -> "LatentSeparationDiagnosticInputs | None":
+    def from_mapping(
+        cls, value: Mapping[str, Any] | None
+    ) -> LatentSeparationDiagnosticInputs | None:
         if not isinstance(value, Mapping):
             return None
         return cls.model_validate(value)
@@ -253,8 +255,7 @@ def compute_latent_separation_diagnostics(
         strings_as_single_block=True,
     )
     proxy_blocks = _variable_blocks(
-        design_payload.get("proxy_block_variables")
-        or design_payload.get("proxy_blocks"),
+        design_payload.get("proxy_block_variables") or design_payload.get("proxy_blocks"),
         strings_as_single_block=False,
     )
 
@@ -338,11 +339,14 @@ def compute_latent_separation_diagnostics_from_inputs(
     )
     if parsed.prerequisites_missing:
         unresolved = any(
-            str(reason).strip()
-            for reason in parsed.prerequisites_missing
-            if str(reason).strip()
+            str(reason).strip() for reason in parsed.prerequisites_missing if str(reason).strip()
         )
-        if unresolved and resolution_label not in {"mixed", "measurement_error", "proxy_mismatch", "latent_confounding"}:
+        if unresolved and resolution_label not in {
+            "mixed",
+            "measurement_error",
+            "proxy_mismatch",
+            "latent_confounding",
+        }:
             resolution_label = "unresolved"
 
     payload: dict[str, Any] = {
@@ -453,9 +457,7 @@ def merge_latent_separation_diagnostics_payloads(
 
     labels = [_resolution_label(value) for value in normalized]
     same_label = (
-        bool(labels)
-        and len(set(labels)) == 1
-        and labels[0] not in {"", "mixed", "unresolved"}
+        bool(labels) and len(set(labels)) == 1 and labels[0] not in {"", "mixed", "unresolved"}
     )
     pair_sets = [set(_normalized_pairs(value)) for value in normalized]
     shared_pairs = set.intersection(*pair_sets) if pair_sets else set()
@@ -496,10 +498,7 @@ def latent_separation_assumption_surfaces(
         return []
     surfaces = [
         f"latent_separation_resolution:{_resolution_label(payload) or 'unresolved'}",
-        *(
-            f"latent_separation_pair:{pair}"
-            for pair in _normalized_pairs(payload)
-        ),
+        *(f"latent_separation_pair:{pair}" for pair in _normalized_pairs(payload)),
     ]
     for scope in payload.get("support_scope", []) or []:
         text = str(scope).strip()
@@ -573,14 +572,8 @@ def certified_latent_separation_pairs(
     certified: list[str] = []
     for pair in _normalized_pairs(payload):
         pair_is_certified = (
-            (
-                pair == "measurement_vs_proxy"
-                and _certifies_measurement_vs_proxy(payload)
-            )
-            or (
-                pair == "proxy_vs_confounding"
-                and _certifies_proxy_vs_confounding(payload)
-            )
+            (pair == "measurement_vs_proxy" and _certifies_measurement_vs_proxy(payload))
+            or (pair == "proxy_vs_confounding" and _certifies_proxy_vs_confounding(payload))
             or (
                 pair == "measurement_vs_confounding"
                 and _certifies_measurement_vs_confounding(payload)
@@ -724,9 +717,7 @@ def _structured_environment_block(
     if block.certification_level is not None:
         payload["certification_level"] = block.certification_level
     if block.route_to_latent_aware_discovery is not None:
-        payload["route_to_latent_aware_discovery"] = bool(
-            block.route_to_latent_aware_discovery
-        )
+        payload["route_to_latent_aware_discovery"] = bool(block.route_to_latent_aware_discovery)
     payload.update(dict(block.metadata))
     return payload
 
@@ -804,9 +795,7 @@ def _normalized_pairs(payload: Mapping[str, Any]) -> list[str]:
     else:
         raw = []
     return [
-        value
-        for value in _dedupe_strings(str(item) for item in raw)
-        if value in _SEPARATED_PAIRS
+        value for value in _dedupe_strings(str(item) for item in raw) if value in _SEPARATED_PAIRS
     ]
 
 
@@ -888,8 +877,7 @@ def _certifies_measurement_vs_proxy(payload: Mapping[str, Any]) -> bool:
     proxy_block = payload.get("proxy_block")
     environment_block = payload.get("environment_block")
     if not all(
-        isinstance(block, Mapping)
-        for block in (measurement_block, proxy_block, environment_block)
+        isinstance(block, Mapping) for block in (measurement_block, proxy_block, environment_block)
     ):
         return False
     if not _representation_fidelity_supported(proxy_block):
@@ -912,9 +900,7 @@ def _certifies_proxy_vs_confounding(payload: Mapping[str, Any]) -> bool:
     if not _representation_fidelity_supported(proxy_block):
         return False
     if label == "latent_confounding":
-        return _measurement_block_supported(measurement_block) and _bridge_supported(
-            proxy_block
-        )
+        return _measurement_block_supported(measurement_block) and _bridge_supported(proxy_block)
     if label == "proxy_mismatch":
         return _measurement_block_supported(measurement_block) and _proxy_mismatch_supported(
             measurement_block,
@@ -929,8 +915,7 @@ def _certifies_measurement_vs_confounding(payload: Mapping[str, Any]) -> bool:
     proxy_block = payload.get("proxy_block")
     environment_block = payload.get("environment_block")
     if not all(
-        isinstance(block, Mapping)
-        for block in (measurement_block, proxy_block, environment_block)
+        isinstance(block, Mapping) for block in (measurement_block, proxy_block, environment_block)
     ):
         return False
     if not _representation_fidelity_supported(proxy_block):
@@ -983,9 +968,7 @@ def _has_replication_evidence(
     if replicated_pairs is None:
         return True
     pair_set = set(certified_pairs)
-    replicated_pair_set = set(
-        _normalized_pairs({"separated_pairs": replicated_pairs})
-    )
+    replicated_pair_set = set(_normalized_pairs({"separated_pairs": replicated_pairs}))
     return bool(pair_set) and pair_set.issubset(replicated_pair_set)
 
 
@@ -1019,8 +1002,7 @@ def _bridge_not_supported(block: Mapping[str, Any]) -> bool:
 
 def _representation_fidelity_status(block: Mapping[str, Any]) -> str:
     return _normalize_token(
-        block.get("representation_faithfulness_status")
-        or block.get("embedding_fidelity_status")
+        block.get("representation_faithfulness_status") or block.get("embedding_fidelity_status")
     )
 
 
@@ -1167,14 +1149,10 @@ def _computed_design_payload(
             block_id: list(variables) for block_id, variables in repeated_blocks
         },
         "treatment": str(
-            design_map.get("treatment")
-            or design_map.get("treatment_variable")
-            or "treatment"
+            design_map.get("treatment") or design_map.get("treatment_variable") or "treatment"
         ),
         "outcome": str(
-            design_map.get("outcome")
-            or design_map.get("outcome_variable")
-            or "outcome"
+            design_map.get("outcome") or design_map.get("outcome_variable") or "outcome"
         ),
     }
 
@@ -1237,9 +1215,7 @@ def _compute_measurement_block(
     rank_ratio = _rank_residual_ratio(standardized)
     tetrad_value = _max_tetrad_residual(standardized) if standardized.shape[1] >= 4 else None
     structure_passed = (
-        tetrad_value <= rank_tol
-        if tetrad_value is not None
-        else rank_ratio <= rank_tol
+        tetrad_value <= rank_tol if tetrad_value is not None else rank_ratio <= rank_tol
     )
     invariance_status, invariance_drift = _measurement_invariance_status(
         standardized,
@@ -1256,9 +1232,7 @@ def _compute_measurement_block(
         else "unsupported"
     )
     tetrad_label = (
-        "single_signal_tetrad_passed"
-        if structure_passed
-        else "single_signal_tetrad_failed"
+        "single_signal_tetrad_passed" if structure_passed else "single_signal_tetrad_failed"
     )
     return (
         {
@@ -1364,7 +1338,9 @@ def _compute_environment_block(
         }
     if latent_score is None:
         _, _, matrix = _first_available_block(columns, repeated_blocks)
-        latent_score = _first_component_score(_standardize_matrix(matrix)) if matrix is not None else None
+        latent_score = (
+            _first_component_score(_standardize_matrix(matrix)) if matrix is not None else None
+        )
     if latent_score is None:
         return {
             "status": "unsupported",
@@ -1406,7 +1382,9 @@ def _computed_resolution(
     measurement_passed = _measurement_block_supported(measurement_block)
     measurement_failed = _matches_any(measurement_block, _MISMATCH_FRAGMENTS + _NEGATIVE_FRAGMENTS)
     bridge_supported = _bridge_supported(proxy_block)
-    bridge_failed = _bridge_not_supported(proxy_block) or _matches_any(proxy_block, _MISMATCH_FRAGMENTS)
+    bridge_failed = _bridge_not_supported(proxy_block) or _matches_any(
+        proxy_block, _MISMATCH_FRAGMENTS
+    )
     environment_restored = _environment_restored(environment_block)
     environment_not_restored = _environment_not_restored(environment_block)
 
@@ -1494,7 +1472,9 @@ def _proximal_bridge_status(
             "bridge_fallback_disposition",
             proximal_result.get("bridge_fallback_disposition"),
         )
-    status = _normalize_token(getattr(getattr(report, "status", ""), "value", getattr(report, "status", "")))
+    status = _normalize_token(
+        getattr(getattr(report, "status", ""), "value", getattr(report, "status", ""))
+    )
     fallback = _normalize_token(metadata.get("bridge_fallback_disposition"))
     severity = _normalize_token(metadata.get("bridge_plausibility_severity"))
     solved = (
@@ -1727,7 +1707,7 @@ def _first_component_score(matrix: np.ndarray) -> np.ndarray:
 
 def _rank_residual_ratio(matrix: np.ndarray) -> float:
     singular_values = np.linalg.svd(matrix, full_matrices=False, compute_uv=False)
-    denom = float(np.sum(singular_values ** 2))
+    denom = float(np.sum(singular_values**2))
     if denom <= 1.0e-12:
         return 1.0
     return float(np.sum(singular_values[1:] ** 2) / denom)
@@ -1743,7 +1723,9 @@ def _max_tetrad_residual(matrix: np.ndarray) -> float:
                 for ell in range(k + 1, cov.shape[0]):
                     if len({i, j, k, ell}) != 4:
                         continue
-                    residuals.append(abs(float(cov[i, j] * cov[k, ell] - cov[i, k] * cov[j, ell])) / scale)
+                    residuals.append(
+                        abs(float(cov[i, j] * cov[k, ell] - cov[i, k] * cov[j, ell])) / scale
+                    )
     return max(residuals) if residuals else 0.0
 
 
@@ -1764,17 +1746,17 @@ def _safe_corr(left: np.ndarray, right: np.ndarray) -> float | None:
 __all__ = [
     "SEPARATION_DIAGNOSTICS_KEY",
     "SEPARATION_DIAGNOSTIC_INPUTS_KEY",
-    "compute_latent_separation_diagnostics",
-    "compute_latent_separation_diagnostics_from_inputs",
-    "certified_latent_separation_pairs",
-    "certify_latent_separation_trust",
     "LatentSeparationDiagnosticInputs",
     "LatentSeparationEnvironmentInput",
     "LatentSeparationMeasurementInput",
     "LatentSeparationProxyInput",
+    "certified_latent_separation_pairs",
+    "certify_latent_separation_trust",
+    "compute_latent_separation_diagnostics",
+    "compute_latent_separation_diagnostics_from_inputs",
     "latent_separation_assumption_surfaces",
     "latent_separation_falsification_surfaces",
-    "metadata_with_computed_latent_separation",
     "merge_latent_separation_diagnostics_payloads",
+    "metadata_with_computed_latent_separation",
     "separation_diagnostics_payload",
 ]

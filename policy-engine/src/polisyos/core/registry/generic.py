@@ -1,4 +1,5 @@
 """Implement a thread-safe registry with optional secondary indices."""
+
 from __future__ import annotations
 
 import threading
@@ -9,14 +10,15 @@ from typing import Generic, TypeVar
 
 K = TypeVar("K", bound=Hashable)
 T = TypeVar("T")
-I = TypeVar("I", bound=Hashable)
+IndexKey = TypeVar("IndexKey", bound=Hashable)
 
-Indexer = Callable[[T], I | Iterable[I] | None]
+Indexer = Callable[[T], IndexKey | Iterable[IndexKey] | None]
 
 
 @dataclass(frozen=True, slots=True)
 class GenericRegistrySnapshot(Generic[K, T]):
     """Capture an immutable point-in-time copy of registry keys and values."""
+
     keys: tuple[K, ...]
     values: tuple[T, ...]
 

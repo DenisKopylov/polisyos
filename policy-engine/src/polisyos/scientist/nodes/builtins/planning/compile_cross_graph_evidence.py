@@ -1,4 +1,5 @@
 """Public planning compile cross graph evidence module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -115,6 +116,7 @@ _CROSS_GRAPH_IMPORT_RUNTIME_ERRORS = (
 @dataclass(frozen=True)
 class CompileCrossGraphEvidenceNode:
     """Compile cross graph evidence node implementation."""
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -181,7 +183,9 @@ class CompileCrossGraphEvidenceNode:
             )
             profile_ref = persist_cross_graph_evidence_profile(ctx.store, profile)
             new_state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF] = profile_ref
-            new_state.params["cross_graph_evidence_summary"] = profile.summary.model_dump(mode="json")
+            new_state.params["cross_graph_evidence_summary"] = profile.summary.model_dump(
+                mode="json"
+            )
             new_state.params["cross_graph_benchmark_summary"] = dict(profile.benchmark_summary)
             return NodeOutcome(
                 status="ok",
@@ -197,9 +201,7 @@ class CompileCrossGraphEvidenceNode:
 
         inputs: list[InputRef] = []
         if trinity_ref is not None:
-            inputs.append(
-                InputRef(artifact_id=str(trinity_ref.artifact_id), role="trinity_bundle")
-            )
+            inputs.append(InputRef(artifact_id=str(trinity_ref.artifact_id), role="trinity_bundle"))
         graph_prior_ref = state.inputs.get(INPUT_GRAPH_PRIOR_BUNDLE_REF)
         if graph_prior_ref is not None:
             inputs.append(
@@ -210,9 +212,7 @@ class CompileCrossGraphEvidenceNode:
             )
         graph_ref = state.artifacts_index.get(ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF)
         if graph_ref is not None:
-            inputs.append(
-                InputRef(artifact_id=str(graph_ref.artifact_id), role="causal_graph")
-            )
+            inputs.append(InputRef(artifact_id=str(graph_ref.artifact_id), role="causal_graph"))
         literature_prior_ref = state.artifacts_index.get(ARTIFACT_LITERATURE_PRIOR_REF)
         if literature_prior_ref is not None:
             inputs.append(
@@ -375,7 +375,10 @@ def _augment_with_graph_prior(
         return enriched.model_copy(update={"summary": _rebuild_summary(enriched)})
 
     extra_needs = [
-        *[_assessment_from_prior_edge(edge, source_label="required") for edge in bundle.required_edges],
+        *[
+            _assessment_from_prior_edge(edge, source_label="required")
+            for edge in bundle.required_edges
+        ],
         *[
             _assessment_from_prior_edge(edge, source_label="high_confidence")
             for edge in bundle.high_confidence_edges
@@ -498,7 +501,11 @@ def _labeled_assessments(
     labeled: list[tuple[EvidenceNeedAssessment, str]] = []
     for assessment in assessments:
         label = next(
-            (item.replace("discovery_", "") for item in assessment.need.labels if item.startswith("discovery_")),
+            (
+                item.replace("discovery_", "")
+                for item in assessment.need.labels
+                if item.startswith("discovery_")
+            ),
             "disputed" if assessment.requires_expert_review else "required",
         )
         labeled.append((assessment, label))

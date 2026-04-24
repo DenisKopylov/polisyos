@@ -1,10 +1,11 @@
 """Public materialize projections module API."""
+
 from __future__ import annotations
 
 import uuid
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Iterable, Sequence
 
 import pandas as pd
 
@@ -137,16 +138,10 @@ def build_projection_refresh_plan(
 ) -> ProjectionRefreshPlan:
     """Return the explainable, topologically sorted projection refresh plan."""
 
-    normalized_kinds = {
-        str(kind).strip()
-        for kind in touched_node_kinds
-        if str(kind).strip()
-    }
+    normalized_kinds = {str(kind).strip() for kind in touched_node_kinds if str(kind).strip()}
     steps: list[ProjectionRefreshStep] = []
     for spec in _PROJECTION_SPECS:
-        impacted = tuple(
-            kind for kind in spec.impacted_node_kinds if kind in normalized_kinds
-        )
+        impacted = tuple(kind for kind in spec.impacted_node_kinds if kind in normalized_kinds)
         if not impacted:
             continue
         steps.append(
@@ -156,10 +151,7 @@ def build_projection_refresh_plan(
                 depends_on=spec.depends_on,
                 impacted_node_kinds=impacted,
                 supports_incremental=spec.supports_incremental,
-                reason=(
-                    "impacted by touched node kinds: "
-                    + ", ".join(impacted)
-                ),
+                reason=("impacted by touched node kinds: " + ", ".join(impacted)),
             )
         )
     return ProjectionRefreshPlan(steps=tuple(steps))
@@ -168,6 +160,7 @@ def build_projection_refresh_plan(
 @dataclass
 class ProjectionUpdateStats:
     """Projection update stats public type."""
+
     doc_versions: int = 0
     doc_sources: int = 0
     doc_fragments: int = 0
@@ -221,9 +214,7 @@ def _load_json_artifact(cas: ArtifactStore, artifact_id: str) -> dict:
             raise ValueError("artifact JSON must be an object")
         return payload
     except Exception as exc:  # pragma: no cover - defensive
-        raise WorldArtifactReadError(
-            f"failed to read artifact {artifact_id}: {exc}"
-        ) from exc
+        raise WorldArtifactReadError(f"failed to read artifact {artifact_id}: {exc}") from exc
 
 
 def _load_doc_meta(cas: ArtifactStore, artifact_id: str) -> DocMeta:
@@ -263,9 +254,7 @@ def _load_claim(cas: ArtifactStore, artifact_id: str) -> Claim:
     except Exception as exc:
         if isinstance(exc, WorldArtifactReadError):
             raise
-        raise WorldArtifactReadError(
-            f"failed to load Claim artifact {artifact_id}: {exc}"
-        ) from exc
+        raise WorldArtifactReadError(f"failed to load Claim artifact {artifact_id}: {exc}") from exc
 
 
 def _load_conflict_set(cas: ArtifactStore, artifact_id: str) -> ConflictSet:
@@ -341,9 +330,7 @@ def _apply_rows(conn, table: str, pk_col: str, rows: list[dict]) -> int:
     ids_df = df[[pk_col]].drop_duplicates()
     ids_name = _register_df(conn, ids_df, prefix=f"{pk_col}_ids")
     try:
-        conn.execute(
-            f"DELETE FROM {table} WHERE {pk_col} IN (SELECT {pk_col} FROM {ids_name})"
-        )
+        conn.execute(f"DELETE FROM {table} WHERE {pk_col} IN (SELECT {pk_col} FROM {ids_name})")
     finally:
         conn.unregister(ids_name)
 
@@ -353,7 +340,7 @@ def _apply_rows(conn, table: str, pk_col: str, rows: list[dict]) -> int:
         conn.execute(f"INSERT INTO {table} ({cols}) SELECT {cols} FROM {data_name}")
     finally:
         conn.unregister(data_name)
-    return int(len(df.index))
+    return len(df.index)
 
 
 def _build_doc_version_rows(
@@ -408,9 +395,7 @@ def _build_doc_source_rows(metas: Iterable[DocMeta]) -> list[dict]:
             entry["canonical_url"] = meta.canonical_url
         if meta.official_id is not None:
             if entry["official_id"] and entry["official_id"] != meta.official_id:
-                raise WorldMergeConflict(
-                    f"doc_source_id {meta.doc_source_id} official_id conflict"
-                )
+                raise WorldMergeConflict(f"doc_source_id {meta.doc_source_id} official_id conflict")
             entry["official_id"] = meta.official_id
 
         if meta.jurisdiction is not None:
@@ -617,9 +602,7 @@ def _update_claim_citations(
     if not touched_claim_ids and not touched_fragment_ids:
         return 0
 
-    claim_df = pd.DataFrame(
-        {"claim_id": pd.Series(list(touched_claim_ids), dtype="string")}
-    )
+    claim_df = pd.DataFrame({"claim_id": pd.Series(list(touched_claim_ids), dtype="string")})
     fragment_df = pd.DataFrame(
         {"fragment_id": pd.Series(list(touched_fragment_ids), dtype="string")}
     )
@@ -688,9 +671,7 @@ def _update_conflict_members(
     conflict_df = pd.DataFrame(
         {"conflict_set_id": pd.Series(list(touched_conflict_set_ids), dtype="string")}
     )
-    claim_df = pd.DataFrame(
-        {"claim_id": pd.Series(list(touched_claim_ids), dtype="string")}
-    )
+    claim_df = pd.DataFrame({"claim_id": pd.Series(list(touched_claim_ids), dtype="string")})
 
     conflict_name = _register_df(conn, conflict_df, prefix="conflict_set_ids")
     claim_name = _register_df(conn, claim_df, prefix="claim_ids")
@@ -797,9 +778,7 @@ def update_projections(
         return stats
 
     touched_node_kinds = [
-        str(kind)
-        for kind in nodes_df["kind"].dropna().tolist()
-        if str(kind).strip()
+        str(kind) for kind in nodes_df["kind"].dropna().tolist() if str(kind).strip()
     ]
     plan = build_projection_refresh_plan(touched_node_kinds=touched_node_kinds)
     stats.plan = plan
@@ -821,9 +800,7 @@ def update_projections(
         metas = []
     if "doc_sources" in planned_steps and metas:
         doc_source_rows = _build_doc_source_rows(metas)
-        stats.doc_sources = _apply_rows(
-            conn, "world.doc_sources", "doc_source_id", doc_source_rows
-        )
+        stats.doc_sources = _apply_rows(conn, "world.doc_sources", "doc_source_id", doc_source_rows)
 
     doc_fragment_artifacts = _artifact_ids_for("doc.fragment")
     if "doc_fragments" in planned_steps and doc_fragment_artifacts:
@@ -867,23 +844,17 @@ def update_projections(
     event_artifacts = _artifact_ids_for("world.event")
     if "world_events" in planned_steps and event_artifacts:
         event_rows = _build_world_event_rows(cas, event_artifacts)
-        stats.world_events = _apply_rows(
-            conn, "world.world_events", "event_id", event_rows
-        )
+        stats.world_events = _apply_rows(conn, "world.world_events", "event_id", event_rows)
 
     touched_claim_ids = nodes_df[nodes_df["kind"] == "claim"]["node_id"].tolist()
-    touched_fragment_ids = nodes_df[nodes_df["kind"] == "doc.fragment"][
-        "node_id"
-    ].tolist()
+    touched_fragment_ids = nodes_df[nodes_df["kind"] == "doc.fragment"]["node_id"].tolist()
     if "claim_citations" in planned_steps:
         stats.claim_citations = _update_claim_citations(
             conn,
             touched_claim_ids=touched_claim_ids,
             touched_fragment_ids=touched_fragment_ids,
         )
-    touched_conflict_set_ids = nodes_df[nodes_df["kind"] == "conflict_set"][
-        "node_id"
-    ].tolist()
+    touched_conflict_set_ids = nodes_df[nodes_df["kind"] == "conflict_set"]["node_id"].tolist()
     if "conflict_members" in planned_steps:
         stats.conflict_members = _update_conflict_members(
             conn,

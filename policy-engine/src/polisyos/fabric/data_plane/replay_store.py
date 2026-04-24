@@ -79,7 +79,8 @@ class ReplayStore:
                 kind="fabric.record_session",
                 media_type="application/json",
                 schema=SchemaInfo(
-                    name="polisyos.fabric.RecordSession", version="1.0",
+                    name="polisyos.fabric.RecordSession",
+                    version="1.0",
                 ),
             ),
             canon_spec=CanonSpec(forbid_floats=False),

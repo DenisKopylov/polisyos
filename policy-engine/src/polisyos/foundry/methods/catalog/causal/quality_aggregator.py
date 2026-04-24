@@ -11,9 +11,10 @@ Combines three orthogonal quality dimensions into a single CausalQualityReport:
 
 Called from CausalEngine.audit() to attach a CausalQualityReport to EvidenceBundle.
 """
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.ir.analytics.evidence_bundle import DataProvenance, EstimationStep
@@ -91,11 +92,13 @@ class QualityScoreAggregator:
         if data_provenance:
             prov_scores = [p.quality_score for p in data_provenance]
             components["provenance_quality"] = sum(prov_scores) / len(prov_scores)
-            unavailable = [p.dataset_ref for p in data_provenance if p.availability_status not in ("available",)]
+            unavailable = [
+                p.dataset_ref
+                for p in data_provenance
+                if p.availability_status not in ("available",)
+            ]
             if unavailable:
-                warnings.append(
-                    f"Data sources with limited availability: {', '.join(unavailable)}"
-                )
+                warnings.append(f"Data sources with limited availability: {', '.join(unavailable)}")
         else:
             components["provenance_quality"] = 1.0
 
@@ -126,9 +129,7 @@ class QualityScoreAggregator:
                 "Estimates may be highly variable."
             )
         if overlap < 0.5:
-            warnings.append(
-                f"Low overlap score ({overlap:.2f}). Positivity may be violated."
-            )
+            warnings.append(f"Low overlap score ({overlap:.2f}). Positivity may be violated.")
 
         # Weighted average
         score = (
@@ -186,15 +187,11 @@ class QualityScoreAggregator:
             tier = step.determinism_tier or ""
             det_scores.append(_DETERMINISM_SCORES.get(tier, 0.70))
 
-        components["determinism_tier"] = (
-            sum(det_scores) / len(det_scores) if det_scores else 1.0
-        )
+        components["determinism_tier"] = sum(det_scores) / len(det_scores) if det_scores else 1.0
 
         # Warn on nondeterministic primary steps
         nondeterministic = [
-            s.method_fqn
-            for s in primary_steps
-            if s.determinism_tier == "nondeterministic"
+            s.method_fqn for s in primary_steps if s.determinism_tier == "nondeterministic"
         ]
         if nondeterministic:
             warnings.append(
@@ -202,10 +199,7 @@ class QualityScoreAggregator:
                 "Results may not be reproducible."
             )
 
-        score = (
-            0.40 * components["has_primary_method"]
-            + 0.60 * components["determinism_tier"]
-        )
+        score = 0.40 * components["has_primary_method"] + 0.60 * components["determinism_tier"]
         score = max(0.0, min(1.0, score))
         return QualityDimension(
             score=round(score, 4),
@@ -244,9 +238,10 @@ class QualityScoreAggregator:
                 continue
             sr = out.get("sensitivity_result")
             if sr is not None:
-                is_robust = bool(getattr(sr, "is_robust", None) or (
-                    isinstance(sr, dict) and sr.get("is_robust", False)
-                ))
+                is_robust = bool(
+                    getattr(sr, "is_robust", None)
+                    or (isinstance(sr, dict) and sr.get("is_robust", False))
+                )
                 e_val = getattr(sr, "e_value", None) or (isinstance(sr, dict) and sr.get("e_value"))
                 if e_val is not None:
                     components["e_value_signal"] = min(float(e_val) / 3.0, 1.0)
@@ -350,7 +345,7 @@ class QualityScoreAggregator:
             is_publication_ready=pub_ready,
             caveats=tuple(caveats),
             weights=dict(w),
-            created_at=datetime.now(timezone.utc).isoformat(),
+            created_at=datetime.now(UTC).isoformat(),
         )
 
     # ------------------------------------------------------------------

@@ -12,13 +12,14 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-[var(--radius-pill)] font-extrabold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 rounded-[var(--radius-pill)] font-extrabold leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         primary:
           "bg-[linear-gradient(135deg,var(--button-primary-start),var(--button-primary-end))] text-[var(--button-primary-text)] shadow-[0_16px_28px_rgba(28,139,130,0.22)] hover:brightness-110",
-        ghost: "border border-line bg-white/70 text-text hover:bg-white/90",
+        ghost:
+          "border border-line bg-[var(--ghost-bg)] text-text hover:bg-[var(--ghost-bg-hover)]",
         danger:
           "border border-danger/20 bg-danger/10 text-danger hover:bg-danger/15",
         outline:
@@ -28,10 +29,10 @@ export const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        sm: "px-3 py-2 text-xs",
-        md: "px-4 py-3 text-sm",
-        lg: "px-5 py-3.5 text-sm",
-        icon: "size-9",
+        sm: "h-[var(--control-height-sm)] px-[var(--control-px-sm)] text-[length:var(--control-text-sm)]",
+        md: "h-[var(--control-height-md)] px-[var(--control-px-md)] text-[length:var(--control-text-md)]",
+        lg: "h-[var(--control-height-lg)] px-[var(--control-px-lg)] text-[length:var(--control-text-lg)]",
+        icon: "size-[var(--control-height-icon)]",
       },
     },
     defaultVariants: {

@@ -30,6 +30,13 @@ if (typeof globalThis.ResizeObserver === "undefined") {
   globalThis.ResizeObserver = TestResizeObserver;
 }
 
+if (
+  typeof HTMLElement !== "undefined" &&
+  !HTMLElement.prototype.scrollIntoView
+) {
+  HTMLElement.prototype.scrollIntoView = () => undefined;
+}
+
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());

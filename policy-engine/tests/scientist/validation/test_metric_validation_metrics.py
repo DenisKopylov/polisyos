@@ -1,7 +1,11 @@
 from __future__ import annotations
 
 from polisyos.core.contracts.foundry import MetricObservationBundle, ModelOutputs
-from polisyos.scientist.validation.metrics import TestConfig, compare_metric_family, compare_metric_pairwise
+from polisyos.scientist.validation.metrics import (
+    TestConfig,
+    compare_metric_family,
+    compare_metric_pairwise,
+)
 
 
 def test_compare_metric_family_uses_metric_specific_default_tests() -> None:

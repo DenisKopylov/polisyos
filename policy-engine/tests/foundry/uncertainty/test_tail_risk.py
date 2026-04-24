@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -7,9 +9,6 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-
-from polisyos.foundry.uncertainty.config import PropagationConfig
-from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 
 
 def _normal_env(point: float, std: float) -> UncertaintyEnvelope:
@@ -36,7 +35,10 @@ class TestTailRiskMetrics:
             return {"y": params["x"]}
 
         results = propagator.propagate(
-            sim, {"x": 0.0}, {"x": _normal_env(0.0, 1.0)}, ["y"],
+            sim,
+            {"x": 0.0},
+            {"x": _normal_env(0.0, 1.0)},
+            ["y"],
         )
 
         tail = results[0].envelope.metadata.get("tail_risk")

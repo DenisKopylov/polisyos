@@ -2,8 +2,8 @@ import pytest
 
 from polisyos.ir.canon import to_canonical_bytes
 from polisyos.ir.migrations import (
-    CompatibilityMode,
     IR_CURRENT_VERSION,
+    CompatibilityMode,
     can_read_schema,
     get_schema_rule,
     migrate_policy_ir,
@@ -141,6 +141,5 @@ def test_old_canonical_fixture_bytes_do_not_silently_degrade() -> None:
 
     assert can_read_schema("article_extraction_result", "1.0", "1.5") is True
     assert to_canonical_bytes(legacy_payload) == (
-        b'{"openalex_id":"W1","publication_year":2020,'
-        b'"schema_version":"1.0","title":"Legacy"}'
+        b'{"openalex_id":"W1","publication_year":2020,"schema_version":"1.0","title":"Legacy"}'
     )

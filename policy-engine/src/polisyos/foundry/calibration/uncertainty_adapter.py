@@ -1,10 +1,12 @@
 """Translate calibration Hessian diagnostics into governance-ready envelopes."""
+
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from statistics import NormalDist
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -204,9 +206,7 @@ def summarize_bayesian_calibration_posterior(
             distribution_family=DistributionFamily.BAYESIAN,
             propagation_method=PropagationMethod.MONTE_CARLO,
             metadata={
-                "calibration_mode": (
-                    "bayesian_emulator" if emulator_info else "bayesian_direct"
-                ),
+                "calibration_mode": ("bayesian_emulator" if emulator_info else "bayesian_direct"),
             },
         )
         decompositions[param_name] = decomposition.as_dict()

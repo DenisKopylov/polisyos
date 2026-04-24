@@ -27,7 +27,12 @@ def _panel_iv_data() -> PanelData:
     n_obs = 64
     z = rng.normal(size=(n_obs, 2))
     controls = rng.normal(size=(n_obs, 2))
-    endogenous = 0.7 * z[:, [0]] - 0.3 * z[:, [1]] + 0.2 * controls[:, [0]] + rng.normal(scale=0.3, size=(n_obs, 1))
+    endogenous = (
+        0.7 * z[:, [0]]
+        - 0.3 * z[:, [1]]
+        + 0.2 * controls[:, [0]]
+        + rng.normal(scale=0.3, size=(n_obs, 1))
+    )
     exog = np.column_stack([endogenous, controls])
     beta = np.array([1.8, 0.5, -0.2])
     y = exog @ beta + rng.normal(scale=0.35, size=n_obs)
@@ -156,7 +161,9 @@ def test_end_to_end_microsim_raking_calibration_to_static_chain() -> None:
     microsim = composer.add("microsim.static.static_microsim@1.0.0")
     composer.connect(calibration, microsim, {"weights": "weights"})
 
-    result = execute_heterogeneous_chain(composer.build(), state=_survey_data_with_categories(), seed=437)
+    result = execute_heterogeneous_chain(
+        composer.build(), state=_survey_data_with_categories(), seed=437
+    )
     calibration_output = result.node_results[0][1].output
     final_output = result.node_results[-1][1].output
 

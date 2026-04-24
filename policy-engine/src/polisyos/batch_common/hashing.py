@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import hashlib
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def sha256_file(path: Path, *, chunk_size: int = 1024 * 1024) -> str:

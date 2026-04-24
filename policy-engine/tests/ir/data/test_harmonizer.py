@@ -2,22 +2,20 @@
 
 from __future__ import annotations
 
-import pytest
 import pandas as pd
+import pytest
 
 from polisyos.ir.data.harmonizer import (
     DomainHarmonizer,
-    HarmonizationReport,
     MissingVariableStrategy,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
 
 
-@pytest.fixture()
+@pytest.fixture
 def source_df() -> pd.DataFrame:
     return pd.DataFrame(
         {
@@ -28,7 +26,7 @@ def source_df() -> pd.DataFrame:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def target_df() -> pd.DataFrame:
     return pd.DataFrame(
         {
@@ -51,7 +49,9 @@ def test_align_perfect_match() -> None:
     mapping = {"X": "treatment", "Y": "outcome"}
 
     report = DomainHarmonizer.align(
-        src, tgt, mapping,
+        src,
+        tgt,
+        mapping,
         missing_strategy=MissingVariableStrategy.RAISE_ERROR,
         source_dataset_ref="src",
         target_dataset_ref="tgt",
@@ -74,7 +74,9 @@ def test_align_numeric_coercion(source_df: pd.DataFrame, target_df: pd.DataFrame
         "employed": "employment_status",
     }
     report = DomainHarmonizer.align(
-        source_df, target_df, mapping,
+        source_df,
+        target_df,
+        mapping,
         missing_strategy=MissingVariableStrategy.RAISE_ERROR,
     )
 
@@ -95,7 +97,9 @@ def test_align_non_coercible_excluded() -> None:
     mapping = {"label": "income_level"}
 
     report = DomainHarmonizer.align(
-        src, tgt, mapping,
+        src,
+        tgt,
+        mapping,
         missing_strategy=MissingVariableStrategy.EXCLUDE_UNIT,
     )
 
@@ -119,7 +123,9 @@ def test_align_missing_impute_mean() -> None:
     mapping = {"X": "X_mapped"}
 
     report = DomainHarmonizer.align(
-        src, tgt, mapping,
+        src,
+        tgt,
+        mapping,
         missing_strategy=MissingVariableStrategy.IMPUTE_MEAN,
     )
 
@@ -140,7 +146,9 @@ def test_align_missing_exclude_unit() -> None:
     mapping = {"X": "X_mapped"}
 
     report = DomainHarmonizer.align(
-        src, tgt, mapping,
+        src,
+        tgt,
+        mapping,
         missing_strategy=MissingVariableStrategy.EXCLUDE_UNIT,
     )
 
@@ -158,7 +166,9 @@ def test_align_missing_raise_error() -> None:
     mapping = {"X": "X_mapped"}
 
     report = DomainHarmonizer.align(
-        src, tgt, mapping,
+        src,
+        tgt,
+        mapping,
         missing_strategy=MissingVariableStrategy.RAISE_ERROR,
     )
 
@@ -175,7 +185,9 @@ def test_align_missing_impute_model_raises() -> None:
 
     with pytest.raises(NotImplementedError):
         DomainHarmonizer.align(
-            src, tgt, mapping,
+            src,
+            tgt,
+            mapping,
             missing_strategy=MissingVariableStrategy.IMPUTE_MODEL,
         )
 
@@ -187,7 +199,9 @@ def test_align_unknown_source_column_is_warning() -> None:
     mapping = {"nonexistent_col": "Y"}
 
     report = DomainHarmonizer.align(
-        src, tgt, mapping,
+        src,
+        tgt,
+        mapping,
         missing_strategy=MissingVariableStrategy.EXCLUDE_UNIT,
     )
 
@@ -203,7 +217,9 @@ def test_align_unknown_target_variable_is_warning() -> None:
     mapping = {"X": "ghost_variable"}
 
     report = DomainHarmonizer.align(
-        src, tgt, mapping,
+        src,
+        tgt,
+        mapping,
         missing_strategy=MissingVariableStrategy.EXCLUDE_UNIT,
     )
 
@@ -224,7 +240,9 @@ def test_align_dataset_refs_propagated() -> None:
     src = pd.DataFrame({"X": [1.0]})
     tgt = pd.DataFrame({"Y": [1.0]})
     report = DomainHarmonizer.align(
-        src, tgt, {"X": "Y"},
+        src,
+        tgt,
+        {"X": "Y"},
         source_dataset_ref="rct_2024",
         target_dataset_ref="policy_region",
     )

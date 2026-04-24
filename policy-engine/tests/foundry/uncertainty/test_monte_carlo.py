@@ -4,6 +4,8 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
+from polisyos.foundry.uncertainty.config import AdaptiveStoppingConfig, PropagationConfig
+from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -11,9 +13,6 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-
-from polisyos.foundry.uncertainty.config import AdaptiveStoppingConfig, PropagationConfig
-from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 
 
 def _normal_env(point: float, std: float, level: float = 0.95) -> UncertaintyEnvelope:
@@ -43,11 +42,15 @@ class TestMonteCarloPropagator:
         envelopes = {"x": _normal_env(1.0, 0.5), "z": _normal_env(2.0, 1.0)}
 
         results = mc.propagate(
-            _linear_sim, {"x": 1.0, "z": 2.0}, envelopes, ["y"],
+            _linear_sim,
+            {"x": 1.0, "z": 2.0},
+            envelopes,
+            ["y"],
         )
 
         assert len(results) == 1
         import math
+
         expected_std = math.sqrt(4 * 0.5**2 + 9 * 1.0**2)
         ci_width = results[0].envelope.ci_width
         actual_half_width = ci_width / 2.0
@@ -64,7 +67,8 @@ class TestMonteCarloPropagator:
         r2 = mc2.propagate(lambda x=0.0: {"y": x * 2}, {"x": 1.0}, envelopes, ["y"])
 
         assert r1[0].envelope.point_estimate == pytest.approx(
-            r2[0].envelope.point_estimate, abs=1e-6,
+            r2[0].envelope.point_estimate,
+            abs=1e-6,
         )
 
     def test_mc_adaptive_stopping_early(self) -> None:
@@ -80,15 +84,22 @@ class TestMonteCarloPropagator:
         envelopes = {"x": _normal_env(1.0, 0.01)}
 
         results = mc.propagate(
-            lambda x=0.0: {"y": x}, {"x": 1.0}, envelopes, ["y"],
+            lambda x=0.0: {"y": x},
+            {"x": 1.0},
+            envelopes,
+            ["y"],
         )
 
         assert len(results) == 1
-        assert results[0].diagnostics.get("stopped_early", False) is True or \
-            results[0].diagnostics.get("n_samples", 5000) < 5000
+        assert (
+            results[0].diagnostics.get("stopped_early", False) is True
+            or results[0].diagnostics.get("n_samples", 5000) < 5000
+        )
 
     def test_mc_qmc_vs_random_consistency(self) -> None:
-        config_random = PropagationConfig(mc_n_samples=1000, mc_seed=42, mc_sampling_method="random")
+        config_random = PropagationConfig(
+            mc_n_samples=1000, mc_seed=42, mc_sampling_method="random"
+        )
         config_sobol = PropagationConfig(mc_n_samples=1000, mc_seed=42, mc_sampling_method="sobol")
 
         envelopes = {"x": _normal_env(1.0, 0.5)}
@@ -146,7 +157,10 @@ class TestMonteCarloPropagator:
         envelopes = {"x": _normal_env(1.0, 0.5)}
 
         results = mc.propagate(
-            lambda x=0.0: {"y": x}, {"x": 1.0}, envelopes, [],
+            lambda x=0.0: {"y": x},
+            {"x": 1.0},
+            envelopes,
+            [],
         )
 
         assert results == []

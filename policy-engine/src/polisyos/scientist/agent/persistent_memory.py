@@ -14,7 +14,7 @@ from __future__ import annotations
 import hashlib
 import threading
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
@@ -42,6 +42,7 @@ __all__ = [
 
 class MemoryKind(str, Enum):
     """Memory kind public type."""
+
     EPISODIC = "episodic"
     SEMANTIC = "semantic"
 
@@ -59,7 +60,7 @@ class MemoryEntry(BaseModel):
     source_run_id: str
     source_node_alias: str | None = None
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     expires_at: datetime | None = None
     metadata: dict[str, str] = Field(default_factory=dict)
 
@@ -104,6 +105,7 @@ class MemoryQuery(BaseModel):
 # ---------------------------------------------------------------------------
 # Keyword relevance (v1 — fallback when no embeddings)
 # ---------------------------------------------------------------------------
+
 
 def _tokenize(text: str) -> set[str]:
     """Lowercase word tokenisation for keyword overlap scoring."""
@@ -257,7 +259,7 @@ class PersistentMemoryStore:
     def _query_locked(self, q: MemoryQuery) -> list[MemoryEntry]:
         # Lazy TTL prune
         self._maybe_prune_expired()
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         candidates = self._index.entries
 
         # Kind filter
@@ -273,8 +275,7 @@ class PersistentMemoryStore:
         candidates = [
             e
             for e in candidates
-            if e.confidence >= q.min_confidence
-            and not self._is_expired_entry(e, now)
+            if e.confidence >= q.min_confidence and not self._is_expired_entry(e, now)
         ]
 
         # Score by relevance
@@ -305,7 +306,7 @@ class PersistentMemoryStore:
             return self._prune_expired_locked()
 
     def _prune_expired_locked(self) -> int:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         before = len(self._index.entries)
 
         surviving: list[MemoryIndexEntry] = []
@@ -380,9 +381,7 @@ class PersistentMemoryStore:
             removed_count += len(cluster) - 1
 
         # Rebuild index without removed entries
-        self._index.entries = [
-            e for i, e in enumerate(entries) if i not in indices_to_remove
-        ]
+        self._index.entries = [e for i, e in enumerate(entries) if i not in indices_to_remove]
         self._refresh_content_hashes()
         return removed_count
 
@@ -549,11 +548,7 @@ class PersistentMemoryStore:
     ) -> list[tuple[float, MemoryIndexEntry]]:
         """Score candidates by relevance, using semantic or keyword search."""
         # Semantic search path
-        if (
-            self._embedder is not None
-            and self._vector_store is not None
-            and q.query_text
-        ):
+        if self._embedder is not None and self._vector_store is not None and q.query_text:
             return self._score_semantic(candidates, q)
 
         # Keyword fallback
@@ -605,9 +600,7 @@ class PersistentMemoryStore:
         scored: list[tuple[float, MemoryIndexEntry]] = []
         for entry in candidates:
             base_score = (
-                _keyword_score(query_tokens, entry.content_preview)
-                if query_tokens
-                else 1.0
+                _keyword_score(query_tokens, entry.content_preview) if query_tokens else 1.0
             )
             # Confidence-weighted ranking
             confidence = self._estimate_confidence(entry)
@@ -620,7 +613,9 @@ class PersistentMemoryStore:
         return min(max(idx_entry.confidence, 0.0), 1.0)
 
     def _entry_similarity(
-        self, a: MemoryIndexEntry, b: MemoryIndexEntry,
+        self,
+        a: MemoryIndexEntry,
+        b: MemoryIndexEntry,
     ) -> float:
         """Similarity between two index entries for consolidation."""
         if self._embedder is not None and self._vector_store is not None:
@@ -629,6 +624,7 @@ class PersistentMemoryStore:
                 embs = self._embedder.embed([a.content_preview, b.content_preview])
                 dot = sum(x * y for x, y in zip(embs[0], embs[1], strict=True))
                 import math
+
                 norm_a = math.sqrt(sum(x * x for x in embs[0]))
                 norm_b = math.sqrt(sum(x * x for x in embs[1]))
                 if norm_a < 1e-12 or norm_b < 1e-12:
@@ -651,12 +647,13 @@ class PersistentMemoryStore:
     def _maybe_prune_expired(self) -> None:
         """Lazy TTL pruning — at most once per minute."""
         import time
+
         now = time.monotonic()
         if now - self._last_prune_at < _PRUNE_INTERVAL_S:
             return
         self._last_prune_at = now
 
-        utc_now = datetime.now(timezone.utc)
+        utc_now = datetime.now(UTC)
         before = len(self._index.entries)
         surviving: list[MemoryIndexEntry] = []
         for idx_entry in self._index.entries:
@@ -678,9 +675,7 @@ class PersistentMemoryStore:
 
     def _refresh_content_hashes(self) -> None:
         self._content_hashes = {
-            chash
-            for entry in self._index.entries
-            if (chash := self._entry_content_hash(entry))
+            chash for entry in self._index.entries if (chash := self._entry_content_hash(entry))
         }
 
     def _load_memory_entry(self, idx_entry: MemoryIndexEntry) -> MemoryEntry | None:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.estimand import (
@@ -12,6 +12,9 @@ from polisyos.ir.analytics.estimand import (
     normalize_estimand_ast,
     persist_estimand_ast,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _semantically_equivalent_estimands() -> tuple[EstimandAST, EstimandAST]:

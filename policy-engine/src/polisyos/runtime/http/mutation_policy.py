@@ -1,4 +1,5 @@
 """Shared write-path hardening for runtime mutations and live streams."""
+
 from __future__ import annotations
 
 import gzip
@@ -8,15 +9,16 @@ import os
 import tempfile
 import threading
 import time
-from collections.abc import AsyncIterator
 from dataclasses import dataclass
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.serialization import fast_json_dumps
 from polisyos.runtime.http.errors import problem_response
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
+    from pathlib import Path
+
     from starlette.middleware.base import BaseHTTPMiddleware as _BaseHTTPMiddleware
     from starlette.requests import Request
     from starlette.responses import JSONResponse, Response
@@ -97,9 +99,7 @@ def _is_live_stream_path(path: str) -> bool:
         return True
     if path.startswith("/api/v1/runs/") and path.endswith("/live"):
         return True
-    if path == "/api/v1/review/live":
-        return True
-    return False
+    return path == "/api/v1/review/live"
 
 
 def _is_mutation_path(method: str, path: str) -> bool:
@@ -146,20 +146,22 @@ class RuntimeRateLimiter:
         endpoint_key = self._endpoint_bucket(method=method, path=path)
         now = _now_seconds()
         window = (
-            self._live_window_seconds if endpoint_key.startswith("live:") else self._write_window_seconds
+            self._live_window_seconds
+            if endpoint_key.startswith("live:")
+            else self._write_window_seconds
         )
         limit = self._live_limit if endpoint_key.startswith("live:") else self._write_limit
         bucket_key = (tenant_id, endpoint_key)
         with self._lock:
             timestamps = [
-                stamp
-                for stamp in self._request_windows.get(bucket_key, [])
-                if now - stamp < window
+                stamp for stamp in self._request_windows.get(bucket_key, []) if now - stamp < window
             ]
             if len(timestamps) >= limit:
                 retry_after = max(1, int(window - (now - timestamps[0])))
                 self._request_windows[bucket_key] = timestamps
-                self._record_rate_limit_event(endpoint=endpoint_key, mode="request", outcome="throttled")
+                self._record_rate_limit_event(
+                    endpoint=endpoint_key, mode="request", outcome="throttled"
+                )
                 return False, retry_after
             timestamps.append(now)
             self._request_windows[bucket_key] = timestamps
@@ -172,7 +174,9 @@ class RuntimeRateLimiter:
         with self._lock:
             active = self._active_live_streams.get(stream_key, 0)
             if active >= self._live_concurrency_limit:
-                self._record_rate_limit_event(endpoint=endpoint_key, mode="concurrency", outcome="throttled")
+                self._record_rate_limit_event(
+                    endpoint=endpoint_key, mode="concurrency", outcome="throttled"
+                )
                 return False, ""
             active += 1
             self._active_live_streams[stream_key] = active
@@ -196,9 +200,7 @@ class RuntimeRateLimiter:
     @staticmethod
     def _endpoint_bucket(*, method: str, path: str) -> str:
         if _is_live_stream_path(path):
-            if path == "/api/v1/review/live":
-                normalized_path = path
-            elif path == "/api/v1/runs/live":
+            if path == "/api/v1/review/live" or path == "/api/v1/runs/live":
                 normalized_path = path
             else:
                 normalized_path = "/api/v1/runs/{run_id}/live"
@@ -335,11 +337,10 @@ class RuntimeMutationAuditTrail:
 
     def append(self, entry: dict[str, Any]) -> None:
         line = fast_json_dumps(entry, sort_keys=False) + "\n"
-        with self._lock:
-            with self._path.open("a", encoding="utf-8") as handle:
-                handle.write(line)
-                handle.flush()
-                os.fsync(handle.fileno())
+        with self._lock, self._path.open("a", encoding="utf-8") as handle:
+            handle.write(line)
+            handle.flush()
+            os.fsync(handle.fileno())
 
 
 class MutationProtectionMiddleware(_BaseHTTPMiddleware):
@@ -354,7 +355,9 @@ class MutationProtectionMiddleware(_BaseHTTPMiddleware):
         audit_trail: RuntimeMutationAuditTrail,
     ) -> None:
         if JSONResponse is None:
-            raise RuntimeError("MutationProtectionMiddleware requires starlette/fastapi dependencies")
+            raise RuntimeError(
+                "MutationProtectionMiddleware requires starlette/fastapi dependencies"
+            )
         super().__init__(app)
         self._rate_limiter = rate_limiter
         self._idempotency_store = idempotency_store
@@ -370,7 +373,9 @@ class MutationProtectionMiddleware(_BaseHTTPMiddleware):
         tenant_id = _normalize_tenant_id(request)
         request_id = getattr(getattr(request, "state", object()), "request_id", None)
         live_stream_acquired = False
-        idempotency_key = request.headers.get("X-Idempotency-Key") if _is_mutation_path(method, path) else None
+        idempotency_key = (
+            request.headers.get("X-Idempotency-Key") if _is_mutation_path(method, path) else None
+        )
         request_hash_value: str | None = None
         if idempotency_key:
             raw_body = await request.body()
@@ -494,7 +499,9 @@ class MutationProtectionMiddleware(_BaseHTTPMiddleware):
 
         payload = None
         response_hash = None
-        media_type = getattr(response, "media_type", None) or response.headers.get("content-type", "application/json")
+        media_type = getattr(response, "media_type", None) or response.headers.get(
+            "content-type", "application/json"
+        )
         body_bytes = await self._capture_response_body(response)
         if isinstance(body_bytes, bytes) and body_bytes:
             decoded_bytes = body_bytes
@@ -611,7 +618,11 @@ class MutationProtectionMiddleware(_BaseHTTPMiddleware):
         response_hash: str | None,
     ) -> None:
         claims = getattr(request.state, "user_claims", None)
-        actor = getattr(claims, "sub", None) or getattr(request.state, "authenticated_tenant_id", None) or "anonymous"
+        actor = (
+            getattr(claims, "sub", None)
+            or getattr(request.state, "authenticated_tenant_id", None)
+            or "anonymous"
+        )
         request_id = getattr(getattr(request, "state", object()), "request_id", None)
         self._audit_trail.append(
             {
@@ -633,7 +644,9 @@ class MutationProtectionMiddleware(_BaseHTTPMiddleware):
         )
 
 
-def build_runtime_mutation_services(*, cas_root: Path, metrics: Any | None = None) -> tuple[
+def build_runtime_mutation_services(
+    *, cas_root: Path, metrics: Any | None = None
+) -> tuple[
     RuntimeRateLimiter,
     RuntimeIdempotencyStore,
     RuntimeMutationAuditTrail,

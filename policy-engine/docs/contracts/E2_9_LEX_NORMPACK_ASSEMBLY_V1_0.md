@@ -75,7 +75,7 @@ Claims — это IR контракты `polisyos.ir.world.claim.Claim`, сох�
 
 Новый пакет (рекомендуемое размещение):
 
-```
+```text
 policy-engine/src/polisyos/lex/normpack/
   __init__.py
   policies.py
@@ -87,13 +87,13 @@ policy-engine/src/polisyos/lex/normpack/
 
 Тесты:
 
-```
+```text
 policy-engine/tests/fabric/test_normpack_phase17.py
 ```
 
 Док:
 
-```
+```text
 policy-engine/docs/contracts/E2_9_LEX_NORMPACK_ASSEMBLY_V1_0.md
 ```
 
@@ -101,17 +101,20 @@ policy-engine/docs/contracts/E2_9_LEX_NORMPACK_ASSEMBLY_V1_0.md
 
 Чтобы соблюсти требование “отдельный extractor_id” и корректный trust scoring:
 
-1) **Добавить extractor** в `polisyos.fabric.claims.backends`:
+1. **Добавить extractor** в `polisyos.fabric.claims.backends`:
+
 - новый backend файл (пример):
   - `policy-engine/src/polisyos/fabric/claims/backends/lex_norm_regex_v1.py`
 - регистрация в `_EXTRACTOR_REGISTRY`:
   - ключ: `"lex.norm_extractor.regex_v1"`
 
-2) **Добавить extractor reliability** в conflict policy:
+1. **Добавить extractor reliability** в conflict policy:
+
 - `policy-engine/src/polisyos/fabric/claims/conflicts/policies.py`
   - `extractor_reliability["lex.norm_extractor.regex_v1"] = Decimal("0.80")` (или другое значение, см. §9.3)
 
-3) (Опционально) Экспортировать high‑level API из `polisyos.lex.api`:
+1. (Опционально) Экспортировать high‑level API из `polisyos.lex.api`:
+
 - `assemble_norm_pack(...)` как facade над `polisyos.lex.normpack.assemble_pack`.
 
 ---
@@ -253,11 +256,13 @@ class NormPackBuildResult:
 
 #### 5.1.2. Как получить candidate `doc_source_ids`
 
-1) Если `request.doc_source_ids is not None`:
+1. Если `request.doc_source_ids is not None`:
+
    - `doc_source_ids = sorted(set(request.doc_source_ids))`
    - дополнительно: фильтруем по `jurisdiction` (см. ниже)
 
-2) Если `request.doc_source_ids is None` (режим “все документы corpus”):
+2. Если `request.doc_source_ids is None` (режим “все документы corpus”):
+
    - MVP‑реализация должна работать без DuckDB, используя fact log:
      - читаем manifests через `polisyos.fabric.world.store.load_world_fact_manifests(fact_log_root)`
      - читаем parquet по колонкам `subject_id,predicate_id,object_value,target_id,tx_time,fact_id` (минимум)
@@ -269,7 +274,8 @@ class NormPackBuildResult:
      - Если этот фильтр слишком дорог для MVP, допускается “best effort”:
        - отбирать doc_source_id, которые имеют `official_id` и/или `canonical_url` (через projections если есть db)
 
-3) После получения doc_source_ids:
+3. После получения doc_source_ids:
+
    - сортируем
    - применяем `budgets.max_docs` (если задан)
 
@@ -291,7 +297,8 @@ class NormPackBuildResult:
 
 Алгоритм для каждого `doc_source_id`:
 
-1) **Primary path**: использовать существующий Lex versioning:
+1. **Primary path**: использовать существующий Lex versioning:
+
    - вызвать `polisyos.lex.api.resolve_active_version(...)`
    - strategy:
      - `ActiveVersionStrategy(fact_log_root=fact_log_root)` (чтобы работало не только по `Path(cas.root).parent`)
@@ -300,7 +307,8 @@ class NormPackBuildResult:
      - сохранить `selected_doc_meta_artifact_id`
      - сохранить `used_version_index_artifact_id`
 
-2) **Fallback path (обязателен)**: если `resolve_active_version` не готов (нет version index pointer):
+2. **Fallback path (обязателен)**: если `resolve_active_version` не готов (нет version index pointer):
+
    - извлечь doc_version_ids из world facts:
      - найти все edge‑facts `predicate_id == world.rel.doc.has_version` для `subject_id==doc_source_id`
    - для каждого doc_version_id найти “latest DocMeta artifact”:
@@ -385,9 +393,9 @@ Preview текста provision (должен быть детерминирова
 
 Нормативная сортировка provisions:
 
-1) `doc_version_id`
-2) `provision.anchor_path`
-3) `fragment_id`
+1. `doc_version_id`
+2. `provision.anchor_path`
+3. `fragment_id`
 
 > Это устраняет “случайное” влияние порядка документов на то, какие provisions попадут в лимит.
 
@@ -434,7 +442,7 @@ MVP‑парсер (“regex_v1”) должен быть полностью д�
 
 Пример (для фикстур и регрессионных тестов):
 
-```
+```text
 Стаття 1...
 norm: roads.lane_width_min_m >= 3.5 [m]
 norm: roads.max_speed_kmh <= 50 [km]
@@ -578,12 +586,13 @@ resolve_conflicts(
 
 Построить множество canonical claims для NormPack:
 
-1) загрузить каждый `ConflictSet` (из `conflict_set_artifact_ids`) и собрать `member_claim_ids`
-2) winner claim id = `resolve_result.winner_by_conflict_set[conflict_set_id]`
-3) canonical_claim_ids =
+1. загрузить каждый `ConflictSet` (из `conflict_set_artifact_ids`) и собрать `member_claim_ids`
+2. winner claim id = `resolve_result.winner_by_conflict_set[conflict_set_id]`
+3. canonical_claim_ids =
+
    - все winners
-   - + все claim_ids, которые не принадлежат ни одному conflict_set
-4) canonical_claim_ids сортируем
+   - - все claim_ids, которые не принадлежат ни одному conflict_set
+4. canonical_claim_ids сортируем
 
 ### 5.7. Step 7 — Преобразование claims → IR NormRule → IR NormPack
 
@@ -832,7 +841,7 @@ Event outputs:
 
 ### 8.1. Unit тесты
 
-1) **Deterministic mapping Claim → NormRule**
+1. **Deterministic mapping Claim → NormRule**
 
 - одинаковый входной Claim (одинаковые поля, включая citations) должен давать одинаковый `NormRule.model_dump()`.
 - проверяем:
@@ -840,7 +849,7 @@ Event outputs:
   - provision_refs стабильно отсортированы
   - backend_metadata не содержит runtime полей
 
-2) **Sorting deterministic**
+1. **Sorting deterministic**
 
 - собрать 3–5 claims в разном порядке
 - убедиться, что правила в NormPack отсортированы одинаково (по predicate/applicability/norm_id)
@@ -855,11 +864,11 @@ Event outputs:
 
 Шаги:
 
-1) `ingest_legal_doc_bytes` для каждой версии
-2) `build_legal_structure` для каждой
-3) `build_version_index` (опционально; либо тестировать fallback selection)
-4) `assemble_norm_pack` для `jurisdiction="ua", as_of="2025-06-01", domain="roads"`
-5) `materialize_world_duckdb_from_fact_log(tmp_path, db, cas)`
+1. `ingest_legal_doc_bytes` для каждой версии
+2. `build_legal_structure` для каждой
+3. `build_version_index` (опционально; либо тестировать fallback selection)
+4. `assemble_norm_pack` для `jurisdiction="ua", as_of="2025-06-01", domain="roads"`
+5. `materialize_world_duckdb_from_fact_log(tmp_path, db, cas)`
 
 Assert:
 
@@ -930,21 +939,23 @@ MVP:
 
 Phase 17 считается выполненной, если:
 
-1) Lex может собрать применимый `NormPack` на дату и юрисдикцию из собственного corpus:
+1. Lex может собрать применимый `NormPack` на дату и юрисдикцию из собственного corpus:
+
    - вход: `NormPackBuildRequest`
    - выход: CAS артефакт `lex.norm_pack` + `WorldEvent(kind=assemble_norm_pack)` + world facts сегмент
-2) В сборке используется:
+2. В сборке используется:
+
    - выбор активных версий по `as_of`
    - выбор provisions из `lex.corpus.provision_index`
    - извлечение norm claims с обязательными citations на `doc.fragment`
    - conflict resolution (Phase 14) с детерминированным winner
-3) Есть обязательные тесты Phase 17 (unit + integration), см. §8.
+3. Есть обязательные тесты Phase 17 (unit + integration), см. §8.
 
 ## D1-L4 Validation Links
 
-| Link type | Current anchor |
-|-----------|----------------|
-| Source plan phase | D1-L4 Phase 0 norm/citation determinism and Phase 5 governance contract handoff |
-| Contract tests | `tests/contract/test_applicability_contract.py`, `tests/fabric/test_normpack.py`, `tests/fabric/test_conflicts.py` |
-| Schema snapshots | `schemas/snapshots/ir/norm_pack.schema.json`, `schemas/snapshots/ir/norm_ref.schema.json`, `schemas/snapshots/ir/norm_rule.schema.json`, `schemas/snapshots/ir/claim.schema.json` |
-| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |
+| Link type           | Current anchor                                                                                                                                                                    |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source plan phase   | D1-L4 Phase 0 norm/citation determinism and Phase 5 governance contract handoff                                                                                                   |
+| Contract tests      | `tests/contract/test_applicability_contract.py`, `tests/fabric/test_normpack.py`, `tests/fabric/test_conflicts.py`                                                                |
+| Schema snapshots    | `schemas/snapshots/ir/norm_pack.schema.json`, `schemas/snapshots/ir/norm_ref.schema.json`, `schemas/snapshots/ir/norm_rule.schema.json`, `schemas/snapshots/ir/claim.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                            |

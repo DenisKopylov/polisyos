@@ -1,4 +1,5 @@
 """Select conditional-independence and interval backends for causal discovery and inference."""
+
 from __future__ import annotations
 
 import importlib
@@ -33,12 +34,14 @@ def _norm_ppf(p: float) -> float:
     d1, d2, d3 = 1.432788, 0.189269, 0.001308
     return -(t - (c0 + c1 * t + c2 * t * t) / (1.0 + d1 * t + d2 * t * t + d3 * t * t * t))
 
+
 _VALID_DISCOVERY_CI_BACKENDS: frozenset[str] = frozenset({"auto", "numpy", "jax"})
 
 
 @dataclass(frozen=True)
 class CIBackendSelection:
     """Describe the chosen CI backend plus fallback and availability metadata."""
+
     requested: str
     used: str
     fallback_reason: str | None = None
@@ -66,8 +69,7 @@ def resolve_discovery_ci_backend(raw: Any) -> CIBackendSelection:
             requested=requested,
             used="numpy",
             fallback_reason=(
-                f"unsupported_discovery_ci_backend:{requested}; "
-                "expected one of auto|numpy|jax"
+                f"unsupported_discovery_ci_backend:{requested}; expected one of auto|numpy|jax"
             ),
         )
     if requested == "numpy":

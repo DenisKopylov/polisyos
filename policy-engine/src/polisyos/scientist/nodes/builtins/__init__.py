@@ -5,6 +5,7 @@ access to node classes for testing and documentation. Imports are deferred until
 first use so inspecting the facade does not eagerly import Foundry, Fabric, Lex,
 or causal-method dependencies.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -13,56 +14,57 @@ if TYPE_CHECKING:
     from polisyos.scientist.engine.protocol import Node
 
 __all__ = [
-    "BuildDataSnapshotNode",
-    "PlanPolicyRequestNode",
+    "AssembleLegalCandidatePackNode",
     "BindFoundryInputsNode",
-    "EnrichKnowledgeNode",
-    "LinkTrinityNode",
-    "FormalizeVerifiedPolicyNode",
-    "CompileFoundryNode",
-    "RunSimulationNode",
-    "RunMetricValidationNode",
-    "BuildLiteraturePriorNode",
-    "CounterfactualIdentificationGateNode",
-    "ReconcileCausalGraphNode",
-    "RunCausalReadinessNode",
-    "RunCausalContractExecutionNode",
-    "ResolveParametersNode",
-    "RunABMConsistencyCheckNode",
-    "RunCausalEnsembleNode",
-    "RunCausalQueriesNode",
-    "RunTransportabilityNode",
-    "RunCausalEvaluationNode",
-    "RunDistributionalAnalysisNode",
-    "PropagateUncertaintyNode",
-    "LegalCheckNode",
-    "DataPlaneGateNode",
-    "RunNormativeArbitrationNode",
-    "RunGovernanceNode",
+    "BuildDataSnapshotNode",
     "BuildDecisionPacketNode",
     "BuildExecutionPlanNode",
+    "BuildLiteraturePriorNode",
     "BuildMethodCatalogSnapshotNode",
-    "CompileCrossGraphEvidenceNode",
-    "RunHierarchicalPolicySearchNode",
-    "AssembleLegalCandidatePackNode",
-    "ExpandLegalSourcePackNode",
-    "RunSourceVerificationNode",
-    "RunSourceGapReviewNode",
-    "DraftPolicyOptionsNode",
-    "RunPreflightNode",
-    "ReadyToRunNode",
-    "RunEvaluatorNode",
     "BuildPolicyOutputBundleNode",
     "BuildVerifiedPolicyReportNode",
+    "CompileCrossGraphEvidenceNode",
+    "CompileFoundryNode",
+    "CounterfactualIdentificationGateNode",
+    "DataPlaneGateNode",
+    "DraftPolicyOptionsNode",
+    "EnrichKnowledgeNode",
+    "ExpandLegalSourcePackNode",
+    "FormalizeVerifiedPolicyNode",
+    "LegalCheckNode",
+    "LinkTrinityNode",
+    "PlanPolicyRequestNode",
+    "PropagateUncertaintyNode",
+    "PropagateWelfareNode",
+    "ReadyToRunNode",
+    "ReconcileCausalGraphNode",
+    "ResolveParametersNode",
+    "RunABMConsistencyCheckNode",
+    "RunCausalContractExecutionNode",
+    "RunCausalEnsembleNode",
+    "RunCausalEvaluationNode",
+    "RunCausalQueriesNode",
+    "RunCausalReadinessNode",
+    "RunDiscoveryBlueprintRuntimeNode",
+    "RunDistributionalAnalysisNode",
+    "RunEvaluatorNode",
+    "RunGovernanceNode",
+    "RunHierarchicalPolicySearchNode",
+    "RunMetricValidationNode",
+    "RunNormativeArbitrationNode",
     "RunPolicyBlueprintRuntimeNode",
     "RunPolicyTranslationNode",
+    "RunPreflightNode",
+    "RunSimulationNode",
+    "RunSourceGapReviewNode",
+    "RunSourceVerificationNode",
     "RunTranslatorComplianceNode",
-    "RunDiscoveryBlueprintRuntimeNode",
+    "RunTransportabilityNode",
     "builtin_nodes",
 ]
 
 
-def builtin_nodes() -> list["Node"]:
+def builtin_nodes() -> list[Node]:
     """Instantiate every builtin node in dependency order for registry bootstrap.
 
     Returns:
@@ -78,12 +80,6 @@ def builtin_nodes() -> list["Node"]:
     from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (
         ReconcileCausalGraphNode,
     )
-    from polisyos.scientist.nodes.builtins.causal.run_causal_readiness import (
-        RunCausalReadinessNode,
-    )
-    from polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution import (
-        RunCausalContractExecutionNode,
-    )
     from polisyos.scientist.nodes.builtins.causal.resolve_parameters import (
         ResolveParametersNode,
     )
@@ -93,11 +89,17 @@ def builtin_nodes() -> list["Node"]:
     from polisyos.scientist.nodes.builtins.causal.run_abm_consistency import (
         RunABMConsistencyCheckNode,
     )
+    from polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution import (
+        RunCausalContractExecutionNode,
+    )
     from polisyos.scientist.nodes.builtins.causal.run_causal_ensemble import (
         RunCausalEnsembleNode,
     )
     from polisyos.scientist.nodes.builtins.causal.run_causal_queries import (
         RunCausalQueriesNode,
+    )
+    from polisyos.scientist.nodes.builtins.causal.run_causal_readiness import (
+        RunCausalReadinessNode,
     )
     from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFoundryNode
     from polisyos.scientist.nodes.builtins.compile.formalize_verified_policy import (
@@ -127,24 +129,21 @@ def builtin_nodes() -> list["Node"]:
     )
     from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
     from polisyos.scientist.nodes.builtins.governance.legal_check import LegalCheckNode
+    from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
     from polisyos.scientist.nodes.builtins.governance.run_normative_arbitration import (
         RunNormativeArbitrationNode,
     )
-    from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
-    from polisyos.scientist.nodes.builtins.planning.build_execution_plan import (
-        BuildExecutionPlanNode,
-    )
     from polisyos.scientist.nodes.builtins.planning.assemble_legal_candidate_pack import (
         AssembleLegalCandidatePackNode,
+    )
+    from polisyos.scientist.nodes.builtins.planning.build_execution_plan import (
+        BuildExecutionPlanNode,
     )
     from polisyos.scientist.nodes.builtins.planning.build_method_catalog_snapshot import (
         BuildMethodCatalogSnapshotNode,
     )
     from polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence import (
         CompileCrossGraphEvidenceNode,
-    )
-    from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
-        RunHierarchicalPolicySearchNode,
     )
     from polisyos.scientist.nodes.builtins.planning.draft_policy_options import (
         DraftPolicyOptionsNode,
@@ -156,19 +155,25 @@ def builtin_nodes() -> list["Node"]:
         PlanPolicyRequestNode,
     )
     from polisyos.scientist.nodes.builtins.planning.ready_to_run import ReadyToRunNode
+    from polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime import (
+        RunDiscoveryBlueprintRuntimeNode,
+    )
+    from polisyos.scientist.nodes.builtins.planning.run_evaluator import RunEvaluatorNode
+    from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
+        RunHierarchicalPolicySearchNode,
+    )
+    from polisyos.scientist.nodes.builtins.planning.run_preflight import RunPreflightNode
     from polisyos.scientist.nodes.builtins.planning.run_source_gap_review import (
         RunSourceGapReviewNode,
     )
     from polisyos.scientist.nodes.builtins.planning.run_source_verification import (
         RunSourceVerificationNode,
     )
-    from polisyos.scientist.nodes.builtins.planning.run_evaluator import RunEvaluatorNode
-    from polisyos.scientist.nodes.builtins.planning.run_preflight import RunPreflightNode
-    from polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime import (
-        RunDiscoveryBlueprintRuntimeNode,
-    )
     from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
         PropagateUncertaintyNode,
+    )
+    from polisyos.scientist.nodes.builtins.simulate.propagate_welfare import (
+        PropagateWelfareNode,
     )
     from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import (
         RunCausalEvaluationNode,
@@ -213,6 +218,7 @@ def builtin_nodes() -> list["Node"]:
         RunCausalEnsembleNode(),
         RunTransportabilityNode(),
         RunDistributionalAnalysisNode(),
+        PropagateWelfareNode(),
         RunCausalEvaluationNode(),
         PropagateUncertaintyNode(),
         LegalCheckNode(),
@@ -348,6 +354,12 @@ def __getattr__(name: str) -> Any:
         )
 
         return RunDistributionalAnalysisNode
+    if name == "PropagateWelfareNode":
+        from polisyos.scientist.nodes.builtins.simulate.propagate_welfare import (
+            PropagateWelfareNode,
+        )
+
+        return PropagateWelfareNode
     if name == "PropagateUncertaintyNode":
         from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
             PropagateUncertaintyNode,

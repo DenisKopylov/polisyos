@@ -20,12 +20,12 @@ __all__ = [
     "JudgeThresholdSnapshot",
     "ResolvedThresholdSet",
     "ThresholdViolation",
-    "bucket_dp_delta",
-    "bucket_dp_epsilon",
     "_check_threshold_violation",
     "_default_threshold_entries",
     "_is_looser_threshold",
     "_normalize_scope_value",
+    "bucket_dp_delta",
+    "bucket_dp_epsilon",
 ]
 
 
@@ -120,11 +120,7 @@ class ResolvedThresholdSet(BaseModel):
         *,
         threshold_tier: Literal["warning", "blocker"] = "blocker",
     ) -> float | None:
-        key = (
-            metric_name
-            if threshold_tier == "blocker"
-            else f"{metric_name}:{threshold_tier}"
-        )
+        key = metric_name if threshold_tier == "blocker" else f"{metric_name}:{threshold_tier}"
         entry = self.entries.get(key)
         return None if entry is None else float(entry.threshold_value)
 
@@ -513,21 +509,13 @@ def _check_threshold_violation(
 ) -> ThresholdViolation | None:
     if resolved is None:
         return None
-    key = (
-        metric_name
-        if threshold_tier == "blocker"
-        else f"{metric_name}:{threshold_tier}"
-    )
+    key = metric_name if threshold_tier == "blocker" else f"{metric_name}:{threshold_tier}"
     entry = resolved.entries.get(key)
     if entry is None:
         return None
     observed = float(observed_value)
     threshold = float(entry.threshold_value)
-    violated = (
-        observed > threshold
-        if entry.direction == "max"
-        else observed < threshold
-    )
+    violated = observed > threshold if entry.direction == "max" else observed < threshold
     if not violated:
         return None
     return ThresholdViolation(

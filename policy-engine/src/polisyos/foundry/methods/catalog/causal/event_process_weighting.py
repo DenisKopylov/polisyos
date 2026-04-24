@@ -1,4 +1,5 @@
 """Estimate event-process policy curves via local-independence weighting."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -55,9 +56,7 @@ def _weighted_curve(
         if denom > 0.0:
             numer = float(
                 np.sum(
-                    weights[:, index]
-                    * at_risk[:, index].astype(float)
-                    * outcome_events[:, index]
+                    weights[:, index] * at_risk[:, index].astype(float) * outcome_events[:, index]
                 )
             )
             hazard = min(max(numer / denom, 0.0), 1.0)
@@ -171,9 +170,7 @@ def estimate_event_process_weighting_trajectory(
     )
     effect_path = policy_curve - baseline_curve
 
-    rng = np.random.default_rng(
-        int((event_data.metadata or {}).get("bootstrap_seed", 0))
-    )
+    rng = np.random.default_rng(int((event_data.metadata or {}).get("bootstrap_seed", 0)))
     effect_samples = _bootstrap_effect_paths(
         outcome_events=outcome_events,
         censoring_events=censoring_events,

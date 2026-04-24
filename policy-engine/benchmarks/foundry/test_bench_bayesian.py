@@ -3,6 +3,7 @@
 Bayesian methods require TabularData Pydantic model.
 These are structural placeholders for Phase 10b.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -10,7 +11,6 @@ import pytest
 
 @pytest.mark.benchmark
 class TestBayesianAccuracy:
-
     def test_bayesian_linreg_placeholder(self):
         """Placeholder: BayesLinReg requires TabularData."""
         pytest.skip("Requires TabularData model — deferred to Phase 10b")

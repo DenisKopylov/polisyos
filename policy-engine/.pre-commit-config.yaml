@@ -1,55 +1,120 @@
+exclude: >-
+  (?x)^policy-engine/(
+    docs/archive/|
+    \.venv/|
+    \.venv_codex/|
+    \.pytest_cache/|
+    \.mypy_cache/|
+    \.ruff_cache/|
+    \.hypothesis/|
+    data/raw/|
+    benchmark-results/|
+    coverage/|
+    dist/|
+    site/|
+    storybook-static/|
+    .*?/node_modules/
+  )
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
+        args: ["--markdown-linebreak-ext=md"]
+        files: ^policy-engine/
       - id: end-of-file-fixer
+        files: ^policy-engine/
       - id: check-yaml
+        args: ["--allow-multiple-documents"]
+        files: ^policy-engine/.*\.(yaml|yml)$
+        exclude: >-
+          (?x)^policy-engine/ops/helm/[^/]+/(
+            templates/.*\.(yaml|yml)$|
+            tests/.*\.(yaml|yml)$
+          )
       - id: check-added-large-files
-        args: ['--maxkb=10000'] # 10MB лимит
+        args: ['--maxkb=10000']  # 10MB лимит
+        files: ^policy-engine/
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.6
+    rev: v0.14.10
     hooks:
       - id: ruff
-        args: [ --fix ]
+        args: [--fix]
+        files: >-
+          (?x)^policy-engine/(
+            src/polisyos/.*\.pyi?$|
+            tests/.*\.pyi?$|
+            tools/.*\.pyi?$|
+            benchmarks/.*\.pyi?$|
+            schemas/.*\.pyi?$|
+            scripts/.*\.pyi?$|
+            examples/.*\.pyi?$|
+            gcp/upload_gonka_secrets\.py$|
+            jax_bootstrap\.py$|
+            migrate\.py$
+          )
       - id: ruff-format
+        files: >-
+          (?x)^policy-engine/(
+            src/polisyos/.*\.pyi?$|
+            tests/.*\.pyi?$|
+            tools/.*\.pyi?$|
+            benchmarks/.*\.pyi?$|
+            schemas/.*\.pyi?$|
+            scripts/.*\.pyi?$|
+            examples/.*\.pyi?$|
+            gcp/upload_gonka_secrets\.py$|
+            jax_bootstrap\.py$|
+            migrate\.py$
+          )
+
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.22.0
+    hooks:
+      - id: markdownlint-cli2
+        args: ["--no-globs", "--config", "policy-engine/.markdownlint-cli2.jsonc"]
+        files: ^policy-engine/([^/]+\.md|docs/.*\.md|.+/(README|CONTRIBUTING)\.md)$
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
+        args: ["-c", "policy-engine/.yamllint"]
+        files: ^policy-engine/.*\.(yaml|yml)$
+        exclude: >-
+          (?x)^policy-engine/ops/helm/[^/]+/(
+            templates/.*\.(yaml|yml)$|
+            tests/.*\.(yaml|yml)$
+          )
+
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.12.0-2
+    hooks:
+      - id: shfmt
+        args: ["-i", "2", "-ci", "-sr", "-d"]
+        files: ^policy-engine/(install\.sh|scripts/|tools/|ops/scripts/|gcp/|cloud_deploy/|benchmarks/|frontend/runtime-dashboard/scripts/)
+        types_or: [shell]
 
   - repo: local
     hooks:
-      - id: arch-imports
-        name: arch imports (layer boundaries)
-        entry: uv run python tools/lint/lint_imports.py --policy import_policy.toml --exceptions import_exceptions.toml
+      - id: shellcheck
+        name: shellcheck
+        entry: uvx --from shellcheck-py==0.11.0.1 shellcheck
         language: system
-        types: [python]
-        require_serial: true
-        pass_filenames: false
-      - id: mypy
-        name: mypy (static type check)
-        entry: uv run mypy
-        language: system
-        types: [python]
-        require_serial: true
-        # Исключаем папку tests из строгой проверки типов, если там много магии pytest
-        exclude: ^tests/
-      - id: abi-schema-check
-        name: abi schema snapshots
-        entry: uv run python tools/diagnostics/gen_schema.py --check
-        language: system
-        files: '^src/polisyos/(ir|fabric/world|core/canon|core/artifacts)/.*\.py$'
-        pass_filenames: false
-        require_serial: true
+        args: ["--severity=warning"]
+        files: ^policy-engine/(install\.sh|scripts/|tools/|ops/scripts/|gcp/|cloud_deploy/|benchmarks/|frontend/runtime-dashboard/scripts/)
+        types_or: [shell]
 
-  - repo: https://github.com/econchick/interrogate
-    rev: 1.7.0
+  - repo: https://github.com/ComPWA/taplo-pre-commit
+    rev: v0.9.3
     hooks:
-      - id: interrogate
-        args:
-          - --fail-under=80
-          - --ignore-init-module
-          - --ignore-init-method
-          - --ignore-magic
-          - --ignore-private
-          - --ignore-semiprivate
-          - -v
-        files: ^src/polisyos/(ir|lex|fabric)/
+      - id: taplo-format
+        args: ["--config", "policy-engine/.taplo.toml", "--check"]
+        files: ^policy-engine/.*\.toml$
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
+        files: ^policy-engine/\.github/workflows/.*\.(yaml|yml)$

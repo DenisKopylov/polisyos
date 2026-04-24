@@ -32,6 +32,7 @@ Usage::
     for w in report.warnings:
         print("Warning:", w)
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -44,8 +45,8 @@ if TYPE_CHECKING:
 
 __all__ = [
     "CrossMethodValidator",
-    "ValidationReport",
     "ValidationIssue",
+    "ValidationReport",
 ]
 
 
@@ -53,12 +54,13 @@ __all__ = [
 # Issue data model
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class ValidationIssue:
     """A single validation finding."""
 
-    severity: str          # "error" | "warning"
-    category: str          # "semantic_slot" | "ordering" | "conflict" | "isolation"
+    severity: str  # "error" | "warning"
+    category: str  # "semantic_slot" | "ordering" | "conflict" | "isolation"
     message: str
     source_fqn: str = ""
     target_fqn: str = ""
@@ -90,10 +92,7 @@ class ValidationReport:
         return "\n".join(lines)
 
     def __repr__(self) -> str:
-        return (
-            f"<ValidationReport errors={len(self.errors)} "
-            f"warnings={len(self.warnings)}>"
-        )
+        return f"<ValidationReport errors={len(self.errors)} warnings={len(self.warnings)}>"
 
 
 # ---------------------------------------------------------------------------
@@ -152,6 +151,7 @@ _ISOLATION_RULES: list[tuple[frozenset[str], frozenset[str], str]] = [
 # Validator
 # ---------------------------------------------------------------------------
 
+
 class CrossMethodValidator:
     """
     Validates a compiled method chain for cross-method semantic issues.
@@ -170,7 +170,7 @@ class CrossMethodValidator:
     # Public API
     # ------------------------------------------------------------------
 
-    def validate_chain(self, chain: "CompiledMethodChain") -> ValidationReport:
+    def validate_chain(self, chain: CompiledMethodChain) -> ValidationReport:
         """
         Run all validation passes on *chain*.
 
@@ -195,9 +195,7 @@ class CrossMethodValidator:
     # Pass 1: Semantic slot compatibility along data-flow edges
     # ------------------------------------------------------------------
 
-    def _check_semantic_slots(
-        self, chain: "CompiledMethodChain", report: ValidationReport
-    ) -> None:
+    def _check_semantic_slots(self, chain: CompiledMethodChain, report: ValidationReport) -> None:
         """Flag edges where slot semantics are mismatched."""
         for binding in chain.bindings:
             source_slot = binding.source_slot
@@ -210,26 +208,26 @@ class CrossMethodValidator:
                 continue
 
             if not is_semantically_compatible(source_slot, target_slot):
-                report.issues.append(ValidationIssue(
-                    severity="warning",
-                    category="semantic_slot",
-                    message=(
-                        f"Slot '{source_slot}' (from {source_fqn}) connected to "
-                        f"'{target_slot}' (in {target_fqn}): "
-                        "semantic schemas are incompatible — check that you are "
-                        "not mixing unrelated slot types."
-                    ),
-                    source_fqn=source_fqn,
-                    target_fqn=target_fqn,
-                ))
+                report.issues.append(
+                    ValidationIssue(
+                        severity="warning",
+                        category="semantic_slot",
+                        message=(
+                            f"Slot '{source_slot}' (from {source_fqn}) connected to "
+                            f"'{target_slot}' (in {target_fqn}): "
+                            "semantic schemas are incompatible — check that you are "
+                            "not mixing unrelated slot types."
+                        ),
+                        source_fqn=source_fqn,
+                        target_fqn=target_fqn,
+                    )
+                )
 
     # ------------------------------------------------------------------
     # Pass 2: Tag-based ordering rules
     # ------------------------------------------------------------------
 
-    def _check_ordering_rules(
-        self, chain: "CompiledMethodChain", report: ValidationReport
-    ) -> None:
+    def _check_ordering_rules(self, chain: CompiledMethodChain, report: ValidationReport) -> None:
         """Verify that ordering prerequisites are satisfied."""
         # Build tag → set[node_id] and ordered list of (node_id, fqn, tags).
         ordered_nodes: list[tuple[str, frozenset[str]]] = []  # (fqn, tags)
@@ -258,27 +256,23 @@ class CrossMethodValidator:
 
         for prereq_tags, dep_tags, message in _ORDERING_RULES:
             # Find all dependent methods in the chain.
-            dependent_fqns = [
-                fqn for fqn, tags in ordered_nodes
-                if tags & dep_tags
-            ]
+            dependent_fqns = [fqn for fqn, tags in ordered_nodes if tags & dep_tags]
             if not dependent_fqns:
                 continue  # Rule not triggered.
 
             # Find all prerequisite methods.
-            prereq_fqns = [
-                fqn for fqn, tags in ordered_nodes
-                if tags & prereq_tags
-            ]
+            prereq_fqns = [fqn for fqn, tags in ordered_nodes if tags & prereq_tags]
             if not prereq_fqns:
                 # No prerequisite exists at all.
                 for dep_fqn in dependent_fqns:
-                    report.issues.append(ValidationIssue(
-                        severity=severity,
-                        category="ordering",
-                        message=f"{dep_fqn}: {message}",
-                        target_fqn=dep_fqn,
-                    ))
+                    report.issues.append(
+                        ValidationIssue(
+                            severity=severity,
+                            category="ordering",
+                            message=f"{dep_fqn}: {message}",
+                            target_fqn=dep_fqn,
+                        )
+                    )
                 continue
 
             # Check ordering: for each dependent, at least one prereq must precede it.
@@ -286,29 +280,28 @@ class CrossMethodValidator:
             for dep_fqn in dependent_fqns:
                 dep_idx = fqn_order_index.get(dep_fqn, 0)
                 any_prereq_before = any(
-                    fqn_order_index.get(p_fqn, dep_idx + 1) < dep_idx
-                    for p_fqn in prereq_fqns
+                    fqn_order_index.get(p_fqn, dep_idx + 1) < dep_idx for p_fqn in prereq_fqns
                 )
                 if not any_prereq_before:
-                    report.issues.append(ValidationIssue(
-                        severity=severity,
-                        category="ordering",
-                        message=(
-                            f"{dep_fqn}: {message} "
-                            f"(prerequisite methods found: "
-                            f"{', '.join(prereq_fqns[:3])}{'...' if len(prereq_fqns) > 3 else ''}, "
-                            f"but none precede it in execution order)"
-                        ),
-                        target_fqn=dep_fqn,
-                    ))
+                    report.issues.append(
+                        ValidationIssue(
+                            severity=severity,
+                            category="ordering",
+                            message=(
+                                f"{dep_fqn}: {message} "
+                                f"(prerequisite methods found: "
+                                f"{', '.join(prereq_fqns[:3])}{'...' if len(prereq_fqns) > 3 else ''}, "
+                                f"but none precede it in execution order)"
+                            ),
+                            target_fqn=dep_fqn,
+                        )
+                    )
 
     # ------------------------------------------------------------------
     # Pass 3: conflicts_with declarations
     # ------------------------------------------------------------------
 
-    def _check_conflicts(
-        self, chain: "CompiledMethodChain", report: ValidationReport
-    ) -> None:
+    def _check_conflicts(self, chain: CompiledMethodChain, report: ValidationReport) -> None:
         """Flag methods in the chain that conflict with each other."""
         all_fqns = {chain.signatures[nid].fqn for nid in chain.execution_order}
         seen_conflicts: set[tuple[str, str]] = set()
@@ -320,24 +313,24 @@ class CrossMethodValidator:
                     pair = tuple(sorted([sig.fqn, conflict_fqn]))
                     if pair not in seen_conflicts:
                         seen_conflicts.add(pair)  # type: ignore[arg-type]
-                        report.issues.append(ValidationIssue(
-                            severity="error",
-                            category="conflict",
-                            message=(
-                                f"'{sig.fqn}' declares a conflict with '{conflict_fqn}', "
-                                "but both are present in the same chain."
-                            ),
-                            source_fqn=sig.fqn,
-                            target_fqn=conflict_fqn,
-                        ))
+                        report.issues.append(
+                            ValidationIssue(
+                                severity="error",
+                                category="conflict",
+                                message=(
+                                    f"'{sig.fqn}' declares a conflict with '{conflict_fqn}', "
+                                    "but both are present in the same chain."
+                                ),
+                                source_fqn=sig.fqn,
+                                target_fqn=conflict_fqn,
+                            )
+                        )
 
     # ------------------------------------------------------------------
     # Pass 4: Isolation rules (certain cross-domain edges are flagged)
     # ------------------------------------------------------------------
 
-    def _check_isolation_rules(
-        self, chain: "CompiledMethodChain", report: ValidationReport
-    ) -> None:
+    def _check_isolation_rules(self, chain: CompiledMethodChain, report: ValidationReport) -> None:
         """Flag data-flow edges that violate domain isolation rules."""
         fqn_to_tags: dict[str, frozenset[str]] = {}
         for node_id in chain.execution_order:
@@ -357,13 +350,15 @@ class CrossMethodValidator:
                 src_tags = fqn_to_tags.get(binding.source_method, frozenset())
                 tgt_tags = fqn_to_tags.get(binding.target_method, frozenset())
                 if src_tags & source_tags and tgt_tags & target_tags:
-                    report.issues.append(ValidationIssue(
-                        severity="warning",
-                        category="isolation",
-                        message=(
-                            f"Direct edge from '{binding.source_method}' → "
-                            f"'{binding.target_method}': {message}"
-                        ),
-                        source_fqn=binding.source_method,
-                        target_fqn=binding.target_method,
-                    ))
+                    report.issues.append(
+                        ValidationIssue(
+                            severity="warning",
+                            category="isolation",
+                            message=(
+                                f"Direct edge from '{binding.source_method}' → "
+                                f"'{binding.target_method}': {message}"
+                            ),
+                            source_fqn=binding.source_method,
+                            target_fqn=binding.target_method,
+                        )
+                    )

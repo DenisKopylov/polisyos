@@ -1,0 +1,49 @@
+@page {
+  margin: 2.5cm 2cm;
+  size: A4;
+}
+
+@media print {
+  nav,
+  aside.dashboard-shell,
+  .reading-view-toggle {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  .prose {
+    max-width: none !important;
+    color: #111111 !important;
+  }
+
+  .monograph-layout,
+  .monograph-main,
+  .monograph-prose-frame {
+    display: block !important;
+    padding-right: 0 !important;
+  }
+
+  .margin-note {
+    position: static !important;
+    inline-size: auto !important;
+    margin-top: 0.75rem !important;
+  }
+
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+
+  .fan-chart,
+  .uncertainty-band {
+    break-inside: avoid;
+  }
+
+  .provenance-strip::after {
+    content: " [" attr(data-glyph-summary) "]";
+  }
+}

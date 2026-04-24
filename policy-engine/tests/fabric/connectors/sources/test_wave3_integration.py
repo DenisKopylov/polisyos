@@ -5,6 +5,7 @@ Wave 3 adds:
 - 6 REST profiles including Poland open data catalog plus specialized APIs
 - Verifies full profile count across all waves
 """
+
 from __future__ import annotations
 
 import pytest
@@ -65,7 +66,7 @@ class TestRestJsonConnector:
 
 class TestWave3RESTProfiles:
     @pytest.mark.parametrize(
-        "profile_id,expected_url_contains",
+        ("profile_id", "expected_url_contains"),
         [
             ("data_gov_pl", "api.dane.gov.pl"),
             ("usgs_earthquake", "earthquake.usgs.gov"),
@@ -125,9 +126,7 @@ class TestAllWavesSummary:
         reg = ConnectorRegistry.get_instance()
         for fqid in reg:
             entry = reg.get_entry(fqid.split("@")[0])
-            assert entry.default_config is not None, (
-                f"Connector {fqid} missing default config"
-            )
+            assert entry.default_config is not None, f"Connector {fqid} missing default config"
 
     def test_connector_family_profile_coverage(self):
         """Every connector namespace has at least one source profile."""
@@ -135,9 +134,7 @@ class TestAllWavesSummary:
         creg = ConnectorRegistry.get_instance()
         families_with_profiles = {p.connector_family for p in preg.list_all()}
         for ns in creg.list_namespaces():
-            assert ns in families_with_profiles, (
-                f"Connector namespace {ns!r} has no source profile"
-            )
+            assert ns in families_with_profiles, f"Connector namespace {ns!r} has no source profile"
 
     def test_component_system_count(self):
         from polisyos.fabric.connectors.components import __polisyos_components__

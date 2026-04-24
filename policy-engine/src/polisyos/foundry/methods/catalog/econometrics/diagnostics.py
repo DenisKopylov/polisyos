@@ -1,8 +1,10 @@
 """Run model-specification and instrument-strength diagnostics for econometric workflows."""
+
 from __future__ import annotations
 
 import uuid
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -19,9 +21,8 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.ir.analytics.backtest import BacktestReport, BacktestScenario, OutcomeComparison
-
 from polisyos.foundry.methods.catalog._payloads import extract_model_payload
+from polisyos.ir.analytics.backtest import BacktestReport, BacktestScenario, OutcomeComparison
 
 from .protocols import EconometricDiagnosticResult, PanelData, TimeSeriesData
 
@@ -81,6 +82,7 @@ def _build_diag_result(
 )
 class HausmanTestEstimator:
     """Compare fixed/random-effects consistency with a Hausman test; avoid when covariance differences are singular or poorly estimated."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("linearmodels", "pandas", "scipy", "numpy")
 
@@ -91,7 +93,9 @@ class HausmanTestEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("dependent", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")
+                ),
                 SlotSpec("entity_ids", SlotType.VECTOR, Unit("entity", "id"), shape=("n_obs",)),
                 SlotSpec("time_ids", SlotType.VECTOR, Unit("time", "index"), shape=("n_obs",)),
             }
@@ -165,6 +169,7 @@ class HausmanTestEstimator:
 )
 class WeakIVTestEstimator:
     """Diagnose weak instruments with first-stage strength statistics; avoid interpreting 2SLS estimates before this check passes."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -175,12 +180,22 @@ class WeakIVTestEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("dependent", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
-                SlotSpec("instrument_ids", SlotType.MATRIX, Unit("instrument", "value"), shape=("n_obs", "n_instruments")),
+                SlotSpec(
+                    "exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec(
+                    "instrument_ids",
+                    SlotType.MATRIX,
+                    Unit("instrument", "value"),
+                    shape=("n_obs", "n_instruments"),
+                ),
             }
         ),
         output_slots=_diagnostic_output_slot(),
-        parameters=(ParameterSpec(name="n_endogenous", default=1), ParameterSpec(name="threshold", default=10.0)),
+        parameters=(
+            ParameterSpec(name="n_endogenous", default=1),
+            ParameterSpec(name="threshold", default=10.0),
+        ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -215,7 +230,11 @@ class WeakIVTestEstimator:
         if data.instrument_ids is None:
             raise ValueError("weak_iv_test requires instrument_ids")
         n_endogenous = max(1, int(params.get("n_endogenous", 1)))
-        y = np.asarray(data.exog[:, 0], dtype=float) if n_endogenous >= 1 else np.asarray(data.exog[:, 0], dtype=float)
+        y = (
+            np.asarray(data.exog[:, 0], dtype=float)
+            if n_endogenous >= 1
+            else np.asarray(data.exog[:, 0], dtype=float)
+        )
         exog_controls = np.asarray(data.exog[:, n_endogenous:], dtype=float)
         z = np.asarray(data.instrument_ids, dtype=float)
         full_x = sm.add_constant(np.column_stack([exog_controls, z]), has_constant="add")
@@ -243,6 +262,7 @@ class WeakIVTestEstimator:
 )
 class SarganHansenEstimator:
     """Test overidentifying restrictions under valid extra instruments; avoid when instruments are just-identified."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("linearmodels", "numpy")
 
@@ -253,12 +273,22 @@ class SarganHansenEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("dependent", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
-                SlotSpec("instrument_ids", SlotType.MATRIX, Unit("instrument", "value"), shape=("n_obs", "n_instruments")),
+                SlotSpec(
+                    "exog", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec(
+                    "instrument_ids",
+                    SlotType.MATRIX,
+                    Unit("instrument", "value"),
+                    shape=("n_obs", "n_instruments"),
+                ),
             }
         ),
         output_slots=_diagnostic_output_slot(),
-        parameters=(ParameterSpec(name="n_endogenous", default=1), ParameterSpec(name="alpha", default=0.05)),
+        parameters=(
+            ParameterSpec(name="n_endogenous", default=1),
+            ParameterSpec(name="alpha", default=0.05),
+        ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -295,8 +325,14 @@ class SarganHansenEstimator:
         n_endogenous = max(1, int(params.get("n_endogenous", 1)))
         y = np.asarray(data.dependent, dtype=float)
         endog = np.asarray(data.exog[:, :n_endogenous], dtype=float)
-        exog = np.asarray(data.exog[:, n_endogenous:], dtype=float) if data.exog.shape[1] > n_endogenous else None
-        fit = IV2SLS(y, exog, endog, np.asarray(data.instrument_ids, dtype=float)).fit(cov_type="robust")
+        exog = (
+            np.asarray(data.exog[:, n_endogenous:], dtype=float)
+            if data.exog.shape[1] > n_endogenous
+            else None
+        )
+        fit = IV2SLS(y, exog, endog, np.asarray(data.instrument_ids, dtype=float)).fit(
+            cov_type="robust"
+        )
         stat_obj = getattr(fit, "sargan", None) or getattr(fit, "j_stat", None)
         stat = None if stat_obj is None else float(getattr(stat_obj, "stat", np.nan))
         p_value = None if stat_obj is None else float(getattr(stat_obj, "pval", np.nan))
@@ -308,7 +344,9 @@ class SarganHansenEstimator:
                 p_value=p_value,
                 passed=bool(p_value is not None and p_value >= alpha),
                 critical_value=alpha,
-                metadata={"test_source": type(stat_obj).__name__ if stat_obj is not None else "missing"},
+                metadata={
+                    "test_source": type(stat_obj).__name__ if stat_obj is not None else "missing"
+                },
             )
         }
 
@@ -320,6 +358,7 @@ class SarganHansenEstimator:
 )
 class CointegrationTestEstimator:
     """Test for long-run cointegration among non-stationary series; avoid applying to stationary or very short time series."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -329,7 +368,12 @@ class CointegrationTestEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("endog", SlotType.TENSOR, Unit("timeseries", "value"), shape=("n_obs", "n_series")),
+                SlotSpec(
+                    "endog",
+                    SlotType.TENSOR,
+                    Unit("timeseries", "value"),
+                    shape=("n_obs", "n_series"),
+                ),
             }
         ),
         output_slots=_diagnostic_output_slot(),
@@ -397,6 +441,7 @@ class CointegrationTestEstimator:
 )
 class ForecastBacktestEstimator:
     """Backtest forecast errors over a holdout horizon; avoid using it as an in-sample fit metric."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("statsmodels", "numpy")
 
@@ -406,7 +451,12 @@ class ForecastBacktestEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("endog", SlotType.TENSOR, Unit("timeseries", "value"), shape=("n_obs", "n_series")),
+                SlotSpec(
+                    "endog",
+                    SlotType.TENSOR,
+                    Unit("timeseries", "value"),
+                    shape=("n_obs", "n_series"),
+                ),
             }
         ),
         output_slots=frozenset({SlotSpec("result", SlotType.SCALAR, Unit("backtest", "json"))}),

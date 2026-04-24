@@ -4,7 +4,6 @@ from polisyos.foundry.methods.base import SlotType
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 
-
 _AFFINITY_TAGS = {
     "panel",
     "cross-section",

@@ -6,7 +6,12 @@ import json
 from polisyos.academic.batch.article_extractor import _build_evidence_bundle, run_article_extract
 from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.batch.fulltext_resolver import FullTextFetchResult
-from polisyos.academic.batch.resolve_extract import ProviderResponse, WorkItem, _eligibility_gate, _post_resolve_priority
+from polisyos.academic.batch.resolve_extract import (
+    ProviderResponse,
+    WorkItem,
+    _eligibility_gate,
+    _post_resolve_priority,
+)
 from polisyos.ir.analytics.literature import TextQuality
 
 
@@ -188,7 +193,7 @@ class _RetryableThenSuccessFakePool(_BaseFakePool):
     async def chat_json(self, *, model, prompt, temperature):  # type: ignore[no-untyped-def]
         type(self).attempts += 1
         if type(self).attempts == 1:
-            raise asyncio.TimeoutError()
+            raise TimeoutError()
         return ProviderResponse(
             parsed={
                 "paper_relevance": True,
@@ -627,7 +632,10 @@ def test_run_article_extract_stage_writes_outputs(monkeypatch, tmp_path) -> None
     config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
 
     monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _FakePool)
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work", _fake_fetch_full_text)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
+        _fake_fetch_full_text,
+    )
 
     metrics = asyncio.run(run_article_extract(config))
 
@@ -670,8 +678,13 @@ def test_run_article_extract_stage_coerces_relaxed_payloads(monkeypatch, tmp_pat
     config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
     config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
 
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _CoercingFakePool)
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work", _fake_fetch_full_text)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _CoercingFakePool
+    )
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
+        _fake_fetch_full_text,
+    )
 
     metrics = asyncio.run(run_article_extract(config))
 
@@ -689,7 +702,9 @@ def test_run_article_extract_stage_coerces_relaxed_payloads(monkeypatch, tmp_pat
     assert payload["causal_claims"][0]["supporting_spans"]
 
 
-def test_run_article_extract_stage_drops_bad_items_without_losing_document(monkeypatch, tmp_path) -> None:
+def test_run_article_extract_stage_drops_bad_items_without_losing_document(
+    monkeypatch, tmp_path
+) -> None:
     config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
     config.gonka_api_key = "fake"
     config.gonka_api_keys = ["fake"]
@@ -713,8 +728,13 @@ def test_run_article_extract_stage_drops_bad_items_without_losing_document(monke
     config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
     config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
 
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _PartialFailureFakePool)
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work", _fake_fetch_full_text)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _PartialFailureFakePool
+    )
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
+        _fake_fetch_full_text,
+    )
 
     metrics = asyncio.run(run_article_extract(config))
 
@@ -729,7 +749,9 @@ def test_run_article_extract_stage_drops_bad_items_without_losing_document(monke
     assert payload["causal_claims"][0]["supporting_spans"]
 
 
-def test_run_article_extract_stage_handles_provider_exception_without_hanging(monkeypatch, tmp_path) -> None:
+def test_run_article_extract_stage_handles_provider_exception_without_hanging(
+    monkeypatch, tmp_path
+) -> None:
     config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
     config.gonka_api_key = "fake"
     config.gonka_api_keys = ["fake"]
@@ -753,8 +775,13 @@ def test_run_article_extract_stage_handles_provider_exception_without_hanging(mo
     config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
     config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
 
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _CrashingFakePool)
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work", _fake_fetch_full_text)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _CrashingFakePool
+    )
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
+        _fake_fetch_full_text,
+    )
 
     metrics = asyncio.run(run_article_extract(config))
 
@@ -771,7 +798,9 @@ def test_run_article_extract_stage_handles_provider_exception_without_hanging(mo
     assert errors[0]["error_class"] == "provider_client_exception"
 
 
-def test_run_article_extract_stage_retries_retryable_failures_in_followup_pass(monkeypatch, tmp_path) -> None:
+def test_run_article_extract_stage_retries_retryable_failures_in_followup_pass(
+    monkeypatch, tmp_path
+) -> None:
     config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
     config.gonka_api_key = "fake"
     config.gonka_api_keys = ["fake"]
@@ -798,8 +827,13 @@ def test_run_article_extract_stage_retries_retryable_failures_in_followup_pass(m
     config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
 
     _RetryableThenSuccessFakePool.attempts = 0
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _RetryableThenSuccessFakePool)
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work", _fake_fetch_full_text)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _RetryableThenSuccessFakePool
+    )
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
+        _fake_fetch_full_text,
+    )
 
     metrics = asyncio.run(run_article_extract(config))
 
@@ -822,7 +856,9 @@ def test_run_article_extract_stage_retries_retryable_failures_in_followup_pass(m
     assert len(lines) == 1
 
 
-def test_run_article_extract_stage_consumes_doc_ready_queue_in_streaming_mode(monkeypatch, tmp_path) -> None:
+def test_run_article_extract_stage_consumes_doc_ready_queue_in_streaming_mode(
+    monkeypatch, tmp_path
+) -> None:
     config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
     config.gonka_api_key = "fake"
     config.gonka_api_keys = ["fake"]
@@ -866,9 +902,23 @@ def test_run_article_extract_stage_consumes_doc_ready_queue_in_streaming_mode(mo
                 "substrate": {
                     "work_id": "https://openalex.org/W3S",
                     "doc_family": "empirical_quasi",
-                    "routing": [{"lane": "claim", "eligible": True, "route": "llm", "score": 0.9, "reasons": ["test"]}],
+                    "routing": [
+                        {
+                            "lane": "claim",
+                            "eligible": True,
+                            "route": "llm",
+                            "score": 0.9,
+                            "reasons": ["test"],
+                        }
+                    ],
                 },
-                "sections": [{"section_id": "sec_001", "section_name": "results", "text": "Government spending increases output by 0.2."}],
+                "sections": [
+                    {
+                        "section_id": "sec_001",
+                        "section_name": "results",
+                        "text": "Government spending increases output by 0.2.",
+                    }
+                ],
                 "references": [],
                 "tables": [],
                 "figures": [],
@@ -892,7 +942,9 @@ def test_run_article_extract_stage_consumes_doc_ready_queue_in_streaming_mode(mo
     assert progress["items"]["https://openalex.org/W3S"]["state"] == "succeeded_nonempty"
 
 
-def test_run_article_extract_stage_numeric_rescue_enriches_parameters(monkeypatch, tmp_path) -> None:
+def test_run_article_extract_stage_numeric_rescue_enriches_parameters(
+    monkeypatch, tmp_path
+) -> None:
     config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
     config.gonka_api_key = "fake"
     config.gonka_api_keys = ["fake"]
@@ -908,7 +960,12 @@ def test_run_article_extract_stage_numeric_rescue_enriches_parameters(monkeypatc
             "publication_year": 2021,
             "cited_by_count": 60,
             "topics": [{"display_name": "Labor policy and employment"}],
-            "abstract_inverted_index": {"payroll": [0], "tax": [1], "employment": [2], "effect": [3]},
+            "abstract_inverted_index": {
+                "payroll": [0],
+                "tax": [1],
+                "employment": [2],
+                "effect": [3],
+            },
             "authorships": [{"institutions": [{"country_code": "US"}]}],
             "open_access": {"is_oa": False},
         },
@@ -917,8 +974,13 @@ def test_run_article_extract_stage_numeric_rescue_enriches_parameters(monkeypatc
     config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
     config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
 
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _NumericRescueFakePool)
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work", _fake_fetch_full_text)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _NumericRescueFakePool
+    )
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
+        _fake_fetch_full_text,
+    )
 
     metrics = asyncio.run(run_article_extract(config))
 
@@ -939,7 +1001,9 @@ def test_run_article_extract_stage_numeric_rescue_enriches_parameters(monkeypatc
     assert [row["request_kind"] for row in request_log_rows] == ["main_extract", "numeric_rescue"]
 
 
-def test_run_article_extract_stage_deterministic_numeric_rescue_adds_uncertainty(monkeypatch, tmp_path) -> None:
+def test_run_article_extract_stage_deterministic_numeric_rescue_adds_uncertainty(
+    monkeypatch, tmp_path
+) -> None:
     config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
     config.gonka_api_key = "fake"
     config.gonka_api_keys = ["fake"]
@@ -955,7 +1019,12 @@ def test_run_article_extract_stage_deterministic_numeric_rescue_adds_uncertainty
             "publication_year": 2021,
             "cited_by_count": 60,
             "topics": [{"display_name": "Labor policy and employment"}],
-            "abstract_inverted_index": {"payroll": [0], "tax": [1], "employment": [2], "effect": [3]},
+            "abstract_inverted_index": {
+                "payroll": [0],
+                "tax": [1],
+                "employment": [2],
+                "effect": [3],
+            },
             "authorships": [{"institutions": [{"country_code": "US"}]}],
             "open_access": {"is_oa": False},
         },
@@ -964,7 +1033,10 @@ def test_run_article_extract_stage_deterministic_numeric_rescue_adds_uncertainty
     config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
     config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
 
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _DeterministicNumericRescueFakePool)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool",
+        _DeterministicNumericRescueFakePool,
+    )
     monkeypatch.setattr(
         "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
         _fake_fetch_full_text_with_uncertainty,
@@ -1010,7 +1082,9 @@ def test_build_evidence_bundle_includes_numeric_result_snippets() -> None:
     assert any("Odds ratio OR = 1.25" in text for text in block_texts)
 
 
-def test_run_article_extract_stage_allows_result_only_empirical_signal(monkeypatch, tmp_path) -> None:
+def test_run_article_extract_stage_allows_result_only_empirical_signal(
+    monkeypatch, tmp_path
+) -> None:
     config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
     config.gonka_api_key = "fake"
     config.gonka_api_keys = ["fake"]
@@ -1035,7 +1109,10 @@ def test_run_article_extract_stage_allows_result_only_empirical_signal(monkeypat
     config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
 
     monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _FakePool)
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work", _fake_fetch_full_text_result_only)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
+        _fake_fetch_full_text_result_only,
+    )
 
     metrics = asyncio.run(run_article_extract(config))
 
@@ -1251,7 +1328,12 @@ def test_run_article_extract_stage_rejects_review_like_before_llm(monkeypatch, t
             "publication_year": 2021,
             "cited_by_count": 25,
             "topics": [{"display_name": "Taxation and Compliance Studies"}],
-            "abstract_inverted_index": {"systematic": [0], "review": [1], "tax": [2], "compliance": [3]},
+            "abstract_inverted_index": {
+                "systematic": [0],
+                "review": [1],
+                "tax": [2],
+                "compliance": [3],
+            },
             "authorships": [{"institutions": [{"country_code": "US"}]}],
             "open_access": {"is_oa": False},
         },
@@ -1260,8 +1342,13 @@ def test_run_article_extract_stage_rejects_review_like_before_llm(monkeypatch, t
     config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
     config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
 
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _FailIfCalledPool)
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work", _fake_fetch_full_text)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _FailIfCalledPool
+    )
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
+        _fake_fetch_full_text,
+    )
 
     metrics = asyncio.run(run_article_extract(config))
 
@@ -1270,7 +1357,9 @@ def test_run_article_extract_stage_rejects_review_like_before_llm(monkeypatch, t
     assert not config.article_extraction_results_path.exists()
 
 
-def test_run_article_extract_stage_routes_context_review_when_track_b_enabled(monkeypatch, tmp_path) -> None:
+def test_run_article_extract_stage_routes_context_review_when_track_b_enabled(
+    monkeypatch, tmp_path
+) -> None:
     config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
     config.gonka_api_key = "fake"
     config.gonka_api_keys = ["fake"]
@@ -1301,7 +1390,9 @@ def test_run_article_extract_stage_routes_context_review_when_track_b_enabled(mo
     config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
     config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
 
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _TrackBContextFakePool)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _TrackBContextFakePool
+    )
     monkeypatch.setattr(
         "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
         _fake_fetch_full_text_context_review,
@@ -1322,7 +1413,9 @@ def test_run_article_extract_stage_routes_context_review_when_track_b_enabled(mo
     assert context_row["openalex_id"] == "https://openalex.org/W5B"
 
 
-def test_run_article_extract_stage_overrides_empirical_classification_for_context_track_b(monkeypatch, tmp_path) -> None:
+def test_run_article_extract_stage_overrides_empirical_classification_for_context_track_b(
+    monkeypatch, tmp_path
+) -> None:
     config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
     config.gonka_api_key = "fake"
     config.gonka_api_keys = ["fake"]
@@ -1396,8 +1489,13 @@ def test_run_article_extract_stage_canonizes_moderation_edges(monkeypatch, tmp_p
     config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
     config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
 
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _CanonicalModerationFakePool)
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work", _fake_fetch_full_text)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _CanonicalModerationFakePool
+    )
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
+        _fake_fetch_full_text,
+    )
 
     asyncio.run(run_article_extract(config))
 
@@ -1408,12 +1506,17 @@ def test_run_article_extract_stage_canonizes_moderation_edges(monkeypatch, tmp_p
     assert "gdp" in cause.lower() or cause == "gdp_growth"
     assert "employ" in effect.lower()
     assert "income" in payload["heterogeneity_results"][0]["moderator"].lower()
-    assert "gdp" in payload["moderation_edges"][0]["base_cause"].lower() or payload["moderation_edges"][0]["base_cause"] == "gdp_growth"
+    assert (
+        "gdp" in payload["moderation_edges"][0]["base_cause"].lower()
+        or payload["moderation_edges"][0]["base_cause"] == "gdp_growth"
+    )
     assert "employ" in payload["moderation_edges"][0]["base_effect"].lower()
     assert "income" in payload["moderation_edges"][0]["moderator"].lower()
 
 
-def test_run_article_extract_stage_allows_field_experiment_and_admin_data_signal(monkeypatch, tmp_path) -> None:
+def test_run_article_extract_stage_allows_field_experiment_and_admin_data_signal(
+    monkeypatch, tmp_path
+) -> None:
     config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
     config.gonka_api_key = "fake"
     config.gonka_api_keys = ["fake"]
@@ -1444,7 +1547,10 @@ def test_run_article_extract_stage_allows_field_experiment_and_admin_data_signal
     config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
 
     monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _FakePool)
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work", _fake_fetch_full_text_field_experiment)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
+        _fake_fetch_full_text_field_experiment,
+    )
 
     metrics = asyncio.run(run_article_extract(config))
 
@@ -1481,8 +1587,13 @@ def test_run_article_extract_stage_rejects_login_shell_before_llm(monkeypatch, t
     config.selected_global_works_path.parent.mkdir(parents=True, exist_ok=True)
     config.selected_global_works_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
 
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _FailIfCalledPool)
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work", _fake_fetch_full_text_login_shell)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _FailIfCalledPool
+    )
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.fetch_full_text_result_for_work",
+        _fake_fetch_full_text_login_shell,
+    )
 
     metrics = asyncio.run(run_article_extract(config))
 

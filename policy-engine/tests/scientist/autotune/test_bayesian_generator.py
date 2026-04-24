@@ -2,21 +2,15 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
-
-import pytest
-
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.autotune.bayesian_generator import (
     BayesianCandidateGenerator,
-    SearchSpace,
     benchmark_to_evaluation,
 )
 from polisyos.scientist.autotune.models import (
     BenchmarkEvaluation,
-    BenchmarkSplit,
     MetricDirection,
 )
-from polisyos.core.artifacts.manifest import ArtifactRef
 
 
 def _ref() -> ArtifactRef:
@@ -51,7 +45,6 @@ class TestBayesianCandidateGeneratorFallback:
 
     def test_generate_protocol_compliance(self):
         """Generator satisfies the CandidateGenerator protocol."""
-        from polisyos.scientist.autotune.models import CandidateGenerator
 
         gen = BayesianCandidateGenerator(search_space=None)
         # Structural check: has generate method with correct signature

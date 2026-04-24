@@ -5,7 +5,7 @@ from __future__ import annotations
 import gzip
 import json
 import tarfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -43,8 +43,8 @@ def write_json(path: Path, payload: Any) -> None:
 def _json_default(value: Any) -> Any:
     if isinstance(value, datetime):
         if value.tzinfo is None:
-            value = value.replace(tzinfo=timezone.utc)
-        return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+            value = value.replace(tzinfo=UTC)
+        return value.astimezone(UTC).isoformat().replace("+00:00", "Z")
     if hasattr(value, "model_dump"):
         return value.model_dump(mode="python")
     return str(value)
@@ -107,32 +107,34 @@ def create_deterministic_tarball(src_dir: Path, output_path: Path) -> Path:
     archive_path = normalize_archive_path(output_path)
     archive_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with archive_path.open("wb") as raw:
-        with gzip.GzipFile(
+    with (
+        archive_path.open("wb") as raw,
+        gzip.GzipFile(
             filename="",
             mode="wb",
             fileobj=raw,
             mtime=0,
-        ) as gz:
-            with tarfile.open(fileobj=gz, mode="w", format=tarfile.PAX_FORMAT) as tar:
-                for path in sorted(src_dir.rglob("*")):
-                    rel = path.relative_to(src_dir).as_posix()
-                    if path.is_symlink():
-                        continue
-                    info = tar.gettarinfo(str(path), arcname=rel)
-                    info.uid = 0
-                    info.gid = 0
-                    info.uname = ""
-                    info.gname = ""
-                    info.mtime = 0
-                    if path.is_dir():
-                        info.mode = 0o755
-                        tar.addfile(info)
-                        continue
-                    if path.is_file():
-                        info.mode = 0o644
-                        with path.open("rb") as handle:
-                            tar.addfile(info, handle)
+        ) as gz,
+        tarfile.open(fileobj=gz, mode="w", format=tarfile.PAX_FORMAT) as tar,
+    ):
+        for path in sorted(src_dir.rglob("*")):
+            rel = path.relative_to(src_dir).as_posix()
+            if path.is_symlink():
+                continue
+            info = tar.gettarinfo(str(path), arcname=rel)
+            info.uid = 0
+            info.gid = 0
+            info.uname = ""
+            info.gname = ""
+            info.mtime = 0
+            if path.is_dir():
+                info.mode = 0o755
+                tar.addfile(info)
+                continue
+            if path.is_file():
+                info.mode = 0o644
+                with path.open("rb") as handle:
+                    tar.addfile(info, handle)
     return archive_path
 
 
@@ -159,12 +161,7 @@ def build_index(
     """Build the top-level ``index.json`` for the audit package."""
     from ._assembler_slsa import find_decision_packet_id
 
-    created_at = (
-        datetime.now(timezone.utc)
-        .replace(microsecond=0)
-        .isoformat()
-        .replace("+00:00", "Z")
-    )
+    created_at = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     root = find_decision_packet_id(artifact_ids, manifests)
     files = [{"path": path, "sha256": sha} for path, sha in sorted(checksums.items())]
     return {

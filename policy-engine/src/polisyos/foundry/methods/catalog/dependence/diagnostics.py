@@ -1,8 +1,10 @@
 """Shared graph-aware dependence diagnostics for cross-unit workflows."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from statistics import NormalDist
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -77,7 +79,7 @@ def _geary_c(values: np.ndarray, weights: np.ndarray) -> float:
     centered = np.asarray(values, dtype=float) - float(np.mean(values))
     denom = max(float(centered @ centered), _FLOAT_EPS)
     diffs = values[:, None] - values[None, :]
-    numerator = float(np.sum(weights * (diffs ** 2)))
+    numerator = float(np.sum(weights * (diffs**2)))
     w_sum = max(float(np.sum(weights)), _FLOAT_EPS)
     return float(((len(values) - 1.0) / (2.0 * w_sum)) * (numerator / denom))
 
@@ -114,11 +116,7 @@ def _normalize_fit_summaries(metadata: Mapping[str, Any]) -> dict[str, Mapping[s
     if raw is None:
         return {}
     if isinstance(raw, Mapping):
-        return {
-            str(key): value
-            for key, value in raw.items()
-            if isinstance(value, Mapping)
-        }
+        return {str(key): value for key, value in raw.items() if isinstance(value, Mapping)}
     summaries: dict[str, Mapping[str, Any]] = {}
     for item in raw:
         if not isinstance(item, Mapping):
@@ -142,7 +140,9 @@ def _coerce_panel_matrix(value: Any, *, n_units: int) -> np.ndarray | None:
     return None
 
 
-def _pesaran_cd_summary(data: DependenceDiagnosticData) -> dict[str, float | int | bool | None] | None:
+def _pesaran_cd_summary(
+    data: DependenceDiagnosticData,
+) -> dict[str, float | int | bool | None] | None:
     from polisyos.foundry.methods.catalog.econometrics.dependence import (
         _pairwise_correlations,
         _pairwise_summary,
@@ -224,13 +224,11 @@ def _strength_label(
     lm_lag: float | None,
 ) -> str:
     if dependence_score < 0.05 and all(
-        value is None or abs(float(value)) < 2.0
-        for value in (pesaran_cd, lm_error, lm_lag)
+        value is None or abs(float(value)) < 2.0 for value in (pesaran_cd, lm_error, lm_lag)
     ):
         return "none"
     if dependence_score >= 0.25 or any(
-        value is not None and float(value) >= 6.0
-        for value in (lm_error, lm_lag)
+        value is not None and float(value) >= 6.0 for value in (lm_error, lm_lag)
     ):
         return "strong"
     if dependence_score >= 0.10 or (pesaran_cd is not None and abs(float(pesaran_cd)) >= 1.96):
@@ -255,7 +253,9 @@ class GraphDependenceDiagnosticEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("residuals", SlotType.VECTOR, Unit("residual", "value"), shape=("n_units",)),
+                SlotSpec(
+                    "residuals", SlotType.VECTOR, Unit("residual", "value"), shape=("n_units",)
+                ),
                 SlotSpec("candidate_graphs", SlotType.SCALAR, Unit("graph", "json")),
             }
         ),
@@ -286,14 +286,22 @@ class GraphDependenceDiagnosticEstimator:
     )
 
     @staticmethod
-    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> DependenceDiagnosticData:
+    def materialize_input(
+        bound_inputs: Mapping[str, Any], fallback_state: Any
+    ) -> DependenceDiagnosticData:
         payload = _payload(fallback_state)
         payload.update(bound_inputs)
         return DependenceDiagnosticData.model_validate(payload)
 
     @staticmethod
-    def pure_step(state: DependenceDiagnosticData | Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
-        data = state if isinstance(state, DependenceDiagnosticData) else DependenceDiagnosticData.model_validate(state)
+    def pure_step(
+        state: DependenceDiagnosticData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
+        data = (
+            state
+            if isinstance(state, DependenceDiagnosticData)
+            else DependenceDiagnosticData.model_validate(state)
+        )
         threshold = max(0.0, float(params.get("score_threshold", 0.1)))
         alpha = min(max(float(params.get("alpha", 0.05)), 0.0), 1.0)
         n_permutations = max(0, int(params.get("n_permutations", 0)))
@@ -303,7 +311,11 @@ class GraphDependenceDiagnosticEstimator:
         panel_summary = _pesaran_cd_summary(data)
         pesaran_cd = None if panel_summary is None else float(panel_summary["statistic"])
         pesaran_cd_p_value = None if panel_summary is None else panel_summary["p_value"]
-        y = np.asarray(data.metadata.get("y_direct"), dtype=float) if data.metadata.get("y_direct") is not None else None
+        y = (
+            np.asarray(data.metadata.get("y_direct"), dtype=float)
+            if data.metadata.get("y_direct") is not None
+            else None
+        )
         X = _coerce_design_matrix(data.metadata.get("X"), n_units=data.residuals.shape[0])
 
         diagnostics: list[GraphDependenceDiagnostic] = []
@@ -312,7 +324,9 @@ class GraphDependenceDiagnosticEstimator:
 
         for graph in data.candidate_graphs:
             weights = _row_standardize_weights(graph.W)
-            spectral_radius = float(np.max(np.abs(np.linalg.eigvals(weights)))) if weights.size else 0.0
+            spectral_radius = (
+                float(np.max(np.abs(np.linalg.eigvals(weights)))) if weights.size else 0.0
+            )
             nonzero_rows = int(np.sum(np.sum(np.abs(weights), axis=1) > 0.0))
             structural_identifiable = bool(
                 spectral_radius > 1e-8 and nonzero_rows >= 2 and residual_var > _FLOAT_EPS

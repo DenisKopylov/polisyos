@@ -10,7 +10,10 @@ def test_acceptance_audit_has_no_automated_blockers_for_repo() -> None:
 
     automated_blockers = [check for check in report.blockers if check.kind == "automated"]
     assert automated_blockers == []
-    assert any(check.check_id == "toolchain-consistency" and check.status == "pass" for check in report.checks)
+    assert any(
+        check.check_id == "toolchain-consistency" and check.status == "pass"
+        for check in report.checks
+    )
 
 
 def test_acceptance_audit_accepts_complete_manual_evidence(tmp_path: Path) -> None:
@@ -66,8 +69,12 @@ def test_acceptance_audit_supports_structured_manual_evidence(tmp_path: Path) ->
         manual_path=evidence,
     )
 
-    clean_bootstrap = next(check for check in report.checks if check.check_id == "manual.clean_machine_bootstrap")
-    backend_walkthrough = next(check for check in report.checks if check.check_id == "manual.backend_walkthrough")
+    clean_bootstrap = next(
+        check for check in report.checks if check.check_id == "manual.clean_machine_bootstrap"
+    )
+    backend_walkthrough = next(
+        check for check in report.checks if check.check_id == "manual.backend_walkthrough"
+    )
 
     assert clean_bootstrap.status == "pass"
     assert "Fresh local rehearsal succeeded." in clean_bootstrap.detail

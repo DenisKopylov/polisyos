@@ -1,8 +1,10 @@
 """Continuous predictive calibration diagnostics."""
+
 from __future__ import annotations
 
 import math
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -23,7 +25,9 @@ _DEFAULT_LEVELS = (0.5, 0.8, 0.9)
 def evaluate_continuous(
     *,
     y_true: Sequence[float],
-    intervals: Mapping[float, Sequence[tuple[float, float]]] | Sequence[Sequence[tuple[float, float]]] | None = None,
+    intervals: Mapping[float, Sequence[tuple[float, float]]]
+    | Sequence[Sequence[tuple[float, float]]]
+    | None = None,
     predictive_samples: Sequence[Sequence[float]] | None = None,
     levels: Sequence[float] | None = None,
     uncertainty: Mapping[str, Any] | None = None,
@@ -94,7 +98,9 @@ def evaluate_continuous(
         metadata["pit_summary"] = {
             "mean": float(np.mean(pit)),
             "variance": float(np.var(pit)),
-            "max_bin_gap": float(np.max(np.abs(np.asarray(metadata["pit_histogram"]["density"]) - 0.1))),
+            "max_bin_gap": float(
+                np.max(np.abs(np.asarray(metadata["pit_histogram"]["density"]) - 0.1))
+            ),
         }
         ence = _continuous_ence(y_true=y_arr, predictive_samples=sample_arr)
         if sample_arr.shape[1] < 20:
@@ -110,7 +116,9 @@ def evaluate_continuous(
                 )
             )
     else:
-        warnings.append("PIT diagnostics were skipped because predictive_samples were not provided.")
+        warnings.append(
+            "PIT diagnostics were skipped because predictive_samples were not provided."
+        )
 
     if y_arr.size < 100:
         issues.append(
@@ -164,7 +172,9 @@ def _prepare_predictive_samples(
 def _prepare_interval_sets(
     *,
     y_true: np.ndarray,
-    intervals: Mapping[float, Sequence[tuple[float, float]]] | Sequence[Sequence[tuple[float, float]]] | None,
+    intervals: Mapping[float, Sequence[tuple[float, float]]]
+    | Sequence[Sequence[tuple[float, float]]]
+    | None,
     predictive_samples: np.ndarray | None,
     levels: Sequence[float] | None,
     strict: bool,
@@ -210,9 +220,7 @@ def _intervals_from_samples(
         alpha = (1.0 - float(level)) / 2.0
         lower = np.quantile(predictive_samples, alpha, axis=1)
         upper = np.quantile(predictive_samples, 1.0 - alpha, axis=1)
-        interval_sets.append(
-            [(float(lo), float(hi)) for lo, hi in zip(lower, upper, strict=True)]
-        )
+        interval_sets.append([(float(lo), float(hi)) for lo, hi in zip(lower, upper, strict=True)])
     return interval_sets
 
 
@@ -236,8 +244,7 @@ def _attach_interval_bootstrap(
         sample_idx = rng.integers(0, n_obs, size=n_obs)
         sampled_true = y_true[sample_idx]
         sampled_interval_sets = [
-            [interval_set[index] for index in sample_idx]
-            for interval_set in interval_sets
+            [interval_set[index] for index in sample_idx] for interval_set in interval_sets
         ]
         result = compute_calibration_curve(
             y_true=sampled_true.tolist(),

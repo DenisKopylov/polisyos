@@ -43,10 +43,12 @@ export function FactorImportanceChart({
   const valueWidth = 60;
   const padding = { top: 8, right: 16, bottom: 8, left: 8 };
   const svgWidth = 480;
-  const barAreaWidth = svgWidth - padding.left - padding.right - labelWidth - valueWidth;
+  const barAreaWidth =
+    svgWidth - padding.left - padding.right - labelWidth - valueWidth;
 
   const computedHeight =
-    heightOverride ?? padding.top + padding.bottom + sorted.length * (barHeight + gap) - gap;
+    heightOverride ??
+    padding.top + padding.bottom + sorted.length * (barHeight + gap) - gap;
 
   function barColor(dir: ImportanceFactor["direction"]): string {
     switch (dir) {
@@ -111,7 +113,9 @@ export function FactorImportanceChart({
                   fill={chartTheme.axis}
                   className="select-none"
                 >
-                  {f.label.length > 16 ? `${f.label.slice(0, 15)}\u2026` : f.label}
+                  {f.label.length > 16
+                    ? `${f.label.slice(0, 15)}\u2026`
+                    : f.label}
                 </text>
 
                 {/* Bar */}

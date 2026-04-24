@@ -19,6 +19,7 @@ Implementation is split across private sub-modules for maintainability:
 - ``_store_index``          -- SQLite-backed metadata index
 - ``_store_core``           -- main ConnectorCacheStore class
 """
+
 from ._store_core import ConnectorCacheStore
 from ._store_index import CacheIndex
 from ._store_models import (

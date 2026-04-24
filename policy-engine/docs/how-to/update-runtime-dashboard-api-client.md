@@ -14,6 +14,7 @@
 - синхронизированы `schemas/runtime_api_v1.openapi.json`,
   `frontend/runtime-api-client/runtimeApiClient.{ts,js}`,
   `frontend/runtime-dashboard/src/api/types.ts`;
+
 - runtime and frontend contract checks снова green.
 
 ## Commands
@@ -95,8 +96,10 @@ npm run typecheck
 
 - if the runtime change was not intentional, revert the OpenAPI snapshot first,
   then the generated client and dashboard types;
+
 - if the endpoint should be route-only, remove it from OpenAPI generation and
   leave the client artifacts unchanged;
+
 - do not land only part of the chain unless you are explicitly parking a broken
   intermediate branch.
 
@@ -104,7 +107,9 @@ npm run typecheck
 
 - `check_runtime_api_contract.py` fails: snapshot, generated client and runtime
   code are out of sync;
+
 - `npm run generate:api` changes only dashboard types, not the shared JS/TS
   runtime client;
+
 - `contracts:verify` fails after a valid backend change: the dashboard fixtures
   or expectations need an intentional follow-up update, not a blind revert.

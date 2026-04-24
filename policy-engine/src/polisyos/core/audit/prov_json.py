@@ -1,8 +1,9 @@
 """Public audit prov json module API."""
+
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.core.canon import truncated_hash
@@ -78,8 +79,8 @@ def _qual_name(value: str) -> dict[str, str]:
 
 def _xsd_datetime(value: datetime) -> dict[str, str]:
     if value.tzinfo is None:
-        value = value.replace(tzinfo=timezone.utc)
-    iso = value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+        value = value.replace(tzinfo=UTC)
+    iso = value.astimezone(UTC).isoformat().replace("+00:00", "Z")
     return {"$": iso, "type": "xsd:dateTime"}
 
 
@@ -165,7 +166,9 @@ class ProvJsonConverter:
 
     def _entity_to_prov_json(self, entity: ProvenanceEntity) -> dict[str, Any]:
         kind = str(entity.attributes.get("kind", ""))
-        prov_type = ARTIFACT_KIND_MAP.get(kind, ENTITY_TYPE_MAP.get(entity.entity_type, "pos:Entity"))
+        prov_type = ARTIFACT_KIND_MAP.get(
+            kind, ENTITY_TYPE_MAP.get(entity.entity_type, "pos:Entity")
+        )
         data: dict[str, Any] = {
             "prov:type": _qual_name(prov_type),
             "prov:label": entity.label,
@@ -204,7 +207,9 @@ class ProvJsonConverter:
             data["pos:metadata"] = dict(agent.metadata)
         return data
 
-    def _edges_to_prov_json(self, edges: list[ProvenanceEdge]) -> dict[str, dict[str, dict[str, str]]]:
+    def _edges_to_prov_json(
+        self, edges: list[ProvenanceEdge]
+    ) -> dict[str, dict[str, dict[str, str]]]:
         grouped: dict[str, dict[str, dict[str, str]]] = {
             "wasGeneratedBy": {},
             "used": {},
@@ -270,15 +275,13 @@ def prov_json_to_dot(prov_json: dict[str, Any]) -> str:
     lines = [
         "digraph Provenance {",
         "    rankdir=BT;",
-        "    node [fontname=\"Helvetica\"];",
-        "    edge [fontname=\"Helvetica\", fontsize=10];",
+        '    node [fontname="Helvetica"];',
+        '    edge [fontname="Helvetica", fontsize=10];',
     ]
     for ent_id, ent in sorted(prov_json.get("entity", {}).items()):
         label = str(ent.get("prov:label", ent_id)).replace('"', "'")
         node = _sanitize(ent_id).replace("/", "_").replace(":", "_")
-        lines.append(
-            f'    {node} [label="{label}", shape=box, style=filled, fillcolor=lightblue];'
-        )
+        lines.append(f'    {node} [label="{label}", shape=box, style=filled, fillcolor=lightblue];')
     for act_id, act in sorted(prov_json.get("activity", {}).items()):
         label = str(act.get("prov:label", act_id)).replace('"', "'")
         node = _sanitize(act_id).replace("/", "_").replace(":", "_")
@@ -336,7 +339,7 @@ def build_core_graph_from_prov_json(prov_json: dict[str, Any]) -> ProvenanceCore
                 entity_id=ent_id,
                 entity_type=EntityType.DATASET,
                 label=str(ent.get("prov:label", ent_id)),
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
                 attributes={},
             )
         )
@@ -346,8 +349,8 @@ def build_core_graph_from_prov_json(prov_json: dict[str, Any]) -> ProvenanceCore
                 activity_id=act_id,
                 activity_type=ActivityType.VALIDATION,
                 label=str(act.get("prov:label", act_id)),
-                started_at=datetime.now(timezone.utc),
-                ended_at=datetime.now(timezone.utc),
+                started_at=datetime.now(UTC),
+                ended_at=datetime.now(UTC),
             )
         )
     for agent_id, agent in prov_json.get("agent", {}).items():

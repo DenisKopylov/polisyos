@@ -1,6 +1,7 @@
 """
 Property-based tests for Bayesian regression methods.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -86,9 +87,7 @@ def test_bayesian_regression_posterior_mean_shape(data: dict) -> None:
     seed=st.integers(min_value=0, max_value=50),
 )
 @settings(max_examples=15, deadline=20_000)
-def test_bayesian_regression_deterministic(
-    n_obs: int, n_features: int, seed: int
-) -> None:
+def test_bayesian_regression_deterministic(n_obs: int, n_features: int, seed: int) -> None:
     """Same inputs → identical posterior moments (deterministic path)."""
     try:
         from polisyos.foundry.methods.catalog.bayesian._registry_boot import (

@@ -1,10 +1,8 @@
 """Public foundry queue module API."""
+
 from __future__ import annotations
 
-from typing import Optional
-
 import chex
-import equinox as eqx
 import jax
 import jax.numpy as jnp
 
@@ -15,6 +13,7 @@ from polisyos.foundry.contracts.mechanism import Mechanism, PatchMap
 @chex.dataclass(frozen=True)
 class QueueState:
     """Queue state data model."""
+
     queue_length: jnp.ndarray  # shape ()
 
 
@@ -27,7 +26,7 @@ class QueueMechanism(Mechanism):
 
     service_rate: jnp.ndarray
     arrival_rate: jnp.ndarray
-    capacity: Optional[jnp.ndarray]
+    capacity: jnp.ndarray | None
     temperature: jnp.ndarray
 
     def __init__(
@@ -35,7 +34,7 @@ class QueueMechanism(Mechanism):
         service_rate: float,
         arrival_rate: float,
         *,
-        capacity: Optional[float] = None,
+        capacity: float | None = None,
         temperature: float = 1.0,
         fidelity: FidelityLevel = FidelityLevel.SURROGATE_FLUID,
         debug_mode: bool = False,
@@ -97,15 +96,14 @@ def simulate_queue(
     mech: QueueMechanism, state: QueueState, key: jax.Array, steps: int
 ) -> QueueState:
     """Simulate queue helper."""
+
     def scan_step(carry, _):
         current_state, current_key = carry
         current_key, step_key = jax.random.split(current_key)
         next_state, next_key = mech.step(current_state, step_key)
         return (next_state, next_key), next_state
 
-    (final_state, _), _ = jax.lax.scan(
-        scan_step, (state, key), xs=jnp.arange(steps)
-    )
+    (final_state, _), _ = jax.lax.scan(scan_step, (state, key), xs=jnp.arange(steps))
     return final_state
 
 

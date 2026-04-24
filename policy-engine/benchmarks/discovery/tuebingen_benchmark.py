@@ -65,7 +65,11 @@ from benchmarks.harness import (  # noqa: E402
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.DISCOVERY
@@ -147,8 +151,8 @@ def _kernel_ridge_residuals(x: np.ndarray, y: np.ndarray) -> np.ndarray:
 def _nonlinearity_tiebreak(x: np.ndarray, residual: np.ndarray) -> float:
     centered_x = x - x.mean()
     centered_r = residual - residual.mean()
-    num = float(np.sum((centered_x ** 2) * centered_r))
-    den = math.sqrt(float(np.sum(centered_x ** 4)) * float(np.sum(centered_r ** 2)) + 1e-12)
+    num = float(np.sum((centered_x**2) * centered_r))
+    den = math.sqrt(float(np.sum(centered_x**4)) * float(np.sum(centered_r**2)) + 1e-12)
     return abs(num / den) if den > 0 else 0.0
 
 
@@ -170,8 +174,8 @@ def _anm_direction_score(x: np.ndarray, y: np.ndarray) -> float:
     # Backward residual: fit x ~ y with the same regression family
     eta = _kernel_ridge_residuals(y, x)
 
-    hsic_fwd = _hsic(x, eps)   # should be small if X→Y is true
-    hsic_bwd = _hsic(y, eta)   # should be small if Y→X is true
+    hsic_fwd = _hsic(x, eps)  # should be small if X→Y is true
+    hsic_bwd = _hsic(y, eta)  # should be small if Y→X is true
 
     score = hsic_bwd - hsic_fwd  # positive → prefer X→Y
     if abs(score) < 1e-4:
@@ -188,8 +192,8 @@ def _anm_direction_score(x: np.ndarray, y: np.ndarray) -> float:
 @dataclasses.dataclass
 class BivariatePair:
     pair_id: str
-    true_direction: str   # "X→Y" or "Y→X"
-    dgp_type: str         # "linear", "cubic", "sin"
+    true_direction: str  # "X→Y" or "Y→X"
+    dgp_type: str  # "linear", "cubic", "sin"
 
 
 def _make_pairs() -> list[BivariatePair]:
@@ -221,7 +225,7 @@ def _simulate_pair(pair: BivariatePair, n: int, seed: int) -> tuple[np.ndarray, 
             coef = rng.uniform(0.5, 1.5)
             Y = coef * X + eps
         elif pair.dgp_type == "cubic":
-            Y = X ** 3 / 3.0 + eps
+            Y = X**3 / 3.0 + eps
         else:  # sin
             Y = np.sin(X) + eps
         return X, Y

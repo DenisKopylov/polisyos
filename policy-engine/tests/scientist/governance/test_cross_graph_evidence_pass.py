@@ -101,9 +101,7 @@ class TestCrossGraphEvidencePass:
         assert issues[0].severity is IssueSeverity.WARNING
 
     def test_prohibited_legal_status(self, pass_context_factory, strict_profile):
-        profile = _make_profile(
-            needs=[_make_assessment(legal_status=LegalStatus.PROHIBITED)]
-        )
+        profile = _make_profile(needs=[_make_assessment(legal_status=LegalStatus.PROHIBITED)])
         ctx = pass_context_factory(
             state={"cross_graph_evidence_profile": profile},
             profile=strict_profile,
@@ -205,7 +203,9 @@ class TestCrossGraphEvidencePass:
         issue = next(issue for issue in issues if issue.code == "CROSS_GRAPH_SOURCE_UNAVAILABLE")
         assert issue.severity is IssueSeverity.WARNING
 
-    def test_invalid_profile_payload_emits_explicit_issue(self, pass_context_factory, strict_profile):
+    def test_invalid_profile_payload_emits_explicit_issue(
+        self, pass_context_factory, strict_profile
+    ):
         ctx = pass_context_factory(
             state={"cross_graph_evidence_profile": {"invalid": True}},
             profile=strict_profile,

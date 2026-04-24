@@ -6,11 +6,13 @@ import math
 import re
 import urllib.parse
 from collections import Counter
-from collections.abc import Iterable, Sequence
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 from polisyos.scholar.search.models import FetchResult, SourceMetadata, SourceSnippet, WebSearchHit
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
 
 _QUALITY_DOMAIN_BOOSTS = {
     ".gov": 0.40,
@@ -64,7 +66,7 @@ def build_source_metadata(
     if published_at is not None:
         page_age_days = max(
             0,
-            int((datetime.now(timezone.utc) - published_at).total_seconds() // 86400),
+            int((datetime.now(UTC) - published_at).total_seconds() // 86400),
         )
     anti_seo = anti_seo_score(str(hit.url), title=fetch.title or hit.title, text=fetch.text)
     quality = max(
@@ -155,7 +157,9 @@ def compress_page_to_snippets(
     snippets: list[SourceSnippet] = []
     occupied: list[tuple[int, int]] = []
     for score, left, right in sorted(scored_windows, key=lambda item: (-item[0], item[1])):
-        if any(not (right <= used_left or left >= used_right) for used_left, used_right in occupied):
+        if any(
+            not (right <= used_left or left >= used_right) for used_left, used_right in occupied
+        ):
             continue
         snippet_id = f"snip.{source_id}.{len(snippets) + 1}"
         snippets.append(
@@ -188,7 +192,9 @@ def lexical_support_score(claim_text: str, snippet_text: str) -> float:
     return overlap / max(union, 1)
 
 
-def detect_conflict_score(claim_text: str, snippet_texts: Iterable[str]) -> tuple[float, str | None]:
+def detect_conflict_score(
+    claim_text: str, snippet_texts: Iterable[str]
+) -> tuple[float, str | None]:
     """Return a simple contradiction score and uncertainty note for mixed-polarity evidence."""
     claim_polarity = _polarity(claim_text)
     snippet_polarities = [_polarity(text) for text in snippet_texts]
@@ -196,7 +202,10 @@ def detect_conflict_score(claim_text: str, snippet_texts: Iterable[str]) -> tupl
     if counts[1] and counts[-1]:
         return 0.75, "Evidence snippets contain both positive and negative directional language."
     if claim_polarity != 0 and counts[-claim_polarity]:
-        return 0.5, "At least one source snippet appears directionally inconsistent with the claim text."
+        return (
+            0.5,
+            "At least one source snippet appears directionally inconsistent with the claim text.",
+        )
     return 0.0, None
 
 
@@ -234,11 +243,7 @@ def _lexical_overlap(text: str, query_terms: Sequence[str]) -> float:
 
 
 def _tokenize(text: str) -> list[str]:
-    return [
-        token
-        for token in re.findall(r"[\w'-]+", text.lower())
-        if len(token) >= 3
-    ]
+    return [token for token in re.findall(r"[\w'-]+", text.lower()) if len(token) >= 3]
 
 
 def _polarity(text: str) -> int:

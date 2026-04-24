@@ -191,7 +191,7 @@ class ActionDomain(BaseModel):
         return _clean_tuple(value, field_name=str(info.field_name))
 
     @model_validator(mode="after")
-    def _validate_payload(self) -> "ActionDomain":
+    def _validate_payload(self) -> ActionDomain:
         if self.kind == "discrete" and not self.values:
             raise ValueError("discrete ActionDomain requires non-empty values")
         if self.kind == "finite_policy" and not self.policy_refs:
@@ -245,7 +245,7 @@ class PrimitiveCost(BaseModel):
         return _clean_name(value, field_name="node")
 
     @model_validator(mode="after")
-    def _validate_payload(self) -> "PrimitiveCost":
+    def _validate_payload(self) -> PrimitiveCost:
         if self.cost_kind == "linear" and self.slope is None:
             raise ValueError("linear PrimitiveCost requires slope")
         if self.cost_kind == "quadratic" and (self.slope is None or self.curvature is None):
@@ -274,7 +274,7 @@ class CouplingCost(BaseModel):
         return _clean_tuple(value, field_name="nodes")
 
     @model_validator(mode="after")
-    def _validate_limit(self) -> "CouplingCost":
+    def _validate_limit(self) -> CouplingCost:
         if self.kind == "budget" and self.limit is None:
             raise ValueError("budget CouplingCost requires a limit")
         return self
@@ -335,35 +335,25 @@ class InterventionCostManifold(BaseModel):
         return _clean_name(value, field_name=str(info.field_name))
 
     @model_validator(mode="after")
-    def _validate_consistency(self) -> "InterventionCostManifold":
+    def _validate_consistency(self) -> InterventionCostManifold:
         mutable = set(self.mutable_nodes)
         immutable = set(self.immutable_nodes)
         overlap = mutable & immutable
         if overlap:
-            raise ValueError(
-                f"mutable_nodes and immutable_nodes overlap: {sorted(overlap)}"
-            )
+            raise ValueError(f"mutable_nodes and immutable_nodes overlap: {sorted(overlap)}")
         for channel in self.action_channels:
             if channel.node not in mutable:
-                raise ValueError(
-                    f"action_channel declared on non-mutable node {channel.node!r}"
-                )
+                raise ValueError(f"action_channel declared on non-mutable node {channel.node!r}")
         for domain in self.domains:
             if domain.node not in mutable:
-                raise ValueError(
-                    f"domain declared on non-mutable node {domain.node!r}"
-                )
+                raise ValueError(f"domain declared on non-mutable node {domain.node!r}")
         for cost in self.primitive_costs:
             if cost.node not in mutable:
-                raise ValueError(
-                    f"primitive_cost declared on non-mutable node {cost.node!r}"
-                )
+                raise ValueError(f"primitive_cost declared on non-mutable node {cost.node!r}")
         for coupling in self.coupling_costs:
             stray = set(coupling.nodes) - mutable
             if stray:
-                raise ValueError(
-                    f"coupling_cost references non-mutable nodes {sorted(stray)}"
-                )
+                raise ValueError(f"coupling_cost references non-mutable nodes {sorted(stray)}")
         channel_nodes = {c.node for c in self.action_channels}
         cost_nodes = {c.node for c in self.primitive_costs}
         domain_nodes = {d.node for d in self.domains}
@@ -374,14 +364,10 @@ class InterventionCostManifold(BaseModel):
             )
         missing_costs = mutable - cost_nodes
         if missing_costs:
-            raise ValueError(
-                f"primitive_costs missing for mutable nodes {sorted(missing_costs)}"
-            )
+            raise ValueError(f"primitive_costs missing for mutable nodes {sorted(missing_costs)}")
         missing_domains = mutable - domain_nodes
         if missing_domains:
-            raise ValueError(
-                f"domains missing for mutable nodes {sorted(missing_domains)}"
-            )
+            raise ValueError(f"domains missing for mutable nodes {sorted(missing_domains)}")
         return self
 
 
@@ -401,7 +387,7 @@ class PrimitiveAction(BaseModel):
         return _clean_name(value, field_name="node")
 
     @model_validator(mode="after")
-    def _validate_payload(self) -> "PrimitiveAction":
+    def _validate_payload(self) -> PrimitiveAction:
         if self.target_value is None and not self.policy_ref:
             raise ValueError("PrimitiveAction requires either target_value or policy_ref")
         return self
@@ -422,7 +408,7 @@ class InterventionProgram(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_unique_support(self) -> "InterventionProgram":
+    def _validate_unique_support(self) -> InterventionProgram:
         nodes = [action.node for action in self.actions]
         if len(set(nodes)) != len(nodes):
             raise ValueError("InterventionProgram must not act on the same node twice")
@@ -470,18 +456,14 @@ class OptimalRecourseInterventionQuery(BaseModel):
         return _clean_tuple(value, field_name=str(info.field_name))
 
     @model_validator(mode="after")
-    def _validate_query(self) -> "OptimalRecourseInterventionQuery":
+    def _validate_query(self) -> OptimalRecourseInterventionQuery:
         overlap = set(self.mutable_nodes) & set(self.immutable_nodes)
         if overlap:
-            raise ValueError(
-                f"mutable_nodes and immutable_nodes overlap: {sorted(overlap)}"
-            )
+            raise ValueError(f"mutable_nodes and immutable_nodes overlap: {sorted(overlap)}")
         if self.semantics is RecourseSemantics.BOUNDED_RECOURSE and self.success_mode is (
             RecourseSuccessMode.POINT_PROBABILITY
         ):
-            raise ValueError(
-                "bounded_recourse semantics requires a lower-bound success_mode"
-            )
+            raise ValueError("bounded_recourse semantics requires a lower-bound success_mode")
         return self
 
 
@@ -520,40 +502,34 @@ class RecourseProofBundle(BaseModel):
     kill_rule_decision: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
-    @field_validator("mutable_nodes", "immutable_nodes", "proof_trace", "assumptions", mode="before")
+    @field_validator(
+        "mutable_nodes", "immutable_nodes", "proof_trace", "assumptions", mode="before"
+    )
     @classmethod
     def _validate_string_tuple(cls, value: object, info: ValidationInfo) -> tuple[str, ...]:
         return _clean_tuple(value, field_name=str(info.field_name))
 
     @model_validator(mode="after")
-    def _validate_cap(self) -> "RecourseProofBundle":
+    def _validate_cap(self) -> RecourseProofBundle:
         status = self.recoverability_status
         cap = self.readiness_cap
         if status is RecourseRecoverabilityStatus.NONRECOVERABLE and cap is not (
             RecourseReadinessCap.PROOF_ONLY
         ):
-            raise ValueError(
-                "nonrecoverable success functional must cap readiness at PROOF_ONLY"
-            )
+            raise ValueError("nonrecoverable success functional must cap readiness at PROOF_ONLY")
         if status is RecourseRecoverabilityStatus.BOUNDED and cap is (
             RecourseReadinessCap.ESTIMATION_READY
         ):
-            raise ValueError(
-                "bounded success functional cannot raise readiness above BOUNDS_READY"
-            )
+            raise ValueError("bounded success functional cannot raise readiness above BOUNDS_READY")
         if status is RecourseRecoverabilityStatus.BOUNDED and self.success_mode is (
             RecourseSuccessMode.POINT_PROBABILITY
         ):
-            raise ValueError(
-                "bounded success functional requires a lower-bound success_mode"
-            )
+            raise ValueError("bounded success functional requires a lower-bound success_mode")
         if (
             self.optimality_certificate_kind is RecourseOptimalityCertificateKind.HEURISTIC_FRONTIER
             and self.readiness_cap is not RecourseReadinessCap.PROOF_ONLY
         ):
-            raise ValueError(
-                "heuristic recourse frontier must cap readiness at PROOF_ONLY"
-            )
+            raise ValueError("heuristic recourse frontier must cap readiness at PROOF_ONLY")
         return self
 
 
@@ -623,7 +599,7 @@ class RecourseFeasibilityCertificate(BaseModel):
         return _clean_tuple(value, field_name=str(info.field_name))
 
     @model_validator(mode="after")
-    def _validate_certificate(self) -> "RecourseFeasibilityCertificate":
+    def _validate_certificate(self) -> RecourseFeasibilityCertificate:
         support_ok = self.mutable_support_ok and not self.immutable_violations
         if support_ok != self.mutable_support_ok:
             raise ValueError(
@@ -664,16 +640,14 @@ class OptimalRecourseInterventionBundle(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_bundle(self) -> "OptimalRecourseInterventionBundle":
+    def _validate_bundle(self) -> OptimalRecourseInterventionBundle:
         blocking_statuses = {
             RecourseSolverStatus.BLOCKED_NONRECOVERABLE,
             RecourseSolverStatus.BLOCKED_INFEASIBLE,
         }
         if self.solver_status in blocking_statuses:
             if self.feasibility_certificate_ref is not None:
-                raise ValueError(
-                    "blocked solver_status must not carry a feasibility certificate"
-                )
+                raise ValueError("blocked solver_status must not carry a feasibility certificate")
             if not self.blocked_reason:
                 raise ValueError("blocked solver_status requires a blocked_reason")
             if self.action.actions:
@@ -758,8 +732,7 @@ def _available_prerequisite_refs(
         return None
     try:
         available.update(
-            _clean_name(item, field_name="satisfied_prerequisite_refs")
-            for item in metadata_value
+            _clean_name(item, field_name="satisfied_prerequisite_refs") for item in metadata_value
         )
     except ValueError:
         return None
@@ -800,9 +773,7 @@ def build_feasibility_certificate(
 
     violations: list[str] = []
     for step in action.actions:
-        if step.node in immutable:
-            violations.append(step.node)
-        elif step.node not in mutable:
+        if step.node in immutable or step.node not in mutable:
             violations.append(step.node)
 
     domain_ok = True

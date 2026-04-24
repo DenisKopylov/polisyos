@@ -28,6 +28,14 @@ const toolingFiles = [
   "scripts/**/*.{mjs,ts}",
   "e2e/**/*.ts",
 ];
+const authoredProseFiles = [
+  "src/features/artifacts/reading-view/**/*.{ts,tsx}",
+  "src/features/runs/components/narrative/**/*.{ts,tsx}",
+  "src/features/clerk/components/ChatMessage.tsx",
+  "src/features/clerk/components/ClerkProgressiveStream.tsx",
+  "src/features/clerk/components/ClerkStructuredResponse.tsx",
+  "src/features/runs/routes/RunDetailLayout.tsx",
+];
 
 export default tseslint.config(
   {
@@ -152,7 +160,16 @@ export default tseslint.config(
       "react-hooks/preserve-manual-memoization": "off",
       "react-hooks/set-state-in-effect": "off",
       "unused-imports/no-unused-imports": "error",
+      "local/brand-role-separation": "error",
+      "local/no-hardcoded-strings": "error",
       "local/no-raw-emoji-in-jsx": "error",
+      "local/require-non-breaking-space-for-short-prepositions": "error",
+    },
+  },
+  {
+    files: authoredProseFiles,
+    rules: {
+      "local/require-authored-text-in-prose": "error",
     },
   },
   {
@@ -170,6 +187,10 @@ export default tseslint.config(
       "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/require-await": "off",
       "@typescript-eslint/unbound-method": "off",
+      "local/brand-role-separation": "off",
+      "local/require-authored-text-in-prose": "off",
+      "local/no-hardcoded-strings": "off",
+      "local/require-non-breaking-space-for-short-prepositions": "off",
       "no-console": "off",
       "testing-library/render-result-naming-convention": "off",
       "vitest/expect-expect": [
@@ -194,6 +215,7 @@ export default tseslint.config(
         "error",
         {
           argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
         },
       ],
     },
@@ -209,6 +231,10 @@ export default tseslint.config(
     extends: [...storybook.configs["flat/recommended"]],
     rules: {
       "import/no-anonymous-default-export": "off",
+      "local/brand-role-separation": "off",
+      "local/require-authored-text-in-prose": "off",
+      "local/no-hardcoded-strings": "off",
+      "local/require-non-breaking-space-for-short-prepositions": "off",
     },
   },
   {
@@ -221,6 +247,13 @@ export default tseslint.config(
     },
     rules: {
       "no-console": "off",
+      "no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+        },
+      ],
     },
   },
   eslintConfigPrettier,

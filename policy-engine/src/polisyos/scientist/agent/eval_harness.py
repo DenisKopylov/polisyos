@@ -116,7 +116,7 @@ class AgentPolicyComparisonReport(BaseModel):
     deltas: dict[str, float] = Field(default_factory=dict)
     offline_validation_ref: str | None = None
     release_gate_passed: bool = False
-    rollout_status: "AgentPolicyRolloutStatus"
+    rollout_status: AgentPolicyRolloutStatus
     passed: bool = False
     default_enable_eligible: bool = False
     blockers: list[str] = Field(default_factory=list)
@@ -226,9 +226,7 @@ async def run_starter_eval_harness(
     artifact_store_factory: Callable[[Path], ArtifactStore] | None = None,
 ) -> AgentEvalReport:
     cases: list[AgentEvalCaseResult] = []
-    cases.append(
-        await _run_tool_calling_regression_case()
-    )
+    cases.append(await _run_tool_calling_regression_case())
     cases.append(
         await _run_local_search_grounding_case(
             cas_root=Path(cas_root),
@@ -278,9 +276,7 @@ async def _run_local_search_grounding_case(
 ) -> AgentEvalCaseResult:
     case_id = "search_grounding_proxy"
     try:
-        cas = (artifact_store_factory or _build_eval_artifact_store)(
-            cas_root / "cas_search"
-        )
+        cas = (artifact_store_factory or _build_eval_artifact_store)(cas_root / "cas_search")
         problem_frame = await MockPIAgent().create_problem_frame(
             "Reduce poverty with targeted transfers",
             domain_hint="economic",
@@ -340,9 +336,7 @@ async def _run_local_swarm_reflexion_case(
 ) -> AgentEvalCaseResult:
     case_id = "fabric_proxy_grounding"
     try:
-        cas = (artifact_store_factory or _build_eval_artifact_store)(
-            cas_root / "cas_swarm"
-        )
+        cas = (artifact_store_factory or _build_eval_artifact_store)(cas_root / "cas_swarm")
         problem_frame = await MockPIAgent().create_problem_frame(
             "Reduce poverty with targeted transfers",
             domain_hint="economic",
@@ -390,7 +384,8 @@ async def _run_local_swarm_reflexion_case(
                 "has_memory_index_ref": "memory_index_ref" in result.traces,
                 "has_supervisor_trace": "supervisor" in result.traces,
                 "citation_coverage": float(result.metrics.get("citation_coverage") or 0.0),
-                "search_precision_proxy": citation_count / max(
+                "search_precision_proxy": citation_count
+                / max(
                     int(result.metrics.get("citation_count") or 0),
                     1,
                 ),

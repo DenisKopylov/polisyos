@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { Card } from "@/shared/ui/primitives";
 import { ForestPlot, type EffectEstimate } from "@/shared/charts";
 
@@ -21,32 +22,33 @@ type EffectComparisonForestProps = {
 export function EffectComparisonForest({
   baseEstimates,
   targetEstimates,
-  baseLabel = "Base",
-  targetLabel = "Target",
+  baseLabel,
+  targetLabel,
   className,
 }: EffectComparisonForestProps) {
+  const { t } = useI18n();
+  const resolvedBaseLabel = baseLabel ?? t("pages.runs.compare.columns.base");
+  const resolvedTargetLabel =
+    targetLabel ?? t("pages.runs.compare.columns.target");
+
   return (
     <Card className={cn("space-y-4 p-4", className)}>
-      <h4 className="text-sm font-semibold">Effect Size Comparison</h4>
+      <h4 className="text-sm font-semibold">
+        {t("pages.runs.compare.visual.effectSizeComparison")}
+      </h4>
 
       <div className="grid gap-4 lg:grid-cols-2">
         {baseEstimates.length > 0 && (
-          <ForestPlot
-            estimates={baseEstimates}
-            title={baseLabel}
-          />
+          <ForestPlot estimates={baseEstimates} title={resolvedBaseLabel} />
         )}
         {targetEstimates.length > 0 && (
-          <ForestPlot
-            estimates={targetEstimates}
-            title={targetLabel}
-          />
+          <ForestPlot estimates={targetEstimates} title={resolvedTargetLabel} />
         )}
       </div>
 
       {baseEstimates.length === 0 && targetEstimates.length === 0 && (
         <p className="text-muted text-xs">
-          No effect estimates available for comparison.
+          {t("pages.runs.compare.visual.noEffectEstimates")}
         </p>
       )}
     </Card>

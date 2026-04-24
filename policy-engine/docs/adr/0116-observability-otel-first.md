@@ -1,9 +1,11 @@
 # ADR-0116: OTel-First Observability
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context
@@ -34,4 +36,5 @@ Make OpenTelemetry first-class:
 
 - Extends: ADR-0006 (SLO definitions for Scientist DAG), ADR-0101 (runtime
   audit trail model).
+
 - Related: ADR-0122 (lakehouse snapshots), ADR-0123 (ArtifactRef governance).

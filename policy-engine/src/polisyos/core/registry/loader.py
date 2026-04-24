@@ -1,4 +1,5 @@
 """Load registry bundle payloads and dereference their member registries from CAS."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -54,6 +55,7 @@ def _load_model[ModelT: BaseModel](
 @dataclass(frozen=True)
 class RegistryBundleContent:
     """Hold the fully materialized registry objects referenced by one bundle."""
+
     bundle_ref: ArtifactRef
     slot_registry: SlotRegistry
     merge_registry: MergeRuleRegistry

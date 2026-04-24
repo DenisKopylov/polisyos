@@ -1,10 +1,10 @@
 """Tests for QuotaEnforcer — WS3 multi-tenancy quota enforcement."""
+
 from __future__ import annotations
 
 import sys
 from datetime import date
 from decimal import Decimal
-from unittest.mock import patch
 
 import pytest
 

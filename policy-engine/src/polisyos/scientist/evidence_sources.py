@@ -1,8 +1,10 @@
 """Public scientist evidence sources module API."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 

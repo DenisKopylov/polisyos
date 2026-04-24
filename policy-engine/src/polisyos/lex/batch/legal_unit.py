@@ -16,9 +16,9 @@ from polisyos.lex.batch.patterns import (
     APPLICATION_BULLET_RE,
     APPLICATION_CORE_RE,
     APPLICATION_LEAD_RE,
+    APPROVAL_CORE_RE,
     APPROVAL_PACKAGING_LEAD_RE,
     APPROVAL_PASSIVE_RE,
-    APPROVAL_CORE_RE,
     AREA_HEADER_RE,
     CITATION_ONLY_RE,
     COMPLETION_TAIL_RE,
@@ -38,14 +38,17 @@ from polisyos.lex.batch.patterns import (
     SCOPE_TAIL_RE,
     SETTLEMENT_ITEM_RE,
     TEMPORAL_CORE_RE,
+    THRESHOLD_CORE_RE,
     THRESHOLD_MULTI_RE,
     THRESHOLD_STRONG_RE,
-    THRESHOLD_CORE_RE,
     UNITLESS_THRESHOLD_HINT_RE,
 )
 
 if TYPE_CHECKING:
-    from polisyos.lex.batch.jurisdictions.protocol import JurisdictionPlugin, NormativeSignalPatterns
+    from polisyos.lex.batch.jurisdictions.protocol import (
+        JurisdictionPlugin,
+        NormativeSignalPatterns,
+    )
 
 _AMENDMENT_RE = AMENDMENT_CORE_RE
 _APPROVAL_RE = APPROVAL_CORE_RE
@@ -126,6 +129,7 @@ _HIGH_PRIORITY_NORMATIVE_SUBTYPES = {
 @dataclass(frozen=True)
 class LegalUnitSignals:
     """Legal unit signals public type."""
+
     legal_unit_subtype: str
     legal_unit_micro_subtype: str
     route_class: str
@@ -139,14 +143,16 @@ def _compact(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
-def _signal_patterns(jurisdiction_plugin: JurisdictionPlugin | None) -> NormativeSignalPatterns | None:
+def _signal_patterns(
+    jurisdiction_plugin: JurisdictionPlugin | None,
+) -> NormativeSignalPatterns | None:
     if jurisdiction_plugin is None:
         return None
     cached = getattr(jurisdiction_plugin, "_cached_normative_signal_patterns", None)
     if cached is None:
         cached = jurisdiction_plugin.normative_signal_patterns()
         try:
-            setattr(jurisdiction_plugin, "_cached_normative_signal_patterns", cached)
+            jurisdiction_plugin._cached_normative_signal_patterns = cached
         except Exception:  # pragma: no cover - defensive for exotic plugin objects
             pass
     return cached
@@ -247,9 +253,9 @@ def detect_legal_unit_subtype(
     lower = compact.lower()
     content_lower = content_compact.lower()
     title = (doc_title or "").strip()
-    title_lower = title.lower()
+    title.lower()
     context = _compact(context_prefix)
-    context_lower = context.lower()
+    context.lower()
     threshold_like = False
     if struct_kind == "table_row":
         threshold_like = bool(
@@ -306,7 +312,14 @@ def detect_legal_unit_subtype(
         and len(content_compact.split()) >= 10
         and not _AMENDMENT_PACKAGING_LEAD_RE.match(content_compact)
     )
-    if section_role in {"appendix_header", "table_header", "attachment_inventory", "questionnaire_item", "form_field", "decorative_separator"}:
+    if section_role in {
+        "appendix_header",
+        "table_header",
+        "attachment_inventory",
+        "questionnaire_item",
+        "form_field",
+        "decorative_separator",
+    }:
         if section_role == "attachment_inventory":
             return "inventory_only"
         return "table_scaffold"
@@ -329,7 +342,9 @@ def detect_legal_unit_subtype(
             or settlement_hits >= 1
         ):
             return "registry_catalog_row"
-        if _FORM_FIELD_LABEL_RE.match(compact) or (compact.endswith(":") and len(compact.split()) <= 10):
+        if _FORM_FIELD_LABEL_RE.match(compact) or (
+            compact.endswith(":") and len(compact.split()) <= 10
+        ):
             return "form_scaffold"
         if section_role == "procedure" and len(compact.split()) <= 14 and not threshold_like:
             return "form_scaffold"
@@ -402,7 +417,9 @@ def detect_legal_unit_subtype(
         return "approval_bundle"
     if threshold_like:
         return "tariff_threshold_row"
-    application_like = bool(_APPLICATION_BULLET_RE.match(compact) or _APPLICATION_LEAD_RE.search(compact))
+    application_like = bool(
+        _APPLICATION_BULLET_RE.match(compact) or _APPLICATION_LEAD_RE.search(compact)
+    )
     if not application_like and section_role == "procedure" and len(compact.split()) <= 40:
         application_like = bool(_APPLICATION_RE.search(compact))
     if doc_family == "appendix_heavy" and application_like:
@@ -446,7 +463,11 @@ def detect_legal_unit_subtype(
         return "exception_clause"
     if _CITATION_ONLY_RE.match(compact) and not _is_normative_like(compact, jurisdiction_plugin):
         return "citation_only"
-    if section_role in {"catalog_item"} and not _is_normative_like(compact, jurisdiction_plugin) and not _is_threshold_like(compact, jurisdiction_plugin):
+    if (
+        section_role in {"catalog_item"}
+        and not _is_normative_like(compact, jurisdiction_plugin)
+        and not _is_threshold_like(compact, jurisdiction_plugin)
+    ):
         return "registry_catalog_row"
     if section_role in {"composition_member"}:
         return "composition_list"
@@ -458,9 +479,16 @@ def detect_legal_unit_subtype(
         and (_is_reference_like(compact, jurisdiction_plugin) or compact.count(":") >= 2)
     ):
         return "table_scaffold"
-    if doc_family in {"law", "treaty_protocol"} and struct_kind in {"article", "part", "point", "subpoint"}:
+    if doc_family in {"law", "treaty_protocol"} and struct_kind in {
+        "article",
+        "part",
+        "point",
+        "subpoint",
+    }:
         return "core_normative_clause"
-    if _is_normative_like(compact, jurisdiction_plugin) or _is_reference_like(compact, jurisdiction_plugin):
+    if _is_normative_like(compact, jurisdiction_plugin) or _is_reference_like(
+        compact, jurisdiction_plugin
+    ):
         return "core_normative_clause"
     return "core_normative_clause"
 
@@ -535,26 +563,23 @@ def build_legal_unit_signals(
         )
     )
     if threshold_bearing and re.search(r"\b\d{4}\s+рок", lower):
-        strong_threshold_cues = (
-            "%" in compact
-            or any(
-                marker in lower
-                for marker in (
-                    "ставк",
-                    "тариф",
-                    "оклад",
-                    "поріг",
-                    "не менш",
-                    "не більш",
-                    "не нижче",
-                    "не вище",
-                    "грн",
-                    "коп",
-                    "кг",
-                    "км",
-                    "га",
-                    "тонн",
-                )
+        strong_threshold_cues = "%" in compact or any(
+            marker in lower
+            for marker in (
+                "ставк",
+                "тариф",
+                "оклад",
+                "поріг",
+                "не менш",
+                "не більш",
+                "не нижче",
+                "не вище",
+                "грн",
+                "коп",
+                "кг",
+                "км",
+                "га",
+                "тонн",
             )
         )
         if not strong_threshold_cues:
@@ -582,16 +607,21 @@ def build_legal_unit_signals(
     else:
         route_class = "llm_primary"
 
-    audit_miss_prone = subtype in {
-        "amendment_bundle",
-        "approval_bundle",
-        "application_requirement",
-        "core_normative_clause",
-        "exception_clause",
-        "temporal_clause",
-        "sanction_clause",
-        "tariff_threshold_row",
-    } or reference_bearing or threshold_bearing
+    audit_miss_prone = (
+        subtype
+        in {
+            "amendment_bundle",
+            "approval_bundle",
+            "application_requirement",
+            "core_normative_clause",
+            "exception_clause",
+            "temporal_clause",
+            "sanction_clause",
+            "tariff_threshold_row",
+        }
+        or reference_bearing
+        or threshold_bearing
+    )
     empty_retry = route_class in {"deterministic_then_llm_retry", "llm_primary"} and doc_family in {
         "appendix_heavy",
         "law",

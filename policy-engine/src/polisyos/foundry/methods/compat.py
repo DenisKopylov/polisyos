@@ -44,16 +44,17 @@ CI Integration
     from polisyos.foundry.methods.compat import assert_no_breaking_changes
     assert_no_breaking_changes(old_sig, new_sig)
 """
+
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Literal
 
 __all__ = [
     "BreakingChange",
+    "BreakingChangeError",
     "SignatureDiff",
     "assert_no_breaking_changes",
-    "BreakingChangeError",
 ]
 
 # ---------------------------------------------------------------------------
@@ -92,7 +93,7 @@ class BreakingChange:
         Human-readable explanation.
     """
 
-    kind: str               # BreakingChangeKind value
+    kind: str  # BreakingChangeKind value
     slot_or_param: str
     old_value: Any
     new_value: Any
@@ -104,8 +105,7 @@ class BreakingChangeError(Exception):
 
     def __init__(self, changes: list[BreakingChange]) -> None:
         lines = "\n".join(
-            f"  [{c.kind}] {c.slot_or_param}: {c.old_value!r} → {c.new_value!r}"
-            for c in changes
+            f"  [{c.kind}] {c.slot_or_param}: {c.old_value!r} → {c.new_value!r}" for c in changes
         )
         super().__init__(f"{len(changes)} breaking change(s) detected:\n{lines}")
         self.changes = changes
@@ -140,28 +140,34 @@ class SignatureDiff:
         """
         changes: list[BreakingChange] = []
 
-        changes.extend(self._diff_slots(
-            old_slots=list(old.input_slots),
-            new_slots=list(new.input_slots),
-            kind_removed="removed_input_slot",
-            kind_dtype="input_dtype_changed",
-            kind_rank="input_shape_rank_changed",
-            direction="input",
-        ))
+        changes.extend(
+            self._diff_slots(
+                old_slots=list(old.input_slots),
+                new_slots=list(new.input_slots),
+                kind_removed="removed_input_slot",
+                kind_dtype="input_dtype_changed",
+                kind_rank="input_shape_rank_changed",
+                direction="input",
+            )
+        )
 
-        changes.extend(self._diff_slots(
-            old_slots=list(old.output_slots),
-            new_slots=list(new.output_slots),
-            kind_removed="removed_output_slot",
-            kind_dtype="output_dtype_changed",
-            kind_rank="output_shape_rank_changed",
-            direction="output",
-        ))
+        changes.extend(
+            self._diff_slots(
+                old_slots=list(old.output_slots),
+                new_slots=list(new.output_slots),
+                kind_removed="removed_output_slot",
+                kind_dtype="output_dtype_changed",
+                kind_rank="output_shape_rank_changed",
+                direction="output",
+            )
+        )
 
-        changes.extend(self._diff_parameters(
-            old_params=list(getattr(old, "parameters", []) or []),
-            new_params=list(getattr(new, "parameters", []) or []),
-        ))
+        changes.extend(
+            self._diff_parameters(
+                old_params=list(getattr(old, "parameters", []) or []),
+                new_params=list(getattr(new, "parameters", []) or []),
+            )
+        )
 
         changes.extend(self._diff_backend(old, new))
 
@@ -186,13 +192,15 @@ class SignatureDiff:
 
         for name, old_slot in old_by_name.items():
             if name not in new_by_name:
-                changes.append(BreakingChange(
-                    kind=kind_removed,
-                    slot_or_param=name,
-                    old_value=str(getattr(old_slot, "dtype", "?")),
-                    new_value=None,
-                    description=f"{direction} slot '{name}' removed",
-                ))
+                changes.append(
+                    BreakingChange(
+                        kind=kind_removed,
+                        slot_or_param=name,
+                        old_value=str(getattr(old_slot, "dtype", "?")),
+                        new_value=None,
+                        description=f"{direction} slot '{name}' removed",
+                    )
+                )
                 continue
 
             new_slot = new_by_name[name]
@@ -201,35 +209,34 @@ class SignatureDiff:
             old_dtype = str(getattr(old_slot, "dtype", None))
             new_dtype = str(getattr(new_slot, "dtype", None))
             if old_dtype != new_dtype and old_dtype != "None" and new_dtype != "None":
-                changes.append(BreakingChange(
-                    kind=kind_dtype,
-                    slot_or_param=name,
-                    old_value=old_dtype,
-                    new_value=new_dtype,
-                    description=(
-                        f"{direction} slot '{name}' dtype changed: "
-                        f"{old_dtype} → {new_dtype}"
-                    ),
-                ))
+                changes.append(
+                    BreakingChange(
+                        kind=kind_dtype,
+                        slot_or_param=name,
+                        old_value=old_dtype,
+                        new_value=new_dtype,
+                        description=(
+                            f"{direction} slot '{name}' dtype changed: {old_dtype} → {new_dtype}"
+                        ),
+                    )
+                )
 
             # shape rank change
             old_shape = getattr(old_slot, "shape", None)
             new_shape = getattr(new_slot, "shape", None)
-            if (
-                old_shape is not None
-                and new_shape is not None
-                and len(old_shape) != len(new_shape)
-            ):
-                changes.append(BreakingChange(
-                    kind=kind_rank,
-                    slot_or_param=name,
-                    old_value=old_shape,
-                    new_value=new_shape,
-                    description=(
-                        f"{direction} slot '{name}' shape rank changed: "
-                        f"{old_shape} → {new_shape}"
-                    ),
-                ))
+            if old_shape is not None and new_shape is not None and len(old_shape) != len(new_shape):
+                changes.append(
+                    BreakingChange(
+                        kind=kind_rank,
+                        slot_or_param=name,
+                        old_value=old_shape,
+                        new_value=new_shape,
+                        description=(
+                            f"{direction} slot '{name}' shape rank changed: "
+                            f"{old_shape} → {new_shape}"
+                        ),
+                    )
+                )
 
         return changes
 
@@ -246,13 +253,15 @@ class SignatureDiff:
             if name not in new_by_name:
                 # Only breaking if it was a required parameter
                 if not getattr(old_p, "optional", True):
-                    changes.append(BreakingChange(
-                        kind="removed_parameter",
-                        slot_or_param=name,
-                        old_value=getattr(old_p, "default", "?"),
-                        new_value=None,
-                        description=f"required parameter '{name}' removed",
-                    ))
+                    changes.append(
+                        BreakingChange(
+                            kind="removed_parameter",
+                            slot_or_param=name,
+                            old_value=getattr(old_p, "default", "?"),
+                            new_value=None,
+                            description=f"required parameter '{name}' removed",
+                        )
+                    )
                 continue
 
             new_p = new_by_name[name]
@@ -264,30 +273,24 @@ class SignatureDiff:
             new_max = getattr(new_p, "max_value", None)
 
             narrowed = False
-            if (
-                old_min is not None
-                and new_min is not None
-                and new_min > old_min
-            ):
+            if old_min is not None and new_min is not None and new_min > old_min:
                 narrowed = True
-            if (
-                old_max is not None
-                and new_max is not None
-                and new_max < old_max
-            ):
+            if old_max is not None and new_max is not None and new_max < old_max:
                 narrowed = True
 
             if narrowed:
-                changes.append(BreakingChange(
-                    kind="parameter_bounds_narrowed",
-                    slot_or_param=name,
-                    old_value=(old_min, old_max),
-                    new_value=(new_min, new_max),
-                    description=(
-                        f"parameter '{name}' bounds narrowed from "
-                        f"[{old_min}, {old_max}] to [{new_min}, {new_max}]"
-                    ),
-                ))
+                changes.append(
+                    BreakingChange(
+                        kind="parameter_bounds_narrowed",
+                        slot_or_param=name,
+                        old_value=(old_min, old_max),
+                        new_value=(new_min, new_max),
+                        description=(
+                            f"parameter '{name}' bounds narrowed from "
+                            f"[{old_min}, {old_max}] to [{new_min}, {new_max}]"
+                        ),
+                    )
+                )
 
         return changes
 
@@ -296,20 +299,16 @@ class SignatureDiff:
         changes: list[BreakingChange] = []
         old_backend = getattr(old, "backend", None)
         new_backend = getattr(new, "backend", None)
-        if (
-            old_backend is not None
-            and new_backend is not None
-            and old_backend != new_backend
-        ):
-            changes.append(BreakingChange(
-                kind="backend_changed",
-                slot_or_param="backend",
-                old_value=getattr(old_backend, "value", str(old_backend)),
-                new_value=getattr(new_backend, "value", str(new_backend)),
-                description=(
-                    f"compute backend changed: {old_backend} → {new_backend}"
-                ),
-            ))
+        if old_backend is not None and new_backend is not None and old_backend != new_backend:
+            changes.append(
+                BreakingChange(
+                    kind="backend_changed",
+                    slot_or_param="backend",
+                    old_value=getattr(old_backend, "value", str(old_backend)),
+                    new_value=getattr(new_backend, "value", str(new_backend)),
+                    description=(f"compute backend changed: {old_backend} → {new_backend}"),
+                )
+            )
         return changes
 
 

@@ -1,15 +1,11 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.fabric.io.db import SimulationDB
-from polisyos.fabric.world.materialize import materialize_world_duckdb_from_fact_log
-from polisyos.ir.world.abi import EdgeKind
-
 from polisyos.fabric.docs import (
     DocChunkOptions,
     DocNormalizeOptions,
@@ -20,6 +16,9 @@ from polisyos.fabric.docs import (
     normalize_doc,
     structure_doc,
 )
+from polisyos.fabric.io.db import SimulationDB
+from polisyos.fabric.world.materialize import materialize_world_duckdb_from_fact_log
+from polisyos.ir.world.abi import EdgeKind
 
 
 def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
@@ -46,7 +45,7 @@ def _source_spec(retrieved_at: datetime) -> DocSourceSpec:
 
 def test_ingest_same_bytes_same_doc_version_id(tmp_path: Path) -> None:
     cas = FileSystemCAS(tmp_path / "cas")
-    retrieved_at = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    retrieved_at = datetime(2026, 1, 1, tzinfo=UTC)
     source = _source_spec(retrieved_at)
 
     raw_bytes = b"Hello, world!"
@@ -74,7 +73,7 @@ def test_ingest_same_bytes_same_doc_version_id(tmp_path: Path) -> None:
 
 def test_structure_offsets_are_valid(tmp_path: Path) -> None:
     cas = FileSystemCAS(tmp_path / "cas")
-    retrieved_at = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    retrieved_at = datetime(2026, 1, 1, tzinfo=UTC)
     source = _source_spec(retrieved_at)
 
     text = "1. INTRODUCTION\nThis is a test document.\n\n2. SCOPE\nMore text."
@@ -116,7 +115,7 @@ def test_structure_offsets_are_valid(tmp_path: Path) -> None:
 
 def test_chunking_is_deterministic(tmp_path: Path) -> None:
     cas = FileSystemCAS(tmp_path / "cas")
-    retrieved_at = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    retrieved_at = datetime(2026, 1, 1, tzinfo=UTC)
     source = _source_spec(retrieved_at)
 
     text = ("Lorem ipsum dolor sit amet, consectetur adipiscing elit. " * 200).strip()
@@ -157,7 +156,7 @@ def test_docs_pipeline_end_to_end_materialization(tmp_path: Path) -> None:
     cas = FileSystemCAS(tmp_path / "cas")
     db = SimulationDB(db_path=str(tmp_path / "sim.duckdb"))
 
-    retrieved_at = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    retrieved_at = datetime(2026, 1, 1, tzinfo=UTC)
     source = _source_spec(retrieved_at)
     text = "Policy Document\n\n1. SCOPE\nThis is a sample policy text."
 
@@ -204,10 +203,7 @@ def test_docs_pipeline_end_to_end_materialization(tmp_path: Path) -> None:
     assert events_count >= 4
 
     edge_kinds = {
-        row[0]
-        for row in db.conn.execute(
-            "SELECT DISTINCT kind FROM world.world_edges"
-        ).fetchall()
+        row[0] for row in db.conn.execute("SELECT DISTINCT kind FROM world.world_edges").fetchall()
     }
     assert EdgeKind.DOC_HAS_VERSION.value in edge_kinds
     assert EdgeKind.DOC_HAS_FRAGMENT.value in edge_kinds
@@ -220,7 +216,7 @@ def test_docs_pipeline_idempotent_semantics(tmp_path: Path) -> None:
     cas = FileSystemCAS(tmp_path / "cas")
     db = SimulationDB(db_path=str(tmp_path / "sim.duckdb"))
 
-    retrieved_at = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    retrieved_at = datetime(2026, 1, 1, tzinfo=UTC)
     source = _source_spec(retrieved_at)
     text = "Idempotent test doc\n\n1. SECTION\nContent."
 

@@ -12,7 +12,9 @@ from pathlib import Path
 
 
 def _fetch_json(url: str) -> dict[str, object]:
-    request = urllib.request.Request(url, headers={"User-Agent": "policy-engine/ukraine-data-harvester"})
+    request = urllib.request.Request(
+        url, headers={"User-Agent": "policy-engine/ukraine-data-harvester"}
+    )
     with urllib.request.urlopen(request, timeout=60) as response:
         return json.loads(response.read().decode("utf-8"))
 
@@ -64,7 +66,9 @@ def main(argv: list[str] | None = None) -> int:
             completed_pages = page_no
             state["completed_pages"] = completed_pages
             state["last_updated_at"] = dt.datetime.now(dt.UTC).isoformat()
-            state_path.write_text(json.dumps(state, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
+            state_path.write_text(
+                json.dumps(state, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8"
+            )
             pages_processed += 1
             continue
 
@@ -82,7 +86,7 @@ def main(argv: list[str] | None = None) -> int:
             url = f"https://public.api.openprocurement.org/api/2.5/contracts/{contract_id}"
             try:
                 contract_payload = _fetch_json(url)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 state["failures"].append(
                     {
                         "page_no": page_no,
@@ -93,7 +97,9 @@ def main(argv: list[str] | None = None) -> int:
                 )
                 state["status"] = "paused_on_error"
                 state["last_updated_at"] = dt.datetime.now(dt.UTC).isoformat()
-                state_path.write_text(json.dumps(state, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
+                state_path.write_text(
+                    json.dumps(state, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8"
+                )
                 return 1
             data = contract_payload.get("data")
             if isinstance(data, dict):
@@ -121,7 +127,9 @@ def main(argv: list[str] | None = None) -> int:
         state["completed_contracts"] = completed_contracts
         state["last_updated_at"] = dt.datetime.now(dt.UTC).isoformat()
         state["status"] = "running"
-        state_path.write_text(json.dumps(state, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
+        state_path.write_text(
+            json.dumps(state, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8"
+        )
         print(
             f"[ok] detail_page={page_no} contracts={len(hydrated_contracts)} completed_contracts={completed_contracts}",
             flush=True,
@@ -133,7 +141,9 @@ def main(argv: list[str] | None = None) -> int:
     state["finished_at"] = dt.datetime.now(dt.UTC).isoformat()
     state["completed_pages"] = completed_pages
     state["completed_contracts"] = completed_contracts
-    state_path.write_text(json.dumps(state, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
+    state_path.write_text(
+        json.dumps(state, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8"
+    )
     return 0
 
 

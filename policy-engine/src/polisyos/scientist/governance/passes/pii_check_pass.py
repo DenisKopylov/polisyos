@@ -1,7 +1,6 @@
 """Validate PII scan severity against the tenant deployment tier."""
-from __future__ import annotations
 
-from typing import List
+from __future__ import annotations
 
 from polisyos.core.governance.passes.base import (
     ComplianceIssue,
@@ -36,7 +35,7 @@ class PIICheckPass(ValidatorPass):
     def estimated_cost_ms(self) -> int:
         return 10
 
-    def validate(self, ctx: PassContext) -> List[ComplianceIssue]:
+    def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
         pii_results = ctx.state.get("pii_scan_results")
         if pii_results is None:
             return [
@@ -105,8 +104,7 @@ def _extract_scan_fields(value: object) -> tuple[str, int, dict[str, int]]:
         by_type_raw = value.get("entities_by_type", {})
         if isinstance(by_type_raw, dict):
             entities_by_type = {
-                str(key): _to_non_negative_int(item)
-                for key, item in by_type_raw.items()
+                str(key): _to_non_negative_int(item) for key, item in by_type_raw.items()
             }
         else:
             entities_by_type = {}
@@ -117,8 +115,7 @@ def _extract_scan_fields(value: object) -> tuple[str, int, dict[str, int]]:
     by_type_raw = getattr(value, "entities_by_type", {})
     if isinstance(by_type_raw, dict):
         entities_by_type = {
-            str(key): _to_non_negative_int(item)
-            for key, item in by_type_raw.items()
+            str(key): _to_non_negative_int(item) for key, item in by_type_raw.items()
         }
     else:
         entities_by_type = {}

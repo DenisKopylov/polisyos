@@ -104,7 +104,8 @@ function deriveCausalPaths(
         ),
         nodeIds: [first.source, first.target, second.target],
         totalEffect:
-          typeof first.estimate === "number" && typeof second.estimate === "number"
+          typeof first.estimate === "number" &&
+          typeof second.estimate === "number"
             ? first.estimate * second.estimate
             : undefined,
         type:
@@ -150,7 +151,9 @@ function extractCausalGraph(
   const nodes = Array.isArray(p.nodes) ? (p.nodes as CausalNodeData[]) : [];
   const edges = Array.isArray(p.edges) ? (p.edges as CausalEdgeData[]) : [];
   const adjustmentSet = Array.isArray(p.adjustment_set)
-    ? p.adjustment_set.filter((value): value is string => typeof value === "string")
+    ? p.adjustment_set.filter(
+        (value): value is string => typeof value === "string",
+      )
     : nodes.filter((node) => node.inAdjustmentSet).map((node) => node.id);
 
   return {
@@ -174,6 +177,7 @@ function MethodVisualization({
   methodology?: string;
   data?: Record<string, unknown>;
 }) {
+  const { t } = useI18n();
   if (!methodology || !data) return null;
   const visualizationData = data as Record<string, unknown>;
   const renderVisualization = (
@@ -189,7 +193,9 @@ function MethodVisualization({
     case "synthetic_control":
     case "sc":
       return renderVisualization(
-        SyntheticControlViz as unknown as ComponentType<Record<string, unknown>>,
+        SyntheticControlViz as unknown as ComponentType<
+          Record<string, unknown>
+        >,
       );
     case "rdd":
     case "regression_discontinuity":
@@ -215,7 +221,7 @@ function MethodVisualization({
       return (
         <Card className="p-4">
           <p className="text-muted text-sm">
-            Method-specific visualization for "{methodology}" is not yet available.
+            {t("pages.runs.causal.methodUnavailable", { methodology })}
           </p>
         </Card>
       );
@@ -263,22 +269,17 @@ function CausalTabContent({ runId }: { runId: string }) {
   }
 
   if (!graph || graph.nodes.length === 0) {
-    return (
-      <EmptyState
-        title={t("causal.title")}
-        body={t("causal.empty")}
-      />
-    );
+    return <EmptyState title={t("causal.title")} body={t("causal.empty")} />;
   }
 
   const selectedNode = selectedNodeId
-    ? graph.nodes.find((node) => node.id === selectedNodeId) ?? null
+    ? (graph.nodes.find((node) => node.id === selectedNodeId) ?? null)
     : null;
   const selectedEdge = selectedEdgeId
-    ? graph.edges.find((edge) => edge.id === selectedEdgeId) ?? null
+    ? (graph.edges.find((edge) => edge.id === selectedEdgeId) ?? null)
     : null;
   const selectedPath = selectedPathId
-    ? graph.paths.find((path) => path.id === selectedPathId) ?? null
+    ? (graph.paths.find((path) => path.id === selectedPathId) ?? null)
     : null;
 
   return (
@@ -333,17 +334,13 @@ function CausalTabContent({ runId }: { runId: string }) {
           <NodeDetailPanel
             node={selectedNode}
             edges={graph.edges}
-            onClose={() =>
-              setSelectedNodeId(null)
-            }
+            onClose={() => setSelectedNodeId(null)}
           />
         )}
         {selectedEdge && (
           <EdgeDetailPanel
             edge={selectedEdge}
-            onClose={() =>
-              setSelectedEdgeId(null)
-            }
+            onClose={() => setSelectedEdgeId(null)}
           />
         )}
       </div>

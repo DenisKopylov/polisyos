@@ -5,11 +5,13 @@ from __future__ import annotations
 import csv
 import json
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.knowledge.types import SourceTopicRef, WorkRecord
 from polisyos.batch_common.manifest import write_stage_manifest
+
+if TYPE_CHECKING:
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 
 class MergeStats(dict):
@@ -20,19 +22,12 @@ def _iter_input_files(config: AcademicBatchConfig) -> list:
     parsed = sorted(config.parsed_dir.glob("*.jsonl"))
     extracted = sorted(config.extracted_dir.glob("*.jsonl"))
     if config.resolve_extract_final_works_path.exists():
-        extracted = [
-            path
-            for path in extracted
-            if path.name != "resolve_extract.jsonl"
-        ]
+        extracted = [path for path in extracted if path.name != "resolve_extract.jsonl"]
     return parsed + extracted
 
 
 def _payload_key(value: Any) -> str:
-    if hasattr(value, "model_dump"):
-        payload = value.model_dump(mode="json")
-    else:
-        payload = value
+    payload = value.model_dump(mode="json") if hasattr(value, "model_dump") else value
     return json.dumps(payload, ensure_ascii=False, sort_keys=True)
 
 
@@ -100,11 +95,7 @@ def _merge_records(base: WorkRecord, incoming: WorkRecord) -> WorkRecord:
     incoming_priority = mode_priority.get(incoming.extraction_mode, 0)
 
     if incoming_priority > base_priority:
-        chosen_estimates = incoming.estimates
-        chosen_claims = incoming.causal_claims
-        chosen_bounds = incoming.boundary_conditions
         extraction_mode = incoming.extraction_mode
-        chosen_metadata = incoming.metadata
     elif incoming_priority < base_priority:
         extraction_mode = base.extraction_mode
     else:
@@ -124,7 +115,9 @@ def _merge_records(base: WorkRecord, incoming: WorkRecord) -> WorkRecord:
             "doi": _prefer_scalar(preferred.doi, fallback.doi),
             "abstract": _prefer_scalar(preferred.abstract, fallback.abstract),
             "year": preferred.year or fallback.year,
-            "publication_date": _prefer_scalar(preferred.publication_date, fallback.publication_date),
+            "publication_date": _prefer_scalar(
+                preferred.publication_date, fallback.publication_date
+            ),
             "language": _prefer_scalar(preferred.language, fallback.language),
             "work_type": _prefer_scalar(preferred.work_type, fallback.work_type),
             "is_retracted": bool(base.is_retracted or incoming.is_retracted),
@@ -135,8 +128,12 @@ def _merge_records(base: WorkRecord, incoming: WorkRecord) -> WorkRecord:
                 if preferred.citation_normalized_percentile is not None
                 else fallback.citation_normalized_percentile
             ),
-            "citation_is_top_1_percent": bool(base.citation_is_top_1_percent or incoming.citation_is_top_1_percent),
-            "citation_is_top_10_percent": bool(base.citation_is_top_10_percent or incoming.citation_is_top_10_percent),
+            "citation_is_top_1_percent": bool(
+                base.citation_is_top_1_percent or incoming.citation_is_top_1_percent
+            ),
+            "citation_is_top_10_percent": bool(
+                base.citation_is_top_10_percent or incoming.citation_is_top_10_percent
+            ),
             "journal": _prefer_scalar(preferred.journal, fallback.journal),
             "source_id": _prefer_scalar(preferred.source_id, fallback.source_id),
             "is_oa": bool(base.is_oa or incoming.is_oa),
@@ -145,11 +142,15 @@ def _merge_records(base: WorkRecord, incoming: WorkRecord) -> WorkRecord:
             "concepts": _union_items(base.concepts, incoming.concepts),
             "study_design": _prefer_scalar(preferred.study_design, fallback.study_design),
             "trust_score": max(base.trust_score, incoming.trust_score),
-            "extraction_confidence": max(base.extraction_confidence, incoming.extraction_confidence),
+            "extraction_confidence": max(
+                base.extraction_confidence, incoming.extraction_confidence
+            ),
             "extraction_mode": extraction_mode,
             "estimates": _union_items(base.estimates, incoming.estimates),
             "causal_claims": _union_items(base.causal_claims, incoming.causal_claims),
-            "boundary_conditions": _union_items(base.boundary_conditions, incoming.boundary_conditions),
+            "boundary_conditions": _union_items(
+                base.boundary_conditions, incoming.boundary_conditions
+            ),
             "context_profile": {
                 **(base.context_profile if isinstance(base.context_profile, dict) else {}),
                 **(incoming.context_profile if isinstance(incoming.context_profile, dict) else {}),
@@ -159,7 +160,9 @@ def _merge_records(base: WorkRecord, incoming: WorkRecord) -> WorkRecord:
             "llm_gate_score": max(base.llm_gate_score, incoming.llm_gate_score),
             "llm_gate_reasons": _union_items(base.llm_gate_reasons, incoming.llm_gate_reasons),
             "token_count_prompt": max(base.token_count_prompt, incoming.token_count_prompt),
-            "token_count_completion": max(base.token_count_completion, incoming.token_count_completion),
+            "token_count_completion": max(
+                base.token_count_completion, incoming.token_count_completion
+            ),
             "screening_cost_usd": max(base.screening_cost_usd, incoming.screening_cost_usd),
             "extraction_cost_usd": max(base.extraction_cost_usd, incoming.extraction_cost_usd),
             "metadata": _merge_metadata(base.metadata, incoming.metadata),
@@ -177,7 +180,7 @@ def merge_and_dedup(config: AcademicBatchConfig) -> MergeStats:
 
     parsed_files = _iter_input_files(config)
     for file_path in parsed_files:
-        with open(file_path, "r", encoding="utf-8") as fh:
+        with open(file_path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -238,7 +241,11 @@ def merge_and_dedup(config: AcademicBatchConfig) -> MergeStats:
         stage="merge_dedup",
         status="ok",
         metrics=dict(stats),
-        artifacts=[config.merged_records_path, config.topic_links_path, config.duplicates_report_path],
+        artifacts=[
+            config.merged_records_path,
+            config.topic_links_path,
+            config.duplicates_report_path,
+        ],
         started_at=started_at,
     )
     return stats

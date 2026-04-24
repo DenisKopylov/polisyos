@@ -18,9 +18,9 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.analytics.transportability import (
-    TransportMode,
     TransportabilityResult,
     TransportabilityStatus,
+    TransportMode,
 )
 from polisyos.ir.analytics.uncertainty import (
     EnvelopeCombinationMethod,
@@ -81,7 +81,7 @@ class DPMechanismScope(BaseModel):
     composition_group_id: str | None = None
 
     @model_validator(mode="after")
-    def _validate_clipping(self) -> "DPMechanismScope":
+    def _validate_clipping(self) -> DPMechanismScope:
         for key, value in self.clipping.items():
             if value < 0.0:
                 raise ValueError(f"clipping[{key!r}] must be >= 0")
@@ -116,12 +116,10 @@ class ValidityPredicate(BaseModel):
     sensitivity_by_factor: dict[str, float] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_sensitivities(self) -> "ValidityPredicate":
+    def _validate_sensitivities(self) -> ValidityPredicate:
         for factor_id, value in self.sensitivity_by_factor.items():
             if value < 0.0:
-                raise ValueError(
-                    f"sensitivity_by_factor[{factor_id!r}] must be >= 0"
-                )
+                raise ValueError(f"sensitivity_by_factor[{factor_id!r}] must be >= 0")
         return self
 
 
@@ -143,7 +141,7 @@ class DistortionToleranceMap(BaseModel):
     epsilon_projection: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_maps(self) -> "DistortionToleranceMap":
+    def _validate_maps(self) -> DistortionToleranceMap:
         factor_id_set = set(self.factor_ids)
         if len(factor_id_set) != len(self.factor_ids):
             raise ValueError("factor_ids must be unique")
@@ -204,7 +202,7 @@ class DPUtilityManifest(BaseModel):
     provenance: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_contract(self) -> "DPUtilityManifest":
+    def _validate_contract(self) -> DPUtilityManifest:
         if len({scope.domain_id for scope in self.dp_scope}) != len(self.dp_scope):
             raise ValueError("dp_scope domain_id values must be unique")
         known_domains = set(self.source_domains) | {self.target_domain}
@@ -243,13 +241,17 @@ class PrivacyAwareTransportCertificate(BaseModel):
     provenance: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_contract(self) -> "PrivacyAwareTransportCertificate":
+    def _validate_contract(self) -> PrivacyAwareTransportCertificate:
         if len({scope.domain_id for scope in self.dp_scope}) != len(self.dp_scope):
             raise ValueError("dp_scope domain_id values must be unique")
         if self.privacy_observed_mode is PrivacyObservedMode.BLOCKED and not self.blocking_reasons:
-            raise ValueError("blocked privacy-aware transport certificates require blocking_reasons")
+            raise ValueError(
+                "blocked privacy-aware transport certificates require blocking_reasons"
+            )
         if self.privacy_observed_mode is PrivacyObservedMode.EXACT and self.blocking_reasons:
-            raise ValueError("exact privacy-aware transport certificates must not carry blocking_reasons")
+            raise ValueError(
+                "exact privacy-aware transport certificates must not carry blocking_reasons"
+            )
 
         known_domains = set(self.source_domains) | {self.target_domain}
         for bound in self.private_factor_bounds:
@@ -318,15 +320,12 @@ class TransportPrivacyContext(BaseModel):
     selection_diagram_ref: str | None = None
 
     @model_validator(mode="after")
-    def _validate_sources(self) -> "TransportPrivacyContext":
+    def _validate_sources(self) -> TransportPrivacyContext:
         if self.utility_manifest is None and self.privacy_transport_certificate is None:
             raise ValueError(
                 "TransportPrivacyContext requires utility_manifest or privacy_transport_certificate"
             )
-        if (
-            self.utility_manifest is not None
-            and self.privacy_transport_certificate is not None
-        ):
+        if self.utility_manifest is not None and self.privacy_transport_certificate is not None:
             raise ValueError(
                 "TransportPrivacyContext accepts either utility_manifest or privacy_transport_certificate, not both"
             )
@@ -421,9 +420,7 @@ def coerce_transport_privacy_context(
     if candidate.get("utility_manifest") is not None:
         try:
             return TransportPrivacyContext(
-                utility_manifest=DPUtilityManifest.model_validate(
-                    candidate["utility_manifest"]
-                ),
+                utility_manifest=DPUtilityManifest.model_validate(candidate["utility_manifest"]),
                 certificate_id=candidate.get("certificate_id"),
                 selection_diagram_ref=candidate.get("selection_diagram_ref"),
             )
@@ -549,9 +546,8 @@ def build_privacy_aware_transport_certificate(
             required_factor_ids.update(predicate.sensitivity_by_factor)
         for predicate_id, weights in tolerance_map.sensitivity_matrix.items():
             required_factor_ids.update(weights)
-            if (
-                predicate_id not in tolerance_map.predicate_margins
-                and all(pred.predicate_id != predicate_id for pred in utility_manifest.validity_predicates)
+            if predicate_id not in tolerance_map.predicate_margins and all(
+                pred.predicate_id != predicate_id for pred in utility_manifest.validity_predicates
             ):
                 predicate_failures.append(f"missing_predicate_margin:{predicate_id}")
         for factor_id in sorted(required_factor_ids):
@@ -629,10 +625,7 @@ def build_privacy_aware_transport_certificate(
     if observed_mode is PrivacyObservedMode.BOUNDS_ONLY:
         blocking_reasons = [
             *blocking_reasons,
-            *(
-                f"tolerance_exceeded:{factor_id}"
-                for factor_id in sorted(set(tolerance_exceeded))
-            ),
+            *(f"tolerance_exceeded:{factor_id}" for factor_id in sorted(set(tolerance_exceeded))),
             *(
                 f"predicate_margin_failed:{predicate_id}"
                 for predicate_id in sorted(set(predicate_failures))
@@ -763,10 +756,7 @@ def _build_result_scoped_privacy_certificate(
         certificate = context.privacy_transport_certificate
         if certificate.latent_transport_status is not result.status:
             update["latent_transport_status"] = result.status
-        if (
-            certificate.transport_formula_ref is None
-            and result.transport_formula is not None
-        ):
+        if certificate.transport_formula_ref is None and result.transport_formula is not None:
             update["transport_formula_ref"] = result.transport_formula.formula_str
         if context.selection_diagram_ref is not None:
             update["selection_diagram_ref"] = context.selection_diagram_ref
@@ -778,9 +768,7 @@ def _build_result_scoped_privacy_certificate(
 
     combined_envelope_ref = None
     if context.store is not None:
-        combined_envelope = combine_private_factor_envelopes(
-            utility_manifest.private_factor_bounds
-        )
+        combined_envelope = combine_private_factor_envelopes(utility_manifest.private_factor_bounds)
         if combined_envelope is not None:
             combined_envelope_ref = persist_uncertainty_envelope(
                 context.store,
@@ -799,9 +787,7 @@ def _build_result_scoped_privacy_certificate(
         query=result.query or "P*(Y|do(X))",
         selection_diagram_ref=selection_diagram_ref,
         transport_formula_ref=(
-            result.transport_formula.formula_str
-            if result.transport_formula is not None
-            else None
+            result.transport_formula.formula_str if result.transport_formula is not None else None
         ),
         certificate_id=context.certificate_id,
         composed_uncertainty_envelope_ref=combined_envelope_ref,
@@ -864,19 +850,19 @@ def load_privacy_aware_transport_certificate(
 
 
 __all__ = [
-    "DPMechanismScope",
     "DPGraphSourceKind",
+    "DPMechanismScope",
     "DPUtilityManifest",
     "DistortionToleranceMap",
-    "PrivateFactorBound",
-    "PrivateFactorMetric",
     "PrivacyAwareTransportCertificate",
     "PrivacyObservedMode",
+    "PrivateFactorBound",
+    "PrivateFactorMetric",
     "TransportPrivacyContext",
     "ValidityPredicate",
     "ValidityPredicateKind",
-    "apply_transport_privacy_context",
     "apply_privacy_transportability_gate",
+    "apply_transport_privacy_context",
     "attach_privacy_transportability_to_result",
     "build_privacy_aware_transport_certificate",
     "coerce_dp_utility_manifest",

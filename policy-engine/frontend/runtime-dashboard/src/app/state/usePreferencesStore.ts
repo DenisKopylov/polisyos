@@ -1,15 +1,41 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type Density = "compact" | "comfortable" | "spacious";
+import {
+  normalizeAuthorshipHighlightMode,
+  type AuthorshipHighlightMode,
+} from "@/shared/ui/authored-text";
+import {
+  densityScale,
+  type DensityScaleKey,
+} from "@/shared/ui/tokens/designTokens";
+
+export type Density = DensityScaleKey;
+
+export const PREFERENCES_STORAGE_KEY = "polisyos.runtime.preferences";
+
+function isDensity(value: unknown): value is Density {
+  return typeof value === "string" && value in densityScale;
+}
+
+export function normalizeDensity(value: unknown): Density {
+  if (value === "spacious") {
+    return "comfortable";
+  }
+  return isDensity(value) ? value : "comfortable";
+}
 
 type PreferencesState = {
+  authorshipHighlightMode: AuthorshipHighlightMode;
   density: Density;
   sidebarCollapsed: boolean;
   commandPaletteHintDismissed: boolean;
 };
 
 type PreferencesActions = {
+  setAuthorshipHighlightMode: (
+    authorshipHighlightMode: AuthorshipHighlightMode,
+  ) => void;
   setDensity: (density: Density) => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
   toggleSidebar: () => void;
@@ -18,6 +44,7 @@ type PreferencesActions = {
 };
 
 const INITIAL_STATE: PreferencesState = {
+  authorshipHighlightMode: "subtle",
   density: "comfortable",
   sidebarCollapsed: false,
   commandPaletteHintDismissed: false,
@@ -29,6 +56,8 @@ export const usePreferencesStore = create<
   persist(
     (set) => ({
       ...INITIAL_STATE,
+      setAuthorshipHighlightMode: (authorshipHighlightMode) =>
+        set({ authorshipHighlightMode }),
       setDensity: (density) => set({ density }),
       setSidebarCollapsed: (sidebarCollapsed) => set({ sidebarCollapsed }),
       toggleSidebar: () =>
@@ -38,18 +67,43 @@ export const usePreferencesStore = create<
       reset: () => set(INITIAL_STATE),
     }),
     {
-      name: "polisyos.runtime.preferences",
-      version: 1,
+      migrate: (persistedState) => {
+        const persisted = persistedState as
+          | { state?: Partial<PreferencesState> }
+          | undefined;
+        const state = persisted?.state ?? persistedState;
+
+        return {
+          ...INITIAL_STATE,
+          ...(state as Partial<PreferencesState> | undefined),
+          authorshipHighlightMode: normalizeAuthorshipHighlightMode(
+            (state as Partial<PreferencesState> | undefined)
+              ?.authorshipHighlightMode,
+          ),
+          density: normalizeDensity(
+            (state as Partial<PreferencesState> | undefined)?.density,
+          ),
+        };
+      },
+      name: PREFERENCES_STORAGE_KEY,
+      version: 3,
     },
   ),
 );
 
 export function readPreferencesFromStorage(): PreferencesState {
   try {
-    const raw = window.localStorage.getItem("polisyos.runtime.preferences");
+    const raw = window.localStorage.getItem(PREFERENCES_STORAGE_KEY);
     if (!raw) return INITIAL_STATE;
     const parsed = JSON.parse(raw) as { state?: Partial<PreferencesState> };
-    return { ...INITIAL_STATE, ...parsed.state };
+    return {
+      ...INITIAL_STATE,
+      ...parsed.state,
+      authorshipHighlightMode: normalizeAuthorshipHighlightMode(
+        parsed.state?.authorshipHighlightMode,
+      ),
+      density: normalizeDensity(parsed.state?.density),
+    };
   } catch {
     return INITIAL_STATE;
   }

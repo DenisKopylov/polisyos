@@ -1,9 +1,10 @@
 """Cell and tenant models for cell-based tenant isolation."""
+
 from __future__ import annotations
 
 import threading
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
@@ -17,18 +18,21 @@ _UUID7_COUNTER = 0
 
 class CellTier(StrEnum):
     """Cell tier public type."""
+
     DEDICATED = "dedicated"
     SHARED = "shared"
 
 
 class IsolationLevel(StrEnum):
     """Isolation level public type."""
+
     NAMESPACE = "namespace"
     VCLUSTER = "vcluster"
 
 
 class DatabaseBackendKind(StrEnum):
     """Database backend kind public type."""
+
     DUCKDB = "duckdb"
     POSTGRES = "postgres"
 
@@ -62,6 +66,7 @@ def _generate_uuid7() -> str:
 
 class CellSpec(BaseModel):
     """Provisioning contract for one isolation cell that can host PolicyOS tenants."""
+
     model_config = ConfigDict(frozen=True, extra="forbid", str_strip_whitespace=True)
 
     cell_id: str = Field(default_factory=_generate_uuid7)
@@ -70,7 +75,7 @@ class CellSpec(BaseModel):
     region: str = Field(min_length=3, max_length=64)
     isolation_level: IsolationLevel = Field(default=IsolationLevel.NAMESPACE)
     db_backend: DatabaseBackendKind = Field(default=DatabaseBackendKind.POSTGRES)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     @field_validator("cell_id")
     @classmethod
@@ -94,9 +99,7 @@ class CellSpec(BaseModel):
         settings = get_security_settings()
         allowlist = settings.allowed_regions()
         if allowlist and value not in allowlist:
-            raise ValueError(
-                f"Unsupported region {value!r}. Allowed regions: {sorted(allowlist)}"
-            )
+            raise ValueError(f"Unsupported region {value!r}. Allowed regions: {sorted(allowlist)}")
         return value
 
     @property
@@ -114,13 +117,14 @@ class CellSpec(BaseModel):
 
 class TenantSpec(BaseModel):
     """Tenant enrollment record used when assigning workloads into security cells."""
+
     model_config = ConfigDict(frozen=True, extra="forbid", str_strip_whitespace=True)
 
     tenant_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str = Field(min_length=1, max_length=256)
     tier: CellTier = Field(default=CellTier.SHARED)
     region: str = Field(min_length=3, max_length=64)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     @field_validator("tenant_id")
     @classmethod
@@ -131,18 +135,19 @@ class TenantSpec(BaseModel):
 
 class CellAssignment(BaseModel):
     """Cell assignment public type."""
+
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     tenant_id: str
     cell_id: str
-    assigned_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    assigned_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 __all__ = [
-    "CellTier",
-    "IsolationLevel",
-    "DatabaseBackendKind",
-    "CellSpec",
-    "TenantSpec",
     "CellAssignment",
+    "CellSpec",
+    "CellTier",
+    "DatabaseBackendKind",
+    "IsolationLevel",
+    "TenantSpec",
 ]

@@ -30,9 +30,7 @@ def test_id_selector_rejects_duplicates() -> None:
 
 def test_applicability_unknown_concept_emits_issue() -> None:
     applicability = NormApplicability(
-        subject=ApplicabilityEntitySelector(
-            concepts=IdSelector(any_of=["missing_concept"])
-        )
+        subject=ApplicabilityEntitySelector(concepts=IdSelector(any_of=["missing_concept"]))
     )
 
     registries = RegistryBundle(

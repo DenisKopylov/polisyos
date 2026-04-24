@@ -1,4 +1,5 @@
 """Exports governance validation profiles shared by runtime and control-plane checks."""
+
 from __future__ import annotations
 
 from .profiles import ProfileLevel, ValidationProfile

@@ -302,9 +302,7 @@ def check_proof_trace_composability(
     step_statuses: dict[str, ProofReplayStepStatus] = {}
     for step_id, witness_ids in sorted(witness_index.step_to_witness_ids.items()):
         linked = [
-            replay_by_id[witness_id]
-            for witness_id in witness_ids
-            if witness_id in replay_by_id
+            replay_by_id[witness_id] for witness_id in witness_ids if witness_id in replay_by_id
         ]
         if not linked:
             step_statuses[step_id] = ProofReplayStepStatus.UNKNOWN
@@ -320,9 +318,7 @@ def check_proof_trace_composability(
     preserved_witness_ids = tuple(sorted(item.witness_id for item in replay if item.is_preserved))
     broken_witness_ids = tuple(
         sorted(
-            item.witness_id
-            for item in replay
-            if item.step_status is ProofReplayStepStatus.INVALID
+            item.witness_id for item in replay if item.step_status is ProofReplayStepStatus.INVALID
         )
     )
     invalidation_reasons = tuple(
@@ -344,13 +340,9 @@ def check_proof_trace_composability(
         sorted({link for item in replay for link in item.new_district_links})
     )
     projection_values = [
-        item.projection_preserved
-        for item in replay
-        if item.projection_preserved is not None
+        item.projection_preserved for item in replay if item.projection_preserved is not None
     ]
-    projection_preservation_passed = (
-        all(projection_values) if projection_values else None
-    )
+    projection_preservation_passed = all(projection_values) if projection_values else None
 
     status = _resolve_composability_status(
         step_statuses=step_statuses,
@@ -568,8 +560,7 @@ def _unsupported_graph(graph: CausalGraphModel) -> bool:
     if graph.graph_type not in {GraphType.DAG, GraphType.ADMG, GraphType.PAG, GraphType.CPDAG}:
         return True
     return any(
-        edge.mark_src is EdgeMark.CIRCLE or edge.mark_dst is EdgeMark.CIRCLE
-        for edge in graph.edges
+        edge.mark_src is EdgeMark.CIRCLE or edge.mark_dst is EdgeMark.CIRCLE for edge in graph.edges
     )
 
 

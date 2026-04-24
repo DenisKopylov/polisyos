@@ -26,9 +26,7 @@ def test_duckdb_storage_adapter_requires_tenant_column_for_scope(tmp_path: Path)
 def test_duckdb_storage_adapter_enforces_tenant_filter(tmp_path: Path) -> None:
     db = SimulationDB(db_path=str(tmp_path / "sim.duckdb"))
     adapter = DuckDBStorageAdapter(db, tenant_column="tenant_id", fail_closed=True)
-    db.conn.execute(
-        "CREATE TABLE records (id TEXT, tenant_id TEXT, payload TEXT)"
-    )
+    db.conn.execute("CREATE TABLE records (id TEXT, tenant_id TEXT, payload TEXT)")
     db.conn.execute(
         "INSERT INTO records VALUES "
         "('a1', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'row-a'), "

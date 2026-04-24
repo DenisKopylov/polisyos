@@ -5,10 +5,11 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 
 def normalize_filesystem_path(

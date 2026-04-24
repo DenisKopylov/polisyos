@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import hashlib
+from datetime import UTC, datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -48,12 +48,12 @@ class EntityMatchCandidate(BaseModel):
     evidence: list[EntityMatchEvidence] = Field(default_factory=list)
     override_provenance_ref: str | None = None
     override_status: Literal["candidate", "accepted", "rejected"] = "candidate"
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     @staticmethod
     def build_match_id(left_entity_id: str, right_entity_id: str, *, method: str) -> str:
         ordered = sorted([left_entity_id, right_entity_id])
-        digest = hashlib.sha256(f"{ordered[0]}|{ordered[1]}|{method}".encode("utf-8")).hexdigest()[:20]
+        digest = hashlib.sha256(f"{ordered[0]}|{ordered[1]}|{method}".encode()).hexdigest()[:20]
         return f"entity_match_{digest}"
 
 
@@ -63,7 +63,7 @@ class EntityMatchBatch(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     candidates: list[EntityMatchCandidate] = Field(default_factory=list)
-    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     method: str = Field(default="probabilistic_name_identifier_v1", min_length=1)
     metadata: dict[str, str] = Field(default_factory=dict)
 

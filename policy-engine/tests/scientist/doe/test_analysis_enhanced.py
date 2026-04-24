@@ -42,6 +42,7 @@ class TestS2InteractionRanking:
     def test_top_interactions_populated(self, sobol_plan):
         from polisyos.scientist.doe.analysis import analyze_sensitivity
         from polisyos.scientist.doe.sampling import generate_sensitivity_samples
+
         samples = generate_sensitivity_samples(sobol_plan)
         outputs = samples[:, 0] + samples[:, 1] + 2 * samples[:, 0] * samples[:, 1]
         result = analyze_sensitivity(sobol_plan, samples, outputs)
@@ -53,6 +54,7 @@ class TestS2InteractionRanking:
     def test_no_interactions_for_morris(self):
         from polisyos.scientist.doe.analysis import analyze_sensitivity
         from polisyos.scientist.doe.sampling import generate_sensitivity_samples
+
         plan = SensitivityPlan(
             method=SensitivityMethod.MORRIS,
             parameter_specs=[
@@ -73,8 +75,12 @@ class TestTriangularDistribution:
         plan = SensitivityPlan(
             method=SensitivityMethod.MORRIS,
             parameter_specs=[
-                ParameterSpec(name="x1", lower_bound=0, upper_bound=1, distribution=ParameterDist.TRIANGULAR),
-                ParameterSpec(name="x2", lower_bound=0, upper_bound=1, distribution=ParameterDist.UNIFORM),
+                ParameterSpec(
+                    name="x1", lower_bound=0, upper_bound=1, distribution=ParameterDist.TRIANGULAR
+                ),
+                ParameterSpec(
+                    name="x2", lower_bound=0, upper_bound=1, distribution=ParameterDist.UNIFORM
+                ),
             ],
             n_trajectories=10,
             allow_large_run=True,
@@ -107,6 +113,7 @@ class TestDropFailedForSobol:
     def test_drop_failed_sobol_allowed(self):
         from polisyos.scientist.doe.analysis import analyze_sensitivity
         from polisyos.scientist.doe.sampling import generate_sensitivity_samples
+
         plan = SensitivityPlan(
             method=SensitivityMethod.SOBOL,
             parameter_specs=[
@@ -128,6 +135,7 @@ class TestDropFailedForSobol:
     def test_drop_failed_fast_still_raises(self):
         from polisyos.scientist.doe.analysis import analyze_sensitivity
         from polisyos.scientist.doe.sampling import generate_sensitivity_samples
+
         plan = SensitivityPlan(
             method=SensitivityMethod.FAST,
             parameter_specs=[

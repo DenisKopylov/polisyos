@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any, List
+from typing import Any
 
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
@@ -36,7 +36,7 @@ class FreshnessPass(ValidatorPass):
     def estimated_cost_ms(self) -> int:
         return 15
 
-    def validate(self, ctx: PassContext) -> List[ComplianceIssue]:
+    def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
         issues: list[ComplianceIssue] = []
         state = ctx.state
         now = datetime.now(UTC)

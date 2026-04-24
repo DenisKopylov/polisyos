@@ -1,4 +1,5 @@
 """Connector family capability contracts for non-HTTP source surfaces."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -192,11 +193,11 @@ def contract_for_family(connector_family: str) -> ConnectorFamilyContract:
 __all__ = [
     "API_PROTOCOL_CONNECTOR_CONTRACT",
     "CONNECTOR_FAMILY_CONTRACTS",
-    "ConnectorFamilyContract",
     "DATABASE_CONNECTOR_CONTRACT",
     "FILE_CONNECTOR_CONTRACT",
     "OBJECT_STORAGE_CONNECTOR_CONTRACT",
     "SPATIAL_CONNECTOR_CONTRACT",
     "STREAM_CONNECTOR_CONTRACT",
+    "ConnectorFamilyContract",
     "contract_for_family",
 ]

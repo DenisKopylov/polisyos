@@ -1,10 +1,9 @@
 from __future__ import annotations
 
+import re
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
-import re
-
 
 _SKIP_PATTERN = re.compile(
     r'pytest\.skip\((?:f)?["\']([^"\']+)["\']|'
@@ -101,8 +100,7 @@ def test_foundry_skip_markers_are_fully_classified() -> None:
         "Foundry skip markers must be classified as environment_guard, "
         "coverage_debt, or scenario_guard:\n"
         + "\n".join(
-            f"  - {marker.path}:{marker.lineno}: {marker.reason}"
-            for marker in unclassified
+            f"  - {marker.path}:{marker.lineno}: {marker.reason}" for marker in unclassified
         )
     )
 

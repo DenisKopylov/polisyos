@@ -59,6 +59,7 @@ class SubWorkflowConfig(BaseModel):
 # Path helpers
 # ---------------------------------------------------------------------------
 
+
 def _resolve_path(state: ExperimentState, path: str) -> Any:
     parts = path.split(".")
     current: Any = state
@@ -110,9 +111,7 @@ def _validate_output_target_path(path: str) -> str | None:
         return None
     if parts[0] == "artifacts_index":
         if len(parts) != 2:
-            return (
-                "Output mapping target_path 'artifacts_index' must target exactly one key"
-            )
+            return "Output mapping target_path 'artifacts_index' must target exactly one key"
         return None
     return None
 
@@ -125,6 +124,7 @@ def _paths_overlap(left: tuple[str, ...], right: tuple[str, ...]) -> bool:
 # ---------------------------------------------------------------------------
 # SubWorkflowNode
 # ---------------------------------------------------------------------------
+
 
 class SubWorkflowNode:
     """Meta-node that runs a child workflow as a single DAG step.
@@ -198,6 +198,7 @@ class SubWorkflowNode:
 
         # Build child context with incremented depth
         import dataclasses
+
         child_ctx = dataclasses.replace(
             ctx,
             depth=ctx.depth + 1,
@@ -243,11 +244,13 @@ class SubWorkflowNode:
                     message=f"Child workflow completed with status: {child_status}",
                     details={"alias": self._alias, "child_run_id": result.state.run_id},
                 ),
-                events=[NodeEvent(
-                    level="warn",
-                    message=f"Sub-workflow '{self._alias}' failed",
-                    code="sub_workflow.failed",
-                )],
+                events=[
+                    NodeEvent(
+                        level="warn",
+                        message=f"Sub-workflow '{self._alias}' failed",
+                        code="sub_workflow.failed",
+                    )
+                ],
             )
 
         staged_outputs: list[tuple[str, tuple[str, ...], Any]] = []
@@ -287,14 +290,16 @@ class SubWorkflowNode:
                                 "conflict_paths": [existing_path, mapping.target_path],
                             },
                         ),
-                        events=[NodeEvent(
-                            level="error",
-                            message=(
-                                "Sub-workflow output mappings conflict on overlapping "
-                                "target paths"
-                            ),
-                            code="sub_workflow.output_conflict",
-                        )],
+                        events=[
+                            NodeEvent(
+                                level="error",
+                                message=(
+                                    "Sub-workflow output mappings conflict on overlapping "
+                                    "target paths"
+                                ),
+                                code="sub_workflow.output_conflict",
+                            )
+                        ],
                     )
             staged_outputs.append((mapping.target_path, target_parts, deepcopy(value)))
 

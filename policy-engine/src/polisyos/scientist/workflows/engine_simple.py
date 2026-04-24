@@ -1,7 +1,9 @@
 """Minimal sequential engine used by tests and cheap search-loop prototypes."""
+
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List
+from collections.abc import Callable
+from typing import Any
 
 from polisyos.scientist.kernel.fsm import Phase
 
@@ -17,7 +19,7 @@ class SimpleLoopEngine:
 
     def __init__(
         self,
-        nodes: List[tuple[str, Callable[[Dict[str, Any]], Dict[str, Any]]]],
+        nodes: list[tuple[str, Callable[[dict[str, Any]], dict[str, Any]]]],
         terminal_node: str = "pack_decision",
     ):
         self._nodes = nodes
@@ -26,7 +28,7 @@ class SimpleLoopEngine:
         self._current_idx = 0
         self._current_phase = Phase.INTAKE.value
 
-    def run(self, initial_state: Dict[str, Any]) -> Dict[str, Any]:
+    def run(self, initial_state: dict[str, Any]) -> dict[str, Any]:
         """Run all configured nodes in order until terminal state is reached."""
         state = initial_state
         for name, fn in self._nodes:
@@ -35,7 +37,7 @@ class SimpleLoopEngine:
                 break
         return state
 
-    def step(self, state: Dict[str, Any]) -> tuple[Dict[str, Any], bool]:
+    def step(self, state: dict[str, Any]) -> tuple[dict[str, Any], bool]:
         """Execute the next node and report whether the workflow is terminal."""
         if self._current_idx >= len(self._nodes):
             return state, True

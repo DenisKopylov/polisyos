@@ -5,6 +5,7 @@ Contains the SchemaInference class that performs automatic schema
 inference from data samples, including type detection, unit inference,
 semantic type detection, and time/geo dimension detection.
 """
+
 from __future__ import annotations
 
 import re
@@ -29,9 +30,9 @@ from ._inference_result import InferenceResult
 logger = get_logger(__name__)
 
 __all__ = [
-    "UNIT_PATTERNS",
-    "SEMANTIC_PATTERNS",
     "GEO_CODE_PATTERNS",
+    "SEMANTIC_PATTERNS",
+    "UNIT_PATTERNS",
     "SchemaInference",
 ]
 
@@ -80,35 +81,28 @@ SEMANTIC_PATTERNS: dict[str, SemanticType] = {
     r".*_key$": SemanticType.IDENTIFIER,
     r".*_uuid$": SemanticType.IDENTIFIER,
     r"^zip$|.*_zip$|^postal_code$|.*_postal_code$": SemanticType.CODE,
-
     # Currency
     r".*_usd$|.*_eur$|.*_uah$|.*_gbp$|.*_jpy$": SemanticType.CURRENCY,
     r".*_price$|.*_cost$|.*_amount$": SemanticType.CURRENCY,
     r".*_revenue$|.*_income$|.*_salary$": SemanticType.CURRENCY,
-
     # Percentages and ratios
     r".*_pct$|.*_percent$": SemanticType.PERCENTAGE,
     r".*_rate$": SemanticType.RATE,
     r".*_ratio$": SemanticType.RATIO,
-
     # Counts
     r".*_count$|.*_num$|.*_qty$": SemanticType.COUNT,
     r".*_population$|.*_pop$|^population$|^pop$": SemanticType.POPULATION,
-
     # Spatial
     r".*_area$": SemanticType.AREA,
     r".*_distance$": SemanticType.DISTANCE,
     r"^lat$|^latitude$|.*_lat$": SemanticType.LATITUDE,
     r"^lon$|^lng$|^longitude$|.*_lon$|.*_lng$": SemanticType.LONGITUDE,
-
     # Temporal
     r"^year$|^month$|^date$|^period$|^time$": SemanticType.TEMPORAL,
     r".*_date$|.*_time$|.*_at$": SemanticType.TEMPORAL,
-
     # Geospatial
     r"^country$|^region$|^oblast$|^city$": SemanticType.GEOSPATIAL,
     r".*_country$|.*_region$|.*_oblast$": SemanticType.GEOSPATIAL,
-
     # Text
     r"^name$|.*_name$": SemanticType.NAME,
     r"^description$|.*_description$|.*_desc$": SemanticType.DESCRIPTION,
@@ -143,9 +137,7 @@ class SchemaInference:
 
         # Compile regex patterns once
         self._unit_patterns = {re.compile(p): unit for p, unit in UNIT_PATTERNS.items()}
-        self._semantic_patterns = {
-            re.compile(p): sem for p, sem in SEMANTIC_PATTERNS.items()
-        }
+        self._semantic_patterns = {re.compile(p): sem for p, sem in SEMANTIC_PATTERNS.items()}
         self._geo_patterns = {re.compile(p): geo for p, geo in GEO_CODE_PATTERNS.items()}
 
     def infer_from_sample(
@@ -178,9 +170,7 @@ class SchemaInference:
         total_rows = len(sample)
         if total_rows > self._config.sample_rows:
             sample = sample.sample(n=self._config.sample_rows, random_state=42)
-            warnings.append(
-                f"Sampled {self._config.sample_rows} rows from {total_rows} total"
-            )
+            warnings.append(f"Sampled {self._config.sample_rows} rows from {total_rows} total")
 
         # Infer fields
         fields: list[FieldSpec] = []
@@ -188,9 +178,7 @@ class SchemaInference:
             if col in hints.exclude_fields:
                 continue
 
-            field, confidence, field_warnings = self._infer_field(
-                sample[col], col, hints
-            )
+            field, confidence, field_warnings = self._infer_field(sample[col], col, hints)
             fields.append(field)
             field_confidences[field.name] = confidence
             warnings.extend(field_warnings)
@@ -251,9 +239,7 @@ class SchemaInference:
 
         # Use hint if provided, otherwise infer
         if name in hints.field_types or normalized_name in hints.field_types:
-            data_type = hints.field_types.get(name) or hints.field_types.get(
-                normalized_name
-            )
+            data_type = hints.field_types.get(name) or hints.field_types.get(normalized_name)
             confidence = 1.0
         else:
             data_type, type_confidence = self._infer_data_type(series)
@@ -385,7 +371,8 @@ class SchemaInference:
                 except Exception:
                     logger.debug(
                         "Failed to match datetime pattern %s on column sample",
-                        pattern, exc_info=True,
+                        pattern,
+                        exc_info=True,
                     )
                     continue
 
@@ -452,7 +439,8 @@ class SchemaInference:
                     return SemanticType.PERCENTAGE
 
                 if (
-                    data_type in (
+                    data_type
+                    in (
                         SchemaType.INT32,
                         SchemaType.INT64,
                         SchemaType.UINT32,
@@ -496,9 +484,7 @@ class SchemaInference:
         """Detect time dimension and granularity."""
         if hints.time_dimension:
             time_col = hints.time_dimension
-            granularity = hints.time_granularity or self._detect_time_granularity(
-                df, time_col
-            )
+            granularity = hints.time_granularity or self._detect_time_granularity(df, time_col)
             return time_col, granularity
 
         time_candidates = [
@@ -674,9 +660,8 @@ class SchemaInference:
                 candidates.append(field.name)
 
         for candidate in candidates:
-            if candidate in df.columns:
-                if df[candidate].is_unique:
-                    return (candidate,)
+            if candidate in df.columns and df[candidate].is_unique:
+                return (candidate,)
 
         return ()
 
@@ -692,14 +677,11 @@ class SchemaInference:
         for name, conf in confidences.items():
             if conf < 0.7:
                 suggestions.append(
-                    f"Consider providing explicit type hint for '{name}' "
-                    f"(confidence: {conf:.0%})"
+                    f"Consider providing explicit type hint for '{name}' (confidence: {conf:.0%})"
                 )
 
         if not schema.primary_key:
-            suggestions.append(
-                "No primary key detected. Consider providing primary_key hint."
-            )
+            suggestions.append("No primary key detected. Consider providing primary_key hint.")
 
         if not schema.time_dimension:
             temporal_fields = [

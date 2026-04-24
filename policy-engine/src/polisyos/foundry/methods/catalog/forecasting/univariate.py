@@ -1,7 +1,9 @@
 """Public forecasting univariate module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -25,6 +27,7 @@ from polisyos.foundry.methods.catalog.forecasting.uncertainty import (
     forecasting_output_slots,
     resolve_artifact_store,
 )
+
 
 def _series(state: Any, *, key: str = "series") -> np.ndarray:
     values = state.get(key) if isinstance(state, Mapping) else state
@@ -68,7 +71,9 @@ def _exponential_smoothing_result(
 def _theta_result(series: np.ndarray, *, horizon: int, alpha: float) -> dict[str, Any]:
     x = np.arange(series.shape[0], dtype=float)
     slope, intercept = np.polyfit(x, series, 1)
-    linear_forecast = intercept + slope * np.arange(series.shape[0], series.shape[0] + horizon, dtype=float)
+    linear_forecast = intercept + slope * np.arange(
+        series.shape[0], series.shape[0] + horizon, dtype=float
+    )
     level = float(series[0])
     for value in series[1:]:
         level = alpha * float(value) + (1.0 - alpha) * level
@@ -100,6 +105,7 @@ def _reconcile_sample_paths(
 )
 class ExponentialSmoothingEstimator:
     """Generate univariate baseline forecasts with exponential smoothing."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -144,7 +150,9 @@ class ExponentialSmoothingEstimator:
         horizon = max(1, int(params.get("horizon", 6)))
         alpha = float(np.clip(float(params.get("alpha", 0.3)), 1e-6, 1.0))
         beta = float(np.clip(float(params.get("beta", 0.1)), 1e-6, 1.0))
-        artifact_store = resolve_artifact_store(state if isinstance(state, Mapping) else None, params)
+        artifact_store = resolve_artifact_store(
+            state if isinstance(state, Mapping) else None, params
+        )
         result = _exponential_smoothing_result(series, horizon=horizon, alpha=alpha, beta=beta)
         return {
             "result": result,
@@ -154,7 +162,9 @@ class ExponentialSmoothingEstimator:
                 history=series,
                 point_forecast=np.asarray(result["forecast"], dtype=float),
                 forecast_fn=lambda train, h: np.asarray(
-                    _exponential_smoothing_result(np.asarray(train, dtype=float), horizon=h, alpha=alpha, beta=beta)["forecast"],
+                    _exponential_smoothing_result(
+                        np.asarray(train, dtype=float), horizon=h, alpha=alpha, beta=beta
+                    )["forecast"],
                     dtype=float,
                 ),
                 min_train_size=3,
@@ -174,6 +184,7 @@ class ExponentialSmoothingEstimator:
 )
 class ThetaMethodEstimator:
     """Generate univariate forecasts with the Theta method."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -215,7 +226,9 @@ class ThetaMethodEstimator:
         series = _series(state)
         horizon = max(1, int(params.get("horizon", 6)))
         alpha = float(np.clip(float(params.get("alpha", 0.2)), 1e-6, 1.0))
-        artifact_store = resolve_artifact_store(state if isinstance(state, Mapping) else None, params)
+        artifact_store = resolve_artifact_store(
+            state if isinstance(state, Mapping) else None, params
+        )
         result = _theta_result(series, horizon=horizon, alpha=alpha)
         return {
             "result": result,
@@ -225,7 +238,9 @@ class ThetaMethodEstimator:
                 history=series,
                 point_forecast=np.asarray(result["forecast"], dtype=float),
                 forecast_fn=lambda train, h: np.asarray(
-                    _theta_result(np.asarray(train, dtype=float), horizon=h, alpha=alpha)["forecast"],
+                    _theta_result(np.asarray(train, dtype=float), horizon=h, alpha=alpha)[
+                        "forecast"
+                    ],
                     dtype=float,
                 ),
                 min_train_size=3,
@@ -245,6 +260,7 @@ class ThetaMethodEstimator:
 )
 class ForecastEnsembleEstimator:
     """Combine several forecast baselines into one ensemble projection."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -254,7 +270,12 @@ class ForecastEnsembleEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("forecast_matrix", SlotType.MATRIX, Unit("forecast", "value"), shape=("n_models", "horizon")),
+                SlotSpec(
+                    "forecast_matrix",
+                    SlotType.MATRIX,
+                    Unit("forecast", "value"),
+                    shape=("n_models", "horizon"),
+                ),
             }
         ),
         output_slots=forecasting_output_slots(),
@@ -312,6 +333,7 @@ class ForecastEnsembleEstimator:
 )
 class BottomUpReconciliationEstimator:
     """Reconcile hierarchical forecasts bottom-up when planners need aggregate-consistent projections."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -321,8 +343,18 @@ class BottomUpReconciliationEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("bottom_forecasts", SlotType.MATRIX, Unit("forecast", "value"), shape=("n_bottom", "horizon")),
-                SlotSpec("aggregation_matrix", SlotType.MATRIX, Unit("aggregation", "weight"), shape=("n_total", "n_bottom")),
+                SlotSpec(
+                    "bottom_forecasts",
+                    SlotType.MATRIX,
+                    Unit("forecast", "value"),
+                    shape=("n_bottom", "horizon"),
+                ),
+                SlotSpec(
+                    "aggregation_matrix",
+                    SlotType.MATRIX,
+                    Unit("aggregation", "weight"),
+                    shape=("n_total", "n_bottom"),
+                ),
             }
         ),
         output_slots=forecasting_output_slots(),
@@ -358,7 +390,9 @@ class BottomUpReconciliationEstimator:
         bottom_sample_paths = state.get("bottom_sample_paths")
         coherent_paths = None
         if bottom_sample_paths is not None:
-            coherent_paths = _reconcile_sample_paths(np.asarray(bottom_sample_paths, dtype=float), aggregation)
+            coherent_paths = _reconcile_sample_paths(
+                np.asarray(bottom_sample_paths, dtype=float), aggregation
+            )
         reconciled = aggregation @ bottom
         return {
             "result": {

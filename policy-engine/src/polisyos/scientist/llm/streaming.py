@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
-from typing import Any, AsyncIterator
+from typing import Any
 
 import aiohttp
 
@@ -73,7 +74,7 @@ async def parse_sse_stream(
             if not line.startswith("data:"):
                 continue
 
-            data_str = line[len("data:"):].strip()
+            data_str = line[len("data:") :].strip()
             if data_str == "[DONE]":
                 return
             if not data_str:
@@ -102,7 +103,7 @@ async def parse_sse_stream(
     if buffer:
         line = buffer.decode("utf-8", errors="replace").rstrip("\r")
         if line.startswith("data:"):
-            data_str = line[len("data:"):].strip()
+            data_str = line[len("data:") :].strip()
             if data_str and data_str != "[DONE]":
                 try:
                     payload = json.loads(data_str)
@@ -176,7 +177,7 @@ def _parse_sse_payload(payload: dict[str, Any]) -> StreamChunk | None:
 
 
 __all__ = [
-    "StreamChunk",
     "StreamAccumulator",
+    "StreamChunk",
     "parse_sse_stream",
 ]

@@ -1,4 +1,5 @@
 """Tests for binary calibration diagnostics."""
+
 from __future__ import annotations
 
 import pytest
@@ -24,7 +25,11 @@ def test_evaluate_binary_returns_metrics_curves_and_tests() -> None:
     assert report.metrics.log_loss is not None
     assert report.metrics.ece is not None
     assert report.metrics.ence is not None
-    assert report.metrics.intervals["brier"].low <= report.metrics.brier <= report.metrics.intervals["brier"].high
+    assert (
+        report.metrics.intervals["brier"].low
+        <= report.metrics.brier
+        <= report.metrics.intervals["brier"].high
+    )
     assert len(report.curves["uniform_5"]) == 5
     assert any(item.ci_low is not None for item in report.curves["uniform_5"] if item.count > 0)
     assert {test.test_id for test in report.tests} == {"spiegelhalter", "hosmer_lemeshow"}

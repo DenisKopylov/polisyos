@@ -25,12 +25,16 @@ _FAKE_SHA = "sha256:" + "ab" * 32
 def _make_ctx(*, depth=0):
     store = MagicMock()
     store.put_json.return_value = ArtifactRef(
-        artifact_id=_FAKE_SHA, kind="test", media_type="application/json",
+        artifact_id=_FAKE_SHA,
+        kind="test",
+        media_type="application/json",
     )
     run = MagicMock()
     run.trace_path = None
     run.finalize.return_value = ArtifactRef(
-        artifact_id=_FAKE_SHA, kind="run", media_type="application/json",
+        artifact_id=_FAKE_SHA,
+        kind="run",
+        media_type="application/json",
     )
     return ExecutionContext(store=store, run=run, logger=MagicMock(), depth=depth)
 
@@ -42,15 +46,20 @@ def _make_mock_node(*, ok=True):
     node.spec.state_writes = []
 
     if ok:
+
         def _execute(ctx, state):
             return NodeOutcome(status="ok", state=state, events=[], artifacts=[])
+
         node.execute.side_effect = _execute
     else:
+
         def _execute_fail(ctx, state):
             return NodeOutcome(
-                status="fail", state=state,
+                status="fail",
+                state=state,
                 error=NodeError(code="test.fail", message="fail", details={}),
             )
+
         node.execute.side_effect = _execute_fail
     return node
 
@@ -205,6 +214,7 @@ class TestStateMapping:
 
     def test_output_mapping(self) -> None:
         """Child params are mapped back to parent state."""
+
         # Create a node that writes to child state
         def _execute(ctx, state):
             state.params["result"] = "computed_value"
@@ -385,7 +395,8 @@ class TestErrorPolicyOverride:
             call_count += 1
             if call_count == 1:
                 return NodeOutcome(
-                    status="fail", state=state,
+                    status="fail",
+                    state=state,
                     error=NodeError(code="test.fail", message="fail", details={}),
                 )
             return NodeOutcome(status="ok", state=state, events=[], artifacts=[])
@@ -426,7 +437,9 @@ class TestNestedSubWorkflows:
 
         # The "inner" node is a SubWorkflowNode itself
         inner_node = SubWorkflowNode(
-            inner_cfg, _make_registry(_make_mock_node()), alias="inner",
+            inner_cfg,
+            _make_registry(_make_mock_node()),
+            alias="inner",
         )
 
         # We need a registry that returns the inner SubWorkflowNode

@@ -1,7 +1,9 @@
 """Public econometrics iv module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -19,7 +21,6 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-
 from polisyos.foundry.methods.catalog._payloads import extract_model_payload
 
 from .protocols import EconometricResult, PanelData
@@ -259,7 +260,6 @@ def _run_2sls(state: PanelData, params: Mapping[str, Any]) -> EconometricResult:
 def _run_gmm(state: PanelData, params: Mapping[str, Any]) -> EconometricResult:
     import pandas as pd
     from linearmodels.iv import IVGMM
-
 
     if state.instrument_ids is None:
         raise ValueError("GMM requires instrument_ids in PanelData")

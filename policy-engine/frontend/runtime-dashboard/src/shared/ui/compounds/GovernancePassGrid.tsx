@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { Card } from "@/shared/ui/primitives";
 import {
@@ -30,18 +31,19 @@ const STATUS_COLOR: Record<GovernancePassStatus, string> = {
   skip: "bg-[var(--line)]",
 };
 
-const STATUS_LABEL: Record<GovernancePassStatus, string> = {
-  pass: "Passed",
-  fail: "Failed",
-  warning: "Warning",
-  skip: "Skipped",
-};
-
 export function GovernancePassGrid({
   passes,
-  title = "Governance Passes",
+  title,
   className,
 }: GovernancePassGridProps) {
+  const { t } = useI18n();
+  const statusLabel: Record<GovernancePassStatus, string> = {
+    pass: t("shared.ui.governancePassGrid.status.pass"),
+    fail: t("shared.ui.governancePassGrid.status.fail"),
+    warning: t("shared.ui.governancePassGrid.status.warning"),
+    skip: t("shared.ui.governancePassGrid.status.skip"),
+  };
+  const resolvedTitle = title ?? t("shared.ui.governancePassGrid.title");
   const counts = {
     pass: passes.filter((p) => p.status === "pass").length,
     fail: passes.filter((p) => p.status === "fail").length,
@@ -52,25 +54,35 @@ export function GovernancePassGrid({
   return (
     <Card className={cn("space-y-3", className)}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-lg font-semibold">{title}</h3>
+        <h3 className="text-lg font-semibold">{resolvedTitle}</h3>
         <div className="flex gap-3 text-xs font-medium">
           {counts.pass > 0 && (
             <span className="text-[var(--color-status-approved)]">
-              {counts.pass} passed
+              {t("shared.ui.governancePassGrid.countPassed", {
+                count: counts.pass,
+              })}
             </span>
           )}
           {counts.fail > 0 && (
             <span className="text-[var(--color-status-rejected)]">
-              {counts.fail} failed
+              {t("shared.ui.governancePassGrid.countFailed", {
+                count: counts.fail,
+              })}
             </span>
           )}
           {counts.warning > 0 && (
             <span className="text-[var(--color-status-pending)]">
-              {counts.warning} warnings
+              {t("shared.ui.governancePassGrid.countWarnings", {
+                count: counts.warning,
+              })}
             </span>
           )}
           {counts.skip > 0 && (
-            <span className="text-muted">{counts.skip} skipped</span>
+            <span className="text-muted">
+              {t("shared.ui.governancePassGrid.countSkipped", {
+                count: counts.skip,
+              })}
+            </span>
           )}
         </div>
       </div>
@@ -83,11 +95,14 @@ export function GovernancePassGrid({
                 <button
                   type="button"
                   className={cn(
-                    "flex aspect-square items-center justify-center rounded-xl transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-ring",
+                    "focus-visible:ring-ring flex aspect-square items-center justify-center rounded-xl transition-transform hover:scale-110 focus-visible:ring-2",
                     STATUS_COLOR[pass.status],
                     pass.status === "skip" ? "opacity-40" : "opacity-85",
                   )}
-                  aria-label={`${pass.label}: ${STATUS_LABEL[pass.status]}`}
+                  aria-label={t("shared.ui.governancePassGrid.itemLabel", {
+                    label: pass.label,
+                    status: statusLabel[pass.status],
+                  })}
                 >
                   <span className="text-[10px] font-bold text-white/90">
                     {pass.status === "pass"
@@ -103,8 +118,12 @@ export function GovernancePassGrid({
               <TooltipContent side="top">
                 <p className="font-semibold">{pass.label}</p>
                 <p className="text-muted-foreground text-xs">
-                  {STATUS_LABEL[pass.status]}
-                  {pass.durationMs != null && ` \u2022 ${pass.durationMs}ms`}
+                  {pass.durationMs != null
+                    ? t("shared.ui.governancePassGrid.statusWithDuration", {
+                        durationMs: pass.durationMs,
+                        status: statusLabel[pass.status],
+                      })
+                    : statusLabel[pass.status]}
                 </p>
                 {pass.detail && (
                   <p className="text-muted-foreground mt-1 max-w-48 text-xs">

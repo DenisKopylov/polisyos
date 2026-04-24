@@ -148,15 +148,21 @@ class UkraineDataOrchestrator:
 
     @staticmethod
     def _log(message: str) -> None:
-        print(f"[ukraine-data] {message}", flush=True)
+        pass
 
-    def _materialize_source_inputs(self, stage_id: StageId) -> tuple[list[ArtifactRecord], list[str]]:
+    def _materialize_source_inputs(
+        self, stage_id: StageId
+    ) -> tuple[list[ArtifactRecord], list[str]]:
         stage = self.config.stages[stage_id.value]
         if not stage.required_sources:
             return [], []
         inputs: list[ArtifactRecord] = []
         warnings: list[str] = []
-        edr_manifest_path = self.config.build_root.manifests_dir / "edr_current" / self.config.sources["edr_current"].manifest_name
+        edr_manifest_path = (
+            self.config.build_root.manifests_dir
+            / "edr_current"
+            / self.config.sources["edr_current"].manifest_name
+        )
         identity_resolver: AgentIdentityResolver | None = None
         if edr_manifest_path.exists():
             edr_manifest = load_manifest(edr_manifest_path, NormalizedArtifactManifest)
@@ -164,20 +170,28 @@ class UkraineDataOrchestrator:
             identity_resolver = AgentIdentityResolver(edr_frame)
         ordered_sources = list(stage.required_sources)
         if stage_id == StageId.D0_P0 and "edr_current" in ordered_sources:
-            ordered_sources = ["edr_current"] + [item for item in ordered_sources if item != "edr_current"]
+            ordered_sources = ["edr_current"] + [
+                item for item in ordered_sources if item != "edr_current"
+            ]
 
         for source_id in ordered_sources:
             source = self.config.sources[source_id]
             adapter = self.adapter_registry[source.adapter_id]
             manifest_dir = self.config.build_root.manifests_dir / source_id
             normalized_manifest_path = manifest_dir / source.manifest_name
-            normalized_artifact_path = self.config.build_root.normalized_dir / source_id / source.normalized_artifact
+            normalized_artifact_path = (
+                self.config.build_root.normalized_dir / source_id / source.normalized_artifact
+            )
             if normalized_manifest_path.exists() and normalized_artifact_path.exists():
                 self._log(f"reusing normalized source {source_id} from {normalized_artifact_path}")
-                normalized_manifest = load_manifest(normalized_manifest_path, NormalizedArtifactManifest)
+                normalized_manifest = load_manifest(
+                    normalized_manifest_path, NormalizedArtifactManifest
+                )
                 inputs.append(normalized_manifest.normalized_artifact)
                 if source_id == "edr_current":
-                    identity_resolver = AgentIdentityResolver(pd.read_parquet(normalized_artifact_path))
+                    identity_resolver = AgentIdentityResolver(
+                        pd.read_parquet(normalized_artifact_path)
+                    )
                 continue
 
             self._log(f"fetching source {source_id}")
@@ -185,7 +199,9 @@ class UkraineDataOrchestrator:
             if isinstance(snapshot, SkippedSourceManifest):
                 warnings.append(f"{source_id}:{snapshot.reason}")
                 if source.required:
-                    raise RuntimeError(f"required source {source_id} was skipped: {snapshot.reason}")
+                    raise RuntimeError(
+                        f"required source {source_id} was skipped: {snapshot.reason}"
+                    )
                 continue
             self._log(f"normalizing source {source_id}")
             normalized_manifest = adapter.normalize(
@@ -271,9 +287,9 @@ class UkraineDataOrchestrator:
         write_prometheus_metrics(
             self.config.build_root.metrics_prom_path,
             {
-                f"ukraine_data_stage_elapsed_seconds{{stage=\"{manifest.stage_id.value}\"}}": manifest.elapsed_s,
-                f"ukraine_data_stage_peak_rss_gib{{stage=\"{manifest.stage_id.value}\"}}": manifest.peak_rss_gib,
-                f"ukraine_data_stage_disk_used_gib{{stage=\"{manifest.stage_id.value}\"}}": manifest.disk_used_gib,
+                f'ukraine_data_stage_elapsed_seconds{{stage="{manifest.stage_id.value}"}}': manifest.elapsed_s,
+                f'ukraine_data_stage_peak_rss_gib{{stage="{manifest.stage_id.value}"}}': manifest.peak_rss_gib,
+                f'ukraine_data_stage_disk_used_gib{{stage="{manifest.stage_id.value}"}}': manifest.disk_used_gib,
             },
         )
         return manifest
@@ -306,7 +322,7 @@ class UkraineDataOrchestrator:
             metrics = dict(result.metrics)
             if any(finding.severity == "error" for finding in findings):
                 status = "failed"
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             status = "failed"
             errors.append(str(exc))
         elapsed_s = time.perf_counter() - start
@@ -373,7 +389,9 @@ class UkraineDataOrchestrator:
             findings=[],
             metrics={"write_capabilities": write_capabilities},
         )
-        return StageRunSummary(self._write_run_manifest(self.stage_manifest_path(StageId.BOOTSTRAP_SERVER), manifest))
+        return StageRunSummary(
+            self._write_run_manifest(self.stage_manifest_path(StageId.BOOTSTRAP_SERVER), manifest)
+        )
 
     def validate_part_a(self) -> StageRunSummary:
         assert_server_execution_allowed(self.config.server)
@@ -398,7 +416,9 @@ class UkraineDataOrchestrator:
             findings=[],
             metrics={"passed": gate.passed, "skipped": gate.skipped, "notes": gate.notes},
         )
-        return StageRunSummary(self._write_run_manifest(self.stage_manifest_path(StageId.VALIDATE_PART_A), manifest))
+        return StageRunSummary(
+            self._write_run_manifest(self.stage_manifest_path(StageId.VALIDATE_PART_A), manifest)
+        )
 
     def build_stage(self, stage_id: StageId, *, resume: bool = False) -> StageRunSummary:
         if stage_id not in STAGE_BUILDERS:
@@ -406,7 +426,12 @@ class UkraineDataOrchestrator:
         assert_server_execution_allowed(self.config.server)
         self.ensure_layout()
         existing = self._load_stage_manifest(stage_id)
-        if resume and existing is not None and existing.status == "completed" and self._manifest_outputs_exist(existing):
+        if (
+            resume
+            and existing is not None
+            and existing.status == "completed"
+            and self._manifest_outputs_exist(existing)
+        ):
             return StageRunSummary(existing)
         try:
             self._ensure_part_a_gate()
@@ -436,7 +461,9 @@ class UkraineDataOrchestrator:
                 resume_from=existing.run_id if existing is not None else None,
                 metrics={},
             )
-            return StageRunSummary(self._write_run_manifest(self.stage_manifest_path(stage_id), manifest))
+            return StageRunSummary(
+                self._write_run_manifest(self.stage_manifest_path(stage_id), manifest)
+            )
 
     def build_full(self, *, resume: bool = False) -> list[StageRunSummary]:
         summaries: list[StageRunSummary] = []

@@ -1,19 +1,23 @@
 """Compositional uncertainty contracts shared across IR analytics outputs."""
+
 from __future__ import annotations
 
 import math
 from enum import Enum
 from statistics import NormalDist
-from typing import Annotated, Any, Callable, Iterable, Literal
+from typing import TYPE_CHECKING, Annotated, Any, ClassVar, Literal
 
 import numpy as np
-
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
-from polisyos.ir.kernel.trust import TrustPolicySpec
 from polisyos.ir.refs import UncertaintyEnvelopeRef
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+    from polisyos.ir.kernel.trust import TrustPolicySpec
 
 
 class UncertaintyCompatibilityError(ValueError):
@@ -111,6 +115,166 @@ class CertificateKind(str, Enum):
     RQMC_REPLICATES = "rqmc_replicates"
 
 
+class RobustSetFamily(str, Enum):
+    """Supported geometric families for robust optimization uncertainty sets."""
+
+    BOX = "box"
+    ELLIPSOID = "ellipsoid"
+    BUDGET = "budget"
+    WASSERSTEIN = "wasserstein"
+
+
+class RobustSetCalibrationMethod(str, Enum):
+    """How the size parameter of a robust uncertainty set was calibrated."""
+
+    GAUSSIAN_PARAMETRIC = "gaussian_parametric"
+    BOOTSTRAP = "bootstrap"
+    CONFORMAL = "conformal"
+    HYPOTHESIS_TEST = "hypothesis_test"
+
+
+class RobustSetCalibrationStatus(str, Enum):
+    """Outcome of the set-size selection workflow."""
+
+    OK = "ok"
+    INFEASIBLE_TARGET_PAIR = "infeasible_target_pair"
+    INSUFFICIENT_DATA = "insufficient_data"
+
+
+class RobustSetAdequacyStatus(str, Enum):
+    """Governance-facing summary of whether a robust set is well calibrated."""
+
+    CALIBRATED = "calibrated"
+    UNDERCOVERAGE = "undercoverage"
+    OVERCONSERVATIVE = "overconservative"
+    INFEASIBLE_TARGET_PAIR = "infeasible_target_pair"
+    INSUFFICIENT_DATA = "insufficient_data"
+    UNKNOWN = "unknown"
+
+
+class RobustSetFrontierPoint(BaseModel):
+    """One empirical point on the coverage-vs-inflation frontier."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    rho: float = Field(ge=0.0)
+    coverage_emp: float = Field(ge=0.0, le=1.0)
+    coverage_lcb: float = Field(ge=0.0, le=1.0)
+    inflation_mean: float
+    inflation_ucb: float
+    worst_case_premium: float | None = None
+    cvar05: float | None = None
+
+    @model_validator(mode="after")
+    def _validate_frontier_point(self) -> RobustSetFrontierPoint:
+        for label, value in (
+            ("rho", self.rho),
+            ("coverage_emp", self.coverage_emp),
+            ("coverage_lcb", self.coverage_lcb),
+            ("inflation_mean", self.inflation_mean),
+            ("inflation_ucb", self.inflation_ucb),
+        ):
+            if not math.isfinite(value):
+                raise ValueError(f"{label} must be finite")
+        if self.coverage_lcb > self.coverage_emp + 1e-12:
+            raise ValueError("coverage_lcb cannot exceed coverage_emp")
+        if self.inflation_ucb < self.inflation_mean - 1e-12:
+            raise ValueError("inflation_ucb cannot be below inflation_mean")
+        if self.worst_case_premium is not None and not math.isfinite(self.worst_case_premium):
+            raise ValueError("worst_case_premium must be finite when provided")
+        if self.cvar05 is not None and not math.isfinite(self.cvar05):
+            raise ValueError("cvar05 must be finite when provided")
+        return self
+
+
+class RobustSetSpec(BaseModel):
+    """Typed robust-set specification shared across calibration and optimization layers."""
+
+    contract_id: ClassVar[str] = "ir.robust_set_spec.v1"
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    family: RobustSetFamily
+    size_parameter: float = Field(ge=0.0)
+    center: tuple[float, ...]
+    scale_diag: tuple[float, ...] | None = None
+    covariance: tuple[tuple[float, ...], ...] | None = None
+    coverage_target: float | None = Field(default=None, ge=0.0, le=1.0)
+    calibration_method: RobustSetCalibrationMethod = RobustSetCalibrationMethod.CONFORMAL
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_spec(self) -> RobustSetSpec:
+        if not self.center:
+            raise ValueError("center must be non-empty")
+        if any(not math.isfinite(value) for value in self.center):
+            raise ValueError("center must contain only finite values")
+
+        dimension = len(self.center)
+        if self.scale_diag is not None:
+            if len(self.scale_diag) != dimension:
+                raise ValueError("scale_diag must match center dimension")
+            if any((not math.isfinite(value)) or value <= 0.0 for value in self.scale_diag):
+                raise ValueError("scale_diag must contain only positive finite values")
+
+        if self.covariance is not None:
+            if len(self.covariance) != dimension:
+                raise ValueError("covariance must match center dimension")
+            for row in self.covariance:
+                if len(row) != dimension:
+                    raise ValueError("covariance must be square")
+                if any(not math.isfinite(value) for value in row):
+                    raise ValueError("covariance must contain only finite values")
+            cov = np.asarray(self.covariance, dtype=float)
+            if not np.allclose(cov, cov.T, atol=1e-8):
+                raise ValueError("covariance must be symmetric")
+            if np.min(np.linalg.eigvalsh(cov)) < -1e-8:
+                raise ValueError("covariance must be positive semidefinite")
+
+        if self.family is RobustSetFamily.BOX and self.scale_diag is None:
+            raise ValueError("box robust sets require scale_diag")
+        if self.family is RobustSetFamily.ELLIPSOID and self.covariance is None:
+            raise ValueError("ellipsoid robust sets require covariance")
+        return self
+
+    @property
+    def dimension(self) -> int:
+        return len(self.center)
+
+
+class RobustSetCalibrationReport(BaseModel):
+    """Calibration artifact linking coverage targets to decision-level conservatism."""
+
+    contract_id: ClassVar[str] = "foundry.calibration.robust_set_report.v1"
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    family: RobustSetFamily
+    selected_size: float | None = Field(default=None, ge=0.0)
+    target_coverage: float = Field(ge=0.0, le=1.0)
+    target_inflation: float | None = Field(default=None, ge=0.0)
+    empirical_frontier: tuple[RobustSetFrontierPoint, ...] = ()
+    status: RobustSetCalibrationStatus
+    adequacy_status: RobustSetAdequacyStatus = RobustSetAdequacyStatus.UNKNOWN
+    assumptions: tuple[str, ...] = ()
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_report(self) -> RobustSetCalibrationReport:
+        if self.status is RobustSetCalibrationStatus.OK and self.selected_size is None:
+            raise ValueError("successful calibration reports require selected_size")
+        if self.status is not RobustSetCalibrationStatus.OK and self.selected_size is not None:
+            raise ValueError("selected_size must be None unless status is ok")
+        if (
+            self.adequacy_status is RobustSetAdequacyStatus.CALIBRATED
+            and self.status is not RobustSetCalibrationStatus.OK
+        ):
+            raise ValueError("adequacy_status=calibrated requires status=ok")
+        return self
+
+
 class NumericPolicySpec(BaseModel):
     """Explicit numeric policy for envelope canonicalization."""
 
@@ -145,7 +309,7 @@ class PosteriorSamplesCarrier(BaseModel):
     weights: tuple[float, ...] | None = None
 
     @model_validator(mode="after")
-    def _validate_payload(self) -> "PosteriorSamplesCarrier":
+    def _validate_payload(self) -> PosteriorSamplesCarrier:
         if not self.samples:
             raise ValueError("posterior_samples carrier requires at least one sample")
         if self.weights is not None and len(self.weights) != len(self.samples):
@@ -169,7 +333,7 @@ class QuantileSummaryCarrier(BaseModel):
     quantiles: dict[str, float]
 
     @model_validator(mode="after")
-    def _validate_payload(self) -> "QuantileSummaryCarrier":
+    def _validate_payload(self) -> QuantileSummaryCarrier:
         if not self.quantiles:
             raise ValueError("quantile summary carrier requires at least one quantile")
         for key, value in self.quantiles.items():
@@ -195,7 +359,7 @@ class ParametricFitCarrier(BaseModel):
     support: tuple[float, float] | None = None
 
     @model_validator(mode="after")
-    def _validate_payload(self) -> "ParametricFitCarrier":
+    def _validate_payload(self) -> ParametricFitCarrier:
         if not self.parameters:
             raise ValueError("parametric fit carrier requires at least one parameter")
         for value in self.parameters.values():
@@ -216,7 +380,7 @@ class MixtureComponent(BaseModel):
     parameters: dict[str, float]
 
     @model_validator(mode="after")
-    def _validate_payload(self) -> "MixtureComponent":
+    def _validate_payload(self) -> MixtureComponent:
         if not math.isfinite(self.weight):
             raise ValueError("mixture weights must be finite")
         for value in self.parameters.values():
@@ -234,7 +398,7 @@ class MixtureDistributionCarrier(BaseModel):
     components: tuple[MixtureComponent, ...]
 
     @model_validator(mode="after")
-    def _validate_payload(self) -> "MixtureDistributionCarrier":
+    def _validate_payload(self) -> MixtureDistributionCarrier:
         if not self.components:
             raise ValueError("mixture distribution carrier requires at least one component")
         total_weight = sum(component.weight for component in self.components)
@@ -301,13 +465,11 @@ def _canonicalize_distribution_payload(
     normalized = dict(payload)
     if carrier_type == "posterior_samples":
         normalized["samples"] = [
-            policy.canonicalize(float(sample))
-            for sample in normalized.get("samples", ())
+            policy.canonicalize(float(sample)) for sample in normalized.get("samples", ())
         ]
         if normalized.get("weights") is not None:
             normalized["weights"] = [
-                policy.canonicalize(float(weight))
-                for weight in normalized["weights"]
+                policy.canonicalize(float(weight)) for weight in normalized["weights"]
             ]
     elif carrier_type == "quantile_summary":
         normalized["quantiles"] = {
@@ -353,10 +515,7 @@ def _canonicalize_nested_numbers(value: Any, policy: NumericPolicySpec) -> Any:
     if isinstance(value, tuple):
         return tuple(_canonicalize_nested_numbers(item, policy) for item in value)
     if isinstance(value, dict):
-        return {
-            key: _canonicalize_nested_numbers(item, policy)
-            for key, item in value.items()
-        }
+        return {key: _canonicalize_nested_numbers(item, policy) for key, item in value.items()}
     if isinstance(value, BaseModel):
         return _canonicalize_nested_numbers(
             value.model_dump(mode="python", round_trip=True),
@@ -615,9 +774,7 @@ def _build_composition_provenance(
     input_flavours = tuple(provenance.composed_flavour for provenance in base)
     native_flavours = {provenance.native_flavour for provenance in base}
     native_flavour = (
-        next(iter(native_flavours))
-        if len(native_flavours) == 1
-        else ComposedFlavour.MIXED
+        next(iter(native_flavours)) if len(native_flavours) == 1 else ComposedFlavour.MIXED
     )
     operator_history: list[CompositionStep] = []
     origin_ids: list[str] = []
@@ -791,7 +948,9 @@ def _particles_from_parametric_fit(payload: ParametricFitCarrier, size: int) -> 
         else:
             lo = float(payload.parameters.get("low", 0.0))
             hi = float(payload.parameters.get("high", 1.0))
-        mode = float(payload.parameters.get("mode", payload.parameters.get("mean", (lo + hi) / 2.0)))
+        mode = float(
+            payload.parameters.get("mode", payload.parameters.get("mean", (lo + hi) / 2.0))
+        )
         return _triangular_quantile_grid(float(lo), float(mode), float(hi), size)
     lo, hi = payload.support if payload.support is not None else (0.0, 1.0)
     return np.linspace(float(lo), float(hi), size)
@@ -823,7 +982,9 @@ def _particles_from_distribution_payload(
             weights.append(np.full((component_size,), float(component.weight), dtype=float))
         return np.concatenate(parts), np.concatenate(weights)
     if payload is None and envelope.distribution_family is DistributionFamily.NORMAL:
-        return _normal_quantile_grid(float(envelope.point_estimate), _std_from_envelope(envelope), size), None
+        return _normal_quantile_grid(
+            float(envelope.point_estimate), _std_from_envelope(envelope), size
+        ), None
     raise ValueError("compress_envelope(target='particles') requires a representable law payload")
 
 
@@ -856,7 +1017,10 @@ def _join_distribution_payloads(
         weights: list[float] = []
         saw_weights = False
         for payload in payloads:
-            assert isinstance(payload, PosteriorSamplesCarrier)
+            if not isinstance(payload, PosteriorSamplesCarrier):
+                raise TypeError(
+                    "posterior payload grouping must contain PosteriorSamplesCarrier only"
+                )
             samples.extend(float(sample) for sample in payload.samples)
             if payload.weights is None:
                 weights.extend(1.0 for _ in payload.samples)
@@ -870,7 +1034,10 @@ def _join_distribution_payloads(
     if all(isinstance(payload, MixtureDistributionCarrier) for payload in payloads):
         components: list[MixtureComponent] = []
         for payload in payloads:
-            assert isinstance(payload, MixtureDistributionCarrier)
+            if not isinstance(payload, MixtureDistributionCarrier):
+                raise TypeError(
+                    "mixture payload grouping must contain MixtureDistributionCarrier only"
+                )
             components.extend(payload.components)
         return MixtureDistributionCarrier(components=tuple(components))
     if all(isinstance(payload, ParametricFitCarrier) for payload in payloads):
@@ -995,7 +1162,7 @@ class UncertaintyEnvelope(BaseModel):
         return payload
 
     @model_validator(mode="after")
-    def _validate_fields(self) -> "UncertaintyEnvelope":
+    def _validate_fields(self) -> UncertaintyEnvelope:
         lo, hi = self.confidence_interval
 
         for value, label in (
@@ -1113,7 +1280,10 @@ def join_envelopes(
         ExactnessKind.EXACT
         if (
             distribution_payload is not None
-            and all(_base_provenance(envelope).exactness is ExactnessKind.EXACT for envelope in normalized)
+            and all(
+                _base_provenance(envelope).exactness is ExactnessKind.EXACT
+                for envelope in normalized
+            )
         )
         else ExactnessKind.OUTER_BOUND
     )
@@ -1291,7 +1461,8 @@ def push_forward_envelope(
         pushed = np.asarray([float(func(float(sample))) for sample in samples], dtype=float)
         point_estimate = _weighted_mean(pushed, weights)
         if (
-            envelope.interval_semantics in {
+            envelope.interval_semantics
+            in {
                 IntervalSemantics.CONFIDENCE_INTERVAL,
                 IntervalSemantics.CREDIBLE_INTERVAL,
             }
@@ -1311,11 +1482,7 @@ def push_forward_envelope(
             gate_eligible = envelope.gate_eligible and not envelope.is_heuristic_ci
         output_payload = PosteriorSamplesCarrier(
             samples=tuple(float(value) for value in pushed),
-            weights=(
-                None
-                if weights is None
-                else tuple(float(weight) for weight in weights)
-            ),
+            weights=(None if weights is None else tuple(float(weight) for weight in weights)),
         )
         output_flavour = base.composed_flavour
         exactness = base.exactness
@@ -1324,12 +1491,9 @@ def push_forward_envelope(
         distribution_family = envelope.distribution_family
         sample_size = len(pushed)
         assumptions = ("law_preserving_particles",)
-    elif (
-        cert_policy in {"auto", "delta"}
-        and (
-            envelope.distribution_family is DistributionFamily.NORMAL
-            or isinstance(envelope.distribution_payload, ParametricFitCarrier)
-        )
+    elif cert_policy in {"auto", "delta"} and (
+        envelope.distribution_family is DistributionFamily.NORMAL
+        or isinstance(envelope.distribution_payload, ParametricFitCarrier)
     ):
         point = float(envelope.point_estimate)
         std = _std_from_envelope(envelope)
@@ -1379,9 +1543,7 @@ def push_forward_envelope(
         output_flavour = base.composed_flavour
         exactness = ExactnessKind.APPROXIMATION
         certificate_kind = (
-            CertificateKind.WASSERSTEIN_1
-            if lipschitz_bound is not None
-            else base.certificate_kind
+            CertificateKind.WASSERSTEIN_1 if lipschitz_bound is not None else base.certificate_kind
         )
         certificate_radius = (
             None
@@ -1488,7 +1650,9 @@ def pull_back_envelope(
         selected = samples[mask]
         selected_weights = None if weights is None else weights[mask]
         if selected.size == 0:
-            raise PullBackNotRepresentableError("pull-back rejected every supplied upstream particle")
+            raise PullBackNotRepresentableError(
+                "pull-back rejected every supplied upstream particle"
+            )
         point_estimate = _weighted_mean(selected, selected_weights)
         lower = float(np.min(selected))
         upper = float(np.max(selected))
@@ -1504,7 +1668,9 @@ def pull_back_envelope(
         sample_size = int(selected.size)
     elif local_inverse is not None:
         output_grid = np.linspace(float(lower_out), float(upper_out), max(int(grid_size), 3))
-        pulled = np.asarray([float(local_inverse(float(value))) for value in output_grid], dtype=float)
+        pulled = np.asarray(
+            [float(local_inverse(float(value))) for value in output_grid], dtype=float
+        )
         point_estimate = float(local_inverse(float(envelope.point_estimate)))
         lower = float(np.min(pulled))
         upper = float(np.max(pulled))
@@ -1523,7 +1689,9 @@ def pull_back_envelope(
         )
         selected = upstream_grid[mask]
         if selected.size == 0:
-            raise PullBackNotRepresentableError("pull-back found no admissible points in base_measure")
+            raise PullBackNotRepresentableError(
+                "pull-back found no admissible points in base_measure"
+            )
         point_estimate = float(np.mean(selected))
         lower = float(np.min(selected))
         upper = float(np.max(selected))
@@ -1600,10 +1768,13 @@ def combine_envelopes(
             for envelope in normalized
         ]
         weight_total = sum(weights)
-        point_estimate = sum(
-            envelope.point_estimate * weight
-            for envelope, weight in zip(normalized, weights, strict=True)
-        ) / weight_total
+        point_estimate = (
+            sum(
+                envelope.point_estimate * weight
+                for envelope, weight in zip(normalized, weights, strict=True)
+            )
+            / weight_total
+        )
         combined_interval = (min(lows), max(highs))
     else:
         point_estimate = sum(envelope.point_estimate for envelope in normalized) / len(normalized)
@@ -1621,9 +1792,7 @@ def combine_envelopes(
         else PropagationMethod.NONE
     )
     sample_sizes = [
-        envelope.sample_size
-        for envelope in normalized
-        if envelope.sample_size is not None
+        envelope.sample_size for envelope in normalized if envelope.sample_size is not None
     ]
     scope = _scope_from_shape(
         interval_semantics=representative.interval_semantics,
@@ -1718,7 +1887,6 @@ def load_uncertainty_envelope(
 
 
 __all__ = [
-    "build_composition_provenance",
     "CertificateKind",
     "ComposedFlavour",
     "CompositionProvenance",
@@ -1737,15 +1905,23 @@ __all__ = [
     "PropagationMethod",
     "PullBackNotRepresentableError",
     "QuantileSummaryCarrier",
+    "RobustSetAdequacyStatus",
+    "RobustSetCalibrationMethod",
+    "RobustSetCalibrationReport",
+    "RobustSetCalibrationStatus",
+    "RobustSetFamily",
+    "RobustSetFrontierPoint",
+    "RobustSetSpec",
     "UncertaintyCompatibilityError",
     "UncertaintyEnvelope",
     "UncertaintySource",
+    "build_composition_provenance",
     "combine_envelopes",
     "compress_envelope",
     "envelope_meets_trust_policy",
     "join_envelopes",
-    "persist_uncertainty_envelope",
     "load_uncertainty_envelope",
+    "persist_uncertainty_envelope",
     "pull_back_envelope",
     "push_forward_envelope",
 ]

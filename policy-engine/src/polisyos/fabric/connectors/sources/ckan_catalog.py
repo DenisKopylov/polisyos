@@ -14,14 +14,14 @@ Endpoints used:
 from __future__ import annotations
 
 import time
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, ClassVar
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
 import pandas as pd
 
 from polisyos.core.canon import content_hash as compute_content_hash
 from polisyos.fabric.connectors.base import (
-    ConnectionConfig,
     ConnectionHandle,
     FetchRequest,
     FetchResult,
@@ -107,7 +107,9 @@ class CKANCatalogConnector(HTTPConnectorBase[pd.DataFrame]):
         started = time.monotonic()
         try:
             _body, _headers, _raw = await self._resilient_request_json(
-                handle, url, params={},
+                handle,
+                url,
+                params={},
             )
             return HealthStatus(
                 healthy=True,
@@ -148,7 +150,9 @@ class CKANCatalogConnector(HTTPConnectorBase[pd.DataFrame]):
                 )
             params = {"rows": str(rows_per_page), "start": str(offset)}
             body, _headers, _raw = await self._resilient_request_json(
-                handle, url, params=params,
+                handle,
+                url,
+                params=params,
             )
             result = body.get("result", {})
             results_list = result.get("results", [])
@@ -200,7 +204,9 @@ class CKANCatalogConnector(HTTPConnectorBase[pd.DataFrame]):
 
         started = time.monotonic()
         body, headers, raw = await self._resilient_request_json(
-            handle, url, params=params,
+            handle,
+            url,
+            params=params,
         )
         duration_ms = self._elapsed_ms(started)
 
@@ -215,16 +221,18 @@ class CKANCatalogConnector(HTTPConnectorBase[pd.DataFrame]):
         resources = result.get("resources", [])
         rows = []
         for r in resources:
-            rows.append({
-                "resource_id": r.get("id", ""),
-                "name": r.get("name", ""),
-                "format": r.get("format", ""),
-                "url": r.get("url", ""),
-                "description": r.get("description", ""),
-                "created": r.get("created", ""),
-                "last_modified": r.get("last_modified", ""),
-                "size": r.get("size"),
-            })
+            rows.append(
+                {
+                    "resource_id": r.get("id", ""),
+                    "name": r.get("name", ""),
+                    "format": r.get("format", ""),
+                    "url": r.get("url", ""),
+                    "description": r.get("description", ""),
+                    "created": r.get("created", ""),
+                    "last_modified": r.get("last_modified", ""),
+                    "size": r.get("size"),
+                }
+            )
 
         df = pd.DataFrame(rows) if rows else pd.DataFrame()
         content_hash = compute_content_hash(raw, prefix=True)
@@ -239,7 +247,7 @@ class CKANCatalogConnector(HTTPConnectorBase[pd.DataFrame]):
             quality_tier=QualityTier.SILVER,
             bytes_transferred=len(raw),
             completeness=frame_completeness(df) if not df.empty else 1.0,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             fetch_duration_ms=duration_ms,
             content_hash=content_hash,
             etag=etag,

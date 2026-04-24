@@ -4,15 +4,15 @@
 
 ## Состав
 
-| Файл | Назначение |
-|---|---|
-| `prometheus.yml` | global interval, `scrape_configs`, `rule_files` |
-| `recording_rules.yml` | operational precompute (6 rules) |
-| `slo_recording_rules.yml` | SLO precompute (9 rules) |
-| `alerts.yml` | operational + security alerts (18) |
-| `slo_alerts.yml` | SLO alerts (5) |
-| `rules/audit_chain_alerts.yml` | audit-chain/tenant-boundary alerts (4) |
-| `rules/mtls-rules.yaml` | Linkerd mTLS alerts (2, не подключены по умолчанию) |
+| Файл                           | Назначение                                          |
+| ------------------------------ | --------------------------------------------------- |
+| `prometheus.yml`               | global interval, `scrape_configs`, `rule_files`     |
+| `recording_rules.yml`          | operational precompute (6 rules)                    |
+| `slo_recording_rules.yml`      | SLO precompute (9 rules)                            |
+| `alerts.yml`                   | operational + security alerts (18)                  |
+| `slo_alerts.yml`               | SLO alerts (5)                                      |
+| `rules/audit_chain_alerts.yml` | audit-chain/tenant-boundary alerts (4)              |
+| `rules/mtls-rules.yaml`        | Linkerd mTLS alerts (2, не подключены по умолчанию) |
 
 `prometheus.yml` по умолчанию загружает 15 recording rules и 27 alerts.
 
@@ -41,6 +41,7 @@ docker compose -f docker-compose.observability.yml up -d
 Для полного набора rule_files добавьте volume:
 
 ```yaml
+
 - ./prometheus/rules:/etc/prometheus/rules:ro
 ```
 

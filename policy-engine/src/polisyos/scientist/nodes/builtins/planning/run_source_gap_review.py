@@ -1,4 +1,5 @@
 """Public planning run source gap review module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -81,19 +82,30 @@ class RunSourceGapReviewNode:
     verification report, then writes updated candidate/source/report refs plus
     expert-review and verification-cycle markers into workflow state.
     """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        request_ref = state.policy_request_ref or state.artifacts_index.get(ARTIFACT_POLICY_REQUEST_FRAME_REF)
-        candidate_ref = state.legal_candidate_pack_ref or state.artifacts_index.get(ARTIFACT_LEGAL_CANDIDATE_PACK_REF)
-        source_ref = state.legal_source_pack_ref or state.artifacts_index.get(ARTIFACT_LEGAL_SOURCE_PACK_REF)
-        report_ref = state.source_verification_report_ref or state.artifacts_index.get(ARTIFACT_SOURCE_VERIFICATION_REPORT_REF)
+        request_ref = state.policy_request_ref or state.artifacts_index.get(
+            ARTIFACT_POLICY_REQUEST_FRAME_REF
+        )
+        candidate_ref = state.legal_candidate_pack_ref or state.artifacts_index.get(
+            ARTIFACT_LEGAL_CANDIDATE_PACK_REF
+        )
+        source_ref = state.legal_source_pack_ref or state.artifacts_index.get(
+            ARTIFACT_LEGAL_SOURCE_PACK_REF
+        )
+        report_ref = state.source_verification_report_ref or state.artifacts_index.get(
+            ARTIFACT_SOURCE_VERIFICATION_REPORT_REF
+        )
         if request_ref is None or candidate_ref is None or source_ref is None or report_ref is None:
             return NodeOutcome(status="skip", state=state)
 
-        frame = load_policy_request_frame(ctx.store, PolicyRequestFrameRef.model_validate(request_ref.model_dump()))
+        frame = load_policy_request_frame(
+            ctx.store, PolicyRequestFrameRef.model_validate(request_ref.model_dump())
+        )
         candidate_pack = load_legal_candidate_pack(
             ctx.store, LegalCandidatePackRef.model_validate(candidate_ref.model_dump())
         )
@@ -119,14 +131,18 @@ class RunSourceGapReviewNode:
         updated_source_ref = persist_legal_source_pack(
             ctx.store,
             updated_source_pack,
-            inputs=[InputRef(artifact_id=updated_candidate_ref.artifact_id, role="legal_candidate_pack")],
+            inputs=[
+                InputRef(artifact_id=updated_candidate_ref.artifact_id, role="legal_candidate_pack")
+            ],
         )
         updated_ref = persist_source_verification_report(
             ctx.store,
             updated,
             inputs=[
                 InputRef(artifact_id=request_ref.artifact_id, role="policy_request_frame"),
-                InputRef(artifact_id=updated_candidate_ref.artifact_id, role="legal_candidate_pack"),
+                InputRef(
+                    artifact_id=updated_candidate_ref.artifact_id, role="legal_candidate_pack"
+                ),
                 InputRef(artifact_id=updated_source_ref.artifact_id, role="legal_source_pack"),
             ],
         )

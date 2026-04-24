@@ -36,11 +36,11 @@ class ToolResult:
     data: Mapping[str, Any] = field(default_factory=dict)
 
     @classmethod
-    def ok(cls, tool: str, summary: str = "", **data: Any) -> "ToolResult":
+    def ok(cls, tool: str, summary: str = "", **data: Any) -> ToolResult:
         return cls(tool=tool, status="ok", summary=summary, data=data)
 
     @classmethod
-    def failed(cls, tool: str, summary: str, *, exit_code: int = 1, **data: Any) -> "ToolResult":
+    def failed(cls, tool: str, summary: str, *, exit_code: int = 1, **data: Any) -> ToolResult:
         return cls(tool=tool, status="failed", summary=summary, exit_code=exit_code, data=data)
 
 
@@ -48,7 +48,7 @@ def _json_default(value: object) -> object:
     if hasattr(value, "__fspath__"):
         return value.__fspath__()  # type: ignore[no-any-return]
     if hasattr(value, "value"):
-        return getattr(value, "value")
+        return value.value
     return str(value)
 
 
@@ -131,7 +131,9 @@ def _format_junit(result: ToolResult) -> str:
         {
             "name": result.tool,
             "tests": str(max(len(result.messages), 1)),
-            "failures": str(sum(1 for message in result.messages if message.level in {"error", "failed"})),
+            "failures": str(
+                sum(1 for message in result.messages if message.level in {"error", "failed"})
+            ),
             "errors": "0",
             "skipped": str(skipped_count),
         },
@@ -142,7 +144,9 @@ def _format_junit(result: ToolResult) -> str:
             skipped = ET.SubElement(testcase, "skipped", {"message": result.summary or "skipped"})
             skipped.text = result.summary or "skipped"
     for idx, message in enumerate(result.messages, start=1):
-        testcase = ET.SubElement(testsuite, "testcase", {"name": message.rule_id or f"message-{idx}"})
+        testcase = ET.SubElement(
+            testsuite, "testcase", {"name": message.rule_id or f"message-{idx}"}
+        )
         if message.level in {"error", "failed"}:
             failure = ET.SubElement(testcase, "failure", {"message": message.message})
             failure.text = message.message
@@ -156,7 +160,10 @@ def format_tool_result(result: ToolResult, output_format: OutputFormat = "text")
     if output_format == "text":
         return _format_text(result)
     if output_format == "json":
-        return json.dumps(_result_to_dict(result), indent=2, sort_keys=True, default=_json_default) + "\n"
+        return (
+            json.dumps(_result_to_dict(result), indent=2, sort_keys=True, default=_json_default)
+            + "\n"
+        )
     if output_format == "sarif":
         return _format_sarif(result)
     if output_format == "junit":

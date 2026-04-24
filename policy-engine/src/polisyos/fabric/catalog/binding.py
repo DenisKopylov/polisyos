@@ -5,6 +5,7 @@ The MetricBinding is what the Scientist agent holds after resolving
 an input query. It provides a tamper-evident reference that ensures
 its contract definition has not changed since the binding was created.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -55,7 +56,7 @@ class MetricBinding:
     contract_hash: str
 
     @classmethod
-    def from_contract(cls, contract: "DataContract") -> "MetricBinding":
+    def from_contract(cls, contract: DataContract) -> MetricBinding:
         """
         Create binding from a validated contract.
 
@@ -109,7 +110,7 @@ class MetricBinding:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "MetricBinding":
+    def from_dict(cls, data: dict) -> MetricBinding:
         """Deserialize from dictionary."""
 
         return cls(
@@ -122,7 +123,7 @@ class MetricBinding:
         )
 
 
-def _map_contract_dtype(dtype: "ContractDataType") -> SchemaType:
+def _map_contract_dtype(dtype: ContractDataType) -> SchemaType:
     mapping = {
         "int": SchemaType.INT64,
         "float": SchemaType.FLOAT64,
@@ -147,7 +148,7 @@ class DataContractSchemaBinding(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    contract: "DataContract"
+    contract: DataContract
     schema_id: str
     schema_version: str
     field_name: str = Field(min_length=1)
@@ -160,15 +161,13 @@ class DataContractSchemaBinding(BaseModel):
     @classmethod
     def bind(
         cls,
-        contract: "DataContract",
+        contract: DataContract,
         schema: DataSchema,
         field_name: str,
-    ) -> "DataContractSchemaBinding":
+    ) -> DataContractSchemaBinding:
         field = schema.get_field(field_name)
         if field is None:
-            raise ValueError(
-                f"Field '{field_name}' not found in schema '{schema.schema_id}'"
-            )
+            raise ValueError(f"Field '{field_name}' not found in schema '{schema.schema_id}'")
 
         contract_type = _map_contract_dtype(contract.dtype)
         schema_type = field.data_type
@@ -182,9 +181,7 @@ class DataContractSchemaBinding(BaseModel):
                 f"{field.name}:{schema_type.value}"
             )
 
-        contract_unit = (
-            normalize_unit_id(contract.unit) if contract.unit else None
-        )
+        contract_unit = normalize_unit_id(contract.unit) if contract.unit else None
         schema_unit = field.unit.unit_id if field.unit else None
         if contract_unit and schema_unit and contract_unit != schema_unit:
             raise ValueError(
@@ -193,9 +190,7 @@ class DataContractSchemaBinding(BaseModel):
             )
 
         effective_unit = schema_unit or contract_unit
-        effective_semantic = (
-            field.semantic_type.value if field.semantic_type else None
-        )
+        effective_semantic = field.semantic_type.value if field.semantic_type else None
 
         return cls(
             contract=contract,
@@ -211,11 +206,11 @@ class DataContractSchemaBinding(BaseModel):
     @classmethod
     def bind_from_registry(
         cls,
-        contract: "DataContract",
+        contract: DataContract,
         registry: SchemaRegistry,
         schema_id: str,
         schema_version: str,
         field_name: str,
-    ) -> "DataContractSchemaBinding":
+    ) -> DataContractSchemaBinding:
         schema = registry.get(schema_id, SchemaVersion.parse(schema_version))
         return cls.bind(contract, schema, field_name)

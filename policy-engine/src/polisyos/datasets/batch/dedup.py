@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import csv
 from datetime import UTC, datetime
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.batch_common.manifest import write_stage_manifest
-from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.knowledge.types import DatasetRecord
+
+if TYPE_CHECKING:
+    from polisyos.datasets.batch.config import DatasetBatchConfig
 
 
 class MergeStats(dict):
@@ -46,7 +48,7 @@ def merge_and_dedup(config: DatasetBatchConfig) -> MergeStats:
 
     normalized_files = sorted(config.normalized_dir.glob("*.jsonl"))
     for file_path in normalized_files:
-        with open(file_path, "r", encoding="utf-8") as fh:
+        with open(file_path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -60,16 +62,28 @@ def merge_and_dedup(config: DatasetBatchConfig) -> MergeStats:
                         # Replace existing with higher-quality challenger
                         merged[merged.index(existing)] = rec
                         seen[key] = rec
-                        duplicates.append((
-                            key, rec.id, existing.id,
-                            existing.source, existing.agency, existing.dataset_id,
-                        ))
+                        duplicates.append(
+                            (
+                                key,
+                                rec.id,
+                                existing.id,
+                                existing.source,
+                                existing.agency,
+                                existing.dataset_id,
+                            )
+                        )
                         quality_upgrades += 1
                     else:
-                        duplicates.append((
-                            key, existing.id, rec.id,
-                            rec.source, rec.agency, rec.dataset_id,
-                        ))
+                        duplicates.append(
+                            (
+                                key,
+                                existing.id,
+                                rec.id,
+                                rec.source,
+                                rec.agency,
+                                rec.dataset_id,
+                            )
+                        )
                     continue
                 seen[key] = rec
                 merged.append(rec)

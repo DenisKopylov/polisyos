@@ -81,11 +81,7 @@ export function RunsLiveProvider({ children }: PropsWithChildren) {
       RUNS_LIVE_DISABLED ||
       disableLivePreference ||
       readRunsLiveDisabledPreference();
-    if (
-      isLoginPage ||
-      typeof window === "undefined" ||
-      liveDisabled
-    ) {
+    if (isLoginPage || typeof window === "undefined" || liveDisabled) {
       if (liveDisabled) {
         track("runs.live.disabled", {
           path: pathnameRef.current,
@@ -183,7 +179,9 @@ export function RunsLiveProvider({ children }: PropsWithChildren) {
         return;
       }
       if (typeof EventSource === "undefined") {
-        track("runs.live.eventsource_unavailable", { path: pathnameRef.current });
+        track("runs.live.eventsource_unavailable", {
+          path: pathnameRef.current,
+        });
         startPolling();
         return;
       }

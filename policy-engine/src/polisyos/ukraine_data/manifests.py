@@ -4,13 +4,15 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.batch_common.hashing import sha256_file
-from polisyos.ukraine_data.models import StageId
+from polisyos.ukraine_data.models import StageId  # noqa: TC001
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def utc_now_iso() -> str:
@@ -39,7 +41,7 @@ class ArtifactRecord(BaseModel):
         row_count: int | None = None,
         nnz: int | None = None,
         artifact_id: str | None = None,
-    ) -> "ArtifactRecord":
+    ) -> ArtifactRecord:
         return cls(
             path=str(path),
             sha256=sha256_file(path) if path.exists() and path.is_file() else "",

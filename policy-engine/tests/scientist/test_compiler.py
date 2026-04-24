@@ -1,19 +1,19 @@
-import jax.numpy as jnp
-import pytest
 from decimal import Decimal
 
+import jax.numpy as jnp
+import pytest
+
 from polisyos.core.artifacts.manifest import SchemaInfo
-from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import CompileRequest
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
+from polisyos.foundry._executor_models import ExecutionStrictness
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry._executor_models import ExecutionStrictness
 from polisyos.foundry.executor import apply_state_delta_and_snapshot, execute_program_graph
-from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
 
@@ -65,7 +65,9 @@ def test_compile_trinity_policy_roundtrip_rate(tmp_path) -> None:
         PutOptions(
             kind="ir.trinity_bundle",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=trinity_bundle.schema_version),
+            schema=SchemaInfo(
+                name="polisyos.ir.TrinityBundle", version=trinity_bundle.schema_version
+            ),
         ),
     )
 
@@ -78,7 +80,9 @@ def test_compile_trinity_policy_roundtrip_rate(tmp_path) -> None:
         ),
     )
     assert compile_result.ok is True
-    program_ref = next(ref.ref for ref in compile_result.derived_refs if ref.role == "program_graph")
+    program_ref = next(
+        ref.ref for ref in compile_result.derived_refs if ref.role == "program_graph"
+    )
     exec_plan_ref = compile_result.exec_plan_ref
     assert exec_plan_ref is not None
 

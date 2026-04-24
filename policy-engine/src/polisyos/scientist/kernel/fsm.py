@@ -1,13 +1,14 @@
 """Public kernel fsm module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Optional, Set
 
 
 class Phase(str, Enum):
     """Phase public type."""
+
     INTAKE = "INTAKE"
     FRAME = "FRAME"
     PREFLIGHT_GOV = "PREFLIGHT_GOV"
@@ -23,7 +24,7 @@ class Phase(str, Enum):
     REFLEXION = "REFLEXION"
 
 
-ALLOWED_TRANSITIONS: Dict[Phase, Set[Phase]] = {
+ALLOWED_TRANSITIONS: dict[Phase, set[Phase]] = {
     Phase.INTAKE: {Phase.FRAME, Phase.SEARCH_INIT},
     # FRAME can short-circuit to DECIDE when the policy is rejected/pruned early.
     Phase.FRAME: {Phase.FRAME, Phase.REFLEXION, Phase.PREFLIGHT_GOV, Phase.PLAN, Phase.DECIDE},
@@ -60,7 +61,7 @@ class ReflexionGuard:
     max_reflexion_cycles: int = 3
     require_failure_card: bool = True
 
-    def can_enter_reflexion(self, state: Dict) -> bool:
+    def can_enter_reflexion(self, state: dict) -> bool:
         if self.require_failure_card:
             if state.get("current_failure_card") is None:
                 return False
@@ -71,11 +72,11 @@ class ReflexionGuard:
 
         return True
 
-    def can_exit_to_frame(self, state: Dict) -> bool:
+    def can_exit_to_frame(self, state: dict) -> bool:
         decision = state.get("reflexion_decision")
         return decision in ["return_to_formalizer", "return_to_drafter"]
 
-    def can_exit_to_decide(self, state: Dict) -> bool:
+    def can_exit_to_decide(self, state: dict) -> bool:
         decision = state.get("reflexion_decision")
         return decision in ["abort_with_report", "escalate_to_human"]
 
@@ -83,8 +84,9 @@ class ReflexionGuard:
 @dataclass
 class KernelState:
     """Kernel state data model."""
+
     phase: Phase = Phase.INTAKE
-    reflexion_guard: Optional[ReflexionGuard] = None
+    reflexion_guard: ReflexionGuard | None = None
 
     def __post_init__(self) -> None:
         if self.reflexion_guard is None:
@@ -94,12 +96,15 @@ class KernelState:
         allowed = ALLOWED_TRANSITIONS.get(self.phase, set())
         return next_phase in allowed or next_phase == self.phase
 
-    def is_reflexion_eligible(self, state: Dict) -> bool:
-        return self.can_transition(Phase.REFLEXION) and self.reflexion_guard.can_enter_reflexion(state)
+    def is_reflexion_eligible(self, state: dict) -> bool:
+        return self.can_transition(Phase.REFLEXION) and self.reflexion_guard.can_enter_reflexion(
+            state
+        )
 
 
 class TransitionEvent(str, Enum):
     """Transition event data model."""
+
     VALIDATION_PASSED = "validation_passed"
     VALIDATION_FAILED = "validation_failed"
     COMPILATION_PASSED = "compilation_passed"

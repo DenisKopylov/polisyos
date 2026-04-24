@@ -5,17 +5,19 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import tomllib
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from tools._lib.imports import ensure_repo_import_roots
 
-PRODUCT_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__, include_repo_root=True, include_src_root=False)
+PRODUCT_ROOT, _SRC_ROOT = ensure_repo_import_roots(
+    __file__, include_repo_root=True, include_src_root=False
+)
 WORKSPACE_ROOT = PRODUCT_ROOT.parent
 
 from tools.quality.ci.check_workflow_policy import collect_findings
+
 from ._common import NODE_BASELINE, PYTHON_BASELINE, UV_BASELINE
 
 
@@ -146,7 +148,9 @@ def _toolchain_consistency() -> AuditCheck:
     python_file = PRODUCT_ROOT / ".python-version"
     node_file = PRODUCT_ROOT / ".nvmrc"
     env_matrix = PRODUCT_ROOT / "docs" / "reference" / "environment-matrix.md"
-    python_action = WORKSPACE_ROOT / ".github" / "actions" / "setup-policy-engine-python" / "action.yml"
+    python_action = (
+        WORKSPACE_ROOT / ".github" / "actions" / "setup-policy-engine-python" / "action.yml"
+    )
     node_action = WORKSPACE_ROOT / ".github" / "actions" / "setup-runtime-dashboard" / "action.yml"
 
     issues: list[str] = []
@@ -154,12 +158,20 @@ def _toolchain_consistency() -> AuditCheck:
         issues.append(f"{python_file} is not pinned to Python {PYTHON_BASELINE}.")
     if node_file.read_text(encoding="utf-8").strip() != NODE_BASELINE:
         issues.append(f"{node_file} is not pinned to Node {NODE_BASELINE}.")
-    if not _contains(env_matrix, f"| {PYTHON_BASELINE}.x | Supported |", f"| {NODE_BASELINE}.x | Supported |"):
-        issues.append("docs/reference/environment-matrix.md is missing the canonical Python/Node baseline rows.")
+    if not _contains(
+        env_matrix, f"| {PYTHON_BASELINE}.x | Supported |", f"| {NODE_BASELINE}.x | Supported |"
+    ):
+        issues.append(
+            "docs/reference/environment-matrix.md is missing the canonical Python/Node baseline rows."
+        )
     if not _contains(python_action, f'default: "{PYTHON_BASELINE}"', f'version: "{UV_BASELINE}"'):
-        issues.append("setup-policy-engine-python action defaults drift from the pinned Python/uv baseline.")
+        issues.append(
+            "setup-policy-engine-python action defaults drift from the pinned Python/uv baseline."
+        )
     if not _contains(node_action, f'default: "{NODE_BASELINE}"'):
-        issues.append("setup-runtime-dashboard action default drifts from the pinned Node baseline.")
+        issues.append(
+            "setup-runtime-dashboard action default drifts from the pinned Node baseline."
+        )
 
     detail = (
         f"Python {PYTHON_BASELINE}.x, Node {NODE_BASELINE}.x, and uv {UV_BASELINE} stay aligned across local docs and composite actions."
@@ -182,9 +194,13 @@ def _repo_root_coherence() -> AuditCheck:
     adr = PRODUCT_ROOT / "docs" / "adr" / "0096-canonical-product-root-and-workspace-boundary.md"
     issues: list[str] = []
     if not _contains(root_readme, "workspace gateway", "policy-engine/"):
-        issues.append("Repository root README no longer points contributors at policy-engine/ as the canonical product root.")
+        issues.append(
+            "Repository root README no longer points contributors at policy-engine/ as the canonical product root."
+        )
     if not _contains(product_readme, "Canonical product root", "./scripts/bootstrap"):
-        issues.append("policy-engine/README.md no longer advertises the canonical contributor entry path.")
+        issues.append(
+            "policy-engine/README.md no longer advertises the canonical contributor entry path."
+        )
     if not _path_exists(adr):
         issues.append("ADR-0096 is missing.")
     detail = (
@@ -212,8 +228,13 @@ def _ownership_coverage() -> AuditCheck:
     if not _path_exists(ownership_doc):
         issues.append("docs/reference/ownership.md is missing.")
     quality_gates_text = _read_text(quality_gates).lower()
-    if "owned areas touched by the pr" not in quality_gates_text or "migration owner" not in quality_gates_text:
-        issues.append("docs/reference/quality-gates.md no longer carries ownership metadata expectations.")
+    if (
+        "owned areas touched by the pr" not in quality_gates_text
+        or "migration owner" not in quality_gates_text
+    ):
+        issues.append(
+            "docs/reference/quality-gates.md no longer carries ownership metadata expectations."
+        )
     detail = (
         "Ownership is covered in both repo control plane and product docs."
         if not issues
@@ -245,8 +266,12 @@ def _merge_governance() -> AuditCheck:
         issues.append("Root PR template is missing.")
     if not _path_exists(labels):
         issues.append("Root labels taxonomy is missing.")
-    if _path_exists(pr_template) and not _contains(pr_template, "This PR introduces a new subsystem or major surface."):
-        issues.append("Root PR template no longer carries the Phase 7 ratchet declaration checkbox.")
+    if _path_exists(pr_template) and not _contains(
+        pr_template, "This PR introduces a new subsystem or major surface."
+    ):
+        issues.append(
+            "Root PR template no longer carries the Phase 7 ratchet declaration checkbox."
+        )
     if not _path_exists(ratchet_tool):
         issues.append("Phase 7 ratchet enforcement tool is missing.")
     if not _contains(fast_workflow, "check_phase7_ratchet.py"):
@@ -273,7 +298,9 @@ def _required_checks() -> AuditCheck:
     ci_workflow = WORKSPACE_ROOT / ".github" / "workflows" / "ci.yml"
     issues: list[str] = []
     if not _contains(ruleset, "- Fast PR / Gate", "- Standard PR / Gate"):
-        issues.append("Repository ruleset no longer requires the canonical Fast/Standard gate names.")
+        issues.append(
+            "Repository ruleset no longer requires the canonical Fast/Standard gate names."
+        )
     if not _contains(workflows_doc, "Fast PR / Gate", "Standard PR / Gate"):
         issues.append("CI/CD operating model doc no longer documents the canonical required gates.")
     if not _path_exists(abi_workflow) or not _path_exists(ci_workflow):
@@ -324,7 +351,13 @@ def _release_path() -> AuditCheck:
         kind="automated",
         ok=not issues,
         detail=detail,
-        evidence=(release_workflow, release_doc, fragments_readme, fragments_template, *release_tools),
+        evidence=(
+            release_workflow,
+            release_doc,
+            fragments_readme,
+            fragments_template,
+            *release_tools,
+        ),
     )
 
 
@@ -401,7 +434,9 @@ def _dependency_freshness() -> AuditCheck:
     if not _path_exists(freshness_tool):
         issues.append("Action freshness audit tooling is missing.")
     if not _contains(workflows_doc, "dependency review", "Scheduled action freshness audit"):
-        issues.append("CI/CD operating model doc no longer captures dependency freshness governance.")
+        issues.append(
+            "CI/CD operating model doc no longer captures dependency freshness governance."
+        )
     detail = (
         "Dependency freshness is covered by Renovate, nightly workflow audits, and repo-tracked docs."
         if not issues
@@ -422,9 +457,13 @@ def _workflow_identity_hardening() -> AuditCheck:
     findings = collect_findings(WORKSPACE_ROOT)
     issues: list[str] = []
     if findings:
-        issues.extend(f"{finding.path.relative_to(WORKSPACE_ROOT)}: {finding.message}" for finding in findings)
+        issues.extend(
+            f"{finding.path.relative_to(WORKSPACE_ROOT)}: {finding.message}" for finding in findings
+        )
     if not _contains(workflow_doc, "GitHub-hosted runners are the default trust model", "OIDC"):
-        issues.append("CI/CD operating model doc no longer documents the runner trust model and OIDC posture.")
+        issues.append(
+            "CI/CD operating model doc no longer documents the runner trust model and OIDC posture."
+        )
     detail = (
         "Workflow policy checks pass and the trust model is documented."
         if not issues
@@ -436,7 +475,11 @@ def _workflow_identity_hardening() -> AuditCheck:
         kind="automated",
         ok=not issues,
         detail=detail,
-        evidence=(workflow_doc, WORKSPACE_ROOT / ".github" / "workflows", WORKSPACE_ROOT / ".github" / "actions"),
+        evidence=(
+            workflow_doc,
+            WORKSPACE_ROOT / ".github" / "workflows",
+            WORKSPACE_ROOT / ".github" / "actions",
+        ),
     )
 
 
@@ -444,7 +487,9 @@ def _config_and_secrets() -> AuditCheck:
     config_profiles = PRODUCT_ROOT / "docs" / "reference" / "configuration-profiles.md"
     product_env = PRODUCT_ROOT / ".env.example"
     frontend_env = PRODUCT_ROOT / "frontend" / "runtime-dashboard" / ".env.example"
-    missing = [str(path) for path in (config_profiles, product_env, frontend_env) if not _path_exists(path)]
+    missing = [
+        str(path) for path in (config_profiles, product_env, frontend_env) if not _path_exists(path)
+    ]
     detail = (
         "Config and secrets governance is documented with safe example env files."
         if not missing
@@ -464,7 +509,9 @@ def _generated_artifacts() -> AuditCheck:
     artifacts_doc = PRODUCT_ROOT / "docs" / "reference" / "generated-artifacts.md"
     artifacts_toml = PRODUCT_ROOT / "architecture" / "generated_artifacts.toml"
     guardrails = PRODUCT_ROOT / "tools" / "architecture" / "guardrails.py"
-    missing = [str(path) for path in (artifacts_doc, artifacts_toml, guardrails) if not _path_exists(path)]
+    missing = [
+        str(path) for path in (artifacts_doc, artifacts_toml, guardrails) if not _path_exists(path)
+    ]
     detail = (
         "Generated artifact lifecycle is tracked in repo policy and automation."
         if not missing
@@ -508,7 +555,9 @@ def _external_security_signals() -> AuditCheck:
 
 
 def _delivery_performance_signals() -> AuditCheck:
-    scorecard_doc = PRODUCT_ROOT / "docs" / "reference" / "operations" / "handoff-and-platform-review.md"
+    scorecard_doc = (
+        PRODUCT_ROOT / "docs" / "reference" / "operations" / "handoff-and-platform-review.md"
+    )
     issues: list[str] = []
     if not _contains(
         scorecard_doc,
@@ -557,7 +606,9 @@ def _observability_ownership() -> AuditCheck:
     observability = PRODUCT_ROOT / "docs" / "reference" / "operations" / "observability-topology.md"
     issues: list[str] = []
     if not _contains(observability, "Owner", "@platform-owners", "runbook"):
-        issues.append("Observability topology doc no longer shows signal ownership and runbook routing.")
+        issues.append(
+            "Observability topology doc no longer shows signal ownership and runbook routing."
+        )
     detail = (
         "Observability signals stay routed through named owners and runbooks."
         if not issues
@@ -581,7 +632,9 @@ def load_manual_evidence(path: Path | None) -> dict[str, ManualEvidenceEntry]:
     payload = tomllib.loads(path.read_text(encoding="utf-8"))
     manual = payload.get("manual", payload)
     if not isinstance(manual, dict):
-        raise SystemExit("manual evidence file must contain a [manual] table or top-level key/value pairs.")
+        raise SystemExit(
+            "manual evidence file must contain a [manual] table or top-level key/value pairs."
+        )
     result: dict[str, ManualEvidenceEntry] = {}
     for key, value in manual.items():
         if key not in MANUAL_CHECKS:
@@ -604,7 +657,9 @@ def load_manual_evidence(path: Path | None) -> dict[str, ManualEvidenceEntry]:
         evidence_value = value.get("evidence", [])
         if evidence_value is None:
             evidence_value = []
-        if not isinstance(evidence_value, list) or not all(isinstance(item, str) for item in evidence_value):
+        if not isinstance(evidence_value, list) or not all(
+            isinstance(item, str) for item in evidence_value
+        ):
             raise SystemExit(f"manual evidence table for `{key}` must use string-list `evidence`.")
         result[key] = ManualEvidenceEntry(
             status=status,
@@ -642,7 +697,9 @@ def _manual_checks(
             )
             continue
         if require_manual_evidence:
-            detail = f"{expectation} Record it in --manual-evidence before final closeout.{notes_suffix}"
+            detail = (
+                f"{expectation} Record it in --manual-evidence before final closeout.{notes_suffix}"
+            )
             status = "fail"
         else:
             detail = f"{expectation} Not yet recorded in manual evidence.{notes_suffix}"
@@ -708,9 +765,7 @@ def write_summary(path: Path, report: AuditReport) -> None:
         "|---|---|---|---|",
     ]
     for check in report.checks:
-        lines.append(
-            f"| {check.title} | {check.kind} | {check.status} | {check.detail} |"
-        )
+        lines.append(f"| {check.title} | {check.kind} | {check.status} | {check.detail} |")
     lines.append("")
 
     if report.blockers:
@@ -722,7 +777,9 @@ def write_summary(path: Path, report: AuditReport) -> None:
         lines.extend(f"- {check.title}: {check.detail}" for check in report.pending)
         lines.append("")
     else:
-        lines.extend(["## Gap List", "", "- No blockers remain in the current acceptance audit.", ""])
+        lines.extend(
+            ["## Gap List", "", "- No blockers remain in the current acceptance audit.", ""]
+        )
 
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines), encoding="utf-8")

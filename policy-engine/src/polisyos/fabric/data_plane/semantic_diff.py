@@ -1,4 +1,5 @@
 """Compare historical extracts by schema grain and row-level semantic identity."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
@@ -6,8 +7,8 @@ from typing import Any
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.contracts.fabric import HistoricalSemanticDiffReportRef
 from polisyos.core.canon import CanonSpec
+from polisyos.core.contracts.fabric import HistoricalSemanticDiffReportRef
 from polisyos.core.contracts.feedback import (
     HistoricalSemanticDiffReport,
     HistoricalSemanticDiffSummary,
@@ -15,7 +16,6 @@ from polisyos.core.contracts.feedback import (
 )
 from polisyos.fabric.connectors.contracts.evolution import SchemaEvolution
 from polisyos.fabric.connectors.contracts.schema import DataSchema, SemanticType
-
 
 _SEMANTIC_GRAIN_TYPES = {
     SemanticType.CODE,
@@ -42,10 +42,7 @@ def compare_historical_rows(
         material_revision=False,
         manual_review_required=manual_review_required,
         key_fields=list(key_fields),
-        schema_change_types=[
-            change.change_type.value
-            for change in schema_report.changes
-        ],
+        schema_change_types=[change.change_type.value for change in schema_report.changes],
     )
 
     if manual_review_required:
@@ -64,10 +61,9 @@ def compare_historical_rows(
     right_index, right_duplicates = _index_rows(right_rows, key_fields)
     all_keys = sorted(set(left_index) | set(right_index))
     changes: list[HistoricalSemanticRowDelta] = []
-    numeric_fields = {
-        field.name
-        for field in right_schema.numeric_fields()
-    } | {field.name for field in left_schema.numeric_fields()}
+    numeric_fields = {field.name for field in right_schema.numeric_fields()} | {
+        field.name for field in left_schema.numeric_fields()
+    }
     semantic_fields = {
         field.name: field.semantic_type.value if field.semantic_type is not None else None
         for field in left_schema.fields
@@ -145,9 +141,7 @@ def compare_historical_rows(
     )
     summary.matched_rows = matched_rows
     summary.compared_rows = len(all_keys)
-    summary.coverage_ratio = (
-        matched_rows / len(all_keys) if all_keys else 1.0
-    )
+    summary.coverage_ratio = matched_rows / len(all_keys) if all_keys else 1.0
     summary.schema_only = bool(schema_report.changes) and not changes
     summary.duplicate_keys_left = len(left_duplicates)
     summary.duplicate_keys_right = len(right_duplicates)
@@ -158,22 +152,14 @@ def compare_historical_rows(
         or summary.field_semantics_changed
     )
     summary.manual_review_required = (
-        summary.manual_review_required
-        or bool(left_duplicates)
-        or bool(right_duplicates)
+        summary.manual_review_required or bool(left_duplicates) or bool(right_duplicates)
     )
 
     notes: list[str] = []
     if left_duplicates:
-        notes.append(
-            "duplicate_keys:left:"
-            + ",".join(sorted(left_duplicates.keys())[:5])
-        )
+        notes.append("duplicate_keys:left:" + ",".join(sorted(left_duplicates.keys())[:5]))
     if right_duplicates:
-        notes.append(
-            "duplicate_keys:right:"
-            + ",".join(sorted(right_duplicates.keys())[:5])
-        )
+        notes.append("duplicate_keys:right:" + ",".join(sorted(right_duplicates.keys())[:5]))
 
     return HistoricalSemanticDiffReport(
         left_schema_id=left_schema.schema_id,
@@ -210,13 +196,19 @@ def persist_historical_semantic_diff_report(
     return HistoricalSemanticDiffReportRef.model_validate(ref)
 
 
-def _resolve_key_fields(left_schema: DataSchema, right_schema: DataSchema) -> tuple[tuple[str, ...], bool]:
+def _resolve_key_fields(
+    left_schema: DataSchema, right_schema: DataSchema
+) -> tuple[tuple[str, ...], bool]:
     if left_schema.primary_key and left_schema.primary_key == right_schema.primary_key:
         return tuple(left_schema.primary_key), False
 
     derived: list[str] = []
     for field_name in (left_schema.time_dimension, left_schema.geo_dimension):
-        if field_name and field_name in left_schema.field_names() and field_name in right_schema.field_names():
+        if (
+            field_name
+            and field_name in left_schema.field_names()
+            and field_name in right_schema.field_names()
+        ):
             derived.append(field_name)
     for field in left_schema.fields:
         if (
@@ -226,7 +218,7 @@ def _resolve_key_fields(left_schema: DataSchema, right_schema: DataSchema) -> tu
         ):
             derived.append(field.name)
     if not derived:
-        return tuple(), True
+        return (), True
     return tuple(derived), False
 
 

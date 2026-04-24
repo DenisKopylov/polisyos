@@ -76,9 +76,7 @@ async def test_object_storage_connector_preserves_provider_metadata(tmp_path: Pa
     url = csv_path.as_uri()
 
     connector = ObjectStorageConnector()
-    handle = await connector.connect(
-        ConnectionConfig(url=url, headers={"X-File-Format": "csv"})
-    )
+    handle = await connector.connect(ConnectionConfig(url=url, headers={"X-File-Format": "csv"}))
     result = await connector.fetch(handle, FetchRequest(dataset_id="object"))
     schema = await connector.get_dataset_schema(handle, "object")
     await connector.disconnect(handle)
@@ -212,7 +210,10 @@ async def test_event_stream_connector_streams_messages_and_schema(tmp_path: Path
             headers={"X-Stream-ChunkSize": "2", "X-Stream-Topic": "audit-events"},
         )
     )
-    chunks = [chunk async for chunk in connector.fetch_stream(handle, FetchRequest(dataset_id="audit-events"))]
+    chunks = [
+        chunk
+        async for chunk in connector.fetch_stream(handle, FetchRequest(dataset_id="audit-events"))
+    ]
     result = await connector.fetch(handle, FetchRequest(dataset_id="audit-events"))
     schema = await connector.get_dataset_schema(handle, "audit-events")
     await connector.disconnect(handle)

@@ -1,0 +1,9 @@
+:lang(uk),
+:lang(ru) {
+  --plex-mono-cyrillic-offset: 0.02em;
+}
+
+.font-mono:is(:lang(uk), :lang(ru)),
+.mono:is(:lang(uk), :lang(ru)) {
+  letter-spacing: var(--plex-mono-cyrillic-offset);
+}

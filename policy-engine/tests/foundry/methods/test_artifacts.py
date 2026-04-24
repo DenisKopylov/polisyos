@@ -7,10 +7,12 @@ Tests verify:
 - Manifest generation compatibility with Core CAS
 - Edge case handling (unavailable source, etc.)
 """
+
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from datetime import UTC, datetime, timedelta
+from typing import Any, ClassVar
 from uuid import uuid4
 
 import pytest
@@ -42,7 +44,6 @@ from polisyos.foundry.methods.specialization import (
     Specialization,
 )
 
-
 # =============================================================================
 # Test Fixtures
 # =============================================================================
@@ -61,15 +62,17 @@ def sample_signature(sample_unit: Unit) -> MethodSignature:
         name="flat_tax",
         namespace="fiscal.taxation",
         version="1.0.0",
-        input_slots=frozenset({
-            SlotSpec(name="income", slot_type=SlotType.VECTOR, unit=sample_unit),
-        }),
-        output_slots=frozenset({
-            SlotSpec(name="tax_amount", slot_type=SlotType.VECTOR, unit=sample_unit),
-        }),
-        parameters=(
-            ParameterSpec(name="rate", default=0.15, bounds=(0.0, 1.0), is_static=True),
+        input_slots=frozenset(
+            {
+                SlotSpec(name="income", slot_type=SlotType.VECTOR, unit=sample_unit),
+            }
         ),
+        output_slots=frozenset(
+            {
+                SlotSpec(name="tax_amount", slot_type=SlotType.VECTOR, unit=sample_unit),
+            }
+        ),
+        parameters=(ParameterSpec(name="rate", default=0.15, bounds=(0.0, 1.0), is_static=True),),
         fidelity=FidelityLevel.LOW,
         complexity=ComplexityClass.O_N,
     )
@@ -90,9 +93,7 @@ def sample_specialization() -> Specialization:
     return Specialization(
         method_fqn="fiscal.taxation.flat_tax@1.0.0",
         static_params_hash="a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
-        input_shapes=(
-            ("income", ShapeSpec(shape=(1000,), dtype="float32")),
-        ),
+        input_shapes=(("income", ShapeSpec(shape=(1000,), dtype="float32")),),
         backend=BackendSpec(
             platform="cpu",
             device_count=1,
@@ -259,7 +260,7 @@ class TestMethodArtifact:
         """Artifacts with different compiled_at should share the same ID."""
         method_class = create_mock_method_class(sample_signature, sample_metadata)
 
-        fixed_time = datetime(2025, 1, 15, 10, 30, 0, tzinfo=timezone.utc)
+        fixed_time = datetime(2025, 1, 15, 10, 30, 0, tzinfo=UTC)
         later_time = fixed_time + timedelta(seconds=30)
 
         artifact1 = MethodArtifact.from_method(
@@ -454,7 +455,7 @@ class TestChainArtifact:
                 target_node_id="b|hash|0",
             ),
         )
-        fixed_time = datetime(2025, 1, 15, tzinfo=timezone.utc)
+        fixed_time = datetime(2025, 1, 15, tzinfo=UTC)
 
         artifact = ChainArtifact(
             chain_id=uuid4(),
@@ -508,7 +509,7 @@ class TestChainArtifact:
             nodes=nodes,
             bindings=(),
             execution_order=("a|hash|0", "b|hash|0", "c|hash|0"),
-            composed_at=datetime.now(timezone.utc),
+            composed_at=datetime.now(UTC),
             warnings=(),
         )
 
@@ -525,8 +526,8 @@ class TestExecutionEvidence:
 
     def test_create_sets_all_fields(self):
         """create() should properly set all fields."""
-        started = datetime(2025, 1, 15, 10, 0, 0, tzinfo=timezone.utc)
-        completed = datetime(2025, 1, 15, 10, 0, 5, tzinfo=timezone.utc)
+        started = datetime(2025, 1, 15, 10, 0, 0, tzinfo=UTC)
+        completed = datetime(2025, 1, 15, 10, 0, 5, tzinfo=UTC)
         device_info = DeviceInfo(
             platform="cpu",
             device_count=1,
@@ -560,8 +561,8 @@ class TestExecutionEvidence:
 
     def test_duration_seconds_computed(self):
         """duration_seconds should be computed from timestamps."""
-        started = datetime(2025, 1, 15, 10, 0, 0, tzinfo=timezone.utc)
-        completed = datetime(2025, 1, 15, 10, 0, 10, tzinfo=timezone.utc)
+        started = datetime(2025, 1, 15, 10, 0, 0, tzinfo=UTC)
+        completed = datetime(2025, 1, 15, 10, 0, 10, tzinfo=UTC)
 
         evidence = ExecutionEvidence.create(
             chain_artifact_id="c" * 64,
@@ -591,8 +592,8 @@ class TestExecutionEvidence:
             input_state_hash="in",
             input_params_hash="params",
             output_state_hash="out",
-            started_at=datetime.now(timezone.utc),
-            completed_at=datetime.now(timezone.utc),
+            started_at=datetime.now(UTC),
+            completed_at=datetime.now(UTC),
             method_timings=[],
             input_state_artifact_ids=["b" * 64],
             output_state_artifact_ids=["c" * 64],
@@ -621,8 +622,8 @@ class TestExecutionEvidence:
             input_state_hash="in",
             input_params_hash="params",
             output_state_hash="",
-            started_at=datetime.now(timezone.utc),
-            completed_at=datetime.now(timezone.utc),
+            started_at=datetime.now(UTC),
+            completed_at=datetime.now(UTC),
             method_timings=[],
             success=False,
             error_message="Division by zero in method a@1.0.0",
@@ -704,9 +705,7 @@ class TestArtifactIntegration:
     ):
         """Test creating a full artifact chain: Method → Chain → Evidence."""
         method_class = create_mock_method_class(sample_signature, sample_metadata)
-        method_artifact = MethodArtifact.from_method(
-            method_class, sample_specialization
-        )
+        method_artifact = MethodArtifact.from_method(method_class, sample_specialization)
 
         nodes = (
             ChainNodeRecord(
@@ -744,7 +743,7 @@ class TestArtifactIntegration:
             nodes=nodes,
             bindings=bindings,
             execution_order=("node1", "node2"),
-            composed_at=datetime.now(timezone.utc),
+            composed_at=datetime.now(UTC),
             warnings=(),
         )
 
@@ -753,8 +752,8 @@ class TestArtifactIntegration:
             input_state_hash="input_hash",
             input_params_hash="params_hash",
             output_state_hash="output_hash",
-            started_at=datetime.now(timezone.utc),
-            completed_at=datetime.now(timezone.utc),
+            started_at=datetime.now(UTC),
+            completed_at=datetime.now(UTC),
             method_timings=[
                 MethodTiming(method_artifact.fqn, "node1", 0.5),
             ],

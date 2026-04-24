@@ -1,4 +1,5 @@
 """Define causal effect reports, proof bundles, and readiness diagnostics."""
+
 from __future__ import annotations
 
 import logging
@@ -13,12 +14,11 @@ from polisyos.ir.analytics.administrative_missingness import (
     MissingnessAssessmentReport,
     MissingnessAssessmentStatus,
 )
-from polisyos.ir.analytics.survey_quality import SurveyQualityCertificate
 from polisyos.ir.analytics.dynamic_causal_semantics import (
     DynamicReductionStatus,
     DynamicSemanticsAttachment,
 )
-from polisyos.ir.analytics.estimand import SideConditionKind
+from polisyos.ir.analytics.survey_quality import SurveyQualityCertificate
 from polisyos.ir.analytics.transportability import TransportabilityResult
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
@@ -48,10 +48,14 @@ from polisyos.ir.refs import (
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
+    from polisyos.ir.analytics.estimand import SideConditionKind
     from polisyos.ir.analytics.proximal import (
         ProximalIdentificationCertificate,
         ProximalMediationCertificate,
     )
+else:
+    from polisyos.ir.analytics.estimand import SideConditionKind
+    from polisyos.ir.analytics.proximal import ProximalIdentificationCertificate
 
 
 class CausalMethod(str, Enum):
@@ -70,6 +74,7 @@ class CausalMethod(str, Enum):
     DOWHY_FRONTDOOR = "dowhy_frontdoor"
     PROXIMAL_BRIDGE = "proximal_bridge"
     DISTRIBUTIONAL_TREATMENT_EFFECT = "distributional_treatment_effect"
+    ENDOGENOUS_GROUP_INEQUALITY_DECOMPOSITION = "endogenous_group_inequality_decomposition"
     KERNEL_CME = "kernel_cme"
     KERNEL_FRONTDOOR = "kernel_frontdoor"
     KERNEL_TRANSPORT = "kernel_transport"
@@ -248,7 +253,7 @@ class CausalEffectReport(BaseModel):
     post_periods: int = Field(ge=0)
 
     @model_validator(mode="after")
-    def _validate_numbers(self) -> "CausalEffectReport":
+    def _validate_numbers(self) -> CausalEffectReport:
         if self.status is EstimationStatus.SUCCESS:
             if self.point_estimate is None:
                 raise ValueError("point_estimate is required for successful estimates")
@@ -655,7 +660,11 @@ def proof_bundle_from_identification_result(
                 else {}
             ),
             **(
-                {"recoverability_certificate_ref": resolved_recoverability_ref.model_dump(mode="json")}
+                {
+                    "recoverability_certificate_ref": resolved_recoverability_ref.model_dump(
+                        mode="json"
+                    )
+                }
                 if resolved_recoverability_ref is not None
                 else {}
             ),
@@ -720,9 +729,9 @@ def proof_bundle_from_negative_certificate(
     """Translate a canonical impossibility artifact into the public proof surface."""
     diagnostics = dict(getattr(certificate, "quantitative_diagnostics", {}) or {})
     blocking_type = str(getattr(getattr(certificate, "blocking_type", None), "value", "") or "")
-    resolved_status = str(
-        status_raw or diagnostics.get("identification_status") or ""
-    ).strip().lower()
+    resolved_status = (
+        str(status_raw or diagnostics.get("identification_status") or "").strip().lower()
+    )
     if not resolved_status:
         resolved_status = "non_identified"
     resolved_theorem_family = (
@@ -743,11 +752,7 @@ def proof_bundle_from_negative_certificate(
     proof_trace = diagnostics.get("proof_trace")
     if not isinstance(proof_trace, list):
         proof_trace = []
-    metadata = {
-        key: value
-        for key, value in diagnostics.items()
-        if key != "proof_trace"
-    }
+    metadata = {key: value for key, value in diagnostics.items() if key != "proof_trace"}
     recoverability_summary = _recoverability_summary(
         metadata.get("recoverability")
         or metadata.get("recoverability_certificate")
@@ -802,9 +807,7 @@ def proof_bundle_from_negative_certificate(
             **metadata,
             "status": resolved_status,
             "blocking_type": blocking_type,
-            "constructive_message": str(
-                getattr(certificate, "constructive_message", "") or ""
-            ),
+            "constructive_message": str(getattr(certificate, "constructive_message", "") or ""),
             **(
                 {
                     "bridge_plausibility_report_ref": bridge_plausibility_report_ref.model_dump(
@@ -820,7 +823,11 @@ def proof_bundle_from_negative_certificate(
                 else {}
             ),
             **(
-                {"recoverability_certificate_ref": recoverability_certificate_ref.model_dump(mode="json")}
+                {
+                    "recoverability_certificate_ref": recoverability_certificate_ref.model_dump(
+                        mode="json"
+                    )
+                }
                 if recoverability_certificate_ref is not None
                 else {}
             ),
@@ -899,9 +906,7 @@ def proof_bundle_from_proximal_certificate(
                 "spatial_proxy_spec": spatial_proxy_specs,
                 "proxy_ring_diagnostics": spatial_graph_checks,
                 "spillover_radius_claim": (
-                    spillover_claims[0]
-                    if len(spillover_claims) == 1
-                    else spillover_claims
+                    spillover_claims[0] if len(spillover_claims) == 1 else spillover_claims
                 ),
                 "impact_functionals_declared": list(
                     certificate.metadata.get(
@@ -934,7 +939,7 @@ def proof_bundle_from_proximal_certificate(
 
 
 def proof_bundle_from_proximal_mediation_certificate(
-    certificate: "ProximalMediationCertificate",
+    certificate: ProximalMediationCertificate,
     *,
     graph_ref: str | None = None,
     query_ref: str | None = None,
@@ -1141,7 +1146,9 @@ def build_data_readiness_report(
             warnings.append("assumption_dependent_missingness_recovery")
 
     if missingness_report is not None:
-        metrics.setdefault("missingness_scenario_confidence", missingness_report.scenario_confidence)
+        metrics.setdefault(
+            "missingness_scenario_confidence", missingness_report.scenario_confidence
+        )
         metrics.setdefault(
             "missingness_covariates_present_count",
             float(len(missingness_report.administrative_covariates_present)),
@@ -1240,8 +1247,7 @@ def build_data_readiness_report(
             ):
                 warnings.append("access_restricted_estimand_only")
             elif (
-                missingness_report.scenario_class
-                is AdministrativeMissingnessClass.LINKAGE_FAILURE
+                missingness_report.scenario_class is AdministrativeMissingnessClass.LINKAGE_FAILURE
             ):
                 warnings.append("linked_population_estimand_only")
         if missingness_report.status is MissingnessAssessmentStatus.NOT_RECOVERABLE:
@@ -1435,7 +1441,9 @@ def _typed_ref_from_payload(payload: Any, ref_cls: type[Any]) -> Any | None:
         return None
 
 
-def _normalize_composability_status(payload: Any) -> Literal["reusable", "revalidate", "rederive", "unknown"]:
+def _normalize_composability_status(
+    payload: Any,
+) -> Literal["reusable", "revalidate", "rederive", "unknown"]:
     candidate = str(getattr(payload, "value", payload) or "").strip().lower()
     if candidate in {"reusable", "revalidate", "rederive"}:
         return candidate
@@ -1450,24 +1458,40 @@ def _derive_operator_lift_contract(
 ) -> dict[str, Any]:
     operator_target = _extract_operator_target_node(estimand_ast)
     if operator_target is None:
+        uniform_probe_class_ref = (
+            str(result_metadata.get("uniform_probe_class_ref") or "").strip() or None
+        )
+        operator_lift_allowed = bool(result_metadata.get("operator_lift_allowed"))
+        operator_lift_scope = _normalize_operator_lift_scope(
+            result_metadata.get("operator_lift_scope")
+        )
         return {
-            "uniform_probe_class_ref": None,
-            "operator_lift_allowed": False,
-            "operator_lift_scope": "none",
-            "operator_lift_reason": None,
-            "operator_lift_failure_reason": None,
-            "operator_audit_basis_probe_refs": [],
+            "uniform_probe_class_ref": uniform_probe_class_ref,
+            "operator_lift_allowed": operator_lift_allowed,
+            "operator_lift_scope": operator_lift_scope,
+            "operator_lift_reason": (
+                str(result_metadata.get("operator_lift_reason") or "").strip() or None
+            ),
+            "operator_lift_failure_reason": (
+                str(result_metadata.get("operator_lift_failure_reason") or "").strip() or None
+            ),
+            "operator_audit_basis_probe_refs": _normalize_string_list(
+                result_metadata.get("operator_audit_basis_probe_refs")
+            ),
         }
 
-    identification_method = str(
-        getattr(estimand_ast, "identification_method", "")
-        or result_metadata.get("identification_method")
-        or ""
-    ).strip().lower()
-    uniform_probe_class_ref = (
-        str(result_metadata.get("uniform_probe_class_ref") or "").strip()
-        or _default_uniform_probe_class_ref(operator_target)
+    identification_method = (
+        str(
+            getattr(estimand_ast, "identification_method", "")
+            or result_metadata.get("identification_method")
+            or ""
+        )
+        .strip()
+        .lower()
     )
+    uniform_probe_class_ref = str(
+        result_metadata.get("uniform_probe_class_ref") or ""
+    ).strip() or _default_uniform_probe_class_ref(operator_target)
     operator_audit_basis_probe_refs = _normalize_string_list(
         result_metadata.get("operator_audit_basis_probe_refs")
     ) or _default_operator_audit_basis(operator_target)
@@ -1497,13 +1521,9 @@ def _derive_operator_lift_contract(
     if status_raw != "identified":
         failure_reason = "operator_lift_requires_identified_proof"
     elif operator_target.identification_scope != "backdoor":
-        failure_reason = (
-            f"operator_lift_scope_deferred:{operator_target.identification_scope}"
-        )
+        failure_reason = f"operator_lift_scope_deferred:{operator_target.identification_scope}"
     elif operator_target.operator_semantics != "conditional_mean_embedding_operator":
-        failure_reason = (
-            f"operator_lift_semantics_deferred:{operator_target.operator_semantics}"
-        )
+        failure_reason = f"operator_lift_semantics_deferred:{operator_target.operator_semantics}"
     elif not probe_contract_declared:
         failure_reason = "operator_probe_contract_missing"
     else:
@@ -1692,27 +1712,27 @@ def _extract_assumptions_from_estimand(estimand_ast: Any) -> list[str]:
 
 
 __all__ = [
+    "CausalEffectReport",
     "CausalMethod",
     "DataReadinessReport",
-    "EstimationStatus",
-    "RefutationTestType",
-    "RefutationResult",
-    "PlaceboResult",
     "DiagnosticTest",
-    "CausalEffectReport",
+    "EstimationStatus",
+    "PlaceboResult",
     "PositivityDiagnosticReport",
     "ProofBundle",
-    "build_dynamic_proof_bundle",
+    "RefutationResult",
+    "RefutationTestType",
     "TransportabilityResult",
     "build_data_readiness_report",
-    "persist_data_readiness_report",
-    "persist_causal_effect_report",
-    "persist_proof_bundle",
-    "load_data_readiness_report",
+    "build_dynamic_proof_bundle",
     "load_causal_effect_report",
+    "load_data_readiness_report",
     "load_proof_bundle",
+    "persist_causal_effect_report",
+    "persist_data_readiness_report",
+    "persist_proof_bundle",
     "proof_bundle_from_identification_result",
     "proof_bundle_from_negative_certificate",
-    "proof_bundle_from_proximal_mediation_certificate",
     "proof_bundle_from_proximal_certificate",
+    "proof_bundle_from_proximal_mediation_certificate",
 ]

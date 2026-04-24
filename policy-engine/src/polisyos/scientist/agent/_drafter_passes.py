@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import time
 from dataclasses import replace
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_tracer

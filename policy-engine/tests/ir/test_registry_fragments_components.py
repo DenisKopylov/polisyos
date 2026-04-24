@@ -14,7 +14,10 @@ from polisyos.core.components import (
     ComponentRegistry,
 )
 from polisyos.core.components.discovery import DiscoverySourceInfo
-from polisyos.core.registry import build_registry_bundle_from_components, load_registry_bundle_content
+from polisyos.core.registry import (
+    build_registry_bundle_from_components,
+    load_registry_bundle_content,
+)
 from polisyos.ir.kernel.units import GenericUnit, UnitsRegistry
 from polisyos.ir.registry_fragments import RegistryFragmentMeta, UnitsFragment
 

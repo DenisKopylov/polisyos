@@ -7,18 +7,21 @@ import json
 import re
 import socket
 import time
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib.parse import quote, urljoin, urlparse
 
 import aiohttp
 
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.common.logger import get_logger
 from polisyos.ir.analytics.literature import SourceBasis, TextQuality
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 logger = get_logger(__name__)
 
@@ -30,8 +33,12 @@ _PLACEHOLDER_RE = re.compile(
     r"\b(redirecting|loading|just a moment|access denied|captcha|checking your browser|enable javascript)\b",
     re.IGNORECASE,
 )
-_FULLTEXT_HEADER_TRIM_RE = re.compile(r"(?is)\A.{0,4000}?\b(abstract|introduction|background)\b[:\s]")
-_FULLTEXT_REFERENCE_TAIL_RE = re.compile(r"(?is)\b(references|bibliography|works cited)\b.{1200,}\Z")
+_FULLTEXT_HEADER_TRIM_RE = re.compile(
+    r"(?is)\A.{0,4000}?\b(abstract|introduction|background)\b[:\s]"
+)
+_FULLTEXT_REFERENCE_TAIL_RE = re.compile(
+    r"(?is)\b(references|bibliography|works cited)\b.{1200,}\Z"
+)
 _FULLTEXT_BOILERPLATE_RE = re.compile(
     r"(?is)"
     r"(cookie policy|cookie settings|cookie preferences|cookie consent|accept cookies|manage cookies|we use cookies|"
@@ -75,6 +82,7 @@ _NON_PDF_BINARY_PREFIXES = (
 @dataclass(frozen=True)
 class FullTextFetchAttempt:
     """Full text fetch attempt public type."""
+
     work_id: str
     attempt_kind: str
     candidate_priority: int
@@ -94,6 +102,7 @@ class FullTextFetchAttempt:
 @dataclass(frozen=True)
 class FullTextFetchResult:
     """Full text fetch result data model."""
+
     text: str
     source_kind: str
     source_url: str
@@ -146,9 +155,7 @@ def _extract_html_tables(html: str) -> list[dict[str, Any]]:
             for tr in table_elem.xpath(".//tr"):
                 cells = []
                 for td in tr.xpath(".//td|.//th"):
-                    cells.append(
-                        re.sub(r"\s+", " ", (td.text_content() or "").strip())
-                    )
+                    cells.append(re.sub(r"\s+", " ", (td.text_content() or "").strip()))
                 if cells:
                     rows.append(cells)
             if len(rows) < 2:
@@ -159,15 +166,17 @@ def _extract_html_tables(html: str) -> list[dict[str, Any]]:
             for row in rows[1:]:
                 padded = row + [""] * max(0, len(headers) - len(row))
                 md_lines.append("| " + " | ".join(padded[: len(headers)]) + " |")
-            tables.append({
-                "table_id": f"html_tbl_{idx:03d}",
-                "label": f"table_{idx}",
-                "text": "\n".join(md_lines),
-                "headers": headers,
-                "rows": rows[1:],
-                "score": 0.7,
-                "structure_source": "html_table",
-            })
+            tables.append(
+                {
+                    "table_id": f"html_tbl_{idx:03d}",
+                    "label": f"table_{idx}",
+                    "text": "\n".join(md_lines),
+                    "headers": headers,
+                    "rows": rows[1:],
+                    "score": 0.7,
+                    "structure_source": "html_table",
+                }
+            )
     except ImportError:
         try:
             from bs4 import BeautifulSoup  # type: ignore[import-untyped]
@@ -190,15 +199,17 @@ def _extract_html_tables(html: str) -> list[dict[str, Any]]:
                 for row in rows[1:]:
                     padded = row + [""] * max(0, len(headers) - len(row))
                     md_lines.append("| " + " | ".join(padded[: len(headers)]) + " |")
-                tables.append({
-                    "table_id": f"html_tbl_{idx:03d}",
-                    "label": f"table_{idx}",
-                    "text": "\n".join(md_lines),
-                    "headers": headers,
-                    "rows": rows[1:],
-                    "score": 0.7,
-                    "structure_source": "html_table",
-                })
+                tables.append(
+                    {
+                        "table_id": f"html_tbl_{idx:03d}",
+                        "label": f"table_{idx}",
+                        "text": "\n".join(md_lines),
+                        "headers": headers,
+                        "rows": rows[1:],
+                        "score": 0.7,
+                        "structure_source": "html_table",
+                    }
+                )
         except ImportError:
             pass
     except Exception as exc:
@@ -245,7 +256,8 @@ def _extract_pdf_text(raw_bytes: bytes, *, max_pages: int = 0) -> str:
         if total_pages > max_pages:
             logger.warning(
                 "PDF has {} pages, truncated to {} — data loss possible",
-                total_pages, max_pages,
+                total_pages,
+                max_pages,
             )
         result = "\n".join(texts).strip()
         if result:
@@ -271,7 +283,8 @@ def _extract_pdf_text(raw_bytes: bytes, *, max_pages: int = 0) -> str:
         if total_pages > max_pages:
             logger.warning(
                 "PDF has {} pages, truncated to {} — data loss possible",
-                total_pages, max_pages,
+                total_pages,
+                max_pages,
             )
         return "\n".join(texts_fallback).strip()
     except (OSError, TypeError, ValueError) as exc:
@@ -306,7 +319,7 @@ def _sanitize_fulltext_text(text: str) -> tuple[str, bool]:
 
     header_match = _FULLTEXT_HEADER_TRIM_RE.search(cleaned)
     if header_match and header_match.start() > 0:
-        cleaned = cleaned[header_match.start():]
+        cleaned = cleaned[header_match.start() :]
         changed = True
 
     tail_match = _FULLTEXT_REFERENCE_TAIL_RE.search(cleaned)
@@ -363,9 +376,7 @@ def _looks_like_fake_fulltext(text: str) -> bool:
         return False
     if _looks_like_redirect_placeholder(normalized):
         return True
-    if _PLACEHOLDER_RE.search(normalized):
-        return True
-    return False
+    return bool(_PLACEHOLDER_RE.search(normalized))
 
 
 def _looks_like_repository_shell(text: str) -> bool:
@@ -425,11 +436,17 @@ def _classify_text_state(
 
 def _extract_redirect_targets(html: str, base_url: str) -> list[str]:
     patterns = (
-        re.compile(r'''<meta[^>]+http-equiv=["']?refresh["']?[^>]+content=["'][^"'>]*url=([^"'>\s]+)''', re.IGNORECASE),
-        re.compile(r'''window\.location(?:\.href)?\s*=\s*["']([^"']+)["']''', re.IGNORECASE),
-        re.compile(r'''location\.replace\(\s*["']([^"']+)["']\s*\)''', re.IGNORECASE),
-        re.compile(r'''location\.assign\(\s*["']([^"']+)["']\s*\)''', re.IGNORECASE),
-        re.compile(r'''<a[^>]+href=["']([^"']+)["'][^>]*>\s*(?:continue|here|full text|article)\s*</a>''', re.IGNORECASE),
+        re.compile(
+            r"""<meta[^>]+http-equiv=["']?refresh["']?[^>]+content=["'][^"'>]*url=([^"'>\s]+)""",
+            re.IGNORECASE,
+        ),
+        re.compile(r"""window\.location(?:\.href)?\s*=\s*["']([^"']+)["']""", re.IGNORECASE),
+        re.compile(r"""location\.replace\(\s*["']([^"']+)["']\s*\)""", re.IGNORECASE),
+        re.compile(r"""location\.assign\(\s*["']([^"']+)["']\s*\)""", re.IGNORECASE),
+        re.compile(
+            r"""<a[^>]+href=["']([^"']+)["'][^>]*>\s*(?:continue|here|full text|article)\s*</a>""",
+            re.IGNORECASE,
+        ),
     )
     targets: list[str] = []
     for pattern in patterns:
@@ -442,11 +459,21 @@ def _extract_redirect_targets(html: str, base_url: str) -> list[str]:
 
 def _extract_pdf_targets(html: str, base_url: str) -> list[str]:
     patterns = (
-        re.compile(r'''<meta[^>]+name=["']citation_pdf_url["'][^>]+content=["']([^"']+)["']''', re.IGNORECASE),
-        re.compile(r'''<meta[^>]+property=["']og:pdf["'][^>]+content=["']([^"']+)["']''', re.IGNORECASE),
-        re.compile(r'''<link[^>]+type=["']application/pdf["'][^>]+href=["']([^"']+)["']''', re.IGNORECASE),
-        re.compile(r'''<a[^>]+href=["']([^"']+\.pdf(?:\?[^"']*)?)["']''', re.IGNORECASE),
-        re.compile(r'''<a[^>]+href=["']([^"']+)["'][^>]*>\s*(?:pdf|download pdf|view pdf|full text pdf)\s*</a>''', re.IGNORECASE),
+        re.compile(
+            r"""<meta[^>]+name=["']citation_pdf_url["'][^>]+content=["']([^"']+)["']""",
+            re.IGNORECASE,
+        ),
+        re.compile(
+            r"""<meta[^>]+property=["']og:pdf["'][^>]+content=["']([^"']+)["']""", re.IGNORECASE
+        ),
+        re.compile(
+            r"""<link[^>]+type=["']application/pdf["'][^>]+href=["']([^"']+)["']""", re.IGNORECASE
+        ),
+        re.compile(r"""<a[^>]+href=["']([^"']+\.pdf(?:\?[^"']*)?)["']""", re.IGNORECASE),
+        re.compile(
+            r"""<a[^>]+href=["']([^"']+)["'][^>]*>\s*(?:pdf|download pdf|view pdf|full text pdf)\s*</a>""",
+            re.IGNORECASE,
+        ),
     )
     targets: list[str] = []
     for pattern in patterns:
@@ -459,8 +486,10 @@ def _extract_pdf_targets(html: str, base_url: str) -> list[str]:
 
 def _extract_canonical_targets(html: str, base_url: str) -> list[str]:
     patterns = (
-        re.compile(r'''<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']''', re.IGNORECASE),
-        re.compile(r'''<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']''', re.IGNORECASE),
+        re.compile(r"""<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']""", re.IGNORECASE),
+        re.compile(
+            r"""<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']""", re.IGNORECASE
+        ),
     )
     targets: list[str] = []
     for pattern in patterns:
@@ -512,9 +541,15 @@ def _normalize_doi(value: str | None) -> str:
     if not raw:
         return ""
     lowered = raw.lower()
-    for prefix in ("https://doi.org/", "http://doi.org/", "https://dx.doi.org/", "http://dx.doi.org/", "doi:"):
+    for prefix in (
+        "https://doi.org/",
+        "http://doi.org/",
+        "https://dx.doi.org/",
+        "http://dx.doi.org/",
+        "doi:",
+    ):
         if lowered.startswith(prefix):
-            raw = raw[len(prefix):].strip()
+            raw = raw[len(prefix) :].strip()
             break
     return raw.strip().strip("/")
 
@@ -561,7 +596,7 @@ def _cache_attempt(work_id: str, row: dict[str, Any]) -> FullTextFetchAttempt:
         attempt_kind="shared_cache",
         candidate_priority=-1,
         candidate_url=str(row.get("source_url") or ""),
-        source_kind=f"{str(row.get('source_kind') or 'unknown')}_cache_hit",
+        source_kind=f"{row.get('source_kind') or 'unknown'!s}_cache_hit",
         http_status=200,
         fetch_error_class="",
         latency_ms=0.0,
@@ -599,7 +634,7 @@ def load_resolved_fulltext_cache(
     cache: dict[str, dict[str, Any]] = {}
     if not path.exists():
         return cache
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -619,7 +654,9 @@ def load_resolved_fulltext_cache(
 def _candidate_urls(work: dict[str, Any], *, max_candidates: int) -> list[_URLCandidate]:
     open_access = work.get("open_access") if isinstance(work.get("open_access"), dict) else {}
     best_oa = work.get("best_oa_location") if isinstance(work.get("best_oa_location"), dict) else {}
-    primary_location = work.get("primary_location") if isinstance(work.get("primary_location"), dict) else {}
+    primary_location = (
+        work.get("primary_location") if isinstance(work.get("primary_location"), dict) else {}
+    )
     locations = work.get("locations") if isinstance(work.get("locations"), list) else []
     ids = work.get("ids") if isinstance(work.get("ids"), dict) else {}
 
@@ -652,14 +689,30 @@ def _candidate_urls(work: dict[str, Any], *, max_candidates: int) -> list[_URLCa
     add(best_oa.get("pdf_url"), priority=0, source_kind="openalex_pdf", expect_pdf=True)
     add(open_access.get("oa_url"), priority=1, source_kind="openalex_oa_url")
     add(best_oa.get("landing_page_url"), priority=2, source_kind="openalex_landing_page")
-    add(primary_location.get("pdf_url"), priority=3, source_kind="openalex_primary_pdf", expect_pdf=True)
-    add(primary_location.get("landing_page_url"), priority=4, source_kind="openalex_primary_landing")
+    add(
+        primary_location.get("pdf_url"),
+        priority=3,
+        source_kind="openalex_primary_pdf",
+        expect_pdf=True,
+    )
+    add(
+        primary_location.get("landing_page_url"), priority=4, source_kind="openalex_primary_landing"
+    )
 
     for idx, location in enumerate(locations):
         if not isinstance(location, dict):
             continue
-        add(location.get("pdf_url"), priority=10 + idx, source_kind="openalex_location_pdf", expect_pdf=True)
-        add(location.get("landing_page_url"), priority=40 + idx, source_kind="openalex_location_landing")
+        add(
+            location.get("pdf_url"),
+            priority=10 + idx,
+            source_kind="openalex_location_pdf",
+            expect_pdf=True,
+        )
+        add(
+            location.get("landing_page_url"),
+            priority=40 + idx,
+            source_kind="openalex_location_landing",
+        )
 
     doi = _normalize_doi(str(work.get("doi") or ids.get("doi") or ""))
     if doi:
@@ -670,7 +723,9 @@ def _candidate_urls(work: dict[str, Any], *, max_candidates: int) -> list[_URLCa
 def _has_any_candidate_url_text(work: dict[str, Any]) -> bool:
     open_access = work.get("open_access") if isinstance(work.get("open_access"), dict) else {}
     best_oa = work.get("best_oa_location") if isinstance(work.get("best_oa_location"), dict) else {}
-    primary_location = work.get("primary_location") if isinstance(work.get("primary_location"), dict) else {}
+    primary_location = (
+        work.get("primary_location") if isinstance(work.get("primary_location"), dict) else {}
+    )
     locations = work.get("locations") if isinstance(work.get("locations"), list) else []
     ids = work.get("ids") if isinstance(work.get("ids"), dict) else {}
     direct_candidates = [
@@ -721,18 +776,26 @@ def _metadata_cache_row_to_candidates(row: dict[str, Any]) -> list[_URLCandidate
                 priority=int(item.get("priority", 999)),
                 expect_pdf=bool(item.get("expect_pdf", False)),
                 attempt_kind="metadata",
-                source_kind=str(item.get("source_kind") or f"metadata_{row.get('resolver', 'unknown')}") or "metadata_candidate",
+                source_kind=str(
+                    item.get("source_kind") or f"metadata_{row.get('resolver', 'unknown')}"
+                )
+                or "metadata_candidate",
             )
         )
     return candidates
 
 
-def _metadata_cache_row_to_attempt(work_id: str, row: dict[str, Any], *, cache_hit: bool) -> FullTextFetchAttempt:
+def _metadata_cache_row_to_attempt(
+    work_id: str, row: dict[str, Any], *, cache_hit: bool
+) -> FullTextFetchAttempt:
     candidates = row.get("candidates", []) if isinstance(row.get("candidates"), list) else []
     return FullTextFetchAttempt(
         work_id=work_id,
         attempt_kind="metadata",
-        candidate_priority=min((int(item.get("priority", 999)) for item in candidates if isinstance(item, dict)), default=999),
+        candidate_priority=min(
+            (int(item.get("priority", 999)) for item in candidates if isinstance(item, dict)),
+            default=999,
+        ),
         candidate_url=str(row.get("resolver_url") or ""),
         source_kind=f"metadata_{row.get('resolver', 'unknown')}{'_cache_hit' if cache_hit else ''}",
         http_status=int(row.get("http_status") or 0),
@@ -754,7 +817,9 @@ async def _query_unpaywall(
     timeout_seconds: int,
     session: aiohttp.ClientSession,
 ) -> dict[str, Any]:
-    endpoint = f"https://api.unpaywall.org/v2/{quote(doi, safe='')}?email={quote(email, safe='@._+-')}"
+    endpoint = (
+        f"https://api.unpaywall.org/v2/{quote(doi, safe='')}?email={quote(email, safe='@._+-')}"
+    )
     started = time.monotonic()
     status = 0
     error_class = ""
@@ -765,10 +830,22 @@ async def _query_unpaywall(
                 status = int(resp.status)
                 if status == 200:
                     payload = await resp.json(content_type=None)
-                    best = payload.get("best_oa_location") if isinstance(payload, dict) and isinstance(payload.get("best_oa_location"), dict) else {}
-                    locations = payload.get("oa_locations") if isinstance(payload, dict) and isinstance(payload.get("oa_locations"), list) else []
+                    best = (
+                        payload.get("best_oa_location")
+                        if isinstance(payload, dict)
+                        and isinstance(payload.get("best_oa_location"), dict)
+                        else {}
+                    )
+                    locations = (
+                        payload.get("oa_locations")
+                        if isinstance(payload, dict)
+                        and isinstance(payload.get("oa_locations"), list)
+                        else []
+                    )
 
-                    def add(url: str | None, *, priority: int, source_kind: str, expect_pdf: bool) -> None:
+                    def add(
+                        url: str | None, *, priority: int, source_kind: str, expect_pdf: bool
+                    ) -> None:
                         text = str(url or "").strip()
                         if not text:
                             return
@@ -781,12 +858,27 @@ async def _query_unpaywall(
                             }
                         )
 
-                    add(best.get("url_for_pdf"), priority=5, source_kind="metadata_unpaywall_pdf", expect_pdf=True)
-                    add(best.get("url_for_landing_page") or best.get("url"), priority=6, source_kind="metadata_unpaywall_landing", expect_pdf=False)
+                    add(
+                        best.get("url_for_pdf"),
+                        priority=5,
+                        source_kind="metadata_unpaywall_pdf",
+                        expect_pdf=True,
+                    )
+                    add(
+                        best.get("url_for_landing_page") or best.get("url"),
+                        priority=6,
+                        source_kind="metadata_unpaywall_landing",
+                        expect_pdf=False,
+                    )
                     for idx, location in enumerate(locations[:10]):
                         if not isinstance(location, dict):
                             continue
-                        add(location.get("url_for_pdf"), priority=20 + idx, source_kind="metadata_unpaywall_pdf", expect_pdf=True)
+                        add(
+                            location.get("url_for_pdf"),
+                            priority=20 + idx,
+                            source_kind="metadata_unpaywall_pdf",
+                            expect_pdf=True,
+                        )
                         add(
                             location.get("url_for_landing_page") or location.get("url"),
                             priority=30 + idx,
@@ -799,7 +891,7 @@ async def _query_unpaywall(
                     error_class = "metadata_no_result"
                 else:
                     error_class = f"http_{status}"
-    except asyncio.TimeoutError:
+    except TimeoutError:
         error_class = "metadata_timeout"
     except Exception as exc:
         error_class = _classify_fetch_error(exc)
@@ -815,7 +907,9 @@ async def _query_unpaywall(
         "fetch_error_class": error_class,
         "latency_ms": round((time.monotonic() - started) * 1000.0, 3),
         "discovered_pdf_count": sum(1 for item in candidates if bool(item.get("expect_pdf"))),
-        "discovered_canonical_count": sum(1 for item in candidates if not bool(item.get("expect_pdf"))),
+        "discovered_canonical_count": sum(
+            1 for item in candidates if not bool(item.get("expect_pdf"))
+        ),
         "candidates": candidates,
     }
 
@@ -838,11 +932,21 @@ async def _query_crossref(
                 status = int(resp.status)
                 if status == 200:
                     payload = await resp.json(content_type=None)
-                    message = payload.get("message") if isinstance(payload, dict) and isinstance(payload.get("message"), dict) else {}
-                    link_items = message.get("link") if isinstance(message.get("link"), list) else []
+                    message = (
+                        payload.get("message")
+                        if isinstance(payload, dict) and isinstance(payload.get("message"), dict)
+                        else {}
+                    )
+                    link_items = (
+                        message.get("link") if isinstance(message.get("link"), list) else []
+                    )
                     landing_candidates = [message.get("URL")]
-                    resource = message.get("resource") if isinstance(message.get("resource"), dict) else {}
-                    primary = resource.get("primary") if isinstance(resource.get("primary"), dict) else {}
+                    resource = (
+                        message.get("resource") if isinstance(message.get("resource"), dict) else {}
+                    )
+                    primary = (
+                        resource.get("primary") if isinstance(resource.get("primary"), dict) else {}
+                    )
                     landing_candidates.append(primary.get("URL"))
                     for idx, url in enumerate(landing_candidates):
                         text = str(url or "").strip()
@@ -852,7 +956,9 @@ async def _query_crossref(
                                     "url": text,
                                     "priority": 7 + idx,
                                     "expect_pdf": _is_probable_pdf_url(text),
-                                    "source_kind": "metadata_crossref_landing" if not _is_probable_pdf_url(text) else "metadata_crossref_pdf",
+                                    "source_kind": "metadata_crossref_landing"
+                                    if not _is_probable_pdf_url(text)
+                                    else "metadata_crossref_pdf",
                                 }
                             )
                     for idx, item in enumerate(link_items[:10]):
@@ -861,14 +967,18 @@ async def _query_crossref(
                         text = str(item.get("URL") or item.get("url") or "").strip()
                         if not text:
                             continue
-                        content_type = str(item.get("content-type") or item.get("content_type") or "").lower()
+                        content_type = str(
+                            item.get("content-type") or item.get("content_type") or ""
+                        ).lower()
                         expect_pdf = "pdf" in content_type or _is_probable_pdf_url(text)
                         candidates.append(
                             {
                                 "url": text,
                                 "priority": 12 + idx,
                                 "expect_pdf": expect_pdf,
-                                "source_kind": "metadata_crossref_pdf" if expect_pdf else "metadata_crossref_landing",
+                                "source_kind": "metadata_crossref_pdf"
+                                if expect_pdf
+                                else "metadata_crossref_landing",
                             }
                         )
                     if not candidates:
@@ -877,7 +987,7 @@ async def _query_crossref(
                     error_class = "metadata_no_result"
                 else:
                     error_class = f"http_{status}"
-    except asyncio.TimeoutError:
+    except TimeoutError:
         error_class = "metadata_timeout"
     except Exception as exc:
         error_class = _classify_fetch_error(exc)
@@ -893,7 +1003,9 @@ async def _query_crossref(
         "fetch_error_class": error_class,
         "latency_ms": round((time.monotonic() - started) * 1000.0, 3),
         "discovered_pdf_count": sum(1 for item in candidates if bool(item.get("expect_pdf"))),
-        "discovered_canonical_count": sum(1 for item in candidates if not bool(item.get("expect_pdf"))),
+        "discovered_canonical_count": sum(
+            1 for item in candidates if not bool(item.get("expect_pdf"))
+        ),
         "candidates": candidates,
     }
 
@@ -921,9 +1033,16 @@ async def _query_semantic_scholar(
                 status = int(resp.status)
                 if status == 200:
                     payload = await resp.json(content_type=None)
-                    open_access_pdf = payload.get("openAccessPdf") if isinstance(payload, dict) and isinstance(payload.get("openAccessPdf"), dict) else {}
+                    open_access_pdf = (
+                        payload.get("openAccessPdf")
+                        if isinstance(payload, dict)
+                        and isinstance(payload.get("openAccessPdf"), dict)
+                        else {}
+                    )
                     pdf_url = str(open_access_pdf.get("url") or "").strip()
-                    paper_url = str(payload.get("url") or "").strip() if isinstance(payload, dict) else ""
+                    paper_url = (
+                        str(payload.get("url") or "").strip() if isinstance(payload, dict) else ""
+                    )
                     if pdf_url:
                         candidates.append(
                             {
@@ -948,7 +1067,7 @@ async def _query_semantic_scholar(
                     error_class = "metadata_no_result"
                 else:
                     error_class = f"http_{status}"
-    except asyncio.TimeoutError:
+    except TimeoutError:
         error_class = "metadata_timeout"
     except Exception as exc:
         error_class = _classify_fetch_error(exc)
@@ -964,7 +1083,9 @@ async def _query_semantic_scholar(
         "fetch_error_class": error_class,
         "latency_ms": round((time.monotonic() - started) * 1000.0, 3),
         "discovered_pdf_count": sum(1 for item in candidates if bool(item.get("expect_pdf"))),
-        "discovered_canonical_count": sum(1 for item in candidates if not bool(item.get("expect_pdf"))),
+        "discovered_canonical_count": sum(
+            1 for item in candidates if not bool(item.get("expect_pdf"))
+        ),
         "candidates": candidates,
     }
 
@@ -1056,7 +1177,9 @@ async def _fetch_v3_legacy(
             text=reconstruct_abstract(work),
             source_kind="abstract_fallback",
             source_url="",
-            fetch_error_class="invalid_url" if _has_any_candidate_url_text(work) else "no_url_candidates",
+            fetch_error_class="invalid_url"
+            if _has_any_candidate_url_text(work)
+            else "no_url_candidates",
             final_state="abstract_fallback",
         )
 
@@ -1064,7 +1187,9 @@ async def _fetch_v3_legacy(
     timeout = aiohttp.ClientTimeout(
         total=max(3, int(total_timeout or 20)),
         connect=max(1, int(connect_timeout_seconds or 10)),
-        sock_read=max(1, int(read_timeout_seconds or max(3, int((total_timeout or timeout_seconds or 20))))),
+        sock_read=max(
+            1, int(read_timeout_seconds or max(3, int(total_timeout or timeout_seconds or 20)))
+        ),
     )
     headers = {"User-Agent": "PolicyOS/1.0 (+academic extraction)"}
     owns_session = session is None
@@ -1090,8 +1215,14 @@ async def _fetch_v3_legacy(
                     content_type = str(resp.headers.get("Content-Type") or "").lower()
                     raw_bytes = await resp.read()
                     final_url = str(getattr(resp, "url", url) or url)
-                    if "pdf" in content_type or candidate.expect_pdf or url.lower().endswith(".pdf"):
-                        looks_pdf, sniff_state = _sniff_pdf_payload(raw_bytes, content_type=content_type)
+                    if (
+                        "pdf" in content_type
+                        or candidate.expect_pdf
+                        or url.lower().endswith(".pdf")
+                    ):
+                        looks_pdf, sniff_state = _sniff_pdf_payload(
+                            raw_bytes, content_type=content_type
+                        )
                         if not looks_pdf:
                             last_error_class = sniff_state
                             continue
@@ -1205,7 +1336,9 @@ async def _fetch_v7_http_metadata(
     timeout = aiohttp.ClientTimeout(
         total=max(3, int(total_timeout or 20)),
         connect=max(1, int(connect_timeout_seconds or 10)),
-        sock_read=max(1, int(read_timeout_seconds or max(3, int((total_timeout or timeout_seconds or 20))))),
+        sock_read=max(
+            1, int(read_timeout_seconds or max(3, int(total_timeout or timeout_seconds or 20)))
+        ),
     )
     headers = {"User-Agent": "PolicyOS/1.0 (+academic extraction)"}
     owns_session = session is None
@@ -1242,7 +1375,9 @@ async def _fetch_v7_http_metadata(
             )
 
         if not pending_urls:
-            fetch_error = "invalid_url" if _has_any_candidate_url_text(work) else "no_url_candidates"
+            fetch_error = (
+                "invalid_url" if _has_any_candidate_url_text(work) else "no_url_candidates"
+            )
             return FullTextFetchResult(
                 text=reconstruct_abstract(work),
                 source_kind="abstract_fallback",
@@ -1281,7 +1416,9 @@ async def _fetch_v7_http_metadata(
                     final_url = str(getattr(resp, "url", url) or url)
                     redirected_to = final_url if final_url != url else ""
                     if http_status != 200:
-                        fetch_error_class = "publisher_blocked_403" if http_status == 403 else f"http_{http_status}"
+                        fetch_error_class = (
+                            "publisher_blocked_403" if http_status == 403 else f"http_{http_status}"
+                        )
                         last_error_class = fetch_error_class
                         attempts.append(
                             FullTextFetchAttempt(
@@ -1300,8 +1437,14 @@ async def _fetch_v7_http_metadata(
                     content_type = str(resp.headers.get("Content-Type") or "").lower()
                     raw_bytes = await resp.read()
                     latency_ms = round((time.monotonic() - started) * 1000.0, 3)
-                    if "pdf" in content_type or candidate.expect_pdf or url.lower().endswith(".pdf"):
-                        looks_pdf, sniff_state = _sniff_pdf_payload(raw_bytes, content_type=content_type)
+                    if (
+                        "pdf" in content_type
+                        or candidate.expect_pdf
+                        or url.lower().endswith(".pdf")
+                    ):
+                        looks_pdf, sniff_state = _sniff_pdf_payload(
+                            raw_bytes, content_type=content_type
+                        )
                         if not looks_pdf:
                             attempts.append(
                                 FullTextFetchAttempt(
@@ -1336,7 +1479,11 @@ async def _fetch_v7_http_metadata(
                                 candidate_url=url,
                                 source_kind=candidate.source_kind or "publisher_pdf",
                                 http_status=http_status,
-                                fetch_error_class="" if usable else "pdf_parse_failed" if not text.strip() else text_state,
+                                fetch_error_class=""
+                                if usable
+                                else "pdf_parse_failed"
+                                if not text.strip()
+                                else text_state,
                                 latency_ms=latency_ms,
                                 redirected_to=redirected_to,
                                 text_chars=len(text.strip()),
@@ -1550,7 +1697,9 @@ async def fetch_full_text_result_for_work(
     cache_row = _build_resolved_cache_row(work, result)
     if resolved_cache is not None:
         _store_resolved_cache_row(resolved_cache, cache_row)
-    return replace(result, resolved_cache_row=cache_row, cache_key=str(cache_row.get("cache_key") or ""))
+    return replace(
+        result, resolved_cache_row=cache_row, cache_key=str(cache_row.get("cache_key") or "")
+    )
 
 
 async def fetch_full_text_for_work(
@@ -1578,7 +1727,7 @@ def _load_selected_works(path: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     if not path.exists():
         return rows
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -1616,7 +1765,7 @@ async def run_fulltext_resolve(config: AcademicBatchConfig) -> dict[str, int]:
         ttl_days=config.fulltext_cache_ttl_days,
     )
     if config.fulltext_metadata_cache_path.exists():
-        with open(config.fulltext_metadata_cache_path, "r", encoding="utf-8") as fh:
+        with open(config.fulltext_metadata_cache_path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:

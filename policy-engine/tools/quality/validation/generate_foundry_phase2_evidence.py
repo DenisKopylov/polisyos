@@ -113,7 +113,9 @@ def main(argv: list[str] | None = None) -> int:
             if status is None:
                 continue
             judge_statuses[str(verdict_id)] = (
-                {"composite_decision": "promote"} if status == "pass" else {"composite_decision": "reject"}
+                {"composite_decision": "promote"}
+                if status == "pass"
+                else {"composite_decision": "reject"}
             )
         evidence_tracks[track_id] = {
             "synthetic_world_checks": synthetic_statuses,

@@ -23,8 +23,10 @@ Every backend `MethodResult` can carry `backend_runtime_fingerprint` in
 
 - `dispatch_trace`: requested backend, selected backend, attempts, selection
   reason, predicted latency, and degradation status.
+
 - `cost_attribution`: wall time, compile time, CPU time, estimated cost,
   determinism tier, and seed.
+
 - `runtime_posture`: observed backend, available packages, runtime stack, device
   family, replay semantics, and tolerance budget.
 
@@ -37,13 +39,13 @@ Foundry distinguishes declared method metadata from observed runtime posture.
 Capability rows should publish both so docs and planners do not overclaim
 replayability.
 
-| Tier | Replay semantics |
-|---|---|
-| `strict_cpu` | Bit-exact on the same CPU ISA; cross-architecture runs use an explicit tolerance budget. |
-| `library_deterministic` | Exact within the same CPU/library stack; cross-ISA uses the published tolerance budget. |
-| `best_effort_gpu` | Near-deterministic on the same GPU family. |
-| `statistical` | Seed-stable only up to interval or distributional semantics. |
-| `nondeterministic` | Best effort only. |
+| Tier                    | Replay semantics                                                                         |
+| ----------------------- | ---------------------------------------------------------------------------------------- |
+| `strict_cpu`            | Bit-exact on the same CPU ISA; cross-architecture runs use an explicit tolerance budget. |
+| `library_deterministic` | Exact within the same CPU/library stack; cross-ISA uses the published tolerance budget.  |
+| `best_effort_gpu`       | Near-deterministic on the same GPU family.                                               |
+| `statistical`           | Seed-stable only up to interval or distributional semantics.                             |
+| `nondeterministic`      | Best effort only.                                                                        |
 
 The tolerance-budget implementation lives in
 `polisyos.foundry.methods.backends.runtime_fingerprint` and is exercised by
@@ -141,14 +143,19 @@ Numeric/JAX claims in this documentation should point to one of these anchors:
 - NaN guard model and runtime checks:
   `tests/foundry/test_nan_guard.py`,
   `tests/foundry/runtime/test_nan_guard.py`
+
 - Numerical stability:
   `tests/foundry/methods/backends/test_numerical_stability.py`
+
 - Cross-backend consistency:
   `tests/foundry/methods/test_cross_backend_consistency.py`
+
 - Agent-sim JIT compatibility:
   `tests/foundry/agent_sim/test_jit_compatibility.py`
+
 - Performance benchmark ratchet:
   `tests/foundry/benchmarks/test_ws5_jax_perf.py`
+
 - Numeric policy note:
   `docs/FOUNDRY_NUMERIC_GUARDRAILS.md`
 

@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 from enum import Enum
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -13,9 +12,15 @@ from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, pu
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import BoundsBundleRef, BoundsTighteningLogRef, DualCertificateRef
 
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from polisyos.ir.analytics.proximal import BridgePlausibilityReport
+
 
 class BoundMethod(str, Enum):
     """Bound method public type."""
+
     MANSKI = "manski_bounds"
     TRANSPORT_BOUNDS = "transport_bounds"
     DP_ROBUSTNESS = "dp_robustness_bounds"
@@ -100,7 +105,7 @@ class PartialIdentificationResult(BaseModel):
     solver_metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _compute_derived(self) -> "PartialIdentificationResult":
+    def _compute_derived(self) -> PartialIdentificationResult:
         width = self.upper_bound - self.lower_bound
         informative = width < self.informativeness_threshold
         object.__setattr__(self, "bound_width", width)
@@ -160,7 +165,7 @@ class BoundsReport(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _compute_derived(self) -> "BoundsReport":
+    def _compute_derived(self) -> BoundsReport:
         if not self.results:
             return self
         # Tightest: argmin bound_width
@@ -211,7 +216,7 @@ class SensitivitySweepResult(BaseModel):
     display_label: str = ""
 
     @model_validator(mode="after")
-    def _validate_lengths(self) -> "SensitivitySweepResult":
+    def _validate_lengths(self) -> SensitivitySweepResult:
         n = len(self.parameter_values)
         if len(self.lower_bounds) != n or len(self.upper_bounds) != n:
             raise ValueError(
@@ -418,7 +423,9 @@ def bounds_bundle_from_bounds_report(
         warnings=list(report.warnings),
         metadata={
             "run_id": report.run_id,
-            "tightest_method": report.tightest_method.value if report.tightest_method is not None else None,
+            "tightest_method": report.tightest_method.value
+            if report.tightest_method is not None
+            else None,
             "assumptions_used": list(report.assumptions_used),
             **dict(metadata or {}),
         },
@@ -427,7 +434,7 @@ def bounds_bundle_from_bounds_report(
 
 def annotate_bounds_bundle_for_proximal_bridge_failure(
     bundle: BoundsBundle,
-    report: "BridgePlausibilityReport",
+    report: BridgePlausibilityReport,
     *,
     rescue_actions: list[str] | None = None,
     warnings: list[str] | None = None,
@@ -443,7 +450,9 @@ def annotate_bounds_bundle_for_proximal_bridge_failure(
     resolved_report = (
         report
         if isinstance(report, BridgePlausibilityReport)
-        else BridgePlausibilityReport.model_validate(report)
+        else BridgePlausibilityReport.model_validate(
+            report.model_dump(mode="python") if hasattr(report, "model_dump") else report
+        )
     )
 
     marker_by_mode = {
@@ -868,11 +877,7 @@ def compute_mobility_matrix_bounds(
                 raise ValueError(f"summary mask {name!r} has incompatible shape")
             base_mass = float(lower_bounds[mask_arr].sum())
             max_extra = float(
-                sum(
-                    residual_rows[row]
-                    for row in range(lower.shape[0])
-                    if np.any(mask_arr[row])
-                )
+                sum(residual_rows[row] for row in range(lower.shape[0]) if np.any(mask_arr[row]))
             )
             min_extra = float(
                 sum(
@@ -919,7 +924,10 @@ def compute_mobility_matrix_bounds(
         max_extra = _max_transport_mass(residual_rows, residual_cols, mask_arr)
         complement[:] = ~mask_arr
         max_complement = _max_transport_mass(residual_rows, residual_cols, complement)
-        summary_bounds[name] = (base_mass + (total_residual - max_complement), base_mass + max_extra)
+        summary_bounds[name] = (
+            base_mass + (total_residual - max_complement),
+            base_mass + max_extra,
+        )
     return lower_bounds, upper_bounds, summary_bounds
 
 
@@ -989,7 +997,9 @@ def build_mobility_bounds_bundle(
             "cell_upper_bounds": cell_upper.tolist(),
             "summary_bounds": {key: list(value) for key, value in summary_bounds.items()},
             "row_marginals": np.asarray(row_marginals, dtype=float).tolist(),
-            "column_marginals": None if column_marginals is None else np.asarray(column_marginals, dtype=float).tolist(),
+            "column_marginals": None
+            if column_marginals is None
+            else np.asarray(column_marginals, dtype=float).tolist(),
             **dict(metadata or {}),
         },
     )
@@ -997,24 +1007,24 @@ def build_mobility_bounds_bundle(
 
 
 __all__ = [
+    "BestInClassClaim",
     "BoundMethod",
     "BoundSoundnessLevel",
-    "BestInClassClaim",
     "BoundTighteningLogEntry",
-    "BoundsTighteningLog",
     "BoundsBundle",
     "BoundsMethodSummary",
     "BoundsReport",
+    "BoundsTighteningLog",
     "PartialIdentificationResult",
     "SensitivitySweepResult",
     "TighteningStatus",
     "TighteningStopReason",
+    "annotate_bounds_bundle_for_proximal_bridge_failure",
     "attach_dual_certificate_ref",
     "attach_tightening_log_ref",
-    "annotate_bounds_bundle_for_proximal_bridge_failure",
-    "bounds_tightening_log_from_claim",
     "bounds_bundle_from_bounds_report",
     "bounds_bundle_from_partial_identification_result",
+    "bounds_tightening_log_from_claim",
     "build_mobility_bounds_bundle",
     "compute_manski_bounds",
     "compute_mobility_matrix_bounds",

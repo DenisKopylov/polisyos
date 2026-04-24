@@ -1,10 +1,19 @@
 """Public demographic-consistency survey estimators."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
@@ -181,7 +190,7 @@ class DemographicConsistencyResult(BaseModel):
         return value
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "DemographicConsistencyResult":
+    def _validate_shapes(self) -> DemographicConsistencyResult:
         flows = _to_numpy(self.calibrated_flows, dtype=float)
         record_index = _to_numpy(self.candidate_record_index, dtype=np.int64)
         state_index = _to_numpy(self.candidate_state_index, dtype=np.int64)
@@ -210,9 +219,7 @@ class DemographicConsistencyResult(BaseModel):
             or entrants.ndim != 1
         ):
             raise ValueError("state-level outputs must be 1D arrays")
-        if not (
-            target_state_totals.shape == reconciled.shape == achieved.shape == entrants.shape
-        ):
+        if not (target_state_totals.shape == reconciled.shape == achieved.shape == entrants.shape):
             raise ValueError("state-level outputs must have matching shapes")
         return self
 
@@ -356,7 +363,9 @@ def _validate_feasibility(
     impossible_cols = np.flatnonzero((col_targets > tolerance) & (col_prior <= tolerance))
     if impossible_cols.size:
         preview = ", ".join(map(str, impossible_cols[:5]))
-        raise ValueError(f"states with positive target mass have no admissible donor flows: {preview}")
+        raise ValueError(
+            f"states with positive target mass have no admissible donor flows: {preview}"
+        )
 
 
 def _sparse_ipf(
@@ -476,7 +485,9 @@ def _solve_soft_constrained_problem(
     return flows, row_sum, col_sum, inner_iterations, converged, diagnostics
 
 
-def _weight_quality_metrics(base_weights: np.ndarray, achieved_rows: np.ndarray) -> dict[str, float]:
+def _weight_quality_metrics(
+    base_weights: np.ndarray, achieved_rows: np.ndarray
+) -> dict[str, float]:
     positive = achieved_rows > 0.0
     positive_weights = achieved_rows[positive]
     if positive_weights.size == 0:
@@ -529,7 +540,9 @@ def _solve_demographic_consistency(
         default=np.zeros(row_targets.shape[0], dtype=float),
     )
     base_weights = _float_vector(state, "base_weights", expected_length=row_targets.shape[0])
-    soft_constraint_matrix = _matrix(state, "soft_constraint_matrix", expected_columns=prior_flows.shape[0])
+    soft_constraint_matrix = _matrix(
+        state, "soft_constraint_matrix", expected_columns=prior_flows.shape[0]
+    )
     soft_diagnostics: dict[str, Any] = {}
 
     _validate_feasibility(
@@ -594,13 +607,13 @@ def _solve_demographic_consistency(
     )
     max_final_gap = float(
         np.max(
-            np.abs(
-                achieved_state_totals - (reconciled_survivor_targets + entrant_state_totals)
-            ),
+            np.abs(achieved_state_totals - (reconciled_survivor_targets + entrant_state_totals)),
             initial=0.0,
         )
     )
-    structural_zero_violations = int(np.count_nonzero((prior_flows <= tolerance) & (flows > tolerance)))
+    structural_zero_violations = int(
+        np.count_nonzero((prior_flows <= tolerance) & (flows > tolerance))
+    )
     diagnostics.update(
         {
             "iterations": int(iterations),
@@ -609,7 +622,9 @@ def _solve_demographic_consistency(
             "max_row_gap": max_row_gap,
             "max_survivor_state_gap": max_survivor_gap,
             "max_final_state_gap": max_final_gap,
-            "mass_balance_gap": float(np.sum(achieved_rows) + np.sum(exit_weights) - np.sum(base_weights)),
+            "mass_balance_gap": float(
+                np.sum(achieved_rows) + np.sum(exit_weights) - np.sum(base_weights)
+            ),
             "entrant_mass_total": float(np.sum(entrant_state_totals)),
             "exit_mass_total": float(np.sum(exit_weights)),
             "entropic_objective": _entropic_objective(flows, np.maximum(prior_flows, 1e-300)),
@@ -658,7 +673,9 @@ class DemographicConsistencyEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("base_weights", SlotType.VECTOR, Unit("weight", "mass"), shape=("n_records",)),
+                SlotSpec(
+                    "base_weights", SlotType.VECTOR, Unit("weight", "mass"), shape=("n_records",)
+                ),
                 SlotSpec(
                     "candidate_record_index",
                     SlotType.VECTOR,

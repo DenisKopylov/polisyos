@@ -14,10 +14,10 @@ from polisyos.core.resilience.retry import (
 )
 
 __all__ = [
-    "RetryPolicy",
     "RetryExhaustedError",
+    "RetryPolicy",
     "is_retryable_error",
-    "with_retry",
     "retry_async",
     "simple_retry",
+    "with_retry",
 ]

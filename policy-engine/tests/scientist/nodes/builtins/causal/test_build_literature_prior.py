@@ -181,9 +181,10 @@ def test_environment_audit_skips_without_environment_labels(execution_context, m
 
     assert outcome.status == "ok"
     assert outcome.state.params["environment_audit_status"] == "skipped"
-    assert "environment_audit_missing_domain_labels" in outcome.state.params[
-        "environment_audit_summary"
-    ]["warnings"]
+    assert (
+        "environment_audit_missing_domain_labels"
+        in outcome.state.params["environment_audit_summary"]["warnings"]
+    )
 
 
 def test_environment_audit_misconfiguration_does_not_fail_node(execution_context, minimal_state):

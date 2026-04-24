@@ -1,11 +1,14 @@
 """Calibration helpers for causal-frontier boundary-leakage diagnostics."""
+
 from __future__ import annotations
 
 from typing import Any
 
 import numpy as np
 
-from polisyos.foundry.methods.catalog.survey.causal_frontier import CausalFrontierFayHerriotEstimator
+from polisyos.foundry.methods.catalog.survey.causal_frontier import (
+    CausalFrontierFayHerriotEstimator,
+)
 
 
 def calibrate_boundary_leakage_thresholds(

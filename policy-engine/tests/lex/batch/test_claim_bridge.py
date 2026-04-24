@@ -164,7 +164,10 @@ def test_export_normative_claim_sets_writes_claim_sets_and_summary(tmp_path: Pat
 
     summary_path = tmp_path / "claim_exports" / "normative_claim_sets_summary.json"
     payload = json.loads(summary_path.read_text(encoding="utf-8"))
-    assert payload["normalized_claim_set_artifact_ids"] == bridge_result.normalized_claim_set_artifact_ids
+    assert (
+        payload["normalized_claim_set_artifact_ids"]
+        == bridge_result.normalized_claim_set_artifact_ids
+    )
 
     claim_set_payload = load_json_artifact(cas, bridge_result.normalized_claim_set_artifact_ids[0])
     assert claim_set_payload["doc_source_id"].startswith("doc.")
@@ -177,7 +180,7 @@ def test_export_normative_claim_sets_writes_claim_sets_and_summary(tmp_path: Pat
 
     doc_meta = load_doc_meta(cas, claim_set_payload["doc_meta_artifact_id"])
     raw_bytes = cas.get_bytes(ArtifactID.model_validate(doc_meta.raw_ref))
-    assert "Максимальна швидкість".encode("utf-8") in raw_bytes
+    assert "Максимальна швидкість".encode() in raw_bytes
 
 
 def test_to_datetime_utc_accepts_ukrainian_day_month_year() -> None:

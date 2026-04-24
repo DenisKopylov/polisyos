@@ -81,9 +81,7 @@ def test_builtin_qwen_profile_enables_tool_calling_from_verification_artifact(
     module = importlib.import_module("polisyos.scientist.llm.profiles.builtin_profiles")
     module = importlib.reload(module)
     profile = next(
-        item
-        for item in module.BUILTIN_MODEL_PROFILES
-        if item.profile_id == "qwen3_235b_gonka"
+        item for item in module.BUILTIN_MODEL_PROFILES if item.profile_id == "qwen3_235b_gonka"
     )
 
     assert "tool_calling" in profile.capabilities

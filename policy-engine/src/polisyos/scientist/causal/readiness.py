@@ -8,8 +8,9 @@ emit normalized readiness entries that `RunCausalReadinessNode` stores in
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import asdict
-from typing import Any, Mapping
+from typing import Any
 
 from polisyos.foundry.methods.catalog.causal.id_engine import (
     CtfQuery,

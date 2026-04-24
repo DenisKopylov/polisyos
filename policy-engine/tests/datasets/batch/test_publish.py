@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.datasets.batch.benchmark import READINESS_THRESHOLDS
 from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.batch.graph_builder import build_graph
 from polisyos.datasets.batch.publish import run_publish
 from polisyos.datasets.knowledge.types import DatasetRecord, DistributionRecord
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _write_test_registry(path: Path) -> None:
@@ -119,7 +122,8 @@ def _write_qc_and_benchmark(
                         {
                             "source": "worldbank",
                             "status": source_status,
-                            "ready": source_preflight >= READINESS_THRESHOLDS["benchmark_source_preflight_ready_pct"],
+                            "ready": source_preflight
+                            >= READINESS_THRESHOLDS["benchmark_source_preflight_ready_pct"],
                         }
                     ]
                 },
@@ -135,7 +139,9 @@ def test_run_publish_writes_consumer_readiness_manifest(tmp_path) -> None:
     _write_test_registry(registry_path)
     config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
     _build_publish_fixture(config)
-    config.merged_records_path.write_text('{"title":"GDP per capita","description":"desc"}\n', encoding="utf-8")
+    config.merged_records_path.write_text(
+        '{"title":"GDP per capita","description":"desc"}\n', encoding="utf-8"
+    )
     config.duplicates_report_path.write_text("dataset_id,duplicate_id\n", encoding="utf-8")
     _write_qc_and_benchmark(config)
 
@@ -144,9 +150,9 @@ def test_run_publish_writes_consumer_readiness_manifest(tmp_path) -> None:
     assert manifest_path.exists()
     assert config.consumer_readiness_path.exists()
 
-    with open(config.consumer_readiness_path, "r", encoding="utf-8") as fh:
+    with open(config.consumer_readiness_path, encoding="utf-8") as fh:
         readiness_payload = json.load(fh)
-    with open(manifest_path, "r", encoding="utf-8") as fh:
+    with open(manifest_path, encoding="utf-8") as fh:
         manifest_payload = json.load(fh)
 
     assert readiness_payload["readiness"]["consumer_ready"] is True
@@ -174,7 +180,12 @@ def test_run_publish_blocks_when_blocking_source_status_is_missing(tmp_path) -> 
     config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
     _build_publish_fixture(config)
     with open(config.qc_report_path, "w", encoding="utf-8") as fh:
-        json.dump({"scope": "datasets", "passed": True, "metrics": {}, "checks": []}, fh, ensure_ascii=False, indent=2)
+        json.dump(
+            {"scope": "datasets", "passed": True, "metrics": {}, "checks": []},
+            fh,
+            ensure_ascii=False,
+            indent=2,
+        )
     with open(config.benchmark_report_path, "w", encoding="utf-8") as fh:
         json.dump(
             {
@@ -211,9 +222,9 @@ def test_run_publish_allows_core_ready_snapshot(tmp_path) -> None:
 
     manifest_path = run_publish(config)
 
-    with open(config.consumer_readiness_path, "r", encoding="utf-8") as fh:
+    with open(config.consumer_readiness_path, encoding="utf-8") as fh:
         readiness_payload = json.load(fh)
-    with open(manifest_path, "r", encoding="utf-8") as fh:
+    with open(manifest_path, encoding="utf-8") as fh:
         manifest_payload = json.load(fh)
 
     assert readiness_payload["readiness"]["consumer_ready"] is True

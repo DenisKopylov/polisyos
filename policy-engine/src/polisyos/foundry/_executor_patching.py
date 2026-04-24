@@ -1,4 +1,5 @@
 """State-delta application, patch-record helpers, and combined delta+snapshot."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -22,9 +23,9 @@ from ._executor_ops import apply_ops_for_slot, validate_ops_compatibility
 from ._executor_snapshots import put_state_snapshot
 
 __all__ = [
-    "apply_state_delta",
-    "apply_patch_records",
     "apply_patch_map",
+    "apply_patch_records",
+    "apply_state_delta",
     "apply_state_delta_and_snapshot",
 ]
 
@@ -96,7 +97,7 @@ def apply_patch_records(
             )
 
     base_values: dict[str, Any] = {}
-    for slot_id in patch_records.keys():
+    for slot_id in patch_records:
         slot_spec = slot_registry.slots.get(slot_id)
         if slot_spec is None or not slot_spec.state_path:
             raise ValueError(f"Slot '{slot_id}' missing state_path for execution")

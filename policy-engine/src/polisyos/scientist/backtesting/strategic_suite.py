@@ -1,4 +1,5 @@
 """Public backtesting strategic suite module API."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -141,11 +142,7 @@ def _build_strategic_gaming_suite_from_raw(
         severity="critical",
     )
     exhausted_contract = contract.model_copy(
-        update={
-            "compute_budget": contract.compute_budget.model_copy(
-                update={"max_sim_runs": 0.0}
-            )
-        }
+        update={"compute_budget": contract.compute_budget.model_copy(update={"max_sim_runs": 0.0})}
     )
     budget_result = solve_strategic_response(
         exhausted_contract,
@@ -230,7 +227,7 @@ def _build_multiplicity_suite_from_raw(
         severity="critical",
     )
     uniform_tables = {
-        agent: table.model_copy(update={"payoffs": {key: 1.0 for key in table.payoffs}})
+        agent: table.model_copy(update={"payoffs": dict.fromkeys(table.payoffs, 1.0)})
         for agent, table in payoff_tables.items()
     }
     multiplicity_result = solve_strategic_response(
@@ -249,7 +246,9 @@ def _build_multiplicity_suite_from_raw(
             ),
             metadata={
                 "fallback_mode": multiplicity_result.fallback_mode.value,
-                "is_disclosure_failure": not _result_has_multiplicity_disclosure(multiplicity_result),
+                "is_disclosure_failure": not _result_has_multiplicity_disclosure(
+                    multiplicity_result
+                ),
             },
         )
     ]
@@ -365,7 +364,9 @@ def _coerce_strategic_contract(payload: Any) -> StrategicSCM | None:
     if payload is None:
         return None
     try:
-        return payload if isinstance(payload, StrategicSCM) else StrategicSCM.model_validate(payload)
+        return (
+            payload if isinstance(payload, StrategicSCM) else StrategicSCM.model_validate(payload)
+        )
     except Exception:
         return None
 
@@ -436,7 +437,11 @@ def _summary_uses_declared_hierarchy(summary: Mapping[str, Any]) -> bool:
 
 
 def _summary_has_multiplicity_disclosure(summary: Mapping[str, Any]) -> bool:
-    closure_summary = summary.get("closure_summary") if isinstance(summary.get("closure_summary"), Mapping) else {}
+    closure_summary = (
+        summary.get("closure_summary")
+        if isinstance(summary.get("closure_summary"), Mapping)
+        else {}
+    )
     equilibrium_count = closure_summary.get("equilibrium_count")
     try:
         multiplicity_signaled = int(equilibrium_count) > 1

@@ -22,7 +22,7 @@ class _CaptureFoundryPort:
     def __init__(self) -> None:
         self.request = None
 
-    def execute(self, store: FileSystemCAS, request):  # noqa: ANN001
+    def execute(self, store: FileSystemCAS, request):
         self.request = request
         return ExecuteResult(ok=True, simulation_result_ref=None, derived_refs=[], notes=[])
 
@@ -51,7 +51,12 @@ def test_run_simulation_passes_parameter_override_bundle_ref(tmp_path) -> None:
     input_bindings_ref = _put_json(store, {"bindings": []}, kind="foundry.input_bindings")
     override_bundle_ref = _put_json(
         store,
-        {"schema_version": "1.0", "overrides": {"tax_node": {"rate": 0.33}}, "sources": {}, "notes": []},
+        {
+            "schema_version": "1.0",
+            "overrides": {"tax_node": {"rate": 0.33}},
+            "sources": {},
+            "notes": [],
+        },
         kind="foundry.parameter_override_bundle",
     )
 
@@ -68,4 +73,6 @@ def test_run_simulation_passes_parameter_override_bundle_ref(tmp_path) -> None:
     outcome = RunSimulationNode().execute(ctx, state)
     assert outcome.status == "ok"
     assert foundry.request is not None
-    assert foundry.request.parameter_override_bundle_ref.artifact_id == override_bundle_ref.artifact_id
+    assert (
+        foundry.request.parameter_override_bundle_ref.artifact_id == override_bundle_ref.artifact_id
+    )

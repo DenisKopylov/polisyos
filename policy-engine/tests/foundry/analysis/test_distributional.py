@@ -103,7 +103,9 @@ def test_distributional_report_carries_ordinal_poverty_summary() -> None:
     )
 
     assert report.ordinal_poverty_summary["status"] == "included"
-    assert report.ordinal_poverty_summary["baseline"]["ordinal_adjusted_headcount_q"] == pytest.approx(0.2)
+    assert report.ordinal_poverty_summary["baseline"][
+        "ordinal_adjusted_headcount_q"
+    ] == pytest.approx(0.2)
 
 
 def test_income_quintile_breakdown_handles_tied_incomes() -> None:
@@ -129,6 +131,9 @@ def test_geography_breakdown_uses_symmetric_percent_delta_for_negative_baselines
         metric_after=np.array([-50.0, -50.0, 75.0, 75.0]),
     )
 
-    deltas = {cohort.cohort_id: cohort.metric_deltas[breakdown.primary_metric] for cohort in breakdown.cohorts}
+    deltas = {
+        cohort.cohort_id: cohort.metric_deltas[breakdown.primary_metric]
+        for cohort in breakdown.cohorts
+    }
     assert deltas["region_1"] == pytest.approx(66.6666666667)
     assert deltas["region_2"] == pytest.approx(50.0)

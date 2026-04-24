@@ -33,7 +33,9 @@ def _default_benchmark_scenarios() -> list[dict]:
             "scenario_id": "education_human_capital",
             "title": "Teacher coaching and learning outcomes",
             "policy_domain": "education",
-            "causal_edges": [{"cause": "education.teacher_coaching", "effect": "education.learning_outcomes"}],
+            "causal_edges": [
+                {"cause": "education.teacher_coaching", "effect": "education.learning_outcomes"}
+            ],
             "parameters": ["education.learning_outcomes"],
             "scholar_queries": [
                 {
@@ -140,7 +142,9 @@ def _create_original_db(path: Path) -> None:
             )
             """
         )
-        con.execute("CREATE TABLE ac_work_concepts (work_id VARCHAR, concept_name VARCHAR, score DOUBLE)")
+        con.execute(
+            "CREATE TABLE ac_work_concepts (work_id VARCHAR, concept_name VARCHAR, score DOUBLE)"
+        )
         con.execute("INSERT INTO ac_work_concepts VALUES ('W1', 'teacher coaching', 0.91)")
         con.execute(
             """
@@ -493,7 +497,10 @@ def _create_source_snapshot(
         {"readiness": {"consumer_ready": False}, "metrics": benchmark_metrics},
     )
     _write_jsonl(academic / "canonical_review_queue.jsonl", [{"item": "var1"}])
-    _write_json(academic / "edge_synthesis_report.json", {"family_edges": int(qc_metrics.get("family_edge_count", 0))})
+    _write_json(
+        academic / "edge_synthesis_report.json",
+        {"family_edges": int(qc_metrics.get("family_edge_count", 0))},
+    )
     _write_jsonl(academic / "runtime_demand_backlog.jsonl", [{"need_id": "need1"}])
     _write_jsonl(academic / "fulltext_fetch_log.jsonl", [{"work_id": "W1", "status": "ok"}])
     _write_jsonl(academic / "llm_request_log.jsonl", [{"request_id": "req1", "status": "ok"}])
@@ -502,8 +509,12 @@ def _create_source_snapshot(
     _write_json((root / "pipeline.log"), {"status": "ok", "source": root.name})
     _write_json((root / "pipeline_remaining.log"), {"status": "ok", "source": root.name})
     _write_json((root / "auto_approve.log"), {"status": "ok", "source": root.name})
-    _write_json(academic / "manifests" / "graph_load.json", {"stage": "graph_load", "source": root.name})
-    _write_json(academic / "manifests" / "benchmark.json", {"stage": "benchmark", "source": root.name})
+    _write_json(
+        academic / "manifests" / "graph_load.json", {"stage": "graph_load", "source": root.name}
+    )
+    _write_json(
+        academic / "manifests" / "benchmark.json", {"stage": "benchmark", "source": root.name}
+    )
     write_publish_manifest(
         manifest_path=academic / "publish" / "manifest.json",
         pipeline="academic",
@@ -523,7 +534,9 @@ def _create_backup_snapshot(root: Path) -> None:
         academic / "benchmark_report.json",
         {"metrics": {"scholar_query_coverage_ratio": 0.2, "parameter_supported_ratio": 0.1}},
     )
-    _write_json(academic / "qc_report.json", {"metrics": {"global_canonical_resolution_rate_pct": 80.0}})
+    _write_json(
+        academic / "qc_report.json", {"metrics": {"global_canonical_resolution_rate_pct": 80.0}}
+    )
     _write_json(
         academic / "publish" / "academic_pipeline_readiness.json",
         {"readiness": {"consumer_ready": True}},
@@ -581,7 +594,10 @@ def _install_stage_fakes(
                 "embedding_model": config.embedding_model,
                 "embedding_dimension": config.embedding_dimension,
             },
-            artifacts=[config.index_dir / "ac_work_embeddings.npz", config.index_dir / "ac_work_index.hnsw"],
+            artifacts=[
+                config.index_dir / "ac_work_embeddings.npz",
+                config.index_dir / "ac_work_index.hnsw",
+            ],
         )
         return 1
 
@@ -593,7 +609,10 @@ def _install_stage_fakes(
                 "snapshot_root": str(config.snapshot_root),
                 "component_dir": str(config.component_dir),
                 "metrics": benchmark_metrics,
-                "runtime_demand_backlog": {"path": str(config.runtime_demand_backlog_path), "items": 1},
+                "runtime_demand_backlog": {
+                    "path": str(config.runtime_demand_backlog_path),
+                    "items": 1,
+                },
                 "readiness": {"passed": True, "failed_checks": []},
                 "scenarios": benchmark_scenarios or _default_benchmark_report_scenarios(),
             },
@@ -603,7 +622,11 @@ def _install_stage_fakes(
             stage="benchmark",
             status="ok",
             metrics=benchmark_metrics,
-            artifacts=[config.benchmark_suite_path, config.benchmark_report_path, config.runtime_demand_backlog_path],
+            artifacts=[
+                config.benchmark_suite_path,
+                config.benchmark_report_path,
+                config.runtime_demand_backlog_path,
+            ],
         )
         return BenchmarkOutcome(
             report_path=config.benchmark_report_path,
@@ -721,9 +744,13 @@ def _prepare_snapshot_sources(tmp_path: Path) -> tuple[Path, Path, Path]:
         },
     )
     _create_remap_db(remap_root / "academic" / "graph" / "scholar_knowledge.duckdb")
-    _write_jsonl(remap_root / "academic" / "canonical_review_queue.jsonl", [{"canonical_name": "leftover"}])
+    _write_jsonl(
+        remap_root / "academic" / "canonical_review_queue.jsonl", [{"canonical_name": "leftover"}]
+    )
     _write_json(remap_root / "academic" / "edge_synthesis_report.json", {"family_edges": 5})
-    _write_json(remap_root / "academic" / "manifests" / "edge_synthesize.json", {"stage": "edge_synthesize"})
+    _write_json(
+        remap_root / "academic" / "manifests" / "edge_synthesize.json", {"stage": "edge_synthesize"}
+    )
     _write_json(remap_root / "publish" / "manifest.json", {"unused": True})
 
     _create_original_db(original_root / "academic" / "graph" / "scholar_knowledge.duckdb")
@@ -764,15 +791,25 @@ def test_build_runtime_first_snapshot_promotes_and_rewrites_paths(tmp_path, monk
     assert result.final_root.exists()
     assert (result.final_root / "academic" / "graph" / "scholar_knowledge.duckdb").exists()
 
-    with duckdb.connect(str(result.final_root / "academic" / "graph" / "scholar_knowledge.duckdb"), read_only=True) as con:
-        version_rows = con.execute("SELECT version_id, n_articles, n_edges, n_variables FROM ac_skg_versions").fetchall()
+    with duckdb.connect(
+        str(result.final_root / "academic" / "graph" / "scholar_knowledge.duckdb"), read_only=True
+    ) as con:
+        version_rows = con.execute(
+            "SELECT version_id, n_articles, n_edges, n_variables FROM ac_skg_versions"
+        ).fetchall()
         assert version_rows == [(1, 1, 2, 12)]
         assert con.execute("SELECT COUNT(*) FROM ac_works").fetchone()[0] == 1
         assert con.execute("SELECT COUNT(*) FROM ac_skg_variables").fetchone()[0] == 12
         assert con.execute("SELECT DISTINCT skg_version FROM ac_skg_articles").fetchall() == [(1,)]
-        assert con.execute("SELECT DISTINCT skg_version FROM ac_skg_edge_evidence").fetchall() == [(1,)]
-        assert con.execute("SELECT DISTINCT skg_version FROM ac_skg_context_attributes").fetchall() == [(1,)]
-        assert con.execute("SELECT DISTINCT skg_version FROM ac_skg_moderation_edges").fetchall() == [(1,)]
+        assert con.execute("SELECT DISTINCT skg_version FROM ac_skg_edge_evidence").fetchall() == [
+            (1,)
+        ]
+        assert con.execute(
+            "SELECT DISTINCT skg_version FROM ac_skg_context_attributes"
+        ).fetchall() == [(1,)]
+        assert con.execute(
+            "SELECT DISTINCT skg_version FROM ac_skg_moderation_edges"
+        ).fetchall() == [(1,)]
         assert (
             con.execute(
                 "SELECT approved_canonical_name FROM ac_skg_variables WHERE canonical_name = 'fiscal.cash_transfer'"
@@ -824,7 +861,9 @@ def test_build_runtime_first_snapshot_promotes_and_rewrites_paths(tmp_path, monk
         )
 
     graph_index_manifest = json.loads(
-        (result.final_root / "academic" / "manifests" / "graph_index.json").read_text(encoding="utf-8")
+        (result.final_root / "academic" / "manifests" / "graph_index.json").read_text(
+            encoding="utf-8"
+        )
     )
     assert str(result.final_root) in graph_index_manifest["artifacts"][0]["path"]
 
@@ -841,11 +880,15 @@ def test_build_runtime_first_snapshot_promotes_and_rewrites_paths(tmp_path, monk
     assert promotion_report["gates"]["scenario_runtime_no_regression"] is True
     assert promotion_report["gates"]["gain_floor__family_edge_count"] is True
 
-    assert (result.final_root / "meta" / "source_manifests" / "original" / "publish_manifest.json").exists()
+    assert (
+        result.final_root / "meta" / "source_manifests" / "original" / "publish_manifest.json"
+    ).exists()
     assert (result.final_root / "diagnostics" / "fulltext_fetch_log.jsonl").exists()
 
 
-def test_build_runtime_first_snapshot_keeps_candidate_when_gates_fail(tmp_path, monkeypatch) -> None:
+def test_build_runtime_first_snapshot_keeps_candidate_when_gates_fail(
+    tmp_path, monkeypatch
+) -> None:
     original_root, remap_root, backup_root = _prepare_snapshot_sources(tmp_path)
     _install_stage_fakes(
         monkeypatch,
@@ -951,7 +994,9 @@ def test_build_runtime_first_snapshot_restores_runtime_alias_bridges(tmp_path, m
 
         graph._get_query_embedding = lambda query_text: np.ones(384, dtype=np.float32)  # type: ignore[method-assign]
         original_vector_search = graph._store.search_works_by_vector
-        graph._store.search_works_by_vector = lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("dim mismatch"))  # type: ignore[method-assign]
+        graph._store.search_works_by_vector = lambda *args, **kwargs: (_ for _ in ()).throw(
+            RuntimeError("dim mismatch")
+        )  # type: ignore[method-assign]
         try:
             assert graph.find_relevant_works("Teacher coaching", top_k=3)
         finally:
@@ -960,7 +1005,9 @@ def test_build_runtime_first_snapshot_restores_runtime_alias_bridges(tmp_path, m
         graph.close()
 
 
-def test_build_runtime_first_snapshot_records_scenario_level_regressions(tmp_path, monkeypatch) -> None:
+def test_build_runtime_first_snapshot_records_scenario_level_regressions(
+    tmp_path, monkeypatch
+) -> None:
     original_root, remap_root, backup_root = _prepare_snapshot_sources(tmp_path)
     _install_stage_fakes(
         monkeypatch,

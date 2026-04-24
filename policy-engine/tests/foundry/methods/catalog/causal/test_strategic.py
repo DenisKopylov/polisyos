@@ -8,10 +8,12 @@ import numpy as np
 import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.foundry.methods.catalog.causal.policy_learning import OptimalPolicyLearner
 from polisyos.foundry.methods.catalog.causal.dtr import QLearningDTR
-from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
-from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
+from polisyos.foundry.methods.catalog.causal.policy_learning import OptimalPolicyLearner
+from polisyos.foundry.methods.catalog.causal.protocols import (
+    DynamicTreatmentData,
+    HTEObservationalData,
+)
 from polisyos.foundry.methods.catalog.causal.strategic import (
     PerformativeLoopSpec,
     analyze_performative_loop,
@@ -34,15 +36,15 @@ from polisyos.ir.analytics.strategic import (
     PerformativeLoopProofFamily,
     PerformativeLoopRecommendedAction,
     PerformativeLoopStabilityStatus,
-    StrategicGameClass,
     StrategicFallbackMode,
+    StrategicGameClass,
     StrategicSCM,
     StrategicSolutionConcept,
-    load_strategic_component_bounds_summary,
-    load_strategic_decomposition_certificate,
     load_mean_field_equilibrium_certificate,
     load_mean_field_mass_conservation_report,
     load_mean_field_solver_residual_report,
+    load_strategic_component_bounds_summary,
+    load_strategic_decomposition_certificate,
     persist_strategic_solve_artifacts,
 )
 from polisyos.ir.refs import ArtifactRefModel
@@ -64,7 +66,9 @@ def _artifact_ref(artifact_id: str, *, kind: str) -> ArtifactRefModel:
     )
 
 
-def _strategic_contract(*, equilibrium_concept: str = "stackelberg", max_sim_runs: float = 16.0) -> StrategicSCM:
+def _strategic_contract(
+    *, equilibrium_concept: str = "stackelberg", max_sim_runs: float = 16.0
+) -> StrategicSCM:
     return StrategicSCM(
         base_graph_ref=_artifact_ref("graph", kind="ir.causal_graph_model"),
         strategic_agents=("leader", "follower"),
@@ -405,7 +409,9 @@ def _mean_field_inputs(
         ).model_dump(mode="json"),
         "mean_field_model_class": "second_order",
         "well_posedness": {
-            "scm_solvability_ref": _artifact_ref("mfg-proof", kind="ir.proof_bundle").model_dump(mode="json"),
+            "scm_solvability_ref": _artifact_ref("mfg-proof", kind="ir.proof_bundle").model_dump(
+                mode="json"
+            ),
             "monotonicity_type": "lasry_lions",
             "convexity_verified": True,
             "regularity_scope": "discrete_anonymous_aggregative",
@@ -568,7 +574,9 @@ def test_solver_exposes_performative_loop_summary_from_contract_metadata() -> No
     assert summary["strategic_component_value"] == pytest.approx(3.0)
 
 
-def test_best_response_fixed_point_summary_is_selector_invariant_when_equilibria_share_payoff() -> None:
+def test_best_response_fixed_point_summary_is_selector_invariant_when_equilibria_share_payoff() -> (
+    None
+):
     result = solve_strategic_response(
         _strategic_contract(equilibrium_concept="best_response_fixed_point"),
         _best_response_tables(),
@@ -624,7 +632,9 @@ def test_macro_abstracted_fallback_works_with_exact_certificate() -> None:
     assert result.closure_summary["abstraction_transfer_scope"] == "equilibrium"
 
 
-def test_anonymous_aggregative_runtime_requires_mean_field_payload_even_with_macro_certificate() -> None:
+def test_anonymous_aggregative_runtime_requires_mean_field_payload_even_with_macro_certificate() -> (
+    None
+):
     contract = StrategicSCM(
         base_graph_ref=_artifact_ref("graph", kind="ir.causal_graph_model"),
         strategic_agents=("leader", "follower"),
@@ -653,7 +663,9 @@ def test_anonymous_aggregative_runtime_requires_mean_field_payload_even_with_mac
     assert result.blocked_reason == "missing_mean_field_game_payload"
 
 
-def test_anonymous_aggregative_runtime_does_not_silent_fallback_to_policy_value_macro_mode() -> None:
+def test_anonymous_aggregative_runtime_does_not_silent_fallback_to_policy_value_macro_mode() -> (
+    None
+):
     contract = StrategicSCM(
         base_graph_ref=_artifact_ref("graph", kind="ir.causal_graph_model"),
         strategic_agents=("leader", "follower"),
@@ -682,7 +694,9 @@ def test_anonymous_aggregative_runtime_does_not_silent_fallback_to_policy_value_
     assert result.blocked_reason == "missing_mean_field_game_payload"
 
 
-def test_anonymous_aggregative_runtime_blocks_before_macro_error_bound_projection_without_mfg_payload() -> None:
+def test_anonymous_aggregative_runtime_blocks_before_macro_error_bound_projection_without_mfg_payload() -> (
+    None
+):
     contract = StrategicSCM(
         base_graph_ref=_artifact_ref("graph", kind="ir.causal_graph_model"),
         strategic_agents=("leader", "follower"),
@@ -711,7 +725,9 @@ def test_anonymous_aggregative_runtime_blocks_before_macro_error_bound_projectio
     assert result.blocked_reason == "missing_mean_field_game_payload"
 
 
-def test_anonymous_aggregative_runtime_blocks_before_macro_transfer_scope_checks_without_mfg_payload() -> None:
+def test_anonymous_aggregative_runtime_blocks_before_macro_transfer_scope_checks_without_mfg_payload() -> (
+    None
+):
     result = solve_strategic_response(
         StrategicSCM(
             base_graph_ref=_artifact_ref("graph", kind="ir.causal_graph_model"),
@@ -738,7 +754,9 @@ def test_anonymous_aggregative_runtime_blocks_before_macro_transfer_scope_checks
     assert result.blocked_reason == "missing_mean_field_game_payload"
 
 
-def test_anonymous_aggregative_runtime_blocks_before_macro_query_scope_checks_without_mfg_payload() -> None:
+def test_anonymous_aggregative_runtime_blocks_before_macro_query_scope_checks_without_mfg_payload() -> (
+    None
+):
     result = solve_strategic_response(
         StrategicSCM(
             base_graph_ref=_artifact_ref("graph", kind="ir.causal_graph_model"),
@@ -989,14 +1007,24 @@ def test_evaluate_hook_emits_summary_only_even_with_runtime_refs() -> None:
             agent: table.model_dump(mode="json") for agent, table in _payoff_tables().items()
         },
         "strategic_runtime_refs": {
-            "causal_component_ref": _artifact_ref("causal", kind="ir.causal_effect_report").model_dump(mode="json"),
-            "strategic_closure_ref": _artifact_ref("closure", kind="ir.strategic_closure_summary").model_dump(mode="json"),
-            "equilibrium_set_ref": _artifact_ref("eqset", kind="ir.equilibrium_set_summary").model_dump(mode="json"),
+            "causal_component_ref": _artifact_ref(
+                "causal", kind="ir.causal_effect_report"
+            ).model_dump(mode="json"),
+            "strategic_closure_ref": _artifact_ref(
+                "closure", kind="ir.strategic_closure_summary"
+            ).model_dump(mode="json"),
+            "equilibrium_set_ref": _artifact_ref(
+                "eqset", kind="ir.equilibrium_set_summary"
+            ).model_dump(mode="json"),
             "post_adaptation_policy_value_ref": _artifact_ref(
                 "value", kind="ir.post_adaptation_policy_value_summary"
             ).model_dump(mode="json"),
-            "selected_equilibrium_ref": _artifact_ref("selected", kind="ir.equilibrium_summary").model_dump(mode="json"),
-            "performative_shift_ref": _artifact_ref("shift", kind="ir.performative_shift_summary").model_dump(mode="json"),
+            "selected_equilibrium_ref": _artifact_ref(
+                "selected", kind="ir.equilibrium_summary"
+            ).model_dump(mode="json"),
+            "performative_shift_ref": _artifact_ref(
+                "shift", kind="ir.performative_shift_summary"
+            ).model_dump(mode="json"),
         },
     }
 
@@ -1009,7 +1037,9 @@ def test_evaluate_hook_emits_summary_only_even_with_runtime_refs() -> None:
     assert bundle is None
 
 
-def test_persist_strategic_solve_artifacts_auto_persists_exact_decomposition_artifacts(tmp_path) -> None:
+def test_persist_strategic_solve_artifacts_auto_persists_exact_decomposition_artifacts(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path / "strategic-exact")
     contract = _strategic_contract()
     result = solve_strategic_response(
@@ -1038,7 +1068,9 @@ def test_persist_strategic_solve_artifacts_auto_persists_exact_decomposition_art
     assert certificate.cross_world_anchor_defined is True
 
 
-def test_persist_strategic_solve_artifacts_auto_persists_bounded_component_artifacts(tmp_path) -> None:
+def test_persist_strategic_solve_artifacts_auto_persists_bounded_component_artifacts(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path / "strategic-bounded")
     contract = _strategic_contract(equilibrium_concept="best_response_fixed_point")
     result = solve_strategic_response(
@@ -1076,9 +1108,9 @@ def test_persist_strategic_solve_artifacts_auto_persists_bounded_component_artif
 def test_evaluate_hook_reads_mean_field_game_payload() -> None:
     params = {
         "strategic_scm": _mean_field_contract().model_dump(mode="json"),
-        "mean_field_game": MeanFieldSolveInput.model_validate(
-            _mean_field_inputs()
-        ).model_dump(mode="json"),
+        "mean_field_game": MeanFieldSolveInput.model_validate(_mean_field_inputs()).model_dump(
+            mode="json"
+        ),
     }
 
     summary, warnings, bundle = evaluate_strategic_hook(

@@ -6,8 +6,9 @@ import json
 import sys
 import types
 from pathlib import Path
-from tools._lib.imports import repo_root_from
 from typing import Any
+
+from tools._lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -87,9 +88,8 @@ def _normalize_snapshot_obj(value: Any, parent_key: str | None = None) -> Any:
 
     if isinstance(value, list):
         normalized = [_normalize_snapshot_obj(item) for item in value]
-        if (
-            parent_key in _UNORDERED_LIST_KEYS
-            and all(not isinstance(item, (dict, list)) for item in normalized)
+        if parent_key in _UNORDERED_LIST_KEYS and all(
+            not isinstance(item, (dict, list)) for item in normalized
         ):
             return sorted(normalized, key=lambda item: str(item))
         return normalized

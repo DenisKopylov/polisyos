@@ -39,7 +39,9 @@ class TestEnvironmentFingerprint:
         with pytest.raises(dataclasses.FrozenInstanceError):
             fp.random_seed = 99  # type: ignore[misc]
 
-    def test_get_jaxlib_version_returns_unknown_when_distribution_missing(self, monkeypatch) -> None:
+    def test_get_jaxlib_version_returns_unknown_when_distribution_missing(
+        self, monkeypatch
+    ) -> None:
         def _raise_missing(_package: str) -> str:
             raise importlib_metadata.PackageNotFoundError("jaxlib")
 

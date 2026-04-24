@@ -1,12 +1,15 @@
 # ADR-0077: rustworkx for in-memory tight-loop algorithms (cycle breaking, resolution loop)
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-02-28
 
 ## Context
+
 The resolution loop (Phase 9) and `_break_cycles` (Phase 0) are the two hottest graph
 algorithm paths in the pipeline. The resolution loop iteratively re-identifies causal
 effects after each proxy-variable substitution, calling d-separation and ancestor
@@ -17,6 +20,7 @@ per resolution-loop iteration and 1.8 seconds for cycle breaking. Switching thes
 specific hot paths to rustworkx (ADR-0073) is the highest-leverage optimisation.
 
 ## Decision
+
 1. Rewrite `_break_cycles` in `foundry/methods/causal/graph_reconciliation.py` to
    operate on `rustworkx.PyDiGraph` using `rx.digraph_find_cycle` and
    `rx.topological_sort`.
@@ -31,12 +35,17 @@ specific hot paths to rustworkx (ADR-0073) is the highest-leverage optimisation.
    regression testing during the transition period.
 
 ## Consequences
+
 ### Positive
+
 - Expected 8-15x speedup on resolution-loop iterations based on micro-benchmarks.
 - Cycle breaking becomes near-instantaneous for graphs under 500 nodes.
 - Shared `bayes_ball` utility benefits all downstream d-separation consumers.
+
 ### Negative
+
 - Custom Bayes-ball implementation must be extensively tested against NetworkX's
   `d_separated` to ensure correctness.
+
 - Maintaining two code paths (rustworkx + NetworkX fallback) increases test burden.
 - rustworkx's index-based API makes debugging less intuitive than NetworkX's labels.

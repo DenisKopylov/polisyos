@@ -1,6 +1,10 @@
 """Public io db module API."""
+
+from __future__ import annotations
+
 import json
 import threading
+from typing import Any
 
 import duckdb
 import pandas as pd
@@ -10,6 +14,7 @@ from polisyos.common.logger import logger
 
 class SimulationDB:
     """Simulation DB public type."""
+
     def __init__(self, db_path: str = "data/databases/simulation.duckdb"):
         self.db_path = db_path
         self._lock = threading.RLock()
@@ -146,7 +151,7 @@ class SimulationDB:
     def closed(self) -> bool:
         return self._closed
 
-    def __enter__(self) -> "SimulationDB":
+    def __enter__(self) -> SimulationDB:
         self._ensure_open()
         return self
 
@@ -160,7 +165,7 @@ class SimulationDB:
 
         return DuckDBLegacyBackend(self)
 
-    def save_run_record(self, record: "RunRecord") -> None:
+    def save_run_record(self, record: Any) -> None:
         self._ensure_open()
         payload = record.model_dump()
         generator = payload.pop("generator", {})

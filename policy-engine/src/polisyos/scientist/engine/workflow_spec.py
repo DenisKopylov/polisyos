@@ -5,6 +5,7 @@ records. These specs describe orchestration topology, required input binds,
 retry/condition metadata, and execution policy while keeping business logic in
 node implementations.
 """
+
 from __future__ import annotations
 
 from decimal import Decimal
@@ -38,6 +39,7 @@ class NodeInvocation(BaseModel):
         timeout_s: Optional per-node execution timeout in seconds.
         condition: Optional gate expression evaluated against current state.
     """
+
     model_config = ConfigDict(extra="forbid")
 
     alias: str = Field(..., pattern=r"^[a-z][a-z0-9_]*$")
@@ -74,6 +76,7 @@ class WorkflowSpec(BaseModel):
         error_policy: Global failure handling policy for the executor.
         notes: Human-readable orchestration rationale rendered in docs and diagnostics.
     """
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -85,7 +88,7 @@ class WorkflowSpec(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def _validate_unique_aliases(self) -> "WorkflowSpec":
+    def _validate_unique_aliases(self) -> WorkflowSpec:
         aliases = [n.alias for n in self.nodes]
         if len(set(aliases)) != len(aliases):
             raise ValueError("NodeInvocation.alias must be unique within workflow")

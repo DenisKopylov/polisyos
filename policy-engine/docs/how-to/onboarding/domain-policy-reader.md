@@ -39,12 +39,12 @@ uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
 
 ## Read In This Order
 
-| Need | Start here |
-|---|---|
-| Самый первый walkthrough | [Getting Started](../../tutorials/getting-started.md) |
-| Первый аналитический пример | [First Policy Analysis](../../tutorials/first-policy-analysis.md) |
-| Обзор Lex/legal surface | [Lex Reference](../../reference/lex/index.md) |
-| Обзор workflow/governance surface | [Scientist Reference](../../reference/scientist/index.md) |
+| Need                                        | Start here                                                                                                                        |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Самый первый walkthrough                    | [Getting Started](../../tutorials/getting-started.md)                                                                             |
+| Первый аналитический пример                 | [First Policy Analysis](../../tutorials/first-policy-analysis.md)                                                                 |
+| Обзор Lex/legal surface                     | [Lex Reference](../../reference/lex/index.md)                                                                                     |
+| Обзор workflow/governance surface           | [Scientist Reference](../../reference/scientist/index.md)                                                                         |
 | Read-only inspection of runs/jobs/artifacts | [Use Control Plane](../use-control-plane.md), [Debug Failed Run](../debug-failed-run.md), [Runs API](../../reference/api/runs.md) |
 
 ## First Productive Slice
@@ -61,6 +61,7 @@ uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
 - если для ответа уже нужен кодовый patch, передайте change техническому owner;
 - если вопрос упирается в data-source quality или lineage, подключайте Fabric
   or backend lane;
+
 - не углубляйтесь в packaging/frontend internals, если они не меняют policy
   interpretation.
 
@@ -68,7 +69,9 @@ uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
 
 - `ProblemFrame` не хранит всю domain semantics целиком: часть смысла живет в
   `PolicySpec`, Fabric data query и downstream causal contracts;
+
 - если artifact surface недостаточен, сначала проверьте `timeline`, `lineage`
   и `decision-validity`, а не открывайте source tree вслепую;
+
 - для первого walkthrough используйте tutorial pages, а не длинные historical
   plans.

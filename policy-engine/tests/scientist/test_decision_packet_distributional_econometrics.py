@@ -304,7 +304,9 @@ def test_decision_packet_includes_distributional_and_econometric_sections(tmp_pa
     assert payload["distributional"]["proof_kernel_theorem_family"] == "identified_distribution_law"
     assert payload["distributional"]["ordinal_poverty_ref"] == str(ordinal_poverty_ref.artifact_id)
     assert payload["distributional"]["ordinal_poverty_methodology"] == "oraf_phase2"
-    assert payload["distributional"]["ordinal_poverty_deltas"]["ordinal_adjusted_headcount_q"] == -0.1
+    assert (
+        payload["distributional"]["ordinal_poverty_deltas"]["ordinal_adjusted_headcount_q"] == -0.1
+    )
     assert payload["distributional"]["ordinal_poverty_summary"]["status"] == "included"
     assert payload["econometrics"]["result_ref"] == str(econometric_result_ref.artifact_id)
     assert payload["econometrics"]["envelope_ref"] == str(econometric_envelope_ref.artifact_id)

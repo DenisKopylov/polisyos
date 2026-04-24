@@ -9,6 +9,7 @@ Verifies:
 Run with:
     pytest tests/foundry/benchmarks/test_chain_perf.py -m benchmark --benchmark-only -v
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -50,6 +51,7 @@ def three_node_chain(module_registry):
 class BenchmarkChainExecution:
     def test_sync_chain_n500(self, benchmark, three_node_chain, sample_state):
         """Sync chain execution should complete in < 2s for n=500."""
+
         def _run():
             try:
                 three_node_chain.execute_heterogeneous(sample_state)

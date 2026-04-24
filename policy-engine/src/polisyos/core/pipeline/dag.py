@@ -1,4 +1,5 @@
 """Public pipeline dag module API."""
+
 from __future__ import annotations
 
 import graphlib
@@ -124,17 +125,15 @@ class DagPipeline(Generic[StageT]):
                 raise DuplicateStageError(f"Stage '{stage_name}' already exists")
 
             if depends_on is None:
-                if self._auto_chain and self._tail:
-                    resolved_dependencies = list(self._tail)
-                else:
-                    resolved_dependencies = []
+                resolved_dependencies = list(self._tail) if self._auto_chain and self._tail else []
             else:
                 resolved_dependencies = list(depends_on)
 
             missing = [dep for dep in resolved_dependencies if dep not in self._deps]
             if missing:
                 raise UnknownStageError(
-                    f"Dependency '{missing[0]}' not found. Available stages: {list(self._deps.keys())}"
+                    "Dependency "
+                    f"'{missing[0]}' not found. Available stages: {list(self._deps.keys())}"
                 )
 
             dag_stage = DagStage(

@@ -1,4 +1,5 @@
 """Resolve direct/transitive manifest inputs into an artifact dependency graph."""
+
 from __future__ import annotations
 
 import time
@@ -13,6 +14,7 @@ from .manifest import ArtifactManifest
 
 class NodeStatus(str, Enum):
     """Represent artifact availability/integrity status during lineage traversal."""
+
     PRESENT = "present"
     MISSING = "missing"
     MISSING_BLOB = "missing_blob"
@@ -25,6 +27,7 @@ class NodeStatus(str, Enum):
 @dataclass(frozen=True)
 class DependencyEdge:
     """Represent one directed parent→child manifest edge with an input role label."""
+
     parent_id: ArtifactID
     child_id: ArtifactID
     role: str
@@ -33,6 +36,7 @@ class DependencyEdge:
 @dataclass
 class DependencyNode:
     """Store manifest metadata and traversal state for one artifact node."""
+
     artifact_id: ArtifactID
     role: str | None = None
     kind: str | None = None
@@ -50,6 +54,7 @@ class DependencyNode:
 @dataclass
 class DependencyGraph:
     """Hold the transitive CAS lineage DAG rooted at one artifact ID."""
+
     root_id: ArtifactID
     nodes: dict[str, DependencyNode] = field(default_factory=dict)
     edges: list[DependencyEdge] = field(default_factory=list)
@@ -98,9 +103,7 @@ def resolve_dependency_graph(
     """
     graph = DependencyGraph(root_id=root_id)
     deadline = (
-        time.monotonic() + max(float(timeout_seconds), 0.0)
-        if timeout_seconds is not None
-        else None
+        time.monotonic() + max(float(timeout_seconds), 0.0) if timeout_seconds is not None else None
     )
     budget_check_interval = max(1, int(batch_size))
     visited_since_budget_check = 0
@@ -134,9 +137,7 @@ def resolve_dependency_graph(
             graph.nodes[hex_id] = node
 
         if parent_id is not None:
-            graph.edges.append(
-                DependencyEdge(parent_id=parent_id, child_id=artifact_id, role=role)
-            )
+            graph.edges.append(DependencyEdge(parent_id=parent_id, child_id=artifact_id, role=role))
 
         if hex_id in expanded:
             continue

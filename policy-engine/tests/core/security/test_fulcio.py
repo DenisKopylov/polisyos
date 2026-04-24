@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import types
+
 import pytest
 
 from polisyos.core.security.slsa.config import SLSAConfig, SlsaMode

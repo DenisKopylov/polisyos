@@ -10,17 +10,12 @@ from __future__ import annotations
 
 import logging
 import math
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
 _logger = logging.getLogger(__name__)
-
-from polisyos.ir.analytics.partial_identification import (
-    BoundMethod,
-    PartialIdentificationResult,
-    SensitivitySweepResult,
-)
 
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
@@ -36,6 +31,10 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.foundry.methods.catalog.causal.bounds import _make_partial_id_result
+from polisyos.ir.analytics.partial_identification import (
+    BoundMethod,
+    SensitivitySweepResult,
+)
 
 
 def _result_slot() -> frozenset[SlotSpec]:
@@ -47,6 +46,7 @@ def _result_slot() -> frozenset[SlotSpec]:
 # imports; these are simple enough to duplicate)
 # ---------------------------------------------------------------------------
 
+
 def _sign_rank_stat(diffs: np.ndarray) -> float:
     """Wilcoxon signed-rank statistic W+ = sum of ranks of positive differences."""
     abs_diffs = np.abs(diffs)
@@ -57,6 +57,7 @@ def _sign_rank_stat(diffs: np.ndarray) -> float:
 def _normal_signed_rank_pvalue(w_obs: float, n: int, mean_w: float, std_w: float) -> float:
     """One-sided p-value P(W+ ≥ w_obs) via normal approximation."""
     from scipy.stats import norm
+
     if std_w <= 0:
         return 1.0
     z = (w_obs - mean_w - 0.5) / std_w  # continuity correction
@@ -77,8 +78,8 @@ def _sharp_pvalue_bounds(diffs: np.ndarray, gamma: float) -> tuple[float, float]
     ranks = np.argsort(np.argsort(abs_d)) + 1.0
     w_obs = float(np.sum(ranks[diffs > 0]))
 
-    p_hi = gamma / (1.0 + gamma)   # max assignment prob → maximises W+
-    p_lo = 1.0 / (1.0 + gamma)    # min assignment prob → minimises W+
+    p_hi = gamma / (1.0 + gamma)  # max assignment prob → maximises W+
+    p_lo = 1.0 / (1.0 + gamma)  # min assignment prob → minimises W+
 
     # Under Γ: E[W+] and Var[W+] depend on assignment probabilities per pair.
     # Worst case (max W+): each pair i has p_i = p_hi for positive diffs, p_lo for negative.
@@ -104,6 +105,7 @@ def _sharp_pvalue_bounds(diffs: np.ndarray, gamma: float) -> tuple[float, float]
 # ---------------------------------------------------------------------------
 # TanBoundsEstimator
 # ---------------------------------------------------------------------------
+
 
 @foundry_method(
     namespace="causal.bounds",
@@ -201,8 +203,7 @@ class TanBoundsEstimator:
             "can be estimated. Reports how large λ must be for the bounds to include 0."
         ),
         when_not_to_use=(
-            "No reasonable propensity model available; "
-            "use Manski or Rosenbaum bounds instead."
+            "No reasonable propensity model available; use Manski or Rosenbaum bounds instead."
         ),
         output_interpretation=(
             "sweep: SensitivitySweepResult with lower/upper ATE bounds per λ. "
@@ -256,7 +257,7 @@ class TanBoundsEstimator:
             # Lower bound: reverse the clipping
 
             # Treated group weights (unnormalized)
-            w1_hi = np.clip(1.0 / ps1, 1.0, lam / ps1)        # max weight for treated
+            w1_hi = np.clip(1.0 / ps1, 1.0, lam / ps1)  # max weight for treated
             w1_lo = np.clip(1.0 / ps1, 1.0 / lam / ps1, 1.0)  # min weight for treated
 
             # Control group weights (unnormalized)
@@ -328,10 +329,19 @@ class TanBoundsEstimator:
 # IntersectionBoundsEstimator
 # ---------------------------------------------------------------------------
 
+
 @foundry_method(
     namespace="causal.bounds",
     version="1.0.0",
-    tags={"causal", "bounds", "intersection", "clr", "estimation", "cross-section", "partial-identification"},
+    tags={
+        "causal",
+        "bounds",
+        "intersection",
+        "clr",
+        "estimation",
+        "cross-section",
+        "partial-identification",
+    },
 )
 class IntersectionBoundsEstimator:
     """Chernozhukov, Lee & Rosen (2013) intersection of identified sets.
@@ -515,6 +525,7 @@ class IntersectionBoundsEstimator:
 # RosenbaumSharpBoundsEstimator
 # ---------------------------------------------------------------------------
 
+
 @foundry_method(
     namespace="causal.bounds",
     version="1.0.0",
@@ -605,7 +616,14 @@ class RosenbaumSharpBoundsEstimator:
             "Rosenbaum sensitivity analysis."
         ),
         tags=frozenset(
-            {"causal", "bounds", "rosenbaum", "sensitivity", "matched-pairs", "partial-identification"}
+            {
+                "causal",
+                "bounds",
+                "rosenbaum",
+                "sensitivity",
+                "matched-pairs",
+                "partial-identification",
+            }
         ),
         citations=("Rosenbaum, P.R. (2002). Observational Studies. 2nd ed. Springer.",),
         equations={
@@ -619,9 +637,7 @@ class RosenbaumSharpBoundsEstimator:
             "Matched-pairs observational study; want to know how large hidden bias (Γ) "
             "would need to be to invalidate the conclusion."
         ),
-        when_not_to_use=(
-            "No matched pairs available; use E-value or Manski bounds instead."
-        ),
+        when_not_to_use=("No matched pairs available; use E-value or Manski bounds instead."),
         output_interpretation=(
             "sweep: p-value bounds [p_lower, p_upper] per Γ value. "
             "critical_gamma: Γ* where p_upper first exceeds α — "

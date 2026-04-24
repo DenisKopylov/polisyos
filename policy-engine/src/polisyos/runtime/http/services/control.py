@@ -9,7 +9,7 @@ import re
 import time
 import uuid
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, cast
@@ -51,6 +51,7 @@ from polisyos.core.contracts.control import (
     DecisionValidityLifecycleSummary,
     DecisionValidityPendingReview,
     DecisionValiditySummaryResponse,
+    ExecutionProfile,
     IndexStatsResponse,
     IngestRequest,
     IngestResponse,
@@ -63,7 +64,6 @@ from polisyos.core.contracts.control import (
     ModelProfileInfo,
     ModelProfilesListResponse,
     NaturalLanguageRunRequest,
-    ExecutionProfile,
     PolicyFlags,
     PromotionCandidatesResponse,
     PromotionDecisionRequest,
@@ -95,7 +95,6 @@ from polisyos.scientist.decision_validity import DecisionValidityService
 from polisyos.scientist.llm.factory import create_traced_gateway_client
 
 from .control_plane_store import ControlJobRecord, ControlPlaneStore
-from .control_registry_providers import ControlRegistryProviders
 from .control_worker import ControlWorker
 
 logger = get_logger(__name__)
@@ -108,15 +107,26 @@ def _default_runtime_metrics() -> Any:
 def _default_runtime_tracer() -> Any:
     return get_tracer()
 
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
+    from polisyos.scientist.agent.protocols import (
+        CriticAgent,
+        DataNeedExtractorAgent,
+        DrafterAgent,
+        FormalizerAgent,
+        PIAgent,
+    )
+
+    from .control_registry_providers import ControlRegistryProviders
 
 _CONTROL_JOB_KINDS = frozenset({"workflow_run", "natural_language_run", "lex_pipeline"})
 _RETRIEVAL_MODES = frozenset({"fastlane", "explorelane", "hybrid"})
+
 
 class _MethodCatalogSnapshotAware(Protocol):
     def set_method_catalog_snapshot(self, payload: dict[str, Any] | None) -> None: ...
@@ -136,6 +146,7 @@ def _build_api_meta(request_id: str | None = None) -> ApiMeta:
 # ---------------------------------------------------------------------------
 # Helpers to convert string refs → ArtifactRef
 # ---------------------------------------------------------------------------
+
 
 def _make_artifact_ref(
     ref_str: str,
@@ -410,7 +421,8 @@ def _build_scientist_v2_shadow_comparison(
         "verdict_match": legacy_verdict == shadow_result_payload.get("verdict"),
         "legacy_issue_count": int(legacy_issue_count),
         "shadow_issue_count": int(shadow_result_payload.get("issue_count") or 0),
-        "issue_count_delta": int(shadow_result_payload.get("issue_count") or 0) - int(legacy_issue_count),
+        "issue_count_delta": int(shadow_result_payload.get("issue_count") or 0)
+        - int(legacy_issue_count),
         "legacy_cost_usd": float(legacy_cost_usd),
         "shadow_final_score": float(shadow_metrics.get("final_score") or 0.0),
         "legacy_total_tokens": int(legacy_prompt_tokens) + int(legacy_completion_tokens),
@@ -418,8 +430,7 @@ def _build_scientist_v2_shadow_comparison(
         "shadow_supported_claims": supported_claims,
         "shadow_total_claims": total_claims,
         "default_on_candidate": bool(
-            shadow_result_payload.get("verdict") == "APPROVE"
-            and shadow_citation_coverage >= 0.85
+            shadow_result_payload.get("verdict") == "APPROVE" and shadow_citation_coverage >= 0.85
         ),
     }
 
@@ -428,10 +439,7 @@ def _canonicalize_numeric_payload(value: Any) -> Any:
     if isinstance(value, float):
         return Decimal(str(value))
     if isinstance(value, dict):
-        return {
-            key: _canonicalize_numeric_payload(item)
-            for key, item in value.items()
-        }
+        return {key: _canonicalize_numeric_payload(item) for key, item in value.items()}
     if isinstance(value, list):
         return [_canonicalize_numeric_payload(item) for item in value]
     if isinstance(value, tuple):
@@ -453,7 +461,7 @@ def _decision_validity_dedupe_payload(
             "source_ref": request.source_ref,
             "payload": request.payload,
             "occurred_at": (
-                request.occurred_at.astimezone(timezone.utc).replace(microsecond=0).isoformat()
+                request.occurred_at.astimezone(UTC).replace(microsecond=0).isoformat()
                 if request.occurred_at is not None
                 else None
             ),
@@ -467,8 +475,9 @@ def _decision_validity_dedupe_payload(
 # Service
 # ---------------------------------------------------------------------------
 
+
 class ControlPlaneService:
-    """Bridge HTTP control requests to durable jobs, Scientist runs, Fabric ingestion, and Lex pipelines."""
+    """Bridge HTTP control requests to durable jobs and domain pipelines."""
 
     def __init__(
         self,
@@ -493,7 +502,8 @@ class ControlPlaneService:
         self._policy_resolver = policy_resolver or RuntimeExecutionPolicyResolver.from_env()
         if registry_providers is None:
             raise ValueError(
-                "ControlPlaneService requires typed registry_providers from the runtime composition root"
+                "ControlPlaneService requires typed registry_providers from the "
+                "runtime composition root"
             )
         self._registry_providers = registry_providers
         self._owns_artifact_store = artifact_store is None
@@ -511,8 +521,8 @@ class ControlPlaneService:
             )
         else:
             self._artifact_store = artifact_store
-        self._async_artifact_store = (
-            async_artifact_store or ensure_async_artifact_store(self._artifact_store)
+        self._async_artifact_store = async_artifact_store or ensure_async_artifact_store(
+            self._artifact_store
         )
 
         self._owns_control_store = control_store is None
@@ -547,8 +557,12 @@ class ControlPlaneService:
         """Stop embedded workers and release durable control-plane resources."""
         if self._worker is not None:
             self._worker.stop()
-        control_store_close = cast("Callable[[], None] | None", getattr(self._control_store, "close", None))
-        artifact_store_close = cast("Callable[[], None] | None", getattr(self._artifact_store, "close", None))
+        control_store_close = cast(
+            "Callable[[], None] | None", getattr(self._control_store, "close", None)
+        )
+        artifact_store_close = cast(
+            "Callable[[], None] | None", getattr(self._artifact_store, "close", None)
+        )
         if self._owns_control_store and callable(control_store_close):
             control_store_close()
         if self._owns_artifact_store and callable(artifact_store_close):
@@ -682,9 +696,14 @@ class ControlPlaneService:
             carrier = telemetry.get("trace_context")
             extract_context = getattr(self._tracer, "extract_context", None)
             if isinstance(carrier, dict) and carrier and callable(extract_context):
-                token = attach(cast("Any", extract_context({str(key): str(value) for key, value in carrier.items()})))
+                token = attach(
+                    cast(
+                        "Any",
+                        extract_context({str(key): str(value) for key, value in carrier.items()}),
+                    )
+                )
         queue_lag_seconds = max(
-            (datetime.now(timezone.utc) - job.created_at).total_seconds(),
+            (datetime.now(UTC) - job.created_at).total_seconds(),
             0.0,
         )
         started = time.perf_counter()
@@ -938,7 +957,9 @@ class ControlPlaneService:
             payload = self._load_payload_ref(job.payload_ref)
             with self._control_job_span(job=job, payload=payload):
                 if job.kind == "workflow_run":
-                    capability_manifest_ref = job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
+                    capability_manifest_ref = (
+                        job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
+                    )
                     state_payload = self._hydrate_state_payload(
                         payload["state_payload"],
                         job=job,
@@ -952,7 +973,9 @@ class ControlPlaneService:
                     )
                     return
                 if job.kind == "natural_language_run":
-                    capability_manifest_ref = job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
+                    capability_manifest_ref = (
+                        job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
+                    )
                     result = self._execute_nl_pipeline(
                         run_id=str(payload["run_id"]),
                         nl_request=str(payload["request"]),
@@ -972,16 +995,20 @@ class ControlPlaneService:
                         execution_plan_ref=payload.get("execution_plan_ref"),
                         execution_plan_payload=payload.get("execution_plan"),
                         stop_criteria_payload=dict(payload.get("stop_criteria") or {}),
-                        governance_constraints_payload=list(payload.get("governance_constraints") or []),
+                        governance_constraints_payload=list(
+                            payload.get("governance_constraints") or []
+                        ),
                         expected_outputs_payload=list(payload.get("expected_outputs") or []),
                         control_job_id=job.job_id,
                         execution_profile=job.effective_execution_profile,
                         capability_manifest_ref=capability_manifest_ref,
                         allow_mock_fallback=bool(job.policy_flags.get("allow_mock_fallback"))
                         or job.effective_execution_profile == "dev",
-                        capability_manifest_updater=lambda fallbacks: self._refresh_capability_manifest(
-                            job=job,
-                            observed_fallbacks=fallbacks,
+                        capability_manifest_updater=(
+                            lambda fallbacks: self._refresh_capability_manifest(
+                                job=job,
+                                observed_fallbacks=fallbacks,
+                            )
                         ),
                     )
                     final_manifest_ref = str(
@@ -994,7 +1021,9 @@ class ControlPlaneService:
                     )
                     return
                 if job.kind == "lex_pipeline":
-                    capability_manifest_ref = job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
+                    capability_manifest_ref = (
+                        job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
+                    )
                     self._run_lex_pipeline_job(
                         job=job,
                         payload=payload,
@@ -1117,7 +1146,7 @@ class ControlPlaneService:
         event = DecisionDependencyEvent(
             event_id=f"decision_evt_{uuid.uuid4().hex[:16]}",
             dedupe_key=dedupe_key,
-            occurred_at=request.occurred_at or datetime.now(timezone.utc).replace(microsecond=0),
+            occurred_at=request.occurred_at or datetime.now(UTC).replace(microsecond=0),
             trigger_type=request.trigger_type,
             status=request.status,
             reason=request.reason,
@@ -1132,7 +1161,10 @@ class ControlPlaneService:
         for evaluation in evaluations:
             status = evaluation.status.value
             affected_statuses[status] = affected_statuses.get(status, 0) + 1
-            if evaluation.decision_packet_ref and evaluation.decision_packet_ref not in affected_packets:
+            if (
+                evaluation.decision_packet_ref
+                and evaluation.decision_packet_ref not in affected_packets
+            ):
                 affected_packets.append(evaluation.decision_packet_ref)
         self._control_store.enqueue_outbox_event(
             topic="control.decision_validity.event_published",
@@ -1302,7 +1334,11 @@ class ControlPlaneService:
             requested_models.insert(0, request.llm_model)
         if not _is_multimodel_enabled() and len(requested_models) > 1:
             requested_models = requested_models[:1]
-        if not requested_models and policy.effective_profile != "dev" and not policy.mock_fallback_allowed:
+        if (
+            not requested_models
+            and policy.effective_profile != "dev"
+            and not policy.mock_fallback_allowed
+        ):
             raise unprocessable_entity(
                 "Mock-only NL runs require allow_mock_fallback outside the dev profile.",
                 code="mock_fallback_disallowed",
@@ -1317,7 +1353,9 @@ class ControlPlaneService:
                 "request": request.request,
                 "context": dict(request.context),
                 "domain_hint": request.domain_hint,
-                "data_source": request.data_source.model_dump(mode="json") if request.data_source else None,
+                "data_source": request.data_source.model_dump(mode="json")
+                if request.data_source
+                else None,
                 "max_iterations": request.max_iterations,
                 "llm_models": requested_models,
                 "max_parallel_models": request.max_parallel_models,
@@ -1385,7 +1423,7 @@ class ControlPlaneService:
         from polisyos.common.async_tools import run_coro_sync
 
         async def _agent_pipeline() -> dict[str, Any]:
-            from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+            from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
             from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
             from polisyos.core.canon import CanonSpec
             from polisyos.core.contracts.execution_plan import (
@@ -1419,13 +1457,6 @@ class ControlPlaneService:
             from polisyos.scientist.agent.drafter_clients import LLMDrafterAgent, MockDrafterAgent
             from polisyos.scientist.agent.formalizer import LLMFormalizerAgent, MockFormalizerAgent
             from polisyos.scientist.agent.pi import LLMPIAgent, MockPIAgent
-            from polisyos.scientist.agent.protocols import (
-                CriticAgent,
-                DataNeedExtractorAgent,
-                DrafterAgent,
-                FormalizerAgent,
-                PIAgent,
-            )
             from polisyos.scientist.engine.iteration_state_machine import transition
             from polisyos.scientist.llm_cycle import (
                 build_default_execution_plan,
@@ -1461,7 +1492,9 @@ class ControlPlaneService:
                     bundle = await run_blocking_async(build_default_registry_bundle, store)
                     registry_bundle_ref = bundle.bundle_ref
                     if registry_bundle_ref is None:
-                        raise RuntimeError("default registry bundle did not produce an artifact reference")
+                        raise RuntimeError(
+                            "default registry bundle did not produce an artifact reference"
+                        )
                     registry_bundle_ref_cache = registry_bundle_ref
                 if registry_bundle_ref_cache is None:
                     raise RuntimeError("default registry bundle ref cache was not populated")
@@ -1471,7 +1504,9 @@ class ControlPlaneService:
                 async with catalog_lock:
                     cached_snapshot = method_catalog_snapshot_cache.get("snapshot")
                     cached_ref = method_catalog_snapshot_cache.get("ref")
-                    if isinstance(cached_snapshot, MethodCatalogSnapshot) and isinstance(cached_ref, str):
+                    if isinstance(cached_snapshot, MethodCatalogSnapshot) and isinstance(
+                        cached_ref, str
+                    ):
                         return cached_snapshot, cached_ref
                     ensure_causal_methods_registered()
                     snapshot = build_method_catalog_snapshot(run_id=run_id)
@@ -1574,7 +1609,9 @@ class ControlPlaneService:
                         ArtifactWriteOptions(
                             kind="foundry.state_payload",
                             media_type="application/json",
-                            schema=SchemaInfo(name="polisyos.foundry.StatePayload", version="0.1.0"),
+                            schema=SchemaInfo(
+                                name="polisyos.foundry.StatePayload", version="0.1.0"
+                            ),
                         ),
                         canon_spec=CanonSpec(forbid_floats=False),
                     )
@@ -1611,10 +1648,17 @@ class ControlPlaneService:
                         ArtifactWriteOptions(
                             kind="foundry.input_bindings",
                             media_type="application/json",
-                            schema=SchemaInfo(name="polisyos.core.FoundryInputBindings", version="1.0"),
+                            schema=SchemaInfo(
+                                name="polisyos.core.FoundryInputBindings", version="1.0"
+                            ),
                             inputs=[
-                                InputRef(artifact_id=snapshot_ref.artifact_id, role="data_snapshot"),
-                                InputRef(artifact_id=fallback_snapshot_ref.artifact_id, role="bound_state"),
+                                InputRef(
+                                    artifact_id=snapshot_ref.artifact_id, role="data_snapshot"
+                                ),
+                                InputRef(
+                                    artifact_id=fallback_snapshot_ref.artifact_id,
+                                    role="bound_state",
+                                ),
                             ],
                         ),
                         canon_spec=CanonSpec(forbid_floats=False),
@@ -1667,7 +1711,7 @@ class ControlPlaneService:
             async def _run_variant(model_name: str | None, variant_index: int) -> dict[str, Any]:
                 nonlocal current_capability_manifest_ref
                 variant_started_at = _now_ms()
-                variant_started_iso = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+                variant_started_iso = datetime.now(UTC).replace(microsecond=0).isoformat()
                 call_events: list[dict[str, Any]] = []
                 variant_label = model_name or "mock"
                 variant_id = _normalize_model_variant_id(variant_label, variant_index)
@@ -1782,7 +1826,7 @@ class ControlPlaneService:
                             "agent": agent,
                             "action": action,
                             "status": status,
-                            "timestamp": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+                            "timestamp": datetime.now(UTC).replace(microsecond=0).isoformat(),
                             "summary": summary,
                             "model": model_name,
                             "provider": provider,
@@ -1813,7 +1857,7 @@ class ControlPlaneService:
                             "agent": agent,
                             "action": action,
                             "status": status,
-                            "timestamp": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+                            "timestamp": datetime.now(UTC).replace(microsecond=0).isoformat(),
                             "summary": summary,
                             "model": model_name,
                             "provider": provider,
@@ -1931,7 +1975,10 @@ class ControlPlaneService:
                     )
 
                     # 2) Build and cache live method catalog snapshot for this run.
-                    catalog_snapshot, method_catalog_snapshot_ref_str = await _ensure_catalog_snapshot()
+                    (
+                        catalog_snapshot,
+                        method_catalog_snapshot_ref_str,
+                    ) = await _ensure_catalog_snapshot()
                     snapshot_injector = cast(
                         "_MethodCatalogSnapshotAware | None",
                         formalizer if hasattr(formalizer, "set_method_catalog_snapshot") else None,
@@ -2037,8 +2084,10 @@ class ControlPlaneService:
                             update={
                                 "method_dag": [],
                                 "method_edges": [],
-                                "notes": list(execution_plan.notes)
-                                + ["replanned_after_preflight_diagnostics"],
+                                "notes": [
+                                    *list(execution_plan.notes),
+                                    "replanned_after_preflight_diagnostics",
+                                ],
                             }
                         )
                         execution_plan_ref_obj = await run_blocking_async(
@@ -2047,7 +2096,9 @@ class ControlPlaneService:
                             execution_plan,
                         )
                         execution_plan_ref_str = str(execution_plan_ref_obj.artifact_id)
-                        preflight_report = preflight_execution_plan(execution_plan, catalog_snapshot)
+                        preflight_report = preflight_execution_plan(
+                            execution_plan, catalog_snapshot
+                        )
                         preflight_report.plan_ref = _typed_artifact_ref(
                             execution_plan_ref_str,
                             kind="scientist.execution_plan",
@@ -2151,9 +2202,7 @@ class ControlPlaneService:
                                     summary="ExploreLane discovery executed",
                                     details={
                                         "docs_fetched": int(phase.get("docs_fetched") or 0),
-                                        "candidates_total": int(
-                                            phase.get("candidates_total") or 0
-                                        ),
+                                        "candidates_total": int(phase.get("candidates_total") or 0),
                                         "candidates_selected": int(
                                             phase.get("candidates_selected") or 0
                                         ),
@@ -2162,6 +2211,7 @@ class ControlPlaneService:
 
                     execute_outcome = None
                     if resolve_outcome.fetch_plans:
+
                         def _promotion_candidate_payload(item: Any) -> dict[str, Any]:
                             if hasattr(item, "model_dump"):
                                 return dict(item.model_dump(mode="json"))
@@ -2187,7 +2237,10 @@ class ControlPlaneService:
                         promotion_candidates_before = (
                             list(raw_candidates_before)
                             if callable(list_promotion_candidates)
-                            and isinstance((raw_candidates_before := list_promotion_candidates()), list | tuple | set)
+                            and isinstance(
+                                (raw_candidates_before := list_promotion_candidates()),
+                                list | tuple | set,
+                            )
                             else []
                         )
                         promotion_ids_before = {
@@ -2227,7 +2280,10 @@ class ControlPlaneService:
                         promotion_candidates_after = (
                             list(raw_candidates_after)
                             if callable(list_promotion_candidates)
-                            and isinstance((raw_candidates_after := list_promotion_candidates()), list | tuple | set)
+                            and isinstance(
+                                (raw_candidates_after := list_promotion_candidates()),
+                                list | tuple | set,
+                            )
                             else []
                         )
                         promotion_candidates = [
@@ -2242,6 +2298,7 @@ class ControlPlaneService:
                             summary="Promotion signals emitted",
                             details={"candidates_promoted": retrieval_candidates_promoted},
                         )
+
                         def _json_payload(item: Any) -> dict[str, Any]:
                             if hasattr(item, "model_dump"):
                                 return dict(item.model_dump(mode="json"))
@@ -2254,13 +2311,14 @@ class ControlPlaneService:
                                 metric.model_dump(mode="json")
                                 for metric in execute_outcome.data_context.metrics
                             ],
-                            "metadata_docs_fetched": execute_outcome.data_context.metadata_docs_fetched,
+                            "metadata_docs_fetched": (
+                                execute_outcome.data_context.metadata_docs_fetched
+                            ),
                             "index_docs_total": execute_outcome.data_context.index_docs_total,
                             "index_size_bytes": execute_outcome.data_context.index_size_bytes,
                         }
                         retrieval_context_payload["fetch_plans"] = [
-                            _json_payload(item)
-                            for item in resolve_outcome.fetch_plans
+                            _json_payload(item) for item in resolve_outcome.fetch_plans
                         ]
                         retrieval_context_payload["promotion_candidates"] = promotion_candidates
                     else:
@@ -2270,7 +2328,7 @@ class ControlPlaneService:
                             summary="No fetch plans resolved",
                             status="warn",
                             details={"fetch_plans": 0},
-                            )
+                        )
 
                     if _is_auto_materialization_enabled():
                         try:
@@ -2305,9 +2363,7 @@ class ControlPlaneService:
                                 details={"error": str(exc)},
                             )
 
-                    fabric_flags_active = (
-                        _is_scientist_v2_enabled() or _is_scientist_shadow_mode()
-                    )
+                    fabric_flags_active = _is_scientist_v2_enabled() or _is_scientist_shadow_mode()
                     if fabric_flags_active:
                         from polisyos.scientist.agent.fabric import (
                             ScientistAgentFabric,
@@ -2315,9 +2371,7 @@ class ControlPlaneService:
                             ScientistAgentFabricRequest,
                         )
 
-                        fabric = ScientistAgentFabric(
-                            config=ScientistAgentFabricConfig.from_env()
-                        )
+                        fabric = ScientistAgentFabric(config=ScientistAgentFabricConfig.from_env())
                         fabric_request = ScientistAgentFabricRequest(
                             run_id=run_id,
                             variant_id=variant_id,
@@ -2411,7 +2465,10 @@ class ControlPlaneService:
                             if per_model_budget_usd is not None and float(per_model_budget_usd) > 0:
                                 budget_remaining_ratio = max(
                                     0.0,
-                                    (float(per_model_budget_usd) - float(usage_snapshot["cost_usd"]))
+                                    (
+                                        float(per_model_budget_usd)
+                                        - float(usage_snapshot["cost_usd"])
+                                    )
                                     / float(per_model_budget_usd),
                                 )
                             retrieval_quality = (
@@ -2425,7 +2482,8 @@ class ControlPlaneService:
                                         / float(
                                             max(
                                                 1,
-                                                retrieval_candidates_filtered + len(data_context_payload.get("metrics", [])),
+                                                retrieval_candidates_filtered
+                                                + len(data_context_payload.get("metrics", [])),
                                             )
                                         )
                                     ),
@@ -2550,8 +2608,12 @@ class ControlPlaneService:
                                 legacy_verdict=verdict,
                                 legacy_issue_count=int(issue_count),
                                 legacy_cost_usd=float(_sum_call_events(call_events)["cost_usd"]),
-                                legacy_prompt_tokens=int(_sum_call_events(call_events)["prompt_tokens"]),
-                                legacy_completion_tokens=int(_sum_call_events(call_events)["completion_tokens"]),
+                                legacy_prompt_tokens=int(
+                                    _sum_call_events(call_events)["prompt_tokens"]
+                                ),
+                                legacy_completion_tokens=int(
+                                    _sum_call_events(call_events)["completion_tokens"]
+                                ),
                                 shadow_result=fabric_shadow_result,
                             )
                             _append_step(
@@ -2565,7 +2627,7 @@ class ControlPlaneService:
                                     "comparison": dict(fabric_shadow_comparison or {}),
                                 },
                             )
-                        except Exception as exc:  # noqa: BLE001
+                        except Exception as exc:
                             notes.append(f"scientist_v2_shadow_failed:{exc}")
                             _append_step(
                                 agent="scientist_v2",
@@ -2580,7 +2642,13 @@ class ControlPlaneService:
                         iteration_state,
                     )
                     iteration_state_ref_str = str(iteration_state_ref.artifact_id)
-                except (AttributeError, LookupError, RuntimeError, TypeError, ValueError) as exc:  # pragma: no cover - defensive pipeline hardening
+                except (
+                    AttributeError,
+                    LookupError,
+                    RuntimeError,
+                    TypeError,
+                    ValueError,
+                ) as exc:  # pragma: no cover - defensive pipeline hardening
                     logger.exception("NL variant failed for model '%s': %s", model_name, exc)
                     return {
                         "model_variant_id": variant_id,
@@ -2590,7 +2658,9 @@ class ControlPlaneService:
                         "verdict": "ERROR",
                         "issue_count": 0,
                         "prompt_tokens": int(_sum_call_events(call_events)["prompt_tokens"]),
-                        "completion_tokens": int(_sum_call_events(call_events)["completion_tokens"]),
+                        "completion_tokens": int(
+                            _sum_call_events(call_events)["completion_tokens"]
+                        ),
                         "total_tokens": int(
                             _sum_call_events(call_events)["prompt_tokens"]
                             + _sum_call_events(call_events)["completion_tokens"]
@@ -2602,9 +2672,9 @@ class ControlPlaneService:
                             8,
                         ),
                         "started_at": variant_started_iso,
-                        "finished_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+                        "finished_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
                         "steps": steps,
-                        "notes": notes + [f"variant_error:{exc}"],
+                        "notes": [*notes, f"variant_error:{exc}"],
                         "retrieval_mode": retrieval_mode,
                         "retrieval_lane_used": retrieval_lane_used,
                         "metadata_docs_fetched": retrieval_metadata_docs_fetched,
@@ -2694,7 +2764,7 @@ class ControlPlaneService:
                         ),
                         "trinity_bundle_ref": trinity_ref_str,
                         "started_at": variant_started_iso,
-                        "finished_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+                        "finished_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
                         "steps": steps,
                         "notes": notes,
                         "retrieval_mode": retrieval_mode,
@@ -2757,7 +2827,7 @@ class ControlPlaneService:
                     ),
                     "trinity_bundle_ref": trinity_ref_str,
                     "started_at": variant_started_iso,
-                    "finished_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+                    "finished_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
                     "steps": steps,
                     "notes": notes,
                     "retrieval_mode": retrieval_mode,
@@ -2817,7 +2887,9 @@ class ControlPlaneService:
                         async with budget_lock:
                             if run_budget_stop:
                                 return {
-                                    "model_variant_id": _normalize_model_variant_id(model_name, idx),
+                                    "model_variant_id": _normalize_model_variant_id(
+                                        model_name, idx
+                                    ),
                                     "model": model_name,
                                     "provider": "gateway",
                                     "status": "skipped_budget_guard",
@@ -2837,7 +2909,9 @@ class ControlPlaneService:
                         variant = await _run_variant(model_name, idx)
                         async with budget_lock:
                             run_budget_spent += float(variant.get("cost_usd") or 0.0)
-                            if run_budget_usd is not None and run_budget_spent >= float(run_budget_usd):
+                            if run_budget_usd is not None and run_budget_spent >= float(
+                                run_budget_usd
+                            ):
                                 run_budget_stop = True
                         return variant
 
@@ -2851,7 +2925,8 @@ class ControlPlaneService:
             approved_candidates = [
                 item
                 for item in variants
-                if item.get("_bundle") is not None and str(item.get("verdict", "")).upper() == "APPROVE"
+                if item.get("_bundle") is not None
+                and str(item.get("verdict", "")).upper() == "APPROVE"
             ]
             if approved_candidates:
                 selected_variant = approved_candidates[0]
@@ -2866,7 +2941,7 @@ class ControlPlaneService:
             if selected_variant is None:
                 if not allow_mock_fallback:
                     raise RuntimeError("mock_fallback_disallowed")
-                # Last-resort fallback guarantees a runnable workflow payload only when policy allows it.
+                # Last-resort fallback only runs when policy allows it.
                 selected_variant = await _run_variant(None, len(variants))
                 variants.append(selected_variant)
             selected_variant["selected_for_workflow"] = True
@@ -2881,17 +2956,13 @@ class ControlPlaneService:
 
             # 8. Build state and run workflow
             inputs: dict[str, Any] = {
-                "trinity_bundle_ref": _make_artifact_ref(
-                    selected_ref, kind="ir.trinity_bundle"
-                ),
+                "trinity_bundle_ref": _make_artifact_ref(selected_ref, kind="ir.trinity_bundle"),
             }
 
             # Add data source if provided
             if data_source:
                 ds_key, ds_value = _resolve_data_source(data_source)
-                inputs[ds_key] = _make_artifact_ref(
-                    ds_value, kind=_DATA_SOURCE_KEYS[ds_key]
-                )
+                inputs[ds_key] = _make_artifact_ref(ds_value, kind=_DATA_SOURCE_KEYS[ds_key])
             else:
                 auto_refs = selected_variant.get("auto_data_source_refs")
                 if isinstance(auto_refs, dict):
@@ -2927,7 +2998,9 @@ class ControlPlaneService:
                         "llm_models": [item.get("model") for item in variants if item.get("model")],
                         "llm_selected_variant_id": selected_variant.get("model_variant_id"),
                         "llm_prompt_tokens": int(selected_variant.get("prompt_tokens") or 0),
-                        "llm_completion_tokens": int(selected_variant.get("completion_tokens") or 0),
+                        "llm_completion_tokens": int(
+                            selected_variant.get("completion_tokens") or 0
+                        ),
                         "llm_cost_usd": float(selected_variant.get("cost_usd") or 0.0),
                         "llm_cost_reconciliation_delta_usd": float(
                             selected_variant.get("cost_reconciliation_delta_usd") or 0.0
@@ -2937,11 +3010,7 @@ class ControlPlaneService:
                             8,
                         ),
                         "llm_model_variants": [
-                            {
-                                key: value
-                                for key, value in item.items()
-                                if not key.startswith("_")
-                            }
+                            {key: value for key, value in item.items() if not key.startswith("_")}
                             for item in variants
                         ],
                         "llm_multimodel_enabled": _is_multimodel_enabled(),
@@ -3048,6 +3117,7 @@ class ControlPlaneService:
                 )
 
             from polisyos.scientist.api import run_experiment
+
             run_experiment(state_payload)
             return {
                 "run_id": run_id,
@@ -3065,7 +3135,7 @@ class ControlPlaneService:
         *,
         request_id: str | None = None,
     ) -> IngestResponse:
-        """Execute connector ingestion synchronously and return refs/status for produced artifacts."""
+        """Execute connector ingestion and return refs/status for produced artifacts."""
         from polisyos.fabric.ingestion import (
             ConnectorManifestSpec,
             DatasetFetchSpec,
@@ -3365,9 +3435,7 @@ class ControlPlaneService:
             promotion_id=promotion_id,
             status="rejected",
             message=(
-                "Promotion candidate rejected."
-                if updated
-                else "Promotion candidate not found."
+                "Promotion candidate rejected." if updated else "Promotion candidate not found."
             ),
             binding_updated=False,
         )
@@ -3389,7 +3457,9 @@ class ControlPlaneService:
 
         store = self._artifact_store
         ref = persist_binding_rules_artifact(
-            store, profile, data_snapshot_ref=data_snapshot_ref,
+            store,
+            profile,
+            data_snapshot_ref=data_snapshot_ref,
         )
         return str(ref.artifact_id.hex)
 
@@ -3423,9 +3493,7 @@ class ControlPlaneService:
 
     # ---- Source profiles --------------------------------------------------
 
-    def list_source_profiles(
-        self, *, request_id: str | None = None
-    ) -> SourceProfilesListResponse:
+    def list_source_profiles(self, *, request_id: str | None = None) -> SourceProfilesListResponse:
         """List source profiles and mark whether each connector family is currently available."""
         profile_reg = self._registry_providers.source_profiles
         connector_reg = self._registry_providers.connectors
@@ -3459,9 +3527,7 @@ class ControlPlaneService:
 
     # ---- LLM model profiles -----------------------------------------------
 
-    def list_model_profiles(
-        self, *, request_id: str | None = None
-    ) -> ModelProfilesListResponse:
+    def list_model_profiles(self, *, request_id: str | None = None) -> ModelProfilesListResponse:
         """List registered LLM model profiles and pricing/capability metadata."""
         profile_reg = self._registry_providers.model_profiles
         profiles = profile_reg.list_all()
@@ -3527,9 +3593,7 @@ class ControlPlaneService:
 
     # ---- Capabilities -----------------------------------------------------
 
-    def get_capabilities(
-        self, *, request_id: str | None = None
-    ) -> CapabilityManifestResponse:
+    def get_capabilities(self, *, request_id: str | None = None) -> CapabilityManifestResponse:
         """Return the control-plane capability manifest, execution profiles, and feature gates."""
         causal_contract = build_causal_capability_contract()
         resolved_policy = self._policy_resolver.resolve(
@@ -3548,7 +3612,9 @@ class ControlPlaneService:
             CapabilityFeatureInfo(
                 key="natural_language_runs",
                 label="Natural-language runs",
-                description="Use the agent circuit to transform NL requests into executable policy runs.",
+                description=(
+                    "Use the agent circuit to transform NL requests into executable policy runs."
+                ),
                 category="runs",
                 enabled=True,
             ),
@@ -3562,14 +3628,19 @@ class ControlPlaneService:
             CapabilityFeatureInfo(
                 key="scientist_v2",
                 label="Scientist v2 runtime",
-                description="Unified v2 facade for web grounding, swarm, and Reflexion orchestration.",
+                description=(
+                    "Unified v2 facade for web grounding, swarm, and Reflexion orchestration."
+                ),
                 category="runs",
                 enabled=_is_scientist_v2_enabled(),
             ),
             CapabilityFeatureInfo(
                 key="scientist_shadow_mode",
                 label="Scientist shadow mode",
-                description="Run v2 in shadow alongside the legacy Scientist path and keep legacy as return-path.",
+                description=(
+                    "Run v2 in shadow alongside the legacy Scientist path "
+                    "and keep legacy as return-path."
+                ),
                 category="runs",
                 enabled=_is_scientist_shadow_mode(),
             ),
@@ -3597,7 +3668,9 @@ class ControlPlaneService:
             CapabilityFeatureInfo(
                 key="transport_summary",
                 label="Transport summary",
-                description="Expose transportability summaries on governance and decision surfaces.",
+                description=(
+                    "Expose transportability summaries on governance and decision surfaces."
+                ),
                 category="governance",
                 enabled=True,
             ),
@@ -3611,7 +3684,9 @@ class ControlPlaneService:
             CapabilityFeatureInfo(
                 key="auto_materialization",
                 label="Auto materialization",
-                description="Materialize retrieval results into snapshots or bindings during NL execution.",
+                description=(
+                    "Materialize retrieval results into snapshots or bindings during NL execution."
+                ),
                 category="evidence",
                 enabled=_is_auto_materialization_enabled(),
             ),
@@ -3632,21 +3707,30 @@ class ControlPlaneService:
             CapabilityFeatureInfo(
                 key="scientist_web_search",
                 label="Scientist web search",
-                description="Enable first-class Scholar web search and citation grounding in the Scientist runtime.",
+                description=(
+                    "Enable first-class Scholar web search and citation grounding "
+                    "in the Scientist runtime."
+                ),
                 category="evidence",
                 enabled=_is_scientist_web_search_enabled(),
             ),
             CapabilityFeatureInfo(
                 key="scientist_swarm",
                 label="Scientist swarm runtime",
-                description="Enable supervisor-worker swarm orchestration for research and evaluation facets.",
+                description=(
+                    "Enable supervisor-worker swarm orchestration for research "
+                    "and evaluation facets."
+                ),
                 category="runtime",
                 enabled=_is_scientist_swarm_enabled(),
             ),
             CapabilityFeatureInfo(
                 key="scientist_reflexion",
                 label="Scientist Reflexion",
-                description="Enable evaluator-optimizer retries with persistent memory in the Scientist runtime.",
+                description=(
+                    "Enable evaluator-optimizer retries with persistent memory "
+                    "in the Scientist runtime."
+                ),
                 category="runtime",
                 enabled=_is_scientist_reflexion_enabled(),
             ),
@@ -3682,10 +3766,17 @@ class ControlPlaneService:
             CapabilityFeatureInfo(
                 key="control_plane_local_waiver",
                 label="Local control-plane waiver",
-                description="Explicit research-only waiver allowing non-durable local control infrastructure.",
+                description=(
+                    "Explicit research-only waiver allowing non-durable "
+                    "local control infrastructure."
+                ),
                 category="platform",
-                enabled=bool(resolved_policy.fallback_rules.get("local_control_plane_waiver_active")),
-                stage="planned" if not resolved_policy.fallback_rules.get("local_control_plane_waiver_active") else "active",
+                enabled=bool(
+                    resolved_policy.fallback_rules.get("local_control_plane_waiver_active")
+                ),
+                stage="planned"
+                if not resolved_policy.fallback_rules.get("local_control_plane_waiver_active")
+                else "active",
             ),
         ]
         for feature in project_capability_features(causal_contract):
@@ -3727,11 +3818,11 @@ class ControlPlaneService:
 
     def trigger_lex_pipeline(
         self,
-        request: "LexTriggerRequest",
+        request: LexTriggerRequest,
         *,
         request_id: str | None = None,
         principal: RuntimePrincipal | None = None,
-    ) -> "LexTriggerResponse":
+    ) -> LexTriggerResponse:
         """Queue a Lex batch pipeline job and reject empty stage selections."""
         from polisyos.core.contracts.control import LexTriggerResponse
 
@@ -3853,7 +3944,7 @@ class ControlPlaneService:
         pipeline_id: str,
         *,
         request_id: str | None = None,
-    ) -> "LexPipelineStatusResponse":
+    ) -> LexPipelineStatusResponse:
         """Return durable Lex pipeline state merged with file-backed progress summaries."""
         from polisyos.core.contracts.control import LexPipelineStatusResponse
 
@@ -3892,7 +3983,7 @@ class ControlPlaneService:
         output_dir_str: str,
         *,
         request_id: str | None = None,
-    ) -> "LexGraphStatsResponse":
+    ) -> LexGraphStatsResponse:
         """Inspect a Lex DuckDB graph database and return aggregate/top-k statistics."""
         import duckdb
 
@@ -3953,10 +4044,10 @@ class ControlPlaneService:
 
     def search_lex_graph(
         self,
-        request: "LexSearchRequest",
+        request: LexSearchRequest,
         *,
         request_id: str | None = None,
-    ) -> "LexSearchResponse":
+    ) -> LexSearchResponse:
         """Run a Lex text search against the generated knowledge graph and return ranked facts."""
         from polisyos.core.contracts.control import (
             LexSearchResponse,

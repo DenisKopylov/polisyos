@@ -13,7 +13,11 @@ import {
 
 import { cn } from "@/lib/utils";
 import { chartTheme, ciColors, chartDefaults } from "./theme";
-import { ChartPatternDefs, describeTimeSeries, ChartDataTable } from "./accessibility";
+import {
+  ChartPatternDefs,
+  describeTimeSeries,
+  ChartDataTable,
+} from "./accessibility";
 import type { TimeSeriesDataPoint } from "./types";
 
 type AreaChartSeries = {
@@ -51,10 +55,7 @@ export function AreaChart({
   const ariaDescription = useMemo(() => {
     if (!data.length || !series.length) return "";
     const yVals = data.map((d) => d.y).filter((v) => v != null);
-    const range: [number, number] = [
-      Math.min(...yVals),
-      Math.max(...yVals),
-    ];
+    const range: [number, number] = [Math.min(...yVals), Math.max(...yVals)];
     return describeTimeSeries(title ?? series[0].label, data.length, range);
   }, [data, series, title]);
 

@@ -122,7 +122,10 @@ export function BottomSheet({
         )}
 
         {/* Content */}
-        <div className="overflow-y-auto px-4 pb-8" style={{ maxHeight: "calc(100% - 64px)" }}>
+        <div
+          className="overflow-y-auto px-4 pb-8"
+          style={{ maxHeight: "calc(100% - 64px)" }}
+        >
           {children}
         </div>
       </div>

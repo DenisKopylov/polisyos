@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from polisyos.core.canon import truncated_hash
@@ -129,7 +129,7 @@ class MockPIAgent:
                 "No major external shocks occur",
             ),
             context={"source": "mock_pi", "original_request": request},
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
     async def delegate(
@@ -185,9 +185,9 @@ class LLMPIAgent:
     def __init__(
         self,
         llm_client: Any,
-        drafter: "DrafterAgent | None" = None,
-        formalizer: "FormalizerAgent | None" = None,
-        critic: "CriticAgent | None" = None,
+        drafter: DrafterAgent | None = None,
+        formalizer: FormalizerAgent | None = None,
+        critic: CriticAgent | None = None,
         model_name: str | None = None,
         *,
         enable_response_healing: bool = False,
@@ -221,11 +221,7 @@ class LLMPIAgent:
             system=prompt,
             user=user_message,
             response_format={"type": "json_object"},
-            plugins=(
-                [{"id": "response-healing"}]
-                if self._enable_response_healing
-                else None
-            ),
+            plugins=([{"id": "response-healing"}] if self._enable_response_healing else None),
         )
 
         content = response.content if hasattr(response, "content") else str(response)
@@ -241,7 +237,7 @@ class LLMPIAgent:
                 constraints=tuple(pf_data.get("constraints", [])),
                 success_criteria=pf_data.get("success_criteria", {}),
                 assumptions=tuple(pf_data.get("assumptions", [])),
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
         except (json.JSONDecodeError, KeyError):
             return ProblemFrame(
@@ -249,7 +245,7 @@ class LLMPIAgent:
                 domain=domain_hint or "economic",
                 problem_statement=request[:500],
                 goals=(request[:200],),
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
 
     async def decompose_task(
@@ -272,11 +268,7 @@ class LLMPIAgent:
             system=prompt,
             user=user_message,
             response_format={"type": "json_object"},
-            plugins=(
-                [{"id": "response-healing"}]
-                if self._enable_response_healing
-                else None
-            ),
+            plugins=([{"id": "response-healing"}] if self._enable_response_healing else None),
         )
 
         content = response.content if hasattr(response, "content") else str(response)
@@ -338,7 +330,7 @@ class LLMPIAgent:
                 error=f"No {agent_role.value} agent registered",
             )
 
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         try:
             if agent_role == AgentRole.DRAFTER:
                 result = await agent.draft_policy(
@@ -352,7 +344,7 @@ class LLMPIAgent:
             else:
                 raise ValueError(f"Unknown agent role: {agent_role}")
 
-            duration = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start_time).total_seconds() * 1000
             return DelegationResult(
                 task_id=task.task_id,
                 agent_role=agent_role,

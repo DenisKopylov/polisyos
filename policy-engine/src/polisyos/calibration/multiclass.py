@@ -1,7 +1,9 @@
 """Multiclass probabilistic calibration diagnostics."""
+
 from __future__ import annotations
 
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -57,7 +59,9 @@ def evaluate_multiclass(
 
     one_hot = np.eye(prob_arr.shape[1], dtype=float)[y_idx]
     brier = float(np.mean(np.sum((one_hot - prob_arr) ** 2, axis=1)))
-    log_loss = float(np.mean(-np.log(np.clip(prob_arr[np.arange(y_idx.size), y_idx], _EPSILON, 1.0))))
+    log_loss = float(
+        np.mean(-np.log(np.clip(prob_arr[np.arange(y_idx.size), y_idx], _EPSILON, 1.0)))
+    )
     per_class = _classwise_metrics(
         y_idx=y_idx,
         y_prob=prob_arr,
@@ -69,15 +73,8 @@ def evaluate_multiclass(
     issues.extend(_class_support_issues(labels=labels, class_counts=class_counts))
     issues.extend(_remap_issues(top_report.issues, prefix_path="calibration.top_label"))
 
-    top_curves = {
-        f"top_label_{curve_id}": bins
-        for curve_id, bins in top_report.curves.items()
-    }
-    classwise_ece = [
-        metrics.ece
-        for metrics in per_class.values()
-        if metrics.ece is not None
-    ]
+    top_curves = {f"top_label_{curve_id}": bins for curve_id, bins in top_report.curves.items()}
+    classwise_ece = [metrics.ece for metrics in per_class.values() if metrics.ece is not None]
     metadata = {
         "class_labels": list(labels),
         "class_counts": {label: int(class_counts[index]) for index, label in enumerate(labels)},
@@ -107,9 +104,7 @@ def evaluate_multiclass(
         issues=tuple(issues),
         warnings=tuple(list(warnings) + list(top_report.warnings)),
         primary_curve=(
-            None
-            if top_report.primary_curve is None
-            else f"top_label_{top_report.primary_curve}"
+            None if top_report.primary_curve is None else f"top_label_{top_report.primary_curve}"
         ),
         per_class=per_class,
         per_group=dict(top_report.per_group),
@@ -143,7 +138,9 @@ def _encode_labels(
     for value in y_values:
         key = value
         if key not in mapping:
-            raise ValueError(f"Unknown multiclass label {value!r}; pass class_labels to fix ordering")
+            raise ValueError(
+                f"Unknown multiclass label {value!r}; pass class_labels to fix ordering"
+            )
         indices.append(int(mapping[key]))
     return np.asarray(indices, dtype=int), labels
 

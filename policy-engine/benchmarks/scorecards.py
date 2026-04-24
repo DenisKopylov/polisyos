@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import math
 from collections import defaultdict
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 
 from benchmarks.harness import BenchmarkReport, CaseResult
-
 
 MetricGetter = Callable[[Any], float]
 CaseGroupGetter = Callable[[str], str]
@@ -62,10 +62,7 @@ def summarize_method_metrics(
 
     aggregate = _mean_summary(raw_values)
     standardized = _mean_summary(std_values, suffix="_standardized_mean")
-    grouped = {
-        group: _mean_summary(methods)
-        for group, methods in grouped_case_metrics.items()
-    }
+    grouped = {group: _mean_summary(methods) for group, methods in grouped_case_metrics.items()}
     return aggregate, standardized, grouped
 
 
@@ -157,7 +154,9 @@ def compute_grouped_ranking_summary(
     out: dict[str, Any] = {}
     for group_name, cases in grouped_cases.items():
         out[group_name] = compute_ranking_summary(
-            BenchmarkReport(circuits=report.circuits, cases=cases, circuit_scores=report.circuit_scores),
+            BenchmarkReport(
+                circuits=report.circuits, cases=cases, circuit_scores=report.circuit_scores
+            ),
             primary_metric=primary_metric,
             metric_getter=metric_getter,
             scale_getter=scale_getter,
@@ -195,19 +194,21 @@ def build_flagship_scorecard(
 
         checks: dict[str, bool] = {}
         if "mean_rank_max" in thresholds and ranking:
-            checks["mean_rank"] = ranking.get("mean_rank", float("inf")) <= float(thresholds["mean_rank_max"])
+            checks["mean_rank"] = ranking.get("mean_rank", float("inf")) <= float(
+                thresholds["mean_rank_max"]
+            )
         if "max_rank_max" in thresholds and ranking:
-            checks["max_rank"] = ranking.get("max_rank", float("inf")) <= float(thresholds["max_rank_max"])
+            checks["max_rank"] = ranking.get("max_rank", float("inf")) <= float(
+                thresholds["max_rank_max"]
+            )
         if "max_deviation_from_best_max" in thresholds and ranking:
-            checks["max_deviation_from_best"] = (
-                ranking.get("max_deviation_from_best", float("inf"))
-                <= float(thresholds["max_deviation_from_best_max"])
-            )
+            checks["max_deviation_from_best"] = ranking.get(
+                "max_deviation_from_best", float("inf")
+            ) <= float(thresholds["max_deviation_from_best_max"])
         if "top_quartile_failures_max" in thresholds and ranking:
-            checks["top_quartile_failures"] = (
-                ranking.get("top_quartile_failures", float("inf"))
-                <= float(thresholds["top_quartile_failures_max"])
-            )
+            checks["top_quartile_failures"] = ranking.get(
+                "top_quartile_failures", float("inf")
+            ) <= float(thresholds["top_quartile_failures_max"])
         for threshold_name, metric_name in (
             ("ci_coverage_mean_min", "ci_coverage_mean"),
             ("failure_rate_mean_max", "failure_rate_mean"),
@@ -295,7 +296,9 @@ def compute_grouped_method_presence(
     out: dict[str, Any] = {}
     for group_name, cases in grouped_cases.items():
         out[group_name] = compute_method_presence(
-            BenchmarkReport(circuits=report.circuits, cases=cases, circuit_scores=report.circuit_scores),
+            BenchmarkReport(
+                circuits=report.circuits, cases=cases, circuit_scores=report.circuit_scores
+            ),
             method_names,
         )
     return out

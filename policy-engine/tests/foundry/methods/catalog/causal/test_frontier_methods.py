@@ -111,7 +111,11 @@ def _make_spatial_frontier_observational(seed: int = 211) -> dict[str, np.ndarra
     )
     outcome = np.linalg.solve(
         np.eye(n_obs) - 0.18 * weight_matrix,
-        1.1 * treatment + 0.35 * wa + 0.4 * x[:, 0] + 0.7 * latent + rng.normal(scale=0.2, size=n_obs),
+        1.1 * treatment
+        + 0.35 * wa
+        + 0.4 * x[:, 0]
+        + 0.7 * latent
+        + rng.normal(scale=0.2, size=n_obs),
     )
     return {
         "outcome": outcome,

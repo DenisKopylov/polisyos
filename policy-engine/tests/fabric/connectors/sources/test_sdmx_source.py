@@ -4,18 +4,16 @@ from __future__ import annotations
 
 import asyncio
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
-
-import pytest
 
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.sdmx_source import (
     SDMXSourceConnector,
     _parse_sdmx_json,
 )
-from polisyos.fabric.connectors.types import FetchError, RateLimitError
+from polisyos.fabric.connectors.types import FetchError
 from polisyos.ir.connectors import (
     ConnectorCapability,
     DataVersion,
@@ -25,7 +23,7 @@ from polisyos.ir.connectors import (
 )
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "sdmx"
-_NOW = datetime(2024, 1, 15, 10, 0, 0, tzinfo=timezone.utc)
+_NOW = datetime(2024, 1, 15, 10, 0, 0, tzinfo=UTC)
 
 
 def _run_async(coro):
@@ -39,6 +37,7 @@ def _load_fixture(name: str) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 # ECB ConnectionConfig for tests
 # ---------------------------------------------------------------------------
+
 
 def _ecb_config() -> ConnectionConfig:
     return ConnectionConfig(
@@ -69,6 +68,7 @@ def _oecd_config() -> ConnectionConfig:
 # Mock helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_fake_sdmx_request_json(fixture_body: dict[str, Any]):
     """Return a mock for _sdmx_request_json that returns fixture data."""
     raw = json.dumps(fixture_body).encode("utf-8")
@@ -77,7 +77,7 @@ def _make_fake_sdmx_request_json(fixture_body: dict[str, Any]):
         "Last-Modified": "Mon, 15 Jan 2024 10:00:00 GMT",
     }
 
-    async def _fake(self, handle, url, *, accept="data"):  # noqa: ARG001
+    async def _fake(self, handle, url, *, accept="data"):
         return fixture_body, headers, raw
 
     return _fake
@@ -89,13 +89,13 @@ def _make_fake_sdmx_request_head(head_headers: dict[str, str] | None = None):
         "Last-Modified": "Mon, 15 Jan 2024 10:00:00 GMT",
     }
 
-    async def _fake(self, handle, url):  # noqa: ARG001
+    async def _fake(self, handle, url):
         return head_headers or default_headers
 
     return _fake
 
 
-def _fake_get_session(self, _handle):  # noqa: ARG001
+def _fake_get_session(self, _handle):
     """Return a dummy session (never used by mocked methods)."""
     import asyncio as _asyncio
 
@@ -107,6 +107,7 @@ def _fake_get_session(self, _handle):  # noqa: ARG001
 # ---------------------------------------------------------------------------
 # Metadata / class attributes
 # ---------------------------------------------------------------------------
+
 
 class TestMetadata:
     def test_connector_id(self):
@@ -142,6 +143,7 @@ class TestMetadata:
 # ---------------------------------------------------------------------------
 # SDMX JSON parsing (pure function)
 # ---------------------------------------------------------------------------
+
 
 class TestParseSDMXJson:
     def test_parse_ecb_fixture(self):
@@ -228,6 +230,7 @@ class TestParseSDMXJson:
 # Config parsing
 # ---------------------------------------------------------------------------
 
+
 class TestConfigParsing:
     def test_parse_ecb_config(self):
         config = _ecb_config()
@@ -236,7 +239,11 @@ class TestConfigParsing:
         assert result["data_path"] == "data"
         assert result["dataflow_path"] == "dataflow"
         assert result["dimension_order"] == [
-            "FREQ", "CURRENCY", "CURRENCY_DENOM", "EXR_TYPE", "EXR_SUFFIX"
+            "FREQ",
+            "CURRENCY",
+            "CURRENCY_DENOM",
+            "EXR_TYPE",
+            "EXR_SUFFIX",
         ]
 
     def test_parse_oecd_config(self):
@@ -376,6 +383,7 @@ class TestCapabilityDescribe:
 # Filter / time helpers
 # ---------------------------------------------------------------------------
 
+
 class TestFilterAndTimeHelpers:
     def test_build_filter_path_empty(self):
         req = FetchRequest(dataset_id="EXR")
@@ -414,8 +422,8 @@ class TestFilterAndTimeHelpers:
     def test_build_time_params_both(self):
         req = FetchRequest(
             dataset_id="EXR",
-            date_start=datetime(2023, 1, 1, tzinfo=timezone.utc),
-            date_end=datetime(2024, 6, 30, tzinfo=timezone.utc),
+            date_start=datetime(2023, 1, 1, tzinfo=UTC),
+            date_end=datetime(2024, 6, 30, tzinfo=UTC),
         )
         params = SDMXSourceConnector._build_time_params(req)
         assert params == {"startPeriod": "2023-01-01", "endPeriod": "2024-06-30"}
@@ -423,7 +431,7 @@ class TestFilterAndTimeHelpers:
     def test_build_time_params_start_only(self):
         req = FetchRequest(
             dataset_id="EXR",
-            date_start=datetime(2023, 1, 1, tzinfo=timezone.utc),
+            date_start=datetime(2023, 1, 1, tzinfo=UTC),
         )
         params = SDMXSourceConnector._build_time_params(req)
         assert params == {"startPeriod": "2023-01-01"}
@@ -463,6 +471,7 @@ class TestFilterAndTimeHelpers:
 # Connect / disconnect lifecycle
 # ---------------------------------------------------------------------------
 
+
 class TestLifecycle:
     def test_connect_stores_sdmx_config(self, monkeypatch):
         connector = SDMXSourceConnector()
@@ -481,13 +490,15 @@ class TestLifecycle:
 # Fetch
 # ---------------------------------------------------------------------------
 
+
 class TestFetch:
     def test_fetch_ecb_exr(self, monkeypatch):
         connector = SDMXSourceConnector()
         fixture = _load_fixture("ecb_exr_response.json")
 
         monkeypatch.setattr(
-            SDMXSourceConnector, "_sdmx_request_json",
+            SDMXSourceConnector,
+            "_sdmx_request_json",
             _make_fake_sdmx_request_json(fixture),
         )
         monkeypatch.setattr(SDMXSourceConnector, "_get_session", _fake_get_session)
@@ -526,8 +537,8 @@ class TestFetch:
             handle = await connector.connect(_ecb_config())
             request = FetchRequest(
                 dataset_id="EXR",
-                date_start=datetime(2023, 1, 1, tzinfo=timezone.utc),
-                date_end=datetime(2024, 12, 31, tzinfo=timezone.utc),
+                date_start=datetime(2023, 1, 1, tzinfo=UTC),
+                date_end=datetime(2024, 12, 31, tzinfo=UTC),
             )
             await connector.fetch(handle, request)
             await connector.disconnect(handle)
@@ -592,7 +603,8 @@ class TestFetch:
         empty_body = {"dataSets": []}
 
         monkeypatch.setattr(
-            SDMXSourceConnector, "_sdmx_request_json",
+            SDMXSourceConnector,
+            "_sdmx_request_json",
             _make_fake_sdmx_request_json(empty_body),
         )
         monkeypatch.setattr(SDMXSourceConnector, "_get_session", _fake_get_session)
@@ -622,7 +634,7 @@ class TestFetch:
             params,
             connector_id,
             headers=None,
-        ):  # noqa: ARG001
+        ):
             calls["count"] += 1
             if calls["count"] < 3:
                 status_code = 500 if calls["count"] == 1 else 503
@@ -653,13 +665,15 @@ class TestFetch:
 # List datasets (catalog browse)
 # ---------------------------------------------------------------------------
 
+
 class TestListDatasets:
     def test_list_ecb_dataflows(self, monkeypatch):
         connector = SDMXSourceConnector()
         fixture = _load_fixture("ecb_dataflows_response.json")
 
         monkeypatch.setattr(
-            SDMXSourceConnector, "_sdmx_request_json",
+            SDMXSourceConnector,
+            "_sdmx_request_json",
             _make_fake_sdmx_request_json(fixture),
         )
         monkeypatch.setattr(SDMXSourceConnector, "_get_session", _fake_get_session)
@@ -687,13 +701,15 @@ class TestListDatasets:
 # Streaming fetch
 # ---------------------------------------------------------------------------
 
+
 class TestFetchStream:
     def test_stream_produces_chunks(self, monkeypatch):
         connector = SDMXSourceConnector()
         fixture = _load_fixture("ecb_exr_response.json")
 
         monkeypatch.setattr(
-            SDMXSourceConnector, "_sdmx_request_json",
+            SDMXSourceConnector,
+            "_sdmx_request_json",
             _make_fake_sdmx_request_json(fixture),
         )
         monkeypatch.setattr(SDMXSourceConnector, "_get_session", _fake_get_session)
@@ -719,11 +735,13 @@ class TestFetchStream:
 # Freshness check
 # ---------------------------------------------------------------------------
 
+
 class TestFreshness:
     def test_freshness_etag_fresh(self, monkeypatch):
         connector = SDMXSourceConnector()
         monkeypatch.setattr(
-            SDMXSourceConnector, "_sdmx_request_head",
+            SDMXSourceConnector,
+            "_sdmx_request_head",
             _make_fake_sdmx_request_head({"ETag": '"etag-v1"'}),
         )
         monkeypatch.setattr(SDMXSourceConnector, "_get_session", _fake_get_session)
@@ -731,7 +749,8 @@ class TestFreshness:
         async def _exercise():
             handle = await connector.connect(_ecb_config())
             result = await connector.check_freshness(
-                handle, "EXR",
+                handle,
+                "EXR",
                 DataVersion(strategy=VersionStrategy.ETAG, value='"etag-v1"', timestamp=_NOW),
             )
             await connector.disconnect(handle)
@@ -743,7 +762,8 @@ class TestFreshness:
     def test_freshness_etag_stale(self, monkeypatch):
         connector = SDMXSourceConnector()
         monkeypatch.setattr(
-            SDMXSourceConnector, "_sdmx_request_head",
+            SDMXSourceConnector,
+            "_sdmx_request_head",
             _make_fake_sdmx_request_head({"ETag": '"etag-v2"'}),
         )
         monkeypatch.setattr(SDMXSourceConnector, "_get_session", _fake_get_session)
@@ -751,7 +771,8 @@ class TestFreshness:
         async def _exercise():
             handle = await connector.connect(_ecb_config())
             result = await connector.check_freshness(
-                handle, "EXR",
+                handle,
+                "EXR",
                 DataVersion(strategy=VersionStrategy.ETAG, value='"etag-v1"', timestamp=_NOW),
             )
             await connector.disconnect(handle)
@@ -765,7 +786,8 @@ class TestFreshness:
         connector = SDMXSourceConnector()
         lm = "Mon, 15 Jan 2024 10:00:00 GMT"
         monkeypatch.setattr(
-            SDMXSourceConnector, "_sdmx_request_head",
+            SDMXSourceConnector,
+            "_sdmx_request_head",
             _make_fake_sdmx_request_head({"Last-Modified": lm}),
         )
         monkeypatch.setattr(SDMXSourceConnector, "_get_session", _fake_get_session)
@@ -773,7 +795,8 @@ class TestFreshness:
         async def _exercise():
             handle = await connector.connect(_ecb_config())
             result = await connector.check_freshness(
-                handle, "EXR",
+                handle,
+                "EXR",
                 DataVersion(strategy=VersionStrategy.TIMESTAMP, value=lm, timestamp=_NOW),
             )
             await connector.disconnect(handle)
@@ -794,7 +817,8 @@ class TestFreshness:
         async def _exercise():
             handle = await connector.connect(_ecb_config())
             result = await connector.check_freshness(
-                handle, "EXR",
+                handle,
+                "EXR",
                 DataVersion(strategy=VersionStrategy.ETAG, value='"old"', timestamp=_NOW),
             )
             await connector.disconnect(handle)
@@ -808,13 +832,15 @@ class TestFreshness:
 # Health check
 # ---------------------------------------------------------------------------
 
+
 class TestHealthCheck:
     def test_health_check_ok(self, monkeypatch):
         connector = SDMXSourceConnector()
         fixture = _load_fixture("ecb_dataflows_response.json")
 
         monkeypatch.setattr(
-            SDMXSourceConnector, "_sdmx_request_json",
+            SDMXSourceConnector,
+            "_sdmx_request_json",
             _make_fake_sdmx_request_json(fixture),
         )
         monkeypatch.setattr(SDMXSourceConnector, "_get_session", _fake_get_session)
@@ -852,6 +878,7 @@ class TestHealthCheck:
 # Schema
 # ---------------------------------------------------------------------------
 
+
 class TestSchema:
     def test_get_dataset_schema(self, monkeypatch):
         connector = SDMXSourceConnector()
@@ -871,6 +898,7 @@ class TestSchema:
 # ---------------------------------------------------------------------------
 # Dataflow extraction edge cases
 # ---------------------------------------------------------------------------
+
 
 class TestDataflowExtraction:
     def test_extract_dataflows_from_structure(self):

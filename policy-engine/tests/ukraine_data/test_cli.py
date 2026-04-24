@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.ukraine_data.cli import _parse_stage, build_parser
 from polisyos.ukraine_data.models import StageId
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_parse_stage_normalizes_hyphenated_ids() -> None:

@@ -17,7 +17,7 @@
 set -euo pipefail
 
 usage() {
-  cat <<'EOF'
+  cat << 'EOF'
 Usage:
   bash tools/cloud/prepare_shards.sh /path/to/filtered_topics.csv [--deploy-dir /path/to/out]
 EOF
@@ -40,7 +40,7 @@ while [[ $# -gt 0 ]]; do
       DEPLOY_DIR="${2:?--deploy-dir requires a value}"
       shift 2
       ;;
-    -h|--help)
+    -h | --help)
       usage
       exit 0
       ;;
@@ -80,7 +80,7 @@ mkdir -p "$DEPLOY_DIR"
 TOTAL="$(python3 -c 'import csv, sys; from pathlib import Path; rows=list(csv.reader(Path(sys.argv[1]).open("r", encoding="utf-8", newline=""))); print(max(len(rows)-1, 0))' "$TOPICS_CSV")"
 echo "Input: $TOPICS_CSV ($TOTAL topics)"
 
-python3 - "$TOPICS_CSV" "$DEPLOY_DIR" <<'PY'
+python3 - "$TOPICS_CSV" "$DEPLOY_DIR" << 'PY'
 import csv
 import random
 import sys
@@ -116,7 +116,7 @@ echo ""
 echo "=== Creating env templates ==="
 
 for server in 1 2 3; do
-  cat > "$DEPLOY_DIR/.env.server_${server}.example" <<EOF
+  cat > "$DEPLOY_DIR/.env.server_${server}.example" << EOF
 # Server ${server} environment template.
 # Fill in real values before deployment.
 GONKA_API_KEY=
@@ -138,7 +138,7 @@ EOF
   echo "  Created .env.server_${server}.example"
 done
 
-cat > "$DEPLOY_DIR/DEPLOYMENT_NOTES.txt" <<EOF
+cat > "$DEPLOY_DIR/DEPLOYMENT_NOTES.txt" << EOF
 Prepared shard CSVs and env templates in:
   $DEPLOY_DIR
 

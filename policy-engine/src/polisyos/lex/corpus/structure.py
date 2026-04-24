@@ -4,15 +4,14 @@ The stage reads normalized document text, applies jurisdiction-specific article/
 persists ``DocFragment`` records, writes a provision index artifact, and annotates ``DocMeta``
 with ``props['lex']['provision_index_ref']`` for NormPack assembly.
 """
+
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Literal
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Literal
 
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.world import (
     append_world_segment_index,
     emit_doc_fragment_facts,
@@ -44,6 +43,12 @@ from polisyos.lex.corpus.index import (
 )
 from polisyos.lex.errors import LexError, LexNotReadyError, LexStructureError, LexValidationError
 from polisyos.lex.types import LexStructureOptions, LexStructureResult
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.ir.world.doc import DocMeta
 
 _POINT_RE_LIST = [
     re.compile(r"^\s*(\d+)\)\s+\S"),
@@ -347,8 +352,7 @@ def _build_candidates(
             quality_issues.append(f"duplicate_article_number:{number}")
 
     if any(
-        article_numbers[idx] <= article_numbers[idx - 1]
-        for idx in range(1, len(article_numbers))
+        article_numbers[idx] <= article_numbers[idx - 1] for idx in range(1, len(article_numbers))
     ):
         quality_issues.append("non_monotonic_articles")
 
@@ -455,11 +459,7 @@ def _build_candidates(
                                 "lex_kind": "subpoint",
                                 "number": sub_letter,
                                 "article": int(article_number),
-                                **(
-                                    {"part": int(part_number)}
-                                    if part_number is not None
-                                    else {}
-                                ),
+                                **({"part": int(part_number)} if part_number is not None else {}),
                             },
                         )
                     )
@@ -625,9 +625,7 @@ def build_legal_structure(
         lex_props["provision_index_ref"] = provision_index_artifact_id
         lex_props["structure_pipeline"] = "lex.corpus.structure_v1"
         if opts.write_structure_built_at:
-            lex_props["structure_built_at"] = (
-                datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-            )
+            lex_props["structure_built_at"] = datetime.now(UTC).isoformat().replace("+00:00", "Z")
         props["lex"] = lex_props
 
         meta_after = meta_before.model_copy(update={"props": props})

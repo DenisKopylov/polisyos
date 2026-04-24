@@ -35,10 +35,7 @@ def test_branch_state_isolates_declared_nested_write_path() -> None:
 
     assert branch_state_value.params is not base_state.params
     assert branch_state_value.params["nested"] is not base_state.params["nested"]
-    assert (
-        branch_state_value.params["nested"]["items"]
-        is not base_state.params["nested"]["items"]
-    )
+    assert branch_state_value.params["nested"]["items"] is not base_state.params["nested"]["items"]
     assert branch_state_value.params["shared"] is base_state.params["shared"]
     assert branch.journal.isolated_paths == ("params.nested.items",)
 

@@ -14,9 +14,11 @@ References:
     Bareinboim, E., Forney, A. & Pearl, J. (2015). Bandits with unobserved
         confounders: A causal approach. NeurIPS.
 """
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Literal, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -44,9 +46,7 @@ from polisyos.foundry.methods.catalog.causal.g_computation import (
     _dynamic_input_slots,
     _extract_dynamic_data,
     _fit_outcome_model,
-    _fit_propensity_model,
     _ice_estimate,
-    _predict_proba_safe,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
 from polisyos.ir.analytics.causal import CausalMethod, EstimationStatus
@@ -62,9 +62,7 @@ _ASSUMPTIONS_BANDIT = {
     "causal_structure": (
         "A causal graph is available or interventional effects can be estimated from data"
     ),
-    "no_hidden_confounders": (
-        "Causal effects are identifiable from observational data"
-    ),
+    "no_hidden_confounders": ("Causal effects are identifiable from observational data"),
 }
 
 
@@ -215,9 +213,7 @@ class OffPolicyEvaluator:
     )
 
     @staticmethod
-    def pure_step(
-        state: DynamicTreatmentData, params: Mapping[str, Any]
-    ) -> dict[str, Any]:
+    def pure_step(state: DynamicTreatmentData, params: Mapping[str, Any]) -> dict[str, Any]:
         try:
             data = _extract_dynamic_data(state)
         except Exception as exc:
@@ -323,8 +319,7 @@ class OffPolicyEvaluator:
             )
         if ess < 10:
             warnings.append(
-                f"Low effective sample size ({ess:.1f}). "
-                "OPE estimates may have high variance."
+                f"Low effective sample size ({ess:.1f}). OPE estimates may have high variance."
             )
 
         rng = np.random.default_rng(42)
@@ -477,9 +472,7 @@ class CausalBandit:
     )
 
     @staticmethod
-    def pure_step(
-        state: DynamicTreatmentData, params: Mapping[str, Any]
-    ) -> dict[str, Any]:
+    def pure_step(state: DynamicTreatmentData, params: Mapping[str, Any]) -> dict[str, Any]:
         try:
             data = _extract_dynamic_data(state)
         except Exception as exc:
@@ -620,19 +613,15 @@ class CausalBandit:
             metadata={
                 "optimal_arm": optimal_arm,
                 "n_rounds": n_rounds,
-                "cumulative_regret": float(cumulative_regret)
-                if true_opt_idx >= 0
-                else None,
+                "cumulative_regret": float(cumulative_regret) if true_opt_idx >= 0 else None,
             },
         )
-        return wrap_causal_output(
-            report, extras={"bandit_result": bandit_result}
-        )
+        return wrap_causal_output(report, extras={"bandit_result": bandit_result})
 
 
 __all__ = [
     "BanditResult",
     "CausalBandit",
-    "OffPolicyEvaluator",
     "OPEResult",
+    "OffPolicyEvaluator",
 ]

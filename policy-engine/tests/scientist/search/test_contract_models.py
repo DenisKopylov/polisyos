@@ -8,7 +8,11 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.search.failure_cards import TypedFailureCard
 from polisyos.scientist.search.funnel.types import (
     TypedFailureCard as ReexportedTypedFailureCard,
+)
+from polisyos.scientist.search.funnel.types import (
     UncertaintyEnvelope as ReexportedUncertaintyEnvelope,
+)
+from polisyos.scientist.search.funnel.types import (
     UncertaintyType as ReexportedUncertaintyType,
 )
 from polisyos.scientist.search.uncertainty import (

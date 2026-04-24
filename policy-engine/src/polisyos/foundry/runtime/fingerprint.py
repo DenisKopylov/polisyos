@@ -1,11 +1,13 @@
 """Capture compact execution-environment fingerprints for reproducible Foundry runs."""
+
 from __future__ import annotations
 
 import os
 import platform
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from importlib.metadata import PackageNotFoundError, version as package_version
+from datetime import UTC, datetime
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as package_version
 from typing import TYPE_CHECKING
 
 from polisyos.common.logger import get_logger
@@ -73,12 +75,10 @@ class EnvironmentFingerprint:
     determinism_tier: DeterminismTier
     random_seed: int
 
-    captured_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
-    )
+    captured_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     @classmethod
-    def capture(cls, tier: DeterminismTier, seed: int) -> "EnvironmentFingerprint":
+    def capture(cls, tier: DeterminismTier, seed: int) -> EnvironmentFingerprint:
         """
         Capture current environment for artifact storage.
 
@@ -122,10 +122,10 @@ class EnvironmentFingerprint:
     @classmethod
     def from_environment_manifest(
         cls,
-        manifest: "EnvironmentManifest",
+        manifest: EnvironmentManifest,
         tier: DeterminismTier,
         seed: int,
-    ) -> "EnvironmentFingerprint":
+    ) -> EnvironmentFingerprint:
         """Create fingerprint from existing full EnvironmentManifest."""
         return cls(
             python_version=manifest.python.version,
@@ -166,7 +166,7 @@ class EnvironmentFingerprint:
         )
         return truncated_hash(critical_fields, length=16)
 
-    def compatibility_score(self, other: "EnvironmentFingerprint") -> float:
+    def compatibility_score(self, other: EnvironmentFingerprint) -> float:
         """
         Calculate compatibility score with another environment.
 
@@ -215,8 +215,7 @@ class EnvironmentFingerprint:
         if self.determinism_tier == DeterminismTier.STRICT_CPU:
             if self.device_name and "gpu" in self.device_name.lower():
                 warnings.append(
-                    "STRICT_CPU tier claimed but running on GPU device: "
-                    f"{self.device_name}"
+                    f"STRICT_CPU tier claimed but running on GPU device: {self.device_name}"
                 )
             if not self.deterministic_ops:
                 warnings.append(
@@ -258,11 +257,7 @@ def _get_cuda_version_fast() -> str | None:
         for device in jax.devices():
             if device.platform == "gpu":
                 cuda_home = os.environ.get("CUDA_HOME", "")
-                return (
-                    cuda_home.split("/")[-1].replace("cuda-", "")
-                    if cuda_home
-                    else "detected"
-                )
+                return cuda_home.split("/")[-1].replace("cuda-", "") if cuda_home else "detected"
     except _FINGERPRINT_PROBE_FAILURES as exc:
         logger.debug("Ignored exception: %s", exc)
 

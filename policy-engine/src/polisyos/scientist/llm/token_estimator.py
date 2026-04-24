@@ -78,25 +78,35 @@ def estimate_request_tokens(
         )
     else:
         if system:
-            total += estimate_tokens(
-                system,
-                model=model,
-                provider_hint=provider_hint,
-            ) + 8
+            total += (
+                estimate_tokens(
+                    system,
+                    model=model,
+                    provider_hint=provider_hint,
+                )
+                + 8
+            )
         if user:
-            total += estimate_tokens(
-                user,
-                model=model,
-                provider_hint=provider_hint,
-            ) + 8
+            total += (
+                estimate_tokens(
+                    user,
+                    model=model,
+                    provider_hint=provider_hint,
+                )
+                + 8
+            )
     if tools:
         import json
+
         tools_text = json.dumps(tools, ensure_ascii=False, default=str)
-        total += estimate_tokens(
-            tools_text,
-            model=model,
-            provider_hint=provider_hint,
-        ) + 24
+        total += (
+            estimate_tokens(
+                tools_text,
+                model=model,
+                provider_hint=provider_hint,
+            )
+            + 24
+        )
     return max(total, 1)
 
 
@@ -111,17 +121,23 @@ def _estimate_messages_tokens(
     total = 0
     for message in messages:
         if not isinstance(message, dict):
-            total += estimate_tokens(
-                str(message),
+            total += (
+                estimate_tokens(
+                    str(message),
+                    model=model,
+                    provider_hint=provider_hint,
+                )
+                + 8
+            )
+            continue
+        total += (
+            estimate_tokens(
+                str(message.get("role") or ""),
                 model=model,
                 provider_hint=provider_hint,
-            ) + 8
-            continue
-        total += estimate_tokens(
-            str(message.get("role") or ""),
-            model=model,
-            provider_hint=provider_hint,
-        ) + 8
+            )
+            + 8
+        )
         content = message.get("content")
         if isinstance(content, str):
             total += estimate_tokens(
@@ -145,11 +161,14 @@ def _estimate_messages_tokens(
                 )
         tool_calls = message.get("tool_calls")
         if tool_calls:
-            total += estimate_tokens(
-                json.dumps(tool_calls, ensure_ascii=False, default=str),
-                model=model,
-                provider_hint=provider_hint,
-            ) + 12
+            total += (
+                estimate_tokens(
+                    json.dumps(tool_calls, ensure_ascii=False, default=str),
+                    model=model,
+                    provider_hint=provider_hint,
+                )
+                + 12
+            )
     return total
 
 
@@ -214,6 +233,6 @@ def _tiktoken_count(text: str, *, model: str | None = None) -> int:
 
 
 __all__ = [
-    "estimate_tokens",
     "estimate_request_tokens",
+    "estimate_tokens",
 ]

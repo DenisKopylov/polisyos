@@ -39,8 +39,8 @@ if TYPE_CHECKING:
         LegalSourceAnchor,
         LegalSourceBundle,
     )
-    from polisyos.scientist.policy_verified.models import LegalCandidatePack, LegalSourcePack
     from polisyos.scholar.search.models import WebEvidenceBundle
+    from polisyos.scientist.policy_verified.models import LegalCandidatePack, LegalSourcePack
 
 
 class KnowledgeToolkit:
@@ -90,7 +90,9 @@ class KnowledgeToolkit:
         if self._dataset_catalog is None:
             return []
         return self._dataset_catalog.search_datasets(
-            query, domain_filter=domain, top_k=top_k,
+            query,
+            domain_filter=domain,
+            top_k=top_k,
         )
 
     def find_datasets_for_metric(
@@ -125,7 +127,9 @@ class KnowledgeToolkit:
         if self._scholar_graph is None:
             return []
         return self._scholar_graph.find_relevant_works(
-            query, domain=domain, top_k=top_k,
+            query,
+            domain=domain,
+            top_k=top_k,
         )
 
     def get_parameter_prior(
@@ -170,7 +174,10 @@ class KnowledgeToolkit:
         if self._scholar_graph is None:
             return []
         return self._scholar_graph.find_causal_evidence(
-            cause, effect, min_trust=min_trust, support_mode=support_mode,
+            cause,
+            effect,
+            min_trust=min_trust,
+            support_mode=support_mode,
         )
 
     def get_mechanism_evidence(
@@ -183,7 +190,8 @@ class KnowledgeToolkit:
         if self._scholar_graph is None:
             return []
         return self._scholar_graph.get_mechanism_evidence(
-            mechanism_name, top_k=top_k,
+            mechanism_name,
+            top_k=top_k,
         )
 
     # ------------------------------------------------------------------
@@ -358,7 +366,9 @@ class KnowledgeToolkit:
     ) -> list[LegalDocVersionResult]:
         if self._legal_graph is None:
             return []
-        return self._legal_graph.get_versioned_source_refs(doc_id=doc_id, doc_family_id=doc_family_id)
+        return self._legal_graph.get_versioned_source_refs(
+            doc_id=doc_id, doc_family_id=doc_family_id
+        )
 
     def assemble_legal_candidate_pack(
         self,
@@ -369,7 +379,7 @@ class KnowledgeToolkit:
         as_of: str | None = None,
         top_k_facts: int = 25,
         top_k_provisions: int = 15,
-    ) -> "LegalCandidatePack":
+    ) -> LegalCandidatePack:
         from polisyos.scientist.policy_verified.models import LegalCandidatePack
 
         fact_hits = self.search_legal_facts(
@@ -408,11 +418,11 @@ class KnowledgeToolkit:
 
     def expand_legal_source_pack(
         self,
-        candidate_pack: "LegalCandidatePack",
+        candidate_pack: LegalCandidatePack,
         *,
         max_source_docs: int = 120,
         max_reference_hops: int = 2,
-    ) -> "LegalSourcePack":
+    ) -> LegalSourcePack:
         from polisyos.scientist.policy_verified.models import LegalSourcePack
 
         if self._legal_graph is None:
@@ -543,9 +553,7 @@ class KnowledgeToolkit:
             return ""
         lines = ["## AVAILABLE DATASETS"]
         for r in results[:max_results]:
-            lines.append(
-                f"- **{r.title}** (publisher: {r.publisher}, portal: {r.source_portal})"
-            )
+            lines.append(f"- **{r.title}** (publisher: {r.publisher}, portal: {r.source_portal})")
             if r.variables:
                 lines.append(f"  Variables: {', '.join(r.variables[:10])}")
             if r.polisyos_metrics:
@@ -609,7 +617,7 @@ class KnowledgeToolkit:
 
     def format_web_evidence_context(
         self,
-        bundle: "WebEvidenceBundle",
+        bundle: WebEvidenceBundle,
         *,
         max_claims: int = 8,
         max_snippets: int = 8,
@@ -634,9 +642,7 @@ class KnowledgeToolkit:
                 title = source.title if source is not None and source.title else str(snippet.url)
                 url = str(source.url if source is not None else snippet.url)
                 text = snippet.text.replace("\n", " ").strip()
-                lines.append(
-                    f"  [{title}]({url}) [{snippet.start_char}:{snippet.end_char}] {text}"
-                )
+                lines.append(f"  [{title}]({url}) [{snippet.start_char}:{snippet.end_char}] {text}")
 
         if bundle.uncertainty_notes:
             lines.append(f"Bundle notes: {', '.join(bundle.uncertainty_notes[:8])}")

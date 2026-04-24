@@ -38,28 +38,30 @@ Example:
     >>> assert revenue.can_sum_over_time
     >>> assert revenue.default_aggregation == AggregationMethod.SUM
 """
+
 from __future__ import annotations
 
 import re
 import unicodedata
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from enum import Enum
-from typing import ClassVar, Literal, Sequence
+from typing import ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
 __all__ = [
-    "TemporalType",
-    "TimeGrain",
     "AggregationMethod",
-    "TemporalVariable",
-    "TemporalAggregationError",
-    "TimeInterval",
-    "TemporalSemantics",
     "StockFlowCombination",
-    "validate_temporal_aggregation",
+    "TemporalAggregationError",
+    "TemporalSemantics",
+    "TemporalType",
+    "TemporalVariable",
+    "TimeGrain",
+    "TimeInterval",
     "infer_temporal_type",
+    "validate_temporal_aggregation",
 ]
 
 
@@ -74,8 +76,8 @@ class TemporalAggregationError(ValueError):
     def __init__(
         self,
         variable_name: str,
-        temporal_type: "TemporalType",
-        attempted_method: "AggregationMethod",
+        temporal_type: TemporalType,
+        attempted_method: AggregationMethod,
         reason: str,
     ):
         self.variable_name = variable_name
@@ -127,34 +129,40 @@ class TemporalType(str, Enum):
         """Whether the variable changes over time."""
         return self in (TemporalType.STOCK, TemporalType.FLOW, TemporalType.DERIVED)
 
-    def get_allowed_aggregations(self) -> frozenset["AggregationMethod"]:
+    def get_allowed_aggregations(self) -> frozenset[AggregationMethod]:
         """Get the set of valid aggregation methods for this temporal type."""
         if self == TemporalType.STOCK:
-            return frozenset({
-                AggregationMethod.FIRST,
-                AggregationMethod.LAST,
-                AggregationMethod.MEAN,
-                AggregationMethod.MEDIAN,
-                AggregationMethod.MIN,
-                AggregationMethod.MAX,
-            })
+            return frozenset(
+                {
+                    AggregationMethod.FIRST,
+                    AggregationMethod.LAST,
+                    AggregationMethod.MEAN,
+                    AggregationMethod.MEDIAN,
+                    AggregationMethod.MIN,
+                    AggregationMethod.MAX,
+                }
+            )
         elif self == TemporalType.FLOW:
-            return frozenset({
-                AggregationMethod.SUM,
-                AggregationMethod.MEAN,
-                AggregationMethod.MEDIAN,
-                AggregationMethod.MIN,
-                AggregationMethod.MAX,
-            })
+            return frozenset(
+                {
+                    AggregationMethod.SUM,
+                    AggregationMethod.MEAN,
+                    AggregationMethod.MEDIAN,
+                    AggregationMethod.MIN,
+                    AggregationMethod.MAX,
+                }
+            )
         elif self == TemporalType.PARAMETER:
-            return frozenset({
-                AggregationMethod.FIRST,  # Parameters should be constant
-                AggregationMethod.LAST,
-            })
+            return frozenset(
+                {
+                    AggregationMethod.FIRST,  # Parameters should be constant
+                    AggregationMethod.LAST,
+                }
+            )
         else:  # DERIVED
             return frozenset(AggregationMethod)  # Allow all (context-dependent)
 
-    def get_default_aggregation(self) -> "AggregationMethod":
+    def get_default_aggregation(self) -> AggregationMethod:
         """Get the default aggregation method for this temporal type."""
         defaults = {
             TemporalType.STOCK: AggregationMethod.LAST,
@@ -165,7 +173,7 @@ class TemporalType(str, Enum):
         return defaults[self]
 
     @classmethod
-    def from_kernel_slot_kind(cls, slot_kind: str) -> "TemporalType":
+    def from_kernel_slot_kind(cls, slot_kind: str) -> TemporalType:
         """
         Map from ir/kernel/slots.SlotKind to TemporalType.
 
@@ -193,7 +201,7 @@ class TimeGrain(str, Enum):
     enables proper aggregation/disaggregation logic.
     """
 
-    INSTANT = "instant"      # Point-in-time (no duration)
+    INSTANT = "instant"  # Point-in-time (no duration)
     SECOND = "second"
     MINUTE = "minute"
     HOURLY = "hourly"
@@ -203,7 +211,7 @@ class TimeGrain(str, Enum):
     QUARTERLY = "quarterly"
     ANNUAL = "annual"
     FISCAL_YEAR = "fiscal_year"
-    CUSTOM = "custom"        # Custom period defined elsewhere
+    CUSTOM = "custom"  # Custom period defined elsewhere
 
     @property
     def approximate_days(self) -> float | None:
@@ -223,7 +231,7 @@ class TimeGrain(str, Enum):
         }
         return day_mapping.get(self)
 
-    def is_finer_than(self, other: "TimeGrain") -> bool:
+    def is_finer_than(self, other: TimeGrain) -> bool:
         """Check if this grain is finer (higher frequency) than another."""
         if self == TimeGrain.CUSTOM or other == TimeGrain.CUSTOM:
             return False  # Can't compare custom
@@ -236,7 +244,7 @@ class TimeGrain(str, Enum):
 
         return self_days < other_days
 
-    def is_coarser_than(self, other: "TimeGrain") -> bool:
+    def is_coarser_than(self, other: TimeGrain) -> bool:
         """Check if this grain is coarser (lower frequency) than another."""
         if self == TimeGrain.CUSTOM or other == TimeGrain.CUSTOM:
             return False
@@ -273,19 +281,19 @@ class AggregationMethod(str, Enum):
     depending on whether the variable is a Stock or Flow.
     """
 
-    SUM = "sum"              # Sum all values (valid for FLOW only)
-    MEAN = "mean"            # Arithmetic mean
-    MEDIAN = "median"        # Median value
-    MIN = "min"              # Minimum value
-    MAX = "max"              # Maximum value
-    FIRST = "first"          # First value in period
-    LAST = "last"            # Last value in period
-    COUNT = "count"          # Number of observations
-    STD = "std"              # Standard deviation
-    VAR = "var"              # Variance
+    SUM = "sum"  # Sum all values (valid for FLOW only)
+    MEAN = "mean"  # Arithmetic mean
+    MEDIAN = "median"  # Median value
+    MIN = "min"  # Minimum value
+    MAX = "max"  # Maximum value
+    FIRST = "first"  # First value in period
+    LAST = "last"  # Last value in period
+    COUNT = "count"  # Number of observations
+    STD = "std"  # Standard deviation
+    VAR = "var"  # Variance
     WEIGHTED_MEAN = "weighted_mean"  # Weighted average (requires weights)
-    CUMSUM = "cumsum"        # Cumulative sum
-    DIFF = "diff"            # Period-over-period difference
+    CUMSUM = "cumsum"  # Cumulative sum
+    DIFF = "diff"  # Period-over-period difference
     PCT_CHANGE = "pct_change"  # Percentage change
 
     @property
@@ -349,7 +357,7 @@ class TimeInterval:
         """Check if a date falls within this interval."""
         return self.start <= point <= self.end
 
-    def overlaps(self, other: "TimeInterval") -> bool:
+    def overlaps(self, other: TimeInterval) -> bool:
         """Check if two intervals overlap."""
         return self.start <= other.end and other.start <= self.end
 
@@ -362,7 +370,7 @@ class TimeInterval:
         return f"{self.start}/{self.end}"
 
     @classmethod
-    def from_year(cls, year: int) -> "TimeInterval":
+    def from_year(cls, year: int) -> TimeInterval:
         """Create an annual interval for a given year."""
         return cls(
             start=date(year, 1, 1),
@@ -372,7 +380,7 @@ class TimeInterval:
         )
 
     @classmethod
-    def from_quarter(cls, year: int, quarter: int) -> "TimeInterval":
+    def from_quarter(cls, year: int, quarter: int) -> TimeInterval:
         """Create a quarterly interval."""
         if quarter not in (1, 2, 3, 4):
             raise ValueError(f"quarter must be 1-4, got {quarter}")
@@ -394,7 +402,7 @@ class TimeInterval:
         )
 
     @classmethod
-    def from_month(cls, year: int, month: int) -> "TimeInterval":
+    def from_month(cls, year: int, month: int) -> TimeInterval:
         """Create a monthly interval."""
         if month not in range(1, 13):
             raise ValueError(f"month must be 1-12, got {month}")
@@ -637,38 +645,80 @@ def infer_temporal_type(
     normalized_name = unicodedata.normalize("NFKC", variable_name).strip()
     normalized_name = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", "_", normalized_name)
     name_lower = normalized_name.casefold()
-    name_tokens = {
-        token
-        for token in re.split(r"[^0-9a-z]+", name_lower)
-        if token
-    }
+    name_tokens = {token for token in re.split(r"[^0-9a-z]+", name_lower) if token}
     keyword_tokens = name_tokens | {
-        token[:-1]
-        for token in name_tokens
-        if token.endswith("s") and len(token) > 3
+        token[:-1] for token in name_tokens if token.endswith("s") and len(token) > 3
     }
 
     # Stock indicators
     stock_keywords = {
-        "balance", "inventory", "stock", "level", "count", "population",
-        "total", "outstanding", "position", "holdings", "assets", "liabilities",
-        "capital", "reserves", "debt", "equity", "headcount", "quantity",
-        "gdp", "cpi", "index", "price",  # Economic indicators
+        "balance",
+        "inventory",
+        "stock",
+        "level",
+        "count",
+        "population",
+        "total",
+        "outstanding",
+        "position",
+        "holdings",
+        "assets",
+        "liabilities",
+        "capital",
+        "reserves",
+        "debt",
+        "equity",
+        "headcount",
+        "quantity",
+        "gdp",
+        "cpi",
+        "index",
+        "price",  # Economic indicators
     }
 
     # Flow indicators
     flow_keywords = {
-        "revenue", "income", "expense", "cost", "profit", "loss",
-        "sales", "purchases", "transactions", "payments", "receipts",
-        "production", "consumption", "births", "deaths", "migration",
-        "inflow", "outflow", "change", "delta", "growth", "gain",
-        "spending", "investment", "saving", "transfer", "volume",
+        "revenue",
+        "income",
+        "expense",
+        "cost",
+        "profit",
+        "loss",
+        "sales",
+        "purchases",
+        "transactions",
+        "payments",
+        "receipts",
+        "production",
+        "consumption",
+        "births",
+        "deaths",
+        "migration",
+        "inflow",
+        "outflow",
+        "change",
+        "delta",
+        "growth",
+        "gain",
+        "spending",
+        "investment",
+        "saving",
+        "transfer",
+        "volume",
     }
 
     # Parameter indicators
     parameter_keywords = {
-        "rate", "coefficient", "factor", "threshold", "limit",
-        "parameter", "config", "setting", "constant", "fixed",
+        "rate",
+        "coefficient",
+        "factor",
+        "threshold",
+        "limit",
+        "parameter",
+        "config",
+        "setting",
+        "constant",
+        "fixed",
     }
 
     # Check semantic type first

@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { Card } from "@/shared/ui/primitives";
 import { AnimatedProgress, ConfidenceGauge } from "@/shared/charts";
@@ -27,28 +28,33 @@ export function TrustCalibrationDisplay({
   counterArguments = [],
   className,
 }: TrustCalibrationDisplayProps) {
+  const { t } = useI18n();
   const accuracyPct = Math.round(historicalAccuracy * 100);
 
   return (
     <Card className={cn("space-y-5", className)}>
-      <h3 className="text-lg font-semibold">Trust Calibration</h3>
+      <h3 className="text-lg font-semibold">
+        {t("shared.ui.trustCalibrationDisplay.title")}
+      </h3>
 
       {/* Historical accuracy summary */}
       <div className="flex flex-wrap items-center gap-6">
         <ConfidenceGauge
           value={historicalAccuracy}
-          label="Historical accuracy"
+          label={t("shared.ui.trustCalibrationDisplay.historicalAccuracyLabel")}
           size={96}
         />
         <div className="space-y-1">
           <p className="text-sm">
-            In past analyses with{" "}
-            <span className="font-semibold">{methodology}</span>, predictions
-            were within the 95% CI in{" "}
-            <span className="font-bold">{accuracyPct}%</span> of cases.
+            {t("shared.ui.trustCalibrationDisplay.summary", {
+              accuracy: `${accuracyPct}%`,
+              methodology,
+            })}
           </p>
           <p className="text-muted text-xs">
-            Based on {totalPastAnalyses} historical analyses.
+            {t("shared.ui.trustCalibrationDisplay.basedOn", {
+              count: totalPastAnalyses,
+            })}
           </p>
         </div>
       </div>
@@ -56,8 +62,8 @@ export function TrustCalibrationDisplay({
       {/* Calibration table */}
       {calibrationRecords.length > 0 && (
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-            Calibration check
+          <p className="text-muted mb-2 text-xs font-semibold tracking-wide uppercase">
+            {t("shared.ui.trustCalibrationDisplay.calibrationCheck")}
           </p>
           <div className="space-y-2">
             {calibrationRecords.map((rec, index) => {
@@ -67,7 +73,9 @@ export function TrustCalibrationDisplay({
                 <div key={`${rec.level}-${index}`} className="space-y-1">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-medium">
-                      {Math.round(rec.level * 100)}% CI
+                      {t("shared.ui.trustCalibrationDisplay.intervalLabel", {
+                        level: Math.round(rec.level * 100),
+                      })}
                     </span>
                     <span
                       className={cn(
@@ -77,14 +85,21 @@ export function TrustCalibrationDisplay({
                           : "text-[var(--color-status-pending)]",
                       )}
                     >
-                      Actual: {Math.round(rec.actualCoverage * 100)}%
+                      {t("shared.ui.trustCalibrationDisplay.actual", {
+                        actual: `${Math.round(rec.actualCoverage * 100)}%`,
+                      })}
                     </span>
                   </div>
                   <AnimatedProgress
                     value={rec.actualCoverage * 100}
                     colorByConfidence
                     height={6}
-                    label={`${Math.round(rec.level * 100)}% CI`}
+                    label={t(
+                      "shared.ui.trustCalibrationDisplay.intervalLabel",
+                      {
+                        level: Math.round(rec.level * 100),
+                      },
+                    )}
                   />
                 </div>
               );
@@ -96,8 +111,8 @@ export function TrustCalibrationDisplay({
       {/* Limitations */}
       {limitations.length > 0 && (
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-            Known limitations
+          <p className="text-muted mb-2 text-xs font-semibold tracking-wide uppercase">
+            {t("shared.ui.trustCalibrationDisplay.knownLimitations")}
           </p>
           <ul className="space-y-1 text-sm">
             {limitations.map((lim, index) => (
@@ -112,9 +127,9 @@ export function TrustCalibrationDisplay({
 
       {/* Counter-arguments */}
       {counterArguments.length > 0 && (
-        <div className="bg-[color-mix(in_srgb,var(--color-status-rejected)_6%,transparent)] rounded-2xl p-4">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-status-rejected)]">
-            Why you should NOT trust this
+        <div className="rounded-2xl bg-[color-mix(in_srgb,var(--color-status-rejected)_6%,transparent)] p-4">
+          <p className="mb-2 text-xs font-semibold tracking-wide text-[var(--color-status-rejected)] uppercase">
+            {t("shared.ui.trustCalibrationDisplay.counterArguments")}
           </p>
           <ul className="space-y-1 text-sm">
             {counterArguments.map((arg, index) => (

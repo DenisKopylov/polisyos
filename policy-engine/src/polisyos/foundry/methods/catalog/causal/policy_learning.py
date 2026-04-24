@@ -1,7 +1,9 @@
 """Learn budget-constrained treatment assignment rules from estimated CATEs."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -72,7 +74,8 @@ def _extract_policy_tree_rules(
         leaf_ids = np.asarray(policy_tree.apply(x), dtype=int).ravel()
     except Exception as exc:
         logger.debug(
-            "PolicyTree.apply failed, using fallback leaf_ids: %s", exc,
+            "PolicyTree.apply failed, using fallback leaf_ids: %s",
+            exc,
         )
         leaf_ids = np.full(shape=(x.shape[0],), fill_value=-1, dtype=int)
 
@@ -185,9 +188,7 @@ class OptimalPolicyLearner:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Policy learning with CATE estimation and budget-constrained targeting.",
         tags=frozenset({"causal", "policy-learning", "targeting"}),
-        citations=(
-            "Athey, S., & Wager, S. (2021). Policy Learning with Observational Data.",
-        ),
+        citations=("Athey, S., & Wager, S. (2021). Policy Learning with Observational Data.",),
         equations={
             "value": "V(pi) = E[tau(X) * pi(X)] - E[c(X) * pi(X)]",
             "constraint": "E[c(X) * pi(X)] <= B",
@@ -366,9 +367,7 @@ class OptimalPolicyLearner:
             baseline_policy_value=total_effect,
         )
         if strategic_summary is not None:
-            warnings.extend(
-                warning for warning in strategic_warnings if warning not in warnings
-            )
+            warnings.extend(warning for warning in strategic_warnings if warning not in warnings)
             recommendation.metadata["strategic_response"] = strategic_summary
             report.metadata["strategic_response"] = strategic_summary
             report.metadata["strategic_response_present"] = True

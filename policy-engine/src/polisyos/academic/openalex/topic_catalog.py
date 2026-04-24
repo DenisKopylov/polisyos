@@ -4,12 +4,16 @@ from __future__ import annotations
 
 import csv
 from dataclasses import dataclass
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @dataclass(frozen=True)
 class TopicEntry:
     """Capture one OpenAlex topic row that domain/block selection workflows can rank or filter."""
+
     topic_id: str
     display_name: str
     description: str
@@ -39,7 +43,7 @@ def load_topics(topics_dir: Path, *, limit: int | None = None) -> list[TopicEntr
     """Load all topic rows from domain/block CSV files."""
     entries: list[TopicEntry] = []
     for file_path in discover_topic_files(topics_dir):
-        with open(file_path, "r", encoding="utf-8", newline="") as fh:
+        with open(file_path, encoding="utf-8", newline="") as fh:
             reader = csv.DictReader(fh)
             for row in reader:
                 raw_id = str(row.get("id", "")).strip()

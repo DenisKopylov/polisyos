@@ -25,6 +25,7 @@ from polisyos.lex.batch.patterns import (
 
 class UkrainianJurisdiction(JurisdictionPlugin):
     """Ukrainian jurisdiction public type."""
+
     @property
     def jurisdiction_code(self) -> str:
         return "UA"

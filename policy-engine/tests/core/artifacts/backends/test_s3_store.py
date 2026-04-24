@@ -18,10 +18,7 @@ class _MetricsStub:
 
 class _FakeClientError(Exception):
     def __init__(self, code: str, *, status_code: int | None = None) -> None:
-        http_status = (
-            status_code
-            or (404 if code in {"404", "NotFound", "NoSuchKey"} else 403)
-        )
+        http_status = status_code or (404 if code in {"404", "NotFound", "NoSuchKey"} else 403)
         self.response = {
             "Error": {"Code": code},
             "ResponseMetadata": {"HTTPStatusCode": http_status},

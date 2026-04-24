@@ -1,10 +1,12 @@
 """Define the result and strategy contracts for Foundry uncertainty propagation."""
+
 from __future__ import annotations
 
 import math
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from statistics import NormalDist
-from typing import Any, Callable, Mapping, Protocol
+from typing import Any, Protocol
 
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
@@ -18,6 +20,7 @@ from polisyos.ir.analytics.uncertainty import (
 @dataclass(frozen=True)
 class PropagationResult:
     """Capture one propagated envelope plus the diagnostics needed for replay and audit."""
+
     metric_id: str
     envelope: UncertaintyEnvelope
     input_envelopes_used: list[str]
@@ -61,7 +64,7 @@ class UncertaintyDecomposition:
         distribution_family: DistributionFamily = DistributionFamily.NORMAL,
         propagation_method: PropagationMethod = PropagationMethod.MONTE_CARLO,
         metadata: Mapping[str, Any] | None = None,
-    ) -> "UncertaintyDecomposition":
+    ) -> UncertaintyDecomposition:
         if not (0.0 < confidence_level < 1.0):
             raise ValueError("confidence_level must be in (0, 1)")
         epi = max(float(epistemic_std), 0.0)
@@ -144,6 +147,7 @@ def gaussian_uncertainty_envelope(
 
 class PropagationStrategy(Protocol):
     """Protocol implemented by uncertainty backends that propagate input envelopes forward."""
+
     @property
     def method(self) -> PropagationMethod: ...
 

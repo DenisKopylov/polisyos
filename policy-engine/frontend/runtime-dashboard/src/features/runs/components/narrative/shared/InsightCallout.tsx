@@ -63,7 +63,11 @@ export function InsightCallout({
         </span>
         <div className="min-w-0 flex-1">
           {title && (
-            <p className={cn("text-sm font-semibold", config.text)}>
+            <p
+              className={cn("text-sm font-semibold", config.text)}
+              data-authored-exempt="true"
+              data-authored-exempt-reason="Insight callout title is structural callout chrome; callout children carry authored prose where needed."
+            >
               {title}
             </p>
           )}

@@ -122,9 +122,9 @@ describe("ArtifactViewerRegistry", () => {
       family_adjustment: { method: "holm" },
     });
 
-    expect(await screen.findByTestId("simulation-results-viewer")).toHaveTextContent(
-      "scientist.metric_validation_report",
-    );
+    expect(
+      await screen.findByTestId("simulation-results-viewer"),
+    ).toHaveTextContent("scientist.metric_validation_report");
   });
 
   it("renders the preflight report viewer with diagnostics, hints, notes, and related refs", () => {

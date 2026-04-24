@@ -63,7 +63,9 @@ class TestFixedPipelineRouter:
         r = FixedPipelineRouter()
         state = RoutingState(
             current_role=AgentRole.PI,
-            iteration=0, error_count=0, confidence=0.5,
+            iteration=0,
+            error_count=0,
+            confidence=0.5,
             budget_remaining_ratio=0.5,
         )
         assert r.select_next_agent(state) == AgentRole.DRAFTER
@@ -72,7 +74,9 @@ class TestFixedPipelineRouter:
         r = FixedPipelineRouter()
         state = RoutingState(
             current_role=AgentRole.DRAFTER,
-            iteration=1, error_count=0, confidence=0.5,
+            iteration=1,
+            error_count=0,
+            confidence=0.5,
             budget_remaining_ratio=0.5,
         )
         assert r.select_next_agent(state) == AgentRole.FORMALIZER
@@ -81,7 +85,9 @@ class TestFixedPipelineRouter:
         r = FixedPipelineRouter()
         state = RoutingState(
             current_role=AgentRole.CRITIC,
-            iteration=3, error_count=0, confidence=0.5,
+            iteration=3,
+            error_count=0,
+            confidence=0.5,
             budget_remaining_ratio=0.5,
         )
         assert r.select_next_agent(state) == AgentRole.CRITIC
@@ -90,14 +96,18 @@ class TestFixedPipelineRouter:
         r = FixedPipelineRouter(escalation_threshold=3)
         state_low = RoutingState(
             current_role=AgentRole.DRAFTER,
-            iteration=1, error_count=2, confidence=0.5,
+            iteration=1,
+            error_count=2,
+            confidence=0.5,
             budget_remaining_ratio=0.5,
         )
         assert r.should_escalate(state_low) is False
 
         state_high = RoutingState(
             current_role=AgentRole.DRAFTER,
-            iteration=1, error_count=3, confidence=0.5,
+            iteration=1,
+            error_count=3,
+            confidence=0.5,
             budget_remaining_ratio=0.5,
         )
         assert r.should_escalate(state_high) is True
@@ -113,7 +123,9 @@ class TestAdaptiveRouter:
         r = AdaptiveRouter(confidence_threshold=0.3)
         state = RoutingState(
             current_role=AgentRole.FORMALIZER,
-            iteration=2, error_count=0, confidence=0.1,
+            iteration=2,
+            error_count=0,
+            confidence=0.1,
             budget_remaining_ratio=0.5,
         )
         assert r.select_next_agent(state) == AgentRole.DRAFTER
@@ -122,7 +134,9 @@ class TestAdaptiveRouter:
         r = AdaptiveRouter(error_threshold=2)
         state = RoutingState(
             current_role=AgentRole.DRAFTER,
-            iteration=1, error_count=3, confidence=0.5,
+            iteration=1,
+            error_count=3,
+            confidence=0.5,
             budget_remaining_ratio=0.5,
         )
         assert r.select_next_agent(state) == AgentRole.PI
@@ -131,7 +145,9 @@ class TestAdaptiveRouter:
         r = AdaptiveRouter(budget_skip_threshold=0.2)
         state = RoutingState(
             current_role=AgentRole.DRAFTER,
-            iteration=1, error_count=0, confidence=0.5,
+            iteration=1,
+            error_count=0,
+            confidence=0.5,
             budget_remaining_ratio=0.1,
         )
         assert r.select_next_agent(state) == AgentRole.CRITIC
@@ -140,7 +156,9 @@ class TestAdaptiveRouter:
         r = AdaptiveRouter()
         state = RoutingState(
             current_role=AgentRole.PI,
-            iteration=0, error_count=0, confidence=0.8,
+            iteration=0,
+            error_count=0,
+            confidence=0.8,
             budget_remaining_ratio=0.9,
         )
         assert r.select_next_agent(state) == AgentRole.DRAFTER
@@ -149,12 +167,17 @@ class TestAdaptiveRouter:
         r = AdaptiveRouter(confidence_threshold=0.5, max_reroutes=2)
         # History showing 2 reroutes already
         history = (
-            AgentRole.PI, AgentRole.DRAFTER, AgentRole.PI,  # reroute 1
-            AgentRole.DRAFTER, AgentRole.PI,  # reroute 2
+            AgentRole.PI,
+            AgentRole.DRAFTER,
+            AgentRole.PI,  # reroute 1
+            AgentRole.DRAFTER,
+            AgentRole.PI,  # reroute 2
         )
         state = RoutingState(
             current_role=AgentRole.FORMALIZER,
-            iteration=5, error_count=0, confidence=0.1,
+            iteration=5,
+            error_count=0,
+            confidence=0.1,
             budget_remaining_ratio=0.5,
             history=history,
         )
@@ -165,7 +188,9 @@ class TestAdaptiveRouter:
         r = AdaptiveRouter(error_threshold=2)
         state = RoutingState(
             current_role=AgentRole.DRAFTER,
-            iteration=1, error_count=2, confidence=0.5,
+            iteration=1,
+            error_count=2,
+            confidence=0.5,
             budget_remaining_ratio=0.5,
         )
         assert r.should_escalate(state) is True
@@ -179,9 +204,11 @@ class TestAdaptiveRouter:
 class TestAgentFallbackChain:
     @pytest.mark.asyncio
     async def test_first_succeeds(self):
-        chain = AgentFallbackChain(agents=[
-            ("primary", lambda: type("A", (), {"draft_policy": lambda *a, **kw: "result_1"})()),
-        ])
+        chain = AgentFallbackChain(
+            agents=[
+                ("primary", lambda: type("A", (), {"draft_policy": lambda *a, **kw: "result_1"})()),
+            ]
+        )
         result = await chain.execute("draft_policy")
         assert result == "result_1"
 
@@ -195,10 +222,12 @@ class TestAgentFallbackChain:
         def ok_factory():
             return type("A", (), {"draft_policy": lambda *a, **kw: "fallback_result"})()
 
-        chain = AgentFallbackChain(agents=[
-            ("primary", fail_factory),
-            ("fallback", ok_factory),
-        ])
+        chain = AgentFallbackChain(
+            agents=[
+                ("primary", fail_factory),
+                ("fallback", ok_factory),
+            ]
+        )
         result = await chain.execute("draft_policy")
         assert result == "fallback_result"
 
@@ -231,9 +260,11 @@ class TestAgentFallbackChain:
         async def async_draft(*a, **kw):
             return "async_result"
 
-        chain = AgentFallbackChain(agents=[
-            ("primary", lambda: type("A", (), {"draft_policy": async_draft})()),
-        ])
+        chain = AgentFallbackChain(
+            agents=[
+                ("primary", lambda: type("A", (), {"draft_policy": async_draft})()),
+            ]
+        )
         result = await chain.execute("draft_policy")
         assert result == "async_result"
 

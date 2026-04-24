@@ -3,7 +3,6 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 from polisyos.core.governance.passes.base import IssueSeverity
-from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.scientist.governance.passes.budget_pass import BudgetPass
 
 

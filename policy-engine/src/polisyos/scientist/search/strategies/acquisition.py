@@ -19,4 +19,3 @@ def is_multi_objective_acquisition(acquisition: AcquisitionType) -> bool:
         AcquisitionType.EHVI,
         AcquisitionType.QEHVI,
     }
-

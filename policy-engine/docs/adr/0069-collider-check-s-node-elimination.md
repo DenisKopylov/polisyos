@@ -1,12 +1,15 @@
-# ADR-0069: Collider (selection bias) check in _try_eliminate_s_node_simplified
+# ADR-0069: Collider (selection bias) check in \_try_eliminate_s_node_simplified
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-02-28
 
 ## Context
+
 Selection bias arises when conditioning on a collider (a node caused by both
 treatment and outcome, or their descendants) opens a spurious path between
 treatment and outcome. The graph reconciliation module includes a helper
@@ -16,6 +19,7 @@ explicit collider check, this simplification can incorrectly remove nodes whose
 conditioning introduces bias, producing invalid causal estimates.
 
 ## Decision
+
 1. Before eliminating any S-node, `_try_eliminate_s_node_simplified` must run a
    collider detection check: verify that the candidate node is not a collider
    on any active path between treatment and outcome.
@@ -27,14 +31,19 @@ conditioning introduces bias, producing invalid causal estimates.
    report for analyst review.
 
 ## Consequences
+
 ### Positive
+
 - Prevents incorrect S-node elimination that would introduce selection bias
   into downstream causal effect estimates.
+
 - Flagging risky nodes in the governance report provides transparency about
   potential bias sources without silently discarding information.
 
 ### Negative
+
 - The additional d-separation query per candidate S-node adds computational
   overhead to graph reconciliation, especially on large graphs.
+
 - Conservative retention of collider S-nodes may leave graphs larger than
   necessary, increasing GCM fitting time.

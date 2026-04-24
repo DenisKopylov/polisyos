@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.ir.canon import CanonViolation, content_hash, to_canonical_bytes
 from polisyos.ir.governance.schedule import schedule_range
 from polisyos.ir.kernel.mechanisms import resolve_mechanism_slots
-from polisyos.ir.registry_fragments import RegistryBundle
-from polisyos.ir.trinity import TrinityBundle
 
 from ._trinity_mechanisms import (
     _collect_selector_fields,
@@ -21,6 +19,10 @@ from ._trinity_mechanisms import (
 from ._trinity_models import LinkedIntervention, LinkedTrinityBundle, TrinityBindings
 from ._trinity_params import _validate_params
 from .reports import LinkIssue, LinkIssueCode, LinkReport, LinkSeverity
+
+if TYPE_CHECKING:
+    from polisyos.ir.registry_fragments import RegistryBundle
+    from polisyos.ir.trinity import TrinityBundle
 
 
 def link_trinity(
@@ -261,7 +263,9 @@ def link_trinity(
 
     # Step C: ProblemFrame constraints vs constraint/slot/unit registries
     constraints = registries.constraints
-    if (bundle.problem_frame.hard_constraints or bundle.problem_frame.soft_constraints) and constraints is None:
+    if (
+        bundle.problem_frame.hard_constraints or bundle.problem_frame.soft_constraints
+    ) and constraints is None:
         _emit_missing_registry("constraints", ["problem_frame"])
 
     for list_name, constraints_list in (

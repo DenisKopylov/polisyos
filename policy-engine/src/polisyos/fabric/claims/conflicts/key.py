@@ -1,8 +1,9 @@
 """Key functions for grouping claims that may contradict each other."""
+
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
 
@@ -23,8 +24,8 @@ def _iso_utc(value: datetime | None) -> str | None:
     if value is None:
         return None
     if value.tzinfo is None:
-        value = value.replace(tzinfo=timezone.utc)
-    return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+        value = value.replace(tzinfo=UTC)
+    return value.astimezone(UTC).isoformat().replace("+00:00", "Z")
 
 
 def conflict_key_payload_v1(claim: Claim) -> dict[str, Any]:
@@ -66,7 +67,7 @@ def value_signature_v1(claim: Claim) -> str:
     """Serialize the observed claim value so resolution can spot duplicates versus mismatches."""
     if claim.value_decimal is not None:
         unit = claim.unit_id or "none"
-        return f"num:{str(claim.value_decimal)}:{unit}"
+        return f"num:{claim.value_decimal!s}:{unit}"
     return f"text:{normalize_text_v1(claim.value_text)}"
 
 
@@ -76,19 +77,19 @@ def _interval_disjoint(
     b_from: datetime | None,
     b_to: datetime | None,
 ) -> bool:
-    left_from = a_from or datetime.min.replace(tzinfo=timezone.utc)
-    left_to = a_to or datetime.max.replace(tzinfo=timezone.utc)
-    right_from = b_from or datetime.min.replace(tzinfo=timezone.utc)
-    right_to = b_to or datetime.max.replace(tzinfo=timezone.utc)
+    left_from = a_from or datetime.min.replace(tzinfo=UTC)
+    left_to = a_to or datetime.max.replace(tzinfo=UTC)
+    right_from = b_from or datetime.min.replace(tzinfo=UTC)
+    right_to = b_to or datetime.max.replace(tzinfo=UTC)
 
     if left_from.tzinfo is None:
-        left_from = left_from.replace(tzinfo=timezone.utc)
+        left_from = left_from.replace(tzinfo=UTC)
     if left_to.tzinfo is None:
-        left_to = left_to.replace(tzinfo=timezone.utc)
+        left_to = left_to.replace(tzinfo=UTC)
     if right_from.tzinfo is None:
-        right_from = right_from.replace(tzinfo=timezone.utc)
+        right_from = right_from.replace(tzinfo=UTC)
     if right_to.tzinfo is None:
-        right_to = right_to.replace(tzinfo=timezone.utc)
+        right_to = right_to.replace(tzinfo=UTC)
     return left_to < right_from or right_to < left_from
 
 

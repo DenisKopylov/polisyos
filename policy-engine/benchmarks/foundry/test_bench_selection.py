@@ -4,6 +4,7 @@ returns the correct top method for known problem types.
 
 Uses realistic MethodCatalogEntry mocks matching real catalog FQNs.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -49,20 +50,44 @@ CATALOG_ENTRIES = [
     _entry("distributional.inequality.generalized_entropy@1.0.0", "distributional.inequality"),
     _entry("distributional.poverty.fgt@1.0.0", "distributional.poverty"),
     _entry("distributional.poverty.multidimensional@1.0.0", "distributional.poverty"),
-    _entry("econometrics.panel.fixed_effects@1.0.0", "econometrics.panel", data_modalities=["panel"]),
-    _entry("econometrics.panel.random_effects@1.0.0", "econometrics.panel", data_modalities=["panel"]),
-    _entry("econometrics.timeseries.garch@1.0.0", "econometrics.timeseries", data_modalities=["time-series"]),
-    _entry("forecasting.univariate.exponential_smoothing@1.0.0", "forecasting.univariate", data_modalities=["time-series"]),
-    _entry("forecasting.univariate.theta@1.0.0", "forecasting.univariate", data_modalities=["time-series"]),
+    _entry(
+        "econometrics.panel.fixed_effects@1.0.0", "econometrics.panel", data_modalities=["panel"]
+    ),
+    _entry(
+        "econometrics.panel.random_effects@1.0.0", "econometrics.panel", data_modalities=["panel"]
+    ),
+    _entry(
+        "econometrics.timeseries.garch@1.0.0",
+        "econometrics.timeseries",
+        data_modalities=["time-series"],
+    ),
+    _entry(
+        "forecasting.univariate.exponential_smoothing@1.0.0",
+        "forecasting.univariate",
+        data_modalities=["time-series"],
+    ),
+    _entry(
+        "forecasting.univariate.theta@1.0.0",
+        "forecasting.univariate",
+        data_modalities=["time-series"],
+    ),
     _entry("sensitivity.global.sobol_first_order@1.0.0", "sensitivity.global"),
     _entry("sensitivity.global.morris@1.0.0", "sensitivity.global"),
     _entry("survey.estimation.fay_herriot@1.0.0", "survey.estimation"),
     _entry("survey.estimation.calibration_greg@1.0.0", "survey.estimation"),
     _entry("bayesian.regression.linear_regression@1.0.0", "bayesian.regression"),
-    _entry("spatial.autocorrelation.moran_i@1.0.0", "spatial.autocorrelation", data_modalities=["spatial"]),
+    _entry(
+        "spatial.autocorrelation.moran_i@1.0.0",
+        "spatial.autocorrelation",
+        data_modalities=["spatial"],
+    ),
     _entry("ml.regression.elastic_net@1.0.0", "ml.regression"),
     _entry("ml.regression.random_forest@1.0.0", "ml.regression"),
-    _entry("network.community.community_detection@1.0.0", "network.community", data_modalities=["network"]),
+    _entry(
+        "network.community.community_detection@1.0.0",
+        "network.community",
+        data_modalities=["network"],
+    ),
     _entry("validation.model.cross_validation@1.0.0", "validation.model"),
     _entry("validation.probabilistic.normal_scores@1.0.0", "validation.probabilistic"),
 ]

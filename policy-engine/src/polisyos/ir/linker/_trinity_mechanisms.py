@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
-from typing import Iterable
+from typing import TYPE_CHECKING
 
-from polisyos.ir.governance.policy_spec import InterventionSpec
-from polisyos.ir.governance.problem_frame import ConstraintSpec
 from polisyos.ir.governance.schedule import ScheduleSpec, schedule_range
 from polisyos.ir.governance.selector_expr import (
     SelectorAll,
@@ -16,12 +14,20 @@ from polisyos.ir.governance.selector_expr import (
     SelectorPredicate,
 )
 from polisyos.ir.kernel.merge_rules import MergeRuleKind, MergeRuleRegistry
-from polisyos.ir.kernel.selector_fields import SelectorFieldRegistry
 from polisyos.ir.kernel.slots import SlotRegistry, SlotValueType
 from polisyos.ir.kernel.units import MoneyUnit, RateUnit, UnitsRegistry
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 
 from .reports import LinkIssue, LinkIssueCode, LinkSeverity
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from polisyos.ir.governance.policy_spec import InterventionSpec
+    from polisyos.ir.governance.problem_frame import ConstraintSpec
+    from polisyos.ir.kernel.selector_fields import SelectorFieldRegistry
+else:
+    from polisyos.ir.governance.policy_spec import InterventionSpec
 
 
 def _validate_mechanism_slots(
@@ -77,7 +83,7 @@ def _validate_selector_fields(
                     severity=LinkSeverity.ERROR,
                     code=LinkIssueCode.UNKNOWN_SELECTOR_FIELD,
                     message=f"Unknown selector field '{field_id}'",
-                    path=path_prefix + ["field"],
+                    path=[*path_prefix, "field"],
                     ids=ids,
                     data={"field_id": field_id},
                 )
@@ -300,9 +306,7 @@ def _validate_schedule_conflicts(
                 LinkIssue(
                     severity=LinkSeverity.ERROR,
                     code=LinkIssueCode.UNKNOWN_MERGE_RULE,
-                    message=(
-                        f"Unknown merge rule '{slot.merge_rule.rule_id}' for '{slot_id}'"
-                    ),
+                    message=(f"Unknown merge rule '{slot.merge_rule.rule_id}' for '{slot_id}'"),
                     path=["policy_spec", "interventions"],
                     data={"slot_id": slot_id},
                 )
@@ -362,26 +366,22 @@ def _validate_schedule_conflicts(
                     data={"slot_id": slot_id, "intervention_ids": sorted(overlapping)},
                 )
             )
-        elif rule.kind == MergeRuleKind.PRIORITY:
-            if rule.default_priority is None:
-                missing = [
-                    intervention.intervention_id
-                    for intervention in interventions_for_slot
-                    if intervention.intervention_id in overlapping
-                    and intervention.priority is None
-                ]
-                if missing:
-                    issues.append(
-                        LinkIssue(
-                            severity=LinkSeverity.ERROR,
-                            code=LinkIssueCode.MERGE_RULE_CONFLICT,
-                            message=(
-                                f"Merge rule 'priority' requires priority for slot '{slot_id}'"
-                            ),
-                            path=["policy_spec", "interventions"],
-                            data={"slot_id": slot_id, "missing": sorted(missing)},
-                        )
+        elif rule.kind == MergeRuleKind.PRIORITY and rule.default_priority is None:
+            missing = [
+                intervention.intervention_id
+                for intervention in interventions_for_slot
+                if intervention.intervention_id in overlapping and intervention.priority is None
+            ]
+            if missing:
+                issues.append(
+                    LinkIssue(
+                        severity=LinkSeverity.ERROR,
+                        code=LinkIssueCode.MERGE_RULE_CONFLICT,
+                        message=(f"Merge rule 'priority' requires priority for slot '{slot_id}'"),
+                        path=["policy_spec", "interventions"],
+                        data={"slot_id": slot_id, "missing": sorted(missing)},
                     )
+                )
 
 
 __all__ = [

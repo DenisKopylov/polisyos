@@ -1,8 +1,10 @@
 """Estimate threshold, kink, FRD, and FRKD models with state-dependent policy surfaces."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from statistics import NormalDist
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -321,7 +323,11 @@ def _gmm_fit(
     beta_1 = solve(W)
     resid_1 = y - X @ beta_1
     S = ((Z * resid_1[:, None]).T @ (Z * resid_1[:, None])) / max(n_obs, 1)
-    W_opt = np.eye(Z.shape[1]) if weight_type == "identity" else np.linalg.pinv(S + 1e-8 * np.eye(S.shape[0]))
+    W_opt = (
+        np.eye(Z.shape[1])
+        if weight_type == "identity"
+        else np.linalg.pinv(S + 1e-8 * np.eye(S.shape[0]))
+    )
 
     beta = solve(W_opt)
     resid = y - X @ beta
@@ -743,7 +749,9 @@ def _bandwidth_candidates(
         candidates = np.unique(np.asarray(raw_grid, dtype=float).reshape(-1))
         candidates = candidates[candidates > 0]
     else:
-        multipliers = np.asarray(params.get("bandwidth_multipliers", [0.75, 1.0, 1.25, 1.5]), dtype=float)
+        multipliers = np.asarray(
+            params.get("bandwidth_multipliers", [0.75, 1.0, 1.25, 1.5]), dtype=float
+        )
         candidates = np.unique(np.clip(selected * multipliers, 1e-4, None))
 
     if selected not in candidates:
@@ -798,18 +806,26 @@ def _local_ratio_estimate(
     coefficient_index: int,
     confidence_level: float,
 ) -> dict[str, float]:
-    rf = float(numerator_right["beta"][coefficient_index] - numerator_left["beta"][coefficient_index])
-    fs = float(denominator_right["beta"][coefficient_index] - denominator_left["beta"][coefficient_index])
+    rf = float(
+        numerator_right["beta"][coefficient_index] - numerator_left["beta"][coefficient_index]
+    )
+    fs = float(
+        denominator_right["beta"][coefficient_index] - denominator_left["beta"][coefficient_index]
+    )
 
     rf_var = float(
-        numerator_right["std"][coefficient_index] ** 2 + numerator_left["std"][coefficient_index] ** 2
+        numerator_right["std"][coefficient_index] ** 2
+        + numerator_left["std"][coefficient_index] ** 2
     )
     fs_var = float(
-        denominator_right["std"][coefficient_index] ** 2 + denominator_left["std"][coefficient_index] ** 2
+        denominator_right["std"][coefficient_index] ** 2
+        + denominator_left["std"][coefficient_index] ** 2
     )
     fs_safe = np.sign(fs) * max(abs(fs), _FLOAT_EPS) if abs(fs) > _FLOAT_EPS else _FLOAT_EPS
     effect = float(rf / fs_safe)
-    effect_var = (rf_var / max(fs_safe**2, _FLOAT_EPS)) + ((rf**2) * fs_var / max(fs_safe**4, _FLOAT_EPS))
+    effect_var = (rf_var / max(fs_safe**2, _FLOAT_EPS)) + (
+        (rf**2) * fs_var / max(fs_safe**4, _FLOAT_EPS)
+    )
     effect_se = float(np.sqrt(max(effect_var, 0.0)))
 
     normal = NormalDist()
@@ -895,7 +911,9 @@ def _bootstrap_indices(
         cluster_ids = np.asarray(data.cluster_ids)
         unique_clusters = np.unique(cluster_ids)
         sampled_clusters = rng.choice(unique_clusters, size=unique_clusters.shape[0], replace=True)
-        return np.concatenate([np.flatnonzero(cluster_ids == cluster_id) for cluster_id in sampled_clusters])
+        return np.concatenate(
+            [np.flatnonzero(cluster_ids == cluster_id) for cluster_id in sampled_clusters]
+        )
     return rng.integers(0, data.n_obs, size=data.n_obs)
 
 
@@ -944,10 +962,14 @@ def _apply_bootstrap_to_result(
         metadata = dict(threshold_state.metadata)
         metadata["bootstrap"] = {
             "label": label,
-            "successful_replications": int(max((len(values) for values in bootstrap_params.values()), default=0)),
+            "successful_replications": int(
+                max((len(values) for values in bootstrap_params.values()), default=0)
+            ),
         }
         if bootstrap_thresholds:
-            lo, hi = np.quantile(np.asarray(bootstrap_thresholds, dtype=float), [alpha / 2.0, 1.0 - alpha / 2.0])
+            lo, hi = np.quantile(
+                np.asarray(bootstrap_thresholds, dtype=float), [alpha / 2.0, 1.0 - alpha / 2.0]
+            )
             metadata["bootstrap"]["threshold_shift_interval"] = (float(lo), float(hi))
         threshold_state = threshold_state.model_copy(update={"metadata": metadata})
 
@@ -998,7 +1020,9 @@ def _global_core_fit(
     best_regime = None
     specification_records: list[dict[str, Any]] = []
 
-    default_effect_param = "kink_plus" if regime_model is ThresholdEffectModel.KINK else "regime_intercept"
+    default_effect_param = (
+        "kink_plus" if regime_model is ThresholdEffectModel.KINK else "regime_intercept"
+    )
     requested_effect_param = str(params.get("specification_param", default_effect_param))
 
     for candidate_index, threshold_shift in enumerate(candidate_shifts):
@@ -1107,7 +1131,9 @@ def _global_core_fit(
             "at_or_above_threshold": int(np.sum(best_regime >= 0.5)),
         },
         normalized_score=score_summary,
-        threshold_variable_endogeneity_adjusted=bool(cf_diagnostics.get("used_control_function", False)),
+        threshold_variable_endogeneity_adjusted=bool(
+            cf_diagnostics.get("used_control_function", False)
+        ),
         control_function_order=(
             int(cf_diagnostics["control_function_order"])
             if cf_diagnostics.get("control_function_order") is not None
@@ -1225,7 +1251,9 @@ def _global_outputs(
             sample_idx = _bootstrap_indices(data, rng, use_cluster_bootstrap=bootstrap_cluster)
             boot_data = _resample_threshold_data(data, sample_idx)
             try:
-                boot_payload = _global_core_fit(boot_data, regime_model=regime_model, params=bootstrap_params_config)
+                boot_payload = _global_core_fit(
+                    boot_data, regime_model=regime_model, params=bootstrap_params_config
+                )
             except Exception:
                 continue
             boot_result: EconometricResult = boot_payload["result"]
@@ -1234,7 +1262,9 @@ def _global_outputs(
                 if value is not None and np.isfinite(value):
                     bootstrap_params[name].append(float(value))
             if boot_result.threshold_state_field is not None:
-                bootstrap_thresholds.append(float(boot_result.threshold_state_field.threshold_shift))
+                bootstrap_thresholds.append(
+                    float(boot_result.threshold_state_field.threshold_shift)
+                )
 
         result = _apply_bootstrap_to_result(
             result,
@@ -1252,7 +1282,9 @@ def _global_outputs(
     weak_reasons: list[str] = []
     if result.threshold_state_field is not None:
         if result.threshold_state_field.normalized_score.support_within_window < min_support:
-            weak_reasons.append("Support near the normalized threshold is too thin for stable point identification.")
+            weak_reasons.append(
+                "Support near the normalized threshold is too thin for stable point identification."
+            )
     if first_stage_f is not None and first_stage_f < weak_id_threshold:
         weak_reasons.append(
             f"First-stage strength fell below the configured threshold ({first_stage_f:.3f} < {weak_id_threshold:.3f})."
@@ -1280,11 +1312,15 @@ def _global_outputs(
             metadata = dict(threshold_state.metadata)
             metadata["identify_or_bound"] = {"triggered": True, "reasons": weak_reasons}
             threshold_state = threshold_state.model_copy(update={"metadata": metadata})
-        result = result.model_copy(update={"diagnostics": diagnostics, "threshold_state_field": threshold_state})
+        result = result.model_copy(
+            update={"diagnostics": diagnostics, "threshold_state_field": threshold_state}
+        )
 
     return {
         "result": result,
-        "uncertainty_envelope": result.to_uncertainty_envelope(param_name=params.get("envelope_param")),
+        "uncertainty_envelope": result.to_uncertainty_envelope(
+            param_name=params.get("envelope_param")
+        ),
         "specification_curve_bundle": spec_bundle,
         "bounds_report": bounds_report,
     }
@@ -1327,7 +1363,9 @@ def _local_core_fit(
     else:
         denominator = data.policy_variable if data.policy_variable is not None else data.treatment
         if denominator is None:
-            raise ValueError("state_dependent_frkd requires policy_variable or treatment in ThresholdRegressionData")
+            raise ValueError(
+                "state_dependent_frkd requires policy_variable or treatment in ThresholdRegressionData"
+            )
         derivative_order = 1
         order = max(2, int(params.get("poly_order", 2)))
         coefficient_index = 1
@@ -1457,7 +1495,9 @@ def _local_core_fit(
             "below_threshold": int(selected_fit["y_left"]["n_support"]),
             "at_or_above_threshold": int(selected_fit["y_right"]["n_support"]),
         },
-        normalized_score=_build_score_summary(score, (score >= 0.0).astype(float), near_window=bandwidth),
+        normalized_score=_build_score_summary(
+            score, (score >= 0.0).astype(float), near_window=bandwidth
+        ),
         threshold_variable_endogeneity_adjusted=False,
         control_function_order=None,
         first_stage_r_squared=None,
@@ -1555,7 +1595,9 @@ def _local_outputs(
             sample_idx = _bootstrap_indices(data, rng, use_cluster_bootstrap=bootstrap_cluster)
             boot_data = _resample_threshold_data(data, sample_idx)
             try:
-                boot_payload = _local_core_fit(boot_data, regime_model=regime_model, params=bootstrap_params_config)
+                boot_payload = _local_core_fit(
+                    boot_data, regime_model=regime_model, params=bootstrap_params_config
+                )
             except Exception:
                 continue
             boot_result: EconometricResult = boot_payload["result"]
@@ -1564,7 +1606,9 @@ def _local_outputs(
                 if value is not None and np.isfinite(value):
                     bootstrap_params[name].append(float(value))
             if boot_result.threshold_state_field is not None:
-                bootstrap_thresholds.append(float(boot_result.threshold_state_field.threshold_shift))
+                bootstrap_thresholds.append(
+                    float(boot_result.threshold_state_field.threshold_shift)
+                )
 
         result = _apply_bootstrap_to_result(
             result,
@@ -1580,8 +1624,13 @@ def _local_outputs(
     threshold_state = result.threshold_state_field
     if threshold_state is not None:
         counts = threshold_state.regime_counts
-        if counts.get("below_threshold", 0) < min_support or counts.get("at_or_above_threshold", 0) < min_support:
-            weak_reasons.append("One side of the local window has too little support for reliable local identification.")
+        if (
+            counts.get("below_threshold", 0) < min_support
+            or counts.get("at_or_above_threshold", 0) < min_support
+        ):
+            weak_reasons.append(
+                "One side of the local window has too little support for reliable local identification."
+            )
         if (
             threshold_state.first_stage_f_statistic is not None
             and threshold_state.first_stage_f_statistic < first_stage_threshold
@@ -1605,11 +1654,15 @@ def _local_outputs(
             metadata = dict(threshold_state.metadata)
             metadata["identify_or_bound"] = {"triggered": True, "reasons": weak_reasons}
             threshold_state = threshold_state.model_copy(update={"metadata": metadata})
-        result = result.model_copy(update={"diagnostics": diagnostics, "threshold_state_field": threshold_state})
+        result = result.model_copy(
+            update={"diagnostics": diagnostics, "threshold_state_field": threshold_state}
+        )
 
     return {
         "result": result,
-        "uncertainty_envelope": result.to_uncertainty_envelope(param_name=params.get("envelope_param")),
+        "uncertainty_envelope": result.to_uncertainty_envelope(
+            param_name=params.get("envelope_param")
+        ),
         "specification_curve_bundle": spec_bundle,
         "bounds_report": bounds_report,
     }
@@ -1618,7 +1671,7 @@ def _local_outputs(
 @foundry_method(
     namespace="econometrics.thresholds",
     version="1.0.0",
-    tags={"econometrics", "threshold", "state-dependent", "profile-gmm"},
+    tags={"econometrics", "threshold", "state-dependent", "profile-gmm", "tabular"},
 )
 class StateDependentThresholdEstimator:
     """Estimate a state-dependent threshold regression with profile OLS/2SLS/GMM search."""
@@ -1669,7 +1722,9 @@ class StateDependentThresholdEstimator:
             "with optional control-function correction, IV/GMM backends, "
             "bootstrap inference, specification curves, and weak-ID bounds fallback."
         ),
-        tags=frozenset({"econometrics", "threshold", "state-dependent", "control-function", "gmm"}),
+        tags=frozenset(
+            {"econometrics", "threshold", "state-dependent", "control-function", "gmm", "tabular"}
+        ),
         citations=(
             "Hansen, B. (2000). Sample Splitting and Threshold Estimation.",
             "Caner, M. & Hansen, B. (2004). Instrumental Variable Estimation of a Threshold Model.",
@@ -1694,7 +1749,9 @@ class StateDependentThresholdEstimator:
     @staticmethod
     def pure_step(state: ThresholdRegressionData, params: Mapping[str, Any]) -> dict[str, Any]:
         data = (
-            state if isinstance(state, ThresholdRegressionData) else ThresholdRegressionData.model_validate(state)
+            state
+            if isinstance(state, ThresholdRegressionData)
+            else ThresholdRegressionData.model_validate(state)
         )
         return _global_outputs(data, regime_model=ThresholdEffectModel.THRESHOLD, params=params)
 
@@ -1709,7 +1766,7 @@ class StateDependentThresholdEstimator:
 @foundry_method(
     namespace="econometrics.thresholds",
     version="1.0.0",
-    tags={"econometrics", "kink", "state-dependent", "profile-gmm"},
+    tags={"econometrics", "kink", "state-dependent", "profile-gmm", "tabular"},
 )
 class StateDependentKinkEstimator:
     """Estimate a continuous-threshold kink model with profile OLS/2SLS/GMM search."""
@@ -1759,7 +1816,9 @@ class StateDependentKinkEstimator:
             "optional control-function correction, IV/GMM backends, bootstrap inference, "
             "specification curves, and weak-ID bounds fallback."
         ),
-        tags=frozenset({"econometrics", "kink", "state-dependent", "control-function", "gmm"}),
+        tags=frozenset(
+            {"econometrics", "kink", "state-dependent", "control-function", "gmm", "tabular"}
+        ),
         citations=(
             "Hansen, B. (2017). Regression Kink With an Unknown Threshold.",
             "Zhang, H. et al. (2017). Endogenous Kink Threshold Regression.",
@@ -1782,7 +1841,9 @@ class StateDependentKinkEstimator:
     @staticmethod
     def pure_step(state: ThresholdRegressionData, params: Mapping[str, Any]) -> dict[str, Any]:
         data = (
-            state if isinstance(state, ThresholdRegressionData) else ThresholdRegressionData.model_validate(state)
+            state
+            if isinstance(state, ThresholdRegressionData)
+            else ThresholdRegressionData.model_validate(state)
         )
         return _global_outputs(data, regime_model=ThresholdEffectModel.KINK, params=params)
 
@@ -1797,7 +1858,7 @@ class StateDependentKinkEstimator:
 @foundry_method(
     namespace="econometrics.thresholds",
     version="1.0.0",
-    tags={"econometrics", "frd", "state-dependent", "local-design"},
+    tags={"econometrics", "frd", "state-dependent", "local-design", "tabular"},
 )
 class StateDependentFRDEstimator:
     """Estimate a local fuzzy RD effect on the normalized score R = Q - gamma(S)."""
@@ -1840,7 +1901,9 @@ class StateDependentFRDEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Local fuzzy RD estimator on the normalized score R = Q - gamma(S).",
-        tags=frozenset({"econometrics", "fuzzy-rd", "state-dependent", "local-polynomial"}),
+        tags=frozenset(
+            {"econometrics", "fuzzy-rd", "state-dependent", "local-polynomial", "tabular"}
+        ),
         citations=(
             "Hahn, J., Todd, P. & van der Klaauw, W. (2001). Identification and Estimation of Treatment Effects with a Regression-Discontinuity Design.",
             "Calonico, C. et al. (2014). Robust Nonparametric Confidence Intervals for Regression-Discontinuity Designs.",
@@ -1863,7 +1926,9 @@ class StateDependentFRDEstimator:
     @staticmethod
     def pure_step(state: ThresholdRegressionData, params: Mapping[str, Any]) -> dict[str, Any]:
         data = (
-            state if isinstance(state, ThresholdRegressionData) else ThresholdRegressionData.model_validate(state)
+            state
+            if isinstance(state, ThresholdRegressionData)
+            else ThresholdRegressionData.model_validate(state)
         )
         return _local_outputs(data, regime_model=ThresholdEffectModel.THRESHOLD, params=params)
 
@@ -1878,7 +1943,7 @@ class StateDependentFRDEstimator:
 @foundry_method(
     namespace="econometrics.thresholds",
     version="1.0.0",
-    tags={"econometrics", "frkd", "state-dependent", "local-design"},
+    tags={"econometrics", "frkd", "state-dependent", "local-design", "tabular"},
 )
 class StateDependentFRKDEstimator:
     """Estimate a local fuzzy RKD effect on the normalized score R = Q - gamma(S)."""
@@ -1921,7 +1986,9 @@ class StateDependentFRKDEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Local fuzzy RKD estimator on the normalized score R = Q - gamma(S).",
-        tags=frozenset({"econometrics", "fuzzy-rkd", "state-dependent", "local-polynomial"}),
+        tags=frozenset(
+            {"econometrics", "fuzzy-rkd", "state-dependent", "local-polynomial", "tabular"}
+        ),
         citations=(
             "Card, D. et al. (2015). Inference on Causal Effects in a Generalized Regression Kink Design.",
             "Calonico, C. et al. (2014). Robust Nonparametric Confidence Intervals for Regression-Discontinuity Designs.",
@@ -1944,7 +2011,9 @@ class StateDependentFRKDEstimator:
     @staticmethod
     def pure_step(state: ThresholdRegressionData, params: Mapping[str, Any]) -> dict[str, Any]:
         data = (
-            state if isinstance(state, ThresholdRegressionData) else ThresholdRegressionData.model_validate(state)
+            state
+            if isinstance(state, ThresholdRegressionData)
+            else ThresholdRegressionData.model_validate(state)
         )
         return _local_outputs(data, regime_model=ThresholdEffectModel.KINK, params=params)
 

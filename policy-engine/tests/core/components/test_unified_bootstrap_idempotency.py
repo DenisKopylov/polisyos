@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 from polisyos.core.components import (
     Capability,
@@ -34,7 +34,9 @@ def _create_stub_method() -> type:
             namespace="test.method",
             version="1.0.0",
             input_slots=frozenset({SlotSpec(name="in", slot_type=SlotType.SCALAR, unit=stub_unit)}),
-            output_slots=frozenset({SlotSpec(name="out", slot_type=SlotType.SCALAR, unit=stub_unit)}),
+            output_slots=frozenset(
+                {SlotSpec(name="out", slot_type=SlotType.SCALAR, unit=stub_unit)}
+            ),
             parameters=(),
             fidelity=FidelityLevel.LOW,
             complexity=ComplexityClass.O_1,

@@ -5,6 +5,7 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.foundry.methods.catalog.causal.transport_check import CheckTransportability
 from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod, EstimationStatus
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
@@ -16,19 +17,17 @@ from polisyos.ir.analytics.causal_graph import (
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 from polisyos.ir.analytics.partial_identification import BoundMethod, compute_manski_bounds
 from polisyos.ir.analytics.transportability import (
+    SelectionDiagram,
     SNode,
     SNodeOrigin,
     SNodeRole,
-    SelectionDiagram,
-    TransportMode,
     TransportabilityResult,
     TransportabilityStatus,
+    TransportMode,
     load_transportability_result,
     persist_transportability_result,
 )
 from polisyos.ir.refs import TransportabilityResultRef
-
-from polisyos.foundry.methods.catalog.causal.transport_check import CheckTransportability
 
 
 def test_transportability_result_artifact_roundtrip(tmp_path) -> None:
@@ -149,30 +148,41 @@ def _build_golden_scenario() -> tuple[SelectionDiagram, str, str]:
         nodes=["X", "Y", "C"],
         edges=[
             CausalEdge(
-                src="X", dst="Y",
-                mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW,
-                sources=[EdgeSource.DATA], data_confidence=0.9,
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+                sources=[EdgeSource.DATA],
+                data_confidence=0.9,
             ),
             CausalEdge(
-                src="X", dst="C",
-                mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW,
-                sources=[EdgeSource.DATA], data_confidence=0.8,
+                src="X",
+                dst="C",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+                sources=[EdgeSource.DATA],
+                data_confidence=0.8,
             ),
             CausalEdge(
-                src="Y", dst="C",
-                mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW,
-                sources=[EdgeSource.LITERATURE], literature_confidence=0.85,
+                src="Y",
+                dst="C",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+                sources=[EdgeSource.LITERATURE],
+                literature_confidence=0.85,
             ),
         ],
         discovery_method="expert_elicitation",
     )
     source_ctx = ContextProfile(
-        context_id="src", countries=["SE"],
+        context_id="src",
+        countries=["SE"],
         income_level=IncomeLevel.HIGH,
         gdp_per_capita=55_000.0,
     )
     target_ctx = ContextProfile(
-        context_id="tgt", countries=["NG"],
+        context_id="tgt",
+        countries=["NG"],
         income_level=IncomeLevel.LOWER_MIDDLE,
         gdp_per_capita=2_200.0,
     )
@@ -180,15 +190,19 @@ def _build_golden_scenario() -> tuple[SelectionDiagram, str, str]:
         SNode(
             target_variable="C",
             context_dimension="institutional_quality",
-            source_value=0.95, target_value=0.3, delta=0.65,
+            source_value=0.95,
+            target_value=0.3,
+            delta=0.65,
             severity="high",
             origin=SNodeOrigin.CONTEXT_DELTA,
             role=SNodeRole.COLLIDER,
         ),
     ]
     diagram = SelectionDiagram(
-        base_graph=graph, s_nodes=s_nodes,
-        source_context=source_ctx, target_context=target_ctx,
+        base_graph=graph,
+        s_nodes=s_nodes,
+        source_context=source_ctx,
+        target_context=target_ctx,
         context_distance=0.7,
     )
     return diagram, "X", "Y"
@@ -256,27 +270,34 @@ def test_golden_time_stationarity_warning() -> None:
         nodes=["X", "Y"],
         edges=[
             CausalEdge(
-                src="X", dst="Y",
-                mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW,
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
                 lag=2,
-                sources=[EdgeSource.DATA], data_confidence=0.9,
+                sources=[EdgeSource.DATA],
+                data_confidence=0.9,
             ),
         ],
         discovery_method="pcmci",
     )
     source_ctx = ContextProfile(
-        context_id="src", countries=["DE"],
+        context_id="src",
+        countries=["DE"],
         income_level=IncomeLevel.HIGH,
         gdp_per_capita=48_000.0,
     )
     target_ctx = ContextProfile(
-        context_id="tgt", countries=["PL"],
+        context_id="tgt",
+        countries=["PL"],
         income_level=IncomeLevel.HIGH,
         gdp_per_capita=17_000.0,
     )
     diagram = SelectionDiagram(
-        base_graph=graph, s_nodes=[],
-        source_context=source_ctx, target_context=target_ctx,
+        base_graph=graph,
+        s_nodes=[],
+        source_context=source_ctx,
+        target_context=target_ctx,
         context_distance=0.3,
     )
     raw = CheckTransportability.pure_step(

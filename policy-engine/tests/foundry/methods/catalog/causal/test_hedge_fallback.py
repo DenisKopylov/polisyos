@@ -6,8 +6,11 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.ir.analytics.causal import load_data_readiness_report, load_proof_bundle
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
-from polisyos.ir.analytics.negative_certificate import load_negative_certificate
-from polisyos.ir.analytics.negative_certificate import BlockingType, EpistemicTier
+from polisyos.ir.analytics.negative_certificate import (
+    BlockingType,
+    EpistemicTier,
+    load_negative_certificate,
+)
 from polisyos.ir.analytics.partial_identification import load_bounds_bundle
 
 
@@ -211,5 +214,11 @@ def test_fallback_audit_trail(tmp_path) -> None:
         "warn",
         "unknown",
     }
-    assert load_bounds_bundle(store, bundle.bounds_bundle_ref).lower_bound == cert.bounds_bundle.lower_bound
-    assert load_negative_certificate(store, bundle.negative_certificate_ref).blocking_type is BlockingType.HEDGE_STRUCTURE
+    assert (
+        load_bounds_bundle(store, bundle.bounds_bundle_ref).lower_bound
+        == cert.bounds_bundle.lower_bound
+    )
+    assert (
+        load_negative_certificate(store, bundle.negative_certificate_ref).blocking_type
+        is BlockingType.HEDGE_STRUCTURE
+    )

@@ -5,6 +5,7 @@ place so older Scientist integrations and docs can import `ComplianceIssue`,
 `IssueSeverity`, `PassContext`, and `ValidatorPass` from the legacy path while
 receiving a deprecation warning.
 """
+
 from __future__ import annotations
 
 import warnings

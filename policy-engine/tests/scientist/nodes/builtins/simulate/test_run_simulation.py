@@ -18,7 +18,7 @@ from polisyos.ir.analytics.strategic import (
 from polisyos.ir.refs import ArtifactRefModel, StrategicResponseBundleRef
 from polisyos.scientist.kernel.budgets import ComputeBudget
 from polisyos.scientist.nodes.builtins import errors as node_errors
-from polisyos.scientist.nodes.builtins.simulate.run_simulation import RunSimulationNode, _SPEC
+from polisyos.scientist.nodes.builtins.simulate.run_simulation import _SPEC, RunSimulationNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_EXEC_PLAN_REF,
@@ -134,9 +134,7 @@ def test_fail_when_foundry_execute_returns_not_ok(
     assert outcome.error.code == node_errors.ERROR_FOUNDRY_EXECUTE_FAILED
 
 
-def test_ok_when_foundry_execute_succeeds(
-    execution_context, minimal_state, artifact_ref_factory
-):
+def test_ok_when_foundry_execute_succeeds(execution_context, minimal_state, artifact_ref_factory):
     """When foundry.execute returns ok=True, node returns ok."""
     mock_foundry = MagicMock()
     mock_result = MagicMock()
@@ -268,12 +266,14 @@ def test_run_simulation_result_assertion_is_not_swallowed(
     state.artifacts_index[ARTIFACT_EXEC_PLAN_REF] = artifact_ref_factory(kind="foundry.exec_plan")
     state.inputs[INPUT_INPUT_BINDINGS_REF] = artifact_ref_factory(kind="foundry.input_bindings")
 
-    with patch(
-        "polisyos.scientist.nodes.builtins.simulate.run_simulation.SimulationResult.model_validate",
-        side_effect=AssertionError("simulation payload invariant"),
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.simulate.run_simulation.SimulationResult.model_validate",
+            side_effect=AssertionError("simulation payload invariant"),
+        ),
+        pytest.raises(AssertionError, match="simulation payload invariant"),
     ):
-        with pytest.raises(AssertionError, match="simulation payload invariant"):
-            RunSimulationNode().execute(ctx, state)
+        RunSimulationNode().execute(ctx, state)
 
 
 def _runtime_payoff_tables() -> dict[str, FiniteStrategicPayoffTable]:

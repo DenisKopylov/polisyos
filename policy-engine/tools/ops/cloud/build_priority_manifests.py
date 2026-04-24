@@ -9,14 +9,14 @@ import io
 import json
 import math
 import subprocess
-import sys
 from collections import defaultdict
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from tools._lib.imports import repo_root_from
 from typing import Any, TextIO
 
 import zstandard as zstd
+
+from tools._lib.imports import repo_root_from
 
 WORKSPACE_ROOT = repo_root_from(__file__)
 DEFAULT_PRE_SHARDED_ROOT = WORKSPACE_ROOT / "data" / "data_lex" / "pre_sharded"
@@ -145,7 +145,9 @@ def _candidate_weight(*, text_length: int, family: str, appendix_risk: bool) -> 
     return weight
 
 
-def _queue_name_for_current(payload: dict[str, Any], *, family: str, text_length: int, is_kmu: bool) -> str:
+def _queue_name_for_current(
+    payload: dict[str, Any], *, family: str, text_length: int, is_kmu: bool
+) -> str:
     if family in {"law", "treaty_protocol"}:
         return "queue1_core_current"
     if (is_kmu and text_length <= 5_000) or text_length <= 2_000:
@@ -155,7 +157,13 @@ def _queue_name_for_current(payload: dict[str, Any], *, family: str, text_length
 
 def _queue_sort_key(candidate: Candidate) -> tuple[Any, ...]:
     if candidate.queue_name == "queue1_core_current":
-        family_rank = 0 if candidate.category in {"code", "constitution"} else 1 if candidate.family == "law" else 2
+        family_rank = (
+            0
+            if candidate.category in {"code", "constitution"}
+            else 1
+            if candidate.family == "law"
+            else 2
+        )
         return (family_rank, -candidate.text_length, candidate.doc_id)
     if candidate.queue_name == "queue2_fast_useful_current":
         return (candidate.text_length, 0 if candidate.is_kmu else 1, candidate.doc_id)
@@ -168,7 +176,12 @@ def _queue_sort_key(candidate: Candidate) -> tuple[Any, ...]:
             bucket = 2
         else:
             bucket = 3
-        return (bucket, 1 if candidate.appendix_risk else 0, candidate.text_length, candidate.doc_id)
+        return (
+            bucket,
+            1 if candidate.appendix_risk else 0,
+            candidate.text_length,
+            candidate.doc_id,
+        )
     return (candidate.text_length, candidate.doc_id)
 
 
@@ -197,17 +210,30 @@ def _gcloud_ls(pattern: str) -> list[str]:
     )
     if completed.returncode != 0:
         stderr = (completed.stderr or "").lower()
-        if "no URLs matched" in stderr or "matched no objects" in stderr or "one or more URLs matched no objects" in stderr:
+        if (
+            "no URLs matched" in stderr
+            or "matched no objects" in stderr
+            or "one or more URLs matched no objects" in stderr
+        ):
             return []
         raise RuntimeError(f"gcloud storage ls failed for {pattern}: {completed.stderr.strip()}")
     return [line.strip() for line in completed.stdout.splitlines() if line.strip()]
 
 
+def _domain_json_uris(root: str) -> list[str]:
+    normalized = root.rstrip("/")
+    if normalized.startswith("gs://"):
+        return _gcloud_ls(f"{normalized}/**/domains/*.json")
+    local_root = Path(normalized)
+    if not local_root.exists():
+        return []
+    return [str(path) for path in sorted(local_root.rglob("*.json")) if "domains" in path.parts]
+
+
 def _processed_doc_ids(cache_roots: list[str]) -> set[str]:
     doc_ids: set[str] = set()
     for root in cache_roots:
-        normalized = root.rstrip("/")
-        for uri in _gcloud_ls(f"{normalized}/**/domains/*.json"):
+        for uri in _domain_json_uris(root):
             name = Path(uri).name
             if name.endswith(".json"):
                 doc_ids.add(name[:-5])
@@ -226,7 +252,9 @@ def _assign_queue_shards(
     shard_chars = [0 for _ in range(shard_count)]
     assignments: dict[str, int] = {}
 
-    for candidate in sorted(candidates, key=lambda item: (-item.weight, -item.text_length, item.doc_id)):
+    for candidate in sorted(
+        candidates, key=lambda item: (-item.weight, -item.text_length, item.doc_id)
+    ):
         shard_index = min(
             range(shard_count),
             key=lambda idx: (shard_weight[idx], shard_chars[idx], len(shard_payloads[idx]), idx),
@@ -311,7 +339,9 @@ def main(argv: list[str] | None = None) -> int:
         text_length = int(payload.get("text_length") or len(_normalize_text(payload.get("text"))))
         is_kmu = _is_kmu(payload)
         appendix_risk = _appendix_risk(payload)
-        queue_name = _queue_name_for_current(payload, family=family, text_length=text_length, is_kmu=is_kmu)
+        queue_name = _queue_name_for_current(
+            payload, family=family, text_length=text_length, is_kmu=is_kmu
+        )
         current_candidates[doc_id] = Candidate(
             doc_id=doc_id,
             queue_name=queue_name,
@@ -321,7 +351,9 @@ def main(argv: list[str] | None = None) -> int:
             text_length=text_length,
             is_kmu=is_kmu,
             appendix_risk=appendix_risk,
-            weight=_candidate_weight(text_length=text_length, family=family, appendix_risk=appendix_risk),
+            weight=_candidate_weight(
+                text_length=text_length, family=family, appendix_risk=appendix_risk
+            ),
         )
 
     for _manifest_path, _raw, payload in _iter_manifest_records(history_root):
@@ -365,7 +397,9 @@ def main(argv: list[str] | None = None) -> int:
             continue
         queue_assignments, summary = _assign_queue_shards(queue_candidates, shard_count=shard_count)
         queue_summaries[queue_name] = summary
-        assignments.update({doc_id: (queue_name, shard_index) for doc_id, shard_index in queue_assignments.items()})
+        assignments.update(
+            {doc_id: (queue_name, shard_index) for doc_id, shard_index in queue_assignments.items()}
+        )
 
     writers: dict[tuple[str, int], contextlib.AbstractContextManager[TextIO]] = {}
     handles: dict[tuple[str, int], TextIO] = {}
@@ -425,13 +459,22 @@ def main(argv: list[str] | None = None) -> int:
             "campaign_label": args.campaign_label,
             "current_processed_doc_ids": len(current_processed),
             "history_processed_doc_ids": len(history_processed),
-            "queues": {queue_name: asdict(summary) for queue_name, summary in queue_summaries.items()},
+            "queues": {
+                queue_name: asdict(summary) for queue_name, summary in queue_summaries.items()
+            },
         },
     )
 
     if args.gcs_output_root:
         subprocess.run(
-            ["gcloud", "storage", "rsync", "-r", str(output_root), args.gcs_output_root.rstrip("/")],
+            [
+                "gcloud",
+                "storage",
+                "rsync",
+                "-r",
+                str(output_root),
+                args.gcs_output_root.rstrip("/"),
+            ],
             check=True,
         )
 

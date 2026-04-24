@@ -4,27 +4,32 @@
 `IndexedRunRecord` snapshots and keeps a short-lived in-memory index for
 `/runs` and dependent debug/lineage endpoints.
 """
+
 from __future__ import annotations
 
 import time
-from collections.abc import Iterator
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.contracts.runtime import CursorPage, RunDetails, RunSummary, SourceKind
 from polisyos.scientist.decision_validity import DecisionValidityService
 
 from .adapters.core_run import CoreRunAdapterResult, load_core_run
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from pathlib import Path
+
+    from polisyos.core.artifacts.protocol import ArtifactStore
+
 
 @dataclass(frozen=True)
 class IndexedRunRecord:
     """Join a run manifest, API summary/details DTOs, and local file pointers."""
+
     run_id: str
     source_kind: SourceKind
     details: RunDetails
@@ -52,6 +57,7 @@ class RunIndexService:
     `refresh_ttl_seconds`. Invalid pagination cursors raise `ValueError`, and
     unknown run ids raise `KeyError`.
     """
+
     def __init__(
         self,
         *,
@@ -240,10 +246,7 @@ class RunIndexService:
                 next_fingerprints[run_dir] = fingerprint
                 cached = self._cache.get(run_dir.name)
                 record: IndexedRunRecord | None
-                if (
-                    cached is not None
-                    and self._dir_fingerprints.get(run_dir) == fingerprint
-                ):
+                if cached is not None and self._dir_fingerprints.get(run_dir) == fingerprint:
                     record = cached
                     self._record_cache_event(operation="adapt_run", outcome="unchanged")
                 else:
@@ -408,8 +411,8 @@ def _as_utc(value: datetime | None) -> datetime | None:
     if value is None:
         return None
     if value.tzinfo is None:
-        return value.replace(tzinfo=timezone.utc)
-    return value.astimezone(timezone.utc)
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
 
 
 def _run_sort_key(record: IndexedRunRecord) -> tuple[float, str]:

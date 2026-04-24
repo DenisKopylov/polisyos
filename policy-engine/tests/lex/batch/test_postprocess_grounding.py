@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.lex.batch.postprocess import ground_spo_quotes
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _write_jsonl(path: Path, rows: list[dict]) -> None:
@@ -70,7 +73,7 @@ def test_ground_spo_quotes_keeps_search_only_headers_out_of_grounded_layer(tmp_p
 
     assert stats["statements_total"] == 1
     out_path = grounded_dir / "ab" / "abdoc.jsonl"
-    with open(out_path, "r", encoding="utf-8") as fh:
+    with open(out_path, encoding="utf-8") as fh:
         row = json.loads(fh.readline())
     stmt = row["statements"][0]
     assert stmt["structure_quality"] == "fallback_search_only"
@@ -134,7 +137,7 @@ def test_ground_spo_quotes_upgrades_recovered_offsets_to_exact_quote(tmp_path: P
     )
 
     out_path = grounded_dir / "ab" / "abdoc.jsonl"
-    with open(out_path, "r", encoding="utf-8") as fh:
+    with open(out_path, encoding="utf-8") as fh:
         row = json.loads(fh.readline())
     stmt = row["statements"][0]
     assert stmt["grounding_status"] == "exact_quote"

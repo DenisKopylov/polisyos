@@ -1,4 +1,5 @@
 """Unit-related exception classes."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -7,8 +8,8 @@ if TYPE_CHECKING:
     from ._units_core import Unit
 
 __all__ = [
-    "UnitParseError",
     "UnitConversionError",
+    "UnitParseError",
 ]
 
 
@@ -29,13 +30,11 @@ class UnitConversionError(ValueError):
 
     def __init__(
         self,
-        source: "Unit",
-        target: "Unit",
+        source: Unit,
+        target: Unit,
         reason: str = "incompatible dimensions",
     ):
         self.source = source
         self.target = target
         self.reason = reason
-        super().__init__(
-            f"Cannot convert from '{source}' to '{target}': {reason}"
-        )
+        super().__init__(f"Cannot convert from '{source}' to '{target}': {reason}")

@@ -114,7 +114,7 @@ class SPOCandidate(BaseModel):
     quality_band: str = ""
 
     @model_validator(mode="after")
-    def _compat_defaults(self) -> "SPOCandidate":
+    def _compat_defaults(self) -> SPOCandidate:
         action_raw = self.action_raw or self.predicate
         action_canon = self.action_canon or action_raw
         norm_type_raw = self.norm_type_raw or self.norm_type
@@ -124,20 +124,28 @@ class SPOCandidate(BaseModel):
         actor_uk = self.actor_uk or self.subject_uk
         target_en = self.target_en or self.object_en
         target_uk = self.target_uk or self.object_uk
-        confidence_extract = self.confidence_extract if self.confidence_extract is not None else self.confidence
-        confidence_verify = self.confidence_verify if self.confidence_verify is not None else self.confidence
-        confidence_final = self.confidence_final if self.confidence_final is not None else self.confidence
+        confidence_extract = (
+            self.confidence_extract if self.confidence_extract is not None else self.confidence
+        )
+        confidence_verify = (
+            self.confidence_verify if self.confidence_verify is not None else self.confidence
+        )
+        confidence_final = (
+            self.confidence_final if self.confidence_final is not None else self.confidence
+        )
 
         if self.statement_id:
             statement_id = self.statement_id
         else:
-            canon = "|".join([
-                actor_en,
-                action_canon,
-                target_en,
-                fact_text_en,
-                self.source_quote_uk[:120],
-            ])
+            canon = "|".join(
+                [
+                    actor_en,
+                    action_canon,
+                    target_en,
+                    fact_text_en,
+                    self.source_quote_uk[:120],
+                ]
+            )
             statement_id = hashlib.sha256(canon.encode("utf-8")).hexdigest()[:20]
 
         # Keep offsets coherent when one side is absent.
@@ -176,9 +184,7 @@ class SPOCandidate(BaseModel):
             reference_resolution_status = "not_applicable"
         else:
             resolved_links = sum(
-                1
-                for link in self.links
-                if link.target_doc_id.strip() or link.target_anchor.strip()
+                1 for link in self.links if link.target_doc_id.strip() or link.target_anchor.strip()
             )
             if resolved_links == len(self.links):
                 reference_resolution_status = "resolved"
@@ -200,7 +206,8 @@ class SPOCandidate(BaseModel):
             if (
                 grounding_status == "exact_quote"
                 and canonical_status == "canonicalized"
-                and (self.norm_type_canon or norm_type_canon) in {"obligation", "prohibition", "permission"}
+                and (self.norm_type_canon or norm_type_canon)
+                in {"obligation", "prohibition", "permission"}
                 and confidence_rank >= 0.6
                 and self.structure_quality != "fallback_search_only"
             ):
@@ -217,8 +224,14 @@ class SPOCandidate(BaseModel):
             except Exception:
                 _parsed_flags = []
             _blocking_types = {"phantom_article_reference", "phantom_number"}
-            if any(str(f.get("type") or "") in _blocking_types for f in _parsed_flags if isinstance(f, dict)):
-                trust_tier = "grounded_fact" if grounding_status == "exact_quote" else "search_candidate"
+            if any(
+                str(f.get("type") or "") in _blocking_types
+                for f in _parsed_flags
+                if isinstance(f, dict)
+            ):
+                trust_tier = (
+                    "grounded_fact" if grounding_status == "exact_quote" else "search_candidate"
+                )
 
         object.__setattr__(self, "action_raw", action_raw)
         object.__setattr__(self, "action_canon", action_canon)

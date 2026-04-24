@@ -1,8 +1,9 @@
 """Public lex factlog module API."""
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import TypeVar
 
 import pandas as pd
 
@@ -13,7 +14,7 @@ _E = TypeVar("_E", bound=Exception)
 __all__ = ["load_world_facts"]
 
 
-def load_world_facts(
+def load_world_facts[E: Exception](
     fact_log_root: Path,
     *,
     columns: list[str],

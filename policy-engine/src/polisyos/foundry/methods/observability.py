@@ -34,17 +34,18 @@ Usage
 
     # Then use MethodDispatcher normally — spans/metrics are emitted automatically
 """
+
 from __future__ import annotations
 
 import os
-import time
 import threading
-from typing import Any, Callable, TypeVar
+import time
+from typing import Any, TypeVar
 
 __all__ = [
+    "InstrumentedDispatcher",
     "activate_foundry_instrumentation",
     "deactivate_foundry_instrumentation",
-    "InstrumentedDispatcher",
     "is_instrumentation_active",
 ]
 
@@ -65,7 +66,8 @@ _is_active = False
 def _try_import_otel() -> bool:
     """Return True if opentelemetry-api is importable."""
     try:
-        import opentelemetry  # noqa: F401
+        import opentelemetry
+
         return True
     except ImportError:
         return False
@@ -79,7 +81,7 @@ def _init_otel_providers() -> None:
         return
 
     try:
-        from opentelemetry import trace, metrics
+        from opentelemetry import metrics, trace
 
         _tracer = trace.get_tracer(
             "polisyos.foundry.methods",
@@ -161,7 +163,6 @@ class InstrumentedDispatcher:
                 seed=seed,
             )
 
-        from opentelemetry import trace
         from opentelemetry.trace import StatusCode
 
         attrs = _build_attributes(signature)
@@ -259,6 +260,7 @@ def deactivate_foundry_instrumentation() -> None:
             return
         try:
             from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+
             instance = MethodDispatcher.get_instance()
             if isinstance(instance, InstrumentedDispatcher):
                 MethodDispatcher._instance = instance._inner  # type: ignore[attr-defined]

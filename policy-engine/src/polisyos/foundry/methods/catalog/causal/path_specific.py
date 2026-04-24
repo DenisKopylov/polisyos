@@ -20,11 +20,13 @@ Tchetgen Tchetgen, E.J. & Shpitser, I. (2012). Semiparametric Theory for
 Avin, C., Shpitser, I. & Pearl, J. (2005). Identifiability of Path-Specific
     Effects. IJCAI-05, 357–363.
 """
+
 from __future__ import annotations
 
 import math
 import time
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -41,12 +43,7 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.foundry.methods.catalog.causal.eif_bounds import (
-    compute_eif_nde,
-    compute_eif_nie,
-)
 from polisyos.ir.analytics.mediation_effects import MediationDecomposition
-
 
 # ── Recanting witness check (Avin-Shpitser-Pearl 2005) ───────────────────────
 
@@ -218,7 +215,7 @@ def _fit_mediator_density_gaussian(
     std_m = max(float(np.std(M_sub)), 1e-6)
     # Gaussian PDF: N(M_test; mean_m, std_m)
     z = (M_test - mean_m) / std_m
-    densities = np.exp(-0.5 * z ** 2) / (std_m * math.sqrt(2 * math.pi))
+    densities = np.exp(-0.5 * z**2) / (std_m * math.sqrt(2 * math.pi))
     return np.maximum(densities, min_density)
 
 
@@ -331,8 +328,12 @@ def _nde_cross_fit(
                     X_tr_aug.T @ (w_l[:, None] * X_tr_aug) + 1e-4 * np.eye(X_tr_aug.shape[1]),
                     X_tr_aug.T @ (w_l * z_l),
                 )
-                p = np.clip(1.0 / (1.0 + np.exp(-X_tr_aug @ beta_e)), min_propensity, 1.0 - min_propensity)
-                p_test = np.clip(1.0 / (1.0 + np.exp(-X_te_aug @ beta_e)), min_propensity, 1.0 - min_propensity)
+                p = np.clip(
+                    1.0 / (1.0 + np.exp(-X_tr_aug @ beta_e)), min_propensity, 1.0 - min_propensity
+                )
+                p_test = np.clip(
+                    1.0 / (1.0 + np.exp(-X_te_aug @ beta_e)), min_propensity, 1.0 - min_propensity
+                )
             except np.linalg.LinAlgError:
                 break
 
@@ -381,7 +382,9 @@ def _nde_cross_fit(
 
         # AIPW correction for treatment assignment (no density ratio needed)
         e_te = np.clip(p_test, min_propensity, 1.0 - min_propensity)
-        correction = (T_te / e_te) * (Y_te - mu1_te_obs) - ((1.0 - T_te) / (1.0 - e_te)) * (Y_te - mu0_te_obs)
+        correction = (T_te / e_te) * (Y_te - mu1_te_obs) - ((1.0 - T_te) / (1.0 - e_te)) * (
+            Y_te - mu0_te_obs
+        )
 
         nde_scores_all[test_idx] = nde_plugin + correction
         nie_scores_all[test_idx] = nie_plugin
@@ -484,7 +487,7 @@ def _tmle_cross_fit(
         q1_m1_tr = out_fit.predict(np.column_stack([np.ones(len(train_idx)), m1_tr, X_tr]))
 
         h_tr = T_tr / e_tr - (1.0 - T_tr) / (1.0 - e_tr)
-        epsilon = float(np.sum(h_tr * (Y_tr - q_obs_tr)) / max(np.sum(h_tr ** 2), 1e-12))
+        epsilon = float(np.sum(h_tr * (Y_tr - q_obs_tr)) / max(np.sum(h_tr**2), 1e-12))
 
         q1_m0_star = q1_m0_te + epsilon / e_te
         q0_m0_star = q0_m0_te - epsilon / (1.0 - e_te)
@@ -572,15 +575,23 @@ class PathSpecificEffectEstimator:
         name="path_specific_effects",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-            SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-            SlotSpec("mediator", SlotType.VECTOR, Unit("mediator", "value"), shape=("n_obs",)),
-            SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-        }),
-        output_slots=frozenset({
-            SlotSpec("mediation_result", SlotType.SCALAR, Unit("report", "json")),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec("mediator", SlotType.VECTOR, Unit("mediator", "value"), shape=("n_obs",)),
+                SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec("mediation_result", SlotType.SCALAR, Unit("report", "json")),
+            }
+        ),
         parameters=(
             ParameterSpec(name="n_folds", default=2),
             ParameterSpec(name="compute_sensitivity", default=False),
@@ -603,10 +614,19 @@ class PathSpecificEffectEstimator:
             "Natural Direct Effect (NDE) and Natural Indirect Effect (NIE) via "
             "semiparametric cross-fitted EIF (Tchetgen Tchetgen & Shpitser 2012)."
         ),
-        tags=frozenset({
-            "causal", "mediation", "nde", "nie", "path_specific",
-            "eif", "semiparametric", "l3", "counterfactual",
-        }),
+        tags=frozenset(
+            {
+                "causal",
+                "mediation",
+                "nde",
+                "nie",
+                "path_specific",
+                "eif",
+                "semiparametric",
+                "l3",
+                "counterfactual",
+            }
+        ),
         citations=(
             "Tchetgen Tchetgen, E.J. & Shpitser, I. (2012). Semiparametric Theory for "
             "Causal Mediation Analysis. Ann. Stat. 40(4), 1816–1845.",
@@ -656,7 +676,9 @@ class PathSpecificEffectEstimator:
         rho_range = list(params.get("rho_range", [-0.5, 0.0, 0.5]))
         min_propensity = float(params.get("min_propensity", 1e-4))
         estimation_method = str(params.get("estimation_method", "eif_cross_fit"))
-        tmle_library = tuple(str(item) for item in params.get("tmle_library", ["ols", "ridge", "lasso"]))
+        tmle_library = tuple(
+            str(item) for item in params.get("tmle_library", ["ols", "ridge", "lasso"])
+        )
         tmle_v_folds = int(params.get("tmle_v_folds", 5))
 
         treatment_var = str(params.get("treatment_variable", "T"))
@@ -666,7 +688,9 @@ class PathSpecificEffectEstimator:
         # Identifiability check
         mediators = (mediator_var,)
         is_identifiable = _identify_path_specific(
-            treatment_var, outcome_var, mediators,
+            treatment_var,
+            outcome_var,
+            mediators,
             active_paths=((treatment_var, outcome_var),),
             fixed_paths=((treatment_var, mediator_var, outcome_var),),
             adjacency=None,
@@ -691,7 +715,10 @@ class PathSpecificEffectEstimator:
             )
         else:
             nde, nde_se, nie, nie_se = _nde_cross_fit(
-                Y, T, M, X,
+                Y,
+                T,
+                M,
+                X,
                 n_folds=n_folds,
                 rng=rng,
                 min_propensity=min_propensity,
@@ -721,8 +748,12 @@ class PathSpecificEffectEstimator:
             n_obs=len(Y),
             estimation_method=estimation_method,
             sensitivity_rho_range=tuple(rho_range) if compute_sensitivity else None,
-            sensitivity_nde=tuple(sensitivity_result["nde_corrected"]) if sensitivity_result else None,
-            sensitivity_nie=tuple(sensitivity_result["nie_corrected"]) if sensitivity_result else None,
+            sensitivity_nde=tuple(sensitivity_result["nde_corrected"])
+            if sensitivity_result
+            else None,
+            sensitivity_nie=tuple(sensitivity_result["nie_corrected"])
+            if sensitivity_result
+            else None,
             proportion_mediated=prop_mediated,
             metadata={"computation_time_seconds": time.time() - t0},
         )
@@ -732,8 +763,8 @@ class PathSpecificEffectEstimator:
 
 __all__ = [
     "PathSpecificEffectEstimator",
-    "_recanting_witness_check",
     "_identify_path_specific",
     "_nde_cross_fit",
+    "_recanting_witness_check",
     "_sensitivity_mediation",
 ]

@@ -3,15 +3,19 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import duckdb
 import numpy as np
 
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.batch_common.thermal import pause_between_batches
 from polisyos.common.logger import get_logger
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 logger = get_logger(__name__)
 
@@ -102,7 +106,10 @@ def run_embed(config: AcademicBatchConfig, *, thermal: bool = False) -> int:
             "embedding_dimension": built_dimension,
             "embedding_device": config.embedding_device,
         },
-        artifacts=[config.index_dir / "ac_work_embeddings.npz", config.index_dir / "ac_work_index.hnsw"],
+        artifacts=[
+            config.index_dir / "ac_work_embeddings.npz",
+            config.index_dir / "ac_work_index.hnsw",
+        ],
         started_at=started_at,
     )
     return count

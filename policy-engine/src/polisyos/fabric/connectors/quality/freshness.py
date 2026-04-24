@@ -31,6 +31,7 @@ logger = get_logger(__name__)
 def _default_metrics():
     return get_metrics()
 
+
 KNOWN_SCHEDULES = {
     "real-time",
     "hourly",
@@ -206,19 +207,13 @@ class FreshnessChecker:
 
         if age_to_check <= ttl * policy.fresh_threshold:
             level = FreshnessLevel.FRESH
-            message = (
-                f"Data is fresh ({_format_age(age_to_check)} < {policy.schedule} TTL)"
-            )
+            message = f"Data is fresh ({_format_age(age_to_check)} < {policy.schedule} TTL)"
         elif age_to_check <= ttl * policy.healthy_threshold:
             level = FreshnessLevel.HEALTHY
-            message = (
-                f"Data is healthy ({_format_age(age_to_check)} within acceptable range)"
-            )
+            message = f"Data is healthy ({_format_age(age_to_check)} within acceptable range)"
         elif age_to_check <= ttl * 2.0:
             level = FreshnessLevel.STALE
-            message = (
-                f"Data is stale ({_format_age(age_to_check)} > {policy.schedule} TTL)"
-            )
+            message = f"Data is stale ({_format_age(age_to_check)} > {policy.schedule} TTL)"
         else:
             level = FreshnessLevel.EXPIRED
             message = (
@@ -275,9 +270,7 @@ class FreshnessChecker:
         if metadata is not None:
             schedule_hint = _normalize_schedule(getattr(metadata, "schedule", None))
             if schedule_hint is None:
-                schedule_hint = _normalize_schedule(
-                    getattr(metadata, "update_frequency", None)
-                )
+                schedule_hint = _normalize_schedule(getattr(metadata, "update_frequency", None))
 
         if schedule_hint in KNOWN_SCHEDULES:
             return schedule_hint

@@ -5,29 +5,34 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
-from polisyos.core.components._cli_store import build_cli_filesystem_cas
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.components._cli_store import build_cli_artifact_store
+from polisyos.core.contracts.foundry import MetricObservationBundleRef
+from polisyos.ir.analytics.metric_validation_report import (
+    MetricValidationReport,
+    persist_metric_validation_report,
+)
+from polisyos.ir.artifacts import ArtifactStore as IrArtifactStore
 from polisyos.scientist.validation.metrics import (
     TestConfig,
     compare_metric_family,
     load_metric_observation_bundle,
 )
-from polisyos.ir.analytics.metric_validation_report import MetricValidationReport, persist_metric_validation_report
-from polisyos.core.contracts.foundry import MetricObservationBundleRef
 
 __all__ = ["_cmd_metric_validate"]
 
 
 def _cmd_metric_validate(args: Any) -> int:
-    cas = build_cli_filesystem_cas(Path(args.cas_root))
+    store = build_cli_artifact_store(Path(args.cas_root))
     ref = MetricObservationBundleRef(
-        artifact_id=_normalize_artifact_id(args.observation_bundle_ref),
+        artifact_id=ArtifactID.model_validate(_normalize_artifact_id(args.observation_bundle_ref)),
         kind="foundry.metric_observation_bundle",
         media_type="application/json",
     )
     try:
-        bundle = load_metric_observation_bundle(cas, ref)
+        bundle = load_metric_observation_bundle(cast("IrArtifactStore", store), ref)
     except Exception as exc:
         print(f"ERROR: failed to load observation bundle: {exc}", file=sys.stderr)
         return 2
@@ -54,7 +59,7 @@ def _cmd_metric_validate(args: Any) -> int:
         return 1
 
     report_ref = persist_metric_validation_report(
-        cas,
+        cast("IrArtifactStore", store),
         report,
     )
     payload = _render_payload(report, report_ref.artifact_id.root, args.format)
@@ -89,7 +94,7 @@ def _render_payload(
         payload["cas_artifact_id"] = artifact_id
         return payload
     if format_name == "proto-json":
-        payload = _camelize_keys(report.model_dump(mode="json"))
+        payload = cast("dict[str, Any]", _camelize_keys(report.model_dump(mode="json")))
         payload["casArtifactId"] = artifact_id
         return payload
     return _summary_payload(report, artifact_id)

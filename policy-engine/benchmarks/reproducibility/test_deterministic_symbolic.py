@@ -49,7 +49,11 @@ from benchmarks.harness import (  # noqa: E402
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.REPRODUCIBILITY
@@ -68,6 +72,7 @@ def _graph_imports():
         EdgeMark,
         GraphType,
     )
+
     return CausalEdge, CausalGraphModel, EdgeMark, GraphType
 
 
@@ -76,6 +81,7 @@ def _id_imports():
         IdentificationStatus,
         id_algorithm,
     )
+
     return IdentificationStatus, id_algorithm
 
 
@@ -161,11 +167,15 @@ def _case_id_algorithm_status_stable() -> BenchmarkCase:
     """Frontdoor: identification status identical across N runs."""
 
     def runner():
-        from polisyos.foundry.methods.catalog.causal.id_engine import id_algorithm, IdentificationStatus
+        from polisyos.foundry.methods.catalog.causal.id_engine import (
+            id_algorithm,
+        )
 
         graph = _build_frontdoor()
         statuses = [
-            id_algorithm(treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph).status.value
+            id_algorithm(
+                treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph
+            ).status.value
             for _ in range(_N_REPS)
         ]
         return statuses
@@ -173,13 +183,9 @@ def _case_id_algorithm_status_stable() -> BenchmarkCase:
     def checker(statuses: list) -> bool:
         unique = set(statuses)
         if len(unique) != 1:
-            raise AssertionError(
-                f"Identification status should be stable; got: {statuses}"
-            )
+            raise AssertionError(f"Identification status should be stable; got: {statuses}")
         if list(unique)[0] != "identified":
-            raise AssertionError(
-                f"Frontdoor should be identified, got {list(unique)[0]!r}"
-            )
+            raise AssertionError(f"Frontdoor should be identified, got {list(unique)[0]!r}")
         return True
 
     return BenchmarkCase(
@@ -238,7 +244,11 @@ def _case_proof_steps_count_stable() -> BenchmarkCase:
 
         graph = _build_frontdoor()
         step_counts = [
-            len(id_algorithm(treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph).proof_steps)
+            len(
+                id_algorithm(
+                    treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph
+                ).proof_steps
+            )
             for _ in range(_N_REPS)
         ]
         return step_counts
@@ -246,9 +256,7 @@ def _case_proof_steps_count_stable() -> BenchmarkCase:
     def checker(counts: list) -> bool:
         unique = set(counts)
         if len(unique) != 1:
-            raise AssertionError(
-                f"Proof step count should be stable; got: {counts}"
-            )
+            raise AssertionError(f"Proof step count should be stable; got: {counts}")
         return True
 
     return BenchmarkCase(
@@ -266,6 +274,7 @@ def _case_graph_fingerprint_stable() -> BenchmarkCase:
 
     def runner():
         import uuid
+
         from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
         from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult
 
@@ -321,7 +330,9 @@ def build_deterministic_symbolic_harness() -> BenchmarkHarness:
 # ---------------------------------------------------------------------------
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     return build_report_payload(
         report,
         suite_id="reproducibility_deterministic",
@@ -332,7 +343,9 @@ def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, 
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Circuit 5 — Deterministic symbolic reproducibility")
+    parser = argparse.ArgumentParser(
+        description="Circuit 5 — Deterministic symbolic reproducibility"
+    )
     parser.add_argument("--mode", choices=("smoke", "acceptance"))
     parser.add_argument("--json", metavar="FILE")
     parser.add_argument("--quiet", action="store_true")

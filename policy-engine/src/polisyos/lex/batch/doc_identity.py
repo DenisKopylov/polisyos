@@ -1,4 +1,5 @@
 """Public batch doc identity module API."""
+
 from __future__ import annotations
 
 import hashlib
@@ -132,6 +133,7 @@ def version_sort_key(meta: dict[str, Any], doc_id: str) -> tuple[date, str, str]
 @dataclass(frozen=True)
 class DocIndexEntry:
     """Doc index entry data model."""
+
     doc_id: str
     family_id: str
     reestr_code: str
@@ -155,6 +157,7 @@ class DocIndexEntry:
 @dataclass(frozen=True)
 class DocResolutionIndex:
     """Doc resolution index public type."""
+
     entries: list[DocIndexEntry]
     by_doc_id: dict[str, DocIndexEntry]
     by_reestr_code: dict[str, list[DocIndexEntry]]
@@ -213,11 +216,15 @@ def build_doc_resolution_index(doc_metadata: dict[str, dict[str, Any]]) -> DocRe
         if entry.doc_number_norm:
             by_number.setdefault(entry.doc_number_norm, []).append(entry)
             if entry.doc_date_acc:
-                by_number_date.setdefault((entry.doc_number_norm, entry.doc_date_acc), []).append(entry)
+                by_number_date.setdefault((entry.doc_number_norm, entry.doc_date_acc), []).append(
+                    entry
+                )
         if entry.reg_number_norm:
             by_reg_number.setdefault(entry.reg_number_norm, []).append(entry)
             if entry.doc_date_acc:
-                by_reg_number_date.setdefault((entry.reg_number_norm, entry.doc_date_acc), []).append(entry)
+                by_reg_number_date.setdefault(
+                    (entry.reg_number_norm, entry.doc_date_acc), []
+                ).append(entry)
         by_family.setdefault(entry.family_id, []).append(entry)
 
     latest_by_family: dict[str, DocIndexEntry] = {}

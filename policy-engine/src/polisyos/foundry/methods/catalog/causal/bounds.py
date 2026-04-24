@@ -1,14 +1,14 @@
 """Compute partial-identification bounds when point identification is not credible."""
+
 from __future__ import annotations
 
 import logging
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
 _logger = logging.getLogger(__name__)
-
-from polisyos.ir.analytics.partial_identification import BoundMethod, PartialIdentificationResult
 
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
@@ -26,6 +26,7 @@ from polisyos.foundry.methods.base import (
 from polisyos.foundry.methods.catalog.causal.model_class_compatibility import (
     check_model_class_compatibility,
 )
+from polisyos.ir.analytics.partial_identification import BoundMethod, PartialIdentificationResult
 
 
 def _result_slot() -> frozenset[SlotSpec]:
@@ -39,6 +40,7 @@ def _result_slot() -> frozenset[SlotSpec]:
 )
 class ManskiBoundsEstimator:
     """Compute no-assumption Manski treatment-effect bounds; expect wide intervals under weak support information."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -49,7 +51,9 @@ class ManskiBoundsEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -122,6 +126,7 @@ class ManskiBoundsEstimator:
 )
 class LeeBoundsEstimator:
     """Compute Lee attrition bounds under monotone selection; avoid when treatment can move selection in both directions."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -132,8 +137,12 @@ class LeeBoundsEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-                SlotSpec("selected", SlotType.VECTOR, Unit("selection", "binary"), shape=("n_obs",)),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "selected", SlotType.VECTOR, Unit("selection", "binary"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -150,7 +159,9 @@ class LeeBoundsEstimator:
         description="Lee (2009) bounds for treatment effects under sample selection.",
         tags=frozenset({"causal", "bounds", "lee", "sample-selection", "partial-identification"}),
         citations=("Lee, D.S. (2009). Training, Wages, and Sample Selection. ReStud.",),
-        equations={"lee": "Trim always-selected from larger group, bound ATE by trimming from top/bottom"},
+        equations={
+            "lee": "Trim always-selected from larger group, bound ATE by trimming from top/bottom"
+        },
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
         when_to_use="Sample selection or attrition in RCT; want sharp bounds on ATE controlling for selective non-compliance",
@@ -191,7 +202,7 @@ class LeeBoundsEstimator:
             y1_sorted = np.sort(y1)
             n_trim = int(np.round(trim_frac * n1_sel))
             # Lower bound: trim from top
-            y1_lower = y1_sorted[:n1_sel - n_trim] if n_trim > 0 else y1_sorted
+            y1_lower = y1_sorted[: n1_sel - n_trim] if n_trim > 0 else y1_sorted
             # Upper bound: trim from bottom
             y1_upper = y1_sorted[n_trim:] if n_trim > 0 else y1_sorted
             ate_lower = float(np.mean(y1_lower) - np.mean(y0))
@@ -201,7 +212,7 @@ class LeeBoundsEstimator:
             trim_frac = 1.0 - s1 / s0
             y0_sorted = np.sort(y0)
             n_trim = int(np.round(trim_frac * n0_sel))
-            y0_upper = y0_sorted[:n0_sel - n_trim] if n_trim > 0 else y0_sorted
+            y0_upper = y0_sorted[: n0_sel - n_trim] if n_trim > 0 else y0_sorted
             y0_lower = y0_sorted[n_trim:] if n_trim > 0 else y0_sorted
             ate_lower = float(np.mean(y1) - np.mean(y0_lower))
             ate_upper = float(np.mean(y1) - np.mean(y0_upper))
@@ -266,7 +277,7 @@ def _balke_pearl_lp(
             for y in range(2):
                 row = np.zeros(n_types)
                 for r in range(n_types):
-                    x_z = (r >> z) & 1          # X(Z=z): bit 0 = X(Z=0), bit 1 = X(Z=1)
+                    x_z = (r >> z) & 1  # X(Z=z): bit 0 = X(Z=0), bit 1 = X(Z=1)
                     y_xz = (r >> (2 + x_z)) & 1  # Y(X(Z=z)): bit 2 = Y(X=0), bit 3 = Y(X=1)
                     if x_z == x and y_xz == y:
                         row[r] = 1.0
@@ -288,7 +299,7 @@ def _balke_pearl_lp(
     res_hi = linprog(-c, A_eq=A_eq, b_eq=b_eq, bounds=bounds, method="highs")
 
     if res_lo.status == 0 and res_hi.status == 0:
-        from polisyos.ir.analytics.dual_certificate import (  # noqa: PLC0415
+        from polisyos.ir.analytics.dual_certificate import (
             build_binary_iv_dual_certificate_bundle,
         )
 
@@ -335,14 +346,16 @@ class BalkePearlBoundsEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "binary"), shape=("n_obs",)),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-                SlotSpec("instrument", SlotType.VECTOR, Unit("instrument", "binary"), shape=("n_obs",)),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "instrument", SlotType.VECTOR, Unit("instrument", "binary"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="clip_probs", default=True),
-        ),
+        parameters=(ParameterSpec(name="clip_probs", default=True),),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
@@ -385,9 +398,9 @@ class BalkePearlBoundsEstimator:
         z = (Z > 0.5).astype(int)
 
         compatibility_alpha = float(params.get("compatibility_alpha", 0.05))
-        compatibility_multiple_testing = str(
-            params.get("compatibility_multiple_testing", "holm")
-        ).strip().lower()
+        compatibility_multiple_testing = (
+            str(params.get("compatibility_multiple_testing", "holm")).strip().lower()
+        )
         run_compatibility_check = bool(params.get("check_model_class_compatibility", True))
         if run_compatibility_check:
             compatibility = check_model_class_compatibility(
@@ -483,7 +496,9 @@ class ImbensManskiBoundsEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -505,7 +520,9 @@ class ImbensManskiBoundsEstimator:
         tags=frozenset(
             {"causal", "bounds", "manski", "confidence-interval", "partial-identification"}
         ),
-        citations=("Imbens, G. & Manski, C. (2004). Confidence Intervals for Partially Identified Parameters. Econometrica.",),
+        citations=(
+            "Imbens, G. & Manski, C. (2004). Confidence Intervals for Partially Identified Parameters. Econometrica.",
+        ),
         equations={
             "ci_lower": "ATE_lb - c_n * se / sqrt(n)",
             "ci_upper": "ATE_ub + c_n * se / sqrt(n)",
@@ -565,7 +582,7 @@ class ImbensManskiBoundsEstimator:
             method=BoundMethod.IMBENS_MANSKI_CI,
             assumptions=["no_assumptions_on_selection"],
             confidence=1.0 - alpha,
-            display_label=f"Imbens-Manski {int((1-alpha)*100)}% CI",
+            display_label=f"Imbens-Manski {int((1 - alpha) * 100)}% CI",
         )
 
         return {
@@ -615,18 +632,26 @@ class OptimizationBasedBoundsEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-                SlotSpec("miv_proxy", SlotType.VECTOR, Unit("instrument", "ordinal"), shape=("n_obs",)),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "miv_proxy", SlotType.VECTOR, Unit("instrument", "ordinal"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=_result_slot(),
         parameters=(
             ParameterSpec(name="y_lower", default=0.0),
             ParameterSpec(name="y_upper", default=1.0),
-            ParameterSpec(name="assumption", default="mtr",
-                          description="'mtr' | 'mts' | 'mts_mtr' | 'miv'"),
-            ParameterSpec(name="n_strata", default=5,
-                          description="Number of quantile bins for MIV stratification"),
+            ParameterSpec(
+                name="assumption", default="mtr", description="'mtr' | 'mts' | 'mts_mtr' | 'miv'"
+            ),
+            ParameterSpec(
+                name="n_strata",
+                default=5,
+                description="Number of quantile bins for MIV stratification",
+            ),
             ParameterSpec(name="clip_probs", default=True),
         ),
         fidelity=FidelityLevel.HIGH,
@@ -722,9 +747,9 @@ class OptimizationBasedBoundsEstimator:
             q_lo_s = quantiles[i]
             q_hi_s = quantiles[i + 1]
             if i == n_strata - 1:
-                mask = (Z >= q_lo_s)
+                mask = q_lo_s <= Z
             else:
-                mask = (Z >= q_lo_s) & (Z < q_hi_s)
+                mask = (q_lo_s <= Z) & (q_hi_s > Z)
             if np.sum(mask) < 5:
                 continue
             Ys, Ts = Y[mask], T[mask]
@@ -815,8 +840,7 @@ class OptimizationBasedBoundsEstimator:
         # Equality constraints from observational data:
         # mu1_1 = e_y1_obs  (index 0)
         # mu0_0 = e_y0_obs  (index 3)
-        A_eq = np.array([[1.0, 0.0, 0.0, 0.0],
-                         [0.0, 0.0, 0.0, 1.0]])
+        A_eq = np.array([[1.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0]])
         b_eq = np.array([e_y1_obs, e_y0_obs])
 
         # Inequality constraints (A_ub @ x <= b_ub):
@@ -824,7 +848,7 @@ class OptimizationBasedBoundsEstimator:
         ineq_rhs: list[float] = []
 
         # MTS: mu1_1 >= mu1_0  =>  mu1_0 - mu1_1 <= 0
-        ineq_rows.append(np.array([- 1.0, 1.0, 0.0, 0.0]))
+        ineq_rows.append(np.array([-1.0, 1.0, 0.0, 0.0]))
         ineq_rhs.append(0.0)
         # MTS: mu0_1 >= mu0_0  =>  mu0_0 - mu0_1 <= 0
         ineq_rows.append(np.array([0.0, 0.0, -1.0, 1.0]))
@@ -841,10 +865,12 @@ class OptimizationBasedBoundsEstimator:
         A_ub = np.array(ineq_rows)
         b_ub = np.array(ineq_rhs)
 
-        res_lo = linprog(c_ate, A_ub=A_ub, b_ub=b_ub, A_eq=A_eq, b_eq=b_eq,
-                         bounds=var_bounds, method="highs")
-        res_hi = linprog(-c_ate, A_ub=A_ub, b_ub=b_ub, A_eq=A_eq, b_eq=b_eq,
-                         bounds=var_bounds, method="highs")
+        res_lo = linprog(
+            c_ate, A_ub=A_ub, b_ub=b_ub, A_eq=A_eq, b_eq=b_eq, bounds=var_bounds, method="highs"
+        )
+        res_hi = linprog(
+            -c_ate, A_ub=A_ub, b_ub=b_ub, A_eq=A_eq, b_eq=b_eq, bounds=var_bounds, method="highs"
+        )
 
         if res_lo.status == 0 and res_hi.status == 0:
             status = "mts_mtr_lp" if apply_mtr else "mts_lp"
@@ -957,13 +983,13 @@ def _general_balke_pearl_lp(
 
     from scipy.optimize import linprog
 
-    K1 = n_treatment_levels   # |T|
-    J1 = n_outcome_levels     # |Y|
+    K1 = n_treatment_levels  # |T|
+    J1 = n_outcome_levels  # |Y|
 
     # Each response function q = (x_resp, y_resp) where:
     #   x_resp ∈ {0,...,K}^2  — treatment response per Z value (binary Z only)
     #   y_resp ∈ {0,...,J}^K1 — outcome response per treatment level
-    x_responses = list(itertools.product(range(K1), repeat=2))   # K1^2 items
+    x_responses = list(itertools.product(range(K1), repeat=2))  # K1^2 items
     y_responses = list(itertools.product(range(J1), repeat=K1))  # J1^K1 items
 
     n_rf = len(x_responses) * len(y_responses)
@@ -984,7 +1010,7 @@ def _general_balke_pearl_lp(
             for y in range(J1):
                 row = np.zeros(n_rf)
                 for i, (xr, yr) in enumerate(all_rfs):
-                    x_when_z = xr[z]        # treatment response when Z=z
+                    x_when_z = xr[z]  # treatment response when Z=z
                     y_when_x = yr[x_when_z]  # outcome when T = x_when_z
                     if x_when_z == x and y_when_x == y:
                         row[i] = 1.0
@@ -1015,7 +1041,7 @@ def _general_balke_pearl_lp(
     res_hi = linprog(-c, A_eq=A_eq, b_eq=b_eq, bounds=bounds_lp, method="highs")
 
     if res_lo.status == 0 and res_hi.status == 0:
-        from polisyos.ir.analytics.dual_certificate import (  # noqa: PLC0415
+        from polisyos.ir.analytics.dual_certificate import (
             build_general_iv_dual_certificate_bundle,
         )
 
@@ -1093,7 +1119,9 @@ class GeneralBalkePearlBoundsEstimator:
                 default=1,
                 description="Which treatment level to compare (vs treatment_ref).",
             ),
-            ParameterSpec(name="treatment_ref", default=0, description="Reference treatment level."),
+            ParameterSpec(
+                name="treatment_ref", default=0, description="Reference treatment level."
+            ),
             ParameterSpec(
                 name="max_response_fns",
                 default=5_000,
@@ -1152,8 +1180,8 @@ class GeneralBalkePearlBoundsEstimator:
         t_levels = np.unique(np.round(T_raw).astype(int))
         z_levels = np.unique(np.round(Z_raw).astype(int))
 
-        J1 = len(y_levels)   # number of Y levels
-        K1 = len(t_levels)   # number of T levels
+        J1 = len(y_levels)  # number of Y levels
+        K1 = len(t_levels)  # number of T levels
 
         # Remap to contiguous integers 0..K1-1 and 0..J1-1
         t_map = {v: i for i, v in enumerate(sorted(t_levels))}
@@ -1179,13 +1207,13 @@ class GeneralBalkePearlBoundsEstimator:
         # Compute P̂(Y=y, X=x | Z=z) — shape (J1, K1, 2)
         p_yxz = np.zeros((J1, K1, 2))
         for zv in range(2):
-            mask_z = Z == zv
+            mask_z = zv == Z
             n_z = int(np.sum(mask_z))
             if n_z == 0:
                 continue
             for xv in range(K1):
                 for yv in range(J1):
-                    p_yxz[yv, xv, zv] = int(np.sum(mask_z & (T == xv) & (Y == yv))) / n_z
+                    p_yxz[yv, xv, zv] = int(np.sum(mask_z & (xv == T) & (yv == Y))) / n_z
 
         try:
             lower, upper, solver_status, dual_certificate_payload = _general_balke_pearl_lp(
@@ -1394,7 +1422,7 @@ class CopulaBoundsEstimator:
         # Fréchet-Hoeffding bounds on q-th quantile of Δ = Y(1) - Y(0)
         # Under co-monotone copula: Δ_q = Q_{Y(1)}(q) - Q_{Y(0)}(q)
         # Under counter-monotone: Δ_q = Q_{Y(1)}(q) - Q_{Y(0)}(1-q)
-        delta_co = quantile1(q_target) - quantile0(q_target)        # co-monotone (upper)
+        delta_co = quantile1(q_target) - quantile0(q_target)  # co-monotone (upper)
         delta_counter = quantile1(q_target) - quantile0(1.0 - q_target)  # counter-monotone (lower)
         q_lower = min(delta_co, delta_counter)
         q_upper = max(delta_co, delta_counter)

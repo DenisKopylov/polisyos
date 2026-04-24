@@ -13,6 +13,7 @@ World ABI v1.0 must:
 2. Define stable **NodeKind** and **EdgeKind** vocabularies (the “minimum worth freezing”).
 3. Define the minimal **predicate_id vocabulary** required for a fact log / world graph representation.
 4. Provide **Pydantic v2 contracts** (no storage) for the three core world objects:
+
    - **Doc** (versioned metadata + citation-grade fragments)
    - **Claim** (typed assertions with evidence refs)
    - **WorldEvent** (audit/provenance envelope)
@@ -44,6 +45,7 @@ This phase **only** defines:
 
 - `ID_PATTERN = ^[a-z][a-z0-9_.-]*$` (colon-free, fact-log compatible)  
   Source: `policy-engine/src/polisyos/ir/kernel/base.py`
+
 - `ARTIFACT_ID_PATTERN = ^sha256:[0-9a-f]{64}$`  
   Source: `policy-engine/src/polisyos/ir/kernel/base.py`
 
@@ -85,7 +87,7 @@ Enforced by `policy-engine/tests/test_arch_import_gate.py`.
 
 Create the package (all modules are IR-only, no external deps beyond allowed list):
 
-```
+```text
 policy-engine/src/polisyos/ir/world/
   __init__.py
   abi.py          # NodeKind/EdgeKind + reserved world id prefixes
@@ -100,7 +102,7 @@ policy-engine/src/polisyos/ir/world/
 
 Add a dedicated contract test module:
 
-```
+```text
 policy-engine/tests/contract/test_world_abi_contract.py
 ```
 
@@ -199,15 +201,18 @@ EdgeKind is encoded into the edge predicate id as `world.rel.<edge_kind>`.
 
 Minimal set:
 
-**Document edges**
+**Document edges:**
+
 - `doc.has_version` (src=`doc.*` → dst=`docv.*`)
 - `doc.has_fragment` (src=`docv.*` → dst=`frag.*`)
 
-**Claim edges**
+**Claim edges:**
+
 - `claim.cites` (src=`claim.*` → dst=`frag.*`)
 - `claim.derived_from` (src=`claim.*` → dst=`docv.*` OR `artifact.*` depending on source_kind)
 
-**PROV edges (minimal PROV-O subset)**
+**PROV edges (minimal PROV-O subset):**
+
 - `prov.used` (src=`prov.activity.*` or `event.*` → dst=`*`)
 - `prov.was_generated_by` (src=`*` → dst=`prov.activity.*` or `event.*`)
 - `prov.was_derived_from` (src=`*` → dst=`*`)
@@ -240,33 +245,33 @@ All world edges are represented as FactLog facts with:
 
 ### 5.1 `polisyos.ir.world.abi`
 
-**Responsibilities**
+**Responsibilities:**
 
 - Define ABI v1.0 frozen enums/tables:
   - `NodeKind` enum
   - `EdgeKind` enum
   - `RESERVED_WORLD_PREFIXES_V1` (strict list)
 
-**Recommended API**
+**Recommended API:**
 
 - `class NodeKind(str, Enum): ...` (values listed in §4.5)
 - `class EdgeKind(str, Enum): ...` (values listed in §4.6)
 - `RESERVED_WORLD_PREFIXES_V1: tuple[str, ...] = ("artifact", "doc", "docv", "frag", "claim", "event", "prov")`
 
-**No imports**
+**No imports:**
 
 - Must only import stdlib + `Enum` (stdlib).
 
 ### 5.2 `polisyos.ir.world.ids`
 
-**Responsibilities**
+**Responsibilities:**
 
 - Provide deterministic helpers for:
   - parsing/validating artifact ids
   - mapping ArtifactID → WorldID
   - computing stable hash-based WorldIDs from canonical payloads
 
-**Recommended API (frozen for E2.2+)**
+**Recommended API (frozen for E2.2+):**
 
 - `def sha256_hex_from_artifact_id(artifact_id: str) -> str:`
   - Validates `ARTIFACT_ID_PATTERN`
@@ -282,7 +287,7 @@ All world edges are represented as FactLog facts with:
   - Returns `f"{prefix}.sha256_{sha256_hex}"`
   - Must raise if canonicalization fails (including floats)
 
-**Deterministic id derivation functions (recommended to add)**
+**Deterministic id derivation functions (recommended to add):**
 
 These are strongly recommended for avoiding “hidden id policies” later:
 
@@ -302,19 +307,19 @@ These are strongly recommended for avoiding “hidden id policies” later:
 - `def world_event_id_from_payload(*, event_payload: dict[str, Any]) -> str:`
   - `event.sha256_<sha256(canon(payload_without_id_fields))>`
 
-**Why derive ids in IR now**
+**Why derive ids in IR now:**
 
 - Phase 9+ will rely on deterministic ids for idempotent ingestion and materialization.
 - Keeping id policies in IR avoids “Fabric-specific id rules” (which would break portability).
 
 ### 5.3 `polisyos.ir.world.predicates`
 
-**Responsibilities**
+**Responsibilities:**
 
 - Declare ABI predicate ids as string constants (v1.0 frozen)
 - Provide minimal helpers for edge predicate construction
 
-**Recommended constants**
+**Recommended constants:**
 
 - `WORLD_KIND = "world.kind"`
 - `WORLD_LABEL = "world.label"`
@@ -322,7 +327,7 @@ These are strongly recommended for avoiding “hidden id policies” later:
 - `WORLD_PROPS_REF = "world.props_ref"`
 - `WORLD_REL_PREFIX = "world.rel."`
 
-**Recommended helpers**
+**Recommended helpers:**
 
 - `def rel(edge_kind: "EdgeKind | str") -> str:`
   - Returns `f"world.rel.{edge_kind}"`
@@ -331,14 +336,14 @@ These are strongly recommended for avoiding “hidden id policies” later:
 
 #### 5.4.1 DocMeta (contract)
 
-**Purpose**
+**Purpose:**
 
 Define versioned document metadata:
 
 - `doc_source_id` = stable identity across versions
 - `doc_version_id` = stable identity for a particular version (usually derived from raw bytes artifact)
 
-**Fields (minimum v1.0)**
+**Fields (minimum v1.0):**
 
 - `schema_version: "1.0"`
 - `doc_source_id: WorldID` (recommended prefix: `doc.`)
@@ -359,7 +364,7 @@ Define versioned document metadata:
   - `chunks_ref: ArtifactID | None`
 - `props: dict[str, Any]` (must reject floats deep)
 
-**Invariants**
+**Invariants:**
 
 - Must satisfy IR patterns:
   - ids match `ID_PATTERN`
@@ -367,7 +372,7 @@ Define versioned document metadata:
 - Must enforce “one of canonical_url/official_id”.
 - Must reject floats in `props` (use `reject_floats_deep`).
 
-**Recommended id rules**
+**Recommended id rules:**
 
 - `doc_source_id` derived from canonical source identity (url or official id):
   - `doc.sha256_<sha256(canon({canonical_url|official_id}))>`
@@ -376,15 +381,15 @@ Define versioned document metadata:
 
 #### 5.4.2 DocFragment (contract)
 
-**Purpose**
+**Purpose:**
 
 Define a citation-grade fragment bound to a document version.
 
-**Re-use from E1.3**
+**Re-use from E1.3:**
 
 Use `polisyos.ir.citations.FragmentLocator` as the locator payload.
 
-**Fields (minimum v1.0)**
+**Fields (minimum v1.0):**
 
 - `schema_version: "1.0"`
 - `fragment_id: WorldID` (recommended prefix: `frag.`)
@@ -395,12 +400,12 @@ Use `polisyos.ir.citations.FragmentLocator` as the locator payload.
   - `quote_preview: str | None` (small preview for debugging / UX; must not be required)
 - `props: dict[str, Any]` (reject floats deep)
 
-**Invariants**
+**Invariants:**
 
 - `locator` must be present and valid (already enforced by `FragmentLocator`).
 - `text_hash` must be present (v1.0 requirement to keep citations reproducible).
 
-**Recommended id rule**
+**Recommended id rule:**
 
 - `fragment_id = frag.sha256_<sha256(canon({doc_version_id, locator, text_hash}))>`
 
@@ -408,15 +413,15 @@ Use `polisyos.ir.citations.FragmentLocator` as the locator payload.
 
 #### 5.5.1 Claim (contract)
 
-**Purpose**
+**Purpose:**
 
 Represent a typed assertion about the world with minimal evidence requirements.
 
-**Re-use from E1.3**
+**Re-use from E1.3:**
 
 Use `polisyos.ir.citations.CitationRef` for doc-based evidence.
 
-**Fields (minimum v1.0)**
+**Fields (minimum v1.0):**
 
 - `schema_version: "1.0"`
 - `claim_id: WorldID` (recommended prefix: `claim.`)
@@ -441,7 +446,7 @@ Use `polisyos.ir.citations.CitationRef` for doc-based evidence.
   - `qualifiers: dict[str, str|int|bool]` (reject floats deep)
 - `props: dict[str, Any]` (reject floats deep)
 
-**Invariants**
+**Invariants:**
 
 - `claim_id` and `predicate_id` must match `ID_PATTERN`.
 - Must have exactly one of `subject_id` / `subject_text` (at least one; both allowed).
@@ -452,7 +457,7 @@ Use `polisyos.ir.citations.CitationRef` for doc-based evidence.
 - `confidence` is Decimal in `[0, 1]`.
 - If `valid_from` and `valid_to` both present → `valid_to >= valid_from`.
 
-**Recommended id rule**
+**Recommended id rule:**
 
 To keep it stable and audit-friendly in the absence of an “observation” layer:
 
@@ -464,16 +469,16 @@ This makes claim identity deterministic for the full claim payload (including ev
 
 #### 5.6.1 WorldEvent (contract)
 
-**Purpose**
+**Purpose:**
 
-`WorldEvent` is the minimal audit envelope describing *who did what* and *which objects were used/produced*.
+`WorldEvent` is the minimal audit envelope describing _who did what_ and _which objects were used/produced_.
 
 It is explicitly the bridge between:
 
 - “history/run trace” (events) and
 - “world semantics” (doc/claim nodes and relations)
 
-**Fields (minimum v1.0)**
+**Fields (minimum v1.0):**
 
 - `schema_version: "1.0"`
 - `event_id: WorldID` (recommended prefix: `event.`)
@@ -499,7 +504,7 @@ Minimal PROV-compatible types:
 - `ProvActivityType` enum (minimum):
   - `fetch_doc`, `normalize_doc`, `structure_doc`, `chunk_doc`, `extract_claims`, `resolve_conflicts`, `assemble_norm_pack`, `evaluate_legality`, `ingest_dataset`, `query_world`, `simulate`, `validate`
 
-**ProvAgent fields**
+**ProvAgent fields:**
 
 - `agent_id: WorldID` (recommended prefix: `prov.agent.`)
 - `agent_type: ProvAgentType`
@@ -509,7 +514,7 @@ Minimal PROV-compatible types:
   - `model_id: str | None`
   - `metadata: dict[str, str]` (reject floats deep)
 
-**ProvActivity fields**
+**ProvActivity fields:**
 
 - `activity_id: WorldID` (recommended prefix: `prov.activity.`)
 - `activity_type: ProvActivityType`
@@ -519,18 +524,18 @@ Minimal PROV-compatible types:
 - Optional:
   - `parameters: dict[str, Any]` (reject floats deep)
 
-**WorldObjectRef fields**
+**WorldObjectRef fields:**
 
 - `world_id: WorldID | None`
 - `artifact_id: ArtifactID | None`
 - Invariant: at least one of `world_id` or `artifact_id` must be present.
 
-**Invariants**
+**Invariants:**
 
 - `activity.ended_at >= activity.started_at` if ended_at present.
 - Float rejection applies to all dict payloads / parameters.
 
-**Recommended id rule**
+**Recommended id rule:**
 
 - `event_id = event.sha256_<sha256(canon({event_kind, agent, activity, inputs, outputs, evidence_ref, provenance_ref}))>`
 
@@ -558,23 +563,23 @@ Create `policy-engine/tests/contract/test_world_abi_contract.py` with:
 
 ### 6.3 Invariants tests (Doc/Claim/Event)
 
-**DocMeta**
+**DocMeta:**
 
 - missing both `canonical_url` and `official_id` → invalid
 
-**DocFragment**
+**DocFragment:**
 
 - missing locator → invalid
 - locator with invalid offsets/page range already covered by E1.3 tests; ensure DocFragment enforces presence of locator + text_hash
 
-**Claim**
+**Claim:**
 
 - missing both subject_id and subject_text → invalid
 - `source_kind=doc` with empty citations → invalid
 - `source_kind!=doc` with empty source_artifacts → invalid
 - float anywhere in `props`/`qualifiers`/`parameters` → invalid
 
-**WorldEvent**
+**WorldEvent:**
 
 - `WorldObjectRef` missing both `world_id` and `artifact_id` → invalid
 - `ended_at < started_at` → invalid
@@ -614,15 +619,16 @@ No direct test needed: existing `test_arch_import_gate` must stay green after ad
 3. NodeKind/EdgeKind/predicate ids/prefixes are defined as v1.0 ABI.
 4. Pydantic v2 contracts exist: `DocMeta`, `DocFragment`, `Claim`, `WorldEvent` (+ minimal prov types).
 5. Contract tests exist and pass:
+
    - id patterns + determinism
    - float rejection
    - invariants (doc/claim/event)
 
 ## D1-L4 Validation Links
 
-| Link type | Current anchor |
-|-----------|----------------|
-| Source plan phase | D1-L4 Phase 0 canon/CAS containment and Phase 4 PROV/interoperability bridge |
-| Contract tests | `tests/contract/test_world_abi_contract.py`, `tests/contract/test_citations_contract.py`, `tests/contract/test_golden_record_ids.py`, `tests/ir/test_canon_hash_parity.py` |
-| Schema snapshots | `schemas/snapshots/ir/world_event.schema.json`, `schemas/snapshots/ir/doc_meta.schema.json`, `schemas/snapshots/ir/doc_fragment.schema.json`, `schemas/snapshots/ir/claim.schema.json`, `schemas/snapshots/fabric/node_kind.schema.json`, `schemas/snapshots/fabric/edge_kind.schema.json` |
-| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |
+| Link type           | Current anchor                                                                                                                                                                                                                                                                             |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Source plan phase   | D1-L4 Phase 0 canon/CAS containment and Phase 4 PROV/interoperability bridge                                                                                                                                                                                                               |
+| Contract tests      | `tests/contract/test_world_abi_contract.py`, `tests/contract/test_citations_contract.py`, `tests/contract/test_golden_record_ids.py`, `tests/ir/test_canon_hash_parity.py`                                                                                                                 |
+| Schema snapshots    | `schemas/snapshots/ir/world_event.schema.json`, `schemas/snapshots/ir/doc_meta.schema.json`, `schemas/snapshots/ir/doc_fragment.schema.json`, `schemas/snapshots/ir/claim.schema.json`, `schemas/snapshots/fabric/node_kind.schema.json`, `schemas/snapshots/fabric/edge_kind.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                                                                                                                     |

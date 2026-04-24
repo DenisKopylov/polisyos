@@ -1,4 +1,5 @@
 """Public causal sensitivity metrics module API."""
+
 from __future__ import annotations
 
 import importlib
@@ -437,18 +438,22 @@ def _compute_benchmarks(
     n, p_total = data_matrix.shape
     # Build design matrix with intercept, treatment, and all covariates
     all_cols = [treatment_col] + covariate_cols
-    X_base = np.hstack([
-        np.ones((n, 1), dtype=float),
-        data_matrix[:, all_cols],
-    ])
+    X_base = np.hstack(
+        [
+            np.ones((n, 1), dtype=float),
+            data_matrix[:, all_cols],
+        ]
+    )
     y_outcome = data_matrix[:, outcome_col].astype(float)
     t_treatment = data_matrix[:, treatment_col].astype(float)
 
     # Covariate-only design (for r2td_x: partial R² of covariate on treatment)
-    X_covariates = np.hstack([
-        np.ones((n, 1), dtype=float),
-        data_matrix[:, covariate_cols],
-    ])
+    X_covariates = np.hstack(
+        [
+            np.ones((n, 1), dtype=float),
+            data_matrix[:, covariate_cols],
+        ]
+    )
 
     # Build name → position in covariate_cols mapping
     # covariate_cols[i] is the column index in data_matrix
@@ -537,14 +542,16 @@ def _compute_benchmarks(
                 )
         interpretation = " ".join(parts)
 
-        results.append(BenchmarkResult(
-            covariate_name=name,
-            r2yd_x=r2yd_x,
-            r2td_x=r2td_x,
-            bias_scale=bias_scale,
-            rv_benchmarked=rv_benchmarked,
-            interpretation=interpretation,
-        ))
+        results.append(
+            BenchmarkResult(
+                covariate_name=name,
+                r2yd_x=r2yd_x,
+                r2td_x=r2td_x,
+                bias_scale=bias_scale,
+                rv_benchmarked=rv_benchmarked,
+                interpretation=interpretation,
+            )
+        )
 
     warning_msg = "; ".join(warnings_found) if warnings_found else None
     return results, warning_msg
@@ -647,8 +654,7 @@ class SensitivityMetrics:
         ),
         tags=frozenset({"causal", "sensitivity", "evalue", "rosenbaum", "sensemakr"}),
         citations=(
-            "Ding, P., VanderWeele, T. J. (2016). Sensitivity Analysis "
-            "Without Assumptions.",
+            "Ding, P., VanderWeele, T. J. (2016). Sensitivity Analysis Without Assumptions.",
             "Cinelli, C., Hazlett, C. (2020). Making sense of sensitivity.",
             "Rosenbaum, P. R. (2002). Observational Studies.",
         ),
@@ -664,7 +670,9 @@ class SensitivityMetrics:
 
     @staticmethod
     def pure_step(state: GraphCausalData, params: Mapping[str, Any]) -> dict[str, Any]:
-        data = state if isinstance(state, GraphCausalData) else GraphCausalData.model_validate(state)
+        data = (
+            state if isinstance(state, GraphCausalData) else GraphCausalData.model_validate(state)
+        )
         warnings: list[str] = []
 
         if "point_estimate" not in params:
@@ -754,7 +762,8 @@ class SensitivityMetrics:
             raw_names = [str(c) for c in benchmark_covariates_raw]
             # Filter to names that exist in data and are covariates (not treatment/outcome)
             valid_names = [
-                name for name in raw_names
+                name
+                for name in raw_names
                 if name in data.column_names
                 and name not in {data.treatment, data.outcome}
                 and data.column_names.index(name) in covariate_indices
@@ -781,12 +790,12 @@ class SensitivityMetrics:
             else:
                 skipped = [n for n in raw_names if n not in data.column_names]
                 if skipped:
-                    warnings.append(
-                        f"benchmark_covariates not found in data columns: {skipped}"
-                    )
+                    warnings.append(f"benchmark_covariates not found in data columns: {skipped}")
 
         ess_fraction_raw = params.get("ess_fraction")
-        ess_min_threshold = _to_float(params.get("ess_min_threshold", 0.1), name="ess_min_threshold")
+        ess_min_threshold = _to_float(
+            params.get("ess_min_threshold", 0.1), name="ess_min_threshold"
+        )
         if ess_fraction_raw is not None:
             ess_frac = _to_float(ess_fraction_raw, name="ess_fraction")
             if ess_frac < ess_min_threshold:
@@ -796,7 +805,9 @@ class SensitivityMetrics:
                     "statistical precision is critically limited."
                 )
 
-        e_value_threshold = _to_float(params.get("e_value_threshold", 1.25), name="e_value_threshold")
+        e_value_threshold = _to_float(
+            params.get("e_value_threshold", 1.25), name="e_value_threshold"
+        )
         robustness_value_threshold = _to_float(
             params.get("robustness_value_threshold", 0.05),
             name="robustness_value_threshold",

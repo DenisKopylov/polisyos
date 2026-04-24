@@ -4,9 +4,10 @@ The stage persists source bytes in CAS, creates a canonical ``DocMeta`` object, 
 facts and a ``FETCH_DOC`` world event, and appends a fact segment that later materialization jobs
 can replay.
 """
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from polisyos.core.artifacts.manifest import SchemaInfo
@@ -46,9 +47,9 @@ _RAW_SCHEMA = SchemaInfo(name="fabric.doc.raw", version="1.0")
 
 def _coerce_retrieved_at(value: datetime | None) -> datetime:
     if value is None:
-        value = datetime.now(timezone.utc)
+        value = datetime.now(UTC)
     if value.tzinfo is None:
-        value = value.replace(tzinfo=timezone.utc)
+        value = value.replace(tzinfo=UTC)
     return value
 
 
@@ -140,7 +141,7 @@ def ingest_doc_bytes(
     meta_ref = persist_doc_meta(cas, meta)
     meta_artifact_id = str(meta_ref.artifact_id)
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     agent = ProvAgent(
         agent_id=opts.agent_id,
         agent_type=ProvAgentType.SYSTEM,

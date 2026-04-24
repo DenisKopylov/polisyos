@@ -1,4 +1,5 @@
 """Covariate-assisted SBM stratification for design-stage causal workflows."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -6,9 +7,33 @@ from typing import Any, ClassVar
 
 import numpy as np
 from pydantic import ValidationError
-from scipy.special import logsumexp
-from sklearn.cluster import KMeans
-from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
+
+try:  # pragma: no cover - preferred in full scientific environments.
+    from scipy.special import logsumexp
+except ImportError:  # pragma: no cover - keeps catalog reflection importable.
+
+    def logsumexp(
+        values: np.ndarray,
+        *,
+        axis: int | None = None,
+        keepdims: bool = False,
+    ) -> np.ndarray:
+        arr = np.asarray(values, dtype=float)
+        max_values = np.max(arr, axis=axis, keepdims=True)
+        stable = np.exp(arr - max_values)
+        result = np.log(np.sum(stable, axis=axis, keepdims=True)) + max_values
+        if keepdims:
+            return result
+        return np.squeeze(result, axis=axis)
+
+
+try:  # pragma: no cover - preferred in full scientific environments.
+    from sklearn.cluster import KMeans
+    from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
+except ImportError:  # pragma: no cover - keeps catalog reflection importable.
+    KMeans = None  # type: ignore[assignment]
+    adjusted_rand_score = None  # type: ignore[assignment]
+    normalized_mutual_info_score = None  # type: ignore[assignment]
 
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
@@ -102,6 +127,8 @@ def _regularized_embedding(
 def _kmeans_labels(embedding: np.ndarray, *, n_blocks: int, seed: int) -> np.ndarray:
     if n_blocks <= 1:
         return np.zeros(embedding.shape[0], dtype=int)
+    if KMeans is None:
+        raise ImportError("scikit-learn is required for SBM KMeans initialization")
     model = KMeans(n_clusters=n_blocks, random_state=seed, n_init=10)
     return model.fit_predict(embedding).astype(int)
 
@@ -238,6 +265,8 @@ def _bootstrap_stability(
             max_iter=4,
         )
         co_clustering += (labels[:, None] == labels[None, :]).astype(float)
+        if adjusted_rand_score is None or normalized_mutual_info_score is None:
+            raise ImportError("scikit-learn is required for SBM bootstrap diagnostics")
         ari_scores.append(float(adjusted_rand_score(base_labels, labels)))
         nmi_scores.append(float(normalized_mutual_info_score(base_labels, labels)))
     co_clustering /= max(n_bootstrap, 1)
@@ -267,13 +296,13 @@ def _merge_unstable_blocks(
         counts = np.bincount(current, minlength=int(np.max(current)) + 1)
         centroids = np.vstack([np.mean(embedding[current == block], axis=0) for block in unique])
         block_stability = {
-            int(block): float(np.mean(node_stability[current == block]))
-            for block in unique
+            int(block): float(np.mean(node_stability[current == block])) for block in unique
         }
         candidates = [
             int(block)
             for block in unique
-            if counts[int(block)] < min_block_size or block_stability[int(block)] < min_block_stability
+            if counts[int(block)] < min_block_size
+            or block_stability[int(block)] < min_block_stability
         ]
         if not candidates:
             break
@@ -356,7 +385,7 @@ def _positivity_report(
 
 @foundry_method(
     namespace="network.community",
-    version="0.1.0",
+    version="1.0.0",
     tags={"network", "community-detection", "sbm", "causal-stratification"},
 )
 class SBMStratificationEstimator:
@@ -371,7 +400,12 @@ class SBMStratificationEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("adjacency", SlotType.MATRIX, Unit("network", "weight"), shape=("n_nodes", "n_nodes")),
+                SlotSpec(
+                    "adjacency",
+                    SlotType.MATRIX,
+                    Unit("network", "weight"),
+                    shape=("n_nodes", "n_nodes"),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -428,9 +462,7 @@ class SBMStratificationEstimator:
         payload = data.model_dump(mode="python")
         adjacency = _symmetrize(np.asarray(data.adjacency, dtype=float))
         node_features = (
-            np.asarray(data.node_features, dtype=float)
-            if data.node_features is not None
-            else None
+            np.asarray(data.node_features, dtype=float) if data.node_features is not None else None
         )
         n_units = adjacency.shape[0]
         requested_blocks = int(params.get("n_blocks", 3))
@@ -497,13 +529,13 @@ class SBMStratificationEstimator:
                     for key, value in stability.items()
                 },
                 "bootstrap_samples": bootstrap_samples,
-                "effective_blocks": int(len(np.unique(labels))),
+                "effective_blocks": len(np.unique(labels)),
             },
             positivity_report=positivity_report,
             metadata={
                 "fit_type": "covariate_assisted_dcsbm_approx",
                 "requested_blocks": int(requested_blocks),
-                "effective_blocks": int(len(np.unique(labels))),
+                "effective_blocks": len(np.unique(labels)),
                 "used_covariates": bool(node_features is not None and covariate_scale > 0.0),
                 "covariate_scale": covariate_scale,
                 "merge_history": list(merge_history),

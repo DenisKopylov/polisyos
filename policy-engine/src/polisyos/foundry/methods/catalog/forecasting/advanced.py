@@ -1,7 +1,9 @@
 """Public forecasting advanced module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -24,6 +26,7 @@ from polisyos.foundry.methods.catalog.forecasting.uncertainty import (
     forecasting_output_slots,
     resolve_artifact_store,
 )
+
 
 def _stl_result(series: np.ndarray, *, period: int) -> dict[str, Any]:
     n = len(series)
@@ -57,7 +60,13 @@ def _vec_result(data: np.ndarray, *, horizon: int, n_lags: int) -> dict[str, Any
     diff = np.diff(data, axis=0)
     if diff.shape[0] <= n_lags:
         forecasts = np.tile(data[-1], (horizon, 1))
-        return {"forecasts": forecasts.tolist(), "n_obs": n_obs, "n_series": n_series, "horizon": horizon, "method": "naive"}
+        return {
+            "forecasts": forecasts.tolist(),
+            "n_obs": n_obs,
+            "n_series": n_series,
+            "horizon": horizon,
+            "method": "naive",
+        }
 
     Y = diff[n_lags:]
     X_parts = [diff[n_lags - lag - 1 : diff.shape[0] - lag - 1] for lag in range(n_lags)]
@@ -67,7 +76,13 @@ def _vec_result(data: np.ndarray, *, horizon: int, n_lags: int) -> dict[str, Any
         B = np.linalg.lstsq(X, Y, rcond=None)[0]
     except np.linalg.LinAlgError:
         forecasts = np.tile(data[-1], (horizon, 1))
-        return {"forecasts": forecasts.tolist(), "n_obs": n_obs, "n_series": n_series, "horizon": horizon, "method": "fallback"}
+        return {
+            "forecasts": forecasts.tolist(),
+            "n_obs": n_obs,
+            "n_series": n_series,
+            "horizon": horizon,
+            "method": "fallback",
+        }
 
     last_diffs = [diff[-(lag + 1)] for lag in range(n_lags)]
     forecasts = np.zeros((horizon, n_series))
@@ -194,6 +209,7 @@ def _prophet_predictive_paths(
 )
 class STLDecompositionEstimator:
     """Decompose a series into seasonal, trend, and remainder parts before downstream forecasting."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -222,7 +238,9 @@ class STLDecompositionEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Simplified STL-like seasonal-trend decomposition via moving averages.",
         tags=frozenset({"forecasting", "decomposition", "stl", "seasonal", "time-series"}),
-        citations=("Cleveland, R.B. et al. (1990). STL: A Seasonal-Trend Decomposition Procedure Based on Loess.",),
+        citations=(
+            "Cleveland, R.B. et al. (1990). STL: A Seasonal-Trend Decomposition Procedure Based on Loess.",
+        ),
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
         when_to_use="Decompose time series into trend, seasonal, and remainder; preprocessing before forecasting",
@@ -259,6 +277,7 @@ class STLDecompositionEstimator:
 )
 class VECForecastEstimator:
     """Forecast cointegrated multivariate series with a vector error-correction model."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -268,8 +287,12 @@ class VECForecastEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("series_matrix", SlotType.MATRIX, Unit("value", "amount"),
-                         shape=("n_obs", "n_series")),
+                SlotSpec(
+                    "series_matrix",
+                    SlotType.MATRIX,
+                    Unit("value", "amount"),
+                    shape=("n_obs", "n_series"),
+                ),
             }
         ),
         output_slots=forecasting_output_slots(),
@@ -305,7 +328,9 @@ class VECForecastEstimator:
         horizon = int(params.get("horizon", 5))
         n_lags = int(params.get("n_lags", 1))
         artifact_store = resolve_artifact_store(state, params)
-        predictive_draws = int(params.get("predictive_draws", 64 if artifact_store is not None else 0))
+        predictive_draws = int(
+            params.get("predictive_draws", 64 if artifact_store is not None else 0)
+        )
         random_seed = int(params.get("random_seed", 0))
         result = _vec_result(data, horizon=horizon, n_lags=n_lags)
         return {
@@ -316,7 +341,9 @@ class VECForecastEstimator:
                 history=data,
                 point_forecast=np.asarray(result["forecasts"], dtype=float),
                 forecast_fn=lambda train, h: np.asarray(
-                    _vec_result(np.asarray(train, dtype=float), horizon=h, n_lags=n_lags)["forecasts"],
+                    _vec_result(np.asarray(train, dtype=float), horizon=h, n_lags=n_lags)[
+                        "forecasts"
+                    ],
                     dtype=float,
                 ),
                 min_train_size=max(3, n_lags + 2),
@@ -348,6 +375,7 @@ class VECForecastEstimator:
 )
 class ProphetEstimator:
     """Generate calendar-aware forecasts with Prophet-style trend and seasonality components."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -397,7 +425,9 @@ class ProphetEstimator:
         horizon = int(params.get("horizon", 10))
         period = int(params.get("period", 12))
         artifact_store = resolve_artifact_store(state, params)
-        predictive_draws = int(params.get("predictive_draws", 64 if artifact_store is not None else 0))
+        predictive_draws = int(
+            params.get("predictive_draws", 64 if artifact_store is not None else 0)
+        )
         random_seed = int(params.get("random_seed", 0))
         result = _prophet_result(series, horizon=horizon, period=period)
         return {
@@ -408,7 +438,9 @@ class ProphetEstimator:
                 history=series,
                 point_forecast=np.asarray(result["forecast"], dtype=float),
                 forecast_fn=lambda train, h: np.asarray(
-                    _prophet_result(np.asarray(train, dtype=float), horizon=h, period=period)["forecast"],
+                    _prophet_result(np.asarray(train, dtype=float), horizon=h, period=period)[
+                        "forecast"
+                    ],
                     dtype=float,
                 ),
                 min_train_size=3,

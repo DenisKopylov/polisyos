@@ -10,9 +10,9 @@ from typing import Any
 class FairnessTier(enum.Enum):
     """Three tiers of fairness for head-to-head comparison."""
 
-    A = "minimal"       # Isolates algorithm: identical simple nuisance
-    B = "best_effort"   # Fair tuning budget: identical strong nuisance
-    C = "default"       # Ecological validity: library recommended defaults
+    A = "minimal"  # Isolates algorithm: identical simple nuisance
+    B = "best_effort"  # Fair tuning budget: identical strong nuisance
+    C = "default"  # Ecological validity: library recommended defaults
 
 
 TIER_A_NUISANCE: dict[str, Any] = {

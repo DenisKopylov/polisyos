@@ -70,7 +70,9 @@ function extractFromSpec(source) {
       `Unable to find '## 3. The ten radicals' table in ${SPEC_PATH}.`,
     );
   }
-  const lines = tableMatch[1].split("\n").filter((line) => line.startsWith("|"));
+  const lines = tableMatch[1]
+    .split("\n")
+    .filter((line) => line.startsWith("|"));
   const names = [];
   const entries = [];
   for (const line of lines) {

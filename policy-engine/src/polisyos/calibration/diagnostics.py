@@ -1,10 +1,12 @@
 """Binary probabilistic calibration diagnostics."""
+
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from itertools import product
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -83,16 +85,18 @@ def evaluate_binary(
             metadata={"repair_log": repair_log},
         )
 
-    curves_map = {
-        spec.curve_id: _build_curve(p_arr, y_arr, spec)
-        for spec in curve_specs
-    }
+    curves_map = {spec.curve_id: _build_curve(p_arr, y_arr, spec) for spec in curve_specs}
     primary_spec = _select_primary_curve(curve_specs)
     primary_bins = curves_map[primary_spec.curve_id]
     primary_metric_values = _curve_error_metrics(primary_bins, n_obs)
 
     brier = float(np.mean((p_arr - y_arr) ** 2))
-    log_loss = float(np.mean(-y_arr * np.log(np.clip(p_arr, _EPSILON, 1.0 - _EPSILON)) - (1.0 - y_arr) * np.log(np.clip(1.0 - p_arr, _EPSILON, 1.0 - _EPSILON))))
+    log_loss = float(
+        np.mean(
+            -y_arr * np.log(np.clip(p_arr, _EPSILON, 1.0 - _EPSILON))
+            - (1.0 - y_arr) * np.log(np.clip(1.0 - p_arr, _EPSILON, 1.0 - _EPSILON))
+        )
+    )
     uncertainties = _prepare_uncertainties(predicted_uncertainties, p_arr)
     ence = _compute_ence(p_arr, y_arr, uncertainties)
     rel, res, unc = _brier_decomposition(primary_bins, prevalence)
@@ -133,7 +137,9 @@ def evaluate_binary(
         y_prob=p_arr,
         test_ids=test_ids,
     )
-    issues.extend(_sample_size_issues(n_obs=n_obs, event_count=event_count, curve_specs=curve_specs))
+    issues.extend(
+        _sample_size_issues(n_obs=n_obs, event_count=event_count, curve_specs=curve_specs)
+    )
     issues.extend(_degeneracy_issues(p_arr))
     recommended_action = _recommended_action(
         ece=metrics_payload.ece,
@@ -173,7 +179,9 @@ def _prepare_binary_inputs(
     y_prob: Sequence[float],
     strict: bool,
     repair_strategy: str | None,
-) -> tuple[np.ndarray, np.ndarray, list[CalibrationDiagnosticIssue], tuple[str, ...], dict[str, Any]]:
+) -> tuple[
+    np.ndarray, np.ndarray, list[CalibrationDiagnosticIssue], tuple[str, ...], dict[str, Any]
+]:
     if len(y_true) != len(y_prob):
         raise ValueError("y_true and y_prob must have identical length")
 
@@ -282,7 +290,9 @@ def _build_quantile_curve(
     ordered_prob = y_prob[order]
     ordered_true = y_true[order]
     bins: list[CalibrationCurveBin] = []
-    for prob_chunk, true_chunk in zip(np.array_split(ordered_prob, n_bins), np.array_split(ordered_true, n_bins)):
+    for prob_chunk, true_chunk in zip(
+        np.array_split(ordered_prob, n_bins), np.array_split(ordered_true, n_bins)
+    ):
         if prob_chunk.size == 0:
             bins.append(CalibrationCurveBin(lower=0.0, upper=0.0, count=0))
             continue
@@ -327,7 +337,7 @@ def _curve_error_metrics(
     weights = np.asarray([item.count / n_obs for item in bins], dtype=float)
     ece = float(np.sum(weights * gaps))
     mce = float(np.max(gaps, initial=0.0))
-    rmsce = float(math.sqrt(np.sum(weights * (gaps ** 2))))
+    rmsce = float(math.sqrt(np.sum(weights * (gaps**2))))
     return {"ece": ece, "mce": mce, "rmsce": rmsce}
 
 
@@ -412,8 +422,7 @@ def _attach_bootstrap_intervals(
         "rmsce": [],
     }
     curve_observed_samples = {
-        spec.curve_id: [[] for _ in range(spec.n_bins)]
-        for spec in curve_specs
+        spec.curve_id: [[] for _ in range(spec.n_bins)] for spec in curve_specs
     }
 
     n_obs = y_true.size

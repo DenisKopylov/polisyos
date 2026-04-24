@@ -12,6 +12,16 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
+from benchmarks.claim_gate import build_publication_benchmark_card, evaluate_claim_gate
+from benchmarks.comparators import (
+    COMPARATOR_GROUPS,
+    REQUIRED_ACCEPTANCE_COMPARATORS,
+    build_research_acceptance_comparator_status,
+    comparator_degraded_reasons,
+    comparator_distribution_names,
+    comparator_labels_for_group,
+    comparator_required_modules,
+)
 from benchmarks.harness import BenchmarkCircuit, BenchmarkReport, CaseResult, Verdict
 from benchmarks.method_registry import (
     build_method_registry,
@@ -20,18 +30,13 @@ from benchmarks.method_registry import (
     infer_method_group,
 )
 from benchmarks.metrics import compute_accuracy_metrics
-from benchmarks.claim_gate import build_publication_benchmark_card, evaluate_claim_gate
-from benchmarks.comparators import (
-    COMPARATOR_GROUPS,
-    REQUIRED_ACCEPTANCE_COMPARATORS,
-    build_research_acceptance_comparator_status,
-    comparator_labels_for_group,
-    comparator_degraded_reasons,
-    comparator_distribution_names,
-    comparator_required_modules,
-)
-from benchmarks.reporting import WORKFLOW_LEVELS, build_preflight, build_report_payload, validate_publication_payload
 from benchmarks.replay_scorecards import replay_bundle, replay_suite_payload
+from benchmarks.reporting import (
+    WORKFLOW_LEVELS,
+    build_preflight,
+    build_report_payload,
+    validate_publication_payload,
+)
 from benchmarks.research_metrics import summarize_calibration_metrics
 from benchmarks.runtime import BenchmarkMode, BenchmarkTier, resolve_tier
 from benchmarks.scorecards import (
@@ -213,7 +218,10 @@ def test_suite_registry_resolves_capability_and_legacy_aliases():
     assert stress_ids == {"adversarial_symbolic_stress", "temporal_hidden"}
     temporal_ids = {spec.suite_id for spec in alias_targets("temporal")}
     assert temporal_ids == {"temporal_gold", "temporal_hidden"}
-    frontier_ids = {spec.suite_id for spec in suites_for_claim_profile("frontier_frontier_claim", profile="air-m2")}
+    frontier_ids = {
+        spec.suite_id
+        for spec in suites_for_claim_profile("frontier_frontier_claim", profile="air-m2")
+    }
     assert "symbolic" in frontier_ids
     assert "temporal_gold" in frontier_ids
     assert "temporal_hidden" in frontier_ids
@@ -222,8 +230,7 @@ def test_suite_registry_resolves_capability_and_legacy_aliases():
 
 def test_suite_registry_filters_by_contour_and_visibility():
     academic_proof = {
-        spec.suite_id
-        for spec in alias_targets("proof_closure", validation_contour="academic")
+        spec.suite_id for spec in alias_targets("proof_closure", validation_contour="academic")
     }
     assert academic_proof == {"proof_closure_public", "proof_closure_hidden_release"}
     hidden_temporal = {
@@ -236,8 +243,7 @@ def test_suite_registry_filters_by_contour_and_visibility():
     }
     assert hidden_temporal == {"temporal_paths_hidden_release"}
     prod_shadow = {
-        spec.suite_id
-        for spec in alias_targets("proof_closure", visibility="prod_shadow")
+        spec.suite_id for spec in alias_targets("proof_closure", visibility="prod_shadow")
     }
     assert "proof_closure_prod" in prod_shadow
     assert VALIDATION_CONTOURS == ("legacy", "production", "academic")
@@ -257,7 +263,12 @@ def test_method_registry_normalizes_flagship_aliases():
     assert infer_method_group("external_dml_econml") == "external_comparators"
     assert infer_benchmark_role("policy_os_tmle_cf") == "production_challenger"
     registry = build_method_registry(
-        {"policy_os_drlearner", "external_causal_forest_econml", "policy_os_causal_bcf", "policy_os_forestdr_cf"},
+        {
+            "policy_os_drlearner",
+            "external_causal_forest_econml",
+            "policy_os_causal_bcf",
+            "policy_os_forestdr_cf",
+        },
         benchmark_roles={"policy_os_causal_bcf": "flagship"},
     )
     assert registry["policy_os_drlearner"]["canonical_name"] == "policy_os_drlearner_cf"
@@ -586,7 +597,10 @@ def test_validate_publication_payload_requires_temporal_suite_fields() -> None:
             "public_claim_eligible": True,
         }
     )
-    assert "temporal_hidden requires baseline_snapshot_ref=temporal_hidden@synthetic-v1" in hidden_errors
+    assert (
+        "temporal_hidden requires baseline_snapshot_ref=temporal_hidden@synthetic-v1"
+        in hidden_errors
+    )
     assert "temporal_hidden requires public_claim_eligible=false" in hidden_errors
     assert (
         "temporal_hidden requires aggregate_metrics.hidden_temporal_summary.artifact_reload_failure_rate"
@@ -638,8 +652,12 @@ def test_claim_gate_marks_complete_air_m2_bundle_as_ready(tmp_path: Path):
             ]
         elif spec.suite_id in {"policy_natural_experiments", "policy_did_interference"}:
             payload["aggregate_metrics"]["flagship_scorecard"] = {"passes_all": True}
-            payload["aggregate_metrics"]["ranking_summary"] = {"aggregate": {"policy_os_flagship": {"mean_rank": 1.0}}}
-            payload["aggregate_metrics"]["case_groups"] = {"dev_batch": {"policy_os_flagship": {"ate_rmse_mean": 0.1}}}
+            payload["aggregate_metrics"]["ranking_summary"] = {
+                "aggregate": {"policy_os_flagship": {"mean_rank": 1.0}}
+            }
+            payload["aggregate_metrics"]["case_groups"] = {
+                "dev_batch": {"policy_os_flagship": {"ate_rmse_mean": 0.1}}
+            }
             payload["benchmark_family"] = spec.suite_id
             payload["dataset_regime"] = "synthetic_policy_regime"
             payload["baseline_snapshot_ref"] = f"{spec.suite_id}-v1"
@@ -669,7 +687,11 @@ def test_claim_gate_marks_complete_air_m2_bundle_as_ready(tmp_path: Path):
                 "artifact_reload_failure_rate": 0.0,
                 "passes_all": True,
             }
-            payload["aggregate_metrics"]["accuracy"] = {"n_total": 1, "n_passed": 1, "pass_rate": 1.0}
+            payload["aggregate_metrics"]["accuracy"] = {
+                "n_total": 1,
+                "n_passed": 1,
+                "pass_rate": 1.0,
+            }
             payload["benchmark_family"] = "temporal_causal_dynamics"
             payload["baseline_snapshot_ref"] = "temporal_hidden@synthetic-v1"
             payload["regression_guard"] = {"rule": "no_regression"}
@@ -681,7 +703,10 @@ def test_claim_gate_marks_complete_air_m2_bundle_as_ready(tmp_path: Path):
         elif spec.suite_id.startswith("capability_"):
             payload["workflow_levels"] = list(WORKFLOW_LEVELS)
             payload["competitor_gap"] = {
-                "y0": {level: {"status": "unsupported" if level != "expressible" else "partial"} for level in WORKFLOW_LEVELS}
+                "y0": {
+                    level: {"status": "unsupported" if level != "expressible" else "partial"}
+                    for level in WORKFLOW_LEVELS
+                }
             }
             payload["evidence_bundle_complete"] = True
             payload["public_claim_eligible"] = True
@@ -812,10 +837,32 @@ def test_replay_suite_payload_recomputes_acic_scorecard() -> None:
                 "elapsed_s": 0.01,
                 "memory_delta_mb": 0.0,
                 "result_payload": {
-                    "policy_os_xlearner_cf": {"ate_rmse": 0.1, "ci_coverage": 1.0, "ci_width_mean": 1.0, "pehe_mean": 0.5, "ate_true": 1.0},
-                    "policy_os_tmle_cf": {"ate_rmse": 0.2, "ci_coverage": 0.8, "ci_width_mean": 0.5, "ate_true": 1.0},
-                    "policy_os_aipw_cf": {"ate_rmse": 0.3, "ci_coverage": 0.8, "ci_width_mean": 0.5, "ate_true": 1.0},
-                    "policy_os_causal_forest": {"ate_rmse": 0.4, "ci_coverage": 1.0, "ci_width_mean": 0.5, "pehe_mean": 0.7, "ate_true": 1.0},
+                    "policy_os_xlearner_cf": {
+                        "ate_rmse": 0.1,
+                        "ci_coverage": 1.0,
+                        "ci_width_mean": 1.0,
+                        "pehe_mean": 0.5,
+                        "ate_true": 1.0,
+                    },
+                    "policy_os_tmle_cf": {
+                        "ate_rmse": 0.2,
+                        "ci_coverage": 0.8,
+                        "ci_width_mean": 0.5,
+                        "ate_true": 1.0,
+                    },
+                    "policy_os_aipw_cf": {
+                        "ate_rmse": 0.3,
+                        "ci_coverage": 0.8,
+                        "ci_width_mean": 0.5,
+                        "ate_true": 1.0,
+                    },
+                    "policy_os_causal_forest": {
+                        "ate_rmse": 0.4,
+                        "ci_coverage": 1.0,
+                        "ci_width_mean": 0.5,
+                        "pehe_mean": 0.7,
+                        "ate_true": 1.0,
+                    },
                 },
             }
         ],
@@ -847,12 +894,16 @@ def test_claim_gate_full_stack_fails_without_new_policy_suites(tmp_path: Path):
             payload["baseline_snapshot_ref"] = "adversarial-v1"
         elif spec.suite_id.startswith("capability_"):
             payload["workflow_levels"] = list(WORKFLOW_LEVELS)
-            payload["competitor_gap"] = {"y0": {level: {"status": "unsupported"} for level in WORKFLOW_LEVELS}}
+            payload["competitor_gap"] = {
+                "y0": {level: {"status": "unsupported"} for level in WORKFLOW_LEVELS}
+            }
             payload["evidence_bundle_complete"] = True
             payload["public_claim_eligible"] = True
             payload["literature_anchor"] = "synthetic capability anchor"
         (tmp_path / f"{spec.suite_id}.json").write_text(json.dumps(payload), encoding="utf-8")
 
-    result = evaluate_claim_gate(tmp_path, profile="air-m2", claim_profile="full_stack_publication_claim")
+    result = evaluate_claim_gate(
+        tmp_path, profile="air-m2", claim_profile="full_stack_publication_claim"
+    )
     assert result["claim_ready"] is False
     assert any(item["status"] == "missing_report" for item in result["findings"])

@@ -8,15 +8,16 @@ import json
 import re
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import aiohttp
 
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.knowledge.types import EstimateCandidate, WorkRecord
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.common.logger import get_logger
+
+if TYPE_CHECKING:
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 logger = get_logger(__name__)
 
@@ -65,6 +66,7 @@ Abstract:
 @dataclass(frozen=True)
 class GateFeatures:
     """Gate features public type."""
+
     text_len: int
     numeric_hits: int
     ambiguity_hits: int
@@ -76,6 +78,7 @@ class GateFeatures:
 @dataclass(frozen=True)
 class GateDecision:
     """Gate decision public type."""
+
     route: str  # auto|llm|deferred|audit_llm
     score: float
     reason_codes: list[str]
@@ -84,6 +87,7 @@ class GateDecision:
 @dataclass
 class GateRuntime:
     """Gate runtime public type."""
+
     threshold: float
     mode: str
     max_share: float
@@ -177,7 +181,11 @@ class AcademicLLMClient:
                             if isinstance(data, dict):
                                 choices = data.get("choices")
                                 if isinstance(choices, list) and choices:
-                                    msg = choices[0].get("message") if isinstance(choices[0], dict) else {}
+                                    msg = (
+                                        choices[0].get("message")
+                                        if isinstance(choices[0], dict)
+                                        else {}
+                                    )
                                     if isinstance(msg, dict):
                                         content = str(msg.get("content") or "")
                             return {"content": content}
@@ -187,7 +195,7 @@ class AcademicLLMClient:
                             continue
 
                         raise RuntimeError(f"LLM non-retryable HTTP {resp.status}: {body[:500]}")
-                except (aiohttp.ClientError, asyncio.TimeoutError, json.JSONDecodeError) as exc:
+                except (TimeoutError, aiohttp.ClientError, json.JSONDecodeError) as exc:
                     last_error = exc
                     await asyncio.sleep(min(0.5 * (2 ** (attempt - 1)), 20.0))
 
@@ -214,8 +222,13 @@ class _SlidingWindowLimiter:
 
 
 _NUMERIC_RE = re.compile(r"\b\d+(?:[.,]\d+)?\b")
-_AMBIGUITY_RE = re.compile(r"\b(if|when|unless|may|might|depending on|conditional)\b", re.IGNORECASE)
-_BOUNDARY_SIGNAL_RE = re.compile(r"\b(heterogeneous|varies by|only in|conditional on|cross-country|multi-country)\b", re.IGNORECASE)
+_AMBIGUITY_RE = re.compile(
+    r"\b(if|when|unless|may|might|depending on|conditional)\b", re.IGNORECASE
+)
+_BOUNDARY_SIGNAL_RE = re.compile(
+    r"\b(heterogeneous|varies by|only in|conditional on|cross-country|multi-country)\b",
+    re.IGNORECASE,
+)
 
 
 def _stable_sample(seed: str, sample_rate: float) -> bool:
@@ -276,7 +289,7 @@ def decide_route(
 
     if det_conf >= auto_conf_threshold:
         if llm_available and _stable_sample(audit_seed, audit_sample_rate):
-            return GateDecision(route="audit_llm", score=score, reason_codes=["audit_sample_auto"]) 
+            return GateDecision(route="audit_llm", score=score, reason_codes=["audit_sample_auto"])
         return GateDecision(route="auto", score=score, reason_codes=["deterministic_high_conf"])
 
     if not llm_available:
@@ -287,7 +300,9 @@ def decide_route(
 
     if llm_share >= runtime.max_share and not runtime.safe_pass_active:
         if _stable_sample(audit_seed, audit_sample_rate):
-            return GateDecision(route="audit_llm", score=score, reason_codes=["audit_sample_budget_cap"])
+            return GateDecision(
+                route="audit_llm", score=score, reason_codes=["audit_sample_budget_cap"]
+            )
         return GateDecision(route="deferred", score=score, reason_codes=["budget_cap"])
 
     if score >= min_score_force_llm:
@@ -301,7 +316,9 @@ def decide_route(
     return GateDecision(route="deferred", score=score, reason_codes=["score_below_threshold"])
 
 
-async def extract_with_llm(*, abstract: str, topic: str, work_id: str, client: AcademicLLMClient) -> dict:
+async def extract_with_llm(
+    *, abstract: str, topic: str, work_id: str, client: AcademicLLMClient
+) -> dict:
     """Run LLM extraction on a single abstract."""
     prompt = EXTRACTION_PROMPT.format(topic=topic, abstract=abstract[:4000])
     try:
@@ -381,7 +398,9 @@ def _safe_float(val: Any) -> float | None:
         return None
 
 
-def _merge_estimates(base: list[EstimateCandidate], extra: list[EstimateCandidate]) -> list[EstimateCandidate]:
+def _merge_estimates(
+    base: list[EstimateCandidate], extra: list[EstimateCandidate]
+) -> list[EstimateCandidate]:
     seen: set[tuple[float, str, str]] = set()
     out: list[EstimateCandidate] = []
     for est in [*base, *extra]:
@@ -452,7 +471,7 @@ async def run_extract_llm(config: AcademicBatchConfig) -> dict[str, float | int]
             out_path = config.extracted_dir / parsed_path.name
             rows_out: list[str] = []
 
-            with open(parsed_path, "r", encoding="utf-8") as fh:
+            with open(parsed_path, encoding="utf-8") as fh:
                 for line in fh:
                     line = line.strip()
                     if not line:
@@ -483,7 +502,11 @@ async def run_extract_llm(config: AcademicBatchConfig) -> dict[str, float | int]
                         if decision.route == "audit_llm":
                             stats["audit_sample_total"] = int(stats["audit_sample_total"]) + 1
 
-                        topic_hint = rec.source_topics[0].topic_display_name if rec.source_topics else "general"
+                        topic_hint = (
+                            rec.source_topics[0].topic_display_name
+                            if rec.source_topics
+                            else "general"
+                        )
                         llm_result = await extract_with_llm(
                             abstract=rec.abstract,
                             topic=topic_hint,
@@ -548,7 +571,9 @@ async def run_extract_llm(config: AcademicBatchConfig) -> dict[str, float | int]
         llm_saved_pct = max(0.0, ((llm_candidate_total - llm_sent) * 100.0) / llm_candidate_total)
     audit_miss_rate_pct = 0.0
     if int(stats["audit_sample_total"]) > 0:
-        audit_miss_rate_pct = (int(stats["audit_miss_total"]) * 100.0) / int(stats["audit_sample_total"])
+        audit_miss_rate_pct = (int(stats["audit_miss_total"]) * 100.0) / int(
+            stats["audit_sample_total"]
+        )
 
     gate_payload = {
         "kind": "llm_gate",

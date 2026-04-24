@@ -71,9 +71,7 @@ def _write_junit(path: Path, *, passed: bool = True, include_test: bool = True) 
     else:
         testcase = '  <testcase file="tests/other.py" name="test_other" />'
     path.write_text(
-        "<testsuite name=\"phase2\">\n"
-        f"{testcase}\n"
-        "</testsuite>\n",
+        f'<testsuite name="phase2">\n{testcase}\n</testsuite>\n',
         encoding="utf-8",
     )
 
@@ -110,7 +108,8 @@ def _write_evidence(
             payload["judge_verdicts"] = {_JUDGE_TEST: {"composite_decision": "promote"}}
         tracks[_TRACK_ID] = payload
     path.write_text(
-        json.dumps({"phase_id": "foundry.phase2", "tracks": tracks}, indent=2, sort_keys=True) + "\n",
+        json.dumps({"phase_id": "foundry.phase2", "tracks": tracks}, indent=2, sort_keys=True)
+        + "\n",
         encoding="utf-8",
     )
 
@@ -208,7 +207,9 @@ def test_scientist_phase2_gate_fails_on_missing_judge_verdict(tmp_path: Path) ->
     assert f"missing_judge_verdict:{_TRACK_ID}:{_JUDGE_TEST}" in payload["notes"]
 
 
-def test_scientist_phase2_gate_fails_on_missing_synthetic_world_verification(tmp_path: Path) -> None:
+def test_scientist_phase2_gate_fails_on_missing_synthetic_world_verification(
+    tmp_path: Path,
+) -> None:
     _write_manifest(tmp_path / "manifest.json")
     _write_junit(tmp_path / "phase2.xml")
     _write_benchmarks(tmp_path / "benchmarks.json")

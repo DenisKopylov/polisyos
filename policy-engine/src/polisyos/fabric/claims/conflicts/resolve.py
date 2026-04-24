@@ -5,6 +5,7 @@ that are first grouped via ``detect_conflicts``. The selected policy ranks membe
 ``ConflictResolution`` artifacts, emits trust and contradiction edges, and stores a quality report
 when low-confidence outcomes remain.
 """
+
 from __future__ import annotations
 
 from decimal import ROUND_HALF_UP, Decimal
@@ -260,7 +261,9 @@ def _query_extractor_ids_by_claim_from_db(
             manifest = cas.get_manifest(ArtifactID.model_validate(artifact_id))
         except Exception:
             logger.debug(
-                "Failed to load manifest for artifact %s", artifact_id, exc_info=True,
+                "Failed to load manifest for artifact %s",
+                artifact_id,
+                exc_info=True,
             )
             continue
         if manifest.kind != "fabric.claims.claim_set":
@@ -438,9 +441,7 @@ def resolve_conflicts(
             conflict_artifacts_by_id[conflict_set_id] = artifact_id
 
     if conflict_set_ids is not None:
-        missing_conflict_set_ids = sorted(
-            set(conflict_set_ids) - set(conflict_sets_by_id)
-        )
+        missing_conflict_set_ids = sorted(set(conflict_set_ids) - set(conflict_sets_by_id))
         if missing_conflict_set_ids and (claim_ids or claim_set_artifact_ids):
             fallback_detect = detect_conflicts(
                 cas=cas,
@@ -486,7 +487,9 @@ def resolve_conflicts(
             _load_claim_refs_from_claim_sets(cas=cas, claim_set_artifact_ids=claim_set_artifact_ids)
         )
     if resolved_db is not None:
-        claim_artifact_ids_by_id.update(_query_claim_artifacts_from_db(resolved_db, member_claim_ids))
+        claim_artifact_ids_by_id.update(
+            _query_claim_artifacts_from_db(resolved_db, member_claim_ids)
+        )
     if not claim_artifact_ids_by_id and resolved_db is not None:
         claim_artifact_ids_by_id.update(_all_claim_artifacts_from_db(resolved_db))
     claims_by_id = (
@@ -812,9 +815,7 @@ def resolve_conflicts(
             QualityIssue(
                 code="subject_resolution_limited",
                 severity=QualityIssueSeverity.INFO,
-                msg=(
-                    "MVP limitation: subject resolution across documents is not enabled in v1"
-                ),
+                msg=("MVP limitation: subject resolution across documents is not enabled in v1"),
                 context_json={"phase": "14", "mvp": True},
             )
         )

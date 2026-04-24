@@ -1,4 +1,5 @@
 """Public plugins cli module API."""
+
 from __future__ import annotations
 
 import argparse

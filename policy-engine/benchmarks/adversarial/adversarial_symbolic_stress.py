@@ -30,11 +30,22 @@ from benchmarks.harness import (  # noqa: E402
     BenchmarkReport,
 )
 from benchmarks.metrics import compute_accuracy_metrics  # noqa: E402
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import BenchmarkMode, resolve_mode  # noqa: E402
-from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus, id_algorithm  # noqa: E402
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType  # noqa: E402
-
+from polisyos.foundry.methods.catalog.causal.id_engine import (  # noqa: E402
+    IdentificationStatus,
+    id_algorithm,
+)
+from polisyos.ir.analytics.causal_graph import (  # noqa: E402
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    GraphType,
+)
 
 CIRCUIT = BenchmarkCircuit.SYMBOLIC
 
@@ -74,7 +85,9 @@ def _proof_steps_from_payload(result: Any) -> list[str]:
 
 
 def _is_identified_from_payload(result: Any) -> bool:
-    return getattr(_artifact_from_payload(result), "status", None) is IdentificationStatus.IDENTIFIED
+    return (
+        getattr(_artifact_from_payload(result), "status", None) is IdentificationStatus.IDENTIFIED
+    )
 
 
 def _has_estimand_ast(result: Any) -> bool:
@@ -270,7 +283,9 @@ def _aggregate_metrics(report: BenchmarkReport) -> dict[str, Any]:
         "n_identified": identified,
         "n_non_identified": non_identified,
         "false_positive_blockers": len(report.blocker_cases()),
-        "mean_proof_step_count": float(sum(proof_counts) / len(proof_counts)) if proof_counts else None,
+        "mean_proof_step_count": float(sum(proof_counts) / len(proof_counts))
+        if proof_counts
+        else None,
         "accuracy": {
             "n_total": accuracy.n_total,
             "n_true_positive": accuracy.n_true_positive,
@@ -282,7 +297,9 @@ def _aggregate_metrics(report: BenchmarkReport) -> dict[str, Any]:
     }
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     return build_report_payload(
         report,
         suite_id="adversarial_symbolic_stress",

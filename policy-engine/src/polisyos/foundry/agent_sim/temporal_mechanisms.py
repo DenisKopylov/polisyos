@@ -1,4 +1,5 @@
 """Public agent sim temporal mechanisms module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -17,6 +18,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 @dataclass(frozen=True)
 class TemporalConsumptionMechanism(Mechanism):
     """Temporal consumption mechanism public type."""
+
     actor_critic: ActorCritic
     horizon: int = 256
     min_consumption: float = 0.01
@@ -39,7 +41,9 @@ class TemporalConsumptionMechanism(Mechanism):
                     "policy.expected_interest_rate",
                 }
             ),
-            writes=frozenset({"agents.consumption", "agents.wealth", "agents.expected_lifetime_utility"}),
+            writes=frozenset(
+                {"agents.consumption", "agents.wealth", "agents.expected_lifetime_utility"}
+            ),
             parameters={"horizon": int, "min_consumption": float},
             stochastic=True,
         )
@@ -59,9 +63,7 @@ class TemporalConsumptionMechanism(Mechanism):
         if fidelity == FidelityLevel.HARD_DISCRETE:
             sampled_actions = action_output
         else:
-            dist = self.actor_critic.get_action_distribution(
-                obs, action_output=action_output
-            )
+            dist = self.actor_critic.get_action_distribution(obs, action_output=action_output)
             sampled_actions = sample_actions(
                 dist, rng_key, action_type=self.actor_critic.action_type
             )

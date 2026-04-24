@@ -110,7 +110,7 @@ def test_dispatcher_falls_back_to_monte_carlo_for_non_differentiable_function() 
 def test_monte_carlo_uses_heuristic_envelope_when_samples_fail() -> None:
     envelopes = {"x": _normal_env(mean=1.0, std=0.1)}
 
-    def always_fail(**params):  # noqa: ARG001
+    def always_fail(**params):
         raise RuntimeError("boom")
 
     mc = MonteCarloPropagator(

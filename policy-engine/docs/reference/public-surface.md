@@ -3,6 +3,7 @@
 > Generated from `architecture/public_surface.toml` and package facades under `src/polisyos/**/__init__.py`.
 
 Canonical regeneration command:
+
 ```bash
 uv run python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline
 ```
@@ -15,21 +16,22 @@ Classification policy:
 - `public_experimental`: documented entrypoint that should stay visible in docs and release notes when touched, but it does not promise long-term compatibility.
 - `internal`: any `polisyos.*` path not listed here; keep it out of public docs and release notes unless operators must care.
 
-| Package | Classification | Facade | Exports | Owner | README |
-| --- | --- | --- | ---: | --- | --- |
-| `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
-| `polisyos.core` | `public_stable` | `lazy_facade` | 15 | `team-polisyos` | `src/polisyos/core/README.md` |
-| `polisyos.ir` | `public_stable` | `lazy_facade` | 171 | `team-polisyos` | `src/polisyos/ir/README.md` |
-| `polisyos.fabric` | `public_stable` | `lazy_facade` | 9 | `team-polisyos` | `src/polisyos/fabric/README.md` |
-| `polisyos.foundry` | `public_stable` | `lazy_facade` | 3 | `team-polisyos` | `src/polisyos/foundry/README.md` |
-| `polisyos.scientist` | `public_stable` | `lazy_facade` | 4 | `team-polisyos` | `src/polisyos/scientist/README.md` |
-| `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
-| `polisyos.lex` | `public_stable` | `lazy_facade` | 58 | `team-polisyos` | `src/polisyos/lex/README.md` |
-| `polisyos.scholar` | `public_experimental` | `lazy_facade` | 14 | `team-polisyos` | `src/polisyos/scholar/README.md` |
-| `polisyos.academic` | `public_experimental` | `module_doc_only` | 0 | `team-polisyos` | `src/polisyos/academic/README.md` |
-| `polisyos.datasets` | `public_experimental` | `module_doc_only` | 0 | `team-polisyos` | `src/polisyos/datasets/README.md` |
-| `polisyos.batch_common` | `public_experimental` | `eager_exports` | 17 | `team-polisyos` | `src/polisyos/batch_common/README.md` |
-| `polisyos.batch_snapshot` | `public_experimental` | `module_doc_only` | 0 | `team-polisyos` | `src/polisyos/batch_snapshot/README.md` |
+| Package                   | Classification        | Facade            | Exports | Owner             | README                                  |
+| ------------------------- | --------------------- | ----------------- | ------: | ----------------- | --------------------------------------- |
+| `polisyos.common`         | `public_stable`       | `lazy_facade`     | 7       | `team-polisyos`   | `src/polisyos/common/README.md`         |
+| `polisyos.core`           | `public_stable`       | `lazy_facade`     | 15      | `team-polisyos`   | `src/polisyos/core/README.md`           |
+| `polisyos.ir`             | `public_stable`       | `lazy_facade`     | 228     | `team-polisyos`   | `src/polisyos/ir/README.md`             |
+| `polisyos.fabric`         | `public_stable`       | `lazy_facade`     | 9       | `team-polisyos`   | `src/polisyos/fabric/README.md`         |
+| `polisyos.foundry`        | `public_stable`       | `lazy_facade`     | 3       | `team-polisyos`   | `src/polisyos/foundry/README.md`        |
+| `polisyos.scientist`      | `public_stable`       | `lazy_facade`     | 4       | `team-polisyos`   | `src/polisyos/scientist/README.md`      |
+| `polisyos.runtime`        | `public_stable`       | `lazy_facade`     | 10      | `team-polisyos`   | `src/polisyos/runtime/README.md`        |
+| `polisyos.lex`            | `public_stable`       | `lazy_facade`     | 58      | `team-polisyos`   | `src/polisyos/lex/README.md`            |
+| `polisyos.scholar`        | `public_experimental` | `lazy_facade`     | 14      | `team-polisyos`   | `src/polisyos/scholar/README.md`        |
+| `polisyos.data_forge`     | `public_experimental` | `eager_exports`   | 1       | `team-data-forge` | `src/polisyos/data_forge/README.md`     |
+| `polisyos.academic`       | `public_experimental` | `module_doc_only` | 0       | `team-polisyos`   | `src/polisyos/academic/README.md`       |
+| `polisyos.datasets`       | `public_experimental` | `module_doc_only` | 0       | `team-polisyos`   | `src/polisyos/datasets/README.md`       |
+| `polisyos.batch_common`   | `public_experimental` | `eager_exports`   | 17      | `team-polisyos`   | `src/polisyos/batch_common/README.md`   |
+| `polisyos.batch_snapshot` | `public_experimental` | `module_doc_only` | 0       | `team-polisyos`   | `src/polisyos/batch_snapshot/README.md` |
 
 ## `polisyos.common`
 
@@ -100,7 +102,7 @@ run
 - Notes: Primary compatibility boundary for policy, governance, analytics, and observation contracts.
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
-<details><summary>Supported exports (171)</summary>
+<details><summary>Supported exports (228)</summary>
 
 ```text
 AccessTier
@@ -165,10 +167,28 @@ GatePriority
 GateRequest
 GateVerdict
 DistributionFamily
+ForecastCalibrationMethod
+ForecastCoverageDiagnostic
+ForecastIntervalSemantics
+ForecastingUncertaintyBundle
+ForecastingUncertaintyBundleRef
+GEUncertaintyBundle
+GEUncertaintyBundleRef
+GEUncertaintyRepresentation
+FanChartSpec
+HorizonInterval
+HorizonPolicySpec
 IntervalSemantics
 PropagationMethod
 UncertaintyEnvelope
 UncertaintySource
+WelfareBundle
+WelfareBundleRef
+WelfareIntervalSemantics
+WelfareMethod
+WelfareSampleBundle
+WelfareSampleBundleRef
+WelfareStatus
 CausalMethod
 EstimationStatus
 RefutationTestType
@@ -182,6 +202,21 @@ CausalQuery
 CausalQueryResult
 CausalQueryResultRef
 CausalExecutionBundleRef
+BlockSupportReport
+CausalBlockBridge
+CausalBlockBridgeRef
+ExposureMappingType
+InteractionComplex
+InteractionComplexRef
+InterferenceCertificate
+InterferenceCertificateRef
+InterferenceEffectDecomposition
+InterferenceMethod
+MAUPInvarianceCertificate
+MAUPInvarianceCertificateRef
+MAUPPartitionCheck
+NetworkInterferenceReport
+SpatialResult
 EnsembleMember
 CausalModelEnsemble
 CausalModelEnsembleRef
@@ -212,6 +247,30 @@ OutcomeComparison
 SystematicBias
 BacktestScenario
 BacktestReport
+AdministrativeMissingnessClass
+AdministrativeMissingnessDirection
+AdministrativeMissingnessMetadata
+AdministrativeMissingnessScenarioFamily
+AdministrativeMissingnessUnitScope
+MissingnessAssessmentProvenance
+MissingnessAssessmentReport
+MissingnessAssessmentStatus
+MissingnessEstimandRisk
+MissingnessEvidenceItem
+SurveyAssumptionComponent
+SurveyAssumptionLayer
+SurveyAssumptionStatus
+SurveyRequestedRegime
+SurveyValidatedRegime
+SurveyVarianceMode
+SurveyQualityCertificate
+SurveyQualityCertificateRef
+MicrosimCalibrationReport
+MicrosimCalibrationReportRef
+DependenceStructure
+DependenceStructureRef
+MobilityReport
+MobilityReportRef
 BacktestPlanBundle
 BoundsEstimationBundle
 CalibrationTargetBundleManifest
@@ -480,6 +539,25 @@ ScholarReconcileError
 ScholarService
 ScholarValidationError
 enrich_topic
+```
+
+</details>
+
+## `polisyos.data_forge`
+
+- Classification: `public_experimental`
+- Supported entrypoints: `polisyos.data_forge`, `polisyos.data_forge.read_api`
+- Facade policy: expected `eager_exports`, observed `eager_exports`
+- Owner: `team-data-forge`
+- README: `src/polisyos/data_forge/README.md`
+- Reference doc: `docs/reference/public-surface.md`
+- Notes: Experimental asset-centric build-time data forge facade. The top-level package currently re-exports read_api eagerly; kernel/domains remain internal and read_api is the only runtime import surface.
+- Summary: Minimal Data Forge public surface for runtime-safe read APIs.
+
+<details><summary>Supported exports (1)</summary>
+
+```text
+read_api
 ```
 
 </details>

@@ -1,4 +1,5 @@
 """Lazy decision-stage facade for delivery nodes that emit reports, bundles, and translations."""
+
 from __future__ import annotations
 
 import importlib

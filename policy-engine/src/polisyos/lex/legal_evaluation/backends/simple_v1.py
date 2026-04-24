@@ -1,13 +1,16 @@
 """Baseline backend for turning one norm rule plus observation into a legal finding."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
-from polisyos.ir.norm_pack import NormRule
 from polisyos.lex.common import collapse_ws
-from polisyos.lex.legal_evaluation.context_builder import RuleObservation
+
+if TYPE_CHECKING:
+    from polisyos.ir.norm_pack import NormRule
+    from polisyos.lex.legal_evaluation.context_builder import RuleObservation
 
 FindingStatus = Literal["PASS", "FAIL", "UNKNOWN", "NOT_APPLICABLE"]
 FindingSeverity = Literal["info", "warning", "blocker"]
@@ -122,6 +125,7 @@ def _convert_unit(*, value: Decimal, from_unit: str, to_unit: str) -> Decimal | 
 @dataclass(frozen=True)
 class RuleFinding:
     """Rule finding public type."""
+
     rule_id: str
     status: FindingStatus
     severity: FindingSeverity

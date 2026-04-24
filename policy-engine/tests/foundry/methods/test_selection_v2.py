@@ -12,7 +12,6 @@ import pytest
 from polisyos.core.contracts.execution_plan import MethodCatalogEntry
 from polisyos.foundry.methods.selection import (
     COST_PER_MS,
-    DataCharacteristics,
     MethodSelectionCriteria,
     _score_entry,
     _score_entry_v2,
@@ -30,10 +29,10 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintySource,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_entry(fqn: str = "test.method@1.0.0", **overrides) -> MethodCatalogEntry:
     """Build a MethodCatalogEntry with sensible defaults."""
@@ -210,12 +209,14 @@ class TestRuntimePredictor:
         now = time.time()
         for n in [100, 500, 1000, 5000, 10000]:
             latency = 0.5 * n**0.7  # known relationship
-            history.record(_make_record(
-                "test.m@1.0.0",
-                latency_ms=latency,
-                data_characteristics={"n_obs": n, "n_features": 1},
-                timestamp=now,
-            ))
+            history.record(
+                _make_record(
+                    "test.m@1.0.0",
+                    latency_ms=latency,
+                    data_characteristics={"n_obs": n, "n_features": 1},
+                    timestamp=now,
+                )
+            )
 
         predictor.fit(history)
         assert predictor.is_fitted
@@ -241,12 +242,14 @@ class TestRuntimePredictor:
         history = SelectionHistoryStore()
         now = time.time()
         for n in [100, 200, 300]:
-            history.record(_make_record(
-                "test.m@1.0.0",
-                latency_ms=float(n),
-                data_characteristics={"n_obs": n},
-                timestamp=now,
-            ))
+            history.record(
+                _make_record(
+                    "test.m@1.0.0",
+                    latency_ms=float(n),
+                    data_characteristics={"n_obs": n},
+                    timestamp=now,
+                )
+            )
         predictor.fit(history)
         assert not predictor.is_fitted
 
@@ -256,21 +259,27 @@ class TestRuntimePredictor:
         history = SelectionHistoryStore()
         now = time.time()
         for n in [100, 500, 1000, 5000, 10000]:
-            history.record(_make_record(
-                "fast@1.0.0",
-                latency_ms=0.1 * n**0.6,
-                data_characteristics={"n_obs": n, "n_features": 2},
-                timestamp=now,
-            ))
-            history.record(_make_record(
-                "slow@1.0.0",
-                latency_ms=1.0 * n**0.6,
-                data_characteristics={"n_obs": n, "n_features": 2},
-                timestamp=now,
-            ))
+            history.record(
+                _make_record(
+                    "fast@1.0.0",
+                    latency_ms=0.1 * n**0.6,
+                    data_characteristics={"n_obs": n, "n_features": 2},
+                    timestamp=now,
+                )
+            )
+            history.record(
+                _make_record(
+                    "slow@1.0.0",
+                    latency_ms=1.0 * n**0.6,
+                    data_characteristics={"n_obs": n, "n_features": 2},
+                    timestamp=now,
+                )
+            )
         predictor.fit(history)
         assert predictor.is_fitted
-        assert predictor.predict_ms("slow@1.0.0", 1000, 2) > predictor.predict_ms("fast@1.0.0", 1000, 2)
+        assert predictor.predict_ms("slow@1.0.0", 1000, 2) > predictor.predict_ms(
+            "fast@1.0.0", 1000, 2
+        )
 
 
 class TestVOI:
@@ -322,11 +331,13 @@ class TestSelectionHistoryStore:
 
         def _writer(thread_id: int) -> None:
             for i in range(records_per_thread):
-                store.record(_make_record(
-                    f"thread.{thread_id}@1.0.0",
-                    latency_ms=float(i),
-                    timestamp=time.time(),
-                ))
+                store.record(
+                    _make_record(
+                        f"thread.{thread_id}@1.0.0",
+                        latency_ms=float(i),
+                        timestamp=time.time(),
+                    )
+                )
 
         threads = [threading.Thread(target=_writer, args=(tid,)) for tid in range(n_threads)]
         for t in threads:
@@ -433,11 +444,13 @@ class TestSelectionHistoryStore:
 
         def _writer(thread_id: int) -> None:
             for i in range(records_per_thread):
-                store.record(_make_record(
-                    f"thread.{thread_id}@1.0.0",
-                    latency_ms=float(i),
-                    timestamp=time.time(),
-                ))
+                store.record(
+                    _make_record(
+                        f"thread.{thread_id}@1.0.0",
+                        latency_ms=float(i),
+                        timestamp=time.time(),
+                    )
+                )
 
         threads = [threading.Thread(target=_writer, args=(idx,)) for idx in range(n_threads)]
         for thread in threads:

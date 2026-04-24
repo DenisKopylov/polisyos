@@ -1,10 +1,11 @@
 """Public governance telemetry module API."""
+
 from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from polisyos.core.canon import truncated_hash
 from polisyos.core.trace import TraceRecord
@@ -21,14 +22,14 @@ class PassSpan:
 
     pass_id: str
     start_time: datetime
-    end_time: Optional[datetime] = None
-    duration_ms: Optional[int] = None
-    inputs_hash: Optional[str] = None
+    end_time: datetime | None = None
+    duration_ms: int | None = None
+    inputs_hash: str | None = None
     issue_count: int = 0
     blocker_count: int = 0
     warning_count: int = 0
     skipped: bool = False
-    error: Optional[str] = None
+    error: str | None = None
 
     def close(self) -> None:
         """Close the span and calculate duration."""
@@ -54,8 +55,8 @@ class ValidationTrace:
     run_id: str
     profile: str
     started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
-    completed_at: Optional[datetime] = None
-    spans: List[PassSpan] = field(default_factory=list)
+    completed_at: datetime | None = None
+    spans: list[PassSpan] = field(default_factory=list)
     total_issues: int = 0
     total_blockers: int = 0
     short_circuited: bool = False
@@ -114,7 +115,7 @@ class ValidationTrace:
             warnings=warnings,
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary for storage in experiment state."""
         return {
             "run_id": self.run_id,

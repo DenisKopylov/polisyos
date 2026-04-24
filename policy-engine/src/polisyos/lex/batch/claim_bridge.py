@@ -6,14 +6,13 @@ fabric conflict/trust flows without requiring a separate ``lex.corpus`` ingest.
 
 from __future__ import annotations
 
-import json
 import hashlib
+import json
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 
@@ -21,7 +20,11 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.fabric.claims import ClaimNormalizeOptions, normalize_claims
-from polisyos.fabric.claims.canonicalize import canonicalize_id, canonical_unit, parse_decimal_value_text
+from polisyos.fabric.claims.canonicalize import (
+    canonical_unit,
+    canonicalize_id,
+    parse_decimal_value_text,
+)
 from polisyos.fabric.claims.persist import persist_claim_set
 from polisyos.fabric.claims.world_events import build_claims_world_event, persist_claims_world_event
 from polisyos.fabric.world import (
@@ -37,11 +40,20 @@ from polisyos.fabric.world import (
     write_world_fact_segment,
 )
 from polisyos.ir.citations import AnchorKind, CitationRef, DocumentRef, FragmentLocator
-from polisyos.ir.fact_log import FactSegmentManifest
 from polisyos.ir.world.claim import Claim, ClaimSourceKind
 from polisyos.ir.world.doc import DocFragment, DocMeta
 from polisyos.ir.world.event import EventKind, ProvActivityType, WorldObjectRef
-from polisyos.ir.world.ids import claim_id_from_payload, doc_fragment_id, doc_source_id, doc_version_id_from_raw_artifact
+from polisyos.ir.world.ids import (
+    claim_id_from_payload,
+    doc_fragment_id,
+    doc_source_id,
+    doc_version_id_from_raw_artifact,
+)
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.ir.fact_log import FactSegmentManifest
 
 logger = get_logger(__name__)
 
@@ -53,6 +65,7 @@ _THRESHOLD_KEY_PRIORITY = ("value_decimal", "value_text", "unit", "operator")
 @dataclass(frozen=True)
 class BatchClaimBridgeResult:
     """Batch claim bridge result data model."""
+
     raw_claim_set_artifact_ids: list[str]
     normalized_claim_set_artifact_ids: list[str]
     claim_ids: list[str]
@@ -67,7 +80,7 @@ def _safe_id(value: str, *, prefix: str) -> str:
     candidate = canonicalize_id(value or "")
     if candidate:
         return candidate
-    digest = hashlib.sha256(f"{prefix}|{value}".encode("utf-8")).hexdigest()[:16]
+    digest = hashlib.sha256(f"{prefix}|{value}".encode()).hexdigest()[:16]
     return f"{prefix}.{digest}"
 
 
@@ -83,7 +96,9 @@ def _to_datetime_utc(value: str | None) -> datetime | None:
         if len(raw) == 10 and raw.count(".") == 2:
             day, month, year = raw.split(".")
             if len(day) == 2 and len(month) == 2 and len(year) == 4:
-                return datetime.fromisoformat(f"{year}-{month}-{day}T00:00:00+00:00").astimezone(UTC)
+                return datetime.fromisoformat(f"{year}-{month}-{day}T00:00:00+00:00").astimezone(
+                    UTC
+                )
         parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
         if parsed.tzinfo is None:
             parsed = parsed.replace(tzinfo=UTC)
@@ -202,7 +217,7 @@ def _load_normative_rows(db_path: Path) -> list[dict[str, Any]]:
                 "provision_text": row[29] or "",
             }
             for row in con.execute(
-                """
+                f"""
                 SELECT
                     f.fact_id,
                     f.doc_id,
@@ -235,10 +250,6 @@ def _load_normative_rows(db_path: Path) -> list[dict[str, Any]]:
                 {provision_join}
                 ORDER BY f.doc_id, f.provision_anchor, f.fact_id
                 """
-                .format(
-                    provision_select=provision_select,
-                    provision_join=provision_join,
-                )
             ).fetchall()
         ]
 
@@ -259,7 +270,12 @@ def _provision_rows(doc_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             by_anchor[anchor] = {
                 "anchor": anchor,
                 "citation": str(row.get("provision_citation") or anchor or ""),
-                "text": str(row.get("provision_text") or row.get("source_quote_uk") or row.get("fact_text") or ""),
+                "text": str(
+                    row.get("provision_text")
+                    or row.get("source_quote_uk")
+                    or row.get("fact_text")
+                    or ""
+                ),
                 "kind": str(row.get("kind") or ""),
                 "struct_kind": str(row.get("struct_kind") or row.get("kind") or ""),
                 "section_role": str(row.get("section_role") or ""),
@@ -406,11 +422,21 @@ def _predicate_id(row: dict[str, Any], threshold: dict[str, Any] | None) -> str:
     return f"legal.{domain}.norm"
 
 
-def _value_payload(row: dict[str, Any], threshold: dict[str, Any] | None) -> tuple[str, Decimal | None, str | None, dict[str, str | int | bool]]:
+def _value_payload(
+    row: dict[str, Any], threshold: dict[str, Any] | None
+) -> tuple[str, Decimal | None, str | None, dict[str, str | int | bool]]:
     if threshold:
-        raw_text = str(threshold.get("value_decimal") or threshold.get("value_text") or row.get("object_en") or row.get("fact_text") or "")
+        raw_text = str(
+            threshold.get("value_decimal")
+            or threshold.get("value_text")
+            or row.get("object_en")
+            or row.get("fact_text")
+            or ""
+        )
         value_decimal = parse_decimal_value_text(raw_text)
-        unit_id = canonical_unit(str(threshold.get("unit") or "")) if threshold.get("unit") else None
+        unit_id = (
+            canonical_unit(str(threshold.get("unit") or "")) if threshold.get("unit") else None
+        )
         qualifiers: dict[str, str | int | bool] = {}
         operator = str(threshold.get("operator") or "").strip()
         if operator:
@@ -420,7 +446,9 @@ def _value_payload(row: dict[str, Any], threshold: dict[str, Any] | None) -> tup
             qualifiers["applies_to"] = applies_to
         return raw_text, value_decimal, unit_id, qualifiers
 
-    value_text = str(row.get("object_en") or row.get("fact_text") or row.get("provision_citation") or "norm")
+    value_text = str(
+        row.get("object_en") or row.get("fact_text") or row.get("provision_citation") or "norm"
+    )
     return value_text, None, None, {}
 
 
@@ -493,7 +521,9 @@ def _claims_for_row(
                     ),
                 ),
                 quote_hash=quote_hash,
-                notes=[str(row.get("provision_citation") or "")] if row.get("provision_citation") else [],
+                notes=[str(row.get("provision_citation") or "")]
+                if row.get("provision_citation")
+                else [],
                 props={"fact_id": str(row.get("fact_id") or "")},
             )
         ]
@@ -686,7 +716,7 @@ def export_normative_claim_sets(
                 ("doc_meta", doc_meta_artifact_id),
                 ("normalized_ref", normalized_ref),
                 ("chunks_ref", chunks_ref),
-                *[( "claim", row["claim_artifact_id"]) for row in claim_rows],
+                *[("claim", row["claim_artifact_id"]) for row in claim_rows],
             ],
         )
         raw_claim_set_artifact_ids.append(claim_set_artifact_id)

@@ -50,18 +50,22 @@ for _p in [str(_SRC), str(_BENCH_ROOT)]:
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+from benchmarks.capability_wins.capability_proof import (  # noqa: E402
+    CapabilityProofSpec,
+    build_capability_report_extra,
+    make_gap_row,
+)
 from benchmarks.harness import (  # noqa: E402
     BenchmarkCase,
     BenchmarkCircuit,
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.capability_wins.capability_proof import (  # noqa: E402
-    CapabilityProofSpec,
-    build_capability_report_extra,
-    make_gap_row,
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
 from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.CAPABILITY_WINS
@@ -79,12 +83,14 @@ def _graph_imports():
         EdgeMark,
         GraphType,
     )
+
     return CausalEdge, CausalGraphModel, EdgeMark, GraphType
 
 
 def _fusion_imports():
-    from polisyos.ir.analytics.data_fusion import FusionDataset, FusionResult
     from polisyos.foundry.methods.catalog.causal.data_fusion import multi_study_fusion
+    from polisyos.ir.analytics.data_fusion import FusionDataset, FusionResult
+
     return FusionDataset, FusionResult, multi_study_fusion
 
 
@@ -125,15 +131,15 @@ def _case_two_domain_fusion_identified() -> BenchmarkCase:
                 dataset_ref="clinical_registry",
                 domain_id="domain_1",
                 n_obs=5000,
-                available_interventions=[],          # observational only
-                selection_bias_vars=["Z"],            # S₁ on Z
+                available_interventions=[],  # observational only
+                selection_bias_vars=["Z"],  # S₁ on Z
             ),
             FusionDataset(
                 dataset_ref="randomized_trial",
                 domain_id="domain_2",
                 n_obs=1200,
-                available_interventions=["X"],        # do(X) available from RCT
-                selection_bias_vars=["Z"],            # S₂ on Z
+                available_interventions=["X"],  # do(X) available from RCT
+                selection_bias_vars=["Z"],  # S₂ on Z
             ),
         ]
 
@@ -147,9 +153,7 @@ def _case_two_domain_fusion_identified() -> BenchmarkCase:
 
     def checker(r) -> bool:
         if not r.is_identified:
-            raise AssertionError(
-                f"mZ-ID failed to identify P*(Y|do(X)): {r.warnings}"
-            )
+            raise AssertionError(f"mZ-ID failed to identify P*(Y|do(X)): {r.warnings}")
         return True
 
     return BenchmarkCase(
@@ -169,6 +173,7 @@ def _case_single_domain_rct_fusion() -> BenchmarkCase:
         from polisyos.foundry.methods.catalog.causal.data_fusion import (
             fuse_experimental_observational,
         )
+
         graph = _build_chain_dag()
 
         result = fuse_experimental_observational(
@@ -183,13 +188,9 @@ def _case_single_domain_rct_fusion() -> BenchmarkCase:
 
     def checker(r) -> bool:
         if not r.is_identified:
-            raise AssertionError(
-                f"Z-transport failed: {r.warnings}"
-            )
+            raise AssertionError(f"Z-transport failed: {r.warnings}")
         if r.identification_algorithm != "z-id":
-            raise AssertionError(
-                f"Expected z-id algorithm, got: {r.identification_algorithm}"
-            )
+            raise AssertionError(f"Expected z-id algorithm, got: {r.identification_algorithm}")
         return True
 
     return BenchmarkCase(
@@ -242,7 +243,7 @@ def _case_three_domain_fusion_identified() -> BenchmarkCase:
                 domain_id="domain_C",
                 n_obs=2000,
                 available_interventions=[],
-                selection_bias_vars=[],           # no selection bias
+                selection_bias_vars=[],  # no selection bias
             ),
         ]
 
@@ -256,9 +257,7 @@ def _case_three_domain_fusion_identified() -> BenchmarkCase:
 
     def checker(r) -> bool:
         if not r.is_identified:
-            raise AssertionError(
-                f"mZ-ID failed on 3-domain fusion: {r.warnings}"
-            )
+            raise AssertionError(f"mZ-ID failed on 3-domain fusion: {r.warnings}")
         return True
 
     return BenchmarkCase(
@@ -289,7 +288,9 @@ def build_multi_source_transport_harness() -> BenchmarkHarness:
 # ---------------------------------------------------------------------------
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     extra = build_capability_report_extra(
         report,
         CapabilityProofSpec(
@@ -299,12 +300,45 @@ def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, 
             },
             claim_profile_targets=("frontier_frontier_claim", "full_stack_publication_claim"),
             competitor_gap=(
-                make_gap_row("y0", "multi_source_transport_workflow", status="partial", note="Transport queries exist, but multi-source mZ-ID workflow is not end-to-end.", level="identifiable"),
-                make_gap_row("dowhy", "multi_source_transportability", status="fail", note="No multi-source transport identification workflow.", level="identifiable"),
-                make_gap_row("econml", "transport_query_layer", status="fail", note="Estimator stack lacks symbolic transport/fusion layer.", level="expressible"),
-                make_gap_row("causalpy", "transport_query_layer", status="fail", note="No graph-native transport/fusion workflow.", level="expressible"),
+                make_gap_row(
+                    "y0",
+                    "multi_source_transport_workflow",
+                    status="partial",
+                    note="Transport queries exist, but multi-source mZ-ID workflow is not end-to-end.",
+                    level="identifiable",
+                ),
+                make_gap_row(
+                    "dowhy",
+                    "multi_source_transportability",
+                    status="fail",
+                    note="No multi-source transport identification workflow.",
+                    level="identifiable",
+                ),
+                make_gap_row(
+                    "econml",
+                    "transport_query_layer",
+                    status="fail",
+                    note="Estimator stack lacks symbolic transport/fusion layer.",
+                    level="expressible",
+                ),
+                make_gap_row(
+                    "causalpy",
+                    "transport_query_layer",
+                    status="fail",
+                    note="No graph-native transport/fusion workflow.",
+                    level="expressible",
+                ),
             ),
-            workflow_levels={level: "PASS" for level in ("expressible", "identifiable", "estimable_or_bounded", "audit_trace", "reproducible")},
+            workflow_levels={
+                level: "PASS"
+                for level in (
+                    "expressible",
+                    "identifiable",
+                    "estimable_or_bounded",
+                    "audit_trace",
+                    "reproducible",
+                )
+            },
         ),
     )
     return build_report_payload(
@@ -318,7 +352,9 @@ def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, 
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Circuit 4 — Multi-source mZ-ID transportability demo")
+    parser = argparse.ArgumentParser(
+        description="Circuit 4 — Multi-source mZ-ID transportability demo"
+    )
     parser.add_argument("--mode", choices=("smoke", "acceptance"))
     parser.add_argument("--json", metavar="FILE")
     parser.add_argument("--quiet", action="store_true")

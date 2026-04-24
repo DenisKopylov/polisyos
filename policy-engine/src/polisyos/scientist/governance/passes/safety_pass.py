@@ -4,6 +4,7 @@
 The Scientist-local module remains as a warning-emitting alias for existing
 configs and generated reference docs.
 """
+
 from __future__ import annotations
 
 import warnings

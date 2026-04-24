@@ -110,7 +110,9 @@ def test_behavioral_response_v2_blocks_unidentified_cross_section() -> None:
     result = behavior_result.output["result"]
     assert result.identified_object == "not_identified"
     assert result.identifiability_status == "non_identified"
-    np.testing.assert_allclose(np.asarray(behavior_result.output["market_income"], dtype=float), survey.market_income)
+    np.testing.assert_allclose(
+        np.asarray(behavior_result.output["market_income"], dtype=float), survey.market_income
+    )
 
 
 def test_behavioral_response_v2_supports_manual_override() -> None:
@@ -137,7 +139,9 @@ def test_behavioral_response_v2_supports_manual_override() -> None:
     result = behavior_result.output["result"]
     assert result.identified_object == "manual_override_required"
     assert result.elasticity_mean == 0.15
-    assert not np.allclose(np.asarray(behavior_result.output["market_income"], dtype=float), survey.market_income)
+    assert not np.allclose(
+        np.asarray(behavior_result.output["market_income"], dtype=float), survey.market_income
+    )
 
 
 def test_behavioral_response_v2_estimates_panel_average_partial_effect() -> None:
@@ -151,10 +155,18 @@ def test_behavioral_response_v2_estimates_panel_average_partial_effect() -> None
     period_id = np.tile(np.arange(3), 4)
     net_rate = np.array(
         [
-            0.55, 0.60, 0.65,
-            0.58, 0.62, 0.68,
-            0.61, 0.66, 0.70,
-            0.64, 0.69, 0.74,
+            0.55,
+            0.60,
+            0.65,
+            0.58,
+            0.62,
+            0.68,
+            0.61,
+            0.66,
+            0.70,
+            0.64,
+            0.69,
+            0.74,
         ],
         dtype=float,
     )
@@ -408,7 +420,10 @@ def test_behavioral_response_v2_returns_bounds_only_when_iv_overlap_is_missing()
     assert result.elasticity_lower is not None
     assert result.elasticity_upper is not None
     assert result.elasticity_grid is not None
-    assert result.elasticity_grid["weighted_mean_income_lower"] <= result.elasticity_grid["weighted_mean_income_upper"]
+    assert (
+        result.elasticity_grid["weighted_mean_income_lower"]
+        <= result.elasticity_grid["weighted_mean_income_upper"]
+    )
     assert result.overlap_score is not None and result.overlap_score < 0.5
 
 
@@ -515,7 +530,9 @@ def test_mnar_income_bounds_support_only_matches_manski_interval() -> None:
     np.testing.assert_allclose(payload["bounds"]["lower"], 31.333333333333332)
     np.testing.assert_allclose(payload["bounds"]["upper"], 71.33333333333333)
     assert payload["assumption_vector"]["mechanism_class"] == "support_only"
-    assert dispatched.output["uncertainty_envelope"].interval_semantics.value == "deterministic_bounds"
+    assert (
+        dispatched.output["uncertainty_envelope"].interval_semantics.value == "deterministic_bounds"
+    )
 
 
 def test_mnar_income_bounds_pattern_mixture_matches_closed_form_rectangle() -> None:
@@ -577,7 +594,11 @@ def test_mnar_income_bounds_selection_logit_records_monotone_curve() -> None:
     estimates = [point["estimate"] for point in payload["scenario_grid"]]
     assert len(estimates) == 3
     assert estimates[0] > estimates[1] > estimates[2]
-    assert payload["bounds"]["lower"] <= payload["bounds"]["reference_value"] <= payload["bounds"]["upper"]
+    assert (
+        payload["bounds"]["lower"]
+        <= payload["bounds"]["reference_value"]
+        <= payload["bounds"]["upper"]
+    )
     assert payload["bounds"]["manski_outer_bound"]["lower"] <= payload["bounds"]["lower"]
     assert payload["bounds"]["upper"] <= payload["bounds"]["manski_outer_bound"]["upper"]
     assert payload["diagnostics"]["selection_curve_monotonicity"] == "nonincreasing"
@@ -615,7 +636,10 @@ def test_mnar_income_bounds_supports_missingness_type_overrides() -> None:
 
     payload = dispatched.output["result"].metadata["mnar_bounds"]
     assert payload["scenario_grid"] == []
-    assert "component_specific_parameter_overrides_disable_single_collapsed_scenario_grid" in payload["warnings"]
+    assert (
+        "component_specific_parameter_overrides_disable_single_collapsed_scenario_grid"
+        in payload["warnings"]
+    )
     assert payload["assumption_vector"]["missingness_types"] == ["dont_know", "refusal"]
     assert "mnar.refusal_vs_dk_split" in payload["assumption_vector"]["taxonomy_entries"]
 
@@ -631,7 +655,9 @@ def test_mnar_income_bounds_supports_log_income_target_scale() -> None:
     observed = survey.market_income[np.isfinite(survey.market_income)]
     observed_log_mean = float(np.mean(np.log1p(observed)))
     expected_lower = (observed.size / survey.market_income.size) * observed_log_mean
-    expected_upper = expected_lower + (1.0 - observed.size / survey.market_income.size) * float(np.log1p(120.0))
+    expected_upper = expected_lower + (1.0 - observed.size / survey.market_income.size) * float(
+        np.log1p(120.0)
+    )
 
     method_cls = registry.get("microsim.imputation.mnar_income_bounds@1.0.0")
     dispatched = dispatcher.dispatch(
@@ -652,7 +678,9 @@ def test_mnar_income_bounds_supports_log_income_target_scale() -> None:
     np.testing.assert_allclose(payload["bounds"]["upper"], expected_upper)
     assert payload["target"]["scale"] == "log_income"
     assert payload["target"]["back_transform_rule"] == "no_exact_inverse_for_mean_log_income"
-    np.testing.assert_allclose(payload["assumption_vector"]["support_bounds"][1], float(np.log1p(120.0)))
+    np.testing.assert_allclose(
+        payload["assumption_vector"]["support_bounds"][1], float(np.log1p(120.0))
+    )
 
 
 def test_mnar_income_bounds_equivalized_scale_uses_unit_specific_support() -> None:
@@ -667,7 +695,9 @@ def test_mnar_income_bounds_equivalized_scale_uses_unit_specific_support() -> No
     observed_mask = np.isfinite(survey.market_income)
     observed_equivalized = survey.market_income[observed_mask] / equivalence_scale[observed_mask]
     fixed_observed_total = float(np.sum(observed_equivalized) / survey.market_income.size)
-    missing_upper_total = float(np.sum((120.0 / equivalence_scale[~observed_mask])) / survey.market_income.size)
+    missing_upper_total = float(
+        np.sum(120.0 / equivalence_scale[~observed_mask]) / survey.market_income.size
+    )
 
     method_cls = registry.get("microsim.imputation.mnar_income_bounds@1.0.0")
     dispatched = dispatcher.dispatch(
@@ -686,7 +716,9 @@ def test_mnar_income_bounds_equivalized_scale_uses_unit_specific_support() -> No
 
     payload = dispatched.output["result"].metadata["mnar_bounds"]
     np.testing.assert_allclose(payload["bounds"]["lower"], fixed_observed_total)
-    np.testing.assert_allclose(payload["bounds"]["upper"], fixed_observed_total + missing_upper_total)
+    np.testing.assert_allclose(
+        payload["bounds"]["upper"], fixed_observed_total + missing_upper_total
+    )
     assert payload["target"]["scale"] == "equivalized_income"
     assert payload["target"]["equivalence_scale_source"] == "vector_param_or_metadata"
     assert payload["diagnostics"]["notes"]["unit_specific_support"] is True
@@ -702,7 +734,9 @@ def test_mnar_income_bounds_pattern_mixture_respects_support_clipping() -> None:
     survey = _mnar_survey_state()
     observed = survey.market_income[np.isfinite(survey.market_income)]
     clipped_nonrespondent_mean = float(np.mean(np.clip(observed + 60.0, 0.0, 90.0)))
-    expected_total = float((np.sum(observed) + 4.0 * clipped_nonrespondent_mean) / survey.market_income.size)
+    expected_total = float(
+        (np.sum(observed) + 4.0 * clipped_nonrespondent_mean) / survey.market_income.size
+    )
 
     method_cls = registry.get("microsim.imputation.mnar_income_bounds@1.0.0")
     dispatched = dispatcher.dispatch(

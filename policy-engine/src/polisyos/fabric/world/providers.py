@@ -1,4 +1,5 @@
 """Provider helpers for world-store and materialization observability."""
+
 from __future__ import annotations
 
 from collections.abc import Callable

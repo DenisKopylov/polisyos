@@ -5,19 +5,20 @@ models, filesystem CAS implementation, dependency-graph reconstruction, and
 detached-signature contracts. Runtime and governance layers should depend on
 this facade instead of importing private artifact internals.
 """
-from .graph import (
-    DependencyEdge,
-    DependencyGraph,
-    DependencyNode,
-    NodeStatus,
-    resolve_dependency_graph,
-)
+
 from ._integrity_ops import VerificationReport
 from ._transfer_ops import ExportReport, ImportReport
 from .async_store import (
     AsyncArtifactStoreAdapter,
     AsyncFileSystemArtifactStore,
     ensure_async_artifact_store,
+)
+from .graph import (
+    DependencyEdge,
+    DependencyGraph,
+    DependencyNode,
+    NodeStatus,
+    resolve_dependency_graph,
 )
 from .ids import ArtifactID
 from .manifest import (
@@ -54,27 +55,27 @@ from .signing import (
 from .store import FileSystemCAS, PutOptions
 
 __all__ = [
-    "DependencyEdge",
-    "DependencyGraph",
-    "DependencyNode",
-    "ExportReport",
-    "AsyncArtifactStore",
-    "AsyncArtifactStoreAdapter",
-    "AsyncFileSystemArtifactStore",
-    "ArtifactStore",
-    "ArtifactSigner",
-    "ArtifactSigningResult",
-    "ArtifactVerifier",
-    "BulkSigningReport",
-    "BulkVerificationReport",
-    "DetachedSignature",
-    "Ed25519Signer",
-    "Ed25519Verifier",
     "ArtifactID",
     "ArtifactManifest",
     "ArtifactRef",
+    "ArtifactSigner",
+    "ArtifactSigningResult",
+    "ArtifactStore",
+    "ArtifactVerifier",
+    "AsyncArtifactStore",
+    "AsyncArtifactStoreAdapter",
+    "AsyncFileSystemArtifactStore",
+    "BulkSigningReport",
+    "BulkVerificationReport",
     "CanonInfo",
+    "DependencyEdge",
+    "DependencyGraph",
+    "DependencyNode",
+    "DetachedSignature",
+    "Ed25519Signer",
+    "Ed25519Verifier",
     "EnvInfo",
+    "ExportReport",
     "FileSystemCAS",
     "GitInfo",
     "ImportReport",
@@ -85,11 +86,11 @@ __all__ = [
     "ProducerInfo",
     "PutOptions",
     "RegistryBundle",
-    "SigningConfig",
+    "SchemaInfo",
     "SignatureStatement",
     "SignatureVerificationResult",
     "SignatureVerificationStatus",
-    "SchemaInfo",
+    "SigningConfig",
     "VerificationReport",
     "WarningRecord",
     "compute_key_id",

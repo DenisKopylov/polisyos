@@ -171,9 +171,7 @@ def test_ancestor_s_nodes_are_retained_by_transport_augmentation(spec) -> None:
     assert rules.count("S_TRIM") == 0
     assert "S_AUGMENT" in rules
     augment_step = next(step for step in tr_result.proof_steps if step.rule_name == "S_AUGMENT")
-    assert set(augment_step.antecedent_vars) == {
-        f"S_{var}" for var in spec["ancestor_s_vars"]
-    }
+    assert set(augment_step.antecedent_vars) == {f"S_{var}" for var in spec["ancestor_s_vars"]}
 
 
 @given(spec=_transport_graph_spec())

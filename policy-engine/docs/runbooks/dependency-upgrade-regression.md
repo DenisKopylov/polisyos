@@ -16,6 +16,7 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
 
 - `polisyos-tools workspace doctor` или `polisyos-tools workspace verify` внезапно падают после dependency
   change;
+
 - backend или frontend тесты ломаются без изменения product logic;
 - появляются import/runtime/type errors, которых не было до bump;
 - lockfile freshness и generated contract checks начинают расходиться между CI
@@ -26,6 +27,7 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
 - несовместимый transitive bump в `uv.lock` или `package-lock.json`;
 - dependency требует другой baseline, чем текущие Python `3.14.x` или Node
   `22.x`;
+
 - upgrade изменил schema/OpenAPI/frontend generated surfaces;
 - новый пакет изменил performance footprint, serialization или optional extras;
 - lockfile перегенерирован не тем инструментом или не на supported baseline.
@@ -41,6 +43,7 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
   `frontend/runtime-dashboard/package.json`,
   `frontend/runtime-dashboard/package-lock.json`,
   `.python-version`, `.nvmrc`;
+
 - полный список failing commands и их exit codes;
 - первый known-good commit и первый known-bad commit;
 - если regression user-facing, приложите affected dashboard/API surface.
@@ -90,9 +93,11 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
 
 - откатите offending dependency или lock refresh в PR, если root cause ещё не
   подтверждён;
+
 - заморозьте дальнейшие bump-ы этой dependency family до postmortem;
 - если затронут runtime/control-plane surface, не продвигайте релиз дальше
   staging/promotion gate;
+
 - если нужен partial mitigation, добавьте upper bound или feature flag, а не
   ad hoc локальный workaround у одного разработчика.
 
@@ -101,6 +106,7 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
 - primary: `@platform-owners`;
 - supporting: owner того subsystem, где проявилась regression
   (`@runtime-owners`, `@frontend-owners`, `@foundry-owners`, `@fabric-owners`);
+
 - если regression ломает release gate, incident commander тоже
   `@platform-owners`.
 
@@ -111,6 +117,7 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
 - добавлен/обновлён version constraint, если проблема системная;
 - если поменялся contributor path, обновлены docs в
   [Installation](../how-to/install.md);
+
 - если affected surface user-facing, обновлены release notes и upgrade notes;
 - если bump был automated, настроен denylist/ruleset для повторной волны.
 
@@ -132,8 +139,8 @@ Rollback path: revert the offending dependency or lockfile delta, restore the pr
 
 Заполните по итогам инцидента.
 
-| Action item | Owner | Due date | Status |
-|---|---|---|---|
-| Add or tighten regression coverage for the failing dependency path | `@platform-owners` | YYYY-MM-DD | open |
-| Document package-specific pin/compatibility rule if the failure can repeat | affected subsystem owner | YYYY-MM-DD | open |
-| Update upgrade policy / allowlist / denylist for the dependency family | `@platform-owners` | YYYY-MM-DD | open |
+| Action item                                                                | Owner                    | Due date   | Status |
+| -------------------------------------------------------------------------- | ------------------------ | ---------- | ------ |
+| Add or tighten regression coverage for the failing dependency path         | `@platform-owners`       | YYYY-MM-DD | open   |
+| Document package-specific pin/compatibility rule if the failure can repeat | affected subsystem owner | YYYY-MM-DD | open   |
+| Update upgrade policy / allowlist / denylist for the dependency family     | `@platform-owners`       | YYYY-MM-DD | open   |

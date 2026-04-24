@@ -1,4 +1,5 @@
 """Public testing solver suite module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -8,6 +9,7 @@ from typing import Any
 @dataclass(frozen=True, slots=True)
 class SolverSuiteResult:
     """Report whether a solver-backend raw result matches the expected conventions."""
+
     passed: bool
     message: str = ""
 

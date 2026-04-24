@@ -5,6 +5,7 @@ Provides the ``ConnectorCacheStore`` class -- the primary public API for
 caching connector fetch results with TTL-based expiration, policy-driven
 eviction, invalidation tracking, and indexed metadata queries.
 """
+
 from __future__ import annotations
 
 import threading
@@ -101,7 +102,9 @@ class ConnectorCacheStore:
     # Public API
     # ---------------------------------------------------------------------
 
-    def get(self, request: FetchRequest, *, connector_id: str | None = None) -> CachedFetchResult | None:
+    def get(
+        self, request: FetchRequest, *, connector_id: str | None = None
+    ) -> CachedFetchResult | None:
         self._ensure_open()
         start = time.perf_counter()
         cache_key = request.cache_key
@@ -427,9 +430,7 @@ class ConnectorCacheStore:
     def stats(self) -> CacheStats:
         self._ensure_open()
         total_entries, total_size, oldest_ts = self._index.stats()
-        oldest_age_hours = (
-            (time.time() - oldest_ts) / 3600.0 if oldest_ts is not None else 0.0
-        )
+        oldest_age_hours = (time.time() - oldest_ts) / 3600.0 if oldest_ts is not None else 0.0
         return CacheStats(
             total_entries=total_entries,
             total_size_bytes=total_size,

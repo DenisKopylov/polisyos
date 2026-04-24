@@ -24,9 +24,10 @@ import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from tools._lib.imports import repo_root_from
 from typing import Any
 from urllib.parse import urlparse
+
+from tools._lib.imports import repo_root_from
 
 try:
     import yaml
@@ -234,7 +235,7 @@ def actual_workflow_names(repo_root: Path) -> set[str]:
     """List real GitHub workflow filenames present in this repository."""
     roots = {repo_root}
     try:
-        completed = subprocess.run(  # noqa: S603
+        completed = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],  # noqa: S607
             cwd=repo_root,
             check=True,
@@ -274,9 +275,7 @@ def resolve_relative_candidates(file_path: Path, target: str) -> list[Path]:
     """Build candidate paths for a relative Markdown target."""
     base = (file_path.parent / target).resolve()
     candidates: list[Path] = [base]
-    if target.endswith("/"):
-        candidates.append((base / "index.md").resolve())
-    elif base.is_dir():
+    if target.endswith("/") or base.is_dir():
         candidates.append((base / "index.md").resolve())
     elif base.suffix == "":
         candidates.append(base.with_suffix(".md").resolve())
@@ -307,7 +306,9 @@ def scan_file(
 
     for lineno, line in enumerate(text.splitlines(), start=1):
         if PLACEHOLDER_RE.search(line):
-            violations.append(Violation(file_path, lineno, "placeholder `<repo-url>` must be replaced"))
+            violations.append(
+                Violation(file_path, lineno, "placeholder `<repo-url>` must be replaced")
+            )
 
         for match in WORKFLOW_PATH_RE.finditer(line):
             workflow_name = match.group(1)
@@ -343,7 +344,9 @@ def scan_file(
                 continue
             if LOCAL_FILESYSTEM_RE.match(target):
                 violations.append(
-                    Violation(file_path, lineno, f"local filesystem link `{target}` is not publishable")
+                    Violation(
+                        file_path, lineno, f"local filesystem link `{target}` is not publishable"
+                    )
                 )
                 continue
             if "://" in target or target.startswith("/"):
@@ -403,10 +406,14 @@ def scan_file(
             )
     elif repo_relative.parts[:2] == ("docs", "reference"):
         if not OWNER_RE.search(text):
-            violations.append(Violation(file_path, 1, "manual reference page is missing `Owner:` metadata"))
+            violations.append(
+                Violation(file_path, 1, "manual reference page is missing `Owner:` metadata")
+            )
         if not SOURCE_OF_TRUTH_RE.search(text):
             violations.append(
-                Violation(file_path, 1, "manual reference page is missing `Source of truth:` metadata")
+                Violation(
+                    file_path, 1, "manual reference page is missing `Source of truth:` metadata"
+                )
             )
 
     return violations
@@ -414,7 +421,9 @@ def scan_file(
 
 def build_arg_parser() -> argparse.ArgumentParser:
     """Create the CLI parser for docs-accuracy validation."""
-    parser = argparse.ArgumentParser(description="Check docs accuracy against current repository reality.")
+    parser = argparse.ArgumentParser(
+        description="Check docs accuracy against current repository reality."
+    )
     parser.add_argument(
         "--repo-root",
         type=Path,

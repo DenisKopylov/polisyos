@@ -14,13 +14,13 @@ Rollback path: capture lifecycle evidence, prefer one controlled restart, and av
 
 ## Operational Metadata
 
-| Field | Value |
-|---|---|
-| Primary owner | `@runtime-owners` |
-| Coordination owner | `@platform-owners` |
-| Last tested | 2026-04-17, D1-L1 documentation validation pass |
-| Evidence anchors | `tests/runtime/http/test_runtime_api_write_path_hardening.py`, `tests/runtime/http/test_resilience_guards.py`, `src/polisyos/runtime/http/app.py` |
-| Rollback posture | capture lifecycle evidence first, then prefer one controlled restart over repeated hard-kill loops |
+| Field              | Value                                                                                                                                             |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary owner      | `@runtime-owners`                                                                                                                                 |
+| Coordination owner | `@platform-owners`                                                                                                                                |
+| Last tested        | 2026-04-17, D1-L1 documentation validation pass                                                                                                   |
+| Evidence anchors   | `tests/runtime/http/test_runtime_api_write_path_hardening.py`, `tests/runtime/http/test_resilience_guards.py`, `src/polisyos/runtime/http/app.py` |
+| Rollback posture   | capture lifecycle evidence first, then prefer one controlled restart over repeated hard-kill loops                                                |
 
 ## Symptom
 
@@ -49,6 +49,7 @@ Rollback path: capture lifecycle evidence, prefer one controlled restart, and av
 1. Capture `/ready` and `/api/v1/health` during shutdown.
 2. Check active worker and live-stream state before forcing termination.
 3. Record whether the process is blocked in:
+
    - worker close;
    - review/live connection drain;
    - store shutdown;
@@ -61,6 +62,7 @@ Rollback path: capture lifecycle evidence, prefer one controlled restart, and av
 - prefer one controlled restart after evidence capture over repeated kill loops;
 - if one stuck job or connection is the trigger, isolate that workload before
   widening the shutdown timeout globally;
+
 - use hard kill only after preserving enough evidence for a regression test;
 - treat orphan worker cleanup as an audited operator action if it can affect
   durable state.
@@ -87,11 +89,12 @@ Rollback path: capture lifecycle evidence, prefer one controlled restart, and av
 
 - whether operators needed OS-level inspection because app-level signals were
   too weak;
+
 - whether one dependency blocked shutdown of the whole runtime.
 
 ### Action Items
 
-| Action item | Owner | Due date | Status |
-|---|---|---|---|
-| Add lifecycle or shutdown metric for the reproduced stuck phase | `@platform-owners` | YYYY-MM-DD | open |
-| Fix the blocking cleanup path and add a regression test | affected owner | YYYY-MM-DD | open |
+| Action item                                                     | Owner              | Due date   | Status |
+| --------------------------------------------------------------- | ------------------ | ---------- | ------ |
+| Add lifecycle or shutdown metric for the reproduced stuck phase | `@platform-owners` | YYYY-MM-DD | open   |
+| Fix the blocking cleanup path and add a regression test         | affected owner     | YYYY-MM-DD | open   |

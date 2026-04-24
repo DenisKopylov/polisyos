@@ -108,7 +108,9 @@ public-surface tests.
 
 - `gen-schema --check` fails: the new type is ABI-visible but missing from
   snapshots or has unstable schema metadata;
+
 - schema catalog docs do not mention the type: it may be internal-only, not
   importable, or the generator has not been rerun;
+
 - facade tests fail: the type was exported through docs expectations but not
   through the actual package `__all__`.

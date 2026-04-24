@@ -1,4 +1,5 @@
 """Inclusive step-range scheduling primitives shared by policy interventions and linker validation."""
+
 from __future__ import annotations
 
 from pydantic import Field, model_validator
@@ -8,12 +9,13 @@ from polisyos.ir.kernel.base import KernelModel
 
 class ScheduleSpec(KernelModel):
     """Describe when an intervention or task is active in step-indexed Trinity schedules."""
+
     start_step: int = Field(..., ge=0)
     end_step: int | None = Field(None, ge=0)
     duration_steps: int | None = Field(None, ge=1)
 
     @model_validator(mode="after")
-    def validate_schedule(self) -> "ScheduleSpec":
+    def validate_schedule(self) -> ScheduleSpec:
         if self.end_step is None and self.duration_steps is None:
             raise ValueError("end_step or duration_steps must be provided")
         if self.end_step is not None and self.end_step < self.start_step:

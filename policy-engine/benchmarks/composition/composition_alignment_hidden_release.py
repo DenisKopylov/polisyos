@@ -11,7 +11,6 @@ for _path in (str(_SRC), str(_BENCH_ROOT)):
 
 from benchmarks.advanced.common import main_for_suite
 
-
 if __name__ == "__main__":
     raise SystemExit(
         main_for_suite(

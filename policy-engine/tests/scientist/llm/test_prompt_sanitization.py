@@ -24,10 +24,7 @@ class _EchoLLMClient:
 
 def test_prompt_sanitizer_uses_stable_placeholders_and_restores_payloads():
     sanitizer = PromptSanitizer()
-    original = (
-        "Bearer token-secret-value and email test@example.org and "
-        "password = hunter2-secret"
-    )
+    original = "Bearer token-secret-value and email test@example.org and password = hunter2-secret"
 
     sanitized_once = sanitizer.sanitize_text(original)
     sanitized_twice = sanitizer.sanitize_text(original)
@@ -86,6 +83,4 @@ async def test_traced_client_sanitizes_requests_and_restores_responses():
     assert "[POLISYOS_SECRET_" in sent_user
 
     assert response.content == "Contact test@example.org with sk-1234567890abcdefgh"
-    assert response.raw == {
-        "echo": "Contact test@example.org with sk-1234567890abcdefgh"
-    }
+    assert response.raw == {"echo": "Contact test@example.org with sk-1234567890abcdefgh"}

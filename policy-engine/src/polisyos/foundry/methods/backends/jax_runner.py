@@ -1,23 +1,25 @@
 """Public backends jax runner module API."""
+
 from __future__ import annotations
 
 import json
 import time
-from typing import TYPE_CHECKING, Any, Mapping
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.canon import truncated_hash
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.backends.runtime_fingerprint import (
-    capture_backend_runtime_fingerprint,
-    capture_versions,
-    runtime_stack_for,
-    safe_version,
-)
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodRunner,
     MethodTiming,
     ReproducibilityInfo,
+)
+from polisyos.foundry.methods.backends.runtime_fingerprint import (
+    capture_backend_runtime_fingerprint,
+    capture_versions,
+    runtime_stack_for,
+    safe_version,
 )
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 from polisyos.foundry.methods.io import dematerialize_method_output
@@ -25,10 +27,11 @@ from polisyos.foundry.methods.io import dematerialize_method_output
 if TYPE_CHECKING:
     from polisyos.foundry.methods.compiler import MethodCompiler
 
+
 class JaxRunner(MethodRunner):
     """Thin adapter around existing MethodCompiler execution path."""
 
-    def __init__(self, compiler: "MethodCompiler | None" = None) -> None:
+    def __init__(self, compiler: MethodCompiler | None = None) -> None:
         if compiler is None:
             from polisyos.foundry.methods.compiler import MethodCompiler
 
@@ -61,9 +64,7 @@ class JaxRunner(MethodRunner):
         )
         compile_ms = (time.perf_counter() - compile_started) * 1000
 
-        dynamic_params = {
-            k: v for k, v in params.items() if k in signature.dynamic_param_names
-        }
+        dynamic_params = {k: v for k, v in params.items() if k in signature.dynamic_param_names}
         dynamic_params["__seed__"] = seed
         dynamic_params["__rng__"] = jax.random.PRNGKey(seed)
 

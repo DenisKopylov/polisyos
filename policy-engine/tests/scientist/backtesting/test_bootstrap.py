@@ -70,12 +70,12 @@ class TestBootstrapScenarioMetrics:
         boot_stats = np.empty(n_bootstrap)
         for idx in range(n_bootstrap):
             sample = rng.choice(arr, size=arr.size, replace=True)
-            boot_stats[idx] = float(np.sqrt(np.mean(sample ** 2)))
+            boot_stats[idx] = float(np.sqrt(np.mean(sample**2)))
 
         alpha = 0.05
         expected_lower = float(np.percentile(boot_stats, 100 * alpha / 2))
         expected_upper = float(np.percentile(boot_stats, 100 * (1 - alpha / 2)))
 
-        assert result.point_estimate == float(np.sqrt(np.mean(arr ** 2)))
+        assert result.point_estimate == float(np.sqrt(np.mean(arr**2)))
         assert result.lower == expected_lower
         assert result.upper == expected_upper

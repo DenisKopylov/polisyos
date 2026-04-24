@@ -405,7 +405,6 @@ async function fulfillRuntimeProblem(
       ...override?.headers,
     },
     status: override?.status ?? status,
-    statusText: status === 401 ? "Unauthorized" : "Service Unavailable",
   });
 }
 

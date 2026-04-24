@@ -67,8 +67,7 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         self._objective_names = objective_names
         self._directions = directions
         self._negate_mask = [
-            -1.0 if direction == OptimizationDirection.MINIMIZE else 1.0
-            for direction in directions
+            -1.0 if direction == OptimizationDirection.MINIMIZE else 1.0 for direction in directions
         ]
         self._arbiter = resource_arbiter or ResourceArbiter.from_env()
         self._ref_point: Any = None
@@ -124,7 +123,9 @@ class MOBayesianOptimizer(BaseSearchStrategy):
                 logger.warning("MO optimization failed; random fallback: {}", exc)
                 return self._random_candidate(source="random_fallback")
 
-    def suggest_batch(self, evaluations: list[Evaluation], batch_size: int) -> list[PolicyCandidate]:
+    def suggest_batch(
+        self, evaluations: list[Evaluation], batch_size: int
+    ) -> list[PolicyCandidate]:
         if batch_size < 1:
             return []
         if len(evaluations) < self._config.n_initial:
@@ -138,7 +139,9 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         with self._arbiter.acquire("torch"):
             soft, hard = self._arbiter.enforce_limits()
             if hard:
-                return [self._random_candidate(source="random_hard_limit") for _ in range(batch_size)]
+                return [
+                    self._random_candidate(source="random_hard_limit") for _ in range(batch_size)
+                ]
             train_set = self._select_training_subset(evaluations)
             if len(train_set) < max(3, len(self._objective_names)):
                 return [
@@ -156,7 +159,10 @@ class MOBayesianOptimizer(BaseSearchStrategy):
                 ]
             except Exception as exc:
                 logger.warning("MO batch optimization failed; random fallback: {}", exc)
-                return [self._random_candidate(source="random_batch_fallback") for _ in range(batch_size)]
+                return [
+                    self._random_candidate(source="random_batch_fallback")
+                    for _ in range(batch_size)
+                ]
 
     def get_pareto_front(self, evaluations: list[Evaluation]) -> list[Evaluation]:
         valid = [evaluation for evaluation in evaluations if evaluation.is_valid]
@@ -274,7 +280,9 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         return X, Y
 
     def _objective_vector(self, evaluation: Evaluation) -> list[float]:
-        objective_values = {objective.name: objective.raw_value for objective in evaluation.objectives}
+        objective_values = {
+            objective.name: objective.raw_value for objective in evaluation.objectives
+        }
         output: list[float] = []
         for idx, objective_name in enumerate(self._objective_names):
             raw = float(objective_values.get(objective_name, 0.0))
@@ -309,8 +317,12 @@ class MOBayesianOptimizer(BaseSearchStrategy):
     def _optimize_ehvi(self, soft_limit: bool, batch_size: int):
         assert self._model is not None
         assert self._ref_point is not None
-        restarts = self._config.num_restarts if not soft_limit else max(4, self._config.num_restarts // 2)
-        raw_samples = self._config.raw_samples if not soft_limit else max(128, self._config.raw_samples // 2)
+        restarts = (
+            self._config.num_restarts if not soft_limit else max(4, self._config.num_restarts // 2)
+        )
+        raw_samples = (
+            self._config.raw_samples if not soft_limit else max(128, self._config.raw_samples // 2)
+        )
 
         train_targets = self._train_Y
         partitioning = NondominatedPartitioning(ref_point=self._ref_point, Y=train_targets)

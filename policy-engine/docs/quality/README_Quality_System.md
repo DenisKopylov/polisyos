@@ -4,7 +4,7 @@ Phase 2.6 Quality System for Fabric connectors.
 
 ## Quick Start
 
-```
+```text
 from polisyos.fabric.connectors.quality import DataQualityValidator
 
 validator = DataQualityValidator()
@@ -23,11 +23,13 @@ if report.needs_attention:
 ## Scoring
 
 Weighted score:
+
 - freshness 0.3
 - completeness 0.4
 - consistency 0.3
 
 Tier thresholds:
+
 - Platinum >= 0.95
 - Gold >= 0.85
 - Silver >= 0.70

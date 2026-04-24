@@ -23,6 +23,7 @@ from polisyos.scientist.agent.tools.tool_loop import (
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 def _make_tool(name: str = "test_tool", timeout_s: float = 30.0) -> ToolDefinition:
     return ToolDefinition(
         name=name,

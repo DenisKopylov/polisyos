@@ -12,6 +12,8 @@ import {
 } from "recharts";
 
 import MetricValidationComparisonTable from "@/features/artifacts/components/MetricValidationComparisonTable";
+import { useI18n } from "@/i18n/LocaleProvider";
+import { UncertaintyBand } from "@/shared/charts";
 import { Select, chartTheme } from "@/shared/ui";
 import type { SimulationMetric, TimeSeries } from "@/lib/domain/simulation";
 import type {
@@ -45,6 +47,19 @@ function normalizeMagnitude(value: number, max: number): number {
   return clamp(Math.abs(value) / max, 0.1, 1);
 }
 
+function uncertaintyBands(metric: SimulationMetric) {
+  if (metric.ciLower === null || metric.ciUpper === null) {
+    return [];
+  }
+  return [
+    {
+      lower: metric.ciLower,
+      upper: metric.ciUpper,
+      level: metric.ciLevel ?? 0.95,
+    },
+  ];
+}
+
 export default function MetricsPanel({
   metrics,
   metricComparisons,
@@ -52,6 +67,7 @@ export default function MetricsPanel({
   timeSeries,
   showUncertainty,
 }: MetricsPanelProps) {
+  const { t } = useI18n();
   const [selectedSeriesId, setSelectedSeriesId] = useState<string>(
     () => timeSeries[0]?.id ?? "",
   );
@@ -74,7 +90,9 @@ export default function MetricsPanel({
   return (
     <div className="space-y-4">
       <section>
-        <h3 className="mb-2 text-lg font-semibold">Key Metrics</h3>
+        <h3 className="mb-2 text-lg font-semibold">
+          {t("pages.artifacts.simulation.metricsPanel.keyMetrics")}
+        </h3>
         {metrics.length === 0 ? (
           <p className="text-muted text-sm">
             {metricComparisons.length > 0
@@ -97,32 +115,53 @@ export default function MetricsPanel({
                   </p>
                   {metric.ciLower !== null && metric.ciUpper !== null ? (
                     <p className="text-muted text-xs">
-                      CI: [{metric.ciLower.toFixed(3)},{" "}
-                      {metric.ciUpper.toFixed(3)}]
+                      {t("pages.artifacts.simulation.metricsPanel.ciRange", {
+                        lower: metric.ciLower.toFixed(3),
+                        upper: metric.ciUpper.toFixed(3),
+                      })}
                       {metric.ciLevel !== null
                         ? ` @ ${(metric.ciLevel * 100).toFixed(0)}%`
                         : ""}
                     </p>
                   ) : null}
-                  {metric.testLabel || metric.pValue !== null || metric.pAdj !== null ? (
+                  {metric.testLabel ||
+                  metric.pValue != null ||
+                  metric.pAdj != null ? (
                     <p className="text-muted text-xs">
                       {metric.testLabel ?? "Stat test"}
-                      {metric.pAdj !== null
+                      {metric.pAdj != null
                         ? `, p_adj=${metric.pAdj.toFixed(4)}`
-                        : metric.pValue !== null
+                        : metric.pValue != null
                           ? `, p=${metric.pValue.toFixed(4)}`
                           : ""}
-                      {metric.significant !== null
+                      {metric.significant != null
                         ? metric.significant
                           ? ", significant"
                           : ", not significant"
                         : ""}
                     </p>
                   ) : null}
-                  {metric.assumptionWarnings && metric.assumptionWarnings.length > 0 ? (
+                  {metric.assumptionWarnings &&
+                  metric.assumptionWarnings.length > 0 ? (
                     <p className="text-warning text-xs">
                       {metric.assumptionWarnings.join(", ")}
                     </p>
+                  ) : null}
+                  {uncertaintyBands(metric).length > 0 ? (
+                    <UncertaintyBand
+                      estimate={metric.value}
+                      bands={uncertaintyBands(metric)}
+                      label={`${metric.label} interval`}
+                      unit={metric.unit ? ` ${metric.unit}` : ""}
+                      disputed={Boolean(metric.assumptionWarnings?.length)}
+                      identifiability={
+                        metric.assumptionWarnings?.length
+                          ? "estimated"
+                          : "identified"
+                      }
+                      className="mt-3"
+                      height={78}
+                    />
                   ) : null}
                   <div className="bg-line mt-2 h-1.5 rounded-full">
                     <div
@@ -144,7 +183,9 @@ export default function MetricsPanel({
 
       <section>
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-lg font-semibold">Time Series</h3>
+          <h3 className="text-lg font-semibold">
+            {t("pages.artifacts.simulation.metricsPanel.timeSeries")}
+          </h3>
           {timeSeries.length > 0 ? (
             <Select
               value={selectedSeries?.id ?? ""}
@@ -266,7 +307,7 @@ export default function MetricsPanel({
           </div>
         ) : (
           <p className="text-muted text-sm">
-            No time series data found for this artifact.
+            {t("pages.artifacts.simulation.metricsPanel.noTimeSeries")}
           </p>
         )}
       </section>

@@ -26,10 +26,10 @@ from polisyos.ir.analytics.causal_graph import (
 from polisyos.ir.analytics.distributional import (
     CohortDimension,
     DistributionalBoundUniformity,
+    DistributionalCouplingStatus,
     DistributionalFunctional,
     DistributionalJustification,
     DistributionalProofTarget,
-    DistributionalCouplingStatus,
     load_causal_assumption_card,
     load_distributional_bounds_bundle,
     load_distributional_dual_certificate,
@@ -112,9 +112,7 @@ def test_skip_when_simulation_result_invalid(
     assert any("Unable to load SimulationResult" in e.message for e in outcome.events)
 
 
-def test_skip_when_no_state_snapshot_ref(
-    execution_context, minimal_state, cas_store
-):
+def test_skip_when_no_state_snapshot_ref(execution_context, minimal_state, cas_store):
     """SimulationResult has no state_snapshot_ref -> skip."""
     sim_result_payload = {
         "exec_plan_ref": {
@@ -298,7 +296,10 @@ def test_ordinal_poverty_config_persists_report_and_summary(
         < report.ordinal_poverty_summary["baseline"]["ordinal_adjusted_headcount_q"]
     )
     assert bundle.metadata["ordinal_poverty_status"] == "included"
-    assert any("Ordinal multidimensional poverty report generated" in event.message for event in outcome.events)
+    assert any(
+        "Ordinal multidimensional poverty report generated" in event.message
+        for event in outcome.events
+    )
 
 
 def test_geography_subgroups_require_aligned_employer_ids(
@@ -338,7 +339,9 @@ def test_geography_subgroups_require_aligned_employer_ids(
         load_subgroup_distribution_comparison(cas_store, ref)
         for ref in bundle.subgroup_distribution_refs
     ]
-    assert all(item.subgroup_dimension is CohortDimension.INCOME_QUINTILE for item in subgroup_items)
+    assert all(
+        item.subgroup_dimension is CohortDimension.INCOME_QUINTILE for item in subgroup_items
+    )
     assert report.get_breakdown(CohortDimension.GEOGRAPHY) is None
     assert report.metadata["geography_breakdown_status"] == "skipped"
     assert any(
@@ -447,7 +450,10 @@ def test_uses_proof_kernel_for_distribution_law_when_graph_and_treatment_availab
     assert bundle.marginal_law_justification is DistributionalJustification.IDENTIFIED
     assert bundle.coupling_justification is DistributionalJustification.SCENARIO
     assert "distributional_estimand_not_proof_kernel_identified" not in bundle.causal_assumptions
-    assert bundle.metadata["marginal_law_justification"] == DistributionalJustification.IDENTIFIED.value
+    assert (
+        bundle.metadata["marginal_law_justification"]
+        == DistributionalJustification.IDENTIFIED.value
+    )
     assert bundle.metadata["distributional_query_kind"] == "interventional_law"
     assert bundle.metadata["coupling_justification"] == DistributionalJustification.SCENARIO.value
     assert bundle.metadata["proof_kernel"]["status"] == "identified"
@@ -467,8 +473,7 @@ def test_uses_proof_kernel_for_distribution_law_when_graph_and_treatment_availab
         bundle.coupling_proof_ref,
     )
     assumption_cards = [
-        load_causal_assumption_card(cas_store, ref)
-        for ref in bundle.causal_assumption_refs
+        load_causal_assumption_card(cas_store, ref) for ref in bundle.causal_assumption_refs
     ]
 
     assert marginal_proof.target is DistributionalProofTarget.CDF

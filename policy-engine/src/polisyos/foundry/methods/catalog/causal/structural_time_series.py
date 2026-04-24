@@ -1,8 +1,10 @@
 """Estimate intervention effects with structural time-series counterfactuals."""
+
 from __future__ import annotations
 
 import math
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -100,7 +102,7 @@ class TemporalTrajectoryResult(BaseModel):
         return tuple(float(item) for item in array.tolist())
 
     @model_validator(mode="after")
-    def _validate_path_lengths(self) -> "TemporalTrajectoryResult":
+    def _validate_path_lengths(self) -> TemporalTrajectoryResult:
         expected = len(self.plan.time_grid)
         for field_name in (
             "observed_path",
@@ -627,7 +629,10 @@ def solve_temporal_effect_path(
         )
         control_count = int(control_series.shape[0])
 
-    if "counterfactual_series" in controls_map and controls_map["counterfactual_series"] is not None:
+    if (
+        "counterfactual_series" in controls_map
+        and controls_map["counterfactual_series"] is not None
+    ):
         counterfactual_path = _coerce_1d_series(
             controls_map["counterfactual_series"],
             field_name="counterfactual_series",
@@ -653,12 +658,12 @@ def solve_temporal_effect_path(
     )
 
     discretization_note: str | None = None
-    rough_path_degraded = str(
-        plan.metadata.get("rough_path_runtime_support", "on_support")
-    ).strip().lower() == "degraded"
+    rough_path_degraded = (
+        str(plan.metadata.get("rough_path_runtime_support", "on_support")).strip().lower()
+        == "degraded"
+    )
     continuous_time_degraded = (
-        plan.backend_target is TemporalBackendTarget.DISCRETE_FALLBACK
-        or rough_path_degraded
+        plan.backend_target is TemporalBackendTarget.DISCRETE_FALLBACK or rough_path_degraded
     )
     if plan.backend_target is TemporalBackendTarget.DISCRETE_FALLBACK:
         solver_mean_path = effect_path.copy()
@@ -745,7 +750,8 @@ def solve_temporal_effect_path(
                                 if plan.backend_target is TemporalBackendTarget.TRUNCATED_SIGNATURE
                                 else (
                                     TemporalPathRepresentation.HYBRID_ROUGH_EVENT
-                                    if plan.backend_target is TemporalBackendTarget.HYBRID_ROUGH_EVENT
+                                    if plan.backend_target
+                                    is TemporalBackendTarget.HYBRID_ROUGH_EVENT
                                     else TemporalPathRepresentation.LINEAR_SDE
                                 )
                             )
@@ -797,9 +803,7 @@ def solve_temporal_effect_path(
             "band_source": band_source,
             "intervention_contract_status": plan.intervention_contract_status,
             "identification_scope": plan.metadata.get("identification_scope"),
-            "identification_support_status": plan.metadata.get(
-                "identification_support_status"
-            ),
+            "identification_support_status": plan.metadata.get("identification_support_status"),
             "path_semantics": plan.metadata.get("path_semantics"),
             "rough_path_certificate": plan.metadata.get("rough_path_certificate"),
             "rough_path_identification_status": plan.metadata.get(
@@ -821,7 +825,11 @@ def estimate_structural_time_series_trajectory(
 ) -> TemporalTrajectoryResult:
     """Construct a panel temporal effect trajectory against untreated donors."""
 
-    panel = data if isinstance(data, PanelObservationalData) else PanelObservationalData.model_validate(data)
+    panel = (
+        data
+        if isinstance(data, PanelObservationalData)
+        else PanelObservationalData.model_validate(data)
+    )
     full_time_grid = (
         np.arange(panel.n_periods, dtype=float)
         if panel.time_index is None
@@ -836,7 +844,9 @@ def estimate_structural_time_series_trajectory(
             else TemporalInterventionTrajectory.model_validate(resolved_intervention)
         )
     )
-    contract_status = "resolved_artifact" if intervention is not None else "compatibility_synthesized"
+    contract_status = (
+        "resolved_artifact" if intervention is not None else "compatibility_synthesized"
+    )
     if intervention is None:
         intervention = TemporalInterventionTrajectory(
             time_points=tuple(float(value) for value in full_time_grid.tolist()),
@@ -905,6 +915,7 @@ def estimate_structural_time_series_trajectory(
 )
 class StructuralTimeSeries:
     """Fit a latent structural baseline and infer post-intervention effects; avoid unstable pre-period trends."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -977,8 +988,7 @@ class StructuralTimeSeries:
         assumptions={
             "stable_pre_period": "Pre-treatment dynamics are stable and identifiable.",
             "predictive_controls": (
-                "Control units carry predictive signal for "
-                "treated unit counterfactual."
+                "Control units carry predictive signal for treated unit counterfactual."
             ),
             "no_structural_break_pre": "No unmodeled structural break before treatment.",
         },

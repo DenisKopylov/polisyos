@@ -5,6 +5,7 @@ These tests compare instrumented paths against committed benchmark baselines
 with per-metric regression budgets. This avoids brittle assertions based on
 synthetic "manual baseline" implementations.
 """
+
 from __future__ import annotations
 
 import json
@@ -13,8 +14,9 @@ import platform
 import sys
 import time
 import uuid
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, TypeVar
+from typing import TypeVar
 
 # Force CPU-first configuration for repeatable measurements in CI.
 os.environ.setdefault("JAX_PLATFORMS", "cpu")
@@ -158,17 +160,14 @@ def _assert_within_baseline(
         f"> allowed {allowed_median:.3f}ms"
     )
     assert measured_p95_ms <= allowed_p95, (
-        f"{metric_key} p95 regression: {measured_p95_ms:.3f}ms "
-        f"> allowed {allowed_p95:.3f}ms"
+        f"{metric_key} p95 regression: {measured_p95_ms:.3f}ms > allowed {allowed_p95:.3f}ms"
     )
 
 
 @pytest.fixture(scope="session")
 def overhead_baseline() -> dict[str, dict[str, float]]:
     if platform.system() != "Linux" or sys.version_info[:2] != (3, 11):
-        pytest.skip(
-            "Static overhead baselines are calibrated for Linux / CPython 3.11 runners."
-        )
+        pytest.skip("Static overhead baselines are calibrated for Linux / CPython 3.11 runners.")
     return _load_overhead_baseline()
 
 
@@ -181,9 +180,7 @@ def benchmark_inputs():
     state_dim = 32
 
     initial_states = jax.random.normal(key, (batch_size, state_dim))
-    controls_seq = jax.random.normal(
-        jax.random.split(key)[0], (batch_size, n_steps, 8)
-    )
+    controls_seq = jax.random.normal(jax.random.split(key)[0], (batch_size, n_steps, 8))
 
     return initial_states, controls_seq, key
 
@@ -199,9 +196,7 @@ class TestSimulationOverhead:
         state_dim = 128
 
         initial_states = jax.random.normal(key, (batch_size, state_dim))
-        controls_seq = jax.random.normal(
-            jax.random.split(key)[0], (batch_size, n_steps, 8)
-        )
+        controls_seq = jax.random.normal(jax.random.split(key)[0], (batch_size, n_steps, 8))
 
         return initial_states, controls_seq, key
 
@@ -376,9 +371,7 @@ class TestRegressionBenchmarks:
         _block_until_ready(execute_program_batch(initial_states, controls_seq, key))
 
         def target():
-            return _block_until_ready(
-                execute_program_batch(initial_states, controls_seq, key)
-            )
+            return _block_until_ready(execute_program_batch(initial_states, controls_seq, key))
 
         benchmark(target)
 

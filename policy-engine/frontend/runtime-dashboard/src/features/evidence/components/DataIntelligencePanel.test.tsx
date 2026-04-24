@@ -289,6 +289,12 @@ describe("DataIntelligencePanel", () => {
       screen.getByLabelText("panels.dataIntelligence.retrievalMode"),
       "fastlane",
     );
+    const exploreFallbackSwitch = screen.getByRole("switch", {
+      name: "panels.dataIntelligence.allowExploreFallback",
+    });
+    expect(exploreFallbackSwitch).toHaveAttribute("aria-checked", "true");
+    await user.click(exploreFallbackSwitch);
+    expect(exploreFallbackSwitch).toHaveAttribute("aria-checked", "false");
 
     await user.click(screen.getByTestId("evidence-resolve"));
     await user.click(screen.getByTestId("evidence-discover"));
@@ -316,7 +322,7 @@ describe("DataIntelligencePanel", () => {
     );
 
     expect(resolveMutateMock).toHaveBeenCalledWith({
-      allow_explore_fallback: true,
+      allow_explore_fallback: false,
       data_needs: [
         expect.objectContaining({
           geography: "USA",

@@ -68,12 +68,18 @@ def resolve_artifact_governance(
     )
 
 
-def validate_artifact_governance(info: ArtifactGovernanceInfo | None) -> ArtifactGovernanceInfo | None:
+def validate_artifact_governance(
+    info: ArtifactGovernanceInfo | None,
+) -> ArtifactGovernanceInfo | None:
     """Validate one prebuilt governance payload loaded from storage or external adapters."""
 
     if info is None:
         return None
-    mode = EncryptionMode(str(info.encryption.mode)) if info.encryption is not None else EncryptionMode.NONE
+    mode = (
+        EncryptionMode(str(info.encryption.mode))
+        if info.encryption is not None
+        else EncryptionMode.NONE
+    )
     if info.encryption is not None and info.encryption.enforced and not info.encryption.verified:
         raise ArtifactGovernanceError(
             f"artifact governance requires verified {mode.value} encryption before persistence"

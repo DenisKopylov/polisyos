@@ -1,10 +1,11 @@
 """
 Fetch-time schema contract validation middleware.
 """
+
 from __future__ import annotations
 
-import time
 import threading
+import time
 from collections import OrderedDict
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, ClassVar, Generic, Literal, TypeVar
@@ -12,7 +13,6 @@ from typing import TYPE_CHECKING, Any, ClassVar, Generic, Literal, TypeVar
 import pandas as pd
 
 from polisyos.common.logger import get_logger
-from polisyos.fabric.temporal import FutureTimestampError, ensure_aware_utc, utc_age
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,
@@ -22,6 +22,7 @@ from polisyos.fabric.connectors.base import (
     SourceConnector,
 )
 from polisyos.fabric.connectors.types import SchemaError
+from polisyos.fabric.temporal import FutureTimestampError, ensure_aware_utc, utc_age
 from polisyos.ir.connectors import ConnectorCapability
 
 from .contract import ConnectorSchemaContract
@@ -40,6 +41,7 @@ ValidationMode = Literal["strict", "warn", "disabled"]
 
 class SchemaValidationMode:
     """Schema validation mode public type."""
+
     STRICT: ClassVar[ValidationMode] = "strict"
     WARN: ClassVar[ValidationMode] = "warn"
     DISABLED: ClassVar[ValidationMode] = "disabled"
@@ -107,8 +109,8 @@ class ContractValidatingProxy(Generic[DataT]):
         self,
         handle: ConnectionHandle,
         dataset_id: str,
-        cached_version: "DataVersion",
-    ) -> "FreshnessResult":
+        cached_version: DataVersion,
+    ) -> FreshnessResult:
         return await self._connector.check_freshness(handle, dataset_id, cached_version)
 
     async def get_dataset_schema(self, handle: ConnectionHandle, dataset_id: str) -> dict[str, Any]:
@@ -130,10 +132,7 @@ class ContractValidatingProxy(Generic[DataT]):
 
         with self._lock:
             self._validation_errors_total += len(errors)
-        message = (
-            f"Schema contract violation ({contract.contract_id}): "
-            f"{len(errors)} error(s)"
-        )
+        message = f"Schema contract violation ({contract.contract_id}): {len(errors)} error(s)"
         if self._mode == SchemaValidationMode.STRICT:
             raise SchemaError(
                 message=message,
@@ -183,7 +182,8 @@ class ContractValidatingProxy(Generic[DataT]):
 
     def _prune_resolution_cache_locked(self, now: float) -> None:
         expired_keys = [
-            key for key, (expires_at, _contract) in self._resolution_cache.items()
+            key
+            for key, (expires_at, _contract) in self._resolution_cache.items()
             if expires_at <= now
         ]
         for key in expired_keys:
@@ -199,7 +199,7 @@ class ContractValidatingProxy(Generic[DataT]):
         errors = self._validate_reported_schema(result, contract)
         frame, frame_error = self._coerce_frame(result.data)
         if frame_error:
-            return errors + [frame_error]
+            return [*errors, frame_error]
 
         errors.extend(validate_dataframe_against_schema(frame, contract.schema, strict=False))
         errors.extend(self._validate_completeness(result, frame, contract))
@@ -246,7 +246,10 @@ class ContractValidatingProxy(Generic[DataT]):
     ) -> list[str]:
         errors: list[str] = []
 
-        if contract.min_completeness is not None and result.completeness < contract.min_completeness:
+        if (
+            contract.min_completeness is not None
+            and result.completeness < contract.min_completeness
+        ):
             errors.append(
                 f"completeness {result.completeness:.3f} below minimum {contract.min_completeness:.3f}"
             )

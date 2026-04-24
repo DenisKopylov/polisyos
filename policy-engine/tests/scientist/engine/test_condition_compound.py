@@ -34,14 +34,16 @@ class TestCompoundAND:
     def test_three_clauses(self) -> None:
         s = _state(a=True, b=True, c=True)
         result = evaluate_condition(
-            "params.a == true AND params.b == true AND params.c == true", s,
+            "params.a == true AND params.b == true AND params.c == true",
+            s,
         )
         assert result is True
 
     def test_three_clauses_one_false(self) -> None:
         s = _state(a=True, b=False, c=True)
         result = evaluate_condition(
-            "params.a == true AND params.b == true AND params.c == true", s,
+            "params.a == true AND params.b == true AND params.c == true",
+            s,
         )
         assert result is False
 
@@ -73,7 +75,8 @@ class TestCompoundOR:
     def test_three_clauses(self) -> None:
         s = _state(a=False, b=False, c=True)
         result = evaluate_condition(
-            "params.a == true OR params.b == true OR params.c == true", s,
+            "params.a == true OR params.b == true OR params.c == true",
+            s,
         )
         assert result is True
 
@@ -164,13 +167,15 @@ class TestAggregateCompound:
     def test_length_and_value(self) -> None:
         s = _state(items=[1, 2, 3], mode="batch")
         result = evaluate_condition(
-            'params.items has_min_length 2 AND params.mode == "batch"', s,
+            'params.items has_min_length 2 AND params.mode == "batch"',
+            s,
         )
         assert result is True
 
     def test_length_or_value(self) -> None:
         s = _state(items=[], mode="batch")
         result = evaluate_condition(
-            'params.items has_min_length 2 OR params.mode == "batch"', s,
+            'params.items has_min_length 2 OR params.mode == "batch"',
+            s,
         )
         assert result is True

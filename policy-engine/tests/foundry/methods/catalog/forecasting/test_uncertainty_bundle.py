@@ -10,7 +10,9 @@ def _method_or_skip(registry, fqn):
 
 
 def test_exponential_smoothing_emits_conformal_bundle(isolated_registry) -> None:
-    method = _method_or_skip(isolated_registry, "forecasting.univariate.exponential_smoothing@1.0.0")
+    method = _method_or_skip(
+        isolated_registry, "forecasting.univariate.exponential_smoothing@1.0.0"
+    )
     result = method.pure_step(
         {"series": np.array([10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0])},
         {"horizon": 3, "alpha": 0.4, "beta": 0.2},
@@ -26,7 +28,9 @@ def test_exponential_smoothing_emits_conformal_bundle(isolated_registry) -> None
     assert receipt.runtime_truthfulness_tier in {"approximate_calibrated", "unverified"}
 
 
-def test_ensemble_bundle_is_heuristic_when_only_member_paths_are_available(isolated_registry) -> None:
+def test_ensemble_bundle_is_heuristic_when_only_member_paths_are_available(
+    isolated_registry,
+) -> None:
     method = _method_or_skip(isolated_registry, "forecasting.ensemble.simple_average@1.0.0")
     result = method.pure_step(
         {"forecast_matrix": np.array([[1.0, 2.0, 3.0], [1.5, 2.5, 3.5], [0.5, 1.5, 2.5]])},
@@ -63,8 +67,18 @@ def test_prophet_bundle_persists_predictive_refs_when_artifact_store_is_availabl
     store = FileSystemCAS(tmp_path / "cas")
 
     result = method.pure_step(
-        {"series": np.array([10.0, 10.5, 11.0, 11.8, 12.1, 12.6, 13.4, 13.8, 14.2, 14.9, 15.3, 15.7])},
-        {"horizon": 4, "period": 4, "artifact_store": store, "predictive_draws": 8, "random_seed": 11},
+        {
+            "series": np.array(
+                [10.0, 10.5, 11.0, 11.8, 12.1, 12.6, 13.4, 13.8, 14.2, 14.9, 15.3, 15.7]
+            )
+        },
+        {
+            "horizon": 4,
+            "period": 4,
+            "artifact_store": store,
+            "predictive_draws": 8,
+            "random_seed": 11,
+        },
     )
 
     bundle = result["forecasting_uncertainty_bundle"]

@@ -1,4 +1,5 @@
 """PDF normalization hook used by the document-ingestion pipeline."""
+
 from __future__ import annotations
 
 from ..errors import DocUnsupportedMimeError

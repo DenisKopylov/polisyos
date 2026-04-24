@@ -155,20 +155,23 @@ def test_legal_check_uses_branch_state_for_inputs_and_reports(tmp_path) -> None:
         observed["write_paths"] = tuple(write_paths)
         return real_branch_state(base_state, write_paths=write_paths)
 
-    with patch(
-        "polisyos.scientist.nodes.builtins.governance.legal_check.branch_state",
-        _spy_branch,
-    ), patch(
-        "polisyos.scientist.nodes.builtins.governance.legal_check.evaluate_legality",
-        lambda **_: (
-            ArtifactRef.model_validate(
-                {
-                    "artifact_id": str(legal_report_ref.artifact_id),
-                    "kind": "lex.legal_report",
-                    "media_type": "application/json",
-                }
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.governance.legal_check.branch_state",
+            _spy_branch,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.governance.legal_check.evaluate_legality",
+            lambda **_: (
+                ArtifactRef.model_validate(
+                    {
+                        "artifact_id": str(legal_report_ref.artifact_id),
+                        "kind": "lex.legal_report",
+                        "media_type": "application/json",
+                    }
+                ),
+                [],
             ),
-            [],
         ),
     ):
         outcome = LegalCheckNode().execute(ctx, state)

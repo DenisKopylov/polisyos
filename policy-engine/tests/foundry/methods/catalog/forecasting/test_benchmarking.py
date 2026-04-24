@@ -30,6 +30,14 @@ def test_phase0_forecasting_benchmark_smoke_covers_all_seven_methods() -> None:
 
     assert len(by_method) == 7
     assert by_method["forecasting.decomposition.stl@1.0.0"].status == "attached_output_only"
-    assert by_method["forecasting.univariate.exponential_smoothing@1.0.0"].current_calibration_method == "conformal"
-    assert by_method["forecasting.reconciliation.bottom_up@1.0.0"].current_calibration_method == "coherent_bootstrap"
-    assert by_method["forecasting.advanced.prophet@1.0.0"].research_recommendation_by_horizon[1] == ("conformal",)
+    assert (
+        by_method["forecasting.univariate.exponential_smoothing@1.0.0"].current_calibration_method
+        == "conformal"
+    )
+    assert (
+        by_method["forecasting.reconciliation.bottom_up@1.0.0"].current_calibration_method
+        == "coherent_bootstrap"
+    )
+    assert by_method["forecasting.advanced.prophet@1.0.0"].research_recommendation_by_horizon[
+        1
+    ] == ("conformal",)

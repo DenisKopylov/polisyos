@@ -1,4 +1,5 @@
 """Public pipeline linear module API."""
+
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Sequence
@@ -65,8 +66,7 @@ class LinearPipeline(Generic[StageT]):
                 selected.append(stage)
             if strict and missing:
                 raise UnknownStageError(
-                    f"Unknown stage ids: {sorted(set(missing))}. "
-                    f"Available: {self.stage_ids()}"
+                    f"Unknown stage ids: {sorted(set(missing))}. Available: {self.stage_ids()}"
                 )
 
         if sort_key is not None:

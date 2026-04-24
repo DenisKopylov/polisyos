@@ -1,4 +1,5 @@
 """Expose Scholar enrichment as a library function and a lightweight service wrapper."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -71,9 +72,7 @@ def enrich_topic(
         if not web_bundle.sources:
             raise ValueError("web search bootstrap returned no sources")
         try:
-            web_bundle_artifact_id = str(
-                search_service.persist_bundle(web_bundle).artifact_id
-            )
+            web_bundle_artifact_id = str(search_service.persist_bundle(web_bundle).artifact_id)
         except ValueError:
             web_bundle_artifact_id = None
         hydrated_intent = intent.model_copy(
@@ -104,6 +103,7 @@ def enrich_topic(
 @dataclass(frozen=True)
 class ScholarService:
     """Provide an object-oriented boundary around `enrich_topic()` for runtime callers."""
+
     fact_log_root: Path
     storage: StoragePort | None = None
     db: Any | None = None

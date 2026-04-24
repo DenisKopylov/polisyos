@@ -1,9 +1,11 @@
 # ADR-0121: Python Monorepo via uv Workspaces
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context

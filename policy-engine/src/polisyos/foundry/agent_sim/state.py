@@ -1,4 +1,5 @@
 """Public agent sim state module API."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -13,34 +14,34 @@ from jaxtyping import Array, Bool, Float, Int
 class AgentState:
     """State-of-array layout for agent properties."""
 
-    active: Bool[Array, "n_agents"]
-    agent_id: Int[Array, "n_agents"]
-    birth_step: Int[Array, "n_agents"]
-    parent_id: Int[Array, "n_agents"]
-    parent_slot: Int[Array, "n_agents"]
-    parent_wealth_at_birth: Float[Array, "n_agents"]
-    life_expectancy: Int[Array, "n_agents"]
-    fertility_rate: Float[Array, "n_agents"]
-    wealth: Float[Array, "n_agents"]
-    income: Float[Array, "n_agents"]
-    consumption: Float[Array, "n_agents"]
-    savings: Float[Array, "n_agents"]
-    consumption_target: Float[Array, "n_agents"]
-    information_level: Float[Array, "n_agents"]
-    debt: Float[Array, "n_agents"]
-    employed: Bool[Array, "n_agents"]
-    retired: Bool[Array, "n_agents"]
-    utility_adjustment: Float[Array, "n_agents"]
-    risk_aversion: Float[Array, "n_agents"]
-    discount_factor: Float[Array, "n_agents"]
-    skill_level: Float[Array, "n_agents"]
-    education_years: Float[Array, "n_agents"]
-    age: Int[Array, "n_agents"]
-    expected_lifetime_utility: Float[Array, "n_agents"]
-    savings_target: Float[Array, "n_agents"]
-    planning_horizon: Int[Array, "n_agents"]
-    expected_income_growth: Float[Array, "n_agents"]
-    n_connections: Int[Array, "n_agents"]
+    active: Bool[Array, n_agents]
+    agent_id: Int[Array, n_agents]
+    birth_step: Int[Array, n_agents]
+    parent_id: Int[Array, n_agents]
+    parent_slot: Int[Array, n_agents]
+    parent_wealth_at_birth: Float[Array, n_agents]
+    life_expectancy: Int[Array, n_agents]
+    fertility_rate: Float[Array, n_agents]
+    wealth: Float[Array, n_agents]
+    income: Float[Array, n_agents]
+    consumption: Float[Array, n_agents]
+    savings: Float[Array, n_agents]
+    consumption_target: Float[Array, n_agents]
+    information_level: Float[Array, n_agents]
+    debt: Float[Array, n_agents]
+    employed: Bool[Array, n_agents]
+    retired: Bool[Array, n_agents]
+    utility_adjustment: Float[Array, n_agents]
+    risk_aversion: Float[Array, n_agents]
+    discount_factor: Float[Array, n_agents]
+    skill_level: Float[Array, n_agents]
+    education_years: Float[Array, n_agents]
+    age: Int[Array, n_agents]
+    expected_lifetime_utility: Float[Array, n_agents]
+    savings_target: Float[Array, n_agents]
+    planning_horizon: Int[Array, n_agents]
+    expected_income_growth: Float[Array, n_agents]
+    n_connections: Int[Array, n_agents]
 
     @property
     def size(self) -> int:
@@ -73,9 +74,9 @@ class GlobalState:
     agents: AgentState
     policy: PolicyState
     aggregates: AggregateState
-    distributions: "DistributionState"
-    graph: "GraphState"
-    population_manager: "PopulationManager"
+    distributions: DistributionState
+    graph: GraphState
+    population_manager: PopulationManager
     next_agent_id: Int[Array, ""]
     time_step: Int[Array, ""]
     simulation_horizon: Int[Array, ""]
@@ -92,7 +93,7 @@ class GlobalState:
         simulation_horizon: int = 256,
         n_quantiles: int = 10,
         max_agents: int | None = None,
-    ) -> "GlobalState":
+    ) -> GlobalState:
         from polisyos.foundry.agent_sim.distributions import DistributionState
         from polisyos.foundry.agent_sim.graphs import GraphState
         from polisyos.foundry.agent_sim.population import PopulationManager

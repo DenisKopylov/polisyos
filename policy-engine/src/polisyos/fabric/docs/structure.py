@@ -4,11 +4,12 @@ The stage reads ``DocMeta.normalized_ref``, extracts lightweight anchors, persis
 ``DocFragment`` rows, stores a structure artifact, and emits provenance so downstream claim
 extractors can cite document spans deterministically.
 """
+
 from __future__ import annotations
 
 import re
 from dataclasses import asdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -189,7 +190,8 @@ def structure_doc(
             {
                 k: v
                 for k, v in anchor.items()
-                if k in {
+                if k
+                in {
                     "anchor_kind",
                     "anchor_path",
                     "offset_start",
@@ -260,7 +262,7 @@ def structure_doc(
     meta_ref = persist_doc_meta(cas, meta2)
     meta_artifact_id = str(meta_ref.artifact_id)
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     agent = ProvAgent(
         agent_id="prov.agent.fabric_docs",
         agent_type=ProvAgentType.SYSTEM,
@@ -331,7 +333,8 @@ def structure_doc(
     )
     append_world_segment_index(manifest, fact_log_root=fact_log_root)
 
-    assert meta2.normalized_ref is not None
+    if meta2.normalized_ref is None:
+        raise DocValidationError("document structure extraction did not persist normalized text")
     return DocStructureResult(
         doc_source_id=meta2.doc_source_id,
         doc_version_id=meta2.doc_version_id,

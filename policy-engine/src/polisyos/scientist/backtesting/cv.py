@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
 
 import numpy as np
 
@@ -83,8 +83,10 @@ def run_forward_chaining_cv(
     """
     arr = np.asarray(data, dtype=float)
     splits = forward_chaining_splits(
-        len(arr), min_train_size=min_train_size,
-        step_size=step_size, max_folds=max_folds,
+        len(arr),
+        min_train_size=min_train_size,
+        step_size=step_size,
+        max_folds=max_folds,
     )
 
     folds: list[CVFold] = []
@@ -92,12 +94,14 @@ def run_forward_chaining_cv(
         train_data = arr[train_idx]
         test_data = arr[test_idx]
         metrics = evaluator(train_data, test_data)
-        folds.append(CVFold(
-            fold_id=fold_id,
-            train_indices=train_idx,
-            test_indices=test_idx,
-            metrics=metrics,
-        ))
+        folds.append(
+            CVFold(
+                fold_id=fold_id,
+                train_indices=train_idx,
+                test_indices=test_idx,
+                metrics=metrics,
+            )
+        )
 
     # Aggregate
     all_metric_names: set[str] = set()

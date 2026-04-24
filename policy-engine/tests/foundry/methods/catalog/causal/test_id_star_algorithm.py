@@ -3,13 +3,13 @@ from __future__ import annotations
 import numpy as np
 
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+from polisyos.foundry.methods.catalog.causal.estimand_compiler import compile_estimand
 from polisyos.foundry.methods.catalog.causal.id_engine import (
     CtfQuery,
     IdentificationStatus,
     id_star_algorithm,
     idc_star_algorithm,
 )
-from polisyos.foundry.methods.catalog.causal.estimand_compiler import compile_estimand
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.estimand import CrossWorldNode, NestedCounterfactualNode, RatioNode
@@ -30,7 +30,9 @@ def test_id_star_simple_backdoor_reduces_to_id() -> None:
         ["X", "Y", "Z"],
         [_edge("Z", "X"), _edge("Z", "Y"), _edge("X", "Y")],
     )
-    query = CtfQuery(outcome="Y", intervention=(("X", 1.0),), conditioning=("Z",), kind="single_world")
+    query = CtfQuery(
+        outcome="Y", intervention=(("X", 1.0),), conditioning=("Z",), kind="single_world"
+    )
     result = id_star_algorithm(query, graph)
     assert result.status is IdentificationStatus.IDENTIFIED
     assert any(step.rule_name == "ID_STAR_STEP3" for step in result.proof_steps)

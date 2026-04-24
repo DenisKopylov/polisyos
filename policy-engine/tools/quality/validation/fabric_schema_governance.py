@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Validate Fabric connector contract evolution against governance policy."""
+
 from __future__ import annotations
 
 import argparse
@@ -7,10 +8,11 @@ import json
 import sys
 import types
 from pathlib import Path
-from tools._lib.imports import repo_root_from
 from typing import Any
 
 from pydantic import ValidationError
+
+from tools._lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -27,8 +29,8 @@ if _CONNECTORS_PACKAGE not in sys.modules:
     sys.modules[_CONNECTORS_PACKAGE] = stub
 
 from polisyos.fabric.connectors.contracts import (  # noqa: E402
-    ContractGovernanceEvaluation,
     ConnectorSchemaContract,
+    ContractGovernanceEvaluation,
     MigrationPlan,
     evaluate_contract_governance,
 )
@@ -57,15 +59,11 @@ def _parse_args() -> argparse.Namespace:
 
 def _normalize_snapshot_obj(value: Any, parent_key: str | None = None) -> Any:
     if isinstance(value, dict):
-        return {
-            key: _normalize_snapshot_obj(item, key)
-            for key, item in value.items()
-        }
+        return {key: _normalize_snapshot_obj(item, key) for key, item in value.items()}
     if isinstance(value, list):
         normalized = [_normalize_snapshot_obj(item) for item in value]
-        if (
-            parent_key in _UNORDERED_LIST_KEYS
-            and all(not isinstance(item, (dict, list)) for item in normalized)
+        if parent_key in _UNORDERED_LIST_KEYS and all(
+            not isinstance(item, (dict, list)) for item in normalized
         ):
             return sorted(normalized, key=lambda item: str(item))
         return normalized
@@ -73,7 +71,8 @@ def _normalize_snapshot_obj(value: Any, parent_key: str | None = None) -> Any:
 
 
 def build_snapshot_payload(
-    contracts: list[ConnectorSchemaContract] | tuple[ConnectorSchemaContract, ...] = ALL_SOURCE_CONTRACTS,
+    contracts: list[ConnectorSchemaContract]
+    | tuple[ConnectorSchemaContract, ...] = ALL_SOURCE_CONTRACTS,
 ) -> dict[str, Any]:
     payload = {
         "version": SNAPSHOT_VERSION,
@@ -165,9 +164,7 @@ def build_evidence_payload(
             "breaking_change_count": len(evaluation.report.breaking_changes),
             "non_breaking_change_count": len(evaluation.report.non_breaking_changes),
             "changes": [change.description for change in evaluation.report.changes],
-            "missing_governance_requirements": list(
-                evaluation.missing_governance_requirements
-            ),
+            "missing_governance_requirements": list(evaluation.missing_governance_requirements),
             "errors": list(evaluation.errors),
             "migration_plan": (
                 {

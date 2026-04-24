@@ -18,28 +18,35 @@ and agent-sim tooling.
 
 - [quickstart.py](quickstart.py) for the smallest compile/execute path that
   writes real CAS artifacts.
+
 - [compile/api.py](compile/api.py) for the public `compile()` contract and
   failure semantics.
+
 - [execute/api.py](execute/api.py) for `execute()`, input bindings, and replay
   behavior.
+
 - [contracts/README.md](contracts/README.md) for runtime state, patch, and
   fidelity contracts.
+
 - [methods/README.md](methods/README.md) for the reusable method ABI, registry,
   dispatch, and catalog surfaces.
+
 - [calibration/README.md](calibration/README.md) for measurement-aware fit
   loops and uncertainty hand-off.
+
 - [agent_sim/README.md](agent_sim/README.md) for low-level ABM/RL executors and
   wiring.
+
 - [plugins/README.md](plugins/README.md) for plugin-driven domain simulation on
   top of `agent_sim`.
 
 ## Public Entrypoints
 
-| Entrypoint | Description |
-|---|---|
-| `compile()` | Compile a Trinity bundle into `foundry.program_graph`, `foundry.exec_plan`, and a compile report artifact. |
-| `compile_program()` | Compatibility alias for `compile()` on the package facade. |
-| `execute()` | Execute a compiled plan from `FoundryInputBindingsRef` and persist simulation evidence. |
+| Entrypoint          | Description                                                                                                |
+| ------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `compile()`         | Compile a Trinity bundle into `foundry.program_graph`, `foundry.exec_plan`, and a compile report artifact. |
+| `compile_program()` | Compatibility alias for `compile()` on the package facade.                                                 |
+| `execute()`         | Execute a compiled plan from `FoundryInputBindingsRef` and persist simulation evidence.                    |
 
 The stable package facade is intentionally small. If a workflow needs lower
 level helpers, start from the subpackage README for that area instead of
@@ -50,6 +57,7 @@ deep-importing ad hoc internals.
 - Depends on: `polisyos.core` artifact, registry, and contract layers;
   `polisyos.ir` Trinity/model contracts; optional scientific runtimes exposed by
   subpackages.
+
 - Depended on by: `polisyos.scientist` execution and autotune flows,
   `polisyos.runtime.http` control services, release-acceptance flows, and local
   demos/benchmarks.

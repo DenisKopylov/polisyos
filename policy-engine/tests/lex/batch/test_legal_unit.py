@@ -122,7 +122,9 @@ def test_build_legal_unit_signals_marks_placeholder_row_as_form_scaffold() -> No
     assert signals.route_class == "search_only"
 
 
-def test_build_legal_unit_signals_does_not_mark_general_obligation_as_application_requirement() -> None:
+def test_build_legal_unit_signals_does_not_mark_general_obligation_as_application_requirement() -> (
+    None
+):
     signals = build_legal_unit_signals(
         text=(
             "Перевізник зобов'язується безпечно перевезти пасажира до пункту призначення, "
@@ -235,9 +237,11 @@ def test_build_legal_unit_signals_marks_amendment_wording_item_as_deterministic(
     assert signals.route_class == "deterministic_only"
 
 
-def test_build_legal_unit_signals_routes_amendment_packaging_leads_out_of_core_normative_clause() -> None:
+def test_build_legal_unit_signals_routes_amendment_packaging_leads_out_of_core_normative_clause() -> (
+    None
+):
     signals = build_legal_unit_signals(
-        text="Назву розділу IV Закону викласти в такій редакції: \"Прикінцеві положення\".",
+        text='Назву розділу IV Закону викласти в такій редакції: "Прикінцеві положення".',
         struct_kind="point",
         section_role="normative_unit",
         fallback_allowed_for_reasoning=True,
@@ -267,7 +271,7 @@ def test_build_legal_unit_signals_marks_form_section_heading_as_search_only() ->
 
 def test_build_legal_unit_signals_marks_fee_schedule_as_threshold_not_application() -> None:
     signals = build_legal_unit_signals(
-        text='1. Із заяв і скарг, що подаються до суду: а) із позивних заяв 5 відсотків ціни позову',
+        text="1. Із заяв і скарг, що подаються до суду: а) із позивних заяв 5 відсотків ціни позову",
         struct_kind="paragraph",
         section_role="table_clause",
         fallback_allowed_for_reasoning=True,

@@ -8,11 +8,9 @@ from polisyos.scientist.search.stopping import (
     AllStoppingCriteria,
     CompositeStoppingCriterion,
     CostBudgetStopping,
-    ImprovementPlateau,
     MaxIterations,
     StoppingPresets,
 )
-
 
 # ---------------------------------------------------------------------------
 # CostBudgetStopping
@@ -61,36 +59,44 @@ class TestCostBudgetStopping:
 
 class TestAllStoppingCriteria:
     def test_stops_when_all_trigger(self):
-        s = AllStoppingCriteria([
-            MaxIterations(3),
-            CostBudgetStopping(max_cost_usd=5.0),
-        ])
+        s = AllStoppingCriteria(
+            [
+                MaxIterations(3),
+                CostBudgetStopping(max_cost_usd=5.0),
+            ]
+        )
         history = [{"iteration": i} for i in range(3)]
         result = s.check(history, {"cumulative_cost_usd": 5.0})
         assert result.should_stop
 
     def test_does_not_stop_when_only_one_triggers(self):
-        s = AllStoppingCriteria([
-            MaxIterations(3),
-            CostBudgetStopping(max_cost_usd=5.0),
-        ])
+        s = AllStoppingCriteria(
+            [
+                MaxIterations(3),
+                CostBudgetStopping(max_cost_usd=5.0),
+            ]
+        )
         history = [{"iteration": i} for i in range(3)]
         result = s.check(history, {"cumulative_cost_usd": 2.0})
         assert not result.should_stop
 
     def test_does_not_stop_when_none_trigger(self):
-        s = AllStoppingCriteria([
-            MaxIterations(10),
-            CostBudgetStopping(max_cost_usd=100.0),
-        ])
+        s = AllStoppingCriteria(
+            [
+                MaxIterations(10),
+                CostBudgetStopping(max_cost_usd=100.0),
+            ]
+        )
         result = s.check([{"iteration": 0}], {"cumulative_cost_usd": 1.0})
         assert not result.should_stop
 
     def test_reason_includes_all(self):
-        s = AllStoppingCriteria([
-            MaxIterations(1),
-            CostBudgetStopping(max_cost_usd=0.01),
-        ])
+        s = AllStoppingCriteria(
+            [
+                MaxIterations(1),
+                CostBudgetStopping(max_cost_usd=0.01),
+            ]
+        )
         result = s.check([{"iteration": 0}], {"cumulative_cost_usd": 1.0})
         assert result.should_stop
         assert "AND" in result.reason

@@ -1,4 +1,5 @@
 """Public causal run causal ensemble module API."""
+
 from __future__ import annotations
 
 import hashlib
@@ -186,7 +187,7 @@ def _edge_key(edge: CausalEdge) -> str:
 
 
 def _has_directed_cycle(nodes: list[str], edges: list[CausalEdge]) -> bool:
-    indegree: dict[str, int] = {node: 0 for node in nodes}
+    indegree: dict[str, int] = dict.fromkeys(nodes, 0)
     adjacency: dict[str, list[str]] = {node: [] for node in nodes}
     for edge in edges:
         if edge.lag not in (None, 0):
@@ -302,7 +303,7 @@ def _seed_from_run_and_graph(run_id: str, graph: CausalGraphModel, offset: int) 
     graph_hash = hashlib.sha256(
         graph.model_dump_json(exclude_none=False, by_alias=True).encode("utf-8")
     ).hexdigest()
-    payload = f"{run_id}|{graph_hash}|{offset}".encode("utf-8")
+    payload = f"{run_id}|{graph_hash}|{offset}".encode()
     return int(hashlib.sha256(payload).hexdigest()[:16], 16) % (2**31 - 1)
 
 
@@ -686,7 +687,9 @@ class RunCausalEnsembleNode:
         consensus_graph_ref: ArtifactRef | None = None
         if consensus_graph is not None:
             graph_inputs = [
-                InputRef(artifact_id=item.graph_artifact_ref.artifact_id, role=f"member_{idx}.graph")
+                InputRef(
+                    artifact_id=item.graph_artifact_ref.artifact_id, role=f"member_{idx}.graph"
+                )
                 for idx, item in enumerate(normalized_members)
             ]
             persisted_consensus = persist_causal_graph_model(
@@ -731,14 +734,16 @@ class RunCausalEnsembleNode:
         new_state.artifacts_index[ARTIFACT_CAUSAL_ENSEMBLE_REF] = ArtifactRef.model_validate(
             ensemble_ref.model_dump(mode="json")
         )
-        new_state.artifacts_index[
-            ARTIFACT_CAUSAL_ENSEMBLE_ENVELOPE_REF
-        ] = ArtifactRef.model_validate(envelope_ref.model_dump(mode="json"))
+        new_state.artifacts_index[ARTIFACT_CAUSAL_ENSEMBLE_ENVELOPE_REF] = (
+            ArtifactRef.model_validate(envelope_ref.model_dump(mode="json"))
+        )
         new_state.artifacts_index[ARTIFACT_CAUSAL_ENVELOPE_REF] = ArtifactRef.model_validate(
             envelope_ref.model_dump(mode="json")
         )
         new_state.params["causal_ensemble_member_count"] = len(normalized_members)
-        new_state.params["causal_ensemble_methods"] = sorted({method for method in methods if method})
+        new_state.params["causal_ensemble_methods"] = sorted(
+            {method for method in methods if method}
+        )
         if warnings or removed_cycle_edges:
             combined = [*warnings]
             if removed_cycle_edges:

@@ -314,7 +314,7 @@ def test_world_ids_are_stable_across_mapping_order_fuzz(
     }
     reordered_payload = {
         **ordered_payload,
-        "qualifiers": {key: value for key, value in reversed(list(qualifiers.items()))},
+        "qualifiers": dict(reversed(list(qualifiers.items()))),
     }
 
     assert claim_id_from_payload(claim_payload=ordered_payload) == claim_id_from_payload(

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Guard against broad exception hygiene regressions in Fabric."""
+
 from __future__ import annotations
 
 import argparse
@@ -47,8 +48,10 @@ def main() -> int:
         sys.stderr.write(result.stderr)
         return result.returncode
 
-    lines = [] if not result.stdout else sorted(
-        _normalize_match_line(line) for line in result.stdout.splitlines() if line
+    lines = (
+        []
+        if not result.stdout
+        else sorted(_normalize_match_line(line) for line in result.stdout.splitlines() if line)
     )
     output = "\n".join(lines)
     match_count = len(lines)

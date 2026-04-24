@@ -7,10 +7,11 @@ Handles:
 - Generating migration recommendations
 - Tracking evolution history
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -128,12 +129,10 @@ class EvolutionReport(BaseModel):
 
     changes: tuple[SchemaChange, ...]
 
-    is_compatible: bool = Field(
-        description="True if target is backward-compatible with source"
-    )
+    is_compatible: bool = Field(description="True if target is backward-compatible with source")
     recommended_version_bump: str = Field(description="major, minor, or patch")
 
-    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     @property
     def breaking_changes(self) -> list[SchemaChange]:
@@ -170,11 +169,7 @@ class MigrationPlan(BaseModel):
 
     @property
     def sql_statements(self) -> tuple[str, ...]:
-        return tuple(
-            operation.sql
-            for operation in self.operations
-            if operation.sql
-        )
+        return tuple(operation.sql for operation in self.operations if operation.sql)
 
 
 class SchemaEvolution:
@@ -226,16 +221,13 @@ class SchemaEvolution:
                         field_name=name,
                         old_value=None,
                         new_value=target_fields[name].data_type.value,
-                        description=
-                        f"Field '{name}' was added ({target_fields[name].data_type.value})",
+                        description=f"Field '{name}' was added ({target_fields[name].data_type.value})",
                     )
                 )
 
         for name in source_fields:
             if name in target_fields:
-                field_changes = self._compare_fields(
-                    source_fields[name], target_fields[name]
-                )
+                field_changes = self._compare_fields(source_fields[name], target_fields[name])
                 changes.extend(field_changes)
 
         if source.primary_key != target.primary_key:
@@ -245,8 +237,7 @@ class SchemaEvolution:
                     field_name=None,
                     old_value=str(source.primary_key),
                     new_value=str(target.primary_key),
-                    description=
-                    f"Primary key changed from {source.primary_key} to {target.primary_key}",
+                    description=f"Primary key changed from {source.primary_key} to {target.primary_key}",
                 )
             )
 
@@ -257,8 +248,7 @@ class SchemaEvolution:
                     field_name=None,
                     old_value=source.time_dimension,
                     new_value=target.time_dimension,
-                    description=
-                    f"Time dimension changed from {source.time_dimension} to {target.time_dimension}",
+                    description=f"Time dimension changed from {source.time_dimension} to {target.time_dimension}",
                 )
             )
 
@@ -269,8 +259,7 @@ class SchemaEvolution:
                     field_name=None,
                     old_value=str(source.time_granularity),
                     new_value=str(target.time_granularity),
-                    description=
-                    "Time granularity changed from "
+                    description="Time granularity changed from "
                     f"{source.time_granularity} to {target.time_granularity}",
                 )
             )
@@ -282,8 +271,7 @@ class SchemaEvolution:
                     field_name=None,
                     old_value=source.geo_dimension,
                     new_value=target.geo_dimension,
-                    description=
-                    f"Geo dimension changed from {source.geo_dimension} to {target.geo_dimension}",
+                    description=f"Geo dimension changed from {source.geo_dimension} to {target.geo_dimension}",
                 )
             )
 
@@ -294,8 +282,7 @@ class SchemaEvolution:
                     field_name=None,
                     old_value=str(source.geo_granularity),
                     new_value=str(target.geo_granularity),
-                    description=
-                    "Geo granularity changed from "
+                    description="Geo granularity changed from "
                     f"{source.geo_granularity} to {target.geo_granularity}",
                 )
             )
@@ -311,8 +298,7 @@ class SchemaEvolution:
                     field_name=None,
                     old_value=str(source.required_completeness),
                     new_value=str(target.required_completeness),
-                    description=
-                    "Required completeness changed from "
+                    description="Required completeness changed from "
                     f"{source.required_completeness} to {target.required_completeness}",
                 )
             )
@@ -328,8 +314,7 @@ class SchemaEvolution:
                     field_name=None,
                     old_value=str(source.allowed_null_fields),
                     new_value=str(target.allowed_null_fields),
-                    description=
-                    "Allowed null fields changed from "
+                    description="Allowed null fields changed from "
                     f"{source.allowed_null_fields} to {target.allowed_null_fields}",
                 )
             )
@@ -404,8 +389,7 @@ class SchemaEvolution:
                         field_name=name,
                         old_value=source.data_type.value,
                         new_value=target.data_type.value,
-                        description=
-                        f"Field '{name}' type widened from {source.data_type.value} to {target.data_type.value}",
+                        description=f"Field '{name}' type widened from {source.data_type.value} to {target.data_type.value}",
                     )
                 )
             elif target.data_type.is_compatible_with(source.data_type):
@@ -415,8 +399,7 @@ class SchemaEvolution:
                         field_name=name,
                         old_value=source.data_type.value,
                         new_value=target.data_type.value,
-                        description=
-                        f"Field '{name}' type narrowed from {source.data_type.value} to {target.data_type.value}",
+                        description=f"Field '{name}' type narrowed from {source.data_type.value} to {target.data_type.value}",
                     )
                 )
             else:
@@ -426,8 +409,7 @@ class SchemaEvolution:
                         field_name=name,
                         old_value=source.data_type.value,
                         new_value=target.data_type.value,
-                        description=
-                        f"Field '{name}' type changed from {source.data_type.value} to {target.data_type.value}",
+                        description=f"Field '{name}' type changed from {source.data_type.value} to {target.data_type.value}",
                     )
                 )
 
@@ -438,8 +420,7 @@ class SchemaEvolution:
                     field_name=name,
                     old_value=source.element_type.value if source.element_type else None,
                     new_value=target.element_type.value if target.element_type else None,
-                    description=
-                    f"Field '{name}' element type changed from {source.element_type} to {target.element_type}",
+                    description=f"Field '{name}' element type changed from {source.element_type} to {target.element_type}",
                 )
             )
 
@@ -450,8 +431,7 @@ class SchemaEvolution:
                     field_name=name,
                     old_value=source.unit.unit_id if source.unit else None,
                     new_value=target.unit.unit_id if target.unit else None,
-                    description=
-                    f"Field '{name}' unit changed from {source.unit} to {target.unit}",
+                    description=f"Field '{name}' unit changed from {source.unit} to {target.unit}",
                 )
             )
 
@@ -462,8 +442,7 @@ class SchemaEvolution:
                     field_name=name,
                     old_value=source.semantic_type.value if source.semantic_type else None,
                     new_value=target.semantic_type.value if target.semantic_type else None,
-                    description=
-                    f"Field '{name}' semantic type changed from {source.semantic_type} to {target.semantic_type}",
+                    description=f"Field '{name}' semantic type changed from {source.semantic_type} to {target.semantic_type}",
                 )
             )
 
@@ -523,8 +502,7 @@ class SchemaEvolution:
                         field_name=name,
                         old_value=str(source.bounds),
                         new_value=str(target.bounds),
-                        description=
-                        f"Field '{name}' bounds relaxed from {source.bounds} to {target.bounds}",
+                        description=f"Field '{name}' bounds relaxed from {source.bounds} to {target.bounds}",
                     )
                 )
             if tightened:
@@ -534,8 +512,7 @@ class SchemaEvolution:
                         field_name=name,
                         old_value=str(source.bounds),
                         new_value=str(target.bounds),
-                        description=
-                        f"Field '{name}' bounds tightened from {source.bounds} to {target.bounds}",
+                        description=f"Field '{name}' bounds tightened from {source.bounds} to {target.bounds}",
                     )
                 )
 
@@ -551,8 +528,7 @@ class SchemaEvolution:
                             field_name=name,
                             old_value=str(removed),
                             new_value=None,
-                            description=
-                            f"Field '{name}' removed allowed values: {removed}",
+                            description=f"Field '{name}' removed allowed values: {removed}",
                         )
                     )
                 if added:
@@ -562,8 +538,7 @@ class SchemaEvolution:
                             field_name=name,
                             old_value=None,
                             new_value=str(added),
-                            description=
-                            f"Field '{name}' added allowed values: {added}",
+                            description=f"Field '{name}' added allowed values: {added}",
                         )
                     )
             elif target.allowed_values is None:
@@ -605,8 +580,7 @@ class SchemaEvolution:
                     field_name=name,
                     old_value=str(source.precision),
                     new_value=str(target.precision),
-                    description=
-                    f"Field '{name}' precision changed from {source.precision} to {target.precision}",
+                    description=f"Field '{name}' precision changed from {source.precision} to {target.precision}",
                 )
             )
 
@@ -628,8 +602,7 @@ class SchemaEvolution:
                     field_name=name,
                     old_value=str(source.scale),
                     new_value=str(target.scale),
-                    description=
-                    f"Field '{name}' scale changed from {source.scale} to {target.scale}",
+                    description=f"Field '{name}' scale changed from {source.scale} to {target.scale}",
                 )
             )
 
@@ -668,8 +641,7 @@ class SchemaEvolution:
                     field_name=name,
                     old_value=str(source.max_length),
                     new_value=str(target.max_length),
-                    description=
-                    f"Field '{name}' max_length changed from {source.max_length} to {target.max_length}",
+                    description=f"Field '{name}' max_length changed from {source.max_length} to {target.max_length}",
                 )
             )
 

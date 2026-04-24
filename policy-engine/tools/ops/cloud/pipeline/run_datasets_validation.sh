@@ -8,7 +8,7 @@
 set -euo pipefail
 
 usage() {
-  cat <<'EOF'
+  cat << 'EOF'
 Usage:
   bash tools/cloud/run_datasets_validation.sh [--run-id RUN_ID] [--dry-run]
 
@@ -20,7 +20,7 @@ EOF
 }
 
 generate_run_id() {
-  python3 - <<'PY'
+  python3 - << 'PY'
 from datetime import datetime, timezone
 import secrets
 
@@ -44,7 +44,7 @@ while [[ $# -gt 0 ]]; do
       DRY_RUN=1
       shift
       ;;
-    -h|--help)
+    -h | --help)
       usage
       exit 0
       ;;
@@ -91,7 +91,7 @@ PREFLIGHT_CMD=(
   python3 -m polisyos.datasets.batch.cli run
   --snapshot-root "$PREFLIGHT_ROOT"
   --run-profile preflight_core
-  --stages harvest,normalize,merge_dedup,graph_load,graph_index,core_sources_ingest,embed,benchmark,qc
+  --stages "harvest,normalize,merge_dedup,graph_load,graph_index,core_sources_ingest,embed,benchmark,qc"
   --resume-mode smart
   --thermal
   --no-fail-fast
@@ -151,7 +151,7 @@ else
 fi
 
 export PREFLIGHT_ROOT
-if python3 - <<'PY'
+if python3 - << 'PY'; then
 import json
 import os
 import sys
@@ -194,7 +194,6 @@ if bad_sources:
 
 print("Preflight contract passed")
 PY
-then
   :
 else
   contract_exit=$?

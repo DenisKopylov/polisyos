@@ -24,10 +24,10 @@
 
 Любой артефакт, предназначенный для воспроизводимости, обязан:
 
-1) иметь **канонический** байтовый payload (или явно помеченный режим канонизации),  
-2) иметь `ArtifactManifest` с `schema` + `inputs` + (по возможности) `producer`/`env`,  
-3) быть адресуемым через `ArtifactID` (`sha256:<hex64>`),  
-4) передаваться между слоями по **типизированным refs** (см. `polisyos.core.contracts.*`).
+1. иметь **канонический** байтовый payload (или явно помеченный режим канонизации),
+2. иметь `ArtifactManifest` с `schema` + `inputs` + (по возможности) `producer`/`env`,
+3. быть адресуемым через `ArtifactID` (`sha256:<hex64>`),
+4. передаваться между слоями по **типизированным refs** (см. `polisyos.core.contracts.*`).
 
 ### 0.3 Contracts are ports, not implementations
 
@@ -62,32 +62,32 @@
 
 Уже реализовано (и является фундаментом E1.4):
 
-- Канонизация: `polisyos.core.canon.canon_json`  
-  - `CanonSpec` (по умолчанию `forbid_floats=True`)  
+- Канонизация: `polisyos.core.canon.canon_json`
+  - `CanonSpec` (по умолчанию `forbid_floats=True`)
   - `to_canonical_bytes()` поддерживает `datetime/date/Decimal/bytes` и при необходимости **детерминированно** кодирует float как tagged object.
-- CAS: `polisyos.core.artifacts.store.FileSystemCAS`  
-  - `put_bytes()` и `put_json()` пишут `.blob` + `.manifest.json` под тем же `ArtifactID`  
+- CAS: `polisyos.core.artifacts.store.FileSystemCAS`
+  - `put_bytes()` и `put_json()` пишут `.blob` + `.manifest.json` под тем же `ArtifactID`
   - хранит `inputs`, `schema`, `producer`, `env`.
-- Manifests: `polisyos.core.artifacts.manifest.ArtifactManifest`  
+- Manifests: `polisyos.core.artifacts.manifest.ArtifactManifest`
   - минимальная provenance‑цепочка через `inputs: list[InputRef]`.
 
 ### 2.2 Core: run/trace/observability
 
 Уже реализовано:
 
-- `polisyos.core.run.context.RunContext`  
-  - пишет `trace.jsonl` (в run dir)  
+- `polisyos.core.run.context.RunContext`
+  - пишет `trace.jsonl` (в run dir)
   - на `finalize()` сохраняет trace как CAS‑артефакт `core.trace.jsonl` и сохраняет `core.run_manifest`.
-- `polisyos.core.trace.*`  
+- `polisyos.core.trace.*`
   - `TraceRecord` и `JsonlTraceSink` (не каноническое, run‑специфическое).
-- `polisyos.core.observability.*`  
+- `polisyos.core.observability.*`
   - есть каркас OTel/metrics; в E1.4 важно **согласовать** атрибуты/идентификаторы и не тянуть scientist.
 
 ### 2.3 Core: contracts layer уже есть, но требует доведения до “портов”
 
 Сейчас существует `polisyos.core.contracts`:
 
-```
+```text
 core/contracts/
   compiler.py
   fabric.py
@@ -99,15 +99,15 @@ core/contracts/
 
 **Проблемы/дыры относительно целевого E1.4:**
 
-1) Нет портов `lex.py` и `scholar.py` (нужно добавить сейчас как ABI‑границы).
-2) `core/contracts/scientist.py` содержит “свой” `ArtifactRef` (не совместимый с `core.artifacts.manifest.ArtifactRef`) — это размывает типизацию и вводит 2 параллельных модели refs.
-3) `core/contracts/legal.py` по смыслу уже является “Lex port”, но имя и наполнение не совпадают с целевым набором (`LegalContext`, `LegalReportRef`, `ChangeProposalRef`).
+1. Нет портов `lex.py` и `scholar.py` (нужно добавить сейчас как ABI‑границы).
+2. `core/contracts/scientist.py` содержит “свой” `ArtifactRef` (не совместимый с `core.artifacts.manifest.ArtifactRef`) — это размывает типизацию и вводит 2 параллельных модели refs.
+3. `core/contracts/legal.py` по смыслу уже является “Lex port”, но имя и наполнение не совпадают с целевым набором (`LegalContext`, `LegalReportRef`, `ChangeProposalRef`).
 
 ### 2.4 Import gate уже существует и проходит
 
 Скрипт `policy-engine/tools/lint/lint_imports.py` по `import_policy.toml` (v1):
 
-- **violations: none** (core/ir/foundry не импортируют scientist)  
+- **violations: none** (core/ir/foundry не импортируют scientist)
 - cycles присутствуют на уровне пакетов (`polisyos.fabric`↔`polisyos.fabric.udf`, `polisyos.scientist`↔subpackages). Циклы **не** цель E1.4, но должны быть учтены при расширении contracts/components (не добавлять новые).
 
 ---
@@ -177,7 +177,7 @@ Foundry/Fabric/Scholar/Lex должны уметь:
   - deprecated shim: `from .lex import *` (реэкспорт) на 1 релизный цикл
   - комментарий “use core.contracts.lex”
 
-**Почему так, а не “оставить legal.py”?**
+#### Почему так, а не “оставить legal.py”?
 
 - В целевой архитектуре “Lex” — самостоятельный доменный сервис поверх Fabric, поэтому `lex.py` как port более точен.
 - Мы сохраняем backward‑compat через реэкспорт, чтобы не ломать Scientist/Governance сразу.
@@ -331,9 +331,9 @@ E1.4 фиксирует правило:
 
 E1.4 фиксирует “трёхслойную” модель наблюдаемости:
 
-1) **Trace (run timeline)** — JSONL артефакт `core.trace.jsonl` (не обязан быть каноническим; является аудит‑логом).
-2) **Metrics (числовые результаты)** — артефакты `foundry.metrics` / `fabric.uncertainty_bounds` и т.п. (должны быть каноническими).
-3) **OTel/Prometheus** — operational observability (вне CAS), но должна быть корреляция через `run_id` и `artifact_id`.
+1. **Trace (run timeline)** — JSONL артефакт `core.trace.jsonl` (не обязан быть каноническим; является аудит‑логом).
+2. **Metrics (числовые результаты)** — артефакты `foundry.metrics` / `fabric.uncertainty_bounds` и т.п. (должны быть каноническими).
+3. **OTel/Prometheus** — operational observability (вне CAS), но должна быть корреляция через `run_id` и `artifact_id`.
 
 Конвенции для `RunContext.emit()`:
 
@@ -347,7 +347,7 @@ E1.4 фиксирует “трёхслойную” модель наблюда
 
 ### 6.3.1 Структура `polisyos.core.contracts` (target)
 
-```
+```text
 polisyos/core/contracts/
   __init__.py
   compiler.py
@@ -490,7 +490,7 @@ E1.4 добавляет только ABI‑стык (без реализации
 
 ### 7.4.2 Файловая структура (target)
 
-```
+```text
 polisyos/core/components/
   __init__.py
   ids.py
@@ -634,11 +634,11 @@ Dev scan (опционально для E1.4):
 
 ## 10) Migration plan (рекомендуемая последовательность имплементации)
 
-1) **Lex/Scholar ports**: добавить `core/contracts/lex.py`, `core/contracts/scholar.py`; сделать `legal.py` shim.
-2) **Unify Scientist refs**: привести `core/contracts/scientist.py` к `ArtifactRef` из `core.artifacts.manifest`.
-3) **CanonInfo расширение**: обновить `CanonInfo` и запись manifest в `FileSystemCAS.put_json()` так, чтобы параметры `canon_spec` отражались.
-4) **Component skeleton**: добавить `core/components/*` без интеграции с существующими discovery.
-5) **Docs + import gate**: обновить README/доки, убедиться что lint_imports не показывает новых циклов/нарушений.
+1. **Lex/Scholar ports**: добавить `core/contracts/lex.py`, `core/contracts/scholar.py`; сделать `legal.py` shim.
+2. **Unify Scientist refs**: привести `core/contracts/scientist.py` к `ArtifactRef` из `core.artifacts.manifest`.
+3. **CanonInfo расширение**: обновить `CanonInfo` и запись manifest в `FileSystemCAS.put_json()` так, чтобы параметры `canon_spec` отражались.
+4. **Component skeleton**: добавить `core/components/*` без интеграции с существующими discovery.
+5. **Docs + import gate**: обновить README/доки, убедиться что lint_imports не показывает новых циклов/нарушений.
 
 ---
 
@@ -672,67 +672,67 @@ Import cycles, которые уже есть, не должны ухудшат�
 
 ### B.1 Trinity (`polisyos.core.contracts.trinity`)
 
-| Ref class | kind | media_type | Notes |
-|---|---|---|---|
-| `ProblemFrameRef` | `ir.problem_frame` | `application/json` | problem definition |
-| `PolicySpecRef` | `ir.policy_spec` | `application/json` | policy definition |
-| `ModelSpecRef` | `ir.model_spec` | `application/json` | model definition |
+| Ref class                | kind                | media_type         | Notes                         |
+| ------------------------ | ------------------- | ------------------ | ----------------------------- |
+| `ProblemFrameRef`        | `ir.problem_frame`  | `application/json` | problem definition            |
+| `PolicySpecRef`          | `ir.policy_spec`    | `application/json` | policy definition             |
+| `ModelSpecRef`           | `ir.model_spec`     | `application/json` | model definition              |
 | `TrinityBundleRef` (NEW) | `ir.trinity_bundle` | `application/json` | optional “bundle as artifact” |
 
 ### B.2 Fabric (`polisyos.core.contracts.fabric`)
 
-| Ref class | kind | media_type | Notes |
-|---|---|---|---|
-| `DataViewRequestRef` | `ir.data_view_request` | `application/json` | request contract |
-| `QueryPlanRef` | `fabric.query_plan` | `application/json` | execution plan |
-| `FabricResultRef` | `fabric.result_bundle` | `application/json` | result envelope |
-| `EvidenceBundleRef` (core port) | `fabric.evidence_bundle` | `application/json` | evidence/provenance envelope |
-| `UncertaintyBoundsRef` | `fabric.uncertainty_bounds` | `application/json` | uncertainty metadata |
-| `WarningsRef` | `fabric.warnings` | `application/json` | warnings bundle |
-| `DataSnapshotRef` (NEW) | `fabric.data_snapshot` | `application/json` | fixed snapshot for compute inputs |
+| Ref class                       | kind                        | media_type         | Notes                             |
+| ------------------------------- | --------------------------- | ------------------ | --------------------------------- |
+| `DataViewRequestRef`            | `ir.data_view_request`      | `application/json` | request contract                  |
+| `QueryPlanRef`                  | `fabric.query_plan`         | `application/json` | execution plan                    |
+| `FabricResultRef`               | `fabric.result_bundle`      | `application/json` | result envelope                   |
+| `EvidenceBundleRef` (core port) | `fabric.evidence_bundle`    | `application/json` | evidence/provenance envelope      |
+| `UncertaintyBoundsRef`          | `fabric.uncertainty_bounds` | `application/json` | uncertainty metadata              |
+| `WarningsRef`                   | `fabric.warnings`           | `application/json` | warnings bundle                   |
+| `DataSnapshotRef` (NEW)         | `fabric.data_snapshot`      | `application/json` | fixed snapshot for compute inputs |
 
 ### B.3 Foundry (`polisyos.core.contracts.foundry`)
 
-| Ref class | kind | media_type | Notes |
-|---|---|---|---|
-| `PolicySurfaceIRRef` | `ir.policy_surface` | `application/json` | legacy surface IR artifact |
-| `ProgramGraphRef` | `foundry.program_graph` | `application/json` | compiled program graph |
-| `LoweredIRRef` | `foundry.lowered_ir` | `application/json` | optional lowered IR |
-| `ExecPlanRef` | `foundry.exec_plan` | `application/json` | execution plan |
-| `ExecConfigRef` | `foundry.exec_config` | `application/json` | exec config |
-| `StateSnapshotRef` | `foundry.state_snapshot` | `application/json` | immutable snapshot |
-| `StateDeltaRef` | `foundry.state_delta` | `application/json` | patch/delta operations |
-| `MetricsRef` | `foundry.metrics` | `application/json` | metrics payload |
-| `TraceSliceRef` | `foundry.trace_slice` | `application/jsonl` | slice of trace (optional) |
-| `EnvironmentManifestRef` | `foundry.environment_manifest` | `application/json` | reproducibility manifest |
-| `SimulationResultRef` (NEW) | `foundry.simulation_result` | `application/json` | top-level result envelope for Scientist |
+| Ref class                   | kind                           | media_type          | Notes                                   |
+| --------------------------- | ------------------------------ | ------------------- | --------------------------------------- |
+| `PolicySurfaceIRRef`        | `ir.policy_surface`            | `application/json`  | legacy surface IR artifact              |
+| `ProgramGraphRef`           | `foundry.program_graph`        | `application/json`  | compiled program graph                  |
+| `LoweredIRRef`              | `foundry.lowered_ir`           | `application/json`  | optional lowered IR                     |
+| `ExecPlanRef`               | `foundry.exec_plan`            | `application/json`  | execution plan                          |
+| `ExecConfigRef`             | `foundry.exec_config`          | `application/json`  | exec config                             |
+| `StateSnapshotRef`          | `foundry.state_snapshot`       | `application/json`  | immutable snapshot                      |
+| `StateDeltaRef`             | `foundry.state_delta`          | `application/json`  | patch/delta operations                  |
+| `MetricsRef`                | `foundry.metrics`              | `application/json`  | metrics payload                         |
+| `TraceSliceRef`             | `foundry.trace_slice`          | `application/jsonl` | slice of trace (optional)               |
+| `EnvironmentManifestRef`    | `foundry.environment_manifest` | `application/json`  | reproducibility manifest                |
+| `SimulationResultRef` (NEW) | `foundry.simulation_result`    | `application/json`  | top-level result envelope for Scientist |
 
 ### B.4 Compiler (`polisyos.core.contracts.compiler`)
 
-| Ref class | kind | media_type | Notes |
-|---|---|---|---|
-| `LinkReportRef` | `compiler.link_report` | `application/json` | link issues |
+| Ref class          | kind                      | media_type         | Notes          |
+| ------------------ | ------------------------- | ------------------ | -------------- |
+| `LinkReportRef`    | `compiler.link_report`    | `application/json` | link issues    |
 | `CompileReportRef` | `compiler.compile_report` | `application/json` | compile issues |
 
 ### B.5 Lex (`polisyos.core.contracts.lex`)
 
-| Ref class | kind | media_type | Notes |
-|---|---|---|---|
-| `LegalReportRef` | `lex.legal_report` | `application/json` | compliance report |
+| Ref class           | kind                  | media_type         | Notes              |
+| ------------------- | --------------------- | ------------------ | ------------------ |
+| `LegalReportRef`    | `lex.legal_report`    | `application/json` | compliance report  |
 | `ChangeProposalRef` | `lex.change_proposal` | `application/json` | optional proposals |
 
 ### B.6 Scholar (`polisyos.core.contracts.scholar`)
 
-| Ref class | kind | media_type | Notes |
-|---|---|---|---|
+| Ref class            | kind                       | media_type         | Notes            |
+| -------------------- | -------------------------- | ------------------ | ---------------- |
 | `KnowledgeBundleRef` | `scholar.knowledge_bundle` | `application/json` | graph/bundle ref |
 
 ### B.7 Scientist (`polisyos.core.contracts.scientist`)
 
-| Ref class | kind | media_type | Notes |
-|---|---|---|---|
+| Ref class            | kind                         | media_type         | Notes                   |
+| -------------------- | ---------------------------- | ------------------ | ----------------------- |
 | `ExperimentStateRef` | `scientist.experiment_state` | `application/json` | workflow state snapshot |
-| `DecisionPacketRef` | `scientist.decision_packet` | `application/json` | decision envelope |
+| `DecisionPacketRef`  | `scientist.decision_packet`  | `application/json` | decision envelope       |
 
 ---
 
@@ -745,8 +745,8 @@ Import cycles, которые уже есть, не должны ухудшат�
 
 Требование E1.4: при записи новых артефактов `FileSystemCAS.put_json()` должен:
 
-1) использовать фактический `canon_spec` (default или переданный),
-2) записывать его параметры в `ArtifactManifest.canon`.
+1. использовать фактический `canon_spec` (default или переданный),
+2. записывать его параметры в `ArtifactManifest.canon`.
 
 ---
 
@@ -759,9 +759,9 @@ Import cycles, которые уже есть, не должны ухудшат�
 
 ## D1-L4 Validation Links
 
-| Link type | Current anchor |
-|-----------|----------------|
-| Source plan phase | D1-L4 Phase 0 canon/CAS hardening and Phase 1 schema compatibility |
-| Contract tests | `tests/ir/test_canon_hardening.py`, `tests/contract/test_golden_record_ids.py`, `tests/core/artifacts/test_ir_adapter.py`, `tests/contract/test_ir_migrations.py` |
-| Schema snapshots | `schemas/snapshots/ir/fact.schema.json`, `schemas/snapshots/ir/fact_segment_manifest.schema.json`, `schemas/snapshots/ir/trinity_bundle.schema.json` |
-| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |
+| Link type           | Current anchor                                                                                                                                                    |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source plan phase   | D1-L4 Phase 0 canon/CAS hardening and Phase 1 schema compatibility                                                                                                |
+| Contract tests      | `tests/ir/test_canon_hardening.py`, `tests/contract/test_golden_record_ids.py`, `tests/core/artifacts/test_ir_adapter.py`, `tests/contract/test_ir_migrations.py` |
+| Schema snapshots    | `schemas/snapshots/ir/fact.schema.json`, `schemas/snapshots/ir/fact_segment_manifest.schema.json`, `schemas/snapshots/ir/trinity_bundle.schema.json`              |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                            |

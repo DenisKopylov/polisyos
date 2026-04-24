@@ -52,7 +52,8 @@ function matchesCombo(e: KeyboardEvent, combo: KeyCombo): boolean {
 
 export function formatShortcut(combo: KeyCombo): string {
   const parts: string[] = [];
-  const isMac = typeof navigator !== "undefined" && /mac/i.test(navigator.userAgent);
+  const isMac =
+    typeof navigator !== "undefined" && /mac/i.test(navigator.userAgent);
 
   if (combo.ctrl) parts.push(isMac ? "^" : "Ctrl");
   if (combo.alt) parts.push(isMac ? "\u2325" : "Alt");
@@ -92,19 +93,18 @@ export function useKeyboardShortcuts(shortcuts: ShortcutEntry[]) {
   const shortcutsRef = useRef(shortcuts);
   const handlersByIdRef = useRef(new Map<string, () => void>());
   const registrationsSignature = shortcuts
-    .map(
-      (shortcut) =>
-        [
-          shortcut.id,
-          shortcut.label,
-          shortcut.group ?? "",
-          shortcut.enabled === false ? "disabled" : "enabled",
-          shortcut.combo.key,
-          shortcut.combo.meta ? "meta" : "",
-          shortcut.combo.ctrl ? "ctrl" : "",
-          shortcut.combo.shift ? "shift" : "",
-          shortcut.combo.alt ? "alt" : "",
-        ].join(":"),
+    .map((shortcut) =>
+      [
+        shortcut.id,
+        shortcut.label,
+        shortcut.group ?? "",
+        shortcut.enabled === false ? "disabled" : "enabled",
+        shortcut.combo.key,
+        shortcut.combo.meta ? "meta" : "",
+        shortcut.combo.ctrl ? "ctrl" : "",
+        shortcut.combo.shift ? "shift" : "",
+        shortcut.combo.alt ? "alt" : "",
+      ].join(":"),
     )
     .join("|");
 

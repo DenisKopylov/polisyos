@@ -12,52 +12,49 @@ Test Categories:
 - Integration tests: Cross-module interactions
 - Edge cases: Boundary conditions and error handling
 """
+
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
-from decimal import Decimal
 import warnings
+from datetime import UTC, date, datetime
+from decimal import Decimal
 
 import pytest
+
+from polisyos.fabric.connectors.types.coercion import (
+    CoercionError,
+    CoercionPolicy,
+    PrecisionLossWarning,
+    TypeCoercion,
+    can_safely_cast,
+    get_coercion_path,
+    safe_cast,
+)
 
 # =============================================================================
 # Import modules under test
 # =============================================================================
-
 from polisyos.fabric.connectors.types.dimensions import (
     Dimension,
     DimensionRegistry,
     get_dimension_registry,
 )
-
-from polisyos.fabric.connectors.types.units import (
-    Unit,
-    UnitParseError,
-    UnitConversionError,
-    get_unit_registry,
-)
-
 from polisyos.fabric.connectors.types.temporal import (
-    TemporalType,
-    TimeGrain,
     AggregationMethod,
-    TemporalVariable,
-    TimeInterval,
     StockFlowCombination,
     TemporalAggregationError,
+    TemporalType,
+    TemporalVariable,
+    TimeGrain,
+    TimeInterval,
     infer_temporal_type,
 )
-
-from polisyos.fabric.connectors.types.coercion import (
-    TypeCoercion,
-    CoercionPolicy,
-    CoercionError,
-    PrecisionLossWarning,
-    safe_cast,
-    can_safely_cast,
-    get_coercion_path,
+from polisyos.fabric.connectors.types.units import (
+    Unit,
+    UnitConversionError,
+    UnitParseError,
+    get_unit_registry,
 )
-
 
 # =============================================================================
 # SECTION 1: Dimensional Analysis Tests
@@ -129,11 +126,11 @@ class TestDimension:
     def test_power(self):
         """Test raising dimension to a power."""
         length = Dimension(length=1)
-        volume = length ** 3
+        volume = length**3
         assert volume == Dimension(length=3)
 
         # Negative power
-        inverse_length = length ** -1
+        inverse_length = length**-1
         assert inverse_length == Dimension(length=-1)
 
     def test_inversion(self):
@@ -164,7 +161,7 @@ class TestDimension:
         """Test that non-integer powers raise TypeError."""
         dim = Dimension(length=1)
         with pytest.raises(TypeError):
-            dim ** 1.5  # type: ignore
+            dim**1.5  # type: ignore
 
 
 class TestDimensionRegistry:
@@ -406,7 +403,7 @@ class TestUnit:
     def test_power(self):
         """Test raising units to powers."""
         m = Unit.parse("m")
-        m3 = m ** 3
+        m3 = m**3
         assert m3.dimension == Dimension(length=3)
 
     def test_string_serialization(self):
@@ -790,15 +787,11 @@ class TestStockFlowCombination:
     def test_multiplication_with_parameter(self):
         """Test multiplying by parameter preserves type."""
         assert (
-            StockFlowCombination.multiplication_result(
-                TemporalType.PARAMETER, TemporalType.STOCK
-            )
+            StockFlowCombination.multiplication_result(TemporalType.PARAMETER, TemporalType.STOCK)
             == TemporalType.STOCK
         )
         assert (
-            StockFlowCombination.multiplication_result(
-                TemporalType.PARAMETER, TemporalType.FLOW
-            )
+            StockFlowCombination.multiplication_result(TemporalType.PARAMETER, TemporalType.FLOW)
             == TemporalType.FLOW
         )
 
@@ -934,11 +927,11 @@ class TestTypeCoercion:
     def test_string_to_datetime(self):
         """Test string to datetime conversion."""
         result = safe_cast("2024-01-15T10:30:00", "datetime")
-        assert result == datetime(2024, 1, 15, 10, 30, 0, tzinfo=timezone.utc)
+        assert result == datetime(2024, 1, 15, 10, 30, 0, tzinfo=UTC)
 
     def test_unix_timestamp_to_datetime_is_utc(self):
         result = safe_cast(0, "datetime")
-        assert result == datetime(1970, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        assert result == datetime(1970, 1, 1, 0, 0, 0, tzinfo=UTC)
 
     def test_future_datetime_is_clamped_in_warn_mode(self):
         result = TypeCoercion(policy=CoercionPolicy.WARN).coerce(
@@ -947,7 +940,7 @@ class TestTypeCoercion:
             "datetime",
         )
         assert result.success is True
-        assert result.value.tzinfo == timezone.utc
+        assert result.value.tzinfo == UTC
         assert any("clock-skew tolerance" in warning for warning in result.warnings)
 
     def test_datetime_to_date_with_time(self):
@@ -1085,7 +1078,7 @@ class TestIntegration:
         kg = Unit.parse("kg")
         m = Unit.parse("m")
         s = Unit.parse("s")
-        joule = kg * (m ** 2) / (s ** 2)
+        joule = kg * (m**2) / (s**2)
         energy_dim = registry.get("energy")
         assert joule.dimension == energy_dim
 

@@ -7,7 +7,7 @@ comprehensive quality reports.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -287,19 +287,14 @@ class DataQualityValidator:
                 for failure in contract_result.failures:
                     message = failure.message
                     if failure.severity == "error":
-                        contract_violations.append(
-                            self._contract_failure_to_violation(failure)
-                        )
+                        contract_violations.append(self._contract_failure_to_violation(failure))
                     else:
                         contract_warnings.append(message)
 
             if (
                 completeness_result.hard_fail
                 or consistency_result.hard_fail
-                or (
-                    contract_result is not None
-                    and contract_result.blocking_rules > 0
-                )
+                or (contract_result is not None and contract_result.blocking_rules > 0)
             ):
                 score = min(score, 0.69)
 
@@ -307,9 +302,7 @@ class DataQualityValidator:
             grade = self.scorer.assign_grade(score)
 
             violations = (
-                completeness_result.violations
-                + consistency_result.violations
-                + contract_violations
+                completeness_result.violations + consistency_result.violations + contract_violations
             )
             warnings = self._generate_warnings(
                 freshness_status,
@@ -332,7 +325,7 @@ class DataQualityValidator:
                 dataset_id=fetch_result.schema_id,
                 schema_id=schema.schema_id,
                 source_id=source_id,
-                validated_at=datetime.now(timezone.utc),
+                validated_at=datetime.now(UTC),
                 score=score,
                 row_count=len(data),
                 completeness_score=completeness_result.score,
@@ -518,30 +511,20 @@ class DataQualityValidator:
             warnings.append(freshness_status.message)
 
         if getattr(completeness_result, "applicable", True) and completeness_result.score < 0.9:
-            warnings.append(
-                f"Completeness score {completeness_result.score:.1%} below 90%"
-            )
+            warnings.append(f"Completeness score {completeness_result.score:.1%} below 90%")
 
         if completeness_result.gaps_detected > 0:
-            warnings.append(
-                f"{completeness_result.gaps_detected} gaps detected in time series"
-            )
+            warnings.append(f"{completeness_result.gaps_detected} gaps detected in time series")
 
         if consistency_result.score < 0.9:
-            warnings.append(
-                f"Consistency score {consistency_result.score:.1%} below 90%"
-            )
+            warnings.append(f"Consistency score {consistency_result.score:.1%} below 90%")
 
         if anomaly_report is not None and anomaly_report.findings:
-            warnings.append(
-                f"Detected {len(anomaly_report.findings)} statistical anomaly findings"
-            )
+            warnings.append(f"Detected {len(anomaly_report.findings)} statistical anomaly findings")
 
         if drift_report is not None and drift_report.findings:
             detected = sum(1 for finding in drift_report.findings if finding.detected)
-            warnings.append(
-                f"Detected {detected}/{len(drift_report.findings)} drift findings"
-            )
+            warnings.append(f"Detected {detected}/{len(drift_report.findings)} drift findings")
 
         if contract_result is not None and not contract_result.passed:
             warnings.append(
@@ -562,7 +545,7 @@ class DataQualityValidator:
         return DataQualityReport(
             dataset_id=fetch_result.schema_id,
             schema_id=schema.schema_id,
-            validated_at=datetime.now(timezone.utc),
+            validated_at=datetime.now(UTC),
             score=0.0,
             tier=QualityTier.BRONZE,
             grade="F",

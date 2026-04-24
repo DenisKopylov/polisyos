@@ -1,4 +1,5 @@
 """Track 5.2 benchmark for causal-frontier small-area estimation."""
+
 from __future__ import annotations
 
 import argparse
@@ -171,9 +172,13 @@ def _check_jump_case(payload: dict[str, Any]) -> bool:
     tau_unc = float(baseline["tau"])
     diagnostics = statistics["diagnostics"]
     if abs(tau_cut - truth_tau) >= abs(tau_unc - truth_tau):
-        raise AssertionError("constrained model should recover the policy jump at least as well as unrestricted smoothing")
+        raise AssertionError(
+            "constrained model should recover the policy jump at least as well as unrestricted smoothing"
+        )
     if float(diagnostics["blr"]) <= 0.05:
-        raise AssertionError("policy jump case should surface positive leakage under unrestricted smoothing")
+        raise AssertionError(
+            "policy jump case should surface positive leakage under unrestricted smoothing"
+        )
     return True
 
 
@@ -248,9 +253,13 @@ def _build_report(mode: str, *, quiet: bool) -> dict[str, Any]:
     payloads = [
         case.result_payload for case in report.cases if isinstance(case.result_payload, dict)
     ]
-    null_payload = next(payload for payload in payloads if payload["case"] == "null_piecewise_smooth")
+    null_payload = next(
+        payload for payload in payloads if payload["case"] == "null_piecewise_smooth"
+    )
     jump_payload = next(payload for payload in payloads if payload["case"] == "policy_jump")
-    stress_payload = next(payload for payload in payloads if payload["case"] == "small_component_stress")
+    stress_payload = next(
+        payload for payload in payloads if payload["case"] == "small_component_stress"
+    )
     jump_stats = jump_payload["statistics"]
     null_stats = null_payload["statistics"]
     stress_stats = stress_payload["statistics"]
@@ -259,12 +268,8 @@ def _build_report(mode: str, *, quiet: bool) -> dict[str, Any]:
     tau_unc = float(jump_stats["baseline_unrestricted"]["tau"])
 
     aggregate_metrics = {
-        "null_false_alert_rate": float(
-            float(null_stats["diagnostics"]["alert_level"] != "green")
-        ),
-        "jump_detection_rate": float(
-            float(float(jump_stats["diagnostics"]["blr"]) > 0.05)
-        ),
+        "null_false_alert_rate": float(float(null_stats["diagnostics"]["alert_level"] != "green")),
+        "jump_detection_rate": float(float(float(jump_stats["diagnostics"]["blr"]) > 0.05)),
         "mean_variance_inflation": float(
             np.mean(
                 [
@@ -273,7 +278,9 @@ def _build_report(mode: str, *, quiet: bool) -> dict[str, Any]:
                 ]
             )
         ),
-        "mean_tau_abs_error_improvement": float(abs(tau_unc - truth_tau) - abs(tau_cut - truth_tau)),
+        "mean_tau_abs_error_improvement": float(
+            abs(tau_unc - truth_tau) - abs(tau_cut - truth_tau)
+        ),
         "stress_singletons_after_cut": float(stress_stats["diagnostics"]["singletons_after_cut"]),
     }
 
@@ -287,7 +294,9 @@ def _build_report(mode: str, *, quiet: bool) -> dict[str, Any]:
         proof_class="publication_benchmark",
         literature_anchor=LITERATURE_ANCHOR,
         aggregate_metrics=aggregate_metrics,
-        case_details_builder=lambda case: case.result_payload if isinstance(case.result_payload, dict) else {},
+        case_details_builder=lambda case: case.result_payload
+        if isinstance(case.result_payload, dict)
+        else {},
     )
 
 

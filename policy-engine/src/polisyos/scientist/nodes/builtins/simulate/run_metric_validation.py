@@ -1,4 +1,5 @@
 """Public simulate run metric validation module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -17,16 +18,18 @@ from polisyos.core.contracts.foundry import (
     SimulationResult,
     SimulationResultRef,
 )
-from polisyos.core.contracts.scientist import MetricValidationReportRef
+from polisyos.core.contracts.scientist import (
+    MetricValidationReportRef as CoreMetricValidationReportRef,
+)
 from polisyos.ir.analytics.metric_validation_report import persist_metric_validation_report
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_METRICS_REF,
     ARTIFACT_METRIC_OBSERVATION_BUNDLE_REF,
     ARTIFACT_METRIC_VALIDATION_REPORT_REF,
+    ARTIFACT_METRICS_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
 )
 from polisyos.scientist.validation.metrics import (
@@ -120,7 +123,12 @@ class RunMetricValidationNode:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="info", message="Metric validation disabled in params.metric_validation")],
+                events=[
+                    NodeEvent(
+                        level="info",
+                        message="Metric validation disabled in params.metric_validation",
+                    )
+                ],
             )
 
         simulation_result_ref = state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
@@ -128,7 +136,11 @@ class RunMetricValidationNode:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="info", message="No simulation_result_ref; skip metric validation")],
+                events=[
+                    NodeEvent(
+                        level="info", message="No simulation_result_ref; skip metric validation"
+                    )
+                ],
             )
 
         simulation_result = _load_model(ctx, simulation_result_ref, SimulationResult)
@@ -177,7 +189,9 @@ class RunMetricValidationNode:
                 ],
             )
 
-        metric_ids = _resolve_metric_ids(ctx, state, simulation_result, bundle, baseline_model_id, candidate_model_ids, config)
+        metric_ids = _resolve_metric_ids(
+            ctx, state, simulation_result, bundle, baseline_model_id, candidate_model_ids, config
+        )
         if not metric_ids:
             return NodeOutcome(
                 status="skip",
@@ -206,14 +220,21 @@ class RunMetricValidationNode:
             ),
             family_scope=config.family_scope,
         )
-        report_ref = persist_metric_validation_report(
+        persisted_report_ref = persist_metric_validation_report(
             ctx.store,
             report,
             inputs=[
                 InputRef(artifact_id=str(bundle_ref.artifact_id), role="metric_observation_bundle"),
-                InputRef(artifact_id=str(simulation_result_ref.artifact_id), role="simulation_result"),
-                InputRef(artifact_id=str(simulation_result.metrics_ref.artifact_id), role="metrics"),
+                InputRef(
+                    artifact_id=str(simulation_result_ref.artifact_id), role="simulation_result"
+                ),
+                InputRef(
+                    artifact_id=str(simulation_result.metrics_ref.artifact_id), role="metrics"
+                ),
             ],
+        )
+        report_ref = CoreMetricValidationReportRef.model_validate(
+            persisted_report_ref.model_dump(mode="json")
         )
 
         updated_simulation_result = simulation_result.model_copy(
@@ -229,9 +250,16 @@ class RunMetricValidationNode:
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.1"),
                 inputs=[
-                    InputRef(artifact_id=str(simulation_result_ref.artifact_id), role="base_simulation_result"),
-                    InputRef(artifact_id=str(bundle_ref.artifact_id), role="metric_observation_bundle"),
-                    InputRef(artifact_id=str(report_ref.artifact_id), role="metric_validation_report"),
+                    InputRef(
+                        artifact_id=str(simulation_result_ref.artifact_id),
+                        role="base_simulation_result",
+                    ),
+                    InputRef(
+                        artifact_id=str(bundle_ref.artifact_id), role="metric_observation_bundle"
+                    ),
+                    InputRef(
+                        artifact_id=str(report_ref.artifact_id), role="metric_validation_report"
+                    ),
                 ],
             ),
         )
@@ -352,7 +380,11 @@ def _resolve_candidate_model_ids(
 ) -> list[str]:
     requested = config.candidate_model_ids
     if requested:
-        return [model_id for model_id in requested if model_id in bundle.models and model_id != baseline_model_id]
+        return [
+            model_id
+            for model_id in requested
+            if model_id in bundle.models and model_id != baseline_model_id
+        ]
     return [model_id for model_id in bundle.models if model_id != baseline_model_id]
 
 
@@ -374,7 +406,9 @@ def _resolve_metric_ids(
         return metric_ids_from_summary
 
     selected_model_ids = [baseline_model_id, *candidate_model_ids]
-    selected_models = [bundle.models[model_id] for model_id in selected_model_ids if model_id in bundle.models]
+    selected_models = [
+        bundle.models[model_id] for model_id in selected_model_ids if model_id in bundle.models
+    ]
     if not selected_models:
         return []
     has_scores = all(model.y_score is not None for model in selected_models)

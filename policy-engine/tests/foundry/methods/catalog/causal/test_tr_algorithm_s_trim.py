@@ -1,10 +1,8 @@
 """Tests for S-trimming and ProofStep emission in tr_algorithm (Phase 3)."""
-import pytest
 
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.context import ContextProfile
-from polisyos.ir.analytics.transportability import SelectionDiagram, SNode, SNodeOrigin
-
+from polisyos.ir.analytics.transportability import SelectionDiagram, SNode
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -45,6 +43,7 @@ def _diagram(graph: CausalGraphModel, s_var_names: list[str]) -> SelectionDiagra
 
 def _tr(treatment: str, outcome: str, diagram: SelectionDiagram):
     from polisyos.foundry.methods.catalog.causal.id_engine import tr_algorithm
+
     return tr_algorithm(
         treatment=frozenset({treatment}),
         outcome=frozenset({outcome}),

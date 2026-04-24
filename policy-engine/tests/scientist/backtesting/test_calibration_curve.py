@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-import pytest
-
 from polisyos.scientist.backtesting.calibration_curve import (
-    CalibrationResult,
     compute_calibration_curve,
 )
 
@@ -18,7 +15,9 @@ class TestCalibrationCurve:
         # 90% interval that also covers all
         intervals_90 = [(0.0, 10.0)] * 5
         result = compute_calibration_curve(
-            y_true, [intervals_50, intervals_90], levels=[0.5, 0.9],
+            y_true,
+            [intervals_50, intervals_90],
+            levels=[0.5, 0.9],
         )
         assert len(result.points) == 2
         assert result.points[0].empirical_coverage == 1.0
@@ -35,7 +34,10 @@ class TestCalibrationCurve:
         y_true = [1.0, 2.0, 3.0, 4.0]
         intervals = [(0.5, 4.5)] * 4  # covers all
         result = compute_calibration_curve(
-            y_true, [intervals], levels=[1.0], tolerance=0.05,
+            y_true,
+            [intervals],
+            levels=[1.0],
+            tolerance=0.05,
         )
         assert result.is_well_calibrated is True
 

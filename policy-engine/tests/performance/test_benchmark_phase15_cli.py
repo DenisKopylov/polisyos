@@ -8,7 +8,6 @@ from pathlib import Path
 
 import pytest
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 BENCH_REPORT_DIR = REPO_ROOT / "benchmarks" / "_reports"
 if str(REPO_ROOT) not in sys.path:
@@ -438,7 +437,10 @@ def test_temporal_hidden_cli_smoke_emits_hidden_summary(tmp_path: Path):
     assert payload["baseline_snapshot_ref"] == "temporal_hidden@synthetic-v1"
     assert payload["public_claim_eligible"] is False
     assert "hidden_temporal_summary" in payload["aggregate_metrics"]
-    assert payload["aggregate_metrics"]["hidden_temporal_summary"]["artifact_reload_failure_rate"] == 0.0
+    assert (
+        payload["aggregate_metrics"]["hidden_temporal_summary"]["artifact_reload_failure_rate"]
+        == 0.0
+    )
     assert all(case["case_id"].startswith("temporal_hidden::case_") for case in payload["cases"])
 
 
@@ -465,8 +467,8 @@ def test_run_all_temporal_filters_execute_single_suite(tmp_path: Path, suite_id:
 
 
 def test_honest_cli_supports_unified_benchmark_contract(tmp_path: Path, monkeypatch):
-    from benchmarks.honest_comparison.metrics import AggregatedMetrics
     from benchmarks.honest_comparison import run_honest_benchmark as honest_cli
+    from benchmarks.honest_comparison.metrics import AggregatedMetrics
 
     raw_result = {
         "metrics": {

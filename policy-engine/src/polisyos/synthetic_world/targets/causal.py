@@ -1,4 +1,5 @@
 """Causal truth targets."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -64,7 +65,12 @@ def register_dynamic_causal_targets(
     if regime_value is not None:
         targets["causal.dynamic_regime_value"] = {"value": float(regime_value)}
     if path_treated is not None and path_untreated is not None:
-        horizons = np.asarray(horizon_ids if horizon_ids is not None else np.arange(np.asarray(path_treated).shape[0]), dtype=int)
+        horizons = np.asarray(
+            horizon_ids
+            if horizon_ids is not None
+            else np.arange(np.asarray(path_treated).shape[0]),
+            dtype=int,
+        )
         targets["causal.path_specific_outcomes"] = {
             "treated_path": np.asarray(path_treated, dtype=float).tolist(),
             "untreated_path": np.asarray(path_untreated, dtype=float).tolist(),

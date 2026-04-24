@@ -38,6 +38,7 @@ Limitations
 - Module-level side effects will re-execute on reload.
 - Only ``*.py`` files under the watched path trigger reloads.
 """
+
 from __future__ import annotations
 
 import importlib
@@ -217,6 +218,7 @@ class FoundryHotReloader:
         """Background loop — runs watchfiles.awatch synchronously via asyncio."""
         try:
             import asyncio
+
             asyncio.run(self._async_watch_loop())
         except ImportError:
             _logger.warning("watchfiles not installed; hot-reload disabled.")
@@ -227,9 +229,7 @@ class FoundryHotReloader:
         try:
             import watchfiles
         except ImportError:
-            _logger.warning(
-                "watchfiles not installed. Run: pip install 'polisyos[hotreload]'"
-            )
+            _logger.warning("watchfiles not installed. Run: pip install 'polisyos[hotreload]'")
             return
 
         async for changes in watchfiles.awatch(*self._watch_paths, stop_event=self._stop_event):
@@ -301,6 +301,7 @@ class FoundryHotReloader:
         """Clear compilation cache after method reload to prevent stale hits."""
         try:
             from polisyos.foundry.methods.compiler import get_global_cache
+
             cleared = get_global_cache().invalidate_all()
             _logger.debug("Cleared %d compilation cache entries after reload", cleared)
             return True
@@ -348,8 +349,7 @@ class FoundryHotReloader:
         reg = self._registry_or_default()
         staged_fqns = {method_class.signature.fqn for method_class in foundry_methods}
         previous_entries = {
-            fqn: reg.get_entry(fqn)
-            for fqn in self._module_registry_fqns(module_name) | staged_fqns
+            fqn: reg.get_entry(fqn) for fqn in self._module_registry_fqns(module_name) | staged_fqns
         }
         try:
             for fqn in diff.removed_methods:
@@ -391,8 +391,7 @@ class FoundryHotReloader:
     def _build_reload_diff(self, module_name: str, foundry_methods: list[type]) -> HotReloadDiff:
         """Compute module-scoped add/update/remove sets before publication."""
         staged_by_fqn = {
-            method_class.signature.fqn: method_class
-            for method_class in foundry_methods
+            method_class.signature.fqn: method_class for method_class in foundry_methods
         }
         previous_entries = self._module_registry_entries(module_name)
 
@@ -478,6 +477,7 @@ class FoundryHotReloader:
         """Return the default catalog directories to watch."""
         try:
             import polisyos.foundry.methods.catalog as _catalog_pkg
+
             catalog_dir = Path(_catalog_pkg.__file__).parent
             return [catalog_dir]
         except (ImportError, AttributeError, TypeError):

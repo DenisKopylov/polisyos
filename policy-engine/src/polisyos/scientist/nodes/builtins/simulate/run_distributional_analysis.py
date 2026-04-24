@@ -1,8 +1,9 @@
 """Public simulate run distributional analysis module API."""
+
 from __future__ import annotations
 
-from collections.abc import Mapping
 import math
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
@@ -14,17 +15,13 @@ from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import FoundryInputBindings, SimulationResult, StateSnapshotRef
-from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.foundry.analysis.distributional import (
     build_distributional_report,
     build_geography_breakdown,
     build_income_quintile_breakdown,
 )
 from polisyos.foundry.executor import load_state_snapshot
-from polisyos.foundry.methods.catalog.distributional.poverty_advanced import (
-    OrdinalMultidimensionalPovertyEstimator,
-)
-from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult, IdentificationStatus
+from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.foundry.methods.catalog.causal.density_ratio import (
     ScalarOTDistributionalResult,
     compute_scalar_distributional_effect,
@@ -32,6 +29,13 @@ from polisyos.foundry.methods.catalog.causal.density_ratio import (
 from polisyos.foundry.methods.catalog.causal.distributional_bounds import (
     POINTWISE_NON_UNIFORM_WARNING,
     DistributionalBoundsEngineMethod,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    IdentificationResult,
+    IdentificationStatus,
+)
+from polisyos.foundry.methods.catalog.distributional.poverty_advanced import (
+    OrdinalMultidimensionalPovertyEstimator,
 )
 from polisyos.ir.analytics.causal import (
     ProofBundle,
@@ -45,18 +49,18 @@ from polisyos.ir.analytics.distributional import (
     CohortDimension,
     CouplingDiagnostics,
     DiscreteDistributionSummary,
+    DistributionalBoundsBundle,
+    DistributionalBoundUniformity,
+    DistributionalCouplingStatus,
     DistributionalDualCertificate,
     DistributionalEffectBundle,
-    DistributionalBoundUniformity,
-    DistributionalBoundsBundle,
-    DistributionalCouplingStatus,
     DistributionalFunctional,
     DistributionalJustification,
     DistributionalProofArtifact,
     DistributionalProofTarget,
+    DistributionBin,
     OrdinalPovertyEstimate,
     OrdinalPovertyReport,
-    DistributionBin,
     OTCouplingSummary,
     QuantileShiftEntry,
     QuantileShiftSummary,
@@ -89,9 +93,9 @@ from polisyos.ir.refs import (
     DistributionalBoundsBundleRef,
     DistributionalDualCertificateRef,
     DistributionalProofArtifactRef,
-    OrdinalPovertyReportRef,
     EstimandASTRef,
     NegativeCertificateRef,
+    OrdinalPovertyReportRef,
     ProofBundleRef,
 )
 from polisyos.scientist.engine.context import ExecutionContext
@@ -127,8 +131,7 @@ _ASSUMPTION_DESCRIPTIONS = {
         "numerical stability and visualization, not a proof of a structural joint law."
     ),
     "uniform_weighting_used": (
-        "Distributional summaries use uniform unit weights rather than density-ratio "
-        "reweighting."
+        "Distributional summaries use uniform unit weights rather than density-ratio reweighting."
     ),
     "positivity": "Positivity / overlap must hold on the support of the interventional query.",
     "overlap": "Source and target supports must overlap on the covariate region used by the query.",
@@ -244,6 +247,7 @@ class _OrdinalPovertyResolution:
 @dataclass(frozen=True)
 class RunDistributionalAnalysisNode:
     """Run distributional analysis node implementation."""
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -254,7 +258,12 @@ class RunDistributionalAnalysisNode:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="info", message="No simulation_result_ref; skip distributional analysis")],
+                events=[
+                    NodeEvent(
+                        level="info",
+                        message="No simulation_result_ref; skip distributional analysis",
+                    )
+                ],
             )
 
         try:
@@ -271,7 +280,12 @@ class RunDistributionalAnalysisNode:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="info", message="SimulationResult has no state_snapshot_ref; skip distributional analysis")],
+                events=[
+                    NodeEvent(
+                        level="info",
+                        message="SimulationResult has no state_snapshot_ref; skip distributional analysis",
+                    )
+                ],
             )
 
         baseline_ref = _resolve_baseline_snapshot_ref(ctx, state)
@@ -279,12 +293,19 @@ class RunDistributionalAnalysisNode:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="info", message="No baseline snapshot available; skip distributional analysis")],
+                events=[
+                    NodeEvent(
+                        level="info",
+                        message="No baseline snapshot available; skip distributional analysis",
+                    )
+                ],
             )
 
         try:
             baseline_state = load_state_snapshot(ctx.store, snapshot_ref=baseline_ref)
-            simulated_state = load_state_snapshot(ctx.store, snapshot_ref=sim_result.state_snapshot_ref)
+            simulated_state = load_state_snapshot(
+                ctx.store, snapshot_ref=sim_result.state_snapshot_ref
+            )
         except _DISTRIBUTIONAL_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="skip",
@@ -298,7 +319,11 @@ class RunDistributionalAnalysisNode:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="info", message="Insufficient agents for distributional analysis")],
+                events=[
+                    NodeEvent(
+                        level="info", message="Insufficient agents for distributional analysis"
+                    )
+                ],
             )
 
         geography_groups, geography_skipped_reasons = _aligned_geography_subgroups(
@@ -337,7 +362,9 @@ class RunDistributionalAnalysisNode:
             source_simulation_ref=str(sim_result_ref.artifact_id),
             metadata={
                 "run_id": state.run_id,
-                "geography_breakdown_status": "included" if geography_breakdown is not None else "skipped",
+                "geography_breakdown_status": "included"
+                if geography_breakdown is not None
+                else "skipped",
                 "geography_breakdown_skipped_reasons": list(geography_skipped_reasons),
                 "geography_group_ids": [group.subgroup_id for group in geography_groups],
                 **ordinal_poverty.metadata,
@@ -475,13 +502,17 @@ class RunDistributionalAnalysisNode:
                     **justification_resolution.metadata,
                 },
             )
-            bundle_ref = persist_distributional_effect_bundle(ctx.store, bundle, inputs=artifact_inputs)
+            bundle_ref = persist_distributional_effect_bundle(
+                ctx.store, bundle, inputs=artifact_inputs
+            )
             report_ref = persist_distributional_report(ctx.store, report, inputs=artifact_inputs)
         except _DISTRIBUTIONAL_EXECUTION_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
-                events=[NodeEvent(level="error", message=f"Distributional D.1 build failed: {exc}")],
+                events=[
+                    NodeEvent(level="error", message=f"Distributional D.1 build failed: {exc}")
+                ],
                 error=NodeError(
                     code="distributional_analysis_failed",
                     message="Failed to build OT distributional artifacts",
@@ -1020,17 +1051,17 @@ def _resolve_distributional_justification(
             coupling_assumptions=coupling_assumptions,
             metadata={
                 **base_metadata,
-                    "proof_kernel": {
-                        "status": "non_identified",
-                        "reason": result.to_summary(),
-                        "blocking_type": result.blocking_type.value,
-                        "query_kind": "distribution_law",
-                        "distributional_query_kind": "interventional_law",
-                        "treatment_variable": treatment,
-                        "outcome_name": outcome_name,
-                        "graph_ref": str(graph_ref.artifact_id),
-                    },
+                "proof_kernel": {
+                    "status": "non_identified",
+                    "reason": result.to_summary(),
+                    "blocking_type": result.blocking_type.value,
+                    "query_kind": "distribution_law",
+                    "distributional_query_kind": "interventional_law",
+                    "treatment_variable": treatment,
+                    "outcome_name": outcome_name,
+                    "graph_ref": str(graph_ref.artifact_id),
                 },
+            },
             proof_bundle=proof_bundle,
         )
 
@@ -1101,7 +1132,10 @@ def _resolve_distributional_bounds(
         if state_payload is None:
             skipped.append(f"request_{index}:missing_required_data")
             continue
-        if family == "lee_trimming_distributional" and "monotone_selection_S1_ge_S0" not in request_assumptions:
+        if (
+            family == "lee_trimming_distributional"
+            and "monotone_selection_S1_ge_S0" not in request_assumptions
+        ):
             skipped.append(f"request_{index}:missing_monotone_selection_assumption")
             continue
         if family in {"mtr_headcount", "mtr_theil", "mtr_atkinson", "mtr_gini_lorenz"} and (
@@ -1141,7 +1175,9 @@ def _resolve_distributional_bounds(
                 bundle_payload = output["result"]["distributional_bounds_bundle"]
                 bundle = DistributionalBoundsBundle.model_validate(bundle_payload)
                 dual_certificate_ref: DistributionalDualCertificateRef | None = None
-                dual_certificate_payload = output["result"].get("distributional_dual_certificate_payload")
+                dual_certificate_payload = output["result"].get(
+                    "distributional_dual_certificate_payload"
+                )
                 if isinstance(dual_certificate_payload, dict):
                     certificate = DistributionalDualCertificate.model_validate(
                         dual_certificate_payload
@@ -1151,7 +1187,9 @@ def _resolve_distributional_bounds(
                         certificate,
                         inputs=inputs,
                     )
-                    bundle = attach_distributional_dual_certificate_ref(bundle, dual_certificate_ref)
+                    bundle = attach_distributional_dual_certificate_ref(
+                        bundle, dual_certificate_ref
+                    )
                 ref = persist_distributional_bounds_bundle(
                     ctx.store,
                     bundle,
@@ -1177,7 +1215,9 @@ def _resolve_distributional_bounds(
             functionals.append(bundle.functional.value)
             assumptions.extend(request_assumptions)
             if bundle.method_summaries:
-                assumptions.extend(str(item) for item in bundle.method_summaries[0].assumptions_used)
+                assumptions.extend(
+                    str(item) for item in bundle.method_summaries[0].assumptions_used
+                )
             bundle_summaries.append(
                 {
                     "ref": ref.model_dump(mode="json"),
@@ -1217,7 +1257,9 @@ def _resolve_distributional_bounds(
         ),
         metadata={
             "status": "bounded",
-            "primary_theorem_family": unique_theorems[0] if unique_theorems else "distributional_bounds",
+            "primary_theorem_family": unique_theorems[0]
+            if unique_theorems
+            else "distributional_bounds",
             "theorem_families": unique_theorems,
             "functionals": unique_functionals,
             "bound_uniformity": uniformity.value,
@@ -1416,17 +1458,14 @@ def _makarov_marginals_licensed(
     request: dict[str, Any],
     config: dict[str, Any],
 ) -> bool:
-    status = str(
-        request.get("marginal_law_status")
-        or config.get("marginal_law_status")
-        or ""
-    ).strip().lower()
+    status = (
+        str(request.get("marginal_law_status") or config.get("marginal_law_status") or "")
+        .strip()
+        .lower()
+    )
     if status in {"identified", "bounded", "licensed"}:
         return True
-    return bool(
-        request.get("marginal_laws_licensed")
-        or config.get("marginal_laws_licensed")
-    )
+    return bool(request.get("marginal_laws_licensed") or config.get("marginal_laws_licensed"))
 
 
 def _distributional_bounds_uniformity(
@@ -1799,8 +1838,7 @@ def _persist_distributional_proof_artifacts(
                 target=distributional_bounds_target or DistributionalProofTarget.CDF,
                 bounded_curve_ref=first_bounds_ref,
                 bound_uniformity=(
-                    distributional_bounds_uniformity
-                    or DistributionalBoundUniformity.UNIFORM_OUTER
+                    distributional_bounds_uniformity or DistributionalBoundUniformity.UNIFORM_OUTER
                 ),
                 coupling_status=DistributionalCouplingStatus.NOT_USED,
                 theorem_family=str(
@@ -1860,7 +1898,9 @@ def _persist_distributional_proof_artifacts(
                         if coupling_negative_ref is not None
                         else None
                     ),
-                    "justification": coupling_justification.value if coupling_justification is not None else None,
+                    "justification": coupling_justification.value
+                    if coupling_justification is not None
+                    else None,
                 },
             ),
             inputs=inputs,
@@ -2207,16 +2247,24 @@ def _aligned_geography_subgroups(
 
     baseline_arr = np.asarray(baseline_regions)
     simulated_arr = np.asarray(simulated_regions)
-    if baseline_arr.ndim != 1 or simulated_arr.ndim != 1 or baseline_arr.shape != simulated_arr.shape:
+    if (
+        baseline_arr.ndim != 1
+        or simulated_arr.ndim != 1
+        or baseline_arr.shape != simulated_arr.shape
+    ):
         return [], ["Geography subgroup comparisons skipped: employer_id shape mismatch"]
     if not np.array_equal(baseline_arr, simulated_arr):
-        return [], ["Geography subgroup comparisons skipped: employer_id not aligned between snapshots"]
+        return [], [
+            "Geography subgroup comparisons skipped: employer_id not aligned between snapshots"
+        ]
 
     groups: list[_SubgroupSpec] = []
     warnings: list[str] = []
     valid_mask = baseline_arr >= 0
     if int(np.sum(valid_mask)) < _GEOGRAPHY_MIN_GROUP_SIZE:
-        return [], ["Geography subgroup comparisons skipped: insufficient aligned geography observations"]
+        return [], [
+            "Geography subgroup comparisons skipped: insufficient aligned geography observations"
+        ]
 
     for region in np.unique(baseline_arr[valid_mask]):
         mask = baseline_arr == region
@@ -2235,7 +2283,9 @@ def _aligned_geography_subgroups(
             )
         )
     if len(groups) < 2:
-        warnings.append("Geography subgroup comparisons skipped: fewer than two sufficiently sized aligned regions")
+        warnings.append(
+            "Geography subgroup comparisons skipped: fewer than two sufficiently sized aligned regions"
+        )
         return [], warnings
     return groups, warnings
 

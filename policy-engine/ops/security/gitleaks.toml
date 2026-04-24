@@ -2,12 +2,6 @@ title = "PolisyOS gitleaks policy"
 
 [allowlist]
 description = "Synthetic examples and documented placeholder secrets only."
-paths = [
-  '''docs/.*''',
-  '''.*\.example$''',
-]
+paths = ['''docs/.*''', '''.*\.example$''']
 
-regexes = [
-  '''PLACEHOLDER_[A-Z0-9_]+''',
-  '''example-secret''',
-]
+regexes = ['''PLACEHOLDER_[A-Z0-9_]+''', '''example-secret''']

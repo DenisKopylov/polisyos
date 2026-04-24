@@ -138,7 +138,9 @@ def _scan_for_broad_handlers(repo_root: Path, targets: Sequence[str]) -> list[st
         if not source_path.exists():
             findings.append(f"missing_target:{relative_path}")
             continue
-        for line_number, line in enumerate(source_path.read_text(encoding="utf-8").splitlines(), start=1):
+        for line_number, line in enumerate(
+            source_path.read_text(encoding="utf-8").splitlines(), start=1
+        ):
             if pattern.search(line):
                 findings.append(f"{relative_path}:{line_number}")
     return findings
@@ -150,7 +152,9 @@ def _scan_for_live_deep_copy_calls(repo_root: Path, allowlist: set[str]) -> list
         relative_path = str(source_path.relative_to(repo_root))
         if relative_path in allowlist:
             continue
-        for line_number, line in enumerate(source_path.read_text(encoding="utf-8").splitlines(), start=1):
+        for line_number, line in enumerate(
+            source_path.read_text(encoding="utf-8").splitlines(), start=1
+        ):
             if "model_copy(deep=True)" in line:
                 findings.append(f"{relative_path}:{line_number}")
     return findings
@@ -198,7 +202,9 @@ def _build_payload(
 
     return {
         "assessment_id": ASSESSMENT_ID,
-        "passes_all": reliability.passes_all and all(test_results.values()) and all(ratchet_results.values()),
+        "passes_all": reliability.passes_all
+        and all(test_results.values())
+        and all(ratchet_results.values()),
         "reliability_scorecard": reliability.to_dict(),
         "phase1_test_results": test_results,
         "required_cases": {key: list(value) for key, value in PHASE1_TEST_CASES.items()},

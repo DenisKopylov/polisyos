@@ -1,4 +1,5 @@
 """Public analytics causal graph module API."""
+
 from __future__ import annotations
 
 import json
@@ -15,15 +16,17 @@ from polisyos.ir.refs import CausalGraphModelRef
 
 class GraphType(str, Enum):
     """Graph type public type."""
+
     DAG = "dag"
     CPDAG = "cpdag"
     PAG = "pag"
     MGRAPH = "mgraph"  # M-graph: includes R_X indicator and X_star proxy nodes
-    ADMG = "admg"      # Acyclic Directed Mixed Graph (bidirected edges only, no R-nodes)
+    ADMG = "admg"  # Acyclic Directed Mixed Graph (bidirected edges only, no R-nodes)
 
 
 class PAGIdentificationPolicy(str, Enum):
     """PAG identification policy data model."""
+
     CONSERVATIVE = "conservative"
     OPTIMISTIC = "optimistic"
     PROBABILISTIC = "probabilistic"
@@ -31,6 +34,7 @@ class PAGIdentificationPolicy(str, Enum):
 
 class EdgeMark(str, Enum):
     """Edge mark public type."""
+
     TAIL = "tail"
     ARROW = "arrow"
     CIRCLE = "circle"
@@ -38,6 +42,7 @@ class EdgeMark(str, Enum):
 
 class EdgeSource(str, Enum):
     """Edge source public type."""
+
     DATA = "data"
     LITERATURE = "literature"
     LLM_PRIOR = "llm_prior"
@@ -47,6 +52,7 @@ class EdgeSource(str, Enum):
 
 class CausalEdge(BaseModel):
     """Causal edge public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     SOURCE_WEIGHTS: ClassVar[dict[EdgeSource, float]] = {
@@ -78,7 +84,7 @@ class CausalEdge(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_fields(self) -> "CausalEdge":
+    def _validate_fields(self) -> CausalEdge:
         for name in (
             "data_confidence",
             "literature_confidence",
@@ -144,7 +150,7 @@ class CausalGraphModel(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_graph(self) -> "CausalGraphModel":
+    def _validate_graph(self) -> CausalGraphModel:
         if not self.nodes:
             raise ValueError("nodes must be non-empty")
         if any(not node for node in self.nodes):
@@ -206,13 +212,11 @@ class CausalGraphModel(BaseModel):
         for edge in self.edges:
             if edge.mark_src is not EdgeMark.TAIL or edge.mark_dst is not EdgeMark.ARROW:
                 raise ValueError("to_dot() requires fully oriented edges (tail->arrow)")
-            lines.append(
-                f'  "{self._dot_escape(edge.src)}" -> "{self._dot_escape(edge.dst)}";'
-            )
+            lines.append(f'  "{self._dot_escape(edge.src)}" -> "{self._dot_escape(edge.dst)}";')
         lines.append("}")
         return "\n".join(lines)
 
-    def to_rustworkx(self) -> tuple["Any", dict[str, int]]:
+    def to_rustworkx(self) -> tuple[Any, dict[str, int]]:
         import rustworkx as rx
 
         graph = rx.PyDiGraph()
@@ -289,7 +293,7 @@ def _serialize_kuzu_edge_row(edge: CausalEdge, *, graph_type: str) -> dict[str, 
     }
 
 
-def _validate_mgraph_structure(nodes: list[str], edges: list["CausalEdge"]) -> None:
+def _validate_mgraph_structure(nodes: list[str], edges: list[CausalEdge]) -> None:
     """Validate the naming contract for an M-graph.
 
     For every node named "R_X" in nodes:
@@ -300,8 +304,9 @@ def _validate_mgraph_structure(nodes: list[str], edges: list["CausalEdge"]) -> N
     Raises ValueError with a descriptive message on violation.
     """
     node_set = set(nodes)
-    directed = {(e.src, e.dst) for e in edges
-                if e.mark_src.value == "tail" and e.mark_dst.value == "arrow"}
+    directed = {
+        (e.src, e.dst) for e in edges if e.mark_src.value == "tail" and e.mark_dst.value == "arrow"
+    }
 
     for node in nodes:
         if node.startswith("R_"):
@@ -319,14 +324,10 @@ def _validate_mgraph_structure(nodes: list[str], edges: list["CausalEdge"]) -> N
             target = node[:-5]  # "X_star" → "X"
             r_node = f"R_{target}"
             if r_node not in node_set:
-                raise ValueError(
-                    f"M-graph proxy '{node}' has no corresponding R-node '{r_node}'"
-                )
+                raise ValueError(f"M-graph proxy '{node}' has no corresponding R-node '{r_node}'")
             # Edge R_X → X_star must exist
             if (r_node, node) not in directed:
-                raise ValueError(
-                    f"M-graph requires directed edge '{r_node}' → '{node}'"
-                )
+                raise ValueError(f"M-graph requires directed edge '{r_node}' → '{node}'")
 
 
 def _has_directed_cycle(
@@ -335,7 +336,7 @@ def _has_directed_cycle(
     edges: list[CausalEdge],
     include_lagged: bool = True,
 ) -> bool:
-    indegree: dict[str, int] = {node: 0 for node in nodes}
+    indegree: dict[str, int] = dict.fromkeys(nodes, 0)
     adjacency: dict[str, list[str]] = {node: [] for node in nodes}
     for edge in edges:
         if not include_lagged and edge.lag not in (None, 0):
@@ -386,12 +387,12 @@ def load_causal_graph_model(
 
 
 __all__ = [
-    "GraphType",
-    "PAGIdentificationPolicy",
-    "EdgeMark",
-    "EdgeSource",
     "CausalEdge",
     "CausalGraphModel",
-    "persist_causal_graph_model",
+    "EdgeMark",
+    "EdgeSource",
+    "GraphType",
+    "PAGIdentificationPolicy",
     "load_causal_graph_model",
+    "persist_causal_graph_model",
 ]

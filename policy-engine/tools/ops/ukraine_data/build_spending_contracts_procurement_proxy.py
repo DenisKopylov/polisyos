@@ -22,7 +22,9 @@ def build_parser() -> argparse.ArgumentParser:
         description="Build the Spending contracts procurement proxy without running the full D0 stage.",
     )
     parser.add_argument("--config", type=Path, default=None, help="Path to JSON pipeline config.")
-    parser.add_argument("--root", type=Path, default=None, help="Override build root for manifests and artifacts.")
+    parser.add_argument(
+        "--root", type=Path, default=None, help="Override build root for manifests and artifacts."
+    )
     parser.add_argument(
         "--local-path",
         type=Path,
@@ -53,7 +55,11 @@ def main(argv: list[str] | None = None) -> int:
     ctx = SourceExecutionContext(config.build_root)
     snapshot = adapter.fetch(source, ctx)
     if isinstance(snapshot, SkippedSourceManifest):
-        sys.stdout.write(json.dumps(snapshot.model_dump(mode="json"), ensure_ascii=True, indent=2, sort_keys=True))
+        sys.stdout.write(
+            json.dumps(
+                snapshot.model_dump(mode="json"), ensure_ascii=True, indent=2, sort_keys=True
+            )
+        )
         sys.stdout.write("\n")
         return 0
 
@@ -61,13 +67,17 @@ def main(argv: list[str] | None = None) -> int:
     findings = adapter.validate(source, normalized)
     if findings:
         normalized = normalized.model_copy(update={"findings": [*normalized.findings, *findings]})
-        normalized_path = write_manifest(ctx.manifest_dir(source.source_id) / source.manifest_name, normalized)
+        normalized_path = write_manifest(
+            ctx.manifest_dir(source.source_id) / source.manifest_name, normalized
+        )
     else:
         normalized_path = ctx.manifest_dir(source.source_id) / source.manifest_name
     payload = {
         "source_id": source.source_id,
         "raw_source_path": str(source.local_path),
-        "source_snapshot_manifest": str(ctx.manifest_dir(source.source_id) / "source_snapshot_manifest.json"),
+        "source_snapshot_manifest": str(
+            ctx.manifest_dir(source.source_id) / "source_snapshot_manifest.json"
+        ),
         "normalized_manifest": str(normalized_path),
         "normalized_artifact": str(normalized.normalized_artifact.path),
         "row_count": normalized.normalized_artifact.row_count,

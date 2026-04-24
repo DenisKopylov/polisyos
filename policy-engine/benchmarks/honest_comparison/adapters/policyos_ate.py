@@ -8,7 +8,6 @@ from typing import Any
 import numpy as np
 
 from benchmarks.honest_comparison.adapters.base import EstimatorResult
-from benchmarks.honest_comparison.config import FairnessTier
 
 # Ensure PolicyOS is importable
 if "src" not in sys.path:
@@ -64,8 +63,12 @@ class PolicyOSTMLE:
         return False
 
     def fit_predict(
-        self, X: np.ndarray, T: np.ndarray, Y: np.ndarray,
-        config: dict[str, Any], seed: int,
+        self,
+        X: np.ndarray,
+        T: np.ndarray,
+        Y: np.ndarray,
+        config: dict[str, Any],
+        seed: int,
     ) -> EstimatorResult:
         from polisyos.foundry.methods.catalog.causal.tmle_core import fit_tmle_ate
 
@@ -88,8 +91,12 @@ class PolicyOSAIPW:
         return False
 
     def fit_predict(
-        self, X: np.ndarray, T: np.ndarray, Y: np.ndarray,
-        config: dict[str, Any], seed: int,
+        self,
+        X: np.ndarray,
+        T: np.ndarray,
+        Y: np.ndarray,
+        config: dict[str, Any],
+        seed: int,
     ) -> EstimatorResult:
         from polisyos.foundry.methods.catalog.causal.tmle_core import fit_aipw_ate
 
@@ -112,8 +119,12 @@ class PolicyOSIPW:
         return False
 
     def fit_predict(
-        self, X: np.ndarray, T: np.ndarray, Y: np.ndarray,
-        config: dict[str, Any], seed: int,
+        self,
+        X: np.ndarray,
+        T: np.ndarray,
+        Y: np.ndarray,
+        config: dict[str, Any],
+        seed: int,
     ) -> EstimatorResult:
         from polisyos.foundry.methods.catalog.causal.treatment_effects import IPWEstimator
 

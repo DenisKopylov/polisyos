@@ -2,6 +2,7 @@
 
 **Repo snapshot date**: 2026-02-03  
 **Scope**:
+
 - new DuckDB DDL contract: `policy-engine/src/polisyos/fabric/world/ddl/duckdb_world.sql`
 - new world materializer package (Phase 10): `policy-engine/src/polisyos/fabric/world/materialize/*`
 - new tests (Phase 10): `policy-engine/tests/fabric/test_world_materialization_phase10.py`
@@ -34,18 +35,21 @@ materialize_world_duckdb_from_fact_log(fact_log_root, db, cas)
 
 and obtain a DuckDB schema `world` with:
 
-**Canonical graph tables**
+**Canonical graph tables:**
+
 - `world.world_facts` (optional but recommended as “raw index”)
 - `world.world_nodes` (canonical nodes)
 - `world.world_edges` (canonical edges)
 
-**Projections (read-friendly tables)**
+**Projections (read-friendly tables):**
+
 - `world.doc_sources`, `world.doc_versions`, `world.doc_fragments`
 - `world.claims`, `world.claim_citations`
 - `world.world_events`
 - `world.conflict_sets`, `world.conflict_members` (**schema only**, since conflict objects are not in IR World ABI v1.0 as of 2026-02-03)
 
-**Incrementality**
+**Incrementality:**
+
 - meta-table `world._meta_world_segments` stores applied segments and diagnostic counters.
 
 ---
@@ -127,7 +131,7 @@ Policy:
 
 Add:
 
-```
+```text
 policy-engine/src/polisyos/fabric/world/materialize/
   __init__.py
   errors.py         # WorldMaterializationError (+ helpers)
@@ -138,7 +142,7 @@ policy-engine/src/polisyos/fabric/world/materialize/
   projections.py    # CAS-driven projection builders (docs/claims/events)
 ```
 
-> This is intentionally separate from the existing `policy-engine/src/polisyos/fabric/materializer.py` which materializes *non-world* facts (`macro.*`, `agent.*`, etc.).
+> This is intentionally separate from the existing `policy-engine/src/polisyos/fabric/materializer.py` which materializes _non-world_ facts (`macro.*`, `agent.*`, etc.).
 
 ### 2.3 Public API (Phase 10)
 
@@ -174,7 +178,7 @@ def apply_world_segment(
 
 Add Phase 10 tests:
 
-```
+```text
 policy-engine/tests/fabric/test_world_materialization_phase10.py
 ```
 
@@ -473,10 +477,13 @@ Materialize entrypoint:
 
 1. `ensure_world_schema(db)` executes `duckdb_world.sql`
 2. Load manifests from world channel:
+
    - `load_world_fact_manifests(fact_log_root)` (Phase 9 helper)
 3. Load applied segments:
+
    - `SELECT segment_id, segment_sha256 FROM world._meta_world_segments`
 4. For each manifest (in file order):
+
    - if `segment_id` present:
      - if sha mismatch → raise `WorldSegmentHashMismatch`
      - else skip
@@ -488,21 +495,27 @@ Within one DuckDB transaction:
 
 1. Verify segment file exists.
 2. Verify hash:
+
    - `sha256(path.read_bytes()) == manifest.sha256`
 3. Read parquet into `df`.
 4. If `df` empty:
+
    - record meta row with `facts_inserted=0, edges_inserted=0, projections_updated=0` (still mark applied to avoid rework)
 5. Compute staging frames + `touched_node_ids`.
 6. **Raw facts insert** (if enabled):
+
    - anti-join by `fact_id` into `world.world_facts`
 7. **Nodes materialization**:
+
    - insert missing `world.world_nodes(node_id, kind='unknown')` for all touched ids
    - compute canonical attributes for touched ids and update:
      - `kind`, `label`, `artifact_id`, `props_ref`
      - `world.kind` merge rule enforced
 8. **Edges materialization**:
+
    - from edge facts: map to edge rows and insert anti-join by `edge_id=fact_id` into `world.world_edges`
 9. **Projections update**:
+
    - update docs/claims/events from CAS for touched ids of relevant kinds
    - update `claim_citations` from edges `kind='claim.cites'`
 10. Insert meta row into `world._meta_world_segments`.
@@ -621,18 +634,21 @@ Phase 10 uses a hybrid approach:
 - Graph index comes from FactLog → `world_nodes/world_edges`
 - Rich projections are loaded from CAS artifacts referenced by `world_nodes.artifact_id`
 
-This is required because Phase 9 does not emit doc.* / claim.* / event.* attributes as facts.
+This is required because Phase 9 does not emit doc._/ claim._ / event.\* attributes as facts.
 
 ### 8.2 Projection update strategy (v1.0)
 
 For each projection table, updates are executed only for touched node ids of relevant kinds:
 
 1. Identify node ids to update:
+
    - `SELECT node_id, kind, artifact_id FROM world.world_nodes WHERE node_id IN touched_ids`
 2. For each kind group:
+
    - if `artifact_id` is NULL: skip (cannot load projection row)
    - else load artifact JSON from CAS and validate typed model
 3. For each updated table:
+
    - `DELETE ... WHERE <pk> IN (...)`
    - `INSERT ... SELECT ... FROM <staging_df>`
 
@@ -878,9 +894,9 @@ Phase 10 is complete when:
 
 ## D1-L4 Validation Links
 
-| Link type | Current anchor |
-|-----------|----------------|
-| Source plan phase | D1-L4 Phase 0 world ABI determinism and Phase 4 ecosystem/materialization bridge |
-| Contract tests | `tests/contract/test_world_abi_contract.py`, `tests/fabric/test_world_store.py`, `tests/fabric/test_world_materialization.py` |
-| Schema snapshots | `schemas/snapshots/ir/world_event.schema.json`, `schemas/snapshots/ir/claim.schema.json`, `schemas/snapshots/ir/doc_fragment.schema.json`, `schemas/snapshots/ir/doc_meta.schema.json` |
-| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |
+| Link type           | Current anchor                                                                                                                                                                         |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source plan phase   | D1-L4 Phase 0 world ABI determinism and Phase 4 ecosystem/materialization bridge                                                                                                       |
+| Contract tests      | `tests/contract/test_world_abi_contract.py`, `tests/fabric/test_world_store.py`, `tests/fabric/test_world_materialization.py`                                                          |
+| Schema snapshots    | `schemas/snapshots/ir/world_event.schema.json`, `schemas/snapshots/ir/claim.schema.json`, `schemas/snapshots/ir/doc_fragment.schema.json`, `schemas/snapshots/ir/doc_meta.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                 |

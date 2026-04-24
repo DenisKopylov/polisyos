@@ -26,6 +26,7 @@ logger = get_logger(__name__)
 @dataclass(frozen=True)
 class ExploreLaneLimits:
     """Explore lane limits public type."""
+
     max_sources_per_query: int = 5
     max_discovery_calls_per_source: int = 25
     max_candidates_total: int = 50
@@ -36,6 +37,7 @@ class ExploreLaneLimits:
 @dataclass(frozen=True)
 class ExploreLaneDiscoverResult:
     """Budget-bounded discovery output with candidate datasets, fetch count, and warnings."""
+
     candidates: list[DiscoveryCandidate]
     docs_fetched_total: int
     warnings: list[str]
@@ -134,7 +136,9 @@ class ExploreLaneDiscovery:
                             except Exception:
                                 logger.debug(
                                     "Failed to fetch dataset schema for connector=%s dataset=%s",
-                                    connector_id, descriptor.dataset_id, exc_info=True,
+                                    connector_id,
+                                    descriptor.dataset_id,
+                                    exc_info=True,
                                 )
                                 schema_excerpt = {}
 
@@ -205,7 +209,9 @@ class ExploreLaneDiscovery:
     @staticmethod
     def _descriptor_match_score(*, need: DataNeed, descriptor: Any) -> float:
         metric_query = need.metric.strip().lower()
-        tokens = [token for token in metric_query.replace(".", " ").replace("_", " ").split() if token]
+        tokens = [
+            token for token in metric_query.replace(".", " ").replace("_", " ").split() if token
+        ]
         if not tokens:
             return 0.0
         searchable = " ".join(

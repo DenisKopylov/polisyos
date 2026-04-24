@@ -1,8 +1,9 @@
 """Define Scholar pipeline DTOs and persisted bundle/report payload contracts."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -15,12 +16,15 @@ from polisyos.core.contracts.scholar import (
     SourceSpec,
     ThresholdsV1,
 )
-from polisyos.fabric.docs import DocSourceSpec
+
+if TYPE_CHECKING:
+    from polisyos.fabric.docs import DocSourceSpec
 
 
 @dataclass(frozen=True)
 class AcquireResult:
     """Carry one fetched raw source plus normalized source metadata."""
+
     source: SourceSpec
     source_identity: str
     raw_bytes: bytes
@@ -31,6 +35,7 @@ class AcquireResult:
 @dataclass(frozen=True)
 class DocPipelineRefs:
     """Collect persisted document-processing artifact IDs for one source document."""
+
     doc_source_id: str
     doc_version_id: str
     doc_meta_artifact_id: str
@@ -44,6 +49,7 @@ class DocPipelineRefs:
 @dataclass(frozen=True)
 class ClaimsPipelineRefs:
     """Collect claim extraction/normalization artifacts and quality report IDs."""
+
     claim_set_artifact_id: str
     normalized_claim_set_artifact_id: str
     claim_ids: list[str] = field(default_factory=list)
@@ -55,6 +61,7 @@ class ClaimsPipelineRefs:
 @dataclass(frozen=True)
 class ReconcileRefs:
     """Collect conflict resolution and trust assessment artifacts."""
+
     conflict_set_ids: list[str] = field(default_factory=list)
     conflict_set_artifact_ids: list[str] = field(default_factory=list)
     winner_by_conflict_set: dict[str, str] = field(default_factory=dict)
@@ -67,6 +74,7 @@ class ReconcileRefs:
 
 class KnowledgeBundlePayloadV1(BaseModel):
     """Persist the Scholar bundle graph used by downstream evidence consumers."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: Literal["1.0"] = "1.0"
@@ -99,6 +107,7 @@ class KnowledgeBundlePayloadV1(BaseModel):
 
 class EnrichmentReportV1(BaseModel):
     """Summarize one Scholar enrichment run for operator/debug surfaces."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: Literal["1.0"] = "1.0"
@@ -118,6 +127,7 @@ class EnrichmentReportV1(BaseModel):
 @dataclass(frozen=True)
 class EnrichResultV1:
     """Return the bundle reference plus in-memory report metadata from enrichment."""
+
     knowledge_bundle_ref: KnowledgeBundleRef
     bundle_id: str
     report: EnrichmentReportV1

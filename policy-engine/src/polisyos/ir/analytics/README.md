@@ -29,15 +29,15 @@ Package facade `polisyos.ir.analytics` намеренно уже, чем пол�
 
 ## Public entrypoints
 
-| Entrypoint | Use when | Defined in |
-|---|---|---|
-| `polisyos.ir.analytics.CausalEffectReport` | Нужен канонический causal effect report с diagnostics и refutations | [`causal.py`](./causal.py) |
-| `polisyos.ir.analytics.TransportabilityResult` | Нужен результат transportability / domain-shift анализа | [`transportability.py`](./transportability.py) |
-| `polisyos.ir.analytics.HTEResult` | Нужны heterogeneous treatment effects и targeting outputs | [`hte.py`](./hte.py) |
-| `polisyos.ir.analytics.StructuralCausalModelSpec` | Нужен IR-контракт структурной causal model | [`structural_causal_model.py`](./structural_causal_model.py) |
-| `polisyos.ir.analytics.recourse_manifold.InterventionCostManifold`, `OptimalRecourseInterventionQuery` | Нужен proof-carrying causal recourse surface, а не explainability-only recourse report | [`recourse_manifold.py`](./recourse_manifold.py) |
-| `polisyos.ir.analytics.StrategicSCM`, `StrategicResponseBundle`, `MeanFieldEquilibriumCertificate` | Нужен strategic-response / performative-analysis surface, включая MFG certificates | [`strategic.py`](./strategic.py) |
-| `polisyos.ir.analytics.DoWhyGraphBridge`, `EconMLDesignBridge` | Нужны interoperability bridges в external causal toolchains | [`ecosystem_bridges.py`](./ecosystem_bridges.py) |
+| Entrypoint                                                                                             | Use when                                                                               | Defined in                                                   |
+| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `polisyos.ir.analytics.CausalEffectReport`                                                             | Нужен канонический causal effect report с diagnostics и refutations                    | [`causal.py`](./causal.py)                                   |
+| `polisyos.ir.analytics.TransportabilityResult`                                                         | Нужен результат transportability / domain-shift анализа                                | [`transportability.py`](./transportability.py)               |
+| `polisyos.ir.analytics.HTEResult`                                                                      | Нужны heterogeneous treatment effects и targeting outputs                              | [`hte.py`](./hte.py)                                         |
+| `polisyos.ir.analytics.StructuralCausalModelSpec`                                                      | Нужен IR-контракт структурной causal model                                             | [`structural_causal_model.py`](./structural_causal_model.py) |
+| `polisyos.ir.analytics.recourse_manifold.InterventionCostManifold`, `OptimalRecourseInterventionQuery` | Нужен proof-carrying causal recourse surface, а не explainability-only recourse report | [`recourse_manifold.py`](./recourse_manifold.py)             |
+| `polisyos.ir.analytics.StrategicSCM`, `StrategicResponseBundle`, `MeanFieldEquilibriumCertificate`     | Нужен strategic-response / performative-analysis surface, включая MFG certificates     | [`strategic.py`](./strategic.py)                             |
+| `polisyos.ir.analytics.DoWhyGraphBridge`, `EconMLDesignBridge`                                         | Нужны interoperability bridges в external causal toolchains                            | [`ecosystem_bridges.py`](./ecosystem_bridges.py)             |
 
 ## Depends on / depended on by
 
@@ -70,10 +70,12 @@ uv run pytest tests/ir/test_interoperability_bridges.py -q
 
 - Mean-field path now uses three typed artifacts in [`strategic.py`](./strategic.py):
   `MeanFieldPerturbationSpec` compiles `InterventionSpec` into coefficient/distributional/mixed MFG perturbations, `MeanFieldMacroSimulationConfig` records replayable Fabric numerics, and `MeanFieldEquilibriumCertificate` is the audit leaf referenced by `StrategicResponseBundle.mfg_equilibrium_ref`.
+
 - Stage 13.4 causal recourse lives in [`recourse_manifold.py`](./recourse_manifold.py):
   `InterventionCostManifold` defines the quotient cost geometry, `OptimalRecourseInterventionQuery`
   is the kernel-facing query contract, and the proof/feasibility/planning bundles carry the
   identify-or-bound and solver outputs.
+
 - [IR analytics reference](../../../../docs/reference/ir/analytics.md)
 - [Temporal path semantics reference](../../../../docs/reference/ir/temporal-path-semantics.md)
 - [IR interoperability reference](../../../../docs/reference/ir/interoperability.md)

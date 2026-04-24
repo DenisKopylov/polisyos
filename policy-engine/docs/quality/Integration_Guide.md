@@ -17,10 +17,12 @@ This converts DataQualityReport to the existing indicator format for governance 
 File: `src/polisyos/scientist/governance/passes/quality_gate_pass.py`
 
 Behavior:
+
 - If `ctx.state["data_quality_report"]` exists, use it directly
 - Otherwise fall back to evidence bundle and classic QualityIndicators
 
 Bronze tier handling:
+
 - STRICT profile -> BLOCKER
 - MVP/FAST -> WARNING
 
@@ -28,7 +30,7 @@ Bronze tier handling:
 
 Typical flow:
 
-```
+```text
 from polisyos.fabric.connectors.quality import DataQualityValidator
 
 validator = DataQualityValidator()
@@ -39,7 +41,7 @@ ctx.state["data_quality_report"] = report
 
 Optionally attach evidence:
 
-```
+```text
 evidence_payload = report.to_evidence()
 # store payload in EvidenceBundle notes or external CAS
 ```
@@ -54,7 +56,7 @@ evidence_payload = report.to_evidence()
 
 Run the new tests:
 
-```
+```text
 pytest tests/fabric/connectors/test_quality_system.py -q
 ```
 

@@ -122,7 +122,7 @@ def test_node_result_cache_corrupted_entry_is_treated_as_miss(tmp_path) -> None:
     entry_payload = NodeCacheEntry.model_validate(
         from_canonical_bytes(store.get_bytes(entry_ref.artifact_id))
     )
-    outcome_blob, _ = store._paths(entry_payload.outcome_ref.artifact_id)  # noqa: SLF001
+    outcome_blob, _ = store._paths(entry_payload.outcome_ref.artifact_id)
     outcome_blob.write_bytes(b"not canonical json")
 
     assert cache.get(key) is None

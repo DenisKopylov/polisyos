@@ -17,7 +17,9 @@ from polisyos.scientist.governance.passes.equity_pass import EquityPass
 from polisyos.scientist.governance.profiles import ValidationProfile
 
 
-def _build_report(*, vulnerable_delta: float = -8.0, gini_delta: float = 0.03) -> DistributionalReport:
+def _build_report(
+    *, vulnerable_delta: float = -8.0, gini_delta: float = 0.03
+) -> DistributionalReport:
     breakdown = DimensionBreakdown(
         dimension=CohortDimension.INCOME_QUINTILE,
         dimension_label="Income Quintiles",

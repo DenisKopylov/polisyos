@@ -11,11 +11,10 @@ widest schema surface. The package facades below are intentionally narrower:
 Tests use this manifest as the export-audit source of truth, and the reference
 docs summarize the same package counts and naming rules.
 """
+
 from __future__ import annotations
 
-from typing import TypeAlias
-
-RegistryItemId: TypeAlias = str
+type RegistryItemId = str
 """Canonical registry item key used by fragment composition/linker diagnostics."""
 
 IR_NAMING_CONVENTIONS: dict[str, str] = {
@@ -66,6 +65,10 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "AdministrativeMissingnessUnitScope": (
         "polisyos.ir.analytics.administrative_missingness",
         "AdministrativeMissingnessUnitScope",
+    ),
+    "AlignmentReport": (
+        "polisyos.ir.analytics.alignment_certification",
+        "AlignmentReport",
     ),
     "CausalDiscoveryReport": (
         "polisyos.ir.analytics.causal_discovery",
@@ -130,6 +133,34 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "DistributionalReport": (
         "polisyos.ir.analytics.distributional",
         "DistributionalReport",
+    ),
+    "CounterfactualLawEstimate": (
+        "polisyos.ir.analytics.endogenous_inequality",
+        "CounterfactualLawEstimate",
+    ),
+    "CounterfactualLawLabel": (
+        "polisyos.ir.analytics.endogenous_inequality",
+        "CounterfactualLawLabel",
+    ),
+    "EndogenousGroupDecompositionStatus": (
+        "polisyos.ir.analytics.endogenous_inequality",
+        "EndogenousGroupDecompositionStatus",
+    ),
+    "EndogenousGroupInequalityDecompositionRef": (
+        "polisyos.ir.refs",
+        "EndogenousGroupInequalityDecompositionRef",
+    ),
+    "EndogenousGroupInequalityDecompositionResult": (
+        "polisyos.ir.analytics.endogenous_inequality",
+        "EndogenousGroupInequalityDecompositionResult",
+    ),
+    "ReferencePopulation": (
+        "polisyos.ir.analytics.endogenous_inequality",
+        "ReferencePopulation",
+    ),
+    "ScalarEstimandEstimate": (
+        "polisyos.ir.analytics.endogenous_inequality",
+        "ScalarEstimandEstimate",
     ),
     "MetricValidationReport": (
         "polisyos.ir.analytics.metric_validation_report",
@@ -570,6 +601,15 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.forecasting_uncertainty",
         "ForecastingUncertaintyBundle",
     ),
+    "GEUncertaintyBundle": (
+        "polisyos.ir.analytics.welfare",
+        "GEUncertaintyBundle",
+    ),
+    "GEUncertaintyBundleRef": ("polisyos.ir.refs", "GEUncertaintyBundleRef"),
+    "GEUncertaintyRepresentation": (
+        "polisyos.ir.analytics.welfare",
+        "GEUncertaintyRepresentation",
+    ),
     "FanChartSpec": (
         "polisyos.ir.analytics.forecasting_uncertainty",
         "FanChartSpec",
@@ -587,6 +627,19 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "UncertaintyEnvelope",
     ),
     "UncertaintySource": ("polisyos.ir.analytics.uncertainty", "UncertaintySource"),
+    "WelfareBundle": ("polisyos.ir.analytics.welfare", "WelfareBundle"),
+    "WelfareBundleRef": ("polisyos.ir.refs", "WelfareBundleRef"),
+    "WelfareIntervalSemantics": (
+        "polisyos.ir.analytics.welfare",
+        "WelfareIntervalSemantics",
+    ),
+    "WelfareMethod": ("polisyos.ir.analytics.welfare", "WelfareMethod"),
+    "WelfareSampleBundle": (
+        "polisyos.ir.analytics.welfare",
+        "WelfareSampleBundle",
+    ),
+    "WelfareSampleBundleRef": ("polisyos.ir.refs", "WelfareSampleBundleRef"),
+    "WelfareStatus": ("polisyos.ir.analytics.welfare", "WelfareStatus"),
     "to_causalnex_graph_bridge": (
         "polisyos.ir.analytics.ecosystem_bridges",
         "to_causalnex_graph_bridge",
@@ -813,7 +866,7 @@ __all__ = [
     "KERNEL_FACADE_EXPORTS",
     "PACKAGE_FACADE_EXPORTS",
     "PACKAGE_FACADE_IMPORT_POLICY",
-    "RegistryItemId",
     "WORLD_FACADE_EXPORTS",
+    "RegistryItemId",
     "facade_export_names",
 ]

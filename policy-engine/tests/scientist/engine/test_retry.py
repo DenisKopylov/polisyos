@@ -1,4 +1,5 @@
 """Tests for polisyos.scientist.engine.retry — RetryPolicy + wrappers."""
+
 from __future__ import annotations
 
 import multiprocessing as mp
@@ -22,6 +23,7 @@ from polisyos.scientist.engine.state import ExperimentState
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def state():
@@ -54,6 +56,7 @@ def _fail_outcome(state, code="node.exception"):
 # RetryPolicy model
 # ---------------------------------------------------------------------------
 
+
 class TestRetryPolicy:
     def test_defaults(self):
         p = RetryPolicy()
@@ -64,6 +67,7 @@ class TestRetryPolicy:
 
     def test_max_retries_bounds(self):
         from pydantic import ValidationError
+
         with pytest.raises(ValidationError):
             RetryPolicy(max_retries=-1)
         with pytest.raises(ValidationError):
@@ -71,6 +75,7 @@ class TestRetryPolicy:
 
     def test_backoff_base_bounds(self):
         from pydantic import ValidationError
+
         with pytest.raises(ValidationError):
             RetryPolicy(backoff_base_s=0.01)
         with pytest.raises(ValidationError):
@@ -78,6 +83,7 @@ class TestRetryPolicy:
 
     def test_extra_field_rejected(self):
         from pydantic import ValidationError
+
         with pytest.raises(ValidationError):
             RetryPolicy(unknown=True)
 
@@ -89,6 +95,7 @@ class TestRetryPolicy:
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 class TestShouldRetry:
     def test_matching_code(self):
@@ -142,13 +149,16 @@ class TestBackoffDelay:
 # execute_with_retry_sync
 # ---------------------------------------------------------------------------
 
+
 class TestExecuteWithRetrySync:
     def test_fast_path_no_retry_no_timeout(self, ctx, state):
         """With default policy, delegates directly to node.execute()."""
         node = MagicMock()
         node.execute.return_value = _ok_outcome(state)
         result = execute_with_retry_sync(
-            node, ctx, state,
+            node,
+            ctx,
+            state,
             retry_policy=RetryPolicy(),
             timeout_s=None,
             alias="a",
@@ -166,7 +176,9 @@ class TestExecuteWithRetrySync:
         policy = RetryPolicy(max_retries=3, backoff_base_s=0.1, backoff_factor=1.0)
         with patch("polisyos.scientist.engine.retry.time.sleep"):
             result = execute_with_retry_sync(
-                node, ctx, state,
+                node,
+                ctx,
+                state,
                 retry_policy=policy,
                 timeout_s=None,
                 alias="a",
@@ -180,7 +192,9 @@ class TestExecuteWithRetrySync:
         policy = RetryPolicy(max_retries=2, backoff_base_s=0.1, backoff_factor=1.0)
         with patch("polisyos.scientist.engine.retry.time.sleep"):
             result = execute_with_retry_sync(
-                node, ctx, state,
+                node,
+                ctx,
+                state,
                 retry_policy=policy,
                 timeout_s=None,
                 alias="a",
@@ -193,11 +207,14 @@ class TestExecuteWithRetrySync:
         node = MagicMock()
         node.execute.side_effect = RuntimeError("boom")
         policy = RetryPolicy(max_retries=2, backoff_base_s=0.1, backoff_factor=1.0)
-        with patch("polisyos.scientist.engine.retry.time.sleep"), pytest.raises(
-            RetryExhaustedError
+        with (
+            patch("polisyos.scientist.engine.retry.time.sleep"),
+            pytest.raises(RetryExhaustedError),
         ):
             execute_with_retry_sync(
-                node, ctx, state,
+                node,
+                ctx,
+                state,
                 retry_policy=policy,
                 timeout_s=None,
                 alias="a",
@@ -210,7 +227,9 @@ class TestExecuteWithRetrySync:
         node.execute.return_value = _fail_outcome(state, code="node.invalid_outcome")
         policy = RetryPolicy(max_retries=2, retry_on=["node.exception"])
         result = execute_with_retry_sync(
-            node, ctx, state,
+            node,
+            ctx,
+            state,
             retry_policy=policy,
             timeout_s=None,
             alias="a",
@@ -226,11 +245,16 @@ class TestExecuteWithRetrySync:
             _ok_outcome(state),
         ]
         policy = RetryPolicy(
-            max_retries=3, backoff_base_s=1.0, backoff_factor=2.0, jitter="none",
+            max_retries=3,
+            backoff_base_s=1.0,
+            backoff_factor=2.0,
+            jitter="none",
         )
         with patch("polisyos.scientist.engine.retry.time.sleep") as mock_sleep:
             execute_with_retry_sync(
-                node, ctx, state,
+                node,
+                ctx,
+                state,
                 retry_policy=policy,
                 timeout_s=None,
                 alias="a",
@@ -248,7 +272,9 @@ class TestExecuteWithRetrySync:
         node.execute.side_effect = lambda *a, **kw: (_time.sleep(5), _ok_outcome(state))[1]
         with pytest.raises(NodeTimeoutError):
             execute_with_retry_sync(
-                node, ctx, state,
+                node,
+                ctx,
+                state,
                 retry_policy=RetryPolicy(),
                 timeout_s=0.1,
                 alias="a",
@@ -308,7 +334,9 @@ class TestExecuteWithRetrySync:
         node.execute.side_effect = RuntimeError("boom")
         with pytest.raises(RuntimeError, match="boom"):
             execute_with_retry_sync(
-                node, ctx, state,
+                node,
+                ctx,
+                state,
                 retry_policy=RetryPolicy(),
                 timeout_s=None,
                 alias="a",
@@ -324,16 +352,15 @@ class TestExecuteWithRetrySync:
         policy = RetryPolicy(max_retries=2, backoff_base_s=0.1, backoff_factor=1.0)
         with patch("polisyos.scientist.engine.retry.time.sleep"):
             execute_with_retry_sync(
-                node, ctx, state,
+                node,
+                ctx,
+                state,
                 retry_policy=policy,
                 timeout_s=None,
                 alias="step_a",
             )
         # Check NODE_RETRY event was emitted
-        retry_calls = [
-            c for c in ctx.run.emit.call_args_list
-            if c[0][1] == "NODE_RETRY"
-        ]
+        retry_calls = [c for c in ctx.run.emit.call_args_list if c[0][1] == "NODE_RETRY"]
         assert len(retry_calls) == 1
         assert retry_calls[0][1]["metrics"]["attempt"] == 1
 
@@ -342,13 +369,16 @@ class TestExecuteWithRetrySync:
 # execute_with_retry_async
 # ---------------------------------------------------------------------------
 
+
 class TestExecuteWithRetryAsync:
     @pytest.mark.asyncio
     async def test_fast_path(self, ctx, state):
         node = MagicMock()
         node.execute.return_value = _ok_outcome(state)
         result = await execute_with_retry_async(
-            node, ctx, state,
+            node,
+            ctx,
+            state,
             retry_policy=RetryPolicy(),
             timeout_s=None,
             alias="a",
@@ -368,7 +398,9 @@ class TestExecuteWithRetryAsync:
             new=AsyncMock(side_effect=_bridge),
         ) as bridge:
             result = await execute_with_retry_async(
-                node, ctx, state,
+                node,
+                ctx,
+                state,
                 retry_policy=RetryPolicy(),
                 timeout_s=None,
                 alias="a",
@@ -383,7 +415,9 @@ class TestExecuteWithRetryAsync:
         node.execute.side_effect = lambda *a, **kw: (_time.sleep(5), _ok_outcome(state))[1]
         with pytest.raises(NodeTimeoutError):
             await execute_with_retry_async(
-                node, ctx, state,
+                node,
+                ctx,
+                state,
                 retry_policy=RetryPolicy(),
                 timeout_s=0.1,
                 alias="a",
@@ -397,7 +431,9 @@ class TestExecuteWithRetryAsync:
 
         with pytest.raises(NodeTimeoutError):
             await execute_with_retry_async(
-                node, ctx, state,
+                node,
+                ctx,
+                state,
                 retry_policy=RetryPolicy(),
                 timeout_s=0.1,
                 alias="a",
@@ -414,7 +450,9 @@ class TestExecuteWithRetryAsync:
         ]
         policy = RetryPolicy(max_retries=2, backoff_base_s=0.1, backoff_factor=1.0)
         result = await execute_with_retry_async(
-            node, ctx, state,
+            node,
+            ctx,
+            state,
             retry_policy=policy,
             timeout_s=None,
             alias="a",
@@ -429,7 +467,9 @@ class TestExecuteWithRetryAsync:
         policy = RetryPolicy(max_retries=1, backoff_base_s=0.1, backoff_factor=1.0)
         with pytest.raises(RetryExhaustedError):
             await execute_with_retry_async(
-                node, ctx, state,
+                node,
+                ctx,
+                state,
                 retry_policy=policy,
                 timeout_s=None,
                 alias="a",

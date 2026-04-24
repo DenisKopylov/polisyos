@@ -12,7 +12,10 @@ export function useSuggestedQuestions(): string[] {
 
   return useMemo(() => {
     // If the latest system message has explicit suggestions, use those
-    if (ctx.latestStructured?.suggestions && ctx.latestStructured.suggestions.length > 0) {
+    if (
+      ctx.latestStructured?.suggestions &&
+      ctx.latestStructured.suggestions.length > 0
+    ) {
       return ctx.latestStructured.suggestions;
     }
 

@@ -23,7 +23,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 from polisyos.scientist.workflows.builder import run_default_workflow
 
 
-def _put_data_snapshot(store: FileSystemCAS, state_snapshot_ref: StateSnapshotRef) -> DataSnapshotRef:
+def _put_data_snapshot(
+    store: FileSystemCAS, state_snapshot_ref: StateSnapshotRef
+) -> DataSnapshotRef:
     snapshot = DataSnapshot(data_ref=state_snapshot_ref)
     ref = store.put_json(
         snapshot,
@@ -75,7 +77,9 @@ def test_engine_default_workflow_p8_wires_bindings_and_pre_sim_gate(tmp_path) ->
         PutOptions(
             kind="ir.trinity_bundle",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=trinity_bundle.schema_version),
+            schema=SchemaInfo(
+                name="polisyos.ir.TrinityBundle", version=trinity_bundle.schema_version
+            ),
         ),
     )
 

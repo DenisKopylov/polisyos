@@ -1,4 +1,5 @@
 """Public causal capabilities module API."""
+
 from __future__ import annotations
 
 import hashlib
@@ -86,7 +87,9 @@ def build_causal_capability_contract() -> CausalCapabilityContract:
         "degradation_policy": "full_then_bounds_explicit_simplified",
     }
     fingerprint = hashlib.sha256(
-        json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+        json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode(
+            "utf-8"
+        )
     ).hexdigest()
 
     notes = [
@@ -138,7 +141,9 @@ def project_capability_features(contract: CausalCapabilityContract) -> list[dict
                 "category": "causal",
                 "enabled": enabled,
                 "stage": "active",
-                "disabled_reason": None if enabled else contract.disabled_families.get(family.value),
+                "disabled_reason": None
+                if enabled
+                else contract.disabled_families.get(family.value),
             }
         )
     return features

@@ -6,8 +6,6 @@ evaluations for new searches.
 
 from __future__ import annotations
 
-import hashlib
-import json
 import logging
 from typing import TYPE_CHECKING, Any
 
@@ -52,7 +50,7 @@ class TransferLearningManager:
         Vector memory store for run similarity search.
     """
 
-    def __init__(self, store: "ArtifactStore", index: "VectorMemoryStore") -> None:
+    def __init__(self, store: ArtifactStore, index: VectorMemoryStore) -> None:
         self._store = store
         self._index = index
         self._eval_cache: dict[str, list[dict[str, Any]]] = {}
@@ -120,7 +118,9 @@ class TransferLearningManager:
         return ref
 
     def find_similar_runs(
-        self, fingerprint: RunFingerprint, top_k: int = 5,
+        self,
+        fingerprint: RunFingerprint,
+        top_k: int = 5,
     ) -> list[RunFingerprint]:
         """Find the most similar past runs based on embedding similarity.
 
@@ -140,12 +140,14 @@ class TransferLearningManager:
             obj_names = meta.get("objective_names", [])
             if set(obj_names) != set(fingerprint.objective_names):
                 continue
-            similar.append(RunFingerprint(
-                run_id=key,
-                space_hash=meta.get("space_hash", ""),
-                objective_names=obj_names,
-                best_score=meta.get("best_score"),
-            ))
+            similar.append(
+                RunFingerprint(
+                    run_id=key,
+                    space_hash=meta.get("space_hash", ""),
+                    objective_names=obj_names,
+                    best_score=meta.get("best_score"),
+                )
+            )
             if len(similar) >= top_k:
                 break
 
@@ -187,7 +189,7 @@ class TransferLearningManager:
                         metadata={"source_run_id": fp.run_id},
                     )
                     all_evals.append(eval_obj)
-                except Exception:  # noqa: BLE001
+                except Exception:
                     continue
 
             if len(all_evals) >= max_evals:
@@ -202,7 +204,8 @@ class TransferLearningManager:
 
         # Find the artifact via vector memory metadata
         results = self._index.query(
-            [0.0] * self._index.dim, top_k=1000,
+            [0.0] * self._index.dim,
+            top_k=1000,
         )
         for key, _, meta in results:
             if key == run_id and "artifact_id" in meta:
@@ -213,6 +216,6 @@ class TransferLearningManager:
                     evals = data.get("evaluations", [])
                     self._eval_cache[run_id] = evals
                     return evals
-                except Exception:  # noqa: BLE001
+                except Exception:
                     pass
         return []

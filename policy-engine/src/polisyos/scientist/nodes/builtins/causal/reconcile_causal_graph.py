@@ -1,8 +1,9 @@
 """Public causal reconcile causal graph module API."""
+
 from __future__ import annotations
 
-from dataclasses import dataclass
 import json
+from dataclasses import dataclass
 from typing import Any
 
 from pydantic import ValidationError
@@ -27,8 +28,8 @@ from polisyos.foundry.methods.catalog.causal.protocols import (
 from polisyos.foundry.methods.catalog.causal.query_preservation import (
     evaluate_query_preservation_batch,
     negative_certificate_from_query_preservation_trace,
-    update_query_preservation_cache,
     update_query_preservation_artifact_refs,
+    update_query_preservation_cache,
 )
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentVerificationConfig,
@@ -51,8 +52,8 @@ from polisyos.ir.analytics.cross_graph import (
     persist_interface_mapping,
     persist_scm_fragment,
 )
-from polisyos.ir.analytics.negative_certificate import persist_negative_certificate
 from polisyos.ir.analytics.literature import load_literature_causal_prior
+from polisyos.ir.analytics.negative_certificate import persist_negative_certificate
 from polisyos.ir.refs import (
     AlignmentReportRef,
     CausalGraphModelRef,
@@ -159,7 +160,9 @@ def _extract_graph(payload: Any) -> CausalGraphModel | None:
     return None
 
 
-def _load_data_graph(ctx: ExecutionContext, state: ExperimentState) -> tuple[CausalGraphModel | None, Any | None]:
+def _load_data_graph(
+    ctx: ExecutionContext, state: ExperimentState
+) -> tuple[CausalGraphModel | None, Any | None]:
     if "data_causal_graph" in state.params:
         graph = _extract_graph(state.params.get("data_causal_graph"))
         if graph is not None:
@@ -213,7 +216,9 @@ def _load_scm_fragments(ctx: ExecutionContext, state: ExperimentState) -> list[S
         fragments: list[SCMFragment] = []
         for item in raw_fragments:
             try:
-                fragments.append(item if isinstance(item, SCMFragment) else SCMFragment.model_validate(item))
+                fragments.append(
+                    item if isinstance(item, SCMFragment) else SCMFragment.model_validate(item)
+                )
             except _RECONCILE_VALIDATION_ERRORS:
                 continue
         return fragments
@@ -290,7 +295,9 @@ def _load_precomputed_alignment(
             report = None
     if mapping_ref is not None:
         try:
-            mapping = load_interface_mapping(ctx.store, InterfaceMappingRef.model_validate(mapping_ref))
+            mapping = load_interface_mapping(
+                ctx.store, InterfaceMappingRef.model_validate(mapping_ref)
+            )
         except _RECONCILE_LOAD_ERRORS:
             mapping = None
     return report, mapping, report_ref, mapping_ref
@@ -302,7 +309,9 @@ def _parse_query_preservation_queries(raw: Any) -> list[CausalQuery]:
     queries: list[CausalQuery] = []
     for item in raw:
         try:
-            queries.append(item if isinstance(item, CausalQuery) else CausalQuery.model_validate(item))
+            queries.append(
+                item if isinstance(item, CausalQuery) else CausalQuery.model_validate(item)
+            )
         except _RECONCILE_VALIDATION_ERRORS:
             continue
     return queries
@@ -362,8 +371,7 @@ def _persist_query_preservation_artifacts(
     projection_refs: dict[str, str] = {}
     negative_refs: dict[str, str] = {}
     query_by_fingerprint = {
-        trace.fingerprint: query
-        for query, trace in zip(queries, traces.values(), strict=False)
+        trace.fingerprint: query for query, trace in zip(queries, traces.values(), strict=False)
     }
     projection_ref_by_signature: dict[str, str] = {}
 
@@ -442,13 +450,9 @@ def _apply_query_preservation_hook(
                 )
                 if loaded.fragment_id == fragment_id:
                     provenance_fragments.append(loaded)
-            provenance_graph_refs = (
-                certificate.source_fragment_graph_refs
-                or {
-                    fragment.fragment_id: str(fragment.graph_ref)
-                    for fragment in provenance_fragments
-                }
-            )
+            provenance_graph_refs = certificate.source_fragment_graph_refs or {
+                fragment.fragment_id: str(fragment.graph_ref) for fragment in provenance_fragments
+            }
             fragment_graphs = {
                 fragment_id: load_causal_graph_model(
                     ctx.store,
@@ -500,8 +504,7 @@ def _apply_query_preservation_hook(
     diagnostics = dict(new_state.params.get("reconciliation_diagnostics", {}))
     diagnostics["query_preservation_statuses"] = dict(query_statuses)
     diagnostics["query_preservation_reasons"] = {
-        fingerprint: trace.reason_code
-        for fingerprint, trace in sorted(traces.items())
+        fingerprint: trace.reason_code for fingerprint, trace in sorted(traces.items())
     }
     diagnostics["query_preservation_traces"] = {
         fingerprint: {
@@ -551,7 +554,10 @@ class ReconcileCausalGraphNode:
         query_preservation_queries = _parse_query_preservation_queries(
             state.params.get("query_preservation_queries")
         )
-        if ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF in state.artifacts_index and query_preservation_queries:
+        if (
+            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF in state.artifacts_index
+            and query_preservation_queries
+        ):
             hook_outcome = _apply_query_preservation_hook(ctx, state, query_preservation_queries)
             if hook_outcome is not None:
                 return hook_outcome
@@ -560,7 +566,9 @@ class ReconcileCausalGraphNode:
 
         if _composition_requested(state):
             fragments = _load_scm_fragments(ctx, state)
-            direct_stitch_pairs = _parse_direct_stitch_pairs(state.params.get("direct_stitch_pairs"))
+            direct_stitch_pairs = _parse_direct_stitch_pairs(
+                state.params.get("direct_stitch_pairs")
+            )
             if not fragments:
                 return NodeOutcome(
                     status="skip",
@@ -587,10 +595,7 @@ class ReconcileCausalGraphNode:
             alignment_report, interface_mapping, alignment_report_ref, interface_mapping_ref = (
                 _load_precomputed_alignment(ctx, state)
             )
-            requested_selected_pairs = sorted(
-                tuple(sorted(pair))
-                for pair in direct_stitch_pairs
-            )
+            requested_selected_pairs = sorted(tuple(sorted(pair)) for pair in direct_stitch_pairs)
             precomputed_selected_pairs = []
             if alignment_report is not None:
                 precomputed_selected_pairs = sorted(
@@ -704,8 +709,7 @@ class ReconcileCausalGraphNode:
                     )
                 )
                 query_reasons = {
-                    fingerprint: trace.reason_code
-                    for fingerprint, trace in sorted(traces.items())
+                    fingerprint: trace.reason_code for fingerprint, trace in sorted(traces.items())
                 }
                 query_traces = {
                     fingerprint: {
@@ -738,7 +742,9 @@ class ReconcileCausalGraphNode:
                         "composition_status": certificate.status,
                         "structure_status": certificate.structure_status,
                         "review_status": certificate.review_status,
-                        "source_fragment_ids": sorted(fragment.fragment_id for fragment in fragments),
+                        "source_fragment_ids": sorted(
+                            fragment.fragment_id for fragment in fragments
+                        ),
                     },
                 )
                 failure_card_bundle_ref = persist_composition_failure_card_bundle(
@@ -798,7 +804,9 @@ class ReconcileCausalGraphNode:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="info", message="No data causal graph; skip reconciliation.")],
+                events=[
+                    NodeEvent(level="info", message="No data causal graph; skip reconciliation.")
+                ],
             )
 
         literature_prior_ref = state.artifacts_index.get(ARTIFACT_LITERATURE_PRIOR_REF)

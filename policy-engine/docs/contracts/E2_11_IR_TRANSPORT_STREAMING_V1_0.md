@@ -62,9 +62,9 @@ At least one of `entries`, `binary_batch`, or `delta` must be present.
 
 ## D1-L4 Validation Links
 
-| Link type | Current anchor |
-|-----------|----------------|
-| Source plan phase | D1-L4 Phase 4 reflection API, schema catalog, incremental/binary/streaming transport, ecosystem bridges |
-| Contract tests | `tests/ir/test_interoperability_bridges.py`, `tests/ir/test_schema_catalog.py` |
+| Link type                | Current anchor                                                                                                                                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source plan phase        | D1-L4 Phase 4 reflection API, schema catalog, incremental/binary/streaming transport, ecosystem bridges                                                                                                 |
+| Contract tests           | `tests/ir/test_interoperability_bridges.py`, `tests/ir/test_schema_catalog.py`                                                                                                                          |
 | Schema/catalog snapshots | Transport types are catalog-visible in [IR Schema Catalog](../reference/ir/schema-catalog.md#polisyos-ir-artifacts-transport-observationstreamupdate); no dedicated ABI JSON snapshot is registered yet |
-| Generated reference | [IR Interoperability](../reference/ir/interoperability.md), [JSON Schema Catalog](../reference/schemas.md) |
+| Generated reference      | [IR Interoperability](../reference/ir/interoperability.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                              |

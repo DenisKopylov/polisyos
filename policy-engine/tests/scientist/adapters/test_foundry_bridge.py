@@ -1,8 +1,9 @@
 """Tests for DefaultFoundryPort (foundry_bridge adapter)."""
+
 from __future__ import annotations
 
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -27,6 +28,7 @@ class TestDefaultFoundryPortCompile:
         mock_compile.return_value = expected
 
         from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+
         port = DefaultFoundryPort()
         store = FileSystemCAS(tmp_path)
         request = MagicMock(spec=CompileRequest)
@@ -42,6 +44,7 @@ class TestDefaultFoundryPortCompile:
         mock_compile.side_effect = ValueError("bad input")
 
         from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+
         port = DefaultFoundryPort()
         store = FileSystemCAS(tmp_path)
 
@@ -60,6 +63,7 @@ class TestDefaultFoundryPortExecute:
         mock_execute.return_value = result_mock
 
         from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+
         port = DefaultFoundryPort()
         store = FileSystemCAS(tmp_path)
 
@@ -88,6 +92,7 @@ class TestDefaultFoundryPortExecute:
         mock_execute.return_value = result_mock
 
         from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+
         port = DefaultFoundryPort(gatekeeper=gatekeeper)
         store = FileSystemCAS(tmp_path)
 
@@ -98,6 +103,7 @@ class TestDefaultFoundryPortExecute:
 class TestProtocolConformance:
     def test_implements_foundry_port_protocol(self):
         from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+
         # FoundryPort is runtime_checkable
         with patch(
             "polisyos.scientist.adapters.foundry_bridge.get_security_settings",
@@ -117,7 +123,7 @@ class TestTEEEnvScope:
         attestation = AttestationResult(
             status=AttestationStatus.VERIFIED,
             measurement="good\nBAD=1",
-            verified_at=datetime.now(timezone.utc),
+            verified_at=datetime.now(UTC),
         )
 
         with pytest.raises(FoundryBridgeSecurityError, match="control characters"):
@@ -131,7 +137,7 @@ class TestTEEEnvScope:
             status=AttestationStatus.VERIFIED,
             report_hash="abc123",
             measurement="measurement-1",
-            verified_at=datetime.now(timezone.utc),
+            verified_at=datetime.now(UTC),
         )
 
         assert os.environ.get("POLISYOS_TEE_REPORT_HASH") is None

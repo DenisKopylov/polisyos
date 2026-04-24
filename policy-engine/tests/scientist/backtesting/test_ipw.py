@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from polisyos.scientist.backtesting.ipw import (
     IPWResult,
@@ -27,7 +26,10 @@ class TestComputePropensityWeights:
         treatment = np.array([1, 0, 1, 0])
         covariates = np.array([[10.0], [-10.0], [10.0], [-10.0]])
         weights = compute_propensity_weights(
-            treatment, covariates, clip_min=0.1, clip_max=0.9,
+            treatment,
+            covariates,
+            clip_min=0.1,
+            clip_max=0.9,
         )
         assert np.all(weights >= 0.1)
         assert np.all(weights <= 0.9)
@@ -38,10 +40,12 @@ class TestIPWEstimate:
         rng = np.random.default_rng(42)
         n = 200
         treatment = np.array([1] * 100 + [0] * 100)
-        outcomes = np.concatenate([
-            rng.normal(5.0, 1.0, size=100),
-            rng.normal(3.0, 1.0, size=100),
-        ])
+        outcomes = np.concatenate(
+            [
+                rng.normal(5.0, 1.0, size=100),
+                rng.normal(3.0, 1.0, size=100),
+            ]
+        )
         ps = np.full(n, 0.5)
         result = ipw_estimate(outcomes, treatment, ps)
         assert isinstance(result, IPWResult)

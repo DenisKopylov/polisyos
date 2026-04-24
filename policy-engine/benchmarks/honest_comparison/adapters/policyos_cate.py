@@ -58,8 +58,12 @@ class PolicyOSCausalForest:
         return True
 
     def fit_predict(
-        self, X: np.ndarray, T: np.ndarray, Y: np.ndarray,
-        config: dict[str, Any], seed: int,
+        self,
+        X: np.ndarray,
+        T: np.ndarray,
+        Y: np.ndarray,
+        config: dict[str, Any],
+        seed: int,
     ) -> EstimatorResult:
         from polisyos.foundry.methods.catalog.causal.cate import CausalForestEstimator
 
@@ -86,12 +90,18 @@ class PolicyOSXLearner:
         return True
 
     def fit_predict(
-        self, X: np.ndarray, T: np.ndarray, Y: np.ndarray,
-        config: dict[str, Any], seed: int,
+        self,
+        X: np.ndarray,
+        T: np.ndarray,
+        Y: np.ndarray,
+        config: dict[str, Any],
+        seed: int,
     ) -> EstimatorResult:
         from polisyos.foundry.methods.catalog.causal.meta_learners import MetaLearnerEstimator
 
-        base_model_name = "linear" if config.get("outcome_model") == "linear_regression" else "gradient_boosting"
+        base_model_name = (
+            "linear" if config.get("outcome_model") == "linear_regression" else "gradient_boosting"
+        )
         state = _build_state(X, T, Y)
         params = {
             "learner_type": "x",
@@ -111,8 +121,12 @@ class PolicyOSDML:
         return True
 
     def fit_predict(
-        self, X: np.ndarray, T: np.ndarray, Y: np.ndarray,
-        config: dict[str, Any], seed: int,
+        self,
+        X: np.ndarray,
+        T: np.ndarray,
+        Y: np.ndarray,
+        config: dict[str, Any],
+        seed: int,
     ) -> EstimatorResult:
         from polisyos.foundry.methods.catalog.causal.dml import DoubleMachineLearning
 

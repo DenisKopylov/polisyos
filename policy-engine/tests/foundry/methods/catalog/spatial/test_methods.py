@@ -13,13 +13,13 @@ from polisyos.foundry.methods.spatial import (
     SpatialData,
     ensure_spatial_methods_registered,
 )
+from polisyos.ir.analytics.dependence_structure import load_dependence_structure
 from polisyos.ir.analytics.interference import (
     MAUPInvarianceCertificate,
     MAUPPartitionCheck,
     SpatialHodgeDiagnostics,
     SpatialHodgeScaleProfile,
 )
-from polisyos.ir.analytics.dependence_structure import load_dependence_structure
 
 
 @pytest.fixture(autouse=True)

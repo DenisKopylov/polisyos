@@ -1,12 +1,12 @@
 """Public world conflict module API."""
+
 from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
 from enum import Enum
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BeforeValidator, Field, field_validator, model_validator
-from typing_extensions import Annotated
+from pydantic import BeforeValidator, Field, ValidationInfo, field_validator, model_validator
 
 from polisyos.ir.kernel.base import (
     ARTIFACT_ID_PATTERN,
@@ -27,6 +27,7 @@ DecimalZeroToOne = Annotated[Decimal, BeforeValidator(reject_float), Field(ge=0,
 
 class ConflictKind(str, Enum):
     """Conflict kind public type."""
+
     VALUE_MISMATCH = "value_mismatch"
     UNIT_MISMATCH = "unit_mismatch"
     DEFINITION_MISMATCH = "definition_mismatch"
@@ -52,6 +53,7 @@ def _validate_decimal_string(value: str) -> str:
 
 class ConflictSetResolution(KernelModel):
     """Conflict set resolution public type."""
+
     winner_claim_id: WorldID
     policy_id: WorldID
     confidence: DecimalZeroToOne
@@ -61,6 +63,7 @@ class ConflictSetResolution(KernelModel):
 
 class ConflictSet(KernelModel):
     """Conflict set public type."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     conflict_set_id: WorldID
     conflict_key: str = Field(..., pattern=SHA256_HEX_PATTERN)
@@ -83,17 +86,16 @@ class ConflictSet(KernelModel):
         return _ensure_sorted_unique(values, field="member_claim_ids")
 
     @model_validator(mode="after")
-    def validate_conflict_set_id(self) -> "ConflictSet":
+    def validate_conflict_set_id(self) -> ConflictSet:
         expected = conflict_set_id_from_key(conflict_key=self.conflict_key)
         if self.conflict_set_id != expected:
-            raise ValueError(
-                f"conflict_set_id mismatch: {self.conflict_set_id} != {expected}"
-            )
+            raise ValueError(f"conflict_set_id mismatch: {self.conflict_set_id} != {expected}")
         return self
 
 
 class ConflictResolutionCandidate(KernelModel):
     """Conflict resolution candidate public type."""
+
     claim_id: WorldID
     score_total: str = Field(..., pattern=DECIMAL_STRING_PATTERN)
     score_breakdown: Annotated[
@@ -117,18 +119,20 @@ class ConflictResolutionCandidate(KernelModel):
 
 class ConflictResolutionInputs(KernelModel):
     """Conflict resolution inputs public type."""
+
     claim_ids: list[WorldID] = Field(default_factory=list)
     doc_version_ids: list[WorldID] = Field(default_factory=list)
     trust_assessment_ids: list[WorldID] = Field(default_factory=list)
 
     @field_validator("claim_ids", "doc_version_ids", "trust_assessment_ids")
     @classmethod
-    def validate_sorted_unique(cls, values: list[str], info) -> list[str]:
+    def validate_sorted_unique(cls, values: list[str], info: ValidationInfo) -> list[str]:
         return _ensure_sorted_unique(values, field=str(info.field_name))
 
 
 class ConflictResolution(KernelModel):
     """Conflict resolution public type."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     conflict_set_id: WorldID
     policy_id: WorldID
@@ -146,7 +150,7 @@ class ConflictResolution(KernelModel):
         return value
 
     @model_validator(mode="after")
-    def validate_ranking(self) -> "ConflictResolution":
+    def validate_ranking(self) -> ConflictResolution:
         ranked = sorted(
             self.candidates,
             key=lambda c: (-Decimal(c.score_total), c.claim_id),

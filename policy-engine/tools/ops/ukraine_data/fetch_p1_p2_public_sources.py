@@ -70,11 +70,11 @@ def _fetch_json(url: str, *, attempts: int = 6, sleep_seconds: float = 2.0) -> d
         except Exception as exc:  # pragma: no cover - depends on remote endpoint
             last_error = exc
             retriable = False
-            if isinstance(exc, http.client.HTTPException):
-                retriable = True
-            elif getattr(exc, "code", None) in {429, 500, 502, 503, 504}:
-                retriable = True
-            elif isinstance(exc, OSError):
+            if (
+                isinstance(exc, http.client.HTTPException)
+                or getattr(exc, "code", None) in {429, 500, 502, 503, 504}
+                or isinstance(exc, OSError)
+            ):
                 retriable = True
             if attempt == attempts or not retriable:
                 raise
@@ -694,7 +694,13 @@ def _download_ckan_source(
 
     indexed_resources.sort(
         key=lambda pair: (
-            _parse_timestamp(str(pair[1].get("last_modified") or pair[1].get("metadata_modified") or pair[1].get("created"))),
+            _parse_timestamp(
+                str(
+                    pair[1].get("last_modified")
+                    or pair[1].get("metadata_modified")
+                    or pair[1].get("created")
+                )
+            ),
             pair[0],
         )
     )
@@ -830,7 +836,9 @@ def main(argv: list[str] | None = None) -> int:
     manifest["status"] = "completed" if not overall_failed else "completed_with_failures"
     manifest["finished_at"] = _iso_now()
     path = manifest_dir / "p1_p2_public_source_acquisition_manifest.json"
-    path.write_text(json.dumps(manifest, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
+    path.write_text(
+        json.dumps(manifest, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8"
+    )
     sys.stdout.write(json.dumps(manifest, ensure_ascii=True, indent=2, sort_keys=True))
     sys.stdout.write("\n")
     return 0 if not overall_failed else 1

@@ -41,19 +41,19 @@ from polisyos.fabric.connectors.contracts._inference_validation import (
 )
 
 __all__ = [
-    # Configuration
-    "InferenceConfig",
-    "SchemaHints",
-    # Result
-    "InferenceResult",
-    # Engine & patterns
-    "SchemaInference",
-    "UNIT_PATTERNS",
-    "SEMANTIC_PATTERNS",
     "GEO_CODE_PATTERNS",
+    "SEMANTIC_PATTERNS",
+    "UNIT_PATTERNS",
     # Validation & convenience
     "CoercionResult",
+    # Configuration
+    "InferenceConfig",
+    # Result
+    "InferenceResult",
+    "SchemaHints",
+    # Engine & patterns
+    "SchemaInference",
+    "coerce_dataframe_to_schema",
     "infer_schema",
     "validate_dataframe_against_schema",
-    "coerce_dataframe_to_schema",
 ]

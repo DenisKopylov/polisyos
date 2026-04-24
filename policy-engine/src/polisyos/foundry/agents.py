@@ -1,10 +1,12 @@
 """Public foundry agents module API."""
+
 from __future__ import annotations
 
 import os
+from collections.abc import Callable, Iterable, Mapping
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Callable, Iterable, Mapping
+from typing import Any
 
 import equinox as eqx
 import jax
@@ -165,6 +167,7 @@ def continuous_actions_from_logits(
 
 class AgentPolicy(eqx.Module):
     """Agent policy data model."""
+
     layers: tuple[eqx.nn.Linear, ...]
     activation: Callable[[jnp.ndarray], jnp.ndarray] = eqx.field(static=True)
     action_type: str = eqx.field(static=True)
@@ -222,6 +225,7 @@ class AgentPolicy(eqx.Module):
 
 class AdaptiveAgentMechanism(Mechanism):
     """Adaptive agent mechanism public type."""
+
     policy: AgentPolicy
     action_space: dict[str, Any] = eqx.field(static=True)
     observation_space: tuple[str, ...] = eqx.field(static=True)
@@ -252,7 +256,9 @@ class AdaptiveAgentMechanism(Mechanism):
         if not isinstance(observation_space, list):
             raise ValueError("AdaptiveAgentMechanism observation_space must be a list")
         if any(not isinstance(field, str) or not field.strip() for field in observation_space):
-            raise ObservationBindingError("observation_space", "all observation fields must be non-empty strings")
+            raise ObservationBindingError(
+                "observation_space", "all observation fields must be non-empty strings"
+            )
         if not isinstance(action_space, dict):
             raise ValueError("AdaptiveAgentMechanism action_space must be a dict")
 
@@ -274,10 +280,14 @@ class AdaptiveAgentMechanism(Mechanism):
             affects_values = affects
         else:
             affects_values = []
-        if not affects_values or any(not isinstance(item, str) or not item.strip() for item in affects_values):
+        if not affects_values or any(
+            not isinstance(item, str) or not item.strip() for item in affects_values
+        ):
             raise ActionRoutingError("affects", "must contain at least one non-empty slot target")
         if any(not item.startswith("agents.") for item in affects_values):
-            raise ActionRoutingError("affects", "all action targets must use the agents.* namespace")
+            raise ActionRoutingError(
+                "affects", "all action targets must use the agents.* namespace"
+            )
         out_dim = None
         if action_type == "discrete":
             out_dim = (
@@ -327,11 +337,9 @@ class AdaptiveAgentMechanism(Mechanism):
         self.optimizer = optax.sgd(self.learning_rate)
         self.opt_state = None
         if init_opt:
-            self.opt_state = self.optimizer.init(
-                eqx.filter(self.policy, eqx.is_inexact_array)
-            )
+            self.opt_state = self.optimizer.init(eqx.filter(self.policy, eqx.is_inexact_array))
 
-    def with_runtime_overrides(self, **overrides: Any) -> "AdaptiveAgentMechanism":
+    def with_runtime_overrides(self, **overrides: Any) -> AdaptiveAgentMechanism:
         """Return a copy with explicit runtime override fields applied."""
         updated: AdaptiveAgentMechanism = self
         for field_name, value in overrides.items():
@@ -385,9 +393,9 @@ class AdaptiveAgentMechanism(Mechanism):
             probs = jax.nn.softmax(logits, axis=-1)
             if self.stochastic and key is not None:
                 subkeys = jax.random.split(key, n_agents)
-                action_idx = jax.vmap(
-                    lambda pk, p: jax.random.categorical(pk, jnp.log(p))
-                )(subkeys, probs)
+                action_idx = jax.vmap(lambda pk, p: jax.random.categorical(pk, jnp.log(p)))(
+                    subkeys, probs
+                )
             else:
                 action_idx = jnp.argmax(probs, axis=-1)
             action_idx = action_idx.astype(jnp.int32)
@@ -400,9 +408,7 @@ class AdaptiveAgentMechanism(Mechanism):
                     raise ActionRoutingError(slot_id, "target field is missing from state.agents")
                 if jnp.issubdtype(current.dtype, jnp.bool_):
                     new_value = (
-                        action_idx.astype(jnp.bool_)
-                        if probs.shape[-1] == 2
-                        else action_idx > 0
+                        action_idx.astype(jnp.bool_) if probs.shape[-1] == 2 else action_idx > 0
                     )
                 else:
                     new_value = action_idx.astype(current.dtype)
@@ -440,8 +446,6 @@ class AdaptiveAgentMechanism(Mechanism):
             patches[slot_id] = [{"value": new_value}]
 
         if self.debug_mode and affects_list:
-            avg_action = jnp.mean(
-                action_val if action_val.ndim == 1 else action_val[:, 0]
-            )
+            avg_action = jnp.mean(action_val if action_val.ndim == 1 else action_val[:, 0])
             jax.debug.print("AdaptiveAgent continuous avg_action={x:.3f}", x=avg_action)
         return patches, key

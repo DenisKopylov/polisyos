@@ -36,18 +36,19 @@ from polisyos.foundry.executor import (
     load_state_snapshot,
     put_state_snapshot,
 )
-from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.circuit_breaker import CircuitBreakerRegistry
+from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
     FidelityLevel,
-    FoundryMethod,
     MethodMetadata,
     MethodSignature,
-    SlotSpec as MethodSlotSpec,
     SlotType,
     Unit,
+)
+from polisyos.foundry.methods.base import (
+    SlotSpec as MethodSlotSpec,
 )
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.kernel import (
@@ -145,9 +146,7 @@ def _make_method_signature(name: str) -> MethodSignature:
         name=name,
         namespace="tests.runtime",
         version="1.0.0",
-        input_slots=frozenset(
-            {MethodSlotSpec(name="state", slot_type=SlotType.SCALAR, unit=unit)}
-        ),
+        input_slots=frozenset({MethodSlotSpec(name="state", slot_type=SlotType.SCALAR, unit=unit)}),
         output_slots=frozenset(
             {MethodSlotSpec(name="patch_records", slot_type=SlotType.SCALAR, unit=patch_unit)}
         ),
@@ -179,9 +178,7 @@ class _MethodReadsIncomeWritesReported:
     def pure_step(state, params):
         return {
             "patch_records": {
-                "agents.reported_income": [
-                    {"value": jnp.asarray(state.agents.income)}
-                ]
+                "agents.reported_income": [{"value": jnp.asarray(state.agents.income)}]
             }
         }
 
@@ -226,7 +223,9 @@ def _scheduled_payload(store: FileSystemCAS):
     )
 
 
-def test_dependency_boundary_flushes_visible_state_for_mechanism_chain(tmp_path, monkeypatch) -> None:
+def test_dependency_boundary_flushes_visible_state_for_mechanism_chain(
+    tmp_path, monkeypatch
+) -> None:
     store = FileSystemCAS(tmp_path)
     base_state = GlobalState.empty(n_agents=2, n_firms=1)
 
@@ -237,9 +236,7 @@ def test_dependency_boundary_flushes_visible_state_for_mechanism_chain(tmp_path,
 
     class _IncomeReader:
         def emit_patches(self, state, key, *, target_mask=None):
-            return {
-                "agents.reported_income": [{"value": jnp.asarray(state.agents.income)}]
-            }, key
+            return {"agents.reported_income": [{"value": jnp.asarray(state.agents.income)}]}, key
 
     def _fake_factory(mechanism_type, params, **kwargs):
         if mechanism_type == "writer":
@@ -248,7 +245,9 @@ def test_dependency_boundary_flushes_visible_state_for_mechanism_chain(tmp_path,
             return _IncomeReader()
         raise AssertionError(mechanism_type)
 
-    monkeypatch.setattr("polisyos.foundry._executor_graph.create_mechanism_from_spec", _fake_factory)
+    monkeypatch.setattr(
+        "polisyos.foundry._executor_graph.create_mechanism_from_spec", _fake_factory
+    )
 
     writer_payload = _scheduled_payload(store)
     reader_payload = _scheduled_payload(store)
@@ -374,7 +373,9 @@ def test_independent_writers_keep_batched_merge_semantics(tmp_path, monkeypatch)
             return _DependentDelta(2.0)
         raise AssertionError(mechanism_type)
 
-    monkeypatch.setattr("polisyos.foundry._executor_graph.create_mechanism_from_spec", _fake_factory)
+    monkeypatch.setattr(
+        "polisyos.foundry._executor_graph.create_mechanism_from_spec", _fake_factory
+    )
 
     left_payload = _scheduled_payload(store)
     right_payload = _scheduled_payload(store)
@@ -512,7 +513,9 @@ def test_execute_facade_honors_exec_plan_seed_and_request_override(tmp_path) -> 
         random_seed=202,
     )
 
-    def _run(exec_plan_ref: ExecPlanRef, exec_config: FoundryExecConfig | None = None) -> np.ndarray:
+    def _run(
+        exec_plan_ref: ExecPlanRef, exec_config: FoundryExecConfig | None = None
+    ) -> np.ndarray:
         result = execute_foundry(
             store,
             ExecuteRequest(
@@ -523,7 +526,9 @@ def test_execute_facade_honors_exec_plan_seed_and_request_override(tmp_path) -> 
             ),
         )
         assert result.ok
-        sim_payload = from_canonical_bytes(store.get_bytes(result.simulation_result_ref.artifact_id))
+        sim_payload = from_canonical_bytes(
+            store.get_bytes(result.simulation_result_ref.artifact_id)
+        )
         sim = SimulationResult.model_validate(sim_payload)
         final_state = load_state_snapshot(store, snapshot_ref=sim.state_snapshot_ref)
         return np.asarray(final_state.agents.income)
@@ -543,7 +548,9 @@ def test_execute_facade_surfaces_posture_notes_and_blocks_on_max_steps(tmp_path)
     registry = MethodRegistry.get_instance()
     registry.register(_MethodWritesSeededIncome)
 
-    base_state = GlobalState.empty(n_agents=2, n_firms=1).replace(step=jnp.asarray(4, dtype=jnp.int32))
+    base_state = GlobalState.empty(n_agents=2, n_firms=1).replace(
+        step=jnp.asarray(4, dtype=jnp.int32)
+    )
     bindings_ref = _make_input_bindings(
         store,
         registry_bundle_ref=bundle.bundle_ref,

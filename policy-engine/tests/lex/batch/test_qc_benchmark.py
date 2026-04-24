@@ -66,7 +66,9 @@ def test_qc_skips_benchmark_metric_without_cases(tmp_path) -> None:
     )
     report = run_qc(config, fail_fast=False)
 
-    failed_names = [check.name for check in report.checks if not check.passed and check.severity == "critical"]
+    failed_names = [
+        check.name for check in report.checks if not check.passed and check.severity == "critical"
+    ]
     assert "benchmark_normpack_ready_pct" not in failed_names
     assert "benchmark_readiness" not in failed_names
 
@@ -124,8 +126,12 @@ def test_qc_reports_quality_hardening_metrics_when_new_tables_exist(tmp_path) ->
         con.execute("INSERT INTO lex_consistency_issues VALUES ('c1', TRUE)")
         con.execute("INSERT INTO lex_amendments VALUES ('a1', 'doc-amend', 'doc-base', TRUE)")
         con.execute("INSERT INTO lex_amendments VALUES ('a2', 'doc-multi', '', FALSE)")
-        con.execute("INSERT INTO lex_doc_versions VALUES ('doc-amend', 'Про внесення змін до Закону України', 'Закон')")
-        con.execute("INSERT INTO lex_doc_versions VALUES ('doc-multi', 'Про внесення змін до деяких законодавчих актів України', 'Закон')")
+        con.execute(
+            "INSERT INTO lex_doc_versions VALUES ('doc-amend', 'Про внесення змін до Закону України', 'Закон')"
+        )
+        con.execute(
+            "INSERT INTO lex_doc_versions VALUES ('doc-multi', 'Про внесення змін до деяких законодавчих актів України', 'Закон')"
+        )
         con.execute("INSERT INTO lex_pattern_feedback_queue VALUES ('q1')")
 
     (tmp_path / "provisions" / "aa").mkdir(parents=True, exist_ok=True)
@@ -224,7 +230,19 @@ def test_qc_treats_status_semantics_current_docs_as_known_and_embeddings_optiona
         encoding="utf-8",
     )
     (tmp_path / "spo_results" / "aa" / "doc1.jsonl").write_text(
-        json.dumps({"statements": [{"predicate": "requires", "source_quote_uk": "цитата", "source_quote_start": 0, "source_quote_end": 6}]}) + "\n",
+        json.dumps(
+            {
+                "statements": [
+                    {
+                        "predicate": "requires",
+                        "source_quote_uk": "цитата",
+                        "source_quote_start": 0,
+                        "source_quote_end": 6,
+                    }
+                ]
+            }
+        )
+        + "\n",
         encoding="utf-8",
     )
 

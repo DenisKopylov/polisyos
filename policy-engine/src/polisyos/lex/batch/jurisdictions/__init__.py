@@ -1,7 +1,7 @@
 """Jurisdiction plugin registry."""
 
-from polisyos.lex.batch.jurisdictions.protocol import JurisdictionPlugin
 from polisyos.lex.batch.jurisdictions.eu import EUJurisdiction
+from polisyos.lex.batch.jurisdictions.protocol import JurisdictionPlugin
 from polisyos.lex.batch.jurisdictions.ua import UkrainianJurisdiction
 
 _REGISTRY: dict[str, type[JurisdictionPlugin]] = {
@@ -17,4 +17,9 @@ def get_jurisdiction_plugin(code: str | None) -> JurisdictionPlugin:
     return plugin_cls()
 
 
-__all__ = ["EUJurisdiction", "JurisdictionPlugin", "UkrainianJurisdiction", "get_jurisdiction_plugin"]
+__all__ = [
+    "EUJurisdiction",
+    "JurisdictionPlugin",
+    "UkrainianJurisdiction",
+    "get_jurisdiction_plugin",
+]

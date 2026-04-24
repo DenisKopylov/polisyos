@@ -29,13 +29,62 @@ export type SavedView = {
 // ---------------------------------------------------------------------------
 
 const DEFAULT_WIDGETS: WidgetConfig[] = [
-  { id: "hero-metrics", type: "hero_metrics", title: "Key Metrics", size: "xl", visible: true, order: 0 },
-  { id: "action-queue", type: "action_queue", title: "Action Queue", size: "lg", visible: true, order: 1 },
-  { id: "status-chart", type: "status_chart", title: "Runs by Status", size: "md", visible: true, order: 2 },
-  { id: "duration-trend", type: "duration_trend", title: "Duration Trend", size: "md", visible: true, order: 3 },
-  { id: "source-coverage", type: "source_coverage", title: "Source Coverage", size: "md", visible: true, order: 4 },
-  { id: "promotions", type: "promotions", title: "Promotion Candidates", size: "md", visible: true, order: 5 },
-  { id: "quick-insights", type: "quick_insights", title: "Quick Insights", size: "lg", visible: true, order: 6 },
+  {
+    id: "hero-metrics",
+    type: "hero_metrics",
+    title: "Key Metrics",
+    size: "xl",
+    visible: true,
+    order: 0,
+  },
+  {
+    id: "action-queue",
+    type: "action_queue",
+    title: "Action Queue",
+    size: "lg",
+    visible: true,
+    order: 1,
+  },
+  {
+    id: "status-chart",
+    type: "status_chart",
+    title: "Runs by Status",
+    size: "md",
+    visible: true,
+    order: 2,
+  },
+  {
+    id: "duration-trend",
+    type: "duration_trend",
+    title: "Duration Trend",
+    size: "md",
+    visible: true,
+    order: 3,
+  },
+  {
+    id: "source-coverage",
+    type: "source_coverage",
+    title: "Source Coverage",
+    size: "md",
+    visible: true,
+    order: 4,
+  },
+  {
+    id: "promotions",
+    type: "promotions",
+    title: "Promotion Candidates",
+    size: "md",
+    visible: true,
+    order: 5,
+  },
+  {
+    id: "quick-insights",
+    type: "quick_insights",
+    title: "Quick Insights",
+    size: "lg",
+    visible: true,
+    order: 6,
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -92,16 +141,16 @@ export const useDashboardLayoutStore = create<DashboardLayoutState>()(
 
       resizeWidget: (id, size) => {
         set((state) => ({
-          widgets: state.widgets.map((w) =>
-            w.id === id ? { ...w, size } : w,
-          ),
+          widgets: state.widgets.map((w) => (w.id === id ? { ...w, size } : w)),
         }));
       },
 
       updateWidgetSettings: (id, settings) => {
         set((state) => ({
           widgets: state.widgets.map((w) =>
-            w.id === id ? { ...w, settings: { ...w.settings, ...settings } } : w,
+            w.id === id
+              ? { ...w, settings: { ...w.settings, ...settings } }
+              : w,
           ),
         }));
       },

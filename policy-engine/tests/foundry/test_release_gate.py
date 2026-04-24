@@ -15,9 +15,7 @@ _NO_SKIP_GOLDEN_DOMAINS = ("bayesian", "econometrics", "network", "optimization"
 
 @pytest.fixture(scope="session")
 def release_gate_golden_registry() -> GoldenRegistry:
-    return GoldenRegistry(
-        Path("/Users/deniskopylov/polisyos/policy-engine/tests/foundry/golden")
-    )
+    return GoldenRegistry(Path("/Users/deniskopylov/polisyos/policy-engine/tests/foundry/golden"))
 
 
 @pytest.fixture(scope="session")
@@ -64,8 +62,7 @@ def test_release_gate_golden_cases_pass_for_key_domains(
         result = release_gate_golden_registry.verify_case(case, release_gate_method_registry)
         assert result.passed, (
             f"Release-gate golden FAILED for {case.id} ({case.method_fqn}):\n"
-            f"  {result.message}\n"
-            + "\n".join(f"  - {m}" for m in result.mismatches)
+            f"  {result.message}\n" + "\n".join(f"  - {m}" for m in result.mismatches)
         )
 
 
@@ -81,15 +78,11 @@ def test_release_gate_workflow_publishes_operator_and_numerical_evidence() -> No
 
     correctness_steps = jobs["correctness-and-capabilities"]["steps"]
     correctness_run_text = "\n".join(
-        str(step.get("run", ""))
-        for step in correctness_steps
-        if isinstance(step, dict)
+        str(step.get("run", "")) for step in correctness_steps if isinstance(step, dict)
     )
     workflow_events = payload.get("on") or payload.get(True)
     trigger_paths = [
-        path
-        for event in ("pull_request", "push")
-        for path in workflow_events[event]["paths"]
+        path for event in ("pull_request", "push") for path in workflow_events[event]["paths"]
     ]
     assert "polisyos-foundry capabilities --json" in correctness_run_text
     assert "polisyos-foundry evidence --json" in correctness_run_text
@@ -120,9 +113,7 @@ def test_release_gate_workflow_publishes_operator_and_numerical_evidence() -> No
     assert "tests/ukraine_data/test_builders.py" in trigger_paths
 
     artifact_names = {
-        step.get("with", {}).get("name")
-        for step in correctness_steps
-        if isinstance(step, dict)
+        step.get("with", {}).get("name") for step in correctness_steps if isinstance(step, dict)
     }
     assert "foundry-capability-matrix" in artifact_names
     assert "foundry-operator-evidence" in artifact_names
@@ -130,8 +121,6 @@ def test_release_gate_workflow_publishes_operator_and_numerical_evidence() -> No
 
     scheduled_steps = jobs["scheduled-numerical-matrix"]["steps"]
     scheduled_run_text = "\n".join(
-        str(step.get("run", ""))
-        for step in scheduled_steps
-        if isinstance(step, dict)
+        str(step.get("run", "")) for step in scheduled_steps if isinstance(step, dict)
     )
     assert "--junitxml=foundry-numerical-matrix.xml" in scheduled_run_text

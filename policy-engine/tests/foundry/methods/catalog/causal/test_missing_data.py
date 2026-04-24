@@ -21,8 +21,8 @@ from polisyos.ir.analytics.administrative_missingness import (
     AdministrativeMissingnessMetadata,
     AdministrativeMissingnessScenarioFamily,
     AdministrativeMissingnessUnitScope,
-    attach_administrative_missingness_metadata,
     MissingnessAssessmentStatus,
+    attach_administrative_missingness_metadata,
     build_compliance_based_mgraph,
     build_registration_based_mgraph,
     build_system_change_based_mgraph,
@@ -211,6 +211,7 @@ def test_fully_observed_trivial():
         RecoverabilityStatus,
         test_recoverability,
     )
+
     meta = extract_mgraph_metadata(graph)
     result = test_recoverability(
         query_vars=frozenset(meta.substantive_vars),
@@ -341,18 +342,9 @@ def test_registration_based_assessment_is_recoverable_when_frame_observed():
 
     assessment = assess_administrative_missingness(graph=graph)
 
-    assert (
-        assessment.scenario_family
-        is AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED
-    )
-    assert (
-        assessment.scenario_class
-        is AdministrativeMissingnessClass.REGISTRATION_NOT_REGISTERED
-    )
-    assert (
-        assessment.missingness_direction
-        is AdministrativeMissingnessDirection.NOT_GENERATED
-    )
+    assert assessment.scenario_family is AdministrativeMissingnessScenarioFamily.REGISTRATION_BASED
+    assert assessment.scenario_class is AdministrativeMissingnessClass.REGISTRATION_NOT_REGISTERED
+    assert assessment.missingness_direction is AdministrativeMissingnessDirection.NOT_GENERATED
     assert assessment.missingness_unit_scope is AdministrativeMissingnessUnitScope.RECORD
     assert assessment.status is MissingnessAssessmentStatus.RECOVERABLE
     assert set(assessment.administrative_covariates_present) == {
@@ -377,10 +369,7 @@ def test_registration_based_assessment_marks_selection_only_frame_as_partial():
     assessment = assess_administrative_missingness(graph=graph)
 
     assert assessment.status is MissingnessAssessmentStatus.PARTIALLY_RECOVERABLE
-    assert any(
-        "non-registered" in recommendation
-        for recommendation in assessment.recommendations
-    )
+    assert any("non-registered" in recommendation for recommendation in assessment.recommendations)
 
 
 def test_registration_builder_defaults_application_channel_to_not_applied():
@@ -395,10 +384,7 @@ def test_registration_builder_defaults_application_channel_to_not_applied():
 
     assessment = assess_administrative_missingness(graph=graph)
 
-    assert (
-        assessment.scenario_class
-        is AdministrativeMissingnessClass.REGISTRATION_NOT_APPLIED
-    )
+    assert assessment.scenario_class is AdministrativeMissingnessClass.REGISTRATION_NOT_APPLIED
     assert assessment.missingness_direction is AdministrativeMissingnessDirection.NOT_GENERATED
 
 
@@ -414,10 +400,7 @@ def test_compliance_based_assessment_detects_self_censoring():
 
     assessment = assess_administrative_missingness(graph=graph)
 
-    assert (
-        assessment.scenario_family
-        is AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED
-    )
+    assert assessment.scenario_family is AdministrativeMissingnessScenarioFamily.COMPLIANCE_BASED
     assert assessment.status is MissingnessAssessmentStatus.NOT_RECOVERABLE
     assert assessment.recoverability is not None
     assert "R_income" in assessment.recoverability.blocking_r_nodes
@@ -443,14 +426,8 @@ def test_system_change_assessment_populates_testability_audit():
 
     assessment = assess_administrative_missingness(graph=graph, data=data)
 
-    assert (
-        assessment.scenario_family
-        is AdministrativeMissingnessScenarioFamily.SYSTEM_CHANGE_BASED
-    )
-    assert (
-        assessment.scenario_class
-        is AdministrativeMissingnessClass.SYSTEM_CHANGE_OR_SCHEMA_BREAK
-    )
+    assert assessment.scenario_family is AdministrativeMissingnessScenarioFamily.SYSTEM_CHANGE_BASED
+    assert assessment.scenario_class is AdministrativeMissingnessClass.SYSTEM_CHANGE_OR_SCHEMA_BREAK
     assert assessment.status is MissingnessAssessmentStatus.RECOVERABLE
     assert assessment.testability_audit is not None
     assert assessment.testability_audit.implications_tested >= 0
@@ -651,8 +628,7 @@ def test_ordered_recovery_topological_order():
 
     assert isinstance(estimand.root, ProductNode)
     variables_in_order = [
-        f.variable for f in estimand.root.factors
-        if isinstance(f, RecoveredDistNode)
+        f.variable for f in estimand.root.factors if isinstance(f, RecoveredDistNode)
     ]
     # X has no parent in the DAG, Y has X as parent → X must come first
     assert variables_in_order.index("X") < variables_in_order.index("Y")
@@ -677,7 +653,8 @@ def test_ordered_recovery_proof_steps_count():
     )
     # One proof step per query variable (MGRAPH_RECOVERABLE_VAR or MGRAPH_TRIVIALLY_OBSERVED)
     recov_steps = [
-        s for s in result.proof_steps
+        s
+        for s in result.proof_steps
         if s.rule_name in ("MGRAPH_RECOVERABLE_VAR", "MGRAPH_TRIVIALLY_OBSERVED")
     ]
     assert len(recov_steps) == len(meta.substantive_vars)
@@ -698,8 +675,11 @@ def test_ordered_recovery_missingness_kind_in_factors():
 
     assert isinstance(estimand.root, ProductNode)
     x_factor = next(
-        (f for f in estimand.root.factors
-         if isinstance(f, RecoveredDistNode) and f.variable == "X"),
+        (
+            f
+            for f in estimand.root.factors
+            if isinstance(f, RecoveredDistNode) and f.variable == "X"
+        ),
         None,
     )
     assert x_factor is not None
@@ -799,7 +779,7 @@ def test_full_law_identify_proof_steps_include_both_stages():
 def test_full_law_identify_soft_policy_routes_through_policy_id():
     from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
     from polisyos.foundry.methods.catalog.causal.recoverability_engine import full_law_identify
-    from polisyos.ir.analytics.estimand import StochasticPolicy, StochasticInterventionNode
+    from polisyos.ir.analytics.estimand import StochasticInterventionNode, StochasticPolicy
 
     graph = make_mcar_mgraph()
     meta = extract_mgraph_metadata(graph)
@@ -971,8 +951,11 @@ def test_build_mgraph_factory_mcar_valid():
     assert "X" in graph.nodes
     assert "Y" in graph.nodes
     # Edge R_X → X_star must exist
-    directed = {(e.src, e.dst) for e in graph.edges
-                if e.mark_src == EdgeMark.TAIL and e.mark_dst == EdgeMark.ARROW}
+    directed = {
+        (e.src, e.dst)
+        for e in graph.edges
+        if e.mark_src == EdgeMark.TAIL and e.mark_dst == EdgeMark.ARROW
+    }
     assert ("R_X", "X_star") in directed
 
 
@@ -987,8 +970,11 @@ def test_build_mgraph_factory_mnar_has_edge():
         directed_edges=[("X", "Y")],
         missingness_map={"X": MissingnessKind.MNAR},
     )
-    directed = {(e.src, e.dst) for e in graph.edges
-                if e.mark_src == EdgeMark.TAIL and e.mark_dst == EdgeMark.ARROW}
+    directed = {
+        (e.src, e.dst)
+        for e in graph.edges
+        if e.mark_src == EdgeMark.TAIL and e.mark_dst == EdgeMark.ARROW
+    }
     assert ("X", "R_X") in directed
 
 
@@ -1002,7 +988,7 @@ def test_mgraph_validator_missing_proxy_raises():
     with pytest.raises(ValueError, match="X_star"):
         CausalGraphModel(
             graph_type=GraphType.MGRAPH,
-            nodes=["X", "Y", "R_X"],   # X_star is missing
+            nodes=["X", "Y", "R_X"],  # X_star is missing
             edges=[CausalEdge(src="X", dst="Y")],
         )
 

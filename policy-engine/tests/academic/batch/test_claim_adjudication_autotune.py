@@ -1,6 +1,15 @@
 from __future__ import annotations
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.ir.analytics.literature import (
+    CausalCredibility,
+    ClaimAdjudicationResult,
+    ClaimType,
+    DesignFamily,
+    RiskOfBias,
+    SourceBasis,
+    SupportStatus,
+)
 from polisyos.scientist.autotune import (
     ChampionRegistry,
     persist_benchmark_evaluation,
@@ -15,15 +24,6 @@ from polisyos.scientist.autotune.claim_adjudication import (
     default_claim_adjudication_promotion_policy,
     default_claim_gold_suite,
     select_prompt_variant,
-)
-from polisyos.ir.analytics.literature import (
-    CausalCredibility,
-    ClaimAdjudicationResult,
-    ClaimType,
-    DesignFamily,
-    RiskOfBias,
-    SourceBasis,
-    SupportStatus,
 )
 
 
@@ -98,7 +98,9 @@ def test_claim_promotion_is_blocked_on_abstract_only_overcall(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / ".polisyos")
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
     suite_ref = persist_benchmark_suite(store, default_claim_gold_suite())
-    candidate_ref = persist_mutation_artifact(store, ClaimAdjudicationSearchConfig(prompt_variants=["bad-variant"]))
+    candidate_ref = persist_mutation_artifact(
+        store, ClaimAdjudicationSearchConfig(prompt_variants=["bad-variant"])
+    )
     evaluator = ClaimGoldEvaluator(store=store, registry=registry)
 
     def predictor(row, config, pass_index, context):

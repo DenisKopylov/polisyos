@@ -2,11 +2,13 @@
 ChainArtifact -- immutable artifact capturing a method chain's composition
 and topology for CAS-backed provenance (Law J).
 """
+
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, ClassVar, Mapping, Sequence
+from typing import TYPE_CHECKING, Any, ClassVar
 from uuid import UUID, uuid5
 
 from polisyos.common.logger import get_logger
@@ -48,7 +50,7 @@ logger = get_logger(__name__)
 CHAIN_ID_NAMESPACE = uuid5(UUID("6ba7b811-9dad-11d1-80b4-00c04fd430c8"), "polisyos.chain")
 
 
-def _stable_node_id(node: "MethodNode") -> str:
+def _stable_node_id(node: MethodNode) -> str:
     node_key = node.node_key
     if node_key is None:
         return f"{node.method_fqn}|unknown|{node.instance_index}"
@@ -91,12 +93,12 @@ class ChainArtifact:
     @classmethod
     def from_chain(
         cls,
-        chain: "CompiledMethodChain",
+        chain: CompiledMethodChain,
         method_artifacts: Sequence[MethodArtifact] | Mapping[UUID, MethodArtifact],
         *,
         chain_id: UUID | None = None,
         composed_at: datetime | None = None,
-    ) -> "ChainArtifact":
+    ) -> ChainArtifact:
         """
         Create artifact from a compiled chain.
 
@@ -113,9 +115,7 @@ class ChainArtifact:
             artifact_map = dict(method_artifacts)
         else:
             if len(method_artifacts) != len(chain.execution_order):
-                raise ValueError(
-                    "method_artifacts must match chain execution order length"
-                )
+                raise ValueError("method_artifacts must match chain execution order length")
             artifact_map = {
                 node_id: artifact
                 for node_id, artifact in zip(chain.execution_order, method_artifacts)
@@ -126,9 +126,7 @@ class ChainArtifact:
             node = chain.get_node(node_id)
             node_id_map[node_id] = _stable_node_id(node)
 
-        method_fqns = tuple(
-            chain.signatures[node_id].fqn for node_id in chain.execution_order
-        )
+        method_fqns = tuple(chain.signatures[node_id].fqn for node_id in chain.execution_order)
         method_artifact_ids = tuple(
             artifact_map[node_id].artifact_id for node_id in chain.execution_order
         )
@@ -149,8 +147,7 @@ class ChainArtifact:
             )
 
         binding_records = tuple(
-            SlotBindingRecord.from_binding(b, node_id_map=node_id_map)
-            for b in chain.bindings
+            SlotBindingRecord.from_binding(b, node_id_map=node_id_map) for b in chain.bindings
         )
         if any(
             record.source_node_id is None or record.target_node_id is None

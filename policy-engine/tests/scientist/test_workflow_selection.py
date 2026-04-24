@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_KNOWLEDGE_BUNDLE_REF,

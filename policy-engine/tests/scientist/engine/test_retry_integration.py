@@ -1,9 +1,8 @@
 """Integration tests for retry in WorkflowExecutor."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
-
-import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.engine.context import ExecutionContext
@@ -14,28 +13,35 @@ from polisyos.scientist.engine.retry import RetryPolicy
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
-
 _FAKE_SHA = "sha256:" + "ab" * 32
 
 
 def _make_ctx(*, metrics=None):
     store = MagicMock()
     store.put_json.return_value = ArtifactRef(
-        artifact_id=_FAKE_SHA, kind="test", media_type="application/json",
+        artifact_id=_FAKE_SHA,
+        kind="test",
+        media_type="application/json",
     )
     run = MagicMock()
     run.trace_path = None
     run.finalize.return_value = ArtifactRef(
-        artifact_id=_FAKE_SHA, kind="run", media_type="application/json",
+        artifact_id=_FAKE_SHA,
+        kind="run",
+        media_type="application/json",
     )
     return ExecutionContext(
-        store=store, run=run, logger=MagicMock(), metrics=metrics,
+        store=store,
+        run=run,
+        logger=MagicMock(),
+        metrics=metrics,
     )
 
 
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
 
 class TestRetryIntegration:
     def test_node_with_retry_succeeds_after_failure(self):
@@ -47,7 +53,10 @@ class TestRetryIntegration:
             call_count["n"] += 1
             if call_count["n"] < 3:
                 return NodeOutcome(
-                    status="fail", state=st, events=[], artifacts=[],
+                    status="fail",
+                    state=st,
+                    events=[],
+                    artifacts=[],
                     error=NodeError(code="node.exception", message="transient"),
                 )
             return NodeOutcome(status="ok", state=st, events=[], artifacts=[])
@@ -88,7 +97,10 @@ class TestRetryIntegration:
         node.spec.state_writes = []
         node.spec.node_id = "test.always_fail@1.0.0"
         node.execute.return_value = NodeOutcome(
-            status="fail", state=state, events=[], artifacts=[],
+            status="fail",
+            state=state,
+            events=[],
+            artifacts=[],
             error=NodeError(code="node.exception", message="always fails"),
         )
 
@@ -159,7 +171,10 @@ class TestRetryIntegration:
             call_count["n"] += 1
             if call_count["n"] < 2:
                 return NodeOutcome(
-                    status="fail", state=st, events=[], artifacts=[],
+                    status="fail",
+                    state=st,
+                    events=[],
+                    artifacts=[],
                     error=NodeError(code="node.exception", message="once"),
                 )
             return NodeOutcome(status="ok", state=st, events=[], artifacts=[])
@@ -193,8 +208,7 @@ class TestRetryIntegration:
 
         # Check NODE_RETRY events
         retry_events = [
-            c for c in ctx.run.emit.call_args_list
-            if len(c[0]) >= 2 and c[0][1] == "NODE_RETRY"
+            c for c in ctx.run.emit.call_args_list if len(c[0]) >= 2 and c[0][1] == "NODE_RETRY"
         ]
         assert len(retry_events) == 1
 
@@ -207,7 +221,10 @@ class TestRetryIntegration:
         node.spec.state_writes = []
         node.spec.node_id = "test.simple@1.0.0"
         node.execute.return_value = NodeOutcome(
-            status="ok", state=state, events=[], artifacts=[],
+            status="ok",
+            state=state,
+            events=[],
+            artifacts=[],
         )
 
         registry = MagicMock(spec=NodeRegistry)

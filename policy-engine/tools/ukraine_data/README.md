@@ -13,5 +13,6 @@ Operational rules:
 
 - Preserve source null/missing semantics in generated manifests and contract
   payloads.
+
 - Stream large inputs and use atomic publication for summary files.
 - New harvesters must make timeout, response-size, and retry policies explicit.

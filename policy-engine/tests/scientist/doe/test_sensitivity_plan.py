@@ -19,7 +19,9 @@ def test_sensitivity_plan_legacy_parameters_are_supported() -> None:
 def test_sensitivity_plan_guardrail_blocks_large_runs_by_default() -> None:
     with pytest.raises(ValueError, match="estimated_runs exceeds max_estimated_runs"):
         SensitivityPlan(
-            parameter_specs=[ParameterSpec(name=f"x{i}", lower_bound=0.0, upper_bound=1.0) for i in range(8)],
+            parameter_specs=[
+                ParameterSpec(name=f"x{i}", lower_bound=0.0, upper_bound=1.0) for i in range(8)
+            ],
             method=SensitivityMethod.SOBOL,
             n_trajectories=100,
             max_estimated_runs=1000,
@@ -35,4 +37,3 @@ def test_sensitivity_plan_allows_large_runs_with_override() -> None:
         allow_large_run=True,
     )
     assert plan.estimated_runs > plan.max_estimated_runs
-

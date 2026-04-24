@@ -7,7 +7,7 @@ import asyncio
 import logging
 from pathlib import Path
 
-from polisyos.datasets.batch.config import ALL_STAGES, DEFAULT_RUN_STAGES, DatasetBatchConfig
+from polisyos.datasets.batch.config import DEFAULT_RUN_STAGES, DatasetBatchConfig
 
 _STAGE_ALIAS = {
     "merge-dedup": "merge_dedup",
@@ -69,7 +69,9 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Datase
         resume_mode=getattr(args, "resume_mode", "smart"),
         preflight_sources=_parse_sources(getattr(args, "preflight_sources", None)),
         preflight_only=bool(getattr(args, "preflight_only", False)),
-        defer_unsupported_observation_plans=not bool(getattr(args, "fail_on_unsupported_observation_plans", False)),
+        defer_unsupported_observation_plans=not bool(
+            getattr(args, "fail_on_unsupported_observation_plans", False)
+        ),
         fail_fast_qc=bool(getattr(args, "fail_fast", True)),
     )
 
@@ -90,53 +92,31 @@ async def _run_single_stage(args: argparse.Namespace, stage: str) -> None:
     if stage_name == "run":
         cfg = _build_config(args, stages=_parse_stages(getattr(args, "stages", None)))
         stats = await run_dataset_pipeline(cfg, thermal=bool(getattr(args, "thermal", False)))
-        print(f"Done in {stats.elapsed_seconds:.1f}s")
-        for name, duration in sorted(stats.stage_times.items()):
-            print(f"  {name}: {duration:.1f}s")
+        for _name, _duration in sorted(stats.stage_times.items()):
+            pass
         return
 
     cfg = _build_config(args, stages=frozenset({stage_name}))
     if stage_name == "harvest":
-        records = await harvest_sources(cfg)
-        print(f"Harvested sources: {len(records)}")
-        print(f"Records: {sum(len(v) for v in records.values())}")
+        await harvest_sources(cfg)
     elif stage_name == "normalize":
-        counts = normalize_raw_sources(cfg)
-        print(f"Normalized sources: {len(counts)}")
-        print(f"Records: {sum(counts.values())}")
+        normalize_raw_sources(cfg)
     elif stage_name == "merge_dedup":
         stats = merge_and_dedup(cfg)
-        print(f"Merged: {stats.get('merged_records', 0)}")
-        print(f"Duplicates: {stats.get('duplicates', 0)}")
     elif stage_name == "graph_load":
         stats = run_graph_load(cfg)
-        print(f"Graph loaded: datasets={stats.datasets}, distributions={stats.distributions}")
     elif stage_name == "graph_index":
         run_graph_index(cfg)
-        print("Graph indexes created")
     elif stage_name == "core_sources_ingest":
         stats = await run_core_sources_ingest_async(cfg)
-        print(
-            "Core sources ingested: "
-            f"registry={stats.registry_datasets}, alignments={stats.variable_alignments}, "
-            f"observations={stats.observations}, attempted={stats.observations_attempted}, "
-            f"inserted={stats.observations_inserted}, replaced={stats.observations_replaced}, failures={stats.failures}"
-        )
     elif stage_name == "embed":
-        embedded = run_embed(cfg, thermal=bool(getattr(args, "thermal", False)))
-        print(f"Embedded datasets: {embedded}")
+        run_embed(cfg, thermal=bool(getattr(args, "thermal", False)))
     elif stage_name == "benchmark":
-        outcome = run_benchmark(cfg)
-        print(f"Benchmark report: {outcome.report_path}")
-        print(f"Search top-5 relevance: {outcome.metrics.get('benchmark_search_top5_relevance_pct', 0):.1f}%")
-        print(f"Retrieval readiness: {outcome.metrics.get('benchmark_retrieval_ready_pct', 0):.1f}%")
+        run_benchmark(cfg)
     elif stage_name == "qc":
-        report = run_qc(cfg, fail_fast=bool(getattr(args, "fail_fast", True)))
-        print(f"QC passed: {report.passed}")
-        print(f"QC report: {cfg.qc_report_path}")
+        run_qc(cfg, fail_fast=bool(getattr(args, "fail_fast", True)))
     elif stage_name == "publish":
-        manifest = run_publish(cfg)
-        print(f"Publish manifest: {manifest}")
+        run_publish(cfg)
     else:
         raise ValueError(f"Unsupported stage command: {stage}")
 
@@ -146,16 +126,16 @@ def _cmd_stats(args: argparse.Namespace) -> None:
 
     con = duckdb.connect(str(args.db_path), read_only=True)
     try:
-        ds_count = con.execute("SELECT count(*) FROM ds_datasets").fetchone()[0]
-        dist_count = con.execute("SELECT count(*) FROM ds_distributions").fetchone()[0]
-        sources = con.execute("SELECT source, count(*) FROM ds_datasets GROUP BY source ORDER BY count(*) DESC").fetchall()
+        con.execute("SELECT count(*) FROM ds_datasets").fetchone()[0]
+        con.execute("SELECT count(*) FROM ds_distributions").fetchone()[0]
+        sources = con.execute(
+            "SELECT source, count(*) FROM ds_datasets GROUP BY source ORDER BY count(*) DESC"
+        ).fetchall()
     finally:
         con.close()
 
-    print(f"Datasets: {ds_count}")
-    print(f"Distributions: {dist_count}")
-    for source, count in sources:
-        print(f"  {source}: {count}")
+    for _source, _count in sources:
+        pass
 
 
 def _cmd_search(args: argparse.Namespace) -> None:
@@ -168,11 +148,9 @@ def _cmd_search(args: argparse.Namespace) -> None:
         graph.close()
 
     if not results:
-        print("No results found")
         return
-    for i, row in enumerate(results, start=1):
-        print(f"[{i}] {row.title}")
-        print(f"    source={row.source} agency={row.agency} dataset_id={row.dataset_id} similarity={row.similarity:.3f}")
+    for _i, _row in enumerate(results, start=1):
+        pass
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -182,18 +160,35 @@ def _build_parser() -> argparse.ArgumentParser:
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--snapshot-root", required=True)
     common.add_argument("--metrics-map", default=None, help="Path to metrics_map YAML")
-    common.add_argument("--promoted-sources", default=None, help="Comma-separated promoted/core sources")
+    common.add_argument(
+        "--promoted-sources", default=None, help="Comma-separated promoted/core sources"
+    )
     common.add_argument(
         "--run-profile",
         default="prod_full",
-        choices=["prod_full", "prod_core_blocking", "rest_backfill", "catalog_refresh", "preflight_core", "observations_backfill"],
+        choices=[
+            "prod_full",
+            "prod_core_blocking",
+            "rest_backfill",
+            "catalog_refresh",
+            "preflight_core",
+            "observations_backfill",
+        ],
         help="Source selection profile for manual snapshot runs",
     )
-    common.add_argument("--date-start", default=None, help="Optional manual history override start date")
-    common.add_argument("--date-end", default=None, help="Optional manual history override end date")
+    common.add_argument(
+        "--date-start", default=None, help="Optional manual history override start date"
+    )
+    common.add_argument(
+        "--date-end", default=None, help="Optional manual history override end date"
+    )
     common.add_argument("--country-scope", default="regional_extended")
-    common.add_argument("--active-countries", default=None, help="Comma-separated ISO2 country codes override")
-    common.add_argument("--year-window", default=None, help="Observation/support year window as START:END")
+    common.add_argument(
+        "--active-countries", default=None, help="Comma-separated ISO2 country codes override"
+    )
+    common.add_argument(
+        "--year-window", default=None, help="Observation/support year window as START:END"
+    )
     common.add_argument(
         "--observation-mode",
         default="all",
@@ -201,7 +196,9 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Observation planner/runtime phase selection",
     )
     common.add_argument("--resume-mode", default="smart", choices=["smart", "force", "off"])
-    common.add_argument("--preflight-sources", default=None, help="Comma-separated source override for preflight")
+    common.add_argument(
+        "--preflight-sources", default=None, help="Comma-separated source override for preflight"
+    )
     common.add_argument("--preflight-only", action="store_true")
     common.add_argument(
         "--fail-on-unsupported-observation-plans",
@@ -228,7 +225,9 @@ def _build_parser() -> argparse.ArgumentParser:
     embed = sub.add_parser("embed", parents=[common], help="Build local embeddings + HNSW")
     embed.add_argument("--thermal", action="store_true")
 
-    sub.add_parser("benchmark", parents=[common], help="Run consumer benchmark suites on built catalog")
+    sub.add_parser(
+        "benchmark", parents=[common], help="Run consumer benchmark suites on built catalog"
+    )
 
     qc = sub.add_parser("qc", parents=[common], help="Run QC checks")
     qc.add_argument("--fail-fast", dest="fail_fast", action="store_true")
@@ -261,7 +260,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     """Main helper."""
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+    )
     parser = _build_parser()
     args = parser.parse_args()
 

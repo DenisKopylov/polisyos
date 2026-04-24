@@ -10,8 +10,8 @@ pytest.importorskip(
     reason="pytest-benchmark not installed; skipping release-gate benchmarks",
 )
 
-from polisyos.foundry.methods.catalog.ml.protocols import TabularData
 from polisyos.foundry.methods.catalog.bayesian.regression import BayesianLinearRegressionEstimator
+from polisyos.foundry.methods.catalog.ml.protocols import TabularData
 from polisyos.foundry.methods.catalog.optimization.lp import ResourceLP
 from polisyos.foundry.methods.catalog.survey.estimation import FayHerriotEstimator
 from polisyos.foundry.methods.optimization import (
@@ -26,18 +26,21 @@ pytestmark = [pytest.mark.benchmark, pytest.mark.performance]
 
 @pytest.fixture(scope="module")
 def release_gate_golden_registry() -> GoldenRegistry:
-    return GoldenRegistry(
-        Path("/Users/deniskopylov/polisyos/policy-engine/tests/foundry/golden")
-    )
+    return GoldenRegistry(Path("/Users/deniskopylov/polisyos/policy-engine/tests/foundry/golden"))
 
 
 @pytest.fixture(scope="module")
 def bayesian_state() -> TabularData:
     rng = np.random.default_rng(301)
     features = rng.normal(size=(48, 3))
-    target = 1.1 + 1.8 * features[:, 0] - 0.6 * features[:, 1] + rng.normal(
-        scale=0.3,
-        size=48,
+    target = (
+        1.1
+        + 1.8 * features[:, 0]
+        - 0.6 * features[:, 1]
+        + rng.normal(
+            scale=0.3,
+            size=48,
+        )
     )
     return TabularData(
         features=features,

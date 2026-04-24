@@ -1,4 +1,5 @@
 """Fabric telemetry contract, health snapshots, and backend-agnostic alert hooks."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -12,16 +13,16 @@ from polisyos.core.observability import get_metrics
 logger = get_logger(__name__)
 
 __all__ = [
-    "FABRIC_TRACE_NAMES",
-    "FABRIC_METRIC_NAMES",
-    "FABRIC_LABEL_CARDINALITY_LIMITS",
     "FABRIC_ERROR_TAXONOMY",
+    "FABRIC_LABEL_CARDINALITY_LIMITS",
+    "FABRIC_METRIC_NAMES",
+    "FABRIC_TRACE_NAMES",
     "AlertSeverity",
-    "FabricAlert",
     "AlertSink",
-    "NoOpAlertSink",
-    "HealthComponentSnapshot",
+    "FabricAlert",
     "FabricHealthSnapshot",
+    "HealthComponentSnapshot",
+    "NoOpAlertSink",
     "build_fabric_health_snapshot",
 ]
 
@@ -111,8 +112,7 @@ class FabricAlert:
 class AlertSink(Protocol):
     """Hook for alert fan-out without coupling to a concrete backend."""
 
-    def emit(self, alert: FabricAlert) -> None:
-        ...
+    def emit(self, alert: FabricAlert) -> None: ...
 
 
 class NoOpAlertSink:
@@ -191,10 +191,7 @@ def build_fabric_health_snapshot(
                 )
 
     reasons = tuple(
-        reason
-        for component in components
-        if not component.healthy
-        for reason in component.reasons
+        reason for component in components if not component.healthy for reason in component.reasons
     )
     snapshot = FabricHealthSnapshot(
         healthy=all(component.healthy for component in components) if components else True,

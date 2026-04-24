@@ -18,10 +18,11 @@ Decision table:
 BoundsEngine calls inner estimators' pure_step() directly (same package;
 no registry lookup at execution time — fast and testable in isolation).
 """
+
 from __future__ import annotations
 
-import json
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -38,36 +39,34 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.ir.analytics.certified_tightening import build_certified_tightening_claim
-from polisyos.ir.analytics.partial_identification import (
-    BoundMethod,
-    BoundTighteningLogEntry,
-    BoundsReport,
-    bounds_bundle_from_bounds_report,
-    BoundsMethodSummary,
-    PartialIdentificationResult,
-    TighteningStatus,
-)
-
 from polisyos.foundry.methods.catalog.causal.bounds import (
     BalkePearlBoundsEstimator,
-    CopulaBoundsEstimator,
     GeneralBalkePearlBoundsEstimator,
     ImbensManskiBoundsEstimator,
     LeeBoundsEstimator,
     ManskiBoundsEstimator,
     OptimizationBasedBoundsEstimator,
 )
-from polisyos.foundry.methods.catalog.causal.model_class_compatibility import (
-    check_model_class_compatibility,
-)
 from polisyos.foundry.methods.catalog.causal.lp_bounds import (
     auto_bounds_with_metadata,
     conditional_auto_bounds_with_metadata,
 )
+from polisyos.foundry.methods.catalog.causal.model_class_compatibility import (
+    check_model_class_compatibility,
+)
 from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import (
     IntersectionBoundsEstimator,
     TanBoundsEstimator,
+)
+from polisyos.ir.analytics.certified_tightening import build_certified_tightening_claim
+from polisyos.ir.analytics.partial_identification import (
+    BoundMethod,
+    BoundsMethodSummary,
+    BoundsReport,
+    BoundTighteningLogEntry,
+    PartialIdentificationResult,
+    TighteningStatus,
+    bounds_bundle_from_bounds_report,
 )
 
 
@@ -250,9 +249,7 @@ class BoundsEngineMethod:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec(
-                    "outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)
-                ),
+                SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
                 SlotSpec(
                     "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
                 ),
@@ -397,8 +394,17 @@ class BoundsEngineMethod:
             "estimation context and aggregates results into a BoundsReport."
         ),
         tags=frozenset(
-            {"causal", "bounds", "partial-identification", "orchestration", "manski",
-             "balke-pearl", "lee", "mtr", "miv"}
+            {
+                "causal",
+                "bounds",
+                "partial-identification",
+                "orchestration",
+                "manski",
+                "balke-pearl",
+                "lee",
+                "mtr",
+                "miv",
+            }
         ),
         citations=(
             "Manski, C.F. (1990). Nonparametric Bounds on Treatment Effects. AER P&P.",
@@ -413,9 +419,7 @@ class BoundsEngineMethod:
             "Causal query is partially identified (MANSKI_BOUNDS strategy); "
             "need the tightest available bounds given available data."
         ),
-        when_not_to_use=(
-            "Point-identified estimand — use ATE/ATT estimators instead."
-        ),
+        when_not_to_use=("Point-identified estimand — use ATE/ATT estimators instead."),
         output_interpretation=(
             "bounds_report: BoundsReport with tightest_lower/upper, consensus interval, "
             "is_informative flag, and list of all method results."
@@ -518,9 +522,7 @@ class BoundsEngineMethod:
                     outcome=Y,
                     treatment=T,
                     instrument=(
-                        None
-                        if (not has_iv or Z_raw is None)
-                        else np.asarray(Z_raw, dtype=float)
+                        None if (not has_iv or Z_raw is None) else np.asarray(Z_raw, dtype=float)
                     ),
                     target_treatment=float(params.get("treatment_target", 1.0)),
                     reference_treatment=float(params.get("treatment_ref", 0.0)),
@@ -532,9 +534,7 @@ class BoundsEngineMethod:
                 if include_auto_result:
                     partial_id_results.append(auto_pid)
                 else:
-                    warnings.append(
-                        "auto_bounds_excluded_from_headline_bundle_without_certificate"
-                    )
+                    warnings.append("auto_bounds_excluded_from_headline_bundle_without_certificate")
                 if isinstance(candidate_payload, dict):
                     certificate_candidates.append((auto_pid, candidate_payload))
             except Exception as exc:  # pragma: no cover - defensive fallback
@@ -572,11 +572,15 @@ class BoundsEngineMethod:
                         certificate_candidates.append((assumed_pid, candidate_payload))
                         generated_tightener_certified_count += 1
                     else:
-                        solver_status = str(assumed_metadata.get("solver_status", "missing_solver_status"))
+                        solver_status = str(
+                            assumed_metadata.get("solver_status", "missing_solver_status")
+                        )
                         is_infeasible = solver_status.startswith("infeasible(")
                         if is_infeasible:
                             tightening_infeasible_count += 1
-                        warnings.append(f"assumption_candidate_{'infeasible' if is_infeasible else 'uncertified'}:{assumption_name}")
+                        warnings.append(
+                            f"assumption_candidate_{'infeasible' if is_infeasible else 'uncertified'}:{assumption_name}"
+                        )
                         tightening_log_entries.append(
                             _tightening_log_entry(
                                 method=BoundMethod.GENERAL_LP_BOUNDS,
@@ -625,9 +629,7 @@ class BoundsEngineMethod:
                         constraints={"monotone": has_monotone},
                     )
                     if conditioned is None:
-                        warnings.append(
-                            f"conditioning_candidate_uncertified:{conditioning_name}"
-                        )
+                        warnings.append(f"conditioning_candidate_uncertified:{conditioning_name}")
                         tightening_log_entries.append(
                             _tightening_log_entry(
                                 method=BoundMethod.GENERAL_LP_BOUNDS,
@@ -656,9 +658,7 @@ class BoundsEngineMethod:
                         certificate_candidates.append((conditioned_pid, candidate_payload))
                         generated_tightener_certified_count += 1
                     else:
-                        warnings.append(
-                            f"conditioning_candidate_uncertified:{conditioning_name}"
-                        )
+                        warnings.append(f"conditioning_candidate_uncertified:{conditioning_name}")
                         tightening_log_entries.append(
                             _tightening_log_entry(
                                 method=BoundMethod.GENERAL_LP_BOUNDS,
@@ -718,6 +718,7 @@ class BoundsEngineMethod:
                     )
                 except ValueError as exc:
                     compatibility = None
+                    binary_iv_incompatible = True
                     warnings.append(
                         f"binary_iv_model_class_check_failed:{exc.__class__.__name__}:{exc}"
                     )
@@ -729,14 +730,14 @@ class BoundsEngineMethod:
                             "binary_iv_model_class_incompatible:blocked_balke_pearl_under_declared_iv_class"
                         )
                         if compatibility.negative_certificate is not None:
-                            negative_certificate_payload = compatibility.negative_certificate.model_dump(
-                                mode="json"
+                            negative_certificate_payload = (
+                                compatibility.negative_certificate.model_dump(mode="json")
                             )
             if tighten_bounds:
                 for threshold in instrument_family_thresholds:
                     candidate_name = f"instrument_threshold:{threshold:g}"
                     try:
-                        z_binary = (Z > threshold).astype(float)
+                        z_binary = (threshold < Z).astype(float)
                         if len(np.unique(z_binary[np.isfinite(z_binary)])) < 2:
                             warnings.append(
                                 f"instrument_family_candidate_degenerate:threshold={threshold:g}"
@@ -881,8 +882,7 @@ class BoundsEngineMethod:
             partial_id_results.append(_lee_partial_id(lee_out))
         elif has_selection and not has_selected:
             warnings.append(
-                "has_selection=True but 'selected' slot not found in state; "
-                "Lee bounds skipped."
+                "has_selection=True but 'selected' slot not found in state; Lee bounds skipped."
             )
 
         # --- Monotone Treatment Response path ---
@@ -1029,7 +1029,9 @@ class BoundsEngineMethod:
                 }
             )
             bundle_updates: dict[str, Any] = {
-                "method_summaries": _annotate_method_summaries(bundle.method_summaries, annotations),
+                "method_summaries": _annotate_method_summaries(
+                    bundle.method_summaries, annotations
+                ),
                 "metadata": bundle_metadata,
             }
             if tighten_bounds:

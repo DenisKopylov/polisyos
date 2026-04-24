@@ -61,25 +61,26 @@ def test_kernel_estimator_spec_round_trip_via_store(tmp_path) -> None:
 def test_kernel_estimator_spec_rejects_ready_with_blocking_reasons() -> None:
     with pytest.raises(ValueError, match="ready kernel lowering"):
         KernelEstimatorSpec.model_validate(
-            _ready_spec().model_copy(
-                update={"blocking_reasons": ("operator_certificate_missing",)}
-            ).model_dump(mode="json")
+            _ready_spec()
+            .model_copy(update={"blocking_reasons": ("operator_certificate_missing",)})
+            .model_dump(mode="json")
         )
 
 
 def test_kernel_estimator_spec_requires_reason_for_blocked_disposition() -> None:
     with pytest.raises(ValueError, match="must explain blocking_reasons"):
         KernelEstimatorSpec.model_validate(
-            _ready_spec().model_copy(
-                update={"lowering_disposition": KernelLoweringDisposition.PROOF_ONLY}
-            ).model_dump(mode="json")
+            _ready_spec()
+            .model_copy(update={"lowering_disposition": KernelLoweringDisposition.PROOF_ONLY})
+            .model_dump(mode="json")
         )
 
 
 def test_distributional_spec_requires_characteristic_or_downgrade() -> None:
     with pytest.raises(ValueError, match="requires characteristic output_kernel"):
         KernelEstimatorSpec.model_validate(
-            _ready_spec().model_copy(
+            _ready_spec()
+            .model_copy(
                 update={
                     "output_kernel": KernelSpec(
                         name="linear",
@@ -88,7 +89,8 @@ def test_distributional_spec_requires_characteristic_or_downgrade() -> None:
                         weak_metrizing=False,
                     )
                 }
-            ).model_dump(mode="json")
+            )
+            .model_dump(mode="json")
         )
 
 

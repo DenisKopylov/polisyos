@@ -1,4 +1,5 @@
 """Tests for multi-treatment estimators (Phase 6)."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -14,10 +15,10 @@ from polisyos.foundry.methods.catalog.causal.protocols import (
     MultiTreatmentResult,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers / fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def rng():
@@ -30,11 +31,13 @@ def _make_multi_treatment_data(rng, n=400, K=3, true_effects=None):
         true_effects = [0.0, 1.0, 2.0]
     X = rng.normal(0, 1, (n, 4))
     # Treatment assigned with propensity depending on X[:,0]
-    log_odds = np.column_stack([
-        np.zeros(n),
-        0.3 * X[:, 0],
-        -0.3 * X[:, 0],
-    ])
+    log_odds = np.column_stack(
+        [
+            np.zeros(n),
+            0.3 * X[:, 0],
+            -0.3 * X[:, 0],
+        ]
+    )
     exp_lo = np.exp(log_odds - log_odds.max(axis=1, keepdims=True))
     probs = exp_lo / exp_lo.sum(axis=1, keepdims=True)
     T = np.array([rng.choice(K, p=probs[i]) for i in range(n)])
@@ -46,6 +49,7 @@ def _make_multi_treatment_data(rng, n=400, K=3, true_effects=None):
 # ---------------------------------------------------------------------------
 # MultiTreatmentData protocol
 # ---------------------------------------------------------------------------
+
 
 class TestMultiTreatmentData:
     def test_basic_construction(self, rng):
@@ -82,6 +86,7 @@ class TestMultiTreatmentData:
 # ---------------------------------------------------------------------------
 # MultinomialIPWEstimator
 # ---------------------------------------------------------------------------
+
 
 class TestMultinomialIPWEstimator:
     def test_output_keys_present(self, rng):
@@ -154,6 +159,7 @@ class TestMultinomialIPWEstimator:
 # MultiArmAIPWEstimator
 # ---------------------------------------------------------------------------
 
+
 class TestMultiArmAIPWEstimator:
     def test_output_keys_present(self, rng):
         Y, T, X, _ = _make_multi_treatment_data(rng)
@@ -210,11 +216,12 @@ class TestMultiArmAIPWEstimator:
 # pairwise_contrasts helper
 # ---------------------------------------------------------------------------
 
+
 class TestPairwiseContrasts:
     def _make_result(self, arm_means):
         levels = tuple(int(k) for k in arm_means)
-        n_obs = {k: 100 for k in arm_means}
-        se = {k: 0.1 for k in arm_means}
+        n_obs = dict.fromkeys(arm_means, 100)
+        se = dict.fromkeys(arm_means, 0.1)
         ci = {k: (float(v) - 0.2, float(v) + 0.2) for k, v in arm_means.items()}
         ate_ref = {k: float(v) - float(arm_means["0"]) for k, v in arm_means.items() if k != "0"}
         pairwise = {}
@@ -267,12 +274,14 @@ class TestPairwiseContrasts:
 # Multinomial propensity sums-to-one (integration)
 # ---------------------------------------------------------------------------
 
+
 class TestMultinomialPropensityIntegration:
     def test_propensity_sums_to_one(self, rng):
         """IPW internals: multinomial probabilities sum to 1."""
         from polisyos.foundry.methods.catalog.causal.multi_treatment import (
             _fit_multinomial_logistic,
         )
+
         n = 200
         X = rng.normal(0, 1, (n, 3))
         T = rng.integers(0, 3, n)
@@ -285,6 +294,7 @@ class TestMultinomialPropensityIntegration:
         from polisyos.foundry.methods.catalog.causal.multi_treatment import (
             _fit_multinomial_logistic,
         )
+
         n = 200
         X = rng.normal(0, 1, (n, 2))
         T = rng.integers(0, 3, n)

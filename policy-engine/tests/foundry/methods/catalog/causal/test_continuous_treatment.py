@@ -1,4 +1,5 @@
 """Tests for continuous treatment estimators (Phase 6)."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -9,7 +10,6 @@ from polisyos.foundry.methods.catalog.causal.continuous_treatment import (
     GeneralizedPropensityScoreEstimator,
     KernelDoseResponseEstimator,
     ShiftInterventionEstimator,
-    _build_eval_grid,
     _normal_pdf,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import (
@@ -17,10 +17,10 @@ from polisyos.foundry.methods.catalog.causal.protocols import (
     DoseResponseResult,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def rng():
@@ -50,6 +50,7 @@ def small_linear_dgp(rng):
 # _normal_pdf helper
 # ---------------------------------------------------------------------------
 
+
 class TestNormalPDF:
     def test_positive(self):
         x = np.array([0.0, 1.0, -1.0])
@@ -73,6 +74,7 @@ class TestNormalPDF:
 # ---------------------------------------------------------------------------
 # ContinuousTreatmentData protocol
 # ---------------------------------------------------------------------------
+
 
 class TestContinuousTreatmentData:
     def test_basic_construction(self, rng):
@@ -111,8 +113,7 @@ class TestContinuousTreatmentData:
         T = rng.normal(0, 1, n)
         X = rng.normal(0, 1, (n, 2))
         data = ContinuousTreatmentData(
-            outcome=Y, treatment=T, covariates=X,
-            feature_names=("age", "income")
+            outcome=Y, treatment=T, covariates=X, feature_names=("age", "income")
         )
         assert data.feature_names == ("age", "income")
 
@@ -120,6 +121,7 @@ class TestContinuousTreatmentData:
 # ---------------------------------------------------------------------------
 # GeneralizedPropensityScoreEstimator
 # ---------------------------------------------------------------------------
+
 
 class TestGPSEstimator:
     def test_output_shape(self, linear_dgp):
@@ -167,15 +169,18 @@ class TestGPSEstimator:
         state = {"outcome": Y, "treatment": T, "covariates": X}
         result = GeneralizedPropensityScoreEstimator.pure_step(state, {"n_bootstrap": 10})
         dr = result["dose_response_result"]
-        for key in ["dose_response", "standard_errors",
-                    "confidence_band_lower", "confidence_band_upper"]:
+        for key in [
+            "dose_response",
+            "standard_errors",
+            "confidence_band_lower",
+            "confidence_band_upper",
+        ]:
             assert np.isfinite(np.asarray(dr[key])).all(), f"{key} contains non-finite"
 
     def test_custom_eval_points(self, small_linear_dgp):
         Y, T, X = small_linear_dgp
         eval_pts = np.linspace(-1, 1, 7)
-        state = {"outcome": Y, "treatment": T, "covariates": X,
-                 "evaluation_points": eval_pts}
+        state = {"outcome": Y, "treatment": T, "covariates": X, "evaluation_points": eval_pts}
         result = GeneralizedPropensityScoreEstimator.pure_step(state, {"n_bootstrap": 5})
         dr = result["dose_response_result"]
         assert len(dr["treatment_grid"]) == 7
@@ -198,6 +203,7 @@ class TestGPSEstimator:
 # ---------------------------------------------------------------------------
 # KernelDoseResponseEstimator
 # ---------------------------------------------------------------------------
+
 
 class TestKernelDoseResponseEstimator:
     def test_output_shape(self, linear_dgp):
@@ -262,6 +268,7 @@ class TestKernelDoseResponseEstimator:
 # ShiftInterventionEstimator
 # ---------------------------------------------------------------------------
 
+
 class TestShiftInterventionEstimator:
     def test_zero_delta_near_zero_effect(self, small_linear_dgp):
         """delta=0 → E[Y(A+0)] - E[Y(A)] ≈ 0."""
@@ -279,7 +286,7 @@ class TestShiftInterventionEstimator:
         result = ShiftInterventionEstimator.pure_step(state, {"delta": delta, "n_folds": 3})
         effect = result["shift_effect"]["point_estimate"]
         # Expect effect ≈ 2 * delta = 1.0, allow 60% tolerance
-        assert 0.4 < effect < 1.6, f"Expected effect≈{2*delta}, got {effect:.3f}"
+        assert 0.4 < effect < 1.6, f"Expected effect≈{2 * delta}, got {effect:.3f}"
 
     def test_output_keys_present(self, small_linear_dgp):
         Y, T, X = small_linear_dgp
@@ -309,7 +316,11 @@ class TestShiftInterventionEstimator:
         Y, T, X = small_linear_dgp
         state = {"outcome": Y, "treatment": T, "covariates": X}
         result = ShiftInterventionEstimator.pure_step(state, {"delta": 0.1, "n_folds": 3})
-        se = result["shift_effect"]["shift_effect"]["standard_error"] if "shift_effect" in result["shift_effect"] else result["shift_effect"]["standard_error"]
+        se = (
+            result["shift_effect"]["shift_effect"]["standard_error"]
+            if "shift_effect" in result["shift_effect"]
+            else result["shift_effect"]["standard_error"]
+        )
         assert np.isfinite(result["shift_effect"]["point_estimate"])
 
     def test_method_name_in_result(self, small_linear_dgp):
@@ -332,6 +343,7 @@ class TestShiftInterventionEstimator:
 # ---------------------------------------------------------------------------
 # EntropyBalancingContinuousEstimator
 # ---------------------------------------------------------------------------
+
 
 class TestEntropyBalancingContinuousEstimator:
     def test_output_shape(self, small_linear_dgp):
@@ -378,11 +390,13 @@ class TestEntropyBalancingContinuousEstimator:
 # CrossFitContinuousOrchestrator (integration)
 # ---------------------------------------------------------------------------
 
+
 class TestCrossFitContinuousOrchestrator:
     def test_gps_oof_in_range(self, small_linear_dgp):
         from polisyos.foundry.methods.catalog.causal.cross_fit import (
             CrossFitContinuousOrchestrator,
         )
+
         Y, T, X = small_linear_dgp
         state = {"covariates": X, "treatment": T, "outcome": Y}
         result = CrossFitContinuousOrchestrator.pure_step(state, {"n_folds": 3})
@@ -394,6 +408,7 @@ class TestCrossFitContinuousOrchestrator:
         from polisyos.foundry.methods.catalog.causal.cross_fit import (
             CrossFitContinuousOrchestrator,
         )
+
         Y, T, X = small_linear_dgp
         state = {"covariates": X, "treatment": T, "outcome": Y}
         result = CrossFitContinuousOrchestrator.pure_step(state, {"n_folds": 4})
@@ -404,6 +419,7 @@ class TestCrossFitContinuousOrchestrator:
         from polisyos.foundry.methods.catalog.causal.cross_fit import (
             CrossFitContinuousOrchestrator,
         )
+
         Y, T, X = small_linear_dgp
         state = {"covariates": X, "treatment": T, "outcome": Y}
         result = CrossFitContinuousOrchestrator.pure_step(state, {"n_folds": 3})
@@ -413,6 +429,7 @@ class TestCrossFitContinuousOrchestrator:
         from polisyos.foundry.methods.catalog.causal.cross_fit import (
             CrossFitContinuousOrchestrator,
         )
+
         Y, T, X = small_linear_dgp
         n = len(Y)
         state = {"covariates": X, "treatment": T, "outcome": Y}
@@ -425,6 +442,7 @@ class TestCrossFitContinuousOrchestrator:
 # ---------------------------------------------------------------------------
 # DoseResponseResult model
 # ---------------------------------------------------------------------------
+
 
 class TestDoseResponseResult:
     def test_construction(self, rng):

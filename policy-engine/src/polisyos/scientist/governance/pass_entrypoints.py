@@ -1,4 +1,5 @@
 """Factory entrypoints for the built-in Scientist governance pass registry."""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -16,6 +17,7 @@ from .passes.cross_graph_evidence_pass import CrossGraphEvidencePass
 from .passes.equity_pass import EquityPass
 from .passes.freshness_pass import FreshnessPass
 from .passes.human_review_pass import HumanReviewRequiredPass
+from .passes.incentive_compatibility_pass import IncentiveCompatibilityPass
 from .passes.literature_gate_pass import LiteratureGatePass
 from .passes.normative_arbitration_pass import NormativeArbitrationPass
 from .passes.pii_check_pass import PIICheckPass
@@ -23,8 +25,8 @@ from .passes.privacy_pass import PrivacyPass
 from .passes.quality_gate_pass import QualityGatePass
 from .passes.refutation_pass import RefutationPass
 from .passes.schema_pass import SchemaPass
-from .passes.sutva_check_pass import SutvaCheckPass
 from .passes.strategic_response_pass import StrategicResponsePass
+from .passes.sutva_check_pass import SutvaCheckPass
 from .passes.transportability_required_pass import TransportabilityRequiredPass
 
 
@@ -61,6 +63,11 @@ def pii_check_pass_factory() -> ValidatorPass:
 def freshness_pass_factory() -> ValidatorPass:
     """Create the pass that checks evidence freshness requirements."""
     return FreshnessPass()
+
+
+def incentive_compatibility_pass_factory() -> ValidatorPass:
+    """Create the pass that validates declared DSIC/BIC claims."""
+    return IncentiveCompatibilityPass()
 
 
 def sutva_check_pass_factory() -> ValidatorPass:
@@ -139,6 +146,7 @@ def builtin_governance_pass_factories() -> dict[str, Callable[[], ValidatorPass]
         "equity": equity_pass_factory,
         "freshness": freshness_pass_factory,
         "human_review_required": human_review_required_pass_factory,
+        "incentive_compatibility": incentive_compatibility_pass_factory,
         "legal": legal_pass_factory,
         "literature_gate": literature_gate_pass_factory,
         "normative_arbitration": normative_arbitration_pass_factory,
@@ -156,24 +164,25 @@ def builtin_governance_pass_factories() -> dict[str, Callable[[], ValidatorPass]
 
 __all__ = [
     "budget_pass_factory",
+    "builtin_governance_pass_factories",
     "causal_frontier_leakage_pass_factory",
     "checkpoint_pass_factory",
-    "schema_pass_factory",
-    "privacy_pass_factory",
-    "pii_check_pass_factory",
+    "confidence_pass_factory",
+    "cross_graph_evidence_pass_factory",
+    "equity_pass_factory",
     "freshness_pass_factory",
+    "human_review_required_pass_factory",
+    "incentive_compatibility_pass_factory",
+    "legal_pass_factory",
+    "literature_gate_pass_factory",
+    "normative_arbitration_pass_factory",
+    "pii_check_pass_factory",
+    "privacy_pass_factory",
+    "quality_gate_pass_factory",
+    "refutation_pass_factory",
+    "safety_pass_factory",
+    "schema_pass_factory",
     "strategic_response_pass_factory",
     "sutva_check_pass_factory",
     "transportability_required_pass_factory",
-    "safety_pass_factory",
-    "equity_pass_factory",
-    "literature_gate_pass_factory",
-    "normative_arbitration_pass_factory",
-    "legal_pass_factory",
-    "confidence_pass_factory",
-    "cross_graph_evidence_pass_factory",
-    "refutation_pass_factory",
-    "human_review_required_pass_factory",
-    "quality_gate_pass_factory",
-    "builtin_governance_pass_factories",
 ]

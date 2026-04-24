@@ -115,10 +115,7 @@ class ScholarDeepSearchService:
             max_results=max_results,
             timeout_s=self._search_timeout_s,
         )
-        scored = [
-            hit.model_copy(update={"score": score_search_hit(hit)})
-            for hit in hits
-        ]
+        scored = [hit.model_copy(update={"score": score_search_hit(hit)}) for hit in hits]
         return {
             "provider": provider_name,
             "query": query,
@@ -224,7 +221,9 @@ class ScholarDeepSearchService:
         active_brief = brief or build_research_brief(
             question=question,
             intent=intent,
-            locale=constraints.locale if constraints is not None else (brief.locale if brief else "en-US"),
+            locale=constraints.locale
+            if constraints is not None
+            else (brief.locale if brief else "en-US"),
         )
         active_constraints = _resolve_constraints(active_brief, constraints)
         graph = query_graph or plan_query_graph(
@@ -232,10 +231,14 @@ class ScholarDeepSearchService:
             max_depth=search_budgets.max_depth,
         )
 
-        bundle = resume_bundle.model_copy(deep=True) if resume_bundle is not None else WebEvidenceBundle(
-            bundle_id=_bundle_id(active_brief, graph),
-            brief=active_brief,
-            query_graph=graph,
+        bundle = (
+            resume_bundle.model_copy(deep=True)
+            if resume_bundle is not None
+            else WebEvidenceBundle(
+                bundle_id=_bundle_id(active_brief, graph),
+                brief=active_brief,
+                query_graph=graph,
+            )
         )
         if not bundle.query_graph.nodes:
             bundle.query_graph = graph
@@ -306,7 +309,9 @@ class ScholarDeepSearchService:
 
             fetch_specs: list[tuple[WebSearchHit, QueryNode]] = []
             batch_seen_urls: set[str] = set()
-            for node, (provider_name, hits, error) in zip(batch_nodes, search_results, strict=False):
+            for node, (provider_name, hits, error) in zip(
+                batch_nodes, search_results, strict=False
+            ):
                 node.provider = provider_name
                 node.hit_count = len(hits)
                 node.status = "failed" if error and not hits else "searched"
@@ -328,7 +333,9 @@ class ScholarDeepSearchService:
                     if str(hit.url) not in seen_urls and str(hit.url) not in batch_seen_urls
                 ]
                 candidates.sort(key=lambda hit: (-hit.score, hit.rank))
-                remaining_fetch_budget = search_budgets.max_fetch_pages - len(source_by_id) - len(fetch_specs)
+                remaining_fetch_budget = (
+                    search_budgets.max_fetch_pages - len(source_by_id) - len(fetch_specs)
+                )
                 candidates = candidates[: max(0, remaining_fetch_budget)]
                 for hit in candidates:
                     batch_seen_urls.add(str(hit.url))
@@ -370,7 +377,11 @@ class ScholarDeepSearchService:
             bundle.sources = sorted(source_by_id.values(), key=source_rank_key)
             bundle.snippets = sorted(
                 snippet_by_id.values(),
-                key=lambda snippet: (-snippet.relevance_score, snippet.source_id, snippet.snippet_id),
+                key=lambda snippet: (
+                    -snippet.relevance_score,
+                    snippet.source_id,
+                    snippet.snippet_id,
+                ),
             )
 
             for node in batch_nodes:
@@ -413,7 +424,9 @@ class ScholarDeepSearchService:
         bundle.partial = bundle.partial or any(
             node.status == "pending" for node in bundle.query_graph.nodes
         )
-        bundle.bundle_id = _bundle_id(bundle.brief, bundle.query_graph, bundle.sources, bundle.snippets)
+        bundle.bundle_id = _bundle_id(
+            bundle.brief, bundle.query_graph, bundle.sources, bundle.snippets
+        )
 
         await _emit_progress(
             progress_callback,
@@ -536,10 +549,7 @@ def _build_claim_supports(
     supports: list[ClaimSupportLink] = []
     for index, claim_text in enumerate(claim_texts):
         ranked = sorted(
-            (
-                (lexical_support_score(claim_text, snippet.text), snippet)
-                for snippet in snippets
-            ),
+            ((lexical_support_score(claim_text, snippet.text), snippet) for snippet in snippets),
             key=lambda item: (-item[0], item[1].source_id, item[1].snippet_id),
         )
         selected = [(score, snippet) for score, snippet in ranked if score > 0][:8]
@@ -605,8 +615,12 @@ def _bundle_id(
     payload = {
         "brief": brief.model_dump(mode="json", exclude_none=True),
         "query_graph": query_graph.model_dump(mode="json", exclude_none=True),
-        "sources": [source.model_dump(mode="json", exclude_none=True) for source in (sources or [])],
-        "snippets": [snippet.model_dump(mode="json", exclude_none=True) for snippet in (snippets or [])],
+        "sources": [
+            source.model_dump(mode="json", exclude_none=True) for source in (sources or [])
+        ],
+        "snippets": [
+            snippet.model_dump(mode="json", exclude_none=True) for snippet in (snippets or [])
+        ],
     }
     digest = content_hash(repr(payload).encode("utf-8"))
     return f"webkb.{digest[:24]}"

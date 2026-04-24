@@ -22,11 +22,14 @@ Freshness: 2026-04-17.
 
 - quarantine or DLQ counts spike for one connector, source profile, stream, or
   dataset family;
+
 - valid-looking rows are quarantined after a schema, transform, or unit change;
 - poison stream messages repeat across retries and block downstream
   materialization;
+
 - cursor or checkpoint recovery replays the same window without making forward
   progress;
+
 - downstream world tables, quality reports, or lineage graphs disagree with the
   expected reprocess result.
 
@@ -34,9 +37,11 @@ Freshness: 2026-04-17.
 
 - connector contract or source profile changed without compatible schema
   migration evidence;
+
 - transform logic started producing non-finite, malformed, or untyped values;
 - stream dedupe keys, offsets, or checkpoint state drifted from the retained
   replay bundle;
+
 - a quarantine reprocessor was not registered for the affected source prefix;
 - CAS payload, quarantine index, lineage edge, or generated schema sidecar was
   restored without the matching manifest or evidence path.
@@ -69,7 +74,7 @@ uv run pytest tests/fabric/data_plane/test_record_replay.py -q
 uv run pytest tests/fabric/test_lineage.py tests/fabric/test_quality_indicators.py -q
 ```
 
-5. If the incident followed a schema or contract change, run the schema
+1. If the incident followed a schema or contract change, run the schema
    governance checks before accepting new snapshots:
 
 ```bash
@@ -80,13 +85,13 @@ uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .t
 
 ## Quarantine / DLQ Triage
 
-| Check | What to verify |
-|---|---|
-| Record list | `list_quarantine_records()` returns stable records for the affected source prefix. |
-| Report shape | `build_quarantine_report()` groups by reason, source, and downstream impact. |
-| Payload integrity | `load_quarantine_payload()` can read each raw payload from CAS without digest mismatch. |
-| Reprocessor coverage | `register_quarantine_reprocessor()` exists for the affected source prefix before replay. |
-| Replay output | `reprocess_quarantine_records()` emits new result artifacts and does not mutate historical records. |
+| Check                | What to verify                                                                                      |
+| -------------------- | --------------------------------------------------------------------------------------------------- |
+| Record list          | `list_quarantine_records()` returns stable records for the affected source prefix.                  |
+| Report shape         | `build_quarantine_report()` groups by reason, source, and downstream impact.                        |
+| Payload integrity    | `load_quarantine_payload()` can read each raw payload from CAS without digest mismatch.             |
+| Reprocessor coverage | `register_quarantine_reprocessor()` exists for the affected source prefix before replay.            |
+| Replay output        | `reprocess_quarantine_records()` emits new result artifacts and does not mutate historical records. |
 
 If payload integrity fails, stop here and switch to
 [Artifact Corruption Recovery](artifact-corruption-recovery.md). If retained
@@ -95,13 +100,13 @@ sidecars are missing, switch to
 
 ## Data-Plane Recovery Triage
 
-| Check | What to verify |
-|---|---|
-| Cursor/checkpoint state | checkpoint keys match the stream session and retained replay bundle. |
-| Dedupe behavior | repeated windows do not create duplicate world facts or duplicate quarantine records. |
-| CDC compatibility | schema-change events have corresponding compatibility evidence. |
-| Lineage continuity | new artifacts preserve input refs from original quarantine/checkpoint state. |
-| Downstream materialization | world snapshots and quality reports rebuild from trusted source state only. |
+| Check                      | What to verify                                                                        |
+| -------------------------- | ------------------------------------------------------------------------------------- |
+| Cursor/checkpoint state    | checkpoint keys match the stream session and retained replay bundle.                  |
+| Dedupe behavior            | repeated windows do not create duplicate world facts or duplicate quarantine records. |
+| CDC compatibility          | schema-change events have corresponding compatibility evidence.                       |
+| Lineage continuity         | new artifacts preserve input refs from original quarantine/checkpoint state.          |
+| Downstream materialization | world snapshots and quality reports rebuild from trusted source state only.           |
 
 For stuck streaming recovery, prefer pausing the source profile, preserving the
 checkpoint, and replaying a bounded window over deleting cursor state.
@@ -110,12 +115,16 @@ checkpoint, and replaying a bounded window over deleting cursor state.
 
 - roll back the connector/profile/schema change that caused valid records to
   enter quarantine;
+
 - pause the affected stream or reduce source concurrency if poison messages are
   causing repeated checkpoint recovery;
+
 - keep historical quarantine records immutable and write corrective reprocess
   artifacts instead of editing old payloads;
+
 - restore from retained CAS-backed inputs when the quarantine index or
   checkpoint state is corrupted;
+
 - block downstream promotion until lineage, quality, and schema compatibility
   evidence agree with the recovered state.
 
@@ -125,6 +134,7 @@ checkpoint, and replaying a bounded window over deleting cursor state.
 - supporting: `@platform-owners` for CAS/retention/signing failures;
 - supporting: `@runtime-owners` when runtime read paths or control-plane jobs
   are degraded;
+
 - supporting: `@scientist-owners` when a Scientist workflow consumed affected
   snapshots.
 
@@ -132,11 +142,14 @@ checkpoint, and replaying a bounded window over deleting cursor state.
 
 - incident timeline includes connector/profile/schema ids and affected artifact
   refs;
+
 - quarantine report, schema-governance evidence, and lineage export are attached
   to the incident record;
+
 - a regression test or fixture covers the failing fetch/transform/stream window;
 - recovery produced new artifacts linked to original inputs rather than
   rewriting historical evidence;
+
 - docs or connector authoring guidance were updated if the incident exposed a
   missing procedure.
 
@@ -152,13 +165,14 @@ checkpoint, and replaying a bounded window over deleting cursor state.
 
 - whether owners had to infer connector ids, schema ids, or source prefixes from
   raw logs;
+
 - whether checkpoint recovery required ad hoc state edits;
 - whether the reprocessor or schema gate was missing for the affected family.
 
 ### Action Items
 
-| Action item | Owner | Due date | Status |
-|---|---|---|---|
-| Add or repair the missing quarantine/stream regression fixture | `@fabric-owners` | YYYY-MM-DD | open |
-| Backfill schema-governance or lineage evidence for the affected recovery | `@fabric-owners` | YYYY-MM-DD | open |
-| Improve operator visibility for the affected source prefix or checkpoint | `@fabric-owners` | YYYY-MM-DD | open |
+| Action item                                                              | Owner            | Due date   | Status |
+| ------------------------------------------------------------------------ | ---------------- | ---------- | ------ |
+| Add or repair the missing quarantine/stream regression fixture           | `@fabric-owners` | YYYY-MM-DD | open   |
+| Backfill schema-governance or lineage evidence for the affected recovery | `@fabric-owners` | YYYY-MM-DD | open   |
+| Improve operator visibility for the affected source prefix or checkpoint | `@fabric-owners` | YYYY-MM-DD | open   |

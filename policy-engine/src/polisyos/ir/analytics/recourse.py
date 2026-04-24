@@ -1,4 +1,5 @@
 """Algorithmic recourse and explanation contracts."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -39,7 +40,7 @@ class RecourseAction(BaseModel):
     immutable: bool = False
 
     @model_validator(mode="after")
-    def validate_action(self) -> "RecourseAction":
+    def validate_action(self) -> RecourseAction:
         if self.cost is not None:
             ensure_finite_numeric(self.cost, field_name=f"{self.feature_path}.cost")
         if self.immutable and self.to_value is not None:
@@ -60,7 +61,7 @@ class CounterfactualExplanation(BaseModel):
     notes: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def validate_explanation(self) -> "CounterfactualExplanation":
+    def validate_explanation(self) -> CounterfactualExplanation:
         ensure_unique_ids(
             self.changed_features,
             key_fn=lambda item: item,
@@ -84,7 +85,7 @@ class ContrastiveExplanation(BaseModel):
     narrative: str | None = Field(None, max_length=600)
 
     @model_validator(mode="after")
-    def validate_contrastive(self) -> "ContrastiveExplanation":
+    def validate_contrastive(self) -> ContrastiveExplanation:
         ensure_unique_ids(
             self.decisive_factors,
             key_fn=lambda item: item,
@@ -106,7 +107,7 @@ class RecoursePlan(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_plan(self) -> "RecoursePlan":
+    def validate_plan(self) -> RecoursePlan:
         if self.feasibility is not RecourseFeasibility.INFEASIBLE and not self.actions:
             raise ValueError("feasible/conditional recourse plans require at least one action")
         if self.total_cost is not None:
@@ -133,7 +134,7 @@ class RecourseReport(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_report(self) -> "RecourseReport":
+    def validate_report(self) -> RecourseReport:
         ensure_unique_ids(self.plans, key_fn=lambda item: item.plan_id, label="recourse plan_id")
         ensure_unique_ids(
             self.counterfactual_explanations,

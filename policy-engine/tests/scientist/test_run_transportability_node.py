@@ -37,7 +37,6 @@ from polisyos.ir.analytics.privacy_transportability import (
     load_privacy_aware_transport_certificate,
 )
 from polisyos.ir.analytics.transportability import (
-    SelectionDiagram,
     StratificationVariable,
     TransportabilityResult,
     TransportabilityStatus,
@@ -248,7 +247,10 @@ def test_resolution_loop_hard_legal_constraint_sets_infeasible(
     assert result.hard_legal_constraints
 
 
-@pytest.mark.skipif(_Y0_INSTALLED, reason="y0 is installed — symbolic identification succeeds; test verifies bounds fallback when unavailable")
+@pytest.mark.skipif(
+    _Y0_INSTALLED,
+    reason="y0 is installed — symbolic identification succeeds; test verifies bounds fallback when unavailable",
+)
 def test_resolution_loop_data_gap_and_convergence(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -319,7 +321,10 @@ def test_resolution_loop_data_gap_and_convergence(
     assert result.resolution_rounds <= 3
     assert result.status is TransportabilityStatus.BOUNDED_NON_IDENTIFIED
     assert result.partial_identification_result is not None
-    assert "Exact transport identification unavailable; emitted transport-aware bounds fallback." in result.warnings
+    assert (
+        "Exact transport identification unavailable; emitted transport-aware bounds fallback."
+        in result.warnings
+    )
 
 
 def test_resolution_loop_without_privacy_context_does_not_crash() -> None:

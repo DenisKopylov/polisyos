@@ -52,9 +52,7 @@ def test_skip_with_no_method_fqn_defaults(execution_context, minimal_state):
     assert outcome.status == "skip"
 
 
-def test_fail_when_method_job_has_issues(
-    execution_context, minimal_state, artifact_ref_factory
-):
+def test_fail_when_method_job_has_issues(execution_context, minimal_state, artifact_ref_factory):
     """When run_job returns issues, node returns fail with ERROR_FOUNDRY_EXECUTE_FAILED."""
     from unittest.mock import MagicMock, patch
 

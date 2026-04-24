@@ -25,6 +25,7 @@ def _make_plan(n_traj: int = 10) -> SensitivityPlan:
 
 def _generate_samples(plan: SensitivityPlan) -> np.ndarray:
     from polisyos.scientist.doe.sampling import generate_sensitivity_samples
+
     return generate_sensitivity_samples(plan)
 
 

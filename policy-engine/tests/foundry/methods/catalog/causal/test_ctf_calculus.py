@@ -3,9 +3,17 @@
 from __future__ import annotations
 
 from polisyos.foundry.methods.catalog.causal.amn import build_amn
-from polisyos.foundry.methods.catalog.causal.ctf_calculus import apply_ctf_rule3, rewrite_ctf_estimand
+from polisyos.foundry.methods.catalog.causal.ctf_calculus import (
+    apply_ctf_rule3,
+    rewrite_ctf_estimand,
+)
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
-from polisyos.ir.analytics.estimand import CounterfactualNode, CrossWorldNode, DistributionDomain, DistributionRef, EstimandAST
+from polisyos.ir.analytics.estimand import (
+    CounterfactualNode,
+    CrossWorldNode,
+    DistributionRef,
+    EstimandAST,
+)
 
 
 def _dag(
@@ -159,8 +167,12 @@ def test_ctf_cross_world_walks_all_worlds() -> None:
     ast = _ast(
         CrossWorldNode(
             worlds=(
-                CounterfactualNode(variable="Y", intervention={"X": 0}, world_index=0, conditioning=("W",)),
-                CounterfactualNode(variable="Y", intervention={"X": 1}, world_index=1, conditioning=("W",)),
+                CounterfactualNode(
+                    variable="Y", intervention={"X": 0}, world_index=0, conditioning=("W",)
+                ),
+                CounterfactualNode(
+                    variable="Y", intervention={"X": 1}, world_index=1, conditioning=("W",)
+                ),
             ),
             joint=True,
         ),

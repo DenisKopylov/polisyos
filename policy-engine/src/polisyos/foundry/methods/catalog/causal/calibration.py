@@ -1,4 +1,5 @@
 """Public causal calibration module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -7,8 +8,8 @@ from typing import Any
 import numpy as np
 
 from polisyos.foundry.methods.catalog.causal._sklearn_compat import (
-    LogisticRegression,
     SKLEARN_AVAILABLE,
+    LogisticRegression,
 )
 
 if SKLEARN_AVAILABLE:  # pragma: no cover - exercised in integration tests
@@ -20,6 +21,7 @@ else:  # pragma: no cover - fallback only
 @dataclass
 class CalibrationResult:
     """Calibration result data model."""
+
     mode: str
     fitted: bool
     calibration_size: int
@@ -44,7 +46,13 @@ def make_calibrated_propensity_prediction(
     train_idx = np.asarray(train_idx, dtype=int).reshape(-1)
     test_idx = np.asarray(test_idx, dtype=int).reshape(-1)
     if train_idx.size == 0 or test_idx.size == 0:
-        mean_prop = float(np.clip(np.mean(treatment[train_idx]) if train_idx.size else np.mean(treatment), clip, 1.0 - clip))
+        mean_prop = float(
+            np.clip(
+                np.mean(treatment[train_idx]) if train_idx.size else np.mean(treatment),
+                clip,
+                1.0 - clip,
+            )
+        )
         return np.full(test_idx.size, mean_prop, dtype=float), CalibrationResult(
             mode="constant",
             fitted=False,
@@ -95,7 +103,9 @@ def make_calibrated_propensity_prediction(
     )
 
 
-def _split_fit_and_calibration(train_idx: np.ndarray, *, seed: int) -> tuple[np.ndarray, np.ndarray]:
+def _split_fit_and_calibration(
+    train_idx: np.ndarray, *, seed: int
+) -> tuple[np.ndarray, np.ndarray]:
     train_idx = np.asarray(train_idx, dtype=int).reshape(-1)
     if train_idx.size <= 3:
         return train_idx, train_idx

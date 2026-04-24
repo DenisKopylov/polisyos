@@ -1,4 +1,5 @@
 # Lex Knowledge
+
 Related explanation: [Lex Pipeline](../../explanation/lex-pipeline.md).
 
 Owner: `@lex-owners`
@@ -10,19 +11,19 @@ retrieval, and grounding workflows.
 
 ## Components
 
-| API | Role |
-|-----|------|
-| `LegalKnowledgeGraph` | High-level hybrid search facade |
-| `LegalKnowledgeStore` | Read-only persistence adapter over DuckDB and indexes |
+| API                   | Role                                                   |
+| --------------------- | ------------------------------------------------------ |
+| `LegalKnowledgeGraph` | High-level hybrid search facade                        |
+| `LegalKnowledgeStore` | Read-only persistence adapter over DuckDB and indexes  |
 | `lex.knowledge.types` | Search result, source-bundle, and SPO result contracts |
 
 ## Search Modes
 
-| Mode | Entry point | Notes |
-|------|-------------|-------|
-| Hybrid/vector | `search_entities()`, `search_facts()`, `search_provisions()` | Uses embeddings when configured |
-| Text search | `text_search()` | DuckDB `ILIKE` over normalized fact text |
-| Structured action search | `search_facts_by_action()` | Filters by canonicalized legal action |
+| Mode                     | Entry point                                                  | Notes                                    |
+| ------------------------ | ------------------------------------------------------------ | ---------------------------------------- |
+| Hybrid/vector            | `search_entities()`, `search_facts()`, `search_provisions()` | Uses embeddings when configured          |
+| Text search              | `text_search()`                                              | DuckDB `ILIKE` over normalized fact text |
+| Structured action search | `search_facts_by_action()`                                   | Filters by canonicalized legal action    |
 
 ## Reference
 

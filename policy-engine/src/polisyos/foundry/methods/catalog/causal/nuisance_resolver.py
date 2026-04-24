@@ -45,7 +45,8 @@ Density ratio:
 from __future__ import annotations
 
 import dataclasses
-from typing import TYPE_CHECKING, Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import numpy as np
 
@@ -64,10 +65,6 @@ from polisyos.foundry.methods.base import (
 )
 from polisyos.foundry.methods.catalog.causal.treatment_effects import (
     _logistic_propensity,
-)
-from polisyos.foundry.methods.catalog.causal.cross_fit import (
-    _outcome_model,
-    _predict_outcomes,
 )
 
 if TYPE_CHECKING:
@@ -208,7 +205,7 @@ class NuisanceResolver:
 
     def resolve_for_nuisance_node(
         self,
-        node: "NuisanceNode",
+        node: NuisanceNode,
         n_obs: int | None = None,
         covariate_dim: int | None = None,
     ) -> NuisanceSpec:
@@ -300,8 +297,7 @@ class NuisanceResolver:
         if covariate_dim is not None and covariate_dim > 20:
             params["regularization"] = "l2"
             rationale = (
-                f"L2-regularised multinomial logistic for {n_levels} arms, "
-                f"dim={covariate_dim}."
+                f"L2-regularised multinomial logistic for {n_levels} arms, dim={covariate_dim}."
             )
         else:
             rationale = f"Multinomial logistic regression for {n_levels} treatment arms."
@@ -350,8 +346,7 @@ class NuisanceResolver:
                 "outcome_type": outcome_type,
             },
             rationale=(
-                f"Super Learner ensemble ({', '.join(library)}) "
-                f"for n={n_obs}, dim={covariate_dim}."
+                f"Super Learner ensemble ({', '.join(library)}) for n={n_obs}, dim={covariate_dim}."
             ),
         )
 
@@ -360,31 +355,48 @@ class NuisanceResolver:
 # Foundry methods — wrap existing private numpy implementations
 # ---------------------------------------------------------------------------
 
+
 def _nuisance_slots() -> frozenset[SlotSpec]:
-    return frozenset({
-        SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-        SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-    })
+    return frozenset(
+        {
+            SlotSpec(
+                "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+            ),
+            SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
+        }
+    )
 
 
 def _propensity_output_slots() -> frozenset[SlotSpec]:
-    return frozenset({
-        SlotSpec("propensity", SlotType.VECTOR, Unit("propensity", "probability"), shape=("n_obs",)),
-    })
+    return frozenset(
+        {
+            SlotSpec(
+                "propensity", SlotType.VECTOR, Unit("propensity", "probability"), shape=("n_obs",)
+            ),
+        }
+    )
 
 
 def _outcome_input_slots() -> frozenset[SlotSpec]:
-    return frozenset({
-        SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-        SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-    })
+    return frozenset(
+        {
+            SlotSpec(
+                "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+            ),
+            SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
+        }
+    )
 
 
 def _outcome_output_slots() -> frozenset[SlotSpec]:
-    return frozenset({
-        SlotSpec("predicted_outcome", SlotType.VECTOR, Unit("outcome", "predicted"), shape=("n_obs",)),
-        SlotSpec("outcome_coef", SlotType.VECTOR, Unit("coef", "value")),
-    })
+    return frozenset(
+        {
+            SlotSpec(
+                "predicted_outcome", SlotType.VECTOR, Unit("outcome", "predicted"), shape=("n_obs",)
+            ),
+            SlotSpec("outcome_coef", SlotType.VECTOR, Unit("coef", "value")),
+        }
+    )
 
 
 @foundry_method(
@@ -408,9 +420,7 @@ class LogisticPropensityModel:
         version="0.0.0",
         input_slots=_nuisance_slots(),
         output_slots=_propensity_output_slots(),
-        parameters=(
-            ParameterSpec(name="max_iter", default=50),
-        ),
+        parameters=(ParameterSpec(name="max_iter", default=50),),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -546,11 +556,17 @@ class OLSOutcomeModel:
         name="ols_outcome",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-            SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-            SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
+            }
+        ),
         output_slots=_outcome_output_slots(),
         parameters=(),
         fidelity=FidelityLevel.HIGH,
@@ -611,11 +627,17 @@ class LassoOutcomeModel:
         name="lasso_outcome",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-            SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-            SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
+            }
+        ),
         output_slots=_outcome_output_slots(),
         parameters=(
             ParameterSpec(name="alpha", default="auto"),
@@ -705,17 +727,28 @@ class MediatorDensityModel:
         name="mediator_density",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-            SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-            SlotSpec("mediator", SlotType.VECTOR, Unit("mediator", "value"), shape=("n_obs",)),
-        }),
-        output_slots=frozenset({
-            SlotSpec("mediator_prob", SlotType.VECTOR, Unit("mediator", "probability"), shape=("n_obs",)),
-        }),
-        parameters=(
-            ParameterSpec(name="binary_mediator", default=True),
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec("mediator", SlotType.VECTOR, Unit("mediator", "value"), shape=("n_obs",)),
+            }
         ),
+        output_slots=frozenset(
+            {
+                SlotSpec(
+                    "mediator_prob",
+                    SlotType.VECTOR,
+                    Unit("mediator", "probability"),
+                    shape=("n_obs",),
+                ),
+            }
+        ),
+        parameters=(ParameterSpec(name="binary_mediator", default=True),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -750,9 +783,7 @@ class MediatorDensityModel:
         XT = np.column_stack([np.ones(n), T, X])
 
         if binary_mediator:
-            mediator_prob = _logistic_propensity(
-                np.column_stack([T, X]), M
-            )
+            mediator_prob = _logistic_propensity(np.column_stack([T, X]), M)
         else:
             beta, _, _, _ = np.linalg.lstsq(XT, M, rcond=None)
             mediator_prob = XT @ beta
@@ -779,13 +810,21 @@ class EmpiricalDensityEstimator:
         name="empirical_density",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-            SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-        }),
-        output_slots=frozenset({
-            SlotSpec("density_estimate", SlotType.VECTOR, Unit("density", "value"), shape=("n_obs",)),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec(
+                    "density_estimate", SlotType.VECTOR, Unit("density", "value"), shape=("n_obs",)
+                ),
+            }
+        ),
         parameters=(
             ParameterSpec(name="variables", default=()),
             ParameterSpec(name="conditioning", default=()),
@@ -902,11 +941,17 @@ class GenericOutcomeModel:
         name="outcome_model",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-            SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)),
-            SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec(
+                    "treatment", SlotType.VECTOR, Unit("treatment", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
+            }
+        ),
         output_slots=_outcome_output_slots(),
         parameters=(ParameterSpec(name="target_variable", default=""),),
         fidelity=FidelityLevel.HIGH,
@@ -968,15 +1013,17 @@ class Marginalizer:
         name="marginalizer",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("joint_distribution", SlotType.VECTOR, Unit("distribution", "value")),
-        }),
-        output_slots=frozenset({
-            SlotSpec("marginal", SlotType.VECTOR, Unit("distribution", "value")),
-        }),
-        parameters=(
-            ParameterSpec(name="summation_vars", default=()),
+        input_slots=frozenset(
+            {
+                SlotSpec("joint_distribution", SlotType.VECTOR, Unit("distribution", "value")),
+            }
         ),
+        output_slots=frozenset(
+            {
+                SlotSpec("marginal", SlotType.VECTOR, Unit("distribution", "value")),
+            }
+        ),
+        parameters=(ParameterSpec(name="summation_vars", default=()),),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
@@ -1027,15 +1074,17 @@ class ProductCombiner:
         name="product",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("factor_0", SlotType.VECTOR, Unit("distribution", "value")),
-        }),
-        output_slots=frozenset({
-            SlotSpec("product_result", SlotType.VECTOR, Unit("distribution", "value")),
-        }),
-        parameters=(
-            ParameterSpec(name="n_factors", default=2),
+        input_slots=frozenset(
+            {
+                SlotSpec("factor_0", SlotType.VECTOR, Unit("distribution", "value")),
+            }
         ),
+        output_slots=frozenset(
+            {
+                SlotSpec("product_result", SlotType.VECTOR, Unit("distribution", "value")),
+            }
+        ),
+        parameters=(ParameterSpec(name="n_factors", default=2),),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
@@ -1092,16 +1141,18 @@ class RatioCombiner:
         name="ratio",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("numerator", SlotType.VECTOR, Unit("distribution", "value")),
-            SlotSpec("denominator", SlotType.VECTOR, Unit("distribution", "value")),
-        }),
-        output_slots=frozenset({
-            SlotSpec("ratio_result", SlotType.VECTOR, Unit("distribution", "value")),
-        }),
-        parameters=(
-            ParameterSpec(name="clip_denominator_eps", default=1e-8, bounds=(1e-12, 1.0)),
+        input_slots=frozenset(
+            {
+                SlotSpec("numerator", SlotType.VECTOR, Unit("distribution", "value")),
+                SlotSpec("denominator", SlotType.VECTOR, Unit("distribution", "value")),
+            }
         ),
+        output_slots=frozenset(
+            {
+                SlotSpec("ratio_result", SlotType.VECTOR, Unit("distribution", "value")),
+            }
+        ),
+        parameters=(ParameterSpec(name="clip_denominator_eps", default=1e-8, bounds=(1e-12, 1.0)),),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
@@ -1154,12 +1205,18 @@ class EdgeInterventionPassthrough:
         name="edge_intervention",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("operand", SlotType.VECTOR, Unit("distribution", "value")),
-        }),
-        output_slots=frozenset({
-            SlotSpec("edge_intervention_result", SlotType.VECTOR, Unit("distribution", "value")),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec("operand", SlotType.VECTOR, Unit("distribution", "value")),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec(
+                    "edge_intervention_result", SlotType.VECTOR, Unit("distribution", "value")
+                ),
+            }
+        ),
         parameters=(
             ParameterSpec(name="assignments", default=()),
             ParameterSpec(name="domain", default="source"),
@@ -1173,9 +1230,7 @@ class EdgeInterventionPassthrough:
     )
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
-        description=(
-            "Symbolic edge-intervention wrapper for recursively lowered causal formulas."
-        ),
+        description=("Symbolic edge-intervention wrapper for recursively lowered causal formulas."),
         tags=frozenset({"causal", "compiler", "edge_intervention", "formula"}),
         citations=(),
         equations={"edge_intervention": "f_edge = f_inner  (annotation-preserving wrapper)"},
@@ -1204,9 +1259,7 @@ class EdgeInterventionPassthrough:
             "result",
         ):
             if key in state:
-                return {
-                    "edge_intervention_result": np.asarray(state[key], dtype=float)
-                }
+                return {"edge_intervention_result": np.asarray(state[key], dtype=float)}
         for value in state.values():
             try:
                 arr = np.asarray(value, dtype=float)
@@ -1237,12 +1290,16 @@ class Integrator:
         name="integrator",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("integrand", SlotType.VECTOR, Unit("distribution", "value")),
-        }),
-        output_slots=frozenset({
-            SlotSpec("integral", SlotType.SCALAR, Unit("result", "value")),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec("integrand", SlotType.VECTOR, Unit("distribution", "value")),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec("integral", SlotType.SCALAR, Unit("result", "value")),
+            }
+        ),
         parameters=(
             ParameterSpec(name="integration_vars", default=()),
             ParameterSpec(name="measure", default="lebesgue"),
@@ -1299,12 +1356,16 @@ class DistributionReader:
         name="distribution_read",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("data", SlotType.MATRIX, Unit("dataset", "raw")),
-        }),
-        output_slots=frozenset({
-            SlotSpec("distribution_values", SlotType.VECTOR, Unit("distribution", "value")),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec("data", SlotType.MATRIX, Unit("dataset", "raw")),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec("distribution_values", SlotType.VECTOR, Unit("distribution", "value")),
+            }
+        ),
         parameters=(
             ParameterSpec(name="variables", default=()),
             ParameterSpec(name="conditioning", default=()),
@@ -1363,31 +1424,53 @@ class ParametricConditionalDensity:
         name="parametric_conditional_density",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset([
-            SlotSpec(name="covariates", slot_type=SlotType.MATRIX,
-                     description="(n, p) covariate matrix for fitting",
-                     unit=Unit("dimensionless", ""),
-                     shape=("n_obs", "n_features")),
-            SlotSpec(name="treatment", slot_type=SlotType.VECTOR,
-                     description="(n,) observed continuous treatment values",
-                     unit=Unit("dimensionless", ""),
-                     shape=("n_obs",)),
-            SlotSpec(name="treatment_eval", slot_type=SlotType.VECTOR,
-                     description="(m,) treatment values at which to evaluate density",
-                     unit=Unit("dimensionless", ""),
-                     shape=("n_obs",)),
-        ]),
-        output_slots=frozenset([
-            SlotSpec(name="density", slot_type=SlotType.SCALAR,
-                     description="(m,) density values f(treatment_eval | X_eval)",
-                     unit=Unit("dimensionless", "")),
-            SlotSpec(name="log_density", slot_type=SlotType.SCALAR,
-                     description="(m,) log density values",
-                     unit=Unit("dimensionless", "")),
-        ]),
+        input_slots=frozenset(
+            [
+                SlotSpec(
+                    name="covariates",
+                    slot_type=SlotType.MATRIX,
+                    description="(n, p) covariate matrix for fitting",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs", "n_features"),
+                ),
+                SlotSpec(
+                    name="treatment",
+                    slot_type=SlotType.VECTOR,
+                    description="(n,) observed continuous treatment values",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    name="treatment_eval",
+                    slot_type=SlotType.VECTOR,
+                    description="(m,) treatment values at which to evaluate density",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs",),
+                ),
+            ]
+        ),
+        output_slots=frozenset(
+            [
+                SlotSpec(
+                    name="density",
+                    slot_type=SlotType.SCALAR,
+                    description="(m,) density values f(treatment_eval | X_eval)",
+                    unit=Unit("dimensionless", ""),
+                ),
+                SlotSpec(
+                    name="log_density",
+                    slot_type=SlotType.SCALAR,
+                    description="(m,) log density values",
+                    unit=Unit("dimensionless", ""),
+                ),
+            ]
+        ),
         parameters=(
-            ParameterSpec(name="min_density", default=1e-6,
-                          description="Floor for density clipping (positivity protection)"),
+            ParameterSpec(
+                name="min_density",
+                default=1e-6,
+                description="Floor for density clipping (positivity protection)",
+            ),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N,
@@ -1422,9 +1505,7 @@ class ParametricConditionalDensity:
             "Use a kernel density estimator instead."
         ),
         prerequisites=(),
-        diagnostic_checks=(
-            "Check normality of residuals (T − Xβ) via Q-Q plot or Shapiro-Wilk.",
-        ),
+        diagnostic_checks=("Check normality of residuals (T − Xβ) via Q-Q plot or Shapiro-Wilk.",),
         typical_min_obs=30,
         output_interpretation=(
             "density[i] = f(treatment_eval[i] | X_eval[i]). "
@@ -1486,28 +1567,47 @@ class MultinomialPropensityModel:
         name="multinomial_propensity",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset([
-            SlotSpec(name="covariates", slot_type=SlotType.MATRIX,
-                     description="(n, p) covariate matrix",
-                     unit=Unit("dimensionless", ""),
-                     shape=("n_obs", "n_features")),
-            SlotSpec(name="treatment", slot_type=SlotType.VECTOR,
-                     description="(n,) integer treatment labels 0..K-1",
-                     unit=Unit("dimensionless", ""),
-                     shape=("n_obs",)),
-        ]),
-        output_slots=frozenset([
-            SlotSpec(name="probs", slot_type=SlotType.SCALAR,
-                     description="(n, K) per-arm probabilities P(T=k|X)",
-                     unit=Unit("dimensionless", "")),
-            SlotSpec(name="levels", slot_type=SlotType.SCALAR,
-                     description="sorted list of K distinct treatment levels",
-                     unit=Unit("dimensionless", "")),
-        ]),
+        input_slots=frozenset(
+            [
+                SlotSpec(
+                    name="covariates",
+                    slot_type=SlotType.MATRIX,
+                    description="(n, p) covariate matrix",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs", "n_features"),
+                ),
+                SlotSpec(
+                    name="treatment",
+                    slot_type=SlotType.VECTOR,
+                    description="(n,) integer treatment labels 0..K-1",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n_obs",),
+                ),
+            ]
+        ),
+        output_slots=frozenset(
+            [
+                SlotSpec(
+                    name="probs",
+                    slot_type=SlotType.SCALAR,
+                    description="(n, K) per-arm probabilities P(T=k|X)",
+                    unit=Unit("dimensionless", ""),
+                ),
+                SlotSpec(
+                    name="levels",
+                    slot_type=SlotType.SCALAR,
+                    description="sorted list of K distinct treatment levels",
+                    unit=Unit("dimensionless", ""),
+                ),
+            ]
+        ),
         parameters=(
-            ParameterSpec(name="min_propensity", default=0.01,
-                          description="Clipping floor per arm (positivity protection)",
-                          bounds=(1e-6, 0.2)),
+            ParameterSpec(
+                name="min_propensity",
+                default=0.01,
+                description="Clipping floor per arm (positivity protection)",
+                bounds=(1e-6, 0.2),
+            ),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N,

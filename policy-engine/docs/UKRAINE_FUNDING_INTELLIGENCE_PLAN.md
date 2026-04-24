@@ -17,10 +17,13 @@
 - география первого контура: только Украина;
 - обработка: только детерминированный код, без LLM, OCR-эвристик и
   "black-box" matching;
+
 - приоритет: не "все источники мира", а максимальная полнота именно тех
   источников, которые реально описывают финансирование украинских политик;
+
 - первый target: `datasets + fabric + ukraine_data`, а не новый большой
   top-level subsystem;
+
 - funding слой должен отвечать на вопрос "как это профинансировать", а не
   смешивать его с вопросом "кто влияет на политику".
 
@@ -94,11 +97,13 @@
 - `domestic_channels`: существующие бюджетные и programmatic каналы в Украине;
 - `execution_precedents`: подтверждения, что похожие расходы реально
   исполнялись;
+
 - `procurement_precedents`: подтверждения через закупки и контракты;
 - `recovery_channels`: применимые каналы DREAM / reconstruction pipeline;
 - `external_channels`: доноры, IFI и international technical assistance;
 - `eligibility_constraints`: география, сектор, тип бенефициара,
   стадия проекта, co-financing rules;
+
 - `evidence_chain`: provenance до конкретного источника и записи;
 - `confidence_breakdown`: объяснимый confidence без ML/LLM;
 - `risk_flags`: санкции, слабая entity linkage, high concentration,
@@ -111,16 +116,16 @@
 Полнота должна измеряться не по числу источников, а по покрытию жизненного
 цикла финансирования.
 
-| Coverage layer | Ключевой вопрос | Основные источники |
-|---|---|---|
-| Fiscal space | Есть ли бюджетный канал и лимит? | Open Budget, бюджетные документы Минфина, data.gov.ua |
-| Budget execution | Были ли реальные платежи / кассовое исполнение? | Spending / E-data |
-| Procurement execution | Есть ли контракты и закупочные прецеденты? | Prozorro, Spending contracts proxy |
-| Recovery pipeline | Есть ли готовые или подготавливаемые recovery projects? | DREAM |
-| External public financing | Есть ли committed / disbursed donor flows для Украины? | IATI, Минэкономики МТД, Минфин / Ukraine Donor Platform |
-| IFI project finance | Есть ли проектные линии WB/EIB/EBRD/CEB/IFC? | MoF IFI registers, official IFI project data |
-| Macro financing context | Каков общий фискальный контекст и внешний ресурс? | Минфин, НБУ, donor platform bulletins |
-| Integrity / counterparty | Кто именно получает / проводит / исполняет деньги? | ЕДР, OpenCorporates, GLEIF, OpenSanctions |
+| Coverage layer            | Ключевой вопрос                                         | Основные источники                                      |
+| ------------------------- | ------------------------------------------------------- | ------------------------------------------------------- |
+| Fiscal space              | Есть ли бюджетный канал и лимит?                        | Open Budget, бюджетные документы Минфина, data.gov.ua   |
+| Budget execution          | Были ли реальные платежи / кассовое исполнение?         | Spending / E-data                                       |
+| Procurement execution     | Есть ли контракты и закупочные прецеденты?              | Prozorro, Spending contracts proxy                      |
+| Recovery pipeline         | Есть ли готовые или подготавливаемые recovery projects? | DREAM                                                   |
+| External public financing | Есть ли committed / disbursed donor flows для Украины?  | IATI, Минэкономики МТД, Минфин / Ukraine Donor Platform |
+| IFI project finance       | Есть ли проектные линии WB/EIB/EBRD/CEB/IFC?            | MoF IFI registers, official IFI project data            |
+| Macro financing context   | Каков общий фискальный контекст и внешний ресурс?       | Минфин, НБУ, donor platform bulletins                   |
+| Integrity / counterparty  | Кто именно получает / проводит / исполняет деньги?      | ЕДР, OpenCorporates, GLEIF, OpenSanctions               |
 
 Если хотя бы один из этих слоёв отсутствует, итоговый financing bundle будет
 неполным независимо от числа donor APIs.
@@ -144,15 +149,15 @@
 
 Наиболее ценные funding-related артефакты:
 
-| Repo path | Что это | Практическая ценность для funding layer | Статус |
-|---|---|---|---|
-| `data/ukraine_server_support_20260410/normalized_corpus/normalized/spending_full/budget_flows_monthly_sparse.parquet` | Нормализованные бюджетные потоки | Основной seed для Spending-layer; закрывает факт движения публичных средств | Reuse now |
-| `data/ukraine_server_support_20260410/normalized_corpus/normalized/spending_contracts_procurement_proxy/procurement_contracts_monthly.parquet` | Procurement proxy из Spending contracts | Полезно как временный procurement evidence до полного Prozorro hydration | Reuse now |
-| `data/ukraine_server_support_20260410/normalized_corpus/normalized/prozorro_full/procurement_contracts_monthly.parquet` | Нормализованный Prozorro слой | Использовать только как слабый seed; слой явно неполный | Reuse with caution |
-| `data/ukraine_server_support_20260410/normalized_corpus/normalized/edr_current/agent_registry_full.parquet` | ЕДР registry dump | Главный deterministic entity-resolution backbone | Reuse now |
-| `data/ukraine_server_support_20260410/normalized_corpus/normalized/budget_managers/public_budget_manager_registry.parquet` | Реестр бюджетных менеджеров | Полезен для связывания flows с program managers | Reuse now |
-| `data/ukraine_server_support_20260410/normalized_corpus/normalized/macro_nbu_derzhstat/macro_panel_monthly.parquet` | Макропанель | Вторичный контекст для fiscal backdrop, не primary funding truth | Reuse as context |
-| `data/ukraine_server_support_20260410/runtime_calibration_internals/runtime/d0_p0/edr_identity_bridge_manifest.json` | Coverage/QC по ID bridge | Полезно как baseline для качества linkage | Reuse now |
+| Repo path                                                                                                                                      | Что это                                 | Практическая ценность для funding layer                                     | Статус             |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------- | ------------------ |
+| `data/ukraine_server_support_20260410/normalized_corpus/normalized/spending_full/budget_flows_monthly_sparse.parquet`                          | Нормализованные бюджетные потоки        | Основной seed для Spending-layer; закрывает факт движения публичных средств | Reuse now          |
+| `data/ukraine_server_support_20260410/normalized_corpus/normalized/spending_contracts_procurement_proxy/procurement_contracts_monthly.parquet` | Procurement proxy из Spending contracts | Полезно как временный procurement evidence до полного Prozorro hydration    | Reuse now          |
+| `data/ukraine_server_support_20260410/normalized_corpus/normalized/prozorro_full/procurement_contracts_monthly.parquet`                        | Нормализованный Prozorro слой           | Использовать только как слабый seed; слой явно неполный                     | Reuse with caution |
+| `data/ukraine_server_support_20260410/normalized_corpus/normalized/edr_current/agent_registry_full.parquet`                                    | ЕДР registry dump                       | Главный deterministic entity-resolution backbone                            | Reuse now          |
+| `data/ukraine_server_support_20260410/normalized_corpus/normalized/budget_managers/public_budget_manager_registry.parquet`                     | Реестр бюджетных менеджеров             | Полезен для связывания flows с program managers                             | Reuse now          |
+| `data/ukraine_server_support_20260410/normalized_corpus/normalized/macro_nbu_derzhstat/macro_panel_monthly.parquet`                            | Макропанель                             | Вторичный контекст для fiscal backdrop, не primary funding truth            | Reuse as context   |
+| `data/ukraine_server_support_20260410/runtime_calibration_internals/runtime/d0_p0/edr_identity_bridge_manifest.json`                           | Coverage/QC по ID bridge                | Полезно как baseline для качества linkage                                   | Reuse now          |
 
 Что уже видно по этим данным:
 
@@ -178,8 +183,10 @@ runtime слоя.
 
 - `production_bundle/bundles/runtime_bundle_v1`
   показывает, какой компактный runtime bundle реально нужен downstream;
+
 - `heavy_graph_addon/*.npz`
   показывает размер тяжёлых sparse-graph артефактов;
+
 - `production_bundle/manifests/build_run_d0_p0.json`
   фиксирует реальные coverage limits текущего D0 blueprint.
 
@@ -188,6 +195,7 @@ runtime слоя.
 - этот baseline не является final funding truth;
 - в D0 manifest зафиксированы ошибки по coverage:
   spending coverage около `0.880`, procurement coverage около `0.890`;
+
 - procurement source в baseline идёт через
   `spending_contracts_procurement_proxy`, а не через полноценный
   hydrated `prozorro_full`.
@@ -244,6 +252,7 @@ runtime слоя.
 - `macro_nbu_derzhstat`
 - compact `runtime_bundle_v1` and `release_manifest_v1` from
   `ukraine_agent_simulation_baseline_20260410`
+
 - `dataset_catalog.duckdb` and `all_records.jsonl` from `production_data`
 
 ### Do not treat as final truth
@@ -259,17 +268,17 @@ runtime слоя.
 
 Даже с уже имеющимися артефактами остаются критические пробелы:
 
-| Missing layer | Почему нельзя закрыть текущими артефактами | Что нужно сделать |
-|---|---|---|
-| Open Budget | В текущем локальном пакете нет явного budget-program / local-budget truth layer | Новый harvest + normalization |
-| DREAM | Нет reconstruction project layer | Новый connector / deterministic API ingest |
-| Минэкономики МТД | Нет official ITA registry layer в текущем processed corpus | Новый harvest + structured extraction |
-| Минфин donor platform / IFI registers | Нет полного official external-financing coordination layer | Новый harvest + registry normalization |
-| IATI | Нет donor transaction graph for Ukraine | Новый external donor ingest |
-| WB / EIB / EBRD project layer | Нет полноценного IFI project/instrument surface | Новый harvest + entity/topic mapping |
-| Full Prozorro hydration | Текущий local `prozorro_full` недостаточен | Новый procurement ingest / hydration |
-| Open Budget <-> Spending reconciliation | Пока нет funding-specific reconciliation contract | Новый deterministic merge/QC stage |
-| Policy-theme crosswalk | Нет funding-specific crosswalk to canonical policy ontology | Новый rules-based mapping layer |
+| Missing layer                           | Почему нельзя закрыть текущими артефактами                                      | Что нужно сделать                          |
+| --------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------ |
+| Open Budget                             | В текущем локальном пакете нет явного budget-program / local-budget truth layer | Новый harvest + normalization              |
+| DREAM                                   | Нет reconstruction project layer                                                | Новый connector / deterministic API ingest |
+| Минэкономики МТД                        | Нет official ITA registry layer в текущем processed corpus                      | Новый harvest + structured extraction      |
+| Минфин donor platform / IFI registers   | Нет полного official external-financing coordination layer                      | Новый harvest + registry normalization     |
+| IATI                                    | Нет donor transaction graph for Ukraine                                         | Новый external donor ingest                |
+| WB / EIB / EBRD project layer           | Нет полноценного IFI project/instrument surface                                 | Новый harvest + entity/topic mapping       |
+| Full Prozorro hydration                 | Текущий local `prozorro_full` недостаточен                                      | Новый procurement ingest / hydration       |
+| Open Budget <-> Spending reconciliation | Пока нет funding-specific reconciliation contract                               | Новый deterministic merge/QC stage         |
+| Policy-theme crosswalk                  | Нет funding-specific crosswalk to canonical policy ontology                     | Новый rules-based mapping layer            |
 
 ---
 
@@ -280,15 +289,15 @@ runtime слоя.
 Это must-have источники. Без них система не сможет давать полезные ответы по
 украинским политикам.
 
-| Source | Почему критичен для Украины | Что покрывает | Формат / доступ | Приоритет |
-|---|---|---|---|---|
-| Open Budget | Даёт структуру гос- и местных бюджетов, планы и исполнение | Budget programs, local/state allocations, execution aggregates | web portal + structured responses / exports | P0 |
-| Spending / E-data | Даёт факт использования публичных средств | Treasury-like spending evidence, contracts, payments, counterparties | official portal / machine-readable portal artifacts | P0 |
-| Prozorro / OpenProcurement API | Даёт procurement proof и контрагенты | Tenders, awards, contracts, buyers, suppliers, amounts | official API docs + feed endpoints | P0 |
-| DREAM | Даёт reconstruction/recovery pipeline, особенно для капитальных политик | Projects, financing programs, stages, recovery status | public portal + open API/docs | P0 |
-| data.gov.ua | Даёт каталог открытых наборов и fallback-реестры | budget docs, registries, sector datasets, local open data links | CKAN API | P0 |
-| Минэкономики: International Technical Assistance | Даёт официальный контур МТД и активных проектов | donors, recipients, project titles, sectors, periods | official ministry pages / docs / tables | P0 |
-| Минфин: Ukraine Donor Platform + IFI/ITA registers | Даёт официальный coordination layer и регистры IFI projects | IFI pipeline, external financing context, donor coordination | official ministry pages / registers / bulletins | P0 |
+| Source                                             | Почему критичен для Украины                                             | Что покрывает                                                        | Формат / доступ                                     | Приоритет |
+| -------------------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------- | --------- |
+| Open Budget                                        | Даёт структуру гос- и местных бюджетов, планы и исполнение              | Budget programs, local/state allocations, execution aggregates       | web portal + structured responses / exports         | P0        |
+| Spending / E-data                                  | Даёт факт использования публичных средств                               | Treasury-like spending evidence, contracts, payments, counterparties | official portal / machine-readable portal artifacts | P0        |
+| Prozorro / OpenProcurement API                     | Даёт procurement proof и контрагенты                                    | Tenders, awards, contracts, buyers, suppliers, amounts               | official API docs + feed endpoints                  | P0        |
+| DREAM                                              | Даёт reconstruction/recovery pipeline, особенно для капитальных политик | Projects, financing programs, stages, recovery status                | public portal + open API/docs                       | P0        |
+| data.gov.ua                                        | Даёт каталог открытых наборов и fallback-реестры                        | budget docs, registries, sector datasets, local open data links      | CKAN API                                            | P0        |
+| Минэкономики: International Technical Assistance   | Даёт официальный контур МТД и активных проектов                         | donors, recipients, project titles, sectors, periods                 | official ministry pages / docs / tables             | P0        |
+| Минфин: Ukraine Donor Platform + IFI/ITA registers | Даёт официальный coordination layer и регистры IFI projects             | IFI pipeline, external financing context, donor coordination         | official ministry pages / registers / bulletins     | P0        |
 
 ### Current availability note
 
@@ -310,26 +319,26 @@ runtime слоя.
 
 Эти источники не заменяют украинское ядро, а закрывают внешний financing layer.
 
-| Source | Роль в украинском контуре | Что брать | Формат / доступ | Приоритет |
-|---|---|---|---|---|
-| IATI | Главный открытый междонорский слой по aid flows | activities, transactions, organizations, sectors, recipient-country=UA | official API / datastore / XML | P1 |
-| World Bank projects / operations | Важен для programmatic/project financing Украины | project pipeline, commitments, sectors, implementing agencies | official project/operations data | P1 |
-| OECD finance / CRS-compatible flows | Нужен для исторических donor patterns, но не как real-time truth | long-run donor-sector-country flows | SDMX / statistical access | P2 |
-| EIB open data | Важен для EU-linked project finance | projects, regions, sectors, instruments | official open data | P1 |
-| EBRD official project data | Важен для infrastructure, municipal, private-sector support | project metadata, country sector pipeline | official project pages / data exports | P2 |
-| CEB / IFC / IMF official public project or financing pages | Полезны как supplementary registry layer | program / facility / operation metadata | official pages / tables / docs | P3 |
+| Source                                                     | Роль в украинском контуре                                        | Что брать                                                              | Формат / доступ                       | Приоритет |
+| ---------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------- | --------- |
+| IATI                                                       | Главный открытый междонорский слой по aid flows                  | activities, transactions, organizations, sectors, recipient-country=UA | official API / datastore / XML        | P1        |
+| World Bank projects / operations                           | Важен для programmatic/project financing Украины                 | project pipeline, commitments, sectors, implementing agencies          | official project/operations data      | P1        |
+| OECD finance / CRS-compatible flows                        | Нужен для исторических donor patterns, но не как real-time truth | long-run donor-sector-country flows                                    | SDMX / statistical access             | P2        |
+| EIB open data                                              | Важен для EU-linked project finance                              | projects, regions, sectors, instruments                                | official open data                    | P1        |
+| EBRD official project data                                 | Важен для infrastructure, municipal, private-sector support      | project metadata, country sector pipeline                              | official project pages / data exports | P2        |
+| CEB / IFC / IMF official public project or financing pages | Полезны как supplementary registry layer                         | program / facility / operation metadata                                | official pages / tables / docs        | P3        |
 
 ### Tier B: entity and integrity enrichments
 
 Это не первичный funding truth, а слой для deterministic entity resolution и
 compliance.
 
-| Source | Назначение | Что использовать | Приоритет |
-|---|---|---|---|
-| ЕДР / украинские registry dumps | Украинский ground truth по юрлицам | EDRPOU, names, status, region, sector | P1 |
-| OpenCorporates API | Foreign legal entities и cross-border company linkage | jurisdiction, company number, names, provenance | P2 |
-| GLEIF / LEI data | Международный юридический идентификатор | LEI, legal name, jurisdiction, parent relationships | P2 |
-| OpenSanctions (`default`, не `all`) | Sanctions / PEP / risk flags | sanctions targets, identifiers, aliases | P2 |
+| Source                              | Назначение                                            | Что использовать                                    | Приоритет |
+| ----------------------------------- | ----------------------------------------------------- | --------------------------------------------------- | --------- |
+| ЕДР / украинские registry dumps     | Украинский ground truth по юрлицам                    | EDRPOU, names, status, region, sector               | P1        |
+| OpenCorporates API                  | Foreign legal entities и cross-border company linkage | jurisdiction, company number, names, provenance     | P2        |
+| GLEIF / LEI data                    | Международный юридический идентификатор               | LEI, legal name, jurisdiction, parent relationships | P2        |
+| OpenSanctions (`default`, не `all`) | Sanctions / PEP / risk flags                          | sanctions targets, identifiers, aliases             | P2        |
 
 ---
 
@@ -339,8 +348,10 @@ compliance.
 
 - любые официальные украинские источники, которые описывают бюджет,
   исполнение, закупки, recovery projects или МТД/IFI;
+
 - международные открытые источники, где Украина явно присутствует как
   страна-бенефициар, страна реализации или страна recipient;
+
 - источники с устойчивым machine-readable surface:
   API, CKAN, CSV/XLSX, XML, SDMX, documented JSON feeds.
 
@@ -348,8 +359,10 @@ compliance.
 
 - ministry PDFs, если у них стабильная табличная структура и extractor можно
   жёстко тестировать;
+
 - IFI pages без полноценного API, если HTML стабилен и не критичен для
   publish-blocking path;
+
 - sector-specific vertical funds, если они реально часто участвуют в украинских
   policy bundles.
 
@@ -357,6 +370,7 @@ compliance.
 
 - FEC, OpenSecrets, FollowTheMoney и иные US political-finance источники:
   они не отвечают на вопрос финансирования украинских политик;
+
 - коммерческие closed databases как core dependency;
 - любые источники, требующие LLM extraction;
 - free-form PDF parsing без строгого шаблона;
@@ -415,27 +429,38 @@ Open Budget + Spending + Prozorro + DREAM закрывают этот пробе
 
 - `FundingSource`
   donor / бюджет / IFI / facility / local budget / ministry program;
+
 - `FundingInstrument`
   grant / budget appropriation / loan / guarantee / technical assistance /
   subvention / procurement-financed spending;
+
 - `FundingCommitment`
   обещанное или утверждённое финансирование;
+
 - `FundingDisbursement`
   фактическая выдача / disbursement / transfer;
+
 - `BudgetAllocation`
   бюджетное назначение / программа / local allocation;
+
 - `BudgetExecution`
   факт исполнения;
+
 - `ProcurementArtifact`
   tender / award / contract / supplier evidence;
+
 - `RecoveryProject`
   DREAM или другой проектный объект;
+
 - `RecipientEntity`
   орган, громада, коммунальное учреждение, предприятие, НГО, private recipient;
+
 - `ImplementingAgency`
   фактический исполнитель;
+
 - `PolicyTheme`
   ссылка на существующую canonical ontology PolicyOS;
+
 - `RiskFlag`
   sanctions / unresolved entity / stale source / inconsistent amounts.
 
@@ -472,6 +497,7 @@ Open Budget + Spending + Prozorro + DREAM закрывают этот пробе
 - фиксированные таблицы транслитерации `uk <-> en`;
 - фиксированные dictionaries donor aliases:
   `EU`, `European Union`, `ЄС`, `European Commission`, `EC`, etc.;
+
 - exact / prefix / token-set matching по правилам;
 - explainable weighted score с фиксированными коэффициентами.
 
@@ -505,8 +531,10 @@ Open Budget + Spending + Prozorro + DREAM закрывают этот пробе
 - завести rules-based crosswalk:
   budget code / procurement CPV / donor sector / DREAM category ->
   canonical `policy_theme`;
+
 - держать bilingual mapping tables:
   `uk`, `en`, сокращения, ведомственные названия;
+
 - разрешать one-to-many mapping только если source явно содержит breakdown;
 - каждый mapping снабжать `mapping_rule_id` и `mapping_confidence`.
 
@@ -592,6 +620,7 @@ dimension без LLM-посредника.
 
 - `production_data/dataset_catalog.duckdb` уже можно использовать как
   первичный discovery index;
+
 - funding lane должен выбирать из него релевантные budget/procurement/finance
   datasets и только потом промотировать их в funding-specific publish path.
 
@@ -661,8 +690,10 @@ dimension без LLM-посредника.
 - использовать `datasets.batch.source_registry` как discovery / harvest surface;
 - переиспользовать `fabric.connectors` (`ckan`, `rest_json`, `sdmx`,
   `file_tabular`);
+
 - переиспользовать существующий `fabric.entity_resolution` и manual override
   store;
+
 - переиспользовать и расширять `ukraine_data`, где уже есть Spending/Prozorro
   нормализация и runtime budget/procurement graph assets.
 
@@ -673,10 +704,12 @@ dimension без LLM-посредника.
 - `data.gov.ua` уже естественно укладывается в `datasets + ckan`;
 - `oecd_sdmx` и `worldbank_wdi` уже существуют, но funding-layer требует
   уточнённых source specs;
+
 - `ukraine_data` уже понимает `spending_full` и `prozorro_full`;
 - уже существует локальный `normalized_corpus` с полезным domestic funding seed;
 - уже существует compact `ukraine_agent_simulation_baseline` как ориентир по
   runtime/release bundle shape;
+
 - отдельный новый subsystem слишком рано потянет изменения в snapshot,
   docs/site nav, import policy и runtime surface.
 
@@ -714,26 +747,37 @@ dimension без LLM-посредника.
 
 - `source_discovery`
   обнаруживает новые CKAN packages, registry pages и relevant feeds;
+
 - `harvest_domestic`
   забирает Open Budget / Spending / Prozorro / DREAM / Ukrainian registries;
+
 - `harvest_external`
   забирает IATI / IFI / OECD / international layers;
+
 - `normalize`
   переводит всё в единые canonical records;
+
 - `identifier_bridge`
   строит exact ID bridges;
+
 - `rule_based_entity_resolution`
   обрабатывает случаи без exact ID, но только explainable rules;
+
 - `topic_crosswalk`
   связывает funding records с canonical policy themes;
+
 - `flow_build`
   строит `FinancingPath` и derived edges;
+
 - `execution_reconciliation`
   проверяет, что budget / donor / procurement layers не противоречат друг другу;
+
 - `risk_enrichment`
   накладывает sanctions / company / LEI enrichments;
+
 - `qc`
   валидирует coverage, freshness, reconciliation, unresolved rate;
+
 - `publish`
   публикует bundle для runtime и аналитики.
 
@@ -759,6 +803,7 @@ dimension без LLM-посредника.
 
 - import already processed domestic seeds from
   `data/ukraine_server_support_20260410`;
+
 - Open Budget;
 - Spending;
 - Prozorro;
@@ -830,22 +875,31 @@ Funding layer должен проходить отдельные QC-gates:
 
 - `coverage.domestic_budget`
   доля policy themes, для которых найден хотя бы один domestic channel;
+
 - `coverage.execution`
   доля записей, подтверждённых Spending или Open Budget execution;
+
 - `coverage.procurement`
   доля channels, имеющих procurement evidence, где это ожидаемо;
+
 - `coverage.external`
   доля external channels с donor/instrument/amount/time metadata;
+
 - `resolution.identifier_exact_rate`
   доля entity links, закрытых exact IDs;
+
 - `resolution.unresolved_rate`
   доля unresolved entities после rules-based pass;
+
 - `reconciliation.amount_conflict_rate`
   конфликтные суммы между источниками;
+
 - `freshness.days_since_last_source_sync`
   свежесть по каждому publish-blocking source;
+
 - `provenance.missing_rate`
   записи без source URL / source ID / ingest timestamp;
+
 - `policy_binding.unmapped_theme_rate`
   доля funding records без canonical policy theme.
 
@@ -933,6 +987,7 @@ publish-blocking.
 - data.gov.ua CKAN API: [data.gov.ua/api/3/action/package_search](https://data.gov.ua/api/3/action/package_search)
 - Минэкономики, International Technical Assistance:
   [me.gov.ua](https://me.gov.ua/Documents/MoreDetails?id=b01d5d7e-6804-4a21-82cc-12139e8d3529&lang=en-GB&title=InternationalTechnicalAssistance)
+
 - Минфин, Ukraine Donor Platform:
   [mof.gov.ua](https://www.mof.gov.ua/en/ukraine_donor_platform-897)
 
@@ -941,6 +996,7 @@ publish-blocking.
 - IATI developer portal: [developer.iatistandard.org/apis](https://developer.iatistandard.org/apis)
 - IATI datastore docs:
   [iatistandard.org](https://iatistandard.org/en/iati-tools-and-resources/iati-datastore/how-to-use-the-datastore-api/)
+
 - OECD SDMX REST base: [sdmx.oecd.org/public/rest](https://sdmx.oecd.org/public/rest)
 - World Bank API base: [api.worldbank.org/v2](https://api.worldbank.org/v2)
 - EIB open data: [eib.org](https://www.eib.org/en/publications-research/eib-open-data)
@@ -949,8 +1005,10 @@ Entity / integrity:
 
 - OpenCorporates API reference:
   [api.opencorporates.com](https://api.opencorporates.com/documentation/API-Reference)
+
 - GLEIF LEI data access:
   [gleif.org](https://www.gleif.org/en/lei-data/access-and-use-lei-data)
+
 - OpenSanctions notice on dataset choice:
   [discuss.opensanctions.org](https://discuss.opensanctions.org/t/notice-do-not-use-the-all-dataset/60)
 

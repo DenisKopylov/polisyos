@@ -1,7 +1,9 @@
 """Public distributional polarization module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -54,6 +56,7 @@ def _values_payload(state: Any, *, key: str = "values") -> np.ndarray:
 )
 class EstebanRayEstimator:
     """Estimate Esteban-Ray polarization for grouped income or welfare distributions."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -140,6 +143,7 @@ class EstebanRayEstimator:
 )
 class DuclosEstebanRayEstimator:
     """Estimate Duclos-Esteban-Ray polarization with smoother distributional sensitivity."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -153,9 +157,7 @@ class DuclosEstebanRayEstimator:
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="alpha", default=0.5, bounds=(0.25, 1.0)),
-        ),
+        parameters=(ParameterSpec(name="alpha", default=0.5, bounds=(0.25, 1.0)),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -182,7 +184,11 @@ class DuclosEstebanRayEstimator:
         # Silverman bandwidth
         std = float(np.std(sorted_values, ddof=1)) if n > 1 else 1.0
         iqr = float(np.percentile(sorted_values, 75) - np.percentile(sorted_values, 25))
-        bandwidth = 0.9 * min(std, iqr / 1.34) * n ** (-0.2) if iqr > 0.0 else 0.9 * max(std, 1e-6) * n ** (-0.2)
+        bandwidth = (
+            0.9 * min(std, iqr / 1.34) * n ** (-0.2)
+            if iqr > 0.0
+            else 0.9 * max(std, 1e-6) * n ** (-0.2)
+        )
         bandwidth = max(bandwidth, 1e-12)
 
         # Kernel density estimation at each observation point (Gaussian kernel)
@@ -199,7 +205,7 @@ class DuclosEstebanRayEstimator:
         alienation = np.mean(abs_diffs, axis=1)  # (n,)
 
         # P = (1/n) * sum_i f(y_i)^alpha * alienation(y_i)
-        polarization = float(np.mean(density ** alpha * alienation))
+        polarization = float(np.mean(density**alpha * alienation))
 
         return {
             "result": {

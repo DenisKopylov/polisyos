@@ -5,13 +5,12 @@ persisted alongside legal corpus artifacts. They intentionally carry provenance 
 selection explanations so downstream legal-evaluation and intervention code can reason about
 which document revision, provision set, and claim set formed a ``NormPack``.
 """
+
 from __future__ import annotations
 
 import warnings
 from dataclasses import dataclass, field
-from datetime import datetime
-from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
@@ -21,9 +20,14 @@ from polisyos.fabric.docs import (
     DocNormalizeOptions,
     DocStructureOptions,
 )
-from polisyos.ir.fact_log import FactSegmentManifest
 
 from .errors import LexValidationError
+
+if TYPE_CHECKING:
+    from datetime import datetime
+    from pathlib import Path
+
+    from polisyos.ir.fact_log import FactSegmentManifest
 
 
 @dataclass(frozen=True)
@@ -55,9 +59,7 @@ class LegalDocSource:
     def __post_init__(self) -> None:
         provided = [value for value in (self.canonical_url, self.official_id) if value]
         if len(provided) != 1:
-            raise LexValidationError(
-                "exactly one of canonical_url or official_id is required"
-            )
+            raise LexValidationError("exactly one of canonical_url or official_id is required")
         if not self.license.strip():
             raise LexValidationError("license is required")
 
@@ -185,9 +187,9 @@ class ActiveVersionStrategy:
     version_index_artifact_id: str | None = None
     fact_log_root: Path | None = None
     as_of_semantics: Literal["date_inclusive"] = "date_inclusive"
-    tie_breaker: Literal[
+    tie_breaker: Literal["effective_from_then_published_then_doc_version_id"] = (
         "effective_from_then_published_then_doc_version_id"
-    ] = "effective_from_then_published_then_doc_version_id"
+    )
     include_candidates: bool = False
 
 
@@ -215,6 +217,7 @@ class ResolveCandidate(BaseModel):
         effective_from: Inclusive effectivity start date.
         effective_to: Inclusive effectivity end date, or ``None`` for open-ended versions.
     """
+
     model_config = ConfigDict(extra="forbid")
 
     doc_version_id: str
@@ -258,6 +261,7 @@ class SelectedDocVersion:
     justified it, which lets downstream audit tooling distinguish explicit claim-set selection
     from temporal source resolution.
     """
+
     doc_source_id: str
     doc_version_id: str
     doc_meta_artifact_id: str

@@ -1,12 +1,16 @@
 """Loads local-file Scholar seed sources into the normalized acquire payload shape."""
+
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from polisyos.core.contracts.scholar import SourceSpec
 from polisyos.fabric.docs import DocSourceSpec
 from polisyos.scholar.errors import ScholarAcquireError, ScholarValidationError
 from polisyos.scholar.types import AcquireResult
+
+if TYPE_CHECKING:
+    from polisyos.core.contracts.scholar import SourceSpec
 
 _MIME_BY_SUFFIX = {
     ".txt": "text/plain",

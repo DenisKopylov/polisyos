@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from polisyos.scientist.search.controller import SearchIteration
 from polisyos.scientist.search.objective import ObjectiveValue
@@ -112,4 +113,3 @@ class StrategyAdapter:
             **candidate.metadata,
         }
         return payload
-

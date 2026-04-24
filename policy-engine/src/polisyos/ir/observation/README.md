@@ -21,17 +21,17 @@ causal tasks, через которые downstream Foundry и Scientist полу
 
 ## Public entrypoints
 
-| Entrypoint | Use when | Defined in |
-|---|---|---|
-| `polisyos.ir.observation.ObservationRecord`, `ObservationPanel` | Нужны базовые record/panel contracts | [`contracts.py`](./contracts.py) |
-| `polisyos.ir.observation.MeasurementRegistry` | Нужен routing по trust tiers, proxy rules и freshness logic | [`measurement.py`](./measurement.py) |
-| `polisyos.ir.observation.SchemaRegimeRegistry`, `RegimeCalendar`, `ShockCalendar` | Нужно моделировать schema regime shifts и structural breaks | [`measurement.py`](./measurement.py) |
-| `polisyos.ir.observation.ObservationFamilyPolicyRegistry` | Нужно сопоставить observation families с governance/runtime passes | [`governance.py`](./governance.py) |
-| `polisyos.ir.observation.ObservationContractCompilerSuite` | Нужно компилировать observation payloads в foundry/scientist-compatible bundles | [`compiler.py`](./compiler.py) |
-| `polisyos.ir.observation.CausalReadinessBundle` | Нужен readiness surface для proxy, transportability, counterfactual и strategic checks | [`causal_readiness.py`](./causal_readiness.py) |
-| `polisyos.ir.observation.CausalExecutionBundle` | Нужен executable surface для bounds estimation и temporal DTR tasks | [`causal_execution.py`](./causal_execution.py) |
-| `polisyos.ir.observation.persist_causal_readiness_bundle()`, `load_causal_readiness_bundle()` | Нужно persist/load readiness bundle в CAS-backed flows | [`causal_readiness.py`](./causal_readiness.py) |
-| `polisyos.ir.observation.persist_causal_execution_bundle()`, `load_causal_execution_bundle()` | Нужно persist/load execution bundle | [`causal_execution.py`](./causal_execution.py) |
+| Entrypoint                                                                                    | Use when                                                                               | Defined in                                     |
+| --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `polisyos.ir.observation.ObservationRecord`, `ObservationPanel`                               | Нужны базовые record/panel contracts                                                   | [`contracts.py`](./contracts.py)               |
+| `polisyos.ir.observation.MeasurementRegistry`                                                 | Нужен routing по trust tiers, proxy rules и freshness logic                            | [`measurement.py`](./measurement.py)           |
+| `polisyos.ir.observation.SchemaRegimeRegistry`, `RegimeCalendar`, `ShockCalendar`             | Нужно моделировать schema regime shifts и structural breaks                            | [`measurement.py`](./measurement.py)           |
+| `polisyos.ir.observation.ObservationFamilyPolicyRegistry`                                     | Нужно сопоставить observation families с governance/runtime passes                     | [`governance.py`](./governance.py)             |
+| `polisyos.ir.observation.ObservationContractCompilerSuite`                                    | Нужно компилировать observation payloads в foundry/scientist-compatible bundles        | [`compiler.py`](./compiler.py)                 |
+| `polisyos.ir.observation.CausalReadinessBundle`                                               | Нужен readiness surface для proxy, transportability, counterfactual и strategic checks | [`causal_readiness.py`](./causal_readiness.py) |
+| `polisyos.ir.observation.CausalExecutionBundle`                                               | Нужен executable surface для bounds estimation и temporal DTR tasks                    | [`causal_execution.py`](./causal_execution.py) |
+| `polisyos.ir.observation.persist_causal_readiness_bundle()`, `load_causal_readiness_bundle()` | Нужно persist/load readiness bundle в CAS-backed flows                                 | [`causal_readiness.py`](./causal_readiness.py) |
+| `polisyos.ir.observation.persist_causal_execution_bundle()`, `load_causal_execution_bundle()` | Нужно persist/load execution bundle                                                    | [`causal_execution.py`](./causal_execution.py) |
 
 ## Depends on / depended on by
 

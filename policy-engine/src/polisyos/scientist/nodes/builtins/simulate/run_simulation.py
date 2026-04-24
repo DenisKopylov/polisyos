@@ -1,4 +1,5 @@
 """Public simulate run simulation module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
@@ -140,13 +141,14 @@ class RunSimulationNode:
     writes simulation results, metrics, state deltas, snapshots, constraint reports,
     and environment manifests back into workflow state.
     """
+
     exec_config: FoundryExecConfig = field(default_factory=FoundryExecConfig)
 
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
 
-    def bind(self, params: dict[str, Any]) -> "RunSimulationNode":
+    def bind(self, params: dict[str, Any]) -> RunSimulationNode:
         if not params:
             return self
         config = self.exec_config.model_copy(deep=False)
@@ -159,7 +161,8 @@ class RunSimulationNode:
         injected_metrics = ctx.metrics if ctx.metrics is not None else None
         metrics = (
             injected_metrics
-            if injected_metrics is not None and hasattr(injected_metrics, "record_slo_simulation_run")
+            if injected_metrics is not None
+            and hasattr(injected_metrics, "record_slo_simulation_run")
             else _default_metrics()
         )
         method = str(state.params.get("simulation_method", "foundry.execute"))
@@ -219,9 +222,7 @@ class RunSimulationNode:
         if input_bindings_ref is None:
             error = NodeError(
                 code=node_errors.ERROR_MISSING_INPUT,
-                message=(
-                    "Missing input source for simulation: input_bindings_ref is required"
-                ),
+                message=("Missing input source for simulation: input_bindings_ref is required"),
                 details={"required": [INPUT_INPUT_BINDINGS_REF]},
             )
             metrics.record_slo_simulation_run("error", method=method)
@@ -365,17 +366,18 @@ class RunSimulationNode:
                     candidate,
                     None,
                 )
-            evidence_ref = (
-                new_state.artifacts_index.get(ARTIFACT_METRICS_REF)
-                or new_state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
-            )
+            evidence_ref = new_state.artifacts_index.get(
+                ARTIFACT_METRICS_REF
+            ) or new_state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
             strategic_output = persist_runtime_strategic_artifacts(
                 ctx,
                 new_state,
                 artifacts_index=dict(new_state.artifacts_index),
                 candidate_ref=candidate_ref,
                 evidence_ref=evidence_ref,
-                evidence_role="metrics" if evidence_ref == new_state.artifacts_index.get(ARTIFACT_METRICS_REF) else "simulation_result",
+                evidence_role="metrics"
+                if evidence_ref == new_state.artifacts_index.get(ARTIFACT_METRICS_REF)
+                else "simulation_result",
                 baseline_payload=load_simulation_metrics(ctx, new_state) or simulation_payload,
             )
             if strategic_output.strategic_scm_ref is not None:

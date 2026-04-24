@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from math import floor
 from typing import Any
 
@@ -18,8 +18,7 @@ class WatermarkPolicy(ABC):
 
     @property
     @abstractmethod
-    def watermark_type(self) -> WatermarkType:
-        ...
+    def watermark_type(self) -> WatermarkType: ...
 
     @abstractmethod
     def extract(self, result: Any) -> str | None:
@@ -170,11 +169,11 @@ def resolve_watermark_policy(connector_family: str) -> WatermarkPolicy:
 
 
 __all__ = [
-    "SchemaWatermark",
     "DEFAULT_WATERMARK_POLICIES",
     "ETagWatermark",
     "OffsetWatermark",
     "RevisionWatermark",
+    "SchemaWatermark",
     "TimestampWatermark",
     "WatermarkPolicy",
     "WindowAssignment",
@@ -199,7 +198,7 @@ def _rows_with_timestamps(
         if value is None:
             continue
         if isinstance(value, datetime):
-            dt = value if value.tzinfo is not None else value.replace(tzinfo=timezone.utc)
+            dt = value if value.tzinfo is not None else value.replace(tzinfo=UTC)
         else:
             dt = parse_datetime_utc(str(value), what="stream window timestamp")
         resolved.append((row, dt))
@@ -230,8 +229,7 @@ def _sliding_count_windows(
     slide: int,
 ) -> list[WindowAssignment]:
     assignments: list[WindowAssignment] = []
-    ordinal = 0
-    for start in range(0, len(rows), slide):
+    for ordinal, start in enumerate(range(0, len(rows), slide)):
         batch = tuple(rows[start : start + size])
         if not batch:
             break
@@ -246,7 +244,6 @@ def _sliding_count_windows(
                 ordinal=ordinal,
             )
         )
-        ordinal += 1
     return assignments
 
 
@@ -262,7 +259,7 @@ def _tumbling_time_windows(
 
     assignments: list[WindowAssignment] = []
     for ordinal, bucket in enumerate(sorted(by_bucket)):
-        start_dt = datetime.fromtimestamp(bucket * bucket_seconds, tz=timezone.utc)
+        start_dt = datetime.fromtimestamp(bucket * bucket_seconds, tz=UTC)
         end_dt = start_dt + timedelta(seconds=bucket_seconds)
         batch = tuple(by_bucket[bucket])
         assignments.append(

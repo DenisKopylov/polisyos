@@ -229,7 +229,9 @@ def _dataset_resolution_quality(
 
 @pytest.mark.integration
 def test_phase0_quality_validation_deterministic_e2e(monkeypatch, tmp_path: Path) -> None:
-    monkeypatch.setattr("polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _DeterministicGonkaClient)
+    monkeypatch.setattr(
+        "polisyos.academic.batch.resolve_extract.GonkaMultiKeyPool", _DeterministicGonkaClient
+    )
 
     async def _fake_fetch_full_text_result(work, **kwargs):  # type: ignore[no-untyped-def]
         return FullTextFetchResult(
@@ -244,7 +246,7 @@ def test_phase0_quality_validation_deterministic_e2e(monkeypatch, tmp_path: Path
         _fake_fetch_full_text_result,
     )
 
-    async def _fake_wb_fetch(self, _handle, request):  # noqa: ARG001
+    async def _fake_wb_fetch(self, _handle, request):
         filters = dict(request.filters or ())
         countries = filters.get("country") or ("UA",)
         country = str(countries[0])
@@ -260,7 +262,7 @@ def test_phase0_quality_validation_deterministic_e2e(monkeypatch, tmp_path: Path
         )
         return type("WBResult", (), {"data": df})()
 
-    async def _fake_wvs_fetch(self, _handle, request):  # noqa: ARG001
+    async def _fake_wvs_fetch(self, _handle, request):
         filters = dict(request.filters or ())
         countries = filters.get("country") or ("UA",)
         years = filters.get("survey_year") or ("2020",)
@@ -339,7 +341,9 @@ def test_phase0_quality_validation_deterministic_e2e(monkeypatch, tmp_path: Path
             or 0
         )
         claims_count = int(con.execute("SELECT COUNT(*) FROM ac_causal_claims").fetchone()[0] or 0)
-        parameters_count = int(con.execute("SELECT COUNT(*) FROM ac_parameter_estimates").fetchone()[0] or 0)
+        parameters_count = int(
+            con.execute("SELECT COUNT(*) FROM ac_parameter_estimates").fetchone()[0] or 0
+        )
         claim_rows = con.execute("SELECT cause, effect FROM ac_causal_claims").fetchall()
 
     canonical_tokens = 0
@@ -357,11 +361,13 @@ def test_phase0_quality_validation_deterministic_e2e(monkeypatch, tmp_path: Path
     )
 
     registry = DatasetRegistry(dataset_config.db_path)
-    dataset_coverage_pct, proxy_share_pct, temporal_extrapolation_share_pct = _dataset_resolution_quality(
-        claim_vars=claim_vars,
-        registry=registry,
-        country_code="UA",
-        year=2020,
+    dataset_coverage_pct, proxy_share_pct, temporal_extrapolation_share_pct = (
+        _dataset_resolution_quality(
+            claim_vars=claim_vars,
+            registry=registry,
+            country_code="UA",
+            year=2020,
+        )
     )
 
     report = evaluate_phase0_quality(

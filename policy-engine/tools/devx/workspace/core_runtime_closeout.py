@@ -9,6 +9,7 @@ import re
 import tomllib
 from dataclasses import asdict, dataclass
 from pathlib import Path
+
 from tools._lib.imports import repo_root_from
 
 PRODUCT_ROOT = repo_root_from(__file__)
@@ -218,8 +219,7 @@ def load_manual_evidence(path: Path | None) -> dict[str, ManualEvidenceEntry]:
     manual = payload.get("manual", payload)
     if not isinstance(manual, dict):
         raise SystemExit(
-            "manual evidence file must contain a [manual] table "
-            "or top-level key/value pairs."
+            "manual evidence file must contain a [manual] table or top-level key/value pairs."
         )
     result: dict[str, ManualEvidenceEntry] = {}
     for key, value in manual.items():
@@ -281,8 +281,7 @@ def _manual_checks(
         if require_manual_evidence:
             status = "fail"
             detail = (
-                f"{expectation} Record it in --manual-evidence "
-                f"before final closeout.{notes_suffix}"
+                f"{expectation} Record it in --manual-evidence before final closeout.{notes_suffix}"
             )
         else:
             status = "pending"
@@ -324,9 +323,7 @@ def load_workstreams(ledger_path: Path, plan_path: Path) -> tuple[WorkstreamEntr
         if not isinstance(title, str) or not title.strip():
             raise SystemExit(f"{workstream_id}: missing non-empty `title`.")
         if not isinstance(status, str) or status not in VALID_STATUSES:
-            raise SystemExit(
-                f"{workstream_id}: `status` must be one of {sorted(VALID_STATUSES)}."
-            )
+            raise SystemExit(f"{workstream_id}: `status` must be one of {sorted(VALID_STATUSES)}.")
         if not isinstance(summary, str) or not summary.strip():
             raise SystemExit(f"{workstream_id}: missing non-empty `summary`.")
 
@@ -339,13 +336,11 @@ def load_workstreams(ledger_path: Path, plan_path: Path) -> tuple[WorkstreamEntr
 
         if status == "implemented" and blocking_gaps:
             raise SystemExit(
-                f"{workstream_id}: implemented workstreams must "
-                "not list `blocking_gaps`."
+                f"{workstream_id}: implemented workstreams must not list `blocking_gaps`."
             )
         if status != "implemented" and not blocking_gaps:
             raise SystemExit(
-                f"{workstream_id}: non-implemented workstreams "
-                "must declare `blocking_gaps`."
+                f"{workstream_id}: non-implemented workstreams must declare `blocking_gaps`."
             )
         if not any((code_evidence, test_evidence, docs_evidence, ops_evidence, ci_evidence)):
             raise SystemExit(f"{workstream_id}: at least one evidence path is required.")

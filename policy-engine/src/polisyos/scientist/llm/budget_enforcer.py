@@ -41,11 +41,7 @@ class _BudgetReservation:
     reserved_amounts: dict[str, Decimal] = field(default_factory=dict)
 
     def outstanding_items(self) -> list[tuple[str, Decimal]]:
-        return [
-            (key, amount)
-            for key, amount in self.reserved_amounts.items()
-            if amount > 0
-        ]
+        return [(key, amount) for key, amount in self.reserved_amounts.items() if amount > 0]
 
     def clear_key(self, key: str) -> None:
         if key in self.reserved_amounts:
@@ -109,6 +105,7 @@ class LLMBudgetEnforcer:
         prompt_tokens = kwargs.get("_prompt_tokens_estimate", 0)
         if prompt_tokens == 0:
             from polisyos.scientist.llm.token_estimator import estimate_request_tokens
+
             prompt_tokens = estimate_request_tokens(
                 system=kwargs.get("system"),
                 user=kwargs.get("user"),
@@ -223,10 +220,12 @@ class LLMBudgetEnforcer:
         self,
         response: Any,
         *,
-        reservation: _BudgetReservation,
-        run_id: str,
+        reservation: _BudgetReservation | None = None,
+        run_id: str | None = None,
     ) -> Decimal:
         """Extract actual cost from response and commit the reservation."""
+        reservation = reservation or _BudgetReservation(estimated_cost=Decimal(0))
+        resolved_run_id = self._run_id if run_id is None else run_id
         data = extract_llm_response_data(response)
         try:
             actual_cost = self._resolve_actual_cost(data)
@@ -239,7 +238,7 @@ class LLMBudgetEnforcer:
                 details={
                     "estimated_cost_usd": str(reservation.estimated_cost),
                     "model": self._model_name,
-                    "run_id": run_id,
+                    "run_id": resolved_run_id,
                 },
                 log=logger,
                 metrics=self._resolve_metrics(),
@@ -263,7 +262,7 @@ class LLMBudgetEnforcer:
 
         if self._audit_log:
             self._audit_log.append(
-                run_id=run_id,
+                run_id=resolved_run_id,
                 actor="budget_enforcer",
                 action="BUDGET_COMMITTED",
                 metadata={
@@ -313,10 +312,12 @@ class LLMBudgetEnforcer:
 
         if data is not None and m.llm_tokens_total is not None:
             m.llm_tokens_total.add(
-                data.prompt_tokens, {**attrs, "direction": "input"},
+                data.prompt_tokens,
+                {**attrs, "direction": "input"},
             )
             m.llm_tokens_total.add(
-                data.completion_tokens, {**attrs, "direction": "output"},
+                data.completion_tokens,
+                {**attrs, "direction": "output"},
             )
 
         # Budget utilization gauge
@@ -358,7 +359,8 @@ class LLMBudgetEnforcer:
             return
         if m.llm_latency_ms is not None:
             m.llm_latency_ms.record(
-                elapsed_s * 1000.0, {"model_id": self._model_name},
+                elapsed_s * 1000.0,
+                {"model_id": self._model_name},
             )
 
     def _resolve_metrics(self) -> MetricsRegistry | None:

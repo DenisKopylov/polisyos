@@ -1,4 +1,5 @@
 """Public contracts ukons contracts module API."""
+
 from __future__ import annotations
 
 from polisyos.fabric.connectors.contracts import (
@@ -85,7 +86,7 @@ UKONS_GENERIC_CONTRACT = ConnectorSchemaContract(
 UKONS_CONTRACTS = (UKONS_GENERIC_CONTRACT,)
 
 __all__ = [
-    "UKONS_GENERIC_SCHEMA",
-    "UKONS_GENERIC_CONTRACT",
     "UKONS_CONTRACTS",
+    "UKONS_GENERIC_CONTRACT",
+    "UKONS_GENERIC_SCHEMA",
 ]

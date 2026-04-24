@@ -29,7 +29,7 @@ else
 fi
 RESUME_CACHE_ROOT="${RESUME_CACHE_ROOT:-gs://${BUCKET_NAME}/cache/lex_resume/${SNAPSHOT_LABEL}/${STATUS_PASS}/shards_${SHARD_COUNT}}"
 
-gcloud config set project "${PROJECT_ID}" >/dev/null
+gcloud config set project "${PROJECT_ID}" > /dev/null
 
 if [ "${START_INDEX}" -lt 0 ] || [ "${END_INDEX}" -lt "${START_INDEX}" ] || [ "${END_INDEX}" -ge "${SHARD_COUNT}" ]; then
   echo "Invalid shard window: START_INDEX=${START_INDEX} END_INDEX=${END_INDEX} SHARD_COUNT=${SHARD_COUNT}"
@@ -81,7 +81,7 @@ for i in $(seq "${START_INDEX}" "${END_INDEX}"); do
     META="${META},resume-cache-prefix=${RESUME_CACHE_PREFIX}"
   fi
 
-  if gcloud compute instances describe "${INSTANCE_NAME}" --zone="${INSTANCE_ZONE}" >/dev/null 2>&1; then
+  if gcloud compute instances describe "${INSTANCE_NAME}" --zone="${INSTANCE_ZONE}" > /dev/null 2>&1; then
     if [ "${SKIP_EXISTING}" = "1" ]; then
       echo "Skipping existing instance ${INSTANCE_NAME} in ${INSTANCE_ZONE}"
       continue

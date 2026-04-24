@@ -80,10 +80,7 @@ def test_ws3a_semi_synthetic_proximal_eval_pack_yields_finite_interval() -> None
     treatment_proxy = latent + 0.3 * covariates[:, 0] + rng.normal(scale=0.3, size=n_obs)
     outcome_proxy = latent + 0.4 * covariates[:, 1] + rng.normal(scale=0.3, size=n_obs)
     outcome = (
-        1.2 * treatment
-        + 0.7 * latent
-        + 0.4 * covariates[:, 0]
-        + rng.normal(scale=0.4, size=n_obs)
+        1.2 * treatment + 0.7 * latent + 0.4 * covariates[:, 0] + rng.normal(scale=0.4, size=n_obs)
     )
 
     payload = ProximalBridgeEstimator.pure_step(

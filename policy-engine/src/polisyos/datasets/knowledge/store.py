@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import re
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import duckdb
 import numpy as np
@@ -19,6 +19,9 @@ from polisyos.datasets.knowledge.types import (
     MetricBindingMatch,
     ResolvedFetchTarget,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = get_logger(__name__)
 
@@ -176,7 +179,9 @@ class DatasetCatalogStore:
                 parts.append(f"{default_sql} AS {column_name}")
         return ", ".join(parts)
 
-    def _fetch_dicts(self, sql: str, params: list[object] | tuple[object, ...]) -> list[dict[str, object]]:
+    def _fetch_dicts(
+        self, sql: str, params: list[object] | tuple[object, ...]
+    ) -> list[dict[str, object]]:
         cursor = self._con.execute(sql, params)
         columns = [str(item[0]) for item in cursor.description]
         return [dict(zip(columns, row, strict=False)) for row in cursor.fetchall()]
@@ -238,7 +243,9 @@ class DatasetCatalogStore:
         value = (connector_id or "").strip()
         return _CONNECTOR_ALIASES.get(value, value)
 
-    def _to_dataset_result(self, row: dict[str, object], *, similarity: float = 0.0) -> DatasetSearchResult:
+    def _to_dataset_result(
+        self, row: dict[str, object], *, similarity: float = 0.0
+    ) -> DatasetSearchResult:
         return DatasetSearchResult(
             id=str(row.get("id") or ""),
             title=str(row.get("title") or ""),
@@ -265,13 +272,19 @@ class DatasetCatalogStore:
                 countries=self._as_list(row.get("coverage_countries")),
                 regions=self._as_list(row.get("coverage_regions")),
                 time_range="",
-                time_start=str(row["coverage_time_start"]) if row.get("coverage_time_start") else None,
+                time_start=str(row["coverage_time_start"])
+                if row.get("coverage_time_start")
+                else None,
                 time_end=str(row["coverage_time_end"]) if row.get("coverage_time_end") else None,
                 granularity=str(row.get("coverage_granularity") or ""),
             ),
             access=DatasetAccess(
-                api_endpoint=str(row["access_api_endpoint"]) if row.get("access_api_endpoint") else None,
-                bulk_download_url=str(row["access_bulk_download_url"]) if row.get("access_bulk_download_url") else None,
+                api_endpoint=str(row["access_api_endpoint"])
+                if row.get("access_api_endpoint")
+                else None,
+                bulk_download_url=str(row["access_bulk_download_url"])
+                if row.get("access_bulk_download_url")
+                else None,
                 license=str(row.get("access_license") or ""),
                 auth_required=self._as_bool(row.get("access_auth_required")),
             ),
@@ -280,7 +293,9 @@ class DatasetCatalogStore:
                 machine_readable_score=float(row.get("quality_machine_readable_score") or 0.0),
                 parser_support_score=float(row.get("quality_parser_support_score") or 0.0),
                 freshness_score=float(row.get("quality_freshness_score") or 0.0),
-                execution_readiness_score=float(row.get("quality_execution_readiness_score") or 0.0),
+                execution_readiness_score=float(
+                    row.get("quality_execution_readiness_score") or 0.0
+                ),
             ),
             preferred_distribution_id=str(row.get("preferred_distribution_id") or ""),
             similarity=similarity,
@@ -299,7 +314,9 @@ class DatasetCatalogStore:
             media_type=str(row.get("media_type") or ""),
             machine_readable=self._as_bool(row.get("machine_readable")),
             parser_supported=self._as_bool(row.get("parser_supported")),
-            size_estimate_bytes=int(row["size_estimate_bytes"]) if row.get("size_estimate_bytes") is not None else None,
+            size_estimate_bytes=int(row["size_estimate_bytes"])
+            if row.get("size_estimate_bytes") is not None
+            else None,
             checksum=str(row.get("checksum") or ""),
             default_filters=self._json_mapping(row.get("default_filters")),
             quality_score=float(row.get("quality_score") or 0.0),
@@ -325,7 +342,12 @@ class DatasetCatalogStore:
             return distribution.source_locator
         if distribution.connector_type == "worldbank.wdi":
             return str(params.get("indicator_id") or distribution.url or "").strip()
-        if distribution.connector_type in {"ukons.datasets", "eurostat.data", "sdmx.source", "wvs.wave7"}:
+        if distribution.connector_type in {
+            "ukons.datasets",
+            "eurostat.data",
+            "sdmx.source",
+            "wvs.wave7",
+        }:
             return str(
                 params.get("dataset_id")
                 or params.get("dataflow_id")
@@ -359,7 +381,7 @@ class DatasetCatalogStore:
         labels, distances = self._dataset_index.knn_query(query_vector.reshape(1, -1), k=k)
         results: list[DatasetSearchResult] = []
         select_clause = self._select_clause("ds_datasets", _DATASET_COLUMNS)
-        for label, dist in zip(labels[0], distances[0]):
+        for label, dist in zip(labels[0], distances[0], strict=False):
             similarity = 1.0 - float(dist)
             if similarity < min_similarity:
                 continue
@@ -428,7 +450,9 @@ class DatasetCatalogStore:
         )
         return [self._to_dataset_result(row, similarity=1.0) for row in rows]
 
-    def find_by_polisyos_metric(self, metric_name: str, *, top_k: int = 20) -> list[DatasetSearchResult]:
+    def find_by_polisyos_metric(
+        self, metric_name: str, *, top_k: int = 20
+    ) -> list[DatasetSearchResult]:
         rows = self._fetch_dicts(
             f"SELECT {self._select_clause('ds_datasets', _DATASET_COLUMNS)} FROM ds_datasets "
             "WHERE list_contains(polisyos_metrics, ?) LIMIT ?",
@@ -436,7 +460,9 @@ class DatasetCatalogStore:
         )
         return [self._to_dataset_result(row, similarity=1.0) for row in rows]
 
-    def find_by_variables(self, variables: list[str], *, top_k: int = 20) -> list[DatasetSearchResult]:
+    def find_by_variables(
+        self, variables: list[str], *, top_k: int = 20
+    ) -> list[DatasetSearchResult]:
         if not variables:
             return []
         conditions = " OR ".join("list_contains(variables, ?)" for _ in variables)
@@ -502,7 +528,9 @@ class DatasetCatalogStore:
                     profile_id=str(row.get("profile_id") or ""),
                     request_dataset_id=str(row.get("request_dataset_id") or ""),
                     confidence=float(row.get("confidence") or 0.0),
-                    metric_inference_confidence=float(row.get("metric_inference_confidence") or 0.0),
+                    metric_inference_confidence=float(
+                        row.get("metric_inference_confidence") or 0.0
+                    ),
                     default_filters=self._json_mapping(row.get("default_filters")),
                     execution_tier=str(row.get("execution_tier") or "catalog"),
                     source=str(row.get("source") or ""),
@@ -516,7 +544,9 @@ class DatasetCatalogStore:
         distributions = self.get_distributions(dataset_id)
         if not distributions:
             return None
-        preferred_distribution_id = str(dataset_row.get("preferred_distribution_id") or "") if dataset_row else ""
+        preferred_distribution_id = (
+            str(dataset_row.get("preferred_distribution_id") or "") if dataset_row else ""
+        )
         distribution = sorted(
             distributions,
             key=lambda item: (

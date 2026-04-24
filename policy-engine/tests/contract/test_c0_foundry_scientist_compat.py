@@ -3,7 +3,11 @@ from __future__ import annotations
 from decimal import Decimal
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.contracts.foundry import FoundryInputBindingRule, FoundryInputBindings, StateSnapshotRef
+from polisyos.core.contracts.foundry import (
+    FoundryInputBindingRule,
+    FoundryInputBindings,
+    StateSnapshotRef,
+)
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec

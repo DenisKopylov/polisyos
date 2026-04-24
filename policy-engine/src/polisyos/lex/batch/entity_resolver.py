@@ -2,18 +2,38 @@
 
 from __future__ import annotations
 
+import difflib
 import hashlib
 import json
-import difflib
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterator
+from typing import TYPE_CHECKING
 
 from polisyos.common.logger import get_logger
-from polisyos.lex.batch.quality_filters import compact_text, is_low_quality_entity_text, is_synthetic_subject
+from polisyos.lex.batch.quality_filters import (
+    compact_text,
+    is_low_quality_entity_text,
+    is_synthetic_subject,
+)
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 logger = get_logger(__name__)
+
+_DEFAULT_SEED_ENTITIES = (
+    {
+        "entity_id": "inst_minfin_ua",
+        "name_en": "Ministry of Finance of Ukraine",
+        "name_uk": "Міністерство фінансів України",
+        "entity_type": "institution",
+        "entity_subtype": "government_body",
+        "aliases_en": ["MinFin", "Ministry of Finance"],
+        "aliases_uk": ["Мінфін", "Міністерство фінансів"],
+        "wikidata_id": "",
+    },
+)
 
 
 def normalize_entity_name(name: str) -> str:
@@ -33,6 +53,7 @@ def _entity_id(*parts: str) -> str:
 @dataclass
 class EntityRecord:
     """Entity record data model."""
+
     entity_id: str
     name_en: str
     name_uk: str
@@ -84,7 +105,10 @@ class EntityResolver:
                 name_uk="низькоякісний фрагмент",
             )
 
-        candidates = [normalize_entity_name(filtered_name_en), normalize_entity_name(filtered_name_uk)]
+        candidates = [
+            normalize_entity_name(filtered_name_en),
+            normalize_entity_name(filtered_name_uk),
+        ]
         for candidate in candidates:
             if candidate and candidate in self._name_index:
                 entity_id = self._name_index[candidate]
@@ -100,7 +124,11 @@ class EntityResolver:
             self._merge_aliases(entity_id, name_en=filtered_name_en, name_uk=filtered_name_uk)
             return entity_id
 
-        norm = normalize_entity_name(filtered_name_en) or normalize_entity_name(filtered_name_uk) or "unknown"
+        norm = (
+            normalize_entity_name(filtered_name_en)
+            or normalize_entity_name(filtered_name_uk)
+            or "unknown"
+        )
         entity_id = _entity_id(norm, entity_type, entity_subtype)
         record = EntityRecord(
             entity_id=entity_id,
@@ -132,6 +160,7 @@ class EntityResolver:
                 base_dir / "entity_seeds.json",
             ]
         )
+        loaded_seed_payload = False
         for path in candidate_paths:
             if not path.exists():
                 continue
@@ -140,34 +169,47 @@ class EntityResolver:
             except Exception as exc:  # pragma: no cover - defensive
                 logger.warning("Failed to load entity seeds from %s: %s", path, exc)
                 continue
-            entities = payload.get("entities") if isinstance(payload, dict) else None
-            if not isinstance(entities, list):
+            loaded_seed_payload = self._register_seed_payload(payload)
+            if loaded_seed_payload:
+                break
+        if not loaded_seed_payload:
+            self._register_seed_payload({"entities": list(_DEFAULT_SEED_ENTITIES)})
+
+    def _register_seed_payload(self, payload: dict) -> bool:
+        entities = payload.get("entities") if isinstance(payload, dict) else None
+        if not isinstance(entities, list):
+            return False
+        registered_any = False
+        for item in entities:
+            if not isinstance(item, dict):
                 continue
-            for item in entities:
-                if not isinstance(item, dict):
-                    continue
-                entity_id = str(item.get("entity_id") or "").strip()
-                name_en = str(item.get("name_en") or "")
-                name_uk = str(item.get("name_uk") or "")
-                if not entity_id or not (name_en or name_uk):
-                    continue
-                record = EntityRecord(
-                    entity_id=entity_id,
-                    name_en=name_en,
-                    name_uk=name_uk,
-                    entity_type=str(item.get("entity_type") or "concept"),
-                    entity_subtype=str(item.get("entity_subtype") or ""),
-                    mention_count=0,
-                    wikidata_id=str(item.get("wikidata_id") or ""),
-                )
-                record.aliases_en.update(str(alias) for alias in item.get("aliases_en") or [] if str(alias).strip())
-                record.aliases_uk.update(str(alias) for alias in item.get("aliases_uk") or [] if str(alias).strip())
-                self._records[entity_id] = record
-                self._register_name(entity_id, name_en)
-                self._register_name(entity_id, name_uk)
-                for alias in [*record.aliases_en, *record.aliases_uk]:
-                    self._register_alias(entity_id, alias)
-            break
+            entity_id = str(item.get("entity_id") or "").strip()
+            name_en = str(item.get("name_en") or "")
+            name_uk = str(item.get("name_uk") or "")
+            if not entity_id or not (name_en or name_uk):
+                continue
+            record = EntityRecord(
+                entity_id=entity_id,
+                name_en=name_en,
+                name_uk=name_uk,
+                entity_type=str(item.get("entity_type") or "concept"),
+                entity_subtype=str(item.get("entity_subtype") or ""),
+                mention_count=0,
+                wikidata_id=str(item.get("wikidata_id") or ""),
+            )
+            record.aliases_en.update(
+                str(alias) for alias in item.get("aliases_en") or [] if str(alias).strip()
+            )
+            record.aliases_uk.update(
+                str(alias) for alias in item.get("aliases_uk") or [] if str(alias).strip()
+            )
+            self._records[entity_id] = record
+            self._register_name(entity_id, name_en)
+            self._register_name(entity_id, name_uk)
+            for alias in [*record.aliases_en, *record.aliases_uk]:
+                self._register_alias(entity_id, alias)
+            registered_any = True
+        return registered_any
 
     def _load_seed_payload(self, path: Path) -> dict:
         if path.suffix == ".json":

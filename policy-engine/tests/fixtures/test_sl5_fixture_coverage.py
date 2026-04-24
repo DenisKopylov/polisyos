@@ -4,13 +4,12 @@ This module validates that each phase's primary API accepts canonical fixture da
 Tests are deliberately lightweight: they verify the fixture is accepted as valid input
 and produces structurally valid output, not exact ATE recovery.
 """
+
 from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Any, Mapping
 
-import numpy as np
 import pytest
 
 # Ensure tests/fixtures is importable
@@ -19,13 +18,11 @@ if str(_FIXTURES_DIR) not in sys.path:
     sys.path.insert(0, str(_FIXTURES_DIR))
 
 from causal_scm_fixtures import (
-    ALL_FIXTURES,
     backdoor_with_transport_fixture,
     chain_fixture,
     collider_fixture,
     diamond_fixture,
     fork_fixture,
-    front_door_fixture,
     instrumental_variable_fixture,
 )
 
@@ -37,7 +34,11 @@ from causal_scm_fixtures import (
 class TestPhase5CausalGraphModel:
     """Verify >=3 canonical fixtures produce valid CausalGraphModel instances."""
 
-    @pytest.mark.parametrize("fixture_fn", [fork_fixture, chain_fixture, diamond_fixture, instrumental_variable_fixture], ids=["fork", "chain", "diamond", "iv"])
+    @pytest.mark.parametrize(
+        "fixture_fn",
+        [fork_fixture, chain_fixture, diamond_fixture, instrumental_variable_fixture],
+        ids=["fork", "chain", "diamond", "iv"],
+    )
     def test_fixture_produces_valid_graph_model(self, fixture_fn):
         from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 
@@ -66,7 +67,11 @@ class TestPhase5CausalGraphModel:
 class TestPhase6PCMCIDiscovery:
     """Verify >=3 canonical fixtures can be reshaped into TimeSeriesCausalData."""
 
-    @pytest.mark.parametrize("fixture_fn", [fork_fixture, chain_fixture, collider_fixture], ids=["fork", "chain", "collider"])
+    @pytest.mark.parametrize(
+        "fixture_fn",
+        [fork_fixture, chain_fixture, collider_fixture],
+        ids=["fork", "chain", "collider"],
+    )
     def test_fixture_accepted_as_timeseries(self, fixture_fn):
         from polisyos.foundry.methods.catalog.causal.protocols import TimeSeriesCausalData
 
@@ -88,7 +93,11 @@ class TestPhase6PCMCIDiscovery:
 class TestPhase7ConstraintDiscovery:
     """Verify >=3 canonical fixtures produce valid TabularCausalDiscoveryData."""
 
-    @pytest.mark.parametrize("fixture_fn", [fork_fixture, chain_fixture, collider_fixture, instrumental_variable_fixture], ids=["fork", "chain", "collider", "iv"])
+    @pytest.mark.parametrize(
+        "fixture_fn",
+        [fork_fixture, chain_fixture, collider_fixture, instrumental_variable_fixture],
+        ids=["fork", "chain", "collider", "iv"],
+    )
     def test_fixture_accepted_as_tabular_discovery(self, fixture_fn):
         from polisyos.foundry.methods.catalog.causal.protocols import TabularCausalDiscoveryData
 
@@ -109,7 +118,11 @@ class TestPhase7ConstraintDiscovery:
 class TestPhase8GovernancePasses:
     """Verify >=3 canonical fixtures produce graphs accepted by governance checks."""
 
-    @pytest.mark.parametrize("fixture_fn", [fork_fixture, chain_fixture, backdoor_with_transport_fixture], ids=["fork", "chain", "backdoor_transport"])
+    @pytest.mark.parametrize(
+        "fixture_fn",
+        [fork_fixture, chain_fixture, backdoor_with_transport_fixture],
+        ids=["fork", "chain", "backdoor_transport"],
+    )
     def test_fixture_graph_has_treatment_for_sutva(self, fixture_fn):
         """SutvaCheckPass checks treatment variable name against market-wide keywords."""
         from polisyos.scientist.governance.passes.sutva_check_pass import SutvaCheckPass
@@ -131,7 +144,11 @@ class TestPhase8GovernancePasses:
 class TestPhase9LiteraturePrior:
     """Verify >=3 canonical fixtures can construct LiteraturePriorBuildData."""
 
-    @pytest.mark.parametrize("fixture_fn", [fork_fixture, chain_fixture, instrumental_variable_fixture], ids=["fork", "chain", "iv"])
+    @pytest.mark.parametrize(
+        "fixture_fn",
+        [fork_fixture, chain_fixture, instrumental_variable_fixture],
+        ids=["fork", "chain", "iv"],
+    )
     def test_fixture_graph_builds_prior_data(self, fixture_fn):
         from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 
@@ -160,7 +177,11 @@ class TestPhase9LiteraturePrior:
 class TestPhase10GCMFit:
     """Verify >=3 canonical fixtures produce valid SCMFitData."""
 
-    @pytest.mark.parametrize("fixture_fn", [fork_fixture, chain_fixture, diamond_fixture], ids=["fork", "chain", "diamond"])
+    @pytest.mark.parametrize(
+        "fixture_fn",
+        [fork_fixture, chain_fixture, diamond_fixture],
+        ids=["fork", "chain", "diamond"],
+    )
     def test_fixture_accepted_as_scm_fit_data(self, fixture_fn):
         from polisyos.foundry.methods.catalog.causal.protocols import SCMFitData
         from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
@@ -191,17 +212,26 @@ class TestPhase10GCMFit:
 class TestPhase11GCMQuery:
     """Verify >=3 canonical fixtures can construct valid SCMQueryData."""
 
-    @pytest.mark.parametrize("fixture_fn", [fork_fixture, chain_fixture, diamond_fixture], ids=["fork", "chain", "diamond"])
+    @pytest.mark.parametrize(
+        "fixture_fn",
+        [fork_fixture, chain_fixture, diamond_fixture],
+        ids=["fork", "chain", "diamond"],
+    )
     def test_fixture_builds_query_data(self, fixture_fn):
+        from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
         from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
-        from polisyos.ir.analytics.causal_queries import CausalQuery, InterventionSpec, InterventionType, QueryType
+        from polisyos.ir.analytics.causal_queries import (
+            CausalQuery,
+            InterventionSpec,
+            InterventionType,
+            QueryType,
+        )
         from polisyos.ir.analytics.structural_causal_model import (
             MechanismFamily,
             MechanismSource,
             NodeMechanism,
             StructuralCausalModelSpec,
         )
-        from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
 
         data, _ = fixture_fn(n=100)
         edges = _parse_dot_edges(data.graph_dot)
@@ -248,7 +278,11 @@ class TestPhase11GCMQuery:
 class TestPhase12Transportability:
     """Verify >=3 canonical fixtures produce valid SelectionDiagram inputs."""
 
-    @pytest.mark.parametrize("fixture_fn", [fork_fixture, backdoor_with_transport_fixture, diamond_fixture], ids=["fork", "backdoor_transport", "diamond"])
+    @pytest.mark.parametrize(
+        "fixture_fn",
+        [fork_fixture, backdoor_with_transport_fixture, diamond_fixture],
+        ids=["fork", "backdoor_transport", "diamond"],
+    )
     def test_fixture_builds_selection_diagram(self, fixture_fn):
         from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
         from polisyos.ir.analytics.context import ContextProfile
@@ -284,7 +318,11 @@ class TestPhase12Transportability:
 class TestPhase13ABMBridge:
     """Verify >=3 canonical fixtures map to ABM alignment structures."""
 
-    @pytest.mark.parametrize("fixture_fn", [fork_fixture, chain_fixture, diamond_fixture], ids=["fork", "chain", "diamond"])
+    @pytest.mark.parametrize(
+        "fixture_fn",
+        [fork_fixture, chain_fixture, diamond_fixture],
+        ids=["fork", "chain", "diamond"],
+    )
     def test_fixture_builds_abm_mapping(self, fixture_fn):
         from polisyos.ir.analytics.abm_bridge import (
             ABMAlignmentReport,
@@ -327,7 +365,11 @@ class TestPhase13ABMBridge:
 class TestPhase14CausalEnsemble:
     """Verify >=3 canonical fixtures produce valid CausalModelEnsemble inputs."""
 
-    @pytest.mark.parametrize("fixture_fn", [fork_fixture, chain_fixture, diamond_fixture], ids=["fork", "chain", "diamond"])
+    @pytest.mark.parametrize(
+        "fixture_fn",
+        [fork_fixture, chain_fixture, diamond_fixture],
+        ids=["fork", "chain", "diamond"],
+    )
     def test_fixture_builds_ensemble(self, fixture_fn):
         from polisyos.ir.analytics.causal_ensemble import CausalModelEnsemble, EnsembleMember
 
@@ -366,7 +408,11 @@ class TestPhase14CausalEnsemble:
 class TestPhase15ParameterTransfer:
     """Verify >=3 canonical fixtures can construct ParameterTransferData."""
 
-    @pytest.mark.parametrize("fixture_fn", [fork_fixture, chain_fixture, instrumental_variable_fixture], ids=["fork", "chain", "iv"])
+    @pytest.mark.parametrize(
+        "fixture_fn",
+        [fork_fixture, chain_fixture, instrumental_variable_fixture],
+        ids=["fork", "chain", "iv"],
+    )
     def test_fixture_builds_parameter_transfer_data(self, fixture_fn):
         from polisyos.foundry.methods.catalog.causal.protocols import ParameterTransferData
         from polisyos.ir.analytics.context import ContextProfile

@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 @dataclass
 class PipelineStats:
     """Pipeline stats public type."""
+
     total_docs: int = 0
     total_provisions: int = 0
     total_spo: int = 0
@@ -116,6 +117,7 @@ class LLMGateStats:
 @dataclass
 class StructureQualityStats:
     """Structure quality stats public type."""
+
     provision_docs_total: int = 0
     full_only_docs: int = 0
     duplicate_anchor_docs: int = 0
@@ -124,6 +126,7 @@ class StructureQualityStats:
 @dataclass(frozen=True)
 class SPOLLMSettings:
     """SPOLLM settings public type."""
+
     task_batch_size: int
     request_batch_size: int
     request_batch_chars: int | None
@@ -133,6 +136,7 @@ class SPOLLMSettings:
 @dataclass
 class SPODocRoutingPlan:
     """SPO doc routing plan data model."""
+
     reasoning_spans: list
     llm_allowed: bool
     llm_settings: SPOLLMSettings
@@ -142,6 +146,7 @@ class SPODocRoutingPlan:
 @dataclass
 class StratifiedAuditSampler:
     """Stratified audit sampler implementation."""
+
     base_rate: float
     max_forced_samples: int = 32
     sampled_counts: dict[str, int] = field(default_factory=dict)

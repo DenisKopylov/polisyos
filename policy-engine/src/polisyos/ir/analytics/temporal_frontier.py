@@ -1,13 +1,18 @@
 """Time-series discovery and frontier temporal-process contracts."""
+
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir._validation import ensure_finite_numeric, ensure_unique_ids
-from polisyos.ir.analytics.causal_graph import CausalGraphModel
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+else:
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel
 
 
 class TemporalDiscoveryMethod(str, Enum):
@@ -60,7 +65,7 @@ class TemporalDiscoveryEdge(BaseModel):
     source_method: TemporalDiscoveryMethod
 
     @model_validator(mode="after")
-    def validate_edge(self) -> "TemporalDiscoveryEdge":
+    def validate_edge(self) -> TemporalDiscoveryEdge:
         ensure_finite_numeric(self.confidence, field_name=f"edge {self.src}->{self.dst} confidence")
         return self
 
@@ -76,7 +81,7 @@ class RegimeSwitchSegment(BaseModel):
     dominant_drivers: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def validate_segment(self) -> "RegimeSwitchSegment":
+    def validate_segment(self) -> RegimeSwitchSegment:
         if self.end_index < self.start_index:
             raise ValueError("regime segment end_index must be >= start_index")
         ensure_unique_ids(
@@ -98,7 +103,7 @@ class EquivalenceClassSummary(BaseModel):
     ambiguous_edges: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def validate_summary(self) -> "EquivalenceClassSummary":
+    def validate_summary(self) -> EquivalenceClassSummary:
         ensure_unique_ids(
             self.compelled_edges,
             key_fn=lambda item: item,
@@ -129,7 +134,7 @@ class ActiveExperimentDesign(BaseModel):
     expected_information_gain: float | None = Field(default=None, ge=0.0)
 
     @model_validator(mode="after")
-    def validate_design(self) -> "ActiveExperimentDesign":
+    def validate_design(self) -> ActiveExperimentDesign:
         ensure_unique_ids(
             self.candidate_interventions,
             key_fn=lambda item: item,
@@ -163,7 +168,7 @@ class TemporalDiscoveryFrontierReport(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_report(self) -> "TemporalDiscoveryFrontierReport":
+    def validate_report(self) -> TemporalDiscoveryFrontierReport:
         ensure_unique_ids(
             self.edges,
             key_fn=lambda item: (item.src, item.dst, item.lag, item.source_method.value),

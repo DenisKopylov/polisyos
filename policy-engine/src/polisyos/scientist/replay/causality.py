@@ -1,4 +1,5 @@
 """Causality analysis for replay diffs — traces input diffs to output diffs."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -37,11 +38,13 @@ def analyze_causality(
             out_parts = _split_path(out_path)
             confidence = _compute_confidence(in_parts, out_parts)
             if confidence > 0.0:
-                links.append(CausalLink(
-                    input_path=in_path,
-                    output_path=out_path,
-                    confidence=confidence,
-                ))
+                links.append(
+                    CausalLink(
+                        input_path=in_path,
+                        output_path=out_path,
+                        confidence=confidence,
+                    )
+                )
 
     # Sort by confidence descending, deduplicate low-confidence noise
     links.sort(key=lambda l: l.confidence, reverse=True)

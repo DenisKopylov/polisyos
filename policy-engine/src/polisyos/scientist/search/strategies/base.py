@@ -113,4 +113,3 @@ class BaseSearchStrategy(ABC):
             params_normalized=vector,
             source_strategy=source,
         )
-

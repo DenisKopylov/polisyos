@@ -22,16 +22,20 @@
 Current architecture debt cluster for this phase:
 
 1. `Q5` in `p1_refactor_queue.md` is open:
+
    - eliminate `ir -> core` (`ARCH001-0001..0028`).
 2. Active debt rows in `import_debt_register.csv`:
+
    - 28 `ARCH001` entries in 10 IR files (`connectors`, `fact_log`, `registry_fragments`, `linker`, `world/ids`, and 5 analytics modules).
 3. Active temporary exceptions:
+
    - `E-2026-02-IR-CORE-001..010` (all expire on `2026-04-30`).
 4. Import gate on `2026-02-09` reports no unmanaged violations, but still reports all `ir -> core` edges as `Allowed exceptions`.
 5. Runtime package cycles on `2026-02-09` include:
+
    - `polisyos.core, polisyos.ir`
    - `polisyos.foundry, polisyos.foundry.domain`
-   The `core <-> ir` cycle remains a direct blocker for DAG closure in this stream.
+     The `core <-> ir` cycle remains a direct blocker for DAG closure in this stream.
 
 Net effect: IR layer still imports core canonicalization and core artifact/contracts helpers, violating target DAG and preventing closure of `Q5` and `CYCLE-001`.
 
@@ -74,11 +78,11 @@ Required direction:
 
 Canonical ownership after P4:
 
-| Current owner/usage | Canonical P4 owner |
-| --- | --- |
-| `polisyos.core.canon.*` consumed by IR | `polisyos.ir.canon` |
-| Analytics artifact refs in `core.contracts.{uncertainty,hte,causal,distributional,backtest}` | IR-owned refs (`polisyos.ir.refs`) |
-| IR analytics imports of `core.artifacts.manifest` and `core.artifacts.store` | IR-owned artifact I/O contract/protocol (`polisyos.ir.artifacts.*`) |
+| Current owner/usage                                                                          | Canonical P4 owner                                                  |
+| -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `polisyos.core.canon.*` consumed by IR                                                       | `polisyos.ir.canon`                                                 |
+| Analytics artifact refs in `core.contracts.{uncertainty,hte,causal,distributional,backtest}` | IR-owned refs (`polisyos.ir.refs`)                                  |
+| IR analytics imports of `core.artifacts.manifest` and `core.artifacts.store`                 | IR-owned artifact I/O contract/protocol (`polisyos.ir.artifacts.*`) |
 
 ### 4.3 Compatibility contract (one release)
 
@@ -96,12 +100,14 @@ Required implementation:
 
 1. Make `src/polisyos/ir/canon.py` the single IR canonicalization+hash API used by IR modules.
 2. Ensure the API covers required operations currently consumed from core:
+
    - `CanonSpec`
    - `CanonViolation`
    - `to_canonical_bytes(...)`
    - `from_canonical_bytes(...)`
    - `content_hash(...)`
 3. Rewire IR modules to import canon/hash only from `polisyos.ir.canon`:
+
    - `src/polisyos/ir/connectors.py`
    - `src/polisyos/ir/fact_log.py`
    - `src/polisyos/ir/registry_fragments.py`
@@ -124,11 +130,13 @@ Required implementation:
 
 1. Introduce IR-owned artifact I/O contract surface (protocol + options models) under `src/polisyos/ir/artifacts/`.
 2. Persist/load helpers in the 5 analytics modules MUST depend only on:
+
    - IR analytics models
    - IR canon API
    - IR artifact I/O protocol/contracts
    - IR reference types
 3. Persist/load helper public function names and behavior MUST stay stable:
+
    - `persist_uncertainty_envelope` / `load_uncertainty_envelope`
    - `persist_hte_result` / `load_hte_result`
    - `persist_policy_recommendation` / `load_policy_recommendation`
@@ -142,6 +150,7 @@ Required implementation:
 Required implementation:
 
 1. Define canonical analytics refs in IR (`src/polisyos/ir/refs.py` or equivalent IR contracts module):
+
    - `UncertaintyEnvelopeRef`
    - `HTEResultRef`
    - `PolicyRecommendationRef`
@@ -149,6 +158,7 @@ Required implementation:
    - `DistributionalReportRef`
    - `BacktestReportRef`
 2. Convert core contract modules into thin compatibility facades:
+
    - `src/polisyos/core/contracts/uncertainty.py`
    - `src/polisyos/core/contracts/hte.py`
    - `src/polisyos/core/contracts/causal.py`
@@ -183,14 +193,19 @@ Required implementation:
 ### 7.1 Mandatory artifact updates
 
 1. `import_exceptions.toml`
+
    - remove `E-2026-02-IR-CORE-001..010`.
 2. `import_exceptions_registry.md`
+
    - mark/remove the same IDs from active set.
 3. `import_debt_register.csv`
+
    - remove/close `ARCH001-0001..0028`.
 4. `p1_refactor_queue.md`
+
    - mark `Q5` as `Done` with closure date.
 5. `arch_cycles_register.csv`
+
    - update `CYCLE-001` status based on post-P4 cycle output (close if absent).
 
 ### 7.2 Required verification commands
@@ -251,13 +266,13 @@ P4 is complete only if all criteria are met:
 
 ## 9. Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| Canon/hash drift after ownership move | High | Golden vectors + parity tests for canonical bytes and digest outputs |
-| Runtime incompatibility with store protocol adapters | High | Integration tests using real `FileSystemCAS` via existing persist/load APIs |
-| Consumer breakage from ref ownership inversion | Medium | Keep core contract modules as thin facades for one release |
-| Hidden IR->core coupling via local imports or TYPE_CHECKING | High | Add explicit no-core-import test for `src/polisyos/ir/**` |
-| Debt/docs drift from code closure | Medium | Treat registry/debt/queue/cycle updates as mandatory in closure PR |
+| Risk                                                        | Impact | Mitigation                                                                  |
+| ----------------------------------------------------------- | ------ | --------------------------------------------------------------------------- |
+| Canon/hash drift after ownership move                       | High   | Golden vectors + parity tests for canonical bytes and digest outputs        |
+| Runtime incompatibility with store protocol adapters        | High   | Integration tests using real `FileSystemCAS` via existing persist/load APIs |
+| Consumer breakage from ref ownership inversion              | Medium | Keep core contract modules as thin facades for one release                  |
+| Hidden IR->core coupling via local imports or TYPE_CHECKING | High   | Add explicit no-core-import test for `src/polisyos/ir/**`                   |
+| Debt/docs drift from code closure                           | Medium | Treat registry/debt/queue/cycle updates as mandatory in closure PR          |
 
 ## 10. Post-P4 Follow-Ups (Out of Scope)
 
@@ -286,6 +301,7 @@ From `lint_imports.py` (`.tmp/p4_prep/import_gate.txt`):
 ### 12.1 Runtime and import-boundary outcomes
 
 1. Eliminated all `src/polisyos/ir/** -> polisyos.core.*` imports:
+
    - rewired canon/hash usage in:
      - `src/polisyos/ir/connectors.py`
      - `src/polisyos/ir/fact_log.py`
@@ -294,13 +310,16 @@ From `lint_imports.py` (`.tmp/p4_prep/import_gate.txt`):
      - `src/polisyos/ir/world/ids.py`
      - `src/polisyos/ir/analytics/{uncertainty,hte,distributional,causal,backtest}.py`
 2. Extended IR canonical API in `src/polisyos/ir/canon.py`:
+
    - added `content_hash`, `from_canonical_obj`, `from_canonical_bytes`.
 3. Added IR-owned artifact contract layer:
+
    - `src/polisyos/ir/artifacts/contracts.py`
    - `src/polisyos/ir/artifacts/io.py`
    - `src/polisyos/ir/artifacts/__init__.py`
 4. Promoted analytics refs to canonical IR ownership in `src/polisyos/ir/refs.py`.
 5. Converted core analytical contracts to thin compatibility facades:
+
    - `src/polisyos/core/contracts/backtest.py`
    - `src/polisyos/core/contracts/causal.py`
    - `src/polisyos/core/contracts/distributional.py`
@@ -310,13 +329,17 @@ From `lint_imports.py` (`.tmp/p4_prep/import_gate.txt`):
 ### 12.2 Debt and governance artifacts updated
 
 1. Removed active exceptions `E-2026-02-IR-CORE-001..010`:
+
    - `import_exceptions.toml`
    - `import_exceptions_registry.md`
 2. Removed debt rows `ARCH001-0001..0028`:
+
    - `import_debt_register.csv`
 3. Updated queue status:
+
    - `p1_refactor_queue.md` (`Q5` -> `Done`, `2026-02-09`).
 4. Updated cycle register:
+
    - `arch_cycles_register.csv` (`CYCLE-001` -> `closed`).
 
 ### 12.3 Documentation updates

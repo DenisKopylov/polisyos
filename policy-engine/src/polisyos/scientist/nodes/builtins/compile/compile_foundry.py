@@ -1,4 +1,5 @@
 """Public compile compile foundry module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
@@ -72,6 +73,7 @@ class CompileFoundryNode:
     Foundry port, and writes compile/link reports plus execution-plan, lowered-IR,
     program-graph, slot-layout, and treasury-plan refs back into workflow state.
     """
+
     compile_config: FoundryCompileConfig = field(default_factory=FoundryCompileConfig)
     validation_flags: FoundryValidationFlags = field(default_factory=FoundryValidationFlags)
 
@@ -79,7 +81,7 @@ class CompileFoundryNode:
     def spec(self) -> NodeSpec:
         return _SPEC
 
-    def bind(self, params: dict[str, Any]) -> "CompileFoundryNode":
+    def bind(self, params: dict[str, Any]) -> CompileFoundryNode:
         if not params:
             return self
         config = self.compile_config.model_copy(deep=False)

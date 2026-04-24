@@ -15,21 +15,22 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from benchmarks.estimation.acic_benchmark import _make_method_fns as make_acic_method_fns
-from benchmarks.estimation.acic_benchmark import _check_acic_results
-from benchmarks.estimation.acic_benchmark import DGPResult
-from benchmarks.estimator_profiles import policyos_nuisance_params
 import benchmarks.estimation.lbidd_benchmark as lbidd_benchmark
 import benchmarks.hte.interpretable_hte_benchmark as hte_benchmark
+from benchmarks.estimation.acic_benchmark import DGPResult, _check_acic_results
+from benchmarks.estimation.acic_benchmark import _make_method_fns as make_acic_method_fns
+from benchmarks.estimation.lbidd_benchmark import _lbidd_causal_forest_params, _try_load_lbidd
 from benchmarks.estimation.lbidd_benchmark import _make_method_fns as make_lbidd_method_fns
-from benchmarks.estimation.lbidd_benchmark import _lbidd_causal_forest_params
-from benchmarks.estimation.lbidd_benchmark import _try_load_lbidd
-from benchmarks.estimation.realcause_benchmark import _make_method_fns as make_realcause_method_fns
 from benchmarks.estimation.realcause_benchmark import _discover_realcause_real_datasets
-from benchmarks.hte.interpretable_hte_benchmark import HTECaseResult
+from benchmarks.estimation.realcause_benchmark import _make_method_fns as make_realcause_method_fns
+from benchmarks.estimator_profiles import policyos_nuisance_params
+from benchmarks.hte.interpretable_hte_benchmark import (
+    HTECaseResult,
+    _hte_causal_bcf_params,
+    _hte_causal_forest_params,
+    build_interpretable_hte_harness,
+)
 from benchmarks.hte.interpretable_hte_benchmark import _make_method_fns as make_hte_method_fns
-from benchmarks.hte.interpretable_hte_benchmark import _hte_causal_bcf_params, _hte_causal_forest_params
-from benchmarks.hte.interpretable_hte_benchmark import build_interpretable_hte_harness
 from benchmarks.policyos_runner import extract_policyos_result
 from benchmarks.runtime import BenchmarkTier
 
@@ -230,7 +231,10 @@ def test_extract_policyos_result_carries_selection_manifest_and_hte_intervals() 
                 "cate_predictions": [0.4, 0.9, 1.1],
                 "cate_ci_lower_values": [0.1, 0.4, 0.7],
                 "cate_ci_upper_values": [0.7, 1.2, 1.5],
-                "nuisance_diagnostics": {"calibration_modes": ["isotonic"], "effective_sample_size": 75.0},
+                "nuisance_diagnostics": {
+                    "calibration_modes": ["isotonic"],
+                    "effective_sample_size": 75.0,
+                },
                 "nuisance_contract": {
                     "propensity_backend": "lightgbm",
                     "outcome_backend": "lightgbm",
@@ -279,8 +283,12 @@ def test_lbidd_posthoc_calibration_preserves_estimator_ate_and_ci(monkeypatch) -
         nuisance_diagnostics={"effective_sample_size": 80.0},
     )
 
-    monkeypatch.setattr(lbidd_benchmark, "invoke_policyos_method", lambda *args, **kwargs: {"ok": True})
-    monkeypatch.setattr(lbidd_benchmark, "extract_policyos_result", lambda *args, **kwargs: extracted)
+    monkeypatch.setattr(
+        lbidd_benchmark, "invoke_policyos_method", lambda *args, **kwargs: {"ok": True}
+    )
+    monkeypatch.setattr(
+        lbidd_benchmark, "extract_policyos_result", lambda *args, **kwargs: extracted
+    )
     monkeypatch.setattr(
         lbidd_benchmark,
         "posthoc_cate_calibration",
@@ -369,7 +377,9 @@ def test_run_policy_os_hte_sparse_refinement_updates_cate_raw_and_pred(monkeypat
     )
     refined = np.array([0.5, 1.5, 2.5, 3.5], dtype=float)
 
-    monkeypatch.setattr(hte_benchmark, "invoke_policyos_method", lambda *args, **kwargs: {"ok": True})
+    monkeypatch.setattr(
+        hte_benchmark, "invoke_policyos_method", lambda *args, **kwargs: {"ok": True}
+    )
     monkeypatch.setattr(hte_benchmark, "extract_policyos_result", lambda *args, **kwargs: extracted)
     monkeypatch.setattr(
         hte_benchmark,

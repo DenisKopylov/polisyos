@@ -25,7 +25,7 @@ from polisyos.lex.batch.doc_identity import (
     normalize_text_key,
     version_sort_key,
 )
-from polisyos.lex.batch.entity_resolver import EntityRecord, EntityResolver, normalize_entity_name
+from polisyos.lex.batch.entity_resolver import EntityResolver, normalize_entity_name
 from polisyos.lex.batch.provisions_io import _shard_prefix, read_provisions
 from polisyos.lex.batch.quality_filters import (
     compact_text,
@@ -54,7 +54,9 @@ _AMENDMENT_TITLE_TARGET_ALT_RE = re.compile(
     r"(?:внесення\s+змін|зміни|доповнення)\s+(?:до\s+)?(?:деяких\s+)?(?:законодавчих\s+актів|законів)\b",
     re.IGNORECASE,
 )
-_AMENDMENT_TITLE_STOP_RE = re.compile(r"[:(]|,?\s+(?:щодо|та\s+деяких|у\s+зв'язку)\b", re.IGNORECASE)
+_AMENDMENT_TITLE_STOP_RE = re.compile(
+    r"[:(]|,?\s+(?:щодо|та\s+деяких|у\s+зв'язку)\b", re.IGNORECASE
+)
 _AMENDMENT_TITLE_QUOTED_TARGET_RE = re.compile(r"[«\"'](?P<target>[^»\"']{4,240})[»\"']")
 _AMENDMENT_TITLE_NUMBER_DATE_RE = re.compile(
     r"\bвід\s*(?P<date>\d{2}\.\d{2}\.\d{4})\s*(?:р\.?)?\s*(?:№|N)\s*(?P<number>[\dA-ZА-ЯІЇЄҐ/-]+)",
@@ -150,6 +152,7 @@ _DOC_TYPE_TO_NOMINATIVE = {
     "методики": "методика",
 }
 
+
 def _normalize_entity_name(name: str) -> str:
     return normalize_entity_name(name)
 
@@ -173,7 +176,9 @@ def _source_text_has_target_signal(source_text: str) -> bool:
     )
 
 
-def _normalize_doc_metadata_map(raw_doc_metadata: dict[str, Any] | None) -> dict[str, dict[str, Any]]:
+def _normalize_doc_metadata_map(
+    raw_doc_metadata: dict[str, Any] | None,
+) -> dict[str, dict[str, Any]]:
     if not raw_doc_metadata:
         return {}
     source: Any = raw_doc_metadata
@@ -183,11 +188,8 @@ def _normalize_doc_metadata_map(raw_doc_metadata: dict[str, Any] | None) -> dict
             source = wrapped_documents
     if not isinstance(source, dict):
         return {}
-    return {
-        str(doc_id): dict(meta)
-        for doc_id, meta in source.items()
-        if isinstance(meta, dict)
-    }
+    return {str(doc_id): dict(meta) for doc_id, meta in source.items() if isinstance(meta, dict)}
+
 
 class EntityDeduplicator(EntityResolver):
     """Backward-compatible alias for the richer entity resolver."""
@@ -243,7 +245,9 @@ def _compose_resolution_doc_metadata(
     if resolution_cards_path is not None:
         combined.update(_load_resolution_doc_metadata_from_cards(str(resolution_cards_path)))
     if resolution_doc_metadata:
-        combined.update({str(doc_id): dict(meta) for doc_id, meta in resolution_doc_metadata.items()})
+        combined.update(
+            {str(doc_id): dict(meta) for doc_id, meta in resolution_doc_metadata.items()}
+        )
     combined.update({str(doc_id): dict(meta) for doc_id, meta in doc_metadata.items()})
     return combined
 
@@ -794,6 +798,7 @@ def _estimate_tokens(text: str) -> int:
 @dataclass
 class GraphStats:
     """Graph stats public type."""
+
     entities: int = 0
     facts: int = 0
     candidate_facts: int = 0
@@ -1109,7 +1114,11 @@ def _reference_status_rank(value: str) -> int:
 
 
 def _merge_reference_status(current: str, resolved_status: str) -> str:
-    return current if _reference_status_rank(current) >= _reference_status_rank(resolved_status) else resolved_status
+    return (
+        current
+        if _reference_status_rank(current) >= _reference_status_rank(resolved_status)
+        else resolved_status
+    )
 
 
 def _resolved_reference_statuses(*, references_dir: Path | None, doc_id: str) -> dict[str, str]:
@@ -1119,7 +1128,7 @@ def _resolved_reference_statuses(*, references_dir: Path | None, doc_id: str) ->
     if not ref_path.exists():
         return {}
     by_anchor: dict[str, str] = {}
-    with open(ref_path, "r", encoding="utf-8") as fh:
+    with open(ref_path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -1134,14 +1143,16 @@ def _resolved_reference_statuses(*, references_dir: Path | None, doc_id: str) ->
     return by_anchor
 
 
-def _reference_links_by_anchor(*, references_dir: Path | None, doc_id: str) -> dict[str, list[dict[str, Any]]]:
+def _reference_links_by_anchor(
+    *, references_dir: Path | None, doc_id: str
+) -> dict[str, list[dict[str, Any]]]:
     if references_dir is None:
         return {}
     ref_path = references_dir / doc_id[:2].lower() / f"{doc_id}.jsonl"
     if not ref_path.exists():
         return {}
     by_anchor: dict[str, list[dict[str, Any]]] = {}
-    with open(ref_path, "r", encoding="utf-8") as fh:
+    with open(ref_path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -1152,12 +1163,16 @@ def _reference_links_by_anchor(*, references_dir: Path | None, doc_id: str) -> d
                 continue
             by_anchor.setdefault(anchor, []).append(
                 {
-                    "relation_type": str(row.get("relation_type") or row.get("type") or "references"),
+                    "relation_type": str(
+                        row.get("relation_type") or row.get("type") or "references"
+                    ),
                     "target_doc_id": str(row.get("target_doc_id") or ""),
                     "target_anchor": str(row.get("target_anchor") or ""),
                     "ref_text_uk": str(row.get("target_raw") or ""),
                     "resolution_status": str(row.get("resolution_status") or "unresolved"),
-                    "resolution_confidence": float(row.get("resolution_confidence") or row.get("confidence") or 0.0),
+                    "resolution_confidence": float(
+                        row.get("resolution_confidence") or row.get("confidence") or 0.0
+                    ),
                 }
             )
     return by_anchor
@@ -1233,9 +1248,7 @@ def _is_doc_title_like(value: str, meta: dict[str, Any]) -> bool:
         return False
     if candidate == doc_name:
         return True
-    if len(candidate) >= 24 and (candidate in doc_name or doc_name in candidate):
-        return True
-    return False
+    return bool(len(candidate) >= 24 and (candidate in doc_name or doc_name in candidate))
 
 
 def _filtered_statement_thresholds(
@@ -1244,14 +1257,15 @@ def _filtered_statement_thresholds(
     provision_text: str,
 ) -> list[ThresholdAtom]:
     context = " ".join(
-        part for part in [stmt.source_quote_uk, provision_text, stmt.fact_text, stmt.fact_text_en] if compact_text(part)
+        part
+        for part in [stmt.source_quote_uk, provision_text, stmt.fact_text, stmt.fact_text_en]
+        if compact_text(part)
     )
     filtered: list[ThresholdAtom] = []
     for threshold in stmt.thresholds:
         value_text = str(threshold.value_text or threshold.value_decimal or "").strip()
-        if (
-            str(threshold.unit or "").lower() == "year"
-            and is_calendar_year_token(value_text, surrounding_text=context)
+        if str(threshold.unit or "").lower() == "year" and is_calendar_year_token(
+            value_text, surrounding_text=context
         ):
             continue
         filtered.append(threshold)
@@ -1276,7 +1290,9 @@ def _filtered_hallucination_flags_json(
         return raw
 
     cleaned: list[dict[str, Any]] = []
-    modal_signal = has_explicit_modal_signal(stmt.fact_text or stmt.fact_text_en or stmt.source_quote_uk)
+    modal_signal = has_explicit_modal_signal(
+        stmt.fact_text or stmt.fact_text_en or stmt.source_quote_uk
+    )
     for flag in parsed:
         if not isinstance(flag, dict):
             continue
@@ -1325,13 +1341,10 @@ def _sanitize_statement_for_graph(
     if stmt.predicate == "sets_threshold":
         if not filtered_thresholds:
             return None
-        if (
-            not threshold_signal
-            and (
-                _is_doc_title_like(subject_uk or subject_en, meta)
-                or _is_doc_title_like(object_uk or object_en, meta)
-                or synthetic_subject
-            )
+        if not threshold_signal and (
+            _is_doc_title_like(subject_uk or subject_en, meta)
+            or _is_doc_title_like(object_uk or object_en, meta)
+            or synthetic_subject
         ):
             return None
 
@@ -1391,10 +1404,16 @@ def _populate_fact_partitions(
     stats: GraphStats,
 ) -> None:
     # Partition tables are now views — just collect stats.
-    stats.candidate_facts = int(con.execute("SELECT COUNT(*) FROM lex_fact_candidates").fetchone()[0])
+    stats.candidate_facts = int(
+        con.execute("SELECT COUNT(*) FROM lex_fact_candidates").fetchone()[0]
+    )
     stats.grounded_facts = int(con.execute("SELECT COUNT(*) FROM lex_fact_grounded").fetchone()[0])
-    stats.normative_facts = int(con.execute("SELECT COUNT(*) FROM lex_normative_facts").fetchone()[0])
-    stats.high_confidence_norms = int(con.execute("SELECT COUNT(*) FROM lex_high_confidence_norms").fetchone()[0])
+    stats.normative_facts = int(
+        con.execute("SELECT COUNT(*) FROM lex_normative_facts").fetchone()[0]
+    )
+    stats.high_confidence_norms = int(
+        con.execute("SELECT COUNT(*) FROM lex_high_confidence_norms").fetchone()[0]
+    )
 
 
 def _enrich_fact_domains(con: duckdb.DuckDBPyConnection) -> None:
@@ -1505,7 +1524,9 @@ def _stream_facts_to_duckdb(
         meta = doc_metadata.get(doc_id, {})
         doc_temporal = coerce_doc_temporal(meta)
         provisions = read_provisions(provisions_dir=provisions_dir, doc_id=doc_id)
-        ctx_by_anchor = {str(row.get("anchor_path") or ""): str(row.get("text") or "") for row in provisions}
+        ctx_by_anchor = {
+            str(row.get("anchor_path") or ""): str(row.get("text") or "") for row in provisions
+        }
         prov_by_anchor = {
             str(row.get("anchor_path") or ""): row
             for row in provisions
@@ -1522,7 +1543,7 @@ def _stream_facts_to_duckdb(
         current_doc_family_id = doc_family_id(meta)
         version_id = doc_id
 
-        with open(jsonl_file, "r", encoding="utf-8") as fh:
+        with open(jsonl_file, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -1604,7 +1625,9 @@ def _stream_facts_to_duckdb(
                             stmt.predicate,
                             obj_id,
                             stmt.fact_text_en or stmt.fact_text,
-                            stmt.confidence_final if stmt.confidence_final is not None else stmt.confidence,
+                            stmt.confidence_final
+                            if stmt.confidence_final is not None
+                            else stmt.confidence,
                             stmt.norm_type,
                             stmt.action_canon,
                             stmt.norm_type_canon,
@@ -1626,7 +1649,9 @@ def _stream_facts_to_duckdb(
                             stmt.canonical_status,
                             _merge_reference_status(
                                 stmt.reference_resolution_status,
-                                resolved_reference_statuses.get(result.provision_anchor, "not_applicable"),
+                                resolved_reference_statuses.get(
+                                    result.provision_anchor, "not_applicable"
+                                ),
                             ),
                             stmt.structure_quality
                             or (
@@ -1673,13 +1698,14 @@ def _stream_facts_to_duckdb(
                         )
                     )
 
-                    if (
-                        fact_temporal.temporal_resolution_status in {"unknown", "partial", "conflict"}
-                        or (
-                            fact_temporal.effective_from
-                            and fact_temporal.effective_to
-                            and fact_temporal.effective_to < fact_temporal.effective_from
-                        )
+                    if fact_temporal.temporal_resolution_status in {
+                        "unknown",
+                        "partial",
+                        "conflict",
+                    } or (
+                        fact_temporal.effective_from
+                        and fact_temporal.effective_to
+                        and fact_temporal.effective_to < fact_temporal.effective_from
                     ):
                         issue_type = (
                             "interval_inversion"
@@ -1711,7 +1737,9 @@ def _stream_facts_to_duckdb(
                         )
 
                     for idx, threshold in enumerate(stmt.thresholds, start=1):
-                        tid = _stable_hash(fid, str(idx), threshold.metric, threshold.operator, size=24)
+                        tid = _stable_hash(
+                            fid, str(idx), threshold.metric, threshold.operator, size=24
+                        )
                         threshold_rows.append(
                             (
                                 tid,
@@ -1891,7 +1919,9 @@ def _stream_provisions_to_duckdb(
                     {
                         "legal_unit_subtype": str(prov.get("legal_unit_subtype") or ""),
                         "route_class": str(prov.get("route_class") or ""),
-                        "empty_spo_retry_eligible": bool(prov.get("empty_spo_retry_eligible", False)),
+                        "empty_spo_retry_eligible": bool(
+                            prov.get("empty_spo_retry_eligible", False)
+                        ),
                         "audit_miss_prone": bool(prov.get("audit_miss_prone", False)),
                         "reference_bearing": bool(prov.get("reference_bearing", False)),
                         "threshold_bearing": bool(prov.get("threshold_bearing", False)),
@@ -1929,7 +1959,7 @@ def _stream_references_to_duckdb(
     batch: list[tuple] = []
     seen_reference_ids: set[str] = set()
     for ref_file in sorted(references_dir.glob("**/*.jsonl")):
-        with open(ref_file, "r", encoding="utf-8") as fh:
+        with open(ref_file, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -1942,7 +1972,9 @@ def _stream_references_to_duckdb(
                 target_raw = str(row.get("target_raw", ""))
                 ref_type = str(row.get("type", ""))
                 confidence = float(row.get("confidence") or 0.0)
-                ref_id = _stable_hash(doc_id, anchor, str(source_start), str(source_end), target_raw, size=24)
+                ref_id = _stable_hash(
+                    doc_id, anchor, str(source_start), str(source_end), target_raw, size=24
+                )
                 if ref_id in seen_reference_ids:
                     continue
                 seen_reference_ids.add(ref_id)
@@ -2001,7 +2033,7 @@ def _stream_domains_to_duckdb(
     """
     batch: list[tuple] = []
     for domain_file in sorted(domains_dir.glob("**/*.json")):
-        with open(domain_file, "r", encoding="utf-8") as fh:
+        with open(domain_file, encoding="utf-8") as fh:
             payload = json.load(fh)
         doc_id = str(payload.get("doc_id", ""))
         top_domain = str(payload.get("top_domain") or "")
@@ -2058,7 +2090,7 @@ def _stream_reference_edges_to_duckdb(
     batch: list[tuple] = []
     seen_edge_ids: set[str] = set()
     for ref_file in sorted(references_dir.glob("**/*.jsonl")):
-        with open(ref_file, "r", encoding="utf-8") as fh:
+        with open(ref_file, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -2096,7 +2128,12 @@ def _stream_reference_edges_to_duckdb(
                         float(row.get("resolution_confidence") or row.get("confidence") or 0.0),
                         str(row.get("resolution_status") or "unresolved"),
                         str(row.get("target_raw") or ""),
-                        str(row.get("target_version_id") or row.get("version_id") or row.get("target_doc_id") or ""),
+                        str(
+                            row.get("target_version_id")
+                            or row.get("version_id")
+                            or row.get("target_doc_id")
+                            or ""
+                        ),
                         json.dumps(
                             {
                                 key: value
@@ -2156,13 +2193,22 @@ def _stream_reference_resolution_audit_to_duckdb(
     batch: list[tuple[Any, ...]] = []
     seen_ids: set[str] = set()
     for ref_file in sorted(references_dir.glob("**/*.jsonl")):
-        with open(ref_file, "r", encoding="utf-8") as fh:
+        with open(ref_file, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
                     continue
                 row = json.loads(line)
-                ref_id = str(row.get("reference_edge_id") or _stable_hash(str(row.get("doc_id") or ""), str(row.get("anchor_path") or ""), str(row.get("target_raw") or ""), "audit", size=24))
+                ref_id = str(
+                    row.get("reference_edge_id")
+                    or _stable_hash(
+                        str(row.get("doc_id") or ""),
+                        str(row.get("anchor_path") or ""),
+                        str(row.get("target_raw") or ""),
+                        "audit",
+                        size=24,
+                    )
+                )
                 if ref_id in seen_ids:
                     continue
                 seen_ids.add(ref_id)
@@ -2181,7 +2227,9 @@ def _stream_reference_resolution_audit_to_duckdb(
                         str(row.get("alternatives_json") or "[]"),
                         json.dumps(
                             {
-                                "relation_type": str(row.get("relation_type") or row.get("type") or "references"),
+                                "relation_type": str(
+                                    row.get("relation_type") or row.get("type") or "references"
+                                ),
                                 "target_anchor": str(row.get("target_anchor") or ""),
                             },
                             ensure_ascii=False,
@@ -2219,7 +2267,7 @@ def _stream_pattern_feedback_to_duckdb(
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
     batch: list[tuple[Any, ...]] = []
-    with open(feedback_queue_path, "r", encoding="utf-8") as fh:
+    with open(feedback_queue_path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -2309,7 +2357,7 @@ def _stream_amendments_to_duckdb(
             else {}
         )
         seen_doc_signatures: set[tuple[str, ...]] = set()
-        with open(jsonl_file, "r", encoding="utf-8") as fh:
+        with open(jsonl_file, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -2357,7 +2405,9 @@ def _stream_amendments_to_duckdb(
                             "score": round(inferred_from_source.score, 4),
                             "target_resolution_candidates_count": inferred_from_source.candidate_count,
                         }
-                    elif doc_scope.scope_kind == "multi_target_title" and not amendment_target_hints:
+                    elif (
+                        doc_scope.scope_kind == "multi_target_title" and not amendment_target_hints
+                    ):
                         inferred_from_source = (
                             _infer_amendment_target_from_source_text(
                                 source_doc_id=doc_id,
@@ -2368,7 +2418,9 @@ def _stream_amendments_to_duckdb(
                             if _source_text_has_target_signal(amendment.source_text)
                             else None
                         )
-                        amended_doc_id = inferred_from_source.doc_id if inferred_from_source is not None else ""
+                        amended_doc_id = (
+                            inferred_from_source.doc_id if inferred_from_source is not None else ""
+                        )
                         target_hint = (
                             {
                                 "source": inferred_from_source.source,
@@ -2391,7 +2443,9 @@ def _stream_amendments_to_duckdb(
                         )
                     if not amended_doc_id and not doc_scope.is_amendment_doc:
                         continue
-                    target_resolution_expected = bool(amended_doc_id) or doc_scope.single_target_expected
+                    target_resolution_expected = (
+                        bool(amended_doc_id) or doc_scope.single_target_expected
+                    )
                     doc_amendment_count += 1
                     if amended_doc_id:
                         doc_targeted_amendment_count += 1
@@ -2408,7 +2462,13 @@ def _stream_amendments_to_duckdb(
                             detected_by = "pattern+refs"
                     batch.append(
                         (
-                            _stable_hash(doc_id, row.get("anchor_path", ""), amendment.amendment_type, str(idx), size=24),
+                            _stable_hash(
+                                doc_id,
+                                row.get("anchor_path", ""),
+                                amendment.amendment_type,
+                                str(idx),
+                                size=24,
+                            ),
                             doc_id,
                             amended_doc_id,
                             target_resolution_expected,
@@ -2425,8 +2485,12 @@ def _stream_amendments_to_duckdb(
                                     "source_text": amendment.source_text,
                                     "doc_scope_kind": doc_scope.scope_kind,
                                     "target_resolution_expected": target_resolution_expected,
-                                    "target_resolution_method": str(target_hint.get("source") or ""),
-                                    "target_resolution_score": float(target_hint.get("score") or 0.0),
+                                    "target_resolution_method": str(
+                                        target_hint.get("source") or ""
+                                    ),
+                                    "target_resolution_score": float(
+                                        target_hint.get("score") or 0.0
+                                    ),
                                     "target_resolution_candidates_count": int(
                                         target_hint.get("target_resolution_candidates_count") or 0
                                     ),
@@ -2441,7 +2505,9 @@ def _stream_amendments_to_duckdb(
                         stats.amendments += len(batch)
                         batch.clear()
         if doc_amendment_count == 0 and doc_scope.is_amendment_doc:
-            amended_doc_id = doc_scope.default_target.doc_id if doc_scope.default_target is not None else ""
+            amended_doc_id = (
+                doc_scope.default_target.doc_id if doc_scope.default_target is not None else ""
+            )
             target_resolution_expected = bool(amended_doc_id) or doc_scope.single_target_expected
             target_hint = (
                 dict(default_target_hint)
@@ -2449,14 +2515,22 @@ def _stream_amendments_to_duckdb(
                 else {
                     "source": doc_scope.scope_kind,
                     "target_doc_id": amended_doc_id,
-                    "target_doc_name": doc_scope.default_target.doc_name if doc_scope.default_target is not None else "",
-                    "score": round(doc_scope.default_target.score, 4) if doc_scope.default_target is not None else 0.0,
-                    "target_resolution_candidates_count": doc_scope.default_target.candidate_count if doc_scope.default_target is not None else 0,
+                    "target_doc_name": doc_scope.default_target.doc_name
+                    if doc_scope.default_target is not None
+                    else "",
+                    "score": round(doc_scope.default_target.score, 4)
+                    if doc_scope.default_target is not None
+                    else 0.0,
+                    "target_resolution_candidates_count": doc_scope.default_target.candidate_count
+                    if doc_scope.default_target is not None
+                    else 0,
                 }
             )
             batch.append(
                 (
-                    _stable_hash(doc_id, first_anchor or "doc_scope", "general_amendment_fallback", size=24),
+                    _stable_hash(
+                        doc_id, first_anchor or "doc_scope", "general_amendment_fallback", size=24
+                    ),
                     doc_id,
                     amended_doc_id,
                     target_resolution_expected,
@@ -2467,7 +2541,12 @@ def _stream_amendments_to_duckdb(
                     "",
                     (
                         "pattern+title"
-                        if doc_scope.scope_kind in {"single_target_title", "multi_target_title", "amendment_title_unresolved"}
+                        if doc_scope.scope_kind
+                        in {
+                            "single_target_title",
+                            "multi_target_title",
+                            "amendment_title_unresolved",
+                        }
                         else "pattern+metadata"
                         if doc_scope.scope_kind == "explicit_target"
                         else "pattern+refs"
@@ -2520,7 +2599,7 @@ def _load_amendment_target_hints_for_doc(
         return []
 
     hints: list[dict[str, Any]] = []
-    with open(ref_path, "r", encoding="utf-8") as fh:
+    with open(ref_path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -2535,8 +2614,12 @@ def _load_amendment_target_hints_for_doc(
             hints.append(
                 {
                     "target_doc_id": target_doc_id,
-                    "relation_type": str(row.get("relation_type") or row.get("relation_hint") or "references"),
-                    "resolution_confidence": float(row.get("resolution_confidence") or row.get("confidence") or 0.0),
+                    "relation_type": str(
+                        row.get("relation_type") or row.get("relation_hint") or "references"
+                    ),
+                    "resolution_confidence": float(
+                        row.get("resolution_confidence") or row.get("confidence") or 0.0
+                    ),
                     "matched_by": str(row.get("matched_by") or row.get("resolution_method") or ""),
                     "target_anchor": str(row.get("target_anchor") or ""),
                     "target_doc_type": str(row.get("target_doc_type") or ""),
@@ -2713,7 +2796,10 @@ def _explicit_amendment_target_from_meta(
         )
     )
     if number and date_acc:
-        candidates = [*doc_index.by_number_date.get((number, date_acc), []), *doc_index.by_reg_number_date.get((number, date_acc), [])]
+        candidates = [
+            *doc_index.by_number_date.get((number, date_acc), []),
+            *doc_index.by_reg_number_date.get((number, date_acc), []),
+        ]
         if candidates:
             entry = candidates[-1]
             return _AmendmentTargetMatch(
@@ -2843,8 +2929,12 @@ def _analyze_amendment_doc_scope(
                 **strong_hints[0],
                 "source": str(strong_hints[0].get("source") or "resolved_references"),
                 "target_doc_id": target_doc_id,
-                "target_doc_name": match.doc_name if match is not None else str(strong_hints[0].get("target_doc_name") or ""),
-                "score": round(float(strong_hints[0].get("resolution_confidence") or 0.0) or 0.95, 4),
+                "target_doc_name": match.doc_name
+                if match is not None
+                else str(strong_hints[0].get("target_doc_name") or ""),
+                "score": round(
+                    float(strong_hints[0].get("resolution_confidence") or 0.0) or 0.95, 4
+                ),
                 "target_resolution_candidates_count": len(strong_hints),
             },
         )
@@ -2885,7 +2975,9 @@ def _analyze_amendment_doc_scope(
             is_amendment_doc=True,
             single_target_expected=not multi_target_title,
             default_target=None,
-            scope_kind="amendment_title_unresolved" if not multi_target_title else "multi_target_title",
+            scope_kind="amendment_title_unresolved"
+            if not multi_target_title
+            else "multi_target_title",
         )
 
     return _AmendmentDocScope(
@@ -2919,11 +3011,7 @@ def _infer_amendment_target_from_title(
             *doc_index.by_number_date.get((number_hint, date_hint), []),
             *doc_index.by_reg_number_date.get((number_hint, date_hint), []),
         ]
-        filtered = [
-            entry
-            for entry in candidates
-            if entry.doc_id != source_doc_id
-        ]
+        filtered = [entry for entry in candidates if entry.doc_id != source_doc_id]
         if len(filtered) == 1:
             entry = filtered[0]
             return _AmendmentTargetMatch(
@@ -3045,7 +3133,7 @@ def _infer_amendment_target_from_source_text(
         prefix = str(match.group("prefix") or "").strip()
         title = str(match.group("title") or "").strip()
         if title:
-            fragments.append(f"{prefix} \"{title}\"")
+            fragments.append(f'{prefix} "{title}"')
     generic_target_match = re.search(
         r"(?:до|у)\s+(?P<target>[^,.:\n]{8,240})",
         cleaned,
@@ -3103,18 +3191,23 @@ def _best_title_target_match(
     for number_date_match in number_date_matches:
         if number_date_match is None:
             continue
-        number_hint = normalize_ref_number(str(number_date_match.group("number") or "")) or number_hint
+        number_hint = (
+            normalize_ref_number(str(number_date_match.group("number") or "")) or number_hint
+        )
         date_hint = str(number_date_match.group("date") or "").strip() or date_hint
         if number_hint and date_hint:
             break
     textual_match = _AMENDMENT_TITLE_TEXTUAL_DATE_RE.search(target_raw)
     if textual_match is not None and not date_hint:
         number_hint = normalize_ref_number(str(textual_match.group("number") or "")) or number_hint
-        date_hint = _normalize_amendment_title_date(
-            day=str(textual_match.group("day") or ""),
-            month=str(textual_match.group("month") or ""),
-            year=str(textual_match.group("year") or ""),
-        ) or date_hint
+        date_hint = (
+            _normalize_amendment_title_date(
+                day=str(textual_match.group("day") or ""),
+                month=str(textual_match.group("month") or ""),
+                year=str(textual_match.group("year") or ""),
+            )
+            or date_hint
+        )
     if number_hint and date_hint:
         candidates = [
             *doc_index.by_number_date.get((number_hint, date_hint), []),
@@ -3124,7 +3217,9 @@ def _best_title_target_match(
             entry
             for entry in candidates
             if entry.doc_id != source_doc_id
-            and (not type_hint or type_hint in {"regulation"} or entry.doc_type_category == type_hint)
+            and (
+                not type_hint or type_hint in {"regulation"} or entry.doc_type_category == type_hint
+            )
         ]
         if len(filtered) == 1:
             entry = filtered[0]
@@ -3157,13 +3252,27 @@ def _best_title_target_match(
         if type_hint and type_hint not in {"regulation"} and entry.doc_type_category != type_hint:
             continue
         score = 0.0
-        if number_hint and (entry.doc_number_norm == number_hint or entry.reg_number_norm == number_hint or entry.reestr_code_norm == number_hint):
+        if number_hint and (
+            entry.doc_number_norm == number_hint
+            or entry.reg_number_norm == number_hint
+            or entry.reestr_code_norm == number_hint
+        ):
             score = max(score, 0.98)
         if target_norm == entry.name_norm:
             score = max(score, 0.99 if strong_exact_hint else 0.95)
         elif target_norm in entry.name_norm or entry.name_norm in target_norm:
-            contains_score = 0.96 if strong_exact_hint and target_norm in entry.name_norm else 0.92 if target_norm in entry.name_norm else 0.84
-            if target_norm in entry.name_norm and target_norm != entry.name_norm and _DERIVATIVE_ACT_TITLE_RE.search(entry.name):
+            contains_score = (
+                0.96
+                if strong_exact_hint and target_norm in entry.name_norm
+                else 0.92
+                if target_norm in entry.name_norm
+                else 0.84
+            )
+            if (
+                target_norm in entry.name_norm
+                and target_norm != entry.name_norm
+                and _DERIVATIVE_ACT_TITLE_RE.search(entry.name)
+            ):
                 contains_score -= 0.12
             score = max(score, contains_score)
         elif target_content_tokens:
@@ -3182,7 +3291,9 @@ def _best_title_target_match(
     ranked.sort(
         key=lambda item: (
             item[0],
-            item[1].doc_date.isoformat() if item[1].doc_date else str(item[1].meta.get("date_acc") or ""),
+            item[1].doc_date.isoformat()
+            if item[1].doc_date
+            else str(item[1].meta.get("date_acc") or ""),
             item[1].doc_id,
         ),
         reverse=True,
@@ -3274,7 +3385,7 @@ def _normalize_doc_type_stem(target_raw: str) -> str:
     lower = cleaned.lower()
     for source, replacement in _DOC_TYPE_TO_NOMINATIVE.items():
         if lower.startswith(f"{source} "):
-            return replacement + cleaned[len(source):]
+            return replacement + cleaned[len(source) :]
         if lower == source:
             return replacement
     return cleaned
@@ -3303,9 +3414,11 @@ def _expand_amendment_title_candidates(
         candidates.append((quoted, True, "doc_title_quoted_target"))
         prequoted_match = re.match(r"(?P<stem>.+?)\s*[\"«](?:[^\"»']+[\"»']?)?", cleaned)
         if prequoted_match is not None:
-            stem = _normalize_doc_type_stem(_clean_amendment_target_text(str(prequoted_match.group("stem") or "")))
+            stem = _normalize_doc_type_stem(
+                _clean_amendment_target_text(str(prequoted_match.group("stem") or ""))
+            )
             if stem and stem != quoted:
-                candidates.append((f"{stem} \"{quoted}\"", True, "doc_title_stemmed_quoted_target"))
+                candidates.append((f'{stem} "{quoted}"', True, "doc_title_stemmed_quoted_target"))
                 candidates.append((f"{stem} {quoted}", True, "doc_title_stemmed_dequoted_target"))
         prefixes = re.findall(
             r"\b(закон(?:у|ом)?\s+україни|закону\s+української\s+рср|кодексу|постанови|наказу|"
@@ -3317,7 +3430,13 @@ def _expand_amendment_title_candidates(
             normalized_prefix = _normalize_doc_type_stem(prefix)
             candidates.append((f"{prefix} {quoted}", True, "doc_title_prefixed_quoted_target"))
             if normalized_prefix and normalized_prefix != prefix:
-                candidates.append((f"{normalized_prefix} {quoted}", True, "doc_title_prefixed_quoted_target_nominative"))
+                candidates.append(
+                    (
+                        f"{normalized_prefix} {quoted}",
+                        True,
+                        "doc_title_prefixed_quoted_target_nominative",
+                    )
+                )
     return candidates
 
 
@@ -3373,13 +3492,10 @@ def _stream_doc_temporal_to_duckdb(
                 ),
             )
         )
-        if (
-            temporal.temporal_resolution_status in {"unknown", "partial", "conflict"}
-            or (
-                temporal.effective_from
-                and temporal.effective_to
-                and temporal.effective_to < temporal.effective_from
-            )
+        if temporal.temporal_resolution_status in {"unknown", "partial", "conflict"} or (
+            temporal.effective_from
+            and temporal.effective_to
+            and temporal.effective_to < temporal.effective_from
         ):
             issue_type = (
                 "interval_inversion"

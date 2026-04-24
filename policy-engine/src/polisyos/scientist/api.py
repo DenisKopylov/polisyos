@@ -22,6 +22,7 @@ StatusCode: Any
 try:
     from opentelemetry import trace as _otel_trace
 except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
+
     class _FallbackStatusCode(str, Enum):
         OK = "OK"
         ERROR = "ERROR"

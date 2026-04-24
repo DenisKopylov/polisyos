@@ -1,15 +1,22 @@
 """WHO Global Health Observatory connector implementation for indicator and observation APIs."""
+
 from __future__ import annotations
 
 import json
 import time
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, ClassVar
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
 import pandas as pd
 
 from polisyos.core.canon import streaming_hash
-from polisyos.fabric.connectors.base import ConnectionHandle, FetchRequest, FetchResult, HealthStatus
+from polisyos.fabric.connectors.base import (
+    ConnectionHandle,
+    FetchRequest,
+    FetchResult,
+    HealthStatus,
+)
 from polisyos.fabric.connectors.sources.http_base import HTTPConnectorBase, HTTPResilienceProfile
 from polisyos.fabric.connectors.sources.http_common import frame_completeness, safe_float, safe_int
 from polisyos.fabric.connectors.types import DatasetDescriptor, FetchError
@@ -173,7 +180,7 @@ class WHOConnector(HTTPConnectorBase[pd.DataFrame]):
             )
 
         frame = self._normalize_rows(body, indicator_id)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return self._build_fetch_result(
             data=frame,
             row_count=len(frame),
@@ -219,9 +226,13 @@ class WHOConnector(HTTPConnectorBase[pd.DataFrame]):
             if len(countries) == 1:
                 clauses.append(f"SpatialDim eq '{countries[0]}'")
             else:
-                clauses.append("(" + " or ".join(f"SpatialDim eq '{value}'" for value in countries) + ")")
+                clauses.append(
+                    "(" + " or ".join(f"SpatialDim eq '{value}'" for value in countries) + ")"
+                )
 
-        year_values = [safe_int(value) for value in filter_map.get("year", []) + filter_map.get("TimeDim", [])]
+        year_values = [
+            safe_int(value) for value in filter_map.get("year", []) + filter_map.get("TimeDim", [])
+        ]
         year_values = [value for value in year_values if value is not None]
         start_year = request.date_start.year if request.date_start is not None else None
         end_year = request.date_end.year if request.date_end is not None else None
@@ -234,13 +245,17 @@ class WHOConnector(HTTPConnectorBase[pd.DataFrame]):
             clauses.append(f"TimeDim le {int(end_year)}")
 
         for dim_key, source_key in (("dim1", "Dim1"), ("dim2", "Dim2"), ("dim3", "Dim3")):
-            values = [str(value).strip() for value in filter_map.get(dim_key, []) if str(value).strip()]
+            values = [
+                str(value).strip() for value in filter_map.get(dim_key, []) if str(value).strip()
+            ]
             if not values:
                 continue
             if len(values) == 1:
                 clauses.append(f"{source_key} eq '{values[0]}'")
             else:
-                clauses.append("(" + " or ".join(f"{source_key} eq '{value}'" for value in values) + ")")
+                clauses.append(
+                    "(" + " or ".join(f"{source_key} eq '{value}'" for value in values) + ")"
+                )
 
         params: dict[str, str] = {}
         if clauses:
@@ -295,60 +310,112 @@ class WHOConnector(HTTPConnectorBase[pd.DataFrame]):
 # that are already ISO-3 map to themselves so passthrough is safe.
 _ISO2_TO_ISO3: dict[str, str] = {
     # core_blocking
-    "UA": "UKR", "UKR": "UKR",
-    "DE": "DEU", "DEU": "DEU",
-    "PL": "POL", "POL": "POL",
-    "RO": "ROU", "ROU": "ROU",
-    "MD": "MDA", "MDA": "MDA",
+    "UA": "UKR",
+    "UKR": "UKR",
+    "DE": "DEU",
+    "DEU": "DEU",
+    "PL": "POL",
+    "POL": "POL",
+    "RO": "ROU",
+    "ROU": "ROU",
+    "MD": "MDA",
+    "MDA": "MDA",
     # regional_extended
-    "CZ": "CZE", "CZE": "CZE",
-    "SK": "SVK", "SVK": "SVK",
-    "HU": "HUN", "HUN": "HUN",
-    "LT": "LTU", "LTU": "LTU",
-    "LV": "LVA", "LVA": "LVA",
-    "EE": "EST", "EST": "EST",
-    "GE": "GEO", "GEO": "GEO",
-    "AM": "ARM", "ARM": "ARM",
-    "AZ": "AZE", "AZE": "AZE",
-    "KZ": "KAZ", "KAZ": "KAZ",
-    "UZ": "UZB", "UZB": "UZB",
+    "CZ": "CZE",
+    "CZE": "CZE",
+    "SK": "SVK",
+    "SVK": "SVK",
+    "HU": "HUN",
+    "HUN": "HUN",
+    "LT": "LTU",
+    "LTU": "LTU",
+    "LV": "LVA",
+    "LVA": "LVA",
+    "EE": "EST",
+    "EST": "EST",
+    "GE": "GEO",
+    "GEO": "GEO",
+    "AM": "ARM",
+    "ARM": "ARM",
+    "AZ": "AZE",
+    "AZE": "AZE",
+    "KZ": "KAZ",
+    "KAZ": "KAZ",
+    "UZ": "UZB",
+    "UZB": "UZB",
     # common partners
-    "US": "USA", "USA": "USA",
-    "GB": "GBR", "GBR": "GBR",
-    "FR": "FRA", "FRA": "FRA",
-    "IT": "ITA", "ITA": "ITA",
-    "ES": "ESP", "ESP": "ESP",
-    "AT": "AUT", "AUT": "AUT",
-    "BE": "BEL", "BEL": "BEL",
-    "NL": "NLD", "NLD": "NLD",
-    "SE": "SWE", "SWE": "SWE",
-    "DK": "DNK", "DNK": "DNK",
-    "FI": "FIN", "FIN": "FIN",
-    "NO": "NOR", "NOR": "NOR",
-    "CH": "CHE", "CHE": "CHE",
-    "PT": "PRT", "PRT": "PRT",
-    "IE": "IRL", "IRL": "IRL",
-    "BG": "BGR", "BGR": "BGR",
-    "HR": "HRV", "HRV": "HRV",
-    "SI": "SVN", "SVN": "SVN",
-    "RS": "SRB", "SRB": "SRB",
-    "BA": "BIH", "BIH": "BIH",
-    "ME": "MNE", "MNE": "MNE",
-    "AL": "ALB", "ALB": "ALB",
-    "MK": "MKD", "MKD": "MKD",
-    "BY": "BLR", "BLR": "BLR",
-    "RU": "RUS", "RUS": "RUS",
-    "TR": "TUR", "TUR": "TUR",
-    "CN": "CHN", "CHN": "CHN",
-    "IN": "IND", "IND": "IND",
-    "JP": "JPN", "JPN": "JPN",
-    "KR": "KOR", "KOR": "KOR",
-    "BR": "BRA", "BRA": "BRA",
-    "MX": "MEX", "MEX": "MEX",
-    "ZA": "ZAF", "ZAF": "ZAF",
-    "AU": "AUS", "AUS": "AUS",
-    "CA": "CAN", "CAN": "CAN",
-    "NZ": "NZL", "NZL": "NZL",
+    "US": "USA",
+    "USA": "USA",
+    "GB": "GBR",
+    "GBR": "GBR",
+    "FR": "FRA",
+    "FRA": "FRA",
+    "IT": "ITA",
+    "ITA": "ITA",
+    "ES": "ESP",
+    "ESP": "ESP",
+    "AT": "AUT",
+    "AUT": "AUT",
+    "BE": "BEL",
+    "BEL": "BEL",
+    "NL": "NLD",
+    "NLD": "NLD",
+    "SE": "SWE",
+    "SWE": "SWE",
+    "DK": "DNK",
+    "DNK": "DNK",
+    "FI": "FIN",
+    "FIN": "FIN",
+    "NO": "NOR",
+    "NOR": "NOR",
+    "CH": "CHE",
+    "CHE": "CHE",
+    "PT": "PRT",
+    "PRT": "PRT",
+    "IE": "IRL",
+    "IRL": "IRL",
+    "BG": "BGR",
+    "BGR": "BGR",
+    "HR": "HRV",
+    "HRV": "HRV",
+    "SI": "SVN",
+    "SVN": "SVN",
+    "RS": "SRB",
+    "SRB": "SRB",
+    "BA": "BIH",
+    "BIH": "BIH",
+    "ME": "MNE",
+    "MNE": "MNE",
+    "AL": "ALB",
+    "ALB": "ALB",
+    "MK": "MKD",
+    "MKD": "MKD",
+    "BY": "BLR",
+    "BLR": "BLR",
+    "RU": "RUS",
+    "RUS": "RUS",
+    "TR": "TUR",
+    "TUR": "TUR",
+    "CN": "CHN",
+    "CHN": "CHN",
+    "IN": "IND",
+    "IND": "IND",
+    "JP": "JPN",
+    "JPN": "JPN",
+    "KR": "KOR",
+    "KOR": "KOR",
+    "BR": "BRA",
+    "BRA": "BRA",
+    "MX": "MEX",
+    "MEX": "MEX",
+    "ZA": "ZAF",
+    "ZAF": "ZAF",
+    "AU": "AUS",
+    "AUS": "AUS",
+    "CA": "CAN",
+    "CAN": "CAN",
+    "NZ": "NZL",
+    "NZL": "NZL",
 }
 
 

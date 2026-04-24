@@ -11,18 +11,13 @@ Two data paths controlled by X-ODS-ExportMode header:
 from __future__ import annotations
 
 import time
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, ClassVar
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
 import pandas as pd
 
 from polisyos.core.canon import content_hash as compute_content_hash
-from polisyos.fabric.safety import (
-    UnsafeFilterExpressionError,
-    UnsafeIdentifierError,
-    escape_odsql_literal,
-    safe_path_segment,
-)
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,
@@ -37,7 +32,12 @@ from polisyos.fabric.connectors.sources.http_base import (
 from polisyos.fabric.connectors.sources.http_common import frame_completeness
 from polisyos.fabric.connectors.types import (
     DatasetDescriptor,
-    FetchError,
+)
+from polisyos.fabric.safety import (
+    UnsafeFilterExpressionError,
+    UnsafeIdentifierError,
+    escape_odsql_literal,
+    safe_path_segment,
 )
 from polisyos.ir.connectors import (
     ConnectorCapability,
@@ -120,15 +120,19 @@ class OpendatasoftConnector(HTTPConnectorBase[pd.DataFrame]):
         started = time.monotonic()
         try:
             _body, _headers, _raw = await self._resilient_request_json(
-                handle, url, params=params,
+                handle,
+                url,
+                params=params,
             )
             return HealthStatus(
-                healthy=True, message="HTTP 200",
+                healthy=True,
+                message="HTTP 200",
                 latency_ms=self._elapsed_ms(started),
             )
         except Exception as exc:
             return HealthStatus(
-                healthy=False, message=str(exc),
+                healthy=False,
+                message=str(exc),
                 latency_ms=self._elapsed_ms(started),
             )
 
@@ -148,7 +152,9 @@ class OpendatasoftConnector(HTTPConnectorBase[pd.DataFrame]):
         while True:
             params = {"limit": str(limit), "offset": str(offset)}
             body, _headers, _raw = await self._resilient_request_json(
-                handle, url, params=params,
+                handle,
+                url,
+                params=params,
             )
             results = body.get("results", [])
             for ds in results:
@@ -199,9 +205,7 @@ class OpendatasoftConnector(HTTPConnectorBase[pd.DataFrame]):
         limit = 100
 
         schema_fields = (
-            await self._get_schema_fields(handle, request.dataset_id)
-            if request.filters
-            else None
+            await self._get_schema_fields(handle, request.dataset_id) if request.filters else None
         )
         where = self._build_where(request, schema_fields=schema_fields)
         while True:
@@ -209,7 +213,9 @@ class OpendatasoftConnector(HTTPConnectorBase[pd.DataFrame]):
             if where:
                 params["where"] = where
             body, headers, raw = await self._resilient_request_json(
-                handle, url, params=params,
+                handle,
+                url,
+                params=params,
             )
             last_headers = headers
             all_raw.append(raw)
@@ -236,7 +242,7 @@ class OpendatasoftConnector(HTTPConnectorBase[pd.DataFrame]):
             quality_tier=QualityTier.SILVER,
             bytes_transferred=total_bytes,
             completeness=frame_completeness(df) if not df.empty else 1.0,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             fetch_duration_ms=duration_ms,
             content_hash=chash,
             etag=last_headers.get("ETag"),
@@ -254,7 +260,9 @@ class OpendatasoftConnector(HTTPConnectorBase[pd.DataFrame]):
 
         started = time.monotonic()
         body, headers, raw = await self._resilient_request_json(
-            handle, url, params={},
+            handle,
+            url,
+            params={},
         )
         duration_ms = self._elapsed_ms(started)
 
@@ -270,7 +278,7 @@ class OpendatasoftConnector(HTTPConnectorBase[pd.DataFrame]):
             quality_tier=QualityTier.SILVER,
             bytes_transferred=len(raw),
             completeness=frame_completeness(df) if not df.empty else 1.0,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             fetch_duration_ms=duration_ms,
             content_hash=chash,
             etag=headers.get("ETag"),
@@ -290,7 +298,9 @@ class OpendatasoftConnector(HTTPConnectorBase[pd.DataFrame]):
         dataset_segment = safe_path_segment(dataset_id, what="Opendatasoft dataset id")
         url = f"{base}/api/explore/v2.1/catalog/datasets/{dataset_segment}"
         body, _headers, _raw = await self._resilient_request_json(
-            handle, url, params={},
+            handle,
+            url,
+            params={},
         )
         fields_meta = body.get("fields", [])
         fields = [
@@ -359,9 +369,7 @@ class OpendatasoftConnector(HTTPConnectorBase[pd.DataFrame]):
                 f"date >= {escape_odsql_literal(request.date_start.strftime('%Y-%m-%d'))}"
             )
         if request.date_end is not None:
-            clauses.append(
-                f"date <= {escape_odsql_literal(request.date_end.strftime('%Y-%m-%d'))}"
-            )
+            clauses.append(f"date <= {escape_odsql_literal(request.date_end.strftime('%Y-%m-%d'))}")
 
         return " AND ".join(clauses)
 

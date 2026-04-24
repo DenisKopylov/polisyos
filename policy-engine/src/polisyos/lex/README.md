@@ -22,16 +22,16 @@ provision-level правила в tunable policy/runtime artifacts.
 
 ## Public API
 
-| Type/Function | Description |
-|---|---|
-| `ingest_legal_doc_bytes()` | Ingest raw legal bytes and persist normalized corpus metadata |
-| `build_legal_structure()` | Extract provision hierarchy and emit `lex.corpus.provision_index` |
-| `build_version_index()`, `resolve_active_version()` | Build and query active-version indexes for legal docs |
-| `assemble_norm_pack()` | Assemble a `NormPack` through provider or pipeline path |
-| `evaluate_legality()` | Produce `lex.legal_report` and optional change proposals |
-| `NormPackMutator`, `diff_norm_packs()`, `NormImpactAnalyzer` | What-if diff and impact analysis for norm changes |
-| `LegalKnowledgeGraph` | Read-only search API over the offline legal graph |
-| `LexInterventionCompiler`, `TemporalInterventionSequencer` | Compile legal provisions into intervention/runtime artifacts |
+| Type/Function                                                | Description                                                       |
+| ------------------------------------------------------------ | ----------------------------------------------------------------- |
+| `ingest_legal_doc_bytes()`                                   | Ingest raw legal bytes and persist normalized corpus metadata     |
+| `build_legal_structure()`                                    | Extract provision hierarchy and emit `lex.corpus.provision_index` |
+| `build_version_index()`, `resolve_active_version()`          | Build and query active-version indexes for legal docs             |
+| `assemble_norm_pack()`                                       | Assemble a `NormPack` through provider or pipeline path           |
+| `evaluate_legality()`                                        | Produce `lex.legal_report` and optional change proposals          |
+| `NormPackMutator`, `diff_norm_packs()`, `NormImpactAnalyzer` | What-if diff and impact analysis for norm changes                 |
+| `LegalKnowledgeGraph`                                        | Read-only search API over the offline legal graph                 |
+| `LexInterventionCompiler`, `TemporalInterventionSequencer`   | Compile legal provisions into intervention/runtime artifacts      |
 
 Full reference: [docs/reference/lex/](../../../docs/reference/lex/index.md)
 

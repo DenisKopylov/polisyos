@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from polisyos.scientist.engine.protocol import NodeEvent
 
-
 CHECKPOINT_CODE = "node.checkpoint"
 
 

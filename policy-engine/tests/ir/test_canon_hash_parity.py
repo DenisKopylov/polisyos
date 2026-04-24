@@ -1,18 +1,30 @@
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from decimal import Decimal
 
 from polisyos.core.canon import (
     CanonSpec as CoreCanonSpec,
+)
+from polisyos.core.canon import (
     content_hash as core_content_hash,
+)
+from polisyos.core.canon import (
     from_canonical_bytes as core_from_canonical_bytes,
+)
+from polisyos.core.canon import (
     to_canonical_bytes as core_to_canonical_bytes,
 )
 from polisyos.ir.canon import (
     CanonSpec as IrCanonSpec,
+)
+from polisyos.ir.canon import (
     content_hash as ir_content_hash,
+)
+from polisyos.ir.canon import (
     from_canonical_bytes as ir_from_canonical_bytes,
+)
+from polisyos.ir.canon import (
     to_canonical_bytes as ir_to_canonical_bytes,
 )
 
@@ -22,7 +34,7 @@ def _payload() -> dict[str, object]:
         "text": "policy",
         "num": 42,
         "decimal": Decimal("12.34"),
-        "ts": datetime(2026, 2, 9, 20, 0, tzinfo=timezone.utc),
+        "ts": datetime(2026, 2, 9, 20, 0, tzinfo=UTC),
         "date": date(2026, 2, 9),
         "bytes": b"abc",
         "float": 1.25,

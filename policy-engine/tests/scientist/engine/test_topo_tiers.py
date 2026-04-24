@@ -1,4 +1,5 @@
 """Tests for polisyos.scientist.engine.topo — tiered topological sort."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock
@@ -21,6 +22,7 @@ def _inv(alias: str, depends_on: list[str] | None = None) -> NodeInvocation:
 # ---------------------------------------------------------------------------
 # topo_sort_tiers
 # ---------------------------------------------------------------------------
+
 
 class TestTopoSortTiers:
     def test_linear_dag(self):
@@ -131,6 +133,7 @@ class TestTopoSortTiers:
 # validate_tier_write_safety
 # ---------------------------------------------------------------------------
 
+
 class TestValidateTierWriteSafety:
     def _make_registry(self, writes_map: dict[str, list[str]]):
         registry = MagicMock()
@@ -153,20 +156,24 @@ class TestValidateTierWriteSafety:
 
     def test_disjoint_writes(self):
         invocations = {"a": _inv("a"), "b": _inv("b")}
-        registry = self._make_registry({
-            "a": ["params"],
-            "b": ["artifacts_index"],
-        })
+        registry = self._make_registry(
+            {
+                "a": ["params"],
+                "b": ["artifacts_index"],
+            }
+        )
         safe, conflicts = validate_tier_write_safety(["a", "b"], registry, invocations)
         assert safe is True
         assert conflicts == []
 
     def test_overlapping_writes(self):
         invocations = {"a": _inv("a"), "b": _inv("b")}
-        registry = self._make_registry({
-            "a": ["params", "reports_index"],
-            "b": ["params"],
-        })
+        registry = self._make_registry(
+            {
+                "a": ["params", "reports_index"],
+                "b": ["params"],
+            }
+        )
         safe, conflicts = validate_tier_write_safety(["a", "b"], registry, invocations)
         assert safe is False
         assert len(conflicts) == 1

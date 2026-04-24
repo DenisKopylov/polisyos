@@ -1,4 +1,5 @@
 """Public scholar freshness store module API."""
+
 from __future__ import annotations
 
 import contextlib
@@ -21,6 +22,7 @@ class _HasRoot(Protocol):
     @property
     def root(self) -> Path: ...
 
+
 def _serialize_datetime(value: datetime | None) -> str | None:
     return to_iso_utc(value) if value is not None else None
 
@@ -28,6 +30,7 @@ def _serialize_datetime(value: datetime | None) -> str | None:
 @dataclass(frozen=True)
 class FreshnessRuntimeState:
     """Freshness runtime state data model."""
+
     last_checked_at: datetime | None = None
     last_refresh_attempt_at: datetime | None = None
     next_retry_at: datetime | None = None
@@ -37,6 +40,7 @@ class FreshnessRuntimeState:
 @dataclass(frozen=True)
 class FreshnessRefreshLock:
     """Freshness refresh lock public type."""
+
     path: Path
     fd: int
 
@@ -46,7 +50,7 @@ class FreshnessRefreshLock:
         with contextlib.suppress(FileNotFoundError):
             self.path.unlink()
 
-    def __enter__(self) -> "FreshnessRefreshLock":
+    def __enter__(self) -> FreshnessRefreshLock:
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:  # type: ignore[override]

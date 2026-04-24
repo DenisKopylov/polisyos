@@ -13,6 +13,11 @@ from datetime import datetime
 
 import pytest
 
+from polisyos.scientist.agent.base import BaseAgent, MockAgent
+from polisyos.scientist.agent.critic import MockCriticAgent
+from polisyos.scientist.agent.drafter import MockDrafterAgent
+from polisyos.scientist.agent.formalizer import MockFormalizerAgent, create_mock_draft
+from polisyos.scientist.agent.pi import MockPIAgent
 from polisyos.scientist.agent.protocols import (
     AGENT_PROTOCOLS,
     AgentRole,
@@ -34,11 +39,6 @@ from polisyos.scientist.agent.protocols import (
     get_protocol_for_role,
     is_valid_agent,
 )
-from polisyos.scientist.agent.critic import MockCriticAgent
-from polisyos.scientist.agent.drafter import MockDrafterAgent
-from polisyos.scientist.agent.formalizer import MockFormalizerAgent, create_mock_draft
-from polisyos.scientist.agent.pi import MockPIAgent
-from polisyos.scientist.agent.base import BaseAgent, MockAgent
 
 
 def run(coro):
@@ -93,7 +93,12 @@ def sample_draft(sample_problem_frame: ProblemFrame) -> DraftResult:
             {
                 "kind": "tax_subsidy",
                 "description": "Targeted subsidy for low-income groups",
-                "target": {"kind": "predicate", "field": "income", "operator": "<", "value": "1000"},
+                "target": {
+                    "kind": "predicate",
+                    "field": "income",
+                    "operator": "<",
+                    "value": "1000",
+                },
                 "params": {"rate": "0.15"},
             }
         ],
@@ -110,7 +115,9 @@ class TestProtocolConformance:
     def test_mock_drafter_implements_protocol(self, mock_drafter: MockDrafterAgent) -> None:
         assert isinstance(mock_drafter, DrafterAgent)
 
-    def test_mock_formalizer_implements_protocol(self, mock_formalizer: MockFormalizerAgent) -> None:
+    def test_mock_formalizer_implements_protocol(
+        self, mock_formalizer: MockFormalizerAgent
+    ) -> None:
         assert isinstance(mock_formalizer, FormalizerAgent)
 
     def test_mock_critic_implements_protocol(self, mock_critic: MockCriticAgent) -> None:
@@ -133,7 +140,9 @@ class TestProtocolConformance:
         assert get_protocol_for_role(AgentRole.FORMALIZER) is FormalizerAgent
         assert get_protocol_for_role(AgentRole.CRITIC) is CriticAgent
 
-    def test_is_valid_agent_utility(self, mock_pi: MockPIAgent, mock_drafter: MockDrafterAgent) -> None:
+    def test_is_valid_agent_utility(
+        self, mock_pi: MockPIAgent, mock_drafter: MockDrafterAgent
+    ) -> None:
         assert is_valid_agent(mock_pi, AgentRole.PI)
         assert is_valid_agent(mock_drafter, AgentRole.DRAFTER)
         assert not is_valid_agent(mock_pi, AgentRole.DRAFTER)
@@ -204,7 +213,9 @@ class TestPIAgentRuntime:
         assert frame.domain
 
     def test_create_problem_frame_with_domain_hint(self, mock_pi: MockPIAgent) -> None:
-        frame = run(mock_pi.create_problem_frame("Improve healthcare access", domain_hint="healthcare"))
+        frame = run(
+            mock_pi.create_problem_frame("Improve healthcare access", domain_hint="healthcare")
+        )
         assert frame.domain == "healthcare"
 
     def test_hold_and_retrieve_problem_frame(
@@ -452,6 +463,7 @@ class TestAgentPipeline:
 class TestBackwardCompatibility:
     def test_legacy_mock_agent_still_works(self) -> None:
         import pandas as pd
+
         from polisyos.ir.trinity import TrinityBundle
 
         agent = MockAgent()
@@ -477,7 +489,9 @@ class TestBackwardCompatibility:
 
 class TestDataTypes:
     def test_problem_frame_immutability(self) -> None:
-        frame = ProblemFrame(frame_id="pf_immutable_test", domain="economic", problem_statement="Test")
+        frame = ProblemFrame(
+            frame_id="pf_immutable_test", domain="economic", problem_statement="Test"
+        )
         with pytest.raises((AttributeError, TypeError)):
             frame.domain = "changed"  # type: ignore[misc]
 

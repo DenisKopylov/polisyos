@@ -6,20 +6,20 @@ Covers:
   - TestSIMEX                 — Cook & Stefanski (1994) simulation extrapolation
   - TestMeasurementErrorBounds — Widened Manski bounds under classification error
 """
+
 from __future__ import annotations
 
 import numpy as np
 
+from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
 from tests.foundry.methods.catalog.causal.test_id_engine_extensions import (
     make_dag,
-    make_confounded_graph,
 )
-from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
-
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _linear_dgp(
     n: int = 500,
@@ -40,13 +40,13 @@ def _linear_dgp(
 # TestProxyIdentification
 # ---------------------------------------------------------------------------
 
+
 class TestProxyIdentification:
     """Unit tests for identify_with_proxy (Kuroki & Pearl 2014, Thm 2)."""
 
     def test_proxy_id_valid_proxy_conditions_returns_identified(self):
         """Graph where C* satisfies proxy validity → IDENTIFIED with ProxyAdjustmentNode."""
         from polisyos.foundry.methods.catalog.causal.measurement_error import identify_with_proxy
-        from polisyos.ir.analytics.estimand import ProxyAdjustmentNode
 
         # C_star → C → X, C → Y, X → Y  (proxy C_star for latent C)
         # C_star ⊥ Y | {C, X} holds: all paths C_star→...→Y pass through C or X
@@ -201,6 +201,7 @@ def test_latent_proxy_boundary_notes_surface_proxy_evidence_when_ruled_out():
 # TestRegressionCalibration
 # ---------------------------------------------------------------------------
 
+
 class TestRegressionCalibration:
     """Unit tests for regression_calibration (Carroll et al. 2006).
 
@@ -286,6 +287,7 @@ class TestRegressionCalibration:
 # ---------------------------------------------------------------------------
 # TestSIMEX
 # ---------------------------------------------------------------------------
+
 
 class TestSIMEX:
     """Unit tests for simex (Cook & Stefanski 1994).
@@ -400,6 +402,7 @@ class TestSIMEX:
 # ---------------------------------------------------------------------------
 # TestMeasurementErrorBounds
 # ---------------------------------------------------------------------------
+
 
 class TestMeasurementErrorBounds:
     """Unit tests for bounds_with_measurement_error (widened Manski bounds).

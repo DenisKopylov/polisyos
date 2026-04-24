@@ -5,15 +5,13 @@ from __future__ import annotations
 import asyncio
 import json
 from pathlib import Path
-from typing import Any
-from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from polisyos.fabric.safety import UnsafeFilterExpressionError
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
-from polisyos.fabric.connectors.sources.sparql import SPARQLConnector, _MAX_LIMIT
+from polisyos.fabric.connectors.sources.sparql import _MAX_LIMIT, SPARQLConnector
 from polisyos.fabric.connectors.types import FetchError
+from polisyos.fabric.safety import UnsafeFilterExpressionError
 from polisyos.ir.connectors import ConnectorCapability
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "sparql"
@@ -38,6 +36,7 @@ def _sparql_config(*, templates: dict[str, str] | None = None) -> ConnectionConf
 # ---------------------------------------------------------------------------
 # Mock helpers for SPARQL POST requests
 # ---------------------------------------------------------------------------
+
 
 def _make_mock_session(fixture_body):
     """Create a mock aiohttp session that returns fixture_body for POST."""
@@ -83,6 +82,7 @@ def _fake_get_session_factory(fixture_body):
 # Metadata
 # ---------------------------------------------------------------------------
 
+
 class TestSPARQLMetadata:
     def test_connector_id(self):
         assert SPARQLConnector.connector_id == "sparql.endpoint"
@@ -106,6 +106,7 @@ class TestSPARQLMetadata:
 # ---------------------------------------------------------------------------
 # Config parsing
 # ---------------------------------------------------------------------------
+
 
 class TestSPARQLConfig:
     def test_parse_query_templates(self):
@@ -132,14 +133,15 @@ class TestSPARQLConfig:
 # Query resolution
 # ---------------------------------------------------------------------------
 
+
 class TestQueryResolution:
     def test_resolve_from_template(self):
         connector = SPARQLConnector()
 
         async def _exercise():
-            config = _sparql_config(templates={
-                "countries": "SELECT ?c WHERE { ?c a dbo:Country } LIMIT 10"
-            })
+            config = _sparql_config(
+                templates={"countries": "SELECT ?c WHERE { ?c a dbo:Country } LIMIT 10"}
+            )
             handle = await connector.connect(config)
             req = FetchRequest(dataset_id="countries")
             query = SPARQLConnector._resolve_query(handle, req)
@@ -171,9 +173,9 @@ class TestQueryResolution:
         connector = SPARQLConnector()
 
         async def _exercise():
-            config = _sparql_config(templates={
-                "by_type": "SELECT ?s WHERE { ?s a {{iri:type}} } LIMIT 100"
-            })
+            config = _sparql_config(
+                templates={"by_type": "SELECT ?s WHERE { ?s a {{iri:type}} } LIMIT 100"}
+            )
             handle = await connector.connect(config)
             req = FetchRequest(
                 dataset_id="by_type",
@@ -191,9 +193,11 @@ class TestQueryResolution:
         connector = SPARQLConnector()
 
         async def _exercise():
-            config = _sparql_config(templates={
-                "by_label": "SELECT ?s WHERE { ?s rdfs:label {{literal:label}}@en } LIMIT 10"
-            })
+            config = _sparql_config(
+                templates={
+                    "by_label": "SELECT ?s WHERE { ?s rdfs:label {{literal:label}}@en } LIMIT 10"
+                }
+            )
             handle = await connector.connect(config)
             req = FetchRequest(
                 dataset_id="by_label",
@@ -210,9 +214,9 @@ class TestQueryResolution:
         connector = SPARQLConnector()
 
         async def _exercise():
-            config = _sparql_config(templates={
-                "legacy": "SELECT ?s WHERE { ?s a {{type}} } LIMIT 10"
-            })
+            config = _sparql_config(
+                templates={"legacy": "SELECT ?s WHERE { ?s a {{type}} } LIMIT 10"}
+            )
             handle = await connector.connect(config)
             req = FetchRequest(
                 dataset_id="legacy",
@@ -241,9 +245,9 @@ class TestQueryResolution:
         connector = SPARQLConnector()
 
         async def _exercise():
-            config = _sparql_config(templates={
-                "countries": "SELECT ?c WHERE { ?c a dbo:Country } LIMIT 10"
-            })
+            config = _sparql_config(
+                templates={"countries": "SELECT ?c WHERE { ?c a dbo:Country } LIMIT 10"}
+            )
             handle = await connector.connect(config)
             req = FetchRequest(
                 dataset_id="countries",
@@ -261,6 +265,7 @@ class TestQueryResolution:
 # ---------------------------------------------------------------------------
 # Guardrails
 # ---------------------------------------------------------------------------
+
 
 class TestGuardrails:
     def test_adds_limit_if_missing(self):
@@ -283,6 +288,7 @@ class TestGuardrails:
 # Result parsing
 # ---------------------------------------------------------------------------
 
+
 class TestSPARQLParsing:
     def test_parse_select_results(self):
         fixture = _load_fixture("select_response.json")
@@ -303,19 +309,23 @@ class TestSPARQLParsing:
 # Fetch
 # ---------------------------------------------------------------------------
 
+
 class TestSPARQLFetch:
     def test_fetch_with_template(self, monkeypatch):
         connector = SPARQLConnector()
         fixture = _load_fixture("select_response.json")
         monkeypatch.setattr(
-            SPARQLConnector, "_get_session",
+            SPARQLConnector,
+            "_get_session",
             _fake_get_session_factory(fixture),
         )
 
         async def _exercise():
-            config = _sparql_config(templates={
-                "countries": "SELECT ?country ?population ?label WHERE { ?country a dbo:Country } LIMIT 10"
-            })
+            config = _sparql_config(
+                templates={
+                    "countries": "SELECT ?country ?population ?label WHERE { ?country a dbo:Country } LIMIT 10"
+                }
+            )
             handle = await connector.connect(config)
             request = FetchRequest(dataset_id="countries")
             result = await connector.fetch(handle, request)
@@ -332,15 +342,18 @@ class TestSPARQLFetch:
 # List datasets (templates)
 # ---------------------------------------------------------------------------
 
+
 class TestSPARQLListDatasets:
     def test_list_templates(self):
         connector = SPARQLConnector()
 
         async def _exercise():
-            config = _sparql_config(templates={
-                "countries": "SELECT ...",
-                "cities": "SELECT ...",
-            })
+            config = _sparql_config(
+                templates={
+                    "countries": "SELECT ...",
+                    "cities": "SELECT ...",
+                }
+            )
             handle = await connector.connect(config)
             datasets = []
             async for ds in connector.list_datasets(handle):
@@ -359,20 +372,30 @@ class TestSPARQLListDatasets:
 # Health check
 # ---------------------------------------------------------------------------
 
+
 class TestSPARQLHealth:
     def test_health_ok(self, monkeypatch):
         connector = SPARQLConnector()
 
         class _FakeOKResp:
             status = 200
-            async def __aenter__(self): return self
-            async def __aexit__(self, *a): pass
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *a):
+                pass
 
         class _FakeSession:
-            def post(self, url, **kwargs): return _FakeOKResp()
-            async def close(self): pass
+            def post(self, url, **kwargs):
+                return _FakeOKResp()
+
+            async def close(self):
+                pass
+
             @property
-            def closed(self): return False
+            def closed(self):
+                return False
 
         async def _fake_session(self, _handle):
             return _FakeSession()

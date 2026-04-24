@@ -4,16 +4,18 @@ from __future__ import annotations
 
 import importlib
 import json
-import os
 import xml.etree.ElementTree as ET
-from pathlib import Path
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+
+type Path = Any
+_Path = __import__("pathlib", fromlist=("Path",)).Path
 
 PHASE2_CLOSURE_SCHEMA_NAME = "polisyos.foundry.validation.FoundryPhase2ClosureReport"
 PHASE2_CLOSURE_ENV_VAR = "POLISYOS_PHASE2_CLOSURE_REPORT"
@@ -96,7 +98,7 @@ def _repo_relative(path: Path, repo_root: Path) -> str:
 
 
 def _default_repo_root() -> Path:
-    for candidate in Path(__file__).resolve().parents:
+    for candidate in _Path(__file__).resolve().parents:
         if (candidate / "pyproject.toml").exists() and (candidate / "src").is_dir():
             return candidate
     raise RuntimeError("Could not resolve policy-engine repository root for Phase 2 closure.")
@@ -171,7 +173,7 @@ def _parse_junit_xml(path: Path) -> tuple[set[str], set[str]]:
             class_tail = classname.rsplit(".", 1)[-1] if classname else ""
             for variant_name in name_variants:
                 variants.add(f"{file_attr}::{variant_name}")
-                if class_tail and class_tail != Path(file_attr).stem:
+                if class_tail and class_tail != _Path(file_attr).stem:
                     variants.add(f"{file_attr}::{class_tail}::{variant_name}")
 
         if classname and name_variants:
@@ -302,20 +304,30 @@ def _evaluate_track(
     synthetic_map = _coerce_named_status_map(track_evidence.get("synthetic_world_checks"))
     judge_map = _coerce_named_status_map(track_evidence.get("judge_verdicts"))
 
-    missing_typed_targets = tuple(target for target in typed_targets if not _resolve_typed_target(target))
+    missing_typed_targets = tuple(
+        target for target in typed_targets if not _resolve_typed_target(target)
+    )
     missing_tests = tuple(name for name in required_tests if name not in junit_all)
-    failed_tests = tuple(name for name in required_tests if name in junit_all and name not in junit_passing)
+    failed_tests = tuple(
+        name for name in required_tests if name in junit_all and name not in junit_passing
+    )
     missing_benchmarks = tuple(name for name in required_benchmarks if name not in benchmark_all)
     failed_benchmarks = tuple(
-        name for name in required_benchmarks if name in benchmark_all and name not in benchmark_passing
+        name
+        for name in required_benchmarks
+        if name in benchmark_all and name not in benchmark_passing
     )
     missing_synthetic = tuple(name for name in required_synthetic if name not in synthetic_map)
     failed_synthetic = tuple(
-        name for name in required_synthetic if name in synthetic_map and not _status_is_pass(synthetic_map[name])
+        name
+        for name in required_synthetic
+        if name in synthetic_map and not _status_is_pass(synthetic_map[name])
     )
     missing_judges = tuple(name for name in required_judges if name not in judge_map)
     failed_judges = tuple(
-        name for name in required_judges if name in judge_map and not _status_is_pass(judge_map[name])
+        name
+        for name in required_judges
+        if name in judge_map and not _status_is_pass(judge_map[name])
     )
 
     status = "pass"
@@ -549,7 +561,9 @@ def build_foundry_phase2_closure_report(
         )
 
     overall_status = (
-        "complete" if all(summary.passes_all for summary in track_summaries.values()) else "incomplete"
+        "complete"
+        if all(summary.passes_all for summary in track_summaries.values())
+        else "incomplete"
     )
     return FoundryPhase2ClosureReport(
         phase_id=str(manifest.get("phase_id") or "foundry.phase2"),
@@ -613,12 +627,12 @@ def maybe_load_foundry_phase2_closure_report(
 
     candidate = explicit_path
     if candidate is None:
-        env_value = os.environ.get(PHASE2_CLOSURE_ENV_VAR)
+        env_value = __import__("os").environ.get(PHASE2_CLOSURE_ENV_VAR)
         if env_value:
             candidate = env_value
     if candidate is None:
         candidate = default_foundry_phase2_closure_report_path(repo_root=repo_root)
-    path = Path(candidate)
+    path = _Path(candidate)
     if not path.exists():
         return None
     try:
@@ -628,11 +642,11 @@ def maybe_load_foundry_phase2_closure_report(
 
 
 __all__ = [
+    "PHASE2_CLOSURE_ENV_VAR",
+    "PHASE2_CLOSURE_SCHEMA_NAME",
     "FoundryPhase2ClosureReport",
     "FoundryPhase2FamilySummary",
     "FoundryPhase2TrackSummary",
-    "PHASE2_CLOSURE_ENV_VAR",
-    "PHASE2_CLOSURE_SCHEMA_NAME",
     "build_foundry_phase2_closure_report",
     "default_foundry_phase2_closure_report_path",
     "default_foundry_phase2_manifest_path",

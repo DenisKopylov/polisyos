@@ -32,14 +32,15 @@ When OTel is active the monitor emits a counter
 ``foundry.method.anomaly_detected`` keyed by ``method.fqn`` and
 ``anomaly.reason`` so production dashboards can track numeric quality.
 """
+
 from __future__ import annotations
 
-import math
 import statistics
 import threading
 from collections import defaultdict, deque
-from dataclasses import dataclass, field
-from typing import Any, Literal, Sequence
+from collections.abc import Sequence
+from dataclasses import dataclass
+from typing import Any, Literal
 
 import numpy as np
 
@@ -275,18 +276,18 @@ class MethodOutputMonitor:
                     effective_sigma = max(sigma, abs(mu) * 1e-6 + 1e-12)
                     z = abs(current_mean - mu) / effective_sigma
                     if z > self._z_threshold:
-                            flags.append(
-                                AnomalyFlag(
-                                    key=key,
-                                    reason="distribution_shift",
-                                    severity="warning",
-                                    detail=(
-                                        f"Output mean {current_mean:.4g} deviates "
-                                        f"{z:.1f}σ from historical μ={mu:.4g}"
-                                    ),
-                                    z_score=z,
-                                )
+                        flags.append(
+                            AnomalyFlag(
+                                key=key,
+                                reason="distribution_shift",
+                                severity="warning",
+                                detail=(
+                                    f"Output mean {current_mean:.4g} deviates "
+                                    f"{z:.1f}σ from historical μ={mu:.4g}"
+                                ),
+                                z_score=z,
                             )
+                        )
 
                 history.append(current_mean)
 
@@ -321,13 +322,12 @@ def _emit_anomaly_metric(method_fqn: str, flags: Sequence[AnomalyFlag]) -> None:
         return
     try:
         from polisyos.foundry.methods.observability import (
-            _method_errors_counter,  # type: ignore[attr-defined]
             _OTEL_AVAILABLE,
+            _method_errors_counter,  # type: ignore[attr-defined]
         )
 
         if not _OTEL_AVAILABLE or _method_errors_counter is None:
             return
-        from opentelemetry.metrics import Counter  # type: ignore[import]
 
         for flag in flags:
             _method_errors_counter.add(

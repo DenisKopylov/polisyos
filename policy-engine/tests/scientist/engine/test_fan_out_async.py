@@ -25,7 +25,9 @@ _FAKE_SHA = "sha256:" + "ab" * 32
 def _make_ctx():
     store = MagicMock()
     store.put_json.return_value = ArtifactRef(
-        artifact_id=_FAKE_SHA, kind="test", media_type="application/json",
+        artifact_id=_FAKE_SHA,
+        kind="test",
+        media_type="application/json",
     )
     run = MagicMock()
     run.trace_path = None
@@ -40,22 +42,30 @@ def _make_mock_node(*, ok=True, artifacts=None, delay: float = 0):
     node.bind.return_value = None
 
     if ok:
+
         def _execute(ctx, state):
             if delay:
                 time.sleep(delay)
             return NodeOutcome(
-                status="ok", state=state, events=[],
+                status="ok",
+                state=state,
+                events=[],
                 artifacts=artifacts or [],
             )
+
         node.execute.side_effect = _execute
     else:
+
         def _execute_fail(ctx, state):
             if delay:
                 time.sleep(delay)
             return NodeOutcome(
-                status="fail", state=state, events=[],
+                status="fail",
+                state=state,
+                events=[],
                 error=NodeError(code="test.fail", message="fail", details={}),
             )
+
         node.execute.side_effect = _execute_fail
     return node
 
@@ -73,7 +83,8 @@ class TestAsyncFanOutExecution:
     @pytest.mark.asyncio
     async def test_async_processes_all_items(self) -> None:
         state = ExperimentState(
-            run_id="r1", params={"items": ["a", "b", "c"]},
+            run_id="r1",
+            params={"items": ["a", "b", "c"]},
         )
         task_node = _make_mock_node()
         cfg = FanOutConfig(
@@ -128,7 +139,8 @@ class TestAsyncFanOutExecution:
         task_node.execute.side_effect = _timed_execute
 
         state = ExperimentState(
-            run_id="r2", params={"items": [1, 2, 3, 4]},
+            run_id="r2",
+            params={"items": [1, 2, 3, 4]},
         )
         cfg = FanOutConfig(
             items_state_path="params.items",
@@ -163,7 +175,8 @@ class TestAsyncFanOutExecution:
         task_node.execute.side_effect = _counting_execute
 
         state = ExperimentState(
-            run_id="r3", params={"items": list(range(8))},
+            run_id="r3",
+            params={"items": list(range(8))},
         )
         cfg = FanOutConfig(
             items_state_path="params.items",
@@ -185,7 +198,8 @@ class TestAsyncFanOutExecution:
             call_count += 1
             if call_count == 2:
                 return NodeOutcome(
-                    status="fail", state=state,
+                    status="fail",
+                    state=state,
                     error=NodeError(code="test.fail", message="fail", details={}),
                 )
             return NodeOutcome(status="ok", state=state, events=[], artifacts=[])
@@ -198,7 +212,8 @@ class TestAsyncFanOutExecution:
         task_node.execute.side_effect = _execute
 
         state = ExperimentState(
-            run_id="r4", params={"items": [1, 2, 3]},
+            run_id="r4",
+            params={"items": [1, 2, 3]},
         )
         cfg = FanOutConfig(
             items_state_path="params.items",
@@ -214,7 +229,8 @@ class TestAsyncFanOutExecution:
     @pytest.mark.asyncio
     async def test_async_stop_on_failure(self) -> None:
         state = ExperimentState(
-            run_id="r5", params={"items": [1, 2, 3]},
+            run_id="r5",
+            params={"items": [1, 2, 3]},
         )
         task_node = _make_mock_node(ok=False)
         cfg = FanOutConfig(
@@ -272,7 +288,8 @@ class TestAsyncFanOutExecution:
     @pytest.mark.asyncio
     async def test_async_bind_failure_emits_degraded_event(self) -> None:
         state = ExperimentState(
-            run_id="r5b", params={"items": [1]},
+            run_id="r5b",
+            params={"items": [1]},
         )
         task_node = _make_mock_node()
 
@@ -298,7 +315,8 @@ class TestAsyncFanOutExecution:
     @pytest.mark.asyncio
     async def test_async_bind_failure_stops_without_executing_item_when_fail_fast(self) -> None:
         state = ExperimentState(
-            run_id="r5d", params={"items": [1, 2], "baseline": True},
+            run_id="r5d",
+            params={"items": [1, 2], "baseline": True},
         )
         task_node = _make_mock_node()
 
@@ -493,7 +511,8 @@ class TestSyncExecuteAfterRefactor:
     def test_sync_still_works(self) -> None:
         """Ensure sync execute() still works after extracting _merge_outcomes."""
         state = ExperimentState(
-            run_id="r-sync", params={"items": ["a", "b"]},
+            run_id="r-sync",
+            params={"items": ["a", "b"]},
         )
         task_node = _make_mock_node()
         cfg = FanOutConfig(

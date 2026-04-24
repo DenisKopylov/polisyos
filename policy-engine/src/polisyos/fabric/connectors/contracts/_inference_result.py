@@ -4,6 +4,7 @@ Inference result model.
 Contains the InferenceResult Pydantic model that wraps a DataSchema
 together with per-field confidence scores and diagnostics.
 """
+
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field

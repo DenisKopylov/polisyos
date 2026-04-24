@@ -1,9 +1,10 @@
 """Generic GraphQL API connector."""
+
 from __future__ import annotations
 
 import json
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, ClassVar
 
 from polisyos.core.canon import content_hash
@@ -114,14 +115,16 @@ class GraphQLConnector(BaseConnector[Any]):
         payload = {"query": query, "variables": variables}
         raw = json.dumps(payload, sort_keys=True).encode("utf-8")
         timeout = aiohttp.ClientTimeout(total=handle.config.timeout_seconds)
-        async with aiohttp.ClientSession(timeout=timeout) as session:
-            async with session.post(
+        async with (
+            aiohttp.ClientSession(timeout=timeout) as session,
+            session.post(
                 handle.config.url,
                 headers=self._transport_headers(handle.config),
                 data=raw,
-            ) as response:
-                response.raise_for_status()
-                body = await response.read()
+            ) as response,
+        ):
+            response.raise_for_status()
+            body = await response.read()
         parsed = json.loads(body.decode("utf-8"))
         if parsed.get("errors"):
             raise ValueError(f"graphql errors: {parsed['errors']}")
@@ -131,7 +134,9 @@ class GraphQLConnector(BaseConnector[Any]):
         import pandas as pd
 
         started = time.monotonic()
-        variables: dict[str, Any] = {key: list(values) if len(values) > 1 else values[0] for key, values in request.filters}
+        variables: dict[str, Any] = {
+            key: list(values) if len(values) > 1 else values[0] for key, values in request.filters
+        }
         if request.date_start is not None:
             variables.setdefault("date_start", request.date_start.isoformat())
         if request.date_end is not None:
@@ -155,7 +160,7 @@ class GraphQLConnector(BaseConnector[Any]):
         frame = payload_to_dataframe(rows)
         if frame is None:
             frame = pd.DataFrame(rows)
-        fetched_at = datetime.now(timezone.utc)
+        fetched_at = datetime.now(UTC)
         schema_id = f"{self.connector_id}.{request.dataset_id or 'query'}"
         schema = infer_schema(frame, schema_id=schema_id)
         state = handle.get_state(self._STATE_KEY) or {}

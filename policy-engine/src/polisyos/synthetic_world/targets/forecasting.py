@@ -1,7 +1,9 @@
 """Forecasting truth targets."""
+
 from __future__ import annotations
 
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 import numpy as np
 
@@ -46,4 +48,3 @@ def register_forecasting_targets(
 
 
 __all__ = ["register_forecasting_targets"]
-

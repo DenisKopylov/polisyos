@@ -1,8 +1,6 @@
 """Tests for ProofStep emission in z_id_algorithm and mz_id_algorithm (Phase 3)."""
-import pytest
 
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -219,4 +217,5 @@ class TestMzIdProofSteps:
         result = _mz_id("X", "Y", [dom1, dom2], graph)
         # Should not raise, status is valid
         from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
+
         assert result.status in set(IdentificationStatus)

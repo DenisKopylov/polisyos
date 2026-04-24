@@ -1,10 +1,12 @@
 """Solve strategic-response causal contracts and report equilibrium-level diagnostics."""
+
 from __future__ import annotations
 
 import itertools
 import math
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -115,7 +117,7 @@ class PerformativeLoopSpec(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_spec(self) -> "PerformativeLoopSpec":
+    def _validate_spec(self) -> PerformativeLoopSpec:
         for field_name in (
             "delta_target",
             "initial_distance_upper",
@@ -191,19 +193,13 @@ def _iterations_to_delta_bound(
     initial_distance_upper: float | None,
     delta_target: float | None,
 ) -> int | None:
-    if (
-        initial_distance_upper is None
-        or delta_target is None
-        or contraction >= 1.0
-    ):
+    if initial_distance_upper is None or delta_target is None or contraction >= 1.0:
         return None
     if initial_distance_upper <= delta_target:
         return 0
     if contraction <= 0.0:
         return 1
-    return int(
-        math.ceil(math.log(delta_target / initial_distance_upper) / math.log(contraction))
-    )
+    return int(math.ceil(math.log(delta_target / initial_distance_upper) / math.log(contraction)))
 
 
 def _default_loop_action(
@@ -337,8 +333,8 @@ def analyze_performative_loop(
     iterations_to_delta: int | None = None
 
     if spec.proof_family is PerformativeLoopProofFamily.RRM_PARAMETRIC:
-        contraction_upper_bound = float(spec.epsilon or 0.0) * float(spec.beta or 0.0) / float(
-            spec.gamma or 1.0
+        contraction_upper_bound = (
+            float(spec.epsilon or 0.0) * float(spec.beta or 0.0) / float(spec.gamma or 1.0)
         )
         metadata.setdefault("beta", float(spec.beta or 0.0))
         metadata.setdefault("gamma", float(spec.gamma or 0.0))
@@ -348,10 +344,9 @@ def analyze_performative_loop(
             abs(1.0 - float(spec.step_size or 0.0) * float(spec.gamma or 0.0)),
             abs(1.0 - float(spec.step_size or 0.0) * float(spec.beta or 0.0)),
         )
-        contraction_upper_bound = (
-            base_gradient_contraction
-            + float(spec.step_size or 0.0) * float(spec.beta or 0.0) * float(spec.epsilon or 0.0)
-        )
+        contraction_upper_bound = base_gradient_contraction + float(spec.step_size or 0.0) * float(
+            spec.beta or 0.0
+        ) * float(spec.epsilon or 0.0)
         metadata.setdefault("beta", float(spec.beta or 0.0))
         metadata.setdefault("gamma", float(spec.gamma or 0.0))
         metadata.setdefault("epsilon", float(spec.epsilon or 0.0))
@@ -438,9 +433,7 @@ def analyze_performative_loop(
             detected_cycle_period=spec.detected_cycle_period,
             transient_gain_upper=spec.transient_gain_upper,
             hardness_flag=contraction_upper_bound > 1.0,
-            recommended_action=_default_loop_action(
-                PerformativeLoopStabilityStatus.UNCERTIFIED
-            ),
+            recommended_action=_default_loop_action(PerformativeLoopStabilityStatus.UNCERTIFIED),
             human_summary=(
                 "Global contraction could not be certified for the declared adaptive "
                 "response; repeated deployment should remain single-shot only."
@@ -458,9 +451,7 @@ def analyze_performative_loop(
             simulation_horizon=spec.simulation_horizon,
             detected_cycle_period=spec.detected_cycle_period,
             transient_gain_upper=spec.transient_gain_upper,
-            recommended_action=_default_loop_action(
-                PerformativeLoopStabilityStatus.UNCERTIFIED
-            ),
+            recommended_action=_default_loop_action(PerformativeLoopStabilityStatus.UNCERTIFIED),
             human_summary=(
                 "Loop analysis lacks a complete global contraction witness; "
                 "deterministic auto-iteration remains uncertified."
@@ -747,16 +738,14 @@ def _solve_mean_field_equilibrium(
         baseline_policy_ref=inputs.baseline_policy_ref,
         metadata={
             **dict(inputs.metadata),
-            "strategic_game_class": (
-                None if descriptor is None else descriptor.game_class.value
-            ),
+            "strategic_game_class": (None if descriptor is None else descriptor.game_class.value),
             "strategic_solution_concept": (
                 None if descriptor is None else descriptor.solution_concept.value
             ),
         },
     )
 
-    from polisyos.foundry.methods.catalog.policy.frontier import (  # noqa: PLC0415
+    from polisyos.foundry.methods.catalog.policy.frontier import (
         MeanFieldEquilibriumEstimator,
     )
 
@@ -764,8 +753,7 @@ def _solve_mean_field_equilibrium(
         {
             "reward_matrix": [list(row) for row in inputs.reward_matrix],
             "transition_tensor": [
-                [list(row) for row in matrix]
-                for matrix in inputs.transition_tensor
+                [list(row) for row in matrix] for matrix in inputs.transition_tensor
             ],
             "congestion_costs": list(inputs.congestion_costs),
         },
@@ -941,11 +929,10 @@ def _action_spaces(
         if table is None:
             raise ValueError(f"Missing payoff table for strategic agent {agent!r}")
         if tuple(table.strategic_agents) != tuple(contract.strategic_agents):
-            raise ValueError("Payoff tables must use the same strategic_agents ordering as StrategicSCM")
-        current = {
-            name: tuple(actions)
-            for name, actions in table.action_spaces.items()
-        }
+            raise ValueError(
+                "Payoff tables must use the same strategic_agents ordering as StrategicSCM"
+            )
+        current = {name: tuple(actions) for name, actions in table.action_spaces.items()}
         if action_spaces is None:
             action_spaces = current
         elif action_spaces != current:
@@ -991,8 +978,7 @@ def _mean_profile_payoff(
     profile: Mapping[str, str],
 ) -> float:
     payoffs = [
-        _agent_payoff(tables, contract, profile, agent)
-        for agent in contract.strategic_agents
+        _agent_payoff(tables, contract, profile, agent) for agent in contract.strategic_agents
     ]
     return float(sum(payoffs) / len(payoffs))
 
@@ -1072,8 +1058,7 @@ def _solve_stackelberg(
             for follower_action in action_spaces[follower]
         ]
         follower_payoffs = [
-            _agent_payoff(tables, contract, profile, follower)
-            for profile in candidate_profiles
+            _agent_payoff(tables, contract, profile, follower) for profile in candidate_profiles
         ]
         max_follower_payoff = max(follower_payoffs)
         follower_best_profiles = [
@@ -1137,9 +1122,7 @@ def _solve_best_response_fixed_point(
             equilibria.append(profile)
     if not equilibria:
         raise ValueError("best_response_fixed_point_not_found")
-    multiplicity_note = (
-        "multiple_best_response_fixed_points" if len(equilibria) > 1 else None
-    )
+    multiplicity_note = "multiple_best_response_fixed_points" if len(equilibria) > 1 else None
     selection_dependence = "best_response_tie_breaking" if multiplicity_note else "deterministic"
     return tuple(equilibria), selection_dependence, multiplicity_note
 
@@ -1161,10 +1144,7 @@ def _strategic_bounds(
     *,
     baseline_policy_value: float | None,
 ) -> StrategicSolveResult:
-    profile_values = [
-        _mean_profile_payoff(tables, contract, profile)
-        for profile in profiles
-    ]
+    profile_values = [_mean_profile_payoff(tables, contract, profile) for profile in profiles]
     lower_shift = min(profile_values)
     upper_shift = max(profile_values)
     lower = _post_adaptation_value(
@@ -1274,7 +1254,9 @@ def solve_strategic_response(
                     else strategic_scm.equilibrium_concept.value
                 ),
                 "game_class": None if descriptor is None else descriptor.game_class.value,
-                "solution_concept": None if descriptor is None else descriptor.solution_concept.value,
+                "solution_concept": None
+                if descriptor is None
+                else descriptor.solution_concept.value,
                 "profile_count": len(profiles),
                 "equilibrium_count": len(sorted_equilibria),
                 "selected_equilibrium": dict(selected),
@@ -1302,7 +1284,9 @@ def solve_strategic_response(
 
     if exact_block_reason is None:
         exact_block_reason = exact_budget_reason or (
-            strategic_scm.runtime_blockers[0] if strategic_scm.runtime_blockers else "exact_equilibrium_unavailable"
+            strategic_scm.runtime_blockers[0]
+            if strategic_scm.runtime_blockers
+            else "exact_equilibrium_unavailable"
         )
 
     def _try_macro_abstracted() -> StrategicSolveResult | None:
@@ -1344,8 +1328,7 @@ def solve_strategic_response(
             mean_field_inputs=None,
         )
         macro_bounds_allowed = (
-            macro_preferred
-            and macro_result.fallback_mode is StrategicFallbackMode.STRATEGIC_BOUNDS
+            macro_preferred and macro_result.fallback_mode is StrategicFallbackMode.STRATEGIC_BOUNDS
         )
         if (
             macro_result.fallback_mode is not StrategicFallbackMode.EXACT_EQUILIBRIUM
@@ -1374,9 +1357,7 @@ def solve_strategic_response(
             abstraction_certificate
         )
         if allowed_intervention_family is not None:
-            closure_summary["abstraction_allowed_intervention_family"] = (
-                allowed_intervention_family
-            )
+            closure_summary["abstraction_allowed_intervention_family"] = allowed_intervention_family
         estimand_error_bounds = abstraction_estimand_error_bounds(abstraction_certificate)
         if estimand_error_bounds:
             closure_summary["abstraction_estimand_error_bounds"] = estimand_error_bounds
@@ -1520,9 +1501,7 @@ def strategic_decomposition_summary(result: StrategicSolveResult) -> dict[str, A
     if not equilibrium_payoffs and result.performative_shift is not None:
         equilibrium_payoffs = (float(result.performative_shift),)
     selected_equilibrium = (
-        dict(result.selected_equilibrium)
-        if result.selected_equilibrium is not None
-        else None
+        dict(result.selected_equilibrium) if result.selected_equilibrium is not None else None
     )
 
     if result.fallback_mode is StrategicFallbackMode.STRATEGIC_BOUNDS:

@@ -158,9 +158,7 @@ def test_hybrid_scm_fit_pag_u_node_does_not_crash_and_sets_sensitivity(monkeypat
     assert scm_spec.graph.graph_type is GraphType.DAG
 
     latent_affected = [
-        item
-        for item in scm_spec.mechanisms
-        if item.sensitivity_to_latent is not None
+        item for item in scm_spec.mechanisms if item.sensitivity_to_latent is not None
     ]
     assert latent_affected
     assert scm_spec.fit_metrics["unstable_due_to_latent"] == 1.0

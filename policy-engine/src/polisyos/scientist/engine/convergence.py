@@ -55,6 +55,7 @@ class ConvergenceValidationError(EngineError):
 
 class ConvergenceStrategy(str, Enum):
     """Named stopping heuristics supported by the Scientist convergence detector."""
+
     ABSOLUTE_DELTA = "absolute_delta"
     RELATIVE_DELTA = "relative_delta"
     SEMANTIC_SIMILARITY = "semantic_similarity"
@@ -113,6 +114,7 @@ class ConvergenceState(BaseModel):
 # ---------------------------------------------------------------------------
 # Pure-Python cosine similarity (avoids numpy dependency)
 # ---------------------------------------------------------------------------
+
 
 def _cosine_similarity(a: list[float], b: list[float]) -> float:
     """Cosine similarity between two vectors."""
@@ -177,7 +179,9 @@ class ConvergenceDetector:
         return self._do_check(metric_value)
 
     def check_with_text(
-        self, metric_value: float, text: str | None = None,
+        self,
+        metric_value: float,
+        text: str | None = None,
     ) -> ConvergenceState:
         """Like :meth:`check` but also tracks text embeddings.
 
@@ -336,7 +340,8 @@ class ConvergenceDetector:
         if len(self._text_embeddings) < 2:
             return False
         sim = _cosine_similarity(
-            self._text_embeddings[-1], self._text_embeddings[-2],
+            self._text_embeddings[-1],
+            self._text_embeddings[-2],
         )
         return sim >= self._config.threshold
 
@@ -374,9 +379,9 @@ class ConvergenceDetector:
         if self._budget is not None and self._config.budget_key is not None:
             remaining = self._budget.remaining(self._config.budget_key)
             if remaining is not None and self._iteration > 0:
-                avg_cost = float(
-                    self._budget.spent.get(self._config.budget_key, 0)
-                ) / self._iteration
+                avg_cost = (
+                    float(self._budget.spent.get(self._config.budget_key, 0)) / self._iteration
+                )
                 if avg_cost > 0:
                     remaining_iters = min(remaining_iters, int(float(remaining) / avg_cost))
 
@@ -407,9 +412,13 @@ class ConvergenceDetector:
         # Semantic signal
         semantic_signal = 0.0
         if len(self._text_embeddings) >= 2:
-            semantic_signal = max(0.0, _cosine_similarity(
-                self._text_embeddings[-1], self._text_embeddings[-2],
-            ))
+            semantic_signal = max(
+                0.0,
+                _cosine_similarity(
+                    self._text_embeddings[-1],
+                    self._text_embeddings[-2],
+                ),
+            )
 
         total = (
             weights.get("numeric", 0.5) * numeric_signal

@@ -6,12 +6,10 @@ import json
 import re
 from collections import Counter, defaultdict
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.knowledge.canonical_resolver import (
     CanonicalVariableResolver,
     ResolutionResult,
@@ -28,6 +26,9 @@ from polisyos.academic.knowledge.skg_store import (
     weighted_direction_summary,
 )
 from polisyos.batch_common.manifest import write_stage_manifest
+
+if TYPE_CHECKING:
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 
 def _seed_canonical_names() -> set[str]:
@@ -62,7 +63,9 @@ def _family_name(canonical_name: str | None, approved_names: set[str]) -> str | 
     return clean if clean in approved_names else None
 
 
-def _mention_maps(con: duckdb.DuckDBPyConnection) -> tuple[dict[str, int], dict[str, int], dict[str, int]]:
+def _mention_maps(
+    con: duckdb.DuckDBPyConnection,
+) -> tuple[dict[str, int], dict[str, int], dict[str, int]]:
     try:
         variable_rows = con.execute(
             "SELECT normalized_name, mention_count FROM ac_skg_variables"
@@ -71,11 +74,7 @@ def _mention_maps(con: duckdb.DuckDBPyConnection) -> tuple[dict[str, int], dict[
         variable_rows = con.execute(
             "SELECT canonical_name, mention_count FROM ac_skg_variables"
         ).fetchall()
-    variable_counts = {
-        str(row[0]): int(row[1] or 0)
-        for row in variable_rows
-        if row and row[0]
-    }
+    variable_counts = {str(row[0]): int(row[1] or 0) for row in variable_rows if row and row[0]}
     context_counts = {
         str(row[0]): int(row[1] or 0)
         for row in con.execute(
@@ -164,7 +163,13 @@ def _canonical_review_queue(
                 ),
             }
         )
-    queue.sort(key=lambda row: (-int(row["total_mentions"]), row["suggested_canonical_name"], row["raw_name"]))
+    queue.sort(
+        key=lambda row: (
+            -int(row["total_mentions"]),
+            row["suggested_canonical_name"],
+            row["raw_name"],
+        )
+    )
     return queue
 
 
@@ -306,7 +311,10 @@ def _sample_sizes(con: duckdb.DuckDBPyConnection) -> dict[str, int]:
 
 def _claim_source_basis(con: duckdb.DuckDBPyConnection) -> dict[str, str]:
     mapping: dict[str, str] = {}
-    for table_name, claim_col in (("ac_claim_adjudications", "claim_id"), ("ac_causal_claims_raw", "id")):
+    for table_name, claim_col in (
+        ("ac_claim_adjudications", "claim_id"),
+        ("ac_causal_claims_raw", "id"),
+    ):
         try:
             rows = con.execute(f"SELECT {claim_col}, source_basis FROM {table_name}").fetchall()
         except duckdb.Error:
@@ -344,7 +352,9 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
         article_meta = _article_meta(con)
         sample_sizes = _sample_sizes(con)
         claim_source_basis = _claim_source_basis(con)
-        version_row = con.execute("SELECT COALESCE(MAX(version_id), 0) FROM ac_skg_versions").fetchone()
+        version_row = con.execute(
+            "SELECT COALESCE(MAX(version_id), 0) FROM ac_skg_versions"
+        ).fetchone()
         skg_version = int(version_row[0] or 0) if version_row else 0
 
         evidence_rows = con.execute(
@@ -360,7 +370,18 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
         grouped: dict[tuple[str, str, str], dict[str, Any]] = {}
         resolution_cache: dict[str, ResolutionResult] = {}
         pending_results: list[ResolutionResult] = []
-        for edge_id, claim_id, openalex_id, src, dst, direction, strength, confidence, design_family, design_tier in evidence_rows:
+        for (
+            edge_id,
+            claim_id,
+            openalex_id,
+            src,
+            dst,
+            direction,
+            strength,
+            confidence,
+            design_family,
+            design_tier,
+        ) in evidence_rows:
             src_key = str(src or "")
             dst_key = str(dst or "")
             src_resolution = resolution_cache.get(src_key)
@@ -379,8 +400,16 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
                 pending_results.append(src_resolution)
             if dst_resolution.review_required:
                 pending_results.append(dst_resolution)
-            src_family = _family_name(src_resolution.canonical_name, approved_names) if src_resolution.approved else None
-            dst_family = _family_name(dst_resolution.canonical_name, approved_names) if dst_resolution.approved else None
+            src_family = (
+                _family_name(src_resolution.canonical_name, approved_names)
+                if src_resolution.approved
+                else None
+            )
+            dst_family = (
+                _family_name(dst_resolution.canonical_name, approved_names)
+                if dst_resolution.approved
+                else None
+            )
             if not src_family or not dst_family:
                 continue
             key = (src_family, dst_family, str(direction))
@@ -435,7 +464,9 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
             pair_payload["article_refs"].update(payload["article_refs"])
             pair_payload["claim_refs"].update(payload["claim_refs"])
             pair_payload["evidence_samples"].extend(payload["evidence_samples"])
-            pair_payload["strengths"].extend(sample.strength for sample in payload["evidence_samples"])
+            pair_payload["strengths"].extend(
+                sample.strength for sample in payload["evidence_samples"]
+            )
             pair_payload["direction_evidence"][direction].extend(payload["evidence_samples"])
             pair_payload["exact_edge_ids"].update(payload["exact_edge_ids"])
 
@@ -445,7 +476,9 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
             evidence_samples = list(payload["evidence_samples"])
             pair_payload = pair_totals.get((src_family, dst_family), {})
             direction_counts = pair_payload.get("direction_histogram", {})
-            total_direction_articles = max(1, sum(int(value) for value in direction_counts.values()))
+            total_direction_articles = max(
+                1, sum(int(value) for value in direction_counts.values())
+            )
             direction_agreement = len(article_refs) / total_direction_articles
             conflict_flag = len([count for count in direction_counts.values() if count > 0]) > 1
             family_rows.append(
@@ -477,10 +510,16 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
                     ),
                 )
             )
-            pair_totals[(src_family, dst_family)]["family_edge_ids"].add(hash_edge_id(src_family, dst_family, direction))
+            pair_totals[(src_family, dst_family)]["family_edge_ids"].add(
+                hash_edge_id(src_family, dst_family, direction)
+            )
 
         for (src_family, dst_family), payload in sorted(pair_totals.items()):
-            direction_histogram = {str(key): int(value) for key, value in payload["direction_histogram"].items() if int(value) > 0}
+            direction_histogram = {
+                str(key): int(value)
+                for key, value in payload["direction_histogram"].items()
+                if int(value) > 0
+            }
             direction_summary = weighted_direction_summary(payload["direction_evidence"])
             positive_weight = float(direction_summary.direction_weights.get("positive", 0.0))
             negative_weight = float(direction_summary.direction_weights.get("negative", 0.0))
@@ -532,7 +571,9 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
                             "family_edge_count": len(payload["family_edge_ids"]),
                             "exact_edge_ids": sorted(payload["exact_edge_ids"]),
                             "family_edge_ids": sorted(payload["family_edge_ids"]),
-                            "weighted_direction_agreement": round(float(direction_summary.agreement_score), 6),
+                            "weighted_direction_agreement": round(
+                                float(direction_summary.agreement_score), 6
+                            ),
                         },
                         ensure_ascii=False,
                     ),
@@ -606,7 +647,11 @@ def run_edge_synthesize(config: AcademicBatchConfig) -> dict[str, int]:
         stage="edge_synthesize",
         status="ok",
         metrics=metrics,
-        artifacts=[config.db_path, config.canonical_review_queue_path, config.edge_synthesis_report_path],
+        artifacts=[
+            config.db_path,
+            config.canonical_review_queue_path,
+            config.edge_synthesis_report_path,
+        ],
         started_at=started_at,
     )
     return metrics

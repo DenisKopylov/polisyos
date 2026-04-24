@@ -6,14 +6,12 @@ import hashlib
 import re
 import urllib.parse
 import urllib.request
-from collections.abc import Sequence
 from html.parser import HTMLParser
 from io import BytesIO
-from typing import Any
+from typing import TYPE_CHECKING
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.core.canon import content_hash
-from polisyos.scholar.search.cache import UrlFetchCache
 from polisyos.scholar.search.models import FetchResult, SearchConstraints, SourceSnippet
 from polisyos.scholar.search.scoring import compress_page_to_snippets
 from polisyos.scholar.search.security import (
@@ -22,6 +20,11 @@ from polisyos.scholar.search.security import (
     validate_content_type,
     validate_fetch_url,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from polisyos.scholar.search.cache import UrlFetchCache
 
 
 async def fetch_open_page(
@@ -41,7 +44,13 @@ async def fetch_open_page(
         return cached.to_fetch_result()
 
     try:
-        raw_bytes, final_url, content_type, response_headers, redirect_chain = await run_blocking_async(
+        (
+            raw_bytes,
+            final_url,
+            content_type,
+            response_headers,
+            redirect_chain,
+        ) = await run_blocking_async(
             _fetch_url_bytes_sync,
             url,
             constraints,
@@ -81,7 +90,7 @@ async def fetch_open_page(
         if cache is not None:
             cache.put(result, raw_bytes=raw_bytes)
         return result
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         result = FetchResult(
             url=url,
             final_url=url,
@@ -151,7 +160,7 @@ async def fetch_and_find_in_page(
 
 
 def source_id_from_url(url: str, content_sha256: str | None = None) -> str:
-    payload = f"{url}|{content_sha256 or ''}".encode("utf-8")
+    payload = f"{url}|{content_sha256 or ''}".encode()
     return f"src.{hashlib.sha256(payload).hexdigest()[:24]}"
 
 

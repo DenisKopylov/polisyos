@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Mapping
 from contextlib import contextmanager
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 import pytest
@@ -10,7 +11,12 @@ import pytest
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.backends.circuit_breaker import CircuitBreakerRegistry
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.backends.protocol import MethodResult, MethodRunner, MethodTiming, ReproducibilityInfo
+from polisyos.foundry.methods.backends.protocol import (
+    MethodResult,
+    MethodRunner,
+    MethodTiming,
+    ReproducibilityInfo,
+)
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -21,9 +27,9 @@ from polisyos.foundry.methods.base import (
 from polisyos.foundry.methods.equivalence import (
     ComparatorKind,
     CrossBackendEquivalenceCertificate,
-    get_default_equivalence_resolver,
     FieldToleranceSpec,
     InMemoryEquivalenceCertificateRegistry,
+    get_default_equivalence_resolver,
     reset_default_equivalence_resolver,
     runtime_envelope_from_results,
     set_default_equivalence_resolver,
@@ -245,10 +251,22 @@ def test_dispatcher_emits_dispatch_trace_and_cost_attribution(monkeypatch) -> No
     )
 
     assert result.artifacts["dispatch_trace"]["selected_backend"] == "numpy"
-    assert result.artifacts["dispatch_trace"]["selection_reason"] == "runtime_profile_fallback_preferred"
-    assert result.artifacts["dispatch_trace"]["declared_route_budget"]["route_key"]["backend_route"] == "jax"
-    assert result.artifacts["dispatch_trace"]["observed_route_budget"]["route_key"]["backend_route"] == "jax->numpy_fallback"
-    assert result.artifacts["dispatch_trace"]["observed_route_budget"]["validation_status"] == "degraded"
+    assert (
+        result.artifacts["dispatch_trace"]["selection_reason"]
+        == "runtime_profile_fallback_preferred"
+    )
+    assert (
+        result.artifacts["dispatch_trace"]["declared_route_budget"]["route_key"]["backend_route"]
+        == "jax"
+    )
+    assert (
+        result.artifacts["dispatch_trace"]["observed_route_budget"]["route_key"]["backend_route"]
+        == "jax->numpy_fallback"
+    )
+    assert (
+        result.artifacts["dispatch_trace"]["observed_route_budget"]["validation_status"]
+        == "degraded"
+    )
     assert result.artifacts["cost_attribution"]["backend"] == "numpy"
     assert result.artifacts["cost_attribution"]["estimated_cost_usd"] > 0.0
     assert tracer.spans[0].attributes["span_name"] == "foundry.method.dispatch"

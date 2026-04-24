@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { Card } from "@/shared/ui/primitives";
 
@@ -24,6 +25,7 @@ type ParameterDiffProps = {
 // ---------------------------------------------------------------------------
 
 export function ParameterDiff({ parameters, className }: ParameterDiffProps) {
+  const { t } = useI18n();
   const { changed, unchanged } = useMemo(() => {
     const c: ParameterDiffEntry[] = [];
     const u: ParameterDiffEntry[] = [];
@@ -39,24 +41,31 @@ export function ParameterDiff({ parameters, className }: ParameterDiffProps) {
 
   return (
     <Card className={cn("space-y-3 p-4", className)}>
-      <h4 className="text-sm font-semibold">Parameter Differences</h4>
+      <h4 className="text-sm font-semibold">
+        {t("pages.runs.parameterDiff.title")}
+      </h4>
 
       {changed.length === 0 ? (
-        <p className="text-muted text-xs">All parameters are identical.</p>
+        <p className="text-muted text-xs">
+          {t("pages.runs.parameterDiff.allIdentical")}
+        </p>
       ) : (
         <div className="space-y-1.5">
           {changed.map((p) => (
             <div
               key={p.key}
               className="border-line flex items-baseline justify-between gap-3 rounded-lg border p-2 text-xs"
-              style={{ borderLeftWidth: 3, borderLeftColor: "var(--chart-warning)" }}
+              style={{
+                borderLeftWidth: 3,
+                borderLeftColor: "var(--chart-warning)",
+              }}
             >
               <span className="font-semibold">{p.label}</span>
               <div className="flex gap-2">
                 <span className="text-[var(--chart-alert)] line-through">
                   {String(p.base ?? "—")}
                 </span>
-                <span>→</span>
+                <span>{"->"}</span>
                 <span className="text-[var(--chart-success)]">
                   {String(p.target ?? "—")}
                 </span>
@@ -69,7 +78,9 @@ export function ParameterDiff({ parameters, className }: ParameterDiffProps) {
       {unchanged.length > 0 && (
         <details className="text-xs">
           <summary className="text-muted cursor-pointer">
-            {unchanged.length} unchanged parameters
+            {t("pages.runs.parameterDiff.unchangedCount", {
+              count: unchanged.length,
+            })}
           </summary>
           <div className="mt-1.5 space-y-1">
             {unchanged.map((p) => (

@@ -3,10 +3,11 @@ Test suite for StaticCSVConnector - Phase 2.11.
 
 Includes harness compliance and connector-specific unit/integration tests.
 """
+
 from __future__ import annotations
 
 import io
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pandas as pd
 import pytest
@@ -17,17 +18,17 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
-from polisyos.fabric.connectors.contracts.schema import DataSchema, FieldSpec, SchemaType, SchemaVersion
+from polisyos.fabric.connectors.contracts.schema import (
+    DataSchema,
+    FieldSpec,
+    SchemaType,
+    SchemaVersion,
+)
 from polisyos.fabric.connectors.reference.static_csv import StaticCSVConnector
 from polisyos.fabric.connectors.testing import ConnectorTestHarness
 from polisyos.ir.connectors import DataVersion, QualityTier, VersionStrategy
 
-SAMPLE_CSV = (
-    "id,country,gdp_usd,year\n"
-    "1,US,21433226,2019\n"
-    "2,DE,3863344,2019\n"
-    "3,FR,2716692,2019\n"
-)
+SAMPLE_CSV = "id,country,gdp_usd,year\n1,US,21433226,2019\n2,DE,3863344,2019\n3,FR,2716692,2019\n"
 
 SAMPLE_SCHEMA = DataSchema(
     schema_id="reference.static_csv.test_dataset",
@@ -41,7 +42,7 @@ SAMPLE_SCHEMA = DataSchema(
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def connector() -> StaticCSVConnector:
     return StaticCSVConnector()
 
@@ -57,7 +58,7 @@ class TestStaticCSVCompliance(ConnectorTestHarness):
     sample_schema = SAMPLE_SCHEMA
     sample_request = FetchRequest(dataset_id="test_dataset")
 
-    @pytest.fixture()
+    @pytest.fixture
     def connector_instance(self) -> StaticCSVConnector:
         connector = StaticCSVConnector()
 
@@ -79,7 +80,7 @@ class TestStaticCSVCompliance(ConnectorTestHarness):
             version = DataVersion(
                 strategy=VersionStrategy.CONTENT_HASH,
                 value="sha256:" + "0" * 64,
-                timestamp=datetime(2024, 1, 1, tzinfo=timezone.utc),
+                timestamp=datetime(2024, 1, 1, tzinfo=UTC),
                 content_hash="sha256:" + "0" * 64,
             )
             return FetchResult(
@@ -88,7 +89,7 @@ class TestStaticCSVCompliance(ConnectorTestHarness):
                 schema_id="reference.static_csv.test_dataset",
                 schema_version="1.0.0",
                 version=version,
-                fetched_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+                fetched_at=datetime(2024, 1, 1, tzinfo=UTC),
                 completeness=1.0,
                 quality_tier=QualityTier.SILVER,
             )

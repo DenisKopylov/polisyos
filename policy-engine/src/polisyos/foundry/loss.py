@@ -1,4 +1,5 @@
 """Public foundry loss module API."""
+
 # polisyos/foundry/loss.py
 import jax.numpy as jnp
 
@@ -23,9 +24,7 @@ def policy_loss_fn(final_state: GlobalState, min_balance: float = -1000.0) -> fl
 
     total_loss = objective_loss + 10.0 * penalty
     invalid = (
-        ~jnp.all(jnp.isfinite(incomes))
-        | ~jnp.isfinite(balance)
-        | ~jnp.isfinite(min_balance_arr)
+        ~jnp.all(jnp.isfinite(incomes)) | ~jnp.isfinite(balance) | ~jnp.isfinite(min_balance_arr)
     )
     inf_value = jnp.asarray(jnp.inf, dtype=total_loss.dtype)
     return jnp.where(invalid, inf_value, finite_loss_or_inf(total_loss))

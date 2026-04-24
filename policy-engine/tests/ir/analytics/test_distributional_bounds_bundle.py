@@ -4,26 +4,26 @@ import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.distributional import (
-    DistributionalDualBoundWitness,
-    DistributionalDualCertificate,
     CouplingDiagnostics,
     DiscreteDistributionSummary,
-    DistributionBin,
-    DistributionalBoundUniformity,
     DistributionalBoundsBundle,
     DistributionalBoundsMethodSummary,
+    DistributionalBoundUniformity,
+    DistributionalDualBoundWitness,
+    DistributionalDualCertificate,
     DistributionalEffectBundle,
-    DistributionalFunctionalParameters,
     DistributionalFunctional,
+    DistributionalFunctionalParameters,
     DistributionalJustification,
+    DistributionBin,
     FunctionalBounds,
     GridAxis,
     attach_distributional_dual_certificate_ref,
-    load_distributional_dual_certificate,
     load_distributional_bounds_bundle,
-    persist_distributional_dual_certificate,
+    load_distributional_dual_certificate,
     persist_discrete_distribution_summary,
     persist_distributional_bounds_bundle,
+    persist_distributional_dual_certificate,
 )
 from polisyos.ir.refs import ArtifactRefModel
 
@@ -159,7 +159,9 @@ def test_distributional_bounds_bundle_rejects_axis_length_mismatches() -> None:
 def test_distributional_effect_bundle_accepts_distributional_bounds_refs(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     baseline_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
-    counterfactual_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
+    counterfactual_ref = persist_discrete_distribution_summary(
+        store, _distribution_summary("income")
+    )
     bounds_ref = persist_distributional_bounds_bundle(
         store,
         DistributionalBoundsBundle(
@@ -203,7 +205,9 @@ def test_distributional_effect_bundle_accepts_distributional_bounds_refs(tmp_pat
 def test_distributional_effect_bundle_rejects_duplicate_bounds_refs(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     baseline_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
-    counterfactual_ref = persist_discrete_distribution_summary(store, _distribution_summary("income"))
+    counterfactual_ref = persist_discrete_distribution_summary(
+        store, _distribution_summary("income")
+    )
     bounds_ref = persist_distributional_bounds_bundle(
         store,
         DistributionalBoundsBundle(
@@ -224,7 +228,9 @@ def test_distributional_effect_bundle_rejects_duplicate_bounds_refs(tmp_path) ->
         ),
     )
 
-    with pytest.raises(ValueError, match="distributional_bounds_refs contains duplicate artifact_id"):
+    with pytest.raises(
+        ValueError, match="distributional_bounds_refs contains duplicate artifact_id"
+    ):
         DistributionalEffectBundle(
             outcome_name="income",
             justification=DistributionalJustification.BOUNDED,

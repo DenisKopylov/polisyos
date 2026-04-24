@@ -4,9 +4,11 @@ import {
 } from "@/shared/brand/AtlasBrand";
 
 describe("AtlasBrand assets", () => {
-  it("selects the simplified favicon asset for 16px marks", () => {
+  it("keeps Atlas marks on the public/favicon-sized path", () => {
     expect(getAtlasLogoMarkBucket(12)).toBe(16);
-    expect(resolveAtlasLogoMarkAsset({ size: 16 })).toBe("/atlas/favicon.svg");
+    expect(resolveAtlasLogoMarkAsset({ size: 16 })).toBe(
+      "/atlas/logo-mark.svg",
+    );
   });
 
   it("keeps the shared logo mark asset for 32px and 48px sizes", () => {

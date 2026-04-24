@@ -5,6 +5,7 @@ import { useSuspenseArtifactContent } from "@/api/hooks/useArtifactContent";
 import { useSuspenseGovernanceDebug } from "@/api/hooks/useGovernanceDebug";
 import { useSuspenseRunEvidenceContext } from "@/api/hooks/useRunEvidenceContext";
 import { useSuspenseRunTimeline } from "@/api/hooks/useRunTimeline";
+import { buildArtifactHref } from "@/features/artifacts";
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { useI18n } from "@/i18n/LocaleProvider";
@@ -30,6 +31,7 @@ import {
   measureUiLatency,
 } from "@/shared/telemetry/performance";
 import { Badge, Card, EmptyState, PanelSkeleton } from "@/shared/ui";
+import { AuthoredText } from "@/shared/ui/authored-text";
 import { RunExplainabilityPanel } from "@/features/runs/components/RunExplainabilityPanel";
 
 function DecisionPanelContent({ artifactId }: { artifactId: string }) {
@@ -39,6 +41,12 @@ function DecisionPanelContent({ artifactId }: { artifactId: string }) {
     maxBytes: 256 * 1024,
   });
   const decisionArtifact = decisionArtifactQuery.data.artifact;
+  const isDecisionPacket =
+    summary.pipeline?.decision_packet_ref?.artifact_id === artifactId ||
+    decisionArtifact.kind === "scientist.decision_packet";
+  const readingViewHref = isDecisionPacket
+    ? buildArtifactHref(artifactId, { tab: "content", view: "reading" })
+    : null;
 
   useEffect(() => {
     markUiMilestone("runs.overview.decision.ready", {
@@ -58,7 +66,28 @@ function DecisionPanelContent({ artifactId }: { artifactId: string }) {
   if (summary.decisionView) {
     return (
       <div className="space-y-4">
-        <p>{summary.decisionView.policySummary}</p>
+        {readingViewHref ? (
+          <div className="flex justify-end">
+            <Link
+              to={readingViewHref}
+              data-testid="overview-reading-view-link"
+              className="text-accent text-xs font-semibold underline"
+            >
+              {t("common.readingView")}
+            </Link>
+          </div>
+        ) : null}
+        <AuthoredText
+          author="drafter"
+          timestamp={
+            summary.decisionView.generatedAt ??
+            summary.run?.finished_at ??
+            summary.run?.started_at ??
+            undefined
+          }
+        >
+          {summary.decisionView.policySummary}
+        </AuthoredText>
         <div className="grid gap-3 md:grid-cols-2">
           <MetricCard
             label={t("pages.runs.evaluator")}
@@ -83,6 +112,17 @@ function DecisionPanelContent({ artifactId }: { artifactId: string }) {
 
   return (
     <div className="bg-surface/75 border-line rounded-2xl border p-4">
+      {readingViewHref ? (
+        <div className="mb-3 flex justify-end">
+          <Link
+            to={readingViewHref}
+            data-testid="overview-reading-view-link"
+            className="text-accent text-xs font-semibold underline"
+          >
+            {t("common.readingView")}
+          </Link>
+        </div>
+      ) : null}
       <p className="font-semibold">
         {label("artifactKinds", decisionArtifact.kind, decisionArtifact.kind)}
       </p>
@@ -158,13 +198,22 @@ function EvidencePanelContent({ runId }: { runId: string }) {
   );
 
   const selectedNeed = evidenceContext
-    ? findRunEvidenceNeed(evidenceContext, evidenceContext.dataNeeds[0]?.needId ?? null)
+    ? findRunEvidenceNeed(
+        evidenceContext,
+        evidenceContext.dataNeeds[0]?.needId ?? null,
+      )
     : null;
   const selectedPlan = evidenceContext
-    ? findRunEvidencePlan(evidenceContext, evidenceContext.fetchPlans[0]?.planId ?? null)
+    ? findRunEvidencePlan(
+        evidenceContext,
+        evidenceContext.fetchPlans[0]?.planId ?? null,
+      )
     : null;
   const selectedPromotion = evidenceContext
-    ? findRunEvidencePromotion(evidenceContext, evidenceContext.promotionCandidates[0]?.promotionId ?? null)
+    ? findRunEvidencePromotion(
+        evidenceContext,
+        evidenceContext.promotionCandidates[0]?.promotionId ?? null,
+      )
     : null;
 
   return (
@@ -188,9 +237,8 @@ function EvidencePanelContent({ runId }: { runId: string }) {
           <div className="bg-surface/75 border-line rounded-2xl border p-4">
             <strong>{selectedNeed.metric}</strong>
             <p className="text-muted mt-2 text-sm">
-              {selectedNeed.geography ?? "-"} ·{" "}
-              {selectedNeed.timeStart ?? "-"} -{" "}
-              {selectedNeed.timeEnd ?? "-"}
+              {selectedNeed.geography ?? "-"} · {selectedNeed.timeStart ?? "-"}{" "}
+              - {selectedNeed.timeEnd ?? "-"}
             </p>
           </div>
         )}
@@ -199,9 +247,7 @@ function EvidencePanelContent({ runId }: { runId: string }) {
             <strong>
               {selectedPlan.connectorId} / {selectedPlan.datasetId}
             </strong>
-            <p className="text-muted mt-2 text-sm">
-              {selectedPlan.metricId}
-            </p>
+            <p className="text-muted mt-2 text-sm">{selectedPlan.metricId}</p>
           </div>
         )}
         {selectedPromotion && (

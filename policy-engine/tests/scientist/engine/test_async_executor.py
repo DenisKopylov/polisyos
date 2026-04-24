@@ -1,4 +1,5 @@
 """Tests for polisyos.scientist.engine.async_executor — AsyncWorkflowExecutor."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock
@@ -20,15 +21,22 @@ _FAKE_SHA = "sha256:" + "ab" * 32
 def _make_ctx(*, metrics=None):
     store = MagicMock()
     store.put_json.return_value = ArtifactRef(
-        artifact_id=_FAKE_SHA, kind="test", media_type="application/json",
+        artifact_id=_FAKE_SHA,
+        kind="test",
+        media_type="application/json",
     )
     run = MagicMock()
     run.trace_path = None
     run.finalize.return_value = ArtifactRef(
-        artifact_id=_FAKE_SHA, kind="run", media_type="application/json",
+        artifact_id=_FAKE_SHA,
+        kind="run",
+        media_type="application/json",
     )
     return ExecutionContext(
-        store=store, run=run, logger=MagicMock(), metrics=metrics,
+        store=store,
+        run=run,
+        logger=MagicMock(),
+        metrics=metrics,
     )
 
 
@@ -45,6 +53,7 @@ def _make_mock_node(*, node_id="test.node@1.0.0", state_writes=None):
 # Tests
 # ---------------------------------------------------------------------------
 
+
 class TestAsyncWorkflowExecutor:
     @pytest.mark.asyncio
     async def test_simple_linear_dag(self):
@@ -53,7 +62,10 @@ class TestAsyncWorkflowExecutor:
 
         node = _make_mock_node()
         node.execute.return_value = NodeOutcome(
-            status="ok", state=state, events=[], artifacts=[],
+            status="ok",
+            state=state,
+            events=[],
+            artifacts=[],
         )
 
         registry = MagicMock(spec=NodeRegistry)
@@ -87,6 +99,7 @@ class TestAsyncWorkflowExecutor:
             def _execute(ctx, st):
                 call_order.append(alias)
                 return NodeOutcome(status="ok", state=st, events=[], artifacts=[])
+
             return _execute
 
         def _get_node(node_id):
@@ -131,12 +144,18 @@ class TestAsyncWorkflowExecutor:
             node = _make_mock_node(node_id=str(node_id))
             if alias == "b":
                 node.execute.return_value = NodeOutcome(
-                    status="fail", state=state, events=[], artifacts=[],
+                    status="fail",
+                    state=state,
+                    events=[],
+                    artifacts=[],
                     error=NodeError(code="node.exception", message="b failed"),
                 )
             else:
                 node.execute.return_value = NodeOutcome(
-                    status="ok", state=state, events=[], artifacts=[],
+                    status="ok",
+                    state=state,
+                    events=[],
+                    artifacts=[],
                 )
             return node
 
@@ -206,7 +225,10 @@ class TestAsyncWorkflowExecutor:
 
         node = _make_mock_node()
         node.execute.return_value = NodeOutcome(
-            status="ok", state=state, events=[], artifacts=[],
+            status="ok",
+            state=state,
+            events=[],
+            artifacts=[],
         )
 
         registry = MagicMock(spec=NodeRegistry)
@@ -235,7 +257,10 @@ class TestAsyncWorkflowExecutor:
         state = ExperimentState(run_id="async-test-persist")
         node = _make_mock_node()
         node.execute.return_value = NodeOutcome(
-            status="ok", state=state, events=[], artifacts=[],
+            status="ok",
+            state=state,
+            events=[],
+            artifacts=[],
         )
 
         registry = MagicMock(spec=NodeRegistry)
@@ -272,7 +297,10 @@ class TestAsyncWorkflowExecutor:
 
         node = _make_mock_node()
         node.execute.return_value = NodeOutcome(
-            status="ok", state=state, events=[], artifacts=[],
+            status="ok",
+            state=state,
+            events=[],
+            artifacts=[],
         )
 
         registry = MagicMock(spec=NodeRegistry)

@@ -8,15 +8,14 @@ import json
 import re
 import shlex
 import subprocess
+import sys
 import tempfile
 import textwrap
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence
 
-import sys
-
-from tools._lib.imports import repo_root_from, ensure_repo_import_roots
+from tools._lib.imports import ensure_repo_import_roots, repo_root_from
 
 sys.path.insert(0, str(repo_root_from(__file__)))
 

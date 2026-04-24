@@ -104,25 +104,22 @@ describe("promotion decision hooks", () => {
 
   it("updates and invalidates run evidence context when the decision is tied to a run", async () => {
     const { queryClient, wrapper } = createQueryHookHarness();
-    queryClient.setQueryData(
-      queryKeys.runEvidenceContext("run-1"),
-      {
-        context: {
-          promotion_candidates: [
-            {
-              connector_id: "bigquery",
-              dataset_id: "macro",
-              metric_id: "inflation",
-              promotion_id: "promotion-1",
-              status: "pending",
-            },
-          ],
-          run_id: "run-1",
-          source_kind: "core_run",
-        },
-        meta: createMeta(),
+    queryClient.setQueryData(queryKeys.runEvidenceContext("run-1"), {
+      context: {
+        promotion_candidates: [
+          {
+            connector_id: "bigquery",
+            dataset_id: "macro",
+            metric_id: "inflation",
+            promotion_id: "promotion-1",
+            status: "pending",
+          },
+        ],
+        run_id: "run-1",
+        source_kind: "core_run",
       },
-    );
+      meta: createMeta(),
+    });
     const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
     mockRuntimePostSuccess({
       meta: createMeta(),
@@ -139,9 +136,13 @@ describe("promotion decision hooks", () => {
       });
     });
 
-    expect(queryClient.getQueryData(queryKeys.runEvidenceContext("run-1"))).toMatchObject({
+    expect(
+      queryClient.getQueryData(queryKeys.runEvidenceContext("run-1")),
+    ).toMatchObject({
       context: {
-        promotion_candidates: [{ promotion_id: "promotion-1", status: "approved" }],
+        promotion_candidates: [
+          { promotion_id: "promotion-1", status: "approved" },
+        ],
       },
     });
     expect(invalidateSpy).toHaveBeenCalledWith({

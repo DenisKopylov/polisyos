@@ -1,7 +1,8 @@
 """Public uncertainty dispatcher module API."""
+
 from __future__ import annotations
 
-from typing import Callable, Mapping
+from collections.abc import Callable, Mapping
 
 import jax
 import jax.numpy as jnp
@@ -24,6 +25,7 @@ logger = get_logger(__name__)
 
 class PropagationDispatcher:
     """Propagation dispatcher public type."""
+
     def __init__(self, config: PropagationConfig | None = None) -> None:
         self._config = config or PropagationConfig()
         self._analytical = AnalyticalPropagator()
@@ -66,16 +68,23 @@ class PropagationDispatcher:
                     ]
                 except Exception as exc:
                     logger.warning(
-                        "Analytical propagation failed (%s). Falling back to delta method.", exc,
+                        "Analytical propagation failed (%s). Falling back to delta method.",
+                        exc,
                     )
             # Fallback: try delta, then MC
             return self._propagate_delta_with_mc_fallback(
-                simulation_fn, nominal_params, input_envelopes, output_metric_ids,
+                simulation_fn,
+                nominal_params,
+                input_envelopes,
+                output_metric_ids,
             )
 
         if method == PropagationMethod.DELTA_METHOD:
             return self._propagate_delta_with_mc_fallback(
-                simulation_fn, nominal_params, input_envelopes, output_metric_ids,
+                simulation_fn,
+                nominal_params,
+                input_envelopes,
+                output_metric_ids,
             )
 
         return self._mc.propagate(
@@ -161,14 +170,13 @@ class PropagationDispatcher:
             params = {name: theta[idx] for idx, name in enumerate(param_names)}
             result = simulation_fn(**params)
             vals = [
-                jnp.asarray(result.get(mid, 0.0), dtype=jnp.float32)
-                for mid in output_metric_ids
+                jnp.asarray(result.get(mid, 0.0), dtype=jnp.float32) for mid in output_metric_ids
             ]
             return jnp.stack(vals)
 
         try:
             jax.eval_shape(lambda x: jax.jacfwd(_vectorized)(x), nominal)
             return True
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             logger.info("Delta dry-run failed; fallback to Monte Carlo: %s", exc)
             return False

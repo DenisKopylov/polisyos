@@ -1,9 +1,10 @@
 """Public orchestrator decision card module API."""
+
 from __future__ import annotations
 
 import json
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
@@ -15,6 +16,7 @@ logger = get_logger(__name__)
 
 class Verdict(str, Enum):
     """Verdict public type."""
+
     APPROVE = "APPROVE"
     REJECT = "REJECT"
     REVIEW = "REVIEW"
@@ -22,12 +24,13 @@ class Verdict(str, Enum):
 
 class Confidence(str, Enum):
     """Confidence public type."""
+
     LOW = "LOW"
     MEDIUM = "MEDIUM"
     HIGH = "HIGH"
 
     @classmethod
-    def from_blocker_count(cls, blocker_count: int, warning_count: int) -> "Confidence":
+    def from_blocker_count(cls, blocker_count: int, warning_count: int) -> Confidence:
         if blocker_count > 0:
             return cls.LOW
         if warning_count > 0:
@@ -38,6 +41,7 @@ class Confidence(str, Enum):
 @dataclass(frozen=True)
 class KeyMetric:
     """Key metric public type."""
+
     name: str
     value: float
     formatted: str
@@ -50,6 +54,7 @@ class KeyMetric:
 @dataclass(frozen=True)
 class DiagnosticBadge:
     """Diagnostic badge public type."""
+
     label: str
     kind: str = "info"
 
@@ -57,6 +62,7 @@ class DiagnosticBadge:
 @dataclass(frozen=True)
 class IssuesSummary:
     """Counts and blocked-pass ids that explain why governance approved, warned, or blocked a run."""
+
     blocker_count: int = 0
     warning_count: int = 0
     info_count: int = 0
@@ -66,6 +72,7 @@ class IssuesSummary:
 @dataclass(frozen=True)
 class CohortSummaryRow:
     """Cohort summary row public type."""
+
     cohort_label: str
     population_share: float
     primary_delta: float
@@ -76,6 +83,7 @@ class CohortSummaryRow:
 @dataclass(frozen=True)
 class DistributionalSummary:
     """Compact distributional-impact snapshot rendered on the final decision card."""
+
     breakdowns: list[tuple[str, list[CohortSummaryRow]]]
     gini_before: float | None = None
     gini_after: float | None = None
@@ -90,6 +98,7 @@ class DistributionalSummary:
 @dataclass(frozen=True)
 class DecisionCard:
     """Decision card public type."""
+
     run_id: str
     source_hash: str | None = None
     verdict: Verdict = Verdict.REVIEW
@@ -101,10 +110,10 @@ class DecisionCard:
     issues: IssuesSummary = field(default_factory=IssuesSummary)
     distributional: DistributionalSummary | None = None
     total_duration_ms: int = 0
-    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    generated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     @classmethod
-    def from_packet(cls, packet: Any) -> "DecisionCard":
+    def from_packet(cls, packet: Any) -> DecisionCard:
         run_id = str(_read(packet, "run_id", "unknown"))
         generated_at = _parse_datetime(_read(packet, "generated_at", None))
 
@@ -119,7 +128,9 @@ class DecisionCard:
         if not isinstance(simulation_results, dict):
             simulation_results = {}
         uncertainty_bounds = _read(packet, "uncertainty_bounds", None)
-        key_metrics = _extract_key_metrics(simulation_results, uncertainty_bounds=uncertainty_bounds)
+        key_metrics = _extract_key_metrics(
+            simulation_results, uncertainty_bounds=uncertainty_bounds
+        )
         diagnostic_badges = _extract_diagnostic_badges(packet)
 
         distributional = _extract_distributional_summary(_read(packet, "distributional", None))
@@ -301,8 +312,8 @@ def _parse_datetime(raw: Any) -> datetime:
                 raw,
                 exc_info=True,
             )
-            return datetime.now(timezone.utc)
-    return datetime.now(timezone.utc)
+            return datetime.now(UTC)
+    return datetime.now(UTC)
 
 
 def _compute_source_hash(packet: Any) -> str:
@@ -459,11 +470,7 @@ def _extract_diagnostic_badges(packet: Any) -> list[DiagnosticBadge]:
             kind=_badge_kind_for_transport(summary.get("transport_status")),
         ),
         DiagnosticBadge(
-            label=(
-                "legal:checked"
-                if summary.get("legal_executed") is True
-                else "legal:not_run"
-            ),
+            label=("legal:checked" if summary.get("legal_executed") is True else "legal:not_run"),
             kind="ok" if summary.get("legal_executed") is True else "warn",
         ),
         DiagnosticBadge(
@@ -510,13 +517,7 @@ def _extract_distributional_summary(raw: Any) -> DistributionalSummary | None:
             delta = _safe_float(cohort.get("delta"))
             if delta is None:
                 continue
-            direction = (
-                "+"
-                if delta > 0.5
-                else "-"
-                if delta < -0.5
-                else "~"
-            )
+            direction = "+" if delta > 0.5 else "-" if delta < -0.5 else "~"
             is_vulnerable = bool(cohort.get("is_vulnerable", False))
             if is_vulnerable and delta < -0.5:
                 vulnerable_losers_count += 1
@@ -584,10 +585,10 @@ def _badge_kind_for_replay(value: Any) -> str:
 
 
 __all__ = [
-    "Confidence",
     "CohortSummaryRow",
-    "DiagnosticBadge",
+    "Confidence",
     "DecisionCard",
+    "DiagnosticBadge",
     "DistributionalSummary",
     "IssuesSummary",
     "KeyMetric",

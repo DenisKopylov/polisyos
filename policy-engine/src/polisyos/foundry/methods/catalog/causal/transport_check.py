@@ -1,4 +1,5 @@
 """Public causal transport check module API."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -20,6 +21,7 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.ir.analytics.causal import ProofBundle
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
@@ -27,7 +29,6 @@ from polisyos.ir.analytics.causal_graph import (
     GraphType,
     PAGIdentificationPolicy,
 )
-from polisyos.ir.analytics.causal import ProofBundle
 from polisyos.ir.analytics.negative_certificate import (
     negative_certificate_from_transport_result,
 )
@@ -51,6 +52,7 @@ from .transport_engine import solve_transportability
 
 class EliminationResult(BaseModel):
     """Elimination result data model."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     can_eliminate: bool
@@ -203,41 +205,41 @@ def _resolve_transport_privacy_context(
 
 
 def _legacy_pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
-        selection_diagram = SelectionDiagram.model_validate(state["selection_diagram"])
-        query_treatment = str(state["query_treatment"])
-        query_outcome = str(state["query_outcome"])
-        graph = selection_diagram.base_graph
+    selection_diagram = SelectionDiagram.model_validate(state["selection_diagram"])
+    query_treatment = str(state["query_treatment"])
+    query_outcome = str(state["query_outcome"])
+    graph = selection_diagram.base_graph
 
-        policy = _resolve_pag_policy(
-            raw=params.get("pag_identification_policy"),
-            graph_type=graph.graph_type,
-        )
-        if graph.graph_type is GraphType.PAG and policy is PAGIdentificationPolicy.PROBABILISTIC:
-            pag_max_dag_samples = max(1, int(params.get("pag_max_dag_samples", 100) or 100))
-            pag_threshold = float(params.get("pag_threshold", 0.5) or 0.5)
-            if pag_threshold < 0.0:
-                pag_threshold = 0.0
-            if pag_threshold > 1.0:
-                pag_threshold = 1.0
-            pag_seed = int(params.get("pag_seed", 0) or 0)
-            result = _evaluate_pag_probabilistic(
-                selection_diagram=selection_diagram,
-                query_treatment=query_treatment,
-                query_outcome=query_outcome,
-                dag_sample_cap=pag_max_dag_samples,
-                threshold=pag_threshold,
-                seed=pag_seed,
-            )
-            return {"transport_result": result.model_dump(mode="json")}
-
-        result = _evaluate_single_graph(
+    policy = _resolve_pag_policy(
+        raw=params.get("pag_identification_policy"),
+        graph_type=graph.graph_type,
+    )
+    if graph.graph_type is GraphType.PAG and policy is PAGIdentificationPolicy.PROBABILISTIC:
+        pag_max_dag_samples = max(1, int(params.get("pag_max_dag_samples", 100) or 100))
+        pag_threshold = float(params.get("pag_threshold", 0.5) or 0.5)
+        if pag_threshold < 0.0:
+            pag_threshold = 0.0
+        if pag_threshold > 1.0:
+            pag_threshold = 1.0
+        pag_seed = int(params.get("pag_seed", 0) or 0)
+        result = _evaluate_pag_probabilistic(
             selection_diagram=selection_diagram,
             query_treatment=query_treatment,
             query_outcome=query_outcome,
-            graph=graph,
-            algorithm_version="simplified_tr_v2",
+            dag_sample_cap=pag_max_dag_samples,
+            threshold=pag_threshold,
+            seed=pag_seed,
         )
         return {"transport_result": result.model_dump(mode="json")}
+
+    result = _evaluate_single_graph(
+        selection_diagram=selection_diagram,
+        query_treatment=query_treatment,
+        query_outcome=query_outcome,
+        graph=graph,
+        algorithm_version="simplified_tr_v2",
+    )
+    return {"transport_result": result.model_dump(mode="json")}
 
 
 def _resolve_pag_policy(
@@ -342,11 +344,9 @@ def _evaluate_pag_probabilistic(
     )
     warnings = list(representative.warnings)
     warnings.append(
-        (
-            "PAG probabilistic identification: "
-            f"{transportable_count}/{total} sampled DAGs transportable "
-            f"(threshold={threshold:.3f})."
-        )
+        "PAG probabilistic identification: "
+        f"{transportable_count}/{total} sampled DAGs transportable "
+        f"(threshold={threshold:.3f})."
     )
 
     return representative.model_copy(
@@ -430,9 +430,7 @@ def _sample_dag_candidates_from_pag(
         if len(sampled) >= sample_cap:
             return
         oriented_edges = [edge_options[idx][choice] for idx, choice in enumerate(indices)]
-        signature = tuple(
-            sorted((edge.src, edge.dst, edge.lag) for edge in oriented_edges)
-        )
+        signature = tuple(sorted((edge.src, edge.dst, edge.lag) for edge in oriented_edges))
         if signature in seen:
             return
         if _has_cycle(oriented_edges, graph.nodes):
@@ -494,7 +492,7 @@ def _oriented_edge(edge: CausalEdge, *, src: str, dst: str) -> CausalEdge:
 
 
 def _has_cycle(edges: list[CausalEdge], nodes: list[str]) -> bool:
-    indegree: dict[str, int] = {node: 0 for node in nodes}
+    indegree: dict[str, int] = dict.fromkeys(nodes, 0)
     adjacency: dict[str, list[str]] = {node: [] for node in nodes}
     for edge in edges:
         if edge.lag not in (None, 0):
@@ -567,9 +565,9 @@ def _evaluate_single_graph(
         if elim.can_eliminate:
             if elim.adj_var:
                 existing = elimination_results.get(elim.adj_var)
-                if existing is None:
-                    elimination_results[elim.adj_var] = elim
-                elif elim.requires_conditional and not existing.requires_conditional:
+                if existing is None or (
+                    elim.requires_conditional and not existing.requires_conditional
+                ):
                     elimination_results[elim.adj_var] = elim
             continue
 
@@ -739,18 +737,11 @@ def _build_formula_str(
 ) -> str:
     if not adjustments:
         return (
-            f"P*({query_outcome}|do({query_treatment})) = "
-            f"P({query_outcome}|do({query_treatment}))"
+            f"P*({query_outcome}|do({query_treatment})) = P({query_outcome}|do({query_treatment}))"
         )
     join_vars = ",".join(adjustments)
-    terms = [
-        f"P({query_outcome}|do({query_treatment}),{var}) * P*({var})"
-        for var in adjustments
-    ]
-    return (
-        f"P*({query_outcome}|do({query_treatment})) = "
-        f"Σ_{{{join_vars}}} " + " * ".join(terms)
-    )
+    terms = [f"P({query_outcome}|do({query_treatment}),{var}) * P*({var})" for var in adjustments]
+    return f"P*({query_outcome}|do({query_treatment})) = Σ_{{{join_vars}}} " + " * ".join(terms)
 
 
 def _try_eliminate_s_node_simplified(

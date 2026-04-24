@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 import numpy as np
 import pandas as pd
 
@@ -74,8 +72,10 @@ class RawZepidIPTW:
         se = float(ate_df.loc["T", "SE(ATE)"])
 
         return EstimatorResult(
-            ate=ate, ate_se=se,
-            ci_lower=ate - 1.96 * se, ci_upper=ate + 1.96 * se,
+            ate=ate,
+            ate_se=se,
+            ci_lower=ate - 1.96 * se,
+            ci_upper=ate + 1.96 * se,
         )
 
 

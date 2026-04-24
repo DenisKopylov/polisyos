@@ -1,8 +1,10 @@
 """Shared cross-sectional dependence routing helpers for panel-like estimators."""
+
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping
 from statistics import NormalDist
-from typing import Any, Callable, Mapping
+from typing import Any
 
 import numpy as np
 
@@ -209,10 +211,18 @@ def _factor_metrics(matrix: np.ndarray) -> dict[str, float | int | None]:
     total = float(np.sum(eigenvalues))
     leading_eigenvalue = float(eigenvalues[0])
     dominant_share = float(eigenvalues[0] / total)
-    baseline = float(np.median(eigenvalues[eigenvalues > _FLOAT_EPS])) if np.any(eigenvalues > _FLOAT_EPS) else 0.0
+    baseline = (
+        float(np.median(eigenvalues[eigenvalues > _FLOAT_EPS]))
+        if np.any(eigenvalues > _FLOAT_EPS)
+        else 0.0
+    )
     threshold = max(baseline * 2.5, total * 0.05)
     factor_count = int(np.sum(eigenvalues > threshold))
-    spectral_gap = float(eigenvalues[0] / max(eigenvalues[1], _FLOAT_EPS)) if eigenvalues.size > 1 else float("inf")
+    spectral_gap = (
+        float(eigenvalues[0] / max(eigenvalues[1], _FLOAT_EPS))
+        if eigenvalues.size > 1
+        else float("inf")
+    )
     alpha_hat = float(
         np.clip(
             np.log(max(leading_eigenvalue, 1.0)) / np.log(max(completed.shape[0], 2)),
@@ -339,11 +349,7 @@ def _block_screen(
         n_entities=int(cluster_ids.shape[0]),
         mask_builder=mask_builder,
     )
-    passed = not (
-        observed is not None
-        and observed > 0.05
-        and (p_value is None or p_value < alpha)
-    )
+    passed = not (observed is not None and observed > 0.05 and (p_value is None or p_value < alpha))
     return (
         EconometricDiagnosticResult(
             test_name="block_dependence_screen",
@@ -386,7 +392,12 @@ def _spatial_or_network_screen(
     weights: np.ndarray | None,
     alpha: float,
 ) -> tuple[EconometricDiagnosticResult | None, bool]:
-    if weights is None or weights.ndim != 2 or weights.shape[0] != weights.shape[1] or correlations.size == 0:
+    if (
+        weights is None
+        or weights.ndim != 2
+        or weights.shape[0] != weights.shape[1]
+        or correlations.size == 0
+    ):
         return None, False
     neighbor_mask = weights[pairs_i, pairs_j] > 0.0
     observed = _pair_mask_statistic(correlations, neighbor_mask)
@@ -403,11 +414,7 @@ def _spatial_or_network_screen(
             if abs(stat) >= abs(observed) - 1e-12:
                 exceedances += 1
         p_value = float((exceedances + 1) / (_PERMUTATIONS + 1))
-    passed = not (
-        observed is not None
-        and observed > 0.05
-        and (p_value is None or p_value < alpha)
-    )
+    passed = not (observed is not None and observed > 0.05 and (p_value is None or p_value < alpha))
     return (
         EconometricDiagnosticResult(
             test_name=test_name,
@@ -546,7 +553,9 @@ def route_cross_sectional_dependence(
     tests.extend([centered_cd, centered_cd_star, factor_result])
     structural_hits: list[str] = []
 
-    cluster_ids = _align_entity_metadata(metadata.get("cluster_ids"), entity_obs=entity_obs, unique_entities=unique_entities)
+    cluster_ids = _align_entity_metadata(
+        metadata.get("cluster_ids"), entity_obs=entity_obs, unique_entities=unique_entities
+    )
     block_result, block_trigger = _block_screen(
         correlations=correlations,
         pairs_i=pairs_i,
@@ -628,15 +637,10 @@ def route_cross_sectional_dependence(
         and mean_abs_corr is not None
         and centered_mean_abs_corr is not None
         and centered_mean_abs_corr <= max(0.15, 0.50 * mean_abs_corr)
-        and (
-            centered_cd.passed
-            or (factor_count == 0 and (dominant_share or 0.0) < 0.35)
-        )
+        and (centered_cd.passed or (factor_count == 0 and (dominant_share or 0.0) < 0.35))
     )
     localized_eigen_structure = bool(
-        structural_hits
-        and factor_count > 0
-        and (dominant_share or 0.0) < 0.45
+        structural_hits and factor_count > 0 and (dominant_share or 0.0) < 0.45
     )
     factor_trigger = bool(
         (not factor_result.passed)
@@ -687,7 +691,10 @@ def route_cross_sectional_dependence(
         "router_version": "phase1",
         "method_context": method_context,
     }
-    if requested_covariance not in {"auto", "none"} and requested_covariance != recommended_covariance:
+    if (
+        requested_covariance not in {"auto", "none"}
+        and requested_covariance != recommended_covariance
+    ):
         evidence["forced_covariance_mismatch"] = {
             "requested": requested_covariance,
             "recommended": recommended_covariance,

@@ -13,7 +13,10 @@ def test_composition_payload_augmentation_tolerates_null_result_payload() -> Non
     payload = {
         "cases": [
             {"name": "proxy_case", "result_payload": None},
-            {"name": "ok_case", "result_payload": {"composition_status": "ok", "failure_cards": []}},
+            {
+                "name": "ok_case",
+                "result_payload": {"composition_status": "ok", "failure_cards": []},
+            },
         ],
         "pass_rate": 1.0,
     }

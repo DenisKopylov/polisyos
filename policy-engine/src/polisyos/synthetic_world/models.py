@@ -1,10 +1,12 @@
 """Typed contracts for synthetic worlds, truth manifests, and evaluation runs."""
+
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from enum import Enum
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
@@ -201,7 +203,7 @@ class SyntheticWorldDGP(BaseModel):
         return content_hash(canonical, prefix=True)
 
     @classmethod
-    def from_path(cls, path: str | Path, *, seed: int | None = None) -> "SyntheticWorldDGP":
+    def from_path(cls, path: str | Path, *, seed: int | None = None) -> SyntheticWorldDGP:
         """Load a JSON/YAML world spec from disk."""
         file_path = Path(path)
         text = file_path.read_text(encoding="utf-8")
@@ -221,6 +223,7 @@ class SyntheticWorldDGP(BaseModel):
         if seed is not None:
             payload = {**payload, "seed": seed}
         return cls.model_validate(payload)
+
 
 class WorldSpec(SyntheticWorldDGP):
     """Named public alias for the canonical synthetic-world spec."""

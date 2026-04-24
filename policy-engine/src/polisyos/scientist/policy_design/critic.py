@@ -32,6 +32,7 @@ from polisyos.scientist.search.uncertainty import UncertaintyType
 
 class ConstraintFinding(BaseModel):
     """Constraint finding public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     finding_id: str = Field(default_factory=lambda: f"finding_{uuid4().hex[:10]}")
@@ -47,6 +48,7 @@ class ConstraintFinding(BaseModel):
 
 class ConstraintTrace(BaseModel):
     """Constraint trace public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     trace_type: str = Field(min_length=1)
@@ -57,6 +59,7 @@ class ConstraintTrace(BaseModel):
 
 class ConstraintCritique(BaseModel):
     """Constraint critique public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: str = Field(min_length=1)
@@ -81,6 +84,7 @@ class ConstraintCritique(BaseModel):
 
 class ConstraintCriticInput(BaseModel):
     """Constraint critic input public type."""
+
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     candidate: PolicyCandidateSchema
@@ -312,8 +316,7 @@ class ConstraintCritic:
                     status=status,
                     severity=severity,
                     description=(
-                        f"Hard constraint '{name}' is {status} with value "
-                        f"{channel.value:.4f}."
+                        f"Hard constraint '{name}' is {status} with value {channel.value:.4f}."
                     ),
                     source=channel.source or "policy_evaluation",
                     failure_type=failure_type,
@@ -330,10 +333,7 @@ class ConstraintCritic:
         report = payload.governance_report
         if report is None:
             return []
-        return [
-            _issue_to_finding("governance_report", issue)
-            for issue in report.issues
-        ]
+        return [_issue_to_finding("governance_report", issue) for issue in report.issues]
 
 
 def critique_to_failure_cards(critique: ConstraintCritique) -> list[TypedFailureCard]:
@@ -414,7 +414,9 @@ def _build_traces(findings: list[ConstraintFinding]) -> list[ConstraintTrace]:
                     trace_type="legal_blocker",
                     summary=finding.description,
                     evidence=[finding.failure_type],
-                    mutation_hints=["Revise the intervention or legal basis to satisfy blocked norms."],
+                    mutation_hints=[
+                        "Revise the intervention or legal basis to satisfy blocked norms."
+                    ],
                 )
             )
         elif "harm" in finding.failure_type or "equity" in finding.check_name:
@@ -432,7 +434,9 @@ def _build_traces(findings: list[ConstraintFinding]) -> list[ConstraintTrace]:
                     trace_type="fragile_assumption",
                     summary=finding.description,
                     evidence=[finding.failure_type],
-                    mutation_hints=["Simplify the policy family or restrict the target population."],
+                    mutation_hints=[
+                        "Simplify the policy family or restrict the target population."
+                    ],
                 )
             )
         elif "timeout" in finding.failure_type:
@@ -459,7 +463,9 @@ def _build_traces(findings: list[ConstraintFinding]) -> list[ConstraintTrace]:
                     trace_type="transport_break",
                     summary=finding.description,
                     evidence=[finding.failure_type],
-                    mutation_hints=["Narrow target geography or add transport assumptions explicitly."],
+                    mutation_hints=[
+                        "Narrow target geography or add transport assumptions explicitly."
+                    ],
                 )
             )
         elif "budget" in finding.failure_type:

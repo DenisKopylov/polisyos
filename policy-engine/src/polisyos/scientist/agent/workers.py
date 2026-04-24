@@ -273,9 +273,7 @@ def build_scholar_search_worker_handler(
             budgets=_search_budgets_from_hints(task.budget_hints),
         )
         title_by_source_id = {
-            source.source_id: source.title
-            for source in bundle.sources
-            if source.title
+            source.source_id: source.title for source in bundle.sources if source.title
         }
         citations = [
             WorkerCitation(
@@ -611,10 +609,7 @@ def _validate_source_policy(
 ) -> str | None:
     """Check that worker citations satisfy source-policy constraints."""
     if policy.require_citations and len(citations) < max(1, policy.min_citations):
-        return (
-            f"expected at least {max(1, policy.min_citations)} citation(s), "
-            f"got {len(citations)}"
-        )
+        return f"expected at least {max(1, policy.min_citations)} citation(s), got {len(citations)}"
     if policy.require_snippets and any(not citation.snippet.strip() for citation in citations):
         return "all citations must include non-empty snippets"
 
@@ -645,10 +640,7 @@ def _validate_expected_output(
 
     required = schema.get("required")
     if isinstance(required, list):
-        missing = [
-            key for key in required
-            if isinstance(key, str) and key not in output_data
-        ]
+        missing = [key for key in required if isinstance(key, str) and key not in output_data]
         if missing:
             return f"output_data missing required keys: {', '.join(missing)}"
 

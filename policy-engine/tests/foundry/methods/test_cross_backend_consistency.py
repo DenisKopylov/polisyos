@@ -4,6 +4,7 @@ Cross-backend consistency tests: NumPy arrays vs JAX arrays as input.
 Verifies that pure_step produces the same output regardless of whether
 the input arrays are numpy.ndarray or jax.numpy.ndarray.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -14,8 +15,8 @@ import pytest
 from polisyos.foundry.methods.registry import MethodRegistry
 
 try:
-    import jax.numpy as jnp
     import jax
+    import jax.numpy as jnp
 
     HAS_JAX = True
 except ImportError:
@@ -59,9 +60,7 @@ def _extract_numerics(output: Any, path: str = "") -> dict[str, float]:
     elif isinstance(output, (list, tuple)):
         for i, v in enumerate(output):
             results.update(_extract_numerics(v, f"{path}[{i}]"))
-    elif isinstance(output, (int, float)):
-        results[path] = float(output)
-    elif isinstance(output, np.generic):
+    elif isinstance(output, (int, float)) or isinstance(output, np.generic):
         results[path] = float(output)
     elif hasattr(output, "item"):
         try:
@@ -139,23 +138,29 @@ CROSS_BACKEND_CASES = [
     ),
     (
         "distributional.mobility.intergenerational_elasticity@1.0.0",
-        {"parent_values": np.array([10.0, 20.0, 30.0, 40.0, 50.0]),
-         "child_values": np.array([15.0, 25.0, 35.0, 45.0, 55.0])},
+        {
+            "parent_values": np.array([10.0, 20.0, 30.0, 40.0, 50.0]),
+            "child_values": np.array([15.0, 25.0, 35.0, 45.0, 55.0]),
+        },
         {},
         1e-5,
     ),
     (
         "sensitivity.specification.specification_curve@1.0.0",
-        {"estimates": np.array([0.3, 0.5, 0.7, 0.4, 0.6]),
-         "standard_errors": np.array([0.1, 0.1, 0.1, 0.1, 0.1])},
+        {
+            "estimates": np.array([0.3, 0.5, 0.7, 0.4, 0.6]),
+            "standard_errors": np.array([0.1, 0.1, 0.1, 0.1, 0.1]),
+        },
         {"significance_level": 0.05},
         1e-5,
     ),
     (
         "validation.probabilistic.normal_scores@1.0.0",
-        {"observations": np.array([1.0, 2.0, 3.0, 4.0, 5.0]),
-         "predictive_mean": np.array([1.0, 2.0, 3.0, 4.0, 5.0]),
-         "predictive_std": np.array([0.5, 0.5, 0.5, 0.5, 0.5])},
+        {
+            "observations": np.array([1.0, 2.0, 3.0, 4.0, 5.0]),
+            "predictive_mean": np.array([1.0, 2.0, 3.0, 4.0, 5.0]),
+            "predictive_std": np.array([0.5, 0.5, 0.5, 0.5, 0.5]),
+        },
         {},
         1e-4,
     ),

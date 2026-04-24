@@ -49,8 +49,10 @@ Positive:
 
 - tooling can discover and inspect the frontier surface through the schema
   catalog and reflection API;
+
 - policy authoring can declare temporal, layered, and strategic semantics
   without untyped metadata blobs;
+
 - frontier causal outputs gain stable report/spec contracts for offline
   research, interchange, and docs generation.
 
@@ -58,6 +60,7 @@ Tradeoffs:
 
 - the analytics facade grows, so package-level export counts and docs must stay
   ratcheted by the public-surface audit;
+
 - these contracts remain research-oriented surfaces and do not imply default
   runtime support for every frontier method.
 

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 
 import type { CausalNodeData, CausalEdgeData, LayoutAlgorithm } from "../types";
@@ -94,10 +95,14 @@ export function CompareGraphsPanel({
   layout: initialLayout = "hierarchical",
   className,
 }: CompareGraphsPanelProps) {
+  const { t } = useI18n();
   const [mode, setMode] = useState<CompareMode>("side_by_side");
   const [layout] = useState<LayoutAlgorithm>(initialLayout);
 
-  const diff = useMemo(() => computeGraphDiff(graphA, graphB), [graphA, graphB]);
+  const diff = useMemo(
+    () => computeGraphDiff(graphA, graphB),
+    [graphA, graphB],
+  );
 
   const totalChanges =
     diff.addedNodes.length +
@@ -111,7 +116,8 @@ export function CompareGraphsPanel({
       {/* Controls */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">
-          Compare: {graphA.label} vs {graphB.label}
+          {t("causal.compare.compareLabel")} {graphA.label}{" "}
+          {t("causal.compare.versus")} {graphB.label}
         </h3>
         <div className="bg-surface flex gap-1 rounded-lg p-0.5">
           {(["side_by_side", "overlay", "diff"] as const).map((m) => (
@@ -127,10 +133,10 @@ export function CompareGraphsPanel({
               onClick={() => setMode(m)}
             >
               {m === "side_by_side"
-                ? "Side by side"
+                ? t("causal.compare.sideBySide")
                 : m === "overlay"
-                  ? "Overlay"
-                  : "Diff"}
+                  ? t("causal.compare.overlay")
+                  : t("causal.compare.diff")}
             </button>
           ))}
         </div>
@@ -141,27 +147,30 @@ export function CompareGraphsPanel({
         <div className="bg-surface border-line flex flex-wrap gap-3 rounded-lg border p-2 text-xs">
           {diff.addedNodes.length > 0 && (
             <span className="text-[var(--chart-success)]">
-              +{diff.addedNodes.length} nodes
+              +{t("causal.compare.nodes", { count: diff.addedNodes.length })}
             </span>
           )}
           {diff.removedNodes.length > 0 && (
             <span className="text-[var(--chart-alert)]">
-              -{diff.removedNodes.length} nodes
+              -{t("causal.compare.nodes", { count: diff.removedNodes.length })}
             </span>
           )}
           {diff.addedEdges.length > 0 && (
             <span className="text-[var(--chart-success)]">
-              +{diff.addedEdges.length} edges
+              +{t("causal.compare.edges", { count: diff.addedEdges.length })}
             </span>
           )}
           {diff.removedEdges.length > 0 && (
             <span className="text-[var(--chart-alert)]">
-              -{diff.removedEdges.length} edges
+              -{t("causal.compare.edges", { count: diff.removedEdges.length })}
             </span>
           )}
           {diff.changedEdges.length > 0 && (
             <span className="text-[var(--chart-warning)]">
-              ~{diff.changedEdges.length} modified
+              ~
+              {t("causal.compare.modified", {
+                count: diff.changedEdges.length,
+              })}
             </span>
           )}
         </div>
@@ -208,7 +217,10 @@ export function CompareGraphsPanel({
               showControls={false}
             />
           </div>
-          <div className="absolute inset-0 opacity-60" style={{ mixBlendMode: "multiply" }}>
+          <div
+            className="absolute inset-0 opacity-60"
+            style={{ mixBlendMode: "multiply" }}
+          >
             <CausalGraphCanvas
               nodes={graphB.nodes}
               edges={graphB.edges}
@@ -234,7 +246,7 @@ export function CompareGraphsPanel({
         <div className="space-y-3">
           {totalChanges === 0 ? (
             <p className="text-muted p-4 text-center text-sm">
-              Graphs are identical.
+              {t("causal.compare.identical")}
             </p>
           ) : (
             <div className="space-y-2">
@@ -242,9 +254,14 @@ export function CompareGraphsPanel({
                 <div
                   key={`${c.id}-${c.field}`}
                   className="border-line rounded-lg border p-2 text-xs"
-                  style={{ borderLeftWidth: 3, borderLeftColor: "var(--chart-warning)" }}
+                  style={{
+                    borderLeftWidth: 3,
+                    borderLeftColor: "var(--chart-warning)",
+                  }}
                 >
-                  <span className="font-semibold">Edge {c.id}</span>
+                  <span className="font-semibold">
+                    {t("causal.compare.edge")} {c.id}
+                  </span>
                   <span className="text-muted"> · {c.field}: </span>
                   <span className="text-[var(--chart-alert)] line-through">
                     {c.from}
@@ -257,9 +274,13 @@ export function CompareGraphsPanel({
                 <div
                   key={id}
                   className="border-line rounded-lg border p-2 text-xs"
-                  style={{ borderLeftWidth: 3, borderLeftColor: "var(--chart-success)" }}
+                  style={{
+                    borderLeftWidth: 3,
+                    borderLeftColor: "var(--chart-success)",
+                  }}
                 >
-                  <span className="text-[var(--chart-success)]">+</span> Node{" "}
+                  <span className="text-[var(--chart-success)]">+</span>{" "}
+                  {t("causal.compare.node")}{" "}
                   <span className="font-semibold">{id}</span>
                 </div>
               ))}
@@ -267,9 +288,13 @@ export function CompareGraphsPanel({
                 <div
                   key={id}
                   className="border-line rounded-lg border p-2 text-xs"
-                  style={{ borderLeftWidth: 3, borderLeftColor: "var(--chart-alert)" }}
+                  style={{
+                    borderLeftWidth: 3,
+                    borderLeftColor: "var(--chart-alert)",
+                  }}
                 >
-                  <span className="text-[var(--chart-alert)]">-</span> Node{" "}
+                  <span className="text-[var(--chart-alert)]">-</span>{" "}
+                  {t("causal.compare.node")}{" "}
                   <span className="font-semibold">{id}</span>
                 </div>
               ))}

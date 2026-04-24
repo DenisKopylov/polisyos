@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 _CATALOG_SOURCE_ROOT = Path(
     "/Users/deniskopylov/polisyos/policy-engine/src/polisyos/foundry/methods/catalog"
 )
@@ -17,6 +16,5 @@ def test_catalog_source_files_do_not_ship_placeholder_namespaces() -> None:
 
     assert not offenders, (
         "Catalog source files must leave undecorated MethodSignature "
-        "namespaces empty instead of shipping placeholder literals:\n"
-        + "\n".join(offenders)
+        "namespaces empty instead of shipping placeholder literals:\n" + "\n".join(offenders)
     )

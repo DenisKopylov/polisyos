@@ -26,7 +26,7 @@ builders, orchestrator, CLI, and server surfaces. The slice currently contains
 
 ## Depends On / Depended On By
 
-**Depends on**
+### Depends On
 
 - [`../../tools/ukraine_data/README.md`](../../tools/ukraine_data/README.md)
 - `src/polisyos/ukraine_data/adapters.py`
@@ -34,7 +34,7 @@ builders, orchestrator, CLI, and server surfaces. The slice currently contains
 - `src/polisyos/ukraine_data/orchestrator.py`
 - `src/polisyos/ukraine_data/server.py`
 
-**Depended on by**
+### Depended On By
 
 - Data tooling and server workflows built around the `ukraine-data` entrypoint
 - [`../tools/README.md`](../tools/README.md) and [`../README.md`](../README.md)

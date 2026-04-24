@@ -1,4 +1,5 @@
 """Public compile link trinity module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
@@ -51,6 +52,7 @@ class LinkTrinityNode:
     Reads Trinity and registry inputs, persists the link report, and optionally
     fails fast when strict linking detects unresolved schema or registry mismatches.
     """
+
     allow_extra_params: bool = False
     strict: bool = True
 
@@ -58,7 +60,7 @@ class LinkTrinityNode:
     def spec(self) -> NodeSpec:
         return _SPEC
 
-    def bind(self, params: dict[str, Any]) -> "LinkTrinityNode":
+    def bind(self, params: dict[str, Any]) -> LinkTrinityNode:
         if not params:
             return self
         allow_extra = params.get("allow_extra_params", self.allow_extra_params)

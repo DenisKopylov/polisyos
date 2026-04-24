@@ -109,12 +109,19 @@ export function auditNavigationBudgets(
   if (ttiViolation) violations.push(ttiViolation);
 
   // Check resource transfer sizes for bundle budgets
-  const resources = performance.getEntriesByType("resource") as PerformanceResourceTiming[];
+  const resources = performance.getEntriesByType(
+    "resource",
+  ) as PerformanceResourceTiming[];
   const jsResources = resources.filter(
     (r) => r.initiatorType === "script" && r.transferSize > 0,
   );
-  const totalJsKB = jsResources.reduce((sum, r) => sum + r.transferSize, 0) / 1024;
-  const bundleViolation = checkBudget("totalSessionKB", totalJsKB, budgets.totalSessionKB);
+  const totalJsKB =
+    jsResources.reduce((sum, r) => sum + r.transferSize, 0) / 1024;
+  const bundleViolation = checkBudget(
+    "totalSessionKB",
+    totalJsKB,
+    budgets.totalSessionKB,
+  );
   if (bundleViolation) violations.push(bundleViolation);
 
   for (const v of violations) {

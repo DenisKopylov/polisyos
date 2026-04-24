@@ -4,6 +4,7 @@
 `FileSystemCAS`. `ArtifactRef`/`InputRef` form the lineage boundary consumed by
 runtime APIs, registry bundles, and governance reports.
 """
+
 from __future__ import annotations
 
 from datetime import UTC, datetime
@@ -22,6 +23,7 @@ def utc_now() -> datetime:
 
 class SchemaInfo(BaseModel):
     """Identify the schema contract that describes an artifact payload."""
+
     model_config = ConfigDict(extra="forbid")
     name: str
     version: str
@@ -29,6 +31,7 @@ class SchemaInfo(BaseModel):
 
 class CanonInfo(BaseModel):
     """Record the canonicalization rules used before hashing/storing JSON payloads."""
+
     model_config = ConfigDict(extra="forbid")
     name: str = "polisyos.canon.json"
     version: str = "0.2.0"
@@ -46,28 +49,21 @@ class CanonInfo(BaseModel):
         return cls(
             name=getattr(spec, "name", cls.model_fields["name"].default),
             version=getattr(spec, "version", cls.model_fields["version"].default),
-            forbid_floats=getattr(
-                spec, "forbid_floats", cls.model_fields["forbid_floats"].default
-            ),
+            forbid_floats=getattr(spec, "forbid_floats", cls.model_fields["forbid_floats"].default),
             forbid_nan_inf=getattr(
                 spec, "forbid_nan_inf", cls.model_fields["forbid_nan_inf"].default
             ),
-            exclude_none=getattr(
-                spec, "exclude_none", cls.model_fields["exclude_none"].default
-            ),
+            exclude_none=getattr(spec, "exclude_none", cls.model_fields["exclude_none"].default),
             max_depth=getattr(spec, "max_depth", cls.model_fields["max_depth"].default),
             sort_keys=getattr(spec, "sort_keys", cls.model_fields["sort_keys"].default),
-            separators=getattr(
-                spec, "separators", cls.model_fields["separators"].default
-            ),
-            ensure_ascii=getattr(
-                spec, "ensure_ascii", cls.model_fields["ensure_ascii"].default
-            ),
+            separators=getattr(spec, "separators", cls.model_fields["separators"].default),
+            ensure_ascii=getattr(spec, "ensure_ascii", cls.model_fields["ensure_ascii"].default),
         )
 
 
 class GitInfo(BaseModel):
     """Capture producer git provenance attached to a manifest."""
+
     model_config = ConfigDict(extra="forbid")
     commit: str
     dirty: bool = False
@@ -75,6 +71,7 @@ class GitInfo(BaseModel):
 
 class ProducerInfo(BaseModel):
     """Identify the component/version that produced an artifact."""
+
     model_config = ConfigDict(extra="forbid")
     component: ComponentId | str
     version: str
@@ -96,6 +93,7 @@ class ProducerInfo(BaseModel):
 
 class EnvInfo(BaseModel):
     """Summarize the runtime environment fingerprint persisted with a manifest."""
+
     model_config = ConfigDict(extra="forbid")
     python: str
     platform: str
@@ -104,6 +102,7 @@ class EnvInfo(BaseModel):
 
 class WarningRecord(BaseModel):
     """Attach non-fatal producer/runtime warnings to an artifact manifest."""
+
     model_config = ConfigDict(extra="forbid")
     code: str
     msg: str
@@ -144,6 +143,7 @@ class ArtifactGovernanceInfo(BaseModel):
 
 class IntegrityInfo(BaseModel):
     """Persist the expected payload digest and optional extra integrity metadata."""
+
     model_config = ConfigDict(extra="forbid")
     sha256: str
     optional: dict[str, str] | None = None
@@ -151,6 +151,7 @@ class IntegrityInfo(BaseModel):
 
 class InputRef(BaseModel):
     """Declare one upstream artifact edge in a manifest lineage DAG."""
+
     model_config = ConfigDict(extra="forbid")
     artifact_id: ArtifactID
     role: str
@@ -158,6 +159,7 @@ class InputRef(BaseModel):
 
 class ArtifactRef(BaseModel):
     """Reference an artifact across service, registry, and governance boundaries."""
+
     model_config = ConfigDict(extra="forbid")
     artifact_id: ArtifactID
     kind: str
@@ -171,6 +173,7 @@ class ArtifactManifest(BaseModel):
     `artifact_id` must match the blob bytes, and `inputs` encodes direct
     upstream dependencies used by lineage reconstruction.
     """
+
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     artifact_id: ArtifactID

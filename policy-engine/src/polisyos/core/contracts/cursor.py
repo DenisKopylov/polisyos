@@ -66,7 +66,7 @@ class IncrementalCheckpoint(BaseModel):
     datasets_completed: list[str] = Field(default_factory=list)
     datasets_pending: list[str] = Field(default_factory=list)
     cursor_states: list[CursorState] = Field(default_factory=list)
-    stream_checkpoints: list["StreamCheckpoint"] = Field(default_factory=list)
+    stream_checkpoints: list[StreamCheckpoint] = Field(default_factory=list)
     created_at: datetime
 
 

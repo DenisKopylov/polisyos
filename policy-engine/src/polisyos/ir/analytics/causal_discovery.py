@@ -1,17 +1,23 @@
 """Describe discovery outputs, latent-assumption disclosures, and algebraic diagnostics."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
 from enum import Enum
-from typing import Any, Literal, Self
+from typing import TYPE_CHECKING, Any, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.analytics.causal_graph import CausalGraphModel
-from polisyos.ir.analytics.invariance import RegimeShiftIdentificationCertificate
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import ArtifactRefModel, CausalDiscoveryReportRef
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+    from polisyos.ir.analytics.invariance import RegimeShiftIdentificationCertificate
+else:
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+    from polisyos.ir.analytics.invariance import RegimeShiftIdentificationCertificate
 
 _ALGEBRAIC_IMPLIED_CONSTRAINTS_KIND = "ir.algebraic_implied_constraints"
 _ALGEBRAIC_IMPLIED_CONSTRAINTS_SCHEMA_NAME = "ir.algebraic_implied_constraints"
@@ -29,6 +35,7 @@ LATENT_CARDINALITY_FAILURE_REASONS_KEY = "latent_cardinality_failure_reasons"
 
 class AlgebraicConstraintFamily(str, Enum):
     """Select the family of algebraic test implied by a graph or latent-factor block."""
+
     CI = "ci"
     TETRAD = "tetrad"
     OVERCOMPLETE = "overcomplete"
@@ -125,6 +132,7 @@ class AlgebraicReproducibilityTier(str, Enum):
 
 class AlgebraicBlockSpec(BaseModel):
     """Declare one variable block whose implied algebraic constraints should be tested."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     block_id: str = Field(min_length=1)
@@ -165,9 +173,7 @@ class AlgebraicBlockSpec(BaseModel):
             if self.expected_rank is not None:
                 raise ValueError("expected_rank is only valid for overcomplete blocks")
             if self.max_residual_energy is not None:
-                raise ValueError(
-                    "max_residual_energy is only valid for overcomplete blocks"
-                )
+                raise ValueError("max_residual_energy is only valid for overcomplete blocks")
             if self.row_variables or self.col_variables or self.max_rank is not None:
                 raise ValueError(
                     "row_variables/col_variables/max_rank are only valid for trek_rank blocks"
@@ -201,9 +207,7 @@ class AlgebraicBlockSpec(BaseModel):
             if self.expected_rank is None:
                 raise ValueError("overcomplete blocks require expected_rank")
             if len(self.variables) <= self.expected_rank:
-                raise ValueError(
-                    "overcomplete blocks require more variables than expected_rank"
-                )
+                raise ValueError("overcomplete blocks require more variables than expected_rank")
             if self.quadruples:
                 raise ValueError("quadruples are only valid for tetrad blocks")
             if (
@@ -224,9 +228,7 @@ class AlgebraicBlockSpec(BaseModel):
                 or self.positivity_required is not None
                 or self.model_family is not None
             ):
-                raise ValueError(
-                    "nested-Verma fields are only valid for nested_verma blocks"
-                )
+                raise ValueError("nested-Verma fields are only valid for nested_verma blocks")
             if (
                 self.invariant_polynomials
                 or self.semi_algebraic_inequalities
@@ -243,9 +245,7 @@ class AlgebraicBlockSpec(BaseModel):
             if self.quadruples:
                 raise ValueError("quadruples are only valid for tetrad blocks")
             if not self.row_variables or not self.col_variables:
-                raise ValueError(
-                    "trek_rank blocks require row_variables and col_variables"
-                )
+                raise ValueError("trek_rank blocks require row_variables and col_variables")
             if len(self.row_variables) != len(set(self.row_variables)):
                 raise ValueError("row_variables must be unique within a trek_rank block")
             if len(self.col_variables) != len(set(self.col_variables)):
@@ -273,9 +273,7 @@ class AlgebraicBlockSpec(BaseModel):
                 or self.positivity_required is not None
                 or self.model_family is not None
             ):
-                raise ValueError(
-                    "nested-Verma fields are only valid for nested_verma blocks"
-                )
+                raise ValueError("nested-Verma fields are only valid for nested_verma blocks")
             if (
                 self.invariant_polynomials
                 or self.semi_algebraic_inequalities
@@ -344,9 +342,7 @@ class AlgebraicBlockSpec(BaseModel):
                 or self.positivity_required is not None
                 or self.model_family is not None
             ):
-                raise ValueError(
-                    "nested-Verma fields are only valid for nested_verma blocks"
-                )
+                raise ValueError("nested-Verma fields are only valid for nested_verma blocks")
             if (
                 not self.invariant_polynomials
                 and not self.semi_algebraic_inequalities
@@ -364,6 +360,7 @@ class AlgebraicBlockSpec(BaseModel):
 
 class ImpliedConstraintSpec(BaseModel):
     """Represent one graph-implied constraint and its optional conditioning set."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     constraint_id: str = Field(min_length=1)
@@ -377,6 +374,7 @@ class ImpliedConstraintSpec(BaseModel):
 
 class ConstraintEvaluationResult(BaseModel):
     """Store the test outcome for one implied or user-declared algebraic constraint."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     constraint_id: str = Field(min_length=1)
@@ -399,6 +397,7 @@ class ConstraintEvaluationResult(BaseModel):
 
 class AlgebraicConstraintReport(BaseModel):
     """Summarize implied/violated algebraic constraints and suggested graph repairs."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     implied_constraints_ref: ArtifactRefModel | None = None
@@ -419,6 +418,7 @@ class AlgebraicConstraintReport(BaseModel):
 
 class LatentTrustLevel(str, Enum):
     """Declare whether a proposed latent structure is research-only, conditional, or validated."""
+
     RESEARCH = "research"
     CONDITIONAL = "conditional"
     VALIDATED = "validated"
@@ -523,9 +523,7 @@ class LatentBlockProposal(BaseModel):
             self.role is LatentCausalRole.MODERATOR
             and not self.evidence.interaction_signature_supported
         ):
-            raise ValueError(
-                "identified moderator block requires interaction_signature_supported"
-            )
+            raise ValueError("identified moderator block requires interaction_signature_supported")
         return self
 
     @classmethod
@@ -546,9 +544,7 @@ class LatentBlockProposal(BaseModel):
     def proposed_node_label(self) -> str:
         """Return the canonical backwards-compatible node descriptor string."""
         if self.status is LatentBlockStatus.SUSPECTED_ONLY:
-            raise ValueError(
-                "suspected-only latent blocks must stay out of proposed_latent_nodes"
-            )
+            raise ValueError("suspected-only latent blocks must stay out of proposed_latent_nodes")
 
         parts = [
             self.latent_id,
@@ -593,8 +589,7 @@ class LatentBlockProposal(BaseModel):
                 )
         else:
             conditions.append(
-                f"env_shift:{latent_id}:localized="
-                f"{str(self.evidence.shift_localized).lower()}"
+                f"env_shift:{latent_id}:localized={str(self.evidence.shift_localized).lower()}"
             )
 
         if self.role is LatentCausalRole.CONFOUNDER:
@@ -610,18 +605,14 @@ class LatentBlockProposal(BaseModel):
             )
         elif self.role is LatentCausalRole.MODERATOR:
             if self.evidence.interaction_signature_supported:
-                conditions.append(
-                    f"moderator_extension:{latent_id}:interaction_signature=verified"
-                )
+                conditions.append(f"moderator_extension:{latent_id}:interaction_signature=verified")
             else:
                 conditions.append(
-                    f"moderator_extension:{latent_id}:"
-                    "failed_no_identified_interaction_signature"
+                    f"moderator_extension:{latent_id}:failed_no_identified_interaction_signature"
                 )
         elif self.candidate_role is LatentCausalRole.MODERATOR:
             conditions.append(
-                f"moderator_extension:{latent_id}:"
-                "failed_no_identified_interaction_signature"
+                f"moderator_extension:{latent_id}:failed_no_identified_interaction_signature"
             )
 
         return _dedupe_text(conditions)
@@ -645,17 +636,12 @@ class LatentCardinalityIdentificationSpec(BaseModel):
             raise ValueError(
                 "suspected-only latent blocks must be stored in latent_candidates, not latent_blocks"
             )
-        if (
-            self.model_class != "ME-LiNGLaH-S-Int"
-            and any(
-                block.status is LatentBlockStatus.IDENTIFIED
-                and block.role is LatentCausalRole.MODERATOR
-                for block in self.latent_blocks
-            )
+        if self.model_class != "ME-LiNGLaH-S-Int" and any(
+            block.status is LatentBlockStatus.IDENTIFIED
+            and block.role is LatentCausalRole.MODERATOR
+            for block in self.latent_blocks
         ):
-            raise ValueError(
-                "identified moderator blocks require the ME-LiNGLaH-S-Int model class"
-            )
+            raise ValueError("identified moderator blocks require the ME-LiNGLaH-S-Int model class")
         return self
 
     @classmethod
@@ -732,9 +718,7 @@ class LatentCardinalityIdentificationSpec(BaseModel):
             {
                 "model_class": self.model_class,
                 "identifiability_status": self.identifiability_status.value,
-                "latent_blocks": [
-                    block.model_dump(mode="json") for block in self.latent_blocks
-                ],
+                "latent_blocks": [block.model_dump(mode="json") for block in self.latent_blocks],
             }
         )
         if self.latent_candidates:
@@ -748,13 +732,13 @@ class LatentCardinalityIdentificationSpec(BaseModel):
         *,
         inducing_environments: list[str],
         falsification_tests: list[str],
-        assumption_cards: list["LatentAssumptionCard"] | None = None,
+        assumption_cards: list[LatentAssumptionCard] | None = None,
         trust_level: LatentTrustLevel = LatentTrustLevel.RESEARCH,
         no_promotion_reasons: list[str] | None = None,
         metadata: Mapping[str, Any] | None = None,
         treatment_variable: str = "T",
         outcome_variable: str = "Y",
-    ) -> "LatentDiscoveryBundle":
+    ) -> LatentDiscoveryBundle:
         """Materialize the Stage 9.1 spec as a proof-only latent discovery bundle."""
         bundle_metadata = self.bundle_metadata()
         if isinstance(metadata, Mapping):
@@ -786,6 +770,7 @@ class LatentCardinalityIdentificationSpec(BaseModel):
 
 class LatentAssumptionCard(BaseModel):
     """Document one latent-variable assumption and its falsification hook."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     assumption_id: str = Field(min_length=1)
@@ -848,9 +833,9 @@ class LatentPromotionEvidence(BaseModel):
     external_anchor_refs: list[ArtifactRefModel] = Field(default_factory=list)
     cross_model_robustness_refs: list[ArtifactRefModel] = Field(default_factory=list)
     scope_regime: list[str] = Field(default_factory=list)
-    invariance_level: Literal[
-        "none", "configural", "metric", "scalar", "strict", "approximate"
-    ] = "none"
+    invariance_level: Literal["none", "configural", "metric", "scalar", "strict", "approximate"] = (
+        "none"
+    )
     measurement_scope: bool = False
     structural_interpretation_rejected: bool = False
     notes: list[str] = Field(default_factory=list)
@@ -878,6 +863,7 @@ class LatentPromotionVerdict(BaseModel):
 
 class LatentDiscoveryBundle(BaseModel):
     """Disclose proposed latent nodes, test hooks, and promotion limits."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     proposed_latent_nodes: list[str] = Field(default_factory=list)
@@ -932,19 +918,22 @@ class CausalDiscoveryReport(BaseModel):
 
 class DataType(str, Enum):
     """Classify whether discovery inputs are cross-sectional or time-series."""
+
     CROSS_SECTIONAL = "cross_sectional"
     TIME_SERIES = "time_series"
 
 
 class DimensionRegime(str, Enum):
     """Bucket discovery inputs by variable-count regime for algorithm selection."""
-    LOW_DIM = "low_dim"   # n_vars <= 20
-    MED_DIM = "med_dim"   # 21 <= n_vars <= 50
+
+    LOW_DIM = "low_dim"  # n_vars <= 20
+    MED_DIM = "med_dim"  # 21 <= n_vars <= 50
     HIGH_DIM = "high_dim"  # n_vars > 50
 
 
 class DataCharacteristics(BaseModel):
     """Summarize discovery dataset shape, stationarity, and latent-confounding risk."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     data_type: DataType
@@ -960,6 +949,7 @@ class DataCharacteristics(BaseModel):
 
 class EdgeAgreement(BaseModel):
     """Summarize bootstrap or multi-algorithm agreement for one candidate edge."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     edge_key: str
@@ -972,6 +962,7 @@ class EdgeAgreement(BaseModel):
 
 class DiscoveryPipelineReport(BaseModel):
     """Aggregate discovery results, consensus PAG output, and algorithm agreement metrics."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     unified_pag: CausalGraphModel
@@ -1090,7 +1081,10 @@ def _hydrate_algebraic_constraint_payloads(
             ImpliedConstraintSpec.model_validate(item) for item in payload
         ]
 
-    if algebraic.violated_constraints_ref is not None and not algebraic.violated_constraints_preview:
+    if (
+        algebraic.violated_constraints_ref is not None
+        and not algebraic.violated_constraints_preview
+    ):
         payload = get_json_artifact(store, algebraic.violated_constraints_ref.artifact_id)
         updates["violated_constraints_preview"] = [
             ConstraintEvaluationResult.model_validate(item) for item in payload
@@ -1098,12 +1092,12 @@ def _hydrate_algebraic_constraint_payloads(
 
     if not updates:
         return report
-    return report.model_copy(
-        update={"algebraic_constraints": algebraic.model_copy(update=updates)}
-    )
+    return report.model_copy(update={"algebraic_constraints": algebraic.model_copy(update=updates)})
 
 
 __all__ = [
+    "LATENT_CARDINALITY_EVIDENCE_KEY",
+    "LATENT_CARDINALITY_FAILURE_REASONS_KEY",
     "AlgebraicAssumptionRegime",
     "AlgebraicAssumptionStatus",
     "AlgebraicBlockSpec",
@@ -1117,28 +1111,26 @@ __all__ = [
     "AlgebraicTestMode",
     "CausalDiscoveryReport",
     "ConstraintEvaluationResult",
+    "DataCharacteristics",
     "DataType",
     "DimensionRegime",
-    "DataCharacteristics",
+    "DiscoveryPipelineReport",
     "EdgeAgreement",
     "ImpliedConstraintSpec",
-    "DiscoveryPipelineReport",
-    "persist_causal_discovery_report",
     "LatentAssumptionCard",
     "LatentBlockEvidence",
     "LatentBlockProposal",
     "LatentBlockStatus",
-    "LatentCardinalityIdentificationSpec",
     "LatentCardinalityEvidencePayload",
+    "LatentCardinalityIdentificationSpec",
     "LatentCausalRole",
     "LatentDiscoveryBundle",
     "LatentGraphStatus",
     "LatentIdentifiabilityStatus",
-    "LATENT_CARDINALITY_EVIDENCE_KEY",
-    "LATENT_CARDINALITY_FAILURE_REASONS_KEY",
     "LatentPromotionEvidence",
     "LatentPromotionVerdict",
     "LatentTrustLevel",
     "NestedMarkovModelFamily",
     "load_causal_discovery_report",
+    "persist_causal_discovery_report",
 ]

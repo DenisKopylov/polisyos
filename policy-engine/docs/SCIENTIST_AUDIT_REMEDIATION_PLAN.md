@@ -15,10 +15,13 @@
 
 - отсутствуют известные correctness-баги, гонки, утечки и silent-failure
   pathways;
+
 - SOTA-claims опираются на реализованные методы, метрики, fairness/calibration
   артефакты и воспроизводимые тесты;
+
 - hot paths не деградируют из-за `model_copy(deep=True)`, квадратичных
   алгоритмов и неограниченного накопления памяти;
+
 - orchestration, governance, search и causal-layer развиваются в правильном
   порядке: сначала надежность, затем доказуемая научная и operational зрелость,
   потом frontier research.
@@ -30,6 +33,7 @@
 
 - `agent/`, `llm/`, `search/`, `governance/`, `backtesting/`, `discovery/`,
   `compute/`, `policy_verified/`, `replay/`;
+
 - workflow engine, locks, retry, checkpoint, pool execution и trace plumbing;
 - fairness, calibration, decision validity и post-deployment monitoring;
 - тестовую, benchmark и observability-инфраструктуру для Scientist.
@@ -87,13 +91,13 @@
 
 ## Фазовый roadmap
 
-| Phase | Цель | Горизонт | Выходной критерий |
-|---|---|---|---|
-| 0 | Остановить correctness leaks и security/reliability bugs | 5-7 рабочих дней | Нет открытых P0-багов из аудитов; есть regression tests на каждый фикс |
-| 1 | Построить baseline надежности: state safety, observability, tests | 1-2 спринта | Метрики реально экспортируются; есть E2E suite и benchmark suite |
-| 2 | Убрать performance и maintainability bottlenecks | 1-2 спринта | Hot paths ускорены, API упрощены, архитектурный долг уменьшается без regressions |
-| 3 | Закрыть SOTA gaps по causal, governance и agent/search | 2-3 спринта | SOTA-claims подтверждаются методами, отчетами и eval artifacts |
-| 4 | Frontier runtime and research backlog | после Phase 3 | Новые методы изолированы, воспроизводимы и не снижают надежность core-path |
+| Phase | Цель                                                              | Горизонт         | Выходной критерий                                                                |
+| ----- | ----------------------------------------------------------------- | ---------------- | -------------------------------------------------------------------------------- |
+| 0     | Остановить correctness leaks и security/reliability bugs          | 5-7 рабочих дней | Нет открытых P0-багов из аудитов; есть regression tests на каждый фикс           |
+| 1     | Построить baseline надежности: state safety, observability, tests | 1-2 спринта      | Метрики реально экспортируются; есть E2E suite и benchmark suite                 |
+| 2     | Убрать performance и maintainability bottlenecks                  | 1-2 спринта      | Hot paths ускорены, API упрощены, архитектурный долг уменьшается без regressions |
+| 3     | Закрыть SOTA gaps по causal, governance и agent/search            | 2-3 спринта      | SOTA-claims подтверждаются методами, отчетами и eval artifacts                   |
+| 4     | Frontier runtime and research backlog                             | после Phase 3    | Новые методы изолированы, воспроизводимы и не снижают надежность core-path       |
 
 ---
 
@@ -144,6 +148,7 @@
 
 - fault-injection tests доказывают, что один failing task больше не ломает
   sibling results и не создает `KeyError`;
+
 - shrink/expand worker pool выдерживает concurrency stress test без permit drift;
 - lock-acquisition tests проверяют ownership, metadata atomicity и teardown;
 - timeout tests не оставляют живых процессов/потоков после завершения кейса.
@@ -223,6 +228,7 @@
 
 1. Провести аудит всех broad `except Exception` / `# noqa: BLE001` блоков и
    заменить их на:
+
    - typed exception handling;
    - structured degraded result;
    - warning artifact/metric, если деградация допустима.
@@ -237,6 +243,7 @@
 
 - у всех известных swallowing sites есть либо typed error, либо explicit
   degraded result с логом/метрикой;
+
 - повторяемые retry failures сохраняют root cause chain;
 - observability показывает count degraded paths по типам.
 
@@ -324,12 +331,14 @@
 1. Ввести unit + property + concurrency coverage для критичных core modules,
    которые аудиты отметили как недостаточно покрытые direct tests.
 2. Добавить минимум 5 end-to-end workflow scenarios:
+
    - happy path;
    - tool failure with retry;
    - checkpoint resume;
    - governance rejection/escalation;
    - fairness/calibration regression.
 3. Запустить `pytest-benchmark` suite на:
+
    - node latency;
    - checkpoint I/O;
    - state serialization/copy path;
@@ -428,17 +437,20 @@
 **Порядок внедрения:**
 
 1. **Low-effort / high-impact first**
+
    - E-values;
    - proper sensitivity reporting surface;
    - honest causal forests with valid CI;
    - fixes для IPW / Ljung-Box / bootstrap validity.
 2. **Strong SOTA next**
+
    - universal sensitivity analysis;
    - ICP + anchor regression;
    - Bayesian causal discovery;
    - recoverability under selection bias;
    - PAG d-separation refinement.
 3. **Frontier after baseline**
+
    - proximal causal inference;
    - neural causal discovery;
    - causal representation learning.
@@ -458,19 +470,23 @@
 **Порядок внедрения:**
 
 1. **Сначала доказуемая calibration layer**
+
    - Brier score, log score, reliability diagrams, ENCE;
    - calibration-by-group и fairness-aware calibration reporting.
 2. **Потом fairness**
+
    - intersectional fairness;
    - equalized odds / calibration by group;
    - counterfactual fairness.
 3. **Потом accountability and decision policy**
+
    - unified model card / datasheet artifact;
    - adaptive thresholds;
    - risk-weighted verdicts;
    - fairness-accuracy Pareto frontier;
    - CVaR / tail-risk reporting.
 4. **И только затем advanced governance search**
+
    - adversarial scenario discovery;
    - continuous post-deployment drift and degradation monitoring.
 
@@ -491,9 +507,11 @@
 1. Укрепить существующий supervisor/worker контур на базе текущего DAG executor,
    а не ad hoc `asyncio.gather()`.
 2. Добавить tree-based reasoning:
+
    - Tree of Thought;
    - LATS / MCTS over agent actions.
 3. Улучшить search/optimization policy:
+
    - BOHB / ASHA;
    - evolutionary / CMA-ES exploration;
    - learned VOI;
@@ -563,6 +581,7 @@ tests и trace correlation уже работают в production-like режим
 
 - закрыты все известные подтвержденные bugs, влияющие на correctness,
   idempotency, resource lifecycle, locking и budget accounting;
+
 - на каждый фикс есть regression test;
 - нет silent leakage path в masking / env injection / depth guards.
 
@@ -600,21 +619,21 @@ tests и trace correlation уже работают в production-like режим
 - **DCA** — `Deep Code Audit: Antipatterns, Bugs & Optimizations`
 - **UA** — `Deep Code Audit: Uncovered Areas`
 
-| Workstream | SOTA gaps covered | DCA refs covered | UA refs covered | Что именно закрывается |
-|---|---|---|---|---|
-| `WS-0A` | — | `A1`, `A2`, `A4`, `B1`, `B3` | `B3`, `B4`, `B5`, `B8`, `B9`, `H3`, `H4`, `S7`, `S8` | gather/cancellation, semaphore correctness, lock lifecycle, thread/process leaks, registry races |
-| `WS-0B` | — | `A3`, `B2` | `B1`, `B2`, `H2`, `H6`, `H7`, `H10` | idempotency, budget accounting, token estimation, guards, state-machine correctness, env injection |
-| `WS-0B` + `WS-3A` | — | — | `B6`, `B7`, `B10`, `H8`, `H9` | statistical validity hotfixes, masking leakage fix, default-path scientific correctness |
-| `WS-1A` | — | `C1`, `C2`, `C3` | `S3` | typed errors, preserved exception context, no silent swallowing |
-| `WS-1B` | state merge strategies | `D1`, `F3` | `H5`, `S1`, `S2`, `O6` | atomic state writes, merge policy, NaN guards, convergence correctness |
-| `WS-1C` | metrics exporter, DLQ retrieval, cross-runner trace correlation, checkpoint GC, post-deployment monitoring | — | `S5` | observability, bounded accumulators, replayability |
-| `WS-1D` | zero tests for critical modules, low integration coverage, no benchmarks, no E2E workflows | — | — | direct module coverage, E2E suite, benchmark suite |
-| `WS-2A` | — | `D2`, `D3`, `D4` | `H1`, `O1`, `O2`, `O4`, `O5` | algorithmic complexity, cache efficiency, shared-ref cache mutation |
-| `WS-2B` | — | `E1`, `E2`, `E3`, `E4`, `E5`, `F1`, `F2` | `S4`, `O3` | API simplification, module splits, protocol boundaries, type-safety ratchet |
-| `WS-3A` | E-values, proximal causal inference, universal sensitivity, honest causal forests + CI, neural causal discovery, ICP, causal representation learning, Bayesian causal discovery, recoverability, PAG d-separation refinement | — | — | causal completeness and scientific validity of effect claims |
-| `WS-3B` | proper scoring rules, intersectional fairness, counterfactual fairness, model cards/datasheets, fairness-accuracy Pareto, adaptive thresholds, risk-weighted verdicts, adversarial scenario discovery, tail risk, post-deployment monitoring | — | `S6` | measurable governance, fairness artifacts, threshold rationale, accountable decisions |
-| `WS-3C` | Tree of Thought, LATS/MCTS, learned VOI, BOHB/ASHA, CMA-ES, learned routing, GP surrogates, constraint handling, population-based training | — | — | agent/search/optimization modernization |
-| `WS-4A` | incremental checkpointing, saga pattern, distributed budget ledger, priority scheduling | — | — | distributed runtime safety and scale |
+| Workstream        | SOTA gaps covered                                                                                                                                                                                                                            | DCA refs covered                         | UA refs covered                                      | Что именно закрывается                                                                             |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `WS-0A`           | —                                                                                                                                                                                                                                            | `A1`, `A2`, `A4`, `B1`, `B3`             | `B3`, `B4`, `B5`, `B8`, `B9`, `H3`, `H4`, `S7`, `S8` | gather/cancellation, semaphore correctness, lock lifecycle, thread/process leaks, registry races   |
+| `WS-0B`           | —                                                                                                                                                                                                                                            | `A3`, `B2`                               | `B1`, `B2`, `H2`, `H6`, `H7`, `H10`                  | idempotency, budget accounting, token estimation, guards, state-machine correctness, env injection |
+| `WS-0B` + `WS-3A` | —                                                                                                                                                                                                                                            | —                                        | `B6`, `B7`, `B10`, `H8`, `H9`                        | statistical validity hotfixes, masking leakage fix, default-path scientific correctness            |
+| `WS-1A`           | —                                                                                                                                                                                                                                            | `C1`, `C2`, `C3`                         | `S3`                                                 | typed errors, preserved exception context, no silent swallowing                                    |
+| `WS-1B`           | state merge strategies                                                                                                                                                                                                                       | `D1`, `F3`                               | `H5`, `S1`, `S2`, `O6`                               | atomic state writes, merge policy, NaN guards, convergence correctness                             |
+| `WS-1C`           | metrics exporter, DLQ retrieval, cross-runner trace correlation, checkpoint GC, post-deployment monitoring                                                                                                                                   | —                                        | `S5`                                                 | observability, bounded accumulators, replayability                                                 |
+| `WS-1D`           | zero tests for critical modules, low integration coverage, no benchmarks, no E2E workflows                                                                                                                                                   | —                                        | —                                                    | direct module coverage, E2E suite, benchmark suite                                                 |
+| `WS-2A`           | —                                                                                                                                                                                                                                            | `D2`, `D3`, `D4`                         | `H1`, `O1`, `O2`, `O4`, `O5`                         | algorithmic complexity, cache efficiency, shared-ref cache mutation                                |
+| `WS-2B`           | —                                                                                                                                                                                                                                            | `E1`, `E2`, `E3`, `E4`, `E5`, `F1`, `F2` | `S4`, `O3`                                           | API simplification, module splits, protocol boundaries, type-safety ratchet                        |
+| `WS-3A`           | E-values, proximal causal inference, universal sensitivity, honest causal forests + CI, neural causal discovery, ICP, causal representation learning, Bayesian causal discovery, recoverability, PAG d-separation refinement                 | —                                        | —                                                    | causal completeness and scientific validity of effect claims                                       |
+| `WS-3B`           | proper scoring rules, intersectional fairness, counterfactual fairness, model cards/datasheets, fairness-accuracy Pareto, adaptive thresholds, risk-weighted verdicts, adversarial scenario discovery, tail risk, post-deployment monitoring | —                                        | `S6`                                                 | measurable governance, fairness artifacts, threshold rationale, accountable decisions              |
+| `WS-3C`           | Tree of Thought, LATS/MCTS, learned VOI, BOHB/ASHA, CMA-ES, learned routing, GP surrogates, constraint handling, population-based training                                                                                                   | —                                        | —                                                    | agent/search/optimization modernization                                                            |
+| `WS-4A`           | incremental checkpointing, saga pattern, distributed budget ledger, priority scheduling                                                                                                                                                      | —                                        | —                                                    | distributed runtime safety and scale                                                               |
 
 Эта таблица задает простое правило: **каждый finding из аудитов должен быть
 закрыт конкретным workstream, тестом и observable acceptance signal.**
@@ -623,11 +642,11 @@ tests и trace correlation уже работают в production-like режим
 
 ## D1 Docs Impact Table
 
-| D1 doc cluster | Exact files | Source of truth | Validation command or evidence | Backlog / priority |
-|---|---|---|---|---|
-| Scientist reference set | `docs/reference/scientist/index.md`, `docs/reference/scientist/workflows.md`, `docs/reference/scientist/governance-passes.md`, `docs/reference/scientist/nodes.md`, `docs/reference/scientist/causal.md`, `docs/reference/scientist/calibration-governance.md`, `docs/reference/scientist/reliability-scorecard.md`, `docs/reference/scientist/frontier-runtime.md`, `docs/reference/scientist/remediation-status.md` | `src/polisyos/scientist/remediation_status.py`, `src/polisyos/scientist/frontier_runtime.py`, workflow/governance/node/search modules, persisted acceptance artifacts | `uv run pytest -q tests/tools/test_scientist_phase0_gate.py tests/tools/test_scientist_phase1_gate.py tests/tools/test_scientist_phase2_ratchet.py tests/scientist/test_frontier_runtime.py tests/scientist/search/test_benchmark_registry.py` | none |
-| Authoring guidance | `docs/how-to/write-governance-pass.md`, `docs/tutorials/creating-governance-pass.md` | governance registry, pass authoring workflow, evidence discipline | `uv run pytest -q tests/scientist/governance/test_accountability.py tests/scientist/governance/test_calibration_validation.py` | none |
-| Package boundary READMEs | `src/polisyos/scientist/README.md`, `src/polisyos/scientist/agent/README.md`, `src/polisyos/scientist/search/README.md`, `src/polisyos/scientist/governance/README.md`, `src/polisyos/scientist/nodes/README.md`, `src/polisyos/scientist/workflows/README.md` | package facades, workflow assembly, search/agent subsystems, governance/nodes boundaries | README-linked gates plus `uv run pytest -q tests/scientist/integration/test_workflow_reliability_scenarios.py tests/performance/test_scientist_runtime_paths.py` | none |
+| D1 doc cluster           | Exact files                                                                                                                                                                                                                                                                                                                                                                                                           | Source of truth                                                                                                                                                       | Validation command or evidence                                                                                                                                                                                                                 | Backlog / priority |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| Scientist reference set  | `docs/reference/scientist/index.md`, `docs/reference/scientist/workflows.md`, `docs/reference/scientist/governance-passes.md`, `docs/reference/scientist/nodes.md`, `docs/reference/scientist/causal.md`, `docs/reference/scientist/calibration-governance.md`, `docs/reference/scientist/reliability-scorecard.md`, `docs/reference/scientist/frontier-runtime.md`, `docs/reference/scientist/remediation-status.md` | `src/polisyos/scientist/remediation_status.py`, `src/polisyos/scientist/frontier_runtime.py`, workflow/governance/node/search modules, persisted acceptance artifacts | `uv run pytest -q tests/tools/test_scientist_phase0_gate.py tests/tools/test_scientist_phase1_gate.py tests/tools/test_scientist_phase2_ratchet.py tests/scientist/test_frontier_runtime.py tests/scientist/search/test_benchmark_registry.py` | none               |
+| Authoring guidance       | `docs/how-to/write-governance-pass.md`, `docs/tutorials/creating-governance-pass.md`                                                                                                                                                                                                                                                                                                                                  | governance registry, pass authoring workflow, evidence discipline                                                                                                     | `uv run pytest -q tests/scientist/governance/test_accountability.py tests/scientist/governance/test_calibration_validation.py`                                                                                                                 | none               |
+| Package boundary READMEs | `src/polisyos/scientist/README.md`, `src/polisyos/scientist/agent/README.md`, `src/polisyos/scientist/search/README.md`, `src/polisyos/scientist/governance/README.md`, `src/polisyos/scientist/nodes/README.md`, `src/polisyos/scientist/workflows/README.md`                                                                                                                                                        | package facades, workflow assembly, search/agent subsystems, governance/nodes boundaries                                                                              | README-linked gates plus `uv run pytest -q tests/scientist/integration/test_workflow_reliability_scenarios.py tests/performance/test_scientist_runtime_paths.py`                                                                               | none               |
 
 D1 closure note: all required D1-L6 pages are present. Optional dedicated
 `phase2-acceptance.md` and distributed-runtime reference pages remain P2 D2

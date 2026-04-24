@@ -115,7 +115,9 @@ def test_strategic_response_pass_requests_human_review_for_multiplicity_in_stric
 
     assert len(issues) == 1
     assert issues[0].code == "HUMAN_REVIEW_REQUESTED"
-    assert ctx.state["human_review_request"]["items"][0]["kind"] == "strategic_response_multiplicity"
+    assert (
+        ctx.state["human_review_request"]["items"][0]["kind"] == "strategic_response_multiplicity"
+    )
 
 
 def test_strategic_response_pass_requests_human_review_for_mfg_selection() -> None:

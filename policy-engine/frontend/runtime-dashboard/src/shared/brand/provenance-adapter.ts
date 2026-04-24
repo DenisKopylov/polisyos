@@ -92,7 +92,8 @@ export function evidenceFabricItemToProvenance(
     typeof item.intervention_type === "string" &&
     item.intervention_type.length > 0
   ) {
-    const mapped = resolveGlyphForTerm(item.intervention_type) ?? "intervention";
+    const mapped =
+      resolveGlyphForTerm(item.intervention_type) ?? "intervention";
     push({
       id: "intervention",
       glyph: mapped,

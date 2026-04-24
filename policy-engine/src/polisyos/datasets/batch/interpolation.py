@@ -12,9 +12,10 @@ import hashlib
 import json
 import logging
 from collections import defaultdict
-from typing import Any
+from typing import TYPE_CHECKING
 
-import duckdb
+if TYPE_CHECKING:
+    import duckdb
 
 logger = logging.getLogger(__name__)
 
@@ -95,10 +96,18 @@ def interpolate_observations(
                     f"{dataset_id}|{raw_var}|{canonical_var}|{country}|{fill_year}|interp".encode()
                 ).hexdigest()[:20]
 
-                batch.append((
-                    obs_id, dataset_id, raw_var, canonical_var, country,
-                    fill_year, fill_value, cond,
-                ))
+                batch.append(
+                    (
+                        obs_id,
+                        dataset_id,
+                        raw_var,
+                        canonical_var,
+                        country,
+                        fill_year,
+                        fill_value,
+                        cond,
+                    )
+                )
                 existing_years.add(fill_year)
                 interpolated_count += 1
 

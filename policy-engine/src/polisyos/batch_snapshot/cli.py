@@ -7,6 +7,7 @@ import json
 import logging
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 from polisyos.batch_common.hashing import sha256_file
 from polisyos.common.logger import get_logger
@@ -14,10 +15,10 @@ from polisyos.common.logger import get_logger
 logger = get_logger(__name__)
 
 
-def _load_json(path: Path) -> dict:
+def _load_json(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         data = json.load(fh)
     return data if isinstance(data, dict) else {}
 
@@ -25,7 +26,7 @@ def _load_json(path: Path) -> dict:
 def finalize_snapshot(snapshot_root: Path, *, update_latest_symlink: bool = True) -> Path:
     """Create `<snapshot_root>/snapshot_manifest.json` from pipeline publish manifests."""
     pipelines = ("datasets", "academic", "lex")
-    pipeline_manifests: dict[str, dict] = {}
+    pipeline_manifests: dict[str, dict[str, Any]] = {}
     artifacts: list[dict[str, str]] = []
 
     for name in pipelines:
@@ -69,7 +70,9 @@ def finalize_snapshot(snapshot_root: Path, *, update_latest_symlink: bool = True
 
 def main() -> None:
     """Main helper."""
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+    )
     parser = argparse.ArgumentParser(description="Unified snapshot utilities")
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -79,11 +82,10 @@ def main() -> None:
 
     args = parser.parse_args()
     if args.command == "finalize":
-        out = finalize_snapshot(
+        finalize_snapshot(
             Path(args.snapshot_root),
             update_latest_symlink=not args.no_latest_symlink,
         )
-        print(f"Snapshot manifest: {out}")
 
 
 if __name__ == "__main__":

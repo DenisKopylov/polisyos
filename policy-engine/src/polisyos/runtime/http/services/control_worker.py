@@ -1,4 +1,5 @@
 """Lease and execute durable control-plane jobs from an embedded worker thread."""
+
 from __future__ import annotations
 
 import threading
@@ -21,6 +22,7 @@ JobHandler = Callable[[ControlJobRecord], None]
 
 class ControlWorker:
     """Run a single embedded worker loop with lease renewal and wakeup signaling."""
+
     def __init__(
         self,
         *,

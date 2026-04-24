@@ -13,4 +13,3 @@ class StrategyExhaustedError(StrategyError):
 
 class OptionalDependencyUnavailableError(StrategyError):
     """Raised when strategy requires missing optional dependencies."""
-

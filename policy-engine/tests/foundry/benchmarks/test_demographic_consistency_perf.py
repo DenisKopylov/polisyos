@@ -33,7 +33,9 @@ def sparse_demography_state():
 
 
 class BenchmarkDemographicConsistency:
-    def test_survey_demographic_consistency(self, benchmark, sparse_demography_state, module_registry):
+    def test_survey_demographic_consistency(
+        self, benchmark, sparse_demography_state, module_registry
+    ):
         state = dict(sparse_demography_state)
         total_mass = float(np.sum(state["base_weights"]))
         state["target_state_totals"] = state["target_state_totals"] * (

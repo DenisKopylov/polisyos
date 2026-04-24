@@ -1,4 +1,5 @@
 """Repeated cross-sectional survey template."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -6,22 +7,29 @@ from typing import Any
 import numpy as np
 
 from polisyos.synthetic_world.models import SyntheticWorldDGP
-from polisyos.synthetic_world.operators import apply_measurement_error, apply_missingness, apply_survey_sampling, survey_wave_treatment_assignments
+from polisyos.synthetic_world.operators import (
+    apply_measurement_error,
+    apply_missingness,
+    apply_survey_sampling,
+    survey_wave_treatment_assignments,
+)
 from polisyos.synthetic_world.targets import (
     register_binary_classification_targets,
     register_distributional_targets,
     register_forecasting_targets,
     register_latent_state_targets,
     register_prior_targets,
-    register_regression_targets,
     register_reference_posterior_targets,
+    register_regression_targets,
     register_survey_econometrics_targets,
 )
 
 from .common import MaterializedWorldPayload, default_splits
 
 
-def materialize_survey_repeated_cross_section_world(spec: SyntheticWorldDGP) -> MaterializedWorldPayload:
+def materialize_survey_repeated_cross_section_world(
+    spec: SyntheticWorldDGP,
+) -> MaterializedWorldPayload:
     """Materialize a survey repeated-cross-section world."""
     rng = np.random.default_rng(spec.seed)
     n_units = int(spec.n_units)
@@ -57,8 +65,12 @@ def materialize_survey_repeated_cross_section_world(spec: SyntheticWorldDGP) -> 
             rng=rng,
         )
         inclusion_probability_by_wave.append(wave_sampling.inclusion_probability.copy())
-        response_probability_by_wave.append(np.asarray(wave_sampling.response_probability, dtype=float).copy())
-        calibrated_weight_by_wave.append(np.asarray(wave_sampling.calibrated_weight, dtype=float).copy())
+        response_probability_by_wave.append(
+            np.asarray(wave_sampling.response_probability, dtype=float).copy()
+        )
+        calibrated_weight_by_wave.append(
+            np.asarray(wave_sampling.calibrated_weight, dtype=float).copy()
+        )
         design_effect_by_wave.append(float(wave_sampling.design_effect or 1.0))
 
         latent_driver = rng.normal(scale=0.45, size=n_units)
@@ -73,7 +85,9 @@ def materialize_survey_repeated_cross_section_world(spec: SyntheticWorldDGP) -> 
         outcome = outcome_mean + rng.normal(scale=spec.noise_scale, size=n_units)
         population_wave_means.append(float(np.mean(outcome)))
 
-        labels_probability = 1.0 / (1.0 + np.exp(-(outcome / max(spec.classification_temperature, 1.0e-6))))
+        labels_probability = 1.0 / (
+            1.0 + np.exp(-(outcome / max(spec.classification_temperature, 1.0e-6)))
+        )
         labels = rng.binomial(1, labels_probability).astype(int)
         respondent_mask = np.asarray(wave_sampling.respondent_mask, dtype=bool)
         respondent_indices = np.flatnonzero(respondent_mask)
@@ -100,10 +114,7 @@ def materialize_survey_repeated_cross_section_world(spec: SyntheticWorldDGP) -> 
             respondent_rows.append(row)
 
     ordered_keys = sorted(respondent_rows[0]) if respondent_rows else []
-    latent_table = {
-        key: np.asarray([row[key] for row in respondent_rows])
-        for key in ordered_keys
-    }
+    latent_table = {key: np.asarray([row[key] for row in respondent_rows]) for key in ordered_keys}
     observed_table = dict(latent_table)
     observed_table, measurement_meta = apply_measurement_error(
         observed_table,
@@ -160,7 +171,9 @@ def materialize_survey_repeated_cross_section_world(spec: SyntheticWorldDGP) -> 
                 },
             },
             "survey.base_weights": {
-                "values": np.concatenate([1.0 / values for values in inclusion_probability_by_wave]).tolist(),
+                "values": np.concatenate(
+                    [1.0 / values for values in inclusion_probability_by_wave]
+                ).tolist(),
                 "coords": {
                     "population_row": list(np.arange(n_units * n_waves, dtype=int)),
                     "wave": np.repeat(wave_ids, n_units).tolist(),
@@ -186,7 +199,10 @@ def materialize_survey_repeated_cross_section_world(spec: SyntheticWorldDGP) -> 
             "survey.population_mean": {"value": float(np.mean(population_wave_means))},
             "survey.population_total": {"value": float(np.sum(population_wave_means))},
             "survey.domain_means": {
-                "values": [float(np.mean(np.asarray(population_wave_means)[wave_treatment == marker])) for marker in np.unique(wave_treatment)],
+                "values": [
+                    float(np.mean(np.asarray(population_wave_means)[wave_treatment == marker]))
+                    for marker in np.unique(wave_treatment)
+                ],
                 "coords": {"treatment_wave": [str(marker) for marker in np.unique(wave_treatment)]},
             },
         }
@@ -201,7 +217,9 @@ def materialize_survey_repeated_cross_section_world(spec: SyntheticWorldDGP) -> 
     forecast_intervals: dict[int, tuple[np.ndarray, np.ndarray]] = {}
     last_wave_mean = np.asarray([population_wave_means[-1]], dtype=float)
     for horizon in (1, 2):
-        forecast_mean = last_wave_mean + horizon * (population_wave_means[-1] - population_wave_means[-2])
+        forecast_mean = last_wave_mean + horizon * (
+            population_wave_means[-1] - population_wave_means[-2]
+        )
         radius = 1.645 * spec.noise_scale * np.sqrt(float(horizon))
         forecast_means[horizon] = forecast_mean
         forecast_intervals[horizon] = (forecast_mean - radius, forecast_mean + radius)
@@ -223,7 +241,10 @@ def materialize_survey_repeated_cross_section_world(spec: SyntheticWorldDGP) -> 
     truth_registry["causal.ate"] = {"value": float(spec.treatment_effect)}
     truth_registry["causal.att"] = {"value": float(spec.treatment_effect)}
     truth_registry["causal.cate"] = {
-        "values": (spec.treatment_effect + spec.heterogeneity_scale * np.asarray(latent_table["feature_0"], dtype=float)).tolist(),
+        "values": (
+            spec.treatment_effect
+            + spec.heterogeneity_scale * np.asarray(latent_table["feature_0"], dtype=float)
+        ).tolist(),
         "coords": {"respondent_row": list(np.arange(respondent_unit_ids.shape[0], dtype=int))},
     }
     truth_registry.update(
@@ -240,13 +261,18 @@ def materialize_survey_repeated_cross_section_world(spec: SyntheticWorldDGP) -> 
     truth_registry.update(
         register_reference_posterior_targets(
             parameter_names=["treatment_effect", "wave_trend"],
-            point_estimates=np.array([spec.treatment_effect, population_wave_means[-1] - population_wave_means[-2]], dtype=float),
+            point_estimates=np.array(
+                [spec.treatment_effect, population_wave_means[-1] - population_wave_means[-2]],
+                dtype=float,
+            ),
             covariance=np.diag(np.array([0.03, 0.02], dtype=float)),
             predictive_mean=forecast_means[1],
             predictive_std=(forecast_intervals[1][1] - forecast_intervals[1][0]) / (2.0 * 1.645),
             coord_name="forecast_wave",
             entity_ids=np.array([n_waves], dtype=int),
-            log_evidence=float(-0.5 * len(respondent_rows) * np.log(2.0 * np.pi * spec.noise_scale**2)),
+            log_evidence=float(
+                -0.5 * len(respondent_rows) * np.log(2.0 * np.pi * spec.noise_scale**2)
+            ),
         )
     )
     truth_registry.update(

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from contextlib import contextmanager
 import json
-from typing import Any, Iterator, Sequence
+from collections.abc import Iterator, Sequence
+from contextlib import contextmanager
+from typing import Any
 
 import pandas as pd
 import pytest
@@ -37,9 +38,7 @@ class _MaskingBackend:
         del params
         self.last_sql = sql
         # Simulate backend returning extra columns regardless of projection.
-        return pd.DataFrame(
-            [{"claim_id": "c1", "confidence": 0.9, "ssn": "123-45-6789"}]
-        )
+        return pd.DataFrame([{"claim_id": "c1", "confidence": 0.9, "ssn": "123-45-6789"}])
 
     @contextmanager
     def transaction(self) -> Iterator[None]:

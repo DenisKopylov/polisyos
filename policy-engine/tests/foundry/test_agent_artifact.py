@@ -82,9 +82,7 @@ class TestRoundTripSerialization:
         original_leaves = jax.tree_util.tree_leaves(
             eqx.filter(sample_actor_critic, eqx.is_inexact_array)
         )
-        loaded_leaves = jax.tree_util.tree_leaves(
-            eqx.filter(loaded, eqx.is_inexact_array)
-        )
+        loaded_leaves = jax.tree_util.tree_leaves(eqx.filter(loaded, eqx.is_inexact_array))
 
         assert len(original_leaves) == len(loaded_leaves)
         for orig, load in zip(original_leaves, loaded_leaves):
@@ -195,9 +193,7 @@ class TestHotSwapGuards:
             policy2, "run2", 100, 0.1, sample_fingerprint
         )
 
-        assert not artifact1.can_hot_swap(
-            artifact2
-        ), "Different output dims should block swap"
+        assert not artifact1.can_hot_swap(artifact2), "Different output dims should block swap"
 
     def test_incompatible_input_dim_blocks_swap(self, sample_fingerprint):
         """Policies with different input dims cannot hot-swap."""
@@ -212,9 +208,7 @@ class TestHotSwapGuards:
             policy2, "run2", 100, 0.1, sample_fingerprint
         )
 
-        assert not artifact1.can_hot_swap(
-            artifact2
-        ), "Different input dims should block swap"
+        assert not artifact1.can_hot_swap(artifact2), "Different input dims should block swap"
 
 
 class TestDeterminismTierValidation:

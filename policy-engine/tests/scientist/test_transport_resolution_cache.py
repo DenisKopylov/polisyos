@@ -6,7 +6,9 @@ from polisyos.datasets.knowledge.types import PStarZResult
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 from polisyos.lex.legal_evaluation.transport_constraints import LegalConstraintSet
-from polisyos.scientist.nodes.builtins.causal.resolve_transport import TransportabilityResolutionLoop
+from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
+    TransportabilityResolutionLoop,
+)
 
 
 class _CountingDatasetRegistry:

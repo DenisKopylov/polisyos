@@ -9,6 +9,7 @@ Provides :class:`RetryPolicy` (a Pydantic model embedded in
 When ``RetryPolicy.max_retries == 0`` and ``timeout_s is None`` the wrappers
 delegate directly to ``node.execute()`` with minimal overhead.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -88,7 +89,7 @@ def _should_retry(error: NodeError | None, policy: RetryPolicy) -> bool:
 
 
 def _backoff_delay(attempt: int, policy: RetryPolicy) -> float:
-    base = policy.backoff_base_s * (policy.backoff_factor ** attempt)
+    base = policy.backoff_base_s * (policy.backoff_factor**attempt)
     if policy.jitter == "none":
         return base
     if policy.jitter == "full":
@@ -98,7 +99,7 @@ def _backoff_delay(attempt: int, policy: RetryPolicy) -> float:
 
 
 def _persist_dead_letter(
-    ctx: "ExecutionContext",
+    ctx: ExecutionContext,
     alias: str,
     node_id: str,
     last_error: Exception,
@@ -151,10 +152,7 @@ def _serialize_dead_letter_policy(policy: RetryPolicy) -> dict[str, Any]:
             serialized[key] = str(value)
             continue
         if isinstance(value, list):
-            serialized[key] = [
-                str(item) if isinstance(item, float) else item
-                for item in value
-            ]
+            serialized[key] = [str(item) if isinstance(item, float) else item for item in value]
             continue
         serialized[key] = value
     return serialized
@@ -162,13 +160,13 @@ def _serialize_dead_letter_policy(policy: RetryPolicy) -> dict[str, Any]:
 
 def execute_with_retry_sync(
     node: Any,
-    ctx: "ExecutionContext",
-    state: "ExperimentState",
+    ctx: ExecutionContext,
+    state: ExperimentState,
     *,
     retry_policy: RetryPolicy,
     timeout_s: float | None,
     alias: str,
-    circuit_breaker: "CircuitBreaker | None" = None,
+    circuit_breaker: CircuitBreaker | None = None,
 ) -> NodeOutcome:
     """Sync retry wrapper for ``WorkflowExecutor``.
 
@@ -181,7 +179,7 @@ def execute_with_retry_sync(
         return node.execute(ctx, state)
 
     last_outcome: NodeOutcome | None = None
-    node_id = str(getattr(node, "spec", None) and node.spec.metadata.component_id or alias)
+    node_id = str((getattr(node, "spec", None) and node.spec.metadata.component_id) or alias)
 
     for attempt in range(retry_policy.max_retries + 1):
         # Circuit breaker check
@@ -210,7 +208,10 @@ def execute_with_retry_sync(
                 delay = _backoff_delay(attempt, retry_policy)
                 _logger.info(
                     "Retrying node %s (attempt %d/%d) after %.1fs",
-                    alias, attempt + 1, retry_policy.max_retries, delay,
+                    alias,
+                    attempt + 1,
+                    retry_policy.max_retries,
+                    delay,
                 )
                 ctx.run.emit(
                     f"scientist.node.{alias}",
@@ -233,7 +234,10 @@ def execute_with_retry_sync(
                 delay = _backoff_delay(attempt, retry_policy)
                 _logger.info(
                     "Retrying node %s after exception (attempt %d/%d): %s",
-                    alias, attempt + 1, retry_policy.max_retries, exc,
+                    alias,
+                    attempt + 1,
+                    retry_policy.max_retries,
+                    exc,
                 )
                 ctx.run.emit(
                     f"scientist.node.{alias}",
@@ -244,13 +248,17 @@ def execute_with_retry_sync(
                 continue
 
             dlq_ref = _persist_dead_letter(
-                ctx, alias, node_id, exc,
+                ctx,
+                alias,
+                node_id,
+                exc,
                 attempts=retry_policy.max_retries + 1,
                 policy=retry_policy,
             )
             if dlq_ref is not None:
                 ctx.run.emit(
-                    f"scientist.node.{alias}", "NODE_DEAD_LETTER",
+                    f"scientist.node.{alias}",
+                    "NODE_DEAD_LETTER",
                     outputs=[dlq_ref],
                 )
             raise RetryExhaustedError(
@@ -267,8 +275,8 @@ def execute_with_retry_sync(
 
 def _execute_with_timeout_sync(
     node: Any,
-    ctx: "ExecutionContext",
-    state: "ExperimentState",
+    ctx: ExecutionContext,
+    state: ExperimentState,
     *,
     timeout_s: float,
 ) -> NodeOutcome:
@@ -294,8 +302,8 @@ def _can_use_forked_timeout_worker() -> bool:
 
 def _execute_with_timeout_process(
     node: Any,
-    ctx: "ExecutionContext",
-    state: "ExperimentState",
+    ctx: ExecutionContext,
+    state: ExperimentState,
     *,
     timeout_s: float,
 ) -> NodeOutcome:
@@ -339,8 +347,8 @@ def _execute_with_timeout_process(
 
 async def _execute_with_timeout_process_async(
     node: Any,
-    ctx: "ExecutionContext",
-    state: "ExperimentState",
+    ctx: ExecutionContext,
+    state: ExperimentState,
     *,
     timeout_s: float,
 ) -> NodeOutcome:
@@ -386,8 +394,8 @@ async def _execute_with_timeout_process_async(
 
 def _node_execute_worker(
     node: Any,
-    ctx: "ExecutionContext",
-    state: "ExperimentState",
+    ctx: ExecutionContext,
+    state: ExperimentState,
     result_queue: mp.Queue[Any],
 ) -> None:
     try:
@@ -402,13 +410,13 @@ def _node_execute_worker(
 
 async def execute_with_retry_async(
     node: Any,
-    ctx: "ExecutionContext",
-    state: "ExperimentState",
+    ctx: ExecutionContext,
+    state: ExperimentState,
     *,
     retry_policy: RetryPolicy,
     timeout_s: float | None,
     alias: str,
-    circuit_breaker: "CircuitBreaker | None" = None,
+    circuit_breaker: CircuitBreaker | None = None,
     retry_stats: dict[str, int] | None = None,
 ) -> NodeOutcome:
     """Async retry wrapper for ``AsyncWorkflowExecutor``.
@@ -423,7 +431,7 @@ async def execute_with_retry_async(
         and any("execute_async" in getattr(klass, "__dict__", {}) for klass in type(node).__mro__)
     )
 
-    async def _invoke() -> "NodeOutcome":
+    async def _invoke() -> NodeOutcome:
         if _has_async:
             return await node.execute_async(ctx, state)
         if timeout_s is not None:
@@ -451,7 +459,7 @@ async def execute_with_retry_async(
         return await _invoke()
 
     last_outcome: NodeOutcome | None = None
-    node_id = str(getattr(node, "spec", None) and node.spec.metadata.component_id or alias)
+    node_id = str((getattr(node, "spec", None) and node.spec.metadata.component_id) or alias)
 
     for attempt in range(retry_policy.max_retries + 1):
         # Circuit breaker check
@@ -465,7 +473,7 @@ async def execute_with_retry_async(
                 coro = _invoke()
                 try:
                     outcome = await asyncio.wait_for(coro, timeout=timeout_s)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     raise NodeTimeoutError(
                         f"Node exceeded timeout of {timeout_s}s",
                     ) from None
@@ -487,7 +495,10 @@ async def execute_with_retry_async(
                 delay = _backoff_delay(attempt, retry_policy)
                 _logger.info(
                     "Retrying node %s (attempt %d/%d) after %.1fs",
-                    alias, attempt + 1, retry_policy.max_retries, delay,
+                    alias,
+                    attempt + 1,
+                    retry_policy.max_retries,
+                    delay,
                 )
                 await asyncio.sleep(delay)
                 continue
@@ -508,7 +519,10 @@ async def execute_with_retry_async(
                 delay = _backoff_delay(attempt, retry_policy)
                 _logger.info(
                     "Retrying node %s after exception (attempt %d/%d): %s",
-                    alias, attempt + 1, retry_policy.max_retries, exc,
+                    alias,
+                    attempt + 1,
+                    retry_policy.max_retries,
+                    exc,
                 )
                 await asyncio.sleep(delay)
                 continue
@@ -516,13 +530,17 @@ async def execute_with_retry_async(
             if retry_stats is not None:
                 retry_stats["attempts"] = attempt + 1
             dlq_ref = _persist_dead_letter(
-                ctx, alias, node_id, exc,
+                ctx,
+                alias,
+                node_id,
+                exc,
                 attempts=retry_policy.max_retries + 1,
                 policy=retry_policy,
             )
             if dlq_ref is not None:
                 ctx.run.emit(
-                    f"scientist.node.{alias}", "NODE_DEAD_LETTER",
+                    f"scientist.node.{alias}",
+                    "NODE_DEAD_LETTER",
                     outputs=[dlq_ref],
                 )
             raise RetryExhaustedError(

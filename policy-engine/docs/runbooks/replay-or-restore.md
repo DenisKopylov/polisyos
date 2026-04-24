@@ -24,6 +24,7 @@ Rollback path: stop destructive restore steps, preserve the current broken head 
 - CAS artifact отсутствует, повреждён или был удалён вне retention policy;
 - replay session записан, но fixture layout не совпадает с expected connector
   manifest;
+
 - checkpoint head указывает на artifact из другой workflow definition;
 - snapshot/archive существует, но нет manifest/report/sha256 для верификации;
 - restore делался без фиксации exact run ID, replay ref или archive hash.
@@ -34,9 +35,11 @@ Rollback path: stop destructive restore steps, preserve the current broken head 
 
 - `run_id`, `job_id`, `replay_ref`, `checkpoint_ref`, `snapshot_root` или
   `archive_sha256`;
+
 - UTC время начала restore/replay attempt и кем он запущен;
 - desired outcome: reproduce incident, recover active run, restore audit package,
   restore legacy runs;
+
 - exact retained source: CAS, local snapshot, cold archive, CI artifact;
 - whether original issue is deterministic or intermittent.
 
@@ -79,9 +82,11 @@ uv run pytest tests/scientist/test_checkpoint.py tests/scientist/engine/test_che
 
 - если replay session corrupted, не удаляйте исходные fixtures до копии в cold
   archive;
+
 - если checkpoint head corrupted, сохраняйте bad head отдельно перед repair;
 - если archive mismatch найден, останавливайте restore и запрашивайте another
   retained copy вместо silent overwrite;
+
 - если deterministic reproduction не получается, зафиксируйте это явно и
   переключитесь на timeline/lineage evidence, не продолжая “надеяться”.
 
@@ -116,8 +121,8 @@ uv run pytest tests/scientist/test_checkpoint.py tests/scientist/engine/test_che
 
 ### Action Items
 
-| Action item | Owner | Due date | Status |
-|---|---|---|---|
-| Add or improve restore drill coverage for the failed artifact family | `@platform-owners` | YYYY-MM-DD | open |
-| Close the metadata, manifest, or retention gap discovered during recovery | affected owner | YYYY-MM-DD | open |
-| Update restore instructions so the next responder can repeat them | `@platform-owners` | YYYY-MM-DD | open |
+| Action item                                                               | Owner              | Due date   | Status |
+| ------------------------------------------------------------------------- | ------------------ | ---------- | ------ |
+| Add or improve restore drill coverage for the failed artifact family      | `@platform-owners` | YYYY-MM-DD | open   |
+| Close the metadata, manifest, or retention gap discovered during recovery | affected owner     | YYYY-MM-DD | open   |
+| Update restore instructions so the next responder can repeat them         | `@platform-owners` | YYYY-MM-DD | open   |

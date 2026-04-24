@@ -5,9 +5,11 @@ target-vs-trace residuals, such as graph spillover mismatch. They receive
 synthetic traces only; observation-side metadata and discounting remain in the
 measurement bundle/config they own.
 """
+
 from __future__ import annotations
 
-from typing import Any, Mapping, Protocol, runtime_checkable
+from collections.abc import Mapping
+from typing import Any, Protocol, runtime_checkable
 
 import jax.numpy as jnp
 
@@ -33,7 +35,9 @@ class AuxLossComponent(Protocol):
 
     component_name: str
 
-    def compute(self, *, traces: Mapping[str, jnp.ndarray]) -> tuple[jnp.ndarray, Mapping[str, Any]]:
+    def compute(
+        self, *, traces: Mapping[str, jnp.ndarray]
+    ) -> tuple[jnp.ndarray, Mapping[str, Any]]:
         """Return `(penalty, diagnostics)` for the provided synthetic traces."""
         ...
 
@@ -103,14 +107,18 @@ class InterferenceLossComponent:
         )
         return jnp.asarray(adapted["effective_weight"], dtype=jnp.float32)
 
-    def compute(self, *, traces: Mapping[str, jnp.ndarray]) -> tuple[jnp.ndarray, Mapping[str, Any]]:
+    def compute(
+        self, *, traces: Mapping[str, jnp.ndarray]
+    ) -> tuple[jnp.ndarray, Mapping[str, Any]]:
         """Accumulate spillover penalties and return applied-spec diagnostics."""
         total = jnp.array(0.0, dtype=jnp.float32)
         diagnostics: dict[str, Any] = {"applied_specs": []}
         for spec in self.bundle.specs:
             if spec.predicted_metric_path not in traces:
                 continue
-            predicted = _aggregate_trace(jnp.asarray(traces[spec.predicted_metric_path], dtype=jnp.float32))
+            predicted = _aggregate_trace(
+                jnp.asarray(traces[spec.predicted_metric_path], dtype=jnp.float32)
+            )
             adjacency = _normalized_adjacency(
                 jnp.asarray(spec.adjacency, dtype=jnp.float32),
                 spec.normalization,

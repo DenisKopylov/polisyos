@@ -1,8 +1,23 @@
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
 
 import { cn } from "@/lib/utils";
-import { chartTheme, ciColors, chartDefaults } from "./theme";
+import { useI18n } from "@/i18n/LocaleProvider";
+
 import { describeConfidenceInterval } from "./accessibility";
+import {
+  buildUncertaintyPatternIds,
+  resolveUncertaintyPatternFill,
+  UncertaintyPatterns,
+} from "./patterns";
+import { chartDefaults, chartTheme } from "./theme";
+import {
+  resolveIdentifiabilityPattern,
+  resolveUncertaintyBandOpacity,
+  resolveUncertaintyIntervalColor,
+  resolveUncertaintyPaletteColor,
+  type UncertaintyPalette,
+} from "./uncertainty-tokens";
+import type { IdentifiabilityState } from "./types";
 
 type CIBand = { lower: number; upper: number; level: number };
 
@@ -12,17 +27,13 @@ type GradedErrorBarProps = {
   label?: string;
   unit?: string;
   height?: number;
+  disputed?: boolean;
+  identifiability?: IdentifiabilityState;
   className?: string;
 };
 
 const BAR_HEIGHT = 16;
 const PADDING = { left: 8, right: 8 };
-
-function bandColor(level: number): string {
-  if (level <= 0.5) return ciColors.ci50;
-  if (level <= 0.8) return ciColors.ci80;
-  return ciColors.ci95;
-}
 
 export function GradedErrorBar({
   estimate,
@@ -30,16 +41,28 @@ export function GradedErrorBar({
   label,
   unit = "",
   height = 80,
+  disputed = false,
+  identifiability = "estimated",
   className,
 }: GradedErrorBarProps) {
+  const { t } = useI18n();
   const sorted = useMemo(
-    () => [...bands].sort((a, b) => b.level - a.level),
+    () => [...bands].sort((left, right) => right.level - left.level),
     [bands],
+  );
+  const palette: UncertaintyPalette = disputed ? "disputed" : "default";
+  const pointColor = resolveUncertaintyPaletteColor(palette);
+  const intervalColor = resolveUncertaintyIntervalColor(palette);
+  const patternKind = resolveIdentifiabilityPattern(identifiability);
+  const patternSeed = useId();
+  const patternIds = useMemo(
+    () => buildUncertaintyPatternIds(patternSeed.replace(/:/g, "")),
+    [patternSeed],
   );
 
   const allValues = [
     estimate,
-    ...sorted.flatMap((b) => [b.lower, b.upper]),
+    ...sorted.flatMap((band) => [band.lower, band.upper]),
   ];
   const minVal = Math.min(...allValues);
   const maxVal = Math.max(...allValues);
@@ -49,20 +72,22 @@ export function GradedErrorBar({
   const svgWidth = 320;
   const plotW = svgWidth - PADDING.left - PADDING.right;
 
-  function toX(val: number): number {
-    return PADDING.left + plotW * ((val - (minVal - pad)) / (range + 2 * pad));
+  function toX(value: number): number {
+    return (
+      PADDING.left + plotW * ((value - (minVal - pad)) / (range + 2 * pad))
+    );
   }
 
   const centerY = height / 2;
-
-  const ariaDescription = sorted.length > 0
-    ? describeConfidenceInterval(
-        estimate,
-        sorted[0].lower,
-        sorted[0].upper,
-        sorted[0].level,
-      )
-    : `Point estimate: ${estimate.toFixed(3)}`;
+  const ariaDescription =
+    sorted.length > 0
+      ? describeConfidenceInterval(
+          estimate,
+          sorted[0].lower,
+          sorted[0].upper,
+          sorted[0].level,
+        )
+      : `Point estimate: ${estimate.toFixed(3)}`;
 
   return (
     <div
@@ -70,60 +95,76 @@ export function GradedErrorBar({
       role="img"
       aria-label={ariaDescription}
     >
-      {label && (
+      {label ? (
         <p className="text-foreground mb-1 text-sm font-semibold">{label}</p>
-      )}
+      ) : null}
       <svg width="100%" height={height} viewBox={`0 0 ${svgWidth} ${height}`}>
-        {/* Center line */}
+        <UncertaintyPatterns ids={patternIds} />
         <line
           x1={PADDING.left}
           y1={centerY}
           x2={svgWidth - PADDING.right}
           y2={centerY}
-          stroke="var(--line)"
+          stroke={chartTheme.neutral}
           strokeWidth={1}
+          opacity={0.45}
         />
 
-        {/* CI bands (widest first) */}
         {sorted.map((band) => {
-          const bandH = BAR_HEIGHT * (1 + (band.level - 0.5));
+          const bandHeight = BAR_HEIGHT * (1 + (band.level - 0.5));
+          const x = toX(band.lower);
+          const width = toX(band.upper) - x;
+          const y = centerY - bandHeight / 2;
+
           return (
-            <rect
-              key={band.level}
-              x={toX(band.lower)}
-              y={centerY - bandH / 2}
-              width={toX(band.upper) - toX(band.lower)}
-              height={bandH}
-              rx={bandH / 2}
-              fill={bandColor(band.level)}
-            />
+            <g key={band.level}>
+              <rect
+                x={x}
+                y={y}
+                width={width}
+                height={bandHeight}
+                rx={bandHeight / 2}
+                fill={intervalColor}
+                fillOpacity={resolveUncertaintyBandOpacity(band.level)}
+              />
+              {patternKind !== "none" ? (
+                <rect
+                  x={x}
+                  y={y}
+                  width={width}
+                  height={bandHeight}
+                  rx={bandHeight / 2}
+                  fill={resolveUncertaintyPatternFill(patternKind, patternIds)}
+                  fillOpacity={0.7}
+                />
+              ) : null}
+            </g>
           );
         })}
 
-        {/* Point estimate marker */}
         <circle
           cx={toX(estimate)}
           cy={centerY}
           r={5}
-          fill={chartTheme.primary}
-          stroke="var(--panel)"
+          fill={pointColor}
+          stroke="var(--paper)"
           strokeWidth={2}
         />
 
-        {/* Labels */}
         <text
           x={toX(estimate)}
           y={centerY - BAR_HEIGHT - 6}
           textAnchor="middle"
           fontSize={chartDefaults.labelFontSize}
           fontWeight={700}
-          fill="var(--ink)"
+          fill={pointColor}
         >
-          {estimate.toFixed(3)}{unit}
+          {estimate.toFixed(3)}
+          {unit}
         </text>
 
         {sorted.map((band) => (
-          <g key={band.level}>
+          <g key={`${band.level}-labels`}>
             <text
               x={toX(band.lower)}
               y={centerY + BAR_HEIGHT + 14}
@@ -145,17 +186,18 @@ export function GradedErrorBar({
           </g>
         ))}
 
-        {/* Band legend */}
-        {sorted.map((band, i) => (
+        {sorted.map((band, index) => (
           <text
-            key={band.level}
+            key={`${band.level}-legend`}
             x={svgWidth - PADDING.right}
-            y={centerY + BAR_HEIGHT + 14 + i * 12}
+            y={centerY + BAR_HEIGHT + 14 + index * 12}
             textAnchor="end"
             fontSize={10}
             fill={chartTheme.neutral}
           >
-            {Math.round(band.level * 100)}% CI
+            {t("shared.charts.common.confidenceIntervalShort", {
+              confidence: Math.round(band.level * 100),
+            })}
           </text>
         ))}
       </svg>

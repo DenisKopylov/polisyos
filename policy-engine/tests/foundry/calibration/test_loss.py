@@ -2,15 +2,12 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy.testing as npt
-import pytest
 
 from polisyos.foundry.calibration.loss import (
     _huber,
     compute_base_loss,
     loss_components,
-    pointwise_base_loss,
     reduce_weighted_loss,
-    unified_loss,
 )
 from polisyos.ir.analytics.calibration import TargetLossConfig
 
@@ -72,7 +69,11 @@ class TestLossComponents:
         weights = {"gdp": 2.0, "cpi": 0.5}
 
         total, per_target, per_target_base = loss_components(
-            predicted, targets, configs, scales, weights=weights,
+            predicted,
+            targets,
+            configs,
+            scales,
+            weights=weights,
         )
 
         reconstructed = sum(per_target.values())

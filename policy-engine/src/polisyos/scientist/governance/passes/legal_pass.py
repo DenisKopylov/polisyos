@@ -4,6 +4,7 @@ The `LegalPass` implementation is owned by
 `polisyos.core.governance.passes.legal_pass`; this module preserves the legacy
 Scientist import path and emits a deprecation warning on import.
 """
+
 from __future__ import annotations
 
 import warnings

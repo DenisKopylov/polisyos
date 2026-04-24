@@ -10,6 +10,7 @@ Coverage:
   7. to_uncertainty_envelope() returns valid UncertaintyEnvelope
   8. TwinNetworkQuery is registered in the method catalog
 """
+
 from __future__ import annotations
 
 import math
@@ -27,7 +28,6 @@ from polisyos.ir.analytics.structural_causal_model import (
 )
 from polisyos.ir.analytics.twin_network import TwinNetworkResult
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
-
 
 # ── Fixtures ───────────────────────────────────────────────────────────────────
 
@@ -315,7 +315,6 @@ def test_twin_to_uncertainty_envelope() -> None:
 
 
 # ── Test 8: registration ──────────────────────────────────────────────────────
-
 
 
 def test_twin_network_query_registered() -> None:

@@ -45,6 +45,7 @@ from polisyos.ir.analytics.causal_ensemble import (
     EnsembleMember,
     persist_causal_model_ensemble,
 )
+from polisyos.ir.analytics.causal_queries import InterventionSpec
 from polisyos.ir.analytics.hte import (
     HTEResult,
     PolicyRecommendation,
@@ -70,14 +71,13 @@ from polisyos.ir.analytics.normative_arbitration import (
     persist_normative_arbitration_result,
 )
 from polisyos.ir.analytics.partial_identification import BoundsBundle, persist_bounds_bundle
-from polisyos.ir.analytics.causal_queries import InterventionSpec
 from polisyos.ir.analytics.sensitivity import SensitivityResult, persist_sensitivity_result
 from polisyos.ir.analytics.strategic import (
-    MeanFieldMacroSimulationConfig,
     EquilibriumSelectionSummary,
     EquilibriumSetSummary,
     FiniteStrategicPayoffTable,
     MeanFieldEquilibriumCertificate,
+    MeanFieldMacroSimulationConfig,
     PerformativeLoopAnalysisScope,
     PerformativeLoopProofFamily,
     PerformativeLoopRecommendedAction,
@@ -100,8 +100,8 @@ from polisyos.ir.analytics.strategic import (
     persist_mean_field_perturbation_spec,
     persist_performative_shift_summary,
     persist_post_adaptation_policy_value_summary,
-    persist_strategic_decomposition_failure_card,
     persist_strategic_closure_summary,
+    persist_strategic_decomposition_failure_card,
     persist_strategic_payoff_table,
     persist_strategic_response_bundle,
     persist_strategic_scm,
@@ -149,8 +149,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DECISION_READINESS_CONTRACT_REF,
     ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF,
     ARTIFACT_HTE_RESULT_REF,
-    ARTIFACT_METRICS_REF,
     ARTIFACT_METRIC_VALIDATION_REPORT_REF,
+    ARTIFACT_METRICS_REF,
     ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
     ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
@@ -356,7 +356,9 @@ def test_build_decision_packet_includes_metric_validation_projection(tmp_path) -
     payload = from_canonical_bytes(store.get_bytes(outcome.artifacts[0].artifact_id))
 
     assert payload["metric_validation_report_ref"] == str(metric_validation_ref.artifact_id)
-    assert payload["artifacts"]["metric_validation_report_ref"] == str(metric_validation_ref.artifact_id)
+    assert payload["artifacts"]["metric_validation_report_ref"] == str(
+        metric_validation_ref.artifact_id
+    )
     assert payload["metric_significance"]["accuracy"]["test_label"] == "McNemar exact"
     assert payload["metric_significance"]["accuracy"]["significant"] is True
     assert payload["metric_validation_family_adjustment"] == {
@@ -463,12 +465,8 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_metrics_and_go
     assert payload["diagnostics_summary"]["degraded_path_count"] == 3
     assert payload["diagnostics_summary"]["has_degraded_paths"] is True
     assert payload["analysis_limits"]["decision_packet_degraded"] is True
-    assert any(
-        note.startswith("metrics_load_failed:") for note in payload["notes"]
-    )
-    assert any(
-        note.startswith("governance_report_load_failed:") for note in payload["notes"]
-    )
+    assert any(note.startswith("metrics_load_failed:") for note in payload["notes"])
+    assert any(note.startswith("governance_report_load_failed:") for note in payload["notes"])
 
 
 def test_build_decision_packet_records_degraded_paths_for_invalid_decision_basis_quality_report(
@@ -526,13 +524,11 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_decision_basis
 
     assert "decision_basis_quality_report_load_failed" in degraded_reasons
     assert any(
-        note.startswith("decision_basis_quality_report_load_failed:")
-        for note in payload["notes"]
+        note.startswith("decision_basis_quality_report_load_failed:") for note in payload["notes"]
     )
-    assert (
-        payload["decision_validity_envelope"]["data_basis"]["summary"]["quality_report_ref"]
-        == str(invalid_quality_ref.artifact_id)
-    )
+    assert payload["decision_validity_envelope"]["data_basis"]["summary"][
+        "quality_report_ref"
+    ] == str(invalid_quality_ref.artifact_id)
 
 
 def test_build_decision_packet_surfaces_legal_links_and_contract_warnings(tmp_path) -> None:
@@ -619,19 +615,21 @@ def test_build_decision_packet_surfaces_legal_links_and_contract_warnings(tmp_pa
         change_proposal_artifact.artifact_id
     )
     assert payload["artifacts"]["legal_report_ref"] == str(legal_report_artifact.artifact_id)
-    assert payload["artifacts"]["change_proposal_ref"] == str(
-        change_proposal_artifact.artifact_id
-    )
+    assert payload["artifacts"]["change_proposal_ref"] == str(change_proposal_artifact.artifact_id)
     assert payload["diagnostics_summary"]["contract_warnings"] == [
         "missing_runtime_mechanism_support:custom_subsidy",
     ]
     assert payload["analysis_limits"]["missing_runtime_mechanism_support"] is True
 
 
-def test_build_decision_packet_includes_tradeoff_certificate_and_normative_validity(tmp_path) -> None:
+def test_build_decision_packet_includes_tradeoff_certificate_and_normative_validity(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
-    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_normative")
+    run = RunContext.start(
+        store=store, registry_bundle=registry_bundle, run_id="R_packet_normative"
+    )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.normative"))
 
     trinity_ref = store.put_json(
@@ -739,12 +737,16 @@ def test_build_decision_packet_includes_tradeoff_certificate_and_normative_valid
     packet_ref = outcome.artifacts[0]
     payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
 
-    assert payload["artifacts"]["normative_arbitration_result_ref"] == str(normative_ref.artifact_id)
+    assert payload["artifacts"]["normative_arbitration_result_ref"] == str(
+        normative_ref.artifact_id
+    )
     assert payload["tradeoff_certificate"]["selected_policy"] == "weighted_welfare"
     assert payload["diagnostics_summary"]["normative_model_completeness"] == "partial"
     assert payload["diagnostics_summary"]["normative_residual_dissent_count"] == 1
     assert (
-        payload["decision_validity_envelope"]["normative_basis"]["summary"]["normative_selected_policy"]
+        payload["decision_validity_envelope"]["normative_basis"]["summary"][
+            "normative_selected_policy"
+        ]
         == "weighted_welfare"
     )
     assert payload["decision_validity_baseline"]["status"] == "warning"
@@ -753,7 +755,9 @@ def test_build_decision_packet_includes_tradeoff_certificate_and_normative_valid
 def test_build_decision_packet_rejects_incomplete_serious_contract(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
-    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_serious_fail")
+    run = RunContext.start(
+        store=store, registry_bundle=registry_bundle, run_id="R_packet_serious_fail"
+    )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.serious"))
 
     trinity_ref = store.put_json(
@@ -850,16 +854,15 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_normative_arbi
     assert payload["tradeoff_certificate"] is None
     assert "normative_arbitration_load_failed" in degraded_reasons
     assert payload["diagnostics_summary"]["degraded_path_count"] >= 1
-    assert any(
-        note.startswith("normative_arbitration_load_failed:")
-        for note in payload["notes"]
-    )
+    assert any(note.startswith("normative_arbitration_load_failed:") for note in payload["notes"])
 
 
 def test_build_decision_packet_accepts_complete_serious_contract(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
-    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_serious_ok")
+    run = RunContext.start(
+        store=store, registry_bundle=registry_bundle, run_id="R_packet_serious_ok"
+    )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.serious.ok"))
 
     trinity_ref = store.put_json(
@@ -1003,7 +1006,9 @@ def test_build_decision_packet_accepts_complete_serious_contract(tmp_path) -> No
     assert payload["runtime_contracts"]["capability_manifest_ref"] == str(
         capability_manifest_ref.artifact_id
     )
-    assert payload["artifacts"]["cross_graph_evidence_profile_ref"] == str(cross_graph_ref.artifact_id)
+    assert payload["artifacts"]["cross_graph_evidence_profile_ref"] == str(
+        cross_graph_ref.artifact_id
+    )
     assert payload["artifacts"]["transportability_result_ref"] == str(transport_ref.artifact_id)
     assert payload["feedback_loop"]["monitoring_contract_ref"] is not None
 
@@ -1185,8 +1190,7 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_uncertainty_ou
     assert payload["uncertainty_bounds"] is None
     assert "uncertainty_output_envelope_load_failed" in degraded_reasons
     assert any(
-        note.startswith("uncertainty_output_envelope_load_failed:")
-        for note in payload["notes"]
+        note.startswith("uncertainty_output_envelope_load_failed:") for note in payload["notes"]
     )
 
 
@@ -1393,9 +1397,7 @@ def test_build_decision_packet_surfaces_dp_status_from_readiness_and_bounds(tmp_
     packet_ref = outcome.artifacts[0]
     payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
 
-    assert payload["artifacts"]["decision_readiness_contract_ref"] == str(
-        readiness_ref.artifact_id
-    )
+    assert payload["artifacts"]["decision_readiness_contract_ref"] == str(readiness_ref.artifact_id)
     assert payload["artifacts"]["bounds_bundle_ref"] == str(bounds_ref.artifact_id)
     assert payload["causal"]["decision_readiness_contract_ref"] == str(readiness_ref.artifact_id)
     assert payload["causal"]["bounds_ref"] == str(bounds_ref.artifact_id)
@@ -1845,8 +1847,15 @@ def test_build_decision_packet_includes_calibration_validation_summary(tmp_path)
     assert payload["calibration_validation"]["status"] == "completed"
     assert payload["calibration_validation"]["summary"]["composite_score"] == 0.82
     assert payload["calibration_validation"]["summary"]["worst_backtest_kind"] == "distress"
-    assert payload["calibration_validation"]["governance_accountability_summary"]["risk_weighted_verdict"] == "human_gate"
-    assert payload["calibration_validation"]["governance_accountability_ref"] == "sha256:" + "5" * 64
+    assert (
+        payload["calibration_validation"]["governance_accountability_summary"][
+            "risk_weighted_verdict"
+        ]
+        == "human_gate"
+    )
+    assert (
+        payload["calibration_validation"]["governance_accountability_ref"] == "sha256:" + "5" * 64
+    )
 
 
 def test_build_decision_packet_includes_sensitivity_section(tmp_path) -> None:
@@ -2277,7 +2286,9 @@ def test_build_decision_packet_uses_dual_written_ensemble_envelope_for_causal_po
 def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
-    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_strategic")
+    run = RunContext.start(
+        store=store, registry_bundle=registry_bundle, run_id="R_packet_strategic"
+    )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.strategic"))
 
     trinity_ref = store.put_json(
@@ -2337,7 +2348,9 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
                 "leader": leader_table_ref,
                 "follower": follower_table_ref,
             },
-            policy_rule_ref=ArtifactRefModel.model_validate(policy_rule_ref.model_dump(mode="json")),
+            policy_rule_ref=ArtifactRefModel.model_validate(
+                policy_rule_ref.model_dump(mode="json")
+            ),
             equilibrium_concept=StrategicEquilibriumConcept.STACKELBERG,
         ),
     )
@@ -2437,7 +2450,9 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
         store,
         MeanFieldEquilibriumCertificate(
             intervention_kind="distributional",
-            baseline_policy_ref=ArtifactRefModel.model_validate(policy_rule_ref.model_dump(mode="json")),
+            baseline_policy_ref=ArtifactRefModel.model_validate(
+                policy_rule_ref.model_dump(mode="json")
+            ),
             intervention_spec_ref=mfg_perturbation_ref,
             mean_field_model_class="second_order",
             well_posedness={
@@ -2483,7 +2498,9 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
     strategic_bundle_ref = persist_strategic_response_bundle(
         store,
         StrategicResponseBundle(
-            causal_component_ref=ArtifactRefModel.model_validate(policy_rule_ref.model_dump(mode="json")),
+            causal_component_ref=ArtifactRefModel.model_validate(
+                policy_rule_ref.model_dump(mode="json")
+            ),
             strategic_closure_ref=strategic_closure_ref,
             equilibrium_selection_dependence="follower_best_response_tie_breaking",
             equilibrium_set_ref=equilibrium_set_ref,
@@ -2535,9 +2552,7 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
     assert payload["strategic"]["post_adaptation_policy_value"] == 1.3
     assert payload["strategic"]["performative_shift_ref"] == str(performative_shift_ref.artifact_id)
     assert payload["strategic"]["performative_shift"] == 0.3
-    assert payload["strategic"]["performative_loop"]["stability_status"] == (
-        "certified_convergent"
-    )
+    assert payload["strategic"]["performative_loop"]["stability_status"] == ("certified_convergent")
     assert payload["strategic"]["mfg_equilibrium_ref"] == str(mfg_equilibrium_ref.artifact_id)
     assert payload["strategic"]["mfg_numerics_config_ref"] == str(mfg_numerics_ref.artifact_id)
     assert payload["strategic"]["mfg_uniqueness_status"] == "local_stable_branch"
@@ -2612,7 +2627,9 @@ def test_build_decision_packet_includes_blocked_decomposition_failure_card(tmp_p
                 "leader": leader_table_ref,
                 "follower": follower_table_ref,
             },
-            policy_rule_ref=ArtifactRefModel.model_validate(policy_rule_ref.model_dump(mode="json")),
+            policy_rule_ref=ArtifactRefModel.model_validate(
+                policy_rule_ref.model_dump(mode="json")
+            ),
             equilibrium_concept=StrategicEquilibriumConcept.STACKELBERG,
         ),
     )
@@ -2663,7 +2680,9 @@ def test_build_decision_packet_includes_blocked_decomposition_failure_card(tmp_p
     strategic_bundle_ref = persist_strategic_response_bundle(
         store,
         StrategicResponseBundle(
-            causal_component_ref=ArtifactRefModel.model_validate(policy_rule_ref.model_dump(mode="json")),
+            causal_component_ref=ArtifactRefModel.model_validate(
+                policy_rule_ref.model_dump(mode="json")
+            ),
             strategic_closure_ref=strategic_closure_ref,
             equilibrium_selection_dependence="deterministic",
             equilibrium_set_ref=equilibrium_set_ref,
@@ -2705,7 +2724,9 @@ def test_build_decision_packet_falls_back_to_blocked_strategic_summary_without_b
 ) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
-    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_strategic_blocked")
+    run = RunContext.start(
+        store=store, registry_bundle=registry_bundle, run_id="R_packet_strategic_blocked"
+    )
     ctx = ExecutionContext(
         store=store,
         run=run,
@@ -2759,7 +2780,9 @@ def test_build_decision_packet_falls_back_to_blocked_strategic_summary_without_b
                 "leader": leader_table_ref,
                 "follower": follower_table_ref,
             },
-            policy_rule_ref=ArtifactRefModel.model_validate(policy_rule_ref.model_dump(mode="json")),
+            policy_rule_ref=ArtifactRefModel.model_validate(
+                policy_rule_ref.model_dump(mode="json")
+            ),
             equilibrium_concept=StrategicEquilibriumConcept.STACKELBERG,
         ),
     )

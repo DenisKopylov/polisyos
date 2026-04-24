@@ -14,7 +14,6 @@ from polisyos.foundry.data_plane.bindings import (
 from polisyos.foundry.executor import load_state_snapshot
 from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
 
-
 SYNTHETIC_MULTISCALE_PAYLOAD = {
     "agents": {
         "age": [31, 44],

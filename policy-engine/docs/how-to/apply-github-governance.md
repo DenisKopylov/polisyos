@@ -16,6 +16,7 @@ repo-tracked docs and workflow inventory.
 
 - GitHub repository settings aligned with the repo-tracked governance docs and
   current workflow inventory;
+
 - a reviewable record of which settings are still manual rather than
   version-controlled.
 
@@ -70,6 +71,7 @@ Verification:
 
 - open the Labels list and confirm every label from `.github/labels.yml`
   exists exactly once;
+
 - open any test PR and confirm the labels are selectable.
 
 ## 2. Review the Active Workflow Inventory
@@ -144,8 +146,10 @@ attention explicitly.
 
 - Merge queue is not part of the repo-tracked contract today. If you enable it
   in GitHub, treat that as a manual operational decision.
+
 - `signatures.yml` and `build-and-push.yml` are the repo-tracked signing and
   SBOM surfaces.
+
 - Commit-signature enforcement on `main`, if you use it, is a manual GitHub
   setting rather than a versioned repository rule.
 
@@ -156,6 +160,7 @@ After saving the ruleset, verify all of the following:
 - the GitHub settings page shows the intended protections for `main`;
 - the required-check list contains only contexts from workflows that currently
   exist;
+
 - labels from `.github/labels.yml` are available and can be applied;
 - a sample PR routes reviewers according to `docs/reference/ownership.md`;
 - a sample PR shows the expected blocking rules in the merge box;
@@ -176,8 +181,10 @@ When governance policy changes in the repo:
 
 - revert the GitHub UI change if it contradicts the repo-tracked docs or blocks
   the current workflow inventory;
+
 - if the mistake is really in the repo-tracked source of truth, update docs and
   workflow files first, then re-apply the GitHub setting intentionally;
+
 - when unsure, prefer restoring the previous live setting over leaving the repo
   in a half-synchronized governance state.
 
@@ -185,8 +192,10 @@ When governance policy changes in the repo:
 
 - If a required check never appears in branch protection, copy the exact check
   context from a recent workflow run instead of guessing from the YAML filename.
+
 - If reviewer routing feels ambiguous, escalate to
   `docs/reference/ownership.md` before inventing ad hoc code-owner rules.
+
 - If labels drift repeatedly, treat `.github/labels.yml` as the canonical list
   and reconcile the UI in one pass instead of editing labels PR by PR.
 

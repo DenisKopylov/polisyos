@@ -1,12 +1,15 @@
 # ADR-0034: Simplified Transportability -- Backdoor-Only (Phase 12a)
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-02-28
 
 ## Context
+
 Phase 12 requires transportability analysis to assess whether causal effect
 estimates from a source context can be validly applied in a target context.
 Full do-calculus-based transportability is NP-hard in general and requires
@@ -19,6 +22,7 @@ reduces to checking whether the adjustment set variables have comparable
 distributions across contexts.
 
 ## Decision
+
 1. **Phase 12a** implements simplified transportability using the **backdoor
    criterion only**: check whether the backdoor adjustment set is valid in
    both source and target contexts, and whether covariate distributions are
@@ -32,15 +36,21 @@ distributions across contexts.
    `transport_method="unsupported"` and routed to manual review.
 
 ## Consequences
+
 ### Positive
+
 - Tractable transport analysis covering the majority of policy-relevant
   causal queries without NP-hard graph algorithms.
+
 - Clear scope boundary: Phase 12a ships a useful transport capability
   without blocking on complex do-calculus implementation.
+
 - Manual review fallback ensures no query is silently dropped.
 
 ### Negative
+
 - Some valid transport queries that require front-door or IV identification
   cannot be automated and require manual analyst intervention.
+
 - Phase 12b implementation is necessary for full coverage of do-calculus
   transportability.

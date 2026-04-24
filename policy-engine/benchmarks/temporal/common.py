@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from typing import Any, Callable, Sequence
+from typing import Any
 
 from benchmarks.harness import BenchmarkCase, BenchmarkCircuit, BenchmarkReport, CaseResult
 from polisyos.scientist.backtesting.temporal import (
@@ -11,7 +12,6 @@ from polisyos.scientist.backtesting.temporal import (
     build_temporal_backtest_report,
     summarize_temporal_evaluations,
 )
-
 
 TEMPORAL_BENCHMARK_FAMILY = "temporal_causal_dynamics"
 TEMPORAL_LITERATURE_ANCHOR = [
@@ -62,9 +62,7 @@ def build_gold_scorecard(evaluations: Sequence[TemporalEvaluationResult]) -> dic
         "diagnostics_artifact_present",
     )
     policy_cases = [
-        item
-        for item in evaluations
-        if bool(item.metadata.get("requires_policy_lineage"))
+        item for item in evaluations if bool(item.metadata.get("requires_policy_lineage"))
     ]
     policy_lineage_rate = _acceptance_rate(
         policy_cases or evaluations,
@@ -72,9 +70,7 @@ def build_gold_scorecard(evaluations: Sequence[TemporalEvaluationResult]) -> dic
         default=1.0,
     )
     fallback_cases = [
-        item
-        for item in evaluations
-        if bool(item.gating_checks.get("fallback_required"))
+        item for item in evaluations if bool(item.gating_checks.get("fallback_required"))
     ]
     truthful_fallback_disclosure_rate = _acceptance_rate(
         fallback_cases or evaluations,

@@ -1,4 +1,5 @@
 """Tests for polisyos.scientist.agent.drafter_models — enums, dataclasses, config."""
+
 from __future__ import annotations
 
 import os
@@ -9,6 +10,7 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.scientist.agent.drafter_models import (
+    _SEVERITY_ORDER,
     FindingCategory,
     FindingSeverity,
     MultiPassConfig,
@@ -16,13 +18,12 @@ from polisyos.scientist.agent.drafter_models import (
     PassFinding,
     _ConsolidationPayload,
     _CritiquePayload,
-    _SEVERITY_ORDER,
 )
-
 
 # ---------------------------------------------------------------------------
 # Enums
 # ---------------------------------------------------------------------------
+
 
 class TestFindingSeverity:
     def test_all_values(self):
@@ -39,9 +40,15 @@ class TestFindingSeverity:
 class TestFindingCategory:
     def test_all_values(self):
         expected = {
-            "side_effect", "missing_group", "budget_violation",
-            "constraint_conflict", "parameter_error", "target_overlap",
-            "equity_concern", "feasibility_issue", "other",
+            "side_effect",
+            "missing_group",
+            "budget_violation",
+            "constraint_conflict",
+            "parameter_error",
+            "target_overlap",
+            "equity_concern",
+            "feasibility_issue",
+            "other",
         }
         assert {c.value for c in FindingCategory} == expected
 
@@ -52,6 +59,7 @@ class TestFindingCategory:
 # ---------------------------------------------------------------------------
 # PassFinding (frozen dataclass)
 # ---------------------------------------------------------------------------
+
 
 class TestPassFinding:
     def _make(self, **overrides):
@@ -106,6 +114,7 @@ class TestPassFinding:
 # PassExecution
 # ---------------------------------------------------------------------------
 
+
 class TestPassExecution:
     def test_defaults(self):
         p = PassExecution(pass_name="p1", pass_number=1, executed=True)
@@ -126,6 +135,7 @@ class TestPassExecution:
 # ---------------------------------------------------------------------------
 # MultiPassConfig
 # ---------------------------------------------------------------------------
+
 
 class TestMultiPassConfig:
     def test_defaults(self):
@@ -210,6 +220,7 @@ class TestMultiPassConfig:
 # ---------------------------------------------------------------------------
 # Internal payload models
 # ---------------------------------------------------------------------------
+
 
 class TestCritiquePayload:
     def test_extra_fields_ignored(self):

@@ -1,7 +1,9 @@
 """Public econometrics timeseries module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -19,7 +21,6 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-
 from polisyos.foundry.methods.catalog._payloads import extract_model_payload
 
 from .protocols import EconometricResult, TimeSeriesData
@@ -35,7 +36,9 @@ def _time_series_payload(state: Any) -> dict[str, Any]:
     )
 
 
-def _materialize_time_series(bound_inputs: Mapping[str, Any], fallback_state: Any) -> TimeSeriesData:
+def _materialize_time_series(
+    bound_inputs: Mapping[str, Any], fallback_state: Any
+) -> TimeSeriesData:
     payload = _time_series_payload(fallback_state)
     payload.update(bound_inputs)
     return TimeSeriesData.model_validate(payload)
@@ -172,7 +175,6 @@ def _run_arima(state: TimeSeriesData, params: Mapping[str, Any]) -> EconometricR
 
 def _run_var(state: TimeSeriesData, params: Mapping[str, Any]) -> EconometricResult:
     from statsmodels.tsa.api import VAR
-
 
     endog = np.asarray(state.endog)
     if endog.ndim != 2:

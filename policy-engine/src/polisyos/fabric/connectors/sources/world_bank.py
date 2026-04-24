@@ -1,14 +1,15 @@
 """World Bank WDI connector implementation for REST JSON indicator fetches."""
+
 from __future__ import annotations
 
 import time
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, ClassVar
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
 import pandas as pd
 
 from polisyos.core.canon import streaming_hash
-from polisyos.fabric.safety import UnsafePathSegmentError, safe_path_segment
 from polisyos.fabric.connectors.base import (
     ConnectionHandle,
     DatasetCapabilitySnapshot,
@@ -25,6 +26,7 @@ from polisyos.fabric.connectors.sources.http_common import (
     safe_int,
 )
 from polisyos.fabric.connectors.types import DatasetDescriptor, FetchError
+from polisyos.fabric.safety import UnsafePathSegmentError, safe_path_segment
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,
@@ -212,7 +214,7 @@ class WorldBankConnector(HTTPConnectorBase[pd.DataFrame]):
             page += 1
 
         frame = self._normalize_records(all_records, indicator_id)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return self._build_fetch_result(
             data=frame,
             row_count=len(frame),
@@ -253,7 +255,7 @@ class WorldBankConnector(HTTPConnectorBase[pd.DataFrame]):
             allowed_positions={},
             estimated_cardinality=max(len(indicators), 1),
             version_hint="v2",
-            last_checked_at=datetime.now(timezone.utc),
+            last_checked_at=datetime.now(UTC),
         )
 
     @staticmethod
@@ -273,9 +275,7 @@ class WorldBankConnector(HTTPConnectorBase[pd.DataFrame]):
     @staticmethod
     def _normalize_indicator_batch(dataset_id: str) -> str:
         indicators = [
-            token.strip()
-            for token in str(dataset_id or "").split(";")
-            if token and token.strip()
+            token.strip() for token in str(dataset_id or "").split(";") if token and token.strip()
         ]
         encoded = [
             safe_path_segment(token, what="World Bank indicator id")

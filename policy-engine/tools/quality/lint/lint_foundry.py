@@ -3,13 +3,13 @@ from __future__ import annotations
 
 import argparse
 import ast
-from collections import defaultdict
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
 from tools._lib.fs import atomic_write_text
 from tools._lib.output import OUTPUT_FORMATS, ToolMessage, ToolResult, format_tool_result
+
 from .rules import RuleContext, RuleFix, RuleViolation, iter_rules
 
 STANDARD_BANNED_IMPORT_ROOTS = {
@@ -158,7 +158,7 @@ def format_path(root: Path, path: Path) -> str:
 def _annotate_parents(tree: ast.AST) -> None:
     for parent in ast.walk(tree):
         for child in ast.iter_child_nodes(parent):
-            setattr(child, "_parent", parent)
+            child._parent = parent
 
 
 def _build_context(path: Path, *, repo_root: Path, policy: str) -> RuleContext:
@@ -182,17 +182,25 @@ def _run_rules(context: RuleContext) -> list[RuleViolation]:
     violations: list[RuleViolation] = []
     for rule in iter_rules("foundry."):
         violations.extend(rule.check(context))
-    return sorted(violations, key=lambda item: (str(item.path), item.lineno, item.rule_id, item.message))
+    return sorted(
+        violations, key=lambda item: (str(item.path), item.lineno, item.rule_id, item.message)
+    )
 
 
-def _apply_fixes(context: RuleContext, violations: list[RuleViolation]) -> tuple[RuleContext, tuple[RuleFix, ...]]:
+def _apply_fixes(
+    context: RuleContext, violations: list[RuleViolation]
+) -> tuple[RuleContext, tuple[RuleFix, ...]]:
     fixes: list[RuleFix] = []
     working_context = context
 
     for rule in iter_rules("foundry."):
         if rule.fix is None:
             continue
-        rule_violations = [violation for violation in violations if violation.rule_id == rule.rule_id and violation.fixable]
+        rule_violations = [
+            violation
+            for violation in violations
+            if violation.rule_id == rule.rule_id and violation.fixable
+        ]
         if not rule_violations:
             continue
         fix = rule.fix(working_context, rule_violations)
@@ -200,7 +208,9 @@ def _apply_fixes(context: RuleContext, violations: list[RuleViolation]) -> tuple
             continue
         atomic_write_text(fix.path, fix.rendered_source, encoding="utf-8")
         fixes.append(fix)
-        working_context = _build_context(fix.path, repo_root=context.repo_root, policy=context.policy)
+        working_context = _build_context(
+            fix.path, repo_root=context.repo_root, policy=context.policy
+        )
 
     return working_context, tuple(fixes)
 
@@ -263,7 +273,11 @@ def _structured_result(
     roots: list[Path],
 ) -> ToolResult:
     status = "failed" if violations else "ok"
-    summary = "foundry ban list failed" if violations else ("foundry ban list fixed" if fixes else "foundry ban list clean")
+    summary = (
+        "foundry ban list failed"
+        if violations
+        else ("foundry ban list fixed" if fixes else "foundry ban list clean")
+    )
     messages = [
         ToolMessage(
             level="error",
@@ -326,7 +340,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             "No foundry roots found.",
             exit_code=2,
         )
-        _emit_output(format_tool_result(result, output_format=args.output_format), output=args.output)
+        _emit_output(
+            format_tool_result(result, output_format=args.output_format), output=args.output
+        )
         return 2
 
     violations: list[RuleViolation] = []

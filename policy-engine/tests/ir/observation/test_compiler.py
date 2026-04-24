@@ -16,7 +16,11 @@ from polisyos.ir.observation.contracts import (
     ObservationRecord,
     SourceConfidenceTier,
 )
-from polisyos.ir.observation.measurement import SchemaChangepoint, SchemaRegimeRegistry, SchemaRegimeSpec
+from polisyos.ir.observation.measurement import (
+    SchemaChangepoint,
+    SchemaRegimeRegistry,
+    SchemaRegimeSpec,
+)
 from polisyos.ir.types import TimeFrequency
 
 

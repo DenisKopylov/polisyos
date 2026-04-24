@@ -5,6 +5,7 @@ Each connector advertises hard capabilities through ``ConnectorCapability`` and 
 on ``SourceProfile`` / ``SourceExecutionPolicy`` for endpoint-specific transport, auth, and
 throttling semantics.
 """
+
 from __future__ import annotations
 
 from polisyos.fabric.connectors.sources.ckan_catalog import CKANCatalogConnector
@@ -22,34 +23,34 @@ from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
 from polisyos.fabric.connectors.sources.socrata import SocrataConnector
 from polisyos.fabric.connectors.sources.sparql import SPARQLConnector
 from polisyos.fabric.connectors.sources.sql_query import SQLQueryConnector
+from polisyos.fabric.connectors.sources.ukons import UKONSConnector
 from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
 from polisyos.fabric.connectors.sources.unpd import UNPDConnector
-from polisyos.fabric.connectors.sources.ukons import UKONSConnector
 from polisyos.fabric.connectors.sources.who import WHOConnector
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 from polisyos.fabric.connectors.sources.wvs import WVSConnector
 
 __all__ = [
-    "WorldBankConnector",
-    "WVSConnector",
+    "CKANCatalogConnector",
+    "CKANResourceConnector",
     "EurostatConnector",
     "EventStreamConnector",
     "FileTabularConnector",
     "GeoJSONConnector",
     "GraphQLConnector",
-    "UKONSConnector",
-    "ObjectStorageConnector",
-    "SDMXSourceConnector",
-    "CKANCatalogConnector",
-    "CKANResourceConnector",
-    "SocrataConnector",
-    "OpendatasoftConnector",
-    "RestJsonConnector",
-    "SPARQLConnector",
-    "SQLQueryConnector",
-    "WHOConnector",
-    "UNPDConnector",
-    "UNESCOUISConnector",
     "HTTPConnectorBase",
     "HTTPResilienceProfile",
+    "ObjectStorageConnector",
+    "OpendatasoftConnector",
+    "RestJsonConnector",
+    "SDMXSourceConnector",
+    "SPARQLConnector",
+    "SQLQueryConnector",
+    "SocrataConnector",
+    "UKONSConnector",
+    "UNESCOUISConnector",
+    "UNPDConnector",
+    "WHOConnector",
+    "WVSConnector",
+    "WorldBankConnector",
 ]

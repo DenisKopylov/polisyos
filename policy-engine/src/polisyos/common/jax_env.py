@@ -4,6 +4,7 @@ Importing this module is side-effect free; call `apply_jax_env_defaults()`
 before importing JAX-heavy stacks if the process should avoid accidental Metal
 backend selection on macOS.
 """
+
 from __future__ import annotations
 
 import os
@@ -29,7 +30,9 @@ def apply_jax_env_defaults() -> None:
     if os.environ.get("POLICY_ENGINE_ALLOW_JAX_METAL") == "1":
         return
 
-    requested = (os.environ.get("JAX_PLATFORMS") or os.environ.get("JAX_PLATFORM_NAME") or "").lower()
+    requested = (
+        os.environ.get("JAX_PLATFORMS") or os.environ.get("JAX_PLATFORM_NAME") or ""
+    ).lower()
     if not requested or "metal" in requested:
         os.environ.setdefault("JAX_PLATFORMS", "cpu")
         os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")

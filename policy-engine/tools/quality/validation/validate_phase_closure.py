@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Emit a machine-readable closure report for the causal research phases."""
+
 from __future__ import annotations
 
 import argparse

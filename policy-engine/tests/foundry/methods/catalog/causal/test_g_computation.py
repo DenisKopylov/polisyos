@@ -1,4 +1,5 @@
 """Tests for G-computation estimators: ParametricGFormula, ICEGFormula, LTMLEEstimator."""
+
 from __future__ import annotations
 
 import builtins
@@ -9,7 +10,6 @@ import numpy as np
 import pytest
 
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog.causal.g_computation import (
     ICEGFormula,
     LTMLEEstimator,
@@ -17,14 +17,15 @@ from polisyos.foundry.methods.catalog.causal.g_computation import (
     _ice_estimate,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
+from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics.causal import EstimationStatus
 from polisyos.ir.analytics.dynamic_regime import GComputationResult
 
-
 # ---------------------------------------------------------------------------
 # Shared DGP
 # ---------------------------------------------------------------------------
+
 
 def _make_dynamic_data(
     n_units: int = 400,
@@ -43,6 +44,7 @@ def _make_dynamic_data(
         E[Y^{never_treat}]  ≈ 0 + 0          = 0.0
     """
     rng = np.random.default_rng(seed)
+
     def sigmoid(x):
         return 1.0 / (1.0 + np.exp(-x))
 
@@ -94,6 +96,7 @@ def _reset_globals():
 # ParametricGFormula tests
 # ---------------------------------------------------------------------------
 
+
 class TestParametricGFormula:
     def test_always_treat_recovers_truth(self):
         data = _make_dynamic_data(n_units=500)
@@ -141,6 +144,7 @@ class TestParametricGFormula:
 
     def test_insufficient_units_raises_validation_error(self):
         from pydantic import ValidationError
+
         with pytest.raises(ValidationError, match="at least"):
             DynamicTreatmentData(
                 outcome=np.ones(5),
@@ -197,21 +201,18 @@ class TestParametricGFormula:
 # ICEGFormula tests
 # ---------------------------------------------------------------------------
 
+
 class TestICEGFormula:
     def test_always_treat_recovers_truth(self):
         data = _make_dynamic_data(n_units=400)
-        result = ICEGFormula.pure_step(
-            data, {"regime": "always_treat", "n_bootstrap": 100}
-        )
+        result = ICEGFormula.pure_step(data, {"regime": "always_treat", "n_bootstrap": 100})
         g = result["g_result"]
         assert result["report"].status == EstimationStatus.SUCCESS
         assert abs(g.counterfactual_mean - 3.0) < 0.6
 
     def test_never_treat_recovers_truth(self):
         data = _make_dynamic_data(n_units=400)
-        result = ICEGFormula.pure_step(
-            data, {"regime": "never_treat", "n_bootstrap": 100}
-        )
+        result = ICEGFormula.pure_step(data, {"regime": "never_treat", "n_bootstrap": 100})
         g = result["g_result"]
         assert result["report"].status == EstimationStatus.SUCCESS
         assert abs(g.counterfactual_mean - 0.0) < 0.5
@@ -224,6 +225,7 @@ class TestICEGFormula:
 
     def test_failure_on_tiny_data(self):
         from pydantic import ValidationError
+
         with pytest.raises(ValidationError, match="at least"):
             DynamicTreatmentData(
                 outcome=np.zeros(8),
@@ -253,12 +255,11 @@ class TestICEGFormula:
 # LTMLEEstimator tests
 # ---------------------------------------------------------------------------
 
+
 class TestLTMLEEstimator:
     def test_always_treat_finite(self):
         data = _make_dynamic_data(n_units=300)
-        result = LTMLEEstimator.pure_step(
-            data, {"regime": "always_treat", "n_bootstrap": 80}
-        )
+        result = LTMLEEstimator.pure_step(data, {"regime": "always_treat", "n_bootstrap": 80})
         g = result["g_result"]
         assert result["report"].status == EstimationStatus.SUCCESS
         assert np.isfinite(g.counterfactual_mean)
@@ -269,13 +270,14 @@ class TestLTMLEEstimator:
         ltmle_always = LTMLEEstimator.pure_step(
             data, {"regime": "always_treat", "n_bootstrap": 60}
         )["g_result"].counterfactual_mean
-        ltmle_never = LTMLEEstimator.pure_step(
-            data, {"regime": "never_treat", "n_bootstrap": 60}
-        )["g_result"].counterfactual_mean
+        ltmle_never = LTMLEEstimator.pure_step(data, {"regime": "never_treat", "n_bootstrap": 60})[
+            "g_result"
+        ].counterfactual_mean
         assert ltmle_always > ltmle_never
 
     def test_failure_on_tiny_data(self):
         from pydantic import ValidationError
+
         with pytest.raises(ValidationError, match="at least"):
             DynamicTreatmentData(
                 outcome=np.zeros(8),
@@ -295,25 +297,26 @@ class TestLTMLEEstimator:
 # Cross-method agreement
 # ---------------------------------------------------------------------------
 
+
 def test_all_three_agree_direction():
     """Parametric, ICE, and LTMLE should agree on which regime gives higher outcome."""
     data = _make_dynamic_data(n_units=500)
     pg_always = ParametricGFormula.pure_step(
         data, {"regime": "always_treat", "n_bootstrap": 60, "n_monte_carlo": 150}
     )["g_result"].counterfactual_mean
-    ice_always = ICEGFormula.pure_step(
-        data, {"regime": "always_treat", "n_bootstrap": 60}
-    )["g_result"].counterfactual_mean
-    ltmle_always = LTMLEEstimator.pure_step(
-        data, {"regime": "always_treat", "n_bootstrap": 60}
-    )["g_result"].counterfactual_mean
+    ice_always = ICEGFormula.pure_step(data, {"regime": "always_treat", "n_bootstrap": 60})[
+        "g_result"
+    ].counterfactual_mean
+    ltmle_always = LTMLEEstimator.pure_step(data, {"regime": "always_treat", "n_bootstrap": 60})[
+        "g_result"
+    ].counterfactual_mean
 
     pg_never = ParametricGFormula.pure_step(
         data, {"regime": "never_treat", "n_bootstrap": 60, "n_monte_carlo": 150}
     )["g_result"].counterfactual_mean
-    ice_never = ICEGFormula.pure_step(
-        data, {"regime": "never_treat", "n_bootstrap": 60}
-    )["g_result"].counterfactual_mean
+    ice_never = ICEGFormula.pure_step(data, {"regime": "never_treat", "n_bootstrap": 60})[
+        "g_result"
+    ].counterfactual_mean
 
     # All three: always_treat > never_treat
     assert pg_always > pg_never, "ParametricG: always_treat should dominate never_treat"

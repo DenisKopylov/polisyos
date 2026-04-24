@@ -15,8 +15,8 @@ from polisyos.foundry.agent_sim.population import (
     PopulationConfig,
     batch_create_agents,
 )
-from polisyos.foundry.agent_sim.state import GlobalState
 from polisyos.foundry.agent_sim.population_executor import PopulationAwareExecutor
+from polisyos.foundry.agent_sim.state import GlobalState
 from polisyos.foundry.agent_sim.temporal import build_temporal_observations
 from polisyos.foundry.contracts.fidelity import FidelityLevel
 
@@ -86,7 +86,9 @@ def test_mpc_planner_preserves_eager_wrapper_and_supports_jit(simple_state) -> N
 
 def test_hybrid_planner_uses_tracer_safe_mpc_path(simple_state) -> None:
     obs_dim = build_temporal_observations(simple_state, horizon=2).shape[-1]
-    actor_critic = ActorCritic(obs_dim=obs_dim, action_dim=1, hidden_dims=[8], key=jax.random.PRNGKey(42))
+    actor_critic = ActorCritic(
+        obs_dim=obs_dim, action_dim=1, hidden_dims=[8], key=jax.random.PRNGKey(42)
+    )
     planner = HybridPlanner(
         actor_critic=actor_critic,
         mpc_planner=MPCPlanner(simulator=PureExecutor([_NoOpMechanism()]), horizon=2, n_samples=2),

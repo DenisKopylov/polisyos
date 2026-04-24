@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from benchmarks.reporting import WORKFLOW_LEVELS, dataclasses_to_dict
 
@@ -87,7 +88,9 @@ def build_capability_report_extra(
     public_claim_eligible = (
         spec.public_claim_eligible
         if spec.public_claim_eligible is not None
-        else report.n_total() > 0 and report.n_total() == report.n_passed() and evidence_bundle_complete
+        else report.n_total() > 0
+        and report.n_total() == report.n_passed()
+        and evidence_bundle_complete
     )
 
     workflow_verdicts = {level: "PASS" for level in WORKFLOW_LEVELS}
@@ -114,7 +117,10 @@ def build_capability_report_extra(
         }.get(status, "partial")
         competitor_matrix.setdefault(
             competitor,
-            {workflow: {"status": "pass", "reason": "No blocking evidence recorded."} for workflow in WORKFLOW_LEVELS},
+            {
+                workflow: {"status": "pass", "reason": "No blocking evidence recorded."}
+                for workflow in WORKFLOW_LEVELS
+            },
         )
         competitor_matrix[competitor][level] = {
             "status": normalized_status,

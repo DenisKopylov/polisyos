@@ -27,6 +27,7 @@ _MONTHS = {
 @dataclass(frozen=True)
 class TemporalConstraint:
     """Temporal constraint public type."""
+
     constraint_type: str
     effective_from_iso: str | None
     effective_to_iso: str | None

@@ -5,15 +5,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from math import log1p
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.academic.openalex.client import OpenAlexClient, OpenAlexRequest
-from polisyos.academic.openalex.topic_catalog import TopicEntry
+
+if TYPE_CHECKING:
+    from polisyos.academic.openalex.topic_catalog import TopicEntry
 
 
 @dataclass(frozen=True)
 class SelectedTopicWork:
     """Selected topic work public type."""
+
     run_id: str
     topic_id: str
     topic_display_name: str
@@ -388,9 +391,7 @@ async def select_topic_works(
         if jid and journal_count.get(jid, 0) >= 5:
             return False
         aid = _first_author_id(work)
-        if aid and author_count.get(aid, 0) >= 2:
-            return False
-        return True
+        return not (aid and author_count.get(aid, 0) >= 2)
 
     def take(candidate: dict[str, Any]) -> None:
         work = candidate["work"]

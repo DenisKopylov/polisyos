@@ -1,4 +1,5 @@
 """Write and index world fact segments that bridge emission and materialization."""
+
 from __future__ import annotations
 
 import re
@@ -54,10 +55,7 @@ def _write_world_fact_index(
     manifest_list = list(manifests)
     index_path = fact_log_root / "world" / SEGMENTS_INDEX_NAME
     lock_path = fact_log_root / "world" / SEGMENTS_INDEX_LOCK_NAME
-    payload = "".join(
-        manifest.model_dump_json() + "\n"
-        for manifest in manifest_list
-    )
+    payload = "".join(manifest.model_dump_json() + "\n" for manifest in manifest_list)
     with file_lock(lock_path):
         atomic_write_text(index_path, payload)
     return manifest_list
@@ -214,17 +212,12 @@ def gc_world_segments(
     applied_ids = {str(segment_id) for segment_id in applied_segment_ids}
     explicit_retain = {str(segment_id) for segment_id in retain_segment_ids}
     keep_since_dt = (
-        parse_datetime_utc(retain_since, what="retain_since")
-        if retain_since is not None
-        else None
+        parse_datetime_utc(retain_since, what="retain_since") if retain_since is not None else None
     )
 
     retained: list[FactSegmentManifest] = []
     deleted_ids: list[str] = []
-    latest_ids = {
-        manifest.segment_id
-        for manifest in manifests[-max(retain_latest, 0) :]
-    }
+    latest_ids = {manifest.segment_id for manifest in manifests[-max(retain_latest, 0) :]}
 
     for manifest in manifests:
         keep = False

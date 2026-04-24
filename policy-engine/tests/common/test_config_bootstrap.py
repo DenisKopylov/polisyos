@@ -60,6 +60,4 @@ def test_validate_process_bootstrap_detects_conflicting_jax_platforms() -> None:
 
     conflicts = config_module.validate_process_bootstrap_config(config)
 
-    assert conflicts == [
-        "JAX_PLATFORM_NAME must be included in JAX_PLATFORMS when both are set"
-    ]
+    assert conflicts == ["JAX_PLATFORM_NAME must be included in JAX_PLATFORMS when both are set"]

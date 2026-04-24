@@ -1,4 +1,5 @@
 """Verification helpers for cross-backend numerical equivalence certificates."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -6,22 +7,22 @@ from dataclasses import replace
 from datetime import UTC, datetime
 from typing import Any
 
+from polisyos.foundry.methods.backends.protocol import MethodResult
 from polisyos.foundry.methods.backends.runtime_fingerprint import (
     compose_observed_tolerance_budgets,
     meet_determinism_tiers,
     validate_observed_tolerance_budget_metrics,
 )
-from polisyos.foundry.methods.backends.protocol import MethodResult
 from polisyos.foundry.methods.equivalence.canonicalize import (
     canonicalize_method_result,
 )
 from polisyos.foundry.methods.equivalence.compare import compare_field_values
 from polisyos.foundry.methods.equivalence.protocol import (
-    CrossBackendEquivalenceCertificate,
     EQUIVALENCE_COMPARATOR_VERSION,
+    CrossBackendEquivalenceCertificate,
     EquivalenceRuntimeEnvelope,
-    EquivalenceVerificationReport,
     EquivalenceVerdict,
+    EquivalenceVerificationReport,
     FieldComparison,
 )
 from polisyos.foundry.methods.equivalence.store import (
@@ -216,9 +217,7 @@ def attach_equivalence_ref(
     )
 
 
-def _aggregate_verdict(
-    field_reports: tuple[FieldComparison, ...]
-) -> EquivalenceVerdict:
+def _aggregate_verdict(field_reports: tuple[FieldComparison, ...]) -> EquivalenceVerdict:
     required = [report for report in field_reports if report.requirement.affects_verdict]
     if any(not report.relaxed_ok for report in required):
         return EquivalenceVerdict.FAIL
@@ -301,9 +300,7 @@ def _applicability_issues(
             f"expected {expected_comparator_version}, got {certificate.comparator_version}"
         )
     if method_fqn is not None and method_fqn != certificate.method_fqn:
-        issues.append(
-            f"method_fqn mismatch: expected {certificate.method_fqn}, got {method_fqn}"
-        )
+        issues.append(f"method_fqn mismatch: expected {certificate.method_fqn}, got {method_fqn}")
     if observed.source_backend != expected.source_backend:
         issues.append(
             "source backend mismatch: "
@@ -389,8 +386,7 @@ def _applicability_issues(
             )
             if not verification.ok:
                 issues.append(
-                    "certificate signature verification failed: "
-                    f"{verification.status.value}"
+                    f"certificate signature verification failed: {verification.status.value}"
                 )
     return tuple(issues)
 
@@ -425,9 +421,7 @@ def _single_result_applicability_issues(
             f"expected {expected_comparator_version}, got {certificate.comparator_version}"
         )
     if method_fqn is not None and method_fqn != certificate.method_fqn:
-        issues.append(
-            f"method_fqn mismatch: expected {certificate.method_fqn}, got {method_fqn}"
-        )
+        issues.append(f"method_fqn mismatch: expected {certificate.method_fqn}, got {method_fqn}")
     if observed.source_backend != expected.source_backend:
         issues.append(
             "source backend mismatch: "
@@ -484,8 +478,7 @@ def _single_result_applicability_issues(
             )
             if not verification.ok:
                 issues.append(
-                    "certificate signature verification failed: "
-                    f"{verification.status.value}"
+                    f"certificate signature verification failed: {verification.status.value}"
                 )
     return tuple(issues)
 

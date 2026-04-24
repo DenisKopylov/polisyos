@@ -1,4 +1,5 @@
 """Shared persisted dependence primitive for Phase 1 consumers."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal
@@ -52,7 +53,9 @@ def build_dependence_structure(
         recommended_covariance=str(recommended_covariance),
         metrics=dict(metrics or {}),
         warnings=[str(item).strip() for item in warnings or () if str(item).strip()],
-        blocking_reasons=[str(item).strip() for item in blocking_reasons or () if str(item).strip()],
+        blocking_reasons=[
+            str(item).strip() for item in blocking_reasons or () if str(item).strip()
+        ],
         source_method=str(source_method),
         metadata=dict(metadata or {}),
     )
@@ -70,7 +73,9 @@ def dependence_structure_from_econometrics(
         getattr(diagnostic, "recommended_covariance", None),
         default="none",
     )
-    estimator_status = _enum_or_string(getattr(diagnostic, "estimator_status", None), default="unsafe")
+    estimator_status = _enum_or_string(
+        getattr(diagnostic, "estimator_status", None), default="unsafe"
+    )
     regime: Literal["panel", "areal", "network_adjacent"] = "panel"
     if class_label == "network_local":
         regime = "network_adjacent"
@@ -128,7 +133,11 @@ def dependence_structure_from_graph_diagnostic(
 ) -> DependenceStructure:
     """Normalize graph-aware dependence diagnostics emitted by SAE/spatial lanes."""
 
-    payload = diagnostic.model_dump(mode="python") if hasattr(diagnostic, "model_dump") else dict(diagnostic)
+    payload = (
+        diagnostic.model_dump(mode="python")
+        if hasattr(diagnostic, "model_dump")
+        else dict(diagnostic)
+    )
     decision = str(payload.get("decision", "fallback_independent") or "fallback_independent")
     identifiable = bool(payload.get("identifiable", False))
     class_label = str(payload.get("class_label", "inconclusive") or "inconclusive")
@@ -178,13 +187,13 @@ def dependence_structure_from_graph_diagnostic(
 
 
 def persist_dependence_structure(
-    store: "ArtifactStore",
+    store: ArtifactStore,
     report: DependenceStructure,
     *,
-    inputs: list["InputRef"] | None = None,
+    inputs: list[InputRef] | None = None,
     schema_name: str = "ir.dependence_structure",
     schema_version: str = "1.0",
-) -> "DependenceStructureRef":
+) -> DependenceStructureRef:
     """Persist a dependence structure artifact and return its typed ref."""
 
     from polisyos.ir.artifacts.io import put_json_artifact
@@ -204,8 +213,8 @@ def persist_dependence_structure(
 
 
 def load_dependence_structure(
-    store: "ArtifactStore",
-    ref: "DependenceStructureRef",
+    store: ArtifactStore,
+    ref: DependenceStructureRef,
 ) -> DependenceStructure:
     """Load a persisted dependence structure."""
 

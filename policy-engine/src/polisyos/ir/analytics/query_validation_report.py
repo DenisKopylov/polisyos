@@ -3,6 +3,7 @@
 Used by Track F (CausalQueryValidator) and any pre-flight checks that verify
 a causal query is well-formed before identification and estimation begin.
 """
+
 from __future__ import annotations
 
 from enum import Enum
@@ -89,9 +90,7 @@ class QueryValidationReport(BaseModel):
         status = "VALID" if self.is_valid else "INVALID"
         parts = [f"QueryValidation[{status}]"]
         if self.errors:
-            parts.append(
-                f"{len(self.errors)} error(s): " + "; ".join(e.code for e in self.errors)
-            )
+            parts.append(f"{len(self.errors)} error(s): " + "; ".join(e.code for e in self.errors))
         if self.warnings:
             parts.append(
                 f"{len(self.warnings)} warning(s): " + "; ".join(w.code for w in self.warnings)
@@ -100,9 +99,9 @@ class QueryValidationReport(BaseModel):
 
 
 __all__ = [
-    "ValidationSeverity",
-    "ValidationIssue",
-    "ValidationError",
-    "ValidationWarning",
     "QueryValidationReport",
+    "ValidationError",
+    "ValidationIssue",
+    "ValidationSeverity",
+    "ValidationWarning",
 ]

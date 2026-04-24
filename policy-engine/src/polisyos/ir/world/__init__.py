@@ -1,4 +1,5 @@
 """Lazy public facade for world-model claims, provenance, ids, and quality records."""
+
 from __future__ import annotations
 
 from typing import Any

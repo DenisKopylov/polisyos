@@ -5,6 +5,7 @@ state snapshot and return runtime metrics. They do not fetch observations or
 compute measurement loss, which keeps the agent-sim dynamics boundary separate
 from calibration/reporting code.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -293,14 +294,18 @@ def _project_multiscale(
         mask=employed_mask,
     )
 
-    output_signal = state.firms.inventory + state.firms.productivity * (1.0 + state.firms.labor_count)
+    output_signal = state.firms.inventory + state.firms.productivity * (
+        1.0 + state.firms.labor_count
+    )
     output = _segment_sum(
         output_signal,
         firm_cell_ids,
         n_cells,
         mask=valid_firm_cells,
     )
-    distress_signal = jnp.maximum(-state.firms.cash, 0.0) + 0.01 * jnp.maximum(state.firms.debt, 0.0)
+    distress_signal = jnp.maximum(-state.firms.cash, 0.0) + 0.01 * jnp.maximum(
+        state.firms.debt, 0.0
+    )
     if firm_distress is not None:
         distress_signal = distress_signal + firm_distress
     distress_sum = _segment_sum(
@@ -346,9 +351,7 @@ class _DistributionMechanismStateAdapter:
             if runtime is None:
                 raise ValueError("agent_sim_runtime is required for distribution mechanisms")
             base = base.replace(
-                agent_sim_runtime=runtime.replace(
-                    household_distribution=updates["distributions"]
-                )
+                agent_sim_runtime=runtime.replace(household_distribution=updates["distributions"])
             )
         return _DistributionMechanismStateAdapter(base)
 
@@ -357,9 +360,7 @@ def _with_distribution(state: GlobalState, distribution: DistributionState) -> G
     runtime = state.agent_sim_runtime
     if runtime is None:
         raise ValueError("agent_sim_runtime is required for distribution updates")
-    return state.replace(
-        agent_sim_runtime=runtime.replace(household_distribution=distribution)
-    )
+    return state.replace(agent_sim_runtime=runtime.replace(household_distribution=distribution))
 
 
 @dataclass
@@ -425,19 +426,21 @@ class ContractsPopulationAwareExecutor:
                 agents = agents.replace(
                     active=jnp.asarray(agents.active).at[slot_ids].set(True),
                     age=jnp.asarray(agents.age).at[slot_ids].set(0),
-                    skill_level=jnp.asarray(agents.skill_level).at[slot_ids].set(
-                        float(self.birth_skill_level)
-                    ),
+                    skill_level=jnp.asarray(agents.skill_level)
+                    .at[slot_ids]
+                    .set(float(self.birth_skill_level)),
                     income=jnp.asarray(agents.income).at[slot_ids].set(float(self.birth_income)),
-                    reported_income=jnp.asarray(agents.reported_income).at[slot_ids].set(
-                        float(self.birth_income)
-                    ),
+                    reported_income=jnp.asarray(agents.reported_income)
+                    .at[slot_ids]
+                    .set(float(self.birth_income)),
                     savings=jnp.asarray(agents.savings).at[slot_ids].set(0.0),
                     consumption=jnp.asarray(agents.consumption).at[slot_ids].set(0.0),
                     risk_aversion=jnp.asarray(agents.risk_aversion).at[slot_ids].set(0.5),
                     is_employed=jnp.asarray(agents.is_employed).at[slot_ids].set(False),
                     employer_id=jnp.asarray(agents.employer_id).at[slot_ids].set(-1),
-                    household_cell_id=jnp.asarray(household_ids).at[slot_ids].set(new_household_ids),
+                    household_cell_id=jnp.asarray(household_ids)
+                    .at[slot_ids]
+                    .set(new_household_ids),
                 )
                 household_ids = agents.household_cell_id
             metrics["population/births_requested"] = requested
@@ -447,7 +450,9 @@ class ContractsPopulationAwareExecutor:
         if migration_targets is not None:
             targets = jnp.asarray(migration_targets, dtype=jnp.int32)
             migrate_mask = agents.active & (targets >= 0)
-            household_ids = household_ids if household_ids is not None else _agent_household_cell_ids(state)
+            household_ids = (
+                household_ids if household_ids is not None else _agent_household_cell_ids(state)
+            )
             household_ids = jnp.where(migrate_mask, targets, household_ids)
             agents = agents.replace(household_cell_id=household_ids)
             metrics["population/migrations_applied"] = jnp.sum(migrate_mask.astype(jnp.int32))
@@ -639,8 +644,10 @@ class ContractsGraphAwareExecutor:
             matching = np.flatnonzero(active_firms & (firm_ids == int(origin_ids[idx])))
             if matching.size == 0:
                 continue
-            signal = jnp.zeros((state.firms.size,), dtype=jnp.float32).at[int(matching[0])].set(
-                float(magnitudes[idx])
+            signal = (
+                jnp.zeros((state.firms.size,), dtype=jnp.float32)
+                .at[int(matching[0])]
+                .set(float(magnitudes[idx]))
             )
             total_impact = total_impact + signal
             for _ in range(max(int(max_hops[idx]), 0)):

@@ -1,8 +1,10 @@
 """Public microsim calibration module API."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, ClassVar, Mapping, Sequence
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -30,8 +32,8 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
 from polisyos.foundry.methods.catalog._payloads import extract_model_payload
+from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
 from polisyos.foundry.methods.catalog.survey._raking_core import (
     build_raking_design_from_feature_targets,
     run_raking_with_fallbacks,
@@ -188,7 +190,9 @@ def _subset_survey_data(data: SurveyMicroData, indices: np.ndarray) -> SurveyMic
         "market_income": np.asarray(data.market_income, dtype=float)[indices],
         "weights": np.asarray(data.weights, dtype=float)[indices],
         "features": None if data.features is None else np.asarray(data.features)[indices],
-        "household_ids": None if data.household_ids is None else np.asarray(data.household_ids)[indices],
+        "household_ids": None
+        if data.household_ids is None
+        else np.asarray(data.household_ids)[indices],
     }
     for field_name in (
         "period_id",
@@ -204,9 +208,7 @@ def _subset_survey_data(data: SurveyMicroData, indices: np.ndarray) -> SurveyMic
         if value is None:
             continue
         updates[field_name] = np.asarray(value)[indices]
-    return data.model_copy(
-        update=updates
-    )
+    return data.model_copy(update=updates)
 
 
 def _effective_upper_bound(
@@ -291,7 +293,9 @@ def _project_weights(
     return weights
 
 
-def _build_target_specs(data: SurveyMicroData, params: Mapping[str, Any]) -> list[ReweightingTargetSpec]:
+def _build_target_specs(
+    data: SurveyMicroData, params: Mapping[str, Any]
+) -> list[ReweightingTargetSpec]:
     current_total = float(np.sum(np.asarray(data.weights, dtype=float)))
     current_mean = float(
         np.sum(np.asarray(data.weights, dtype=float) * np.asarray(data.market_income, dtype=float))
@@ -316,7 +320,10 @@ def _build_target_specs(data: SurveyMicroData, params: Mapping[str, Any]) -> lis
 
     specs = list(explicit_targets)
     kinds_present = {spec.kind for spec in specs}
-    if not _is_none_like(params.get("target_total_weight")) and ReweightingTargetKind.TOTAL_WEIGHT not in kinds_present:
+    if (
+        not _is_none_like(params.get("target_total_weight"))
+        and ReweightingTargetKind.TOTAL_WEIGHT not in kinds_present
+    ):
         specs.append(
             ReweightingTargetSpec(
                 name="total_weight",
@@ -325,7 +332,10 @@ def _build_target_specs(data: SurveyMicroData, params: Mapping[str, Any]) -> lis
             )
         )
         kinds_present.add(ReweightingTargetKind.TOTAL_WEIGHT)
-    if not _is_none_like(params.get("target_mean_income")) and ReweightingTargetKind.MEAN_INCOME not in kinds_present:
+    if (
+        not _is_none_like(params.get("target_mean_income"))
+        and ReweightingTargetKind.MEAN_INCOME not in kinds_present
+    ):
         specs.append(
             ReweightingTargetSpec(
                 name="mean_income",
@@ -375,11 +385,19 @@ def _build_target_specs(data: SurveyMicroData, params: Mapping[str, Any]) -> lis
                 raise ValueError("feature_mean targets require SurveyMicroData.features")
             if spec.feature_name is not None:
                 if data.feature_names is None:
-                    raise ValueError("feature_mean target uses feature_name but feature_names are missing")
+                    raise ValueError(
+                        "feature_mean target uses feature_name but feature_names are missing"
+                    )
                 if spec.feature_name not in data.feature_names:
-                    raise ValueError(f"unknown feature_name '{spec.feature_name}' in target '{spec.name}'")
+                    raise ValueError(
+                        f"unknown feature_name '{spec.feature_name}' in target '{spec.name}'"
+                    )
                 updates["feature_index"] = data.feature_names.index(spec.feature_name)
-            if (spec.feature_index if spec.feature_index is not None else updates.get("feature_index")) is None:
+            if (
+                spec.feature_index
+                if spec.feature_index is not None
+                else updates.get("feature_index")
+            ) is None:
                 raise ValueError("feature_mean targets require feature_index or feature_name")
         resolved_specs.append(spec.model_copy(update=updates))
     return resolved_specs
@@ -412,9 +430,7 @@ def _build_design_matrix(
         for column_index in range(instruments.shape[1]):
             columns.append(_safe_standardize(instruments[:, column_index]))
             labels.append(
-                "instrument_z"
-                if instruments.shape[1] == 1
-                else f"instrument_z_{column_index}"
+                "instrument_z" if instruments.shape[1] == 1 else f"instrument_z_{column_index}"
             )
 
     if needs_income or needs_distributional:
@@ -422,7 +438,9 @@ def _build_design_matrix(
         labels.append("income")
 
     if needs_distributional:
-        income_rank = np.argsort(np.argsort(income, kind="mergesort"), kind="mergesort").astype(float)
+        income_rank = np.argsort(np.argsort(income, kind="mergesort"), kind="mergesort").astype(
+            float
+        )
         columns.append(_safe_standardize(income_rank))
         labels.append("income_rank")
 
@@ -430,7 +448,7 @@ def _build_design_matrix(
         columns.append(_safe_standardize(log_base_weights))
         labels.append("log_base_weight")
 
-        centered_income = _safe_standardize(income ** 2)
+        centered_income = _safe_standardize(income**2)
         columns.append(centered_income)
         labels.append("income_sq")
 
@@ -439,7 +457,8 @@ def _build_design_matrix(
             {
                 int(spec.feature_index)
                 for spec in specs
-                if spec.kind == ReweightingTargetKind.FEATURE_MEAN and spec.feature_index is not None
+                if spec.kind == ReweightingTargetKind.FEATURE_MEAN
+                and spec.feature_index is not None
             }
         )
         for feature_index in feature_indices:
@@ -494,7 +513,9 @@ def _make_context(
     )
 
 
-def _evaluate_target(spec: ReweightingTargetSpec, data: SurveyMicroData, weights: np.ndarray) -> float:
+def _evaluate_target(
+    spec: ReweightingTargetSpec, data: SurveyMicroData, weights: np.ndarray
+) -> float:
     income = np.asarray(data.market_income, dtype=float)
     total = max(float(np.sum(weights)), _EPS)
     if spec.kind == ReweightingTargetKind.TOTAL_WEIGHT:
@@ -533,7 +554,9 @@ def _weights_from_theta(ctx: _CalibrationContext, theta: np.ndarray) -> np.ndarr
     if ctx.design.shape[1] == 0:
         raw = ctx.base_weights
     else:
-        raw = ctx.base_weights * np.exp(np.clip(ctx.design @ np.asarray(theta, dtype=float), -20.0, 20.0))
+        raw = ctx.base_weights * np.exp(
+            np.clip(ctx.design @ np.asarray(theta, dtype=float), -20.0, 20.0)
+        )
     return _project_weights(
         raw,
         target_total=ctx.target_total,
@@ -547,7 +570,11 @@ def _solve_closed_form_linear(
 ) -> tuple[np.ndarray, dict[str, float]]:
     income = np.asarray(ctx.data.market_income, dtype=float)
     weights = np.asarray(ctx.base_weights, dtype=float)
-    target_mean = next(float(spec.target_value) for spec in ctx.specs if spec.kind == ReweightingTargetKind.MEAN_INCOME)
+    target_mean = next(
+        float(spec.target_value)
+        for spec in ctx.specs
+        if spec.kind == ReweightingTargetKind.MEAN_INCOME
+    )
     s0 = float(np.sum(weights))
     s1 = float(np.sum(weights * income))
     s2 = float(np.sum(weights * income * income))
@@ -833,13 +860,18 @@ def _bootstrap_distance_test(
         except Exception:
             failures += 1
             continue
-        if boot_solution.solver_status != "success" and boot_solution.objective_value > observed_statistic * 100.0:
+        if (
+            boot_solution.solver_status != "success"
+            and boot_solution.objective_value > observed_statistic * 100.0
+        ):
             failures += 1
             continue
         stats.append(float(boot_data.weights.shape[0] * boot_solution.objective_value))
     if len(stats) < max(10, reps // 4):
         return None, ("Bootstrap compatibility test failed to collect enough converged re-solves.",)
-    p_value = float((1.0 + np.sum(np.asarray(stats, dtype=float) >= observed_statistic)) / (len(stats) + 1.0))
+    p_value = float(
+        (1.0 + np.sum(np.asarray(stats, dtype=float) >= observed_statistic)) / (len(stats) + 1.0)
+    )
     warnings: list[str] = []
     if failures:
         warnings.append(f"Bootstrap dropped {failures} failed re-solves out of {reps}")
@@ -854,15 +886,16 @@ def _build_target_gaps(
 ) -> tuple[list[ReweightingTargetGap], dict[str, float], dict[str, float]]:
     target_moments = {spec.name: float(spec.target_value) for spec in ctx.specs}
     achieved_moments = {
-        spec.name: float(_evaluate_target(spec, ctx.data, solution.weights))
-        for spec in ctx.specs
+        spec.name: float(_evaluate_target(spec, ctx.data, solution.weights)) for spec in ctx.specs
     }
     dual = None
     if weighting_matrix is not None:
         dual = np.asarray(weighting_matrix @ solution.standardized_moments, dtype=float)
     gaps: list[ReweightingTargetGap] = []
     for index, spec in enumerate(ctx.specs):
-        tolerance = float(spec.tolerance if spec.tolerance is not None else _default_tolerance(spec))
+        tolerance = float(
+            spec.tolerance if spec.tolerance is not None else _default_tolerance(spec)
+        )
         achieved = achieved_moments[spec.name]
         abs_gap = abs(achieved - float(spec.target_value))
         scaled_gap = abs_gap / max(_target_scale(spec), _EPS)
@@ -969,10 +1002,9 @@ def _build_target_compatibility(
     elif exact_feasible and (p_value is None or p_value >= alpha):
         status = ReweightingCompatibilityStatus.COMPATIBLE
         reason = ReweightingCompatibilityReason.TARGETS_SATISFIED
-    elif exact_feasible:
-        status = ReweightingCompatibilityStatus.APPROXIMATELY_COMPATIBLE
-        reason = ReweightingCompatibilityReason.TARGETS_SATISFIED
-    elif p_value is not None and p_value >= alpha and normalized_distance <= 1.0:
+    elif exact_feasible or (
+        p_value is not None and p_value >= alpha and normalized_distance <= 1.0
+    ):
         status = ReweightingCompatibilityStatus.APPROXIMATELY_COMPATIBLE
         reason = ReweightingCompatibilityReason.TARGETS_SATISFIED
     else:
@@ -1052,14 +1084,18 @@ def _compatibility_from_raking(
     p_value = None
     test_method = ReweightingCompatibilityTestMethod.NONE
     if diagnostics.decision != "pass":
-        normalized_distance = float(max(diagnostics.max_rel_margin_error, diagnostics.rms_rel_margin_error))
+        normalized_distance = float(
+            max(diagnostics.max_rel_margin_error, diagnostics.rms_rel_margin_error)
+        )
     else:
         normalized_distance = 0.0
 
     return ReweightingTargetCompatibility(
         status=status,
         reason_code=reason,
-        exact_feasible=bool(diagnostics.converged and diagnostics.max_rel_margin_error <= exact_tolerance),
+        exact_feasible=bool(
+            diagnostics.converged and diagnostics.max_rel_margin_error <= exact_tolerance
+        ),
         distance_to_feasibility=float(diagnostics.max_rel_margin_error),
         normalized_distance=float(normalized_distance),
         test_method=test_method,
@@ -1213,7 +1249,9 @@ class ReweightingCalibrationEstimator:
 
     @staticmethod
     def pure_step(state: SurveyMicroData, params: Mapping[str, Any]) -> dict[str, Any]:
-        data = state if isinstance(state, SurveyMicroData) else SurveyMicroData.model_validate(state)
+        data = (
+            state if isinstance(state, SurveyMicroData) else SurveyMicroData.model_validate(state)
+        )
         income = np.asarray(data.market_income, dtype=float)
         base_weights = np.asarray(data.weights, dtype=float)
         artifact_store = resolve_artifact_store(
@@ -1268,7 +1306,9 @@ class ReweightingCalibrationEstimator:
                 "weights": weights,
                 "diagnostics": diagnostics,
                 "microsim_calibration_report": (
-                    None if calibration_report is None else calibration_report.model_dump(mode="json")
+                    None
+                    if calibration_report is None
+                    else calibration_report.model_dump(mode="json")
                 ),
                 "microsim_calibration_report_ref": (
                     None
@@ -1327,7 +1367,9 @@ class ReweightingCalibrationEstimator:
                 max_iterations=int(params.get("raking_max_iterations", 100)),
                 exact_tolerance=float(params.get("raking_exact_tolerance", 1e-6)),
                 warn_tolerance=float(params.get("raking_warn_tolerance", 1e-4)),
-                collapse_sparse_categories=bool(params.get("raking_collapse_sparse_categories", True)),
+                collapse_sparse_categories=bool(
+                    params.get("raking_collapse_sparse_categories", True)
+                ),
                 collapse_map=params.get("raking_collapse_map"),
                 allow_bounded_fallback=bool(params.get("raking_allow_bounded_fallback", True)),
                 allow_penalized_fallback=bool(params.get("raking_allow_penalized_fallback", True)),
@@ -1345,12 +1387,16 @@ class ReweightingCalibrationEstimator:
                 exact_tolerance=float(params.get("raking_exact_tolerance", 1e-6)),
                 warn_tolerance=float(params.get("raking_warn_tolerance", 1e-4)),
             )
-            max_abs_gap = float(
-                max(
-                    abs(float(diagnostics.achieved_totals.get(name, 0.0)) - float(target))
-                    for name, target in diagnostics.target_totals.items()
+            max_abs_gap = (
+                float(
+                    max(
+                        abs(float(diagnostics.achieved_totals.get(name, 0.0)) - float(target))
+                        for name, target in diagnostics.target_totals.items()
+                    )
                 )
-            ) if diagnostics.target_totals else 0.0
+                if diagnostics.target_totals
+                else 0.0
+            )
             result = ReweightingResult(
                 calibrated_weights=calibrated,
                 target_moments=dict(diagnostics.target_totals),
@@ -1384,7 +1430,11 @@ class ReweightingCalibrationEstimator:
             max_weight_ratio=max_weight_ratio,
         )
         min_total = lower_bound * float(base_weights.shape[0])
-        max_total = float("inf") if effective_upper is None else effective_upper * float(base_weights.shape[0])
+        max_total = (
+            float("inf")
+            if effective_upper is None
+            else effective_upper * float(base_weights.shape[0])
+        )
 
         if target_total < min_total - 1e-9 or target_total > max_total + 1e-9:
             projected = _project_weights(
@@ -1409,7 +1459,8 @@ class ReweightingCalibrationEstimator:
                 raw_moments=_moment_vector(ctx, projected),
                 standardized_moments=_standardized_moment_vector(ctx, projected),
                 objective_value=float(
-                    _standardized_moment_vector(ctx, projected).T @ _standardized_moment_vector(ctx, projected)
+                    _standardized_moment_vector(ctx, projected).T
+                    @ _standardized_moment_vector(ctx, projected)
                 ),
                 solver_status="success",
                 solver_message="Bounds prevent exact normalization to target_total",
@@ -1428,17 +1479,18 @@ class ReweightingCalibrationEstimator:
                 calibrated_weights=projected,
                 target_moments=target_moments,
                 achieved_moments=achieved_moments,
-                max_abs_gap=float(max((gap.abs_gap for gap in compatibility.per_target), default=0.0)),
+                max_abs_gap=float(
+                    max((gap.abs_gap for gap in compatibility.per_target), default=0.0)
+                ),
                 target_compatibility=compatibility,
                 metadata={"solver": "bounds_projection", "basis_columns": []},
             )
             return _build_output(result=result, weights=projected, diagnostics=None)
 
-        linear_fast_path = (
-            len(specs) == 2
-            and {spec.kind for spec in specs}
-            == {ReweightingTargetKind.TOTAL_WEIGHT, ReweightingTargetKind.MEAN_INCOME}
-        )
+        linear_fast_path = len(specs) == 2 and {spec.kind for spec in specs} == {
+            ReweightingTargetKind.TOTAL_WEIGHT,
+            ReweightingTargetKind.MEAN_INCOME,
+        }
         if linear_fast_path:
             ctx = _make_context(
                 data,
@@ -1457,7 +1509,8 @@ class ReweightingCalibrationEstimator:
                 raw_moments=_moment_vector(ctx, calibrated),
                 standardized_moments=_standardized_moment_vector(ctx, calibrated),
                 objective_value=float(
-                    _standardized_moment_vector(ctx, calibrated).T @ _standardized_moment_vector(ctx, calibrated)
+                    _standardized_moment_vector(ctx, calibrated).T
+                    @ _standardized_moment_vector(ctx, calibrated)
                 ),
                 solver_status="success",
                 solver_message="closed_form_linear_calibration",
@@ -1476,7 +1529,9 @@ class ReweightingCalibrationEstimator:
                 calibrated_weights=calibrated,
                 target_moments=target_moments,
                 achieved_moments=achieved_moments,
-                max_abs_gap=float(max((gap.abs_gap for gap in compatibility.per_target), default=0.0)),
+                max_abs_gap=float(
+                    max((gap.abs_gap for gap in compatibility.per_target), default=0.0)
+                ),
                 target_compatibility=compatibility,
                 metadata={
                     **linear_metadata,
@@ -1521,7 +1576,9 @@ class ReweightingCalibrationEstimator:
                 "basis_columns": list(ctx.basis_columns),
                 "legacy_linear_fast_path": False,
                 "stage1_objective": float(stage1.objective_value),
-                "stage2_objective": float(stage2.objective_value) if stage2 is not None else float(stage1.objective_value),
+                "stage2_objective": float(stage2.objective_value)
+                if stage2 is not None
+                else float(stage1.objective_value),
                 "covariance_bootstrap_reps": int(covariance_bootstrap_reps),
                 "used_two_step_gmm": bool(stage2 is not None),
             },

@@ -63,7 +63,7 @@ class CountRange(BaseModel):
     max_count: int = Field(..., ge=0)
 
     @model_validator(mode="after")
-    def validate_range(self) -> "CountRange":
+    def validate_range(self) -> CountRange:
         if self.max_count < self.min_count:
             raise ValueError("max_count must be >= min_count")
         return self
@@ -102,9 +102,7 @@ class ServerConfig(BaseModel):
             "tmux",
         ]
     )
-    bootstrap_extras: list[str] = Field(
-        default_factory=lambda: ["runtime", "ml", "research"]
-    )
+    bootstrap_extras: list[str] = Field(default_factory=lambda: ["runtime", "ml", "research"])
 
     @property
     def ssh_target(self) -> str:
@@ -252,7 +250,7 @@ class PipelineConfig(BaseModel):
     sources: dict[str, SourceConfig]
 
     @model_validator(mode="after")
-    def validate_pipeline(self) -> "PipelineConfig":
+    def validate_pipeline(self) -> PipelineConfig:
         for key, stage in self.stages.items():
             if key != stage.stage_id.value:
                 raise ValueError(f"stage key mismatch: {key!r} != {stage.stage_id.value!r}")

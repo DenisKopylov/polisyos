@@ -1,47 +1,72 @@
-import { useEffect, type PropsWithChildren } from "react";
+import {
+  createContext,
+  startTransition,
+  useContext,
+  useEffect,
+  useMemo,
+  type PropsWithChildren,
+} from "react";
 
-import { usePreferencesStore, type Density } from "../state/usePreferencesStore";
+import {
+  usePreferencesStore,
+  type Density,
+} from "../state/usePreferencesStore";
+import { trackDensityChange } from "@/shared/telemetry/extendedEvents";
+
+export const SUPPORTED_DENSITIES = [
+  "comfortable",
+  "compact",
+  "condensed",
+] as const satisfies readonly Density[];
 
 const DENSITY_ATTR = "data-density";
 
-const densityTokens: Record<Density, Record<string, string>> = {
-  compact: {
-    "--density-space": "4px",
-    "--density-text": "0.8125rem",
-    "--density-row-height": "32px",
-    "--density-cell-py": "4px",
-    "--density-cell-px": "8px",
-  },
-  comfortable: {
-    "--density-space": "8px",
-    "--density-text": "0.875rem",
-    "--density-row-height": "40px",
-    "--density-cell-py": "8px",
-    "--density-cell-px": "12px",
-  },
-  spacious: {
-    "--density-space": "12px",
-    "--density-text": "0.9375rem",
-    "--density-row-height": "48px",
-    "--density-cell-py": "12px",
-    "--density-cell-px": "16px",
-  },
+type DensityContextValue = {
+  cycleDensity: () => void;
+  density: Density;
+  setDensity: (density: Density) => void;
 };
 
+const DensityContext = createContext<DensityContextValue | null>(null);
+
+function nextDensity(current: Density): Density {
+  const currentIndex = SUPPORTED_DENSITIES.indexOf(current);
+  return SUPPORTED_DENSITIES[(currentIndex + 1) % SUPPORTED_DENSITIES.length];
+}
+
 export function DensityProvider({ children }: PropsWithChildren) {
-  const density = usePreferencesStore((s) => s.density);
+  const density = usePreferencesStore((state) => state.density);
+  const setDensityState = usePreferencesStore((state) => state.setDensity);
 
   useEffect(() => {
-    const root = document.documentElement;
-    root.setAttribute(DENSITY_ATTR, density);
-
-    const tokens = densityTokens[density];
-    for (const [prop, value] of Object.entries(tokens)) {
-      root.style.setProperty(prop, value);
-    }
-    // No cleanup — density tokens are global and overwritten on change.
-    // Removing them on unmount causes a FOUC in React StrictMode double-mount.
+    document.documentElement.setAttribute(DENSITY_ATTR, density);
+    trackDensityChange(density);
   }, [density]);
 
-  return <>{children}</>;
+  const value = useMemo<DensityContextValue>(
+    () => ({
+      cycleDensity: () =>
+        startTransition(() => {
+          setDensityState(nextDensity(density));
+        }),
+      density,
+      setDensity: (nextDensityValue) =>
+        startTransition(() => {
+          setDensityState(nextDensityValue);
+        }),
+    }),
+    [density, setDensityState],
+  );
+
+  return (
+    <DensityContext.Provider value={value}>{children}</DensityContext.Provider>
+  );
+}
+
+export function useDensity() {
+  const context = useContext(DensityContext);
+  if (!context) {
+    throw new Error("useDensity must be used within DensityProvider");
+  }
+  return context;
 }

@@ -1,12 +1,13 @@
 """Public spatial advanced module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -19,6 +20,7 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
 from polisyos.ir.analytics.dependence_structure import (
     build_dependence_structure,
     persist_dependence_structure,
@@ -161,6 +163,7 @@ def _rbf_kernel(
 )
 class GaussianProcessKrigingEstimator:
     """Interpolate spatial fields with Gaussian-process kriging."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "gaussian_process_kriging"
@@ -296,6 +299,7 @@ class GaussianProcessKrigingEstimator:
 )
 class InverseDistanceWeightingEstimator:
     """Interpolate spatial surfaces with inverse-distance weighting."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "idw"
@@ -400,6 +404,7 @@ class InverseDistanceWeightingEstimator:
 )
 class SpatialSLXPanelEstimator:
     """Fit SLX panel models with lagged covariates across spatial units."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "slx"
@@ -486,8 +491,8 @@ class SpatialSLXPanelEstimator:
         coef = np.linalg.pinv(design) @ y
         fitted = design @ coef
         feature_count = x.shape[1]
-        direct = coef[1: 1 + feature_count]
-        spillover = coef[1 + feature_count: 1 + 2 * feature_count]
+        direct = coef[1 : 1 + feature_count]
+        spillover = coef[1 + feature_count : 1 + 2 * feature_count]
         rmse = float(np.sqrt(np.mean((fitted - y) ** 2)))
         direct_norm = float(np.linalg.norm(direct))
         spill_norm = float(np.linalg.norm(spillover))
@@ -531,7 +536,9 @@ class SpatialSLXPanelEstimator:
         }
 
 
-def _double_demean_vector(values: np.ndarray, unit_labels: np.ndarray, time_labels: np.ndarray) -> np.ndarray:
+def _double_demean_vector(
+    values: np.ndarray, unit_labels: np.ndarray, time_labels: np.ndarray
+) -> np.ndarray:
     unit_mean = np.zeros_like(values, dtype=float)
     time_mean = np.zeros_like(values, dtype=float)
     for label in np.unique(unit_labels):
@@ -544,7 +551,9 @@ def _double_demean_vector(values: np.ndarray, unit_labels: np.ndarray, time_labe
     return values - unit_mean - time_mean + grand_mean
 
 
-def _double_demean_matrix(matrix: np.ndarray, unit_labels: np.ndarray, time_labels: np.ndarray) -> np.ndarray:
+def _double_demean_matrix(
+    matrix: np.ndarray, unit_labels: np.ndarray, time_labels: np.ndarray
+) -> np.ndarray:
     unit_mean = np.zeros_like(matrix, dtype=float)
     time_mean = np.zeros_like(matrix, dtype=float)
     for label in np.unique(unit_labels):
@@ -586,6 +595,7 @@ def _panel_spatial_lag(
 )
 class SpatialSARARPanelEstimator:
     """Fit SARAR panel models with both spatial lag and spatial error structure."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "sarar"
@@ -742,6 +752,7 @@ class SpatialSARARPanelEstimator:
 )
 class TwoStepFCAAccessibilityEstimator:
     """Estimate two-step floating-catchment accessibility scores."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "two_step_fca"
@@ -876,6 +887,7 @@ class TwoStepFCAAccessibilityEstimator:
 )
 class SpatialMicrosimulationEstimator:
     """Fuse microdata and area constraints in a spatial microsimulation."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "smsm"
@@ -923,9 +935,7 @@ class SpatialMicrosimulationEstimator:
         description="Spatial microsimulation via multiplicative reweighting to match area-level constraints.",
         tags=frozenset({"spatial", "microsim", "smsm"}),
         when_to_use="Align microsimulation outputs to aggregate control totals; demographic projection calibration",
-        citations=(
-            "Lovelace, R. & Dumont, M. (2016). Spatial Microsimulation with R. CRC Press.",
-        ),
+        citations=("Lovelace, R. & Dumont, M. (2016). Spatial Microsimulation with R. CRC Press.",),
         when_not_to_use="Control totals are inconsistent; area-level data unavailable; no spatial granularity needed",
         output_interpretation="Calibrated weights/probabilities. Check alignment tables: model vs target. RMSE across cells.",
     )
@@ -955,12 +965,18 @@ class SpatialMicrosimulationEstimator:
 
         max_iter = max(4, int(params.get("max_iter", 40)))
         tolerance = max(1e-9, float(params.get("tolerance", 1e-3)))
-        base_weights = np.asarray(payload.get("sample_weights", np.ones(sample_features.shape[0])), dtype=float)
+        base_weights = np.asarray(
+            payload.get("sample_weights", np.ones(sample_features.shape[0])), dtype=float
+        )
         if base_weights.shape != (sample_features.shape[0],):
             raise ValueError("sample_weights must match sample_features rows")
 
-        weights = np.broadcast_to(base_weights[None, :], (area_constraints.shape[0], base_weights.shape[0])).copy()
-        normalized_features = sample_features / np.maximum(np.max(sample_features, axis=0, keepdims=True), 1.0)
+        weights = np.broadcast_to(
+            base_weights[None, :], (area_constraints.shape[0], base_weights.shape[0])
+        ).copy()
+        normalized_features = sample_features / np.maximum(
+            np.max(sample_features, axis=0, keepdims=True), 1.0
+        )
         delta = float("inf")
         for iteration in range(max_iter):
             previous = weights.copy()
@@ -1013,6 +1029,7 @@ class SpatialMicrosimulationEstimator:
 )
 class ZoneBalanceDesignEstimator:
     """Design balanced service zones or territories under spatial constraints."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "zone_balance"
@@ -1101,9 +1118,7 @@ class ZoneBalanceDesignEstimator:
             if np.all(next_totals > 0.0):
                 zone_totals = next_totals
 
-        imbalance = float(
-            np.mean(np.abs(zone_totals - target_total) / max(target_total, 1e-9))
-        )
+        imbalance = float(np.mean(np.abs(zone_totals - target_total) / max(target_total, 1e-9)))
         dependence_ref = _persist_advanced_dependence_ref(
             payload,
             params,
@@ -1161,6 +1176,7 @@ def _kmeans_like_assignments(
 )
 class MAUPSensitivityProfileEstimator:
     """Profile sensitivity to zoning choices under the modifiable areal unit problem."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "maup_profile"
@@ -1250,7 +1266,9 @@ class MAUPSensitivityProfileEstimator:
                 within = float(
                     np.mean(
                         [
-                            np.var(values[assignments == zone_idx]) if np.sum(assignments == zone_idx) > 1 else 0.0
+                            np.var(values[assignments == zone_idx])
+                            if np.sum(assignments == zone_idx) > 1
+                            else 0.0
                             for zone_idx in range(n_zones)
                             if np.any(assignments == zone_idx)
                         ]
@@ -1286,7 +1304,9 @@ class MAUPSensitivityProfileEstimator:
                 method_name="maup_profile",
                 statistics={
                     "global_variance": global_variance,
-                    "max_relative_between_variance": float(np.max(profile[:, 3])) if profile.size else 0.0,
+                    "max_relative_between_variance": float(np.max(profile[:, 3]))
+                    if profile.size
+                    else 0.0,
                 },
                 dependence_ref=dependence_ref,
                 scores=profile,

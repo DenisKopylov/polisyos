@@ -91,17 +91,22 @@ async def run_node_in_worker(payload: dict[str, Any]) -> bytes:
 
         if tracer is not None:
             with tracer.start_as_current_span(
-                f"scientist.node.{alias}", attributes=span_attrs,
+                f"scientist.node.{alias}",
+                attributes=span_attrs,
             ):
                 outcome = await execute_with_retry_async(
-                    node, ctx, state,
+                    node,
+                    ctx,
+                    state,
                     retry_policy=retry_policy,
                     timeout_s=timeout_s,
                     alias=alias,
                 )
         else:
             outcome = await execute_with_retry_async(
-                node, ctx, state,
+                node,
+                ctx,
+                state,
                 retry_policy=retry_policy,
                 timeout_s=timeout_s,
                 alias=alias,
@@ -201,9 +206,7 @@ async def run_merge_checkpoint_tier_in_worker(payload: dict[str, Any]) -> dict[s
             logger=_logger,
         )
         updated_checkpoint_meta = (
-            checkpoint_hook.export_runtime_metadata()
-            if checkpoint_hook is not None
-            else None
+            checkpoint_hook.export_runtime_metadata() if checkpoint_hook is not None else None
         )
         return {
             "state_bytes": tier_result.state_bytes,

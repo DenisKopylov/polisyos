@@ -37,7 +37,9 @@ class TestWalkForward:
 
 class TestCalibrationDiagnostic:
     def test_basic(self, isolated_registry) -> None:
-        method = _method_or_skip(isolated_registry, "validation.calibration.calibration_diagnostic@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "validation.calibration.calibration_diagnostic@1.0.0"
+        )
         state = {
             "predicted_probs": np.array([0.1, 0.4, 0.6, 0.8, 0.9]),
             "observed_outcomes": np.array([0.0, 0.0, 1.0, 1.0, 1.0]),

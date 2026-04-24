@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import ValidationError
@@ -118,9 +118,7 @@ def _draft_interventions_to_policy_spec(
                 "schedule": item.get("schedule") or _default_schedule(),
                 "params": params,
                 "notes": (
-                    [str(item.get("description", "")).strip()]
-                    if item.get("description")
-                    else []
+                    [str(item.get("description", "")).strip()] if item.get("description") else []
                 ),
             }
         )
@@ -368,9 +366,7 @@ Generate a valid TrinityBundle v{schema_version} JSON.
                     user=attempt_message,
                     response_format={"type": "json_object"},
                     plugins=(
-                        [{"id": "response-healing"}]
-                        if self._enable_response_healing
-                        else None
+                        [{"id": "response-healing"}] if self._enable_response_healing else None
                     ),
                 )
             except (OSError, RuntimeError, TimeoutError, ValueError) as exc:
@@ -453,7 +449,7 @@ def create_mock_draft(
         interventions=interventions or [],
         rationale="Mock rationale for testing",
         confidence=0.85,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
 
 

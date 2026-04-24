@@ -7,13 +7,11 @@ import json
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 
 from polisyos.academic.batch.claim_ids import stable_claim_id
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.knowledge.canonical_resolver import CanonicalVariableResolver
 from polisyos.academic.knowledge.skg_store import (
     aggregate_edge_confidence,
@@ -31,6 +29,12 @@ from polisyos.academic.knowledge.skg_store import (
 from polisyos.academic.knowledge.types import WorkRecord
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.common.logger import get_logger
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from pathlib import Path
+
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 logger = get_logger(__name__)
 
@@ -278,8 +282,12 @@ def _stable_hash(*parts: str, size: int = 24) -> str:
     return hashlib.sha256(canon.encode("utf-8")).hexdigest()[:size]
 
 
-def _supporting_span_signature(*, supporting_span_ids: Iterable[str] | None, claim_text: str) -> tuple[str, ...]:
-    items = tuple(sorted({str(item).strip() for item in (supporting_span_ids or []) if str(item).strip()}))
+def _supporting_span_signature(
+    *, supporting_span_ids: Iterable[str] | None, claim_text: str
+) -> tuple[str, ...]:
+    items = tuple(
+        sorted({str(item).strip() for item in (supporting_span_ids or []) if str(item).strip()})
+    )
     if items:
         return items
     text = str(claim_text or "").strip().lower()
@@ -316,7 +324,9 @@ def _claim_id(record_id: str, claim: dict) -> str:
         claim_text=str(claim.get("claim_text") or ""),
         direction=str(claim.get("direction") or ""),
         supporting_span_ids=_supporting_span_signature(
-            supporting_span_ids=claim.get("supporting_span_ids") if isinstance(claim.get("supporting_span_ids"), list) else [],
+            supporting_span_ids=claim.get("supporting_span_ids")
+            if isinstance(claim.get("supporting_span_ids"), list)
+            else [],
             claim_text=str(claim.get("claim_text") or ""),
         ),
     )
@@ -326,7 +336,7 @@ def _load_claim_adjudications(path: Path | None) -> dict[str, dict]:
     rows: dict[str, dict] = {}
     if path is None or not path.exists():
         return rows
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -344,7 +354,7 @@ def _load_rows_grouped_by_openalex_id(path: Path | None) -> dict[str, list[dict[
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     if path is None or not path.exists():
         return grouped
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -365,7 +375,12 @@ def _legacy_strength_from_adjudication(adjudication: dict) -> str:
         return "rct"
     if design in {"iv", "did", "rdd", "synthetic_control"}:
         return "quasi_natural"
-    if design in {"event_study", "quasi_experimental_other", "quasi_experimental_did", "quasi_experimental_rdd"}:
+    if design in {
+        "event_study",
+        "quasi_experimental_other",
+        "quasi_experimental_did",
+        "quasi_experimental_rdd",
+    }:
         return "quasi_natural_event"
     if design == "meta_analysis":
         return "meta_analysis"
@@ -385,6 +400,7 @@ def _legacy_strength_from_adjudication(adjudication: dict) -> str:
 @dataclass
 class GraphStats:
     """Graph stats public type."""
+
     works: int = 0
     concepts: int = 0
     estimates: int = 0
@@ -627,7 +643,12 @@ def _infer_edge_strength(claim: dict) -> str:
         return "rct"
     if design in {"iv", "did", "rdd", "synthetic_control"}:
         return "quasi_natural"
-    if design in {"event_study", "quasi_experimental_other", "quasi_experimental_did", "quasi_experimental_rdd"}:
+    if design in {
+        "event_study",
+        "quasi_experimental_other",
+        "quasi_experimental_did",
+        "quasi_experimental_rdd",
+    }:
         return "quasi_natural_event"
     if design in {"panel_fe", "system_gmm", "gmm"}:
         return "panel_fe"
@@ -652,7 +673,9 @@ def _infer_edge_strength(claim: dict) -> str:
     return "unknown"
 
 
-def _choose_moderation_representative(current: dict[str, object] | None, candidate: dict[str, object]) -> dict[str, object]:
+def _choose_moderation_representative(
+    current: dict[str, object] | None, candidate: dict[str, object]
+) -> dict[str, object]:
     if current is None:
         return candidate
     current_confidence = float(current.get("confidence") or 0.0)
@@ -677,11 +700,7 @@ def _edge_quality_summary(payload: dict[str, object]) -> dict[str, object]:
         }
     )
     hints = sorted(
-        {
-            str(hint).strip()
-            for hint in payload.get("design_family_hints", [])
-            if str(hint).strip()
-        }
+        {str(hint).strip() for hint in payload.get("design_family_hints", []) if str(hint).strip()}
     )
     blockers = sorted(
         {
@@ -722,7 +741,9 @@ def _edge_quality_summary(payload: dict[str, object]) -> dict[str, object]:
         "publish_blockers": blockers,
         "strong_design_evidence": {
             "count": strong_count,
-            "share_pct": round((strong_count / max(1, len(strong_flags))) * 100.0, 3) if strong_flags else 0.0,
+            "share_pct": round((strong_count / max(1, len(strong_flags))) * 100.0, 3)
+            if strong_flags
+            else 0.0,
             "all": bool(strong_flags) and all(strong_flags),
             "any": any(strong_flags),
         },
@@ -808,8 +829,12 @@ def _materialize_skg(
                         param_id,
                         canonical_name,
                         openalex_id,
-                        _validate_json_column(parameter_json, expected_type=dict, field_name="parameter_json"),
-                        _validate_json_column(context_json, expected_type=dict, field_name="context_json"),
+                        _validate_json_column(
+                            parameter_json, expected_type=dict, field_name="parameter_json"
+                        ),
+                        _validate_json_column(
+                            context_json, expected_type=dict, field_name="context_json"
+                        ),
                     )
                 )
             except ValueError as exc:
@@ -836,9 +861,7 @@ def _materialize_skg(
         best_strength = strongest_strength([str(sample[0]) for sample in evidence_samples])  # type: ignore[misc]
         effect_size_values = [float(v) for v in effect_sizes if isinstance(v, (int, float))]
         meta_effect_size = (
-            float(sum(effect_size_values) / len(effect_size_values))
-            if effect_size_values
-            else None
+            float(sum(effect_size_values) / len(effect_size_values)) if effect_size_values else None
         )
 
         try:
@@ -849,10 +872,14 @@ def _materialize_skg(
                     dst,
                     direction,
                     len(article_refs),
-                    _validate_json_column(article_refs, expected_type=list, field_name="article_refs"),
+                    _validate_json_column(
+                        article_refs, expected_type=list, field_name="article_refs"
+                    ),
                     best_strength,
                     confidence,
-                    _validate_json_column(scope_conditions, expected_type=list, field_name="scope_conditions"),
+                    _validate_json_column(
+                        scope_conditions, expected_type=list, field_name="scope_conditions"
+                    ),
                     meta_effect_size,
                     "candidate",
                     _validate_json_column(
@@ -864,7 +891,9 @@ def _materialize_skg(
             )
         except ValueError as exc:
             stats.json_validation_failures += 1
-            logger.warning("Skipping malformed ac_skg_edges row {} -> {} [{}]: {}", src, dst, direction, exc)
+            logger.warning(
+                "Skipping malformed ac_skg_edges row {} -> {} [{}]: {}", src, dst, direction, exc
+            )
 
     if edge_rows:
         con.executemany(
@@ -923,19 +952,35 @@ def _materialize_skg(
                         estimate_sign,
                         unit,
                         evidence_strength,
-                        _validate_json_column(confidence_interval_json, expected_type=list, field_name="confidence_interval_json"),
+                        _validate_json_column(
+                            confidence_interval_json,
+                            expected_type=list,
+                            field_name="confidence_interval_json",
+                        ),
                         std_error,
-                        _validate_json_column(linked_claim_ids_json, expected_type=list, field_name="linked_claim_ids_json"),
-                        _validate_json_column(linked_edges_json, expected_type=list, field_name="linked_edges_json"),
-                        _validate_json_column(context_json, expected_type=dict, field_name="context_json"),
+                        _validate_json_column(
+                            linked_claim_ids_json,
+                            expected_type=list,
+                            field_name="linked_claim_ids_json",
+                        ),
+                        _validate_json_column(
+                            linked_edges_json, expected_type=list, field_name="linked_edges_json"
+                        ),
+                        _validate_json_column(
+                            context_json, expected_type=dict, field_name="context_json"
+                        ),
                         source_layer,
                         uncertainty_source,
-                        _validate_json_column(quality_flags_json, expected_type=list, field_name="quality_flags_json"),
+                        _validate_json_column(
+                            quality_flags_json, expected_type=list, field_name="quality_flags_json"
+                        ),
                     )
                 )
             except ValueError as exc:
                 stats.json_validation_failures += 1
-                logger.warning("Skipping malformed ac_skg_simulation_parameters row {}: {}", numeric_id, exc)
+                logger.warning(
+                    "Skipping malformed ac_skg_simulation_parameters row {}: {}", numeric_id, exc
+                )
         con.executemany(
             """
             INSERT OR REPLACE INTO ac_skg_simulation_parameters(
@@ -1014,14 +1059,21 @@ def load_graph(
         if run_id:
             con.execute(
                 "INSERT OR REPLACE INTO ac_runs (run_id, pass_name, started_at, finished_at, config_json, status) VALUES (?, ?, ?, ?, ?, ?)",
-                [run_id, pass_name, datetime.now(UTC).isoformat(), datetime.now(UTC).isoformat(), config_json, "ok"],
+                [
+                    run_id,
+                    pass_name,
+                    datetime.now(UTC).isoformat(),
+                    datetime.now(UTC).isoformat(),
+                    config_json,
+                    "ok",
+                ],
             )
             stats.runs = 1
 
         # Preload topics catalog when present.
         topic_batch: list[tuple] = []
         if topics_catalog_path and topics_catalog_path.exists():
-            with open(topics_catalog_path, "r", encoding="utf-8") as fh:
+            with open(topics_catalog_path, encoding="utf-8") as fh:
                 for line in fh:
                     line = line.strip()
                     if not line:
@@ -1124,7 +1176,9 @@ def load_graph(
                         est.unit,
                         "",
                         record.study_design,
-                        int(record.metadata.get("sample_size")) if record.metadata.get("sample_size") else None,
+                        int(record.metadata.get("sample_size"))
+                        if record.metadata.get("sample_size")
+                        else None,
                         str(record.context_profile.get("context_id") or ""),
                         None,
                         None,
@@ -1155,11 +1209,19 @@ def load_graph(
                             claim.get("claim_explicitness", ""),
                             claim.get("design_family_hint", ""),
                             claim.get("source_basis", ""),
-                            float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
+                            float(
+                                claim.get("claim_extraction_confidence")
+                                or record.extraction_confidence
+                                or 0.0
+                            ),
                             bool(claim.get("strong_design_evidence") or False),
                             design_tier,
                             bool(claim.get("publish_to_graph") or False),
-                            "; ".join(str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()),
+                            "; ".join(
+                                str(v)
+                                for v in (claim.get("publish_blockers") or [])
+                                if str(v).strip()
+                            ),
                             bool(claim.get("span_contamination_detected") or False),
                             claim.get("mechanism", ""),
                             claim.get("domain", ""),
@@ -1171,8 +1233,12 @@ def load_graph(
                     published_strength = str(claim.get("strength") or "")
                     published_trust = float(record.trust_score)
                     if adjudication:
-                        adjudicated_design_family = str(adjudication.get("design_family") or "").strip()
-                        recalculated_tier = _design_quality_tier_from_family(adjudicated_design_family)
+                        adjudicated_design_family = str(
+                            adjudication.get("design_family") or ""
+                        ).strip()
+                        recalculated_tier = _design_quality_tier_from_family(
+                            adjudicated_design_family
+                        )
                         if recalculated_tier is not None:
                             design_tier = recalculated_tier
                         claim_adjudication_batch.append(
@@ -1190,23 +1256,39 @@ def load_graph(
                                 float(adjudication.get("paper_asserts_causality_score") or 0.0),
                                 float(adjudication.get("claim_validity_score") or 0.0),
                                 float(adjudication.get("adjudication_confidence") or 0.0),
-                                float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
+                                float(
+                                    claim.get("claim_extraction_confidence")
+                                    or record.extraction_confidence
+                                    or 0.0
+                                ),
                                 bool(adjudication.get("publishable_edge") or False),
                                 bool(claim.get("strong_design_evidence") or False),
                                 design_tier,
-                                "; ".join(str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()),
+                                "; ".join(
+                                    str(v)
+                                    for v in (claim.get("publish_blockers") or [])
+                                    if str(v).strip()
+                                ),
                                 int(adjudication.get("consensus_passes") or 1),
                                 float(adjudication.get("consensus_stability") or 0.0),
-                                float(adjudication.get("claim_type_confidence")) if adjudication.get("claim_type_confidence") is not None else None,
-                                float(adjudication.get("design_family_confidence")) if adjudication.get("design_family_confidence") is not None else None,
-                                float(adjudication.get("direction_confidence")) if adjudication.get("direction_confidence") is not None else None,
+                                float(adjudication.get("claim_type_confidence"))
+                                if adjudication.get("claim_type_confidence") is not None
+                                else None,
+                                float(adjudication.get("design_family_confidence"))
+                                if adjudication.get("design_family_confidence") is not None
+                                else None,
+                                float(adjudication.get("direction_confidence"))
+                                if adjudication.get("direction_confidence") is not None
+                                else None,
                                 bool(adjudication.get("intra_paper_contradiction") or False),
                                 str(adjudication.get("adjudication_notes") or ""),
                             )
                         )
                         publishable = bool(adjudication.get("publishable_edge") or False)
                         published_strength = _legacy_strength_from_adjudication(adjudication)
-                        published_trust = float(adjudication.get("claim_validity_score") or published_trust)
+                        published_trust = float(
+                            adjudication.get("claim_validity_score") or published_trust
+                        )
                     elif any(
                         key in claim
                         for key in (
@@ -1225,25 +1307,51 @@ def load_graph(
                                 claim.get("effect", ""),
                                 str(claim.get("claim_type") or ""),
                                 str(claim.get("design_family_hint") or ""),
-                                "strong" if bool(claim.get("strong_design_evidence") or False) else "weak",
+                                "strong"
+                                if bool(claim.get("strong_design_evidence") or False)
+                                else "weak",
                                 "unclear",
                                 "supported" if publishable else "insufficient_evidence",
                                 str(claim.get("source_basis") or ""),
-                                float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
-                                float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
-                                float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
-                                float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
+                                float(
+                                    claim.get("claim_extraction_confidence")
+                                    or record.extraction_confidence
+                                    or 0.0
+                                ),
+                                float(
+                                    claim.get("claim_extraction_confidence")
+                                    or record.extraction_confidence
+                                    or 0.0
+                                ),
+                                float(
+                                    claim.get("claim_extraction_confidence")
+                                    or record.extraction_confidence
+                                    or 0.0
+                                ),
+                                float(
+                                    claim.get("claim_extraction_confidence")
+                                    or record.extraction_confidence
+                                    or 0.0
+                                ),
                                 publishable,
                                 bool(claim.get("strong_design_evidence") or False),
                                 design_tier,
-                                "; ".join(str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()),
+                                "; ".join(
+                                    str(v)
+                                    for v in (claim.get("publish_blockers") or [])
+                                    if str(v).strip()
+                                ),
                                 1,
                                 1.0,
                                 None,
                                 None,
                                 1.0,
                                 False,
-                                "; ".join(str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()),
+                                "; ".join(
+                                    str(v)
+                                    for v in (claim.get("publish_blockers") or [])
+                                    if str(v).strip()
+                                ),
                             )
                         )
 
@@ -1257,10 +1365,18 @@ def load_graph(
                                 claim.get("direction", ""),
                                 published_strength,
                                 str(claim.get("design_family_hint") or ""),
-                                float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0),
+                                float(
+                                    claim.get("claim_extraction_confidence")
+                                    or record.extraction_confidence
+                                    or 0.0
+                                ),
                                 bool(claim.get("strong_design_evidence") or False),
                                 design_tier,
-                                "; ".join(str(v) for v in (claim.get("publish_blockers") or []) if str(v).strip()),
+                                "; ".join(
+                                    str(v)
+                                    for v in (claim.get("publish_blockers") or [])
+                                    if str(v).strip()
+                                ),
                                 "candidate",
                                 claim.get("mechanism", ""),
                                 claim.get("domain", ""),
@@ -1293,7 +1409,9 @@ def load_graph(
                 "method_signal_score": record.method_signal_score,
                 "paper_kind": record.metadata.get("paper_kind"),
                 "heterogeneity_results": record.metadata.get("heterogeneity_results", []),
-                "external_validity_assessment": record.metadata.get("external_validity_assessment", ""),
+                "external_validity_assessment": record.metadata.get(
+                    "external_validity_assessment", ""
+                ),
                 "reconciliation_diagnostics": record.metadata.get("reconciliation_diagnostics", {}),
                 "metadata": record.metadata,
                 "context_attributes": record.metadata.get("context_attributes", []),
@@ -1376,7 +1494,9 @@ def load_graph(
                         str(numeric.get("unit") or ""),
                         str(numeric.get("evidence_strength") or ""),
                         json.dumps(numeric.get("confidence_interval") or [], ensure_ascii=False),
-                        float(numeric["std_error"]) if numeric.get("std_error") is not None else None,
+                        float(numeric["std_error"])
+                        if numeric.get("std_error") is not None
+                        else None,
                         json.dumps(numeric.get("linked_claim_ids") or [], ensure_ascii=False),
                         json.dumps(
                             numeric.get("linked_edge_ids")
@@ -1424,7 +1544,7 @@ def load_graph(
                 )
 
             claim_lookup: dict[str, tuple[str, str]] = {}
-            for claim_raw in (record.causal_claims or []):
+            for claim_raw in record.causal_claims or []:
                 if not isinstance(claim_raw, dict):
                     continue
                 claim_id = str(claim_raw.get("claim_id") or "").strip()
@@ -1434,29 +1554,35 @@ def load_graph(
                     claim_lookup[claim_id] = (cause, effect)
 
             # Extract Track B/C data from extraction payload
-            for ctx_attr_raw in (extraction_payload.get("context_attributes") or []):
+            for ctx_attr_raw in extraction_payload.get("context_attributes") or []:
                 if not isinstance(ctx_attr_raw, dict):
                     continue
-                canonical_name = str(ctx_attr_raw.get("canonical_name") or ctx_attr_raw.get("attribute_name") or "").strip()
+                canonical_name = str(
+                    ctx_attr_raw.get("canonical_name") or ctx_attr_raw.get("attribute_name") or ""
+                ).strip()
                 if not canonical_name:
                     continue
-                for cc in (ctx_attr_raw.get("country_codes") or [""]):
-                    context_attr_batch.append((
-                        hash_context_attr_id(canonical_name, record.id, str(cc)),
-                        record.id,
-                        canonical_name,
-                        float(ctx_attr_raw["value"]) if ctx_attr_raw.get("value") is not None else None,
-                        str(ctx_attr_raw.get("value_qualitative") or "") or None,
-                        str(ctx_attr_raw.get("unit") or "") or None,
-                        str(cc) if cc else None,
-                        str(ctx_attr_raw.get("time_period") or "") or None,
-                        str(ctx_attr_raw.get("measurement_method") or "") or None,
-                        float(ctx_attr_raw.get("confidence") or 0.5),
-                        int(len(ctx_attr_raw.get("evidence_spans") or [])),
-                        skg_version_id,
-                    ))
+                for cc in ctx_attr_raw.get("country_codes") or [""]:
+                    context_attr_batch.append(
+                        (
+                            hash_context_attr_id(canonical_name, record.id, str(cc)),
+                            record.id,
+                            canonical_name,
+                            float(ctx_attr_raw["value"])
+                            if ctx_attr_raw.get("value") is not None
+                            else None,
+                            str(ctx_attr_raw.get("value_qualitative") or "") or None,
+                            str(ctx_attr_raw.get("unit") or "") or None,
+                            str(cc) if cc else None,
+                            str(ctx_attr_raw.get("time_period") or "") or None,
+                            str(ctx_attr_raw.get("measurement_method") or "") or None,
+                            float(ctx_attr_raw.get("confidence") or 0.5),
+                            len(ctx_attr_raw.get("evidence_spans") or []),
+                            skg_version_id,
+                        )
+                    )
 
-            for mod_edge_raw in (extraction_payload.get("moderation_edges") or []):
+            for mod_edge_raw in extraction_payload.get("moderation_edges") or []:
                 if not isinstance(mod_edge_raw, dict):
                     continue
                 base_claim_id = str(mod_edge_raw.get("base_claim_id") or "").strip()
@@ -1471,7 +1597,10 @@ def load_graph(
                 key = (base_cause, base_effect, moderator)
                 candidate = {
                     "base_claim_id": base_claim_id or None,
-                    "direction_of_moderation": str(mod_edge_raw.get("direction_of_moderation") or "") or None,
+                    "direction_of_moderation": str(
+                        mod_edge_raw.get("direction_of_moderation") or ""
+                    )
+                    or None,
                     "quantitative_interaction": (
                         float(mod_edge_raw["quantitative_interaction"])
                         if mod_edge_raw.get("quantitative_interaction") is not None
@@ -1501,8 +1630,12 @@ def load_graph(
                     continue
                 payload["representative"] = representative
                 payload["source_refs"].add(record.id)  # type: ignore[union-attr]
-                payload["evidence_count"] = int(payload.get("evidence_count") or 0) + int(mod_edge_raw.get("evidence_count") or 1)
-                payload["confidence"] = max(float(payload.get("confidence") or 0.0), float(candidate["confidence"]))
+                payload["evidence_count"] = int(payload.get("evidence_count") or 0) + int(
+                    mod_edge_raw.get("evidence_count") or 1
+                )
+                payload["confidence"] = max(
+                    float(payload.get("confidence") or 0.0), float(candidate["confidence"])
+                )
 
             if len(work_batch) >= insert_batch_size:
                 _flush_all(
@@ -1587,9 +1720,17 @@ def load_graph(
                 design_hint = str(claim.get("design_family_hint") or "").strip()
                 if design_hint:
                     payload["design_family_hints"].append(design_hint)  # type: ignore[index]
-                payload["claim_confidences"].append(float(claim.get("claim_extraction_confidence") or record.extraction_confidence or 0.0))  # type: ignore[index]
+                payload["claim_confidences"].append(
+                    float(
+                        claim.get("claim_extraction_confidence")
+                        or record.extraction_confidence
+                        or 0.0
+                    )
+                )  # type: ignore[index]
                 payload["publish_blockers"].extend(claim.get("publish_blockers") or [])  # type: ignore[index]
-                payload["strong_design_flags"].append(bool(claim.get("strong_design_evidence") or False))  # type: ignore[index]
+                payload["strong_design_flags"].append(
+                    bool(claim.get("strong_design_evidence") or False)
+                )  # type: ignore[index]
                 edge_evidence_batch.append(
                     (
                         edge_id,
@@ -1605,7 +1746,9 @@ def load_graph(
                         ),
                         confidence_value,
                         str(claim.get("design_family_hint") or ""),
-                        int(claim.get("design_quality_tier")) if claim.get("design_quality_tier") is not None else None,
+                        int(claim.get("design_quality_tier"))
+                        if claim.get("design_quality_tier") is not None
+                        else None,
                         skg_version_id,
                     )
                 )
@@ -1617,7 +1760,7 @@ def load_graph(
 
         # ingest errors (optional)
         if ingest_errors_path and ingest_errors_path.exists():
-            with open(ingest_errors_path, "r", encoding="utf-8") as fh:
+            with open(ingest_errors_path, encoding="utf-8") as fh:
                 for line in fh:
                     line = line.strip()
                     if not line:
@@ -1726,7 +1869,7 @@ def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
     started_at = datetime.now(UTC).isoformat()
 
     def _iter_records() -> Iterable[WorkRecord]:
-        with open(config.merged_records_path, "r", encoding="utf-8") as fh:
+        with open(config.merged_records_path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if line:
@@ -1754,8 +1897,12 @@ def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
         run_id=config.run_id,
         pass_name=config.pass_name,
         config_json=cfg_json,
-        topics_catalog_path=config.topics_catalog_path if config.topics_catalog_path.exists() else None,
-        ingest_errors_path=config.ingest_errors_path if config.ingest_errors_path.exists() else None,
+        topics_catalog_path=config.topics_catalog_path
+        if config.topics_catalog_path.exists()
+        else None,
+        ingest_errors_path=config.ingest_errors_path
+        if config.ingest_errors_path.exists()
+        else None,
         claim_adjudications_path=(
             config.claim_adjudications_path if config.claim_adjudications_path.exists() else None
         ),

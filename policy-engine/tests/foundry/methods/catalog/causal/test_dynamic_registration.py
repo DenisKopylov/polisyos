@@ -1,4 +1,5 @@
 """Smoke tests: verify all Phase 3 dynamic causal methods are registered."""
+
 from __future__ import annotations
 
 import inspect

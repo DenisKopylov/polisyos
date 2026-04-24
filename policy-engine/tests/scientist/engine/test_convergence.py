@@ -20,6 +20,7 @@ from polisyos.scientist.engine.convergence import (
 # Model validation
 # ---------------------------------------------------------------------------
 
+
 class TestConvergenceConfigModel:
     def test_defaults(self) -> None:
         cfg = ConvergenceConfig()
@@ -58,6 +59,7 @@ class TestConvergenceStateModel:
 # ---------------------------------------------------------------------------
 # Absolute delta strategy
 # ---------------------------------------------------------------------------
+
 
 class TestAbsoluteDelta:
     def test_converges_when_stable(self) -> None:
@@ -133,6 +135,7 @@ class TestAbsoluteDelta:
 # Relative delta strategy
 # ---------------------------------------------------------------------------
 
+
 class TestRelativeDelta:
     def test_converges_when_relative_change_small(self) -> None:
         cfg = ConvergenceConfig(
@@ -175,6 +178,7 @@ class TestRelativeDelta:
 # Semantic similarity strategy
 # ---------------------------------------------------------------------------
 
+
 class TestSemanticSimilarity:
     def test_converges_above_threshold(self) -> None:
         cfg = ConvergenceConfig(
@@ -205,6 +209,7 @@ class TestSemanticSimilarity:
 # Composite strategy
 # ---------------------------------------------------------------------------
 
+
 class TestComposite:
     def test_converges_when_both_pass(self) -> None:
         cfg = ConvergenceConfig(
@@ -234,6 +239,7 @@ class TestComposite:
 # ---------------------------------------------------------------------------
 # Budget integration
 # ---------------------------------------------------------------------------
+
 
 class TestBudgetPressure:
     def test_early_stop_on_budget_pressure(self) -> None:
@@ -302,6 +308,7 @@ class TestBudgetPressure:
 # Reset
 # ---------------------------------------------------------------------------
 
+
 class TestReset:
     def test_reset_clears_state(self) -> None:
         cfg = ConvergenceConfig(min_iterations=1, max_iterations=5)
@@ -317,6 +324,7 @@ class TestReset:
 # ---------------------------------------------------------------------------
 # History tracking
 # ---------------------------------------------------------------------------
+
 
 class TestHistoryTracking:
     def test_history_recorded(self) -> None:

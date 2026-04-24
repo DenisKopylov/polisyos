@@ -1,7 +1,9 @@
 """Measurement-error operators for observed synthetic data."""
+
 from __future__ import annotations
 
-from typing import Any, Iterable, Mapping
+from collections.abc import Iterable, Mapping
+from typing import Any
 
 import numpy as np
 
@@ -75,4 +77,3 @@ def apply_measurement_error(
 
 
 __all__ = ["apply_measurement_error"]
-

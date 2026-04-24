@@ -155,11 +155,12 @@ cases:
     input_params: {n_classes: 3}
     expected_output:
       result:
-        immobility_rate: 1.0
-        upward_mobility_rate: 0.0
-        downward_mobility_rate: 0.0
-        n_classes: 3
-        n_obs: 6
+        summary_metrics:
+          immobility_rate: 1.0
+          upward_mobility_rate: 0.0
+          downward_mobility_rate: 0.0
+          n_classes: 3
+          n_obs: 6
     tolerances: {rtol: 0.001, atol: 0.001}
     tags: [mobility, deterministic]
 
@@ -258,9 +259,10 @@ cases:
       child_values: [10.0, 20.0, 30.0, 40.0, 50.0]
     expected_output:
       result:
-        ige: 1.0
-        r_squared: 1.0
-        n: 5
+        summary_metrics:
+          ige: 1.0
+          r_squared: 1.0
+          n: 5
     tolerances: {rtol: 0.001, atol: 0.001}
     tags: [mobility, deterministic]
 
@@ -393,10 +395,11 @@ cases:
     input_params: {n_classes: 3}
     expected_output:
       result:
-        upward_mobility_rate: 1.0
-        downward_mobility_rate: 0.0
-        immobility_rate: 0.0
-        n_obs: 4
+        summary_metrics:
+          upward_mobility_rate: 1.0
+          downward_mobility_rate: 0.0
+          immobility_rate: 0.0
+          n_obs: 4
     tolerances: {rtol: 0.001, atol: 0.001}
     tags: [mobility, deterministic]
 
@@ -409,8 +412,9 @@ cases:
       child_values: [30.0, 30.0, 30.0, 30.0, 30.0]
     expected_output:
       result:
-        ige: 0.0
-        n: 5
+        summary_metrics:
+          ige: 0.0
+          n: 5
     tolerances: {rtol: 0.01, atol: 0.01}
     tags: [mobility, deterministic]
 

@@ -1,4 +1,5 @@
 """Validate refutation coverage and failed falsification tests on causal reports."""
+
 from __future__ import annotations
 
 from polisyos.common.logger import get_logger
@@ -44,6 +45,7 @@ class RefutationPass(ValidatorPass):
     failed required refutation tests emit `REFUTATION_*` findings; STRICT
     profiles emit blockers while other profiles warn.
     """
+
     @property
     def pass_id(self) -> str:
         return "refutation"
@@ -73,8 +75,7 @@ class RefutationPass(ValidatorPass):
                     severity=severity,
                     code="REFUTATION_MISSING",
                     suggestion=(
-                        "Enable causal refutation or execute "
-                        "causal.refutation.dowhy_refute@1.0.0."
+                        "Enable causal refutation or execute causal.refutation.dowhy_refute@1.0.0."
                     ),
                 )
             )
@@ -88,8 +89,7 @@ class RefutationPass(ValidatorPass):
                     pass_id=self.pass_id,
                     path=["causal_report", "refutation_results"],
                     message=(
-                        "Required refutation tests are incomplete: "
-                        + ", ".join(missing_tests)
+                        "Required refutation tests are incomplete: " + ", ".join(missing_tests)
                     ),
                     severity=severity,
                     code="REFUTATION_TESTS_INCOMPLETE",
@@ -128,12 +128,8 @@ def _resolve_report(ctx: PassContext, *, severity: IssueSeverity):
         load_model=load_causal_effect_report,
         severity=severity,
         code="REFUTATION_CAUSAL_REPORT_INVALID",
-        message=(
-            "Refutation pass could not validate or load the causal report artifact."
-        ),
-        suggestion=(
-            "Rebuild the causal report before evaluating refutation coverage."
-        ),
+        message=("Refutation pass could not validate or load the causal report artifact."),
+        suggestion=("Rebuild the causal report before evaluating refutation coverage."),
         log=logger,
     )
 

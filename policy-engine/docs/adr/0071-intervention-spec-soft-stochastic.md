@@ -1,12 +1,15 @@
 # ADR-0071: InterventionSpec for soft/stochastic interventions from Legal Graph (Phase 11)
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-02-28
 
 ## Context
+
 Phase 11 integrates legal constraints from Lex into causal inference via the Legal Graph.
 Currently, `InterventionSpec` only supports hard `do(X=x)` interventions, which assume
 perfect compliance and deterministic policy levers. Real-world policies rarely achieve
@@ -16,6 +19,7 @@ estimates and enforcement-strength metadata on Legal Graph edges, but there is n
 mechanism to propagate those into the causal engine.
 
 ## Decision
+
 1. Extend `InterventionSpec` with a `kind` discriminator: `HARD | SOFT | STOCHASTIC`.
 2. `SOFT` interventions accept a `shift_distribution` (mean shift + variance) that
    replaces the CPD of the target variable with a location-shifted version of its
@@ -29,13 +33,18 @@ mechanism to propagate those into the causal engine.
    intervention density for reproducibility.
 
 ## Consequences
+
 ### Positive
+
 - Policy-effect estimates become more realistic by reflecting partial compliance.
 - Lex compliance metadata flows end-to-end into quantitative results.
 - Backward-compatible: existing HARD interventions remain the default.
+
 ### Negative
+
 - Soft/stochastic identification requires additional assumptions (e.g., monotonicity or
   exclusion restrictions) that must be validated per-study.
+
 - Increases the surface area of `InterventionSpec` serialization and schema versioning.
 - Estimator coverage for soft interventions is limited; some method-catalog entries will
   initially raise `NotImplementedError`.

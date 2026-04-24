@@ -4,9 +4,9 @@ import json
 
 import duckdb
 
-from polisyos.batch_common.manifest import write_raw_manifest
 from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.batch.qc import run_qc
+from polisyos.batch_common.manifest import write_raw_manifest
 
 
 def test_academic_qc_passes_minimal_snapshot(tmp_path) -> None:
@@ -26,7 +26,10 @@ def test_academic_qc_passes_minimal_snapshot(tmp_path) -> None:
 
     config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
     with open(config.merged_records_path, "w", encoding="utf-8") as fh:
-        fh.write(json.dumps({"id": "W1", "abstract": "Some abstract", "estimates": [{"value": 0.2}]}) + "\n")
+        fh.write(
+            json.dumps({"id": "W1", "abstract": "Some abstract", "estimates": [{"value": 0.2}]})
+            + "\n"
+        )
     with open(config.selected_topic_works_path, "w", encoding="utf-8") as fh:
         fh.write(json.dumps({"topic_id": "T1", "work_id": "W1"}) + "\n")
 
@@ -56,7 +59,9 @@ def test_academic_qc_empty_abstract_is_warning_only(tmp_path) -> None:
     )
 
     config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
-    config.merged_records_path.write_text('{"id":"W1","abstract":"","estimates":[]}\n', encoding="utf-8")
+    config.merged_records_path.write_text(
+        '{"id":"W1","abstract":"","estimates":[]}\n', encoding="utf-8"
+    )
     with open(config.selected_topic_works_path, "w", encoding="utf-8") as fh:
         fh.write(json.dumps({"topic_id": "T1", "work_id": "W1"}) + "\n")
 
@@ -83,7 +88,9 @@ def test_academic_qc_fail_fast_on_manifest_mismatch(tmp_path) -> None:
     )
 
     config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
-    config.merged_records_path.write_text('{"id":"W1","abstract":"x","estimates":[]}\n', encoding="utf-8")
+    config.merged_records_path.write_text(
+        '{"id":"W1","abstract":"x","estimates":[]}\n', encoding="utf-8"
+    )
     with open(config.selected_topic_works_path, "w", encoding="utf-8") as fh:
         fh.write(json.dumps({"topic_id": "T1", "work_id": "W1"}) + "\n")
 
@@ -163,7 +170,9 @@ def test_academic_qc_canonical_metric_requires_approved_registry_names(tmp_path)
                     "id": "W1",
                     "abstract": "Some abstract",
                     "extraction_mode": "resolve_extract",
-                    "causal_claims": [{"cause": "teacher_coaching_program", "effect": "student_learning"}],
+                    "causal_claims": [
+                        {"cause": "teacher_coaching_program", "effect": "student_learning"}
+                    ],
                 }
             )
             + "\n"
@@ -206,10 +215,20 @@ def test_academic_qc_uses_runtime_demanded_canonical_rate_as_blocking_metric(tmp
 
     config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
     config.merged_records_path.write_text(
-        json.dumps({"id": "W1", "abstract": "Some abstract", "extraction_mode": "resolve_extract", "causal_claims": []}) + "\n",
+        json.dumps(
+            {
+                "id": "W1",
+                "abstract": "Some abstract",
+                "extraction_mode": "resolve_extract",
+                "causal_claims": [],
+            }
+        )
+        + "\n",
         encoding="utf-8",
     )
-    config.selected_topic_works_path.write_text(json.dumps({"topic_id": "T1", "work_id": "W1"}) + "\n", encoding="utf-8")
+    config.selected_topic_works_path.write_text(
+        json.dumps({"topic_id": "T1", "work_id": "W1"}) + "\n", encoding="utf-8"
+    )
     config.edge_synthesis_report_path.write_text(
         json.dumps({"canonization": {"resolution_rate_pct": 0.0}}, ensure_ascii=False),
         encoding="utf-8",
@@ -236,8 +255,12 @@ def test_academic_qc_uses_runtime_demanded_canonical_rate_as_blocking_metric(tmp
     assert report.metrics["canonical_resolution_rate_pct"] == 100.0
     assert report.metrics["runtime_demanded_canonical_resolution_rate_pct"] == 100.0
     assert report.metrics["global_canonical_resolution_rate_pct"] == 0.0
-    runtime_check = next(item for item in report.checks if item.name == "canonical_resolution_rate_pct")
-    global_check = next(item for item in report.checks if item.name == "global_canonical_resolution_rate_pct")
+    runtime_check = next(
+        item for item in report.checks if item.name == "canonical_resolution_rate_pct"
+    )
+    global_check = next(
+        item for item in report.checks if item.name == "global_canonical_resolution_rate_pct"
+    )
     assert runtime_check.passed is True
     assert global_check.passed is False
 
@@ -272,7 +295,12 @@ def test_academic_qc_tracks_adjudication_publishability_metrics(tmp_path) -> Non
                             "claim_id": "c1",
                             "cause": "tax_rate",
                             "effect": "employment",
-                            "supporting_spans": [{"section": "results", "text": "Higher tax rates reduce employment."}],
+                            "supporting_spans": [
+                                {
+                                    "section": "results",
+                                    "text": "Higher tax rates reduce employment.",
+                                }
+                            ],
                         }
                     ],
                 }
@@ -346,10 +374,20 @@ def test_academic_qc_warns_when_published_tier4_share_is_high(tmp_path) -> None:
 
     config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
     config.merged_records_path.write_text(
-        json.dumps({"id": "W1", "abstract": "Some abstract", "extraction_mode": "resolve_extract", "causal_claims": []}) + "\n",
+        json.dumps(
+            {
+                "id": "W1",
+                "abstract": "Some abstract",
+                "extraction_mode": "resolve_extract",
+                "causal_claims": [],
+            }
+        )
+        + "\n",
         encoding="utf-8",
     )
-    config.selected_topic_works_path.write_text(json.dumps({"topic_id": "T1", "work_id": "W1"}) + "\n", encoding="utf-8")
+    config.selected_topic_works_path.write_text(
+        json.dumps({"topic_id": "T1", "work_id": "W1"}) + "\n", encoding="utf-8"
+    )
     config.raw_claim_candidates_path.write_text(
         json.dumps({"claim_id": "c1", "design_quality_tier": 4, "source_basis": "fulltext"}) + "\n",
         encoding="utf-8",
@@ -438,8 +476,16 @@ def test_academic_qc_tracks_v7_acquisition_metrics(tmp_path) -> None:
     config.fulltext_resolved_path.write_text(
         "\n".join(
             [
-                json.dumps({"work_id": "W1", "source_basis": "fulltext", "source_kind": "fulltext_pdf"}),
-                json.dumps({"work_id": "W2", "source_basis": "abstract_only", "source_kind": "abstract_fallback"}),
+                json.dumps(
+                    {"work_id": "W1", "source_basis": "fulltext", "source_kind": "fulltext_pdf"}
+                ),
+                json.dumps(
+                    {
+                        "work_id": "W2",
+                        "source_basis": "abstract_only",
+                        "source_kind": "abstract_fallback",
+                    }
+                ),
             ]
         )
         + "\n",
@@ -474,7 +520,9 @@ def test_academic_qc_prefers_selected_global_works_for_unique_budget_metrics(tmp
     )
 
     config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
-    config.merged_records_path.write_text('{"id":"W1","abstract":"x","estimates":[]}\n', encoding="utf-8")
+    config.merged_records_path.write_text(
+        '{"id":"W1","abstract":"x","estimates":[]}\n', encoding="utf-8"
+    )
     config.selected_topic_works_path.write_text(
         "\n".join(
             [

@@ -1,7 +1,9 @@
 """Static aging with demographic consistency orchestration."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Literal, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
@@ -21,12 +23,12 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
-from polisyos.ir.analytics.microsim_calibration import load_microsim_calibration_report
-from polisyos.ir.refs import MicrosimCalibrationReportRef
 from polisyos.foundry.methods.catalog.survey.demographic_consistency import (
     DemographicConsistencyEstimator,
     DemographicConsistencyResult,
 )
+from polisyos.ir.analytics.microsim_calibration import load_microsim_calibration_report
+from polisyos.ir.refs import MicrosimCalibrationReportRef
 
 
 def _result_slot() -> frozenset[SlotSpec]:
@@ -57,7 +59,9 @@ def _vector(state: Mapping[str, Any], key: str, *, dtype: Any = float) -> np.nda
     return arr
 
 
-def _index_vector(state: Mapping[str, Any], key: str, *, expected_length: int | None = None) -> np.ndarray:
+def _index_vector(
+    state: Mapping[str, Any], key: str, *, expected_length: int | None = None
+) -> np.ndarray:
     raw = state[key]
     arr = np.asarray(raw)
     if arr.ndim != 1:
@@ -213,13 +217,18 @@ def _build_sparse_candidates(
     n_states = target_state_totals.shape[0]
     if origin_state_index.shape[0] != n_records:
         raise ValueError("origin_state_index must align with base_weights")
-    if np.any(origin_state_index < 0) or np.any(origin_state_index >= transition_prior_matrix.shape[0]):
+    if np.any(origin_state_index < 0) or np.any(
+        origin_state_index >= transition_prior_matrix.shape[0]
+    ):
         raise ValueError("origin_state_index contains out-of-range ids")
     if transition_prior_matrix.shape[1] != n_states:
         raise ValueError("transition_prior_matrix columns must match target_state_totals")
     if np.any(transition_prior_matrix < 0.0):
         raise ValueError("transition_prior_matrix must be non-negative")
-    if allowed_transition_mask is not None and allowed_transition_mask.shape != transition_prior_matrix.shape:
+    if (
+        allowed_transition_mask is not None
+        and allowed_transition_mask.shape != transition_prior_matrix.shape
+    ):
         raise ValueError("allowed_transition_mask must match transition_prior_matrix")
 
     top_k = None if top_k_destinations in {None, 0} else max(1, int(top_k_destinations))
@@ -286,7 +295,9 @@ def _scale_donor_pool(
     missing = positive_entrant_states[donor_mass_by_state[positive_entrant_states] <= 0.0]
     if missing.size:
         preview = ", ".join(map(str, missing[:5]))
-        raise ValueError(f"entrant states require donor mass but donor pool is empty for states: {preview}")
+        raise ValueError(
+            f"entrant states require donor mass but donor pool is empty for states: {preview}"
+        )
 
     scale = np.ones(n_states, dtype=float)
     positive = donor_mass_by_state > 0.0
@@ -296,7 +307,9 @@ def _scale_donor_pool(
     return donor_record_index[keep], donor_state_index[keep], entrant_weights[keep]
 
 
-def _integerize_weights(weights: np.ndarray, *, unit_weight: float, rng: np.random.Generator) -> np.ndarray:
+def _integerize_weights(
+    weights: np.ndarray, *, unit_weight: float, rng: np.random.Generator
+) -> np.ndarray:
     if unit_weight <= 0.0:
         raise ValueError("unit_weight must be positive")
     scaled = np.maximum(weights / unit_weight, 0.0)
@@ -375,7 +388,9 @@ class StaticAgingSimulationEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("base_weights", SlotType.VECTOR, Unit("weight", "mass"), shape=("n_records",)),
+                SlotSpec(
+                    "base_weights", SlotType.VECTOR, Unit("weight", "mass"), shape=("n_records",)
+                ),
                 SlotSpec(
                     "origin_state_index",
                     SlotType.VECTOR,
@@ -513,7 +528,9 @@ class StaticAgingSimulationEstimator:
             raise TypeError("demographic consistency core returned an unexpected result payload")
 
         survivor_record_index = np.asarray(flow_result.candidate_record_index, dtype=np.int64)
-        survivor_destination_state_index = np.asarray(flow_result.candidate_state_index, dtype=np.int64)
+        survivor_destination_state_index = np.asarray(
+            flow_result.candidate_state_index, dtype=np.int64
+        )
         survivor_weights = np.asarray(flow_result.calibrated_flows, dtype=float)
 
         if origin_state_index is not None:
@@ -577,7 +594,7 @@ class StaticAgingSimulationEstimator:
                 "entrant_record_count": int(entrant_weights.shape[0]),
                 "deterministic_survivor_mass": float(np.sum(survivor_weights)),
                 "deterministic_entrant_mass": float(np.sum(entrant_weights)),
-                "stochastic_draw_count": int(len(stochastic_draws)),
+                "stochastic_draw_count": len(stochastic_draws),
                 "microsim_calibration_decision": calibration_gate.get("decision"),
             }
         )

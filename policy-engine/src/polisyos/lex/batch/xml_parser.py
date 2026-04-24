@@ -12,11 +12,14 @@ import hashlib
 import json
 import re
 import xml.etree.ElementTree as ET
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Iterator
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from polisyos.common.logger import get_logger
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from pathlib import Path
 
 logger = get_logger(__name__)
 
@@ -30,6 +33,7 @@ def _collapse_ws(text: str) -> str:
 # ---------------------------------------------------------------------------
 # Data structures
 # ---------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class NPACard:
@@ -62,6 +66,7 @@ class NPADocument:
 # Stable doc_id generation
 # ---------------------------------------------------------------------------
 
+
 def _stable_doc_id(
     reestr_code: str,
     date_acc: str,
@@ -70,15 +75,14 @@ def _stable_doc_id(
     name: str,
 ) -> str:
     """Generate a deterministic 16-char hex doc_id from key fields."""
-    canon = "|".join(
-        _collapse_ws(v) for v in (reestr_code, date_acc, doc_type, number, name)
-    )
+    canon = "|".join(_collapse_ws(v) for v in (reestr_code, date_acc, doc_type, number, name))
     return hashlib.sha256(canon.encode("utf-8")).hexdigest()[:16]
 
 
 # ---------------------------------------------------------------------------
 # XML helpers
 # ---------------------------------------------------------------------------
+
 
 def _item_text(document_elem: ET.Element, item_name: str) -> str:
     """Extract single-value <item name="X"><text>...</text></item>."""
@@ -103,9 +107,7 @@ def _item_text_list(document_elem: ET.Element, item_name: str) -> tuple[str, ...
             tl = item.find("textlist")
             if tl is not None:
                 return tuple(
-                    _collapse_ws(t.text)
-                    for t in tl.findall("text")
-                    if t.text and t.text.strip()
+                    _collapse_ws(t.text) for t in tl.findall("text") if t.text and t.text.strip()
                 )
             # Single text fallback
             text_elem = item.find("text")
@@ -130,6 +132,7 @@ def _extract_text_from_richtext(document_elem: ET.Element) -> str:
 # ---------------------------------------------------------------------------
 # Stage 1a: Parse cards XML
 # ---------------------------------------------------------------------------
+
 
 def parse_cards(cards_path: Path) -> dict[str, list[NPACard]]:
     """Stream-parse cards XML into ``{reestr_code: [NPACard, ...]}``.
@@ -193,6 +196,7 @@ def parse_cards(cards_path: Path) -> dict[str, list[NPACard]]:
 # ---------------------------------------------------------------------------
 # Stage 1b: Stream texts + join with cards
 # ---------------------------------------------------------------------------
+
 
 def iter_documents(
     cards_path: Path,
@@ -283,6 +287,7 @@ def iter_documents(
 # Manifest builder (optional: persist doc list to JSONL for inspection)
 # ---------------------------------------------------------------------------
 
+
 def build_manifest(
     cards_path: Path,
     texts_path: Path,
@@ -296,7 +301,8 @@ def build_manifest(
     count = 0
     with open(output_path, "w", encoding="utf-8") as fh:
         for doc in iter_documents(
-            cards_path, texts_path,
+            cards_path,
+            texts_path,
             status_filter=status_filter,
             type_filter=type_filter,
             doc_id_filter=doc_id_filter,

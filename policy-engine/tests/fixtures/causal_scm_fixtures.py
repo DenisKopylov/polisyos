@@ -5,16 +5,17 @@ ATE values, used across phases 2-15 for SL-5 fixture coverage.
 
 Each fixture function returns ``(GraphCausalData, ground_truth_ate: float)``.
 """
+
 from __future__ import annotations
 
 import numpy as np
 
 from polisyos.foundry.methods.catalog.causal.protocols import GraphCausalData
 
-
 # ---------------------------------------------------------------------------
 # FORK: Z -> X, Z -> Y  (confounded, ATE_true = 0.0)
 # ---------------------------------------------------------------------------
+
 
 def fork_fixture(n: int = 6000, seed: int = 41) -> tuple[GraphCausalData, float]:
     """Fork / common cause. X and Y are spuriously correlated via Z."""
@@ -38,6 +39,7 @@ def fork_fixture(n: int = 6000, seed: int = 41) -> tuple[GraphCausalData, float]
 # CHAIN: X -> M -> Y  (mediation, ATE ≈ 0.91)
 # ---------------------------------------------------------------------------
 
+
 def chain_fixture(n: int = 6000, seed: int = 42) -> tuple[GraphCausalData, float]:
     """Chain / mediation. Total effect = β_XM × β_MY."""
     rng = np.random.default_rng(seed)
@@ -59,6 +61,7 @@ def chain_fixture(n: int = 6000, seed: int = 42) -> tuple[GraphCausalData, float
 # COLLIDER: X -> Z, Y -> Z  (conditioning on Z opens spurious path)
 # ---------------------------------------------------------------------------
 
+
 def collider_fixture(n: int = 6000, seed: int = 43) -> tuple[GraphCausalData, float]:
     """Collider. X and Y are independent; conditioning on Z creates bias."""
     rng = np.random.default_rng(seed)
@@ -79,6 +82,7 @@ def collider_fixture(n: int = 6000, seed: int = 43) -> tuple[GraphCausalData, fl
 # ---------------------------------------------------------------------------
 # INSTRUMENTAL_VARIABLE: Z -> X, X -> Y, U -> X, U -> Y
 # ---------------------------------------------------------------------------
+
 
 def instrumental_variable_fixture(n: int = 6000, seed: int = 44) -> tuple[GraphCausalData, float]:
     """IV setup with unmeasured confounder U. ATE = 1.2."""
@@ -104,6 +108,7 @@ def instrumental_variable_fixture(n: int = 6000, seed: int = 44) -> tuple[GraphC
 # BACKDOOR_WITH_TRANSPORT: Z -> X, Z -> Y, X -> Y, S -> Z
 # ---------------------------------------------------------------------------
 
+
 def backdoor_with_transport_fixture(n: int = 6000, seed: int = 45) -> tuple[GraphCausalData, float]:
     """Backdoor identification with S-node for transport analysis. ATE = 1.2."""
     rng = np.random.default_rng(seed)
@@ -128,6 +133,7 @@ def backdoor_with_transport_fixture(n: int = 6000, seed: int = 45) -> tuple[Grap
 # FRONT_DOOR: X -> M -> Y, U -> X, U -> Y
 # ---------------------------------------------------------------------------
 
+
 def front_door_fixture(n: int = 6000, seed: int = 46) -> tuple[GraphCausalData, float]:
     """Front-door criterion. Unmeasured U confounds X-Y. ATE ≈ 0.91."""
     rng = np.random.default_rng(seed)
@@ -150,6 +156,7 @@ def front_door_fixture(n: int = 6000, seed: int = 46) -> tuple[GraphCausalData, 
 # DIAMOND: X -> A, X -> B, A -> Y, B -> Y  (multiple mediators, ATE ≈ 0.86)
 # ---------------------------------------------------------------------------
 
+
 def diamond_fixture(n: int = 6000, seed: int = 47) -> tuple[GraphCausalData, float]:
     """Diamond graph with two parallel mediators. ATE ≈ 0.86."""
     rng = np.random.default_rng(seed)
@@ -171,6 +178,7 @@ def diamond_fixture(n: int = 6000, seed: int = 47) -> tuple[GraphCausalData, flo
 # ---------------------------------------------------------------------------
 # Linear confounding (bonus: commonly used for DoWhy tests)
 # ---------------------------------------------------------------------------
+
 
 def linear_confounding_fixture(n: int = 6000, seed: int = 48) -> tuple[GraphCausalData, float]:
     """Classic confounded treatment with direct effect. ATE = 1.2."""
@@ -208,12 +216,12 @@ ALL_FIXTURES = {
 
 __all__ = [
     "ALL_FIXTURES",
-    "fork_fixture",
+    "backdoor_with_transport_fixture",
     "chain_fixture",
     "collider_fixture",
-    "instrumental_variable_fixture",
-    "backdoor_with_transport_fixture",
-    "front_door_fixture",
     "diamond_fixture",
+    "fork_fixture",
+    "front_door_fixture",
+    "instrumental_variable_fixture",
     "linear_confounding_fixture",
 ]

@@ -42,7 +42,9 @@ def _not_recoverable_assessment() -> dict[str, object]:
     ).model_dump(mode="json")
 
 
-def _synthetic_dr_state(*, seed: int = 42, assessment: dict[str, object] | None = None) -> dict[str, np.ndarray | dict[str, object]]:
+def _synthetic_dr_state(
+    *, seed: int = 42, assessment: dict[str, object] | None = None
+) -> dict[str, np.ndarray | dict[str, object]]:
     rng = np.random.default_rng(seed)
     n = 320
     X = rng.normal(size=(n, 2))
@@ -81,11 +83,7 @@ def _synthetic_shadow_state() -> dict[str, np.ndarray | dict[str, object]]:
     shadow = (0.8 * X[:, 0] - 0.3 * X[:, 1] + rng.normal(0.0, 0.5, size=n))[:, None]
     base_weights = np.exp(rng.normal(0.0, 0.10, size=n))
     latent_y = (
-        3.0
-        + 1.4 * X[:, 0]
-        - 0.8 * X[:, 1]
-        + 1.2 * shadow[:, 0]
-        + rng.normal(0.0, 0.3, size=n)
+        3.0 + 1.4 * X[:, 0] - 0.8 * X[:, 1] + 1.2 * shadow[:, 0] + rng.normal(0.0, 0.3, size=n)
     )
     logits = -0.2 + 0.5 * X[:, 0] + 0.35 * ((latent_y - latent_y.mean()) / latent_y.std())
     response = rng.binomial(1, 1.0 / (1.0 + np.exp(-logits)), size=n).astype(float)
@@ -132,7 +130,9 @@ def _synthetic_reference_state() -> dict[str, np.ndarray]:
 
 
 class TestDesignMissingnessDR:
-    def test_population_mar_threads_missingness_assessment_into_certificate(self, isolated_registry) -> None:
+    def test_population_mar_threads_missingness_assessment_into_certificate(
+        self, isolated_registry
+    ) -> None:
         method = _method_or_skip(isolated_registry, "survey.dr.design_missingness@1.0.0")
         result = method.pure_step(
             _synthetic_dr_state(assessment=_recoverable_assessment()),
@@ -177,7 +177,9 @@ class TestDesignMissingnessDR:
         assert certificate["variance_mode"] == "replicate"
         assert payload["replicate_estimates"] is not None
 
-    def test_mnar_shadow_can_validate_identified_branch_when_shadow_signal_is_strong(self, isolated_registry) -> None:
+    def test_mnar_shadow_can_validate_identified_branch_when_shadow_signal_is_strong(
+        self, isolated_registry
+    ) -> None:
         method = _method_or_skip(isolated_registry, "survey.dr.design_missingness@1.0.0")
         result = method.pure_step(
             _synthetic_shadow_state(),
@@ -217,7 +219,9 @@ class TestDesignMissingnessDR:
         assert certificate["overall_pass"] is False
         assert "mnar_shadow_requires_shadow_variables" in certificate["blocking_reasons"]
 
-    def test_population_mar_is_guarded_when_missingness_is_not_recoverable(self, isolated_registry) -> None:
+    def test_population_mar_is_guarded_when_missingness_is_not_recoverable(
+        self, isolated_registry
+    ) -> None:
         method = _method_or_skip(isolated_registry, "survey.dr.design_missingness@1.0.0")
         result = method.pure_step(
             _synthetic_dr_state(seed=11, assessment=_not_recoverable_assessment()),
@@ -231,10 +235,15 @@ class TestDesignMissingnessDR:
         certificate = result["result"]["survey_quality_certificate"]
         assert certificate["regime_validated"] == "mnar_unidentified"
         assert certificate["overall_pass"] is False
-        assert "missingness_assessment_requires_non_mar_identification" in certificate["blocking_reasons"]
+        assert (
+            "missingness_assessment_requires_non_mar_identification"
+            in certificate["blocking_reasons"]
+        )
         assert "missingness_not_recoverable" in certificate["blocking_reasons"]
 
-    def test_reference_integration_path_returns_reference_mode_payload(self, isolated_registry) -> None:
+    def test_reference_integration_path_returns_reference_mode_payload(
+        self, isolated_registry
+    ) -> None:
         method = _method_or_skip(isolated_registry, "survey.dr.design_missingness@1.0.0")
         result = method.pure_step(
             _synthetic_reference_state(),

@@ -10,9 +10,9 @@ Tests cover:
   G5  – skip_if_failed; nuisance-failure continuation; main-estimator break
   G6  – ProofStep enrichment; SuggestedExperiment fix in hedge cert
 """
+
 from __future__ import annotations
 
-import dataclasses
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -43,10 +43,10 @@ from polisyos.ir.analytics.query_validation_report import (
     ValidationWarning,
 )
 
-
 # ---------------------------------------------------------------------------
 # Shared helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_dag(directed_edges: list[tuple[str, str]]) -> CausalGraphModel:
     nodes = list({n for e in directed_edges for n in e})
@@ -135,9 +135,7 @@ def _make_registry(node_behaviors: dict[str, Any]) -> MagicMock:
 def _error_val_report() -> QueryValidationReport:
     return QueryValidationReport(
         is_valid=False,
-        errors=(
-            ValidationError(code="TREATMENT_MISSING", message="Treatment X not in graph"),
-        ),
+        errors=(ValidationError(code="TREATMENT_MISSING", message="Treatment X not in graph"),),
     )
 
 
@@ -156,6 +154,7 @@ def _clean_val_report() -> QueryValidationReport:
 # ---------------------------------------------------------------------------
 # G0: estimate() returns tuple
 # ---------------------------------------------------------------------------
+
 
 class TestG0EstimateReturnType:
     def test_estimate_returns_two_tuple(self):
@@ -192,6 +191,7 @@ class TestG0EstimateReturnType:
 # G1: Multi-domain mz_id routing
 # ---------------------------------------------------------------------------
 
+
 class TestG1MultiDomainRouting:
     def test_source_domains_len_gt1_routes_to_mz_id(self):
         """G1: source_domains=[d1, d2] → mz_id_algorithm called with that list."""
@@ -216,11 +216,14 @@ class TestG1MultiDomainRouting:
         graph = _make_dag([("Z", "X"), ("X", "Y"), ("Z", "Y")])
         identified = _minimal_ir()
 
-        with patch(
-            "polisyos.foundry.methods.catalog.causal.causal_engine.mz_id_algorithm",
-        ) as mock_mz, patch(
-            "polisyos.foundry.methods.catalog.causal.causal_engine.id_with_oracle_fallback",
-            return_value=identified,
+        with (
+            patch(
+                "polisyos.foundry.methods.catalog.causal.causal_engine.mz_id_algorithm",
+            ) as mock_mz,
+            patch(
+                "polisyos.foundry.methods.catalog.causal.causal_engine.id_with_oracle_fallback",
+                return_value=identified,
+            ),
         ):
             engine.identify("X", "Y", graph, source_domains=[MagicMock()])
 
@@ -237,7 +240,9 @@ class TestG1MultiDomainRouting:
             return_value=identified,
         ) as mock_mz:
             result = engine.identify(
-                "X", "Y", graph,
+                "X",
+                "Y",
+                graph,
                 s_nodes=["S"],
                 z_interventions=frozenset({"Z"}),
             )
@@ -253,11 +258,13 @@ class TestG1MultiDomainRouting:
         d1, d2 = MagicMock(), MagicMock()
         identified = _minimal_ir()
 
-        with patch.object(engine, "identify", return_value=identified) as mock_id, \
-             patch(
-                 "polisyos.foundry.methods.catalog.causal.query_validator.CausalQueryValidator"
-             ) as MockVal, \
-             patch.object(engine, "compile", side_effect=ValueError("no ast")):
+        with (
+            patch.object(engine, "identify", return_value=identified) as mock_id,
+            patch(
+                "polisyos.foundry.methods.catalog.causal.query_validator.CausalQueryValidator"
+            ) as MockVal,
+            patch.object(engine, "compile", side_effect=ValueError("no ast")),
+        ):
             MockVal.return_value.validate.return_value = _clean_val_report()
             engine.run("X", "Y", graph, source_domains=[d1, d2])
 
@@ -271,15 +278,19 @@ class TestG1MultiDomainRouting:
         query = CtfQuery(outcome="Y", intervention=(("X", 1.0),), kind="single_world")
         identified = _minimal_ir()
 
-        with patch(
-            "polisyos.foundry.methods.catalog.causal.ctf_transport.build_ctf_selection_diagram",
-            return_value=MagicMock(),
-        ) as mock_build, patch(
-            "polisyos.foundry.methods.catalog.causal.ctf_transport.ctf_transportability",
-            return_value=identified,
-        ) as mock_ctf_transport, patch(
-            "polisyos.foundry.methods.catalog.causal.causal_engine.id_star_algorithm",
-        ) as mock_id_star:
+        with (
+            patch(
+                "polisyos.foundry.methods.catalog.causal.ctf_transport.build_ctf_selection_diagram",
+                return_value=MagicMock(),
+            ) as mock_build,
+            patch(
+                "polisyos.foundry.methods.catalog.causal.ctf_transport.ctf_transportability",
+                return_value=identified,
+            ) as mock_ctf_transport,
+            patch(
+                "polisyos.foundry.methods.catalog.causal.causal_engine.id_star_algorithm",
+            ) as mock_id_star,
+        ):
             result = engine.identify(
                 "X",
                 "Y",
@@ -304,15 +315,19 @@ class TestG1MultiDomainRouting:
         ]
         identified = _minimal_ir()
 
-        with patch(
-            "polisyos.foundry.methods.catalog.causal.ctf_transport.build_ctf_selection_diagram",
-            return_value=MagicMock(),
-        ) as mock_build, patch(
-            "polisyos.foundry.methods.catalog.causal.ctf_transport.ctf_transportability",
-            return_value=identified,
-        ) as mock_ctf_transport, patch(
-            "polisyos.foundry.methods.catalog.causal.causal_engine.idc_star_algorithm",
-        ) as mock_idc_star:
+        with (
+            patch(
+                "polisyos.foundry.methods.catalog.causal.ctf_transport.build_ctf_selection_diagram",
+                return_value=MagicMock(),
+            ) as mock_build,
+            patch(
+                "polisyos.foundry.methods.catalog.causal.ctf_transport.ctf_transportability",
+                return_value=identified,
+            ) as mock_ctf_transport,
+            patch(
+                "polisyos.foundry.methods.catalog.causal.causal_engine.idc_star_algorithm",
+            ) as mock_idc_star,
+        ):
             result = engine.identify(
                 "X",
                 "Y",
@@ -330,6 +345,7 @@ class TestG1MultiDomainRouting:
 # ---------------------------------------------------------------------------
 # G2: Auto-diagnostic node injection
 # ---------------------------------------------------------------------------
+
 
 class TestG2DiagnosticInjection:
     def test_positivity_injected_always(self):
@@ -373,9 +389,7 @@ class TestG2DiagnosticInjection:
             "polisyos.foundry.methods.catalog.causal.estimand_compiler.classify_estimand",
             return_value=EstimandShape.BACKDOOR,
         ):
-            g1 = engine._inject_diagnostic_nodes(
-                _make_executor_graph(nodes=(), run_id="r3"), ast
-            )
+            g1 = engine._inject_diagnostic_nodes(_make_executor_graph(nodes=(), run_id="r3"), ast)
             g2 = engine._inject_diagnostic_nodes(g1, ast)
 
         positivity_count = sum(
@@ -411,6 +425,7 @@ class TestG2DiagnosticInjection:
 # G3: Sensitivity capture in EvidenceBundle
 # ---------------------------------------------------------------------------
 
+
 class TestG3SensitivityCapture:
     def _ir(self) -> IdentificationResult:
         return _minimal_ir()
@@ -423,7 +438,9 @@ class TestG3SensitivityCapture:
         sr.rosenbaum_gamma = 1.8
 
         bundle = engine.audit(
-            self._ir(), None, run_id="r1",
+            self._ir(),
+            None,
+            run_id="r1",
             node_outputs={"sens": {"sensitivity_result": sr}},
         )
 
@@ -439,7 +456,9 @@ class TestG3SensitivityCapture:
         """G3: ess_fraction / overlap_score captured from diagnostic node output."""
         engine = CausalEngine()
         bundle = engine.audit(
-            self._ir(), None, run_id="r3",
+            self._ir(),
+            None,
+            run_id="r3",
             node_outputs={"diag": {"ess_fraction": 0.72, "overlap_score": 0.88}},
         )
         assert bundle.diagnostic_scores.get("ess_fraction") == pytest.approx(0.72)
@@ -454,7 +473,9 @@ class TestG3SensitivityCapture:
         """G3: non-dict value in node_outputs doesn't crash audit()."""
         engine = CausalEngine()
         bundle = engine.audit(
-            self._ir(), None, run_id="r5",
+            self._ir(),
+            None,
+            run_id="r5",
             node_outputs={"broken": "not-a-dict"},  # type: ignore[arg-type]
         )
         assert isinstance(bundle, EvidenceBundle)
@@ -464,19 +485,20 @@ class TestG3SensitivityCapture:
 # G4: Query validation gate
 # ---------------------------------------------------------------------------
 
+
 class TestG4ValidationGate:
-    _VALIDATOR_PATH = (
-        "polisyos.foundry.methods.catalog.causal.query_validator.CausalQueryValidator"
-    )
+    _VALIDATOR_PATH = "polisyos.foundry.methods.catalog.causal.query_validator.CausalQueryValidator"
 
     def test_error_report_returns_negative_cert_before_compile(self):
         """G4: Validator ERROR → (None, bundle, NegativeCertificate) without compile."""
         engine = CausalEngine()
         identified = _minimal_ir()
 
-        with patch.object(engine, "identify", return_value=identified), \
-             patch(self._VALIDATOR_PATH) as MockVal, \
-             patch.object(engine, "compile") as mock_compile:
+        with (
+            patch.object(engine, "identify", return_value=identified),
+            patch(self._VALIDATOR_PATH) as MockVal,
+            patch.object(engine, "compile") as mock_compile,
+        ):
             MockVal.return_value.validate.return_value = _error_val_report()
             report, bundle, cert = engine.run("X", "Y", MagicMock())
 
@@ -492,9 +514,11 @@ class TestG4ValidationGate:
         engine = CausalEngine()
         identified = _minimal_ir()
 
-        with patch.object(engine, "identify", return_value=identified), \
-             patch(self._VALIDATOR_PATH) as MockVal, \
-             patch.object(engine, "compile", side_effect=ValueError("compile fail")):
+        with (
+            patch.object(engine, "identify", return_value=identified),
+            patch(self._VALIDATOR_PATH) as MockVal,
+            patch.object(engine, "compile", side_effect=ValueError("compile fail")),
+        ):
             MockVal.return_value.validate.return_value = _warning_val_report()
             report, bundle, cert = engine.run("X", "Y", MagicMock())
 
@@ -507,9 +531,11 @@ class TestG4ValidationGate:
         engine = CausalEngine()
         identified = _minimal_ir()
 
-        with patch.object(engine, "identify", return_value=identified), \
-             patch(self._VALIDATOR_PATH) as MockVal, \
-             patch.object(engine, "compile", side_effect=ValueError("compile fail")):
+        with (
+            patch.object(engine, "identify", return_value=identified),
+            patch(self._VALIDATOR_PATH) as MockVal,
+            patch.object(engine, "compile", side_effect=ValueError("compile fail")),
+        ):
             MockVal.return_value.validate.return_value = _clean_val_report()
             _, _, cert = engine.run("X", "Y", MagicMock())
 
@@ -520,6 +546,7 @@ class TestG4ValidationGate:
 # ---------------------------------------------------------------------------
 # G5: Conditional execution (skip_if_failed)
 # ---------------------------------------------------------------------------
+
 
 class TestG5ConditionalExecution:
     def test_nuisance_failure_does_not_break_loop(self):
@@ -533,10 +560,12 @@ class TestG5ConditionalExecution:
             ),
             nuisance_schedule=(nuisance_id,),
         )
-        registry = _make_registry({
-            "causal.nuisance.prop": RuntimeError("nuisance failed"),
-            "causal.estimator.aipw": {"report": mock_report},
-        })
+        registry = _make_registry(
+            {
+                "causal.nuisance.prop": RuntimeError("nuisance failed"),
+                "causal.estimator.aipw": {"report": mock_report},
+            }
+        )
         engine = CausalEngine(registry=registry)
         last_report, node_outputs = engine.estimate(graph, {})
 
@@ -559,16 +588,18 @@ class TestG5ConditionalExecution:
             ),
             nuisance_schedule=(nuisance_id,),
         )
-        registry = _make_registry({
-            "causal.nuisance.prop": RuntimeError("nuisance failed"),
-            "causal.estimator.aipw": {"report": MagicMock()},
-            "causal.estimator.tmle": {"report": mock_report},
-        })
+        registry = _make_registry(
+            {
+                "causal.nuisance.prop": RuntimeError("nuisance failed"),
+                "causal.estimator.aipw": {"report": MagicMock()},
+                "causal.estimator.tmle": {"report": mock_report},
+            }
+        )
         engine = CausalEngine(registry=registry)
         last_report, node_outputs = engine.estimate(graph, {})
 
-        assert dependent_id not in node_outputs   # skipped via skip_if_failed
-        assert independent_id in node_outputs     # ran normally
+        assert dependent_id not in node_outputs  # skipped via skip_if_failed
+        assert independent_id in node_outputs  # ran normally
 
     def test_main_estimator_failure_breaks_and_does_not_execute_subsequent(self):
         """G5: Main estimator failure → loop breaks; subsequent node not executed.
@@ -584,10 +615,12 @@ class TestG5ConditionalExecution:
                 _make_node(node_id=subsequent_id, fqn="causal.estimator.dr"),
             ),
         )
-        registry = _make_registry({
-            "causal.estimator.aipw": RuntimeError("exploded"),
-            "causal.estimator.dr": {"report": MagicMock()},
-        })
+        registry = _make_registry(
+            {
+                "causal.estimator.aipw": RuntimeError("exploded"),
+                "causal.estimator.dr": {"report": MagicMock()},
+            }
+        )
         engine = CausalEngine(registry=registry)
         _, node_outputs = engine.estimate(graph, {})
 
@@ -601,6 +634,7 @@ class TestG5ConditionalExecution:
 # G6: ProofStep enrichment + SuggestedExperiment fix
 # ---------------------------------------------------------------------------
 
+
 class TestG6AuditEnrichment:
     def test_proof_step_rule_formal_name_populated(self):
         """G6: IRProofStep.rule_formal_name == IDProofStep.rule_name."""
@@ -610,9 +644,7 @@ class TestG6AuditEnrichment:
         id_step.consequent_vars = ["Y"]
         id_step.depth = 2
 
-        bundle = CausalEngine().audit(
-            _minimal_ir(proof_steps=[id_step]), None, run_id="r1"
-        )
+        bundle = CausalEngine().audit(_minimal_ir(proof_steps=[id_step]), None, run_id="r1")
 
         assert len(bundle.proof_steps) == 1
         step = bundle.proof_steps[0]
@@ -629,9 +661,7 @@ class TestG6AuditEnrichment:
         id_step.consequent_vars = []
         id_step.depth = None
 
-        bundle = CausalEngine().audit(
-            _minimal_ir(proof_steps=[id_step]), None, run_id="r2"
-        )
+        bundle = CausalEngine().audit(_minimal_ir(proof_steps=[id_step]), None, run_id="r2")
         assert bundle.proof_steps[0].applicable_theorem == ""
 
     def test_hedge_cert_wraps_string_into_suggested_experiment(self):

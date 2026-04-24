@@ -35,7 +35,8 @@ van der Laan, M.J., Polley, E.C. & Hubbard, A.E. (2007).
 from __future__ import annotations
 
 import dataclasses
-from typing import Any, ClassVar, Literal, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any, ClassVar, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -53,7 +54,6 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers — base learners (pure-numpy where possible)
@@ -96,10 +96,12 @@ def _ridge_cv_fit(X: np.ndarray, Y: np.ndarray) -> np.ndarray:
         mse_list = []
         for start in range(0, n, fold_size):
             val_idx = np.arange(start, min(start + fold_size, n))
-            tr_idx = np.concatenate([
-                np.arange(0, start),
-                np.arange(min(start + fold_size, n), n),
-            ])
+            tr_idx = np.concatenate(
+                [
+                    np.arange(0, start),
+                    np.arange(min(start + fold_size, n), n),
+                ]
+            )
             if len(tr_idx) < 5:
                 continue
             beta = _ridge_fit(X[tr_idx], Y[tr_idx], alpha=alpha)
@@ -115,6 +117,7 @@ def _try_lasso(X: np.ndarray, Y: np.ndarray) -> Any:
     """Try sklearn Lasso with LassoCV; fall back to ridge."""
     try:
         from sklearn.linear_model import LassoCV  # type: ignore[import]
+
         model = LassoCV(cv=3, max_iter=5000, random_state=0)
         model.fit(X, Y)
         return ("sklearn", model)
@@ -127,11 +130,13 @@ def _try_rf(X: np.ndarray, Y: np.ndarray, binary: bool = False) -> Any:
     try:
         if binary:
             from sklearn.ensemble import RandomForestClassifier  # type: ignore[import]
+
             model = RandomForestClassifier(
                 n_estimators=100, min_samples_leaf=5, random_state=0, n_jobs=1
             )
         else:
             from sklearn.ensemble import RandomForestRegressor  # type: ignore[import]
+
             model = RandomForestRegressor(
                 n_estimators=100, min_samples_leaf=5, random_state=0, n_jobs=1
             )
@@ -146,23 +151,19 @@ def _try_gbm(X: np.ndarray, Y: np.ndarray, binary: bool = False) -> Any:
     try:
         if binary:
             from sklearn.ensemble import GradientBoostingClassifier  # type: ignore[import]
-            model = GradientBoostingClassifier(
-                n_estimators=100, max_depth=3, random_state=0
-            )
+
+            model = GradientBoostingClassifier(n_estimators=100, max_depth=3, random_state=0)
         else:
             from sklearn.ensemble import GradientBoostingRegressor  # type: ignore[import]
-            model = GradientBoostingRegressor(
-                n_estimators=100, max_depth=3, random_state=0
-            )
+
+            model = GradientBoostingRegressor(n_estimators=100, max_depth=3, random_state=0)
         model.fit(X, Y)
         return ("sklearn", model)
     except Exception:
         return _try_rf(X, Y, binary=binary)
 
 
-def _fit_learner(
-    name: str, X: np.ndarray, Y: np.ndarray, binary: bool
-) -> Any:
+def _fit_learner(name: str, X: np.ndarray, Y: np.ndarray, binary: bool) -> Any:
     """Fit a single named learner; return a (kind, model_or_beta) pair."""
     if name == "ols":
         return ("numpy_beta", _ols_fit(X, Y))
@@ -320,10 +321,9 @@ class FittedSuperLearner:
         X_new = np.asarray(X_new, dtype=float)
         if self.feature_indices is not None and self.feature_indices.size > 0:
             X_new = X_new[:, self.feature_indices]
-        preds = np.column_stack([
-            _predict_learner(l, X_new, binary=self.binary)
-            for l in self.fitted_learners
-        ])  # (n_new, K)
+        preds = np.column_stack(
+            [_predict_learner(l, X_new, binary=self.binary) for l in self.fitted_learners]
+        )  # (n_new, K)
         return preds @ self.weights
 
 
@@ -346,7 +346,7 @@ class SuperLearnerConfig(BaseModel):
     seed: int = 42
 
     @model_validator(mode="after")
-    def _validate_config(self) -> "SuperLearnerConfig":
+    def _validate_config(self) -> SuperLearnerConfig:
         if not self.candidates:
             raise ValueError("candidates cannot be empty")
         return self
@@ -513,7 +513,11 @@ class SuperLearnerNuisance:
         learner_names = list(library)
         K = len(learner_names)
 
-        feature_indices = _screen_features(X, Y, top_k=screen_top_k) if screen else np.arange(X.shape[1], dtype=int)
+        feature_indices = (
+            _screen_features(X, Y, top_k=screen_top_k)
+            if screen
+            else np.arange(X.shape[1], dtype=int)
+        )
         X_work = X[:, feature_indices] if feature_indices.size > 0 else X
 
         # ---------- V-fold cross-validation ----------
@@ -568,9 +572,7 @@ class SuperLearnerNuisance:
             )
 
         # ---------- Refit on full data ----------
-        fitted_learners = [
-            _fit_learner(name, X_work, Y, binary=binary) for name in learner_names
-        ]
+        fitted_learners = [_fit_learner(name, X_work, Y, binary=binary) for name in learner_names]
 
         meta = "nnls_logit" if binary else "nnls"
         if method == "discrete":
@@ -614,35 +616,62 @@ class SuperLearnerNuisanceModel:
         name="super_learner",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset([
-            SlotSpec(name="covariates", slot_type=SlotType.MATRIX,
-                     description="(n, p) covariate matrix", unit=Unit("dimensionless", ""),
-                     shape=("n", "p")),
-            SlotSpec(name="outcome", slot_type=SlotType.VECTOR,
-                     description="(n,) outcome vector", unit=Unit("dimensionless", ""),
-                     shape=("n",)),
-        ]),
-        output_slots=frozenset([
-            SlotSpec(name="predictions", slot_type=SlotType.SCALAR,
-                     description="(n,) ensemble predictions on training data",
-                     unit=Unit("dimensionless", "")),
-            SlotSpec(name="cv_risk", slot_type=SlotType.SCALAR,
-                     description="Cross-validated risk per base learner",
-                     unit=Unit("dimensionless", "")),
-            SlotSpec(name="weights", slot_type=SlotType.SCALAR,
-                     description="(K,) convex-combination weights",
-                     unit=Unit("dimensionless", "")),
-        ]),
+        input_slots=frozenset(
+            [
+                SlotSpec(
+                    name="covariates",
+                    slot_type=SlotType.MATRIX,
+                    description="(n, p) covariate matrix",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n", "p"),
+                ),
+                SlotSpec(
+                    name="outcome",
+                    slot_type=SlotType.VECTOR,
+                    description="(n,) outcome vector",
+                    unit=Unit("dimensionless", ""),
+                    shape=("n",),
+                ),
+            ]
+        ),
+        output_slots=frozenset(
+            [
+                SlotSpec(
+                    name="predictions",
+                    slot_type=SlotType.SCALAR,
+                    description="(n,) ensemble predictions on training data",
+                    unit=Unit("dimensionless", ""),
+                ),
+                SlotSpec(
+                    name="cv_risk",
+                    slot_type=SlotType.SCALAR,
+                    description="Cross-validated risk per base learner",
+                    unit=Unit("dimensionless", ""),
+                ),
+                SlotSpec(
+                    name="weights",
+                    slot_type=SlotType.SCALAR,
+                    description="(K,) convex-combination weights",
+                    unit=Unit("dimensionless", ""),
+                ),
+            ]
+        ),
         parameters=(
-            ParameterSpec(name="library", default=["ols", "ridge", "lasso"],
-                          description="List of base learner names"),
-            ParameterSpec(name="v_folds", default=5,
-                          description="Number of cross-validation folds",
-                          bounds=(2, 20)),
-            ParameterSpec(name="outcome_type", default="continuous",
-                          description="'continuous' or 'binary'"),
-            ParameterSpec(name="seed", default=42,
-                          description="Random seed for fold assignment"),
+            ParameterSpec(
+                name="library",
+                default=["ols", "ridge", "lasso"],
+                description="List of base learner names",
+            ),
+            ParameterSpec(
+                name="v_folds",
+                default=5,
+                description="Number of cross-validation folds",
+                bounds=(2, 20),
+            ),
+            ParameterSpec(
+                name="outcome_type", default="continuous", description="'continuous' or 'binary'"
+            ),
+            ParameterSpec(name="seed", default=42, description="Random seed for fold assignment"),
             ParameterSpec(name="method", default="nnls"),
             ParameterSpec(name="screen", default=True),
             ParameterSpec(name="screen_top_k", default=20),
@@ -668,10 +697,7 @@ class SuperLearnerNuisanceModel:
             "Super Learner. Statistical Applications in Genetics and Molecular Biology.",
         ),
         equations={
-            "super_learner": (
-                "w* = argmin_{w≥0, ||w||₁=1} "
-                "1/V ∑_v ||Z_v w − Y_v||²"
-            ),
+            "super_learner": ("w* = argmin_{w≥0, ||w||₁=1} 1/V ∑_v ||Z_v w − Y_v||²"),
         },
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -684,9 +710,7 @@ class SuperLearnerNuisanceModel:
             "training data per fold. Use OLS or Ridge instead."
         ),
         prerequisites=(),
-        diagnostic_checks=(
-            "Inspect cv_risk to confirm ensemble outperforms worst learner.",
-        ),
+        diagnostic_checks=("Inspect cv_risk to confirm ensemble outperforms worst learner.",),
         typical_min_obs=100,
         output_interpretation=(
             "predictions are in-sample ensemble predictions. "
@@ -709,7 +733,8 @@ class SuperLearnerNuisanceModel:
         nested_cv = bool(params.get("nested_cv", False))
 
         fitted = SuperLearnerNuisance.fit(
-            X, Y,
+            X,
+            Y,
             library=library,
             v_folds=v_folds,
             outcome_type=outcome_type,

@@ -13,7 +13,7 @@ export function resolveAtlasLogoMarkAsset({
   size = 32,
 }: AtlasBrandAssetOptions = {}) {
   if (size <= 16) {
-    return "/atlas/favicon.svg";
+    return inverted ? "/atlas/logo-mark-inverse.svg" : "/atlas/logo-mark.svg";
   }
   return inverted ? "/atlas/logo-mark-inverse.svg" : "/atlas/logo-mark.svg";
 }

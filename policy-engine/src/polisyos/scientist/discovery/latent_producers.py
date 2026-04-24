@@ -6,11 +6,12 @@ from collections.abc import Mapping
 from typing import Any
 
 from polisyos.ir.analytics.causal_discovery import (
+    LATENT_CARDINALITY_EVIDENCE_KEY,
+    LATENT_CARDINALITY_FAILURE_REASONS_KEY,
     AlgebraicConstraintFamily,
     AlgebraicConstraintReport,
     CausalDiscoveryReport,
     LatentAssumptionCard,
-    LatentBlockEvidence,
     LatentBlockProposal,
     LatentBlockStatus,
     LatentCardinalityEvidencePayload,
@@ -20,18 +21,15 @@ from polisyos.ir.analytics.causal_discovery import (
     LatentGraphStatus,
     LatentIdentifiabilityStatus,
     LatentTrustLevel,
-    LATENT_CARDINALITY_EVIDENCE_KEY,
-    LATENT_CARDINALITY_FAILURE_REASONS_KEY,
 )
 from polisyos.ir.analytics.causal_graph import CausalGraphModel
 from polisyos.scientist.latent_separation import (
+    SEPARATION_DIAGNOSTIC_INPUTS_KEY,
     LatentSeparationDiagnosticInputs,
     LatentSeparationEnvironmentInput,
     LatentSeparationMeasurementInput,
     LatentSeparationProxyInput,
-    SEPARATION_DIAGNOSTIC_INPUTS_KEY,
     certify_latent_separation_trust,
-    compute_latent_separation_diagnostics_from_inputs,
     latent_separation_assumption_surfaces,
     latent_separation_falsification_surfaces,
     metadata_with_computed_latent_separation,
@@ -181,7 +179,10 @@ def _normalize_cardinality_block(
         missing.append("neighbors")
     if evidence.rank is None or evidence.rank < block.block_size:
         missing.append("rank")
-    if requested_role in {LatentCausalRole.CONFOUNDER, LatentCausalRole.MEDIATOR} and not role_supported:
+    if (
+        requested_role in {LatentCausalRole.CONFOUNDER, LatentCausalRole.MEDIATOR}
+        and not role_supported
+    ):
         missing.append("role_rule_supported")
     if requested_role is LatentCausalRole.MODERATOR:
         if model_class != "ME-LiNGLaH-S-Int":
@@ -196,12 +197,17 @@ def _normalize_cardinality_block(
         normalized_candidate_role = LatentCausalRole.MODERATOR
     graph_status = (
         LatentGraphStatus.IDENTIFIED
-        if role_supported and requested_role in {LatentCausalRole.CONFOUNDER, LatentCausalRole.MEDIATOR}
+        if role_supported
+        and requested_role in {LatentCausalRole.CONFOUNDER, LatentCausalRole.MEDIATOR}
         else block.graph_status
     )
     if graph_status is LatentGraphStatus.UNKNOWN and block.anchor_variables:
         graph_status = LatentGraphStatus.PARTIAL
-    status = LatentBlockStatus.IDENTIFIED if not missing and requested_role is not None else LatentBlockStatus.PARTIAL
+    status = (
+        LatentBlockStatus.IDENTIFIED
+        if not missing and requested_role is not None
+        else LatentBlockStatus.PARTIAL
+    )
     if requested_role is None:
         status = LatentBlockStatus.PARTIAL
     reason = None
@@ -218,9 +224,7 @@ def _normalize_cardinality_block(
             "reason_not_identified": reason,
         }
     )
-    return normalized_block, [
-        f"{block.latent_id}:{value}" for value in sorted(set(missing))
-    ]
+    return normalized_block, [f"{block.latent_id}:{value}" for value in sorted(set(missing))]
 
 
 def _latent_identifiability_status(
@@ -338,7 +342,9 @@ def _resolve_separation_inputs(
             or {}
         )
     )
-    candidate_latent_nodes = list(existing_inputs.candidate_latent_nodes if existing_inputs is not None else [])
+    candidate_latent_nodes = list(
+        existing_inputs.candidate_latent_nodes if existing_inputs is not None else []
+    )
     if bundle is not None and bundle.proposed_latent_nodes:
         candidate_latent_nodes = list(bundle.proposed_latent_nodes)
     if not candidate_latent_nodes:
@@ -378,9 +384,11 @@ def _resolve_separation_inputs(
         candidate_latent_nodes=_dedupe_strings(candidate_latent_nodes),
         data=dict(existing_inputs.data if existing_inputs is not None else {}),
         design=design,
-        measurement_block=measurement or (existing_inputs.measurement_block if existing_inputs is not None else None),
+        measurement_block=measurement
+        or (existing_inputs.measurement_block if existing_inputs is not None else None),
         proxy_block=proxy or (existing_inputs.proxy_block if existing_inputs is not None else None),
-        environment_block=environment or (existing_inputs.environment_block if existing_inputs is not None else None),
+        environment_block=environment
+        or (existing_inputs.environment_block if existing_inputs is not None else None),
         replication=(
             dict(existing_inputs.replication)
             if existing_inputs is not None and existing_inputs.replication is not None
@@ -395,7 +403,9 @@ def _apply_separation_inputs(
     bundle: LatentDiscoveryBundle | None,
     inputs: LatentSeparationDiagnosticInputs,
 ) -> LatentDiscoveryBundle | None:
-    if bundle is None and (not inputs.candidate_latent_nodes or not _separation_environments(inputs)):
+    if bundle is None and (
+        not inputs.candidate_latent_nodes or not _separation_environments(inputs)
+    ):
         return None
 
     metadata = dict(bundle.metadata if bundle is not None else {})
@@ -444,7 +454,10 @@ def _apply_separation_inputs(
             [
                 *(list(bundle.no_promotion_reasons) if bundle is not None else []),
                 "latent_discovery_proof_only",
-                *[f"latent_separation_prerequisite_missing:{value}" for value in inputs.prerequisites_missing],
+                *[
+                    f"latent_separation_prerequisite_missing:{value}"
+                    for value in inputs.prerequisites_missing
+                ],
             ]
         ),
         not_for_decision_support=True if bundle is None else bool(bundle.not_for_decision_support),
@@ -479,7 +492,9 @@ def _measurement_input_from_report(
     invariance_test = report_metadata.get("measurement_invariance_test")
     return LatentSeparationMeasurementInput(
         status="passed" if violated == 0 and invariance_test else None,
-        tetrad_test="single_signal_tetrad_passed" if violated == 0 else "single_signal_tetrad_failed",
+        tetrad_test="single_signal_tetrad_passed"
+        if violated == 0
+        else "single_signal_tetrad_failed",
         invariance_test=(
             str(invariance_test)
             if str(invariance_test or "").strip()
@@ -521,7 +536,9 @@ def _proxy_input_from_report(
     severity = None
     fallback = None
     if isinstance(bridge_report, Mapping):
-        severity = bridge_report.get("severity") or bridge_report.get("bridge_plausibility_severity")
+        severity = bridge_report.get("severity") or bridge_report.get(
+            "bridge_plausibility_severity"
+        )
         fallback = bridge_report.get("fallback_disposition") or bridge_report.get(
             "bridge_fallback_disposition"
         )
@@ -577,12 +594,14 @@ def _proxy_input_from_report(
         ),
         collision_rate=(
             float(fidelity_payload.get("collision_rate"))
-            if isinstance(fidelity_payload, Mapping) and fidelity_payload.get("collision_rate") is not None
+            if isinstance(fidelity_payload, Mapping)
+            and fidelity_payload.get("collision_rate") is not None
             else None
         ),
         effect_drift_z=(
             float(fidelity_payload.get("effect_drift_z"))
-            if isinstance(fidelity_payload, Mapping) and fidelity_payload.get("effect_drift_z") is not None
+            if isinstance(fidelity_payload, Mapping)
+            and fidelity_payload.get("effect_drift_z") is not None
             else None
         ),
         effective_sample_size=(
@@ -598,7 +617,11 @@ def _proxy_input_from_report(
             else None
         ),
         representation_failure_modes=(
-            [str(value) for value in list(fidelity_payload.get("failure_modes", []) or []) if str(value).strip()]
+            [
+                str(value)
+                for value in list(fidelity_payload.get("failure_modes", []) or [])
+                if str(value).strip()
+            ]
             if isinstance(fidelity_payload, Mapping)
             else []
         ),
@@ -648,9 +671,7 @@ def _environment_input_from_report(
             else "unresolved"
         ),
         environments=[
-            str(value)
-            for value in list(regime.get("environments", []) or [])
-            if str(value).strip()
+            str(value) for value in list(regime.get("environments", []) or []) if str(value).strip()
         ],
         n_env=int(regime.get("n_environments", 0) or 0) or None,
         shift_type_label=str(regime.get("shift_type_label") or "") or None,
@@ -689,7 +710,10 @@ def _bridge_test_from_report_metadata(
     fallback_token = _normalize_token(fallback)
     if not severity_token and not fallback_token:
         return None
-    if severity_token in {"green", "yellow"} and fallback_token not in {"require_bounds", "block_point_estimate"}:
+    if severity_token in {"green", "yellow"} and fallback_token not in {
+        "require_bounds",
+        "block_point_estimate",
+    }:
         return "proximal_bridge_solved"
     if severity_token in {"red", "critical"}:
         return "proximal_bridge_failed"
@@ -724,11 +748,13 @@ def _apply_graph_role_rules(
     if not anchor_variables:
         return False, False
     confounder = any(
-        _is_ancestor(graph, anchor, treatment_variable) and _is_ancestor(graph, anchor, outcome_variable)
+        _is_ancestor(graph, anchor, treatment_variable)
+        and _is_ancestor(graph, anchor, outcome_variable)
         for anchor in anchor_variables
     )
     mediator = any(
-        _is_ancestor(graph, treatment_variable, anchor) and _is_ancestor(graph, anchor, outcome_variable)
+        _is_ancestor(graph, treatment_variable, anchor)
+        and _is_ancestor(graph, anchor, outcome_variable)
         for anchor in anchor_variables
     )
     return confounder, mediator
@@ -802,7 +828,9 @@ def _merge_latent_bundles(
                 list(existing.assumption_cards),
                 list(generated.assumption_cards),
             ),
-            "human_gate_required": bool(existing.human_gate_required or generated.human_gate_required),
+            "human_gate_required": bool(
+                existing.human_gate_required or generated.human_gate_required
+            ),
             "promotion_allowed": bool(existing.promotion_allowed),
             "no_promotion_reasons": _dedupe_strings(
                 [*existing.no_promotion_reasons, *generated.no_promotion_reasons]

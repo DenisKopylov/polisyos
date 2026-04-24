@@ -1,4 +1,5 @@
 """Compliance queries, export, and retention for runtime audit trails."""
+
 from __future__ import annotations
 
 import csv
@@ -189,8 +190,10 @@ def apply_runtime_audit_retention(
         raise ValueError("retention_days must be >= 1")
     current = time.time() if now is None else now
     cutoff = current - (retention_days * 24 * 60 * 60)
-    archive_root = Path(archive_dir) if archive_dir is not None else (
-        Path(cas_root) / "runtime" / "audit" / "archive"
+    archive_root = (
+        Path(archive_dir)
+        if archive_dir is not None
+        else (Path(cas_root) / "runtime" / "audit" / "archive")
     )
     scanned = kept = archived = 0
     archive_paths: list[Path] = []
@@ -200,8 +203,7 @@ def apply_runtime_audit_retention(
         if not path.exists():
             continue
         entries = [
-            payload
-            for _stream, payload in iter_runtime_audit_entries(cas_root, stream=stream_name)
+            payload for _stream, payload in iter_runtime_audit_entries(cas_root, stream=stream_name)
         ]
         expired = [entry for entry in entries if float(entry.get("timestamp", current)) < cutoff]
         fresh = [entry for entry in entries if float(entry.get("timestamp", current)) >= cutoff]
@@ -210,9 +212,8 @@ def apply_runtime_audit_retention(
         archived += len(expired)
         if not expired:
             continue
-        archive_path = archive_root / (
-            f"{stream_name}-{datetime.fromtimestamp(current, UTC).strftime('%Y%m%dT%H%M%SZ')}.jsonl.gz"
-        )
+        timestamp = datetime.fromtimestamp(current, UTC).strftime("%Y%m%dT%H%M%SZ")
+        archive_path = archive_root / f"{stream_name}-{timestamp}.jsonl.gz"
         archive_paths.append(archive_path)
         if dry_run:
             continue

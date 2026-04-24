@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -17,7 +18,6 @@ from polisyos.ir.analytics.dynamic_regime import (
 )
 
 from .evaluator import PredictionEvaluator
-
 
 _REJECTION_ALLOWED_REASON_CODES = {
     "invalid_intervention_contract_ref",
@@ -52,6 +52,7 @@ _RESEARCH_GATED_PATH_REPRESENTATIONS = {
 @dataclass(frozen=True)
 class TemporalThresholds:
     """Temporal thresholds public type."""
+
     max_path_rmse: float | None = None
     max_path_mae: float | None = None
     max_endpoint_abs_error: float | None = None
@@ -62,6 +63,7 @@ class TemporalThresholds:
 @dataclass(frozen=True)
 class TemporalEvaluationResult:
     """Evaluation readout comparing a predicted temporal path to expected effects and gating checks."""
+
     scenario: BacktestScenario
     pointwise_metrics: dict[str, float]
     functional_metrics: dict[str, float]
@@ -185,15 +187,11 @@ def evaluate_temporal_trajectory(
             )
         ),
         "diagnostics_handled": bool(diagnostics_checks["complete"])
-        or (
-            expected_outcome == "diagnostic_failure"
-            and actual_outcome == "diagnostic_failure"
-        ),
+        or (expected_outcome == "diagnostic_failure" and actual_outcome == "diagnostic_failure"),
         "runtime_eligible": bool(
             trajectory.effect_bundle.runtime_eligible
             if trajectory.effect_bundle is not None
-            else trajectory.path_representation
-            not in _RESEARCH_GATED_PATH_REPRESENTATIONS
+            else trajectory.path_representation not in _RESEARCH_GATED_PATH_REPRESENTATIONS
         ),
         "runtime_support_status": (
             trajectory.effect_bundle.runtime_support_status.value
@@ -327,11 +325,21 @@ def summarize_temporal_evaluations(
 
     n_total = len(evaluations)
     n_passed = sum(1 for item in evaluations if item.matches_expected_outcome)
-    safe_rejection_cases = [item for item in evaluations if item.expected_outcome == "safe_rejection"]
+    safe_rejection_cases = [
+        item for item in evaluations if item.expected_outcome == "safe_rejection"
+    ]
     fallback_cases = [item for item in evaluations if item.gating_checks.get("fallback_required")]
 
-    path_rmse_values = [item.pointwise_metrics["path_rmse"] for item in evaluations if "path_rmse" in item.pointwise_metrics]
-    path_mae_values = [item.pointwise_metrics["path_mae"] for item in evaluations if "path_mae" in item.pointwise_metrics]
+    path_rmse_values = [
+        item.pointwise_metrics["path_rmse"]
+        for item in evaluations
+        if "path_rmse" in item.pointwise_metrics
+    ]
+    path_mae_values = [
+        item.pointwise_metrics["path_mae"]
+        for item in evaluations
+        if "path_mae" in item.pointwise_metrics
+    ]
     endpoint_values = [
         item.pointwise_metrics["endpoint_abs_error"]
         for item in evaluations
@@ -433,9 +441,7 @@ def _coerce_path(values: Sequence[float], *, expected_length: int) -> np.ndarray
     if array.ndim != 1:
         raise ValueError("expected a one-dimensional temporal path")
     if array.shape[0] != expected_length:
-        raise ValueError(
-            f"expected temporal path length {expected_length}, got {array.shape[0]}"
-        )
+        raise ValueError(f"expected temporal path length {expected_length}, got {array.shape[0]}")
     if not np.isfinite(array).all():
         raise ValueError("temporal paths must contain finite values")
     return array
@@ -518,7 +524,9 @@ def _evaluate_diagnostics(trajectory: TemporalTrajectoryResult) -> dict[str, Any
         "fallback_mode_present": bool(fallback_mode),
         "discretization_disclosed": bool(has_discretization_error or explicit_note),
         "causal_translation_certificate_present": certificate_present,
-        "causal_translation_status": None if certificate_status is None else certificate_status.value,
+        "causal_translation_status": None
+        if certificate_status is None
+        else certificate_status.value,
         "causal_translation_certified": bool(
             certificate_status
             in {

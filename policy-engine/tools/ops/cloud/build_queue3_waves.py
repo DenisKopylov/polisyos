@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any, TextIO
 
 import zstandard as zstd
+
 from tools._lib.imports import repo_root_from
 
 WORKSPACE_ROOT = repo_root_from(__file__)
@@ -63,8 +64,7 @@ WAVE_SPECS = {
         "priority_rank": 1,
         "description": "State core: VRU, codes, President non-sanctions, NBU.",
         "rule_summary": (
-            "All VRU acts, exact codes, President acts except sanctions, "
-            "all NBU acts."
+            "All VRU acts, exact codes, President acts except sanctions, all NBU acts."
         ),
     },
     "queue3_wave2_exec_priority_current": {
@@ -277,7 +277,9 @@ def _assign_wave_shards(
     shard_chars = [0 for _ in range(shard_count)]
     assignments: dict[str, int] = {}
 
-    for candidate in sorted(candidates, key=lambda item: (-item.weight, -item.text_length, item.doc_id)):
+    for candidate in sorted(
+        candidates, key=lambda item: (-item.weight, -item.text_length, item.doc_id)
+    ):
         shard_index = min(
             range(shard_count),
             key=lambda idx: (shard_weight[idx], shard_chars[idx], len(shard_payloads[idx]), idx),
@@ -379,7 +381,9 @@ def main(argv: list[str] | None = None) -> int:
             publisher_label=_publisher_label(payload),
             year=_year_of(payload),
             appendix_risk=_appendix_risk(payload),
-            sanctions_risk=_contains_any(_normalize_text(payload.get("name")).lower(), SANCTION_SIGNALS),
+            sanctions_risk=_contains_any(
+                _normalize_text(payload.get("name")).lower(), SANCTION_SIGNALS
+            ),
         )
 
     total_source_docs = len(candidates)
@@ -396,9 +400,13 @@ def main(argv: list[str] | None = None) -> int:
         wave_candidates = grouped.get(wave_name, [])
         if not wave_candidates:
             continue
-        wave_assignments, summary = _assign_wave_shards(wave_candidates, shard_count=args.wave_shards)
+        wave_assignments, summary = _assign_wave_shards(
+            wave_candidates, shard_count=args.wave_shards
+        )
         wave_summaries[wave_name] = summary
-        assignments.update({doc_id: (wave_name, shard_index) for doc_id, shard_index in wave_assignments.items()})
+        assignments.update(
+            {doc_id: (wave_name, shard_index) for doc_id, shard_index in wave_assignments.items()}
+        )
 
     writers: dict[tuple[str, int], contextlib.AbstractContextManager[TextIO]] = {}
     handles: dict[tuple[str, int], TextIO] = {}
@@ -473,7 +481,14 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.gcs_output_root:
         subprocess.run(
-            ["gcloud", "storage", "rsync", "-r", str(output_root), args.gcs_output_root.rstrip("/")],
+            [
+                "gcloud",
+                "storage",
+                "rsync",
+                "-r",
+                str(output_root),
+                args.gcs_output_root.rstrip("/"),
+            ],
             check=True,
         )
 

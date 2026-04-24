@@ -1,7 +1,8 @@
 """Public policy verified models module API."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -23,6 +24,7 @@ from polisyos.lex.knowledge.types import LegalFactResult, LegalProvisionResult, 
 
 class PolicyRequestFrame(BaseModel):
     """Policy request frame public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -40,6 +42,7 @@ class PolicyRequestFrame(BaseModel):
 
 class LegalCandidatePack(BaseModel):
     """Legal candidate pack public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -56,6 +59,7 @@ class LegalCandidatePack(BaseModel):
 
 class LegalSourcePack(BaseModel):
     """Legal source pack public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -68,6 +72,7 @@ class LegalSourcePack(BaseModel):
 
 class VerifiedLegalClaim(BaseModel):
     """Verified legal claim public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     claim_id: str
@@ -88,6 +93,7 @@ class VerifiedLegalClaim(BaseModel):
 
 class SourceCoverageGap(BaseModel):
     """Source coverage gap public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     gap_id: str
@@ -101,6 +107,7 @@ class SourceCoverageGap(BaseModel):
 
 class SourceVerificationReport(BaseModel):
     """Audit report capturing verified claims, unresolved evidence gaps, and escalation status."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -119,6 +126,7 @@ class SourceVerificationReport(BaseModel):
 
 class PolicyEvidenceLink(BaseModel):
     """Policy evidence link public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     option_id: str
@@ -128,6 +136,7 @@ class PolicyEvidenceLink(BaseModel):
 
 class PolicyOption(BaseModel):
     """Policy option public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     option_id: str
@@ -145,6 +154,7 @@ class PolicyOption(BaseModel):
 
 class PolicyOptionSet(BaseModel):
     """Policy option set public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -156,11 +166,12 @@ class PolicyOptionSet(BaseModel):
 
 class VerifiedPolicyReport(BaseModel):
     """Delivery-ready policy report combining verified legal basis, options, implications, and gaps."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     request_id: str
-    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     executive_summary: str
     verified_legal_basis: list[VerifiedLegalClaim] = Field(default_factory=list)
     policy_options: list[PolicyOption] = Field(default_factory=list)
@@ -190,7 +201,9 @@ def _persist_model(
         PutOptions(
             kind=kind,
             media_type="application/json",
-            schema=SchemaInfo(name=schema_name, version=str(getattr(model, "schema_version", "1.0"))),
+            schema=SchemaInfo(
+                name=schema_name, version=str(getattr(model, "schema_version", "1.0"))
+            ),
             inputs=inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -216,7 +229,9 @@ def persist_policy_request_frame(
     )
 
 
-def load_policy_request_frame(store: FileSystemCAS, ref: PolicyRequestFrameRef) -> PolicyRequestFrame:
+def load_policy_request_frame(
+    store: FileSystemCAS, ref: PolicyRequestFrameRef
+) -> PolicyRequestFrame:
     """Load policy request frame."""
     return PolicyRequestFrame.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
 
@@ -239,7 +254,9 @@ def persist_legal_candidate_pack(
     )
 
 
-def load_legal_candidate_pack(store: FileSystemCAS, ref: LegalCandidatePackRef) -> LegalCandidatePack:
+def load_legal_candidate_pack(
+    store: FileSystemCAS, ref: LegalCandidatePackRef
+) -> LegalCandidatePack:
     """Load legal candidate pack."""
     return LegalCandidatePack.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
 
@@ -290,7 +307,9 @@ def load_source_verification_report(
     ref: SourceVerificationReportRef,
 ) -> SourceVerificationReport:
     """Load source verification report."""
-    return SourceVerificationReport.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
+    return SourceVerificationReport.model_validate(
+        from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    )
 
 
 def persist_policy_option_set(
@@ -339,30 +358,32 @@ def load_verified_policy_report(
     ref: VerifiedPolicyReportRef,
 ) -> VerifiedPolicyReport:
     """Load verified policy report."""
-    return VerifiedPolicyReport.model_validate(from_canonical_bytes(store.get_bytes(ref.artifact_id)))
+    return VerifiedPolicyReport.model_validate(
+        from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    )
 
 
 __all__ = [
-    "PolicyRequestFrame",
     "LegalCandidatePack",
     "LegalSourcePack",
-    "VerifiedLegalClaim",
-    "SourceCoverageGap",
-    "SourceVerificationReport",
     "PolicyEvidenceLink",
     "PolicyOption",
     "PolicyOptionSet",
+    "PolicyRequestFrame",
+    "SourceCoverageGap",
+    "SourceVerificationReport",
+    "VerifiedLegalClaim",
     "VerifiedPolicyReport",
-    "persist_policy_request_frame",
-    "load_policy_request_frame",
-    "persist_legal_candidate_pack",
     "load_legal_candidate_pack",
-    "persist_legal_source_pack",
     "load_legal_source_pack",
-    "persist_source_verification_report",
-    "load_source_verification_report",
-    "persist_policy_option_set",
     "load_policy_option_set",
-    "persist_verified_policy_report",
+    "load_policy_request_frame",
+    "load_source_verification_report",
     "load_verified_policy_report",
+    "persist_legal_candidate_pack",
+    "persist_legal_source_pack",
+    "persist_policy_option_set",
+    "persist_policy_request_frame",
+    "persist_source_verification_report",
+    "persist_verified_policy_report",
 ]

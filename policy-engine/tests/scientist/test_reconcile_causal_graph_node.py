@@ -5,6 +5,9 @@ import logging
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
+    load_composition_failure_card_bundle,
+)
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentVerificationConfig,
     load_alignment_report,
@@ -27,18 +30,16 @@ from polisyos.ir.analytics.cross_graph import (
     persist_interface_mapping,
     persist_scm_fragment,
 )
-from polisyos.ir.analytics.negative_certificate import (
-    BlockingType,
-    load_negative_certificate,
-)
-from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
-    load_composition_failure_card_bundle,
-)
 from polisyos.ir.analytics.literature import (
     LiteratureCausalPrior,
     LiteratureEdgePrior,
     persist_literature_causal_prior,
 )
+from polisyos.ir.analytics.negative_certificate import (
+    BlockingType,
+    load_negative_certificate,
+)
+from polisyos.ir.refs import NegativeCertificateRef
 from polisyos.scientist.engine.context import ExecutionContext
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (
@@ -46,13 +47,12 @@ from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ALIGNMENT_REPORT_REF,
-    ARTIFACT_LITERATURE_PRIOR_REF,
     ARTIFACT_COMPOSITION_CERTIFICATE_REF,
     ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF,
     ARTIFACT_INTERFACE_MAPPING_REF,
+    ARTIFACT_LITERATURE_PRIOR_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
-from polisyos.ir.refs import NegativeCertificateRef
 
 
 def _build_ctx(tmp_path):
@@ -277,7 +277,9 @@ def test_reconcile_causal_graph_node_reuses_precomputed_alignment_artifacts(tmp_
     assert loaded_report.review_status.value == "clear"
 
 
-def test_reconcile_causal_graph_node_updates_query_preservation_cache_without_recomposing(tmp_path) -> None:
+def test_reconcile_causal_graph_node_updates_query_preservation_cache_without_recomposing(
+    tmp_path,
+) -> None:
     ctx = _build_ctx(tmp_path)
     graph_a = CausalGraphModel(
         graph_type=GraphType.DAG,
@@ -303,7 +305,7 @@ def test_reconcile_causal_graph_node_updates_query_preservation_cache_without_re
                 sources=[EdgeSource.DATA],
                 data_confidence=0.8,
                 combined_confidence=0.8,
-            )
+            ),
         ],
     )
     graph_b = CausalGraphModel(
@@ -390,7 +392,9 @@ def test_reconcile_causal_graph_node_updates_query_preservation_cache_without_re
     assert set(diagnostics["query_preservation_reasons"].values()) == {"evaluated"}
 
 
-def test_reconcile_causal_graph_node_persists_latent_projection_certificate_artifacts(tmp_path) -> None:
+def test_reconcile_causal_graph_node_persists_latent_projection_certificate_artifacts(
+    tmp_path,
+) -> None:
     ctx = _build_ctx(tmp_path)
     graph_a = CausalGraphModel(
         graph_type=GraphType.DAG,
@@ -473,7 +477,9 @@ def test_reconcile_causal_graph_node_persists_latent_projection_certificate_arti
                 str(fragment_b_ref.artifact_id),
             ],
             "alignment_verification_config": AlignmentVerificationConfig(
-                explicit_latent_bridges={"a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"},
+                explicit_latent_bridges={
+                    "a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"
+                },
                 human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
             ).model_dump(mode="json"),
             "query_preservation_queries": [
@@ -506,7 +512,9 @@ def test_reconcile_causal_graph_node_persists_latent_projection_certificate_arti
     assert trace_payload["latent_projection_ref"] == record.latent_projection_ref
 
 
-def test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_hedge(tmp_path) -> None:
+def test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_hedge(
+    tmp_path,
+) -> None:
     ctx = _build_ctx(tmp_path)
     graph_a = CausalGraphModel(
         graph_type=GraphType.DAG,
@@ -582,7 +590,9 @@ def test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_he
                 str(fragment_b_ref.artifact_id),
             ],
             "alignment_verification_config": AlignmentVerificationConfig(
-                explicit_latent_bridges={"a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"},
+                explicit_latent_bridges={
+                    "a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"
+                },
                 human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
             ).model_dump(mode="json"),
             "query_preservation_queries": [
@@ -617,7 +627,9 @@ def test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_he
     assert trace_payload["negative_certificate_ref"] == record.negative_certificate_ref
 
 
-def test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_composition(tmp_path) -> None:
+def test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_composition(
+    tmp_path,
+) -> None:
     ctx = _build_ctx(tmp_path)
     labor_graph_ref = persist_causal_graph_model(
         ctx.store,

@@ -8,17 +8,18 @@ Covers:
 - Numerical edge cases (near-zero propensity, constant outcome)
 """
 
+import os
+import sys
+
 import numpy as np
 import pytest
-import sys
-import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../../../src"))
 
 from polisyos.foundry.methods.catalog.causal.eif_bounds import (
-    EIFScores,
     EfficiencyBound,
     EfficiencyReport,
+    EIFScores,
     SemiparametricEfficiencyBoundMethod,
     compare_estimator_efficiency,
     compute_efficiency_bound,
@@ -27,8 +28,8 @@ from polisyos.foundry.methods.catalog.causal.eif_bounds import (
     compute_eif_frontdoor,
     compute_eif_late,
     compute_eif_subgroup_mean,
-    compute_second_order_eif,
     compute_eif_transport,
+    compute_second_order_eif,
 )
 
 
@@ -36,11 +37,11 @@ def _dgp(n: int = 500, seed: int = 42):
     """Generate data from a known linear DGP: ATE = 1.0."""
     rng = np.random.default_rng(seed)
     X = rng.standard_normal((n, 3))
-    e_true = 1 / (1 + np.exp(-X[:, 0]))          # true propensity
+    e_true = 1 / (1 + np.exp(-X[:, 0]))  # true propensity
     T = rng.binomial(1, e_true).astype(float)
     Y = 1.0 * T + X[:, 0] * 0.5 + rng.standard_normal(n) * 0.3
-    mu1 = X[:, 0] * 0.5 + 1.0   # approximate E[Y|T=1,X]
-    mu0 = X[:, 0] * 0.5          # approximate E[Y|T=0,X]
+    mu1 = X[:, 0] * 0.5 + 1.0  # approximate E[Y|T=1,X]
+    mu0 = X[:, 0] * 0.5  # approximate E[Y|T=0,X]
     return Y, T, e_true, mu1, mu0
 
 
@@ -132,7 +133,7 @@ class TestEIFSubgroupMean:
 class TestEIFLATE:
     def _dgp_iv(self, n=1000, seed=0):
         rng = np.random.default_rng(seed)
-        Z = rng.binomial(1, 0.5, n).astype(float)   # instrument
+        Z = rng.binomial(1, 0.5, n).astype(float)  # instrument
         T = (Z * 0.7 + rng.random(n) * 0.3 > 0.5).astype(float)  # ~70% compliance
         Y = 1.5 * T + rng.standard_normal(n) * 0.3
         e_z = np.full(n, 0.5)
@@ -161,7 +162,7 @@ class TestEIFFrontdoor:
         M = 0.8 * T + rng.standard_normal(n) * 0.2
         Y = 1.0 * M + rng.standard_normal(n) * 0.2
         p_m_t1 = np.exp(-0.5 * (M - 0.8) ** 2)
-        p_m_t0 = np.exp(-0.5 * M ** 2)
+        p_m_t0 = np.exp(-0.5 * M**2)
         # Normalise to proper densities
         p_m_t1 /= np.mean(p_m_t1) + 1e-9
         p_m_t0 /= np.mean(p_m_t0) + 1e-9
@@ -216,6 +217,7 @@ class TestEfficiencyBound:
     def test_relative_efficiency_one_for_oracle_estimator(self):
         """Estimator SE matching bound SE → relative efficiency ≈ 1.0."""
         import math
+
         Y, T, e, mu1, mu0 = _dgp(n=1000)
         eif = compute_eif_ate(Y, T, e, mu1, mu0)
         # The bound uses E[ψ²]/n (second moment), so the oracle SE must match
@@ -227,6 +229,7 @@ class TestEfficiencyBound:
 
     def test_relative_efficiency_greater_for_inefficient_estimator(self):
         import math
+
         Y, T, e, mu1, mu0 = _dgp(n=1000)
         eif = compute_eif_ate(Y, T, e, mu1, mu0)
         # An inefficient estimator has larger SE than the semiparametric bound
@@ -349,18 +352,14 @@ class TestFoundryMethod:
 
     def test_pure_step_returns_bound_and_scores(self):
         state = self._make_state()
-        result = SemiparametricEfficiencyBoundMethod.pure_step(
-            state, {"estimand_type": "ate"}
-        )
+        result = SemiparametricEfficiencyBoundMethod.pure_step(state, {"estimand_type": "ate"})
         assert "efficiency_bound" in result
         assert "eif_scores" in result
         assert len(result["eif_scores"]) == 300
 
     def test_pure_step_att(self):
         state = self._make_state()
-        result = SemiparametricEfficiencyBoundMethod.pure_step(
-            state, {"estimand_type": "att"}
-        )
+        result = SemiparametricEfficiencyBoundMethod.pure_step(state, {"estimand_type": "att"})
         assert result["efficiency_bound"]["estimand_type"] == "att"
 
     def test_pure_step_subgroup_mean(self):
@@ -396,9 +395,7 @@ class TestFoundryMethod:
 
     def test_pure_step_finite_output(self):
         state = self._make_state()
-        result = SemiparametricEfficiencyBoundMethod.pure_step(
-            state, {"estimand_type": "ate"}
-        )
+        result = SemiparametricEfficiencyBoundMethod.pure_step(state, {"estimand_type": "ate"})
         scores = np.array(result["eif_scores"])
         assert np.all(np.isfinite(scores))
         bound = result["efficiency_bound"]

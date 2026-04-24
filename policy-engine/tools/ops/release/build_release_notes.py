@@ -9,7 +9,6 @@ from collections import defaultdict
 from datetime import date
 from pathlib import Path
 
-
 CATEGORY_ORDER = ["added", "changed", "deprecated", "removed", "fixed", "security"]
 SECTION_TITLES = {
     "added": "Added",
@@ -38,7 +37,7 @@ def load_fragments(fragments_dir: Path) -> list[dict[str, str]]:
 
 
 def curated_section_counts(fragments: list[dict[str, str]]) -> dict[str, int]:
-    counts = {key: 0 for key in CURATED_SECTIONS}
+    counts = dict.fromkeys(CURATED_SECTIONS, 0)
     for fragment in fragments:
         for key in CURATED_SECTIONS:
             value = str(fragment.get(key, "")).strip()
@@ -63,8 +62,7 @@ def validate_required_curated_sections(
     if missing:
         missing_labels = ", ".join(CURATED_SECTIONS[section] for section in missing)
         raise ValueError(
-            "Release notes are missing required curated section content for: "
-            f"{missing_labels}"
+            f"Release notes are missing required curated section content for: {missing_labels}"
         )
     return counts
 
@@ -120,7 +118,9 @@ def render_release_notes(version: str, fragments: list[dict[str, str]], release_
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build release notes from structured fragments")
     parser.add_argument("--version", required=True, help="Release version without the leading v")
-    parser.add_argument("--fragments-dir", required=True, help="Directory containing TOML fragments")
+    parser.add_argument(
+        "--fragments-dir", required=True, help="Directory containing TOML fragments"
+    )
     parser.add_argument("--output", required=True, help="Output markdown path")
     parser.add_argument("--metadata-output", help="Optional JSON metadata output path")
     parser.add_argument("--date", default=date.today().isoformat(), help="Release date")

@@ -11,7 +11,6 @@ This module provides specialized system prompts for each agent role:
 from __future__ import annotations
 
 import json
-from typing import Optional
 
 from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot
 from polisyos.foundry.methods.selection import authoring_catalog_payload
@@ -459,7 +458,7 @@ def get_pi_prompt() -> str:
     return PI_SYSTEM_PROMPT
 
 
-def get_drafter_prompt(hints: Optional[list[str]] = None) -> str:
+def get_drafter_prompt(hints: list[str] | None = None) -> str:
     """System prompt for Drafter agent with optional revision hints."""
     hints_text = "\n".join(f"- {hint}" for hint in hints) if hints else "None"
     return DRAFTER_SYSTEM_PROMPT.replace("{hints}", hints_text)

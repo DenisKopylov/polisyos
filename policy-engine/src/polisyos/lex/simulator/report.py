@@ -1,4 +1,5 @@
 """Compliance and KPI impact contracts emitted by NormPack what-if analysis."""
+
 from __future__ import annotations
 
 from enum import Enum

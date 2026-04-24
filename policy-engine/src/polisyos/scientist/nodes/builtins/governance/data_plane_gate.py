@@ -1,4 +1,5 @@
 """Public governance data plane gate module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -80,6 +81,7 @@ _SPEC = NodeSpec(
 @dataclass(frozen=True)
 class DataPlaneGateNode:
     """Data plane gate node implementation."""
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -95,7 +97,9 @@ class DataPlaneGateNode:
             return NodeOutcome(status="fail", state=state, error=error)
 
         try:
-            snapshot_payload = from_canonical_bytes(ctx.store.get_bytes(data_snapshot_ref.artifact_id))
+            snapshot_payload = from_canonical_bytes(
+                ctx.store.get_bytes(data_snapshot_ref.artifact_id)
+            )
             snapshot = DataSnapshot.model_validate(snapshot_payload)
         except _DATA_PLANE_GATE_LOAD_ERRORS as exc:
             error = NodeError(
@@ -173,8 +177,7 @@ class DataPlaneGateNode:
                 NodeEvent(
                     level="warn",
                     message=(
-                        "Data-plane gate produced "
-                        f"{len(issues)} issue(s), blockers={blocker_count}"
+                        f"Data-plane gate produced {len(issues)} issue(s), blockers={blocker_count}"
                     ),
                 )
             )

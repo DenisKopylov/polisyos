@@ -15,9 +15,11 @@
 ## Исполнение по этапам
 
 1. `D0` Kickoff
+
 - Зафиксированы документы: `p0_baseline_freeze.md`, `p0_dod.md`, `freeze_policy.md`.
 
-2. `D1` Baseline snapshot
+1. `D1` Baseline snapshot
+
 - Сняты и сохранены артефакты:
   - `import_gate.txt`
   - `test_collect.txt`
@@ -25,7 +27,8 @@
   - `summary.json`
   - `baseline_2026-02-10.md`
 
-3. `D2` Freeze в CI (dry-run)
+1. `D2` Freeze в CI (dry-run)
+
 - Добавлен workflow `/.github/workflows/arch-freeze.yml`.
 - Добавлен скрипт сравнения baseline: `tools/lint/compare_baseline.py`.
 - Dry-run статус публикуется и показывает дельты.
@@ -34,20 +37,23 @@
   - `delta_import_violations > 0`
   - `delta_test_collect_errors > 0`
 
-4. `D3` Freeze в blocking-режиме
+1. `D3` Freeze в blocking-режиме
+
 - PR блокируется при росте:
   - `package_cycles_count`
   - `import_violations_count`
   - `test_collect_errors_count`
 - PR блокируется при нарушении правил исключений (owner/expires/expiry horizon/expired).
 
-5. `D4` Debt register и приоритизация
+1. `D4` Debt register и приоритизация
+
 - Подготовлены регистры:
   - `import_debt_register.csv`
   - `arch_cycles_register.csv`
   - `p1_refactor_queue.md`
 
-6. `D5` Sign-off
+1. `D5` Sign-off
+
 - Подготовлен документ `p0_signoff_2026-02-13.md` с Go/No-Go протоколом.
 
 ## Артефакты автоматизации

@@ -1,4 +1,5 @@
 """Public security audit sink module API."""
+
 from __future__ import annotations
 
 import importlib
@@ -120,11 +121,7 @@ class HotTierBackend:
 
             chunks: list[str] = []
             for item in self._buffer:
-                action = {
-                    "index": {
-                        "_index": f"{self._index_prefix}-{item.timestamp[:10]}"
-                    }
-                }
+                action = {"index": {"_index": f"{self._index_prefix}-{item.timestamp[:10]}"}}
                 chunks.append(json.dumps(action, sort_keys=True))
                 chunks.append(item.model_dump_json(exclude_none=True))
 
@@ -185,7 +182,9 @@ class ColdTierBackend:
             client = _load_boto3_s3_client(region_name=self._region)
             segment = (self._segment_hour or "unknown").replace(":", "")
             key = f"{self._prefix}/{segment}/audit-{int(time.time() * 1000)}.jsonl"
-            body = "\n".join(item.model_dump_json(exclude_none=True) for item in self._buffer) + "\n"
+            body = (
+                "\n".join(item.model_dump_json(exclude_none=True) for item in self._buffer) + "\n"
+            )
 
             retain_until = datetime(
                 datetime.now(UTC).year + 7,
@@ -404,7 +403,6 @@ class ChainedAuditSink:
         self._closed = True
         self._queue.put(None)
         self._writer_thread.join(timeout=10)
-
 
 
 def build_default_audit_backends_from_env() -> list[AuditStorageBackend]:

@@ -86,7 +86,8 @@ export function resolveGlyphForTerm(term: string): GlyphName | null {
 
 export function isGlyphName(value: unknown): value is GlyphName {
   return (
-    typeof value === "string" && (GLYPH_NAMES as readonly string[]).includes(value)
+    typeof value === "string" &&
+    (GLYPH_NAMES as readonly string[]).includes(value)
   );
 }
 

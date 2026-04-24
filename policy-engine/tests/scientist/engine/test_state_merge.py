@@ -1,4 +1,5 @@
 """Tests for polisyos.scientist.engine.state_merge — parallel outcome merging."""
+
 from __future__ import annotations
 
 import pytest
@@ -24,6 +25,7 @@ def _ok_outcome(state: ExperimentState, **updates) -> NodeOutcome:
 # ---------------------------------------------------------------------------
 # merge_parallel_outcomes
 # ---------------------------------------------------------------------------
+
 
 class TestMergeParallelOutcomes:
     def test_empty_outcomes(self, base_state):

@@ -36,12 +36,12 @@ Human-readable reference map:
 
 Fabric-specific source-of-truth surfaces:
 
-| Artifact | Source of truth | Check |
-|---|---|---|
-| `schemas/snapshots/fabric/{edge_kind,node_kind}.schema.json` | `schemas/abi_models.py` and Fabric/world ABI models | `uv run --extra ml polisyos-tools diagnostics gen-schema --check` |
-| `schemas/snapshots/fabric/connector_contract_registry.json` | `tools/quality/validation/fabric_schema_governance.py` and `ALL_SOURCE_CONTRACTS` | `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json` |
-| `schemas/snapshots/connectors/contracts.json` | `tools/connectors/check_contracts.py` and `ALL_SOURCE_CONTRACTS` | `uv run python tools/connectors/check_contracts.py --check` |
-| `tests/fabric/connectors/sources/fixtures/` | recorded upstream connector responses | manual fixture refresh and source-specific replay tests |
+| Artifact                                                     | Source of truth                                                                   | Check                                                                                                              |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `schemas/snapshots/fabric/{edge_kind,node_kind}.schema.json` | `schemas/abi_models.py` and Fabric/world ABI models                               | `uv run --extra ml polisyos-tools diagnostics gen-schema --check`                                                  |
+| `schemas/snapshots/fabric/connector_contract_registry.json`  | `tools/quality/validation/fabric_schema_governance.py` and `ALL_SOURCE_CONTRACTS` | `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out .tmp/fabric-schema-governance.json` |
+| `schemas/snapshots/connectors/contracts.json`                | `tools/connectors/check_contracts.py` and `ALL_SOURCE_CONTRACTS`                  | `uv run python tools/connectors/check_contracts.py --check`                                                        |
+| `tests/fabric/connectors/sources/fixtures/`                  | recorded upstream connector responses                                             | manual fixture refresh and source-specific replay tests                                                            |
 
 ## Базовый цикл
 
@@ -110,10 +110,13 @@ Quality and lineage examples should point at current executable artifacts:
 - `tests/fabric/test_quality_indicators.py` for `QualityIndicators`,
   `DataFitnessReport`, finite quality bounds, and DuckDB quality identifier
   safety.
+
 - `tests/fabric/test_lineage.py` for `FabricLineageTracker`,
   OpenLineage JSON, visualization graph export, and downstream impact analysis.
+
 - `tests/fabric/data_plane/test_quarantine.py` for CAS-backed
   `QuarantineRecord` report/reprocess artifacts.
+
 - `tests/fabric/data_plane/test_streaming_runtime.py` for
   `fabric.cdc_schema_change` artifacts emitted by streaming/CDC processing.
 

@@ -13,6 +13,7 @@ from polisyos.scientist.search.uncertainty import UncertaintyType
 
 class FailureSeverity(str, Enum):
     """Failure severity public type."""
+
     BLOCKER = "blocker"
     WARNING = "warning"
     INFO = "info"

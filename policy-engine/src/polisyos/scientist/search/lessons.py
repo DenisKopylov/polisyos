@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import os
 import re
+from collections.abc import Iterable
 from datetime import UTC, datetime, timedelta
 from enum import Enum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, Iterable
+from typing import Any
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -39,12 +40,14 @@ _WHITESPACE_RE = re.compile(r"\s+")
 
 class LessonKind(str, Enum):
     """Lesson kind public type."""
+
     FAILURE = "failure"
     SUCCESS = "success"
 
 
 class LessonTrustLevel(str, Enum):
     """Lesson trust level public type."""
+
     LOCAL = "local"
     TRANSFERRED = "transferred"
     LOW_CONFIDENCE = "low_confidence"
@@ -391,15 +394,13 @@ class LessonRegistry:
             existing.artifact_ref = card_ref
             existing.occurrence_count += 1
             existing.last_seen = max(existing.last_seen, now)
-            existing.last_accessed_at = (
-                max(
-                    [
-                        stamp
-                        for stamp in (existing.last_accessed_at, normalized_card.last_accessed_at)
-                        if stamp is not None
-                    ],
-                    default=existing.last_accessed_at,
-                )
+            existing.last_accessed_at = max(
+                [
+                    stamp
+                    for stamp in (existing.last_accessed_at, normalized_card.last_accessed_at)
+                    if stamp is not None
+                ],
+                default=existing.last_accessed_at,
             )
             existing.tags = sorted(set(existing.tags) | set(normalized_card.tags))
             existing.summary = normalized_card.summary or existing.summary
@@ -739,7 +740,9 @@ class LessonRegistry:
                 )
 
         results: list[LessonCard] = []
-        mutated_snapshots: dict[tuple[str, str, str], tuple[LessonIndexSnapshot, TransferContext]] = {}
+        mutated_snapshots: dict[
+            tuple[str, str, str], tuple[LessonIndexSnapshot, TransferContext]
+        ] = {}
         for _, entry, snapshot, namespace_context in sorted(candidates, key=lambda item: item[0]):
             card = self._materialize_query_card(entry, now=now)
             if query.source_run_id and card.source_run_id != query.source_run_id:
@@ -775,11 +778,7 @@ class LessonRegistry:
             snapshot_created_at=latest_created_at,
             task_family=task_families.pop() if len(task_families) == 1 else "aggregated",
             domain=domains.pop() if len(domains) == 1 else "aggregated_local",
-            entries=[
-                entry
-                for snapshot in snapshots
-                for entry in snapshot.entries
-            ],
+            entries=[entry for snapshot in snapshots for entry in snapshot.entries],
         )
 
     @staticmethod
@@ -799,8 +798,7 @@ class LessonRegistry:
         target_context: TransferContext,
     ) -> bool:
         return cls._should_aggregate_local_query(query) and (
-            target_context.tenant_hash is None
-            and target_context.domain.startswith("isolated::")
+            target_context.tenant_hash is None and target_context.domain.startswith("isolated::")
         )
 
     def _entry_matches(self, entry: LessonIndexEntry, query: LessonQuery) -> bool:
@@ -861,10 +859,14 @@ class LessonRegistry:
         )
         update: dict[str, Any] = {
             "task_family": (
-                active_context.task_family if target_context is not None else (card.task_family or active_context.task_family)
+                active_context.task_family
+                if target_context is not None
+                else (card.task_family or active_context.task_family)
             ),
             "domain": (
-                active_context.domain if target_context is not None else (card.domain or active_context.domain)
+                active_context.domain
+                if target_context is not None
+                else (card.domain or active_context.domain)
             ),
             "origin_run_id": card.origin_run_id or card.source_run_id,
             "origin_domain": (

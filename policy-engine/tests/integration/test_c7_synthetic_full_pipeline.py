@@ -8,14 +8,19 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
+from fixtures.c7_synthetic_data import (
+    build_c7_synthetic_fixture,
+    expected_compile_all_artifact_keys,
+    persist_c7_synthetic_snapshot,
+)
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
+from polisyos.core.contracts.lex import ComplianceIssue
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.core.registry import build_default_registry_bundle
-from polisyos.core.contracts.lex import ComplianceIssue
 from polisyos.foundry.agent_sim.wiring import (
     ContractsDistributionAwareExecutor,
     ContractsGraphAwareExecutor,
@@ -32,7 +37,12 @@ from polisyos.foundry.calibration.measurement import (
 )
 from polisyos.foundry.contracts.state import AgentSimRuntimeState, ProcurementGraphState
 from polisyos.foundry.data_plane.bindings import build_input_bindings
-from polisyos.foundry.executor import export_seed_state_npz, import_seed_state_npz, load_state_snapshot
+from polisyos.foundry.executor import (
+    export_seed_state_npz,
+    import_seed_state_npz,
+    load_state_snapshot,
+)
+from polisyos.ir.analytics.calibration import TargetLossConfig
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.interference import (
     ExposureMappingType,
@@ -49,7 +59,6 @@ from polisyos.ir.observation.bundles import (
     TransportabilityCheckBundle,
 )
 from polisyos.ir.observation.causal_execution import BoundsEstimationTask
-from polisyos.ir.analytics.calibration import TargetLossConfig
 from polisyos.ir.observation.compiler import CalibrationTargetBundleCompiler
 from polisyos.ir.observation.contract_compilers import ObservationContractCompilerSuite
 from polisyos.ir.observation.contracts import ObservationFamily
@@ -65,9 +74,17 @@ from polisyos.ir.refs import (
 )
 from polisyos.runtime.replay import measure_replayable_audit_bundle
 from polisyos.scientist.backtesting.plan import HistoricalValidationPlan, PredictionSource
-from polisyos.scientist.causal import BoundsEstimationRunner, ProxyIdentificationRunner, StrategicResponseRunner, TransportabilityChecker
+from polisyos.scientist.causal import (
+    BoundsEstimationRunner,
+    ProxyIdentificationRunner,
+    StrategicResponseRunner,
+    TransportabilityChecker,
+)
 from polisyos.scientist.compute import run_c7_advanced_suite
-from polisyos.scientist.discovery.utility_judge import DownstreamUtilityReport, HypothesisUtilityScore
+from polisyos.scientist.discovery.utility_judge import (
+    DownstreamUtilityReport,
+    HypothesisUtilityScore,
+)
 from polisyos.scientist.governance import (
     BacktestKind,
     CalibrationGovernanceInput,
@@ -76,14 +93,12 @@ from polisyos.scientist.governance import (
     CalibrationValidationRunnerInput,
 )
 from polisyos.scientist.governance.calibration import CalibrationAdversarialSuiteRegistry
-from polisyos.scientist.policy_design.output import ReplayableAuditBundle, persist_replayable_audit_bundle
-from polisyos.scientist.search.lessons import LessonQuery, LessonRegistry
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF
-from fixtures.c7_synthetic_data import (
-    build_c7_synthetic_fixture,
-    expected_compile_all_artifact_keys,
-    persist_c7_synthetic_snapshot,
+from polisyos.scientist.policy_design.output import (
+    ReplayableAuditBundle,
+    persist_replayable_audit_bundle,
 )
+from polisyos.scientist.search.lessons import LessonQuery, LessonRegistry
 
 pytestmark = [
     pytest.mark.integration,
@@ -416,12 +431,19 @@ def _run_pipeline(tmp_path: Path) -> dict[str, object]:
         agents=bound_state.agents.replace(
             active=np.asarray([True] * int(bound_state.agents.size)),
             is_employed=np.asarray([True] * int(bound_state.agents.size)),
-            employer_id=np.asarray([i % int(bound_state.firms.size) for i in range(int(bound_state.agents.size))], dtype=np.int32),
+            employer_id=np.asarray(
+                [i % int(bound_state.firms.size) for i in range(int(bound_state.agents.size))],
+                dtype=np.int32,
+            ),
         ),
         firms=bound_state.firms.replace(
             active=np.asarray([True] * int(bound_state.firms.size)),
-            cell_id=np.asarray([i % 50 for i in range(int(bound_state.firms.size))], dtype=np.int32),
-            cash=np.asarray([500.0 + i for i in range(int(bound_state.firms.size))], dtype=np.float32),
+            cell_id=np.asarray(
+                [i % 50 for i in range(int(bound_state.firms.size))], dtype=np.int32
+            ),
+            cash=np.asarray(
+                [500.0 + i for i in range(int(bound_state.firms.size))], dtype=np.float32
+            ),
             inventory=np.asarray([50.0] * int(bound_state.firms.size), dtype=np.float32),
             productivity=np.asarray([1.0] * int(bound_state.firms.size), dtype=np.float32),
             labor_count=np.asarray([10.0] * int(bound_state.firms.size), dtype=np.float32),
@@ -471,9 +493,7 @@ def _run_pipeline(tmp_path: Path) -> dict[str, object]:
         }
     )
     fake_passes = [
-        _PassingPass(pass_id)
-        for pass_id in pass_ids
-        if pass_id not in alias_registry.suite_aliases
+        _PassingPass(pass_id) for pass_id in pass_ids if pass_id not in alias_registry.suite_aliases
     ]
     lesson_registry = LessonRegistry(root=tmp_path / "registry" / "lessons", store=store)
     artifacts_index = {}
@@ -509,7 +529,9 @@ def _run_pipeline(tmp_path: Path) -> dict[str, object]:
             candidate_ref=candidate_ref,
             governance_report=governance_report,
             calibration_fit_score=0.91,
-            backtest_plan_bundles={kind: _build_backtest_bundle(tmp_path, kind) for kind in BacktestKind},
+            backtest_plan_bundles={
+                kind: _build_backtest_bundle(tmp_path, kind) for kind in BacktestKind
+            },
             specification_curve_input=compiled.artifacts["specification_curve_input"].contract,
             downstream_utility_report=_utility_report(),
             transportability_result=transport_result,
@@ -543,7 +565,9 @@ def _run_pipeline(tmp_path: Path) -> dict[str, object]:
                 **advanced.bundle_refs(),
                 "bound_state_snapshot_ref": bindings.bound_state_snapshot_ref,
             },
-            runtime_reports_index={"calibration_validation_bundle_ref": validation_result.bundle_ref},
+            runtime_reports_index={
+                "calibration_validation_bundle_ref": validation_result.bundle_ref
+            },
             artifact_refs={
                 "source_agent_panel_ref": source_refs["agent_panel"],
                 "source_firm_panel_ref": source_refs["firm_panel"],
@@ -610,7 +634,9 @@ def test_c7_full_pipeline_synthetic_e2e(tmp_path) -> None:
     assert validation_result.bundle.stress_scenarios is not None
     assert validation_result.bundle.leaderboard_entry is not None
     assert validation_result.bundle.lesson_card_ref is not None
-    hits = results["lesson_registry"].query(LessonQuery(source_run_id="c7_synthetic_full", limit=10))
+    hits = results["lesson_registry"].query(
+        LessonQuery(source_run_id="c7_synthetic_full", limit=10)
+    )
     assert hits
     assert replay_measurement.completeness.level.value == "complete"
 

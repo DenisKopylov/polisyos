@@ -1,6 +1,10 @@
 "use strict";
 
+const brandRoleSeparation = require("./rules/brand-role-separation.cjs");
+const noHardcodedStrings = require("./rules/no-hardcoded-strings.cjs");
 const noRawEmojiInJsx = require("./rules/no-raw-emoji-in-jsx.cjs");
+const requireAuthoredTextInProse = require("./rules/require-authored-text-in-prose.cjs");
+const requireNonBreakingSpaceForShortPrepositions = require("./rules/require-non-breaking-space-for-short-prepositions.cjs");
 
 module.exports = {
   meta: {
@@ -8,6 +12,11 @@ module.exports = {
     version: "0.1.0",
   },
   rules: {
+    "brand-role-separation": brandRoleSeparation,
+    "no-hardcoded-strings": noHardcodedStrings,
     "no-raw-emoji-in-jsx": noRawEmojiInJsx,
+    "require-authored-text-in-prose": requireAuthoredTextInProse,
+    "require-non-breaking-space-for-short-prepositions":
+      requireNonBreakingSpaceForShortPrepositions,
   },
 };

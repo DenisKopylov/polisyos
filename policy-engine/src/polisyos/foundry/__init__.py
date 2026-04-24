@@ -9,6 +9,7 @@ actually called.
 The stable public surface of this package is intentionally narrow:
 `compile`, `compile_program` (compatibility alias), and `execute`.
 """
+
 from __future__ import annotations
 
 import importlib

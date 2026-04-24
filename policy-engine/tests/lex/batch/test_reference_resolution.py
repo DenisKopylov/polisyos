@@ -101,7 +101,11 @@ def test_resolve_references_supports_number_date_and_self_reference(tmp_path) ->
     assert stats["rows_resolved"] == 2
 
     resolved_path = out_dir / "ab" / "srcdoc.jsonl"
-    rows = [json.loads(line) for line in resolved_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    rows = [
+        json.loads(line)
+        for line in resolved_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
     assert len(rows) == 2
 
     external = next(row for row in rows if row["type"] == "law_number")

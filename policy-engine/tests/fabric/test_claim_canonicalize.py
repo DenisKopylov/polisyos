@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 
 from polisyos.fabric.claims.backends.regex_numeric_v1 import extract
@@ -18,7 +18,7 @@ def _doc_meta() -> DocMeta:
         doc_source_id="doc_source",
         doc_version_id="doc_version",
         canonical_url="https://example.com/doc",
-        retrieved_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        retrieved_at=datetime(2024, 1, 1, tzinfo=UTC),
         mime="text/plain",
         license="cc-by",
         raw_ref="sha256:" + ("0" * 64),

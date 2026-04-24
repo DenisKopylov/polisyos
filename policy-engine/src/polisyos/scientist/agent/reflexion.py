@@ -12,9 +12,9 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.scientist import FailureCardRef
@@ -34,6 +34,7 @@ from polisyos.scientist.autotune.reflexion import (
     load_reflexion_routing_config,
     route_recoverable_failure,
 )
+from polisyos.scientist.engine.state import ExperimentState
 
 logger = get_logger(__name__)
 
@@ -77,13 +78,13 @@ class ReflexionOrchestrator:
 
     def __init__(
         self,
-        config: Optional[ReflexionConfig] = None,
+        config: ReflexionConfig | None = None,
         *,
         persistent_memory: PersistentMemoryStore | None = None,
         evaluator: RubricReflexionEvaluator | None = None,
     ):
         self.config = config or ReflexionConfig()
-        self._decision_log: List[Dict[str, Any]] = []
+        self._decision_log: list[dict[str, Any]] = []
         self._replay_recorder = ReflexionReplayRecorder()
         self._persistent_memory = persistent_memory
         self._evaluator = evaluator or RubricReflexionEvaluator()
@@ -98,9 +99,7 @@ class ReflexionOrchestrator:
         Evaluate a failure and decide the next action.
         """
         logger.info(
-            "Evaluating failure: {} (attempt {}/{})".format(
-                card.error_code, card.attempt_number, card.max_iterations
-            )
+            f"Evaluating failure: {card.error_code} (attempt {card.attempt_number}/{card.max_iterations})"
         )
 
         if card.severity == FailureSeverity.FATAL:
@@ -112,11 +111,7 @@ class ReflexionOrchestrator:
             return self._log_decision(card, ReflexionDecision.ESCALATE_TO_HUMAN, "needs_human")
 
         if not card.can_retry:
-            logger.warning(
-                "Retry budget exhausted ({}/{})".format(
-                    card.attempt_number, card.max_iterations
-                )
-            )
+            logger.warning(f"Retry budget exhausted ({card.attempt_number}/{card.max_iterations})")
             return self._log_decision(card, ReflexionDecision.ABORT_WITH_REPORT, "budget_exhausted")
 
         if self._llm_budget_exhausted(state):
@@ -145,7 +140,9 @@ class ReflexionOrchestrator:
         return self._log_decision(
             card,
             decision,
-            "conceptual_issue" if decision == ReflexionDecision.RETURN_TO_DRAFTER else "technical_issue",
+            "conceptual_issue"
+            if decision == ReflexionDecision.RETURN_TO_DRAFTER
+            else "technical_issue",
         )
 
     def _log_decision(
@@ -155,7 +152,7 @@ class ReflexionOrchestrator:
         reason: str,
     ) -> ReflexionDecision:
         entry = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "run_id": card.run_id,
             "card_id": str(card.card_id),
             "error_code": card.error_code,
@@ -171,7 +168,7 @@ class ReflexionOrchestrator:
         card: FailureCard,
         state: dict[str, Any],
         include_history: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         context = {
             "failure_context": card.to_prompt_context(include_history=include_history),
             "attempt_number": card.attempt_number + 1,
@@ -202,7 +199,7 @@ class ReflexionOrchestrator:
 
         return context
 
-    def _summarize_history(self, refs: List[Any]) -> str:
+    def _summarize_history(self, refs: list[Any]) -> str:
         if not refs:
             return "No previous failures."
 
@@ -222,15 +219,13 @@ class ReflexionOrchestrator:
             return
 
         delay = self.config.get_delay(attempt)
-        logger.debug(
-            "Applying backoff delay: {:.2f}s before attempt {}".format(delay, attempt + 1)
-        )
+        logger.debug(f"Applying backoff delay: {delay:.2f}s before attempt {attempt + 1}")
         await asyncio.sleep(delay)
 
     def should_suggest_escalation(self, card: FailureCard) -> bool:
         return card.attempt_number >= self.config.escalation_threshold
 
-    def get_decision_log(self) -> List[Dict[str, Any]]:
+    def get_decision_log(self) -> list[dict[str, Any]]:
         return self._decision_log.copy()
 
     def reset_decision_log(self) -> None:
@@ -270,10 +265,7 @@ class ReflexionOrchestrator:
             previous = self._evaluation_log[-2]
             score_delta = scorecard.overall_score - previous.overall_score
             evidence_delta = scorecard.evidence_count - previous.evidence_count
-            if (
-                score_delta < self.config.min_retry_improvement
-                and evidence_delta <= 0
-            ):
+            if score_delta < self.config.min_retry_improvement and evidence_delta <= 0:
                 return True, "score_plateau"
         return False, ""
 
@@ -284,7 +276,7 @@ class ReflexionOrchestrator:
         success: bool,
         *,
         unsafe_for_nonhuman: bool = False,
-        alternative_outcomes: Dict[str, bool] | None = None,
+        alternative_outcomes: dict[str, bool] | None = None,
         metadata: dict[str, Any] | None = None,
         evaluation: ReflexionScorecard | None = None,
         problem_statement: str | None = None,
@@ -325,19 +317,17 @@ class ReflexionOrchestrator:
                 scorecard=evaluation,
                 failure_summary=card.violation_summary,
                 remediation=card.remediation_advice,
-                tool_error_patterns=tool_error_patterns
-                or evaluation.tool_error_patterns,
+                tool_error_patterns=tool_error_patterns or evaluation.tool_error_patterns,
             ),
             trajectory_summary=summary,
             source_run_id=card.run_id,
             source_node_alias="reflexion",
             error_code=card.error_code,
-            tool_error_patterns=tool_error_patterns
-            or evaluation.tool_error_patterns,
+            tool_error_patterns=tool_error_patterns or evaluation.tool_error_patterns,
             confidence=max(0.1, min(1.0, evaluation.overall_score)),
         )
 
-    def get_replay_records(self) -> List[Dict[str, Any]]:
+    def get_replay_records(self) -> list[dict[str, Any]]:
         return self._replay_recorder.records()
 
     def get_evaluation_log(self) -> list[ReflexionScorecard]:
@@ -347,7 +337,7 @@ class ReflexionOrchestrator:
     def write_replay_dataset(self, **kwargs: Any):
         return self._replay_recorder.write_dataset(**kwargs)
 
-    def _llm_budget_exhausted(self, state: "ExperimentState") -> bool:
+    def _llm_budget_exhausted(self, state: ExperimentState) -> bool:
         budget = state.get("budget") or {}
         usage = state.get("budget_usage") or {}
 
@@ -400,9 +390,7 @@ class ReflexionOrchestrator:
         if self._persistent_memory is None:
             return []
         problem_statement = str(
-            state.get("user_request")
-            or state.get("problem_statement")
-            or card.violation_summary
+            state.get("user_request") or state.get("problem_statement") or card.violation_summary
         )
         tool_error_patterns = _tool_error_patterns_from_card(card)
         try:
@@ -429,16 +417,16 @@ class ReflexionOrchestrator:
 # === State Update Helpers ===
 
 
-def increment_retry_count(state: "ExperimentState") -> "ExperimentState":
+def increment_retry_count(state: ExperimentState) -> ExperimentState:
     """Increment retry count helper."""
     current = state.get("total_retry_count", 0)
     return {**state, "total_retry_count": current + 1}
 
 
 def add_failure_to_history(
-    state: "ExperimentState",
+    state: ExperimentState,
     card: FailureCard,
-) -> "ExperimentState":
+) -> ExperimentState:
     """Add failure to history helper."""
     history = list(state.get("failure_history", []))
     history.append(FailureCardRef.from_card(card).model_dump(mode="json"))
@@ -446,14 +434,14 @@ def add_failure_to_history(
 
 
 def set_current_failure_card(
-    state: "ExperimentState",
-    card: Optional[FailureCard],
-) -> "ExperimentState":
+    state: ExperimentState,
+    card: FailureCard | None,
+) -> ExperimentState:
     """Set current failure card helper."""
     return {**state, "current_failure_card": card.model_dump(mode="json") if card else None}
 
 
-def clear_reflexion_state(state: "ExperimentState") -> "ExperimentState":
+def clear_reflexion_state(state: ExperimentState) -> ExperimentState:
     """Clear reflexion state helper."""
     return {
         **state,

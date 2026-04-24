@@ -4,6 +4,9 @@ import numpy as np
 import pytest
 from scipy.stats import kstest
 
+from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
+from polisyos.foundry.uncertainty.quasi_mc import QuasiMCSampler
 from polisyos.ir.analytics.uncertainty import (
     CertificateKind,
     ComposedFlavour,
@@ -13,10 +16,6 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-
-from polisyos.foundry.uncertainty.config import PropagationConfig
-from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
-from polisyos.foundry.uncertainty.quasi_mc import QuasiMCSampler
 
 
 def _normal_env(point: float, std: float) -> UncertaintyEnvelope:
@@ -92,7 +91,10 @@ class TestQMCVarianceReduction:
         )
 
         qmc_results = MonteCarloPropagator(qmc_config).propagate(
-            sim, nominal, envelopes, ["y"],
+            sim,
+            nominal,
+            envelopes,
+            ["y"],
         )
         assert qmc_results[0].envelope.composition_provenance is not None
         assert (
@@ -122,7 +124,10 @@ class TestQMCVarianceReduction:
         )
 
         qmc_results = MonteCarloPropagator(qmc_config).propagate(
-            sim, nominal, envelopes, ["y"],
+            sim,
+            nominal,
+            envelopes,
+            ["y"],
         )
 
         env = qmc_results[0].envelope

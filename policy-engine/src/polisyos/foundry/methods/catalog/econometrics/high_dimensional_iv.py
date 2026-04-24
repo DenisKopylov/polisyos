@@ -1,8 +1,10 @@
 """High-dimensional IV inference with post-selection tiering and weak-IV fallback."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from statistics import NormalDist
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -14,9 +16,6 @@ from polisyos.foundry.methods.base import (
     MethodMetadata,
     MethodSignature,
     ParameterSpec,
-    SlotSpec,
-    SlotType,
-    Unit,
     foundry_method,
 )
 
@@ -79,14 +78,20 @@ def _fit_lasso_predict_support(
     y_mean = float(np.mean(y_train))
     y_centered = y_train - y_mean
     sigma_hat = max(float(np.std(y_centered)), 1e-6)
-    lam = float(lambda_factor) * sigma_hat * np.sqrt(2.0 * np.log(max(X_train.shape[1], 2)) / X_train.shape[0])
+    lam = (
+        float(lambda_factor)
+        * sigma_hat
+        * np.sqrt(2.0 * np.log(max(X_train.shape[1], 2)) / X_train.shape[0])
+    )
     coef = _lasso_cd(X_train_std, y_centered, lam, max_iter=max_iter)
     predictions = y_mean + X_eval_std @ coef
     support = set(np.flatnonzero(np.abs(coef) > 1e-8).tolist())
     return predictions, support
 
 
-def _iter_kfold_indices(n_obs: int, n_folds: int, *, seed: int) -> list[tuple[np.ndarray, np.ndarray]]:
+def _iter_kfold_indices(
+    n_obs: int, n_folds: int, *, seed: int
+) -> list[tuple[np.ndarray, np.ndarray]]:
     rng = np.random.default_rng(seed)
     shuffled = rng.permutation(n_obs)
     fold_slices = np.array_split(shuffled, n_folds)
@@ -144,7 +149,9 @@ def _robust_f_test(
         restriction[row, col] = 1.0
 
     test = fit.f_test(restriction)
-    return _safe_float(np.asarray(test.fvalue).squeeze()), _safe_float(np.asarray(test.pvalue).squeeze())
+    return _safe_float(np.asarray(test.fvalue).squeeze()), _safe_float(
+        np.asarray(test.pvalue).squeeze()
+    )
 
 
 def _conditional_weak_iv_stats(
@@ -161,7 +168,9 @@ def _conditional_weak_iv_stats(
     pvalues: list[float | None] = []
     for idx in range(endog.shape[1]):
         other_endog = np.delete(endog, idx, axis=1)
-        conditioning = controls if other_endog.size == 0 else np.column_stack([controls, other_endog])
+        conditioning = (
+            controls if other_endog.size == 0 else np.column_stack([controls, other_endog])
+        )
         stat, pvalue = _robust_f_test(endog[:, idx], conditioning, instruments)
         stats.append(stat)
         pvalues.append(pvalue)
@@ -184,7 +193,7 @@ def _extract_first_stage_weak_iv_diagnostics(
                 return diagnostics.loc[name]
             except Exception:
                 pass
-        if hasattr(diagnostics, "index") and len(getattr(diagnostics, "index")) == 1:
+        if hasattr(diagnostics, "index") and len(diagnostics.index) == 1:
             if hasattr(diagnostics, "iloc"):
                 return diagnostics.iloc[0]
         return None
@@ -194,9 +203,7 @@ def _extract_first_stage_weak_iv_diagnostics(
             return None
         for candidate in candidates:
             value = None
-            if hasattr(row, "get"):
-                value = row.get(candidate)
-            elif isinstance(row, Mapping):
+            if hasattr(row, "get") or isinstance(row, Mapping):
                 value = row.get(candidate)
             if value is None and hasattr(row, "__getitem__"):
                 try:
@@ -286,7 +293,9 @@ def _orthogonal_pliv_estimate(
         np.sqrt(y.shape[0]) * np.abs(score_mean),
         np.where(score_std > 1e-12, score_std, np.nan),
     )
-    orthogonality_score = float(np.nanmax(score_z)) if np.any(np.isfinite(score_z)) else float("inf")
+    orthogonality_score = (
+        float(np.nanmax(score_z)) if np.any(np.isfinite(score_z)) else float("inf")
+    )
 
     psi_centered = score_values - np.mean(score_values, axis=0, keepdims=True)
     omega_hat = (psi_centered.T @ psi_centered) / y.shape[0]
@@ -307,7 +316,14 @@ def _fit_selected_2sls(
     endogenous_names: list[str],
     control_names: list[str],
     instrument_names: list[str],
-) -> tuple[dict[str, float], dict[str, float], dict[str, float], dict[str, float], dict[str, tuple[float, float]], Any]:
+) -> tuple[
+    dict[str, float],
+    dict[str, float],
+    dict[str, float],
+    dict[str, float],
+    dict[str, tuple[float, float]],
+    Any,
+]:
     import pandas as pd
     from linearmodels.iv import IV2SLS
 
@@ -346,7 +362,9 @@ def _fit_selected_2sls(
 
     conf_int_obj = _call_conf_int(fit_result, confidence_level=confidence_level)
     intervals = (
-        _extract_confidence_intervals(conf_int_obj, param_names=[str(name) for name in fit_result.params.index])
+        _extract_confidence_intervals(
+            conf_int_obj, param_names=[str(name) for name in fit_result.params.index]
+        )
         if conf_int_obj is not None
         else {}
     )
@@ -354,7 +372,9 @@ def _fit_selected_2sls(
     return params, std_errors, t_stats, p_values, intervals, fit_result
 
 
-def _segments_from_mask(grid: np.ndarray, accepted_mask: np.ndarray) -> tuple[ConfidenceSetSegment, ...]:
+def _segments_from_mask(
+    grid: np.ndarray, accepted_mask: np.ndarray
+) -> tuple[ConfidenceSetSegment, ...]:
     if grid.size == 0 or not np.any(accepted_mask):
         return ()
 
@@ -412,9 +432,9 @@ def _anderson_rubin_interval(
     for _ in range(3):
         for idx, beta in enumerate(grid):
             y_beta = y - beta * d
-            fit = sm.OLS(y_beta, _design_with_constant(np.column_stack([controls, instruments]))).fit(
-                cov_type="HC1"
-            )
+            fit = sm.OLS(
+                y_beta, _design_with_constant(np.column_stack([controls, instruments]))
+            ).fit(cov_type="HC1")
             restriction = np.zeros((instruments.shape[1], fit.model.exog.shape[1]), dtype=float)
             start = 1 + controls.shape[1]
             for row, col in enumerate(range(start, start + instruments.shape[1])):
@@ -430,7 +450,9 @@ def _anderson_rubin_interval(
         if np.any(accepted_mask) and not boundary_hit:
             break
         half_width *= 2.0
-        grid = np.linspace(point_estimate - half_width, point_estimate + half_width, int(grid_points))
+        grid = np.linspace(
+            point_estimate - half_width, point_estimate + half_width, int(grid_points)
+        )
         accepted_mask = np.zeros(int(grid_points), dtype=bool)
 
     if not np.any(accepted_mask):
@@ -632,7 +654,9 @@ class HighDimensionalPostSelectionIVEstimator:
             count=controls.shape[1],
             prefix="x",
         )
-        instrument_names = _candidate_names(data.instrument_names, count=instruments.shape[1], prefix="z")
+        instrument_names = _candidate_names(
+            data.instrument_names, count=instruments.shape[1], prefix="z"
+        )
         primary_param = str(params.get("envelope_param") or endogenous_names[0])
         if primary_param not in endogenous_names:
             primary_param = endogenous_names[0]
@@ -726,10 +750,16 @@ class HighDimensionalPostSelectionIVEstimator:
         selected_instrument_matrix = _selected_columns(instruments, selected_instruments)
         insufficient_instruments = selected_instrument_matrix.shape[1] < n_endogenous
         if insufficient_instruments:
-            warnings_list.append("The selected instrument set is smaller than the number of endogenous regressors.")
+            warnings_list.append(
+                "The selected instrument set is smaller than the number of endogenous regressors."
+            )
 
-        complexity_ratio_controls = _complexity_ratio(len(selected_controls), controls.shape[1], train_size)
-        complexity_ratio_instruments = _complexity_ratio(len(selected_instruments), instruments.shape[1], train_size)
+        complexity_ratio_controls = _complexity_ratio(
+            len(selected_controls), controls.shape[1], train_size
+        )
+        complexity_ratio_instruments = _complexity_ratio(
+            len(selected_instruments), instruments.shape[1], train_size
+        )
         product_rate_proxy = complexity_ratio_controls * complexity_ratio_instruments
         support_stability_controls = _average_jaccard(control_supports)
         support_stability_instruments = _average_jaccard(instrument_supports)
@@ -755,12 +785,14 @@ class HighDimensionalPostSelectionIVEstimator:
             },
         )
 
-        theta_hat_vec, orth_se_vec, score_values, orthogonality_score, orth_condition_number = _orthogonal_pliv_estimate(
-            y=y,
-            endog=endog,
-            y_hat=y_hat,
-            d_hat_x=d_hat_x,
-            d_hat_xz=d_hat_xz,
+        theta_hat_vec, orth_se_vec, score_values, orthogonality_score, orth_condition_number = (
+            _orthogonal_pliv_estimate(
+                y=y,
+                endog=endog,
+                y_hat=y_hat,
+                d_hat_x=d_hat_x,
+                d_hat_xz=d_hat_xz,
+            )
         )
 
         rmse_y = float(np.sqrt(np.mean(rmse_y_terms))) if rmse_y_terms else 0.0
@@ -775,7 +807,9 @@ class HighDimensionalPostSelectionIVEstimator:
             and orthogonality_score <= orthogonality_score_max
         )
         orth_diag = OrthogonalityNuisanceDiagnostic(
-            score_type="partial_linear_iv_orthogonal" if inference_route == "orthogonal" else "post_selection_wald",
+            score_type="partial_linear_iv_orthogonal"
+            if inference_route == "orthogonal"
+            else "post_selection_wald",
             cross_fitted=bool(inference_route == "orthogonal"),
             n_folds=n_folds if inference_route == "orthogonal" else None,
             orthogonality_score=orthogonality_score if inference_route == "orthogonal" else None,
@@ -859,7 +893,9 @@ class HighDimensionalPostSelectionIVEstimator:
             and not many_instrument_flag
         )
         identification_diag = IdentificationDiagnostic(
-            weak_iv_test_family="montiel_olea_pflueger_proxy" if n_endogenous == 1 else "sanderson_windmeijer_proxy",
+            weak_iv_test_family="montiel_olea_pflueger_proxy"
+            if n_endogenous == 1
+            else "sanderson_windmeijer_proxy",
             weak_iv_stat=weak_iv_stat,
             critical_value=weak_iv_threshold,
             passed=identification_passed,
@@ -867,8 +903,13 @@ class HighDimensionalPostSelectionIVEstimator:
             multiple_endogenous_flag=bool(n_endogenous > 1),
             metadata={
                 "diagnostic_source": weak_iv_source,
-                "p_values": {name: pvalue for name, pvalue in zip(endogenous_names, weak_iv_pvalues, strict=False)},
-                "per_endogenous_stats": {name: stat for name, stat in zip(endogenous_names, weak_iv_stats, strict=False)},
+                "p_values": {
+                    name: pvalue
+                    for name, pvalue in zip(endogenous_names, weak_iv_pvalues, strict=False)
+                },
+                "per_endogenous_stats": {
+                    name: stat for name, stat in zip(endogenous_names, weak_iv_stats, strict=False)
+                },
                 "selected_instruments": selected_instrument_names,
                 "selected_controls": selected_control_names,
             },
@@ -906,12 +947,20 @@ class HighDimensionalPostSelectionIVEstimator:
         weak_interval_meta: dict[str, Any] = {}
         reference_point = None
         reference_se = None
-        if theta_hat_vec is not None and orth_se_vec is not None and primary_param in endogenous_names:
+        if (
+            theta_hat_vec is not None
+            and orth_se_vec is not None
+            and primary_param in endogenous_names
+        ):
             primary_idx = endogenous_names.index(primary_param)
             if np.isfinite(theta_hat_vec[primary_idx]) and np.isfinite(orth_se_vec[primary_idx]):
                 reference_point = float(theta_hat_vec[primary_idx])
                 reference_se = float(orth_se_vec[primary_idx])
-        if reference_point is None and primary_param in heuristic_params and primary_param in heuristic_std_errors:
+        if (
+            reference_point is None
+            and primary_param in heuristic_params
+            and primary_param in heuristic_std_errors
+        ):
             reference_point = float(heuristic_params[primary_param])
             reference_se = float(heuristic_std_errors[primary_param])
 
@@ -939,7 +988,9 @@ class HighDimensionalPostSelectionIVEstimator:
                 grid_scale=ar_grid_scale,
             )
 
-        reference_wald = orth_intervals_typed.get(primary_param) or heuristic_intervals_typed.get(primary_param)
+        reference_wald = orth_intervals_typed.get(primary_param) or heuristic_intervals_typed.get(
+            primary_param
+        )
         wald_width = _interval_width(reference_wald)
         weak_width = _interval_width(weak_interval)
         disagreement_ratio = (
@@ -949,9 +1000,8 @@ class HighDimensionalPostSelectionIVEstimator:
         )
         materially_different = None
         if reference_wald is not None and weak_interval is not None:
-            materially_different = (
-                len(reference_wald.segments) != len(weak_interval.segments)
-                or (disagreement_ratio is not None and disagreement_ratio > 1.5)
+            materially_different = len(reference_wald.segments) != len(weak_interval.segments) or (
+                disagreement_ratio is not None and disagreement_ratio > 1.5
             )
         interval_diag = IntervalDisagreementDiagnostic(
             wald_ci=reference_wald,
@@ -969,35 +1019,54 @@ class HighDimensionalPostSelectionIVEstimator:
             and not weak_interval.metadata.get("boundary_hit", False)
             and (
                 disagreement_ratio is None
-                or (np.isfinite(disagreement_ratio) and disagreement_ratio <= weak_set_max_width_ratio)
+                or (
+                    np.isfinite(disagreement_ratio)
+                    and disagreement_ratio <= weak_set_max_width_ratio
+                )
             )
         )
         if inference_route == "heuristic":
             coverage_tier = "HEURISTIC_POST_SELECTION" if heuristic_intervals_typed else "NONE"
-            decision_notes.append("Explicit heuristic route requested: select-then-2SLS Wald intervals are labeled heuristic.")
+            decision_notes.append(
+                "Explicit heuristic route requested: select-then-2SLS Wald intervals are labeled heuristic."
+            )
         elif overall_gate_passed:
             coverage_tier = "ORTHOGONAL_CROSSFIT"
-            decision_notes.append("Orthogonal cross-fit score, complexity gates, and weak-IV proxy all passed.")
+            decision_notes.append(
+                "Orthogonal cross-fit score, complexity gates, and weak-IV proxy all passed."
+            )
         elif weak_interval_informative:
             coverage_tier = "WEAK_IV_ROBUST_SET"
-            decision_notes.append("Weak-IV robust Anderson-Rubin inversion was used after at least one gate failed.")
+            decision_notes.append(
+                "Weak-IV robust Anderson-Rubin inversion was used after at least one gate failed."
+            )
         else:
             coverage_tier = "NONE"
-            decision_notes.append("No theorem-aligned or weak-IV robust interval could be certified for the orthogonal route.")
+            decision_notes.append(
+                "No theorem-aligned or weak-IV robust interval could be certified for the orthogonal route."
+            )
 
         if not sparsity_passed:
-            warnings_list.append("Approximate sparsity diagnostics failed the configured complexity/stability gates.")
+            warnings_list.append(
+                "Approximate sparsity diagnostics failed the configured complexity/stability gates."
+            )
         if inference_route == "orthogonal" and not orthogonality_passed:
-            warnings_list.append("Orthogonal score diagnostics failed the configured product-rate or score gate.")
+            warnings_list.append(
+                "Orthogonal score diagnostics failed the configured product-rate or score gate."
+            )
         if weak_iv_stat is not None and weak_iv_stat < weak_iv_threshold:
             warnings_list.append("Weak-IV strength proxy fell below the configured threshold.")
         if many_instrument_flag:
-            warnings_list.append("Selected instrument set entered a many-instrument regime; Wald inference was downgraded.")
+            warnings_list.append(
+                "Selected instrument set entered a many-instrument regime; Wald inference was downgraded."
+            )
         warnings_list.append(
             "Weak-IV gate prefers linearmodels first-stage diagnostics when available and otherwise falls back to HC1 conditional-F proxies; exact MOP effective-F / many-weak CLR calibration is not yet implemented."
         )
         if weak_interval is not None and not weak_interval_informative:
-            warnings_list.append("Weak-IV robust set was computed but treated as uninformative for tier assignment.")
+            warnings_list.append(
+                "Weak-IV robust set was computed but treated as uninformative for tier assignment."
+            )
 
         coverage_diag = PostSelectionCoverageDiagnostic(
             sample_size_requirement=(
@@ -1041,7 +1110,9 @@ class HighDimensionalPostSelectionIVEstimator:
                     result_params[name] = theta_hat
                     result_std_errors[name] = orth_se
                     result_t_stats[name] = float(theta_hat / max(orth_se, 1e-12))
-                    result_p_values[name] = float(2.0 * (1.0 - normal.cdf(abs(result_t_stats[name]))))
+                    result_p_values[name] = float(
+                        2.0 * (1.0 - normal.cdf(abs(result_t_stats[name])))
+                    )
             if coverage_tier == "ORTHOGONAL_CROSSFIT":
                 for name, interval in orth_intervals_typed.items():
                     hull = interval.convex_hull()
@@ -1086,7 +1157,10 @@ class HighDimensionalPostSelectionIVEstimator:
                 "selected_controls": selected_control_names,
                 "selected_instruments": selected_instrument_names,
                 "weak_iv_proxy_stat": weak_iv_stat,
-                "weak_iv_proxy_pvalues": {name: pvalue for name, pvalue in zip(endogenous_names, weak_iv_pvalues, strict=False)},
+                "weak_iv_proxy_pvalues": {
+                    name: pvalue
+                    for name, pvalue in zip(endogenous_names, weak_iv_pvalues, strict=False)
+                },
                 "weak_iv_diagnostic_source": weak_iv_source,
                 "orthogonality_score": orthogonality_score,
                 "product_rate_proxy": product_rate_proxy,
@@ -1095,7 +1169,9 @@ class HighDimensionalPostSelectionIVEstimator:
             model_info={
                 "library": "linearmodels+statsmodels+numpy",
                 "estimator": "HighDimensionalPostSelectionIVEstimator",
-                "score_type": "partial_linear_iv_orthogonal" if inference_route == "orthogonal" else "post_selection_wald",
+                "score_type": "partial_linear_iv_orthogonal"
+                if inference_route == "orthogonal"
+                else "post_selection_wald",
             },
             metadata={
                 "n_candidate_controls": int(controls.shape[1]),
@@ -1107,9 +1183,7 @@ class HighDimensionalPostSelectionIVEstimator:
 
         return {
             "result": result,
-            "uncertainty_envelope": result.to_uncertainty_envelope(
-                param_name=primary_param
-            ),
+            "uncertainty_envelope": result.to_uncertainty_envelope(param_name=primary_param),
         }
 
     @staticmethod

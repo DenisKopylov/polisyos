@@ -27,7 +27,8 @@ import resource
 import sys
 import time
 import traceback
-from typing import Any, Callable, Sequence
+from collections.abc import Callable, Sequence
+from typing import Any
 
 _TIMEOUT_MULTIPLIER: float = float(os.environ.get("BENCH_TIMEOUT_MULTIPLIER", "1.0"))
 
@@ -43,31 +44,30 @@ from benchmarks.metrics import (
     compute_timing_stats,
 )
 
-
 # ---------------------------------------------------------------------------
 # Enumerations
 # ---------------------------------------------------------------------------
 
 
 class BenchmarkCircuit(str, enum.Enum):
-    SYMBOLIC = "symbolic"           # Circuit 1 — Identification correctness
-    ESTIMATION = "estimation"       # Circuit 2 — Numerical estimation accuracy
-    HTE = "hte"                     # Circuit 3 — HTE / policy learning
-    DISCOVERY = "discovery"         # Circuit 4 — Discovery consistency
-    MISSING = "missing"             # Circuit 5 — Missing-data / recoverability
-    TRANSPORT = "transport"         # Circuit 6 — Transportability / data fusion / CTF
+    SYMBOLIC = "symbolic"  # Circuit 1 — Identification correctness
+    ESTIMATION = "estimation"  # Circuit 2 — Numerical estimation accuracy
+    HTE = "hte"  # Circuit 3 — HTE / policy learning
+    DISCOVERY = "discovery"  # Circuit 4 — Discovery consistency
+    MISSING = "missing"  # Circuit 5 — Missing-data / recoverability
+    TRANSPORT = "transport"  # Circuit 6 — Transportability / data fusion / CTF
     CAPABILITY_WINS = "capability_wins"  # Supporting demos outside the core six
-    REPRODUCIBILITY = "repro"       # Supporting reproducibility / governance suite
-    COMPARISON = "comparison"       # Optional reference-implementation comparison
-    CAPABILITY = "capability"       # Legacy alias retained for backward compatibility
+    REPRODUCIBILITY = "repro"  # Supporting reproducibility / governance suite
+    COMPARISON = "comparison"  # Optional reference-implementation comparison
+    CAPABILITY = "capability"  # Legacy alias retained for backward compatibility
 
 
 class Verdict(str, enum.Enum):
     PASS = "PASS"
     FAIL = "FAIL"
-    ERROR = "ERROR"       # unexpected exception
-    TIMEOUT = "TIMEOUT"   # reserved for real external interruption
-    SKIP = "SKIP"         # skipped (e.g. optional dependency missing)
+    ERROR = "ERROR"  # unexpected exception
+    TIMEOUT = "TIMEOUT"  # reserved for real external interruption
+    SKIP = "SKIP"  # skipped (e.g. optional dependency missing)
 
 
 class BenchmarkSkip(RuntimeError):
@@ -219,7 +219,8 @@ class BenchmarkReport:
     def blocker_cases(self) -> list[CaseResult]:
         """False-positive identification cases — release blockers."""
         return [
-            c for c in self.cases
+            c
+            for c in self.cases
             if c.is_identifiable_gt is False and c.is_identifiable_pred is True
         ]
 
@@ -280,9 +281,7 @@ class BenchmarkHarness:
         for case in selected:
             results.append(self._run_case(case))
 
-        circuits_in_report = (
-            [circuit] if circuit else list({c.circuit for c in selected})
-        )
+        circuits_in_report = [circuit] if circuit else list({c.circuit for c in selected})
         scores = self._compute_scores(results, circuits_in_report)
 
         return BenchmarkReport(
@@ -334,11 +333,7 @@ class BenchmarkHarness:
 
         effective_timeout = case.timeout_s * _TIMEOUT_MULTIPLIER
         runtime_budget_exceeded = effective_timeout > 0 and elapsed > effective_timeout
-        runtime_budget_ratio = (
-            float(elapsed / effective_timeout)
-            if effective_timeout > 0
-            else None
-        )
+        runtime_budget_ratio = float(elapsed / effective_timeout) if effective_timeout > 0 else None
         runtime_budget_note = None
         if runtime_budget_exceeded:
             runtime_budget_note = (
@@ -409,9 +404,7 @@ class BenchmarkHarness:
             scores[circuit.value] = self._score_circuit(circuit, circuit_results)
         return scores
 
-    def _score_circuit(
-        self, circuit: BenchmarkCircuit, results: list[CaseResult]
-    ) -> CircuitScore:
+    def _score_circuit(self, circuit: BenchmarkCircuit, results: list[CaseResult]) -> CircuitScore:
         n_passed = sum(1 for r in results if r.passed)
 
         timing: TimingStats | None = None
@@ -481,11 +474,11 @@ class BenchmarkHarness:
         # Blocker summary
         blockers = report.blocker_cases()
         if blockers:
-            print(f"\n{'!'*72}")
+            print(f"\n{'!' * 72}")
             print(f"  BLOCKER: {len(blockers)} false-positive identification(s)")
             for b in blockers:
                 print(f"    • {b.name}")
-            print(f"{'!'*72}")
+            print(f"{'!' * 72}")
 
         overall = report.n_passed()
         total = report.n_total()

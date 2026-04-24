@@ -1,4 +1,5 @@
 """Public scholar errors module API."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -31,37 +32,44 @@ class ScholarError(PolicyOSError):
 
 class ScholarValidationError(ScholarError):
     """Scholar validation error exception."""
+
     default_stage = "validation"
     default_category = ErrorCategory.VALIDATION
 
 
 class ScholarDiscoverError(ScholarError):
     """Scholar discover error exception."""
+
     default_stage = "discover"
 
 
 class ScholarAcquireError(ScholarError):
     """Scholar acquire error exception."""
+
     default_stage = "acquire"
 
 
 class ScholarDocsError(ScholarError):
     """Scholar docs error exception."""
+
     default_stage = "docs"
 
 
 class ScholarClaimsError(ScholarError):
     """Scholar claims error exception."""
+
     default_stage = "claims"
 
 
 class ScholarReconcileError(ScholarError):
     """Scholar reconcile error exception."""
+
     default_stage = "reconcile"
 
 
 class ScholarBundleError(ScholarError):
     """Scholar bundle error exception."""
+
     default_stage = "bundle"
 
 

@@ -1,7 +1,8 @@
 """Public contracts feedback module API."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, Literal
 
@@ -9,11 +10,12 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 def _utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class MonitoringVerdict(str, Enum):
     """Monitoring verdict public type."""
+
     PENDING = "pending"
     CONFIRMED = "confirmed"
     REFUTED = "refuted"
@@ -24,6 +26,7 @@ class MonitoringVerdict(str, Enum):
 
 class MonitoringRange(BaseModel):
     """Monitoring range public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     lower: float | None = None
@@ -32,6 +35,7 @@ class MonitoringRange(BaseModel):
 
 class MonitoringWindow(BaseModel):
     """Monitoring window public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     start_offset_days: int = 0
@@ -41,6 +45,7 @@ class MonitoringWindow(BaseModel):
 
 class MonitoredMetric(BaseModel):
     """Monitored metric public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     metric_id: str
@@ -57,6 +62,7 @@ class MonitoredMetric(BaseModel):
 
 class DecisionMonitoringContract(BaseModel):
     """Decision monitoring contract data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
@@ -71,6 +77,7 @@ class DecisionMonitoringContract(BaseModel):
 
 class MonitoringMetricResult(BaseModel):
     """Monitoring metric result data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     metric_id: str
@@ -87,6 +94,7 @@ class MonitoringMetricResult(BaseModel):
 
 class DecisionMonitoringReport(BaseModel):
     """Decision monitoring report data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
@@ -104,6 +112,7 @@ class DecisionMonitoringReport(BaseModel):
 
 class HistoricalSemanticRowDelta(BaseModel):
     """Historical semantic row delta public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     row_key: str
@@ -122,6 +131,7 @@ class HistoricalSemanticRowDelta(BaseModel):
 
 class HistoricalSemanticDiffSummary(BaseModel):
     """Historical semantic diff summary data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_only: bool = False
@@ -142,6 +152,7 @@ class HistoricalSemanticDiffSummary(BaseModel):
 
 class HistoricalSemanticDiffReport(BaseModel):
     """Historical semantic diff report data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
@@ -150,15 +161,14 @@ class HistoricalSemanticDiffReport(BaseModel):
     left_data_ref: str | None = None
     right_data_ref: str | None = None
     key_fields: list[str] = Field(default_factory=list)
-    summary: HistoricalSemanticDiffSummary = Field(
-        default_factory=HistoricalSemanticDiffSummary
-    )
+    summary: HistoricalSemanticDiffSummary = Field(default_factory=HistoricalSemanticDiffSummary)
     changes: list[HistoricalSemanticRowDelta] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
 
 
 class CompareDeltaSection(BaseModel):
     """Compare delta section public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     changed: bool = False
@@ -169,6 +179,7 @@ class CompareDeltaSection(BaseModel):
 
 class DecisionCompareReport(BaseModel):
     """Decision compare report data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
@@ -183,6 +194,7 @@ class DecisionCompareReport(BaseModel):
 
 class DecisionReissuePlan(BaseModel):
     """Decision reissue plan data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")

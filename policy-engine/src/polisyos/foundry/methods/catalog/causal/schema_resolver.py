@@ -3,6 +3,7 @@
 Resolves variable names from a dataset to the variables required by an EstimandAST,
 checks type compatibility, and validates support conditions.
 """
+
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -30,13 +31,38 @@ class SchemaResolutionReport(BaseModel):
 
 
 _NUMERIC_DTYPES = frozenset(
-    {"int8", "int16", "int32", "int64", "float16", "float32", "float64",
-     "uint8", "uint16", "uint32", "uint64", "Int64", "Float64", "number"}
+    {
+        "int8",
+        "int16",
+        "int32",
+        "int64",
+        "float16",
+        "float32",
+        "float64",
+        "uint8",
+        "uint16",
+        "uint32",
+        "uint64",
+        "Int64",
+        "Float64",
+        "number",
+    }
 )
 
 _BINARY_DTYPES = frozenset(
-    {"int8", "int16", "int32", "int64", "uint8", "bool", "boolean",
-     "Int8", "Int16", "Int32", "Int64"}
+    {
+        "int8",
+        "int16",
+        "int32",
+        "int64",
+        "uint8",
+        "bool",
+        "boolean",
+        "Int8",
+        "Int16",
+        "Int32",
+        "Int64",
+    }
 )
 
 
@@ -45,7 +71,7 @@ class SchemaResolver:
 
     def resolve(
         self,
-        ast: object,   # EstimandAST — use object to avoid circular import
+        ast: object,  # EstimandAST — use object to avoid circular import
         df_columns: list[str],
         df_dtypes: dict[str, str],
         *,
@@ -221,7 +247,11 @@ def _is_outcome_var(ast: object, var: str) -> bool:
         if hasattr(ast, "outcome") and ast.outcome == var:
             return True
         for dr in ast.collect_distribution_refs():
-            if var in dr.variables and var not in dr.conditioning and var not in dr.intervention_set:
+            if (
+                var in dr.variables
+                and var not in dr.conditioning
+                and var not in dr.intervention_set
+            ):
                 return True
     except Exception:
         pass

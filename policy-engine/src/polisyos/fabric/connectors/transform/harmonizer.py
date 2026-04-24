@@ -4,6 +4,7 @@ Code harmonization transformations for mapping between code systems.
 Handles country codes, industry codes, and custom mappings with
 vectorized pandas operations for performance.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -68,8 +69,7 @@ class CodeHarmonizationTransform(DataTransform):
 
         if not self.mapping:
             warning = (
-                f"No harmonization mapping configured for '{self.dimension}'; "
-                "harmonization skipped"
+                f"No harmonization mapping configured for '{self.dimension}'; harmonization skipped"
             )
             lineage = build_lineage(
                 stage_name=self.name,

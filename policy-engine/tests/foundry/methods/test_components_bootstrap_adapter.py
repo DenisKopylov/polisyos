@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any
 
 from polisyos.core.components import (
     Capability,
@@ -12,7 +13,6 @@ from polisyos.core.components import (
     ComponentRegistry,
 )
 from polisyos.core.components.discovery import DiscoverySourceInfo
-from polisyos.foundry.methods.components_bridge import bootstrap_method_registry_from_components
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     FidelityLevel,
@@ -22,6 +22,7 @@ from polisyos.foundry.methods.base import (
     SlotType,
     Unit,
 )
+from polisyos.foundry.methods.components_bridge import bootstrap_method_registry_from_components
 from polisyos.foundry.methods.registry import MethodRegistry
 
 

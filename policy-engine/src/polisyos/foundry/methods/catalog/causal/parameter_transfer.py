@@ -1,4 +1,5 @@
 """Public causal parameter transfer module API."""
+
 from __future__ import annotations
 
 import importlib.util
@@ -110,9 +111,7 @@ class ParameterTransfer:
 
         for parameter_name, parameter in sorted(bundle.parameters.items()):
             if parameter.value is None:
-                warnings.append(
-                    f"parameter '{parameter_name}' has no scalar value and was skipped"
-                )
+                warnings.append(f"parameter '{parameter_name}' has no scalar value and was skipped")
                 continue
 
             try:
@@ -183,7 +182,8 @@ def _estimate_std(parameter: Any) -> float:
             hi = float(confidence_interval[1])
         except (TypeError, ValueError) as exc:
             logger.debug(
-                "Failed to parse confidence_interval for parameter std estimation: %s", exc,
+                "Failed to parse confidence_interval for parameter std estimation: %s",
+                exc,
             )
             lo, hi = 0.0, 0.0
         width = max(0.0, hi - lo)
@@ -197,7 +197,8 @@ def _estimate_std(parameter: Any) -> float:
             parsed = float(std_error)
         except (TypeError, ValueError) as exc:
             logger.debug(
-                "Failed to parse std_error for parameter std estimation: %s", exc,
+                "Failed to parse std_error for parameter std estimation: %s",
+                exc,
             )
             parsed = 0.0
         if parsed > 0.0:

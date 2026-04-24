@@ -2,16 +2,15 @@ from __future__ import annotations
 
 import pytest
 
+from polisyos.foundry.uncertainty.aggregator import AggregationStrategy, aggregate_envelopes
 from polisyos.ir.analytics.uncertainty import (
-    ExactnessKind,
     DistributionFamily,
+    ExactnessKind,
     IntervalSemantics,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
 )
-
-from polisyos.foundry.uncertainty.aggregator import AggregationStrategy, aggregate_envelopes
 
 
 def _normal_env(point: float, std: float) -> UncertaintyEnvelope:
@@ -35,7 +34,8 @@ class TestPrecisionWeighted:
         env2 = _normal_env(10.5, 3.0)
 
         result = aggregate_envelopes(
-            [env1, env2], method=AggregationStrategy.PRECISION_WEIGHTED,
+            [env1, env2],
+            method=AggregationStrategy.PRECISION_WEIGHTED,
         )
 
         assert result.ci_width < env1.ci_width
@@ -49,7 +49,8 @@ class TestPrecisionWeighted:
         env2 = _normal_env(12.0, 1.0)
 
         result = aggregate_envelopes(
-            [env1, env2], method=AggregationStrategy.PRECISION_WEIGHTED,
+            [env1, env2],
+            method=AggregationStrategy.PRECISION_WEIGHTED,
         )
 
         assert result.point_estimate == pytest.approx(11.0, abs=0.01)
@@ -94,10 +95,12 @@ class TestWidestBackwardCompat:
         result = aggregate_envelopes([env1, env2], method="widest")
 
         assert result.confidence_interval[0] == min(
-            env1.confidence_interval[0], env2.confidence_interval[0],
+            env1.confidence_interval[0],
+            env2.confidence_interval[0],
         )
         assert result.confidence_interval[1] == max(
-            env1.confidence_interval[1], env2.confidence_interval[1],
+            env1.confidence_interval[1],
+            env2.confidence_interval[1],
         )
         assert result.metadata["aggregation_method"] == "widest"
 
@@ -137,7 +140,8 @@ class TestAggregatorEdgeCases:
         env1 = _normal_env(10.0, 2.0)
         env2 = _normal_env(10.5, 2.0)
         result = aggregate_envelopes(
-            [env1, env2], method=AggregationStrategy.BAYESIAN_COMBINATION,
+            [env1, env2],
+            method=AggregationStrategy.BAYESIAN_COMBINATION,
         )
         assert result.ci_width < env1.ci_width
         assert result.ci_width < env2.ci_width

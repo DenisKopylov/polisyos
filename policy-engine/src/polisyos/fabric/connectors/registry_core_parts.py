@@ -1,10 +1,12 @@
 """ConnectorRegistry facade composed from decomposed registry sub-modules."""
+
 from __future__ import annotations
 
 import json
 import threading
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, ClassVar, Iterator, Literal
+from collections.abc import Iterator
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from packaging.version import parse as parse_version
 
@@ -26,6 +28,19 @@ from polisyos.fabric.connectors._registry_models import (
     RegistryStats,
 )
 from polisyos.ir.connectors import ConnectorCapability, ConnectorMetadataSpec, TrustLevel
+
+__all__ = [
+    "AmbiguousConnectorError",
+    "ConnectorAlreadyRegisteredError",
+    "ConnectorConfigError",
+    "ConnectorEntry",
+    "ConnectorNotFoundError",
+    "ConnectorPreferences",
+    "ConnectorRegistry",
+    "RegistryError",
+    "RegistryMetrics",
+    "RegistryStats",
+]
 
 if TYPE_CHECKING:
     from polisyos.fabric.connectors.base import (
@@ -54,7 +69,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
     - Health check tracking and automatic failover hints
     """
 
-    _instance: ClassVar["ConnectorRegistry | None"] = None
+    _instance: ClassVar[ConnectorRegistry | None] = None
     _lock: ClassVar[threading.Lock] = threading.Lock()
 
     def __init__(self) -> None:
@@ -77,7 +92,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         )
 
         # Connection pool management (keyed by (fqid, config_fingerprint))
-        self._connection_pools: dict[tuple[str, str], "ConnectionPool"] = {}
+        self._connection_pools: dict[tuple[str, str], ConnectionPool] = {}
 
         # Instance lock for thread-safe mutations
         self._instance_lock = threading.RLock()
@@ -94,14 +109,14 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         self._cache_store = None
         self._enable_caching = True
         self._cache_wrappers: dict[str, Any] = {}
-        self._contract_registry: "ContractRegistry | None" = None
+        self._contract_registry: ContractRegistry | None = None
         self._contract_validation_mode: Literal["strict", "warn", "disabled"] = "warn"
         self._contract_wrappers: dict[str, Any] = {}
         self._schema_invalidation_callback_registered = False
         self._bootstrap_contract_registry()
 
     @classmethod
-    def get_instance(cls, *, bootstrap: bool = True) -> "ConnectorRegistry":
+    def get_instance(cls, *, bootstrap: bool = True) -> ConnectorRegistry:
         """
         Get the singleton registry instance.
 
@@ -157,7 +172,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         version: str | None = None,
         *,
         enable_cache: bool = True,
-    ) -> "SourceConnector":
+    ) -> SourceConnector:
         """
         Get connector instance by ID.
 
@@ -221,7 +236,8 @@ class ConnectorRegistry(RegistryLifecycleMixin):
             except Exception:
                 logger.debug(
                     "Failed to create caching proxy for connector %s, using unwrapped",
-                    fqid, exc_info=True,
+                    fqid,
+                    exc_info=True,
                 )
                 return self._apply_slo_metrics_wrapper(connector, connector_id=fqid)
 
@@ -254,7 +270,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
     def set_default_config(
         self,
         connector_id: str,
-        config: "ConnectionConfig",
+        config: ConnectionConfig,
     ) -> None:
         """Set default ConnectionConfig for a registered connector.
 
@@ -279,7 +295,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
     def get_default_config(
         self,
         connector_id: str,
-    ) -> "ConnectionConfig | None":
+    ) -> ConnectionConfig | None:
         """Get default ConnectionConfig for a registered connector.
 
         Returns None if no default config is set.
@@ -329,7 +345,9 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         if short_id_matches:
             candidates = short_id_matches
             if version:
-                candidates = [candidate for candidate in candidates if candidate.endswith(f"@{version}")]
+                candidates = [
+                    candidate for candidate in candidates if candidate.endswith(f"@{version}")
+                ]
 
             if len(candidates) == 1:
                 return candidates[0]
@@ -363,6 +381,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
 
     def _select_latest_version(self, candidates: list[str]) -> str:
         """Select the latest semver version from candidate FQIDs."""
+
         def version_key(fqid: str):
             if "@" not in fqid:
                 return parse_version("0")
@@ -371,7 +390,9 @@ class ConnectorRegistry(RegistryLifecycleMixin):
                 return parse_version(version)
             except Exception:
                 logger.debug(
-                    "Failed to parse version from FQID %s", fqid, exc_info=True,
+                    "Failed to parse version from FQID %s",
+                    fqid,
+                    exc_info=True,
                 )
                 return parse_version("0")
 
@@ -430,8 +451,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
             for level in TrustLevel:
                 if level >= trust_level_min:
                     eligible |= {
-                        entry.fqid
-                        for entry in self._connectors.find("trust_level", level)
+                        entry.fqid for entry in self._connectors.find("trust_level", level)
                     }
             candidate_sets.append(eligible)
 
@@ -592,9 +612,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
 
         # Freshness (time since last health check)
         if entry.last_health_check is not None:
-            age_hours = (
-                datetime.now(timezone.utc) - entry.last_health_check
-            ).total_seconds() / 3600
+            age_hours = (datetime.now(UTC) - entry.last_health_check).total_seconds() / 3600
             freshness = max(0.0, 1.0 - (age_hours / 24.0))  # Decay over 24h
             score += freshness * prefs.freshness_weight
         else:
@@ -613,8 +631,8 @@ class ConnectorRegistry(RegistryLifecycleMixin):
     async def get_connection(
         self,
         connector_id: str,
-        config: "ConnectionConfig | None" = None,
-    ) -> "ConnectionHandle":
+        config: ConnectionConfig | None = None,
+    ) -> ConnectionHandle:
         """
         Get a connection from the pool (or create new pool).
 
@@ -703,7 +721,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
     async def release_connection(
         self,
         connector_id: str,
-        handle: "ConnectionHandle",
+        handle: ConnectionHandle,
     ) -> None:
         """Release a connection back to the pool."""
         fqid = self._resolve_id(connector_id)
@@ -722,7 +740,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
                 session_id=handle.session_id,
             )
 
-    def _config_fingerprint(self, config: "ConnectionConfig") -> str:
+    def _config_fingerprint(self, config: ConnectionConfig) -> str:
         """Compute stable fingerprint for connection config."""
         payload = config.to_dict(redact=False)
         payload_json = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str)
@@ -735,7 +753,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
     def update_health(
         self,
         connector_id: str,
-        health: "HealthStatus",
+        health: HealthStatus,
     ) -> None:
         """
         Update health status for a connector.
@@ -749,7 +767,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
             if entry is None:
                 return
 
-            entry.last_health_check = datetime.now(timezone.utc)
+            entry.last_health_check = datetime.now(UTC)
             entry.health_status = health
 
             if health.healthy:

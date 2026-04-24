@@ -1,4 +1,5 @@
 """Public pii stage module API."""
+
 from __future__ import annotations
 
 import os
@@ -22,13 +23,17 @@ class PIIDetectionStage:
     detector: PresidioDetector
 
     @classmethod
-    def from_env(cls) -> "PIIDetectionStage | None":
+    def from_env(cls) -> PIIDetectionStage | None:
         enabled = _env_bool("POLISYOS_PII_ENABLED", False)
         if not enabled:
             return None
 
         config = PresidioConfig(
-            languages=[item.strip() for item in os.getenv("POLISYOS_PII_LANGUAGES", "en").split(",") if item.strip()],
+            languages=[
+                item.strip()
+                for item in os.getenv("POLISYOS_PII_LANGUAGES", "en").split(",")
+                if item.strip()
+            ],
             score_threshold=_env_float("POLISYOS_PII_SCORE_THRESHOLD", 0.7),
             sample_rate=_env_float("POLISYOS_PII_SAMPLE_RATE", 1.0),
             sample_min_rows=max(1, _env_int("POLISYOS_PII_SAMPLE_MIN_ROWS", 50_000)),

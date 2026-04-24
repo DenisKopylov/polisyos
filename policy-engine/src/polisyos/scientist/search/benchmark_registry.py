@@ -195,9 +195,7 @@ class BenchmarkRegistry:
             run_id=str(run_id).strip() or None if run_id is not None else None,
             loop_id=str(loop_id).strip() or None if loop_id is not None else None,
             suite_id=str(suite_id).strip() or None if suite_id is not None else None,
-            suite_version=str(suite_version).strip() or None
-            if suite_version is not None
-            else None,
+            suite_version=str(suite_version).strip() or None if suite_version is not None else None,
             family=_normalize_scope_text(family),
             query_type=_normalize_scope_text(query_type),
             estimator_name=_normalize_scope_text(estimator_name),
@@ -316,10 +314,7 @@ class BenchmarkRegistry:
             and (suite_id is None or item.suite_id == suite_id)
             and (family is None or _scope_value(item, "family") == family)
             and (query_type is None or _scope_value(item, "query_type") == query_type)
-            and (
-                estimator_name is None
-                or _scope_value(item, "estimator_name") == estimator_name
-            )
+            and (estimator_name is None or _scope_value(item, "estimator_name") == estimator_name)
             and (
                 readiness_target is None
                 or _scope_value(item, "readiness_target") == readiness_target
@@ -328,14 +323,8 @@ class BenchmarkRegistry:
                 validation_contour is None
                 or _scope_value(item, "validation_contour") == validation_contour
             )
-            and (
-                visibility is None
-                or _scope_value(item, "visibility") == visibility
-            )
-            and (
-                holdout_family is None
-                or _scope_value(item, "holdout_family") == holdout_family
-            )
+            and (visibility is None or _scope_value(item, "visibility") == visibility)
+            and (holdout_family is None or _scope_value(item, "holdout_family") == holdout_family)
             and (
                 benchmark_revision is None
                 or _scope_value(item, "benchmark_revision") == benchmark_revision
@@ -422,8 +411,7 @@ class BenchmarkRegistry:
             produced_by_run_id=produced_by_run_id,
             validation_contour=validation_contour
             or _normalize_scope_text(combined_metadata.get("validation_contour")),
-            visibility=visibility
-            or _normalize_scope_text(combined_metadata.get("visibility")),
+            visibility=visibility or _normalize_scope_text(combined_metadata.get("visibility")),
             holdout_family=holdout_family
             or _normalize_scope_text(combined_metadata.get("holdout_family")),
             benchmark_revision=benchmark_revision
@@ -481,9 +469,7 @@ class BenchmarkRegistry:
                 estimator_name=estimator_name,
                 readiness_target=readiness_target,
             ),
-            rotating_challenge_evaluation_refs=[
-                item.artifact_ref for item in rotating_entries
-            ],
+            rotating_challenge_evaluation_refs=[item.artifact_ref for item in rotating_entries],
             sentinel_evaluation_refs=self.get(
                 BenchmarkSplit.SENTINEL.value,
                 run_id=run_id,
@@ -556,6 +542,6 @@ class BenchmarkRegistry:
 __all__ = [
     "BenchmarkRegistry",
     "BenchmarkRegistryEntry",
-    "FrontierBenchmarkBundle",
     "BenchmarkRegistrySnapshot",
+    "FrontierBenchmarkBundle",
 ]

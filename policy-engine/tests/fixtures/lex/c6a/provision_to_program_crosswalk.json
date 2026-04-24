@@ -1,0 +1,18 @@
+[
+  {
+    "provision_ref": "ua.procurement.thresholds.art12",
+    "program_id": "ua_public_procurement_program",
+    "program_name": "UA Public Procurement Program",
+    "target_region_ids": [
+      "UA-32"
+    ],
+    "target_sector_ids": [
+      "compliance_monitoring"
+    ],
+    "provenance_source": "tests/fixtures/lex/c6a",
+    "confidence_score": 0.9,
+    "notes": [
+      "Fixture crosswalk companion for parquet-free test environments."
+    ]
+  }
+]

@@ -29,7 +29,10 @@ def test_get_run_details_returns_normalized_payload(runtime_api_env) -> None:
     assert core_payload["tenant_id"] == runtime_api_env["tenant_a"]
     assert core_payload["execution_profile"] == "governed"
     assert core_payload["control_job_id"] == "job_ctrl_fixture_001"
-    assert core_payload["capability_manifest_ref"]["artifact_id"] == runtime_api_env["capability_manifest_artifact_id"]
+    assert (
+        core_payload["capability_manifest_ref"]["artifact_id"]
+        == runtime_api_env["capability_manifest_artifact_id"]
+    )
 
     secondary = client.get(f"/api/v1/runs/{runtime_api_env['core_run_id_secondary']}")
     assert secondary.status_code == 200
@@ -64,9 +67,7 @@ def test_list_runs_applies_server_side_query_filter_before_pagination(runtime_ap
     payload = response.json()
     assert payload["page"]["total"] == 1
     assert payload["page"]["count"] == 1
-    assert [item["run_id"] for item in payload["runs"]] == [
-        runtime_api_env["core_run_id"]
-    ]
+    assert [item["run_id"] for item in payload["runs"]] == [runtime_api_env["core_run_id"]]
 
 
 def test_evaluate_feedback_endpoint_persists_monitoring_report(runtime_api_env) -> None:

@@ -13,7 +13,8 @@ estimators.  It focuses on a practical slice of the Standard Fairness Model:
 from __future__ import annotations
 
 import math
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
@@ -47,7 +48,7 @@ from polisyos.foundry.methods.catalog.causal.id_engine import (
 )
 from polisyos.foundry.methods.catalog.causal.lp_bounds import auto_bounds
 from polisyos.ir.analytics.causal_graph import CausalGraphModel
-from polisyos.ir.analytics.fairness import CausalFairnessReport, FairnessDecomposition
+from polisyos.ir.analytics.fairness import FairnessDecomposition
 from polisyos.ir.analytics.partial_identification import PartialIdentificationResult
 
 
@@ -234,11 +235,17 @@ def _decomposition_to_report(
         primary = f"{sfm.protected_attribute} -> {sfm.mediators[0]} -> {sfm.outcome}"
     return _build_fairness_report(
         tv=decomposition.tv,
-        tv_se=(decomposition.tv_ci[1] - decomposition.tv_ci[0]) / 3.92 if decomposition.tv_ci else 0.0,
+        tv_se=(decomposition.tv_ci[1] - decomposition.tv_ci[0]) / 3.92
+        if decomposition.tv_ci
+        else 0.0,
         de=decomposition.direct_effect,
-        de_se=(decomposition.de_ci[1] - decomposition.de_ci[0]) / 3.92 if decomposition.de_ci else 0.0,
+        de_se=(decomposition.de_ci[1] - decomposition.de_ci[0]) / 3.92
+        if decomposition.de_ci
+        else 0.0,
         ie=decomposition.indirect_effect,
-        ie_se=(decomposition.ie_ci[1] - decomposition.ie_ci[0]) / 3.92 if decomposition.ie_ci else 0.0,
+        ie_se=(decomposition.ie_ci[1] - decomposition.ie_ci[0]) / 3.92
+        if decomposition.ie_ci
+        else 0.0,
         n_obs=decomposition.n_obs,
         protected_attribute=sfm.protected_attribute,
         outcome=sfm.outcome,
@@ -249,8 +256,7 @@ def _decomposition_to_report(
             for name, status in id_status.items()
         },
         cf_fairness=(
-            abs(decomposition.direct_effect) < 0.05
-            and abs(decomposition.indirect_effect) < 0.05
+            abs(decomposition.direct_effect) < 0.05 and abs(decomposition.indirect_effect) < 0.05
         ),
         metadata={
             **decomposition.metadata,
@@ -277,8 +283,15 @@ class CausalFairnessEngine:
         input_slots=frozenset(
             {
                 SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("protected", SlotType.VECTOR, Unit("protected", "binary"), shape=("n_obs",)),
-                SlotSpec("covariates", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "protected", SlotType.VECTOR, Unit("protected", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "covariates",
+                    SlotType.MATRIX,
+                    Unit("covariate", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
             }
         ),
         output_slots=frozenset(
@@ -305,9 +318,7 @@ class CausalFairnessEngine:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Standard Fairness Model pipeline for causal fairness decomposition and bounds.",
         tags=frozenset({"causal", "fairness", "standard_fairness_model", "phase9"}),
-        citations=(
-            "Plecko, D. & Bareinboim, E. (2024). Causal Fairness Analysis. FnTML.",
-        ),
+        citations=("Plecko, D. & Bareinboim, E. (2024). Causal Fairness Analysis. FnTML.",),
         equations={
             "tv": "TV(a,a') = Ctf-DE(a,a') + Ctf-IE(a,a') + Ctf-SE(a,a')",
         },
@@ -323,10 +334,14 @@ class CausalFairnessEngine:
         method = str(params.get("method", "tv_decomposition"))
         graph = params.get("graph") or state.get("graph")
         if not isinstance(graph, CausalGraphModel):
-            raise ValueError("CausalFairnessEngine requires a CausalGraphModel via params['graph'] or state['graph']")
+            raise ValueError(
+                "CausalFairnessEngine requires a CausalGraphModel via params['graph'] or state['graph']"
+            )
 
         sfm = StandardFairnessModel(
-            protected_attribute=str(params.get("protected_attribute", params.get("protected_variable", "A"))),
+            protected_attribute=str(
+                params.get("protected_attribute", params.get("protected_variable", "A"))
+            ),
             mediators=list(params.get("mediators", [])),
             outcome=str(params.get("outcome_variable", params.get("outcome", "Y"))),
             confounders=list(params.get("confounders", [])),

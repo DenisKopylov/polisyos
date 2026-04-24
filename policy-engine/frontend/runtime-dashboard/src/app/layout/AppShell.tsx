@@ -1,9 +1,10 @@
 import type { PropsWithChildren } from "react";
 
+import { AppMobileNav } from "@/app/layout/AppMobileNav";
 import { GlobalRuntimeBanner } from "@/app/layout/GlobalRuntimeBanner";
 import { CommandPalette } from "@/features/commandPalette";
 import { useI18n } from "@/i18n/LocaleProvider";
-import { MobileNav, useIsMobile } from "@/shared/ui/responsive";
+import { useIsMobile } from "@/shared/ui/responsive";
 import Header from "@/app/layout/Header";
 import Sidebar from "@/app/layout/Sidebar";
 
@@ -32,7 +33,7 @@ export default function AppShell({ children }: PropsWithChildren) {
           </div>
         </div>
       </div>
-      {isMobile && <MobileNav />}
+      {isMobile && <AppMobileNav />}
     </div>
   );
 }

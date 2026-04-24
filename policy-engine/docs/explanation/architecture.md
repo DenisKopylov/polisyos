@@ -42,15 +42,15 @@ flowchart TB
 
 ## Boundary Model
 
-| Layer | What it owns | What it does not own |
-|---|---|---|
-| `IR` | schemas, refs, compatibility rules, linking vocabulary | runtime delivery, connector IO, simulation execution |
-| `Fabric` | source profiles, ingestion, lineage, quality, world/data plane | policy orchestration and method selection |
-| `Lex` | legal ingest, versioning, NormPack assembly, intervention compilation | runtime auth and simulation kernels |
-| `Foundry` | lowering Trinity into `ProgramGraph`, `ExecPlan`, and simulation evidence | workflow routing, publication gating |
-| `Scientist` | workflow selection, readiness, governance, decision artifacts | connector protocols and runtime middleware |
-| `Runtime` | HTTP surface, control-plane lifecycle, operator access | IR compatibility policy and method internals |
-| `Core/Common` | CAS, signing, audit, config, resilience, shared observability | domain-specific policy logic |
+| Layer         | What it owns                                                              | What it does not own                                 |
+| ------------- | ------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `IR`          | schemas, refs, compatibility rules, linking vocabulary                    | runtime delivery, connector IO, simulation execution |
+| `Fabric`      | source profiles, ingestion, lineage, quality, world/data plane            | policy orchestration and method selection            |
+| `Lex`         | legal ingest, versioning, NormPack assembly, intervention compilation     | runtime auth and simulation kernels                  |
+| `Foundry`     | lowering Trinity into `ProgramGraph`, `ExecPlan`, and simulation evidence | workflow routing, publication gating                 |
+| `Scientist`   | workflow selection, readiness, governance, decision artifacts             | connector protocols and runtime middleware           |
+| `Runtime`     | HTTP surface, control-plane lifecycle, operator access                    | IR compatibility policy and method internals         |
+| `Core/Common` | CAS, signing, audit, config, resilience, shared observability             | domain-specific policy logic                         |
 
 ## Generated Artifact Lifecycle
 
@@ -72,10 +72,13 @@ That is what makes replay, audit assembly, and downstream verification possible.
 
 - IR keeps compatibility, schema evolution, and transport policy out of product
   code paths that need to move faster.
+
 - Fabric and Lex turn external evidence into typed artifacts before Scientist or
   Foundry can use it.
+
 - Foundry can stay method-centric because Scientist owns routing, readiness, and
   publication-time governance.
+
 - Runtime can fail closed on auth, tenant routing, and mutation control without
   having to understand domain-specific internals of every workflow.
 

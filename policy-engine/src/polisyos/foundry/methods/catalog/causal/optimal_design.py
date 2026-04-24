@@ -29,7 +29,8 @@ from __future__ import annotations
 
 import itertools
 import logging
-from typing import Any, ClassVar, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any, ClassVar
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict
@@ -276,7 +277,6 @@ def optimal_instrument_selection(
     from polisyos.foundry.methods.catalog.causal.admg_ops import (
         descendants,
         has_directed_path,
-        induced_subgraph,
         m_separation,
         remove_outgoing_edges,
     )
@@ -530,8 +530,10 @@ def adaptive_bayesian_experiment(
     if np.any((probs < 0.0) | (probs > 1.0)):
         raise ValueError("arm_success_probabilities must be in [0, 1]")
 
-    labels = tuple(arm_labels) if arm_labels is not None else tuple(
-        f"arm_{i}" for i in range(probs.size)
+    labels = (
+        tuple(arm_labels)
+        if arm_labels is not None
+        else tuple(f"arm_{i}" for i in range(probs.size))
     )
     if len(labels) != probs.size:
         raise ValueError("arm_labels must match arm_success_probabilities length")
@@ -591,9 +593,7 @@ def _d_optimal_feature_vector(
     anc_t = 1.0 if node in ancestors(graph, frozenset({treatment}), include_self=True) else 0.0
     anc_y = 1.0 if node in ancestors(graph, frozenset({outcome}), include_self=True) else 0.0
     desc_t = 1.0 if node in descendants(graph, frozenset({treatment}), include_self=True) else 0.0
-    degree = float(
-        sum(1 for src, dst in directed if src == node or dst == node)
-    )
+    degree = float(sum(1 for src, dst in directed if src == node or dst == node))
     confounder = 1.0 if parents_t and parents_y else 0.0
     return np.array(
         [
@@ -618,6 +618,7 @@ def d_optimal_design(
 ) -> DOptimalDesignResult:
     """Select the D-optimal covariate subset using graph-derived features."""
     from scipy.optimize import minimize
+
     from polisyos.foundry.methods.catalog.causal.admg_ops import descendants
 
     if treatment not in graph.nodes:
@@ -678,9 +679,8 @@ def d_optimal_design(
     selected_weights = weights[selected_idx]
     selected_weights = selected_weights / max(float(np.sum(selected_weights)), 1e-12)
     selected_features = features[selected_idx]
-    info = (
-        selected_features.T @ (selected_weights[:, None] * selected_features)
-        + ridge * np.eye(selected_features.shape[1])
+    info = selected_features.T @ (selected_weights[:, None] * selected_features) + ridge * np.eye(
+        selected_features.shape[1]
     )
     sign, logdet = np.linalg.slogdet(info)
     if sign <= 0:
@@ -748,12 +748,16 @@ class CausalExperimentDesigner:
         name="causal_experiment_designer",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("graph_json", SlotType.SCALAR, Unit("graph", "json")),
-        }),
-        output_slots=frozenset({
-            SlotSpec("design_result", SlotType.SCALAR, Unit("result", "json")),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec("graph_json", SlotType.SCALAR, Unit("graph", "json")),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec("design_result", SlotType.SCALAR, Unit("result", "json")),
+            }
+        ),
         parameters=(
             ParameterSpec(name="mode", default="optimal_adjustment"),
             ParameterSpec(name="treatment", default=""),
@@ -786,10 +790,20 @@ class CausalExperimentDesigner:
             "minimum-cost identification plan, adaptive experiment stages, "
             "adaptive Bayesian Thompson sampling, and D-optimal covariate selection."
         ),
-        tags=frozenset({
-            "causal", "design", "o_set", "adjustment", "iv",
-            "minimum_cost", "adaptive", "thompson", "d_optimal", "henckel_maathuis",
-        }),
+        tags=frozenset(
+            {
+                "causal",
+                "design",
+                "o_set",
+                "adjustment",
+                "iv",
+                "minimum_cost",
+                "adaptive",
+                "thompson",
+                "d_optimal",
+                "henckel_maathuis",
+            }
+        ),
         citations=(
             "Henckel, L., Perković, E. & Maathuis, M.H. (2022). "
             "Graphical criteria for efficient total effect estimation via "
@@ -841,9 +855,7 @@ class CausalExperimentDesigner:
             return {"design_result": result.model_dump()}
 
         if mode == "minimum_cost":
-            available: dict[str, float] = dict(
-                params.get("available_interventions", {})
-            )
+            available: dict[str, float] = dict(params.get("available_interventions", {}))
             plan = minimum_cost_identification(graph, treatment, outcome, available)
             return {"design_result": plan.model_dump()}
 
@@ -888,13 +900,13 @@ class CausalExperimentDesigner:
 
 
 __all__ = [
+    "AdaptiveBayesianDesignResult",
     "CausalExperimentDesigner",
+    "DOptimalDesignResult",
+    "adaptive_bayesian_experiment",
+    "adaptive_experiment",
+    "d_optimal_design",
+    "minimum_cost_identification",
     "optimal_adjustment_set",
     "optimal_instrument_selection",
-    "minimum_cost_identification",
-    "adaptive_experiment",
-    "adaptive_bayesian_experiment",
-    "d_optimal_design",
-    "AdaptiveBayesianDesignResult",
-    "DOptimalDesignResult",
 ]

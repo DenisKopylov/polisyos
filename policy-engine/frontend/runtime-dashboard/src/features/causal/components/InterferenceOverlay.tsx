@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 
 import type { CausalNodeData, CausalEdgeData } from "../types";
 
@@ -32,13 +33,6 @@ const MECHANISM_COLOR: Record<InterferencePattern["mechanism"], string> = {
   network: "var(--chart-tertiary)",
 };
 
-const MECHANISM_LABEL: Record<InterferencePattern["mechanism"], string> = {
-  spillover: "Spillover",
-  peer_effect: "Peer effect",
-  general_equilibrium: "General equilibrium",
-  network: "Network effect",
-};
-
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -48,6 +42,14 @@ export function InterferenceOverlay({
   patterns,
   className,
 }: InterferenceOverlayProps) {
+  const { t } = useI18n();
+  const mechanismLabels: Record<InterferencePattern["mechanism"], string> = {
+    spillover: t("causal.interference.mechanisms.spillover"),
+    peer_effect: t("causal.interference.mechanisms.peerEffect"),
+    general_equilibrium: t("causal.interference.mechanisms.generalEquilibrium"),
+    network: t("causal.interference.mechanisms.network"),
+  };
+
   if (patterns.length === 0) {
     return (
       <div
@@ -56,8 +58,8 @@ export function InterferenceOverlay({
           className,
         )}
       >
-        <p className="mb-1 font-semibold">Interference Pattern</p>
-        <p className="text-muted">No interference patterns detected.</p>
+        <p className="mb-1 font-semibold">{t("causal.interference.title")}</p>
+        <p className="text-muted">{t("causal.interference.empty")}</p>
       </div>
     );
   }
@@ -72,13 +74,13 @@ export function InterferenceOverlay({
       )}
     >
       <p className="mb-2 font-semibold">
-        Interference Patterns{" "}
+        {t("causal.interference.titlePlural")}{" "}
         <span className="text-muted font-normal">({patterns.length})</span>
       </p>
 
       {/* Legend */}
       <div className="mb-3 flex flex-wrap gap-3">
-        {(Object.keys(MECHANISM_LABEL) as InterferencePattern["mechanism"][])
+        {(Object.keys(mechanismLabels) as InterferencePattern["mechanism"][])
           .filter((m) => patterns.some((p) => p.mechanism === m))
           .map((mechanism) => (
             <div key={mechanism} className="flex items-center gap-1.5">
@@ -86,7 +88,7 @@ export function InterferenceOverlay({
                 className="inline-block size-2.5 rounded-full"
                 style={{ background: MECHANISM_COLOR[mechanism] }}
               />
-              <span>{MECHANISM_LABEL[mechanism]}</span>
+              <span>{mechanismLabels[mechanism]}</span>
             </div>
           ))}
       </div>
@@ -119,13 +121,14 @@ export function InterferenceOverlay({
                     color: "var(--paper)",
                   }}
                 >
-                  {MECHANISM_LABEL[pattern.mechanism]}
+                  {mechanismLabels[pattern.mechanism]}
                 </span>
               </div>
               <p className="text-muted mt-0.5">
-                Affects: {affected}
-                {" · "}
-                Strength: {(pattern.strength * 100).toFixed(0)}%
+                {t("causal.interference.patternSummary", {
+                  affected,
+                  strength: (pattern.strength * 100).toFixed(0),
+                })}
               </p>
               {pattern.description && (
                 <p className="text-muted mt-0.5 italic">

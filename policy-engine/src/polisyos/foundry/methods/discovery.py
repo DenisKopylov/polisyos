@@ -11,6 +11,7 @@ Architecture Notes:
 - Errors in individual files/modules do not crash the process
 - Sources are processed in order; first registration wins by default
 """
+
 from __future__ import annotations
 
 import contextlib
@@ -19,11 +20,11 @@ import importlib.metadata
 import inspect
 import sys
 import threading
-import warnings
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Callable, Iterable, Iterator, Protocol, Sequence
+from typing import Any, Protocol
 
 from polisyos.common.logger import get_logger
 from polisyos.core.discovery import (
@@ -236,7 +237,7 @@ def _get_method_fqn_safe(cls: type) -> str:
     try:
         if hasattr(cls, "signature") and hasattr(cls.signature, "fqn"):
             return cls.signature.fqn
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         _logger.debug("Ignored exception: %s", exc)
     return f"{cls.__module__}.{cls.__name__}"
 
@@ -778,10 +779,7 @@ def _normalize_duplicate_policy(policy: DuplicatePolicy | str) -> DuplicatePolic
 
 def _cleanup_discovery_modules() -> None:
     """Remove dynamically loaded discovery modules from sys.modules."""
-    to_remove = [
-        name for name in sys.modules
-        if name.startswith(DISCOVERY_MODULE_PREFIX)
-    ]
+    to_remove = [name for name in sys.modules if name.startswith(DISCOVERY_MODULE_PREFIX)]
     for name in to_remove:
         sys.modules.pop(name, None)
 

@@ -1,4 +1,5 @@
 """Contract validation utilities for the data catalog."""
+
 from __future__ import annotations
 
 import json

@@ -15,6 +15,7 @@ Exit codes:
     1  - one or more ERRORS found (CI should fail)
     2  - usage error (bad arguments, missing path)
 """
+
 from __future__ import annotations
 
 import argparse
@@ -23,8 +24,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools._lib.imports import repo_root_from, is_type_checking_test
-
+from tools._lib.imports import is_type_checking_test, repo_root_from
 
 FORBIDDEN_PREFIXES: dict[str, str] = {
     "polisyos.scientist": "Law A (Import Gate)",
@@ -33,9 +33,7 @@ FORBIDDEN_PREFIXES: dict[str, str] = {
     "foundry": "Law B (Foundry Purity)",
 }
 
-DEFAULT_CONNECTORS_ROOT = (
-    repo_root_from(__file__) / "src" / "polisyos" / "fabric" / "connectors"
-)
+DEFAULT_CONNECTORS_ROOT = repo_root_from(__file__) / "src" / "polisyos" / "fabric" / "connectors"
 
 
 @dataclass(frozen=True)
@@ -64,7 +62,7 @@ class _ImportVisitor(ast.NodeVisitor):
         self.violations: list[Violation] = []
         self._type_checking_depth = 0
 
-    def visit_If(self, node: ast.If) -> None:  # noqa: N802
+    def visit_If(self, node: ast.If) -> None:
         if is_type_checking_test(node.test):
             self._type_checking_depth += 1
             for child in node.body:
@@ -75,11 +73,11 @@ class _ImportVisitor(ast.NodeVisitor):
         else:
             self.generic_visit(node)
 
-    def visit_Import(self, node: ast.Import) -> None:  # noqa: N802
+    def visit_Import(self, node: ast.Import) -> None:
         for alias in node.names:
             self._check(alias.name, node.lineno, node.col_offset)
 
-    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:  # noqa: N802
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         if node.module:
             self._check(node.module, node.lineno, node.col_offset)
         else:
@@ -143,9 +141,7 @@ def _print_report(violations: list[Violation], strict: bool) -> None:
 
     if warnings:
         label = (
-            "WARNINGS (treated as ERRORS in --strict mode)"
-            if strict
-            else "WARNINGS (non-blocking)"
+            "WARNINGS (treated as ERRORS in --strict mode)" if strict else "WARNINGS (non-blocking)"
         )
         print(f"{label} ({len(warnings)}):\n")
         for v in warnings:

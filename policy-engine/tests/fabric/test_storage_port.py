@@ -38,12 +38,13 @@ def test_duckdb_storage_adapter_transaction_rollback(tmp_path: Path) -> None:
     baseline = adapter.query_table("macro_history", columns=("step",), limit=100)
     assert len(baseline) == 1
 
-    with pytest.raises(RuntimeError):
-        with adapter.transaction():
-            adapter.save_macro([_macro_row(1)])
-            raise RuntimeError("rollback")
+    with pytest.raises(RuntimeError), adapter.transaction():
+        adapter.save_macro([_macro_row(1)])
+        raise RuntimeError("rollback")
 
-    after = adapter.query_table("macro_history", columns=("step",), order_by=("step ASC",), limit=100)
+    after = adapter.query_table(
+        "macro_history", columns=("step",), order_by=("step ASC",), limit=100
+    )
     assert list(after["step"]) == [0]
     adapter.close()
 
@@ -61,12 +62,12 @@ def test_inmemory_storage_adapter_basic_query_and_transaction() -> None:
     )
     assert list(data["step"]) == [1, 0]
 
-    with pytest.raises(ValueError):
-        with adapter.transaction():
-            adapter.save_macro([_macro_row(2)])
-            raise ValueError("force rollback")
+    with pytest.raises(ValueError), adapter.transaction():
+        adapter.save_macro([_macro_row(2)])
+        raise ValueError("force rollback")
 
-    after = adapter.query_table("macro_history", columns=("step",), order_by=("step ASC",), limit=100)
+    after = adapter.query_table(
+        "macro_history", columns=("step",), order_by=("step ASC",), limit=100
+    )
     assert list(after["step"]) == [0, 1]
     adapter.close()
-

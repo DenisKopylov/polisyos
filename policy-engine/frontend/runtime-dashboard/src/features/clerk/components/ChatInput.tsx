@@ -1,4 +1,9 @@
-import { type KeyboardEvent, type SyntheticEvent, useRef, useState } from "react";
+import {
+  type KeyboardEvent,
+  type SyntheticEvent,
+  useRef,
+  useState,
+} from "react";
 
 import { Button } from "@/shared/ui";
 import { useI18n } from "@/i18n/LocaleProvider";
@@ -40,7 +45,7 @@ export function ChatInput({ onSubmit, disabled }: ChatInputProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-3 border-t border-[var(--line)] bg-[var(--panel)] px-5 py-4 rounded-b-[var(--radius-panel)]"
+      className="flex flex-col gap-3 rounded-b-[var(--radius-panel)] border-t border-[var(--line)] bg-[var(--panel)] px-5 py-4"
     >
       <textarea
         ref={textareaRef}
@@ -50,7 +55,7 @@ export function ChatInput({ onSubmit, disabled }: ChatInputProps) {
         placeholder={t("clerk.chatPlaceholder")}
         disabled={disabled}
         rows={3}
-        className="w-full resize-none rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-[16px] leading-relaxed text-[var(--ink)] placeholder:text-[var(--slate)] focus:border-[var(--teal)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] transition-[border-color,box-shadow] duration-[var(--motion-fast)]"
+        className="w-full resize-none rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-[16px] leading-relaxed text-[var(--ink)] transition-[border-color,box-shadow] duration-[var(--motion-fast)] placeholder:text-[var(--slate)] focus:border-[var(--teal)] focus:ring-2 focus:ring-[var(--focus-ring)] focus:outline-none"
       />
       <div className="flex items-center justify-between gap-3">
         <select
@@ -61,8 +66,7 @@ export function ChatInput({ onSubmit, disabled }: ChatInputProps) {
           <option value="">{t("clerk.chatDomainAuto")}</option>
           {CLERK_DEFAULT_DOMAIN_HINTS.map((hint) => (
             <option key={hint} value={hint}>
-              {hint.charAt(0).toUpperCase() +
-                hint.slice(1).replace("_", " ")}
+              {hint.charAt(0).toUpperCase() + hint.slice(1).replace("_", " ")}
             </option>
           ))}
         </select>

@@ -241,8 +241,8 @@ def build_runtime_api_env(
         store,
         {
             "schema_version": "1.0",
-                "verdict": "REPLAN_DATA",
-                "scores": {
+            "verdict": "REPLAN_DATA",
+            "scores": {
                 "kpi_score": "0.71",
                 "uncertainty_score": "0.52",
                 "constraints_score": "0.64",
@@ -795,9 +795,7 @@ def build_runtime_api_env(
         tracer=app.state.runtime_tracer,
         artifact_store=shared_store,
         registry_providers=(
-            container.control_registry_providers
-            if container is not None
-            else None
+            container.control_registry_providers if container is not None else None
         ),
     )
     control_service._retrieval._promotion_queue["promotion_fixture_001"] = PromotionCandidate(

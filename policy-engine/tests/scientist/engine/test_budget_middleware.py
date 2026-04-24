@@ -22,6 +22,7 @@ def _budget(max_usd: str = "100", spent: str = "0") -> BudgetState:
 
 # ── BudgetState new features ─────────────────────────────────────────
 
+
 class TestBudgetStateProviderSpent:
     def test_record_with_provider(self) -> None:
         bs = _budget()
@@ -121,6 +122,7 @@ class TestBudgetStateRoundtrip:
 
 # ── BudgetMiddleware ──────────────────────────────────────────────────
 
+
 class TestBudgetMiddleware:
     def test_pre_check_passes(self) -> None:
         mw = BudgetMiddleware(_budget(max_usd="100", spent="50"))
@@ -215,9 +217,7 @@ class TestFileBudgetLedger:
         result.state.spent["run"] = Decimal("25")
         assert loaded.spent == {"run": Decimal("0")}
 
-    def test_ledger_snapshot_exposes_canonical_multi_host_contract(
-        self, tmp_path: Path
-    ) -> None:
+    def test_ledger_snapshot_exposes_canonical_multi_host_contract(self, tmp_path: Path) -> None:
         ledger = FileBudgetLedger(
             tmp_path / "budget_ledger.json",
             ledger_id="ledger://scientist-phase4",
@@ -236,9 +236,7 @@ class TestFileBudgetLedger:
         assert snapshot.last_writer.writer_id == "host-a:worker-1"
         assert [item.operation for item in snapshot.recent_mutations] == ["bootstrap"]
 
-    def test_ledger_journal_tracks_cross_host_mutation_provenance(
-        self, tmp_path: Path
-    ) -> None:
+    def test_ledger_journal_tracks_cross_host_mutation_provenance(self, tmp_path: Path) -> None:
         path = tmp_path / "budget_ledger.json"
         ledger_a = FileBudgetLedger(
             path,

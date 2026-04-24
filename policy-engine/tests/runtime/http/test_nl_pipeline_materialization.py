@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
-from typing import Any
-
-import pytest
+from typing import TYPE_CHECKING, Any
 
 from polisyos.runtime.http.services.control import ControlPlaneService
+from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    import pytest
 
 
 class _FakeMetric:
@@ -50,7 +54,34 @@ class _FakeRetrievalService:
         )
 
 
-def test_nl_pipeline_materializes_data_snapshot_without_data_source(monkeypatch: pytest.MonkeyPatch) -> None:
+class _EmptyRegistry:
+    def query_entries(self, *args: Any, **kwargs: Any) -> list[Any]:
+        return []
+
+    def get(self, profile_id: str) -> None:
+        return None
+
+    def list_all(self) -> list[Any]:
+        return []
+
+    def list_by_family(self, connector_family: str) -> list[Any]:
+        return []
+
+
+def _registry_providers() -> ControlRegistryProviders:
+    registry = _EmptyRegistry()
+    return ControlRegistryProviders(
+        connectors=registry,
+        source_profiles=registry,
+        binding_profiles=registry,
+        model_profiles=registry,
+    )
+
+
+def test_nl_pipeline_materializes_data_snapshot_without_data_source(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     captured: dict[str, Any] = {}
 
     def _capture_state(payload: dict[str, Any]) -> None:
@@ -58,8 +89,13 @@ def test_nl_pipeline_materializes_data_snapshot_without_data_source(monkeypatch:
 
     monkeypatch.setattr("polisyos.fabric.retrieval.RetrievalService", _FakeRetrievalService)
     monkeypatch.setattr("polisyos.scientist.api.run_experiment", _capture_state)
+    service = ControlPlaneService(
+        cas_root=tmp_path / "cas",
+        core_runs_root=tmp_path / "runs",
+        registry_providers=_registry_providers(),
+    )
 
-    ControlPlaneService._execute_nl_pipeline(
+    service._execute_nl_pipeline(
         run_id="R_nl_materialize",
         nl_request="test request",
         context={},

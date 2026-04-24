@@ -8,6 +8,7 @@ Responsibilities:
 2) Synthetic generation -- generate_dataframe_for_schema() produces
    random DataFrames that conform to a given schema.
 """
+
 from __future__ import annotations
 
 import re
@@ -169,21 +170,21 @@ def _apply_schema_dtypes(df: pd.DataFrame, schema: DataSchema) -> None:
 def _generate_column(fspec: FieldSpec, n: int, rng: Any) -> list[Any]:
     """Dispatch to the correct generator based on data_type."""
     dispatch: dict[SchemaType, Any] = {
-        SchemaType.INT8:       lambda: _gen_int(fspec, n, rng, lo=-128, hi=127),
-        SchemaType.INT16:      lambda: _gen_int(fspec, n, rng, lo=-32768, hi=32767),
-        SchemaType.INT32:      lambda: _gen_int(fspec, n, rng, lo=-(2**31), hi=2**31 - 1),
-        SchemaType.INT64:      lambda: _gen_int(fspec, n, rng, lo=-(2**63), hi=2**63 - 1),
-        SchemaType.UINT8:      lambda: _gen_int(fspec, n, rng, lo=0, hi=255),
-        SchemaType.UINT16:     lambda: _gen_int(fspec, n, rng, lo=0, hi=65535),
-        SchemaType.UINT32:     lambda: _gen_int(fspec, n, rng, lo=0, hi=2**32 - 1),
-        SchemaType.UINT64:     lambda: _gen_int(fspec, n, rng, lo=0, hi=2**64 - 1),
-        SchemaType.FLOAT32:    lambda: _gen_float(fspec, n, rng),
-        SchemaType.FLOAT64:    lambda: _gen_float(fspec, n, rng),
-        SchemaType.BOOLEAN:    lambda: [rng.choice([True, False]) for _ in range(n)],
-        SchemaType.STRING:     lambda: _gen_string(fspec, n, rng),
-        SchemaType.CATEGORY:   lambda: _gen_category(fspec, n, rng),
-        SchemaType.DATETIME:   lambda: _gen_datetime(n, rng),
-        SchemaType.DATE:       lambda: _gen_date(n, rng),
+        SchemaType.INT8: lambda: _gen_int(fspec, n, rng, lo=-128, hi=127),
+        SchemaType.INT16: lambda: _gen_int(fspec, n, rng, lo=-32768, hi=32767),
+        SchemaType.INT32: lambda: _gen_int(fspec, n, rng, lo=-(2**31), hi=2**31 - 1),
+        SchemaType.INT64: lambda: _gen_int(fspec, n, rng, lo=-(2**63), hi=2**63 - 1),
+        SchemaType.UINT8: lambda: _gen_int(fspec, n, rng, lo=0, hi=255),
+        SchemaType.UINT16: lambda: _gen_int(fspec, n, rng, lo=0, hi=65535),
+        SchemaType.UINT32: lambda: _gen_int(fspec, n, rng, lo=0, hi=2**32 - 1),
+        SchemaType.UINT64: lambda: _gen_int(fspec, n, rng, lo=0, hi=2**64 - 1),
+        SchemaType.FLOAT32: lambda: _gen_float(fspec, n, rng),
+        SchemaType.FLOAT64: lambda: _gen_float(fspec, n, rng),
+        SchemaType.BOOLEAN: lambda: [rng.choice([True, False]) for _ in range(n)],
+        SchemaType.STRING: lambda: _gen_string(fspec, n, rng),
+        SchemaType.CATEGORY: lambda: _gen_category(fspec, n, rng),
+        SchemaType.DATETIME: lambda: _gen_datetime(n, rng),
+        SchemaType.DATE: lambda: _gen_date(n, rng),
     }
 
     generator = dispatch.get(fspec.data_type)
@@ -230,9 +231,7 @@ def _gen_string(fspec: FieldSpec, n: int, rng: Any) -> list[str]:
             results.append(_expand_simple_pattern(fspec.pattern, max_len, rng))
         else:
             length = rng.randint(min_len, max_len)
-            results.append(
-                "".join(rng.choices(string.ascii_lowercase + string.digits, k=length))
-            )
+            results.append("".join(rng.choices(string.ascii_lowercase + string.digits, k=length)))
 
     return results
 
@@ -254,12 +253,9 @@ def _gen_datetime(n: int, rng: Any) -> list[str]:
     """Generate ISO-8601 datetime strings spanning 2020-2025."""
     import datetime as _dt
 
-    base = _dt.datetime(2020, 1, 1, tzinfo=_dt.timezone.utc)
-    span = (_dt.datetime(2025, 12, 31, tzinfo=_dt.timezone.utc) - base).total_seconds()
-    return [
-        (base + _dt.timedelta(seconds=rng.uniform(0, span))).isoformat()
-        for _ in range(n)
-    ]
+    base = _dt.datetime(2020, 1, 1, tzinfo=_dt.UTC)
+    span = (_dt.datetime(2025, 12, 31, tzinfo=_dt.UTC) - base).total_seconds()
+    return [(base + _dt.timedelta(seconds=rng.uniform(0, span))).isoformat() for _ in range(n)]
 
 
 def _gen_date(n: int, rng: Any) -> list[str]:
@@ -268,10 +264,7 @@ def _gen_date(n: int, rng: Any) -> list[str]:
 
     base = _dt.date(2020, 1, 1)
     span = (_dt.date(2025, 12, 31) - base).days
-    return [
-        (base + _dt.timedelta(days=rng.randint(0, span))).isoformat()
-        for _ in range(n)
-    ]
+    return [(base + _dt.timedelta(days=rng.randint(0, span))).isoformat() for _ in range(n)]
 
 
 def _expand_simple_pattern(pattern: str, max_len: int, rng: Any) -> str:
@@ -305,6 +298,7 @@ def _expand_simple_pattern(pattern: str, max_len: int, rng: Any) -> str:
     # Date-like: \d{4}-\d{2}-\d{2}
     if re.fullmatch(r"\\d\{4\}-\\d\{2\}-\\d\{2\}", p):
         import datetime as _dt
+
         base = _dt.date(2020, 1, 1)
         span = (_dt.date(2025, 12, 31) - base).days
         return (base + _dt.timedelta(days=rng.randint(0, span))).isoformat()

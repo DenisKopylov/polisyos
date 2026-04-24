@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -31,13 +32,6 @@ const STATUS_COLOR: Record<HealthCheckStatus, string> = {
   unknown: "var(--line)",
 };
 
-const STATUS_LABEL: Record<HealthCheckStatus, string> = {
-  healthy: "Healthy",
-  degraded: "Degraded",
-  down: "Down",
-  unknown: "Unknown",
-};
-
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -46,7 +40,16 @@ export function SystemHealthPulse({
   checks,
   className,
 }: SystemHealthPulseProps) {
-  const overallStatus: HealthCheckStatus = checks.some((c) => c.status === "down")
+  const { t } = useI18n();
+  const statusLabel: Record<HealthCheckStatus, string> = {
+    healthy: t("features.dashboard.systemHealth.status.healthy"),
+    degraded: t("features.dashboard.systemHealth.status.degraded"),
+    down: t("features.dashboard.systemHealth.status.down"),
+    unknown: t("features.dashboard.systemHealth.status.unknown"),
+  };
+  const overallStatus: HealthCheckStatus = checks.some(
+    (c) => c.status === "down",
+  )
     ? "down"
     : checks.some((c) => c.status === "degraded")
       ? "degraded"
@@ -60,7 +63,9 @@ export function SystemHealthPulse({
       <div className="flex items-center gap-2">
         <span
           className="relative flex size-3"
-          aria-label={`System ${STATUS_LABEL[overallStatus]}`}
+          aria-label={t("features.dashboard.systemHealth.aria", {
+            status: statusLabel[overallStatus],
+          })}
         >
           <span
             className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-40"
@@ -72,7 +77,9 @@ export function SystemHealthPulse({
           />
         </span>
         <span className="text-sm font-semibold">
-          System: {STATUS_LABEL[overallStatus]}
+          {t("features.dashboard.systemHealth.summary", {
+            status: statusLabel[overallStatus],
+          })}
         </span>
       </div>
 
@@ -95,7 +102,9 @@ export function SystemHealthPulse({
             </div>
             {check.latencyMs != null && (
               <span className="text-muted shrink-0 font-mono">
-                {check.latencyMs}ms
+                {t("features.dashboard.systemHealth.latencyMs", {
+                  latency: check.latencyMs,
+                })}
               </span>
             )}
           </div>

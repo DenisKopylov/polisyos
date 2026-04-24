@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-import duckdb
+if TYPE_CHECKING:
+    import duckdb
 
 _SINGLE_TARGET_SCOPE_KINDS = {
     "explicit_target",
@@ -128,7 +130,9 @@ def collect_amendment_quality_metrics(
                 """
             ).fetchone()[0]
         )
-    amendment_extraction_coverage_pct = _safe_pct(amendment_docs_extracted, amendment_candidate_docs)
+    amendment_extraction_coverage_pct = _safe_pct(
+        amendment_docs_extracted, amendment_candidate_docs
+    )
 
     metadata_expr = (
         "COALESCE(json_extract_string(metadata, '$.doc_scope_kind'), '')"

@@ -1,4 +1,5 @@
 """Fail-closed diagnostics for causal faithfulness of network embeddings."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -53,11 +54,15 @@ def compute_embedding_fidelity_certificate(
         field_name="embedding_matrix",
     )
     n_obs = int(embedding.shape[0])
-    family = str(
-        _first_present(state_map, "embedding_family", "family", "method_name")
-        or params_map.get("embedding_family")
-        or "other"
-    ).strip().lower()
+    family = (
+        str(
+            _first_present(state_map, "embedding_family", "family", "method_name")
+            or params_map.get("embedding_family")
+            or "other"
+        )
+        .strip()
+        .lower()
+    )
 
     adjacency = _resolve_adjacency(state_map, n_obs=n_obs)
     covariates = _optional_matrix(
@@ -193,9 +198,7 @@ def compute_embedding_fidelity_certificate(
             "recoverability_metrics": {
                 name: dict(meta) for name, meta in recoverability_meta.items()
             },
-            "ci_diagnostics": {
-                name: dict(meta) for name, meta in ci_meta.items()
-            },
+            "ci_diagnostics": {name: dict(meta) for name, meta in ci_meta.items()},
             "collision_diagnostics": collision_meta,
             "effect_drift_diagnostics": effect_meta,
             "thresholds": thresholds,
@@ -242,12 +245,16 @@ def maybe_compute_embedding_fidelity_certificate(
     try:
         return compute_embedding_fidelity_certificate(payload, params=params)
     except Exception as exc:
-        family = str(
-            payload.get("embedding_family")
-            or embedding_family
-            or _first_present(state_map, "embedding_family", "family", "method_name")
-            or "other"
-        ).strip().lower()
+        family = (
+            str(
+                payload.get("embedding_family")
+                or embedding_family
+                or _first_present(state_map, "embedding_family", "family", "method_name")
+                or "other"
+            )
+            .strip()
+            .lower()
+        )
         return NetworkEmbeddingFidelityCertificate(
             family=family or "other",
             status=EmbeddingFidelityStatus.YELLOW,
@@ -276,7 +283,9 @@ def _coerce_matrix(value: Any, *, field_name: str) -> np.ndarray:
         raise ValueError(f"{field_name} must be a 2D matrix")
     if np.issubdtype(array.dtype, np.number):
         return array.astype(float)
-    return np.column_stack([_encode_numeric_vector(array[:, index]) for index in range(array.shape[1])])
+    return np.column_stack(
+        [_encode_numeric_vector(array[:, index]) for index in range(array.shape[1])]
+    )
 
 
 def _optional_matrix(value: Any, *, n_obs: int) -> np.ndarray | None:
@@ -564,7 +573,9 @@ def _residual_dependence_diagnostics(
         if left is None or right is None:
             continue
         separator_names = _separator_names_for_spec(spec, raw_separators)
-        raw_conditioning = _conditioning_matrix(covariates, raw_separators, separator_names, n_obs=left.shape[0])
+        raw_conditioning = _conditioning_matrix(
+            covariates, raw_separators, separator_names, n_obs=left.shape[0]
+        )
         embedding_conditioning = _conditioning_matrix(
             covariates,
             embedding_separators,
@@ -726,15 +737,8 @@ def _collision_rate(
         summary_distances.append(summary_distance)
         embedding_distances.append(float(distances[neighbor]))
         collisions.append(summary_distance > threshold)
-    close_cutoff = (
-        float(np.quantile(embedding_distances, 0.35))
-        if embedding_distances
-        else 0.0
-    )
-    close_mask = [
-        distance <= max(close_cutoff, 1.0e-9)
-        for distance in embedding_distances
-    ]
+    close_cutoff = float(np.quantile(embedding_distances, 0.35)) if embedding_distances else 0.0
+    close_mask = [distance <= max(close_cutoff, 1.0e-9) for distance in embedding_distances]
     close_count = max(int(np.sum(close_mask)), 1)
     return (
         (
@@ -751,8 +755,12 @@ def _collision_rate(
             else 0.0
         ),
         {
-            "mean_neighbor_summary_distance": float(np.mean(summary_distances)) if summary_distances else 0.0,
-            "mean_neighbor_embedding_distance": float(np.mean(embedding_distances)) if embedding_distances else 0.0,
+            "mean_neighbor_summary_distance": float(np.mean(summary_distances))
+            if summary_distances
+            else 0.0,
+            "mean_neighbor_embedding_distance": float(np.mean(embedding_distances))
+            if embedding_distances
+            else 0.0,
             "close_neighbor_cutoff": close_cutoff,
             "close_neighbor_count": float(close_count),
             "nodes_screened": float(len(focus)),
@@ -769,7 +777,9 @@ def _collision_summary_matrix(
 ) -> np.ndarray:
     columns: list[np.ndarray] = []
     if separators:
-        columns.append(np.column_stack([np.asarray(value, dtype=float) for value in separators.values()]))
+        columns.append(
+            np.column_stack([np.asarray(value, dtype=float) for value in separators.values()])
+        )
     if adjacency is not None:
         matrix = np.asarray(adjacency, dtype=float)
         columns.append(np.sum(matrix, axis=1, keepdims=True))
@@ -826,11 +836,16 @@ def _treatment_effect_ols(
     covariates: np.ndarray | None,
     separators: Mapping[str, np.ndarray],
 ) -> tuple[float | None, float | None]:
-    columns: list[np.ndarray] = [np.ones(outcome.shape[0], dtype=float), np.asarray(treatment, dtype=float)]
+    columns: list[np.ndarray] = [
+        np.ones(outcome.shape[0], dtype=float),
+        np.asarray(treatment, dtype=float),
+    ]
     if covariates is not None and covariates.size:
         columns.append(np.asarray(covariates, dtype=float))
     if separators:
-        columns.append(np.column_stack([np.asarray(value, dtype=float) for value in separators.values()]))
+        columns.append(
+            np.column_stack([np.asarray(value, dtype=float) for value in separators.values()])
+        )
     design = np.column_stack(columns)
     if design.shape[0] <= design.shape[1]:
         return None, None
@@ -900,9 +915,15 @@ def _aggregate_status(
     thresholds: Mapping[str, float],
 ) -> tuple[EmbeddingFidelityStatus, EmbeddingFidelityAction, list[str]]:
     failures: list[str] = []
-    if recoverability_scores and min(recoverability_scores.values()) < thresholds["recoverability_red"]:
+    if (
+        recoverability_scores
+        and min(recoverability_scores.values()) < thresholds["recoverability_red"]
+    ):
         failures.append("separator_recoverability_below_red_threshold")
-    if residual_dependence_scores and max(residual_dependence_scores.values()) > thresholds["residual_gap_red"]:
+    if (
+        residual_dependence_scores
+        and max(residual_dependence_scores.values()) > thresholds["residual_gap_red"]
+    ):
         failures.append("residual_dependence_gap_above_red_threshold")
     if collision_rate is not None and collision_rate > thresholds["collision_red"]:
         failures.append("collision_rate_above_red_threshold")
@@ -948,11 +969,20 @@ def _aggregate_status(
         yellow_failures.append("recoverability_diagnostics_incomplete")
     if effect_drift_z is None:
         yellow_failures.append("effect_drift_diagnostic_unavailable")
-    if effective_sample_size is not None and effective_sample_size < thresholds["effective_sample_size_green"]:
+    if (
+        effective_sample_size is not None
+        and effective_sample_size < thresholds["effective_sample_size_green"]
+    ):
         yellow_failures.append("effective_sample_size_below_green_threshold")
-    if recoverability_scores and min(recoverability_scores.values()) < thresholds["recoverability_green"]:
+    if (
+        recoverability_scores
+        and min(recoverability_scores.values()) < thresholds["recoverability_green"]
+    ):
         yellow_failures.append("separator_recoverability_below_green_threshold")
-    if residual_dependence_scores and max(residual_dependence_scores.values()) > thresholds["residual_gap_green"]:
+    if (
+        residual_dependence_scores
+        and max(residual_dependence_scores.values()) > thresholds["residual_gap_green"]
+    ):
         yellow_failures.append("residual_dependence_gap_above_green_threshold")
     if collision_rate is not None and collision_rate > thresholds["collision_green"]:
         yellow_failures.append("collision_rate_above_green_threshold")

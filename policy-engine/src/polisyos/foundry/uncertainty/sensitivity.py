@@ -1,4 +1,5 @@
 """Public uncertainty sensitivity module API."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -27,7 +28,7 @@ def compute_first_order_indices(
 
     var_y = float(np.var(outputs, ddof=1))
     if var_y < 1e-30:
-        return {name: 0.0 for name in input_names}
+        return dict.fromkeys(input_names, 0.0)
 
     # Build design matrix (no intercept — centred data)
     X = np.column_stack([input_samples[name] for name in input_names])
@@ -39,8 +40,7 @@ def compute_first_order_indices(
 
     stds = np.std(X, axis=0, ddof=1)
     raw_indices = {
-        name: float((beta[i] * stds[i]) ** 2 / var_y)
-        for i, name in enumerate(input_names)
+        name: float((beta[i] * stds[i]) ** 2 / var_y) for i, name in enumerate(input_names)
     }
 
     return raw_indices

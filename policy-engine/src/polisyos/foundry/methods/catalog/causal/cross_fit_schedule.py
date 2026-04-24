@@ -27,8 +27,8 @@ Fold schedule rules (applied by ``compile_estimand`` when ``use_cross_fitting=Tr
 from __future__ import annotations
 
 import dataclasses
-import uuid
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -49,7 +49,6 @@ from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
     ExecutorGraph,
     ExecutorNode,
 )
-
 
 # ---------------------------------------------------------------------------
 # CrossFitSchedule
@@ -88,7 +87,7 @@ def build_cross_fit_schedule(
     n_obs: int,
     n_folds: int,
     seed: int,
-    treatment: "np.ndarray | None" = None,
+    treatment: np.ndarray | None = None,
 ) -> CrossFitSchedule:
     """Construct a stratified K-fold :class:`CrossFitSchedule`.
 
@@ -268,9 +267,7 @@ def inject_cross_fitting(
             new_edges.append((dep, node.node_id))
 
     # New nuisance_schedule: fold variant IDs (aggregators are not nuisance)
-    new_nuisance_schedule = tuple(
-        n.node_id for n in rewritten_nodes if n.is_nuisance
-    )
+    new_nuisance_schedule = tuple(n.node_id for n in rewritten_nodes if n.is_nuisance)
 
     return ExecutorGraph(
         nodes=tuple(rewritten_nodes),
@@ -291,7 +288,7 @@ def inject_cross_fitting(
 @foundry_method(
     namespace="causal.compiler",
     version="1.0.0",
-    tags={"causal", "compiler", "cross-fitting", "aggregator"},
+    tags={"causal", "compiler", "cross-fitting", "aggregator", "cross-section"},
 )
 class FoldAggregator:
     """Aggregate K out-of-fold nuisance predictions into a full OOF array.
@@ -311,12 +308,20 @@ class FoldAggregator:
         name="fold_aggregator",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("fold_0_output", SlotType.VECTOR, Unit("nuisance", "oof"), shape=("n_fold_0",)),
-        }),
-        output_slots=frozenset({
-            SlotSpec("oof_predictions", SlotType.VECTOR, Unit("nuisance", "oof"), shape=("n_obs",)),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    "fold_0_output", SlotType.VECTOR, Unit("nuisance", "oof"), shape=("n_fold_0",)
+                ),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec(
+                    "oof_predictions", SlotType.VECTOR, Unit("nuisance", "oof"), shape=("n_obs",)
+                ),
+            }
+        ),
         parameters=(
             ParameterSpec(name="n_folds", default=5),
             ParameterSpec(name="fold_assignments", default=()),
@@ -335,7 +340,9 @@ class FoldAggregator:
             "Stitch K out-of-fold nuisance predictions into a full OOF array "
             "for downstream estimators."
         ),
-        tags=frozenset({"causal", "compiler", "cross-fitting", "aggregator", "oof"}),
+        tags=frozenset(
+            {"causal", "compiler", "cross-fitting", "aggregator", "oof", "cross-section"}
+        ),
         citations=(
             "Chernozhukov, V. et al. (2018). Double/Debiased Machine Learning. Econometrics Journal.",
         ),
@@ -408,8 +415,8 @@ def _build_oof_from_folds(
 
 __all__ = [
     "CrossFitSchedule",
-    "build_cross_fit_schedule",
-    "recommend_n_folds",
-    "inject_cross_fitting",
     "FoldAggregator",
+    "build_cross_fit_schedule",
+    "inject_cross_fitting",
+    "recommend_n_folds",
 ]

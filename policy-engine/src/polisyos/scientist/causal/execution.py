@@ -5,6 +5,7 @@
 engine, persists `BoundsBundle` artifacts, and returns normalized
 `BoundsEstimationEntry` rows for inclusion in `CausalExecutionBundle`.
 """
+
 from __future__ import annotations
 
 import math
@@ -107,9 +108,7 @@ class BoundsEstimationRunner:
                         **dict(resolved_task.metadata),
                     },
                 )
-                entries.append(
-                    entry
-                )
+                entries.append(entry)
             except Exception as exc:
                 warnings.append(f"{exc.__class__.__name__}: {exc}")
                 entries.append(

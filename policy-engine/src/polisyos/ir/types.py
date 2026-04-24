@@ -1,6 +1,6 @@
 """Public ir types module API."""
+
 from enum import Enum
-from typing import Optional
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
@@ -30,6 +30,7 @@ class TimeFrequency(str, Enum):
     QUARTER = "Q"
     YEAR = "Y"
 
+
 class TimeUnit(str, Enum):
     """Единицы времени в IR (человеческий формат)."""
 
@@ -40,6 +41,7 @@ class TimeUnit(str, Enum):
 
 class SelectorOperator(str, Enum):
     """Разрешенные операторы для TargetSelector (AST)."""
+
     EQUALS = "=="
     NOT_EQUALS = "!="
     GREATER_THAN = ">"
@@ -71,7 +73,7 @@ class TranslatableString(BaseModel):
         validation_alias=AliasChoices("ua", "Ua"),
         max_length=200,
     )
-    ru: Optional[str] = Field(
+    ru: str | None = Field(
         None,
         description="Russian text (optional)",
         validation_alias=AliasChoices("ru", "Ru"),

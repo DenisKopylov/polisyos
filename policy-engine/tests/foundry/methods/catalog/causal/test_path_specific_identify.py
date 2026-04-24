@@ -6,8 +6,8 @@ from polisyos.foundry.methods.catalog.causal.id_engine import (
     IdentificationStatus,
 )
 from polisyos.foundry.methods.catalog.causal.path_specific_identify import identify_path_specific
-from polisyos.ir.analytics.estimand import DistributionDomain
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+from polisyos.ir.analytics.estimand import DistributionDomain
 from polisyos.ir.analytics.interventions import (
     EdgeAssignment,
     EdgeIntervention,
@@ -152,8 +152,7 @@ def test_identify_path_specific_detects_recanting_district_and_returns_bounds() 
     assert report.mode is PathSpecificDecisionMode.BOUNDED
     assert report.bounds_bundle is not None
     assert any(
-        witness.kind is PathSpecificWitnessKind.RECANTING_DISTRICT
-        for witness in report.witnesses
+        witness.kind is PathSpecificWitnessKind.RECANTING_DISTRICT for witness in report.witnesses
     )
 
 
@@ -208,7 +207,10 @@ def test_identify_path_specific_exact_with_experiments_when_base_effect_not_obse
     assert report.mode is PathSpecificDecisionMode.EXACT_WITH_EXPERIMENTS
     assert report.compilation_plan is not None
     assert report.compilation_plan.compiled_estimand_ast is not None
-    assert DistributionDomain.EXPERIMENTAL in report.compilation_plan.compiled_estimand_ast.required_domains()
+    assert (
+        DistributionDomain.EXPERIMENTAL
+        in report.compilation_plan.compiled_estimand_ast.required_domains()
+    )
     assert report.required_distributions
 
 

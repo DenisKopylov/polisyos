@@ -105,12 +105,14 @@ def test_human_review_multiple_unsupported_edges() -> None:
         nodes=["A", "B", "C"],
         edges=[
             CausalEdge(
-                src="A", dst="B",
+                src="A",
+                dst="B",
                 sources=[EdgeSource.LLM_PRIOR],
                 unsupported_by_evidence=True,
             ),
             CausalEdge(
-                src="B", dst="C",
+                src="B",
+                dst="C",
                 sources=[EdgeSource.LLM_PRIOR],
                 unsupported_by_evidence=True,
             ),
@@ -138,7 +140,8 @@ def test_human_review_with_edge_lag() -> None:
         nodes=["X", "Y"],
         edges=[
             CausalEdge(
-                src="X", dst="Y",
+                src="X",
+                dst="Y",
                 sources=[EdgeSource.LLM_PRIOR],
                 unsupported_by_evidence=True,
                 lag=3,

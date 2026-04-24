@@ -1,15 +1,26 @@
 """Public optimization registry boot module API."""
+
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
-from .advanced_stochastic import BilevelOptimizationEstimator, ChanceConstrainedEstimator
+from .advanced_stochastic import (
+    BilevelOptimizationEstimator,
+    ChanceConstrainedEstimator,
+    LegacyBilevelOptimizationEstimator,
+)
+from .auction import PublicReserveAuctionEstimator
 from .combinatorial import KnapsackEstimator, VehicleRoutingEstimator
-from .convex import QuadraticProgramEstimator, RobustOptimizationEstimator
+from .convex import (
+    QuadraticProgramEstimator,
+    RobustOptimizationEstimator,
+    SetBasedRobustLinearEstimator,
+)
 from .game_theory import NashEquilibriumEstimator
 from .io_model import LeontiefInputOutput
 from .lp import ResourceLP
 from .milp import BudgetMILP
+from .moment_dro import MomentConstrainedDROEstimator
 from .multiobjective import MultiObjectiveNSGA2Estimator
 from .sequential import (
     DynamicProgrammingEstimator,
@@ -26,6 +37,7 @@ def register_optimization_methods() -> Sequence[type]:
         LeontiefInputOutput,
         QuadraticProgramEstimator,
         RobustOptimizationEstimator,
+        SetBasedRobustLinearEstimator,
         MultiObjectiveNSGA2Estimator,
         SecondOrderConeProgramEstimator,
         TwoStageStochasticProgramEstimator,
@@ -33,8 +45,11 @@ def register_optimization_methods() -> Sequence[type]:
         KnapsackEstimator,
         VehicleRoutingEstimator,
         NashEquilibriumEstimator,
+        LegacyBilevelOptimizationEstimator,
         BilevelOptimizationEstimator,
         ChanceConstrainedEstimator,
+        MomentConstrainedDROEstimator,
+        PublicReserveAuctionEstimator,
     )
 
 

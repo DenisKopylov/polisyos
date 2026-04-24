@@ -2,13 +2,21 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 
 import pandas as pd
 import pytest
 
 from polisyos.fabric.connectors.base import FetchResult
+from polisyos.fabric.connectors.contracts.schema import (
+    DataSchema,
+    FieldSpec,
+    SchemaType,
+    SchemaVersion,
+    SemanticType,
+    TimeGranularity,
+)
 from polisyos.fabric.connectors.quality import (
     CompletenessAnalyzer,
     ConsistencyChecker,
@@ -17,14 +25,6 @@ from polisyos.fabric.connectors.quality import (
     FreshnessChecker,
     FreshnessLevel,
     FreshnessPolicy,
-)
-from polisyos.fabric.connectors.contracts.schema import (
-    DataSchema,
-    FieldSpec,
-    SchemaType,
-    SchemaVersion,
-    SemanticType,
-    TimeGranularity,
 )
 from polisyos.ir.connectors import DataVersion, QualityTier, VersionStrategy
 
@@ -50,15 +50,13 @@ def make_fetch_result(
     fetched_at: datetime | None = None,
     source_updated_at: datetime | None = None,
 ) -> FetchResult:
-    fetched_at = fetched_at or datetime.now(timezone.utc)
+    fetched_at = fetched_at or datetime.now(UTC)
     version = DataVersion(
         strategy=VersionStrategy.TIMESTAMP,
         value=fetched_at.isoformat(),
         timestamp=fetched_at,
     )
-    if isinstance(data, pd.DataFrame):
-        row_count = len(data)
-    elif isinstance(data, list):
+    if isinstance(data, pd.DataFrame) or isinstance(data, list):
         row_count = len(data)
     else:
         row_count = 0
@@ -82,8 +80,8 @@ class TestFreshnessChecker:
         status = checker.check_freshness(
             dataset_id="stock_prices",
             metadata=metadata,
-            fetched_at=datetime.now(timezone.utc) - timedelta(minutes=2),
-            last_updated=datetime.now(timezone.utc) - timedelta(minutes=1),
+            fetched_at=datetime.now(UTC) - timedelta(minutes=2),
+            last_updated=datetime.now(UTC) - timedelta(minutes=1),
         )
         assert status.level == FreshnessLevel.FRESH
         assert status.is_fresh
@@ -94,7 +92,7 @@ class TestFreshnessChecker:
         status = checker.check_freshness(
             dataset_id="census_monthly_2024",
             metadata=metadata,
-            fetched_at=datetime.now(timezone.utc) - timedelta(days=20),
+            fetched_at=datetime.now(UTC) - timedelta(days=20),
         )
         assert status.schedule == "monthly"
 
@@ -109,7 +107,7 @@ class TestFreshnessChecker:
         status = checker.check_freshness(
             dataset_id="market_data",
             metadata=metadata,
-            fetched_at=datetime.now(timezone.utc) - timedelta(hours=1),
+            fetched_at=datetime.now(UTC) - timedelta(hours=1),
         )
         assert status.ttl_seconds == 300
 
@@ -118,8 +116,8 @@ class TestFreshnessChecker:
         status = checker.check_freshness(
             dataset_id="future_dataset",
             metadata=SimpleNamespace(schedule="daily", capabilities=0),
-            fetched_at=datetime.now(timezone.utc) + timedelta(days=2),
-            last_updated=datetime.now(timezone.utc) + timedelta(days=10),
+            fetched_at=datetime.now(UTC) + timedelta(days=2),
+            last_updated=datetime.now(UTC) + timedelta(days=10),
         )
 
         assert status.cache_age_seconds == 0
@@ -154,8 +152,8 @@ class TestFreshnessChecker:
         status = checker.check_freshness(
             dataset_id="stock_prices",
             metadata=SimpleNamespace(schedule="real-time", capabilities=0),
-            fetched_at=datetime.now(timezone.utc) - timedelta(minutes=2),
-            last_updated=datetime.now(timezone.utc) - timedelta(minutes=1),
+            fetched_at=datetime.now(UTC) - timedelta(minutes=2),
+            last_updated=datetime.now(UTC) - timedelta(minutes=1),
             metrics=metrics,
         )
 
@@ -216,9 +214,7 @@ class TestCompletenessAnalyzer:
 class TestConsistencyChecker:
     def test_bounds_violation(self):
         df = pd.DataFrame({"age": [25, 30, -5, 150, 40]})
-        schema = make_schema(
-            [FieldSpec(name="age", data_type=SchemaType.INT32, bounds=(0, 120))]
-        )
+        schema = make_schema([FieldSpec(name="age", data_type=SchemaType.INT32, bounds=(0, 120))])
         checker = ConsistencyChecker()
         result = checker.check_consistency(df, schema)
         assert any("below minimum" in v.message for v in result.violations)
@@ -253,8 +249,8 @@ class TestDataQualityValidator:
         df = pd.DataFrame({"value": range(100)})
         fetch_result = make_fetch_result(
             data=df,
-            fetched_at=datetime.now(timezone.utc) - timedelta(minutes=5),
-            source_updated_at=datetime.now(timezone.utc) - timedelta(minutes=2),
+            fetched_at=datetime.now(UTC) - timedelta(minutes=5),
+            source_updated_at=datetime.now(UTC) - timedelta(minutes=2),
         )
         schema = make_schema(
             [
@@ -275,7 +271,7 @@ class TestDataQualityValidator:
         df = pd.DataFrame({"value": [1, None, 3, None, 5, None, 200, None]})
         fetch_result = make_fetch_result(
             data=df,
-            fetched_at=datetime.now(timezone.utc) - timedelta(days=10),
+            fetched_at=datetime.now(UTC) - timedelta(days=10),
         )
         schema = make_schema(
             [
@@ -314,9 +310,7 @@ class TestDataQualityValidator:
         assert any("gaps detected" in warning for warning in report.warnings)
 
     def test_sampling_preserves_categorical_checks(self):
-        df = pd.DataFrame({
-            "category": ["A"] * 200 + ["B"] * 200 + ["X"]
-        })
+        df = pd.DataFrame({"category": ["A"] * 200 + ["B"] * 200 + ["X"]})
         fetch_result = make_fetch_result(data=df)
         schema = make_schema(
             [
@@ -342,7 +336,7 @@ class TestQualityGateIntegration:
             ttl_seconds=3600,
             schedule="daily",
             last_updated=None,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             message="fresh",
         )
 
@@ -350,7 +344,7 @@ class TestQualityGateIntegration:
             DataQualityReport(
                 dataset_id="test.dataset",
                 schema_id="test.schema",
-                validated_at=datetime.now(timezone.utc),
+                validated_at=datetime.now(UTC),
                 score=float("nan"),
                 tier=QualityTier.BRONZE,
                 grade="F",
@@ -361,11 +355,11 @@ class TestQualityGateIntegration:
 
     def test_quality_gate_blocks_bronze_in_strict(self):
         try:
+            from polisyos.core.governance.passes.base import PassContext
+            from polisyos.core.governance.profiles import ValidationProfile
             from polisyos.scientist.governance.passes.quality_gate_pass import (
                 QualityGatePass,
             )
-            from polisyos.core.governance.passes.base import PassContext
-            from polisyos.core.governance.profiles import ValidationProfile
         except ModuleNotFoundError as exc:
             pytest.skip(f"Governance dependencies unavailable: {exc}")
 
@@ -377,13 +371,13 @@ class TestQualityGateIntegration:
             ttl_seconds=0,
             schedule="daily",
             last_updated=None,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             message="stale",
         )
         report = DataQualityReport(
             dataset_id="test.dataset",
             schema_id="test.schema",
-            validated_at=datetime.now(timezone.utc),
+            validated_at=datetime.now(UTC),
             score=0.65,
             tier=QualityTier.BRONZE,
             grade="D",

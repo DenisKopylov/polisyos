@@ -1,4 +1,5 @@
 """Expose survey-design methods and register them into the Foundry catalog."""
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -93,9 +94,9 @@ def ensure_survey_methods_registered(registry: MethodRegistry | None = None) -> 
 __all__ = [
     "AuxiliaryTotalUncertainty",
     "CCEBEstimator",
-    "CausalFrontierFayHerriotEstimator",
     "CalibrationGREGEstimator",
     "CalibrationWeights",
+    "CausalFrontierFayHerriotEstimator",
     "ComplexSurveyDesignEstimator",
     "DemographicConsistencyEstimator",
     "DemographicConsistencyResult",

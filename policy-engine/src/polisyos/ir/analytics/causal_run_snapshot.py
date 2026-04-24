@@ -11,13 +11,14 @@ Design
 - ``persist_snapshot()`` / ``lookup_snapshot()`` — append-only JSONL index in
   ``<cas_root>/index/causal_run_snapshots.jsonl`` maps run_id → artifact_id.
 """
+
 from __future__ import annotations
 
 import hashlib
 import json
 import logging
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from functools import cached_property
 from pathlib import Path
 from typing import Any
@@ -172,7 +173,7 @@ class CausalRunSnapshot(BaseModel):
         data_dict: dict[str, Any] | None = None,
         algorithm_version: str = "",
         compilation_steps: Any = (),  # tuple[CompilationStep, ...]
-    ) -> "CausalRunSnapshot":
+    ) -> CausalRunSnapshot:
         """Factory: build from CausalEngine.run() artefacts."""
         warnings: dict[str, None] = {}
 
@@ -202,9 +203,9 @@ class CausalRunSnapshot(BaseModel):
         estimand_fp = ""
         if estimand_ast_dict:
             try:
-                estimand_fp = EstimandAST.model_validate(
-                    estimand_ast_dict
-                ).content_hash(prefix=True)
+                estimand_fp = EstimandAST.model_validate(estimand_ast_dict).content_hash(
+                    prefix=True
+                )
             except (ValidationError, ValueError) as exc:
                 _add_warning("estimand_normalization_failed", exc=exc)
                 try:
@@ -215,9 +216,7 @@ class CausalRunSnapshot(BaseModel):
         # Estimand shape from compilation steps
         if not estimand_shape and compilation_steps:
             estimand_shape = (
-                getattr(compilation_steps[0], "estimand_shape", "")
-                if compilation_steps
-                else ""
+                getattr(compilation_steps[0], "estimand_shape", "") if compilation_steps else ""
             )
 
         # Dataset fingerprints (cheap: just use dict keys + n_obs from DataProvenance)
@@ -279,7 +278,7 @@ class CausalRunSnapshot(BaseModel):
             method_invocations=tuple(invocations),
             algorithm_version=algorithm_version,
             python_version=f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
-            created_at=datetime.now(timezone.utc).isoformat(),
+            created_at=datetime.now(UTC).isoformat(),
             warnings=tuple(warnings),
         )
 
@@ -362,8 +361,8 @@ def lookup_snapshot(
 
 
 __all__ = [
-    "MethodInvocationRecord",
     "CausalRunSnapshot",
-    "persist_snapshot",
+    "MethodInvocationRecord",
     "lookup_snapshot",
+    "persist_snapshot",
 ]

@@ -1,4 +1,5 @@
 """Multi-environment and invariance-learning contracts."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -54,7 +55,7 @@ class EnvironmentSpec(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_environment(self) -> "EnvironmentSpec":
+    def validate_environment(self) -> EnvironmentSpec:
         ensure_unique_ids(
             self.context_features,
             key_fn=lambda item: item,
@@ -76,7 +77,7 @@ class InvariantMechanismHypothesis(BaseModel):
     notes: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def validate_hypothesis(self) -> "InvariantMechanismHypothesis":
+    def validate_hypothesis(self) -> InvariantMechanismHypothesis:
         ensure_unique_ids(
             self.invariant_parents,
             key_fn=lambda item: item,
@@ -107,7 +108,7 @@ class MultiEnvironmentCausalContract(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_contract(self) -> "MultiEnvironmentCausalContract":
+    def validate_contract(self) -> MultiEnvironmentCausalContract:
         ensure_unique_ids(
             self.environments,
             key_fn=lambda item: item.environment_id,
@@ -133,7 +134,7 @@ class InvarianceResult(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_result(self) -> "InvarianceResult":
+    def validate_result(self) -> InvarianceResult:
         ensure_unique_ids(
             self.hypotheses,
             key_fn=lambda item: item.hypothesis_id,
@@ -183,7 +184,7 @@ class RegimeShiftDataSignature(BaseModel):
     sample_sizes_by_env: dict[str, int] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_signature(self) -> "RegimeShiftDataSignature":
+    def validate_signature(self) -> RegimeShiftDataSignature:
         if not self.variables:
             raise ValueError("variables must be non-empty")
         ensure_unique_ids(self.variables, key_fn=lambda item: item, label="regime variable")
@@ -223,7 +224,7 @@ class RegimeShiftSummary(BaseModel):
     detected_target_shift_flags: dict[str, bool] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_shift_summary(self) -> "RegimeShiftSummary":
+    def validate_shift_summary(self) -> RegimeShiftSummary:
         ensure_unique_ids(
             self.detected_covariate_shifts,
             key_fn=lambda item: item,
@@ -260,7 +261,7 @@ class RegimeShiftInvarianceTesting(BaseModel):
     notes: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def validate_testing(self) -> "RegimeShiftInvarianceTesting":
+    def validate_testing(self) -> RegimeShiftInvarianceTesting:
         ensure_finite_numeric(self.alpha, field_name="alpha")
         return self
 
@@ -285,7 +286,7 @@ class RegimeShiftSetTestResult(BaseModel):
     diagnostics: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_set_result(self) -> "RegimeShiftSetTestResult":
+    def validate_set_result(self) -> RegimeShiftSetTestResult:
         ensure_unique_ids(self.S, key_fn=lambda item: item, label="candidate set variable")
         if self.p_value is not None:
             ensure_finite_numeric(self.p_value, field_name="p_value")
@@ -302,7 +303,7 @@ class RegimeShiftStabilityMetrics(BaseModel):
     stability_ratio: dict[str, float] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_metrics(self) -> "RegimeShiftStabilityMetrics":
+    def validate_metrics(self) -> RegimeShiftStabilityMetrics:
         for variable, ratio in self.stability_ratio.items():
             if not variable.strip():
                 raise ValueError("stability_ratio keys must be non-empty")
@@ -323,7 +324,7 @@ class RegimeShiftInformativeness(BaseModel):
     leave_one_out_minimal_set_changes: dict[str, bool] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_informativeness(self) -> "RegimeShiftInformativeness":
+    def validate_informativeness(self) -> RegimeShiftInformativeness:
         ensure_unique_ids(self.redundant_envs, key_fn=lambda item: item, label="redundant env")
         if any(not env_id.strip() for env_id in self.leave_one_out_parent_changes):
             raise ValueError("leave_one_out_parent_changes keys must be non-empty")
@@ -349,8 +350,10 @@ class RegimeShiftIdentifiabilityWitness(BaseModel):
     identification_scope: str = Field(min_length=1)
 
     @model_validator(mode="after")
-    def validate_witness(self) -> "RegimeShiftIdentifiabilityWitness":
-        ensure_unique_ids(self.assumptions, key_fn=lambda item: item, label="identifiability assumption")
+    def validate_witness(self) -> RegimeShiftIdentifiabilityWitness:
+        ensure_unique_ids(
+            self.assumptions, key_fn=lambda item: item, label="identifiability assumption"
+        )
         ensure_unique_ids(
             self.environment_diversity_requirements,
             key_fn=lambda item: item,
@@ -382,13 +385,11 @@ class RegimeShiftTargetResult(BaseModel):
     stability_metrics: RegimeShiftStabilityMetrics = Field(
         default_factory=RegimeShiftStabilityMetrics
     )
-    informativeness: RegimeShiftInformativeness = Field(
-        default_factory=RegimeShiftInformativeness
-    )
+    informativeness: RegimeShiftInformativeness = Field(default_factory=RegimeShiftInformativeness)
     warnings: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def validate_target_result(self) -> "RegimeShiftTargetResult":
+    def validate_target_result(self) -> RegimeShiftTargetResult:
         if not self.envs_used:
             raise ValueError("envs_used must be non-empty")
         ensure_unique_ids(self.envs_used, key_fn=lambda item: item, label="envs_used")
@@ -416,7 +417,7 @@ class RegimeShiftMECContractionEdgeUpdates(BaseModel):
     newly_oriented_by_closure: int = Field(default=0, ge=0)
 
     @model_validator(mode="after")
-    def validate_edge_updates(self) -> "RegimeShiftMECContractionEdgeUpdates":
+    def validate_edge_updates(self) -> RegimeShiftMECContractionEdgeUpdates:
         for field_name in ("forced_orientations", "forbidden_orientations"):
             edges = getattr(self, field_name)
             ensure_unique_ids(edges, key_fn=lambda item: item, label=field_name)
@@ -466,7 +467,7 @@ class RegimeShiftTrack7Revalidation(BaseModel):
     exact_certificate_valid: bool = True
 
     @model_validator(mode="after")
-    def validate_revalidation(self) -> "RegimeShiftTrack7Revalidation":
+    def validate_revalidation(self) -> RegimeShiftTrack7Revalidation:
         if self.performed and self.severity is None:
             raise ValueError("performed Track 7 revalidation requires severity")
         if not self.performed and self.severity is not None:
@@ -496,9 +497,9 @@ class RegimeShiftTrack7InteractionStats(BaseModel):
     candidate_suppression_applied: bool = False
     block_lifting_applied: bool = False
     suppressed_candidates_by_target: dict[str, tuple[str, ...]] = Field(default_factory=dict)
-    mutually_exclusive_candidate_groups_by_target: dict[
-        str, tuple[tuple[str, ...], ...]
-    ] = Field(default_factory=dict)
+    mutually_exclusive_candidate_groups_by_target: dict[str, tuple[tuple[str, ...], ...]] = Field(
+        default_factory=dict
+    )
     hard_forbidden_edges: tuple[tuple[str, str], ...] = ()
     prior_blocker_families: tuple[str, ...] = ()
     revalidation_required: bool = True
@@ -508,7 +509,7 @@ class RegimeShiftTrack7InteractionStats(BaseModel):
     warnings: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def validate_track7_stats(self) -> "RegimeShiftTrack7InteractionStats":
+    def validate_track7_stats(self) -> RegimeShiftTrack7InteractionStats:
         for target, suppressed in self.suppressed_candidates_by_target.items():
             if not target.strip():
                 raise ValueError("suppressed_candidates_by_target keys must be non-empty")
@@ -588,13 +589,11 @@ class RegimeShiftComputationalFeasibility(BaseModel):
     )
 
     @model_validator(mode="after")
-    def validate_feasibility(self) -> "RegimeShiftComputationalFeasibility":
+    def validate_feasibility(self) -> RegimeShiftComputationalFeasibility:
         if self.treewidth_upper_bounds and (
             len(self.treewidth_upper_bounds) != len(self.component_sizes)
         ):
-            raise ValueError(
-                "treewidth_upper_bounds must align with component_sizes when provided"
-            )
+            raise ValueError("treewidth_upper_bounds must align with component_sizes when provided")
         for target, size in self.candidate_parent_sizes.items():
             if not target.strip():
                 raise ValueError("candidate_parent_sizes keys must be non-empty")
@@ -713,7 +712,7 @@ class ShiftTypeAlphaSplit(BaseModel):
     structural: float = Field(default=0.05 / 3.0, ge=0.0, le=1.0)
 
     @model_validator(mode="after")
-    def validate_split(self) -> "ShiftTypeAlphaSplit":
+    def validate_split(self) -> ShiftTypeAlphaSplit:
         ensure_finite_numeric(self.shift, field_name="shift")
         ensure_finite_numeric(self.selection, field_name="selection")
         ensure_finite_numeric(self.structural, field_name="structural")
@@ -745,7 +744,7 @@ class ShiftTypeGlobalShiftTest(BaseModel):
     effect_size: float | None = Field(default=None, ge=0.0)
 
     @model_validator(mode="after")
-    def validate_global_shift(self) -> "ShiftTypeGlobalShiftTest":
+    def validate_global_shift(self) -> ShiftTypeGlobalShiftTest:
         if self.p_value is not None:
             ensure_finite_numeric(self.p_value, field_name="p_value")
         if self.effect_size is not None:
@@ -766,13 +765,15 @@ class ShiftTypeSelectionOnlyWitness(BaseModel):
     ess_min: float | None = Field(default=None, ge=0.0)
 
     @model_validator(mode="after")
-    def validate_witness(self) -> "ShiftTypeSelectionOnlyWitness":
+    def validate_witness(self) -> ShiftTypeSelectionOnlyWitness:
         ensure_unique_ids(self.balancing_set, key_fn=lambda item: item, label="balancing set")
         if self.p_value is not None:
             ensure_finite_numeric(self.p_value, field_name="selection_only_witness.p_value")
         for variable, value in self.per_variable_p_values.items():
             if not variable.strip():
-                raise ValueError("selection_only_witness per_variable_p_values keys must be non-empty")
+                raise ValueError(
+                    "selection_only_witness per_variable_p_values keys must be non-empty"
+                )
             ensure_finite_numeric(
                 value,
                 field_name=f"selection_only_witness.per_variable_p_values.{variable}",
@@ -800,7 +801,7 @@ class ShiftTypeStructuralOnlyWitness(BaseModel):
     per_target_p_values: dict[str, float] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_witness(self) -> "ShiftTypeStructuralOnlyWitness":
+    def validate_witness(self) -> ShiftTypeStructuralOnlyWitness:
         ensure_unique_ids(self.targets_tested, key_fn=lambda item: item, label="targets_tested")
         for target, parents in self.accepted_parent_sets.items():
             if not target.strip():
@@ -836,7 +837,7 @@ class ShiftTypeLatentMixedSeverity(BaseModel):
     icp_cd_gap: float | None = None
 
     @model_validator(mode="after")
-    def validate_scores(self) -> "ShiftTypeLatentMixedSeverity":
+    def validate_scores(self) -> ShiftTypeLatentMixedSeverity:
         if self.anchor_stability_gap is not None:
             ensure_finite_numeric(
                 self.anchor_stability_gap,
@@ -894,7 +895,7 @@ class RegimeShiftTypeAssessment(BaseModel):
     narrative_summary: str = ""
 
     @model_validator(mode="after")
-    def validate_assessment(self) -> "RegimeShiftTypeAssessment":
+    def validate_assessment(self) -> RegimeShiftTypeAssessment:
         ensure_finite_numeric(self.alpha_total, field_name="alpha_total")
         split_total = (
             self.alpha_split.shift + self.alpha_split.selection + self.alpha_split.structural
@@ -923,15 +924,13 @@ class RegimeShiftIdentificationCertificate(BaseModel):
     identifiability_witness: RegimeShiftIdentifiabilityWitness | None = None
     computational_feasibility: RegimeShiftComputationalFeasibility | None = None
     shift_type_assessment: RegimeShiftTypeAssessment | None = None
-    mec_contraction: RegimeShiftMECContraction = Field(
-        default_factory=RegimeShiftMECContraction
-    )
+    mec_contraction: RegimeShiftMECContraction = Field(default_factory=RegimeShiftMECContraction)
     assumptions: tuple[str, ...] = ()
     warnings: tuple[str, ...] = ()
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_certificate(self) -> "RegimeShiftIdentificationCertificate":
+    def validate_certificate(self) -> RegimeShiftIdentificationCertificate:
         if not self.environments:
             raise ValueError("environments must be non-empty")
         if not self.targets:
@@ -964,8 +963,7 @@ class RegimeShiftIdentificationCertificate(BaseModel):
             unknown_envs = set(target_result.envs_used) - env_ids
             if unknown_envs:
                 raise ValueError(
-                    f"target {target_result.target} references unknown envs "
-                    f"{sorted(unknown_envs)}"
+                    f"target {target_result.target} references unknown envs {sorted(unknown_envs)}"
                 )
             unknown_redundant = set(target_result.informativeness.redundant_envs) - env_ids
             if unknown_redundant:
@@ -993,7 +991,9 @@ class RegimeShiftIdentificationCertificate(BaseModel):
                     f"{sorted(selection_unknown)}"
                 )
             per_variable_unknown = (
-                set(self.shift_type_assessment.witnesses.selection_only_witness.per_variable_p_values)
+                set(
+                    self.shift_type_assessment.witnesses.selection_only_witness.per_variable_p_values
+                )
                 - variables
             )
             if per_variable_unknown:
@@ -1029,7 +1029,9 @@ class RegimeShiftIdentificationCertificate(BaseModel):
                     f"references unknown variables {sorted(unknown_parent_variables)}"
                 )
             unknown_per_target = (
-                set(self.shift_type_assessment.witnesses.structural_only_witness.per_target_p_values)
+                set(
+                    self.shift_type_assessment.witnesses.structural_only_witness.per_target_p_values
+                )
                 - target_ids
             )
             if unknown_per_target:
@@ -1068,7 +1070,10 @@ class RegimeShiftIdentificationCertificate(BaseModel):
             for edge_group_name, edges in (
                 ("hard_required_edges", self.computational_feasibility.hard_required_edges),
                 ("hard_forbidden_edges", self.computational_feasibility.hard_forbidden_edges),
-                ("track7.hard_forbidden_edges", self.computational_feasibility.track7.hard_forbidden_edges),
+                (
+                    "track7.hard_forbidden_edges",
+                    self.computational_feasibility.track7.hard_forbidden_edges,
+                ),
             ):
                 edge_variables = {item for edge in edges for item in edge}
                 unknown_edge_variables = edge_variables - variables
@@ -1177,13 +1182,13 @@ __all__ = [
     "RegimeShiftMECContractionSummary",
     "RegimeShiftProducedBy",
     "RegimeShiftSetTestResult",
+    "RegimeShiftStabilityMetrics",
     "RegimeShiftSummary",
+    "RegimeShiftTargetResult",
+    "RegimeShiftTimeWindow",
     "RegimeShiftTrack7InteractionStats",
     "RegimeShiftTrack7Revalidation",
-    "RegimeShiftStabilityMetrics",
-    "RegimeShiftTargetResult",
     "RegimeShiftTypeAssessment",
-    "RegimeShiftTimeWindow",
     "ShiftTypeAlphaSplit",
     "ShiftTypeAssumptions",
     "ShiftTypeCertificationLevel",

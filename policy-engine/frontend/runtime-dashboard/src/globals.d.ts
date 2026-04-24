@@ -13,6 +13,7 @@ interface ImportMetaEnv {
 
 declare global {
   interface Window {
+    __A11Y_DOWNLOADS__?: string[];
     __RUNTIME_DASHBOARD_FLAGS__?: unknown;
     __RUNTIME_DASHBOARD_TEST__?: boolean;
   }

@@ -1,9 +1,10 @@
 """Signed delegation token for secure propagation of user context between services."""
+
 from __future__ import annotations
 
 import secrets
 from dataclasses import replace
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -86,7 +87,7 @@ class DelegationTokenManager:
     ) -> str:
         """Issue short-lived signed delegation token from an AccessScope."""
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         claims = DelegationContextClaims(
             iss=issuer,
             aud=audience,
@@ -151,9 +152,7 @@ class DelegationTokenManager:
 
         claims = DelegationContextClaims.model_validate(payload)
         if claims.iss not in trusted_issuers:
-            raise DelegationVerificationError(
-                f"Delegation issuer {claims.iss!r} is not trusted"
-            )
+            raise DelegationVerificationError(f"Delegation issuer {claims.iss!r} is not trusted")
         return claims
 
     def reissue_for_hop(

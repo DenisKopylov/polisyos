@@ -42,6 +42,8 @@ def test_causal_block_bridge_round_trip(tmp_path) -> None:
     ref = persist_causal_block_bridge(store, bridge)
     assert isinstance(ref, CausalBlockBridgeRef)
     loaded = load_causal_block_bridge(store, ref)
-    assert np.array_equal(np.asarray(loaded.cluster_id, dtype=int), np.array([0, 0, 1, 1], dtype=int))
+    assert np.array_equal(
+        np.asarray(loaded.cluster_id, dtype=int), np.array([0, 0, 1, 1], dtype=int)
+    )
     assert loaded.node_to_block == bridge.node_to_block
     assert loaded.block_support == bridge.block_support

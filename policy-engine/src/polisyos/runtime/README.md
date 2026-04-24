@@ -13,6 +13,7 @@ clients, dashboards, and operator tooling.
 - `src/polisyos/runtime/replay.py` for replay planning and verification logic.
 - `src/polisyos/runtime/http/README.md` for the FastAPI app, route layout, and
   service layer.
+
 - `docs/reference/api/index.md` for the committed runtime API surface.
 - `tools/runtime/check_runtime_api_contract.py` for OpenAPI drift checks.
 
@@ -23,6 +24,7 @@ clients, dashboards, and operator tooling.
   `ReplayPlan`, `CompletenessLevel`, `CompletenessReport`, `VerificationMode`,
   `VerificationConfig`, `VerificationResult`, `build_replay_plan`,
   `completeness_check`, `verify_replay`
+
 - `polisyos.runtime.http` owns the runtime API assembly and OpenAPI snapshot
   inputs. Use its README when working on HTTP wiring, security middleware, or
   generated-client drift.
@@ -43,10 +45,13 @@ Run commands from the repository root `policy-engine/`.
 
 - Smoke-tested:
   `PYTHONPATH=src:. uv run python -c "import polisyos.runtime as runtime; print(sorted(runtime.__all__))"`
+
 - Smoke-tested:
   `PYTHONPATH=src:. uv run --extra runtime --extra ml python -c "import polisyos.runtime.http as runtime_http; print(sorted(runtime_http.__all__))"`
+
 - Conceptual regeneration:
   `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json`
+
 - Conceptual regeneration:
   `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js`
 
@@ -56,8 +61,10 @@ Run commands from the repository root `policy-engine/`.
 
 - Smoke-tested:
   `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
+
 - Smoke-tested:
   `uv run pytest -q tests/runtime/test_replay_runtime.py tests/runtime/test_replay_input_bindings_completeness.py`
+
 - Smoke-tested:
   `uv run pytest -q tests/runtime/http/test_runtime_api_contract_hardening.py tests/runtime/http/test_runtime_api_authz.py tests/runtime/http/test_api_maturity.py`
 

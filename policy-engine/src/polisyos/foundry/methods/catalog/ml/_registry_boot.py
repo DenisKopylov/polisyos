@@ -1,7 +1,8 @@
 """Public ml registry boot module API."""
+
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from .advanced import GaussianProcessEstimator, NeuralODEEstimator, QuantileForestEstimator
 from .clustering import KMeansEstimator

@@ -1,0 +1,49 @@
+alignments:
+  - canonical_var: economic.gdp
+    dataset_var: NY.GDP.MKTP.CD
+    dataset_id: WB_WDI
+    method: exact
+    confidence: 1.0
+    evidence: seed_worldbank_wdi
+  - canonical_var: demographic.population
+    dataset_var: SP.POP.TOTL
+    dataset_id: WB_WDI
+    method: exact
+    confidence: 1.0
+    evidence: seed_worldbank_wdi
+  - canonical_var: health.tuberculosis_incidence
+    dataset_var: SH.TBS.INCD
+    dataset_id: WB_WDI
+    method: exact
+    confidence: 1.0
+    evidence: seed_worldbank_wdi
+  - canonical_var: economic.fiscal_balance
+    dataset_var: GC.BAL.CASH.GD.ZS
+    dataset_id: WB_WDI
+    method: exact
+    confidence: 1.0
+    evidence: seed_worldbank_wdi
+  - canonical_var: social.at_risk_of_poverty
+    dataset_var: ilc_peps01n
+    dataset_id: EUROSTAT
+    method: exact
+    confidence: 1.0
+    evidence: seed_eurostat
+  - canonical_var: institutional_quality
+    dataset_var: RL.EST
+    dataset_id: WB_WGI
+    method: exact
+    confidence: 1.0
+    evidence: seed_worldbank_wgi
+  - canonical_var: institutional_quality
+    dataset_var: GE.EST
+    dataset_id: WB_WGI
+    method: exact
+    confidence: 1.0
+    evidence: seed_worldbank_wgi
+  - canonical_var: social_trust
+    dataset_var: Q57
+    dataset_id: WVS_W7
+    method: semantic
+    confidence: 0.85
+    evidence: seed_wvs_wave7

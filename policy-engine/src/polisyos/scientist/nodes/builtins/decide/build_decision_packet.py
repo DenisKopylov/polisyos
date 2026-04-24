@@ -1,9 +1,10 @@
 """Public decide build decision packet module API."""
+
 from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import ValidationError
@@ -71,6 +72,10 @@ from polisyos.ir.analytics.strategic import (
     load_strategic_scm,
 )
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+from polisyos.ir.analytics.welfare import (
+    load_channel_decomposition_artifact,
+    load_welfare_bundle,
+)
 from polisyos.ir.refs import (
     ABMAlignmentReportRef,
     AbstractionCertificateRef,
@@ -82,6 +87,7 @@ from polisyos.ir.refs import (
     NormativeArbitrationResultRef,
     StrategicResponseBundleRef,
     StrategicSCMRef,
+    WelfareBundleRef,
 )
 from polisyos.scientist.decision_validity import DecisionValidityService
 from polisyos.scientist.engine.context import ExecutionContext
@@ -92,9 +98,6 @@ from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.feedback import (
     DecisionFeedbackService,
     build_monitoring_contract_from_packet,
-)
-from polisyos.scientist.governance.calibration_validation import (
-    load_calibration_validation_bundle,
 )
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins import errors as node_errors
@@ -122,8 +125,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_DECISION_CARD_REF,
-    ARTIFACT_DECISION_READINESS_CONTRACT_REF,
     ARTIFACT_DECISION_PACKET_REF,
+    ARTIFACT_DECISION_READINESS_CONTRACT_REF,
     ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF,
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
     ARTIFACT_ECONOMETRIC_ENVELOPE_REF,
@@ -135,11 +138,12 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_HTE_RESULT_REF,
     ARTIFACT_INPUT_BINDING_REPORT_REF,
     ARTIFACT_LOWERED_IR_REF,
-    ARTIFACT_METRICS_REF,
     ARTIFACT_METRIC_OBSERVATION_BUNDLE_REF,
     ARTIFACT_METRIC_VALIDATION_REPORT_REF,
+    ARTIFACT_METRICS_REF,
     ARTIFACT_NORM_IMPACT_REPORT_REF,
     ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
+    ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF,
     ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
     ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_PROGRAM_GRAPH_REF,
@@ -152,6 +156,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_STRESS_TEST_REPORT_REF,
     ARTIFACT_TRANSPORTABILITY_RESULT_REF,
     ARTIFACT_VERIFIED_POLICY_REPORT_REF,
+    ARTIFACT_WELFARE_BUNDLE_REF,
     INPUT_DATA_SNAPSHOT_REF,
     INPUT_INPUT_BINDINGS_REF,
     INPUT_KNOWLEDGE_BUNDLE_REF,
@@ -166,15 +171,28 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     REPORT_LEGAL_REPORT_REF,
     REPORT_LINK_REPORT_REF,
 )
-from polisyos.scientist.policy_design.output import load_policy_artifact_bundle
+from polisyos.scientist.policy_design.phase3 import resolve_phase3_gate
 from polisyos.scientist.policy_verified import (
     load_source_verification_report,
     load_verified_policy_report,
 )
-from polisyos.scientist.validation.metrics import describe_test_id
-from polisyos.scientist.search.readiness import load_decision_readiness_contract
 
 logger = get_logger(__name__)
+
+_TEST_LABELS: dict[str, str] = {
+    "delong_auc": "DeLong AUC",
+    "mcnemar_exact": "McNemar exact",
+    "mcnemar_chi2": "McNemar chi-square",
+    "paired_t": "Paired t-test",
+    "wilcoxon_signed_rank": "Wilcoxon signed-rank",
+    "paired_permutation": "Paired permutation",
+    "paired_bootstrap_bca": "Paired bootstrap",
+}
+
+
+def _describe_test_id(test_id: str) -> str:
+    return _TEST_LABELS.get(test_id, test_id.replace("_", " ").title())
+
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_build_decision_packet@1.5.0"),
@@ -250,7 +268,7 @@ class BuildDecisionPacketNode:
 
         packet_payload: dict[str, object] = {
             "schema_version": "3.4",
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
             "run_id": state.run_id,
             "seed": request.seed,
             "policy_summary": request.policy_summary,
@@ -285,6 +303,8 @@ class BuildDecisionPacketNode:
             "backtest": None,
             "calibration_validation": None,
             "distributional": None,
+            "welfare": None,
+            "phase3": None,
             "econometrics": None,
             "norm_impact": None,
             "sensitivity": None,
@@ -296,6 +316,7 @@ class BuildDecisionPacketNode:
             "artifacts": request.artifacts_section,
             "replay": replay_section,
             "degraded_paths": [],
+            "document_outline": [],
             "notes": [],
         }
         packet_payload["uncertainty"] = _build_uncertainty_section(
@@ -348,6 +369,16 @@ class BuildDecisionPacketNode:
         packet_payload["distributional"] = _build_distributional_section(
             ctx,
             state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+        packet_payload["welfare"] = _build_welfare_section(
+            ctx,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+        packet_payload["phase3"] = _build_phase3_section(
+            ctx,
+            state,
             packet_payload=packet_payload,
         )
         packet_payload["econometrics"] = _build_econometrics_section(
@@ -422,14 +453,20 @@ class BuildDecisionPacketNode:
                     ctx.store,
                     MetricValidationReportRef.model_validate(metric_validation_ref.model_dump()),
                 )
-                packet_payload["metric_validation_report_ref"] = str(metric_validation_ref.artifact_id)
-                packet_payload["metric_significance"] = _build_metric_significance_projection(report)
-                packet_payload["metric_significance_summary"] = _build_metric_significance_summary(report)
-                packet_payload["metric_validation_family_adjustment"] = report.family_adjustment.model_dump(
-                    mode="json"
+                packet_payload["metric_validation_report_ref"] = str(
+                    metric_validation_ref.artifact_id
                 )
-                packet_payload["metric_validation_comparisons"] = _build_metric_validation_comparison_rows(
+                packet_payload["metric_significance"] = _build_metric_significance_projection(
                     report
+                )
+                packet_payload["metric_significance_summary"] = _build_metric_significance_summary(
+                    report
+                )
+                packet_payload["metric_validation_family_adjustment"] = (
+                    report.family_adjustment.model_dump(mode="json")
+                )
+                packet_payload["metric_validation_comparisons"] = (
+                    _build_metric_validation_comparison_rows(report)
                 )
             except _DECISION_PACKET_LOAD_ERRORS as exc:
                 _record_decision_packet_degraded(
@@ -472,7 +509,9 @@ class BuildDecisionPacketNode:
             try:
                 report = load_source_verification_report(
                     ctx.store,
-                    SourceVerificationReportRef.model_validate(source_verification_ref.model_dump()),
+                    SourceVerificationReportRef.model_validate(
+                        source_verification_ref.model_dump()
+                    ),
                 )
                 packet_payload["legal_verification"] = {
                     "verified_claim_count": len(report.verified_claims),
@@ -532,6 +571,8 @@ class BuildDecisionPacketNode:
         policy_bundle_ref = state.artifacts_index.get(ARTIFACT_POLICY_OUTPUT_BUNDLE_REF)
         if policy_bundle_ref is not None:
             try:
+                from polisyos.scientist.policy_design.output import load_policy_artifact_bundle
+
                 policy_bundle = load_policy_artifact_bundle(ctx.store, policy_bundle_ref)
                 packet_payload["policy_output_bundle"] = {
                     "bundle_ref": policy_bundle_ref.artifact_id,
@@ -544,6 +585,7 @@ class BuildDecisionPacketNode:
                         if policy_bundle.decision_readiness_contract_ref is not None
                         else None
                     ),
+                    "phase3_gate": policy_bundle.phase3_gate.model_dump(mode="json"),
                 }
             except _DECISION_PACKET_LOAD_ERRORS as exc:
                 _record_decision_packet_degraded(
@@ -573,6 +615,7 @@ class BuildDecisionPacketNode:
             state=state,
         )
         packet_payload["analysis_limits"] = _build_analysis_limits(packet_payload)
+        packet_payload["document_outline"] = _build_document_outline(packet_payload)
         validity_envelope = _build_decision_validity_envelope(
             ctx=ctx,
             state=state,
@@ -754,6 +797,7 @@ def _build_artifacts_section(
         ARTIFACT_DISTRIBUTIONAL_REPORT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_DISTRIBUTIONAL_REPORT_REF
         ),
+        ARTIFACT_WELFARE_BUNDLE_REF: _ref_from_dict(artifacts_index, ARTIFACT_WELFARE_BUNDLE_REF),
         ARTIFACT_ECONOMETRIC_RESULT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_ECONOMETRIC_RESULT_REF
         ),
@@ -775,6 +819,9 @@ def _build_artifacts_section(
         ),
         ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF
+        ),
+        ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF: _ref_from_dict(
+            artifacts_index, ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF
         ),
         ARTIFACT_SENSITIVITY_RESULT_REF: _ref_from_dict(
             artifacts_index, ARTIFACT_SENSITIVITY_RESULT_REF
@@ -813,7 +860,9 @@ def _missing_serious_decision_contracts(
     state: ExperimentState,
     monitoring_contract_ref: str | None,
 ) -> list[str]:
-    profile = str(state.execution_profile or state.params.get("execution_profile") or "").strip().lower()
+    profile = (
+        str(state.execution_profile or state.params.get("execution_profile") or "").strip().lower()
+    )
     if profile not in {"research", "governed", "production"}:
         return []
     missing: list[str] = []
@@ -916,7 +965,9 @@ def _build_causal_section(
                 CausalModelEnsembleRef(artifact_id=ensemble_ref.artifact_id),
             )
             payload["ensemble_member_count"] = len(ensemble.members)
-            payload["ensemble_methods"] = sorted({member.discovery_method for member in ensemble.members})
+            payload["ensemble_methods"] = sorted(
+                {member.discovery_method for member in ensemble.members}
+            )
             payload["ensemble_consensus_graph_ref"] = ensemble.consensus_graph_ref
         except _DECISION_PACKET_LOAD_ERRORS as exc:
             logger.debug(
@@ -1047,6 +1098,8 @@ def _build_causal_section(
 
     if readiness_ref is not None:
         try:
+            from polisyos.scientist.search.readiness import load_decision_readiness_contract
+
             readiness = load_decision_readiness_contract(ctx.store, readiness_ref)
             payload["decision_readiness_level"] = readiness.readiness_level.value
             payload["decision_readiness_cap"] = readiness.metadata.get("readiness_cap")
@@ -1058,9 +1111,7 @@ def _build_causal_section(
             if dp_summary is not None:
                 _merge_dp_summary_into_causal_payload(payload, dp_summary)
         except _DECISION_PACKET_LOAD_ERRORS as exc:
-            payload["decision_readiness_parse_warning"] = (
-                "decision_readiness_contract_parse_failed"
-            )
+            payload["decision_readiness_parse_warning"] = "decision_readiness_contract_parse_failed"
             _record_decision_packet_section_degraded(
                 packet_payload,
                 operation="load_decision_readiness_contract",
@@ -1152,7 +1203,9 @@ def _build_strategic_section(
                 else strategic_scm.equilibrium_concept.value
             )
             if strategic_scm.equilibrium_descriptor is not None:
-                payload["strategic_game_class"] = strategic_scm.equilibrium_descriptor.game_class.value
+                payload["strategic_game_class"] = (
+                    strategic_scm.equilibrium_descriptor.game_class.value
+                )
                 payload["strategic_solution_concept"] = (
                     strategic_scm.equilibrium_descriptor.solution_concept.value
                 )
@@ -1259,7 +1312,8 @@ def _build_strategic_section(
                             "mfg_mass_conservation_ref": (
                                 None
                                 if mfg_certificate.equilibrium_solution is None
-                                or mfg_certificate.equilibrium_solution.mass_conservation_ref is None
+                                or mfg_certificate.equilibrium_solution.mass_conservation_ref
+                                is None
                                 else str(
                                     mfg_certificate.equilibrium_solution.mass_conservation_ref.artifact_id
                                 )
@@ -1305,8 +1359,7 @@ def _build_strategic_section(
                                 artifact_key=ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
                             )
                     if (
-                        bundle.mfg_equilibrium_ref.kind
-                        == "ir.mean_field_equilibrium_certificate"
+                        bundle.mfg_equilibrium_ref.kind == "ir.mean_field_equilibrium_certificate"
                         and mfg_certificate.intervention_spec_ref.kind
                         == "ir.mean_field_perturbation_spec"
                     ):
@@ -1322,7 +1375,8 @@ def _build_strategic_section(
                                         for channel in perturbation_spec.representative_agent_channels
                                     ],
                                     "mfg_population_channels": [
-                                        channel.value for channel in perturbation_spec.population_channels
+                                        channel.value
+                                        for channel in perturbation_spec.population_channels
                                     ],
                                     "mfg_policy_kernel_overlap_required": (
                                         perturbation_spec.policy_kernel_overlap_required
@@ -1377,10 +1431,7 @@ def _build_strategic_section(
                     bundle.post_adaptation_policy_value_ref,
                 )
                 payload["post_adaptation_policy_value"] = value_summary.point_value
-                if (
-                    value_summary.lower_bound is not None
-                    and value_summary.upper_bound is not None
-                ):
+                if value_summary.lower_bound is not None and value_summary.upper_bound is not None:
                     payload["post_adaptation_policy_value_bounds"] = [
                         value_summary.lower_bound,
                         value_summary.upper_bound,
@@ -1642,9 +1693,9 @@ def _build_hte_section(
                 "n_subgroups": len(result.subgroup_effects),
                 "top_features": [
                     item.model_dump(mode="json")
-                    for item in sorted(
-                        result.feature_importances, key=lambda x: x.importance_rank
-                    )[:5]
+                    for item in sorted(result.feature_importances, key=lambda x: x.importance_rank)[
+                        :5
+                    ]
                 ],
                 "warnings": result.metadata.get("warnings", []),
             }
@@ -1718,7 +1769,6 @@ def _build_backtest_section(
         return None
     from polisyos.core.contracts.backtest import BacktestReportRef
 
-
     payload: dict[str, object] = {"report_ref": str(backtest_ref.artifact_id)}
     try:
         report = load_backtest_report(
@@ -1771,6 +1821,10 @@ def _build_calibration_validation_section(
         return None
     payload: dict[str, object] = {"ref": str(bundle_ref.artifact_id)}
     try:
+        from polisyos.scientist.governance.calibration_validation import (
+            load_calibration_validation_bundle,
+        )
+
         bundle = load_calibration_validation_bundle(ctx.store, bundle_ref)
         payload.update(
             {
@@ -1782,9 +1836,7 @@ def _build_calibration_validation_section(
                     if bundle.governance_accountability_ref is None
                     else str(bundle.governance_accountability_ref.artifact_id)
                 ),
-                "governance_accountability_summary": dict(
-                    bundle.governance_accountability_summary
-                ),
+                "governance_accountability_summary": dict(bundle.governance_accountability_summary),
             }
         )
     except _DECISION_PACKET_LOAD_ERRORS as exc:
@@ -1836,7 +1888,9 @@ def _build_feedback_loop(
             inputs=input_refs or None,
         )
 
-    backtest_section = packet_payload.get("backtest") if isinstance(packet_payload.get("backtest"), dict) else {}
+    backtest_section = (
+        packet_payload.get("backtest") if isinstance(packet_payload.get("backtest"), dict) else {}
+    )
     contract_ref_payload = (
         DecisionMonitoringContractRef(artifact_id=monitoring_contract_ref).model_dump(mode="json")
         if monitoring_contract_ref is not None
@@ -1863,10 +1917,10 @@ def _parse_anchor_at(value: str) -> datetime:
     try:
         parsed = datetime.fromisoformat(normalized)
     except ValueError:
-        return datetime.now(timezone.utc)
+        return datetime.now(UTC)
     if parsed.tzinfo is None:
-        return parsed.replace(tzinfo=timezone.utc)
-    return parsed.astimezone(timezone.utc)
+        return parsed.replace(tzinfo=UTC)
+    return parsed.astimezone(UTC)
 
 
 def _build_distributional_section(
@@ -1986,7 +2040,8 @@ def _build_distributional_section(
                     ),
                     "proof_kernel_theorem_family": (
                         str(proof_kernel.get("theorem_family"))
-                        if isinstance(proof_kernel, dict) and proof_kernel.get("theorem_family") is not None
+                        if isinstance(proof_kernel, dict)
+                        and proof_kernel.get("theorem_family") is not None
                         else None
                     ),
                     "ordinal_poverty_ref": (
@@ -1998,7 +2053,9 @@ def _build_distributional_section(
             )
             if bundle.ordinal_poverty_ref is not None:
                 try:
-                    ordinal_report = load_ordinal_poverty_report(ctx.store, bundle.ordinal_poverty_ref)
+                    ordinal_report = load_ordinal_poverty_report(
+                        ctx.store, bundle.ordinal_poverty_ref
+                    )
                     payload.update(
                         {
                             "ordinal_poverty_methodology": ordinal_report.methodology,
@@ -2025,6 +2082,189 @@ def _build_distributional_section(
                 artifact_key=ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF,
             )
 
+    return payload
+
+
+def _build_welfare_section(
+    ctx: ExecutionContext,
+    artifacts_index: dict[str, ArtifactRef],
+    *,
+    packet_payload: dict[str, object] | None = None,
+) -> dict[str, object] | None:
+    bundle_ref = artifacts_index.get(ARTIFACT_WELFARE_BUNDLE_REF)
+    if bundle_ref is None:
+        sim_result_ref = artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
+        if sim_result_ref is not None:
+            try:
+                sim_result = SimulationResult.model_validate(
+                    from_canonical_bytes(ctx.store.get_bytes(sim_result_ref.artifact_id))
+                )
+                if sim_result.welfare_bundle_ref is not None:
+                    bundle_ref = sim_result.welfare_bundle_ref
+            except _DECISION_PACKET_LOAD_ERRORS as exc:
+                _record_decision_packet_section_degraded(
+                    packet_payload,
+                    operation="load_simulation_result_for_welfare",
+                    reason="simulation_result_welfare_lookup_failed",
+                    exc=exc,
+                    ref=sim_result_ref,
+                    artifact_key=ARTIFACT_SIMULATION_RESULT_REF,
+                )
+    if bundle_ref is None:
+        return None
+
+    payload: dict[str, object] = {
+        "bundle_ref": str(bundle_ref.artifact_id),
+    }
+    try:
+        welfare = load_welfare_bundle(
+            ctx.store,
+            WelfareBundleRef.model_validate(bundle_ref.model_dump()),
+        )
+        payload.update(
+            {
+                "welfare_measure": welfare.welfare_measure,
+                "model_class": welfare.model_class,
+                "ge_multiplier_semantics": welfare.ge_multiplier_semantics,
+                "point_estimate": welfare.point_estimate,
+                "credible_interval": (
+                    None
+                    if welfare.credible_interval is None
+                    else [welfare.credible_interval[0], welfare.credible_interval[1]]
+                ),
+                "credible_width": (
+                    None
+                    if welfare.credible_interval is None
+                    else welfare.credible_interval[1] - welfare.credible_interval[0]
+                ),
+                "robust_interval": (
+                    None
+                    if welfare.robust_interval is None
+                    else [welfare.robust_interval[0], welfare.robust_interval[1]]
+                ),
+                "robust_width": (
+                    None
+                    if welfare.robust_interval is None
+                    else welfare.robust_interval[1] - welfare.robust_interval[0]
+                ),
+                "interval_semantics": welfare.interval_semantics.value,
+                "channel_decomposition_ref": (
+                    str(welfare.channel_decomposition_ref.artifact_id)
+                    if welfare.channel_decomposition_ref is not None
+                    else None
+                ),
+                "channel_decomposition": dict(welfare.channel_decomposition),
+                "subgroup_welfare": dict(welfare.subgroup_welfare),
+                "method_used": welfare.method_used.value,
+                "status": welfare.status.value,
+                "warnings": list(welfare.warnings),
+                "warning_count": len(welfare.warnings),
+                "pe_uncertainty_count": len(welfare.pe_uncertainty_refs),
+                "ge_uncertainty_ref": (
+                    str(welfare.ge_uncertainty_ref.artifact_id)
+                    if welfare.ge_uncertainty_ref is not None
+                    else None
+                ),
+                "dependence_structure_ref": (
+                    str(welfare.dependence_structure_ref.artifact_id)
+                    if welfare.dependence_structure_ref is not None
+                    else None
+                ),
+                "ge_model_ref": (
+                    str(welfare.ge_model_ref.artifact_id)
+                    if welfare.ge_model_ref is not None
+                    else None
+                ),
+                "method_config_ref": (
+                    str(welfare.method_config_ref.artifact_id)
+                    if welfare.method_config_ref is not None
+                    else None
+                ),
+                "sample_bundle_ref": (
+                    str(welfare.sample_bundle_ref.artifact_id)
+                    if welfare.sample_bundle_ref is not None
+                    else None
+                ),
+                "sensitivity_diagnostics_ref": (
+                    str(welfare.sensitivity_diagnostics_ref.artifact_id)
+                    if welfare.sensitivity_diagnostics_ref is not None
+                    else None
+                ),
+                "diagnostics": dict(welfare.diagnostics),
+            }
+        )
+        if welfare.channel_decomposition_ref is not None:
+            try:
+                channel = load_channel_decomposition_artifact(
+                    ctx.store,
+                    welfare.channel_decomposition_ref,
+                )
+                payload["channel_decomposition_artifact"] = {
+                    "target_kind": channel.target_kind.value,
+                    "policy_class": channel.policy_class.value,
+                    "basis_labels": list(channel.basis_labels),
+                    "step_vector": list(channel.step_vector),
+                    "mechanical_vector": (
+                        None
+                        if channel.mechanical_vector is None
+                        else list(channel.mechanical_vector)
+                    ),
+                    "behavioral_vector": (
+                        None
+                        if channel.behavioral_vector is None
+                        else list(channel.behavioral_vector)
+                    ),
+                    "fiscal_feedback_vector": (
+                        None
+                        if channel.fiscal_feedback_vector is None
+                        else list(channel.fiscal_feedback_vector)
+                    ),
+                    "total_vector": (
+                        None if channel.total_vector is None else list(channel.total_vector)
+                    ),
+                    "identification_status": channel.identification_status.value,
+                    "blocking_reasons": list(channel.blocking_reasons),
+                    "first_stage_stats": dict(channel.first_stage_stats),
+                    "overid_stats": dict(channel.overid_stats),
+                    "overlap_stats": dict(channel.overlap_stats),
+                    "local_remainder_bound": channel.local_remainder_bound,
+                    "diagnostic_summary": dict(channel.diagnostic_summary),
+                }
+            except _DECISION_PACKET_LOAD_ERRORS as exc:
+                payload["channel_decomposition_parse_warning"] = "channel_decomposition_load_failed"
+                _record_decision_packet_section_degraded(
+                    packet_payload,
+                    operation="load_channel_decomposition_artifact",
+                    reason="channel_decomposition_load_failed",
+                    exc=exc,
+                    ref=welfare.channel_decomposition_ref,
+                    artifact_key=ARTIFACT_WELFARE_BUNDLE_REF,
+                )
+    except _DECISION_PACKET_LOAD_ERRORS as exc:
+        payload["parse_warning"] = "welfare_bundle_load_failed"
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="load_welfare_bundle",
+            reason="welfare_bundle_load_failed",
+            exc=exc,
+            ref=bundle_ref,
+            artifact_key=ARTIFACT_WELFARE_BUNDLE_REF,
+        )
+    return payload
+
+
+def _build_phase3_section(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    packet_payload: dict[str, object] | None = None,
+) -> dict[str, object]:
+    gate = resolve_phase3_gate(ctx, state)
+    payload: dict[str, object] = gate.model_dump(mode="json")
+    payload["blocking_reason_count"] = len(gate.blocking_reasons)
+    payload["refusal_status"] = "clear" if gate.gate_passed else "blocked"
+    if packet_payload is not None:
+        packet_payload["phase3_gate_passed"] = gate.gate_passed
     return payload
 
 
@@ -2111,9 +2351,7 @@ def _build_tradeoff_certificate_section(
             item.model_dump(mode="json") for item in result.tradeoff_certificate.residual_dissent
         ],
         "rights_violations": list(result.tradeoff_certificate.rights_violations),
-        "hard_constraint_violations": list(
-            result.tradeoff_certificate.hard_constraint_violations
-        ),
+        "hard_constraint_violations": list(result.tradeoff_certificate.hard_constraint_violations),
         "notes": list(result.tradeoff_certificate.notes),
     }
 
@@ -2294,6 +2532,7 @@ def _build_sensitivity_section(
     payload["content"] = content
     return payload
 
+
 def _build_diagnostics_summary(
     *,
     ctx: ExecutionContext,
@@ -2330,7 +2569,11 @@ def _build_diagnostics_summary(
     uncertainty_bounds = packet_payload.get("uncertainty_bounds")
     normative_result = _load_normative_arbitration(ctx, state.artifacts_index)
     degraded_paths = packet_payload.get("degraded_paths")
-    degraded_path_items = [item for item in degraded_paths if isinstance(item, dict)] if isinstance(degraded_paths, list) else []
+    degraded_path_items = (
+        [item for item in degraded_paths if isinstance(item, dict)]
+        if isinstance(degraded_paths, list)
+        else []
+    )
 
     governance_links = governance_dict.get("links")
     legal_ref = None
@@ -2356,10 +2599,14 @@ def _build_diagnostics_summary(
     requires_expert_review = bool(transport_dict.get("requires_expert_review")) or bool(
         state.params.get("needs_expert_review")
     )
-    human_review_needed = bool(state.params.get("require_human_gate")) or _has_governance_issue_code(
-        issues if isinstance(issues, list) else [],
-        code="HUMAN_REVIEW_REQUESTED",
-    ) or requires_expert_review
+    human_review_needed = (
+        bool(state.params.get("require_human_gate"))
+        or _has_governance_issue_code(
+            issues if isinstance(issues, list) else [],
+            code="HUMAN_REVIEW_REQUESTED",
+        )
+        or requires_expert_review
+    )
     rights_violation_count = 0
     residual_dissent_count = 0
     normative_model_completeness = None
@@ -2476,6 +2723,98 @@ def _build_analysis_limits(packet_payload: dict[str, object]) -> dict[str, objec
     }
 
 
+def _has_meaningful_outline_content(value: object) -> bool:
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return bool(value.strip())
+    if isinstance(value, (list, tuple, set, dict)):
+        return len(value) > 0
+    return True
+
+
+def _build_document_outline(packet_payload: dict[str, object]) -> list[dict[str, str]]:
+    outline: list[dict[str, str]] = []
+
+    def add(
+        section_id: str,
+        title: str,
+        section_type: str,
+        *values: object,
+    ) -> None:
+        if any(_has_meaningful_outline_content(value) for value in values):
+            outline.append(
+                {
+                    "section_id": section_id,
+                    "section_type": section_type,
+                    "title": title,
+                }
+            )
+
+    add(
+        "policy_answer",
+        "Recommendation",
+        "policy",
+        packet_payload.get("policy_answer"),
+        packet_payload.get("verified_findings"),
+        packet_payload.get("hypotheses"),
+    )
+    add(
+        "policy_summary",
+        "Intervention scope",
+        "intervention",
+        packet_payload.get("policy_summary"),
+        packet_payload.get("intervention_count"),
+        packet_payload.get("intervention_legal_basis_map"),
+    )
+    add(
+        "evidence",
+        "Evidence and uncertainty",
+        "evidence",
+        packet_payload.get("simulation_results"),
+        packet_payload.get("metric_validation_comparisons"),
+        packet_payload.get("uncertainty"),
+        packet_payload.get("uncertainty_bounds"),
+        packet_payload.get("causal"),
+    )
+    add(
+        "distributional",
+        "Distributional effects",
+        "evidence",
+        packet_payload.get("distributional"),
+    )
+    add(
+        "welfare",
+        "Welfare aggregation",
+        "evidence",
+        packet_payload.get("welfare"),
+    )
+    add(
+        "governance",
+        "Governance and legal basis",
+        "governance",
+        packet_payload.get("governance"),
+        packet_payload.get("legal_verification"),
+        packet_payload.get("source_coverage"),
+    )
+    add(
+        "replay",
+        "Replay and runtime contracts",
+        "reproducibility",
+        packet_payload.get("replay"),
+        packet_payload.get("runtime_contracts"),
+    )
+    add(
+        "analysis_limits",
+        "Limits and degraded paths",
+        "problem",
+        packet_payload.get("analysis_limits"),
+        packet_payload.get("degraded_paths"),
+        packet_payload.get("notes"),
+    )
+    return outline
+
+
 def _nested_status(payload: dict[str, object], key: str) -> str | None:
     nested = payload.get(key)
     nested_dict = nested if isinstance(nested, dict) else {}
@@ -2518,7 +2857,9 @@ def _build_decision_validity_envelope(
     policy_fingerprint = content_hash(
         json.dumps(
             {
-                "trinity_bundle_ref": _path_get(packet_payload, ("inputs", INPUT_TRINITY_BUNDLE_REF)),
+                "trinity_bundle_ref": _path_get(
+                    packet_payload, ("inputs", INPUT_TRINITY_BUNDLE_REF)
+                ),
                 "policy_summary": packet_payload.get("policy_summary"),
                 "intervention_count": packet_payload.get("intervention_count"),
                 "target_context_fingerprint": target_context_fingerprint,
@@ -2532,7 +2873,9 @@ def _build_decision_validity_envelope(
     decision_lineage_key = content_hash(
         json.dumps(
             {
-                "trinity_bundle_ref": _path_get(packet_payload, ("inputs", INPUT_TRINITY_BUNDLE_REF)),
+                "trinity_bundle_ref": _path_get(
+                    packet_payload, ("inputs", INPUT_TRINITY_BUNDLE_REF)
+                ),
                 "policy_summary": packet_payload.get("policy_summary"),
                 "intervention_count": packet_payload.get("intervention_count"),
                 "target_context_fingerprint": target_context_fingerprint,
@@ -2585,9 +2928,7 @@ def _build_decision_validity_baseline(
                 reason="human_or_expert_review_required",
                 details={
                     "human_review_needed": bool(diagnostics_dict.get("human_review_needed")),
-                    "requires_expert_review": bool(
-                        diagnostics_dict.get("requires_expert_review")
-                    ),
+                    "requires_expert_review": bool(diagnostics_dict.get("requires_expert_review")),
                 },
             )
         )
@@ -2715,9 +3056,7 @@ def _build_normative_basis(packet_payload: dict[str, object]) -> DecisionBasisSe
         summary["legal_executed"] = bool(diagnostics.get("legal_executed"))
         summary["normative_selected_policy"] = diagnostics.get("normative_selected_policy")
         summary["normative_selected_option"] = diagnostics.get("normative_selected_option")
-        summary["normative_model_completeness"] = diagnostics.get(
-            "normative_model_completeness"
-        )
+        summary["normative_model_completeness"] = diagnostics.get("normative_model_completeness")
         summary["normative_residual_dissent_count"] = diagnostics.get(
             "normative_residual_dissent_count"
         )
@@ -3055,6 +3394,7 @@ def _dedupe_dependency_refs(
         deduped.append(item)
     return deduped
 
+
 def _load_json_payload_by_ref(
     ctx: ExecutionContext,
     ref_value: str | None,
@@ -3114,6 +3454,7 @@ def _load_normative_frame_payload(
         return None
     normative_frame = problem_frame.get("normative_frame")
     return normative_frame if isinstance(normative_frame, dict) else None
+
 
 def _max_validity_status(
     left: DecisionValidityStatus,
@@ -3448,7 +3789,7 @@ def _build_metric_significance_projection(
             "candidate_value": comparison.candidate_value,
             "delta_value": comparison.delta_value,
             "test_id": significance.test_id,
-            "test_label": describe_test_id(significance.test_id),
+            "test_label": _describe_test_id(significance.test_id),
             "p_value": significance.p_value_raw,
             "p_adj": significance.p_value_adj,
             "alpha": significance.alpha,
@@ -3487,7 +3828,7 @@ def _build_metric_significance_summary(
             "delta_value": comparison.delta_value,
             "p_value": significance.p_value_raw,
             "p_adj": significance.p_value_adj,
-            "test_label": describe_test_id(significance.test_id),
+            "test_label": _describe_test_id(significance.test_id),
         }
         if _metric_delta_is_improvement(comparison.metric_direction, comparison.delta_value):
             significant_improvements.append(item)
@@ -3525,7 +3866,7 @@ def _build_metric_validation_comparison_rows(
                 "sample_size_effective": comparison.sample_size_effective,
                 "resampling_method": comparison.resampling_method,
                 "test_id": significance.test_id,
-                "test_label": describe_test_id(significance.test_id),
+                "test_label": _describe_test_id(significance.test_id),
                 "statistic": significance.statistic,
                 "effect_size": significance.effect_size,
                 "ci_low": significance.ci_low,

@@ -1,4 +1,5 @@
 """Canonical JSON normalization for hashing, persistence, and cross-runtime comparisons."""
+
 from __future__ import annotations
 
 import base64
@@ -13,17 +14,30 @@ from typing import Any
 
 from pydantic import BaseModel
 
-_CANONICAL_TYPES = frozenset({"datetime", "date", "decimal", "bytes", "float"})
+_CANONICAL_TYPES = frozenset(
+    {
+        "array_digest",
+        "bytes",
+        "bytes_hex",
+        "date",
+        "datetime",
+        "decimal",
+        "float",
+        "float_hex",
+    }
+)
 
 
 class CanonViolation(ValueError):  # noqa: N818 - ADR-0104 preserves public API name.
     """Canon violation public type."""
+
     pass
 
 
 @dataclass(frozen=True)
 class CanonSpec:
     """Controls how arbitrary Python objects are normalized into canonical JSON bytes."""
+
     name: str = "polisyos.canon.json"
     version: str = "0.2.0"
 
@@ -176,10 +190,15 @@ def from_canonical_obj(obj: Any, *, max_depth: int = 128, _depth: int = 0) -> An
                 return base64.b64decode(data.encode("ascii"))
             if kind == "float":
                 return float(obj["repr"])
+            if kind == "float_hex":
+                return float.fromhex(obj["value"])
+            if kind == "bytes_hex":
+                return bytes.fromhex(obj["value"])
+            if kind == "array_digest":
+                return dict(obj)
             raise CanonViolation(f"Unknown canonical _type: {kind!r}")
         return {
-            k: from_canonical_obj(v, max_depth=max_depth, _depth=_depth + 1)
-            for k, v in obj.items()
+            k: from_canonical_obj(v, max_depth=max_depth, _depth=_depth + 1) for k, v in obj.items()
         }
 
     if isinstance(obj, Sequence) and not isinstance(obj, (str, bytes, bytearray, memoryview)):

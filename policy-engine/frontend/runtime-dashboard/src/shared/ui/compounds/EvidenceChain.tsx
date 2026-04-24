@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { useI18n } from "@/i18n/LocaleProvider";
 import { Button, Card, EmptyState } from "@/shared/ui/primitives";
 
 export type EvidenceChainItem = {
@@ -23,6 +24,7 @@ export function EvidenceChain({
   items,
   title,
 }: EvidenceChainProps) {
+  const { t } = useI18n();
   return (
     <Card className="space-y-3">
       <h3 className="text-lg font-semibold">{title}</h3>
@@ -49,7 +51,7 @@ export function EvidenceChain({
                   {item.badge}
                   {item.href ? (
                     <Button href={item.href} size="sm" variant="ghost">
-                      Open
+                      {t("common.open")}
                     </Button>
                   ) : null}
                 </div>

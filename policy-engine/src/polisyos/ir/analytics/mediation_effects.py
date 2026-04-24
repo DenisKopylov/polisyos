@@ -19,6 +19,7 @@ Avin, C., Shpitser, I. & Pearl, J. (2005). Identifiability of Path-Specific
     Effects. IJCAI.
 Pearl, J. (2001). Direct and Indirect Effects. UAI.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -87,7 +88,7 @@ class PathSpecificQuery(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_query(self) -> "PathSpecificQuery":
+    def validate_query(self) -> PathSpecificQuery:
         treatment = self.treatment.strip()
         outcome = self.outcome.strip()
         if not treatment:
@@ -232,13 +233,13 @@ class MediationDecomposition(BaseModel):
         return normalized
 
     @classmethod
-    def from_effects(cls, **payload: Any) -> "MediationDecomposition":
+    def from_effects(cls, **payload: Any) -> MediationDecomposition:
         """Construct a decomposition after applying explicit derived defaults."""
 
         return cls.model_validate(cls.normalize_payload(payload))
 
     @model_validator(mode="after")
-    def validate_decomposition(self) -> "MediationDecomposition":
+    def validate_decomposition(self) -> MediationDecomposition:
         ensure_finite_numeric(self.nde, field_name="nde")
         ensure_finite_numeric(self.nie, field_name="nie")
         ensure_finite_numeric(self.total_effect, field_name="total_effect")
@@ -330,6 +331,6 @@ def _ensure_finite_tuple(values: tuple[float, ...], *, label: str) -> None:
 
 
 __all__ = [
-    "PathSpecificQuery",
     "MediationDecomposition",
+    "PathSpecificQuery",
 ]

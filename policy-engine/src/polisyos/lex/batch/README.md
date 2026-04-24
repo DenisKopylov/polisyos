@@ -22,15 +22,15 @@ amendment, hallucination, temporal и threshold-quality фильтров.
 
 ## Public API
 
-| Type/Function | Description |
-|---|---|
-| `pipeline.py` | Main orchestration for staged batch runs |
-| `amendment_detector.py` | Detect amendment-heavy documents and target-resolution candidates |
-| `collect_amendment_quality_metrics()` | Shared amendment QC metrics for benchmark and report stages |
-| `quality_filters.py` | Deterministic filters for low-quality threshold/entity extraction |
-| `temporal_resolver.py` | Deterministic temporal envelopes for docs and facts |
-| `qc.py`, `quality_report.py` | Batch-level quality checks and report assembly |
-| `publish.py` | Publish manifests and bundle metadata for completed runs |
+| Type/Function                         | Description                                                       |
+| ------------------------------------- | ----------------------------------------------------------------- |
+| `pipeline.py`                         | Main orchestration for staged batch runs                          |
+| `amendment_detector.py`               | Detect amendment-heavy documents and target-resolution candidates |
+| `collect_amendment_quality_metrics()` | Shared amendment QC metrics for benchmark and report stages       |
+| `quality_filters.py`                  | Deterministic filters for low-quality threshold/entity extraction |
+| `temporal_resolver.py`                | Deterministic temporal envelopes for docs and facts               |
+| `qc.py`, `quality_report.py`          | Batch-level quality checks and report assembly                    |
+| `publish.py`                          | Publish manifests and bundle metadata for completed runs          |
 
 Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 

@@ -2,13 +2,20 @@ from __future__ import annotations
 
 from decimal import Decimal
 
+from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ConstraintSpec as ProblemConstraintSpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.governance.schedule import ScheduleSpec
+from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.kernel import (
-    ConstraintRegistry,
-    ConstraintSpec,
+    DEFAULT_MECHANISM_REGISTRY,
     DEFAULT_MERGE_RULE_REGISTRY,
+    DEFAULT_METRIC_REGISTRY,
     DEFAULT_SELECTOR_FIELD_REGISTRY,
     DEFAULT_SLOT_REGISTRY,
     DEFAULT_UNITS_REGISTRY,
+    ConstraintRegistry,
+    ConstraintSpec,
     MechanismTypeRegistry,
     MechanismTypeSpec,
     ParamSpec,
@@ -16,15 +23,9 @@ from polisyos.ir.kernel import (
 )
 from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.linker import LinkIssueCode, link_trinity
-from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.governance.problem_frame import ConstraintSpec as ProblemConstraintSpec
-from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
-from polisyos.ir.registry_fragments import RegistryBundle
-from polisyos.ir.governance.schedule import ScheduleSpec
-from polisyos.ir.governance.selector_expr import SelectorPredicate
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.kernel import DEFAULT_MECHANISM_REGISTRY, DEFAULT_METRIC_REGISTRY
+from polisyos.ir.registry_fragments import RegistryBundle
+from polisyos.ir.trinity import TrinityBundle
 
 CTX_REF = "sha256:" + "0" * 64
 
@@ -219,9 +220,9 @@ def test_linker_schedule_overlap_uses_inclusive_interval_boundaries() -> None:
                 "conflict.slot": DEFAULT_SLOT_REGISTRY.slots["global.tax_rate"].model_copy(
                     update={
                         "slot_id": "conflict.slot",
-                        "merge_rule": DEFAULT_SLOT_REGISTRY.slots["global.tax_rate"].merge_rule.model_copy(
-                            update={"rule_id": "error"}
-                        ),
+                        "merge_rule": DEFAULT_SLOT_REGISTRY.slots[
+                            "global.tax_rate"
+                        ].merge_rule.model_copy(update={"rule_id": "error"}),
                     }
                 )
             }
@@ -285,12 +286,10 @@ def test_linker_schedule_overlap_uses_inclusive_interval_boundaries() -> None:
     _, overlapping_report = link_trinity(overlapping, registries)
 
     assert not any(
-        issue.code == LinkIssueCode.MERGE_RULE_CONFLICT
-        for issue in non_overlapping_report.issues
+        issue.code == LinkIssueCode.MERGE_RULE_CONFLICT for issue in non_overlapping_report.issues
     )
     assert any(
-        issue.code == LinkIssueCode.MERGE_RULE_CONFLICT
-        for issue in overlapping_report.issues
+        issue.code == LinkIssueCode.MERGE_RULE_CONFLICT for issue in overlapping_report.issues
     )
 
 
@@ -308,9 +307,7 @@ def test_linker_reports_unknown_selector_field() -> None:
     )
     registries = _default_registries()
     _, report = link_trinity(bundle, registries)
-    assert any(
-        issue.code == LinkIssueCode.UNKNOWN_SELECTOR_FIELD for issue in report.issues
-    )
+    assert any(issue.code == LinkIssueCode.UNKNOWN_SELECTOR_FIELD for issue in report.issues)
 
 
 def test_linker_reports_unknown_unit() -> None:
@@ -369,9 +366,7 @@ def test_linker_emits_unused_registry_diagnostics() -> None:
         units=DEFAULT_UNITS_REGISTRY,
         metrics=DEFAULT_METRIC_REGISTRY,
         constraints=ConstraintRegistry(
-            constraints={
-                "custom_limit": ConstraintSpec(constraint_id="custom_limit")
-            }
+            constraints={"custom_limit": ConstraintSpec(constraint_id="custom_limit")}
         ),
     )
     bundle = TrinityBundle(
@@ -465,6 +460,4 @@ def test_linker_reports_incompatible_constraint() -> None:
         constraints=constraint_registry,
     )
     _, report = link_trinity(bundle, registries)
-    assert any(
-        issue.code == LinkIssueCode.INCOMPATIBLE_CONSTRAINT for issue in report.issues
-    )
+    assert any(issue.code == LinkIssueCode.INCOMPATIBLE_CONSTRAINT for issue in report.issues)

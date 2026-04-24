@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
@@ -12,8 +12,8 @@ from polisyos.fabric.claims import (
     extract_claims_from_doc,
     normalize_claims,
 )
-from polisyos.fabric.data_plane.quarantine import list_quarantine_records
 from polisyos.fabric.claims.backends.explicit_lines_v1 import extract as explicit_lines_extract
+from polisyos.fabric.data_plane.quarantine import list_quarantine_records
 from polisyos.fabric.docs import (
     DocChunkOptions,
     DocSourceSpec,
@@ -41,7 +41,7 @@ def _source_spec() -> DocSourceSpec:
         official_id=None,
         source_locator=None,
         license="public",
-        retrieved_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+        retrieved_at=datetime(2026, 1, 1, tzinfo=UTC),
         jurisdiction="US",
         language="en",
         source_type="test",
@@ -89,7 +89,7 @@ def test_explicit_lines_backend_extracts_candidates() -> None:
         doc_version_id=doc_version,
         canonical_url=canonical_url,
         official_id=None,
-        retrieved_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+        retrieved_at=datetime(2026, 1, 1, tzinfo=UTC),
         mime="text/plain",
         license="public",
         raw_ref=raw_ref,
@@ -237,7 +237,9 @@ def test_normalize_claims_quarantines_doc_claim_without_citations(
     from polisyos.fabric.claims.types import ClaimNormalizeOptions
 
     cas = FileSystemCAS(tmp_path / "cas")
-    doc_meta_artifact_id = _chunked_doc_meta_id(cas, tmp_path, "claim: policy.tax_rate = 20 [percent]")
+    doc_meta_artifact_id = _chunked_doc_meta_id(
+        cas, tmp_path, "claim: policy.tax_rate = 20 [percent]"
+    )
 
     missing_citation_claim = Claim.model_construct(
         schema_version="1.0",

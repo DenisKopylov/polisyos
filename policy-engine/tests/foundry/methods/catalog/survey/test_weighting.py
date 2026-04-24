@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.catalog.survey import ensure_survey_methods_registered
@@ -64,7 +63,14 @@ class TestRakeIPF:
         assert diagnostics.decision == "pass"
         assert diagnostics.stop_reason == "converged_exact"
         assert np.allclose(
-            np.array([achieved["sex=female"], achieved["sex=male"], achieved["region=north"], achieved["region=south"]]),
+            np.array(
+                [
+                    achieved["sex=female"],
+                    achieved["sex=male"],
+                    achieved["region=north"],
+                    achieved["region=south"],
+                ]
+            ),
             state["target_totals"],
             atol=1e-6,
         )

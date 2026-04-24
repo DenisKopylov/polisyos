@@ -1,7 +1,6 @@
 """Tests for pag_completion.py — PAG orientation rules, CPDAG upcast, validity."""
-from __future__ import annotations
 
-import pytest
+from __future__ import annotations
 
 from polisyos.foundry.methods.catalog.causal.pag_completion import (
     apply_pag_orientation_rules,
@@ -15,7 +14,6 @@ from polisyos.ir.analytics.causal_graph import (
     EdgeMark,
     GraphType,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -110,9 +108,7 @@ def test_r1_noncollider_orientation() -> None:
     oriented, warnings = apply_pag_orientation_rules(pag, max_iter=5)
 
     # Find the B-C edge
-    bc_result = next(
-        (e for e in oriented.edges if e.src == "B" and e.dst == "C"), None
-    )
+    bc_result = next((e for e in oriented.edges if e.src == "B" and e.dst == "C"), None)
     # If stored as (B, C): R1 should set mark_src=TAIL, mark_dst=ARROW (B→C)
     assert bc_result is not None, "B-C edge should still be present"
     assert bc_result.mark_src is EdgeMark.TAIL
@@ -135,9 +131,7 @@ def test_r2_acyclicity_orientation() -> None:
 
     oriented, warnings = apply_pag_orientation_rules(pag, max_iter=5)
 
-    ac_result = next(
-        (e for e in oriented.edges if e.src == "A" and e.dst == "C"), None
-    )
+    ac_result = next((e for e in oriented.edges if e.src == "A" and e.dst == "C"), None)
     assert ac_result is not None
     # R2: orient A → C
     assert ac_result.mark_src is EdgeMark.TAIL
@@ -168,9 +162,7 @@ def test_r3_vstructure_extension() -> None:
 
     oriented, warnings = apply_pag_orientation_rules(pag, max_iter=10)
 
-    db_result = next(
-        (e for e in oriented.edges if e.src == "D" and e.dst == "B"), None
-    )
+    db_result = next((e for e in oriented.edges if e.src == "D" and e.dst == "B"), None)
     # R3 should orient D → B
     assert db_result is not None
     assert db_result.mark_src is EdgeMark.TAIL
@@ -371,14 +363,20 @@ def test_apply_rules_no_change_on_fully_oriented() -> None:
 class TestPAGIDPolicies:
     """Tests for PAG-ID with orientation pre-pass and ProofStep emission."""
 
-    def _make_pag_with_circles(self, directed: list[tuple[str, str]], circles: list[tuple[str, str]]) -> CausalGraphModel:
+    def _make_pag_with_circles(
+        self, directed: list[tuple[str, str]], circles: list[tuple[str, str]]
+    ) -> CausalGraphModel:
         """Build a PAG with directed edges and CIRCLE-marked edges."""
         nodes = sorted({n for e in directed + circles for n in e})
         edges = []
         for src, dst in directed:
-            edges.append(CausalEdge(src=src, dst=dst, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW))
+            edges.append(
+                CausalEdge(src=src, dst=dst, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)
+            )
         for src, dst in circles:
-            edges.append(CausalEdge(src=src, dst=dst, mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.ARROW))
+            edges.append(
+                CausalEdge(src=src, dst=dst, mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.ARROW)
+            )
         return CausalGraphModel(graph_type=GraphType.PAG, nodes=nodes, edges=edges)
 
     def _run_pag_id(self, graph: CausalGraphModel, treatment: str, outcome: str):
@@ -386,6 +384,7 @@ class TestPAGIDPolicies:
             DistributionDomain,
             _pag_id_algorithm,
         )
+
         return _pag_id_algorithm(
             treatment=frozenset({treatment}),
             outcome=frozenset({outcome}),
@@ -409,7 +408,8 @@ class TestPAGIDPolicies:
             graph_type=GraphType.PAG,
             nodes=["A", "B", "C", "X", "Y"],
             edges=[
-                ab, bc,
+                ab,
+                bc,
                 _make_edge("X", "Y", EdgeMark.TAIL, EdgeMark.ARROW),
                 _make_edge("X", "A", EdgeMark.TAIL, EdgeMark.ARROW),
             ],
@@ -430,7 +430,9 @@ class TestPAGIDPolicies:
             directed=[("X", "Y")],
             circles=[],
         )
-        pag = pag.model_copy(update={"pag_identification_policy": PAGIdentificationPolicy.CONSERVATIVE})
+        pag = pag.model_copy(
+            update={"pag_identification_policy": PAGIdentificationPolicy.CONSERVATIVE}
+        )
         result = self._run_pag_id(pag, "X", "Y")
         for step in result.proof_steps:
             assert isinstance(step, ProofStep)
@@ -444,7 +446,9 @@ class TestPAGIDPolicies:
             directed=[("X", "Y")],
             circles=[("W", "Y")],
         )
-        pag = pag.model_copy(update={"pag_identification_policy": PAGIdentificationPolicy.OPTIMISTIC})
+        pag = pag.model_copy(
+            update={"pag_identification_policy": PAGIdentificationPolicy.OPTIMISTIC}
+        )
         result = self._run_pag_id(pag, "X", "Y")
         rule_names = [s.rule_name for s in result.proof_steps]
         assert "PAG_OPTIMISTIC_COMMIT" in rule_names
@@ -458,7 +462,9 @@ class TestPAGIDPolicies:
             directed=[("X", "Y")],
             circles=[("W", "Y")],
         )
-        pag = pag.model_copy(update={"pag_identification_policy": PAGIdentificationPolicy.OPTIMISTIC})
+        pag = pag.model_copy(
+            update={"pag_identification_policy": PAGIdentificationPolicy.OPTIMISTIC}
+        )
         result = self._run_pag_id(pag, "X", "Y")
         for step in result.proof_steps:
             assert isinstance(step, ProofStep)
@@ -471,10 +477,12 @@ class TestPAGIDPolicies:
             directed=[("X", "Y")],
             circles=[("W", "Y")],
         )
-        pag = pag.model_copy(update={
-            "pag_identification_policy": PAGIdentificationPolicy.PROBABILISTIC,
-            "id_confidence_under_pag": 0.8,
-        })
+        pag = pag.model_copy(
+            update={
+                "pag_identification_policy": PAGIdentificationPolicy.PROBABILISTIC,
+                "id_confidence_under_pag": 0.8,
+            }
+        )
         result = self._run_pag_id(pag, "X", "Y")
         rule_names = [s.rule_name for s in result.proof_steps]
         assert "PAG_PROBABILISTIC" in rule_names

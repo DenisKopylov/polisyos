@@ -1,4 +1,5 @@
 """Retention and encryption planning for Fabric governed artifacts."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -1,12 +1,22 @@
-export const SUPPORTED_LOCALES = ["en", "uk"] as const;
+export const SUPPORTED_LOCALES = ["en", "uk", "ru"] as const;
 
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 
 export const DEFAULT_LOCALE: Locale = "en";
 export const LOCALE_STORAGE_KEY = "polisyos.runtime.locale";
 
+const INTL_LOCALE_BY_LOCALE: Record<Locale, string> = {
+  en: "en-US",
+  uk: "uk-UA",
+  ru: "ru-RU",
+};
+
 export function isLocale(value: string | null | undefined): value is Locale {
-  return value === "en" || value === "uk";
+  return (
+    value !== null &&
+    value !== undefined &&
+    SUPPORTED_LOCALES.includes(value as Locale)
+  );
 }
 
 export function readStoredLocale(): Locale | null {
@@ -35,9 +45,19 @@ export function resolveLocale(explicit?: string | null): Locale {
   }
 
   if (typeof navigator !== "undefined") {
-    const preferred = navigator.language.toLowerCase();
-    if (preferred.startsWith("uk")) {
-      return "uk";
+    const preferredLocales = [
+      ...(navigator.languages ?? []),
+      navigator.language,
+    ].filter(Boolean);
+
+    for (const preferred of preferredLocales) {
+      const normalized = preferred.toLowerCase();
+      if (normalized.startsWith("uk")) {
+        return "uk";
+      }
+      if (normalized.startsWith("ru")) {
+        return "ru";
+      }
     }
   }
 
@@ -45,5 +65,5 @@ export function resolveLocale(explicit?: string | null): Locale {
 }
 
 export function toIntlLocale(locale: Locale): string {
-  return locale === "uk" ? "uk-UA" : "en-US";
+  return INTL_LOCALE_BY_LOCALE[locale];
 }

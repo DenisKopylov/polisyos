@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Any
 
 import numpy as np
 
@@ -23,9 +22,7 @@ def _chi2_survival(statistic: float, degrees_of_freedom: int) -> float:
 
     # Wilson-Hilferty normal approximation for Chi-square upper tail.
     df = float(degrees_of_freedom)
-    z = ((statistic / df) ** (1.0 / 3.0) - (1.0 - 2.0 / (9.0 * df))) / math.sqrt(
-        2.0 / (9.0 * df)
-    )
+    z = ((statistic / df) ** (1.0 / 3.0) - (1.0 - 2.0 / (9.0 * df))) / math.sqrt(2.0 / (9.0 * df))
     return 0.5 * math.erfc(z / math.sqrt(2.0))
 
 
@@ -64,6 +61,7 @@ def test_residual_normality(
 
     try:
         from scipy.stats import shapiro
+
         stat, p_value = shapiro(arr[:5000])  # shapiro limit
         return DistributionalTestResult(
             test_name="shapiro_wilk",
@@ -88,9 +86,9 @@ def test_residual_normality(
             description="zero_variance",
         )
     z = (arr - mean) / std
-    skew = float(np.mean(z ** 3))
-    kurt = float(np.mean(z ** 4) - 3.0)
-    jb = (n / 6.0) * (skew ** 2 + (kurt ** 2) / 4.0)
+    skew = float(np.mean(z**3))
+    kurt = float(np.mean(z**4) - 3.0)
+    jb = (n / 6.0) * (skew**2 + (kurt**2) / 4.0)
 
     return DistributionalTestResult(
         test_name="jarque_bera_approx",
@@ -132,7 +130,7 @@ def test_residual_autocorrelation(
 
     mean = np.mean(arr)
     centered = arr - mean
-    c0 = float(np.sum(centered ** 2)) / n
+    c0 = float(np.sum(centered**2)) / n
 
     if c0 < 1e-12:
         return DistributionalTestResult(
@@ -145,8 +143,8 @@ def test_residual_autocorrelation(
 
     q_stat = 0.0
     for k in range(1, max_lag + 1):
-        rk = float(np.sum(centered[:n - k] * centered[k:])) / (n * c0)
-        q_stat += (rk ** 2) / (n - k)
+        rk = float(np.sum(centered[: n - k] * centered[k:])) / (n * c0)
+        q_stat += (rk**2) / (n - k)
     q_stat *= n * (n + 2)
     p_value = _chi2_survival(q_stat, max_lag)
     reject = bool(p_value < alpha)

@@ -96,12 +96,20 @@ class BudgetLedger(Protocol):
     def snapshot(self) -> BudgetLedgerSnapshot: ...
     def load_or_bootstrap(self, initial_state: BudgetState) -> BudgetState: ...
     def record_spend(
-        self, key: str, amount: Decimal, *, provider: str | None = None,
+        self,
+        key: str,
+        amount: Decimal,
+        *,
+        provider: str | None = None,
     ) -> BudgetLedgerMutationResult: ...
     def reserve(self, key: str, amount: Decimal) -> BudgetLedgerMutationResult: ...
     def release(self, key: str, amount: Decimal) -> BudgetLedgerMutationResult: ...
     def commit_reservation(
-        self, key: str, amount: Decimal, *, provider: str | None = None,
+        self,
+        key: str,
+        amount: Decimal,
+        *,
+        provider: str | None = None,
     ) -> BudgetLedgerMutationResult: ...
 
 
@@ -129,12 +137,11 @@ class FileBudgetLedger:
         self._path.parent.mkdir(parents=True, exist_ok=True)
         self._thread_lock = threading.Lock()
         self._ledger_id = str(ledger_id or _default_ledger_id(self._path))
-        resolved_host_id = str(host_id or os.getenv("POLISYOS_LEDGER_HOST_ID") or socket.gethostname())
-        self._host_id = resolved_host_id.strip() or "localhost"
-        resolved_writer_id = str(
-            writer_id
-            or f"{self._host_id}:{os.getpid()}:{self._path.name}"
+        resolved_host_id = str(
+            host_id or os.getenv("POLISYOS_LEDGER_HOST_ID") or socket.gethostname()
         )
+        self._host_id = resolved_host_id.strip() or "localhost"
+        resolved_writer_id = str(writer_id or f"{self._host_id}:{os.getpid()}:{self._path.name}")
         self._writer = BudgetLedgerWriter(
             host_id=self._host_id,
             writer_id=resolved_writer_id.strip() or f"{self._host_id}:{os.getpid()}",
@@ -187,7 +194,11 @@ class FileBudgetLedger:
                 os.close(fd)
 
     def record_spend(
-        self, key: str, amount: Decimal, *, provider: str | None = None,
+        self,
+        key: str,
+        amount: Decimal,
+        *,
+        provider: str | None = None,
     ) -> BudgetLedgerMutationResult:
         def apply(state: BudgetState) -> BudgetLedgerMutationResult:
             state.record_spend(key, amount, provider=provider)
@@ -229,7 +240,11 @@ class FileBudgetLedger:
         return self._mutate("release", key, amount, operation=apply)
 
     def commit_reservation(
-        self, key: str, amount: Decimal, *, provider: str | None = None,
+        self,
+        key: str,
+        amount: Decimal,
+        *,
+        provider: str | None = None,
     ) -> BudgetLedgerMutationResult:
         def apply(state: BudgetState) -> BudgetLedgerMutationResult:
             committed = state.commit_reservation(key, amount, provider=provider)
@@ -294,7 +309,7 @@ class FileBudgetLedger:
                         revision=revision,
                         state=state,
                         recent_mutations=tuple(mutations[-self._mutation_history_limit :]),
-                    )
+                    ),
                 )
                 return BudgetLedgerMutationResult(
                     state=written.state,

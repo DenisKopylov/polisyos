@@ -107,6 +107,16 @@ describe("ArtifactInspectorPage", () => {
             max_bytes: options?.maxBytes ?? 65536,
             media_type: "application/json",
             mode: "preview",
+            decision_packet_preview: {
+              document_outline: [
+                {
+                  section_id: "policy_answer",
+                  section_type: "policy",
+                  title: "Recommendation",
+                },
+              ],
+              verdict: "APPROVE",
+            },
             preview: { verdict: "APPROVE" },
             size_bytes: 2048,
             truncated: (options?.maxBytes ?? 65536) < 262144,
@@ -178,6 +188,21 @@ describe("ArtifactInspectorPage", () => {
       enabled: true,
       maxBytes: 262144,
     });
+    expect(renderArtifactViewerMock).toHaveBeenLastCalledWith({
+      kind: "decision_packet",
+      onViewChange: expect.any(Function),
+      preview: {
+        document_outline: [
+          {
+            section_id: "policy_answer",
+            section_type: "policy",
+            title: "Recommendation",
+          },
+        ],
+        verdict: "APPROVE",
+      },
+      view: "default",
+    });
   });
 
   it("renders schema keys and lineage warnings across tabs", async () => {
@@ -201,5 +226,25 @@ describe("ArtifactInspectorPage", () => {
         'pages.artifacts.corruptedArtifacts:{"artifacts":"corrupted-1"}',
       ),
     ).toBeInTheDocument();
+  });
+
+  it("passes the reading view mode through artifact search params", () => {
+    renderArtifactPage("/artifacts/artifact-1?tab=content&view=reading");
+
+    expect(renderArtifactViewerMock).toHaveBeenLastCalledWith({
+      kind: "decision_packet",
+      onViewChange: expect.any(Function),
+      preview: {
+        document_outline: [
+          {
+            section_id: "policy_answer",
+            section_type: "policy",
+            title: "Recommendation",
+          },
+        ],
+        verdict: "APPROVE",
+      },
+      view: "reading",
+    });
   });
 });

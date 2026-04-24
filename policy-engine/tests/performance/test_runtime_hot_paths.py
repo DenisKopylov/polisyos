@@ -9,7 +9,10 @@ import pytest
 from fixtures.runtime_http import build_runtime_api_env
 
 from polisyos.common.async_tools import run_blocking_async, run_coro_sync
-from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter, ensure_async_artifact_store
+from polisyos.core.artifacts.async_store import (
+    AsyncArtifactStoreAdapter,
+    ensure_async_artifact_store,
+)
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
@@ -75,11 +78,7 @@ class _PerfIngestionConnector:
     ) -> FetchResult[list[dict[str, object]]]:
         del handle
         step = next(
-            (
-                next(iter(values), "0")
-                for field, values in request.filters
-                if field == "step"
-            ),
+            (next(iter(values), "0") for field, values in request.filters if field == "step"),
             "0",
         )
         rows = [
@@ -296,9 +295,7 @@ def test_async_artifact_store_concurrent_round_trip_soak_smoke(tmp_path) -> None
         payloads: list[bytes] = []
         for batch in range(4):
             payloads.extend(
-                await asyncio.gather(
-                    *(_round_trip(batch * 4 + item) for item in range(4))
-                )
+                await asyncio.gather(*(_round_trip(batch * 4 + item) for item in range(4)))
             )
         return payloads
 
@@ -471,8 +468,7 @@ def test_partitioned_ingestion_resume_cycle_soak_smoke(tmp_path) -> None:
 def test_streaming_async_adapter_resume_cycle_soak_smoke(tmp_path) -> None:
     stream_path = tmp_path / "stream.jsonl"
     stream_path.write_text(
-        "\n".join(f'{{"_message_id":"m{index}","value":{index}}}' for index in range(8))
-        + "\n",
+        "\n".join(f'{{"_message_id":"m{index}","value":{index}}}' for index in range(8)) + "\n",
         encoding="utf-8",
     )
 
@@ -776,7 +772,9 @@ def test_orchestrated_ingestion_async_snapshot_round_trip_soak_smoke(
     ):
         results = [
             run_orchestrated_ingestion(
-                connector_manifest={"datasets": [{"connector_id": "test", "dataset_id": f"ds-{cycle}"}]},
+                connector_manifest={
+                    "datasets": [{"connector_id": "test", "dataset_id": f"ds-{cycle}"}]
+                },
                 source="test",
                 license_name="MIT",
                 cas_root=cas_root,

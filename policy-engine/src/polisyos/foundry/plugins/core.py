@@ -1,10 +1,12 @@
 """Public plugins core module API."""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Generic, Protocol, Sequence, TypeVar, runtime_checkable
+from typing import Any, Generic, Protocol, TypeVar, runtime_checkable
 
 import jax
 import jax.numpy as jnp
@@ -176,9 +178,7 @@ class DomainConfig:
 
     def __post_init__(self) -> None:
         if self.n_agents > self.max_agents:
-            raise ValueError(
-                f"n_agents ({self.n_agents}) > max_agents ({self.max_agents})"
-            )
+            raise ValueError(f"n_agents ({self.n_agents}) > max_agents ({self.max_agents})")
 
 
 class PluginRegistry:
@@ -200,9 +200,7 @@ class PluginRegistry:
 
         for dep in meta.dependencies:
             if dep not in self._plugins:
-                raise ValueError(
-                    f"Plugin '{meta.name}' requires '{dep}' which is not registered"
-                )
+                raise ValueError(f"Plugin '{meta.name}' requires '{dep}' which is not registered")
 
         self._plugins[meta.name] = plugin
 
@@ -212,9 +210,7 @@ class PluginRegistry:
 
         for other_name, other_plugin in self._plugins.items():
             if name in other_plugin.metadata.dependencies:
-                raise ValueError(
-                    f"Cannot unregister '{name}': '{other_name}' depends on it"
-                )
+                raise ValueError(f"Cannot unregister '{name}': '{other_name}' depends on it")
 
         if name in self._loaded:
             self._plugins[name].on_unload()
@@ -224,9 +220,7 @@ class PluginRegistry:
 
     def get(self, name: str) -> DomainPlugin:
         if name not in self._plugins:
-            raise KeyError(
-                f"Plugin '{name}' not found. Available: {list(self._plugins.keys())}"
-            )
+            raise KeyError(f"Plugin '{name}' not found. Available: {list(self._plugins.keys())}")
 
         plugin = self._plugins[name]
 
@@ -240,9 +234,7 @@ class PluginRegistry:
         return [p.metadata for p in self._plugins.values()]
 
     def with_capability(self, capability: PluginCapability) -> list[DomainPlugin]:
-        return [
-            p for p in self._plugins.values() if capability in p.metadata.capabilities
-        ]
+        return [p for p in self._plugins.values() if capability in p.metadata.capabilities]
 
     def with_tag(self, tag: str) -> list[DomainPlugin]:
         return [p for p in self._plugins.values() if tag in p.metadata.tags]

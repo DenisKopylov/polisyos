@@ -24,10 +24,10 @@ from polisyos.ir.analytics.frontier import (
 from polisyos.ir.analytics.invariance import RegimeShiftIdentificationCertificate
 from polisyos.ir.analytics.proximal import (
     BridgeFailureMode,
+    BridgeFallbackDisposition,
     BridgeFunctionSpec,
     BridgePlausibilityReport,
     BridgePlausibilitySeverity,
-    BridgeFallbackDisposition,
     IdentifiedFunctional,
     ProximalGraphCheck,
     ProximalIdentificationCertificate,
@@ -35,8 +35,8 @@ from polisyos.ir.analytics.proximal import (
     ProxyAnnotation,
     SpatialProxySpec,
     load_bridge_plausibility_report,
-    persist_bridge_plausibility_report,
     load_proximal_identification_certificate,
+    persist_bridge_plausibility_report,
     persist_proximal_identification_certificate,
 )
 from polisyos.ir.analytics.recoverability import (

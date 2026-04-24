@@ -1,34 +1,34 @@
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal_discovery import (
+    LATENT_CARDINALITY_EVIDENCE_KEY,
+    LATENT_CARDINALITY_FAILURE_REASONS_KEY,
     AlgebraicConstraintFamily,
     AlgebraicConstraintReport,
     CausalDiscoveryReport,
     ConstraintEvaluationResult,
+    LatentAssumptionCard,
     LatentBlockEvidence,
     LatentBlockProposal,
     LatentBlockStatus,
     LatentCardinalityEvidencePayload,
     LatentCausalRole,
-    LatentAssumptionCard,
     LatentDiscoveryBundle,
     LatentGraphStatus,
     LatentTrustLevel,
-    LATENT_CARDINALITY_EVIDENCE_KEY,
-    LATENT_CARDINALITY_FAILURE_REASONS_KEY,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
-from polisyos.scientist.latent_separation import SEPARATION_DIAGNOSTIC_INPUTS_KEY
 from polisyos.scientist.discovery.schema import (
     ComputeFootprint,
     DiscoveryAlgorithmFamily,
     DiscoveryMethod,
     GraphHypothesis,
     edge_key_for_edge,
-    infer_algorithm_family,
     graph_hypothesis_from_report,
+    infer_algorithm_family,
     load_graph_hypothesis,
     persist_graph_hypothesis,
 )
+from polisyos.scientist.latent_separation import SEPARATION_DIAGNOSTIC_INPUTS_KEY
 
 
 def _graph(

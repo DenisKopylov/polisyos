@@ -5,7 +5,12 @@ import type {
   LayoutResult,
   LayoutOptions,
 } from "../types";
-import { NODE_WIDTH, NODE_HEIGHT, NODE_HORIZONTAL_GAP, NODE_VERTICAL_GAP } from "../types";
+import {
+  NODE_WIDTH,
+  NODE_HEIGHT,
+  NODE_HORIZONTAL_GAP,
+  NODE_VERTICAL_GAP,
+} from "../types";
 import { hierarchicalLayout } from "./hierarchicalLayout";
 
 /**

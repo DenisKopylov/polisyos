@@ -7,8 +7,8 @@ import pytest
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.ir.analytics.abstraction import load_abstraction_certificate
 from polisyos.ir.analytics.abm_bridge import AlignmentStatus, load_abm_alignment_report
+from polisyos.ir.analytics.abstraction import load_abstraction_certificate
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.structural_causal_model import (
     MechanismFamily,
@@ -51,7 +51,10 @@ def _finite_state_scm(*, macro: bool, mismatch: bool = False) -> StructuralCausa
     conditional = [
         {
             "when": {x_name: "0"},
-            "distribution": {"low": 0.75 if mismatch and macro else 0.8, "high": 0.25 if mismatch and macro else 0.2},
+            "distribution": {
+                "low": 0.75 if mismatch and macro else 0.8,
+                "high": 0.25 if mismatch and macro else 0.2,
+            },
         },
         {
             "when": {x_name: "1"},
@@ -308,7 +311,9 @@ def test_run_abm_consistency_node_persists_exact_abstraction_certificate(tmp_pat
     assert outcome.state.params["abstraction_preservation_type"] == "exact"
 
 
-def test_run_abm_consistency_node_warns_when_only_heuristic_alignment_is_available(tmp_path) -> None:
+def test_run_abm_consistency_node_warns_when_only_heuristic_alignment_is_available(
+    tmp_path,
+) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_abm_heuristic")
     state = ExperimentState(
         run_id="R_abm_heuristic",

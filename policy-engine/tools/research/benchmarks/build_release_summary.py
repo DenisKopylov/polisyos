@@ -11,7 +11,12 @@ from typing import Any
 def _load_suite_payloads(json_dir: Path) -> list[dict[str, Any]]:
     payloads: list[dict[str, Any]] = []
     for path in sorted(json_dir.rglob("*.json")):
-        if path.name in {"summary.json", "run_summary.json", "last_suite_summary.json", "release_summary.json"}:
+        if path.name in {
+            "summary.json",
+            "run_summary.json",
+            "last_suite_summary.json",
+            "release_summary.json",
+        }:
             continue
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
@@ -120,7 +125,9 @@ def _build_shadow_evidence_status(payloads: list[dict[str, Any]]) -> dict[str, A
         status["suites"][suite_id] = {
             "benchmark_family": payload.get("benchmark_family"),
             "validation_contour": payload.get("validation_contour"),
-            "passes_all": bool((payload.get("release_gate_results") or {}).get("passes_all", False)),
+            "passes_all": bool(
+                (payload.get("release_gate_results") or {}).get("passes_all", False)
+            ),
             "manifest_source": selection_manifest.get("source"),
             "manifest_revision": selection_manifest.get("revision"),
             "manifest_placeholder": selection_manifest.get("placeholder"),
@@ -180,11 +187,21 @@ def build_release_summary(json_dir: Path) -> dict[str, Any]:
             suite_id=suite_id,
         )
         if contour == "academic" and visibility == "public":
-            _merge_leaderboards(academic_public_raw, dict(payload.get("leaderboard_tables") or {}), suite_id=suite_id)
+            _merge_leaderboards(
+                academic_public_raw,
+                dict(payload.get("leaderboard_tables") or {}),
+                suite_id=suite_id,
+            )
         if contour == "academic" and visibility == "hidden_release":
-            _merge_leaderboards(academic_hidden_raw, dict(payload.get("leaderboard_tables") or {}), suite_id=suite_id)
+            _merge_leaderboards(
+                academic_hidden_raw,
+                dict(payload.get("leaderboard_tables") or {}),
+                suite_id=suite_id,
+            )
         if visibility == "prod_shadow":
-            _merge_leaderboards(shadow_raw, dict(payload.get("leaderboard_tables") or {}), suite_id=suite_id)
+            _merge_leaderboards(
+                shadow_raw, dict(payload.get("leaderboard_tables") or {}), suite_id=suite_id
+            )
         _merge_gate_results(release_gate_results, payload)
         _merge_comparator_execution(comparator_execution_summary, payload)
 

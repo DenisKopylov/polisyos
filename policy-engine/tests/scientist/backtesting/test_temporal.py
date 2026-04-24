@@ -4,7 +4,9 @@ import numpy as np
 import pytest
 
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
-from polisyos.foundry.methods.catalog.causal.structural_time_series import solve_temporal_effect_path
+from polisyos.foundry.methods.catalog.causal.structural_time_series import (
+    solve_temporal_effect_path,
+)
 from polisyos.foundry.methods.catalog.causal.temporal_estimand_compiler import (
     TemporalCompileError,
     compile_temporal_estimand,
@@ -16,12 +18,12 @@ from polisyos.ir.analytics.dynamic_regime import (
     StrategicAdaptationMode,
     TemporalIdentificationCertificate,
     TemporalIdentificationTheoremFamily,
-    TemporalPathRepresentation,
-    TemporalSamplingScheme,
-    TemporalInterventionTrajectory,
     TemporalInterventionSemantics,
+    TemporalInterventionTrajectory,
     TemporalLawObject,
     TemporalObservabilityRegime,
+    TemporalPathRepresentation,
+    TemporalSamplingScheme,
 )
 from polisyos.ir.refs import (
     ArtifactRefModel,
@@ -114,7 +116,13 @@ def _certificate(
 
 def _plan(horizon_end: float = 3.0, *, preferred_backend: str = "linear_sde"):
     panel = PanelObservationalData(
-        outcome=np.vstack([np.linspace(0.0, horizon_end, int(horizon_end) + 1), np.zeros(int(horizon_end) + 1), np.zeros(int(horizon_end) + 1)]),
+        outcome=np.vstack(
+            [
+                np.linspace(0.0, horizon_end, int(horizon_end) + 1),
+                np.zeros(int(horizon_end) + 1),
+                np.zeros(int(horizon_end) + 1),
+            ]
+        ),
         treatment=np.array([1, 0, 0], dtype=int),
         time_treatment=1,
         time_index=np.arange(int(horizon_end) + 1, dtype=float),
@@ -145,7 +153,9 @@ def _trajectory(
     )
 
 
-def _rough_path_effect_bundle(*, semantics_scope: str = "represented_path") -> EffectTrajectoryBundle:
+def _rough_path_effect_bundle(
+    *, semantics_scope: str = "represented_path"
+) -> EffectTrajectoryBundle:
     return EffectTrajectoryBundle(
         query_ref=ContinuousTimeQueryRef(artifact_id=f"sha256:{'c' * 64}"),
         trajectory_ref=_json_ref("d", kind="test.trajectory"),
@@ -179,7 +189,10 @@ def test_temporal_evaluator_reports_pointwise_functional_and_band_metrics() -> N
     rng = np.random.default_rng(101)
     expected = [0.0, 0.2, 0.4, 0.6]
     effect_samples = np.asarray(
-        [np.asarray(expected, dtype=float) + rng.normal(0.0, 0.05, size=len(expected)) for _ in range(256)],
+        [
+            np.asarray(expected, dtype=float) + rng.normal(0.0, 0.05, size=len(expected))
+            for _ in range(256)
+        ],
         dtype=float,
     )
     trajectory = _trajectory(expected, effect_samples=effect_samples)
@@ -205,7 +218,9 @@ def test_temporal_evaluator_reports_pointwise_functional_and_band_metrics() -> N
 
 def test_temporal_evaluator_flags_missing_diagnostics_disclosure() -> None:
     trajectory = _trajectory([0.0, 0.1, 0.2, 0.3])
-    malformed = trajectory.model_copy(update={"diagnostics": {"solver_family": trajectory.solver_family}})
+    malformed = trajectory.model_copy(
+        update={"diagnostics": {"solver_family": trajectory.solver_family}}
+    )
 
     result = evaluate_temporal_trajectory(
         scenario_id="temporal_missing_diagnostics",
@@ -222,7 +237,9 @@ def test_temporal_evaluator_flags_missing_diagnostics_disclosure() -> None:
     assert result.matches_expected_outcome is True
 
 
-def test_temporal_evaluator_requires_causal_translation_certificate_for_numeric_discretization() -> None:
+def test_temporal_evaluator_requires_causal_translation_certificate_for_numeric_discretization() -> (
+    None
+):
     trajectory = _trajectory([0.0, 0.1, 0.2, 0.3])
     diagnostics = dict(trajectory.diagnostics)
     diagnostics.pop("causal_translation_certificate", None)

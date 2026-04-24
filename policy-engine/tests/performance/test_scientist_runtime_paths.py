@@ -62,8 +62,9 @@ def _build_benchmark_state() -> ExperimentState:
     )
 
 
-def _build_parallel_merge_payload(
-) -> tuple[ExperimentState, dict[str, NodeOutcome], dict[str, list[str]]]:
+def _build_parallel_merge_payload() -> tuple[
+    ExperimentState, dict[str, NodeOutcome], dict[str, list[str]]
+]:
     base_state = ExperimentState(run_id="R_merge", params={"baseline": True})
     outcomes: dict[str, NodeOutcome] = {}
     write_specs: dict[str, list[str]] = {}
@@ -272,8 +273,7 @@ def test_scientist_async_checkpoint_concurrent_restore_cycle_long_soak_smoke(
                 alias=f"concurrent_restore_{run_index}_{index}",
                 node_id=f"scientist.node_concurrent_restore_{run_index}_{index}@1.0.0",
                 completed_nodes=[
-                    f"concurrent_restore_{run_index}_{item}"
-                    for item in range(index + 1)
+                    f"concurrent_restore_{run_index}_{item}" for item in range(index + 1)
                 ],
                 workflow_id="scientist_benchmark",
                 workflow_fingerprint=f"{run_index:x}".rjust(64, "d"),

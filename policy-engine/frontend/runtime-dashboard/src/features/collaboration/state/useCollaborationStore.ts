@@ -61,7 +61,9 @@ function normalizeComments(comments: Comment[]): Comment[] {
 }
 
 function upsertComment(comments: Comment[], incoming: Comment): Comment[] {
-  const existingIndex = comments.findIndex((comment) => comment.id === incoming.id);
+  const existingIndex = comments.findIndex(
+    (comment) => comment.id === incoming.id,
+  );
   if (existingIndex === -1) {
     return normalizeComments([...comments, incoming]);
   }

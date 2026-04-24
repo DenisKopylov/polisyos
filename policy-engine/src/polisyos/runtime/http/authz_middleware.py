@@ -1,23 +1,23 @@
 """Authorization middleware with delegation verification and OPA policy checks."""
+
 from __future__ import annotations
 
 import asyncio
 import os
 from typing import TYPE_CHECKING, Any
 
-from polisyos.fabric.connectors.resilience.circuit_breaker import (
-    CircuitBreaker,
-    CircuitBreakerConfig,
-    CircuitOpenError,
-)
 from polisyos.common.logger import get_logger
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.authz import AuthzInput, OPAClient
-from polisyos.core.security.delegation import DelegationTokenManager
 from polisyos.core.security.tenant_context import (
     get_current_access_scope_or_none,
     reset_current_access_scope,
     set_current_access_scope,
+)
+from polisyos.fabric.connectors.resilience.circuit_breaker import (
+    CircuitBreaker,
+    CircuitBreakerConfig,
+    CircuitOpenError,
 )
 from polisyos.runtime.http.errors import problem_response
 from polisyos.runtime.http.security import clear_request_auth_context
@@ -32,6 +32,8 @@ if TYPE_CHECKING:
     from starlette.responses import JSONResponse as _JSONResponse
     from starlette.responses import Response as _Response
     from starlette.types import ASGIApp as _ASGIApp
+
+    from polisyos.core.security.delegation import DelegationTokenManager
 
     class _BaseHTTPMiddleware:
         def __init__(self, app: _ASGIApp) -> None: ...
@@ -215,9 +217,7 @@ class AuthzMiddleware(_BaseHTTPMiddleware):
             resource_pii_tier=str(resource_ctx.get("pii_tier", "none")),
             resource_metric_id=str(resource_ctx.get("metric_id", "")),
             resource_columns=tuple(resource_ctx.get("columns", ()) or ()),
-            resource_requires_anonymization=bool(
-                resource_ctx.get("requires_anonymization", False)
-            ),
+            resource_requires_anonymization=bool(resource_ctx.get("requires_anonymization", False)),
         )
 
         try:

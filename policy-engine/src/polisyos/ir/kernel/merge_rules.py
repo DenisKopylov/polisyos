@@ -1,4 +1,5 @@
 """Public kernel merge rules module API."""
+
 from __future__ import annotations
 
 import logging
@@ -83,8 +84,7 @@ class MergeRuleSpec(KernelModel):
     associativity: bool | None = Field(
         default=None,
         description=(
-            "Whether merge(merge(a,b),c) == merge(a,merge(b,c)). "
-            "Required for parallel reduction."
+            "Whether merge(merge(a,b),c) == merge(a,merge(b,c)). Required for parallel reduction."
         ),
     )
     idempotency: bool | None = Field(
@@ -119,7 +119,9 @@ class MergeRuleSpec(KernelModel):
             kind_enum = kind if isinstance(kind, MergeRuleKind) else MergeRuleKind(kind)
         except ValueError as exc:
             logger.debug(
-                "Failed to resolve MergeRuleKind from %r, skipping defaults: %s", kind, exc,
+                "Failed to resolve MergeRuleKind from %r, skipping defaults: %s",
+                kind,
+                exc,
             )
             return data
         props = EXPECTED_ALGEBRA_PROPERTIES.get(kind_enum)
@@ -131,7 +133,7 @@ class MergeRuleSpec(KernelModel):
         return data
 
     @model_validator(mode="after")
-    def validate_algebra_properties(self) -> "MergeRuleSpec":
+    def validate_algebra_properties(self) -> MergeRuleSpec:
         """Ensure algebraic properties match the rule kind."""
         props = EXPECTED_ALGEBRA_PROPERTIES[self.kind]
         if self.commutativity != props["commutativity"]:
@@ -161,7 +163,7 @@ class MergeRuleRegistry(KernelModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_rules(self) -> "MergeRuleRegistry":
+    def validate_rules(self) -> MergeRuleRegistry:
         for key, spec in self.rules.items():
             if not key or not isinstance(key, str):
                 raise ValueError("merge rule id must be a non-empty string")

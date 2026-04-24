@@ -22,8 +22,8 @@ from .metrics import (
 )
 
 __all__ = [
-    "FamilyErrorSummary",
     "CorrectionMethod",
+    "FamilyErrorSummary",
     "FamilyScope",
     "MetricId",
     "MetricValidationTypeIBenchResult",

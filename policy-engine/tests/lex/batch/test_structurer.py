@@ -51,7 +51,9 @@ def test_extract_provisions_structured_fallback_extracts_numbered_list_items() -
     assert "підтвердження оплати" in items[1].text
 
 
-def test_extract_provisions_structured_fallback_extracts_column_clauses_under_appendix_section() -> None:
+def test_extract_provisions_structured_fallback_extracts_column_clauses_under_appendix_section() -> (
+    None
+):
     text = """
 Додаток 2
 Розділ I. Порядок заповнення
@@ -78,7 +80,9 @@ def test_extract_provisions_structured_fallback_extracts_column_clauses_under_ap
     assert "згідно з договором застави" in column_spans[1].text
 
 
-def test_extract_provisions_structured_fallback_merges_multiline_table_rows_and_marks_headers() -> None:
+def test_extract_provisions_structured_fallback_merges_multiline_table_rows_and_marks_headers() -> (
+    None
+):
     text = """
 Додаток 1
 Назва   Опис   Поріг
@@ -126,7 +130,9 @@ def test_extract_provisions_marks_form_and_questionnaire_appendix_units_as_searc
     assert all(span.fallback_allowed_for_reasoning is False for span in questionnaire_items)
 
 
-def test_extract_provisions_marks_attachment_inventory_and_signature_blocks_as_search_only() -> None:
+def test_extract_provisions_marks_attachment_inventory_and_signature_blocks_as_search_only() -> (
+    None
+):
     attachments_text = """
 Додаток 2
 
@@ -169,7 +175,9 @@ def test_extract_provisions_marks_form_fields_and_salary_headers_as_search_only(
 """.strip()
     salary_spans = extract_provisions(salary_text, doc_name="Додаток до постанови")
 
-    table_headers = [span for span in salary_spans if span.section_role in {"table_header", "form_header"}]
+    table_headers = [
+        span for span in salary_spans if span.section_role in {"table_header", "form_header"}
+    ]
     assert len(table_headers) == 1
     assert table_headers[0].fallback_allowed_for_reasoning is False
     data_rows = [span for span in salary_spans if span.anchor_path.endswith("/row:0001")]
@@ -323,7 +331,9 @@ def test_extract_provisions_marks_placeholder_rows_and_stamps_as_search_only() -
 
     spans = extract_provisions(text, doc_name="Заява на одержання Свідоцтва")
 
-    search_only_headers = [span for span in spans if span.section_role in {"appendix_header", "form_header"}]
+    search_only_headers = [
+        span for span in spans if span.section_role in {"appendix_header", "form_header"}
+    ]
     assert len(search_only_headers) == 1
     assert search_only_headers[0].fallback_allowed_for_reasoning is False
 
@@ -365,7 +375,10 @@ def test_extract_provisions_strict_catalog_docs_demote_cost_tables_to_search_onl
 
     catalog_rows = [span for span in spans if span.struct_kind == "table_row"]
     assert catalog_rows
-    assert all(span.section_role in {"table_header", "catalog_header", "catalog_item"} for span in catalog_rows)
+    assert all(
+        span.section_role in {"table_header", "catalog_header", "catalog_item"}
+        for span in catalog_rows
+    )
     assert all(span.fallback_allowed_for_reasoning is False for span in catalog_rows)
 
 

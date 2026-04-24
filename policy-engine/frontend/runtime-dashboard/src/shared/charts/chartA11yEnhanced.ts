@@ -146,7 +146,11 @@ export function createDataPointKeyboardNav(
 
 export function isHighContrastMode(): boolean {
   if (typeof window === "undefined") return false;
-  return window.matchMedia("(forced-colors: active)").matches;
+  return (
+    document.documentElement.dataset.contrast === "more" ||
+    window.matchMedia("(prefers-contrast: more)").matches ||
+    window.matchMedia("(forced-colors: active)").matches
+  );
 }
 
 export function useHighContrastQuery(): boolean {

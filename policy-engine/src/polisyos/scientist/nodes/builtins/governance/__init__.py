@@ -1,4 +1,5 @@
 """Lazy governance-node facade for legal, data-plane, arbitration, and pass-runner stages."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -6,8 +7,8 @@ from typing import Any
 __all__ = [
     "DataPlaneGateNode",
     "LegalCheckNode",
-    "RunNormativeArbitrationNode",
     "RunGovernanceNode",
+    "RunNormativeArbitrationNode",
 ]
 
 

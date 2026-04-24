@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import time
 
-import pytest
-
 from polisyos.scientist.cross_graph.budget import CompilationBudget
 
 

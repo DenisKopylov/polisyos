@@ -5,13 +5,16 @@ from __future__ import annotations
 import json
 import re
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.knowledge.types import EstimateCandidate, SourceTopicRef, WorkRecord
 from polisyos.academic.trust import compute_trust_score
 from polisyos.batch_common.manifest import write_stage_manifest
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 # ---------------------------------------------------------------------------
 # Abstract reconstruction
@@ -52,12 +55,18 @@ _ESTIMATE_PATTERNS: list[tuple[str, re.Pattern, dict[str, int]]] = [
     ),
     (
         "odds_ratio",
-        re.compile(r"\bOR\s*=?\s*([+-]?\d+\.?\d*)\s*(?:\(\s*95%\s*CI[:\s]*([+-]?\d+\.?\d*)\s*[–\-]\s*([+-]?\d+\.?\d*)\s*\))?", re.IGNORECASE),
+        re.compile(
+            r"\bOR\s*=?\s*([+-]?\d+\.?\d*)\s*(?:\(\s*95%\s*CI[:\s]*([+-]?\d+\.?\d*)\s*[–\-]\s*([+-]?\d+\.?\d*)\s*\))?",
+            re.IGNORECASE,
+        ),
         {"value": 1, "ci_low": 2, "ci_high": 3},
     ),
     (
         "risk_ratio",
-        re.compile(r"\bRR\s*=?\s*([+-]?\d+\.?\d*)\s*(?:\(\s*95%\s*CI[:\s]*([+-]?\d+\.?\d*)\s*[–\-]\s*([+-]?\d+\.?\d*)\s*\))?", re.IGNORECASE),
+        re.compile(
+            r"\bRR\s*=?\s*([+-]?\d+\.?\d*)\s*(?:\(\s*95%\s*CI[:\s]*([+-]?\d+\.?\d*)\s*[–\-]\s*([+-]?\d+\.?\d*)\s*\))?",
+            re.IGNORECASE,
+        ),
         {"value": 1, "ci_low": 2, "ci_high": 3},
     ),
     (
@@ -109,7 +118,10 @@ _ESTIMATE_PATTERNS: list[tuple[str, re.Pattern, dict[str, int]]] = [
     ),
     (
         "change_by",
-        re.compile(r"(?:increase|decrease|reduce|raise|decline|grow)[sd]?\s+by\s+([+-]?\d+\.?\d*)\s*(?:percent|%|pp|percentage\s*points?)", re.IGNORECASE),
+        re.compile(
+            r"(?:increase|decrease|reduce|raise|decline|grow)[sd]?\s+by\s+([+-]?\d+\.?\d*)\s*(?:percent|%|pp|percentage\s*points?)",
+            re.IGNORECASE,
+        ),
         {"value": 1},
     ),
     (
@@ -132,7 +144,10 @@ _ESTIMATE_PATTERNS: list[tuple[str, re.Pattern, dict[str, int]]] = [
     ),
     (
         "confidence_interval",
-        re.compile(r"(?:95%|90%)\s*C[Ii]\s*[\[({:]\s*([+-]?\d+\.?\d*)\s*[,;to ]+\s*([+-]?\d+\.?\d*)\s*[\])}]?", re.IGNORECASE),
+        re.compile(
+            r"(?:95%|90%)\s*C[Ii]\s*[\[({:]\s*([+-]?\d+\.?\d*)\s*[,;to ]+\s*([+-]?\d+\.?\d*)\s*[\])}]?",
+            re.IGNORECASE,
+        ),
         {"ci_low": 1, "ci_high": 2},
     ),
     (
@@ -164,7 +179,10 @@ _SAMPLE_SIZE_PATTERNS: tuple[re.Pattern, ...] = (
 _BOUNDARY_PATTERNS: tuple[re.Pattern, ...] = (
     re.compile(r"in\s+(low|middle|high)[- ]income\s+countries", re.IGNORECASE),
     re.compile(r"in\s+countries\s+with\s+([a-z\-\s]{3,40})", re.IGNORECASE),
-    re.compile(r"when\s+([a-z\-\s]{2,30})\s+(?:exceeds?|is\s+above|is\s+below)\s+([0-9]+(?:\.[0-9]+)?)", re.IGNORECASE),
+    re.compile(
+        r"when\s+([a-z\-\s]{2,30})\s+(?:exceeds?|is\s+above|is\s+below)\s+([0-9]+(?:\.[0-9]+)?)",
+        re.IGNORECASE,
+    ),
     re.compile(r"effects?\s+are\s+larger\s+during\s+([a-z\-\s]{3,30})", re.IGNORECASE),
 )
 
@@ -185,7 +203,9 @@ def extract_sample_size(abstract: str) -> int | None:
     return None
 
 
-def extract_numerical_estimates(abstract: str, concepts: list[str] | None = None) -> list[EstimateCandidate]:
+def extract_numerical_estimates(
+    abstract: str, concepts: list[str] | None = None
+) -> list[EstimateCandidate]:
     """Extract numerical estimates from an abstract using regex patterns."""
     if not abstract:
         return []
@@ -245,7 +265,9 @@ def extract_numerical_estimates(abstract: str, concepts: list[str] | None = None
     return estimates
 
 
-def _extract_table_estimates(text: str, concepts: list[str] | None = None) -> list[EstimateCandidate]:
+def _extract_table_estimates(
+    text: str, concepts: list[str] | None = None
+) -> list[EstimateCandidate]:
     if not text or not _TABLE_STDERR_HEADER_RE.search(text):
         return []
 
@@ -323,7 +345,10 @@ _DESIGN_PATTERNS: list[tuple[str, re.Pattern]] = [
 
 _CAUSAL_PATTERNS: tuple[re.Pattern, ...] = (
     re.compile(r"effect\s+of\s+([A-Za-z\s\-]{3,40})\s+on\s+([A-Za-z\s\-]{3,40})", re.IGNORECASE),
-    re.compile(r"([A-Za-z][A-Za-z\s\-]{3,30})\s+(increases?|decreases?|reduces?|raises?|lowers?)\s+([A-Za-z\s\-]{3,40})", re.IGNORECASE),
+    re.compile(
+        r"([A-Za-z][A-Za-z\s\-]{3,30})\s+(increases?|decreases?|reduces?|raises?|lowers?)\s+([A-Za-z\s\-]{3,40})",
+        re.IGNORECASE,
+    ),
 )
 
 
@@ -396,7 +421,25 @@ def extract_boundary_conditions(abstract: str) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 _HIGH_INCOME_CODES = {
-    "US", "CA", "GB", "DE", "FR", "NL", "SE", "NO", "FI", "DK", "CH", "AT", "BE", "AU", "NZ", "JP", "KR", "SG", "IE",
+    "US",
+    "CA",
+    "GB",
+    "DE",
+    "FR",
+    "NL",
+    "SE",
+    "NO",
+    "FI",
+    "DK",
+    "CH",
+    "AT",
+    "BE",
+    "AU",
+    "NZ",
+    "JP",
+    "KR",
+    "SG",
+    "IE",
 }
 
 
@@ -476,7 +519,9 @@ def _build_source_topic(row: dict[str, Any]) -> SourceTopicRef | None:
     )
 
 
-def _method_signal_score(study_design: str, estimates: list[EstimateCandidate], causal_claims: list[dict]) -> float:
+def _method_signal_score(
+    study_design: str, estimates: list[EstimateCandidate], causal_claims: list[dict]
+) -> float:
     base = {
         "meta-analysis": 1.0,
         "meta_analysis": 1.0,
@@ -495,7 +540,12 @@ def _method_signal_score(study_design: str, estimates: list[EstimateCandidate], 
     return min(base, 1.0)
 
 
-def _extraction_confidence(study_design: str, estimates: list[EstimateCandidate], context_profile: dict, causal_claims: list[dict]) -> float:
+def _extraction_confidence(
+    study_design: str,
+    estimates: list[EstimateCandidate],
+    context_profile: dict,
+    causal_claims: list[dict],
+) -> float:
     score = 0.0
     if study_design:
         score += 0.4
@@ -520,7 +570,7 @@ def parse_raw_sources(config: AcademicBatchConfig) -> dict[str, int]:
         parsed_path = config.parsed_dir / f"{slug}.jsonl"
 
         records: list[WorkRecord] = []
-        with open(payload, "r", encoding="utf-8") as fh:
+        with open(payload, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -537,7 +587,9 @@ def parse_raw_sources(config: AcademicBatchConfig) -> dict[str, int]:
 
                 abstract = reconstruct_abstract(work.get("abstract_inverted_index"))
                 study_design = classify_study_design(abstract)
-                estimates = extract_numerical_estimates(abstract, [source_topic.topic_display_name] if source_topic else None)
+                estimates = extract_numerical_estimates(
+                    abstract, [source_topic.topic_display_name] if source_topic else None
+                )
                 sample_size = extract_sample_size(abstract)
                 causal_claims = extract_causal_claims(abstract)
                 boundary_conditions = extract_boundary_conditions(abstract)
@@ -549,13 +601,23 @@ def parse_raw_sources(config: AcademicBatchConfig) -> dict[str, int]:
                     sample_size=sample_size,
                 )
                 method_signal = _method_signal_score(study_design, estimates, causal_claims)
-                extraction_conf = _extraction_confidence(study_design, estimates, context_profile, causal_claims)
+                extraction_conf = _extraction_confidence(
+                    study_design, estimates, context_profile, causal_claims
+                )
 
                 primary_location = work.get("primary_location") or {}
-                source = primary_location.get("source") if isinstance(primary_location, dict) else {}
+                source = (
+                    primary_location.get("source") if isinstance(primary_location, dict) else {}
+                )
                 source = source if isinstance(source, dict) else {}
-                open_access = work.get("open_access") if isinstance(work.get("open_access"), dict) else {}
-                best_oa = work.get("best_oa_location") if isinstance(work.get("best_oa_location"), dict) else {}
+                open_access = (
+                    work.get("open_access") if isinstance(work.get("open_access"), dict) else {}
+                )
+                best_oa = (
+                    work.get("best_oa_location")
+                    if isinstance(work.get("best_oa_location"), dict)
+                    else {}
+                )
                 citation_norm = (
                     work.get("citation_normalized_percentile")
                     if isinstance(work.get("citation_normalized_percentile"), dict)
@@ -567,7 +629,9 @@ def parse_raw_sources(config: AcademicBatchConfig) -> dict[str, int]:
                 fwci = float(fwci_value) if isinstance(fwci_value, (int, float)) else None
                 citation_percentile_val = citation_norm.get("value")
                 citation_percentile = (
-                    float(citation_percentile_val) if isinstance(citation_percentile_val, (int, float)) else None
+                    float(citation_percentile_val)
+                    if isinstance(citation_percentile_val, (int, float))
+                    else None
                 )
 
                 records.append(
@@ -584,8 +648,12 @@ def parse_raw_sources(config: AcademicBatchConfig) -> dict[str, int]:
                         cited_by_count=int(work.get("cited_by_count") or 0),
                         fwci=fwci,
                         citation_normalized_percentile=citation_percentile,
-                        citation_is_top_1_percent=bool(citation_norm.get("is_in_top_1_percent", False)),
-                        citation_is_top_10_percent=bool(citation_norm.get("is_in_top_10_percent", False)),
+                        citation_is_top_1_percent=bool(
+                            citation_norm.get("is_in_top_1_percent", False)
+                        ),
+                        citation_is_top_10_percent=bool(
+                            citation_norm.get("is_in_top_10_percent", False)
+                        ),
                         journal=str(source.get("display_name") or ""),
                         source_id=str(source.get("id") or ""),
                         is_oa=bool(open_access.get("is_oa", False)),

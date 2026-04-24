@@ -97,11 +97,11 @@ def _extract_connector_id(args: tuple[Any, ...], kwargs: dict[str, Any]) -> str 
     for key in ("handle", "connection", "connection_handle"):
         handle = kwargs.get(key)
         if handle is not None and hasattr(handle, "connector_id"):
-            connector_id = getattr(handle, "connector_id")
+            connector_id = handle.connector_id
             return str(connector_id) if connector_id is not None else None
     for arg in args:
         if hasattr(arg, "connector_id"):
-            connector_id = getattr(arg, "connector_id")
+            connector_id = arg.connector_id
             return str(connector_id) if connector_id is not None else None
     return None
 
@@ -236,7 +236,7 @@ class RetryPolicy:
                             original_error=error,
                             attempts=self.max_attempts,
                             total_delay=total_delay,
-                        )
+                        ) from error
 
                     delay = self.calculate_delay(attempt)
                     retry_after = _extract_retry_after_seconds(error)
@@ -356,7 +356,7 @@ async def retry_async[T](
     try:
         return await policy.execute(operation, on_error=on_error)
     except RetryExhaustedError as error:
-        raise error.original_error
+        raise error.original_error from error
 
 
 async def simple_retry[T](

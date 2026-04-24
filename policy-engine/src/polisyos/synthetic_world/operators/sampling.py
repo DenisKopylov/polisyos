@@ -1,4 +1,5 @@
 """Sampling-design operators for synthetic worlds."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -101,7 +102,9 @@ def apply_survey_sampling(
         0.05,
         0.99,
     )
-    respondent_mask = sample_mask & rng.binomial(1, response_probability, size=n_entities).astype(bool)
+    respondent_mask = sample_mask & rng.binomial(1, response_probability, size=n_entities).astype(
+        bool
+    )
     if not respondent_mask.any():
         respondent_mask[int(np.argmax(response_probability * inclusion_probability))] = True
 
@@ -114,7 +117,8 @@ def apply_survey_sampling(
         calibrated_weight = response_adjusted
     design_effect = float(
         1.0
-        + np.var(calibrated_weight[respondent_mask]) / max(np.mean(calibrated_weight[respondent_mask]) ** 2, 1.0e-9)
+        + np.var(calibrated_weight[respondent_mask])
+        / max(np.mean(calibrated_weight[respondent_mask]) ** 2, 1.0e-9)
     )
     return SamplingOutcome(
         inclusion_probability=inclusion_probability,
@@ -134,4 +138,3 @@ def apply_survey_sampling(
 
 
 __all__ = ["SamplingOutcome", "apply_entity_sampling", "apply_survey_sampling"]
-

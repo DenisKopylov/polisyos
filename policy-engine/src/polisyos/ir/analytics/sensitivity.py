@@ -1,4 +1,5 @@
 """Public analytics sensitivity module API."""
+
 from __future__ import annotations
 
 import math
@@ -36,7 +37,7 @@ class BenchmarkResult(BaseModel):
     """Human-readable summary of this benchmark."""
 
     @model_validator(mode="after")
-    def _validate(self) -> "BenchmarkResult":
+    def _validate(self) -> BenchmarkResult:
         for field in ("r2yd_x", "r2td_x"):
             val = getattr(self, field)
             if val is not None:
@@ -49,6 +50,7 @@ class BenchmarkResult(BaseModel):
 
 class EValueResult(BaseModel):
     """E value result data model."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     raw_effect: float
@@ -59,7 +61,7 @@ class EValueResult(BaseModel):
     details: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate(self) -> "EValueResult":
+    def _validate(self) -> EValueResult:
         if not math.isfinite(self.raw_effect):
             raise ValueError("raw_effect must be finite")
         if not math.isfinite(self.rr_equivalent):
@@ -77,6 +79,7 @@ class EValueResult(BaseModel):
 
 class SensitivityResult(BaseModel):
     """Sensitivity result data model."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -102,7 +105,7 @@ class SensitivityResult(BaseModel):
     """Names of covariates used for benchmarking."""
 
     @model_validator(mode="after")
-    def _validate(self) -> "SensitivityResult":
+    def _validate(self) -> SensitivityResult:
         for field in (
             "e_value",
             "e_value_ci_lower",
@@ -162,6 +165,6 @@ __all__ = [
     "BenchmarkResult",
     "EValueResult",
     "SensitivityResult",
-    "persist_sensitivity_result",
     "load_sensitivity_result",
+    "persist_sensitivity_result",
 ]

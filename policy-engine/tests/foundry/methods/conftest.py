@@ -1,11 +1,13 @@
 """
 Test fixtures for Foundry Methods test suite.
 """
+
 from __future__ import annotations
 
 import os
+from collections.abc import Callable, Mapping
 from pathlib import Path
-from typing import Any, Callable, Mapping, NamedTuple
+from typing import Any, NamedTuple
 
 import pytest
 
@@ -27,9 +29,9 @@ from polisyos.foundry.methods import (
     SlotSpec,
     SlotType,
     Unit,
-    foundry_method,
 )
 from polisyos.foundry.methods.types.units import Units
+
 try:
     from polisyos.foundry.methods.testing import (
         GoldenStore,
@@ -40,27 +42,23 @@ try:
         create_sample_state,
     )
 except ModuleNotFoundError:  # pragma: no cover - optional test-only dependencies may be absent
+
     class GoldenStore:  # type: ignore[no-redef]
         def __init__(self, *_args: Any, **_kwargs: Any) -> None:
             raise RuntimeError("polisyos.foundry.methods.testing dependencies are unavailable")
 
-
     class GoldenVerificationResult:  # type: ignore[no-redef]
         pass
-
 
     class MethodTestSuite:  # type: ignore[no-redef]
         def __init__(self, *_args: Any, **_kwargs: Any) -> None:
             raise RuntimeError("polisyos.foundry.methods.testing dependencies are unavailable")
 
-
     class VerificationStatus:  # type: ignore[no-redef]
         PASSED = "passed"
 
-
     def create_sample_params(*_args: Any, **_kwargs: Any) -> Any:  # type: ignore[no-redef]
         raise RuntimeError("polisyos.foundry.methods.testing dependencies are unavailable")
-
 
     def create_sample_state(*_args: Any, **_kwargs: Any) -> Any:  # type: ignore[no-redef]
         raise RuntimeError("polisyos.foundry.methods.testing dependencies are unavailable")
@@ -84,6 +82,7 @@ def pure_step_factory() -> Callable[[Callable[[Any, Mapping[str, Any]], Any] | N
         compute_fn: Callable[[Any, Mapping[str, Any]], Any] | None = None,
     ) -> Any:
         if compute_fn is None:
+
             def _identity(state: Any, params: Mapping[str, Any]) -> Any:
                 del params
                 return state
@@ -336,7 +335,9 @@ def sample_scalar_params():
 
 
 @pytest.fixture
-def golden_check(golden_store: GoldenStore) -> Callable[[str, Any, dict[str, Any], Any], GoldenVerificationResult]:
+def golden_check(
+    golden_store: GoldenStore,
+) -> Callable[[str, Any, dict[str, Any], Any], GoldenVerificationResult]:
     """
     Fixture providing a callable for golden record verification.
 
@@ -362,9 +363,7 @@ def golden_check(golden_store: GoldenStore) -> Callable[[str, Any, dict[str, Any
             strict_output = os.environ.get("GOLDEN_STRICT", "").lower() in ("1", "true", "yes")
 
         if update:
-            record, was_existing = golden_store.update_or_create(
-                method_fqn, state, params, output
-            )
+            record, was_existing = golden_store.update_or_create(method_fqn, state, params, output)
             action = "Updated" if was_existing else "Created"
             return GoldenVerificationResult(
                 status=VerificationStatus.PASSED,
@@ -415,8 +414,8 @@ def isolated_registry():
     the catalog so property-style tests exercise real registrations instead of
     silently converting missing setup into coverage-debt skips.
     """
-    from polisyos.foundry.methods.registry import registry_scope
     from polisyos.foundry.methods.catalog import ensure_all_methods_registered
+    from polisyos.foundry.methods.registry import registry_scope
 
     with registry_scope() as reg:
         ensure_all_methods_registered(reg)

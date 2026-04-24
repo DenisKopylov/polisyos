@@ -30,6 +30,7 @@ Freshness: 2026-04-17.
 - restore path зависит от knowledge only-in-head вместо documented procedure;
 - retained copy существует, но owner, storage tier или exact lookup key не
   были зафиксированы в incident timeline;
+
 - local snapshot promoted в archive без проверки целостности и restoreability.
 - Fabric connector fixture, quarantine record, CDC event, quality report,
   lineage graph, or schema-governance evidence was produced but not retained
@@ -42,11 +43,14 @@ Freshness: 2026-04-17.
 - artifact family и retention class (`R0`-`R4`);
 - exact lookup key: `run_id`, `job_id`, `artifact_id`, `replay_ref`,
   `snapshot_root`, `archive_sha256`, CI run URL;
+
 - UTC время начала restore attempt и owner, который его ведёт;
 - expected outcome: reproduce, audit evidence, release evidence, incident
   analysis, operational resume;
+
 - storage location: CI, CAS, local snapshot tree, compliance storage, cold
   archive;
+
 - whether another retained copy exists.
 - for Fabric: connector id, dataset id, schema id/version, profile id,
   artifact kind, quarantine reason, CDC event kind, or lineage graph id.
@@ -66,15 +70,15 @@ Freshness: 2026-04-17.
 
 ### Fabric retained families
 
-| Family | Lookup key | Validation |
-|---|---|---|
-| Connector recorded fixtures | fixture path under `tests/fabric/connectors/sources/fixtures/` plus connector id | source-specific connector tests and record/replay tests |
-| Connector contract snapshots | contract id and schema id/version | `tools/connectors/check_contracts.py --check` and `tools/ci/check_fabric_schema_registry.py --check` |
-| Data-plane replay bundles | connector id, dataset id, replay ref, cursor/checkpoint key | `tests/fabric/data_plane/test_record_replay.py` |
-| Quarantine/DLQ records | `artifact_id`, reason, source, schema version | `tests/fabric/data_plane/test_quarantine.py` and `list_quarantine_records()` |
-| CDC schema-change events | CAS artifact kind `fabric.cdc_schema_change` and stream dataset id | `tests/fabric/data_plane/test_streaming_runtime.py` |
-| Quality reports | metric id, run id, profile, `DataFitnessReport` payload | `tests/fabric/test_quality_indicators.py` |
-| Lineage graphs | graph id such as `graph.lineage.test` or production graph id | `tests/fabric/test_lineage.py` and OpenLineage export validation |
+| Family                       | Lookup key                                                                       | Validation                                                                                           |
+| ---------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Connector recorded fixtures  | fixture path under `tests/fabric/connectors/sources/fixtures/` plus connector id | source-specific connector tests and record/replay tests                                              |
+| Connector contract snapshots | contract id and schema id/version                                                | `tools/connectors/check_contracts.py --check` and `tools/ci/check_fabric_schema_registry.py --check` |
+| Data-plane replay bundles    | connector id, dataset id, replay ref, cursor/checkpoint key                      | `tests/fabric/data_plane/test_record_replay.py`                                                      |
+| Quarantine/DLQ records       | `artifact_id`, reason, source, schema version                                    | `tests/fabric/data_plane/test_quarantine.py` and `list_quarantine_records()`                         |
+| CDC schema-change events     | CAS artifact kind `fabric.cdc_schema_change` and stream dataset id               | `tests/fabric/data_plane/test_streaming_runtime.py`                                                  |
+| Quality reports              | metric id, run id, profile, `DataFitnessReport` payload                          | `tests/fabric/test_quality_indicators.py`                                                            |
+| Lineage graphs               | graph id such as `graph.lineage.test` or production graph id                     | `tests/fabric/test_lineage.py` and OpenLineage export validation                                     |
 
 ### Useful commands
 
@@ -121,12 +125,16 @@ uv run pytest tests/fabric/test_quality_indicators.py tests/fabric/test_lineage.
 
 - если bundle integrity не подтверждена, stop restore и переключайтесь на
   другую retained copy;
+
 - если evidence family missing, freeze destructive cleanup на affected surface
   до завершения gap analysis;
+
 - если source family оказалась wrongly discardable, promote surviving copy в
   longer retention class до завершения postmortem;
+
 - если restore drill failed on clean workspace, treat it как operational defect
   и открывайте remediation до следующего retention purge.
+
 - если Fabric artifact family восстановлена из replay, сохраните связь между
   новым artifact id и original incident/ref, чтобы lineage не выглядела как
   independent source.
@@ -164,8 +172,8 @@ uv run pytest tests/fabric/test_quality_indicators.py tests/fabric/test_lineage.
 
 ### Action Items
 
-| Action item | Owner | Due date | Status |
-|---|---|---|---|
-| Correct retention class or restore drill coverage for the affected artifact family | affected owner | YYYY-MM-DD | open |
-| Backfill missing manifest, checksum, or evidence sidecars where feasible | `@platform-owners` | YYYY-MM-DD | open |
-| Update recovery docs so retained-artifact restore is executable by non-authors | `@platform-owners` | YYYY-MM-DD | open |
+| Action item                                                                        | Owner              | Due date   | Status |
+| ---------------------------------------------------------------------------------- | ------------------ | ---------- | ------ |
+| Correct retention class or restore drill coverage for the affected artifact family | affected owner     | YYYY-MM-DD | open   |
+| Backfill missing manifest, checksum, or evidence sidecars where feasible           | `@platform-owners` | YYYY-MM-DD | open   |
+| Update recovery docs so retained-artifact restore is executable by non-authors     | `@platform-owners` | YYYY-MM-DD | open   |

@@ -46,12 +46,20 @@ class DomainRule:
 PARAMETER_DOMAIN_RULES: list[DomainRule] = [
     DomainRule(pattern="rate", lower=0.0, upper=1.0, description="Rates must be in [0, 1]"),
     DomainRule(pattern="tax", lower=0.0, upper=1.0, description="Tax rates must be in [0, 1]"),
-    DomainRule(pattern="probability", lower=0.0, upper=1.0, description="Probabilities must be in [0, 1]"),
+    DomainRule(
+        pattern="probability", lower=0.0, upper=1.0, description="Probabilities must be in [0, 1]"
+    ),
     DomainRule(pattern="share", lower=0.0, upper=1.0, description="Shares must be in [0, 1]"),
     DomainRule(pattern="fraction", lower=0.0, upper=1.0, description="Fractions must be in [0, 1]"),
-    DomainRule(pattern="percentage", lower=0.0, upper=100.0, description="Percentages must be in [0, 100]"),
-    DomainRule(pattern="subsidy", lower=0.0, upper=None, description="Subsidies must be non-negative"),
-    DomainRule(pattern="duration", lower=0.0, upper=None, description="Durations must be non-negative"),
+    DomainRule(
+        pattern="percentage", lower=0.0, upper=100.0, description="Percentages must be in [0, 100]"
+    ),
+    DomainRule(
+        pattern="subsidy", lower=0.0, upper=None, description="Subsidies must be non-negative"
+    ),
+    DomainRule(
+        pattern="duration", lower=0.0, upper=None, description="Durations must be non-negative"
+    ),
     DomainRule(pattern="count", lower=0.0, upper=None, description="Counts must be non-negative"),
 ]
 

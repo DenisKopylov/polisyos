@@ -12,6 +12,7 @@ Design Goals:
 - Fail-safe discovery (log errors, continue with valid connectors)
 - Support for lazy loading and hot-reloading
 """
+
 from __future__ import annotations
 
 import importlib
@@ -19,10 +20,11 @@ import os
 import sys
 import threading
 import warnings
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterator, Sequence
+from typing import TYPE_CHECKING
 
 from polisyos.common.logger import get_logger
 from polisyos.core.discovery import (
@@ -53,10 +55,10 @@ ALLOW_PATHS_ENV = "POLISYOS_ALLOW_CONNECTOR_PATHS"
 class DiscoveryResult:
     """Result of connector discovery."""
 
-    connector_class: type["SourceConnector"]
+    connector_class: type[SourceConnector]
     source: str  # "builtin", "entrypoint", "explicit", "path"
     module_path: str
-    discovered_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    discovered_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass(frozen=True)
@@ -67,7 +69,7 @@ class DiscoveryError:
     module_path: str
     error: str
     error_type: str
-    discovered_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    discovered_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 class ConnectorDiscovery:
@@ -88,10 +90,10 @@ class ConnectorDiscovery:
             logger.warning(f"Failed to load: {error.module_path}")
     """
 
-    _instance: "ConnectorDiscovery | None" = None
+    _instance: ConnectorDiscovery | None = None
     _class_lock = threading.Lock()
 
-    def __new__(cls) -> "ConnectorDiscovery":
+    def __new__(cls) -> ConnectorDiscovery:
         """Singleton pattern."""
         if cls._instance is None:
             with cls._class_lock:
@@ -140,7 +142,7 @@ class ConnectorDiscovery:
         *,
         refresh: bool = False,
         allow_paths: bool | None = None,
-    ) -> Iterator[type["SourceConnector"]]:
+    ) -> Iterator[type[SourceConnector]]:
         """
         Discover all available connectors.
 
@@ -190,12 +192,12 @@ class ConnectorDiscovery:
         env_value = os.getenv(ALLOW_PATHS_ENV, "").strip().lower()
         return env_value in {"1", "true", "yes"}
 
-    def _discover_builtin(self) -> Iterator[type["SourceConnector"]]:
+    def _discover_builtin(self) -> Iterator[type[SourceConnector]]:
         """Discover built-in reference connectors."""
         for module_path in BUILTIN_CONNECTOR_MODULES:
             yield from self._discover_from_module(module_path, source="builtin")
 
-    def _discover_entry_points(self) -> Iterator[type["SourceConnector"]]:
+    def _discover_entry_points(self) -> Iterator[type[SourceConnector]]:
         """Discover connectors registered via entry points."""
         try:
             eps = list_entry_points(group=ENTRY_POINT_GROUP)
@@ -266,7 +268,7 @@ class ConnectorDiscovery:
     def _discover_explicit_modules(
         self,
         module_paths: Sequence[str],
-    ) -> Iterator[type["SourceConnector"]]:
+    ) -> Iterator[type[SourceConnector]]:
         """Discover connectors from explicitly added modules."""
         for module_path in module_paths:
             yield from self._discover_from_module(module_path, source="explicit")
@@ -274,7 +276,7 @@ class ConnectorDiscovery:
     def _discover_explicit_paths(
         self,
         paths: Sequence[Path],
-    ) -> Iterator[type["SourceConnector"]]:
+    ) -> Iterator[type[SourceConnector]]:
         """Discover connectors from explicitly added filesystem paths."""
         for path in paths:
             yield from self._discover_from_path(path)
@@ -283,7 +285,7 @@ class ConnectorDiscovery:
         self,
         module_path: str,
         source: str,
-    ) -> Iterator[type["SourceConnector"]]:
+    ) -> Iterator[type[SourceConnector]]:
         """
         Discover connector classes from a module path.
 
@@ -358,7 +360,7 @@ class ConnectorDiscovery:
                 error=str(e),
             )
 
-    def _discover_from_path(self, path: Path) -> Iterator[type["SourceConnector"]]:
+    def _discover_from_path(self, path: Path) -> Iterator[type[SourceConnector]]:
         """
         Discover connectors from a filesystem path.
 
@@ -394,7 +396,7 @@ class ConnectorDiscovery:
         finally:
             sys.path = original_path
 
-    def _load_connector_from_file(self, file_path: Path) -> Iterator[type["SourceConnector"]]:
+    def _load_connector_from_file(self, file_path: Path) -> Iterator[type[SourceConnector]]:
         """Load connector classes from a Python file (dev-only)."""
         module_name = self._unique_module_name(file_path)
 
@@ -472,7 +474,7 @@ class ConnectorDiscovery:
 
         return True
 
-    def _get_fqid(self, connector_class: type["SourceConnector"]) -> str:
+    def _get_fqid(self, connector_class: type[SourceConnector]) -> str:
         """Get fully qualified ID from connector class."""
         metadata = getattr(connector_class, "metadata", None)
         if metadata is not None and hasattr(metadata, "fully_qualified_id"):
@@ -493,7 +495,7 @@ def discover_connectors(
     *,
     refresh: bool = False,
     allow_paths: bool | None = None,
-) -> Iterator[type["SourceConnector"]]:
+) -> Iterator[type[SourceConnector]]:
     """
     Convenience function to discover all available connectors.
 
@@ -519,7 +521,7 @@ def discover_connectors(
 
 def discover_connectors_from_modules(
     modules: Sequence[str],
-) -> Iterator[type["SourceConnector"]]:
+) -> Iterator[type[SourceConnector]]:
     """
     Discover connectors from specific module paths.
 

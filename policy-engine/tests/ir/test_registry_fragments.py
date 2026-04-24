@@ -106,8 +106,7 @@ def test_missing_dependency_fragment_is_not_applied_or_merged() -> None:
     assert result.composed.units.units["usd"].currency == "USD"
     assert result.applied_fragments == ["frag_valid"]
     assert any(
-        conflict.conflict_kind == "dependency_missing"
-        and conflict.item_key == "frag_invalid"
+        conflict.conflict_kind == "dependency_missing" and conflict.item_key == "frag_invalid"
         for conflict in result.conflicts
     )
 

@@ -1,4 +1,5 @@
 """Capability flags used to advertise what a discovered component can do."""
+
 from __future__ import annotations
 
 from enum import IntFlag, auto

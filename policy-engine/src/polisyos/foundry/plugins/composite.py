@@ -1,9 +1,11 @@
 """Public plugins composite module API."""
+
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field, is_dataclass
 from dataclasses import replace as dc_replace
-from typing import Any, Callable, Sequence
+from typing import Any
 
 import equinox as eqx
 import jax
@@ -61,9 +63,7 @@ class CompositeState(eqx.Module):
         for domain_name, domain_config in config.domains.items():
             rng, subkey = jax.random.split(rng)
             plugin = registry.get(domain_name)
-            domain_states[domain_name] = plugin.create_initial_state(
-                domain_config, subkey
-            )
+            domain_states[domain_name] = plugin.create_initial_state(domain_config, subkey)
 
         return cls(
             domain_states=domain_states,
@@ -292,9 +292,7 @@ class CompositeObjective(eqx.Module):
             objectives = plugin.get_objectives()
 
             if obj_name not in objectives:
-                raise KeyError(
-                    f"Objective '{obj_name}' not found in domain '{domain_name}'"
-                )
+                raise KeyError(f"Objective '{obj_name}' not found in domain '{domain_name}'")
 
             obj = objectives[obj_name]
             value = obj.evaluate(state.get_domain(domain_name))

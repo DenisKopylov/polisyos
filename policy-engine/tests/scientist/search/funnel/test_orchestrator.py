@@ -4,18 +4,16 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-import pytest
-
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.autotune.models import BenchmarkEvaluation, BenchmarkSplit
 from polisyos.scientist.doe.stress_report import StressTestReport
 from polisyos.scientist.governance.report import GovernanceReport
-from polisyos.scientist.search.funnel.orchestrator import FunnelOrchestrator
 from polisyos.scientist.search.funnel.level5_refutation_governance import (
     Level5RefutationGovernanceStage,
 )
 from polisyos.scientist.search.funnel.level6_promotion import Level6PromotionStage
+from polisyos.scientist.search.funnel.orchestrator import FunnelOrchestrator
 from polisyos.scientist.search.funnel.types import (
     CheapSignalVector,
     FunnelStage,
@@ -265,7 +263,9 @@ class TestFunnelOrchestrator:
             _make_stage(4, "L4"),
         ]
         orch = FunnelOrchestrator(stages)
-        ticket = orch.submit({"semantic": {"interventions": [], "objectives": []}}, {"burn_in_cohort": "calibration"})
+        ticket = orch.submit(
+            {"semantic": {"interventions": [], "objectives": []}}, {"burn_in_cohort": "calibration"}
+        )
         result = orch.advance(ticket, policy="burn_in")
 
         assert result.final_result is not None
@@ -279,7 +279,9 @@ class TestFunnelOrchestrator:
         orch = FunnelOrchestrator(stages, lesson_registry=lesson_registry)
 
         outcome = orch.advance(
-            orch.submit({"semantic": {"interventions": [], "objectives": []}}, {"source_run_id": "run-1"}),
+            orch.submit(
+                {"semantic": {"interventions": [], "objectives": []}}, {"source_run_id": "run-1"}
+            ),
             policy="full",
         )
         assert outcome.lesson_refs
@@ -486,6 +488,5 @@ class TestFunnelOrchestrator:
         assert outcome.final_result is not None
         assert outcome.final_result.stage_name == "funnel_L5_refutation_governance"
         assert any(
-            card.failure_type == "benchmark_split_type_mismatch"
-            for card in outcome.failure_cards
+            card.failure_type == "benchmark_split_type_mismatch" for card in outcome.failure_cards
         )

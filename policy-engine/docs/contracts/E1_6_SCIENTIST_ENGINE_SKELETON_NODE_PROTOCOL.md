@@ -10,23 +10,28 @@
 
 После E1.6 Scientist получает “скелет” workflow engine:
 
-1) **Единый протокол Node**:
+1. **Единый протокол Node**:
+
    - Node — “чёрный ящик”: получает `ExecutionContext` + `ExperimentState`, возвращает `NodeOutcome`.
    - Узел не обязан знать про остальной workflow (кроме своих параметров и state).
 
-2) **Единый формат WorkflowSpec (DAG)**:
+2. **Единый формат WorkflowSpec (DAG)**:
+
    - serializable контракт (Pydantic v2), пригодный для будущих declarative workflows (E2/E3),
    - без hardcoded ветвлений внутри engine.
 
-3) **Единый executor v0**:
+3. **Единый executor v0**:
+
    - правильное построение DAG, валидация, топологическая сортировка,
    - исполнение (сначала последовательное), минимальная поддержка “resume” через `status=skip`.
 
-4) **Registry/Discovery узлов v0**:
+4. **Registry/Discovery узлов v0**:
+
    - in‑process registry + минимум discovery через `polisyos.core.components` (если возможно),
    - без экосистемы пакетов E3 (маркетплейс/pack install — позже).
 
-5) **Минимальные built‑in узлы**:
+5. **Минимальные built‑in узлы**:
+
    - 2–3 “пустых” узла для проверки engine (noop/set_state/emit_artifact),
    - без доменной логики (никакой “compile/simulate/legal” внутри engine).
 
@@ -82,7 +87,7 @@ E1.6 **не** делает:
 
 Добавить пакет:
 
-```
+```text
 policy-engine/src/polisyos/scientist/engine/
   __init__.py
   errors.py
@@ -244,6 +249,7 @@ class Node(Protocol):
 
 - Node не делает side‑effects “в обход” `ExecutionContext` (например, не пишет в произвольные файлы).  
   Пишем артефакты в CAS через `ctx.store` и фиксируем их через state/index + trace.
+
 - Node не импортируется из `polisyos.core.*` (только Scientist вверх).
 
 ### 4.4 NodeOutcome (обязательные поля)
@@ -518,18 +524,21 @@ WorkflowSpec хранится в CAS как:
 
 Executor v0 обязан:
 
-1) Построить DAG и валидировать его:
+1. Построить DAG и валидировать его:
+
    - отсутствие циклов,
    - `depends_on` ссылаются на существующие `alias`,
    - все `node_id` резолвятся через registry.
 
-2) Исполнять узлы в топологическом порядке (последовательно):
+2. Исполнять узлы в топологическом порядке (последовательно):
+
    - создать span/trace вокруг каждого узла,
    - вызвать `node.execute(ctx, state)`,
    - обновить state,
    - записать результат в run trace (через `RunContext.emit`).
 
-3) Обработать `skip` и `fail`:
+3. Обработать `skip` и `fail`:
+
    - `skip` уважать (узел сам решает resume),
    - `fail_fast` — остановка при первом fail,
    - `continue` — не исполнять downstream узлы, зависящие от упавших (mark skipped_due_to_upstream).
@@ -630,10 +639,12 @@ Executor v0 обязан:
 
 Чтобы workflow был воспроизводимым “по артефактам”, executor должен:
 
-1) persist `WorkflowSpec` в CAS (kind `scientist.workflow_spec`) и добавить как input в `RunContext`:
+1. persist `WorkflowSpec` в CAS (kind `scientist.workflow_spec`) и добавить как input в `RunContext`:
+
    - `run.add_input(workflow_spec_ref)`
-2) (опционально) persist initial `ExperimentState` как `scientist.experiment_state` и добавить как input.
-3) после исполнения:
+2. (опционально) persist initial `ExperimentState` как `scientist.experiment_state` и добавить как input.
+3. после исполнения:
+
    - persist final `ExperimentState` (kind `scientist.experiment_state`) и добавить как output,
    - persist `WorkflowReport` (kind `scientist.workflow_report`) и добавить как output,
    - `run.finalize(status="ok"|"fail")`.
@@ -691,10 +702,10 @@ class NodeRegistry:
 
 Нормативный путь discovery на E1.6:
 
-1) Вызываем `discover_entry_points()`.
-2) Отбираем объекты с `capabilities & Capability.SCIENTIST_NODE`.
-3) Если это `ComponentProvider` — создаём node через `create()` и регистрируем.
-4) Если это только `ComponentMetadata` — регистрируем metadata (опционально), но без instance (или отклоняем).
+1. Вызываем `discover_entry_points()`.
+2. Отбираем объекты с `capabilities & Capability.SCIENTIST_NODE`.
+3. Если это `ComponentProvider` — создаём node через `create()` и регистрируем.
+4. Если это только `ComponentMetadata` — регистрируем metadata (опционально), но без instance (или отклоняем).
 
 **Fallback:** если discovery пока не используется/не настроен, registry грузит builtins напрямую.
 
@@ -724,9 +735,9 @@ class NodeRegistry:
   - `key: str` — ключ в `state.artifacts_index`
   - `payload: dict` — небольшая JSON‑структура без float (для теста)
 - Поведение:
-  1) пишет `payload` в CAS через `ctx.store.put_json(...)` (kind например `scientist.builtin.dummy`),
-  2) добавляет `ArtifactRef` в `state.artifacts_index[key]`,
-  3) возвращает `NodeOutcome.artifacts=[ref]`.
+  1. пишет `payload` в CAS через `ctx.store.put_json(...)` (kind например `scientist.builtin.dummy`),
+  2. добавляет `ArtifactRef` в `state.artifacts_index[key]`,
+  3. возвращает `NodeOutcome.artifacts=[ref]`.
 
 ---
 
@@ -734,7 +745,8 @@ class NodeRegistry:
 
 ### 11.1 Unit tests: executor
 
-1) **Executor исполняет DAG из 3 узлов**:
+1. **Executor исполняет DAG из 3 узлов**:
+
    - workflow: set_state → emit_artifact → noop
    - проверки:
      - порядок выполнения соответствует зависимостям,
@@ -742,13 +754,16 @@ class NodeRegistry:
      - state.artifacts_index содержит ref,
      - trace содержит события по каждому узлу (или report отражает статусы).
 
-2) **Unknown node**:
+2. **Unknown node**:
+
    - workflow с `node_id`, которого нет в registry → ошибка на этапе валидации DAG.
 
-3) **Cycle**:
+3. **Cycle**:
+
    - цикл через depends_on → ошибка “cycle detected”.
 
-4) **Skip propagation (continue policy)**:
+4. **Skip propagation (continue policy)**:
+
    - первый узел fail,
    - downstream узел зависит от него,
    - при `error_policy="continue"` downstream помечается как skipped_due_to_upstream (в report/trace).
@@ -780,33 +795,41 @@ class NodeRegistry:
 
 ## 12) Definition of Done (формально проверяемые критерии)
 
-1) Есть `polisyos.scientist.engine`:
+1. Есть `polisyos.scientist.engine`:
+
    - Node protocol + WorkflowSpec + executor + registry + minimal telemetry helpers.
-2) Есть builtins (noop/set_state/emit_artifact) и тест, который реально прогоняет DAG.
-3) Engine не содержит доменной логики:
+2. Есть builtins (noop/set_state/emit_artifact) и тест, который реально прогоняет DAG.
+3. Engine не содержит доменной логики:
+
    - никакого “compile/simulate/legal/data fetch” внутри engine пакета.
-4) Есть contract test serde для WorkflowSpec.
-5) Наблюдаемость:
+4. Есть contract test serde для WorkflowSpec.
+5. Наблюдаемость:
+
    - trace/spans фиксируются на каждый узел (и это проверяется smoke test).
 
 ---
 
 ## 13) Рекомендуемая последовательность имплементации (чтобы не утонуть)
 
-1) **Модели и ошибки (контракты)**:
+1. **Модели и ошибки (контракты)**:
+
    - `engine/errors.py`, `engine/state.py`, `engine/protocol.py`, `engine/workflow_spec.py`
    - добавить contract test для serde WorkflowSpec.
-2) **Registry v0**:
+2. **Registry v0**:
+
    - in‑process registry + регистрация builtins,
    - (опц.) discovery адаптер поверх `polisyos.core.components.discovery`.
-3) **Executor v0**:
+3. **Executor v0**:
+
    - DAG validation + topo sort,
    - исполнение + trace events в `RunContext`,
    - базовая обработка исключений и `error_policy`.
-4) **Builtins**:
+4. **Builtins**:
+
    - noop/set_state/emit_artifact,
    - unit tests: DAG smoke + cycle/unknown node.
-5) **Telemetry helpers**:
+5. **Telemetry helpers**:
+
    - вынести span/trace атрибуты и names в `engine/telemetry.py`,
    - добавить smoke test на trace/spans.
 
@@ -868,13 +891,13 @@ def execute_workflow(ctx, registry, workflow, state):
     {
       "alias": "set",
       "node_id": "scientist.node_set_state@1.0.0",
-      "params": {"key": "foo", "value": "bar"},
+      "params": { "key": "foo", "value": "bar" },
       "depends_on": []
     },
     {
       "alias": "emit",
       "node_id": "scientist.node_emit_artifact@1.0.0",
-      "params": {"key": "dummy"},
+      "params": { "key": "dummy" },
       "depends_on": ["set"]
     },
     {
@@ -889,9 +912,9 @@ def execute_workflow(ctx, registry, workflow, state):
 
 ## D1-L4 Validation Links
 
-| Link type | Current anchor |
-|-----------|----------------|
-| Source plan phase | D1-L4 Phase 2 pass/analysis contracts and Phase 5 governance-frontier handoff |
-| Contract tests | `tests/contract/test_scientist_workflow_spec_contract.py`, `tests/scientist/nodes/builtins/compile/test_link_trinity.py`, `tests/scientist/governance/test_validation_pipeline.py`, `tests/scientist/governance/test_pass_registry.py` |
-| Schema snapshots | `schemas/snapshots/ir/gate_request.schema.json`, `schemas/snapshots/ir/gate_decision.schema.json`, `schemas/snapshots/ir/trinity_bundle.schema.json` |
-| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |
+| Link type           | Current anchor                                                                                                                                                                                                                         |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source plan phase   | D1-L4 Phase 2 pass/analysis contracts and Phase 5 governance-frontier handoff                                                                                                                                                          |
+| Contract tests      | `tests/contract/test_scientist_workflow_spec_contract.py`, `tests/scientist/nodes/builtins/compile/test_link_trinity.py`, `tests/scientist/governance/test_validation_pipeline.py`, `tests/scientist/governance/test_pass_registry.py` |
+| Schema snapshots    | `schemas/snapshots/ir/gate_request.schema.json`, `schemas/snapshots/ir/gate_decision.schema.json`, `schemas/snapshots/ir/trinity_bundle.schema.json`                                                                                   |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                                                                                 |

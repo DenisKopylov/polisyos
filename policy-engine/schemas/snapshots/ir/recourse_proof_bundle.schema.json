@@ -31,6 +31,28 @@
       "title": "OptimalRecourseInterventionQueryRef",
       "type": "object"
     },
+    "RecourseComplexityClass": {
+      "description": "Complexity label exposed to auditors and promotion logic.",
+      "enum": [
+        "not_certified",
+        "polynomial_graph_search",
+        "epsilon_branch_and_bound",
+        "np_hard_general_case"
+      ],
+      "title": "RecourseComplexityClass",
+      "type": "string"
+    },
+    "RecourseOptimalityCertificateKind": {
+      "description": "Machine-readable optimality certificate surface for the recourse planner.",
+      "enum": [
+        "none",
+        "exact_graph_search",
+        "epsilon_branch_and_bound",
+        "heuristic_frontier"
+      ],
+      "title": "RecourseOptimalityCertificateKind",
+      "type": "string"
+    },
     "RecourseReadinessCap": {
       "description": "Readiness cap inherited from the recoverability status.",
       "enum": [
@@ -71,6 +93,28 @@
       ],
       "title": "RecourseSuccessMode",
       "type": "string"
+    },
+    "RecourseTractableSubfamily": {
+      "description": "Narrow tractable family classification for Stage 13.4.",
+      "enum": [
+        "none",
+        "finite_discrete_atlas",
+        "fixed_support_convex_interval",
+        "heuristic_frontier"
+      ],
+      "title": "RecourseTractableSubfamily",
+      "type": "string"
+    },
+    "RecourseUniquenessStatus": {
+      "description": "Whether uniqueness of the recommended action is certified.",
+      "enum": [
+        "not_certified",
+        "unique_optimum",
+        "multiple_optima_possible",
+        "unknown"
+      ],
+      "title": "RecourseUniquenessStatus",
+      "type": "string"
     }
   },
   "additionalProperties": false,
@@ -83,6 +127,10 @@
       },
       "title": "Assumptions",
       "type": "array"
+    },
+    "complexity_class": {
+      "$ref": "#/$defs/RecourseComplexityClass",
+      "default": "not_certified"
     },
     "graph_scope_ref": {
       "anyOf": [
@@ -103,6 +151,18 @@
       },
       "title": "Immutable Nodes",
       "type": "array"
+    },
+    "kill_rule_decision": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Kill Rule Decision"
     },
     "metadata": {
       "additionalProperties": true,
@@ -139,6 +199,10 @@
       ],
       "default": null,
       "title": "Negative Certificate Summary"
+    },
+    "optimality_certificate_kind": {
+      "$ref": "#/$defs/RecourseOptimalityCertificateKind",
+      "default": "none"
     },
     "proof_trace": {
       "default": [],
@@ -184,6 +248,14 @@
     },
     "success_mode": {
       "$ref": "#/$defs/RecourseSuccessMode"
+    },
+    "tractable_subfamily": {
+      "$ref": "#/$defs/RecourseTractableSubfamily",
+      "default": "none"
+    },
+    "uniqueness_status": {
+      "$ref": "#/$defs/RecourseUniquenessStatus",
+      "default": "not_certified"
     }
   },
   "required": [

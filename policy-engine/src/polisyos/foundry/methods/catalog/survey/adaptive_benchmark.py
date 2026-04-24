@@ -1,4 +1,5 @@
 """Benchmark harness for adaptive / responsive survey design estimators."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -117,18 +118,53 @@ def _make_population(
     group = rng.binomial(1, 0.38, size=population_size).astype(float)
     x_signal = rng.normal(size=population_size)
     admin_signal = 0.65 * x_signal + 0.55 * group + rng.normal(scale=0.7, size=population_size)
-    rare_cluster = np.isin(clusters, np.arange(0, n_clusters, max(n_clusters // 8, 1))).astype(float)
-    cluster_fx = _cluster_effects(rng, n_clusters, scale=0.7 if kind != AdaptiveBenchmarkScenarioKind.INFORMATIVE_CLUSTERED else 1.2)
+    rare_cluster = np.isin(clusters, np.arange(0, n_clusters, max(n_clusters // 8, 1))).astype(
+        float
+    )
+    cluster_fx = _cluster_effects(
+        rng,
+        n_clusters,
+        scale=0.7 if kind != AdaptiveBenchmarkScenarioKind.INFORMATIVE_CLUSTERED else 1.2,
+    )
     base_noise = rng.normal(scale=1.0, size=population_size)
 
     if kind == AdaptiveBenchmarkScenarioKind.FAVORABLE_MAR:
-        y_true = 12.0 + 2.0 * group + 1.6 * x_signal + 1.1 * admin_signal + cluster_fx[clusters] + base_noise
+        y_true = (
+            12.0
+            + 2.0 * group
+            + 1.6 * x_signal
+            + 1.1 * admin_signal
+            + cluster_fx[clusters]
+            + base_noise
+        )
     elif kind == AdaptiveBenchmarkScenarioKind.WEAK_X:
-        y_true = 12.0 + 0.15 * group + 0.10 * x_signal + 0.05 * admin_signal + cluster_fx[clusters] + rng.normal(scale=2.0, size=population_size)
+        y_true = (
+            12.0
+            + 0.15 * group
+            + 0.10 * x_signal
+            + 0.05 * admin_signal
+            + cluster_fx[clusters]
+            + rng.normal(scale=2.0, size=population_size)
+        )
     elif kind == AdaptiveBenchmarkScenarioKind.MEASUREMENT_TRADEOFF:
-        y_true = 11.0 + 1.2 * group + 1.0 * x_signal + 0.8 * admin_signal + cluster_fx[clusters] + base_noise
+        y_true = (
+            11.0
+            + 1.2 * group
+            + 1.0 * x_signal
+            + 0.8 * admin_signal
+            + cluster_fx[clusters]
+            + base_noise
+        )
     else:
-        y_true = 10.0 + 1.4 * group + 0.7 * x_signal + 0.9 * admin_signal + 3.0 * rare_cluster + cluster_fx[clusters] + base_noise
+        y_true = (
+            10.0
+            + 1.4 * group
+            + 0.7 * x_signal
+            + 0.9 * admin_signal
+            + 3.0 * rare_cluster
+            + cluster_fx[clusters]
+            + base_noise
+        )
 
     return {
         "clusters": clusters.astype(object),
@@ -160,8 +196,18 @@ def _sample_state(
     strata = population["strata"][sample_idx]
     clusters = population["clusters"][sample_idx]
 
-    contact_burden = np.clip(1.6 + 0.9 * group + 0.7 * rare_cluster - 0.5 * x_signal + rng.normal(scale=0.5, size=sample_size), 0.2, None)
-    mode_history = np.clip(0.2 + 0.4 * group + 0.25 * rare_cluster + rng.normal(scale=0.2, size=sample_size), 0.0, 1.5)
+    contact_burden = np.clip(
+        1.6
+        + 0.9 * group
+        + 0.7 * rare_cluster
+        - 0.5 * x_signal
+        + rng.normal(scale=0.5, size=sample_size),
+        0.2,
+        None,
+    )
+    mode_history = np.clip(
+        0.2 + 0.4 * group + 0.25 * rare_cluster + rng.normal(scale=0.2, size=sample_size), 0.0, 1.5
+    )
 
     if kind == AdaptiveBenchmarkScenarioKind.FAVORABLE_MAR:
         phase1_eta = 1.1 - 0.9 * group - 0.8 * contact_burden + 0.9 * admin_signal
@@ -170,7 +216,9 @@ def _sample_state(
     elif kind == AdaptiveBenchmarkScenarioKind.MEASUREMENT_TRADEOFF:
         phase1_eta = 0.8 - 0.7 * group - 0.9 * contact_burden + 0.6 * admin_signal
     else:
-        phase1_eta = 0.7 - 0.9 * group - 0.7 * contact_burden + 0.4 * admin_signal - 1.0 * rare_cluster
+        phase1_eta = (
+            0.7 - 0.9 * group - 0.7 * contact_burden + 0.4 * admin_signal - 1.0 * rare_cluster
+        )
 
     rho1 = _sigmoid(phase1_eta)
     response1 = rng.binomial(1, rho1, size=sample_size).astype(float)
@@ -182,13 +230,37 @@ def _sample_state(
     mode_switch = followup_selected & ((group > 0.5) | (rare_cluster > 0.5))
 
     if kind == AdaptiveBenchmarkScenarioKind.FAVORABLE_MAR:
-        phase2_eta = -0.1 + 1.4 * followup_selected + 0.6 * mode_switch + 0.6 * admin_signal - 0.3 * contact_burden
+        phase2_eta = (
+            -0.1
+            + 1.4 * followup_selected
+            + 0.6 * mode_switch
+            + 0.6 * admin_signal
+            - 0.3 * contact_burden
+        )
     elif kind == AdaptiveBenchmarkScenarioKind.WEAK_X:
-        phase2_eta = -0.3 + 1.0 * followup_selected + 0.2 * mode_switch + 0.5 * admin_signal - 0.3 * contact_burden
+        phase2_eta = (
+            -0.3
+            + 1.0 * followup_selected
+            + 0.2 * mode_switch
+            + 0.5 * admin_signal
+            - 0.3 * contact_burden
+        )
     elif kind == AdaptiveBenchmarkScenarioKind.MEASUREMENT_TRADEOFF:
-        phase2_eta = -0.1 + 1.3 * followup_selected + 0.9 * mode_switch + 0.5 * admin_signal - 0.2 * contact_burden
+        phase2_eta = (
+            -0.1
+            + 1.3 * followup_selected
+            + 0.9 * mode_switch
+            + 0.5 * admin_signal
+            - 0.2 * contact_burden
+        )
     else:
-        phase2_eta = -0.4 + 1.1 * followup_selected + 0.8 * rare_cluster + 0.5 * admin_signal - 0.2 * contact_burden
+        phase2_eta = (
+            -0.4
+            + 1.1 * followup_selected
+            + 0.8 * rare_cluster
+            + 0.5 * admin_signal
+            - 0.2 * contact_burden
+        )
 
     rho2 = _sigmoid(phase2_eta)
     response2 = (rng.binomial(1, rho2, size=sample_size) > 0) & followup_selected
@@ -202,7 +274,12 @@ def _sample_state(
 
     paradata = np.column_stack([contact_burden, mode_history])
     actions = np.column_stack([followup_selected.astype(float), mode_switch.astype(float)])
-    cost_vector = 1.0 + 0.2 * contact_burden + 0.8 * followup_selected.astype(float) + 0.5 * mode_switch.astype(float)
+    cost_vector = (
+        1.0
+        + 0.2 * contact_burden
+        + 0.8 * followup_selected.astype(float)
+        + 0.5 * mode_switch.astype(float)
+    )
     X_aux = np.column_stack([np.ones(sample_size), group, admin_signal])
     control_totals = np.array(
         [
@@ -232,7 +309,9 @@ def _sample_state(
 
 def _action_efficacy(payload: dict[str, object]) -> float:
     diagnostics = payload.get("diagnostics") or {}
-    action_effects = diagnostics.get("action_effect_diagnostics") if isinstance(diagnostics, dict) else {}
+    action_effects = (
+        diagnostics.get("action_effect_diagnostics") if isinstance(diagnostics, dict) else {}
+    )
     if not isinstance(action_effects, dict) or not action_effects:
         return 0.0
     gaps = []
@@ -361,11 +440,25 @@ def run_adaptive_benchmark_suite(
 
     aggregate_metrics = {
         "n_case_results": float(len(case_results)),
-        "mean_abs_bias": float(np.mean([abs(result.bias) for result in case_results])) if case_results else 0.0,
-        "mean_rmse": float(np.mean([result.rmse for result in case_results])) if case_results else 0.0,
-        "mean_coverage_95": float(np.mean([result.coverage_95 for result in case_results])) if case_results else 0.0,
-        "mean_effective_sample_size": float(np.mean([result.mean_effective_sample_size for result in case_results])) if case_results else 0.0,
-        "mean_cost_per_complete": float(np.mean([result.mean_cost_per_complete for result in case_results])) if case_results else 0.0,
+        "mean_abs_bias": float(np.mean([abs(result.bias) for result in case_results]))
+        if case_results
+        else 0.0,
+        "mean_rmse": float(np.mean([result.rmse for result in case_results]))
+        if case_results
+        else 0.0,
+        "mean_coverage_95": float(np.mean([result.coverage_95 for result in case_results]))
+        if case_results
+        else 0.0,
+        "mean_effective_sample_size": float(
+            np.mean([result.mean_effective_sample_size for result in case_results])
+        )
+        if case_results
+        else 0.0,
+        "mean_cost_per_complete": float(
+            np.mean([result.mean_cost_per_complete for result in case_results])
+        )
+        if case_results
+        else 0.0,
     }
     return AdaptiveBenchmarkSuiteResult(
         config=resolved,

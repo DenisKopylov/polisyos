@@ -22,6 +22,7 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 ## Public API
 
 Main ref families:
+
 - `fabric.py`, `foundry.py`, `scientist.py`, `scholar.py`
 - `trinity.py`, `compiler.py`, `lex.py`, `execution_plan.py`
 - `runtime.py`, `control.py`, `cursor.py`

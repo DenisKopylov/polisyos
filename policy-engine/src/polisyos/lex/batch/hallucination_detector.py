@@ -4,16 +4,20 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.lex.batch.quality_filters import is_synthetic_subject
-from polisyos.lex.knowledge.types import SPOCandidate
+
+if TYPE_CHECKING:
+    from polisyos.lex.knowledge.types import SPOCandidate
 
 _ARTICLE_REF_RE = re.compile(r"(?:статт[іяею]|article)\s+([0-9]+(?:[-.][0-9]+)*)", re.IGNORECASE)
 _ARTICLE_EXISTS_RE = re.compile(r"статт[іяею]\s+([0-9]+(?:[-.][0-9]+)*)", re.IGNORECASE)
 _NUMBER_RE = re.compile(r"\b\d+(?:[.,]\d+)?\b")
 _OBLIGATION_RE = re.compile(r"(повинен|повинна|повинні|зобов|необхідно)", re.IGNORECASE)
-_PROHIBITION_RE = re.compile(r"(забороняється|заборонено|не\s+має\s+права|не\s+допускається)", re.IGNORECASE)
+_PROHIBITION_RE = re.compile(
+    r"(забороняється|заборонено|не\s+має\s+права|не\s+допускається)", re.IGNORECASE
+)
 
 
 def detect_hallucination_flags(
@@ -54,9 +58,11 @@ def detect_hallucination_flags(
     fact_numbers = set(_NUMBER_RE.findall(statement.fact_text_uk or statement.fact_text or ""))
     provision_numbers = set(_NUMBER_RE.findall(provision_text))
     # Normalize comma/dot decimal separators for comparison (UA uses comma, EN uses dot)
-    provision_numbers_norm = {n.replace(",", ".") for n in provision_numbers} | {
-        n.replace(".", ",") for n in provision_numbers
-    } | provision_numbers
+    provision_numbers_norm = (
+        {n.replace(",", ".") for n in provision_numbers}
+        | {n.replace(".", ",") for n in provision_numbers}
+        | provision_numbers
+    )
     for number in sorted(fact_numbers - provision_numbers_norm):
         flags.append(
             {

@@ -7,10 +7,11 @@ import json
 import shutil
 import tarfile
 from dataclasses import asdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from tools._lib.fs import atomic_write_text
+
 from .inventory_legacy_runs import collect_inventory
 
 
@@ -74,7 +75,7 @@ def main() -> int:
     archive_dir = args.archive_dir.resolve()
     archive_dir.mkdir(parents=True, exist_ok=True)
 
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     archive_path = archive_dir / f"legacy_runs_{timestamp}.tar.gz"
     report_path = archive_dir / f"legacy_runs_{timestamp}.report.json"
 
@@ -89,7 +90,7 @@ def main() -> int:
         archive_size = 0
 
     report = {
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
         "runs_root": str(runs_root),
         "archive_path": str(archive_path),
         "archive_sha256": archive_sha256,

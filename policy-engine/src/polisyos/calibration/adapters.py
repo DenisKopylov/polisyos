@@ -1,13 +1,14 @@
 """Adapters from calibration diagnostics into governance report surfaces."""
+
 from __future__ import annotations
 
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 from polisyos.ir.analytics.calibration_diagnostics import (
     CalibrationDiagnosticIssue,
     CalibrationDiagnosticsReport,
 )
-from polisyos.ir.analytics.query_validation_report import ValidationSeverity
 from polisyos.ir.governance.validation import ValidationIssue, ValidationReport
 
 
@@ -42,8 +43,7 @@ def to_validation_report(
             "event_count": diagnostics.metrics.event_count,
             "metrics": diagnostics.metrics.model_dump(exclude_none=True),
             "tests": {
-                test.test_id: test.model_dump(exclude_none=True)
-                for test in diagnostics.tests
+                test.test_id: test.model_dump(exclude_none=True) for test in diagnostics.tests
             },
             "primary_curve_bins": [
                 bin_item.model_dump(exclude_none=True)
@@ -65,8 +65,7 @@ def to_validation_report(
     error_count = sum(1 for issue in issues if issue.severity == "error")
     warning_count = sum(1 for issue in issues if issue.severity == "warning")
     summary = (
-        f"Calibration diagnostics produced {error_count} error(s) and "
-        f"{warning_count} warning(s)."
+        f"Calibration diagnostics produced {error_count} error(s) and {warning_count} warning(s)."
     )
     repair_attempt = diagnostics.metadata.get("repair_log") or None
 

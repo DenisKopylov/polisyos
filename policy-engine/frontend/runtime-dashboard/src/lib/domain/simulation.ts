@@ -308,17 +308,23 @@ function parseMetricSignificance(
       pAdj: asNumber(entry.p_adj),
       alpha: asNumber(entry.alpha),
       significant:
-        typeof entry.significant === "boolean"
-          ? entry.significant
-          : null,
+        typeof entry.significant === "boolean" ? entry.significant : null,
       testLabel: asString(entry.test_label),
-      effectSize: asNumber(entry.effect_size),
+      effectSize: extractEffectSizePoint(entry.effect_size),
       assumptionWarnings: asArray(entry.assumption_warnings)
         .map((item) => asString(item))
         .filter((item): item is string => Boolean(item)),
     };
   }
   return out;
+}
+
+function extractEffectSizePoint(value: unknown): number | null {
+  const direct = asNumber(value);
+  if (direct !== null) {
+    return direct;
+  }
+  return asNumber(asRecord(value)?.point);
 }
 
 function parseMetrics(
@@ -788,9 +794,10 @@ export function normalizeSimulationPayload(
   const metricComparisons = parseMetricValidationComparisonRows(
     payload.metric_validation_comparisons ?? payload.comparisons,
   );
-  const metricValidationFamilyAdjustment = parseMetricValidationFamilyAdjustment(
-    payload.metric_validation_family_adjustment ?? payload.family_adjustment,
-  );
+  const metricValidationFamilyAdjustment =
+    parseMetricValidationFamilyAdjustment(
+      payload.metric_validation_family_adjustment ?? payload.family_adjustment,
+    );
   const metrics = parseMetrics(
     payload,
     artifactKind,

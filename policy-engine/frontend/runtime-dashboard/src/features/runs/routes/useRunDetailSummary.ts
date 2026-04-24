@@ -7,6 +7,7 @@ import { isRuntimeApiNotFound } from "@/api/http";
 import { useRunAgents } from "@/api/hooks/useRunAgents";
 import { useRunDetails } from "@/api/hooks/useRunDetails";
 import { useRunEvidenceContext } from "@/api/hooks/useRunEvidenceContext";
+import { resolveArtifactPreviewPayload } from "@/features/artifacts";
 import {
   LEGACY_RUN_DETAIL_TAB_MAP,
   RUN_DETAIL_TABS,
@@ -158,7 +159,9 @@ export function useRunDetailSummary(
     },
   );
   const decisionArtifact = decisionArtifactQuery.data?.artifact ?? null;
-  const decisionView = parseDecisionCardPayload(decisionArtifact?.preview);
+  const decisionView = parseDecisionCardPayload(
+    resolveArtifactPreviewPayload(decisionArtifact),
+  );
 
   const blockerCount =
     governanceSummary?.blocker ?? governance?.issue_summary?.blocker_count ?? 0;

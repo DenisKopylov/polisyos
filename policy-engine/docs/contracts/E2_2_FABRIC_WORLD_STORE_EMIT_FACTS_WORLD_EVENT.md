@@ -6,10 +6,11 @@
 
 - persist typed World objects into **Core CAS** (`DocMeta`, `DocFragment`, `Claim`, `WorldEvent`)  
   Source of truth: `polisyos.ir.world.*` (Phase 8 / E2.1)
+
 - emit **ABI‑compatible** World facts into **FactLog** segments:
   - node baseline facts: `world.kind`, `world.label`, `world.artifact_id`, `world.props_ref`
   - edge facts: `world.rel.<edge_kind>` (Doc/Claim + minimal PROV edges)
-- write each action as a **WorldEvent** (audit/timeline) *without breaking idempotency of semantic facts*
+- write each action as a **WorldEvent** (audit/timeline) _without breaking idempotency of semantic facts_
 
 > This phase is a **write-only** surface. No DuckDB/Kùzu materialization, no query API (except minimal helpers for tests if needed).
 
@@ -85,8 +86,8 @@ Therefore, **provenance changes change fact_id**.
 
 We need both:
 
-1) **Idempotent semantic facts**: re‑emitting the same World node/edge facts must not create new `fact_id` values.  
-2) **Append‑only audit timeline**: each write action must create a new `WorldEvent` artifact and corresponding PROV edges that accumulate as a history.
+1. **Idempotent semantic facts**: re‑emitting the same World node/edge facts must not create new `fact_id` values.
+2. **Append‑only audit timeline**: each write action must create a new `WorldEvent` artifact and corresponding PROV edges that accumulate as a history.
 
 ### 2.3 Normative rule (Phase 9)
 
@@ -132,7 +133,7 @@ Result: even if an audit fact payload (other than provenance) is identical acros
 
 Create the new package:
 
-```
+```text
 policy-engine/src/polisyos/fabric/world/
   __init__.py                 # thin facade; re-export stable API only
   store/
@@ -150,7 +151,7 @@ policy-engine/src/polisyos/fabric/world/
 
 Add tests under:
 
-```
+```text
 policy-engine/tests/fabric/test_world_store_phase9.py
 ```
 
@@ -184,7 +185,7 @@ The `<fact_log_root>` should be passed explicitly by the caller. Recommended def
 
 - `FabricConfig.curated_dir / "fact_log"` (existing data-plane layout), so world log becomes:
   - `data/curated/fact_log/world/`
-or
+    or
 - `FileSystemCAS.root / "fact_log"` (CAS-root co-location), so world log becomes:
   - `.polisyos/fact_log/world/`
 
@@ -417,34 +418,39 @@ Inputs:
 
 Must emit:
 
-1) doc.source node baseline:
+1. doc.source node baseline:
+
    - subject=`meta.doc_source_id`
    - `world.kind = "doc.source"`
    - `world.label`:
      - preferred: `meta.canonical_url` if present else `meta.official_id`
-2) doc.version node baseline:
+2. doc.version node baseline:
+
    - subject=`meta.doc_version_id`
    - `world.kind = "doc.version"`
    - `world.artifact_id = meta_artifact_id` (if provided)
    - `world.props_ref = meta_artifact_id` (optional; if you want to reserve `world.artifact_id` for other use, but do it consistently)
-3) edge `doc.has_version`:
+3. edge `doc.has_version`:
+
    - src=`meta.doc_source_id`
    - dst=`meta.doc_version_id`
    - predicate=`world.rel.doc.has_version`
 
 Notes:
 
-- Phase 9 does **not** emit doc.* attribute facts (url/mime/license/retrieved_at). Those remain in the DocMeta CAS artifact for Phase 10 materialization.
+- Phase 9 does **not** emit doc.\* attribute facts (url/mime/license/retrieved_at). Those remain in the DocMeta CAS artifact for Phase 10 materialization.
 
 ##### B) `emit_doc_fragment_facts(fragment, fragment_artifact_id, provenance, ...)`
 
 Must emit:
 
-1) doc.fragment node baseline:
+1. doc.fragment node baseline:
+
    - subject=`fragment.fragment_id`
    - `world.kind="doc.fragment"`
    - `world.artifact_id = fragment_artifact_id` (if provided)
-2) edge `doc.has_fragment`:
+2. edge `doc.has_fragment`:
+
    - src=`fragment.doc_version_id`
    - dst=`fragment.fragment_id`
    - predicate=`world.rel.doc.has_fragment`
@@ -453,14 +459,15 @@ Must emit:
 
 Must emit:
 
-1) claim node baseline:
+1. claim node baseline:
+
    - subject=`claim.claim_id`
    - `world.kind="claim"`
    - `world.artifact_id = claim_artifact_id` (if provided)
    - `world.label` recommended as a short debug string (bounded length):
      - e.g. `"{predicate_id}={value_text}"` truncated
 
-2) edges `claim.cites` (doc claims):
+2. edges `claim.cites` (doc claims):
 
 For each `CitationRef` in `claim.citations`:
 
@@ -482,7 +489,7 @@ Emit edge:
 - dst=`fragment_id`
 - predicate=`world.rel.claim.cites`
 
-3) optional edge `claim.derived_from`:
+1. optional edge `claim.derived_from`:
 
 Emit only if a resolvable source exists:
 
@@ -500,18 +507,21 @@ WorldEvent facts are **audit facts**, therefore their default provenance is the 
 
 Must emit:
 
-1) world.event node baseline:
+1. world.event node baseline:
+
    - subject=`event.event_id`
    - `world.kind="world.event"`
    - `world.artifact_id = event_artifact_id` (if provided)
    - `world.label` recommended: `event.event_kind.value`
 
-2) prov.agent node baseline:
+2. prov.agent node baseline:
+
    - subject=`event.agent.agent_id`
    - `world.kind="prov.agent"`
    - `world.label = event.agent.label`
 
-3) (optional) prov.activity node baseline:
+3. (optional) prov.activity node baseline:
+
    - subject=`event.activity.activity_id`
    - `world.kind="prov.activity"`
    - `world.label = event.activity.label`
@@ -671,25 +681,33 @@ Optional helper (recommended):
 
 ### 7.1 “Write doc meta + event” pattern
 
-1) Producer constructs a valid `DocMeta` (IR contract) and validates deterministic ids:
+1. Producer constructs a valid `DocMeta` (IR contract) and validates deterministic ids:
+
    - `validate_doc_meta_ids(meta)`
-2) Persist typed object:
+2. Persist typed object:
+
    - `meta_ref = persist_doc_meta(cas, meta)`
-3) Emit semantic facts (stable provenance):
+3. Emit semantic facts (stable provenance):
+
    - `semantic = stable_world_provenance_v1()`
    - `facts = emit_doc_meta_facts(meta, meta_artifact_id=str(meta_ref.artifact_id), provenance=semantic)`
-4) Construct a `WorldEvent` describing the operation:
+4. Construct a `WorldEvent` describing the operation:
+
    - inputs: at least `WorldObjectRef(artifact_id=meta.raw_ref)`
    - outputs: at least `WorldObjectRef(world_id=meta.doc_version_id)` and optionally `WorldObjectRef(artifact_id=str(meta_ref.artifact_id))`
    - validate deterministic id: `validate_world_event_id(event)`
-5) Persist event:
+5. Persist event:
+
    - `event_ref = persist_world_event(cas, event)`
-6) Emit audit facts (event provenance):
+6. Emit audit facts (event provenance):
+
    - `audit_prov = event_world_provenance_v1(event.event_id)`
    - `facts += emit_world_event_facts(event, event_artifact_id=str(event_ref.artifact_id), provenance=audit_prov)`
-7) Validate ABI facts:
+7. Validate ABI facts:
+
    - `validate_world_facts(facts)`
-8) Flush segment:
+8. Flush segment:
+
    - `manifest = write_world_fact_segment(facts, fact_log_root=fact_log_root, segment_name="doc_meta")`
    - `append_world_segment_index(manifest, fact_log_root=fact_log_root)`
 
@@ -744,22 +762,24 @@ Minimum tests:
 
 ## 9) Definition of Done (Phase 9 / E2.2)
 
-1) `polisyos.fabric.world.store` package exists with modules described in §3.1.  
-2) Write-path primitives exist and are usable:
+1. `polisyos.fabric.world.store` package exists with modules described in §3.1.
+2. Write-path primitives exist and are usable:
+
    - persist typed world objects to CAS (DocMeta/DocFragment/Claim/WorldEvent)
    - emit ABI world facts (node baseline + edges + minimal PROV)
    - write world fact segments and `_segments.jsonl` index under a dedicated `world/` channel
-3) Runtime validations exist:
+3. Runtime validations exist:
+
    - deterministic id checks for typed objects
-   - fact ABI validation (world.* + world.rel.* strict)
-4) Minimal tests in §8 pass.  
-5) Dependency guard stays green (no `fabric -> scientist` leaks).
+   - fact ABI validation (world._+ world.rel._ strict)
+4. Minimal tests in §8 pass.
+5. Dependency guard stays green (no `fabric -> scientist` leaks).
 
 ## D1-L4 Validation Links
 
-| Link type | Current anchor |
-|-----------|----------------|
-| Source plan phase | D1-L4 Phase 0 world ID/CAS determinism and Phase 2 lineage graph inputs |
-| Contract tests | `tests/contract/test_world_abi_contract.py`, `tests/fabric/test_world_store.py`, `tests/fabric/connectors/test_ingestion_fetch_activity_contract.py` |
-| Schema snapshots | `schemas/snapshots/ir/world_event.schema.json`, `schemas/snapshots/ir/fact.schema.json`, `schemas/snapshots/ir/fact_segment_manifest.schema.json` |
-| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |
+| Link type           | Current anchor                                                                                                                                       |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source plan phase   | D1-L4 Phase 0 world ID/CAS determinism and Phase 2 lineage graph inputs                                                                              |
+| Contract tests      | `tests/contract/test_world_abi_contract.py`, `tests/fabric/test_world_store.py`, `tests/fabric/connectors/test_ingestion_fetch_activity_contract.py` |
+| Schema snapshots    | `schemas/snapshots/ir/world_event.schema.json`, `schemas/snapshots/ir/fact.schema.json`, `schemas/snapshots/ir/fact_segment_manifest.schema.json`    |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                               |

@@ -15,7 +15,7 @@ from polisyos.fabric.connectors.reference.sdmx import SDMXConnector
 from polisyos.fabric.connectors.reference.static_csv import StaticCSVConnector
 
 __all__ = [
-    "StaticCSVConnector",
     "GenericRESTConnector",
     "SDMXConnector",
+    "StaticCSVConnector",
 ]

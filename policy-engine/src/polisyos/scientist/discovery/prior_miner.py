@@ -97,7 +97,9 @@ class PriorMiner:
                 db_path=Path(db_path),
                 index_dir=Path(index_dir or "."),
             )
-            variables = sorted({node for edge_key in target_edge_keys for node in _edge_nodes(edge_key)})
+            variables = sorted(
+                {node for edge_key in target_edge_keys for node in _edge_nodes(edge_key)}
+            )
             rows = query.query_prior_for_variables(
                 variables,
                 min_confidence=self._config.min_confidence,

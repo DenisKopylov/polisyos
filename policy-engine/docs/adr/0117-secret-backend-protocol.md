@@ -1,9 +1,11 @@
 # ADR-0117: Secret Backend Protocol
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context

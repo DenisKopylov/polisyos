@@ -1,4 +1,5 @@
 """Tests for LLMBudgetEnforcer."""
+
 from __future__ import annotations
 
 import asyncio
@@ -327,7 +328,9 @@ class TestLLMBudgetEnforcer:
         client = MagicMock()
         bs = BudgetState()
         enforcer = LLMBudgetEnforcer(
-            client=client, budget_state=bs, budget_keys=["run"],
+            client=client,
+            budget_state=bs,
+            budget_keys=["run"],
         )
         assert enforcer.budget_state is bs
 
@@ -392,10 +395,13 @@ class TestLLMBudgetEnforcer:
             audit_log=audit,
         )
 
-        with patch(
-            "polisyos.scientist.llm.budget_enforcer.estimate_llm_cost_usd",
-            return_value=0.4,
-        ), pytest.raises(RuntimeError, match="boom"):
+        with (
+            patch(
+                "polisyos.scientist.llm.budget_enforcer.estimate_llm_cost_usd",
+                return_value=0.4,
+            ),
+            pytest.raises(RuntimeError, match="boom"),
+        ):
             await enforcer.generate(system="sys", user="hello")
 
         assert budget_state.spent.get("run", Decimal(0)) == Decimal(0)
@@ -542,14 +548,18 @@ class TestLLMBudgetEnforcer:
             original_post_record(*args, **kwargs)
             raise RuntimeError("post record boom")
 
-        with patch(
-            "polisyos.scientist.llm.budget_enforcer.estimate_llm_cost_usd",
-            return_value=0.4,
-        ), patch.object(
-            enforcer,
-            "_post_record",
-            side_effect=_post_record_then_fail,
-        ), pytest.raises(RuntimeError, match="post record boom"):
+        with (
+            patch(
+                "polisyos.scientist.llm.budget_enforcer.estimate_llm_cost_usd",
+                return_value=0.4,
+            ),
+            patch.object(
+                enforcer,
+                "_post_record",
+                side_effect=_post_record_then_fail,
+            ),
+            pytest.raises(RuntimeError, match="post record boom"),
+        ):
             await enforcer.generate(system="sys", user="hello")
 
         assert budget_state.spent["run"] == Decimal("0.6")

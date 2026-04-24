@@ -3,8 +3,8 @@ from __future__ import annotations
 import builtins
 import sys
 
-from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog.causal._registry_boot import register_causal_methods
+from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 
 
@@ -34,8 +34,27 @@ def test_register_causal_methods_queryable():
     interference_names = {sig.name for sig in registry.query(namespace="causal.interference")}
     operator_names = {sig.name for sig in registry.query(namespace="causal.operator")}
     semiparametric_names = {sig.name for sig in registry.query(namespace="causal.semiparametric")}
-    assert did_names.issuperset({"standard", "staggered", "callaway_santanna", "sun_abraham", "dechaisemartin", "borusyak_jaravel_spiess"})
-    assert hte_names.issubset({"causal_forest", "causal_bcf", "forest_dr", "double_ml", "meta_learner", "dr_learner", "r_learner"})
+    assert did_names.issuperset(
+        {
+            "standard",
+            "staggered",
+            "callaway_santanna",
+            "sun_abraham",
+            "dechaisemartin",
+            "borusyak_jaravel_spiess",
+        }
+    )
+    assert hte_names.issubset(
+        {
+            "causal_forest",
+            "causal_bcf",
+            "forest_dr",
+            "double_ml",
+            "meta_learner",
+            "dr_learner",
+            "r_learner",
+        }
+    )
     assert targeting_names.issubset({"policy_tree"})
     assert "dowhy_refute" in refutation_names
     assert "parallel_trends_check" in diagnostics_names
@@ -57,7 +76,9 @@ def test_register_causal_methods_queryable():
     assert "spatial_proximal_bridge" in proximal_names
     assert "proximal_mediation" in proximal_names
     assert "unconditional_qte" in distributional_names
-    assert {"partial", "network_aipw", "spatial", "bipartite", "network_cate"}.issubset(interference_names)
+    assert {"partial", "network_aipw", "spatial", "bipartite", "network_cate"}.issubset(
+        interference_names
+    )
     assert "efficiency_bound" in semiparametric_names
     assert {
         "cme_krr",
@@ -71,20 +92,28 @@ def test_register_causal_methods_queryable():
 
     # Phase 1 new namespaces
     treatment_names = {sig.name for sig in registry.query(namespace="causal.treatment_effects")}
-    assert treatment_names.issuperset({"aipw", "tmle", "ipw", "propensity_matching", "entropy_balancing", "cbps"})
+    assert treatment_names.issuperset(
+        {"aipw", "tmle", "ipw", "propensity_matching", "entropy_balancing", "cbps"}
+    )
 
     bounds_names = {sig.name for sig in registry.query(namespace="causal.bounds")}
     assert bounds_names.issuperset({"manski", "lee"})
 
     mediation_names = {sig.name for sig in registry.query(namespace="causal.mediation")}
-    assert mediation_names.issuperset({"causal_mediation", "controlled_direct_effect", "natural_effects"})
+    assert mediation_names.issuperset(
+        {"causal_mediation", "controlled_direct_effect", "natural_effects"}
+    )
 
     # Phase 1 L3 counterfactual namespace
     cf_names = {sig.name for sig in registry.query(namespace="causal.counterfactual")}
-    assert cf_names.issuperset({"ncm_engine", "actual_causality", "hp_actual_cause", "path_specific_effects"})
+    assert cf_names.issuperset(
+        {"ncm_engine", "actual_causality", "hp_actual_cause", "path_specific_effects"}
+    )
 
     advanced_names = {sig.name for sig in registry.query(namespace="causal.advanced")}
-    assert advanced_names.issuperset({"regression_kink", "bunching", "marginal_treatment_effect", "shift_share_iv"})
+    assert advanced_names.issuperset(
+        {"regression_kink", "bunching", "marginal_treatment_effect", "shift_share_iv"}
+    )
 
 
 def test_register_causal_methods_keeps_g_computation_when_sklearn_missing(monkeypatch):

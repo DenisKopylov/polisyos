@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import tempfile
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -12,38 +12,33 @@ import numpy as np
 from benchmarks.temporal.common import TemporalBenchmarkFixture
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
-from polisyos.foundry.methods.catalog.causal.dtr import estimate_dtr_trajectory
-from polisyos.foundry.methods.catalog.causal.g_computation import (
-    estimate_g_computation_trajectory,
-)
 from polisyos.foundry.methods.catalog.causal.protocols import (
     DynamicTreatmentData,
     PanelObservationalData,
 )
 from polisyos.foundry.methods.catalog.causal.structural_time_series import (
     TemporalTrajectoryResult,
-    estimate_structural_time_series_trajectory,
     solve_temporal_effect_path,
 )
 from polisyos.foundry.methods.catalog.causal.temporal_estimand_compiler import (
     TemporalCompileError,
     compile_temporal_estimand,
 )
-from polisyos.ir.artifacts import get_json_artifact
 from polisyos.ir.analytics.dynamic_regime import (
     ContinuousTimeQuery,
     DynamicTreatmentRegime,
     InterventionInterpolationPolicy,
     RegimeRule,
-    TemporalSamplingScheme,
     TemporalInterventionTrajectory,
     TemporalQueryMode,
+    TemporalSamplingScheme,
     load_continuous_time_query,
     load_dynamic_treatment_regime,
     load_effect_trajectory_bundle,
     load_temporal_intervention_trajectory,
     persist_temporal_intervention_trajectory,
 )
+from polisyos.ir.artifacts import get_json_artifact
 from polisyos.ir.refs import (
     ArtifactRefModel,
     DynamicTreatmentRegimeRef,
@@ -236,10 +231,14 @@ def _dynamic_g_data() -> DynamicTreatmentData:
     for t in range(n_periods):
         treatment[:, t] = rng.binomial(1, sigmoid(0.5 * state[:, t]))
         if t < n_periods - 1:
-            state[:, t + 1] = 0.5 * treatment[:, t] + 0.3 * state[:, t] + rng.normal(
-                0.0,
-                0.35,
-                size=n_units,
+            state[:, t + 1] = (
+                0.5 * treatment[:, t]
+                + 0.3 * state[:, t]
+                + rng.normal(
+                    0.0,
+                    0.35,
+                    size=n_units,
+                )
             )
 
     outcome = treatment.sum(axis=1).astype(float) + state[:, 0] + rng.normal(0.0, 0.8, size=n_units)
@@ -271,10 +270,7 @@ def _dynamic_dtr_data() -> DynamicTreatmentData:
                 + rng.normal(0.0, 0.25, size=n_units)
             )
 
-    stage_reward = (
-        1.4 * treatment * (state > 0.0)
-        - 0.7 * treatment * (state <= 0.0)
-    ).sum(axis=1)
+    stage_reward = (1.4 * treatment * (state > 0.0) - 0.7 * treatment * (state <= 0.0)).sum(axis=1)
     outcome = stage_reward + 0.25 * state[:, 0] + rng.normal(0.0, 0.30, size=n_units)
     return DynamicTreatmentData(
         outcome=outcome,
@@ -287,7 +283,13 @@ def _dynamic_dtr_data() -> DynamicTreatmentData:
 
 def _trajectory_plan_panel(*, horizon_end: float, preferred_backend: str = "linear_sde"):
     panel = PanelObservationalData(
-        outcome=np.vstack([np.linspace(0.0, max(horizon_end, 1.0), int(max(horizon_end, 1.0)) + 1), np.zeros(int(max(horizon_end, 1.0)) + 1), np.zeros(int(max(horizon_end, 1.0)) + 1)]),
+        outcome=np.vstack(
+            [
+                np.linspace(0.0, max(horizon_end, 1.0), int(max(horizon_end, 1.0)) + 1),
+                np.zeros(int(max(horizon_end, 1.0)) + 1),
+                np.zeros(int(max(horizon_end, 1.0)) + 1),
+            ]
+        ),
         treatment=np.array([1, 0, 0], dtype=int),
         time_treatment=1,
         time_index=np.arange(int(max(horizon_end, 1.0)) + 1, dtype=float),
@@ -311,7 +313,9 @@ def _trajectory_with_custom_effect(
     backend: str = "linear_sde",
     effect_samples: np.ndarray | None = None,
 ) -> TemporalTrajectoryResult:
-    plan = _trajectory_plan_panel(horizon_end=float(len(effect_path) - 1), preferred_backend=backend)
+    plan = _trajectory_plan_panel(
+        horizon_end=float(len(effect_path) - 1), preferred_backend=backend
+    )
     observed = np.asarray(effect_path, dtype=float)
     controls: dict[str, Any] = {"counterfactual_series": np.zeros_like(observed)}
     if effect_samples is not None:
@@ -399,7 +403,10 @@ def _engine_acceptance_checks(
             get_json_artifact(store, restored_bundle.solver_diagnostics_ref.artifact_id)
 
             intervention_payload = restored_bundle.metadata.get("intervention_artifact_ref")
-            if intervention_payload is None and restored_query.intervention_trajectory_ref is not None:
+            if (
+                intervention_payload is None
+                and restored_query.intervention_trajectory_ref is not None
+            ):
                 intervention_payload = restored_query.intervention_trajectory_ref.model_dump(
                     mode="python"
                 )
@@ -422,12 +429,14 @@ def _engine_acceptance_checks(
                     TemporalInterventionTrajectoryRef.model_validate(derived_schedule_payload),
                 )
             policy_lineage_complete = (
-                policy_payload is not None and derived_schedule_payload is not None
-            ) if (
-                requires_policy_lineage
-                or restored_bundle.metadata.get("execution_contract_kind")
-                == "optimal_policy_discovery"
-            ) else True
+                (policy_payload is not None and derived_schedule_payload is not None)
+                if (
+                    requires_policy_lineage
+                    or restored_bundle.metadata.get("execution_contract_kind")
+                    == "optimal_policy_discovery"
+                )
+                else True
+            )
             artifact_loadability = True
             reload_summary.update(
                 {
@@ -455,11 +464,10 @@ def _engine_acceptance_checks(
         and bundle.trajectory_ref.kind == "ir.temporal_trajectory"
         and bundle.confidence_band_ref.kind == "ir.temporal_confidence_band"
         and bundle.solver_diagnostics_ref.kind == "ir.temporal_solver_diagnostics",
-        "diagnostics_artifact_present": bundle is not None and bundle.solver_diagnostics_ref.kind == "ir.temporal_solver_diagnostics",
+        "diagnostics_artifact_present": bundle is not None
+        and bundle.solver_diagnostics_ref.kind == "ir.temporal_solver_diagnostics",
         "artifact_loadability": artifact_loadability,
-        "policy_lineage_complete": (
-            policy_lineage_complete if requires_policy_lineage else True
-        ),
+        "policy_lineage_complete": (policy_lineage_complete if requires_policy_lineage else True),
         "truthful_fallback_disclosure": (
             trajectory.path_representation.value == "discrete_replay"
             and trajectory.discretization_error is None
@@ -520,7 +528,10 @@ def _gold_ode_zero_diffusion_equivalence():
             min_band_coverage=1.0,
         ),
         extra_acceptance_checks={
-            "matching_discretization_error": abs(linear.discretization_error - ode.discretization_error) <= 1e-12,
+            "matching_discretization_error": abs(
+                linear.discretization_error - ode.discretization_error
+            )
+            <= 1e-12,
             **linear_run.acceptance_checks,
         },
         metadata={
@@ -692,7 +703,10 @@ def _hidden_weak_signal_wide_band_case():
     expected = [0.0, 0.05, 0.10, 0.08, 0.05]
     rng = np.random.default_rng(901)
     effect_samples = np.asarray(
-        [np.asarray(expected, dtype=float) + rng.normal(0.0, 0.18, size=len(expected)) for _ in range(256)],
+        [
+            np.asarray(expected, dtype=float) + rng.normal(0.0, 0.18, size=len(expected))
+            for _ in range(256)
+        ],
         dtype=float,
     )
     trajectory = _trajectory_with_custom_effect(expected, effect_samples=effect_samples)

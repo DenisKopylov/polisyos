@@ -4,9 +4,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from typing import Any
-
-import duckdb
+from typing import TYPE_CHECKING, Any
 
 from polisyos.academic.knowledge.skg_store import (
     aggregate_edge_confidence,
@@ -17,12 +15,16 @@ from polisyos.academic.knowledge.skg_store import (
 )
 from polisyos.common.logger import get_logger
 
+if TYPE_CHECKING:
+    import duckdb
+
 logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
 class RetractionReport:
     """Retraction report data model."""
+
     affected_edges: list[str]
     removed_edges: list[str]
 
@@ -85,7 +87,9 @@ class SKGVersionManager:
                     return bool(payload.get("is_retracted"))
             except Exception as exc:
                 logger.debug(
-                    "Retraction check failed for %s: %s", openalex_id, exc,
+                    "Retraction check failed for %s: %s",
+                    openalex_id,
+                    exc,
                 )
                 return False
 
@@ -148,7 +152,13 @@ class SKGVersionManager:
                 SET article_refs = ?, n_articles = ?, confidence = ?, evidence_strength = ?
                 WHERE edge_id = ?
                 """,
-                [json.dumps(refs_next, ensure_ascii=False), len(refs_next), recalculated, strength, edge_id],
+                [
+                    json.dumps(refs_next, ensure_ascii=False),
+                    len(refs_next),
+                    recalculated,
+                    strength,
+                    edge_id,
+                ],
             )
 
         return {

@@ -1,7 +1,8 @@
 """Engine protocols for legacy workflow adapters and lightweight loop runners."""
+
 from __future__ import annotations
 
-from typing import Any, Dict, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -13,7 +14,7 @@ class WorkflowEngine(Protocol):
     `run()`, `step()`, `current_phase`, and `current_node` are honored.
     """
 
-    def run(self, initial_state: Dict[str, Any]) -> Dict[str, Any]:
+    def run(self, initial_state: dict[str, Any]) -> dict[str, Any]:
         """
         Run workflow to completion.
 
@@ -24,7 +25,7 @@ class WorkflowEngine(Protocol):
             Final ExperimentState after workflow completion
         """
 
-    def step(self, state: Dict[str, Any]) -> tuple[Dict[str, Any], bool]:
+    def step(self, state: dict[str, Any]) -> tuple[dict[str, Any], bool]:
         """
         Execute single workflow step.
 
@@ -51,5 +52,5 @@ class WorkflowEngine(Protocol):
 class WorkflowEngineFactory(Protocol):
     """Construct protocol-compatible workflow engines from runtime config."""
 
-    def create(self, config: Dict[str, Any] | None = None) -> WorkflowEngine:
+    def create(self, config: dict[str, Any] | None = None) -> WorkflowEngine:
         """Create a new workflow engine instance."""

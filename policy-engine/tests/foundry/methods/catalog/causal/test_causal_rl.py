@@ -1,17 +1,17 @@
 """Tests for Causal Reinforcement Learning: OffPolicyEvaluator and CausalBandit."""
+
 from __future__ import annotations
 
 import numpy as np
 import pytest
 
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog.causal.causal_rl import CausalBandit, OffPolicyEvaluator
 from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
+from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics.causal import EstimationStatus
 from polisyos.ir.analytics.dynamic_regime import BanditResult, OPEResult
-
 
 # ---------------------------------------------------------------------------
 # DGP helpers
@@ -98,9 +98,7 @@ class TestOffPolicyEvaluator:
 
     def test_returns_ope_result_instance(self):
         data = _make_ope_data()
-        result = OffPolicyEvaluator.pure_step(
-            data, {"method": "is", "n_bootstrap": 60}
-        )
+        result = OffPolicyEvaluator.pure_step(data, {"method": "is", "n_bootstrap": 60})
         assert isinstance(result["ope_result"], OPEResult)
 
     def test_failure_without_behavior_probs(self):
@@ -116,16 +114,12 @@ class TestOffPolicyEvaluator:
 
     def test_policy_value_finite(self):
         data = _make_ope_data(n_units=300)
-        ope = OffPolicyEvaluator.pure_step(
-            data, {"method": "is", "n_bootstrap": 50}
-        )["ope_result"]
+        ope = OffPolicyEvaluator.pure_step(data, {"method": "is", "n_bootstrap": 50})["ope_result"]
         assert np.isfinite(ope.policy_value)
 
     def test_ci_ordered(self):
         data = _make_ope_data(n_units=300)
-        ope = OffPolicyEvaluator.pure_step(
-            data, {"method": "is", "n_bootstrap": 50}
-        )["ope_result"]
+        ope = OffPolicyEvaluator.pure_step(data, {"method": "is", "n_bootstrap": 50})["ope_result"]
         lo, hi = ope.confidence_interval
         assert lo <= hi
         assert np.isfinite(lo) and np.isfinite(hi)
@@ -133,9 +127,7 @@ class TestOffPolicyEvaluator:
     def test_dr_method_runs(self):
         """DR (doubly robust) OPE estimator should also succeed."""
         data = _make_ope_data(n_units=300)
-        result = OffPolicyEvaluator.pure_step(
-            data, {"method": "dr", "n_bootstrap": 50}
-        )
+        result = OffPolicyEvaluator.pure_step(data, {"method": "dr", "n_bootstrap": 50})
         assert result["report"].status == EstimationStatus.SUCCESS
         assert isinstance(result["ope_result"], OPEResult)
 
@@ -151,13 +143,12 @@ class TestOffPolicyEvaluator:
 
     def test_ess_positive(self):
         data = _make_ope_data(n_units=300)
-        ope = OffPolicyEvaluator.pure_step(
-            data, {"method": "is", "n_bootstrap": 50}
-        )["ope_result"]
+        ope = OffPolicyEvaluator.pure_step(data, {"method": "is", "n_bootstrap": 50})["ope_result"]
         assert ope.effective_sample_size > 0
 
     def test_failure_on_tiny_data(self):
         from pydantic import ValidationError
+
         with pytest.raises(ValidationError, match="at least"):
             DynamicTreatmentData(
                 outcome=np.zeros(5),
@@ -181,9 +172,7 @@ class TestOffPolicyEvaluator:
 class TestCausalBandit:
     def test_returns_success(self):
         data = _make_bandit_data()
-        result = CausalBandit.pure_step(
-            data, {"n_rounds": 50, "n_arms": 2}
-        )
+        result = CausalBandit.pure_step(data, {"n_rounds": 50, "n_arms": 2})
         assert result["report"].status == EstimationStatus.SUCCESS
 
     def test_returns_bandit_result_instance(self):
@@ -194,9 +183,7 @@ class TestCausalBandit:
     def test_finds_best_arm(self):
         """With a large effect (Y = 3*A_0), bandit should identify arm 1 as optimal."""
         data = _make_bandit_data(n_units=500, seed=1)
-        bandit = CausalBandit.pure_step(
-            data, {"n_rounds": 80, "n_arms": 2}
-        )["bandit_result"]
+        bandit = CausalBandit.pure_step(data, {"n_rounds": 80, "n_arms": 2})["bandit_result"]
         # Arm 1 = do(A_0=1) should be optimal (higher Y)
         assert "1" in bandit.optimal_arm or "do(A_0=1)" in bandit.optimal_arm, (
             f"Expected arm 1 to be optimal, got {bandit.optimal_arm!r}"
@@ -217,14 +204,13 @@ class TestCausalBandit:
 
     def test_best_arm_has_higher_estimate_than_worst(self):
         data = _make_bandit_data(n_units=500)
-        bandit = CausalBandit.pure_step(
-            data, {"n_rounds": 80, "n_arms": 2}
-        )["bandit_result"]
+        bandit = CausalBandit.pure_step(data, {"n_rounds": 80, "n_arms": 2})["bandit_result"]
         estimates = list(bandit.arm_estimates.values())
         assert max(estimates) >= min(estimates)
 
     def test_failure_on_tiny_data(self):
         from pydantic import ValidationError
+
         with pytest.raises(ValidationError, match="at least"):
             DynamicTreatmentData(
                 outcome=np.zeros(5),
@@ -249,9 +235,7 @@ class TestCausalBandit:
 def test_both_rl_methods_run_successfully():
     """Smoke: OPE (with behavior probs) and CausalBandit both run without error."""
     ope_data = _make_ope_data(n_units=200)
-    ope_result = OffPolicyEvaluator.pure_step(
-        ope_data, {"method": "is", "n_bootstrap": 40}
-    )
+    ope_result = OffPolicyEvaluator.pure_step(ope_data, {"method": "is", "n_bootstrap": 40})
     assert ope_result["report"].status == EstimationStatus.SUCCESS
 
     bandit_data = _make_bandit_data(n_units=200)

@@ -1,4 +1,5 @@
 """Tests for polisyos.scientist.agent._drafter_formatting — serialization & constitution."""
+
 from __future__ import annotations
 
 import json
@@ -18,6 +19,7 @@ from polisyos.scientist.agent.protocols import DraftResult, ProblemFrame
 # ---------------------------------------------------------------------------
 # Test harness
 # ---------------------------------------------------------------------------
+
 
 class _FormattingHarness(_DrafterFormattingMixin):
     def __init__(
@@ -73,6 +75,7 @@ def _make_draft(**overrides) -> DraftResult:
 # _summarize_problem_frame
 # ---------------------------------------------------------------------------
 
+
 class TestSummarizeProblemFrame:
     def test_contains_key_fields(self, harness):
         frame = _make_frame()
@@ -91,6 +94,7 @@ class TestSummarizeProblemFrame:
 # ---------------------------------------------------------------------------
 # _serialize_draft
 # ---------------------------------------------------------------------------
+
 
 class TestSerializeDraft:
     def test_valid_json(self, harness):
@@ -111,6 +115,7 @@ class TestSerializeDraft:
 # _format_constraints
 # ---------------------------------------------------------------------------
 
+
 class TestFormatConstraints:
     def test_empty(self, harness):
         frame = _make_frame(constraints=())
@@ -127,6 +132,7 @@ class TestFormatConstraints:
 # ---------------------------------------------------------------------------
 # _format_findings
 # ---------------------------------------------------------------------------
+
 
 class TestFormatFindings:
     def test_empty(self, harness):
@@ -174,6 +180,7 @@ class TestFormatFindings:
 # _build_constitution
 # ---------------------------------------------------------------------------
 
+
 class TestBuildConstitution:
     def test_disabled(self):
         config = MultiPassConfig(constitution_enabled=False)
@@ -218,6 +225,7 @@ class TestBuildConstitution:
 # _inject_constitution_context
 # ---------------------------------------------------------------------------
 
+
 class TestInjectConstitutionContext:
     def test_updates_context(self):
         h = _FormattingHarness()
@@ -235,7 +243,9 @@ class TestInjectConstitutionContext:
         h = _FormattingHarness()
         # context is empty dict — technically still a dict, but let's test with non-dict
         frame_no_ctx = ProblemFrame(
-            frame_id="f1", domain="d", problem_statement="p",
+            frame_id="f1",
+            domain="d",
+            problem_statement="p",
         )
         # context defaults to {} (a dict), so inject should work
         constitution = MagicMock()

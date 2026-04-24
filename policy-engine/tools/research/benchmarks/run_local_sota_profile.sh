@@ -15,41 +15,41 @@ DATA_ROOT="${REPO_ROOT}/data/raw/benchmarks/local_real"
 JSON_DIR="${SCRIPT_DIR}/_reports/local_sota_${PROFILE}"
 
 while [[ $# -gt 0 ]]; do
-    case "$1" in
-        --profile)
-            PROFILE="$2"
-            JSON_DIR="${SCRIPT_DIR}/_reports/local_sota_${PROFILE}"
-            shift 2
-            ;;
-        --mode)
-            MODE="$2"
-            shift 2
-            ;;
-        --json-dir)
-            JSON_DIR="$2"
-            shift 2
-            ;;
-        --data-root)
-            DATA_ROOT="$2"
-            shift 2
-            ;;
-        --skip-prepare)
-            PREPARE=0
-            shift
-            ;;
-        --verbose)
-            QUIET_FLAG=""
-            shift
-            ;;
-        --cooldown-s)
-            COOLDOWN_S="$2"
-            shift 2
-            ;;
-        *)
-            echo "Unknown argument: $1" >&2
-            exit 1
-            ;;
-    esac
+  case "$1" in
+    --profile)
+      PROFILE="$2"
+      JSON_DIR="${SCRIPT_DIR}/_reports/local_sota_${PROFILE}"
+      shift 2
+      ;;
+    --mode)
+      MODE="$2"
+      shift 2
+      ;;
+    --json-dir)
+      JSON_DIR="$2"
+      shift 2
+      ;;
+    --data-root)
+      DATA_ROOT="$2"
+      shift 2
+      ;;
+    --skip-prepare)
+      PREPARE=0
+      shift
+      ;;
+    --verbose)
+      QUIET_FLAG=""
+      shift
+      ;;
+    --cooldown-s)
+      COOLDOWN_S="$2"
+      shift 2
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      exit 1
+      ;;
+  esac
 done
 
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
@@ -61,11 +61,11 @@ RUN_ID="${BENCH_RUN_ID:-local-sota-${PROFILE}-$(date -u +%Y%m%dT%H%M%SZ)}"
 ESTIMATOR_PROFILE="${BENCH_ESTIMATOR_PROFILE:-flagship_competitive}"
 ESTIMATION_METHOD_PROFILE="${BENCH_ESTIMATION_METHOD_PROFILE:-}"
 if [[ -z "${ESTIMATION_METHOD_PROFILE}" ]]; then
-    if [[ "${MODE}" == "smoke" ]]; then
-        ESTIMATION_METHOD_PROFILE="production_estimation"
-    else
-        ESTIMATION_METHOD_PROFILE="full_matrix_estimation"
-    fi
+  if [[ "${MODE}" == "smoke" ]]; then
+    ESTIMATION_METHOD_PROFILE="production_estimation"
+  else
+    ESTIMATION_METHOD_PROFILE="full_matrix_estimation"
+  fi
 fi
 export BENCH_RUN_ID="${RUN_ID}"
 export BENCH_ESTIMATOR_PROFILE="${ESTIMATOR_PROFILE}"
@@ -73,9 +73,9 @@ export BENCH_ESTIMATION_METHOD_PROFILE="${ESTIMATION_METHOD_PROFILE}"
 export BENCH_PROFILE="${PROFILE}"
 
 if [[ "${PREPARE}" == "1" ]]; then
-    "${PYTHON}" "${SCRIPT_DIR}/prepare_real_benchmark_data.py" \
-        --profile "${PROFILE}" \
-        --data-root "${DATA_ROOT}"
+  "${PYTHON}" "${SCRIPT_DIR}/prepare_real_benchmark_data.py" \
+    --profile "${PROFILE}" \
+    --data-root "${DATA_ROOT}"
 fi
 
 export ACIC_DATA_DIR="${DATA_ROOT}/acic"
@@ -86,9 +86,9 @@ mkdir -p "${JSON_DIR}"
 
 SUITES=()
 while IFS= read -r line; do
-    SUITES+=("${line}")
+  SUITES+=("${line}")
 done < <(
-    BENCH_PROFILE="${PROFILE}" "${PYTHON}" - <<'PY'
+  BENCH_PROFILE="${PROFILE}" "${PYTHON}" - << 'PY'
 import os
 from benchmarks.suite_registry import suites_for_profile
 
@@ -103,19 +103,19 @@ STATUS_ROWS_FILE="$(mktemp)"
 trap 'rm -f "${STATUS_ROWS_FILE}"' EXIT
 
 for suite in "${SUITES[@]}"; do
-    echo "==> ${suite}"
-    if BENCH_RUN_ID="${RUN_ID}" BENCH_ESTIMATOR_PROFILE="${ESTIMATOR_PROFILE}" BENCH_PROFILE="${PROFILE}" \
-        bash "${SCRIPT_DIR}/run_all_benchmarks.sh" --mode "${MODE}" --profile "${PROFILE}" --circuit "${suite}" --json-dir "${JSON_DIR}" ${QUIET_FLAG}; then
-        PASSED=$((PASSED + 1))
-    else
-        FAILURES=$((FAILURES + 1))
-    fi
+  echo "==> ${suite}"
+  if BENCH_RUN_ID="${RUN_ID}" BENCH_ESTIMATOR_PROFILE="${ESTIMATOR_PROFILE}" BENCH_PROFILE="${PROFILE}" \
+    bash "${SCRIPT_DIR}/run_all_benchmarks.sh" --mode "${MODE}" --profile "${PROFILE}" --circuit "${suite}" --json-dir "${JSON_DIR}" ${QUIET_FLAG}; then
+    PASSED=$((PASSED + 1))
+  else
+    FAILURES=$((FAILURES + 1))
+  fi
 
-    export BENCH_LOCAL_SUITE="${suite}"
-    export BENCH_LOCAL_JSON_DIR="${JSON_DIR}"
-    export BENCH_LOCAL_RUN_SUMMARY="${JSON_DIR}/run_summary.json"
-    export BENCH_LOCAL_STATUS_ROWS_FILE="${STATUS_ROWS_FILE}"
-    "${PYTHON}" - <<'PY'
+  export BENCH_LOCAL_SUITE="${suite}"
+  export BENCH_LOCAL_JSON_DIR="${JSON_DIR}"
+  export BENCH_LOCAL_RUN_SUMMARY="${JSON_DIR}/run_summary.json"
+  export BENCH_LOCAL_STATUS_ROWS_FILE="${STATUS_ROWS_FILE}"
+  "${PYTHON}" - << 'PY'
 import json
 import os
 from pathlib import Path
@@ -164,19 +164,23 @@ with open(os.environ["BENCH_LOCAL_STATUS_ROWS_FILE"], "a", encoding="utf-8") as 
     handle.write(json.dumps(row) + "\n")
 PY
 
-    if [[ "${COOLDOWN_S}" != "0" ]]; then
-        sleep "${COOLDOWN_S}"
-    fi
+  if [[ "${COOLDOWN_S}" != "0" ]]; then
+    sleep "${COOLDOWN_S}"
+  fi
 done
 
 export BENCH_LOCAL_JSON_DIR="${JSON_DIR}"
 export BENCH_LOCAL_PROFILE="${PROFILE}"
 export BENCH_LOCAL_MODE="${MODE}"
-export BENCH_LOCAL_SUITES="$(IFS=,; echo "${SUITES[*]}")"
+BENCH_LOCAL_SUITES="$(
+  IFS=,
+  echo "${SUITES[*]}"
+)"
+export BENCH_LOCAL_SUITES
 export BENCH_LOCAL_RUN_ID="${RUN_ID}"
 export BENCH_LOCAL_ESTIMATOR_PROFILE="${ESTIMATOR_PROFILE}"
 export BENCH_LOCAL_STATUS_ROWS_FILE="${STATUS_ROWS_FILE}"
-"${PYTHON}" - <<'PY'
+"${PYTHON}" - << 'PY'
 import json
 import os
 from pathlib import Path
@@ -213,11 +217,11 @@ print(json.dumps(summary, indent=2))
 PY
 
 "${PYTHON}" "${REPO_ROOT}/benchmarks/claim_gate.py" \
-    --json-dir "${JSON_DIR}" \
-    --profile "${PROFILE}" \
-    --output "${JSON_DIR}/claim_gate.json" >/dev/null || true
+  --json-dir "${JSON_DIR}" \
+  --profile "${PROFILE}" \
+  --output "${JSON_DIR}/claim_gate.json" > /dev/null || true
 
 if [[ "${FAILURES}" -eq 0 ]]; then
-    exit 0
+  exit 0
 fi
 exit 2

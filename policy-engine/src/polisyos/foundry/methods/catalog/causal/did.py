@@ -1,8 +1,10 @@
 """Estimate average treatment effects with panel Difference-in-Differences designs."""
+
 from __future__ import annotations
 
 import math
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -61,7 +63,9 @@ def _did_payload(state: Any) -> dict[str, Any]:
     )
 
 
-def _materialize_did_data(bound_inputs: Mapping[str, Any], fallback_state: Any) -> PanelObservationalData:
+def _materialize_did_data(
+    bound_inputs: Mapping[str, Any], fallback_state: Any
+) -> PanelObservationalData:
     payload = _did_payload(fallback_state)
     payload.update(bound_inputs)
     return PanelObservationalData.model_validate(payload)
@@ -390,6 +394,7 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
 )
 class DifferenceInDifferences:
     """Estimate ATT under parallel trends and stable composition; avoid staggered-timing bias unless using modern DiD variants."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -449,8 +454,7 @@ class DifferenceInDifferences:
         assumptions={
             "parallel_trends": "Untreated potential outcomes follow parallel trends.",
             "no_anticipation": (
-                "No treatment effect before treatment start "
-                "(unless explicitly modeled)."
+                "No treatment effect before treatment start (unless explicitly modeled)."
             ),
             "stable_composition": "Group composition is stable over analysis horizon.",
         },
@@ -613,6 +617,6 @@ class StaggeredDifferenceInDifferences:
 
 __all__ = [
     "DifferenceInDifferences",
-    "StandardDifferenceInDifferences",
     "StaggeredDifferenceInDifferences",
+    "StandardDifferenceInDifferences",
 ]

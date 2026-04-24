@@ -1,12 +1,15 @@
 # ADR-0094: Confidence as Ordinal Quality Score
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-02-28
 
 ## Context
+
 The system pervasively uses "confidence" values in [0, 1] -- attached to literature
 priors, proxy validations, transportability assessments, and governance checks.
 Without a shared definition, different subsystems interpret these values
@@ -16,6 +19,7 @@ This cross-cutting ADR establishes a single semantic definition and specifies th
 two canonical operations for combining confidence values.
 
 ## Decision
+
 1. Define "confidence" throughout PolicyOS as an **ordinal quality score** on [0, 1],
    where 0 means "no evidence / completely unreliable" and 1 means "highest
    achievable quality for this evidence type". It is explicitly **not** a calibrated
@@ -32,15 +36,21 @@ two canonical operations for combining confidence values.
    **before** the value enters the composition pipeline.
 
 ## Consequences
+
 ### Positive
+
 - Eliminates ambiguity in what "confidence = 0.7" means across the entire system.
 - Harmonic-mean and Noisy-OR are closed on [0, 1], preventing out-of-range results.
 - The `confidence_basis` annotation enables downstream consumers to weight or
   filter by evidence type.
+
 ### Negative
+
 - Ordinal scores cannot be directly compared across evidence types without
   normalisation conventions, which this ADR does not fully specify.
+
 - Noisy-OR assumes independence; correlated evidence sources will produce
   inflated aggregated scores.
+
 - Retrofitting existing models with `confidence_basis` requires a migration across
   multiple IR schemas.

@@ -56,20 +56,20 @@ class _SlidingWindowLimiter:
     """Async sliding-window rate limiter with warm-up ramp and adaptive 429 cooling."""
 
     __slots__ = (
-        "_max",
-        "_window",
-        "_lock",
-        "_timestamps",
+        "_adaptive_enabled",
+        "_adaptive_max_scale",
+        "_adaptive_penalty_multiplier",
+        "_adaptive_recovery_factor",
+        "_adaptive_scale",
         "_backoff_until",
+        "_created_at",
         "_jitter_ratio",
+        "_lock",
+        "_max",
+        "_timestamps",
         "_warmup_seconds",
         "_warmup_start_scale",
-        "_adaptive_enabled",
-        "_adaptive_scale",
-        "_adaptive_recovery_factor",
-        "_adaptive_penalty_multiplier",
-        "_adaptive_max_scale",
-        "_created_at",
+        "_window",
     )
 
     def __init__(
@@ -141,11 +141,15 @@ class _SlidingWindowLimiter:
     async def penalise(self, penalty_seconds: float = 5.0) -> None:
         async with self._lock:
             future = time.monotonic() + penalty_seconds - self._window
-            self._backoff_until = max(self._backoff_until, time.monotonic() + max(0.1, penalty_seconds))
+            self._backoff_until = max(
+                self._backoff_until, time.monotonic() + max(0.1, penalty_seconds)
+            )
             for _ in range(self._max):
                 self._timestamps.append(future)
             if self._adaptive_enabled:
-                penalty_bump = 1.0 + (min(_MAX_RETRY_AFTER_SECONDS, max(0.0, float(penalty_seconds))) / 6.0)
+                penalty_bump = 1.0 + (
+                    min(_MAX_RETRY_AFTER_SECONDS, max(0.0, float(penalty_seconds))) / 6.0
+                )
                 self._adaptive_scale = min(
                     self._adaptive_max_scale,
                     max(self._adaptive_scale * self._adaptive_penalty_multiplier, penalty_bump),
@@ -290,7 +294,9 @@ class GonkaClient:
             sock_read=max(1, int(read_timeout_seconds)),
         )
         if disable_json_mode:
-            logger.info("Gonka JSON-mode disabled by configuration; sending plain chat completions.")
+            logger.info(
+                "Gonka JSON-mode disabled by configuration; sending plain chat completions."
+            )
 
     @property
     def model_id(self) -> str:
@@ -379,7 +385,9 @@ class GonkaClient:
             self._lane_limiters[key] = limiter
         return limiter
 
-    def _lane_shared_limiter(self, lane_name: str, rate_scale: float) -> _SlidingWindowLimiter | None:
+    def _lane_shared_limiter(
+        self, lane_name: str, rate_scale: float
+    ) -> _SlidingWindowLimiter | None:
         if self._shared_limiter is None or rate_scale >= 0.999:
             return None
         key = (lane_name, round(rate_scale, 4))
@@ -400,7 +408,7 @@ class GonkaClient:
         key = (lane_name, round(concurrency_scale, 4))
         semaphore = self._lane_semaphores.get(key)
         if semaphore is None:
-            cap = max(1, int(round(self._max_concurrent * concurrency_scale)))
+            cap = max(1, round(self._max_concurrent * concurrency_scale))
             semaphore = asyncio.Semaphore(cap)
             self._lane_semaphores[key] = semaphore
         return semaphore
@@ -428,7 +436,7 @@ class GonkaClient:
             time.monotonic() + (self._circuit_reset_seconds * jitter),
         )
 
-    async def __aenter__(self) -> "GonkaClient":
+    async def __aenter__(self) -> GonkaClient:
         self._session = aiohttp.ClientSession(
             headers={
                 "Authorization": f"Bearer {self._api_key}",
@@ -474,95 +482,48 @@ class GonkaClient:
             payload["response_format"] = response_format
 
         lane_semaphore = self._lane_semaphore(lane_name, lane_concurrency_scale)
-        if lane_semaphore is None:
-            semaphore_context = self._semaphore
-        else:
-            semaphore_context = lane_semaphore
-        async with semaphore_context:
-            async with self._semaphore:
-                started = time.monotonic()
-                try:
-                    async with self._session.post(self._url, json=payload) as resp:
-                        body = await resp.text()
-                        latency_ms = (time.monotonic() - started) * 1000.0
-                        if resp.status == 200:
-                            try:
-                                payload_json = json.loads(body) if body else {}
-                            except json.JSONDecodeError as exc:
-                                return (
-                                    _AttemptOutcome(
-                                        retryable=True,
-                                        error_class="json_parse",
-                                        error_message=str(exc),
-                                        provider_key_index=self._client_index,
-                                        latency_ms=latency_ms,
-                                        raw_content=body[:4000],
-                                    ),
-                                    limiter_wait,
-                                )
-                            if not isinstance(payload_json, dict):
-                                payload_json = {}
-                            return (
-                                _AttemptOutcome(
-                                    payload=payload_json,
-                                    provider_key_index=self._client_index,
-                                    latency_ms=latency_ms,
-                                    raw_content=body[:4000],
-                                ),
-                                limiter_wait,
-                            )
-
-                        if (
-                            "response_format" in payload
-                            and _is_json_mode_invalid_request(resp.status, body)
-                        ):
+        semaphore_context = self._semaphore if lane_semaphore is None else lane_semaphore
+        async with semaphore_context, self._semaphore:
+            started = time.monotonic()
+            try:
+                async with self._session.post(self._url, json=payload) as resp:
+                    body = await resp.text()
+                    latency_ms = (time.monotonic() - started) * 1000.0
+                    if resp.status == 200:
+                        try:
+                            payload_json = json.loads(body) if body else {}
+                        except json.JSONDecodeError as exc:
                             return (
                                 _AttemptOutcome(
                                     retryable=True,
-                                    disable_json_mode=True,
-                                    error_class="response_format_invalid",
-                                    error_message=body[:500],
-                                    http_status=resp.status,
+                                    error_class="json_parse",
+                                    error_message=str(exc),
                                     provider_key_index=self._client_index,
                                     latency_ms=latency_ms,
                                     raw_content=body[:4000],
                                 ),
                                 limiter_wait,
                             )
-
-                        retry_after = str(resp.headers.get("Retry-After") or "").strip() or None
-                        if resp.status == 429:
-                            return (
-                                _AttemptOutcome(
-                                    retryable=True,
-                                    error_class="provider_http_429",
-                                    error_message=body[:500],
-                                    http_status=resp.status,
-                                    retry_after=retry_after,
-                                    provider_key_index=self._client_index,
-                                    latency_ms=latency_ms,
-                                    raw_content=body[:4000],
-                                ),
-                                limiter_wait,
-                            )
-                        if resp.status >= 500:
-                            return (
-                                _AttemptOutcome(
-                                    retryable=True,
-                                    error_class="provider_http_5xx",
-                                    error_message=body[:500],
-                                    http_status=resp.status,
-                                    retry_after=retry_after,
-                                    provider_key_index=self._client_index,
-                                    latency_ms=latency_ms,
-                                    raw_content=body[:4000],
-                                ),
-                                limiter_wait,
-                            )
+                        if not isinstance(payload_json, dict):
+                            payload_json = {}
                         return (
                             _AttemptOutcome(
-                                retryable=False,
-                                error_class=f"provider_http_{resp.status}",
+                                payload=payload_json,
+                                provider_key_index=self._client_index,
+                                latency_ms=latency_ms,
+                                raw_content=body[:4000],
+                            ),
+                            limiter_wait,
+                        )
+
+                    if "response_format" in payload and _is_json_mode_invalid_request(
+                        resp.status, body
+                    ):
+                        return (
+                            _AttemptOutcome(
+                                retryable=True,
+                                disable_json_mode=True,
+                                error_class="response_format_invalid",
                                 error_message=body[:500],
                                 http_status=resp.status,
                                 provider_key_index=self._client_index,
@@ -572,30 +533,72 @@ class GonkaClient:
                             limiter_wait,
                         )
 
-                except asyncio.TimeoutError as exc:
+                    retry_after = str(resp.headers.get("Retry-After") or "").strip() or None
+                    if resp.status == 429:
+                        return (
+                            _AttemptOutcome(
+                                retryable=True,
+                                error_class="provider_http_429",
+                                error_message=body[:500],
+                                http_status=resp.status,
+                                retry_after=retry_after,
+                                provider_key_index=self._client_index,
+                                latency_ms=latency_ms,
+                                raw_content=body[:4000],
+                            ),
+                            limiter_wait,
+                        )
+                    if resp.status >= 500:
+                        return (
+                            _AttemptOutcome(
+                                retryable=True,
+                                error_class="provider_http_5xx",
+                                error_message=body[:500],
+                                http_status=resp.status,
+                                retry_after=retry_after,
+                                provider_key_index=self._client_index,
+                                latency_ms=latency_ms,
+                                raw_content=body[:4000],
+                            ),
+                            limiter_wait,
+                        )
                     return (
                         _AttemptOutcome(
-                            retryable=True,
-                            error_class="timeout",
-                            error_message=str(exc),
+                            retryable=False,
+                            error_class=f"provider_http_{resp.status}",
+                            error_message=body[:500],
+                            http_status=resp.status,
                             provider_key_index=self._client_index,
-                            latency_ms=(time.monotonic() - started) * 1000.0,
+                            latency_ms=latency_ms,
+                            raw_content=body[:4000],
                         ),
                         limiter_wait,
                     )
-                except aiohttp.ClientError as exc:
-                    exc_str = str(exc)
-                    retryable = "413" not in exc_str
-                    return (
-                        _AttemptOutcome(
-                            retryable=retryable,
-                            error_class=("network_error" if retryable else "client_error"),
-                            error_message=exc_str,
-                            provider_key_index=self._client_index,
-                            latency_ms=(time.monotonic() - started) * 1000.0,
-                        ),
-                        limiter_wait,
-                    )
+
+            except TimeoutError as exc:
+                return (
+                    _AttemptOutcome(
+                        retryable=True,
+                        error_class="timeout",
+                        error_message=str(exc),
+                        provider_key_index=self._client_index,
+                        latency_ms=(time.monotonic() - started) * 1000.0,
+                    ),
+                    limiter_wait,
+                )
+            except aiohttp.ClientError as exc:
+                exc_str = str(exc)
+                retryable = "413" not in exc_str
+                return (
+                    _AttemptOutcome(
+                        retryable=retryable,
+                        error_class=("network_error" if retryable else "client_error"),
+                        error_message=exc_str,
+                        provider_key_index=self._client_index,
+                        latency_ms=(time.monotonic() - started) * 1000.0,
+                    ),
+                    limiter_wait,
+                )
 
     def _log_request(
         self,
@@ -627,7 +630,9 @@ class GonkaClient:
             "total_latency_ms": round(float(total_latency_ms or 0.0), 3),
             "provider_rate_scale": round(self._limiter.current_scale(), 3),
             "provider_effective_rps": round(self._limiter.current_effective_rps(), 3),
-            "shared_rate_scale": round(self._shared_limiter.current_scale(), 3) if self._shared_limiter is not None else 1.0,
+            "shared_rate_scale": round(self._shared_limiter.current_scale(), 3)
+            if self._shared_limiter is not None
+            else 1.0,
             "shared_effective_rps": (
                 round(self._shared_limiter.current_effective_rps(), 3)
                 if self._shared_limiter is not None
@@ -783,7 +788,7 @@ class GonkaClient:
                 ),
                 timeout=watchdog_seconds,
             )
-        except asyncio.TimeoutError as exc:
+        except TimeoutError as exc:
             self._record_failure()
             self._log_request(
                 request_meta=request_meta,
@@ -870,7 +875,7 @@ class GonkaClientPool:
             for index, key in enumerate(cleaned)
         ]
         self._per_key_cap = max(1, int(max_concurrent))
-        auto_global_cap = max(1, int(round(len(self._clients) * self._per_key_cap * 0.9)))
+        auto_global_cap = max(1, round(len(self._clients) * self._per_key_cap * 0.9))
         self._global_concurrent_cap = (
             auto_global_cap
             if global_concurrent_cap is None or int(global_concurrent_cap) <= 0
@@ -911,7 +916,13 @@ class GonkaClientPool:
     @property
     def current_global_concurrency_cap(self) -> int:
         scale = max(1.0, self._shared_limiter.current_scale())
-        return max(1, min(self._global_concurrent_cap, int(round(self._global_concurrent_cap / math.sqrt(scale)))))
+        return max(
+            1,
+            min(
+                self._global_concurrent_cap,
+                round(self._global_concurrent_cap / math.sqrt(scale)),
+            ),
+        )
 
     @contextmanager
     def request_lane(
@@ -938,16 +949,24 @@ class GonkaClientPool:
 
     def _scaled_global_concurrency_cap(self, concurrency_scale: float = 1.0) -> int:
         lane_scale = min(1.0, max(0.05, float(concurrency_scale)))
-        target = max(1, int(round(self.current_global_concurrency_cap * lane_scale)))
+        target = max(1, round(self.current_global_concurrency_cap * lane_scale))
         return max(1, min(self._global_concurrent_cap, target))
 
     def _effective_per_key_cap(self, idx: int, *, concurrency_scale: float = 1.0) -> int:
         client = self._clients[idx]
         scale = max(1.0, client.current_rate_scale)
-        target = max(1, int(round((self._per_key_cap / math.sqrt(scale)) * min(1.0, max(0.05, float(concurrency_scale))))))
+        target = max(
+            1,
+            round(
+                (self._per_key_cap / math.sqrt(scale))
+                * min(1.0, max(0.05, float(concurrency_scale)))
+            ),
+        )
         return max(1, min(self._per_key_cap, target))
 
-    def _lane_shared_limiter(self, lane_name: str, rate_scale: float) -> _SlidingWindowLimiter | None:
+    def _lane_shared_limiter(
+        self, lane_name: str, rate_scale: float
+    ) -> _SlidingWindowLimiter | None:
         if rate_scale >= 0.999:
             return None
         key = (lane_name, round(rate_scale, 4))
@@ -976,7 +995,7 @@ class GonkaClientPool:
         for client in self._clients:
             client.disable_json_mode()
 
-    async def __aenter__(self) -> "GonkaClientPool":
+    async def __aenter__(self) -> GonkaClientPool:
         for client in self._clients:
             await client.__aenter__()
         return self
@@ -998,7 +1017,8 @@ class GonkaClientPool:
                         i
                         for i, client in enumerate(self._clients)
                         if client.is_available()
-                        and self._in_flight[i] < self._effective_per_key_cap(i, concurrency_scale=concurrency_scale)
+                        and self._in_flight[i]
+                        < self._effective_per_key_cap(i, concurrency_scale=concurrency_scale)
                     ]
                 if available:
                     min_load = min(self._in_flight[i] for i in available)
@@ -1052,7 +1072,9 @@ class GonkaClientPool:
             "total_latency_ms": round(float(total_latency_ms or 0.0), 3),
             "shared_rate_scale": round(self._shared_limiter.current_scale(), 3),
             "shared_effective_rps": round(self._shared_limiter.current_effective_rps(), 3),
-            "effective_global_concurrency_cap": int(self._scaled_global_concurrency_cap(lane_concurrency_scale)),
+            "effective_global_concurrency_cap": int(
+                self._scaled_global_concurrency_cap(lane_concurrency_scale)
+            ),
             "prompt_tokens": int(summary.get("prompt_tokens") or 0),
             "completion_tokens": int(summary.get("completion_tokens") or 0),
             "finish_reason": str(summary.get("finish_reason") or ""),
@@ -1218,7 +1240,7 @@ class GonkaClientPool:
                 ),
                 timeout=watchdog_seconds,
             )
-        except asyncio.TimeoutError as exc:
+        except TimeoutError as exc:
             self._log_request(
                 request_meta=request_meta,
                 http_status=0,

@@ -1,4 +1,5 @@
 """Certificate resolution helpers for dispatcher/runtime integration."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -9,7 +10,7 @@ from polisyos.foundry.methods.equivalence.protocol import (
     CrossBackendEquivalenceCertificate,
 )
 
-_default_equivalence_resolver: "EquivalenceCertificateResolver | None" = None
+_default_equivalence_resolver: EquivalenceCertificateResolver | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,8 +31,7 @@ class EquivalenceCertificateResolver(Protocol):
         method_fqn: str,
         source_backend: ComputeBackend,
         target_backend: ComputeBackend,
-    ) -> ResolvedEquivalenceCertificate | None:
-        ...
+    ) -> ResolvedEquivalenceCertificate | None: ...
 
 
 class InMemoryEquivalenceCertificateRegistry:
@@ -97,9 +97,9 @@ def reset_default_equivalence_resolver() -> None:
 
 __all__ = [
     "EquivalenceCertificateResolver",
-    "get_default_equivalence_resolver",
     "InMemoryEquivalenceCertificateRegistry",
-    "reset_default_equivalence_resolver",
     "ResolvedEquivalenceCertificate",
+    "get_default_equivalence_resolver",
+    "reset_default_equivalence_resolver",
     "set_default_equivalence_resolver",
 ]

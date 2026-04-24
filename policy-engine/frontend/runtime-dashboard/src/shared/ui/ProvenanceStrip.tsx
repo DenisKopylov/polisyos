@@ -1,10 +1,11 @@
 import type { HTMLAttributes, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
-import { Glyph } from "@/shared/brand/Glyph";
+import { Glyph, type GlyphSize } from "@/shared/brand/Glyph";
+import { GLYPH_ANCHORS } from "@/shared/brand/glyph-vocabulary";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
 
-export type ProvenanceStripDensity = "comfortable" | "compact";
+export type ProvenanceStripDensity = "comfortable" | "compact" | "condensed";
 
 type ProvenanceStripProps = {
   /** 3..8 provenance items. Lower counts are allowed but discouraged — the
@@ -24,11 +25,25 @@ type ProvenanceStripProps = {
 const ITEM_SPACING: Record<ProvenanceStripDensity, string> = {
   comfortable: "gap-3",
   compact: "gap-2",
+  condensed: "gap-1.5",
 };
 
 const LABEL_SIZE: Record<ProvenanceStripDensity, string> = {
   comfortable: "text-[0.68rem]",
   compact: "text-[0.62rem]",
+  condensed: "text-[0.58rem]",
+};
+
+const GLYPH_SIZE: Record<ProvenanceStripDensity, GlyphSize> = {
+  comfortable: 14,
+  compact: 12,
+  condensed: 12,
+};
+
+const ITEM_LABEL_SIZE: Record<ProvenanceStripDensity, string> = {
+  comfortable: "text-xs",
+  compact: "text-[0.68rem] leading-none",
+  condensed: "text-[0.62rem] leading-none",
 };
 
 export function ProvenanceStrip({
@@ -39,12 +54,17 @@ export function ProvenanceStrip({
   trailing,
   ...rest
 }: ProvenanceStripProps) {
+  const glyphSummary = items
+    .map((item) => GLYPH_ANCHORS[item.glyph] ?? item.glyph)
+    .join(" ");
+
   return (
     <div
       {...rest}
       role="group"
       aria-label={title ?? "Provenance strip"}
       data-density={density}
+      data-glyph-summary={glyphSummary}
       data-testid="provenance-strip"
       className={cn(
         "provenance-strip inline-flex flex-wrap items-center",
@@ -65,7 +85,11 @@ export function ProvenanceStrip({
       <ul
         className={cn(
           "flex flex-wrap items-center",
-          density === "comfortable" ? "gap-2" : "gap-1.5",
+          density === "comfortable"
+            ? "gap-2"
+            : density === "compact"
+              ? "gap-1.5"
+              : "gap-1",
         )}
       >
         {items.map((item) => (
@@ -77,18 +101,13 @@ export function ProvenanceStrip({
           >
             <Glyph
               name={item.glyph}
-              size={density === "comfortable" ? 14 : 12}
+              size={GLYPH_SIZE[density]}
               intent={item.intent}
               strokeStyle={item.strokeStyle ?? "solid"}
               title={item.label}
             />
             <span
-              className={cn(
-                "text-muted font-medium",
-                density === "comfortable"
-                  ? "text-xs"
-                  : "text-[0.68rem] leading-none",
-              )}
+              className={cn("text-muted font-medium", ITEM_LABEL_SIZE[density])}
               title={item.detail}
             >
               {item.label}

@@ -52,13 +52,17 @@ class ResponseFunctionLPProblemSpec(BaseModel):
     reference_index: int = Field(default=0, ge=0)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "ResponseFunctionLPProblemSpec":
+    def _validate_shapes(self) -> ResponseFunctionLPProblemSpec:
         n_treatments = len(self.treatment_levels)
         n_outcomes = len(self.outcome_levels)
         if n_treatments < 2:
-            raise ValueError("response-function LP certificate requires at least two treatment levels")
+            raise ValueError(
+                "response-function LP certificate requires at least two treatment levels"
+            )
         if n_outcomes < 2:
-            raise ValueError("response-function LP certificate requires at least two outcome levels")
+            raise ValueError(
+                "response-function LP certificate requires at least two outcome levels"
+            )
         if len(self.joint) != n_treatments:
             raise ValueError("joint row count must match treatment_levels")
         if any(len(row) != n_outcomes for row in self.joint):
@@ -84,7 +88,7 @@ class BinaryIVLPProblemSpec(BaseModel):
     joint: tuple[tuple[tuple[float, ...], ...], ...]
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "BinaryIVLPProblemSpec":
+    def _validate_shapes(self) -> BinaryIVLPProblemSpec:
         if len(self.joint) != 2:
             raise ValueError("binary IV certificate requires exactly two outcome levels")
         for y_slice in self.joint:
@@ -111,7 +115,7 @@ class GeneralIVLPProblemSpec(BaseModel):
     outcome_scale: float = Field(default=1.0, gt=0.0)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "GeneralIVLPProblemSpec":
+    def _validate_shapes(self) -> GeneralIVLPProblemSpec:
         if len(self.joint) != self.n_outcome_levels:
             raise ValueError("joint outcome axis must match n_outcome_levels")
         for y_slice in self.joint:
@@ -169,7 +173,7 @@ class BoundsDualCertificateBundle(BaseModel):
     upper_cert: LPDualCertificate
 
     @model_validator(mode="after")
-    def _validate_family_matches_problem(self) -> "BoundsDualCertificateBundle":
+    def _validate_family_matches_problem(self) -> BoundsDualCertificateBundle:
         family_by_problem = {
             "response_function_lp": "response_function_lp_bounds",
             "binary_iv_lp": "binary_iv_lp_bounds",
@@ -211,7 +215,7 @@ class StratifiedLPDualCertificateBundle(BaseModel):
     aggregate_upper_bound: float
 
     @model_validator(mode="after")
-    def _validate_strata(self) -> "StratifiedLPDualCertificateBundle":
+    def _validate_strata(self) -> StratifiedLPDualCertificateBundle:
         if not self.strata:
             raise ValueError("stratified certificate requires at least one stratum")
         weight_sum = sum(float(item.weight) for item in self.strata)
@@ -255,10 +259,7 @@ def _as_tensor3_tuple(
     tensor: np.ndarray | tuple[tuple[tuple[float, ...], ...], ...] | list[list[list[float]]],
 ) -> tuple[tuple[tuple[float, ...], ...], ...]:
     arr = np.asarray(tensor, dtype=float)
-    return tuple(
-        tuple(tuple(float(v) for v in row) for row in matrix)
-        for matrix in arr
-    )
+    return tuple(tuple(tuple(float(v) for v in row) for row in matrix) for matrix in arr)
 
 
 def _problem_fingerprint(problem: DualCertificateProblemSpec) -> str:
@@ -304,7 +305,10 @@ def _build_constraint_system(
     upper_effects: list[float] = []
     for t_obs in range(len(t_levels)):
         for response_vector in product(range(len(y_levels)), repeat=len(t_levels)):
-            if problem.monotone and response_vector[problem.target_index] < response_vector[problem.reference_index]:
+            if (
+                problem.monotone
+                and response_vector[problem.target_index] < response_vector[problem.reference_index]
+            ):
                 continue
             response_types.append((t_obs, tuple(int(v) for v in response_vector)))
             lower_effects.append(
@@ -401,9 +405,8 @@ def _build_general_iv_constraint_system(
     scale = float(problem.n_outcome_levels - 1) if problem.n_outcome_levels > 1 else 1.0
     objective = np.asarray(
         [
-            (
-                (yr[problem.treatment_target] - yr[problem.treatment_ref]) / scale
-            ) * float(problem.outcome_scale)
+            ((yr[problem.treatment_target] - yr[problem.treatment_ref]) / scale)
+            * float(problem.outcome_scale)
             for _, yr in all_rfs
         ],
         dtype=float,
@@ -556,7 +559,7 @@ def _build_certificate_bundle_from_problem(
         raise ValueError("upper_result must be optimal to build a dual certificate")
 
     fingerprint = _problem_fingerprint(problem)
-    A_eq, b_eq, lower_objective, upper_objective = _reconstruct_problem_system(problem)
+    _a_eq, b_eq, lower_objective, upper_objective = _reconstruct_problem_system(problem)
     bundle = BoundsDualCertificateBundle(
         certificate_family=certificate_family,
         problem=problem,
@@ -577,10 +580,7 @@ def _build_certificate_bundle_from_problem(
     )
     validation = validate_dual_certificate_bundle(bundle)
     if not validation.ok:
-        raise ValueError(
-            "dual certificate validation failed: "
-            + "; ".join(validation.errors)
-        )
+        raise ValueError("dual certificate validation failed: " + "; ".join(validation.errors))
     return bundle
 
 
@@ -588,7 +588,7 @@ def _validate_single_certificate(
     *,
     cert: LPDualCertificate,
     objective: np.ndarray,
-    A_eq: np.ndarray,
+    a_eq: np.ndarray,
     b_eq: np.ndarray,
     problem_fingerprint: str,
 ) -> tuple[list[str], float, float, float, float, float]:
@@ -608,11 +608,11 @@ def _validate_single_certificate(
 
     y = np.asarray(cert.dual_eq_marginals, dtype=float)
     d = np.asarray(cert.dual_lower_marginals, dtype=float)
-    if y.shape[0] != A_eq.shape[0]:
+    if y.shape[0] != a_eq.shape[0]:
         errors.append(
-            f"{cert.bound_direction}: dual_eq_marginals length {y.shape[0]} != {A_eq.shape[0]}"
+            f"{cert.bound_direction}: dual_eq_marginals length {y.shape[0]} != {a_eq.shape[0]}"
         )
-        y = np.zeros(A_eq.shape[0], dtype=float)
+        y = np.zeros(a_eq.shape[0], dtype=float)
     if d.shape[0] != n_vars:
         errors.append(
             f"{cert.bound_direction}: dual_lower_marginals length {d.shape[0]} != {n_vars}"
@@ -622,9 +622,9 @@ def _validate_single_certificate(
     if cert.problem_fingerprint != problem_fingerprint:
         errors.append(f"{cert.bound_direction}: problem_fingerprint mismatch")
 
-    primal_residual = float(np.max(np.abs(A_eq @ x - b_eq)))
+    primal_residual = float(np.max(np.abs(a_eq @ x - b_eq)))
     nonneg_violation = float(max(0.0, -float(np.min(x))))
-    reduced_costs = objective - (A_eq.T @ y)
+    reduced_costs = objective - (a_eq.T @ y)
     dual_violation = float(max(0.0, -float(np.min(reduced_costs))))
     stationarity_residual = float(np.max(np.abs(d - reduced_costs)))
     comp_slackness = float(np.max(np.abs(x * d)))
@@ -642,9 +642,7 @@ def _validate_single_certificate(
             f"(residual={primal_residual:.3e}, nonneg={nonneg_violation:.3e})"
         )
     if dual_violation > tol.dual_feasibility:
-        errors.append(
-            f"{cert.bound_direction}: dual infeasible (violation={dual_violation:.3e})"
-        )
+        errors.append(f"{cert.bound_direction}: dual infeasible (violation={dual_violation:.3e})")
     if stationarity_residual > tol.stationarity:
         errors.append(
             f"{cert.bound_direction}: stationarity failed (residual={stationarity_residual:.3e})"
@@ -654,12 +652,15 @@ def _validate_single_certificate(
             f"{cert.bound_direction}: complementary slackness failed "
             f"(residual={comp_slackness:.3e})"
         )
-    if max(
-        duality_gap,
-        primal_objective_residual,
-        dual_objective_residual,
-        stored_gap_residual,
-    ) > tol.duality_gap:
+    if (
+        max(
+            duality_gap,
+            primal_objective_residual,
+            dual_objective_residual,
+            stored_gap_residual,
+        )
+        > tol.duality_gap
+    ):
         errors.append(
             f"{cert.bound_direction}: duality/objective mismatch "
             f"(gap={duality_gap:.3e}, primal_obj={primal_objective_residual:.3e}, "
@@ -682,13 +683,13 @@ def validate_dual_certificate_bundle(
     """Reconstruct the exact LP and validate the stored primal/dual witnesses."""
 
     problem_fingerprint = _problem_fingerprint(bundle.problem)
-    A_eq, b_eq, lower_objective, upper_objective = _reconstruct_problem_system(bundle.problem)
+    a_eq, b_eq, lower_objective, upper_objective = _reconstruct_problem_system(bundle.problem)
 
     lower_errors, lower_primal, lower_dual, lower_stationarity, lower_slack, lower_gap = (
         _validate_single_certificate(
             cert=bundle.lower_cert,
             objective=lower_objective,
-            A_eq=A_eq,
+            a_eq=a_eq,
             b_eq=b_eq,
             problem_fingerprint=problem_fingerprint,
         )
@@ -697,7 +698,7 @@ def validate_dual_certificate_bundle(
         _validate_single_certificate(
             cert=bundle.upper_cert,
             objective=upper_objective,
-            A_eq=A_eq,
+            a_eq=a_eq,
             b_eq=b_eq,
             problem_fingerprint=problem_fingerprint,
         )
@@ -819,7 +820,7 @@ def hydrate_bounds_bundle_with_dual_certificate(
 ) -> tuple[Any, list[InputRef]]:
     """Validate, persist, and attach an optional dual certificate to a BoundsBundle."""
 
-    from polisyos.ir.analytics.partial_identification import (  # noqa: PLC0415
+    from polisyos.ir.analytics.partial_identification import (
         BoundsBundle,
         attach_dual_certificate_ref,
         hydrate_bounds_bundle_with_tightening_log,
@@ -840,7 +841,10 @@ def hydrate_bounds_bundle_with_dual_certificate(
     try:
         cert_bundle = (
             certificate_payload
-            if isinstance(certificate_payload, (BoundsDualCertificateBundle, StratifiedLPDualCertificateBundle))
+            if isinstance(
+                certificate_payload,
+                (BoundsDualCertificateBundle, StratifiedLPDualCertificateBundle),
+            )
             else coerce_bounds_certificate_bundle(certificate_payload)
         )
         validation = validate_bounds_certificate_bundle(cert_bundle)
@@ -879,7 +883,6 @@ __all__ = [
     "CertifiedBoundsCertificateBundle",
     "DualCertificateValidationResult",
     "GeneralIVLPProblemSpec",
-    "hydrate_bounds_bundle_with_dual_certificate",
     "LPDualCertificate",
     "LPVerificationTolerances",
     "ResponseFunctionLPProblemSpec",
@@ -890,6 +893,7 @@ __all__ = [
     "build_general_iv_dual_certificate_bundle",
     "build_response_function_dual_certificate_bundle",
     "coerce_bounds_certificate_bundle",
+    "hydrate_bounds_bundle_with_dual_certificate",
     "load_dual_certificate_bundle",
     "persist_dual_certificate_bundle",
     "validate_bounds_certificate_bundle",

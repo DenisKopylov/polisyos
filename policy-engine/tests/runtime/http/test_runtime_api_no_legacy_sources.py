@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import json
+from importlib.util import find_spec
 
 import pytest
 
-try:  # pragma: no cover - optional dependency guard
-    import fastapi  # noqa: F401
-except ModuleNotFoundError:  # pragma: no cover
+if find_spec("fastapi") is None:  # pragma: no cover - optional dependency guard
     pytest.skip("fastapi is not installed", allow_module_level=True)
 
 from polisyos.runtime.http.app import export_runtime_openapi_schema

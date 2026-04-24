@@ -1,27 +1,29 @@
 """Helpers for attaching honest multi-horizon uncertainty bundles to forecasting methods."""
+
 from __future__ import annotations
 
 import math
-from datetime import datetime, timezone
-from typing import Any, Callable, Mapping
+from collections.abc import Callable, Mapping
+from datetime import UTC, datetime
+from typing import Any
 
 import numpy as np
 
 from polisyos.foundry.methods.base import SlotSpec, SlotType, Unit
-from polisyos.ir.artifacts import ArtifactStore, put_json_artifact
-from polisyos.ir.canon import CanonSpec
 from polisyos.ir.analytics.forecasting_uncertainty import (
     FanChartSpec,
     ForecastCalibrationMethod,
     ForecastCoverageDiagnostic,
-    ForecastIntervalSemantics,
     ForecastingUncertaintyBundle,
+    ForecastIntervalSemantics,
     HorizonDiagnosticState,
     HorizonInterval,
     HorizonPolicyRule,
     HorizonPolicySpec,
     HorizonQuantileSet,
 )
+from polisyos.ir.artifacts import ArtifactStore, put_json_artifact
+from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import ArtifactRefModel
 
 _FAN_LEVELS = (0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95)
@@ -45,7 +47,7 @@ def forecasting_output_slots() -> frozenset[SlotSpec]:
 
 
 def _utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def resolve_artifact_store(
@@ -145,7 +147,9 @@ def _chi_square_tail_df2(statistic: float) -> float:
     return math.exp(-max(statistic, 0.0) / 2.0)
 
 
-def _christoffersen_pvalues(miss_sequence: np.ndarray, alpha: float) -> tuple[float | None, float | None]:
+def _christoffersen_pvalues(
+    miss_sequence: np.ndarray, alpha: float
+) -> tuple[float | None, float | None]:
     misses = np.asarray(miss_sequence, dtype=int).reshape(-1)
     if misses.size < 2:
         return None, None
@@ -153,9 +157,7 @@ def _christoffersen_pvalues(miss_sequence: np.ndarray, alpha: float) -> tuple[fl
     n1 = int(np.sum(misses))
     n = int(misses.size)
     p_hat = n1 / max(n, 1)
-    lr_uc = -2.0 * (
-        _log_prob_bernoulli(n1, n, alpha) - _log_prob_bernoulli(n1, n, p_hat)
-    )
+    lr_uc = -2.0 * (_log_prob_bernoulli(n1, n, alpha) - _log_prob_bernoulli(n1, n, p_hat))
     conditional_pvalue = _chi_square_tail_df1(lr_uc)
 
     n00 = n01 = n10 = n11 = 0
@@ -175,9 +177,8 @@ def _christoffersen_pvalues(miss_sequence: np.ndarray, alpha: float) -> tuple[fl
     pi = (n01 + n11) / max(total, 1)
     pi01 = n01 / max(n00 + n01, 1)
     pi11 = n11 / max(n10 + n11, 1)
-    null_loglik = (
-        (n00 + n10) * math.log(max(1.0 - pi, _EPS))
-        + (n01 + n11) * math.log(max(pi, _EPS))
+    null_loglik = (n00 + n10) * math.log(max(1.0 - pi, _EPS)) + (n01 + n11) * math.log(
+        max(pi, _EPS)
     )
     alt_loglik = (
         n00 * math.log(max(1.0 - pi01, _EPS))
@@ -223,7 +224,9 @@ def _diagnostic_state(
     return HorizonDiagnosticState.GREEN
 
 
-def _fan_chart_quantiles(point: np.ndarray, abs_errors: np.ndarray | None, nominal_radius: np.ndarray) -> dict[str, Any]:
+def _fan_chart_quantiles(
+    point: np.ndarray, abs_errors: np.ndarray | None, nominal_radius: np.ndarray
+) -> dict[str, Any]:
     quantiles: dict[str, Any] = {}
     for level in _FAN_LEVELS:
         if math.isclose(level, 0.50):
@@ -305,7 +308,9 @@ def build_residual_conformal_bundle(
             insufficient_windows = True
             sample_count = 0
             scale_multiplier = math.sqrt(float(horizon))
-            base_radius = last_radius if last_radius is not None else np.asarray(fallback_scale, dtype=float)
+            base_radius = (
+                last_radius if last_radius is not None else np.asarray(fallback_scale, dtype=float)
+            )
             radius = np.asarray(base_radius, dtype=float) * scale_multiplier
             empirical = None
             conditional_pvalue = None
@@ -385,7 +390,9 @@ def build_residual_conformal_bundle(
                 "generated_at": generated_at.isoformat(),
                 "summary_type": "interval_hit_sequence",
                 "nominal_coverage": nominal_coverage,
-                "empirical_coverage_by_horizon": {str(h): value for h, value in empirical_coverage.items()},
+                "empirical_coverage_by_horizon": {
+                    str(h): value for h, value in empirical_coverage.items()
+                },
                 "coverage_gap_by_horizon": {str(h): value for h, value in coverage_gap.items()},
                 "conditional_coverage_pvalue_by_horizon": {
                     str(h): value for h, value in conditional_pvalues.items()
@@ -393,8 +400,12 @@ def build_residual_conformal_bundle(
                 "independence_pvalue_by_horizon": {
                     str(h): value for h, value in independence_pvalues.items()
                 },
-                "hit_sequences_by_horizon": {str(h): value for h, value in interval_hit_sequences.items()},
-                "sample_count_by_horizon": {str(h): value for h, value in sample_count_by_horizon.items()},
+                "hit_sequences_by_horizon": {
+                    str(h): value for h, value in interval_hit_sequences.items()
+                },
+                "sample_count_by_horizon": {
+                    str(h): value for h, value in sample_count_by_horizon.items()
+                },
                 "pit_available": False,
             },
             kind="ir.forecasting_pit_summary",
@@ -422,7 +433,11 @@ def build_residual_conformal_bundle(
     rules: list[HorizonPolicyRule] = []
     for horizon, state in enumerate(states, start=1):
         long_horizon_note = "recalibration_required_for_long_horizon" if horizon >= 5 else None
-        note = method_note if horizon < 5 or not long_horizon_note else f"{method_note}; {long_horizon_note}"
+        note = (
+            method_note
+            if horizon < 5 or not long_horizon_note
+            else f"{method_note}; {long_horizon_note}"
+        )
         if method_note is None:
             note = long_horizon_note
         gate_ok = interval_semantics == ForecastIntervalSemantics.CONFORMALIZED_PREDICTION_INTERVAL
@@ -440,7 +455,9 @@ def build_residual_conformal_bundle(
             )
         )
 
-    bundle_gate_eligible = interval_semantics == ForecastIntervalSemantics.CONFORMALIZED_PREDICTION_INTERVAL
+    bundle_gate_eligible = (
+        interval_semantics == ForecastIntervalSemantics.CONFORMALIZED_PREDICTION_INTERVAL
+    )
     if any(rule.diagnostic_state is HorizonDiagnosticState.RED for rule in rules):
         bundle_gate_eligible = False
 
@@ -466,9 +483,7 @@ def build_residual_conformal_bundle(
             pit_summary_ref=pit_summary_ref,
             regime_flags=tuple(dict.fromkeys(regime_flags)),
             recommended_fallback=(
-                ForecastCalibrationMethod.BOOTSTRAP
-                if not bundle_gate_eligible
-                else None
+                ForecastCalibrationMethod.BOOTSTRAP if not bundle_gate_eligible else None
             ),
             calibration_window=int(observed.shape[0]),
             last_recalibrated_at=_utc_now(),
@@ -518,10 +533,7 @@ def build_member_spread_bundle(
     mean_interval_width = {}
     for horizon in range(1, point.shape[0] + 1):
         column = np.asarray(members[:, horizon - 1], dtype=float)
-        quantiles = {
-            str(level): float(np.quantile(column, level))
-            for level in _FAN_LEVELS
-        }
+        quantiles = {str(level): float(np.quantile(column, level)) for level in _FAN_LEVELS}
         fan_entries.append(HorizonQuantileSet(horizon=horizon, quantiles=quantiles))
         mean_interval_width[horizon] = float(np.max(column) - np.min(column))
 
@@ -718,7 +730,11 @@ def build_reconciliation_placeholder_bundle(
             nominal_coverage=nominal_coverage,
             sample_size_assumption="coherent reconciled sample paths",
             regime_assumption="Hierarchy coherence is preserved path-wise; coverage validation remains external.",
-            metadata={"phase": "phase0", "n_nodes": int(reconciled.shape[0]), "sample_paths": int(paths.shape[0])},
+            metadata={
+                "phase": "phase0",
+                "n_nodes": int(reconciled.shape[0]),
+                "sample_paths": int(paths.shape[0]),
+            },
         )
 
     rules = tuple(
@@ -761,8 +777,8 @@ def build_reconciliation_placeholder_bundle(
         ),
         coverage_diagnostic=ForecastCoverageDiagnostic(
             nominal_coverage=nominal_coverage,
-            mean_interval_width_by_horizon={h: 0.0 for h in range(1, horizon_count + 1)},
-            sample_count_by_horizon={h: 0 for h in range(1, horizon_count + 1)},
+            mean_interval_width_by_horizon=dict.fromkeys(range(1, horizon_count + 1), 0.0),
+            sample_count_by_horizon=dict.fromkeys(range(1, horizon_count + 1), 0),
             regime_flags=("coherent_paths_required", "distribution_missing"),
             recommended_fallback=ForecastCalibrationMethod.COHERENT_BOOTSTRAP,
             calibration_window=int(reconciled.shape[0]),

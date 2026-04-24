@@ -19,6 +19,7 @@ Freshness: 2026-04-17.
 - elevated latency on run list, timeline, or lineage endpoints;
 - elevated latency on Fabric connector fetches, retrieval previews, world
   queries, or materialization refreshes;
+
 - repeated cache/index rebuild log entries within a short window;
 - CPU or filesystem I/O saturation without matching request throughput growth;
 - cache-hit rate drops while rebuild duration rises.
@@ -31,6 +32,7 @@ Freshness: 2026-04-17.
 - cache corruption or incompatible on-disk state forcing repeated fallback.
 - Fabric connector schema/profile changes repeatedly invalidating capability or
   schema-aware caches;
+
 - streaming/CDC replay or cursor recovery replaying the same source window and
   rebuilding dependent materialization indexes.
 
@@ -42,11 +44,13 @@ Freshness: 2026-04-17.
 - last deploy/config change touching runtime index, timeline, or lineage logic.
 - connector id, dataset id, profile id, schema id/version, and CAS artifact ids
   if the storm is Fabric-scoped;
+
 - whether quarantine or CDC artifacts increased at the same time.
 
 ## First Triage Steps
 
 1. Identify which cache is storming:
+
    - run index;
    - timeline index;
    - lineage graph;
@@ -56,6 +60,7 @@ Freshness: 2026-04-17.
    - Fabric retrieval local index or promotion queue;
    - world materialization/projection state.
 2. Check whether rebuilds are:
+
    - incremental but too frequent;
    - full scan fallbacks;
    - startup-only loops after repeated restarts;
@@ -78,14 +83,19 @@ uv run pytest tests/fabric/test_lineage.py tests/fabric/test_world_materializati
 
 - prefer reducing rebuild concurrency or isolating the triggering workload over
   deleting all cache state immediately;
+
 - if a recent deploy changed invalidation behavior, rollback that deploy before
   widening resource budgets;
+
 - if one tenant or endpoint is the trigger, rate-limit or temporarily isolate
   that path rather than degrading the whole runtime;
+
 - if cache state must be cleared, preserve one failing snapshot first so the
   rebuild trigger can be reproduced.
+
 - for Fabric connector cache storms, prefer disabling prefetch or reducing
   source concurrency through the profile before deleting CAS-backed evidence;
+
 - for schema-aware cache storms, verify the Fabric schema governance gate before
   accepting new snapshots.
 
@@ -99,6 +109,7 @@ uv run pytest tests/fabric/test_lineage.py tests/fabric/test_world_materializati
 
 - record whether the storm came from invalidation logic, startup churn, or one
   pathological workload;
+
 - add a benchmark or regression test for the reproduced trigger;
 - verify dashboards expose the exact cache that stormed.
 - if Fabric schema/profile invalidation was involved, record the contract id,
@@ -110,6 +121,7 @@ uv run pytest tests/fabric/test_lineage.py tests/fabric/test_world_materializati
 
 - whether incremental refresh contained the blast radius compared with a full
   rebuild scan;
+
 - which metric made the storm obvious before clients escalated.
 
 ### What Went Poorly
@@ -119,7 +131,7 @@ uv run pytest tests/fabric/test_lineage.py tests/fabric/test_world_materializati
 
 ### Action Items
 
-| Action item | Owner | Due date | Status |
-|---|---|---|---|
-| Add missing cache metric or alert for the storm pattern | `@platform-owners` | YYYY-MM-DD | open |
-| Close the invalidation or bounded-memory gap that caused the storm | affected owner | YYYY-MM-DD | open |
+| Action item                                                        | Owner              | Due date   | Status |
+| ------------------------------------------------------------------ | ------------------ | ---------- | ------ |
+| Add missing cache metric or alert for the storm pattern            | `@platform-owners` | YYYY-MM-DD | open   |
+| Close the invalidation or bounded-memory gap that caused the storm | affected owner     | YYYY-MM-DD | open   |

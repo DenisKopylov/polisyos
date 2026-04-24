@@ -1,11 +1,15 @@
 """Property-based tests for ML methods: regression, tree-based, GP."""
+
 from __future__ import annotations
+
 import sys
+
 import numpy as np
 import pytest
 
 try:
-    from hypothesis import given, settings, HealthCheck
+    from hypothesis import HealthCheck, given, settings
+
     HYPOTHESIS_AVAILABLE = True
 except ImportError:
     HYPOTHESIS_AVAILABLE = False
@@ -30,7 +34,11 @@ def _check_finite(result: dict) -> None:
 
 class TestElasticNetProperties:
     @given(data=ml_regression_strategy())
-    @settings(max_examples=30, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=30,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_elasticnet_output_finite(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "ml.regression.elastic_net@1.0.0")
         state = {"features": data["features"], "target": data["target"]}
@@ -42,7 +50,11 @@ class TestElasticNetProperties:
             pass
 
     @given(data=ml_regression_strategy())
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_elasticnet_keys_stable(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "ml.regression.elastic_net@1.0.0")
         state = {"features": data["features"], "target": data["target"]}
@@ -54,7 +66,11 @@ class TestElasticNetProperties:
             pass
 
     @given(data=ml_regression_strategy())
-    @settings(max_examples=15, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=15,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_elasticnet_coefficients_shape(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "ml.regression.elastic_net@1.0.0")
         state = {"features": data["features"], "target": data["target"]}
@@ -62,15 +78,20 @@ class TestElasticNetProperties:
             result = method.pure_step(state, {"alpha": 0.1})
             if "coefficients" in result:
                 coefs = np.asarray(result["coefficients"])
-                assert coefs.shape[0] == data["n_features"], \
+                assert coefs.shape[0] == data["n_features"], (
                     f"Expected {data['n_features']} coefficients, got {coefs.shape[0]}"
+                )
         except Exception:
             pass
 
 
 class TestRandomForestProperties:
     @given(data=ml_regression_strategy())
-    @settings(max_examples=20, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_rf_output_finite(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "ml.regression.random_forest@1.0.0")
         state = {"features": data["features"], "target": data["target"]}
@@ -81,7 +102,11 @@ class TestRandomForestProperties:
             pass
 
     @given(data=ml_regression_strategy())
-    @settings(max_examples=15, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=15,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_rf_predictions_shape(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "ml.regression.random_forest@1.0.0")
         state = {"features": data["features"], "target": data["target"]}
@@ -89,15 +114,20 @@ class TestRandomForestProperties:
             result = method.pure_step(state, {"n_estimators": 5, "seed": 0})
             if "predictions" in result:
                 pred = np.asarray(result["predictions"])
-                assert pred.shape[0] == data["n_obs"], \
+                assert pred.shape[0] == data["n_obs"], (
                     f"Predictions shape mismatch: {pred.shape[0]} vs {data['n_obs']}"
+                )
         except Exception:
             pass
 
 
 class TestGradientBoostingProperties:
     @given(data=ml_regression_strategy())
-    @settings(max_examples=15, deadline=20000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=15,
+        deadline=20000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_gbm_output_dict(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "ml.regression.gradient_boosting@1.0.0")
         state = {"features": data["features"], "target": data["target"]}

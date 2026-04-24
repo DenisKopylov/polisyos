@@ -213,6 +213,7 @@ calibration, accountability или SOTA-facing claim, должен иметь я
 - claim-level output пишет `ComplianceIssue`, `GovernanceReport`,
   `CalibrationValidationBundle`, `scientist.governance_accountability_artifact`
   или другой persisted artifact;
+
 - benchmark or eval evidence существует до того, как pass используется как
   аргумент для SOTA/default-readiness claim.
 

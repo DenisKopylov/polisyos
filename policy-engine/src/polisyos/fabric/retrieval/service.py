@@ -11,7 +11,7 @@ from collections import OrderedDict
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.control import (
@@ -47,6 +47,7 @@ logger = get_logger(__name__)
 @dataclass(frozen=True)
 class ResolveOutcome:
     """Resolve outcome public type."""
+
     mode: str
     fetch_plans: list[FetchPlan]
     candidates: list[MetricCandidate]
@@ -57,6 +58,7 @@ class ResolveOutcome:
 @dataclass(frozen=True)
 class DiscoverOutcome:
     """Discover outcome public type."""
+
     candidates: list[DiscoveryCandidate]
     docs_fetched_total: int
     warnings: list[str]
@@ -65,6 +67,7 @@ class DiscoverOutcome:
 @dataclass(frozen=True)
 class ExecuteOutcome:
     """Execute outcome public type."""
+
     data_context: DataContext
     previews: list[ExecutePlanResult]
     promoted_count: int
@@ -197,11 +200,16 @@ class RetrievalService:
         if not normalized:
             return None
         if self._catalog_source_policies is None:
-            registry_path = Path(__file__).resolve().parents[2] / "datasets" / "batch" / "source_registry.yaml"
+            registry_path = (
+                Path(__file__).resolve().parents[2] / "datasets" / "batch" / "source_registry.yaml"
+            )
             try:
                 registry = load_source_registry(registry_path)
             except Exception:
-                logger.debug("Failed to load dataset source registry for retrieval policy lookup", exc_info=True)
+                logger.debug(
+                    "Failed to load dataset source registry for retrieval policy lookup",
+                    exc_info=True,
+                )
                 self._catalog_source_policies = {}
             else:
                 self._catalog_source_policies = {spec.name: spec for spec in registry.sources}
@@ -246,7 +254,9 @@ class RetrievalService:
                 fetch_plans.extend(fast.fetch_plans)
                 warnings.extend(fast.warnings)
                 resolved_metrics = {plan.metric_id for plan in fast.fetch_plans}
-                unresolved = [need for need in request.data_needs if need.metric not in resolved_metrics]
+                unresolved = [
+                    need for need in request.data_needs if need.metric not in resolved_metrics
+                ]
                 phase_metrics.append(
                     {
                         "phase": "resolve_fast_lane",
@@ -280,13 +290,8 @@ class RetrievalService:
                     }
                 )
 
-            should_explore = (
-                request.mode == "explorelane"
-                or (
-                    request.mode == "hybrid"
-                    and request.allow_explore_fallback
-                    and bool(unresolved)
-                )
+            should_explore = request.mode == "explorelane" or (
+                request.mode == "hybrid" and request.allow_explore_fallback and bool(unresolved)
             )
             if should_explore:
                 if not explore_enabled:
@@ -294,7 +299,9 @@ class RetrievalService:
                 else:
                     phase_start = time.perf_counter()
                     discover_outcome = self.discover(
-                        data_needs=request.data_needs if request.mode == "explorelane" else unresolved
+                        data_needs=request.data_needs
+                        if request.mode == "explorelane"
+                        else unresolved
                     )
                     warnings.extend(discover_outcome.warnings)
                     self._update_local_index(discover_outcome.candidates)
@@ -333,7 +340,7 @@ class RetrievalService:
                             "duration_ms": int((time.perf_counter() - phase_start) * 1000),
                             "candidates_total": len(discover_outcome.candidates),
                             "candidates_selected": len(explore_plans),
-                        "docs_fetched": discover_outcome.docs_fetched_total,
+                            "docs_fetched": discover_outcome.docs_fetched_total,
                             "route_breakdown": self._route_breakdown(discover_outcome.candidates),
                         }
                     )
@@ -507,7 +514,9 @@ class RetrievalService:
     def list_promotion_candidates(self) -> list[PromotionCandidate]:
         with self._state_lock:
             values = list(self._promotion_queue.values())
-        values.sort(key=lambda item: item.created_at or datetime.min.replace(tzinfo=UTC), reverse=True)
+        values.sort(
+            key=lambda item: item.created_at or datetime.min.replace(tzinfo=UTC), reverse=True
+        )
         return values
 
     def approve_promotion(self, promotion_id: str, *, reason: str | None = None) -> bool:
@@ -523,7 +532,7 @@ class RetrievalService:
                     "metadata": {
                         **candidate.metadata,
                         "approval_reason": reason or "",
-                            "approved_at": datetime.now(UTC).isoformat(),
+                        "approved_at": datetime.now(UTC).isoformat(),
                     },
                 }
             )
@@ -577,7 +586,7 @@ class RetrievalService:
                     filters={},
                     metadata={
                         "resolution_route": item.metadata.get("resolution_route", item.source_lane),
-                    "confidence": item.confidence,
+                        "confidence": item.confidence,
                     },
                 )
                 for item in rows[1:3]
@@ -688,7 +697,9 @@ class RetrievalService:
 
     def _recompute_index_size_locked(self) -> None:
         self._index_size_bytes = len(
-            json.dumps(dict(self._local_index_docs), ensure_ascii=True, sort_keys=True).encode("utf-8")
+            json.dumps(dict(self._local_index_docs), ensure_ascii=True, sort_keys=True).encode(
+                "utf-8"
+            )
         )
 
     @staticmethod
@@ -720,16 +731,22 @@ class RetrievalService:
                 try:
                     bindings = binding_fn(need.metric, top_k=3)
                 except Exception:
-                    logger.debug("Catalog binding lookup failed for metric %s", need.metric, exc_info=True)
+                    logger.debug(
+                        "Catalog binding lookup failed for metric %s", need.metric, exc_info=True
+                    )
                     bindings = []
                 for binding in bindings:
                     connector_id = str(getattr(binding, "connector_id", "") or "").strip()
-                    request_dataset_id = str(getattr(binding, "request_dataset_id", "") or "").strip()
+                    request_dataset_id = str(
+                        getattr(binding, "request_dataset_id", "") or ""
+                    ).strip()
                     if not connector_id or not request_dataset_id:
                         continue
                     resolved_rows.append(
                         {
-                            "catalog_dataset_id": str(getattr(binding, "catalog_dataset_id", "") or ""),
+                            "catalog_dataset_id": str(
+                                getattr(binding, "catalog_dataset_id", "") or ""
+                            ),
                             "distribution_id": str(getattr(binding, "distribution_id", "") or ""),
                             "connector_id": connector_id,
                             "profile_id": _optional_text(getattr(binding, "profile_id", None)),
@@ -737,11 +754,11 @@ class RetrievalService:
                             "default_filters": _coerce_filter_map(
                                 getattr(binding, "default_filters", {}) or {}
                             ),
-                            "confidence": _coerce_float(
-                                getattr(binding, "confidence", 0.0) or 0.0
-                            ),
+                            "confidence": _coerce_float(getattr(binding, "confidence", 0.0) or 0.0),
                             "catalog_title": str(getattr(binding, "title", "") or ""),
-                            "execution_tier": str(getattr(binding, "execution_tier", "catalog") or "catalog"),
+                            "execution_tier": str(
+                                getattr(binding, "execution_tier", "catalog") or "catalog"
+                            ),
                             "source": str(getattr(binding, "source", "") or ""),
                         }
                     )
@@ -760,9 +777,18 @@ class RetrievalService:
                     try:
                         target = resolve_target_fn(result.id)
                     except Exception:
-                        logger.debug("Catalog fetch target resolution failed for %s", result.id, exc_info=True)
+                        logger.debug(
+                            "Catalog fetch target resolution failed for %s",
+                            result.id,
+                            exc_info=True,
+                        )
                         continue
-                    if target is None or not target.connector_id or not target.request_dataset_id or not target.parser_supported:
+                    if (
+                        target is None
+                        or not target.connector_id
+                        or not target.request_dataset_id
+                        or not target.parser_supported
+                    ):
                         continue
                     resolved_rows.append(
                         {
@@ -871,7 +897,9 @@ class RetrievalService:
                         "source": primary.get("source", ""),
                         "history_policy": policy.history_policy if policy else "",
                         "default_lookback_days": policy.default_lookback_days if policy else None,
-                        "manual_backfill_allowed": bool(policy.allow_manual_backfill) if policy else False,
+                        "manual_backfill_allowed": bool(policy.allow_manual_backfill)
+                        if policy
+                        else False,
                         "resolution_route": "catalog",
                     },
                 )

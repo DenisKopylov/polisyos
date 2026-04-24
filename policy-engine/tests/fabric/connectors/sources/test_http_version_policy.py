@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -16,7 +16,7 @@ from polisyos.ir.connectors import VersionStrategy
 
 
 def test_build_data_version_prefers_etag() -> None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     version, source_updated_at = build_data_version(
         etag='"etag-123"',
         last_modified="Mon, 01 Jan 2024 00:00:00 GMT",
@@ -29,7 +29,7 @@ def test_build_data_version_prefers_etag() -> None:
 
 
 def test_build_data_version_uses_last_modified_when_no_etag() -> None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     version, source_updated_at = build_data_version(
         etag=None,
         last_modified="Tue, 02 Jan 2024 00:00:00 GMT",
@@ -42,7 +42,7 @@ def test_build_data_version_uses_last_modified_when_no_etag() -> None:
 
 
 def test_build_data_version_falls_back_to_content_hash() -> None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     version, source_updated_at = build_data_version(
         etag=None,
         last_modified=None,
@@ -50,7 +50,9 @@ def test_build_data_version_falls_back_to_content_hash() -> None:
         fetched_at=now,
     )
     assert version.strategy == VersionStrategy.CONTENT_HASH
-    assert version.value == "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    assert (
+        version.value == "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    )
     assert source_updated_at is None
 
 
@@ -60,7 +62,7 @@ def test_retry_after_seconds_prefers_retry_after_header() -> None:
 
 
 def test_retry_after_seconds_falls_back_to_rate_limit_reset() -> None:
-    reset_at = datetime.now(timezone.utc) + timedelta(seconds=30)
+    reset_at = datetime.now(UTC) + timedelta(seconds=30)
     value = retry_after_seconds({"X-RateLimit-Reset": str(reset_at.timestamp())})
     assert value is not None
     assert 0.0 <= value <= 31.0

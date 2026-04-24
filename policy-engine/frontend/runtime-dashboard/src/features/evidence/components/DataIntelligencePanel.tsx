@@ -43,7 +43,10 @@ import {
   Card,
   exportCsv,
   exportJson,
+  Input,
   Label,
+  Select,
+  Switch,
   VirtualList,
   VIRTUALIZATION_THRESHOLD,
 } from "@/shared/ui";
@@ -162,6 +165,9 @@ export default function DataIntelligencePanel({
     null,
   );
   const [promotionReason, setPromotionReason] = useState("");
+  const allowExploreFallbackLabel = t(
+    "panels.dataIntelligence.allowExploreFallback",
+  );
 
   const indexStatsQuery = useDataIndexStats();
   const promotionCandidatesQuery = useDataPromotionCandidates();
@@ -656,15 +662,15 @@ export default function DataIntelligencePanel({
             >
               {t("panels.dataIntelligence.metric")}
             </Label>
-            <input
+            <Input
               id="evidence-metric-input"
               type="text"
               value={metric}
               onChange={(event) => setMetric(event.target.value)}
               aria-label={t("panels.dataIntelligence.metric")}
-              placeholder="us.macro.gdp_nominal"
+              placeholder={t("panels.dataIntelligence.metricPlaceholder")}
               data-testid="evidence-metric-input"
-              className="atlas-input atlas-input--mono"
+              className="atlas-input--mono"
             />
           </div>
           <div>
@@ -674,14 +680,13 @@ export default function DataIntelligencePanel({
             >
               {t("panels.dataIntelligence.geography")}
             </Label>
-            <input
+            <Input
               id="evidence-geography-input"
               type="text"
               value={geography}
               onChange={(event) => setGeography(event.target.value)}
               aria-label={t("panels.dataIntelligence.geography")}
-              placeholder="USA / EU*"
-              className="atlas-input"
+              placeholder={t("panels.dataIntelligence.geographyPlaceholder")}
             />
           </div>
           <div>
@@ -691,17 +696,22 @@ export default function DataIntelligencePanel({
             >
               {t("panels.dataIntelligence.granularity")}
             </Label>
-            <select
+            <Select
               id="evidence-granularity-select"
               value={granularity}
               onChange={(event) => setGranularity(event.target.value)}
               aria-label={t("panels.dataIntelligence.granularity")}
-              className="atlas-select"
             >
-              <option value="annual">annual</option>
-              <option value="quarterly">quarterly</option>
-              <option value="monthly">monthly</option>
-            </select>
+              <option value="annual">
+                {t("panels.dataIntelligence.granularityOptions.annual")}
+              </option>
+              <option value="quarterly">
+                {t("panels.dataIntelligence.granularityOptions.quarterly")}
+              </option>
+              <option value="monthly">
+                {t("panels.dataIntelligence.granularityOptions.monthly")}
+              </option>
+            </Select>
           </div>
           <div>
             <Label
@@ -710,14 +720,14 @@ export default function DataIntelligencePanel({
             >
               {t("panels.dataIntelligence.timeStart")}
             </Label>
-            <input
+            <Input
               id="evidence-time-start-input"
               type="text"
               value={timeStart}
               onChange={(event) => setTimeStart(event.target.value)}
               aria-label={t("panels.dataIntelligence.timeStart")}
               placeholder="2015"
-              className="atlas-input atlas-input--mono"
+              className="atlas-input--mono"
             />
           </div>
           <div>
@@ -727,14 +737,14 @@ export default function DataIntelligencePanel({
             >
               {t("panels.dataIntelligence.timeEnd")}
             </Label>
-            <input
+            <Input
               id="evidence-time-end-input"
               type="text"
               value={timeEnd}
               onChange={(event) => setTimeEnd(event.target.value)}
               aria-label={t("panels.dataIntelligence.timeEnd")}
               placeholder="2024"
-              className="atlas-input atlas-input--mono"
+              className="atlas-input--mono"
             />
           </div>
           <div>
@@ -744,7 +754,7 @@ export default function DataIntelligencePanel({
             >
               {t("panels.dataIntelligence.qualityMin")}
             </Label>
-            <input
+            <Input
               id="evidence-quality-min-input"
               type="number"
               min={0}
@@ -753,7 +763,6 @@ export default function DataIntelligencePanel({
               value={qualityMin}
               onChange={(event) => setQualityMin(Number(event.target.value))}
               aria-label={t("panels.dataIntelligence.qualityMin")}
-              className="atlas-input"
             />
           </div>
         </div>
@@ -766,33 +775,44 @@ export default function DataIntelligencePanel({
             >
               {t("panels.dataIntelligence.retrievalMode")}
             </Label>
-            <select
+            <Select
               id="evidence-retrieval-mode-select"
               value={modeSelection}
               onChange={(event) =>
                 setModeSelection(event.target.value as RetrievalMode)
               }
               aria-label={t("panels.dataIntelligence.retrievalMode")}
-              className="atlas-select"
             >
-              <option value="fastlane">fastlane</option>
-              <option value="hybrid">hybrid</option>
-              <option value="explorelane">explorelane</option>
-            </select>
+              <option value="fastlane">
+                {t("panels.dataIntelligence.retrievalModeOptions.fastlane")}
+              </option>
+              <option value="hybrid">
+                {t("panels.dataIntelligence.retrievalModeOptions.hybrid")}
+              </option>
+              <option value="explorelane">
+                {t("panels.dataIntelligence.retrievalModeOptions.explorelane")}
+              </option>
+            </Select>
           </div>
-          <div className="flex items-end">
-            <label className="flex items-center gap-2 text-xs">
-              <input
-                type="checkbox"
+          <div className="md:col-span-2">
+            <div
+              className="atlas-toggle-row"
+              data-selected={allowExploreFallback ? "true" : "false"}
+            >
+              <div className="atlas-toggle-row__body">
+                <span
+                  id="evidence-allow-explore-fallback-label"
+                  className="atlas-toggle-row__title"
+                >
+                  {allowExploreFallbackLabel}
+                </span>
+              </div>
+              <Switch
                 checked={allowExploreFallback}
-                onChange={(event) =>
-                  setAllowExploreFallback(event.target.checked)
-                }
-                aria-label={t("panels.dataIntelligence.allowExploreFallback")}
-                className="accent-accent"
+                onCheckedChange={setAllowExploreFallback}
+                aria-labelledby="evidence-allow-explore-fallback-label"
               />
-              {t("panels.dataIntelligence.allowExploreFallback")}
-            </label>
+            </div>
           </div>
         </div>
 
@@ -920,7 +940,7 @@ export default function DataIntelligencePanel({
               >
                 {t("panels.dataIntelligence.maxSourcesPerQuery")}
               </Label>
-              <input
+              <Input
                 id="evidence-max-sources-input"
                 type="number"
                 min={1}
@@ -930,7 +950,6 @@ export default function DataIntelligencePanel({
                   setMaxSourcesPerQuery(Number(event.target.value))
                 }
                 aria-label={t("panels.dataIntelligence.maxSourcesPerQuery")}
-                className="atlas-input"
               />
             </div>
             <div>
@@ -940,7 +959,7 @@ export default function DataIntelligencePanel({
               >
                 {t("panels.dataIntelligence.maxCallsPerSource")}
               </Label>
-              <input
+              <Input
                 id="evidence-max-calls-input"
                 type="number"
                 min={1}
@@ -950,7 +969,6 @@ export default function DataIntelligencePanel({
                   setMaxDiscoveryCallsPerSource(Number(event.target.value))
                 }
                 aria-label={t("panels.dataIntelligence.maxCallsPerSource")}
-                className="atlas-input"
               />
             </div>
             <div>
@@ -960,7 +978,7 @@ export default function DataIntelligencePanel({
               >
                 {t("panels.dataIntelligence.maxCandidatesTotal")}
               </Label>
-              <input
+              <Input
                 id="evidence-max-candidates-input"
                 type="number"
                 min={1}
@@ -970,7 +988,6 @@ export default function DataIntelligencePanel({
                   setMaxCandidatesTotal(Number(event.target.value))
                 }
                 aria-label={t("panels.dataIntelligence.maxCandidatesTotal")}
-                className="atlas-input"
               />
             </div>
             <div>
@@ -980,7 +997,7 @@ export default function DataIntelligencePanel({
               >
                 {t("panels.dataIntelligence.timeBudgetMs")}
               </Label>
-              <input
+              <Input
                 id="evidence-time-budget-input"
                 type="number"
                 min={100}
@@ -990,7 +1007,6 @@ export default function DataIntelligencePanel({
                   setTimeBudgetMs(Number(event.target.value))
                 }
                 aria-label={t("panels.dataIntelligence.timeBudgetMs")}
-                className="atlas-input"
               />
             </div>
           </div>
@@ -1203,7 +1219,7 @@ export default function DataIntelligencePanel({
             >
               {t("panels.dataIntelligence.decisionReason")}
             </Label>
-            <input
+            <Input
               id="evidence-decision-reason-input"
               type="text"
               value={promotionReason}
@@ -1213,7 +1229,6 @@ export default function DataIntelligencePanel({
               placeholder={t(
                 "panels.dataIntelligence.decisionReasonPlaceholder",
               )}
-              className="atlas-input"
             />
           </div>
           {promotionQueueWithOverrides.length === 0 ? (

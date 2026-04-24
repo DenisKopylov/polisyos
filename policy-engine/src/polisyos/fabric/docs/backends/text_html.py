@@ -1,4 +1,5 @@
 """Public backends text html module API."""
+
 from __future__ import annotations
 
 import re
@@ -34,9 +35,7 @@ _BLOCK_TAGS = {
 }
 
 _HEADING_TAGS = {"h1", "h2", "h3", "h4", "h5", "h6"}
-_HIDDEN_BLOCK_RE = re.compile(
-    r"(?is)<(?P<tag>script|style)\b[^>]*>.*?(?:</(?P=tag)\s*>|$)"
-)
+_HIDDEN_BLOCK_RE = re.compile(r"(?is)<(?P<tag>script|style)\b[^>]*>.*?(?:</(?P=tag)\s*>|$)")
 
 
 class _VisibleTextExtractor(HTMLParser):

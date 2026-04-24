@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { Badge, Button, Card } from "@/shared/ui/primitives";
 import type { BadgeKind } from "@/shared/ui/Badge";
 
@@ -38,6 +39,7 @@ export function ProvenanceChain({
   title = "Provenance",
   className,
 }: ProvenanceChainProps) {
+  const { t } = useI18n();
   return (
     <Card className={cn("space-y-3", className)}>
       <h3 className="text-lg font-semibold">{title}</h3>
@@ -55,9 +57,7 @@ export function ProvenanceChain({
               >
                 {TYPE_ICON[step.type]}
               </div>
-              {i < steps.length - 1 && (
-                <div className="bg-line w-0.5 flex-1" />
-              )}
+              {i < steps.length - 1 && <div className="bg-line w-0.5 flex-1" />}
             </div>
 
             {/* Content */}
@@ -67,7 +67,7 @@ export function ProvenanceChain({
                 {step.status && step.statusLabel && (
                   <Badge kind={step.status}>{step.statusLabel}</Badge>
                 )}
-                <span className="text-muted text-xs uppercase tracking-wide">
+                <span className="text-muted text-xs tracking-wide uppercase">
                   {step.type}
                 </span>
               </div>
@@ -82,7 +82,7 @@ export function ProvenanceChain({
                 )}
                 {step.href && (
                   <Button href={step.href} size="sm" variant="link">
-                    View
+                    {t("shared.ui.provenanceChain.view")}
                   </Button>
                 )}
               </div>

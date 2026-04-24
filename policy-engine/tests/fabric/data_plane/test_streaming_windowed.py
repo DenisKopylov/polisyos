@@ -5,8 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
 
 
@@ -18,9 +16,7 @@ class TestRunStreamingWindowed:
         from polisyos.fabric.data_plane.modes import run_streaming_windowed
 
         cas_root = tmp_path / ".polisyos"
-        manifest = {
-            "datasets": [{"connector_id": "test.conn", "dataset_id": "ds1"}]
-        }
+        manifest = {"datasets": [{"connector_id": "test.conn", "dataset_id": "ds1"}]}
 
         mock_chunks = [
             {
@@ -55,9 +51,7 @@ class TestRunStreamingWindowed:
         from polisyos.fabric.data_plane.modes import run_streaming_windowed
 
         cas_root = tmp_path / ".polisyos"
-        manifest = {
-            "datasets": [{"connector_id": "test.conn", "dataset_id": "ds1"}]
-        }
+        manifest = {"datasets": [{"connector_id": "test.conn", "dataset_id": "ds1"}]}
 
         mock_chunks = [
             {
@@ -95,9 +89,7 @@ class TestRunStreamingWindowed:
         from polisyos.fabric.data_plane.modes import run_streaming_windowed
 
         cas_root = tmp_path / ".polisyos"
-        manifest = {
-            "datasets": [{"connector_id": "test.conn", "dataset_id": "ds1"}]
-        }
+        manifest = {"datasets": [{"connector_id": "test.conn", "dataset_id": "ds1"}]}
 
         with patch(
             "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset_async",
@@ -118,9 +110,7 @@ class TestRunStreamingWindowed:
         from polisyos.fabric.data_plane.modes import run_streaming_windowed
 
         cas_root = tmp_path / ".polisyos"
-        manifest = {
-            "datasets": [{"connector_id": "test.conn", "dataset_id": "ds1"}]
-        }
+        manifest = {"datasets": [{"connector_id": "test.conn", "dataset_id": "ds1"}]}
 
         with patch(
             "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset_async",
@@ -140,9 +130,7 @@ class TestRunStreamingWindowed:
         from polisyos.fabric.data_plane.modes import run_streaming_windowed
 
         cas_root = tmp_path / ".polisyos"
-        manifest = {
-            "datasets": [{"connector_id": "test.conn", "dataset_id": "ds1"}]
-        }
+        manifest = {"datasets": [{"connector_id": "test.conn", "dataset_id": "ds1"}]}
 
         mock_chunks = [
             {
@@ -213,9 +201,7 @@ class TestRunStreamingWindowed:
         from polisyos.fabric.data_plane.modes import run_streaming_windowed
 
         cas_root = tmp_path / ".polisyos"
-        manifest = {
-            "datasets": [{"connector_id": "test.conn", "dataset_id": "ds1"}]
-        }
+        manifest = {"datasets": [{"connector_id": "test.conn", "dataset_id": "ds1"}]}
 
         mock_chunks = [
             {
@@ -251,9 +237,7 @@ class TestRunStreamingWindowed:
         from polisyos.fabric.data_plane.quarantine import list_quarantine_records
 
         cas_root = tmp_path / ".polisyos"
-        manifest = {
-            "datasets": [{"connector_id": "test.conn", "dataset_id": "ds1"}]
-        }
+        manifest = {"datasets": [{"connector_id": "test.conn", "dataset_id": "ds1"}]}
 
         mock_chunks = [
             {

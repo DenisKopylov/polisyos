@@ -1,4 +1,5 @@
 """Bridge contracts for external causal-tooling ecosystems."""
+
 from __future__ import annotations
 
 from enum import Enum

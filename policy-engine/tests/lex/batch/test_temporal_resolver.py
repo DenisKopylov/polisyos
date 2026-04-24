@@ -40,7 +40,9 @@ def test_parse_temporal_constraints_supports_start_end_repeal_and_suspension() -
     assert suspension.state_hint == "suspended"
 
 
-def test_parse_temporal_constraints_leaves_publication_relative_unresolved_without_publication_date() -> None:
+def test_parse_temporal_constraints_leaves_publication_relative_unresolved_without_publication_date() -> (
+    None
+):
     constraints = parse_temporal_constraints(
         "Цей Закон набирає чинності через 30 днів з дня опублікування."
     )

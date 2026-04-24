@@ -6,16 +6,20 @@ import hashlib
 import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Iterable
+from typing import TYPE_CHECKING
 
 import duckdb
 
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.common.logger import get_logger
-from polisyos.datasets.batch.config import DatasetBatchConfig
 from polisyos.datasets.batch.normalizer import METRIC_INFERENCE_CONFIDENCE
 from polisyos.datasets.knowledge.types import DatasetRecord, DistributionRecord
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from pathlib import Path
+
+    from polisyos.datasets.batch.config import DatasetBatchConfig
 
 logger = get_logger(__name__)
 
@@ -242,6 +246,7 @@ _GEO_HINTS = ("country", "geo", "region", "territory", "geography", "area")
 @dataclass
 class GraphStats:
     """Graph stats public type."""
+
     datasets: int = 0
     distributions: int = 0
     metric_bindings: int = 0
@@ -325,7 +330,9 @@ def _schema_profile_row(record: DatasetRecord, distribution: DistributionRecord)
     geo_col = _infer_geography_column(record)
     value_cols = _infer_value_columns(record, time_col=time_col, geo_col=geo_col)
     if preview_columns:
-        value_cols = [value for value in preview_columns if value not in {time_col, geo_col, ""}] or value_cols
+        value_cols = [
+            value for value in preview_columns if value not in {time_col, geo_col, ""}
+        ] or value_cols
     columns_json = [
         {"name": name, "inference_source": "preview" if preview_columns else "metadata"}
         for name in (preview_columns or record.variables or value_cols)
@@ -388,19 +395,25 @@ def _schema_parser_mode(distribution: DistributionRecord) -> str:
     return "metadata_only"
 
 
-def _metric_binding_rows(record: DatasetRecord, distribution: DistributionRecord | None) -> list[tuple]:
+def _metric_binding_rows(
+    record: DatasetRecord, distribution: DistributionRecord | None
+) -> list[tuple]:
     if distribution is None:
         return []
     if (distribution.connector_type or "").strip() == "sparql.endpoint":
         return []
-    request_dataset_id = distribution.source_locator or record.source_dataset_id or record.dataset_id
+    request_dataset_id = (
+        distribution.source_locator or record.source_dataset_id or record.dataset_id
+    )
     if not request_dataset_id or not distribution.connector_type:
         return []
     confidence = max(
         0.05,
         min(
             1.0,
-            float(record.quality.execution_readiness_score or 0.0) or float(distribution.quality_score or 0.0) or 0.5,
+            float(record.quality.execution_readiness_score or 0.0)
+            or float(distribution.quality_score or 0.0)
+            or 0.5,
         ),
     )
     methods = record.polisyos_metrics_methods or {}
@@ -422,13 +435,13 @@ def _metric_binding_rows(record: DatasetRecord, distribution: DistributionRecord
     ]
 
 
-def _entity_mapping_rows(record: DatasetRecord, distribution: DistributionRecord | None) -> list[tuple]:
+def _entity_mapping_rows(
+    record: DatasetRecord, distribution: DistributionRecord | None
+) -> list[tuple]:
     if distribution is None or (distribution.connector_type or "").strip() != "sparql.endpoint":
         return []
     alias_values = [
-        item
-        for item in [record.title, *record.keywords[:8], *record.themes[:4]]
-        if item
+        item for item in [record.title, *record.keywords[:8], *record.themes[:4]] if item
     ]
     return [
         (
@@ -438,13 +451,18 @@ def _entity_mapping_rows(record: DatasetRecord, distribution: DistributionRecord
             record.source_dataset_id or record.dataset_id or record.id,
             record.title,
             "linked_dataset",
-            distribution.source_locator or record.source_dataset_id or record.dataset_id or record.id,
+            distribution.source_locator
+            or record.source_dataset_id
+            or record.dataset_id
+            or record.id,
             _json_text(alias_values),
         )
     ]
 
 
-def _alignment_hint_rows(record: DatasetRecord, distribution: DistributionRecord | None) -> list[tuple]:
+def _alignment_hint_rows(
+    record: DatasetRecord, distribution: DistributionRecord | None
+) -> list[tuple]:
     if distribution is None or (distribution.connector_type or "").strip() != "sparql.endpoint":
         return []
     return [
@@ -493,7 +511,9 @@ def _flush_datasets(con: duckdb.DuckDBPyConnection, batch: list[tuple], stats: G
     batch.clear()
 
 
-def _flush_distributions(con: duckdb.DuckDBPyConnection, batch: list[tuple], stats: GraphStats) -> None:
+def _flush_distributions(
+    con: duckdb.DuckDBPyConnection, batch: list[tuple], stats: GraphStats
+) -> None:
     if not batch:
         return
     con.executemany(
@@ -509,7 +529,9 @@ def _flush_distributions(con: duckdb.DuckDBPyConnection, batch: list[tuple], sta
     batch.clear()
 
 
-def _flush_metric_bindings(con: duckdb.DuckDBPyConnection, batch: list[tuple], stats: GraphStats) -> None:
+def _flush_metric_bindings(
+    con: duckdb.DuckDBPyConnection, batch: list[tuple], stats: GraphStats
+) -> None:
     if not batch:
         return
     con.executemany(
@@ -524,7 +546,9 @@ def _flush_metric_bindings(con: duckdb.DuckDBPyConnection, batch: list[tuple], s
     batch.clear()
 
 
-def _flush_schema_profiles(con: duckdb.DuckDBPyConnection, batch: list[tuple], stats: GraphStats) -> None:
+def _flush_schema_profiles(
+    con: duckdb.DuckDBPyConnection, batch: list[tuple], stats: GraphStats
+) -> None:
     if not batch:
         return
     con.executemany(
@@ -539,7 +563,9 @@ def _flush_schema_profiles(con: duckdb.DuckDBPyConnection, batch: list[tuple], s
     batch.clear()
 
 
-def _flush_entity_mappings(con: duckdb.DuckDBPyConnection, batch: list[tuple], stats: GraphStats) -> None:
+def _flush_entity_mappings(
+    con: duckdb.DuckDBPyConnection, batch: list[tuple], stats: GraphStats
+) -> None:
     if not batch:
         return
     con.executemany(
@@ -552,7 +578,9 @@ def _flush_entity_mappings(con: duckdb.DuckDBPyConnection, batch: list[tuple], s
     batch.clear()
 
 
-def _flush_alignment_hints(con: duckdb.DuckDBPyConnection, batch: list[tuple], stats: GraphStats) -> None:
+def _flush_alignment_hints(
+    con: duckdb.DuckDBPyConnection, batch: list[tuple], stats: GraphStats
+) -> None:
     if not batch:
         return
     con.executemany(
@@ -653,7 +681,9 @@ def load_graph(
                         dist.quality_score,
                     )
                 )
-                if rec.execution_tier != "catalog" and (dist.parser_supported or dist.machine_readable):
+                if rec.execution_tier != "catalog" and (
+                    dist.parser_supported or dist.machine_readable
+                ):
                     schema_profile_batch.append(_schema_profile_row(rec, dist))
 
             if len(ds_batch) >= insert_batch_size:
@@ -691,7 +721,7 @@ def run_graph_load(config: DatasetBatchConfig) -> GraphStats:
     started_at = datetime.now(UTC).isoformat()
 
     def _iter_records() -> Iterable[DatasetRecord]:
-        with open(config.merged_records_path, "r", encoding="utf-8") as fh:
+        with open(config.merged_records_path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if line:
@@ -740,7 +770,9 @@ def run_graph_index(config: DatasetBatchConfig) -> None:
     logger.info("Graph indexes created for {}", config.db_path)
 
 
-def build_graph(*, records: Iterable[DatasetRecord], db_path: Path, insert_batch_size: int = 10_000) -> GraphStats:
+def build_graph(
+    *, records: Iterable[DatasetRecord], db_path: Path, insert_batch_size: int = 10_000
+) -> GraphStats:
     """Backward-compatible helper used by tests."""
     stats = load_graph(records=records, db_path=db_path, insert_batch_size=insert_batch_size)
     build_indexes(db_path)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import tempfile
 import json
+import tempfile
 from pathlib import Path
 
 import duckdb
@@ -89,10 +89,14 @@ def test_build_graph_uses_claim_publish_flags_for_published_layer() -> None:
                     "claim_extraction_confidence": 0.82,
                     "publish_to_graph": True,
                     "strong_design_evidence": True,
-                    "supporting_spans": [{"section": "results", "text": "Higher tax rates reduce employment."}],
+                    "supporting_spans": [
+                        {"section": "results", "text": "Higher tax rates reduce employment."}
+                    ],
                     "supporting_span_ids": ["r_01"],
                     "method_span_ids": ["m_01"],
-                    "method_spans": [{"section": "methods", "text": "We use a difference-in-differences design."}],
+                    "method_spans": [
+                        {"section": "methods", "text": "We use a difference-in-differences design."}
+                    ],
                 },
                 {
                     "claim_id": "c-2",
@@ -107,7 +111,9 @@ def test_build_graph_uses_claim_publish_flags_for_published_layer() -> None:
                     "claim_extraction_confidence": 0.22,
                     "publish_to_graph": False,
                     "publish_blockers": ["source_basis_not_fulltext", "design_not_publishable"],
-                    "supporting_spans": [{"section": "results", "text": "Higher tax rates may increase informality."}],
+                    "supporting_spans": [
+                        {"section": "results", "text": "Higher tax rates may increase informality."}
+                    ],
                     "supporting_span_ids": ["r_02"],
                 },
             ],
@@ -122,7 +128,9 @@ def test_build_graph_uses_claim_publish_flags_for_published_layer() -> None:
         con = duckdb.connect(str(db_path), read_only=True)
         try:
             raw_count = con.execute("SELECT COUNT(*) FROM ac_causal_claims_raw").fetchone()[0]
-            adjudicated_count = con.execute("SELECT COUNT(*) FROM ac_claim_adjudications").fetchone()[0]
+            adjudicated_count = con.execute(
+                "SELECT COUNT(*) FROM ac_claim_adjudications"
+            ).fetchone()[0]
             published_count = con.execute("SELECT COUNT(*) FROM ac_causal_claims").fetchone()[0]
             raw_claim = con.execute(
                 "SELECT design_quality_tier, strong_design_evidence, publish_to_graph, publish_blockers "
@@ -250,7 +258,16 @@ def test_build_graph_aggregates_moderation_edges_and_preserves_canonical_name() 
             ("governance.institutional_quality",),
         ]
         assert len(moderation_rows) == 1
-        base_cause, base_effect, evidence_count, confidence, interaction_coeff, source_refs, match_quality, alignment_source = moderation_rows[0]
+        (
+            base_cause,
+            base_effect,
+            evidence_count,
+            confidence,
+            interaction_coeff,
+            source_refs,
+            match_quality,
+            _alignment_source,
+        ) = moderation_rows[0]
         assert base_cause == "fiscal.public_spending"
         assert base_effect == "economic.output_growth"
         assert evidence_count == 3
@@ -346,7 +363,9 @@ def test_build_graph_filters_retracted_work_from_runtime_skg() -> None:
         try:
             skg_articles = con.execute("SELECT COUNT(*) FROM ac_skg_articles").fetchone()[0]
             skg_edges = con.execute("SELECT COUNT(*) FROM ac_skg_edges").fetchone()[0]
-            skg_edge_evidence = con.execute("SELECT COUNT(*) FROM ac_skg_edge_evidence").fetchone()[0]
+            skg_edge_evidence = con.execute("SELECT COUNT(*) FROM ac_skg_edge_evidence").fetchone()[
+                0
+            ]
             skg_parameters = con.execute("SELECT COUNT(*) FROM ac_skg_parameters").fetchone()[0]
         finally:
             con.close()
@@ -367,7 +386,9 @@ def test_load_graph_prefers_dedicated_simulation_ready_artifact_over_metadata_fa
             id="w-sim",
             title="Simulation mismatch study",
             year=2022,
-            estimates=[EstimateCandidate(value=0.2, pattern_name="x", variable_hint="fiscal_multiplier")],
+            estimates=[
+                EstimateCandidate(value=0.2, pattern_name="x", variable_hint="fiscal_multiplier")
+            ],
             metadata={
                 "simulation_ready_numeric_estimates": [
                     {

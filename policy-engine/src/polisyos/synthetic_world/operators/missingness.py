@@ -1,7 +1,9 @@
 """Missingness operators for observed synthetic data."""
+
 from __future__ import annotations
 
-from typing import Any, Iterable, Mapping
+from collections.abc import Iterable, Mapping
+from typing import Any
 
 import numpy as np
 
@@ -92,4 +94,3 @@ def apply_missingness(
 
 
 __all__ = ["apply_missingness"]
-

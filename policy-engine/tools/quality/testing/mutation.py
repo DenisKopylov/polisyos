@@ -5,11 +5,12 @@ from __future__ import annotations
 
 import argparse
 import re
+import sys
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
+
 from tools._lib.imports import repo_root_from
-import sys
 
 sys.path.insert(0, str(repo_root_from(__file__)))
 
@@ -53,9 +54,7 @@ SCIENTIST_TARGETS: dict[str, MutationTarget] = {
         threshold_pct=80.0,
     ),
     "condition": MutationTarget(
-        paths=(
-            "src/polisyos/scientist/engine/condition.py"
-        ),
+        paths=("src/polisyos/scientist/engine/condition.py"),
         tests=(
             "tests/scientist/engine/test_condition.py "
             "tests/scientist/engine/test_condition_compound.py "
@@ -223,7 +222,9 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     target = targets.get(args.target)
     if target is None:
-        known = ", ".join(sorted((*targets.keys(), "results", *(("all",) if args.suite == "scientist" else ()))))
+        known = ", ".join(
+            sorted((*targets.keys(), "results", *(("all",) if args.suite == "scientist" else ())))
+        )
         print(f"Unknown target `{args.target}` for suite `{args.suite}`. Known: {known}")
         return 2
     return _run_target(repo_root, name=args.target, target=target)

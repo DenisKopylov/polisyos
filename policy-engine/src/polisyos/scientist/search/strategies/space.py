@@ -67,9 +67,7 @@ class SearchSpace:
                         f"Unknown category '{raw}' for parameter '{bound.name}'. "
                         f"Allowed: {bound.categories}"
                     )
-                values.extend(
-                    1.0 if raw == candidate else 0.0 for candidate in bound.categories
-                )
+                values.extend(1.0 if raw == candidate else 0.0 for candidate in bound.categories)
                 continue
             raw = float(params.get(bound.name, bound.lower))
             if bound.log_scale or bound.dtype == ParameterType.LOG_CONTINUOUS:
@@ -120,9 +118,7 @@ class SearchSpace:
 
         if torch is not None:  # pragma: no branch
             local_torch = require_torch()
-            sobol_engine = local_torch.quasirandom.SobolEngine(
-                self.dim, scramble=True, seed=seed
-            )
+            sobol_engine = local_torch.quasirandom.SobolEngine(self.dim, scramble=True, seed=seed)
             tensor = sobol_engine.draw(n_samples).tolist()
             return [tuple(float(v) for v in row) for row in tensor]
 
@@ -134,10 +130,7 @@ class SearchSpace:
             return [tuple(float(v) for v in row) for row in samples]
         except Exception:
             rng = random.Random(seed)
-            return [
-                tuple(rng.random() for _ in range(self.dim))
-                for _ in range(n_samples)
-            ]
+            return [tuple(rng.random() for _ in range(self.dim)) for _ in range(n_samples)]
 
     def to_botorch_bounds(self) -> Any:
         local_torch = require_torch()

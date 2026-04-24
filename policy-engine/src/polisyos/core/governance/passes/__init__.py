@@ -1,4 +1,5 @@
 """Exports base governance-pass interfaces plus lazily loaded legal and safety passes."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -14,10 +15,10 @@ if TYPE_CHECKING:
 __all__ = [
     "ComplianceIssue",
     "IssueSeverity",
-    "PassContext",
-    "ValidatorPass",
     "LegalPass",
+    "PassContext",
     "SafetyPass",
+    "ValidatorPass",
 ]
 
 

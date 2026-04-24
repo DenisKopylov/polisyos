@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from polisyos.fabric.provenance.lineage import (
     FabricLineageTracker,
@@ -14,7 +14,7 @@ from polisyos.fabric.provenance.lineage import (
 
 def test_lineage_trace_and_impact_analysis_cover_source_to_query() -> None:
     tracker = FabricLineageTracker("graph.lineage.test")
-    started_at = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    started_at = datetime(2026, 1, 1, tzinfo=UTC)
     completed_at = started_at + timedelta(seconds=5)
 
     tracker.register_source_dataset(

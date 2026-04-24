@@ -1,4 +1,5 @@
 """Always-available engine builtins for no-op, state mutation, and artifact emission."""
+
 from __future__ import annotations
 
 from polisyos.scientist.engine.builtins.emit_artifact import EmitArtifactNode

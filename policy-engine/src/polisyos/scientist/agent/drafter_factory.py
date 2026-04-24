@@ -92,9 +92,7 @@ def create_drafter_agent(
             }
         )
         try:
-            cas = (rag_store_factory or _build_rag_filesystem_store)(
-                Path(rag_config.cas_root)
-            )
+            cas = (rag_store_factory or _build_rag_filesystem_store)(Path(rag_config.cas_root))
             embedder = build_default_embedder(rag_config)
             rag_index = build_or_load_rag_index(
                 cas,

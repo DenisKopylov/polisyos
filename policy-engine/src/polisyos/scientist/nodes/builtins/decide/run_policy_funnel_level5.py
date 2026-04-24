@@ -1,24 +1,19 @@
 """Public decide run policy funnel level 5 module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from uuid import uuid4
 
-from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.artifacts.manifest import SchemaInfo
-from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.ir.analytics.causal import CausalEffectReport
-from polisyos.ir.analytics.distributional import load_distributional_report
-from polisyos.scientist.doe.stress_report import StressTestReport, Vulnerability, VulnerabilityType
+from polisyos.scientist.doe.stress_report import Vulnerability, VulnerabilityType
 from polisyos.scientist.engine.context import ExecutionContext
-from polisyos.scientist.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
     _is_policy_mode,
-    _parse_model,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_REPORT_REF,
@@ -60,6 +55,7 @@ _SPEC = NodeSpec(
 @dataclass(frozen=True)
 class RunPolicyFunnelLevel5Node:
     """Run policy funnel level 5 node implementation."""
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -138,9 +134,7 @@ def _build_vulnerabilities(
                 vulnerability_id=f"governance_{governance_report.verdict}",
                 vulnerability_type=VulnerabilityType.CONSTRAINT_VIOLATION,
                 severity="critical",
-                description=(
-                    f"Governance verdict '{governance_report.verdict}' blocks promotion."
-                ),
+                description=(f"Governance verdict '{governance_report.verdict}' blocks promotion."),
             )
         )
     return vulnerabilities

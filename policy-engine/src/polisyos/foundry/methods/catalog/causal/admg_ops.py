@@ -44,9 +44,9 @@ if TYPE_CHECKING:
 class CachedAdjacency:
     """One-pass adjacency pre-computation reused across graph primitives."""
 
-    __slots__ = ("fwd", "rev", "bi", "directed_edges", "bidirected_edges", "circle_edges")
+    __slots__ = ("bi", "bidirected_edges", "circle_edges", "directed_edges", "fwd", "rev")
 
-    def __init__(self, graph: "CausalGraphModel") -> None:
+    def __init__(self, graph: CausalGraphModel) -> None:
         from polisyos.ir.analytics.causal_graph import EdgeMark
 
         fwd: dict[str, list[str]] = {n: [] for n in graph.nodes}
@@ -87,7 +87,7 @@ def _purge_graph_cache(key: int) -> None:
     _GRAPH_REFS.pop(key, None)
 
 
-def _ensure_cache_ref(graph: "CausalGraphModel") -> None:
+def _ensure_cache_ref(graph: CausalGraphModel) -> None:
     key = id(graph)
     if key in _GRAPH_REFS:
         return
@@ -98,7 +98,7 @@ def _ensure_cache_ref(graph: "CausalGraphModel") -> None:
     _GRAPH_REFS[key] = weakref.ref(graph, _cleanup)
 
 
-def _get_cached_adjacency(graph: "CausalGraphModel") -> CachedAdjacency:
+def _get_cached_adjacency(graph: CausalGraphModel) -> CachedAdjacency:
     key = id(graph)
     cached = _ADJ_CACHE.get(key)
     if cached is not None:
@@ -111,10 +111,10 @@ def _get_cached_adjacency(graph: "CausalGraphModel") -> CachedAdjacency:
 
 def _derived_graph_model(
     *,
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     nodes: list[str],
-    edges: list["CausalEdge"],
-) -> "CausalGraphModel":
+    edges: list[CausalEdge],
+) -> CausalGraphModel:
     """Construct a derived immutable graph without repeating full validation."""
     from polisyos.ir.analytics.causal_graph import CausalGraphModel
 
@@ -136,7 +136,7 @@ def _derived_graph_model(
 # ---------------------------------------------------------------------------
 
 
-def extract_directed_edges(graph: "CausalGraphModel") -> frozenset[tuple[str, str]]:
+def extract_directed_edges(graph: CausalGraphModel) -> frozenset[tuple[str, str]]:
     """Return all directed edges as frozenset of (src, dst) pairs.
 
     A directed edge has mark_src=TAIL, mark_dst=ARROW.
@@ -145,7 +145,7 @@ def extract_directed_edges(graph: "CausalGraphModel") -> frozenset[tuple[str, st
     return _get_cached_adjacency(graph).directed_edges
 
 
-def extract_bidirected_edges(graph: "CausalGraphModel") -> frozenset[frozenset[str]]:
+def extract_bidirected_edges(graph: CausalGraphModel) -> frozenset[frozenset[str]]:
     """Return all bidirected edges as frozenset of frozenset({u, v}).
 
     A bidirected (confounding) edge has mark_src=ARROW, mark_dst=ARROW,
@@ -160,7 +160,7 @@ def extract_bidirected_edges(graph: "CausalGraphModel") -> frozenset[frozenset[s
 
 
 def ancestors(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     variables: frozenset[str],
     *,
     include_self: bool = True,
@@ -196,7 +196,7 @@ def ancestors(
 
 
 def descendants(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     variables: frozenset[str],
     *,
     include_self: bool = True,
@@ -227,9 +227,9 @@ def descendants(
 
 
 def do_operator(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     intervention_set: frozenset[str],
-) -> "CausalGraphModel":
+) -> CausalGraphModel:
     """Return the mutilated graph G_{\\overline{X}} after do(X = intervention_set).
 
     All directed edges *into* any node in intervention_set are removed.
@@ -261,9 +261,9 @@ def do_operator(
 
 
 def remove_incoming_edges(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     nodes: frozenset[str],
-) -> "CausalGraphModel":
+) -> CausalGraphModel:
     """G_{X̄}: remove all incoming directed edges to nodes in *nodes*.
 
     This is the do-operator mutilation G_{do(X)}: cutting the mechanisms of
@@ -276,9 +276,9 @@ def remove_incoming_edges(
 
 
 def remove_outgoing_edges(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     nodes: frozenset[str],
-) -> "CausalGraphModel":
+) -> CausalGraphModel:
     """G_{Z̲}: remove all outgoing directed edges *from* nodes in *nodes*.
 
     Used to construct G_{X̄Z̲} for do-calculus Rule 2::
@@ -312,7 +312,7 @@ def remove_outgoing_edges(
 # ---------------------------------------------------------------------------
 
 
-def c_components(graph: "CausalGraphModel") -> list[frozenset[str]]:
+def c_components(graph: CausalGraphModel) -> list[frozenset[str]]:
     """Compute the c-component (district) decomposition of the graph.
 
     Two nodes are in the same c-component iff they are connected by a path
@@ -332,7 +332,7 @@ def c_components(graph: "CausalGraphModel") -> list[frozenset[str]]:
 
     # Union-Find with path compression
     parent: dict[str, str] = {n: n for n in graph.nodes}
-    rank: dict[str, int] = {n: 0 for n in graph.nodes}
+    rank: dict[str, int] = dict.fromkeys(graph.nodes, 0)
 
     def find(x: str) -> str:
         root = x
@@ -369,7 +369,7 @@ def c_components(graph: "CausalGraphModel") -> list[frozenset[str]]:
 
 
 def districts(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     node_subset: frozenset[str] | None = None,
 ) -> list[frozenset[str]]:
     """Formal districts (Lee & Richardson 2006) in an ADMG.
@@ -400,18 +400,16 @@ def districts(
 
 
 def induced_subgraph(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     node_subset: frozenset[str],
-) -> "CausalGraphModel":
+) -> CausalGraphModel:
     """Return the subgraph induced by node_subset.
 
     Only nodes in node_subset and edges with both endpoints in node_subset
     are retained.  graph_type is preserved.
     """
     kept_nodes = [n for n in graph.nodes if n in node_subset]
-    kept_edges = [
-        e for e in graph.edges if e.src in node_subset and e.dst in node_subset
-    ]
+    kept_edges = [e for e in graph.edges if e.src in node_subset and e.dst in node_subset]
     return _derived_graph_model(
         graph=graph,
         nodes=kept_nodes,
@@ -425,7 +423,7 @@ def induced_subgraph(
 
 
 def m_separation(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     x_set: frozenset[str],
     y_set: frozenset[str],
     z_set: frozenset[str],
@@ -516,7 +514,7 @@ def m_separation(
 
 
 def d_separation(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     x_set: frozenset[str],
     y_set: frozenset[str],
     z_set: frozenset[str],
@@ -540,7 +538,7 @@ def d_separation(
 
 
 def markov_boundary(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     node: str,
 ) -> frozenset[str]:
     """Return the Markov boundary of *node*: parents ∪ children ∪ co-parents.
@@ -582,7 +580,7 @@ def markov_boundary(
 
 
 def reachable_closure(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     query_vars: frozenset[str],
     intervened: frozenset[str],
     conditioning: frozenset[str] | None = None,
@@ -680,7 +678,7 @@ def reachable_closure(
 # ---------------------------------------------------------------------------
 
 
-def topological_order(graph: "CausalGraphModel") -> list[str]:
+def topological_order(graph: CausalGraphModel) -> list[str]:
     """Return a topological ordering of nodes using directed edges only.
 
     Uses Kahn's algorithm (same BFS pattern as _has_directed_cycle in causal_graph.py).
@@ -691,7 +689,7 @@ def topological_order(graph: "CausalGraphModel") -> list[str]:
     """
     from polisyos.ir.analytics.causal_graph import EdgeMark
 
-    indegree: dict[str, int] = {n: 0 for n in graph.nodes}
+    indegree: dict[str, int] = dict.fromkeys(graph.nodes, 0)
     fwd: dict[str, list[str]] = {n: [] for n in graph.nodes}
 
     for e in graph.edges:
@@ -717,9 +715,7 @@ def topological_order(graph: "CausalGraphModel") -> list[str]:
                 queue.append(child)
 
     if len(order) != len(graph.nodes):
-        raise ValueError(
-            "Graph contains a directed cycle; topological_order requires a DAG."
-        )
+        raise ValueError("Graph contains a directed cycle; topological_order requires a DAG.")
     return order
 
 
@@ -728,7 +724,7 @@ def topological_order(graph: "CausalGraphModel") -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-def _directed_adjacency(graph: "CausalGraphModel") -> dict[str, list[str]]:
+def _directed_adjacency(graph: CausalGraphModel) -> dict[str, list[str]]:
     """Build forward adjacency dict for directed edges (src → [children])."""
     adj: dict[str, list[str]] = {n: [] for n in graph.nodes}
     for src, dst in extract_directed_edges(graph):
@@ -736,7 +732,7 @@ def _directed_adjacency(graph: "CausalGraphModel") -> dict[str, list[str]]:
     return adj
 
 
-def tarjan_scc(graph: "CausalGraphModel") -> list[frozenset[str]]:
+def tarjan_scc(graph: CausalGraphModel) -> list[frozenset[str]]:
     """Return strongly connected components of the directed subgraph.
 
     Components are sorted largest-first and then lexicographically for
@@ -790,11 +786,11 @@ def _scc_label(component: frozenset[str]) -> str:
 
 
 def condense_graph(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     sccs: list[frozenset[str]],
-) -> "CausalGraphModel":
+) -> CausalGraphModel:
     """Collapse each SCC into a meta-node and preserve inter-component edges."""
-    from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel, EdgeMark, GraphType
 
     node_to_comp: dict[str, frozenset[str]] = {}
     condensed_nodes: list[str] = []
@@ -823,17 +819,13 @@ def condense_graph(
             if key in seen_directed:
                 continue
             seen_directed.add(key)
-            condensed_edges.append(
-                edge.model_copy(update={"src": src_label, "dst": dst_label})
-            )
+            condensed_edges.append(edge.model_copy(update={"src": src_label, "dst": dst_label}))
         elif edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW:
             key = frozenset({src_label, dst_label})
             if key in seen_bidirected:
                 continue
             seen_bidirected.add(key)
-            condensed_edges.append(
-                edge.model_copy(update={"src": src_label, "dst": dst_label})
-            )
+            condensed_edges.append(edge.model_copy(update={"src": src_label, "dst": dst_label}))
 
     return CausalGraphModel.model_construct(
         schema_version=graph.schema_version,
@@ -853,7 +845,7 @@ def condense_graph(
     )
 
 
-def has_directed_cycle(graph: "CausalGraphModel") -> bool:
+def has_directed_cycle(graph: CausalGraphModel) -> bool:
     """Return True when the directed subgraph contains a cycle."""
     try:
         topological_order(graph)
@@ -867,7 +859,7 @@ def has_directed_cycle(graph: "CausalGraphModel") -> bool:
 # ---------------------------------------------------------------------------
 
 
-def extract_undirected_edges(graph: "CausalGraphModel") -> frozenset[frozenset[str]]:
+def extract_undirected_edges(graph: CausalGraphModel) -> frozenset[frozenset[str]]:
     """Return TAIL-TAIL edges as frozenset of frozenset({u, v}).
 
     These are undirected edges as they appear in CPDAGs (directions unresolved
@@ -884,7 +876,7 @@ def extract_undirected_edges(graph: "CausalGraphModel") -> frozenset[frozenset[s
     return frozenset(result)
 
 
-def is_adjacent(graph: "CausalGraphModel", a: str, b: str) -> bool:
+def is_adjacent(graph: CausalGraphModel, a: str, b: str) -> bool:
     """Return True if any edge exists between a and b (either direction).
 
     O(|E|) scan.  For small graphs (< 200 nodes, < 10 000 edges) this is
@@ -897,7 +889,7 @@ def is_adjacent(graph: "CausalGraphModel", a: str, b: str) -> bool:
     return False
 
 
-def has_directed_path(graph: "CausalGraphModel", src: str, dst: str) -> bool:
+def has_directed_path(graph: CausalGraphModel, src: str, dst: str) -> bool:
     """Return True if a directed path src →…→ dst exists using TAIL→ARROW edges.
 
     BFS on directed edges (TAIL→ARROW), excluding lagged edges (lag > 0).
@@ -936,9 +928,9 @@ def has_directed_path(graph: "CausalGraphModel", src: str, dst: str) -> bool:
 
 
 def augment_with_s_nodes(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     s_var_names: frozenset[str],
-) -> "CausalGraphModel":
+) -> CausalGraphModel:
     """Return a new graph augmented with selection nodes S_v → v for each v.
 
     For each variable name v in *s_var_names*, adds:
@@ -970,7 +962,7 @@ def augment_with_s_nodes(
     existing_edge_pairs = {(e.src, e.dst) for e in graph.edges}
 
     extra_nodes: list[str] = []
-    extra_edges: list["CausalEdge"] = []
+    extra_edges: list[CausalEdge] = []
 
     for v in sorted(s_var_names):  # sorted for determinism
         s_name = f"S_{v}"
@@ -1004,7 +996,7 @@ def augment_with_s_nodes(
 
 
 def s_reachable(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     target_vars: frozenset[str],
     s_node_names: frozenset[str],
 ) -> frozenset[str]:
@@ -1052,10 +1044,10 @@ def s_reachable(
 
 
 def resolve_s_node_by_adjustment(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     s_var_name: str,
-    adjustment_set: frozenset[str],  # noqa: ARG001  (caller verifies validity)
-) -> "CausalGraphModel":
+    adjustment_set: frozenset[str],
+) -> CausalGraphModel:
     """Return a new graph with the S-node for *s_var_name* removed.
 
     Removes node ``"S_" + s_var_name`` and ALL its incident edges from *graph*.
@@ -1092,11 +1084,11 @@ def resolve_s_node_by_adjustment(
 
 
 def project_to_subgraph(
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     variable_subset: frozenset[str],
     *,
     keep_s_nodes: bool = True,
-) -> "CausalGraphModel":
+) -> CausalGraphModel:
     """Return the subgraph induced by *variable_subset*, optionally retaining S-nodes.
 
     Parameters

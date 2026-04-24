@@ -37,11 +37,13 @@ Example ConnectionConfig
 ...     "max_retries": 3,
 ... }
 """
+
 from __future__ import annotations
 
 import time
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, ClassVar, Iterable
+from collections.abc import AsyncIterator, Iterable
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
 import aiohttp
 import pandas as pd
@@ -100,11 +102,13 @@ def _parse_http_datetime(value: str | None) -> datetime | None:
 
         parsed = parsedate_to_datetime(value)
         if parsed.tzinfo is None:
-            parsed = parsed.replace(tzinfo=timezone.utc)
+            parsed = parsed.replace(tzinfo=UTC)
         return parsed
     except (TypeError, ValueError):
         logger.debug(
-            "Failed to parse HTTP datetime value %r", value, exc_info=True,
+            "Failed to parse HTTP datetime value %r",
+            value,
+            exc_info=True,
         )
         return None
 
@@ -275,18 +279,20 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         cfg = handle.get_state("sdmx") or self._parse_sdmx_config(handle.config)
         url = _join_url(handle.config.url, cfg["dataflow_path"], cfg["agency"])
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
+            async with (
+                aiohttp.ClientSession() as session,
+                session.get(
                     url,
                     headers=self._sdmx_structure_headers(handle.config),
                     timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
-                ) as resp:
-                    latency = (time.monotonic() - start) * 1000
-                    return HealthStatus(
-                        healthy=(resp.status == 200),
-                        message=f"HTTP {resp.status}",
-                        latency_ms=round(latency, 2),
-                    )
+                ) as resp,
+            ):
+                latency = (time.monotonic() - start) * 1000
+                return HealthStatus(
+                    healthy=(resp.status == 200),
+                    message=f"HTTP {resp.status}",
+                    latency_ms=round(latency, 2),
+                )
         except Exception as exc:
             return HealthStatus(healthy=False, message=str(exc))
 
@@ -376,7 +382,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
             version = DataVersion(
                 strategy=VersionStrategy.ETAG,
                 value=etag,
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 content_hash=content_hash,
             )
         elif last_modified:
@@ -384,14 +390,14 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
             version = DataVersion(
                 strategy=VersionStrategy.TIMESTAMP,
                 value=parsed_last_modified.isoformat() if parsed_last_modified else last_modified,
-                timestamp=parsed_last_modified or datetime.now(timezone.utc),
+                timestamp=parsed_last_modified or datetime.now(UTC),
                 content_hash=content_hash,
             )
         else:
             version = DataVersion(
                 strategy=VersionStrategy.CONTENT_HASH,
                 value=content_hash,
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
                 content_hash=content_hash,
             )
 
@@ -401,7 +407,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
             schema_id=f"{self.connector_id}.{dataflow_key}",
             schema_version="1.0.0",
             version=version,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=1.0,
             quality_tier=QualityTier.GOLD,
             fetch_duration_ms=round(duration_ms, 2),
@@ -478,7 +484,9 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
             etag = head_headers.get("ETag")
         except Exception:
             logger.debug(
-                "HEAD request failed for freshness check on dataset %s", dataset_id, exc_info=True,
+                "HEAD request failed for freshness check on dataset %s",
+                dataset_id,
+                exc_info=True,
             )
             return FreshnessResult(status=FreshnessStatus.UNKNOWN)
 
@@ -488,7 +496,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
                     status=FreshnessStatus.STALE,
                     new_version_available=True,
                     new_version_hint=etag,
-                    source_updated_at=datetime.now(timezone.utc),
+                    source_updated_at=datetime.now(UTC),
                 )
             return FreshnessResult(status=FreshnessStatus.FRESH)
 
@@ -498,7 +506,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
                     status=FreshnessStatus.STALE,
                     new_version_available=True,
                     new_version_hint=last_modified,
-                    source_updated_at=datetime.now(timezone.utc),
+                    source_updated_at=datetime.now(UTC),
                 )
             return FreshnessResult(status=FreshnessStatus.FRESH)
 
@@ -514,7 +522,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
     ) -> str:
         standard_dims = ["freq", "geo", "indicator", "unit", "multiplier"]
         order = dimension_order or standard_dims
-        filter_map = {key: values for key, values in request.filters}
+        filter_map = dict(request.filters)
 
         parts: list[str] = []
         for dim in order:
@@ -543,40 +551,41 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         *,
         headers: dict[str, str],
     ) -> tuple[dict[str, Any], dict[str, str], int]:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
+        async with (
+            aiohttp.ClientSession() as session,
+            session.get(
                 url,
                 headers=headers,
                 timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
-            ) as resp:
-                if resp.status != 200:
-                    error = FetchError(
-                        message=f"SDMX fetch returned HTTP {resp.status}",
-                        connector_id=self.connector_id,
-                        request_params={"status_code": resp.status, "url": url},
-                    )
-                    error.status_code = resp.status  # type: ignore[attr-defined]
-                    raise error
-                raw = await resp.read()
-                bytes_xferred = len(raw)
-                import json
+            ) as resp,
+        ):
+            if resp.status != 200:
+                error = FetchError(
+                    message=f"SDMX fetch returned HTTP {resp.status}",
+                    connector_id=self.connector_id,
+                    request_params={"status_code": resp.status, "url": url},
+                )
+                error.status_code = resp.status  # type: ignore[attr-defined]
+                raise error
+            raw = await resp.read()
+            bytes_xferred = len(raw)
+            import json
 
-
-                try:
-                    body = json.loads(raw)
-                except json.JSONDecodeError as exc:
-                    raise FetchError(
-                        message=f"SDMX JSON decode failed: {exc}",
-                        connector_id=self.connector_id,
-                        request_params={"url": url},
-                    ) from exc
-                if not isinstance(body, dict):
-                    raise FetchError(
-                        message="SDMX response is not a JSON object",
-                        connector_id=self.connector_id,
-                    )
-                body["_raw"] = raw
-                return body, dict(resp.headers), bytes_xferred
+            try:
+                body = json.loads(raw)
+            except json.JSONDecodeError as exc:
+                raise FetchError(
+                    message=f"SDMX JSON decode failed: {exc}",
+                    connector_id=self.connector_id,
+                    request_params={"url": url},
+                ) from exc
+            if not isinstance(body, dict):
+                raise FetchError(
+                    message="SDMX response is not a JSON object",
+                    connector_id=self.connector_id,
+                )
+            body["_raw"] = raw
+            return body, dict(resp.headers), bytes_xferred
 
     @with_retry(max_attempts=3, base_delay=2.0)
     @with_circuit_breaker()
@@ -587,13 +596,15 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         *,
         headers: dict[str, str],
     ) -> dict[str, str]:
-        async with aiohttp.ClientSession() as session:
-            async with session.head(
+        async with (
+            aiohttp.ClientSession() as session,
+            session.head(
                 url,
                 headers=headers,
                 timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
-            ) as resp:
-                return dict(resp.headers)
+            ) as resp,
+        ):
+            return dict(resp.headers)
 
     @classmethod
     def validate_config(cls, config: ConnectionConfig) -> ValidationResult:

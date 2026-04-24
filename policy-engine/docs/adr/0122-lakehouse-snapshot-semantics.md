@@ -1,9 +1,11 @@
 # ADR-0122: Lakehouse Snapshot Semantics
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context
@@ -16,6 +18,7 @@ against. Today:
 
 - Materialisers write in-place and `.partial` sentinels leak into committed
   state.
+
 - Readers cannot pin a specific snapshot beyond a mtime string.
 - Rollback requires ad-hoc file juggling.
 - Cross-asset consistency (academic SKG + legal DAG + catalog) is not
@@ -27,7 +30,7 @@ Adopt lakehouse-style snapshot semantics for Data Forge and Fabric materialised
 views:
 
 1. A snapshot is an immutable record `{snapshot_id, parent_id, merkle_root,
-   created_at, producer_version, schema_version, asset_refs[], manifest_sha256}`.
+created_at, producer_version, schema_version, asset_refs[], manifest_sha256}`.
 2. `merkle_root` is the root of a Merkle tree over all asset ArtifactRefs the
    snapshot declares (ADR-0123).
 3. Snapshot commit is atomic: writers stage artifacts in a temp prefix, create
@@ -55,5 +58,6 @@ views:
 
 - Extends: ADR-0010 (CAS signing), ADR-0015 (knowledge bundle freshness),
   ADR-0098 (CAS abstraction boundary).
+
 - Depends on: ADR-0123 (ArtifactRef governance), ADR-0114 (schema registry).
 - Related: ADR-0113 (asset-centric pipeline model).

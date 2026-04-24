@@ -72,6 +72,7 @@ class _NoneProfileBindingCatalog:
     def resolve_metric_bindings(self, metric_name: str, *, top_k: int = 20):
         if metric_name != "gdp":
             return []
+
         class _Binding:
             metric_id = "gdp"
             catalog_dataset_id = "catalog-gdp"
@@ -136,7 +137,9 @@ def test_catalog_resolution_skips_unfetchable_targets(tmp_path) -> None:
 def test_catalog_resolution_applies_rolling_window_defaults_for_rest_sources(tmp_path) -> None:
     curated_dir = tmp_path / "curated"
     curated_dir.mkdir()
-    service = RetrievalService(curated_dir=curated_dir, dataset_catalog=_RollingWindowBindingCatalog())
+    service = RetrievalService(
+        curated_dir=curated_dir, dataset_catalog=_RollingWindowBindingCatalog()
+    )
     plans, candidates = service._resolve_via_catalog([DataNeed(metric="health_outcomes")])
 
     assert len(plans) == 1
@@ -151,7 +154,9 @@ def test_catalog_resolution_applies_rolling_window_defaults_for_rest_sources(tmp
 def test_catalog_resolution_preserves_none_profile_id(tmp_path) -> None:
     curated_dir = tmp_path / "curated"
     curated_dir.mkdir()
-    service = RetrievalService(curated_dir=curated_dir, dataset_catalog=_NoneProfileBindingCatalog())
+    service = RetrievalService(
+        curated_dir=curated_dir, dataset_catalog=_NoneProfileBindingCatalog()
+    )
 
     plans, candidates = service._resolve_via_catalog([DataNeed(metric="gdp")])
 
@@ -256,7 +261,9 @@ def test_retrieval_service_reports_resolution_route_breakdown(tmp_path) -> None:
         warnings=(),
     )
 
-    outcome = service.resolve(DataResolveRequest(data_needs=[DataNeed(metric="gdp")], mode="fastlane"))
+    outcome = service.resolve(
+        DataResolveRequest(data_needs=[DataNeed(metric="gdp")], mode="fastlane")
+    )
 
     assert outcome.telemetry["resolution_routes"]["candidates"] == {
         "manual_binding": 1,
@@ -277,7 +284,10 @@ def test_fallback_to_plan_updates_metric_id_and_analytics() -> None:
                 connector_id="connector.fallback",
                 dataset_id="dataset.fallback",
                 metric_id="metric.corrected",
-                metadata={"resolution_route": "manual_binding", "fallback_reason": "operator_override"},
+                metadata={
+                    "resolution_route": "manual_binding",
+                    "fallback_reason": "operator_override",
+                },
             )
         ],
     )
@@ -531,7 +541,9 @@ def test_retrieval_service_discover_uses_injected_executor_explore_and_observabi
             raise AssertionError("preview should not be called")
 
     class _FakeFastLane:
-        def search_catalog(self, *, metric_query: str, geography: str | None = None, limit: int = 25):
+        def search_catalog(
+            self, *, metric_query: str, geography: str | None = None, limit: int = 25
+        ):
             del metric_query, geography, limit
             return []
 

@@ -3,6 +3,7 @@
 Spatial methods require SpatialData Pydantic model.
 Structural placeholders for Phase 10b.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -10,7 +11,6 @@ import pytest
 
 @pytest.mark.benchmark
 class TestSpatialAccuracy:
-
     def test_moran_i_placeholder(self):
         """Placeholder: Moran I requires SpatialData."""
         pytest.skip("Requires SpatialData model — deferred to Phase 10b")

@@ -2,24 +2,22 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from types import SimpleNamespace
 
-from polisyos.core.contracts.cursor import WatermarkType
+from polisyos.core.contracts.cursor import WatermarkType, WindowStrategy
 from polisyos.fabric.data_plane.watermark import (
     ETagWatermark,
     OffsetWatermark,
     RevisionWatermark,
-    WindowPolicy,
     TimestampWatermark,
+    WindowPolicy,
     assign_windows,
     resolve_watermark_policy,
 )
-from polisyos.core.contracts.cursor import WindowStrategy
 from polisyos.ir.connectors import DataVersion, VersionStrategy
 
-
-_NOW = datetime(2024, 6, 15, 12, 0, 0, tzinfo=timezone.utc)
+_NOW = datetime(2024, 6, 15, 12, 0, 0, tzinfo=UTC)
 
 
 def _make_result(**kwargs):

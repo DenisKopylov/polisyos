@@ -186,7 +186,9 @@ def _auto_trek_rank_state(n_samples: int = 1200, seed: int = 37) -> TabularCausa
     )
 
 
-def _binary_iv_compatible_state(n_samples: int = 4000, seed: int = 41) -> TabularCausalDiscoveryData:
+def _binary_iv_compatible_state(
+    n_samples: int = 4000, seed: int = 41
+) -> TabularCausalDiscoveryData:
     rng = np.random.default_rng(seed)
     z = rng.integers(0, 2, size=n_samples)
     u = rng.integers(0, 2, size=n_samples)
@@ -553,7 +555,10 @@ def test_tetrad_block_passes_for_single_factor_data(monkeypatch) -> None:
     )["report"]
 
     assert report.algebraic_constraints is not None
-    assert AlgebraicConstraintFamily.TETRAD.value in report.metadata["algebraic_constraint_families_run"]
+    assert (
+        AlgebraicConstraintFamily.TETRAD.value
+        in report.metadata["algebraic_constraint_families_run"]
+    )
     assert report.algebraic_constraints.violated_by_family["tetrad"] == 0
 
 
@@ -708,7 +713,10 @@ def test_trek_rank_block_passes_for_rank_one_cross_covariance(monkeypatch) -> No
     )["report"]
 
     assert report.algebraic_constraints is not None
-    assert AlgebraicConstraintFamily.TREK_RANK.value in report.metadata["algebraic_constraint_families_run"]
+    assert (
+        AlgebraicConstraintFamily.TREK_RANK.value
+        in report.metadata["algebraic_constraint_families_run"]
+    )
     assert report.algebraic_constraints.violated_by_family["trek_rank"] == 0
     assert report.algebraic_constraints.blocker_conditions_met_by_family["trek_rank"] is True
     assert report.algebraic_constraints.graph_ranking_penalty == 0.0
@@ -782,7 +790,10 @@ def test_graph_implied_trek_rank_blocks_are_auto_inferred(monkeypatch) -> None:
     )["report"]
 
     assert report.algebraic_constraints is not None
-    assert AlgebraicConstraintFamily.TREK_RANK.value in report.metadata["algebraic_constraint_families_run"]
+    assert (
+        AlgebraicConstraintFamily.TREK_RANK.value
+        in report.metadata["algebraic_constraint_families_run"]
+    )
     assert report.algebraic_constraints.tested_by_family["trek_rank"] >= 1
     assert report.algebraic_constraints.violated_by_family["trek_rank"] == 0
     assert any(
@@ -791,8 +802,7 @@ def test_graph_implied_trek_rank_blocks_are_auto_inferred(monkeypatch) -> None:
         if constraint.family is AlgebraicConstraintFamily.TREK_RANK
     )
     assert any(
-        "trek_rank_auto_inferred" in warning
-        for warning in report.algebraic_constraints.warnings
+        "trek_rank_auto_inferred" in warning for warning in report.algebraic_constraints.warnings
     )
 
 
@@ -817,12 +827,8 @@ def test_algebraic_geometry_invariant_block_is_ranking_only_info_signal(monkeypa
                     "block_id": "geom_1",
                     "family": "algebraic_geometry_invariant",
                     "variables": ["X", "Y", "Z"],
-                    "invariant_polynomials": [
-                        "sigma_xy * sigma_yz - sigma_xz * sigma_yy"
-                    ],
-                    "semi_algebraic_inequalities": [
-                        "det(Sigma[X,Y,Z]) >= 0"
-                    ],
+                    "invariant_polynomials": ["sigma_xy * sigma_yz - sigma_xz * sigma_yy"],
+                    "semi_algebraic_inequalities": ["det(Sigma[X,Y,Z]) >= 0"],
                     "derivation_method": "groebner_elimination",
                     "precomputed_violation_score": 0.7,
                     "test_mode": "offline_catalog",
@@ -881,7 +887,12 @@ def test_binary_iv_algebraic_geometry_block_passes_on_compatible_data(monkeypatc
     assert report.algebraic_constraints is not None
     assert report.algebraic_constraints.tested_by_family["algebraic_geometry_invariant"] == 4
     assert report.algebraic_constraints.violated_by_family["algebraic_geometry_invariant"] == 0
-    assert report.algebraic_constraints.blocker_conditions_met_by_family["algebraic_geometry_invariant"] is False
+    assert (
+        report.algebraic_constraints.blocker_conditions_met_by_family[
+            "algebraic_geometry_invariant"
+        ]
+        is False
+    )
 
 
 def test_binary_iv_algebraic_geometry_block_emits_graph_class_blocker(monkeypatch) -> None:
@@ -917,7 +928,12 @@ def test_binary_iv_algebraic_geometry_block_emits_graph_class_blocker(monkeypatc
     assert report.algebraic_constraints.severity == "blocker"
     assert report.algebraic_constraints.tested_by_family["algebraic_geometry_invariant"] == 4
     assert report.algebraic_constraints.violated_by_family["algebraic_geometry_invariant"] >= 1
-    assert report.algebraic_constraints.blocker_conditions_met_by_family["algebraic_geometry_invariant"] is True
+    assert (
+        report.algebraic_constraints.blocker_conditions_met_by_family[
+            "algebraic_geometry_invariant"
+        ]
+        is True
+    )
     geometry_violation = next(
         violation
         for violation in report.algebraic_constraints.violated_constraints_preview
@@ -926,7 +942,10 @@ def test_binary_iv_algebraic_geometry_block_emits_graph_class_blocker(monkeypatc
     assert geometry_violation.scope_of_falsification.value == "graph_class"
     assert geometry_violation.severity == "blocker"
     assert geometry_violation.metadata["route"] == "binary_iv_instrumental_inequalities"
-    assert geometry_violation.metadata["negative_certificate"]["blocking_type"] == "model_class_incompatible"
+    assert (
+        geometry_violation.metadata["negative_certificate"]["blocking_type"]
+        == "model_class_incompatible"
+    )
 
 
 def test_nested_verma_block_is_recorded_as_research_preview(monkeypatch) -> None:
@@ -962,7 +981,10 @@ def test_nested_verma_block_is_recorded_as_research_preview(monkeypatch) -> None
     )["report"]
 
     assert report.algebraic_constraints is not None
-    assert AlgebraicConstraintFamily.NESTED_VERMA.value in report.metadata["algebraic_constraint_families_run"]
+    assert (
+        AlgebraicConstraintFamily.NESTED_VERMA.value
+        in report.metadata["algebraic_constraint_families_run"]
+    )
     assert report.algebraic_constraints.tested_by_family["nested_verma"] == 0
     assert report.algebraic_constraints.violated_by_family["nested_verma"] == 0
     assert report.algebraic_constraints.blocker_conditions_met_by_family["nested_verma"] is False
@@ -1074,7 +1096,6 @@ def test_unified_discovery_report_has_skeleton_agreement(monkeypatch: pytest.Mon
     """DiscoveryPipelineReport.skeleton_agreement should be a dict[str, float] in [0,1]."""
     from polisyos.foundry.methods.catalog.causal.discovery_pipeline import (
         UnifiedCausalDiscovery,
-        _run_algorithms_parallel,
     )
     from polisyos.foundry.methods.catalog.causal.protocols import UnifiedDiscoveryData
     from polisyos.ir.analytics.causal_discovery import CausalDiscoveryReport

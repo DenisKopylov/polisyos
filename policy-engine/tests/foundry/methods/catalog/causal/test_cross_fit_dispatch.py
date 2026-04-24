@@ -1,9 +1,10 @@
 """Tests for CrossFitOrchestrator inner_method_fqn dispatch."""
-import numpy as np
-import pytest
 
-import sys
 import os
+import sys
+
+import numpy as np
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../../src"))
 
 from polisyos.foundry.methods.catalog.causal.cross_fit import CrossFitOrchestrator
@@ -26,7 +27,8 @@ class TestCrossFitDispatch:
     def test_aipw_fqn_produces_finite_ate(self):
         state = make_data()
         result = CrossFitOrchestrator.pure_step(
-            state, {"n_folds": 3, "seed": 0, "inner_method_fqn": "causal.treatment_effects.aipw@1.0.0"}
+            state,
+            {"n_folds": 3, "seed": 0, "inner_method_fqn": "causal.treatment_effects.aipw@1.0.0"},
         )
         assert np.isfinite(result["result"]["ate"])
 
@@ -40,14 +42,16 @@ class TestCrossFitDispatch:
     def test_tmle_fqn_produces_finite_ate(self):
         state = make_data()
         result = CrossFitOrchestrator.pure_step(
-            state, {"n_folds": 3, "seed": 0, "inner_method_fqn": "causal.treatment_effects.tmle@1.0.0"}
+            state,
+            {"n_folds": 3, "seed": 0, "inner_method_fqn": "causal.treatment_effects.tmle@1.0.0"},
         )
         assert np.isfinite(result["result"]["ate"])
 
     def test_ipw_fqn_produces_finite_ate(self):
         state = make_data()
         result = CrossFitOrchestrator.pure_step(
-            state, {"n_folds": 3, "seed": 0, "inner_method_fqn": "causal.treatment_effects.ipw@1.0.0"}
+            state,
+            {"n_folds": 3, "seed": 0, "inner_method_fqn": "causal.treatment_effects.ipw@1.0.0"},
         )
         assert np.isfinite(result["result"]["ate"])
 
@@ -56,9 +60,7 @@ class TestCrossFitDispatch:
         result_unknown = CrossFitOrchestrator.pure_step(
             state, {"n_folds": 3, "seed": 0, "inner_method_fqn": "unknown.method@9.9.9"}
         )
-        result_default = CrossFitOrchestrator.pure_step(
-            state, {"n_folds": 3, "seed": 0}
-        )
+        result_default = CrossFitOrchestrator.pure_step(state, {"n_folds": 3, "seed": 0})
         assert np.isfinite(result_unknown["result"]["ate"])
         assert abs(result_unknown["result"]["ate"] - result_default["result"]["ate"]) < 1e-6
 

@@ -50,7 +50,9 @@ describe("useReviewCollaborationSurface", () => {
       frameQueue.push(callback);
       return frameQueue.length;
     });
-    vi.spyOn(window, "cancelAnimationFrame").mockImplementation(() => undefined);
+    vi.spyOn(window, "cancelAnimationFrame").mockImplementation(
+      () => undefined,
+    );
 
     const rectSpy = vi
       .spyOn(HTMLElement.prototype, "getBoundingClientRect")

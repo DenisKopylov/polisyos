@@ -1,4 +1,5 @@
 """Expose graph analytics, diffusion, contagion, and multiplex-network methods."""
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -10,8 +11,8 @@ from .analysis import (
     ContagionModelEstimator,
     InputOutputNetworkEstimator,
     MultiplexNetworkEstimator,
-    NetworkMissingnessAssessmentEstimator,
     NetworkDiffusionEstimator,
+    NetworkMissingnessAssessmentEstimator,
     PeerEffectDecompositionEstimator,
 )
 from .embedding_fidelity import (
@@ -43,6 +44,9 @@ from .protocols import (
     MissingnessAssessment,
     MissingnessAssessmentScope,
     MultiplexNetworkData,
+    NetworkData,
+    NetworkEmbeddingFidelityCertificate,
+    NetworkEstimandTarget,
     NetworkFormationCounterfactualSummary,
     NetworkFormationDiagnostic,
     NetworkFormationIdentifiedSet,
@@ -50,9 +54,6 @@ from .protocols import (
     NetworkFormationScenarioMoments,
     NetworkFormationUncertaintySummary,
     NetworkFormationValidationSummary,
-    NetworkData,
-    NetworkEmbeddingFidelityCertificate,
-    NetworkEstimandTarget,
     NetworkIdentificationStatus,
     NetworkMissingnessRisk,
     NetworkResult,
@@ -74,25 +75,28 @@ def ensure_network_methods_registered(registry: MethodRegistry | None = None) ->
 
 
 __all__ = [
+    "BoundEstimate",
     "CommunityDetectionEstimator",
     "ContagionModelEstimator",
     "DiffusionNullResult",
     "DiffusionNullTestEstimator",
+    "ERGMNullModelEstimator",
+    "ERGMResult",
     "EdgeListNetworkData",
     "EmbeddingFidelityAction",
     "EmbeddingFidelityStatus",
-    "ERGMNullModelEstimator",
-    "ERGMResult",
     "EstimandAssessment",
     "FormationEvent",
+    "IdentificationDiagnostics",
     "InputOutputNetworkEstimator",
     "IntervalEstimate",
-    "IdentificationDiagnostics",
-    "BoundEstimate",
     "MissingnessAssessment",
     "MissingnessAssessmentScope",
     "MultiplexNetworkData",
     "MultiplexNetworkEstimator",
+    "NetworkData",
+    "NetworkDiffusionEstimator",
+    "NetworkEmbeddingFidelityCertificate",
     "NetworkEstimandTarget",
     "NetworkFormationCounterfactualSummary",
     "NetworkFormationDiagnostic",
@@ -101,9 +105,6 @@ __all__ = [
     "NetworkFormationScenarioMoments",
     "NetworkFormationUncertaintySummary",
     "NetworkFormationValidationSummary",
-    "NetworkData",
-    "NetworkDiffusionEstimator",
-    "NetworkEmbeddingFidelityCertificate",
     "NetworkIdentificationStatus",
     "NetworkMissingnessAssessmentEstimator",
     "NetworkMissingnessMode",
@@ -119,9 +120,9 @@ __all__ = [
     "StrategicNetworkFormationEstimator",
     "build_network_missingness_assessment",
     "compute_embedding_fidelity_certificate",
-    "maybe_compute_embedding_fidelity_certificate",
     "ensure_network_methods_registered",
     "fit_ergm_null_model",
     "maybe_build_missingness_assessment",
+    "maybe_compute_embedding_fidelity_certificate",
     "register_network_methods",
 ]

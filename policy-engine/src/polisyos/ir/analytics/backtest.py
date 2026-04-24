@@ -1,4 +1,5 @@
 """Define historical validation reports and trust diagnostics for backtesting."""
+
 from __future__ import annotations
 
 import math
@@ -36,7 +37,7 @@ class OutcomeComparison(BaseModel):
     ci_upper: float | None = None
 
     @model_validator(mode="after")
-    def _validate_numerics(self) -> "OutcomeComparison":
+    def _validate_numerics(self) -> OutcomeComparison:
         if not math.isfinite(self.y_pred):
             raise ValueError("y_pred must be finite")
         if not math.isfinite(self.y_true):
@@ -69,7 +70,7 @@ class SystematicBias(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_magnitude(self) -> "SystematicBias":
+    def _validate_magnitude(self) -> SystematicBias:
         if not math.isfinite(self.magnitude):
             raise ValueError("magnitude must be finite")
         return self
@@ -94,7 +95,7 @@ class BacktestScenario(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_metrics(self) -> "BacktestScenario":
+    def _validate_metrics(self) -> BacktestScenario:
         for value, name in (
             (self.rmse, "rmse"),
             (self.mae, "mae"),
@@ -150,7 +151,7 @@ class BacktestReport(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_counts(self) -> "BacktestReport":
+    def _validate_counts(self) -> BacktestReport:
         if self.n_scenarios == 0 and self.scenarios:
             self.n_scenarios = len(self.scenarios)
         if self.n_scenarios != len(self.scenarios):
@@ -195,11 +196,11 @@ def load_backtest_report(store: ArtifactStore, ref: BacktestReportRef) -> Backte
 
 
 __all__ = [
+    "BacktestReport",
+    "BacktestScenario",
     "BiasDirection",
     "OutcomeComparison",
     "SystematicBias",
-    "BacktestScenario",
-    "BacktestReport",
-    "persist_backtest_report",
     "load_backtest_report",
+    "persist_backtest_report",
 ]

@@ -23,7 +23,9 @@ from polisyos.scientist.kernel.budgets import ComputeBudget
 
 def _ref(seed: str, *, kind: str = "scientist.test") -> ArtifactRef:
     return ArtifactRef(
-        artifact_id=ArtifactID.model_validate(f"sha256:{hashlib.sha256(seed.encode()).hexdigest()}"),
+        artifact_id=ArtifactID.model_validate(
+            f"sha256:{hashlib.sha256(seed.encode()).hexdigest()}"
+        ),
         kind=kind,
         media_type="application/json",
     )
@@ -153,7 +155,10 @@ def test_strategic_suites_emit_rotating_challenge_evaluations_for_raw_inputs() -
     }
     for result in results:
         assert result.runtime_split_type is BenchmarkSplit.ROTATING_CHALLENGE
-        assert result.benchmark_evaluation.resolved_runtime_split_type() is BenchmarkSplit.ROTATING_CHALLENGE
+        assert (
+            result.benchmark_evaluation.resolved_runtime_split_type()
+            is BenchmarkSplit.ROTATING_CHALLENGE
+        )
         assert result.benchmark_evaluation.promotable is True
         assert result.stress_test_report is None
 
@@ -176,7 +181,9 @@ def test_multiplicity_summary_audit_fails_without_explicit_disclosure() -> None:
     multiplicity = next(
         result for result in results if result.suite_id == "multiplicity_disclosure_v1"
     )
-    assert multiplicity.benchmark_evaluation.selection_metrics["undisclosed_multiplicity_rate"] == 1.0
+    assert (
+        multiplicity.benchmark_evaluation.selection_metrics["undisclosed_multiplicity_rate"] == 1.0
+    )
     assert multiplicity.benchmark_evaluation.promotable is False
     assert multiplicity.stress_test_report is not None
 
@@ -203,7 +210,9 @@ def test_multiplicity_summary_audit_passes_with_explicit_disclosure() -> None:
     multiplicity = next(
         result for result in results if result.suite_id == "multiplicity_disclosure_v1"
     )
-    assert multiplicity.benchmark_evaluation.selection_metrics["undisclosed_multiplicity_rate"] == 0.0
+    assert (
+        multiplicity.benchmark_evaluation.selection_metrics["undisclosed_multiplicity_rate"] == 0.0
+    )
     assert multiplicity.benchmark_evaluation.promotable is True
 
 
@@ -251,9 +260,7 @@ def test_abstraction_suite_requires_heuristic_disclaimer_without_certificate() -
         loop_id="loop-a",
         run_id="run-a",
         params={
-            "abm_alignment_warnings": [
-                "heuristic_aggregation_without_abstraction_certificate"
-            ]
+            "abm_alignment_warnings": ["heuristic_aggregation_without_abstraction_certificate"]
         },
         strategic_summary=None,
         abstraction_certificate=None,

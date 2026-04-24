@@ -2,11 +2,13 @@
 ExecutionEvidence -- immutable evidence bundle for a method chain execution,
 serving as the "receipt" for CAS-backed provenance (Law J).
 """
+
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, ClassVar, Sequence
+from typing import Any, ClassVar
 from uuid import UUID, uuid4
 
 from polisyos.common.logger import get_logger
@@ -118,7 +120,7 @@ class ExecutionEvidence:
         rng_artifact_id: str | None = None,
         success: bool = True,
         error_message: str | None = None,
-    ) -> "ExecutionEvidence":
+    ) -> ExecutionEvidence:
         """
         Create execution evidence.
 
@@ -199,17 +201,13 @@ class ExecutionEvidence:
         for aid in self.input_state_artifact_ids:
             inputs.append(InputRef(artifact_id=_to_artifact_id(aid), role="input_state"))
         for aid in self.output_state_artifact_ids:
-            inputs.append(
-                InputRef(artifact_id=_to_artifact_id(aid), role="output_state")
-            )
+            inputs.append(InputRef(artifact_id=_to_artifact_id(aid), role="output_state"))
         if self.params_artifact_id:
             inputs.append(
                 InputRef(artifact_id=_to_artifact_id(self.params_artifact_id), role="params")
             )
         if self.rng_artifact_id:
-            inputs.append(
-                InputRef(artifact_id=_to_artifact_id(self.rng_artifact_id), role="rng")
-            )
+            inputs.append(InputRef(artifact_id=_to_artifact_id(self.rng_artifact_id), role="rng"))
 
         return ArtifactManifest(
             artifact_id=ArtifactID.from_sha256_hex(content_hash),

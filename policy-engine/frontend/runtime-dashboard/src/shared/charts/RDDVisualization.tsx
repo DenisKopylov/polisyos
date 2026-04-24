@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { chartTheme, ciColors, chartDefaults } from "./theme";
 import { ChartDataTable } from "./accessibility";
@@ -52,15 +53,18 @@ export function RDDVisualization({
   title,
   className,
 }: RDDVisualizationProps) {
+  const { t } = useI18n();
   const allX = [...dataBelow, ...dataAbove].map((d) => d.x);
   const allY = [...dataBelow, ...dataAbove].map((d) => d.y);
 
   const sortedFittedBelow = useMemo(
-    () => fittedBelow ? [...fittedBelow].sort((a, b) => a.x - b.x) : undefined,
+    () =>
+      fittedBelow ? [...fittedBelow].sort((a, b) => a.x - b.x) : undefined,
     [fittedBelow],
   );
   const sortedFittedAbove = useMemo(
-    () => fittedAbove ? [...fittedAbove].sort((a, b) => a.x - b.x) : undefined,
+    () =>
+      fittedAbove ? [...fittedAbove].sort((a, b) => a.x - b.x) : undefined,
     [fittedAbove],
   );
 
@@ -69,7 +73,7 @@ export function RDDVisualization({
       <figure
         className={cn("border-border bg-card rounded-xl border p-4", className)}
         role="img"
-        aria-label="Regression Discontinuity Design: no data available"
+        aria-label={t("shared.charts.rdd.emptyAria")}
       >
         {title && (
           <figcaption className="text-foreground mb-3 text-sm font-semibold">
@@ -77,10 +81,10 @@ export function RDDVisualization({
           </figcaption>
         )}
         <div className="text-muted flex min-h-40 items-center justify-center rounded-lg border border-dashed text-sm">
-          No data available.
+          {t("shared.charts.common.noDataAvailable")}
         </div>
         <ChartDataTable
-          caption={title ?? "Regression Discontinuity Design data"}
+          caption={title ?? t("shared.charts.rdd.caption")}
           columns={["N points"]}
           rows={[]}
         />
@@ -101,7 +105,9 @@ export function RDDVisualization({
     return PADDING.left + PLOT_W * ((v - (minX - xPad)) / (xRange + 2 * xPad));
   }
   function toSvgY(v: number) {
-    return PADDING.top + PLOT_H * (1 - (v - (minY - yPad)) / (yRange + 2 * yPad));
+    return (
+      PADDING.top + PLOT_H * (1 - (v - (minY - yPad)) / (yRange + 2 * yPad))
+    );
   }
 
   const cutoffX = toSvgX(cutoff);
@@ -141,7 +147,8 @@ export function RDDVisualization({
       rows.push({
         label: "LATE",
         values: {
-          "N points": estimatedEffect.toFixed(4) +
+          "N points":
+            estimatedEffect.toFixed(4) +
             (effectCi
               ? ` [${effectCi.lower.toFixed(4)}, ${effectCi.upper.toFixed(4)}]`
               : ""),
@@ -195,7 +202,7 @@ export function RDDVisualization({
             fontWeight={600}
             fill={chartTheme.warning}
           >
-            Cutoff = {cutoff}
+            {t("shared.charts.rdd.cutoff")} {cutoff}
           </text>
 
           {/* Scatter below */}
@@ -224,10 +231,20 @@ export function RDDVisualization({
 
           {/* Fitted lines */}
           {fittedBelowPath && (
-            <path d={fittedBelowPath} fill="none" stroke={chartTheme.primary} strokeWidth={2.5} />
+            <path
+              d={fittedBelowPath}
+              fill="none"
+              stroke={chartTheme.primary}
+              strokeWidth={2.5}
+            />
           )}
           {fittedAbovePath && (
-            <path d={fittedAbovePath} fill="none" stroke={chartTheme.secondary} strokeWidth={2.5} />
+            <path
+              d={fittedAbovePath}
+              fill="none"
+              stroke={chartTheme.secondary}
+              strokeWidth={2.5}
+            />
           )}
 
           {/* Discontinuity bracket */}
@@ -241,8 +258,18 @@ export function RDDVisualization({
                 stroke={chartTheme.success}
                 strokeWidth={2}
               />
-              <circle cx={cutoffX + 4} cy={toSvgY(belowAtCutoff.y)} r={3} fill={chartTheme.primary} />
-              <circle cx={cutoffX + 4} cy={toSvgY(aboveAtCutoff.y)} r={3} fill={chartTheme.secondary} />
+              <circle
+                cx={cutoffX + 4}
+                cy={toSvgY(belowAtCutoff.y)}
+                r={3}
+                fill={chartTheme.primary}
+              />
+              <circle
+                cx={cutoffX + 4}
+                cy={toSvgY(aboveAtCutoff.y)}
+                r={3}
+                fill={chartTheme.secondary}
+              />
 
               {/* CI whiskers */}
               {effectCi && (
@@ -273,7 +300,8 @@ export function RDDVisualization({
               fontWeight={700}
               fill={chartTheme.success}
             >
-              LATE = {estimatedEffect >= 0 ? "+" : ""}{estimatedEffect.toFixed(3)}
+              {t("shared.charts.rdd.effect")} {estimatedEffect >= 0 ? "+" : ""}
+              {estimatedEffect.toFixed(3)}
             </text>
           )}
 
@@ -301,13 +329,13 @@ export function RDDVisualization({
             fontSize={chartDefaults.tickFontSize}
             fill={chartTheme.axis}
           >
-            Running variable
+            {t("shared.charts.rdd.runningVariable")}
           </text>
         </svg>
       </div>
 
       <ChartDataTable
-        caption={title ?? "Regression Discontinuity data"}
+        caption={title ?? t("shared.charts.rdd.caption")}
         columns={["N points"]}
         rows={tableRows}
       />

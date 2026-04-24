@@ -1,4 +1,5 @@
 """Translate world-domain records into fact-log rows that satisfy the world ABI."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -236,9 +237,7 @@ def _resolve_doc_version_id(citation) -> str | None:
     if citation.doc.doc_version_id is not None:
         return citation.doc.doc_version_id
     if citation.doc.doc_version_ref is not None:
-        return doc_version_id_from_raw_artifact(
-            raw_artifact_id=citation.doc.doc_version_ref
-        )
+        return doc_version_id_from_raw_artifact(raw_artifact_id=citation.doc.doc_version_ref)
     return None
 
 
@@ -273,7 +272,9 @@ def emit_claim_facts(
                 if citation.locator is None:
                     raise WorldValidationError("citation locator required for fragment derivation")
                 if citation.text_hash is None:
-                    raise WorldValidationError("citation text_hash required for fragment derivation")
+                    raise WorldValidationError(
+                        "citation text_hash required for fragment derivation"
+                    )
                 doc_version_id = _resolve_doc_version_id(citation)
                 if doc_version_id is None:
                     raise WorldValidationError(
@@ -302,9 +303,7 @@ def emit_claim_facts(
         }
         if not doc_version_ids:
             doc_version_ids = {
-                doc_version_id_from_raw_artifact(
-                    raw_artifact_id=citation.doc.doc_version_ref
-                )
+                doc_version_id_from_raw_artifact(raw_artifact_id=citation.doc.doc_version_ref)
                 for citation in claim.citations
                 if citation.doc.doc_version_ref is not None
             }
@@ -321,9 +320,7 @@ def emit_claim_facts(
             )
     else:
         for artifact_id in claim.source_artifacts:
-            artifact_world_id = artifact_id_to_world_id(
-                prefix="artifact", artifact_id=artifact_id
-            )
+            artifact_world_id = artifact_id_to_world_id(prefix="artifact", artifact_id=artifact_id)
             facts.append(
                 emit_edge_fact(
                     src_id=claim.claim_id,
@@ -372,9 +369,7 @@ def _resolve_world_ref(
     if ref.artifact_id is None:
         raise WorldValidationError("WorldObjectRef requires world_id or artifact_id")
     if ref.artifact_id in emitted_artifacts:
-        artifact_world_id = artifact_id_to_world_id(
-            prefix="artifact", artifact_id=ref.artifact_id
-        )
+        artifact_world_id = artifact_id_to_world_id(prefix="artifact", artifact_id=ref.artifact_id)
         return artifact_world_id, []
     emitted_artifacts.add(ref.artifact_id)
     return _emit_artifact_node_facts(

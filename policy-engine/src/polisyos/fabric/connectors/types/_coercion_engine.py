@@ -6,10 +6,12 @@ Contains:
 - can_safely_cast(): convenience predicate for checking castability
 - get_coercion_path(): determines the intermediate type path between two types
 """
+
 from __future__ import annotations
 
 import warnings
-from typing import Any, Callable, ClassVar
+from collections.abc import Callable
+from typing import Any, ClassVar
 
 from ._coercion_errors import CoercionError, PrecisionLossWarning
 from ._coercion_policies import (
@@ -30,9 +32,9 @@ from ._coercion_rules import (
 
 __all__ = [
     "TypeCoercion",
-    "safe_cast",
     "can_safely_cast",
     "get_coercion_path",
+    "safe_cast",
 ]
 
 
@@ -71,14 +73,17 @@ def get_coercion_path(source_type: str, target_type: str) -> list[str] | None:
 
     # Integer widening
     if (
-        source_info.category == DataTypeCategory.INTEGER
-        and target_info.category == DataTypeCategory.INTEGER
+        (
+            source_info.category == DataTypeCategory.INTEGER
+            and target_info.category == DataTypeCategory.INTEGER
+        )
+        and source_info.bits
+        and target_info.bits
+        and target_info.bits >= source_info.bits
     ):
-        if source_info.bits and target_info.bits:
-            if target_info.bits >= source_info.bits:
-                # Check sign compatibility
-                if source_info.signed or not target_info.signed:
-                    return [source_type, target_type]
+        # Check sign compatibility
+        if source_info.signed or not target_info.signed:
+            return [source_type, target_type]
 
     # Integer to float (always possible)
     if (
@@ -89,12 +94,15 @@ def get_coercion_path(source_type: str, target_type: str) -> list[str] | None:
 
     # Float widening
     if (
-        source_info.category == DataTypeCategory.FLOAT
-        and target_info.category == DataTypeCategory.FLOAT
+        (
+            source_info.category == DataTypeCategory.FLOAT
+            and target_info.category == DataTypeCategory.FLOAT
+        )
+        and source_info.bits
+        and target_info.bits
+        and target_info.bits >= source_info.bits
     ):
-        if source_info.bits and target_info.bits:
-            if target_info.bits >= source_info.bits:
-                return [source_type, target_type]
+        return [source_type, target_type]
 
     # Any numeric to Decimal
     if source_info.is_numeric and target_info.category == DataTypeCategory.DECIMAL:
@@ -195,15 +203,10 @@ class TypeCoercion:
             result = coerce_to_datetime(value, policy=self.policy)
         else:
             result = CoercionResult.fail(
-                source_type, target_type,
-                f"unsupported target type '{target_type}'"
+                source_type, target_type, f"unsupported target type '{target_type}'"
             )
 
-        if (
-            self.policy == CoercionPolicy.WARN
-            and result.success
-            and result.precision_loss
-        ):
+        if self.policy == CoercionPolicy.WARN and result.success and result.precision_loss:
             description = "; ".join(result.warnings) if result.warnings else "precision loss"
             warnings.warn(
                 PrecisionLossWarning(value, source_type, target_type, description),

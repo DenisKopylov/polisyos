@@ -209,20 +209,31 @@ def _summarize_pass(
             "text_chars_min": min(chars_values) if chars_values else 0,
             "text_chars_max": max(chars_values) if chars_values else 0,
             "text_chars_spread_pct_of_mean": round(
-                (((max(chars_values) - min(chars_values)) / mean_chars) * 100.0) if mean_chars else 0.0,
+                (((max(chars_values) - min(chars_values)) / mean_chars) * 100.0)
+                if mean_chars
+                else 0.0,
                 2,
             ),
             "compressed_bytes_min": min(bytes_values) if bytes_values else 0,
             "compressed_bytes_max": max(bytes_values) if bytes_values else 0,
             "compressed_bytes_spread_pct_of_mean": round(
-                (((max(bytes_values) - min(bytes_values)) / mean_bytes) * 100.0) if mean_bytes else 0.0,
+                (((max(bytes_values) - min(bytes_values)) / mean_bytes) * 100.0)
+                if mean_bytes
+                else 0.0,
                 2,
             ),
         },
     }
 
 
-def run(cards_path: Path, texts_path: Path, output_root: Path, *, shard_count: int, compression_level: int) -> Path:
+def run(
+    cards_path: Path,
+    texts_path: Path,
+    output_root: Path,
+    *,
+    shard_count: int,
+    compression_level: int,
+) -> Path:
     if shard_count <= 0:
         raise ValueError("--shard-count must be positive")
     writers = _open_writers(
@@ -274,8 +285,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--cards", type=Path, required=True, help="Path to edrnpa_cards XML")
     parser.add_argument("--texts", type=Path, required=True, help="Path to edrnpa_texts XML")
-    parser.add_argument("--output-root", type=Path, required=True, help="Output directory for pre-sharded manifests")
-    parser.add_argument("--shard-count", type=int, default=6, help="Number of output shards per pass")
+    parser.add_argument(
+        "--output-root", type=Path, required=True, help="Output directory for pre-sharded manifests"
+    )
+    parser.add_argument(
+        "--shard-count", type=int, default=6, help="Number of output shards per pass"
+    )
     parser.add_argument("--compression-level", type=int, default=6, help="zstd compression level")
     args = parser.parse_args(argv)
 

@@ -8,7 +8,6 @@ from hypothesis import strategies as st
 
 from polisyos.common.serialization import fast_json_dumps, fast_json_loads
 
-
 _JSON_SCALARS = st.one_of(
     st.none(),
     st.booleans(),

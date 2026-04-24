@@ -1,18 +1,24 @@
 """Public causal tmle core module API."""
+
 from __future__ import annotations
 
 import hashlib
 import threading
+from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, field
-from typing import Any, Mapping
+from typing import Any
 
 import numpy as np
 
 from polisyos.foundry.methods.catalog.causal._sklearn_compat import (
-    LinearRegression as CompatLinearRegression,
-    LogisticRegression as CompatLogisticRegression,
     SKLEARN_AVAILABLE,
+)
+from polisyos.foundry.methods.catalog.causal._sklearn_compat import (
+    LinearRegression as CompatLinearRegression,
+)
+from polisyos.foundry.methods.catalog.causal._sklearn_compat import (
+    LogisticRegression as CompatLogisticRegression,
 )
 from polisyos.foundry.methods.catalog.causal.conformal_ci import (
     conformal_calibrate_interval,
@@ -23,7 +29,6 @@ from polisyos.foundry.methods.catalog.causal.nuisance_layer import (
     build_nuisance_config,
     fit_outcome_scaler,
     inverse_scale,
-    robust_standard_error,
     scale_outcome,
 )
 
@@ -37,7 +42,8 @@ try:  # pragma: no cover - optional dependency
         RandomForestClassifier,
         RandomForestRegressor,
     )
-    from sklearn.linear_model import ElasticNet, LogisticRegression as SklearnLogisticRegression
+    from sklearn.linear_model import ElasticNet
+    from sklearn.linear_model import LogisticRegression as SklearnLogisticRegression
 
     SKLEARN_EXTENDED_AVAILABLE = True
 except Exception:  # pragma: no cover - fallback covered by tests
@@ -56,6 +62,7 @@ except Exception:  # pragma: no cover - fallback covered by tests
 @dataclass(frozen=True)
 class ATENuisanceContract:
     """ATE nuisance contract data model."""
+
     nuisance_model_family: str = "competitive"
     propensity_backend: str = "lightgbm"
     propensity_backend_candidates: tuple[str, ...] = ()
@@ -88,12 +95,16 @@ class ATENuisanceContract:
     targeting_step_limit: float = 5.0
 
     @classmethod
-    def from_params(cls, params: Mapping[str, Any] | None) -> "ATENuisanceContract":
+    def from_params(cls, params: Mapping[str, Any] | None) -> ATENuisanceContract:
         raw = dict(params or {})
         base = build_nuisance_config(raw)
         seed_manifest_raw = raw.get("random_seed_manifest")
-        seed_manifest = tuple(int(seed) for seed in seed_manifest_raw) if seed_manifest_raw is not None else ()
-        propensity_backend_candidates = _as_backend_candidates(raw.get("propensity_backend_candidates"))
+        seed_manifest = (
+            tuple(int(seed) for seed in seed_manifest_raw) if seed_manifest_raw is not None else ()
+        )
+        propensity_backend_candidates = _as_backend_candidates(
+            raw.get("propensity_backend_candidates")
+        )
         outcome_backend_candidates = _as_backend_candidates(raw.get("outcome_backend_candidates"))
         return cls(
             nuisance_model_family=base.nuisance_model_family,
@@ -168,6 +179,7 @@ class ATENuisanceContract:
 @dataclass
 class ATENuisanceBundle:
     """ATE nuisance bundle data model."""
+
     propensity: np.ndarray
     mu1: np.ndarray
     mu0: np.ndarray
@@ -241,6 +253,7 @@ class ATENuisanceBundle:
 @dataclass
 class ATEFitResult:
     """ATE fit result data model."""
+
     ate: float
     standard_error: float
     ci_lower: float
@@ -305,11 +318,23 @@ def _instantiate_propensity_model(backend_name: str, *, seed: int) -> tuple[Any,
         except Exception:
             key = "histgradientboosting"
     if key in {"histgradientboosting", "histgb"} and SKLEARN_EXTENDED_AVAILABLE:
-        return HistGradientBoostingClassifier(max_depth=3, learning_rate=0.05, random_state=seed), "histgradientboosting"
-    if key in {"gradient_boosting", "gbm"} and SKLEARN_EXTENDED_AVAILABLE and GradientBoostingClassifier is not None:
+        return HistGradientBoostingClassifier(
+            max_depth=3, learning_rate=0.05, random_state=seed
+        ), "histgradientboosting"
+    if (
+        key in {"gradient_boosting", "gbm"}
+        and SKLEARN_EXTENDED_AVAILABLE
+        and GradientBoostingClassifier is not None
+    ):
         return GradientBoostingClassifier(random_state=seed), "gradient_boosting"
-    if key in {"random_forest", "rf"} and SKLEARN_EXTENDED_AVAILABLE and RandomForestClassifier is not None:
-        return RandomForestClassifier(n_estimators=200, random_state=seed, n_jobs=1), "random_forest"
+    if (
+        key in {"random_forest", "rf"}
+        and SKLEARN_EXTENDED_AVAILABLE
+        and RandomForestClassifier is not None
+    ):
+        return RandomForestClassifier(
+            n_estimators=200, random_state=seed, n_jobs=1
+        ), "random_forest"
     if key in {"logistic_regression", "logistic"} and SKLEARN_AVAILABLE:
         if SklearnLogisticRegression is not None:
             return SklearnLogisticRegression(max_iter=1000, solver="lbfgs"), "logistic_regression"
@@ -339,12 +364,26 @@ def _instantiate_regression_model(backend_name: str, *, seed: int) -> tuple[Any,
         except Exception:
             key = "histgradientboosting"
     if key in {"histgradientboosting", "histgb"} and SKLEARN_EXTENDED_AVAILABLE:
-        return HistGradientBoostingRegressor(max_depth=3, learning_rate=0.05, random_state=seed), "histgradientboosting"
-    if key in {"elastic_net", "elasticnet"} and SKLEARN_EXTENDED_AVAILABLE and ElasticNet is not None:
+        return HistGradientBoostingRegressor(
+            max_depth=3, learning_rate=0.05, random_state=seed
+        ), "histgradientboosting"
+    if (
+        key in {"elastic_net", "elasticnet"}
+        and SKLEARN_EXTENDED_AVAILABLE
+        and ElasticNet is not None
+    ):
         return ElasticNet(alpha=0.01, l1_ratio=0.5, max_iter=3000, random_state=seed), "elastic_net"
-    if key in {"random_forest", "rf"} and SKLEARN_EXTENDED_AVAILABLE and RandomForestRegressor is not None:
+    if (
+        key in {"random_forest", "rf"}
+        and SKLEARN_EXTENDED_AVAILABLE
+        and RandomForestRegressor is not None
+    ):
         return RandomForestRegressor(n_estimators=200, random_state=seed, n_jobs=1), "random_forest"
-    if key in {"gradient_boosting", "gbm"} and SKLEARN_EXTENDED_AVAILABLE and GradientBoostingRegressor is not None:
+    if (
+        key in {"gradient_boosting", "gbm"}
+        and SKLEARN_EXTENDED_AVAILABLE
+        and GradientBoostingRegressor is not None
+    ):
         return GradientBoostingRegressor(random_state=seed), "gradient_boosting"
     return CompatLinearRegression(), "compat_linear_regression"
 
@@ -418,7 +457,16 @@ def _fit_propensity_backend(
     calibration_applied = False
     min_calibration_size = max(0, int(contract.min_calibration_size))
     if np.unique(T[train_idx]).size < 2:
-        propensity = np.full(test_idx.size, float(np.clip(np.mean(T[train_idx]), contract.propensity_clipping, 1.0 - contract.propensity_clipping)))
+        propensity = np.full(
+            test_idx.size,
+            float(
+                np.clip(
+                    np.mean(T[train_idx]),
+                    contract.propensity_clipping,
+                    1.0 - contract.propensity_clipping,
+                )
+            ),
+        )
         selection_record["selected_propensity_backend"] = "constant"
         selection_record["calibration_modes"] = ["none"]
         return propensity, "constant", "none", selection_record
@@ -435,7 +483,9 @@ def _fit_propensity_backend(
         except Exception:
             continue
 
-        raw_calib = _base_probability(model, X[calib_idx if calib_idx.size else train_idx], clip=contract.propensity_clipping)
+        raw_calib = _base_probability(
+            model, X[calib_idx if calib_idx.size else train_idx], clip=contract.propensity_clipping
+        )
         raw_test = _base_probability(model, X[test_idx], clip=contract.propensity_clipping)
         calibration_used = "none"
         if (
@@ -444,13 +494,17 @@ def _fit_propensity_backend(
             and np.unique(T[calib_idx]).size >= 2
             and CalibratedClassifierCV is not None
         ):
-            candidate_modes = ("sigmoid",) if calibration_mode == "sigmoid" else ("isotonic", "sigmoid")
+            candidate_modes = (
+                ("sigmoid",) if calibration_mode == "sigmoid" else ("isotonic", "sigmoid")
+            )
             for candidate_mode in candidate_modes:
                 try:
                     calibrator = CalibratedClassifierCV(model, method=candidate_mode, cv="prefit")
                     calibrator.fit(X[calib_idx], T[calib_idx])
                     raw_test = np.asarray(calibrator.predict_proba(X[test_idx])[:, 1], dtype=float)
-                    raw_calib = np.asarray(calibrator.predict_proba(X[calib_idx])[:, 1], dtype=float)
+                    raw_calib = np.asarray(
+                        calibrator.predict_proba(X[calib_idx])[:, 1], dtype=float
+                    )
                     calibration_applied = True
                     calibration_used = candidate_mode
                     break
@@ -459,7 +513,11 @@ def _fit_propensity_backend(
 
         score_idx = calib_idx if calib_idx.size else train_idx
         score_target = T[score_idx]
-        score_pred = raw_calib if calib_idx.size else _base_probability(model, X[train_idx], clip=contract.propensity_clipping)
+        score_pred = (
+            raw_calib
+            if calib_idx.size
+            else _base_probability(model, X[train_idx], clip=contract.propensity_clipping)
+        )
         score = _propensity_score_loss(score_target, score_pred, clip=contract.propensity_clipping)
         selection_record["calibration_modes"].append(calibration_used)
         if score < best_score:
@@ -470,7 +528,16 @@ def _fit_propensity_backend(
                 calibration_used,
             )
     if best_payload is None:
-        propensity = np.full(test_idx.size, float(np.clip(np.mean(T[train_idx]), contract.propensity_clipping, 1.0 - contract.propensity_clipping)))
+        propensity = np.full(
+            test_idx.size,
+            float(
+                np.clip(
+                    np.mean(T[train_idx]),
+                    contract.propensity_clipping,
+                    1.0 - contract.propensity_clipping,
+                )
+            ),
+        )
         selection_record["selected_propensity_backend"] = "constant"
         selection_record["calibration_modes"] = ["none"]
         return propensity, "constant", "none", selection_record
@@ -546,14 +613,18 @@ def _fit_regression_backend(
     return preds, backend_used, selection_record
 
 
-def _make_split_manifest(treatment: np.ndarray, contract: ATENuisanceContract) -> list[dict[str, Any]]:
+def _make_split_manifest(
+    treatment: np.ndarray, contract: ATENuisanceContract
+) -> list[dict[str, Any]]:
     treatment = np.asarray(treatment, dtype=float).reshape(-1)
     n_obs = treatment.size
     if contract.random_seed_manifest:
         repeat_seeds = list(contract.random_seed_manifest)[: contract.n_repeats]
         if len(repeat_seeds) < contract.n_repeats:
             start = repeat_seeds[-1] if repeat_seeds else contract.random_seed
-            repeat_seeds.extend(start + 997 * (idx + 1) for idx in range(contract.n_repeats - len(repeat_seeds)))
+            repeat_seeds.extend(
+                start + 997 * (idx + 1) for idx in range(contract.n_repeats - len(repeat_seeds))
+            )
     else:
         repeat_seeds = [contract.random_seed + 997 * repeat for repeat in range(contract.n_repeats)]
 
@@ -746,7 +817,9 @@ def _fit_crossfit_nuisance_bundle_uncached(
         repeat_seeds = list(contract.random_seed_manifest)[: contract.n_repeats]
         if len(repeat_seeds) < contract.n_repeats:
             start = repeat_seeds[-1] if repeat_seeds else contract.random_seed
-            repeat_seeds.extend(start + 997 * (idx + 1) for idx in range(contract.n_repeats - len(repeat_seeds)))
+            repeat_seeds.extend(
+                start + 997 * (idx + 1) for idx in range(contract.n_repeats - len(repeat_seeds))
+            )
     else:
         repeat_seeds = [contract.random_seed + 997 * repeat for repeat in range(contract.n_repeats)]
 
@@ -771,7 +844,9 @@ def _fit_crossfit_nuisance_bundle_uncached(
             if shuffled_train.size >= contract.min_calibration_size + 4:
                 calib_size = max(calib_size, contract.min_calibration_size)
             calib_size = max(0, min(calib_size, max(shuffled_train.size - 4, 0)))
-            calib_idx = np.sort(shuffled_train[:calib_size]) if calib_size > 0 else np.array([], dtype=int)
+            calib_idx = (
+                np.sort(shuffled_train[:calib_size]) if calib_size > 0 else np.array([], dtype=int)
+            )
             fit_idx = np.sort(shuffled_train[calib_size:]) if calib_size > 0 else shuffled_train
             if fit_idx.size < 4:
                 fit_idx = train_idx
@@ -841,7 +916,9 @@ def _fit_crossfit_nuisance_bundle_uncached(
         )
 
     denom = float(contract.n_repeats)
-    propensity = np.clip(propensity_sum / denom, contract.propensity_clipping, 1.0 - contract.propensity_clipping)
+    propensity = np.clip(
+        propensity_sum / denom, contract.propensity_clipping, 1.0 - contract.propensity_clipping
+    )
     mu1 = mu1_sum / denom
     mu0 = mu0_sum / denom
     trim_threshold = max(contract.propensity_clipping, contract.propensity_trimming)
@@ -962,7 +1039,11 @@ def _interval_from_eif(
     if contract.ci_mode.strip().lower() == "conformal" and pseudo_values.size >= 10:
         cal_residuals = conformal_residuals_from_crossfit(pseudo_values, estimate)
         ci_lower, ci_upper, _label = conformal_calibrate_interval(
-            estimate, ci_lower, ci_upper, cal_residuals, alpha=0.05,
+            estimate,
+            ci_lower,
+            ci_upper,
+            cal_residuals,
+            alpha=0.05,
         )
         interval_method = f"{interval_method}+conformal"
 
@@ -1013,7 +1094,9 @@ def _targeting_step_limit(
     scale = 1.0
     if bool(getattr(nuisance.scaler, "applied", False)):
         scale = max(scale, float(getattr(nuisance.scaler, "scale", 1.0)))
-    valid_response = np.asarray(response[valid_mask] if np.any(valid_mask) else response, dtype=float)
+    valid_response = np.asarray(
+        response[valid_mask] if np.any(valid_mask) else response, dtype=float
+    )
     if valid_response.size > 1:
         scale = max(scale, float(np.std(valid_response, ddof=1)))
     return max(float(contract.targeting_step_limit), float(contract.targeting_step_limit) * scale)
@@ -1030,9 +1113,11 @@ def fit_aipw_ate(
     nuisance = fit_crossfit_nuisance_bundle(X, T, Y, contract, params)
     e = nuisance.propensity
     valid = _point_estimation_mask(nuisance, contract)
-    psi = nuisance.effect_signal() + T * (Y - nuisance.mu1) / e - (1.0 - T) * (
-        Y - nuisance.mu0
-    ) / (1.0 - e)
+    psi = (
+        nuisance.effect_signal()
+        + T * (Y - nuisance.mu1) / e
+        - (1.0 - T) * (Y - nuisance.mu0) / (1.0 - e)
+    )
     psi_valid = np.asarray(psi[valid], dtype=float)
     ate = float(np.mean(psi_valid))
     eif_values = psi_valid - ate
@@ -1085,7 +1170,9 @@ def fit_tmle_ate(
         step = float(np.clip(raw_step, -step_limit, step_limit))
         q1_star = q1_star + step / e
         q0_star = q0_star - step / (1.0 - e)
-        residual_mse = float(np.mean((residual[valid]) ** 2)) if np.any(valid) else float(np.mean(residual**2))
+        residual_mse = (
+            float(np.mean((residual[valid]) ** 2)) if np.any(valid) else float(np.mean(residual**2))
+        )
         history.append(
             {
                 "iteration": iteration,
@@ -1093,7 +1180,9 @@ def fit_tmle_ate(
                 "epsilon": step,
                 "epsilon_limit": step_limit,
                 "residual_mse": residual_mse,
-                "clever_covariate_mean": float(np.mean(clever[valid])) if np.any(valid) else float(np.mean(clever)),
+                "clever_covariate_mean": float(np.mean(clever[valid]))
+                if np.any(valid)
+                else float(np.mean(clever)),
             }
         )
         if abs(step) < 1e-8:
@@ -1150,10 +1239,18 @@ def result_payload(
         "nuisance_config": contract.as_legacy_config(),
         "nuisance_contract": contract.as_contract_payload(),
         "selection_manifest": {
-            "selected_propensity_backend": nuisance.propensity_backends[0] if nuisance.propensity_backends else None,
-            "selected_outcome_backend": nuisance.outcome_backends[0] if nuisance.outcome_backends else None,
-            "tested_propensity_backends": list(contract.propensity_backend_candidates or (contract.propensity_backend,)),
-            "tested_outcome_backends": list(contract.outcome_backend_candidates or (contract.outcome_backend,)),
+            "selected_propensity_backend": nuisance.propensity_backends[0]
+            if nuisance.propensity_backends
+            else None,
+            "selected_outcome_backend": nuisance.outcome_backends[0]
+            if nuisance.outcome_backends
+            else None,
+            "tested_propensity_backends": list(
+                contract.propensity_backend_candidates or (contract.propensity_backend,)
+            ),
+            "tested_outcome_backends": list(
+                contract.outcome_backend_candidates or (contract.outcome_backend,)
+            ),
             "selection_objective": contract.selection_objective,
             "split_policy": contract.overlap_diagnostic_policy,
             "calibration_modes": list(nuisance.calibration_modes),

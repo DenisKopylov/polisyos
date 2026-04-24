@@ -30,27 +30,36 @@ def test_package_facade_manifest_matches_declared_exports() -> None:
 
 def test_package_facades_import_without_eager_submodules() -> None:
     expected_empty = []
-    assert _subprocess_json(
-        "import json, sys; import polisyos.ir.analytics; "
-        "print(json.dumps(sorted("
-        "name for name in sys.modules "
-        "if name.startswith('polisyos.ir.analytics.')"
-        ")))"
-    ) == expected_empty
-    assert _subprocess_json(
-        "import json, sys; import polisyos.ir.kernel; "
-        "print(json.dumps(sorted("
-        "name for name in sys.modules "
-        "if name.startswith('polisyos.ir.kernel.')"
-        ")))"
-    ) == expected_empty
-    assert _subprocess_json(
-        "import json, sys; import polisyos.ir.world; "
-        "print(json.dumps(sorted("
-        "name for name in sys.modules "
-        "if name.startswith('polisyos.ir.world.')"
-        ")))"
-    ) == expected_empty
+    assert (
+        _subprocess_json(
+            "import json, sys; import polisyos.ir.analytics; "
+            "print(json.dumps(sorted("
+            "name for name in sys.modules "
+            "if name.startswith('polisyos.ir.analytics.')"
+            ")))"
+        )
+        == expected_empty
+    )
+    assert (
+        _subprocess_json(
+            "import json, sys; import polisyos.ir.kernel; "
+            "print(json.dumps(sorted("
+            "name for name in sys.modules "
+            "if name.startswith('polisyos.ir.kernel.')"
+            ")))"
+        )
+        == expected_empty
+    )
+    assert (
+        _subprocess_json(
+            "import json, sys; import polisyos.ir.world; "
+            "print(json.dumps(sorted("
+            "name for name in sys.modules "
+            "if name.startswith('polisyos.ir.world.')"
+            ")))"
+        )
+        == expected_empty
+    )
 
 
 def test_lazy_export_access_imports_only_requested_module_group() -> None:
@@ -123,6 +132,28 @@ def test_network_generative_block_bridge_contracts_are_exported_from_ir_surfaces
     assert bridge_exports <= set(ir.__all__)
     assert ir.CausalBlockBridge.__name__ == "CausalBlockBridge"
     assert ir.CausalBlockBridgeRef.__name__ == "CausalBlockBridgeRef"
+
+
+def test_welfare_ge_uncertainty_contracts_are_exported_from_ir_surfaces() -> None:
+    welfare_exports = {
+        "GEUncertaintyBundle",
+        "GEUncertaintyBundleRef",
+        "GEUncertaintyRepresentation",
+        "WelfareBundle",
+        "WelfareBundleRef",
+        "WelfareIntervalSemantics",
+        "WelfareMethod",
+        "WelfareSampleBundle",
+        "WelfareSampleBundleRef",
+        "WelfareStatus",
+    }
+    assert welfare_exports <= set(analytics.__all__)
+    assert analytics.WelfareBundle.__name__ == "WelfareBundle"
+    assert analytics.GEUncertaintyBundle.__name__ == "GEUncertaintyBundle"
+    assert analytics.WelfareBundleRef.__name__ == "WelfareBundleRef"
+    assert welfare_exports <= set(ir.__all__)
+    assert ir.WelfareBundle.__name__ == "WelfareBundle"
+    assert ir.GEUncertaintyBundleRef.__name__ == "GEUncertaintyBundleRef"
 
 
 def test_public_surface_docs_counts_match_manifest() -> None:

@@ -1,4 +1,5 @@
 """Public conflicts uncertainty adapter module API."""
+
 from __future__ import annotations
 
 from decimal import Decimal

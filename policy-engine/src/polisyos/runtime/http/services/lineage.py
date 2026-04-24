@@ -1,14 +1,19 @@
 """Resolve artifact dependency DAGs into runtime lineage response DTOs."""
+
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from polisyos.core.artifacts.graph import NodeStatus, resolve_dependency_graph
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.contracts.runtime import (
     ArtifactLineageEdge,
     ArtifactLineageNode,
     ArtifactLineageView,
 )
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts.protocol import ArtifactStore
 
 
 class LineageService:
@@ -18,6 +23,7 @@ class LineageService:
     API responses predictable. Missing or corrupted dependencies are surfaced in
     the returned `ArtifactLineageView` rather than raised as hard failures.
     """
+
     def __init__(
         self,
         *,

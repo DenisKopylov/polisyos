@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
 import { useI18n } from "@/i18n/LocaleProvider";
-import { AtlasBrand } from "@/shared/brand/AtlasBrand";
+import { JanusGlyph } from "@/shared/brand/JanusGlyph";
 import { Button } from "@/shared/ui";
 import { useChatStore } from "../state/useChatStore";
 import { useClerkNlRun } from "../hooks/useClerkNlRun";
@@ -44,7 +44,7 @@ export function ChatContainer() {
         <div className="flex items-center gap-3">
           {atlasEnabled ? (
             <div className="flex items-center gap-3">
-              <AtlasBrand size={32} variant="mark" />
+              <JanusGlyph decorative size={32} variant="mark" />
               <div className="grid gap-1">
                 <p className="eyebrow">{t("shell.header.shellLite")}</p>
                 <p className="text-sm font-semibold text-[var(--ink)]">
@@ -80,7 +80,9 @@ export function ChatContainer() {
       >
         {messages.length === 0 && (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
-            {atlasEnabled ? <AtlasBrand size={48} variant="mark" /> : null}
+            {atlasEnabled ? (
+              <JanusGlyph decorative size={32} variant="mark" />
+            ) : null}
             <h2 className="text-xl font-bold text-[var(--ink)]">
               {t("clerk.welcomeTitle")}
             </h2>

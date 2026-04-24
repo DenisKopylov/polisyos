@@ -124,7 +124,9 @@ def test_run_source_gap_review_node_performs_second_recovery_cycle(monkeypatch, 
     report_ref = persist_source_verification_report(store, initial_report)
 
     class _RecoveryToolkit:
-        def assemble_legal_candidate_pack(self, query, *, jurisdiction="UA", domain=None, as_of=None):
+        def assemble_legal_candidate_pack(
+            self, query, *, jurisdiction="UA", domain=None, as_of=None
+        ):
             del jurisdiction, domain, as_of
             return LegalCandidatePack(
                 request_id="req-1",
@@ -137,12 +139,12 @@ def test_run_source_gap_review_node_performs_second_recovery_cycle(monkeypatch, 
                         object_name="видача посвідчень",
                         fact_text="Порядок видачі посвідчень встановлюється Кабінетом Міністрів України.",
                         confidence=0.91,
-                            norm_type="procedure",
-                            norm_type_canon="procedure",
-                            source_quote_uk="Порядок видачі посвідчень встановлюється Кабінетом Міністрів України.",
-                            trust_tier="grounded_fact",
-                            grounding_status="exact_quote",
-                            canonical_status="canonicalized",
+                        norm_type="procedure",
+                        norm_type_canon="procedure",
+                        source_quote_uk="Порядок видачі посвідчень встановлюється Кабінетом Міністрів України.",
+                        trust_tier="grounded_fact",
+                        grounding_status="exact_quote",
+                        canonical_status="canonicalized",
                         legal_unit_subtype="approval_bundle",
                         route_class="reasoning",
                         doc_id="doc-1",
@@ -158,7 +160,9 @@ def test_run_source_gap_review_node_performs_second_recovery_cycle(monkeypatch, 
                 ],
             )
 
-        def expand_legal_source_pack(self, candidate_pack, *, max_source_docs=120, max_reference_hops=2):
+        def expand_legal_source_pack(
+            self, candidate_pack, *, max_source_docs=120, max_reference_hops=2
+        ):
             del max_source_docs, max_reference_hops
             return LegalSourcePack(
                 request_id=candidate_pack.request_id,
@@ -202,7 +206,9 @@ def test_run_source_gap_review_node_performs_second_recovery_cycle(monkeypatch, 
     assert outcome.state.params["verification_cycles_completed"] == 2
     assert outcome.state.params["needs_expert_review"] is False
 
-    updated_candidate_pack = load_legal_candidate_pack(store, outcome.state.legal_candidate_pack_ref)
+    updated_candidate_pack = load_legal_candidate_pack(
+        store, outcome.state.legal_candidate_pack_ref
+    )
     assert "порядок видачі посвідчень встановлюється" in updated_candidate_pack.queries
     updated_report = load_source_verification_report(
         store, outcome.state.source_verification_report_ref
@@ -289,6 +295,11 @@ def test_build_decision_packet_includes_verified_policy_sections(tmp_path) -> No
     assert payload["verified_findings"] == ["Ліцензія є обов'язковою. [стаття 1]"]
     assert payload["hypotheses"] == ["Можливе пом'якшення вимог для пілотного режиму."]
     assert payload["intervention_legal_basis_map"]["verified_option_1"] == ["стаття 1"]
+    outline = {entry["section_id"]: entry for entry in payload["document_outline"]}
+    assert outline["policy_answer"]["section_type"] == "policy"
+    assert outline["policy_answer"]["title"] == "Recommendation"
+    assert outline["policy_summary"]["section_type"] == "intervention"
+    assert outline["governance"]["section_type"] == "governance"
 
 
 def test_build_decision_packet_records_degraded_paths_for_invalid_policy_verification_artifacts(

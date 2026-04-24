@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import numpy as np
@@ -32,7 +32,7 @@ def build_json_report(
     """Build the full JSON report artifact."""
     report = {
         "benchmark": "honest_head_to_head",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "environment": env_snapshot,
         "fairness_manifests": {k: json.loads(v) for k, v in fairness_manifests.items()},
         "results": {},
@@ -152,7 +152,9 @@ def build_tier_comparison_table(
     # Collect rankings per tier
     rankings: dict[str, dict[str, int]] = {}
     for tier_name, metrics_list in all_metrics.items():
-        tier_rows = [m for m in metrics_list if m.dataset_name == dataset_name and not np.isnan(m.ate_rmse)]
+        tier_rows = [
+            m for m in metrics_list if m.dataset_name == dataset_name and not np.isnan(m.ate_rmse)
+        ]
         tier_rows.sort(key=lambda r: r.ate_rmse)
         for rank, m in enumerate(tier_rows, 1):
             rankings.setdefault(m.method_name, {})[tier_name] = rank

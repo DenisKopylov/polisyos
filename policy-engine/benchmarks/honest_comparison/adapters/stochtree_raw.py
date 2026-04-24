@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 import numpy as np
 
 from benchmarks.honest_comparison.adapters.base import EstimatorResult
@@ -21,9 +19,14 @@ class RawBCF:
 
         bcf = BCFModel()
         bcf.sample(
-            X_train=X, Z_train=T.astype(int), y_train=Y,
-            X_test=X, Z_test=T.astype(int),
-            num_gfr=10, num_burnin=100, num_mcmc=200,
+            X_train=X,
+            Z_train=T.astype(int),
+            y_train=Y,
+            X_test=X,
+            Z_test=T.astype(int),
+            num_gfr=10,
+            num_burnin=100,
+            num_mcmc=200,
         )
 
         tau_hat = bcf.tau_hat_test  # posterior mean of CATE
@@ -41,7 +44,9 @@ class RawBCF:
             se = float(np.std(cate) / np.sqrt(len(cate)))
 
         return EstimatorResult(
-            ate=ate, ate_se=se,
-            ci_lower=ate - 1.96 * se, ci_upper=ate + 1.96 * se,
+            ate=ate,
+            ate_se=se,
+            ci_lower=ate - 1.96 * se,
+            ci_upper=ate + 1.96 * se,
             cate=cate,
         )

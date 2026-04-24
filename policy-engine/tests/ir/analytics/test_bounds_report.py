@@ -1,4 +1,5 @@
 """Tests for BoundsReport, BoundMethod (new values), and BenchmarkResult IR types."""
+
 from __future__ import annotations
 
 import pytest
@@ -10,10 +11,10 @@ from polisyos.ir.analytics.partial_identification import (
 )
 from polisyos.ir.analytics.sensitivity import BenchmarkResult
 
-
 # ---------------------------------------------------------------------------
 # BoundMethod enum — new values
 # ---------------------------------------------------------------------------
+
 
 class TestBoundMethodEnum:
     def test_mtr_bounds_exists(self):
@@ -41,6 +42,7 @@ class TestBoundMethodEnum:
 # BoundsReport — construction and derived fields
 # ---------------------------------------------------------------------------
 
+
 def _make_pid(
     method: BoundMethod,
     lower: float,
@@ -58,7 +60,7 @@ def _make_pid(
 
 class TestBoundsReportDerivedFields:
     def test_tightest_method_is_argmin_width(self):
-        wide = _make_pid(BoundMethod.MANSKI, -1.0, 1.0)          # width=2.0
+        wide = _make_pid(BoundMethod.MANSKI, -1.0, 1.0)  # width=2.0
         narrow = _make_pid(BoundMethod.LP_BALKE_PEARL, 0.1, 0.5)  # width=0.4
         report = BoundsReport(results=[wide, narrow], estimand_type="ate")
         assert report.tightest_method == BoundMethod.LP_BALKE_PEARL
@@ -100,9 +102,9 @@ class TestBoundsReportDerivedFields:
         assert report.consensus_upper == pytest.approx(0.5)
 
     def test_three_results_tightest_selection(self):
-        r1 = _make_pid(BoundMethod.MANSKI, -1.0, 1.0)         # width=2.0
-        r2 = _make_pid(BoundMethod.MTR_BOUNDS, -0.4, 0.8)     # width=1.2
-        r3 = _make_pid(BoundMethod.LP_BALKE_PEARL, 0.05, 0.4) # width=0.35 ← tightest
+        r1 = _make_pid(BoundMethod.MANSKI, -1.0, 1.0)  # width=2.0
+        r2 = _make_pid(BoundMethod.MTR_BOUNDS, -0.4, 0.8)  # width=1.2
+        r3 = _make_pid(BoundMethod.LP_BALKE_PEARL, 0.05, 0.4)  # width=0.35 ← tightest
         report = BoundsReport(results=[r1, r2, r3], estimand_type="ate")
         assert report.tightest_method == BoundMethod.LP_BALKE_PEARL
 
@@ -111,11 +113,16 @@ class TestBoundsReportDerivedFields:
 # BoundsReport — serialization round-trip
 # ---------------------------------------------------------------------------
 
+
 class TestBoundsReportSerialization:
     def test_round_trip_single_result(self):
         pid = _make_pid(BoundMethod.MANSKI, -0.5, 0.5)
-        report = BoundsReport(results=[pid], run_id="run-001", estimand_type="ate",
-                              assumptions_used=["no_assumptions"])
+        report = BoundsReport(
+            results=[pid],
+            run_id="run-001",
+            estimand_type="ate",
+            assumptions_used=["no_assumptions"],
+        )
         dumped = report.model_dump(mode="json")
         reloaded = BoundsReport.model_validate(dumped)
         assert reloaded.tightest_method == report.tightest_method
@@ -163,6 +170,7 @@ class TestBoundsReportSerialization:
 # BoundsReport — is_informative edge cases
 # ---------------------------------------------------------------------------
 
+
 class TestBoundsReportInformativeFlag:
     def test_informative_threshold_exactly_half_range(self):
         """Width = 0.5 → should be informative for default [0,1] range."""
@@ -188,6 +196,7 @@ class TestBoundsReportInformativeFlag:
 # ---------------------------------------------------------------------------
 # BenchmarkResult — validation via analytics.sensitivity
 # ---------------------------------------------------------------------------
+
 
 class TestBenchmarkResultValidation:
     def test_r2yd_x_must_be_in_unit_interval(self):

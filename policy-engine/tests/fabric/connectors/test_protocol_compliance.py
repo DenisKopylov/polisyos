@@ -1,9 +1,11 @@
 """Protocol Compliance Tests for Data Fabric Connectors."""
+
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timezone
-from typing import AsyncIterator, ClassVar
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
+from typing import ClassVar
 
 import pytest
 
@@ -81,7 +83,7 @@ def sample_version() -> DataVersion:
     return DataVersion(
         strategy=VersionStrategy.CONTENT_HASH,
         value="sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-        timestamp=datetime(2024, 1, 15, 12, 0, 0, tzinfo=timezone.utc),
+        timestamp=datetime(2024, 1, 15, 12, 0, 0, tzinfo=UTC),
         content_hash="sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
     )
 
@@ -131,10 +133,10 @@ class CompliantConnector(BaseConnector[list[dict]]):
             schema_version="1.0",
             version=DataVersion(
                 strategy=VersionStrategy.TIMESTAMP,
-                value=datetime.now(timezone.utc).isoformat(),
-                timestamp=datetime.now(timezone.utc),
+                value=datetime.now(UTC).isoformat(),
+                timestamp=datetime.now(UTC),
             ),
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=1.0,
         )
 
@@ -226,9 +228,9 @@ class StreamingCapabilityNoMethodConnector:
             version=DataVersion(
                 strategy=VersionStrategy.TIMESTAMP,
                 value="now",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
             ),
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=1.0,
         )
 
@@ -267,9 +269,9 @@ class BaseConnectorNoOverride(BaseConnector[list[dict]]):
             version=DataVersion(
                 strategy=VersionStrategy.TIMESTAMP,
                 value="now",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
             ),
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=1.0,
         )
 
@@ -308,9 +310,9 @@ class SyncMethodsConnector:
             version=DataVersion(
                 strategy=VersionStrategy.TIMESTAMP,
                 value="now",
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
             ),
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=1.0,
         )
 
@@ -332,9 +334,9 @@ class TestProtocolCompliance:
 
     def test_streaming_capability_without_method_fails(self) -> None:
         violations = validate_protocol_compliance(StreamingCapabilityNoMethodConnector)
-        assert any(
-            "STREAMING" in v and "fetch_stream" in v for v in violations
-        ), f"Should report missing fetch_stream for STREAMING: {violations}"
+        assert any("STREAMING" in v and "fetch_stream" in v for v in violations), (
+            f"Should report missing fetch_stream for STREAMING: {violations}"
+        )
 
     def test_baseconnector_default_method_fails(self) -> None:
         violations = validate_protocol_compliance(BaseConnectorNoOverride)
@@ -346,8 +348,7 @@ class TestProtocolCompliance:
                 self,
                 handle: ConnectionHandle,
                 request: FetchRequest,
-            ) -> AsyncIterator[DataChunk[list[dict]]]:
-                ...
+            ) -> AsyncIterator[DataChunk[list[dict]]]: ...
 
         violations = validate_protocol_compliance(ProtocolStubConnector)
         assert any(
@@ -445,14 +446,14 @@ class TestFetchRequestHashing:
     def test_same_params_same_hash(self) -> None:
         request1 = FetchRequest(
             dataset_id="test.dataset",
-            date_start=datetime(2024, 1, 1, tzinfo=timezone.utc),
-            date_end=datetime(2024, 12, 31, tzinfo=timezone.utc),
+            date_start=datetime(2024, 1, 1, tzinfo=UTC),
+            date_end=datetime(2024, 12, 31, tzinfo=UTC),
             filters=(("country", ("USA", "DEU")),),
         )
         request2 = FetchRequest(
             dataset_id="test.dataset",
-            date_start=datetime(2024, 1, 1, tzinfo=timezone.utc),
-            date_end=datetime(2024, 12, 31, tzinfo=timezone.utc),
+            date_start=datetime(2024, 1, 1, tzinfo=UTC),
+            date_end=datetime(2024, 12, 31, tzinfo=UTC),
             filters=(("country", ("USA", "DEU")),),
         )
 
@@ -475,11 +476,11 @@ class TestFetchRequestHashing:
     def test_different_params_different_hash(self) -> None:
         request1 = FetchRequest(
             dataset_id="test.dataset",
-            date_start=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            date_start=datetime(2024, 1, 1, tzinfo=UTC),
         )
         request2 = FetchRequest(
             dataset_id="test.dataset",
-            date_start=datetime(2025, 1, 1, tzinfo=timezone.utc),
+            date_start=datetime(2025, 1, 1, tzinfo=UTC),
         )
 
         assert request1.cache_key != request2.cache_key
@@ -548,7 +549,7 @@ class TestFetchResult:
             schema_id="test.schema",
             schema_version="1.0",
             version=sample_version,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=0.95,
         )
 
@@ -564,7 +565,7 @@ class TestFetchResult:
                 schema_id="test",
                 schema_version="1.0",
                 version=sample_version,
-                fetched_at=datetime.now(timezone.utc),
+                fetched_at=datetime.now(UTC),
                 completeness=1.5,
             )
 
@@ -575,7 +576,7 @@ class TestFetchResult:
             schema_id="test",
             schema_version="1.0",
             version=sample_version,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=1.0,
             has_more=False,
         )
@@ -586,7 +587,7 @@ class TestFetchResult:
             schema_id="test",
             schema_version="1.0",
             version=sample_version,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=1.0,
             has_more=True,
         )
@@ -601,7 +602,7 @@ class TestFetchResult:
             schema_id="test",
             schema_version="1.0",
             version=sample_version,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=0.98,
             quality_tier=QualityTier.GOLD,
             quality_flags=frozenset(),
@@ -613,7 +614,7 @@ class TestFetchResult:
             schema_id="test",
             schema_version="1.0",
             version=sample_version,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             completeness=0.80,
             quality_tier=QualityTier.BRONZE,
             quality_flags=frozenset({"missing_values"}),
@@ -623,7 +624,7 @@ class TestFetchResult:
         assert not low_quality.is_high_quality
 
     def test_structured_boundary_views(self, sample_version: DataVersion) -> None:
-        fetched_at = datetime.now(timezone.utc)
+        fetched_at = datetime.now(UTC)
         result = FetchResult(
             data=[{"a": 1}],
             row_count=1,
@@ -674,12 +675,12 @@ class TestDataVersion:
         older = DataVersion(
             strategy=VersionStrategy.TIMESTAMP,
             value="2024-01-01",
-            timestamp=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            timestamp=datetime(2024, 1, 1, tzinfo=UTC),
         )
         newer = DataVersion(
             strategy=VersionStrategy.TIMESTAMP,
             value="2024-06-01",
-            timestamp=datetime(2024, 6, 1, tzinfo=timezone.utc),
+            timestamp=datetime(2024, 6, 1, tzinfo=UTC),
         )
 
         assert newer.is_newer_than(older)
@@ -689,12 +690,12 @@ class TestDataVersion:
         v1 = DataVersion(
             strategy=VersionStrategy.REVISION,
             value="1",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
         )
         v2 = DataVersion(
             strategy=VersionStrategy.REVISION,
             value="2",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
         )
 
         assert v2.is_newer_than(v1)
@@ -704,7 +705,7 @@ class TestDataVersion:
         version = DataVersion(
             strategy=VersionStrategy.CONTENT_HASH,
             value="sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
         )
 
         with pytest.raises(Exception):
@@ -865,9 +866,7 @@ class TestCapabilityHelpers:
         assert not (bitmask & ConnectorCapability.CATALOG_BROWSE.value)
 
     def test_flags_from_capabilities(self) -> None:
-        bitmask = (
-            ConnectorCapability.FULL_FETCH.value | ConnectorCapability.CATALOG_BROWSE.value
-        )
+        bitmask = ConnectorCapability.FULL_FETCH.value | ConnectorCapability.CATALOG_BROWSE.value
         flags = flags_from_capabilities(bitmask)
 
         assert ConnectorCapability.FULL_FETCH in flags

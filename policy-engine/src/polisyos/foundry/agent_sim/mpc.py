@@ -1,4 +1,5 @@
 """Public agent sim mpc module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -17,6 +18,7 @@ from polisyos.foundry.agent_sim.temporal import build_temporal_observations
 @dataclass(frozen=True)
 class MPCPlanner:
     """MPC planner public type."""
+
     simulator: PureExecutor
     horizon: int = 8
     n_samples: int = 32
@@ -64,9 +66,7 @@ class MPCPlanner:
             def rollout_step(carry, t):
                 cur_state = carry
                 next_state, _ = self.simulator.step(cur_state)
-                reward = compute_agent_reward(
-                    cur_state, next_state, utility_type=self.utility_type
-                )
+                reward = compute_agent_reward(cur_state, next_state, utility_type=self.utility_type)
                 discounted = (self.discount_factor**t) * reward[agent_idx]
                 return next_state, discounted
 
@@ -99,6 +99,7 @@ class MPCPlanner:
 @dataclass(frozen=True)
 class HybridPlanner:
     """Hybrid planner public type."""
+
     actor_critic: ActorCritic
     mpc_planner: MPCPlanner
     mpc_threshold: float = 0.1

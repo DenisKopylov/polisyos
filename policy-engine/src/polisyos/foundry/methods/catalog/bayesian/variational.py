@@ -8,10 +8,12 @@ Implements:
   (BBVI / ADVI-style) with Adam optimiser.  Applicable to any differentiable
   log-joint via NumPy auto-diff (finite-difference approx for generality).
 """
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from statistics import NormalDist
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -50,7 +52,6 @@ from .protocols import (
     weighted_quantile,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -68,25 +69,39 @@ def _elbo_linear(
     n, d = X.shape
     # Likelihood term (approximate with current mean)
     y_pred = X @ mu_q
-    ll = -0.5 * float(np.sum((y - y_pred) ** 2)) - 0.5 * float(np.sum(np.diag(X.T @ X) * sigma_q ** 2))
+    ll = -0.5 * float(np.sum((y - y_pred) ** 2)) - 0.5 * float(
+        np.sum(np.diag(X.T @ X) * sigma_q**2)
+    )
     # KL term: KL[N(mu, sigma^2) || N(0, prior_scale^2)]
-    kl = 0.5 * float(np.sum(
-        (sigma_q ** 2 + mu_q ** 2) / prior_scale ** 2
-        - 1.0
-        - 2 * log_sigma_q
-        + 2 * np.log(prior_scale)
-    ))
+    kl = 0.5 * float(
+        np.sum(
+            (sigma_q**2 + mu_q**2) / prior_scale**2
+            - 1.0
+            - 2 * log_sigma_q
+            + 2 * np.log(prior_scale)
+        )
+    )
     return ll - kl
 
 
 def _output_slots() -> frozenset[SlotSpec]:
-    return frozenset({
-        SlotSpec("result", SlotType.SCALAR, Unit("posterior", "json"),
-                 contract_id=PosteriorResult.contract_id),
-        SlotSpec("prediction_result", SlotType.SCALAR, Unit("prediction", "json"),
-                 contract_id=PredictionResult.contract_id),
-        SlotSpec("uncertainty_envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
-    })
+    return frozenset(
+        {
+            SlotSpec(
+                "result",
+                SlotType.SCALAR,
+                Unit("posterior", "json"),
+                contract_id=PosteriorResult.contract_id,
+            ),
+            SlotSpec(
+                "prediction_result",
+                SlotType.SCALAR,
+                Unit("prediction", "json"),
+                contract_id=PredictionResult.contract_id,
+            ),
+            SlotSpec("uncertainty_envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
+        }
+    )
 
 
 def _reference_linear_gaussian_posterior(
@@ -133,8 +148,7 @@ def _diag_gaussian_log_density(
     centered = samples - mean[None, :]
     variance = np.maximum(std**2, 1e-12)
     return -0.5 * (
-        np.sum((centered**2) / variance[None, :], axis=1)
-        + np.sum(np.log(2.0 * np.pi * variance))
+        np.sum((centered**2) / variance[None, :], axis=1) + np.sum(np.log(2.0 * np.pi * variance))
     )
 
 
@@ -203,7 +217,8 @@ def _variational_truthfulness_payload(
     alpha = max(1e-6, 1.0 - float(credible_mass))
     corrected_intervals = {
         f"beta_{idx}": tuple(
-            float(value) for value in weighted_quantile(
+            float(value)
+            for value in weighted_quantile(
                 q_samples[:, idx],
                 [alpha / 2.0, 1.0 - alpha / 2.0],
                 sample_weight=weights,
@@ -229,13 +244,18 @@ def _variational_truthfulness_payload(
     sign_ref, logdet_ref = np.linalg.slogdet(reference_cov + 1e-12 * np.eye(reference_cov.shape[0]))
     sign_q, logdet_q = np.linalg.slogdet(diagonal_cov)
     diff = reference_mean - posterior_mean
-    kl_q_to_ref = 0.5 * float(
-        np.trace(precision_ref @ diagonal_cov)
-        + diff.T @ precision_ref @ diff
-        - X.shape[1]
-        + logdet_ref
-        - logdet_q
-    ) if sign_ref > 0 and sign_q > 0 else float("inf")
+    kl_q_to_ref = (
+        0.5
+        * float(
+            np.trace(precision_ref @ diagonal_cov)
+            + diff.T @ precision_ref @ diff
+            - X.shape[1]
+            + logdet_ref
+            - logdet_q
+        )
+        if sign_ref > 0 and sign_q > 0
+        else float("inf")
+    )
     corr = reference_cov / np.sqrt(
         np.maximum(np.diag(reference_cov), 1e-12)[:, None]
         * np.maximum(np.diag(reference_cov), 1e-12)[None, :]
@@ -259,7 +279,9 @@ def _variational_truthfulness_payload(
         "reference_mean_shift_max": float(
             np.max(np.abs(posterior_mean - reference_mean) / np.maximum(reference_std, 1e-12))
         ),
-        "reference_correlation_max": float(np.max(np.abs(corr[offdiag_mask]))) if np.any(offdiag_mask) else 0.0,
+        "reference_correlation_max": float(np.max(np.abs(corr[offdiag_mask])))
+        if np.any(offdiag_mask)
+        else 0.0,
         "joint_kl_q_to_reference": kl_q_to_ref,
         "offline_coverage_error_max": float(max(coverage_gaps)) if coverage_gaps else 0.0,
         "offline_tail_coverage_error_max": float(max(tail_gaps)) if tail_gaps else 0.0,
@@ -308,10 +330,17 @@ class MeanFieldVIEstimator:
         name="mean_field_vi",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
-            SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_obs",)),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    "features",
+                    SlotType.MATRIX,
+                    Unit("feature", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
+                SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_obs",)),
+            }
+        ),
         output_slots=_output_slots(),
         parameters=(
             ParameterSpec(name="prior_scale", default=1.0, bounds=(1e-3, 100.0)),
@@ -413,10 +442,7 @@ class MeanFieldVIEstimator:
                 "credible_mass": 0.95,
                 "final_elbo": float(elbos[-1]) if elbos else float("nan"),
                 "n_iter": float(len(elbos)),
-                "converged": float(
-                    len(elbos) <= 1
-                    or abs(elbos[-1] - elbos[-2]) < 100 * tol
-                ),
+                "converged": float(len(elbos) <= 1 or abs(elbos[-1] - elbos[-2]) < 100 * tol),
                 **truthfulness_diagnostics,
             },
             posterior_means={f"beta_{i}": float(mu_q[i]) for i in range(d)},
@@ -496,10 +522,17 @@ class BBVIEstimator:
         name="bbvi",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
-            SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_obs",)),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec(
+                    "features",
+                    SlotType.MATRIX,
+                    Unit("feature", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
+                SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_obs",)),
+            }
+        ),
         output_slots=_output_slots(),
         parameters=(
             ParameterSpec(name="prior_scale", default=1.0, bounds=(1e-3, 100.0)),
@@ -564,7 +597,7 @@ class BBVIEstimator:
         def log_joint(beta: np.ndarray) -> float:
             """Log p(y|X,beta) + log p(beta)."""
             ll = -0.5 * float(np.sum((y - X @ beta) ** 2))
-            lp = -0.5 * float(np.sum(beta ** 2)) / tau ** 2
+            lp = -0.5 * float(np.sum(beta**2)) / tau**2
             return ll + lp
 
         elbos: list[float] = []
@@ -604,13 +637,13 @@ class BBVIEstimator:
 
             # Adam update
             m_mu = beta1 * m_mu + (1 - beta1) * g_mu
-            v_mu = beta2 * v_mu + (1 - beta2) * g_mu ** 2
+            v_mu = beta2 * v_mu + (1 - beta2) * g_mu**2
             m_ls = beta1 * m_ls + (1 - beta1) * g_ls
-            v_ls = beta2 * v_ls + (1 - beta2) * g_ls ** 2
-            m_mu_hat = m_mu / (1 - beta1 ** step)
-            v_mu_hat = v_mu / (1 - beta2 ** step)
-            m_ls_hat = m_ls / (1 - beta1 ** step)
-            v_ls_hat = v_ls / (1 - beta2 ** step)
+            v_ls = beta2 * v_ls + (1 - beta2) * g_ls**2
+            m_mu_hat = m_mu / (1 - beta1**step)
+            v_mu_hat = v_mu / (1 - beta2**step)
+            m_ls_hat = m_ls / (1 - beta1**step)
+            v_ls_hat = v_ls / (1 - beta2**step)
             mu = mu + lr * m_mu_hat / (np.sqrt(v_mu_hat) + adam_eps)
             log_sigma = log_sigma + lr * m_ls_hat / (np.sqrt(v_ls_hat) + adam_eps)
             elbos.append(elbo)

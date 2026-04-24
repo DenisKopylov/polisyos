@@ -1,15 +1,16 @@
 """Public foundry specs module API."""
+
 from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
-from typing import Any, Dict
+from typing import Any
 
 from polisyos.ir.kernel import DEFAULT_MECHANISM_REGISTRY, MechanismTypeSpec, ParamType
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 from polisyos.ir.units import UNIT_REGISTRY
 
 MechanismSpec = MechanismTypeSpec
-MECHANISM_SPECS: Dict[str, MechanismSpec] = DEFAULT_MECHANISM_REGISTRY.mechanisms
+MECHANISM_SPECS: dict[str, MechanismSpec] = DEFAULT_MECHANISM_REGISTRY.mechanisms
 
 
 def get_mechanism_spec(mech_type: str) -> MechanismSpec:
@@ -21,7 +22,7 @@ def get_mechanism_spec(mech_type: str) -> MechanismSpec:
     return MECHANISM_SPECS[mech_type]
 
 
-def _get_param_value(params: Dict[str, Any], path: str) -> Any:
+def _get_param_value(params: dict[str, Any], path: str) -> Any:
     current: Any = params
     for part in path.split("."):
         if not isinstance(current, dict) or part not in current:
@@ -102,7 +103,7 @@ def _validate_param_value(value: Any, spec) -> None:
 
 def validate_mechanism_params(
     mech_type: str,
-    params: Dict[str, Any],
+    params: dict[str, Any],
     *,
     allow_extra_params: bool = False,
     mechanism_spec: MechanismSpec | None = None,
@@ -132,7 +133,7 @@ def validate_mechanism_params(
             )
 
     if not allow_extra_params:
-        for key in params.keys():
+        for key in params:
             if key not in spec_params:
                 raise ValueError(f"Mechanism '{mech_type}' has unknown param '{key}'")
 

@@ -1,10 +1,14 @@
 import { expect, test } from "@playwright/test";
 
+import { readFixtureMetadata } from "./helpers/runtime-dashboard";
+
 const FIXTURE_RUN_ID = "R_core_api_001";
 const FIXTURE_PROMOTION_ID = "promotion_fixture_001";
 const LIVE_STORAGE_KEY = "polisyos.runtime.disableLive";
 const THEME_STORAGE_KEY = "polisyos.runtime.theme";
 const INTERFACE_MODE_STORAGE_KEY = "polisyos.runtime.interface-mode";
+const FIXTURE_DECISION_PACKET_ID =
+  readFixtureMetadata().decision_packet_artifact_id;
 
 test.describe("runtime-dashboard visual baselines", () => {
   test.use({
@@ -99,9 +103,7 @@ test.describe("runtime-dashboard visual baselines", () => {
     }, THEME_STORAGE_KEY);
     await page.goto("/evidence");
     await expect(page.getByTestId("evidence-page")).toBeVisible();
-    await expect(
-      page.getByTestId("evidence-source-atlas-panel"),
-    ).toBeVisible();
+    await expect(page.getByTestId("evidence-source-atlas-panel")).toBeVisible();
     await expect(page.getByTestId("evidence-page")).toHaveScreenshot(
       "dark-evidence-fabric.png",
       {
@@ -169,5 +171,26 @@ test.describe("runtime-dashboard visual baselines", () => {
         caret: "hide",
       },
     );
+  });
+
+  test("decision packet reading view A4 print", async ({ page }) => {
+    await page.setViewportSize({ width: 794, height: 1123 });
+    await page.emulateMedia({ media: "print" });
+    await page.goto(
+      `/artifacts/${FIXTURE_DECISION_PACKET_ID}?tab=content&view=reading`,
+    );
+    await expect(page.getByTestId("artifact-page")).toBeVisible();
+    await expect(page.locator(".monograph-layout")).toBeVisible();
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+    });
+    await expect(page.locator(".monograph-layout")).toHaveScreenshot(
+      "decision-reading-view-a4-print.png",
+      {
+        animations: "disabled",
+        caret: "hide",
+      },
+    );
+    await page.emulateMedia({ media: "screen" });
   });
 });

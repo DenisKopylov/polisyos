@@ -1,11 +1,12 @@
 """Resolve execution profiles and control-plane posture from env vars and caller identity."""
+
 from __future__ import annotations
 
 import hashlib
 import json
 import os
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, cast
 
 from polisyos.core.contracts.control import ExecutionProfile, PolicyFlags
@@ -28,6 +29,7 @@ def _env_flag(name: str) -> bool:
 
 class ExecutionProfileError(ValueError):
     """Signal that a requested profile is invalid or weaker than deployment policy."""
+
     def __init__(self, code: str, message: str) -> None:
         super().__init__(message)
         self.code = code
@@ -35,6 +37,7 @@ class ExecutionProfileError(ValueError):
 
 class PolicyFlagForbiddenError(PermissionError):
     """Signal that a non-privileged caller requested a restricted policy flag."""
+
     def __init__(self, code: str, message: str) -> None:
         super().__init__(message)
         self.code = code
@@ -42,12 +45,14 @@ class PolicyFlagForbiddenError(PermissionError):
 
 class RuntimeBootstrapError(RuntimeError):
     """Signal that deployment configuration cannot satisfy the selected execution profile."""
+
     pass
 
 
 @dataclass(frozen=True)
 class RuntimePrincipal:
     """Normalize caller identity for execution-policy checks."""
+
     subject: str = "anonymous"
     tenant_id: str | None = None
     roles: frozenset[str] = frozenset()
@@ -59,7 +64,7 @@ class RuntimePrincipal:
         return bool(self.roles & {role.value for role in _PRIVILEGED_ROLES})
 
     @classmethod
-    def from_user_claims(cls, claims: UserIdentityClaims | None) -> "RuntimePrincipal":
+    def from_user_claims(cls, claims: UserIdentityClaims | None) -> RuntimePrincipal:
         """Convert normalized JWT claims into the internal principal policy model."""
         if claims is None:
             return cls()
@@ -74,6 +79,7 @@ class RuntimePrincipal:
 @dataclass(frozen=True)
 class ResolvedExecutionPolicy:
     """Describe effective runtime posture after profile, flags, and principal checks."""
+
     default_profile: ExecutionProfile
     requested_profile: ExecutionProfile | None
     effective_profile: ExecutionProfile
@@ -96,6 +102,7 @@ class ResolvedExecutionPolicy:
 
 class RuntimeExecutionPolicyResolver:
     """Validate requested execution profiles against deployment and caller constraints."""
+
     def __init__(
         self,
         *,
@@ -112,8 +119,8 @@ class RuntimeExecutionPolicyResolver:
         self._postgres_dsn = postgres_dsn
 
     @classmethod
-    def from_env(cls) -> "RuntimeExecutionPolicyResolver":
-        """Resolve deployment defaults from `POLISYOS_EXECUTION_PROFILE` and control-plane env vars."""
+    def from_env(cls) -> RuntimeExecutionPolicyResolver:
+        """Resolve deployment defaults from env and control-plane settings."""
         default_profile = cls._coerce_profile(
             os.getenv("POLISYOS_EXECUTION_PROFILE", "dev").strip().lower() or "dev"
         )
@@ -126,7 +133,9 @@ class RuntimeExecutionPolicyResolver:
         return cls(
             default_profile=default_profile,
             worker_backend=os.getenv("POLISYOS_CONTROL_WORKER_BACKEND", default_worker_backend),
-            state_store_backend=os.getenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", default_state_store),
+            state_store_backend=os.getenv(
+                "POLISYOS_CONTROL_STATE_STORE_BACKEND", default_state_store
+            ),
             sqlite_path=os.getenv(
                 "POLISYOS_CONTROL_SQLITE_PATH",
                 ".polisyos/control_plane.sqlite3",
@@ -172,7 +181,7 @@ class RuntimeExecutionPolicyResolver:
                 "invalid_execution_profile",
                 f"Unsupported execution profile: {value!r}",
             )
-        return cast(ExecutionProfile, normalized)
+        return cast("ExecutionProfile", normalized)
 
     @classmethod
     def _profile_rank(cls, value: str | ExecutionProfile) -> int:
@@ -186,7 +195,7 @@ class RuntimeExecutionPolicyResolver:
         policy_flags: PolicyFlags | None = None,
         principal: RuntimePrincipal | None = None,
     ) -> ResolvedExecutionPolicy:
-        """Resolve requested/default profile, enforce no-downgrade policy, and derive runtime posture.
+        """Resolve profile, enforce no-downgrade policy, and derive runtime posture.
 
         Raises:
             ExecutionProfileError: If the requested profile is invalid or weaker
@@ -199,7 +208,9 @@ class RuntimeExecutionPolicyResolver:
         requested: ExecutionProfile | None = (
             self._coerce_profile(requested_profile) if requested_profile else None
         )
-        if requested is not None and self._profile_rank(requested) < self._profile_rank(self._default_profile):
+        if requested is not None and self._profile_rank(requested) < self._profile_rank(
+            self._default_profile
+        ):
             raise ExecutionProfileError(
                 "execution_profile_downgrade_forbidden",
                 (
@@ -301,9 +312,7 @@ class RuntimeExecutionPolicyResolver:
                 "Execution profile requires PostgreSQL-backed control-plane state store."
             )
         if policy.postgres_required and not self._postgres_dsn:
-            raise RuntimeBootstrapError(
-                "Execution profile requires POLISYOS_CONTROL_POSTGRES_DSN."
-            )
+            raise RuntimeBootstrapError("Execution profile requires POLISYOS_CONTROL_POSTGRES_DSN.")
         if policy.external_worker_required and self._worker_backend != "external":
             raise RuntimeBootstrapError(
                 "Execution profile requires POLISYOS_CONTROL_WORKER_BACKEND=external."
@@ -313,9 +322,7 @@ class RuntimeExecutionPolicyResolver:
                 "Execution profile requires runtime security middlewares and providers."
             )
         if not policy.authz_shadow_allowed and authz_shadow_mode:
-            raise RuntimeBootstrapError(
-                "Execution profile 'production' forbids authz shadow mode."
-            )
+            raise RuntimeBootstrapError("Execution profile 'production' forbids authz shadow mode.")
         return policy
 
 
@@ -331,7 +338,7 @@ def build_capability_manifest_payload(
     """Build the durable capability-manifest payload persisted alongside control jobs."""
     return {
         "schema_version": "1.0",
-        "created_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+        "created_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
         "job_id": job_id,
         "run_id": run_id,
         "pipeline_id": pipeline_id,

@@ -86,9 +86,18 @@ def test_legal_knowledge_store_prefers_high_trust_layers(tmp_path) -> None:
             "123",
             "стаття 1",
         )
-        con.execute("INSERT INTO lex_facts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", row)
-        con.execute("INSERT INTO lex_fact_grounded VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", row)
-        con.execute("INSERT INTO lex_normative_facts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", row)
+        con.execute(
+            "INSERT INTO lex_facts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            row,
+        )
+        con.execute(
+            "INSERT INTO lex_fact_grounded VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            row,
+        )
+        con.execute(
+            "INSERT INTO lex_normative_facts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            row,
+        )
         con.execute("INSERT INTO lex_rule_thresholds VALUES ('t1', 'f1', 'vat_rate')")
 
     store = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
@@ -103,7 +112,9 @@ def test_legal_knowledge_store_prefers_high_trust_layers(tmp_path) -> None:
         thresholds = store.search_facts_with_threshold("vat_rate", domain="transport")
         assert len(thresholds) == 1
 
-        norms = store.get_applicable_norms(domain="transport", jurisdiction="UA", as_of="2024-02-01")
+        norms = store.get_applicable_norms(
+            domain="transport", jurisdiction="UA", as_of="2024-02-01"
+        )
         assert len(norms) == 1
     finally:
         store.close()
@@ -144,7 +155,9 @@ def test_legal_knowledge_store_supports_quality_band_and_fused_confidence_filter
             )
             """
         )
-        con.execute("CREATE TABLE lex_high_confidence_norms AS SELECT * FROM lex_normative_facts WHERE 1 = 0")
+        con.execute(
+            "CREATE TABLE lex_high_confidence_norms AS SELECT * FROM lex_normative_facts WHERE 1 = 0"
+        )
         con.execute(
             """
             CREATE TABLE lex_rule_thresholds (
@@ -251,11 +264,15 @@ def test_legal_knowledge_store_hides_temporal_unknown_rows_for_as_of(tmp_path) -
              'document', 'status_semantics', 0.5, '{}', 'Unknown law', 'U-1', 'art:2', 'стаття 2')
             """
         )
-        con.execute("CREATE TABLE lex_rule_thresholds (threshold_id VARCHAR, fact_id VARCHAR, metric VARCHAR)")
+        con.execute(
+            "CREATE TABLE lex_rule_thresholds (threshold_id VARCHAR, fact_id VARCHAR, metric VARCHAR)"
+        )
 
     store = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
     try:
-        norms = store.get_applicable_norms(domain="transport", jurisdiction="UA", as_of="2024-02-01")
+        norms = store.get_applicable_norms(
+            domain="transport", jurisdiction="UA", as_of="2024-02-01"
+        )
         assert [fact.fact_id for fact in norms] == ["resolved1"]
         assert norms[0].temporal_resolution_status == "resolved"
     finally:

@@ -1,25 +1,15 @@
 """Public causal registry boot module API."""
+
 from __future__ import annotations
 
 import importlib
 import logging
 import sys
-from typing import Sequence
+from collections.abc import Sequence
 
-from polisyos.foundry.methods.catalog.causal.interference import (
-    BipartiteInterferenceEstimator,
-    NetworkAIPWEstimator,
-    PartialInterferenceEstimator,
-    SpatialInterferenceEstimator,
-)
-from polisyos.foundry.methods.catalog.causal.measurement_error import (
-    MeasurementErrorEstimator,
-)
-from polisyos.foundry.methods.catalog.causal.missing_data import (
-    AdministrativeMissingnessAssessment,
-    FullLawIdentify,
-    OrderedRecovery,
-    RecoverabilityTest,
+from polisyos.foundry.methods.catalog.causal.actual_causality import (
+    ActualCausalityEngine,
+    HPActualCauseMethod,
 )
 from polisyos.foundry.methods.catalog.causal.advanced_designs import (
     BunchingEstimator,
@@ -39,90 +29,12 @@ from polisyos.foundry.methods.catalog.causal.bounds import (
     OptimizationBasedBoundsEstimator,
 )
 from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
-from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import (
-    IntersectionBoundsEstimator,
-    RosenbaumSharpBoundsEstimator,
-    TanBoundsEstimator,
-)
+from polisyos.foundry.methods.catalog.causal.causal_bcf import CausalBCF
+from polisyos.foundry.methods.catalog.causal.causal_fairness import CausalFairnessEngine
 from polisyos.foundry.methods.catalog.causal.constraint_discovery import (
     FCIDiscovery,
     GESDiscovery,
     PCDiscovery,
-)
-from polisyos.foundry.methods.catalog.causal.dagma_discovery import DAGMADiscovery
-from polisyos.foundry.methods.catalog.causal.discovery_pipeline import UnifiedCausalDiscovery
-from polisyos.foundry.methods.catalog.causal.cross_fit import CrossFitOrchestrator
-from polisyos.foundry.methods.catalog.causal.cross_fit_schedule import FoldAggregator
-from polisyos.foundry.methods.catalog.causal.density_ratio import DensityRatioEstimator
-from polisyos.foundry.methods.catalog.causal.distributional_bounds import (
-    DistributionalBoundsEngineMethod,
-)
-from polisyos.foundry.methods.catalog.causal.eif_bounds import (
-    SemiparametricEfficiencyBoundMethod,
-)
-from polisyos.foundry.methods.catalog.causal.diagnostics import (
-    ParallelTrendsCheck,
-    PolicyOverlapDiagnostic,
-    PositivityDiagnostic,
-    SupportMismatchDiagnostic,
-)
-from polisyos.foundry.methods.catalog.causal.independence_tests import (
-    CategoricalConditionalIndependenceTest,
-    HSICIndependenceTest,
-    KCIConditionalTest,
-    PartialCorrelationTest,
-)
-from polisyos.foundry.methods.catalog.causal.invariance_tests import (
-    ICPInvarianceTest,
-    InvariantDiscoveryFromRegimes,
-    KSInvarianceTest,
-)
-from polisyos.foundry.methods.catalog.causal.did import (
-    StandardDifferenceInDifferences,
-    StaggeredDifferenceInDifferences,
-)
-from polisyos.foundry.methods.catalog.causal.gcm_fit import HybridSCMFit
-from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
-from polisyos.foundry.methods.catalog.causal.twin_network_query import TwinNetworkQuery
-from polisyos.foundry.methods.catalog.causal.graph_reconciliation import ReconcileCausalGraph
-from polisyos.foundry.methods.catalog.causal.literature_prior import BuildLiteraturePrior
-from polisyos.foundry.methods.catalog.causal.actual_causality import (
-    ActualCausalityEngine,
-    HPActualCauseMethod,
-)
-from polisyos.foundry.methods.catalog.causal.mediation import (
-    CausalMediationEstimator,
-    ControlledDirectEffectEstimator,
-    NaturalEffectEstimator,
-)
-from polisyos.foundry.methods.catalog.causal.causal_bcf import CausalBCF
-from polisyos.foundry.methods.catalog.causal.forest_dr import ForestDRLearnerEstimator
-from polisyos.foundry.methods.catalog.causal.path_specific import PathSpecificEffectEstimator
-from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
-from polisyos.foundry.methods.catalog.causal.modern_did import (
-    BorusyakJaravelSpiessEstimator,
-    CallawaySantAnnaEstimator,
-    DeChaisemartinDHaultfoeuilleEstimator,
-    SunAbrahamEstimator,
-)
-from polisyos.foundry.methods.catalog.causal.parameter_transfer import ParameterTransfer
-from polisyos.foundry.methods.catalog.causal.pcmci_discovery import PCMCIDiscovery
-from polisyos.foundry.methods.catalog.causal.rdd import RegressionDiscontinuity
-from polisyos.foundry.methods.catalog.causal.sensitivity_metrics import SensitivityMetrics
-from polisyos.foundry.methods.catalog.causal.structural_time_series import StructuralTimeSeries
-from polisyos.foundry.methods.catalog.causal.symbolic_identify import (
-    SymbolicIdentify,
-    SymbolicIdentifyV2,
-)
-from polisyos.foundry.methods.catalog.causal.synthetic_control import SyntheticControlMethod
-from polisyos.foundry.methods.catalog.causal.transport_check import CheckTransportability
-from polisyos.foundry.methods.catalog.causal.treatment_effects import (
-    AIPWEstimator,
-    CBPSEstimator,
-    EntropyBalancingEstimator,
-    IPWEstimator,
-    PropensityScoreMatchingEstimator,
-    TMLEEstimator,
 )
 from polisyos.foundry.methods.catalog.causal.continuous_treatment import (
     EntropyBalancingContinuousEstimator,
@@ -130,46 +42,65 @@ from polisyos.foundry.methods.catalog.causal.continuous_treatment import (
     KernelDoseResponseEstimator,
     ShiftInterventionEstimator,
 )
-from polisyos.foundry.methods.catalog.causal.stochastic_policies import (
-    PolicyAIPWEstimator,
-    PolicyPluginEstimator,
-    PolicyTMLEEstimator,
+from polisyos.foundry.methods.catalog.causal.cross_fit import (
+    CrossFitContinuousOrchestrator,
+    CrossFitOrchestrator,
 )
-from polisyos.foundry.methods.catalog.causal.multi_treatment import (
-    MultiArmAIPWEstimator,
-    MultinomialIPWEstimator,
+from polisyos.foundry.methods.catalog.causal.cross_fit_schedule import FoldAggregator
+from polisyos.foundry.methods.catalog.causal.dagma_discovery import DAGMADiscovery
+from polisyos.foundry.methods.catalog.causal.data_fusion import DataFusionEngine
+from polisyos.foundry.methods.catalog.causal.density_ratio import DensityRatioEstimator
+from polisyos.foundry.methods.catalog.causal.diagnostics import (
+    ParallelTrendsCheck,
+    PolicyOverlapDiagnostic,
+    PositivityDiagnostic,
+    SupportMismatchDiagnostic,
 )
-from polisyos.foundry.methods.catalog.causal.superlearner import SuperLearnerNuisanceModel
-from polisyos.foundry.methods.catalog.causal.nuisance_resolver import (
-    MultinomialPropensityModel,
-    ParametricConditionalDensity,
+from polisyos.foundry.methods.catalog.causal.did import (
+    StaggeredDifferenceInDifferences,
+    StandardDifferenceInDifferences,
 )
-from polisyos.foundry.methods.catalog.causal.cross_fit import CrossFitContinuousOrchestrator
+from polisyos.foundry.methods.catalog.causal.discovery_pipeline import UnifiedCausalDiscovery
+from polisyos.foundry.methods.catalog.causal.distributional_bounds import (
+    DistributionalBoundsEngineMethod,
+)
+from polisyos.foundry.methods.catalog.causal.eif_bounds import (
+    SemiparametricEfficiencyBoundMethod,
+)
+from polisyos.foundry.methods.catalog.causal.endogenous_group_inequality import (
+    EndogenousGroupInequalityDecompositionEstimator,
+)
 from polisyos.foundry.methods.catalog.causal.fairness import (
     CounterfactualFairnessEstimator,
     PathSpecificFairnessEstimator,
     TVFairnessDecomposer,
 )
-from polisyos.foundry.methods.catalog.causal.causal_fairness import CausalFairnessEngine
-from polisyos.foundry.methods.catalog.causal.data_fusion import DataFusionEngine
-from polisyos.foundry.methods.catalog.causal.optimal_design import CausalExperimentDesigner
-from polisyos.foundry.methods.catalog.causal.operator_valued import (
-    OperatorApplyProbeMethod,
-    OperatorCMEKRREstimator,
-    OperatorExportBasisMethod,
-    OperatorKIVEstimator,
-    OperatorProximalMinimaxEstimator,
-    OperatorRLearnerEstimator,
-    OperatorUnsupportedTargetMethod,
-)
+from polisyos.foundry.methods.catalog.causal.forest_dr import ForestDRLearnerEstimator
 from polisyos.foundry.methods.catalog.causal.frontier import (
     DistributionalTreatmentEffectEstimator,
     NetworkHeterogeneousEffectEstimator,
     ProximalBridgeEstimator,
     SpatialProximalBridgeEstimator,
 )
-from polisyos.foundry.methods.catalog.causal.proximal_mediation import (
-    ProximalMediationEstimator,
+from polisyos.foundry.methods.catalog.causal.gcm_fit import HybridSCMFit
+from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
+from polisyos.foundry.methods.catalog.causal.graph_reconciliation import ReconcileCausalGraph
+from polisyos.foundry.methods.catalog.causal.independence_tests import (
+    CategoricalConditionalIndependenceTest,
+    HSICIndependenceTest,
+    KCIConditionalTest,
+    PartialCorrelationTest,
+)
+from polisyos.foundry.methods.catalog.causal.interference import (
+    BipartiteInterferenceEstimator,
+    NetworkAIPWEstimator,
+    PartialInterferenceEstimator,
+    SpatialInterferenceEstimator,
+)
+from polisyos.foundry.methods.catalog.causal.invariance_tests import (
+    ICPInvarianceTest,
+    InvariantDiscoveryFromRegimes,
+    KSInvarianceTest,
 )
 from polisyos.foundry.methods.catalog.causal.kernel_methods import (
     FitCMEMGivenX,
@@ -191,6 +122,81 @@ from polisyos.foundry.methods.catalog.causal.kernel_methods import (
     KernelTransportEstimator,
     SolveKernelProximalBridge,
 )
+from polisyos.foundry.methods.catalog.causal.literature_prior import BuildLiteraturePrior
+from polisyos.foundry.methods.catalog.causal.measurement_error import (
+    MeasurementErrorEstimator,
+)
+from polisyos.foundry.methods.catalog.causal.mediation import (
+    CausalMediationEstimator,
+    ControlledDirectEffectEstimator,
+    NaturalEffectEstimator,
+)
+from polisyos.foundry.methods.catalog.causal.missing_data import (
+    AdministrativeMissingnessAssessment,
+    FullLawIdentify,
+    OrderedRecovery,
+    RecoverabilityTest,
+)
+from polisyos.foundry.methods.catalog.causal.modern_did import (
+    BorusyakJaravelSpiessEstimator,
+    CallawaySantAnnaEstimator,
+    DeChaisemartinDHaultfoeuilleEstimator,
+    SunAbrahamEstimator,
+)
+from polisyos.foundry.methods.catalog.causal.multi_treatment import (
+    MultiArmAIPWEstimator,
+    MultinomialIPWEstimator,
+)
+from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+from polisyos.foundry.methods.catalog.causal.nuisance_resolver import (
+    MultinomialPropensityModel,
+    ParametricConditionalDensity,
+)
+from polisyos.foundry.methods.catalog.causal.operator_valued import (
+    OperatorApplyProbeMethod,
+    OperatorCMEKRREstimator,
+    OperatorExportBasisMethod,
+    OperatorKIVEstimator,
+    OperatorProximalMinimaxEstimator,
+    OperatorRLearnerEstimator,
+    OperatorUnsupportedTargetMethod,
+)
+from polisyos.foundry.methods.catalog.causal.optimal_design import CausalExperimentDesigner
+from polisyos.foundry.methods.catalog.causal.parameter_transfer import ParameterTransfer
+from polisyos.foundry.methods.catalog.causal.path_specific import PathSpecificEffectEstimator
+from polisyos.foundry.methods.catalog.causal.pcmci_discovery import PCMCIDiscovery
+from polisyos.foundry.methods.catalog.causal.proximal_mediation import (
+    ProximalMediationEstimator,
+)
+from polisyos.foundry.methods.catalog.causal.rdd import RegressionDiscontinuity
+from polisyos.foundry.methods.catalog.causal.sensitivity_bounds import (
+    IntersectionBoundsEstimator,
+    RosenbaumSharpBoundsEstimator,
+    TanBoundsEstimator,
+)
+from polisyos.foundry.methods.catalog.causal.sensitivity_metrics import SensitivityMetrics
+from polisyos.foundry.methods.catalog.causal.stochastic_policies import (
+    PolicyAIPWEstimator,
+    PolicyPluginEstimator,
+    PolicyTMLEEstimator,
+)
+from polisyos.foundry.methods.catalog.causal.structural_time_series import StructuralTimeSeries
+from polisyos.foundry.methods.catalog.causal.superlearner import SuperLearnerNuisanceModel
+from polisyos.foundry.methods.catalog.causal.symbolic_identify import (
+    SymbolicIdentify,
+    SymbolicIdentifyV2,
+)
+from polisyos.foundry.methods.catalog.causal.synthetic_control import SyntheticControlMethod
+from polisyos.foundry.methods.catalog.causal.transport_check import CheckTransportability
+from polisyos.foundry.methods.catalog.causal.treatment_effects import (
+    AIPWEstimator,
+    CBPSEstimator,
+    EntropyBalancingEstimator,
+    IPWEstimator,
+    PropensityScoreMatchingEstimator,
+    TMLEEstimator,
+)
+from polisyos.foundry.methods.catalog.causal.twin_network_query import TwinNetworkQuery
 
 _logger = logging.getLogger(__name__)
 
@@ -355,6 +361,7 @@ def register_causal_methods() -> Sequence[type]:
         SpatialProximalBridgeEstimator,
         ProximalMediationEstimator,
         DistributionalTreatmentEffectEstimator,
+        EndogenousGroupInequalityDecompositionEstimator,
         NetworkHeterogeneousEffectEstimator,
         # Stage 14.2 operator-valued causal effects
         OperatorCMEKRREstimator,

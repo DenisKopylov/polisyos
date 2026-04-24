@@ -8,6 +8,13 @@ import pytest
 pytest.importorskip("jax")
 
 from polisyos.scientist.engine.state_branching import branch_state as real_branch_state
+from polisyos.scientist.nodes.builtins.decide.run_policy_translation import (
+    RunPolicyTranslationNode,
+)
+from polisyos.scientist.nodes.builtins.decide.run_translator_compliance import (
+    RunTranslatorComplianceNode,
+)
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_POLICY_BRIEF_REF
 from polisyos.scientist.policy_design.output import (
     ChampionPolicyDossier,
     ConstraintSatisfactionEntry,
@@ -23,13 +30,6 @@ from polisyos.scientist.search.readiness import (
     DecisionReadiness,
     DecisionReadinessContract,
 )
-from polisyos.scientist.nodes.builtins.decide.run_policy_translation import (
-    RunPolicyTranslationNode,
-)
-from polisyos.scientist.nodes.builtins.decide.run_translator_compliance import (
-    RunTranslatorComplianceNode,
-)
-from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_POLICY_BRIEF_REF
 
 
 def _readiness_contract() -> DecisionReadinessContract:

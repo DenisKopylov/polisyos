@@ -1,10 +1,4 @@
-import {
-  MessageSquare,
-  Activity,
-  Share2,
-  Wifi,
-  WifiOff,
-} from "lucide-react";
+import { MessageSquare, Activity, Share2, Wifi, WifiOff } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/LocaleProvider";
@@ -48,9 +42,7 @@ function ConnectionIndicator() {
         <TooltipTrigger asChild>
           <Wifi className="h-4 w-4 animate-pulse text-amber-500" />
         </TooltipTrigger>
-        <TooltipContent>
-          {t("collaboration.toolbar.connecting")}
-        </TooltipContent>
+        <TooltipContent>{t("collaboration.toolbar.connecting")}</TooltipContent>
       </Tooltip>
     );
   }
@@ -60,9 +52,7 @@ function ConnectionIndicator() {
       <TooltipTrigger asChild>
         <WifiOff className="h-4 w-4 text-neutral-400" />
       </TooltipTrigger>
-      <TooltipContent>
-        {t("collaboration.toolbar.disconnected")}
-      </TooltipContent>
+      <TooltipContent>{t("collaboration.toolbar.disconnected")}</TooltipContent>
     </Tooltip>
   );
 }
@@ -117,16 +107,14 @@ export function CollaborationToolbar({
             {unresolvedCount > 0 && (
               <Badge
                 kind="warn"
-                className="absolute -right-1.5 -top-1.5 h-4 min-w-4 px-1 text-[10px]"
+                className="absolute -top-1.5 -right-1.5 h-4 min-w-4 px-1 text-[10px]"
               >
                 {unresolvedCount}
               </Badge>
             )}
           </Button>
         </TooltipTrigger>
-        <TooltipContent>
-          {t("collaboration.toolbar.comments")}
-        </TooltipContent>
+        <TooltipContent>{t("collaboration.toolbar.comments")}</TooltipContent>
       </Tooltip>
 
       {/* Activity toggle */}
@@ -141,9 +129,7 @@ export function CollaborationToolbar({
             <Activity className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>
-          {t("collaboration.toolbar.activity")}
-        </TooltipContent>
+        <TooltipContent>{t("collaboration.toolbar.activity")}</TooltipContent>
       </Tooltip>
 
       {/* Share button */}
@@ -159,9 +145,7 @@ export function CollaborationToolbar({
               <Share2 className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
-            {t("collaboration.toolbar.share")}
-          </TooltipContent>
+          <TooltipContent>{t("collaboration.toolbar.share")}</TooltipContent>
         </Tooltip>
       )}
     </div>

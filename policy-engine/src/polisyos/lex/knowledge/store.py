@@ -6,8 +6,7 @@ This is the persistence layer used by ``search.py``.
 from __future__ import annotations
 
 import hashlib
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 import numpy as np
@@ -22,6 +21,9 @@ from polisyos.lex.knowledge.types import (
     LegalSourceAnchor,
     LegalSourceBundle,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = get_logger(__name__)
 
@@ -135,7 +137,9 @@ class LegalKnowledgeStore:
         include_candidates: bool,
         quality_band: str | None = None,
     ) -> str:
-        if quality_band == "high_confidence_norm" and self._table_exists("lex_high_confidence_norms"):
+        if quality_band == "high_confidence_norm" and self._table_exists(
+            "lex_high_confidence_norms"
+        ):
             return "lex_high_confidence_norms"
         if trust_tier == "normative_fact" and self._table_exists("lex_normative_facts"):
             return "lex_normative_facts"
@@ -193,7 +197,9 @@ class LegalKnowledgeStore:
             params.append(float(min_fused_confidence))
         if as_of:
             if "temporal_resolution_status" in available_columns:
-                clauses.append(f"LOWER(COALESCE({prefix}temporal_resolution_status, 'unknown')) = 'resolved'")
+                clauses.append(
+                    f"LOWER(COALESCE({prefix}temporal_resolution_status, 'unknown')) = 'resolved'"
+                )
             clauses.append(f"COALESCE({prefix}effective_from, '') <> ''")
             clauses.append(f"{prefix}effective_from <= ?")
             params.append(as_of)
@@ -373,9 +379,11 @@ class LegalKnowledgeStore:
         if self._entity_index is None or self._entity_ids is None:
             return []
 
-        labels, distances = self._entity_index.knn_query(query_vector.reshape(1, -1), k=min(top_k, len(self._entity_ids)))
+        labels, distances = self._entity_index.knn_query(
+            query_vector.reshape(1, -1), k=min(top_k, len(self._entity_ids))
+        )
         results: list[LegalSearchResult] = []
-        for label, dist in zip(labels[0], distances[0]):
+        for label, dist in zip(labels[0], distances[0], strict=False):
             similarity = 1.0 - float(dist)
             if similarity < min_similarity:
                 continue
@@ -421,9 +429,11 @@ class LegalKnowledgeStore:
             include_candidates=include_candidates,
             quality_band=quality_band,
         )
-        labels, distances = self._fact_index.knn_query(query_vector.reshape(1, -1), k=min(top_k, len(self._fact_ids)))
+        labels, distances = self._fact_index.knn_query(
+            query_vector.reshape(1, -1), k=min(top_k, len(self._fact_ids))
+        )
         results: list[LegalFactResult] = []
-        for label, dist in zip(labels[0], distances[0]):
+        for label, dist in zip(labels[0], distances[0], strict=False):
             similarity = 1.0 - float(dist)
             if similarity < min_similarity:
                 continue
@@ -464,9 +474,11 @@ class LegalKnowledgeStore:
         if self._provision_index is None or self._provision_ids is None:
             return []
 
-        labels, distances = self._provision_index.knn_query(query_vector.reshape(1, -1), k=min(top_k, len(self._provision_ids)))
+        labels, distances = self._provision_index.knn_query(
+            query_vector.reshape(1, -1), k=min(top_k, len(self._provision_ids))
+        )
         results: list[LegalProvisionResult] = []
-        for label, dist in zip(labels[0], distances[0]):
+        for label, dist in zip(labels[0], distances[0], strict=False):
             similarity = 1.0 - float(dist)
             if similarity < min_similarity:
                 continue
@@ -693,7 +705,9 @@ class LegalKnowledgeStore:
         )
         if query:
             pattern = f"%{query}%"
-            clauses.insert(0, "(fact_text ILIKE ? OR source_quote_uk ILIKE ? OR condition_text_uk ILIKE ?)")
+            clauses.insert(
+                0, "(fact_text ILIKE ? OR source_quote_uk ILIKE ? OR condition_text_uk ILIKE ?)"
+            )
             params = [pattern, pattern, pattern, *params, top_k]
         else:
             params = [*params, top_k]
@@ -1041,7 +1055,11 @@ class LegalKnowledgeStore:
                         (row[0], row[1]),
                         (row[2], row[3]),
                     ):
-                        if candidate_pair[0] and candidate_pair[1] and candidate_pair not in seen_pairs:
+                        if (
+                            candidate_pair[0]
+                            and candidate_pair[1]
+                            and candidate_pair not in seen_pairs
+                        ):
                             seen_pairs.add(candidate_pair)
                             next_frontier.append(candidate_pair)
             frontier = next_frontier
@@ -1090,9 +1108,9 @@ class LegalKnowledgeStore:
                 source_family = item.legal_unit_subtype
                 break
         bundle_id = hashlib.sha256(
-            "|".join([doc_id, resolved_version_id, *sorted(item.anchor for item in primary_anchors)]).encode(
-                "utf-8"
-            )
+            "|".join(
+                [doc_id, resolved_version_id, *sorted(item.anchor for item in primary_anchors)]
+            ).encode("utf-8")
         ).hexdigest()[:20]
         appendix_context: list[str] = []
         for anchor in primary_anchors:

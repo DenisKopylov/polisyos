@@ -46,10 +46,12 @@ export function scheduleA11yAudit(): void {
               `[a11y] ${violation.impact?.toUpperCase() ?? "UNKNOWN"} ${violation.help}`,
               `rule=${violation.id}`,
               `docs=${violation.helpUrl}`,
-              ...violation.nodes.slice(0, 5).map(
-                (node, index) =>
-                  `node${index + 1}=${node.target.join(" > ")} :: ${node.html}`,
-              ),
+              ...violation.nodes
+                .slice(0, 5)
+                .map(
+                  (node, index) =>
+                    `node${index + 1}=${node.target.join(" > ")} :: ${node.html}`,
+                ),
               violation.nodes.length > 5
                 ? `additionalNodes=${violation.nodes.length - 5}`
                 : null,

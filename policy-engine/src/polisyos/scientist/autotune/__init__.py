@@ -5,17 +5,18 @@ promotion logic depend on directly. Runtime loaders and candidate generators are
 lazy-loaded so importing this facade does not force heavyweight execution
 dependencies or import-cycle-prone modules.
 """
+
 from __future__ import annotations
 
 import importlib
 from typing import Any
 
 from .models import (
+    BenchmarkedEvaluator,
     BenchmarkEvaluation,
     BenchmarkSplit,
     BenchmarkSplitManifest,
     BenchmarkSuite,
-    BenchmarkedEvaluator,
     ChampionPointer,
     MetricDirection,
     MutationArtifact,
@@ -68,8 +69,8 @@ try:
     from .runtime import (
         ChampionBackedRuntimeLoader,
         PydanticMutationCodec,
-        SequenceCandidateGenerator,
         SearchLoopRunner,
+        SequenceCandidateGenerator,
         seed_loop_baseline,
     )
 
@@ -77,8 +78,8 @@ try:
         [
             "ChampionBackedRuntimeLoader",
             "PydanticMutationCodec",
-            "SequenceCandidateGenerator",
             "SearchLoopRunner",
+            "SequenceCandidateGenerator",
             "seed_loop_baseline",
         ]
     )
@@ -129,6 +130,7 @@ def __getattr__(name: str) -> Any:
     value = getattr(module, attr_name)
     globals()[name] = value
     return value
+
 
 try:
     from .execution_plan import (

@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -15,8 +15,11 @@ for _p in (str(_BENCH_ROOT.parent), str(_BENCH_ROOT.parent / "src")):
         sys.path.insert(0, _p)
 
 from benchmarks.reporting import validate_publication_payload
-from benchmarks.suite_registry import SuiteSpec, spec_by_suite_id, suites_for_claim_profile, suites_for_profile
-
+from benchmarks.suite_registry import (
+    SuiteSpec,
+    suites_for_claim_profile,
+    suites_for_profile,
+)
 
 CLAIM_PROFILES: dict[str, dict[str, Any]] = {
     "frontier_frontier_claim": {
@@ -83,9 +86,7 @@ def evaluate_claim_gate(
     profile: str = "air-m2",
     claim_profile: str | None = None,
 ) -> dict[str, Any]:
-    evaluated_profiles = (
-        [claim_profile] if claim_profile else list(CLAIM_PROFILES.keys())
-    )
+    evaluated_profiles = [claim_profile] if claim_profile else list(CLAIM_PROFILES.keys())
     claim_profile_results: dict[str, Any] = {}
 
     for profile_name in evaluated_profiles:
@@ -126,14 +127,18 @@ def evaluate_claim_gate(
         }
 
     default_claim_profile = claim_profile or DEFAULT_CLAIM_PROFILE
-    headline_claim_ready = claim_profile_results.get(HEADLINE_CLAIM_PROFILE, {}).get("claim_ready", False)
+    headline_claim_ready = claim_profile_results.get(HEADLINE_CLAIM_PROFILE, {}).get(
+        "claim_ready", False
+    )
     result = {
         "profile": profile,
         "json_dir": str(json_dir),
         "default_claim_profile": default_claim_profile,
         "headline_claim_profile": HEADLINE_CLAIM_PROFILE,
         "claim_profiles": claim_profile_results,
-        "claim_ready": claim_profile_results.get(default_claim_profile, {}).get("claim_ready", False),
+        "claim_ready": claim_profile_results.get(default_claim_profile, {}).get(
+            "claim_ready", False
+        ),
         "headline_claim_ready": headline_claim_ready,
         "all_claims_ready": all(item["claim_ready"] for item in claim_profile_results.values()),
         "findings": claim_profile_results.get(default_claim_profile, {}).get("findings", []),
@@ -168,7 +173,9 @@ def build_publication_benchmark_card(
             "label": spec.label,
             "proof_class": payload.get("proof_class", spec.proof_class),
             "headline": spec.headline,
-            "claim_profile_targets": payload.get("claim_profile_targets", list(spec.claim_profiles)),
+            "claim_profile_targets": payload.get(
+                "claim_profile_targets", list(spec.claim_profiles)
+            ),
             "benchmark_family": payload.get("benchmark_family"),
             "public_claim_eligible": payload.get("public_claim_eligible"),
             "pass_rate": payload.get("pass_rate"),
@@ -224,7 +231,7 @@ def build_publication_benchmark_card(
         }
 
     return {
-        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "generated_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "profile": claim_result["profile"],
         "json_dir": str(json_dir),
         "run_summary_path": (
@@ -305,7 +312,10 @@ def _evaluate_suite_payload(spec: SuiteSpec, payload: dict[str, Any]) -> tuple[b
             required_groups = ("twins", "lalonde_cps", "lalonde_psid")
             missing_groups = [group for group in required_groups if group not in group_summaries]
             if missing_groups:
-                return False, f"RealCause dataset_group_summaries missing required groups: {', '.join(missing_groups)}"
+                return (
+                    False,
+                    f"RealCause dataset_group_summaries missing required groups: {', '.join(missing_groups)}",
+                )
             group_failures = [
                 group
                 for group in required_groups
@@ -362,18 +372,19 @@ def _evaluate_suite_payload(spec: SuiteSpec, payload: dict[str, Any]) -> tuple[b
             and bool(payload.get("baseline_snapshot_ref"))
             and bool(payload.get("regression_guard"))
         )
-        return ok, None if ok else "policy benchmark suite lacks publication-grade scorecard or baseline guard"
+        return (
+            ok,
+            None
+            if ok
+            else "policy benchmark suite lacks publication-grade scorecard or baseline guard",
+        )
 
     if suite_id == "adversarial_symbolic_stress":
         accuracy = aggregate.get("accuracy", {})
         false_positive_rate = accuracy.get("false_positive_rate", 1.0)
         if false_positive_rate is None:
             false_positive_rate = 1.0
-        ok = (
-            n_total > 0
-            and n_total == n_passed
-            and float(false_positive_rate) == 0.0
-        )
+        ok = n_total > 0 and n_total == n_passed and float(false_positive_rate) == 0.0
         return ok, None if ok else "adversarial symbolic stress requires zero false positives"
 
     return False, "unhandled suite in claim gate"
@@ -381,7 +392,9 @@ def _evaluate_suite_payload(spec: SuiteSpec, payload: dict[str, Any]) -> tuple[b
 
 def _evaluate_discovery_regression(*, json_dir: Path, profile: str) -> dict[str, Any] | None:
     available_specs = {spec.suite_id: spec for spec in suites_for_profile(profile)}
-    relevant = [suite_id for suite_id in SUPPLEMENTARY_DISCOVERY_SUITES if suite_id in available_specs]
+    relevant = [
+        suite_id for suite_id in SUPPLEMENTARY_DISCOVERY_SUITES if suite_id in available_specs
+    ]
     if not relevant:
         return None
 

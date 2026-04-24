@@ -1,7 +1,8 @@
 """Tests for Phase 2.5 data transformation pipeline."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pandas as pd
 import pytest
@@ -108,7 +109,7 @@ def test_compiled_pipeline_execute_uses_topological_execution_order() -> None:
             history.append(self._stage_name)
             result = data.copy()
             result[self._stage_name] = len(history)
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             return (
                 result,
                 TransformLineage(
@@ -363,11 +364,17 @@ def test_transform_context_snapshots_are_immutable() -> None:
 
 
 def test_normalization_drop_unmapped_preserves_source_column_order() -> None:
-    transform = TransformPipeline().normalize(
-        field_mappings={"A": "a", "B": "b"},
-        drop_unmapped=True,
-        cast_to_schema=False,
-    ).compile().stages[0].transform
+    transform = (
+        TransformPipeline()
+        .normalize(
+            field_mappings={"A": "a", "B": "b"},
+            drop_unmapped=True,
+            cast_to_schema=False,
+        )
+        .compile()
+        .stages[0]
+        .transform
+    )
     data = pd.DataFrame({"B": [1], "A": [2], "C": [3]})
 
     result, _lineage, _warnings = transform.apply(data, TransformContext())

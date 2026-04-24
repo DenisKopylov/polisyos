@@ -236,17 +236,17 @@ def test_v7_metadata_pdf_candidate_recovers_fulltext(monkeypatch) -> None:  # ty
                 status=200,
                 headers={"Content-Type": "application/json"},
                 body=(
-                    b'{'
+                    b"{"
                     b'"best_oa_location":{"url_for_pdf":"https://publisher.example/from-unpaywall.pdf"},'
                     b'"oa_locations":[]'
-                    b'}'
+                    b"}"
                 ),
                 url="https://api.unpaywall.org/v2/10.1234%2Fabc?email=test@example.org",
             ),
             "https://api.crossref.org/works/10.1234%2Fabc": _FakeResponse(
                 status=404,
                 headers={"Content-Type": "application/json"},
-                body=b'{}',
+                body=b"{}",
                 url="https://api.crossref.org/works/10.1234%2Fabc",
             ),
             "https://publisher.example/from-unpaywall.pdf": _FakeResponse(
@@ -375,7 +375,9 @@ def test_v7_prefers_discovered_pdf_over_short_html_shell(monkeypatch) -> None:  
 
     assert result.source_kind == "fulltext_pdf"
     assert result.source_url == "https://publisher.example/paper.pdf"
-    assert any(attempt.fetch_error_class == "landing_page_without_pdf" for attempt in result.attempts)
+    assert any(
+        attempt.fetch_error_class == "landing_page_without_pdf" for attempt in result.attempts
+    )
 
 
 def test_v7_prefers_discovered_pdf_over_repository_shell(monkeypatch) -> None:  # type: ignore[no-untyped-def]
@@ -428,7 +430,9 @@ def test_v7_prefers_discovered_pdf_over_repository_shell(monkeypatch) -> None:  
 
     assert result.source_kind == "fulltext_pdf"
     assert result.source_url == "https://repo.example/preprint.pdf"
-    assert any(attempt.fetch_error_class == "repository_shell_with_pdf" for attempt in result.attempts)
+    assert any(
+        attempt.fetch_error_class == "repository_shell_with_pdf" for attempt in result.attempts
+    )
 
 
 def test_v7_uses_semantic_scholar_in_configured_order(monkeypatch) -> None:  # type: ignore[no-untyped-def]
@@ -451,10 +455,10 @@ def test_v7_uses_semantic_scholar_in_configured_order(monkeypatch) -> None:  # t
                 status=200,
                 headers={"Content-Type": "application/json"},
                 body=(
-                    b'{'
+                    b"{"
                     b'"openAccessPdf":{"url":"https://publisher.example/from-s2.pdf"},'
                     b'"url":"https://publisher.example/from-s2"'
-                    b'}'
+                    b"}"
                 ),
                 url="https://api.semanticscholar.org/graph/v1/paper/DOI:10.1111%2Fsemscholar?fields=openAccessPdf,url,externalIds",
             ),
@@ -482,7 +486,9 @@ def test_v7_uses_semantic_scholar_in_configured_order(monkeypatch) -> None:  # t
 
     assert result.source_kind == "fulltext_pdf"
     assert "semantic scholar pdf" in result.text.lower()
-    assert any(attempt.source_kind.startswith("metadata_semanticscholar") for attempt in result.attempts)
+    assert any(
+        attempt.source_kind.startswith("metadata_semanticscholar") for attempt in result.attempts
+    )
 
 
 def test_fulltext_precleaner_strips_boilerplate_and_reference_tail() -> None:
@@ -498,7 +504,9 @@ def test_fulltext_precleaner_strips_boilerplate_and_reference_tail() -> None:
                 body=(
                     b"<html><body>Cookie Policy Accept cookies navigation header. "
                     b"Abstract This study uses panel data. Introduction Methods Results show tax effects. "
-                    b"Discussion Conclusion. References " + (b"citation item " * 300) + b"</body></html>"
+                    b"Discussion Conclusion. References "
+                    + (b"citation item " * 300)
+                    + b"</body></html>"
                 ),
                 url="https://publisher.example/article-clean",
             ),

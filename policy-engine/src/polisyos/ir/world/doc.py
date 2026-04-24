@@ -1,13 +1,11 @@
 """Public world doc module API."""
+
 from __future__ import annotations
 
-from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Annotated, Any
 
 from pydantic import BeforeValidator, Field, model_validator
-from typing_extensions import Annotated
 
-from polisyos.ir.citations import FragmentLocator
 from polisyos.ir.kernel.base import (
     ARTIFACT_ID_PATTERN,
     ID_PATTERN,
@@ -15,11 +13,21 @@ from polisyos.ir.kernel.base import (
     reject_floats_deep,
 )
 
+if TYPE_CHECKING:
+    from datetime import datetime
+
+    from polisyos.ir.citations import FragmentLocator
+else:
+    from datetime import datetime
+
+    from polisyos.ir.citations import FragmentLocator
+
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
 
 class DocMeta(KernelModel):
     """Doc meta public type."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     doc_source_id: str = Field(..., pattern=ID_PATTERN)
     doc_version_id: str = Field(..., pattern=ID_PATTERN)
@@ -39,7 +47,7 @@ class DocMeta(KernelModel):
     )
 
     @model_validator(mode="after")
-    def validate_identity(self) -> "DocMeta":
+    def validate_identity(self) -> DocMeta:
         if (self.canonical_url is None) == (self.official_id is None):
             raise ValueError("exactly one of canonical_url or official_id is required")
         return self
@@ -47,6 +55,7 @@ class DocMeta(KernelModel):
 
 class DocFragment(KernelModel):
     """Doc fragment public type."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     fragment_id: str = Field(..., pattern=ID_PATTERN)
     doc_version_id: str = Field(..., pattern=ID_PATTERN)

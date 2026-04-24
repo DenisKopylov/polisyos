@@ -25,7 +25,9 @@ Operational rules:
 
 - Destructive or overwrite-prone operations must require explicit confirmation
   flags.
+
 - Long-running commands should emit timing records via `--timing-log` or
   `POLISYOS_TOOLS_TIMING_LOG`.
+
 - External commands must use `tools._lib.runner.run_command`, not shell strings.
 - Canonical generated shard/env assets default to `tools/cloud/deploy/assets/`.

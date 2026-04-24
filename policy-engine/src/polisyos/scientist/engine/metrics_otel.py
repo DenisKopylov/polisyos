@@ -3,6 +3,7 @@
 Bridges :class:`EngineMetricsCollector` to the existing global
 :class:`MetricsRegistry` singleton from ``polisyos.core.observability``.
 """
+
 from __future__ import annotations
 
 from collections import deque
@@ -41,7 +42,11 @@ class OTelEngineMetrics:
         )
 
     def record_node_started(
-        self, *, alias: str, node_id: str, workflow_id: str,
+        self,
+        *,
+        alias: str,
+        node_id: str,
+        workflow_id: str,
     ) -> None:
         if self._m.scientist_node_starts_total is not None:
             self._m.scientist_node_starts_total.add(
@@ -71,7 +76,8 @@ class OTelEngineMetrics:
         }
         if self._m.scientist_node_duration_seconds is not None:
             self._m.scientist_node_duration_seconds.record(
-                duration_ms / 1000.0, attrs,
+                duration_ms / 1000.0,
+                attrs,
             )
         if self._m.scientist_node_executions_total is not None:
             self._m.scientist_node_executions_total.add(
@@ -84,11 +90,17 @@ class OTelEngineMetrics:
             )
         if retry_count > 0 and self._m.scientist_node_retry_count is not None:
             self._m.scientist_node_retry_count.record(
-                retry_count, {"node_id": node_id},
+                retry_count,
+                {"node_id": node_id},
             )
 
     def record_tier_completed(
-        self, *, tier_index: int, tier_size: int, duration_ms: int, workflow_id: str,
+        self,
+        *,
+        tier_index: int,
+        tier_size: int,
+        duration_ms: int,
+        workflow_id: str,
     ) -> None:
         if self._m.scientist_tier_duration_seconds is not None:
             self._m.scientist_tier_duration_seconds.record(
@@ -101,7 +113,12 @@ class OTelEngineMetrics:
             )
 
     def record_workflow_completed(
-        self, *, workflow_id: str, status: str, duration_ms: int, node_count: int,
+        self,
+        *,
+        workflow_id: str,
+        status: str,
+        duration_ms: int,
+        node_count: int,
     ) -> None:
         # Leverage existing slo_dag_runs_total + slo_dag_duration_seconds
         if self._m.slo_dag_runs_total is not None:
@@ -113,7 +130,12 @@ class OTelEngineMetrics:
             )
 
     def record_backpressure(
-        self, *, tier_index: int, queued_tasks: int, active_tasks: int, workflow_id: str,
+        self,
+        *,
+        tier_index: int,
+        queued_tasks: int,
+        active_tasks: int,
+        workflow_id: str,
     ) -> None:
         if self._m.scientist_tier_queue_depth is not None:
             self._m.scientist_tier_queue_depth.set(
@@ -122,7 +144,11 @@ class OTelEngineMetrics:
             )
 
     def record_semaphore_wait(
-        self, *, tier_index: int, wait_seconds: float, workflow_id: str,
+        self,
+        *,
+        tier_index: int,
+        wait_seconds: float,
+        workflow_id: str,
     ) -> None:
         if self._m.scientist_semaphore_wait_seconds is not None:
             self._m.scientist_semaphore_wait_seconds.record(
@@ -131,11 +157,16 @@ class OTelEngineMetrics:
             )
 
     def record_workflow_state(
-        self, *, run_id: str, workflow_id: str, state: str,
+        self,
+        *,
+        run_id: str,
+        workflow_id: str,
+        state: str,
     ) -> None:
         if self._m.scientist_workflow_state is not None:
             self._m.scientist_workflow_state.add(
-                1, {"run_id": run_id, "workflow_id": workflow_id, "state": state},
+                1,
+                {"run_id": run_id, "workflow_id": workflow_id, "state": state},
             )
 
     def record_trace_correlation(

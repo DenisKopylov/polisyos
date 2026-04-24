@@ -6,6 +6,7 @@ Covers:
 - DAG node cache keys with upstream context
 - Missing requirement validation at different strictness levels
 """
+
 from __future__ import annotations
 
 from typing import Any, ClassVar
@@ -29,7 +30,6 @@ from polisyos.foundry.methods.composer import (
 )
 from polisyos.foundry.methods.exceptions import MissingRequirementError
 from polisyos.foundry.methods.registry import MethodRegistry
-
 
 # =============================================================================
 # Fixtures
@@ -99,7 +99,6 @@ def _register(*classes: type) -> MethodRegistry:
 
 
 class TestSemanticValidationDefaultOn:
-
     def test_default_level_is_warn(self):
         """build() without args should use WARN level."""
         method_a = _make_method_class("step_a", output_slots=frozenset({_INCOME_SLOT}))
@@ -145,9 +144,9 @@ class TestSemanticValidationDefaultOn:
 
 
 class TestMissingRequirementLevels:
-
     def _build_with_missing_requirement(
-        self, level: SemanticValidationLevel,
+        self,
+        level: SemanticValidationLevel,
     ) -> Any:
         """Helper: build a chain where step_b requires a non-existent method."""
         method_b = _make_method_class(
@@ -182,7 +181,6 @@ class TestMissingRequirementLevels:
 
 
 class TestCompositionCacheKeys:
-
     def test_dag_node_key_includes_upstream(self):
         """Same node with different upstream should produce different cache keys."""
         method_a = _make_method_class(

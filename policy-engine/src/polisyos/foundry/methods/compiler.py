@@ -5,15 +5,17 @@ Implements Law H (deterministic compilation) and Law I (static vs dynamic
 parameters) with a deterministic specialization key and a thread-safe
 single-flight compilation cache.
 """
+
 from __future__ import annotations
 
 import functools
 import threading
 import time
 from collections import OrderedDict
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import Any, Callable, Mapping, Protocol, TypeVar
+from typing import Any, Protocol, TypeVar
 
 import jax
 import jax.numpy as jnp
@@ -29,10 +31,10 @@ from polisyos.foundry.methods.specialization import (
 )
 
 __all__ = [
-    "CompiledMethod",
     "CompilationCache",
-    "MethodCompiler",
     "CompiledChainExecutor",
+    "CompiledMethod",
+    "MethodCompiler",
     "get_global_cache",
     "reset_global_cache",
 ]
@@ -504,15 +506,13 @@ class MethodCompiler:
                         )
                     raise ParameterValidationError(
                         param_name=",".join(sorted(unknown)),
-                            value=list(unknown),
-                            reason="Unknown dynamic parameters",
-                        )
+                        value=list(unknown),
+                        reason="Unknown dynamic parameters",
+                    )
             merged = dict(dynamic_defaults)
             merged.update({name: overrides[name] for name in dynamic_names if name in overrides})
             runtime_params = {
-                name: overrides[name]
-                for name in _RUNTIME_PARAM_NAMES
-                if name in overrides
+                name: overrides[name] for name in _RUNTIME_PARAM_NAMES if name in overrides
             }
             return (
                 tuple(_normalize_dynamic_value(merged[name]) for name in dynamic_names),
@@ -525,9 +525,7 @@ class MethodCompiler:
             dynamic_values: tuple[Any, ...],
             runtime_params: Mapping[str, Any],
         ) -> Any:
-            dynamic_params = {
-                name: value for name, value in zip(dynamic_names, dynamic_values)
-            }
+            dynamic_params = {name: value for name, value in zip(dynamic_names, dynamic_values)}
             all_params = {**static_params, **dynamic_params, **runtime_params}
             return pure_step(state, all_params)
 
@@ -563,7 +561,7 @@ class MethodCompiler:
         *,
         jit: bool = True,
         infer_shapes: bool = True,
-    ) -> "CompiledChainExecutor":
+    ) -> CompiledChainExecutor:
         """
         Compile an entire method chain.
         """

@@ -21,15 +21,15 @@ compile/execute в `foundry` и перед governance preflight в `scientist`.
 
 ## Public API
 
-| Type/Function | Description |
-|---|---|
-| `link_trinity()` | Основная функция линковки Trinity bundle against registries |
-| `LinkedIntervention` | Нормализованный linked view одного intervention |
-| `TrinityBindings` | Aggregated bindings for slots, params and mechanisms |
-| `LinkedTrinityBundle` | Result object для downstream compile/runtime use |
-| `LinkIssue`, `LinkIssueCode`, `LinkSeverity` | Typed issue protocol |
-| `LinkReport` | Сводка validation outcome и digests |
-| `validate_norm_applicability_refs()` | Проверка norm applicability references вне основного linker pipeline |
+| Type/Function                                | Description                                                          |
+| -------------------------------------------- | -------------------------------------------------------------------- |
+| `link_trinity()`                             | Основная функция линковки Trinity bundle against registries          |
+| `LinkedIntervention`                         | Нормализованный linked view одного intervention                      |
+| `TrinityBindings`                            | Aggregated bindings for slots, params and mechanisms                 |
+| `LinkedTrinityBundle`                        | Result object для downstream compile/runtime use                     |
+| `LinkIssue`, `LinkIssueCode`, `LinkSeverity` | Typed issue protocol                                                 |
+| `LinkReport`                                 | Сводка validation outcome и digests                                  |
+| `validate_norm_applicability_refs()`         | Проверка norm applicability references вне основного linker pipeline |
 
 Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
 

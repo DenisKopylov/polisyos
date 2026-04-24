@@ -8,6 +8,7 @@ import asyncio
 import json
 import os
 import random
+import sys
 import time
 from collections import Counter, defaultdict
 from dataclasses import dataclass
@@ -16,9 +17,7 @@ from itertools import count
 from pathlib import Path
 from typing import Any
 
-import sys
-
-from tools._lib.imports import repo_root_from, ensure_repo_import_roots
+from tools._lib.imports import ensure_repo_import_roots, repo_root_from
 
 sys.path.insert(0, str(repo_root_from(__file__)))
 
@@ -124,7 +123,11 @@ def _load_items(args: argparse.Namespace) -> list[BenchItem]:
                     continue
                 items.append(
                     BenchItem(
-                        doc_title=str(row.get("doc_type_category") or row.get("struct_kind") or "Нормативний акт"),
+                        doc_title=str(
+                            row.get("doc_type_category")
+                            or row.get("struct_kind")
+                            or "Нормативний акт"
+                        ),
                         doc_type=str(row.get("doc_type_category") or "law"),
                         publisher="",
                         date_acc="",
@@ -247,11 +250,21 @@ def _summarize_rows(
         if duration_override_seconds is not None:
             duration_seconds = max(0.001, float(duration_override_seconds))
         else:
-            completed = [int(row.get(event_epoch_field) or row.get("completed_at_epoch_ms") or started_epoch_ms) for row in rows]
+            completed = [
+                int(
+                    row.get(event_epoch_field)
+                    or row.get("completed_at_epoch_ms")
+                    or started_epoch_ms
+                )
+                for row in rows
+            ]
             duration_seconds = max(0.001, (max(completed) - started_epoch_ms) / 1000.0)
     success_requests = len(success_rows)
     success_items = sum(int(row.get("group_size") or 1) for row in success_rows)
-    tokens_total = sum(int(row.get("prompt_tokens") or 0) + int(row.get("completion_tokens") or 0) for row in success_rows)
+    tokens_total = sum(
+        int(row.get("prompt_tokens") or 0) + int(row.get("completion_tokens") or 0)
+        for row in success_rows
+    )
     wall_ms = [
         float(row.get("total_latency_ms") or 0.0)
         + float(row.get("limiter_wait_ms") or 0.0)
@@ -287,7 +300,9 @@ def _summarize_rows(
                 ),
                 "requests_per_hour": round(len(subset_success) * 3600.0 / subset_duration, 1),
                 "items_per_hour": round(
-                    sum(int(row.get("group_size") or 1) for row in subset_success) * 3600.0 / subset_duration,
+                    sum(int(row.get("group_size") or 1) for row in subset_success)
+                    * 3600.0
+                    / subset_duration,
                     1,
                 ),
                 "avg_retry_count": round(
@@ -297,7 +312,8 @@ def _summarize_rows(
                 if subset
                 else 0.0,
                 "avg_provider_rate_scale": round(
-                    sum(float(row.get("provider_rate_scale") or 1.0) for row in subset) / len(subset),
+                    sum(float(row.get("provider_rate_scale") or 1.0) for row in subset)
+                    / len(subset),
                     3,
                 )
                 if subset
@@ -318,22 +334,39 @@ def _summarize_rows(
         "success_items": success_items,
         "status_counts": dict(statuses),
         "duration_seconds": round(duration_seconds, 3),
-        "requests_per_hour": round(success_requests * 3600.0 / duration_seconds, 1) if duration_seconds > 0 else 0.0,
-        "items_per_hour": round(success_items * 3600.0 / duration_seconds, 1) if duration_seconds > 0 else 0.0,
+        "requests_per_hour": round(success_requests * 3600.0 / duration_seconds, 1)
+        if duration_seconds > 0
+        else 0.0,
+        "items_per_hour": round(success_items * 3600.0 / duration_seconds, 1)
+        if duration_seconds > 0
+        else 0.0,
         "tokens_total": tokens_total,
-        "tokens_per_hour": round(tokens_total * 3600.0 / duration_seconds, 1) if duration_seconds > 0 else 0.0,
-        "avg_retry_count": round(sum(int(row.get("retry_count") or 0) for row in rows) / len(rows), 3) if rows else 0.0,
+        "tokens_per_hour": round(tokens_total * 3600.0 / duration_seconds, 1)
+        if duration_seconds > 0
+        else 0.0,
+        "avg_retry_count": round(
+            sum(int(row.get("retry_count") or 0) for row in rows) / len(rows), 3
+        )
+        if rows
+        else 0.0,
         "retried_request_pct": (
-            round(sum(1 for row in rows if int(row.get("retry_count") or 0) > 0) * 100.0 / len(rows), 2)
+            round(
+                sum(1 for row in rows if int(row.get("retry_count") or 0) > 0) * 100.0 / len(rows),
+                2,
+            )
             if rows
             else 0.0
         ),
         "avg_wall_ms_success": round(sum(wall_ms) / len(wall_ms), 1) if wall_ms else 0.0,
         "avg_provider_rate_scale": (
-            round(sum(float(row.get("provider_rate_scale") or 1.0) for row in rows) / len(rows), 3) if rows else 1.0
+            round(sum(float(row.get("provider_rate_scale") or 1.0) for row in rows) / len(rows), 3)
+            if rows
+            else 1.0
         ),
         "avg_shared_rate_scale": (
-            round(sum(float(row.get("shared_rate_scale") or 1.0) for row in rows) / len(rows), 3) if rows else 1.0
+            round(sum(float(row.get("shared_rate_scale") or 1.0) for row in rows) / len(rows), 3)
+            if rows
+            else 1.0
         ),
         "five_minute_windows": windows,
     }
@@ -343,7 +376,9 @@ async def _run_probe(args: argparse.Namespace) -> dict[str, Any]:
     api_keys = _load_api_keys()
     items = _load_items(args)
     if len(items) < max(8, args.batch_size):
-        raise RuntimeError(f"Not enough benchmark items loaded from {args.provisions_dir}: {len(items)}")
+        raise RuntimeError(
+            f"Not enough benchmark items loaded from {args.provisions_dir}: {len(items)}"
+        )
     groups = _group_items_by_request_budget(
         items,
         request_batch_size=args.batch_size,
@@ -409,7 +444,9 @@ async def _run_probe(args: argparse.Namespace) -> dict[str, Any]:
                     messages,
                     response_format={"type": "json_object"},
                     request_meta={
-                        "request_kind": "steady_state_batch" if len(group) > 1 else "steady_state_single",
+                        "request_kind": "steady_state_batch"
+                        if len(group) > 1
+                        else "steady_state_single",
                         "group_size": len(group),
                         "prompt_chars": prompt_chars,
                         "steady_state_worker_id": worker_id,
@@ -436,7 +473,11 @@ async def _run_probe(args: argparse.Namespace) -> dict[str, Any]:
         if done:
             await asyncio.gather(*done, return_exceptions=True)
 
-    rows = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    rows = [
+        json.loads(line)
+        for line in log_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
     active_rows = _filter_rows_for_window(
         rows,
         event_epoch_field="request_started_at_epoch_ms",
@@ -457,7 +498,9 @@ async def _run_probe(args: argparse.Namespace) -> dict[str, Any]:
         "base_url": args.gonka_base_url,
         "keys": len(api_keys),
         "parallel": args.parallel,
-        "parallel_global": args.parallel_global if args.parallel_global is not None else args.parallel,
+        "parallel_global": args.parallel_global
+        if args.parallel_global is not None
+        else args.parallel,
         "batch_size": args.batch_size,
         "request_batch_chars": args.spo_request_batch_chars,
         "adaptive_batch_downshift_enabled": bool(args.spo_adaptive_batch_downshift_enabled),

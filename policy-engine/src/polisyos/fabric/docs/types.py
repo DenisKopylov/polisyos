@@ -5,6 +5,7 @@ pipelines. Every result object carries both the latest ``DocMeta`` artifact id a
 segment emitted by the stage so provenance remains attached to normalized text, anchors, and
 chunks.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -24,6 +25,7 @@ class DocSourceSpec:
     ``source_locator``. ``license`` is required because persisted ``DocMeta`` records are reused
     by downstream legal and academic pipelines.
     """
+
     canonical_url: str | None = None
     official_id: str | None = None
     source_locator: str | None = None
@@ -53,6 +55,7 @@ class DocSourceSpec:
 @dataclass(frozen=True)
 class DocIngestOptions:
     """Persistence and provenance options for raw document ingestion."""
+
     raw_kind: str = "fabric.doc.raw"
     enforce_max_bytes: int | None = None
     agent_id: str = "prov.agent.fabric_docs"
@@ -62,6 +65,7 @@ class DocIngestOptions:
 @dataclass(frozen=True)
 class DocNormalizeOptions:
     """Text extraction and whitespace normalization options for raw document payloads."""
+
     normalized_kind: str = "fabric.doc.normalized"
     encoding_order: list[str] = field(default_factory=lambda: ["utf-8", "utf-8-sig", "latin-1"])
     errors: str = "strict"
@@ -74,6 +78,7 @@ class DocNormalizeOptions:
 @dataclass(frozen=True)
 class DocStructureOptions:
     """Options for generic heading/section anchor extraction from normalized text."""
+
     structure_kind: str = "fabric.doc.structure"
     algorithm: Literal["anchors_v1"] = "anchors_v1"
     max_heading_len: int = 160
@@ -84,6 +89,7 @@ class DocStructureOptions:
 @dataclass(frozen=True)
 class DocChunkOptions:
     """Options for chunk generation over normalized text with optional paragraph boundaries."""
+
     chunks_kind: str = "fabric.doc.chunks"
     algorithm: Literal["char_chunks_v1"] = "char_chunks_v1"
     chunk_size_chars: int = 2000
@@ -95,6 +101,7 @@ class DocChunkOptions:
 @dataclass(frozen=True)
 class DocIngestResult:
     """Result contract for the raw ingest stage and its emitted provenance references."""
+
     doc_source_id: str
     doc_version_id: str
     raw_ref: str
@@ -110,6 +117,7 @@ class DocIngestResult:
 @dataclass(frozen=True)
 class DocNormalizeResult:
     """Result contract for normalized text generation and updated ``DocMeta`` persistence."""
+
     doc_source_id: str
     doc_version_id: str
     raw_ref: str
@@ -125,6 +133,7 @@ class DocNormalizeResult:
 @dataclass(frozen=True)
 class DocStructureResult:
     """Result contract for generated document anchors and fragment ids."""
+
     doc_source_id: str
     doc_version_id: str
     raw_ref: str
@@ -141,6 +150,7 @@ class DocStructureResult:
 @dataclass(frozen=True)
 class DocChunkResult:
     """Result contract for chunk artifacts and chunk-backed ``DocFragment`` ids."""
+
     doc_source_id: str
     doc_version_id: str
     raw_ref: str

@@ -15,33 +15,45 @@ uv run polisyos-tools workspace --help
 
 Legacy `./scripts/*` paths below remain as thin compatibility wrappers.
 
-| Command | Role |
-| --- | --- |
-| `./scripts/bootstrap` | Install or verify contributor prerequisites from a clean machine path |
-| `./scripts/doctor` | Validate Python, Node, `uv`, Playwright, lockfiles, generated contracts, and optional env surfaces |
-| `./scripts/verify` | Run the standard fast local gate for backend and frontend |
-| `./scripts/ci-parity` | Run a heavier local validation pass that approximates the main CI jobs |
-| `uv run polisyos-tools workspace core-runtime-long-soak` | Generate long-soak runtime performance evidence as markdown + JSON reports |
-| `./scripts/acceptance-audit` | Run the Phase 7 cross-surface acceptance audit and optionally require manual rehearsal evidence |
-| `./scripts/remote-acceptance` | Provision and drive a remote Linux acceptance runner via `ssh`, `rsync`, and `git bundle` |
+| Command                                                    | Role                                                                                                                                   |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `./scripts/bootstrap`                                      | Install or verify contributor prerequisites from a clean machine path                                                                  |
+| `./scripts/doctor`                                         | Validate Python, Node, `uv`, Playwright, lockfiles, generated contracts, and optional env surfaces                                     |
+| `./scripts/verify`                                         | Run the standard fast local gate for backend and frontend                                                                              |
+| `uv run polisyos-tools workspace docs-style`               | Lint authored docs, top-level markdown, and package README/CONTRIBUTING files                                                          |
+| `uv run polisyos-tools workspace format-check`             | Check authored formatter surfaces for Python, frontend, shell, TOML, and Rego                                                          |
+| `uv run polisyos-tools workspace lint-fast`                | Run the fast repository-wide authored lint sweep                                                                                       |
+| `uv run polisyos-tools workspace python-base-mypy`         | Run the Phase 3 base-layer `mypy` pass over `common -> ir -> core`                                                                     |
+| `uv run polisyos-tools workspace python-base-basedpyright` | Run the Phase 3 base-layer `basedpyright` pass over `common -> ir -> core`                                                             |
+| `uv run polisyos-tools workspace runtime-surface`          | Run the Phase 5B runtime gate: Ruff, source type checks, OpenAPI/client drift, and `tests/runtime`                                     |
+| `uv run polisyos-tools workspace lint-full`                | Run the full authored lint contract used by CI/nightly sweeps, including Phase 3 base-layer type gates plus Helm and Rego policy gates |
+| `uv run polisyos-tools workspace benchmark-surfaces`       | Run the Phase 8 benchmark/research gate for authored Python, shell, and YAML only                                                      |
+| `./scripts/ci-parity`                                      | Run a heavier local validation pass that approximates the main CI jobs                                                                 |
+| `uv run polisyos-tools workspace core-runtime-long-soak`   | Generate long-soak runtime performance evidence as markdown + JSON reports                                                             |
+| `./scripts/acceptance-audit`                               | Run the Phase 7 cross-surface acceptance audit and optionally require manual rehearsal evidence                                        |
+| `./scripts/remote-acceptance`                              | Provision and drive a remote Linux acceptance runner via `ssh`, `rsync`, and `git bundle`                                              |
 
 ## Bootstrap Profiles
 
 `./scripts/bootstrap` supports dependency tiers via `--profile`:
 
-| Profile | Extras |
-| --- | --- |
-| `minimal` | `lint`, `test` |
-| `docs` | `lint`, `docs` |
-| `runtime` | `lint`, `test`, `runtime` |
+| Profile    | Extras                                |
+| ---------- | ------------------------------------- |
+| `minimal`  | `lint`, `test`                        |
+| `docs`     | `lint`, `docs`                        |
+| `runtime`  | `lint`, `test`, `runtime`             |
 | `research` | `lint`, `test`, `runtime`, `research` |
 
 Examples:
 
 ```bash
-./scripts/bootstrap --profile docs --skip-frontend
-./scripts/bootstrap --profile research
-./scripts/ci-parity --skip-browser
+uv run polisyos-tools workspace bootstrap --profile docs --skip-frontend
+uv run polisyos-tools workspace lint-fast
+uv run polisyos-tools workspace python-base-mypy --layer ir
+uv run polisyos-tools workspace format-check --skip-rego
+uv run polisyos-tools workspace runtime-surface
+uv run polisyos-tools workspace lint-full --skip-policy --skip-helm
+uv run polisyos-tools workspace benchmark-surfaces
 ```
 
 `./scripts/ci-parity` pulls the docs toolchain on demand via `uv run --extra docs ...`,

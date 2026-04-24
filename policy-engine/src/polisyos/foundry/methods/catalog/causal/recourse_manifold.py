@@ -35,10 +35,11 @@ certificate can record ``structural_consistency_ok``.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from heapq import heappop, heappush
 from itertools import combinations, product
-from typing import Any, Iterable, Literal, Protocol
+from typing import Any, Literal, Protocol
 
 from polisyos.ir.analytics.recourse_manifold import (
     ActionDomain,
@@ -56,9 +57,7 @@ from polisyos.ir.analytics.recourse_manifold import (
     RecourseProofBundle,
     RecourseReadinessCap,
     RecourseRecoverabilityStatus,
-    RecourseSemantics,
     RecourseSolverStatus,
-    RecourseSuccessMode,
     RecourseTractableSubfamily,
     RecourseUniquenessStatus,
     build_feasibility_certificate,
@@ -305,9 +304,7 @@ def _extend(program: InterventionProgram, atom: PrimitiveAction) -> Intervention
 
 
 def _program_key(program: InterventionProgram) -> tuple[tuple[str, str], ...]:
-    return tuple(
-        sorted((step.node, step.stable_value) for step in program.actions)
-    )
+    return tuple(sorted((step.node, step.stable_value) for step in program.actions))
 
 
 def _has_interval_domains(manifold: InterventionCostManifold) -> bool:
@@ -631,8 +628,7 @@ best_first_support_search = _best_first_support_search
 
 def _fixed_support_is_convex(manifold: InterventionCostManifold) -> bool:
     return any(domain.kind == "interval" for domain in manifold.domains) and all(
-        cost.cost_kind in {"constant", "linear", "quadratic"}
-        for cost in manifold.primitive_costs
+        cost.cost_kind in {"constant", "linear", "quadratic"} for cost in manifold.primitive_costs
     )
 
 

@@ -89,7 +89,10 @@ def test_cross_graph_need_ids_are_deterministic_and_compiler_falls_back() -> Non
 
     profile = CrossGraphEvidenceCompiler(CrossGraphEvidenceConfig()).compile(bundle)
     assert profile.summary.total_needs == len(first)
-    assert any(diagnostic.code == "cross_graph.ontology.unknown_concept" for diagnostic in profile.diagnostics)
+    assert any(
+        diagnostic.code == "cross_graph.ontology.unknown_concept"
+        for diagnostic in profile.diagnostics
+    )
 
 
 def test_cross_graph_compiler_routes_literature_prior_context_through_academic_gatherer(
@@ -188,9 +191,7 @@ def test_build_academic_query_assertion_is_not_swallowed(
     )
 
     with pytest.raises(AssertionError, match="academic init exploded"):
-        _build_academic_query(
-            CrossGraphEvidenceConfig(academic_db_path=str(academic_db_path))
-        )
+        _build_academic_query(CrossGraphEvidenceConfig(academic_db_path=str(academic_db_path)))
 
 
 def test_candidate_distance_assertion_is_not_swallowed() -> None:
@@ -618,7 +619,9 @@ def test_assess_academic_parameter_need_surfaces_raw_fallback_and_no_uncertainty
     assert any("uncertainty" in action.lower() for action in result.recommended_actions)
 
 
-def test_assess_academic_need_treats_moderated_conflict_as_supported_when_replicated(tmp_path) -> None:
+def test_assess_academic_need_treats_moderated_conflict_as_supported_when_replicated(
+    tmp_path,
+) -> None:
     db_path = tmp_path / "academic_moderated.duckdb"
     con = duckdb.connect(str(db_path))
     try:

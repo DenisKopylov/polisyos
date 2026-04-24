@@ -39,6 +39,7 @@ Limitations
   The ``is_cache_valid()`` check uses a global catalog hash (XOR of all
   signature hashes) stored in a ``_meta`` table.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -189,9 +190,7 @@ class RegistryPersistenceLayer:
             rows.append((fqn, module, class_name, sig_json, sig_hash, meta_json, now))
             catalog_hash_parts.append(sig_hash)
 
-        catalog_hash = hashlib.sha256(
-            "|".join(sorted(catalog_hash_parts)).encode()
-        ).hexdigest()
+        catalog_hash = hashlib.sha256("|".join(sorted(catalog_hash_parts)).encode()).hexdigest()
 
         with self._connection() as conn:
             conn.execute("BEGIN IMMEDIATE")
@@ -242,8 +241,10 @@ class RegistryPersistenceLayer:
             def _make_factory(mod: str, cls: str) -> Any:
                 def _factory() -> type:
                     import importlib
+
                     m = importlib.import_module(mod)
                     return getattr(m, cls)
+
                 return _factory
 
             if not module or not class_name:
@@ -369,9 +370,7 @@ class RegistryPersistenceLayer:
                 parts.append(hashlib.sha256(sig_json.encode()).hexdigest())
             except (TypeError, ValueError):
                 parts.append(entry.fqn)
-        return hashlib.sha256(
-            "|".join(sorted(parts)).encode()
-        ).hexdigest()
+        return hashlib.sha256("|".join(sorted(parts)).encode()).hexdigest()
 
 
 def _signature_payload(signature) -> dict[str, Any]:
@@ -443,15 +442,11 @@ def _signature_from_payload(payload: dict[str, Any]):
         name=str(payload["name"]),
         namespace=str(payload["namespace"]),
         version=str(payload["version"]),
-        input_slots=frozenset(
-            _slot_from_payload(item) for item in payload.get("input_slots", [])
-        ),
+        input_slots=frozenset(_slot_from_payload(item) for item in payload.get("input_slots", [])),
         output_slots=frozenset(
             _slot_from_payload(item) for item in payload.get("output_slots", [])
         ),
-        parameters=tuple(
-            _parameter_from_payload(item) for item in payload.get("parameters", [])
-        ),
+        parameters=tuple(_parameter_from_payload(item) for item in payload.get("parameters", [])),
         fidelity=FidelityLevel[str(payload["fidelity"])],
         complexity=ComplexityClass[str(payload["complexity"])],
         backend=ComputeBackend(str(payload.get("backend", ComputeBackend.JAX.value))),
@@ -481,9 +476,7 @@ def _metadata_from_payload(payload: dict[str, Any]):
         equations=dict(_restore_stable_value(payload.get("equations", {}))),
         assumptions=dict(_restore_stable_value(payload.get("assumptions", {}))),
         determinism_tier=(
-            DeterminismTier(str(determinism_tier))
-            if determinism_tier is not None
-            else None
+            DeterminismTier(str(determinism_tier)) if determinism_tier is not None else None
         ),
         required_deps=tuple(payload.get("required_deps", [])),
         optional_deps=tuple(payload.get("optional_deps", [])),
@@ -507,10 +500,7 @@ def _restore_stable_value(value: Any) -> Any:
         if "__bytes__" in value:
             return bytes.fromhex(str(value["__bytes__"]))
         if "__map__" in value:
-            return {
-                str(key): _restore_stable_value(item)
-                for key, item in value["__map__"].items()
-            }
+            return {str(key): _restore_stable_value(item) for key, item in value["__map__"].items()}
         if "__tuple__" in value:
             return tuple(_restore_stable_value(item) for item in value["__tuple__"])
         if "__list__" in value:

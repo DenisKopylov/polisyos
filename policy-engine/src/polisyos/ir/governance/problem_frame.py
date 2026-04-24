@@ -7,24 +7,31 @@ stakeholder scope that policy proposals must respect. ``PolicySpec`` and
 optimization should treat ``ProblemFrame`` as the fixed reference for "what
 success means" and "what cannot be violated".
 """
+
 from __future__ import annotations
 
 from decimal import Decimal
 from enum import Enum
-from typing import Annotated, Literal
+from typing import TYPE_CHECKING, Annotated, Literal
 
 from pydantic import BeforeValidator, Field, model_validator
 
 from polisyos.ir._validation import ensure_unique_ids
-from polisyos.ir.kernel.base import KernelModel, SLOT_ID_PATTERN, reject_float
-from polisyos.ir.kernel.numbers import DecimalValue, NonNegativeDecimal
-from polisyos.ir.kernel.values import (
-    CountValue,
-    DurationValue,
-    MoneyValue,
-    RateValue,
-)
-from polisyos.ir.types import EntityType, OptimizationDirection, TranslatableString
+from polisyos.ir.kernel.base import SLOT_ID_PATTERN, KernelModel, reject_float
+
+if TYPE_CHECKING:
+    from polisyos.ir.kernel.numbers import DecimalValue, NonNegativeDecimal
+    from polisyos.ir.kernel.values import (
+        CountValue,
+        DurationValue,
+        MoneyValue,
+        RateValue,
+    )
+    from polisyos.ir.types import EntityType, OptimizationDirection, TranslatableString
+else:
+    from polisyos.ir.kernel.numbers import DecimalValue, NonNegativeDecimal
+    from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
+    from polisyos.ir.types import EntityType, OptimizationDirection, TranslatableString
 
 # Constants
 ID_PATTERN = r"^[a-z][a-z0-9_]*$"
@@ -364,7 +371,7 @@ class ProblemFrame(KernelModel):
     notes: list[str] = Field(default_factory=list, max_length=50)
 
     @model_validator(mode="after")
-    def validate_problem_frame(self) -> "ProblemFrame":
+    def validate_problem_frame(self) -> ProblemFrame:
         """Validate internal consistency of the problem frame."""
 
         ensure_unique_ids(
@@ -441,9 +448,7 @@ class ProblemFrame(KernelModel):
         if not normative.enabled_policies:
             raise ValueError("normative_frame.enabled_policies must not be empty")
         if normative.default_policy not in normative.enabled_policies:
-            raise ValueError(
-                "normative_frame.default_policy must be present in enabled_policies"
-            )
+            raise ValueError("normative_frame.default_policy must be present in enabled_policies")
 
         binding_ids = {binding.binding_id for binding in normative.stakeholder_bindings}
         for binding in normative.stakeholder_bindings:
@@ -462,8 +467,7 @@ class ProblemFrame(KernelModel):
             for binding_ref in term.binding_refs:
                 if binding_ref not in binding_ids:
                     raise ValueError(
-                        "normative_frame.utility_terms references unknown binding "
-                        f"'{binding_ref}'"
+                        f"normative_frame.utility_terms references unknown binding '{binding_ref}'"
                     )
 
         for right in normative.rights_catalog:

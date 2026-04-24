@@ -54,7 +54,7 @@ def test_edge_list_network_data_round_trips_to_dense() -> None:
 
 
 def test_sbm_stratification_recovers_block_structure(isolated_registry) -> None:
-    method = isolated_registry.get("network.community.sbm_stratification@0.1.0")
+    method = isolated_registry.get("network.community.sbm_stratification@1.0.0")
     state, truth = _synthetic_sbm_graph()
     result = method.pure_step(
         state,
@@ -78,7 +78,7 @@ def test_sbm_stratification_recovers_block_structure(isolated_registry) -> None:
 
 
 def test_sbm_stratification_bridges_into_network_causal_data(isolated_registry) -> None:
-    method = isolated_registry.get("network.community.sbm_stratification@0.1.0")
+    method = isolated_registry.get("network.community.sbm_stratification@1.0.0")
     state, _ = _synthetic_sbm_graph(seed=17)
     stratification = method.pure_step(
         state,

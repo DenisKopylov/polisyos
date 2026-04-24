@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/LocaleProvider";
 import { Badge, Button } from "@/shared/ui";
+import { AuthoredText } from "@/shared/ui/authored-text";
 import type { ChatMessage as ChatMessageType } from "../state/useChatStore";
 import { ChatStreamIndicator } from "./ChatStreamIndicator";
 import { ClerkStructuredResponse } from "./ClerkStructuredResponse";
@@ -41,13 +42,11 @@ export function ChatMessage({
 }: ChatMessageProps) {
   const { t } = useI18n();
   const isUser = message.role === "user";
+  const authoredTimestamp = new Date(message.timestamp).toISOString();
 
   return (
     <div
-      className={cn(
-        "flex w-full",
-        isUser ? "justify-end" : "justify-start",
-      )}
+      className={cn("flex w-full", isUser ? "justify-end" : "justify-start")}
     >
       <div
         className={cn(
@@ -58,9 +57,13 @@ export function ChatMessage({
         )}
       >
         {isUser ? (
-          <p className="text-[16px] leading-relaxed whitespace-pre-wrap">
+          <AuthoredText
+            author="human"
+            className="text-[16px] leading-relaxed whitespace-pre-wrap"
+            timestamp={authoredTimestamp}
+          >
             {message.content}
-          </p>
+          </AuthoredText>
         ) : (
           <div className="flex flex-col gap-3">
             {message.runStatus && (
@@ -81,6 +84,7 @@ export function ChatMessage({
                 streamedTokens={message.streamedTokens}
                 statusChips={message.structured?.statusChips}
                 isActive={isStreaming}
+                timestamp={message.timestamp}
               />
             )}
 
@@ -92,7 +96,13 @@ export function ChatMessage({
               !message.structured && <ChatStreamIndicator />}
 
             {message.error && (
-              <p className="text-sm text-[var(--danger)]">{message.error}</p>
+              <AuthoredText
+                author="critic"
+                className="text-sm text-[var(--danger)]"
+                timestamp={authoredTimestamp}
+              >
+                {message.error}
+              </AuthoredText>
             )}
 
             {/* Structured response card */}
@@ -101,21 +111,29 @@ export function ChatMessage({
               (message.structured.verdict ||
                 message.structured.keyFactors ||
                 message.structured.confidence != null) && (
-                <ClerkStructuredResponse data={message.structured} />
+                <ClerkStructuredResponse
+                  data={message.structured}
+                  timestamp={message.timestamp}
+                />
               )}
 
             {/* AI Diff View */}
-            {message.structured?.diff &&
-              message.structured.diff.length > 0 && (
-                <AIDiffView sections={message.structured.diff} />
-              )}
+            {message.structured?.diff && message.structured.diff.length > 0 && (
+              <AIDiffView sections={message.structured.diff} />
+            )}
 
             {/* Plain content (when no structured data) */}
             {message.content &&
               !message.error &&
               !message.isProgressive &&
               !message.structured?.verdict && (
-                <p className="text-sm leading-relaxed">{message.content}</p>
+                <AuthoredText
+                  author="drafter"
+                  className="text-sm leading-relaxed"
+                  timestamp={authoredTimestamp}
+                >
+                  {message.content}
+                </AuthoredText>
               )}
 
             {/* View full analysis link */}
@@ -123,7 +141,11 @@ export function ChatMessage({
               (message.runStatus === "completed" ||
                 message.runStatus === "failed") && (
                 <div className="pt-1">
-                  <Button size="sm" variant="ghost" to={`/runs/${message.runId}`}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    to={`/runs/${message.runId}`}
+                  >
                     {t("clerk.viewFullAnalysis")}
                   </Button>
                 </div>

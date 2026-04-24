@@ -20,7 +20,9 @@ def _make_graph() -> CausalGraphModel:
     )
 
 
-def _make_selection_diagram(*, s_count: int = 2, context_distance: float = 0.45) -> SelectionDiagram:
+def _make_selection_diagram(
+    *, s_count: int = 2, context_distance: float = 0.45
+) -> SelectionDiagram:
     graph = _make_graph()
     s_nodes = [
         SNode(
@@ -63,14 +65,18 @@ def test_transport_bounds_are_subset_of_target_manski() -> None:
     )
     treated = target["treatment"] > 0.5
     manski = compute_manski_bounds(
-        outcome_conditioned=np.array([
-            float(np.mean(target["outcome"][~treated])),
-            float(np.mean(target["outcome"][treated])),
-        ]),
-        treatment_probs=np.array([
-            float(np.mean(~treated)),
-            float(np.mean(treated)),
-        ]),
+        outcome_conditioned=np.array(
+            [
+                float(np.mean(target["outcome"][~treated])),
+                float(np.mean(target["outcome"][treated])),
+            ]
+        ),
+        treatment_probs=np.array(
+            [
+                float(np.mean(~treated)),
+                float(np.mean(treated)),
+            ]
+        ),
         outcome_support=(0.0, 1.0),
     )
 

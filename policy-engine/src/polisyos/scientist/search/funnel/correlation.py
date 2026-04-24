@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any, Dict, List
+from typing import Any
 
 from polisyos.scientist.search.funnel.types import FunnelStageResult
 from polisyos.scientist.search.stages import CorrelationTracker, StageResult
@@ -15,11 +15,11 @@ class FunnelCorrelationRecord:
     """Single candidate's results across funnel levels."""
 
     candidate_hash: str
-    level_scores: Dict[int, float]
-    level_passed: Dict[int, bool]
+    level_scores: dict[int, float]
+    level_passed: dict[int, bool]
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     is_sentinel: bool = False
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class FunnelCorrelationTracker:
@@ -35,7 +35,7 @@ class FunnelCorrelationTracker:
         false_negative_ceiling: float = 0.02,
         sentinel_pass_floor: float = 0.9,
     ):
-        self._records: List[FunnelCorrelationRecord] = []
+        self._records: list[FunnelCorrelationRecord] = []
         self._max_records = max_records
         self._tracker_config = {
             "max_records": max_records,
@@ -49,10 +49,10 @@ class FunnelCorrelationTracker:
     def record(
         self,
         candidate_hash: str,
-        level_results: Dict[int, FunnelStageResult],
+        level_results: dict[int, FunnelStageResult],
         *,
         is_sentinel: bool = False,
-        metadata: Dict[str, Any] | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         rec = FunnelCorrelationRecord(
             candidate_hash=candidate_hash,
@@ -89,7 +89,7 @@ class FunnelCorrelationTracker:
         self,
         level_a: int,
         level_b: int,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         tracker = self._pair_tracker(level_a, level_b)
         metrics = tracker.compute_metrics()
         metrics["sample_count"] = sum(
@@ -99,7 +99,7 @@ class FunnelCorrelationTracker:
         )
         return metrics
 
-    def to_jsonl_rows(self) -> List[Dict[str, Any]]:
+    def to_jsonl_rows(self) -> list[dict[str, Any]]:
         return [
             {
                 "candidate_hash": record.candidate_hash,

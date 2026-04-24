@@ -37,14 +37,17 @@ export function DataTable<Row>({
         className,
       )}
     >
-      <table className="min-w-full border-collapse text-sm">
+      <table className="w-full min-w-[var(--table-min-width)] border-collapse text-[length:var(--control-text-md)]">
         <thead>
           <tr className="border-line text-muted border-b text-left text-xs tracking-wide uppercase">
             {columns.map((column) => (
               <th
                 key={column.key}
                 scope="col"
-                className={cn("px-3 py-2", column.className)}
+                className={cn(
+                  "px-[var(--table-cell-px)] py-[var(--table-header-py)]",
+                  column.className,
+                )}
               >
                 {column.header}
               </th>
@@ -60,7 +63,10 @@ export function DataTable<Row>({
               {columns.map((column) => (
                 <td
                   key={column.key}
-                  className={cn("px-3 py-3 align-top", column.className)}
+                  className={cn(
+                    "h-[var(--table-row-height)] px-[var(--table-cell-px)] py-[var(--table-cell-py)] align-top",
+                    column.className,
+                  )}
                 >
                   {column.render(row)}
                 </td>

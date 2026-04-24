@@ -8,7 +8,11 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.analytics.partial_identification import BoundMethod, BoundsBundle, BoundsMethodSummary
+from polisyos.ir.analytics.partial_identification import (
+    BoundMethod,
+    BoundsBundle,
+    BoundsMethodSummary,
+)
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import DPRobustnessCertificateRef
@@ -610,9 +614,7 @@ def bounds_bundle_from_dp_robustness_certificate(
                 lower_bound=lower,
                 upper_bound=upper,
                 bound_width=width,
-                assumptions_used=list(
-                    dict(certificate.metadata).get("assumptions_used", [])
-                ),
+                assumptions_used=list(dict(certificate.metadata).get("assumptions_used", [])),
                 bounds_type="dp_distortion",
                 display_label="DP Robustness Bounds",
             )

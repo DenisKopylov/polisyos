@@ -10,7 +10,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
-from typing import Any
 
 from polisyos.ir.governance.problem_frame import ConstraintSpec
 from polisyos.ir.governance.problem_frame import ProblemFrame as IRProblemFrame
@@ -221,7 +220,9 @@ class ConstraintContextAssembler:
         return sanitized[:500]
 
 
-def extract_budget_envelope(problem_frame: AgentProblemFrame | IRProblemFrame | None) -> Decimal | None:
+def extract_budget_envelope(
+    problem_frame: AgentProblemFrame | IRProblemFrame | None,
+) -> Decimal | None:
     """Convenience helper for quick budget extraction from any ProblemFrame variant."""
 
     assembler = ConstraintContextAssembler()

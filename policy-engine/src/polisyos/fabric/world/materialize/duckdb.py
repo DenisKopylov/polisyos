@@ -1,22 +1,24 @@
 """Apply world fact segments into DuckDB tables and derived query projections."""
+
 from __future__ import annotations
 
 import json
 import uuid
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterable, Sequence
+from typing import TYPE_CHECKING
 
 import pandas as pd
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.canon import content_hash
-from polisyos.fabric.observability import FABRIC_TRACE_NAMES
-from polisyos.fabric.world.providers import resolve_world_observability
 from polisyos.fabric.io.db import SimulationDB
+from polisyos.fabric.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.temporal import parse_datetime_utc, utc_now
+from polisyos.fabric.world.providers import resolve_world_observability
 from polisyos.fabric.world.store.segments import load_world_fact_manifests
 from polisyos.ir.fact_log import FactSegmentManifest
 from polisyos.ir.world.predicates import WORLD_REL_PREFIX
@@ -66,9 +68,7 @@ class WorldMaterializationPolicy:
     """Refresh policy attached to one materialization run."""
 
     trigger: WorldRefreshTrigger = WorldRefreshTrigger.ON_SEGMENT_ARRIVAL
-    projection_failure_mode: WorldProjectionFailureMode = (
-        WorldProjectionFailureMode.FAIL_CLOSED
-    )
+    projection_failure_mode: WorldProjectionFailureMode = WorldProjectionFailureMode.FAIL_CLOSED
 
 
 @dataclass(frozen=True)
@@ -115,6 +115,7 @@ class WorldMaterializationShard:
 @dataclass
 class WorldMaterializeSegmentStats:
     """World materialize segment stats public type."""
+
     segment_id: str
     segment_sha256: str
     row_count: int
@@ -130,6 +131,7 @@ class WorldMaterializeSegmentStats:
 @dataclass
 class WorldMaterializeStats:
     """World materialize stats public type."""
+
     segments_total: int
     segments_applied: int
     segments_skipped: int
@@ -179,9 +181,7 @@ def _ensure_column(
 ) -> None:
     if _column_exists(db, table_name, column_name):
         return
-    db.conn.execute(
-        f"ALTER TABLE world.{table_name} ADD COLUMN {column_name} {ddl_type}"
-    )
+    db.conn.execute(f"ALTER TABLE world.{table_name} ADD COLUMN {column_name} {ddl_type}")
 
 
 def _ensure_world_schema_migrations(db: SimulationDB) -> None:
@@ -219,8 +219,8 @@ def ensure_world_materialized(
     fact_manifests: Iterable[FactSegmentManifest],
     *,
     refresh_policy: WorldMaterializationPolicy | None = None,
-    tracer: "PolicyOSTracer | None" = None,
-    metrics: "MetricsRegistry | None" = None,
+    tracer: PolicyOSTracer | None = None,
+    metrics: MetricsRegistry | None = None,
 ) -> WorldMaterializeStats:
     """Apply unapplied world segments into DuckDB and aggregate per-run materialization stats."""
     manifests = list(fact_manifests)
@@ -277,9 +277,8 @@ def ensure_world_materialized(
             else:
                 resolved.metrics.set_fabric_segment_count(float(stats.segments_total))
         lag_seconds = _materialization_lag_seconds(manifests)
-        if (
-            lag_seconds is not None
-            and getattr(resolved.metrics, "set_fabric_materialization_lag", None)
+        if lag_seconds is not None and getattr(
+            resolved.metrics, "set_fabric_materialization_lag", None
         ):
             tenant_groups = _group_manifests_by_tenant(manifests)
             if len(tenant_groups) == 1:
@@ -301,8 +300,8 @@ def materialize_world_duckdb_from_fact_log(
     cas: ArtifactStore,
     *,
     refresh_policy: WorldMaterializationPolicy | None = None,
-    tracer: "PolicyOSTracer | None" = None,
-    metrics: "MetricsRegistry | None" = None,
+    tracer: PolicyOSTracer | None = None,
+    metrics: MetricsRegistry | None = None,
 ) -> WorldMaterializeStats:
     """Load indexed world segments from the fact log and materialize them into DuckDB."""
     manifests = load_world_fact_manifests(fact_log_root)
@@ -331,9 +330,7 @@ def plan_world_materialization_shards(
             manifest,
             granularity=time_granularity,
         )
-        grouped.setdefault((tenant_id, dataset_id, time_partition), []).append(
-            manifest.segment_id
-        )
+        grouped.setdefault((tenant_id, dataset_id, time_partition), []).append(manifest.segment_id)
 
     shards = [
         WorldMaterializationShard(
@@ -354,8 +351,8 @@ def apply_world_segment(
     manifest: FactSegmentManifest,
     *,
     refresh_policy: WorldMaterializationPolicy | None = None,
-    tracer: "PolicyOSTracer | None" = None,
-    metrics: "MetricsRegistry | None" = None,
+    tracer: PolicyOSTracer | None = None,
+    metrics: MetricsRegistry | None = None,
 ) -> WorldMaterializeSegmentStats:
     """Stage and merge one world fact segment into DuckDB inside a single transaction."""
     segment_path = Path(manifest.path)
@@ -412,9 +409,7 @@ def apply_world_segment(
                     conflicts = db.conn.execute(sql_kind_conflicts(touched_name)).fetchall()
                     if conflicts:
                         conflict_ids = ", ".join(row[0] for row in conflicts)
-                        raise WorldMergeConflict(
-                            f"world.kind conflict for nodes: {conflict_ids}"
-                        )
+                        raise WorldMergeConflict(f"world.kind conflict for nodes: {conflict_ids}")
                     db.conn.execute(sql_update_world_nodes(touched_name))
                 finally:
                     db.conn.unregister(touched_name)
@@ -431,9 +426,7 @@ def apply_world_segment(
                     db.conn.unregister(edges_name)
 
             touched_node_kinds = _load_touched_node_kinds(db, touched_ids)
-            projection_plan = build_projection_refresh_plan(
-                touched_node_kinds=touched_node_kinds
-            )
+            projection_plan = build_projection_refresh_plan(touched_node_kinds=touched_node_kinds)
             world_plan = build_world_materialization_plan(
                 manifest=manifest,
                 touched_node_kinds=touched_node_kinds,
@@ -605,14 +598,8 @@ def build_world_materialization_plan(
     """Build the explainable topological plan for one world segment."""
 
     policy = refresh_policy or WorldMaterializationPolicy()
-    normalized_kinds = tuple(
-        str(kind).strip()
-        for kind in touched_node_kinds
-        if str(kind).strip()
-    )
-    projection_plan = build_projection_refresh_plan(
-        touched_node_kinds=normalized_kinds
-    )
+    normalized_kinds = tuple(str(kind).strip() for kind in touched_node_kinds if str(kind).strip())
+    projection_plan = build_projection_refresh_plan(touched_node_kinds=normalized_kinds)
     segment_step = WorldMaterializationStep(
         name=f"segment:{manifest.segment_id}",
         incremental=True,
@@ -669,9 +656,7 @@ def build_world_materialization_plan(
             "cost grows with full node/edge export volume",
         ),
     )
-    return WorldMaterializationPlan(
-        steps=(segment_step, *base_steps, *projection_steps, kuzu_step)
-    )
+    return WorldMaterializationPlan(steps=(segment_step, *base_steps, *projection_steps, kuzu_step))
 
 
 def _prepare_world_facts_df(df: pd.DataFrame, segment_id: str) -> pd.DataFrame:
@@ -819,9 +804,9 @@ def _group_manifests_by_tenant(
 
 
 __all__ = [
-    "WorldMaterializationShard",
     "WorldMaterializationPlan",
     "WorldMaterializationPolicy",
+    "WorldMaterializationShard",
     "WorldMaterializationStep",
     "WorldMaterializeSegmentStats",
     "WorldMaterializeStats",

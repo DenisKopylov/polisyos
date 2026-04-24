@@ -1,7 +1,8 @@
 """Render human-readable markdown summaries from audit verification reports."""
+
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 
 from .models import StepResult, StepStatus, VerificationIssue, VerificationReport
 
@@ -38,7 +39,10 @@ def render_markdown(report: VerificationReport) -> str:
             "",
             f"- Artifacts: {report.artifacts_checked}/{report.artifacts_total}",
             f"- Signatures: {report.signatures_valid}/{report.signatures_total}",
-            f"- Provenance: entities={report.prov_entities}, activities={report.prov_activities}, agents={report.prov_agents}",
+            (
+                f"- Provenance: entities={report.prov_entities}, "
+                f"activities={report.prov_activities}, agents={report.prov_agents}"
+            ),
             "",
         ]
     )

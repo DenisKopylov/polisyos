@@ -1,8 +1,9 @@
 """Train actor-critic policies against agent-simulation rollouts and persist artifacts."""
+
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 import equinox as eqx
 import jax
@@ -18,15 +19,15 @@ from polisyos.foundry.agent_sim.prng import get_mechanism_key
 from polisyos.foundry.agent_sim.rewards import compute_agent_reward
 from polisyos.foundry.agent_sim.rl import Trajectory, compute_returns_and_advantages, ppo_loss
 from polisyos.foundry.agent_sim.temporal import build_temporal_observations
-from polisyos.foundry.agent_sim.training_config import TrainingConfigBase
 from polisyos.foundry.agent_sim.temporal_mechanisms import TemporalConsumptionMechanism
-from polisyos.foundry.contracts.fidelity import FidelityLevel
+from polisyos.foundry.agent_sim.training_config import TrainingConfigBase
 from polisyos.foundry.runtime.fingerprint import DeterminismTier, EnvironmentFingerprint
 
 
 @dataclass(frozen=True)
 class TrainingConfig(TrainingConfigBase):
     """Extend the base training config with logging controls for iterative runs."""
+
     log_interval: int = 10
 
 
@@ -179,9 +180,7 @@ def _find_temporal_mechanism(executor: PureExecutor) -> TemporalConsumptionMecha
     raise ValueError("TemporalConsumptionMechanism not found in executor.")
 
 
-def _replace_temporal_mechanism(
-    executor: PureExecutor, actor_critic: ActorCritic
-) -> PureExecutor:
+def _replace_temporal_mechanism(executor: PureExecutor, actor_critic: ActorCritic) -> PureExecutor:
     mechanisms = []
     for mech in executor.mechanisms:
         if isinstance(mech, TemporalConsumptionMechanism):

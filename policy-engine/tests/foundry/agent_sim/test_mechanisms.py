@@ -1,12 +1,14 @@
 """Tests for agent_sim mechanisms (Taxation, Consumption)."""
+
 from __future__ import annotations
 
 import jax
-import jax.numpy as jnp
-import pytest
 
-from polisyos.foundry.agent_sim.mechanism import MechanismSpec
-from polisyos.foundry.agent_sim.mechanisms import TaxationMechanism, ConsumptionMechanism, SharedPolicy
+from polisyos.foundry.agent_sim.mechanisms import (
+    ConsumptionMechanism,
+    SharedPolicy,
+    TaxationMechanism,
+)
 from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 

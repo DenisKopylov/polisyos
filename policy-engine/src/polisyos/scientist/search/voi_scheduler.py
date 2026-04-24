@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping, Sequence
 from decimal import Decimal
-from typing import Any, Literal, Mapping, Sequence
+from typing import Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
@@ -210,9 +211,7 @@ class SimpleVOIScheduler:
         estimated_cost_float = max(float(estimated_cost), 1e-9)
         expected_improvement_per_usd = inputs["expected_value_proxy"] / estimated_cost_float
         exploration_bonus = exploration_weight * inputs["expected_information_gain"]
-        reserved_calibration_budget_usd = self._reserved_calibration_budget_usd(
-            budget_remaining
-        )
+        reserved_calibration_budget_usd = self._reserved_calibration_budget_usd(budget_remaining)
         priority = ((1.0 - exploration_weight) * expected_improvement_per_usd) + exploration_bonus
         economics = ComputeEconomicsDecision(
             candidate_id=inputs["candidate_id"],
@@ -259,14 +258,14 @@ class SimpleVOIScheduler:
         ticket: Any,
         frontier: ParetoSnapshot,
     ) -> dict[str, Any]:
-        candidate_id = str(getattr(ticket, "candidate_hash", getattr(ticket, "ticket_id", "unknown")))
+        candidate_id = str(
+            getattr(ticket, "candidate_hash", getattr(ticket, "ticket_id", "unknown"))
+        )
         next_level = getattr(ticket, "next_level", None)
         last_result = self._last_result(ticket)
         cheap_signal = getattr(last_result, "cheap_signal", None)
         expected_value_proxy = float(getattr(cheap_signal, "expected_value_proxy", 0.0))
-        expected_information_gain = float(
-            getattr(cheap_signal, "expected_information_gain", 0.0)
-        )
+        expected_information_gain = float(getattr(cheap_signal, "expected_information_gain", 0.0))
         pareto_position = frontier.position_for(candidate_id)
         governance_value = {
             "frontier": 1.0,
@@ -282,7 +281,9 @@ class SimpleVOIScheduler:
             "timeout_risk": self._timeout_risk(last_result),
             "pareto_position": pareto_position,
             "governance_value": governance_value,
-            "is_sentinel": bool(getattr(ticket, "context", {}) and getattr(ticket, "context", {}).get("is_sentinel")),
+            "is_sentinel": bool(
+                getattr(ticket, "context", {}) and getattr(ticket, "context", {}).get("is_sentinel")
+            ),
         }
 
     def _recommended_action(
@@ -525,12 +526,9 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
         budget_key: str = "run",
         min_roi_threshold: float = 1.0,
         timeout_risk_threshold: float = 0.7,
-    ) -> "PredictiveVOIScheduler":
+    ) -> PredictiveVOIScheduler:
         scheduler = cls(
-            stage_costs={
-                level: Decimal(str(cost))
-                for level, cost in snapshot.stage_costs.items()
-            },
+            stage_costs={level: Decimal(str(cost)) for level, cost in snapshot.stage_costs.items()},
             budget_key=budget_key,
             min_roi_threshold=min_roi_threshold,
             timeout_risk_threshold=timeout_risk_threshold,
@@ -555,19 +553,29 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
         return [
             VOIModelStatus(
                 model_name="cheap_causal_surrogate",
-                status="ready" if stage_count >= self._training_config.min_stage_observations else "fallback",
+                status="ready"
+                if stage_count >= self._training_config.min_stage_observations
+                else "fallback",
                 sample_count=stage_count,
                 notes=notes,
             ),
             VOIModelStatus(
                 model_name="runtime_timeout",
-                status="ready" if stage_count >= self._training_config.min_stage_observations else "fallback",
+                status="ready"
+                if stage_count >= self._training_config.min_stage_observations
+                else "fallback",
                 sample_count=stage_count,
-                notes=["runtime_predictor_fitted" if self._runtime_predictor.is_fitted else "runtime_default"],
+                notes=[
+                    "runtime_predictor_fitted"
+                    if self._runtime_predictor.is_fitted
+                    else "runtime_default"
+                ],
             ),
             VOIModelStatus(
                 model_name="uncertainty_proxy",
-                status="ready" if stage_count >= self._training_config.min_stage_observations else "fallback",
+                status="ready"
+                if stage_count >= self._training_config.min_stage_observations
+                else "fallback",
                 sample_count=stage_count,
                 notes=notes,
             ),
@@ -679,7 +687,9 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
                 current_pareto_position=heuristic["pareto_position"],
                 predicted_metric_vector={
                     "objective_value": predicted_objective,
-                    "promising_probability": float(prediction_bool_to_probability(predicted_objective)),
+                    "promising_probability": float(
+                        prediction_bool_to_probability(predicted_objective)
+                    ),
                 },
                 promotion_likelihood=max(0.0, min(1.0, promotion_likelihood)),
                 estimated_wall_seconds=max(0.0, estimated_wall_seconds),
@@ -726,7 +736,9 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
             return True
         return False
 
-    def _slice_stage_observations(self, context: dict[str, str]) -> list[tuple[VOIObservation, float]]:
+    def _slice_stage_observations(
+        self, context: dict[str, str]
+    ) -> list[tuple[VOIObservation, float]]:
         return _weighted_slice(
             self._observations,
             task_family=context["task_family"],
@@ -748,8 +760,10 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
         )
 
     def _record_runtime_history(self, observation: VOIObservation) -> None:
-        complexity = 1.0 + observation.features.get("stage_level", 0.0) + observation.features.get(
-            "uncertainty_prior", 0.0
+        complexity = (
+            1.0
+            + observation.features.get("stage_level", 0.0)
+            + observation.features.get("uncertainty_prior", 0.0)
         )
         self._runtime_history.record(
             MethodExecutionRecord(
@@ -776,12 +790,17 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
         fallback: float,
     ) -> float:
         if self._runtime_predictor.is_fitted:
-            complexity = 1.0 + features.get("stage_level", 0.0) + features.get("uncertainty_prior", 0.0)
-            return self._runtime_predictor.predict_ms(
-                f"scientist.funnel.L{stage_level}",
-                n_obs=max(1, int(100 * complexity)),
-                n_features=max(1, len(features)),
-            ) / 1000.0
+            complexity = (
+                1.0 + features.get("stage_level", 0.0) + features.get("uncertainty_prior", 0.0)
+            )
+            return (
+                self._runtime_predictor.predict_ms(
+                    f"scientist.funnel.L{stage_level}",
+                    n_obs=max(1, int(100 * complexity)),
+                    n_features=max(1, len(features)),
+                )
+                / 1000.0
+            )
         return _predict_continuous(
             observations,
             features,
@@ -834,7 +853,9 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
 def _resolve_context(ticket: Any) -> dict[str, str]:
     context = getattr(ticket, "context", {}) or {}
     transfer = context.get("transfer_context")
-    task_family = getattr(transfer, "task_family", None) or str(context.get("task_family", "policy"))
+    task_family = getattr(transfer, "task_family", None) or str(
+        context.get("task_family", "policy")
+    )
     domain = getattr(transfer, "domain", None) or _normalized_scope_domain(
         context.get("domain"),
         fallback_id=str(getattr(ticket, "candidate_hash", getattr(ticket, "ticket_id", "unknown"))),
@@ -855,13 +876,9 @@ def _feature_vector(
 ) -> dict[str, float]:
     return {
         "expected_value_proxy": float(getattr(cheap_signal, "expected_value_proxy", 0.0)),
-        "expected_information_gain": float(
-            getattr(cheap_signal, "expected_information_gain", 0.0)
-        ),
+        "expected_information_gain": float(getattr(cheap_signal, "expected_information_gain", 0.0)),
         "structural_validity": float(getattr(cheap_signal, "structural_validity", 0.5)),
-        "causal_identifiability": float(
-            getattr(cheap_signal, "causal_identifiability", 0.5)
-        ),
+        "causal_identifiability": float(getattr(cheap_signal, "causal_identifiability", 0.5)),
         "feasibility": float(getattr(cheap_signal, "feasibility", 0.5)),
         "uncertainty_prior": float(getattr(cheap_signal, "uncertainty_prior", 0.5)),
         "expected_harm_proxy": float(getattr(cheap_signal, "expected_harm_proxy", 0.5)),
@@ -921,10 +938,7 @@ def _predict_continuous(
         return float(fallback)
     keys = sorted(features)
     X = np.array(
-        [
-            [1.0, *[float(item.features.get(key, 0.0)) for key in keys]]
-            for item, _weight in rows
-        ],
+        [[1.0, *[float(item.features.get(key, 0.0)) for key in keys]] for item, _weight in rows],
         dtype=float,
     )
     y = np.array([float(target_getter(item)) for item, _weight in rows], dtype=float)

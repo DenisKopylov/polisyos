@@ -17,31 +17,34 @@ plugin contract, discovery/registration path, composite execution, and the
 
 - [core.py](core.py) for `DomainPlugin`, `PluginRegistry`, metadata, and domain
   config contracts.
+
 - [discovery.py](discovery.py) for built-in and entry-point plugin discovery.
 - [api.py](api.py) for `PolisySimulator`, simulation config, and high-level run
   / train / visualize flows.
+
 - [composite.py](composite.py) for cross-domain state and executor wiring.
 - [economics/plugin.py](economics/plugin.py) for the built-in reference plugin.
 - [cli.py](cli.py) for local list/run/train/analyze command entrypoints.
 
 ## Public Entrypoints
 
-| Entrypoint | Description |
-|---|---|
-| `DomainPlugin` | Base contract for a pluggable domain. |
-| `PluginRegistry` | Registry for loaded plugins and metadata. |
-| `discover_plugins()` | Finds built-in and entry-point plugins. |
-| `auto_register_plugins()` | Registers built-in plugins into a registry. |
-| `create_simple_plugin()` | Helper for lightweight plugin scaffolding. |
-| `CompositeState` | Combined state across multiple domains. |
-| `CompositeExecutor` | Cross-domain executor for composite runs. |
-| `PolisySimulator` | High-level run/train/orchestration facade. |
-| `SimulationConfig` | Top-level configuration for multi-domain simulation. |
+| Entrypoint                | Description                                          |
+| ------------------------- | ---------------------------------------------------- |
+| `DomainPlugin`            | Base contract for a pluggable domain.                |
+| `PluginRegistry`          | Registry for loaded plugins and metadata.            |
+| `discover_plugins()`      | Finds built-in and entry-point plugins.              |
+| `auto_register_plugins()` | Registers built-in plugins into a registry.          |
+| `create_simple_plugin()`  | Helper for lightweight plugin scaffolding.           |
+| `CompositeState`          | Combined state across multiple domains.              |
+| `CompositeExecutor`       | Cross-domain executor for composite runs.            |
+| `PolisySimulator`         | High-level run/train/orchestration facade.           |
+| `SimulationConfig`        | Top-level configuration for multi-domain simulation. |
 
 ## Depends On / Depended On By
 
 - Depends on: `polisyos.foundry.agent_sim`, `polisyos.foundry.contracts`, JAX,
   and built-in domain plugins such as `economics`.
+
 - Depended on by: local plugin CLI workflows, plugin-system tests, and
   domain-specific simulation scenarios built on top of `PolisySimulator`.
 

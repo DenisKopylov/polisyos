@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { Card } from "@/shared/ui/primitives";
 import { Badge } from "@/shared/ui/Badge";
 
@@ -37,26 +38,40 @@ const STATUS_BADGE_KIND: Record<string, "ok" | "fail" | "warn" | "neutral"> = {
 
 export function GovernanceComparison({
   items,
-  baseLabel = "Base",
-  targetLabel = "Target",
+  baseLabel,
+  targetLabel,
   className,
 }: GovernanceComparisonProps) {
+  const { t } = useI18n();
+  const resolvedBaseLabel = baseLabel ?? t("pages.runs.compare.columns.base");
+  const resolvedTargetLabel =
+    targetLabel ?? t("pages.runs.compare.columns.target");
+  const statusLabel: Record<GovernanceComparisonItem["baseStatus"], string> = {
+    pass: t("shared.ui.governancePassGrid.status.pass"),
+    fail: t("shared.ui.governancePassGrid.status.fail"),
+    warning: t("shared.ui.governancePassGrid.status.warning"),
+    skip: t("shared.ui.governancePassGrid.status.skip"),
+  };
   const changed = items.filter((i) => i.baseStatus !== i.targetStatus);
   const unchanged = items.filter((i) => i.baseStatus === i.targetStatus);
 
   return (
     <Card className={cn("space-y-3 p-4", className)}>
-      <h4 className="text-sm font-semibold">Governance Comparison</h4>
+      <h4 className="text-sm font-semibold">
+        {t("pages.runs.compare.visual.governanceComparison")}
+      </h4>
 
       {items.length === 0 ? (
-        <p className="text-muted text-xs">No governance passes to compare.</p>
+        <p className="text-muted text-xs">
+          {t("pages.runs.compare.visual.noGovernancePasses")}
+        </p>
       ) : (
         <>
           {/* Table header */}
           <div className="text-muted grid grid-cols-3 gap-2 text-xs font-semibold">
-            <span>Pass</span>
-            <span className="text-center">{baseLabel}</span>
-            <span className="text-center">{targetLabel}</span>
+            <span>{t("pages.runs.compare.visual.passColumn")}</span>
+            <span className="text-center">{resolvedBaseLabel}</span>
+            <span className="text-center">{resolvedTargetLabel}</span>
           </div>
 
           {/* Changed first */}
@@ -64,17 +79,20 @@ export function GovernanceComparison({
             <div
               key={item.passId}
               className="border-line grid grid-cols-3 items-center gap-2 rounded-lg border p-2"
-              style={{ borderLeftWidth: 3, borderLeftColor: "var(--chart-warning)" }}
+              style={{
+                borderLeftWidth: 3,
+                borderLeftColor: "var(--chart-warning)",
+              }}
             >
               <span className="text-xs font-medium">{item.label}</span>
               <span className="text-center">
                 <Badge kind={STATUS_BADGE_KIND[item.baseStatus] ?? "neutral"}>
-                  {item.baseStatus}
+                  {statusLabel[item.baseStatus]}
                 </Badge>
               </span>
               <span className="text-center">
                 <Badge kind={STATUS_BADGE_KIND[item.targetStatus] ?? "neutral"}>
-                  {item.targetStatus}
+                  {statusLabel[item.targetStatus]}
                 </Badge>
               </span>
             </div>
@@ -84,7 +102,9 @@ export function GovernanceComparison({
           {unchanged.length > 0 && (
             <details className="text-xs">
               <summary className="text-muted cursor-pointer">
-                {unchanged.length} unchanged passes
+                {t("pages.runs.compare.visual.unchangedPasses", {
+                  count: unchanged.length,
+                })}
               </summary>
               <div className="mt-1.5 space-y-1">
                 {unchanged.map((item) => (
@@ -94,8 +114,10 @@ export function GovernanceComparison({
                   >
                     <span>{item.label}</span>
                     <span className="text-center">
-                      <Badge kind={STATUS_BADGE_KIND[item.baseStatus] ?? "neutral"}>
-                        {item.baseStatus}
+                      <Badge
+                        kind={STATUS_BADGE_KIND[item.baseStatus] ?? "neutral"}
+                      >
+                        {statusLabel[item.baseStatus]}
                       </Badge>
                     </span>
                     <span className="text-center">—</span>

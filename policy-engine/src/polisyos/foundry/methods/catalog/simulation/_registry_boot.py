@@ -1,4 +1,5 @@
 """Public simulation registry boot module API."""
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.catalog.simulation.demography import (

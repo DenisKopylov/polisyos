@@ -8,6 +8,7 @@ Version: 1.0
 This specification defines the Data Quality and Freshness system for the Fabric connector layer. The system validates FetchResult data against DataSchema expectations and produces a scored DataQualityReport that integrates with QualityIndicators and QualityGatePass.
 
 Design principles:
+
 - Integration over reinvention (build on existing QualityIndicators)
 - Soft failures (warn and downgrade instead of crashing)
 - Performance aware (sampling with check-aware exceptions)
@@ -16,8 +17,10 @@ Design principles:
 ## Architecture Overview
 
 Flow:
+
 1. FetchResult + DataSchema
 2. DataQualityValidator
+
    - FreshnessChecker
    - CompletenessAnalyzer
    - ConsistencyChecker
@@ -36,15 +39,18 @@ Flow:
 ## Freshness Checking
 
 Key concepts:
+
 - Cache age: time since fetch
 - Data age: time since source update
 
 Policies:
+
 - Default policies for real-time, hourly, daily, weekly, monthly, quarterly, annual
 - Custom policies per dataset or schedule
 - Adaptive TTL uses update_interval when available (not data age)
 
 Schedule inference:
+
 - Metadata schedule and update_frequency hints when valid
 - Dataset_id keywords
 - Connector capability streaming
@@ -53,12 +59,14 @@ Schedule inference:
 ## Completeness Analysis
 
 Checks:
+
 - Per-field null percentage vs expected_completeness
 - Missing required fields (hard fail)
 - Time series gap detection using schema time_dimension and time_granularity
 - Optional coverage check when expected_row_count is known
 
 Scoring:
+
 - Base score from average completeness
 - Penalties scale by gap size and severity
 - Missing required fields force hard_fail and score 0
@@ -66,23 +74,27 @@ Scoring:
 ## Consistency Validation
 
 Checks:
+
 - Numeric bounds
 - Categorical allowed values
 - Regex patterns
 - Data type mismatches
 
 Scoring:
+
 - Penalties based on proportion of invalid values
 - Severity weighting based on invalid ratio
 
 ## Quality Scoring
 
 Weighted aggregation:
+
 - freshness 0.3
 - completeness 0.4
 - consistency 0.3
 
 Tier thresholds:
+
 - Platinum >= 0.95
 - Gold >= 0.85
 - Silver >= 0.70

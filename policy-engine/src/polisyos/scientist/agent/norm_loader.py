@@ -32,8 +32,7 @@ class NormPackLoader(Protocol):
         jurisdiction: str,
         domain: str | None = None,
         as_of: str | None = None,
-    ) -> NormPack | None:
-        ...
+    ) -> NormPack | None: ...
 
 
 @dataclass(slots=True)

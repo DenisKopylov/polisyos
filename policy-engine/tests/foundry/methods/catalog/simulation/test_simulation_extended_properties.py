@@ -1,11 +1,14 @@
 """Property-based tests for simulation methods — stock-flow, discrete event, bootstrap."""
+
 from __future__ import annotations
+
 import sys
+
 import numpy as np
 import pytest
 
 try:
-    from hypothesis import given, settings, HealthCheck
+    from hypothesis import HealthCheck, given, settings
     from hypothesis import strategies as st
 
     HYPOTHESIS_AVAILABLE = True
@@ -27,8 +30,14 @@ class TestStockFlowProperties:
         outflow_rate=st.floats(min_value=0.0, max_value=0.5, allow_nan=False),
         n_steps=st.integers(min_value=5, max_value=50),
     )
-    @settings(max_examples=25, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
-    def test_stock_flow_output_finite(self, initial_stock, inflow_rate, outflow_rate, n_steps, isolated_registry):
+    @settings(
+        max_examples=25,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
+    def test_stock_flow_output_finite(
+        self, initial_stock, inflow_rate, outflow_rate, n_steps, isolated_registry
+    ):
         method = _method_or_skip(isolated_registry, "simulation.system_dynamics.stock_flow@1.0.0")
         state = {"initial_stock": initial_stock}
         params = {"inflow_rate": inflow_rate, "outflow_rate": outflow_rate, "n_steps": n_steps}
@@ -45,10 +54,18 @@ class TestStockFlowProperties:
 
 class TestBootstrapProperties:
     @given(
-        data=st.lists(st.floats(min_value=-100, max_value=100, allow_nan=False, allow_infinity=False), min_size=20, max_size=100).map(np.array),
+        data=st.lists(
+            st.floats(min_value=-100, max_value=100, allow_nan=False, allow_infinity=False),
+            min_size=20,
+            max_size=100,
+        ).map(np.array),
         n_boot=st.integers(min_value=50, max_value=200),
     )
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_bootstrap_ci_covers_mean(self, data, n_boot, isolated_registry):
         """Bootstrap CI should generally contain the sample mean."""
         method = _method_or_skip(isolated_registry, "simulation.inference.bootstrap@1.0.0")
@@ -65,9 +82,17 @@ class TestBootstrapProperties:
             pass
 
     @given(
-        data=st.lists(st.floats(min_value=-100, max_value=100, allow_nan=False, allow_infinity=False), min_size=20, max_size=100).map(np.array),
+        data=st.lists(
+            st.floats(min_value=-100, max_value=100, allow_nan=False, allow_infinity=False),
+            min_size=20,
+            max_size=100,
+        ).map(np.array),
     )
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_bootstrap_se_non_negative(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "simulation.inference.bootstrap@1.0.0")
         state = {"data": data}
@@ -82,9 +107,17 @@ class TestBootstrapProperties:
             pass
 
     @given(
-        data=st.lists(st.floats(min_value=-100, max_value=100, allow_nan=False, allow_infinity=False), min_size=20, max_size=100).map(np.array),
+        data=st.lists(
+            st.floats(min_value=-100, max_value=100, allow_nan=False, allow_infinity=False),
+            min_size=20,
+            max_size=100,
+        ).map(np.array),
     )
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_bootstrap_deterministic_with_seed(self, data, isolated_registry):
         """Same seed → same bootstrap result."""
         method = _method_or_skip(isolated_registry, "simulation.inference.bootstrap@1.0.0")

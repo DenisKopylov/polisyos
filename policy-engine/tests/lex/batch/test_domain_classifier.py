@@ -11,4 +11,3 @@ def test_classify_domains_returns_top_domain() -> None:
     assert result.scores
     assert result.scores[0].domain == "fiscal"
     assert result.scores[0].hits > 0
-

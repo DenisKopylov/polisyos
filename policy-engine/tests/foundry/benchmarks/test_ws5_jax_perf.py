@@ -7,12 +7,18 @@ Run with:
 Benchmark JSON output can be persisted over time with:
     pytest tests/foundry/benchmarks/test_ws5_jax_perf.py -m benchmark --benchmark-json=ws5-bench.json
 """
+
 from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
 import pytest
 
+from polisyos.foundry.agent_sim.analysis import BehaviorAnalyzer
+from polisyos.foundry.agent_sim.population import PopulationConfig, batch_create_agents
+from polisyos.foundry.agent_sim.state import GlobalState
+from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -20,12 +26,6 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-
-from polisyos.foundry.agent_sim.analysis import BehaviorAnalyzer
-from polisyos.foundry.agent_sim.population import PopulationConfig, batch_create_agents
-from polisyos.foundry.agent_sim.state import GlobalState
-from polisyos.foundry.uncertainty.config import PropagationConfig
-from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 
 pytest.importorskip(
     "pytest_benchmark",

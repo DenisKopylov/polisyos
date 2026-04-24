@@ -1,4 +1,5 @@
 """Public services review collaboration module API."""
+
 from __future__ import annotations
 
 import asyncio
@@ -47,6 +48,7 @@ def _resolve_color(participant_id: str) -> str:
 @dataclass(slots=True)
 class ReviewCollaborationSession:
     """Review collaboration session public type."""
+
     channel: ReviewChannel
     display_name: str
     participant_id: str
@@ -60,6 +62,7 @@ class ReviewCollaborationSession:
 @dataclass(slots=True)
 class ReviewCursorState:
     """Review cursor state data model."""
+
     accent_color: str
     display_name: str
     hidden: bool
@@ -72,6 +75,7 @@ class ReviewCursorState:
 @dataclass(slots=True)
 class ReviewLockState:
     """Review lock state data model."""
+
     accent_color: str
     acquired_at: datetime
     display_name: str
@@ -84,28 +88,33 @@ class ReviewLockState:
 @dataclass(slots=True)
 class OutboundReviewMessage:
     """Outbound review message public type."""
+
     channel: ReviewChannel
     payload: dict[str, Any]
-    recipients: list["OutboundReviewRecipient"]
+    recipients: list[OutboundReviewRecipient]
     review_id: str
 
 
 @dataclass(slots=True)
 class OutboundReviewRecipient:
     """A specific websocket recipient plus its registered collaboration session ID."""
+
     session_id: str
     websocket: WebSocketType
 
 
 class ReviewCollaborationHub:
     """Review collaboration hub public type."""
+
     def __init__(self, *, lease_ttl_seconds: int = 25) -> None:
         self._lease_ttl_seconds = lease_ttl_seconds
         self._guard = asyncio.Lock()
-        self._subscribers: dict[
-            tuple[ReviewChannel, str], dict[str, WebSocketType]
-        ] = defaultdict(dict)
-        self._presence_sessions: dict[str, dict[str, ReviewCollaborationSession]] = defaultdict(dict)
+        self._subscribers: dict[tuple[ReviewChannel, str], dict[str, WebSocketType]] = defaultdict(
+            dict
+        )
+        self._presence_sessions: dict[str, dict[str, ReviewCollaborationSession]] = defaultdict(
+            dict
+        )
         self._cursor_states: dict[str, dict[str, ReviewCursorState]] = defaultdict(dict)
         self._locks: dict[str, ReviewLockState] = {}
 
@@ -122,7 +131,9 @@ class ReviewCollaborationHub:
                     OutboundReviewMessage(
                         channel=session.channel,
                         payload=self._build_presence_snapshot_locked(session.review_id),
-                        recipients=self._recipient_entries_locked(session.channel, session.review_id),
+                        recipients=self._recipient_entries_locked(
+                            session.channel, session.review_id
+                        ),
                         review_id=session.review_id,
                     )
                 ]
@@ -140,7 +151,11 @@ class ReviewCollaborationHub:
                     OutboundReviewMessage(
                         channel=session.channel,
                         payload=self._build_cursor_snapshot_locked(session.review_id),
-                        recipients=[OutboundReviewRecipient(session_id=session.session_id, websocket=websocket)],
+                        recipients=[
+                            OutboundReviewRecipient(
+                                session_id=session.session_id, websocket=websocket
+                            )
+                        ],
                         review_id=session.review_id,
                     )
                 ]
@@ -149,7 +164,9 @@ class ReviewCollaborationHub:
                 OutboundReviewMessage(
                     channel=session.channel,
                     payload=self._build_lock_snapshot_locked(session.review_id),
-                    recipients=[OutboundReviewRecipient(session_id=session.session_id, websocket=websocket)],
+                    recipients=[
+                        OutboundReviewRecipient(session_id=session.session_id, websocket=websocket)
+                    ],
                     review_id=session.review_id,
                 )
             ]
@@ -226,7 +243,9 @@ class ReviewCollaborationHub:
 
         async with self._guard:
             if session.channel == "review.presence":
-                presence = self._presence_sessions.get(session.review_id, {}).get(session.session_id)
+                presence = self._presence_sessions.get(session.review_id, {}).get(
+                    session.session_id
+                )
                 if presence is not None:
                     presence.last_seen_at = now
                 return []
@@ -249,7 +268,9 @@ class ReviewCollaborationHub:
                     OutboundReviewMessage(
                         channel=session.channel,
                         payload=self._build_cursor_snapshot_locked(session.review_id),
-                        recipients=self._recipient_entries_locked(session.channel, session.review_id),
+                        recipients=self._recipient_entries_locked(
+                            session.channel, session.review_id
+                        ),
                         review_id=session.review_id,
                     )
                 ]
@@ -303,7 +324,9 @@ class ReviewCollaborationHub:
                     OutboundReviewMessage(
                         channel=session.channel,
                         payload=self._build_lock_snapshot_locked(session.review_id),
-                        recipients=self._recipient_entries_locked(session.channel, session.review_id),
+                        recipients=self._recipient_entries_locked(
+                            session.channel, session.review_id
+                        ),
                         review_id=session.review_id,
                     )
                 ]

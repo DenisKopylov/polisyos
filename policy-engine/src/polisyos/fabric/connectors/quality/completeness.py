@@ -137,9 +137,7 @@ class CompletenessAnalyzer:
                 penalty += (1.0 - coverage) * SEVERITY_WEIGHTS[severity]
 
         if field_completeness:
-            avg_completeness = sum(field_completeness.values()) / len(
-                field_completeness
-            )
+            avg_completeness = sum(field_completeness.values()) / len(field_completeness)
         else:
             avg_completeness = 0.0
 
@@ -162,7 +160,9 @@ class CompletenessAnalyzer:
                 )
                 penalty += gap * SEVERITY_WEIGHTS[severity]
 
-        score = ensure_probability(avg_completeness - penalty, what="completeness score", clamp=True)
+        score = ensure_probability(
+            avg_completeness - penalty, what="completeness score", clamp=True
+        )
         if hard_fail:
             score = 0.0
 
@@ -225,9 +225,9 @@ class CompletenessAnalyzer:
             )
             if actual_completeness < expected_completeness:
                 gap = expected_completeness - actual_completeness
-                if not getattr(field, "nullable", True) and actual_completeness < 1.0:
-                    severity = "error"
-                elif gap > 0.2:
+                if (
+                    not getattr(field, "nullable", True) and actual_completeness < 1.0
+                ) or gap > 0.2:
                     severity = "error"
                 elif gap > 0.1:
                     severity = "warning"
@@ -351,7 +351,6 @@ class CompletenessAnalyzer:
             return time_dimension
         for field in schema.fields:
             from polisyos.fabric.connectors.contracts.schema import SemanticType
-
 
             if field.semantic_type == SemanticType.TEMPORAL:
                 return field.name

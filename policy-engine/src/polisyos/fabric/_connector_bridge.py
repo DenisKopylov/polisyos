@@ -7,6 +7,7 @@ This module lives in ``fabric/`` (not ``fabric/connectors/``) so that
 
 All imports of connector internals are local to functions in this module.
 """
+
 from __future__ import annotations
 
 from datetime import UTC, datetime

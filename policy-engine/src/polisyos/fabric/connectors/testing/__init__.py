@@ -25,19 +25,19 @@ from polisyos.fabric.connectors.testing.simulator import (
 )
 
 __all__ = [
-    # Harness -- the primary entry-point for connector developers
-    "ConnectorTestHarness",
     # Simulator -- record / replay / synthetic API mocking
     "APISimulator",
-    "SimulatorMode",
-    "SimulatorFixture",
-    "MissingFixtureError",
+    # Harness -- the primary entry-point for connector developers
+    "ConnectorTestHarness",
+    "ContractViolation",
     # Fault injection -- chaos testing for resilience verification
     "FaultInjector",
     "FaultProfile",
     "FaultSequence",
+    "MissingFixtureError",
     "SimulatedHTTPError",
+    "SimulatorFixture",
+    "SimulatorMode",
     # Contract verification
     "assert_schema_compliance",
-    "ContractViolation",
 ]

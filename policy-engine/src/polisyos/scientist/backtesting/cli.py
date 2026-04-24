@@ -1,4 +1,5 @@
 """Public backtesting cli module API."""
+
 from __future__ import annotations
 
 import json
@@ -32,7 +33,9 @@ def add_backtest_subparser(scientist_sub) -> None:
         help="Ground truth as metric=v1,v2,... (repeatable)",
     )
     parser.add_argument("--intervention-step", type=int, default=None)
-    parser.add_argument("--prediction-source", choices=[item.value for item in PredictionSource], default="naive")
+    parser.add_argument(
+        "--prediction-source", choices=[item.value for item in PredictionSource], default="naive"
+    )
     parser.add_argument(
         "--predicted",
         action="append",

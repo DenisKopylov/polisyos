@@ -1,4 +1,5 @@
 """Expose forecasting methods and register them into the Foundry catalog."""
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError

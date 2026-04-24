@@ -1,9 +1,10 @@
 """
 Comprehensive tests for the Provenance subsystem.
 """
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -47,7 +48,7 @@ class TestProvenanceEntity:
             entity_id="frozen-test",
             entity_type=EntityType.METRIC,
             label="Frozen",
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
         with pytest.raises(Exception):
@@ -58,13 +59,13 @@ class TestProvenanceEntity:
             entity_id="hash-test",
             entity_type=EntityType.SNAPSHOT,
             label="Hashable",
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
         entity2 = ProvenanceEntity(
             entity_id="hash-test",
             entity_type=EntityType.SNAPSHOT,
             label="Different Label",
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
         assert hash(entity1) == hash(entity2)
@@ -318,7 +319,7 @@ class TestProvenancePersistence:
                 entity_id="test-entity",
                 entity_type=EntityType.METRIC,
                 label="Test Metric",
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
         )
 
@@ -354,7 +355,9 @@ class TestProvenancePersistence:
         with pytest.raises(ValueError, match="integrity check failed"):
             load_provenance_graph(cas_store, tampered_ref)
 
-    def test_persist_provenance_graph_rejects_missing_stable_id(self, tmp_path: Path, monkeypatch) -> None:
+    def test_persist_provenance_graph_rejects_missing_stable_id(
+        self, tmp_path: Path, monkeypatch
+    ) -> None:
         from polisyos.core.artifacts.store import FileSystemCAS
         from polisyos.fabric.evidence import EvidencePayloadError, persist_provenance_graph
 
@@ -398,12 +401,12 @@ class TestEvidenceBundleIntegration:
 
     def test_evidence_bundle_with_provenance(self, tmp_path: Path) -> None:
         from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.contracts.fabric import EvidenceStep
         from polisyos.fabric.evidence import (
             build_evidence_bundle,
             persist_evidence_bundle,
             persist_provenance_graph,
         )
-        from polisyos.core.contracts.fabric import EvidenceStep
 
         cas_store = FileSystemCAS(tmp_path / ".polisyos")
 
@@ -413,7 +416,7 @@ class TestEvidenceBundleIntegration:
                 entity_id="source",
                 entity_type=EntityType.DATASET,
                 label="Source",
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
         )
         prov_ref = persist_provenance_graph(cas_store, graph)

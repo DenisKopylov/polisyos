@@ -1,13 +1,13 @@
 """Row filtering transform."""
+
 from __future__ import annotations
 
 import ast
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 import pandas as pd
 
-from polisyos.fabric.safety import UnsafeFilterExpressionError
 from polisyos.fabric.connectors.transform._common import (
     build_lineage,
     resolve_copy_policy,
@@ -20,8 +20,10 @@ from polisyos.fabric.connectors.transform.pipeline import (
     TransformError,
     TransformLineage,
 )
+from polisyos.fabric.safety import UnsafeFilterExpressionError
 
 __all__ = ["FilterTransform"]
+
 
 def _evaluate_filter_condition(
     data: pd.DataFrame,
@@ -37,9 +39,7 @@ def _evaluate_filter_condition(
     if isinstance(result, bool):
         return pd.Series([result] * len(data), index=data.index, dtype="boolean")
     if not isinstance(result, pd.Series):
-        raise UnsafeFilterExpressionError(
-            "Filter expression must evaluate to a boolean mask"
-        )
+        raise UnsafeFilterExpressionError("Filter expression must evaluate to a boolean mask")
     try:
         return result.astype("boolean")
     except (TypeError, ValueError) as exc:
@@ -76,7 +76,7 @@ def _eval_ast_node(node: ast.AST, data: pd.DataFrame) -> object:
     if isinstance(node, ast.Compare):
         left = _eval_ast_node(node.left, data)
         comparisons: list[object] = []
-        for operator_node, comparator_node in zip(node.ops, node.comparators):
+        for operator_node, comparator_node in zip(node.ops, node.comparators, strict=False):
             right = _eval_ast_node(comparator_node, data)
             comparisons.append(_apply_comparison(operator_node, left, right))
             left = right
@@ -111,12 +111,12 @@ def _eval_ast_node(node: ast.AST, data: pd.DataFrame) -> object:
     if isinstance(node, (ast.List, ast.Tuple, ast.Set)):
         values = [_eval_ast_node(child, data) for child in node.elts]
         if any(isinstance(value, pd.Series) for value in values):
-            raise UnsafeFilterExpressionError("Collection literals may not contain column references")
+            raise UnsafeFilterExpressionError(
+                "Collection literals may not contain column references"
+            )
         return values
 
-    raise UnsafeFilterExpressionError(
-        f"Unsupported filter expression node: {type(node).__name__}"
-    )
+    raise UnsafeFilterExpressionError(f"Unsupported filter expression node: {type(node).__name__}")
 
 
 def _apply_comparison(
@@ -128,13 +128,17 @@ def _apply_comparison(
         if isinstance(left, pd.Series):
             if isinstance(right, (list, tuple, set)):
                 return left.isin(list(right))
-            raise UnsafeFilterExpressionError("Right-hand side of 'in' must be a literal collection")
+            raise UnsafeFilterExpressionError(
+                "Right-hand side of 'in' must be a literal collection"
+            )
         return left in right
     if isinstance(operator_node, ast.NotIn):
         if isinstance(left, pd.Series):
             if isinstance(right, (list, tuple, set)):
                 return ~left.isin(list(right))
-            raise UnsafeFilterExpressionError("Right-hand side of 'not in' must be a literal collection")
+            raise UnsafeFilterExpressionError(
+                "Right-hand side of 'not in' must be a literal collection"
+            )
         return left not in right
     if isinstance(operator_node, ast.Eq):
         return left == right
@@ -204,10 +208,7 @@ class FilterTransform(DataTransform):
         if not isinstance(mask, pd.Series):
             raise TransformError("Filter predicate must return a pandas Series")
 
-        if self.keep:
-            result = data[mask]
-        else:
-            result = data[~mask]
+        result = data[mask] if self.keep else data[~mask]
 
         if copy_policy == CopyPolicy.COPY:
             result = result.copy()

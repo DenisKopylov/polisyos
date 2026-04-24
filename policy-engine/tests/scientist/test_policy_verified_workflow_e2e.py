@@ -13,12 +13,17 @@ from polisyos.lex.knowledge.types import LegalFactResult, LegalSourceAnchor, Leg
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
 from polisyos.scientist.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import REPORT_GOVERNANCE_REPORT_REF
-from polisyos.scientist.policy_verified import load_source_verification_report, load_verified_policy_report
+from polisyos.scientist.policy_verified import (
+    load_source_verification_report,
+    load_verified_policy_report,
+)
 from polisyos.scientist.policy_verified.models import LegalCandidatePack, LegalSourcePack
 from polisyos.scientist.workflows.builder import run_selected_workflow
 
 
-def _put_data_snapshot(store: FileSystemCAS, state_snapshot_ref: StateSnapshotRef) -> DataSnapshotRef:
+def _put_data_snapshot(
+    store: FileSystemCAS, state_snapshot_ref: StateSnapshotRef
+) -> DataSnapshotRef:
     snapshot = DataSnapshot(data_ref=state_snapshot_ref)
     ref = store.put_json(
         snapshot,
@@ -42,7 +47,9 @@ def test_policy_verified_workflow_runs_end_to_end_with_verified_artifacts(
     data_snapshot_ref = _put_data_snapshot(store, state_snapshot_ref)
 
     class _FakeLegalToolkit:
-        def assemble_legal_candidate_pack(self, query, *, jurisdiction="UA", domain=None, as_of=None):
+        def assemble_legal_candidate_pack(
+            self, query, *, jurisdiction="UA", domain=None, as_of=None
+        ):
             del jurisdiction, domain, as_of
             return LegalCandidatePack(
                 request_id="toolkit",
@@ -76,7 +83,9 @@ def test_policy_verified_workflow_runs_end_to_end_with_verified_artifacts(
                 ],
             )
 
-        def expand_legal_source_pack(self, candidate_pack, *, max_source_docs=120, max_reference_hops=2):
+        def expand_legal_source_pack(
+            self, candidate_pack, *, max_source_docs=120, max_reference_hops=2
+        ):
             del max_source_docs, max_reference_hops
             return LegalSourcePack(
                 request_id=candidate_pack.request_id,
@@ -148,4 +157,7 @@ def test_policy_verified_workflow_runs_end_to_end_with_verified_artifacts(
     )
     assert verified_policy_report.verified_findings
     assert verified_policy_report.policy_options
-    assert result.state.reports_index[REPORT_GOVERNANCE_REPORT_REF].kind == "scientist.governance_report"
+    assert (
+        result.state.reports_index[REPORT_GOVERNANCE_REPORT_REF].kind
+        == "scientist.governance_report"
+    )

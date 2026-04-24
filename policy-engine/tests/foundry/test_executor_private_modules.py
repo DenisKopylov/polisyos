@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-import numpy as np
 import jax.numpy as jnp
+import numpy as np
 import pytest
 from pydantic import ValidationError
 
@@ -40,12 +40,14 @@ from polisyos.foundry._executor_ops import (
     apply_operator,
     apply_ops_for_slot,
     apply_ops_to_state,
-    check_constraints as check_executor_constraints,
     coerce_number,
     coerce_selector_scalar,
     evaluate_selector,
     selector_field_values,
     validate_ops_compatibility,
+)
+from polisyos.foundry._executor_ops import (
+    check_constraints as check_executor_constraints,
 )
 from polisyos.foundry._executor_patching import (
     _merge_patch_records,
@@ -334,9 +336,7 @@ def test_coerce_number_supports_kernel_value_wrappers() -> None:
 
 
 def test_check_constraints_lowers_values_and_raises_on_missing_or_violated() -> None:
-    state = GlobalState.empty(n_agents=1, n_firms=1).replace(
-        government_balance=jnp.asarray(10.0)
-    )
+    state = GlobalState.empty(n_agents=1, n_firms=1).replace(government_balance=jnp.asarray(10.0))
     registry = ConstraintRegistry(
         constraints={
             "minimum_balance": ConstraintSpec(

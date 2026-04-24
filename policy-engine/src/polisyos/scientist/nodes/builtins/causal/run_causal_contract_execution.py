@@ -5,6 +5,7 @@ The node bridges `ExperimentState.params` task payloads into the pure
 `CausalExecutionBundle` plus the first concrete bounds/DTR artifacts for
 downstream decision packaging and audit.
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -133,7 +134,9 @@ class RunCausalContractExecutionNode:
 
         try:
             bounds_tasks = [
-                task if isinstance(task, BoundsEstimationTask) else BoundsEstimationTask.model_validate(task)
+                task
+                if isinstance(task, BoundsEstimationTask)
+                else BoundsEstimationTask.model_validate(task)
                 for task in (bounds_payload or [])
             ]
             temporal_tasks = [
@@ -151,7 +154,9 @@ class RunCausalContractExecutionNode:
             )
 
         bounds_entries = BoundsEstimationRunner(store=ctx.store).run(bounds_tasks)
-        temporal_results = TemporalInterventionSequenceCompiler(store=ctx.store).compile_many(temporal_tasks)
+        temporal_results = TemporalInterventionSequenceCompiler(store=ctx.store).compile_many(
+            temporal_tasks
+        )
         temporal_entries = [result.entry for result in temporal_results]
 
         aggregate_bundle = CausalExecutionBundle(
@@ -167,11 +172,15 @@ class RunCausalContractExecutionNode:
                     for entry in bounds_entries
                 ),
                 *(
-                    _artifact_input_ref(entry.dynamic_treatment_regime_ref, role="dynamic_treatment_regime")
+                    _artifact_input_ref(
+                        entry.dynamic_treatment_regime_ref, role="dynamic_treatment_regime"
+                    )
                     for entry in temporal_entries
                 ),
                 *(
-                    _artifact_input_ref(entry.effect_trajectory_bundle_ref, role="effect_trajectory_bundle")
+                    _artifact_input_ref(
+                        entry.effect_trajectory_bundle_ref, role="effect_trajectory_bundle"
+                    )
                     for entry in temporal_entries
                 ),
             )
@@ -192,8 +201,8 @@ class RunCausalContractExecutionNode:
                 f"artifacts_index.{ARTIFACT_EFFECT_TRAJECTORY_BUNDLE_REF}",
             ),
         ).state
-        next_state.artifacts_index[ARTIFACT_CAUSAL_EXECUTION_BUNDLE_REF] = ArtifactRef.model_validate(
-            aggregate_ref.model_dump(mode="json")
+        next_state.artifacts_index[ARTIFACT_CAUSAL_EXECUTION_BUNDLE_REF] = (
+            ArtifactRef.model_validate(aggregate_ref.model_dump(mode="json"))
         )
         primary_artifacts: list[ArtifactRef] = [
             ArtifactRef.model_validate(aggregate_ref.model_dump(mode="json"))
@@ -206,19 +215,27 @@ class RunCausalContractExecutionNode:
                 break
         for entry in temporal_entries:
             if entry.dynamic_treatment_regime_ref is not None:
-                ref = ArtifactRef.model_validate(entry.dynamic_treatment_regime_ref.model_dump(mode="json"))
+                ref = ArtifactRef.model_validate(
+                    entry.dynamic_treatment_regime_ref.model_dump(mode="json")
+                )
                 next_state.artifacts_index[ARTIFACT_DYNAMIC_TREATMENT_REGIME_REF] = ref
                 primary_artifacts.append(ref)
                 break
         for entry in temporal_entries:
             if entry.effect_trajectory_bundle_ref is not None:
-                ref = ArtifactRef.model_validate(entry.effect_trajectory_bundle_ref.model_dump(mode="json"))
+                ref = ArtifactRef.model_validate(
+                    entry.effect_trajectory_bundle_ref.model_dump(mode="json")
+                )
                 next_state.artifacts_index[ARTIFACT_EFFECT_TRAJECTORY_BUNDLE_REF] = ref
                 primary_artifacts.append(ref)
                 break
 
-        successful_runs = sum(1 for entry in (*bounds_entries, *temporal_entries) if entry.status == "ok")
-        blocked_runs = sum(1 for entry in (*bounds_entries, *temporal_entries) if entry.status == "blocked")
+        successful_runs = sum(
+            1 for entry in (*bounds_entries, *temporal_entries) if entry.status == "ok"
+        )
+        blocked_runs = sum(
+            1 for entry in (*bounds_entries, *temporal_entries) if entry.status == "blocked"
+        )
         return NodeOutcome(
             status="ok",
             state=next_state,
@@ -233,7 +250,8 @@ class RunCausalContractExecutionNode:
                         "successful_runs": successful_runs,
                         "blocked_runs": blocked_runs,
                         "temporal_trajectory_emitted": any(
-                            entry.effect_trajectory_bundle_ref is not None for entry in temporal_entries
+                            entry.effect_trajectory_bundle_ref is not None
+                            for entry in temporal_entries
                         ),
                     },
                 )

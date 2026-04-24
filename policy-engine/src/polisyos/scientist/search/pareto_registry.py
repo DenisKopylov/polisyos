@@ -28,6 +28,7 @@ from polisyos.scientist.search.voi_scheduler import ParetoSnapshot
 
 class ParetoView(str, Enum):
     """Pareto view data model."""
+
     GLOBAL_FEASIBLE = "global_feasible"
     POLICY_FAMILY = "policy_family"
     EQUITY_AWARE = "equity_aware"
@@ -158,16 +159,21 @@ class ParetoRegistry:
         snapshot.task_family = active_context.task_family
         snapshot.domain = active_context.domain
         prior_views = set(
-            snapshot.entries.get(candidate_hash, ParetoRegistryEntry(
-                candidate_hash=candidate_hash,
-                evaluation=evaluation,
-            )).view_membership
+            snapshot.entries.get(
+                candidate_hash,
+                ParetoRegistryEntry(
+                    candidate_hash=candidate_hash,
+                    evaluation=evaluation,
+                ),
+            ).view_membership
         )
         entry = ParetoRegistryEntry(
             candidate_hash=candidate_hash,
             candidate_id=candidate_id or evaluation.candidate_id,
             candidate_ref=candidate_ref,
-            policy_family=policy_family or str(evaluation.metadata.get("policy_family") or "") or None,
+            policy_family=policy_family
+            or str(evaluation.metadata.get("policy_family") or "")
+            or None,
             evaluation=evaluation,
             task_family=active_context.task_family,
             domain=active_context.domain,
@@ -381,9 +387,7 @@ class ParetoRegistry:
         dominated = {
             key
             for key, entry in snapshot.entries.items()
-            if key not in frontier
-            and key not in near_frontier_hashes
-            and not entry.seed_only
+            if key not in frontier and key not in near_frontier_hashes and not entry.seed_only
         }
         return ParetoSnapshot(
             frontier_candidate_hashes=frozenset(frontier),
@@ -418,23 +422,26 @@ class ParetoRegistry:
         hypervolume: dict[str, float] = {}
 
         feasible_entries = [
-            entry for entry in entries.values()
-            if entry.evaluation.feasible and not entry.seed_only
+            entry for entry in entries.values() if entry.evaluation.feasible and not entry.seed_only
         ]
-        frontiers[ParetoView.GLOBAL_FEASIBLE.value], hypervolume[
-            ParetoView.GLOBAL_FEASIBLE.value
-        ] = self._frontier_hashes(feasible_entries, ParetoView.GLOBAL_FEASIBLE.value)
-        frontiers[ParetoView.EQUITY_AWARE.value], hypervolume[
-            ParetoView.EQUITY_AWARE.value
-        ] = self._frontier_hashes(feasible_entries, ParetoView.EQUITY_AWARE.value)
-        frontiers[ParetoView.LOW_RISK.value], hypervolume[
-            ParetoView.LOW_RISK.value
-        ] = self._frontier_hashes(feasible_entries, ParetoView.LOW_RISK.value)
-        frontiers[ParetoView.IMPLEMENTATION_SIMPLE.value], hypervolume[
-            ParetoView.IMPLEMENTATION_SIMPLE.value
-        ] = self._frontier_hashes(feasible_entries, ParetoView.IMPLEMENTATION_SIMPLE.value)
+        (
+            frontiers[ParetoView.GLOBAL_FEASIBLE.value],
+            hypervolume[ParetoView.GLOBAL_FEASIBLE.value],
+        ) = self._frontier_hashes(feasible_entries, ParetoView.GLOBAL_FEASIBLE.value)
+        frontiers[ParetoView.EQUITY_AWARE.value], hypervolume[ParetoView.EQUITY_AWARE.value] = (
+            self._frontier_hashes(feasible_entries, ParetoView.EQUITY_AWARE.value)
+        )
+        frontiers[ParetoView.LOW_RISK.value], hypervolume[ParetoView.LOW_RISK.value] = (
+            self._frontier_hashes(feasible_entries, ParetoView.LOW_RISK.value)
+        )
+        (
+            frontiers[ParetoView.IMPLEMENTATION_SIMPLE.value],
+            hypervolume[ParetoView.IMPLEMENTATION_SIMPLE.value],
+        ) = self._frontier_hashes(feasible_entries, ParetoView.IMPLEMENTATION_SIMPLE.value)
 
-        families = sorted({entry.policy_family for entry in feasible_entries if entry.policy_family})
+        families = sorted(
+            {entry.policy_family for entry in feasible_entries if entry.policy_family}
+        )
         for family in families:
             family_entries = [entry for entry in feasible_entries if entry.policy_family == family]
             view_key = _view_key(ParetoView.POLICY_FAMILY, policy_family=family)
@@ -445,17 +452,21 @@ class ParetoRegistry:
 
         updated_entries: dict[str, ParetoRegistryEntry] = {}
         for candidate_hash, entry in entries.items():
-            membership = [] if entry.seed_only else sorted(
-                view_name
-                for view_name, hashes in frontiers.items()
-                if candidate_hash in hashes
+            membership = (
+                []
+                if entry.seed_only
+                else sorted(
+                    view_name for view_name, hashes in frontiers.items() if candidate_hash in hashes
+                )
             )
             updated_entries[candidate_hash] = entry.model_copy(
                 update={
                     "view_membership": membership,
                     "dominance_metadata": {
                         "feasible": entry.evaluation.feasible,
-                        "diagnostic_objective_value": _diagnostic_policy_objective(entry.evaluation),
+                        "diagnostic_objective_value": _diagnostic_policy_objective(
+                            entry.evaluation
+                        ),
                         "seed_only": entry.seed_only,
                     },
                 }

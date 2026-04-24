@@ -1,7 +1,8 @@
 """Public econometrics registry boot module API."""
+
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from .advanced import (
     ChangePointEstimator,
@@ -11,24 +12,17 @@ from .advanced import (
     NonstationaryGARCHEstimator,
     QuantileRegressionEstimator,
 )
+from .count_data import (
+    NegativeBinomialEstimator,
+    PoissonRegressionEstimator,
+    ZeroInflatedPoissonEstimator,
+)
 from .diagnostics import (
     CointegrationTestEstimator,
     ForecastBacktestEstimator,
     HausmanTestEstimator,
     SarganHansenEstimator,
     WeakIVTestEstimator,
-)
-from .dynamic_panel import DifferenceGMMEstimator, SystemGMMEstimator
-from .expansion import (
-    BayesianVAREstimator,
-    SpatialAutoregressiveEstimator,
-    SyntheticDiDEstimator,
-    VECMEstimator,
-)
-from .count_data import (
-    NegativeBinomialEstimator,
-    PoissonRegressionEstimator,
-    ZeroInflatedPoissonEstimator,
 )
 from .discrete_choice import (
     BLPEstimator,
@@ -37,12 +31,19 @@ from .discrete_choice import (
     MultinomialLogitEstimator,
     ProbitEstimator,
 )
+from .dynamic_panel import DifferenceGMMEstimator, SystemGMMEstimator
+from .expansion import (
+    BayesianVAREstimator,
+    SpatialAutoregressiveEstimator,
+    SyntheticDiDEstimator,
+    VECMEstimator,
+)
+from .factor_models import DynamicFactorModelEstimator, PrincipalComponentsEstimator
 from .high_dimensional import (
     PostDoubleSelectionEstimator,
     PostLASSOEstimator,
 )
 from .high_dimensional_iv import HighDimensionalPostSelectionIVEstimator
-from .factor_models import DynamicFactorModelEstimator, PrincipalComponentsEstimator
 from .iv import GMMEstimator, TwoStageLeastSquaresEstimator
 from .panel import FixedEffectsEstimator, RandomEffectsEstimator
 from .selection import (

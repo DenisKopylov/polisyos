@@ -70,4 +70,3 @@ Before this ADR:
 - Add PostgreSQL adapter implementing `StoragePort`.
 - Extend contract snapshots into ABI gate if contracts become first-class ABI artifacts.
 - Gradually phase out Scholar `db` shim after migration window.
-

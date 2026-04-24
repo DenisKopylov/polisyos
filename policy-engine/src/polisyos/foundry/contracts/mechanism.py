@@ -1,4 +1,5 @@
 """Public contracts mechanism module API."""
+
 from abc import abstractmethod
 from typing import Any
 

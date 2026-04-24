@@ -87,11 +87,7 @@ def compare_ingestion_runs(
     return RegressionResult(
         match=len(mismatches) == 0,
         mismatches=mismatches,
-        issue_categories=(
-            (RegressionIssueCategory.COMPARISON_MISMATCH,)
-            if mismatches
-            else ()
-        ),
+        issue_categories=((RegressionIssueCategory.COMPARISON_MISMATCH,) if mismatches else ()),
     )
 
 

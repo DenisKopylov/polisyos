@@ -93,12 +93,10 @@ class GraphPriorBundle(ArtifactMinimalityMixin):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_required_edge_provenance(self) -> "GraphPriorBundle":
+    def _validate_required_edge_provenance(self) -> GraphPriorBundle:
         for edge in self.required_edges:
             if not edge.provenance_refs:
-                raise ValueError(
-                    f"required_edge '{edge.edge_key}' must carry provenance_refs"
-                )
+                raise ValueError(f"required_edge '{edge.edge_key}' must carry provenance_refs")
         return self
 
 
@@ -196,17 +194,14 @@ class GraphPriorBuilder:
                 )
 
         utility_scores = {
-            score.hypothesis_id: float(score.composite_score)
-            for score in utility_report.scores
+            score.hypothesis_id: float(score.composite_score) for score in utility_report.scores
         }
         return GraphPriorBundle(
             high_confidence_edges=_dedupe_prior_edges(high_confidence),
             disputed_edges=disputed,
             forbidden_edges=_dedupe_prior_edges(forbidden),
             required_edges=_dedupe_prior_edges(required),
-            equivalence_class_summary=dict(
-                matrix.metadata.get("equivalence_class_summary") or {}
-            ),
+            equivalence_class_summary=dict(matrix.metadata.get("equivalence_class_summary") or {}),
             downstream_utility_scores=utility_scores,
             warnings=sorted(set(warnings)),
             metadata={
@@ -382,11 +377,11 @@ def _upsert_prior_edge(edges: list[PriorEdge], edge: PriorEdge) -> list[PriorEdg
 
 
 __all__ = [
-    "DisputedEdge",
     "GRAPH_PRIOR_BUNDLE_SCHEMA_NAME",
+    "PRIOR_KNOWLEDGE_BUNDLE_SCHEMA_NAME",
+    "DisputedEdge",
     "GraphPriorBuilder",
     "GraphPriorBundle",
-    "PRIOR_KNOWLEDGE_BUNDLE_SCHEMA_NAME",
     "PriorEdge",
     "PriorKnowledgeBundle",
     "PriorKnowledgeSupport",

@@ -1,11 +1,11 @@
 """Public ir citations module API."""
+
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import BeforeValidator, Field, model_validator
-from typing_extensions import Annotated
 
 from polisyos.ir.kernel.base import (
     ARTIFACT_ID_PATTERN,
@@ -19,6 +19,7 @@ SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
 class AnchorKind(str, Enum):
     """Anchor kind public type."""
+
     ARTICLE = "article"
     SECTION = "section"
     CLAUSE = "clause"
@@ -43,7 +44,7 @@ class FragmentLocator(KernelModel):
     page_end: int | None = Field(None, ge=0)
 
     @model_validator(mode="after")
-    def validate_locator(self) -> "FragmentLocator":
+    def validate_locator(self) -> FragmentLocator:
         has_anchor = bool(self.anchor_path)
         has_offset = self.offset_start is not None or self.offset_end is not None
         has_page = self.page_start is not None or self.page_end is not None
@@ -89,7 +90,7 @@ class CitationRef(KernelModel):
     )
 
     @model_validator(mode="after")
-    def validate_citation(self) -> "CitationRef":
+    def validate_citation(self) -> CitationRef:
         if self.fragment_id is None and self.locator is None:
             raise ValueError("citation requires fragment_id or locator")
         if self.locator is not None:

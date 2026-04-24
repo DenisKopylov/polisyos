@@ -3,6 +3,7 @@
 ## Quick Start
 
 ### Decorator Stack (recommended)
+
 ```python
 from polisyos.fabric.connectors.resilience import (
     with_retry,
@@ -24,6 +25,7 @@ async def fetch(handle, request):
 ```
 
 ### Connector Metadata (registry auto-wrap)
+
 ```python
 from polisyos.ir.connectors import ConnectorMetadataSpec
 
@@ -50,37 +52,46 @@ Note: `inherit_connection_config=True` allows `ConnectionConfig` values to fill 
 ## Component Notes
 
 ### RetryPolicy
+
 - Uses exponential backoff with jitter
 - Honors `FetchRequest.retryable=False`
 - Raises `RetryExhaustedError` for retryable failures after the last attempt
 
 ### CircuitBreaker
+
 - Sliding window failure counting
 - Half-open probes after timeout
 - Cancellation does not increment failure counters
 
 ### RateLimiter
+
 - Token bucket, monotonic time
 - `record_rate_limit(retry_after_seconds=...)` sets cooldown
 
 ### FallbackChain
+
 - Accepts a list of strategies in order
 - `CacheFallback` uses `ConnectorCacheStore.get_any()` and can enforce max staleness
 
 ## Resilience Metadata
+
 `FetchResult` gains optional resilience metadata:
+
 ```python
 result.resilience.fallback_used
 result.resilience.retry_attempts
 ```
 
 ## Testing
+
 Run the resilience tests:
+
 ```bash
 pytest tests/fabric/connectors/test_resilience.py -v
 ```
 
 ## Operational Guidance
+
 - Prefer circuit IDs scoped to `connector_id + domain (+ dataset)`.
 - Rate limiting is typically per domain; use separate limiters per upstream.
 - Avoid retries on non-idempotent operations.

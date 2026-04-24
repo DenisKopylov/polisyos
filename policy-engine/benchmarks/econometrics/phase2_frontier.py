@@ -81,7 +81,9 @@ def main(argv: list[str] | None = None) -> int:
         "status": "pass",
         "metrics": {
             "post_selection_ci_count": len(iv_result.post_selection_ci),
-            "threshold_shift_abs_error": abs(threshold_result.threshold_state_field.threshold_shift - 0.15),
+            "threshold_shift_abs_error": abs(
+                threshold_result.threshold_state_field.threshold_shift - 0.15
+            ),
             "nonstationary_break_count": len(garch_result.nonstationary_volatility.breaks),
         },
     }

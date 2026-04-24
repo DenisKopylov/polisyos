@@ -54,12 +54,7 @@ def _cached_alignment_tokens(values: tuple[str, ...]) -> tuple[str, ...]:
         raw = value.strip().lower()
         if not raw:
             continue
-        normalized = (
-            raw.replace(".", " ")
-            .replace("-", " ")
-            .replace("/", " ")
-            .replace(":", " ")
-        )
+        normalized = raw.replace(".", " ").replace("-", " ").replace("/", " ").replace(":", " ")
         for token in normalized.split():
             trimmed = token.strip("_")
             if len(trimmed) <= 1:

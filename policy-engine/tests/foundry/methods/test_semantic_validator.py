@@ -9,12 +9,10 @@ Tests cover:
 - Isolation rules pass
 - Integration with MethodComposer.build(validate_semantics=True)
 """
+
 from __future__ import annotations
 
-from dataclasses import replace
 from uuid import uuid4
-
-import pytest
 
 from polisyos.foundry.methods.semantic_validator import (
     CrossMethodValidator,
@@ -22,10 +20,10 @@ from polisyos.foundry.methods.semantic_validator import (
     ValidationReport,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_chain_stub(
     *,
@@ -41,7 +39,6 @@ def _make_chain_stub(
     we mimic the attributes the validator actually accesses.
     """
     from types import SimpleNamespace
-    from uuid import uuid4
 
     node_ids = [uuid4() for _ in fqns_in_order]
 
@@ -79,6 +76,7 @@ def _make_chain_stub(
 
 def _make_binding(source_slot, target_slot, source_fqn="a.b@1.0.0", target_fqn="c.d@1.0.0"):
     from types import SimpleNamespace
+
     return SimpleNamespace(
         source_slot=source_slot,
         target_slot=target_slot,
@@ -90,6 +88,7 @@ def _make_binding(source_slot, target_slot, source_fqn="a.b@1.0.0", target_fqn="
 # ---------------------------------------------------------------------------
 # ValidationReport
 # ---------------------------------------------------------------------------
+
 
 class TestValidationReport:
     def test_empty_report_is_ok(self):
@@ -127,6 +126,7 @@ class TestValidationReport:
 # Semantic slot pass
 # ---------------------------------------------------------------------------
 
+
 class TestSemanticSlotCheck:
     def test_same_slot_name_no_warning(self):
         # Same name → semantically compatible by definition
@@ -160,6 +160,7 @@ class TestSemanticSlotCheck:
 # ---------------------------------------------------------------------------
 # Conflict detection pass
 # ---------------------------------------------------------------------------
+
 
 class TestConflictCheck:
     def test_no_conflict_when_not_in_chain(self):
@@ -202,6 +203,7 @@ class TestConflictCheck:
 # Ordering rules pass
 # ---------------------------------------------------------------------------
 
+
 class TestOrderingCheck:
     def test_no_issue_when_rule_not_triggered(self):
         # No sensitivity/refutation methods → ordering rule not triggered
@@ -215,7 +217,6 @@ class TestOrderingCheck:
         """With strict=True, ordering violations become errors."""
         # A chain with "sensitivity" family but no causal predecessor
         from types import SimpleNamespace
-        from uuid import uuid4
 
         nid = uuid4()
         sig = SimpleNamespace(
@@ -243,11 +244,14 @@ class TestOrderingCheck:
 # Isolation rules pass
 # ---------------------------------------------------------------------------
 
+
 class TestIsolationCheck:
     def test_no_isolation_issue_without_spatial_edge(self):
         chain = _make_chain_stub(
             fqns_in_order=["causal.did@1.0.0", "sensitivity.sa@1.0.0"],
-            bindings=[_make_binding("outcome", "outcome", "causal.did@1.0.0", "sensitivity.sa@1.0.0")],
+            bindings=[
+                _make_binding("outcome", "outcome", "causal.did@1.0.0", "sensitivity.sa@1.0.0")
+            ],
         )
         v = CrossMethodValidator()
         report = v.validate_chain(chain)
@@ -258,6 +262,7 @@ class TestIsolationCheck:
 # ---------------------------------------------------------------------------
 # CrossMethodValidator public API
 # ---------------------------------------------------------------------------
+
 
 class TestCrossMethodValidator:
     def test_validate_chain_returns_report(self):

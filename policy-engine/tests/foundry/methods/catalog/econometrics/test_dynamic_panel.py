@@ -39,10 +39,7 @@ def _simulate_dynamic_panel(
     y[:, 0] = effects / max(1.0 - rho, 0.2) + beta * x[:, 0, 0] + errors[:, 0]
     for time_idx in range(1, n_periods):
         y[:, time_idx] = (
-            rho * y[:, time_idx - 1]
-            + beta * x[:, time_idx, 0]
-            + effects
-            + errors[:, time_idx]
+            rho * y[:, time_idx - 1] + beta * x[:, time_idx, 0] + effects + errors[:, time_idx]
         )
 
     state: dict[str, object] = {
@@ -176,8 +173,6 @@ def test_dynamic_panel_persists_shared_dependence_ref(isolated_registry, tmp_pat
     diagnostic = result.cross_sectional_dependence_diagnostic
     assert diagnostic is not None
     assert loaded.regime == "panel"
-    assert loaded.calibrated is (
-        diagnostic.estimator_status in {"ok", "ok_conservative"}
-    )
+    assert loaded.calibrated is (diagnostic.estimator_status in {"ok", "ok_conservative"})
     assert loaded.class_label == diagnostic.class_label
     assert diagnostic.shared_artifacts_ref == str(result.dependence_ref.artifact_id)

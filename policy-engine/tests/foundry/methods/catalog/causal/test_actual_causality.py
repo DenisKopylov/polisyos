@@ -17,13 +17,12 @@ Coverage (15 tests):
  14.  test_actual_causality_engine_pure_step — end-to-end dispatch with estimand='all'
  15.  test_actual_causality_engine_registered — in causal method registry
 """
+
 from __future__ import annotations
 
 import json
-import math
 
 import numpy as np
-import pytest
 
 from polisyos.foundry.methods.catalog.causal.actual_causality import (
     ActualCausalityEngine,
@@ -36,7 +35,6 @@ from polisyos.foundry.methods.catalog.causal.actual_causality import (
     _tian_pearl_ps_bounds,
     compute_pnps_bounds,
 )
-from polisyos.foundry.methods.catalog.causal.protocols import NCMQueryData
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.ncm import ExogenousSpec, NCMSpec, StructuralEquation
 from polisyos.ir.analytics.structural_causal_model import (
@@ -45,7 +43,6 @@ from polisyos.ir.analytics.structural_causal_model import (
     NodeMechanism,
     StructuralCausalModelSpec,
 )
-
 
 # ── Shared DGP helpers ─────────────────────────────────────────────────────────
 
@@ -222,8 +219,7 @@ class TestPNFromNCM:
         ncm = _make_ncm(noise_std=0.1)
         rng = np.random.default_rng(42)
         warnings: list[str] = []
-        result = _pn_from_ncm(ncm, "T", "Y", 1.0, 0.0,
-                               n_samples=500, rng=rng, warnings=warnings)
+        result = _pn_from_ncm(ncm, "T", "Y", 1.0, 0.0, n_samples=500, rng=rng, warnings=warnings)
         assert 0.0 <= result.pn <= 1.0
         assert result.treatment == "T"
         assert result.outcome == "Y"
@@ -234,9 +230,17 @@ class TestPNFromNCM:
         ncm = _make_deterministic_ncm()
         rng = np.random.default_rng(0)
         warnings: list[str] = []
-        result = _pn_from_ncm(ncm, "T", "Y", 1.0, 0.0,
-                               n_samples=2000, rng=rng, warnings=warnings,
-                               outcome_threshold=0.5)
+        result = _pn_from_ncm(
+            ncm,
+            "T",
+            "Y",
+            1.0,
+            0.0,
+            n_samples=2000,
+            rng=rng,
+            warnings=warnings,
+            outcome_threshold=0.5,
+        )
         # Y = T, so Y_{T=0} = 0 always when Y_{T=1} = 1: PN = 1.0
         assert result.pn > 0.8
 
@@ -247,8 +251,7 @@ class TestPSFromNCM:
         ncm = _make_ncm(noise_std=0.1)
         rng = np.random.default_rng(7)
         warnings: list[str] = []
-        result = _ps_from_ncm(ncm, "T", "Y", 1.0, 0.0,
-                               n_samples=500, rng=rng, warnings=warnings)
+        result = _ps_from_ncm(ncm, "T", "Y", 1.0, 0.0, n_samples=500, rng=rng, warnings=warnings)
         assert 0.0 <= result.ps <= 1.0
         assert result.computation_method == "simulation"
 
@@ -259,8 +262,7 @@ class TestPNSFromNCM:
         ncm = _make_ncm(noise_std=0.1)
         rng = np.random.default_rng(13)
         warnings: list[str] = []
-        result = _pns_from_ncm(ncm, "T", "Y", 1.0, 0.0,
-                                n_samples=1000, rng=rng, warnings=warnings)
+        result = _pns_from_ncm(ncm, "T", "Y", 1.0, 0.0, n_samples=1000, rng=rng, warnings=warnings)
         assert 0.0 <= result.pns <= 1.0
         assert result.pn is not None and 0.0 <= result.pn <= 1.0
         assert result.ps is not None and 0.0 <= result.ps <= 1.0
@@ -270,9 +272,17 @@ class TestPNSFromNCM:
         ncm = _make_deterministic_ncm()
         rng = np.random.default_rng(0)
         warnings: list[str] = []
-        result = _pns_from_ncm(ncm, "T", "Y", 1.0, 0.0,
-                                n_samples=2000, rng=rng, warnings=warnings,
-                                outcome_threshold=0.5)
+        result = _pns_from_ncm(
+            ncm,
+            "T",
+            "Y",
+            1.0,
+            0.0,
+            n_samples=2000,
+            rng=rng,
+            warnings=warnings,
+            outcome_threshold=0.5,
+        )
         assert result.pns > 0.8
 
     def test_pns_between_tian_pearl_bounds(self):
@@ -282,9 +292,17 @@ class TestPNSFromNCM:
         ncm = _make_deterministic_ncm()
         rng = np.random.default_rng(99)
         warnings: list[str] = []
-        result = _pns_from_ncm(ncm, "T", "Y", 1.0, 0.0,
-                                n_samples=2000, rng=rng, warnings=warnings,
-                                outcome_threshold=0.5)
+        result = _pns_from_ncm(
+            ncm,
+            "T",
+            "Y",
+            1.0,
+            0.0,
+            n_samples=2000,
+            rng=rng,
+            warnings=warnings,
+            outcome_threshold=0.5,
+        )
         lb, ub = _tian_pearl_pns_bounds(1.0, 0.0)
         # MC PNS should be within a small tolerance of theoretical bounds
         assert result.pns >= lb - 0.05
@@ -344,9 +362,11 @@ class TestActualCausalityEnginePureStep:
 
     def test_pure_step_observational_bounds(self):
         """Passing p_y1_x1/p_y1_x0 in metadata produces pnps_bounds."""
-        state = {"ncm_query_data": {
-            **self._make_query_dict(),
-        }}
+        state = {
+            "ncm_query_data": {
+                **self._make_query_dict(),
+            }
+        }
         # Inject observational probs into metadata
         state["ncm_query_data"]["metadata"] = {
             "treatment_variable": "T",
@@ -387,6 +407,7 @@ class TestActualCausalityEngineRegistry:
         from polisyos.foundry.methods.catalog.causal._registry_boot import (
             register_causal_methods,
         )
+
         methods = register_causal_methods()
         names = [m.__name__ for m in methods]
         assert "ActualCausalityEngine" in names
@@ -396,6 +417,7 @@ class TestActualCausalityEngineRegistry:
         from polisyos.foundry.methods.catalog.causal._registry_boot import (
             register_causal_methods,
         )
+
         methods = register_causal_methods()
         names = [m.__name__ for m in methods]
         assert "HPActualCauseMethod" in names

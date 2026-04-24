@@ -80,9 +80,7 @@ def _render_text(payload: dict[str, Any]) -> str:
         f"overall_status={phase2['overall_status']}",
     ]
     for track_id, summary in sorted(phase2["tracks"].items()):
-        lines.append(
-            f"{track_id}: {summary['status']} ({summary['artifact_family']})"
-        )
+        lines.append(f"{track_id}: {summary['status']} ({summary['artifact_family']})")
     if payload["notes"]:
         lines.append("notes:")
         lines.extend(f"- {note}" for note in payload["notes"])

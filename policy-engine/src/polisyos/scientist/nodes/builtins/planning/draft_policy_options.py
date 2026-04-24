@@ -1,4 +1,5 @@
 """Public planning draft policy options module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -58,18 +59,28 @@ class DraftPolicyOptionsNode:
     Reads the request frame and source-verification report, then writes the
     `policy_option_set_ref` artifact used by formalization, simulation, and final reporting.
     """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        if state.policy_option_set_ref is not None and ARTIFACT_POLICY_OPTION_SET_REF in state.artifacts_index:
+        if (
+            state.policy_option_set_ref is not None
+            and ARTIFACT_POLICY_OPTION_SET_REF in state.artifacts_index
+        ):
             return NodeOutcome(status="ok", state=state)
-        request_ref = state.policy_request_ref or state.artifacts_index.get(ARTIFACT_POLICY_REQUEST_FRAME_REF)
-        report_ref = state.source_verification_report_ref or state.artifacts_index.get(ARTIFACT_SOURCE_VERIFICATION_REPORT_REF)
+        request_ref = state.policy_request_ref or state.artifacts_index.get(
+            ARTIFACT_POLICY_REQUEST_FRAME_REF
+        )
+        report_ref = state.source_verification_report_ref or state.artifacts_index.get(
+            ARTIFACT_SOURCE_VERIFICATION_REPORT_REF
+        )
         if request_ref is None or report_ref is None:
             return NodeOutcome(status="skip", state=state)
-        frame = load_policy_request_frame(ctx.store, PolicyRequestFrameRef.model_validate(request_ref.model_dump()))
+        frame = load_policy_request_frame(
+            ctx.store, PolicyRequestFrameRef.model_validate(request_ref.model_dump())
+        )
         report = load_source_verification_report(
             ctx.store, SourceVerificationReportRef.model_validate(report_ref.model_dump())
         )
@@ -93,7 +104,10 @@ class DraftPolicyOptionsNode:
                 NodeEvent(
                     level="info",
                     message="Policy options drafted.",
-                    attrs={"verified_options": len(option_set.verified_options), "hypothesis_options": len(option_set.hypothesis_options)},
+                    attrs={
+                        "verified_options": len(option_set.verified_options),
+                        "hypothesis_options": len(option_set.hypothesis_options),
+                    },
                 )
             ],
         )

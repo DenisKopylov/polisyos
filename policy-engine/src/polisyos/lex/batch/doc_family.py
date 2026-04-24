@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.lex.batch.doc_identity import doc_type_category
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 _APPENDIX_STRUCT_KINDS = {"appendix", "table_row", "enumeration_item", "paragraph"}
 _APPENDIX_SECTION_ROLES = {
@@ -60,7 +62,11 @@ def classify_doc_family(
     provision_rows: Sequence[dict[str, Any]] | None = None,
 ) -> str:
     """Map raw doc categories into stable quality families."""
-    category = (doc_type_category_value or infer_doc_type_category(doc_type=doc_type, doc_name=doc_name)).strip().lower()
+    category = (
+        (doc_type_category_value or infer_doc_type_category(doc_type=doc_type, doc_name=doc_name))
+        .strip()
+        .lower()
+    )
     if category in {"constitution", "law", "code"}:
         return "law"
     if category in {"treaty", "protocol"}:

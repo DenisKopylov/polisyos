@@ -15,7 +15,7 @@ import {
   type WorkspacePrefetchKey,
 } from "@/app/workspaces";
 import { parseEvidenceSearchParams } from "@/features/evidence";
-import type { RunDetailTab } from "@/features/runs/domain/runDetailTabs";
+import type { RunDetailTab } from "@/features/runs";
 
 export type RunTabKey = RunDetailTab;
 type RunTabQueryOptions =

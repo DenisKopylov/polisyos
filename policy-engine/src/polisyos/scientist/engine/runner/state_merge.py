@@ -80,9 +80,7 @@ def merge_tier_states(
     for index, (alias, result_bytes) in enumerate(ordered_results):
         alias_to_index[alias] = index
         outcomes[alias] = NodeOutcome(status="ok", state=deserialize_state(result_bytes))
-        resolved_write_specs[alias] = list(
-            (write_specs or {}).get(alias, _DEFAULT_WRITE_FIELDS)
-        )
+        resolved_write_specs[alias] = list((write_specs or {}).get(alias, _DEFAULT_WRITE_FIELDS))
 
     merged = merge_parallel_outcomes(
         base_state,
@@ -96,11 +94,7 @@ def merge_tier_states(
         raise StateMergeConflictError(
             key=key or field,
             field=field,
-            sources=[
-                alias_to_index[alias]
-                for alias in first.aliases
-                if alias in alias_to_index
-            ],
+            sources=[alias_to_index[alias] for alias in first.aliases if alias in alias_to_index],
             policy=conflict_policy,
         )
 

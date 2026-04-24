@@ -51,7 +51,9 @@ class TestGraphDependenceDiagnostic:
         assert result.estimator_status == "not_identified"
         assert result.fallback_reason == "no_identifiable_candidate_graph"
 
-    def test_exposes_pesaran_and_lm_diagnostics_when_panel_like_metadata_is_available(self, isolated_registry) -> None:
+    def test_exposes_pesaran_and_lm_diagnostics_when_panel_like_metadata_is_available(
+        self, isolated_registry
+    ) -> None:
         method = _method_or_skip(isolated_registry, "dependence.diagnostic.graph_dependence@1.0.0")
         residuals = np.array([0.9, 1.1, -0.8, -1.0, 0.7, -0.9], dtype=float)
         pseudo_panel = np.array(

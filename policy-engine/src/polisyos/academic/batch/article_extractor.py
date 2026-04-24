@@ -3,20 +3,17 @@
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import json
 import re
 import time
 from collections import deque
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import aiohttp
 
 from polisyos.academic.batch.claim_ids import stable_claim_id
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.batch.context_classifier import infer_context_from_article
 from polisyos.academic.batch.fulltext_resolver import (
     fetch_full_text_for_work,
@@ -30,10 +27,8 @@ from polisyos.academic.batch.prompts import (
     SCREENING_PROMPT,
 )
 from polisyos.academic.knowledge.types import EstimateCandidate, SourceTopicRef, WorkRecord
-from polisyos.academic.knowledge.variable_canonizer import VariableCanonizer
 from polisyos.academic.openalex.priority_filter import should_process
 from polisyos.academic.trust import compute_trust_score
-from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.common.logger import get_logger
 from polisyos.core.canon.hashing import content_hash
 from polisyos.ir.analytics.literature import (
@@ -55,6 +50,12 @@ from polisyos.ir.analytics.literature import (
     SourceBasis,
     TextQuality,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.academic.batch.config import AcademicBatchConfig
+    from polisyos.academic.knowledge.variable_canonizer import VariableCanonizer
 
 logger = get_logger(__name__)
 
@@ -88,7 +89,9 @@ _ADJUDICATION_REQUIRED_KEYS = frozenset({"claim_validity_score", "causal_credibi
 _SCREENING_REQUIRED_KEYS = frozenset({"relevant"})
 
 
-def _validate_extraction_response(parsed: dict[str, Any] | None, *, context: str = "extraction") -> dict[str, Any] | None:
+def _validate_extraction_response(
+    parsed: dict[str, Any] | None, *, context: str = "extraction"
+) -> dict[str, Any] | None:
     """Validate that a parsed LLM response has the expected structure.
 
     Returns the parsed dict if valid, or None if structurally invalid.
@@ -463,7 +466,9 @@ def _split_sentences(text: str) -> list[str]:
     return [piece.strip() for piece in pieces if piece.strip()]
 
 
-def _select_top_sentences(sentences: list[str], pattern: re.Pattern[str], *, limit: int) -> list[dict[str, Any]]:
+def _select_top_sentences(
+    sentences: list[str], pattern: re.Pattern[str], *, limit: int
+) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     for index, sentence in enumerate(sentences):
         if not pattern.search(sentence):
@@ -471,7 +476,11 @@ def _select_top_sentences(sentences: list[str], pattern: re.Pattern[str], *, lim
         score = min(1.0, 0.45 + 0.1 * len(pattern.findall(sentence)))
         out.append(
             {
-                "section": "methods" if pattern is _METHOD_SENTENCE_RE else "results" if pattern is _RESULT_SENTENCE_RE else "claims",
+                "section": "methods"
+                if pattern is _METHOD_SENTENCE_RE
+                else "results"
+                if pattern is _RESULT_SENTENCE_RE
+                else "claims",
                 "text": sentence,
                 "sentence_index": index,
                 "score": round(score, 3),
@@ -569,23 +578,37 @@ _PRE_EXTRACTION_CONTAMINATION_RE = re.compile(
 )
 
 
-def _build_evidence_bundle(*, title: str, abstract: str, text: str, source_kind: str) -> dict[str, Any]:
+def _build_evidence_bundle(
+    *, title: str, abstract: str, text: str, source_kind: str
+) -> dict[str, Any]:
     text = _PRE_EXTRACTION_CONTAMINATION_RE.sub(" ", text)
     text = re.sub(r"\s+", " ", text).strip()
     sentences = _split_sentences(text)
     abstract_sentences = _split_sentences(abstract)
-    method_sentences = _select_top_sentences(sentences or abstract_sentences, _METHOD_SENTENCE_RE, limit=6)
-    result_sentences = _select_top_sentences(sentences or abstract_sentences, _RESULT_SENTENCE_RE, limit=8)
-    claim_sentences = _select_top_sentences(sentences or abstract_sentences, _CLAIM_SENTENCE_RE, limit=8)
+    method_sentences = _select_top_sentences(
+        sentences or abstract_sentences, _METHOD_SENTENCE_RE, limit=6
+    )
+    result_sentences = _select_top_sentences(
+        sentences or abstract_sentences, _RESULT_SENTENCE_RE, limit=8
+    )
+    claim_sentences = _select_top_sentences(
+        sentences or abstract_sentences, _CLAIM_SENTENCE_RE, limit=8
+    )
     numeric_result_snippets = _select_numeric_result_snippets(text, limit=8)
     numeric_result_blocks = _select_numeric_result_blocks(text, limit=6)
     if not claim_sentences and abstract_sentences:
         claim_sentences = _select_top_sentences(abstract_sentences, _RESULT_SENTENCE_RE, limit=5)
-    source_basis = SourceBasis.ABSTRACT_ONLY.value if source_kind == "abstract_fallback" else SourceBasis.FULLTEXT.value
+    source_basis = (
+        SourceBasis.ABSTRACT_ONLY.value
+        if source_kind == "abstract_fallback"
+        else SourceBasis.FULLTEXT.value
+    )
     text_quality = (
         TextQuality.ABSTRACT_ONLY.value
         if source_kind == "abstract_fallback"
-        else TextQuality.DEGRADED.value if len(text) < 800 else TextQuality.EXTRACTED_FULLTEXT.value
+        else TextQuality.DEGRADED.value
+        if len(text) < 800
+        else TextQuality.EXTRACTED_FULLTEXT.value
     )
     abstract_rows = [
         {
@@ -637,7 +660,14 @@ def _normalize_evidence_span(payload: Any, *, default_section: str = "") -> Evid
 
 def _span_lookup(evidence_bundle: dict[str, Any]) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
-    for bucket in ("abstract_sentences", "method_sentences", "result_sentences", "claim_sentences", "numeric_result_snippets", "numeric_result_blocks"):
+    for bucket in (
+        "abstract_sentences",
+        "method_sentences",
+        "result_sentences",
+        "claim_sentences",
+        "numeric_result_snippets",
+        "numeric_result_blocks",
+    ):
         for item in evidence_bundle.get(bucket, []):
             if not isinstance(item, dict):
                 continue
@@ -664,7 +694,9 @@ def _resolve_span_ids(
         item = lookup.get(span_id)
         if not item:
             continue
-        span = _normalize_evidence_span({**item, "span_id": span_id}, default_section=default_section)
+        span = _normalize_evidence_span(
+            {**item, "span_id": span_id}, default_section=default_section
+        )
         if span is not None:
             out.append(span)
     return out
@@ -743,7 +775,9 @@ def _normalize_empirical_parameter(payload: Any) -> EvidenceParameter | None:
     if not isinstance(payload, dict):
         return None
 
-    name = _normalized_text(payload.get("name") or payload.get("parameter") or payload.get("variable"))
+    name = _normalized_text(
+        payload.get("name") or payload.get("parameter") or payload.get("variable")
+    )
     if not name:
         return None
     if name in {"sample_size", "study.sample_size", "n", "n_observations"}:
@@ -757,11 +791,17 @@ def _normalize_empirical_parameter(payload: Any) -> EvidenceParameter | None:
         if fallback_text:
             value_qualitative = fallback_text
 
-    fallback_type = ParameterType.QUANTITATIVE.value if (value is not None or value_range is not None) else ParameterType.QUALITATIVE.value
+    fallback_type = (
+        ParameterType.QUANTITATIVE.value
+        if (value is not None or value_range is not None)
+        else ParameterType.QUALITATIVE.value
+    )
     candidate = {
         "name": name,
         "display_name": _normalized_text(payload.get("display_name")) or name,
-        "parameter_type": _normalize_parameter_type(payload.get("parameter_type"), fallback=fallback_type),
+        "parameter_type": _normalize_parameter_type(
+            payload.get("parameter_type"), fallback=fallback_type
+        ),
         "value": value,
         "value_range": value_range,
         "value_qualitative": value_qualitative or None,
@@ -775,7 +815,10 @@ def _normalize_empirical_parameter(payload: Any) -> EvidenceParameter | None:
         "transferability": _normalized_text(payload.get("transferability")) or "unknown",
         "transfer_conditions": _coerce_text_list(payload.get("transfer_conditions")),
         "heterogeneity_note": (
-            _normalized_text(payload.get("heterogeneity_note") or payload.get("context") or payload.get("source")) or None
+            _normalized_text(
+                payload.get("heterogeneity_note") or payload.get("context") or payload.get("source")
+            )
+            or None
         ),
         "subgroup_estimates": _coerce_subgroup_estimates(payload.get("subgroup_estimates")),
     }
@@ -854,9 +897,7 @@ def _normalize_causal_claim(
             claim_text=claim_text,
             direction=_normalize_direction(payload.get("direction")),
             supporting_span_ids=tuple(
-                span.span_id
-                for span in supporting_spans
-                if getattr(span, "span_id", "")
+                span.span_id for span in supporting_spans if getattr(span, "span_id", "")
             ),
         ),
         "claim_text": claim_text,
@@ -870,15 +911,21 @@ def _normalize_causal_claim(
         "effect_size": effect_size,
         "evidence_strength": _normalize_evidence_strength(payload.get("evidence_strength")),
         "scope_conditions": _coerce_text_list(payload.get("scope_conditions")),
-        "counterevidence_notes": _normalized_text(payload.get("counterevidence_notes") or payload.get("mechanism")),
+        "counterevidence_notes": _normalized_text(
+            payload.get("counterevidence_notes") or payload.get("mechanism")
+        ),
         "supporting_spans": supporting_spans,
         "method_spans": method_spans,
         "supporting_span_ids": [span.span_id for span in supporting_spans if span.span_id],
         "method_span_ids": [span.span_id for span in method_spans if span.span_id],
-        "source_basis": _normalize_source_basis(payload.get("source_basis") or default_source_basis),
+        "source_basis": _normalize_source_basis(
+            payload.get("source_basis") or default_source_basis
+        ),
         "claim_extraction_confidence": _coerce_float(payload.get("claim_extraction_confidence")),
         "extraction_warnings": _coerce_text_list(payload.get("extraction_warnings")),
-        "identification_strategy": _normalize_identification_strategy(payload.get("identification_strategy")),
+        "identification_strategy": _normalize_identification_strategy(
+            payload.get("identification_strategy")
+        ),
     }
     if not candidate["cause_variable"] or not candidate["effect_variable"]:
         return None
@@ -1047,7 +1094,9 @@ def _normalize_extraction_payload(
                 raw,
                 work_id=str(work.get("id") or ""),
                 evidence_bundle=evidence_bundle,
-                default_source_basis=evidence_bundle.get("source_basis", SourceBasis.FULLTEXT.value),
+                default_source_basis=evidence_bundle.get(
+                    "source_basis", SourceBasis.FULLTEXT.value
+                ),
             )
             for raw in _as_list(parsed.get("causal_claims"))
         )
@@ -1055,10 +1104,7 @@ def _normalize_extraction_payload(
     ]
     mechanisms = [
         item
-        for item in (
-            _normalize_mechanism(raw)
-            for raw in _as_list(parsed.get("mechanisms"))
-        )
+        for item in (_normalize_mechanism(raw) for raw in _as_list(parsed.get("mechanisms")))
         if item is not None
     ]
     boundary_conditions = [
@@ -1114,7 +1160,9 @@ def _normalize_extraction_payload(
         "title": str(work.get("title") or ""),
         "year": int(work.get("publication_year") or 0) or None,
         "cited_by_count": int(work.get("cited_by_count") or 0),
-        "source_basis": _normalize_source_basis(parsed.get("source_basis") or evidence_bundle.get("source_basis")),
+        "source_basis": _normalize_source_basis(
+            parsed.get("source_basis") or evidence_bundle.get("source_basis")
+        ),
         "text_quality": _normalize_text_quality(
             parsed.get("text_quality"),
             fallback=evidence_bundle.get("text_quality", TextQuality.EXTRACTED_FULLTEXT.value),
@@ -1127,14 +1175,18 @@ def _normalize_extraction_payload(
         "mechanisms": mechanisms,
         "boundary_conditions": boundary_conditions,
         "methodology": _normalized_text(parsed.get("methodology")),
-        "methodology_enum": _normalize_evidence_strength(parsed.get("methodology_enum") or parsed.get("evidence_strength")),
+        "methodology_enum": _normalize_evidence_strength(
+            parsed.get("methodology_enum") or parsed.get("evidence_strength")
+        ),
         "sample_size": _coerce_int(parsed.get("sample_size")),
         "citation_summary": _normalized_text(parsed.get("citation_summary")),
         "extraction_model": model,
         "extraction_timestamp": datetime.now(UTC).isoformat(),
         "extraction_confidence": _coerce_score(parsed.get("extraction_confidence"), default=0.7),
         "heterogeneity_results": heterogeneity_results,
-        "external_validity_assessment": _normalized_text(parsed.get("external_validity_assessment")),
+        "external_validity_assessment": _normalized_text(
+            parsed.get("external_validity_assessment")
+        ),
         "screening_cost_usd": 0.0,
         "extraction_cost_usd": float(usage.get("total_cost_usd") or 0.0),
         "token_count_prompt": int(usage.get("prompt_tokens") or 0),
@@ -1185,7 +1237,7 @@ class GonkaChatClient:
         self._disable_json_mode = disable_json_mode
         self._timeout = aiohttp.ClientTimeout(total=max(10, int(timeout_seconds)))
 
-    async def __aenter__(self) -> "GonkaChatClient":
+    async def __aenter__(self) -> GonkaChatClient:
         self._session = aiohttp.ClientSession(
             headers={
                 "Authorization": f"Bearer {self._api_key}",
@@ -1260,7 +1312,7 @@ class GonkaChatClient:
                             continue
 
                         raise RuntimeError(f"Gonka HTTP {resp.status}: {body[:300]}")
-                except (aiohttp.ClientError, asyncio.TimeoutError, json.JSONDecodeError) as exc:
+                except (TimeoutError, aiohttp.ClientError, json.JSONDecodeError) as exc:
                     last_error = exc
                     await asyncio.sleep(min(0.5 * (2 ** (attempt - 1)), 20.0))
 
@@ -1270,6 +1322,7 @@ class GonkaChatClient:
 @dataclass
 class ExtractorStats:
     """Extractor stats public type."""
+
     total_seen: int = 0
     skipped: int = 0
     screening_rejected: int = 0
@@ -1287,6 +1340,7 @@ class ExtractorStats:
 
 class PolicyArticleExtractor:
     """Policy article extractor public type."""
+
     def __init__(
         self,
         *,
@@ -1314,7 +1368,7 @@ class PolicyArticleExtractor:
         if not cache_path.exists():
             return set()
         cache: set[str] = set()
-        with open(cache_path, "r", encoding="utf-8") as fh:
+        with open(cache_path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -1392,13 +1446,13 @@ class PolicyArticleExtractor:
                     return text, source_kind
                 # Abstract fallback on first attempt — still retry if we can
                 if attempt < max_retries:
-                    delay = base_delay * (2 ** attempt)
+                    delay = base_delay * (2**attempt)
                     await _asyncio.sleep(delay)
                     continue
                 return text, source_kind
             except Exception:
                 if attempt < max_retries:
-                    delay = base_delay * (2 ** attempt)
+                    delay = base_delay * (2**attempt)
                     await _asyncio.sleep(delay)
                     continue
                 # Final attempt failed — fall through to abstract
@@ -1507,7 +1561,7 @@ Evidence bundle:
         claim_summaries = []
         for i, claim in enumerate(claims_to_verify):
             claim_summaries.append(
-                f"Claim {i+1}: {claim.cause_variable} -> {claim.effect_variable} "
+                f"Claim {i + 1}: {claim.cause_variable} -> {claim.effect_variable} "
                 f"(direction={claim.direction.value}, "
                 f"effect_size={claim.effect_size}, "
                 f"design={claim.design_family_hint.value})"
@@ -1580,7 +1634,9 @@ Source text (first 3000 chars):
 
         return result.model_copy(update={"causal_claims": updated_claims})
 
-    def _canonize_variables(self, result: ArticleExtractionResult, stats: ExtractorStats) -> ArticleExtractionResult:
+    def _canonize_variables(
+        self, result: ArticleExtractionResult, stats: ExtractorStats
+    ) -> ArticleExtractionResult:
         canonized_claims = []
         for claim in result.causal_claims:
             cause, cause_new = self._canonizer.canonize(claim.cause_variable)
@@ -1638,7 +1694,9 @@ Source text (first 3000 chars):
             }
         )
 
-    async def _process_one(self, work: dict[str, Any], stats: ExtractorStats) -> ArticleExtractionResult | None:
+    async def _process_one(
+        self, work: dict[str, Any], stats: ExtractorStats
+    ) -> ArticleExtractionResult | None:
         async with self._semaphore:
             cache_key = self._cache_key_for_work(work)
             if cache_key in self._processed_cache:
@@ -1677,40 +1735,51 @@ Source text (first 3000 chars):
                 result = await self._self_verify(result, evidence_bundle, stats)
 
             if source_kind == "abstract_fallback":
-                _STRONG_ABSTRACT_DESIGNS = frozenset({
-                    DesignFamily.RCT, DesignFamily.IV, DesignFamily.DID,
-                    DesignFamily.RDD, DesignFamily.SYNTHETIC_CONTROL,
-                })
+                _STRONG_ABSTRACT_DESIGNS = frozenset(
+                    {
+                        DesignFamily.RCT,
+                        DesignFamily.IV,
+                        DesignFamily.DID,
+                        DesignFamily.RDD,
+                        DesignFamily.SYNTHETIC_CONTROL,
+                    }
+                )
                 has_strong_design = any(
-                    c.design_family_hint in _STRONG_ABSTRACT_DESIGNS
-                    for c in result.causal_claims
+                    c.design_family_hint in _STRONG_ABSTRACT_DESIGNS for c in result.causal_claims
                 )
                 confidence_multiplier = 1.0 if has_strong_design else 0.8
                 downgraded_claims = [
                     claim.model_copy(
                         update={
                             "source_basis": SourceBasis.ABSTRACT_ONLY,
-                            "extraction_warnings": sorted(set([*claim.extraction_warnings, "abstract_only_fallback"])),
+                            "extraction_warnings": sorted(
+                                {*claim.extraction_warnings, "abstract_only_fallback"}
+                            ),
                         }
                     )
                     for claim in result.causal_claims
                 ]
                 result = result.model_copy(
                     update={
-                        "extraction_confidence": max(0.1, result.extraction_confidence * confidence_multiplier),
+                        "extraction_confidence": max(
+                            0.1, result.extraction_confidence * confidence_multiplier
+                        ),
                         "source_basis": SourceBasis.ABSTRACT_ONLY,
                         "text_quality": TextQuality.ABSTRACT_ONLY,
                         "causal_claims": downgraded_claims,
-                        "extraction_warnings": sorted(set([*result.extraction_warnings, "abstract_only_fallback"])),
+                        "extraction_warnings": sorted(
+                            {*result.extraction_warnings, "abstract_only_fallback"}
+                        ),
                         "citation_summary": (
-                            (result.citation_summary + " ").strip()
-                            + "[fallback:abstract_only]"
+                            (result.citation_summary + " ").strip() + "[fallback:abstract_only]"
                         ).strip(),
                     }
                 )
 
             result = self._canonize_variables(result, stats)
-            result = result.model_copy(update={"source_context": infer_context_from_article(work, result)})
+            result = result.model_copy(
+                update={"source_context": infer_context_from_article(work, result)}
+            )
             self._append_cache_key(cache_key, result.openalex_id)
 
             stats.extracted += 1
@@ -1735,7 +1804,9 @@ Source text (first 3000 chars):
                 continue
             accepted.append((index, work))
 
-        async def _run_one(index: int, work: dict[str, Any]) -> tuple[int, ArticleExtractionResult | None]:
+        async def _run_one(
+            index: int, work: dict[str, Any]
+        ) -> tuple[int, ArticleExtractionResult | None]:
             return index, await self._process_one(work, stats)
 
         indexed_results: list[tuple[int, ArticleExtractionResult]] = []
@@ -1884,15 +1955,28 @@ def _to_work_record(
         work_type=str(raw_work.get("type") or ""),
         is_retracted=bool(raw_work.get("is_retracted") or False),
         cited_by_count=result.cited_by_count,
-        fwci=float(raw_work.get("fwci")) if isinstance(raw_work.get("fwci"), (int, float)) else None,
+        fwci=float(raw_work.get("fwci"))
+        if isinstance(raw_work.get("fwci"), (int, float))
+        else None,
         citation_normalized_percentile=None,
         citation_is_top_1_percent=False,
         citation_is_top_10_percent=False,
         journal="",
         source_id="",
-        is_oa=bool((raw_work.get("open_access") or {}).get("is_oa") if isinstance(raw_work.get("open_access"), dict) else False),
+        is_oa=bool(
+            (raw_work.get("open_access") or {}).get("is_oa")
+            if isinstance(raw_work.get("open_access"), dict)
+            else False
+        ),
         has_fulltext=bool(raw_work.get("has_fulltext") or False),
-        full_text_url=str(((raw_work.get("open_access") or {}).get("oa_url") if isinstance(raw_work.get("open_access"), dict) else "") or ""),
+        full_text_url=str(
+            (
+                (raw_work.get("open_access") or {}).get("oa_url")
+                if isinstance(raw_work.get("open_access"), dict)
+                else ""
+            )
+            or ""
+        ),
         concepts=list(raw_work.get("topics") or []),
         source_topics=topic_refs,
         study_design=str(result.methodology or ""),
@@ -1900,7 +1984,9 @@ def _to_work_record(
         estimates=estimates,
         causal_claims=causal_claims,
         boundary_conditions=boundary_conditions,
-        context_profile=result.source_context.model_dump(mode="json") if result.source_context else {},
+        context_profile=result.source_context.model_dump(mode="json")
+        if result.source_context
+        else {},
         extraction_mode="resolve_extract",
         extraction_confidence=float(result.extraction_confidence),
         method_signal_score=float(result.extraction_confidence),
@@ -1923,13 +2009,17 @@ def _to_work_record(
             "paper_relevance": bool(result.paper_relevance),
             "paper_relevance_reason": result.paper_relevance_reason,
             "paper_kind": result.paper_kind.value,
-            "heterogeneity_results": [item.model_dump(mode="json") for item in result.heterogeneity_results],
+            "heterogeneity_results": [
+                item.model_dump(mode="json") for item in result.heterogeneity_results
+            ],
             "external_validity_assessment": result.external_validity_assessment,
             "provider_finish_reason": result.provider_finish_reason,
             "provider_latency_ms": result.provider_latency_ms,
             "truncated_output": bool(result.truncated_output),
             "llm_error_class": result.llm_error_class,
-            "context_attributes": [attr.model_dump(mode="json") for attr in result.context_attributes],
+            "context_attributes": [
+                attr.model_dump(mode="json") for attr in result.context_attributes
+            ],
             "moderation_edges": [edge.model_dump(mode="json") for edge in result.moderation_edges],
             "reconciliation_diagnostics": dict(result.reconciliation_diagnostics),
         },
@@ -1940,7 +2030,7 @@ def _load_selected_works(path: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     if not path.exists():
         return rows
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -1955,7 +2045,7 @@ def _load_resolved_texts(path: Path) -> dict[str, dict[str, Any]]:
     rows: dict[str, dict[str, Any]] = {}
     if not path.exists():
         return rows
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:

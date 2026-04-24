@@ -1,10 +1,18 @@
 """Public spatial protocols module API."""
+
 from __future__ import annotations
 
 from typing import Any, ClassVar
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 
 from polisyos.ir.analytics.interference import MAUPInvarianceCertificate, SpatialHodgeDiagnostics
 from polisyos.ir.refs import DependenceStructureRef
@@ -18,6 +26,7 @@ def _to_numpy(value: Any) -> np.ndarray:
 
 class SpatialData(BaseModel):
     """Spatial data public type."""
+
     contract_id: ClassVar[str] = "foundry.spatial.data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -36,7 +45,7 @@ class SpatialData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "SpatialData":
+    def _validate_shapes(self) -> SpatialData:
         if not isinstance(self.coordinates, np.ndarray) or self.coordinates.ndim != 2:
             raise ValueError("coordinates must be a 2D numpy array")
         n_obs = self.coordinates.shape[0]
@@ -61,7 +70,9 @@ class SpatialData(BaseModel):
                 raise ValueError("weights_matrix must be square and match coordinates rows")
         return self
 
-    @field_serializer("coordinates", "values", "features", "weights_matrix", mode="plain", when_used="json")
+    @field_serializer(
+        "coordinates", "values", "features", "weights_matrix", mode="plain", when_used="json"
+    )
     def _serialize_array(self, value: Any) -> Any:
         if isinstance(value, np.ndarray):
             return value.tolist()
@@ -70,6 +81,7 @@ class SpatialData(BaseModel):
 
 class GravityFlowData(BaseModel):
     """Gravity flow data public type."""
+
     contract_id: ClassVar[str] = "foundry.spatial.gravity_flow_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -95,7 +107,7 @@ class GravityFlowData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_gravity_shapes(self) -> "GravityFlowData":
+    def _validate_gravity_shapes(self) -> GravityFlowData:
         if not isinstance(self.origin_coords, np.ndarray) or self.origin_coords.ndim != 2:
             raise ValueError("origin_coords must be a 2D numpy array")
         if not isinstance(self.destination_coords, np.ndarray) or self.destination_coords.ndim != 2:
@@ -104,8 +116,12 @@ class GravityFlowData(BaseModel):
         n_destinations = self.destination_coords.shape[0]
         if not isinstance(self.origin_mass, np.ndarray) or self.origin_mass.shape != (n_origins,):
             raise ValueError("origin_mass must be a 1D numpy array matching origin_coords")
-        if not isinstance(self.destination_mass, np.ndarray) or self.destination_mass.shape != (n_destinations,):
-            raise ValueError("destination_mass must be a 1D numpy array matching destination_coords")
+        if not isinstance(self.destination_mass, np.ndarray) or self.destination_mass.shape != (
+            n_destinations,
+        ):
+            raise ValueError(
+                "destination_mass must be a 1D numpy array matching destination_coords"
+            )
         if self.observed_flows is not None:
             if not isinstance(self.observed_flows, np.ndarray) or self.observed_flows.shape != (
                 n_origins,
@@ -131,6 +147,7 @@ class GravityFlowData(BaseModel):
 
 class AccessibilityData(BaseModel):
     """Accessibility data public type."""
+
     contract_id: ClassVar[str] = "foundry.spatial.accessibility_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -154,17 +171,21 @@ class AccessibilityData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_access_shapes(self) -> "AccessibilityData":
+    def _validate_access_shapes(self) -> AccessibilityData:
         if not isinstance(self.origin_coords, np.ndarray) or self.origin_coords.ndim != 2:
             raise ValueError("origin_coords must be a 2D numpy array")
         if not isinstance(self.destination_coords, np.ndarray) or self.destination_coords.ndim != 2:
             raise ValueError("destination_coords must be a 2D numpy array")
         n_origins = self.origin_coords.shape[0]
         n_destinations = self.destination_coords.shape[0]
-        if not isinstance(self.opportunity_mass, np.ndarray) or self.opportunity_mass.shape != (n_destinations,):
+        if not isinstance(self.opportunity_mass, np.ndarray) or self.opportunity_mass.shape != (
+            n_destinations,
+        ):
             raise ValueError("opportunity_mass must match destination rows")
         if self.travel_cost_matrix is not None:
-            if not isinstance(self.travel_cost_matrix, np.ndarray) or self.travel_cost_matrix.shape != (
+            if not isinstance(
+                self.travel_cost_matrix, np.ndarray
+            ) or self.travel_cost_matrix.shape != (
                 n_origins,
                 n_destinations,
             ):
@@ -187,6 +208,7 @@ class AccessibilityData(BaseModel):
 
 class SpatialResult(BaseModel):
     """Carry coefficients, fit diagnostics, and spatial effects emitted by spatial estimators."""
+
     contract_id: ClassVar[str] = "foundry.spatial.result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -207,7 +229,9 @@ class SpatialResult(BaseModel):
             return None
         return _to_numpy(value)
 
-    @field_serializer("local_coefficients", "fitted_values", "scores", mode="plain", when_used="json")
+    @field_serializer(
+        "local_coefficients", "fitted_values", "scores", mode="plain", when_used="json"
+    )
     def _serialize_result_array(self, value: Any) -> Any:
         if isinstance(value, np.ndarray):
             return value.tolist()

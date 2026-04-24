@@ -1,9 +1,9 @@
 """Tests for agent_sim distribution tracking."""
+
 from __future__ import annotations
 
-import jax.numpy as jnp
-import pytest
 import jax
+import jax.numpy as jnp
 
 from polisyos.foundry.agent_sim.distributions import (
     ComputeMode,

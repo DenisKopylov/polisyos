@@ -1,4 +1,5 @@
 """Public agent sim population mechanisms module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -23,6 +24,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 @dataclass(frozen=True)
 class AgingMechanism(Mechanism):
     """Aging mechanism public type."""
+
     steps_per_year: int = 12
     retirement_age: int = 65
     fertility_start: int = 20
@@ -85,6 +87,7 @@ class AgingMechanism(Mechanism):
 @dataclass(frozen=True)
 class BirthMechanism(Mechanism):
     """Birth mechanism public type."""
+
     max_births_per_step: int = 100
     steps_per_year: int = 12
     config: PopulationConfig = PopulationConfig()
@@ -154,6 +157,7 @@ class BirthMechanism(Mechanism):
 @dataclass(frozen=True)
 class DeathMechanism(Mechanism):
     """Death mechanism public type."""
+
     base_mortality_rate: float = 0.001
     age_mortality_factor: float = 0.0001
     wealth_mortality_factor: float = -0.0001
@@ -163,7 +167,9 @@ class DeathMechanism(Mechanism):
     def spec(self) -> MechanismSpec:
         return MechanismSpec(
             name="death",
-            reads=frozenset({"agents.active", "agents.age", "agents.life_expectancy", "agents.wealth"}),
+            reads=frozenset(
+                {"agents.active", "agents.age", "agents.life_expectancy", "agents.wealth"}
+            ),
             writes=frozenset({"agents", "population_manager"}),
             parameters={"base_mortality_rate": float},
             stochastic=True,
@@ -199,7 +205,8 @@ class DeathMechanism(Mechanism):
         metrics = {
             "n_deaths": n_deaths,
             "death_rate": n_deaths / (jnp.sum(agents.active) + 1e-8),
-            "mean_death_age": jnp.sum(agents.age * death_mask) / (n_deaths + 1e-8)
+            "mean_death_age": jnp.sum(agents.age * death_mask)
+            / (n_deaths + 1e-8)
             / self.steps_per_year,
             "inheritance_total": inheritance,
         }
@@ -209,6 +216,7 @@ class DeathMechanism(Mechanism):
 @dataclass(frozen=True)
 class MigrationMechanism(Mechanism):
     """Migration mechanism public type."""
+
     immigration_rate: float = 0.001
     emigration_rate: float = 0.0005
     emigration_wealth_factor: float = -0.1
@@ -288,6 +296,7 @@ class MigrationMechanism(Mechanism):
 @dataclass(frozen=True)
 class InheritanceMechanism:
     """Inheritance mechanism public type."""
+
     config: InheritanceConfig = InheritanceConfig()
 
     def apply(
@@ -305,9 +314,7 @@ class InheritanceMechanism:
 
         parent_slot = agents.parent_slot
         parent_slot_safe = jnp.clip(parent_slot, 0, agents.active.shape[0] - 1)
-        parent_match = (parent_slot >= 0) & (
-            agents.agent_id[parent_slot_safe] == agents.parent_id
-        )
+        parent_match = (parent_slot >= 0) & (agents.agent_id[parent_slot_safe] == agents.parent_id)
         is_heir = agents.active & parent_match & death_mask[parent_slot_safe]
 
         total_estate = jnp.sum(estate_after_tax)
@@ -341,6 +348,7 @@ class InheritanceMechanism:
 @dataclass(frozen=True)
 class GiftTransferMechanism(Mechanism):
     """Gift transfer mechanism public type."""
+
     transfer_probability: float = 0.01
     transfer_fraction: float = 0.05
     min_parent_age: int = 50 * 12
@@ -384,9 +392,7 @@ class GiftTransferMechanism(Mechanism):
         transfer_amount = agents.wealth * self.transfer_fraction * does_transfer.astype(jnp.float32)
         parent_slot = agents.parent_slot
         parent_slot_safe = jnp.clip(parent_slot, 0, agents.active.shape[0] - 1)
-        parent_match = (parent_slot >= 0) & (
-            agents.agent_id[parent_slot_safe] == agents.parent_id
-        )
+        parent_match = (parent_slot >= 0) & (agents.agent_id[parent_slot_safe] == agents.parent_id)
         receives_transfer = agents.active & parent_match & does_transfer[parent_slot_safe]
 
         received = jnp.where(receives_transfer, transfer_amount[parent_slot_safe], 0.0)

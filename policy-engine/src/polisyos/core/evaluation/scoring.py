@@ -1,8 +1,10 @@
 """Weighted scoring helpers shared by evaluators, governance, and runtime summaries."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Generic, Mapping, TypeVar
+from typing import Generic, TypeVar
 
 T = TypeVar("T")
 
@@ -15,6 +17,7 @@ def clamp01(value: float) -> float:
 @dataclass(frozen=True)
 class WeightedScoreResult:
     """Normalized scoring breakdown with the final score, inputs, and effective weights."""
+
     score: float
     components: dict[str, float]
     contributions: dict[str, float]
@@ -56,10 +59,7 @@ class WeightedScorer:
             )
 
         effective_weights = _normalize_weights(usable_weights)
-        contributions = {
-            name: effective_weights[name] * usable[name]
-            for name in usable
-        }
+        contributions = {name: effective_weights[name] * usable[name] for name in usable}
         final_score = clamp01(sum(contributions.values()))
 
         return WeightedScoreResult(
@@ -73,12 +73,14 @@ class WeightedScorer:
 @dataclass(frozen=True)
 class ThresholdBand(Generic[T]):
     """Threshold band public type."""
+
     min_score: float
     value: T
 
 
 class ThresholdMapper(Generic[T]):
     """Threshold mapper public type."""
+
     def __init__(self, bands: list[ThresholdBand[T]], *, default: T) -> None:
         if not bands:
             raise ValueError("bands cannot be empty")

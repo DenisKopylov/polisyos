@@ -71,15 +71,24 @@ def ensure_secret(project_id: str, secret_name: str, value: str, *, dry_run: boo
         return
 
     describe_cmd = [
-        "gcloud", "secrets", "describe", secret_name,
+        "gcloud",
+        "secrets",
+        "describe",
+        secret_name,
         f"--project={project_id}",
     ]
-    exists = subprocess.run(describe_cmd, check=False, capture_output=True, text=True).returncode == 0
+    exists = (
+        subprocess.run(describe_cmd, check=False, capture_output=True, text=True).returncode == 0
+    )
 
     if exists:
         _run(
             [
-                "gcloud", "secrets", "versions", "add", secret_name,
+                "gcloud",
+                "secrets",
+                "versions",
+                "add",
+                secret_name,
                 f"--project={project_id}",
                 "--data-file=-",
             ],
@@ -88,7 +97,10 @@ def ensure_secret(project_id: str, secret_name: str, value: str, *, dry_run: boo
     else:
         _run(
             [
-                "gcloud", "secrets", "create", secret_name,
+                "gcloud",
+                "secrets",
+                "create",
+                secret_name,
                 f"--project={project_id}",
                 "--replication-policy=automatic",
                 "--data-file=-",
@@ -102,8 +114,12 @@ def main() -> int:
     parser.add_argument("--env-file", type=Path, required=True, help="Path to policy-engine/.env")
     parser.add_argument("--project-id", required=True, help="Target GCP project id")
     parser.add_argument("--prefix", default="gonka", help="Secret prefix, default: gonka")
-    parser.add_argument("--manifest-out", type=Path, default=None, help="Optional non-sensitive manifest output")
-    parser.add_argument("--dry-run", action="store_true", help="Print planned secret actions without applying")
+    parser.add_argument(
+        "--manifest-out", type=Path, default=None, help="Optional non-sensitive manifest output"
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Print planned secret actions without applying"
+    )
     args = parser.parse_args()
 
     accounts = parse_accounts(args.env_file)

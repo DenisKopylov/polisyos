@@ -36,47 +36,48 @@ Limitations
 - Bindings between nodes are resolved *locally* by the executor process,
   not inside Ray workers.  This means slot routing is synchronous.
 """
+
 from __future__ import annotations
 
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any
 from uuid import UUID
 
+from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods._logging import get_foundry_logger
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_level_parallel_reproducibility_contract,
-)
-from polisyos.foundry.methods.backends.ray_runner import (
-    RayMethodRunner,
-    RayNotAvailableError,
-    RayTaskResult,
 )
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodTiming,
     ReproducibilityInfo,
 )
+from polisyos.foundry.methods.backends.ray_runner import (
+    RayMethodRunner,
+    RayNotAvailableError,
+)
 from polisyos.foundry.methods.backends.runtime_fingerprint import (
     capture_backend_runtime_fingerprint,
     resolve_route_determinism_tier,
 )
-from polisyos.foundry.methods.base import ComputeBackend
-from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.registry import MethodRegistry
 
 _log = get_foundry_logger("foundry.backends.ray_chain")
 
 __all__ = [
-    "RayChainExecutor",
     "RayChainExecutionError",
+    "RayChainExecutor",
 ]
 
 
 # ---------------------------------------------------------------------------
 # Error type
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class RayChainExecutionError(RuntimeError):
@@ -94,6 +95,7 @@ class RayChainExecutionError(RuntimeError):
 # ---------------------------------------------------------------------------
 # RayChainExecutor
 # ---------------------------------------------------------------------------
+
 
 class RayChainExecutor:
     """
@@ -179,7 +181,9 @@ class RayChainExecutor:
         chain_t0 = time.perf_counter()
         _log.info("chain_start", total_nodes=total_nodes, levels=len(levels))
 
-        current_state: dict[str, Any] = dict(initial_state) if isinstance(initial_state, dict) else {"__state__": initial_state}
+        current_state: dict[str, Any] = (
+            dict(initial_state) if isinstance(initial_state, dict) else {"__state__": initial_state}
+        )
         node_results: list[tuple[UUID, MethodResult]] = []
         node_slot_outputs: dict[UUID, dict[str, Any]] = {}
 
@@ -219,6 +223,7 @@ class RayChainExecutor:
                 try:
                     # Submit to Ray (non-blocking — returns immediately)
                     import ray
+
                     from polisyos.foundry.methods.backends.ray_runner import _remote_pure_step
 
                     remote_kwargs: dict[str, Any] = {"num_cpus": self._runner._num_cpus}
@@ -244,9 +249,8 @@ class RayChainExecutor:
                 sig = chain.get_signature(node_id)
                 try:
                     import ray
-                    result_tuple = ray.get(
-                        futures[node_id], timeout=self._runner._timeout
-                    )
+
+                    result_tuple = ray.get(futures[node_id], timeout=self._runner._timeout)
                     fqn, output, wall_ms, _pid = result_tuple
 
                     node_slot_outputs[node_id] = output
@@ -275,15 +279,17 @@ class RayChainExecutor:
                         observed_tolerance_budget=posture.observed_tolerance_budget,
                         note="ray-distributed",
                     )
-                    node_results.append((
-                        node_id,
-                        MethodResult(
-                            output=output,
-                            timing=timing,
-                            reproducibility=reproducibility,
-                            artifacts={"backend_runtime_fingerprint": posture.as_dict()},
-                        ),
-                    ))
+                    node_results.append(
+                        (
+                            node_id,
+                            MethodResult(
+                                output=output,
+                                timing=timing,
+                                reproducibility=reproducibility,
+                                artifacts={"backend_runtime_fingerprint": posture.as_dict()},
+                            ),
+                        )
+                    )
                 except Exception as exc:
                     failures.append((sig.fqn, exc))
 

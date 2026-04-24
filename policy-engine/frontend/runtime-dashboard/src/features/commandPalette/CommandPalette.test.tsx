@@ -2,13 +2,13 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 const {
+  cycleDensityMock,
   navigateMock,
-  setDensityMock,
   toggleThemeMock,
   useGlobalShortcutMock,
 } = vi.hoisted(() => ({
+  cycleDensityMock: vi.fn(),
   navigateMock: vi.fn(),
-  setDensityMock: vi.fn(),
   toggleThemeMock: vi.fn(),
   useGlobalShortcutMock: vi.fn(),
 }));
@@ -59,7 +59,15 @@ vi.mock("@/shared/ui/Command", () => ({
 
 vi.mock("@/app/providers/ThemeProvider", () => ({
   useTheme: () => ({
+    resolvedTheme: "dark",
     toggleTheme: toggleThemeMock,
+  }),
+}));
+
+vi.mock("@/app/providers/DensityProvider", () => ({
+  useDensity: () => ({
+    cycleDensity: cycleDensityMock,
+    density: "comfortable",
   }),
 }));
 
@@ -73,23 +81,12 @@ vi.mock("@/lib/hooks", () => ({
   useGlobalShortcut: (...args: unknown[]) => useGlobalShortcutMock(...args),
 }));
 
-vi.mock("@/app/state/usePreferencesStore", () => ({
-  usePreferencesStore: (selector: (state: {
-    density: "comfortable";
-    setDensity: typeof setDensityMock;
-  }) => unknown) =>
-    selector({
-      density: "comfortable",
-      setDensity: setDensityMock,
-    }),
-}));
-
 import { CommandPalette } from "./CommandPalette";
 
 describe("CommandPalette", () => {
   beforeEach(() => {
+    cycleDensityMock.mockReset();
     navigateMock.mockReset();
-    setDensityMock.mockReset();
     toggleThemeMock.mockReset();
     useGlobalShortcutMock.mockReset();
   });
@@ -103,5 +100,16 @@ describe("CommandPalette", () => {
     );
 
     expect(toggleThemeMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("routes density cycling through the density provider", async () => {
+    const user = userEvent.setup();
+    render(<CommandPalette />);
+
+    await user.click(
+      screen.getByRole("button", { name: /commandPalette\.cycleDensity/i }),
+    );
+
+    expect(cycleDensityMock).toHaveBeenCalledTimes(1);
   });
 });

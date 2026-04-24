@@ -1,4 +1,5 @@
 """Regression bench for formal metric-validation error calibration."""
+
 from __future__ import annotations
 
 from typing import Literal
@@ -8,7 +9,13 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.contracts.foundry import MetricObservationBundle, ModelOutputs
 
-from .metrics import CorrectionMethod, MetricId, TestConfig, compare_metric_family, compare_metric_pairwise
+from .metrics import (
+    CorrectionMethod,
+    MetricId,
+    TestConfig,
+    compare_metric_family,
+    compare_metric_pairwise,
+)
 
 
 class TypeITestSummary(BaseModel):
@@ -75,7 +82,7 @@ def run_metric_validation_type_i_bench(
     single_test_rejections.update(
         {("regression_null", metric_id): 0 for metric_id in regression_metrics}
     )
-    family_rejections: dict[CorrectionMethod, int] = {method: 0 for method in family_corrections}
+    family_rejections: dict[CorrectionMethod, int] = dict.fromkeys(family_corrections, 0)
 
     for trial in range(n_trials):
         binary_bundle = _binary_null_bundle(
@@ -85,17 +92,17 @@ def run_metric_validation_type_i_bench(
         )
         for metric_id in binary_metrics:
             result = compare_metric_pairwise(
-                    bundle=binary_bundle,
-                    baseline_model_id="baseline",
-                    candidate_model_id="candidate",
-                    metric_id=metric_id,
-                    config=TestConfig(
-                        alpha=alpha,
-                        correction="none",
-                        n_resamples=effective_n_resamples,
-                        random_seed=int(rng.integers(0, 2**31 - 1)),
-                    ),
-                )
+                bundle=binary_bundle,
+                baseline_model_id="baseline",
+                candidate_model_id="candidate",
+                metric_id=metric_id,
+                config=TestConfig(
+                    alpha=alpha,
+                    correction="none",
+                    n_resamples=effective_n_resamples,
+                    random_seed=int(rng.integers(0, 2**31 - 1)),
+                ),
+            )
             if bool(result.significance.reject_null_raw):
                 single_test_rejections[("binary_null", metric_id)] += 1
 
@@ -130,17 +137,17 @@ def run_metric_validation_type_i_bench(
         )
         for metric_id in regression_metrics:
             result = compare_metric_pairwise(
-                    bundle=regression_bundle,
-                    baseline_model_id="baseline",
-                    candidate_model_id="candidate",
-                    metric_id=metric_id,
-                    config=TestConfig(
-                        alpha=alpha,
-                        correction="none",
-                        n_resamples=effective_n_resamples,
-                        random_seed=int(rng.integers(0, 2**31 - 1)),
-                    ),
-                )
+                bundle=regression_bundle,
+                baseline_model_id="baseline",
+                candidate_model_id="candidate",
+                metric_id=metric_id,
+                config=TestConfig(
+                    alpha=alpha,
+                    correction="none",
+                    n_resamples=effective_n_resamples,
+                    random_seed=int(rng.integers(0, 2**31 - 1)),
+                ),
+            )
             if bool(result.significance.reject_null_raw):
                 single_test_rejections[("regression_null", metric_id)] += 1
 

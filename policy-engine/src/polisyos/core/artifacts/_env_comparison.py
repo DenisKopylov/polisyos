@@ -81,18 +81,17 @@ def compare_environments(a: EnvironmentManifest, b: EnvironmentManifest) -> list
 
     uuids_a = set(a.gpu.device_uuids)
     uuids_b = set(b.gpu.device_uuids)
-    if uuids_a or uuids_b:
-        if uuids_a != uuids_b:
-            diffs.append(
-                EnvironmentDiff(
-                    field_path="gpu.device_uuids",
-                    field_name="GPU UUIDs",
-                    value_a=sorted(uuids_a),
-                    value_b=sorted(uuids_b),
-                    risk_level=RiskLevel.HIGH,
-                    explanation="GPU UUID changes indicate different physical devices",
-                )
+    if (uuids_a or uuids_b) and uuids_a != uuids_b:
+        diffs.append(
+            EnvironmentDiff(
+                field_path="gpu.device_uuids",
+                field_name="GPU UUIDs",
+                value_a=sorted(uuids_a),
+                value_b=sorted(uuids_b),
+                risk_level=RiskLevel.HIGH,
+                explanation="GPU UUID changes indicate different physical devices",
             )
+        )
 
     if a.gpu.cuda_version != b.gpu.cuda_version:
         diffs.append(

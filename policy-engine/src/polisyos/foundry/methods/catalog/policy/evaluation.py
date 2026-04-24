@@ -1,7 +1,9 @@
 """Public policy evaluation module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -36,6 +38,7 @@ def _result_slot() -> frozenset[SlotSpec]:
 )
 class BudgetImpactEstimator:
     """Estimate the fiscal budget impact of a proposed policy change."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -45,14 +48,22 @@ class BudgetImpactEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("revenue_effects", SlotType.VECTOR, Unit("currency", "amount"), shape=("n_periods",)),
-                SlotSpec("expenditure_effects", SlotType.VECTOR, Unit("currency", "amount"), shape=("n_periods",)),
+                SlotSpec(
+                    "revenue_effects",
+                    SlotType.VECTOR,
+                    Unit("currency", "amount"),
+                    shape=("n_periods",),
+                ),
+                SlotSpec(
+                    "expenditure_effects",
+                    SlotType.VECTOR,
+                    Unit("currency", "amount"),
+                    shape=("n_periods",),
+                ),
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="discount_rate", default=0.03, bounds=(0.0, 1.0)),
-        ),
+        parameters=(ParameterSpec(name="discount_rate", default=0.03, bounds=(0.0, 1.0)),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
@@ -112,6 +123,7 @@ class BudgetImpactEstimator:
 )
 class PolicyScorecardEstimator:
     """Build multi-metric scorecards for comparing policy alternatives."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -122,13 +134,13 @@ class PolicyScorecardEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("scores", SlotType.VECTOR, Unit("score", "value"), shape=("n_criteria",)),
-                SlotSpec("weights", SlotType.VECTOR, Unit("weight", "value"), shape=("n_criteria",)),
+                SlotSpec(
+                    "weights", SlotType.VECTOR, Unit("weight", "value"), shape=("n_criteria",)
+                ),
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="normalize", default=True),
-        ),
+        parameters=(ParameterSpec(name="normalize", default=True),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
@@ -188,6 +200,7 @@ class PolicyScorecardEstimator:
 )
 class ExAnteSimulationEstimator:
     """Project candidate policy outcomes by replaying interventions before deployment."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -202,9 +215,7 @@ class ExAnteSimulationEstimator:
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="poverty_line", default=None),
-        ),
+        parameters=(ParameterSpec(name="poverty_line", default=None),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
@@ -215,7 +226,9 @@ class ExAnteSimulationEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Ex-ante policy simulation comparing baseline vs scenario distributions.",
-        tags=frozenset({"policy", "evaluation", "ex-ante", "counterfactual", "simulation", "structural"}),
+        tags=frozenset(
+            {"policy", "evaluation", "ex-ante", "counterfactual", "simulation", "structural"}
+        ),
         assumptions={"paired": "Baseline and scenario values are paired by agent"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),

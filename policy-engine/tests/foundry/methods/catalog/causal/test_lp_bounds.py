@@ -71,14 +71,18 @@ def test_lp_bounds_with_monotonicity_tightens_unconstrained_and_manski() -> None
         constraints={"monotone": True},
     )
     manski = compute_manski_bounds(
-        outcome_conditioned=np.array([
-            float(np.mean(outcome[treatment < 0.5])),
-            float(np.mean(outcome[treatment > 0.5])),
-        ]),
-        treatment_probs=np.array([
-            float(np.mean(treatment < 0.5)),
-            float(np.mean(treatment > 0.5)),
-        ]),
+        outcome_conditioned=np.array(
+            [
+                float(np.mean(outcome[treatment < 0.5])),
+                float(np.mean(outcome[treatment > 0.5])),
+            ]
+        ),
+        treatment_probs=np.array(
+            [
+                float(np.mean(treatment < 0.5)),
+                float(np.mean(treatment > 0.5)),
+            ]
+        ),
         outcome_support=(0.0, 1.0),
     )
 

@@ -3,6 +3,7 @@
 Covers protocol extensions (backpressure, semaphore_wait, workflow_state),
 OTel bridge wiring, and async_executor integration.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -20,6 +21,7 @@ from polisyos.scientist.engine.metrics_protocol import (
 # Protocol compliance
 # ---------------------------------------------------------------------------
 
+
 class TestProtocolCompliance:
     """Ensure Noop and OTel implementations satisfy the extended protocol."""
 
@@ -35,6 +37,7 @@ class TestProtocolCompliance:
     def test_otel_is_protocol_instance(self) -> None:
         try:
             from polisyos.scientist.engine.metrics_otel import OTelEngineMetrics
+
             otel = OTelEngineMetrics()
             assert isinstance(otel, EngineMetricsCollector)
         except Exception:
@@ -45,6 +48,7 @@ class TestProtocolCompliance:
 # OTel bridge — uses the noop fallback MetricsRegistry
 # ---------------------------------------------------------------------------
 
+
 class TestOTelBridge:
     """Test OTelEngineMetrics methods execute without error.
 
@@ -54,6 +58,7 @@ class TestOTelBridge:
 
     def _make_otel(self):
         from polisyos.scientist.engine.metrics_otel import OTelEngineMetrics
+
         return OTelEngineMetrics()
 
     def test_record_backpressure_runs(self) -> None:
@@ -89,17 +94,30 @@ class TestOTelBridge:
     def test_trace_correlations_are_bounded(self) -> None:
         try:
             from polisyos.scientist.engine.metrics_otel import OTelEngineMetrics
+
             otel = OTelEngineMetrics(max_trace_correlations=2)
         except Exception:
             pytest.skip("OTel not available")
         otel.record_trace_correlation(
-            runner_backend="local", workflow_id="w1", run_id="r1", trace_id="1", span_id="1",
+            runner_backend="local",
+            workflow_id="w1",
+            run_id="r1",
+            trace_id="1",
+            span_id="1",
         )
         otel.record_trace_correlation(
-            runner_backend="ray", workflow_id="w1", run_id="r1", trace_id="2", span_id="2",
+            runner_backend="ray",
+            workflow_id="w1",
+            run_id="r1",
+            trace_id="2",
+            span_id="2",
         )
         otel.record_trace_correlation(
-            runner_backend="temporal", workflow_id="w1", run_id="r1", trace_id="3", span_id="3",
+            runner_backend="temporal",
+            workflow_id="w1",
+            run_id="r1",
+            trace_id="3",
+            span_id="3",
         )
         recent = otel.recent_trace_correlations()
         assert len(recent) == 2
@@ -125,8 +143,13 @@ class TestOTelBridge:
             pytest.skip("OTel not available")
         # With noop this is a no-op; verify no exception
         otel.record_node_completed(
-            alias="a", node_id="n", workflow_id="w",
-            status="ok", duration_ms=100, cache_hit=False, retry_count=0,
+            alias="a",
+            node_id="n",
+            workflow_id="w",
+            status="ok",
+            duration_ms=100,
+            cache_hit=False,
+            retry_count=0,
         )
 
     def test_node_completed_retry_count_nonzero_records(self) -> None:
@@ -136,8 +159,13 @@ class TestOTelBridge:
         except Exception:
             pytest.skip("OTel not available")
         otel.record_node_completed(
-            alias="a", node_id="n", workflow_id="w",
-            status="ok", duration_ms=200, cache_hit=False, retry_count=2,
+            alias="a",
+            node_id="n",
+            workflow_id="w",
+            status="ok",
+            duration_ms=200,
+            cache_hit=False,
+            retry_count=2,
         )
 
     def test_cache_hit_included_in_execution_counter(self) -> None:
@@ -146,8 +174,13 @@ class TestOTelBridge:
         except Exception:
             pytest.skip("OTel not available")
         otel.record_node_completed(
-            alias="a", node_id="n", workflow_id="w",
-            status="ok", duration_ms=100, cache_hit=True, retry_count=0,
+            alias="a",
+            node_id="n",
+            workflow_id="w",
+            status="ok",
+            duration_ms=100,
+            cache_hit=True,
+            retry_count=0,
         )
 
     def test_accepts_injected_metrics_registry(self, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -251,6 +284,7 @@ class TestOTelBridge:
 # Async executor integration — source inspection
 # ---------------------------------------------------------------------------
 
+
 class TestAsyncExecutorMetricsIntegration:
     """Verify async executor calls metrics correctly."""
 
@@ -259,13 +293,12 @@ class TestAsyncExecutorMetricsIntegration:
         import inspect
 
         from polisyos.scientist.engine import async_executor as mod
+
         source = inspect.getsource(mod.AsyncWorkflowExecutor)
         # Find all occurrences of record_backpressure
         lines = source.split("\n")
         backpressure_lines = [
-            source_line
-            for source_line in lines
-            if "record_backpressure" in source_line
+            source_line for source_line in lines if "record_backpressure" in source_line
         ]
         # None should be guarded by hasattr
         for line in backpressure_lines:
@@ -276,6 +309,7 @@ class TestAsyncExecutorMetricsIntegration:
         import inspect
 
         from polisyos.scientist.engine import async_executor as mod
+
         source = inspect.getsource(mod.AsyncWorkflowExecutor)
         assert "retry_count=0" not in source, "retry_count should use actual value from retry_stats"
 
@@ -284,6 +318,7 @@ class TestAsyncExecutorMetricsIntegration:
         import inspect
 
         from polisyos.scientist.engine import async_executor as mod
+
         source = inspect.getsource(mod.AsyncWorkflowExecutor)
         assert "record_workflow_state" in source
 
@@ -291,6 +326,7 @@ class TestAsyncExecutorMetricsIntegration:
 # ---------------------------------------------------------------------------
 # Retry stats integration
 # ---------------------------------------------------------------------------
+
 
 class TestRetryStatsIntegration:
     """Test that retry_stats dict is populated by execute_with_retry_async."""
@@ -303,16 +339,22 @@ class TestRetryStatsIntegration:
 
         state = ExperimentState(run_id="test-run")
         node = MagicMock()
-        node.execute = MagicMock(return_value=NodeOutcome(
-            status="ok", state=state,
-        ))
+        node.execute = MagicMock(
+            return_value=NodeOutcome(
+                status="ok",
+                state=state,
+            )
+        )
         ctx = MagicMock()
         stats: dict[str, int] = {}
 
         await execute_with_retry_async(
-            node, ctx, state,
+            node,
+            ctx,
+            state,
             retry_policy=RetryPolicy(max_retries=0),
-            timeout_s=None, alias="test",
+            timeout_s=None,
+            alias="test",
             retry_stats=stats,
         )
         assert stats["attempts"] == 1
@@ -326,15 +368,21 @@ class TestRetryStatsIntegration:
 
         state = ExperimentState(run_id="test-run")
         node = MagicMock()
-        node.execute = MagicMock(return_value=NodeOutcome(
-            status="ok", state=state,
-        ))
+        node.execute = MagicMock(
+            return_value=NodeOutcome(
+                status="ok",
+                state=state,
+            )
+        )
         ctx = MagicMock()
 
         await execute_with_retry_async(
-            node, ctx, state,
+            node,
+            ctx,
+            state,
             retry_policy=RetryPolicy(max_retries=0),
-            timeout_s=None, alias="test",
+            timeout_s=None,
+            alias="test",
         )
 
 
@@ -342,13 +390,13 @@ class TestRetryStatsIntegration:
 # Alerting rules YAML
 # ---------------------------------------------------------------------------
 
+
 class TestAlertingRules:
     """Validate the Prometheus alerting rules file."""
 
     def test_alerting_rules_yaml_valid(self) -> None:
         rules_path = (
-            Path(__file__).resolve().parents[3]
-            / "deploy" / "prometheus" / "scientist_alerts.yml"
+            Path(__file__).resolve().parents[3] / "deploy" / "prometheus" / "scientist_alerts.yml"
         )
         if not rules_path.exists():
             pytest.skip("Alerting rules file not found")

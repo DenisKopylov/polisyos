@@ -23,9 +23,7 @@ def test_plan_generation_default(execution_context, minimal_state):
 def test_plan_reuses_existing_ref(execution_context, minimal_state):
     """When execution_plan_ref is already set in params, reuse it."""
     plan_id = "sha256:" + "a" * 64
-    state = minimal_state.model_copy(
-        update={"params": {"execution_plan_ref": plan_id}}
-    )
+    state = minimal_state.model_copy(update={"params": {"execution_plan_ref": plan_id}})
     outcome = BuildExecutionPlanNode().execute(execution_context, state)
     assert outcome.status == "ok"
     assert INPUT_EXECUTION_PLAN_REF in outcome.state.inputs
@@ -35,9 +33,7 @@ def test_plan_reuses_existing_ref(execution_context, minimal_state):
 
 def test_plan_from_raw_dict_fallback(execution_context, minimal_state):
     """When an invalid execution_plan dict is provided, fall back to default."""
-    state = minimal_state.model_copy(
-        update={"params": {"execution_plan": {"invalid_field": True}}}
-    )
+    state = minimal_state.model_copy(update={"params": {"execution_plan": {"invalid_field": True}}})
     outcome = BuildExecutionPlanNode().execute(execution_context, state)
     assert outcome.status == "ok"
     assert INPUT_EXECUTION_PLAN_REF in outcome.state.inputs

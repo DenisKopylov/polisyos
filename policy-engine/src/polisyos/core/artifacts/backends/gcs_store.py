@@ -30,8 +30,9 @@ from ..store import PutOptions
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from .config import ArtifactStoreConfig
     from polisyos.core.observability import MetricsRegistry
+
+    from .config import ArtifactStoreConfig
 
 
 def _default_metrics() -> MetricsRegistry:
@@ -115,7 +116,7 @@ class GCSArtifactStore:
         if callable(recorder):
             recorder(backend="gcs", reason=reason)
 
-    def artifact_store_config(self) -> "ArtifactStoreConfig":
+    def artifact_store_config(self) -> ArtifactStoreConfig:
         """Return declarative config needed to rebuild this store instance."""
         from .config import ArtifactStoreConfig
 

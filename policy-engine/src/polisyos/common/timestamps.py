@@ -1,15 +1,15 @@
 """Normalize UTC timestamps for manifests, events, and JSON APIs."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
 
 _NAIVE_DATETIME_ERROR = "Naive datetimes are not allowed; supply a timezone-aware UTC value."
 
 
 def utc_now(*, drop_microseconds: bool = False) -> datetime:
     """Return the current UTC datetime, optionally dropping microseconds."""
-    current = datetime.now(timezone.utc)
+    current = datetime.now(UTC)
     if drop_microseconds:
         return current.replace(microsecond=0)
     return current
@@ -19,7 +19,7 @@ def ensure_utc(value: datetime) -> datetime:
     """Convert an aware datetime to UTC while preserving the instant."""
     if value.tzinfo is None or value.utcoffset() is None:
         raise ValueError(_NAIVE_DATETIME_ERROR)
-    return value.astimezone(timezone.utc)
+    return value.astimezone(UTC)
 
 
 def to_iso_utc(value: datetime, *, z_suffix: bool = True) -> str:
@@ -30,7 +30,7 @@ def to_iso_utc(value: datetime, *, z_suffix: bool = True) -> str:
     return rendered
 
 
-def parse_iso_datetime(value: Any) -> datetime | None:
+def parse_iso_datetime(value: object) -> datetime | None:
     """Parse ISO-8601 strings or datetimes into UTC, returning `None` on failure."""
     if isinstance(value, datetime):
         try:
@@ -54,7 +54,7 @@ def to_epoch_seconds(value: datetime) -> float:
 
 def from_epoch_seconds(value: float) -> datetime:
     """Create from epoch seconds."""
-    return datetime.fromtimestamp(value, tz=timezone.utc)
+    return datetime.fromtimestamp(value, tz=UTC)
 
 
 __all__ = [

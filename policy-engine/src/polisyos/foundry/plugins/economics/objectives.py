@@ -1,9 +1,17 @@
 """Public economics objectives module API."""
+
 from __future__ import annotations
+
+from collections.abc import Mapping
+from typing import Any
 
 import jax.numpy as jnp
 
 from polisyos.foundry.plugins.economics.state import EconomicState
+from polisyos.foundry.social_weights import (
+    prepare_social_weight_schedule,
+    social_weighted_resource,
+)
 
 
 class GDPObjective:
@@ -44,12 +52,28 @@ class SocialWelfareObjective:
 
     weights: dict[str, float]
 
-    def __init__(self, weights: dict[str, float] | None = None):
-        self.weights = weights or {
-            "gdp": 1.0,
-            "neg_gini": 0.5,
-            "neg_unemployment": 0.3,
-        }
+    def __init__(
+        self,
+        weights: dict[str, float] | None = None,
+        *,
+        social_weight_ref: str | None = None,
+        social_weight_manifest: Mapping[str, Any] | None = None,
+        social_weight_scale: float = 1.0,
+    ):
+        self.weights = (
+            dict(weights)
+            if weights is not None
+            else {
+                "gdp": 1.0,
+                "neg_gini": 0.5,
+                "neg_unemployment": 0.3,
+            }
+        )
+        self.social_weight_schedule = prepare_social_weight_schedule(
+            social_weight_ref=social_weight_ref,
+            social_weight_manifest=social_weight_manifest,
+        )
+        self.social_weight_scale = float(social_weight_scale)
 
     @property
     def maximize(self) -> bool:
@@ -66,13 +90,24 @@ class SocialWelfareObjective:
 
         if "neg_unemployment" in self.weights:
             welfare = welfare - (
-                self.weights["neg_unemployment"]
-                * state.aggregates.unemployment_rate
+                self.weights["neg_unemployment"] * state.aggregates.unemployment_rate
             )
 
         if "bottom_50_share" in self.weights:
             welfare = welfare + (
                 self.weights["bottom_50_share"] * state.distributions.bottom_50_share
+            )
+
+        if self.social_weight_schedule is not None:
+            welfare = welfare + (
+                self.social_weight_scale
+                * self.weights.get("social_weighted_consumption", 1.0)
+                * social_weighted_resource(
+                    state.agents.consumption,
+                    state.agents.income,
+                    state.agents.active,
+                    self.social_weight_schedule,
+                )
             )
 
         return welfare

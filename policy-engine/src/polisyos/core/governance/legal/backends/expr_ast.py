@@ -8,12 +8,13 @@ This module provides:
 SECURITY: Uses ASTPolicy for validation before ANY evaluation.
           No eval(), no exec(), no compile().
 """
+
 from __future__ import annotations
 
 import ast
 import threading
 from collections import OrderedDict
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
@@ -48,11 +49,11 @@ class SafeExpressionEvaluator:
 
     def __init__(
         self,
-        context: Dict[str, Any],
+        context: dict[str, Any],
         *,
         limits: ASTLimits | None = None,
         cache_maxsize: int = 256,
-    ):
+    ) -> None:
         """
         Initialize evaluator with context.
 
@@ -134,16 +135,10 @@ class SafeExpressionEvaluator:
 
         if isinstance(node, ast.BoolOp):
             if isinstance(node.op, ast.And):
-                for value in node.values:
-                    if not self._eval_node(value):
-                        return False
-                return True
+                return all(self._eval_node(value) for value in node.values)
 
             if isinstance(node.op, ast.Or):
-                for value in node.values:
-                    if self._eval_node(value):
-                        return True
-                return False
+                return any(self._eval_node(value) for value in node.values)
 
         if isinstance(node, ast.UnaryOp):
             operand = self._eval_node(node.operand)
@@ -181,7 +176,7 @@ class SafeExpressionEvaluator:
         if isinstance(node, ast.Compare):
             left = self._eval_node(node.left)
 
-            for op, comparator in zip(node.ops, node.comparators):
+            for op, comparator in zip(node.ops, node.comparators, strict=True):
                 right = self._eval_node(comparator)
 
                 if not self._evaluate_comparison(left, op, right):
@@ -221,7 +216,7 @@ class EvaluationError(Exception):
         message: str,
         norm_id: str,
         expression: str | None = None,
-    ):
+    ) -> None:
         self.norm_id = norm_id
         self.expression = expression
         super().__init__(message)
@@ -239,7 +234,7 @@ class ExpressionASTBackend:
         must_not: <expression>  # Prohibition (for rule_type=PROHIBITION)
     """
 
-    def __init__(self, *, limits: ASTLimits | None = None):
+    def __init__(self, *, limits: ASTLimits | None = None) -> None:
         """
         Initialize backend with optional custom limits.
 
@@ -255,9 +250,9 @@ class ExpressionASTBackend:
 
     def evaluate(
         self,
-        norm_pack: "NormPack | None",
+        norm_pack: NormPack | None,
         context: dict[str, Any],
-    ) -> List[ComplianceIssue]:
+    ) -> list[ComplianceIssue]:
         """
         Evaluate all applicable rules in the norm pack.
 
@@ -271,7 +266,7 @@ class ExpressionASTBackend:
         if norm_pack is None or not norm_pack.norms:
             return []
 
-        issues: List[ComplianceIssue] = []
+        issues: list[ComplianceIssue] = []
         evaluator = SafeExpressionEvaluator(context, limits=self._limits)
 
         for norm in norm_pack.norms:
@@ -285,9 +280,9 @@ class ExpressionASTBackend:
 
     def _evaluate_single_norm(
         self,
-        norm: "NormRule",
+        norm: NormRule,
         evaluator: SafeExpressionEvaluator,
-    ) -> List[ComplianceIssue]:
+    ) -> list[ComplianceIssue]:
         """
         Evaluate a single norm.
 
@@ -324,9 +319,7 @@ class ExpressionASTBackend:
                         ComplianceIssue(
                             pass_id="legal",
                             path=["norm_pack", norm.norm_id, "when"],
-                            message=(
-                                f"Applicability check failed for '{norm.norm_id}': {e}"
-                            ),
+                            message=(f"Applicability check failed for '{norm.norm_id}': {e}"),
                             severity=IssueSeverity.INFO,
                             code="WHEN_EVAL_ERROR",
                             input_value=when_expr,
@@ -344,9 +337,7 @@ class ExpressionASTBackend:
                             severity=IssueSeverity.BLOCKER,
                             code=norm.norm_id,
                             input_value=must_expr,
-                            suggestion=self._format_suggestion(
-                                norm, must_expr, evaluator
-                            ),
+                            suggestion=self._format_suggestion(norm, must_expr, evaluator),
                         )
                     ]
 
@@ -361,9 +352,7 @@ class ExpressionASTBackend:
                             severity=IssueSeverity.BLOCKER,
                             code=norm.norm_id,
                             input_value=must_not_expr,
-                            suggestion=self._format_suggestion(
-                                norm, must_not_expr, evaluator
-                            ),
+                            suggestion=self._format_suggestion(norm, must_not_expr, evaluator),
                         )
                     ]
 
@@ -392,7 +381,7 @@ class ExpressionASTBackend:
                 )
             ]
 
-        except (SyntaxError, TypeError, ValueError) as e:
+        except (SyntaxError, TypeError) as e:
             logger.debug(
                 "Unexpected error evaluating norm %s: %s",
                 norm.norm_id,
@@ -410,7 +399,7 @@ class ExpressionASTBackend:
 
     def _format_suggestion(
         self,
-        norm: "NormRule",
+        norm: NormRule,
         expr: str,
         evaluator: SafeExpressionEvaluator,
     ) -> str | None:
@@ -443,7 +432,7 @@ class ExpressionASTBackend:
 
 
 __all__ = [
-    "SafeExpressionEvaluator",
-    "ExpressionASTBackend",
     "EvaluationError",
+    "ExpressionASTBackend",
+    "SafeExpressionEvaluator",
 ]

@@ -57,8 +57,7 @@ def test_catalog_lookup_assertion_is_not_swallowed() -> None:
             del kwargs
             return SimpleNamespace(
                 content=(
-                    '{"data_needs": [{"metric": "us.macro.gdp_nominal", '
-                    '"quality_min": 0.65}]}'
+                    '{"data_needs": [{"metric": "us.macro.gdp_nominal", "quality_min": 0.65}]}'
                 )
             )
 

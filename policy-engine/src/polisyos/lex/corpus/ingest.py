@@ -4,14 +4,13 @@ The stage stores raw bytes through ``fabric.docs.ingest_doc_bytes``, optionally 
 structure / chunk steps, then merges Lex-specific temporal and jurisdiction metadata into
 ``DocMeta.props['lex']`` and emits deterministic world facts for downstream version indexing.
 """
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.docs import (
     DocSourceSpec,
     chunk_doc,
@@ -48,6 +47,11 @@ from polisyos.lex.types import (
     WorldEventRefLike,
 )
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+
 logger = get_logger(__name__)
 
 
@@ -75,10 +79,7 @@ def _merge_lex_props(
     merged = dict(current_props)
 
     existing_lex = merged.get("lex")
-    if isinstance(existing_lex, dict):
-        current_lex = dict(existing_lex)
-    else:
-        current_lex = {}
+    current_lex = dict(existing_lex) if isinstance(existing_lex, dict) else {}
 
     lex_props = {} if policy == "overwrite_lex" else current_lex
     lex_props["schema_version"] = "1.0"
@@ -144,7 +145,7 @@ def ingest_legal_doc_bytes(
     opts = options or LexIngestOptions()
 
     try:
-        run_suffix = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f")
+        run_suffix = datetime.now(UTC).strftime("%Y%m%d%H%M%S%f")
         doc_source = _to_doc_source_spec(source)
 
         fabric_ingest = ingest_doc_bytes(

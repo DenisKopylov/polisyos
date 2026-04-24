@@ -4,15 +4,14 @@ from __future__ import annotations
 
 import asyncio
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 import pytest
 
-from polisyos.fabric.safety import UnsafeFilterExpressionError, UnsafeIdentifierError
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.opendatasoft import OpendatasoftConnector
+from polisyos.fabric.safety import UnsafeFilterExpressionError, UnsafeIdentifierError
 from polisyos.ir.connectors import ConnectorCapability
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "opendatasoft"
@@ -45,6 +44,7 @@ def _make_fake_request_json(fixture_body):
 
 def _fake_get_session(self, _handle):
     import asyncio as _aio
+
     fut = _aio.Future()
     fut.set_result(object())
     return fut
@@ -53,6 +53,7 @@ def _fake_get_session(self, _handle):
 # ---------------------------------------------------------------------------
 # Metadata
 # ---------------------------------------------------------------------------
+
 
 class TestODSMetadata:
     def test_connector_id(self):
@@ -68,6 +69,7 @@ class TestODSMetadata:
 # ---------------------------------------------------------------------------
 # Where builder
 # ---------------------------------------------------------------------------
+
 
 class TestODSWhereBuilder:
     def test_empty(self):
@@ -85,8 +87,8 @@ class TestODSWhereBuilder:
     def test_date_range(self):
         req = FetchRequest(
             dataset_id="test",
-            date_start=datetime(2024, 1, 1, tzinfo=timezone.utc),
-            date_end=datetime(2024, 12, 31, tzinfo=timezone.utc),
+            date_start=datetime(2024, 1, 1, tzinfo=UTC),
+            date_end=datetime(2024, 12, 31, tzinfo=UTC),
         )
         result = OpendatasoftConnector._build_where(req)
         assert "date >= '2024-01-01'" in result
@@ -124,11 +126,14 @@ class TestODSWhereBuilder:
 # List datasets
 # ---------------------------------------------------------------------------
 
+
 class TestODSListDatasets:
     def test_list_catalog(self, monkeypatch):
         connector = OpendatasoftConnector()
         fixture = _load_fixture("catalog_response.json")
-        monkeypatch.setattr(OpendatasoftConnector, "_request_json", _make_fake_request_json(fixture))
+        monkeypatch.setattr(
+            OpendatasoftConnector, "_request_json", _make_fake_request_json(fixture)
+        )
         monkeypatch.setattr(OpendatasoftConnector, "_get_session", _fake_get_session)
 
         async def _exercise():
@@ -149,11 +154,14 @@ class TestODSListDatasets:
 # Fetch (records mode)
 # ---------------------------------------------------------------------------
 
+
 class TestODSFetchRecords:
     def test_fetch_records(self, monkeypatch):
         connector = OpendatasoftConnector()
         fixture = _load_fixture("records_response.json")
-        monkeypatch.setattr(OpendatasoftConnector, "_request_json", _make_fake_request_json(fixture))
+        monkeypatch.setattr(
+            OpendatasoftConnector, "_request_json", _make_fake_request_json(fixture)
+        )
         monkeypatch.setattr(OpendatasoftConnector, "_get_session", _fake_get_session)
 
         async def _exercise():
@@ -173,6 +181,7 @@ class TestODSFetchRecords:
 # Fetch (exports mode)
 # ---------------------------------------------------------------------------
 
+
 class TestODSFetchExports:
     def test_fetch_exports(self, monkeypatch):
         connector = OpendatasoftConnector()
@@ -181,7 +190,8 @@ class TestODSFetchExports:
             {"date": "2024-01-16", "value": 15.3},
         ]
         monkeypatch.setattr(
-            OpendatasoftConnector, "_request_json",
+            OpendatasoftConnector,
+            "_request_json",
             _make_fake_request_json(export_body),
         )
         monkeypatch.setattr(OpendatasoftConnector, "_get_session", _fake_get_session)
@@ -201,11 +211,13 @@ class TestODSFetchExports:
 # Health check
 # ---------------------------------------------------------------------------
 
+
 class TestODSHealth:
     def test_health_ok(self, monkeypatch):
         connector = OpendatasoftConnector()
         monkeypatch.setattr(
-            OpendatasoftConnector, "_request_json",
+            OpendatasoftConnector,
+            "_request_json",
             _make_fake_request_json({"results": []}),
         )
         monkeypatch.setattr(OpendatasoftConnector, "_get_session", _fake_get_session)

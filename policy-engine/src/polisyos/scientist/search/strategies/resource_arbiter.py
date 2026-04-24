@@ -6,10 +6,10 @@ import gc
 import os
 import resource
 import threading
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import Enum
-from typing import Iterator
 
 from polisyos.common.logger import get_logger
 from polisyos.scientist.search.strategies._deps import torch
@@ -123,7 +123,7 @@ class ResourceArbiter:
         return soft, hard
 
     @classmethod
-    def from_env(cls) -> "ResourceArbiter":
+    def from_env(cls) -> ResourceArbiter:
         mode_raw = os.getenv("SCIENTIST_RESOURCE_MODE", ResourceMode.SEQUENTIAL_LOCK.value)
         try:
             mode = ResourceMode(mode_raw)
@@ -136,4 +136,3 @@ class ResourceArbiter:
             enable_cleanup=os.getenv("SCIENTIST_ENABLE_MEMORY_CLEANUP", "1") != "0",
         )
         return cls(policy=policy)
-

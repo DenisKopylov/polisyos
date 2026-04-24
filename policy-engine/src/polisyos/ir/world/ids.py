@@ -1,13 +1,16 @@
 """Deterministic ID builders for world documents, claims, events, trust, and quality objects."""
+
 from __future__ import annotations
 
 import re
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.ir.canon import CanonViolation, content_hash, to_canonical_bytes
-from polisyos.ir.citations import FragmentLocator
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN
+
+if TYPE_CHECKING:
+    from polisyos.ir.citations import FragmentLocator
 
 _ARTIFACT_RE = re.compile(ARTIFACT_ID_PATTERN)
 _ID_RE = re.compile(ID_PATTERN)
@@ -71,13 +74,11 @@ def _normalize_payload_value(
         }
     if isinstance(value, list):
         return [
-            _normalize_payload_value(item, max_depth=max_depth, _depth=_depth + 1)
-            for item in value
+            _normalize_payload_value(item, max_depth=max_depth, _depth=_depth + 1) for item in value
         ]
     if isinstance(value, tuple):
         return [
-            _normalize_payload_value(item, max_depth=max_depth, _depth=_depth + 1)
-            for item in value
+            _normalize_payload_value(item, max_depth=max_depth, _depth=_depth + 1) for item in value
         ]
     model_dump = getattr(value, "model_dump", None)
     if callable(model_dump):

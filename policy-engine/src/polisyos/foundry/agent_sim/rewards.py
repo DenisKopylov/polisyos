@@ -1,4 +1,5 @@
 """Convert simulation state transitions into per-agent rewards and discounted returns."""
+
 from __future__ import annotations
 
 import jax
@@ -14,6 +15,7 @@ from polisyos.foundry.agent_sim.state import GlobalState
 
 class UtilityFunction:
     """Utility function public type."""
+
     @staticmethod
     def crra(consumption: jnp.ndarray, risk_aversion: jnp.ndarray) -> jnp.ndarray:
         gamma = risk_aversion
@@ -94,6 +96,7 @@ def apply_discounting(
     active_mask: jnp.ndarray,
 ) -> jnp.ndarray:
     """Roll rewards backward with per-agent discount factors and active masks."""
+
     def discount_step(carry, t):
         cumulative = carry
         reward_t = rewards[t]

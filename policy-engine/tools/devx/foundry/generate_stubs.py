@@ -8,9 +8,9 @@ import sys
 import tempfile
 from collections.abc import Sequence
 from pathlib import Path
-from tools._lib.imports import repo_root_from
 
 from tools._lib.fs import atomic_write_text
+from tools._lib.imports import repo_root_from
 from tools._lib.runner import run_command
 
 REPO_ROOT = repo_root_from(__file__)
@@ -78,7 +78,9 @@ def _remove_private_exports(content: str) -> str:
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--dry-run", action="store_true", help="Print actions without writing files")
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Print actions without writing files"
+    )
     parser.add_argument("--verbose", "-v", action="store_true", help="Show generated stub paths")
     args = parser.parse_args(list(argv) if argv is not None else None)
 

@@ -3,9 +3,10 @@
 Implements the PROV-JSON format per https://www.w3.org/Submission/prov-json/.
 Compatible with ProvToolbox and ProvStore.
 """
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.core.contracts.provenance import (
@@ -134,55 +135,75 @@ def from_prov_json(data: dict[str, Any]) -> ProvenanceCoreGraph:
     # Parse entities
     for eid, edata in data.get("entity", {}).items():
         attrs = {
-            k.replace("polisyos:", ""): v
-            for k, v in edata.items()
-            if k.startswith("polisyos:")
+            k.replace("polisyos:", ""): v for k, v in edata.items() if k.startswith("polisyos:")
         }
-        graph.add_entity(ProvenanceEntity(
-            entity_id=eid,
-            entity_type=EntityType(edata.get("prov:type", "dataset")),
-            label=edata.get("prov:label", eid),
-            created_at=datetime.fromisoformat(edata["prov:generatedAtTime"])
-            if "prov:generatedAtTime" in edata
-            else datetime.now(timezone.utc),
-            attributes=attrs,
-        ))
+        graph.add_entity(
+            ProvenanceEntity(
+                entity_id=eid,
+                entity_type=EntityType(edata.get("prov:type", "dataset")),
+                label=edata.get("prov:label", eid),
+                created_at=datetime.fromisoformat(edata["prov:generatedAtTime"])
+                if "prov:generatedAtTime" in edata
+                else datetime.now(UTC),
+                attributes=attrs,
+            )
+        )
 
     # Parse activities
     for aid, adata in data.get("activity", {}).items():
-        graph.add_activity(ProvenanceActivity(
-            activity_id=aid,
-            activity_type=ActivityType(adata.get("prov:type", "query")),
-            label=adata.get("prov:label", aid),
-            started_at=datetime.fromisoformat(adata["prov:startTime"])
-            if "prov:startTime" in adata
-            else datetime.now(timezone.utc),
-            ended_at=datetime.fromisoformat(adata["prov:endTime"])
-            if "prov:endTime" in adata
-            else None,
-            parameters=adata.get("polisyos:parameters", {}),
-        ))
+        graph.add_activity(
+            ProvenanceActivity(
+                activity_id=aid,
+                activity_type=ActivityType(adata.get("prov:type", "query")),
+                label=adata.get("prov:label", aid),
+                started_at=datetime.fromisoformat(adata["prov:startTime"])
+                if "prov:startTime" in adata
+                else datetime.now(UTC),
+                ended_at=datetime.fromisoformat(adata["prov:endTime"])
+                if "prov:endTime" in adata
+                else None,
+                parameters=adata.get("polisyos:parameters", {}),
+            )
+        )
 
     # Parse agents
     for gid, gdata in data.get("agent", {}).items():
         meta = {
-            k.replace("polisyos:", ""): v
-            for k, v in gdata.items()
-            if k.startswith("polisyos:")
+            k.replace("polisyos:", ""): v for k, v in gdata.items() if k.startswith("polisyos:")
         }
-        graph.add_agent(ProvenanceAgent(
-            agent_id=gid,
-            agent_type=AgentType(gdata.get("prov:type", "system")),
-            label=gdata.get("prov:label", gid),
-            metadata=meta,
-        ))
+        graph.add_agent(
+            ProvenanceAgent(
+                agent_id=gid,
+                agent_type=AgentType(gdata.get("prov:type", "system")),
+                label=gdata.get("prov:label", gid),
+                metadata=meta,
+            )
+        )
 
     # Parse relations
-    _parse_relations(graph, data, "wasGeneratedBy", RelationType.WAS_GENERATED_BY, "prov:entity", "prov:activity")
+    _parse_relations(
+        graph, data, "wasGeneratedBy", RelationType.WAS_GENERATED_BY, "prov:entity", "prov:activity"
+    )
     _parse_relations(graph, data, "used", RelationType.USED, "prov:activity", "prov:entity")
-    _parse_relations(graph, data, "wasDerivedFrom", RelationType.WAS_DERIVED_FROM, "prov:generatedEntity", "prov:usedEntity")
-    _parse_relations(graph, data, "wasAttributedTo", RelationType.WAS_ATTRIBUTED_TO, "prov:entity", "prov:agent")
-    _parse_relations(graph, data, "wasAssociatedWith", RelationType.WAS_ASSOCIATED_WITH, "prov:activity", "prov:agent")
+    _parse_relations(
+        graph,
+        data,
+        "wasDerivedFrom",
+        RelationType.WAS_DERIVED_FROM,
+        "prov:generatedEntity",
+        "prov:usedEntity",
+    )
+    _parse_relations(
+        graph, data, "wasAttributedTo", RelationType.WAS_ATTRIBUTED_TO, "prov:entity", "prov:agent"
+    )
+    _parse_relations(
+        graph,
+        data,
+        "wasAssociatedWith",
+        RelationType.WAS_ASSOCIATED_WITH,
+        "prov:activity",
+        "prov:agent",
+    )
 
     return graph
 
@@ -199,9 +220,11 @@ def _parse_relations(
         source = edata.get(source_field, "")
         target = edata.get(target_field, "")
         ts = datetime.fromisoformat(edata["prov:time"]) if "prov:time" in edata else None
-        graph.edges.append(ProvenanceEdge(
-            source_id=source,
-            target_id=target,
-            relation=relation,
-            timestamp=ts,
-        ))
+        graph.edges.append(
+            ProvenanceEdge(
+                source_id=source,
+                target_id=target,
+                relation=relation,
+                timestamp=ts,
+            )
+        )

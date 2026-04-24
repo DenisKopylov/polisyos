@@ -1,4 +1,5 @@
 """Integration test for end-to-end workflow tracing."""
+
 from __future__ import annotations
 
 import os
@@ -20,11 +21,12 @@ from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
 from polisyos.scientist import run_experiment
 
-
 pytestmark = pytest.mark.integration
 
 if os.getenv("POLISYOS_RUN_INTEGRATION") != "1":
-    pytest.skip("Set POLISYOS_RUN_INTEGRATION=1 to run integration tracing", allow_module_level=True)
+    pytest.skip(
+        "Set POLISYOS_RUN_INTEGRATION=1 to run integration tracing", allow_module_level=True
+    )
 
 
 def _put_data_snapshot(
@@ -111,24 +113,18 @@ def test_full_workflow_trace_consistency(in_memory_exporter, monkeypatch, tmp_pa
 
     spans = in_memory_exporter.get_finished_spans()
     workflow_spans = [
-        span
-        for span in spans
-        if span.attributes.get("polisyos.run_id") == "R_integration_test"
+        span for span in spans if span.attributes.get("polisyos.run_id") == "R_integration_test"
     ]
     trace_ids = {span.context.trace_id for span in workflow_spans}
     assert len(trace_ids) == 1, "All spans must share same trace_id"
 
     phases = {
-        s.attributes.get("polisyos.phase")
-        for s in spans
-        if s.attributes.get("polisyos.phase")
+        s.attributes.get("polisyos.phase") for s in spans if s.attributes.get("polisyos.phase")
     }
     expected_phases = {"FRAME", "DRAFT", "VALIDATE", "EXECUTE", "DECIDE"}
     assert phases & expected_phases
 
     run_ids = {
-        s.attributes.get("polisyos.run_id")
-        for s in spans
-        if s.attributes.get("polisyos.run_id")
+        s.attributes.get("polisyos.run_id") for s in spans if s.attributes.get("polisyos.run_id")
     }
     assert run_ids == {"R_integration_test"}

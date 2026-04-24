@@ -10,6 +10,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class FusedConfidence:
     """Fused confidence public type."""
+
     extraction_confidence: float
     grounding_confidence: float
     structural_confidence: float
@@ -61,8 +62,12 @@ def compute_fused_confidence(
 ) -> FusedConfidence:
     """Compute fused confidence helper."""
     grounding_conf = GROUNDING_SCORES.get(grounding_status, 0.1)
-    structural_conf = STRUCTURE_SCORES.get(structural_quality, STRUCTURE_SCORES["structured_legal_unit"])
-    verify_conf = extraction_conf if verification_conf is None else max(0.0, min(1.0, verification_conf))
+    structural_conf = STRUCTURE_SCORES.get(
+        structural_quality, STRUCTURE_SCORES["structured_legal_unit"]
+    )
+    verify_conf = (
+        extraction_conf if verification_conf is None else max(0.0, min(1.0, verification_conf))
+    )
     source_mod = SOURCE_MODIFIER.get(extraction_source, 1.0)
     components = [
         max(0.01, min(1.0, extraction_conf)),

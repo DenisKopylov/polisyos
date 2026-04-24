@@ -104,9 +104,9 @@ class AdaptiveRouter:
                 return AgentRole.PI
 
         # Rule 2: Low confidence after drafting -> back to DRAFTER
-        if (
-            state.confidence < self._confidence_threshold
-            and state.current_role in (AgentRole.FORMALIZER, AgentRole.CRITIC)
+        if state.confidence < self._confidence_threshold and state.current_role in (
+            AgentRole.FORMALIZER,
+            AgentRole.CRITIC,
         ):
             return AgentRole.DRAFTER
 
@@ -136,9 +136,7 @@ class AdaptiveRouter:
                 else -1
             )
             curr_idx = (
-                _DEFAULT_PIPELINE.index(history[i])
-                if history[i] in _DEFAULT_PIPELINE
-                else -1
+                _DEFAULT_PIPELINE.index(history[i]) if history[i] in _DEFAULT_PIPELINE else -1
             )
             if curr_idx <= prev_idx:
                 reroutes += 1
@@ -194,6 +192,7 @@ class ParallelAgentRunner:
         Each entry is ``(label, coroutine_factory)``.  Returns a list of
         results (or exceptions) in the same order.
         """
+
         async def _run(label: str, fn: Callable[..., Any]) -> Any:
             try:
                 result = fn(*args, **kwargs)

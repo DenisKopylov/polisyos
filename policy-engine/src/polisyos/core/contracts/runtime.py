@@ -1,7 +1,8 @@
 """Runtime API contracts for run explorer, debug, evidence, and artifact-inspection endpoints."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -26,11 +27,12 @@ PreviewMode = Literal["json", "text", "binary"]
 
 
 def _utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class ApiMeta(BaseModel):
     """Api meta public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     request_id: str
@@ -40,6 +42,7 @@ class ApiMeta(BaseModel):
 
 class AuthMeResponse(BaseModel):
     """Authenticated principal payload returned by the runtime ``/auth/me`` endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -56,6 +59,7 @@ class AuthMeResponse(BaseModel):
 
 class RuntimeApiProblem(BaseModel):
     """Runtime api problem public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     type: str = Field(default="about:blank")
@@ -76,6 +80,7 @@ class RuntimeApiError(RuntimeApiProblem):
 
 class CursorPage(BaseModel):
     """Cursor page public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     limit: int = Field(default=50, ge=1, le=200)
@@ -87,6 +92,7 @@ class CursorPage(BaseModel):
 
 class RunRecordV1(BaseModel):
     """Run record V 1 public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -104,6 +110,7 @@ class RunRecordV1(BaseModel):
 
 class RunSummary(RunRecordV1):
     """List-view projection of a run with artifact counts, warnings, and decision status."""
+
     root_artifact_count: int = Field(default=0, ge=0)
     has_workflow_report: bool = False
     warnings: list[str] = Field(default_factory=list)
@@ -115,6 +122,7 @@ class RunSummary(RunRecordV1):
 
 class RunDetails(RunRecordV1):
     """Run details public type."""
+
     manifest_ref: ArtifactRef | None = None
     trace_ref: ArtifactRef | None = None
     capability_manifest_ref: ArtifactRef | None = None
@@ -130,6 +138,7 @@ class RunDetails(RunRecordV1):
 
 class RunTimelineEvent(BaseModel):
     """One timestamped event emitted into the runtime timeline for a run."""
+
     model_config = ConfigDict(extra="forbid")
 
     index: int = Field(ge=0)
@@ -147,6 +156,7 @@ class RunTimelineEvent(BaseModel):
 
 class RunTimelineSummary(BaseModel):
     """Aggregate counters and latency totals derived from a run's timeline events."""
+
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -161,6 +171,7 @@ class RunTimelineSummary(BaseModel):
 
 class RunTimelineView(BaseModel):
     """Timeline payload returned by runtime endpoints, including summary and ordered events."""
+
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -172,6 +183,7 @@ class RunTimelineView(BaseModel):
 
 class RunNodeRecord(BaseModel):
     """Per-node execution summary used by node listings and debug surfaces."""
+
     model_config = ConfigDict(extra="forbid")
 
     alias: str
@@ -189,6 +201,7 @@ class RunNodeRecord(BaseModel):
 
 class NodeDebugView(BaseModel):
     """Detailed node-debug payload with timeline slices, cache activity, and notes."""
+
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -204,6 +217,7 @@ class NodeDebugView(BaseModel):
 
 class GovernanceDebugView(BaseModel):
     """Detailed governance payload exposing verdicts, report refs, and contract warnings."""
+
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -228,6 +242,7 @@ class GovernanceDebugView(BaseModel):
 
 class RunErrorView(BaseModel):
     """Normalized error record assembled from manifests, traces, reports, or runtime faults."""
+
     model_config = ConfigDict(extra="forbid")
 
     source: Literal["manifest", "workflow_report", "trace", "runtime"]
@@ -240,6 +255,7 @@ class RunErrorView(BaseModel):
 
 class AgentPipelineStep(BaseModel):
     """Agent pipeline step public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     attempt: int = Field(default=1, ge=1)
@@ -261,6 +277,7 @@ class AgentPipelineStep(BaseModel):
 
 class AgentPipelineAttempt(BaseModel):
     """Agent pipeline attempt public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     attempt: int = Field(ge=1)
@@ -275,6 +292,7 @@ class AgentPipelineAttempt(BaseModel):
 
 class RetrievalPhaseTelemetry(BaseModel):
     """Retrieval phase telemetry public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     phase: str
@@ -287,6 +305,7 @@ class RetrievalPhaseTelemetry(BaseModel):
 
 class RetrievalTelemetryView(BaseModel):
     """Retrieval telemetry summary for agent pipelines, including lane and phase counters."""
+
     model_config = ConfigDict(extra="forbid")
 
     mode: str = "hybrid"
@@ -302,6 +321,7 @@ class RetrievalTelemetryView(BaseModel):
 
 class PreflightDiagnosticView(BaseModel):
     """API view of one preflight diagnostic surfaced to runtime clients."""
+
     model_config = ConfigDict(extra="forbid")
 
     code: str
@@ -314,6 +334,7 @@ class PreflightDiagnosticView(BaseModel):
 
 class PreflightReportView(BaseModel):
     """API view of preflight readiness, diagnostics, and the persisted report reference."""
+
     model_config = ConfigDict(extra="forbid")
 
     ready_to_run: bool = False
@@ -324,6 +345,7 @@ class PreflightReportView(BaseModel):
 
 class EvaluatorScoresView(BaseModel):
     """Normalized evaluator score breakdown exposed by runtime agent-pipeline views."""
+
     model_config = ConfigDict(extra="forbid")
 
     kpi_score: float = Field(default=0.0, ge=0.0, le=1.0)
@@ -336,6 +358,7 @@ class EvaluatorScoresView(BaseModel):
 
 class EvaluatorReportView(BaseModel):
     """API view of evaluator verdicts, scores, reasons, and replanning hints."""
+
     model_config = ConfigDict(extra="forbid")
 
     verdict: EvaluatorVerdict | None = None
@@ -349,6 +372,7 @@ class EvaluatorReportView(BaseModel):
 
 class IterationLifecycleView(BaseModel):
     """Current iteration state with stop reason and latest evaluator verdict."""
+
     model_config = ConfigDict(extra="forbid")
 
     iteration: int = Field(default=1, ge=1)
@@ -361,6 +385,7 @@ class IterationLifecycleView(BaseModel):
 
 class ReproducibilityView(BaseModel):
     """Hashes, seeds, and missing refs used to assess whether a run can be replayed."""
+
     model_config = ConfigDict(extra="forbid")
 
     seed: int = Field(default=0, ge=0)
@@ -381,6 +406,7 @@ class ReproducibilityView(BaseModel):
 
 class RunEvidenceNeedView(BaseModel):
     """One evidence need derived from the execution plan for retrieval and promotion flows."""
+
     model_config = ConfigDict(extra="forbid")
 
     need_id: str
@@ -397,6 +423,7 @@ class RunEvidenceNeedView(BaseModel):
 
 class RunEvidencePlanView(BaseModel):
     """Fetch plan describing how a connector/profile can satisfy a run evidence need."""
+
     model_config = ConfigDict(extra="forbid")
 
     plan_id: str
@@ -417,6 +444,7 @@ class RunEvidencePlanView(BaseModel):
 
 class RunEvidencePromotionView(BaseModel):
     """Candidate evidence promotion surfaced while reviewing retrieved data options."""
+
     model_config = ConfigDict(extra="forbid")
 
     promotion_id: str
@@ -435,6 +463,7 @@ class RunEvidencePromotionView(BaseModel):
 
 class RunEvidenceContextView(BaseModel):
     """Joined evidence context linking plans, snapshots, promotions, and related artifacts."""
+
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -452,6 +481,7 @@ class RunEvidenceContextView(BaseModel):
 
 class AgentPipelineView(BaseModel):
     """Composite runtime view of agent attempts, retrieval, evaluation, and iteration state."""
+
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -474,6 +504,7 @@ class AgentPipelineView(BaseModel):
 
 class RunWorkflowNodeView(BaseModel):
     """Workflow graph node annotated with runtime status, duration, and artifact IO."""
+
     model_config = ConfigDict(extra="forbid")
 
     alias: str
@@ -492,6 +523,7 @@ class RunWorkflowNodeView(BaseModel):
 
 class RunWorkflowEdgeView(BaseModel):
     """Run workflow edge view data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     from_alias: str
@@ -500,6 +532,7 @@ class RunWorkflowEdgeView(BaseModel):
 
 class RunWorkflowSummary(BaseModel):
     """Summary statistics for the workflow graph executed by a run."""
+
     model_config = ConfigDict(extra="forbid")
 
     workflow_id: str | None = None
@@ -516,6 +549,7 @@ class RunWorkflowSummary(BaseModel):
 
 class RunWorkflowView(BaseModel):
     """Workflow graph payload returned by runtime explorer endpoints."""
+
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -530,6 +564,7 @@ class RunWorkflowView(BaseModel):
 
 class ArtifactManifestView(BaseModel):
     """Metadata returned when a client inspects a stored artifact manifest."""
+
     model_config = ConfigDict(extra="forbid")
 
     artifact_id: str
@@ -545,8 +580,115 @@ class ArtifactManifestView(BaseModel):
     integrity_sha256: str
 
 
+class DecisionPacketOutlineEntry(BaseModel):
+    """Typed outline entry surfaced for decision-packet previews."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    section_id: str
+    title: str
+    section_type: str | None = None
+
+
+class DecisionPacketEffectSize(BaseModel):
+    """Structured uncertainty payload used by typed decision-packet previews."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    point: float | None = None
+    ci_80: tuple[float, float] | None = None
+    ci_95: tuple[float, float] | None = None
+    quantiles: dict[str, float] | None = None
+    identifiability: Literal["identified", "estimated", "assumed"] | None = None
+    disputed: bool | None = None
+    method: str | None = None
+
+
+class DecisionPacketMetricSignificance(BaseModel):
+    """Typed metric-significance entry embedded in decision-packet previews."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    baseline_model_id: str | None = None
+    candidate_model_id: str | None = None
+    metric_direction: str | None = None
+    baseline_value: float | None = None
+    candidate_value: float | None = None
+    delta_value: float | None = None
+    test_id: str | None = None
+    test_label: str | None = None
+    p_value: float | None = None
+    p_adj: float | None = None
+    alpha: float | None = None
+    significant: bool | None = None
+    effect_size: DecisionPacketEffectSize | None = None
+    assumption_warnings: list[str] = Field(default_factory=list)
+    calibration_warnings: list[str] = Field(default_factory=list)
+
+
+class DecisionPacketMetricComparisonRow(BaseModel):
+    """Typed metric-comparison row embedded in decision-packet previews."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    metric_id: str
+    metric_direction: str | None = None
+    baseline_model_id: str | None = None
+    candidate_model_id: str | None = None
+    baseline_value: float | None = None
+    candidate_value: float | None = None
+    delta_value: float | None = None
+    family_id: str | None = None
+    family_scope: str | None = None
+    sample_size_effective: int | None = None
+    resampling_method: str | None = None
+    test_id: str | None = None
+    test_label: str | None = None
+    statistic: float | None = None
+    effect_size: DecisionPacketEffectSize | None = None
+    p_value: float | None = None
+    p_adj: float | None = None
+    alpha: float | None = None
+    significant: bool | None = None
+    assumption_warnings: list[str] = Field(default_factory=list)
+    calibration_warnings: list[str] = Field(default_factory=list)
+
+
+class DecisionPacketAuthoredBlock(BaseModel):
+    """Typed authored-text block embedded in decision-packet previews."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str | None = None
+    content: str
+    author: Literal["citation", "human", "drafter", "formalizer", "critic"] | None = None
+    author_agent_version: str | None = None
+    sources: list[dict[str, str]] = Field(default_factory=list)
+    timestamp: str | None = None
+    confidence: float | None = None
+    reviewed_by_human: bool | None = None
+
+
+class DecisionPacketPreview(BaseModel):
+    """Typed additive sidecar for decision-packet artifact previews."""
+
+    model_config = ConfigDict(extra="allow")
+
+    document_outline: list[DecisionPacketOutlineEntry] = Field(default_factory=list)
+    metric_significance_by_metric: dict[str, DecisionPacketMetricSignificance] = Field(
+        default_factory=dict
+    )
+    metric_validation_comparison_rows: list[DecisionPacketMetricComparisonRow] = Field(
+        default_factory=list
+    )
+    blocks: list[DecisionPacketAuthoredBlock] = Field(default_factory=list)
+    narrative_blocks: list[DecisionPacketAuthoredBlock] = Field(default_factory=list)
+    evidence_summary_blocks: list[DecisionPacketAuthoredBlock] = Field(default_factory=list)
+
+
 class ArtifactContentPreview(BaseModel):
     """Artifact content preview public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     artifact_id: str
@@ -557,10 +699,12 @@ class ArtifactContentPreview(BaseModel):
     max_bytes: int = Field(ge=1)
     truncated: bool = False
     preview: Any = None
+    decision_packet_preview: DecisionPacketPreview | None = None
 
 
 class ArtifactLineageNode(BaseModel):
     """One node in the artifact-lineage graph with status, size, role, and depth."""
+
     model_config = ConfigDict(extra="forbid")
 
     artifact_id: str
@@ -573,6 +717,7 @@ class ArtifactLineageNode(BaseModel):
 
 class ArtifactLineageEdge(BaseModel):
     """Artifact lineage edge public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     parent_artifact_id: str
@@ -582,6 +727,7 @@ class ArtifactLineageEdge(BaseModel):
 
 class ArtifactLineageView(BaseModel):
     """Artifact lineage graph plus completeness and corruption indicators."""
+
     model_config = ConfigDict(extra="forbid")
 
     root_artifact_ids: list[str] = Field(default_factory=list)
@@ -597,6 +743,7 @@ class ArtifactLineageView(BaseModel):
 
 class ArtifactSchemaView(BaseModel):
     """Schema metadata exposed for an artifact's serialized payload."""
+
     model_config = ConfigDict(extra="forbid")
 
     artifact_id: str
@@ -609,6 +756,7 @@ class ArtifactSchemaView(BaseModel):
 
 class ArtifactBatchRequest(BaseModel):
     """Batch artifact lookup request used to avoid client-side N+1 fetches."""
+
     model_config = ConfigDict(extra="forbid")
 
     artifact_ids: list[str] = Field(default_factory=list, min_length=1, max_length=100)
@@ -616,6 +764,7 @@ class ArtifactBatchRequest(BaseModel):
 
 class RunsBatchRequest(BaseModel):
     """Batch run lookup request used to avoid client-side N+1 fetches."""
+
     model_config = ConfigDict(extra="forbid")
 
     run_ids: list[str] = Field(default_factory=list, min_length=1, max_length=100)
@@ -623,6 +772,7 @@ class RunsBatchRequest(BaseModel):
 
 class RunFeedbackView(BaseModel):
     """Runtime view of monitoring, compare, and reissue artifacts attached to a run."""
+
     model_config = ConfigDict(extra="forbid")
 
     run_id: str
@@ -639,6 +789,7 @@ class RunFeedbackView(BaseModel):
 
 class RunCompareView(BaseModel):
     """Side-by-side comparison payload for two runtime runs."""
+
     model_config = ConfigDict(extra="forbid")
 
     left_run_id: str
@@ -648,6 +799,7 @@ class RunCompareView(BaseModel):
 
 class RunsListResponse(BaseModel):
     """Paginated response envelope returned by the runs listing endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -657,6 +809,7 @@ class RunsListResponse(BaseModel):
 
 class RunDetailsResponse(BaseModel):
     """Response envelope returned when a client requests one run's detailed record."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -665,6 +818,7 @@ class RunDetailsResponse(BaseModel):
 
 class RunTimelineResponse(BaseModel):
     """Response envelope returned by the run timeline endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -673,6 +827,7 @@ class RunTimelineResponse(BaseModel):
 
 class RunNodesResponse(BaseModel):
     """Response envelope returned by the run nodes endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -683,6 +838,7 @@ class RunNodesResponse(BaseModel):
 
 class RunLineageResponse(BaseModel):
     """Response envelope returned by the run artifact-lineage endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -692,6 +848,7 @@ class RunLineageResponse(BaseModel):
 
 class RunEvidenceContextResponse(BaseModel):
     """Response envelope returned by the run evidence-context endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -700,6 +857,7 @@ class RunEvidenceContextResponse(BaseModel):
 
 class NodeDebugResponse(BaseModel):
     """Response envelope returned by the node debug endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -708,6 +866,7 @@ class NodeDebugResponse(BaseModel):
 
 class GovernanceDebugResponse(BaseModel):
     """Response envelope returned by the governance debug endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -716,6 +875,7 @@ class GovernanceDebugResponse(BaseModel):
 
 class RunErrorsResponse(BaseModel):
     """Response envelope returned by the run errors endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -725,6 +885,7 @@ class RunErrorsResponse(BaseModel):
 
 class AgentPipelineResponse(BaseModel):
     """Response envelope returned by the agent-pipeline endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -733,6 +894,7 @@ class AgentPipelineResponse(BaseModel):
 
 class RunWorkflowResponse(BaseModel):
     """Response envelope returned by the workflow graph endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -741,6 +903,7 @@ class RunWorkflowResponse(BaseModel):
 
 class ArtifactManifestResponse(BaseModel):
     """Response envelope returned by the artifact manifest endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -749,6 +912,7 @@ class ArtifactManifestResponse(BaseModel):
 
 class ArtifactContentResponse(BaseModel):
     """Response envelope returned by the artifact preview/content endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -757,6 +921,7 @@ class ArtifactContentResponse(BaseModel):
 
 class ArtifactLineageResponse(BaseModel):
     """Response envelope returned by the artifact lineage endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -765,6 +930,7 @@ class ArtifactLineageResponse(BaseModel):
 
 class ArtifactSchemaResponse(BaseModel):
     """Response envelope returned by the artifact schema endpoint."""
+
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     meta: ApiMeta
@@ -773,6 +939,7 @@ class ArtifactSchemaResponse(BaseModel):
 
 class ArtifactBatchResponse(BaseModel):
     """Response envelope returned by the artifact batch endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -781,6 +948,7 @@ class ArtifactBatchResponse(BaseModel):
 
 class MobilityEstimateRequest(BaseModel):
     """Request payload for runtime mobility estimation endpoints."""
+
     model_config = ConfigDict(extra="forbid")
 
     mode: Literal[
@@ -815,6 +983,7 @@ class MobilityEstimateRequest(BaseModel):
 
 class MobilityBoundsRequest(BaseModel):
     """Request payload for runtime mobility bounds endpoints."""
+
     model_config = ConfigDict(extra="forbid")
 
     observed_joint_matrix: list[list[float]]
@@ -827,6 +996,7 @@ class MobilityBoundsRequest(BaseModel):
 
 class MobilityEstimateResponse(BaseModel):
     """Response envelope returned after estimating a mobility report."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -837,6 +1007,7 @@ class MobilityEstimateResponse(BaseModel):
 
 class MobilityBoundsResponse(BaseModel):
     """Response envelope returned for direct or report-linked mobility bounds."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -849,6 +1020,7 @@ class MobilityBoundsResponse(BaseModel):
 
 class MobilityReportResponse(BaseModel):
     """Response envelope returned when loading one persisted mobility report."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -858,6 +1030,7 @@ class MobilityReportResponse(BaseModel):
 
 class MobilityDiagnosticsResponse(BaseModel):
     """Response envelope returned when loading mobility diagnostics only."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -867,6 +1040,7 @@ class MobilityDiagnosticsResponse(BaseModel):
 
 class RunsBatchResponse(BaseModel):
     """Response envelope returned by the run batch endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -875,6 +1049,7 @@ class RunsBatchResponse(BaseModel):
 
 class RunFeedbackResponse(BaseModel):
     """Response envelope returned by the run feedback endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -883,6 +1058,7 @@ class RunFeedbackResponse(BaseModel):
 
 class RunCompareResponse(BaseModel):
     """Response envelope returned by the run comparison endpoint."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -891,6 +1067,7 @@ class RunCompareResponse(BaseModel):
 
 class FeedbackActionResponse(BaseModel):
     """Outcome payload returned after evaluating feedback or reissuing a decision."""
+
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
@@ -910,7 +1087,6 @@ __all__ = [
     "AgentPipelineStep",
     "AgentPipelineView",
     "ApiMeta",
-    "AuthMeResponse",
     "ArtifactContentPreview",
     "ArtifactContentResponse",
     "ArtifactLineageEdge",
@@ -921,14 +1097,24 @@ __all__ = [
     "ArtifactManifestView",
     "ArtifactSchemaResponse",
     "ArtifactSchemaView",
+    "AuthMeResponse",
     "CursorPage",
     "DecisionCompareReport",
     "DecisionMonitoringContract",
     "DecisionMonitoringReport",
+    "DecisionPacketAuthoredBlock",
+    "DecisionPacketEffectSize",
+    "DecisionPacketMetricComparisonRow",
+    "DecisionPacketMetricSignificance",
+    "DecisionPacketOutlineEntry",
+    "DecisionPacketPreview",
     "DecisionReissuePlan",
+    "EvaluatorReportView",
+    "EvaluatorScoresView",
     "FeedbackActionResponse",
     "GovernanceDebugResponse",
     "GovernanceDebugView",
+    "IterationLifecycleView",
     "MobilityBoundsRequest",
     "MobilityBoundsResponse",
     "MobilityDiagnosticsResponse",
@@ -941,21 +1127,20 @@ __all__ = [
     "PreflightDiagnosticView",
     "PreflightReportView",
     "PreviewMode",
-    "EvaluatorScoresView",
-    "EvaluatorReportView",
-    "IterationLifecycleView",
     "ReproducibilityView",
+    "RetrievalPhaseTelemetry",
+    "RetrievalTelemetryView",
+    "RunCompareResponse",
+    "RunCompareView",
+    "RunDetails",
+    "RunDetailsResponse",
+    "RunErrorView",
+    "RunErrorsResponse",
     "RunEvidenceContextResponse",
     "RunEvidenceContextView",
     "RunEvidenceNeedView",
     "RunEvidencePlanView",
     "RunEvidencePromotionView",
-    "RetrievalPhaseTelemetry",
-    "RetrievalTelemetryView",
-    "RunDetails",
-    "RunDetailsResponse",
-    "RunErrorView",
-    "RunErrorsResponse",
     "RunFeedbackResponse",
     "RunFeedbackView",
     "RunLineageResponse",
@@ -963,8 +1148,6 @@ __all__ = [
     "RunNodesResponse",
     "RunRecordV1",
     "RunSummary",
-    "RunCompareResponse",
-    "RunCompareView",
     "RunTimelineEvent",
     "RunTimelineResponse",
     "RunTimelineSummary",

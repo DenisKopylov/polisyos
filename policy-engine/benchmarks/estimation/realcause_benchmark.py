@@ -60,12 +60,11 @@ for _p in [str(_SRC), str(_BENCH_ROOT.parent)]:
 # Local imports
 # ---------------------------------------------------------------------------
 
-from benchmarks.harness import (  # noqa: E402
-    BenchmarkCase,
-    BenchmarkCircuit,
-    BenchmarkHarness,
-    BenchmarkReport,
-    Verdict,
+from benchmarks.comparators import (
+    ForestDRLearnerComparator,
+    build_research_acceptance_comparator_status,
+    comparator_degraded_reasons,
+    comparator_required_modules,
 )
 from benchmarks.estimator_profiles import (  # noqa: E402
     ESTIMATION_METHOD_PROFILES,
@@ -79,14 +78,16 @@ from benchmarks.estimator_profiles import (  # noqa: E402
     policyos_xlearner_params,
     resolve_estimation_method_profile,
 )
-from benchmarks.comparators import (
-    ForestDRLearnerComparator,
-    build_research_acceptance_comparator_status,
-    comparator_degraded_reasons,
-    comparator_required_modules,
+from benchmarks.harness import (  # noqa: E402
+    BenchmarkCase,
+    BenchmarkCircuit,
+    BenchmarkHarness,
+    BenchmarkReport,
+    Verdict,
 )
 from benchmarks.method_registry import build_method_registry, infer_method_group
 from benchmarks.policyos_runner import extract_policyos_result, invoke_policyos_method
+from benchmarks.reporting import build_preflight, build_report_payload, print_preflight
 from benchmarks.research_metrics import (
     basic_overlap_diagnostics,
     eceth,
@@ -96,7 +97,6 @@ from benchmarks.research_metrics import (
     summarize_overlap_diagnostics,
     summarize_selection_manifest,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight
 from benchmarks.runtime import (
     BenchmarkMode,
     BenchmarkTier,
@@ -115,7 +115,6 @@ from benchmarks.scorecards import (
     compute_ranking_summary,
     summarize_method_metrics,
 )
-
 from polisyos.foundry.methods.catalog.causal.protocols import (  # noqa: E402
     HTEObservationalData,
 )
@@ -149,7 +148,15 @@ REALCAUSE_DATA_DIR: Path | None = (
 
 def _realcause_family_name(dataset_name: str) -> str:
     name = str(dataset_name).lower()
-    for family in ("lalonde_cps", "lalonde_psid", "lalonde_rct", "lalonde_obs", "twins", "ihdp", "news"):
+    for family in (
+        "lalonde_cps",
+        "lalonde_psid",
+        "lalonde_rct",
+        "lalonde_obs",
+        "twins",
+        "ihdp",
+        "news",
+    ):
         if name.startswith(family):
             return family
     return name.split("_sample", 1)[0]
@@ -352,9 +359,7 @@ def _kl_divergence_kde(
     return float(np.sum(p_hist * np.log(p_hist / q_hist)))
 
 
-def _mmd_linear(
-    x: np.ndarray, y: np.ndarray
-) -> float:
+def _mmd_linear(x: np.ndarray, y: np.ndarray) -> float:
     """Linear-time Maximum Mean Discrepancy with RBF kernel (bandwidth = median heuristic)."""
     x = np.asarray(x, dtype=float).reshape(-1, 1) if x.ndim == 1 else x
     y = np.asarray(y, dtype=float).reshape(-1, 1) if y.ndim == 1 else y
@@ -529,9 +534,7 @@ def _dgp_news_like(
 # ---------------------------------------------------------------------------
 
 
-def _baseline_ols(
-    data: HTEObservationalData, rng: np.random.Generator
-) -> RealCauseMetrics:
+def _baseline_ols(data: HTEObservationalData, rng: np.random.Generator) -> RealCauseMetrics:
     from numpy.linalg import lstsq
 
     X = np.column_stack([data.covariates, data.treatment, np.ones(len(data.outcome))])
@@ -553,16 +556,18 @@ def _baseline_ols(
     ci_hi = float(np.percentile(boot_ates, 97.5)) if boot_ates else ate_pred + 0.2
 
     return RealCauseMetrics(
-        ate_true=0.0, ate_pred=ate_pred,
-        ate_ci_lower=ci_lo, ate_ci_upper=ci_hi,
-        cate_true=None, cate_pred=cate_pred,
-        method_name="ols", dataset_name="",
+        ate_true=0.0,
+        ate_pred=ate_pred,
+        ate_ci_lower=ci_lo,
+        ate_ci_upper=ci_hi,
+        cate_true=None,
+        cate_pred=cate_pred,
+        method_name="ols",
+        dataset_name="",
     )
 
 
-def _baseline_t_learner(
-    data: HTEObservationalData, rng: np.random.Generator
-) -> RealCauseMetrics:
+def _baseline_t_learner(data: HTEObservationalData, rng: np.random.Generator) -> RealCauseMetrics:
     from numpy.linalg import lstsq
 
     X, T, Y = data.covariates, data.treatment, data.outcome
@@ -570,6 +575,7 @@ def _baseline_t_learner(
 
     try:
         from sklearn.ensemble import GradientBoostingRegressor
+
         m1 = GradientBoostingRegressor(n_estimators=50, random_state=0)
         m0 = GradientBoostingRegressor(n_estimators=50, random_state=0)
         m1.fit(X[mask1], Y[mask1])
@@ -577,10 +583,12 @@ def _baseline_t_learner(
         mu1 = m1.predict(X)
         mu0 = m0.predict(X)
     except ImportError:
+
         def _lfit(Xa: np.ndarray, Ya: np.ndarray) -> np.ndarray:
             Xb = np.column_stack([Xa, np.ones(len(Ya))])
             c, _, _, _ = lstsq(Xb, Ya, rcond=None)
             return c
+
         c1 = _lfit(X[mask1], Y[mask1])
         c0 = _lfit(X[mask0], Y[mask0])
         Xb = np.column_stack([X, np.ones(len(Y))])
@@ -599,10 +607,14 @@ def _baseline_t_learner(
     ci_hi = float(np.percentile(boot_ates, 97.5))
 
     return RealCauseMetrics(
-        ate_true=0.0, ate_pred=ate_pred,
-        ate_ci_lower=ci_lo, ate_ci_upper=ci_hi,
-        cate_true=None, cate_pred=cate_pred,
-        method_name="t_learner", dataset_name="",
+        ate_true=0.0,
+        ate_pred=ate_pred,
+        ate_ci_lower=ci_lo,
+        ate_ci_upper=ci_hi,
+        cate_true=None,
+        cate_pred=cate_pred,
+        method_name="t_learner",
+        dataset_name="",
     )
 
 
@@ -620,28 +632,42 @@ def _run_policy_os_method(
         result = invoke_policyos_method(method_class, data, params)
     except Exception as exc:
         return RealCauseMetrics(
-            ate_true=0.0, ate_pred=float("nan"),
-            ate_ci_lower=float("nan"), ate_ci_upper=float("nan"),
-            cate_true=None, cate_pred=None,
-            method_name=method_class.__name__, dataset_name="",
-            failed=True, fail_reason=str(exc),
+            ate_true=0.0,
+            ate_pred=float("nan"),
+            ate_ci_lower=float("nan"),
+            ate_ci_upper=float("nan"),
+            cate_true=None,
+            cate_pred=None,
+            method_name=method_class.__name__,
+            dataset_name="",
+            failed=True,
+            fail_reason=str(exc),
         )
 
     extracted = extract_policyos_result(method_class, data, result)
     if extracted.failed:
         return RealCauseMetrics(
-            ate_true=0.0, ate_pred=float("nan"),
-            ate_ci_lower=float("nan"), ate_ci_upper=float("nan"),
-            cate_true=None, cate_pred=None,
-            method_name=method_class.__name__, dataset_name="",
-            failed=True, fail_reason=extracted.fail_reason,
+            ate_true=0.0,
+            ate_pred=float("nan"),
+            ate_ci_lower=float("nan"),
+            ate_ci_upper=float("nan"),
+            cate_true=None,
+            cate_pred=None,
+            method_name=method_class.__name__,
+            dataset_name="",
+            failed=True,
+            fail_reason=extracted.fail_reason,
         )
 
     return RealCauseMetrics(
-        ate_true=0.0, ate_pred=extracted.ate_pred,
-        ate_ci_lower=extracted.ate_ci_lower, ate_ci_upper=extracted.ate_ci_upper,
-        cate_true=None, cate_pred=extracted.cate_pred,
-        method_name=method_class.__name__, dataset_name="",
+        ate_true=0.0,
+        ate_pred=extracted.ate_pred,
+        ate_ci_lower=extracted.ate_ci_lower,
+        ate_ci_upper=extracted.ate_ci_upper,
+        cate_true=None,
+        cate_pred=extracted.cate_pred,
+        method_name=method_class.__name__,
+        dataset_name="",
         selection_manifest=(
             extracted.selection_manifest
             or benchmark_selection_manifest_from_params(params, method_label=method_class.__name__)
@@ -771,7 +797,6 @@ def _realcause_case(
     max_failure_rate: float = 0.30,
     seed: int = 42,
 ) -> BenchmarkCase:
-
     def runner() -> dict[str, DatasetResult]:
         return _run_dataset_replications(
             dgp_fn=dgp_fn,
@@ -812,57 +837,52 @@ def _check_realcause_results(
     min_ci_coverage: float,
     max_failure_rate: float,
 ) -> bool:
-        baseline_names = {"ols", "t_learner"}
-        policy_os_names = [k for k in results if infer_method_group(k) == "policy_os_competitive"]
+    baseline_names = {"ols", "t_learner"}
+    policy_os_names = [k for k in results if infer_method_group(k) == "policy_os_competitive"]
 
-        if not policy_os_names:
-            return True
-
-        # Best RMSE and KL among baselines
-        baseline_rmse = [
-            results[b].ate_rmse
-            for b in baseline_names
-            if b in results and math.isfinite(results[b].ate_rmse)
-        ]
-        baseline_kl = [
-            results[b].kl_mean
-            for b in baseline_names
-            if b in results and math.isfinite(results[b].kl_mean)
-        ]
-        best_rmse = min(baseline_rmse) if baseline_rmse else None
-        best_kl = min(baseline_kl) if baseline_kl else None
-
-        issues: list[str] = []
-        for pname in policy_os_names:
-            res = results[pname]
-
-            if res.failure_rate > max_failure_rate:
-                issues.append(
-                    f"{pname}: failure_rate={res.failure_rate:.2f} > {max_failure_rate}"
-                )
-
-            if res.ci_coverage < min_ci_coverage:
-                issues.append(
-                    f"{pname}: CI coverage={res.ci_coverage:.2f} < {min_ci_coverage}"
-                )
-
-            if best_rmse is not None and math.isfinite(res.ate_rmse):
-                if res.ate_rmse > ate_rmse_multiplier * best_rmse + 1e-6:
-                    issues.append(
-                        f"{pname}: ATE RMSE={res.ate_rmse:.3f} > "
-                        f"{ate_rmse_multiplier}× best_baseline={best_rmse:.3f}"
-                    )
-
-            if best_kl is not None and math.isfinite(res.kl_mean) and res.kl_mean > 0:
-                if res.kl_mean > kl_multiplier * best_kl + 1e-6:
-                    issues.append(
-                        f"{pname}: KL={res.kl_mean:.3f} > "
-                        f"{kl_multiplier}× best_baseline={best_kl:.3f}"
-                    )
-
-        if issues:
-            raise AssertionError(f"realcause::{case_name}: " + "; ".join(issues))
+    if not policy_os_names:
         return True
+
+    # Best RMSE and KL among baselines
+    baseline_rmse = [
+        results[b].ate_rmse
+        for b in baseline_names
+        if b in results and math.isfinite(results[b].ate_rmse)
+    ]
+    baseline_kl = [
+        results[b].kl_mean
+        for b in baseline_names
+        if b in results and math.isfinite(results[b].kl_mean)
+    ]
+    best_rmse = min(baseline_rmse) if baseline_rmse else None
+    best_kl = min(baseline_kl) if baseline_kl else None
+
+    issues: list[str] = []
+    for pname in policy_os_names:
+        res = results[pname]
+
+        if res.failure_rate > max_failure_rate:
+            issues.append(f"{pname}: failure_rate={res.failure_rate:.2f} > {max_failure_rate}")
+
+        if res.ci_coverage < min_ci_coverage:
+            issues.append(f"{pname}: CI coverage={res.ci_coverage:.2f} < {min_ci_coverage}")
+
+        if best_rmse is not None and math.isfinite(res.ate_rmse):
+            if res.ate_rmse > ate_rmse_multiplier * best_rmse + 1e-6:
+                issues.append(
+                    f"{pname}: ATE RMSE={res.ate_rmse:.3f} > "
+                    f"{ate_rmse_multiplier}× best_baseline={best_rmse:.3f}"
+                )
+
+        if best_kl is not None and math.isfinite(res.kl_mean) and res.kl_mean > 0:
+            if res.kl_mean > kl_multiplier * best_kl + 1e-6:
+                issues.append(
+                    f"{pname}: KL={res.kl_mean:.3f} > {kl_multiplier}× best_baseline={best_kl:.3f}"
+                )
+
+    if issues:
+        raise AssertionError(f"realcause::{case_name}: " + "; ".join(issues))
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -996,7 +1016,9 @@ def _make_method_fns(
 ) -> dict[str, Any]:
     if method_profile not in ESTIMATION_METHOD_PROFILES:
         valid = ", ".join(ESTIMATION_METHOD_PROFILES)
-        raise ValueError(f"Unknown estimation method profile: {method_profile!r}. Expected one of: {valid}")
+        raise ValueError(
+            f"Unknown estimation method profile: {method_profile!r}. Expected one of: {valid}"
+        )
     fns: dict[str, Any] = {}
     flagship_params = _realcause_nuisance_params(tier, seed=seed_offset, dataset_name=dataset_name)
 
@@ -1004,8 +1026,8 @@ def _make_method_fns(
     fns["t_learner"] = lambda data, rng: _baseline_t_learner(data, rng)
 
     try:
-        from polisyos.foundry.methods.catalog.causal.causal_bcf import CausalBCF
         from polisyos.foundry.methods.catalog.causal.advanced_designs import DRLearnerEstimator
+        from polisyos.foundry.methods.catalog.causal.causal_bcf import CausalBCF
         from polisyos.foundry.methods.catalog.causal.treatment_effects import (
             AIPWEstimator,
             TMLEEstimator,
@@ -1014,7 +1036,11 @@ def _make_method_fns(
         fns["policy_os_aipw_cf"] = lambda data, rng: _run_policy_os_method(
             AIPWEstimator,
             data,
-            {**dict(flagship_params), "estimation_backend": "econml_direct", "direct_model_type": "linear"},
+            {
+                **dict(flagship_params),
+                "estimation_backend": "econml_direct",
+                "direct_model_type": "linear",
+            },
         )
         fns["policy_os_tmle_cf"] = lambda data, rng: _run_policy_os_method(
             TMLEEstimator,
@@ -1094,12 +1120,13 @@ def _make_method_fns(
 
 #: Synthetic DGP registry — (name, dgp_fn, dgp_kwargs, n_obs)
 _SYNTHETIC_DATASETS: list[tuple[str, Any, dict[str, Any], int]] = [
-    ("twins",        _dgp_twins_like,      {"p": 30, "ate": 0.08},                       500),
-    ("lalonde_rct",  _dgp_lalonde_rct_like, {"p": 8,  "ate": 1.794},                     300),
-    ("lalonde_obs",  _dgp_lalonde_obs_like, {"p": 8,  "ate": 1794.0, "ate_scale": 1000.0}, 500),
-    ("ihdp",         _dgp_ihdp_like,       {"p": 25, "ate": 4.0, "hte_strength": 1.0},   500),
-    ("news",         _dgp_news_like,       {"p": 50, "ate": 0.3},                         800),
+    ("twins", _dgp_twins_like, {"p": 30, "ate": 0.08}, 500),
+    ("lalonde_rct", _dgp_lalonde_rct_like, {"p": 8, "ate": 1.794}, 300),
+    ("lalonde_obs", _dgp_lalonde_obs_like, {"p": 8, "ate": 1794.0, "ate_scale": 1000.0}, 500),
+    ("ihdp", _dgp_ihdp_like, {"p": 25, "ate": 4.0, "hte_strength": 1.0}, 500),
+    ("news", _dgp_news_like, {"p": 50, "ate": 0.3}, 800),
 ]
+
 
 def build_realcause_harness(
     n_reps: int = 10,
@@ -1125,6 +1152,7 @@ def build_realcause_harness(
                 families.setdefault(family, []).append((ds_name, real_data, cate_true, ate_true))
 
             for family_name, family_datasets in sorted(families.items()):
+
                 def _make_family_runner(
                     datasets=family_datasets,
                     family=family_name,
@@ -1178,7 +1206,11 @@ def build_realcause_harness(
                                         "ci_coverage": 1.0 if m.ci_covers else 0.0,
                                         "ci_width": m.ci_width,
                                         "calibration_mode": next(
-                                            iter((m.selection_manifest or {}).get("calibration_modes", [])),
+                                            iter(
+                                                (m.selection_manifest or {}).get(
+                                                    "calibration_modes", []
+                                                )
+                                            ),
                                             None,
                                         ),
                                     }
@@ -1186,7 +1218,9 @@ def build_realcause_harness(
                                         res.pehe_values.append(m.pehe)
                                     if m.cate_pred is not None:
                                         y_cf = y_obs + m.cate_pred * (1 - rd.treatment)
-                                        res.kl_divergences.append(_compute_distributional_divergence(y_obs, y_cf))
+                                        res.kl_divergences.append(
+                                            _compute_distributional_divergence(y_obs, y_cf)
+                                        )
                                         calibration_record["eceth"] = eceth(ct, m.cate_pred)
                                     res.calibration_records.append(calibration_record)
                                 except Exception:
@@ -1255,22 +1289,36 @@ def build_realcause_harness(
                                     ate_biases=[m.ate_bias] if not m.failed else [float("nan")],
                                     ci_covers=[m.ci_covers] if not m.failed else [False],
                                     ci_widths=[m.ci_width] if not m.failed else [float("nan")],
-                                    pehe_values=[m.pehe] if (not m.failed and m.pehe is not None) else [],
+                                    pehe_values=[m.pehe]
+                                    if (not m.failed and m.pehe is not None)
+                                    else [],
                                     kl_divergences=kl_vals,
                                     n_failed=1 if m.failed else 0,
-                                    selection_records=[m.selection_manifest] if (not m.failed and m.selection_manifest) else [],
-                                    overlap_records=[m.overlap_diagnostics] if (not m.failed and m.overlap_diagnostics) else [],
+                                    selection_records=[m.selection_manifest]
+                                    if (not m.failed and m.selection_manifest)
+                                    else [],
+                                    overlap_records=[m.overlap_diagnostics]
+                                    if (not m.failed and m.overlap_diagnostics)
+                                    else [],
                                     calibration_records=[
                                         {
                                             "ci_coverage": 1.0 if m.ci_covers else 0.0,
                                             "ci_width": m.ci_width,
                                             "calibration_mode": next(
-                                                iter((m.selection_manifest or {}).get("calibration_modes", [])),
+                                                iter(
+                                                    (m.selection_manifest or {}).get(
+                                                        "calibration_modes", []
+                                                    )
+                                                ),
                                                 None,
                                             ),
-                                            "eceth": eceth(ct, m.cate_pred) if m.cate_pred is not None else float("nan"),
+                                            "eceth": eceth(ct, m.cate_pred)
+                                            if m.cate_pred is not None
+                                            else float("nan"),
                                         }
-                                    ] if not m.failed else [],
+                                    ]
+                                    if not m.failed
+                                    else [],
                                 )
                                 out[name] = r
                             except Exception:
@@ -1290,42 +1338,46 @@ def build_realcause_harness(
 
                     return runner
 
-                harness.register(BenchmarkCase(
-                    name=f"realcause::real_{ds_name}",
-                    circuit=CIRCUIT,
-                    runner=_make_runner(),
-                    checker=lambda results, dn=ds_name: _check_realcause_results(
-                        case_name=f"real_{dn}",
-                        results=results,
-                        ate_rmse_multiplier=2.0,
-                        kl_multiplier=3.0,
-                        min_ci_coverage=0.75,
-                        max_failure_rate=0.30,
-                    ),
-                    tags=("realcause", "real", "local_evidence"),
-                    timeout_s=300.0,
-                ))
+                harness.register(
+                    BenchmarkCase(
+                        name=f"realcause::real_{ds_name}",
+                        circuit=CIRCUIT,
+                        runner=_make_runner(),
+                        checker=lambda results, dn=ds_name: _check_realcause_results(
+                            case_name=f"real_{dn}",
+                            results=results,
+                            ate_rmse_multiplier=2.0,
+                            kl_multiplier=3.0,
+                            min_ci_coverage=0.75,
+                            max_failure_rate=0.30,
+                        ),
+                        tags=("realcause", "real", "local_evidence"),
+                        timeout_s=300.0,
+                    )
+                )
     else:
         datasets = _SYNTHETIC_DATASETS[:1] if fast_mode else _SYNTHETIC_DATASETS
         for ds_name, dgp_fn, dgp_kwargs, n_obs in datasets:
-            harness.register(_realcause_case(
-                name=ds_name,
-                dgp_fn=dgp_fn,
-                dgp_kwargs=dgp_kwargs,
-                method_fns=_make_method_fns(
-                    seed_offset=seed,
-                    tier=tier,
-                    dataset_name=ds_name,
-                    method_profile=method_profile,
-                ),
-                n_obs=min(n_obs, 160) if fast_mode else n_obs,
-                n_reps=n_reps,
-                ate_rmse_multiplier=2.0,
-                kl_multiplier=3.0,
-                min_ci_coverage=0.75,
-                max_failure_rate=0.30,
-                seed=seed,
-            ))
+            harness.register(
+                _realcause_case(
+                    name=ds_name,
+                    dgp_fn=dgp_fn,
+                    dgp_kwargs=dgp_kwargs,
+                    method_fns=_make_method_fns(
+                        seed_offset=seed,
+                        tier=tier,
+                        dataset_name=ds_name,
+                        method_profile=method_profile,
+                    ),
+                    n_obs=min(n_obs, 160) if fast_mode else n_obs,
+                    n_reps=n_reps,
+                    ate_rmse_multiplier=2.0,
+                    kl_multiplier=3.0,
+                    min_ci_coverage=0.75,
+                    max_failure_rate=0.30,
+                    seed=seed,
+                )
+            )
 
     return harness
 
@@ -1404,7 +1456,9 @@ def _build_dataset_group_summaries(
             "ranking_summary": grouped_ranking.get(group_name, {}),
             "distributional_ranking_summary": grouped_distributional_ranking.get(group_name, {}),
             "flagship_scorecard": scorecard,
-            "flagship_presence": (grouped_presence.get(group_name, {}) or {}).get(REALCAUSE_FLAGSHIP_METHOD, {}),
+            "flagship_presence": (grouped_presence.get(group_name, {}) or {}).get(
+                REALCAUSE_FLAGSHIP_METHOD, {}
+            ),
             "passes_all": bool(scorecard.get("passes_all")),
         }
     return out
@@ -1440,21 +1494,43 @@ def main() -> None:
         has_real_data = bool(_discover_realcause_real_datasets(REALCAUSE_DATA_DIR))
 
     comparator_status = build_research_acceptance_comparator_status()
-    planned_n_reps = 6 if tier is BenchmarkTier.LOCAL_EVIDENCE and args.n_reps == 10 else args.n_reps
+    planned_n_reps = (
+        6 if tier is BenchmarkTier.LOCAL_EVIDENCE and args.n_reps == 10 else args.n_reps
+    )
     degraded_reasons = []
     if not has_real_data:
-        degraded_reasons.append("using synthetic RealCause replicas because real datasets are unavailable")
+        degraded_reasons.append(
+            "using synthetic RealCause replicas because real datasets are unavailable"
+        )
     if tier is BenchmarkTier.LOCAL_EVIDENCE:
-        degraded_reasons.append("local_evidence tier uses thermal-safe subsets and lighter defaults")
+        degraded_reasons.append(
+            "local_evidence tier uses thermal-safe subsets and lighter defaults"
+        )
     degraded_reasons.extend(comparator_degraded_reasons(comparator_status))
 
     preflight = build_preflight(
         mode=mode.value,
         benchmark_tier=tier.value,
-        data_source=classify_data_source(has_real_data=has_real_data, synthetic_label="synthetic_replica", real_label="real_realcause"),
+        data_source=classify_data_source(
+            has_real_data=has_real_data,
+            synthetic_label="synthetic_replica",
+            real_label="real_realcause",
+        ),
         dependency_status={
             **real_data_status,
-            "python_modules": dependency_status(["numpy", "scipy", "sklearn", "econml", "zepid", "stochtree", "dowhy", "y0", "lightgbm"]),
+            "python_modules": dependency_status(
+                [
+                    "numpy",
+                    "scipy",
+                    "sklearn",
+                    "econml",
+                    "zepid",
+                    "stochtree",
+                    "dowhy",
+                    "y0",
+                    "lightgbm",
+                ]
+            ),
         },
         comparator_status=comparator_status,
         degraded_reasons=degraded_reasons,
@@ -1596,9 +1672,7 @@ def main() -> None:
                 indent=2,
             )
 
-    n_fail = sum(
-        1 for cr in report.cases if cr.verdict not in (Verdict.PASS.value, Verdict.PASS)
-    )
+    n_fail = sum(1 for cr in report.cases if cr.verdict not in (Verdict.PASS.value, Verdict.PASS))
     sys.exit(0 if n_fail == 0 else 2)
 
 

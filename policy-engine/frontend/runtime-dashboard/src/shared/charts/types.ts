@@ -3,6 +3,14 @@ export type DataPoint = {
   value: number;
 };
 
+export type UncertaintyQuantiles = {
+  p10?: number;
+  p25?: number;
+  p50?: number;
+  p75?: number;
+  p90?: number;
+};
+
 export type TimeSeriesDataPoint = {
   x: number | string;
   y: number;
@@ -15,10 +23,41 @@ export type TimeSeriesDataPoint = {
   ci95Upper?: number;
 };
 
+export type SeriesPoint = TimeSeriesDataPoint;
+
 export type ConfidenceInterval = {
   lower: number;
   upper: number;
   level: number;
+};
+
+export type QuantileSeriesPoint = {
+  x: number | string;
+  p10: number;
+  p25: number;
+  p50: number;
+  p75: number;
+  p90: number;
+};
+
+export type QuantileSeries = QuantileSeriesPoint;
+
+export type DisputeSummary = {
+  who: string;
+  why: string;
+  asOf?: string;
+  source?: string;
+};
+
+export type SampleRealizationPoint = {
+  x: number | string;
+  y: number;
+};
+
+export type SampleRealization = {
+  id: string;
+  label?: string;
+  points: SampleRealizationPoint[];
 };
 
 export type EffectEstimate = {
@@ -27,6 +66,9 @@ export type EffectEstimate = {
   estimate: number;
   ci: ConfidenceInterval;
   weight?: number;
+  identifiability?: IdentifiabilityState;
+  disputed?: boolean;
+  disputes?: DisputeSummary[];
 };
 
 export type WaterfallStep = {
@@ -64,6 +106,8 @@ export type RadarSeries = {
 };
 
 export type ConfidenceLevel = "high" | "medium" | "low";
+
+export type IdentifiabilityState = "identified" | "estimated" | "assumed";
 
 export function classifyConfidence(value: number): ConfidenceLevel {
   if (value >= 0.8) return "high";

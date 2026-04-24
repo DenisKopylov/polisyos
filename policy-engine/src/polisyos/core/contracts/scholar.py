@@ -7,7 +7,7 @@ Defines the minimal ABI boundary between Scholar and other modules.
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, Literal
 
@@ -23,6 +23,7 @@ _ID_RE = re.compile(ID_PATTERN)
 
 class TimeWindow(BaseModel):
     """Time window public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     start: str | None = None
@@ -35,6 +36,7 @@ SourceKind = Literal["local_file", "bytes", "url"]
 
 class SourceSpec(BaseModel):
     """Descriptor for one Scholar source to ingest from a file, bytes blob, or URL."""
+
     model_config = ConfigDict(extra="forbid")
 
     kind: SourceKind
@@ -57,7 +59,7 @@ class SourceSpec(BaseModel):
     url: str | None = None
 
     @model_validator(mode="after")
-    def _validate_source(self) -> "SourceSpec":
+    def _validate_source(self) -> SourceSpec:
         identities = [self.canonical_url, self.official_id, self.source_locator]
         provided = [value for value in identities if isinstance(value, str) and value.strip()]
         if len(provided) != 1:
@@ -86,6 +88,7 @@ class SourceSpec(BaseModel):
 
 class BudgetsV1(BaseModel):
     """Budgets V 1 public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     max_docs: int | None = Field(default=None, ge=1)
@@ -96,6 +99,7 @@ class BudgetsV1(BaseModel):
 
 class ThresholdsV1(BaseModel):
     """Thresholds V 1 public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     min_doc_trust_tier: TrustTier = TrustTier.MEDIUM
@@ -145,18 +149,21 @@ class ResearchIntent(BaseModel):
 
 class ResearchIntentRef(ArtifactRef):
     """Artifact reference for the original Scholar research-intent request."""
+
     kind: str = "scholar.research_intent"
     media_type: str = "application/json"
 
 
 class KnowledgeBundleRef(ArtifactRef):
     """Artifact reference for the normalized Scholar knowledge bundle output."""
+
     kind: str = "scholar.knowledge_bundle"
     media_type: str = "application/json"
 
 
 class EnrichmentReportRef(ArtifactRef):
     """Enrichment report ref data model."""
+
     kind: str = "scholar.enrichment_report"
     media_type: str = "application/json"
 
@@ -184,7 +191,7 @@ class FreshnessMetadata(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     source_freshness_at: datetime | None = None
     staleness_threshold_seconds: int = Field(default=30 * 24 * 3600, ge=1)
     expiry_threshold_seconds: int = Field(default=90 * 24 * 3600, ge=1)
@@ -198,7 +205,7 @@ class FreshnessMetadata(BaseModel):
     )
 
     @model_validator(mode="after")
-    def _validate_thresholds(self) -> "FreshnessMetadata":
+    def _validate_thresholds(self) -> FreshnessMetadata:
         if self.expiry_threshold_seconds < self.staleness_threshold_seconds:
             raise ValueError("expiry_threshold_seconds must be >= staleness_threshold_seconds")
         return self
@@ -207,7 +214,7 @@ class FreshnessMetadata(BaseModel):
         return self.source_freshness_at or self.created_at
 
     def age_seconds(self, now: datetime | None = None) -> int:
-        now_utc = now or datetime.now(timezone.utc)
+        now_utc = now or datetime.now(UTC)
         return max(0, int((now_utc - self.reference_time()).total_seconds()))
 
     def compute_status(self, now: datetime | None = None) -> FreshnessStatus:
@@ -221,6 +228,7 @@ class FreshnessMetadata(BaseModel):
 
 class KnowledgeBundle(BaseModel):
     """Persisted Scholar bundle containing the request context, payload, and freshness metadata."""
+
     model_config = ConfigDict(extra="forbid")
 
     intent: ResearchIntent | None = None

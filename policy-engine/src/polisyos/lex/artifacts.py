@@ -1,21 +1,24 @@
 """Public lex artifacts module API."""
+
 from __future__ import annotations
 
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.fabric.world import validate_doc_meta_ids
 from polisyos.ir.world.doc import DocMeta
 from polisyos.lex.errors import LexValidationError
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.store import FileSystemCAS
 
 _E = TypeVar("_E", bound=Exception)
 
 __all__ = ["load_doc_meta_artifact", "load_json_artifact"]
 
 
-def load_json_artifact(
+def load_json_artifact[E: Exception](
     cas: FileSystemCAS,
     artifact_id: str,
     *,
@@ -38,7 +41,7 @@ def load_json_artifact(
     return payload
 
 
-def load_doc_meta_artifact(
+def load_doc_meta_artifact[E: Exception](
     cas: FileSystemCAS,
     artifact_id: str,
     *,

@@ -1,19 +1,25 @@
 """UNESCO UIS connector implementation for education and research indicator datasets."""
+
 from __future__ import annotations
 
 import asyncio
-import json
 import time
-from datetime import datetime, timezone
-from typing import Any, AsyncIterator, ClassVar
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
 import pandas as pd
 
 from polisyos.core.canon import streaming_hash
-from polisyos.fabric.connectors.base import ConnectionHandle, FetchRequest, FetchResult, HealthStatus
+from polisyos.fabric.connectors.base import (
+    ConnectionHandle,
+    FetchRequest,
+    FetchResult,
+    HealthStatus,
+)
 from polisyos.fabric.connectors.sources.http_base import HTTPConnectorBase, HTTPResilienceProfile
 from polisyos.fabric.connectors.sources.http_common import frame_completeness, safe_float, safe_int
-from polisyos.fabric.connectors.types import DatasetDescriptor, FetchError
+from polisyos.fabric.connectors.types import DatasetDescriptor
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,
@@ -115,7 +121,11 @@ class UNESCOUISConnector(HTTPConnectorBase[pd.DataFrame]):
             dataset_id = str(row.get("indicatorCode") or "").strip()
             if not dataset_id:
                 continue
-            timeline = row.get("dataAvailability", {}).get("timeLine", {}) if isinstance(row.get("dataAvailability"), dict) else {}
+            timeline = (
+                row.get("dataAvailability", {}).get("timeLine", {})
+                if isinstance(row.get("dataAvailability"), dict)
+                else {}
+            )
             yield DatasetDescriptor(
                 dataset_id=dataset_id,
                 name=str(row.get("name") or dataset_id),
@@ -175,8 +185,10 @@ class UNESCOUISConnector(HTTPConnectorBase[pd.DataFrame]):
             bytes_transferred += len(raw)
             rows.extend(self._extract_rows(body, indicator_id=indicator_id))
 
-        frame = pd.DataFrame(rows, columns=_UIS_FIELDS) if rows else pd.DataFrame(columns=_UIS_FIELDS)
-        now = datetime.now(timezone.utc)
+        frame = (
+            pd.DataFrame(rows, columns=_UIS_FIELDS) if rows else pd.DataFrame(columns=_UIS_FIELDS)
+        )
+        now = datetime.now(UTC)
         return self._build_fetch_result(
             data=frame,
             row_count=len(frame),
@@ -272,7 +284,7 @@ def _year_to_datetime(value: Any) -> datetime | None:
     year = safe_int(value)
     if year is None:
         return None
-    return datetime(year, 1, 1, tzinfo=timezone.utc)
+    return datetime(year, 1, 1, tzinfo=UTC)
 
 
 __all__ = ["UNESCOUISConnector"]

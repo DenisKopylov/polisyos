@@ -1,6 +1,7 @@
 """
 Tests for core types in base.py.
 """
+
 from __future__ import annotations
 
 import dataclasses

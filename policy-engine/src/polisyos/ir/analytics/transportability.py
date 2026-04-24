@@ -1,19 +1,26 @@
 """Public analytics transportability module API."""
+
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.datasets.knowledge.proxy_resolver import ProxyCandidate
-from polisyos.datasets.knowledge.types import PStarZResult
-from polisyos.ir.analytics.causal_graph import CausalGraphModel, PAGIdentificationPolicy
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 from polisyos.ir.analytics.partial_identification import PartialIdentificationResult
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import TransportabilityResultRef
+
+if TYPE_CHECKING:
+    from polisyos.datasets.knowledge.proxy_resolver import ProxyCandidate
+    from polisyos.datasets.knowledge.types import PStarZResult
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel, PAGIdentificationPolicy
+else:
+    from polisyos.datasets.knowledge.proxy_resolver import ProxyCandidate
+    from polisyos.datasets.knowledge.types import PStarZResult
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel, PAGIdentificationPolicy
 
 CONTEXT_VARIABLE_SENSITIVITY: dict[str, list[str]] = {
     "institutional_quality": [
@@ -63,6 +70,7 @@ THRESHOLD_FOR_S_NODE = 0.2
 
 class SNodeOrigin(str, Enum):
     """Classify why a selection node appears in a transportability diagram."""
+
     CONTEXT_DELTA = "context_delta"
     LEGAL = "legal"
     DATA_MISMATCH = "data_mismatch"
@@ -71,6 +79,7 @@ class SNodeOrigin(str, Enum):
 
 class SNodeRole(str, Enum):
     """Declare the causal role used when deciding whether an S-node is adjustable."""
+
     PRE_TREATMENT_COVARIATE = "pre_treatment_covariate"
     MEDIATOR = "mediator"
     COLLIDER = "collider"
@@ -79,6 +88,7 @@ class SNodeRole(str, Enum):
 
 class SNode(BaseModel):
     """S node implementation."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     target_variable: str
@@ -94,6 +104,7 @@ class SNode(BaseModel):
 
 class SelectionDiagram(BaseModel):
     """Selection diagram public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     base_graph: CausalGraphModel
@@ -138,7 +149,7 @@ class SigmaVariable(BaseModel):
     origin: SNodeOrigin = SNodeOrigin.CONTEXT_DELTA
 
     @classmethod
-    def from_s_node(cls, s_node: "SNode") -> "SigmaVariable":
+    def from_s_node(cls, s_node: SNode) -> SigmaVariable:
         """Convert a policy-specific SNode to a graph-theoretic SigmaVariable."""
         return cls(
             variable_name=s_node.target_variable,
@@ -171,7 +182,7 @@ class SelectionDiagramBuilder:
         )
     """
 
-    def __init__(self, graph: "CausalGraphModel") -> None:
+    def __init__(self, graph: CausalGraphModel) -> None:
         self._graph = graph
         self._s_nodes: list[SNode] = []
         self._sigma_vars: list[SigmaVariable] = []
@@ -184,7 +195,7 @@ class SelectionDiagramBuilder:
         context_dimension: str = "programmatic",
         severity: Literal["low", "medium", "high"] = "medium",
         role: SNodeRole | None = None,
-    ) -> "SelectionDiagramBuilder":
+    ) -> SelectionDiagramBuilder:
         """Add a σ-variable (selection/context-shift node) by variable name.
 
         Parameters
@@ -214,8 +225,8 @@ class SelectionDiagramBuilder:
 
     def build(
         self,
-        source_context: "ContextProfile | None" = None,
-        target_context: "ContextProfile | None" = None,
+        source_context: ContextProfile | None = None,
+        target_context: ContextProfile | None = None,
     ) -> SelectionDiagram:
         """Build and return an immutable :class:`SelectionDiagram`.
 
@@ -276,7 +287,7 @@ class SourceDomainSpec(BaseModel):
 
         Uses a lazy import to avoid foundry→IR circular imports.
         """
-        from polisyos.foundry.methods.catalog.causal.id_engine import SourceDomain  # noqa: PLC0415
+        from polisyos.foundry.methods.catalog.causal.id_engine import SourceDomain
 
         return SourceDomain(
             domain_id=self.domain_id,
@@ -285,7 +296,7 @@ class SourceDomainSpec(BaseModel):
             dataset_ref=self.dataset_ref,
         )
 
-    def to_selection_diagram(self, base_graph: "CausalGraphModel") -> SelectionDiagram:
+    def to_selection_diagram(self, base_graph: CausalGraphModel) -> SelectionDiagram:
         """Project this domain spec to a standalone :class:`SelectionDiagram`."""
         sc = self.source_context if self.source_context is not None else ContextProfile()
         return SelectionDiagram(
@@ -343,6 +354,7 @@ class MultiSourceSelectionDiagram(BaseModel):
 
 class StratificationVariable(BaseModel):
     """Stratification variable public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     name: str
@@ -353,6 +365,7 @@ class StratificationVariable(BaseModel):
 
 class TransportFormula(BaseModel):
     """Transport formula public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     formula_str: str
@@ -373,6 +386,7 @@ class TransportabilityStatus(str, Enum):
     transported estimate can proceed directly, requires partial-identification
     fallback, or must be treated as unsupported.
     """
+
     IDENTIFIED = "identified"
     PARTIALLY_IDENTIFIED = "partially_identified"
     BOUNDED_NON_IDENTIFIED = "bounded_non_identified"
@@ -381,6 +395,7 @@ class TransportabilityStatus(str, Enum):
 
 class TransportMode(str, Enum):
     """Describe the execution path implied by a ``TransportabilityResult``."""
+
     DIRECT = "direct"
     TRANSPORT_FORMULA = "transport_formula"
     BOUNDS_ONLY = "bounds_only"
@@ -389,6 +404,7 @@ class TransportMode(str, Enum):
 
 class DataGap(BaseModel):
     """Data gap public type."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     required_variable: str
@@ -520,13 +536,13 @@ class TransportabilityResult(BaseModel):
         return _normalize_transportability_payload(payload)
 
     @classmethod
-    def from_payload(cls, payload: dict[str, Any]) -> "TransportabilityResult":
+    def from_payload(cls, payload: dict[str, Any]) -> TransportabilityResult:
         """Construct a result after applying explicit compatibility normalization."""
 
         return cls.model_validate(cls.normalize_payload(payload))
 
     @model_validator(mode="after")
-    def _validate_contract(self) -> "TransportabilityResult":
+    def _validate_contract(self) -> TransportabilityResult:
         if (
             self.pag_dag_sample_size is not None
             and self.pag_transportable_count is not None
@@ -554,13 +570,9 @@ class TransportabilityResult(BaseModel):
                 )
         if self.status is TransportabilityStatus.BOUNDED_NON_IDENTIFIED:
             if self.partial_identification_result is None:
-                raise ValueError(
-                    "bounded_non_identified requires partial_identification_result"
-                )
+                raise ValueError("bounded_non_identified requires partial_identification_result")
             if self.transport_mode is not TransportMode.BOUNDS_ONLY:
-                raise ValueError(
-                    "bounded_non_identified requires transport_mode=bounds_only"
-                )
+                raise ValueError("bounded_non_identified requires transport_mode=bounds_only")
             if self.transport_formula is not None:
                 raise ValueError("bounded_non_identified must not include transport_formula")
         if self.status is TransportabilityStatus.UNSUPPORTED:
@@ -752,9 +764,9 @@ def _normalize_transportability_payload(payload: dict[str, Any]) -> dict[str, An
         search_events = _append_unique(search_events, "outer_search_truncated")
     normalized["search_events"] = search_events
 
-    status_raw = str(
-        normalized.get("status", TransportabilityStatus.IDENTIFIED.value)
-    ).strip().lower()
+    status_raw = (
+        str(normalized.get("status", TransportabilityStatus.IDENTIFIED.value)).strip().lower()
+    )
     if status_raw == TransportabilityStatus.BOUNDED_NON_IDENTIFIED.value:
         normalized["transport_mode"] = TransportMode.BOUNDS_ONLY.value
         normalized["transport_formula"] = None
@@ -853,21 +865,21 @@ def _dedupe_str_items(items: Any) -> list[str]:
 __all__ = [
     "CONTEXT_VARIABLE_SENSITIVITY",
     "THRESHOLD_FOR_S_NODE",
+    "DataGap",
+    "MultiSourceSelectionDiagram",
+    "SNode",
     "SNodeOrigin",
     "SNodeRole",
-    "SNode",
-    "SigmaVariable",
     "SelectionDiagram",
     "SelectionDiagramBuilder",
+    "SigmaVariable",
     "SourceDomainSpec",
-    "MultiSourceSelectionDiagram",
     "StratificationVariable",
     "TransportFormula",
-    "TransportabilityStatus",
     "TransportMode",
-    "DataGap",
     "TransportabilityResult",
+    "TransportabilityStatus",
     "build_selection_diagram",
-    "persist_transportability_result",
     "load_transportability_result",
+    "persist_transportability_result",
 ]

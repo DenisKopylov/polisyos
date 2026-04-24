@@ -8,15 +8,20 @@ import sys
 import uuid
 from collections.abc import Sequence
 from pathlib import Path
-from tools._lib.imports import repo_root_from
 
 import duckdb
+
+from tools._lib.imports import repo_root_from
 
 if __package__ in {None, ""}:
     sys.path.insert(0, str(repo_root_from(__file__)))
 
 from tools._lib.fs import normalize_filesystem_path
-from tools._lib.sql import render_qualified_identifier, validate_qualified_sql_identifier, validate_sql_identifier
+from tools._lib.sql import (
+    render_qualified_identifier,
+    validate_qualified_sql_identifier,
+    validate_sql_identifier,
+)
 
 TABLES = [
     "world.world_facts",
@@ -38,7 +43,9 @@ TABLES = [
 ]
 
 _VALIDATED_TABLES = tuple(
-    render_qualified_identifier(*validate_qualified_sql_identifier(table, kind="table", min_parts=2, max_parts=2))
+    render_qualified_identifier(
+        *validate_qualified_sql_identifier(table, kind="table", min_parts=2, max_parts=2)
+    )
     for table in TABLES
 )
 
@@ -82,7 +89,10 @@ def main(argv: Sequence[str] | None = None) -> int:
                     continue
 
                 source_df["tenant_id"] = tenant_id
-                safe_columns = [validate_sql_identifier(str(column), kind="column") for column in source_df.columns]
+                safe_columns = [
+                    validate_sql_identifier(str(column), kind="column")
+                    for column in source_df.columns
+                ]
                 print(f"dry-run {table}: {len(source_df)} rows, columns={', '.join(safe_columns)}")
 
             print("dry-run completed")
@@ -94,29 +104,31 @@ def main(argv: Sequence[str] | None = None) -> int:
         except ModuleNotFoundError as exc:
             raise SystemExit("psycopg is required. Install policy-engine[multi-tenant].") from exc
 
-        with psycopg.connect(args.pg_dsn) as pg:
-            with pg.cursor() as cur:
-                for table in _VALIDATED_TABLES:
-                    try:
-                        source_df = duck.execute(f"SELECT * FROM {table}").fetchdf()
-                    except Exception:
-                        print(f"skip {table}: source table missing")
-                        continue
+        with psycopg.connect(args.pg_dsn) as pg, pg.cursor() as cur:
+            for table in _VALIDATED_TABLES:
+                try:
+                    source_df = duck.execute(f"SELECT * FROM {table}").fetchdf()
+                except Exception:
+                    print(f"skip {table}: source table missing")
+                    continue
 
-                    if source_df.empty:
-                        print(f"skip {table}: no rows")
-                        continue
+                if source_df.empty:
+                    print(f"skip {table}: no rows")
+                    continue
 
-                    source_df["tenant_id"] = tenant_id
-                    safe_columns = [validate_sql_identifier(str(column), kind="column") for column in source_df.columns]
-                    placeholders = ", ".join(["%s"] * len(safe_columns))
-                    column_sql = ", ".join(safe_columns)
-                    query = f"INSERT INTO {table} ({column_sql}) VALUES ({placeholders})"
-                    records = [tuple(row) for row in source_df.itertuples(index=False, name=None)]
+                source_df["tenant_id"] = tenant_id
+                safe_columns = [
+                    validate_sql_identifier(str(column), kind="column")
+                    for column in source_df.columns
+                ]
+                placeholders = ", ".join(["%s"] * len(safe_columns))
+                column_sql = ", ".join(safe_columns)
+                query = f"INSERT INTO {table} ({column_sql}) VALUES ({placeholders})"
+                records = [tuple(row) for row in source_df.itertuples(index=False, name=None)]
 
-                    execute_batch(cur, query, records, page_size=args.batch_size)
-                    migrated_total += len(records)
-                    print(f"migrated {table}: {len(records)} rows")
+                execute_batch(cur, query, records, page_size=args.batch_size)
+                migrated_total += len(records)
+                print(f"migrated {table}: {len(records)} rows")
     finally:
         duck.close()
 

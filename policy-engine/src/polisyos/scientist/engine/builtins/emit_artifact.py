@@ -1,4 +1,5 @@
 """Public builtins emit artifact module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -30,13 +31,14 @@ _EMIT_SPEC = NodeSpec(
 @dataclass(frozen=True)
 class EmitArtifactNode:
     """Bootstrap node that writes a JSON payload to CAS and records its ref in `artifacts_index`."""
+
     params: dict[str, object] | None = None
 
     @property
     def spec(self) -> NodeSpec:
         return _EMIT_SPEC
 
-    def bind(self, params: dict[str, object]) -> "EmitArtifactNode":
+    def bind(self, params: dict[str, object]) -> EmitArtifactNode:
         return EmitArtifactNode(params=params)
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:

@@ -44,8 +44,8 @@ def compute_propensity_weights(
 
     # Simple logistic via scipy or fallback to prevalence
     try:
-        from scipy.special import expit
         from scipy.optimize import minimize
+        from scipy.special import expit
 
         def neg_log_lik(beta):
             z = X @ beta[1:] + beta[0]
@@ -96,11 +96,13 @@ def ipw_estimate(
 
     # Horvitz-Thompson estimator
     ipw_treated = float(np.sum(t * y * weights)) / max(float(np.sum(t * weights)), 1e-10)
-    ipw_control = float(np.sum((1 - t) * y * weights)) / max(float(np.sum((1 - t) * weights)), 1e-10)
+    ipw_control = float(np.sum((1 - t) * y * weights)) / max(
+        float(np.sum((1 - t) * weights)), 1e-10
+    )
     ipw_est = ipw_treated - ipw_control
 
     # Diagnostics
-    ess = float(np.sum(weights) ** 2 / np.sum(weights ** 2))
+    ess = float(np.sum(weights) ** 2 / np.sum(weights**2))
 
     return IPWResult(
         raw_estimate=raw_estimate,

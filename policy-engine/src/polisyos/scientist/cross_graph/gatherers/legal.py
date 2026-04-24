@@ -6,7 +6,6 @@ from typing import Any
 
 from polisyos.ir.analytics.cross_graph import (
     CanonicalConcept,
-    CrossGraphDiagnostic,
     EvidenceNeed,
     LegalStatus,
 )
@@ -34,13 +33,21 @@ class LegalGatherer:
         if compiler_fn is not None:
             result = compiler_fn(need)
             return GathererResult(
-                status=result.status.value if hasattr(result.status, "value") else str(result.status),
+                status=result.status.value
+                if hasattr(result.status, "value")
+                else str(result.status),
                 confidence=result.confidence if hasattr(result, "confidence") else 0.5,
                 diagnostics=list(result.diagnostics) if hasattr(result, "diagnostics") else [],
-                provenance_refs=list(result.provenance_refs) if hasattr(result, "provenance_refs") else [],
+                provenance_refs=list(result.provenance_refs)
+                if hasattr(result, "provenance_refs")
+                else [],
                 metadata={
-                    "requires_expert_review": result.requires_expert_review if hasattr(result, "requires_expert_review") else False,
-                    "blocking_reasons": list(result.blocking_reasons) if hasattr(result, "blocking_reasons") else [],
+                    "requires_expert_review": result.requires_expert_review
+                    if hasattr(result, "requires_expert_review")
+                    else False,
+                    "blocking_reasons": list(result.blocking_reasons)
+                    if hasattr(result, "blocking_reasons")
+                    else [],
                 },
             )
 

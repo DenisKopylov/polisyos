@@ -1,0 +1,40 @@
+@layer base {
+  :root,
+  :root[data-density="comfortable"] {
+    --space-scale: 1;
+    --font-scale-step: 0;
+    --row-height-scale: 1;
+    --root-font-size: 16px;
+    --panel-padding: 22px;
+    --panel-header-gap: 14px;
+    --panel-header-margin: 18px;
+    --metric-padding-block: 16px;
+    --metric-padding-inline: 18px;
+    --input-padding-block: 14px;
+    --input-padding-inline: 16px;
+    --deck-gap: 18px;
+    --deck-slide-padding: 26px;
+    --deck-card-padding: 20px;
+    --control-radius: 16px;
+    --control-height-sm: 2rem;
+    --control-height-md: 2.75rem;
+    --control-height-lg: 3rem;
+    --control-height-icon: 2.25rem;
+    --control-px-sm: 0.75rem;
+    --control-px-md: 1rem;
+    --control-px-lg: 1.25rem;
+    --control-py-md: 0.75rem;
+    --control-text-sm: 0.75rem;
+    --control-text-md: 0.875rem;
+    --control-text-lg: 0.875rem;
+    --switch-height: 1.5rem;
+    --switch-width: 2.75rem;
+    --switch-thumb-size: 1.25rem;
+    --switch-thumb-translate: 1.25rem;
+    --table-cell-px: 0.75rem;
+    --table-cell-py: 0.75rem;
+    --table-header-py: 0.5rem;
+    --table-row-height: 2.5rem;
+    --table-min-width: 48rem;
+  }
+}

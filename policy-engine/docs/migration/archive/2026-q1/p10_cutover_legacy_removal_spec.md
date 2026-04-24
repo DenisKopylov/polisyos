@@ -36,19 +36,20 @@ P10 is the consolidation phase that must close these deferred removals and enfor
 
 Current hard gaps (baseline scan, `2026-02-10`):
 
-| Area | Current state | Impact |
-| --- | --- | --- |
-| Runtime run model | Runtime API still indexes both core runs and legacy manifests (`legacy_runtime` source) | Dual semantics in security, contracts, and client code |
-| Runtime lifecycle API | `src/polisyos/runtime/api.py` + `src/polisyos/runtime/manifest.py` still exposed via `runtime.__init__` | Legacy write-path remains importable and test fixtures depend on it |
-| Runtime API auth policy | `allow_unscoped_legacy_runs=True` path still present | Unscoped run access branch remains in tenant enforcement logic |
-| Foundry state-source resolution | `ExecuteRequest` still supports `state_snapshot_ref` and `data_snapshot_ref` compatibility fallback | Canonical input-binding contract from P8 is not strictly enforced |
-| Foundry compat facades | `foundry.base`, `foundry.types`, `foundry.domain.*` deprecation facades still active | Deprecated imports continue to compile and hide ownership drift |
-| Plugin bootstrap compatibility | Legacy entry-point bridges for `polisyos.connectors` / `polisyos.methods` are still loaded | Discovery complexity and deprecation debt remain in runtime paths |
-| Dashboard cutover | `dashboard.py` is still in tree and documented as demo utility | Direct DB/script path remains an attractive bypass to API contracts |
+| Area                            | Current state                                                                                           | Impact                                                              |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Runtime run model               | Runtime API still indexes both core runs and legacy manifests (`legacy_runtime` source)                 | Dual semantics in security, contracts, and client code              |
+| Runtime lifecycle API           | `src/polisyos/runtime/api.py` + `src/polisyos/runtime/manifest.py` still exposed via `runtime.__init__` | Legacy write-path remains importable and test fixtures depend on it |
+| Runtime API auth policy         | `allow_unscoped_legacy_runs=True` path still present                                                    | Unscoped run access branch remains in tenant enforcement logic      |
+| Foundry state-source resolution | `ExecuteRequest` still supports `state_snapshot_ref` and `data_snapshot_ref` compatibility fallback     | Canonical input-binding contract from P8 is not strictly enforced   |
+| Foundry compat facades          | `foundry.base`, `foundry.types`, `foundry.domain.*` deprecation facades still active                    | Deprecated imports continue to compile and hide ownership drift     |
+| Plugin bootstrap compatibility  | Legacy entry-point bridges for `polisyos.connectors` / `polisyos.methods` are still loaded              | Discovery complexity and deprecation debt remain in runtime paths   |
+| Dashboard cutover               | `dashboard.py` is still in tree and documented as demo utility                                          | Direct DB/script path remains an attractive bypass to API contracts |
 
 Observed baseline (`2026-02-10`, local code scan):
 
 1. Legacy usage counters:
+
    - `legacy_runtime` references in `src/` + `tests/`: `22`
    - `runtime.api` references in `src/` + `tests/`: `10`
    - legacy run adapter references (`load_legacy_run`, `LegacyRunManifest`, adapter module): `12`
@@ -56,17 +57,21 @@ Observed baseline (`2026-02-10`, local code scan):
    - `dashboard.py` references in key docs/specs: `9`
    - explicit P8 legacy fallback markers in code: `3`
 2. Repository runtime artifacts:
+
    - `runs/*/manifest.json` checked into repo: `26` files (legacy runtime shape)
 3. Compatibility surfaces still present:
+
    - Foundry compat facade files (`foundry.base/types/domain`): `7`
    - legacy entry-point bridge/group references (`polisyos.connectors`, `polisyos.methods`, legacy group flags): `26`
 4. Architecture freeze snapshot (`tools/lint/collect_arch_metrics.py`):
+
    - `package_cycles_count = 0`
    - `import_violations_count = 0`
    - `test_collect_errors_count = 46`
    - `ruff_total_issues = 1281`
    - `stale_sources_missing_paths_count = 40`
 5. Freeze compare status against `summary.json`:
+
    - blocking status: `FAIL`
    - blocking reason: `delta_test_collect_errors = +4` (historical regression)
    - additional non-blocking delta: `delta_ruff_total_issues = +87`
@@ -114,6 +119,7 @@ This document uses:
 ### 4.2 Runtime lifecycle contract after P10
 
 1. Public runtime package API MUST NOT expose legacy lifecycle helpers:
+
    - `start_run`
    - `log_artifact`
    - `append_audit`
@@ -133,10 +139,12 @@ This document uses:
 ### 4.4 Discovery/bootstrap contract after P10
 
 1. Canonical entry-point groups MUST be used:
+
    - `polisyos.fabric_connectors`
    - `polisyos.foundry_methods`
    - other P6 component groups already standardized.
 2. Legacy groups MUST be removed from runtime bootstrap:
+
    - `polisyos.connectors`
    - `polisyos.methods`
    - compatibility `polisyos.components` path where still wired.
@@ -145,11 +153,13 @@ This document uses:
 ### 4.5 Foundry import-path contract after P10
 
 1. Legacy compatibility facades from P5 MUST be removed or converted to hard errors:
+
    - `polisyos.foundry.base`
    - `polisyos.foundry.types`
    - `polisyos.foundry.domain.state`
    - `polisyos.foundry.domain.mechanisms.*`
 2. Canonical imports MUST target:
+
    - `polisyos.foundry.contracts.*`
    - `polisyos.foundry.mechanisms.*`
 
@@ -166,12 +176,16 @@ This document uses:
 Required changes:
 
 1. Remove legacy lifecycle module usage:
+
    - remove `src/polisyos/runtime/api.py` from package exports and runtime-critical tests.
 2. Remove legacy manifest model usage:
+
    - remove `src/polisyos/runtime/manifest.py` dependencies from runtime HTTP adapters/tests.
 3. Update runtime package export map:
+
    - `src/polisyos/runtime/__init__.py` MUST stop lazy-loading symbols from `runtime.api` and `runtime.manifest`.
 4. Remove legacy manifest compatibility detector path where no longer needed:
+
    - `src/polisyos/core/audit/_manifest_compat.py`
    - corresponding compatibility branch in `src/polisyos/core/audit/_assembler_core.py`.
 
@@ -180,14 +194,19 @@ Required changes:
 Required service changes:
 
 1. `src/polisyos/runtime/http/app.py`:
+
    - remove `legacy_runs_root` and `allow_unscoped_legacy_runs` app configuration knobs.
 2. `src/polisyos/runtime/http/dependencies.py`:
+
    - remove `allow_unscoped_legacy_runs` context flag and compatibility allow-branch.
 3. `src/polisyos/runtime/http/services/run_index.py`:
+
    - remove legacy run indexing and adapter integration.
 4. Remove legacy adapter module:
+
    - `src/polisyos/runtime/http/services/adapters/legacy_runtime.py`.
 5. `src/polisyos/core/contracts/runtime.py`:
+
    - remove `legacy_runtime` from `SourceKind`.
    - remove `legacy_artifact_paths` from canonical run details contracts (or mark non-emitted and deprecated for one patch release at most).
 
@@ -196,16 +215,20 @@ Required service changes:
 P10 MUST provide a deterministic pre-removal path for existing `runs/<id>/manifest.json` repositories:
 
 1. Add migration inventory CLI (recommended):
+
    - `tools/runtime/inventory_legacy_runs.py`
 2. Inventory output MUST include:
+
    - `run_id`
    - manifest status
    - artifact count
    - start/finish timestamps
    - parse/shape validity
 3. Optional archive CLI (recommended):
+
    - `tools/runtime/archive_legacy_runs.py`
 4. Archive policy:
+
    - create immutable archive artifact/report before deleting or ignoring legacy run roots.
 5. Runtime API MUST NOT depend on archive output for online serving.
 
@@ -214,13 +237,17 @@ P10 MUST provide a deterministic pre-removal path for existing `runs/<id>/manife
 Required changes:
 
 1. `src/polisyos/foundry/execute/api.py`:
+
    - remove `data_snapshot_ref` compatibility fallback branch.
    - remove legacy compatibility notes for fallback.
 2. `src/polisyos/core/contracts/foundry.py`:
+
    - tighten `ExecuteRequest` requirements toward binding-driven execution in production.
 3. `src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py`:
+
    - remove state-source fallback order that allows `state_snapshot_ref` or `data_snapshot_ref` without bindings.
 4. `src/polisyos/scientist/nodes/builtins/data/build_data_snapshot.py`:
+
    - remove/contain wrapping fallback from `state_snapshot_ref` where incompatible with canonical binding pipeline.
 
 ### 5.5 P5/P6/P7 compatibility removals
@@ -228,6 +255,7 @@ Required changes:
 Required changes:
 
 1. Remove P5 facade modules:
+
    - `src/polisyos/foundry/base.py`
    - `src/polisyos/foundry/types.py`
    - `src/polisyos/foundry/domain/state.py`
@@ -236,10 +264,13 @@ Required changes:
    - `src/polisyos/foundry/domain/mechanisms/labor.py`
    - `src/polisyos/foundry/domain/mechanisms/treasury.py`
 2. Remove legacy connector bootstrap bridge loading:
+
    - `include_legacy_entry_points=True` paths in connector bootstrap.
 3. Remove legacy method bootstrap fallback path:
+
    - compatibility `bootstrap_registry(...)` fallback usage in runtime execution flow.
 4. Remove legacy entry-point declarations from `pyproject.toml`:
+
    - `[project.entry-points."polisyos.methods"]`
    - `[project.entry-points."polisyos.connectors"]`
 5. Keep only canonical component entry-point groups in production bootstrap.
@@ -272,15 +303,19 @@ Minimum checks:
 ### 6.1 Milestones
 
 1. `M1` (`2026-09-01` -> `2026-09-03`):
+
    - inventory/archive tooling for legacy runs,
    - contract-impact map and breakage report.
 2. `M2` (`2026-09-03` -> `2026-09-07`):
+
    - runtime core-only cutover (`runtime.http`, contracts, package exports),
    - remove runtime legacy adapters/manifests from runtime path.
 3. `M3` (`2026-09-07` -> `2026-09-11`):
+
    - Foundry execute/source hardening to bindings-only,
    - remove P5/P6/P7 compat facades and legacy bootstrap groups.
 4. `M4` (`2026-09-12` -> `2026-09-14`):
+
    - OpenAPI/client/docs refresh,
    - lint/CI stabilization,
    - governance closure evidence.
@@ -297,15 +332,20 @@ Minimum checks:
 ### 7.1 Mandatory artifact updates
 
 1. `p1_refactor_queue.md`
+
    - add and track `Q11` for P10.
    - mark `Q11` as `Done` only after all P10 DoD criteria pass.
 2. `p10_cutover_legacy_removal_spec.md`
+
    - status progression (`Proposed` -> `Implemented`) with implementation evidence section at closure.
 3. `README.md`
+
    - remove references to legacy dashboard/runtime legacy paths in runtime critical-path guidance.
 4. `src/polisyos/runtime/README.md`
+
    - remove lifecycle API as active surface and document core-only runtime path.
 5. `pyproject.toml`
+
    - remove legacy connector/method entry-point groups.
 
 ### 7.2 Required verification commands
@@ -383,13 +423,13 @@ P10 is complete only if all criteria are met:
 
 ## 9. Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| Downstream import breakage from hard facade removal | High | Pre-cutover inventory, migration guide, explicit changelog mapping old imports to canonical paths |
-| Historical run observability loss after dropping legacy run ingestion | High | Mandatory inventory/archive tooling and signed archive reports before removal |
-| Workflow breakage from strict input-bindings requirement | High | Stage-gated rollout with dedicated tests for default DAG and replay paths |
-| Plugin ecosystem breakage from legacy entry-point group removal | Medium | Provide one release note cycle with explicit canonical group migration examples |
-| CI instability due broad test fixture rewrites | Medium | PR slicing with early fixture migration and temporary compatibility test isolation branch |
+| Risk                                                                  | Impact | Mitigation                                                                                        |
+| --------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------- |
+| Downstream import breakage from hard facade removal                   | High   | Pre-cutover inventory, migration guide, explicit changelog mapping old imports to canonical paths |
+| Historical run observability loss after dropping legacy run ingestion | High   | Mandatory inventory/archive tooling and signed archive reports before removal                     |
+| Workflow breakage from strict input-bindings requirement              | High   | Stage-gated rollout with dedicated tests for default DAG and replay paths                         |
+| Plugin ecosystem breakage from legacy entry-point group removal       | Medium | Provide one release note cycle with explicit canonical group migration examples                   |
+| CI instability due broad test fixture rewrites                        | Medium | PR slicing with early fixture migration and temporary compatibility test isolation branch         |
 
 ## 10. Post-P10 Follow-Ups (Out of Scope)
 
@@ -427,23 +467,28 @@ Legacy-cutover-specific planning signals:
 P10 implementation completed with the following evidence:
 
 1. Runtime API cutover to core-only:
+
    - `src/polisyos/runtime/http/app.py`
    - `src/polisyos/runtime/http/dependencies.py`
    - `src/polisyos/runtime/http/services/run_index.py`
    - `src/polisyos/core/contracts/runtime.py`
    - removed `src/polisyos/runtime/http/services/adapters/legacy_runtime.py`
 2. Runtime public surface narrowed:
+
    - `src/polisyos/runtime/__init__.py` no longer exports lifecycle helpers / `RunManifest`.
    - `src/polisyos/scientist/governance/preflight.py` removed dependency on runtime package lifecycle export.
 3. Audit compatibility path removal:
+
    - `src/polisyos/core/audit/_assembler_core.py` removed legacy manifest detector branch.
    - removed `src/polisyos/core/audit/_manifest_compat.py`.
 4. Foundry execute contract hardened to input bindings only:
+
    - `src/polisyos/core/contracts/foundry.py` (`ExecuteRequest` requires `input_bindings_ref`).
    - `src/polisyos/foundry/execute/api.py` removed `state_snapshot_ref`/`data_snapshot_ref` fallback path.
    - `src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py` fails fast without `input_bindings_ref`.
    - `src/polisyos/scientist/nodes/builtins/data/build_data_snapshot.py` removed state snapshot wrapping fallback.
 5. P5/P6/P7 compatibility removals:
+
    - removed Foundry facade modules:
      - `src/polisyos/foundry/base.py`
      - `src/polisyos/foundry/types.py`
@@ -460,15 +505,18 @@ P10 implementation completed with the following evidence:
      - `[project.entry-points."polisyos.methods"]`
      - `[project.entry-points."polisyos.connectors"]`
 6. Dashboard/docs cutover:
+
    - removed top-level `dashboard.py`.
    - updated `README.md` and `src/polisyos/runtime/README.md` to API-first/core-only guidance.
    - updated reference shell core-only assumptions:
      - `frontend/runtime-reference-shell/app.js`
      - `frontend/runtime-reference-shell/styles.css`
 7. Migration/archive tooling added:
+
    - `tools/runtime/inventory_legacy_runs.py`
    - `tools/runtime/archive_legacy_runs.py`
 8. Regression-prevention gate + tests added:
+
    - `tools/lint/lint_legacy_cutover.py`
    - `tests/lint/test_legacy_cutover_lint.py`
    - `tests/runtime/http/test_core_only_runs_api.py`

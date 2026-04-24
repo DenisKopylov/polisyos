@@ -22,26 +22,29 @@ After P6, plugin bootstrap is unified but production connector implementations r
 
 Current hardening gaps:
 
-| Area | Current state | Impact |
-| --- | --- | --- |
-| HTTP runtime duplication | `world_bank.py`, `eurostat.py`, `ukons.py` duplicate connection/session/request/error/version helper logic | High maintenance cost, drift risk |
-| Resilience policy shape | Retry and circuit-breaker values hardcoded per method; `ConnectionConfig.max_retries`, `retry_delay_seconds`, `rate_limit_rps` not consistently honored | Unpredictable runtime behavior across connectors |
-| Fetch envelope completeness | `fetch_duration_ms`, `resilience`, `quality_flags`, `evidence_ref` are not explicitly populated in production connectors | Weak observability and downstream governance context |
-| Freshness/evidence normalization | Versioning/freshness logic duplicated; evidence fields rely on ad-hoc mapping in ingestion | Inconsistent provenance semantics |
-| CI guardrails | No dedicated gate preventing reintroduction of connector-source helper duplication | Drift can return after refactors |
+| Area                             | Current state                                                                                                                                           | Impact                                               |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| HTTP runtime duplication         | `world_bank.py`, `eurostat.py`, `ukons.py` duplicate connection/session/request/error/version helper logic                                              | High maintenance cost, drift risk                    |
+| Resilience policy shape          | Retry and circuit-breaker values hardcoded per method; `ConnectionConfig.max_retries`, `retry_delay_seconds`, `rate_limit_rps` not consistently honored | Unpredictable runtime behavior across connectors     |
+| Fetch envelope completeness      | `fetch_duration_ms`, `resilience`, `quality_flags`, `evidence_ref` are not explicitly populated in production connectors                                | Weak observability and downstream governance context |
+| Freshness/evidence normalization | Versioning/freshness logic duplicated; evidence fields rely on ad-hoc mapping in ingestion                                                              | Inconsistent provenance semantics                    |
+| CI guardrails                    | No dedicated gate preventing reintroduction of connector-source helper duplication                                                                      | Drift can return after refactors                     |
 
 Measured baseline (`2026-02-10`, code scan + local metrics):
 
 1. Source size:
+
    - `world_bank.py`: `437` LOC
    - `eurostat.py`: `447` LOC
    - `ukons.py`: `406` LOC
 2. Duplicate function blocks across the three files: `28` occurrences (including `connect`, `disconnect`, `_get_session`, `_request_json`, `_build_version`, `_retry_after_seconds`, `_parse_http_datetime`, `_frame_completeness`).
 3. Pairwise file similarity:
+
    - `world_bank.py` vs `eurostat.py`: `0.626`
    - `world_bank.py` vs `ukons.py`: `0.677`
    - `eurostat.py` vs `ukons.py`: `0.683`
 4. Architecture freeze status remains healthy:
+
    - `package_cycles_count = 0`
    - `import_violations_count = 0`
    - `test_collect_errors_count = 42`
@@ -81,8 +84,10 @@ This document uses:
 P7 introduces canonical HTTP runtime ownership:
 
 1. New base module:
+
    - `src/polisyos/fabric/connectors/sources/http_base.py`
 2. Optional shared helpers module:
+
    - `src/polisyos/fabric/connectors/sources/http_common.py` (or equivalent)
 3. Production connectors under `sources/` MUST subclass `HTTPConnectorBase` unless non-HTTP.
 
@@ -90,16 +95,20 @@ P7 introduces canonical HTTP runtime ownership:
 
 1. Session lifecycle (`connect`, `disconnect`, `_get_session`) with config-driven timeout.
 2. Request execution helper with standardized status handling:
+
    - `429` -> `RateLimitError` with parsed retry-after.
    - `>=400` -> `FetchError` with status/URL context.
    - invalid JSON -> `FetchError`.
 3. Deterministic version builder:
+
    - `ETag` -> `Last-Modified` -> `content_hash`.
 4. Standard metrics assembly:
+
    - `fetch_duration_ms`
    - `bytes_transferred`
    - `version`, `source_updated_at`, `completeness`
 5. Canonical retry-after parser fallback chain:
+
    - `Retry-After` header
    - `X-RateLimit-Reset`
    - `None`.
@@ -135,6 +144,7 @@ For all P7-hardened production connectors:
 P7 does not require full governance blocking, but MUST standardize evidence-ready metadata:
 
 1. `run_connectors_ingestion(...)` MUST persist normalized fetch activity fields:
+
    - version strategy/value/hash
    - row count/completeness
    - freshness-relevant timestamps
@@ -147,6 +157,7 @@ P7 does not require full governance blocking, but MUST standardize evidence-read
 After cutover:
 
 1. `world_bank.py`, `eurostat.py`, `ukons.py` MUST NOT define duplicated generic helpers:
+
    - `_get_session`
    - `_request_json`
    - `_retry_after_seconds`
@@ -155,6 +166,7 @@ After cutover:
    - `_frame_completeness`
    - `_safe_int` / `_safe_float` (unless source-specific behavior differs and is documented)
 2. Source modules SHOULD contain only:
+
    - API-specific endpoint and parameter mapping
    - source-specific payload parsing/normalization
    - schema/capability metadata and dataset catalog logic.
@@ -166,6 +178,7 @@ After cutover:
 Required additions:
 
 1. `src/polisyos/fabric/connectors/sources/http_base.py`
+
    - `HTTPConnectorBase` class.
    - protected hooks for request-plan and payload-to-frame conversion.
 2. shared utility module for HTTP/version/freshness primitives.
@@ -188,10 +201,12 @@ Files to migrate:
 Migration requirements:
 
 1. Preserve current connector IDs:
+
    - `worldbank.wdi`
    - `eurostat.data`
    - `ukons.datasets`
 2. Preserve schema IDs:
+
    - `worldbank.wdi.generic`
    - `eurostat.data.generic`
    - `ukons.datasets.generic`
@@ -214,11 +229,14 @@ Required updates (connector-level or base-level):
 Required changes:
 
 1. `src/polisyos/fabric/ingestion.py`
+
    - ensure fetch activity payloads include all standardized version/freshness fields emitted by hardened connectors.
    - maintain deterministic manifest hash and provenance graph generation.
 2. `src/polisyos/fabric/connectors_ingestion.py`
+
    - no API breaking change; remains canonical entrypoint.
 3. `src/polisyos/fabric/_connector_bridge.py`
+
    - continue returning canonical `FetchResult`; no direct dependency on connector internals.
 
 ### 5.5 Tooling and lint gates
@@ -226,9 +244,11 @@ Required changes:
 Required additions:
 
 1. New lint tool (name TBD, recommended `tools/lint/lint_connector_hardening.py`) to enforce:
+
    - production sources subclass `HTTPConnectorBase` (for HTTP connectors),
    - forbidden duplicated helper definitions are absent.
 2. CI integration:
+
    - add lint step in `.github/workflows/arch-freeze.yml` or a dedicated connectors workflow.
 3. Existing `lint_connectors.py` remains in place for Law A/B boundaries.
 
@@ -237,12 +257,16 @@ Required additions:
 ### 6.1 Milestones
 
 1. `M1` (`2026-04-27` -> `2026-04-29`):
+
    - implement `HTTPConnectorBase` + shared helper module + unit tests.
 2. `M2` (`2026-04-29` -> `2026-05-03`):
+
    - migrate `world_bank` and `eurostat`.
 3. `M3` (`2026-05-03` -> `2026-05-07`):
+
    - migrate `ukons`, align ingestion fields, add lint guard.
 4. `M4` (`2026-05-08` -> `2026-05-10`):
+
    - docs/governance updates, CI stabilization, freeze evidence.
 
 ### 6.2 PR slicing (recommended)
@@ -257,10 +281,13 @@ Required additions:
 ### 7.1 Mandatory artifact updates
 
 1. `p1_refactor_queue.md`
+
    - dedicated P7 work item (`Q8`) is closed.
 2. `p7_connector_platform_hardening_spec.md`
+
    - status progression (`Proposed` -> `Implemented`) with evidence section.
 3. `import_exceptions.toml` / `import_exceptions_registry.md`
+
    - P7 SHOULD not require new architecture exceptions.
 
 ### 7.2 Required verification commands
@@ -325,13 +352,13 @@ P7 is complete only if all criteria are met:
 
 ## 9. Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| Behavior drift in source-specific parsers during refactor | High | Golden tests for each production connector output columns and row semantics |
-| Retry/rate-limit tuning regressions in production APIs | High | Profile defaults + integration tests with mocked 429/5xx flows |
-| Scope creep into full quality-governance blocking | Medium | Keep P7 to normalization/readiness; defer hard gates to dedicated stream |
-| CI flakiness due external dependency/env mismatch | Medium | Keep source tests mock-based; pin required test deps in CI environment |
-| Reintroduction of duplicated helpers after future edits | Medium | Add dedicated lint gate and AST-based regression test |
+| Risk                                                      | Impact | Mitigation                                                                  |
+| --------------------------------------------------------- | ------ | --------------------------------------------------------------------------- |
+| Behavior drift in source-specific parsers during refactor | High   | Golden tests for each production connector output columns and row semantics |
+| Retry/rate-limit tuning regressions in production APIs    | High   | Profile defaults + integration tests with mocked 429/5xx flows              |
+| Scope creep into full quality-governance blocking         | Medium | Keep P7 to normalization/readiness; defer hard gates to dedicated stream    |
+| CI flakiness due external dependency/env mismatch         | Medium | Keep source tests mock-based; pin required test deps in CI environment      |
+| Reintroduction of duplicated helpers after future edits   | Medium | Add dedicated lint gate and AST-based regression test                       |
 
 ## 10. Post-P7 Follow-Ups (Out of Scope)
 
@@ -363,9 +390,11 @@ Connector hardening baseline:
 ### 12.1 Shared HTTP runtime implemented
 
 1. Added canonical HTTP helper/runtime modules:
+
    - `src/polisyos/fabric/connectors/sources/http_common.py`
    - `src/polisyos/fabric/connectors/sources/http_base.py`
 2. `HTTPConnectorBase` now owns:
+
    - session lifecycle (`connect`, `disconnect`, `_get_session`),
    - standardized HTTP JSON handling (`429`, `>=400`, invalid JSON),
    - deterministic data version assembly (`ETag -> Last-Modified -> content_hash`),
@@ -375,15 +404,18 @@ Connector hardening baseline:
 ### 12.2 Production connectors migrated
 
 1. Migrated production connectors to shared base:
+
    - `src/polisyos/fabric/connectors/sources/world_bank.py`
    - `src/polisyos/fabric/connectors/sources/eurostat.py`
    - `src/polisyos/fabric/connectors/sources/ukons.py`
 2. Connector contracts preserved:
+
    - IDs: `worldbank.wdi`, `eurostat.data`, `ukons.datasets`
    - Schema IDs: `worldbank.wdi.generic`, `eurostat.data.generic`, `ukons.datasets.generic`
    - Output columns unchanged (source-specific normalization preserved).
 3. Source modules no longer define duplicated generic helpers (`_get_session`, `_request_json`, `_build_version`, `_retry_after_seconds`, `_parse_http_datetime`, `_frame_completeness`, `_safe_int`, `_safe_float`).
 4. Duplicate function-block evidence (AST identical blocks across three production connectors):
+
    - baseline: `28` occurrences
    - after P7: `0` occurrences
    - reduction: `100%` (`>=60%` target met).
@@ -391,8 +423,10 @@ Connector hardening baseline:
 ### 12.3 Ingestion normalization hardened
 
 1. Updated fetch activity payload generation in:
+
    - `src/polisyos/fabric/ingestion.py`
 2. Added normalized fields:
+
    - `source_updated_at`
    - `fetch_duration_ms`
    - `quality_flags`
@@ -403,10 +437,13 @@ Connector hardening baseline:
 ### 12.4 Lint and CI hardening
 
 1. Added dedicated lint tool:
+
    - `tools/lint/lint_connector_hardening.py`
 2. CI integration added:
+
    - `.github/workflows/arch-freeze.yml` now runs `python3 tools/lint/lint_connector_hardening.py`.
 3. Existing Law A/B connector lint remains active:
+
    - `tools/lint/lint_connectors.py`.
 
 ### 12.5 Tests added/updated
@@ -425,12 +462,15 @@ Updated:
 ### 12.6 Verification results
 
 1. Connector lint gates:
+
    - `python3 tools/lint/lint_connectors.py --src-root src/polisyos/fabric/connectors --strict` -> `all clean`
    - `python3 tools/lint/lint_connector_hardening.py` -> `all checks passed`
 2. Targeted regression + P7 tests:
+
    - `uv run --group test python -m pytest ...` (production connectors + new P7 tests + protocol/resilience/quality suites)
    - Result: `85 passed`.
 3. Architecture freeze:
+
    - `python3 tools/lint/collect_arch_metrics.py ...`
    - `python3 tools/lint/compare_baseline.py --mode blocking ...`
    - Result: `[OK] Architecture freeze checks passed.`
@@ -439,7 +479,9 @@ Updated:
 ### 12.7 Governance updates
 
 1. Closed P7 queue item:
+
    - `p1_refactor_queue.md` (`Q8 -> Done`, `2026-02-10`).
 2. Spec status updated:
+
    - `p7_connector_platform_hardening_spec.md` -> `Status: Implemented`.
 3. No new architecture exceptions were introduced in this phase.

@@ -19,8 +19,10 @@
 Current architecture debt cluster:
 
 1. Cycle `CYCLE-003` is open in `arch_cycles_register.csv`:
+
    - `polisyos.lex <-> polisyos.scientist`
 2. `ARCH001-0029..0032` are active in `import_debt_register.csv`:
+
    - `src/polisyos/lex/simulator/engine.py` imports:
      - `polisyos.scientist.governance.passes.base`
      - `polisyos.scientist.governance.passes.legal_pass`
@@ -28,6 +30,7 @@ Current architecture debt cluster:
      - `polisyos.scientist.governance.profiles`
 3. Exception `E-2026-02-LEX-SCIENTIST-001` temporarily permits these imports until `2026-04-30`.
 4. Reverse dependency remains valid and intentional:
+
    - `src/polisyos/scientist/nodes/builtins/governance/legal_check.py` imports `polisyos.lex.*`.
 
 Net effect: lower layer `lex` depends on higher layer `scientist`, violating target DAG and blocking closure of one package cycle.
@@ -74,15 +77,15 @@ Target dependency shape:
 
 The following modules become canonical in `core`:
 
-| Current module (source of shared logic) | Canonical P2 module |
-| --- | --- |
-| `src/polisyos/scientist/governance/profiles.py` | `src/polisyos/core/governance/profiles.py` |
-| `src/polisyos/scientist/governance/passes/base.py` | `src/polisyos/core/governance/passes/base.py` |
-| `src/polisyos/scientist/governance/passes/legal_pass.py` | `src/polisyos/core/governance/passes/legal_pass.py` |
-| `src/polisyos/scientist/governance/passes/safety_pass.py` | `src/polisyos/core/governance/passes/safety_pass.py` |
-| `src/polisyos/scientist/governance/legal/ast_policy.py` | `src/polisyos/core/governance/legal/ast_policy.py` |
-| `src/polisyos/scientist/governance/legal/backends/base.py` | `src/polisyos/core/governance/legal/backends/base.py` |
-| `src/polisyos/scientist/governance/legal/backends/stub.py` | `src/polisyos/core/governance/legal/backends/stub.py` |
+| Current module (source of shared logic)                        | Canonical P2 module                                       |
+| -------------------------------------------------------------- | --------------------------------------------------------- |
+| `src/polisyos/scientist/governance/profiles.py`                | `src/polisyos/core/governance/profiles.py`                |
+| `src/polisyos/scientist/governance/passes/base.py`             | `src/polisyos/core/governance/passes/base.py`             |
+| `src/polisyos/scientist/governance/passes/legal_pass.py`       | `src/polisyos/core/governance/passes/legal_pass.py`       |
+| `src/polisyos/scientist/governance/passes/safety_pass.py`      | `src/polisyos/core/governance/passes/safety_pass.py`      |
+| `src/polisyos/scientist/governance/legal/ast_policy.py`        | `src/polisyos/core/governance/legal/ast_policy.py`        |
+| `src/polisyos/scientist/governance/legal/backends/base.py`     | `src/polisyos/core/governance/legal/backends/base.py`     |
+| `src/polisyos/scientist/governance/legal/backends/stub.py`     | `src/polisyos/core/governance/legal/backends/stub.py`     |
 | `src/polisyos/scientist/governance/legal/backends/expr_ast.py` | `src/polisyos/core/governance/legal/backends/expr_ast.py` |
 
 Modules that remain Scientist-owned:
@@ -110,16 +113,21 @@ For one release window after P2 merge:
 Canonical API surface:
 
 1. `polisyos.core.governance.profiles`
+
    - `ProfileLevel`
    - `ValidationProfile`
 2. `polisyos.core.governance.passes.base`
+
    - `PassContext`
    - `ValidatorPass`
 3. `polisyos.core.governance.passes.legal_pass`
+
    - `LegalPass`
 4. `polisyos.core.governance.passes.safety_pass`
+
    - `SafetyPass`
 5. `polisyos.core.governance.legal.backends`
+
    - `RuleBackend` adapter exports and concrete backends
 
 No DTO/schema changes are permitted in this phase for:
@@ -133,14 +141,19 @@ No DTO/schema changes are permitted in this phase for:
 Mandatory import rewiring:
 
 1. `src/polisyos/lex/simulator/engine.py`
+
    - Replace all imports from `polisyos.scientist.governance.*` with `polisyos.core.governance.*`.
 2. `src/polisyos/core/components/_cli_lex.py`
+
    - Replace runtime import target `polisyos.scientist.governance.profiles` with `polisyos.core.governance.profiles`.
 3. `src/polisyos/scientist/governance/preflight.py`
+
    - Import shared `PassContext`, `LegalPass`, `SafetyPass`, `ValidationProfile` from `core.governance`.
 4. `src/polisyos/scientist/nodes/builtins/governance/run_governance.py`
+
    - Import shared `PassContext` and `ValidationProfile` from `core.governance`.
 5. Tests and docs:
+
    - Update imports in tests that directly target moved modules.
    - Update references in `src/polisyos/lex/README.md`, `src/polisyos/scientist/README.md`, and `src/polisyos/scientist/governance/README.md`.
 
@@ -171,12 +184,16 @@ Mandatory import rewiring:
 ### 7.1 Artifacts to update as part of completion
 
 1. `import_exceptions.toml`
+
    - Remove `E-2026-02-LEX-SCIENTIST-001`.
 2. `import_exceptions_registry.md`
+
    - Mark/remove the same exception from active set.
 3. `import_debt_register.csv`
+
    - Remove/close `ARCH001-0029..0032`.
 4. `arch_cycles_register.csv`
+
    - Mark `CYCLE-003` as closed with closure evidence reference.
 
 ### 7.2 Required verification commands
@@ -225,12 +242,12 @@ P2 is complete only if all criteria are met:
 
 ## 9. Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| API break for existing imports from `scientist.governance.*` | High | Provide shim modules + deprecation warnings for one release |
-| Semantics drift during module move | High | Move code with minimal edits first, then rewire imports; compare test outputs |
-| Hidden dynamic import path remains stale | Medium | Grep for `importlib.import_module(\"polisyos.scientist.governance` and rewire explicitly |
-| Debt artifacts not synchronized with code closure | Medium | Treat registry/debt/cycle updates as mandatory in same PR set |
+| Risk                                                         | Impact | Mitigation                                                                               |
+| ------------------------------------------------------------ | ------ | ---------------------------------------------------------------------------------------- |
+| API break for existing imports from `scientist.governance.*` | High   | Provide shim modules + deprecation warnings for one release                              |
+| Semantics drift during module move                           | High   | Move code with minimal edits first, then rewire imports; compare test outputs            |
+| Hidden dynamic import path remains stale                     | Medium | Grep for `importlib.import_module(\"polisyos.scientist.governance` and rewire explicitly |
+| Debt artifacts not synchronized with code closure            | Medium | Treat registry/debt/cycle updates as mandatory in same PR set                            |
 
 ## 10. Post-P2 Follow-Ups (Out of Scope for this spec)
 
@@ -250,6 +267,7 @@ P2 is complete only if all criteria are met:
 ### 11.2 Debt and governance artifacts updated
 
 1. Removed exception `E-2026-02-LEX-SCIENTIST-001` from:
+
    - `import_exceptions.toml`
    - `import_exceptions_registry.md`
 2. Removed debt rows `ARCH001-0029..0032` from `import_debt_register.csv`.

@@ -1,22 +1,14 @@
 """Public survey estimation module API."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from statistics import NormalDist
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
-from polisyos.ir.analytics.dependence_structure import (
-    dependence_structure_from_graph_diagnostic,
-    persist_dependence_structure,
-)
-from polisyos.ir.artifacts.io import put_json_artifact
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import ArtifactRefModel
-from polisyos.foundry.methods.catalog.dependence.diagnostics import _row_standardize_weights
-from polisyos.foundry.methods.catalog.dependence.protocols import DependenceDiagnosticData, DependenceGraphSpec
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -29,14 +21,26 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
+from polisyos.foundry.methods.catalog.dependence.diagnostics import _row_standardize_weights
+from polisyos.foundry.methods.catalog.dependence.protocols import (
+    DependenceDiagnosticData,
+    DependenceGraphSpec,
+)
 from polisyos.foundry.methods.catalog.survey.protocols import (
     AUXILIARY_TOTAL_UNCERTAINTY_TARGET,
     CALIBRATION_WEIGHTS_TARGET,
-    SAEResult,
     AuxiliaryTotalUncertainty,
     CalibrationWeights,
+    SAEResult,
 )
-
+from polisyos.ir.analytics.dependence_structure import (
+    dependence_structure_from_graph_diagnostic,
+    persist_dependence_structure,
+)
+from polisyos.ir.artifacts.io import put_json_artifact
+from polisyos.ir.canon import CanonSpec
+from polisyos.ir.refs import ArtifactRefModel
 
 _FLOAT_EPS = 1e-12
 _CHI2_95 = 3.841458820694124
@@ -110,7 +114,9 @@ def _matrix_from_state(state: Mapping[str, Any], key: str, *aliases: str) -> np.
     raise KeyError(f"missing required input: {key}")
 
 
-def _optional_q_weights(state: Mapping[str, Any], params: Mapping[str, Any], n_obs: int) -> np.ndarray:
+def _optional_q_weights(
+    state: Mapping[str, Any], params: Mapping[str, Any], n_obs: int
+) -> np.ndarray:
     raw = state.get("q_weights", params.get("q_weights"))
     if raw is None:
         return np.ones((n_obs,), dtype=float)
@@ -145,7 +151,9 @@ def _optional_sample_aux_error_cov(
     return 0.5 * (arr + arr.T)
 
 
-def _optional_bounds(state: Mapping[str, Any], params: Mapping[str, Any]) -> tuple[float, float] | None:
+def _optional_bounds(
+    state: Mapping[str, Any], params: Mapping[str, Any]
+) -> tuple[float, float] | None:
     raw = state.get("bounds", params.get("bounds"))
     if raw is None:
         return None
@@ -172,10 +180,14 @@ def _normalize_auxiliary_total_uncertainty(
 ) -> AuxiliaryTotalUncertainty:
     if isinstance(raw, AuxiliaryTotalUncertainty):
         if raw.n_targets != n_aux:
-            raise ValueError("auxiliary_total_uncertainty target count must match population_totals")
+            raise ValueError(
+                "auxiliary_total_uncertainty target count must match population_totals"
+            )
         return raw
     if not isinstance(raw, Mapping):
-        raise TypeError("auxiliary_total_uncertainty must be a mapping or AuxiliaryTotalUncertainty")
+        raise TypeError(
+            "auxiliary_total_uncertainty must be a mapping or AuxiliaryTotalUncertainty"
+        )
 
     payload = dict(raw)
     payload.setdefault("schema_version", "1.0")
@@ -198,7 +210,9 @@ def _normalize_auxiliary_total_uncertainty(
     return model
 
 
-def _covariance_from_state(state: Mapping[str, Any], n_aux: int, totals: np.ndarray) -> tuple[
+def _covariance_from_state(
+    state: Mapping[str, Any], n_aux: int, totals: np.ndarray
+) -> tuple[
     AuxiliaryTotalUncertainty | None,
     np.ndarray,
 ]:
@@ -212,7 +226,9 @@ def _covariance_from_state(state: Mapping[str, Any], n_aux: int, totals: np.ndar
     return uncertainty, covariance
 
 
-def _materialize_greg_state(bound_inputs: Mapping[str, Any], fallback_state: Any) -> Mapping[str, Any]:
+def _materialize_greg_state(
+    bound_inputs: Mapping[str, Any], fallback_state: Any
+) -> Mapping[str, Any]:
     if isinstance(fallback_state, Mapping):
         payload = dict(fallback_state)
     else:
@@ -239,7 +255,9 @@ def _materialize_greg_state(bound_inputs: Mapping[str, Any], fallback_state: Any
     return payload
 
 
-def _solve_system(system: np.ndarray, rhs: np.ndarray) -> tuple[np.ndarray, np.ndarray, str, float, float]:
+def _solve_system(
+    system: np.ndarray, rhs: np.ndarray
+) -> tuple[np.ndarray, np.ndarray, str, float, float]:
     if system.shape[0] == 0:
         return rhs.copy(), system.copy(), "ok", 1.0, 0.0
 
@@ -329,7 +347,9 @@ def _conditional_predictive_scores(
     }
 
 
-def _profile_interval(values: np.ndarray, profile_loss: np.ndarray) -> tuple[tuple[float, float] | None, bool | None]:
+def _profile_interval(
+    values: np.ndarray, profile_loss: np.ndarray
+) -> tuple[tuple[float, float] | None, bool | None]:
     finite_mask = np.isfinite(profile_loss)
     if not np.any(finite_mask):
         return None, None
@@ -365,9 +385,9 @@ def _numerical_hessian_2d(
 
     h11 = (points["fxp"] - 2.0 * points["f00"] + points["fxm"]) / max(hx * hx, _FLOAT_EPS)
     h22 = (points["fyp"] - 2.0 * points["f00"] + points["fym"]) / max(hy * hy, _FLOAT_EPS)
-    h12 = (
-        points["fpp"] - points["fpm"] - points["fmp"] + points["fmm"]
-    ) / max(4.0 * hx * hy, _FLOAT_EPS)
+    h12 = (points["fpp"] - points["fpm"] - points["fmp"] + points["fmm"]) / max(
+        4.0 * hx * hy, _FLOAT_EPS
+    )
     return np.asarray([[h11, h12], [h12, h22]], dtype=float)
 
 
@@ -431,7 +451,9 @@ def _reml_from_covariance(y: np.ndarray, X: np.ndarray, V: np.ndarray) -> dict[s
     }
 
 
-def _fay_herriot_baseline_fit(y: np.ndarray, X: np.ndarray, D: np.ndarray, *, max_iter: int) -> dict[str, Any]:
+def _fay_herriot_baseline_fit(
+    y: np.ndarray, X: np.ndarray, D: np.ndarray, *, max_iter: int
+) -> dict[str, Any]:
     beta_ols = np.linalg.lstsq(X, y, rcond=None)[0]
     residuals = y - X @ beta_ols
     A_hat = max(0.0, float(np.mean(residuals**2) - np.mean(D)))
@@ -584,11 +606,15 @@ def _fit_graph_fh(
         boundary_hit = True
     else:
         curvature = float(
-            profile_loss[rho_index - 1] - 2.0 * profile_loss[rho_index] + profile_loss[rho_index + 1]
+            profile_loss[rho_index - 1]
+            - 2.0 * profile_loss[rho_index]
+            + profile_loss[rho_index + 1]
         )
         boundary_hit = bool(abs(best["rho"]) >= 0.98 * rho_limit)
 
-    rho_confidence_interval, rho_interval_contains_zero = _profile_interval(rho_values, profile_loss)
+    rho_confidence_interval, rho_interval_contains_zero = _profile_interval(
+        rho_values, profile_loss
+    )
     tau_step = max(1e-5, 0.05 * max(float(best["tau2"]), 1e-3))
     rho_step = max(1e-4, 0.05 * max(abs(rho_limit), 1e-2))
     hessian = _numerical_hessian_2d(
@@ -628,10 +654,7 @@ def _fit_graph_fh(
         and (information_eigen_min is None or information_eigen_min > 1e-5)
         and (
             information_condition_number is None
-            or (
-                np.isfinite(information_condition_number)
-                and information_condition_number < 1e8
-            )
+            or (np.isfinite(information_condition_number) and information_condition_number < 1e8)
         )
         and not weak_rho_identification
     )
@@ -668,8 +691,12 @@ def _fit_hybrid_graph_fh(
     if primary_fit.get("rho") is None or secondary_fit.get("rho") is None:
         return None
 
-    R_primary = _sar_covariance(_row_standardize_weights(primary_graph.W), float(primary_fit["rho"]))
-    R_secondary = _sar_covariance(_row_standardize_weights(secondary_graph.W), float(secondary_fit["rho"]))
+    R_primary = _sar_covariance(
+        _row_standardize_weights(primary_graph.W), float(primary_fit["rho"])
+    )
+    R_secondary = _sar_covariance(
+        _row_standardize_weights(secondary_graph.W), float(secondary_fit["rho"])
+    )
     tau2_values = _tau2_grid(y, D, baseline_a, n_grid=tau2_grid_size)
     mix_values = np.linspace(0.05, 0.95, num=max(5, mix_grid_size))
     profile_loss = np.full(mix_values.shape[0], np.inf, dtype=float)
@@ -727,7 +754,9 @@ def _fit_hybrid_graph_fh(
         boundary_hit = True
     else:
         curvature = float(
-            profile_loss[mix_index - 1] - 2.0 * profile_loss[mix_index] + profile_loss[mix_index + 1]
+            profile_loss[mix_index - 1]
+            - 2.0 * profile_loss[mix_index]
+            + profile_loss[mix_index + 1]
         )
         boundary_hit = bool(best["mix_weight"] <= 0.06 or best["mix_weight"] >= 0.94)
 
@@ -775,10 +804,7 @@ def _fit_hybrid_graph_fh(
         and (information_eigen_min is None or information_eigen_min > 1e-5)
         and (
             information_condition_number is None
-            or (
-                np.isfinite(information_condition_number)
-                and information_condition_number < 1e8
-            )
+            or (np.isfinite(information_condition_number) and information_condition_number < 1e8)
         )
     )
     best["bic"] = float(best["reml_loss"] + 3.0 * np.log(y.shape[0]))
@@ -788,7 +814,9 @@ def _fit_hybrid_graph_fh(
 
 def _analytic_intervals(estimates: np.ndarray, mse: np.ndarray) -> list[list[float]]:
     radius = 1.96 * np.sqrt(np.maximum(mse, 0.0))
-    return [[float(est - rad), float(est + rad)] for est, rad in zip(estimates, radius, strict=False)]
+    return [
+        [float(est - rad), float(est + rad)] for est, rad in zip(estimates, radius, strict=False)
+    ]
 
 
 def _bootstrap_uncertainty(
@@ -823,8 +851,7 @@ def _bootstrap_uncertainty(
             fit_rep = _fay_herriot_baseline_fit(direct, X, D, max_iter=max_iter)
         elif hybrid_graphs is not None:
             component_map = {
-                str(item["graph_id"]): item
-                for item in selected_fit.get("kernel_components", ())
+                str(item["graph_id"]): item for item in selected_fit.get("kernel_components", ())
             }
             primary_graph, secondary_graph = hybrid_graphs
             fit_rep = _fit_hybrid_graph_fh(
@@ -862,7 +889,9 @@ def _bootstrap_uncertainty(
     return np.asarray(mse, dtype=float), intervals
 
 
-def _coerce_candidate_graphs(state: Mapping[str, Any], n_areas: int) -> tuple[DependenceGraphSpec, ...]:
+def _coerce_candidate_graphs(
+    state: Mapping[str, Any], n_areas: int
+) -> tuple[DependenceGraphSpec, ...]:
     raw_graphs = state.get("candidate_graphs") or ()
     graphs = tuple(
         item if isinstance(item, DependenceGraphSpec) else DependenceGraphSpec.model_validate(item)
@@ -884,7 +913,9 @@ def _diagnose_dependence(
     candidate_fit_summaries: list[Mapping[str, Any]] | None,
     params: Mapping[str, Any],
 ) -> dict[str, Any]:
-    from polisyos.foundry.methods.catalog.dependence.diagnostics import GraphDependenceDiagnosticEstimator
+    from polisyos.foundry.methods.catalog.dependence.diagnostics import (
+        GraphDependenceDiagnosticEstimator,
+    )
 
     if not candidate_graphs:
         return {
@@ -945,10 +976,17 @@ def _criterion_improvement(
     criterion: str,
 ) -> float:
     if criterion == "heldout_logscore":
-        return float(candidate_fit.get("heldout_logscore", float("-inf")) - baseline_fit.get("heldout_logscore", float("-inf")))
+        return float(
+            candidate_fit.get("heldout_logscore", float("-inf"))
+            - baseline_fit.get("heldout_logscore", float("-inf"))
+        )
     if criterion == "crps":
-        return float(baseline_fit.get("crps", float("inf")) - candidate_fit.get("crps", float("inf")))
-    return float(_criterion_value(baseline_fit, criterion) - _criterion_value(candidate_fit, criterion))
+        return float(
+            baseline_fit.get("crps", float("inf")) - candidate_fit.get("crps", float("inf"))
+        )
+    return float(
+        _criterion_value(baseline_fit, criterion) - _criterion_value(candidate_fit, criterion)
+    )
 
 
 def _criterion_threshold(criterion: str) -> float:
@@ -968,6 +1006,7 @@ def _criterion_threshold(criterion: str) -> float:
 )
 class FayHerriotEstimator:
     """Estimate small-area outcomes with Fay-Herriot models."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -977,9 +1016,18 @@ class FayHerriotEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("y_direct", SlotType.VECTOR, Unit("estimate", "value"), shape=("n_areas",)),
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_areas", "n_covariates")),
-                SlotSpec("sampling_var", SlotType.VECTOR, Unit("variance", "value"), shape=("n_areas",)),
+                SlotSpec(
+                    "y_direct", SlotType.VECTOR, Unit("estimate", "value"), shape=("n_areas",)
+                ),
+                SlotSpec(
+                    "X",
+                    SlotType.MATRIX,
+                    Unit("covariate", "value"),
+                    shape=("n_areas", "n_covariates"),
+                ),
+                SlotSpec(
+                    "sampling_var", SlotType.VECTOR, Unit("variance", "value"), shape=("n_areas",)
+                ),
             }
         ),
         output_slots=frozenset(
@@ -992,9 +1040,7 @@ class FayHerriotEstimator:
                 )
             }
         ),
-        parameters=(
-            ParameterSpec(name="max_iter", default=100),
-        ),
+        parameters=(ParameterSpec(name="max_iter", default=100),),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -1006,7 +1052,9 @@ class FayHerriotEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Fay-Herriot area-level model for small area estimation via EBLUP.",
         tags=frozenset({"survey", "small-area", "fay-herriot", "eblup"}),
-        citations=("Fay, R.E. & Herriot, R.A. (1979). Estimates of Income for Small Places. JASA.",),
+        citations=(
+            "Fay, R.E. & Herriot, R.A. (1979). Estimates of Income for Small Places. JASA.",
+        ),
         equations={"fay_herriot": "y_i = x_i'*beta + v_i + e_i; v_i ~ N(0, A), e_i ~ N(0, D_i)"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -1054,9 +1102,18 @@ class FayHerriotDependenceAwareEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("y_direct", SlotType.VECTOR, Unit("estimate", "value"), shape=("n_areas",)),
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_areas", "n_covariates")),
-                SlotSpec("sampling_var", SlotType.VECTOR, Unit("variance", "value"), shape=("n_areas",)),
+                SlotSpec(
+                    "y_direct", SlotType.VECTOR, Unit("estimate", "value"), shape=("n_areas",)
+                ),
+                SlotSpec(
+                    "X",
+                    SlotType.MATRIX,
+                    Unit("covariate", "value"),
+                    shape=("n_areas", "n_covariates"),
+                ),
+                SlotSpec(
+                    "sampling_var", SlotType.VECTOR, Unit("variance", "value"), shape=("n_areas",)
+                ),
                 SlotSpec("candidate_graphs", SlotType.SCALAR, Unit("graph", "json")),
             }
         ),
@@ -1141,11 +1198,15 @@ class FayHerriotDependenceAwareEstimator:
         if mode == "independent":
             graphs_to_fit: tuple[DependenceGraphSpec, ...] = ()
         elif mode == "spatial":
-            graphs_to_fit = tuple(graph for graph in candidate_graphs if _graph_role(graph) == "spatial")
+            graphs_to_fit = tuple(
+                graph for graph in candidate_graphs if _graph_role(graph) == "spatial"
+            )
             if not graphs_to_fit:
                 fallback_reason = "requested_mode_spatial_not_found"
         elif mode == "admin":
-            graphs_to_fit = tuple(graph for graph in candidate_graphs if _graph_role(graph) == "admin")
+            graphs_to_fit = tuple(
+                graph for graph in candidate_graphs if _graph_role(graph) == "admin"
+            )
             if not graphs_to_fit:
                 fallback_reason = "requested_mode_admin_not_found"
         elif mode in {"auto", "hybrid"}:
@@ -1246,7 +1307,9 @@ class FayHerriotDependenceAwareEstimator:
                     "graph_id": fit["graph_id"],
                     "family": fit["family"],
                     "criterion_value": _criterion_value(fit, criterion),
-                    "criterion_improvement": _criterion_improvement(baseline_selected, fit, criterion),
+                    "criterion_improvement": _criterion_improvement(
+                        baseline_selected, fit, criterion
+                    ),
                     "identifiable": bool(fit.get("identifiable", False)),
                     "boundary_hit": bool(fit.get("boundary_hit", False)),
                     "selected_model": "hybrid" if fit["family"] == "HYBRID" else "graph",
@@ -1254,8 +1317,14 @@ class FayHerriotDependenceAwareEstimator:
             )
 
         criterion_threshold = _criterion_threshold(criterion)
-        best_overall = min(fit_candidates, key=lambda item: _criterion_value(item, criterion)) if fit_candidates else None
-        identifiable_candidates = [fit for fit in fit_candidates if bool(fit.get("identifiable", False))]
+        best_overall = (
+            min(fit_candidates, key=lambda item: _criterion_value(item, criterion))
+            if fit_candidates
+            else None
+        )
+        identifiable_candidates = [
+            fit for fit in fit_candidates if bool(fit.get("identifiable", False))
+        ]
         best_identifiable = (
             min(identifiable_candidates, key=lambda item: _criterion_value(item, criterion))
             if identifiable_candidates
@@ -1283,7 +1352,9 @@ class FayHerriotDependenceAwareEstimator:
             improvement = _criterion_improvement(baseline_selected, candidate_to_publish, criterion)
             diagnostic_gate = True
             if selection_rule == "diagnostic_plus_reml" and mode == "auto":
-                diagnostic_gate = bool(diagnostics.get("decision") == "identified") or improvement > (2.0 * criterion_threshold)
+                diagnostic_gate = bool(
+                    diagnostics.get("decision") == "identified"
+                ) or improvement > (2.0 * criterion_threshold)
                 if (
                     diagnostic_gate
                     and diagnostics.get("selected_graph_id") is not None
@@ -1307,26 +1378,38 @@ class FayHerriotDependenceAwareEstimator:
             elif conflicting_candidates and improvement <= (2.0 * criterion_threshold):
                 fallback_reason = "conflicting_candidate_graphs"
             elif not diagnostic_gate:
-                fallback_reason = fallback_reason or diagnostics.get("fallback_reason") or "diagnostic_rejected_graph_dependence"
+                fallback_reason = (
+                    fallback_reason
+                    or diagnostics.get("fallback_reason")
+                    or "diagnostic_rejected_graph_dependence"
+                )
             elif improvement <= criterion_threshold:
                 fallback_reason = f"graph_model_did_not_improve_{criterion}"
             else:
                 selected_fit = {
                     **candidate_to_publish,
-                    "selected_model": "hybrid" if candidate_to_publish["family"] == "HYBRID" else "graph",
+                    "selected_model": "hybrid"
+                    if candidate_to_publish["family"] == "HYBRID"
+                    else "graph",
                     "selected_graph_id": candidate_to_publish["graph_id"],
                     "fallback_reason": None,
                 }
                 fallback_reason = None
                 if selected_fit["selected_model"] == "graph":
                     selected_graph = next(
-                        (graph for graph in candidate_graphs if graph.graph_id == selected_fit["graph_id"]),
+                        (
+                            graph
+                            for graph in candidate_graphs
+                            if graph.graph_id == selected_fit["graph_id"]
+                        ),
                         None,
                     )
                 elif hybrid_pair is not None:
                     selected_hybrid_graphs = hybrid_pair
         elif mode != "independent" and best_overall is None:
-            fallback_reason = fallback_reason or diagnostics.get("fallback_reason") or "graph_model_not_estimable"
+            fallback_reason = (
+                fallback_reason or diagnostics.get("fallback_reason") or "graph_model_not_estimable"
+            )
 
         quality_certificate: dict[str, Any] = {
             "coverage_benchmark_id": "runtime_benchmark_not_executed",
@@ -1341,14 +1424,18 @@ class FayHerriotDependenceAwareEstimator:
                 strong_cov = np.asarray(selected_fit["G"], dtype=float)
             else:
                 primary_graph = candidate_graphs[0]
-                strong_cov = base_a * _sar_covariance(_row_standardize_weights(primary_graph.W), 0.75)
+                strong_cov = base_a * _sar_covariance(
+                    _row_standardize_weights(primary_graph.W), 0.75
+                )
             strong_cov = 0.5 * (strong_cov + strong_cov.T) + 1e-10 * np.eye(y.shape[0])
             weak_cov = 0.35 * strong_cov + 0.65 * base_a * np.eye(y.shape[0])
             perm = benchmark_rng.permutation(y.shape[0])
             mismatch_graph = candidate_graphs[0].model_copy(
                 update={"W": candidate_graphs[0].W[np.ix_(perm, perm)]}
             )
-            mismatch_cov = base_a * _sar_covariance(_row_standardize_weights(mismatch_graph.W), 0.75)
+            mismatch_cov = base_a * _sar_covariance(
+                _row_standardize_weights(mismatch_graph.W), 0.75
+            )
             mismatch_cov = 0.5 * (mismatch_cov + mismatch_cov.T) + 1e-10 * np.eye(y.shape[0])
             scenarios = {
                 "independent": base_a * np.eye(y.shape[0]),
@@ -1395,7 +1482,9 @@ class FayHerriotDependenceAwareEstimator:
                         benchmark_stats["baseline_independent"]["estimates"],
                         dtype=float,
                     )
-                    intervals = np.asarray(benchmark_stats["uncertainty"]["interval_95"], dtype=float)
+                    intervals = np.asarray(
+                        benchmark_stats["uncertainty"]["interval_95"], dtype=float
+                    )
                     coverage_rows.append(
                         (intervals[:, 0] <= theta_truth) & (theta_truth <= intervals[:, 1])
                     )
@@ -1404,16 +1493,32 @@ class FayHerriotDependenceAwareEstimator:
                         float(np.sqrt(np.mean((baseline_estimates - theta_truth) ** 2)))
                     )
                     interval_lengths.append(float(np.mean(intervals[:, 1] - intervals[:, 0])))
-                coverage_matrix = np.vstack(coverage_rows) if coverage_rows else np.zeros((0, y.shape[0]), dtype=bool)
-                area_coverage = coverage_matrix.mean(axis=0) if coverage_rows else np.zeros((y.shape[0],), dtype=float)
+                coverage_matrix = (
+                    np.vstack(coverage_rows)
+                    if coverage_rows
+                    else np.zeros((0, y.shape[0]), dtype=bool)
+                )
+                area_coverage = (
+                    coverage_matrix.mean(axis=0)
+                    if coverage_rows
+                    else np.zeros((y.shape[0],), dtype=float)
+                )
                 scenario_results[scenario_name] = {
                     "n_runs": coverage_benchmark_reps,
-                    "independent_selection_rate": float(independent_count / max(coverage_benchmark_reps, 1)),
+                    "independent_selection_rate": float(
+                        independent_count / max(coverage_benchmark_reps, 1)
+                    ),
                     "coverage_mean": float(np.mean(area_coverage)) if coverage_rows else 0.0,
-                    "coverage_lower_quartile": float(np.quantile(area_coverage, 0.25)) if coverage_rows else 0.0,
-                    "mean_interval_length": float(np.mean(interval_lengths)) if interval_lengths else 0.0,
+                    "coverage_lower_quartile": float(np.quantile(area_coverage, 0.25))
+                    if coverage_rows
+                    else 0.0,
+                    "mean_interval_length": float(np.mean(interval_lengths))
+                    if interval_lengths
+                    else 0.0,
                     "rmse": float(np.mean(rmse_values)) if rmse_values else float("inf"),
-                    "baseline_rmse": float(np.mean(baseline_rmse_values)) if baseline_rmse_values else float("inf"),
+                    "baseline_rmse": float(np.mean(baseline_rmse_values))
+                    if baseline_rmse_values
+                    else float("inf"),
                     "rmse_improvement": (
                         float(np.mean(baseline_rmse_values) - np.mean(rmse_values))
                         if rmse_values and baseline_rmse_values
@@ -1428,7 +1533,9 @@ class FayHerriotDependenceAwareEstimator:
                 and scenario_results["strong_dependence"]["coverage_lower_quartile"] >= 0.90
             )
             strong_rmse_ok = scenario_results["strong_dependence"]["rmse_improvement"] >= 0.0
-            coverage_passed = bool(independent_ok and mismatch_ok and strong_coverage_ok and strong_rmse_ok)
+            coverage_passed = bool(
+                independent_ok and mismatch_ok and strong_coverage_ok and strong_rmse_ok
+            )
             quality_certificate = {
                 "coverage_benchmark_id": f"fh_dependence_benchmark_r{coverage_benchmark_reps}",
                 "coverage_passed": coverage_passed,
@@ -1458,7 +1565,9 @@ class FayHerriotDependenceAwareEstimator:
                 rho_grid_size=rho_grid_size,
                 tau2_grid_size=tau2_grid_size,
                 graph=selected_graph if selected_fit["selected_model"] == "graph" else None,
-                hybrid_graphs=selected_hybrid_graphs if selected_fit["selected_model"] == "hybrid" else None,
+                hybrid_graphs=selected_hybrid_graphs
+                if selected_fit["selected_model"] == "hybrid"
+                else None,
                 seed=int(params.get("__seed__", 0)),
             )
             uncertainty_method = "parametric_bootstrap"
@@ -1468,7 +1577,9 @@ class FayHerriotDependenceAwareEstimator:
 
         diagnostics.update(
             {
-                "decision": "identified" if selected_fit["selected_model"] in {"graph", "hybrid"} else diagnostics.get("decision"),
+                "decision": "identified"
+                if selected_fit["selected_model"] in {"graph", "hybrid"}
+                else diagnostics.get("decision"),
                 "identifiable": bool(selected_fit.get("identifiable", True)),
                 "fallback_reason": fallback_reason,
                 "selected_graph_id": selected_fit.get("selected_graph_id"),
@@ -1479,7 +1590,9 @@ class FayHerriotDependenceAwareEstimator:
                 "rho_interval_contains_zero": selected_fit.get("rho_interval_contains_zero"),
             }
         )
-        artifact_store = resolve_artifact_store(state if isinstance(state, Mapping) else None, params)
+        artifact_store = resolve_artifact_store(
+            state if isinstance(state, Mapping) else None, params
+        )
         dependence_structure = dependence_structure_from_graph_diagnostic(
             diagnostics,
             regime="areal",
@@ -1576,6 +1689,7 @@ class FayHerriotDependenceAwareEstimator:
 )
 class CalibrationGREGEstimator:
     """Estimate calibrated totals with generalized regression weighting."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -1586,11 +1700,20 @@ class CalibrationGREGEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("y", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-                SlotSpec("X", SlotType.MATRIX, Unit("auxiliary", "value"), shape=("n_obs", "n_aux")),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("auxiliary", "value"), shape=("n_obs", "n_aux")
+                ),
                 SlotSpec("weights", SlotType.VECTOR, Unit("weight", "value"), shape=("n_obs",)),
-                SlotSpec("population_totals", SlotType.VECTOR, Unit("total", "value"), shape=("n_aux",)),
+                SlotSpec(
+                    "population_totals", SlotType.VECTOR, Unit("total", "value"), shape=("n_aux",)
+                ),
                 SlotSpec("q_weights", SlotType.VECTOR, Unit("weight", "value"), shape=("n_obs",)),
-                SlotSpec("sample_aux_error_cov", SlotType.MATRIX, Unit("variance", "value"), shape=("n_aux", "n_aux")),
+                SlotSpec(
+                    "sample_aux_error_cov",
+                    SlotType.MATRIX,
+                    Unit("variance", "value"),
+                    shape=("n_aux", "n_aux"),
+                ),
                 SlotSpec(
                     "auxiliary_total_uncertainty",
                     SlotType.SCALAR,
@@ -1627,7 +1750,9 @@ class CalibrationGREGEstimator:
     )
 
     @staticmethod
-    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> Mapping[str, Any]:
+    def materialize_input(
+        bound_inputs: Mapping[str, Any], fallback_state: Any
+    ) -> Mapping[str, Any]:
         return _materialize_greg_state(bound_inputs, fallback_state)
 
     @staticmethod
@@ -1666,7 +1791,9 @@ class CalibrationGREGEstimator:
             gram = 0.5 * ((gram - sample_aux_error_cov) + (gram - sample_aux_error_cov).T)
         rhs = np.column_stack([delta, X.T @ (weighted_q * y)])
         system = gram + omega
-        solution, system_used, solver_status, condition_number, ridge_added = _solve_system(system, rhs)
+        solution, system_used, solver_status, condition_number, ridge_added = _solve_system(
+            system, rhs
+        )
         lambda_ = solution[:, 0]
         beta = solution[:, 1]
 
@@ -1681,7 +1808,9 @@ class CalibrationGREGEstimator:
         variance_estimate = sampling_variance + aux_uncertainty_variance
 
         constraint_mode = "exact" if np.allclose(omega, 0.0, atol=1e-10) else "relaxed"
-        shrinkage = np.diag(gram @ np.linalg.pinv(system_used)) if n_aux else np.zeros((0,), dtype=float)
+        shrinkage = (
+            np.diag(gram @ np.linalg.pinv(system_used)) if n_aux else np.zeros((0,), dtype=float)
+        )
         diagnostics = {
             "n_obs": int(n_obs),
             "n_aux": int(n_aux),

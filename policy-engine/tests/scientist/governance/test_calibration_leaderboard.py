@@ -12,6 +12,7 @@ from polisyos.ir.analytics.interference import (
     InterferenceMethod,
     NetworkInterferenceReport,
 )
+from polisyos.ir.analytics.strategic import StrategicFallbackMode
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
 from polisyos.scientist.discovery.utility_judge import (
     DownstreamUtilityReport,
@@ -32,7 +33,6 @@ from polisyos.scientist.governance.stress_scenarios import (
     StressScenarioKind,
     StressScenarioResult,
 )
-from polisyos.ir.analytics.strategic import StrategicFallbackMode
 
 
 def _artifact_ref(seed: str) -> ArtifactRef:

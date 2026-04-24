@@ -15,21 +15,23 @@ Rollback path: restore the last known-good deployment, preserve read-only access
 
 ## Operational Metadata
 
-| Field | Value |
-|---|---|
-| Primary owner | `@runtime-owners` |
-| Coordination owner | `@platform-owners` |
-| Last tested | 2026-04-17, D1-L1 documentation validation pass |
-| Evidence anchors | `tests/runtime/http/test_runtime_api_contract_hardening.py`, `tests/runtime/http/test_runtime_api_observability.py`, `tools/runtime/check_runtime_api_contract.py` |
-| Rollback posture | restore last known-good deployment, preserve read-only surface when write path is the failing branch |
+| Field              | Value                                                                                                                                                              |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Primary owner      | `@runtime-owners`                                                                                                                                                  |
+| Coordination owner | `@platform-owners`                                                                                                                                                 |
+| Last tested        | 2026-04-17, D1-L1 documentation validation pass                                                                                                                    |
+| Evidence anchors   | `tests/runtime/http/test_runtime_api_contract_hardening.py`, `tests/runtime/http/test_runtime_api_observability.py`, `tools/runtime/check_runtime_api_contract.py` |
+| Rollback posture   | restore last known-good deployment, preserve read-only surface when write path is the failing branch                                                               |
 
 ## Symptom
 
 - `/health` или `/ready` не отвечают либо отвечают `degraded`/`5xx`;
 - `GET /api/v1/runs`, `GET /api/v1/runs/{run_id}` или
   `POST /api/v1/control/runs` падают массово;
+
 - dashboard показывает `Health: unavailable`, а `/platform` или `/runs`
   не может загрузить данные;
+
 - alert family по DAG success rate, runtime latency, agent error spike или
   connector errors уходит в `warning`/`critical`.
 
@@ -97,10 +99,13 @@ Rollback path: restore the last known-good deployment, preserve read-only access
 - верните last known good deployment/release candidate;
 - если проблема только в write path, временно ограничьте `POST` workload и
   оставьте read-only surface для операторов;
+
 - если проблема в optional security/dependency sidecar, временный bypass
   возможен только по явному решению incident commander и с записью в timeline;
+
 - снизьте ingress load или concurrency, если причина saturation, а не logic
   fault;
+
 - не запускайте новые migrations, contract refreshes или dependency bumps до
   стабилизации.
 
@@ -136,8 +141,8 @@ Rollback path: restore the last known-good deployment, preserve read-only access
 
 ### Action Items
 
-| Action item | Owner | Due date | Status |
-|---|---|---|---|
-| Add or improve detection for the specific failing route/dependency | `@runtime-owners` | YYYY-MM-DD | open |
-| Close the config, scaling, or dependency gap that caused the outage | affected owner | YYYY-MM-DD | open |
-| Update dashboard, alert, or runbook routing if triage was slow | `@platform-owners` | YYYY-MM-DD | open |
+| Action item                                                         | Owner              | Due date   | Status |
+| ------------------------------------------------------------------- | ------------------ | ---------- | ------ |
+| Add or improve detection for the specific failing route/dependency  | `@runtime-owners`  | YYYY-MM-DD | open   |
+| Close the config, scaling, or dependency gap that caused the outage | affected owner     | YYYY-MM-DD | open   |
+| Update dashboard, alert, or runbook routing if triage was slow      | `@platform-owners` | YYYY-MM-DD | open   |

@@ -1,4 +1,5 @@
 """Detect likely PII in tabular payloads using Presidio with regex fallback."""
+
 from __future__ import annotations
 
 import re
@@ -39,11 +40,27 @@ _HIGH_RISK_NAME_PATTERNS = (
 
 _REGEX_RULES: tuple[tuple[PIIEntityType, re.Pattern[str], float], ...] = (
     (PIIEntityType.EMAIL_ADDRESS, re.compile(r"\b[\w.%+-]+@[\w.-]+\.[A-Za-z]{2,}\b"), 0.95),
-    (PIIEntityType.PHONE_NUMBER, re.compile(r"\b(?:\+\d{1,3}[ -]?)?(?:\(?\d{2,4}\)?[ -]?)?\d{3}[ -]?\d{4}\b"), 0.85),
-    (PIIEntityType.SOCIAL_SECURITY, re.compile(r"\b(?!000|666|9\d{2})\d{3}-(?!00)\d{2}-(?!0000)\d{4}\b"), 0.95),
+    (
+        PIIEntityType.PHONE_NUMBER,
+        re.compile(r"\b(?:\+\d{1,3}[ -]?)?(?:\(?\d{2,4}\)?[ -]?)?\d{3}[ -]?\d{4}\b"),
+        0.85,
+    ),
+    (
+        PIIEntityType.SOCIAL_SECURITY,
+        re.compile(r"\b(?!000|666|9\d{2})\d{3}-(?!00)\d{2}-(?!0000)\d{4}\b"),
+        0.95,
+    ),
     (PIIEntityType.TAX_ID, re.compile(r"\b\d{2}-\d{7}\b"), 0.92),
-    (PIIEntityType.BENEFICIARY_ID, re.compile(r"\b(?:BEN|BENF|BNFCRY)[_-]?\d{5,12}\b", re.IGNORECASE), 0.9),
-    (PIIEntityType.CASE_NUMBER, re.compile(r"\b(?:CASE|CS|REF)[_-]?\d{4,12}\b", re.IGNORECASE), 0.88),
+    (
+        PIIEntityType.BENEFICIARY_ID,
+        re.compile(r"\b(?:BEN|BENF|BNFCRY)[_-]?\d{5,12}\b", re.IGNORECASE),
+        0.9,
+    ),
+    (
+        PIIEntityType.CASE_NUMBER,
+        re.compile(r"\b(?:CASE|CS|REF)[_-]?\d{4,12}\b", re.IGNORECASE),
+        0.88,
+    ),
     (PIIEntityType.NATIONAL_ID, re.compile(r"\b[A-Z0-9]{6,15}\b"), 0.6),
     (PIIEntityType.CREDIT_CARD, re.compile(r"\b(?:\d[ -]*?){13,19}\b"), 0.8),
     (PIIEntityType.IBAN_CODE, re.compile(r"\b[A-Z]{2}[0-9A-Z]{13,32}\b"), 0.8),
@@ -53,6 +70,7 @@ _REGEX_RULES: tuple[tuple[PIIEntityType, re.Pattern[str], float], ...] = (
 
 class PresidioConfig(BaseModel):
     """Sampling, threshold, and backend settings for the fabric PII scan stage."""
+
     model_config = ConfigDict(extra="forbid")
 
     languages: list[str] = Field(default_factory=lambda: ["en"])
@@ -92,7 +110,11 @@ class PresidioDetector:
                     name="PolicyOS Tax ID",
                     patterns=[
                         Pattern(name="us_ein", regex=r"\b\d{2}-\d{7}\b", score=0.9),
-                        Pattern(name="generic_tax", regex=r"\b(?:tax[_\s]?id|tin|vat)[:\s]*[\w\d-]{6,20}\b", score=0.75),
+                        Pattern(
+                            name="generic_tax",
+                            regex=r"\b(?:tax[_\s]?id|tin|vat)[:\s]*[\w\d-]{6,20}\b",
+                            score=0.75,
+                        ),
                     ],
                     supported_language="en",
                 )
@@ -102,8 +124,16 @@ class PresidioDetector:
                     supported_entity="BENEFICIARY_ID",
                     name="PolicyOS Beneficiary ID",
                     patterns=[
-                        Pattern(name="beneficiary_prefix", regex=r"\b(?:BEN|BENF|BNFCRY)[_-]?\d{5,12}\b", score=0.9),
-                        Pattern(name="beneficiary_generic", regex=r"\bbeneficiary[_\s]?(?:id|number|no)[:\s]*[\w\d-]{4,20}\b", score=0.75),
+                        Pattern(
+                            name="beneficiary_prefix",
+                            regex=r"\b(?:BEN|BENF|BNFCRY)[_-]?\d{5,12}\b",
+                            score=0.9,
+                        ),
+                        Pattern(
+                            name="beneficiary_generic",
+                            regex=r"\bbeneficiary[_\s]?(?:id|number|no)[:\s]*[\w\d-]{4,20}\b",
+                            score=0.75,
+                        ),
                     ],
                     supported_language="en",
                 )
@@ -113,8 +143,16 @@ class PresidioDetector:
                     supported_entity="CASE_NUMBER",
                     name="PolicyOS Case Number",
                     patterns=[
-                        Pattern(name="case_prefix", regex=r"\b(?:CASE|CS|REF)[_-]?\d{4,12}\b", score=0.88),
-                        Pattern(name="case_generic", regex=r"\bcase[_\s]?(?:number|no|id|ref)[:\s]*[\w\d/-]{4,20}\b", score=0.72),
+                        Pattern(
+                            name="case_prefix",
+                            regex=r"\b(?:CASE|CS|REF)[_-]?\d{4,12}\b",
+                            score=0.88,
+                        ),
+                        Pattern(
+                            name="case_generic",
+                            regex=r"\bcase[_\s]?(?:number|no|id|ref)[:\s]*[\w\d/-]{4,20}\b",
+                            score=0.72,
+                        ),
                     ],
                     supported_language="en",
                 )
@@ -124,7 +162,11 @@ class PresidioDetector:
                     supported_entity="NATIONAL_ID",
                     name="PolicyOS National ID",
                     patterns=[
-                        Pattern(name="national_generic", regex=r"\b(?:national[_\s]?id|passport[_\s]?(?:no|number))[:\s]*[\w\d-]{6,20}\b", score=0.82),
+                        Pattern(
+                            name="national_generic",
+                            regex=r"\b(?:national[_\s]?id|passport[_\s]?(?:no|number))[:\s]*[\w\d-]{6,20}\b",
+                            score=0.82,
+                        ),
                     ],
                     supported_language="en",
                 )
@@ -134,7 +176,11 @@ class PresidioDetector:
                     supported_entity="SOCIAL_SECURITY",
                     name="PolicyOS Social Security",
                     patterns=[
-                        Pattern(name="ssn_dashed", regex=r"\b(?!000|666|9\d{2})\d{3}-(?!00)\d{2}-(?!0000)\d{4}\b", score=0.95),
+                        Pattern(
+                            name="ssn_dashed",
+                            regex=r"\b(?!000|666|9\d{2})\d{3}-(?!00)\d{2}-(?!0000)\d{4}\b",
+                            score=0.95,
+                        ),
                     ],
                     supported_language="en",
                 )
@@ -277,9 +323,16 @@ class PresidioDetector:
             series = df[column]
             name = str(column).lower()
             is_risky_name = any(token in name for token in _HIGH_RISK_NAME_PATTERNS)
-            if pd.api.types.is_string_dtype(series) or series.dtype == "object":
-                chosen.append(str(column))
-            elif is_risky_name and (pd.api.types.is_integer_dtype(series) or pd.api.types.is_float_dtype(series)):
+            if (
+                pd.api.types.is_string_dtype(series)
+                or series.dtype == "object"
+                or (
+                    is_risky_name
+                    and (
+                        pd.api.types.is_integer_dtype(series) or pd.api.types.is_float_dtype(series)
+                    )
+                )
+            ):
                 chosen.append(str(column))
         return chosen
 

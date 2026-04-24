@@ -65,11 +65,7 @@ class SourceProfileRegistry:
     def list_by_family(self, connector_family: str) -> list[SourceProfile]:
         """List all registered profiles for one connector family."""
 
-        return [
-            p
-            for p in self._profiles.values()
-            if p.connector_family == connector_family
-        ]
+        return [p for p in self._profiles.values() if p.connector_family == connector_family]
 
     def _bootstrap(self) -> None:
         from .builtin_profiles import BUILTIN_PROFILES

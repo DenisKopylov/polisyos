@@ -5,8 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.lex.batch.doc_identity import (
     DocIndexEntry,
@@ -17,6 +16,9 @@ from polisyos.lex.batch.doc_identity import (
     normalize_text_key,
     parse_doc_date,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 _ARTICLE_RE = re.compile(r"статт[іяею]\s*([0-9]+(?:[-.][0-9]+)*)", re.IGNORECASE)
 _PART_RE = re.compile(r"частин[аиі]\s*([0-9]+(?:[-.][0-9]+)*)", re.IGNORECASE)
@@ -42,7 +44,10 @@ def resolve_references(
     for jsonl_file in sorted(references_dir.glob("**/*.jsonl")):
         out_path = output_dir / jsonl_file.relative_to(references_dir)
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(jsonl_file, "r", encoding="utf-8") as src, open(out_path, "w", encoding="utf-8") as dst:
+        with (
+            open(jsonl_file, encoding="utf-8") as src,
+            open(out_path, "w", encoding="utf-8") as dst,
+        ):
             for line in src:
                 line = line.strip()
                 if not line:
@@ -61,7 +66,9 @@ def resolve_references(
                 target_doc_id = matched_entry.doc_id if matched_entry is not None else ""
                 target_anchor = _anchor_from_reference_text(target_raw)
                 relation_type = str(row.get("relation_hint") or "").strip() or "references"
-                resolution_confidence = min(0.99, max(float(row.get("confidence") or 0.0), match_score))
+                resolution_confidence = min(
+                    0.99, max(float(row.get("confidence") or 0.0), match_score)
+                )
                 resolution_status = _resolution_status(target_doc_id, target_anchor)
                 if resolution_status in {"resolved", "partial"}:
                     stats["rows_resolved"] += 1
@@ -76,15 +83,25 @@ def resolve_references(
                         target_doc_id,
                         target_anchor,
                     ),
-                    "source_doc_family_id": source_entry.family_id if source_entry is not None else doc_family_id(doc_metadata.get(source_doc_id, {})),
+                    "source_doc_family_id": source_entry.family_id
+                    if source_entry is not None
+                    else doc_family_id(doc_metadata.get(source_doc_id, {})),
                     "target_doc_id": target_doc_id,
                     "selected_target_doc_id": target_doc_id,
                     "target_anchor": target_anchor,
-                    "target_doc_family_id": matched_entry.family_id if matched_entry is not None else "",
-                    "target_doc_reestr_code": matched_entry.reestr_code if matched_entry is not None else "",
-                    "target_doc_number": matched_entry.doc_number if matched_entry is not None else "",
+                    "target_doc_family_id": matched_entry.family_id
+                    if matched_entry is not None
+                    else "",
+                    "target_doc_reestr_code": matched_entry.reestr_code
+                    if matched_entry is not None
+                    else "",
+                    "target_doc_number": matched_entry.doc_number
+                    if matched_entry is not None
+                    else "",
                     "target_doc_type": matched_entry.doc_type if matched_entry is not None else "",
-                    "target_doc_date_acc": matched_entry.doc_date_acc if matched_entry is not None else "",
+                    "target_doc_date_acc": matched_entry.doc_date_acc
+                    if matched_entry is not None
+                    else "",
                     "target_doc_status": matched_entry.status if matched_entry is not None else "",
                     "matched_by": matched_by,
                     "resolution_method": matched_by,
@@ -196,14 +213,18 @@ def _family_latest_candidates(
     return resolved
 
 
-def _candidate_score(entry: DocIndexEntry, target_raw: str, *, number_hint: str, date_hint: str) -> float:
+def _candidate_score(
+    entry: DocIndexEntry, target_raw: str, *, number_hint: str, date_hint: str
+) -> float:
     raw_norm = normalize_text_key(target_raw)
     raw_tokens = set(raw_norm.split())
     entry_tokens = set(entry.name_norm.split())
     score = 0.0
     if entry.reestr_code_norm and entry.reestr_code_norm in normalize_ref_number(target_raw):
         score = max(score, 1.0)
-    if number_hint and (entry.doc_number_norm == number_hint or entry.reg_number_norm == number_hint):
+    if number_hint and (
+        entry.doc_number_norm == number_hint or entry.reg_number_norm == number_hint
+    ):
         score = max(score, 0.95)
     if date_hint and entry.doc_date_acc == date_hint:
         score += 0.03
@@ -211,7 +232,9 @@ def _candidate_score(entry: DocIndexEntry, target_raw: str, *, number_hint: str,
         if raw_norm in entry.name_norm or entry.name_norm in raw_norm:
             score = max(score, 0.9 if raw_norm in entry.name_norm else 0.76)
         elif raw_tokens and entry_tokens:
-            score = max(score, len(raw_tokens & entry_tokens) / max(len(raw_tokens), len(entry_tokens)))
+            score = max(
+                score, len(raw_tokens & entry_tokens) / max(len(raw_tokens), len(entry_tokens))
+            )
     return min(score, 1.0)
 
 
@@ -227,7 +250,12 @@ def _best_doc_match(
     if _SELF_REFERENCE_RE.search(target_raw):
         source_entry = doc_index.by_doc_id.get(source_doc_id)
         if source_entry is not None:
-            return source_entry, 0.99, "self_reference", [{"doc_id": source_entry.doc_id, "score": 0.99}]
+            return (
+                source_entry,
+                0.99,
+                "self_reference",
+                [{"doc_id": source_entry.doc_id, "score": 0.99}],
+            )
     number_hint = _extract_number_hint(row, target_raw)
     date_hint = _extract_date_hint(row, target_raw)
     type_hint = _doc_type_hint(row, target_raw)
@@ -235,19 +263,33 @@ def _best_doc_match(
     matched_by = ""
     raw_norm_number = normalize_ref_number(target_raw)
     if raw_norm_number and raw_norm_number in doc_index.by_reestr_code:
-        candidate_pool = [entry for entry in doc_index.by_reestr_code[raw_norm_number] if _doc_type_matches(type_hint, entry)]
+        candidate_pool = [
+            entry
+            for entry in doc_index.by_reestr_code[raw_norm_number]
+            if _doc_type_matches(type_hint, entry)
+        ]
         matched_by = "reestr_code"
     if not candidate_pool and number_hint and date_hint:
-        candidate_pool = [*doc_index.by_number_date.get((number_hint, date_hint), []), *doc_index.by_reg_number_date.get((number_hint, date_hint), [])]
+        candidate_pool = [
+            *doc_index.by_number_date.get((number_hint, date_hint), []),
+            *doc_index.by_reg_number_date.get((number_hint, date_hint), []),
+        ]
         candidate_pool = [entry for entry in candidate_pool if _doc_type_matches(type_hint, entry)]
         matched_by = "number_date" if candidate_pool else matched_by
     if not candidate_pool and number_hint:
-        candidate_pool = [*doc_index.by_number.get(number_hint, []), *doc_index.by_reg_number.get(number_hint, [])]
+        candidate_pool = [
+            *doc_index.by_number.get(number_hint, []),
+            *doc_index.by_reg_number.get(number_hint, []),
+        ]
         candidate_pool = [entry for entry in candidate_pool if _doc_type_matches(type_hint, entry)]
-        candidate_pool = _family_latest_candidates(candidates=candidate_pool, date_hint=date_hint, index_by_family=doc_index.by_family)
+        candidate_pool = _family_latest_candidates(
+            candidates=candidate_pool, date_hint=date_hint, index_by_family=doc_index.by_family
+        )
         matched_by = "number_family" if candidate_pool else matched_by
     if not candidate_pool:
-        candidate_pool = [entry for entry in doc_index.entries if _doc_type_matches(type_hint, entry)]
+        candidate_pool = [
+            entry for entry in doc_index.entries if _doc_type_matches(type_hint, entry)
+        ]
         matched_by = "name_overlap"
 
     scored = [

@@ -1,4 +1,5 @@
 """Shared Phase 1 artifact helpers for catalog methods."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
 def resolve_artifact_store(
     state: Any,
     params: Mapping[str, Any] | None = None,
-) -> "ArtifactStore | None":
+) -> ArtifactStore | None:
     """Resolve an artifact store from params or mapping-like state."""
 
     for container in (params, state):
@@ -95,7 +96,9 @@ def is_government_dataset(
         "unpd",
         "ukons",
     )
-    return any(token in haystack for haystack in haystacks for token in government_tokens if haystack)
+    return any(
+        token in haystack for haystack in haystacks for token in government_tokens if haystack
+    )
 
 
 def _first_string(

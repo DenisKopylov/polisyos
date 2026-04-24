@@ -1,19 +1,24 @@
+import type { PropsWithChildren } from "react";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 const {
+  cycleDensityMock,
   useCapabilitiesMock,
   useConnectorsMock,
   useHealthMock,
   usePermissionMock,
   useRunsMock,
+  useThemeSetThemeMock,
   useTelemetryReadyMarkMock,
 } = vi.hoisted(() => ({
+  cycleDensityMock: vi.fn(),
   useCapabilitiesMock: vi.fn(),
   useConnectorsMock: vi.fn(),
   useHealthMock: vi.fn(),
   usePermissionMock: vi.fn(),
   useRunsMock: vi.fn(),
+  useThemeSetThemeMock: vi.fn(),
   useTelemetryReadyMarkMock: vi.fn(),
 }));
 
@@ -48,6 +53,27 @@ vi.mock("@/app/providers/TelemetryProvider", () => ({
     useTelemetryReadyMarkMock(...args),
 }));
 
+vi.mock("@/app/providers/DensityProvider", () => ({
+  DensityProvider: ({ children }: PropsWithChildren) => children,
+  useDensity: () => ({
+    cycleDensity: cycleDensityMock,
+    density: "comfortable",
+    setDensity: vi.fn(),
+  }),
+}));
+
+vi.mock("@/app/providers/ThemeProvider", () => ({
+  ThemeProvider: ({ children }: PropsWithChildren) => children,
+  readStoredThemePreference: () => "light",
+  useTheme: () => ({
+    isSystemTheme: false,
+    resolvedTheme: "light",
+    setTheme: useThemeSetThemeMock,
+    theme: "light",
+    toggleTheme: vi.fn(),
+  }),
+}));
+
 vi.mock("@/i18n/LocaleProvider", async () => {
   const actual = await vi.importActual<typeof import("@/i18n/LocaleProvider")>(
     "@/i18n/LocaleProvider",
@@ -78,8 +104,10 @@ function renderPlatformHealthPage() {
 
 describe("PlatformHealthPage", () => {
   beforeEach(() => {
+    cycleDensityMock.mockReset();
     useCapabilitiesMock.mockReset();
     usePermissionMock.mockReset();
+    useThemeSetThemeMock.mockReset();
     usePermissionMock.mockReturnValue(true);
     useCapabilitiesMock.mockReturnValue({
       data: {

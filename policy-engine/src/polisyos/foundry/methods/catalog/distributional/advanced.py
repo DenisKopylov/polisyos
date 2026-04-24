@@ -1,7 +1,9 @@
 """Public distributional advanced module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -54,6 +56,7 @@ def _values_payload(state: Any, *, key: str = "values") -> np.ndarray:
 )
 class TheilIndexEstimator:
     """Estimate Theil inequality indices when audits need decomposable dispersion metrics."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -110,6 +113,7 @@ class TheilIndexEstimator:
 )
 class PalmaRatioEstimator:
     """Estimate Palma ratios when policy comparisons focus on top-versus-bottom income shares."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -172,6 +176,7 @@ class PalmaRatioEstimator:
 )
 class GeneralizedGiniEstimator:
     """Estimate generalized Gini scores for welfare-sensitive distributional comparisons."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -218,7 +223,11 @@ class GeneralizedGiniEstimator:
         weights = (n - ranks + 0.5) ** (nu - 1.0)
         weighted_sum = float(np.sum(weights * sorted_values))
         normalizer = float(np.sum(weights))
-        gg = 1.0 - (normalizer * total) / (n * total) if normalizer <= 0.0 else 1.0 - weighted_sum / (total * normalizer / n)
+        gg = (
+            1.0 - (normalizer * total) / (n * total)
+            if normalizer <= 0.0
+            else 1.0 - weighted_sum / (total * normalizer / n)
+        )
         # Simplified: G(nu) = 1 - (n^nu * sum(w_i * x_i)) / (n * total * sum(w_i))
         # but cleaner: use the weight-based formula directly
         gg = 1.0 - (n * weighted_sum) / (total * normalizer) if normalizer > 0.0 else 0.0

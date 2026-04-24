@@ -1,8 +1,10 @@
 """Estimate cutoff-local causal effects with regression-discontinuity designs."""
+
 from __future__ import annotations
 
 import math
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -129,6 +131,7 @@ def _manipulation_test(x_centered: np.ndarray, bandwidth: float) -> DiagnosticTe
 )
 class RegressionDiscontinuity:
     """Estimate a local treatment jump under continuity and no precise manipulation; avoid sparse support near the threshold."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(

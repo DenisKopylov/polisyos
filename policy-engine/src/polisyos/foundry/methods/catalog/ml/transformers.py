@@ -1,8 +1,10 @@
 """Encode tabular records with transformer-style feature representations."""
+
 from __future__ import annotations
 
 import math
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -21,7 +23,12 @@ from polisyos.foundry.methods.base import (
 )
 
 from .protocols import TabularData
-from .regression import _build_prediction_result, _feature_names, _prediction_output_slots, _tabular_payload
+from .regression import (
+    _build_prediction_result,
+    _feature_names,
+    _prediction_output_slots,
+    _tabular_payload,
+)
 
 
 def _init_transformer_params(
@@ -80,6 +87,7 @@ def _attention_importance(attention: np.ndarray, feature_names: list[str]) -> di
 )
 class TabularTransformerEstimator:
     """Use a frozen attention-style encoder plus ridge head as a fast tabular baseline."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "scikit-learn")
 
@@ -89,7 +97,12 @@ class TabularTransformerEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "features",
+                    SlotType.MATRIX,
+                    Unit("feature", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
                 SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_obs",)),
             }
         ),
@@ -158,11 +171,14 @@ class TabularTransformerEstimator:
         fit_kwargs: dict[str, Any] = {}
         if data.sample_weight is not None:
             fit_kwargs["sample_weight"] = np.asarray(data.sample_weight, dtype=float)
-        from sklearn.linear_model import Ridge  # noqa: PLC0415
+        from sklearn.linear_model import Ridge
+
         head = Ridge(alpha=ridge_alpha)
         head.fit(encoded, y_raw, **fit_kwargs)
         predictions = np.asarray(head.predict(encoded), dtype=float)
-        feature_importances = _attention_importance(np.asarray(attention, dtype=float), _feature_names(data))
+        feature_importances = _attention_importance(
+            np.asarray(attention, dtype=float), _feature_names(data)
+        )
         coefficients = {
             f"latent_{idx}": float(value)
             for idx, value in enumerate(np.asarray(head.coef_, dtype=float))

@@ -1,4 +1,5 @@
 """Track, persist, and compare agent-simulation experiments and their replay artifacts."""
+
 from __future__ import annotations
 
 import json
@@ -25,6 +26,7 @@ def _json_default(value: Any):
 @dataclass
 class ExperimentConfig:
     """Describe a reproducible experiment setup before launching or replaying a run."""
+
     name: str
     description: str = ""
     tags: list[str] = field(default_factory=list)
@@ -50,6 +52,7 @@ class ExperimentConfig:
 @dataclass
 class ExperimentResult:
     """Capture the persisted metrics, final state, and model artifact emitted by one run."""
+
     config: ExperimentConfig
     metrics: dict[str, Any]
     final_state: dict | None = None
@@ -65,15 +68,16 @@ class ExperimentResult:
             "Final Metrics:",
         ]
         for name, value in self.metrics.items():
-            if isinstance(value, (int, float)):
-                lines.append(f"  {name}: {float(value):.4f}")
-            elif isinstance(value, jnp.ndarray) and value.ndim == 0:
+            if isinstance(value, (int, float)) or (
+                isinstance(value, jnp.ndarray) and value.ndim == 0
+            ):
                 lines.append(f"  {name}: {float(value):.4f}")
         return "\n".join(lines)
 
 
 class ExperimentTracker:
     """Manage run directories, indexes, and result lookup for local experiment tracking."""
+
     def __init__(self, base_dir: str | Path):
         self.base_dir = Path(base_dir)
         self.base_dir.mkdir(parents=True, exist_ok=True)
@@ -94,10 +98,7 @@ class ExperimentTracker:
             json.dump(self.index, f, indent=2, default=_json_default)
 
     def run(self, config: ExperimentConfig) -> ExperimentRun:
-        run_id = (
-            f"{config.name}_{config.config_hash()}_"
-            f"{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        )
+        run_id = f"{config.name}_{config.config_hash()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         run_dir = self.runs_dir / run_id
         run_dir.mkdir(parents=True)
         return ExperimentRun(
@@ -110,9 +111,7 @@ class ExperimentTracker:
     def register_run(self, run: ExperimentRun, result: ExperimentResult) -> None:
         self.index["experiments"][run.run_id] = {
             "config": result.config.to_dict(),
-            "metrics": {
-                k: to_python_data(v, sort_keys=True) for k, v in result.metrics.items()
-            },
+            "metrics": {k: to_python_data(v, sort_keys=True) for k, v in result.metrics.items()},
             "duration": result.duration_seconds,
             "path": str(run.run_dir),
         }
@@ -124,10 +123,7 @@ class ExperimentTracker:
             exps = [
                 e
                 for e in exps
-                if any(
-                    t in self.index["experiments"][e]["config"].get("tags", [])
-                    for t in tags
-                )
+                if any(t in self.index["experiments"][e]["config"].get("tags", []) for t in tags)
             ]
         return exps
 
@@ -168,6 +164,7 @@ class ExperimentTracker:
 
 class ExperimentRun:
     """Experiment run public type."""
+
     def __init__(
         self,
         run_id: str,

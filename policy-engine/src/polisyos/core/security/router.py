@@ -1,4 +1,5 @@
 """Framework-agnostic routing helpers for tenant-aware request handling."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -13,6 +14,7 @@ TENANT_HEADER = "X-Tenant-ID"
 @dataclass(frozen=True)
 class RoutingResult:
     """Tenant-to-cell routing decision derived from request headers and the cell registry."""
+
     tenant_id: str
     cell_id: str
     cell_slug: str
@@ -53,8 +55,8 @@ def resolve_routing(
 
 __all__ = [
     "TENANT_HEADER",
-    "RoutingResult",
     "MissingTenantHeaderError",
+    "RoutingResult",
     "TenantRoutingError",
     "resolve_routing",
 ]

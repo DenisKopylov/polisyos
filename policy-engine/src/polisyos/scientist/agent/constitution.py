@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Any, Iterable, Protocol
+from datetime import UTC, datetime
+from typing import Any, Protocol
 
 from polisyos.core.canon import content_hash
 from polisyos.ir.model_spec import ModelSpec
@@ -268,7 +269,7 @@ class ConstitutionGenerator:
             conflicts=tuple(conflicts),
             source_constraint_count=context.total_constraints,
             source_norm_count=(len(norm_pack.norms) if norm_pack is not None else 0),
-            generated_at=datetime.now(timezone.utc).isoformat(),
+            generated_at=datetime.now(UTC).isoformat(),
         )
 
         if len(constitution.to_system_prompt()) > self._max_prompt_chars:
@@ -279,7 +280,7 @@ class ConstitutionGenerator:
                 conflicts=tuple(conflicts),
                 source_constraint_count=context.total_constraints,
                 source_norm_count=(len(norm_pack.norms) if norm_pack is not None else 0),
-                generated_at=datetime.now(timezone.utc).isoformat(),
+                generated_at=datetime.now(UTC).isoformat(),
             )
 
         return constitution
@@ -370,8 +371,7 @@ class ConstitutionGenerator:
                     else "unspecified"
                 )
                 rules.append(
-                    "SENSITIVE ASSUMPTION: "
-                    f"{assumption.description} (confidence={confidence})."
+                    f"SENSITIVE ASSUMPTION: {assumption.description} (confidence={confidence})."
                 )
         return rules
 
@@ -425,8 +425,15 @@ class ConstitutionGenerator:
         self,
         sections: list[ConstitutionSection],
     ) -> list[ConstitutionConflict]:
-        hard_rules = [rule for section in sections if section.section_type == "hard" for rule in section.rules]
-        legal_rules = [rule for section in sections if section.section_type == "legal" for rule in section.rules]
+        hard_rules = [
+            rule for section in sections if section.section_type == "hard" for rule in section.rules
+        ]
+        legal_rules = [
+            rule
+            for section in sections
+            if section.section_type == "legal"
+            for rule in section.rules
+        ]
 
         conflicts: list[ConstitutionConflict] = []
         for hard in hard_rules:
@@ -438,7 +445,9 @@ class ConstitutionGenerator:
                     "budget" in hard_lower
                     and "not exceed" in hard_lower
                     and any(token in legal_lower for token in ("all", "every", "universal"))
-                    and any(token in legal_lower for token in ("pay", "payment", "benefit", "transfer"))
+                    and any(
+                        token in legal_lower for token in ("pay", "payment", "benefit", "transfer")
+                    )
                 ):
                     conflicts.append(
                         ConstitutionConflict(

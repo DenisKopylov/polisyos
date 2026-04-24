@@ -11,8 +11,8 @@ from benchmarks.honest_comparison.adapters.base import EstimatorResult
 
 
 def _make_sklearn_models(config: dict[str, Any], seed: int):
-    from sklearn.linear_model import LinearRegression, LogisticRegression
     from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor
+    from sklearn.linear_model import LinearRegression, LogisticRegression
 
     prop = config.get("propensity_model", "logistic_regression")
     out = config.get("outcome_model", "linear_regression")
@@ -57,7 +57,11 @@ def _ate_from_cate(model, X, alpha: float = 0.05):
         ci_upper = ate + z * se
 
     return EstimatorResult(
-        ate=ate, ate_se=se, ci_lower=ci_lower, ci_upper=ci_upper, cate=cate,
+        ate=ate,
+        ate_se=se,
+        ci_lower=ci_lower,
+        ci_upper=ci_upper,
+        cate=cate,
     )
 
 
@@ -70,11 +74,14 @@ class RawEconMLLinearDML:
 
     def fit_predict(self, X, T, Y, config, seed) -> EstimatorResult:
         from econml.dml import LinearDML
+
         model_y, model_t = _make_sklearn_models(config, seed)
         m = LinearDML(
-            model_y=model_y, model_t=model_t,
+            model_y=model_y,
+            model_t=model_t,
             discrete_treatment=True,
-            cv=config.get("cv_folds", 5), random_state=seed,
+            cv=config.get("cv_folds", 5),
+            random_state=seed,
         )
         m.fit(Y, T, X=X)
         return _ate_from_cate(m, X)
@@ -89,12 +96,17 @@ class RawEconMLCausalForestDML:
 
     def fit_predict(self, X, T, Y, config, seed) -> EstimatorResult:
         from econml.dml import CausalForestDML
+
         model_y, model_t = _make_sklearn_models(config, seed)
         m = CausalForestDML(
-            model_y=model_y, model_t=model_t,
+            model_y=model_y,
+            model_t=model_t,
             discrete_treatment=True,
-            n_estimators=200, min_samples_leaf=5, max_samples=0.5,
-            cv=config.get("cv_folds", 5), random_state=seed,
+            n_estimators=200,
+            min_samples_leaf=5,
+            max_samples=0.5,
+            cv=config.get("cv_folds", 5),
+            random_state=seed,
         )
         m.fit(Y, T, X=X)
         return _ate_from_cate(m, X)
@@ -109,6 +121,7 @@ class RawEconMLXLearner:
 
     def fit_predict(self, X, T, Y, config, seed) -> EstimatorResult:
         from econml.metalearners import XLearner
+
         model_y, model_t = _make_sklearn_models(config, seed)
         m = XLearner(models=model_y, propensity_model=model_t)
         m.fit(Y, T, X=X)
@@ -116,8 +129,10 @@ class RawEconMLXLearner:
         ate = float(np.mean(cate))
         se = float(np.std(cate) / np.sqrt(len(cate)))
         return EstimatorResult(
-            ate=ate, ate_se=se,
-            ci_lower=ate - 1.96 * se, ci_upper=ate + 1.96 * se,
+            ate=ate,
+            ate_se=se,
+            ci_lower=ate - 1.96 * se,
+            ci_upper=ate + 1.96 * se,
             cate=cate,
         )
 
@@ -131,6 +146,7 @@ class RawEconMLTLearner:
 
     def fit_predict(self, X, T, Y, config, seed) -> EstimatorResult:
         from econml.metalearners import TLearner
+
         model_y, _ = _make_sklearn_models(config, seed)
         m = TLearner(models=model_y)
         m.fit(Y, T, X=X)
@@ -138,8 +154,10 @@ class RawEconMLTLearner:
         ate = float(np.mean(cate))
         se = float(np.std(cate) / np.sqrt(len(cate)))
         return EstimatorResult(
-            ate=ate, ate_se=se,
-            ci_lower=ate - 1.96 * se, ci_upper=ate + 1.96 * se,
+            ate=ate,
+            ate_se=se,
+            ci_lower=ate - 1.96 * se,
+            ci_upper=ate + 1.96 * se,
             cate=cate,
         )
 
@@ -153,13 +171,17 @@ class RawEconMLForestDR:
 
     def fit_predict(self, X, T, Y, config, seed) -> EstimatorResult:
         from econml.dr import ForestDRLearner
+
         model_y, model_t = _make_sklearn_models(config, seed)
         min_prop = config.get("overlap_trimming_lower", 0.01)
         m = ForestDRLearner(
-            model_regression=model_y, model_propensity=model_t,
+            model_regression=model_y,
+            model_propensity=model_t,
             min_propensity=min_prop,
-            n_estimators=200, min_samples_leaf=5,
-            cv=config.get("cv_folds", 5), random_state=seed,
+            n_estimators=200,
+            min_samples_leaf=5,
+            cv=config.get("cv_folds", 5),
+            random_state=seed,
         )
         m.fit(Y, T, X=X)
         return _ate_from_cate(m, X)
@@ -174,12 +196,15 @@ class RawEconMLDRLearner:
 
     def fit_predict(self, X, T, Y, config, seed) -> EstimatorResult:
         from econml.dr import DRLearner
+
         model_y, model_t = _make_sklearn_models(config, seed)
         min_prop = config.get("overlap_trimming_lower", 0.01)
         m = DRLearner(
-            model_regression=model_y, model_propensity=model_t,
+            model_regression=model_y,
+            model_propensity=model_t,
             min_propensity=min_prop,
-            cv=config.get("cv_folds", 5), random_state=seed,
+            cv=config.get("cv_folds", 5),
+            random_state=seed,
         )
         m.fit(Y, T, X=X)
         return _ate_from_cate(m, X)

@@ -1,9 +1,11 @@
 # ADR-0102: Key Rotation Lifecycle and Trust Store Policy
 
 ## Status
+
 Accepted
 
 ## Date
+
 2026-04-12
 
 ## Context
@@ -19,10 +21,12 @@ ADR promotes that guidance into a formal platform policy.
 ## Decision
 
 1. CAS signing keys are managed through a trust store with explicit states:
+
    - trusted;
    - revoked;
    - optional identity binding metadata.
 2. Key rotation is a planned lifecycle, not an emergency-only action:
+
    - introduce a new trusted key;
    - switch signers for new artifacts;
    - keep the previous public key trusted through the compatibility window;
@@ -30,6 +34,7 @@ ADR promotes that guidance into a formal platform policy.
 3. Verification trust is derived from key material and trust-store state, not
    from a human-readable signer string alone.
 4. Compromise or suspected compromise triggers an emergency rotation path with:
+
    - immediate signer replacement;
    - explicit revocation of the old public key;
    - incident documentation and artifact-scope assessment.

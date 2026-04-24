@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pandas as pd
 
@@ -11,7 +11,7 @@ from polisyos.ir.connectors import DataVersion, FetchResult, QualityTier, Versio
 
 
 def _make_fetch_result(df: pd.DataFrame) -> FetchResult[pd.DataFrame]:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     return FetchResult(
         data=df,
         row_count=len(df),

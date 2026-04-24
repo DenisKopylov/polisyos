@@ -1,8 +1,9 @@
 """Public uncertainty delta module API."""
+
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping
 from statistics import NormalDist
-from typing import Callable, Mapping
 
 import jax
 import jax.numpy as jnp
@@ -27,6 +28,7 @@ from .protocol import PropagationResult
 
 class DeltaMethodPropagator:
     """Delta method propagator public type."""
+
     def __init__(self, config: PropagationConfig | None = None) -> None:
         self._config = config or PropagationConfig()
 

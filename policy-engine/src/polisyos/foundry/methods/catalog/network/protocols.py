@@ -1,11 +1,19 @@
 """Define network input/output contracts for graph and multiplex estimators."""
+
 from __future__ import annotations
 
 from enum import Enum
 from typing import Any, ClassVar, Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 
 from polisyos.ir.analytics.network_embedding import (
     EmbeddingFidelityAction,
@@ -22,6 +30,7 @@ def _to_numpy(value: Any) -> np.ndarray:
 
 class NetworkData(BaseModel):
     """Carry a weighted adjacency matrix, optional node states, and node labels."""
+
     contract_id: ClassVar[str] = "foundry.network.data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -39,7 +48,7 @@ class NetworkData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "NetworkData":
+    def _validate_shapes(self) -> NetworkData:
         if not isinstance(self.adjacency, np.ndarray) or self.adjacency.ndim != 2:
             raise ValueError("adjacency must be a 2D numpy array")
         n_nodes = self.adjacency.shape[0]
@@ -68,6 +77,7 @@ class NetworkData(BaseModel):
 
 class MultiplexNetworkData(BaseModel):
     """Carry aligned adjacency layers and optional node states for multiplex graph methods."""
+
     contract_id: ClassVar[str] = "foundry.network.multiplex_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -84,7 +94,7 @@ class MultiplexNetworkData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_layers(self) -> "MultiplexNetworkData":
+    def _validate_layers(self) -> MultiplexNetworkData:
         if not isinstance(self.adjacency_layers, np.ndarray) or self.adjacency_layers.ndim != 3:
             raise ValueError("adjacency_layers must be a 3D numpy array")
         n_layers, n_nodes, n_nodes_2 = self.adjacency_layers.shape
@@ -295,7 +305,7 @@ class FormationEvent(BaseModel):
         return tuple(float(entry) for entry in value)
 
     @model_validator(mode="after")
-    def _validate_event(self) -> "FormationEvent":
+    def _validate_event(self) -> FormationEvent:
         if self.i == self.j:
             raise ValueError("formation events must reference distinct nodes")
         for entry in self.dyad_covariates:
@@ -321,7 +331,14 @@ class StrategicNetworkFormationData(BaseModel):
     node_ids: list[str] | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
-    @field_validator("adjacency", "dyad_features", "node_features", "initial_adjacency", "adjacency_snapshots", mode="before")
+    @field_validator(
+        "adjacency",
+        "dyad_features",
+        "node_features",
+        "initial_adjacency",
+        "adjacency_snapshots",
+        mode="before",
+    )
     @classmethod
     def _coerce_numpy_fields(cls, value: Any) -> Any:
         if value is None:
@@ -346,7 +363,7 @@ class StrategicNetworkFormationData(BaseModel):
         return np.asarray(value, dtype=bool)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "StrategicNetworkFormationData":
+    def _validate_shapes(self) -> StrategicNetworkFormationData:
         if not isinstance(self.adjacency, np.ndarray) or self.adjacency.ndim != 2:
             raise ValueError("adjacency must be a 2D numpy array")
         n_nodes = self.adjacency.shape[0]
@@ -369,7 +386,10 @@ class StrategicNetworkFormationData(BaseModel):
             if not np.isfinite(self.node_features).all():
                 raise ValueError("node_features must be finite")
         if self.initial_adjacency is not None:
-            if not isinstance(self.initial_adjacency, np.ndarray) or self.initial_adjacency.ndim != 2:
+            if (
+                not isinstance(self.initial_adjacency, np.ndarray)
+                or self.initial_adjacency.ndim != 2
+            ):
                 raise ValueError("initial_adjacency must be a 2D numpy array")
             if self.initial_adjacency.shape != self.adjacency.shape:
                 raise ValueError("initial_adjacency must match adjacency shape")
@@ -382,7 +402,10 @@ class StrategicNetworkFormationData(BaseModel):
                 raise ValueError("policy_shock first two dimensions must match node count")
             if not np.isfinite(self.policy_shock).all():
                 raise ValueError("policy_shock must be finite")
-            if self.dyad_features is not None and self.policy_shock.shape[2] != self.dyad_features.shape[2]:
+            if (
+                self.dyad_features is not None
+                and self.policy_shock.shape[2] != self.dyad_features.shape[2]
+            ):
                 raise ValueError("policy_shock width must match dyad_features width")
         if self.holdout_mask is not None:
             if not isinstance(self.holdout_mask, np.ndarray) or self.holdout_mask.ndim != 2:
@@ -390,7 +413,10 @@ class StrategicNetworkFormationData(BaseModel):
             if self.holdout_mask.shape != self.adjacency.shape:
                 raise ValueError("holdout_mask must match adjacency shape")
         if self.adjacency_snapshots is not None:
-            if not isinstance(self.adjacency_snapshots, np.ndarray) or self.adjacency_snapshots.ndim != 3:
+            if (
+                not isinstance(self.adjacency_snapshots, np.ndarray)
+                or self.adjacency_snapshots.ndim != 3
+            ):
                 raise ValueError("adjacency_snapshots must be a 3D numpy array")
             if self.adjacency_snapshots.shape[0] < 2:
                 raise ValueError("adjacency_snapshots must contain at least two snapshots")
@@ -401,9 +427,7 @@ class StrategicNetworkFormationData(BaseModel):
         if self.node_ids is not None and len(self.node_ids) != n_nodes:
             raise ValueError("node_ids length must match node count")
         event_covariate_widths = {
-            len(event.dyad_covariates)
-            for event in self.formation_events
-            if event.dyad_covariates
+            len(event.dyad_covariates) for event in self.formation_events if event.dyad_covariates
         }
         if len(event_covariate_widths) > 1:
             raise ValueError("formation event dyad_covariates must use a consistent width")
@@ -440,7 +464,7 @@ class NetworkFormationIdentifiedSet(BaseModel):
     violation_threshold: float = Field(default=0.0, ge=0.0)
 
     @model_validator(mode="after")
-    def _validate_bounds(self) -> "NetworkFormationIdentifiedSet":
+    def _validate_bounds(self) -> NetworkFormationIdentifiedSet:
         for key, interval in self.parameter_bounds.items():
             lo, hi = interval
             if not np.isfinite(lo) or not np.isfinite(hi):
@@ -562,7 +586,7 @@ class NetworkFormationDiagnostic(BaseModel):
     fallback_reason: str | None = None
 
     @model_validator(mode="after")
-    def _validate_diagnostic(self) -> "NetworkFormationDiagnostic":
+    def _validate_diagnostic(self) -> NetworkFormationDiagnostic:
         if not self.model_class:
             raise ValueError("model_class must be non-empty")
         for bucket_name, bucket in (
@@ -574,7 +598,9 @@ class NetworkFormationDiagnostic(BaseModel):
                 if not np.isfinite(value):
                     raise ValueError(f"{bucket_name}.{key} must be finite")
         if self.identification_status == "partially_identified" and self.identified_set is None:
-            raise ValueError("identified_set is required when identification_status=partially_identified")
+            raise ValueError(
+                "identified_set is required when identification_status=partially_identified"
+            )
         if self.identification_status == "blocked" and self.fallback_reason is None:
             raise ValueError("fallback_reason is required when identification_status=blocked")
         if self.strategy_used == "blocked" and self.identification_status != "blocked":
@@ -584,6 +610,7 @@ class NetworkFormationDiagnostic(BaseModel):
 
 class NetworkResult(BaseModel):
     """Store graph metrics, node scores/labels, trajectories, and method metadata."""
+
     contract_id: ClassVar[str] = "foundry.network.result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -612,42 +639,41 @@ class NetworkResult(BaseModel):
         return value
 
 
-from .generative_protocols import (  # noqa: E402
+from .generative_protocols import (
     DiffusionNullResult,
     EdgeListNetworkData,
     ERGMResult,
     SBMStratificationResult,
 )
 
-
 __all__ = [
     "BoundEstimate",
     "DiffusionNullResult",
+    "ERGMResult",
     "EdgeListNetworkData",
     "EmbeddingFidelityAction",
     "EmbeddingFidelityStatus",
-    "ERGMResult",
-    "FormationEvent",
     "EstimandAssessment",
+    "FormationEvent",
     "IdentificationDiagnostics",
     "IntervalEstimate",
     "MissingnessAssessment",
     "MissingnessAssessmentScope",
     "MultiplexNetworkData",
+    "NetworkData",
+    "NetworkEmbeddingFidelityCertificate",
+    "NetworkEstimandTarget",
+    "NetworkFormationCounterfactualSummary",
     "NetworkFormationDiagnostic",
     "NetworkFormationIdentifiedSet",
-    "NetworkFormationCounterfactualSummary",
     "NetworkFormationPredictiveCheck",
     "NetworkFormationScenarioMoments",
     "NetworkFormationUncertaintySummary",
     "NetworkFormationValidationSummary",
-    "NetworkData",
-    "NetworkEmbeddingFidelityCertificate",
-    "NetworkEstimandTarget",
     "NetworkIdentificationStatus",
     "NetworkMissingnessRisk",
-    "PeerEffectDecomposition",
     "NetworkResult",
+    "PeerEffectDecomposition",
     "SBMStratificationResult",
     "StrategicNetworkFormationData",
 ]

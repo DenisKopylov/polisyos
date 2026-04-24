@@ -1,4 +1,5 @@
 """Provide FastAPI dependencies and tenant guards for the Runtime API boundary."""
+
 from __future__ import annotations
 
 import time
@@ -42,6 +43,7 @@ else:
 @dataclass(frozen=True)
 class RuntimeApiContext:
     """Bundle stateful services and policy knobs shared by runtime route handlers."""
+
     cas_root: Path
     core_runs_root: Path
     store: ArtifactStore

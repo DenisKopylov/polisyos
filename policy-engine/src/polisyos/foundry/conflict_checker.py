@@ -1,4 +1,5 @@
 """Public foundry conflict checker module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -23,9 +24,7 @@ class SlotConflict(BaseModel):
     writers: frozenset[str] = Field(
         ..., description="Set of mechanism node IDs writing to this slot"
     )
-    conflict_kind: MergeConflictKind = Field(
-        ..., description="Classification from MergeEngine"
-    )
+    conflict_kind: MergeConflictKind = Field(..., description="Classification from MergeEngine")
     location: str = Field(..., description="Path in ProgramGraph for diagnostics")
     suggestion: str = Field(..., description="Actionable fix recommendation")
     severity: str = Field(default="blocker", pattern=r"^(blocker|warning|info)$")
@@ -85,8 +84,8 @@ class CompileTimeConflictChecker:
 
     def __init__(
         self,
-        slot_registry: "SlotRegistry",
-        merge_registry: "MergeRuleRegistry",
+        slot_registry: SlotRegistry,
+        merge_registry: MergeRuleRegistry,
         *,
         strict_mode: bool = True,
     ):
@@ -94,7 +93,7 @@ class CompileTimeConflictChecker:
         self._merge_registry = merge_registry
         self._strict_mode = strict_mode
 
-    def check(self, program_graph: "ProgramGraph") -> ConflictReport:
+    def check(self, program_graph: ProgramGraph) -> ConflictReport:
         """
         Analyze ProgramGraph for slot conflicts.
 
@@ -149,13 +148,18 @@ class CompileTimeConflictChecker:
             },
         )
 
-    def _is_mechanism_node(self, node: "ProgramNode") -> bool:
+    def _is_mechanism_node(self, node: ProgramNode) -> bool:
         if node.node_kind in {"mechanism", "method"}:
             return True
-        if node.node_kind == "op" and node.op and node.op.op_kind in {
-            "apply_mechanism",
-            "apply_method",
-        }:
+        if (
+            node.node_kind == "op"
+            and node.op
+            and node.op.op_kind
+            in {
+                "apply_mechanism",
+                "apply_method",
+            }
+        ):
             return True
         return False
 
@@ -194,9 +198,7 @@ class CompileTimeConflictChecker:
                     writers=frozenset(info.node_ids),
                     conflict_kind=MergeConflictKind.UNSUPPORTED_RULE,
                     location=f"slots.{slot_id}.merge_rule",
-                    suggestion=(
-                        f"Register merge rule '{rule_ref.rule_id}' in MergeRuleRegistry"
-                    ),
+                    suggestion=(f"Register merge rule '{rule_ref.rule_id}' in MergeRuleRegistry"),
                     severity="blocker",
                 ),
                 None,
@@ -239,9 +241,7 @@ class CompileTimeConflictChecker:
                 writers=frozenset(info.node_ids),
                 conflict_kind=MergeConflictKind.UNSUPPORTED_RULE,
                 location=f"slots.{slot_id}.merge_rule",
-                suggestion=(
-                    f"Unsupported merge rule '{rule_spec.kind}' for slot '{slot_id}'"
-                ),
+                suggestion=(f"Unsupported merge rule '{rule_spec.kind}' for slot '{slot_id}'"),
                 severity="blocker",
             ),
             None,
@@ -261,8 +261,8 @@ class CompileTimeConflictChecker:
 
 
 def create_conflict_checker(
-    slot_registry: "SlotRegistry",
-    merge_registry: "MergeRuleRegistry",
+    slot_registry: SlotRegistry,
+    merge_registry: MergeRuleRegistry,
     *,
     strict_mode: bool = True,
 ) -> CompileTimeConflictChecker:

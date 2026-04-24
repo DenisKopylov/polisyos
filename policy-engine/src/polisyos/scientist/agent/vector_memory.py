@@ -7,7 +7,6 @@ neighbor search.  Supports CAS persistence via ``save_to_artifact`` /
 
 from __future__ import annotations
 
-import io
 import logging
 import tempfile
 from pathlib import Path
@@ -47,12 +46,11 @@ class VectorMemoryStore:
         dim: int = 384,
         max_elements: int = 100_000,
         ef_construction: int = 200,
-        M: int = 16,  # noqa: N803
+        M: int = 16,
     ) -> None:
         if not _HAS_HNSW:
             raise ImportError(
-                "hnswlib is required for VectorMemoryStore.  "
-                "Install it with: pip install hnswlib"
+                "hnswlib is required for VectorMemoryStore.  Install it with: pip install hnswlib"
             )
         self._dim = dim
         self._max_elements = max_elements
@@ -102,7 +100,9 @@ class VectorMemoryStore:
         self._index.add_items([embedding], [idx])
 
     def query(
-        self, embedding: list[float], top_k: int = 10,
+        self,
+        embedding: list[float],
+        top_k: int = 10,
     ) -> list[tuple[str, float, dict[str, Any]]]:
         """Query nearest neighbors.
 
@@ -130,7 +130,7 @@ class VectorMemoryStore:
                 results.append((self._keys[idx], float(dist), self._metadata[idx]))
         return results
 
-    def save_to_artifact(self, store: "ArtifactStore") -> "ArtifactRef":
+    def save_to_artifact(self, store: ArtifactStore) -> ArtifactRef:
         """Persist the index + metadata to the artifact store.
 
         Returns
@@ -174,7 +174,7 @@ class VectorMemoryStore:
             PutOptions(kind="vector_memory.bundle", media_type="application/json"),
         )
 
-    def load_from_artifact(self, store: "ArtifactStore", ref: "ArtifactRef") -> None:
+    def load_from_artifact(self, store: ArtifactStore, ref: ArtifactRef) -> None:
         """Load the index + metadata from the artifact store."""
         import json
 

@@ -161,6 +161,9 @@ describe("LexKnowledgeGraphPage", () => {
     expect(screen.getByText("statute: 3")).toBeInTheDocument();
     expect(screen.getByText("Transport rules apply.")).toBeInTheDocument();
 
+    await user.click(screen.getByTestId("lex-stage-parse"));
+    await user.click(screen.getByTestId("lex-resume-toggle"));
+
     await user.click(
       screen.getByRole("button", { name: "pages.lex.launchPipeline" }),
     );
@@ -171,6 +174,10 @@ describe("LexKnowledgeGraphPage", () => {
       expect.objectContaining({
         cards_path: "data/data_lex/edrnpa_cards_2026-04-05.xml",
         output_dir: "data/lex_knowledge",
+        resume: true,
+        stages: expect.objectContaining({
+          parse: false,
+        }),
       }),
       expect.any(Object),
     );

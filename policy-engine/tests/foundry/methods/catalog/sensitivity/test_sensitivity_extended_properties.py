@@ -1,11 +1,14 @@
 """Property-based tests for sensitivity analysis methods — Sobol, Morris, specification curve."""
+
 from __future__ import annotations
+
 import sys
+
 import numpy as np
 import pytest
 
 try:
-    from hypothesis import given, settings, HealthCheck
+    from hypothesis import HealthCheck, given, settings
 
     HYPOTHESIS_AVAILABLE = True
 except ImportError:
@@ -23,7 +26,11 @@ def _method_or_skip(registry, fqn):
 
 class TestMorrisProperties:
     @given(data=sensitivity_strategy())
-    @settings(max_examples=15, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=15,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_morris_output_finite(self, data, isolated_registry):
         method = _method_or_skip(isolated_registry, "sensitivity.global.morris@1.0.0")
         state = {"X": data["X"], "Y": data["Y"]}
@@ -38,7 +45,11 @@ class TestMorrisProperties:
             pass
 
     @given(data=sensitivity_strategy())
-    @settings(max_examples=15, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=15,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_morris_mu_star_non_negative(self, data, isolated_registry):
         """mu* (absolute elementary effects) should be non-negative."""
         method = _method_or_skip(isolated_registry, "sensitivity.global.morris@1.0.0")
@@ -55,9 +66,15 @@ class TestMorrisProperties:
 
 class TestSpecificationCurveProperties:
     @given(data=sensitivity_strategy())
-    @settings(max_examples=15, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=15,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_specification_curve_output_dict(self, data, isolated_registry):
-        method = _method_or_skip(isolated_registry, "sensitivity.specification.specification_curve@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "sensitivity.specification.specification_curve@1.0.0"
+        )
         state = {"X": data["X"], "Y": data["Y"]}
         try:
             result = method.pure_step(state, {"param_names": data["param_names"]})
@@ -66,9 +83,15 @@ class TestSpecificationCurveProperties:
             pass
 
     @given(data=sensitivity_strategy())
-    @settings(max_examples=15, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=15,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_specification_curve_deterministic(self, data, isolated_registry):
-        method = _method_or_skip(isolated_registry, "sensitivity.specification.specification_curve@1.0.0")
+        method = _method_or_skip(
+            isolated_registry, "sensitivity.specification.specification_curve@1.0.0"
+        )
         state = {"X": data["X"], "Y": data["Y"]}
         try:
             r1 = method.pure_step(state, {"param_names": data["param_names"]})

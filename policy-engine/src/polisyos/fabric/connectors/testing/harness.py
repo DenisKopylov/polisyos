@@ -20,13 +20,14 @@ Design decisions
 * Hash comparison in test_idempotency uses FetchResult.content_hash when present;
   otherwise falls back to a stable SHA-256 over canonical JSON for data.
 """
+
 from __future__ import annotations
 
 import asyncio
 import inspect
 import json
-from datetime import datetime, timezone
-from typing import Any, ClassVar, Type
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 
 import pytest
 
@@ -70,12 +71,12 @@ def _to_records(data: Any) -> list[dict[str, Any]]:
     if isinstance(data, list) and all(isinstance(item, dict) for item in data):
         return data
 
-    raise TypeError(
-        "FetchResult.data must be a DataFrame or list-of-dicts to validate schema."
-    )
+    raise TypeError("FetchResult.data must be a DataFrame or list-of-dicts to validate schema.")
 
 
-def _sorted_records_by_pk(records: list[dict[str, Any]], pk: tuple[str, ...]) -> list[dict[str, Any]]:
+def _sorted_records_by_pk(
+    records: list[dict[str, Any]], pk: tuple[str, ...]
+) -> list[dict[str, Any]]:
     """Return records sorted deterministically by primary key, if possible."""
     if not pk:
         return records
@@ -126,8 +127,8 @@ def _minimal_version() -> DataVersion:
     """Return a structurally valid DataVersion for assertion checks."""
     return DataVersion(
         strategy=VersionStrategy.TIMESTAMP,
-        value=datetime.now(timezone.utc).isoformat(),
-        timestamp=datetime.now(timezone.utc),
+        value=datetime.now(UTC).isoformat(),
+        timestamp=datetime.now(UTC),
     )
 
 
@@ -146,9 +147,9 @@ _CAPABILITY_METHODS: dict[ConnectorCapability, str] = {
 def _is_async_capability_method(method: Any, *, method_name: str) -> bool:
     if inspect.iscoroutinefunction(method):
         return True
-    if method_name in {"list_datasets", "fetch_stream"} and inspect.isasyncgenfunction(method):
-        return True
-    return False
+    return bool(
+        method_name in {"list_datasets", "fetch_stream"} and inspect.isasyncgenfunction(method)
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -167,7 +168,7 @@ class ConnectorTestHarness:
     # ------------------------------------------------------------------
     # Subclass MUST set these
     # ------------------------------------------------------------------
-    connector_class: ClassVar[Type[SourceConnector]]
+    connector_class: ClassVar[type[SourceConnector]]
     sample_config: ClassVar[ConnectionConfig]
     sample_schema: ClassVar[DataSchema]
     sample_request: ClassVar[FetchRequest]
@@ -176,7 +177,7 @@ class ConnectorTestHarness:
     # Fixtures -- override for DI
     # ------------------------------------------------------------------
 
-    @pytest.fixture()
+    @pytest.fixture
     def connector_instance(self) -> SourceConnector:
         """
         Instantiate the connector under test.
@@ -186,7 +187,7 @@ class ConnectorTestHarness:
         """
         return self.connector_class()
 
-    @pytest.fixture()
+    @pytest.fixture
     async def connection_handle(self, connector_instance: SourceConnector) -> ConnectionHandle:
         """
         Perform connect() and return the live handle.
@@ -196,7 +197,7 @@ class ConnectorTestHarness:
         """
         return await connector_instance.connect(self.sample_config)
 
-    @pytest.fixture()
+    @pytest.fixture
     async def connected(
         self,
         connector_instance: SourceConnector,
@@ -243,8 +244,7 @@ class ConnectorTestHarness:
         """
         for attr in ("connector_id", "capabilities", "metadata"):
             assert hasattr(self.connector_class, attr), (
-                f"{self.connector_class.__name__} is missing required "
-                f"class attribute '{attr}'."
+                f"{self.connector_class.__name__} is missing required class attribute '{attr}'."
             )
 
     def test_core_methods_are_async(self) -> None:
@@ -276,8 +276,7 @@ class ConnectorTestHarness:
             if caps & cap:
                 method = getattr(self.connector_class, method_name, None)
                 assert method is not None, (
-                    f"Capability {cap.name} declared but method "
-                    f"'{method_name}' is missing."
+                    f"Capability {cap.name} declared but method '{method_name}' is missing."
                 )
                 assert _is_async_capability_method(method, method_name=method_name), (
                     f"Capability-gated method '{method_name}' must be async."
@@ -316,9 +315,7 @@ class ConnectorTestHarness:
         assert isinstance(health, HealthStatus), (
             "health_check() must return a HealthStatus instance."
         )
-        assert health.healthy is True, (
-            f"health_check() reported unhealthy: {health.message}"
-        )
+        assert health.healthy is True, f"health_check() reported unhealthy: {health.message}"
 
         # --- teardown ---
         await connector_instance.disconnect(handle)
@@ -377,19 +374,14 @@ class ConnectorTestHarness:
         connector, handle = connected
         result: FetchResult = await connector.fetch(handle, self.sample_request)
 
-        assert result.version is not None, (
-            "FetchResult.version must not be None."
-        )
+        assert result.version is not None, "FetchResult.version must not be None."
         assert isinstance(result.version, DataVersion), (
             "FetchResult.version must be a DataVersion instance."
         )
-        assert result.version.value, (
-            "DataVersion.value must be a non-empty string."
-        )
+        assert result.version.value, "DataVersion.value must be a non-empty string."
         # Verify strategy is a recognised enum value
         assert isinstance(result.version.strategy, VersionStrategy), (
-            f"DataVersion.strategy '{result.version.strategy}' is not a "
-            f"valid VersionStrategy."
+            f"DataVersion.strategy '{result.version.strategy}' is not a valid VersionStrategy."
         )
 
     async def test_fetch_result_schema_fields(self, connected: tuple) -> None:
@@ -402,12 +394,9 @@ class ConnectorTestHarness:
         connector, handle = connected
         result: FetchResult = await connector.fetch(handle, self.sample_request)
 
-        assert result.schema_id, (
-            "FetchResult.schema_id must be a non-empty string."
-        )
+        assert result.schema_id, "FetchResult.schema_id must be a non-empty string."
         assert result.schema_version, (
-            "FetchResult.schema_version must be a non-empty string "
-            "(e.g. '1.0' or '1.0.0')."
+            "FetchResult.schema_version must be a non-empty string (e.g. '1.0' or '1.0.0')."
         )
 
     async def test_fetch_result_completeness_bounds(self, connected: tuple) -> None:
@@ -421,8 +410,7 @@ class ConnectorTestHarness:
         result: FetchResult = await connector.fetch(handle, self.sample_request)
 
         assert 0.0 <= result.completeness <= 1.0, (
-            f"FetchResult.completeness={result.completeness} is outside "
-            f"the valid range [0.0, 1.0]."
+            f"FetchResult.completeness={result.completeness} is outside the valid range [0.0, 1.0]."
         )
 
     async def test_fetch_result_row_count_non_negative(self, connected: tuple) -> None:
@@ -430,9 +418,7 @@ class ConnectorTestHarness:
         connector, handle = connected
         result: FetchResult = await connector.fetch(handle, self.sample_request)
 
-        assert result.row_count >= 0, (
-            f"FetchResult.row_count={result.row_count} must be >= 0."
-        )
+        assert result.row_count >= 0, f"FetchResult.row_count={result.row_count} must be >= 0."
 
     async def test_fetch_result_matches_schema(self, connected: tuple) -> None:
         """
@@ -447,8 +433,7 @@ class ConnectorTestHarness:
 
         records = _to_records(result.data)
         try:
-            import pandas as pd  # noqa: F401
-
+            import pandas as pd
 
             df = pd.DataFrame(records)
         except Exception as exc:  # pragma: no cover

@@ -7,6 +7,7 @@ Verifies:
 - resolve_method_version: high-level helper that queries the registry
 - ResolutionError raised when no version satisfies the constraint
 """
+
 from __future__ import annotations
 
 import pytest
@@ -18,10 +19,10 @@ from polisyos.foundry.methods.resolution import (
     resolve_method_version,
 )
 
-
 # ---------------------------------------------------------------------------
 # parse_pip_specifier
 # ---------------------------------------------------------------------------
+
 
 class TestParsePipSpecifier:
     def test_compatible_release(self):
@@ -111,6 +112,7 @@ class TestResolveBySpecifier:
 # ---------------------------------------------------------------------------
 # resolve_method_version — requires a live registry
 # ---------------------------------------------------------------------------
+
 
 class TestResolveMethodVersion:
     """Integration tests using the conftest module_registry fixture."""

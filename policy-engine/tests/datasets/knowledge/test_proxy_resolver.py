@@ -235,9 +235,7 @@ def test_resolve_proxy_uses_harmonic_confidence() -> None:
         ),
     ]
     registry = _DatasetRegistry(matches)
-    skg = _SKGWithContextAdjust(
-        table={("proxy_x", "target_y", "US"): 0.6}
-    )
+    skg = _SKGWithContextAdjust(table={("proxy_x", "target_y", "US"): 0.6})
     chain = resolve_proxy("target_y", "US", registry, skg)
     assert chain.proxies
     proxy = chain.proxies[0]
@@ -281,7 +279,10 @@ def _simple_graph() -> dict[str, set[str]]:
 def test_validate_proxy_valid_case() -> None:
     adj = _simple_graph()
     result = validate_proxy(
-        proxy="P", target="M", outcome="Y", adjacency=adj,
+        proxy="P",
+        target="M",
+        outcome="Y",
+        adjacency=adj,
         correlation_matrix={("P", "M"): 0.85},
     )
     assert result.relevance_check
@@ -293,7 +294,10 @@ def test_validate_proxy_valid_case() -> None:
 def test_validate_proxy_no_path_to_target() -> None:
     adj = {"A": set(), "B": set(), "Y": set()}
     result = validate_proxy(
-        proxy="A", target="B", outcome="Y", adjacency=adj,
+        proxy="A",
+        target="B",
+        outcome="Y",
+        adjacency=adj,
     )
     assert not result.relevance_check
     assert not result.overall_valid
@@ -302,7 +306,10 @@ def test_validate_proxy_no_path_to_target() -> None:
 def test_validate_proxy_direct_edge_to_outcome() -> None:
     adj = {"P": {"M", "Y"}, "M": {"Y"}, "Y": set()}
     result = validate_proxy(
-        proxy="P", target="M", outcome="Y", adjacency=adj,
+        proxy="P",
+        target="M",
+        outcome="Y",
+        adjacency=adj,
         correlation_matrix={("P", "M"): 0.7},
     )
     assert not result.exclusion_check
@@ -311,7 +318,10 @@ def test_validate_proxy_direct_edge_to_outcome() -> None:
 def test_validate_proxy_low_correlation() -> None:
     adj = _simple_graph()
     result = validate_proxy(
-        proxy="P", target="M", outcome="Y", adjacency=adj,
+        proxy="P",
+        target="M",
+        outcome="Y",
+        adjacency=adj,
         correlation_matrix={("P", "M"): 0.1},
         invertibility_threshold=0.3,
     )
@@ -322,6 +332,9 @@ def test_validate_proxy_low_correlation() -> None:
 def test_validate_proxy_missing_correlation_flags_expert() -> None:
     adj = _simple_graph()
     result = validate_proxy(
-        proxy="P", target="M", outcome="Y", adjacency=adj,
+        proxy="P",
+        target="M",
+        outcome="Y",
+        adjacency=adj,
     )
     assert result.requires_expert_review

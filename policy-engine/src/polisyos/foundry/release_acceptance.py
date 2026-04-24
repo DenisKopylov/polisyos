@@ -10,7 +10,7 @@ from typing import Any
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
@@ -28,9 +28,9 @@ from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.data_plane.bindings import build_input_bindings
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.executor import put_state_snapshot
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.governance.postflight import postflight_checks
 from polisyos.ukraine_data.manifests import ReleaseManifest, load_manifest
-from polisyos.ir.trinity import TrinityBundle
 
 
 def _sha256_file(path: Path) -> str:
@@ -72,11 +72,7 @@ def _normalize_simulation_payload(payload: dict[str, Any]) -> dict[str, Any]:
 
 def _extract_metrics_ref(execute_result: Any) -> ArtifactRef | None:
     return next(
-        (
-            item.ref
-            for item in execute_result.derived_refs
-            if item.role == "metrics"
-        ),
+        (item.ref for item in execute_result.derived_refs if item.role == "metrics"),
         None,
     )
 
@@ -215,7 +211,9 @@ class ReleaseAcceptanceRunner:
                 notes=["acceptance_contract_bundle_missing"],
             )
 
-        trinity_bundle = TrinityBundle.model_validate_json(acceptance_bundle_path.read_text(encoding="utf-8"))
+        trinity_bundle = TrinityBundle.model_validate_json(
+            acceptance_bundle_path.read_text(encoding="utf-8")
+        )
         trinity_bundle = trinity_bundle.model_copy(
             update={
                 "model_spec": trinity_bundle.model_spec.model_copy(
@@ -228,7 +226,9 @@ class ReleaseAcceptanceRunner:
             PutOptions(
                 kind="ir.trinity_bundle",
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=trinity_bundle.schema_version),
+                schema=SchemaInfo(
+                    name="polisyos.ir.TrinityBundle", version=trinity_bundle.schema_version
+                ),
             ),
         )
         steps.append(
@@ -266,7 +266,9 @@ class ReleaseAcceptanceRunner:
 
         exec_request = ExecuteRequest(
             exec_plan_ref=compile_result.exec_plan_ref,
-            input_bindings_ref=FoundryInputBindingsRef(artifact_id=built.input_bindings_ref.artifact_id),
+            input_bindings_ref=FoundryInputBindingsRef(
+                artifact_id=built.input_bindings_ref.artifact_id
+            ),
             registry_bundle_ref=registry_bundle.bundle_ref,
         )
         execute_result = execute_foundry(self._store, exec_request)
@@ -292,7 +294,9 @@ class ReleaseAcceptanceRunner:
                 "run_id": "R_release_acceptance",
                 "ir": trinity_bundle.model_dump(mode="json"),
                 "registry_bundle_ref": registry_bundle.bundle_ref.model_dump(mode="json"),
-                "simulation_result_ref": execute_result.simulation_result_ref.model_dump(mode="json"),
+                "simulation_result_ref": execute_result.simulation_result_ref.model_dump(
+                    mode="json"
+                ),
             },
             profile=governance_profile or ValidationProfile.mvp(),
         )
@@ -302,7 +306,9 @@ class ReleaseAcceptanceRunner:
                 step_id="run_governance",
                 status="passed" if governance_ok else "failed",
                 details={
-                    "gate_decision": None if gate_decision is None else gate_decision.model_dump(mode="json"),
+                    "gate_decision": None
+                    if gate_decision is None
+                    else gate_decision.model_dump(mode="json"),
                     "validation_issues": list(postflight_state.get("validation_issues", [])),
                 },
             )
@@ -313,13 +319,17 @@ class ReleaseAcceptanceRunner:
                 manifest_path=str(release_manifest_path),
                 release_bundle_root=str(release_manifest_path.parent),
                 governance_verdict="reject",
-                original_simulation_result_ref=str(execute_result.simulation_result_ref.artifact_id),
+                original_simulation_result_ref=str(
+                    execute_result.simulation_result_ref.artifact_id
+                ),
                 steps=steps,
                 notes=["acceptance_governance_failed"],
             )
 
         replay_execute_result = execute_foundry(self._store, exec_request)
-        replay_ok = bool(replay_execute_result.ok and replay_execute_result.simulation_result_ref is not None)
+        replay_ok = bool(
+            replay_execute_result.ok and replay_execute_result.simulation_result_ref is not None
+        )
         steps.append(
             ReleaseAcceptanceStep(
                 step_id="replay_execute_roundtrip",
@@ -333,7 +343,9 @@ class ReleaseAcceptanceRunner:
                 manifest_path=str(release_manifest_path),
                 release_bundle_root=str(release_manifest_path.parent),
                 governance_verdict="approve",
-                original_simulation_result_ref=str(execute_result.simulation_result_ref.artifact_id),
+                original_simulation_result_ref=str(
+                    execute_result.simulation_result_ref.artifact_id
+                ),
                 steps=steps,
                 notes=["acceptance_replay_execute_failed"],
             )
@@ -352,7 +364,9 @@ class ReleaseAcceptanceRunner:
             "artifacts": {
                 "exec_plan_ref": str(compile_result.exec_plan_ref.artifact_id),
                 "simulation_result_ref": str(execute_result.simulation_result_ref.artifact_id),
-                "metrics_ref": None if original_metrics_ref is None else str(original_metrics_ref.artifact_id),
+                "metrics_ref": None
+                if original_metrics_ref is None
+                else str(original_metrics_ref.artifact_id),
             },
         }
         packet_ref = self._store.put_json(
@@ -360,10 +374,14 @@ class ReleaseAcceptanceRunner:
             PutOptions(kind="scientist.decision_packet", media_type="application/json"),
         )
         original_sim_payload = SimulationResult.model_validate(
-            from_canonical_bytes(self._store.get_bytes(execute_result.simulation_result_ref.artifact_id))
+            from_canonical_bytes(
+                self._store.get_bytes(execute_result.simulation_result_ref.artifact_id)
+            )
         ).model_dump(mode="json")
         replay_sim_payload = SimulationResult.model_validate(
-            from_canonical_bytes(self._store.get_bytes(replay_execute_result.simulation_result_ref.artifact_id))
+            from_canonical_bytes(
+                self._store.get_bytes(replay_execute_result.simulation_result_ref.artifact_id)
+            )
         ).model_dump(mode="json")
         normalized_original = _normalize_simulation_payload(original_sim_payload)
         normalized_replay = _normalize_simulation_payload(replay_sim_payload)
@@ -385,10 +403,7 @@ class ReleaseAcceptanceRunner:
                 Metrics.model_validate(from_canonical_bytes(replay_metrics_bytes)).values
             )
             metrics_exact = stable_original_metrics == stable_replay_metrics
-        replay_verified = bool(
-            normalized_original == normalized_replay
-            and metrics_exact
-        )
+        replay_verified = bool(normalized_original == normalized_replay and metrics_exact)
         steps.append(
             ReleaseAcceptanceStep(
                 step_id="verify_replay_roundtrip",
@@ -409,7 +424,9 @@ class ReleaseAcceptanceRunner:
             release_bundle_root=str(release_manifest_path.parent),
             packet_ref=str(packet_ref.artifact_id),
             original_simulation_result_ref=str(execute_result.simulation_result_ref.artifact_id),
-            replay_simulation_result_ref=str(replay_execute_result.simulation_result_ref.artifact_id),
+            replay_simulation_result_ref=str(
+                replay_execute_result.simulation_result_ref.artifact_id
+            ),
             governance_verdict="approve",
             replay_verification={
                 "passed": replay_verified,

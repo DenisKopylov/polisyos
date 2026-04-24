@@ -1,9 +1,7 @@
 """Tests for Phase 6: precise compile/execute timing separation."""
+
 from __future__ import annotations
 
-import time
-
-import jax
 import jax.numpy as jnp
 
 from polisyos.foundry.runtime import get_jit_tracker, jit_aware_span
@@ -32,12 +30,15 @@ def test_compile_execute_timing_separation():
         mock_metrics.simulation_compile_seconds = MagicMock()
         mock_metrics.simulation_duration_seconds = MagicMock()
 
-        with patch("polisyos.foundry.runtime.get_tracer", return_value=mock_tracer), \
-             patch("polisyos.foundry.runtime.get_metrics", return_value=mock_metrics):
-
+        with (
+            patch("polisyos.foundry.runtime.get_tracer", return_value=mock_tracer),
+            patch("polisyos.foundry.runtime.get_metrics", return_value=mock_metrics),
+        ):
             state = jnp.array([1.0])
             with jit_aware_span(
-                "test_span", "test_func", state,
+                "test_span",
+                "test_func",
+                state,
             ) as ctx:
                 # Simulate some work
                 _ = jnp.sum(jnp.ones(1000))
@@ -47,9 +48,7 @@ def test_compile_execute_timing_separation():
     if ctx.is_warmup and ctx.compile_seconds is not None:
         # The old heuristic was exactly 0.95 — the new measurement should differ
         ratio = ctx.compile_seconds / ctx.total_seconds
-        assert ratio != 0.95, (
-            f"compile/total ratio is exactly 0.95, measurement not working"
-        )
+        assert ratio != 0.95, "compile/total ratio is exactly 0.95, measurement not working"
         # Sanity: compile_seconds should be positive and <= total
         assert 0 < ctx.compile_seconds <= ctx.total_seconds
 
@@ -71,9 +70,10 @@ def test_warmup_vs_cached_timing():
         mock_metrics.simulation_compile_seconds = MagicMock()
         mock_metrics.simulation_duration_seconds = MagicMock()
 
-        with patch("polisyos.foundry.runtime.get_tracer", return_value=mock_tracer), \
-             patch("polisyos.foundry.runtime.get_metrics", return_value=mock_metrics):
-
+        with (
+            patch("polisyos.foundry.runtime.get_tracer", return_value=mock_tracer),
+            patch("polisyos.foundry.runtime.get_metrics", return_value=mock_metrics),
+        ):
             state = jnp.array([42.0])
 
             # First call — warmup

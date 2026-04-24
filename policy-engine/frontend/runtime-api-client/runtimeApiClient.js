@@ -49,7 +49,7 @@ export class RuntimeApiClient {
     return query;
   }
 
-  async getArtifactBatch() {
+  async getArtifactBatch(params) {
     const path = `/api/v1/artifacts/batch`;
     const query = undefined;
     return this.request('POST', path, query, params?.body);
@@ -239,13 +239,13 @@ export class RuntimeApiClient {
     return this.request('GET', path, query);
   }
 
-  async computeMobilityBounds() {
+  async computeMobilityBounds(params) {
     const path = `/api/v1/mobility/bounds`;
     const query = undefined;
     return this.request('POST', path, query, params?.body);
   }
 
-  async estimateMobility() {
+  async estimateMobility(params) {
     const path = `/api/v1/mobility/estimate`;
     const query = undefined;
     return this.request('POST', path, query, params?.body);
@@ -282,7 +282,7 @@ export class RuntimeApiClient {
     return this.request('GET', path, query);
   }
 
-  async getRunsBatch() {
+  async getRunsBatch(params) {
     const path = `/api/v1/runs/batch`;
     const query = undefined;
     return this.request('POST', path, query, params?.body);

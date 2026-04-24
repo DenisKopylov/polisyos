@@ -13,4 +13,3 @@ __all__ = [
     "materialize_spatio_temporal_world",
     "materialize_survey_repeated_cross_section_world",
 ]
-

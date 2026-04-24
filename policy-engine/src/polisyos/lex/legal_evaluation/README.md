@@ -20,14 +20,14 @@
 
 ## Public API
 
-| Type/Function | Description |
-|---|---|
-| `evaluate_legality_impl()` | Main legality evaluation orchestrator |
-| `propose_changes_impl()` | Generate change proposals from evaluation failures |
-| `LegalConstraintBridge` | Resolve legal constraints for transportability and causal checks |
-| `LegalConstraint`, `LegalConstraintSet` | Typed legal-constraint models |
-| `LegalToDAGMapping`, `LegalToDAGMappingType` | Mapping contracts from legal constraints to DAG semantics |
-| `ConstraintSeverity`, `is_transport_blocked()` | Severity and fast hard-block helpers |
+| Type/Function                                  | Description                                                      |
+| ---------------------------------------------- | ---------------------------------------------------------------- |
+| `evaluate_legality_impl()`                     | Main legality evaluation orchestrator                            |
+| `propose_changes_impl()`                       | Generate change proposals from evaluation failures               |
+| `LegalConstraintBridge`                        | Resolve legal constraints for transportability and causal checks |
+| `LegalConstraint`, `LegalConstraintSet`        | Typed legal-constraint models                                    |
+| `LegalToDAGMapping`, `LegalToDAGMappingType`   | Mapping contracts from legal constraints to DAG semantics        |
+| `ConstraintSeverity`, `is_transport_blocked()` | Severity and fast hard-block helpers                             |
 
 Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 

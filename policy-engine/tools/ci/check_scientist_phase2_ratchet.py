@@ -94,9 +94,9 @@ def _scan_file(path: Path) -> dict[str, int]:
 def _count_explicit_any(tree: ast.AST) -> int:
     count = 0
     for node in ast.walk(tree):
-        if isinstance(node, ast.Name) and node.id == "Any":
-            count += 1
-        elif isinstance(node, ast.Attribute) and node.attr == "Any":
+        if (isinstance(node, ast.Name) and node.id == "Any") or (
+            isinstance(node, ast.Attribute) and node.attr == "Any"
+        ):
             count += 1
     return count
 
@@ -107,9 +107,9 @@ def _count_unsafe_cast(tree: ast.AST) -> int:
         if not isinstance(node, ast.Call):
             continue
         func = node.func
-        if isinstance(func, ast.Name) and func.id == "cast":
-            count += 1
-        elif isinstance(func, ast.Attribute) and func.attr == "cast":
+        if (isinstance(func, ast.Name) and func.id == "cast") or (
+            isinstance(func, ast.Attribute) and func.attr == "cast"
+        ):
             count += 1
     return count
 
@@ -133,10 +133,7 @@ def _load_baseline(path: Path) -> dict[str, dict[str, int]]:
     for metric in METRICS:
         entries = payload.get(metric, {})
         if isinstance(entries, dict):
-            baseline[metric] = {
-                str(file_path): int(value)
-                for file_path, value in entries.items()
-            }
+            baseline[metric] = {str(file_path): int(value) for file_path, value in entries.items()}
     return baseline
 
 
@@ -185,9 +182,7 @@ def main(argv: list[str] | None = None) -> int:
                     )
                 )
             elif actual < expected:
-                stale.append(
-                    f"{relative_path}: [{metric}] actual={actual} baseline={expected}"
-                )
+                stale.append(f"{relative_path}: [{metric}] actual={actual} baseline={expected}")
 
     print("Scientist Phase 2 ratchet summary:")
     for metric in METRICS:

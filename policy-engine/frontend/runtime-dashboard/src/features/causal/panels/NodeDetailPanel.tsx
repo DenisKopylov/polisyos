@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { Card } from "@/shared/ui/primitives";
 import { ConfidenceGauge, GradedErrorBar } from "@/shared/charts";
@@ -18,6 +19,7 @@ export function NodeDetailPanel({
   onClose,
   className,
 }: NodeDetailPanelProps) {
+  const { t } = useI18n();
   const incoming = edges.filter((e) => e.target === node.id);
   const outgoing = edges.filter((e) => e.source === node.id);
 
@@ -40,8 +42,8 @@ export function NodeDetailPanel({
         <button
           type="button"
           onClick={onClose}
-          className="text-muted hover:text-inherit text-lg leading-none"
-          aria-label="Close panel"
+          className="text-muted text-lg leading-none hover:text-inherit"
+          aria-label={t("common.close")}
         >
           {"\u00D7"}
         </button>
@@ -56,12 +58,12 @@ export function NodeDetailPanel({
       {node.estimate != null && node.ci && (
         <div className="space-y-2">
           <p className="text-muted text-xs font-semibold uppercase">
-            Effect estimate
+            {t("causal.nodeDetail.effectEstimate")}
           </p>
           <div className="flex items-center gap-4">
             <ConfidenceGauge
               value={Math.min(Math.abs(node.estimate), 1)}
-              label="Effect"
+              label={t("causal.nodeDetail.effect")}
               size={64}
             />
             <div>
@@ -70,8 +72,11 @@ export function NodeDetailPanel({
                 {node.estimate.toFixed(4)}
               </p>
               <p className="text-muted text-xs">
-                {node.ci.level}% CI: [{node.ci.lower.toFixed(4)},{" "}
-                {node.ci.upper.toFixed(4)}]
+                {t("causal.nodeDetail.confidenceInterval", {
+                  level: node.ci.level,
+                  lower: node.ci.lower.toFixed(4),
+                  upper: node.ci.upper.toFixed(4),
+                })}
               </p>
             </div>
           </div>
@@ -110,35 +115,33 @@ export function NodeDetailPanel({
         />
         <span>
           {node.dataAvailable !== false
-            ? "Data available"
-            : "Data unavailable"}
+            ? t("causal.nodeDetail.dataAvailable")
+            : t("causal.nodeDetail.dataUnavailable")}
         </span>
       </div>
 
       {/* Evidence count */}
       {node.evidenceCount != null && (
         <p className="text-muted text-sm">
-          {node.evidenceCount} evidence source
-          {node.evidenceCount !== 1 ? "s" : ""}
+          {t("causal.nodeDetail.evidenceSources", {
+            count: node.evidenceCount,
+          })}
         </p>
       )}
 
       {/* Connections */}
       <div>
         <p className="text-muted mb-1 text-xs font-semibold uppercase">
-          Connections
+          {t("causal.nodeDetail.connections")}
         </p>
         {incoming.length > 0 && (
           <div className="mb-2">
             <p className="text-muted text-xs">
-              Incoming ({incoming.length})
+              {t("causal.nodeDetail.incoming", { count: incoming.length })}
             </p>
             <ul className="mt-0.5 space-y-0.5">
               {incoming.map((e) => (
-                <li
-                  key={e.id}
-                  className="flex items-center gap-1.5 text-sm"
-                >
+                <li key={e.id} className="flex items-center gap-1.5 text-sm">
                   <span className="text-muted">{"\u2190"}</span>
                   <span className="font-medium">{e.source}</span>
                   <span className="text-muted text-xs capitalize">
@@ -152,14 +155,11 @@ export function NodeDetailPanel({
         {outgoing.length > 0 && (
           <div>
             <p className="text-muted text-xs">
-              Outgoing ({outgoing.length})
+              {t("causal.nodeDetail.outgoing", { count: outgoing.length })}
             </p>
             <ul className="mt-0.5 space-y-0.5">
               {outgoing.map((e) => (
-                <li
-                  key={e.id}
-                  className="flex items-center gap-1.5 text-sm"
-                >
+                <li key={e.id} className="flex items-center gap-1.5 text-sm">
                   <span className="text-muted">{"\u2192"}</span>
                   <span className="font-medium">{e.target}</span>
                   <span className="text-muted text-xs capitalize">
@@ -176,7 +176,7 @@ export function NodeDetailPanel({
       {node.meta && Object.keys(node.meta).length > 0 && (
         <div>
           <p className="text-muted mb-1 text-xs font-semibold uppercase">
-            Metadata
+            {t("causal.nodeDetail.metadata")}
           </p>
           <div className="space-y-0.5">
             {Object.entries(node.meta).map(([k, v]) => (

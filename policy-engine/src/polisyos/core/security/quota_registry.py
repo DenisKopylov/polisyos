@@ -1,11 +1,12 @@
 """Per-tenant quota configuration registry."""
+
 from __future__ import annotations
 
 import threading
 from typing import Any
 
-from polisyos.core.security.tenant_quota import TenantQuotaLimits, TenantQuotaState
 from polisyos.core.security.quota_enforcer import QuotaEnforcer
+from polisyos.core.security.tenant_quota import TenantQuotaLimits, TenantQuotaState
 
 
 class TenantQuotaRegistry:

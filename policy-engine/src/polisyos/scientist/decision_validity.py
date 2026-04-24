@@ -1,4 +1,5 @@
 """Public scientist decision validity module API."""
+
 from __future__ import annotations
 
 import json
@@ -92,6 +93,7 @@ class _DecisionDependencyIndex(BaseModel):
 
 class DecisionValidityStateStore:
     """Decision validity state store implementation."""
+
     def __init__(self, cas: ArtifactStore | Path) -> None:
         root_value = getattr(cas, "root", cas)
         if isinstance(root_value, str):
@@ -190,6 +192,7 @@ class DecisionValidityStateStore:
 
 class DecisionValidityService:
     """Decision validity service implementation."""
+
     def __init__(
         self,
         store: ArtifactStore,
@@ -277,9 +280,7 @@ class DecisionValidityService:
                     return loaded
 
         payload = (
-            packet_payload
-            if packet_payload is not None
-            else self._load_packet_payload(packet_ref)
+            packet_payload if packet_payload is not None else self._load_packet_payload(packet_ref)
         )
         evaluation = self._compute_evaluation(
             packet_ref=packet_ref,
@@ -596,9 +597,7 @@ class DecisionValidityService:
             latest_compare_report_ref=(
                 state.latest_compare_report_ref if state is not None else None
             ),
-            latest_reissue_plan_ref=(
-                state.latest_reissue_plan_ref if state is not None else None
-            ),
+            latest_reissue_plan_ref=(state.latest_reissue_plan_ref if state is not None else None),
             lifecycle_events=list(state.lifecycle_events) if state is not None else [],
             transition_history=list(state.transition_history) if state is not None else [],
             lifecycle_jobs=list(state.lifecycle_jobs) if state is not None else [],
@@ -700,8 +699,7 @@ class DecisionValidityService:
         return {
             "events": [item.model_dump(mode="json") for item in state.lifecycle_events[-20:]],
             "transitions": [
-                item.model_dump(mode="json")
-                for item in state.transition_history[-20:]
+                item.model_dump(mode="json") for item in state.transition_history[-20:]
             ],
             "pending_reviews": pending_reviews,
             "scheduled_jobs": [item.model_dump(mode="json") for item in state.lifecycle_jobs[-20:]],

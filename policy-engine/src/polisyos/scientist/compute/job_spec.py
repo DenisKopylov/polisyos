@@ -1,4 +1,5 @@
 """Public compute job spec module API."""
+
 from __future__ import annotations
 
 import json
@@ -12,6 +13,7 @@ from polisyos.core.canon import content_hash
 
 class JobSpec(BaseModel):
     """Job spec data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     job_kind: str = "legacy_program"
@@ -28,7 +30,7 @@ class JobSpec(BaseModel):
     input_refs: dict[str, ArtifactRef] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_job_kind(self) -> "JobSpec":
+    def _validate_job_kind(self) -> JobSpec:
         if self.job_kind not in {"legacy_program", "method"}:
             raise ValueError("job_kind must be either 'legacy_program' or 'method'")
         return self
@@ -44,12 +46,13 @@ class JobSpec(BaseModel):
 
 class JobKey(BaseModel):
     """Job key public type."""
+
     model_config = ConfigDict(extra="forbid")
 
     value: str
 
     @staticmethod
-    def from_spec(spec: JobSpec) -> "JobKey":
+    def from_spec(spec: JobSpec) -> JobKey:
         payload_obj = spec.model_dump(mode="json", exclude_none=True)
         if spec.is_legacy_jax:
             payload_obj.pop("job_kind", None)
@@ -62,6 +65,7 @@ class JobKey(BaseModel):
 
 class JobResult(BaseModel):
     """Job result data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     job_key: JobKey

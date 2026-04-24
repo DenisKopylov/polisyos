@@ -45,12 +45,14 @@ PolicyOS treats distributional causal claims as safe only under the following co
 - records bound uniformity and coupling status explicitly
 - requires `quantile`, `tail_prob`, and `expected_shortfall` targets to cite a
   CDF/survival source through `derived_from_target`; they are not primary proof-kernel targets
+
 - carries typed assumption-card refs
 
 `EventPredicate`
 
 - extends `DistributionRef` so CDF/event queries such as `P(Y <= t | do(X))`
   can be represented directly in the existing `EstimandAST`
+
 - validates that the event variable belongs to the distribution factor variables
 - supports half-line, interval, and set events for proof-kernel reductions
 
@@ -62,6 +64,7 @@ PolicyOS treats distributional causal claims as safe only under the following co
 - theorem-backed bounded marginal artifacts for configured Lee monotone-selection
   and Makarov pointwise ITE tail/quantile requests when their required data and
   assumptions are present;
+
 - a coupling `DistributionalProofArtifact` for OT claims, with `scenario_only` status unless a stronger theorem family is supplied;
 - typed `CausalAssumptionCard` artifacts referenced from `DistributionalEffectBundle.causal_assumption_refs`.
 
@@ -70,5 +73,6 @@ The runtime enforces one additional invariant:
 - `DistributionalJustification.BOUNDED` is invalid unless `DistributionalEffectBundle.distributional_bounds_refs`
   contains at least one bounds artifact for the reported functional and `distributional_proof_ref`
   points to a `DistributionalProofArtifact`.
+
 - theorem-backed bounded marginals do not upgrade the OT coupling by default;
   `coupling_justification` stays `SCENARIO` until a separate coupling proof is attached.

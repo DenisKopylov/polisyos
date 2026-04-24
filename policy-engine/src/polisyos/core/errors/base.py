@@ -1,9 +1,11 @@
 """Public errors base module API."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import Enum
 from types import MappingProxyType
-from typing import Any, Mapping
+from typing import Any
 
 
 class ErrorCategory(str, Enum):
@@ -36,7 +38,9 @@ class PolicyOSError(Exception):
     ) -> None:
         super().__init__(message)
         self.message = message
-        self.category = self._coerce_category(category) if category is not None else self.default_category
+        self.category = (
+            self._coerce_category(category) if category is not None else self.default_category
+        )
         self.stage = stage or self.default_stage
         self.code = code
         self.details: Mapping[str, Any] = MappingProxyType(dict(details or {}))

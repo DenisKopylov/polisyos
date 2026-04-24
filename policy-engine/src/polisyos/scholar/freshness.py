@@ -1,4 +1,5 @@
 """Evaluate and report knowledge-bundle freshness against policy thresholds."""
+
 from __future__ import annotations
 
 import time
@@ -24,6 +25,7 @@ _DEFAULT_COOLDOWN_SECONDS = 3600
 def _default_metrics() -> MetricsRegistry:
     return get_metrics()
 
+
 _DOMAIN_DAYS_DEFAULTS: dict[str, tuple[int, int, int]] = {
     "fiscal": (90, 365, 3600),
     "labor": (30, 90, 3600),
@@ -36,6 +38,7 @@ _DOMAIN_DAYS_DEFAULTS: dict[str, tuple[int, int, int]] = {
 @dataclass(frozen=True)
 class DomainThresholds:
     """Carry normalized stale/expired/cooldown cutoffs in seconds."""
+
     staleness_seconds: int
     expiry_seconds: int
     cooldown_seconds: int
@@ -44,6 +47,7 @@ class DomainThresholds:
 @dataclass(frozen=True)
 class FreshnessCheckResult:
     """Return the freshness verdict and refresh/cooldown decision for one bundle."""
+
     bundle_ref: str
     status: FreshnessStatus
     age_seconds: int
@@ -129,6 +133,7 @@ def build_freshness_metadata(
 
 class FreshnessPolicy:
     """Decide whether a bundle should refresh, continue, or block execution."""
+
     def __init__(
         self,
         *,

@@ -240,4 +240,6 @@ def test_verify_continuous_abstraction_returns_invalid_for_incomplete_lipschitz_
     )
 
     assert certificate.preservation_type is AbstractionPreservationType.INVALID
-    assert any("missing=['Y']" in note or "missing=[\'Y\']" in note for note in certificate.validation_notes)
+    assert any(
+        "missing=['Y']" in note or "missing=['Y']" in note for note in certificate.validation_notes
+    )

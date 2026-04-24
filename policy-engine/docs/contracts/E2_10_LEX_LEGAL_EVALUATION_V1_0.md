@@ -20,8 +20,8 @@ Repo snapshot date: 2026-02-04
 - CAS artifacts:
   - `lex.legal_report`
   - `lex.change_proposal`
-- + `WorldEvent(kind=evaluate_legality)` (IR `EventKind.EVALUATE_LEGALITY`)
-- + PROV edges через `fabric.world.store.emit_world_event_facts(...)`
+- - `WorldEvent(kind=evaluate_legality)` (IR `EventKind.EVALUATE_LEGALITY`)
+- - PROV edges через `fabric.world.store.emit_world_event_facts(...)`
 
 > Никаких внешних вызовов (web/LLM/DB), никаких случайных tie‑break’ов: порядок и вывод воспроизводимы по входным артефактам.
 
@@ -81,7 +81,7 @@ Phase 18 вводит **новый формат payload** этих артефа�
 
 Рекомендуемое размещение (минимальный surface area; соответствие именам deliverables):
 
-```
+```text
 policy-engine/src/polisyos/lex/legal_evaluation/
   __init__.py
   context_builder.py
@@ -94,7 +94,7 @@ policy-engine/src/polisyos/lex/legal_evaluation/
 
 ### 2.2. Обновление публичного Lex API
 
-```
+```text
 policy-engine/src/polisyos/lex/api.py
   + evaluate_legality(...)
   + propose_changes(...)
@@ -102,7 +102,7 @@ policy-engine/src/polisyos/lex/api.py
 
 и, опционально, экспорт из:
 
-```
+```text
 policy-engine/src/polisyos/lex/__init__.py
 ```
 
@@ -110,7 +110,7 @@ policy-engine/src/polisyos/lex/__init__.py
 
 Добавить builtin node:
 
-```
+```text
 policy-engine/src/polisyos/scientist/nodes/builtins/governance/legal_check.py
 ```
 
@@ -120,7 +120,7 @@ policy-engine/src/polisyos/scientist/nodes/builtins/governance/legal_check.py
 
 Новый файл:
 
-```
+```text
 policy-engine/tests/fabric/test_legal_evaluation_phase18.py
 ```
 
@@ -128,7 +128,7 @@ policy-engine/tests/fabric/test_legal_evaluation_phase18.py
 
 Этот файл:
 
-```
+```text
 policy-engine/docs/contracts/E2_10_LEX_LEGAL_EVALUATION_V1_0.md
 ```
 
@@ -142,7 +142,7 @@ policy-engine/docs/contracts/E2_10_LEX_LEGAL_EVALUATION_V1_0.md
 
 В репозитории уже есть ABI‑файл:
 
-```
+```text
 policy-engine/src/polisyos/core/contracts/lex.py
 ```
 
@@ -185,19 +185,22 @@ class LegalEvaluationRequest(BaseModel):
 
 В `polisyos.lex.legal_evaluation.evaluate._normalize_request(...)`:
 
-1) `jurisdiction_norm = request.jurisdiction.strip().casefold()`
+1. `jurisdiction_norm = request.jurisdiction.strip().casefold()`
+
    - должен соответствовать `ID_PATTERN` (`polisyos.ir.kernel.base.ID_PATTERN`)
-2) `as_of_norm = normalize_as_of(request.as_of)` (копируем semantics из Lex NormPack / E2.9):
+2. `as_of_norm = normalize_as_of(request.as_of)` (копируем semantics из Lex NormPack / E2.9):
+
    - принимает `YYYY-MM-DD` или datetime ISO
    - возвращает строго `YYYY-MM-DD`
    - date semantics = “date_inclusive”
-3) Exactly‑one policy input source:
+3. Exactly‑one policy input source:
+
    - если `trinity_bundle_ref` задан:
      - разрешить `policy_spec_ref/model_spec_ref` быть `None` и брать их из bundle
    - если `trinity_bundle_ref` не задан:
      - `policy_spec_ref` обязателен
-4) `norm_pack_ref.kind` должен быть `"lex.norm_pack"` (иначе `LexValidationError`)
-5) `eval_policy_id` должен соответствовать `ID_PATTERN` (и быть из allow‑list в MVP)
+4. `norm_pack_ref.kind` должен быть `"lex.norm_pack"` (иначе `LexValidationError`)
+5. `eval_policy_id` должен соответствовать `ID_PATTERN` (и быть из allow‑list в MVP)
 
 > Правило MVP: отсутствующий `model_spec_ref` **не блокирует** оценку (используется только как metadata в отчёте).
 
@@ -342,8 +345,9 @@ class LegalContext:
 
 Алгоритм:
 
-1) `predicate_id = rule.backend_metadata["predicate_id"]`
-2) если `metrics` есть и `predicate_id in metrics.values`:
+1. `predicate_id = rule.backend_metadata["predicate_id"]`
+2. если `metrics` есть и `predicate_id in metrics.values`:
+
    - `raw = metrics.values[predicate_id]`
    - `ObservedValue.source_kind="metrics"`
    - `ObservedValue.metric_key = predicate_id`
@@ -371,10 +375,11 @@ class LegalContext:
 
 MVP поддержка двух путей (оба детерминированны):
 
-**A) ParameterSpec param_id == predicate_id (preferred)**
+**A) ParameterSpec param_id == predicate_id (preferred):**
 
-1) строим index: `param_id -> ParameterSpec`
-2) если найден `ParameterSpec`:
+1. строим index: `param_id -> ParameterSpec`
+2. если найден `ParameterSpec`:
+
    - находим `InterventionSpec` по `intervention_id`
    - читаем значение из `intervention.params` по `param_path`:
      - `param_path` = dot‑path, поддержать:
@@ -386,11 +391,12 @@ JSON pointer для patch:
 - `/interventions/<idx>/params/<foo>/<bar>/...`
 - `<idx>` — индекс intervention в массиве (детерминированно по порядку в PolicySpec)
 
-**B) Direct params key == predicate_id (fallback)**
+**B) Direct params key == predicate_id (fallback):**
 
-1) ищем все `(intervention_index, intervention_id, value)` где `predicate_id in intervention.params`
-2) если найдено ровно одно совпадение → используем его
-3) если >1 → mapping ambiguous:
+1. ищем все `(intervention_index, intervention_id, value)` где `predicate_id in intervention.params`
+2. если найдено ровно одно совпадение → используем его
+3. если >1 → mapping ambiguous:
+
    - observed = None
    - quality_issue: `ambiguous_policy_mapping`
 
@@ -428,18 +434,21 @@ unit_id для PolicySpec (MVP):
 
 Порядок:
 
-1) определяем `expected_unit_id` из rule.backend_metadata["unit_id"]
-2) определяем `observed_unit_id` из ObservedValue.unit_id
-3) если один из unit_id = None:
+1. определяем `expected_unit_id` из rule.backend_metadata["unit_id"]
+2. определяем `observed_unit_id` из ObservedValue.unit_id
+3. если один из unit_id = None:
+
    - quality_issue: `missing_unit`
    - status: `UNKNOWN` или `FAIL` по strict
-4) если `expected_unit_id == observed_unit_id` → ok
-5) иначе пробуем конвертировать:
+4. если `expected_unit_id == observed_unit_id` → ok
+5. иначе пробуем конвертировать:
+
    - percent→ratio: `x/100`
    - ratio→percent: `x*100`
    - km→m: `x*1000`
    - m→km: `x/1000`
-6) если конверсия невозможна:
+6. если конверсия невозможна:
+
    - quality_issue: `unit_mismatch`
    - status: `UNKNOWN` или `FAIL` по strict
 
@@ -510,10 +519,12 @@ class RuleFinding:
 
 Псевдокод:
 
-1) если `applies=False` → `NOT_APPLICABLE`
-2) если `observed is None`:
+1. если `applies=False` → `NOT_APPLICABLE`
+2. если `observed is None`:
+
    - `UNKNOWN` или `FAIL` по strict
-3) иначе:
+3. иначе:
+
    - извлечь `operator`, `expected_value_decimal/value_text`, `expected_unit_id`
    - привести observed к нужному типу:
      - numeric: Decimal-string обязателен
@@ -522,7 +533,8 @@ class RuleFinding:
    - применить оператор:
      - numeric: compare Decimal
      - boolean/text: только "="
-4) severity mapping (MVP):
+4. severity mapping (MVP):
+
    - PASS / NOT_APPLICABLE → `"info"`
    - UNKNOWN → `"warning"` (или `"blocker"` если strict=True)
    - FAIL → `"blocker"` (MVP default)
@@ -551,15 +563,21 @@ class RuleFinding:
   "request": {
     "jurisdiction": "ua",
     "as_of": "2026-02-04",
-    "policy_spec_ref": {"artifact_id": "sha256:...", "kind": "ir.policy_spec"},
-    "model_spec_ref": {"artifact_id": "sha256:...", "kind": "ir.model_spec"},
-    "simulation_result_ref": {"artifact_id": "sha256:...", "kind": "foundry.simulation_result"},
-    "norm_pack_ref": {"artifact_id": "sha256:...", "kind": "lex.norm_pack"},
+    "policy_spec_ref": {
+      "artifact_id": "sha256:...",
+      "kind": "ir.policy_spec"
+    },
+    "model_spec_ref": { "artifact_id": "sha256:...", "kind": "ir.model_spec" },
+    "simulation_result_ref": {
+      "artifact_id": "sha256:...",
+      "kind": "foundry.simulation_result"
+    },
+    "norm_pack_ref": { "artifact_id": "sha256:...", "kind": "lex.norm_pack" },
     "eval_policy_id": "lex.eval.simple_v1",
     "strict": true
   },
   "summary": {
-    "counts": {"pass": 3, "fail": 1, "unknown": 2, "not_applicable": 5},
+    "counts": { "pass": 3, "fail": 1, "unknown": 2, "not_applicable": 5 },
     "compliance_grade": "fail"
   },
   "findings": [
@@ -568,22 +586,39 @@ class RuleFinding:
       "status": "FAIL",
       "severity": "blocker",
       "norm_citations": [
-        {"provision_id": "frag.sha256_...", "citations": [/* CitationRef */]}
+        {
+          "provision_id": "frag.sha256_...",
+          "citations": [
+            /* CitationRef */
+          ]
+        }
       ],
       "observed_evidence_refs": [
-        {"kind": "policy_param", "policy_json_pointer": "/interventions/0/params/speed_limit"}
+        {
+          "kind": "policy_param",
+          "policy_json_pointer": "/interventions/0/params/speed_limit"
+        }
       ],
       "observed_value": "70",
-      "expected": {"op": "<=", "threshold": "60", "unit": null},
+      "expected": { "op": "<=", "threshold": "60", "unit": null },
       "rationale": {
         "predicate_id": "speed_limit",
-        "mapping": {"source": "policy_param", "notes": ["..."]},
-        "comparison": {"left": "70", "op": "<=", "right": "60", "result": false}
+        "mapping": { "source": "policy_param", "notes": ["..."] },
+        "comparison": {
+          "left": "70",
+          "op": "<=",
+          "right": "60",
+          "result": false
+        }
       }
     }
   ],
   "quality_issues": [
-    {"code": "missing_observed_value", "rule_id": "claim.sha256_...", "details": {"predicate_id": "kpi.xxx"}}
+    {
+      "code": "missing_observed_value",
+      "rule_id": "claim.sha256_...",
+      "details": { "predicate_id": "kpi.xxx" }
+    }
   ],
   "artifacts_used": [
     "sha256:...policy",
@@ -619,14 +654,21 @@ class RuleFinding:
 ```json
 {
   "schema_version": "1.0",
-  "based_on_report_ref": {"artifact_id": "sha256:...", "kind": "lex.legal_report"},
+  "based_on_report_ref": {
+    "artifact_id": "sha256:...",
+    "kind": "lex.legal_report"
+  },
   "actions": [
     {
       "action_kind": "policy_patch",
-      "target_ref": {"artifact_id": "sha256:...", "kind": "ir.policy_spec"},
+      "target_ref": { "artifact_id": "sha256:...", "kind": "ir.policy_spec" },
       "patch_format": "json_patch_v1",
       "patch_json": [
-        {"op": "replace", "path": "/interventions/0/params/speed_limit", "value": "60"}
+        {
+          "op": "replace",
+          "path": "/interventions/0/params/speed_limit",
+          "value": "60"
+        }
       ],
       "rationale": "Bring speed_limit to <= 60 to satisfy rule claim.sha256_...",
       "links_to_findings": ["claim.sha256_..."]
@@ -650,7 +692,8 @@ class RuleFinding:
 
 В `polisyos.lex.legal_evaluation.change_proposals.propose_changes_v1(...)`:
 
-1) Для каждого finding со статусом `FAIL`:
+1. Для каждого finding со статусом `FAIL`:
+
    - если `observed.source_kind == "policy_param"` и есть `policy_json_pointer`:
      - если expected numeric threshold задан:
        - сгенерировать JSON Patch replace на `policy_json_pointer`
@@ -661,11 +704,13 @@ class RuleFinding:
        - epsilon детерминированный:
          - если threshold имеет десятичную часть → `10^exponent` (по Decimal exponent)
          - иначе `1`
-2) Для `missing_observed_value`:
+2. Для `missing_observed_value`:
+
    - action_kind=`add_metric`
    - metric_id = predicate_id
    - metric_type = inferred from expected (numeric/boolean/text)
-3) Иначе:
+3. Иначе:
+
    - в MVP не генерировать `model_patch`/`legal_change_request` (зарезервировано)
 
 Детерминизм:
@@ -682,9 +727,11 @@ class RuleFinding:
 
 В `polisyos.lex.legal_evaluation.evaluate.evaluate_legality_impl(...)`:
 
-1) Persist `LegalReport`:
+1. Persist `LegalReport`:
+
    - `cas.put_json(payload, PutOptions(kind="lex.legal_report", ...))`
-2) Persist `ChangeProposal` (если requested / если есть actions):
+2. Persist `ChangeProposal` (если requested / если есть actions):
+
    - `cas.put_json(payload, PutOptions(kind="lex.change_proposal", ...))`
 
 Inputs (InputRef) для LegalReport (рекомендация):
@@ -792,7 +839,7 @@ def propose_changes(
 
 ### 11.1. Размещение
 
-```
+```text
 policy-engine/src/polisyos/scientist/nodes/builtins/governance/legal_check.py
 ```
 
@@ -814,15 +861,18 @@ Node пишет:
 
 ### 11.3. Behaviour
 
-1) Если `norm_pack_ref` отсутствует:
+1. Если `norm_pack_ref` отсутствует:
+
    - собрать его через `polisyos.lex.api.assemble_norm_pack(...)` (Phase 17)
    - положить в `state.inputs["norm_pack_ref"]`
-2) Сформировать `LegalEvaluationRequest`:
+2. Сформировать `LegalEvaluationRequest`:
+
    - jurisdiction/as_of из params
    - refs из state
-3) Вызвать `polisyos.lex.api.evaluate_legality(...)`
-4) Положить refs в state
-5) Gate outcome:
+3. Вызвать `polisyos.lex.api.evaluate_legality(...)`
+4. Положить refs в state
+5. Gate outcome:
+
    - если `strict=True` и report.summary.compliance_grade != "pass" → NodeOutcome.status="error" или "ok" + event с warning (решение зависит от workflow policy)
    - MVP рекомендация: NodeOutcome.status="ok", а gating делает следующий governance node.
 
@@ -836,10 +886,12 @@ Node пишет:
 
 ### 12.1. Unit tests
 
-1) `simple_v1` evaluator:
+1. `simple_v1` evaluator:
+
    - numeric PASS/FAIL на `<,<=,=,>=,>`
    - UNKNOWN при missing operator/value
-2) Mapping:
+2. Mapping:
+
    - `predicate_id` → metrics.value
    - fallback → policy param
    - детерминированный tie-break / ambiguous mapping → quality issue
@@ -863,9 +915,10 @@ Fixture‑минимум:
 
 Пайплайн:
 
-1) `evaluate_legality(...)` → получить `LegalReportRef` + `ChangeProposalRef`
-2) `materialize_world_duckdb_from_fact_log(tmp_path, db, cas)`
-3) asserts:
+1. `evaluate_legality(...)` → получить `LegalReportRef` + `ChangeProposalRef`
+2. `materialize_world_duckdb_from_fact_log(tmp_path, db, cas)`
+3. asserts:
+
    - CAS артефакт `lex.legal_report` существует
    - CAS артефакт `lex.change_proposal` существует
    - `world.world_events` содержит запись с `activity_id='prov.activity.lex_legal_eval.evaluate'`
@@ -878,16 +931,16 @@ Fixture‑минимум:
 
 Готово, когда:
 
-1) Lex по `policy+results+norms` выдаёт воспроизводимый `LegalReport` и `ChangeProposal(s)` (без внешних вызовов).
-2) `LegalReport` и `ChangeProposal` сохраняются в CAS с правильными kind’ами.
-3) В world fact log появляется `WorldEvent(kind=evaluate_legality)` + PROV edges, и это материализуется в DuckDB (`world.world_events`).
-4) Есть тест `test_legal_evaluation_phase18.py`, который проходит end‑to‑end и проверяет artifacts + world event + ключевые поля отчёта/предложений.
+1. Lex по `policy+results+norms` выдаёт воспроизводимый `LegalReport` и `ChangeProposal(s)` (без внешних вызовов).
+2. `LegalReport` и `ChangeProposal` сохраняются в CAS с правильными kind’ами.
+3. В world fact log появляется `WorldEvent(kind=evaluate_legality)` + PROV edges, и это материализуется в DuckDB (`world.world_events`).
+4. Есть тест `test_legal_evaluation_phase18.py`, который проходит end‑to‑end и проверяет artifacts + world event + ключевые поля отчёта/предложений.
 
 ## D1-L4 Validation Links
 
-| Link type | Current anchor |
-|-----------|----------------|
-| Source plan phase | D1-L4 Phase 5 governance/frontier contract and Phase 4 world-event interoperability |
-| Contract tests | `tests/fabric/test_legal_evaluation.py`, `tests/scientist/test_legal_check_node.py`, `tests/scientist/governance/test_legal_pass.py` |
-| Schema snapshots | `schemas/snapshots/ir/policy_spec.schema.json`, `schemas/snapshots/ir/norm_pack.schema.json`, `schemas/snapshots/ir/world_event.schema.json` |
-| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md) |
+| Link type           | Current anchor                                                                                                                               |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source plan phase   | D1-L4 Phase 5 governance/frontier contract and Phase 4 world-event interoperability                                                          |
+| Contract tests      | `tests/fabric/test_legal_evaluation.py`, `tests/scientist/test_legal_check_node.py`, `tests/scientist/governance/test_legal_pass.py`         |
+| Schema snapshots    | `schemas/snapshots/ir/policy_spec.schema.json`, `schemas/snapshots/ir/norm_pack.schema.json`, `schemas/snapshots/ir/world_event.schema.json` |
+| Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                       |

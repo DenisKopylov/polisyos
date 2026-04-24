@@ -1,9 +1,10 @@
 """Represent candidate policy portfolios and pairwise interaction assumptions."""
+
 from __future__ import annotations
 
 from enum import Enum
 from functools import cached_property
-from typing import Mapping
+from typing import TYPE_CHECKING
 
 from pydantic import Field, model_validator
 
@@ -14,7 +15,13 @@ from polisyos.ir.governance.policy_spec import (
     PolicySpec,
 )
 from polisyos.ir.kernel.base import KernelModel
-from polisyos.ir.types import TranslatableString
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from polisyos.ir.types import TranslatableString
+else:
+    from polisyos.ir.types import TranslatableString
 
 
 class InteractionType(str, Enum):
@@ -192,7 +199,7 @@ class PolicyPortfolio(KernelModel):
     notes: list[str] = Field(default_factory=list, max_length=50)
 
     @model_validator(mode="after")
-    def validate_portfolio(self) -> "PolicyPortfolio":
+    def validate_portfolio(self) -> PolicyPortfolio:
         policy_ids = [policy.policy_id for policy in self.policies]
         unique_ids = set(policy_ids)
         if len(unique_ids) != len(policy_ids):
@@ -220,10 +227,7 @@ class PolicyPortfolio(KernelModel):
                     )
                 if interaction.policy_b_id not in unique_ids:
                     raise ValueError(
-                        (
-                            "interaction references unknown policy: "
-                            f"{interaction.policy_b_id}"
-                        )
+                        f"interaction references unknown policy: {interaction.policy_b_id}"
                     )
 
         return self
@@ -247,11 +251,7 @@ class PolicyPortfolio(KernelModel):
             if req not in active_policy_ids:
                 return False
 
-        for pair in self._excluded_pair_set:
-            if pair.issubset(active_policy_ids):
-                return False
-
-        return True
+        return all(not pair.issubset(active_policy_ids) for pair in self._excluded_pair_set)
 
     def total_benefit(
         self,
@@ -261,9 +261,7 @@ class PolicyPortfolio(KernelModel):
         interaction_mode: InteractionMode | str = InteractionMode.PAIRWISE_ADDITIVE,
     ) -> float:
         active = set(active_policy_ids or self.policy_ids)
-        filtered_active = [
-            policy_id for policy_id in sorted(active) if policy_id in base_benefits
-        ]
+        filtered_active = [policy_id for policy_id in sorted(active) if policy_id in base_benefits]
         try:
             mode = (
                 interaction_mode
@@ -301,9 +299,7 @@ class PolicyPortfolio(KernelModel):
                 total += float(base_benefits[policy_a_id]) * multiplier
             return total
 
-        raise ValueError(
-            "interaction_mode must be one of: pairwise_additive, multiplicative"
-        )
+        raise ValueError("interaction_mode must be one of: pairwise_additive, multiplicative")
 
     def completeness_warnings(self, *, min_non_neutral_density: float = 0.1) -> list[str]:
         return self.interaction_matrix.completeness_warnings(
@@ -313,9 +309,9 @@ class PolicyPortfolio(KernelModel):
 
 
 __all__ = [
+    "MAX_PORTFOLIO_POLICIES",
     "InteractionMatrix",
     "InteractionType",
-    "MAX_PORTFOLIO_POLICIES",
     "PolicyInteraction",
     "PolicyPortfolio",
 ]

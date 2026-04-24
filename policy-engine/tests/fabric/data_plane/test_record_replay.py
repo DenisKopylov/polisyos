@@ -51,9 +51,7 @@ class TestReplayStore:
                     "body_b64": "eyJkYXRhIjogW119",
                 }
             ],
-            connector_datasets=[
-                {"connector_id": "worldbank.wdi", "dataset_id": "NY.GDP.MKTP.CD"}
-            ],
+            connector_datasets=[{"connector_id": "worldbank.wdi", "dataset_id": "NY.GDP.MKTP.CD"}],
             recorded_at="2026-02-12T10:00:00Z",
         )
 
@@ -142,9 +140,7 @@ class TestReplayStore:
         target.mkdir()
 
         # Mock SimulatorFixture where it's actually imported (lazy import inside method)
-        with patch(
-            "polisyos.fabric.connectors.testing.simulator.SimulatorFixture"
-        ) as MockFixture:
+        with patch("polisyos.fabric.connectors.testing.simulator.SimulatorFixture") as MockFixture:
             mock_instance = MagicMock()
             mock_instance.connector_id = "test.conn"
             mock_instance.dataset_id = "ds1"
@@ -261,9 +257,7 @@ class TestRegressionComparison:
         r2 = IngestionResult(datasets_fetched=2)
         result = compare_ingestion_runs(r1, r2)
 
-        assert result.issue_categories == (
-            RegressionIssueCategory.COMPARISON_MISMATCH,
-        )
+        assert result.issue_categories == (RegressionIssueCategory.COMPARISON_MISMATCH,)
 
 
 class TestArtifactHashComparison:

@@ -6,17 +6,25 @@ measurement trust normalization, or causal-readiness manifests are applied.
 Use :class:`ObservationRecord` for atomic evidence rows and
 :class:`ObservationPanel` for compiler-ready homogeneous collections.
 """
+
 from __future__ import annotations
 
-from datetime import date
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import Field, model_validator
 
 from polisyos.ir._validation import ensure_finite_numeric, ensure_interval_monotonicity
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
-from polisyos.ir.types import TimeFrequency
+
+if TYPE_CHECKING:
+    from datetime import date
+
+    from polisyos.ir.types import TimeFrequency
+else:
+    from datetime import date
+
+    from polisyos.ir.types import TimeFrequency
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
@@ -170,7 +178,7 @@ class ObservationRecord(KernelModel):
     notes_json: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def validate_observation_record(self) -> "ObservationRecord":
+    def validate_observation_record(self) -> ObservationRecord:
         ensure_interval_monotonicity(
             self.period_start,
             self.period_end,
@@ -182,7 +190,10 @@ class ObservationRecord(KernelModel):
         ensure_finite_numeric(self.coverage_estimate, field_name="coverage_estimate")
         ensure_finite_numeric(self.trust_weight, field_name="trust_weight")
 
-        if self.identification_mode == IdentificationMode.PROXY_IDENTIFIED and not self.proxy_source_id:
+        if (
+            self.identification_mode == IdentificationMode.PROXY_IDENTIFIED
+            and not self.proxy_source_id
+        ):
             raise ValueError("proxy_source_id is required for proxy_identified observations")
 
         if self.entity_scope in {EntityScope.AGENT, EntityScope.FIRM, EntityScope.HOUSEHOLD}:
@@ -213,7 +224,7 @@ class ObservationPanel(KernelModel):
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_panel(self) -> "ObservationPanel":
+    def validate_panel(self) -> ObservationPanel:
         for record in self.records:
             if record.family != self.family:
                 raise ValueError(

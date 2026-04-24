@@ -1,9 +1,11 @@
 """Public simulate propagate uncertainty module API."""
+
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any
 
 from pydantic import ValidationError
 
@@ -68,6 +70,7 @@ _SPEC = NodeSpec(
 @dataclass(frozen=True)
 class PropagateUncertaintyNode:
     """Propagate uncertainty node implementation."""
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
@@ -360,9 +363,7 @@ def _resolve_sensitivity_map(
         for metric_id in metric_ids:
             base = abs(float(base_metric_values[metric_id]))
             scale = 1.0 if base < 1.0 else base
-            sensitivity[metric_id] = {
-                param_name: uniform_coef / scale for param_name in param_names
-            }
+            sensitivity[metric_id] = dict.fromkeys(param_names, uniform_coef / scale)
         mapped.update(param_names)
 
     return sensitivity, mapped
@@ -374,7 +375,9 @@ def _load_config(state: ExperimentState) -> PropagationConfig:
         try:
             return PropagationConfig.model_validate(raw)
         except _PROPAGATION_VALIDATION_ERRORS:
-            logger.debug("Invalid propagation_config override; falling back to defaults", exc_info=True)
+            logger.debug(
+                "Invalid propagation_config override; falling back to defaults", exc_info=True
+            )
 
     overrides: dict[str, Any] = {}
     for field_name in PropagationConfig.model_fields:

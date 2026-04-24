@@ -33,12 +33,18 @@ export function HowItWorksTimeline() {
       </h2>
       <div className="mx-auto grid max-w-[960px] grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {STEPS.map((step, i) => (
-          <div key={step.labelKey} className="flex flex-col items-center gap-4 text-center">
+          <div
+            key={step.labelKey}
+            className="flex flex-col items-center gap-4 text-center"
+          >
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--button-primary-start),var(--button-primary-end))] text-lg font-extrabold text-[var(--button-primary-text)]">
               {step.number}
             </div>
             {i < STEPS.length - 1 && (
-              <div className="hidden h-px w-full bg-[var(--line)] lg:block" aria-hidden />
+              <div
+                className="hidden h-px w-full bg-[var(--line)] lg:block"
+                aria-hidden
+              />
             )}
             <h3 className="text-base font-bold text-[var(--ink)]">
               {t(step.labelKey)}

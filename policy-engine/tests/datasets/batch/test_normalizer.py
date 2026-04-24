@@ -53,7 +53,12 @@ def test_map_to_polisyos_metrics_indicator_code_match() -> None:
             "worldbank_indicators": ["NY.GDP.MKTP.CD"],
         },
     }
-    raw = {"title": "Some indicator", "notes": "", "description": "", "indicator_id": "NY.GDP.MKTP.CD"}
+    raw = {
+        "title": "Some indicator",
+        "notes": "",
+        "description": "",
+        "indicator_id": "NY.GDP.MKTP.CD",
+    }
     matched = map_to_polisyos_metrics(raw, metrics_map)
     assert "gdp" in matched
 
@@ -126,7 +131,12 @@ def test_normalize_ckan_marks_xlsx_parser_supported() -> None:
         "notes": "Budget table",
         "organization": {"name": "city"},
         "resources": [
-            {"id": "r1", "url": "http://example.com/budget.xlsx", "format": "XLSX", "name": "budget.xlsx"},
+            {
+                "id": "r1",
+                "url": "http://example.com/budget.xlsx",
+                "format": "XLSX",
+                "name": "budget.xlsx",
+            },
         ],
         "tags": [{"name": "budget"}],
     }
@@ -161,7 +171,12 @@ def test_normalize_to_dcat_routes_by_connector_type() -> None:
     assert record.publisher == "World Bank"
     assert record.distributions[0].connector_type == "worldbank.wdi"
 
-    raw_sdmx = {"id": "une_rt_a", "name": "Unemployment rate", "description": "", "agency_id": "ESTAT"}
+    raw_sdmx = {
+        "id": "une_rt_a",
+        "name": "Unemployment rate",
+        "description": "",
+        "agency_id": "ESTAT",
+    }
     record_sdmx = normalize_to_dcat(raw_sdmx, "eurostat", "sdmx")
     assert record_sdmx.publisher == "ESTAT"
     assert record_sdmx.distributions[0].connector_type == "sdmx.source"
@@ -177,7 +192,12 @@ def test_normalize_to_dcat_canonicalizes_indicator_api_connectors() -> None:
     assert who_record.distributions[0].source_locator == "WHOSIS_000001"
 
     unpd_record = normalize_to_dcat(
-        {"id": 1, "name": "Contraceptive prevalence", "sourceStartYear": 1970, "sourceEndYear": 2030},
+        {
+            "id": 1,
+            "name": "Contraceptive prevalence",
+            "sourceStartYear": 1970,
+            "sourceEndYear": 2030,
+        },
         "unpd",
         "unpd",
     )
@@ -220,5 +240,7 @@ def test_normalize_to_dcat_handles_poland_open_data_catalog_row() -> None:
     assert record.publisher == "institution:26"
     assert record.source_portal == "data_gov_pl"
     assert record.distributions[0].connector_type == "rest.json"
-    assert record.distributions[0].source_locator == "https://api.dane.gov.pl/1.4/datasets/1/resources"
+    assert (
+        record.distributions[0].source_locator == "https://api.dane.gov.pl/1.4/datasets/1/resources"
+    )
     assert record.coverage.countries == ["POL"]

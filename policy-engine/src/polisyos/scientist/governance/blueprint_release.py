@@ -9,10 +9,10 @@ flows over processed observation panels.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from collections.abc import Sequence
 from enum import Enum
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -20,7 +20,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec
 from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.ir.analytics.abstraction import (
     AbstractionCertificate,
@@ -38,21 +37,22 @@ from polisyos.ir.analytics.interference import (
     NetworkInterferenceReport,
 )
 from polisyos.ir.analytics.transportability import (
-    TransportMode,
     TransportabilityResult,
     TransportabilityStatus,
+    TransportMode,
 )
 from polisyos.ir.observation.bundles import (
     BacktestPlanBundle,
     ContractCompatibilityTarget,
 )
+from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
 from polisyos.ir.observation.contracts import (
     IdentificationMode,
     ObservationFamily,
     SourceConfidenceTier,
     StrategicResponseChannel,
 )
-from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
+from polisyos.scientist.backtesting.plan import HistoricalValidationPlan, PredictionSource
 from polisyos.scientist.discovery.utility_judge import (
     DownstreamUtilityReport,
     HypothesisUtilityScore,
@@ -63,8 +63,6 @@ from polisyos.scientist.governance.calibration import (
     CalibrationGovernanceReport,
     CalibrationGovernanceRunner,
 )
-from polisyos.scientist.backtesting.plan import HistoricalValidationPlan, PredictionSource
-
 
 REQUIRED_SIGNOFF_FAMILIES: tuple[ObservationFamily, ...] = (
     ObservationFamily.BUDGET_FLOWS,
@@ -137,11 +135,7 @@ class FamilyEligibilityRegistry(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
     def eligible_families(self) -> list[ObservationFamily]:
-        return [
-            entry.family
-            for entry in self.families.values()
-            if entry.eligible_for_scoring
-        ]
+        return [entry.family for entry in self.families.values() if entry.eligible_for_scoring]
 
     def require_final_signoff_ready(
         self,
@@ -160,9 +154,7 @@ class FamilyEligibilityRegistry(BaseModel):
             ).signoff_waived
         ]
         if blocked:
-            raise ValueError(
-                "families_not_exact_signoff_ready:" + ",".join(sorted(blocked))
-            )
+            raise ValueError("families_not_exact_signoff_ready:" + ",".join(sorted(blocked)))
 
 
 class SplitWindow(BaseModel):
@@ -276,9 +268,7 @@ class TransportabilitySummaryManifest(BaseModel):
                 else TransportabilityStatus.PARTIALLY_IDENTIFIED
             ),
             transport_mode=(
-                TransportMode.TRANSPORT_FORMULA
-                if identified
-                else TransportMode.BOUNDS_ONLY
+                TransportMode.TRANSPORT_FORMULA if identified else TransportMode.BOUNDS_ONLY
             ),
             base_confidence=self.aggregate_score,
             final_confidence=self.aggregate_score,
@@ -346,7 +336,11 @@ class SpecificationCurveSummaryManifest(BaseModel):
         estimates = [float(item.estimate) for item in self.scenarios]
         if not estimates:
             estimates = [0.0]
-        mean_weight = float(np.mean([item.trust_weight for item in self.scenarios])) if self.scenarios else 1.0
+        mean_weight = (
+            float(np.mean([item.trust_weight for item in self.scenarios]))
+            if self.scenarios
+            else 1.0
+        )
         return SpecificationCurveInput(
             specification_ids=[item.source_combination_id for item in self.scenarios] or ["empty"],
             estimates=estimates,
@@ -364,7 +358,9 @@ def _ensure_datetime_series(frame: pd.DataFrame, column: str) -> pd.Series:
 
 def _weighted_mean(values: pd.Series, weights: pd.Series) -> float:
     resolved_values = pd.to_numeric(values, errors="coerce").fillna(0.0).astype(float)
-    resolved_weights = pd.to_numeric(weights, errors="coerce").fillna(1.0).astype(float).clip(lower=0.0)
+    resolved_weights = (
+        pd.to_numeric(weights, errors="coerce").fillna(1.0).astype(float).clip(lower=0.0)
+    )
     weight_sum = float(resolved_weights.sum())
     if weight_sum <= 1e-12:
         return float(resolved_values.mean()) if len(resolved_values) else 0.0
@@ -379,7 +375,9 @@ def _wmape(observed: np.ndarray, predicted: np.ndarray, weights: np.ndarray) -> 
     return float(np.average(weighted, weights=weights))
 
 
-def _candidate_prediction(kind: str, train_mean: float, train_last: float, slope: float, periods: int) -> np.ndarray:
+def _candidate_prediction(
+    kind: str, train_mean: float, train_last: float, slope: float, periods: int
+) -> np.ndarray:
     horizon = np.arange(1, periods + 1, dtype=float)
     if kind == "measurement_aware_multistart":
         return np.full(periods, train_mean, dtype=float)
@@ -413,11 +411,20 @@ def build_family_eligibility_registry(
             family = ObservationFamily(family_name)
         except ValueError:
             continue
-        source_ids = sorted(family_frame.get("source_id", pd.Series(dtype=str)).dropna().astype(str).unique().tolist())
+        source_ids = sorted(
+            family_frame.get("source_id", pd.Series(dtype=str))
+            .dropna()
+            .astype(str)
+            .unique()
+            .tolist()
+        )
         identification_modes = sorted(
             {
                 IdentificationMode(str(item))
-                for item in family_frame.get("identification_mode", pd.Series(dtype=str)).dropna().astype(str).tolist()
+                for item in family_frame.get("identification_mode", pd.Series(dtype=str))
+                .dropna()
+                .astype(str)
+                .tolist()
                 if str(item)
             },
             key=lambda item: item.value,
@@ -425,7 +432,10 @@ def build_family_eligibility_registry(
         source_confidence_tiers = sorted(
             {
                 SourceConfidenceTier(str(item))
-                for item in family_frame.get("source_confidence_tier", pd.Series(dtype=str)).dropna().astype(str).tolist()
+                for item in family_frame.get("source_confidence_tier", pd.Series(dtype=str))
+                .dropna()
+                .astype(str)
+                .tolist()
                 if str(item)
             },
             key=lambda item: item.value,
@@ -435,12 +445,18 @@ def build_family_eligibility_registry(
             if "proxy_source_id" in family_frame.columns
             else 0
         )
-        bias_share = float(
-            family_frame.get("measurement_bias_flag", pd.Series(False, index=family_frame.index))
-            .fillna(False)
-            .astype(bool)
-            .mean()
-        ) if len(family_frame) else 0.0
+        bias_share = (
+            float(
+                family_frame.get(
+                    "measurement_bias_flag", pd.Series(False, index=family_frame.index)
+                )
+                .fillna(False)
+                .astype(bool)
+                .mean()
+            )
+            if len(family_frame)
+            else 0.0
+        )
         coverage_ratio = float(
             pd.to_numeric(family_frame.get("coverage_estimate", 0.0), errors="coerce")
             .fillna(0.0)
@@ -450,32 +466,47 @@ def build_family_eligibility_registry(
         reasons: list[str] = []
         tier = FamilyTier.A
         has_proxy_lineage = proxy_count > 0
-        bias_validated = (
-            family in proxy_promoted_set
-            or (bias_share <= 0.05 and coverage_ratio >= coverage_threshold)
+        bias_validated = family in proxy_promoted_set or (
+            bias_share <= 0.05 and coverage_ratio >= coverage_threshold
         )
         signoff_waived = family in waived_set
         proxy_promoted = family in proxy_promoted_set
 
         if family in REQUIRED_SIGNOFF_FAMILIES and coverage_ratio < coverage_threshold:
             tier = FamilyTier.B
-            reasons.append(f"coverage_below_threshold:{coverage_ratio:.3f}<{coverage_threshold:.3f}")
-        if any("spending_contracts_procurement_proxy" == source_id for source_id in source_ids):
+            reasons.append(
+                f"coverage_below_threshold:{coverage_ratio:.3f}<{coverage_threshold:.3f}"
+            )
+        if any(source_id == "spending_contracts_procurement_proxy" for source_id in source_ids):
             tier = FamilyTier.B
             reasons.append("proxy_source:spending_contracts_procurement_proxy")
-        if any("dps_financials" == source_id for source_id in source_ids):
+        if any(source_id == "dps_financials" for source_id in source_ids):
             tier = FamilyTier.B
             reasons.append("provisional_source:dps_financials")
         if has_proxy_lineage and not proxy_promoted:
             tier = FamilyTier.B
             reasons.append("proxy_lineage_present")
-        if any(mode in {IdentificationMode.PROXY_IDENTIFIED, IdentificationMode.BOUNDS_ONLY} for mode in identification_modes) and not proxy_promoted:
+        if (
+            any(
+                mode in {IdentificationMode.PROXY_IDENTIFIED, IdentificationMode.BOUNDS_ONLY}
+                for mode in identification_modes
+            )
+            and not proxy_promoted
+        ):
             tier = FamilyTier.B
             reasons.append("non_point_identification_mode")
-        if family == ObservationFamily.BUDGET_FLOWS and spending_coverage is not None and spending_coverage < coverage_threshold:
+        if (
+            family == ObservationFamily.BUDGET_FLOWS
+            and spending_coverage is not None
+            and spending_coverage < coverage_threshold
+        ):
             tier = FamilyTier.B
             reasons.append(f"runtime_spending_coverage:{spending_coverage:.3f}")
-        if family == ObservationFamily.PROCUREMENT_FLOWS and procurement_coverage is not None and procurement_coverage < coverage_threshold:
+        if (
+            family == ObservationFamily.PROCUREMENT_FLOWS
+            and procurement_coverage is not None
+            and procurement_coverage < coverage_threshold
+        ):
             tier = FamilyTier.B
             reasons.append(f"runtime_procurement_coverage:{procurement_coverage:.3f}")
         if len(family_frame) == 0:
@@ -487,13 +518,15 @@ def build_family_eligibility_registry(
             reasons.append("proxy_promoted_via_bias_validation")
 
         eligible_for_scoring = tier == FamilyTier.A
-        exact_signoff_eligible = eligible_for_scoring and coverage_ratio >= coverage_threshold and bias_validated
+        exact_signoff_eligible = (
+            eligible_for_scoring and coverage_ratio >= coverage_threshold and bias_validated
+        )
         families[family.value] = FamilyEligibilityEntry(
             family=family,
             tier=tier,
             eligible_for_scoring=eligible_for_scoring,
             exact_signoff_eligible=exact_signoff_eligible,
-            observations_present=int(len(family_frame)),
+            observations_present=len(family_frame),
             coverage_ratio=_clip01(coverage_ratio),
             source_ids=source_ids,
             identification_modes=identification_modes,
@@ -560,9 +593,15 @@ class CalibrationRunRunner:
             SplitWindow(split_id=name, start=window["start"], end=window["end"])
             for name, window in splits.items()
         ]
-        train_start, train_end = split_windows.get("train_pre_2024", next(iter(split_windows.values())))
-        val_start, val_end = split_windows.get("validation_2024", next(iter(split_windows.values())))
-        holdout_start, holdout_end = split_windows.get("test_2025", next(iter(split_windows.values())))
+        train_start, train_end = split_windows.get(
+            "train_pre_2024", next(iter(split_windows.values()))
+        )
+        val_start, val_end = split_windows.get(
+            "validation_2024", next(iter(split_windows.values()))
+        )
+        holdout_start, holdout_end = split_windows.get(
+            "test_2025", next(iter(split_windows.values()))
+        )
 
         candidates: list[CalibrationCandidateScore] = []
         grouped = scoring_frame.groupby(scoring_frame["family"].astype(str), sort=False)
@@ -584,18 +623,42 @@ class CalibrationRunRunner:
                 train_last = float(pd.to_numeric(train["observed_value"], errors="coerce").iloc[-1])
                 slope = 0.0
                 if len(train) > 1:
-                    train_values = pd.to_numeric(train["observed_value"], errors="coerce").to_numpy(dtype=float)
-                    slope = float((train_values[-1] - train_values[0]) / max(len(train_values) - 1, 1))
-                predicted_validation = _candidate_prediction(candidate_kind, train_mean, train_last, slope, len(validation))
-                validation_values = pd.to_numeric(validation["observed_value"], errors="coerce").to_numpy(dtype=float)
-                validation_weights = pd.to_numeric(validation["trust_weight"], errors="coerce").fillna(1.0).to_numpy(dtype=float)
-                validation_score = _clip01(1.0 - _wmape(validation_values, predicted_validation, validation_weights))
+                    train_values = pd.to_numeric(train["observed_value"], errors="coerce").to_numpy(
+                        dtype=float
+                    )
+                    slope = float(
+                        (train_values[-1] - train_values[0]) / max(len(train_values) - 1, 1)
+                    )
+                predicted_validation = _candidate_prediction(
+                    candidate_kind, train_mean, train_last, slope, len(validation)
+                )
+                validation_values = pd.to_numeric(
+                    validation["observed_value"], errors="coerce"
+                ).to_numpy(dtype=float)
+                validation_weights = (
+                    pd.to_numeric(validation["trust_weight"], errors="coerce")
+                    .fillna(1.0)
+                    .to_numpy(dtype=float)
+                )
+                validation_score = _clip01(
+                    1.0 - _wmape(validation_values, predicted_validation, validation_weights)
+                )
                 family_scores.append(validation_score)
 
-                predicted_train = _candidate_prediction(candidate_kind, train_mean, train_last, slope, len(train))
-                train_values = pd.to_numeric(train["observed_value"], errors="coerce").to_numpy(dtype=float)
-                train_weights = pd.to_numeric(train["trust_weight"], errors="coerce").fillna(1.0).to_numpy(dtype=float)
-                family_train_scores.append(_clip01(1.0 - _wmape(train_values, predicted_train, train_weights)))
+                predicted_train = _candidate_prediction(
+                    candidate_kind, train_mean, train_last, slope, len(train)
+                )
+                train_values = pd.to_numeric(train["observed_value"], errors="coerce").to_numpy(
+                    dtype=float
+                )
+                train_weights = (
+                    pd.to_numeric(train["trust_weight"], errors="coerce")
+                    .fillna(1.0)
+                    .to_numpy(dtype=float)
+                )
+                family_train_scores.append(
+                    _clip01(1.0 - _wmape(train_values, predicted_train, train_weights))
+                )
 
             if not family_scores:
                 continue
@@ -644,7 +707,11 @@ class CalibrationRunRunner:
 
         champion = max(
             candidates,
-            key=lambda item: (item.validation_composite_score, item.validation_fit_score, item.candidate_id),
+            key=lambda item: (
+                item.validation_composite_score,
+                item.validation_fit_score,
+                item.candidate_id,
+            ),
         )
 
         holdout_scores: list[tuple[str, float]] = []
@@ -663,22 +730,33 @@ class CalibrationRunRunner:
             train_last = float(pd.to_numeric(train["observed_value"], errors="coerce").iloc[-1])
             slope = 0.0
             if len(train) > 1:
-                train_values = pd.to_numeric(train["observed_value"], errors="coerce").to_numpy(dtype=float)
+                train_values = pd.to_numeric(train["observed_value"], errors="coerce").to_numpy(
+                    dtype=float
+                )
                 slope = float((train_values[-1] - train_values[0]) / max(len(train_values) - 1, 1))
-            predicted = _candidate_prediction(champion.candidate_kind, train_mean, train_last, slope, len(holdout))
-            holdout_values = pd.to_numeric(holdout["observed_value"], errors="coerce").to_numpy(dtype=float)
-            holdout_weights = pd.to_numeric(holdout["trust_weight"], errors="coerce").fillna(1.0).to_numpy(dtype=float)
+            predicted = _candidate_prediction(
+                champion.candidate_kind, train_mean, train_last, slope, len(holdout)
+            )
+            holdout_values = pd.to_numeric(holdout["observed_value"], errors="coerce").to_numpy(
+                dtype=float
+            )
+            holdout_weights = (
+                pd.to_numeric(holdout["trust_weight"], errors="coerce")
+                .fillna(1.0)
+                .to_numpy(dtype=float)
+            )
             holdout_scores.append(
                 (family_name, _clip01(1.0 - _wmape(holdout_values, predicted, holdout_weights)))
             )
-        holdout_score = float(np.mean([item[1] for item in holdout_scores])) if holdout_scores else None
+        holdout_score = (
+            float(np.mean([item[1] for item in holdout_scores])) if holdout_scores else None
+        )
 
         champion = champion.model_copy(
             update={"used_holdout": True, "holdout_fit_score": holdout_score}
         )
         candidates = [
-            champion if item.candidate_id == champion.candidate_id else item
-            for item in candidates
+            champion if item.candidate_id == champion.candidate_id else item for item in candidates
         ]
         return CalibrationRunManifest(
             run_id="d4_real_calibration_run",
@@ -711,16 +789,26 @@ class TransportabilityRunner:
             if family_frame.empty:
                 continue
             entry = eligibility_registry.families.get(family.value)
-            avg_coverage = float(pd.to_numeric(family_frame["coverage_estimate"], errors="coerce").fillna(0.0).mean())
-            avg_trust = float(pd.to_numeric(family_frame["trust_weight"], errors="coerce").fillna(0.0).mean())
+            avg_coverage = float(
+                pd.to_numeric(family_frame["coverage_estimate"], errors="coerce").fillna(0.0).mean()
+            )
+            avg_trust = float(
+                pd.to_numeric(family_frame["trust_weight"], errors="coerce").fillna(0.0).mean()
+            )
             bias_penalty = float(
-                family_frame.get("measurement_bias_flag", pd.Series(False, index=family_frame.index))
+                family_frame.get(
+                    "measurement_bias_flag", pd.Series(False, index=family_frame.index)
+                )
                 .fillna(False)
                 .astype(bool)
                 .mean()
             )
             score = _clip01((0.5 * avg_coverage) + (0.5 * avg_trust) - (0.2 * bias_penalty))
-            status = TransportabilityStatus.IDENTIFIED if score >= 0.6 and entry and entry.tier == FamilyTier.A else TransportabilityStatus.PARTIALLY_IDENTIFIED
+            status = (
+                TransportabilityStatus.IDENTIFIED
+                if score >= 0.6 and entry and entry.tier == FamilyTier.A
+                else TransportabilityStatus.PARTIALLY_IDENTIFIED
+            )
             channels.append(
                 TransportabilityChannelResult(
                     channel_id=channel_id,
@@ -735,10 +823,14 @@ class TransportabilityRunner:
                     notes=[] if entry is None else list(entry.reasons),
                 )
             )
-        aggregate = float(np.mean([item.final_confidence for item in channels])) if channels else 0.0
+        aggregate = (
+            float(np.mean([item.final_confidence for item in channels])) if channels else 0.0
+        )
         return TransportabilitySummaryManifest(
             aggregate_score=_clip01(aggregate),
-            n_transportable_channels=sum(1 for item in channels if item.status is TransportabilityStatus.IDENTIFIED),
+            n_transportable_channels=sum(
+                1 for item in channels if item.status is TransportabilityStatus.IDENTIFIED
+            ),
             channels=channels,
             metadata={"required_min_transportable_channels": 3},
         )
@@ -747,7 +839,9 @@ class TransportabilityRunner:
 class StrategicResponseRunner:
     """Quantify strategic-response plausibility for the main D4 channels."""
 
-    _channel_specs: tuple[tuple[str, str, ObservationFamily, tuple[StrategicResponseChannel, ...]], ...] = (
+    _channel_specs: tuple[
+        tuple[str, str, ObservationFamily, tuple[StrategicResponseChannel, ...]], ...
+    ] = (
         (
             "procurement_policy",
             "procurement_policy",
@@ -793,10 +887,16 @@ class StrategicResponseRunner:
             if family_frame.empty:
                 continue
             entry = eligibility_registry.families.get(family.value)
-            avg_trust = float(pd.to_numeric(family_frame["trust_weight"], errors="coerce").fillna(0.0).mean())
-            coverage = float(pd.to_numeric(family_frame["coverage_estimate"], errors="coerce").fillna(0.0).mean())
+            avg_trust = float(
+                pd.to_numeric(family_frame["trust_weight"], errors="coerce").fillna(0.0).mean()
+            )
+            coverage = float(
+                pd.to_numeric(family_frame["coverage_estimate"], errors="coerce").fillna(0.0).mean()
+            )
             plausibility = _clip01((0.55 * avg_trust) + (0.45 * coverage))
-            quantified = bool(entry is not None and entry.tier == FamilyTier.A and plausibility >= 0.55)
+            quantified = bool(
+                entry is not None and entry.tier == FamilyTier.A and plausibility >= 0.55
+            )
             metrics.append(
                 StrategicResponseChannelMetric(
                     channel_id=channel_id,
@@ -809,10 +909,14 @@ class StrategicResponseRunner:
                     notes=[] if entry is None else list(entry.reasons),
                 )
             )
-        aggregate = float(np.mean([item.plausibility_score for item in metrics])) if metrics else 0.0
+        aggregate = (
+            float(np.mean([item.plausibility_score for item in metrics])) if metrics else 0.0
+        )
         quantified_channels = sum(1 for item in metrics if item.quantified)
         strategic_summary = {
-            "fallback_mode": "exact_equilibrium" if quantified_channels >= 3 else "strategic_bounds",
+            "fallback_mode": "exact_equilibrium"
+            if quantified_channels >= 3
+            else "strategic_bounds",
             "multiplicity_note": "explicit_disclosure",
             "closure_summary": {
                 "mode": "exact_equilibrium" if quantified_channels >= 3 else "strategic_bounds",
@@ -846,7 +950,9 @@ class SpecificationCurveRunner:
             if family_frame.empty:
                 continue
             estimate = _weighted_mean(family_frame["observed_value"], family_frame["trust_weight"])
-            trust = float(pd.to_numeric(family_frame["trust_weight"], errors="coerce").fillna(0.0).mean())
+            trust = float(
+                pd.to_numeric(family_frame["trust_weight"], errors="coerce").fillna(0.0).mean()
+            )
             scenarios.append(
                 SpecificationCurveScenario(
                     source_combination_id=f"family_only::{family_name}",
@@ -856,17 +962,34 @@ class SpecificationCurveRunner:
                 )
             )
         if len(scenarios) >= 2:
-            combo_families = [ObservationFamily(item) for item in eligible_families[: min(3, len(eligible_families))]]
-            combo_frame = frame.loc[frame["family"].astype(str).isin([item.value for item in combo_families])]
+            combo_families = [
+                ObservationFamily(item)
+                for item in eligible_families[: min(3, len(eligible_families))]
+            ]
+            combo_frame = frame.loc[
+                frame["family"].astype(str).isin([item.value for item in combo_families])
+            ]
             scenarios.append(
                 SpecificationCurveScenario(
                     source_combination_id="family_combo::primary",
                     included_families=combo_families,
-                    estimate=_weighted_mean(combo_frame["observed_value"], combo_frame["trust_weight"]),
-                    trust_weight=_clip01(float(pd.to_numeric(combo_frame["trust_weight"], errors="coerce").fillna(0.0).mean())),
+                    estimate=_weighted_mean(
+                        combo_frame["observed_value"], combo_frame["trust_weight"]
+                    ),
+                    trust_weight=_clip01(
+                        float(
+                            pd.to_numeric(combo_frame["trust_weight"], errors="coerce")
+                            .fillna(0.0)
+                            .mean()
+                        )
+                    ),
                 )
             )
-        estimates = np.asarray([item.estimate for item in scenarios], dtype=float) if scenarios else np.asarray([0.0])
+        estimates = (
+            np.asarray([item.estimate for item in scenarios], dtype=float)
+            if scenarios
+            else np.asarray([0.0])
+        )
         mean_abs = float(np.mean(np.abs(estimates))) if len(estimates) else 0.0
         dispersion = float(np.std(estimates)) if len(estimates) else 0.0
         robustness = _clip01(1.0 - (dispersion / max(mean_abs, 1.0)))
@@ -969,7 +1092,9 @@ def build_required_backtest_bundles(
     holdout_window = next(iter(splits.values()))
     bundles: dict[BacktestKind, BacktestPlanBundle] = {}
     for kind, families in _BACKTEST_FAMILY_MAP.items():
-        kind_frame = frame.loc[frame["family"].astype(str).isin([family.value for family in families])].copy()
+        kind_frame = frame.loc[
+            frame["family"].astype(str).isin([family.value for family in families])
+        ].copy()
         if kind_frame.empty:
             continue
         aggregated = (
@@ -1018,7 +1143,9 @@ def build_required_backtest_bundles(
                     historical_data_path=str(historical_path),
                     intervention_date=str(holdout["period_start_dt"].iloc[0].date()),
                     intervention_step=max(len(train), 1),
-                    ground_truth_outcomes={"observed_value": holdout["observed_value"].astype(float).tolist()},
+                    ground_truth_outcomes={
+                        "observed_value": holdout["observed_value"].astype(float).tolist()
+                    },
                     target_metrics=["observed_value"],
                     prediction_source=PredictionSource.PROVIDED,
                     predicted_outcomes={"observed_value": predicted},
@@ -1043,15 +1170,19 @@ def build_interference_evidence(
 
     procurement_entry = eligibility_registry.families.get(ObservationFamily.PROCUREMENT_FLOWS.value)
     budget_entry = eligibility_registry.families.get(ObservationFamily.BUDGET_FLOWS.value)
-    confidence = float(
-        np.mean(
-            [
-                item.coverage_ratio or 0.0
-                for item in (procurement_entry, budget_entry)
-                if item is not None
-            ]
+    confidence = (
+        float(
+            np.mean(
+                [
+                    item.coverage_ratio or 0.0
+                    for item in (procurement_entry, budget_entry)
+                    if item is not None
+                ]
+            )
         )
-    ) if procurement_entry or budget_entry else 0.0
+        if procurement_entry or budget_entry
+        else 0.0
+    )
     report = NetworkInterferenceReport(
         method=InterferenceMethod.PARTIAL_IPW,
         status="success",
@@ -1101,6 +1232,7 @@ def build_downstream_utility_report(
 
 
 __all__ = [
+    "REQUIRED_SIGNOFF_FAMILIES",
     "CalibrationCandidateScore",
     "CalibrationGovernanceEvidenceRunner",
     "CalibrationRunManifest",
@@ -1110,7 +1242,6 @@ __all__ = [
     "FamilyTier",
     "HoldoutScoresManifest",
     "LossBreakdownManifest",
-    "REQUIRED_SIGNOFF_FAMILIES",
     "SpecificationCurveRunner",
     "SpecificationCurveSummaryManifest",
     "StrategicResponseMetricsManifest",

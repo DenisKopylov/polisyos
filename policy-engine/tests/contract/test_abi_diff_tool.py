@@ -112,17 +112,33 @@ def test_strict_optional_property_addition_is_breaking(tmp_path: Path) -> None:
     _write_snapshots(
         baseline,
         "ir",
-        [{"abi_key": "claim", "schema": base_schema, "schema_version": "1.0", "compat_mode": "strict"}],
+        [
+            {
+                "abi_key": "claim",
+                "schema": base_schema,
+                "schema_version": "1.0",
+                "compat_mode": "strict",
+            }
+        ],
     )
     _write_snapshots(
         current,
         "ir",
-        [{"abi_key": "claim", "schema": curr_schema, "schema_version": "1.0", "compat_mode": "strict"}],
+        [
+            {
+                "abi_key": "claim",
+                "schema": curr_schema,
+                "schema_version": "1.0",
+                "compat_mode": "strict",
+            }
+        ],
     )
 
     report = _run_abi_diff(tmp_path, baseline, current)
     assert report["verdict"] == "FAIL"
-    assert any(change["kind"] == "property_added" and change["breaking"] for change in report["changes"])
+    assert any(
+        change["kind"] == "property_added" and change["breaking"] for change in report["changes"]
+    )
 
 
 def test_tolerant_optional_property_addition_is_compatible(tmp_path: Path) -> None:
@@ -145,17 +161,34 @@ def test_tolerant_optional_property_addition_is_compatible(tmp_path: Path) -> No
     _write_snapshots(
         baseline,
         "ir",
-        [{"abi_key": "claim", "schema": base_schema, "schema_version": "1.0", "compat_mode": "tolerant"}],
+        [
+            {
+                "abi_key": "claim",
+                "schema": base_schema,
+                "schema_version": "1.0",
+                "compat_mode": "tolerant",
+            }
+        ],
     )
     _write_snapshots(
         current,
         "ir",
-        [{"abi_key": "claim", "schema": curr_schema, "schema_version": "1.0", "compat_mode": "tolerant"}],
+        [
+            {
+                "abi_key": "claim",
+                "schema": curr_schema,
+                "schema_version": "1.0",
+                "compat_mode": "tolerant",
+            }
+        ],
     )
 
     report = _run_abi_diff(tmp_path, baseline, current)
     assert report["verdict"] == "PASS"
-    assert any(change["kind"] == "property_added" and not change["breaking"] for change in report["changes"])
+    assert any(
+        change["kind"] == "property_added" and not change["breaking"]
+        for change in report["changes"]
+    )
 
 
 def test_breaking_change_with_major_bump_is_warn(tmp_path: Path) -> None:
@@ -176,12 +209,26 @@ def test_breaking_change_with_major_bump_is_warn(tmp_path: Path) -> None:
     _write_snapshots(
         baseline,
         "ir",
-        [{"abi_key": "claim", "schema": base_schema, "schema_version": "1.0", "compat_mode": "strict"}],
+        [
+            {
+                "abi_key": "claim",
+                "schema": base_schema,
+                "schema_version": "1.0",
+                "compat_mode": "strict",
+            }
+        ],
     )
     _write_snapshots(
         current,
         "ir",
-        [{"abi_key": "claim", "schema": curr_schema, "schema_version": "2.0", "compat_mode": "strict"}],
+        [
+            {
+                "abi_key": "claim",
+                "schema": curr_schema,
+                "schema_version": "2.0",
+                "compat_mode": "strict",
+            }
+        ],
     )
 
     report = _run_abi_diff(tmp_path, baseline, current)

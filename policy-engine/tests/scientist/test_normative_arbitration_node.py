@@ -113,7 +113,9 @@ def test_normative_arbitration_invalid_trinity_bundle_skips_with_warning(tmp_pat
 def test_normative_arbitration_uses_branch_state_for_artifact_output(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
-    run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_normative_branch")
+    run = RunContext.start(
+        store=store, registry_bundle=registry_bundle, run_id="R_normative_branch"
+    )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.normative.branch"))
 
     problem_frame = ProblemFrame(
@@ -168,33 +170,7 @@ def test_normative_arbitration_uses_branch_state_for_artifact_output(tmp_path) -
     )
     distributional_ref = persist_distributional_report(
         store,
-        DistributionalReport(
-            cohort_dimensions=[CohortDimension(dimension_id="stakeholder", label="Stakeholder")],
-            impacts_by_dimension=[
-                DimensionBreakdown(
-                    dimension_id="stakeholder",
-                    winners_losers=WinnersLosersTable(
-                        entries=[
-                            WinnersLosersEntry(
-                                cohort_key="workers",
-                                label="Workers",
-                                impact_delta=1.0,
-                                direction=ImpactDirection.WINNERS,
-                                primary_metric="workers_delta",
-                                unit=MetricUnit.UTILS,
-                            )
-                        ]
-                    ),
-                    cohort_impacts=[
-                        CohortImpact(
-                            cohort_key="workers",
-                            label="Workers",
-                            metrics={"workers_delta": 1.0},
-                        )
-                    ],
-                )
-            ],
-        ),
+        _build_distributional_report({"workers": 1.0, "taxpayers": -0.1}),
     )
     existing_ref = store.put_json(
         {"ok": True},
@@ -236,7 +212,9 @@ def test_normative_arbitration_pareto_marks_proposal_inadmissible_with_loser(tmp
 
     assert result.selected_option == ArbitrationOption.BASELINE
     pareto_outcome = next(
-        item for item in result.policy_outcomes if item.policy == NormativeArbitrationPolicy.PARETO_FILTER
+        item
+        for item in result.policy_outcomes
+        if item.policy == NormativeArbitrationPolicy.PARETO_FILTER
     )
     assert pareto_outcome.selected_option == ArbitrationOption.BASELINE
 

@@ -251,10 +251,7 @@ class AuditPackageAssembler:
         for hex_id, artifact_id in all_ids.items():
             manifest = self._cas.get_manifest(artifact_id)
             manifests[hex_id] = manifest
-            if (
-                manifest.kind in self._options.exclude_kinds
-                and artifact_id not in roots
-            ):
+            if manifest.kind in self._options.exclude_kinds and artifact_id not in roots:
                 warnings.append(f"Excluded artifact by kind: {artifact_id} ({manifest.kind})")
                 continue
             filtered[hex_id] = artifact_id
@@ -393,11 +390,12 @@ class AuditPackageAssembler:
             dot_content,
             encoding="utf-8",
         )
-        if self._options.include_visualization and shutil.which("dot"):
+        dot_binary = shutil.which("dot")
+        if self._options.include_visualization and dot_binary:
             try:
                 subprocess.run(
                     [
-                        "dot",
+                        dot_binary,
                         "-Tsvg",
                         str(pkg_dir / "visualization" / "provenance_graph.dot"),
                         "-o",

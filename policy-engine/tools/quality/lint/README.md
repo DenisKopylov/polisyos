@@ -10,17 +10,17 @@
 
 ## Скрипты
 
-| Скрипт | Что делает | Где используется |
-|---|---|---|
-| `lint_imports.py` | Главный import-gate (`ARCH00x`), циклы, deep-import/legacy-ограничения | pre-commit, `arch.yml`, `arch-freeze.yml` (через метрики) |
-| `lint_foundry.py` | Ban-list импортов и builtins в `foundry` (policy: `standard/mixed/no_jax`) | `arch.yml` |
-| `check_scholar_imports.py` | Запрещает связь `scholar -> polisyos.fabric.io.db` | `arch.yml` |
-| `lint_connector_hardening.py` | P7-инварианты production-коннекторов (`world_bank`, `eurostat`, `ukons`) | `arch-freeze.yml` |
-| `lint_connectors.py` | Law A/B для `fabric/connectors` (изоляция от `scientist`/`foundry`) | ручной запуск, используется в freeze-метриках |
-| `collect_arch_metrics.py` | Собирает freeze-артефакты (`summary.json`, `import_gate.txt`, `ruff_stats.txt`, ...) | `arch-freeze.yml` |
-| `compare_baseline.py` | Сравнивает baseline/current, проверяет exception policy и deep-import drift | `arch-freeze.yml` |
-| `lint_foundry_data_plane.py` | P8-инварианты data plane (workflow aliases, adapter, assumptions) | ручной запуск |
-| `lint_legacy_cutover.py` | P10-инварианты cutover legacy-runtime/facade | ручной запуск |
+| Скрипт                        | Что делает                                                                           | Где используется                                          |
+| ----------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------- |
+| `lint_imports.py`             | Главный import-gate (`ARCH00x`), циклы, deep-import/legacy-ограничения               | pre-commit, `arch.yml`, `arch-freeze.yml` (через метрики) |
+| `lint_foundry.py`             | Ban-list импортов и builtins в `foundry` (policy: `standard/mixed/no_jax`)           | `arch.yml`                                                |
+| `check_scholar_imports.py`    | Запрещает связь `scholar -> polisyos.fabric.io.db`                                   | `arch.yml`                                                |
+| `lint_connector_hardening.py` | P7-инварианты production-коннекторов (`world_bank`, `eurostat`, `ukons`)             | `arch-freeze.yml`                                         |
+| `lint_connectors.py`          | Law A/B для `fabric/connectors` (изоляция от `scientist`/`foundry`)                  | ручной запуск, используется в freeze-метриках             |
+| `collect_arch_metrics.py`     | Собирает freeze-артефакты (`summary.json`, `import_gate.txt`, `ruff_stats.txt`, ...) | `arch-freeze.yml`                                         |
+| `compare_baseline.py`         | Сравнивает baseline/current, проверяет exception policy и deep-import drift          | `arch-freeze.yml`                                         |
+| `lint_foundry_data_plane.py`  | P8-инварианты data plane (workflow aliases, adapter, assumptions)                    | ручной запуск                                             |
+| `lint_legacy_cutover.py`      | P10-инварианты cutover legacy-runtime/facade                                         | ручной запуск                                             |
 
 ## Входы и связи с репозиторием
 

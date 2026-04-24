@@ -1,4 +1,5 @@
 """Public claims extractor registry module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -28,6 +29,7 @@ logger = get_logger(__name__)
 
 class ClaimExtractorFn(Protocol):
     """Claim extractor fn public type."""
+
     def __call__(
         self,
         *,
@@ -41,6 +43,7 @@ class ClaimExtractorFn(Protocol):
 @dataclass(slots=True)
 class ExtractorRecord:
     """Extractor record data model."""
+
     extractor_id: str
     fn: ClaimExtractorFn
     source: str
@@ -51,6 +54,7 @@ class ExtractorRecord:
 @dataclass(slots=True)
 class ExtractorBootstrapReport:
     """Extractor bootstrap report data model."""
+
     registered: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     discovery_errors: list[str] = field(default_factory=list)
@@ -58,6 +62,7 @@ class ExtractorBootstrapReport:
 
 class ClaimExtractorRegistry:
     """Claim extractor registry implementation."""
+
     def __init__(self) -> None:
         self._legacy: dict[str, ClaimExtractorFn] = {}
         self._components = GenericRegistry[str, ExtractorRecord](
@@ -177,9 +182,10 @@ def _ensure_builtin_legacy_extractors(registry: ClaimExtractorRegistry) -> None:
             lex_norm_regex_v1,
             regex_numeric_v1,
         )
-    except Exception:  # noqa: BLE001
+    except Exception:
         logger.debug(
-            "Failed to import claim extractor backends", exc_info=True,
+            "Failed to import claim extractor backends",
+            exc_info=True,
         )
         return
 
@@ -213,9 +219,7 @@ def bootstrap_component_extractors(components_index: ComponentRegistry) -> Extra
         )
         errors = [issue for issue in issues if issue.severity == "error"]
         if errors:
-            report.errors.append(
-                f"{component_id}: {'; '.join(issue.message for issue in errors)}"
-            )
+            report.errors.append(f"{component_id}: {'; '.join(issue.message for issue in errors)}")
             continue
 
         try:
@@ -325,7 +329,13 @@ def _score_component_extractor(
 
     semver = SemVer.parse(row.extractor_id.rsplit("@", 1)[1])
     prerelease_rank = 0 if semver.prerelease else 1
-    return (score, semver.major, semver.minor, semver.patch * 10 + prerelease_rank, row.extractor_id)
+    return (
+        score,
+        semver.major,
+        semver.minor,
+        semver.patch * 10 + prerelease_rank,
+        row.extractor_id,
+    )
 
 
 __all__ = [

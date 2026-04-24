@@ -3,13 +3,13 @@ from __future__ import annotations
 import math
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.ir.analytics.causal import ProofBundle
+from polisyos.ir.analytics.causal import ProofBundle, build_data_readiness_report
 from polisyos.ir.analytics.dp_robustness import (
+    DPEffectiveValidity,
     DPGraphProvenance,
     DPGraphProvenanceSource,
     DPHardBlock,
     DPHardBlockReason,
-    DPEffectiveValidity,
     DPLocalStability,
     DPMechanismFamily,
     DPMechanismSpec,
@@ -27,7 +27,6 @@ from polisyos.ir.analytics.dp_robustness import (
     load_dp_robustness_certificate,
     persist_dp_robustness_certificate,
 )
-from polisyos.ir.analytics.causal import build_data_readiness_report
 
 
 def _proof_bundle() -> ProofBundle:

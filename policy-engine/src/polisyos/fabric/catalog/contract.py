@@ -4,10 +4,11 @@ Canonical data contract for metric-level type safety.
 This module defines the source of truth for metric identity,
 preventing hallucination of metric names, types, and units.
 """
+
 from __future__ import annotations
 
 from enum import Enum
-from typing import Annotated, List
+from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -127,7 +128,7 @@ class DataContract(BaseModel):
     granularity: Granularity | None = None
 
     # Dimensions and validation
-    dimensions: List[str] = Field(
+    dimensions: list[str] = Field(
         default_factory=list,
         description="Dimension columns for slicing",
     )
@@ -159,11 +160,11 @@ class DataContract(BaseModel):
     pii_tier: PIITier = PIITier.NONE
 
     # Search & disambiguation
-    aliases: List[str] = Field(
+    aliases: list[str] = Field(
         default_factory=list,
         description="Alternative names for search",
     )
-    tags: List[str] = Field(
+    tags: list[str] = Field(
         default_factory=list,
         description="Free-form categorization tags",
     )
@@ -178,7 +179,7 @@ class DataContract(BaseModel):
 
     @field_validator("aliases", mode="before")
     @classmethod
-    def normalize_aliases(cls, v: List[str] | None) -> List[str]:
+    def normalize_aliases(cls, v: list[str] | None) -> list[str]:
         """Normalize aliases to lowercase for consistent matching."""
 
         if v is None:
@@ -196,9 +197,7 @@ class DataContract(BaseModel):
 
     @field_validator("valid_range", mode="before")
     @classmethod
-    def validate_range(
-        cls, v: object
-    ) -> tuple[float, float] | None:
+    def validate_range(cls, v: object) -> tuple[float, float] | None:
         """Ensure min <= max in valid_range."""
 
         if v is not None:
@@ -208,9 +207,7 @@ class DataContract(BaseModel):
             min_val = ensure_finite_float(min_val, what="valid_range min")
             max_val = ensure_finite_float(max_val, what="valid_range max")
             if min_val > max_val:
-                raise ValueError(
-                    f"valid_range min ({min_val}) must be <= max ({max_val})"
-                )
+                raise ValueError(f"valid_range min ({min_val}) must be <= max ({max_val})")
             return (min_val, max_val)
         return v
 
@@ -238,11 +235,11 @@ class DataContractCollection(BaseModel):
         default=None,
         description="Tool that generated this collection",
     )
-    contracts: List[DataContract] = Field(default_factory=list)
+    contracts: list[DataContract] = Field(default_factory=list)
 
     @field_validator("contracts", mode="after")
     @classmethod
-    def validate_unique_ids(cls, contracts: List[DataContract]) -> List[DataContract]:
+    def validate_unique_ids(cls, contracts: list[DataContract]) -> list[DataContract]:
         """Ensure all metric_ids are unique."""
 
         seen = set()

@@ -3,12 +3,12 @@
 > Разберитесь в текущем Runtime HTTP app factory, поверхности конфигурации, dashboard и production-аспектах.
 
 !!! info "Bootstrap проверен"
-    На 2026-04-17 на текущем дереве реально проверены импорт
-    `from polisyos.runtime.http.app import create_runtime_api_app`,
-    вызов `create_runtime_api_app()`,
-    а также наличие runtime paths
-    `/api/v1/control/jobs/{job_id}`
-    и `/api/v1/runs/{run_id}/live`.
+На 2026-04-17 на текущем дереве реально проверены импорт
+`from polisyos.runtime.http.app import create_runtime_api_app`,
+вызов `create_runtime_api_app()`,
+а также наличие runtime paths
+`/api/v1/control/jobs/{job_id}`
+и `/api/v1/runs/{run_id}/live`.
 
 ## Вход
 
@@ -72,81 +72,81 @@ uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
 
 ### Переменные окружения для execution и control plane
 
-| Variable | Назначение |
-|----------|------------|
-| `POLISYOS_EXECUTION_PROFILE` | Выбор runtime deployment profile (`dev`, `research`, `governed`, `production`) |
-| `POLISYOS_CONTROL_WORKER_BACKEND` | Backend для control-plane worker |
-| `POLISYOS_CONTROL_STATE_STORE_BACKEND` | Backend для control-plane state store |
-| `POLISYOS_CONTROL_SQLITE_PATH` | Путь к SQLite для control-plane state |
-| `POLISYOS_CONTROL_POSTGRES_DSN` | Postgres DSN для control-plane state |
-| `POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE` | Разрешить локальный control plane в research mode |
-| `POLISYOS_LLM_GATEWAY_BASE_URL` | Base URL внешнего LLM gateway |
-| `POLISYOS_LLM_GATEWAY_PROVIDER` | Идентификатор провайдера LLM gateway |
-| `POLISYOS_CONTROL_MAX_WORKERS` | Размер пула воркеров `TaskRunner` |
+| Variable                                      | Назначение                                                                     |
+| --------------------------------------------- | ------------------------------------------------------------------------------ |
+| `POLISYOS_EXECUTION_PROFILE`                  | Выбор runtime deployment profile (`dev`, `research`, `governed`, `production`) |
+| `POLISYOS_CONTROL_WORKER_BACKEND`             | Backend для control-plane worker                                               |
+| `POLISYOS_CONTROL_STATE_STORE_BACKEND`        | Backend для control-plane state store                                          |
+| `POLISYOS_CONTROL_SQLITE_PATH`                | Путь к SQLite для control-plane state                                          |
+| `POLISYOS_CONTROL_POSTGRES_DSN`               | Postgres DSN для control-plane state                                           |
+| `POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE` | Разрешить локальный control plane в research mode                              |
+| `POLISYOS_LLM_GATEWAY_BASE_URL`               | Base URL внешнего LLM gateway                                                  |
+| `POLISYOS_LLM_GATEWAY_PROVIDER`               | Идентификатор провайдера LLM gateway                                           |
+| `POLISYOS_CONTROL_MAX_WORKERS`                | Размер пула воркеров `TaskRunner`                                              |
 
 ### Переменные окружения для security, auth, tenancy, OPA и attestation
 
-| Variable | Назначение |
-|----------|------------|
-| `POLISYOS_ENV` | Глобальное имя runtime environment |
-| `POLISYOS_DB_BACKEND` | Выбор database backend |
-| `POLISYOS_MULTI_TENANT_ENABLED` | Включить cell/tenant routing |
-| `POLISYOS_CELL_REGISTRY_PATH` | Путь к cell registry |
-| `POLISYOS_DEFAULT_CELL_TIER` | Cell tier по умолчанию |
-| `POLISYOS_ALLOWED_REGIONS` | Allowlist регионов |
-| `POLISYOS_MULTI_TENANT_FAIL_CLOSED` | Падать fail-closed при tenancy errors |
-| `POLISYOS_AUTHN_ENABLED` | Включить authentication |
-| `POLISYOS_AUTHZ_MODE` | Режим authorization |
-| `POLISYOS_EXTERNAL_TENANT_HEADER_FALLBACK` | Fallback на внешний tenant header |
-| `POLISYOS_KEYCLOAK_ISSUER_URL` | Keycloak issuer |
-| `POLISYOS_KEYCLOAK_JWKS_URI` | Keycloak JWKS URI |
-| `POLISYOS_KEYCLOAK_CLIENT_ID` | Keycloak client id |
-| `POLISYOS_KEYCLOAK_AUDIENCE` | JWT audience |
-| `POLISYOS_JWT_REQUIRED_MFA_ROLES` | Роли, требующие MFA |
-| `POLISYOS_OPA_URL` | Base URL для OPA |
-| `POLISYOS_OPA_POLICY_PATH` | Путь к OPA policy |
-| `POLISYOS_OPA_TIMEOUT` | Таймаут OPA |
-| `POLISYOS_OPA_CACHE_TTL` | TTL кэша OPA |
-| `POLISYOS_OPA_CACHE_SIZE` | Размер кэша OPA |
-| `POLISYOS_MTLS_SPIFFE_HEADER` | Заголовок SPIFFE identity |
-| `POLISYOS_DELEGATION_REQUIRED` | Требовать delegated requests |
-| `POLISYOS_DELEGATION_HEADER` | Имя delegation header |
-| `POLISYOS_DELEGATION_SECRET` | Секрет для подписи delegation |
-| `POLISYOS_DELEGATION_ALGORITHM` | Алгоритм подписи delegation |
-| `POLISYOS_DELEGATION_TTL_SECONDS` | TTL delegation |
-| `POLISYOS_TRUSTED_DELEGATORS` | Список trusted delegators |
-| `POLISYOS_PII_ENABLED` | Включить PII controls |
-| `POLISYOS_TEE_ENABLED` | Включить TEE checks |
-| `POLISYOS_TEE_REQUIRED` | Требовать TEE attestation |
-| `POLISYOS_TEE_PLATFORM` | Имя TEE platform |
-| `POLISYOS_TEE_REPORT_PATH` | Путь к attestation report |
-| `POLISYOS_TEE_MAX_REPORT_AGE_SECONDS` | Максимальный возраст отчёта |
-| `POLISYOS_TEE_MIN_TCB_VERSION` | Минимальный TCB |
-| `POLISYOS_TEE_MIN_GUEST_SVN` | Минимальный guest SVN |
-| `POLISYOS_TEE_EXPECTED_MEASUREMENTS` | Ожидаемые measurements |
-| `POLISYOS_TEE_EXPECTED_HOST_DATA` | Ожидаемые host data |
-| `POLISYOS_TEE_REQUIRE_SIGNATURE_VALIDATION` | Обязательная проверка подписи отчёта |
-| `POLISYOS_TEE_CACHE_TTL_SECONDS` | TTL кэша TEE |
-| `POLISYOS_TEE_ENFORCE_TIERS` | Включить tiered TEE policy |
-| `POLISYOS_SBOM_ENABLED` | Включить SBOM checks |
-| `POLISYOS_SBOM_PATH` | Путь к SBOM |
-| `POLISYOS_SBOM_CVSS_THRESHOLD` | Порог CVSS для SBOM |
-| `POLISYOS_SBOM_GRYPE_DB_PATH` | Путь к Grype DB |
-| `POLISYOS_SBOM_ALLOWED_CVES` | Allowlist CVE |
+| Variable                                    | Назначение                            |
+| ------------------------------------------- | ------------------------------------- |
+| `POLISYOS_ENV`                              | Глобальное имя runtime environment    |
+| `POLISYOS_DB_BACKEND`                       | Выбор database backend                |
+| `POLISYOS_MULTI_TENANT_ENABLED`             | Включить cell/tenant routing          |
+| `POLISYOS_CELL_REGISTRY_PATH`               | Путь к cell registry                  |
+| `POLISYOS_DEFAULT_CELL_TIER`                | Cell tier по умолчанию                |
+| `POLISYOS_ALLOWED_REGIONS`                  | Allowlist регионов                    |
+| `POLISYOS_MULTI_TENANT_FAIL_CLOSED`         | Падать fail-closed при tenancy errors |
+| `POLISYOS_AUTHN_ENABLED`                    | Включить authentication               |
+| `POLISYOS_AUTHZ_MODE`                       | Режим authorization                   |
+| `POLISYOS_EXTERNAL_TENANT_HEADER_FALLBACK`  | Fallback на внешний tenant header     |
+| `POLISYOS_KEYCLOAK_ISSUER_URL`              | Keycloak issuer                       |
+| `POLISYOS_KEYCLOAK_JWKS_URI`                | Keycloak JWKS URI                     |
+| `POLISYOS_KEYCLOAK_CLIENT_ID`               | Keycloak client id                    |
+| `POLISYOS_KEYCLOAK_AUDIENCE`                | JWT audience                          |
+| `POLISYOS_JWT_REQUIRED_MFA_ROLES`           | Роли, требующие MFA                   |
+| `POLISYOS_OPA_URL`                          | Base URL для OPA                      |
+| `POLISYOS_OPA_POLICY_PATH`                  | Путь к OPA policy                     |
+| `POLISYOS_OPA_TIMEOUT`                      | Таймаут OPA                           |
+| `POLISYOS_OPA_CACHE_TTL`                    | TTL кэша OPA                          |
+| `POLISYOS_OPA_CACHE_SIZE`                   | Размер кэша OPA                       |
+| `POLISYOS_MTLS_SPIFFE_HEADER`               | Заголовок SPIFFE identity             |
+| `POLISYOS_DELEGATION_REQUIRED`              | Требовать delegated requests          |
+| `POLISYOS_DELEGATION_HEADER`                | Имя delegation header                 |
+| `POLISYOS_DELEGATION_SECRET`                | Секрет для подписи delegation         |
+| `POLISYOS_DELEGATION_ALGORITHM`             | Алгоритм подписи delegation           |
+| `POLISYOS_DELEGATION_TTL_SECONDS`           | TTL delegation                        |
+| `POLISYOS_TRUSTED_DELEGATORS`               | Список trusted delegators             |
+| `POLISYOS_PII_ENABLED`                      | Включить PII controls                 |
+| `POLISYOS_TEE_ENABLED`                      | Включить TEE checks                   |
+| `POLISYOS_TEE_REQUIRED`                     | Требовать TEE attestation             |
+| `POLISYOS_TEE_PLATFORM`                     | Имя TEE platform                      |
+| `POLISYOS_TEE_REPORT_PATH`                  | Путь к attestation report             |
+| `POLISYOS_TEE_MAX_REPORT_AGE_SECONDS`       | Максимальный возраст отчёта           |
+| `POLISYOS_TEE_MIN_TCB_VERSION`              | Минимальный TCB                       |
+| `POLISYOS_TEE_MIN_GUEST_SVN`                | Минимальный guest SVN                 |
+| `POLISYOS_TEE_EXPECTED_MEASUREMENTS`        | Ожидаемые measurements                |
+| `POLISYOS_TEE_EXPECTED_HOST_DATA`           | Ожидаемые host data                   |
+| `POLISYOS_TEE_REQUIRE_SIGNATURE_VALIDATION` | Обязательная проверка подписи отчёта  |
+| `POLISYOS_TEE_CACHE_TTL_SECONDS`            | TTL кэша TEE                          |
+| `POLISYOS_TEE_ENFORCE_TIERS`                | Включить tiered TEE policy            |
+| `POLISYOS_SBOM_ENABLED`                     | Включить SBOM checks                  |
+| `POLISYOS_SBOM_PATH`                        | Путь к SBOM                           |
+| `POLISYOS_SBOM_CVSS_THRESHOLD`              | Порог CVSS для SBOM                   |
+| `POLISYOS_SBOM_GRYPE_DB_PATH`               | Путь к Grype DB                       |
+| `POLISYOS_SBOM_ALLOWED_CVES`                | Allowlist CVE                         |
 
 ### Переменные окружения для observability
 
-| Variable | Назначение |
-|----------|------------|
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | Endpoint для OTLP collector |
-| `OTEL_EXPORTER_OTLP_PROTOCOL` | Транспортный протокол OTLP |
-| `OTEL_SERVICE_NAME` | Имя сервиса |
-| `POLISYOS_OTEL_ENABLED` | Включить OpenTelemetry |
+| Variable                             | Назначение                                |
+| ------------------------------------ | ----------------------------------------- |
+| `OTEL_EXPORTER_OTLP_ENDPOINT`        | Endpoint для OTLP collector               |
+| `OTEL_EXPORTER_OTLP_PROTOCOL`        | Транспортный протокол OTLP                |
+| `OTEL_SERVICE_NAME`                  | Имя сервиса                               |
+| `POLISYOS_OTEL_ENABLED`              | Включить OpenTelemetry                    |
 | `POLISYOS_HPC_OBSERVABILITY_ENABLED` | Включить HPC-specific observability hooks |
-| `POLISYOS_OTEL_CONSOLE_EXPORT` | Включить console exporter |
-| `POLISYOS_METRICS_PORT` | Порт Prometheus metrics |
-| `POLISYOS_TRACE_SAMPLING_RATIO` | Коэффициент trace sampling |
-| `POLISYOS_ALWAYS_SAMPLE_ERRORS` | Всегда сэмплировать error paths |
+| `POLISYOS_OTEL_CONSOLE_EXPORT`       | Включить console exporter                 |
+| `POLISYOS_METRICS_PORT`              | Порт Prometheus metrics                   |
+| `POLISYOS_TRACE_SAMPLING_RATIO`      | Коэффициент trace sampling                |
+| `POLISYOS_ALWAYS_SAMPLE_ERRORS`      | Всегда сэмплировать error paths           |
 
 ## 3. Обзор endpoints
 

@@ -1,4 +1,5 @@
 """Public doe analysis module API."""
+
 from __future__ import annotations
 
 import math
@@ -31,7 +32,7 @@ def analyze_sensitivity(
     result = SensitivityResult(
         method=plan.method,
         parameter_names=[item.name for item in plan.parameter_specs],
-        total_runs=int(len(outputs)),
+        total_runs=len(outputs),
         successful_runs=successful,
         failed_runs=failed,
         metadata={
@@ -164,9 +165,7 @@ def _plan_to_salib_problem(plan: SensitivityPlan) -> dict:
         "bounds": [[item.lower_bound, item.upper_bound] for item in plan.parameter_specs],
     }
     # Add distribution hints for SALib when non-uniform distributions are used
-    has_non_uniform = any(
-        p.distribution != ParameterDist.UNIFORM for p in plan.parameter_specs
-    )
+    has_non_uniform = any(p.distribution != ParameterDist.UNIFORM for p in plan.parameter_specs)
     if has_non_uniform:
         dists: list[str] = []
         for p in plan.parameter_specs:

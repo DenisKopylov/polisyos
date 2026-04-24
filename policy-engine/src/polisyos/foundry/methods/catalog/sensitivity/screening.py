@@ -1,7 +1,9 @@
 """Public sensitivity screening module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -31,6 +33,7 @@ def _result_slot() -> frozenset[SlotSpec]:
 )
 class MorrisSensitivityEstimator:
     """Screen influential inputs with Morris elementary-effects analysis."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -40,10 +43,18 @@ class MorrisSensitivityEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("model_outputs", SlotType.MATRIX, Unit("response", "value"),
-                         shape=("n_trajectories", "n_factors_plus_1")),
-                SlotSpec("parameter_levels", SlotType.MATRIX, Unit("level", "value"),
-                         shape=("n_trajectories", "n_factors_plus_1", "n_factors")),
+                SlotSpec(
+                    "model_outputs",
+                    SlotType.MATRIX,
+                    Unit("response", "value"),
+                    shape=("n_trajectories", "n_factors_plus_1"),
+                ),
+                SlotSpec(
+                    "parameter_levels",
+                    SlotType.MATRIX,
+                    Unit("level", "value"),
+                    shape=("n_trajectories", "n_factors_plus_1", "n_factors"),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -59,7 +70,9 @@ class MorrisSensitivityEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Morris one-at-a-time (OAT) elementary effects screening method.",
         tags=frozenset({"sensitivity", "global", "morris", "screening", "tabular"}),
-        citations=("Morris, M.D. (1991). Factorial Sampling Plans for Preliminary Computational Experiments. Technometrics.",),
+        citations=(
+            "Morris, M.D. (1991). Factorial Sampling Plans for Preliminary Computational Experiments. Technometrics.",
+        ),
         equations={"ee": "EE_i = (f(x + delta*e_i) - f(x)) / delta"},
         determinism_tier=DeterminismTier.STATISTICAL,
         required_deps=("numpy",),
@@ -111,6 +124,7 @@ class MorrisSensitivityEstimator:
 )
 class FASTEstimator:
     """Screen influential inputs with Fourier amplitude sensitivity testing."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -120,8 +134,12 @@ class FASTEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("model_outputs", SlotType.VECTOR, Unit("response", "value"),
-                         shape=("n_samples",)),
+                SlotSpec(
+                    "model_outputs",
+                    SlotType.VECTOR,
+                    Unit("response", "value"),
+                    shape=("n_samples",),
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -140,7 +158,9 @@ class FASTEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Fourier Amplitude Sensitivity Test (FAST) for first-order sensitivity indices.",
         tags=frozenset({"sensitivity", "global", "fast", "fourier", "tabular"}),
-        citations=("Cukier, R.I. et al. (1973). Study of the sensitivity of coupled reaction systems.",),
+        citations=(
+            "Cukier, R.I. et al. (1973). Study of the sensitivity of coupled reaction systems.",
+        ),
         equations={"fast": "S_i = sum_{p=1}^{M} (A_p^2 + B_p^2) / V(Y)"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -194,6 +214,7 @@ class FASTEstimator:
 )
 class PAWNEstimator:
     """Screen input influence with distribution-based PAWN sensitivity statistics."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -203,16 +224,19 @@ class PAWNEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("inputs_matrix", SlotType.MATRIX, Unit("parameter", "value"),
-                         shape=("n_samples", "n_factors")),
-                SlotSpec("outputs", SlotType.VECTOR, Unit("response", "value"),
-                         shape=("n_samples",)),
+                SlotSpec(
+                    "inputs_matrix",
+                    SlotType.MATRIX,
+                    Unit("parameter", "value"),
+                    shape=("n_samples", "n_factors"),
+                ),
+                SlotSpec(
+                    "outputs", SlotType.VECTOR, Unit("response", "value"), shape=("n_samples",)
+                ),
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="n_bins", default=10),
-        ),
+        parameters=(ParameterSpec(name="n_bins", default=10),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -224,7 +248,9 @@ class PAWNEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="PAWN distribution-based sensitivity index using KS statistic.",
         tags=frozenset({"sensitivity", "global", "pawn", "distribution-based", "ks", "tabular"}),
-        citations=("Pianosi, F. & Wagener, T. (2015). A simple and efficient method for global sensitivity analysis. Environmental Modelling & Software.",),
+        citations=(
+            "Pianosi, F. & Wagener, T. (2015). A simple and efficient method for global sensitivity analysis. Environmental Modelling & Software.",
+        ),
         equations={"pawn": "T_i = max_v KS(F(Y), F(Y|X_i=v))"},
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
@@ -261,7 +287,9 @@ class PAWNEstimator:
                 # KS statistic: max |F_unconditional - F_conditional|
                 all_vals = np.unique(np.concatenate([sorted_y, conditional_y]))
                 uncond_cdf = np.searchsorted(sorted_y, all_vals, side="right") / n_samples
-                cond_cdf = np.searchsorted(conditional_y, all_vals, side="right") / len(conditional_y)
+                cond_cdf = np.searchsorted(conditional_y, all_vals, side="right") / len(
+                    conditional_y
+                )
                 ks = float(np.max(np.abs(uncond_cdf - cond_cdf)))
                 ks_stats.append(ks)
             pawn_indices.append(float(np.median(ks_stats)) if ks_stats else 0.0)

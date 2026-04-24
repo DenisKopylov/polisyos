@@ -3,10 +3,11 @@ Slot Linker - Resolves and validates connections between Foundry methods.
 
 All validation happens at link time (Python layer) before any JAX compilation.
 """
+
 from __future__ import annotations
 
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, replace
-from typing import Iterator, Mapping, Sequence
 from uuid import UUID
 
 from polisyos.foundry.methods.base import MethodSignature, SlotSpec
@@ -273,10 +274,7 @@ class SlotLinker:
             warnings.extend(_conversion_warnings(binding, src_slot, tgt_slot, self._config))
             warnings.extend(compat.warnings)
 
-        unconnected = tuple(
-            name for name in target_inputs.keys()
-            if name not in connected_inputs
-        )
+        unconnected = tuple(name for name in target_inputs.keys() if name not in connected_inputs)
 
         return LinkResult(
             source_fqn=source_sig.fqn,
@@ -343,8 +341,7 @@ class SlotLinker:
                 continue
 
             available_sources = [
-                source_outputs[name] for name in source_outputs
-                if name not in used_sources
+                source_outputs[name] for name in source_outputs if name not in used_sources
             ]
 
             compatible = find_compatible_slots(
@@ -380,19 +377,14 @@ class SlotLinker:
             warnings.extend(compat.warnings)
 
             if len(compatible) > 1:
-                others = sorted(
-                    [slot.name for slot, _ in compatible if slot.name != src_slot.name]
-                )
+                others = sorted([slot.name for slot, _ in compatible if slot.name != src_slot.name])
                 if others:
                     warnings.append(
                         f"Multiple compatible sources for '{tgt_name}': used '{src_slot.name}', "
                         f"also available: {others}"
                     )
 
-        unconnected = tuple(
-            name for name in target_inputs.keys()
-            if name not in connected_inputs
-        )
+        unconnected = tuple(name for name in target_inputs.keys() if name not in connected_inputs)
 
         if unconnected and not self._config.allow_partial_links:
             raise SlotConnectionError(
@@ -422,7 +414,9 @@ class SlotLinker:
         for link in links:
             for binding in link.bindings:
                 key = (
-                    binding.target_node_id if binding.target_node_id is not None else binding.target_method,
+                    binding.target_node_id
+                    if binding.target_node_id is not None
+                    else binding.target_method,
                     binding.target_slot,
                 )
                 if key in all_connected:
@@ -505,12 +499,18 @@ def _select_best_candidate(
     target_slot: SlotSpec,
     *,
     prefer_exact_names: bool,
-) -> tuple[tuple[SlotSpec, SlotCompatibility], tuple[int, int, int, int, int], list[tuple[SlotSpec, SlotCompatibility]]]:
+) -> tuple[
+    tuple[SlotSpec, SlotCompatibility],
+    tuple[int, int, int, int, int],
+    list[tuple[SlotSpec, SlotCompatibility]],
+]:
     best_score: tuple[int, int, int, int, int] | None = None
     best_candidates: list[tuple[SlotSpec, SlotCompatibility]] = []
 
     for src_slot, compat in candidates:
-        score = _score_candidate(src_slot, target_slot, compat, prefer_exact_names=prefer_exact_names)
+        score = _score_candidate(
+            src_slot, target_slot, compat, prefer_exact_names=prefer_exact_names
+        )
         if best_score is None or score > best_score:
             best_score = score
             best_candidates = [(src_slot, compat)]

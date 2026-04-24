@@ -7,11 +7,13 @@ from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.core.observability.truthfulness import (
     TruthfulnessReceipt,
     TruthfulnessScope,
+)
+from polisyos.core.observability.truthfulness import (
     TruthfulnessTier as ReceiptTruthfulnessTier,
 )
-from polisyos.foundry.methods.base import ComputeBackend
 from polisyos.foundry.methods.backends.bayesian_runner import bayesian_backend_health
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+from polisyos.foundry.methods.base import ComputeBackend
 from polisyos.foundry.methods.bayesian import (
     PosteriorResult,
     TruthfulnessTier,
@@ -144,7 +146,13 @@ def test_bayesian_autoregression_runs() -> None:
         method_class=method_cls,
         signature=method_cls.signature,
         state=_make_time_series(),
-        params={"n_lags": 2, "num_warmup": 40, "num_samples": 56, "num_chains": 2, "proposal_scale": 0.03},
+        params={
+            "n_lags": 2,
+            "num_warmup": 40,
+            "num_samples": 56,
+            "num_chains": 2,
+            "proposal_scale": 0.03,
+        },
         seed=311,
     )
 
@@ -202,7 +210,13 @@ def test_bayesian_hmc_regression_runs() -> None:
         method_class=method_cls,
         signature=method_cls.signature,
         state=_make_tabular(),
-        params={"num_warmup": 32, "num_samples": 48, "num_chains": 2, "step_size": 0.015, "n_leapfrog": 10},
+        params={
+            "num_warmup": 32,
+            "num_samples": 48,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 10,
+        },
         seed=314,
     )
 
@@ -234,7 +248,13 @@ def test_bayesian_nuts_regression_runs() -> None:
         method_class=method_cls,
         signature=method_cls.signature,
         state=_make_tabular(),
-        params={"num_warmup": 32, "num_samples": 40, "num_chains": 2, "max_depth": 4, "step_size": 0.012},
+        params={
+            "num_warmup": 32,
+            "num_samples": 40,
+            "num_chains": 2,
+            "max_depth": 4,
+            "step_size": 0.012,
+        },
         seed=315,
     )
 
@@ -284,7 +304,10 @@ def test_bayesian_hmc_reference_numpy_backend_emits_replay_contract(
     posterior = result.output["result"]
     assert isinstance(posterior, PosteriorResult)
     assert result.reproducibility.determinism_tier is DeterminismTier.LIBRARY_DETERMINISTIC
-    assert result.artifacts["backend_runtime_fingerprint"]["determinism_tier"] == "library_deterministic"
+    assert (
+        result.artifacts["backend_runtime_fingerprint"]["determinism_tier"]
+        == "library_deterministic"
+    )
     assert posterior.draws_ref == result.artifacts["posterior_draws"]["artifact_ref"]
     assert posterior.warmup_draws_ref == result.artifacts["warmup_draws"]["artifact_ref"]
     assert posterior.reproducibility["effective_runtime_backend"] == "numpy"
@@ -296,8 +319,16 @@ def test_bayesian_hmc_reference_numpy_backend_emits_replay_contract(
     )
     assert posterior.reproducibility["observed_tolerance_budget"]["budget_source"] == "seed_prior"
     assert posterior.reproducibility["replay_output_hash"].startswith("sha256:")
-    assert posterior.reproducibility["determinism_envelope"]["thread_configuration"]["single_thread_pinned"] is True
-    assert posterior.reproducibility["determinism_envelope"]["rng_partitioning"]["scheme"] == "seedsequence_substreams"
+    assert (
+        posterior.reproducibility["determinism_envelope"]["thread_configuration"][
+            "single_thread_pinned"
+        ]
+        is True
+    )
+    assert (
+        posterior.reproducibility["determinism_envelope"]["rng_partitioning"]["scheme"]
+        == "seedsequence_substreams"
+    )
     assert posterior.sampler_family == "mcmc"
     assert "minimum_chains" in posterior.diagnostic_gates
 
@@ -339,8 +370,14 @@ def test_bayesian_hmc_reference_numpy_backend_replays_identical_artifacts(
     second_posterior = second.output["result"]
     assert isinstance(first_posterior, PosteriorResult)
     assert isinstance(second_posterior, PosteriorResult)
-    assert first_posterior.reproducibility["replay_output_hash"] == second_posterior.reproducibility["replay_output_hash"]
-    assert first.artifacts["posterior_draws"]["payload"] == second.artifacts["posterior_draws"]["payload"]
+    assert (
+        first_posterior.reproducibility["replay_output_hash"]
+        == second_posterior.reproducibility["replay_output_hash"]
+    )
+    assert (
+        first.artifacts["posterior_draws"]["payload"]
+        == second.artifacts["posterior_draws"]["payload"]
+    )
     assert first.artifacts["warmup_draws"]["payload"] == second.artifacts["warmup_draws"]["payload"]
 
 
@@ -372,7 +409,9 @@ def test_bayesian_hmc_reference_numpy_requires_full_thread_envelope(
     assert isinstance(posterior, PosteriorResult)
     assert result.reproducibility.determinism_tier is DeterminismTier.STATISTICAL
     assert posterior.degradation_reason == "thread_configuration_not_pinned_single_thread"
-    assert "determinism_degraded:thread_configuration_not_pinned_single_thread" in posterior.warnings
+    assert (
+        "determinism_degraded:thread_configuration_not_pinned_single_thread" in posterior.warnings
+    )
 
 
 def test_bayesian_hmc_reference_contract_marks_gate_failures_in_status(
@@ -489,7 +528,11 @@ def test_mean_field_vi_earns_runtime_calibrated_tier_on_conjugate_case() -> None
 
 
 def test_posterior_result_infers_family_specific_approximate_calibration() -> None:
-    benchmark_metadata = {"benchmark_regime": "phase0_suite", "coverage_tolerance": 0.05, "offline_calibration_passed": True}
+    benchmark_metadata = {
+        "benchmark_regime": "phase0_suite",
+        "coverage_tolerance": 0.05,
+        "offline_calibration_passed": True,
+    }
     cases = [
         (
             "expectation_propagation_gaussian",
@@ -647,7 +690,9 @@ def test_ep_svgd_flow_and_factor_graph_frontier_methods_run() -> None:
     )
     assert svgd_result.output["result"].method_name == "svgd_regression"
     assert svgd_result.output["prediction_result"].method_name == "svgd_regression"
-    assert svgd_result.output["result"].truthfulness_tier is TruthfulnessTier.APPROXIMATE_UNCALIBRATED
+    assert (
+        svgd_result.output["result"].truthfulness_tier is TruthfulnessTier.APPROXIMATE_UNCALIBRATED
+    )
 
     flow_cls = registry.get("bayesian.flow.affine_normalizing_flow@1.0.0")
     rng = np.random.default_rng(335)
@@ -663,7 +708,9 @@ def test_ep_svgd_flow_and_factor_graph_frontier_methods_run() -> None:
     )
     assert flow_result.output["result"].metadata["flow_family"] == "affine_gaussian"
     assert np.asarray(flow_result.output["posterior_samples"]).shape == (40, 2)
-    assert flow_result.output["result"].truthfulness_tier is TruthfulnessTier.APPROXIMATE_UNCALIBRATED
+    assert (
+        flow_result.output["result"].truthfulness_tier is TruthfulnessTier.APPROXIMATE_UNCALIBRATED
+    )
 
     factor_cls = registry.get("bayesian.graphical.factor_graph_belief_propagation@1.0.0")
     factor_result = dispatcher.dispatch(

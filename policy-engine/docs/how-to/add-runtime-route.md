@@ -124,8 +124,10 @@ If the route changes visible API behavior, also add or update focused tests unde
 
 - if the endpoint should not be public, remove it from OpenAPI-facing flow and
   revert generated client/type artifacts;
+
 - if the handler became too stateful, move logic down into services before
   landing the route;
+
 - if the route was exploratory only, remove the `include_router(...)` wiring and
   keep the draft outside the public contract.
 
@@ -133,7 +135,9 @@ If the route changes visible API behavior, also add or update focused tests unde
 
 - `check-runtime-api-contract.py` fails: you wired the route into FastAPI but did
   not update the committed OpenAPI/client chain;
+
 - architecture-boundary tests fail: the handler is reaching directly into
   `app.state` or other forbidden internals;
+
 - route should be stream-only or experimental: keep it route-only and document
   it manually instead of forcing it into generated clients.

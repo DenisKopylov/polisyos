@@ -1,11 +1,10 @@
 """Tests for catalog bootstrap isolation — causal module can be absent."""
+
 from __future__ import annotations
 
 import importlib
 import sys
 from unittest.mock import patch
-
-import pytest
 
 
 def _reload_catalog():
@@ -73,6 +72,7 @@ def test_fallback_stub_returns_none():
     try:
         raise ModuleNotFoundError("simulated")
     except ModuleNotFoundError:
+
         def ensure_causal_methods_registered(registry: MethodRegistry | None = None) -> None:
             return None
 

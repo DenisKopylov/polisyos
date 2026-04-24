@@ -1,4 +1,5 @@
 """Public legal ast policy module API."""
+
 from __future__ import annotations
 
 import warnings
@@ -11,4 +12,4 @@ warnings.warn(
     stacklevel=2,
 )
 
-__all__ = ["ASTPolicy", "ASTLimits", "SecurityError"]
+__all__ = ["ASTLimits", "ASTPolicy", "SecurityError"]

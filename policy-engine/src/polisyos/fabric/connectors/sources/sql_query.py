@@ -1,11 +1,12 @@
 """Connector for generic SQL query execution with sqlite/duckdb first."""
+
 from __future__ import annotations
 
 import sqlite3
 import time
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any, AsyncIterator, ClassVar
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
+from typing import Any, ClassVar
 from urllib.parse import urlparse
 
 from polisyos.core.canon import content_hash
@@ -171,7 +172,7 @@ class SQLQueryConnector(BaseConnector[Any]):
         finally:
             conn.close()
 
-        fetched_at = datetime.now(timezone.utc)
+        fetched_at = datetime.now(UTC)
         query_hash = "sha256:" + content_hash(query.encode("utf-8"))
         payload_hash = "sha256:" + content_hash(
             frame.to_json(orient="records", date_format="iso").encode("utf-8")
@@ -194,6 +195,7 @@ class SQLQueryConnector(BaseConnector[Any]):
             ],
             "database_url": handle.config.url,
             "query": query,
+            "query_hash": query_hash,
             "table": request.dataset_id,
         }
         handle.set_state(self._STATE_KEY, {"schema_by_dataset": schema_by_dataset})
@@ -265,7 +267,10 @@ class SQLQueryConnector(BaseConnector[Any]):
                     message="X-SQL-Query or X-SQL-Table should be set; dataset_id will be used otherwise",
                 )
             )
-        return ValidationResult(valid=not any(i.severity == ValidationSeverity.ERROR for i in issues), issues=tuple(issues))
+        return ValidationResult(
+            valid=not any(i.severity == ValidationSeverity.ERROR for i in issues),
+            issues=tuple(issues),
+        )
 
 
 __all__ = ["SQLQueryConnector"]

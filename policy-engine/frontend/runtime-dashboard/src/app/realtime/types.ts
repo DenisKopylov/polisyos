@@ -151,7 +151,10 @@ export type CollabCommentEvent = {
     updated_at?: string;
   };
   session_id: string;
-  type: "collab.comment.added" | "collab.comment.resolved" | "collab.comment.updated";
+  type:
+    | "collab.comment.added"
+    | "collab.comment.resolved"
+    | "collab.comment.updated";
 };
 
 export type CollabActivityEvent = {

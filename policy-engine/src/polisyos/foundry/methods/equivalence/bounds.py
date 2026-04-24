@@ -1,8 +1,10 @@
 """Tolerance-bound derivation for backend equivalence certificates."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Any, Mapping
+from typing import Any
 
 import numpy as np
 
@@ -125,8 +127,7 @@ def derive_field_tolerance_spec(
 
     if comparator is ComparatorKind.EXACT:
         exact_failures = sum(
-            not _exact_match(lhs, rhs, equal_nan=policy.equal_nan)
-            for lhs, rhs in samples
+            not _exact_match(lhs, rhs, equal_nan=policy.equal_nan) for lhs, rhs in samples
         )
         stats = FieldCalibrationStats(
             path=path,

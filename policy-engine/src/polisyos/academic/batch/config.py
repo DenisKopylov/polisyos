@@ -55,6 +55,7 @@ RUN2_PRIORITY_CONTEXT_SUBBLOCKS: tuple[str, ...] = (
     "historical/political context",
 )
 
+
 def _default_run_id() -> str:
     return datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
 
@@ -534,7 +535,10 @@ class AcademicBatchConfig:
             if explicit_key not in self.gonka_api_keys:
                 self.gonka_api_keys = [explicit_key, *self.gonka_api_keys]
             else:
-                self.gonka_api_keys = [explicit_key, *[k for k in self.gonka_api_keys if k != explicit_key]]
+                self.gonka_api_keys = [
+                    explicit_key,
+                    *[k for k in self.gonka_api_keys if k != explicit_key],
+                ]
         self.gonka_api_key = explicit_key or (self.gonka_api_keys[0] if self.gonka_api_keys else "")
 
         unknown = set(self.stages) - ALL_STAGES
@@ -554,7 +558,9 @@ class AcademicBatchConfig:
         if self.extraction_lane not in {"all", "claim", "context", "mechanism"}:
             raise ValueError("extraction_lane must be one of: all, claim, context, mechanism")
         if self.fulltext_acquisition_mode not in {"v3_legacy", "v7_http_metadata"}:
-            raise ValueError("fulltext_acquisition_mode must be one of: v3_legacy, v7_http_metadata")
+            raise ValueError(
+                "fulltext_acquisition_mode must be one of: v3_legacy, v7_http_metadata"
+            )
         if self.numeric_precision_mode not in {"off", "balanced", "high_precision"}:
             raise ValueError("numeric_precision_mode must be one of: off, balanced, high_precision")
         if self.fulltext_metadata_timeout_seconds < 1:
@@ -644,7 +650,9 @@ class AcademicBatchConfig:
         if not self.gonka_api_key:
             self.gonka_api_key = os.environ.get("GONKA_API_KEY", "")
         if not self.fulltext_unpaywall_email:
-            self.fulltext_unpaywall_email = os.environ.get("UNPAYWALL_EMAIL", "") or self.openalex_email
+            self.fulltext_unpaywall_email = (
+                os.environ.get("UNPAYWALL_EMAIL", "") or self.openalex_email
+            )
         if not self.fulltext_semantic_scholar_api_key:
             self.fulltext_semantic_scholar_api_key = os.environ.get("SEMANTIC_SCHOLAR_API_KEY", "")
         if not self.doc_pub2tei_base_url:

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 import { chartTheme, ciColors, chartDefaults } from "./theme";
 import { ChartDataTable } from "./accessibility";
 
@@ -49,6 +50,7 @@ export function DiDVisualization({
   title,
   className,
 }: DiDVisualizationProps) {
+  const { t } = useI18n();
   const allValues = [
     treated.preTreatment,
     treated.postTreatment,
@@ -64,8 +66,7 @@ export function DiDVisualization({
 
   function toY(v: number) {
     return (
-      PADDING.top +
-      PLOT_H * (1 - (v - (minY - yPad)) / (yRange + 2 * yPad))
+      PADDING.top + PLOT_H * (1 - (v - (minY - yPad)) / (yRange + 2 * yPad))
     );
   }
 
@@ -234,11 +235,37 @@ export function DiDVisualization({
           )}
 
           {/* Dots */}
-          <circle cx={xPre} cy={toY(treated.preTreatment)} r={4} fill={chartTheme.primary} />
-          <circle cx={xPost} cy={toY(treated.postTreatment)} r={4} fill={chartTheme.primary} />
-          <circle cx={xPre} cy={toY(control.preTreatment)} r={4} fill={chartTheme.neutral} />
-          <circle cx={xPost} cy={toY(control.postTreatment)} r={4} fill={chartTheme.neutral} />
-          <circle cx={xPost} cy={toY(counterfactual)} r={3} fill={chartTheme.primary} opacity={0.4} />
+          <circle
+            cx={xPre}
+            cy={toY(treated.preTreatment)}
+            r={4}
+            fill={chartTheme.primary}
+          />
+          <circle
+            cx={xPost}
+            cy={toY(treated.postTreatment)}
+            r={4}
+            fill={chartTheme.primary}
+          />
+          <circle
+            cx={xPre}
+            cy={toY(control.preTreatment)}
+            r={4}
+            fill={chartTheme.neutral}
+          />
+          <circle
+            cx={xPost}
+            cy={toY(control.postTreatment)}
+            r={4}
+            fill={chartTheme.neutral}
+          />
+          <circle
+            cx={xPost}
+            cy={toY(counterfactual)}
+            r={3}
+            fill={chartTheme.primary}
+            opacity={0.4}
+          />
 
           {/* X axis labels */}
           <text
@@ -248,7 +275,7 @@ export function DiDVisualization({
             fontSize={chartDefaults.tickFontSize}
             fill={chartTheme.axis}
           >
-            Pre-treatment
+            {t("shared.charts.did.preTreatment")}
           </text>
           <text
             x={xPost}
@@ -257,7 +284,7 @@ export function DiDVisualization({
             fontSize={chartDefaults.tickFontSize}
             fill={chartTheme.axis}
           >
-            Post-treatment
+            {t("shared.charts.did.postTreatment")}
           </text>
 
           {/* Y axis */}
@@ -272,16 +299,42 @@ export function DiDVisualization({
           {/* Legend */}
           <g transform={`translate(${PADDING.left}, ${SVG_HEIGHT - 8})`}>
             <rect width={10} height={3} fill={chartTheme.primary} y={-2} />
-            <text x={14} fontSize={chartDefaults.tickFontSize} fill={chartTheme.axis}>
+            <text
+              x={14}
+              fontSize={chartDefaults.tickFontSize}
+              fill={chartTheme.axis}
+            >
               {treated.label}
             </text>
-            <rect x={120} width={10} height={3} fill={chartTheme.neutral} y={-2} />
-            <text x={134} fontSize={chartDefaults.tickFontSize} fill={chartTheme.axis}>
+            <rect
+              x={120}
+              width={10}
+              height={3}
+              fill={chartTheme.neutral}
+              y={-2}
+            />
+            <text
+              x={134}
+              fontSize={chartDefaults.tickFontSize}
+              fill={chartTheme.axis}
+            >
               {control.label}
             </text>
-            <rect x={240} width={10} height={3} fill={chartTheme.primary} opacity={0.4} y={-2} strokeDasharray="3 2" />
-            <text x={254} fontSize={chartDefaults.tickFontSize} fill={chartTheme.axis}>
-              Counterfactual
+            <rect
+              x={240}
+              width={10}
+              height={3}
+              fill={chartTheme.primary}
+              opacity={0.4}
+              y={-2}
+              strokeDasharray="3 2"
+            />
+            <text
+              x={254}
+              fontSize={chartDefaults.tickFontSize}
+              fill={chartTheme.axis}
+            >
+              {t("shared.charts.did.counterfactual")}
             </text>
           </g>
         </svg>

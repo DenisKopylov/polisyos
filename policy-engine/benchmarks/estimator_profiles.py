@@ -7,7 +7,6 @@ from typing import Any
 
 from benchmarks.runtime import BenchmarkTier
 
-
 ESTIMATION_METHOD_PROFILES = ("production_estimation", "full_matrix_estimation")
 
 
@@ -22,7 +21,11 @@ def resolve_estimation_method_profile(
 ) -> str:
     value = (requested or os.environ.get("BENCH_ESTIMATION_METHOD_PROFILE", "")).strip().lower()
     if not value:
-        value = "production_estimation" if tier is BenchmarkTier.LOCAL_EVIDENCE else "full_matrix_estimation"
+        value = (
+            "production_estimation"
+            if tier is BenchmarkTier.LOCAL_EVIDENCE
+            else "full_matrix_estimation"
+        )
     if value not in ESTIMATION_METHOD_PROFILES:
         valid = ", ".join(ESTIMATION_METHOD_PROFILES)
         raise ValueError(f"Unknown estimation method profile: {value!r}. Expected one of: {valid}")
@@ -57,7 +60,11 @@ def policyos_nuisance_params(
         "random_seed": seed,
         "random_seed_manifest": seed_manifest,
         "propensity_backend": "histgradientboosting" if local else "lightgbm",
-        "propensity_backend_candidates": ["lightgbm", "histgradientboosting", "logistic_regression"],
+        "propensity_backend_candidates": [
+            "lightgbm",
+            "histgradientboosting",
+            "logistic_regression",
+        ],
         "outcome_backend": "histgradientboosting" if local else "lightgbm",
         "outcome_backend_candidates": [
             "histgradientboosting",
@@ -153,7 +160,12 @@ def policyos_xlearner_params(tier: BenchmarkTier, *, seed: int) -> dict[str, Any
     return {
         "learner_type": "x",
         "base_model": "auto",
-        "base_model_candidates": ["linear", "elastic_net_sparse", "gradient_boosting", "random_forest"],
+        "base_model_candidates": [
+            "linear",
+            "elastic_net_sparse",
+            "gradient_boosting",
+            "random_forest",
+        ],
         "random_state": seed,
         "feature_importance_method": "model_based",
         "confidence_level": 0.95,
@@ -173,11 +185,7 @@ def benchmark_selection_manifest_from_params(
 ) -> dict[str, Any]:
     payload = dict(params or {})
     selected_propensity = payload.get("propensity_backend")
-    selected_outcome = (
-        payload.get("outcome_backend")
-        or payload.get("base_model")
-        or method_label
-    )
+    selected_outcome = payload.get("outcome_backend") or payload.get("base_model") or method_label
     tested_propensity = payload.get("propensity_backend_candidates")
     if not tested_propensity:
         tested_propensity = [selected_propensity] if selected_propensity else []
@@ -197,9 +205,12 @@ def benchmark_selection_manifest_from_params(
     manifest = {
         "selected_propensity_backend": selected_propensity,
         "selected_outcome_backend": selected_outcome,
-        "tested_propensity_backends": [str(value) for value in tested_propensity if value is not None],
+        "tested_propensity_backends": [
+            str(value) for value in tested_propensity if value is not None
+        ],
         "tested_outcome_backends": [str(value) for value in tested_outcome if value is not None],
-        "selection_objective": payload.get("selection_objective") or payload.get("backend_selection_policy"),
+        "selection_objective": payload.get("selection_objective")
+        or payload.get("backend_selection_policy"),
         "split_policy": payload.get("split_policy") or payload.get("overlap_diagnostic_policy"),
         "calibration_modes": [str(value) for value in calibration_modes],
     }

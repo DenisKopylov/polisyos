@@ -25,6 +25,7 @@ def _make_plan() -> SensitivityPlan:
 
 def _generate_data(plan: SensitivityPlan):
     from polisyos.scientist.doe.sampling import generate_sensitivity_samples
+
     samples = generate_sensitivity_samples(plan)
     outputs = 3.0 * samples[:, 0] + 0.1 * samples[:, 1]
     return samples, outputs

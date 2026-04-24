@@ -4,27 +4,20 @@ The service merges data from run manifests, CAS artifacts, trace timelines, and
 decision-validity state. Sensitive keys are sanitized before DTOs cross the HTTP
 boundary.
 """
+
 from __future__ import annotations
 
 import hashlib
 from collections import defaultdict
-from collections.abc import Iterator
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.execution_plan import (
-    EvaluatorVerdict,
-    IterationLifecycleState,
-    StopReason,
-)
 from polisyos.core.contracts.runtime import (
     AgentPipelineAttempt,
     AgentPipelineStep,
@@ -54,8 +47,19 @@ from polisyos.core.contracts.runtime import (
 from polisyos.core.trace.record import TraceRecord
 from polisyos.scientist.decision_validity import DecisionValidityService
 
-from .run_index import IndexedRunRecord
-from .timeline import TimelineService
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from pathlib import Path
+
+    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.contracts.execution_plan import (
+        EvaluatorVerdict,
+        IterationLifecycleState,
+        StopReason,
+    )
+
+    from .run_index import IndexedRunRecord
+    from .timeline import TimelineService
 
 _GOVERNANCE_REPORT_KEY = "governance_report_ref"
 _NORMATIVE_ARBITRATION_RESULT_KEY = "normative_arbitration_result_ref"
@@ -96,6 +100,7 @@ AgentStepStatus = Literal["ok", "warn", "fail", "info"]
 
 class DebugService:
     """Expose read-only runtime debug projections for one indexed run."""
+
     def __init__(
         self,
         *,
@@ -438,15 +443,19 @@ class DebugService:
         iteration_payload = self._load_json_artifact(iteration_state_ref)
         reproducibility_payload = self._load_json_artifact(reproducibility_manifest_ref)
 
-        preflight_view = PreflightReportView(
-            ready_to_run=bool(preflight_payload.get("ready_to_run")),
-            diagnostics=[
-                PreflightDiagnosticView.model_validate(item)
-                for item in _as_list_of_dicts(preflight_payload.get("diagnostics"))
-            ],
-            notes=_as_list_of_strings(preflight_payload.get("notes")),
-            report_ref=preflight_report_ref,
-        ) if preflight_report_ref is not None else None
+        preflight_view = (
+            PreflightReportView(
+                ready_to_run=bool(preflight_payload.get("ready_to_run")),
+                diagnostics=[
+                    PreflightDiagnosticView.model_validate(item)
+                    for item in _as_list_of_dicts(preflight_payload.get("diagnostics"))
+                ],
+                notes=_as_list_of_strings(preflight_payload.get("notes")),
+                report_ref=preflight_report_ref,
+            )
+            if preflight_report_ref is not None
+            else None
+        )
 
         evaluator_scores_raw = evaluator_payload.get("scores")
         evaluator_scores = (
@@ -454,44 +463,59 @@ class DebugService:
             if isinstance(evaluator_scores_raw, dict)
             else EvaluatorScoresView()
         )
-        evaluator_view = EvaluatorReportView(
-            verdict=_as_evaluator_verdict(evaluator_payload.get("verdict")),
-            scores=evaluator_scores,
-            reasons=_as_list_of_strings(evaluator_payload.get("reasons")),
-            replanning_hints=_as_list_of_strings(evaluator_payload.get("replanning_hints")),
-            diagnostics=[
-                PreflightDiagnosticView.model_validate(item)
-                for item in _as_list_of_dicts(evaluator_payload.get("diagnostics"))
-            ],
-            notes=_as_list_of_strings(evaluator_payload.get("notes")),
-            report_ref=evaluator_report_ref,
-        ) if evaluator_report_ref is not None else None
+        evaluator_view = (
+            EvaluatorReportView(
+                verdict=_as_evaluator_verdict(evaluator_payload.get("verdict")),
+                scores=evaluator_scores,
+                reasons=_as_list_of_strings(evaluator_payload.get("reasons")),
+                replanning_hints=_as_list_of_strings(evaluator_payload.get("replanning_hints")),
+                diagnostics=[
+                    PreflightDiagnosticView.model_validate(item)
+                    for item in _as_list_of_dicts(evaluator_payload.get("diagnostics"))
+                ],
+                notes=_as_list_of_strings(evaluator_payload.get("notes")),
+                report_ref=evaluator_report_ref,
+            )
+            if evaluator_report_ref is not None
+            else None
+        )
 
-        iteration_view = IterationLifecycleView(
-            iteration=max(1, _as_int(iteration_payload.get("iteration") or 1)),
-            state=_as_iteration_lifecycle_state(iteration_payload.get("lifecycle_state")),
-            stop_reason=_as_stop_reason(iteration_payload.get("stop_reason")),
-            last_verdict=_as_evaluator_verdict(iteration_payload.get("last_verdict")),
-            state_ref=iteration_state_ref,
-            notes=_as_list_of_strings(iteration_payload.get("notes")),
-        ) if iteration_state_ref is not None else None
+        iteration_view = (
+            IterationLifecycleView(
+                iteration=max(1, _as_int(iteration_payload.get("iteration") or 1)),
+                state=_as_iteration_lifecycle_state(iteration_payload.get("lifecycle_state")),
+                stop_reason=_as_stop_reason(iteration_payload.get("stop_reason")),
+                last_verdict=_as_evaluator_verdict(iteration_payload.get("last_verdict")),
+                state_ref=iteration_state_ref,
+                notes=_as_list_of_strings(iteration_payload.get("notes")),
+            )
+            if iteration_state_ref is not None
+            else None
+        )
 
-        reproducibility_view = ReproducibilityView(
-            seed=_as_int(reproducibility_payload.get("seed")),
-            seed_source=_replay_value(decision_packet_payload, "seed_source"),
-            determinism_tier=_replay_value(decision_packet_payload, "determinism_tier"),
-            plan_hash=_as_str(reproducibility_payload.get("plan_hash")),
-            registry_hash=_as_str(reproducibility_payload.get("registry_hash")),
-            method_catalog_hash=_as_str(reproducibility_payload.get("method_catalog_hash")),
-            data_snapshot_hash=_as_str(reproducibility_payload.get("data_snapshot_hash")),
-            input_bindings_hash=_as_str(reproducibility_payload.get("input_bindings_hash")),
-            readiness=_replay_value(decision_packet_payload, "readiness"),
-            why_partial=_replay_list(decision_packet_payload, "why_partial"),
-            missing_refs=_replay_list(decision_packet_payload, "missing_refs"),
-            suggested_next_step=_replay_value(decision_packet_payload, "suggested_next_step"),
-            manifest_ref=reproducibility_manifest_ref,
-            notes=_as_list_of_strings(reproducibility_payload.get("notes")),
-        ) if (reproducibility_manifest_ref is not None or _has_replay_payload(decision_packet_payload)) else None
+        reproducibility_view = (
+            ReproducibilityView(
+                seed=_as_int(reproducibility_payload.get("seed")),
+                seed_source=_replay_value(decision_packet_payload, "seed_source"),
+                determinism_tier=_replay_value(decision_packet_payload, "determinism_tier"),
+                plan_hash=_as_str(reproducibility_payload.get("plan_hash")),
+                registry_hash=_as_str(reproducibility_payload.get("registry_hash")),
+                method_catalog_hash=_as_str(reproducibility_payload.get("method_catalog_hash")),
+                data_snapshot_hash=_as_str(reproducibility_payload.get("data_snapshot_hash")),
+                input_bindings_hash=_as_str(reproducibility_payload.get("input_bindings_hash")),
+                readiness=_replay_value(decision_packet_payload, "readiness"),
+                why_partial=_replay_list(decision_packet_payload, "why_partial"),
+                missing_refs=_replay_list(decision_packet_payload, "missing_refs"),
+                suggested_next_step=_replay_value(decision_packet_payload, "suggested_next_step"),
+                manifest_ref=reproducibility_manifest_ref,
+                notes=_as_list_of_strings(reproducibility_payload.get("notes")),
+            )
+            if (
+                reproducibility_manifest_ref is not None
+                or _has_replay_payload(decision_packet_payload)
+            )
+            else None
+        )
 
         return AgentPipelineView(
             run_id=run.run_id,
@@ -523,7 +547,9 @@ class DebugService:
         retrieval_context_dict = retrieval_context if isinstance(retrieval_context, dict) else {}
 
         execution_plan_ref = (
-            _state_ref_from_param(state_payload, "execution_plan_ref", kind="scientist.execution_plan")
+            _state_ref_from_param(
+                state_payload, "execution_plan_ref", kind="scientist.execution_plan"
+            )
             or _artifact_ref_from_string(
                 _path_get_as_str(decision_packet_payload, ("artifacts", "execution_plan_ref")),
                 kind="scientist.execution_plan",
@@ -614,7 +640,9 @@ class DebugService:
 
         if plans:
             needs = [
-                item.model_copy(update={"matched_plan_ids": plan_ids_by_metric.get(item.metric, [])})
+                item.model_copy(
+                    update={"matched_plan_ids": plan_ids_by_metric.get(item.metric, [])}
+                )
                 for item in needs
             ]
 
@@ -641,7 +669,8 @@ class DebugService:
 
             promotions.append(
                 RunEvidencePromotionView(
-                    promotion_id=_as_str(row.get("promotion_id")) or _stable_id(
+                    promotion_id=_as_str(row.get("promotion_id"))
+                    or _stable_id(
                         "promotion",
                         metric_id,
                         _as_str(row.get("connector_id")) or "",
@@ -665,18 +694,30 @@ class DebugService:
         packet_inputs = _as_dict(decision_packet_payload.get("inputs"))
         data_snapshot_ref = (
             self._find_run_input_ref_by_kind(run, "fabric.data_snapshot")
-            or _artifact_ref_from_string(_as_str(auto_refs.get("data_snapshot_ref")), kind="fabric.data_snapshot")
-            or _artifact_ref_from_string(_as_str(packet_inputs.get("data_snapshot_ref")), kind="fabric.data_snapshot")
+            or _artifact_ref_from_string(
+                _as_str(auto_refs.get("data_snapshot_ref")), kind="fabric.data_snapshot"
+            )
+            or _artifact_ref_from_string(
+                _as_str(packet_inputs.get("data_snapshot_ref")), kind="fabric.data_snapshot"
+            )
         )
         input_bindings_ref = (
             self._find_run_input_ref_by_kind(run, "foundry.input_bindings")
-            or _artifact_ref_from_string(_as_str(auto_refs.get("input_bindings_ref")), kind="foundry.input_bindings")
-            or _artifact_ref_from_string(_as_str(packet_inputs.get("input_bindings_ref")), kind="foundry.input_bindings")
+            or _artifact_ref_from_string(
+                _as_str(auto_refs.get("input_bindings_ref")), kind="foundry.input_bindings"
+            )
+            or _artifact_ref_from_string(
+                _as_str(packet_inputs.get("input_bindings_ref")), kind="foundry.input_bindings"
+            )
         )
         evidence_bundle_ref = (
             self._find_run_input_ref_by_kind(run, "fabric.evidence_bundle")
-            or _artifact_ref_from_string(_as_str(auto_refs.get("evidence_bundle_ref")), kind="fabric.evidence_bundle")
-            or _artifact_ref_from_string(_as_str(packet_inputs.get("evidence_bundle_ref")), kind="fabric.evidence_bundle")
+            or _artifact_ref_from_string(
+                _as_str(auto_refs.get("evidence_bundle_ref")), kind="fabric.evidence_bundle"
+            )
+            or _artifact_ref_from_string(
+                _as_str(packet_inputs.get("evidence_bundle_ref")), kind="fabric.evidence_bundle"
+            )
         )
 
         related_artifacts = _dedupe_artifact_refs(
@@ -690,7 +731,9 @@ class DebugService:
                     kind="scientist.decision_card",
                 ),
                 _artifact_ref_from_string(
-                    _path_get_as_str(decision_packet_payload, ("artifacts", "input_binding_report_ref")),
+                    _path_get_as_str(
+                        decision_packet_payload, ("artifacts", "input_binding_report_ref")
+                    ),
                     kind="foundry.input_binding_report",
                 ),
                 *run.details.root_artifacts,
@@ -768,7 +811,9 @@ class DebugService:
 
             report_artifacts = _artifact_ids_from_report_node(report_node)
             artifact_ids = sorted(
-                set(report_artifacts).union(timeline_node.output_artifact_ids if timeline_node else [])
+                set(report_artifacts).union(
+                    timeline_node.output_artifact_ids if timeline_node else []
+                )
             )
             input_artifact_ids = timeline_node.input_artifact_ids if timeline_node else []
             output_artifact_ids = timeline_node.output_artifact_ids if timeline_node else []
@@ -985,7 +1030,9 @@ def _state_ref_from_param(
         value = state_payload.get(key)
     if isinstance(value, dict):
         return _artifact_ref_from_payload(value)
-    return _artifact_ref_from_string(value if isinstance(value, str) else None, kind=kind, media_type=media_type)
+    return _artifact_ref_from_string(
+        value if isinstance(value, str) else None, kind=kind, media_type=media_type
+    )
 
 
 def _workflow_report_nodes_by_alias(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
@@ -1054,10 +1101,7 @@ def _workflow_depths(nodes: list[RunWorkflowNodeView]) -> tuple[dict[str, int], 
             return 0
         visiting.add(alias)
         parents = deps.get(alias) or []
-        if not parents:
-            value = 0
-        else:
-            value = 1 + max((_depth(parent) for parent in parents), default=0)
+        value = 0 if not parents else 1 + max((_depth(parent) for parent in parents), default=0)
         visiting.discard(alias)
         cache[alias] = max(value, 0)
         return cache[alias]
@@ -1105,9 +1149,7 @@ def _retrieval_from_state_payload(payload: dict[str, Any]) -> RetrievalTelemetry
     telemetry = telemetry_raw if isinstance(telemetry_raw, dict) else {}
 
     mode = _as_str(telemetry.get("mode")) or _as_str(params.get("retrieval_mode"))
-    lane_used = _as_str(telemetry.get("lane_used")) or _as_str(
-        params.get("retrieval_lane_used")
-    )
+    lane_used = _as_str(telemetry.get("lane_used")) or _as_str(params.get("retrieval_lane_used"))
     if mode is None and lane_used is None and not telemetry:
         return None
 
@@ -1246,10 +1288,7 @@ def _agent_steps_from_audit_trail(
 
         if node == "reflexion":
             can_retry = bool(detail_payload.get("can_retry"))
-            if can_retry:
-                current_attempt = attempt + 1
-            else:
-                current_attempt = max(current_attempt, attempt)
+            current_attempt = attempt + 1 if can_retry else max(current_attempt, attempt)
         else:
             current_attempt = max(current_attempt, attempt)
 
@@ -1363,7 +1402,9 @@ def _agent_steps_from_model_variants(
                 nested_usage = _token_usage(nested.get("token_usage"))
                 nested_prompt = _as_str(nested.get("prompt"))
                 nested_response = _as_str(nested.get("response"))
-                nested_details = _sanitize_payload(nested.get("details"), sensitive_keys=sensitive_keys)
+                nested_details = _sanitize_payload(
+                    nested.get("details"), sensitive_keys=sensitive_keys
+                )
                 raw_status = _as_str(nested.get("status"))
                 nested_status = _agent_step_status(
                     raw_status,
@@ -1495,7 +1536,9 @@ def _group_agent_steps_by_attempt(steps: list[AgentPipelineStep]) -> list[AgentP
             grouped[attempt],
             key=lambda item: item.timestamp or datetime.max,
         )
-        started = next((item.timestamp for item in items if isinstance(item.timestamp, datetime)), None)
+        started = next(
+            (item.timestamp for item in items if isinstance(item.timestamp, datetime)), None
+        )
         finished = next(
             (item.timestamp for item in reversed(items) if isinstance(item.timestamp, datetime)),
             None,
@@ -1861,9 +1904,7 @@ def _artifact_ref_from_payload(value: Any) -> ArtifactRef | None:
             parsed_ref: ArtifactRef = ArtifactRef.model_validate(value)
             return parsed_ref
         except (TypeError, ValueError) as exc:
-            logger.debug(
-                "Failed to parse generic artifact ref payload %s: %s", value, exc
-            )
+            logger.debug("Failed to parse generic artifact ref payload %s: %s", value, exc)
             return None
     if isinstance(value, str):
         return _artifact_ref_from_string(

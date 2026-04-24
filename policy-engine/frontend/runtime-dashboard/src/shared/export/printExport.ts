@@ -57,9 +57,7 @@ export function triggerPrint(options?: PrintOptions): void {
   if (options?.contentSelector) {
     const content = document.querySelector(options.contentSelector);
     if (content) {
-      hiddenElements = Array.from(
-        document.body.children,
-      ).filter(
+      hiddenElements = Array.from(document.body.children).filter(
         (el): el is HTMLElement =>
           el instanceof HTMLElement && !el.contains(content) && el !== content,
       );

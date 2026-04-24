@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from polisyos.ir.analytics.context import ContextProfile, ContextProfileInferenceLevel
-from polisyos.ir.analytics.literature import ArticleExtractionResult
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.literature import ArticleExtractionResult
 
 _INCOME_LEVEL_MAP: dict[str, str] = {
     "US": "high",
@@ -63,7 +67,9 @@ def infer_context_from_article(work: dict, extraction: ArticleExtractionResult) 
     }
 
     context_id, context_label = _resolve_primary_context(countries, scopes)
-    publication_year = work.get("publication_year") or extraction.year or extraction.publication_year
+    publication_year = (
+        work.get("publication_year") or extraction.year or extraction.publication_year
+    )
 
     return ContextProfile(
         context_id=context_id,

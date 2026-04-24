@@ -1,7 +1,6 @@
 """Tests for polisyos.scientist.kernel.gate_protocol — HumanGateProtocol."""
-from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from __future__ import annotations
 
 import pytest
 
@@ -19,10 +18,10 @@ from polisyos.scientist.kernel.gate_protocol import (
     _priority_to_int,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 def _make_gate_context(**overrides) -> GateContext:
     defaults = dict(
@@ -44,11 +43,14 @@ def protocol(mock_run_context):
 # request_gate
 # ---------------------------------------------------------------------------
 
+
 class TestRequestGate:
     def test_returns_gate_request_and_ref(self, protocol, mock_store):
         ctx = _make_gate_context()
         request, ref = protocol.request_gate(
-            run_id="run-1", reason="needs review", context=ctx,
+            run_id="run-1",
+            reason="needs review",
+            context=ctx,
         )
         assert isinstance(request, GateRequest)
         assert request.run_id == "run-1"
@@ -73,21 +75,30 @@ class TestRequestGate:
     def test_custom_priority(self, protocol):
         ctx = _make_gate_context()
         request, _ = protocol.request_gate(
-            run_id="run-1", reason="urgent", context=ctx, priority=GatePriority.CRITICAL,
+            run_id="run-1",
+            reason="urgent",
+            context=ctx,
+            priority=GatePriority.CRITICAL,
         )
         assert request.priority == GatePriority.CRITICAL
 
     def test_custom_timeout(self, protocol):
         ctx = _make_gate_context()
         request, _ = protocol.request_gate(
-            run_id="run-1", reason="r", context=ctx, timeout_seconds=300,
+            run_id="run-1",
+            reason="r",
+            context=ctx,
+            timeout_seconds=300,
         )
         assert request.timeout_seconds == 300
 
     def test_custom_requested_by(self, protocol):
         ctx = _make_gate_context()
         request, _ = protocol.request_gate(
-            run_id="run-1", reason="r", context=ctx, requested_by="admin",
+            run_id="run-1",
+            reason="r",
+            context=ctx,
+            requested_by="admin",
         )
         assert request.requested_by == "admin"
 
@@ -105,13 +116,16 @@ class TestRequestGate:
         protocol.request_gate(run_id="run-1", reason="r", context=ctx)
         mock_run_context.emit.assert_called_once()
         call_kwargs = mock_run_context.emit.call_args
-        assert call_kwargs[1]["event"] == GateEventType.GATE_REQUESTED.value or \
-            call_kwargs[0][1] == GateEventType.GATE_REQUESTED.value
+        assert (
+            call_kwargs[1]["event"] == GateEventType.GATE_REQUESTED.value
+            or call_kwargs[0][1] == GateEventType.GATE_REQUESTED.value
+        )
 
 
 # ---------------------------------------------------------------------------
 # record_decision
 # ---------------------------------------------------------------------------
+
 
 class TestRecordDecision:
     def test_returns_decision_and_ref(self, protocol, mock_store):
@@ -120,7 +134,9 @@ class TestRecordDecision:
         mock_store.put_json.reset_mock()
 
         decision, ref = protocol.record_decision(
-            request, verdict=GateVerdict.APPROVE, approver_id="user-1",
+            request,
+            verdict=GateVerdict.APPROVE,
+            approver_id="user-1",
         )
         assert isinstance(decision, GateDecision)
         assert decision.verdict == GateVerdict.APPROVE
@@ -149,7 +165,9 @@ class TestRecordDecision:
         request, _ = protocol.request_gate(run_id="run-1", reason="r", context=ctx)
 
         decision, _ = protocol.record_decision(
-            request, verdict=GateVerdict.APPROVE, approver_id="u",
+            request,
+            verdict=GateVerdict.APPROVE,
+            approver_id="u",
         )
         assert decision.reason_codes == []
         assert decision.comment is None
@@ -159,6 +177,7 @@ class TestRecordDecision:
 # ---------------------------------------------------------------------------
 # persist_decision
 # ---------------------------------------------------------------------------
+
 
 class TestPersistDecision:
     def test_persist_calls_store(self, protocol, mock_store):
@@ -180,8 +199,10 @@ class TestPersistDecision:
 
     def test_persist_without_request_ref(self, protocol, mock_store):
         decision = GateDecision(
-            request_id="req-1", run_id="run-1",
-            verdict=GateVerdict.REJECT, approver_id="u",
+            request_id="req-1",
+            run_id="run-1",
+            verdict=GateVerdict.REJECT,
+            approver_id="u",
         )
         mock_store.put_json.reset_mock()
         protocol.persist_decision(decision)
@@ -191,6 +212,7 @@ class TestPersistDecision:
 # ---------------------------------------------------------------------------
 # _extract_trace_correlation
 # ---------------------------------------------------------------------------
+
 
 class TestExtractTraceCorrelation:
     def test_no_valid_span_returns_none(self):
@@ -203,12 +225,16 @@ class TestExtractTraceCorrelation:
 # _priority_to_int
 # ---------------------------------------------------------------------------
 
+
 class TestPriorityToInt:
-    @pytest.mark.parametrize("priority,expected", [
-        (GatePriority.LOW, 0),
-        (GatePriority.NORMAL, 1),
-        (GatePriority.HIGH, 2),
-        (GatePriority.CRITICAL, 3),
-    ])
+    @pytest.mark.parametrize(
+        "priority,expected",
+        [
+            (GatePriority.LOW, 0),
+            (GatePriority.NORMAL, 1),
+            (GatePriority.HIGH, 2),
+            (GatePriority.CRITICAL, 3),
+        ],
+    )
     def test_mapping(self, priority, expected):
         assert _priority_to_int(priority) == expected

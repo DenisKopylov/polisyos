@@ -1,4 +1,5 @@
 """Facade for emitting, validating, persisting, and materializing world facts."""
+
 from __future__ import annotations
 
 from polisyos.fabric.world.store import (
@@ -59,8 +60,29 @@ try:
         materialize_world_duckdb_from_fact_log,
         materialize_world_kuzu_from_duckdb,
     )
+
+    _MATERIALIZE_EXPORTS = (
+        MergeStrategy,
+        WorldArtifactReadError,
+        WorldKuzuCopyError,
+        WorldKuzuImportError,
+        WorldKuzuNotAvailable,
+        WorldMaterializationError,
+        WorldMaterializeSegmentStats,
+        WorldMaterializeStats,
+        WorldMergeConflict,
+        WorldSchemaError,
+        WorldSegmentHashMismatch,
+        apply_world_segment,
+        ensure_world_kuzu_schema,
+        ensure_world_materialized,
+        ensure_world_schema,
+        materialize_world_duckdb_from_fact_log,
+        materialize_world_kuzu_from_duckdb,
+    )
     _MATERIALIZE_AVAILABLE = True
 except ModuleNotFoundError:  # pragma: no cover - optional dependency path
+    _MATERIALIZE_EXPORTS = ()
     _MATERIALIZE_AVAILABLE = False
 
 __all__ = [
@@ -84,9 +106,9 @@ __all__ = [
     "persist_conflict_set",
     "persist_doc_fragment",
     "persist_doc_meta",
+    "persist_fact_segment_manifest",
     "persist_quality_report",
     "persist_trust_assessment",
-    "persist_fact_segment_manifest",
     "persist_world_event",
     "stable_world_provenance_v1",
     "validate_claim_id",
@@ -102,24 +124,4 @@ __all__ = [
 ]
 
 if _MATERIALIZE_AVAILABLE:
-    __all__.extend(
-        [
-            "MergeStrategy",
-            "WorldArtifactReadError",
-            "WorldKuzuCopyError",
-            "WorldKuzuImportError",
-            "WorldKuzuNotAvailable",
-            "WorldMaterializationError",
-            "WorldMaterializeSegmentStats",
-            "WorldMaterializeStats",
-            "WorldMergeConflict",
-            "WorldSchemaError",
-            "WorldSegmentHashMismatch",
-            "apply_world_segment",
-            "ensure_world_materialized",
-            "ensure_world_kuzu_schema",
-            "ensure_world_schema",
-            "materialize_world_duckdb_from_fact_log",
-            "materialize_world_kuzu_from_duckdb",
-        ]
-    )
+    __all__.extend(export.__name__ for export in _MATERIALIZE_EXPORTS)

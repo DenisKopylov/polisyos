@@ -4,8 +4,8 @@ Terraform модуль для dedicated confidential node pool в AKS.
 
 ## Что есть в директории
 
-| Путь | Назначение |
-|---|---|
+| Путь                                    | Назначение                                                                             |
+| --------------------------------------- | -------------------------------------------------------------------------------------- |
 | `modules/confidential_nodepool/main.tf` | `azurerm_kubernetes_cluster_node_pool` с `KataCcIsolation`, labels/taints для PolicyOS |
 
 ## Роль в системе
@@ -14,13 +14,13 @@ Terraform модуль для dedicated confidential node pool в AKS.
 
 ## Параметры модуля
 
-| Переменная | Тип | По умолчанию | Назначение |
-|---|---|---|---|
-| `cluster_id` | `string` | - | resource ID AKS кластера |
-| `cell_id` | `string` | - | идентификатор PolicyOS cell |
-| `vm_size` | `string` | `Standard_DC16as_v5` | размер Confidential VM |
-| `node_count` | `number` | `2` | initial/min nodes |
-| `max_node_count` | `number` | `8` | autoscaler maximum |
+| Переменная       | Тип      | По умолчанию         | Назначение                  |
+| ---------------- | -------- | -------------------- | --------------------------- |
+| `cluster_id`     | `string` | -                    | resource ID AKS кластера    |
+| `cell_id`        | `string` | -                    | идентификатор PolicyOS cell |
+| `vm_size`        | `string` | `Standard_DC16as_v5` | размер Confidential VM      |
+| `node_count`     | `number` | `2`                  | initial/min nodes           |
+| `max_node_count` | `number` | `8`                  | autoscaler maximum          |
 
 ## Что настраивается
 

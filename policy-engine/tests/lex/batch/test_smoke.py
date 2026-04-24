@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.lex.batch.pipeline import PipelineStats
 from polisyos.lex.batch.smoke import (
@@ -11,6 +11,9 @@ from polisyos.lex.batch.smoke import (
     select_smoke_candidates,
     write_smoke_plan,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _write_jsonl(path: Path, rows: list[dict]) -> None:
@@ -23,10 +26,16 @@ def _write_jsonl(path: Path, rows: list[dict]) -> None:
 def test_select_smoke_candidates_prefers_diversity_and_cues() -> None:
     candidates = [
         SmokeCandidate("doc1", "Law 1", "Закон України", "law", "чинний", (), 1000, ("article",)),
-        SmokeCandidate("doc2", "Law 2", "Закон України", "law", "чинний", (), 900, ("appendix", "table")),
+        SmokeCandidate(
+            "doc2", "Law 2", "Закон України", "law", "чинний", (), 900, ("appendix", "table")
+        ),
         SmokeCandidate("doc3", "Order", "Наказ", "order", "чинний", (), 850, ("list",)),
-        SmokeCandidate("doc4", "Resolution", "Постанова КМУ", "cabinet_resolution", "чинний", (), 800, ()),
-        SmokeCandidate("doc5", "Regulation", "Положення", "regulation", "чинний", (), 780, ("appendix",)),
+        SmokeCandidate(
+            "doc4", "Resolution", "Постанова КМУ", "cabinet_resolution", "чинний", (), 800, ()
+        ),
+        SmokeCandidate(
+            "doc5", "Regulation", "Положення", "regulation", "чинний", (), 780, ("appendix",)
+        ),
         SmokeCandidate("doc6", "Decision", "Рішення", "decision", "чинний", (), 700, ()),
     ]
 
@@ -131,7 +140,7 @@ def test_build_smoke_report_summarizes_outputs(tmp_path: Path) -> None:
         ),
     )
 
-    with open(report_path, "r", encoding="utf-8") as fh:
+    with open(report_path, encoding="utf-8") as fh:
         report = json.load(fh)
 
     assert report["sample_plan"]["selected_total"] == 1

@@ -451,6 +451,98 @@ const artifactManifestViewSchema = z.object({
   integrity_sha256: z.string(),
 });
 
+const decisionPacketOutlineEntrySchema = z.object({
+  section_id: z.string(),
+  title: z.string(),
+  section_type: z.string().nullable().optional(),
+});
+
+const decisionPacketEffectSizeSchema = z.object({
+  point: z.number().nullable().optional(),
+  ci_80: z.tuple([z.number(), z.number()]).nullable().optional(),
+  ci_95: z.tuple([z.number(), z.number()]).nullable().optional(),
+  quantiles: z.record(z.string(), z.number()).nullable().optional(),
+  identifiability: z
+    .enum(["identified", "estimated", "assumed"])
+    .nullable()
+    .optional(),
+  disputed: z.boolean().nullable().optional(),
+  method: z.string().nullable().optional(),
+});
+
+const decisionPacketMetricSignificanceSchema = z.object({
+  baseline_model_id: z.string().nullable().optional(),
+  candidate_model_id: z.string().nullable().optional(),
+  metric_direction: z.string().nullable().optional(),
+  baseline_value: z.number().nullable().optional(),
+  candidate_value: z.number().nullable().optional(),
+  delta_value: z.number().nullable().optional(),
+  test_id: z.string().nullable().optional(),
+  test_label: z.string().nullable().optional(),
+  p_value: z.number().nullable().optional(),
+  p_adj: z.number().nullable().optional(),
+  alpha: z.number().nullable().optional(),
+  significant: z.boolean().nullable().optional(),
+  effect_size: decisionPacketEffectSizeSchema.nullable().optional(),
+  assumption_warnings: z.array(z.string()).optional(),
+  calibration_warnings: z.array(z.string()).optional(),
+});
+
+const decisionPacketMetricComparisonRowSchema = z.object({
+  metric_id: z.string(),
+  metric_direction: z.string().nullable().optional(),
+  baseline_model_id: z.string().nullable().optional(),
+  candidate_model_id: z.string().nullable().optional(),
+  baseline_value: z.number().nullable().optional(),
+  candidate_value: z.number().nullable().optional(),
+  delta_value: z.number().nullable().optional(),
+  family_id: z.string().nullable().optional(),
+  family_scope: z.string().nullable().optional(),
+  sample_size_effective: z.number().int().nullable().optional(),
+  resampling_method: z.string().nullable().optional(),
+  test_id: z.string().nullable().optional(),
+  test_label: z.string().nullable().optional(),
+  statistic: z.number().nullable().optional(),
+  effect_size: decisionPacketEffectSizeSchema.nullable().optional(),
+  p_value: z.number().nullable().optional(),
+  p_adj: z.number().nullable().optional(),
+  alpha: z.number().nullable().optional(),
+  significant: z.boolean().nullable().optional(),
+  assumption_warnings: z.array(z.string()).optional(),
+  calibration_warnings: z.array(z.string()).optional(),
+});
+
+const decisionPacketAuthoredBlockSchema = z.object({
+  id: z.string().nullable().optional(),
+  content: z.string(),
+  author: z
+    .enum(["citation", "human", "drafter", "formalizer", "critic"])
+    .nullable()
+    .optional(),
+  author_agent_version: z.string().nullable().optional(),
+  sources: z.array(z.object({ kind: z.string(), ref: z.string() })).optional(),
+  timestamp: z.string().nullable().optional(),
+  confidence: z.number().nullable().optional(),
+  reviewed_by_human: z.boolean().nullable().optional(),
+});
+
+const decisionPacketPreviewSchema = z
+  .object({
+    document_outline: z.array(decisionPacketOutlineEntrySchema).optional(),
+    metric_significance_by_metric: z
+      .record(z.string(), decisionPacketMetricSignificanceSchema)
+      .optional(),
+    metric_validation_comparison_rows: z
+      .array(decisionPacketMetricComparisonRowSchema)
+      .optional(),
+    blocks: z.array(decisionPacketAuthoredBlockSchema).optional(),
+    narrative_blocks: z.array(decisionPacketAuthoredBlockSchema).optional(),
+    evidence_summary_blocks: z
+      .array(decisionPacketAuthoredBlockSchema)
+      .optional(),
+  })
+  .loose();
+
 const artifactContentPreviewSchema = z.object({
   artifact_id: z.string(),
   kind: z.string(),
@@ -460,6 +552,7 @@ const artifactContentPreviewSchema = z.object({
   max_bytes: z.number(),
   truncated: z.boolean(),
   preview: z.unknown().optional(),
+  decision_packet_preview: decisionPacketPreviewSchema.nullable().optional(),
 });
 
 const artifactSchemaViewSchema = z.object({

@@ -98,8 +98,7 @@ def test_build_clean_checkout_script_uses_bundle_and_commit() -> None:
 
 def test_temporary_bundle_ref_is_stable_for_commit() -> None:
     assert (
-        remote_acceptance._temporary_bundle_ref("abc123")
-        == "refs/codex/remote-acceptance/abc123"
+        remote_acceptance._temporary_bundle_ref("abc123") == "refs/codex/remote-acceptance/abc123"
     )
 
 

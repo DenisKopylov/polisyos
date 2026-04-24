@@ -1,15 +1,17 @@
 """
 Test suite for Method Compiler and Specialization.
 """
+
 from __future__ import annotations
 
 import concurrent.futures
 import time
-from typing import Any, Callable, Mapping, NamedTuple
+from collections.abc import Callable, Mapping
+from typing import Any, NamedTuple
 
+import jax.numpy as jnp
 import numpy as np
 import pytest
-import jax.numpy as jnp
 
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -39,7 +41,6 @@ from polisyos.foundry.methods.specialization import (
     build_specialization,
     compute_static_params_hash,
 )
-
 
 # =============================================================================
 # Fixtures
@@ -111,10 +112,12 @@ def create_test_method(
     )
 
     if pure_step_factory is None:
+
         def pure_step_factory(
             fn: Callable[[Any, Mapping[str, Any]], Any] | None = None,
         ) -> Any:
             if fn is None:
+
                 def _identity(state: Any, params: Mapping[str, Any]) -> Any:
                     del params
                     return state
@@ -582,22 +585,25 @@ class TestCompilationCache:
 
         assert not cache.contains(spec)
 
-        cache.put(spec, CompiledMethod(
-            method_fqn="test@1.0.0",
-            signature=MethodSignature(
-                name="test",
-                namespace="test",
-                version="1.0.0",
-                input_slots=frozenset(),
-                output_slots=frozenset(),
-                parameters=(),
-                fidelity=FidelityLevel.LOW,
-                complexity=ComplexityClass.O_1,
+        cache.put(
+            spec,
+            CompiledMethod(
+                method_fqn="test@1.0.0",
+                signature=MethodSignature(
+                    name="test",
+                    namespace="test",
+                    version="1.0.0",
+                    input_slots=frozenset(),
+                    output_slots=frozenset(),
+                    parameters=(),
+                    fidelity=FidelityLevel.LOW,
+                    complexity=ComplexityClass.O_1,
+                ),
+                specialization=spec,
+                step_fn=lambda s, p: s,
+                dynamic_defaults={},
             ),
-            specialization=spec,
-            step_fn=lambda s, p: s,
-            dynamic_defaults={},
-        ))
+        )
 
         assert cache.contains(spec)
 
@@ -609,22 +615,25 @@ class TestCompilationCache:
             input_arrays={"x": jnp.zeros((10,))},
         )
 
-        cache.put(spec, CompiledMethod(
-            method_fqn="test@1.0.0",
-            signature=MethodSignature(
-                name="test",
-                namespace="test",
-                version="1.0.0",
-                input_slots=frozenset(),
-                output_slots=frozenset(),
-                parameters=(),
-                fidelity=FidelityLevel.LOW,
-                complexity=ComplexityClass.O_1,
+        cache.put(
+            spec,
+            CompiledMethod(
+                method_fqn="test@1.0.0",
+                signature=MethodSignature(
+                    name="test",
+                    namespace="test",
+                    version="1.0.0",
+                    input_slots=frozenset(),
+                    output_slots=frozenset(),
+                    parameters=(),
+                    fidelity=FidelityLevel.LOW,
+                    complexity=ComplexityClass.O_1,
+                ),
+                specialization=spec,
+                step_fn=lambda s, p: s,
+                dynamic_defaults={},
             ),
-            specialization=spec,
-            step_fn=lambda s, p: s,
-            dynamic_defaults={},
-        ))
+        )
 
         assert cache.invalidate(spec) is True
         assert cache.contains(spec) is False
@@ -639,22 +648,25 @@ class TestCompilationCache:
                 static_params={},
                 input_arrays={"x": jnp.zeros((10,))},
             )
-            cache.put(spec, CompiledMethod(
-                method_fqn=f"test{i}@1.0.0",
-                signature=MethodSignature(
-                    name="test",
-                    namespace="test",
-                    version="1.0.0",
-                    input_slots=frozenset(),
-                    output_slots=frozenset(),
-                    parameters=(),
-                    fidelity=FidelityLevel.LOW,
-                    complexity=ComplexityClass.O_1,
+            cache.put(
+                spec,
+                CompiledMethod(
+                    method_fqn=f"test{i}@1.0.0",
+                    signature=MethodSignature(
+                        name="test",
+                        namespace="test",
+                        version="1.0.0",
+                        input_slots=frozenset(),
+                        output_slots=frozenset(),
+                        parameters=(),
+                        fidelity=FidelityLevel.LOW,
+                        complexity=ComplexityClass.O_1,
+                    ),
+                    specialization=spec,
+                    step_fn=lambda s, p: s,
+                    dynamic_defaults={},
                 ),
-                specialization=spec,
-                step_fn=lambda s, p: s,
-                dynamic_defaults={},
-            ))
+            )
 
         assert cache.stats["size"] == 5
         cleared = cache.clear()
@@ -921,7 +933,9 @@ class TestMethodCompiler:
 
 
 class TestSingleFlight:
-    def test_single_flight_compilation(self, registry_with_methods: MethodRegistry, sample_state: TaxState):
+    def test_single_flight_compilation(
+        self, registry_with_methods: MethodRegistry, sample_state: TaxState
+    ):
         class CountingCompiler(MethodCompiler):
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)

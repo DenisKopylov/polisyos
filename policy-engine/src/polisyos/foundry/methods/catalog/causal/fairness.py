@@ -21,12 +21,14 @@ Zhang, J. & Bareinboim, E. (2018). Fairness in Decision-Making — The Causal
 Kusner, M.J., Loftus, J., Russell, C. & Silva, R. (2017). Counterfactual
     Fairness. NeurIPS.
 """
+
 from __future__ import annotations
 
 import math
 import re
 import time
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -44,7 +46,6 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.ir.analytics.fairness import CausalFairnessReport, FairnessDecomposition
-
 
 # ---------------------------------------------------------------------------
 # Module-level helpers
@@ -140,8 +141,12 @@ def _aipw_ate(
         # Re-fit on training, predict on test
         X_tr_aug = np.column_stack([np.ones(len(T_tr)), X_tr])
         X_te_aug = np.column_stack([np.ones(len(T_te)), X_te])
-        p_tr = np.full(len(T_tr), float(np.clip(np.mean(T_tr), min_propensity, 1.0 - min_propensity)))
-        p_te = np.full(len(T_te), float(np.clip(np.mean(T_tr), min_propensity, 1.0 - min_propensity)))
+        p_tr = np.full(
+            len(T_tr), float(np.clip(np.mean(T_tr), min_propensity, 1.0 - min_propensity))
+        )
+        p_te = np.full(
+            len(T_te), float(np.clip(np.mean(T_tr), min_propensity, 1.0 - min_propensity))
+        )
         for _ in range(10):
             w = p_tr * (1.0 - p_tr)
             z = np.log(p_tr / (1.0 - p_tr)) + (T_tr - p_tr) / np.maximum(w, 1e-10)
@@ -150,8 +155,12 @@ def _aipw_ate(
                     X_tr_aug.T @ (w[:, None] * X_tr_aug) + 1e-4 * np.eye(X_tr_aug.shape[1]),
                     X_tr_aug.T @ (w * z),
                 )
-                p_tr = np.clip(1.0 / (1.0 + np.exp(-X_tr_aug @ beta)), min_propensity, 1.0 - min_propensity)
-                p_te = np.clip(1.0 / (1.0 + np.exp(-X_te_aug @ beta)), min_propensity, 1.0 - min_propensity)
+                p_tr = np.clip(
+                    1.0 / (1.0 + np.exp(-X_tr_aug @ beta)), min_propensity, 1.0 - min_propensity
+                )
+                p_te = np.clip(
+                    1.0 / (1.0 + np.exp(-X_te_aug @ beta)), min_propensity, 1.0 - min_propensity
+                )
             except np.linalg.LinAlgError:
                 break
 
@@ -212,7 +221,9 @@ def _nde_nie_cross_fit(
         # --- Propensity on training, evaluate on test ---
         X_tr_aug = np.column_stack([np.ones(len(A_tr)), X_tr])
         X_te_aug = np.column_stack([np.ones(n_te), X_te])
-        p_tr = np.full(len(A_tr), float(np.clip(np.mean(A_tr), min_propensity, 1.0 - min_propensity)))
+        p_tr = np.full(
+            len(A_tr), float(np.clip(np.mean(A_tr), min_propensity, 1.0 - min_propensity))
+        )
         p_te = np.full(n_te, float(np.clip(np.mean(A_tr), min_propensity, 1.0 - min_propensity)))
         for _ in range(10):
             w = p_tr * (1.0 - p_tr)
@@ -222,22 +233,33 @@ def _nde_nie_cross_fit(
                     X_tr_aug.T @ (w[:, None] * X_tr_aug) + 1e-4 * np.eye(X_tr_aug.shape[1]),
                     X_tr_aug.T @ (w * z),
                 )
-                p_tr = np.clip(1.0 / (1.0 + np.exp(-X_tr_aug @ beta_e)), min_propensity, 1.0 - min_propensity)
-                p_te = np.clip(1.0 / (1.0 + np.exp(-X_te_aug @ beta_e)), min_propensity, 1.0 - min_propensity)
+                p_tr = np.clip(
+                    1.0 / (1.0 + np.exp(-X_tr_aug @ beta_e)), min_propensity, 1.0 - min_propensity
+                )
+                p_te = np.clip(
+                    1.0 / (1.0 + np.exp(-X_te_aug @ beta_e)), min_propensity, 1.0 - min_propensity
+                )
             except np.linalg.LinAlgError:
                 break
 
         # --- Outcome models E[Y | A=a, M, X] on training, predict at reference mediator ---
         def _predict_outcome(
-            Y_sub: np.ndarray, A_sub: np.ndarray, M_sub: np.ndarray, X_sub: np.ndarray,
-            a_val: float, M_pred: np.ndarray, X_pred: np.ndarray,
+            Y_sub: np.ndarray,
+            A_sub: np.ndarray,
+            M_sub: np.ndarray,
+            X_sub: np.ndarray,
+            a_val: float,
+            M_pred: np.ndarray,
+            X_pred: np.ndarray,
         ) -> np.ndarray:
             mask = np.abs(A_sub - a_val) < 0.5
             n_p = len(M_pred)
             default = float(np.mean(Y_sub[mask])) if int(mask.sum()) > 0 else float(np.mean(Y_sub))
             if int(mask.sum()) < 3:
                 return np.full(n_p, default)
-            Xf_fit = np.column_stack([np.ones(int(mask.sum())), M_sub[mask].reshape(-1, 1), X_sub[mask]])
+            Xf_fit = np.column_stack(
+                [np.ones(int(mask.sum())), M_sub[mask].reshape(-1, 1), X_sub[mask]]
+            )
             Xf_pred = np.column_stack([np.ones(n_p), M_pred.reshape(-1, 1), X_pred])
             try:
                 coef = np.linalg.lstsq(Xf_fit, Y_sub[mask], rcond=None)[0]
@@ -247,8 +269,11 @@ def _nde_nie_cross_fit(
 
         # E[M | A=a, X] on training
         def _predict_mediator_mean(
-            M_sub: np.ndarray, A_sub: np.ndarray, X_sub: np.ndarray,
-            a_val: float, X_pred: np.ndarray,
+            M_sub: np.ndarray,
+            A_sub: np.ndarray,
+            X_sub: np.ndarray,
+            a_val: float,
+            X_pred: np.ndarray,
         ) -> np.ndarray:
             mask = np.abs(A_sub - a_val) < 0.5
             n_p = len(X_pred)
@@ -276,10 +301,7 @@ def _nde_nie_cross_fit(
 
         nde_plugin = mu1_at_m0 - mu0_at_m0
         nie_plugin = mu1_at_m1 - mu1_at_m0
-        correction = (
-            A_te / p_te * (Y_te - mu1_obs)
-            - (1.0 - A_te) / (1.0 - p_te) * (Y_te - mu0_obs)
-        )
+        correction = A_te / p_te * (Y_te - mu1_obs) - (1.0 - A_te) / (1.0 - p_te) * (Y_te - mu0_obs)
 
         nde_scores[test_idx] = nde_plugin + correction
         nie_scores[test_idx] = nie_plugin
@@ -303,7 +325,7 @@ def _parse_dot_adjacency(graph_dot: str) -> dict[str, list[str]]:
     Handles simple patterns like ``A -> B`` and ``A -> B [label="weight"]``.
     """
     adjacency: dict[str, list[str]] = {}
-    for match in re.finditer(r'(\w+)\s*->\s*(\w+)', graph_dot):
+    for match in re.finditer(r"(\w+)\s*->\s*(\w+)", graph_dot):
         src, dst = match.group(1), match.group(2)
         if src not in adjacency:
             adjacency[src] = []
@@ -356,7 +378,7 @@ def _build_fairness_report(
     ie_ci: tuple[float, float] = (ie - z * de_se, ie + z * de_se)
     tv_ci: tuple[float, float] = (tv - z * tv_se, tv + z * tv_se)
     # SE CI by error propagation (sum of variances, assuming independence)
-    se_se = math.sqrt(tv_se ** 2 + de_se ** 2 + (de_se if ie_se == 0.0 else ie_se) ** 2)
+    se_se = math.sqrt(tv_se**2 + de_se**2 + (de_se if ie_se == 0.0 else ie_se) ** 2)
     se_ci: tuple[float, float] = (se_val - z * se_se, se_val + z * se_se)
 
     decomp = FairnessDecomposition(
@@ -382,7 +404,8 @@ def _build_fairness_report(
 
     # Primary unfair pathway: largest |effect| among unfair paths
     unfair_effects: list[tuple[str, float]] = [
-        (path, abs(v)) for path, v in metadata.get("path_effects", {}).items()
+        (path, abs(v))
+        for path, v in metadata.get("path_effects", {}).items()
         if not path_specific_fairness.get(path, True)
     ]
     primary_unfair: str | None = None
@@ -468,15 +491,31 @@ class TVFairnessDecomposer:
         name="tv_fairness_decomposer",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-            SlotSpec("protected", SlotType.VECTOR, Unit("protected", "binary"), shape=("n_obs",)),
-            SlotSpec("covariates", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-            SlotSpec("mediators", SlotType.MATRIX, Unit("mediator", "value"), shape=("n_obs", "n_mediators")),
-        }),
-        output_slots=frozenset({
-            SlotSpec("fairness_report", SlotType.SCALAR, Unit("report", "json")),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
+                SlotSpec(
+                    "protected", SlotType.VECTOR, Unit("protected", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "covariates",
+                    SlotType.MATRIX,
+                    Unit("covariate", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
+                SlotSpec(
+                    "mediators",
+                    SlotType.MATRIX,
+                    Unit("mediator", "value"),
+                    shape=("n_obs", "n_mediators"),
+                ),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec("fairness_report", SlotType.SCALAR, Unit("report", "json")),
+            }
+        ),
         parameters=(
             ParameterSpec(name="protected_a0", default=0),
             ParameterSpec(name="protected_a1", default=1),
@@ -499,10 +538,17 @@ class TVFairnessDecomposer:
             "TV = DE + IE + SE causal fairness decomposition via doubly-robust AIPW. "
             "Plecko & Bareinboim (2022)."
         ),
-        tags=frozenset({
-            "causal", "fairness", "tv_decomposition", "aipw", "semiparametric",
-            "phase8", "discrimination",
-        }),
+        tags=frozenset(
+            {
+                "causal",
+                "fairness",
+                "tv_decomposition",
+                "aipw",
+                "semiparametric",
+                "phase8",
+                "discrimination",
+            }
+        ),
         citations=(
             "Plecko, D. & Bareinboim, E. (2022). Causal Fairness Analysis. ICML.",
             "Zhang, J. & Bareinboim, E. (2018). Fairness in Decision-Making. AAAI.",
@@ -583,8 +629,7 @@ class TVFairnessDecomposer:
 
         # TV SE via Welch approximation
         tv_se = math.sqrt(
-            float(np.var(Y[mask1], ddof=1)) / n1
-            + float(np.var(Y[mask0], ddof=1)) / n0
+            float(np.var(Y[mask1], ddof=1)) / n1 + float(np.var(Y[mask0], ddof=1)) / n0
         )
 
         if M is not None:
@@ -595,7 +640,10 @@ class TVFairnessDecomposer:
                 else [f"M{j}" for j in range(M.shape[1])]
             )
             de, de_se, ie, ie_se, ate, ate_se = _nde_nie_cross_fit(
-                Y, A_bin, M, X,
+                Y,
+                A_bin,
+                M,
+                X,
                 n_folds=n_folds,
                 min_propensity=min_prop,
                 rng=rng,
@@ -603,7 +651,9 @@ class TVFairnessDecomposer:
         else:
             # Without mediators: AIPW ATE
             mediator_names = []
-            de, de_se, ci = _aipw_ate(Y, A_bin, X, n_folds=n_folds, min_propensity=min_prop, rng=rng)
+            de, de_se, ci = _aipw_ate(
+                Y, A_bin, X, n_folds=n_folds, min_propensity=min_prop, rng=rng
+            )
             ie = 0.0
             ie_se = 0.0
 
@@ -675,15 +725,31 @@ class PathSpecificFairnessEstimator:
         name="path_specific_fairness",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-            SlotSpec("protected", SlotType.VECTOR, Unit("protected", "binary"), shape=("n_obs",)),
-            SlotSpec("covariates", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-            SlotSpec("mediators", SlotType.MATRIX, Unit("mediator", "value"), shape=("n_obs", "n_mediators")),
-        }),
-        output_slots=frozenset({
-            SlotSpec("fairness_report", SlotType.SCALAR, Unit("report", "json")),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
+                SlotSpec(
+                    "protected", SlotType.VECTOR, Unit("protected", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "covariates",
+                    SlotType.MATRIX,
+                    Unit("covariate", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
+                SlotSpec(
+                    "mediators",
+                    SlotType.MATRIX,
+                    Unit("mediator", "value"),
+                    shape=("n_obs", "n_mediators"),
+                ),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec("fairness_report", SlotType.SCALAR, Unit("report", "json")),
+            }
+        ),
         parameters=(
             ParameterSpec(name="graph_dot", default=""),
             ParameterSpec(name="protected_node", default="A"),
@@ -707,10 +773,16 @@ class PathSpecificFairnessEstimator:
             "Path-specific fairness: classify causal paths into fair/unfair and "
             "estimate path-specific effects (Zhang & Bareinboim 2018)."
         ),
-        tags=frozenset({
-            "causal", "fairness", "path_specific", "graph", "discrimination",
-            "phase8",
-        }),
+        tags=frozenset(
+            {
+                "causal",
+                "fairness",
+                "path_specific",
+                "graph",
+                "discrimination",
+                "phase8",
+            }
+        ),
         citations=(
             "Zhang, J. & Bareinboim, E. (2018). Fairness in Decision-Making — "
             "The Causal Explanation Formula. AAAI.",
@@ -727,9 +799,7 @@ class PathSpecificFairnessEstimator:
             "When you have a causal graph and can classify paths into legitimate "
             "(fair) and illegitimate (unfair) based on domain knowledge."
         ),
-        when_not_to_use=(
-            "When no causal graph is available; use TVFairnessDecomposer instead."
-        ),
+        when_not_to_use=("When no causal graph is available; use TVFairnessDecomposer instead."),
         typical_min_obs=200,
         output_interpretation=(
             "path_specific_fairness: dict of path → bool (True = fair). "
@@ -810,7 +880,10 @@ class PathSpecificFairnessEstimator:
                         col_idx = mediator_node_names.index(intermediate[0])
                     M_path = M[:, min(col_idx, M.shape[1] - 1)].reshape(-1, 1)
                     de, de_se, ie, ie_se, _, _ = _nde_nie_cross_fit(
-                        Y, A_bin, M_path, X,
+                        Y,
+                        A_bin,
+                        M_path,
+                        X,
                         n_folds=n_folds,
                         min_propensity=min_prop,
                         rng=rng,
@@ -917,14 +990,25 @@ class CounterfactualFairnessEstimator:
         name="counterfactual_fairness",
         namespace="",
         version="0.0.0",
-        input_slots=frozenset({
-            SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
-            SlotSpec("protected", SlotType.VECTOR, Unit("protected", "binary"), shape=("n_obs",)),
-            SlotSpec("covariates", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-        }),
-        output_slots=frozenset({
-            SlotSpec("fairness_report", SlotType.SCALAR, Unit("report", "json")),
-        }),
+        input_slots=frozenset(
+            {
+                SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"), shape=("n_obs",)),
+                SlotSpec(
+                    "protected", SlotType.VECTOR, Unit("protected", "binary"), shape=("n_obs",)
+                ),
+                SlotSpec(
+                    "covariates",
+                    SlotType.MATRIX,
+                    Unit("covariate", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
+            }
+        ),
+        output_slots=frozenset(
+            {
+                SlotSpec("fairness_report", SlotType.SCALAR, Unit("report", "json")),
+            }
+        ),
         parameters=(
             ParameterSpec(name="ncm_spec_json", default=None),
             ParameterSpec(name="counterfactual_gap_threshold", default=0.05),
@@ -948,10 +1032,18 @@ class CounterfactualFairnessEstimator:
             "Counterfactual fairness test: measure invariance of predictions to "
             "counterfactual changes in the protected attribute (Kusner et al. 2017)."
         ),
-        tags=frozenset({
-            "causal", "fairness", "counterfactual", "ncm", "l3",
-            "abduction", "individual_fairness", "phase8",
-        }),
+        tags=frozenset(
+            {
+                "causal",
+                "fairness",
+                "counterfactual",
+                "ncm",
+                "l3",
+                "abduction",
+                "individual_fairness",
+                "phase8",
+            }
+        ),
         citations=(
             "Kusner, M.J., Loftus, J., Russell, C. & Silva, R. (2017). "
             "Counterfactual Fairness. NeurIPS.",
@@ -1012,10 +1104,14 @@ class CounterfactualFairnessEstimator:
         n1, n0 = int(mask1.sum()), int(mask0.sum())
 
         tv = float(np.mean(Y[mask1]) - np.mean(Y[mask0])) if n1 > 0 and n0 > 0 else 0.0
-        tv_se = math.sqrt(
-            float(np.var(Y[mask1], ddof=1)) / max(n1, 1)
-            + float(np.var(Y[mask0], ddof=1)) / max(n0, 1)
-        ) if n1 > 1 and n0 > 1 else abs(tv) * 0.1
+        tv_se = (
+            math.sqrt(
+                float(np.var(Y[mask1], ddof=1)) / max(n1, 1)
+                + float(np.var(Y[mask0], ddof=1)) / max(n0, 1)
+            )
+            if n1 > 1 and n0 > 1
+            else abs(tv) * 0.1
+        )
 
         warnings: list[str] = []
 
@@ -1023,12 +1119,15 @@ class CounterfactualFairnessEstimator:
             # Full NCM path: delegate to NCMEngineMethod
             try:
                 from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+
                 ncm_state: dict[str, Any] = {
                     "ncm_spec": ncm_spec_json,
                     "evidence": {attr_name: A_raw.tolist(), "Y": Y.tolist()},
                     "interventions": [{attr_name: a1}, {attr_name: a0}],
                 }
-                ncm_result = NCMEngineMethod.pure_step(ncm_state, {"__seed__": params.get("__seed__")})
+                ncm_result = NCMEngineMethod.pure_step(
+                    ncm_state, {"__seed__": params.get("__seed__")}
+                )
                 y_cf_a1 = np.asarray(ncm_result.get("cf_mean_0", Y), dtype=float)
                 y_cf_a0 = np.asarray(ncm_result.get("cf_mean_1", Y), dtype=float)
             except Exception as e:
@@ -1064,6 +1163,7 @@ class CounterfactualFairnessEstimator:
         ks_p_value = 1.0
         try:
             from scipy import stats as scipy_stats
+
             ks_stat, ks_p_value = scipy_stats.ks_2samp(y_cf_a1, y_cf_a0)
         except ImportError:
             # Fallback: approximate via mean difference
@@ -1109,7 +1209,7 @@ class CounterfactualFairnessEstimator:
 
 
 __all__ = [
-    "TVFairnessDecomposer",
-    "PathSpecificFairnessEstimator",
     "CounterfactualFairnessEstimator",
+    "PathSpecificFairnessEstimator",
+    "TVFairnessDecomposer",
 ]

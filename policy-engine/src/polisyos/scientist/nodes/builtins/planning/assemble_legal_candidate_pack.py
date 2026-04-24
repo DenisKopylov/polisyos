@@ -1,4 +1,5 @@
 """Public planning assemble legal candidate pack module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -55,27 +56,42 @@ class AssembleLegalCandidatePackNode:
     `legal_candidate_pack_ref` plus the persisted candidate-pack artifact consumed
     by source expansion and verification.
     """
+
     @property
     def spec(self) -> NodeSpec:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        if state.legal_candidate_pack_ref is not None and ARTIFACT_LEGAL_CANDIDATE_PACK_REF in state.artifacts_index:
+        if (
+            state.legal_candidate_pack_ref is not None
+            and ARTIFACT_LEGAL_CANDIDATE_PACK_REF in state.artifacts_index
+        ):
             return NodeOutcome(status="ok", state=state)
 
-        raw_ref = state.policy_request_ref or state.artifacts_index.get(ARTIFACT_POLICY_REQUEST_FRAME_REF)
+        raw_ref = state.policy_request_ref or state.artifacts_index.get(
+            ARTIFACT_POLICY_REQUEST_FRAME_REF
+        )
         if raw_ref is None:
             return NodeOutcome(
                 status="skip",
                 state=state,
-                events=[NodeEvent(level="warn", message="Missing policy request frame; legal candidate pack skipped.")],
+                events=[
+                    NodeEvent(
+                        level="warn",
+                        message="Missing policy request frame; legal candidate pack skipped.",
+                    )
+                ],
             )
-        frame = load_policy_request_frame(ctx.store, PolicyRequestFrameRef.model_validate(raw_ref.model_dump()))
+        frame = load_policy_request_frame(
+            ctx.store, PolicyRequestFrameRef.model_validate(raw_ref.model_dump())
+        )
         pack = assemble_legal_candidate_pack(ctx, state, frame)
         inputs = [InputRef(artifact_id=raw_ref.artifact_id, role="policy_request_frame")]
         profile_ref = state.artifacts_index.get(ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF)
         if profile_ref is not None:
-            inputs.append(InputRef(artifact_id=profile_ref.artifact_id, role="cross_graph_evidence_profile"))
+            inputs.append(
+                InputRef(artifact_id=profile_ref.artifact_id, role="cross_graph_evidence_profile")
+            )
         pack_ref = persist_legal_candidate_pack(ctx.store, pack, inputs=inputs)
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.legal_candidate_pack_ref = pack_ref
@@ -88,7 +104,10 @@ class AssembleLegalCandidatePackNode:
                 NodeEvent(
                     level="info",
                     message="Legal candidate pack assembled.",
-                    attrs={"fact_hits": len(pack.fact_hits), "provision_hits": len(pack.provision_hits)},
+                    attrs={
+                        "fact_hits": len(pack.fact_hits),
+                        "provision_hits": len(pack.provision_hits),
+                    },
                 )
             ],
         )

@@ -2,15 +2,19 @@
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 from collections import Counter, defaultdict
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.batch_common.manifest import write_stage_manifest
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 _CONTESTED_DIRECTIONS = {"positive", "negative"}
 
@@ -26,7 +30,7 @@ def _load_jsonl(path: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     if not path.exists():
         return rows
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -75,7 +79,9 @@ def _resolution_for_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
     histogram = _direction_histogram(rows)
     positive = histogram.get("positive", 0)
     negative = histogram.get("negative", 0)
-    mixed = histogram.get("mixed", 0) + histogram.get("ambiguous", 0) + histogram.get("non_linear", 0)
+    mixed = (
+        histogram.get("mixed", 0) + histogram.get("ambiguous", 0) + histogram.get("non_linear", 0)
+    )
     if positive and negative:
         status = "contested"
         dominant_direction = "mixed"
@@ -93,9 +99,7 @@ def _resolution_for_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
         dominant_direction = ""
     if status == "resolved":
         runtime_support = "SUPPORTED" if len(rows) >= 2 else "MIXED"
-    elif status == "contested":
-        runtime_support = "MIXED"
-    elif status == "mixed":
+    elif status == "contested" or status == "mixed":
         runtime_support = "MIXED"
     else:
         runtime_support = "UNSUPPORTED"
@@ -125,8 +129,12 @@ def run_conflict_resolve(config: AcademicBatchConfig) -> dict[str, int]:
 
     grouped: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     for row in claim_rows:
-        cause = str(row.get("cause_text") or row.get("cause") or row.get("cause_variable") or "").strip()
-        effect = str(row.get("effect_text") or row.get("effect") or row.get("effect_variable") or "").strip()
+        cause = str(
+            row.get("cause_text") or row.get("cause") or row.get("cause_variable") or ""
+        ).strip()
+        effect = str(
+            row.get("effect_text") or row.get("effect") or row.get("effect_variable") or ""
+        ).strip()
         if not cause or not effect:
             continue
         grouped[(cause, effect)].append(row)
@@ -136,8 +144,20 @@ def run_conflict_resolve(config: AcademicBatchConfig) -> dict[str, int]:
     conflict_resolutions: list[dict[str, Any]] = []
     contested_sets = 0
     for (cause, effect), rows in sorted(grouped.items()):
-        claim_ids = sorted({str(row.get("claim_id") or "").strip() for row in rows if str(row.get("claim_id") or "").strip()})
-        work_ids = sorted({str(row.get("work_id") or row.get("openalex_id") or "").strip() for row in rows if str(row.get("work_id") or row.get("openalex_id") or "").strip()})
+        claim_ids = sorted(
+            {
+                str(row.get("claim_id") or "").strip()
+                for row in rows
+                if str(row.get("claim_id") or "").strip()
+            }
+        )
+        work_ids = sorted(
+            {
+                str(row.get("work_id") or row.get("openalex_id") or "").strip()
+                for row in rows
+                if str(row.get("work_id") or row.get("openalex_id") or "").strip()
+            }
+        )
         publishable_claims = 0
         supported_claims = 0
         best_confidence = 0.0
@@ -148,10 +168,15 @@ def run_conflict_resolve(config: AcademicBatchConfig) -> dict[str, int]:
                 publishable_claims += 1
             if str(adjudication.get("support_status") or "").strip().lower() == "supported":
                 supported_claims += 1
-            try:
-                best_confidence = max(best_confidence, float(row.get("claim_extraction_confidence") or adjudication.get("claim_validity_score") or 0.0))
-            except (TypeError, ValueError):
-                pass
+            with contextlib.suppress(TypeError, ValueError):
+                best_confidence = max(
+                    best_confidence,
+                    float(
+                        row.get("claim_extraction_confidence")
+                        or adjudication.get("claim_validity_score")
+                        or 0.0
+                    ),
+                )
         set_id = _stable_id("claimset", cause, effect)
         resolution = _resolution_for_rows(rows)
         claim_set = {

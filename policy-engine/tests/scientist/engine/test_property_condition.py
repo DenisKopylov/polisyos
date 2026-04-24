@@ -1,8 +1,9 @@
 """Property-based tests for condition evaluation."""
+
 from __future__ import annotations
 
 import pytest
-from hypothesis import given, settings, HealthCheck, assume
+from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
 from polisyos.scientist.engine.condition import (
@@ -52,6 +53,7 @@ def single_expressions(draw):
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
 
 @given(expr=single_expressions())
 @settings(max_examples=100, suppress_health_check=[HealthCheck.too_slow])

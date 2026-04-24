@@ -1,7 +1,9 @@
 """Estimate nonparametric regression, quantile intervals, and learned dynamics models."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -51,6 +53,7 @@ def _time_series_payload(state: Any) -> dict[str, Any]:
 )
 class GaussianProcessEstimator:
     """Fit smooth tabular regression with posterior uncertainty; avoid large `n_obs` or very high-dimensional inputs."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -60,7 +63,12 @@ class GaussianProcessEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "features",
+                    SlotType.MATRIX,
+                    Unit("feature", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
                 SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_obs",)),
             }
         ),
@@ -104,7 +112,9 @@ class GaussianProcessEstimator:
         kernel = RBF(length_scale=float(params.get("length_scale", 1.0))) + WhiteKernel(
             noise_level=float(params.get("noise_level", 0.05))
         )
-        model = GaussianProcessRegressor(kernel=kernel, normalize_y=True, random_state=int(params.get("__seed__", 0)))
+        model = GaussianProcessRegressor(
+            kernel=kernel, normalize_y=True, random_state=int(params.get("__seed__", 0))
+        )
         model.fit(np.asarray(data.features, dtype=float), np.asarray(data.target, dtype=float))
         predictions, std = model.predict(np.asarray(data.features, dtype=float), return_std=True)
         result = PredictionResult(
@@ -132,6 +142,7 @@ class GaussianProcessEstimator:
 )
 class QuantileForestEstimator:
     """Estimate conditional prediction intervals from forest quantiles; avoid expecting exact coverage guarantees without conformal calibration."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -141,7 +152,12 @@ class QuantileForestEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "features",
+                    SlotType.MATRIX,
+                    Unit("feature", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
                 SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_obs",)),
             }
         ),
@@ -180,9 +196,7 @@ class QuantileForestEstimator:
         tags=frozenset({"ml", "regression", "quantile-forest"}),
         truthfulness_scope="predictive_calibration",
         when_to_use="Tabular data; prediction intervals without distributional assumptions; heteroscedastic outcomes",
-        citations=(
-            "Meinshausen, N. (2006). Quantile regression forests. JMLR, 7, 983-999.",
-        ),
+        citations=("Meinshausen, N. (2006). Quantile regression forests. JMLR, 7, 983-999.",),
         when_not_to_use="Need exact coverage guarantees (use conformal prediction); very small datasets",
         output_interpretation="Ensemble mean = point prediction. Quantile bounds define prediction interval. Width reflects heteroscedasticity.",
         typical_min_obs=100,
@@ -218,7 +232,9 @@ class QuantileForestEstimator:
             target=np.asarray(data.target, dtype=float),
             feature_importances={
                 name: float(value)
-                for name, value in zip(_feature_names(data), np.asarray(model.feature_importances_, dtype=float))
+                for name, value in zip(
+                    _feature_names(data), np.asarray(model.feature_importances_, dtype=float)
+                )
             },
             model_info={"library": "scikit-learn", "estimator": "RandomForestRegressor"},
             metadata={"n_estimators": int(model.n_estimators)},
@@ -250,9 +266,7 @@ class QuantileForestEstimator:
                         "alpha": alpha,
                         "interval_constructor": "forest_quantiles",
                     },
-                    degradation_reasons=(
-                        "interval_not_conformally_calibrated",
-                    ),
+                    degradation_reasons=("interval_not_conformally_calibrated",),
                 ),
                 metadata={"base_method": "quantile_forest"},
             ),
@@ -267,6 +281,7 @@ class QuantileForestEstimator:
 )
 class NeuralODEEstimator:
     """Learn continuous-time trajectories from observed series; avoid purely discrete dynamics or very short time histories."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "scipy", "numpy")
 
@@ -298,9 +313,7 @@ class NeuralODEEstimator:
         description="Neural-ODE-inspired continuous-time dynamics learned via derivative matching and ODE integration.",
         tags=frozenset({"ml", "dynamics", "neural-ode"}),
         when_to_use="Continuous-time dynamics; irregular time series; systems with known ODE structure",
-        citations=(
-            "Chen, R. et al. (2018). Neural ordinary differential equations. NeurIPS, 31.",
-        ),
+        citations=("Chen, R. et al. (2018). Neural ordinary differential equations. NeurIPS, 31.",),
         when_not_to_use="Short time series (<6 obs); purely discrete processes; no temporal structure",
         output_interpretation="Fitted trajectory from ODE integration. Training score on derivative approximation. Residuals indicate model-data fit.",
         typical_min_obs=30,

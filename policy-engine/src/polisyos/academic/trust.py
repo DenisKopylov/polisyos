@@ -55,12 +55,7 @@ def compute_trust_score(
     n = sample_size or 0
     sample_score = min(n / 10_000, 1.0) if n > 0 else 0.0
 
-    score = (
-        design_score * 0.5
-        + citation_score * 0.25
-        + recency * 0.15
-        + sample_score * 0.1
-    )
+    score = design_score * 0.5 + citation_score * 0.25 + recency * 0.15 + sample_score * 0.1
     return min(max(score, 0.0), 1.0)
 
 

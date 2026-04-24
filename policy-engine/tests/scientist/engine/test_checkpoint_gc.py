@@ -34,6 +34,7 @@ def _make_ref(aid: str | None = None) -> ArtifactRef:
 
 # ── CheckpointGCPolicy ───────────────────────────────────────────────
 
+
 class TestCheckpointGCPolicy:
     def test_defaults(self) -> None:
         p = CheckpointGCPolicy()
@@ -62,9 +63,13 @@ class TestGCCheckpoints:
         # Write a head file
         ref = _make_ref()
         update_checkpoint_head(
-            tmp_path, run_id="r1", checkpoint_ref=ref,
-            sequence_number=0, node_alias="a",
-            writer_pid=os.getpid(), writer_hostname="test",
+            tmp_path,
+            run_id="r1",
+            checkpoint_ref=ref,
+            sequence_number=0,
+            node_alias="a",
+            writer_pid=os.getpid(),
+            writer_hostname="test",
         )
         policy = CheckpointGCPolicy(max_checkpoints=1)
         deleted = gc_checkpoints(tmp_path, policy=policy, current_head_ref=ref)
@@ -159,6 +164,7 @@ class TestGCCheckpoints:
 
 # ── Schema validation ────────────────────────────────────────────────
 
+
 class TestCheckpointSchemaValidation:
     def test_same_version_passes(self) -> None:
         _validate_checkpoint_schema("1.0", "1.0")
@@ -186,6 +192,7 @@ class TestCheckpointSchemaValidation:
 
 # ── Lock retry ────────────────────────────────────────────────────────
 
+
 class TestLockRetry:
     def test_single_attempt_default(self, tmp_path: Path) -> None:
         handle = acquire_run_lock(tmp_path, run_id="r1", mode="test")
@@ -209,8 +216,11 @@ class TestLockRetry:
 
         # Use real sleep so the lock has time to be released
         handle = acquire_run_lock(
-            tmp_path, run_id="r1", mode="test",
-            max_attempts=5, retry_delay_s=0.05,
+            tmp_path,
+            run_id="r1",
+            mode="test",
+            max_attempts=5,
+            retry_delay_s=0.05,
         )
         handle.release()
         t.join()
@@ -226,8 +236,11 @@ class TestLockRetry:
             with patch("polisyos.scientist.engine.checkpoint.time.sleep"):
                 with pytest.raises(RunLockError, match="already active"):
                     acquire_run_lock(
-                        tmp_path, run_id="r1", mode="test",
-                        max_attempts=2, retry_delay_s=0.01,
+                        tmp_path,
+                        run_id="r1",
+                        mode="test",
+                        max_attempts=2,
+                        retry_delay_s=0.01,
                     )
         finally:
             fcntl.flock(fd, fcntl.LOCK_UN)
@@ -236,13 +249,17 @@ class TestLockRetry:
 
 # ── FileSystemCheckpointStore ─────────────────────────────────────────
 
+
 class TestFileSystemCheckpointStore:
     def test_roundtrip(self, tmp_path: Path) -> None:
         store = FileSystemCheckpointStore(tmp_path)
         ref = _make_ref()
         head = CheckpointHead(
-            run_id="r1", checkpoint_ref=ref, sequence_number=0,
-            node_alias="step_a", writer_pid=os.getpid(),
+            run_id="r1",
+            checkpoint_ref=ref,
+            sequence_number=0,
+            node_alias="step_a",
+            writer_pid=os.getpid(),
             writer_hostname="test",
             updated_at="2026-01-01T00:00:00Z",
         )

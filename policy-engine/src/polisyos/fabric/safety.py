@@ -1,10 +1,11 @@
 """Shared Fabric safety helpers for identifiers, literals, paths, and JSON traversal."""
+
 from __future__ import annotations
 
-from typing import Any, Iterable
-from urllib.parse import quote
-
 import re
+from collections.abc import Iterable
+from typing import Any
+from urllib.parse import quote
 
 _SQL_IDENTIFIER_RE = re.compile(r"^[a-z_][a-z0-9_]*$")
 _SPARQL_VARIABLE_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")

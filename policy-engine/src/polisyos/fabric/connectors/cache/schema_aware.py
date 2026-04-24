@@ -1,7 +1,8 @@
 """Schema-aware cache helpers."""
+
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 from polisyos.fabric.connectors.base import FetchRequest, FetchResult
 from polisyos.fabric.connectors.contracts import ContractRegistry
@@ -41,4 +42,3 @@ def _connector_from_schema_id(schema_id: str) -> str | None:
     if len(parts) < 2:
         return None
     return ".".join(parts[:2])
-

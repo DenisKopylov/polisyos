@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import json
 import time
-from pathlib import Path
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
+
+type Path = Any
 
 from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot
 from polisyos.core.observability.determinism import DeterminismTier
@@ -24,6 +26,7 @@ from polisyos.foundry.methods.backends.runtime_fingerprint import (
     validate_observed_tolerance_budget,
     validate_observed_tolerance_budget_metrics,
 )
+from polisyos.foundry.methods.backends.validated import ValidatedStatus
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -51,15 +54,14 @@ from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.foundry.methods.selection import (
     DataCharacteristics,
     MethodAdvisorQuery,
-    MethodSelectionCriteria,
     MethodAdvisorResult,
+    MethodSelectionCriteria,
     advise_methods,
 )
 from polisyos.foundry.methods.selection_history import (
     MethodExecutionRecord,
     SelectionHistoryStore,
 )
-from polisyos.foundry.methods.backends.validated import ValidatedStatus
 from polisyos.ir.analytics.forecasting_uncertainty import ForecastingUncertaintyBundle
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
 from polisyos.synthetic_world import (
@@ -158,7 +160,9 @@ class _Phase0DispatchMethod:
         supports_vmap=False,
         supports_grad=False,
     )
-    metadata: ClassVar[MethodMetadata] = MethodMetadata(description="phase0 validation dispatch probe")
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description="phase0 validation dispatch probe"
+    )
 
     @staticmethod
     def pure_step(state: Any, params: Mapping[str, Any]) -> Any:
@@ -344,7 +348,9 @@ def _check_default_dispatch_equivalence() -> dict[str, Any]:
     try:
         set_default_equivalence_resolver(registry)
         dispatcher = MethodDispatcher.get_instance()
-        dispatcher._runtime_history = _history_with_numpy_advantage(_Phase0DispatchMethod.signature.fqn)
+        dispatcher._runtime_history = _history_with_numpy_advantage(
+            _Phase0DispatchMethod.signature.fqn
+        )
         dispatcher.register_runner(_ValidationRunner(ComputeBackend.JAX))
         dispatcher.register_runner(_ValidationRunner(ComputeBackend.NUMPY))
         result = dispatcher.dispatch(
@@ -411,9 +417,7 @@ def _check_synthetic_world_registry() -> dict[str, Any]:
     specs = phase0_seed_world_specs()
     binding = phase0_seed_benchmark_binding()
     calibrated_worlds = [
-        spec.world_id
-        for spec in specs
-        if bool(spec.metadata.get("calibrated_world"))
+        spec.world_id for spec in specs if bool(spec.metadata.get("calibrated_world"))
     ]
     ok = (
         len(specs) >= 1
@@ -512,7 +516,9 @@ def build_foundry_phase0_closure_report(
         _check_smoke_benchmark(benchmark_payload),
     ]
 
-    overall_status = "complete" if all(check["status"] == "complete" for check in checks) else "incomplete"
+    overall_status = (
+        "complete" if all(check["status"] == "complete" for check in checks) else "incomplete"
+    )
     return {
         "assessment_id": "foundry_phase0_closure",
         "phase_id": str(manifest.get("phase_id") or "foundry.phase0"),

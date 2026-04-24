@@ -1,4 +1,5 @@
 """Public testing numpy suite module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -12,6 +13,7 @@ from polisyos.foundry.methods.base import MethodSignature
 @dataclass(frozen=True, slots=True)
 class NumpySuiteResult:
     """Report whether a NumPy-backend output passed lightweight backend checks."""
+
     passed: bool
     message: str = ""
 

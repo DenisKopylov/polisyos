@@ -100,7 +100,9 @@ def test_compilation_skips_fast_governance(execution_context, minimal_state):
     assert outcome.state.params.get("cross_graph_evidence_expected") is False
 
 
-def test_compilation_enriches_profile_from_graph_prior_bundle(execution_context, minimal_state, cas_store):
+def test_compilation_enriches_profile_from_graph_prior_bundle(
+    execution_context, minimal_state, cas_store
+):
     graph_prior_bundle = GraphPriorBundle(
         high_confidence_edges=[
             PriorEdge(
@@ -345,9 +347,7 @@ def test_compilation_target_context_assertion_not_swallowed(
         CompileCrossGraphEvidenceNode().execute(execution_context, state)
 
 
-def test_compilation_uses_branch_state_for_declared_outputs(
-    execution_context, minimal_state
-):
+def test_compilation_uses_branch_state_for_declared_outputs(execution_context, minimal_state):
     state = minimal_state.model_copy(
         update={
             "params": {

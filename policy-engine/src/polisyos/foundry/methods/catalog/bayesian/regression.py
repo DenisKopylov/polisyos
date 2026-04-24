@@ -1,7 +1,9 @@
 """Estimate conjugate Bayesian regression models with posterior summaries."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -60,6 +62,7 @@ def _prediction_output_slots() -> frozenset[SlotSpec]:
 )
 class BayesianLinearRegressionEstimator:
     """Estimate linear-regression posteriors under Gaussian likelihood/priors; avoid strongly nonlinear responses without basis expansion."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     optional_deps: ClassVar[tuple[str, ...]] = ("arviz",)
@@ -70,7 +73,12 @@ class BayesianLinearRegressionEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("features", SlotType.MATRIX, Unit("feature", "value"), shape=("n_obs", "n_features")),
+                SlotSpec(
+                    "features",
+                    SlotType.MATRIX,
+                    Unit("feature", "value"),
+                    shape=("n_obs", "n_features"),
+                ),
                 SlotSpec("target", SlotType.VECTOR, Unit("target", "value"), shape=("n_obs",)),
             }
         ),
@@ -97,9 +105,7 @@ class BayesianLinearRegressionEstimator:
         declared_truthfulness_tier="asymptotic",
         truthfulness_scope="posterior",
         when_to_use="Regression with prior information; uncertainty quantification; small samples where frequentist CI unreliable",
-        citations=(
-            "Gelman, A. et al. (2013). Bayesian Data Analysis. 3rd ed. CRC Press.",
-        ),
+        citations=("Gelman, A. et al. (2013). Bayesian Data Analysis. 3rd ed. CRC Press.",),
         when_not_to_use="Very large datasets where MCMC is too slow; no interest in full posterior distribution",
         typical_min_obs=20,
         output_interpretation="Posterior distribution over coefficients. Credible interval: 95% probability parameter is in [a,b]. Posterior predictive for new observations.",
@@ -128,7 +134,9 @@ class BayesianLinearRegressionEstimator:
         ols_coef = np.linalg.pinv(design) @ y
         resid = y - design @ ols_coef
         sigma0 = max(float(np.std(resid, ddof=max(design.shape[1], 1))), 0.1)
-        initial = np.concatenate([np.asarray(ols_coef, dtype=float), np.array([np.log(sigma0)], dtype=float)])
+        initial = np.concatenate(
+            [np.asarray(ols_coef, dtype=float), np.array([np.log(sigma0)], dtype=float)]
+        )
 
         def log_density(theta: np.ndarray) -> float:
             beta = theta[:-1]
@@ -136,7 +144,9 @@ class BayesianLinearRegressionEstimator:
             sigma = float(np.exp(log_sigma))
             mean = design @ beta
             residual = y - mean
-            log_likelihood = -0.5 * np.sum((residual / sigma) ** 2 + 2.0 * log_sigma + np.log(2.0 * np.pi))
+            log_likelihood = -0.5 * np.sum(
+                (residual / sigma) ** 2 + 2.0 * log_sigma + np.log(2.0 * np.pi)
+            )
             log_prior_beta = -0.5 * np.sum((beta / prior_scale) ** 2)
             log_prior_scale = -0.5 * (log_sigma / prior_scale) ** 2
             return float(log_likelihood + log_prior_beta + log_prior_scale)

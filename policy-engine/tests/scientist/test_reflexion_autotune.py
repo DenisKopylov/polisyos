@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.scientist.agent.failure_card import FailureCard, FailureSeverity, FailureSource, RemediationTarget
+from polisyos.scientist.agent.failure_card import (
+    FailureCard,
+    FailureSeverity,
+    FailureSource,
+    RemediationTarget,
+)
 from polisyos.scientist.agent.reflexion import ReflexionDecision, ReflexionOrchestrator
 from polisyos.scientist.autotune import (
     BenchmarkEvaluation,
@@ -21,7 +26,9 @@ from polisyos.scientist.autotune.reflexion import (
 )
 
 
-def _failure_card(*, severity: FailureSeverity = FailureSeverity.RECOVERABLE, error_code: str = "schema_error") -> FailureCard:
+def _failure_card(
+    *, severity: FailureSeverity = FailureSeverity.RECOVERABLE, error_code: str = "schema_error"
+) -> FailureCard:
     return FailureCard(
         source_step=FailureSource.VALIDATOR_SCHEMA,
         run_id="run-1",
@@ -84,7 +91,9 @@ def test_reflexion_hard_rules_override_autotuned_routing(tmp_path, monkeypatch) 
     assert decision is ReflexionDecision.ABORT_WITH_REPORT
 
 
-def test_reflexion_replay_benchmark_promotes_better_recoverable_route(tmp_path, monkeypatch) -> None:
+def test_reflexion_replay_benchmark_promotes_better_recoverable_route(
+    tmp_path, monkeypatch
+) -> None:
     store_root = tmp_path / ".polisyos"
     monkeypatch.setenv("POLISYOS_CAS_ROOT", str(store_root))
     monkeypatch.setenv("POLISYOS_SEARCH_REGISTRY_ROOT", str(store_root / "search_registry"))
@@ -99,7 +108,9 @@ def test_reflexion_replay_benchmark_promotes_better_recoverable_route(tmp_path, 
             RecoverableRoutingDecision.RETURN_TO_DRAFTER.value: True,
         },
     )
-    suite_ref = persist_benchmark_suite(store, recorder.write_dataset(output_dir=tmp_path / "replay"))
+    suite_ref = persist_benchmark_suite(
+        store, recorder.write_dataset(output_dir=tmp_path / "replay")
+    )
     candidate_ref = persist_mutation_artifact(
         store,
         ReflexionRoutingConfig(
@@ -112,7 +123,9 @@ def test_reflexion_replay_benchmark_promotes_better_recoverable_route(tmp_path, 
         ),
     )
     evaluator = ReflexionRoutingEvaluator(store=store, registry=registry)
-    evaluation = evaluator.evaluate(candidate_ref, suite_ref, {"store": store, "registry": registry})
+    evaluation = evaluator.evaluate(
+        candidate_ref, suite_ref, {"store": store, "registry": registry}
+    )
     evaluation_ref = persist_benchmark_evaluation(store, evaluation)
     decision = registry.consider_promotion(
         "reflexion_routing",
@@ -138,7 +151,9 @@ def test_reflexion_unsafe_nonhuman_route_never_promotes(tmp_path) -> None:
         decision_outcomes={RecoverableRoutingDecision.RETURN_TO_DRAFTER.value: True},
         unsafe_for_nonhuman=True,
     )
-    suite_ref = persist_benchmark_suite(store, recorder.write_dataset(output_dir=tmp_path / "unsafe"))
+    suite_ref = persist_benchmark_suite(
+        store, recorder.write_dataset(output_dir=tmp_path / "unsafe")
+    )
     candidate_ref = persist_mutation_artifact(
         store,
         ReflexionRoutingConfig(
@@ -151,7 +166,9 @@ def test_reflexion_unsafe_nonhuman_route_never_promotes(tmp_path) -> None:
         ),
     )
     evaluator = ReflexionRoutingEvaluator(store=store, registry=registry)
-    evaluation = evaluator.evaluate(candidate_ref, suite_ref, {"store": store, "registry": registry})
+    evaluation = evaluator.evaluate(
+        candidate_ref, suite_ref, {"store": store, "registry": registry}
+    )
     evaluation_ref = persist_benchmark_evaluation(store, evaluation)
     decision = registry.consider_promotion(
         "reflexion_routing",

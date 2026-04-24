@@ -7,9 +7,8 @@ Verifies that compile_estimand:
 - Handles AIPW, DML, TMLE shapes correctly
 """
 
-import pytest
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../../../src"))
 
@@ -39,7 +38,7 @@ def _make_backdoor_ast(conditioning_size: int = 2) -> EstimandAST:
     root = SumNode(summation_vars=tuple(z_vars), operand=product)
     all_vars = ("Y", "T", *z_vars)
     return EstimandAST(
-        query_str=f"P(Y|do(T))",
+        query_str="P(Y|do(T))",
         outcome="Y",
         treatment="T",
         root=root,
@@ -61,9 +60,7 @@ class TestCrossFitInjection:
         node_ids = [n.node_id for n in graph.nodes]
         # After injection: fold variants or aggregator nodes should be present
         fold_related = [nid for nid in node_ids if "_fold_" in nid]
-        assert len(fold_related) > 0, (
-            f"Expected fold-variant nodes for n=500, got: {node_ids}"
-        )
+        assert len(fold_related) > 0, f"Expected fold-variant nodes for n=500, got: {node_ids}"
 
     def test_medium_n_uses_2_folds(self):
         """n=200 → n_folds=2."""
@@ -85,9 +82,7 @@ class TestCrossFitInjection:
     def test_use_cross_fitting_false_skips_injection(self):
         """use_cross_fitting=False → injection disabled regardless of n_obs."""
         ast = _make_backdoor_ast()
-        _, graph = compile_estimand(
-            ast, run_id="r4", n_obs=1000, use_cross_fitting=False
-        )
+        _, graph = compile_estimand(ast, run_id="r4", n_obs=1000, use_cross_fitting=False)
         fold_related = [n for n in graph.nodes if "_fold_" in n.node_id]
         assert fold_related == []
 
@@ -113,6 +108,7 @@ class TestCrossFitInjection:
     def test_proof_steps_preserved_after_injection(self):
         """Proof steps passed in are preserved through cross-fitting injection."""
         from polisyos.ir.analytics.evidence_bundle import ProofStep
+
         ast = _make_backdoor_ast()
         ps = ProofStep(
             rule_name="TEST",
@@ -121,7 +117,10 @@ class TestCrossFitInjection:
             graph_subset="G",
         )
         _, graph = compile_estimand(
-            ast, run_id="r7", n_obs=500, use_cross_fitting=True,
+            ast,
+            run_id="r7",
+            n_obs=500,
+            use_cross_fitting=True,
             proof_steps=(ps,),
         )
         assert len(graph.proof_steps) >= 1

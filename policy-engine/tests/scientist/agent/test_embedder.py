@@ -1,4 +1,5 @@
 """Tests for TFIDFEmbedder — WS5 neural search support."""
+
 from __future__ import annotations
 
 import math

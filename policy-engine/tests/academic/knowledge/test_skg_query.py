@@ -369,7 +369,9 @@ def test_query_parameters_can_bridge_approved_canonical_to_observed_raw_name(tmp
 
     query = SKGQuery(db_path=db_path, index_dir=tmp_path / "idx")
     try:
-        candidates = query.query_parameters("education.learning_outcomes", require_simulation_ready=False)
+        candidates = query.query_parameters(
+            "education.learning_outcomes", require_simulation_ready=False
+        )
     finally:
         query.close()
 
@@ -405,7 +407,7 @@ def test_query_parameters_prefers_simulation_ready_layer(tmp_path) -> None:
                 '{"context_id":"UA","income_level":"upper_middle"}',
                 "simulation_ready",
                 "confidence_interval",
-                '[]',
+                "[]",
             ],
         )
     finally:
@@ -550,7 +552,7 @@ def test_query_edge_support_can_bridge_runtime_canonical_to_observed_raw_edge(tm
                 '["W1","W2"]',
                 "rct",
                 0.88,
-                '[]',
+                "[]",
             ],
         )
         con.execute(

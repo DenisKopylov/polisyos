@@ -8,11 +8,15 @@ import shutil
 import socket
 import subprocess
 import sys
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.ukraine_data.manifests import PartAGateManifest, ServerCapabilityManifest, utc_now_iso
-from polisyos.ukraine_data.models import BuildRootConfig, ServerConfig
 from polisyos.ukraine_data.resources import free_disk_gib, total_ram_gib
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.ukraine_data.models import BuildRootConfig, ServerConfig
 
 
 class LocalExecutionBlockedError(RuntimeError):

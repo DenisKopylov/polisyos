@@ -4,18 +4,18 @@ import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.invariance import (
-    RegimeShiftDataSignature,
     RegimeShiftComputationalFeasibility,
+    RegimeShiftDataSignature,
     RegimeShiftEnvironmentRecord,
-    RegimeShiftIdentificationCertificate,
     RegimeShiftIdentifiabilityWitness,
+    RegimeShiftIdentificationCertificate,
     RegimeShiftMECContraction,
     RegimeShiftMECContractionEdgeUpdates,
     RegimeShiftMECContractionSummary,
     RegimeShiftSetTestResult,
+    RegimeShiftTargetResult,
     RegimeShiftTrack7InteractionStats,
     RegimeShiftTrack7Revalidation,
-    RegimeShiftTargetResult,
     RegimeShiftTypeAssessment,
     ShiftTypeAlphaSplit,
     ShiftTypeAssumptions,
@@ -50,9 +50,7 @@ def _certificate() -> RegimeShiftIdentificationCertificate:
             RegimeShiftTargetResult(
                 target="employment_rate",
                 envs_used=("pre", "post"),
-                accepted_sets=(
-                    RegimeShiftSetTestResult(S=("training_subsidy",), p_value=0.43),
-                ),
+                accepted_sets=(RegimeShiftSetTestResult(S=("training_subsidy",), p_value=0.43),),
                 rejected_sets=(RegimeShiftSetTestResult(S=(), p_value=0.001),),
                 estimated_parents=("training_subsidy",),
             ),
@@ -193,7 +191,9 @@ def test_regime_shift_certificate_rejects_unknown_target_env() -> None:
 def test_regime_shift_certificate_rejects_unknown_identifiability_witness_env() -> None:
     certificate = _certificate()
 
-    with pytest.raises(ValueError, match="identifiability_witness.informative_envs references unknown envs"):
+    with pytest.raises(
+        ValueError, match="identifiability_witness.informative_envs references unknown envs"
+    ):
         RegimeShiftIdentificationCertificate.model_validate(
             certificate.model_dump(mode="json")
             | {

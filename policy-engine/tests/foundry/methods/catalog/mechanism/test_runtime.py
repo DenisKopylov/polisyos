@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import numpy as np
 import pytest
 
 
@@ -12,6 +11,7 @@ def _minimal_runtime_state():
     """Create a GlobalState with .agents attribute to pass _coerce_runtime_state."""
     pytest.importorskip("jax")
     from polisyos.foundry.agent_sim.state import GlobalState
+
     return GlobalState.empty(n_agents=4, seed=42, max_agents=4)
 
 
@@ -38,15 +38,19 @@ class TestTaxSubsidyRuntime:
 class TestMechanismRegistration:
     """Verify all mechanism runtime methods are registered in the catalog."""
 
-    @pytest.mark.parametrize("fqn", [
-        "mechanism.runtime.tax_subsidy@1.0.0",
-        "mechanism.runtime.income_tax@1.0.0",
-        "mechanism.runtime.labor_market@1.0.0",
-        "mechanism.runtime.queue@1.0.0",
-        "mechanism.runtime.adaptive_agent@1.0.0",
-    ])
+    @pytest.mark.parametrize(
+        "fqn",
+        [
+            "mechanism.runtime.tax_subsidy@1.0.0",
+            "mechanism.runtime.income_tax@1.0.0",
+            "mechanism.runtime.labor_market@1.0.0",
+            "mechanism.runtime.queue@1.0.0",
+            "mechanism.runtime.adaptive_agent@1.0.0",
+        ],
+    )
     def test_registered(self, isolated_registry, fqn) -> None:
         from polisyos.foundry.methods.catalog import ensure_all_methods_registered
+
         ensure_all_methods_registered(isolated_registry)
         method = isolated_registry.get(fqn)
         assert hasattr(method, "pure_step")

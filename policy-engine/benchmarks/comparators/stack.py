@@ -18,7 +18,7 @@ class ComparatorSpec:
     distribution_name: str
 
 
-_COMPARATOR_CATALOG: "OrderedDict[str, ComparatorSpec]" = OrderedDict(
+_COMPARATOR_CATALOG: OrderedDict[str, ComparatorSpec] = OrderedDict(
     [
         ("econml", ComparatorSpec("econml", "econml", "econml")),
         ("zepid", ComparatorSpec("zepid", "zepid", "zepid")),
@@ -40,21 +40,21 @@ _COMPARATOR_CATALOG: "OrderedDict[str, ComparatorSpec]" = OrderedDict(
     ]
 )
 
-REQUIRED_ACCEPTANCE_COMPARATORS: "OrderedDict[str, str]" = OrderedDict(
+REQUIRED_ACCEPTANCE_COMPARATORS: OrderedDict[str, str] = OrderedDict(
     [
         (label, _COMPARATOR_CATALOG[label].distribution_name)
         for label in ("econml", "zepid", "stochtree", "dowhy", "y0", "lightgbm")
     ]
 )
 
-OPTIONAL_LEGACY_COMPARATORS: "OrderedDict[str, str]" = OrderedDict(
+OPTIONAL_LEGACY_COMPARATORS: OrderedDict[str, str] = OrderedDict(
     [
         ("bartpy", "bartpy"),
         ("pymc_bart", "pymc-bart"),
     ]
 )
 
-COMPARATOR_GROUPS: "OrderedDict[str, tuple[str, ...]]" = OrderedDict(
+COMPARATOR_GROUPS: OrderedDict[str, tuple[str, ...]] = OrderedDict(
     [
         (
             "effect_estimation_core",
@@ -156,10 +156,7 @@ def _resolve_labels(
 
 def all_comparator_distribution_names() -> dict[str, str]:
     """Return the full comparator catalog keyed by benchmark label."""
-    return {
-        label: spec.distribution_name
-        for label, spec in _COMPARATOR_CATALOG.items()
-    }
+    return {label: spec.distribution_name for label, spec in _COMPARATOR_CATALOG.items()}
 
 
 def comparator_labels_for_group(group_name: str) -> tuple[str, ...]:
@@ -181,10 +178,7 @@ def comparator_distribution_names(
         groups=groups,
         default_to_legacy_required=default_to_legacy_required,
     )
-    return {
-        label: _COMPARATOR_CATALOG[label].distribution_name
-        for label in labels
-    }
+    return {label: _COMPARATOR_CATALOG[label].distribution_name for label in labels}
 
 
 def comparator_required_modules(
@@ -199,10 +193,7 @@ def comparator_required_modules(
         groups=groups,
         default_to_legacy_required=default_to_legacy_required,
     )
-    return {
-        label: probe_comparator(label).available
-        for label in labels
-    }
+    return {label: probe_comparator(label).available for label in labels}
 
 
 def build_research_acceptance_comparator_status(
@@ -217,10 +208,7 @@ def build_research_acceptance_comparator_status(
         groups=groups,
         default_to_legacy_required=default_to_legacy_required,
     )
-    return {
-        label: _format_probe_status(probe_comparator(label))
-        for label in labels
-    }
+    return {label: _format_probe_status(probe_comparator(label)) for label in labels}
 
 
 def comparator_degraded_reasons(status: dict[str, Any]) -> list[str]:

@@ -1,4 +1,5 @@
 """Shared merge/checkpoint helpers for distributed runner tiers."""
+
 from __future__ import annotations
 
 import logging

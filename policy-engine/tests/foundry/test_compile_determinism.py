@@ -4,14 +4,14 @@ from decimal import Decimal
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.core.contracts.foundry import CompileRequest
+from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
-from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
+from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.types import SelectorOperator
 
@@ -71,7 +71,5 @@ def test_compile_determinism(tmp_path) -> None:
 
     assert result_a.exec_plan_ref is not None
     assert result_b.exec_plan_ref is not None
-    assert (
-        result_a.exec_plan_ref.artifact_id == result_b.exec_plan_ref.artifact_id
-    )
+    assert result_a.exec_plan_ref.artifact_id == result_b.exec_plan_ref.artifact_id
     assert _program_ref(result_a).artifact_id == _program_ref(result_b).artifact_id

@@ -59,7 +59,11 @@ from benchmarks.harness import (  # noqa: E402
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.DISCOVERY
@@ -74,7 +78,9 @@ def _norm_sf(z: float) -> float:
     """Upper-tail survival of standard normal (Abramowitz & Stegun)."""
     z = abs(z)
     t = 1.0 / (1.0 + 0.2316419 * z)
-    poly = t * (0.319381530 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))))
+    poly = t * (
+        0.319381530 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429)))
+    )
     return poly * math.exp(-0.5 * z * z)
 
 
@@ -89,13 +95,13 @@ def _welch_t_pvalue(a: np.ndarray, b: np.ndarray) -> float:
     denom = math.sqrt(va + vb + 1e-12)
     t_stat = abs(ma - mb) / denom
     # Welch-Satterthwaite degrees of freedom
-    df = ((va + vb) ** 2) / (va ** 2 / max(na - 1, 1) + vb ** 2 / max(nb - 1, 1))
+    df = ((va + vb) ** 2) / (va**2 / max(na - 1, 1) + vb**2 / max(nb - 1, 1))
     # Approximate t-distribution p-value via normal for large df
     if df > 100:
         return 2.0 * _norm_sf(t_stat)
     # For smaller df, use a rough approximation (conservative)
     # t_p ≈ 2 * norm_sf(t * sqrt(df/(df+t^2)))  — not great, acceptable
-    adjusted_z = t_stat * math.sqrt(df / (df + t_stat ** 2 + 1e-6))
+    adjusted_z = t_stat * math.sqrt(df / (df + t_stat**2 + 1e-6))
     return min(1.0, 2.0 * _norm_sf(adjusted_z))
 
 
@@ -119,11 +125,16 @@ def _compute_auroc(scores: np.ndarray, labels: np.ndarray) -> float:
 # Nodes: 0..7, topologically sorted.  True adj[i,j]=1 means i→j.
 _N8 = 8
 _TRUE_EDGES_8: list[tuple[int, int]] = [
-    (0, 1), (0, 2), (0, 3),
-    (1, 3), (1, 4),
-    (2, 4), (2, 5),
+    (0, 1),
+    (0, 2),
+    (0, 3),
+    (1, 3),
+    (1, 4),
+    (2, 4),
+    (2, 5),
     (3, 6),
-    (4, 6), (4, 7),
+    (4, 6),
+    (4, 7),
     (5, 7),
     (6, 7),
 ]
@@ -158,7 +169,9 @@ def _simulate_perturbational(
     for i, j in _TRUE_EDGES_8:
         coef[j, i] = rng.uniform(0.5, 1.0)  # X_j receives from X_i
 
-    def _sample(n_samples: int, intervened_node: int | None = None, intervention_val: float = 2.0) -> np.ndarray:
+    def _sample(
+        n_samples: int, intervened_node: int | None = None, intervention_val: float = 2.0
+    ) -> np.ndarray:
         data = np.zeros((n_samples, n))
         eps = rng.standard_normal((n_samples, n))
         for node in range(n):  # already in topological order 0..7
@@ -241,9 +254,7 @@ def _causalbench_case(
 
     def checker(r: CausalBenchResult) -> bool:
         if r.auroc < auroc_threshold:
-            raise AssertionError(
-                f"CausalBench AUROC={r.auroc:.3f} < {auroc_threshold}"
-            )
+            raise AssertionError(f"CausalBench AUROC={r.auroc:.3f} < {auroc_threshold}")
         return True
 
     return BenchmarkCase(

@@ -1,4 +1,5 @@
 """Public agent prompt module API."""
+
 import json
 
 from polisyos.ir.trinity import TrinityBundle

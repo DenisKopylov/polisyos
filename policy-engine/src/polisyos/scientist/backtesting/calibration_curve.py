@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -63,11 +63,13 @@ def compute_calibration_curve(
             if lo <= arr_true[i] <= hi:
                 covered += 1
         emp = covered / len(arr_true) if len(arr_true) > 0 else 0.0
-        points.append(CalibrationPoint(
-            nominal_level=level,
-            empirical_coverage=emp,
-            n_observations=len(arr_true),
-        ))
+        points.append(
+            CalibrationPoint(
+                nominal_level=level,
+                empirical_coverage=emp,
+                n_observations=len(arr_true),
+            )
+        )
 
     if not points:
         return CalibrationResult(points=[], ece=0.0, max_ce=0.0, is_well_calibrated=True)

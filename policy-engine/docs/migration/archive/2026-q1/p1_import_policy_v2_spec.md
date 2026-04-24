@@ -89,18 +89,18 @@ Known roots for P1:
 
 P1 matrix (target for `import_policy.toml` `version = "2"`):
 
-| source root | allowed target roots |
-| --- | --- |
-| `common` | `common` |
-| `ir` | `ir` |
-| `core` | `core`, `ir`, `common` |
-| `fabric` | `fabric`, `core`, `ir`, `common` |
-| `foundry` | `foundry`, `core`, `ir`, `common` |
-| `runtime` | `runtime`, `core`, `ir`, `common` |
-| `lex` | `lex`, `fabric`, `ir`, `core`, `common` |
-| `scholar` | `scholar`, `fabric`, `ir`, `core`, `common` |
+| source root | allowed target roots                                                                  |
+| ----------- | ------------------------------------------------------------------------------------- |
+| `common`    | `common`                                                                              |
+| `ir`        | `ir`                                                                                  |
+| `core`      | `core`, `ir`, `common`                                                                |
+| `fabric`    | `fabric`, `core`, `ir`, `common`                                                      |
+| `foundry`   | `foundry`, `core`, `ir`, `common`                                                     |
+| `runtime`   | `runtime`, `core`, `ir`, `common`                                                     |
+| `lex`       | `lex`, `fabric`, `ir`, `core`, `common`                                               |
+| `scholar`   | `scholar`, `fabric`, `ir`, `core`, `common`                                           |
 | `scientist` | `scientist`, `lex`, `scholar`, `foundry`, `fabric`, `runtime`, `core`, `ir`, `common` |
-| `packs` | `*` (transitional for P1, tighten in P2) |
+| `packs`     | `*` (transitional for P1, tighten in P2)                                              |
 
 Notes:
 
@@ -222,12 +222,12 @@ PR MUST fail when at least one of the following is true:
 
 ### 9.2 Workstream mapping
 
-| queue item | policy impact |
-| --- | --- |
-| `Q2` `lex <-> scientist` cycle | eliminates `ARCH001-0029..0032`, closes `CYCLE-003` |
-| `Q3` `core -> fabric/runtime` | eliminates `ARCH001-0033..0036` |
-| `Q5` `ir -> core` | eliminates `ARCH001-0001..0028` |
-| `CYCLE-001` | reduces package cycle debt in `core/fabric/ir/runtime` |
+| queue item                     | policy impact                                          |
+| ------------------------------ | ------------------------------------------------------ |
+| `Q2` `lex <-> scientist` cycle | eliminates `ARCH001-0029..0032`, closes `CYCLE-003`    |
+| `Q3` `core -> fabric/runtime`  | eliminates `ARCH001-0033..0036`                        |
+| `Q5` `ir -> core`              | eliminates `ARCH001-0001..0028`                        |
+| `CYCLE-001`                    | reduces package cycle debt in `core/fabric/ir/runtime` |
 
 ### 9.3 Exit criteria (P1 close on `2026-04-30`)
 
@@ -248,12 +248,12 @@ PR MUST fail when at least one of the following is true:
 
 ## 11. Risks and Mitigations
 
-| risk | impact | mitigation |
-| --- | --- | --- |
-| Over-broad exceptions become de-facto permanent | high | enforce 90-day cap, owner accountability, registry checks |
-| Policy/tool drift | high | treat TOML + linter + compare script as single contract in every PR |
-| Freeze fatigue from noisy baseline | medium | keep no-regression gate strict, prioritize high-severity queues only |
-| Hidden coupling via deep imports | high | maintain ARCH004/ARCH006 diff checks against baseline |
+| risk                                            | impact | mitigation                                                           |
+| ----------------------------------------------- | ------ | -------------------------------------------------------------------- |
+| Over-broad exceptions become de-facto permanent | high   | enforce 90-day cap, owner accountability, registry checks            |
+| Policy/tool drift                               | high   | treat TOML + linter + compare script as single contract in every PR  |
+| Freeze fatigue from noisy baseline              | medium | keep no-regression gate strict, prioritize high-severity queues only |
+| Hidden coupling via deep imports                | high   | maintain ARCH004/ARCH006 diff checks against baseline                |
 
 ## 12. Appendix A — Reference Policy v2 Skeleton
 

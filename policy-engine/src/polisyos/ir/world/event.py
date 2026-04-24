@@ -1,12 +1,11 @@
 """Provenance-event contracts for world graph agents, activities, inputs, and outputs."""
+
 from __future__ import annotations
 
-from datetime import datetime
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Annotated, Any
 
 from pydantic import BeforeValidator, Field, model_validator
-from typing_extensions import Annotated
 
 from polisyos.ir.kernel.base import (
     ARTIFACT_ID_PATTERN,
@@ -15,11 +14,17 @@ from polisyos.ir.kernel.base import (
     reject_floats_deep,
 )
 
+if TYPE_CHECKING:
+    from datetime import datetime
+else:
+    from datetime import datetime
+
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
 
 class EventKind(str, Enum):
     """Event kind public type."""
+
     FETCH_DOC = "fetch_doc"
     NORMALIZE_DOC = "normalize_doc"
     STRUCTURE_DOC = "structure_doc"
@@ -39,6 +44,7 @@ class EventKind(str, Enum):
 
 class ProvAgentType(str, Enum):
     """Prov agent type public type."""
+
     SYSTEM = "system"
     USER = "user"
     MODEL = "model"
@@ -50,6 +56,7 @@ class ProvAgentType(str, Enum):
 
 class ProvActivityType(str, Enum):
     """Prov activity type public type."""
+
     FETCH_DOC = "fetch_doc"
     NORMALIZE_DOC = "normalize_doc"
     STRUCTURE_DOC = "structure_doc"
@@ -69,6 +76,7 @@ class ProvActivityType(str, Enum):
 
 class ProvAgent(KernelModel):
     """Prov agent public type."""
+
     agent_id: str = Field(..., pattern=ID_PATTERN)
     agent_type: ProvAgentType
     label: str
@@ -81,6 +89,7 @@ class ProvAgent(KernelModel):
 
 class ProvActivity(KernelModel):
     """Prov activity public type."""
+
     activity_id: str = Field(..., pattern=ID_PATTERN)
     activity_type: ProvActivityType
     label: str
@@ -91,7 +100,7 @@ class ProvActivity(KernelModel):
     )
 
     @model_validator(mode="after")
-    def validate_activity(self) -> "ProvActivity":
+    def validate_activity(self) -> ProvActivity:
         if self.ended_at is not None and self.ended_at < self.started_at:
             raise ValueError("ended_at must be >= started_at")
         return self
@@ -99,11 +108,12 @@ class ProvActivity(KernelModel):
 
 class WorldObjectRef(KernelModel):
     """Point a provenance edge at either a world object id or the artifact that produced it."""
+
     world_id: str | None = Field(None, pattern=ID_PATTERN)
     artifact_id: str | None = Field(None, pattern=ARTIFACT_ID_PATTERN)
 
     @model_validator(mode="after")
-    def validate_ref(self) -> "WorldObjectRef":
+    def validate_ref(self) -> WorldObjectRef:
         if self.world_id is None and self.artifact_id is None:
             raise ValueError("WorldObjectRef requires world_id or artifact_id")
         return self
@@ -111,6 +121,7 @@ class WorldObjectRef(KernelModel):
 
 class WorldEvent(KernelModel):
     """Capture one immutable pipeline event after its ids, inputs, and outputs are stable enough to persist."""
+
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     event_id: str = Field(..., pattern=ID_PATTERN)
     event_kind: EventKind

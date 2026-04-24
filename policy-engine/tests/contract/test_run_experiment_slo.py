@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from contextlib import contextmanager
 import sys
 import types
+from contextlib import contextmanager
 
 import pytest
 
@@ -15,7 +15,7 @@ class _FakeSpan:
         self.statuses: list[object] = []
         self.exceptions: list[Exception] = []
 
-    def __enter__(self) -> "_FakeSpan":
+    def __enter__(self) -> _FakeSpan:
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
@@ -29,7 +29,7 @@ class _FakeSpan:
 
 
 class _FakeTracer:
-    def start_as_current_span(self, _name: str, attributes=None):  # noqa: ANN001
+    def start_as_current_span(self, _name: str, attributes=None):
         _ = attributes
         return _FakeSpan()
 
@@ -43,7 +43,7 @@ class _FakeMetrics:
         self.timed = 0
 
     @contextmanager
-    def time_slo_dag(self, _attrs):  # noqa: ANN001
+    def time_slo_dag(self, _attrs):
         self.timed += 1
         yield
 
@@ -103,7 +103,7 @@ def test_run_experiment_records_slo_error(monkeypatch) -> None:
     monkeypatch.setattr(scientist_api, "get_metrics", lambda: fake_metrics)
     monkeypatch.setattr(scientist_api, "get_tracer", lambda: _FakeTracer())
 
-    def _raise(_initial_state):  # noqa: ANN001
+    def _raise(_initial_state):
         raise RuntimeError("boom")
 
     stub_pkg = types.ModuleType("polisyos.scientist.workflows")

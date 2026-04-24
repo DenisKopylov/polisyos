@@ -97,7 +97,10 @@ def test_preflight_accepts_registry_provider_without_explicit_registry(
     assert any(item.code == "method_catalog.method_missing" for item in report.diagnostics)
 
 
-@pytest.mark.skipif(_Y0_INSTALLED, reason="y0 is installed — symbolic_identify is available, test verifies unavailable scenario")
+@pytest.mark.skipif(
+    _Y0_INSTALLED,
+    reason="y0 is installed — symbolic_identify is available, test verifies unavailable scenario",
+)
 def test_preflight_blocks_unavailable_symbolic_transport_method() -> None:
     ensure_causal_methods_registered()
     snapshot = build_method_catalog_snapshot(run_id="R_preflight")
@@ -149,7 +152,9 @@ def test_preflight_suggests_capability_aware_alternative_for_removed_wrapper() -
 
     report = preflight_execution_plan(plan, snapshot)
 
-    missing = next(item for item in report.diagnostics if item.code == "method_catalog.method_missing")
+    missing = next(
+        item for item in report.diagnostics if item.code == "method_catalog.method_missing"
+    )
     alternatives = [item["fqn"] for item in missing.data["alternative_methods"]]
     assert "optimization.linear.resource_lp@1.0.0" in alternatives
 

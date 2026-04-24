@@ -1,4 +1,5 @@
 """Public mechanisms labor module API."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -13,6 +14,7 @@ from polisyos.foundry.contracts.state import GlobalState
 
 class LaborMarketMechanism(ComplexMechanism):
     """Labor market mechanism public type."""
+
     employment_threshold: jnp.ndarray
 
     def __init__(
@@ -48,9 +50,7 @@ class LaborMarketMechanism(ComplexMechanism):
         employment_key, firm_key, next_key = jax.random.split(key, 3)
         employment_probs = jax.random.uniform(employment_key, shape=(n_agents,))
         new_is_employed = employment_probs < self.employment_threshold
-        firm_choices = jax.random.randint(
-            firm_key, shape=(n_agents,), minval=0, maxval=n_firms
-        )
+        firm_choices = jax.random.randint(firm_key, shape=(n_agents,), minval=0, maxval=n_firms)
         new_employer_ids = jnp.where(new_is_employed, firm_choices, -1)
 
         employed_firm_ids_safe = jnp.where(new_is_employed, new_employer_ids, 0)
@@ -77,9 +77,7 @@ class LaborMarketMechanism(ComplexMechanism):
         if active_mask is not None:
             count_mask = count_mask & active_mask
         employed_firm_ids = jnp.where(count_mask, effective_employer_ids, 0)
-        labor_counts = jax.ops.segment_sum(
-            count_mask.astype(jnp.int32), employed_firm_ids, n_firms
-        )
+        labor_counts = jax.ops.segment_sum(count_mask.astype(jnp.int32), employed_firm_ids, n_firms)
 
         if self.debug_mode:
             employed_rate = jnp.mean(new_is_employed)

@@ -1,6 +1,7 @@
 """
 Tests for FoundryMethod protocol compliance and @foundry_method decorator.
 """
+
 from __future__ import annotations
 
 from typing import NamedTuple
@@ -11,7 +12,6 @@ import pytest
 from polisyos.foundry.methods import (
     ComplexityClass,
     FidelityLevel,
-    FoundryMethod,
     LawViolationError,
     MethodDefinitionError,
     MethodMetadata,
@@ -218,6 +218,7 @@ class TestFoundryMethodDecorator:
 class TestDecoratorErrors:
     def test_rejects_missing_signature(self):
         with pytest.raises(MethodDefinitionError, match="missing 'signature'"):
+
             @foundry_method(namespace="test")
             class NoSignature:
                 @staticmethod
@@ -226,12 +227,14 @@ class TestDecoratorErrors:
 
     def test_rejects_missing_pure_step(self, base_signature: MethodSignature):
         with pytest.raises(MethodDefinitionError, match="missing 'pure_step'"):
+
             @foundry_method(namespace="test")
             class NoPureStep:
                 signature = base_signature
 
     def test_rejects_non_static_pure_step(self, base_signature: MethodSignature):
         with pytest.raises(MethodDefinitionError, match="@staticmethod"):
+
             @foundry_method(namespace="test")
             class InstanceMethod:
                 signature = base_signature
@@ -241,6 +244,7 @@ class TestDecoratorErrors:
 
     def test_rejects_wrong_signature_type(self):
         with pytest.raises(MethodDefinitionError, match="MethodSignature"):
+
             @foundry_method(namespace="test")
             class WrongType:
                 signature = {"not": "a signature"}
@@ -251,6 +255,7 @@ class TestDecoratorErrors:
 
     def test_error_message_includes_class_name(self, base_signature: MethodSignature):
         with pytest.raises(MethodDefinitionError, match="MyBrokenMethod"):
+
             @foundry_method(namespace="test")
             class MyBrokenMethod:
                 signature = base_signature
@@ -377,7 +382,7 @@ class TestJaxCompatibility:
 
             @staticmethod
             def pure_step(state: State, params: dict) -> State:
-                return State(x=state.x ** 2 * params["scale"])
+                return State(x=state.x**2 * params["scale"])
 
         def loss_fn(x, params):
             state = State(x=x)

@@ -3,6 +3,7 @@
 ML methods require TabularData Pydantic model.
 Structural placeholders for Phase 10b.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -10,7 +11,6 @@ import pytest
 
 @pytest.mark.benchmark
 class TestMLAccuracy:
-
     def test_elastic_net_placeholder(self):
         """Placeholder: ElasticNet requires TabularData."""
         pytest.skip("Requires TabularData model — deferred to Phase 10b")

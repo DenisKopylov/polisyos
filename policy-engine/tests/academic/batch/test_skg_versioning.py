@@ -57,8 +57,12 @@ def test_skg_version_manager_handle_retraction_removes_or_updates_edges() -> Non
             mgr = SKGVersionManager()
             report = mgr.handle_retraction(con, "W1")
 
-            row = con.execute("SELECT n_articles, article_refs FROM ac_skg_edges WHERE edge_id='e1'").fetchone()
-            article_row = con.execute("SELECT retracted FROM ac_skg_articles WHERE openalex_id='W1'").fetchone()
+            row = con.execute(
+                "SELECT n_articles, article_refs FROM ac_skg_edges WHERE edge_id='e1'"
+            ).fetchone()
+            article_row = con.execute(
+                "SELECT retracted FROM ac_skg_articles WHERE openalex_id='W1'"
+            ).fetchone()
         finally:
             con.close()
 

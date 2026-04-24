@@ -1,15 +1,39 @@
 import { useMemo } from "react";
 
-import { useChatStore, type ChatMessage, type StructuredResponseData } from "../state/useChatStore";
+import {
+  useChatStore,
+  type ChatMessage,
+  type StructuredResponseData,
+} from "../state/useChatStore";
 
 /** Domain ontology concepts for governed NL context. */
 const DOMAIN_CONCEPTS = [
   { pattern: /trinity\s*bundle/i, formal: "TrinityBundle", domain: "core" },
-  { pattern: /governance\s*pass/i, formal: "GovernancePass", domain: "governance" },
-  { pattern: /uncertainty\s*envelope/i, formal: "UncertaintyEnvelope", domain: "uncertainty" },
-  { pattern: /causal\s*(graph|model|dag)/i, formal: "CausalDAG", domain: "causal" },
-  { pattern: /treatment\s*effect/i, formal: "TreatmentEffect", domain: "causal" },
-  { pattern: /confidence\s*interval/i, formal: "ConfidenceInterval", domain: "statistics" },
+  {
+    pattern: /governance\s*pass/i,
+    formal: "GovernancePass",
+    domain: "governance",
+  },
+  {
+    pattern: /uncertainty\s*envelope/i,
+    formal: "UncertaintyEnvelope",
+    domain: "uncertainty",
+  },
+  {
+    pattern: /causal\s*(graph|model|dag)/i,
+    formal: "CausalDAG",
+    domain: "causal",
+  },
+  {
+    pattern: /treatment\s*effect/i,
+    formal: "TreatmentEffect",
+    domain: "causal",
+  },
+  {
+    pattern: /confidence\s*interval/i,
+    formal: "ConfidenceInterval",
+    domain: "statistics",
+  },
   { pattern: /decision\s*packet/i, formal: "DecisionPacket", domain: "output" },
   { pattern: /evidence\s*source/i, formal: "EvidenceSource", domain: "data" },
   { pattern: /policy\s*spec/i, formal: "PolicySpec", domain: "input" },
@@ -64,9 +88,7 @@ function generateContextualSuggestions(
   concepts: string[],
 ): string[] {
   const suggestions: string[] = [];
-  const lastSystem = [...messages]
-    .reverse()
-    .find((m) => m.role === "system");
+  const lastSystem = [...messages].reverse().find((m) => m.role === "system");
 
   if (lastSystem?.structured?.suggestions) {
     return lastSystem.structured.suggestions;

@@ -69,9 +69,7 @@ def _cmd_components_list(args: Any) -> int:
 
     if report.errors:
         for error in report.errors:
-            print(
-                f"discovery_error: {error.source}:{error.item or '<unknown>'}: {error.message}"
-            )
+            print(f"discovery_error: {error.source}:{error.item or '<unknown>'}: {error.message}")
     return 0
 
 

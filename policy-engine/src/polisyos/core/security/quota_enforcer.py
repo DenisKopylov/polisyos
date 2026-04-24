@@ -1,4 +1,5 @@
 """Quota enforcement for multi-tenant execution."""
+
 from __future__ import annotations
 
 import logging
@@ -15,14 +16,14 @@ _logger = logging.getLogger(__name__)
 
 class QuotaExceededError(Exception):
     """Raised when a tenant exceeds their resource quota."""
+
     def __init__(self, tenant_id: str, resource: str, limit: str, current: str) -> None:
         self.tenant_id = tenant_id
         self.resource = resource
         self.limit = limit
         self.current = current
         super().__init__(
-            f"Tenant {tenant_id!r} exceeded quota for {resource}: "
-            f"limit={limit}, current={current}"
+            f"Tenant {tenant_id!r} exceeded quota for {resource}: limit={limit}, current={current}"
         )
 
 
@@ -60,13 +61,15 @@ class QuotaEnforcer:
 
         if self._state.concurrent_runs >= self._limits.max_concurrent_runs:
             raise QuotaExceededError(
-                self._state.tenant_id, "concurrent_runs",
+                self._state.tenant_id,
+                "concurrent_runs",
                 str(self._limits.max_concurrent_runs),
                 str(self._state.concurrent_runs),
             )
         if self._state.daily_run_count >= self._limits.max_runs_per_day:
             raise QuotaExceededError(
-                self._state.tenant_id, "daily_runs",
+                self._state.tenant_id,
+                "daily_runs",
                 str(self._limits.max_runs_per_day),
                 str(self._state.daily_run_count),
             )
@@ -84,23 +87,26 @@ class QuotaEnforcer:
         self._emit_audit("QUOTA_RUN_END")
 
     def check_llm_spend(self, amount: Decimal) -> None:
-        """Pre-flight check: raises QuotaExceededError if spending *amount* would exceed limit in block mode."""
+        """Pre-flight check for whether spending *amount* would exceed block-mode limits."""
         self._state.maybe_reset_daily()
         projected = self._state.daily_llm_spend_usd + amount
         if projected > self._limits.max_llm_spend_usd_per_day:
             if self._limits.enforcement_mode == "block":
                 raise QuotaExceededError(
-                    self._state.tenant_id, "daily_llm_spend",
+                    self._state.tenant_id,
+                    "daily_llm_spend",
                     str(self._limits.max_llm_spend_usd_per_day),
                     str(projected),
                 )
             _logger.warning(
                 "Tenant %s would exceed daily LLM spend: %s > %s (warn mode)",
-                self._state.tenant_id, projected, self._limits.max_llm_spend_usd_per_day,
+                self._state.tenant_id,
+                projected,
+                self._limits.max_llm_spend_usd_per_day,
             )
 
     def check_storage_delta(self, delta_bytes: int) -> None:
-        """Pre-flight check: raises QuotaExceededError if adding *delta_bytes* would exceed limit in block mode."""
+        """Pre-flight check for whether *delta_bytes* would exceed block-mode limits."""
         if delta_bytes < 0:
             raise QuotaAccountingError(
                 "Negative storage deltas require the trusted release_storage() path"
@@ -109,13 +115,16 @@ class QuotaEnforcer:
         if projected > self._limits.max_storage_bytes:
             if self._limits.enforcement_mode == "block":
                 raise QuotaExceededError(
-                    self._state.tenant_id, "storage_bytes",
+                    self._state.tenant_id,
+                    "storage_bytes",
                     str(self._limits.max_storage_bytes),
                     str(projected),
                 )
             _logger.warning(
                 "Tenant %s would exceed storage quota: %s > %s (warn mode)",
-                self._state.tenant_id, projected, self._limits.max_storage_bytes,
+                self._state.tenant_id,
+                projected,
+                self._limits.max_storage_bytes,
             )
 
     def record_llm_spend(self, amount: Decimal) -> None:
@@ -125,7 +134,8 @@ class QuotaEnforcer:
         if self._state.daily_llm_spend_usd > self._limits.max_llm_spend_usd_per_day:
             if self._limits.enforcement_mode == "block":
                 raise QuotaExceededError(
-                    self._state.tenant_id, "daily_llm_spend",
+                    self._state.tenant_id,
+                    "daily_llm_spend",
                     str(self._limits.max_llm_spend_usd_per_day),
                     str(self._state.daily_llm_spend_usd),
                 )
@@ -146,7 +156,8 @@ class QuotaEnforcer:
         if self._state.storage_bytes_used > self._limits.max_storage_bytes:
             if self._limits.enforcement_mode == "block":
                 raise QuotaExceededError(
-                    self._state.tenant_id, "storage_bytes",
+                    self._state.tenant_id,
+                    "storage_bytes",
                     str(self._limits.max_storage_bytes),
                     str(self._state.storage_bytes_used),
                 )
@@ -168,7 +179,8 @@ class QuotaEnforcer:
         """Check if node count exceeds per-run limit."""
         if current_count > self._limits.max_nodes_per_run:
             raise QuotaExceededError(
-                self._state.tenant_id, "nodes_per_run",
+                self._state.tenant_id,
+                "nodes_per_run",
                 str(self._limits.max_nodes_per_run),
                 str(current_count),
             )
@@ -176,7 +188,8 @@ class QuotaEnforcer:
     def _emit_audit(self, action: str) -> None:
         if self._audit is not None:
             self._audit.append(
-                run_id="", actor="quota_enforcer",
+                run_id="",
+                actor="quota_enforcer",
                 action=action,
                 metadata={
                     "tenant_id": self._state.tenant_id,

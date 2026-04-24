@@ -1,4 +1,5 @@
 """Public normpack policies module API."""
+
 from __future__ import annotations
 
 DEFAULT_SELECTION_POLICY_ID = "lex.versioning_v1.effective_range_then_published_at"
@@ -69,9 +70,9 @@ __all__ = [
     "CONFLICT_TRUST_ALGORITHM_VERSION",
     "DEFAULT_CONFLICT_POLICY_ID",
     "DEFAULT_EXTRACTOR_ID",
+    "DEFAULT_INCLUDED_PROVISION_KINDS",
     "DEFAULT_INCLUDE_PARAGRAPH_PROVISIONS",
     "DEFAULT_INCLUDE_PART_PROVISIONS",
-    "DEFAULT_INCLUDED_PROVISION_KINDS",
     "DEFAULT_PREVIEW_LIMIT",
     "DEFAULT_SELECTION_POLICY_ID",
     "DEFAULT_TRUST_POLICY_ID",

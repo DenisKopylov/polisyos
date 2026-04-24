@@ -1,4 +1,5 @@
 """Normalize symbolic transport formulas and resolve the executable symbolic backend."""
+
 from __future__ import annotations
 
 import importlib
@@ -11,6 +12,7 @@ _VALID_SYMBOLIC_BACKEND_MODES: frozenset[str] = frozenset({"auto", "y0", "r", "f
 @dataclass(frozen=True)
 class SymbolicBackendResolution:
     """Record which symbolic backend was selected and why a fallback was needed."""
+
     requested: str
     selected: str | None
     order: tuple[str, ...]
@@ -20,6 +22,7 @@ class SymbolicBackendResolution:
 @dataclass(frozen=True)
 class NormalizedTransportFormula:
     """Store a transport estimand in backend-normalized text plus metadata form."""
+
     formula_str: str
     stratification_variables: tuple[str, ...]
     target_quantities: tuple[str, ...]
@@ -151,8 +154,8 @@ def _probe_r() -> tuple[bool, str | None]:
 __all__ = [
     "NormalizedTransportFormula",
     "SymbolicBackendResolution",
-    "normalize_transport_formula",
     "normalize_symbolic_backend_mode",
+    "normalize_transport_formula",
     "probe_backend_availability",
     "resolve_symbolic_backend",
 ]

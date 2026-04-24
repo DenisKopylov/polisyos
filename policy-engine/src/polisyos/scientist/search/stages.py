@@ -1,11 +1,12 @@
 """Public search stages module API."""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -22,7 +23,7 @@ logger = get_logger(__name__)
 class StageResult:
     """Result from a search stage evaluation."""
 
-    policy_candidate: Dict[str, Any]
+    policy_candidate: dict[str, Any]
     objective_value: float
     is_promising: bool
 
@@ -30,8 +31,8 @@ class StageResult:
     duration_seconds: float = 0.0
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
-    simulation_results: Dict[str, Any] = field(default_factory=dict)
-    feedback: Dict[str, Any] = field(default_factory=dict)
+    simulation_results: dict[str, Any] = field(default_factory=dict)
+    feedback: dict[str, Any] = field(default_factory=dict)
 
     predicted_score: float | None = None
     actual_score: float | None = None
@@ -49,8 +50,8 @@ class SearchStage(ABC):
     @abstractmethod
     def evaluate(
         self,
-        candidate: Dict[str, Any],
-        context: Dict[str, Any],
+        candidate: dict[str, Any],
+        context: dict[str, Any],
     ) -> StageResult:
         """
         Evaluate a policy candidate.
@@ -91,12 +92,12 @@ class CheapStage(SearchStage):
 
     def evaluate(
         self,
-        candidate: Dict[str, Any],
-        context: Dict[str, Any],
+        candidate: dict[str, Any],
+        context: dict[str, Any],
     ) -> StageResult:
         start = datetime.now(UTC)
 
-        issues: List[str] = []
+        issues: list[str] = []
         score = 0.0
 
         semantic = candidate.get("semantic", {})
@@ -128,8 +129,8 @@ class CheapStage(SearchStage):
 
     def _check_structure(
         self,
-        candidate: Dict[str, Any],
-        issues: List[str],
+        candidate: dict[str, Any],
+        issues: list[str],
     ) -> float:
         """Check policy structure completeness."""
         score = 0.0
@@ -152,8 +153,8 @@ class CheapStage(SearchStage):
 
     def _check_parameters(
         self,
-        interventions: List[Dict[str, Any]],
-        issues: List[str],
+        interventions: list[dict[str, Any]],
+        issues: list[str],
     ) -> float:
         """Check parameter sanity."""
         score = 0.0
@@ -175,9 +176,7 @@ class CheapStage(SearchStage):
 
                 if "rate" in key.lower() or "tax" in key.lower():
                     if value < 0 or value > 1:
-                        issues.append(
-                            f"Intervention {i}: {key}={value} outside [0,1]"
-                        )
+                        issues.append(f"Intervention {i}: {key}={value} outside [0,1]")
                         score += 0.5
 
                 if abs(value) > 1e6:
@@ -205,8 +204,8 @@ class ExpensiveStage(SearchStage):
 
     def evaluate(
         self,
-        candidate: Dict[str, Any],
-        context: Dict[str, Any],
+        candidate: dict[str, Any],
+        context: dict[str, Any],
     ) -> StageResult:
         start = datetime.now(UTC)
 
@@ -251,7 +250,7 @@ class ExpensiveStage(SearchStage):
             actual_score=objective,
         )
 
-    def _compute_default_objective(self, results: Dict[str, Any]) -> float:
+    def _compute_default_objective(self, results: dict[str, Any]) -> float:
         """Compute simple objective from simulation results."""
         gdp = results.get("gdp_change", 0.0)
         deficit = abs(min(results.get("gov_balance", 0.0), 0))
@@ -275,7 +274,7 @@ class CorrelationRecord:
     stage_b_approved: bool
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     is_sentinel: bool = False
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -285,7 +284,7 @@ class DriftAlert:
     code: str
     severity: str
     message: str
-    metrics: Dict[str, Any] = field(default_factory=dict)
+    metrics: dict[str, Any] = field(default_factory=dict)
     recommended_action: str | None = None
 
 
@@ -301,7 +300,7 @@ class CorrelationRecordSnapshot(BaseModel):
     stage_b_approved: bool
     timestamp: datetime
     is_sentinel: bool = False
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class CorrelationTrackerSnapshot(BaseModel):
@@ -316,7 +315,7 @@ class CorrelationTrackerSnapshot(BaseModel):
     promotion_ban_threshold: float
     false_negative_ceiling: float
     sentinel_pass_floor: float
-    records: List[CorrelationRecordSnapshot] = Field(default_factory=list)
+    records: list[CorrelationRecordSnapshot] = Field(default_factory=list)
 
 
 class CorrelationTracker:
@@ -337,7 +336,7 @@ class CorrelationTracker:
         false_negative_ceiling: float = 0.02,
         sentinel_pass_floor: float = 0.9,
     ):
-        self._records: List[CorrelationRecord] = []
+        self._records: list[CorrelationRecord] = []
         self._max_records = max_records
         self._drift_window_size = max(2, int(drift_window_size))
         self._spearman_warning_threshold = float(spearman_warning_threshold)
@@ -356,7 +355,7 @@ class CorrelationTracker:
         candidate_hash: str,
         *,
         is_sentinel: bool = False,
-        metadata: Dict[str, Any] | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """Record a correlation data point."""
         if stage_b_result is None:
@@ -404,11 +403,11 @@ class CorrelationTracker:
         self,
         *,
         window_size: int | None = None,
-    ) -> List[DriftAlert]:
+    ) -> list[DriftAlert]:
         records = self._window(window_size)
         metrics = self._metrics_for_records(records)
         sentinel_pass_rate = self.sentinel_pass_rate(window_size=len(records))
-        alerts: List[DriftAlert] = []
+        alerts: list[DriftAlert] = []
 
         spearman = float(metrics.get("spearman_correlation", 0.0))
         if spearman < self._promotion_ban_threshold:
@@ -429,8 +428,7 @@ class CorrelationTracker:
                     message="Cheap-to-expensive correlation dropped below warning threshold.",
                     metrics={"spearman_correlation": spearman},
                     recommended_action=(
-                        "Disable VOI and route survivors sequentially through "
-                        "medium fidelity."
+                        "Disable VOI and route survivors sequentially through medium fidelity."
                     ),
                 )
             )
@@ -476,7 +474,7 @@ class CorrelationTracker:
         self,
         *,
         window_size: int | None = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Compute legacy metrics plus drift-aware rolling-window fields."""
         if not self._records:
             return {
@@ -515,7 +513,7 @@ class CorrelationTracker:
             "routing_mode": self.routing_mode(),
         }
 
-    def records(self) -> List[CorrelationRecord]:
+    def records(self) -> list[CorrelationRecord]:
         return list(self._records)
 
     def to_snapshot(self) -> CorrelationTrackerSnapshot:
@@ -545,8 +543,8 @@ class CorrelationTracker:
     @classmethod
     def from_snapshot(
         cls,
-        snapshot: CorrelationTrackerSnapshot | Dict[str, Any],
-    ) -> "CorrelationTracker":
+        snapshot: CorrelationTrackerSnapshot | dict[str, Any],
+    ) -> CorrelationTracker:
         """Restore tracker state from a serialized snapshot."""
         payload = (
             snapshot
@@ -580,7 +578,7 @@ class CorrelationTracker:
         self,
         store: FileSystemCAS,
         *,
-        inputs: List[InputRef] | None = None,
+        inputs: list[InputRef] | None = None,
     ) -> ArtifactRef:
         """Persist the tracker snapshot to CAS."""
         return store.put_json(
@@ -602,7 +600,7 @@ class CorrelationTracker:
         cls,
         store: FileSystemCAS,
         ref: ArtifactRef | str,
-    ) -> "CorrelationTracker":
+    ) -> CorrelationTracker:
         """Load tracker state from CAS snapshot."""
         artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
         snapshot = CorrelationTrackerSnapshot.model_validate(
@@ -610,7 +608,7 @@ class CorrelationTracker:
         )
         return cls.from_snapshot(snapshot)
 
-    def to_jsonl_rows(self) -> List[Dict[str, Any]]:
+    def to_jsonl_rows(self) -> list[dict[str, Any]]:
         return [
             {
                 "candidate_hash": record.candidate_hash,
@@ -643,13 +641,13 @@ class CorrelationTracker:
             holdout_fraction=holdout_fraction,
         )
 
-    def _window(self, window_size: int | None) -> List[CorrelationRecord]:
+    def _window(self, window_size: int | None) -> list[CorrelationRecord]:
         resolved = self._drift_window_size if window_size is None else max(1, int(window_size))
         if len(self._records) <= resolved:
             return list(self._records)
         return self._records[-resolved:]
 
-    def _metrics_for_records(self, records: List[CorrelationRecord]) -> Dict[str, float]:
+    def _metrics_for_records(self, records: list[CorrelationRecord]) -> dict[str, float]:
         if not records:
             return {
                 "false_positive_rate": 0.0,
@@ -684,13 +682,13 @@ class CorrelationTracker:
         }
 
     @staticmethod
-    def _spearman(x: List[float], y: List[float]) -> float:
+    def _spearman(x: list[float], y: list[float]) -> float:
         """Compute Spearman rank correlation."""
         n = len(x)
         if n < 2:
             return 0.0
 
-        def rank(values: List[float]) -> List[float]:
+        def rank(values: list[float]) -> list[float]:
             sorted_idx = sorted(range(n), key=lambda i: values[i])
             ranks = [0.0] * n
             start = 0

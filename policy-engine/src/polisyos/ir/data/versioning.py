@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from datetime import UTC
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict
@@ -79,7 +80,7 @@ class DatasetVersion(BaseModel):
 # ---------------------------------------------------------------------------
 
 
-def compute_schema_hash(df: "pd.DataFrame") -> str:
+def compute_schema_hash(df: pd.DataFrame) -> str:
     """Return a 16-char hex hash of *df*'s schema (column names + dtypes).
 
     The hash is stable regardless of column order in *df*.
@@ -91,7 +92,7 @@ def compute_schema_hash(df: "pd.DataFrame") -> str:
     return hashlib.sha256(schema_repr.encode()).hexdigest()[:16]
 
 
-def compute_content_hash(df: "pd.DataFrame") -> str:
+def compute_content_hash(df: pd.DataFrame) -> str:
     """Return a 16-char hex hash of *df*'s content.
 
     Columns are sorted before serialisation so that the hash is stable
@@ -114,7 +115,7 @@ def compute_content_hash(df: "pd.DataFrame") -> str:
 
 
 def version_dataset(
-    df: "pd.DataFrame",
+    df: pd.DataFrame,
     dataset_ref: str,
     *,
     version_tag: str | None = None,
@@ -135,7 +136,7 @@ def version_dataset(
     DatasetVersion
         Frozen version record.
     """
-    from datetime import datetime, timezone  # noqa: PLC0415
+    from datetime import datetime
 
     return DatasetVersion(
         dataset_ref=dataset_ref,
@@ -143,14 +144,14 @@ def version_dataset(
         schema_hash=compute_schema_hash(df),
         n_obs=len(df),
         columns=tuple(df.columns),
-        created_at=datetime.now(timezone.utc).isoformat(),
+        created_at=datetime.now(UTC).isoformat(),
         version_tag=version_tag,
     )
 
 
 __all__ = [
     "DatasetVersion",
-    "compute_schema_hash",
     "compute_content_hash",
+    "compute_schema_hash",
     "version_dataset",
 ]

@@ -4,6 +4,7 @@ SQLite-backed metadata index for cache entries.
 Provides efficient lookup, filtering, and LRU eviction support for the
 connector cache store via a local SQLite database.
 """
+
 from __future__ import annotations
 
 import json
@@ -123,7 +124,7 @@ class CacheIndex:
         if self._closed:
             raise RuntimeError(f"CacheIndex is closed: {self._path}")
 
-    def __enter__(self) -> "CacheIndex":
+    def __enter__(self) -> CacheIndex:
         self._ensure_open()
         return self
 
@@ -333,9 +334,7 @@ class CacheIndex:
     def total_entries(self) -> int:
         with self._lock:
             self._ensure_open()
-            row = self._conn.execute(
-                "SELECT COUNT(*) AS count FROM cache_entries"
-            ).fetchone()
+            row = self._conn.execute("SELECT COUNT(*) AS count FROM cache_entries").fetchone()
         return int(row["count"] or 0) if row else 0
 
     def list_lru_candidates(self, limit: int, *, include_pinned: bool = False) -> list[CacheEntry]:

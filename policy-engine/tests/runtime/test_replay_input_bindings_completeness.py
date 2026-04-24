@@ -23,7 +23,12 @@ def _base_payload(store: FileSystemCAS):
     )
     program_graph_ref = _put_json(
         store,
-        {"nodes": [], "edges": [], "entrypoints": [], "lowered_ir_ref": str(lowered_ir_ref.artifact_id)},
+        {
+            "nodes": [],
+            "edges": [],
+            "entrypoints": [],
+            "lowered_ir_ref": str(lowered_ir_ref.artifact_id),
+        },
         kind="foundry.program_graph",
     )
     state_snapshot_ref = _put_json(store, {"state": {}}, kind="foundry.state_snapshot")
@@ -77,7 +82,9 @@ def _base_payload(store: FileSystemCAS):
 def test_replay_completeness_requires_input_bindings_ref(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     payload = _base_payload(store)
-    packet_ref = _put_json(store, {k: v for k, v in payload.items() if k != "_refs"}, kind="scientist.decision_packet")
+    packet_ref = _put_json(
+        store, {k: v for k, v in payload.items() if k != "_refs"}, kind="scientist.decision_packet"
+    )
 
     report = completeness_check(store, packet_ref.artifact_id)
 

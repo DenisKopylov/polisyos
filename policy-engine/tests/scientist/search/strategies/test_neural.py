@@ -1,4 +1,5 @@
 """Tests for NeuralSearchStrategy — WS5 neural search."""
+
 from __future__ import annotations
 
 import sys
@@ -62,7 +63,10 @@ class TestSuggestInitialSobol:
         assert candidate.params_normalized is not None
         assert "x" in candidate.params
         # Source should indicate sobol init
-        assert "sobol" in candidate.source_strategy.lower() or "neural" in candidate.source_strategy.lower()
+        assert (
+            "sobol" in candidate.source_strategy.lower()
+            or "neural" in candidate.source_strategy.lower()
+        )
 
 
 class TestWarmStart:
@@ -104,10 +108,7 @@ class TestGPBasedSuggest:
         strategy = NeuralSearchStrategy(space, config=config)
 
         # Provide enough evaluations to pass the initial phase
-        evals = [
-            _make_evaluation(x=i / 10.0, score=i * 0.1)
-            for i in range(1, 6)
-        ]
+        evals = [_make_evaluation(x=i / 10.0, score=i * 0.1) for i in range(1, 6)]
 
         candidate = strategy.suggest(evaluations=evals)
         assert isinstance(candidate, PolicyCandidate)

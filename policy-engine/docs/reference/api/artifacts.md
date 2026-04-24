@@ -1,10 +1,12 @@
 # Artifact Inspection API
+
 Related explanation: [Architecture](../../explanation/architecture.md).
 
 Freshness: 2026-04-17
 Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/routes/artifacts.py`, `src/polisyos/runtime/http/services/artifact_inspector.py`, `src/polisyos/runtime/http/response_policies.py`, `src/polisyos/core/artifacts/**`, and `schemas/runtime_api_v1.openapi.json`
 Validation:
+
 - `uv run pytest -q tests/runtime/http/test_artifact_inspector_api.py tests/runtime/http/test_artifact_inspector_service.py tests/runtime/http/test_runtime_api_authz.py`
 - `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_runtime_api_contract.py`
 
@@ -35,14 +37,14 @@ If the artifact does not exist or is not visible to the current tenant:
 
 ## Endpoint Summary
 
-| Method | Path | Response body | Notes |
-|--------|------|---------------|-------|
-| `POST` | `/api/v1/artifacts/batch` | `ArtifactBatchResponse` | Bulk manifest lookup for dashboard/operator clients |
-| `GET` | `/api/v1/artifacts/{artifact_id}` | `ArtifactManifestResponse` | Manifest metadata and references |
-| `GET` | `/api/v1/artifacts/{artifact_id}/content` | `ArtifactContentResponse` | Content preview, text/JSON decode, or binary preview |
-| `GET` | `/api/v1/artifacts/{artifact_id}/lineage` | `ArtifactLineageResponse` | Rooted lineage graph |
-| `GET` | `/api/v1/artifacts/{artifact_id}/schema` | `ArtifactSchemaResponse` | Schema metadata and schema ref |
-| `GET` | `/api/v1/artifacts/{artifact_id}/download` | raw bytes | OpenAPI-described raw download |
+| Method | Path                                       | Response body              | Notes                                                |
+| ------ | ------------------------------------------ | -------------------------- | ---------------------------------------------------- |
+| `POST` | `/api/v1/artifacts/batch`                  | `ArtifactBatchResponse`    | Bulk manifest lookup for dashboard/operator clients  |
+| `GET`  | `/api/v1/artifacts/{artifact_id}`          | `ArtifactManifestResponse` | Manifest metadata and references                     |
+| `GET`  | `/api/v1/artifacts/{artifact_id}/content`  | `ArtifactContentResponse`  | Content preview, text/JSON decode, or binary preview |
+| `GET`  | `/api/v1/artifacts/{artifact_id}/lineage`  | `ArtifactLineageResponse`  | Rooted lineage graph                                 |
+| `GET`  | `/api/v1/artifacts/{artifact_id}/schema`   | `ArtifactSchemaResponse`   | Schema metadata and schema ref                       |
+| `GET`  | `/api/v1/artifacts/{artifact_id}/download` | raw bytes                  | OpenAPI-described raw download                       |
 
 Committed OpenAPI status codes: `200`, `400`, `401`, `403`, `404`, `406`,
 `422`, `500`.

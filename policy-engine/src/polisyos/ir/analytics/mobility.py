@@ -1,4 +1,5 @@
 """Typed mobility report contract with Phase 2 attrition-aware extensions."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -16,7 +17,11 @@ if TYPE_CHECKING:
 
 
 def _default_artifact_name(schema_version: str) -> str:
-    return "mobility_report_v1.json" if str(schema_version).startswith("1.") else "mobility_report_v2.json"
+    return (
+        "mobility_report_v1.json"
+        if str(schema_version).startswith("1.")
+        else "mobility_report_v2.json"
+    )
 
 
 class MobilityModelSpec(KernelModel):
@@ -190,7 +195,7 @@ class MobilityReport(KernelModel):
         return payload
 
     @model_validator(mode="after")
-    def _fill_compatibility_views(self) -> "MobilityReport":
+    def _fill_compatibility_views(self) -> MobilityReport:
         expected_artifact_name = _default_artifact_name(self.schema_version)
         if self.artifact_name != expected_artifact_name and self.artifact_name == "":
             object.__setattr__(self, "artifact_name", expected_artifact_name)
@@ -198,12 +203,27 @@ class MobilityReport(KernelModel):
         summary_metrics = dict(self.summary_metrics)
         if self.point_estimate.transition_matrix and "transition_matrix" not in summary_metrics:
             summary_metrics["transition_matrix"] = self.point_estimate.transition_matrix
-        if "upward_mobility_rate" not in summary_metrics and "upward_rate" in self.point_estimate.mobility_stats:
-            summary_metrics["upward_mobility_rate"] = self.point_estimate.mobility_stats["upward_rate"]
-        if "downward_mobility_rate" not in summary_metrics and "downward_rate" in self.point_estimate.mobility_stats:
-            summary_metrics["downward_mobility_rate"] = self.point_estimate.mobility_stats["downward_rate"]
-        if "immobility_rate" not in summary_metrics and "immobility_rate" in self.point_estimate.mobility_stats:
-            summary_metrics["immobility_rate"] = self.point_estimate.mobility_stats["immobility_rate"]
+        if (
+            "upward_mobility_rate" not in summary_metrics
+            and "upward_rate" in self.point_estimate.mobility_stats
+        ):
+            summary_metrics["upward_mobility_rate"] = self.point_estimate.mobility_stats[
+                "upward_rate"
+            ]
+        if (
+            "downward_mobility_rate" not in summary_metrics
+            and "downward_rate" in self.point_estimate.mobility_stats
+        ):
+            summary_metrics["downward_mobility_rate"] = self.point_estimate.mobility_stats[
+                "downward_rate"
+            ]
+        if (
+            "immobility_rate" not in summary_metrics
+            and "immobility_rate" in self.point_estimate.mobility_stats
+        ):
+            summary_metrics["immobility_rate"] = self.point_estimate.mobility_stats[
+                "immobility_rate"
+            ]
         if "n_classes" not in summary_metrics:
             n_classes = 0
             if self.point_estimate.transition_matrix:
@@ -228,13 +248,13 @@ class MobilityReport(KernelModel):
 
 
 def persist_mobility_report(
-    store: "ArtifactStore",
+    store: ArtifactStore,
     report: MobilityReport,
     *,
-    inputs: list["InputRef"] | None = None,
+    inputs: list[InputRef] | None = None,
     schema_name: str = "ir.mobility_report",
     schema_version: str | None = None,
-) -> "MobilityReportRef":
+) -> MobilityReportRef:
     """Persist a mobility report and return its typed ref."""
 
     from polisyos.ir.artifacts.io import put_json_artifact
@@ -254,8 +274,8 @@ def persist_mobility_report(
 
 
 def load_mobility_report(
-    store: "ArtifactStore",
-    ref: "MobilityReportRef",
+    store: ArtifactStore,
+    ref: MobilityReportRef,
 ) -> MobilityReport:
     """Load a persisted mobility report."""
 

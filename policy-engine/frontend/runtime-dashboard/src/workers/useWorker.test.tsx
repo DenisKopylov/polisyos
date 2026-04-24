@@ -22,7 +22,8 @@ describe("useWorker", () => {
   it("delivers worker messages to the latest callback after rerender", () => {
     const worker = createMockWorker<string>();
     const createWorker = vi.fn(
-      () => worker as unknown as Worker & { postMessage(message: string): void },
+      () =>
+        worker as unknown as Worker & { postMessage(message: string): void },
     );
     const initialHandler = vi.fn();
     const updatedHandler = vi.fn();

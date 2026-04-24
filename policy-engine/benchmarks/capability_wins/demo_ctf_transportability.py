@@ -57,18 +57,22 @@ for _p in [str(_SRC), str(_BENCH_ROOT)]:
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+from benchmarks.capability_wins.capability_proof import (  # noqa: E402
+    CapabilityProofSpec,
+    build_capability_report_extra,
+    make_gap_row,
+)
 from benchmarks.harness import (  # noqa: E402
     BenchmarkCase,
     BenchmarkCircuit,
     BenchmarkHarness,
     BenchmarkReport,
 )
-from benchmarks.capability_wins.capability_proof import (  # noqa: E402
-    CapabilityProofSpec,
-    build_capability_report_extra,
-    make_gap_row,
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
 )
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
 from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.CAPABILITY_WINS
@@ -86,6 +90,7 @@ def _graph_imports():
         EdgeMark,
         GraphType,
     )
+
     return CausalEdge, CausalGraphModel, EdgeMark, GraphType
 
 
@@ -98,12 +103,17 @@ def _ctf_imports():
         CtfQuery,
         IdentificationStatus,
     )
-    from polisyos.ir.analytics.transportability import SNode
     from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
+    from polisyos.ir.analytics.transportability import SNode
+
     return (
-        build_ctf_selection_diagram, ctf_transportability,
-        CtfQuery, IdentificationStatus,
-        SNode, BlockingType, NegativeCertificate,
+        build_ctf_selection_diagram,
+        ctf_transportability,
+        CtfQuery,
+        IdentificationStatus,
+        SNode,
+        BlockingType,
+        NegativeCertificate,
     )
 
 
@@ -153,6 +163,7 @@ def _build_chain():
 
 def _snode(variable: str):
     from polisyos.ir.analytics.transportability import SNode
+
     return SNode(
         target_variable=variable,
         context_dimension="mechanism_shift",
@@ -173,9 +184,13 @@ def _case_pn_transport_identified() -> BenchmarkCase:
 
     def runner():
         (
-            build_ctf_selection_diagram, ctf_transportability,
-            CtfQuery, IdentificationStatus,
-            SNode, BlockingType, NegativeCertificate,
+            build_ctf_selection_diagram,
+            ctf_transportability,
+            CtfQuery,
+            IdentificationStatus,
+            SNode,
+            BlockingType,
+            NegativeCertificate,
         ) = _ctf_imports()
 
         graph = _build_xy_dag()
@@ -202,9 +217,7 @@ def _case_pn_transport_identified() -> BenchmarkCase:
         # Verify CTF proof step present
         rule_names = {s.rule_name for s in r.proof_steps}
         if "CTF_TRANSPORT_START" not in rule_names:
-            raise AssertionError(
-                f"CTF_TRANSPORT_START not in proof steps: {sorted(rule_names)}"
-            )
+            raise AssertionError(f"CTF_TRANSPORT_START not in proof steps: {sorted(rule_names)}")
         return True
 
     return BenchmarkCase(
@@ -222,9 +235,13 @@ def _case_single_world_l2_reduction() -> BenchmarkCase:
 
     def runner():
         (
-            build_ctf_selection_diagram, ctf_transportability,
-            CtfQuery, IdentificationStatus,
-            SNode, BlockingType, NegativeCertificate,
+            build_ctf_selection_diagram,
+            ctf_transportability,
+            CtfQuery,
+            IdentificationStatus,
+            SNode,
+            BlockingType,
+            NegativeCertificate,
         ) = _ctf_imports()
 
         # Minimal DAG: X and Y, no edges (independence → L2 trivially identified)
@@ -271,9 +288,13 @@ def _case_bow_arc_non_transportable() -> BenchmarkCase:
 
     def runner():
         (
-            build_ctf_selection_diagram, ctf_transportability,
-            CtfQuery, IdentificationStatus,
-            SNode, BlockingType, NegativeCertificate,
+            build_ctf_selection_diagram,
+            ctf_transportability,
+            CtfQuery,
+            IdentificationStatus,
+            SNode,
+            BlockingType,
+            NegativeCertificate,
         ) = _ctf_imports()
 
         graph = _build_bow_arc()
@@ -287,7 +308,7 @@ def _case_bow_arc_non_transportable() -> BenchmarkCase:
         return result
 
     def checker(r) -> bool:
-        from polisyos.ir.analytics.negative_certificate import NegativeCertificate, BlockingType
+        from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
 
         if not isinstance(r, NegativeCertificate):
             raise AssertionError(
@@ -320,9 +341,13 @@ def _case_chain_s_on_mediator_identified() -> BenchmarkCase:
 
     def runner():
         (
-            build_ctf_selection_diagram, ctf_transportability,
-            CtfQuery, IdentificationStatus,
-            SNode, BlockingType, NegativeCertificate,
+            build_ctf_selection_diagram,
+            ctf_transportability,
+            CtfQuery,
+            IdentificationStatus,
+            SNode,
+            BlockingType,
+            NegativeCertificate,
         ) = _ctf_imports()
 
         graph = _build_chain()
@@ -376,7 +401,9 @@ def build_ctf_transportability_harness() -> BenchmarkHarness:
 # ---------------------------------------------------------------------------
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     extra = build_capability_report_extra(
         report,
         CapabilityProofSpec(
@@ -386,12 +413,45 @@ def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, 
             },
             claim_profile_targets=("frontier_frontier_claim", "full_stack_publication_claim"),
             competitor_gap=(
-                make_gap_row("y0", "ctf_transport_end_to_end", status="partial", note="Counterfactual transport is documented, but full bounded/audited workflow remains incomplete.", level="audit_trace"),
-                make_gap_row("dowhy", "layer3_transport", status="fail", note="No Layer-3 counterfactual transport workflow.", level="identifiable"),
-                make_gap_row("econml", "counterfactual_transport", status="fail", note="No symbolic counterfactual transport layer.", level="expressible"),
-                make_gap_row("causalpy", "counterfactual_transport", status="fail", note="No Layer-3 transport workflow.", level="identifiable"),
+                make_gap_row(
+                    "y0",
+                    "ctf_transport_end_to_end",
+                    status="partial",
+                    note="Counterfactual transport is documented, but full bounded/audited workflow remains incomplete.",
+                    level="audit_trace",
+                ),
+                make_gap_row(
+                    "dowhy",
+                    "layer3_transport",
+                    status="fail",
+                    note="No Layer-3 counterfactual transport workflow.",
+                    level="identifiable",
+                ),
+                make_gap_row(
+                    "econml",
+                    "counterfactual_transport",
+                    status="fail",
+                    note="No symbolic counterfactual transport layer.",
+                    level="expressible",
+                ),
+                make_gap_row(
+                    "causalpy",
+                    "counterfactual_transport",
+                    status="fail",
+                    note="No Layer-3 transport workflow.",
+                    level="identifiable",
+                ),
             ),
-            workflow_levels={level: "PASS" for level in ("expressible", "identifiable", "estimable_or_bounded", "audit_trace", "reproducible")},
+            workflow_levels={
+                level: "PASS"
+                for level in (
+                    "expressible",
+                    "identifiable",
+                    "estimable_or_bounded",
+                    "audit_trace",
+                    "reproducible",
+                )
+            },
         ),
     )
     return build_report_payload(

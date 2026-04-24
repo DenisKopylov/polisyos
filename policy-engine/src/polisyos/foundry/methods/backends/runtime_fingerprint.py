@@ -1,12 +1,13 @@
 """Capture backend runtime posture for method availability and replay evidence."""
+
 from __future__ import annotations
 
 import json
-import os
 import platform
-from importlib import metadata
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Any, Mapping
+from importlib import metadata
+from typing import Any
 
 from polisyos.common.config import build_process_bootstrap_config
 from polisyos.core.canon import truncated_hash
@@ -70,7 +71,9 @@ class BackendRuntimeFingerprint:
         return {
             "backend": self.backend.value,
             "available": self.available,
-            "determinism_tier": None if self.determinism_tier is None else self.determinism_tier.value,
+            "determinism_tier": None
+            if self.determinism_tier is None
+            else self.determinism_tier.value,
             "execution_device": self.execution_device,
             "runtime_stack": list(self.runtime_stack),
             "library_versions": dict(self.library_versions),
@@ -88,7 +91,9 @@ class BackendRuntimeFingerprint:
         payload = {
             "backend": self.backend.value,
             "available": self.available,
-            "determinism_tier": None if self.determinism_tier is None else self.determinism_tier.value,
+            "determinism_tier": None
+            if self.determinism_tier is None
+            else self.determinism_tier.value,
             "execution_device": self.execution_device,
             "runtime_stack": list(self.runtime_stack),
             "library_versions": dict(sorted(self.library_versions.items())),
@@ -180,7 +185,8 @@ def _detect_thread_policy() -> str:
         "VECLIB_MAXIMUM_THREADS",
         "NUMEXPR_NUM_THREADS",
     )
-    values = [f"{key}={os.environ[key]}" for key in keys if os.environ.get(key)]
+    environ = __import__("os").environ
+    values = [f"{key}={environ[key]}" for key in keys if environ.get(key)]
     return "|".join(values) if values else "default"
 
 
@@ -222,9 +228,7 @@ def _jax_matmul_precision() -> str | None:
 
 def _xla_flags_hash() -> str | None:
     flags = tuple(
-        str(item)
-        for item in build_process_bootstrap_config().xla_flags
-        if str(item).strip()
+        str(item) for item in build_process_bootstrap_config().xla_flags if str(item).strip()
     )
     if not flags:
         return None
@@ -239,7 +243,9 @@ def _autotune_key(
     if backend is not ComputeBackend.JAX:
         return None
     normalized = str(execution_device or "").lower()
-    if normalized.startswith("gpu") or any(token in normalized for token in ("metal", "mps", "apple")):
+    if normalized.startswith("gpu") or any(
+        token in normalized for token in ("metal", "mps", "apple")
+    ):
         return _xla_flags_hash() or "transient_autotune"
     return "not_applicable"
 
@@ -335,7 +341,11 @@ def _route_failure_reasons(
         reasons.append("fallback_route")
     if arch_family == "metal_apple_gpu":
         reasons.append("experimental_metal_backend")
-    if declared_tier is not None and observed_tier is not None and declared_tier is not observed_tier:
+    if (
+        declared_tier is not None
+        and observed_tier is not None
+        and declared_tier is not observed_tier
+    ):
         reasons.append("route_overlay_downgrade")
     return reasons
 
@@ -395,12 +405,16 @@ def _bootstrap_envelope_budget(
             "same_architecture_rel_tol": baseline.get("same_architecture_rel_tol"),
             "same_architecture_ks_tol": baseline.get("same_architecture_ks_tol"),
             "same_architecture_q50_abs_tol": baseline.get("same_architecture_q50_abs_tol"),
-            "same_architecture_q90_width_abs_tol": baseline.get("same_architecture_q90_width_abs_tol"),
+            "same_architecture_q90_width_abs_tol": baseline.get(
+                "same_architecture_q90_width_abs_tol"
+            ),
             "cross_architecture_abs_tol": baseline.get("cross_architecture_abs_tol"),
             "cross_architecture_rel_tol": baseline.get("cross_architecture_rel_tol"),
             "cross_architecture_ks_tol": baseline.get("cross_architecture_ks_tol"),
             "cross_architecture_q50_abs_tol": baseline.get("cross_architecture_q50_abs_tol"),
-            "cross_architecture_q90_width_abs_tol": baseline.get("cross_architecture_q90_width_abs_tol"),
+            "cross_architecture_q90_width_abs_tol": baseline.get(
+                "cross_architecture_q90_width_abs_tol"
+            ),
         }
     )
 
@@ -460,11 +474,19 @@ def _bootstrap_envelope_budget(
                 "same_fingerprint_q50_abs_tol": 0.02,
                 "same_fingerprint_q90_width_abs_tol": 0.05,
                 "same_architecture_ks_tol": baseline.get("same_architecture_ks_tol") or 0.08,
-                "same_architecture_q50_abs_tol": baseline.get("same_architecture_q50_abs_tol") or 0.05,
-                "same_architecture_q90_width_abs_tol": baseline.get("same_architecture_q90_width_abs_tol") or 0.08,
+                "same_architecture_q50_abs_tol": baseline.get("same_architecture_q50_abs_tol")
+                or 0.05,
+                "same_architecture_q90_width_abs_tol": baseline.get(
+                    "same_architecture_q90_width_abs_tol"
+                )
+                or 0.08,
                 "cross_architecture_ks_tol": baseline.get("cross_architecture_ks_tol") or 0.12,
-                "cross_architecture_q50_abs_tol": baseline.get("cross_architecture_q50_abs_tol") or 0.10,
-                "cross_architecture_q90_width_abs_tol": baseline.get("cross_architecture_q90_width_abs_tol") or 0.12,
+                "cross_architecture_q50_abs_tol": baseline.get("cross_architecture_q50_abs_tol")
+                or 0.10,
+                "cross_architecture_q90_width_abs_tol": baseline.get(
+                    "cross_architecture_q90_width_abs_tol"
+                )
+                or 0.12,
                 "semantic_mode": "distributional_replay",
             }
         )
@@ -511,11 +533,7 @@ def observed_tolerance_budget_for_fingerprint(
 
     return {
         "budget_source": "seed_prior",
-        "mode": (
-            "distributional"
-            if observed_tier is DeterminismTier.STATISTICAL
-            else "allclose"
-        ),
+        "mode": ("distributional" if observed_tier is DeterminismTier.STATISTICAL else "allclose"),
         "scope": _scope_from_expected_budget(expected_budget),
         "route_key": route_key,
         "reference_fingerprint": posture.compute_hash(),
@@ -576,16 +594,12 @@ def augment_observed_tolerance_budget(
 
     expected_budget = dict(merged.get("expected_budget") or {})
     if expected_budget_updates:
-        expected_budget.update(
-            {str(key): value for key, value in expected_budget_updates.items()}
-        )
+        expected_budget.update({str(key): value for key, value in expected_budget_updates.items()})
     merged["expected_budget"] = expected_budget
 
     solver_budget = dict(merged.get("solver_residual_budget") or {})
     if solver_residual_budget:
-        solver_budget.update(
-            {str(key): value for key, value in solver_residual_budget.items()}
-        )
+        solver_budget.update({str(key): value for key, value in solver_residual_budget.items()})
     merged["solver_residual_budget"] = solver_budget
 
     distributional_metrics = dict(merged.get("distributional_metrics") or {})
@@ -806,7 +820,9 @@ def _compose_distributional_metrics(
 def compose_observed_tolerance_budgets(
     budgets: tuple[Mapping[str, Any], ...] | list[Mapping[str, Any]],
     *,
-    determinism_tiers: tuple[DeterminismTier | None, ...] | list[DeterminismTier | None] | None = None,
+    determinism_tiers: tuple[DeterminismTier | None, ...]
+    | list[DeterminismTier | None]
+    | None = None,
     composition_kind: str = "serial",
 ) -> dict[str, Any]:
     normalized = [dict(budget) for budget in budgets if budget]
@@ -848,22 +864,23 @@ def compose_observed_tolerance_budgets(
         [dict(budget.get("expected_budget") or {}) for budget in normalized],
         composition_kind=composition_kind,
     )
-    route_keys = [
-        dict(budget.get("route_key") or {})
-        for budget in normalized
-    ]
+    route_keys = [dict(budget.get("route_key") or {}) for budget in normalized]
     composed_route_key = compose_route_keys(route_keys, composition_kind=composition_kind)
     base_tier = meet_determinism_tiers(list(determinism_tiers or ()))
     observed_tier = resolve_route_determinism_tier(base_tier, composed_route_key)
     failure_reasons = [
-        str(item)
-        for budget in normalized
-        for item in (budget.get("failure_reasons") or [])
+        str(item) for budget in normalized for item in (budget.get("failure_reasons") or [])
     ]
-    if composed_route_key.get("arch_family") == "mixed" and observed_tier is DeterminismTier.STRICT_CPU:
+    if (
+        composed_route_key.get("arch_family") == "mixed"
+        and observed_tier is DeterminismTier.STRICT_CPU
+    ):
         observed_tier = DeterminismTier.LIBRARY_DETERMINISTIC
         failure_reasons.append("mixed_architecture_pipeline")
-    if composed_route_key.get("device_family") == "mixed" and observed_tier is DeterminismTier.STRICT_CPU:
+    if (
+        composed_route_key.get("device_family") == "mixed"
+        and observed_tier is DeterminismTier.STRICT_CPU
+    ):
         observed_tier = DeterminismTier.LIBRARY_DETERMINISTIC
         failure_reasons.append("mixed_device_pipeline")
     if (
@@ -896,9 +913,7 @@ def compose_observed_tolerance_budgets(
         if value
     ]
     canary_values = [
-        str(value)
-        for value in (budget.get("canary_suite_id") for budget in normalized)
-        if value
+        str(value) for value in (budget.get("canary_suite_id") for budget in normalized) if value
     ]
     unique_canaries = list(dict.fromkeys(canary_values))
 
@@ -1041,16 +1056,18 @@ def validate_observed_tolerance_budget_metrics(
                 len(_DETERMINISM_TIER_ORDER),
             )
             weaker_tiers = [
-                tier
-                for tier, order in _DETERMINISM_TIER_ORDER.items()
-                if order > current_order
+                tier for tier, order in _DETERMINISM_TIER_ORDER.items() if order > current_order
             ]
             for weaker_tier in weaker_tiers:
                 weaker_budget = _bootstrap_envelope_budget(weaker_tier, route_key)
                 if (
                     _fits_distributional_budget(metrics, weaker_budget, prefix="same_fingerprint")
-                    or _fits_distributional_budget(metrics, weaker_budget, prefix="same_architecture")
-                    or _fits_distributional_budget(metrics, weaker_budget, prefix="cross_architecture")
+                    or _fits_distributional_budget(
+                        metrics, weaker_budget, prefix="same_architecture"
+                    )
+                    or _fits_distributional_budget(
+                        metrics, weaker_budget, prefix="cross_architecture"
+                    )
                 ):
                     return augment_observed_tolerance_budget(
                         updated,
@@ -1103,9 +1120,7 @@ def validate_observed_tolerance_budget_metrics(
     if current_tier is not None:
         current_order = _DETERMINISM_TIER_ORDER.get(current_tier, len(_DETERMINISM_TIER_ORDER))
         weaker_tiers = [
-            tier
-            for tier, order in _DETERMINISM_TIER_ORDER.items()
-            if order > current_order
+            tier for tier, order in _DETERMINISM_TIER_ORDER.items() if order > current_order
         ]
         for weaker_tier in weaker_tiers:
             weaker_budget = _bootstrap_envelope_budget(weaker_tier, route_key)
@@ -1142,10 +1157,9 @@ def _fits_budget(
     rtol = expected_budget.get(f"{prefix}_rel_tol")
     if atol is None or rtol is None:
         return False
-    return (
-        float(metrics.get("max_abs_error", 0.0)) <= float(atol)
-        and float(metrics.get("max_rel_error", 0.0)) <= float(rtol)
-    )
+    return float(metrics.get("max_abs_error", 0.0)) <= float(atol) and float(
+        metrics.get("max_rel_error", 0.0)
+    ) <= float(rtol)
 
 
 def _fits_distributional_budget(
@@ -1296,7 +1310,9 @@ def tolerance_budget_for_tier(tier: DeterminismTier | None) -> dict[str, Any]:
 def replay_semantics_for_tier(tier: DeterminismTier | None) -> str:
     """Human-readable replay contract for one determinism tier."""
     if tier is DeterminismTier.STRICT_CPU:
-        return "Replay must be bit-exact on the same CPU ISA; x86_64 vs arm64 uses tolerance budget."
+        return (
+            "Replay must be bit-exact on the same CPU ISA; x86_64 vs arm64 uses tolerance budget."
+        )
     if tier is DeterminismTier.LIBRARY_DETERMINISTIC:
         return "Replay must match exactly within the same CPU/library stack; cross-ISA uses tolerance budget."
     if tier is DeterminismTier.BEST_EFFORT_GPU:
@@ -1349,7 +1365,9 @@ def default_determinism_tier_for_backend(
             return DeterminismTier.STRICT_CPU
         if any(token in normalized for token in ("metal", "mps", "apple")):
             return DeterminismTier.BEST_EFFORT_GPU
-        deterministic_ops = "--xla_gpu_deterministic_ops=true" in build_process_bootstrap_config().xla_flags
+        deterministic_ops = (
+            "--xla_gpu_deterministic_ops=true" in build_process_bootstrap_config().xla_flags
+        )
         if normalized.startswith("gpu") and deterministic_ops:
             return DeterminismTier.BEST_EFFORT_GPU
         return DeterminismTier.NONDETERMINISTIC
@@ -1384,7 +1402,9 @@ def capture_backend_runtime_fingerprint(
         if runtime_available:
             import jax
 
-            versions.update(capture_versions(base_packages=_JAX_PACKAGES, runtime_stack=runtime_stack))
+            versions.update(
+                capture_versions(base_packages=_JAX_PACKAGES, runtime_stack=runtime_stack)
+            )
             devices = jax.devices()
             if devices:
                 first_device = devices[0]
@@ -1392,21 +1412,31 @@ def capture_backend_runtime_fingerprint(
             else:
                 device = f"{jax.default_backend()}:unknown"
         else:
-            versions.update(capture_versions(base_packages=_JAX_PACKAGES, runtime_stack=runtime_stack))
+            versions.update(
+                capture_versions(base_packages=_JAX_PACKAGES, runtime_stack=runtime_stack)
+            )
         is_available = runtime_available if available is None else available
     elif backend is ComputeBackend.SOLVER:
-        versions.update(capture_versions(base_packages=_SOLVER_PACKAGES, runtime_stack=runtime_stack))
+        versions.update(
+            capture_versions(base_packages=_SOLVER_PACKAGES, runtime_stack=runtime_stack)
+        )
         device = "cpu:solver"
         runtime_available = any(package in versions for package in _SOLVER_PACKAGES)
         is_available = runtime_available if available is None else available
     elif backend is ComputeBackend.BAYESIAN:
-        base_packages = tuple(dict.fromkeys(_BAYESIAN_PACKAGES + (() if runtime_backend is None else (runtime_backend,))))
+        base_packages = tuple(
+            dict.fromkeys(
+                _BAYESIAN_PACKAGES + (() if runtime_backend is None else (runtime_backend,))
+            )
+        )
         versions.update(capture_versions(base_packages=base_packages, runtime_stack=runtime_stack))
         device = "cpu:bayesian"
         runtime_available = bool(versions)
         is_available = runtime_available if available is None else available
     else:
-        versions.update(capture_versions(base_packages=_NUMPY_PACKAGES, runtime_stack=runtime_stack))
+        versions.update(
+            capture_versions(base_packages=_NUMPY_PACKAGES, runtime_stack=runtime_stack)
+        )
         device = "cpu:numpy"
         runtime_available = safe_version("numpy") is not None
         is_available = runtime_available if available is None else available
@@ -1415,10 +1445,14 @@ def capture_backend_runtime_fingerprint(
         versions.update({str(key): str(value) for key, value in extra_versions.items() if value})
 
     tier = (
-        determinism_tier
-        if determinism_tier is not None
-        else default_determinism_tier_for_backend(backend, device=device)
-    ) if is_available else None
+        (
+            determinism_tier
+            if determinism_tier is not None
+            else default_determinism_tier_for_backend(backend, device=device)
+        )
+        if is_available
+        else None
+    )
     return BackendRuntimeFingerprint(
         backend=backend,
         available=is_available,

@@ -24,7 +24,6 @@ from polisyos.ir.analytics.recourse_manifold import (
     RecourseRecoverabilityStatus,
     RecourseSemantics,
     RecourseSolverStatus,
-    RecourseSuccessMode,
 )
 from polisyos.ir.refs import (
     InterventionCostManifoldRef,
@@ -32,7 +31,9 @@ from polisyos.ir.refs import (
 )
 
 
-def _threshold_scm(scores: dict[tuple[str, object], float], *, status=RecourseRecoverabilityStatus.IDENTIFIED):
+def _threshold_scm(
+    scores: dict[tuple[str, object], float], *, status=RecourseRecoverabilityStatus.IDENTIFIED
+):
     """Build a mock SCM adapter whose success functional sums per-atom scores."""
 
     class _Mock:
@@ -85,9 +86,7 @@ def _interval_manifold(*, income_cost: PrimitiveCost) -> InterventionCostManifol
         mutable_nodes=("income",),
         immutable_nodes=("age",),
         action_channels=(ActionChannel(node="income", channel="raise"),),
-        domains=(
-            ActionDomain(node="income", kind="interval", lower=0.0, upper=100.0),
-        ),
+        domains=(ActionDomain(node="income", kind="interval", lower=0.0, upper=100.0),),
         primitive_costs=(income_cost,),
     )
 
@@ -183,13 +182,9 @@ def test_program_cost_respects_budget() -> None:
             PrimitiveCost(node="education", cost_kind="constant", base_cost=5.0),
             PrimitiveCost(node="income", cost_kind="constant", base_cost=5.0),
         ),
-        coupling_costs=(
-            CouplingCost(kind="budget", nodes=("education", "income"), limit=6.0),
-        ),
+        coupling_costs=(CouplingCost(kind="budget", nodes=("education", "income"), limit=6.0),),
     )
-    cheap = InterventionProgram(
-        actions=(PrimitiveAction(node="education", target_value="master"),)
-    )
+    cheap = InterventionProgram(actions=(PrimitiveAction(node="education", target_value="master"),))
     too_expensive = InterventionProgram(
         actions=(
             PrimitiveAction(node="education", target_value="master"),
@@ -254,7 +249,11 @@ def test_exact_graph_search_returns_none_when_budget_too_tight() -> None:
     )
     atlas = build_discrete_atlas(manifold)
     result = exact_graph_search(
-        query=query, manifold=manifold, atlas=atlas, scm=scm, options=PlannerOptions(support_budget=1)
+        query=query,
+        manifold=manifold,
+        atlas=atlas,
+        scm=scm,
+        options=PlannerOptions(support_budget=1),
     )
     assert result is None
 
@@ -421,7 +420,9 @@ def test_optimal_recourse_uses_heuristic_branch_for_mixed_interval_manifold() ->
         query_ref=query_ref,
         manifold=manifold,
         scm=_MixedSCM(),
-        options=PlannerOptions(interval_grid_size=9, heuristic_interval_grid_size=5, support_budget=2),
+        options=PlannerOptions(
+            interval_grid_size=9, heuristic_interval_grid_size=5, support_budget=2
+        ),
     )
 
     assert proof.recoverability_status is RecourseRecoverabilityStatus.IDENTIFIED

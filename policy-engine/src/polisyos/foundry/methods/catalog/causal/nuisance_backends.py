@@ -1,4 +1,5 @@
 """Select and seed nuisance-model backends for orthogonal causal estimators."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -7,9 +8,9 @@ from typing import Any
 import numpy as np
 
 from polisyos.foundry.methods.catalog.causal._sklearn_compat import (
+    SKLEARN_AVAILABLE,
     LinearRegression,
     LogisticRegression,
-    SKLEARN_AVAILABLE,
 )
 
 if SKLEARN_AVAILABLE:  # pragma: no cover - exercised in integration tests
@@ -18,6 +19,7 @@ if SKLEARN_AVAILABLE:  # pragma: no cover - exercised in integration tests
         HistGradientBoostingRegressor,
         RandomForestRegressor,
     )
+
     try:  # pragma: no cover - optional in some sklearn builds
         from sklearn.linear_model import ElasticNet
     except Exception:  # pragma: no cover - fallback covered instead
@@ -38,6 +40,7 @@ except Exception:  # pragma: no cover - optional dependency
 @dataclass(frozen=True)
 class BackendSelection:
     """Describe the chosen nuisance backend plus fallback and tuning metadata."""
+
     name: str
     model: Any
     stabilizer: Any | None = None
@@ -45,7 +48,11 @@ class BackendSelection:
 
 def backend_name() -> str:
     """Backend name helper."""
-    return "lightgbm" if LGBMClassifier is not None and LGBMRegressor is not None else "hist_gradient_boosting"
+    return (
+        "lightgbm"
+        if LGBMClassifier is not None and LGBMRegressor is not None
+        else "hist_gradient_boosting"
+    )
 
 
 def make_propensity_backend(seed: int, family: str) -> BackendSelection:
@@ -177,11 +184,15 @@ def build_split_manifest(
 
     if n_obs <= n_folds:
         indices = np.arange(n_obs, dtype=int)
-        repeat_seeds = deterministic_repeat_seeds(base_seed=base_seed, n_repeats=n_repeats, manifest=seed_manifest)
+        repeat_seeds = deterministic_repeat_seeds(
+            base_seed=base_seed, n_repeats=n_repeats, manifest=seed_manifest
+        )
         manifest = tuple(tuple(((indices, indices),)) for _ in repeat_seeds)
         return manifest, repeat_seeds
 
-    repeat_seeds = deterministic_repeat_seeds(base_seed=base_seed, n_repeats=n_repeats, manifest=seed_manifest)
+    repeat_seeds = deterministic_repeat_seeds(
+        base_seed=base_seed, n_repeats=n_repeats, manifest=seed_manifest
+    )
     repeats: list[tuple[tuple[np.ndarray, np.ndarray], ...]] = []
     indices = np.arange(n_obs, dtype=int)
     for rep_seed in repeat_seeds:

@@ -21,14 +21,15 @@ Usage::
     polisyos-foundry release-acceptance --manifest-path bundle/release_manifest.json --runtime-bundle-dir bundle/runtime --method-contract-bundle-dir bundle/contracts --store-root .foundry-release-cas --json
     polisyos-foundry compat --baseline tests/foundry/fixtures/signature_baseline.json
 """
+
 from __future__ import annotations
 
 import argparse
 import json
 import sys
+from collections.abc import Sequence
 from dataclasses import asdict
 from pathlib import Path
-from typing import Sequence
 
 _CLI_SOFT_FAILURES = (
     AttributeError,
@@ -44,6 +45,7 @@ _CLI_SOFT_FAILURES = (
 # ---------------------------------------------------------------------------
 # Sub-command handlers
 # ---------------------------------------------------------------------------
+
 
 def _cmd_scaffold(args: argparse.Namespace) -> int:
     from polisyos.foundry.methods.cli.scaffold import MethodScaffold, ScaffoldConfig
@@ -90,8 +92,8 @@ def _cmd_validate(args: argparse.Namespace) -> int:
 
 
 def _cmd_catalog(args: argparse.Namespace) -> int:
+    from polisyos.foundry.methods.catalog import ensure_all_methods_registered
     from polisyos.foundry.methods.registry import MethodRegistry
-    from polisyos.foundry.methods.catalog import ensure_all_methods_registered  # noqa
 
     try:
         ensure_all_methods_registered()
@@ -121,8 +123,9 @@ def _cmd_catalog(args: argparse.Namespace) -> int:
 def _cmd_compat(args: argparse.Namespace) -> int:
     import json
     from pathlib import Path
+
+    from polisyos.foundry.methods.catalog import ensure_all_methods_registered
     from polisyos.foundry.methods.registry import MethodRegistry
-    from polisyos.foundry.methods.catalog import ensure_all_methods_registered  # noqa
 
     try:
         ensure_all_methods_registered()
@@ -197,11 +200,11 @@ def _cmd_capabilities(args: argparse.Namespace) -> int:
     print("-" * 128)
     for row in rows:
         print(
-            f"{str(row['fqn']):<60} "
-            f"{str(row['runnable']):<9} "
-            f"{str(row['execution_backend']):<10} "
-            f"{str(row.get('determinism_tier') or '-'): <22} "
-            f"{str(row['truthfulness_tier'])}"
+            f"{row['fqn']!s:<60} "
+            f"{row['runnable']!s:<9} "
+            f"{row['execution_backend']!s:<10} "
+            f"{row.get('determinism_tier') or '-'!s: <22} "
+            f"{row['truthfulness_tier']!s}"
         )
     print(f"\nTotal: {len(rows)} method(s)")
     return 0
@@ -344,7 +347,7 @@ def _cmd_advisor(args: argparse.Namespace) -> int:
             f"{entry.fqn:<60} "
             f"{entry.execution_backend:<10} "
             f"{entry.fidelity_tier:<8} "
-            f"{str(entry.determinism_tier or '-'): <22} "
+            f"{entry.determinism_tier or '-'!s: <22} "
             f"{entry.truthfulness_tier}"
         )
     print(f"\nRecommended: {len(result.recommended)} method(s)")
@@ -354,6 +357,7 @@ def _cmd_advisor(args: argparse.Namespace) -> int:
 # ---------------------------------------------------------------------------
 # Argument parser
 # ---------------------------------------------------------------------------
+
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -367,7 +371,9 @@ def _build_parser() -> argparse.ArgumentParser:
     p_scaffold.add_argument("--namespace", required=True, help="Method namespace (e.g. causal.did)")
     p_scaffold.add_argument("--name", required=True, help="Method name")
     p_scaffold.add_argument("--version", default="1.0.0", help="Initial version (default: 1.0.0)")
-    p_scaffold.add_argument("--backend", default="numpy", choices=["numpy", "jax", "solver", "bayesian"])
+    p_scaffold.add_argument(
+        "--backend", default="numpy", choices=["numpy", "jax", "solver", "bayesian"]
+    )
     p_scaffold.add_argument("--fidelity", default="MEDIUM", choices=["LOW", "MEDIUM", "HIGH"])
     p_scaffold.add_argument("--output-dir", default=".", help="Target directory")
     p_scaffold.add_argument("--overwrite", action="store_true", help="Overwrite existing files")
@@ -376,7 +382,9 @@ def _build_parser() -> argparse.ArgumentParser:
     p_validate = sub.add_parser("validate", help="Validate method(s)")
     p_validate.add_argument("--all", action="store_true", help="Validate all registered methods")
     p_validate.add_argument("--file", help="Path to Python file containing method class")
-    p_validate.add_argument("--module", help="Module path (e.g. polisyos.foundry.methods.catalog.causal.rdd)")
+    p_validate.add_argument(
+        "--module", help="Module path (e.g. polisyos.foundry.methods.catalog.causal.rdd)"
+    )
     p_validate.add_argument("--class", dest="cls", help="Class name within module/file")
 
     # --- catalog ---
@@ -392,17 +400,25 @@ def _build_parser() -> argparse.ArgumentParser:
     )
 
     # --- capabilities ---
-    p_capabilities = sub.add_parser("capabilities", help="Export machine-readable capability metadata")
+    p_capabilities = sub.add_parser(
+        "capabilities", help="Export machine-readable capability metadata"
+    )
     p_capabilities.add_argument("--namespace", help="Filter by namespace prefix")
     p_capabilities.add_argument("--family", help="Filter by family prefix")
-    p_capabilities.add_argument("--runnable-only", action="store_true", help="Only emit runnable methods")
+    p_capabilities.add_argument(
+        "--runnable-only", action="store_true", help="Only emit runnable methods"
+    )
     p_capabilities.add_argument("--json", action="store_true", help="Emit JSON instead of a table")
 
     # --- evidence ---
-    p_evidence = sub.add_parser("evidence", help="Export operator-facing applicability and replay evidence")
+    p_evidence = sub.add_parser(
+        "evidence", help="Export operator-facing applicability and replay evidence"
+    )
     p_evidence.add_argument("--namespace", help="Filter by namespace prefix")
     p_evidence.add_argument("--family", help="Filter by family prefix")
-    p_evidence.add_argument("--runnable-only", action="store_true", help="Only emit runnable methods")
+    p_evidence.add_argument(
+        "--runnable-only", action="store_true", help="Only emit runnable methods"
+    )
     p_evidence.add_argument("--json", action="store_true", help="Emit JSON instead of a table")
 
     # --- release-acceptance ---
@@ -445,7 +461,9 @@ def _build_parser() -> argparse.ArgumentParser:
     p_advisor.add_argument("--kind", help="Preferred method kind")
     p_advisor.add_argument("--family", help="Preferred family")
     p_advisor.add_argument("--variant", help="Preferred variant")
-    p_advisor.add_argument("--family-prefix", action="append", help="Additional acceptable family prefix")
+    p_advisor.add_argument(
+        "--family-prefix", action="append", help="Additional acceptable family prefix"
+    )
     p_advisor.add_argument("--backend", action="append", help="Preferred execution backend")
     p_advisor.add_argument("--required-modality", action="append", help="Required data modality")
     p_advisor.add_argument("--preferred-modality", action="append", help="Preferred data modality")
@@ -470,8 +488,12 @@ def _build_parser() -> argparse.ArgumentParser:
         default=0.95,
         help="Confidence level for calibrated regret diagnostics",
     )
-    p_advisor.add_argument("--limit", type=int, default=5, help="Maximum number of methods to return")
-    p_advisor.add_argument("--include-unrunnable", action="store_true", help="Include unrunnable methods")
+    p_advisor.add_argument(
+        "--limit", type=int, default=5, help="Maximum number of methods to return"
+    )
+    p_advisor.add_argument(
+        "--include-unrunnable", action="store_true", help="Include unrunnable methods"
+    )
     p_advisor.add_argument("--json", action="store_true", help="Emit JSON instead of a table")
 
     return parser
@@ -480,6 +502,7 @@ def _build_parser() -> argparse.ArgumentParser:
 # ---------------------------------------------------------------------------
 # Entrypoint
 # ---------------------------------------------------------------------------
+
 
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the Foundry methods CLI and dispatch to the selected subcommand."""

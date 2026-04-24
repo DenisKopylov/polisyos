@@ -7,7 +7,6 @@ from polisyos.foundry.calibration.identifiability import (
     IdentifiabilityReport,
     IdentifiabilityStatus,
     ParamIdentifiability,
-    diagnose_identifiability,
 )
 from polisyos.foundry.calibration.multi_start import (
     SingleRunResult,
@@ -77,8 +76,12 @@ def test_multi_start_identifiability_selection() -> None:
 
 def test_multi_start_identifiability_tiebreaks_on_condition_then_loss() -> None:
     runs = [
-        SingleRunResult(loss=0.05, params=[], identifiability=_id_report(2), hessian_result=_hr(100.0)),
-        SingleRunResult(loss=0.10, params=[], identifiability=_id_report(2), hessian_result=_hr(10.0)),
+        SingleRunResult(
+            loss=0.05, params=[], identifiability=_id_report(2), hessian_result=_hr(100.0)
+        ),
+        SingleRunResult(
+            loss=0.10, params=[], identifiability=_id_report(2), hessian_result=_hr(10.0)
+        ),
     ]
     cfg = MultiStartConfig(n_starts=2, selection="best_identifiability")
     idx, reason = select_best(runs, cfg)

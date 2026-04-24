@@ -46,22 +46,22 @@ _ESTIMAND_SCHEMA_VERSION = "1.0"
 class DistributionDomain(str, Enum):
     """Which population / domain a probability factor comes from."""
 
-    SOURCE = "source"          # P(·)  — data from source domain
-    TARGET = "target"          # P*(·) — data from / for target domain
+    SOURCE = "source"  # P(·)  — data from source domain
+    TARGET = "target"  # P*(·) — data from / for target domain
     EXPERIMENTAL = "experimental"  # P(·|do(·)) from an RCT or experiment
 
 
 class SideConditionKind(str, Enum):
     """Semantic categories of identification side-conditions."""
 
-    POSITIVITY = "positivity"          # P(T=t | X=x) > 0 ∀ x in support
-    OVERLAP = "overlap"                # source/target covariate support overlap
-    SUTVA = "sutva"                    # stable unit treatment value assumption
-    CONSISTENCY = "consistency"        # Y(t) = Y when T=t
+    POSITIVITY = "positivity"  # P(T=t | X=x) > 0 ∀ x in support
+    OVERLAP = "overlap"  # source/target covariate support overlap
+    SUTVA = "sutva"  # stable unit treatment value assumption
+    CONSISTENCY = "consistency"  # Y(t) = Y when T=t
     NO_INTERFERENCE = "no_interference"
     TIME_STATIONARITY = "time_stationarity"  # for lagged graphs
     EXCLUSION_RESTRICTION = "exclusion_restriction"  # for IV
-    SELECTION = "selection"                           # P(Y|...,S=1) selection conditioning
+    SELECTION = "selection"  # P(Y|...,S=1) selection conditioning
 
 
 # ---------------------------------------------------------------------------
@@ -77,7 +77,7 @@ class SideCondition(BaseModel):
     kind: SideConditionKind
     variables: tuple[str, ...] = ()
     description: str = ""
-    required: bool = True   # False = advisory / testable implication
+    required: bool = True  # False = advisory / testable implication
 
 
 # ---------------------------------------------------------------------------
@@ -95,7 +95,7 @@ class EventPredicate(BaseModel):
     value_ref: str | float | tuple[float, ...]
 
     @model_validator(mode="after")
-    def _validate_predicate(self) -> "EventPredicate":
+    def _validate_predicate(self) -> EventPredicate:
         variable = self.variable.strip()
         if not variable:
             raise ValueError("event variable must be non-empty")
@@ -148,15 +148,15 @@ class DistributionRef(BaseModel):
 
     node_type: Literal["dist"] = "dist"
     domain: DistributionDomain
-    variables: tuple[str, ...]              # outcome variables of this factor
-    conditioning: tuple[str, ...] = ()      # conditioning set (not do'd)
+    variables: tuple[str, ...]  # outcome variables of this factor
+    conditioning: tuple[str, ...] = ()  # conditioning set (not do'd)
     intervention_set: tuple[str, ...] = ()  # do(·) variables
-    dataset_ref: str | None = None          # pointer into DataKnowledgeBase
+    dataset_ref: str | None = None  # pointer into DataKnowledgeBase
     side_conditions: tuple[SideCondition, ...] = ()
     event: EventPredicate | None = None
 
     @model_validator(mode="after")
-    def _validate_event(self) -> "DistributionRef":
+    def _validate_event(self) -> DistributionRef:
         if self.event is not None and self.event.variable not in self.variables:
             raise ValueError("event variable must be one of DistributionRef.variables")
         return self
@@ -196,7 +196,7 @@ class DistributionLawQuery(BaseModel):
     parameter_domain: str | None = None
 
     @model_validator(mode="after")
-    def _validate_query(self) -> "DistributionLawQuery":
+    def _validate_query(self) -> DistributionLawQuery:
         if self.support_space == "real" and self.representation != "cdf":
             raise ValueError("support_space='real' requires representation='cdf'")
         if self.support_space == "real_vector" and self.representation != "orthant_cdf":
@@ -274,7 +274,7 @@ class SpaceRef(BaseModel):
     bounded_evaluation: bool | None = None
 
     @model_validator(mode="after")
-    def _normalize_space_id(self) -> "SpaceRef":
+    def _normalize_space_id(self) -> SpaceRef:
         object.__setattr__(self, "space_id", self.space_id.strip())
         if not self.space_id:
             raise ValueError("space_id must be non-empty")
@@ -308,7 +308,7 @@ class OperatorTargetNode(BaseModel):
     operator_regularization: str | None = None
 
     @model_validator(mode="after")
-    def _normalize_operator_fields(self) -> "OperatorTargetNode":
+    def _normalize_operator_fields(self) -> OperatorTargetNode:
         object.__setattr__(self, "effect_modifier", _unique_sorted(self.effect_modifier))
         if self.base_estimand_ref is not None:
             base_estimand_ref = self.base_estimand_ref.strip()
@@ -319,16 +319,8 @@ class OperatorTargetNode(BaseModel):
         return self
 
     def to_latex(self) -> str:
-        ref = (
-            f",{self.reference_treatment}"
-            if self.reference_treatment is not None
-            else ""
-        )
-        modifiers = (
-            f"; {', '.join(self.effect_modifier)}"
-            if self.effect_modifier
-            else ""
-        )
+        ref = f",{self.reference_treatment}" if self.reference_treatment is not None else ""
+        modifiers = f"; {', '.join(self.effect_modifier)}" if self.effect_modifier else ""
         return (
             f"\\mathcal{{T}}_{{{self.treatment}{ref}\\to {self.outcome}}}"
             f"^{{{self.operator_semantics}}}{modifiers}"
@@ -341,12 +333,12 @@ class OperatorApplyNode(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     node_type: Literal["operator_apply"] = "operator_apply"
-    operator: "EstimandNode"
+    operator: EstimandNode
     probe_ref: str = Field(min_length=1)
     evaluation_points_ref: str | None = None
 
     @model_validator(mode="after")
-    def _normalize_probe_refs(self) -> "OperatorApplyNode":
+    def _normalize_probe_refs(self) -> OperatorApplyNode:
         object.__setattr__(self, "probe_ref", self.probe_ref.strip())
         if not self.probe_ref:
             raise ValueError("probe_ref must be non-empty")
@@ -361,9 +353,7 @@ class OperatorApplyNode(BaseModel):
 
     def to_latex(self) -> str:
         evaluation = (
-            f"@{self.evaluation_points_ref}"
-            if self.evaluation_points_ref is not None
-            else ""
+            f"@{self.evaluation_points_ref}" if self.evaluation_points_ref is not None else ""
         )
         return f"{_node_latex(self.operator)}[{self.probe_ref}]{evaluation}"
 
@@ -380,7 +370,7 @@ class SumNode(BaseModel):
 
     node_type: Literal["sum"] = "sum"
     summation_vars: tuple[str, ...]
-    operand: "EstimandNode"
+    operand: EstimandNode
 
     def to_latex(self) -> str:
         vars_str = ", ".join(self.summation_vars)
@@ -388,12 +378,12 @@ class SumNode(BaseModel):
 
 
 class ProductNode(BaseModel):
-    """Product of factors: factor₁ · factor₂ · … """
+    """Product of factors: factor₁ · factor₂ · …"""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     node_type: Literal["product"] = "product"
-    factors: tuple["EstimandNode", ...]
+    factors: tuple[EstimandNode, ...]
 
     def to_latex(self) -> str:
         return " \\cdot ".join(_node_latex(f) for f in self.factors)
@@ -405,8 +395,8 @@ class RatioNode(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     node_type: Literal["ratio"] = "ratio"
-    numerator: "EstimandNode"
-    denominator: "EstimandNode"
+    numerator: EstimandNode
+    denominator: EstimandNode
 
     def to_latex(self) -> str:
         return f"\\frac{{{_node_latex(self.numerator)}}}{{{_node_latex(self.denominator)}}}"
@@ -509,7 +499,7 @@ class IntegralNode(BaseModel):
     integration_vars: tuple[str, ...]
     """Continuous variables to integrate over."""
 
-    operand: "EstimandNode"
+    operand: EstimandNode
     """Expression being integrated."""
 
     measure: str = "lebesgue"
@@ -581,6 +571,7 @@ class RecoveredDistNode(BaseModel):
 # Discriminated union type alias
 # ---------------------------------------------------------------------------
 
+
 class PathSpecificNode(BaseModel):
     """Path-specific effect leaf — E[Y(t, M_{active}(t'))] via active/fixed paths.
 
@@ -651,14 +642,13 @@ class EdgeInterventionNode(BaseModel):
 
     node_type: Literal["edge_intervention"] = "edge_intervention"
     assignments: tuple[EdgeInterventionAssignment, ...] = Field(min_length=1)
-    inner_node: "EstimandNode | None" = None
+    inner_node: EstimandNode | None = None
     domain: DistributionDomain = DistributionDomain.SOURCE
     dataset_ref: str | None = None
 
     def to_latex(self) -> str:
         assignments = ", ".join(
-            f"{item.source}\\to{item.target}:={item.value_expr}"
-            for item in self.assignments
+            f"{item.source}\\to{item.target}:={item.value_expr}" for item in self.assignments
         )
         inner = f"[{_node_latex(self.inner_node)}]" if self.inner_node is not None else ""
         return f"\\text{{EdgeDo}}({assignments}){inner}"
@@ -681,7 +671,7 @@ class ModifiedTreatmentPolicyNode(BaseModel):
     policy_expr: str
     natural_treatment_var: str
     covariates: tuple[str, ...] = ()
-    inner_node: "EstimandNode | None" = None
+    inner_node: EstimandNode | None = None
     domain: DistributionDomain = DistributionDomain.SOURCE
     dataset_ref: str | None = None
 
@@ -747,7 +737,7 @@ class StochasticInterventionNode(BaseModel):
     policy: StochasticPolicy
     """The stochastic policy π."""
 
-    inner_do_node: "EstimandNode"
+    inner_do_node: EstimandNode
     """The identified P(Y|do(X=x)) expression as an EstimandNode tree."""
 
     integration_var: str
@@ -758,8 +748,7 @@ class StochasticInterventionNode(BaseModel):
     def to_latex(self) -> str:
         inner_latex = _node_latex(self.inner_do_node)
         return (
-            f"\\int {inner_latex} \\, \\pi({self.treatment_var} \\mid Z) "
-            f"\\, d{self.treatment_var}"
+            f"\\int {inner_latex} \\, \\pi({self.treatment_var} \\mid Z) \\, d{self.treatment_var}"
         )
 
 
@@ -787,7 +776,7 @@ class ConditionalInterventionNode(BaseModel):
     condition_vars: tuple[str, ...]
     """Conditioning variables Z (values are specified at estimation time)."""
 
-    inner_do_node: "EstimandNode"
+    inner_do_node: EstimandNode
     """The identified P(Y|do(X)) expression for the restricted subgraph."""
 
     domain: DistributionDomain = DistributionDomain.SOURCE
@@ -795,9 +784,7 @@ class ConditionalInterventionNode(BaseModel):
 
     def to_latex(self) -> str:
         cond_str = ", ".join(self.condition_vars)
-        return (
-            f"P({self.outcome} \\mid \\text{{do}}({self.treatment} \\mid {cond_str}))"
-        )
+        return f"P({self.outcome} \\mid \\text{{do}}({self.treatment} \\mid {cond_str}))"
 
 
 class ProxyAdjustmentNode(BaseModel):
@@ -819,7 +806,7 @@ class ProxyAdjustmentNode(BaseModel):
 
     node_type: Literal["proxy_adjustment"] = "proxy_adjustment"
 
-    inner_do_node: "EstimandNode"
+    inner_do_node: EstimandNode
     """The proxy-adjusted P(Y|do(X)) expression as an EstimandNode tree."""
 
     proxy_map: tuple[tuple[str, str], ...]
@@ -888,7 +875,7 @@ class NestedCounterfactualNode(BaseModel):
     node_type: Literal["nested_counterfactual"] = "nested_counterfactual"
     outer_variable: str
     outer_intervention: dict[str, Any]
-    inner_counterfactual: "EstimandNode"
+    inner_counterfactual: EstimandNode
     world_indices: tuple[int, ...] = ()
     domain: DistributionDomain = DistributionDomain.SOURCE
     dataset_ref: str | None = None
@@ -896,9 +883,7 @@ class NestedCounterfactualNode(BaseModel):
     def to_latex(self) -> str:
         outer_do = ", ".join(f"{k}={v}" for k, v in self.outer_intervention.items())
         worlds = (
-            f"^{{({', '.join(str(w) for w in self.world_indices)})}}"
-            if self.world_indices
-            else ""
+            f"^{{({', '.join(str(w) for w in self.world_indices)})}}" if self.world_indices else ""
         )
         inner = _node_latex(self.inner_counterfactual)
         return f"{self.outer_variable}_{{{outer_do}}}{worlds}[{inner}]"
@@ -910,7 +895,7 @@ class CrossWorldNode(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     node_type: Literal["cross_world"] = "cross_world"
-    worlds: tuple["EstimandNode", ...]
+    worlds: tuple[EstimandNode, ...]
     joint: bool = True
 
     def to_latex(self) -> str:
@@ -928,7 +913,7 @@ class CtfInterventionNode(BaseModel):
     node_type: Literal["ctf_intervention"] = "ctf_intervention"
     variable: str
     intervention: dict[str, Any]
-    ctf_context: "EstimandNode"
+    ctf_context: EstimandNode
     domain: DistributionDomain = DistributionDomain.SOURCE
     dataset_ref: str | None = None
 
@@ -939,12 +924,27 @@ class CtfInterventionNode(BaseModel):
 
 
 EstimandNode = Annotated[
-    DistributionRef | SumNode | ProductNode | RatioNode
-    | NuisanceNode | ExpectationNode | IntegralNode | DistributionLawNode
-    | OperatorTargetNode | OperatorApplyNode
-    | PathSpecificNode | EdgeInterventionNode | ModifiedTreatmentPolicyNode | RecoveredDistNode
-    | StochasticInterventionNode | ConditionalInterventionNode | ProxyAdjustmentNode
-    | CounterfactualNode | NestedCounterfactualNode | CrossWorldNode | CtfInterventionNode,
+    DistributionRef
+    | SumNode
+    | ProductNode
+    | RatioNode
+    | NuisanceNode
+    | ExpectationNode
+    | IntegralNode
+    | DistributionLawNode
+    | OperatorTargetNode
+    | OperatorApplyNode
+    | PathSpecificNode
+    | EdgeInterventionNode
+    | ModifiedTreatmentPolicyNode
+    | RecoveredDistNode
+    | StochasticInterventionNode
+    | ConditionalInterventionNode
+    | ProxyAdjustmentNode
+    | CounterfactualNode
+    | NestedCounterfactualNode
+    | CrossWorldNode
+    | CtfInterventionNode,
     Field(discriminator="node_type"),
 ]
 
@@ -964,17 +964,17 @@ class EstimandAST(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = "1.0"
-    query_str: str                              # e.g. "P*(Y|do(X))"
+    query_str: str  # e.g. "P*(Y|do(X))"
     root: EstimandNode
     treatment: str
     outcome: str
-    all_variables: tuple[str, ...]             # all vars appearing in tree
+    all_variables: tuple[str, ...]  # all vars appearing in tree
     object_kind: Literal["scalar", "function", "distribution", "operator"] = "scalar"
     side_conditions: tuple[SideCondition, ...] = ()
-    identification_method: str = ""            # "id_algorithm" | "frontdoor" | "backdoor" | "iv"
+    identification_method: str = ""  # "id_algorithm" | "frontdoor" | "backdoor" | "iv"
 
     @model_validator(mode="after")
-    def _infer_object_kind(self) -> "EstimandAST":
+    def _infer_object_kind(self) -> EstimandAST:
         inferred = self.object_kind
         if isinstance(self.root, DistributionLawNode):
             inferred = "distribution"
@@ -1007,7 +1007,7 @@ class EstimandAST(BaseModel):
         _collect_dist_refs(self.root, refs)
         return refs
 
-    def normalize(self) -> "EstimandAST":
+    def normalize(self) -> EstimandAST:
         """Return the canonical algebraic form used for semantic dedupe."""
         return normalize_estimand_ast(self)
 
@@ -1290,9 +1290,7 @@ def _sorted_mapping(mapping: dict[str, Any]) -> dict[str, Any]:
 
 
 def _normalize_side_condition(side_condition: SideCondition) -> SideCondition:
-    return side_condition.model_copy(
-        update={"variables": _unique_sorted(side_condition.variables)}
-    )
+    return side_condition.model_copy(update={"variables": _unique_sorted(side_condition.variables)})
 
 
 def _side_condition_sort_key(side_condition: SideCondition) -> bytes:
@@ -1306,10 +1304,7 @@ def _normalize_side_conditions(
     side_conditions: tuple[SideCondition, ...],
 ) -> tuple[SideCondition, ...]:
     normalized = [_normalize_side_condition(condition) for condition in side_conditions]
-    unique_by_key = {
-        _side_condition_sort_key(condition): condition
-        for condition in normalized
-    }
+    unique_by_key = {_side_condition_sort_key(condition): condition for condition in normalized}
     return tuple(
         condition
         for _, condition in sorted(
@@ -1387,12 +1382,14 @@ def _normalize_node(node: EstimandNode) -> EstimandNode:
                     str(node.base_estimand_ref).strip()
                     if node.base_estimand_ref is not None
                     else None
-                ) or None,
+                )
+                or None,
                 "operator_regularization": (
                     str(node.operator_regularization).strip()
                     if node.operator_regularization is not None
                     else None
-                ) or None,
+                )
+                or None,
                 "probe_space_ref": node.probe_space_ref.model_copy(
                     update={
                         "space_id": node.probe_space_ref.space_id.strip(),
@@ -1400,7 +1397,8 @@ def _normalize_node(node: EstimandNode) -> EstimandNode:
                             str(node.probe_space_ref.kernel_ref).strip()
                             if node.probe_space_ref.kernel_ref is not None
                             else None
-                        ) or None,
+                        )
+                        or None,
                     }
                 ),
                 "codomain_space_ref": node.codomain_space_ref.model_copy(
@@ -1410,7 +1408,8 @@ def _normalize_node(node: EstimandNode) -> EstimandNode:
                             str(node.codomain_space_ref.kernel_ref).strip()
                             if node.codomain_space_ref.kernel_ref is not None
                             else None
-                        ) or None,
+                        )
+                        or None,
                     }
                 ),
             }
@@ -1423,7 +1422,8 @@ def _normalize_node(node: EstimandNode) -> EstimandNode:
                 str(node.evaluation_points_ref).strip()
                 if node.evaluation_points_ref is not None
                 else None
-            ) or None,
+            )
+            or None,
         )
     if isinstance(node, IntegralNode):
         operand = _normalize_node(node.operand)
@@ -1448,19 +1448,11 @@ def _normalize_node(node: EstimandNode) -> EstimandNode:
         )
     if isinstance(node, EdgeInterventionNode):
         assignments_by_key = {
-            (item.source, item.target, item.value_expr): item
-            for item in node.assignments
+            (item.source, item.target, item.value_expr): item for item in node.assignments
         }
         return EdgeInterventionNode(
-            assignments=tuple(
-                assignments_by_key[key]
-                for key in sorted(assignments_by_key)
-            ),
-            inner_node=(
-                _normalize_node(node.inner_node)
-                if node.inner_node is not None
-                else None
-            ),
+            assignments=tuple(assignments_by_key[key] for key in sorted(assignments_by_key)),
+            inner_node=(_normalize_node(node.inner_node) if node.inner_node is not None else None),
             domain=node.domain,
             dataset_ref=node.dataset_ref,
         )
@@ -1470,11 +1462,7 @@ def _normalize_node(node: EstimandNode) -> EstimandNode:
             policy_expr=node.policy_expr,
             natural_treatment_var=node.natural_treatment_var,
             covariates=_unique_sorted(node.covariates),
-            inner_node=(
-                _normalize_node(node.inner_node)
-                if node.inner_node is not None
-                else None
-            ),
+            inner_node=(_normalize_node(node.inner_node) if node.inner_node is not None else None),
             domain=node.domain,
             dataset_ref=node.dataset_ref,
         )
@@ -1872,8 +1860,7 @@ def make_transport_reweight_estimand(
                 kind=SideConditionKind.OVERLAP,
                 variables=reweighting_vars,
                 description=(
-                    "Source and target covariate distributions must have "
-                    "overlapping support"
+                    "Source and target covariate distributions must have overlapping support"
                 ),
                 required=True,
             ),
@@ -2003,7 +1990,7 @@ def make_recovery_estimand(
     topological_order: tuple[str, ...],
     missingness_map: dict[str, tuple[str, str]],
     dataset_ref: str | None = None,
-) -> "EstimandAST":
+) -> EstimandAST:
     """Build an EstimandAST for full-data recovery via the ordered fixing operator.
 
     Produces a ProductNode of RecoveredDistNode factors representing
@@ -2112,47 +2099,47 @@ EstimandAST.model_rebuild()
 
 
 __all__ = [
-    "DistributionDomain",
-    "DistributionLawQuery",
-    "EventPredicate",
-    "SideConditionKind",
-    "SideCondition",
-    "DistributionRef",
-    "SumNode",
-    "ProductNode",
-    "RatioNode",
-    "NuisanceNode",
-    "ExpectationNode",
-    "IntegralNode",
-    "DistributionLawNode",
-    "SpaceRef",
-    "OperatorTargetNode",
-    "OperatorApplyNode",
-    "PathSpecificNode",
-    "EdgeInterventionAssignment",
-    "EdgeInterventionNode",
-    "ModifiedTreatmentPolicyNode",
-    "EstimandNode",
-    "EstimandAST",
-    "RecoveredDistNode",
-    # Phase-5 extended identification nodes
-    "StochasticPolicy",
-    "StochasticInterventionNode",
     "ConditionalInterventionNode",
-    "ProxyAdjustmentNode",
     # Phase-10 counterfactual (Layer 3) node
     "CounterfactualNode",
-    "NestedCounterfactualNode",
     "CrossWorldNode",
     "CtfInterventionNode",
+    "DistributionDomain",
+    "DistributionLawNode",
+    "DistributionLawQuery",
+    "DistributionRef",
+    "EdgeInterventionAssignment",
+    "EdgeInterventionNode",
+    "EstimandAST",
+    "EstimandNode",
+    "EventPredicate",
+    "ExpectationNode",
+    "IntegralNode",
+    "ModifiedTreatmentPolicyNode",
+    "NestedCounterfactualNode",
+    "NuisanceNode",
+    "OperatorApplyNode",
+    "OperatorTargetNode",
+    "PathSpecificNode",
+    "ProductNode",
+    "ProxyAdjustmentNode",
+    "RatioNode",
+    "RecoveredDistNode",
+    "SideCondition",
+    "SideConditionKind",
+    "SpaceRef",
+    "StochasticInterventionNode",
+    # Phase-5 extended identification nodes
+    "StochasticPolicy",
+    "SumNode",
+    "load_estimand_ast",
+    "make_backdoor_estimand",
     "make_counterfactual_estimand",
     "make_distribution_law_estimand",
-    "make_backdoor_estimand",
     "make_frontdoor_estimand",
+    "make_recovery_estimand",
     "make_transport_reweight_estimand",
     "make_z_transport_estimand",
-    "make_recovery_estimand",
     "normalize_estimand_ast",
     "persist_estimand_ast",
-    "load_estimand_ast",
 ]

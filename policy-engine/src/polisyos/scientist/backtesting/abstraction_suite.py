@@ -1,4 +1,5 @@
 """Public backtesting abstraction suite module API."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -98,10 +99,14 @@ def run_abstraction_challenge_suite(
                 ),
             )
         )
-    elif preservation_type in {
-        AbstractionPreservationType.APPROXIMATE,
-        AbstractionPreservationType.POLICY_VALUE_ONLY,
-    } and abstraction_certificate is not None:
+    elif (
+        preservation_type
+        in {
+            AbstractionPreservationType.APPROXIMATE,
+            AbstractionPreservationType.POLICY_VALUE_ONLY,
+        }
+        and abstraction_certificate is not None
+    ):
         bounded_summary = (
             "Bounded abstraction certificate carries preserved queries and error bounds."
             if macro_shortcut_has_certificate
@@ -145,10 +150,7 @@ def run_abstraction_challenge_suite(
                 expected_outcome="macro_only_with_supported_certificate",
                 severity="critical",
             ),
-            passed=(
-                not macro_shortcut_used
-                or macro_shortcut_has_certificate
-            ),
+            passed=(not macro_shortcut_used or macro_shortcut_has_certificate),
             summary=(
                 "Macro shortcut usage is backed by a supported abstraction certificate."
                 if not macro_shortcut_used or macro_shortcut_has_certificate
@@ -229,9 +231,8 @@ def _has_macro_safe_certificate(
         return False
     if abstraction_certificate.preservation_type is AbstractionPreservationType.EXACT:
         return bool(abstraction_certificate.preserved_queries)
-    return (
-        abstraction_certificate.error_bound is not None
-        and bool(abstraction_certificate.preserved_queries)
+    return abstraction_certificate.error_bound is not None and bool(
+        abstraction_certificate.preserved_queries
     )
 
 

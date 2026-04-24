@@ -65,7 +65,9 @@ def _make_high_dimensional_iv_panel() -> PanelData:
     z0 = instruments[:, 0]
     z1 = instruments[:, 1]
 
-    x_endog = 1.3 * z0 + 0.4 * z1 + 0.8 * x0 - 0.5 * x3 + latent + rng.normal(scale=0.15, size=n_obs)
+    x_endog = (
+        1.3 * z0 + 0.4 * z1 + 0.8 * x0 - 0.5 * x3 + latent + rng.normal(scale=0.15, size=n_obs)
+    )
     y = 1.8 * x_endog + 0.7 * x0 - 0.4 * x3 + latent + rng.normal(scale=0.2, size=n_obs)
 
     feature_names = ["x_endog"] + [f"x{i}" for i in range(controls.shape[1])]

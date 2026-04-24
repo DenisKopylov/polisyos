@@ -7,8 +7,9 @@ These are mixed into ``MultiPassLLMDrafter`` via the
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from dataclasses import replace
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 
 from polisyos.common.logger import get_logger
 from polisyos.scientist.agent.protocols import DraftResult, ProblemFrame
@@ -74,8 +75,7 @@ class _DrafterFormattingMixin:
         if not problem_frame.constraints:
             return "No explicit constraints provided."
         return "\n".join(
-            f"{idx + 1}. {constraint}"
-            for idx, constraint in enumerate(problem_frame.constraints)
+            f"{idx + 1}. {constraint}" for idx, constraint in enumerate(problem_frame.constraints)
         )
 
     def _format_findings(self, findings: Iterable[PassFinding]) -> str:
@@ -104,10 +104,7 @@ class _DrafterFormattingMixin:
             return None
         try:
             known_pitfalls = None
-            if (
-                self._config.constitution_enable_pitfalls
-                and self._knowledge_base is not None
-            ):
+            if self._config.constitution_enable_pitfalls and self._knowledge_base is not None:
                 known_pitfalls = self._knowledge_base.get_top_patterns(3)
             return self._constitution_gen.generate(
                 problem_frame=problem_frame,

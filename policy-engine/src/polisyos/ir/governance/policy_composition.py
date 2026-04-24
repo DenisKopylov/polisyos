@@ -1,4 +1,5 @@
 """Multi-level policy composition contracts for federal/state/local overrides."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -63,7 +64,7 @@ class PolicyLayerSpec(KernelModel):
     )
 
     @model_validator(mode="after")
-    def validate_interval(self) -> "PolicyLayerSpec":
+    def validate_interval(self) -> PolicyLayerSpec:
         ensure_interval_monotonicity(
             self.effective_from,
             self.effective_to,
@@ -86,11 +87,9 @@ class PolicyOverrideRule(KernelModel):
     justification: str = Field(..., min_length=1, max_length=400)
 
     @model_validator(mode="after")
-    def validate_target(self) -> "PolicyOverrideRule":
+    def validate_target(self) -> PolicyOverrideRule:
         if self.target_intervention_id is None and self.target_constraint_id is None:
-            raise ValueError(
-                "override rule must target an intervention_id or constraint_id"
-            )
+            raise ValueError("override rule must target an intervention_id or constraint_id")
         return self
 
 
@@ -120,7 +119,7 @@ class PolicyCompositionPlan(KernelModel):
     )
 
     @model_validator(mode="after")
-    def validate_composition(self) -> "PolicyCompositionPlan":
+    def validate_composition(self) -> PolicyCompositionPlan:
         ensure_unique_ids(self.layers, key_fn=lambda item: item.layer_id, label="policy layer_id")
         ensure_unique_ids(
             self.layers,

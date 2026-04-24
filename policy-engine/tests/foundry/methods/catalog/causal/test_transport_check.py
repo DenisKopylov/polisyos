@@ -9,9 +9,9 @@ from polisyos.ir.analytics.transportability import (
     SelectionDiagram,
     SNode,
     SNodeOrigin,
-    TransportMode,
     TransportabilityResult,
     TransportabilityStatus,
+    TransportMode,
     build_selection_diagram,
 )
 

@@ -1,9 +1,10 @@
 """Define heterogeneous treatment effect estimates and targeting recommendations."""
+
 from __future__ import annotations
 
 import math
 from collections.abc import Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -12,10 +13,14 @@ from polisyos.ir._validation import (
     ensure_finite_numeric,
     ensure_unique_ids,
 )
-from polisyos.ir.analytics.causal import CausalMethod
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.canon import CanonSpec
 from polisyos.ir.refs import HTEResultRef, PolicyRecommendationRef
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.causal import CausalMethod
+else:
+    from polisyos.ir.analytics.causal import CausalMethod
 
 
 class SubgroupEffect(BaseModel):
@@ -38,7 +43,7 @@ class SubgroupEffect(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_ci(self) -> "SubgroupEffect":
+    def _validate_ci(self) -> SubgroupEffect:
         ensure_finite_numeric(self.cate_mean, field_name="cate_mean")
         ensure_finite_numeric(self.cate_std, field_name="cate_std")
         ensure_confidence_interval(
@@ -62,7 +67,7 @@ class FeatureImportance(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_score(self) -> "FeatureImportance":
+    def _validate_score(self) -> FeatureImportance:
         ensure_finite_numeric(self.importance_score, field_name="importance_score")
         return self
 
@@ -138,13 +143,13 @@ class HTEResult(BaseModel):
         return normalized
 
     @classmethod
-    def from_estimates(cls, **payload: Any) -> "HTEResult":
+    def from_estimates(cls, **payload: Any) -> HTEResult:
         """Construct an HTE result after applying explicit derived defaults."""
 
         return cls.model_validate(cls.normalize_payload(payload))
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "HTEResult":
+    def _validate_shapes(self) -> HTEResult:
         if self.n_samples != len(self.cate_values):
             raise ValueError("n_samples must match cate_values length")
         ensure_finite_numeric(self.ate, field_name="ate")
@@ -220,7 +225,7 @@ class TargetingRule(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
-    def _validate_numbers(self) -> "TargetingRule":
+    def _validate_numbers(self) -> TargetingRule:
         if not math.isfinite(self.expected_cate):
             raise ValueError("expected_cate must be finite")
         if not math.isfinite(self.expected_cost_per_unit):
@@ -276,13 +281,13 @@ class PolicyRecommendation(BaseModel):
         return normalized
 
     @classmethod
-    def from_totals(cls, **payload: Any) -> "PolicyRecommendation":
+    def from_totals(cls, **payload: Any) -> PolicyRecommendation:
         """Construct a recommendation after applying explicit derived defaults."""
 
         return cls.model_validate(cls.normalize_payload(payload))
 
     @model_validator(mode="after")
-    def _validate_totals(self) -> "PolicyRecommendation":
+    def _validate_totals(self) -> PolicyRecommendation:
         ensure_finite_numeric(self.total_expected_effect, field_name="total_expected_effect")
         ensure_finite_numeric(self.total_cost, field_name="total_cost")
         if self.n_targeted_units > self.n_total_units and self.n_total_units > 0:
@@ -378,13 +383,13 @@ def load_policy_recommendation(
 
 
 __all__ = [
-    "SubgroupEffect",
     "FeatureImportance",
     "HTEResult",
-    "TargetingRule",
     "PolicyRecommendation",
-    "persist_hte_result",
+    "SubgroupEffect",
+    "TargetingRule",
     "load_hte_result",
-    "persist_policy_recommendation",
     "load_policy_recommendation",
+    "persist_hte_result",
+    "persist_policy_recommendation",
 ]

@@ -1,4 +1,5 @@
 """Public foundry profiles module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -28,15 +29,15 @@ class FoundryCompileProfile:
         return self.level == CompileProfileLevel.STRICT
 
     @classmethod
-    def fast(cls) -> "FoundryCompileProfile":
+    def fast(cls) -> FoundryCompileProfile:
         return cls(level=CompileProfileLevel.FAST)
 
     @classmethod
-    def mvp(cls) -> "FoundryCompileProfile":
+    def mvp(cls) -> FoundryCompileProfile:
         return cls(level=CompileProfileLevel.MVP)
 
     @classmethod
-    def strict(cls) -> "FoundryCompileProfile":
+    def strict(cls) -> FoundryCompileProfile:
         return cls(level=CompileProfileLevel.STRICT)
 
 

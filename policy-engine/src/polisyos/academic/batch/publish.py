@@ -4,17 +4,21 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
-from pathlib import Path
+from typing import TYPE_CHECKING
 
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.batch.benchmark import READINESS_THRESHOLDS
 from polisyos.batch_common.manifest import write_publish_manifest, write_stage_manifest
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 
 def _load_json(path: Path) -> dict[str, object]:
     if not path.exists():
         return {}
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         payload = json.load(fh)
     return payload if isinstance(payload, dict) else {}
 
@@ -46,16 +50,29 @@ def _write_pipeline_readiness_manifest(config: AcademicBatchConfig) -> tuple[Pat
     )
 
     readiness = {
-        "canonical_runtime_ready": float(qc_metrics.get("runtime_demanded_canonical_resolution_rate_pct", 0.0) or 0.0) >= 90.0,
-        "parameter_utility_ready": float(benchmark_metrics.get("parameter_supported_ratio", 0.0) or 0.0)
+        "canonical_runtime_ready": float(
+            qc_metrics.get("runtime_demanded_canonical_resolution_rate_pct", 0.0) or 0.0
+        )
+        >= 90.0,
+        "parameter_utility_ready": float(
+            benchmark_metrics.get("parameter_supported_ratio", 0.0) or 0.0
+        )
         >= READINESS_THRESHOLDS["parameter_supported_ratio"],
-        "causal_prior_utility_ready": float(benchmark_metrics.get("causal_supported_ratio", 0.0) or 0.0)
+        "causal_prior_utility_ready": float(
+            benchmark_metrics.get("causal_supported_ratio", 0.0) or 0.0
+        )
         >= READINESS_THRESHOLDS["causal_supported_ratio"],
-        "cross_graph_utility_ready": float(benchmark_metrics.get("causal_supported_plus_mixed_ratio", 0.0) or 0.0)
+        "cross_graph_utility_ready": float(
+            benchmark_metrics.get("causal_supported_plus_mixed_ratio", 0.0) or 0.0
+        )
         >= READINESS_THRESHOLDS["causal_supported_plus_mixed_ratio"],
-        "transport_utility_ready": float(benchmark_metrics.get("non_default_transport_evidence_ratio", 0.0) or 0.0)
+        "transport_utility_ready": float(
+            benchmark_metrics.get("non_default_transport_evidence_ratio", 0.0) or 0.0
+        )
         >= READINESS_THRESHOLDS["non_default_transport_evidence_ratio"],
-        "scholar_retrieval_ready": float(benchmark_metrics.get("scholar_query_coverage_ratio", 0.0) or 0.0)
+        "scholar_retrieval_ready": float(
+            benchmark_metrics.get("scholar_query_coverage_ratio", 0.0) or 0.0
+        )
         >= READINESS_THRESHOLDS["scholar_query_coverage_ratio"],
         "operational_stability_ready": timeout_share_pct <= 25.0,
     }
@@ -101,7 +118,9 @@ def _write_pipeline_readiness_manifest(config: AcademicBatchConfig) -> tuple[Pat
             "timeout_share_pct": round(timeout_share_pct, 3),
         },
         "artifacts": {
-            "benchmark_report": str(config.benchmark_report_path) if config.benchmark_report_path.exists() else "",
+            "benchmark_report": str(config.benchmark_report_path)
+            if config.benchmark_report_path.exists()
+            else "",
             "qc_report": str(config.qc_report_path) if config.qc_report_path.exists() else "",
             "runtime_demand_backlog": str(config.runtime_demand_backlog_path)
             if config.runtime_demand_backlog_path.exists()

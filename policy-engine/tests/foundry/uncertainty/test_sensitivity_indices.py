@@ -16,7 +16,9 @@ class TestSensitivityIndices:
         z = 2.0 * x + 3.0 * y
 
         indices = compute_first_order_indices(
-            {"x": x, "y": y}, z, ["x", "y"],
+            {"x": x, "y": y},
+            z,
+            ["x", "y"],
         )
 
         assert indices["x"] == pytest.approx(4.0 / 13.0, abs=0.05)
@@ -32,7 +34,9 @@ class TestSensitivityIndices:
         output = 1.0 * a + 2.0 * b + 0.5 * c
 
         indices = compute_first_order_indices(
-            {"a": a, "b": b, "c": c}, output, ["a", "b", "c"],
+            {"a": a, "b": b, "c": c},
+            output,
+            ["a", "b", "c"],
         )
 
         total = sum(indices.values())
@@ -46,7 +50,9 @@ class TestSensitivityIndices:
         output = 10.0 * x + 0.001 * y
 
         indices = compute_first_order_indices(
-            {"x": x, "y": y}, output, ["x", "y"],
+            {"x": x, "y": y},
+            output,
+            ["x", "y"],
         )
 
         assert indices["x"] > 0.99
@@ -55,5 +61,7 @@ class TestSensitivityIndices:
     def test_too_few_inputs_raises(self) -> None:
         with pytest.raises(ValueError, match="at least 2 inputs"):
             compute_first_order_indices(
-                {"x": np.array([1.0, 2.0])}, np.array([1.0, 2.0]), ["x"],
+                {"x": np.array([1.0, 2.0])},
+                np.array([1.0, 2.0]),
+                ["x"],
             )

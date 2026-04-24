@@ -36,12 +36,12 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_ru
 
 ## Start Here By Task
 
-| Task | Primary doc | Why it matters |
-|---|---|---|
-| Новый HTTP endpoint | [REST API](../../reference/api/index.md) and `src/polisyos/runtime/http/` | Route module, app wiring, OpenAPI drift, contract checks |
-| Новый package export / supported import path | [Public Surface](../../reference/public-surface.md) | `__all__`, public-surface manifest, guardrails |
-| Новый IR model/enum с schema/catalog impact | [Manage Schemas](../manage-schemas.md) and [IR Schema Catalog](../../reference/ir/schema-catalog.md) | ABI snapshots, schema catalog, IR docs |
-| Runtime deploy/debug context | [Deploy Runtime](../deploy-runtime.md), [Use Control Plane](../use-control-plane.md), [Debug Failed Run](../debug-failed-run.md) | End-to-end operational reality |
+| Task                                         | Primary doc                                                                                                                      | Why it matters                                           |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Новый HTTP endpoint                          | [REST API](../../reference/api/index.md) and `src/polisyos/runtime/http/`                                                        | Route module, app wiring, OpenAPI drift, contract checks |
+| Новый package export / supported import path | [Public Surface](../../reference/public-surface.md)                                                                              | `__all__`, public-surface manifest, guardrails           |
+| Новый IR model/enum с schema/catalog impact  | [Manage Schemas](../manage-schemas.md) and [IR Schema Catalog](../../reference/ir/schema-catalog.md)                             | ABI snapshots, schema catalog, IR docs                   |
+| Runtime deploy/debug context                 | [Deploy Runtime](../deploy-runtime.md), [Use Control Plane](../use-control-plane.md), [Debug Failed Run](../debug-failed-run.md) | End-to-end operational reality                           |
 
 ## First Productive Slice
 
@@ -56,8 +56,10 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_ru
 
 - если изменение оказалось purely frontend-consumer-facing, передайте его в
   [Frontend Engineer](frontend-engineer.md);
+
 - если route change не должен быть публичным, не добавляйте его в OpenAPI/client
   path и зафиксируйте это в API reference;
+
 - если новая export surface не должна жить долго, не добавляйте ее в supported
   `__all__`.
 
@@ -65,7 +67,9 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/check_ru
 
 - `check-runtime-api-contract.py` падает: проверьте, обновили ли вы OpenAPI
   snapshot и generated clients;
+
 - `guardrails check` падает: обычно проблема в `__all__`, public-surface
   manifest или deep-import drift;
+
 - `gen-schema --check` падает: новый IR type не внесен в `schemas/abi_models.py`
   или не прошел через schema catalog/docs generation.

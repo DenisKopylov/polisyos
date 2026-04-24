@@ -10,6 +10,7 @@ as a new version rather than replacing an existing artifact.
 
 - a change that may affect package, schema, runtime API, generated frontend
   contract, or deprecation posture;
+
 - the current release fragment set and versioned source-of-truth files;
 - a clear compatibility classification for the affected surface.
 
@@ -55,13 +56,13 @@ The release workflow validates the versioned snapshot, not the mutable
 
 ## Version Namespaces
 
-| Namespace | Format | Source of truth | Meaning |
-|---|---|---|---|
-| Package release version | `MAJOR.MINOR.PATCH` | `pyproject.toml` and release metadata | Version of the published product package and release notes line |
-| Architecture milestone language | `Phase N`, `WS-nX`, ADR IDs, milestone bundle names | docs and planning artifacts | Planning and architecture vocabulary only; not a compatibility contract |
-| Schema version | `MAJOR.MINOR` | model `schema_version` fields and committed schema snapshots | Compatibility version for serialized schemas and ABI snapshots |
-| Runtime API version | path major plus semantic version, for example `/api/v1` and `1.2.0` | runtime app, OpenAPI snapshot, capability manifest | Compatibility version for the public HTTP API |
-| Frontend contract generation | exact generated artifacts derived from the committed OpenAPI file | `schemas/runtime_api_v1.openapi.json`, generated client files, dashboard API types | Build-time synchronization state for frontend consumers of the Runtime API |
+| Namespace                       | Format                                                              | Source of truth                                                                    | Meaning                                                                    |
+| ------------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Package release version         | `MAJOR.MINOR.PATCH`                                                 | `pyproject.toml` and release metadata                                              | Version of the published product package and release notes line            |
+| Architecture milestone language | `Phase N`, `WS-nX`, ADR IDs, milestone bundle names                 | docs and planning artifacts                                                        | Planning and architecture vocabulary only; not a compatibility contract    |
+| Schema version                  | `MAJOR.MINOR`                                                       | model `schema_version` fields and committed schema snapshots                       | Compatibility version for serialized schemas and ABI snapshots             |
+| Runtime API version             | path major plus semantic version, for example `/api/v1` and `1.2.0` | runtime app, OpenAPI snapshot, capability manifest                                 | Compatibility version for the public HTTP API                              |
+| Frontend contract generation    | exact generated artifacts derived from the committed OpenAPI file   | `schemas/runtime_api_v1.openapi.json`, generated client files, dashboard API types | Build-time synchronization state for frontend consumers of the Runtime API |
 
 Architecture milestone names are never a substitute for release, schema, or
 runtime API version numbers.
@@ -87,8 +88,10 @@ Schema versions use `MAJOR.MINOR`.
 
 - additive backward-compatible changes, such as new optional fields or new enum
   values explicitly declared compatible by policy, bump `MINOR`;
+
 - removals, renames, type changes, newly required fields, or other
   compatibility breaks bump `MAJOR`;
+
 - docs-only or implementation-only changes that do not alter the serialized
   contract do not change schema version.
 
@@ -107,8 +110,10 @@ Rules:
 
 - additive backward-compatible endpoint or field additions stay on the current
   path major and bump the runtime API minor version;
+
 - fixes that do not change the supported contract bump the runtime API patch
   version;
+
 - breaking changes require a new path major and a matching runtime API major
   version, for example `/api/v2` with `2.0.0`.
 
@@ -160,6 +165,7 @@ one requires:
 - regenerated `docs/reference/tools.md`;
 - removal from CI workflows unless the job is explicitly testing the
   compatibility wrapper;
+
 - a release fragment when the command is part of an operator or contributor
   workflow.
 
@@ -198,6 +204,7 @@ they answer different questions:
 
 - `public_stable` / `public_experimental` / `internal` says **what kind of
   surface changed**;
+
 - `breaking` / `additive` / `internal` says **how the change affects
   consumers/operators**.
 
@@ -207,11 +214,13 @@ Use them together:
   work: choose the correct `compat:*` label, update the relevant reference doc,
   and add `surface_classification = "public_stable: <entrypoint>"` to the
   release fragment when a fragment is required;
+
 - changes to `public_experimental` entrypoints should stay visible in docs and
   release notes, but they may evolve without the same long-term compatibility
   promises; use `surface_classification = "public_experimental: <entrypoint>"`
   in the release fragment when the change is user-facing, operator-facing, or
   otherwise part of the shipped story;
+
 - internal-only changes stay off the public-surface inventory and normally use
   `compat:internal`; if they still need a fragment because operators must care,
   record `surface_classification = "internal: internal-only"` explicitly.
@@ -220,6 +229,7 @@ Use them together:
 
 - use `breaking` when an existing supported consumer or operator must change
   behavior;
+
 - use `additive` when existing integrations keep working unchanged;
 - use `internal` when no supported surface changes.
 
@@ -230,8 +240,10 @@ expectation.
 
 - If the release draft chooses the wrong compatibility class, fix the
   classification, fragments, and docs before tagging anything.
+
 - If release docs or migration notes are incomplete, stop the release candidate
   rather than cutting a tag and planning to "fill it in later".
+
 - If runtime or schema checks disagree with the intended version story, treat
   that as a contract mismatch and resolve it before publication.
 
@@ -239,7 +251,9 @@ expectation.
 
 - If you are unsure whether a migration guide is required, bias toward writing
   one whenever operators or downstream consumers must change behavior.
+
 - If a generated frontend/client artifact changed because of a runtime contract
   update, do not classify that as docs-only or internal-only work.
+
 - If version bump arguments depend on unsupported deep-import or internal-only
   paths, revisit the public-surface classification first.

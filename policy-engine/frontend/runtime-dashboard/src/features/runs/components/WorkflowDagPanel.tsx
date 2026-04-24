@@ -189,7 +189,11 @@ export default function WorkflowDagPanel({
                   {node.nodeId ?? "-"}
                 </p>
                 <div className="text-muted mt-1 flex items-center justify-between text-[11px]">
-                  <span>d={formatNumber(node.depth)}</span>
+                  <span>
+                    {t("panels.workflow.depthValue", {
+                      depth: formatNumber(node.depth),
+                    })}
+                  </span>
                   <span>{formatDuration(node.durationMs)}</span>
                 </div>
               </div>

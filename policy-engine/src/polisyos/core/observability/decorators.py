@@ -22,6 +22,7 @@ Usage:
     async def validate_policy(bundle: TrinityBundle) -> ValidationResult:
         return await run_validation(bundle)
 """
+
 from __future__ import annotations
 
 import functools

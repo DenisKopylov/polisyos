@@ -4,12 +4,13 @@ Collects positivity, support mismatch, covariate balance, parallel trends,
 sensitivity, and falsification diagnostics into a single machine-readable
 object intended for the audit UI and downstream quality scoring.
 """
+
 from __future__ import annotations
 
 import logging
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 from polisyos.ir.analytics.covariate_balance import CovariateBalanceReport
 from polisyos.ir.analytics.falsification_report import (
@@ -100,7 +101,7 @@ class DiagnosticDashboardData(BaseModel):
         node_outputs: dict[str, dict],
         *,
         created_at: str = "",
-    ) -> "DiagnosticDashboardData":
+    ) -> DiagnosticDashboardData:
         """Build a DiagnosticDashboardData from CausalEngine node_outputs.
 
         Scans every node output for known diagnostic keys and assembles
@@ -172,7 +173,9 @@ class DiagnosticDashboardData(BaseModel):
             )
 
         # Falsification report from refutation outputs
-        falsification: FalsificationReport | None = FalsificationReport.from_dowhy_refute_outputs(node_outputs)
+        falsification: FalsificationReport | None = FalsificationReport.from_dowhy_refute_outputs(
+            node_outputs
+        )
         if falsification.n_passed == 0 and falsification.n_failed == 0:
             falsification = None
 
@@ -254,7 +257,7 @@ class DiagnosticDashboardData(BaseModel):
             else:
                 n_pass += 1
 
-        overall = (n_fail == 0)
+        overall = n_fail == 0
 
         return cls(
             run_id=run_id,
@@ -305,11 +308,16 @@ def _serialize_raking(value: Any) -> dict[str, Any] | None:
     """Convert a survey raking diagnostic payload to a plain dict when possible."""
     if value is None:
         return None
-    if hasattr(value, "contract_id") and getattr(value, "contract_id", None) == "ir.survey_raking_diagnostic_report.v1":
+    if (
+        hasattr(value, "contract_id")
+        and getattr(value, "contract_id", None) == "ir.survey_raking_diagnostic_report.v1"
+    ):
         model_dump = getattr(value, "model_dump", None)
         if callable(model_dump):
             return model_dump(mode="json")
-    if isinstance(value, dict) and {"decision", "stop_reason", "max_rel_margin_error"} <= set(value):
+    if isinstance(value, dict) and {"decision", "stop_reason", "max_rel_margin_error"} <= set(
+        value
+    ):
         return dict(value)
     return None
 

@@ -15,7 +15,9 @@ def _write_manifest(path: Path) -> None:
                     {
                         "track_id": "P2.04",
                         "artifact_family": "distributional_frontier",
-                        "typed_targets": ["polisyos.ir.analytics.distributional.DistributionalBoundsBundle"],
+                        "typed_targets": [
+                            "polisyos.ir.analytics.distributional.DistributionalBoundsBundle"
+                        ],
                         "required_acceptance_tests": [
                             "tests/foundry/methods/catalog/causal/test_distributional_bounds.py::"
                             "test_distributional_bounds_engine_routes_mtr_and_sd_inequality_families"
@@ -44,7 +46,7 @@ def _write_manifest(path: Path) -> None:
 
 def _write_junit_reports(acceptance_path: Path, judge_path: Path) -> None:
     acceptance_path.write_text(
-        "<testsuite name=\"phase2-acceptance\">\n"
+        '<testsuite name="phase2-acceptance">\n'
         "  <testcase "
         'classname="tests.foundry.methods.catalog.causal.test_distributional_bounds" '
         'name="test_distributional_bounds_engine_routes_mtr_and_sd_inequality_families'
@@ -53,7 +55,7 @@ def _write_junit_reports(acceptance_path: Path, judge_path: Path) -> None:
         encoding="utf-8",
     )
     judge_path.write_text(
-        "<testsuite name=\"phase2-judges\">\n"
+        '<testsuite name="phase2-judges">\n'
         "  <testcase "
         'classname="tests.foundry.validation.test_phase2_judge_stack" '
         'name="test_phase2_distributional_frontier_six_judge_promote" />\n'

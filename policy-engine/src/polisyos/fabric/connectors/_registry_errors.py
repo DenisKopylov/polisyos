@@ -5,11 +5,11 @@ from __future__ import annotations
 from polisyos.core.errors import ErrorCategory, PolicyOSError
 
 __all__ = [
-    "RegistryError",
-    "ConnectorAlreadyRegisteredError",
-    "ConnectorNotFoundError",
-    "ConnectorConfigError",
     "AmbiguousConnectorError",
+    "ConnectorAlreadyRegisteredError",
+    "ConnectorConfigError",
+    "ConnectorNotFoundError",
+    "RegistryError",
 ]
 
 
@@ -66,6 +66,4 @@ class AmbiguousConnectorError(RegistryError):
     def __init__(self, connector_id: str, matches: list[str]) -> None:
         self.connector_id = connector_id
         self.matches = matches
-        super().__init__(
-            f"Ambiguous connector ID '{connector_id}'. Matches: {matches}"
-        )
+        super().__init__(f"Ambiguous connector ID '{connector_id}'. Matches: {matches}")

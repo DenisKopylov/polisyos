@@ -1,4 +1,5 @@
 """CLI for fabric quarantine reporting and deterministic replay."""
+
 from __future__ import annotations
 
 import argparse
@@ -88,7 +89,9 @@ def _cmd_reprocess(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Fabric quarantine report and replay CLI")
-    parser.add_argument("--cas-root", required=True, help="CAS root containing quarantine artifacts")
+    parser.add_argument(
+        "--cas-root", required=True, help="CAS root containing quarantine artifacts"
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     report = subparsers.add_parser("report", help="Print a JSON quarantine summary")
@@ -97,7 +100,9 @@ def build_parser() -> argparse.ArgumentParser:
     report.add_argument("--severity")
     report.set_defaults(func=_cmd_report)
 
-    reprocess = subparsers.add_parser("reprocess", help="Deterministically replay quarantined records")
+    reprocess = subparsers.add_parser(
+        "reprocess", help="Deterministically replay quarantined records"
+    )
     reprocess.add_argument("--source")
     reprocess.add_argument(
         "--artifact-id",

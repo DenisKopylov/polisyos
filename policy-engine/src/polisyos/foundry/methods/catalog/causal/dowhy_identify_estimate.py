@@ -1,8 +1,10 @@
 """Public causal dowhy identify estimate module API."""
+
 from __future__ import annotations
 
 import json
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -35,7 +37,6 @@ def _load_dowhy_dependencies() -> tuple[Any, Any]:
     import dowhy
     import pandas as pd
 
-
     return dowhy, pd
 
 
@@ -59,7 +60,8 @@ def _extract_standard_error(estimate: Any) -> float | None:
         scalar = _to_float_scalar(value)
     except (TypeError, ValueError) as exc:
         logger.debug(
-            "Failed to extract standard error from estimate: %s", exc,
+            "Failed to extract standard error from estimate: %s",
+            exc,
         )
         return None
     if scalar < 0:
@@ -74,7 +76,8 @@ def _extract_confidence_interval(estimate: Any) -> tuple[float, float] | None:
         interval = estimate.get_confidence_intervals()
     except (TypeError, ValueError) as exc:
         logger.debug(
-            "Failed to extract confidence intervals from estimate: %s", exc,
+            "Failed to extract confidence intervals from estimate: %s",
+            exc,
         )
         return None
     if interval is None:
@@ -165,8 +168,7 @@ _BASE_METADATA = MethodMetadata(
     description="DoWhy causal identification and estimation in a single pure step.",
     tags=frozenset({"causal", "dowhy", "identify", "estimate"}),
     citations=(
-        "Sharma, A., Kiciman, E. (2020). DoWhy: An End-to-End Library "
-        "for Causal Inference.",
+        "Sharma, A., Kiciman, E. (2020). DoWhy: An End-to-End Library for Causal Inference.",
     ),
     assumptions={
         "graph_correctness": "Causal graph is correctly specified.",
@@ -350,9 +352,7 @@ class DoWhyIdentifyEstimate:
     @staticmethod
     def pure_step(state: GraphCausalData, params: Mapping[str, Any]) -> dict[str, Any]:
         data = (
-            state
-            if isinstance(state, GraphCausalData)
-            else GraphCausalData.model_validate(state)
+            state if isinstance(state, GraphCausalData) else GraphCausalData.model_validate(state)
         )
         return _run_dowhy(
             data=data,

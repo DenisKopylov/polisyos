@@ -1,4 +1,5 @@
 """Compatibility shim for demographic static-aging read surfaces."""
+
 from __future__ import annotations
 
 from polisyos.data_forge.read_api.ukraine import (

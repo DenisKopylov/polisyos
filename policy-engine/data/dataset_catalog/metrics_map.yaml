@@ -1,0 +1,49 @@
+gdp_per_capita:
+  keywords: ["gdp", "gross domestic product", "per capita", "ввп"]
+  worldbank_indicators: ["NY.GDP.PCAP.CD", "NY.GDP.PCAP.PP.CD"]
+  sdmx_concepts: ["GDP", "B1GQ", "GDP_PER_CAPITA"]
+  eurostat_codes: ["nama_10_pc"]
+unemployment_rate:
+  keywords: ["unemployment", "jobless", "безробіт", "somaj", "bezrobocie"]
+  worldbank_indicators: ["SL.UEM.TOTL.ZS"]
+  sdmx_concepts: ["UNEMP", "UNE_RT_A"]
+  eurostat_codes: ["lfsa_urgan"]
+inflation:
+  keywords: ["inflation", "consumer price", "cpi", "інфляц"]
+  worldbank_indicators: ["FP.CPI.TOTL.ZG"]
+  sdmx_concepts: ["CPI", "CPALTT01"]
+  eurostat_codes: ["prc_hicp_aind"]
+health_outcomes:
+  keywords: ["health", "life expectancy", "mortality", "здоров", "sanat", "zdrow"]
+  worldbank_indicators: ["SP.DYN.LE00.IN", "SH.DYN.MORT"]
+  who_indicators: ["WHOSIS_000001", "WHOSIS_000002"]
+education_outcomes:
+  keywords: ["education", "school", "student", "enrollment", "освіт", "educat", "edukac"]
+  worldbank_indicators: ["SE.PRM.ENRR", "SE.SEC.ENRR"]
+migration:
+  keywords: ["migration", "migrant", "міграц", "migratie", "migracja"]
+  worldbank_indicators: ["SM.POP.NETM"]
+labor_force_participation:
+  keywords: ["labor force", "labour force", "participation", "employment"]
+  worldbank_indicators: ["SL.TLF.CACT.ZS"]
+poverty_rate:
+  keywords: ["poverty", "deprivation", "low income", "бідн"]
+  worldbank_indicators: ["SI.POV.DDAY", "SI.POV.NAHC"]
+social_trust:
+  keywords: ["social trust", "trust", "values survey", "довір"]
+  sdmx_concepts: ["SOCIAL_TRUST"]
+institutional_quality:
+  keywords: ["institutional quality", "rule of law", "government effectiveness", "corruption"]
+  worldbank_indicators: ["RL.EST", "GE.EST", "CC.EST"]
+health_spending:
+  keywords: ["health spending", "health expenditure", "medical expenditure"]
+  worldbank_indicators: ["SH.XPD.CHEX.PC.CD"]
+  who_indicators: ["GHED_CHE_pc_PPP"]
+life_expectancy:
+  keywords: ["life expectancy"]
+  worldbank_indicators: ["SP.DYN.LE00.IN"]
+  who_indicators: ["WHOSIS_000001"]
+energy_use:
+  keywords: ["energy use", "energy consumption"]
+trade_balance:
+  keywords: ["trade balance", "exports", "imports"]

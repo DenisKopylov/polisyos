@@ -329,6 +329,7 @@ evidence when strategic response is required by the governance profile.
 
 - if a demo change was exploratory and should not become part of the supported
   causal surface, revert the snippet or helper before updating reference docs;
+
 - if a new method requires broader governance semantics than this page assumes,
   move the workflow into Scientist-oriented docs instead of stretching this
   how-to beyond its scope.
@@ -337,8 +338,10 @@ evidence when strategic response is required by the governance profile.
 
 - If discovery examples hang or fork badly on your host, move them into a normal
   `.py` file and use the platform-appropriate `__main__` guard.
+
 - If identification returns a non-identified status, treat that as a modeling
   result, not necessarily as a code failure.
+
 - If you need policy-facing evidence, bounds/sensitivity artifacts should be
   persisted and passed forward rather than read only from notebook memory.
 

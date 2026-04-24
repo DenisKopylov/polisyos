@@ -9,6 +9,7 @@ Thresholds:
 Run with:
     pytest tests/foundry/benchmarks/test_method_perf.py -m benchmark --benchmark-only -v
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -25,6 +26,7 @@ pytestmark = pytest.mark.benchmark
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture(scope="module")
 def rng():
@@ -93,6 +95,7 @@ def income_n1000(rng):
 # Benchmark helper
 # ---------------------------------------------------------------------------
 
+
 def _run_method(registry, fqn: str, state: dict, params: dict) -> None:
     try:
         method = registry.get(fqn)
@@ -104,6 +107,7 @@ def _run_method(registry, fqn: str, state: dict, params: dict) -> None:
 # ---------------------------------------------------------------------------
 # Causal benchmarks
 # ---------------------------------------------------------------------------
+
 
 class BenchmarkCausal:
     def test_did_standard_n1000(self, benchmark, panel_n1000, module_registry):
@@ -131,6 +135,7 @@ class BenchmarkCausal:
 # Econometrics benchmarks
 # ---------------------------------------------------------------------------
 
+
 class BenchmarkEconometrics:
     def test_arima_n500(self, benchmark, timeseries_n500, module_registry):
         state = timeseries_n500
@@ -157,6 +162,7 @@ class BenchmarkEconometrics:
 # Optimization benchmarks
 # ---------------------------------------------------------------------------
 
+
 class BenchmarkOptimization:
     def test_lp_small(self, benchmark, lp_small, module_registry):
         """LP with 3 vars should solve in < 100ms."""
@@ -172,6 +178,7 @@ class BenchmarkOptimization:
 # ---------------------------------------------------------------------------
 # Bayesian benchmarks
 # ---------------------------------------------------------------------------
+
 
 class BenchmarkBayesian:
     def test_linear_regression_n1000(self, benchmark, regression_n1000, module_registry):
@@ -194,6 +201,7 @@ class BenchmarkBayesian:
 # Spatial benchmarks
 # ---------------------------------------------------------------------------
 
+
 class BenchmarkSpatial:
     def test_moran_i_n200(self, benchmark, spatial_n200, module_registry):
         benchmark.pedantic(
@@ -208,6 +216,7 @@ class BenchmarkSpatial:
 # ---------------------------------------------------------------------------
 # Distributional benchmarks
 # ---------------------------------------------------------------------------
+
 
 class BenchmarkDistributional:
     def test_gini_n1000(self, benchmark, income_n1000, module_registry):

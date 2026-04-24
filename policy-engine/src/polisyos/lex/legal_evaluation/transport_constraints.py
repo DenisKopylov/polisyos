@@ -1,14 +1,17 @@
 """Public legal evaluation transport constraints module API."""
+
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 _ID_RE = re.compile(r"[^a-z0-9_]+")
 _DURATION_RE = re.compile(r"(?P<value>\d+)\s*(?P<unit>m|mo|mon|month|months|y|yr|year|years)")
@@ -16,6 +19,7 @@ _DURATION_RE = re.compile(r"(?P<value>\d+)\s*(?P<unit>m|mo|mon|month|months|y|yr
 
 class ConstraintSeverity(str, Enum):
     """Constraint severity public type."""
+
     SOFT = "soft"
     HARD = "hard"
 
@@ -36,6 +40,7 @@ class LegalConstraint(BaseModel):
 
 class LegalToDAGMappingType(str, Enum):
     """Legal to DAG mapping type public type."""
+
     EFFECT_MODIFIER = "effect_modifier"
     MECHANISM_NODE = "mechanism_node"
     INTERVENTION_REDEF = "intervention_redef"
@@ -71,7 +76,10 @@ class LegalConstraintSet(BaseModel):
 
 def is_transport_blocked(constraint_set: LegalConstraintSet) -> bool:
     """Return True when any HARD transportability constraint is present."""
-    return any(constraint.severity == ConstraintSeverity.HARD for constraint in constraint_set.hard_constraints)
+    return any(
+        constraint.severity == ConstraintSeverity.HARD
+        for constraint in constraint_set.hard_constraints
+    )
 
 
 class _FactContext(BaseModel):
@@ -246,7 +254,9 @@ class LegalConstraintBridge:
                         conditions.append(f"LOWER(COALESCE(f.{column}, '')) LIKE ?")
                         params.append(pattern)
 
-                join_sql = "LEFT JOIN lex_doc_domains d ON d.doc_id = f.doc_id" if has_domains else ""
+                join_sql = (
+                    "LEFT JOIN lex_doc_domains d ON d.doc_id = f.doc_id" if has_domains else ""
+                )
                 domain_clauses: list[str] = []
                 if has_domains and policy_domain:
                     domain_clauses.append("LOWER(COALESCE(d.domain, '')) = ?")
@@ -267,8 +277,7 @@ class LegalConstraintBridge:
                 trust_clause = ""
                 if fact_table == "lex_facts" and _column_exists(con, fact_table, "trust_tier"):
                     trust_clause = (
-                        " AND COALESCE(f.trust_tier, '') "
-                        "IN ('grounded_fact', 'normative_fact')"
+                        " AND COALESCE(f.trust_tier, '') IN ('grounded_fact', 'normative_fact')"
                     )
                 if _column_exists(con, fact_table, "fused_confidence"):
                     trust_clause += " AND COALESCE(f.fused_confidence, 0.0) >= 0.65"
@@ -413,12 +422,8 @@ def _coerce_edge(raw: Any) -> tuple[str, str] | None:
         if source and target:
             return source, target
     if isinstance(raw, dict):
-        source = str(
-            raw.get("source") or raw.get("cause") or raw.get("from") or ""
-        ).strip()
-        target = str(
-            raw.get("target") or raw.get("effect") or raw.get("to") or ""
-        ).strip()
+        source = str(raw.get("source") or raw.get("cause") or raw.get("from") or "").strip()
+        target = str(raw.get("target") or raw.get("effect") or raw.get("to") or "").strip()
         if source and target:
             return source, target
     return None
@@ -445,7 +450,12 @@ def _column_exists(
 
 
 def _best_fact_table(con: duckdb.DuckDBPyConnection) -> str:
-    for table_name in ("lex_high_confidence_norms", "lex_normative_facts", "lex_fact_grounded", "lex_facts"):
+    for table_name in (
+        "lex_high_confidence_norms",
+        "lex_normative_facts",
+        "lex_fact_grounded",
+        "lex_facts",
+    ):
         if _table_exists(con, table_name):
             return table_name
     return ""

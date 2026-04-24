@@ -1,9 +1,11 @@
 """Public plugins api module API."""
+
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import jax
 import jax.numpy as jnp
@@ -190,7 +192,7 @@ class PolisySimulator:
         steps_per_episode = training_config.steps_per_episode
 
         reward = CompositeReward(
-            {name: 1.0 for name in self.domains.keys()},
+            dict.fromkeys(self.domains.keys(), 1.0),
             self.registry,
         )
 

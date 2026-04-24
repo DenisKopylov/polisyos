@@ -1,4 +1,5 @@
 """Provide a thread-safe in-memory LRU cache with hit/miss telemetry."""
+
 from __future__ import annotations
 
 import threading
@@ -12,6 +13,7 @@ from .protocol import K, T, V
 @dataclass(frozen=True, slots=True)
 class LRUCacheStats:
     """Expose LRU cache hit/miss/eviction counters."""
+
     hits: int = 0
     misses: int = 0
     evictions: int = 0

@@ -1,4 +1,5 @@
 """Curated source contracts that pin external provider schemas to internal connector expectations."""
+
 from __future__ import annotations
 
 from polisyos.fabric.connectors.contracts import ContractRegistry
@@ -30,22 +31,23 @@ def build_builtin_contract_registry() -> ContractRegistry:
         registry.register(contract, allow_breaking=True)
     return registry
 
+
 __all__ = [
-    "WDI_GENERIC_SCHEMA",
-    "WDI_GENERIC_CONTRACT",
-    "WORLD_BANK_CONTRACTS",
-    "WVS_GENERIC_SCHEMA",
-    "WVS_GENERIC_CONTRACT",
-    "WVS_CONTRACTS",
-    "EUROSTAT_GENERIC_SCHEMA",
-    "EUROSTAT_GENERIC_CONTRACT",
-    "EUROSTAT_CONTRACTS",
-    "UKONS_GENERIC_SCHEMA",
-    "UKONS_GENERIC_CONTRACT",
-    "UKONS_CONTRACTS",
-    "SDMX_GENERIC_SCHEMA",
-    "SDMX_GENERIC_CONTRACT",
-    "SDMX_CONTRACTS",
     "ALL_SOURCE_CONTRACTS",
+    "EUROSTAT_CONTRACTS",
+    "EUROSTAT_GENERIC_CONTRACT",
+    "EUROSTAT_GENERIC_SCHEMA",
+    "SDMX_CONTRACTS",
+    "SDMX_GENERIC_CONTRACT",
+    "SDMX_GENERIC_SCHEMA",
+    "UKONS_CONTRACTS",
+    "UKONS_GENERIC_CONTRACT",
+    "UKONS_GENERIC_SCHEMA",
+    "WDI_GENERIC_CONTRACT",
+    "WDI_GENERIC_SCHEMA",
+    "WORLD_BANK_CONTRACTS",
+    "WVS_CONTRACTS",
+    "WVS_GENERIC_CONTRACT",
+    "WVS_GENERIC_SCHEMA",
     "build_builtin_contract_registry",
 ]

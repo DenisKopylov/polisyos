@@ -1,6 +1,7 @@
 # ADR-0018: Causal Estimator Protocol (Phase 12)
 
 ## Status
+
 Proposed
 
 ## Context
@@ -21,6 +22,7 @@ Scientist/Foundry flows.
    `polisyos.foundry.methods.catalog.causal`.
 2. Causal output contract is `polisyos.ir.analytics.causal.CausalEffectReport`.
 3. `CausalEffectReport` carries:
+
    - static method metadata trace (`method`, `estimand`, assumptions)
    - dynamic diagnostics (`diagnostics`, placebo outputs, status)
    - optional conversion to `UncertaintyEnvelope` (`to_uncertainty_envelope()`).
@@ -36,6 +38,7 @@ Scientist/Foundry flows.
 
 - Static assumptions are declared in `MethodMetadata.assumptions` and represent identification
   requirements of the method.
+
 - Dynamic assumption checks are emitted in `CausalEffectReport.diagnostics`.
 
 This split supports both discovery-time method selection and runtime governance decisions.
@@ -46,4 +49,3 @@ This split supports both discovery-time method selection and runtime governance 
 - Confidence governance pass can inspect causal envelopes via `causal_envelope_ref`.
 - Failure modes are explicit (`EstimationStatus`) and avoid fake fallback estimates.
 - ABI surface expands with `ir.causal.CausalEffectReport`.
-

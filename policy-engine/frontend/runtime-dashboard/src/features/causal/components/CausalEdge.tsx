@@ -112,12 +112,7 @@ export const CausalEdge = memo(function CausalEdge({
       data-edge-id={edge.id}
     >
       {/* Hit area (wider invisible stroke for easier clicking) */}
-      <path
-        d={pathD}
-        fill="none"
-        stroke="transparent"
-        strokeWidth={12}
-      />
+      <path d={pathD} fill="none" stroke="transparent" strokeWidth={12} />
 
       {/* Highlight glow */}
       {(selected || highlighted) && (

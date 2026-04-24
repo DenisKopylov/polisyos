@@ -1,4 +1,5 @@
 """Write and finalize lightweight run manifests and artifact references on disk."""
+
 from __future__ import annotations
 
 import json
@@ -7,16 +8,18 @@ import re
 import tempfile
 import threading
 import uuid
-from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import fast_json_dumps
 from polisyos.core.contracts.foundry import EnvironmentManifestRef
 from polisyos.runtime.manifest import ArtifactRef, RunManifest
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 logger = get_logger(__name__)
 _SAFE_COMPONENT_RE = re.compile(r"^[A-Za-z0-9_.-]+$")

@@ -1,9 +1,11 @@
 # ADR-0124: LLM Idempotency and Prompt Versioning
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context
@@ -13,10 +15,13 @@ screening. Current failure modes seen in benchmarks:
 
 - Retry-storms silently re-bill the same semantic call because cache keys miss
   the model temperature or schema version.
+
 - Prompt edits ship without a pinned version, so historical artifacts cannot
   be reproduced.
+
 - Failed calls land as `ValueError` deep inside pipelines instead of in a DLQ
   with replay metadata.
+
 - Two calls differing only by whitespace in the prompt pay twice.
 
 SOTA: every LLM call must be deterministic, versioned, idempotent, replayable,
@@ -26,6 +31,7 @@ and costable.
 
 1. Every LLM call goes through `polisyos.data_forge.kernel.llm.call(...)`.
 2. The cache key is a canonical hash over:
+
    - `messages` (canonicalised: JSON-normalized, whitespace-trimmed),
    - `model_id`,
    - `temperature`, `top_p`, `seed`,
@@ -38,7 +44,7 @@ and costable.
    tokens, cost, `trace_id`, and the prompt + schema pair used.
 5. Failures route to a structured DLQ (`runs/<run_id>/llm_dlq/*.jsonl`) with
    original request hash, category (`timeout | schema_violation | quota |
-   upstream_5xx | other`), attempt count, and last error.
+upstream_5xx | other`), attempt count, and last error.
 6. Replays read from DLQ; semantic reruns require a new `prompt_version` or
    a new `provider_api_version`.
 7. Schema-constrained responses must pass JSON Schema validation against the
@@ -55,6 +61,8 @@ and costable.
 
 - Extends: ADR-0032 (LLM as context interpreter), ADR-0035 (two-step screening
   Haiku-Sonnet).
+
 - Depends on: ADR-0114 (schema registry), ADR-0116 (OTel observability),
   ADR-0123 (ArtifactRef governance).
+
 - Related: ADR-0097 (runtime rate limiting and idempotency).

@@ -4,16 +4,16 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from polisyos.ir.norm_pack import NormPack, NormRule, NormRef, RuleType
-from polisyos.core.governance.passes.base import (
-    PassContext,
-    ComplianceIssue,
-    IssueSeverity,
-)
-from polisyos.core.governance.passes.legal_pass import LegalPass
 from polisyos.core.governance.legal.backends.base import RuleBackend
 from polisyos.core.governance.legal.backends.stub import StubBackend
+from polisyos.core.governance.passes.base import (
+    ComplianceIssue,
+    IssueSeverity,
+    PassContext,
+)
+from polisyos.core.governance.passes.legal_pass import LegalPass
 from polisyos.core.governance.profiles import ValidationProfile
+from polisyos.ir.norm_pack import NormPack, NormRef, NormRule, RuleType
 
 
 @pytest.fixture

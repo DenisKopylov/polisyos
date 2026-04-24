@@ -1,4 +1,5 @@
 """Public agent sim graph mechanisms module API."""
+
 from __future__ import annotations
 
 import chex
@@ -14,6 +15,7 @@ from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 class SocialInfluenceMechanism(Mechanism):
     """Social influence mechanism public type."""
+
     @property
     def spec(self) -> MechanismSpec:
         return MechanismSpec(
@@ -47,9 +49,8 @@ class SocialInfluenceMechanism(Mechanism):
         ).squeeze(-1)
 
         consumption_target = (
-            (1.0 - self.influence_strength) * agents.consumption
-            + self.influence_strength * neighbor_consumption
-        )
+            1.0 - self.influence_strength
+        ) * agents.consumption + self.influence_strength * neighbor_consumption
         consumption_target = jnp.where(active, consumption_target, agents.consumption_target)
         new_agents = agents.replace(consumption_target=consumption_target)
 
@@ -57,15 +58,14 @@ class SocialInfluenceMechanism(Mechanism):
         count = jnp.maximum(jnp.sum(active_f), 1.0)
         mean_neighbor = jnp.sum(neighbor_consumption * active_f) / count
         mean_self = jnp.sum(agents.consumption * active_f) / count
-        cov = jnp.sum(
-            (agents.consumption - mean_self)
-            * (neighbor_consumption - mean_neighbor)
-            * active_f
-        ) / count
-        var_self = jnp.sum((agents.consumption - mean_self) ** 2 * active_f) / count
-        var_neighbor = (
-            jnp.sum((neighbor_consumption - mean_neighbor) ** 2 * active_f) / count
+        cov = (
+            jnp.sum(
+                (agents.consumption - mean_self) * (neighbor_consumption - mean_neighbor) * active_f
+            )
+            / count
         )
+        var_self = jnp.sum((agents.consumption - mean_self) ** 2 * active_f) / count
+        var_neighbor = jnp.sum((neighbor_consumption - mean_neighbor) ** 2 * active_f) / count
         corr = cov / (jnp.sqrt(var_self * var_neighbor) + 1e-8)
 
         metrics = {
@@ -77,6 +77,7 @@ class SocialInfluenceMechanism(Mechanism):
 
 class InformationDiffusionMechanism(Mechanism):
     """Information diffusion mechanism public type."""
+
     @property
     def spec(self) -> MechanismSpec:
         return MechanismSpec(
@@ -126,13 +127,12 @@ class InformationDiffusionMechanism(Mechanism):
 
 class NetworkLendingMechanism(Mechanism):
     """Network lending mechanism public type."""
+
     @property
     def spec(self) -> MechanismSpec:
         return MechanismSpec(
             name="network_lending",
-            reads=frozenset(
-                {"agents.wealth", "agents.income", "agents.active", "graph.edges"}
-            ),
+            reads=frozenset({"agents.wealth", "agents.income", "agents.active", "graph.edges"}),
             writes=frozenset({"agents.wealth", "agents.debt"}),
             parameters={"max_loan_fraction": float, "interest_rate": float},
             stochastic=True,
@@ -204,13 +204,12 @@ class NetworkLendingMechanism(Mechanism):
 
 class LaborNetworkMechanism(Mechanism):
     """Labor network mechanism public type."""
+
     @property
     def spec(self) -> MechanismSpec:
         return MechanismSpec(
             name="labor_network",
-            reads=frozenset(
-                {"agents.employed", "agents.income", "agents.active", "graph.edges"}
-            ),
+            reads=frozenset({"agents.employed", "agents.income", "agents.active", "graph.edges"}),
             writes=frozenset({"agents.employed", "agents.income"}),
             parameters={"referral_probability": float},
             stochastic=True,

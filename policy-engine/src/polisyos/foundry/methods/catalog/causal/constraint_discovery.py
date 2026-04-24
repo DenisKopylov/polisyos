@@ -1,4 +1,5 @@
 """Discover causal graph structure from conditional-independence or score constraints."""
+
 from __future__ import annotations
 
 import math
@@ -35,14 +36,14 @@ from polisyos.foundry.methods.catalog.causal.algebraic_calibration import (
     TetradBlockCalibrationMetrics,
     decide_tetrad_severity,
 )
-from polisyos.foundry.methods.catalog.causal.model_class_compatibility import (
-    check_model_class_compatibility,
-)
 from polisyos.foundry.methods.catalog.causal.ci_backends import (
     CIBackendSelection,
     ci_backend_metadata,
     partial_corr,
     resolve_discovery_ci_backend,
+)
+from polisyos.foundry.methods.catalog.causal.model_class_compatibility import (
+    check_model_class_compatibility,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import TabularCausalDiscoveryData
 from polisyos.ir.analytics.causal_discovery import (
@@ -163,9 +164,7 @@ def _inject_algebraic_blocks_metadata(
     if not algebraic_blocks:
         return graph
     metadata = dict(graph.metadata)
-    metadata["algebraic_blocks"] = [
-        block.model_dump(mode="json") for block in algebraic_blocks
-    ]
+    metadata["algebraic_blocks"] = [block.model_dump(mode="json") for block in algebraic_blocks]
     return graph.model_copy(update={"metadata": metadata})
 
 
@@ -231,10 +230,14 @@ def _g_test_from_table(table: np.ndarray) -> tuple[float, float, dict[str, Any]]
 
     if dof <= 0:
         return 0.0, 1.0, {"degrees_of_freedom": int(dof), "degenerate": True}
-    return float(statistic), float(chi2.sf(float(statistic), int(dof))), {
-        "degrees_of_freedom": int(dof),
-        "degenerate": False,
-    }
+    return (
+        float(statistic),
+        float(chi2.sf(float(statistic), int(dof))),
+        {
+            "degrees_of_freedom": int(dof),
+            "degenerate": False,
+        },
+    )
 
 
 def _conditional_g_test(
@@ -266,21 +269,29 @@ def _conditional_g_test(
         valid_strata += 1
 
     if total_dof <= 0 or valid_strata == 0:
-        return 0.0, 1.0, {
-            "degrees_of_freedom": 0,
-            "valid_strata": valid_strata,
-            "skipped_strata": skipped_strata,
-            "degenerate": True,
-        }
+        return (
+            0.0,
+            1.0,
+            {
+                "degrees_of_freedom": 0,
+                "valid_strata": valid_strata,
+                "skipped_strata": skipped_strata,
+                "degenerate": True,
+            },
+        )
 
     from scipy.stats import chi2
 
-    return float(total_statistic), float(chi2.sf(float(total_statistic), total_dof)), {
-        "degrees_of_freedom": int(total_dof),
-        "valid_strata": valid_strata,
-        "skipped_strata": skipped_strata,
-        "degenerate": False,
-    }
+    return (
+        float(total_statistic),
+        float(chi2.sf(float(total_statistic), total_dof)),
+        {
+            "degrees_of_freedom": int(total_dof),
+            "valid_strata": valid_strata,
+            "skipped_strata": skipped_strata,
+            "degenerate": False,
+        },
+    )
 
 
 def _mixed_kernel_test(
@@ -318,7 +329,9 @@ def _mixed_kernel_test(
             "passed": bool(raw["passed"]),
             "critical_value": float(raw["critical_value"]),
             "alpha": float(raw.get("alpha", alpha)),
-            "critical_statistic_value": float(raw.get("critical_statistic_value", raw["critical_value"])),
+            "critical_statistic_value": float(
+                raw.get("critical_statistic_value", raw["critical_value"])
+            ),
             "calibration_mode": raw.get("calibration_mode"),
             "dp_context_summary": raw.get("dp_context_summary"),
             "naive_fpr_inflation_bound": raw.get("naive_fpr_inflation_bound"),
@@ -360,7 +373,9 @@ def _mixed_kernel_test(
         "passed": bool(raw["passed"]),
         "critical_value": float(raw["critical_value"]),
         "alpha": float(raw.get("alpha", alpha)),
-        "critical_statistic_value": float(raw.get("critical_statistic_value", raw["critical_value"])),
+        "critical_statistic_value": float(
+            raw.get("critical_statistic_value", raw["critical_value"])
+        ),
         "calibration_mode": raw.get("calibration_mode"),
         "dp_context_summary": raw.get("dp_context_summary"),
         "naive_fpr_inflation_bound": raw.get("naive_fpr_inflation_bound"),
@@ -693,18 +708,14 @@ def _implied_ci_constraints(
         return []
 
     adjacent_pairs = {
-        _pair_key(edge.src, edge.dst)
-        for edge in graph.edges
-        if edge.lag in (None, 0)
+        _pair_key(edge.src, edge.dst) for edge in graph.edges if edge.lag in (None, 0)
     }
     constraints: list[ImpliedConstraintSpec] = []
     for left_idx, left in enumerate(query_graph.nodes):
         for right in query_graph.nodes[left_idx + 1 :]:
             if _pair_key(left, right) in adjacent_pairs:
                 continue
-            candidates = [
-                node for node in query_graph.nodes if node not in {left, right}
-            ]
+            candidates = [node for node in query_graph.nodes if node not in {left, right}]
             minimal_sets: list[tuple[str, ...]] = []
             for size in range(
                 0,
@@ -749,8 +760,7 @@ def _tetrad_value(
 ) -> float:
     cov = _covariance(matrix)
     return float(
-        cov[left_pairs[0]] * cov[left_pairs[1]]
-        - cov[right_pairs[0]] * cov[right_pairs[1]]
+        cov[left_pairs[0]] * cov[left_pairs[1]] - cov[right_pairs[0]] * cov[right_pairs[1]]
     )
 
 
@@ -798,7 +808,7 @@ def _overcomplete_residual_energy(matrix: np.ndarray, expected_rank: int) -> flo
         raise ValueError("overcomplete covariance matrix must be 2D")
     eigenvalues = np.linalg.eigvalsh(cov)
     eigenvalues = np.clip(np.sort(eigenvalues)[::-1], 0.0, None)
-    total = float(np.sum(eigenvalues ** 2))
+    total = float(np.sum(eigenvalues**2))
     if total <= 1e-12:
         return 0.0
     tail = float(np.sum(eigenvalues[expected_rank:] ** 2))
@@ -828,7 +838,7 @@ def _trek_rank_residual_energy(
     cross_cov = _cross_covariance(left, right)
     singular_values = np.linalg.svd(cross_cov, compute_uv=False)
     singular_values = np.clip(np.sort(singular_values)[::-1], 0.0, None)
-    total = float(np.sum(singular_values ** 2))
+    total = float(np.sum(singular_values**2))
     if total <= 1e-12:
         return 0.0
     tail = float(np.sum(singular_values[max_rank:] ** 2))
@@ -865,12 +875,9 @@ def _trek_rank_statement(
     col_label = ", ".join(col_variables)
     if test_mode is AlgebraicTestMode.BOOTSTRAP_MINOR:
         order = int(max_rank) + 1
-        return (
-            f"all {order}x{order} minors of cov([{row_label}], [{col_label}]) vanish"
-        )
+        return f"all {order}x{order} minors of cov([{row_label}], [{col_label}]) vanish"
     return (
-        f"residual_energy(cov([{row_label}], [{col_label}]), rank<={max_rank}) "
-        f"<= {threshold:.4f}"
+        f"residual_energy(cov([{row_label}], [{col_label}]), rank<={max_rank}) <= {threshold:.4f}"
     )
 
 
@@ -989,10 +996,7 @@ def _has_candidate_trek_tops(
 ) -> bool:
     if left_tops & right_tops:
         return True
-    return any(
-        bool(bidirected_neighbors.get(node, frozenset()) & right_tops)
-        for node in left_tops
-    )
+    return any(bool(bidirected_neighbors.get(node, frozenset()) & right_tops) for node in left_tops)
 
 
 def _has_unblocked_trek(
@@ -1104,12 +1108,9 @@ def _infer_graph_implied_trek_rank_blocks(
 ) -> tuple[list[AlgebraicBlockSpec], list[str]]:
     warnings: list[str] = []
     if any(
-        edge.mark_src is EdgeMark.CIRCLE or edge.mark_dst is EdgeMark.CIRCLE
-        for edge in graph.edges
+        edge.mark_src is EdgeMark.CIRCLE or edge.mark_dst is EdgeMark.CIRCLE for edge in graph.edges
     ):
-        warnings.append(
-            "trek_rank_auto_skipped:graph_has_uncertain_circle_endpoints"
-        )
+        warnings.append("trek_rank_auto_skipped:graph_has_uncertain_circle_endpoints")
         return [], warnings
     observed_nodes = sorted(node for node in graph.nodes if node in set(variable_names))
     if len(observed_nodes) > _AUTO_TREK_MAX_GRAPH_NODES:
@@ -1185,9 +1186,7 @@ def _infer_graph_implied_trek_rank_blocks(
                         graph_scope="auto:t_separation_search",
                         left_choke_set=left_chokes,
                         right_choke_set=right_chokes,
-                        assumption_regime=(
-                            AlgebraicAssumptionRegime.LINEAR_GAUSSIAN_CONTINUOUS
-                        ),
+                        assumption_regime=(AlgebraicAssumptionRegime.LINEAR_GAUSSIAN_CONTINUOUS),
                         test_mode=(
                             AlgebraicTestMode.BOOTSTRAP_MINOR
                             if inferred_rank == 1
@@ -1353,15 +1352,11 @@ def _evaluate_tetrad_family(
             _classify_numeric_series(block_matrix[:, idx]) != "continuous"
             for idx in range(block_matrix.shape[1])
         ):
-            warnings.append(
-                f"tetrad_block_skipped:{block.block_id}:noncontinuous_variables"
-            )
+            warnings.append(f"tetrad_block_skipped:{block.block_id}:noncontinuous_variables")
             continue
 
         quadruples = (
-            list(block.quadruples)
-            if block.quadruples
-            else list(combinations(block.variables, 4))
+            list(block.quadruples) if block.quadruples else list(combinations(block.variables, 4))
         )
         for quadruple in quadruples:
             quad_indices = tuple(index_by_name[name] for name in quadruple)
@@ -1377,9 +1372,7 @@ def _evaluate_tetrad_family(
                 continue
             for label, left_pairs, right_pairs in _tetrad_pairings():
                 spec = ImpliedConstraintSpec(
-                    constraint_id=(
-                        f"tetrad:{block.block_id}:{','.join(quadruple)}:{label}"
-                    ),
+                    constraint_id=(f"tetrad:{block.block_id}:{','.join(quadruple)}:{label}"),
                     family=AlgebraicConstraintFamily.TETRAD,
                     statement=_tetrad_statement(tuple(quadruple), label),
                     variables=tuple(quadruple),
@@ -1546,9 +1539,7 @@ def _evaluate_overcomplete_family(
             _classify_numeric_series(block_matrix[:, idx]) != "continuous"
             for idx in range(block_matrix.shape[1])
         ):
-            warnings.append(
-                f"overcomplete_block_skipped:{block.block_id}:noncontinuous_variables"
-            )
+            warnings.append(f"overcomplete_block_skipped:{block.block_id}:noncontinuous_variables")
             continue
         mask = _complete_case_mask([block_matrix[:, idx] for idx in range(block_matrix.shape[1])])
         complete = block_matrix[mask]
@@ -1559,9 +1550,7 @@ def _evaluate_overcomplete_family(
             continue
 
         threshold = (
-            float(block.max_residual_energy)
-            if block.max_residual_energy is not None
-            else 0.05
+            float(block.max_residual_energy) if block.max_residual_energy is not None else 0.05
         )
         spec = ImpliedConstraintSpec(
             constraint_id=f"overcomplete:{block.block_id}:rank<={block.expected_rank}",
@@ -1660,17 +1649,13 @@ def _evaluate_trek_rank_family(
                 f"trek_rank_block_skipped:{block.block_id}:missing_variables={sorted(missing)}"
             )
             continue
-        block_matrix = np.column_stack(
-            [data[:, index_by_name[name]] for name in ordered_variables]
-        )
+        block_matrix = np.column_stack([data[:, index_by_name[name]] for name in ordered_variables])
         continuous_only = all(
             _classify_numeric_series(block_matrix[:, idx]) == "continuous"
             for idx in range(block_matrix.shape[1])
         )
         if not continuous_only:
-            warnings.append(
-                f"trek_rank_block_skipped:{block.block_id}:noncontinuous_variables"
-            )
+            warnings.append(f"trek_rank_block_skipped:{block.block_id}:noncontinuous_variables")
             continue
         mask = _complete_case_mask([block_matrix[:, idx] for idx in range(block_matrix.shape[1])])
         complete = block_matrix[mask]
@@ -1680,9 +1665,7 @@ def _evaluate_trek_rank_family(
             (int(block.max_rank or 0) + 1) * 8,
         )
         if complete.shape[0] < min_complete_cases:
-            warnings.append(
-                f"trek_rank_block_skipped:{block.block_id}:insufficient_complete_cases"
-            )
+            warnings.append(f"trek_rank_block_skipped:{block.block_id}:insufficient_complete_cases")
             continue
 
         row_idx = [ordered_variables.index(name) for name in block.row_variables]
@@ -1690,9 +1673,7 @@ def _evaluate_trek_rank_family(
         row_matrix = complete[:, row_idx]
         col_matrix = complete[:, col_idx]
         threshold = (
-            float(block.max_residual_energy)
-            if block.max_residual_energy is not None
-            else 0.05
+            float(block.max_residual_energy) if block.max_residual_energy is not None else 0.05
         )
         requested_mode = block.test_mode
         effective_mode = requested_mode or AlgebraicTestMode.BOOTSTRAP_RANK
@@ -1705,10 +1686,9 @@ def _evaluate_trek_rank_family(
                 f"trek_rank_mode_fallback:{block.block_id}:{effective_mode.value}->bootstrap_rank"
             )
             effective_mode = AlgebraicTestMode.BOOTSTRAP_RANK
-        if (
-            effective_mode is AlgebraicTestMode.BOOTSTRAP_MINOR
-            and int(block.max_rank or 0) + 1 > min(row_matrix.shape[1], col_matrix.shape[1])
-        ):
+        if effective_mode is AlgebraicTestMode.BOOTSTRAP_MINOR and int(
+            block.max_rank or 0
+        ) + 1 > min(row_matrix.shape[1], col_matrix.shape[1]):
             warnings.append(
                 f"trek_rank_mode_fallback:{block.block_id}:bootstrap_minor->bootstrap_rank"
             )
@@ -1734,9 +1714,7 @@ def _evaluate_trek_rank_family(
                 "left_choke_set": list(block.left_choke_set),
                 "right_choke_set": list(block.right_choke_set),
                 "assumption_regime": (
-                    block.assumption_regime.value
-                    if block.assumption_regime is not None
-                    else None
+                    block.assumption_regime.value if block.assumption_regime is not None else None
                 ),
                 "test_mode_requested": (
                     requested_mode.value if requested_mode is not None else None
@@ -1819,7 +1797,8 @@ def _evaluate_trek_rank_family(
         blocker_eligible = (
             block.assumption_regime is AlgebraicAssumptionRegime.LINEAR_GAUSSIAN_CONTINUOUS
             and regularity_status is AlgebraicRegularityStatus.REGULAR
-            and effective_mode in {
+            and effective_mode
+            in {
                 AlgebraicTestMode.BOOTSTRAP_MINOR,
                 AlgebraicTestMode.BOOTSTRAP_RANK,
             }
@@ -1883,9 +1862,7 @@ def _evaluate_trek_rank_family(
                     calibration_mode=AlgebraicCalibrationMode.BOOTSTRAP,
                     scope_of_falsification=scope,
                     ranking_weight=_severity_ranking_weight(severity),
-                    reproducibility_tier=(
-                        AlgebraicReproducibilityTier.STOCHASTIC_BOOTSTRAP
-                    ),
+                    reproducibility_tier=(AlgebraicReproducibilityTier.STOCHASTIC_BOOTSTRAP),
                     metadata=dict(entry["metadata"]),
                 )
             )
@@ -1918,9 +1895,7 @@ def _evaluate_nested_verma_family(
                     "cadmg_scope": block.cadmg_scope,
                     "fixing_sequence": list(block.fixing_sequence),
                     "model_family": (
-                        block.model_family.value
-                        if block.model_family is not None
-                        else None
+                        block.model_family.value if block.model_family is not None else None
                     ),
                     "positivity_required": block.positivity_required,
                     "identified_kernel_ref": (
@@ -1952,7 +1927,8 @@ def _evaluate_nested_verma_family(
 def _is_binary_iv_semialgebraic_route(block: AlgebraicBlockSpec) -> bool:
     return (
         block.family is AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT
-        and block.derivation_method in {
+        and block.derivation_method
+        in {
             "iv_binary_response_polytope",
             "iv_binary_instrumental_inequalities",
         }
@@ -2063,8 +2039,7 @@ def _evaluate_algebraic_geometry_invariant_family(
                 continue
 
         statement_specs = [
-            ("polynomial_equality", f"{statement} = 0")
-            for statement in block.invariant_polynomials
+            ("polynomial_equality", f"{statement} = 0") for statement in block.invariant_polynomials
         ]
         statement_specs.extend(
             ("semi_algebraic_inequality", statement)
@@ -2078,10 +2053,7 @@ def _evaluate_algebraic_geometry_invariant_family(
         for index, (statement_kind, statement) in enumerate(statement_specs, start=1):
             implied_constraints.append(
                 ImpliedConstraintSpec(
-                    constraint_id=(
-                        "algebraic_geometry_invariant:"
-                        f"{block.block_id}:{index}"
-                    ),
+                    constraint_id=(f"algebraic_geometry_invariant:{block.block_id}:{index}"),
                     family=AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT,
                     statement=str(statement),
                     variables=tuple(block.variables),
@@ -2164,9 +2136,7 @@ def _suggested_repairs(
             "Revisit the declared measurement block behind the violated tetrad constraints."
         )
     if AlgebraicConstraintFamily.OVERCOMPLETE in families:
-        suggestions.append(
-            "Revisit the declared expected rank or overcomplete block definition."
-        )
+        suggestions.append("Revisit the declared expected rank or overcomplete block definition.")
     if AlgebraicConstraintFamily.TREK_RANK in families:
         suggestions.append(
             "Revisit the declared trek-separation rank bound or low-rank block scope."
@@ -2423,9 +2393,9 @@ def _run_algebraic_constraint_audit(
         tested_by_family[AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT.value] = int(
             algebraic_geometry_result["tested_count"]
         )
-        violated_by_family[
-            AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT.value
-        ] = len(algebraic_geometry_result["violations"])
+        violated_by_family[AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT.value] = len(
+            algebraic_geometry_result["violations"]
+        )
         blocker_conditions_met_by_family[
             AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT.value
         ] = bool(algebraic_geometry_result.get("blocker_conditions_met", False))
@@ -2823,8 +2793,7 @@ def _run_jax_constraint_discovery(
             adjacency=None,
             metadata={},
             error=(
-                "JAX CI variable mismatch: "
-                f"data_cols={n_vars}, variables={len(variable_names)}"
+                f"JAX CI variable mismatch: data_cols={n_vars}, variables={len(variable_names)}"
             ),
             timed_out=False,
         )
@@ -3014,7 +2983,9 @@ def _run_constraint_discovery(
 
         dagma_params = dict(params)
         dagma_params["timeout_seconds"] = max(1.0, deadline - time.perf_counter())
-        dagma_params["algebraic_blocks"] = [block.model_dump(mode="json") for block in algebraic_blocks]
+        dagma_params["algebraic_blocks"] = [
+            block.model_dump(mode="json") for block in algebraic_blocks
+        ]
         dagma_output = run_dagma_discovery(state=tab_data, params=dagma_params)
         dagma_report_raw = dagma_output["report"]
         dagma_report = (
@@ -3131,7 +3102,7 @@ def _run_constraint_discovery(
     completed_bootstrap = 0
     base_edge_keys = [_edge_key(edge) for edge in graph.edges]
     if n_bootstrap_requested > 0 and base_edge_keys:
-        hit_counts = {key: 0 for key in base_edge_keys}
+        hit_counts = dict.fromkeys(base_edge_keys, 0)
         bootstrap_rng = np.random.default_rng(seed + 7919)
         for idx in range(n_bootstrap_requested):
             remaining = max(0.0, deadline - time.perf_counter())
@@ -3191,7 +3162,7 @@ def _run_constraint_discovery(
                 key: float(hit_counts[key] / completed_bootstrap) for key in base_edge_keys
             }
         else:
-            bootstrap_stability = {key: 0.0 for key in base_edge_keys}
+            bootstrap_stability = dict.fromkeys(base_edge_keys, 0.0)
 
     report = _stamp_algebraic_constraint_audit(
         CausalDiscoveryReport(
@@ -3235,6 +3206,7 @@ def _run_constraint_discovery(
 )
 class PCDiscovery:
     """Run PC discovery under causal sufficiency and faithfulness; avoid hidden confounding or very small samples."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -3311,6 +3283,7 @@ class PCDiscovery:
 )
 class FCIDiscovery:
     """Run FCI discovery when latent confounding may exist; avoid unstable CI tests on tiny samples."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -3387,6 +3360,7 @@ class FCIDiscovery:
 )
 class GESDiscovery:
     """Run score-based GES DAG search; avoid misspecified scores for strongly nonlinear or non-Gaussian data."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -3455,7 +3429,7 @@ class GESDiscovery:
 
 
 __all__ = [
-    "PCDiscovery",
     "FCIDiscovery",
     "GESDiscovery",
+    "PCDiscovery",
 ]

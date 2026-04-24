@@ -52,7 +52,9 @@ def _merge_world_intervention(
 
 def ast_contains_counterfactual(node: object) -> bool:
     """Return True when an AST node tree contains any Layer-3 node."""
-    if isinstance(node, (CounterfactualNode, NestedCounterfactualNode, CrossWorldNode, CtfInterventionNode)):
+    if isinstance(
+        node, (CounterfactualNode, NestedCounterfactualNode, CrossWorldNode, CtfInterventionNode)
+    ):
         return True
     if isinstance(node, SumNode):
         return ast_contains_counterfactual(node.operand)
@@ -124,8 +126,8 @@ def _collect_world_interventions(
 
 def _build_amn_for_ast(
     ast: EstimandAST,
-    graph: "CausalGraphModel",
-) -> tuple["CausalGraphModel", AMNMetadata]:
+    graph: CausalGraphModel,
+) -> tuple[CausalGraphModel, AMNMetadata]:
     interventions: dict[str, dict[str, float]] = {}
     _collect_world_interventions(ast.root, interventions)
     if not interventions:
@@ -134,7 +136,7 @@ def _build_amn_for_ast(
 
 
 def _amn_node_name(
-    amn: "CausalGraphModel",
+    amn: CausalGraphModel,
     variable: str,
     *,
     world_label: str,
@@ -165,7 +167,7 @@ def _protected_interventions(treatment: str) -> frozenset[str]:
 
 def apply_ctf_rule1(
     node: CounterfactualNode,
-    amn: "CausalGraphModel",
+    amn: CausalGraphModel,
     z_vars: frozenset[str],
 ) -> tuple[CounterfactualNode, IRProofStep] | None:
     """CTF-R1: remove same-world observations from counterfactual conditioning."""
@@ -177,15 +179,29 @@ def apply_ctf_rule1(
     y_node = frozenset({_amn_node_name(amn, node.variable, world_label=world_label)})
     z_nodes = frozenset(_amn_node_name(amn, variable, world_label=world_label) for variable in z)
     w_vars = frozenset(node.conditioning) - z
-    w_nodes = frozenset(_amn_node_name(amn, variable, world_label=world_label) for variable in w_vars)
+    w_nodes = frozenset(
+        _amn_node_name(amn, variable, world_label=world_label) for variable in w_vars
+    )
     x_nodes = frozenset(
         _amn_node_name(amn, variable, world_label=world_label) for variable in node.intervention
     )
     amn_x = remove_incoming_edges(amn, x_nodes)
 
     if not (
-        amn_d_separation(amn_x, AMNMetadata.model_validate(amn_x.metadata["amn_metadata"]), y_node, z_nodes, w_nodes)
-        and amn_d_separation(amn_x, AMNMetadata.model_validate(amn_x.metadata["amn_metadata"]), z_nodes, y_node, w_nodes)
+        amn_d_separation(
+            amn_x,
+            AMNMetadata.model_validate(amn_x.metadata["amn_metadata"]),
+            y_node,
+            z_nodes,
+            w_nodes,
+        )
+        and amn_d_separation(
+            amn_x,
+            AMNMetadata.model_validate(amn_x.metadata["amn_metadata"]),
+            z_nodes,
+            y_node,
+            w_nodes,
+        )
     ):
         return None
 
@@ -208,7 +224,7 @@ def apply_ctf_rule1(
 
 def apply_ctf_rule2(
     node: CounterfactualNode,
-    amn: "CausalGraphModel",
+    amn: CausalGraphModel,
     z_vars: frozenset[str],
 ) -> tuple[CounterfactualNode, IRProofStep] | None:
     """CTF-R2: exchange same-world interventions for observations."""
@@ -271,7 +287,7 @@ def apply_ctf_rule2(
 
 def apply_ctf_rule3(
     node: CounterfactualNode,
-    amn: "CausalGraphModel",
+    amn: CausalGraphModel,
     z_vars: frozenset[str],
 ) -> tuple[CounterfactualNode, IRProofStep] | None:
     """CTF-R3: delete redundant same-world counterfactual interventions."""
@@ -294,7 +310,9 @@ def apply_ctf_rule3(
     )
     amn_x = remove_incoming_edges(amn, x_nodes)
     ancestor_set = ancestors(amn_x, w_nodes) if w_nodes else frozenset()
-    z_w = frozenset(variable for variable, node_name in z_node_map.items() if node_name not in ancestor_set)
+    z_w = frozenset(
+        variable for variable, node_name in z_node_map.items() if node_name not in ancestor_set
+    )
     if not z_w:
         return None
     z_w_nodes = frozenset(z_node_map[variable] for variable in z_w)
@@ -338,7 +356,7 @@ def apply_ctf_rule3(
 
 def _try_all_ctf_rules(
     node: CounterfactualNode,
-    amn: "CausalGraphModel",
+    amn: CausalGraphModel,
     *,
     protected_interventions: frozenset[str] = frozenset(),
 ) -> tuple[object, list[IRProofStep]]:
@@ -384,7 +402,7 @@ def _try_all_ctf_rules(
 
 def _rewrite_ctf_node(
     node: object,
-    amn: "CausalGraphModel",
+    amn: CausalGraphModel,
     *,
     protected_interventions: frozenset[str] = frozenset(),
 ) -> tuple[object, list[IRProofStep]]:
@@ -469,7 +487,10 @@ def _rewrite_ctf_node(
             )
             steps.extend(factor_steps)
             new_factors.append(new_factor)
-        if any(new_factor is not old_factor for new_factor, old_factor in zip(new_factors, node.factors)):
+        if any(
+            new_factor is not old_factor
+            for new_factor, old_factor in zip(new_factors, node.factors)
+        ):
             node = node.model_copy(update={"factors": tuple(new_factors)})
         return node, steps
 
@@ -497,7 +518,7 @@ def _rewrite_ctf_node(
 
 def rewrite_ctf_estimand(
     ast: EstimandAST,
-    graph: "CausalGraphModel",
+    graph: CausalGraphModel,
     max_iterations: int = 20,
 ) -> tuple[EstimandAST, list[IRProofStep]]:
     """Apply ctf-calculus on an EstimandAST until reaching a fixed point."""
@@ -509,7 +530,9 @@ def rewrite_ctf_estimand(
     protected_interventions = _protected_interventions(ast.treatment)
 
     for _ in range(max_iterations):
-        current_ast = ast if current_root is ast.root else ast.model_copy(update={"root": current_root})
+        current_ast = (
+            ast if current_root is ast.root else ast.model_copy(update={"root": current_root})
+        )
         amn, _ = _build_amn_for_ast(current_ast, graph)
         new_root, round_steps = _rewrite_ctf_node(
             current_root,

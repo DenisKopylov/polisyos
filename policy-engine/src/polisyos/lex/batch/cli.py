@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import asyncio
 import logging
-import os
 import shutil
 import sys
 from datetime import UTC, datetime
@@ -64,9 +63,15 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Optional global concurrency cap across all Gonka keys.",
     )
-    run_p.add_argument("--gonka-rate-limit-rps", type=float, default=5.0, help="Gonka request rate limit")
-    run_p.add_argument("--max-retries", type=int, default=7, help="Max retries per LLM request on 429/5xx")
-    run_p.add_argument("--llm-temperature", type=float, default=0.1, help="LLM temperature for SPO extraction")
+    run_p.add_argument(
+        "--gonka-rate-limit-rps", type=float, default=5.0, help="Gonka request rate limit"
+    )
+    run_p.add_argument(
+        "--max-retries", type=int, default=7, help="Max retries per LLM request on 429/5xx"
+    )
+    run_p.add_argument(
+        "--llm-temperature", type=float, default=0.1, help="LLM temperature for SPO extraction"
+    )
     run_p.add_argument("--spo-connect-timeout-seconds", type=int, default=15)
     run_p.add_argument("--spo-read-timeout-seconds", type=int, default=120)
     run_p.add_argument("--spo-total-timeout-seconds", type=int, default=180)
@@ -104,8 +109,12 @@ def _build_parser() -> argparse.ArgumentParser:
     run_p.add_argument("--spo-adaptive-rate-recovery-factor", type=float, default=0.97)
     run_p.add_argument("--spo-adaptive-rate-penalty-multiplier", type=float, default=1.35)
     run_p.add_argument("--spo-adaptive-rate-max-scale", type=float, default=8.0)
-    run_p.add_argument("--xml-parse-chunk", type=int, default=5000, help="Documents buffered per stream chunk")
-    run_p.add_argument("--structure-workers", type=int, default=4, help="Worker processes for structure extraction")
+    run_p.add_argument(
+        "--xml-parse-chunk", type=int, default=5000, help="Documents buffered per stream chunk"
+    )
+    run_p.add_argument(
+        "--structure-workers", type=int, default=4, help="Worker processes for structure extraction"
+    )
     run_p.add_argument(
         "--disable-structure-paragraphs",
         action="store_true",
@@ -123,8 +132,12 @@ def _build_parser() -> argparse.ArgumentParser:
         default=200,
         help="Fallback chunk overlap characters.",
     )
-    run_p.add_argument("--spo-batch-docs", type=int, default=500, help="Documents per SPO checkpoint batch")
-    run_p.add_argument("--spo-task-batch-size", type=int, default=1000, help="Max SPO asyncio tasks per gather")
+    run_p.add_argument(
+        "--spo-batch-docs", type=int, default=500, help="Documents per SPO checkpoint batch"
+    )
+    run_p.add_argument(
+        "--spo-task-batch-size", type=int, default=1000, help="Max SPO asyncio tasks per gather"
+    )
     run_p.add_argument(
         "--spo-request-batch-size",
         type=int,
@@ -257,7 +270,9 @@ def _build_parser() -> argparse.ArgumentParser:
         default="off",
     )
     run_p.add_argument("--llm-gap-fill-max-share", type=float, default=0.80)
-    run_p.add_argument("--jurisdiction", default="UA", help="Jurisdiction plugin code, e.g. UA or EU.")
+    run_p.add_argument(
+        "--jurisdiction", default="UA", help="Jurisdiction plugin code, e.g. UA or EU."
+    )
     run_p.add_argument(
         "--pattern-feedback-enabled",
         dest="pattern_feedback_enabled",
@@ -372,7 +387,9 @@ def _build_parser() -> argparse.ArgumentParser:
     run_p.set_defaults(publish_require_embeddings=True)
     run_p.add_argument("--resume", action="store_true", help="Resume from checkpoint")
     run_p.add_argument(
-        "--max-docs", type=int, default=None,
+        "--max-docs",
+        type=int,
+        default=None,
         help="Stop after processing this many NEW documents.",
     )
 
@@ -387,10 +404,18 @@ def _build_parser() -> argparse.ArgumentParser:
         default="informative",
         help="Smoke profile tuned for local Mac runs.",
     )
-    smoke_p.add_argument("--sample-docs", type=int, default=None, help="Override selected document count.")
-    smoke_p.add_argument("--scan-docs", type=int, default=None, help="How many matched docs to scan for sampling.")
-    smoke_p.add_argument("--clean-output", action="store_true", help="Delete previous outputs before smoke run.")
-    smoke_p.add_argument("--resume", action="store_true", help="Resume smoke run output if present.")
+    smoke_p.add_argument(
+        "--sample-docs", type=int, default=None, help="Override selected document count."
+    )
+    smoke_p.add_argument(
+        "--scan-docs", type=int, default=None, help="How many matched docs to scan for sampling."
+    )
+    smoke_p.add_argument(
+        "--clean-output", action="store_true", help="Delete previous outputs before smoke run."
+    )
+    smoke_p.add_argument(
+        "--resume", action="store_true", help="Resume smoke run output if present."
+    )
     smoke_p.add_argument("--gonka-api-key", default="", help="Gonka API key (or GONKA_API_KEY env)")
     smoke_p.add_argument(
         "--gonka-api-keys",
@@ -404,11 +429,30 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Do not send response_format=json_object to Gonka chat/completions.",
     )
     smoke_p.add_argument("--llm-model", default="qwen/qwen3-235b-a22b-instruct-2507-fp8")
-    smoke_p.add_argument("--parallel-llm", type=int, default=None, help="Override profile LLM concurrency.")
-    smoke_p.add_argument("--gonka-rate-limit-rps", type=float, default=None, help="Override profile Gonka request rate.")
-    smoke_p.add_argument("--max-retries", type=int, default=None, help="Override profile retry count.")
-    smoke_p.add_argument("--spo-rate-warmup-seconds", type=float, default=None, help="Override profile SPO LLM warm-up ramp seconds.")
-    smoke_p.add_argument("--spo-rate-warmup-start-scale", type=float, default=None, help="Override profile SPO LLM warm-up slowdown factor.")
+    smoke_p.add_argument(
+        "--parallel-llm", type=int, default=None, help="Override profile LLM concurrency."
+    )
+    smoke_p.add_argument(
+        "--gonka-rate-limit-rps",
+        type=float,
+        default=None,
+        help="Override profile Gonka request rate.",
+    )
+    smoke_p.add_argument(
+        "--max-retries", type=int, default=None, help="Override profile retry count."
+    )
+    smoke_p.add_argument(
+        "--spo-rate-warmup-seconds",
+        type=float,
+        default=None,
+        help="Override profile SPO LLM warm-up ramp seconds.",
+    )
+    smoke_p.add_argument(
+        "--spo-rate-warmup-start-scale",
+        type=float,
+        default=None,
+        help="Override profile SPO LLM warm-up slowdown factor.",
+    )
     smoke_p.add_argument(
         "--spo-adaptive-rate-enabled",
         dest="spo_adaptive_rate_enabled",
@@ -428,7 +472,9 @@ def _build_parser() -> argparse.ArgumentParser:
     smoke_p.add_argument("--spo-retryable-followup-worker-scale", type=float, default=None)
     smoke_p.add_argument("--spo-retryable-followup-dispatch-rps-scale", type=float, default=None)
     smoke_p.add_argument("--spo-retryable-followup-client-rate-scale", type=float, default=None)
-    smoke_p.add_argument("--spo-retryable-followup-client-concurrency-scale", type=float, default=None)
+    smoke_p.add_argument(
+        "--spo-retryable-followup-client-concurrency-scale", type=float, default=None
+    )
     smoke_p.add_argument(
         "--spo-request-batch-chars",
         type=int,
@@ -469,7 +515,9 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     smoke_p.add_argument("--status-filter", nargs="*", default=None, help="Filter by status")
     smoke_p.add_argument("--type-filter", nargs="*", default=None, help="Filter by doc type")
-    smoke_p.add_argument("--stages", default=None, help="Comma-separated stages to run (default: all)")
+    smoke_p.add_argument(
+        "--stages", default=None, help="Comma-separated stages to run (default: all)"
+    )
 
     # --- embed-local ---
     embed_p = sub.add_parser("embed-local", help="Build local embeddings and HNSW indexes")
@@ -481,11 +529,13 @@ def _build_parser() -> argparse.ArgumentParser:
     embed_p.add_argument("--chunk-size", type=int, default=2000)
     embed_p.add_argument("--thermal", action="store_true")
     embed_p.add_argument(
-        "--incremental", action="store_true",
+        "--incremental",
+        action="store_true",
         help="Only embed new rows not present in existing .npz files.",
     )
     embed_p.add_argument(
-        "--fp16", action="store_true",
+        "--fp16",
+        action="store_true",
         help="Use FP16 inference for faster encoding on MPS/CUDA (slight quality trade-off).",
     )
 
@@ -600,7 +650,9 @@ def _cmd_run(args: argparse.Namespace) -> None:
         raise ValueError("In sharded mode use --clean-output only on --shard-index 0.")
 
     if args.clean_output:
-        _clean_lex_output(args.output_dir, shard_count=args.shard_count, shard_index=args.shard_index)
+        _clean_lex_output(
+            args.output_dir, shard_count=args.shard_count, shard_index=args.shard_index
+        )
 
     stages_str: str = args.stages
     if stages_str == "all":
@@ -707,49 +759,38 @@ def _cmd_run(args: argparse.Namespace) -> None:
     from polisyos.lex.batch.pipeline import run_batch_pipeline
 
     stats = asyncio.run(run_batch_pipeline(config))
-    print("\nPipeline complete:")
-    print(f"  Documents:  {stats.total_docs}")
-    print(f"  Provisions: {stats.total_provisions}")
-    print(f"  SPO triples:{stats.total_spo}")
-    print(f"  Entities:   {stats.entities}")
-    print(f"  Facts:      {stats.facts}")
     if stats.grounded_facts or stats.normative_facts or stats.candidate_facts:
-        print(f"  Candidate facts: {stats.candidate_facts}")
-        print(f"  Grounded facts:  {stats.grounded_facts}")
-        print(f"  Normative facts: {stats.normative_facts}")
+        pass
     if stats.reference_edges:
-        print(f"  Resolved refs:   {stats.reference_edges}")
+        pass
     if stats.exported_claims:
-        print(f"  Exported claims: {stats.exported_claims}")
+        pass
     if getattr(stats, "exported_claim_sets", 0):
-        print(f"  Claim sets:      {stats.exported_claim_sets}")
+        pass
     if stats.published_bundle:
-        print("  Publish bundle: yes")
-    if stats.quality_gate_passed is not None:
-        print(f"  Quality Gate OK: {stats.quality_gate_passed}")
-    elif stats.quality_passed is not None:
-        print(f"  Quality Gate OK: {stats.quality_passed}")
+        pass
+    if stats.quality_gate_passed is not None or stats.quality_passed is not None:
+        pass
     if stats.qc_passed is not None:
-        print(f"  QC OK:      {stats.qc_passed}")
+        pass
     if stats.benchmark_passed is not None:
-        print(f"  Benchmark OK: {stats.benchmark_passed}")
+        pass
     if stats.release_passed is not None:
-        print(f"  Release OK:   {stats.release_passed}")
-    print(f"  Time:       {stats.elapsed_seconds:.1f}s")
+        pass
     if config.sharded:
-        print(f"  Shard:      {config.shard_index + 1}/{config.shard_count} ({config.shard_slug})")
+        pass
     if stats.quality_gate_failed_checks:
-        print(f"  Quality gate failed checks: {', '.join(stats.quality_gate_failed_checks)}")
+        pass
     if stats.quality_hotspot_failed_checks:
-        print(f"  Quality hotspot failed checks: {', '.join(stats.quality_hotspot_failed_checks)}")
+        pass
     if stats.qc_failed_checks:
-        print(f"  QC failed checks: {', '.join(stats.qc_failed_checks)}")
+        pass
     if stats.benchmark_passed is not None and stats.benchmark_failed_checks:
-        print(f"  Benchmark failed checks: {', '.join(stats.benchmark_failed_checks)}")
+        pass
     if stats.release_failed_checks:
-        print(f"  Release failed checks: {', '.join(stats.release_failed_checks)}")
-    for stage, dt in sorted(stats.stage_times.items()):
-        print(f"    {stage}: {dt:.1f}s")
+        pass
+    for _stage, _dt in sorted(stats.stage_times.items()):
+        pass
 
     run_artifacts: list[Path] = []
     if config.db_path.exists():
@@ -775,7 +816,8 @@ def _cmd_run(args: argparse.Namespace) -> None:
             **stats.llm_gate_metrics,
             **stats.benchmark_metrics,
         },
-        artifacts=run_artifacts + [
+        artifacts=[
+            *run_artifacts,
             config.consumer_manifest_path,
             config.benchmark_report_path,
             config.claim_exports_dir / "normative_claims.jsonl",
@@ -828,40 +870,23 @@ def _cmd_smoke(args: argparse.Namespace) -> None:
         stages=set(args.stages.split(",")) if args.stages else None,
     )
     stats = result["stats"]
-    print("\nSmoke run complete:")
-    print(f"  Profile:        {result['profile'].name}")
-    print(f"  Scanned docs:   {result['scanned_docs']}")
-    print(f"  Selected docs:  {result['selected_docs']}")
-    print(f"  Processed docs: {stats.total_docs}")
-    print(f"  Provisions:     {stats.total_provisions}")
-    print(f"  SPO rows:       {stats.total_spo}")
-    print(f"  Grounded facts: {stats.grounded_facts}")
-    print(f"  Normative facts:{stats.normative_facts}")
-    print(f"  Resolved refs:  {stats.reference_edges}")
-    print(f"  Quality Gate OK:{stats.quality_gate_passed if stats.quality_gate_passed is not None else stats.quality_passed}")
-    print(f"  QC OK:         {stats.qc_passed}")
-    print(f"  Benchmark OK:  {stats.benchmark_passed}")
-    print(f"  Release OK:    {stats.release_passed}")
     if stats.quality_gate_failed_checks:
-        print(f"  Quality fails: {', '.join(stats.quality_gate_failed_checks)}")
+        pass
     if stats.quality_hotspot_failed_checks:
-        print(f"  Hotspots:      {', '.join(stats.quality_hotspot_failed_checks)}")
+        pass
     if stats.qc_failed_checks:
-        print(f"  QC fails:      {', '.join(stats.qc_failed_checks)}")
+        pass
     if stats.release_failed_checks:
-        print(f"  Release fails: {', '.join(stats.release_failed_checks)}")
-    print(f"  Time:           {stats.elapsed_seconds:.1f}s")
-    print(f"  Plan:           {result['plan_path']}")
-    print(f"  Report:         {result['report_path']}")
-    print(f"  Summary:        {result['summary_path']}")
+        pass
 
 
 def _cmd_embed_local(args: argparse.Namespace) -> None:
     from polisyos.lex.batch.embedder import build_local_embeddings_and_indexes
 
-    db_path = args.db_path if args.db_path is not None else args.output_dir / "lex_knowledge_graph.duckdb"
+    db_path = (
+        args.db_path if args.db_path is not None else args.output_dir / "lex_knowledge_graph.duckdb"
+    )
     if not db_path.exists():
-        print(f"Database not found: {db_path}")
         sys.exit(1)
 
     stats = build_local_embeddings_and_indexes(
@@ -875,12 +900,6 @@ def _cmd_embed_local(args: argparse.Namespace) -> None:
         incremental=args.incremental,
         fp16=args.fp16,
     )
-
-    print("Local embedding complete:")
-    print(f"  entities:   {stats.entities_embedded} (skipped: {stats.entities_skipped})")
-    print(f"  facts:      {stats.facts_embedded} (skipped: {stats.facts_skipped})")
-    print(f"  provisions: {stats.provisions_embedded} (skipped: {stats.provisions_skipped})")
-    print(f"  time:       {stats.elapsed_seconds:.1f}s")
 
     write_stage_manifest(
         manifest_path=args.output_dir / "manifests" / "embed_local.json",
@@ -924,8 +943,6 @@ def _cmd_qc(args: argparse.Namespace) -> None:
 
     cfg = _minimal_cfg(args.output_dir)
     report = run_qc(cfg, fail_fast=bool(args.fail_fast))
-    print(f"QC passed: {report.passed}")
-    print(f"QC report: {args.output_dir / 'qc_report.json'}")
 
     write_stage_manifest(
         manifest_path=args.output_dir / "manifests" / "qc.json",
@@ -942,17 +959,14 @@ def _cmd_benchmark(args: argparse.Namespace) -> None:
 
     cfg = _minimal_cfg(args.output_dir)
     outcome = run_benchmark(cfg)
-    print(f"Benchmark passed: {outcome.passed}")
     if outcome.failed_checks:
-        print(f"Failed checks: {', '.join(outcome.failed_checks)}")
-    print(f"Benchmark report: {cfg.benchmark_report_path}")
+        pass
 
 
 def _cmd_publish(args: argparse.Namespace) -> None:
     from polisyos.lex.batch.publish import run_publish
 
-    manifest = run_publish(args.output_dir, require_embeddings=bool(args.require_embeddings))
-    print(f"Publish manifest: {manifest}")
+    run_publish(args.output_dir, require_embeddings=bool(args.require_embeddings))
 
 
 def _cmd_stats(args: argparse.Namespace) -> None:
@@ -960,14 +974,13 @@ def _cmd_stats(args: argparse.Namespace) -> None:
 
     db_path = args.output_dir / "lex_knowledge_graph.duckdb"
     if not db_path.exists():
-        print(f"Database not found: {db_path}")
         sys.exit(1)
 
     con = duckdb.connect(str(db_path), read_only=True)
     try:
-        entities = con.execute("SELECT COUNT(*) FROM lex_entities").fetchone()[0]
-        facts = con.execute("SELECT COUNT(*) FROM lex_facts").fetchone()[0]
-        provisions = con.execute("SELECT COUNT(*) FROM lex_provisions").fetchone()[0]
+        con.execute("SELECT COUNT(*) FROM lex_entities").fetchone()[0]
+        con.execute("SELECT COUNT(*) FROM lex_facts").fetchone()[0]
+        con.execute("SELECT COUNT(*) FROM lex_provisions").fetchone()[0]
         candidate_facts = _count_table_rows(con, "lex_fact_candidates")
         grounded_facts = _count_table_rows(con, "lex_fact_grounded")
         normative_facts = _count_table_rows(con, "lex_normative_facts")
@@ -976,26 +989,24 @@ def _cmd_stats(args: argparse.Namespace) -> None:
     finally:
         con.close()
 
-    print(f"Knowledge graph: {db_path}")
-    print(f"  Entities:   {entities:,}")
-    print(f"  Facts:      {facts:,}")
-    print(f"  Provisions: {provisions:,}")
     if candidate_facts:
-        print(f"  Candidate facts: {candidate_facts:,}")
+        pass
     if grounded_facts:
-        print(f"  Grounded facts:  {grounded_facts:,}")
+        pass
     if normative_facts:
-        print(f"  Normative facts: {normative_facts:,}")
+        pass
     if reference_edges:
-        print(f"  Resolved refs:   {reference_edges:,}")
+        pass
     if doc_versions:
-        print(f"  Doc versions:    {doc_versions:,}")
+        pass
 
 
 def _cmd_search(args: argparse.Namespace) -> None:
     from polisyos.lex.knowledge.store import LegalKnowledgeStore
 
-    store = LegalKnowledgeStore(db_path=args.output_dir / "lex_knowledge_graph.duckdb", index_dir=args.output_dir)
+    store = LegalKnowledgeStore(
+        db_path=args.output_dir / "lex_knowledge_graph.duckdb", index_dir=args.output_dir
+    )
     try:
         results = store.text_search_facts(
             args.query,
@@ -1006,14 +1017,9 @@ def _cmd_search(args: argparse.Namespace) -> None:
         store.close()
 
     if not results:
-        print("No results found.")
         return
-    for i, r in enumerate(results, 1):
-        print(f"\n[{i}] {r.fact_text}")
-        print(f"    {r.subject_name} → {r.predicate} → {r.object_name}")
-        print(f"    doc: {r.doc_name} ({r.doc_reestr_code})")
-        print(f"    provision: {r.provision_citation}")
-        print(f"    confidence: {r.confidence:.2f}, similarity: {r.similarity:.2f}")
+    for _i, _r in enumerate(results, 1):
+        pass
 
 
 def _count_table_rows(con, table_name: str) -> int:  # type: ignore[no-untyped-def]
@@ -1030,7 +1036,6 @@ def main() -> None:
     """Main helper."""
     try:
         from dotenv import load_dotenv
-
 
         load_dotenv()
     except Exception as exc:

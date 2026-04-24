@@ -1,4 +1,5 @@
 """Facade for document-to-claim extraction, normalization, and conflict handling."""
+
 from __future__ import annotations
 
 try:
@@ -10,8 +11,18 @@ try:
         detect_conflicts,
         resolve_conflicts,
     )
+
+    _CONFLICT_EXPORTS = (
+        ConflictDetectOptions,
+        ConflictDetectResult,
+        ConflictResolveOptions,
+        ConflictResolveResult,
+        detect_conflicts,
+        resolve_conflicts,
+    )
     _CONFLICTS_AVAILABLE = True
 except ModuleNotFoundError:  # pragma: no cover - optional dependency path
+    _CONFLICT_EXPORTS = ()
     _CONFLICTS_AVAILABLE = False
 from .errors import (
     ClaimNotReadyError,
@@ -31,6 +42,7 @@ from .types import (
 )
 
 __all__ = [
+    "ChunkContext",
     "ClaimCandidate",
     "ClaimExtractOptions",
     "ClaimExtractResult",
@@ -40,21 +52,9 @@ __all__ = [
     "ClaimPipelineError",
     "ClaimUnsupportedExtractorError",
     "ClaimValidationError",
-    "ChunkContext",
-    "detect_conflicts",
     "extract_claims_from_doc",
     "normalize_claims",
-    "resolve_conflicts",
 ]
 
-if not _CONFLICTS_AVAILABLE:
-    for _name in [
-        "ConflictDetectOptions",
-        "ConflictDetectResult",
-        "ConflictResolveOptions",
-        "ConflictResolveResult",
-        "detect_conflicts",
-        "resolve_conflicts",
-    ]:
-        if _name in __all__:
-            __all__.remove(_name)
+if _CONFLICTS_AVAILABLE:
+    __all__.extend(export.__name__ for export in _CONFLICT_EXPORTS)

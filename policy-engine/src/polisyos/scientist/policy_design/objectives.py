@@ -7,6 +7,10 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.foundry.methods.catalog.optimization.protocols import (
+    AmbiguityCertificate,
+    ConstraintCertificate,
+)
 from polisyos.ir.analytics.causal import CausalEffectReport
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
@@ -20,12 +24,15 @@ from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from polisyos.scientist.search.uncertainty import (
     UncertaintyEnvelope as SearchUncertaintyEnvelope,
+)
+from polisyos.scientist.search.uncertainty import (
     UncertaintyType,
 )
 
 
 class ObjectiveKind(str, Enum):
     """Objective kind public type."""
+
     PRIMARY = "primary"
     HARD_CONSTRAINT = "hard_constraint"
     SECONDARY = "secondary"
@@ -34,12 +41,14 @@ class ObjectiveKind(str, Enum):
 
 class ObjectiveDirection(str, Enum):
     """Objective direction public type."""
+
     MINIMIZE = "minimize"
     MAXIMIZE = "maximize"
 
 
 class ConstraintStatus(str, Enum):
     """Constraint status public type."""
+
     FEASIBLE = "feasible"
     NEAR_BINDING = "near_binding"
     VIOLATED = "violated"
@@ -91,7 +100,7 @@ class ObjectiveChannelValue(BaseModel):
 class PolicyEvaluationBundle(BaseModel):
     """Canonical typed inputs for policy objective extraction."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     candidate: PolicyCandidateSchema | None = None
     simulation_metrics: dict[str, float] = Field(default_factory=dict)
@@ -100,6 +109,7 @@ class PolicyEvaluationBundle(BaseModel):
     cross_graph_profile: CrossGraphEvidenceProfile | None = None
     governance_report: GovernanceReport | None = None
     uncertainty_envelope: SearchUncertaintyEnvelope | IRUncertaintyEnvelope | None = None
+    ambiguity_certificate: AmbiguityCertificate | dict[str, Any] | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -193,9 +203,7 @@ class PolicyEvaluationVector(BaseModel):
                     else OptimizationDirection.MINIMIZE
                 ),
                 weight=channel.weight,
-                is_satisfied=(
-                    True if channel.satisfied is None else bool(channel.satisfied)
-                ),
+                is_satisfied=(True if channel.satisfied is None else bool(channel.satisfied)),
                 threshold=channel.threshold,
             )
             for channel in channels
@@ -237,6 +245,14 @@ class ObjectiveStack:
             bundle.uncertainty_envelope,
             bundle.causal_effect_report,
         )
+        ambiguity_certificate = _resolve_ambiguity_certificate(
+            bundle.ambiguity_certificate,
+            bundle.metadata,
+        )
+        ambiguity_summary = _summarize_ambiguity_certificate(
+            ambiguity_certificate,
+            near_binding_ratio=self._near_binding_ratio,
+        )
         budget_ratio = _budget_ratio(candidate)
         governance_report = bundle.governance_report
         governance_blockers = _governance_blockers(governance_report)
@@ -244,6 +260,32 @@ class ObjectiveStack:
         transport_score = _transport_score(bundle.cross_graph_profile)
         statistical_uncertainty = uncertainties.get(UncertaintyType.STATISTICAL, 1.0)
         transport_uncertainty = uncertainties.get(UncertaintyType.TRANSPORT, 1.0)
+        if ambiguity_summary is not None:
+            statistical_uncertainty = max(
+                statistical_uncertainty,
+                float(ambiguity_summary["statistical_uncertainty"]),
+            )
+
+        robustness_value = _robustness_score(bundle.causal_effect_report)
+        robustness_source = "causal_effect_report"
+        robustness_metadata: dict[str, Any] = {}
+        if ambiguity_summary is not None:
+            ambiguity_robustness = float(ambiguity_summary["robustness_score"])
+            robustness_value = (
+                min(robustness_value, ambiguity_robustness)
+                if bundle.causal_effect_report is not None
+                else ambiguity_robustness
+            )
+            robustness_source = (
+                "causal_effect_report+ambiguity_certificate"
+                if bundle.causal_effect_report is not None
+                else "ambiguity_certificate"
+            )
+            robustness_metadata = {
+                "ambiguity_status": ambiguity_summary["overall_status"],
+                "price_of_ambiguity": ambiguity_summary["price_of_ambiguity"],
+                "quantification_method": ambiguity_summary["quantification_method"],
+            }
 
         primary = {
             "policy_value": ObjectiveChannelValue(
@@ -280,9 +322,10 @@ class ObjectiveStack:
             "robustness": ObjectiveChannelValue(
                 name="robustness",
                 kind=ObjectiveKind.SECONDARY,
-                value=_robustness_score(bundle.causal_effect_report),
+                value=robustness_value,
                 direction=ObjectiveDirection.MAXIMIZE,
-                source="causal_effect_report",
+                source=robustness_source,
+                metadata=robustness_metadata,
             ),
             "transportability": ObjectiveChannelValue(
                 name="transportability",
@@ -327,7 +370,19 @@ class ObjectiveStack:
                 kind=ObjectiveKind.PENALTY,
                 value=statistical_uncertainty,
                 direction=ObjectiveDirection.MINIMIZE,
-                source="uncertainty_envelope",
+                source=(
+                    "uncertainty_envelope+ambiguity_certificate"
+                    if ambiguity_summary is not None
+                    else "uncertainty_envelope"
+                ),
+                metadata=(
+                    {}
+                    if ambiguity_summary is None
+                    else {
+                        "ambiguity_status": ambiguity_summary["overall_status"],
+                        "quantification_method": ambiguity_summary["quantification_method"],
+                    }
+                ),
             ),
             "governance_penalty": ObjectiveChannelValue(
                 name="governance_penalty",
@@ -346,13 +401,17 @@ class ObjectiveStack:
         }
 
         hard_constraints = {
-            "policy_budget_constraint": _constraint_channel(
-                name="policy_budget_constraint",
-                value=budget_ratio,
-                threshold=1.0,
-                direction=ObjectiveDirection.MINIMIZE,
-                source="policy_candidate",
-                near_binding_ratio=self._near_binding_ratio,
+            "policy_budget_constraint": (
+                ambiguity_summary["budget_channel"]
+                if ambiguity_summary is not None and ambiguity_summary["budget_channel"] is not None
+                else _constraint_channel(
+                    name="policy_budget_constraint",
+                    value=budget_ratio,
+                    threshold=1.0,
+                    direction=ObjectiveDirection.MINIMIZE,
+                    source="policy_candidate",
+                    near_binding_ratio=self._near_binding_ratio,
+                )
             ),
             "compliance_constraint": _status_channel(
                 name="compliance_constraint",
@@ -360,19 +419,36 @@ class ObjectiveStack:
                 source="governance_report",
                 failure_score=float(len(governance_blockers)),
             ),
-            "equity_constraint": _status_channel(
-                name="equity_constraint",
-                passed=not equity_concern,
-                source="distributional_report",
-                failure_score=1.0 if equity_concern else 0.0,
+            "equity_constraint": (
+                ambiguity_summary["equity_channel"]
+                if ambiguity_summary is not None and ambiguity_summary["equity_channel"] is not None
+                else _status_channel(
+                    name="equity_constraint",
+                    passed=not equity_concern,
+                    source="distributional_report",
+                    failure_score=1.0 if equity_concern else 0.0,
+                )
             ),
             "statistical_constraint": _constraint_channel(
                 name="statistical_constraint",
                 value=statistical_uncertainty,
                 threshold=self._max_statistical_uncertainty,
                 direction=ObjectiveDirection.MINIMIZE,
-                source="uncertainty_envelope",
+                source=(
+                    "uncertainty_envelope+ambiguity_certificate"
+                    if ambiguity_summary is not None
+                    else "uncertainty_envelope"
+                ),
                 near_binding_ratio=self._near_binding_ratio,
+                metadata=(
+                    {}
+                    if ambiguity_summary is None
+                    else {
+                        "ambiguity_status": ambiguity_summary["overall_status"],
+                        "price_of_ambiguity": ambiguity_summary["price_of_ambiguity"],
+                        "quantification_method": ambiguity_summary["quantification_method"],
+                    }
+                ),
             ),
             "transport_constraint": _constraint_channel(
                 name="transport_constraint",
@@ -407,6 +483,17 @@ class ObjectiveStack:
                 "statistical_uncertainty": statistical_uncertainty,
                 "transport_uncertainty": transport_uncertainty,
                 "budget_ratio": budget_ratio,
+                "ambiguity_certificate_status": (
+                    None if ambiguity_summary is None else ambiguity_summary["overall_status"]
+                ),
+                "ambiguity_set_type": (
+                    None
+                    if ambiguity_summary is None
+                    else ambiguity_summary["quantification_method"]
+                ),
+                "price_of_ambiguity": (
+                    None if ambiguity_summary is None else ambiguity_summary["price_of_ambiguity"]
+                ),
             },
         )
 
@@ -564,6 +651,145 @@ def _equity_concern(
     return False
 
 
+def _resolve_ambiguity_certificate(
+    certificate: AmbiguityCertificate | dict[str, Any] | None,
+    metadata: dict[str, Any],
+) -> AmbiguityCertificate | None:
+    candidate = certificate
+    if candidate is None:
+        payload = metadata.get("ambiguity_certificate")
+        if isinstance(payload, dict):
+            candidate = payload
+    if isinstance(candidate, AmbiguityCertificate):
+        return candidate
+    if isinstance(candidate, dict):
+        return AmbiguityCertificate.from_mapping(candidate)
+    return None
+
+
+def _constraint_subset(
+    certificate: AmbiguityCertificate,
+    constraint_class: str,
+) -> list[ConstraintCertificate]:
+    return [
+        item for item in certificate.per_constraint if item.constraint_class == constraint_class
+    ]
+
+
+def _uncertainty_level_from_status(
+    certificate: AmbiguityCertificate,
+) -> float:
+    base = max(0.0, min(1.0, 1.0 - float(certificate.confidence_level)))
+    if certificate.overall_status == "fail":
+        return 1.0
+    if certificate.overall_status == "warn":
+        return max(base, 0.45)
+    return max(base, 0.1)
+
+
+def _budget_channel_from_certificate(
+    certificate: AmbiguityCertificate,
+    *,
+    near_binding_ratio: float,
+) -> ObjectiveChannelValue | None:
+    budget_constraints = _constraint_subset(certificate, "budget")
+    if not budget_constraints:
+        return None
+    ratios = [
+        float(item.worst_case_bound) / float(item.threshold)
+        for item in budget_constraints
+        if abs(float(item.threshold)) > 1e-9
+    ]
+    if not ratios:
+        return None
+    worst = max(
+        budget_constraints,
+        key=lambda item: (
+            float("-inf")
+            if abs(float(item.threshold)) <= 1e-9
+            else float(item.worst_case_bound) / float(item.threshold)
+        ),
+    )
+    return _constraint_channel(
+        name="policy_budget_constraint",
+        value=max(ratios),
+        threshold=1.0,
+        direction=ObjectiveDirection.MINIMIZE,
+        source="ambiguity_certificate",
+        near_binding_ratio=near_binding_ratio,
+        metadata={
+            "constraint_name": worst.name,
+            "worst_case_bound": worst.worst_case_bound,
+            "threshold": worst.threshold,
+            "slack": worst.slack,
+            "violation_probability_bound": worst.violation_probability_bound,
+            "ambiguity_status": certificate.overall_status,
+            "quantification_method": certificate.ambiguity_set_type,
+        },
+    )
+
+
+def _equity_channel_from_certificate(
+    certificate: AmbiguityCertificate,
+    *,
+    near_binding_ratio: float,
+) -> ObjectiveChannelValue | None:
+    equity_constraints = _constraint_subset(certificate, "equity")
+    if not equity_constraints:
+        return None
+
+    ratios = []
+    for item in equity_constraints:
+        if item.violation_probability_bound is not None and item.epsilon not in {None, 0.0}:
+            ratios.append(float(item.violation_probability_bound) / float(item.epsilon))
+        else:
+            ratios.append(1.0 if float(item.slack) < 0.0 else 0.0)
+
+    worst_index = max(range(len(ratios)), key=ratios.__getitem__)
+    worst = equity_constraints[worst_index]
+    return _constraint_channel(
+        name="equity_constraint",
+        value=float(ratios[worst_index]),
+        threshold=1.0,
+        direction=ObjectiveDirection.MINIMIZE,
+        source="ambiguity_certificate",
+        near_binding_ratio=near_binding_ratio,
+        metadata={
+            "constraint_name": worst.name,
+            "slack": worst.slack,
+            "epsilon": worst.epsilon,
+            "violation_probability_bound": worst.violation_probability_bound,
+            "ambiguity_status": certificate.overall_status,
+            "quantification_method": certificate.ambiguity_set_type,
+        },
+    )
+
+
+def _summarize_ambiguity_certificate(
+    certificate: AmbiguityCertificate | None,
+    *,
+    near_binding_ratio: float,
+) -> dict[str, Any] | None:
+    if certificate is None:
+        return None
+    uncertainty_level = _uncertainty_level_from_status(certificate)
+    return {
+        "overall_status": certificate.overall_status,
+        "quantification_method": certificate.ambiguity_set_type,
+        "statistical_uncertainty": uncertainty_level,
+        "robustness_score": max(0.0, 1.0 - uncertainty_level),
+        "price_of_ambiguity": certificate.price_of_ambiguity,
+        "budget_channel": _budget_channel_from_certificate(
+            certificate,
+            near_binding_ratio=near_binding_ratio,
+        ),
+        "equity_channel": _equity_channel_from_certificate(
+            certificate,
+            near_binding_ratio=near_binding_ratio,
+        ),
+    }
+
+
 def _constraint_channel(
     *,
     name: str,
@@ -572,6 +798,7 @@ def _constraint_channel(
     direction: ObjectiveDirection,
     source: str,
     near_binding_ratio: float,
+    metadata: dict[str, Any] | None = None,
 ) -> ObjectiveChannelValue:
     if direction is ObjectiveDirection.MINIMIZE:
         status = ConstraintStatus.FEASIBLE
@@ -593,6 +820,7 @@ def _constraint_channel(
         direction=direction,
         status=status,
         source=source,
+        metadata={} if metadata is None else metadata,
     )
 
 
@@ -602,6 +830,7 @@ def _status_channel(
     passed: bool,
     source: str,
     failure_score: float,
+    metadata: dict[str, Any] | None = None,
 ) -> ObjectiveChannelValue:
     return ObjectiveChannelValue(
         name=name,
@@ -611,6 +840,7 @@ def _status_channel(
         direction=ObjectiveDirection.MINIMIZE,
         status=ConstraintStatus.FEASIBLE if passed else ConstraintStatus.VIOLATED,
         source=source,
+        metadata={} if metadata is None else metadata,
     )
 
 
@@ -637,7 +867,7 @@ def _resolve_uncertainties(
             UncertaintyType.MODEL: min(1.0, ratio + 0.05),
             UncertaintyType.OPTIMIZATION: 0.5,
         }
-    return {uncertainty_type: 1.0 for uncertainty_type in UncertaintyType}
+    return dict.fromkeys(UncertaintyType, 1.0)
 
 
 __all__ = [

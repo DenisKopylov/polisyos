@@ -37,13 +37,17 @@ _QWEN_GONKA_PRESET_ID = _env_text(
     "",
 )
 _QWEN_GONKA_CAPABILITIES = ["json"]
-if _env_bool("POLISYOS_QWEN_GONKA_TOOL_CALLING_EMERGENCY_OVERRIDE", default=False) or _env_bool(
-    "POLISYOS_QWEN_GONKA_TOOL_CALLING_VERIFIED",
-    default=False,
-) or is_provider_capability_verified(
-    provider="gonka",
-    model_id=_QWEN_GONKA_MODEL_ID,
-    capability="tool_calling",
+if (
+    _env_bool("POLISYOS_QWEN_GONKA_TOOL_CALLING_EMERGENCY_OVERRIDE", default=False)
+    or _env_bool(
+        "POLISYOS_QWEN_GONKA_TOOL_CALLING_VERIFIED",
+        default=False,
+    )
+    or is_provider_capability_verified(
+        provider="gonka",
+        model_id=_QWEN_GONKA_MODEL_ID,
+        capability="tool_calling",
+    )
 ):
     _QWEN_GONKA_CAPABILITIES.append("tool_calling")
 

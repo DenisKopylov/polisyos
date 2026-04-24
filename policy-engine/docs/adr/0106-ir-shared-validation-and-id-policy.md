@@ -53,11 +53,14 @@ Identifier policy is explicit:
 
 - `kernel.base.ID_PATTERN` is the broad generic IR identifier pattern and may
   include `.` and `-` for namespaced registry IDs and artifact-friendly labels.
+
 - `kernel.base.SLOT_ID_PATTERN` is stricter and excludes `-` so runtime slot
   paths remain unambiguous and path-like.
+
 - Governance-authored authoring IDs such as `problem_id`, `policy_id`,
   `objective_id`, and similar fields may use narrower local patterns when the
   domain wants a tighter naming discipline.
+
 - Any field that semantically points to a runtime slot must use
   `SLOT_ID_PATTERN`, not the broader generic ID pattern.
 

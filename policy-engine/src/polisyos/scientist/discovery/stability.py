@@ -15,7 +15,10 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.scientist import BootstrapStabilityReportRef
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
-from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult, IdentificationStatus
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    IdentificationResult,
+    IdentificationStatus,
+)
 from polisyos.foundry.methods.catalog.causal.optimal_design import optimal_adjustment_set
 from polisyos.foundry.methods.catalog.causal.protocols import (
     TabularCausalDiscoveryData,
@@ -34,9 +37,7 @@ from polisyos.scientist.search.artifact_minimality import (
     artifact_functions_field,
 )
 
-BOOTSTRAP_STABILITY_REPORT_SCHEMA_NAME = (
-    "polisyos.scientist.discovery.BootstrapStabilityReport"
-)
+BOOTSTRAP_STABILITY_REPORT_SCHEMA_NAME = "polisyos.scientist.discovery.BootstrapStabilityReport"
 
 
 class BootstrapMode(str, Enum):
@@ -146,8 +147,7 @@ class BootstrapStabilityAnalyzer:
         mode: BootstrapMode,
     ) -> HypothesisStabilitySummary:
         rng = np.random.default_rng(
-            self._config.seed
-            + (crc32(candidate.hypothesis.hypothesis_id.encode("utf-8")) % 10_000)
+            self._config.seed + (crc32(candidate.hypothesis.hypothesis_id.encode("utf-8")) % 10_000)
         )
         base_edges = list(candidate.hypothesis.graph.edges)
         selection_counts = {edge_key_for_edge(edge): 0 for edge in base_edges}
@@ -207,13 +207,11 @@ class BootstrapStabilityAnalyzer:
         edge_frequency = _finalize_frequency(selection_counts, completed)
         orientation_frequency = _finalize_frequency(orientation_counts, completed)
         skeleton_frequency = _finalize_frequency(skeleton_counts, completed)
-        mean_edge = (
-            float(np.mean(list(edge_frequency.values())))
-            if edge_frequency
-            else None
-        )
+        mean_edge = float(np.mean(list(edge_frequency.values()))) if edge_frequency else None
         identifiable_rate = (
-            float(identifiable_hits / completed) if causal_query is not None and completed > 0 else None
+            float(identifiable_hits / completed)
+            if causal_query is not None and completed > 0
+            else None
         )
         adjustment_stability = _pairwise_jaccard_mean(adjustment_sets)
 
@@ -298,10 +296,10 @@ def _resample_state(
         n_blocks = max(1, int(np.ceil(n_rows / window)))
         max_start = max(1, n_rows - window + 1)
         starts = rng.integers(0, max_start, size=n_blocks)
-        blocks = [data[start:start + window] for start in starts]
+        blocks = [data[start : start + window] for start in starts]
         sampled = np.concatenate(blocks, axis=0)[:n_rows]
         if time_index is not None:
-            index_blocks = [np.asarray(time_index)[start:start + window] for start in starts]
+            index_blocks = [np.asarray(time_index)[start : start + window] for start in starts]
             sampled_time_index = np.concatenate(index_blocks, axis=0)[:n_rows]
     update: dict[str, Any] = {"data": sampled}
     if sampled_time_index is not None:
@@ -314,7 +312,9 @@ def _graph_for_analysis(
 ) -> tuple[Any, list[str]]:
     warnings: list[str] = []
     graph = getattr(report, "resolved_graph", None) or report.graph
-    if getattr(graph, "graph_type", None) is not None and getattr(report.graph, "graph_type", None) != getattr(graph, "graph_type", None):
+    if getattr(graph, "graph_type", None) is not None and getattr(
+        report.graph, "graph_type", None
+    ) != getattr(graph, "graph_type", None):
         warnings.append("resolved_graph_used_for_bootstrap_analysis")
     elif getattr(report.graph.graph_type, "value", "") in {"pag", "cpdag"}:
         warnings.append("structural_uncertainty_limited_bootstrap_analysis")
@@ -331,7 +331,10 @@ def _evaluate_identifiability(
         outcome=causal_query.outcome_variable,
         graph=graph,
     )
-    return isinstance(result, IdentificationResult) and result.status is IdentificationStatus.IDENTIFIED
+    return (
+        isinstance(result, IdentificationResult)
+        and result.status is IdentificationStatus.IDENTIFIED
+    )
 
 
 def _evaluate_adjustment_set(

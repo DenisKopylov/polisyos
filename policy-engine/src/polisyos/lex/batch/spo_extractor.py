@@ -14,8 +14,7 @@ import json
 import time
 from contextlib import nullcontext
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.lex.batch.canonicalizers import canonicalize_action, canonicalize_norm_type
@@ -44,7 +43,6 @@ from polisyos.lex.batch.spo_utils import (
     _BatchProvisionItem,
     _choose_verify_statements,
     _group_request_items,
-    _is_json_mode_invalid_request,
     _materialize_fallback_row,
     _merge_statement_lists,
     _normalize_statements,
@@ -55,12 +53,22 @@ from polisyos.lex.batch.spo_utils import (
     _split_float,
     _split_int,
     _usage_counts,
+    is_json_mode_invalid_request,
 )
-from polisyos.lex.batch.structurer import ProvisionSpan
-from polisyos.lex.batch.xml_parser import NPADocument
 from polisyos.lex.knowledge.types import SPOCandidate, SPOExtractionResult
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
+
+    from polisyos.lex.batch.structurer import ProvisionSpan
+    from polisyos.lex.batch.xml_parser import NPADocument
+
 logger = get_logger(__name__)
+
+type SPOClient = GonkaClient | GonkaClientPool
+
+_is_json_mode_invalid_request = is_json_mode_invalid_request
 
 
 @dataclass(frozen=True, slots=True)
@@ -101,7 +109,7 @@ def _request_meta(
 
 
 async def _chat_completion_compat(
-    client: GonkaClient,
+    client: SPOClient,
     messages: list[dict[str, str]],
     *,
     response_format: dict[str, str] | None = None,
@@ -114,8 +122,7 @@ async def _chat_completion_compat(
         signature = None
     if signature is not None:
         accepts_kwargs = any(
-            param.kind == inspect.Parameter.VAR_KEYWORD
-            for param in signature.parameters.values()
+            param.kind == inspect.Parameter.VAR_KEYWORD for param in signature.parameters.values()
         )
         if not accepts_kwargs and "request_meta" not in signature.parameters:
             return await chat_completion(messages, response_format=response_format)
@@ -128,7 +135,7 @@ async def _chat_completion_compat(
 
 def _build_extract_failed_result(
     *,
-    client: GonkaClient,
+    client: SPOClient,
     doc: NPADocument,
     provision: ProvisionSpan,
     error_message: str,
@@ -161,7 +168,7 @@ def _build_extract_failed_result(
 
 
 async def _finalize_provision_from_pass1(
-    client: GonkaClient,
+    client: SPOClient,
     doc: NPADocument,
     provision: ProvisionSpan,
     *,
@@ -222,7 +229,9 @@ async def _finalize_provision_from_pass1(
                 ),
             )
             pass2_latency_ms = int((time.monotonic() - t2) * 1000)
-            usage2_prompt, usage2_completion, cost2_base, cost2_platform, cost2_total = _usage_counts(resp_verify)
+            usage2_prompt, usage2_completion, cost2_base, cost2_platform, cost2_total = (
+                _usage_counts(resp_verify)
+            )
             verify_choice = resp_verify.get("choices", [{}])[0]
             raw_verify = verify_choice.get("message", {}).get("content", "")
             data_verify = _parse_json_object(raw_verify)
@@ -230,7 +239,9 @@ async def _finalize_provision_from_pass1(
             pass2_latency_ms = int((time.monotonic() - t2) * 1000)
             verify_failed = True
             raw_verify = str(exc)
-            logger.warning("SPO verify failed for {} {}: {}", doc.card.doc_id, provision.anchor_path, exc)
+            logger.warning(
+                "SPO verify failed for {} {}: {}", doc.card.doc_id, provision.anchor_path, exc
+            )
 
         statements_pass2, verify_schema_fallback = _choose_verify_statements(
             doc_id=doc.card.doc_id,
@@ -329,7 +340,7 @@ async def _finalize_provision_from_pass1(
 
 
 async def _extract_one_provision(
-    client: GonkaClient,
+    client: SPOClient,
     doc: NPADocument,
     provision: ProvisionSpan,
     *,
@@ -370,7 +381,9 @@ async def _extract_one_provision(
             ),
         )
     except Exception as exc:
-        logger.warning("SPO extract failed for {} {}: {}", doc.card.doc_id, provision.anchor_path, exc)
+        logger.warning(
+            "SPO extract failed for {} {}: {}", doc.card.doc_id, provision.anchor_path, exc
+        )
         error_class = ""
         retryable = False
         http_status = 0
@@ -396,7 +409,9 @@ async def _extract_one_provision(
         )
 
     pass1_latency_ms = int((time.monotonic() - t1) * 1000)
-    usage1_prompt, usage1_completion, cost1_base, cost1_platform, cost1_total = _usage_counts(resp_extract)
+    usage1_prompt, usage1_completion, cost1_base, cost1_platform, cost1_total = _usage_counts(
+        resp_extract
+    )
     extract_choice = resp_extract.get("choices", [{}])[0]
     raw_extract = extract_choice.get("message", {}).get("content", "")
     data_extract = _parse_json_object(raw_extract)
@@ -420,7 +435,7 @@ async def _extract_one_provision(
 
 
 async def _extract_one_provision_light(
-    client: GonkaClient,
+    client: SPOClient,
     doc: NPADocument,
     provision: ProvisionSpan,
     *,
@@ -480,7 +495,9 @@ async def _extract_one_provision_light(
             ),
         )
     except Exception as exc:
-        logger.warning("SPO light extract failed for {} {}: {}", doc.card.doc_id, provision.anchor_path, exc)
+        logger.warning(
+            "SPO light extract failed for {} {}: {}", doc.card.doc_id, provision.anchor_path, exc
+        )
         error_class = ""
         retryable = False
         http_status = 0
@@ -564,7 +581,7 @@ async def _extract_one_provision_light(
 
 
 async def _run_single_extractions(
-    client: GonkaClient,
+    client: SPOClient,
     entries: list[_BatchProvisionItem],
     *,
     verify_mode: str = "llm",
@@ -622,7 +639,7 @@ async def _run_single_extractions(
 
 
 async def _extract_batch_provisions(
-    client: GonkaClient,
+    client: SPOClient,
     batch_items: list[tuple[NPADocument, ProvisionSpan]],
     *,
     verify_mode: str = "llm",
@@ -695,7 +712,9 @@ async def _extract_batch_provisions(
         )
 
     pass1_latency_ms = int((time.monotonic() - t1) * 1000)
-    usage1_prompt, usage1_completion, cost1_base, cost1_platform, cost1_total = _usage_counts(resp_extract)
+    usage1_prompt, usage1_completion, cost1_base, cost1_platform, cost1_total = _usage_counts(
+        resp_extract
+    )
     extract_choice = resp_extract.get("choices", [{}])[0]
     raw_extract = extract_choice.get("message", {}).get("content", "")
     data_extract = _parse_json_object(raw_extract)
@@ -797,7 +816,7 @@ async def _extract_batch_provisions(
 
 
 async def _extract_batch_provisions_light(
-    client: GonkaClient,
+    client: SPOClient,
     batch_items: list[tuple[NPADocument, ProvisionSpan]],
     *,
     followup_pass_index: int = 0,
@@ -1006,7 +1025,7 @@ async def _extract_batch_provisions_light(
 
 
 async def _extract_provision_group(
-    client: GonkaClient,
+    client: SPOClient,
     group: list[tuple[NPADocument, ProvisionSpan]],
     *,
     verify_mode: str,
@@ -1053,7 +1072,7 @@ async def _extract_provision_group(
 
 
 async def _extract_provision_group_with_timeout(
-    client: GonkaClient,
+    client: SPOClient,
     group: list[tuple[NPADocument, ProvisionSpan]],
     *,
     verify_mode: str,
@@ -1089,9 +1108,7 @@ def _is_retryable_group_exception(exc: Exception) -> bool:
 
 def _is_retryable_failed_result(result: SPOExtractionResult) -> bool:
     return (
-        not result.statements
-        and bool(result.llm_error_retryable)
-        and bool(result.llm_error_class)
+        not result.statements and bool(result.llm_error_retryable) and bool(result.llm_error_class)
     )
 
 
@@ -1110,19 +1127,19 @@ def _dedupe_work_items(
 
 
 def _resolve_dispatch_worker_count(
-    client: GonkaClient,
+    client: SPOClient,
     groups_total: int,
     *,
     lane_settings: _DispatchLaneSettings,
 ) -> int:
     hint = max(1, int(getattr(client, "dispatch_worker_hint", 8) or 8))
     worker_scale = min(1.0, max(0.05, float(lane_settings.worker_scale)))
-    hint = max(1, int(round(hint * worker_scale)))
+    hint = max(1, round(hint * worker_scale))
     return max(1, min(groups_total, hint))
 
 
 def _resolve_dispatch_rps(
-    client: GonkaClient,
+    client: SPOClient,
     *,
     lane_settings: _DispatchLaneSettings,
 ) -> float:
@@ -1150,12 +1167,14 @@ def _resolve_lane_settings(
         worker_scale=min(1.0, max(0.05, float(retryable_followup_worker_scale))),
         dispatch_rps_scale=min(1.0, max(0.05, float(retryable_followup_dispatch_rps_scale))),
         client_rate_scale=min(1.0, max(0.05, float(retryable_followup_client_rate_scale))),
-        client_concurrency_scale=min(1.0, max(0.05, float(retryable_followup_client_concurrency_scale))),
+        client_concurrency_scale=min(
+            1.0, max(0.05, float(retryable_followup_client_concurrency_scale))
+        ),
     )
 
 
 async def _run_request_groups(
-    client: GonkaClient,
+    client: SPOClient,
     request_groups: list[list[tuple[NPADocument, ProvisionSpan]]],
     *,
     verify_mode: str,
@@ -1181,7 +1200,9 @@ async def _run_request_groups(
             jitter_ratio=0.12,
         )
 
-    queue: asyncio.Queue[tuple[int, list[tuple[NPADocument, ProvisionSpan]]] | None] = asyncio.Queue()
+    queue: asyncio.Queue[tuple[int, list[tuple[NPADocument, ProvisionSpan]]] | None] = (
+        asyncio.Queue()
+    )
     for index, group in enumerate(request_groups):
         queue.put_nowait((index, group))
 
@@ -1215,7 +1236,10 @@ async def _run_request_groups(
     for _ in workers:
         queue.put_nowait(None)
     await asyncio.gather(*workers)
-    return [result if result is not None else RuntimeError("request_group_missing_result") for result in results]
+    return [
+        result if result is not None else RuntimeError("request_group_missing_result")
+        for result in results
+    ]
 
 
 _RETRY_TIMEOUT_MULTIPLIER = 1.5
@@ -1227,7 +1251,7 @@ _RETRY_BACKOFF_BASE_SECONDS = 3.0
 
 
 async def _retry_timed_out_group(
-    client: GonkaClient,
+    client: SPOClient,
     group: list[tuple[NPADocument, ProvisionSpan]],
     *,
     verify_mode: str,
@@ -1272,7 +1296,7 @@ async def _retry_timed_out_group(
 
 
 async def extract_spo_for_documents(
-    client: GonkaClient,
+    client: SPOClient,
     documents: list[NPADocument],
     provisions_by_doc: dict[str, list[ProvisionSpan]],
     *,
@@ -1367,7 +1391,9 @@ async def extract_spo_for_documents(
             with lane_context:
                 request_groups = _group_request_items(
                     pending_items,
-                    request_batch_size=max(1, timeout_retry_batch_size if followup_pass_index > 0 else request_size),
+                    request_batch_size=max(
+                        1, timeout_retry_batch_size if followup_pass_index > 0 else request_size
+                    ),
                     request_batch_chars=(
                         timeout_retry_chars
                         if followup_pass_index > 0 and timeout_retry_chars is not None
@@ -1418,9 +1444,14 @@ async def extract_spo_for_documents(
                                 timeout = isinstance(retry_exc, asyncio.TimeoutError)
                                 _increment_counter(telemetry, "timeout_retry_failure_total")
                         if isinstance(group_result, Exception):
-                            if followup_pass_index < max_followup_passes and _is_retryable_group_exception(group_result):
+                            if (
+                                followup_pass_index < max_followup_passes
+                                and _is_retryable_group_exception(group_result)
+                            ):
                                 retry_items_next.extend(group)
-                                _increment_counter(telemetry, "retry_followup_pending_items_total", len(group))
+                                _increment_counter(
+                                    telemetry, "retry_followup_pending_items_total", len(group)
+                                )
                                 continue
                             error_label = "timeout" if timeout else "failure"
                             logger.warning(
@@ -1432,7 +1463,9 @@ async def extract_spo_for_documents(
                             fallback_rows: list[tuple[str, dict[str, Any]]] = []
                             if fallback_rows_by_anchor:
                                 for doc, prov in group:
-                                    base_row = fallback_rows_by_anchor.get(doc.card.doc_id, {}).get(prov.anchor_path)
+                                    base_row = fallback_rows_by_anchor.get(doc.card.doc_id, {}).get(
+                                        prov.anchor_path
+                                    )
                                     if base_row is None:
                                         fallback_rows = []
                                         break
@@ -1449,7 +1482,9 @@ async def extract_spo_for_documents(
                             if fallback_rows:
                                 for doc_id, row in fallback_rows:
                                     statements = row.get("statements")
-                                    stmt_count = len(statements) if isinstance(statements, list) else 0
+                                    stmt_count = (
+                                        len(statements) if isinstance(statements, list) else 0
+                                    )
                                     if result_sink is not None:
                                         result_sink(row)
                                     # Skip persisting empty fallback rows — they inflate
@@ -1463,7 +1498,10 @@ async def extract_spo_for_documents(
                             continue
 
                     for (doc, provision), result in zip(group, group_result, strict=True):
-                        if followup_pass_index < max_followup_passes and _is_retryable_failed_result(result):
+                        if (
+                            followup_pass_index < max_followup_passes
+                            and _is_retryable_failed_result(result)
+                        ):
                             retry_items_next.append((doc, provision))
                             _increment_counter(telemetry, "retry_followup_pending_items_total")
                             continue
@@ -1497,7 +1535,9 @@ async def extract_spo_for_documents(
                         row["extraction_source"] = extraction_source
                         persist_row = True
                         if merge_baseline_rows_by_anchor:
-                            baseline_row = merge_baseline_rows_by_anchor.get(result.doc_id, {}).get(result.provision_anchor)
+                            baseline_row = merge_baseline_rows_by_anchor.get(result.doc_id, {}).get(
+                                result.provision_anchor
+                            )
                             baseline_statements = (
                                 baseline_row.get("statements", [])
                                 if isinstance(baseline_row, dict)
@@ -1508,7 +1548,9 @@ async def extract_spo_for_documents(
                             llm_statements = row.get("statements", [])
                             if not isinstance(llm_statements, list):
                                 llm_statements = []
-                            merged_statements, added_count = _merge_statement_lists(baseline_statements, llm_statements)
+                            merged_statements, added_count = _merge_statement_lists(
+                                baseline_statements, llm_statements
+                            )
                             row["statements"] = merged_statements
                             row["baseline_statement_count"] = len(baseline_statements)
                             row["llm_gap_fill_llm_statement_count"] = len(llm_statements)
@@ -1524,16 +1566,22 @@ async def extract_spo_for_documents(
                                     telemetry_row["gap_fill_null_yield_kind"] = "persisted_empty"
                                 _append_gap_fill_null_yield(telemetry_row)
                                 row["persisted_to_output"] = False
-                                row["gap_fill_null_yield_kind"] = telemetry_row["gap_fill_null_yield_kind"]
+                                row["gap_fill_null_yield_kind"] = telemetry_row[
+                                    "gap_fill_null_yield_kind"
+                                ]
                                 persist_row = False
                         if result_sink is not None:
                             result_sink(row)
                         if persist_row:
                             doc_buffers.setdefault(result.doc_id, []).append(row)
                             statements = row.get("statements")
-                            total_statements += len(statements) if isinstance(statements, list) else 0
+                            total_statements += (
+                                len(statements) if isinstance(statements, list) else 0
+                            )
                             if followup_pass_index > 0:
-                                _increment_counter(telemetry, "retry_followup_recovered_items_total")
+                                _increment_counter(
+                                    telemetry, "retry_followup_recovered_items_total"
+                                )
 
                 for doc_id, rows in doc_buffers.items():
                     out_path = results_dir / _shard_prefix(doc_id) / f"{doc_id}.jsonl"
@@ -1544,7 +1592,9 @@ async def extract_spo_for_documents(
                 pending_items = _dedupe_work_items(retry_items_next)
 
         if passes_run > 0 and pending_items:
-            _increment_counter(telemetry, "retry_followup_items_exhausted_total", len(pending_items))
+            _increment_counter(
+                telemetry, "retry_followup_items_exhausted_total", len(pending_items)
+            )
 
     if failed_doc_ids:
         logger.warning(

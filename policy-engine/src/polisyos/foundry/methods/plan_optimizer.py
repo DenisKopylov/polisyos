@@ -34,6 +34,7 @@ Usage
     )
     print(plan.estimated_cost_ms, plan.gpu_scheduled)
 """
+
 from __future__ import annotations
 
 import math
@@ -45,12 +46,12 @@ from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 from polisyos.foundry.methods.exceptions import FoundryMethodError
 
 __all__ = [
-    "OptimizedPlan",
-    "NodeSchedule",
-    "ExecutionKernel",
-    "MethodCostModel",
-    "ExecutionPlanOptimizer",
     "ComplexityClass",
+    "ExecutionKernel",
+    "ExecutionPlanOptimizer",
+    "MethodCostModel",
+    "NodeSchedule",
+    "OptimizedPlan",
 ]
 
 # ---------------------------------------------------------------------------
@@ -330,6 +331,7 @@ class MethodCostModel:
         for shape in input_shapes.values():
             if shape:
                 from math import prod
+
                 total += prod(shape)
         return max(total, 1)
 
@@ -341,9 +343,9 @@ class MethodCostModel:
         if cls == "O_nlogn":
             return base_ms * n_k * math.log2(max(n_k, 2))
         if cls == "O_n2":
-            return base_ms * (n_k ** 2)
+            return base_ms * (n_k**2)
         if cls == "O_n3":
-            return base_ms * (n_k ** 3)
+            return base_ms * (n_k**3)
         # Iterative / graph workloads fall back to a linear size term when
         # topology-specific metadata is unavailable; complexity pressure is
         # expressed through the class multiplier instead of a fabricated n² term.
@@ -439,10 +441,12 @@ class ExecutionPlanOptimizer:
             for group in fusion_groups
             for idx in range(len(group) - 1)
         ]
-        gpu_scheduled = [s.method_fqn for s in schedules.values()
-                         if s.assigned_backend == ComputeBackend.JAX]
-        cpu_scheduled = [s.method_fqn for s in schedules.values()
-                         if s.assigned_backend != ComputeBackend.JAX]
+        gpu_scheduled = [
+            s.method_fqn for s in schedules.values() if s.assigned_backend == ComputeBackend.JAX
+        ]
+        cpu_scheduled = [
+            s.method_fqn for s in schedules.values() if s.assigned_backend != ComputeBackend.JAX
+        ]
         degraded = [s.method_fqn for s in schedules.values() if s.degraded]
 
         return OptimizedPlan(
@@ -595,9 +599,7 @@ class ExecutionPlanOptimizer:
                     continue
                 node = dag.nodes[node_id]
                 static_digest = (
-                    node.node_key.static_params_digest
-                    if node.node_key is not None
-                    else ""
+                    node.node_key.static_params_digest if node.node_key is not None else ""
                 )
                 key = (sched.method_fqn, static_digest)
                 buckets.setdefault(key, []).append(node_id)
@@ -723,6 +725,7 @@ class ExecutionPlanOptimizer:
                 CircuitState,
                 get_circuit_breaker_registry,
             )
+
             reg = get_circuit_breaker_registry()
             return {
                 name

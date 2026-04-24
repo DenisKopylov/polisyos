@@ -154,10 +154,7 @@ def has_recovery_context(
 def collect_recovered_dist_nodes(ast: EstimandAST | Any) -> list[RecoveredDistNode]:
     """Collect all ``RecoveredDistNode`` instances reachable from *ast*."""
     root = ast.root if isinstance(ast, EstimandAST) else ast
-    return [
-        node for node in _iter_pydantic_nodes(root)
-        if isinstance(node, RecoveredDistNode)
-    ]
+    return [node for node in _iter_pydantic_nodes(root) if isinstance(node, RecoveredDistNode)]
 
 
 def infer_recovery_compile_profile(
@@ -192,9 +189,13 @@ def infer_recovery_compile_profile(
             notes="Recovery context present, but no typed recovered factors were available.",
         )
 
-    missingness_kinds = tuple(sorted({str(node.missingness_kind or "unknown") for node in recovered_nodes}))
+    missingness_kinds = tuple(
+        sorted({str(node.missingness_kind or "unknown") for node in recovered_nodes})
+    )
     recovery_form = RecoveryForm.CONDITIONING
-    if ast is not None and any(isinstance(node, RatioNode) for node in _iter_pydantic_nodes(ast.root)):
+    if ast is not None and any(
+        isinstance(node, RatioNode) for node in _iter_pydantic_nodes(ast.root)
+    ):
         recovery_form = RecoveryForm.MIXED
 
     identified_nuisance = {RecoveryNuisance.OUTCOME_REGRESSION}
@@ -585,9 +586,7 @@ def _profile_from_payload(
 ) -> RecoveryCompileProfile:
     profile_payload = compile_time_payload.get("profile")
     source_payload = (
-        dict(profile_payload)
-        if isinstance(profile_payload, dict)
-        else dict(compile_time_payload)
+        dict(profile_payload) if isinstance(profile_payload, dict) else dict(compile_time_payload)
     )
 
     def _bool(name: str, default: bool = False) -> bool:
@@ -620,9 +619,7 @@ def _profile_from_payload(
     if payload is not None:
         payload_blocking = _extract_blocking(payload)
         if payload_blocking:
-            blocking_structures = tuple(
-                sorted(set(blocking_structures) | set(payload_blocking))
-            )
+            blocking_structures = tuple(sorted(set(blocking_structures) | set(payload_blocking)))
     assumption_sensitive = _bool("assumption_sensitive")
     if status == "recoverable_under_assumptions" or blocking_structures:
         assumption_sensitive = True

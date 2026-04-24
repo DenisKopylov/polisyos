@@ -1,4 +1,5 @@
 # Compiler Pipeline
+
 Related explanation: [IR — Intermediate Representation](index.md).
 
 > Execution-free pass layer for registry composition, Trinity linking, estimand normalization, lineage analysis, and dead-artifact diagnostics.
@@ -18,14 +19,14 @@ Source plan phase: D1-L4 Phase 2 compiler-grade IR infrastructure.
 
 ## Core Passes
 
-| Pass | Kind | Inputs | Outputs |
-|------|------|--------|---------|
-| `RegistryDependencyPass` | transform | `registry_compose_request` | `registry_compose_result`, `registry_bundle` |
-| `TrinityLinkAnalysisPass` | analysis | `trinity_bundle`, `registry_bundle` | `linked_trinity_bundle`, `link_report` |
-| `CrossModelTypeCheckPass` | analysis | artifact store plus execution/link surfaces | `cross_model_type_check` |
-| `EstimandNormalizationPass` | analysis | `estimand_ast` | `normalized_estimand_ast`, `estimand_content_hash` |
-| `SlotMechanismReachabilityPass` | analysis | `linked_trinity_bundle`, `registry_bundle` | `slot_mechanism_reachability` |
-| `UnusedArtifactAnalysisPass` | analysis | `artifact_store`, lineage roots/bindings | `artifact_lineage_graph`, `unused_artifact_analysis` |
+| Pass                            | Kind      | Inputs                                      | Outputs                                              |
+| ------------------------------- | --------- | ------------------------------------------- | ---------------------------------------------------- |
+| `RegistryDependencyPass`        | transform | `registry_compose_request`                  | `registry_compose_result`, `registry_bundle`         |
+| `TrinityLinkAnalysisPass`       | analysis  | `trinity_bundle`, `registry_bundle`         | `linked_trinity_bundle`, `link_report`               |
+| `CrossModelTypeCheckPass`       | analysis  | artifact store plus execution/link surfaces | `cross_model_type_check`                             |
+| `EstimandNormalizationPass`     | analysis  | `estimand_ast`                              | `normalized_estimand_ast`, `estimand_content_hash`   |
+| `SlotMechanismReachabilityPass` | analysis  | `linked_trinity_bundle`, `registry_bundle`  | `slot_mechanism_reachability`                        |
+| `UnusedArtifactAnalysisPass`    | analysis  | `artifact_store`, lineage roots/bindings    | `artifact_lineage_graph`, `unused_artifact_analysis` |
 
 ## Lineage Model
 
@@ -61,9 +62,9 @@ That policy is part of the IR payload and therefore part of schema evolution and
 
 ## Validation Hooks
 
-| Claim | Source of truth | Evidence |
-|-------|-----------------|----------|
-| Pass ordering and analysis cache are deterministic | `src/polisyos/ir/passes/**` | `tests/ir/test_phase2_passes.py` |
-| Estimand hashes ignore presentation-only ordering | `src/polisyos/ir/analytics/estimand.py` | `tests/ir/analytics/test_estimand_normalization.py` |
-| Lineage graph covers produced, consumed, derived, and invalidated artifacts | `src/polisyos/ir/artifacts/lineage.py` | `tests/ir/test_phase2_passes.py` |
-| Uncertainty algebra uses explicit numeric policy | `src/polisyos/ir/analytics/uncertainty.py` | `tests/ir/test_uncertainty.py`, `docs/adr/0012-uncertainty-envelope-ir-contract.md` |
+| Claim                                                                       | Source of truth                            | Evidence                                                                            |
+| --------------------------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Pass ordering and analysis cache are deterministic                          | `src/polisyos/ir/passes/**`                | `tests/ir/test_phase2_passes.py`                                                    |
+| Estimand hashes ignore presentation-only ordering                           | `src/polisyos/ir/analytics/estimand.py`    | `tests/ir/analytics/test_estimand_normalization.py`                                 |
+| Lineage graph covers produced, consumed, derived, and invalidated artifacts | `src/polisyos/ir/artifacts/lineage.py`     | `tests/ir/test_phase2_passes.py`                                                    |
+| Uncertainty algebra uses explicit numeric policy                            | `src/polisyos/ir/analytics/uncertainty.py` | `tests/ir/test_uncertainty.py`, `docs/adr/0012-uncertainty-envelope-ir-contract.md` |

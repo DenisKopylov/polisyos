@@ -1,4 +1,5 @@
 """Public storage port module API."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
@@ -16,14 +17,11 @@ class StoragePort(Protocol):
     Implementations may wrap DuckDB, PostgreSQL, in-memory stores, etc.
     """
 
-    def save_macro(self, data: list[dict[str, Any]]) -> None:
-        ...
+    def save_macro(self, data: list[dict[str, Any]]) -> None: ...
 
-    def save_agents(self, run_id: str, step: int, agents_state: Any) -> None:
-        ...
+    def save_agents(self, run_id: str, step: int, agents_state: Any) -> None: ...
 
-    def save_run_record(self, record: Any) -> None:
-        ...
+    def save_run_record(self, record: Any) -> None: ...
 
     def query_table(
         self,
@@ -33,13 +31,10 @@ class StoragePort(Protocol):
         where: Mapping[str, Any] | None = None,
         order_by: Sequence[str] | None = None,
         limit: int = 1_000,
-    ) -> pd.DataFrame:
-        ...
+    ) -> pd.DataFrame: ...
 
-    def transaction(self) -> AbstractContextManager["StoragePort"]:
+    def transaction(self) -> AbstractContextManager[StoragePort]:
         """Return transactional context manager."""
         ...
 
-    def close(self) -> None:
-        ...
-
+    def close(self) -> None: ...

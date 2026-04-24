@@ -1,7 +1,9 @@
 """Public survey imputation module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -31,6 +33,7 @@ def _result_slot() -> frozenset[SlotSpec]:
 )
 class MICEEstimator:
     """Impute missing survey fields with chained-equation multiple imputation."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -41,7 +44,9 @@ class MICEEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("X", SlotType.MATRIX, Unit("data", "value"), shape=("n_obs", "n_vars")),
-                SlotSpec("missing_mask", SlotType.MATRIX, Unit("mask", "bool"), shape=("n_obs", "n_vars")),
+                SlotSpec(
+                    "missing_mask", SlotType.MATRIX, Unit("mask", "bool"), shape=("n_obs", "n_vars")
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -60,9 +65,15 @@ class MICEEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Multiple Imputation by Chained Equations (MICE) via predictive mean matching.",
-        tags=frozenset({"survey", "imputation", "mice", "multiple-imputation", "chained-equations"}),
-        citations=("van Buuren, S. & Groothuis-Oudshoorn, K. (2011). mice: Multivariate Imputation. JSS.",),
-        equations={"mice": "For each variable j with missing: impute via regression on other variables, cycle"},
+        tags=frozenset(
+            {"survey", "imputation", "mice", "multiple-imputation", "chained-equations"}
+        ),
+        citations=(
+            "van Buuren, S. & Groothuis-Oudshoorn, K. (2011). mice: Multivariate Imputation. JSS.",
+        ),
+        equations={
+            "mice": "For each variable j with missing: impute via regression on other variables, cycle"
+        },
         determinism_tier=DeterminismTier.STATISTICAL,
         required_deps=("numpy",),
         when_to_use="Handle missing values in survey data via imputation; maintain sample size and distributional properties",
@@ -151,6 +162,7 @@ class MICEEstimator:
 )
 class NonresponseAdjustmentEstimator:
     """Adjust survey weights or outcomes for unit nonresponse."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -160,15 +172,22 @@ class NonresponseAdjustmentEstimator:
         version="0.0.0",
         input_slots=frozenset(
             {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")),
-                SlotSpec("response_indicator", SlotType.VECTOR, Unit("indicator", "binary"), shape=("n_obs",)),
-                SlotSpec("base_weights", SlotType.VECTOR, Unit("weight", "value"), shape=("n_obs",)),
+                SlotSpec(
+                    "X", SlotType.MATRIX, Unit("covariate", "value"), shape=("n_obs", "n_features")
+                ),
+                SlotSpec(
+                    "response_indicator",
+                    SlotType.VECTOR,
+                    Unit("indicator", "binary"),
+                    shape=("n_obs",),
+                ),
+                SlotSpec(
+                    "base_weights", SlotType.VECTOR, Unit("weight", "value"), shape=("n_obs",)
+                ),
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="max_iter", default=50),
-        ),
+        parameters=(ParameterSpec(name="max_iter", default=50),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -230,7 +249,12 @@ class NonresponseAdjustmentEstimator:
                 "adjusted_weights": adjusted_weights.tolist(),
                 "response_propensities": propensity.tolist(),
                 "response_rate": float(np.mean(r)),
-                "weight_cv": float(np.std(adjusted_weights[resp_mask]) / max(np.mean(adjusted_weights[resp_mask]), 1e-12)) if np.any(resp_mask) else 0.0,
+                "weight_cv": float(
+                    np.std(adjusted_weights[resp_mask])
+                    / max(np.mean(adjusted_weights[resp_mask]), 1e-12)
+                )
+                if np.any(resp_mask)
+                else 0.0,
                 "n_respondents": int(np.sum(resp_mask)),
                 "n_total": n,
             }

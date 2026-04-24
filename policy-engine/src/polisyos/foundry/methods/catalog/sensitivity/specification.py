@@ -1,7 +1,9 @@
 """Public sensitivity specification module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -31,6 +33,7 @@ def _result_slot() -> frozenset[SlotSpec]:
 )
 class SpecificationCurveEstimator:
     """Evaluate how conclusions shift across a full specification-curve sweep."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -41,13 +44,13 @@ class SpecificationCurveEstimator:
         input_slots=frozenset(
             {
                 SlotSpec("estimates", SlotType.VECTOR, Unit("effect", "value"), shape=("n_specs",)),
-                SlotSpec("standard_errors", SlotType.VECTOR, Unit("se", "value"), shape=("n_specs",)),
+                SlotSpec(
+                    "standard_errors", SlotType.VECTOR, Unit("se", "value"), shape=("n_specs",)
+                ),
             }
         ),
         output_slots=_result_slot(),
-        parameters=(
-            ParameterSpec(name="significance_level", default=0.05, bounds=(0.0, 1.0)),
-        ),
+        parameters=(ParameterSpec(name="significance_level", default=0.05, bounds=(0.0, 1.0)),),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N,
         backend=ComputeBackend.NUMPY,
@@ -62,7 +65,9 @@ class SpecificationCurveEstimator:
         citations=(
             "Simonsohn, U., Simmons, J.P. & Nelson, L.D. (2020). Specification curve analysis. Nature Human Behaviour.",
         ),
-        equations={"curve": "Sort estimates; report median, IQR, share significant, sign consistency"},
+        equations={
+            "curve": "Sort estimates; report median, IQR, share significant, sign consistency"
+        },
         determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
         required_deps=("numpy",),
         when_to_use="Assess robustness of regression result across researcher specification choices (controls, samples, functional forms)",
@@ -84,7 +89,9 @@ class SpecificationCurveEstimator:
             raise ValueError("estimates and standard_errors must be 1D with same length")
 
         alpha = float(params.get("significance_level", 0.05))
-        z_crit = 1.96 if abs(alpha - 0.05) < 1e-6 else float(-np.log(alpha / 2))  # rough approximation
+        z_crit = (
+            1.96 if abs(alpha - 0.05) < 1e-6 else float(-np.log(alpha / 2))
+        )  # rough approximation
 
         n_specs = len(estimates)
         sorted_idx = np.argsort(estimates)

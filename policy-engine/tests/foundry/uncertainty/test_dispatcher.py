@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import pytest
-
+from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
 from polisyos.ir.analytics.uncertainty import (
     CertificateKind,
     ComposedFlavour,
@@ -12,9 +12,6 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-
-from polisyos.foundry.uncertainty.config import PropagationConfig
-from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
 
 
 def _normal_env(point: float, std: float, level: float = 0.95) -> UncertaintyEnvelope:
@@ -39,7 +36,10 @@ class TestDispatcherEdgeCases:
     def test_dispatcher_empty_envelopes_returns_empty(self) -> None:
         dispatcher = PropagationDispatcher()
         results = dispatcher.propagate(
-            _linear_sim, {"x": 1.0}, {}, ["y"],
+            _linear_sim,
+            {"x": 1.0},
+            {},
+            ["y"],
         )
         assert results == []
 
@@ -47,7 +47,10 @@ class TestDispatcherEdgeCases:
         dispatcher = PropagationDispatcher()
         envelopes = {"x": _normal_env(1.0, 0.5)}
         results = dispatcher.propagate(
-            _linear_sim, {"x": 1.0}, envelopes, [],
+            _linear_sim,
+            {"x": 1.0},
+            envelopes,
+            [],
         )
         assert results == []
 
@@ -57,7 +60,10 @@ class TestDispatcherEdgeCases:
         envelopes = {"x": _normal_env(1.0, 0.5)}
 
         results = dispatcher.propagate(
-            _linear_sim, {"x": 1.0}, envelopes, ["y"],
+            _linear_sim,
+            {"x": 1.0},
+            envelopes,
+            ["y"],
         )
 
         assert len(results) == 1
@@ -78,16 +84,16 @@ class TestDispatcherEdgeCases:
         envelopes = {"x": _normal_env(1.0, 0.5)}
 
         results = dispatcher.propagate(
-            _linear_sim, {"x": 1.0}, envelopes, ["y"],
+            _linear_sim,
+            {"x": 1.0},
+            envelopes,
+            ["y"],
         )
 
         assert len(results) == 1
         assert results[0].method_used == PropagationMethod.DELTA_METHOD
         assert results[0].envelope.composition_provenance is not None
-        assert (
-            results[0].envelope.composition_provenance.composed_flavour
-            == ComposedFlavour.DELTA
-        )
+        assert results[0].envelope.composition_provenance.composed_flavour == ComposedFlavour.DELTA
         assert (
             results[0].envelope.composition_provenance.certificate_kind
             == CertificateKind.TAYLOR_REMAINDER
@@ -128,10 +134,7 @@ class TestDispatcherEdgeCases:
             results[0].envelope.composition_provenance.composed_flavour
             == ComposedFlavour.ANALYTICAL
         )
-        assert (
-            results[0].envelope.composition_provenance.certificate_kind
-            == CertificateKind.EXACT
-        )
+        assert results[0].envelope.composition_provenance.certificate_kind == CertificateKind.EXACT
         assert results[0].envelope.distribution_payload is not None
 
     def test_dispatcher_analytical_preserves_delta_ancestry(self) -> None:
@@ -159,14 +162,8 @@ class TestDispatcherEdgeCases:
 
         assert len(results) == 1
         assert results[0].envelope.composition_provenance is not None
-        assert (
-            results[0].envelope.composition_provenance.composed_flavour
-            == ComposedFlavour.DELTA
-        )
-        assert (
-            results[0].envelope.composition_provenance.exactness
-            == ExactnessKind.APPROXIMATION
-        )
+        assert results[0].envelope.composition_provenance.composed_flavour == ComposedFlavour.DELTA
+        assert results[0].envelope.composition_provenance.exactness == ExactnessKind.APPROXIMATION
         assert (
             results[0].envelope.composition_provenance.certificate_kind
             == CertificateKind.TAYLOR_REMAINDER
@@ -209,10 +206,7 @@ class TestDispatcherEdgeCases:
 
         assert len(results) == 1
         assert results[0].envelope.composition_provenance is not None
-        assert (
-            results[0].envelope.composition_provenance.composed_flavour
-            == ComposedFlavour.MIXED
-        )
+        assert results[0].envelope.composition_provenance.composed_flavour == ComposedFlavour.MIXED
         assert (
             results[0].envelope.composition_provenance.certificate_kind
             == CertificateKind.WASSERSTEIN_1

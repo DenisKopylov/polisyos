@@ -62,13 +62,7 @@ function AnnotationMarker({
   return (
     <g>
       <circle cx={x} cy={y + 12} r={8} fill={color} fillOpacity={0.15} />
-      <text
-        x={x}
-        y={y + 16}
-        textAnchor="middle"
-        fontSize={10}
-        fill={color}
-      >
+      <text x={x} y={y + 16} textAnchor="middle" fontSize={10} fill={color}>
         {icon}
       </text>
       <text
@@ -118,9 +112,7 @@ export function AnnotatedChart({
     [data, xKey, yKey, confidenceBand],
   );
 
-  const tableColumns = confidenceBand
-    ? ["Value", "Upper", "Lower"]
-    : ["Value"];
+  const tableColumns = confidenceBand ? ["Value", "Upper", "Lower"] : ["Value"];
 
   return (
     <div className={cn("space-y-3", className)}>
@@ -142,11 +134,17 @@ export function AnnotatedChart({
             />
             <XAxis
               dataKey={xKey}
-              tick={{ fontSize: chartDefaults.tickFontSize, fill: chartTheme.axis }}
+              tick={{
+                fontSize: chartDefaults.tickFontSize,
+                fill: chartTheme.axis,
+              }}
               stroke={chartTheme.axis}
             />
             <YAxis
-              tick={{ fontSize: chartDefaults.tickFontSize, fill: chartTheme.axis }}
+              tick={{
+                fontSize: chartDefaults.tickFontSize,
+                fill: chartTheme.axis,
+              }}
               stroke={chartTheme.axis}
             />
             <Tooltip
@@ -199,7 +197,14 @@ export function AnnotatedChart({
                   <AnnotationMarker
                     x={viewBox?.x ?? 0}
                     annotation={ann}
-                    viewBox={viewBox as { x: number; y: number; width: number; height: number }}
+                    viewBox={
+                      viewBox as {
+                        x: number;
+                        y: number;
+                        width: number;
+                        height: number;
+                      }
+                    }
                   />
                 )}
               />
@@ -220,9 +225,7 @@ export function AnnotatedChart({
                 {ANNOTATION_ICONS[ann.type]}
               </span>
               <span className="font-medium">{ann.label}</span>
-              {ann.detail && (
-                <span className="text-muted">— {ann.detail}</span>
-              )}
+              {ann.detail && <span className="text-muted">— {ann.detail}</span>}
             </div>
           ))}
         </div>

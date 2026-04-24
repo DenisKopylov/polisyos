@@ -1,4 +1,5 @@
 """Hashing helpers built on canonical JSON so artifact IDs stay stable across runtimes."""
+
 from __future__ import annotations
 
 import hashlib
@@ -13,11 +14,9 @@ DeprecatedHashAlgorithm = Literal["sha1"]
 
 
 class _Hasher(Protocol):
-    def update(self, data: bytes, /) -> None:
-        ...
+    def update(self, data: bytes, /) -> None: ...
 
-    def hexdigest(self) -> str:
-        ...
+    def hexdigest(self) -> str: ...
 
 
 def _new_hasher(

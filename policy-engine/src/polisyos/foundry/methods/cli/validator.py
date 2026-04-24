@@ -39,13 +39,14 @@ Usage (programmatic)
     report.print_summary()
     assert report.passed
 """
+
 from __future__ import annotations
 
 import inspect
 import traceback
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 __all__ = [
     "MethodValidator",
@@ -64,8 +65,8 @@ __all__ = [
 class ValidationIssue:
     """A single validation finding."""
 
-    severity: str    # "error" | "warning" | "info"
-    code: str        # Short machine-readable code, e.g. "E001"
+    severity: str  # "error" | "warning" | "info"
+    code: str  # Short machine-readable code, e.g. "E001"
     message: str
     hint: str = ""
 
@@ -102,7 +103,7 @@ class ValidationReport:
 
     def print_summary(self) -> None:
         status = "PASS" if self.passed else "FAIL"
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"  {status}  {self.class_name}  ({self.fqn or 'no FQN'})")
         print(f"  {len(self.errors)} error(s), {len(self.warnings)} warning(s)")
         print("=" * 60)
@@ -173,6 +174,7 @@ class MethodValidator:
     def validate_registry(self) -> list[ValidationReport]:
         """Validate all methods currently in the global registry."""
         from polisyos.foundry.methods.registry import get_registry
+
         reg = get_registry()
         reports = []
         for entry in reg.list_all():
@@ -208,6 +210,7 @@ class MethodValidator:
             sys.modules.pop("_foundry_validate_tmp", None)
 
         from polisyos.foundry.methods.discovery import is_foundry_method
+
         reports = []
         for name in dir(module):
             obj = getattr(module, name, None)
@@ -227,60 +230,84 @@ class MethodValidator:
     def _check_pure_step(self, cls: type, report: ValidationReport) -> None:
         pure_step = inspect.getattr_static(cls, "pure_step", None)
         if pure_step is None:
-            report.add("error", "E001", "Missing 'pure_step' attribute.",
-                       hint="Add @staticmethod def pure_step(state, params) -> dict")
+            report.add(
+                "error",
+                "E001",
+                "Missing 'pure_step' attribute.",
+                hint="Add @staticmethod def pure_step(state, params) -> dict",
+            )
             return
         if not isinstance(pure_step, staticmethod):
-            report.add("error", "E002", "'pure_step' must be a @staticmethod.",
-                       hint="Decorate with @staticmethod — it may not access 'cls' or 'self'.")
+            report.add(
+                "error",
+                "E002",
+                "'pure_step' must be a @staticmethod.",
+                hint="Decorate with @staticmethod — it may not access 'cls' or 'self'.",
+            )
         sig = inspect.signature(cls.pure_step)
         params = list(sig.parameters.keys())
         if params != ["state", "params"]:
             report.add(
-                "warning", "W001",
+                "warning",
+                "W001",
                 f"'pure_step' parameters {params!r} differ from expected ['state', 'params'].",
                 hint="Signature should be: pure_step(state, params) -> dict",
             )
 
     def _check_signature(self, cls: type, report: ValidationReport) -> None:
         from polisyos.foundry.methods.base import MethodSignature
+
         sig = getattr(cls, "signature", None)
         if sig is None:
             report.add("error", "E003", "Missing 'signature' class attribute.")
             return
         if not isinstance(sig, MethodSignature):
-            report.add("error", "E004",
-                       f"'signature' must be MethodSignature, got {type(sig).__name__}.")
+            report.add(
+                "error", "E004", f"'signature' must be MethodSignature, got {type(sig).__name__}."
+            )
             return
         # Check backend-supports_jit consistency
         from polisyos.foundry.methods.base import ComputeBackend
+
         if sig.backend != ComputeBackend.JAX:
             if sig.supports_jit or sig.supports_vmap or sig.supports_grad:
                 report.add(
-                    "error", "E005",
+                    "error",
+                    "E005",
                     "Non-JAX backend must have supports_jit=False, supports_vmap=False, "
                     "supports_grad=False.",
                 )
 
     def _check_metadata(self, cls: type, report: ValidationReport) -> None:
         from polisyos.foundry.methods.base import MethodMetadata
+
         meta = getattr(cls, "metadata", None)
         if meta is None:
             report.add("error", "E006", "Missing 'metadata' class attribute.")
             return
         if not isinstance(meta, MethodMetadata):
-            report.add("error", "E007",
-                       f"'metadata' must be MethodMetadata, got {type(meta).__name__}.")
+            report.add(
+                "error", "E007", f"'metadata' must be MethodMetadata, got {type(meta).__name__}."
+            )
             return
         if not meta.description.strip():
-            report.add("warning", "W002", "metadata.description is empty.",
-                       hint="Add a meaningful description for catalog display and LLM selection.")
+            report.add(
+                "warning",
+                "W002",
+                "metadata.description is empty.",
+                hint="Add a meaningful description for catalog display and LLM selection.",
+            )
         if not meta.tags:
-            report.add("warning", "W003", "metadata.tags is empty.",
-                       hint="Add at least one tag for discoverability.")
+            report.add(
+                "warning",
+                "W003",
+                "metadata.tags is empty.",
+                hint="Add at least one tag for discoverability.",
+            )
 
     def _check_fqn(self, cls: type, report: ValidationReport) -> None:
         from polisyos.foundry.methods.base import parse_fqn
+
         sig = getattr(cls, "signature", None)
         if sig is None:
             return
@@ -291,8 +318,12 @@ class MethodValidator:
         try:
             parse_fqn(fqn)
         except ValueError as exc:
-            report.add("error", "E009", f"Invalid FQN: {exc}",
-                       hint="FQN must be 'namespace.name@semver', e.g. 'causal.did.standard@1.0.0'")
+            report.add(
+                "error",
+                "E009",
+                f"Invalid FQN: {exc}",
+                hint="FQN must be 'namespace.name@semver', e.g. 'causal.did.standard@1.0.0'",
+            )
 
     def _check_slot_uniqueness(self, cls: type, report: ValidationReport) -> None:
         sig = getattr(cls, "signature", None)
@@ -308,6 +339,7 @@ class MethodValidator:
     def _run_smoke_test(self, cls: type, report: ValidationReport) -> None:
         """Call pure_step with zero-shaped inputs — check it doesn't crash unexpectedly."""
         import numpy as np
+
         sig = getattr(cls, "signature", None)
         if sig is None:
             return
@@ -323,22 +355,29 @@ class MethodValidator:
         try:
             result = cls.pure_step(state, {"seed": 0})
             if not isinstance(result, dict):
-                report.add("warning", "W004",
-                           f"pure_step returned {type(result).__name__}, expected dict.")
+                report.add(
+                    "warning", "W004", f"pure_step returned {type(result).__name__}, expected dict."
+                )
                 return
             declared_outputs = {s.name for s in getattr(sig, "output_slots", [])}
             returned = set(result.keys())
             missing = declared_outputs - returned
             if missing:
-                report.add("warning", "W005",
-                           f"Smoke test: output missing declared slots: {sorted(missing)}")
+                report.add(
+                    "warning",
+                    "W005",
+                    f"Smoke test: output missing declared slots: {sorted(missing)}",
+                )
         except NotImplementedError:
             report.add("info", "I001", "pure_step raises NotImplementedError (scaffold stub).")
         except Exception as exc:
             tb = traceback.format_exc(limit=3)
-            report.add("warning", "W006",
-                       f"Smoke test raised {type(exc).__name__}: {exc}",
-                       hint=tb.strip().splitlines()[-1] if tb.strip() else "")
+            report.add(
+                "warning",
+                "W006",
+                f"Smoke test raised {type(exc).__name__}: {exc}",
+                hint=tb.strip().splitlines()[-1] if tb.strip() else "",
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -369,8 +408,9 @@ def main() -> None:
     src_group = parser.add_mutually_exclusive_group(required=True)
     src_group.add_argument("file", nargs="?", type=Path, help="Python file to validate.")
     src_group.add_argument("--module", help="Module to import (e.g. polisyos.foundry...)")
-    src_group.add_argument("--all", action="store_true", dest="validate_all",
-                           help="Validate all registered methods.")
+    src_group.add_argument(
+        "--all", action="store_true", dest="validate_all", help="Validate all registered methods."
+    )
     parser.add_argument("--class", dest="class_name", help="Specific class name to validate.")
     parser.add_argument("--no-smoke", action="store_true", help="Skip smoke test.")
     parser.add_argument("--json", action="store_true", dest="json_out", help="Output JSON.")
@@ -383,8 +423,10 @@ def main() -> None:
         reports = validator.validate_registry()
     elif args.module:
         import importlib
+
         module = importlib.import_module(args.module)
         from polisyos.foundry.methods.discovery import is_foundry_method
+
         for name in dir(module):
             obj = getattr(module, name, None)
             if obj and is_foundry_method(obj):

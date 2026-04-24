@@ -148,7 +148,8 @@ export function useCollaborationSession({
             const snapshot = parseSnapshot(
               event.data,
             ) as CollabPresenceSnapshot | null;
-            if (!snapshot || snapshot.type !== "collab.presence.snapshot") return;
+            if (!snapshot || snapshot.type !== "collab.presence.snapshot")
+              return;
             store
               .getState()
               .setParticipants(
@@ -166,7 +167,8 @@ export function useCollaborationSession({
             const snapshot = parseSnapshot(
               event.data,
             ) as CollabCursorSnapshot | null;
-            if (!snapshot || snapshot.type !== "collab.cursors.snapshot") return;
+            if (!snapshot || snapshot.type !== "collab.cursors.snapshot")
+              return;
             store
               .getState()
               .setCursors(
@@ -183,9 +185,7 @@ export function useCollaborationSession({
         { ...base, channel: "collab.comments" },
         {
           onMessage: (event) => {
-            const data = parseSnapshot(
-              event.data,
-            ) as CollabCommentEvent | null;
+            const data = parseSnapshot(event.data) as CollabCommentEvent | null;
             if (!data) return;
             const comment = mapComment(data.comment);
             if (data.type === "collab.comment.added") {

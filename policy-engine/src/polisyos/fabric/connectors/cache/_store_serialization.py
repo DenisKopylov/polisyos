@@ -13,6 +13,7 @@ Wire format::
 Pickle payloads are HMAC-SHA256 signed to prevent deserialization of
 tampered data (mitigates RCE via crafted pickle in compromised cache).
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -23,13 +24,6 @@ import os
 import pickle
 from typing import Any
 
-_logger = logging.getLogger(__name__)
-
-_PICKLE_HMAC_KEY: bytes = os.environ.get(
-    "POLISYOS_CACHE_HMAC_KEY", ""
-).encode("utf-8") or os.urandom(32)
-_HMAC_TAG_LEN = 32  # SHA-256 digest length
-
 import pandas as pd
 
 from polisyos.core.canon.canon_json import from_canonical_bytes, to_canonical_bytes
@@ -37,6 +31,13 @@ from polisyos.fabric.connectors.base import FetchResult
 from polisyos.ir.connectors import DataVersion, PIIScanSummary, QualityTier
 
 from ._store_models import _canon_spec_allow_floats
+
+_logger = logging.getLogger(__name__)
+
+_PICKLE_HMAC_KEY: bytes = os.environ.get("POLISYOS_CACHE_HMAC_KEY", "").encode(
+    "utf-8"
+) or os.urandom(32)
+_HMAC_TAG_LEN = 32  # SHA-256 digest length
 
 __all__ = [
     "ResultSerializer",
@@ -92,12 +93,8 @@ class ResultSerializer:
             "total_count": result.total_count,
             "fetch_duration_ms": result.fetch_duration_ms,
             "bytes_transferred": result.bytes_transferred,
-            "resilience": result.resilience.model_dump(mode="json")
-            if result.resilience
-            else None,
-            "pii_scan": result.pii_scan.model_dump(mode="json")
-            if result.pii_scan
-            else None,
+            "resilience": result.resilience.model_dump(mode="json") if result.resilience else None,
+            "pii_scan": result.pii_scan.model_dump(mode="json") if result.pii_scan else None,
         }
 
         envelope_bytes = to_canonical_bytes(envelope, _canon_spec_allow_floats())

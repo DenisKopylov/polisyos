@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from polisyos.scientist.backtesting.cv import (
-    CVResult,
     forward_chaining_splits,
     run_forward_chaining_cv,
 )

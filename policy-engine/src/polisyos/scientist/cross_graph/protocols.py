@@ -9,10 +9,6 @@ from polisyos.ir.analytics.cross_graph import (
     CanonicalConcept,
     CrossGraphDiagnostic,
     EvidenceNeed,
-    EvidenceStatus,
-    LegalStatus,
-    ObservabilityStatus,
-    TransportStatus,
 )
 
 
@@ -81,5 +77,4 @@ class ConfidenceAggregator(Protocol):
         dimension_scores: dict[str, float],
         *,
         requires_expert_review: bool,
-    ) -> float:
-        ...
+    ) -> float: ...

@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import re
 from collections import Counter
-from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 import numpy as np
@@ -15,6 +14,8 @@ try:  # pragma: no cover - exercised in environments with sklearn installed
     from sklearn.feature_extraction.text import TfidfVectorizer as _TfidfVectorizer
 except ModuleNotFoundError:  # pragma: no cover - exercised in lean runtime/test envs
     _TfidfVectorizer = None
+
+import contextlib
 
 from polisyos.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
 from polisyos.academic.knowledge.runtime_canonical_registry import (
@@ -25,6 +26,9 @@ from polisyos.academic.knowledge.runtime_canonical_registry import (
 )
 from polisyos.academic.knowledge.skg_store import parent_canonical_name
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
 _AUTO_APPROVE_THRESHOLD = 0.90
 _PENDING_REVIEW_THRESHOLD = 0.75
 
@@ -32,6 +36,7 @@ _PENDING_REVIEW_THRESHOLD = 0.75
 @dataclass(frozen=True)
 class ResolutionResult:
     """Record how one raw academic variable mention resolved against the canonical registry."""
+
     raw_name: str
     canonical_name: str | None
     method: str
@@ -43,6 +48,7 @@ class ResolutionResult:
 @dataclass
 class CanonizationStats:
     """Canonization stats public type."""
+
     exact_matches: int = 0
     synonym_matches: int = 0
     hierarchy_matches: int = 0
@@ -54,7 +60,9 @@ class CanonizationStats:
 
     @property
     def resolution_rate(self) -> float:
-        resolved = self.exact_matches + self.synonym_matches + self.hierarchy_matches + self.auto_approved
+        resolved = (
+            self.exact_matches + self.synonym_matches + self.hierarchy_matches + self.auto_approved
+        )
         return resolved / max(1, self.total)
 
 
@@ -156,7 +164,9 @@ class CanonicalVariableResolver:
         approved_synonyms: dict[str, str] | None = None,
         runtime_entries: dict[str, RuntimeCanonicalEntry] | None = None,
     ) -> None:
-        self._approved_names = sorted({str(item).strip() for item in approved_names if str(item).strip()})
+        self._approved_names = sorted(
+            {str(item).strip() for item in approved_names if str(item).strip()}
+        )
         self._approved_set = set(self._approved_names)
         self._runtime_entries = dict(runtime_entries or {})
         self._runtime_canonical_names = set(self._runtime_entries)
@@ -188,10 +198,10 @@ class CanonicalVariableResolver:
             self._word_matrix = self._word_vectorizer.fit_transform(self._search_texts)
 
     @classmethod
-    def from_connection(cls, con: duckdb.DuckDBPyConnection) -> "CanonicalVariableResolver":
+    def from_connection(cls, con: duckdb.DuckDBPyConnection) -> CanonicalVariableResolver:
         approved_names = _seed_canonical_names()
         approved_names.update(runtime_canonical_names())
-        try:
+        with contextlib.suppress(duckdb.Error):
             approved_names.update(
                 str(row[0])
                 for row in con.execute(
@@ -199,11 +209,9 @@ class CanonicalVariableResolver:
                 ).fetchall()
                 if row and row[0]
             )
-        except duckdb.Error:
-            pass
         approved_synonyms = _seed_approved_synonyms()
         approved_synonyms.update(runtime_approved_synonyms())
-        try:
+        with contextlib.suppress(duckdb.Error):
             approved_synonyms.update(
                 {
                     str(row[0]).strip().lower(): str(row[1]).strip()
@@ -217,8 +225,6 @@ class CanonicalVariableResolver:
                     if row and row[0] and row[1]
                 }
             )
-        except duckdb.Error:
-            pass
         return cls(
             approved_names=approved_names,
             approved_synonyms=approved_synonyms,
@@ -238,7 +244,10 @@ class CanonicalVariableResolver:
             _normalize_text(canonical_name),
             _normalize_text(_dot_to_seed_alias(canonical_name) or ""),
         }
-        candidates.update(_normalize_text(alias) for alias in self._synonyms_by_canonical.get(canonical_name, set()))
+        candidates.update(
+            _normalize_text(alias)
+            for alias in self._synonyms_by_canonical.get(canonical_name, set())
+        )
         return " ".join(sorted(candidate for candidate in candidates if candidate))
 
     def _runtime_candidate_boost(

@@ -35,6 +35,7 @@ Example:
     >>> # Safe coercion
     >>> result = safe_cast(42, target_type="float64")
 """
+
 from __future__ import annotations
 
 # =============================================================================
@@ -120,60 +121,60 @@ from polisyos.fabric.connectors.types.units import (
 # Public API
 # =============================================================================
 __all__ = [
-    # Connector core types
-    "ConnectorError",
-    "CapabilityError",
-    "ConfigurationError",
-    "ConnectionError",
-    "FetchError",
-    "RateLimitError",
-    "SchemaError",
-    "DataChunk",
-    "DatasetDescriptor",
-    "FreshnessResult",
-    "FreshnessStatus",
-    "RateLimitStatus",
-    "ValidationIssue",
-    "ValidationResult",
-    "ValidationSeverity",
-    # Dimensions
-    "Dimension",
-    "DimensionRegistry",
-    "BaseDimension",
-    "DimensionError",
-    "IncompatibleDimensionsError",
-    "get_dimension_registry",
-    # Units
-    "Unit",
-    "UnitRegistry",
-    "BaseUnit",
-    "ConversionFactor",
-    "MetricPrefix",
-    "UnitParseError",
-    "UnitConversionError",
-    "get_unit_registry",
-    "parse_unit",
-    # Temporal
-    "TemporalType",
-    "TimeGrain",
     "AggregationMethod",
-    "TemporalVariable",
-    "TimeInterval",
-    "TemporalSemantics",
-    "StockFlowCombination",
-    "TemporalAggregationError",
-    "validate_temporal_aggregation",
-    "infer_temporal_type",
-    # Coercion
-    "TypeCoercion",
+    "BaseDimension",
+    "BaseUnit",
+    "CapabilityError",
+    "CoercionError",
     "CoercionPolicy",
     "CoercionResult",
     "CoercionRule",
-    "CoercionError",
+    "ConfigurationError",
+    "ConnectionError",
+    # Connector core types
+    "ConnectorError",
+    "ConversionFactor",
+    "DataChunk",
+    "DatasetDescriptor",
+    # Dimensions
+    "Dimension",
+    "DimensionError",
+    "DimensionRegistry",
+    "FetchError",
+    "FreshnessResult",
+    "FreshnessStatus",
+    "IncompatibleDimensionsError",
+    "MetricPrefix",
     "PrecisionLossWarning",
-    "safe_cast",
+    "RateLimitError",
+    "RateLimitStatus",
+    "SchemaError",
+    "StockFlowCombination",
+    "TemporalAggregationError",
+    "TemporalSemantics",
+    # Temporal
+    "TemporalType",
+    "TemporalVariable",
+    "TimeGrain",
+    "TimeInterval",
+    # Coercion
+    "TypeCoercion",
+    # Units
+    "Unit",
+    "UnitConversionError",
+    "UnitParseError",
+    "UnitRegistry",
+    "ValidationIssue",
+    "ValidationResult",
+    "ValidationSeverity",
     "can_safely_cast",
     "get_coercion_path",
+    "get_dimension_registry",
+    "get_unit_registry",
+    "infer_temporal_type",
+    "parse_unit",
+    "safe_cast",
+    "validate_temporal_aggregation",
 ]
 
 

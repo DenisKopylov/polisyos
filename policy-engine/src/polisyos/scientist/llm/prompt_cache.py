@@ -216,9 +216,7 @@ class InMemoryPromptCache:
     def record_skip(self, reason: str) -> None:
         with self._lock:
             self._telemetry.skips += 1
-            self._telemetry.skip_reasons[reason] = (
-                self._telemetry.skip_reasons.get(reason, 0) + 1
-            )
+            self._telemetry.skip_reasons[reason] = self._telemetry.skip_reasons.get(reason, 0) + 1
 
 
 class CachingLLMClient:
@@ -270,7 +268,8 @@ class CachingLLMClient:
             extra_payload={
                 key: value
                 for key, value in kwargs.items()
-                if key not in {
+                if key
+                not in {
                     "prompt",
                     "system",
                     "user",
@@ -423,7 +422,8 @@ def _thaw_response(response: _SerializedGatewayResponse) -> GatewayLLMResponse:
                 error_envelope=_deserialize_payload(tool_call.error_envelope_json),
             )
             for tool_call in response.tool_calls
-        ] or None,
+        ]
+        or None,
     )
 
 
@@ -477,8 +477,8 @@ def _is_volatile_cache_metadata_key(key: str) -> bool:
 
 __all__ = [
     "CachingLLMClient",
-    "PromptCacheTelemetry",
-    "PromptCacheProtocol",
     "InMemoryPromptCache",
+    "PromptCacheProtocol",
+    "PromptCacheTelemetry",
     "compute_cache_key",
 ]

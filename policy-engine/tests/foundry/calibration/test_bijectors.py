@@ -6,7 +6,6 @@ import numpy as np
 import numpy.testing as npt
 
 from polisyos.foundry.calibration.bijectors import (
-    Bijector,
     affine_bijector,
     chain_bijector,
     inverse_bijector,
@@ -74,7 +73,9 @@ def test_inverse_is_left_inverse() -> None:
         x = b.forward(u)
         u_recovered = inv_b.forward(x)
         npt.assert_allclose(
-            np.asarray(u_recovered), np.asarray(u), rtol=1e-4,
+            np.asarray(u_recovered),
+            np.asarray(u),
+            rtol=1e-4,
             err_msg=f"inverse_bijector failed for {b}",
         )
 

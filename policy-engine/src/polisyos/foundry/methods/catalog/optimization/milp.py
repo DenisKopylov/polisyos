@@ -1,8 +1,10 @@
 """Public optimization milp module API."""
+
 from __future__ import annotations
 
 import time
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 from polisyos.common.logger import get_logger
 from polisyos.foundry.methods.backends.protocol import SolverStatus
@@ -41,7 +43,7 @@ def _check_ortools() -> bool:
     global _ORTOOLS_AVAILABLE
     if _ORTOOLS_AVAILABLE is None:
         try:
-            from ortools.linear_solver import pywraplp  # noqa: F401
+            from ortools.linear_solver import pywraplp
 
             _ORTOOLS_AVAILABLE = True
         except Exception:
@@ -94,7 +96,7 @@ class BudgetMILP:
                     name="solver_info",
                     slot_type=SlotType.SCALAR,
                     unit=Unit("solver", "json"),
-                )
+                ),
             }
         ),
         parameters=(
@@ -164,7 +166,6 @@ class BudgetMILP:
             return result, {"status": result.status.value, "error": result.metadata["error"]}
 
         from ortools.linear_solver import pywraplp
-
 
         t0 = time.perf_counter()
         solver = pywraplp.Solver.CreateSolver(solver_id)
@@ -336,5 +337,6 @@ class BudgetMILP:
             "objective_value": result.objective_value,
         }
         return result, solver_info
+
 
 __all__ = ["BudgetMILP"]

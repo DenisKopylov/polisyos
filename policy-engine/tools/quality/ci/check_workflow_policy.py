@@ -15,14 +15,11 @@ from pathlib import Path
 from tools._lib.runner import ToolStatus
 from tools.registry import LEGACY_ENTRYPOINTS, TOOL_SPECS
 
-
 TOP_LEVEL_JOBS_RE = re.compile(r"(?m)^jobs:\s*$")
 USES_RE = re.compile(r"(?m)^\s*uses:\s*(?P<target>[^\s#]+)")
 RUN_BLOCK_RE = re.compile(r"^(?P<indent>\s*)run:\s*(?P<inline>.*)$")
 SHA_PIN_RE = re.compile(r"^[0-9a-f]{40}$")
-UNTRUSTED_EXPR_RE = re.compile(
-    r"\$\{\{\s*(github\.event\.(pull_request|issue)|github\.head_ref)"
-)
+UNTRUSTED_EXPR_RE = re.compile(r"\$\{\{\s*(github\.event\.(pull_request|issue)|github\.head_ref)")
 LEGACY_CI_PATHS: dict[str, str] = {
     **LEGACY_ENTRYPOINTS,
     "cloud_deploy/": "use `tools/cloud/deploy/` assets and `polisyos-tools cloud deploy-to-server` instead",
@@ -81,7 +78,9 @@ def _check_pinned_actions(path: Path, text: str) -> list[Finding]:
             continue
         _, ref = target.rsplit("@", 1)
         if not SHA_PIN_RE.fullmatch(ref):
-            findings.append(Finding(path, f"third-party action is not pinned to a full SHA: `{target}`"))
+            findings.append(
+                Finding(path, f"third-party action is not pinned to a full SHA: `{target}`")
+            )
     return findings
 
 
@@ -90,7 +89,9 @@ def _check_events_and_runners(path: Path, text: str) -> list[Finding]:
     if re.search(r"(?m)^\s*pull_request_target:\s*$", text):
         findings.append(Finding(path, "`pull_request_target` is forbidden in repo policy"))
     if re.search(r"(?m)^\s*runs-on:\s*self-hosted\b", text):
-        findings.append(Finding(path, "self-hosted runners require an owner/isolation review before use"))
+        findings.append(
+            Finding(path, "self-hosted runners require an owner/isolation review before use")
+        )
     return findings
 
 

@@ -17,11 +17,11 @@ Coverage (15 tests):
  14.  test_hp_pure_step_is_actual_cause_true — direct chain → is_actual_cause=True
  15.  test_hp_result_json_serializable — model_dump round-trip
 """
+
 from __future__ import annotations
 
 import json
 
-import numpy as np
 import pytest
 
 from polisyos.foundry.methods.catalog.causal.actual_causality import (
@@ -31,7 +31,6 @@ from polisyos.foundry.methods.catalog.causal.actual_causality import (
     _check_ac3_minimality,
     _degree_of_responsibility,
 )
-from polisyos.foundry.methods.catalog.causal.protocols import NCMQueryData
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.ncm import ExogenousSpec, NCMSpec, StructuralEquation
 from polisyos.ir.analytics.structural_causal_model import (
@@ -40,7 +39,6 @@ from polisyos.ir.analytics.structural_causal_model import (
     NodeMechanism,
     StructuralCausalModelSpec,
 )
-
 
 # ── Shared helpers ─────────────────────────────────────────────────────────────
 
@@ -179,12 +177,27 @@ def _make_ncm_three_node() -> NCMSpec:
             ExogenousSpec(variable="U_Y", associated_endogenous="Y"),
         ],
         structural_equations=[
-            StructuralEquation(variable="T", parents=[], exogenous="U_T",
-                               equation_type="linear", equation_params={"intercept": 0.0, "coefficients": {}}),
-            StructuralEquation(variable="M", parents=["T"], exogenous="U_M",
-                               equation_type="linear", equation_params={"intercept": 0.0, "coefficients": {"T": 1.0}}),
-            StructuralEquation(variable="Y", parents=["M"], exogenous="U_Y",
-                               equation_type="linear", equation_params={"intercept": 0.0, "coefficients": {"M": 1.0}}),
+            StructuralEquation(
+                variable="T",
+                parents=[],
+                exogenous="U_T",
+                equation_type="linear",
+                equation_params={"intercept": 0.0, "coefficients": {}},
+            ),
+            StructuralEquation(
+                variable="M",
+                parents=["T"],
+                exogenous="U_M",
+                equation_type="linear",
+                equation_params={"intercept": 0.0, "coefficients": {"T": 1.0}},
+            ),
+            StructuralEquation(
+                variable="Y",
+                parents=["M"],
+                exogenous="U_Y",
+                equation_type="linear",
+                equation_params={"intercept": 0.0, "coefficients": {"M": 1.0}},
+            ),
         ],
         scm_spec=scm,
         is_acyclic=True,
@@ -230,8 +243,16 @@ class TestAC2:
         context = {"T": 1.0, "Y": 1.0}
         warnings: list[str] = []
         contingency = _check_ac2_find_contingency(
-            ncm, "T", 1.0, 0.0, "Y", 1.0, context, 0.5,
-            max_contingency_size=3, warnings=warnings,
+            ncm,
+            "T",
+            1.0,
+            0.0,
+            "Y",
+            1.0,
+            context,
+            0.5,
+            max_contingency_size=3,
+            warnings=warnings,
         )
         assert contingency is not None
         assert contingency.size == 0  # No contingency variables needed
@@ -273,10 +294,20 @@ class TestAC2:
                 ExogenousSpec(variable="U_Y", associated_endogenous="Y"),
             ],
             structural_equations=[
-                StructuralEquation(variable="T", parents=[], exogenous="U_T",
-                                   equation_type="linear", equation_params={"intercept": 0.0, "coefficients": {}}),
-                StructuralEquation(variable="Y", parents=["T"], exogenous="U_Y",
-                                   equation_type="linear", equation_params={"intercept": 1.0, "coefficients": {"T": 0.0}}),
+                StructuralEquation(
+                    variable="T",
+                    parents=[],
+                    exogenous="U_T",
+                    equation_type="linear",
+                    equation_params={"intercept": 0.0, "coefficients": {}},
+                ),
+                StructuralEquation(
+                    variable="Y",
+                    parents=["T"],
+                    exogenous="U_Y",
+                    equation_type="linear",
+                    equation_params={"intercept": 1.0, "coefficients": {"T": 0.0}},
+                ),
             ],
             scm_spec=scm,
             is_acyclic=True,
@@ -285,8 +316,16 @@ class TestAC2:
         warnings: list[str] = []
         # do(T=0) still gives Y=1 (coefficient=0), so no contingency works
         contingency = _check_ac2_find_contingency(
-            ncm, "T", 1.0, 0.0, "Y", 1.0, context, 0.5,
-            max_contingency_size=2, warnings=warnings,
+            ncm,
+            "T",
+            1.0,
+            0.0,
+            "Y",
+            1.0,
+            context,
+            0.5,
+            max_contingency_size=2,
+            warnings=warnings,
         )
         assert contingency is None
 
@@ -297,8 +336,16 @@ class TestAC2:
         warnings: list[str] = []
         with pytest.raises(ValueError, match="acyclic"):
             _check_ac2_find_contingency(
-                ncm, "A", 1.0, 0.0, "B", 1.0, context, 0.5,
-                max_contingency_size=2, warnings=warnings,
+                ncm,
+                "A",
+                1.0,
+                0.0,
+                "B",
+                1.0,
+                context,
+                0.5,
+                max_contingency_size=2,
+                warnings=warnings,
             )
 
 
@@ -312,10 +359,20 @@ class TestAC3:
         context = {"T": 1.0, "Y": 1.0}
         warnings: list[str] = []
         from polisyos.ir.analytics.actual_causality import ContingencySet
+
         contingency = ContingencySet(variables=[], values={}, size=0)
         result = _check_ac3_minimality(
-            ncm, "T", 1.0, 0.0, "Y", 1.0, context, contingency, 0.5,
-            max_contingency_size=3, warnings=warnings,
+            ncm,
+            "T",
+            1.0,
+            0.0,
+            "Y",
+            1.0,
+            context,
+            contingency,
+            0.5,
+            max_contingency_size=3,
+            warnings=warnings,
         )
         assert result is True
 
@@ -358,11 +415,21 @@ class TestAC3MultiVariable:
         context = {"T": 1.0, "Y": 1.0}
         warnings: list[str] = []
         from polisyos.ir.analytics.actual_causality import ContingencySet
+
         contingency = ContingencySet(variables=[], values={}, size=0)
         # Single variable — AC3 trivially True (minimality for |cause|=1)
         result = _check_ac3_minimality(
-            ncm, "T", 1.0, 0.0, "Y", 1.0, context, contingency, 0.5,
-            max_contingency_size=3, warnings=warnings,
+            ncm,
+            "T",
+            1.0,
+            0.0,
+            "Y",
+            1.0,
+            context,
+            contingency,
+            0.5,
+            max_contingency_size=3,
+            warnings=warnings,
         )
         assert result is True
 
@@ -380,18 +447,41 @@ class TestAC3MultiVariable:
         scm = StructuralCausalModelSpec(
             graph=graph,
             mechanisms=[
-                NodeMechanism(variable="A", parents=[], family=MechanismFamily.EMPIRICAL,
-                              family_params={"mean": 0.5, "std": 0.5}, source=MechanismSource.DATA_FITTED),
-                NodeMechanism(variable="B", parents=[], family=MechanismFamily.EMPIRICAL,
-                              family_params={"mean": 0.5, "std": 0.5}, source=MechanismSource.DATA_FITTED),
-                NodeMechanism(variable="C", parents=[], family=MechanismFamily.EMPIRICAL,
-                              family_params={"mean": 0.5, "std": 0.5}, source=MechanismSource.DATA_FITTED),
-                NodeMechanism(variable="Y", parents=["A", "B", "C"], family=MechanismFamily.LINEAR,
-                              family_params={"intercept": 0.0, "coefficients": {"A": 1.0, "B": 0.0, "C": 0.0},
-                                             "noise_std": 0.0},
-                              source=MechanismSource.DATA_FITTED),
+                NodeMechanism(
+                    variable="A",
+                    parents=[],
+                    family=MechanismFamily.EMPIRICAL,
+                    family_params={"mean": 0.5, "std": 0.5},
+                    source=MechanismSource.DATA_FITTED,
+                ),
+                NodeMechanism(
+                    variable="B",
+                    parents=[],
+                    family=MechanismFamily.EMPIRICAL,
+                    family_params={"mean": 0.5, "std": 0.5},
+                    source=MechanismSource.DATA_FITTED,
+                ),
+                NodeMechanism(
+                    variable="C",
+                    parents=[],
+                    family=MechanismFamily.EMPIRICAL,
+                    family_params={"mean": 0.5, "std": 0.5},
+                    source=MechanismSource.DATA_FITTED,
+                ),
+                NodeMechanism(
+                    variable="Y",
+                    parents=["A", "B", "C"],
+                    family=MechanismFamily.LINEAR,
+                    family_params={
+                        "intercept": 0.0,
+                        "coefficients": {"A": 1.0, "B": 0.0, "C": 0.0},
+                        "noise_std": 0.0,
+                    },
+                    source=MechanismSource.DATA_FITTED,
+                ),
             ],
-            fitted=True, fit_method="gcm",
+            fitted=True,
+            fit_method="gcm",
         )
         ncm = NCMSpec(
             endogenous_vars=["A", "B", "C", "Y"],
@@ -402,26 +492,59 @@ class TestAC3MultiVariable:
                 ExogenousSpec(variable="U_Y", associated_endogenous="Y"),
             ],
             structural_equations=[
-                StructuralEquation(variable="A", parents=[], exogenous="U_A",
-                                   equation_type="linear", equation_params={"intercept": 0.0, "coefficients": {}}),
-                StructuralEquation(variable="B", parents=[], exogenous="U_B",
-                                   equation_type="linear", equation_params={"intercept": 0.0, "coefficients": {}}),
-                StructuralEquation(variable="C", parents=[], exogenous="U_C",
-                                   equation_type="linear", equation_params={"intercept": 0.0, "coefficients": {}}),
-                StructuralEquation(variable="Y", parents=["A", "B", "C"], exogenous="U_Y",
-                                   equation_type="linear",
-                                   equation_params={"intercept": 0.0, "coefficients": {"A": 1.0, "B": 0.0, "C": 0.0}}),
+                StructuralEquation(
+                    variable="A",
+                    parents=[],
+                    exogenous="U_A",
+                    equation_type="linear",
+                    equation_params={"intercept": 0.0, "coefficients": {}},
+                ),
+                StructuralEquation(
+                    variable="B",
+                    parents=[],
+                    exogenous="U_B",
+                    equation_type="linear",
+                    equation_params={"intercept": 0.0, "coefficients": {}},
+                ),
+                StructuralEquation(
+                    variable="C",
+                    parents=[],
+                    exogenous="U_C",
+                    equation_type="linear",
+                    equation_params={"intercept": 0.0, "coefficients": {}},
+                ),
+                StructuralEquation(
+                    variable="Y",
+                    parents=["A", "B", "C"],
+                    exogenous="U_Y",
+                    equation_type="linear",
+                    equation_params={
+                        "intercept": 0.0,
+                        "coefficients": {"A": 1.0, "B": 0.0, "C": 0.0},
+                    },
+                ),
             ],
-            scm_spec=scm, is_acyclic=True,
+            scm_spec=scm,
+            is_acyclic=True,
         )
         # Y = A only. So {A,B,C} is NOT minimal because {A} alone is an actual cause.
         context = {"A": 1.0, "B": 1.0, "C": 1.0, "Y": 1.0}
         warnings: list[str] = []
         from polisyos.ir.analytics.actual_causality import ContingencySet
+
         contingency = ContingencySet(variables=[], values={}, size=0)
         result = _check_ac3_minimality(
-            ncm, "A", 1.0, 0.0, "Y", 1.0, context, contingency, 0.5,
-            max_contingency_size=3, warnings=warnings,
+            ncm,
+            "A",
+            1.0,
+            0.0,
+            "Y",
+            1.0,
+            context,
+            contingency,
+            0.5,
+            max_contingency_size=3,
+            warnings=warnings,
             cause_vars=["A", "B", "C"],
             cause_values={"A": 1.0, "B": 1.0, "C": 1.0},
             counterfactual_cause_values={"A": 0.0, "B": 0.0, "C": 0.0},
@@ -439,8 +562,16 @@ class TestDegreeOfResponsibility:
         context = {"T": 1.0, "Y": 1.0}
         warnings: list[str] = []
         dr = _degree_of_responsibility(
-            ncm, "T", 1.0, 0.0, "Y", 1.0, context, 0.5,
-            max_contingency_size=3, warnings=warnings,
+            ncm,
+            "T",
+            1.0,
+            0.0,
+            "Y",
+            1.0,
+            context,
+            0.5,
+            max_contingency_size=3,
+            warnings=warnings,
         )
         assert abs(dr - 1.0) < 1e-9
 
@@ -455,11 +586,20 @@ class TestDegreeOfResponsibility:
         scm = StructuralCausalModelSpec(
             graph=graph,
             mechanisms=[
-                NodeMechanism(variable="T", parents=[], family=MechanismFamily.EMPIRICAL,
-                              family_params={"mean": 0.5, "std": 0.5}, source=MechanismSource.DATA_FITTED),
-                NodeMechanism(variable="Y", parents=["T"], family=MechanismFamily.LINEAR,
-                              family_params={"intercept": 1.0, "coefficients": {"T": 0.0}, "noise_std": 0.0},
-                              source=MechanismSource.DATA_FITTED),
+                NodeMechanism(
+                    variable="T",
+                    parents=[],
+                    family=MechanismFamily.EMPIRICAL,
+                    family_params={"mean": 0.5, "std": 0.5},
+                    source=MechanismSource.DATA_FITTED,
+                ),
+                NodeMechanism(
+                    variable="Y",
+                    parents=["T"],
+                    family=MechanismFamily.LINEAR,
+                    family_params={"intercept": 1.0, "coefficients": {"T": 0.0}, "noise_std": 0.0},
+                    source=MechanismSource.DATA_FITTED,
+                ),
             ],
             fitted=True,
             fit_method="gcm",
@@ -471,10 +611,20 @@ class TestDegreeOfResponsibility:
                 ExogenousSpec(variable="U_Y", associated_endogenous="Y"),
             ],
             structural_equations=[
-                StructuralEquation(variable="T", parents=[], exogenous="U_T",
-                                   equation_type="linear", equation_params={"intercept": 0.0, "coefficients": {}}),
-                StructuralEquation(variable="Y", parents=["T"], exogenous="U_Y",
-                                   equation_type="linear", equation_params={"intercept": 1.0, "coefficients": {"T": 0.0}}),
+                StructuralEquation(
+                    variable="T",
+                    parents=[],
+                    exogenous="U_T",
+                    equation_type="linear",
+                    equation_params={"intercept": 0.0, "coefficients": {}},
+                ),
+                StructuralEquation(
+                    variable="Y",
+                    parents=["T"],
+                    exogenous="U_Y",
+                    equation_type="linear",
+                    equation_params={"intercept": 1.0, "coefficients": {"T": 0.0}},
+                ),
             ],
             scm_spec=scm,
             is_acyclic=True,
@@ -482,8 +632,16 @@ class TestDegreeOfResponsibility:
         context = {"T": 1.0, "Y": 1.0}
         warnings: list[str] = []
         dr = _degree_of_responsibility(
-            ncm, "T", 1.0, 0.0, "Y", 1.0, context, 0.5,
-            max_contingency_size=2, warnings=warnings,
+            ncm,
+            "T",
+            1.0,
+            0.0,
+            "Y",
+            1.0,
+            context,
+            0.5,
+            max_contingency_size=2,
+            warnings=warnings,
         )
         assert dr == 0.0
 
@@ -500,8 +658,16 @@ class TestHPActualCauseBinaryChain:
 
         ac1 = _check_ac1(ncm, "T", 1.0, "Y", 1.0, context, 0.5, warnings)
         contingency = _check_ac2_find_contingency(
-            ncm, "T", 1.0, 0.0, "Y", 1.0, context, 0.5,
-            max_contingency_size=3, warnings=warnings,
+            ncm,
+            "T",
+            1.0,
+            0.0,
+            "Y",
+            1.0,
+            context,
+            0.5,
+            max_contingency_size=3,
+            warnings=warnings,
         )
         ac2 = contingency is not None
         assert ac1 is True
@@ -560,9 +726,9 @@ class TestHPPureStep:
         out = HPActualCauseMethod.pure_step(state, params)
         hp = out["hp_result"]
         assert hp["degree_of_blame"] == pytest.approx(hp["degree_of_responsibility"])
-        assert hp["blame_ci"] == [hp["degree_of_blame"], hp["degree_of_blame"]] or hp["blame_ci"] == (
-            hp["degree_of_blame"], hp["degree_of_blame"]
-        )
+        assert hp["blame_ci"] == [hp["degree_of_blame"], hp["degree_of_blame"]] or hp[
+            "blame_ci"
+        ] == (hp["degree_of_blame"], hp["degree_of_blame"])
 
     def test_blame_leq_responsibility_under_uncertainty(self):
         """Degree of Blame <= Degree of Responsibility under uncertain context (Jensen's inequality).

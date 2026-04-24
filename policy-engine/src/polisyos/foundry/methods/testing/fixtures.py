@@ -4,9 +4,11 @@ Reusable test data factories for Foundry method testing.
 Provides standardized sample states and parameters that can be customized
 for specific method requirements.
 """
+
 from __future__ import annotations
 
-from typing import Any, Callable, Protocol, TypeVar
+from collections.abc import Callable
+from typing import Any, Protocol, TypeVar
 
 import chex
 import jax.numpy as jnp
@@ -135,15 +137,9 @@ def create_sample_state(
         n_dims = kwargs.get("n_dims", 2)
         n_attrs = kwargs.get("n_attrs", 3)
         return SimpleAgentState(
-            positions=jnp.array(
-                rng.uniform(0, 100, (n_agents, n_dims)).astype(np.float32)
-            ),
-            velocities=jnp.array(
-                rng.normal(0, 1, (n_agents, n_dims)).astype(np.float32)
-            ),
-            attributes=jnp.array(
-                rng.uniform(0, 1, (n_agents, n_attrs)).astype(np.float32)
-            ),
+            positions=jnp.array(rng.uniform(0, 100, (n_agents, n_dims)).astype(np.float32)),
+            velocities=jnp.array(rng.normal(0, 1, (n_agents, n_dims)).astype(np.float32)),
+            attributes=jnp.array(rng.uniform(0, 1, (n_agents, n_attrs)).astype(np.float32)),
         )
 
     if state_type == "scalar":
@@ -284,6 +280,7 @@ def create_test_method_class(
         A new class implementing FoundryMethod protocol
     """
     if pure_step_fn is None:
+
         def pure_step_fn(state: Any, params: dict[str, Any]) -> Any:
             return state
 

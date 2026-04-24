@@ -1,4 +1,5 @@
 """Public agent sim credit assignment module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -13,6 +14,7 @@ from polisyos.foundry.agent_sim.state import GlobalState
 
 class CreditMode(str, Enum):
     """Credit mode public type."""
+
     INDIVIDUAL = "individual"
     SHARED = "shared"
     COUNTERFACTUAL = "counterfactual"
@@ -23,6 +25,7 @@ class CreditMode(str, Enum):
 @dataclass(frozen=True)
 class CreditConfig:
     """Choose how global returns are reallocated back to individual agents."""
+
     mode: CreditMode = CreditMode.INDIVIDUAL
     counterfactual_baseline: str = "mean"
     mean_field_temperature: float = 1.0
@@ -58,16 +61,12 @@ def compute_credit_assignment(
         return jnp.where(active, adjusted, 0.0)
 
     if config.mode == CreditMode.MEAN_FIELD:
-        adjusted = _mean_field_credit(
-            individual_rewards, active, config.mean_field_temperature
-        )
+        adjusted = _mean_field_credit(individual_rewards, active, config.mean_field_temperature)
         return jnp.where(active, adjusted, 0.0)
 
     if config.mode == CreditMode.SHAPLEY_APPROX:
         key = rng_key if rng_key is not None else jax.random.PRNGKey(0)
-        adjusted = _shapley_approx_credit(
-            individual_rewards, active, config.shapley_samples, key
-        )
+        adjusted = _shapley_approx_credit(individual_rewards, active, config.shapley_samples, key)
         return jnp.where(active, adjusted, 0.0)
 
     return jnp.where(active, individual_rewards, 0.0)
@@ -100,9 +99,7 @@ def _mean_field_credit(
     n_active = jnp.sum(active_f)
     safe_active = jnp.maximum(n_active, 1.0)
     mean_reward = jnp.sum(rewards * active_f) / safe_active
-    std_reward = jnp.sqrt(
-        jnp.sum((rewards - mean_reward) ** 2 * active_f) / safe_active
-    )
+    std_reward = jnp.sqrt(jnp.sum((rewards - mean_reward) ** 2 * active_f) / safe_active)
 
     z_score = (rewards - mean_reward) / (std_reward + 1e-8)
     weight = jax.nn.sigmoid(z_score / temperature)
@@ -143,6 +140,7 @@ def _shapley_approx_credit(
 
 class CentralizedCritic:
     """Centralized critic public type."""
+
     @staticmethod
     def build_global_observations(state: GlobalState) -> jnp.ndarray:
         agents = state.agents
@@ -150,9 +148,7 @@ class CentralizedCritic:
         n_active = jnp.maximum(jnp.sum(active_f), 1.0)
 
         mean_wealth = jnp.sum(agents.wealth * active_f) / n_active
-        std_wealth = jnp.sqrt(
-            jnp.sum((agents.wealth - mean_wealth) ** 2 * active_f) / n_active
-        )
+        std_wealth = jnp.sqrt(jnp.sum((agents.wealth - mean_wealth) ** 2 * active_f) / n_active)
         mean_income = jnp.sum(agents.income * active_f) / n_active
         mean_consumption = jnp.sum(agents.consumption * active_f) / n_active
 

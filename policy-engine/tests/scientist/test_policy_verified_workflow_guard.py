@@ -32,7 +32,9 @@ def test_policy_verified_workflow_formalizes_before_foundry_compile() -> None:
     assert "formalize_verified_policy" in by_alias["compile_foundry"].depends_on
     assert "run_data_plane_gate" in by_alias["compile_foundry"].depends_on
     assert "run_normative_arbitration" in by_alias["run_governance"].depends_on
-    assert aliases_in_order.index("run_source_verification") < aliases_in_order.index("draft_policy_options")
+    assert aliases_in_order.index("run_source_verification") < aliases_in_order.index(
+        "draft_policy_options"
+    )
     assert aliases_in_order.index("draft_policy_options") < aliases_in_order.index(
         "formalize_verified_policy"
     )

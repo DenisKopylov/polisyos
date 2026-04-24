@@ -1,18 +1,12 @@
 from __future__ import annotations
 
-import pytest
-
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.foundry import (
     LoweredIRRef,
     LoweredMechanism,
-    ProgramEdge,
     ProgramGraph,
-    ProgramNode,
-    ProgramOp,
 )
-
 from polisyos.foundry.compile._graph import build_exec_order, build_program_graph
 
 
@@ -74,8 +68,7 @@ class TestBuildProgramGraph:
             constraint_ids=[],
         )
         assert any(
-            e.src == "m1" and e.dst == "m2" and e.relation == "depends_on"
-            for e in graph.edges
+            e.src == "m1" and e.dst == "m2" and e.relation == "depends_on" for e in graph.edges
         )
 
     def test_constraint_ids_in_check_node(self) -> None:

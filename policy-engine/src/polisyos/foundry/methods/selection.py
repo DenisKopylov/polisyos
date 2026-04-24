@@ -1,12 +1,14 @@
 """Rank, explain, and package Foundry catalog candidates for planners and authoring tools."""
+
 from __future__ import annotations
 
-from collections import defaultdict
-from dataclasses import asdict, dataclass, field
 import hashlib
 import json
 import math
-from typing import Any, Iterable, Mapping, Sequence
+from collections import defaultdict
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import asdict, dataclass, field
+from typing import Any
 
 from polisyos.core.contracts.execution_plan import (
     MethodCatalogEntry,
@@ -178,6 +180,7 @@ class DataCharacteristics:
 @dataclass(frozen=True, slots=True)
 class MethodSelectionCriteria:
     """Preferences used when planners or docs rank candidate methods."""
+
     preferred_kind: str | None = None
     preferred_family: str | None = None
     preferred_variant: str | None = None
@@ -286,7 +289,9 @@ def advise_methods(
         )
 
     history, runtime_predictor = _resolve_evidence_sources(history, runtime_predictor)
-    enriched_entries = tuple(_apply_truthfulness_overlay(entry, history) for entry in catalog.entries)
+    enriched_entries = tuple(
+        _apply_truthfulness_overlay(entry, history) for entry in catalog.entries
+    )
     scored_entries = _rank_entries_with_scores(
         enriched_entries,
         criteria,
@@ -295,9 +300,7 @@ def advise_methods(
         runtime_predictor=runtime_predictor,
         runtime_budget_ms=query.runtime_budget_ms,
     )
-    recommended = tuple(
-        entry for entry, _ in scored_entries[: max(0, int(query.limit))]
-    )
+    recommended = tuple(entry for entry, _ in scored_entries[: max(0, int(query.limit))])
     score_trace = tuple(
         MethodScoreTraceEntry(
             rank=index + 1,
@@ -315,7 +318,9 @@ def advise_methods(
     score_lookup = {entry.fqn: score for entry, score in scored_entries}
     payload = tuple(method_selection_payload(recommended, score_lookup=score_lookup))
     enriched_catalog = catalog.model_copy(update={"entries": list(enriched_entries)})
-    capability_rows = build_method_capability_matrix(enriched_catalog, runnable_only=query.runnable_only)
+    capability_rows = build_method_capability_matrix(
+        enriched_catalog, runnable_only=query.runnable_only
+    )
     capability_lookup = {row["fqn"]: row for row in capability_rows}
     family_summary = tuple(
         {
@@ -327,7 +332,9 @@ def advise_methods(
                 (_truthfulness_depth_score(entry.truthfulness_tier) for entry in entries),
                 default=0,
             ),
-            "implementation_depth_tiers": sorted({entry.implementation_depth_tier for entry in entries}),
+            "implementation_depth_tiers": sorted(
+                {entry.implementation_depth_tier for entry in entries}
+            ),
             "deepest_implementation_depth_tier": _deepest_implementation_depth_tier(entries),
             "catalog_depth_score": max(
                 (_implementation_depth_score(entry.implementation_depth_tier) for entry in entries),
@@ -352,9 +359,7 @@ def advise_methods(
         recommended=recommended,
         payload=payload,
         capability_matrix=tuple(
-            capability_lookup[entry.fqn]
-            for entry in recommended
-            if entry.fqn in capability_lookup
+            capability_lookup[entry.fqn] for entry in recommended if entry.fqn in capability_lookup
         ),
         family_summary=family_summary,
         calibrated_regret_certificate=certificate,
@@ -389,17 +394,14 @@ def build_advisor_execution_context(
             else certificate.query_fingerprint
         ),
         loss_profile_id=(
-            result.query.loss_profile_id
-            if certificate is None
-            else certificate.loss_profile_id
+            result.query.loss_profile_id if certificate is None else certificate.loss_profile_id
         ),
         candidate_fqns=ordered_fqns,
         selected_rank=rank_lookup.get(selected_fqn),
         selection_propensity=selection_propensity,
         advisor_score_vector=score_vector,
         shadow_loss_estimates={
-            str(fqn): _clip_unit(loss)
-            for fqn, loss in (shadow_loss_estimates or {}).items()
+            str(fqn): _clip_unit(loss) for fqn, loss in (shadow_loss_estimates or {}).items()
         },
     )
 
@@ -472,9 +474,9 @@ def _rank_entries_with_scores(
             continue
         if criteria.runnable_only and entry.runnable is False:
             continue
-        if criteria.required_data_modalities and not set(criteria.required_data_modalities).issubset(
-            set(entry.data_modalities)
-        ):
+        if criteria.required_data_modalities and not set(
+            criteria.required_data_modalities
+        ).issubset(set(entry.data_modalities)):
             continue
         if criteria.minimum_fidelity_tier is not None:
             required_rank = _FIDELITY_ORDER.get(criteria.minimum_fidelity_tier, -1)
@@ -520,7 +522,9 @@ def suggest_alternative_methods(
     """Recommend drop-in alternatives when a target catalog entry is unsuitable or unavailable."""
     resolved_target = target_entry
     if resolved_target is None and target_fqn:
-        resolved_target = next((entry for entry in catalog.entries if entry.fqn == target_fqn), None)
+        resolved_target = next(
+            (entry for entry in catalog.entries if entry.fqn == target_fqn), None
+        )
 
     if resolved_target is not None:
         preferred_modalities = tuple(resolved_target.data_modalities)
@@ -579,7 +583,9 @@ def method_selection_payload(
             "truthfulness_tier": entry.truthfulness_tier,
             "truthfulness_depth_score": _truthfulness_depth_score(entry.truthfulness_tier),
             "implementation_depth_tier": entry.implementation_depth_tier,
-            "implementation_depth_score": _implementation_depth_score(entry.implementation_depth_tier),
+            "implementation_depth_score": _implementation_depth_score(
+                entry.implementation_depth_tier
+            ),
             "declared_truthfulness_tier": entry.declared_truthfulness_tier,
             "runtime_truthfulness_tier": entry.runtime_truthfulness_tier,
             "effective_truthfulness_tier": entry.effective_truthfulness_tier,
@@ -702,7 +708,9 @@ def suggest_plan_node_alternatives(
         if signature is not None
     )
     downstream_signatures = tuple(
-        signature for signature in (_signature_for_node(reg, item) for item in downstream_nodes) if signature is not None
+        signature
+        for signature in (_signature_for_node(reg, item) for item in downstream_nodes)
+        if signature is not None
     )
     target_signature = _signature_for_fqn(reg, node.method_fqn)
 
@@ -835,7 +843,10 @@ def _implementation_depth_score(implementation_depth_tier: str | None) -> int:
 def _deepest_truthfulness_tier(entries: Sequence[MethodCatalogEntry]) -> str:
     best = max(
         entries,
-        key=lambda entry: (_truthfulness_depth_score(entry.truthfulness_tier), entry.truthfulness_tier),
+        key=lambda entry: (
+            _truthfulness_depth_score(entry.truthfulness_tier),
+            entry.truthfulness_tier,
+        ),
         default=None,
     )
     if best is None:
@@ -1221,15 +1232,11 @@ def _relevant_records(
             continue
         if feasible_fqns.intersection(record.shadow_loss_estimates):
             relevant.append(record)
-    exact_query = [
-        record for record in relevant if record.query_fingerprint == query_fingerprint
-    ]
+    exact_query = [record for record in relevant if record.query_fingerprint == query_fingerprint]
     if exact_query:
         return exact_query
     matching_profile = [
-        record
-        for record in relevant
-        if record.loss_profile_id in {None, loss_profile_id}
+        record for record in relevant if record.loss_profile_id in {None, loss_profile_id}
     ]
     if matching_profile:
         return matching_profile
@@ -1245,9 +1252,7 @@ def _summarize_active_set(
 ) -> ActiveSetSummary:
     candidate_sizes = [len(record.candidate_fqns) for record in records if record.candidate_fqns]
     mean_available_actions = (
-        sum(candidate_sizes) / len(candidate_sizes)
-        if candidate_sizes
-        else float(feasible_count)
+        sum(candidate_sizes) / len(candidate_sizes) if candidate_sizes else float(feasible_count)
     )
     propensities = [
         float(record.selection_propensity)
@@ -1259,19 +1264,12 @@ def _summarize_active_set(
         if (
             record.candidate_fqns
             and record.realized_loss_components
-            and (
-                record.selection_propensity is not None
-                or bool(record.shadow_loss_estimates)
-            )
+            and (record.selection_propensity is not None or bool(record.shadow_loss_estimates))
         )
         else 0.0
         for record in records
     ]
-    logging_sufficiency = (
-        sum(logging_signals) / len(logging_signals)
-        if logging_signals
-        else 0.0
-    )
+    logging_sufficiency = sum(logging_signals) / len(logging_signals) if logging_signals else 0.0
     return ActiveSetSummary(
         catalog_size=int(catalog_size),
         feasible_count=int(feasible_count),
@@ -1382,8 +1380,14 @@ def _loss_from_record(
 
     tier_violation = components.get("tier_violation", 0.0)
     runtime_overrun = components.get("runtime_overrun")
-    if runtime_overrun is None and query.runtime_budget_ms is not None and query.runtime_budget_ms > 0:
-        runtime_overrun = max(float(record.latency_ms) - query.runtime_budget_ms, 0.0) / query.runtime_budget_ms
+    if (
+        runtime_overrun is None
+        and query.runtime_budget_ms is not None
+        and query.runtime_budget_ms > 0
+    ):
+        runtime_overrun = (
+            max(float(record.latency_ms) - query.runtime_budget_ms, 0.0) / query.runtime_budget_ms
+        )
     if runtime_overrun is None:
         runtime_overrun = 0.0
     failure_penalty = components.get("failure_penalty")
@@ -1399,7 +1403,8 @@ def _loss_from_record(
     if not seen_signal:
         return None
     return _clip_unit(
-        profile.coverage_weight * _clip_unit(0.0 if coverage_shortfall is None else coverage_shortfall)
+        profile.coverage_weight
+        * _clip_unit(0.0 if coverage_shortfall is None else coverage_shortfall)
         + profile.tier_weight * _clip_unit(tier_violation)
         + profile.time_weight * _clip_unit(runtime_overrun)
         + profile.failure_weight * _clip_unit(failure_penalty)
@@ -1594,9 +1599,15 @@ def _plan_node_score(
         return float("-inf")
 
     score = 0.0
-    if target_signature is not None and candidate_signature.input_slot_names == target_signature.input_slot_names:
+    if (
+        target_signature is not None
+        and candidate_signature.input_slot_names == target_signature.input_slot_names
+    ):
         score += 18.0
-    if target_signature is not None and candidate_signature.output_slot_names == target_signature.output_slot_names:
+    if (
+        target_signature is not None
+        and candidate_signature.output_slot_names == target_signature.output_slot_names
+    ):
         score += 18.0
 
     if node.backend:
@@ -1621,7 +1632,9 @@ def _plan_node_score(
 
     if downstream_signatures:
         compatible_downstream = sum(
-            1 for signature in downstream_signatures if check_linkable(candidate_signature, signature)
+            1
+            for signature in downstream_signatures
+            if check_linkable(candidate_signature, signature)
         )
         if compatible_downstream == len(downstream_signatures):
             score += 38.0
@@ -1646,10 +1659,18 @@ def _adapter_score(
     elif entry.kind == "mechanism":
         score -= 18.0
 
-    score += 6.0 * len(set(candidate_signature.input_slot_names) & set(source_signature.output_slot_names))
-    score += 6.0 * len(set(candidate_signature.output_slot_names) & set(target_signature.input_slot_names))
-    score -= 1.5 * float(abs(len(candidate_signature.input_slot_names) - len(source_signature.output_slot_names)))
-    score -= 1.5 * float(abs(len(candidate_signature.output_slot_names) - len(target_signature.input_slot_names)))
+    score += 6.0 * len(
+        set(candidate_signature.input_slot_names) & set(source_signature.output_slot_names)
+    )
+    score += 6.0 * len(
+        set(candidate_signature.output_slot_names) & set(target_signature.input_slot_names)
+    )
+    score -= 1.5 * float(
+        abs(len(candidate_signature.input_slot_names) - len(source_signature.output_slot_names))
+    )
+    score -= 1.5 * float(
+        abs(len(candidate_signature.output_slot_names) - len(target_signature.input_slot_names))
+    )
     if entry.determinism_tier == "library_deterministic":
         score += 4.0
     if entry.execution_backend == "numpy":
@@ -1682,24 +1703,24 @@ def compute_voi(
 
 
 __all__ = [
+    "COST_PER_MS",
     "ActiveSetSummary",
     "CalibratedRegretCertificate",
-    "COST_PER_MS",
     "ConfidenceSequence",
     "DataCharacteristics",
-    "MethodLossProfile",
     "MethodAdvisorQuery",
     "MethodAdvisorResult",
+    "MethodLossProfile",
     "MethodScoreTraceEntry",
     "MethodSelectionCriteria",
-    "attach_advisor_execution_context",
     "advise_methods",
+    "attach_advisor_execution_context",
     "authoring_catalog_payload",
     "build_advisor_execution_context",
     "compute_voi",
     "method_selection_payload",
     "rank_method_catalog_entries",
     "suggest_adapter_methods",
-    "suggest_plan_node_alternatives",
     "suggest_alternative_methods",
+    "suggest_plan_node_alternatives",
 ]

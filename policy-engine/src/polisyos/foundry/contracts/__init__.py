@@ -1,14 +1,16 @@
 """Re-export public Foundry state and fidelity contracts shared across subsystems."""
+
 from __future__ import annotations
 
 import importlib
 from typing import Any
 
 __all__ = [
-    "AgentState",
     "AgentSimRuntimeState",
+    "AgentState",
     "CellState",
     "ComplexMechanism",
+    "FeedbackState",
     "FidelityLevel",
     "FirmState",
     "GlobalState",
@@ -24,6 +26,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "AgentState": ("polisyos.foundry.contracts.state", "AgentState"),
     "AgentSimRuntimeState": ("polisyos.foundry.contracts.state", "AgentSimRuntimeState"),
     "CellState": ("polisyos.foundry.contracts.state", "CellState"),
+    "FeedbackState": ("polisyos.foundry.contracts.state", "FeedbackState"),
     "FirmState": ("polisyos.foundry.contracts.state", "FirmState"),
     "HouseholdCellState": ("polisyos.foundry.contracts.state", "HouseholdCellState"),
     "MarketState": ("polisyos.foundry.contracts.state", "MarketState"),

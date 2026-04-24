@@ -36,6 +36,13 @@ describe("route modules", () => {
         tab: "schema",
       }),
     ).toBe("/artifacts/artifact-1?tab=schema");
+    expect(
+      artifactRouteHandle.buildHref({
+        artifactId: "artifact-1",
+        tab: "content",
+        view: "reading",
+      }),
+    ).toBe("/artifacts/artifact-1?tab=content&view=reading");
     expect(lexRouteHandle.buildHref({ pipelineId: "pipe-1", q: "water" })).toBe(
       "/knowledge?pipelineId=pipe-1&q=water",
     );

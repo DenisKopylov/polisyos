@@ -1,11 +1,14 @@
 """Standard-bridge contracts for IR observation and policy data."""
+
 from __future__ import annotations
 
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.observation.contracts import ObservationPanel, ObservationRecord
+if TYPE_CHECKING:
+    from polisyos.ir.observation.contracts import ObservationPanel, ObservationRecord
 
 
 class ObservationBridgeStandard(str, Enum):
@@ -145,11 +148,7 @@ def bridge_observation_record_to_fhir(
     """Project a record into a minimal FHIR Observation structure."""
 
     subject_id = (
-        record.entity_id
-        or record.cell_id
-        or record.region_code
-        or record.sector_id
-        or "global"
+        record.entity_id or record.cell_id or record.region_code or record.sector_id or "global"
     )
     return FhirObservationBridge(
         identifier=record.observation_id,

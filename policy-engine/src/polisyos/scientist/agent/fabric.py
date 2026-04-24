@@ -22,14 +22,21 @@ from polisyos.scientist.agent.knowledge_tools import KnowledgeToolkit
 from polisyos.scientist.agent.persistent_memory import PersistentMemoryStore
 from polisyos.scientist.agent.protocols import DraftResult, ProblemFrame
 from polisyos.scientist.agent.reflexion import ReflexionConfig, ReflexionOrchestrator
-from polisyos.scientist.agent.reflexion_evaluator import ReflexionScorecard, RubricReflexionEvaluator
+from polisyos.scientist.agent.reflexion_evaluator import (
+    ReflexionScorecard,
+    RubricReflexionEvaluator,
+)
 from polisyos.scientist.agent.supervisor import (
     ScientistSupervisorAgent,
     ScientistSupervisorConfig,
     SupervisorSynthesisMode,
 )
 from polisyos.scientist.agent.tools.scholar_search_tools import build_scholar_search_tool_registry
-from polisyos.scientist.agent.tools.tool_loop import ToolLoopCompactionConfig, ToolLoopResult, run_tool_loop
+from polisyos.scientist.agent.tools.tool_loop import (
+    ToolLoopCompactionConfig,
+    ToolLoopResult,
+    run_tool_loop,
+)
 from polisyos.scientist.agent.workers import (
     WorkerBudgetHints,
     WorkerSourcePolicy,
@@ -79,7 +86,7 @@ class ScientistAgentFabricConfig:
     memory_index_path: Path = Path(".polisyos/scientist/reflexion_memory_index.txt")
 
     @classmethod
-    def from_env(cls) -> "ScientistAgentFabricConfig":
+    def from_env(cls) -> ScientistAgentFabricConfig:
         return cls(
             enabled=_as_bool(os.getenv("POLISYOS_SCIENTIST_V2_ENABLED"), default=False),
             shadow_mode=_as_bool(os.getenv("POLISYOS_SCIENTIST_SHADOW_MODE"), default=False),
@@ -301,8 +308,7 @@ class ScientistAgentFabric:
                 state.problem_frame.problem_statement,
                 *list(state.problem_frame.goals),
             ],
-            constraints=request.search_constraints
-            or SearchConstraints(locale="en-US"),
+            constraints=request.search_constraints or SearchConstraints(locale="en-US"),
             budgets=request.search_budgets
             or SearchBudgetControls(
                 max_search_queries=8,
@@ -376,9 +382,7 @@ class ScientistAgentFabric:
                 require_snippets=True,
                 min_citations=1,
                 allowed_domains=[
-                    source.domain
-                    for source in state.web_bundle.sources[:16]
-                    if source.domain
+                    source.domain for source in state.web_bundle.sources[:16] if source.domain
                 ],
             ),
             budget_hints=WorkerBudgetHints(
@@ -436,7 +440,9 @@ class ScientistAgentFabric:
         )
         trinity_bundle = await request.formalizer.formalize(draft)
 
-        for iteration in range(max(1, min(self._config.max_reflexion_iterations, request.max_iterations))):
+        for iteration in range(
+            max(1, min(self._config.max_reflexion_iterations, request.max_iterations))
+        ):
             critique = await self._critique_policy(
                 request=request,
                 supervisor=state.supervisor,
@@ -464,7 +470,11 @@ class ScientistAgentFabric:
                     "stop_reason": stop_reason,
                 }
             )
-            if critique.verdict == "APPROVE" or should_stop or iteration + 1 >= request.max_iterations:
+            if (
+                critique.verdict == "APPROVE"
+                or should_stop
+                or iteration + 1 >= request.max_iterations
+            ):
                 state.metrics["final_score"] = scorecard.overall_score
                 break
 
@@ -649,7 +659,10 @@ class ScientistAgentFabric:
                 ),
                 shared_input_payload={"depth": "standard"},
             )[0].model_copy(
-                update={"task_id": f"critic_worker_vote_{index + 1}", "vote_group_id": "critic_vote"}
+                update={
+                    "task_id": f"critic_worker_vote_{index + 1}",
+                    "vote_group_id": "critic_vote",
+                }
             )
             for index in range(self._config.critic_vote_workers)
         ]
@@ -826,11 +839,7 @@ def _citation_coverage(draft: DraftResult) -> float:
     supports = [item for item in draft.claim_supports if isinstance(item, dict)]
     if not supports:
         return 0.0
-    covered = sum(
-        1
-        for item in supports
-        if item.get("source_ids") or item.get("snippet_ids")
-    )
+    covered = sum(1 for item in supports if item.get("source_ids") or item.get("snippet_ids"))
     return covered / len(supports)
 
 
@@ -839,16 +848,20 @@ def _tool_calling_allowed(model_name: str | None) -> bool:
         return False
     lowered = model_name.lower()
     if "qwen" in lowered:
-        return _as_bool(
-            os.getenv("POLISYOS_QWEN_GONKA_TOOL_CALLING_EMERGENCY_OVERRIDE"),
-            default=False,
-        ) or _as_bool(
-            os.getenv("POLISYOS_QWEN_GONKA_TOOL_CALLING_VERIFIED"),
-            default=False,
-        ) or is_provider_capability_verified(
-            provider="gonka",
-            model_id=model_name,
-            capability="tool_calling",
+        return (
+            _as_bool(
+                os.getenv("POLISYOS_QWEN_GONKA_TOOL_CALLING_EMERGENCY_OVERRIDE"),
+                default=False,
+            )
+            or _as_bool(
+                os.getenv("POLISYOS_QWEN_GONKA_TOOL_CALLING_VERIFIED"),
+                default=False,
+            )
+            or is_provider_capability_verified(
+                provider="gonka",
+                model_id=model_name,
+                capability="tool_calling",
+            )
         )
     return True
 

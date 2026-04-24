@@ -10,7 +10,7 @@ completeness.  Extends the logic formerly in ``CheapStage``.
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any, Dict, List
+from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.scientist.search.funnel._rules import (
@@ -56,11 +56,11 @@ class Level0StaticValidator(FunnelStage):
 
     def evaluate(
         self,
-        candidate: Dict[str, Any],
-        context: Dict[str, Any],
+        candidate: dict[str, Any],
+        context: dict[str, Any],
     ) -> FunnelStageResult:
         start = datetime.now(UTC)
-        cards: List[TypedFailureCard] = []
+        cards: list[TypedFailureCard] = []
 
         # 1. Schema / structure completeness
         self._check_structure(candidate, cards)
@@ -111,8 +111,8 @@ class Level0StaticValidator(FunnelStage):
 
     @staticmethod
     def _check_structure(
-        candidate: Dict[str, Any],
-        cards: List[TypedFailureCard],
+        candidate: dict[str, Any],
+        cards: list[TypedFailureCard],
     ) -> None:
         semantic = candidate.get("semantic")
         if semantic is None:
@@ -162,8 +162,8 @@ class Level0StaticValidator(FunnelStage):
 
     @staticmethod
     def _check_parameters(
-        candidate: Dict[str, Any],
-        cards: List[TypedFailureCard],
+        candidate: dict[str, Any],
+        cards: list[TypedFailureCard],
     ) -> None:
         semantic = candidate.get("semantic", {})
         interventions = semantic.get("interventions", [])
@@ -187,15 +187,12 @@ class Level0StaticValidator(FunnelStage):
 
     @staticmethod
     def _check_forbidden_combinations(
-        candidate: Dict[str, Any],
-        cards: List[TypedFailureCard],
+        candidate: dict[str, Any],
+        cards: list[TypedFailureCard],
     ) -> None:
         semantic = candidate.get("semantic", {})
         interventions = semantic.get("interventions", [])
-        types = [
-            iv.get("type", iv.get("intervention_type", ""))
-            for iv in interventions
-        ]
+        types = [iv.get("type", iv.get("intervention_type", "")) for iv in interventions]
         types = [t for t in types if t]
 
         violations = check_forbidden_combinations(types)
@@ -212,8 +209,8 @@ class Level0StaticValidator(FunnelStage):
 
     @staticmethod
     def _check_unit_consistency(
-        candidate: Dict[str, Any],
-        cards: List[TypedFailureCard],
+        candidate: dict[str, Any],
+        cards: list[TypedFailureCard],
     ) -> None:
         """Check that parameters sharing economic concepts have compatible dimensions."""
         semantic = candidate.get("semantic", {})
@@ -249,8 +246,8 @@ class Level0StaticValidator(FunnelStage):
 
     @staticmethod
     def _check_fiscal_sanity(
-        candidate: Dict[str, Any],
-        cards: List[TypedFailureCard],
+        candidate: dict[str, Any],
+        cards: list[TypedFailureCard],
     ) -> None:
         """Policy-budget envelope sanity (not compute-budget)."""
         semantic = candidate.get("semantic", {})
@@ -280,8 +277,8 @@ class Level0StaticValidator(FunnelStage):
 
     @staticmethod
     def _check_legal_red_flags(
-        candidate: Dict[str, Any],
-        cards: List[TypedFailureCard],
+        candidate: dict[str, Any],
+        cards: list[TypedFailureCard],
     ) -> None:
         semantic = candidate.get("semantic", {})
         interventions = semantic.get("interventions", [])
@@ -307,8 +304,8 @@ class Level0StaticValidator(FunnelStage):
 
     @staticmethod
     def _check_mechanism_completeness(
-        candidate: Dict[str, Any],
-        cards: List[TypedFailureCard],
+        candidate: dict[str, Any],
+        cards: list[TypedFailureCard],
     ) -> None:
         semantic = candidate.get("semantic", {})
         interventions = semantic.get("interventions", [])

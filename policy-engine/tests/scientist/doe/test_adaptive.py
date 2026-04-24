@@ -15,7 +15,9 @@ from polisyos.scientist.doe.adaptive import (
 from polisyos.scientist.doe.designs import ParameterSpec, SensitivityMethod, SensitivityPlan
 
 
-def _make_plan(method: SensitivityMethod = SensitivityMethod.MORRIS, n_traj: int = 10) -> SensitivityPlan:
+def _make_plan(
+    method: SensitivityMethod = SensitivityMethod.MORRIS, n_traj: int = 10
+) -> SensitivityPlan:
     return SensitivityPlan(
         method=method,
         parameter_specs=[

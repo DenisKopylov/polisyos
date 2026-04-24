@@ -12,7 +12,7 @@ def _write_source(path: Path) -> None:
                 "from typing import Any",
                 "",
                 "payload: dict[str, Any] = {}",
-                "value = payload[\"key\"]",
+                'value = payload["key"]',
             ]
         )
         + "\n",
@@ -28,13 +28,13 @@ def test_scientist_phase2_ratchet_passes_with_matching_baseline(tmp_path: Path) 
         "\n".join(
             [
                 "[explicit_any]",
-                "\"tracked.py\" = 1",
+                '"tracked.py" = 1',
                 "",
                 "[unsafe_cast]",
-                "\"tracked.py\" = 0",
+                '"tracked.py" = 0',
                 "",
                 "[raw_dict_index]",
-                "\"tracked.py\" = 1",
+                '"tracked.py" = 1',
             ]
         )
         + "\n",
@@ -63,13 +63,13 @@ def test_scientist_phase2_ratchet_fails_on_new_debt_growth(tmp_path: Path) -> No
         "\n".join(
             [
                 "[explicit_any]",
-                "\"tracked.py\" = 0",
+                '"tracked.py" = 0',
                 "",
                 "[unsafe_cast]",
-                "\"tracked.py\" = 0",
+                '"tracked.py" = 0',
                 "",
                 "[raw_dict_index]",
-                "\"tracked.py\" = 0",
+                '"tracked.py" = 0',
             ]
         )
         + "\n",

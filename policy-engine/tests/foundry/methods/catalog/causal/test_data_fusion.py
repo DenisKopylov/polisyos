@@ -9,9 +9,8 @@ Covers:
 Reference:
   Bareinboim & Pearl (2016). Causal inference and the data-fusion problem. PNAS.
 """
-from __future__ import annotations
 
-import pytest
+from __future__ import annotations
 
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
@@ -19,7 +18,6 @@ from polisyos.ir.analytics.causal_graph import (
     EdgeMark,
     GraphType,
 )
-from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.data_fusion import (
     DataCombinationPlan,
     FusionDataset,
@@ -27,7 +25,6 @@ from polisyos.ir.analytics.data_fusion import (
     ValidityReport,
 )
 from polisyos.ir.analytics.transportability import SNode
-
 
 # ---------------------------------------------------------------------------
 # Shared helpers
@@ -227,9 +224,7 @@ class TestMultiStudyFusion:
         graph = _dag([("C", "X"), ("C", "Y"), ("X", "Y")])
         ds1 = self._make_dataset("d1", "study1", selection_bias_vars=("C",))
         ds2 = self._make_dataset("d2", "study2")
-        result = multi_study_fusion(
-            datasets=[ds1, ds2], graph=graph, treatment="X", outcome="Y"
-        )
+        result = multi_study_fusion(datasets=[ds1, ds2], graph=graph, treatment="X", outcome="Y")
 
         assert isinstance(result, FusionResult)
         assert result.identification_algorithm == "mz-id"
@@ -241,9 +236,7 @@ class TestMultiStudyFusion:
         graph = _dag([("X", "Y")])
         ds1 = self._make_dataset("d1", "ref_a")
         ds2 = self._make_dataset("d2", "ref_b")
-        result = multi_study_fusion(
-            datasets=[ds1, ds2], graph=graph, treatment="X", outcome="Y"
-        )
+        result = multi_study_fusion(datasets=[ds1, ds2], graph=graph, treatment="X", outcome="Y")
 
         assert "ref_a" in result.required_datasets
         assert "ref_b" in result.required_datasets

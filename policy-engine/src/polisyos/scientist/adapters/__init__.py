@@ -4,6 +4,7 @@ The package exports the production bridge classes used by workflow builders.
 Both bridges are imported lazily so environments that only need Scientist state
 or workflow specs do not pay the import cost of connector/security stacks.
 """
+
 from __future__ import annotations
 
 from typing import Any

@@ -3,9 +3,11 @@ Test suite for SDMXConnector - Phase 2.11.
 
 Uses SDMX-JSON fixtures for parsing and integration tests.
 """
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 import pytest
 
 from polisyos.fabric.connectors.base import (
@@ -14,7 +16,12 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
     HealthStatus,
 )
-from polisyos.fabric.connectors.contracts.schema import DataSchema, FieldSpec, SchemaType, SchemaVersion
+from polisyos.fabric.connectors.contracts.schema import (
+    DataSchema,
+    FieldSpec,
+    SchemaType,
+    SchemaVersion,
+)
 from polisyos.fabric.connectors.reference.sdmx import SDMXConnector, _join_url, _parse_sdmx_json
 from polisyos.fabric.connectors.testing import ConnectorTestHarness
 from polisyos.ir.connectors import DataVersion, QualityTier, VersionStrategy
@@ -44,9 +51,7 @@ SDMX_JSON_SAMPLE = {
 SDMX_JSON_OBS_ONLY = {
     "structure": {
         "dimensions": {
-            "observation": [
-                {"id": "time_period", "values": [{"id": "2023-01"}, {"id": "2023-02"}]}
-            ]
+            "observation": [{"id": "time_period", "values": [{"id": "2023-01"}, {"id": "2023-02"}]}]
         }
     },
     "dataSets": [{"observations": {"0": [1.0], "1": [2.0]}}],
@@ -78,7 +83,7 @@ class TestSDMXCompliance(ConnectorTestHarness):
     sample_schema = SAMPLE_SCHEMA
     sample_request = FetchRequest(dataset_id="ICP.M.DE.N.062.L.30-Q")
 
-    @pytest.fixture()
+    @pytest.fixture
     def connector_instance(self) -> SDMXConnector:
         connector = SDMXConnector()
 
@@ -87,7 +92,7 @@ class TestSDMXCompliance(ConnectorTestHarness):
             version = DataVersion(
                 strategy=VersionStrategy.CONTENT_HASH,
                 value="sha256:" + "2" * 64,
-                timestamp=datetime(2024, 1, 1, tzinfo=timezone.utc),
+                timestamp=datetime(2024, 1, 1, tzinfo=UTC),
                 content_hash="sha256:" + "2" * 64,
             )
             return FetchResult(
@@ -96,7 +101,7 @@ class TestSDMXCompliance(ConnectorTestHarness):
                 schema_id="reference.sdmx.icp_m_de_n_062_l_30_q",
                 schema_version="1.0.0",
                 version=version,
-                fetched_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+                fetched_at=datetime(2024, 1, 1, tzinfo=UTC),
                 completeness=1.0,
                 quality_tier=QualityTier.GOLD,
             )
@@ -190,9 +195,9 @@ class TestStreamingChunks:
                 version=DataVersion(
                     strategy=VersionStrategy.TIMESTAMP,
                     value="now",
-                    timestamp=datetime.now(timezone.utc),
+                    timestamp=datetime.now(UTC),
                 ),
-                fetched_at=datetime.now(timezone.utc),
+                fetched_at=datetime.now(UTC),
                 completeness=1.0,
             )
 
@@ -220,7 +225,7 @@ class TestFreshnessCheck:
         cached = DataVersion(
             strategy=VersionStrategy.TIMESTAMP,
             value="Mon, 01 Jan 2024 00:00:00 GMT",
-            timestamp=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            timestamp=datetime(2024, 1, 1, tzinfo=UTC),
         )
         new_lm = "Tue, 15 Jan 2024 00:00:00 GMT"
         assert new_lm != cached.value
@@ -230,7 +235,7 @@ class TestFreshnessCheck:
         cached = DataVersion(
             strategy=VersionStrategy.TIMESTAMP,
             value=lm,
-            timestamp=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            timestamp=datetime(2024, 1, 1, tzinfo=UTC),
         )
         assert lm == cached.value
 
@@ -243,8 +248,9 @@ class TestFreshnessCheck:
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_sdmx_fetch_local() -> None:
-    import aiohttp.web
     import json
+
+    import aiohttp.web
 
     async def handler(request):
         return aiohttp.web.Response(
@@ -264,9 +270,7 @@ async def test_sdmx_fetch_local() -> None:
     url = f"http://127.0.0.1:{port}"
 
     connector = SDMXConnector()
-    handle = await connector.connect(
-        ConnectionConfig(url=url, headers={"X-SDMX-Agency": "OECD"})
-    )
+    handle = await connector.connect(ConnectionConfig(url=url, headers={"X-SDMX-Agency": "OECD"}))
 
     result = await connector.fetch(handle, FetchRequest(dataset_id="TEST"))
     assert result.row_count == 4

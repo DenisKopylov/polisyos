@@ -14,15 +14,23 @@ for _p in (str(_SRC), str(_BENCH_ROOT)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-from benchmarks.harness import BenchmarkCase, BenchmarkCircuit, BenchmarkHarness, BenchmarkReport  # noqa: E402
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
-from benchmarks.runtime import resolve_mode  # noqa: E402
-
 from benchmarks.capability_wins.capability_proof import (  # noqa: E402
     CapabilityProofSpec,
     build_capability_report_extra,
     make_gap_row,
 )
+from benchmarks.harness import (  # noqa: E402
+    BenchmarkCase,
+    BenchmarkCircuit,
+    BenchmarkHarness,
+    BenchmarkReport,
+)
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
+from benchmarks.runtime import resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.CAPABILITY_WINS
 
@@ -34,7 +42,10 @@ def _graph_imports():
 
 
 def _ctf_imports():
-    from polisyos.foundry.methods.catalog.causal.ctf_transport import build_ctf_selection_diagram, ctf_transportability
+    from polisyos.foundry.methods.catalog.causal.ctf_transport import (
+        build_ctf_selection_diagram,
+        ctf_transportability,
+    )
     from polisyos.foundry.methods.catalog.causal.id_engine import CtfQuery
     from polisyos.ir.analytics.negative_certificate import NegativeCertificate
     from polisyos.ir.analytics.transportability import SNode
@@ -82,7 +93,9 @@ def _snode(variable: str) -> Any:
 
 def _case_nontransportable_with_bounds() -> BenchmarkCase:
     def runner():
-        build_ctf_selection_diagram, ctf_transportability, CtfQuery, NegativeCertificate, SNode = _ctf_imports()
+        build_ctf_selection_diagram, ctf_transportability, CtfQuery, NegativeCertificate, SNode = (
+            _ctf_imports()
+        )
         graph = _build_xy_graph()
         query = CtfQuery(outcome="Y", intervention=(("X", 1.0),), kind="single_world")
         selection_diagram = build_ctf_selection_diagram(graph=graph, s_nodes=[_snode("Y")])
@@ -110,7 +123,9 @@ def _case_nontransportable_with_bounds() -> BenchmarkCase:
 
 def _case_chain_mediator_transport_identified() -> BenchmarkCase:
     def runner():
-        build_ctf_selection_diagram, ctf_transportability, CtfQuery, NegativeCertificate, SNode = _ctf_imports()
+        build_ctf_selection_diagram, ctf_transportability, CtfQuery, NegativeCertificate, SNode = (
+            _ctf_imports()
+        )
         graph = _build_chain_graph()
         query = CtfQuery(outcome="Y", intervention=(("X", 1.0),), kind="single_world")
         selection_diagram = build_ctf_selection_diagram(graph=graph, s_nodes=[_snode("M")])
@@ -119,7 +134,9 @@ def _case_chain_mediator_transport_identified() -> BenchmarkCase:
     def checker(result: Any) -> bool:
         _, _, _, NegativeCertificate, _ = _ctf_imports()
         if isinstance(result, NegativeCertificate):
-            raise AssertionError(f"Chain with mediator shift should be identified, got {result.blocking_type}")
+            raise AssertionError(
+                f"Chain with mediator shift should be identified, got {result.blocking_type}"
+            )
         if getattr(result, "status", None) is None or result.status.value != "identified":
             raise AssertionError(f"Expected IDENTIFIED, got {getattr(result, 'status', None)}")
         return True
@@ -141,7 +158,9 @@ def build_nontransportability_bounds_harness() -> BenchmarkHarness:
     return harness
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     extra = build_capability_report_extra(
         report,
         CapabilityProofSpec(

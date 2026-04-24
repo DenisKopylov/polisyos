@@ -4,9 +4,11 @@ These methods intentionally implement a conservative finite-basis version of
 kernel mean embeddings. The proof kernel still carries identification; this
 module provides the estimation/runtime layer for proof-certified templates.
 """
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -36,6 +38,21 @@ from polisyos.ir.analytics.causal import (
     EstimationStatus,
 )
 from polisyos.ir.analytics.kernel_causal import KernelEstimatorSpec, KernelSpec
+
+_KERNEL_CITATIONS = (
+    "Muandet, K. et al. (2017). Kernel Mean Embedding of Distributions: A Review and Beyond.",
+    "Singh, R. et al. (2019). Kernel Instrumental Variable Regression.",
+    "Mastouri, A. et al. (2021). Proximal Causal Learning with Kernels.",
+    "Gretton, A. et al. (2012). A Kernel Two-Sample Test.",
+)
+_KERNEL_WHEN_TO_USE = (
+    "Use for proof-certified kernel causal estimands that require RKHS embeddings, "
+    "distributional effects, transport, IV, frontdoor, or proximal bridge diagnostics."
+)
+_KERNEL_OUTPUT_INTERPRETATION = (
+    "JSON payloads contain finite-sample RKHS approximations, diagnostics, and refusal "
+    "or uncertainty details for downstream causal reporting."
+)
 
 
 def _json_slot(name: str) -> SlotSpec:
@@ -104,7 +121,9 @@ def _estimator_signature(name: str) -> MethodSignature:
     )
 
 
-def _extract_kernel_spec(state: Mapping[str, Any], params: Mapping[str, Any]) -> KernelEstimatorSpec:
+def _extract_kernel_spec(
+    state: Mapping[str, Any], params: Mapping[str, Any]
+) -> KernelEstimatorSpec:
     payload = params.get("kernel_spec", state.get("kernel_spec"))
     if isinstance(payload, KernelEstimatorSpec):
         return payload
@@ -161,7 +180,9 @@ def _resolve_matrix(
     return None
 
 
-def _resolve_covariates(state: Mapping[str, Any], spec: KernelEstimatorSpec, n_obs: int) -> np.ndarray:
+def _resolve_covariates(
+    state: Mapping[str, Any], spec: KernelEstimatorSpec, n_obs: int
+) -> np.ndarray:
     matrix = _resolve_matrix(state, spec, "covariates", "covariates", "X")
     if matrix is not None:
         if matrix.shape[0] != n_obs:
@@ -403,7 +424,9 @@ def _density_ratio_weights(
     return np.clip(ratio * scale, 1.0e-6, None)
 
 
-def _build_bootstrap_interval(unit_embeddings: np.ndarray, *, confidence_level: float, seed: int) -> tuple[float, float]:
+def _build_bootstrap_interval(
+    unit_embeddings: np.ndarray, *, confidence_level: float, seed: int
+) -> tuple[float, float]:
     if unit_embeddings.size == 0:
         return 0.0, 0.0
     rng = np.random.default_rng(seed)
@@ -602,15 +625,19 @@ def _main_trace(model_payload: Mapping[str, Any]) -> tuple[list[dict[str, Any]],
 
 
 def _make_assumption_map(spec: KernelEstimatorSpec) -> dict[str, str]:
-    assumptions = {item: "required by proof-certified kernel lowering" for item in spec.required_side_conditions}
-    assumptions.setdefault("proof_kernel_identification", "proof bundle must certify the interventional law")
+    assumptions = dict.fromkeys(
+        spec.required_side_conditions, "required by proof-certified kernel lowering"
+    )
+    assumptions.setdefault(
+        "proof_kernel_identification", "proof bundle must certify the interventional law"
+    )
     return assumptions
 
 
 @foundry_method(
     namespace="causal.kernel",
     version="1.0.0",
-    tags={"causal", "kernel", "diagnostics", "rkhs"},
+    tags={"causal", "kernel", "diagnostics", "rkhs", "tabular"},
 )
 class KernelSemanticsDiagnostics:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
@@ -618,7 +645,10 @@ class KernelSemanticsDiagnostics:
     signature: ClassVar[MethodSignature] = _diagnostic_signature("kernel_semantics_diagnostics")
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Semantic kernel diagnostics: characteristic, weak-metrizing, and proof-side-condition alignment.",
-        tags=frozenset({"causal", "kernel", "diagnostics"}),
+        tags=frozenset({"causal", "kernel", "diagnostics", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -638,7 +668,7 @@ class KernelSemanticsDiagnostics:
 @foundry_method(
     namespace="causal.kernel",
     version="1.0.0",
-    tags={"causal", "kernel", "diagnostics", "regularization"},
+    tags={"causal", "kernel", "diagnostics", "regularization", "tabular"},
 )
 class KernelRegularizationDiagnostics:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
@@ -646,7 +676,10 @@ class KernelRegularizationDiagnostics:
     signature: ClassVar[MethodSignature] = _diagnostic_signature("regularization_diagnostics")
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Summarize kernel regularization traces and numerical stability.",
-        tags=frozenset({"causal", "kernel", "diagnostics", "regularization"}),
+        tags=frozenset({"causal", "kernel", "diagnostics", "regularization", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -673,7 +706,7 @@ class KernelRegularizationDiagnostics:
 @foundry_method(
     namespace="causal.kernel",
     version="1.0.0",
-    tags={"causal", "kernel", "diagnostics", "distributional"},
+    tags={"causal", "kernel", "diagnostics", "distributional", "tabular"},
 )
 class KernelEffectTest:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
@@ -681,7 +714,10 @@ class KernelEffectTest:
     signature: ClassVar[MethodSignature] = _diagnostic_signature("effect_test")
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Distributional kernel effect test based on permutation MMD over the observed outcome law.",
-        tags=frozenset({"causal", "kernel", "distributional", "diagnostics"}),
+        tags=frozenset({"causal", "kernel", "distributional", "diagnostics", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -719,7 +755,7 @@ class KernelEffectTest:
 @foundry_method(
     namespace="causal.kernel",
     version="1.0.0",
-    tags={"causal", "kernel", "refusal"},
+    tags={"causal", "kernel", "refusal", "tabular"},
 )
 class KernelRefusal:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
@@ -727,7 +763,10 @@ class KernelRefusal:
     signature: ClassVar[MethodSignature] = _estimator_signature("refusal")
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Fail-closed kernel lowering refusal node.",
-        tags=frozenset({"causal", "kernel", "refusal"}),
+        tags=frozenset({"causal", "kernel", "refusal", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -749,22 +788,30 @@ class KernelRefusal:
         return wrap_causal_output(
             report,
             warnings=[reason],
-            extras={"result": {"blocking_reasons": list(spec.blocking_reasons)}, "kernel_report": {}},
+            extras={
+                "result": {"blocking_reasons": list(spec.blocking_reasons)},
+                "kernel_report": {},
+            },
         )
 
 
 @foundry_method(
     namespace="causal.kernel.nuisance",
     version="1.0.0",
-    tags={"causal", "kernel", "nuisance", "cme"},
+    tags={"causal", "kernel", "nuisance", "cme", "tabular"},
 )
 class FitCMEYGivenXZ:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
-    signature: ClassVar[MethodSignature] = _nuisance_signature("fit_cme_y_given_xz", "cme_y_given_xz_model")
+    signature: ClassVar[MethodSignature] = _nuisance_signature(
+        "fit_cme_y_given_xz", "cme_y_given_xz_model"
+    )
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Fit conditional mean embedding of outcome features on treatment/covariates.",
-        tags=frozenset({"causal", "kernel", "nuisance", "cme"}),
+        tags=frozenset({"causal", "kernel", "nuisance", "cme", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -783,7 +830,9 @@ class FitCMEYGivenXZ:
         )
         payload = {
             **model,
-            "input_kernel": spec.input_kernels.get("covariates", KernelSpec(name="rbf", params={})).model_dump(mode="json"),
+            "input_kernel": spec.input_kernels.get(
+                "covariates", KernelSpec(name="rbf", params={})
+            ).model_dump(mode="json"),
             "outcome_landmarks": landmarks.tolist(),
         }
         return {
@@ -798,15 +847,20 @@ class FitCMEYGivenXZ:
 @foundry_method(
     namespace="causal.kernel.nuisance",
     version="1.0.0",
-    tags={"causal", "kernel", "nuisance", "cme"},
+    tags={"causal", "kernel", "nuisance", "cme", "tabular"},
 )
 class FitCMEMGivenX:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
-    signature: ClassVar[MethodSignature] = _nuisance_signature("fit_cme_m_given_x", "cme_m_given_x_model")
+    signature: ClassVar[MethodSignature] = _nuisance_signature(
+        "fit_cme_m_given_x", "cme_m_given_x_model"
+    )
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Fit mediator embedding weights conditioned on treatment.",
-        tags=frozenset({"causal", "kernel", "nuisance", "cme", "frontdoor"}),
+        tags=frozenset({"causal", "kernel", "nuisance", "cme", "frontdoor", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -818,7 +872,9 @@ class FitCMEMGivenX:
         payload = {
             "treatment": treatment.tolist(),
             "mediator": mediator.tolist(),
-            "input_kernel": spec.input_kernels.get("treatment", KernelSpec(name="rbf", params={})).model_dump(mode="json"),
+            "input_kernel": spec.input_kernels.get(
+                "treatment", KernelSpec(name="rbf", params={})
+            ).model_dump(mode="json"),
             "regularization": spec.regularization.lambda_value,
             "lambda_schedule": list(spec.regularization.lambda_schedule),
         }
@@ -831,15 +887,20 @@ class FitCMEMGivenX:
 @foundry_method(
     namespace="causal.kernel.nuisance",
     version="1.0.0",
-    tags={"causal", "kernel", "nuisance", "cme"},
+    tags={"causal", "kernel", "nuisance", "cme", "tabular"},
 )
 class FitCMEYGivenMX:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
-    signature: ClassVar[MethodSignature] = _nuisance_signature("fit_cme_y_given_mx", "cme_y_given_mx_model")
+    signature: ClassVar[MethodSignature] = _nuisance_signature(
+        "fit_cme_y_given_mx", "cme_y_given_mx_model"
+    )
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Fit conditional mean embedding of outcomes on mediator/treatment.",
-        tags=frozenset({"causal", "kernel", "nuisance", "cme", "frontdoor"}),
+        tags=frozenset({"causal", "kernel", "nuisance", "cme", "frontdoor", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -858,7 +919,9 @@ class FitCMEYGivenMX:
         )
         payload = {
             **model,
-            "input_kernel": spec.input_kernels.get("mediator", KernelSpec(name="rbf", params={})).model_dump(mode="json"),
+            "input_kernel": spec.input_kernels.get(
+                "mediator", KernelSpec(name="rbf", params={})
+            ).model_dump(mode="json"),
             "outcome_landmarks": landmarks.tolist(),
         }
         return {
@@ -873,15 +936,20 @@ class FitCMEYGivenMX:
 @foundry_method(
     namespace="causal.kernel.nuisance",
     version="1.0.0",
-    tags={"causal", "kernel", "nuisance", "transport"},
+    tags={"causal", "kernel", "nuisance", "transport", "tabular"},
 )
 class FitDensityRatio:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
-    signature: ClassVar[MethodSignature] = _nuisance_signature("fit_density_ratio", "density_ratio_weights")
+    signature: ClassVar[MethodSignature] = _nuisance_signature(
+        "fit_density_ratio", "density_ratio_weights"
+    )
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Estimate transport density-ratio weights between source and target covariates.",
-        tags=frozenset({"causal", "kernel", "nuisance", "transport"}),
+        tags=frozenset({"causal", "kernel", "nuisance", "transport", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -894,7 +962,9 @@ class FitDensityRatio:
             "density_ratio_weights": weights.tolist(),
             "result": {
                 "mean_weight": float(np.mean(weights)),
-                "ess_fraction": float((np.sum(weights) ** 2) / max(np.sum(weights ** 2), 1.0) / max(len(weights), 1)),
+                "ess_fraction": float(
+                    (np.sum(weights) ** 2) / max(np.sum(weights**2), 1.0) / max(len(weights), 1)
+                ),
             },
         }
 
@@ -902,7 +972,7 @@ class FitDensityRatio:
 @foundry_method(
     namespace="causal.kernel.nuisance",
     version="1.0.0",
-    tags={"causal", "kernel", "nuisance", "propensity"},
+    tags={"causal", "kernel", "nuisance", "propensity", "tabular"},
 )
 class FitKernelPropensity:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
@@ -910,7 +980,10 @@ class FitKernelPropensity:
     signature: ClassVar[MethodSignature] = _nuisance_signature("fit_propensity", "propensity_model")
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Fit propensity scores for doubly robust kernel estimators.",
-        tags=frozenset({"causal", "kernel", "nuisance", "propensity"}),
+        tags=frozenset({"causal", "kernel", "nuisance", "propensity", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -934,15 +1007,20 @@ class FitKernelPropensity:
 @foundry_method(
     namespace="causal.kernel.nuisance",
     version="1.0.0",
-    tags={"causal", "kernel", "nuisance", "iv"},
+    tags={"causal", "kernel", "nuisance", "iv", "tabular"},
 )
 class FitKIVFirstStage:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
-    signature: ClassVar[MethodSignature] = _nuisance_signature("fit_kiv_first_stage", "kiv_first_stage_model")
+    signature: ClassVar[MethodSignature] = _nuisance_signature(
+        "fit_kiv_first_stage", "kiv_first_stage_model"
+    )
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="First-stage kernel IV regression from instruments to treatment.",
-        tags=frozenset({"causal", "kernel", "nuisance", "iv"}),
+        tags=frozenset({"causal", "kernel", "nuisance", "iv", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -962,7 +1040,9 @@ class FitKIVFirstStage:
         )
         payload = {
             **model,
-            "input_kernel": spec.input_kernels.get("instrument", KernelSpec(name="rbf", params={})).model_dump(mode="json"),
+            "input_kernel": spec.input_kernels.get(
+                "instrument", KernelSpec(name="rbf", params={})
+            ).model_dump(mode="json"),
         }
         return {
             "kiv_first_stage_model": payload,
@@ -976,15 +1056,20 @@ class FitKIVFirstStage:
 @foundry_method(
     namespace="causal.kernel.nuisance",
     version="1.0.0",
-    tags={"causal", "kernel", "nuisance", "iv"},
+    tags={"causal", "kernel", "nuisance", "iv", "tabular"},
 )
 class FitKIVSecondStage:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
-    signature: ClassVar[MethodSignature] = _nuisance_signature("fit_kiv_second_stage", "kiv_second_stage_model")
+    signature: ClassVar[MethodSignature] = _nuisance_signature(
+        "fit_kiv_second_stage", "kiv_second_stage_model"
+    )
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Second-stage kernel IV embedding regression from instrument-predicted treatment to outcomes.",
-        tags=frozenset({"causal", "kernel", "nuisance", "iv"}),
+        tags=frozenset({"causal", "kernel", "nuisance", "iv", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -997,7 +1082,9 @@ class FitKIVSecondStage:
             raise ValueError("kernel IV second stage requires first-stage model")
         instrument = _resolve_instrument(state, spec, n_obs=outcome.shape[0])
         input_kernel = KernelSpec.model_validate(first_stage["input_kernel"])
-        treatment_hat = _predict_kernel_regression(first_stage, np.column_stack([instrument, covariates]), input_kernel)[:, 0]
+        treatment_hat = _predict_kernel_regression(
+            first_stage, np.column_stack([instrument, covariates]), input_kernel
+        )[:, 0]
         phi_y, landmarks = _outcome_features(outcome, spec.output_kernel)
         model = _fit_kernel_regression(
             inputs=np.column_stack([treatment_hat.reshape(-1, 1), covariates]),
@@ -1008,7 +1095,9 @@ class FitKIVSecondStage:
         )
         payload = {
             **model,
-            "input_kernel": spec.input_kernels.get("treatment", KernelSpec(name="rbf", params={})).model_dump(mode="json"),
+            "input_kernel": spec.input_kernels.get(
+                "treatment", KernelSpec(name="rbf", params={})
+            ).model_dump(mode="json"),
             "outcome_landmarks": landmarks.tolist(),
         }
         return {
@@ -1022,15 +1111,20 @@ class FitKIVSecondStage:
 @foundry_method(
     namespace="causal.kernel.nuisance",
     version="1.0.0",
-    tags={"causal", "kernel", "nuisance", "proximal"},
+    tags={"causal", "kernel", "nuisance", "proximal", "tabular"},
 )
 class SolveKernelProximalBridge:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
-    signature: ClassVar[MethodSignature] = _nuisance_signature("solve_proximal_bridge", "proximal_bridge_model")
+    signature: ClassVar[MethodSignature] = _nuisance_signature(
+        "solve_proximal_bridge", "proximal_bridge_model"
+    )
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Solve a finite-dimensional proximal bridge approximation in feature space.",
-        tags=frozenset({"causal", "kernel", "nuisance", "proximal"}),
+        tags=frozenset({"causal", "kernel", "nuisance", "proximal", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -1039,8 +1133,12 @@ class SolveKernelProximalBridge:
         outcome = _resolve_outcome(state, spec)
         treatment = _resolve_binary_treatment(state, spec)
         covariates = _resolve_covariates(state, spec, outcome.shape[0])
-        z_proxy = _resolve_proxy(state, spec, "treatment_proxy", "treatment_proxy", n_obs=outcome.shape[0])
-        w_proxy = _resolve_proxy(state, spec, "outcome_proxy", "outcome_proxy", n_obs=outcome.shape[0])
+        z_proxy = _resolve_proxy(
+            state, spec, "treatment_proxy", "treatment_proxy", n_obs=outcome.shape[0]
+        )
+        w_proxy = _resolve_proxy(
+            state, spec, "outcome_proxy", "outcome_proxy", n_obs=outcome.shape[0]
+        )
         phi_y, landmarks = _outcome_features(outcome, spec.output_kernel)
         model = _fit_kernel_regression(
             inputs=np.column_stack([treatment.reshape(-1, 1), covariates, w_proxy.reshape(-1, 1)]),
@@ -1049,10 +1147,16 @@ class SolveKernelProximalBridge:
             regularization=spec.regularization.lambda_value,
             lambda_schedule=spec.regularization.lambda_schedule,
         )
-        proxy_score = float(abs(np.corrcoef(z_proxy, w_proxy)[0, 1])) if np.std(z_proxy) > 1.0e-12 and np.std(w_proxy) > 1.0e-12 else 0.0
+        proxy_score = (
+            float(abs(np.corrcoef(z_proxy, w_proxy)[0, 1]))
+            if np.std(z_proxy) > 1.0e-12 and np.std(w_proxy) > 1.0e-12
+            else 0.0
+        )
         payload = {
             **model,
-            "input_kernel": spec.input_kernels.get("covariates", KernelSpec(name="rbf", params={})).model_dump(mode="json"),
+            "input_kernel": spec.input_kernels.get(
+                "covariates", KernelSpec(name="rbf", params={})
+            ).model_dump(mode="json"),
             "outcome_landmarks": landmarks.tolist(),
             "proxy_score": proxy_score,
         }
@@ -1069,7 +1173,7 @@ class SolveKernelProximalBridge:
 @foundry_method(
     namespace="causal.kernel",
     version="1.0.0",
-    tags={"causal", "kernel", "rkhs", "plugin"},
+    tags={"causal", "kernel", "rkhs", "plugin", "tabular"},
 )
 class KernelCMEPluginEstimator:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
@@ -1077,7 +1181,10 @@ class KernelCMEPluginEstimator:
     signature: ClassVar[MethodSignature] = _estimator_signature("cme_plugin")
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Backdoor/g-formula kernel conditional mean embedding estimator.",
-        tags=frozenset({"causal", "kernel", "rkhs", "plugin"}),
+        tags=frozenset({"causal", "kernel", "rkhs", "plugin", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -1119,13 +1226,15 @@ class KernelCMEPluginEstimator:
                 post_periods=0,
                 assumptions=_make_assumption_map(spec),
             )
-            return wrap_causal_output(report, warnings=[str(exc)], extras={"kernel_report": {}, "result": {}})
+            return wrap_causal_output(
+                report, warnings=[str(exc)], extras={"kernel_report": {}, "result": {}}
+            )
 
 
 @foundry_method(
     namespace="causal.kernel",
     version="1.0.0",
-    tags={"causal", "kernel", "rkhs", "frontdoor"},
+    tags={"causal", "kernel", "rkhs", "frontdoor", "tabular"},
 )
 class KernelFrontdoorEstimator:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
@@ -1133,7 +1242,10 @@ class KernelFrontdoorEstimator:
     signature: ClassVar[MethodSignature] = _estimator_signature("frontdoor_cme")
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Frontdoor kernel estimator with nested empirical integration.",
-        tags=frozenset({"causal", "kernel", "rkhs", "frontdoor"}),
+        tags=frozenset({"causal", "kernel", "rkhs", "frontdoor", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -1153,7 +1265,9 @@ class KernelFrontdoorEstimator:
             input_kernel = KernelSpec.model_validate(outcome_model["input_kernel"])
             queries_all = np.column_stack([mediator.reshape(-1, 1), treatment.reshape(-1, 1)])
             # For each mediator observation, average over empirical treatment distribution.
-            g_embeddings = np.empty((outcome.shape[0], _as_float_matrix(outcome_model["alpha"]).shape[1]), dtype=float)
+            g_embeddings = np.empty(
+                (outcome.shape[0], _as_float_matrix(outcome_model["alpha"]).shape[1]), dtype=float
+            )
             for idx, mediator_value in enumerate(mediator):
                 queries = np.column_stack(
                     [
@@ -1161,11 +1275,15 @@ class KernelFrontdoorEstimator:
                         treatment,
                     ]
                 )
-                g_embeddings[idx] = np.mean(_predict_kernel_regression(outcome_model, queries, input_kernel), axis=0)
+                g_embeddings[idx] = np.mean(
+                    _predict_kernel_regression(outcome_model, queries, input_kernel), axis=0
+                )
 
             treat_kernel = KernelSpec.model_validate(mediator_model["input_kernel"])
             treatment_train = _as_float_vector(mediator_model["treatment"], name="treatment")
-            gram_t = _kernel_matrix(treatment_train.reshape(-1, 1), treatment_train.reshape(-1, 1), treat_kernel)
+            gram_t = _kernel_matrix(
+                treatment_train.reshape(-1, 1), treatment_train.reshape(-1, 1), treat_kernel
+            )
             lam = float(mediator_model.get("regularization", spec.regularization.lambda_value))
             system = gram_t + treatment_train.shape[0] * lam * np.eye(treatment_train.shape[0])
 
@@ -1218,13 +1336,15 @@ class KernelFrontdoorEstimator:
                 post_periods=0,
                 assumptions=_make_assumption_map(spec),
             )
-            return wrap_causal_output(report, warnings=[str(exc)], extras={"kernel_report": {}, "result": {}})
+            return wrap_causal_output(
+                report, warnings=[str(exc)], extras={"kernel_report": {}, "result": {}}
+            )
 
 
 @foundry_method(
     namespace="causal.kernel",
     version="1.0.0",
-    tags={"causal", "kernel", "rkhs", "transport"},
+    tags={"causal", "kernel", "rkhs", "transport", "tabular"},
 )
 class KernelTransportEstimator:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
@@ -1232,7 +1352,10 @@ class KernelTransportEstimator:
     signature: ClassVar[MethodSignature] = _estimator_signature("transport_cme")
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Kernel transport estimator with target-weighted counterfactual averaging.",
-        tags=frozenset({"causal", "kernel", "rkhs", "transport"}),
+        tags=frozenset({"causal", "kernel", "rkhs", "transport", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -1241,7 +1364,9 @@ class KernelTransportEstimator:
             spec = _extract_kernel_spec(state, params)
             outcome, treatment, covariates, model_payload, _, _, _ = _fit_backdoor_cme(state, spec)
             input_kernel = KernelSpec.model_validate(model_payload["input_kernel"])
-            target_covariates = _resolve_target_covariates(state, spec, fallback_covariates=covariates)
+            target_covariates = _resolve_target_covariates(
+                state, spec, fallback_covariates=covariates
+            )
             q1 = np.column_stack([np.ones(target_covariates.shape[0]), target_covariates])
             q0 = np.column_stack([np.zeros(target_covariates.shape[0]), target_covariates])
             mu1_i = _predict_kernel_regression(model_payload, q1, input_kernel)
@@ -1286,13 +1411,15 @@ class KernelTransportEstimator:
                 post_periods=0,
                 assumptions=_make_assumption_map(spec),
             )
-            return wrap_causal_output(report, warnings=[str(exc)], extras={"kernel_report": {}, "result": {}})
+            return wrap_causal_output(
+                report, warnings=[str(exc)], extras={"kernel_report": {}, "result": {}}
+            )
 
 
 @foundry_method(
     namespace="causal.kernel",
     version="1.0.0",
-    tags={"causal", "kernel", "rkhs", "dr"},
+    tags={"causal", "kernel", "rkhs", "dr", "tabular"},
 )
 class KernelDRCMEEstimator:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
@@ -1300,14 +1427,19 @@ class KernelDRCMEEstimator:
     signature: ClassVar[MethodSignature] = _estimator_signature("dr_cme")
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Doubly robust kernel embedding estimator for binary-treatment distributional effects.",
-        tags=frozenset({"causal", "kernel", "rkhs", "dr"}),
+        tags=frozenset({"causal", "kernel", "rkhs", "dr", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
         try:
             spec = _extract_kernel_spec(state, params)
-            outcome, treatment, _, model_payload, mu1_i, mu0_i, phi_y = _fit_backdoor_cme(state, spec)
+            outcome, treatment, _, model_payload, mu1_i, mu0_i, phi_y = _fit_backdoor_cme(
+                state, spec
+            )
             propensity_model = dict(state.get("propensity_model", {}))
             if propensity_model and "propensity" in propensity_model:
                 e_hat = np.clip(
@@ -1320,7 +1452,9 @@ class KernelDRCMEEstimator:
                 e_hat = np.clip(_logistic_propensity(covariates, treatment), 1.0e-3, 1.0 - 1.0e-3)
 
             mu1_dr_i = mu1_i + (treatment[:, None] / e_hat[:, None]) * (phi_y - mu1_i)
-            mu0_dr_i = mu0_i + ((1.0 - treatment)[:, None] / (1.0 - e_hat)[:, None]) * (phi_y - mu0_i)
+            mu0_dr_i = mu0_i + ((1.0 - treatment)[:, None] / (1.0 - e_hat)[:, None]) * (
+                phi_y - mu0_i
+            )
             mu1 = np.mean(mu1_dr_i, axis=0)
             mu0 = np.mean(mu0_dr_i, axis=0)
             trace, condition_number = _main_trace(model_payload)
@@ -1355,13 +1489,15 @@ class KernelDRCMEEstimator:
                 post_periods=0,
                 assumptions=_make_assumption_map(spec),
             )
-            return wrap_causal_output(report, warnings=[str(exc)], extras={"kernel_report": {}, "result": {}})
+            return wrap_causal_output(
+                report, warnings=[str(exc)], extras={"kernel_report": {}, "result": {}}
+            )
 
 
 @foundry_method(
     namespace="causal.kernel",
     version="1.0.0",
-    tags={"causal", "kernel", "rkhs", "iv"},
+    tags={"causal", "kernel", "rkhs", "iv", "tabular"},
 )
 class KernelIVEstimator:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
@@ -1369,7 +1505,10 @@ class KernelIVEstimator:
     signature: ClassVar[MethodSignature] = _estimator_signature("kiv")
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Two-stage kernel IV estimator for proof-certified inverse-problem queries.",
-        tags=frozenset({"causal", "kernel", "rkhs", "iv"}),
+        tags=frozenset({"causal", "kernel", "rkhs", "iv", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -1429,13 +1568,15 @@ class KernelIVEstimator:
                 post_periods=0,
                 assumptions=_make_assumption_map(spec),
             )
-            return wrap_causal_output(report, warnings=[str(exc)], extras={"kernel_report": {}, "result": {}})
+            return wrap_causal_output(
+                report, warnings=[str(exc)], extras={"kernel_report": {}, "result": {}}
+            )
 
 
 @foundry_method(
     namespace="causal.kernel",
     version="1.0.0",
-    tags={"causal", "kernel", "rkhs", "proximal"},
+    tags={"causal", "kernel", "rkhs", "proximal", "tabular"},
 )
 class KernelProximalMinimaxEstimator:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
@@ -1443,7 +1584,10 @@ class KernelProximalMinimaxEstimator:
     signature: ClassVar[MethodSignature] = _estimator_signature("proximal_minimax")
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Finite-dimensional proximal minimax estimator over outcome embeddings.",
-        tags=frozenset({"causal", "kernel", "rkhs", "proximal"}),
+        tags=frozenset({"causal", "kernel", "rkhs", "proximal", "tabular"}),
+        citations=_KERNEL_CITATIONS,
+        when_to_use=_KERNEL_WHEN_TO_USE,
+        output_interpretation=_KERNEL_OUTPUT_INTERPRETATION,
     )
 
     @staticmethod
@@ -1455,12 +1599,20 @@ class KernelProximalMinimaxEstimator:
             covariates = _resolve_covariates(state, spec, outcome.shape[0])
             bridge_model = dict(state.get("proximal_bridge_model", {}))
             if not bridge_model:
-                bridge_model = SolveKernelProximalBridge.pure_step(state, params)["proximal_bridge_model"]
+                bridge_model = SolveKernelProximalBridge.pure_step(state, params)[
+                    "proximal_bridge_model"
+                ]
 
             input_kernel = KernelSpec.model_validate(bridge_model["input_kernel"])
-            w_proxy = _resolve_proxy(state, spec, "outcome_proxy", "outcome_proxy", n_obs=outcome.shape[0])
-            design1 = np.column_stack([np.ones(outcome.shape[0]), covariates, w_proxy.reshape(-1, 1)])
-            design0 = np.column_stack([np.zeros(outcome.shape[0]), covariates, w_proxy.reshape(-1, 1)])
+            w_proxy = _resolve_proxy(
+                state, spec, "outcome_proxy", "outcome_proxy", n_obs=outcome.shape[0]
+            )
+            design1 = np.column_stack(
+                [np.ones(outcome.shape[0]), covariates, w_proxy.reshape(-1, 1)]
+            )
+            design0 = np.column_stack(
+                [np.zeros(outcome.shape[0]), covariates, w_proxy.reshape(-1, 1)]
+            )
             mu1_i = _predict_kernel_regression(bridge_model, design1, input_kernel)
             mu0_i = _predict_kernel_regression(bridge_model, design0, input_kernel)
             mu1 = np.mean(mu1_i, axis=0)
@@ -1501,7 +1653,9 @@ class KernelProximalMinimaxEstimator:
                 post_periods=0,
                 assumptions=_make_assumption_map(spec),
             )
-            return wrap_causal_output(report, warnings=[str(exc)], extras={"kernel_report": {}, "result": {}})
+            return wrap_causal_output(
+                report, warnings=[str(exc)], extras={"kernel_report": {}, "result": {}}
+            )
 
 
 __all__ = [
@@ -1509,9 +1663,9 @@ __all__ = [
     "FitCMEYGivenMX",
     "FitCMEYGivenXZ",
     "FitDensityRatio",
-    "FitKernelPropensity",
     "FitKIVFirstStage",
     "FitKIVSecondStage",
+    "FitKernelPropensity",
     "KernelCMEPluginEstimator",
     "KernelDRCMEEstimator",
     "KernelEffectTest",

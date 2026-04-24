@@ -5,10 +5,14 @@ from __future__ import annotations
 import json
 from collections import defaultdict
 from datetime import UTC, datetime
-from pathlib import Path
+from typing import TYPE_CHECKING
 
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.batch_common.manifest import write_raw_manifest, write_stage_manifest
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 
 def _utc_slug() -> str:
@@ -19,7 +23,7 @@ def _read_jsonl(path: Path) -> list[dict]:
     rows: list[dict] = []
     if not path.exists():
         return rows
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if line:

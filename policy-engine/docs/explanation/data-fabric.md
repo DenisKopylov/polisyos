@@ -42,12 +42,12 @@ depend on them.
 
 ## Fabric Subsystems
 
-| Subsystem | Job | Default consumer |
-|---|---|---|
-| Connectors and profiles | normalize source access and fetch semantics | Fabric ingestion/runtime |
-| Data plane | record, replay, streaming, quarantine, cursor state, semantic diff | operators and workflow automation |
-| Lineage and quality | trace source-to-world relationships and data fitness | Scientist, audits, runbooks |
-| World and time travel | materialize facts and query snapshots over time | runtime read paths and recovery flows |
+| Subsystem               | Job                                                                | Default consumer                      |
+| ----------------------- | ------------------------------------------------------------------ | ------------------------------------- |
+| Connectors and profiles | normalize source access and fetch semantics                        | Fabric ingestion/runtime              |
+| Data plane              | record, replay, streaming, quarantine, cursor state, semantic diff | operators and workflow automation     |
+| Lineage and quality     | trace source-to-world relationships and data fitness               | Scientist, audits, runbooks           |
+| World and time travel   | materialize facts and query snapshots over time                    | runtime read paths and recovery flows |
 
 ## Why Fabric Is Separate
 

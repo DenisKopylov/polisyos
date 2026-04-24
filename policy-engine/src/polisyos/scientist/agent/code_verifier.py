@@ -46,6 +46,7 @@ _CODE_VERIFIER_EXECUTION_ERRORS = (
 
 class VerificationStatus(str, Enum):
     """Verification status public type."""
+
     PASSED = "passed"
     FAILED = "failed"
     ERROR = "error"
@@ -55,6 +56,7 @@ class VerificationStatus(str, Enum):
 @dataclass(frozen=True, slots=True)
 class VerificationResult:
     """Verification result data model."""
+
     status: VerificationStatus
     passed: bool
     errors: list[str] = field(default_factory=list)
@@ -89,6 +91,7 @@ class VerificationResult:
 
 class SandboxConfig(BaseModel):
     """Sandbox config data model."""
+
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     timeout_seconds: float = Field(default=5.0, gt=0.0, le=30.0)
@@ -156,7 +159,7 @@ class SandboxConfig(BaseModel):
     )
 
     @classmethod
-    def from_env(cls) -> "SandboxConfig":
+    def from_env(cls) -> SandboxConfig:
         kwargs: dict[str, Any] = {}
         raw = os.getenv("POLISYOS_CODE_VERIFICATION_TIMEOUT")
         if raw:
@@ -574,9 +577,7 @@ def _build_globals(
                     "_getattr_": safer_getattr,
                     "_getitem_": lambda obj, key: obj[key],
                     "_getiter_": iter,
-                    "_print_": lambda *_args, **_kwargs: _RestrictedPrintCollector(
-                        limited_print
-                    ),
+                    "_print_": lambda *_args, **_kwargs: _RestrictedPrintCollector(limited_print),
                 }
             )
     for mod_name, module in allowed_modules.items():

@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import os
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.core.canon import content_hash, truncated_hash
@@ -111,12 +111,12 @@ class MockCriticAgent:
         else:
             verdict = self._default_verdict
 
-        blocker_penalty = sum(
-            1 for issue in issues if issue.severity == CritiqueSeverity.BLOCKER
-        ) * 0.3
-        warning_penalty = sum(
-            1 for issue in issues if issue.severity == CritiqueSeverity.WARNING
-        ) * 0.1
+        blocker_penalty = (
+            sum(1 for issue in issues if issue.severity == CritiqueSeverity.BLOCKER) * 0.3
+        )
+        warning_penalty = (
+            sum(1 for issue in issues if issue.severity == CritiqueSeverity.WARNING) * 0.1
+        )
         overall_quality = max(
             0.0,
             (alignment_score + completeness_score) / 2 - blocker_penalty - warning_penalty,
@@ -142,7 +142,7 @@ class MockCriticAgent:
                 "artifact_kind": "trinity_bundle",
                 "web_grounding": _context_web_grounding(problem_frame),
             },
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
     async def _check_structure(self, bundle: TrinityBundle) -> list[CritiqueIssue]:
@@ -427,7 +427,7 @@ Provide your critique as a JSON object.
                     "depth": depth,
                     "web_grounding": _context_web_grounding(problem_frame),
                 },
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
         except (json.JSONDecodeError, KeyError, ValueError) as exc:
             return CritiqueReport(
@@ -587,7 +587,7 @@ def create_mock_problem_frame(
         goals=(f"Address: {problem_statement}",),
         constraints=("Budget deficit <= 3%",),
         success_criteria={"improvement_rate": 0.1},
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
 
 

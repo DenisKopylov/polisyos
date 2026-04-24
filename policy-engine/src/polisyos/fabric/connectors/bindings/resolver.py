@@ -5,7 +5,6 @@ Pure data transformations, NO jax/numpy imports.
 
 from __future__ import annotations
 
-import json
 from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
@@ -13,7 +12,7 @@ from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 
-from .models import BindingProfile, BindingRuleSpec
+from .models import BindingProfile
 
 
 def resolve_binding_rules(profile: BindingProfile) -> list[dict[str, Any]]:
@@ -33,9 +32,7 @@ def resolve_binding_rules(profile: BindingProfile) -> list[dict[str, Any]]:
         if rule.default_value is not None:
             entry["default_value"] = rule.default_value
         if rule.transforms:
-            entry["transforms"] = [
-                {"op": t.op, "params": t.params} for t in rule.transforms
-            ]
+            entry["transforms"] = [{"op": t.op, "params": t.params} for t in rule.transforms]
         if rule.notes:
             entry["notes"] = rule.notes
         rules.append(entry)
@@ -69,7 +66,8 @@ def persist_binding_rules_artifact(
             kind="fabric.binding_rules",
             media_type="application/json",
             schema=SchemaInfo(
-                name="polisyos.fabric.BindingRules", version="1.0",
+                name="polisyos.fabric.BindingRules",
+                version="1.0",
             ),
         ),
         canon_spec=CanonSpec(forbid_floats=False),

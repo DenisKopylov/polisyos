@@ -1,4 +1,5 @@
 """CachingConnectorProxy wraps a SourceConnector with cache behavior."""
+
 from __future__ import annotations
 
 import time
@@ -50,7 +51,8 @@ class CachingConnectorProxy[DataT]:
         connector: SourceConnector[DataT],
         cache: ConnectorCacheStore,
         enable_prefetch: bool = True,
-        schema_hash_provider: Callable[[FetchRequest, FetchResult[DataT]], str | None] | None = None,
+        schema_hash_provider: Callable[[FetchRequest, FetchResult[DataT]], str | None]
+        | None = None,
         *,
         metrics: MetricsRegistry | None = None,
     ) -> None:

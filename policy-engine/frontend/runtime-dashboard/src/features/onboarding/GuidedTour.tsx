@@ -253,7 +253,7 @@ export function GuidedTour({ tour, onComplete, onDismiss }: GuidedTourProps) {
           animate="visible"
           exit="exit"
           className={cn(
-            "bg-popover text-popover-foreground absolute z-10 w-72 rounded-2xl border border-border p-4 shadow-xl",
+            "bg-popover text-popover-foreground border-border absolute z-10 w-72 rounded-2xl border p-4 shadow-xl",
             step.placement === "top" && "-translate-x-1/2 -translate-y-full",
             step.placement === "bottom" && "-translate-x-1/2",
             step.placement === "left" && "-translate-x-full -translate-y-1/2",
@@ -264,7 +264,7 @@ export function GuidedTour({ tour, onComplete, onDismiss }: GuidedTourProps) {
           {/* Close button */}
           <button
             type="button"
-            className="absolute right-2 top-2 rounded-md p-1 text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground absolute top-2 right-2 rounded-md p-1"
             onClick={handleDismiss}
             aria-label={t("common.close")}
           >
@@ -272,12 +272,12 @@ export function GuidedTour({ tour, onComplete, onDismiss }: GuidedTourProps) {
           </button>
 
           {/* Step counter */}
-          <p className="mb-1 text-[11px] font-medium text-muted-foreground">
+          <p className="text-muted-foreground mb-1 text-[11px] font-medium">
             {stepIndex + 1} / {tour.steps.length}
           </p>
 
           <h3 className="text-sm font-semibold">{t(step.title)}</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-sm">
             {t(step.description)}
           </p>
 

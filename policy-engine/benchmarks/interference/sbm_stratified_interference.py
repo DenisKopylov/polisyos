@@ -21,8 +21,17 @@ for _p in [str(_SRC), str(_BENCH_ROOT)]:
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-from benchmarks.harness import BenchmarkCase, BenchmarkCircuit, BenchmarkHarness, BenchmarkReport  # noqa: E402
-from benchmarks.reporting import build_preflight, build_report_payload, print_preflight  # noqa: E402
+from benchmarks.harness import (  # noqa: E402
+    BenchmarkCase,
+    BenchmarkCircuit,
+    BenchmarkHarness,
+    BenchmarkReport,
+)
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
 from benchmarks.runtime import BenchmarkMode, resolve_mode  # noqa: E402
 from polisyos.foundry.methods.catalog.causal.interference import (  # noqa: E402
     PartialInterferenceEstimator,
@@ -30,7 +39,6 @@ from polisyos.foundry.methods.catalog.causal.interference import (  # noqa: E402
 )
 from polisyos.foundry.methods.catalog.network.protocols import NetworkData  # noqa: E402
 from polisyos.foundry.methods.catalog.network.sbm import SBMStratificationEstimator  # noqa: E402
-
 
 CIRCUIT = BenchmarkCircuit.ESTIMATION
 
@@ -43,11 +51,15 @@ def _fractional_exposure(treatment: np.ndarray, cluster_id: np.ndarray) -> np.nd
         if members.size < 2:
             continue
         for idx in members:
-            exposure[idx] = (float(np.sum(treatment[mask])) - float(treatment[idx])) / (members.size - 1)
+            exposure[idx] = (float(np.sum(treatment[mask])) - float(treatment[idx])) / (
+                members.size - 1
+            )
     return exposure
 
 
-def _build_graph_with_effects(*, seed: int) -> tuple[NetworkData, np.ndarray, np.ndarray, np.ndarray]:
+def _build_graph_with_effects(
+    *, seed: int
+) -> tuple[NetworkData, np.ndarray, np.ndarray, np.ndarray]:
     rng = np.random.default_rng(seed)
     truth = np.array([0] * 15 + [1] * 15, dtype=int)
     n = truth.shape[0]
@@ -171,10 +183,12 @@ def _case_block_bridged_partial_interference() -> BenchmarkCase:
 
 def build_harness() -> BenchmarkHarness:
     harness = BenchmarkHarness()
-    harness.register_many([
-        _case_sbm_recovery(),
-        _case_block_bridged_partial_interference(),
-    ])
+    harness.register_many(
+        [
+            _case_sbm_recovery(),
+            _case_block_bridged_partial_interference(),
+        ]
+    )
     return harness
 
 
@@ -205,7 +219,9 @@ def _aggregate_metrics(report: BenchmarkReport) -> dict[str, Any]:
     }
 
 
-def _report_to_dict(report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]) -> dict[str, Any]:
+def _report_to_dict(
+    report: BenchmarkReport, *, mode: str, preflight: dict[str, Any]
+) -> dict[str, Any]:
     return build_report_payload(
         report,
         suite_id="sbm_stratified_interference",
@@ -230,7 +246,9 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     mode = resolve_mode(args.mode)
-    preflight = build_preflight(mode=mode.value, data_source="synthetic_sbm_stratified_interference")
+    preflight = build_preflight(
+        mode=mode.value, data_source="synthetic_sbm_stratified_interference"
+    )
     print_preflight(preflight)
 
     harness = build_harness()

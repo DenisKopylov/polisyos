@@ -3,9 +3,10 @@ from __future__ import annotations
 import asyncio
 from contextlib import nullcontext
 
-from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame as IRProblemFrame
+from polisyos.ir.governance.problem_frame import ProblemDomain
+from polisyos.ir.governance.problem_frame import ProblemFrame as IRProblemFrame
+from polisyos.ir.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.critic import MockCriticAgent
 from polisyos.scientist.agent.feasibility import BudgetImpactResult, PopulationQueryResult
@@ -115,7 +116,7 @@ class _FakeSpan:
     def __init__(self) -> None:
         self.attributes: dict[str, object] = {}
 
-    def __enter__(self) -> "_FakeSpan":
+    def __enter__(self) -> _FakeSpan:
         return self
 
     def __exit__(self, exc_type, exc, tb) -> bool:
@@ -164,9 +165,7 @@ def test_informed_critic_catches_zero_target_before_inner_critic() -> None:
 
     assert report.verdict == "REJECT"
     feasibility_issues = [
-        issue
-        for issue in report.issues
-        if issue.category == CritiqueCategory.FEASIBILITY
+        issue for issue in report.issues if issue.category == CritiqueCategory.FEASIBILITY
     ]
     assert feasibility_issues
     assert any("matches 0" in issue.message for issue in feasibility_issues)
@@ -176,7 +175,9 @@ def test_informed_critic_catches_budget_overflow() -> None:
     inner = MockCriticAgent(default_verdict="APPROVE")
     critic = InformedCriticAgent(inner=inner, feasibility_probe=BudgetOverflowProbe())
 
-    report = run(critic.critique(_bundle_with_selector("1000", amount="500"), _agent_problem_frame()))
+    report = run(
+        critic.critique(_bundle_with_selector("1000", amount="500"), _agent_problem_frame())
+    )
 
     assert report.verdict == "REJECT"
     assert any("exceeds budget limit" in issue.message for issue in report.issues)
@@ -207,7 +208,9 @@ def test_informed_critic_accepts_injected_observability(monkeypatch) -> None:
         metrics=metrics,
     )
 
-    report = run(critic.critique(_bundle_with_selector("1000", amount="500"), _agent_problem_frame()))
+    report = run(
+        critic.critique(_bundle_with_selector("1000", amount="500"), _agent_problem_frame())
+    )
 
     assert report.verdict == "REJECT"
     assert "budget_exhausted" in metrics.preemptive_catches

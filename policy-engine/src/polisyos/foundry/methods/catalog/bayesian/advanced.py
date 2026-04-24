@@ -1,12 +1,13 @@
 """Estimate hierarchical, HMC/NUTS, and mixture-model Bayesian methods."""
+
 from __future__ import annotations
 
 import hashlib
-import os
 import platform
 import sys
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -103,9 +104,10 @@ class _SamplerRngNamespace:
 
 
 def _thread_configuration_snapshot() -> dict[str, str]:
+    getenv = __import__("os").getenv
     snapshot: dict[str, str] = {}
     for key in _THREAD_PIN_ENV_VARS:
-        value = os.getenv(key)
+        value = getenv(key)
         if value is not None and value.strip():
             snapshot[key] = value.strip()
     return snapshot
@@ -332,14 +334,21 @@ def _sampler_diagnostic_bundle(
     ess_gate_chain_count = max(chain_count, 1)
     min_required_ess = 100.0 * ess_gate_chain_count
     bfmi_measurements = {
-        str(chain_id): float(metrics.get("bfmi", -1.0)) for chain_id, metrics in diagnostics_per_chain.items()
+        str(chain_id): float(metrics.get("bfmi", -1.0))
+        for chain_id, metrics in diagnostics_per_chain.items()
     }
     bfmi_values = [value for value in bfmi_measurements.values() if _is_valid_metric(value)]
     divergence_total = float(
-        sum(int(round(float(metrics.get("divergences", 0.0)))) for metrics in diagnostics_per_chain.values())
+        sum(
+            int(round(float(metrics.get("divergences", 0.0))))
+            for metrics in diagnostics_per_chain.values()
+        )
     )
     treedepth_total = float(
-        sum(int(round(float(metrics.get("max_treedepth_hits", 0.0)))) for metrics in diagnostics_per_chain.values())
+        sum(
+            int(round(float(metrics.get("max_treedepth_hits", 0.0))))
+            for metrics in diagnostics_per_chain.values()
+        )
     )
     acceptance_values = [
         float(metrics.get("acceptance_rate", 0.0)) for metrics in diagnostics_per_chain.values()
@@ -388,7 +397,9 @@ def _sampler_diagnostic_bundle(
             and not has_invalid_tail_ess
             and diagnostics_summary["min_tail_ess"] >= min_required_ess
         ),
-        "bfmi": chain_count > 0 and not has_invalid_bfmi and diagnostics_summary["min_bfmi"] >= 0.30,
+        "bfmi": chain_count > 0
+        and not has_invalid_bfmi
+        and diagnostics_summary["min_bfmi"] >= 0.30,
         "divergences": divergence_total == 0.0,
         "max_treedepth_hits": True if sampler_kernel != "nuts" else treedepth_total == 0.0,
     }
@@ -405,7 +416,11 @@ def _sampler_diagnostic_bundle(
                     )
                     if invalid
                 ),
-                *(f"diagnostic_gate_failed:{name}" for name, passed in diagnostic_gates.items() if not passed),
+                *(
+                    f"diagnostic_gate_failed:{name}"
+                    for name, passed in diagnostic_gates.items()
+                    if not passed
+                ),
             ]
         )
     )
@@ -429,7 +444,9 @@ def _reference_sampler_reproducibility(
         degradation_reasons.append("runtime_backend_not_reference")
     if requested_runtime != "numpy":
         degradation_reasons.append(
-            "runtime_backend_auto_not_allowed" if requested_runtime == "auto" else "requested_runtime_backend_mismatch"
+            "runtime_backend_auto_not_allowed"
+            if requested_runtime == "auto"
+            else "requested_runtime_backend_mismatch"
         )
     if not _thread_configuration_is_pinned_single_thread(thread_snapshot):
         degradation_reasons.append("thread_configuration_not_pinned_single_thread")
@@ -543,13 +560,15 @@ def _reference_sampler_contract(
         sampler_kernel=sampler_kernel,
         stage="warmup",
     )
-    determinism_tier, reproducibility, replay_warnings, degradation_reason = _reference_sampler_reproducibility(
-        params=params,
-        backend_used=backend_used,
-        sampler_kernel=sampler_kernel,
-        posterior_hash=posterior_hash,
-        warmup_hash=warmup_hash,
-        draw_layout=draw_layout,
+    determinism_tier, reproducibility, replay_warnings, degradation_reason = (
+        _reference_sampler_reproducibility(
+            params=params,
+            backend_used=backend_used,
+            sampler_kernel=sampler_kernel,
+            posterior_hash=posterior_hash,
+            warmup_hash=warmup_hash,
+            draw_layout=draw_layout,
+        )
     )
     warnings = tuple(dict.fromkeys([*gate_warnings, *replay_warnings]))
     posterior_fields = {
@@ -558,7 +577,9 @@ def _reference_sampler_contract(
         "draws_ref": posterior_ref,
         "warmup_draws_ref": warmup_ref,
         "draw_layout": dict(draw_layout),
-        "diagnostics_per_chain": {key: dict(value) for key, value in trace.diagnostics_per_chain.items()},
+        "diagnostics_per_chain": {
+            key: dict(value) for key, value in trace.diagnostics_per_chain.items()
+        },
         "diagnostics_summary": {**trace.diagnostics_summary, **diagnostics_summary},
         "diagnostic_gates": diagnostic_gates,
         "reproducibility": reproducibility,
@@ -672,7 +693,10 @@ def _runtime_backend_fallback_reason(params: Mapping[str, Any], *, backend_used:
     if backend_used == "numpy":
         if isinstance(health, Mapping) and requested in {"auto", "numpyro"}:
             warnings = health.get("warnings")
-            if isinstance(warnings, list) and "numpyro_unavailable:using_numpy_fallback" in warnings:
+            if (
+                isinstance(warnings, list)
+                and "numpyro_unavailable:using_numpy_fallback" in warnings
+            ):
                 return "numpyro_unavailable"
     return None
 
@@ -731,8 +755,8 @@ def _numpyro_linear_regression_samples(
 ) -> tuple[dict[str, np.ndarray], dict[str, float]]:
     try:
         import jax.numpy as jnp
-        from jax import random
         import numpyro
+        from jax import random
         from numpyro import distributions as dist
         from numpyro.infer import HMC, MCMC, NUTS
     except Exception as exc:  # pragma: no cover - optional runtime dependency
@@ -772,7 +796,9 @@ def _numpyro_linear_regression_samples(
         progress_bar=False,
     )
     mcmc.run(random.PRNGKey(int(seed)), features=features, target=target)
-    samples = {key: np.asarray(value) for key, value in mcmc.get_samples(group_by_chain=False).items()}
+    samples = {
+        key: np.asarray(value) for key, value in mcmc.get_samples(group_by_chain=False).items()
+    }
     extra_fields = mcmc.get_extra_fields()
 
     def _extra_field(*keys: str) -> np.ndarray:
@@ -809,8 +835,8 @@ def _numpyro_hierarchical_regression_samples(
 ) -> tuple[dict[str, np.ndarray], dict[str, float]]:
     try:
         import jax.numpy as jnp
-        from jax import random
         import numpyro
+        from jax import random
         from numpyro import distributions as dist
         from numpyro.infer import MCMC, NUTS
     except Exception as exc:  # pragma: no cover - optional runtime dependency
@@ -845,7 +871,9 @@ def _numpyro_hierarchical_regression_samples(
         progress_bar=False,
     )
     mcmc.run(random.PRNGKey(int(seed)), features=features, target=target, groups=groups)
-    samples = {key: np.asarray(value) for key, value in mcmc.get_samples(group_by_chain=False).items()}
+    samples = {
+        key: np.asarray(value) for key, value in mcmc.get_samples(group_by_chain=False).items()
+    }
     extra_fields = mcmc.get_extra_fields()
     accept_prob = np.asarray(extra_fields.get("accept_prob", []), dtype=float)
     divergences = np.asarray(extra_fields.get("diverging", []), dtype=bool)
@@ -870,12 +898,18 @@ def _linear_regression_log_density_and_grad(
     mean = intercept + x @ beta
     residual = y - mean
     inv_sigma_sq = 1.0 / max(sigma * sigma, 1e-9)
-    log_likelihood = -float(y.shape[0]) * log_sigma - 0.5 * inv_sigma_sq * float(np.sum(residual**2))
+    log_likelihood = -float(y.shape[0]) * log_sigma - 0.5 * inv_sigma_sq * float(
+        np.sum(residual**2)
+    )
     log_prior = -0.5 * float(np.sum((theta / max(prior_scale, 1e-9)) ** 2))
     grad = np.zeros_like(theta, dtype=float)
     grad[0] = float(np.sum(residual) * inv_sigma_sq - intercept / (prior_scale**2))
     grad[1:-1] = (x.T @ residual) * inv_sigma_sq - beta / (prior_scale**2)
-    grad[-1] = -float(y.shape[0]) + float(np.sum(residual**2) * inv_sigma_sq) - log_sigma / (prior_scale**2)
+    grad[-1] = (
+        -float(y.shape[0])
+        + float(np.sum(residual**2) * inv_sigma_sq)
+        - log_sigma / (prior_scale**2)
+    )
     return log_likelihood + log_prior, grad
 
 
@@ -929,7 +963,9 @@ def _hmc_sample_linear_regression(
     accepted = 0
     attempted = 0
     for _ in range(max(1, int(num_chains))):
-        current = np.asarray(initial_state, dtype=float) + rng.normal(scale=0.05, size=initial_state.shape)
+        current = np.asarray(initial_state, dtype=float) + rng.normal(
+            scale=0.05, size=initial_state.shape
+        )
         current_lp, _ = _linear_regression_log_density_and_grad(
             current,
             x=x,
@@ -950,7 +986,9 @@ def _hmc_sample_linear_regression(
                 prior_scale=prior_scale,
             )
             current_energy = -current_lp + 0.5 * float(np.dot(momentum, momentum))
-            proposal_energy = -proposal_lp + 0.5 * float(np.dot(proposal_momentum, proposal_momentum))
+            proposal_energy = -proposal_lp + 0.5 * float(
+                np.dot(proposal_momentum, proposal_momentum)
+            )
             accept_prob = min(1.0, float(np.exp(current_energy - proposal_energy)))
             if float(rng.uniform()) <= accept_prob:
                 current = proposal
@@ -993,10 +1031,7 @@ def _nuts_stop_criterion(
     momentum_plus: np.ndarray,
 ) -> bool:
     delta = np.asarray(theta_plus, dtype=float) - np.asarray(theta_minus, dtype=float)
-    return bool(
-        np.dot(delta, momentum_minus) >= 0.0
-        and np.dot(delta, momentum_plus) >= 0.0
-    )
+    return bool(np.dot(delta, momentum_minus) >= 0.0 and np.dot(delta, momentum_plus) >= 0.0)
 
 
 def _build_nuts_tree(
@@ -1149,7 +1184,9 @@ def _build_nuts_tree(
     else:  # pragma: no cover - defensive guard for malformed internal calls.
         raise ValueError("NUTS tree builder requires either rng or rng_namespace")
 
-    if (n_prime + n_prime_2) > 0 and float(combine_rng.uniform()) < (n_prime_2 / max(n_prime + n_prime_2, 1)):
+    if (n_prime + n_prime_2) > 0 and float(combine_rng.uniform()) < (
+        n_prime_2 / max(n_prime + n_prime_2, 1)
+    ):
         theta_prime = theta_prime_2
     n_prime += n_prime_2
     s_prime = bool(
@@ -1188,7 +1225,9 @@ def _nuts_sample_linear_regression(
     accepted_weight = 0.0
     total_weight = 0
     for _ in range(max(1, int(num_chains))):
-        current = np.asarray(initial_state, dtype=float) + rng.normal(scale=0.03, size=initial_state.shape)
+        current = np.asarray(initial_state, dtype=float) + rng.normal(
+            scale=0.03, size=initial_state.shape
+        )
         local_step = max(float(step_size), 1e-4)
         chain_draws: list[np.ndarray] = []
         for step_idx in range(max(0, int(num_warmup)) + max(1, int(num_samples))):
@@ -1261,7 +1300,11 @@ def _nuts_sample_linear_regression(
                         joint0=joint0,
                         rng=rng,
                     )
-                if s_prime and (n + n_prime) > 0 and float(rng.uniform()) < (n_prime / max(n + n_prime, 1)):
+                if (
+                    s_prime
+                    and (n + n_prime) > 0
+                    and float(rng.uniform()) < (n_prime / max(n + n_prime, 1))
+                ):
                     theta_candidate = theta_prime.copy()
                 n += n_prime
                 continue_tree = bool(
@@ -1311,7 +1354,9 @@ def _hmc_reference_trace(
             phase="initialization",
             iteration=0,
         ).generator("initial_state")
-        current = np.asarray(initial_state, dtype=float) + init_rng.normal(scale=0.05, size=initial_state.shape)
+        current = np.asarray(initial_state, dtype=float) + init_rng.normal(
+            scale=0.05, size=initial_state.shape
+        )
         current_lp, _ = _linear_regression_log_density_and_grad(
             current,
             x=x,
@@ -1345,7 +1390,9 @@ def _hmc_reference_trace(
                 prior_scale=prior_scale,
             )
             current_energy = -current_lp + 0.5 * float(np.dot(momentum, momentum))
-            proposal_energy = -proposal_lp + 0.5 * float(np.dot(proposal_momentum, proposal_momentum))
+            proposal_energy = -proposal_lp + 0.5 * float(
+                np.dot(proposal_momentum, proposal_momentum)
+            )
             if (not np.isfinite(current_energy)) or (not np.isfinite(proposal_energy)):
                 divergences += 1
                 accept_prob = 0.0
@@ -1387,7 +1434,9 @@ def _hmc_reference_trace(
         "acceptance_rate": float(
             np.mean([metrics["acceptance_rate"] for metrics in diagnostics_per_chain.values()])
         ),
-        "divergences": float(sum(metrics["divergences"] for metrics in diagnostics_per_chain.values())),
+        "divergences": float(
+            sum(metrics["divergences"] for metrics in diagnostics_per_chain.values())
+        ),
         "bfmi": float(min(metrics["bfmi"] for metrics in diagnostics_per_chain.values())),
     }
     return _SamplerTrace(
@@ -1431,7 +1480,9 @@ def _nuts_reference_trace(
             phase="initialization",
             iteration=0,
         ).generator("initial_state")
-        current = np.asarray(initial_state, dtype=float) + init_rng.normal(scale=0.03, size=initial_state.shape)
+        current = np.asarray(initial_state, dtype=float) + init_rng.normal(
+            scale=0.03, size=initial_state.shape
+        )
         local_step = max(float(step_size), 1e-4)
         chain_warmup: list[np.ndarray] = []
         chain_posterior: list[np.ndarray] = []
@@ -1472,7 +1523,9 @@ def _nuts_reference_trace(
             alpha_sum = 0.0
             alpha_count = 0
             while continue_tree and depth < max(1, int(max_depth)):
-                direction = -1 if float(rng_namespace.generator("direction", depth).uniform()) < 0.5 else 1
+                direction = (
+                    -1 if float(rng_namespace.generator("direction", depth).uniform()) < 0.5 else 1
+                )
                 if direction < 0:
                     (
                         theta_minus,
@@ -1523,9 +1576,14 @@ def _nuts_reference_trace(
                         rng_namespace=rng_namespace,
                         path=(depth, 1),
                     )
-                if s_prime and (n + n_prime) > 0 and float(
-                    rng_namespace.generator("candidate_accept", depth, direction).uniform()
-                ) < (n_prime / max(n + n_prime, 1)):
+                if (
+                    s_prime
+                    and (n + n_prime) > 0
+                    and float(
+                        rng_namespace.generator("candidate_accept", depth, direction).uniform()
+                    )
+                    < (n_prime / max(n + n_prime, 1))
+                ):
                     theta_candidate = theta_prime.copy()
                 n += n_prime
                 continue_tree = bool(
@@ -1574,7 +1632,9 @@ def _nuts_reference_trace(
         "acceptance_rate": float(
             np.mean([metrics["acceptance_rate"] for metrics in diagnostics_per_chain.values()])
         ),
-        "divergences": float(sum(metrics["divergences"] for metrics in diagnostics_per_chain.values())),
+        "divergences": float(
+            sum(metrics["divergences"] for metrics in diagnostics_per_chain.values())
+        ),
         "bfmi": float(min(metrics["bfmi"] for metrics in diagnostics_per_chain.values())),
         "max_treedepth_hits": float(
             sum(metrics["max_treedepth_hits"] for metrics in diagnostics_per_chain.values())
@@ -1673,10 +1733,14 @@ def _sorted_component_payload(fitted: Mapping[str, Any]) -> dict[str, np.ndarray
     means = np.asarray(fitted["means"], dtype=float)
     variances = np.asarray(fitted["variances"], dtype=float)
     component_mass = np.asarray(fitted["component_mass"], dtype=float)
-    sort_key = np.lexsort((
-        means[:, 0] if means.ndim == 2 and means.shape[1] > 0 else np.zeros(weights.shape[0], dtype=float),
-        -weights,
-    ))
+    sort_key = np.lexsort(
+        (
+            means[:, 0]
+            if means.ndim == 2 and means.shape[1] > 0
+            else np.zeros(weights.shape[0], dtype=float),
+            -weights,
+        )
+    )
     return {
         "weights": weights[sort_key],
         "means": means[sort_key],
@@ -1743,7 +1807,10 @@ def _mixture_posterior_result(
             label = f"mean_{component_idx}_{feature_idx}"
             mean_value = float(means[component_idx, feature_idx])
             mean_std = float(
-                np.sqrt(max(variances[component_idx, feature_idx], 1e-9) / max(component_mass[component_idx], 1.0))
+                np.sqrt(
+                    max(variances[component_idx, feature_idx], 1e-9)
+                    / max(component_mass[component_idx], 1.0)
+                )
             )
             posterior_means[label] = mean_value
             posterior_stds[label] = mean_std
@@ -1794,6 +1861,7 @@ def _mixture_posterior_result(
 )
 class BayesianHierarchicalRegressionEstimator:
     """Estimate pooled and group-level coefficients with hierarchical shrinkage; avoid when group structure is absent or priors are arbitrary."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "numpyro", "jax", "jaxlib")
     optional_deps: ClassVar[tuple[str, ...]] = ("arviz", "numpyro", "jax", "jaxlib")
@@ -1913,8 +1981,8 @@ class BayesianHierarchicalRegressionEstimator:
 
             def log_density(theta: np.ndarray) -> float:
                 intercept = theta[0]
-                beta = theta[1: 1 + x.shape[1]]
-                group_offsets = theta[1 + x.shape[1]: 1 + x.shape[1] + n_groups]
+                beta = theta[1 : 1 + x.shape[1]]
+                group_offsets = theta[1 + x.shape[1] : 1 + x.shape[1] + n_groups]
                 log_sigma = theta[-2]
                 log_tau = theta[-1]
                 sigma = float(np.exp(log_sigma))
@@ -1951,8 +2019,8 @@ class BayesianHierarchicalRegressionEstimator:
             )
             posterior = {
                 "global_intercept": draws[:, 0],
-                "coefficients": draws[:, 1: 1 + x.shape[1]],
-                "group_effect": draws[:, 1 + x.shape[1]: 1 + x.shape[1] + n_groups],
+                "coefficients": draws[:, 1 : 1 + x.shape[1]],
+                "group_effect": draws[:, 1 + x.shape[1] : 1 + x.shape[1] + n_groups],
                 "sigma": np.exp(draws[:, -2]),
                 "group_scale": np.exp(draws[:, -1]),
             }
@@ -1970,11 +2038,15 @@ class BayesianHierarchicalRegressionEstimator:
             predictive_mean_draws=predictive_mean_draws,
             aleatoric_scale_draws=np.asarray(posterior["sigma"], dtype=float),
             confidence_level=credible_mass,
-            metadata={"runtime_backend_used": backend_used, "method_name": "bayesian_hierarchical_regression"},
+            metadata={
+                "runtime_backend_used": backend_used,
+                "method_name": "bayesian_hierarchical_regression",
+            },
         )
         fitted = (
             posterior_means["global_intercept"]
-            + x @ np.asarray(
+            + x
+            @ np.asarray(
                 [posterior_means.get(f"coefficients_{idx}", 0.0) for idx in range(x.shape[1])],
                 dtype=float,
             )
@@ -2048,6 +2120,7 @@ class BayesianHierarchicalRegressionEstimator:
 )
 class BayesianHMCRegressionEstimator:
     """Sample a Bayesian linear-regression posterior with HMC; avoid strongly multimodal or poorly scaled posteriors without reparameterization."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "numpyro", "jax", "jaxlib")
     optional_deps: ClassVar[tuple[str, ...]] = ("arviz", "numpyro", "jax", "jaxlib")
@@ -2179,7 +2252,11 @@ class BayesianHMCRegressionEstimator:
                 [
                     np.asarray(ols_coef, dtype=float),
                     np.array(
-                        [np.log(max(float(np.std(residual, ddof=max(ols_design.shape[1], 1))), 0.1))],
+                        [
+                            np.log(
+                                max(float(np.std(residual, ddof=max(ols_design.shape[1], 1))), 0.1)
+                            )
+                        ],
                         dtype=float,
                     ),
                 ]
@@ -2198,12 +2275,14 @@ class BayesianHMCRegressionEstimator:
             )
             posterior = flatten_chain_draws(trace.posterior_by_chain)
             accept_rate = float(trace.diagnostics_summary.get("acceptance_rate", 0.0))
-            contract_fields, contract_artifacts, contract_warnings, determinism_tier = _reference_sampler_contract(
-                method_name="bayesian_hmc_regression",
-                sampler_kernel="hmc",
-                params=params,
-                backend_used=backend_used,
-                trace=trace,
+            contract_fields, contract_artifacts, contract_warnings, determinism_tier = (
+                _reference_sampler_contract(
+                    method_name="bayesian_hmc_regression",
+                    sampler_kernel="hmc",
+                    params=params,
+                    backend_used=backend_used,
+                    trace=trace,
+                )
             )
         posterior_means, posterior_stds, credible_intervals = summarize_posterior_samples(
             posterior,
@@ -2218,7 +2297,10 @@ class BayesianHMCRegressionEstimator:
             predictive_mean_draws=predictive_mean_draws,
             aleatoric_scale_draws=np.asarray(posterior["sigma"], dtype=float),
             confidence_level=credible_mass,
-            metadata={"runtime_backend_used": backend_used, "method_name": "bayesian_hmc_regression"},
+            metadata={
+                "runtime_backend_used": backend_used,
+                "method_name": "bayesian_hmc_regression",
+            },
         )
         coefficients = np.asarray(
             [posterior_means.get(f"coefficients_{idx}", 0.0) for idx in range(x.shape[1])],
@@ -2292,6 +2374,7 @@ class BayesianHMCRegressionEstimator:
 )
 class BayesianNUTSRegressionEstimator:
     """Sample a Bayesian linear-regression posterior with NUTS-style path expansion; avoid expensive runs on very large design matrices."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy", "numpyro", "jax", "jaxlib")
     optional_deps: ClassVar[tuple[str, ...]] = ("arviz", "numpyro", "jax", "jaxlib")
@@ -2424,7 +2507,11 @@ class BayesianNUTSRegressionEstimator:
                 [
                     np.asarray(ols_coef, dtype=float),
                     np.array(
-                        [np.log(max(float(np.std(residual, ddof=max(ols_design.shape[1], 1))), 0.1))],
+                        [
+                            np.log(
+                                max(float(np.std(residual, ddof=max(ols_design.shape[1], 1))), 0.1)
+                            )
+                        ],
                         dtype=float,
                     ),
                 ]
@@ -2444,12 +2531,14 @@ class BayesianNUTSRegressionEstimator:
             )
             posterior = flatten_chain_draws(trace.posterior_by_chain)
             accept_rate = float(trace.diagnostics_summary.get("acceptance_rate", 0.0))
-            contract_fields, contract_artifacts, contract_warnings, determinism_tier = _reference_sampler_contract(
-                method_name="bayesian_nuts_regression",
-                sampler_kernel="nuts",
-                params=params,
-                backend_used=backend_used,
-                trace=trace,
+            contract_fields, contract_artifacts, contract_warnings, determinism_tier = (
+                _reference_sampler_contract(
+                    method_name="bayesian_nuts_regression",
+                    sampler_kernel="nuts",
+                    params=params,
+                    backend_used=backend_used,
+                    trace=trace,
+                )
             )
         posterior_means, posterior_stds, credible_intervals = summarize_posterior_samples(
             posterior,
@@ -2464,7 +2553,10 @@ class BayesianNUTSRegressionEstimator:
             predictive_mean_draws=predictive_mean_draws,
             aleatoric_scale_draws=np.asarray(posterior["sigma"], dtype=float),
             confidence_level=credible_mass,
-            metadata={"runtime_backend_used": backend_used, "method_name": "bayesian_nuts_regression"},
+            metadata={
+                "runtime_backend_used": backend_used,
+                "method_name": "bayesian_nuts_regression",
+            },
         )
         coefficients = np.asarray(
             [posterior_means.get(f"coefficients_{idx}", 0.0) for idx in range(x.shape[1])],
@@ -2539,6 +2631,7 @@ class BayesianNUTSRegressionEstimator:
 )
 class BayesianGaussianMixtureEstimator:
     """Fit a finite Bayesian Gaussian mixture for soft clustering; avoid highly non-Gaussian clusters or too few observations."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "gaussian_mixture"
@@ -2666,7 +2759,9 @@ class BayesianGaussianMixtureEstimator:
             fitted=fitted,
             concentration=concentration,
             diagnostics_extra={
-                "multistart_interval_shift_max": float(max(interval_shifts)) if interval_shifts else 0.0,
+                "multistart_interval_shift_max": float(max(interval_shifts))
+                if interval_shifts
+                else 0.0,
                 "multistart_weight_shift_max": float(max(weight_shifts)) if weight_shifts else 0.0,
                 "multistart_mean_shift_max": float(max(mean_shifts)) if mean_shifts else 0.0,
                 "component_collapse_fraction": float(
@@ -2680,9 +2775,7 @@ class BayesianGaussianMixtureEstimator:
             "result": posterior_result,
             "cluster_assignments": np.asarray(fitted["assignments"], dtype=float),
             "cluster_probabilities": np.asarray(fitted["responsibilities"], dtype=float),
-            "uncertainty_envelope": posterior_result.to_uncertainty_envelope(
-                param_name="weight_0"
-            ),
+            "uncertainty_envelope": posterior_result.to_uncertainty_envelope(param_name="weight_0"),
         }
 
 
@@ -2693,6 +2786,7 @@ class BayesianGaussianMixtureEstimator:
 )
 class DirichletProcessMixtureEstimator:
     """Approximate a DP mixture when cluster count is unknown; avoid very small datasets where nonparametric clustering is unstable."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
     method_variant: ClassVar[str] = "dirichlet_process_mixture"
@@ -2826,7 +2920,9 @@ class DirichletProcessMixtureEstimator:
             fitted=pruned,
             concentration=concentration,
             diagnostics_extra={
-                "multistart_interval_shift_max": float(max(interval_shifts)) if interval_shifts else 0.0,
+                "multistart_interval_shift_max": float(max(interval_shifts))
+                if interval_shifts
+                else 0.0,
                 "multistart_weight_shift_max": float(max(weight_shifts)) if weight_shifts else 0.0,
                 "multistart_mean_shift_max": float(max(mean_shifts)) if mean_shifts else 0.0,
                 "component_collapse_fraction": float(
@@ -2845,16 +2941,14 @@ class DirichletProcessMixtureEstimator:
             "result": posterior_result,
             "cluster_assignments": np.asarray(pruned["assignments"], dtype=float),
             "cluster_probabilities": np.asarray(pruned["responsibilities"], dtype=float),
-            "uncertainty_envelope": posterior_result.to_uncertainty_envelope(
-                param_name="weight_0"
-            ),
+            "uncertainty_envelope": posterior_result.to_uncertainty_envelope(param_name="weight_0"),
         }
 
 
 __all__ = [
     "BayesianGaussianMixtureEstimator",
     "BayesianHMCRegressionEstimator",
-    "BayesianNUTSRegressionEstimator",
     "BayesianHierarchicalRegressionEstimator",
+    "BayesianNUTSRegressionEstimator",
     "DirichletProcessMixtureEstimator",
 ]

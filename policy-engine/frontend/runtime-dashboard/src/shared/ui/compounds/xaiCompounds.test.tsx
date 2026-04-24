@@ -19,7 +19,11 @@ vi.mock("@/shared/charts", () => ({
     <div data-testid="radar-chart">{series.length} series</div>
   ),
   AnimatedProgress: ({ value }: { value: number }) => (
-    <div data-testid="animated-progress" role="progressbar" aria-valuenow={value} />
+    <div
+      data-testid="animated-progress"
+      role="progressbar"
+      aria-valuenow={value}
+    />
   ),
 }));
 
@@ -63,7 +67,11 @@ import { MethodologyBadge } from "./MethodologyBadge";
 // 1. ExplainabilityCard
 // ---------------------------------------------------------------------------
 describe("ExplainabilityCard", () => {
-  const baseVerdict = { status: "approved" as const, confidence: 0.92, summary: "Strong evidence" };
+  const baseVerdict = {
+    status: "approved" as const,
+    confidence: 0.92,
+    summary: "Strong evidence",
+  };
 
   it("renders glance level with verdict and confidence", () => {
     renderWithProviders(<ExplainabilityCard verdict={baseVerdict} />);
@@ -93,7 +101,12 @@ describe("ExplainabilityCard", () => {
       <ExplainabilityCard
         verdict={baseVerdict}
         level="summary"
-        governance={{ passed: 3, failed: 1, warnings: 0, blockers: ["Missing consent"] }}
+        governance={{
+          passed: 3,
+          failed: 1,
+          warnings: 0,
+          blockers: ["Missing consent"],
+        }}
       />,
     );
     expect(screen.getByText("Governance blockers")).toBeInTheDocument();
@@ -127,8 +140,18 @@ describe("ExplainabilityCard", () => {
 describe("GovernancePassGrid", () => {
   const passes = [
     { id: "g1", label: "Data quality", status: "pass" as const },
-    { id: "g2", label: "Legal review", status: "fail" as const, detail: "GDPR concern" },
-    { id: "g3", label: "Ethics check", status: "warning" as const, durationMs: 120 },
+    {
+      id: "g2",
+      label: "Legal review",
+      status: "fail" as const,
+      detail: "GDPR concern",
+    },
+    {
+      id: "g3",
+      label: "Ethics check",
+      status: "warning" as const,
+      durationMs: 120,
+    },
     { id: "g4", label: "Deferred", status: "skip" as const },
   ];
 
@@ -149,7 +172,9 @@ describe("GovernancePassGrid", () => {
   });
 
   it("renders custom title", () => {
-    renderWithProviders(<GovernancePassGrid passes={passes} title="Compliance Gates" />);
+    renderWithProviders(
+      <GovernancePassGrid passes={passes} title="Compliance Gates" />,
+    );
     expect(screen.getByText("Compliance Gates")).toBeInTheDocument();
   });
 });
@@ -199,7 +224,9 @@ describe("TrustCalibrationDisplay", () => {
         totalPastAnalyses={42}
       />,
     );
-    expect(screen.getByRole("heading", { name: "Trust Calibration" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Trust Calibration" }),
+    ).toBeInTheDocument();
     // "87%" appears in both gauge mock and body text
     expect(screen.getAllByText("87%").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/42 historical analyses/)).toBeInTheDocument();
@@ -217,7 +244,9 @@ describe("TrustCalibrationDisplay", () => {
     );
     expect(screen.getByText("Known limitations")).toBeInTheDocument();
     expect(screen.getByText("Small sample")).toBeInTheDocument();
-    expect(screen.getByText("Why you should NOT trust this")).toBeInTheDocument();
+    expect(
+      screen.getByText("Why you should NOT trust this"),
+    ).toBeInTheDocument();
     expect(screen.getByText("Selection bias possible")).toBeInTheDocument();
   });
 
@@ -276,12 +305,18 @@ describe("SensitivityPlot", () => {
 
   it("renders title and data table", () => {
     renderWithProviders(<SensitivityPlot points={points} />);
-    expect(screen.getByRole("heading", { name: "Sensitivity Analysis (Rosenbaum Bounds)" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        name: "Sensitivity Analysis (Rosenbaum Bounds)",
+      }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("chart-data-table")).toBeInTheDocument();
   });
 
   it("shows breakdown gamma label", () => {
-    renderWithProviders(<SensitivityPlot points={points} breakdownGamma={1.5} />);
+    renderWithProviders(
+      <SensitivityPlot points={points} breakdownGamma={1.5} />,
+    );
     expect(screen.getByText("Robust up to \u0393=1.5")).toBeInTheDocument();
   });
 });
@@ -298,12 +333,16 @@ describe("FactorImportanceChart", () => {
 
   it("renders chart with data table", () => {
     renderWithProviders(<FactorImportanceChart factors={factors} />);
-    expect(screen.getByRole("heading", { name: "Factor Importance" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Factor Importance" }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("chart-data-table")).toBeInTheDocument();
   });
 
   it("respects maxBars limit", () => {
-    renderWithProviders(<FactorImportanceChart factors={factors} maxBars={2} />);
+    renderWithProviders(
+      <FactorImportanceChart factors={factors} maxBars={2} />,
+    );
     expect(screen.getByText("Age")).toBeInTheDocument();
     expect(screen.getByText("Region")).toBeInTheDocument();
     expect(screen.queryByText("Gender")).not.toBeInTheDocument();
@@ -315,9 +354,25 @@ describe("FactorImportanceChart", () => {
 // ---------------------------------------------------------------------------
 describe("ReasoningChainDisplay", () => {
   const steps = [
-    { id: "s1", type: "question" as const, title: "User asked", summary: "What is the effect?" },
-    { id: "s2", type: "analysis" as const, title: "Ran DiD", summary: "Parallel trends hold", durationMs: 230 },
-    { id: "s3", type: "conclusion" as const, title: "Positive effect", summary: "ATE = 0.42" },
+    {
+      id: "s1",
+      type: "question" as const,
+      title: "User asked",
+      summary: "What is the effect?",
+    },
+    {
+      id: "s2",
+      type: "analysis" as const,
+      title: "Ran DiD",
+      summary: "Parallel trends hold",
+      durationMs: 230,
+    },
+    {
+      id: "s3",
+      type: "conclusion" as const,
+      title: "Positive effect",
+      summary: "ATE = 0.42",
+    },
   ];
 
   it("renders all steps with correct labels", () => {
@@ -333,7 +388,13 @@ describe("ReasoningChainDisplay", () => {
     renderWithProviders(
       <ReasoningChainDisplay
         steps={[
-          { id: "d1", type: "analysis" as const, title: "Step", summary: "Sum", detail: "Extra info" },
+          {
+            id: "d1",
+            type: "analysis" as const,
+            title: "Step",
+            summary: "Sum",
+            detail: "Extra info",
+          },
         ]}
       />,
     );
@@ -348,8 +409,20 @@ describe("ReasoningChainDisplay", () => {
     renderWithProviders(
       <ReasoningChainDisplay
         steps={[
-          { id: "e1", type: "question" as const, title: "Q", summary: "S", detail: "Detail A" },
-          { id: "e2", type: "conclusion" as const, title: "C", summary: "S", detail: "Detail B" },
+          {
+            id: "e1",
+            type: "question" as const,
+            title: "Q",
+            summary: "S",
+            detail: "Detail A",
+          },
+          {
+            id: "e2",
+            type: "conclusion" as const,
+            title: "C",
+            summary: "S",
+            detail: "Detail B",
+          },
         ]}
       />,
     );
@@ -378,8 +451,12 @@ describe("NegativeCertificateCard", () => {
       />,
     );
     expect(screen.getByText("Not Identified")).toBeInTheDocument();
-    expect(screen.getByText("Cannot identify causal effect")).toBeInTheDocument();
-    expect(screen.getByText("Why a precise answer is unavailable")).toBeInTheDocument();
+    expect(
+      screen.getByText("Cannot identify causal effect"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Why a precise answer is unavailable"),
+    ).toBeInTheDocument();
   });
 
   it("renders violated assumptions", () => {
@@ -432,9 +509,26 @@ describe("NegativeCertificateCard", () => {
 // ---------------------------------------------------------------------------
 describe("ProvenanceChain", () => {
   const steps = [
-    { id: "p1", label: "Input dataset", type: "data" as const, detail: "v2.3", timestamp: "2026-03-10" },
-    { id: "p2", label: "DiD estimation", type: "method" as const, statusLabel: "Completed", status: "ok" as const },
-    { id: "p3", label: "ATE result", type: "result" as const, href: "/artifacts/result-1" },
+    {
+      id: "p1",
+      label: "Input dataset",
+      type: "data" as const,
+      detail: "v2.3",
+      timestamp: "2026-03-10",
+    },
+    {
+      id: "p2",
+      label: "DiD estimation",
+      type: "method" as const,
+      statusLabel: "Completed",
+      status: "ok" as const,
+    },
+    {
+      id: "p3",
+      label: "ATE result",
+      type: "result" as const,
+      href: "/artifacts/result-1",
+    },
     { id: "p4", label: "Compliance gate", type: "governance" as const },
   ];
 
@@ -475,8 +569,28 @@ describe("MethodologyBadge", () => {
   });
 
   it("renders all known methodologies", () => {
-    const known = ["did", "sc", "tmle", "dml", "iv", "rdd", "bsts", "meta_learner", "ols"];
-    const shorts = ["DiD", "SC", "TMLE", "DML", "IV", "RDD", "BSTS", "Meta-L", "OLS"];
+    const known = [
+      "did",
+      "sc",
+      "tmle",
+      "dml",
+      "iv",
+      "rdd",
+      "bsts",
+      "meta_learner",
+      "ols",
+    ];
+    const shorts = [
+      "DiD",
+      "SC",
+      "TMLE",
+      "DML",
+      "IV",
+      "RDD",
+      "BSTS",
+      "Meta-L",
+      "OLS",
+    ];
 
     known.forEach((key, i) => {
       const { unmount } = renderWithProviders(

@@ -15,27 +15,34 @@ Prerelease versions are excluded unless explicitly requested or allowed.
 Architecture Law K: Explicit resolution policy - all version resolution
 must go through this module with an explicitly chosen policy.
 """
+
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import Enum, auto
 from functools import total_ordering
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 from polisyos.foundry.methods.exceptions import ResolutionError
 
+if TYPE_CHECKING:
+    from packaging.specifiers import SpecifierSet
+
+    from polisyos.foundry.methods.registry import MethodRegistry
+
 __all__ = [
+    "ResolutionError",
     "ResolutionPolicy",
     "VersionConstraint",
-    "ResolutionError",
-    "resolve_version",
-    "resolve_by_specifier",
-    "resolve_method_version",
-    "find_compatible_versions",
     "compare_versions",
+    "find_compatible_versions",
     "is_compatible_upgrade",
     "parse_pip_specifier",
+    "resolve_by_specifier",
+    "resolve_method_version",
+    "resolve_version",
 ]
 
 
@@ -64,6 +71,7 @@ def _split_identifiers(value: str | None) -> tuple[Identifier, ...] | None:
 @dataclass(frozen=True, slots=True)
 class SemVer:
     """Sem ver public type."""
+
     major: int
     minor: int
     patch: int
@@ -597,10 +605,7 @@ def is_compatible_upgrade(current: str, target: str) -> bool:
     current_parsed = SemVer.parse(current)
     target_parsed = SemVer.parse(target)
 
-    return (
-        target_parsed.major == current_parsed.major
-        and target_parsed >= current_parsed
-    )
+    return target_parsed.major == current_parsed.major and target_parsed >= current_parsed
 
 
 # ---------------------------------------------------------------------------
@@ -608,7 +613,8 @@ def is_compatible_upgrade(current: str, target: str) -> bool:
 # it is a core dependency listed in pyproject.toml).
 # ---------------------------------------------------------------------------
 
-def parse_pip_specifier(specifier: str) -> "packaging.specifiers.SpecifierSet":
+
+def parse_pip_specifier(specifier: str) -> SpecifierSet:
     """
     Parse a pip-style version specifier string into a SpecifierSet.
 
@@ -629,7 +635,7 @@ def parse_pip_specifier(specifier: str) -> "packaging.specifiers.SpecifierSet":
         ValueError: If *specifier* cannot be parsed.
     """
     try:
-        from packaging.specifiers import SpecifierSet, InvalidSpecifier
+        from packaging.specifiers import InvalidSpecifier, SpecifierSet
     except ImportError as exc:  # pragma: no cover
         raise ImportError(
             "The 'packaging' library is required for pip-style specifier support. "
@@ -705,7 +711,7 @@ def resolve_by_specifier(
 def resolve_method_version(
     fqn_base: str,
     specifier: str | None,
-    registry: "MethodRegistry",  # type: ignore[name-defined]  # forward ref
+    registry: MethodRegistry,  # type: ignore[name-defined]  # forward ref
 ) -> str:
     """
     High-level helper: resolve a versioned FQN for *fqn_base* using a

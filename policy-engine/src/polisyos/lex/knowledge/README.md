@@ -21,12 +21,12 @@ flows.
 
 ## Public API
 
-| Type/Function | Description |
-|---|---|
-| `LegalKnowledgeGraph` | High-level read-only API over the legal knowledge graph |
-| `LegalEntity`, `LegalFact`, `LegalProvision` | Canonical graph record types |
-| `LegalSearchResult`, `LegalFactResult`, `LegalProvisionResult` | Typed result envelopes for retrieval |
-| `SPOCandidate`, `SPOExtractionResult` | Typed SPO-layer payloads reused by search and audits |
+| Type/Function                                                  | Description                                             |
+| -------------------------------------------------------------- | ------------------------------------------------------- |
+| `LegalKnowledgeGraph`                                          | High-level read-only API over the legal knowledge graph |
+| `LegalEntity`, `LegalFact`, `LegalProvision`                   | Canonical graph record types                            |
+| `LegalSearchResult`, `LegalFactResult`, `LegalProvisionResult` | Typed result envelopes for retrieval                    |
+| `SPOCandidate`, `SPOExtractionResult`                          | Typed SPO-layer payloads reused by search and audits    |
 
 Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 

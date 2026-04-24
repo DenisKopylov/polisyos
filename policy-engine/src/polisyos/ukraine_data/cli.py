@@ -19,7 +19,7 @@ def _parse_stage(value: str) -> StageId:
         return StageId.RELEASE
     try:
         return StageId(normalized)
-    except ValueError as exc:  # noqa: PERF203
+    except ValueError as exc:
         raise argparse.ArgumentTypeError(f"unknown stage: {value}") from exc
 
 
@@ -38,7 +38,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    bootstrap = subparsers.add_parser("bootstrap-server", help="Prepare server layout and capability manifests.")
+    bootstrap = subparsers.add_parser(
+        "bootstrap-server", help="Prepare server layout and capability manifests."
+    )
     bootstrap.add_argument(
         "--write-capabilities",
         action="store_true",
@@ -48,17 +50,25 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("validate-part-a", help="Run the server-side Part A integration gate.")
 
     build = subparsers.add_parser("build", help="Build one Part B stage or the full pipeline.")
-    build.add_argument("stage", type=_parse_stage, help="Stage id: d0-p0, d1, d2, d3, d4, d5, full.")
-    build.add_argument("--resume", action="store_true", help="Reuse a completed stage if outputs still exist.")
+    build.add_argument(
+        "stage", type=_parse_stage, help="Stage id: d0-p0, d1, d2, d3, d4, d5, full."
+    )
+    build.add_argument(
+        "--resume", action="store_true", help="Reuse a completed stage if outputs still exist."
+    )
 
     resume = subparsers.add_parser("resume", help="Resume one stage from an existing manifest.")
     resume.add_argument("stage", type=_parse_stage, help="Stage id: d0-p0, d1, d2, d3, d4, d5.")
 
-    validate = subparsers.add_parser("validate", help="Validate outputs recorded by a completed stage manifest.")
+    validate = subparsers.add_parser(
+        "validate", help="Validate outputs recorded by a completed stage manifest."
+    )
     validate.add_argument("stage", type=_parse_stage, help="Stage id: d0-p0, d1, d2, d3, d4, d5.")
 
     release = subparsers.add_parser("release", help="Build or resume the final D5 release bundle.")
-    release.add_argument("--resume", action="store_true", help="Reuse an existing completed D5 build.")
+    release.add_argument(
+        "--resume", action="store_true", help="Reuse an existing completed D5 build."
+    )
 
     return parser
 

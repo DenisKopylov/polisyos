@@ -5,6 +5,8 @@ import { MemoryRouter } from "react-router-dom";
 
 const {
   dismissIncidentMock,
+  cycleDensityMock,
+  useDensityMock,
   setInterfaceModeMock,
   setLocaleMock,
   toggleThemeMock,
@@ -18,9 +20,11 @@ const {
   useThemeMock,
 } = vi.hoisted(() => ({
   dismissIncidentMock: vi.fn(),
+  cycleDensityMock: vi.fn(),
   setInterfaceModeMock: vi.fn(),
   setLocaleMock: vi.fn(),
   toggleThemeMock: vi.fn(),
+  useDensityMock: vi.fn(),
   useCapabilitiesMock: vi.fn(),
   useFeatureFlagsMock: vi.fn(),
   useHealthMock: vi.fn(),
@@ -41,6 +45,10 @@ vi.mock("@/api/hooks/useHealth", () => ({
 
 vi.mock("@/app/providers/FeatureFlagProvider", () => ({
   useFeatureFlags: (...args: unknown[]) => useFeatureFlagsMock(...args),
+}));
+
+vi.mock("@/app/providers/DensityProvider", () => ({
+  useDensity: (...args: unknown[]) => useDensityMock(...args),
 }));
 
 vi.mock("@/app/providers/InterfaceModeProvider", () => ({
@@ -125,6 +133,7 @@ describe("layout surfaces", () => {
     setInterfaceModeMock.mockReset();
     setLocaleMock.mockReset();
     toggleThemeMock.mockReset();
+    cycleDensityMock.mockReset();
     useCapabilitiesMock.mockReset();
     useCapabilitiesMock.mockReturnValue({
       data: {
@@ -139,6 +148,12 @@ describe("layout surfaces", () => {
     useFeatureFlagsMock.mockReset();
     useFeatureFlagsMock.mockReturnValue({
       flags: buildFeatureFlags(),
+    });
+    useDensityMock.mockReset();
+    useDensityMock.mockReturnValue({
+      cycleDensity: cycleDensityMock,
+      density: "comfortable",
+      setDensity: vi.fn(),
     });
     useHealthMock.mockReset();
     useHealthMock.mockReturnValue({

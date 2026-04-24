@@ -21,14 +21,14 @@ pipelines: ingest документов, extraction структуры и version
 
 ## Public API
 
-| Type/Function | Description |
-|---|---|
-| `ingest_legal_doc_bytes()` | Ingest legal document bytes and enrich Lex corpus metadata |
-| `build_legal_structure()` | Extract legal structure and persist `ProvisionIndexV1` |
-| `build_version_index()` | Build `VersionIndexV1` and `DocSourcePropsV1` from fact-log evidence |
-| `resolve_active_version()` | Resolve the active document version using temporal envelopes |
-| `ProvisionIndexV1`, `VersionIndexV1`, `DocSourcePropsV1` | Persistent corpus index artifacts |
-| `load_*()` / `persist_*()` helpers | CAS persistence helpers for corpus indexes |
+| Type/Function                                            | Description                                                          |
+| -------------------------------------------------------- | -------------------------------------------------------------------- |
+| `ingest_legal_doc_bytes()`                               | Ingest legal document bytes and enrich Lex corpus metadata           |
+| `build_legal_structure()`                                | Extract legal structure and persist `ProvisionIndexV1`               |
+| `build_version_index()`                                  | Build `VersionIndexV1` and `DocSourcePropsV1` from fact-log evidence |
+| `resolve_active_version()`                               | Resolve the active document version using temporal envelopes         |
+| `ProvisionIndexV1`, `VersionIndexV1`, `DocSourcePropsV1` | Persistent corpus index artifacts                                    |
+| `load_*()` / `persist_*()` helpers                       | CAS persistence helpers for corpus indexes                           |
 
 Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 

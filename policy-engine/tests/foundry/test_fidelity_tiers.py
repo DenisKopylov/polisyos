@@ -22,15 +22,16 @@ All levels:
   - Version must be valid SemVer
   - Must have at least one output slot
 """
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.base import FidelityLevel, parse_fqn
 from polisyos.foundry.methods.resolution import SemVer
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _ge_1_0_0(version: str) -> bool:
     """Return True if version >= 1.0.0."""
@@ -45,6 +46,7 @@ def _ge_1_0_0(version: str) -> bool:
 # Tests
 # ---------------------------------------------------------------------------
 
+
 class TestFidelityTierContracts:
     """Validate all registered methods against their declared fidelity tier."""
 
@@ -56,18 +58,13 @@ class TestFidelityTierContracts:
                 parse_fqn(sig.fqn)
             except ValueError as exc:
                 failures.append(f"{sig.fqn}: {exc}")
-        assert not failures, f"FQN parse failures:\n" + "\n".join(failures)
+        assert not failures, "FQN parse failures:\n" + "\n".join(failures)
 
     def test_all_methods_have_output_slots(self, module_registry):
         """Every method must produce at least one output slot."""
-        failures = [
-            sig.fqn
-            for sig in module_registry.list_all()
-            if not sig.output_slots
-        ]
-        assert not failures, (
-            f"{len(failures)} method(s) have no output slots:\n"
-            + "\n".join(failures[:20])
+        failures = [sig.fqn for sig in module_registry.list_all() if not sig.output_slots]
+        assert not failures, f"{len(failures)} method(s) have no output slots:\n" + "\n".join(
+            failures[:20]
         )
 
     def test_all_methods_have_non_empty_description(self, module_registry):
@@ -79,9 +76,8 @@ class TestFidelityTierContracts:
                 continue
             if not entry.metadata.description or not entry.metadata.description.strip():
                 failures.append(sig.fqn)
-        assert not failures, (
-            f"{len(failures)} method(s) have empty descriptions:\n"
-            + "\n".join(failures[:20])
+        assert not failures, f"{len(failures)} method(s) have empty descriptions:\n" + "\n".join(
+            failures[:20]
         )
 
     def test_high_fidelity_methods_have_citations(self, module_registry):
@@ -122,8 +118,7 @@ class TestFidelityTierContracts:
             if not sig.family or not sig.family.strip():
                 failures.append(sig.fqn)
         assert not failures, (
-            f"{len(failures)} HIGH-fidelity method(s) have no family:\n"
-            + "\n".join(failures[:20])
+            f"{len(failures)} HIGH-fidelity method(s) have no family:\n" + "\n".join(failures[:20])
         )
 
     def test_medium_fidelity_methods_have_tags(self, module_registry):
@@ -138,8 +133,7 @@ class TestFidelityTierContracts:
             if not entry.metadata.tags:
                 failures.append(sig.fqn)
         assert not failures, (
-            f"{len(failures)} MEDIUM-fidelity method(s) have no tags:\n"
-            + "\n".join(failures[:20])
+            f"{len(failures)} MEDIUM-fidelity method(s) have no tags:\n" + "\n".join(failures[:20])
         )
 
     def test_fidelity_level_is_valid_enum(self, module_registry):
@@ -149,9 +143,7 @@ class TestFidelityTierContracts:
         for sig in module_registry.list_all():
             if sig.fidelity not in valid:
                 failures.append(f"{sig.fqn}: {sig.fidelity!r}")
-        assert not failures, (
-            f"Invalid fidelity levels:\n" + "\n".join(failures[:10])
-        )
+        assert not failures, "Invalid fidelity levels:\n" + "\n".join(failures[:10])
 
     def test_fidelity_tier_matches_fidelity(self, module_registry):
         """

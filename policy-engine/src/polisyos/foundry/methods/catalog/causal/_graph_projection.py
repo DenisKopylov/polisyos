@@ -1,4 +1,5 @@
 """Public causal graph projection module API."""
+
 from __future__ import annotations
 
 from polisyos.ir.analytics.causal_graph import CausalGraphModel, EdgeMark, GraphType

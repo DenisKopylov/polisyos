@@ -61,6 +61,7 @@ def _freshness_score(last_updated: datetime | None) -> float:
 @dataclass(frozen=True)
 class FastLaneResolveResult:
     """Ranked FastLane candidates plus concrete fetch plans for a retrieval request."""
+
     fetch_plans: tuple[FetchPlan, ...]
     candidates: tuple[MetricCandidate, ...]
     warnings: tuple[str, ...]
@@ -91,7 +92,9 @@ class FastLaneResolver:
         bindings_filename: str = SourceBindingRegistry.DEFAULT_FILENAME,
         connector_registry: ConnectorRegistry | None = None,
     ) -> None:
-        self._bindings = SourceBindingRegistry(curated_dir, filename=bindings_filename, strict=False)
+        self._bindings = SourceBindingRegistry(
+            curated_dir, filename=bindings_filename, strict=False
+        )
         self._contracts = DataContractRegistry(curated_dir, strict=False)
         self._searcher = MetricSearcher(
             list(self._contracts),
@@ -113,8 +116,8 @@ class FastLaneResolver:
         return cast(
             "list[str]",
             self._searcher.refresh_semantic_index(
-            list(self._contracts),
-            bindings=self._bindings.all_bindings(),
+                list(self._contracts),
+                bindings=self._bindings.all_bindings(),
             ),
         )
 
@@ -243,7 +246,9 @@ class FastLaneResolver:
                             "binding_reason": reason,
                             "resolution_route": metric_candidate.route,
                             "search_plan": metric_candidate.metadata.get("search_plan", []),
-                            "search_explanations": metric_candidate.metadata.get("search_explanations", []),
+                            "search_explanations": metric_candidate.metadata.get(
+                                "search_explanations", []
+                            ),
                             "matched_alias": metric_candidate.metadata.get("matched_alias"),
                         },
                     )
@@ -408,7 +413,9 @@ class FastLaneResolver:
             meta = self._connector_registry.get_metadata(connector_id)
         except Exception:
             logger.debug(
-                "Failed to get connector metadata for %s", connector_id, exc_info=True,
+                "Failed to get connector metadata for %s",
+                connector_id,
+                exc_info=True,
             )
             return {"trust_level": None, "last_updated": None, "latency_ms": None}
         return {

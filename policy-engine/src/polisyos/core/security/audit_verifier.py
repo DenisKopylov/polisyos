@@ -1,4 +1,5 @@
 """Verifies chained audit logs for gaps, tampering, and broken hash continuity."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -21,6 +22,7 @@ def _default_metrics() -> MetricsRegistry:
 @dataclass
 class ChainVerificationResult:
     """Outcome of verifying one chained audit segment for continuity and integrity."""
+
     total_entries: int = 0
     valid_entries: int = 0
     tampered_entries: list[int] = field(default_factory=list)
@@ -63,7 +65,10 @@ class ChainVerifier:
             expected_seq = entry.sequence_number + 1
             expected_prev_hash = entry.entry_hash
 
-        if entries[0].sequence_number == 0 and entries[0].prev_hash != ChainedLogEntry.genesis_prev_hash():
+        if (
+            entries[0].sequence_number == 0
+            and entries[0].prev_hash != ChainedLogEntry.genesis_prev_hash()
+        ):
             result.chain_intact = False
             if result.first_tampered_sequence is None:
                 result.first_tampered_sequence = 0

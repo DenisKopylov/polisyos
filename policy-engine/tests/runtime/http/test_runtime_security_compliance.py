@@ -3,7 +3,7 @@ from __future__ import annotations
 import gzip
 import json
 import time
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos_tests_runtime_http_conftest import build_runtime_api_env
 
@@ -19,6 +19,9 @@ from polisyos.runtime.http.compliance import (
     summarize_runtime_audit,
     write_runtime_audit_report,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_cookie_authenticated_mutations_require_csrf_token(tmp_path: Path) -> None:
@@ -113,9 +116,7 @@ def test_runtime_audit_query_export_and_retention(tmp_path: Path) -> None:
         archive_dir=tmp_path / "archive",
     )
 
-    assert {entry["resource_id"] for entry in entries if entry.get("resource_id")} == {
-        "sha256:old"
-    }
+    assert {entry["resource_id"] for entry in entries if entry.get("resource_id")} == {"sha256:old"}
     assert any("R_mutated" in entry.get("resource_ids", []) for entry in entries)
     assert summary["by_actor"]["alice"] == 2
     assert json.loads(report_path.read_text(encoding="utf-8"))["summary"]["total"] == 2
@@ -153,23 +154,26 @@ def test_rotation_helpers_and_cli_write_operator_manifests(tmp_path: Path, capsy
     assert identities[ed_result.key_id] == "ci-prod"
 
     cli_manifest = tmp_path / "security" / "jwt-cli.json"
-    assert main(
-        [
-            "security",
-            "rotate-jwt",
-            "--manifest",
-            str(cli_manifest),
-            "--issuer",
-            "https://issuer.example",
-            "--jwks-uri",
-            "https://issuer.example/jwks",
-            "--audience",
-            "polisyos-web",
-            "--active-kid",
-            "kid-c",
-            "--json",
-        ]
-    ) == 0
+    assert (
+        main(
+            [
+                "security",
+                "rotate-jwt",
+                "--manifest",
+                str(cli_manifest),
+                "--issuer",
+                "https://issuer.example",
+                "--jwks-uri",
+                "https://issuer.example/jwks",
+                "--audience",
+                "polisyos-web",
+                "--active-kid",
+                "kid-c",
+                "--json",
+            ]
+        )
+        == 0
+    )
     captured = capsys.readouterr()
     assert json.loads(captured.out)["active_kids"] == ["kid-c"]
 

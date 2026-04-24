@@ -29,8 +29,8 @@ from polisyos.ir.analytics.dynamic_regime import (
     RegimeRule,
     TemporalIdentificationCertificate,
     TemporalIdentificationTheoremFamily,
-    TemporalInterventionTrajectory,
     TemporalInterventionSemantics,
+    TemporalInterventionTrajectory,
     TemporalLawObject,
     TemporalObservabilityRegime,
     TemporalSamplingScheme,
@@ -48,8 +48,7 @@ from polisyos.ir.analytics.rough_path_semantics import (
     TemporalPathSemanticsAttachment,
     TemporalPathSemanticsScope,
 )
-from polisyos.ir.refs import ArtifactRefModel
-from polisyos.ir.refs import RoughPathInterventionCertificateRef
+from polisyos.ir.refs import ArtifactRefModel, RoughPathInterventionCertificateRef
 
 
 def _artifact_id(ch: str) -> str:
@@ -126,10 +125,14 @@ def _dynamic_g_data() -> DynamicTreatmentData:
     for t in range(n_periods):
         treatment[:, t] = rng.binomial(1, sigmoid(0.5 * state[:, t]))
         if t < n_periods - 1:
-            state[:, t + 1] = 0.5 * treatment[:, t] + 0.3 * state[:, t] + rng.normal(
-                0.0,
-                0.35,
-                size=n_units,
+            state[:, t + 1] = (
+                0.5 * treatment[:, t]
+                + 0.3 * state[:, t]
+                + rng.normal(
+                    0.0,
+                    0.35,
+                    size=n_units,
+                )
             )
 
     outcome = treatment.sum(axis=1).astype(float) + state[:, 0] + rng.normal(0.0, 0.8, size=n_units)
@@ -198,16 +201,24 @@ def _dynamic_dtr_data() -> DynamicTreatmentData:
     for t in range(n_periods):
         treatment[:, t] = rng.integers(0, 2, size=n_units)
         if t < n_periods - 1:
-            state[:, t + 1] = 0.45 * treatment[:, t] + 0.25 * state[:, t] + rng.normal(
-                0.0,
-                0.3,
-                size=n_units,
+            state[:, t + 1] = (
+                0.45 * treatment[:, t]
+                + 0.25 * state[:, t]
+                + rng.normal(
+                    0.0,
+                    0.3,
+                    size=n_units,
+                )
             )
 
-    outcome = 1.8 * treatment.sum(axis=1).astype(float) + state[:, 0] + rng.normal(
-        0.0,
-        0.5,
-        size=n_units,
+    outcome = (
+        1.8 * treatment.sum(axis=1).astype(float)
+        + state[:, 0]
+        + rng.normal(
+            0.0,
+            0.5,
+            size=n_units,
+        )
     )
     return DynamicTreatmentData(
         outcome=outcome,
@@ -378,7 +389,9 @@ def test_non_fallback_temporal_path_emits_restricted_causal_translation_certific
         trajectory.causal_translation_certificate.status
         is CausalTranslationCertificateStatus.CERTIFIED_RESTRICTED
     )
-    assert trajectory.diagnostics["causal_translation_certificate"]["status"] == "certified_restricted"
+    assert (
+        trajectory.diagnostics["causal_translation_certificate"]["status"] == "certified_restricted"
+    )
     assert trajectory.causal_equivalence_note is not None
     assert "time grid" in trajectory.causal_equivalence_note
 
@@ -415,8 +428,14 @@ def test_exact_zoh_solver_promotes_causal_translation_certificate_to_exact() -> 
         is CausalTranslationCertificateStatus.CERTIFIED_EXACT
     )
     assert trajectory.diagnostics["causal_translation_certificate"]["status"] == "certified_exact"
-    assert trajectory.diagnostics["causal_translation_certificate"]["omega_mapping"]["hold_semantics"] == "zoh"
-    assert "Pechlivanidou" in trajectory.diagnostics["causal_translation_certificate"]["evidence"]["theory_refs"][2]
+    assert (
+        trajectory.diagnostics["causal_translation_certificate"]["omega_mapping"]["hold_semantics"]
+        == "zoh"
+    )
+    assert (
+        "Pechlivanidou"
+        in trajectory.diagnostics["causal_translation_certificate"]["evidence"]["theory_refs"][2]
+    )
     assert trajectory.causal_equivalence_note is not None
     assert "exact" in trajectory.causal_equivalence_note
 
@@ -471,7 +490,10 @@ def test_exact_solver_does_not_claim_exact_translation_under_linear_hold() -> No
         trajectory.causal_translation_certificate.sufficient_conditions.backend_exact_discretization
         is False
     )
-    assert trajectory.diagnostics["causal_translation_certificate"]["omega_mapping"]["hold_semantics"] == "foh"
+    assert (
+        trajectory.diagnostics["causal_translation_certificate"]["omega_mapping"]["hold_semantics"]
+        == "foh"
+    )
 
 
 def test_neural_temporal_path_emits_neural_sde_representation_and_scope() -> None:

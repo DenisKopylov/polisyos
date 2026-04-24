@@ -1,7 +1,8 @@
 """Public transform common module API."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import pandas as pd
@@ -14,10 +15,10 @@ from polisyos.fabric.connectors.transform.pipeline import (
 )
 
 __all__ = [
-    "resolve_copy_policy",
-    "copy_if_needed",
-    "stage_started_at",
     "build_lineage",
+    "copy_if_needed",
+    "resolve_copy_policy",
+    "stage_started_at",
 ]
 
 
@@ -42,7 +43,7 @@ def copy_if_needed(
 
 def stage_started_at() -> datetime:
     """Timestamp helper for transform stage execution start."""
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def build_lineage(
@@ -59,7 +60,7 @@ def build_lineage(
     lineage = TransformLineage(
         stage_name=stage_name,
         started_at=started_at,
-        completed_at=datetime.now(timezone.utc),
+        completed_at=datetime.now(UTC),
         input_row_count=len(input_data),
         output_row_count=len(output_data),
         parameters=parameters,

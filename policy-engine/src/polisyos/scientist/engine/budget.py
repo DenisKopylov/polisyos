@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import threading
 from decimal import Decimal
-from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -63,7 +61,11 @@ class BudgetState(BaseModel):
         return estimated_cost > remaining
 
     def record_spend(
-        self, key: str, amount: Decimal, *, provider: str | None = None,
+        self,
+        key: str,
+        amount: Decimal,
+        *,
+        provider: str | None = None,
     ) -> None:
         """Add *amount* to cumulative spend for *key*."""
         current = self.spent.get(key, Decimal(0))
@@ -90,7 +92,11 @@ class BudgetState(BaseModel):
         return released
 
     def commit_reservation(
-        self, key: str, amount: Decimal, *, provider: str | None = None,
+        self,
+        key: str,
+        amount: Decimal,
+        *,
+        provider: str | None = None,
     ) -> Decimal:
         """Convert a reservation into actual spend and return the committed amount."""
         committed = self.release(key, amount)

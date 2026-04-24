@@ -1,10 +1,26 @@
+import { useId, useMemo } from "react";
+
 import { cn } from "@/lib/utils";
-import { classifyConfidence, confidenceColor } from "./types";
+
+import {
+  buildUncertaintyPatternIds,
+  resolveUncertaintyPatternFill,
+  UncertaintyPatterns,
+} from "./patterns";
+import { resolveIdentifiabilityPattern } from "./uncertainty-tokens";
+import {
+  resolveUncertaintyIntervalColor,
+  resolveUncertaintyPaletteColor,
+  type UncertaintyPalette,
+} from "./uncertainty-tokens";
+import type { IdentifiabilityState } from "./types";
 
 type ConfidenceGaugeProps = {
   value: number;
   label?: string;
   size?: number;
+  disputed?: boolean;
+  identifiability?: IdentifiabilityState;
   className?: string;
 };
 
@@ -39,11 +55,20 @@ export function ConfidenceGauge({
   value,
   label,
   size = 120,
+  disputed = false,
+  identifiability = "identified",
   className,
 }: ConfidenceGaugeProps) {
   const clamped = Math.max(0, Math.min(1, value));
-  const level = classifyConfidence(clamped);
-  const color = confidenceColor(level);
+  const palette: UncertaintyPalette = disputed ? "disputed" : "default";
+  const pointColor = resolveUncertaintyPaletteColor(palette);
+  const intervalColor = resolveUncertaintyIntervalColor(palette);
+  const patternKind = resolveIdentifiabilityPattern(identifiability);
+  const patternSeed = useId();
+  const patternIds = useMemo(
+    () => buildUncertaintyPatternIds(patternSeed.replace(/:/g, "")),
+    [patternSeed],
+  );
 
   const cx = size / 2;
   const cy = size / 2;
@@ -52,12 +77,10 @@ export function ConfidenceGauge({
   const bgPath = describeArc(cx, cy, r, ARC_START, ARC_START + ARC_SWEEP);
   const fillAngle = ARC_START + ARC_SWEEP * clamped;
   const fillPath =
-    clamped > 0
-      ? describeArc(cx, cy, r, ARC_START, fillAngle)
-      : "";
+    clamped > 0 ? describeArc(cx, cy, r, ARC_START, fillAngle) : "";
 
   const pct = Math.round(clamped * 100);
-  const ariaLabel = `Confidence gauge: ${pct}%, ${level} confidence${label ? `. ${label}` : ""}`;
+  const ariaLabel = `Confidence gauge: ${pct}%${label ? `. ${label}` : ""}`;
 
   return (
     <div
@@ -69,25 +92,35 @@ export function ConfidenceGauge({
       aria-label={ariaLabel}
     >
       <svg width={size} height={size * 0.75} viewBox={`0 0 ${size} ${size}`}>
-        {/* Background track */}
+        <UncertaintyPatterns ids={patternIds} />
         <path
           d={bgPath}
           fill="none"
-          stroke="var(--line)"
+          stroke={intervalColor}
           strokeWidth={STROKE_WIDTH}
           strokeLinecap="round"
+          opacity={0.45}
         />
-        {/* Filled arc */}
-        {fillPath && (
-          <path
-            d={fillPath}
-            fill="none"
-            stroke={color}
-            strokeWidth={STROKE_WIDTH}
-            strokeLinecap="round"
-          />
-        )}
-        {/* Center label */}
+        {fillPath ? (
+          <>
+            <path
+              d={fillPath}
+              fill="none"
+              stroke={pointColor}
+              strokeWidth={STROKE_WIDTH}
+              strokeLinecap="round"
+            />
+            {patternKind !== "none" ? (
+              <path
+                d={fillPath}
+                fill="none"
+                stroke={resolveUncertaintyPatternFill(patternKind, patternIds)}
+                strokeWidth={STROKE_WIDTH}
+                strokeLinecap="round"
+              />
+            ) : null}
+          </>
+        ) : null}
         <text
           x={cx}
           y={cy + 4}
@@ -95,16 +128,14 @@ export function ConfidenceGauge({
           dominantBaseline="central"
           fontSize={size * 0.24}
           fontWeight={700}
-          fill="var(--ink)"
+          fill={pointColor}
         >
           {pct}%
         </text>
       </svg>
-      {label && (
-        <span className="text-muted-foreground text-xs font-medium">
-          {label}
-        </span>
-      )}
+      {label ? (
+        <span className="text-muted text-xs font-medium">{label}</span>
+      ) : null}
     </div>
   );
 }

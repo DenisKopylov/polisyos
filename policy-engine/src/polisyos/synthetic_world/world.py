@@ -1,9 +1,11 @@
 """Synthetic-world orchestration layer."""
+
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any
 
 import numpy as np
 
@@ -56,7 +58,9 @@ def _table_slice(table: Mapping[str, np.ndarray], rows: np.ndarray) -> dict[str,
 
 
 def _hash_payload(payload: Any) -> str:
-    canonical = to_canonical_bytes(_sanitize_non_finite(json_safe(payload)), spec=CanonSpec(forbid_floats=False))
+    canonical = to_canonical_bytes(
+        _sanitize_non_finite(json_safe(payload)), spec=CanonSpec(forbid_floats=False)
+    )
     return content_hash(canonical, prefix=True)
 
 
@@ -87,14 +91,18 @@ def _sanitize_non_finite(value: Any) -> Any:
     return value
 
 
-def _filter_truth_registry(spec: SyntheticWorldDGP, registry: Mapping[str, Mapping[str, Any]]) -> dict[str, dict[str, Any]]:
+def _filter_truth_registry(
+    spec: SyntheticWorldDGP, registry: Mapping[str, Mapping[str, Any]]
+) -> dict[str, dict[str, Any]]:
     truth_spec = spec.truth
     extra_targets = set(truth_spec.extra_targets)
     filtered: dict[str, dict[str, Any]] = {}
     for key, payload in registry.items():
         prefix = key.split(".", 1)[0]
         include_flag_name = _TRUTH_PREFIX_FLAGS.get(prefix)
-        include_flag = True if include_flag_name is None else bool(getattr(truth_spec, include_flag_name))
+        include_flag = (
+            True if include_flag_name is None else bool(getattr(truth_spec, include_flag_name))
+        )
         if include_flag or key in extra_targets:
             filtered[key] = dict(payload)
     return filtered
@@ -108,11 +116,11 @@ class SyntheticWorld:
         self._materialized = self._materialize()
 
     @classmethod
-    def from_spec(cls, spec: SyntheticWorldDGP) -> "SyntheticWorld":
+    def from_spec(cls, spec: SyntheticWorldDGP) -> SyntheticWorld:
         return cls(spec)
 
     @classmethod
-    def from_yaml(cls, path: str | Path, *, seed: int | None = None) -> "SyntheticWorld":
+    def from_yaml(cls, path: str | Path, *, seed: int | None = None) -> SyntheticWorld:
         return cls(SyntheticWorldDGP.from_path(path, seed=seed))
 
     def _materialize(self) -> MaterializedWorldPayload:
@@ -138,12 +146,16 @@ class SyntheticWorld:
         format: str = "python",
     ) -> SyntheticWorldSample | list[dict[str, Any]] | Any:
         if format not in {"python", "records", "pandas", "parquet"}:
-            raise ValueError("SyntheticWorld.sample supports format='python', 'records', 'pandas', or 'parquet'")
+            raise ValueError(
+                "SyntheticWorld.sample supports format='python', 'records', 'pandas', or 'parquet'"
+            )
 
         table = self._materialized.observed_table if observed else self._materialized.latent_table
         rows = self._materialized.splits.get(split)
         if rows is None:
-            raise KeyError(f"Unknown split {split!r}; expected one of {sorted(self._materialized.splits)}")
+            raise KeyError(
+                f"Unknown split {split!r}; expected one of {sorted(self._materialized.splits)}"
+            )
         if n is not None:
             rows = rows[: max(0, min(int(n), rows.shape[0]))]
         sliced = _table_slice(table, rows)
@@ -169,14 +181,20 @@ class SyntheticWorld:
                 import pyarrow as pa
                 import pyarrow.parquet as pq
 
-                table_payload = pa.table({key: np.asarray(values) for key, values in sliced.items()})
+                table_payload = pa.table(
+                    {key: np.asarray(values) for key, values in sliced.items()}
+                )
                 pq.write_table(table_payload, buffer)
             except ModuleNotFoundError:
                 fallback_payload = {
                     "columns": {key: np.asarray(values).tolist() for key, values in sliced.items()},
                     "row_count": int(rows.shape[0]),
                 }
-                buffer.write(to_canonical_bytes(_sanitize_non_finite(fallback_payload), spec=CanonSpec(forbid_floats=False)))
+                buffer.write(
+                    to_canonical_bytes(
+                        _sanitize_non_finite(fallback_payload), spec=CanonSpec(forbid_floats=False)
+                    )
+                )
                 metadata["serialization_fallback"] = "canonical_json_bytes"
             return SyntheticWorldSample(
                 world_id=self.spec.world_id,
@@ -292,7 +310,9 @@ class SyntheticWorld:
             ):
                 resolved_prediction = {
                     **prediction,
-                    "labels": self._materialized.truth_registry["ml.classification.label"]["values"],
+                    "labels": self._materialized.truth_registry["ml.classification.label"][
+                        "values"
+                    ],
                 }
             target_metrics, target_diagnostics = evaluate_prediction(
                 target_name=target,
@@ -301,7 +321,11 @@ class SyntheticWorld:
             )
             for metric_name, value in target_metrics.items():
                 qualified_name = f"{target}.{metric_name}"
-                if allowed_metrics is None or metric_name in allowed_metrics or qualified_name in allowed_metrics:
+                if (
+                    allowed_metrics is None
+                    or metric_name in allowed_metrics
+                    or qualified_name in allowed_metrics
+                ):
                     metric_payload[qualified_name] = float(value)
             diagnostics[target] = {
                 **target_diagnostics,

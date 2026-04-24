@@ -2,6 +2,7 @@
 export type {
   DataPoint,
   TimeSeriesDataPoint,
+  SeriesPoint,
   ConfidenceInterval,
   EffectEstimate,
   WaterfallStep,
@@ -11,6 +12,13 @@ export type {
   RadarDimension,
   RadarSeries,
   ConfidenceLevel,
+  QuantileSeriesPoint,
+  QuantileSeries,
+  IdentifiabilityState,
+  UncertaintyQuantiles,
+  DisputeSummary,
+  SampleRealizationPoint,
+  SampleRealization,
 } from "./types";
 export { classifyConfidence, confidenceColor } from "./types";
 
@@ -65,6 +73,24 @@ export { GradedErrorBar } from "./GradedErrorBar";
 export { UncertaintyDisplay } from "./UncertaintyDisplay";
 export { FrequencyDots } from "./FrequencyDots";
 export { ConfidenceDial } from "./ConfidenceDial";
+export { UncertaintyBand } from "./UncertaintyBand";
+export { FanChart } from "./FanChart";
+export { QuantileDotplot } from "./QuantileDotplot";
+export { HypotheticalOutcomePlot } from "./HypotheticalOutcomePlot";
+export { DisputedMarker } from "./DisputedMarker";
+export {
+  uncertaintyTokens,
+  resolveCounterfactualColor,
+  resolveIdentifiabilityPattern,
+  resolveUncertaintyBandOpacity,
+  resolveUncertaintyIntervalColor,
+  resolveUncertaintyPaletteColor,
+} from "./uncertainty-tokens";
+export {
+  buildUncertaintyPatternIds,
+  resolveUncertaintyPatternFill,
+  UncertaintyPatterns,
+} from "./patterns";
 
 /* ── Annotated ── */
 export { AnnotatedChart } from "./AnnotatedChart";

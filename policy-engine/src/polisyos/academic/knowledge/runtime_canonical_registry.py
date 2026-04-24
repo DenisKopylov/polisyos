@@ -9,6 +9,7 @@ from typing import Final
 @dataclass(frozen=True)
 class RuntimeCanonicalEntry:
     """Runtime canonical entry data model."""
+
     canonical_name: str
     aliases: tuple[str, ...]
     need_types: tuple[str, ...] = ("parameter", "causal_edge", "scholar_query", "context")
@@ -67,7 +68,11 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "agriculture.organic_mineral_fertilizer_system": RuntimeCanonicalEntry(
         canonical_name="agriculture.organic_mineral_fertilizer_system",
-        aliases=("organic_mineral_fertilizer_system", "organic mineral fertilizer system", "integrated fertilizer system"),
+        aliases=(
+            "organic_mineral_fertilizer_system",
+            "organic mineral fertilizer system",
+            "integrated fertilizer system",
+        ),
     ),
     "agriculture.winter_wheat_yield": RuntimeCanonicalEntry(
         canonical_name="agriculture.winter_wheat_yield",
@@ -189,7 +194,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "digital.infrastructure_quality": RuntimeCanonicalEntry(
         canonical_name="digital.infrastructure_quality",
-        aliases=("digital infrastructure quality", "digital infrastructure", "internet quality", "broadband quality"),
+        aliases=(
+            "digital infrastructure quality",
+            "digital infrastructure",
+            "internet quality",
+            "broadband quality",
+        ),
     ),
     "governance.anticorruption_enforcement": RuntimeCanonicalEntry(
         canonical_name="governance.anticorruption_enforcement",
@@ -235,7 +245,13 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "economic.government_spending": RuntimeCanonicalEntry(
         canonical_name="economic.government_spending",
-        aliases=("government spending", "government expenditure", "public expenditure", "public spending", "fiscal expenditure"),
+        aliases=(
+            "government spending",
+            "government expenditure",
+            "public expenditure",
+            "public spending",
+            "fiscal expenditure",
+        ),
     ),
     "economic.public_debt": RuntimeCanonicalEntry(
         canonical_name="economic.public_debt",
@@ -243,7 +259,13 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "economic.trade_balance": RuntimeCanonicalEntry(
         canonical_name="economic.trade_balance",
-        aliases=("trade balance", "net exports", "trade surplus", "trade deficit", "current account"),
+        aliases=(
+            "trade balance",
+            "net exports",
+            "trade surplus",
+            "trade deficit",
+            "current account",
+        ),
     ),
     "economic.exchange_rate": RuntimeCanonicalEntry(
         canonical_name="economic.exchange_rate",
@@ -255,15 +277,31 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "economic.credit_growth": RuntimeCanonicalEntry(
         canonical_name="economic.credit_growth",
-        aliases=("credit growth", "domestic credit growth", "private credit growth", "credit expansion"),
+        aliases=(
+            "credit growth",
+            "domestic credit growth",
+            "private credit growth",
+            "credit expansion",
+        ),
     ),
     "economic.investment_rate": RuntimeCanonicalEntry(
         canonical_name="economic.investment_rate",
-        aliases=("investment rate", "gross capital formation", "investment to gdp", "capital investment rate"),
+        aliases=(
+            "investment rate",
+            "gross capital formation",
+            "investment to gdp",
+            "capital investment rate",
+        ),
     ),
     "economic.productivity": RuntimeCanonicalEntry(
         canonical_name="economic.productivity",
-        aliases=("productivity", "total factor productivity", "tfp", "labor productivity", "labour productivity"),
+        aliases=(
+            "productivity",
+            "total factor productivity",
+            "tfp",
+            "labor productivity",
+            "labour productivity",
+        ),
     ),
     "economic.savings_rate": RuntimeCanonicalEntry(
         canonical_name="economic.savings_rate",
@@ -287,11 +325,21 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "economic.average_income": RuntimeCanonicalEntry(
         canonical_name="economic.average_income",
-        aliases=("average income", "avg income", "mean income", "adjusted net national income per capita"),
+        aliases=(
+            "average income",
+            "avg income",
+            "mean income",
+            "adjusted net national income per capita",
+        ),
     ),
     "economic.industrial_output": RuntimeCanonicalEntry(
         canonical_name="economic.industrial_output",
-        aliases=("industrial output", "manufacturing output", "industrial production", "industrial value added"),
+        aliases=(
+            "industrial output",
+            "manufacturing output",
+            "industrial production",
+            "industrial value added",
+        ),
     ),
     "economic.fdi_inflows": RuntimeCanonicalEntry(
         canonical_name="economic.fdi_inflows",
@@ -299,11 +347,21 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "economic.remittances": RuntimeCanonicalEntry(
         canonical_name="economic.remittances",
-        aliases=("remittances", "worker remittances", "diaspora remittances", "personal remittances"),
+        aliases=(
+            "remittances",
+            "worker remittances",
+            "diaspora remittances",
+            "personal remittances",
+        ),
     ),
     "economic.informal_economy_share": RuntimeCanonicalEntry(
         canonical_name="economic.informal_economy_share",
-        aliases=("informal economy share", "informal sector share", "shadow economy", "informality rate"),
+        aliases=(
+            "informal economy share",
+            "informal sector share",
+            "shadow economy",
+            "informality rate",
+        ),
     ),
     "economic.fiscal_multiplier": RuntimeCanonicalEntry(
         canonical_name="economic.fiscal_multiplier",
@@ -319,7 +377,13 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "economic.r_and_d_spending": RuntimeCanonicalEntry(
         canonical_name="economic.r_and_d_spending",
-        aliases=("r and d spending", "r&d spending", "research and development spending", "research spending", "gerd"),
+        aliases=(
+            "r and d spending",
+            "r&d spending",
+            "research and development spending",
+            "research spending",
+            "gerd",
+        ),
     ),
     "economic.real_wage": RuntimeCanonicalEntry(
         canonical_name="economic.real_wage",
@@ -340,7 +404,13 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "governance.corruption_level": RuntimeCanonicalEntry(
         canonical_name="governance.corruption_level",
-        aliases=("corruption level", "corruption", "corruption perception", "corruption index", "cpi corruption"),
+        aliases=(
+            "corruption level",
+            "corruption",
+            "corruption perception",
+            "corruption index",
+            "cpi corruption",
+        ),
     ),
     "governance.public_trust": RuntimeCanonicalEntry(
         canonical_name="governance.public_trust",
@@ -352,15 +422,29 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "governance.decentralization": RuntimeCanonicalEntry(
         canonical_name="governance.decentralization",
-        aliases=("decentralization", "fiscal decentralization", "political decentralization", "decentralisation"),
+        aliases=(
+            "decentralization",
+            "fiscal decentralization",
+            "political decentralization",
+            "decentralisation",
+        ),
     ),
     "governance.regulatory_quality": RuntimeCanonicalEntry(
         canonical_name="governance.regulatory_quality",
-        aliases=("regulatory quality", "regulatory environment", "regulation quality", "business regulation"),
+        aliases=(
+            "regulatory quality",
+            "regulatory environment",
+            "regulation quality",
+            "business regulation",
+        ),
     ),
     "governance.government_effectiveness": RuntimeCanonicalEntry(
         canonical_name="governance.government_effectiveness",
-        aliases=("government effectiveness", "public sector effectiveness", "bureaucratic effectiveness"),
+        aliases=(
+            "government effectiveness",
+            "public sector effectiveness",
+            "bureaucratic effectiveness",
+        ),
     ),
     "governance.political_stability": RuntimeCanonicalEntry(
         canonical_name="governance.political_stability",
@@ -388,7 +472,11 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "governance.public_procurement_efficiency": RuntimeCanonicalEntry(
         canonical_name="governance.public_procurement_efficiency",
-        aliases=("public procurement efficiency", "procurement efficiency", "government procurement"),
+        aliases=(
+            "public procurement efficiency",
+            "procurement efficiency",
+            "government procurement",
+        ),
     ),
     "governance.property_rights": RuntimeCanonicalEntry(
         canonical_name="governance.property_rights",
@@ -409,7 +497,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     # ── Health ───────────────────────────────────────────────────────
     "health.infant_mortality": RuntimeCanonicalEntry(
         canonical_name="health.infant_mortality",
-        aliases=("infant mortality", "infant mortality rate", "neonatal mortality", "child mortality"),
+        aliases=(
+            "infant mortality",
+            "infant mortality rate",
+            "neonatal mortality",
+            "child mortality",
+        ),
     ),
     "health.life_expectancy": RuntimeCanonicalEntry(
         canonical_name="health.life_expectancy",
@@ -417,7 +510,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "health.vaccination_coverage": RuntimeCanonicalEntry(
         canonical_name="health.vaccination_coverage",
-        aliases=("vaccination coverage", "immunization coverage", "vaccine coverage", "immunization rate"),
+        aliases=(
+            "vaccination coverage",
+            "immunization coverage",
+            "vaccine coverage",
+            "immunization rate",
+        ),
     ),
     "health.maternal_mortality": RuntimeCanonicalEntry(
         canonical_name="health.maternal_mortality",
@@ -441,7 +539,11 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "health.hypertension_prevalence": RuntimeCanonicalEntry(
         canonical_name="health.hypertension_prevalence",
-        aliases=("hypertension prevalence", "high blood pressure prevalence", "raised blood pressure prevalence"),
+        aliases=(
+            "hypertension prevalence",
+            "high blood pressure prevalence",
+            "raised blood pressure prevalence",
+        ),
     ),
     "health.alcohol_consumption": RuntimeCanonicalEntry(
         canonical_name="health.alcohol_consumption",
@@ -449,7 +551,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "health.healthcare_spending": RuntimeCanonicalEntry(
         canonical_name="health.healthcare_spending",
-        aliases=("healthcare spending", "health expenditure", "health spending", "healthcare expenditure"),
+        aliases=(
+            "healthcare spending",
+            "health expenditure",
+            "health spending",
+            "healthcare expenditure",
+        ),
     ),
     "health.hospital_beds": RuntimeCanonicalEntry(
         canonical_name="health.hospital_beds",
@@ -461,7 +568,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "health.child_stunting": RuntimeCanonicalEntry(
         canonical_name="health.child_stunting",
-        aliases=("child stunting", "stunting prevalence", "childhood stunting", "malnutrition stunting"),
+        aliases=(
+            "child stunting",
+            "stunting prevalence",
+            "childhood stunting",
+            "malnutrition stunting",
+        ),
     ),
     "health.noncommunicable_disease_mortality": RuntimeCanonicalEntry(
         canonical_name="health.noncommunicable_disease_mortality",
@@ -477,7 +589,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "health.clean_water_access": RuntimeCanonicalEntry(
         canonical_name="health.clean_water_access",
-        aliases=("clean water access", "safe water access", "improved water source", "drinking water access"),
+        aliases=(
+            "clean water access",
+            "safe water access",
+            "improved water source",
+            "drinking water access",
+        ),
     ),
     "health.suicide_rate": RuntimeCanonicalEntry(
         canonical_name="health.suicide_rate",
@@ -486,7 +603,13 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     # ── Education ────────────────────────────────────────────────────
     "education.enrollment_rate": RuntimeCanonicalEntry(
         canonical_name="education.enrollment_rate",
-        aliases=("enrollment rate", "enrolment rate", "school enrollment", "net enrollment rate", "gross enrollment"),
+        aliases=(
+            "enrollment rate",
+            "enrolment rate",
+            "school enrollment",
+            "net enrollment rate",
+            "gross enrollment",
+        ),
     ),
     "education.literacy_rate": RuntimeCanonicalEntry(
         canonical_name="education.literacy_rate",
@@ -522,7 +645,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "education.years_of_schooling": RuntimeCanonicalEntry(
         canonical_name="education.years_of_schooling",
-        aliases=("years of schooling", "mean years of schooling", "expected years of schooling", "educational attainment"),
+        aliases=(
+            "years of schooling",
+            "mean years of schooling",
+            "expected years of schooling",
+            "educational attainment",
+        ),
     ),
     "education.vocational_training": RuntimeCanonicalEntry(
         canonical_name="education.vocational_training",
@@ -547,7 +675,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "labor.labor_force_participation": RuntimeCanonicalEntry(
         canonical_name="labor.labor_force_participation",
-        aliases=("labor force participation", "labour force participation", "lfpr", "workforce participation"),
+        aliases=(
+            "labor force participation",
+            "labour force participation",
+            "lfpr",
+            "workforce participation",
+        ),
     ),
     "labor.youth_unemployment": RuntimeCanonicalEntry(
         canonical_name="labor.youth_unemployment",
@@ -563,7 +696,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "labor.labor_productivity": RuntimeCanonicalEntry(
         canonical_name="labor.labor_productivity",
-        aliases=("labor productivity", "labour productivity", "worker productivity", "output per worker"),
+        aliases=(
+            "labor productivity",
+            "labour productivity",
+            "worker productivity",
+            "output per worker",
+        ),
     ),
     "labor.job_creation": RuntimeCanonicalEntry(
         canonical_name="labor.job_creation",
@@ -621,7 +759,13 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     # ── Climate & Energy ─────────────────────────────────────────────
     "climate.carbon_emissions": RuntimeCanonicalEntry(
         canonical_name="climate.carbon_emissions",
-        aliases=("carbon emissions", "co2 emissions", "greenhouse gas emissions", "ghg emissions", "carbon dioxide emissions"),
+        aliases=(
+            "carbon emissions",
+            "co2 emissions",
+            "greenhouse gas emissions",
+            "ghg emissions",
+            "carbon dioxide emissions",
+        ),
     ),
     "climate.renewable_energy_share": RuntimeCanonicalEntry(
         canonical_name="climate.renewable_energy_share",
@@ -633,11 +777,21 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "climate.climate_adaptation_spending": RuntimeCanonicalEntry(
         canonical_name="climate.climate_adaptation_spending",
-        aliases=("climate adaptation spending", "adaptation finance", "climate adaptation investment"),
+        aliases=(
+            "climate adaptation spending",
+            "adaptation finance",
+            "climate adaptation investment",
+        ),
     ),
     "climate.air_quality_index": RuntimeCanonicalEntry(
         canonical_name="climate.air_quality_index",
-        aliases=("air quality index", "air quality", "pm2.5 concentration", "air pollution", "particulate matter"),
+        aliases=(
+            "air quality index",
+            "air quality",
+            "pm2.5 concentration",
+            "air pollution",
+            "particulate matter",
+        ),
     ),
     "climate.water_stress": RuntimeCanonicalEntry(
         canonical_name="climate.water_stress",
@@ -649,7 +803,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "climate.green_investment": RuntimeCanonicalEntry(
         canonical_name="climate.green_investment",
-        aliases=("green investment", "climate investment", "green finance", "sustainable investment"),
+        aliases=(
+            "green investment",
+            "climate investment",
+            "green finance",
+            "sustainable investment",
+        ),
     ),
     "energy.electricity_access": RuntimeCanonicalEntry(
         canonical_name="energy.electricity_access",
@@ -702,7 +861,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "infrastructure.internet_penetration": RuntimeCanonicalEntry(
         canonical_name="infrastructure.internet_penetration",
-        aliases=("internet penetration", "internet access", "internet users", "broadband penetration"),
+        aliases=(
+            "internet penetration",
+            "internet access",
+            "internet users",
+            "broadband penetration",
+        ),
     ),
     "infrastructure.mobile_coverage": RuntimeCanonicalEntry(
         canonical_name="infrastructure.mobile_coverage",
@@ -719,7 +883,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "social.at_risk_of_poverty": RuntimeCanonicalEntry(
         canonical_name="social.at_risk_of_poverty",
-        aliases=("at risk of poverty", "at-risk-of-poverty", "at risk of poverty rate", "arop rate"),
+        aliases=(
+            "at risk of poverty",
+            "at-risk-of-poverty",
+            "at risk of poverty rate",
+            "arop rate",
+        ),
     ),
     "social.social_mobility": RuntimeCanonicalEntry(
         canonical_name="social.social_mobility",
@@ -727,7 +896,11 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "social.social_protection_coverage": RuntimeCanonicalEntry(
         canonical_name="social.social_protection_coverage",
-        aliases=("social protection coverage", "social safety net coverage", "social insurance coverage"),
+        aliases=(
+            "social protection coverage",
+            "social safety net coverage",
+            "social insurance coverage",
+        ),
     ),
     "social.income_inequality": RuntimeCanonicalEntry(
         canonical_name="social.income_inequality",
@@ -755,7 +928,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "social.civic_participation": RuntimeCanonicalEntry(
         canonical_name="social.civic_participation",
-        aliases=("civic participation", "civic engagement", "voter turnout", "political participation"),
+        aliases=(
+            "civic participation",
+            "civic engagement",
+            "voter turnout",
+            "political participation",
+        ),
     ),
     "demographic.fertility_rate": RuntimeCanonicalEntry(
         canonical_name="demographic.fertility_rate",
@@ -800,7 +978,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "trade.non_tariff_barriers": RuntimeCanonicalEntry(
         canonical_name="trade.non_tariff_barriers",
-        aliases=("non tariff barriers", "non-tariff barriers", "ntbs", "technical barriers to trade"),
+        aliases=(
+            "non tariff barriers",
+            "non-tariff barriers",
+            "ntbs",
+            "technical barriers to trade",
+        ),
     ),
     # ── Digital ──────────────────────────────────────────────────────
     "digital.digital_adoption": RuntimeCanonicalEntry(
@@ -826,7 +1009,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     # ── Finance ──────────────────────────────────────────────────────
     "finance.financial_inclusion": RuntimeCanonicalEntry(
         canonical_name="finance.financial_inclusion",
-        aliases=("financial inclusion", "financial access", "bank account ownership", "account penetration"),
+        aliases=(
+            "financial inclusion",
+            "financial access",
+            "bank account ownership",
+            "account penetration",
+        ),
     ),
     "finance.microfinance_access": RuntimeCanonicalEntry(
         canonical_name="finance.microfinance_access",
@@ -864,7 +1052,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     # ── Conflict & Security ──────────────────────────────────────────
     "security.conflict_intensity": RuntimeCanonicalEntry(
         canonical_name="security.conflict_intensity",
-        aliases=("conflict intensity", "armed conflict", "conflict incidence", "violence intensity"),
+        aliases=(
+            "conflict intensity",
+            "armed conflict",
+            "conflict incidence",
+            "violence intensity",
+        ),
     ),
     "security.homicide_rate": RuntimeCanonicalEntry(
         canonical_name="security.homicide_rate",
@@ -881,19 +1074,40 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     # ── Gender ───────────────────────────────────────────────────────
     "gender.wage_gap": RuntimeCanonicalEntry(
         canonical_name="gender.wage_gap",
-        aliases=("gender wage gap", "gender pay gap", "wage gap between men and women", "pay equity gap"),
+        aliases=(
+            "gender wage gap",
+            "gender pay gap",
+            "wage gap between men and women",
+            "pay equity gap",
+        ),
     ),
     "gender.female_labor_participation": RuntimeCanonicalEntry(
         canonical_name="gender.female_labor_participation",
-        aliases=("female labor force participation", "female labour force participation", "women labor participation", "female lfpr"),
+        aliases=(
+            "female labor force participation",
+            "female labour force participation",
+            "women labor participation",
+            "female lfpr",
+        ),
     ),
     "gender.reproductive_health": RuntimeCanonicalEntry(
         canonical_name="gender.reproductive_health",
-        aliases=("reproductive health", "reproductive rights", "family planning access", "contraceptive prevalence"),
+        aliases=(
+            "reproductive health",
+            "reproductive rights",
+            "family planning access",
+            "contraceptive prevalence",
+        ),
     ),
     "gender.gender_based_violence": RuntimeCanonicalEntry(
         canonical_name="gender.gender_based_violence",
-        aliases=("gender-based violence", "gbv", "violence against women", "domestic violence prevalence", "intimate partner violence"),
+        aliases=(
+            "gender-based violence",
+            "gbv",
+            "violence against women",
+            "domestic violence prevalence",
+            "intimate partner violence",
+        ),
     ),
     "gender.child_marriage": RuntimeCanonicalEntry(
         canonical_name="gender.child_marriage",
@@ -913,19 +1127,39 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "gender.female_education_gap": RuntimeCanonicalEntry(
         canonical_name="gender.female_education_gap",
-        aliases=("female education gap", "girls education gap", "gender education disparity", "female literacy gap"),
+        aliases=(
+            "female education gap",
+            "girls education gap",
+            "gender education disparity",
+            "female literacy gap",
+        ),
     ),
     "gender.women_political_representation": RuntimeCanonicalEntry(
         canonical_name="gender.women_political_representation",
-        aliases=("women political representation", "female parliament share", "women in parliament", "female political participation"),
+        aliases=(
+            "women political representation",
+            "female parliament share",
+            "women in parliament",
+            "female political participation",
+        ),
     ),
     "gender.female_property_rights": RuntimeCanonicalEntry(
         canonical_name="gender.female_property_rights",
-        aliases=("female property rights", "women property rights", "women land rights", "gender land tenure"),
+        aliases=(
+            "female property rights",
+            "women property rights",
+            "women land rights",
+            "gender land tenure",
+        ),
     ),
     "gender.female_financial_inclusion": RuntimeCanonicalEntry(
         canonical_name="gender.female_financial_inclusion",
-        aliases=("female financial inclusion", "women bank account", "women financial access", "gender financial gap"),
+        aliases=(
+            "female financial inclusion",
+            "women bank account",
+            "women financial access",
+            "gender financial gap",
+        ),
     ),
     # ── Migration ────────────────────────────────────────────────────
     "migration.net_flows": RuntimeCanonicalEntry(
@@ -938,7 +1172,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "migration.remittance_inflows": RuntimeCanonicalEntry(
         canonical_name="migration.remittance_inflows",
-        aliases=("remittance inflows", "remittances received", "diaspora remittances", "worker remittance inflows"),
+        aliases=(
+            "remittance inflows",
+            "remittances received",
+            "diaspora remittances",
+            "worker remittance inflows",
+        ),
     ),
     "migration.brain_drain": RuntimeCanonicalEntry(
         canonical_name="migration.brain_drain",
@@ -946,11 +1185,21 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "migration.asylum_processing": RuntimeCanonicalEntry(
         canonical_name="migration.asylum_processing",
-        aliases=("asylum processing", "asylum applications", "refugee determination", "asylum recognition rate"),
+        aliases=(
+            "asylum processing",
+            "asylum applications",
+            "refugee determination",
+            "asylum recognition rate",
+        ),
     ),
     "migration.internal_displacement": RuntimeCanonicalEntry(
         canonical_name="migration.internal_displacement",
-        aliases=("internal displacement", "internally displaced persons", "idp population", "internal migration forced"),
+        aliases=(
+            "internal displacement",
+            "internally displaced persons",
+            "idp population",
+            "internal migration forced",
+        ),
     ),
     "migration.diaspora_investment": RuntimeCanonicalEntry(
         canonical_name="migration.diaspora_investment",
@@ -958,15 +1207,30 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "migration.immigration_policy": RuntimeCanonicalEntry(
         canonical_name="migration.immigration_policy",
-        aliases=("immigration policy", "migration policy", "immigration restrictiveness", "visa policy"),
+        aliases=(
+            "immigration policy",
+            "migration policy",
+            "immigration restrictiveness",
+            "visa policy",
+        ),
     ),
     "migration.migrant_integration": RuntimeCanonicalEntry(
         canonical_name="migration.migrant_integration",
-        aliases=("migrant integration", "immigrant integration", "refugee integration", "migrant inclusion"),
+        aliases=(
+            "migrant integration",
+            "immigrant integration",
+            "refugee integration",
+            "migrant inclusion",
+        ),
     ),
     "migration.human_trafficking": RuntimeCanonicalEntry(
         canonical_name="migration.human_trafficking",
-        aliases=("human trafficking", "trafficking in persons", "modern slavery", "forced labor trafficking"),
+        aliases=(
+            "human trafficking",
+            "trafficking in persons",
+            "modern slavery",
+            "forced labor trafficking",
+        ),
     ),
     "migration.labor_migration": RuntimeCanonicalEntry(
         canonical_name="migration.labor_migration",
@@ -974,16 +1238,33 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "migration.return_migration": RuntimeCanonicalEntry(
         canonical_name="migration.return_migration",
-        aliases=("return migration", "returnee reintegration", "circular migration", "migrant return"),
+        aliases=(
+            "return migration",
+            "returnee reintegration",
+            "circular migration",
+            "migrant return",
+        ),
     ),
     # ── Security (expanded) ──────────────────────────────────────────
     "security.organized_crime": RuntimeCanonicalEntry(
         canonical_name="security.organized_crime",
-        aliases=("organized crime", "organised crime", "criminal networks", "mafia", "transnational crime"),
+        aliases=(
+            "organized crime",
+            "organised crime",
+            "criminal networks",
+            "mafia",
+            "transnational crime",
+        ),
     ),
     "security.terrorism_risk": RuntimeCanonicalEntry(
         canonical_name="security.terrorism_risk",
-        aliases=("terrorism risk", "terrorism", "terrorist attacks", "violent extremism", "radicalization"),
+        aliases=(
+            "terrorism risk",
+            "terrorism",
+            "terrorist attacks",
+            "violent extremism",
+            "radicalization",
+        ),
     ),
     "security.civil_unrest": RuntimeCanonicalEntry(
         canonical_name="security.civil_unrest",
@@ -1003,11 +1284,21 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "security.police_reform": RuntimeCanonicalEntry(
         canonical_name="security.police_reform",
-        aliases=("police reform", "law enforcement reform", "police accountability", "police effectiveness"),
+        aliases=(
+            "police reform",
+            "law enforcement reform",
+            "police accountability",
+            "police effectiveness",
+        ),
     ),
     "security.prison_overcrowding": RuntimeCanonicalEntry(
         canonical_name="security.prison_overcrowding",
-        aliases=("prison overcrowding", "incarceration rate", "prison population", "detention conditions"),
+        aliases=(
+            "prison overcrowding",
+            "incarceration rate",
+            "prison population",
+            "detention conditions",
+        ),
     ),
     "security.cybercrime": RuntimeCanonicalEntry(
         canonical_name="security.cybercrime",
@@ -1019,12 +1310,22 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "security.drug_trafficking": RuntimeCanonicalEntry(
         canonical_name="security.drug_trafficking",
-        aliases=("drug trafficking", "narcotics trade", "illicit drug trade", "drug-related violence"),
+        aliases=(
+            "drug trafficking",
+            "narcotics trade",
+            "illicit drug trade",
+            "drug-related violence",
+        ),
     ),
     # ── Environment (expanded) ───────────────────────────────────────
     "environment.land_degradation": RuntimeCanonicalEntry(
         canonical_name="environment.land_degradation",
-        aliases=("land degradation", "soil erosion", "desertification", "land degradation neutrality"),
+        aliases=(
+            "land degradation",
+            "soil erosion",
+            "desertification",
+            "land degradation neutrality",
+        ),
     ),
     "environment.wetland_loss": RuntimeCanonicalEntry(
         canonical_name="environment.wetland_loss",
@@ -1036,15 +1337,30 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "environment.water_pollution": RuntimeCanonicalEntry(
         canonical_name="environment.water_pollution",
-        aliases=("water pollution", "water contamination", "water quality degradation", "effluent discharge"),
+        aliases=(
+            "water pollution",
+            "water contamination",
+            "water quality degradation",
+            "effluent discharge",
+        ),
     ),
     "environment.ecosystem_services": RuntimeCanonicalEntry(
         canonical_name="environment.ecosystem_services",
-        aliases=("ecosystem services", "ecosystem valuation", "natural capital", "environmental services"),
+        aliases=(
+            "ecosystem services",
+            "ecosystem valuation",
+            "natural capital",
+            "environmental services",
+        ),
     ),
     "environment.protected_areas": RuntimeCanonicalEntry(
         canonical_name="environment.protected_areas",
-        aliases=("protected areas", "nature reserves", "conservation areas", "national parks coverage"),
+        aliases=(
+            "protected areas",
+            "nature reserves",
+            "conservation areas",
+            "national parks coverage",
+        ),
     ),
     "environment.wildlife_trade": RuntimeCanonicalEntry(
         canonical_name="environment.wildlife_trade",
@@ -1052,15 +1368,31 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "environment.nitrogen_runoff": RuntimeCanonicalEntry(
         canonical_name="environment.nitrogen_runoff",
-        aliases=("nitrogen runoff", "nutrient pollution", "eutrophication", "phosphorus runoff", "agricultural runoff"),
+        aliases=(
+            "nitrogen runoff",
+            "nutrient pollution",
+            "eutrophication",
+            "phosphorus runoff",
+            "agricultural runoff",
+        ),
     ),
     "environment.air_pollution_health": RuntimeCanonicalEntry(
         canonical_name="environment.air_pollution_health",
-        aliases=("air pollution health impact", "pm2.5 health burden", "air pollution mortality", "respiratory disease pollution"),
+        aliases=(
+            "air pollution health impact",
+            "pm2.5 health burden",
+            "air pollution mortality",
+            "respiratory disease pollution",
+        ),
     ),
     "environment.groundwater_depletion": RuntimeCanonicalEntry(
         canonical_name="environment.groundwater_depletion",
-        aliases=("groundwater depletion", "aquifer depletion", "groundwater overdraft", "water table decline"),
+        aliases=(
+            "groundwater depletion",
+            "aquifer depletion",
+            "groundwater overdraft",
+            "water table decline",
+        ),
     ),
     # ── Infrastructure (expanded) ────────────────────────────────────
     "infrastructure.water_supply": RuntimeCanonicalEntry(
@@ -1069,15 +1401,31 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "infrastructure.sanitation_coverage": RuntimeCanonicalEntry(
         canonical_name="infrastructure.sanitation_coverage",
-        aliases=("sanitation coverage", "improved sanitation", "sewage system", "sanitation access"),
+        aliases=(
+            "sanitation coverage",
+            "improved sanitation",
+            "sewage system",
+            "sanitation access",
+        ),
     ),
     "infrastructure.electricity_grid": RuntimeCanonicalEntry(
         canonical_name="infrastructure.electricity_grid",
-        aliases=("electricity grid", "power grid", "transmission network", "grid infrastructure", "power distribution"),
+        aliases=(
+            "electricity grid",
+            "power grid",
+            "transmission network",
+            "grid infrastructure",
+            "power distribution",
+        ),
     ),
     "infrastructure.port_capacity": RuntimeCanonicalEntry(
         canonical_name="infrastructure.port_capacity",
-        aliases=("port capacity", "port infrastructure", "container port throughput", "maritime infrastructure"),
+        aliases=(
+            "port capacity",
+            "port infrastructure",
+            "container port throughput",
+            "maritime infrastructure",
+        ),
     ),
     "infrastructure.rail_network": RuntimeCanonicalEntry(
         canonical_name="infrastructure.rail_network",
@@ -1085,11 +1433,21 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "infrastructure.irrigation_infrastructure": RuntimeCanonicalEntry(
         canonical_name="infrastructure.irrigation_infrastructure",
-        aliases=("irrigation infrastructure", "irrigation systems", "irrigation canals", "water management infrastructure"),
+        aliases=(
+            "irrigation infrastructure",
+            "irrigation systems",
+            "irrigation canals",
+            "water management infrastructure",
+        ),
     ),
     "infrastructure.wastewater_treatment": RuntimeCanonicalEntry(
         canonical_name="infrastructure.wastewater_treatment",
-        aliases=("wastewater treatment", "sewage treatment", "water treatment plant", "effluent treatment"),
+        aliases=(
+            "wastewater treatment",
+            "sewage treatment",
+            "water treatment plant",
+            "effluent treatment",
+        ),
     ),
     "infrastructure.road_safety": RuntimeCanonicalEntry(
         canonical_name="infrastructure.road_safety",
@@ -1098,7 +1456,13 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     # ── Trade (expanded) ─────────────────────────────────────────────
     "trade.trade_agreements": RuntimeCanonicalEntry(
         canonical_name="trade.trade_agreements",
-        aliases=("trade agreements", "free trade agreements", "fta", "regional trade agreements", "bilateral trade"),
+        aliases=(
+            "trade agreements",
+            "free trade agreements",
+            "fta",
+            "regional trade agreements",
+            "bilateral trade",
+        ),
     ),
     "trade.fdi_inflows": RuntimeCanonicalEntry(
         canonical_name="trade.fdi_inflows",
@@ -1106,7 +1470,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "trade.supply_chain_resilience": RuntimeCanonicalEntry(
         canonical_name="trade.supply_chain_resilience",
-        aliases=("supply chain resilience", "supply chain disruption", "value chain resilience", "supply chain vulnerability"),
+        aliases=(
+            "supply chain resilience",
+            "supply chain disruption",
+            "value chain resilience",
+            "supply chain vulnerability",
+        ),
     ),
     "trade.services_trade": RuntimeCanonicalEntry(
         canonical_name="trade.services_trade",
@@ -1114,7 +1483,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "trade.trade_facilitation": RuntimeCanonicalEntry(
         canonical_name="trade.trade_facilitation",
-        aliases=("trade facilitation", "customs efficiency", "border clearance time", "trade logistics"),
+        aliases=(
+            "trade facilitation",
+            "customs efficiency",
+            "border clearance time",
+            "trade logistics",
+        ),
     ),
     "trade.value_added_exports": RuntimeCanonicalEntry(
         canonical_name="trade.value_added_exports",
@@ -1135,19 +1509,42 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "energy.renewable_costs": RuntimeCanonicalEntry(
         canonical_name="energy.renewable_costs",
-        aliases=("renewable energy costs", "solar cost", "wind cost", "lcoe renewables", "cost of clean energy"),
+        aliases=(
+            "renewable energy costs",
+            "solar cost",
+            "wind cost",
+            "lcoe renewables",
+            "cost of clean energy",
+        ),
     ),
     "energy.carbon_pricing": RuntimeCanonicalEntry(
         canonical_name="energy.carbon_pricing",
-        aliases=("carbon pricing", "carbon tax", "emissions trading", "cap and trade", "carbon market"),
+        aliases=(
+            "carbon pricing",
+            "carbon tax",
+            "emissions trading",
+            "cap and trade",
+            "carbon market",
+        ),
     ),
     "energy.energy_efficiency_standards": RuntimeCanonicalEntry(
         canonical_name="energy.energy_efficiency_standards",
-        aliases=("energy efficiency standards", "building energy codes", "appliance efficiency", "energy performance"),
+        aliases=(
+            "energy efficiency standards",
+            "building energy codes",
+            "appliance efficiency",
+            "energy performance",
+        ),
     ),
     "energy.distributed_generation": RuntimeCanonicalEntry(
         canonical_name="energy.distributed_generation",
-        aliases=("distributed generation", "rooftop solar", "decentralized energy", "mini grid", "off-grid energy"),
+        aliases=(
+            "distributed generation",
+            "rooftop solar",
+            "decentralized energy",
+            "mini grid",
+            "off-grid energy",
+        ),
     ),
     "energy.nuclear_capacity": RuntimeCanonicalEntry(
         canonical_name="energy.nuclear_capacity",
@@ -1160,7 +1557,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "digital.platform_regulation": RuntimeCanonicalEntry(
         canonical_name="digital.platform_regulation",
-        aliases=("platform regulation", "big tech regulation", "digital platform governance", "antitrust digital"),
+        aliases=(
+            "platform regulation",
+            "big tech regulation",
+            "digital platform governance",
+            "antitrust digital",
+        ),
     ),
     "digital.ai_governance": RuntimeCanonicalEntry(
         canonical_name="digital.ai_governance",
@@ -1172,11 +1574,21 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "digital.e_government_maturity": RuntimeCanonicalEntry(
         canonical_name="digital.e_government_maturity",
-        aliases=("e-government maturity", "digital government index", "online public services", "e-government readiness"),
+        aliases=(
+            "e-government maturity",
+            "digital government index",
+            "online public services",
+            "e-government readiness",
+        ),
     ),
     "digital.mobile_money_adoption": RuntimeCanonicalEntry(
         canonical_name="digital.mobile_money_adoption",
-        aliases=("mobile money adoption", "mobile payment adoption", "mobile banking", "mobile wallet"),
+        aliases=(
+            "mobile money adoption",
+            "mobile payment adoption",
+            "mobile banking",
+            "mobile wallet",
+        ),
     ),
     "digital.open_data": RuntimeCanonicalEntry(
         canonical_name="digital.open_data",
@@ -1189,15 +1601,30 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     # ── Social (expanded) ────────────────────────────────────────────
     "social.pension_coverage": RuntimeCanonicalEntry(
         canonical_name="social.pension_coverage",
-        aliases=("pension coverage", "pension system coverage", "retirement coverage", "old age pension"),
+        aliases=(
+            "pension coverage",
+            "pension system coverage",
+            "retirement coverage",
+            "old age pension",
+        ),
     ),
     "social.unemployment_insurance": RuntimeCanonicalEntry(
         canonical_name="social.unemployment_insurance",
-        aliases=("unemployment insurance", "unemployment benefits", "jobseeker benefits", "unemployment protection"),
+        aliases=(
+            "unemployment insurance",
+            "unemployment benefits",
+            "jobseeker benefits",
+            "unemployment protection",
+        ),
     ),
     "social.disability_benefits": RuntimeCanonicalEntry(
         canonical_name="social.disability_benefits",
-        aliases=("disability benefits", "disability assistance", "disability insurance", "disability support"),
+        aliases=(
+            "disability benefits",
+            "disability assistance",
+            "disability insurance",
+            "disability support",
+        ),
     ),
     "social.elderly_care": RuntimeCanonicalEntry(
         canonical_name="social.elderly_care",
@@ -1213,7 +1640,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "social.multidimensional_poverty": RuntimeCanonicalEntry(
         canonical_name="social.multidimensional_poverty",
-        aliases=("multidimensional poverty", "mpi", "multidimensional poverty index", "non-monetary poverty"),
+        aliases=(
+            "multidimensional poverty",
+            "mpi",
+            "multidimensional poverty index",
+            "non-monetary poverty",
+        ),
     ),
     # ── Monetary (NEW) ───────────────────────────────────────────────
     "monetary.money_supply": RuntimeCanonicalEntry(
@@ -1226,11 +1658,21 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "monetary.central_bank_independence": RuntimeCanonicalEntry(
         canonical_name="monetary.central_bank_independence",
-        aliases=("central bank independence", "monetary policy independence", "cbi index", "central bank autonomy"),
+        aliases=(
+            "central bank independence",
+            "monetary policy independence",
+            "cbi index",
+            "central bank autonomy",
+        ),
     ),
     "monetary.inflation_targeting": RuntimeCanonicalEntry(
         canonical_name="monetary.inflation_targeting",
-        aliases=("inflation targeting", "inflation target", "price stability target", "monetary policy framework"),
+        aliases=(
+            "inflation targeting",
+            "inflation target",
+            "price stability target",
+            "monetary policy framework",
+        ),
     ),
     "monetary.quantitative_easing": RuntimeCanonicalEntry(
         canonical_name="monetary.quantitative_easing",
@@ -1238,23 +1680,49 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "monetary.financial_regulation": RuntimeCanonicalEntry(
         canonical_name="monetary.financial_regulation",
-        aliases=("financial regulation", "banking regulation", "prudential regulation", "financial supervision"),
+        aliases=(
+            "financial regulation",
+            "banking regulation",
+            "prudential regulation",
+            "financial supervision",
+        ),
     ),
     "monetary.systemic_risk": RuntimeCanonicalEntry(
         canonical_name="monetary.systemic_risk",
-        aliases=("systemic risk", "financial systemic risk", "too big to fail", "macroprudential risk"),
+        aliases=(
+            "systemic risk",
+            "financial systemic risk",
+            "too big to fail",
+            "macroprudential risk",
+        ),
     ),
     "monetary.capital_controls": RuntimeCanonicalEntry(
         canonical_name="monetary.capital_controls",
-        aliases=("capital controls", "capital flow management", "capital account restrictions", "capital mobility"),
+        aliases=(
+            "capital controls",
+            "capital flow management",
+            "capital account restrictions",
+            "capital mobility",
+        ),
     ),
     "monetary.exchange_rate_regime": RuntimeCanonicalEntry(
         canonical_name="monetary.exchange_rate_regime",
-        aliases=("exchange rate regime", "fixed exchange rate", "floating exchange rate", "currency peg", "exchange rate arrangement"),
+        aliases=(
+            "exchange rate regime",
+            "fixed exchange rate",
+            "floating exchange rate",
+            "currency peg",
+            "exchange rate arrangement",
+        ),
     ),
     "monetary.financial_depth": RuntimeCanonicalEntry(
         canonical_name="monetary.financial_depth",
-        aliases=("financial depth", "financial sector depth", "private credit to gdp", "financial intermediation"),
+        aliases=(
+            "financial depth",
+            "financial sector depth",
+            "private credit to gdp",
+            "financial intermediation",
+        ),
     ),
     # ── Justice (NEW) ────────────────────────────────────────────────
     "justice.access_to_justice": RuntimeCanonicalEntry(
@@ -1267,7 +1735,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "justice.case_resolution_time": RuntimeCanonicalEntry(
         canonical_name="justice.case_resolution_time",
-        aliases=("case resolution time", "court processing time", "trial duration", "judicial efficiency"),
+        aliases=(
+            "case resolution time",
+            "court processing time",
+            "trial duration",
+            "judicial efficiency",
+        ),
     ),
     "justice.judicial_backlog": RuntimeCanonicalEntry(
         canonical_name="justice.judicial_backlog",
@@ -1275,7 +1748,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "justice.transitional_justice": RuntimeCanonicalEntry(
         canonical_name="justice.transitional_justice",
-        aliases=("transitional justice", "post-conflict justice", "truth and reconciliation", "war crimes tribunal"),
+        aliases=(
+            "transitional justice",
+            "post-conflict justice",
+            "truth and reconciliation",
+            "war crimes tribunal",
+        ),
     ),
     "justice.restorative_justice": RuntimeCanonicalEntry(
         canonical_name="justice.restorative_justice",
@@ -1283,15 +1761,29 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "justice.anti_money_laundering": RuntimeCanonicalEntry(
         canonical_name="justice.anti_money_laundering",
-        aliases=("anti money laundering", "aml", "money laundering prevention", "illicit financial flows"),
+        aliases=(
+            "anti money laundering",
+            "aml",
+            "money laundering prevention",
+            "illicit financial flows",
+        ),
     ),
     "justice.beneficial_ownership": RuntimeCanonicalEntry(
         canonical_name="justice.beneficial_ownership",
-        aliases=("beneficial ownership", "beneficial ownership transparency", "company ownership registry"),
+        aliases=(
+            "beneficial ownership",
+            "beneficial ownership transparency",
+            "company ownership registry",
+        ),
     ),
     "justice.whistleblower_protection": RuntimeCanonicalEntry(
         canonical_name="justice.whistleblower_protection",
-        aliases=("whistleblower protection", "whistleblowing", "anti-retaliation", "corruption reporting"),
+        aliases=(
+            "whistleblower protection",
+            "whistleblowing",
+            "anti-retaliation",
+            "corruption reporting",
+        ),
     ),
     "justice.juvenile_justice": RuntimeCanonicalEntry(
         canonical_name="justice.juvenile_justice",
@@ -1304,7 +1796,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "demographic.aging_population": RuntimeCanonicalEntry(
         canonical_name="demographic.aging_population",
-        aliases=("aging population", "population aging", "elderly population share", "old age population"),
+        aliases=(
+            "aging population",
+            "population aging",
+            "elderly population share",
+            "old age population",
+        ),
     ),
     "demographic.urbanization_rate": RuntimeCanonicalEntry(
         canonical_name="demographic.urbanization_rate",
@@ -1312,12 +1809,22 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "demographic.life_expectancy_gap": RuntimeCanonicalEntry(
         canonical_name="demographic.life_expectancy_gap",
-        aliases=("life expectancy gap", "life expectancy inequality", "mortality gap", "longevity gap"),
+        aliases=(
+            "life expectancy gap",
+            "life expectancy inequality",
+            "mortality gap",
+            "longevity gap",
+        ),
     ),
     # ── Fiscal (expanded) ────────────────────────────────────────────
     "fiscal.budget_transparency": RuntimeCanonicalEntry(
         canonical_name="fiscal.budget_transparency",
-        aliases=("budget transparency", "open budget index", "fiscal openness", "budget disclosure"),
+        aliases=(
+            "budget transparency",
+            "open budget index",
+            "fiscal openness",
+            "budget disclosure",
+        ),
     ),
     "fiscal.tax_effort": RuntimeCanonicalEntry(
         canonical_name="fiscal.tax_effort",
@@ -1325,27 +1832,57 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "fiscal.debt_sustainability": RuntimeCanonicalEntry(
         canonical_name="fiscal.debt_sustainability",
-        aliases=("debt sustainability", "debt sustainability analysis", "fiscal sustainability", "dsa"),
+        aliases=(
+            "debt sustainability",
+            "debt sustainability analysis",
+            "fiscal sustainability",
+            "dsa",
+        ),
     ),
     "fiscal.revenue_diversification": RuntimeCanonicalEntry(
         canonical_name="fiscal.revenue_diversification",
-        aliases=("revenue diversification", "tax base diversification", "revenue composition", "non-tax revenue"),
+        aliases=(
+            "revenue diversification",
+            "tax base diversification",
+            "revenue composition",
+            "non-tax revenue",
+        ),
     ),
     "fiscal.tax_progressivity": RuntimeCanonicalEntry(
         canonical_name="fiscal.tax_progressivity",
-        aliases=("tax progressivity", "progressive taxation", "tax incidence", "redistributive taxation"),
+        aliases=(
+            "tax progressivity",
+            "progressive taxation",
+            "tax incidence",
+            "redistributive taxation",
+        ),
     ),
     "fiscal.subnational_fiscal": RuntimeCanonicalEntry(
         canonical_name="fiscal.subnational_fiscal",
-        aliases=("subnational fiscal", "local government finance", "municipal revenue", "fiscal decentralization"),
+        aliases=(
+            "subnational fiscal",
+            "local government finance",
+            "municipal revenue",
+            "fiscal decentralization",
+        ),
     ),
     "fiscal.public_investment_efficiency": RuntimeCanonicalEntry(
         canonical_name="fiscal.public_investment_efficiency",
-        aliases=("public investment efficiency", "capital spending efficiency", "pima score", "infrastructure investment quality"),
+        aliases=(
+            "public investment efficiency",
+            "capital spending efficiency",
+            "pima score",
+            "infrastructure investment quality",
+        ),
     ),
     "fiscal.subsidy_reform": RuntimeCanonicalEntry(
         canonical_name="fiscal.subsidy_reform",
-        aliases=("subsidy reform", "fossil fuel subsidy reform", "agricultural subsidy reform", "targeted subsidies"),
+        aliases=(
+            "subsidy reform",
+            "fossil fuel subsidy reform",
+            "agricultural subsidy reform",
+            "targeted subsidies",
+        ),
     ),
     # ── Labor (expanded) ─────────────────────────────────────────────
     "labor.gig_economy": RuntimeCanonicalEntry(
@@ -1354,31 +1891,67 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "labor.automation_risk": RuntimeCanonicalEntry(
         canonical_name="labor.automation_risk",
-        aliases=("automation risk", "job automation", "technological displacement", "ai job displacement"),
+        aliases=(
+            "automation risk",
+            "job automation",
+            "technological displacement",
+            "ai job displacement",
+        ),
     ),
     "labor.apprenticeship_programs": RuntimeCanonicalEntry(
         canonical_name="labor.apprenticeship_programs",
-        aliases=("apprenticeship programs", "apprenticeships", "on-the-job training", "vocational apprenticeship"),
+        aliases=(
+            "apprenticeship programs",
+            "apprenticeships",
+            "on-the-job training",
+            "vocational apprenticeship",
+        ),
     ),
     "labor.occupational_safety": RuntimeCanonicalEntry(
         canonical_name="labor.occupational_safety",
-        aliases=("occupational safety", "workplace safety", "occupational health", "work injuries", "industrial accidents"),
+        aliases=(
+            "occupational safety",
+            "workplace safety",
+            "occupational health",
+            "work injuries",
+            "industrial accidents",
+        ),
     ),
     "labor.collective_bargaining": RuntimeCanonicalEntry(
         canonical_name="labor.collective_bargaining",
-        aliases=("collective bargaining", "collective bargaining coverage", "labor negotiations", "wage bargaining"),
+        aliases=(
+            "collective bargaining",
+            "collective bargaining coverage",
+            "labor negotiations",
+            "wage bargaining",
+        ),
     ),
     "labor.labor_inspection": RuntimeCanonicalEntry(
         canonical_name="labor.labor_inspection",
-        aliases=("labor inspection", "labour inspection", "workplace inspection", "labor compliance"),
+        aliases=(
+            "labor inspection",
+            "labour inspection",
+            "workplace inspection",
+            "labor compliance",
+        ),
     ),
     "labor.wage_productivity_gap": RuntimeCanonicalEntry(
         canonical_name="labor.wage_productivity_gap",
-        aliases=("wage productivity gap", "wage-productivity decoupling", "labor share decline", "wage lag"),
+        aliases=(
+            "wage productivity gap",
+            "wage-productivity decoupling",
+            "labor share decline",
+            "wage lag",
+        ),
     ),
     "labor.female_employment": RuntimeCanonicalEntry(
         canonical_name="labor.female_employment",
-        aliases=("female employment", "women employment rate", "female employment rate", "women in workforce"),
+        aliases=(
+            "female employment",
+            "women employment rate",
+            "female employment rate",
+            "women in workforce",
+        ),
     ),
     "labor.remote_work": RuntimeCanonicalEntry(
         canonical_name="labor.remote_work",
@@ -1387,7 +1960,13 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     # ── Health (expanded) ────────────────────────────────────────────
     "health.mental_health_prevalence": RuntimeCanonicalEntry(
         canonical_name="health.mental_health_prevalence",
-        aliases=("mental health prevalence", "mental illness", "depression prevalence", "anxiety prevalence", "mental disorders"),
+        aliases=(
+            "mental health prevalence",
+            "mental illness",
+            "depression prevalence",
+            "anxiety prevalence",
+            "mental disorders",
+        ),
     ),
     "health.antimicrobial_resistance": RuntimeCanonicalEntry(
         canonical_name="health.antimicrobial_resistance",
@@ -1395,11 +1974,21 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "health.health_insurance_coverage": RuntimeCanonicalEntry(
         canonical_name="health.health_insurance_coverage",
-        aliases=("health insurance coverage", "health coverage rate", "insured population", "health insurance enrollment"),
+        aliases=(
+            "health insurance coverage",
+            "health coverage rate",
+            "insured population",
+            "health insurance enrollment",
+        ),
     ),
     "health.pandemic_preparedness": RuntimeCanonicalEntry(
         canonical_name="health.pandemic_preparedness",
-        aliases=("pandemic preparedness", "epidemic preparedness", "health security", "disease surveillance"),
+        aliases=(
+            "pandemic preparedness",
+            "epidemic preparedness",
+            "health security",
+            "disease surveillance",
+        ),
     ),
     "health.telemedicine_adoption": RuntimeCanonicalEntry(
         canonical_name="health.telemedicine_adoption",
@@ -1407,57 +1996,122 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "health.health_workforce": RuntimeCanonicalEntry(
         canonical_name="health.health_workforce",
-        aliases=("health workforce", "health workers", "nurses per capita", "health worker density"),
+        aliases=(
+            "health workforce",
+            "health workers",
+            "nurses per capita",
+            "health worker density",
+        ),
     ),
     "health.surgical_capacity": RuntimeCanonicalEntry(
         canonical_name="health.surgical_capacity",
-        aliases=("surgical capacity", "surgery access", "operating rooms per capita", "essential surgery"),
+        aliases=(
+            "surgical capacity",
+            "surgery access",
+            "operating rooms per capita",
+            "essential surgery",
+        ),
     ),
     "health.pharmaceutical_access": RuntimeCanonicalEntry(
         canonical_name="health.pharmaceutical_access",
-        aliases=("pharmaceutical access", "medicine access", "drug availability", "essential medicines access"),
+        aliases=(
+            "pharmaceutical access",
+            "medicine access",
+            "drug availability",
+            "essential medicines access",
+        ),
     ),
     "health.tobacco_use": RuntimeCanonicalEntry(
         canonical_name="health.tobacco_use",
-        aliases=("tobacco use", "smoking prevalence", "tobacco consumption", "cigarette smoking rate"),
+        aliases=(
+            "tobacco use",
+            "smoking prevalence",
+            "tobacco consumption",
+            "cigarette smoking rate",
+        ),
     ),
     "health.obesity_prevalence": RuntimeCanonicalEntry(
         canonical_name="health.obesity_prevalence",
-        aliases=("obesity prevalence", "overweight prevalence", "adult obesity rate", "bmi overweight"),
+        aliases=(
+            "obesity prevalence",
+            "overweight prevalence",
+            "adult obesity rate",
+            "bmi overweight",
+        ),
     ),
     # ── Education (expanded) ─────────────────────────────────────────
     "education.higher_education_quality": RuntimeCanonicalEntry(
         canonical_name="education.higher_education_quality",
-        aliases=("higher education quality", "university quality", "tertiary education quality", "university ranking"),
+        aliases=(
+            "higher education quality",
+            "university quality",
+            "tertiary education quality",
+            "university ranking",
+        ),
     ),
     "education.research_output": RuntimeCanonicalEntry(
         canonical_name="education.research_output",
-        aliases=("research output", "scientific publications", "research productivity", "academic output"),
+        aliases=(
+            "research output",
+            "scientific publications",
+            "research productivity",
+            "academic output",
+        ),
     ),
     "education.education_equity": RuntimeCanonicalEntry(
         canonical_name="education.education_equity",
-        aliases=("education equity", "educational inequality", "learning gap", "education access disparity"),
+        aliases=(
+            "education equity",
+            "educational inequality",
+            "learning gap",
+            "education access disparity",
+        ),
     ),
     "education.school_infrastructure": RuntimeCanonicalEntry(
         canonical_name="education.school_infrastructure",
-        aliases=("school infrastructure", "school facilities", "classroom conditions", "school buildings"),
+        aliases=(
+            "school infrastructure",
+            "school facilities",
+            "classroom conditions",
+            "school buildings",
+        ),
     ),
     "education.adult_literacy": RuntimeCanonicalEntry(
         canonical_name="education.adult_literacy",
-        aliases=("adult literacy", "adult literacy programs", "adult education", "lifelong learning"),
+        aliases=(
+            "adult literacy",
+            "adult literacy programs",
+            "adult education",
+            "lifelong learning",
+        ),
     ),
     "education.curriculum_relevance": RuntimeCanonicalEntry(
         canonical_name="education.curriculum_relevance",
-        aliases=("curriculum relevance", "curriculum reform", "skills-oriented curriculum", "education content"),
+        aliases=(
+            "curriculum relevance",
+            "curriculum reform",
+            "skills-oriented curriculum",
+            "education content",
+        ),
     ),
     "education.education_finance_efficiency": RuntimeCanonicalEntry(
         canonical_name="education.education_finance_efficiency",
-        aliases=("education finance efficiency", "education spending efficiency", "cost per student", "education budget efficiency"),
+        aliases=(
+            "education finance efficiency",
+            "education spending efficiency",
+            "cost per student",
+            "education budget efficiency",
+        ),
     ),
     # ── Agriculture (expanded) ───────────────────────────────────────
     "agriculture.crop_diversification": RuntimeCanonicalEntry(
         canonical_name="agriculture.crop_diversification",
-        aliases=("crop diversification", "agricultural diversification", "cropping diversity", "crop variety"),
+        aliases=(
+            "crop diversification",
+            "agricultural diversification",
+            "cropping diversity",
+            "crop variety",
+        ),
     ),
     "agriculture.agroforestry": RuntimeCanonicalEntry(
         canonical_name="agriculture.agroforestry",
@@ -1465,11 +2119,21 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "agriculture.organic_farming": RuntimeCanonicalEntry(
         canonical_name="agriculture.organic_farming",
-        aliases=("organic farming", "organic agriculture", "organic certification", "chemical-free farming"),
+        aliases=(
+            "organic farming",
+            "organic agriculture",
+            "organic certification",
+            "chemical-free farming",
+        ),
     ),
     "agriculture.livestock_productivity": RuntimeCanonicalEntry(
         canonical_name="agriculture.livestock_productivity",
-        aliases=("livestock productivity", "animal husbandry", "cattle productivity", "dairy yield"),
+        aliases=(
+            "livestock productivity",
+            "animal husbandry",
+            "cattle productivity",
+            "dairy yield",
+        ),
     ),
     "agriculture.aquaculture": RuntimeCanonicalEntry(
         canonical_name="agriculture.aquaculture",
@@ -1481,7 +2145,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "agriculture.agricultural_extension": RuntimeCanonicalEntry(
         canonical_name="agriculture.agricultural_extension",
-        aliases=("agricultural extension", "farm extension services", "farmer advisory", "rural extension"),
+        aliases=(
+            "agricultural extension",
+            "farm extension services",
+            "farmer advisory",
+            "rural extension",
+        ),
     ),
     "agriculture.seed_system": RuntimeCanonicalEntry(
         canonical_name="agriculture.seed_system",
@@ -1489,20 +2158,40 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "agriculture.commodity_price_volatility": RuntimeCanonicalEntry(
         canonical_name="agriculture.commodity_price_volatility",
-        aliases=("commodity price volatility", "food price volatility", "agricultural price instability", "price shocks"),
+        aliases=(
+            "commodity price volatility",
+            "food price volatility",
+            "agricultural price instability",
+            "price shocks",
+        ),
     ),
     "agriculture.soil_carbon": RuntimeCanonicalEntry(
         canonical_name="agriculture.soil_carbon",
-        aliases=("soil carbon", "soil carbon sequestration", "soil organic carbon", "carbon farming"),
+        aliases=(
+            "soil carbon",
+            "soil carbon sequestration",
+            "soil organic carbon",
+            "carbon farming",
+        ),
     ),
     # ── Urban (expanded) ─────────────────────────────────────────────
     "urban.informal_settlement_tenure": RuntimeCanonicalEntry(
         canonical_name="urban.informal_settlement_tenure",
-        aliases=("informal settlement tenure", "slum tenure security", "informal housing rights", "land tenure urban"),
+        aliases=(
+            "informal settlement tenure",
+            "slum tenure security",
+            "informal housing rights",
+            "land tenure urban",
+        ),
     ),
     "urban.eviction_rate": RuntimeCanonicalEntry(
         canonical_name="urban.eviction_rate",
-        aliases=("eviction rate", "forced evictions", "housing displacement", "eviction prevalence"),
+        aliases=(
+            "eviction rate",
+            "forced evictions",
+            "housing displacement",
+            "eviction prevalence",
+        ),
     ),
     "urban.urban_heat_island": RuntimeCanonicalEntry(
         canonical_name="urban.urban_heat_island",
@@ -1514,7 +2203,12 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "urban.transportation_equity": RuntimeCanonicalEntry(
         canonical_name="urban.transportation_equity",
-        aliases=("transportation equity", "transport equity", "mobility equity", "transit accessibility gap"),
+        aliases=(
+            "transportation equity",
+            "transport equity",
+            "mobility equity",
+            "transit accessibility gap",
+        ),
     ),
     "urban.urban_air_quality": RuntimeCanonicalEntry(
         canonical_name="urban.urban_air_quality",
@@ -1523,11 +2217,21 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     # ── Climate (expanded) ───────────────────────────────────────────
     "climate.just_transition": RuntimeCanonicalEntry(
         canonical_name="climate.just_transition",
-        aliases=("just transition", "green transition equity", "climate transition jobs", "fair transition"),
+        aliases=(
+            "just transition",
+            "green transition equity",
+            "climate transition jobs",
+            "fair transition",
+        ),
     ),
     "climate.loss_and_damage": RuntimeCanonicalEntry(
         canonical_name="climate.loss_and_damage",
-        aliases=("loss and damage", "climate loss and damage", "climate reparations", "climate damage costs"),
+        aliases=(
+            "loss and damage",
+            "climate loss and damage",
+            "climate reparations",
+            "climate damage costs",
+        ),
     ),
     "climate.climate_finance": RuntimeCanonicalEntry(
         canonical_name="climate.climate_finance",
@@ -1555,11 +2259,22 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "climate.climate_migration": RuntimeCanonicalEntry(
         canonical_name="climate.climate_migration",
-        aliases=("climate migration", "environmental migration", "climate refugees", "climate displacement"),
+        aliases=(
+            "climate migration",
+            "environmental migration",
+            "climate refugees",
+            "climate displacement",
+        ),
     ),
     "climate.carbon_sequestration": RuntimeCanonicalEntry(
         canonical_name="climate.carbon_sequestration",
-        aliases=("carbon sequestration", "carbon capture", "carbon sink", "negative emissions", "ccs"),
+        aliases=(
+            "carbon sequestration",
+            "carbon capture",
+            "carbon sink",
+            "negative emissions",
+            "ccs",
+        ),
     ),
     # ── Finance (expanded) ───────────────────────────────────────────
     "finance.credit_access": RuntimeCanonicalEntry(
@@ -1568,11 +2283,21 @@ RUNTIME_CANONICAL_REGISTRY: Final[dict[str, RuntimeCanonicalEntry]] = {
     ),
     "finance.stock_market_development": RuntimeCanonicalEntry(
         canonical_name="finance.stock_market_development",
-        aliases=("stock market development", "equity market", "capital market depth", "stock market capitalization"),
+        aliases=(
+            "stock market development",
+            "equity market",
+            "capital market depth",
+            "stock market capitalization",
+        ),
     ),
     "finance.sovereign_credit_rating": RuntimeCanonicalEntry(
         canonical_name="finance.sovereign_credit_rating",
-        aliases=("sovereign credit rating", "country credit rating", "sovereign rating", "credit risk rating"),
+        aliases=(
+            "sovereign credit rating",
+            "country credit rating",
+            "sovereign rating",
+            "credit risk rating",
+        ),
     ),
 }
 
@@ -1592,7 +2317,9 @@ def runtime_approved_synonyms() -> dict[str, str]:
     synonyms: dict[str, str] = {}
     for canonical_name, entry in RUNTIME_CANONICAL_REGISTRY.items():
         synonyms.setdefault(canonical_name.strip().lower(), canonical_name)
-        synonyms.setdefault(canonical_name.replace(".", " ").replace("_", " ").strip().lower(), canonical_name)
+        synonyms.setdefault(
+            canonical_name.replace(".", " ").replace("_", " ").strip().lower(), canonical_name
+        )
         for alias in entry.aliases:
             clean_alias = str(alias or "").strip().lower()
             if clean_alias:

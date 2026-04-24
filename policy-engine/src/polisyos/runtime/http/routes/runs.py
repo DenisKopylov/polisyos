@@ -1,4 +1,5 @@
 """Public routes runs module API."""
+
 from __future__ import annotations
 
 import asyncio
@@ -6,7 +7,6 @@ import hashlib
 import json
 import os
 from collections import Counter
-from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from time import monotonic
@@ -21,9 +21,9 @@ from polisyos.core.contracts.runtime import (
     RunsBatchRequest,
     RunsBatchResponse,
     RunsListResponse,
-    SourceKind,
     RunTimelineResponse,
     RunWorkflowResponse,
+    SourceKind,
 )
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
@@ -38,7 +38,7 @@ from polisyos.runtime.http.errors import bad_request
 from polisyos.runtime.http.response_policies import add_run_link_relations
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import AsyncIterator, Callable
 
     from fastapi import APIRouter, Depends, Query, Request, Response
     from fastapi.responses import StreamingResponse
@@ -331,7 +331,7 @@ if router is not None:
             tenant_id=getattr(request.state, "tenant_id", None),
             metadata={"count": len(runs)},
         )
-        response.headers["Link"] = "</api/v1/runs>; rel=\"collection\""
+        response.headers["Link"] = '</api/v1/runs>; rel="collection"'
         return RunsBatchResponse(
             meta=build_meta(request, source_kinds=source_kinds),
             runs=runs,
@@ -390,9 +390,7 @@ if router is not None:
             tenant_id=run.details.tenant_id,
             kind="runtime.run",
             artifact_id=(
-                str(run.details.manifest_ref.artifact_id)
-                if run.details.manifest_ref
-                else None
+                str(run.details.manifest_ref.artifact_id) if run.details.manifest_ref else None
             ),
         )
         record_data_access_audit(
@@ -420,9 +418,7 @@ if router is not None:
             tenant_id=run.details.tenant_id,
             kind="runtime.run",
             artifact_id=(
-                str(run.details.manifest_ref.artifact_id)
-                if run.details.manifest_ref
-                else None
+                str(run.details.manifest_ref.artifact_id) if run.details.manifest_ref else None
             ),
         )
         record_data_access_audit(

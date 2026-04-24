@@ -1,16 +1,15 @@
 from __future__ import annotations
 
-from contextlib import redirect_stdout
 import io
 import json
-from pathlib import Path
-from tools._lib.imports import repo_root_from
 import sys
-from typing import Any
 import warnings
+from contextlib import redirect_stdout
+from typing import Any
 
 import numpy as np
 
+from tools._lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -80,7 +79,9 @@ def _make_policy_payload(seed: int = 5) -> dict[str, Any]:
     }
 
 
-def _dispatch(method_fqn: str, state: dict[str, Any], params: dict[str, Any] | None = None, seed: int = 0) -> dict[str, Any]:
+def _dispatch(
+    method_fqn: str, state: dict[str, Any], params: dict[str, Any] | None = None, seed: int = 0
+) -> dict[str, Any]:
     registry = MethodRegistry.get_instance()
     dispatcher = MethodDispatcher.get_instance()
     method_cls = registry.get(method_fqn)

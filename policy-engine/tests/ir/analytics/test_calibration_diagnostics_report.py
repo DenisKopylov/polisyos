@@ -1,4 +1,5 @@
 """Tests for calibration diagnostics IR contracts."""
+
 from __future__ import annotations
 
 import pytest
@@ -20,11 +21,15 @@ def test_calibration_diagnostics_report_summary_and_flags() -> None:
         metrics=CalibrationMetrics(n_obs=20, event_count=8, brier=0.12, ece=0.03),
         curves={
             "uniform_5": (
-                CalibrationCurveBin(lower=0.0, upper=0.2, count=4, mean_predicted=0.1, mean_observed=0.0),
+                CalibrationCurveBin(
+                    lower=0.0, upper=0.2, count=4, mean_predicted=0.1, mean_observed=0.0
+                ),
             )
         },
         tests=(
-            CalibrationTestResult(test_id="spiegelhalter", statistic=0.1, p_value=0.92, passed=True),
+            CalibrationTestResult(
+                test_id="spiegelhalter", statistic=0.1, p_value=0.92, passed=True
+            ),
         ),
         issues=(
             CalibrationDiagnosticIssue(
@@ -57,7 +62,9 @@ def test_calibration_diagnostics_report_is_frozen() -> None:
         report.task = "continuous"
 
 
-def test_calibration_diagnostics_report_returns_approximate_receipt_when_holdout_is_healthy() -> None:
+def test_calibration_diagnostics_report_returns_approximate_receipt_when_holdout_is_healthy() -> (
+    None
+):
     report = CalibrationDiagnosticsReport(
         task="binary",
         target_type="probability",

@@ -1,4 +1,5 @@
 """Tests for CausalQueryValidator (Track F)."""
+
 import pytest
 
 from polisyos.foundry.methods.catalog.causal.query_validator import CausalQueryValidator
@@ -10,14 +11,13 @@ from polisyos.ir.analytics.estimand import (
     EstimandAST,
     OperatorApplyNode,
     OperatorTargetNode,
-    SpaceRef,
     SideCondition,
     SideConditionKind,
+    SpaceRef,
     make_backdoor_estimand,
 )
 from polisyos.ir.analytics.knowledge_base import DataKnowledgeBase, DatasetEntry
 from polisyos.ir.analytics.query_validation_report import ValidationSeverity
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -28,8 +28,7 @@ def _make_dag(*edges: tuple[str, str]) -> CausalGraphModel:
     """Build a minimal DAG from (src, dst) pairs."""
     nodes = sorted({n for pair in edges for n in pair})
     causal_edges = [
-        CausalEdge(src=s, dst=d, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)
-        for s, d in edges
+        CausalEdge(src=s, dst=d, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW) for s, d in edges
     ]
     return CausalGraphModel(graph_type=GraphType.DAG, nodes=nodes, edges=causal_edges)
 
@@ -108,9 +107,7 @@ class TestGraphAcyclicity:
         ]
         # Pydantic DAG validator would reject this, so build a PAG and swap graph_type
         # to simulate a DAG that bypassed model_validator (e.g. loaded from JSON)
-        graph = CausalGraphModel(
-            graph_type=GraphType.PAG, nodes=nodes, edges=edges
-        )
+        graph = CausalGraphModel(graph_type=GraphType.PAG, nodes=nodes, edges=edges)
         # Override graph_type to DAG via model_copy to simulate the scenario
         graph_as_dag = graph.model_copy(update={"graph_type": GraphType.DAG})
 
@@ -281,6 +278,7 @@ class TestFeasibilityChecks:
         # Estimand has two DistributionRefs: one covered, one not
         # Use a transport estimand to ensure partial coverage
         from polisyos.ir.analytics.estimand import make_transport_reweight_estimand
+
         ast = make_transport_reweight_estimand(
             treatment="X",
             outcome="Y",
@@ -351,9 +349,7 @@ class TestFeasibilityChecks:
             variables=("Y",),
             conditioning=("X",),
             dataset_ref="ds1",
-            side_conditions=(
-                SideCondition(kind=SideConditionKind.CONSISTENCY, variables=("X",)),
-            ),
+            side_conditions=(SideCondition(kind=SideConditionKind.CONSISTENCY, variables=("X",)),),
         )
         ast = EstimandAST(
             query_str="P(Y|do(X))",
@@ -381,9 +377,7 @@ class TestFeasibilityChecks:
             variables=("Y",),
             conditioning=("X",),
             dataset_ref="ds1",
-            side_conditions=(
-                SideCondition(kind=SideConditionKind.SUTVA, variables=()),
-            ),
+            side_conditions=(SideCondition(kind=SideConditionKind.SUTVA, variables=()),),
         )
         ast = EstimandAST(
             query_str="P(Y|do(X))",
@@ -437,7 +431,7 @@ class TestReportContract:
 
     def test_report_has_warnings_method(self):
         graph = _make_dag(("X", "Y"))  # Z not in graph
-        ast = _simple_estimand()       # Z in adjustment set
+        ast = _simple_estimand()  # Z in adjustment set
         report = CausalQueryValidator().validate(graph, ast)
         assert report.has_warnings() is True
 
@@ -470,6 +464,7 @@ class TestReportContract:
 
     def test_import_from_causal_package(self):
         from polisyos.foundry.methods.catalog.causal import CausalQueryValidator as CQV
+
         assert CQV is CausalQueryValidator
 
 

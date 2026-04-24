@@ -20,15 +20,15 @@ uv run polisyos-tools workspace acceptance-audit \
 
 The automated pass checks these surfaces together:
 
-| Acceptance slice | Repo-tracked evidence |
-|---|---|
-| Toolchain consistency | `.python-version`, `.nvmrc`, workspace helpers, composite GitHub Actions, environment matrix |
-| Repo root coherence | root `README.md`, `policy-engine/README.md`, ADR-0096 |
-| Ownership / merge governance | labels, PR template, published workflow inventory, ownership docs, and quality-gate docs |
-| Required checks / release path | current workflow inventory, release docs, release fragment tooling, `build-and-push.yml`, and `signatures.yml` |
-| Runtime contract gates | runtime OpenAPI drift check, auth/tenant middleware tests, write-path hardening tests, and the core-runtime closeout ledger |
-| Runbooks / retention / observability | runbook index, recovery docs, observability topology, platform review scorecard |
-| Dependency / security / workflow trust | Renovate, action freshness tooling, workflow policy checks, Scorecard / provenance coverage |
+| Acceptance slice                       | Repo-tracked evidence                                                                                                       |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Toolchain consistency                  | `.python-version`, `.nvmrc`, workspace helpers, composite GitHub Actions, environment matrix                                |
+| Repo root coherence                    | root `README.md`, `policy-engine/README.md`, ADR-0096                                                                       |
+| Ownership / merge governance           | labels, PR template, published workflow inventory, ownership docs, and quality-gate docs                                    |
+| Required checks / release path         | current workflow inventory, release docs, release fragment tooling, `build-and-push.yml`, and `signatures.yml`              |
+| Runtime contract gates                 | runtime OpenAPI drift check, auth/tenant middleware tests, write-path hardening tests, and the core-runtime closeout ledger |
+| Runbooks / retention / observability   | runbook index, recovery docs, observability topology, platform review scorecard                                             |
+| Dependency / security / workflow trust | Renovate, action freshness tooling, workflow policy checks, Scorecard / provenance coverage                                 |
 
 Runtime-specific acceptance evidence should include:
 
@@ -90,14 +90,14 @@ archaeology or contradictory docs.
 These are the manual items that complete WS-7B and can be recorded in the
 manual evidence TOML:
 
-| Evidence key | What to exercise | Minimum expectation |
-|---|---|---|
+| Evidence key              | What to exercise               | Minimum expectation                                                                                                                      |
+| ------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | `clean_machine_bootstrap` | Fresh clone on a clean machine | `polisyos-tools workspace bootstrap`, `polisyos-tools workspace doctor`, `polisyos-tools workspace verify` complete without ad hoc fixes |
-| `backend_walkthrough` | Backend contributor path | Follow `docs/how-to/onboarding/backend-engineer.md` and verify the backend-only fast gate |
-| `frontend_walkthrough` | Frontend contributor path | Follow `docs/how-to/onboarding/frontend-engineer.md` and verify the frontend-only fast gate |
-| `platform_walkthrough` | Platform contributor path | Follow `docs/how-to/onboarding/platform-ops-engineer.md` and exercise bootstrap / doctor / verify / observability entry points |
-| `release_dry_run` | Release rehearsal | Run the local release note / version / canary path or an equivalent GitHub dry run |
-| `incident_tabletop` | Critical runbook quality check | Walk one alert-to-runbook path and confirm timeline, rollback, escalation, and follow-up are explicit |
+| `backend_walkthrough`     | Backend contributor path       | Follow `docs/how-to/onboarding/backend-engineer.md` and verify the backend-only fast gate                                                |
+| `frontend_walkthrough`    | Frontend contributor path      | Follow `docs/how-to/onboarding/frontend-engineer.md` and verify the frontend-only fast gate                                              |
+| `platform_walkthrough`    | Platform contributor path      | Follow `docs/how-to/onboarding/platform-ops-engineer.md` and exercise bootstrap / doctor / verify / observability entry points           |
+| `release_dry_run`         | Release rehearsal              | Run the local release note / version / canary path or an equivalent GitHub dry run                                                       |
+| `incident_tabletop`       | Critical runbook quality check | Walk one alert-to-runbook path and confirm timeline, rollback, escalation, and follow-up are explicit                                    |
 
 Recommended local release rehearsal:
 

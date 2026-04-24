@@ -17,6 +17,7 @@ Coverage (15 tests):
  14.  test_ncm_engine_registered — NCMEngineMethod in registry
  15.  test_ncm_spec_validation_missing_exo_raises — model_validator error
 """
+
 from __future__ import annotations
 
 import json
@@ -44,7 +45,6 @@ from polisyos.ir.analytics.structural_causal_model import (
     NodeMechanism,
     StructuralCausalModelSpec,
 )
-
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -212,8 +212,12 @@ class TestValidateMarkovCondition:
                 ExogenousSpec(variable="U_Y", associated_endogenous="Y"),
             ],
             structural_equations=[
-                StructuralEquation(variable="X", parents=["Y"], exogenous="U_X", equation_type="linear"),
-                StructuralEquation(variable="Y", parents=["X"], exogenous="U_Y", equation_type="linear"),
+                StructuralEquation(
+                    variable="X", parents=["Y"], exogenous="U_X", equation_type="linear"
+                ),
+                StructuralEquation(
+                    variable="Y", parents=["X"], exogenous="U_Y", equation_type="linear"
+                ),
             ],
             is_acyclic=False,
         )
@@ -348,13 +352,21 @@ class TestAbduceExogenousNonlinear:
 
         order = _ncm_topological_order(ncm)
         mcmc_pred = _predict_from_abducted(ncm, mcmc_noise, {}, order, {}, mcmc_warnings)
-        variational_pred = _predict_from_abducted(ncm, variational_noise, {}, order, {}, variational_warnings)
+        variational_pred = _predict_from_abducted(
+            ncm, variational_noise, {}, order, {}, variational_warnings
+        )
 
         assert abs(mcmc_pred["Y"] - 0.8) < 0.1
         assert abs(variational_pred["Y"] - 0.8) < 0.05
-        assert any("Metropolis-Hastings posterior approximation" in warning for warning in mcmc_warnings)
-        assert any("variational/Laplace approximation" in warning for warning in variational_warnings)
-        assert not any("falling back to exact" in warning for warning in mcmc_warnings + variational_warnings)
+        assert any(
+            "Metropolis-Hastings posterior approximation" in warning for warning in mcmc_warnings
+        )
+        assert any(
+            "variational/Laplace approximation" in warning for warning in variational_warnings
+        )
+        assert not any(
+            "falling back to exact" in warning for warning in mcmc_warnings + variational_warnings
+        )
 
 
 class TestAbduceExogenousMultiNode:
@@ -369,17 +381,23 @@ class TestAbduceExogenousMultiNode:
             ],
             structural_equations=[
                 StructuralEquation(
-                    variable="X", parents=[], exogenous="U_X",
+                    variable="X",
+                    parents=[],
+                    exogenous="U_X",
                     equation_type="linear",
                     equation_params={"intercept": 1.0, "coefficients": {}},
                 ),
                 StructuralEquation(
-                    variable="M", parents=["X"], exogenous="U_M",
+                    variable="M",
+                    parents=["X"],
+                    exogenous="U_M",
                     equation_type="linear",
                     equation_params={"intercept": 0.0, "coefficients": {"X": 2.0}},
                 ),
                 StructuralEquation(
-                    variable="Y", parents=["X", "M"], exogenous="U_Y",
+                    variable="Y",
+                    parents=["X", "M"],
+                    exogenous="U_Y",
                     equation_type="linear",
                     equation_params={"intercept": -1.0, "coefficients": {"X": 1.0, "M": 0.5}},
                 ),
@@ -410,20 +428,26 @@ class TestPredictFromAbducted:
         ncm = _chain_ncm()
         order = _ncm_topological_order(ncm)
         from polisyos.foundry.methods.catalog.causal.gcm_query import _parents_by_node
+
         parents_map = _parents_by_node(ncm.scm_spec)
         warnings: list[str] = []
         # With U_Y = 0, Y = 0.5 + 2.0 * 1.0 = 2.5
-        result = _predict_from_abducted(ncm, {"X": 0.0, "Y": 0.0}, {"X": 1.0}, order, parents_map, warnings)
+        result = _predict_from_abducted(
+            ncm, {"X": 0.0, "Y": 0.0}, {"X": 1.0}, order, parents_map, warnings
+        )
         assert abs(result["Y"] - 2.5) < 1e-9
 
     def test_predict_intervention_overrides_equation(self):
         ncm = _chain_ncm()
         order = _ncm_topological_order(ncm)
         from polisyos.foundry.methods.catalog.causal.gcm_query import _parents_by_node
+
         parents_map = _parents_by_node(ncm.scm_spec)
         warnings: list[str] = []
         # do(Y=99.0) overrides structural equation
-        result = _predict_from_abducted(ncm, {}, {"X": 1.0, "Y": 99.0}, order, parents_map, warnings)
+        result = _predict_from_abducted(
+            ncm, {}, {"X": 1.0, "Y": 99.0}, order, parents_map, warnings
+        )
         assert result["Y"] == 99.0
 
 
@@ -456,7 +480,9 @@ class TestParallelWorlds:
         warnings: list[str] = []
         n_samples = 1000
         interventions = [{"X": 0.0}, {"X": 1.0}, {"X": 2.0}]
-        worlds = _parallel_worlds(ncm, interventions, {}, "exact", n_samples=n_samples, rng=rng, warnings=warnings)
+        worlds = _parallel_worlds(
+            ncm, interventions, {}, "exact", n_samples=n_samples, rng=rng, warnings=warnings
+        )
 
         assert len(worlds) == 3
         for w in worlds:
@@ -535,6 +561,7 @@ class TestNCMEnginePureStep:
     def test_ncm_engine_registered(self):
         from polisyos.foundry.methods.catalog.causal import ensure_causal_methods_registered
         from polisyos.foundry.methods.registry import MethodRegistry
+
         MethodRegistry.reset_instance()
         ensure_causal_methods_registered()
         reg = MethodRegistry.get_instance()
@@ -557,8 +584,12 @@ class TestNCMSpecValidation:
                     # Missing U_Y for Y!
                 ],
                 structural_equations=[
-                    StructuralEquation(variable="X", parents=[], exogenous="U_X", equation_type="linear"),
-                    StructuralEquation(variable="Y", parents=["X"], exogenous="U_Y", equation_type="linear"),
+                    StructuralEquation(
+                        variable="X", parents=[], exogenous="U_X", equation_type="linear"
+                    ),
+                    StructuralEquation(
+                        variable="Y", parents=["X"], exogenous="U_Y", equation_type="linear"
+                    ),
                 ],
             )
 

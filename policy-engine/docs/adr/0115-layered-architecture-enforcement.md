@@ -1,9 +1,11 @@
 # ADR-0115: Layered Architecture Enforcement
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context
@@ -33,5 +35,6 @@ Use import-linter as the primary architecture boundary arbiter:
 
 - Extends: ADR-0004 (architecture boundaries import gate), ADR-0061 (import
   gate CI contract), ADR-0096 (canonical product root).
+
 - Related: ADR-0111 (workspace root SOTA contract), ADR-0121 (Python monorepo),
   ADR-0127 (repository hygiene gates).

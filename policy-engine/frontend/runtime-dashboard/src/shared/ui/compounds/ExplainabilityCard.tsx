@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { Badge, Button, Card } from "@/shared/ui/primitives";
 import type { BadgeKind } from "@/shared/ui/Badge";
@@ -67,9 +68,15 @@ export function ExplainabilityCard({
   deepContent,
   className,
 }: ExplainabilityCardProps) {
+  const { t } = useI18n();
   const [internalLevel, setInternalLevel] =
     useState<ExplainabilityLevel>("glance");
   const level = controlledLevel ?? internalLevel;
+  const verdictLabels: Record<ExplainabilityVerdict["status"], string> = {
+    approved: t("shared.ui.explainabilityCard.verdict.approved"),
+    rejected: t("shared.ui.explainabilityCard.verdict.rejected"),
+    review: t("shared.ui.explainabilityCard.verdict.review"),
+  };
 
   function setLevel(next: ExplainabilityLevel) {
     setInternalLevel(next);
@@ -89,7 +96,7 @@ export function ExplainabilityCard({
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <Badge kind={VERDICT_KIND[verdict.status]}>
-                {verdict.status}
+                {verdictLabels[verdict.status]}
               </Badge>
               {methodology && (
                 <span className="text-muted font-mono text-xs">
@@ -106,12 +113,24 @@ export function ExplainabilityCard({
         </div>
         {governance && (
           <div className="flex items-center gap-2 text-xs font-semibold">
-            <Badge kind="ok">{governance.passed} passed</Badge>
+            <Badge kind="ok">
+              {t("shared.ui.explainabilityCard.countPassed", {
+                count: governance.passed,
+              })}
+            </Badge>
             {governance.failed > 0 && (
-              <Badge kind="fail">{governance.failed} failed</Badge>
+              <Badge kind="fail">
+                {t("shared.ui.explainabilityCard.countFailed", {
+                  count: governance.failed,
+                })}
+              </Badge>
             )}
             {governance.warnings > 0 && (
-              <Badge kind="warn">{governance.warnings} warnings</Badge>
+              <Badge kind="warn">
+                {t("shared.ui.explainabilityCard.countWarnings", {
+                  count: governance.warnings,
+                })}
+              </Badge>
             )}
           </div>
         )}
@@ -124,10 +143,10 @@ export function ExplainabilityCard({
             <thead>
               <tr className="border-line border-b">
                 <th className="text-muted px-4 py-2 text-start text-xs font-medium uppercase">
-                  Factor
+                  {t("shared.ui.explainabilityCard.columns.factor")}
                 </th>
                 <th className="text-muted px-4 py-2 text-end text-xs font-medium uppercase">
-                  Value
+                  {t("shared.ui.explainabilityCard.columns.value")}
                 </th>
               </tr>
             </thead>
@@ -160,9 +179,9 @@ export function ExplainabilityCard({
         governance &&
         governance.blockers &&
         governance.blockers.length > 0 && (
-          <div className="bg-[color-mix(in_srgb,var(--color-status-rejected)_8%,transparent)] rounded-2xl p-3">
+          <div className="rounded-2xl bg-[color-mix(in_srgb,var(--color-status-rejected)_8%,transparent)] p-3">
             <p className="text-sm font-semibold text-[var(--color-status-rejected)]">
-              Governance blockers
+              {t("shared.ui.explainabilityCard.governanceBlockers")}
             </p>
             <ul className="text-muted mt-1 list-inside list-disc text-sm">
               {governance.blockers.map((b) => (
@@ -177,21 +196,15 @@ export function ExplainabilityCard({
 
       {/* ── Expand button ── */}
       {expandTo && level !== expandTo && (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => setLevel(expandTo)}
-        >
-          {expandTo === "summary" ? "Show details" : "Full analysis"}
+        <Button size="sm" variant="outline" onClick={() => setLevel(expandTo)}>
+          {expandTo === "summary"
+            ? t("shared.ui.explainabilityCard.showDetails")
+            : t("shared.ui.explainabilityCard.fullAnalysis")}
         </Button>
       )}
       {level !== "glance" && (
-        <Button
-          size="sm"
-          variant="link"
-          onClick={() => setLevel("glance")}
-        >
-          Collapse
+        <Button size="sm" variant="link" onClick={() => setLevel("glance")}>
+          {t("shared.ui.explainabilityCard.collapse")}
         </Button>
       )}
     </Card>

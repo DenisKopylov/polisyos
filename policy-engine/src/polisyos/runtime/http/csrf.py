@@ -1,13 +1,15 @@
 """CSRF protection for cookie-authenticated runtime deployments."""
+
 from __future__ import annotations
 
 import hmac
-from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.runtime.http.errors import problem_response
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
     from starlette.middleware.base import BaseHTTPMiddleware as _BaseHTTPMiddleware
     from starlette.requests import Request
     from starlette.responses import Response
@@ -69,8 +71,7 @@ class CSRFMiddleware(_BaseHTTPMiddleware):
                 status_code=403,
                 code="csrf_token_required",
                 detail=(
-                    "Cookie-authenticated unsafe requests must include a "
-                    "matching CSRF token header"
+                    "Cookie-authenticated unsafe requests must include a matching CSRF token header"
                 ),
                 request_id=request_id,
                 instance=path,

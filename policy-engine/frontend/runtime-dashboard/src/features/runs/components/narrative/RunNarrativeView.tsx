@@ -1,7 +1,13 @@
 import { useState } from "react";
 
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { Card } from "@/shared/ui/primitives";
+import {
+  AuthoredText,
+  AuthorshipTimeline,
+  useAuthorship,
+} from "@/shared/ui/authored-text";
 
 import { NarrativeChapter } from "./shared/NarrativeChapter";
 import { NarrativeTransition } from "./shared/NarrativeTransition";
@@ -71,13 +77,41 @@ export type RunNarrativeData = {
 // ---------------------------------------------------------------------------
 
 const CHAPTERS = [
-  { id: "question", title: "The Question", subtitle: "What we set out to answer" },
-  { id: "data", title: "Data Landscape", subtitle: "What evidence is available" },
-  { id: "method", title: "Methodology", subtitle: "How we approached this" },
-  { id: "findings", title: "Findings", subtitle: "What we discovered" },
-  { id: "robustness", title: "Robustness", subtitle: "How confident are we" },
-  { id: "governance", title: "Governance", subtitle: "Is this safe to act on" },
-  { id: "recommendation", title: "Recommendation", subtitle: "What to do next" },
+  {
+    id: "question",
+    titleKey: "pages.runs.narrative.questionTitle",
+    subtitleKey: "pages.runs.narrative.questionSubtitle",
+  },
+  {
+    id: "data",
+    titleKey: "pages.runs.narrative.dataTitle",
+    subtitleKey: "pages.runs.narrative.dataSubtitle",
+  },
+  {
+    id: "method",
+    titleKey: "pages.runs.narrative.methodTitle",
+    subtitleKey: "pages.runs.narrative.methodSubtitle",
+  },
+  {
+    id: "findings",
+    titleKey: "pages.runs.narrative.findingsTitle",
+    subtitleKey: "pages.runs.narrative.findingsSubtitle",
+  },
+  {
+    id: "robustness",
+    titleKey: "pages.runs.narrative.robustnessTitle",
+    subtitleKey: "pages.runs.narrative.robustnessSubtitle",
+  },
+  {
+    id: "governance",
+    titleKey: "pages.runs.narrative.governanceTitle",
+    subtitleKey: "pages.runs.narrative.governanceSubtitle",
+  },
+  {
+    id: "recommendation",
+    titleKey: "pages.runs.narrative.recommendationTitle",
+    subtitleKey: "pages.runs.narrative.recommendationSubtitle",
+  },
 ] as const;
 
 type ChapterId = (typeof CHAPTERS)[number]["id"];
@@ -95,7 +129,9 @@ export function RunNarrativeView({
   narrative,
   className,
 }: RunNarrativeViewProps) {
+  const { t } = useI18n();
   const [activeChapter, setActiveChapter] = useState<ChapterId>("question");
+  const { highlightMode } = useAuthorship();
 
   const statusColor = (s: string) =>
     s === "available"
@@ -105,11 +141,19 @@ export function RunNarrativeView({
         : "var(--chart-alert)";
 
   return (
-    <div className={cn("flex gap-6", className)}>
+    <div
+      className={cn(
+        "gap-6",
+        highlightMode === "prominent"
+          ? "xl:grid xl:grid-cols-[12rem_minmax(0,1fr)_20rem]"
+          : "flex",
+        className,
+      )}
+    >
       {/* Sidebar navigation */}
       <nav
         className="sticky top-20 hidden w-48 shrink-0 self-start lg:block"
-        aria-label="Narrative chapters"
+        aria-label={t("pages.runs.narrative.aria")}
       >
         <ul className="space-y-1">
           {CHAPTERS.map((ch, i) => (
@@ -125,7 +169,7 @@ export function RunNarrativeView({
                 )}
               >
                 <span className="text-xs font-bold">{i + 1}</span>
-                <span className="truncate">{ch.title}</span>
+                <span className="truncate">{t(ch.titleKey)}</span>
               </a>
             </li>
           ))}
@@ -135,12 +179,23 @@ export function RunNarrativeView({
       {/* Main narrative content */}
       <div className="min-w-0 flex-1 space-y-2">
         {/* 1. Question */}
-        <NarrativeChapter id="question" number={1} title="The Question" subtitle="What we set out to answer">
+        <NarrativeChapter
+          id="question"
+          number={1}
+          title={t("pages.runs.narrative.questionTitle")}
+          subtitle={t("pages.runs.narrative.questionSubtitle")}
+        >
           <Card className="space-y-3">
-            <p className="text-lg font-semibold">{narrative.question.question}</p>
-            {narrative.question.context && (
-              <p className="text-muted text-sm">{narrative.question.context}</p>
-            )}
+            <AuthoredText author="human" as="div" className="space-y-2">
+              <p className="text-lg font-semibold">
+                {narrative.question.question}
+              </p>
+              {narrative.question.context && (
+                <p className="text-muted text-sm">
+                  {narrative.question.context}
+                </p>
+              )}
+            </AuthoredText>
             {narrative.question.policyDomain && (
               <span className="bg-surface border-line inline-block rounded-lg border px-2 py-1 text-xs font-medium">
                 {narrative.question.policyDomain}
@@ -152,15 +207,20 @@ export function RunNarrativeView({
         <NarrativeTransition label="Next: examining available data" />
 
         {/* 2. Data */}
-        <NarrativeChapter id="data" number={2} title="Data Landscape" subtitle="What evidence is available">
+        <NarrativeChapter
+          id="data"
+          number={2}
+          title={t("pages.runs.narrative.dataTitle")}
+          subtitle={t("pages.runs.narrative.dataSubtitle")}
+        >
           <Card className="space-y-3">
             {narrative.data.coveragePct != null && (
-              <p className="text-sm">
-                Overall evidence coverage:{" "}
+              <AuthoredText author="human" className="text-sm">
+                {t("pages.runs.narrative.overallEvidenceCoverage")}{" "}
                 <span className="font-bold">
                   {Math.round(narrative.data.coveragePct * 100)}%
                 </span>
-              </p>
+              </AuthoredText>
             )}
             <div className="grid gap-2 sm:grid-cols-2">
               {narrative.data.sources.map((src) => (
@@ -185,18 +245,28 @@ export function RunNarrativeView({
         <NarrativeTransition label="Next: selecting methodology" />
 
         {/* 3. Method */}
-        <NarrativeChapter id="method" number={3} title="Methodology" subtitle="How we approached this">
+        <NarrativeChapter
+          id="method"
+          number={3}
+          title={t("pages.runs.narrative.methodTitle")}
+          subtitle={t("pages.runs.narrative.methodSubtitle")}
+        >
           <Card className="space-y-3">
-            <p className="text-sm">
-              Selected:{" "}
-              <span className="font-mono font-semibold">
-                {narrative.method.methodology}
-              </span>
-            </p>
-            <p className="text-muted text-sm">{narrative.method.rationale}</p>
+            <AuthoredText author="formalizer" as="div" className="space-y-2">
+              <p className="text-sm">
+                {t("pages.runs.narrative.selected")}{" "}
+                <span className="font-mono font-semibold">
+                  {narrative.method.methodology}
+                </span>
+              </p>
+              <p className="text-muted text-sm">{narrative.method.rationale}</p>
+            </AuthoredText>
             {narrative.method.alternatives &&
               narrative.method.alternatives.length > 0 && (
-                <InsightCallout level="info" title="Alternatives considered">
+                <InsightCallout
+                  level="info"
+                  title={t("pages.runs.narrative.alternativesConsidered")}
+                >
                   {narrative.method.alternatives.join(", ")}
                 </InsightCallout>
               )}
@@ -206,7 +276,12 @@ export function RunNarrativeView({
         <NarrativeTransition label="Next: presenting findings" />
 
         {/* 4. Findings */}
-        <NarrativeChapter id="findings" number={4} title="Findings" subtitle="What we discovered">
+        <NarrativeChapter
+          id="findings"
+          number={4}
+          title={t("pages.runs.narrative.findingsTitle")}
+          subtitle={t("pages.runs.narrative.findingsSubtitle")}
+        >
           <Card className="space-y-3">
             <div className="flex items-baseline gap-4">
               <span className="font-mono text-3xl font-bold">
@@ -215,13 +290,17 @@ export function RunNarrativeView({
               </span>
               {narrative.findings.ci && (
                 <span className="text-muted text-sm">
-                  {narrative.findings.ci.level}% CI: [
-                  {narrative.findings.ci.lower.toFixed(4)},{" "}
-                  {narrative.findings.ci.upper.toFixed(4)}]
+                  {t("pages.runs.narrative.ciRange", {
+                    level: narrative.findings.ci.level,
+                    lower: narrative.findings.ci.lower.toFixed(4),
+                    upper: narrative.findings.ci.upper.toFixed(4),
+                  })}
                 </span>
               )}
             </div>
-            <p className="text-sm">{narrative.findings.summary}</p>
+            <AuthoredText author="drafter" className="text-sm">
+              {narrative.findings.summary}
+            </AuthoredText>
             {narrative.findings.chartSlot}
           </Card>
         </NarrativeChapter>
@@ -229,37 +308,65 @@ export function RunNarrativeView({
         <NarrativeTransition label="Next: checking robustness" />
 
         {/* 5. Robustness */}
-        <NarrativeChapter id="robustness" number={5} title="Robustness" subtitle="How confident are we">
+        <NarrativeChapter
+          id="robustness"
+          number={5}
+          title={t("pages.runs.narrative.robustnessTitle")}
+          subtitle={t("pages.runs.narrative.robustnessSubtitle")}
+        >
           <Card className="space-y-3">
-            <p className="text-sm">{narrative.robustness.summary}</p>
+            <AuthoredText author="critic" className="text-sm">
+              {narrative.robustness.summary}
+            </AuthoredText>
             <div className="flex flex-wrap gap-4 text-sm">
               {narrative.robustness.sensitivityGamma != null && (
                 <div>
-                  <span className="text-muted text-xs">Sensitivity</span>
-                  <p className="font-mono font-semibold">
-                    {"\u0393"} = {narrative.robustness.sensitivityGamma.toFixed(1)}
+                  <span className="text-muted text-xs">
+                    {t("pages.runs.narrative.sensitivity")}
+                  </span>
+                  <p
+                    className="font-mono font-semibold"
+                    data-authored-exempt="true"
+                    data-authored-exempt-reason="Sensitivity value is metric chrome, not authored prose."
+                  >
+                    {"\u0393"} ={" "}
+                    {narrative.robustness.sensitivityGamma.toFixed(1)}
                   </p>
                 </div>
               )}
               {narrative.robustness.placeboPass != null && (
                 <div>
-                  <span className="text-muted text-xs">Placebo test</span>
+                  <span className="text-muted text-xs">
+                    {t("pages.runs.narrative.placeboTest")}
+                  </span>
                   <p
                     className="font-semibold"
+                    data-authored-exempt="true"
+                    data-authored-exempt-reason="Placebo pass/fail value is metric chrome, not authored prose."
                     style={{
                       color: narrative.robustness.placeboPass
                         ? "var(--chart-success)"
                         : "var(--chart-alert)",
                     }}
                   >
-                    {narrative.robustness.placeboPass ? "Pass" : "Fail"}
+                    {narrative.robustness.placeboPass
+                      ? t("pages.runs.narrative.pass")
+                      : t("pages.runs.narrative.fail")}
                   </p>
                 </div>
               )}
               {narrative.robustness.boundsType && (
                 <div>
-                  <span className="text-muted text-xs">Bounds</span>
-                  <p className="font-semibold">{narrative.robustness.boundsType}</p>
+                  <span className="text-muted text-xs">
+                    {t("pages.runs.narrative.bounds")}
+                  </span>
+                  <p
+                    className="font-semibold"
+                    data-authored-exempt="true"
+                    data-authored-exempt-reason="Bounds type value is metric chrome, not authored prose."
+                  >
+                    {narrative.robustness.boundsType}
+                  </p>
                 </div>
               )}
             </div>
@@ -269,7 +376,12 @@ export function RunNarrativeView({
         <NarrativeTransition label="Next: governance review" />
 
         {/* 6. Governance */}
-        <NarrativeChapter id="governance" number={6} title="Governance" subtitle="Is this safe to act on">
+        <NarrativeChapter
+          id="governance"
+          number={6}
+          title={t("pages.runs.narrative.governanceTitle")}
+          subtitle={t("pages.runs.narrative.governanceSubtitle")}
+        >
           <Card className="space-y-3">
             <div className="flex items-center gap-4">
               <span
@@ -291,16 +403,19 @@ export function RunNarrativeView({
                 <span className="font-semibold text-[var(--chart-success)]">
                   {narrative.governance.passCount}
                 </span>{" "}
-                passed,{" "}
+                {t("pages.runs.narrative.passedSuffix")}{" "}
                 <span className="font-semibold text-[var(--chart-alert)]">
                   {narrative.governance.failCount}
                 </span>{" "}
-                failed
+                {t("pages.runs.narrative.failedSuffix")}
               </span>
             </div>
             {narrative.governance.blockers &&
               narrative.governance.blockers.length > 0 && (
-                <InsightCallout level="critical" title="Blockers">
+                <InsightCallout
+                  level="critical"
+                  title={t("pages.runs.narrative.blockers")}
+                >
                   <ul className="space-y-1">
                     {narrative.governance.blockers.map((b) => (
                       <li key={b}>{b}</li>
@@ -314,21 +429,32 @@ export function RunNarrativeView({
         <NarrativeTransition label="Final: recommendation" />
 
         {/* 7. Recommendation */}
-        <NarrativeChapter id="recommendation" number={7} title="Recommendation" subtitle="What to do next">
+        <NarrativeChapter
+          id="recommendation"
+          number={7}
+          title={t("pages.runs.narrative.recommendationTitle")}
+          subtitle={t("pages.runs.narrative.recommendationSubtitle")}
+        >
           <Card className="space-y-3">
-            <p className="text-lg font-semibold">
+            <AuthoredText author="drafter" className="text-lg font-semibold">
               {narrative.recommendation.headline}
-            </p>
+            </AuthoredText>
             {narrative.recommendation.actions &&
               narrative.recommendation.actions.length > 0 && (
                 <div>
-                  <p className="text-muted mb-1 text-xs font-semibold uppercase">
-                    Recommended actions
+                  <p
+                    className="text-muted mb-1 text-xs font-semibold uppercase"
+                    data-authored-exempt="true"
+                    data-authored-exempt-reason="Recommended-actions label is structural list chrome, not authored prose."
+                  >
+                    {t("pages.runs.narrative.recommendedActions")}
                   </p>
                   <ul className="space-y-1 text-sm">
                     {narrative.recommendation.actions.map((a) => (
                       <li key={a} className="flex items-start gap-2">
-                        <span className="text-[var(--chart-success)]">{"\u2713"}</span>
+                        <span className="text-[var(--chart-success)]">
+                          {"\u2713"}
+                        </span>
                         <span>{a}</span>
                       </li>
                     ))}
@@ -337,7 +463,10 @@ export function RunNarrativeView({
               )}
             {narrative.recommendation.caveats &&
               narrative.recommendation.caveats.length > 0 && (
-                <InsightCallout level="warning" title="Caveats">
+                <InsightCallout
+                  level="warning"
+                  title={t("pages.runs.narrative.caveats")}
+                >
                   <ul className="space-y-1">
                     {narrative.recommendation.caveats.map((c) => (
                       <li key={c}>{c}</li>
@@ -348,6 +477,7 @@ export function RunNarrativeView({
           </Card>
         </NarrativeChapter>
       </div>
+      <AuthorshipTimeline />
     </div>
   );
 }

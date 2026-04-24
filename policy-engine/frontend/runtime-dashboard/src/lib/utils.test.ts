@@ -28,6 +28,7 @@ describe("utils formatters", () => {
     expect(formatPercent(Number.NaN, undefined, "en")).toBe("-");
 
     expect(formatCurrency(12.3, "USD", "en")).toBe("$12.30");
+    expect(formatCurrency(12.3, "USD", "uk")).toBe("12,30 $");
     expect(formatCurrency(undefined, "USD", "en")).toBe("-");
   });
 
@@ -38,11 +39,7 @@ describe("utils formatters", () => {
     expect(formatTime("not-a-date", "en")).toBe("not-a-date");
     expect(formatTime("2026-03-09T12:34:00Z", "en")).toMatch(/\d/);
     expect(
-      formatRelativeTime(
-        "2026-03-09T11:59:00Z",
-        "en",
-        "2026-03-09T12:00:00Z",
-      ),
+      formatRelativeTime("2026-03-09T11:59:00Z", "en", "2026-03-09T12:00:00Z"),
     ).toContain("minute");
 
     expect(formatDuration(null, "en")).toBe("-");

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import duckdb
 import numpy as np
@@ -11,7 +11,11 @@ import numpy as np
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.batch_common.thermal import pause_between_batches
 from polisyos.common.logger import get_logger
-from polisyos.datasets.batch.config import DatasetBatchConfig
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.datasets.batch.config import DatasetBatchConfig
 
 logger = get_logger(__name__)
 
@@ -31,7 +35,9 @@ def build_hnsw_index(
 
     con = duckdb.connect(str(db_path), read_only=True)
     try:
-        rows = con.execute("SELECT id, title, description, keywords, variables FROM ds_datasets").fetchall()
+        rows = con.execute(
+            "SELECT id, title, description, keywords, variables FROM ds_datasets"
+        ).fetchall()
     finally:
         con.close()
 
@@ -71,7 +77,11 @@ def build_hnsw_index(
     int_ids = np.arange(len(ids))
     idx.add_items(vectors, int_ids)
 
-    np.savez(str(index_dir / "ds_dataset_embeddings.npz"), ids=np.array(ids, dtype=object), vectors=vectors)
+    np.savez(
+        str(index_dir / "ds_dataset_embeddings.npz"),
+        ids=np.array(ids, dtype=object),
+        vectors=vectors,
+    )
     idx.save_index(str(index_dir / "ds_dataset_index.hnsw"))
     return len(ids)
 
@@ -93,7 +103,10 @@ def run_embed(config: DatasetBatchConfig, *, thermal: bool = False) -> int:
         stage="embed",
         status="ok",
         metrics={"embedded": count, "thermal": thermal},
-        artifacts=[config.index_dir / "ds_dataset_embeddings.npz", config.index_dir / "ds_dataset_index.hnsw"],
+        artifacts=[
+            config.index_dir / "ds_dataset_embeddings.npz",
+            config.index_dir / "ds_dataset_index.hnsw",
+        ],
         started_at=started_at,
     )
     logger.info("Dataset embedding complete: %d vectors", count)

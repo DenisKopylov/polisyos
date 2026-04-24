@@ -1,4 +1,5 @@
 """Bridge component-registry entries into lazy Foundry method registrations."""
+
 from __future__ import annotations
 
 import threading
@@ -17,6 +18,7 @@ _BOOTSTRAP_LOCK = threading.RLock()
 @dataclass(slots=True)
 class ComponentsBridgeError:
     """Record why a component entry could not be promoted into the method registry."""
+
     component_id: str
     message: str
 
@@ -24,6 +26,7 @@ class ComponentsBridgeError:
 @dataclass(slots=True)
 class ComponentsBridgeReport:
     """Summarize which component-backed methods were registered, skipped, or rejected."""
+
     registered: list[str] = field(default_factory=list)
     duplicates: list[str] = field(default_factory=list)
     errors: list[ComponentsBridgeError] = field(default_factory=list)
@@ -99,16 +102,13 @@ def bootstrap_method_registry_from_components(
             report.errors.append(
                 ComponentsBridgeError(
                     component_id=component_id,
-                    message=(
-                        f"component_id must equal method signature fqn: {signature.fqn!r}"
-                    ),
+                    message=(f"component_id must equal method signature fqn: {signature.fqn!r}"),
                 )
             )
             continue
 
         override = (
-            allow_dev_overrides
-            and str(getattr(entry.source, "source_type", "")) == "dev_scan"
+            allow_dev_overrides and str(getattr(entry.source, "source_type", "")) == "dev_scan"
         )
 
         try:

@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/LocaleProvider";
 import type {
   MetricValidationComparisonRow,
   MetricValidationFamilyAdjustment,
@@ -43,35 +44,46 @@ function buildNotes(row: MetricValidationComparisonRow): string {
 }
 
 export default function MetricValidationComparisonTable({
-  title = "Metric Validation",
+  title,
   comparisons,
   familyAdjustment,
 }: MetricValidationComparisonTableProps) {
+  const { t } = useI18n();
   if (comparisons.length === 0) {
     return null;
   }
+
+  const resolvedTitle = title ?? t("pages.artifacts.metricValidation.title");
 
   return (
     <section className="border-line bg-panel rounded-xl border p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h4 className="text-base font-semibold">{title}</h4>
+          <h4 className="text-base font-semibold">{resolvedTitle}</h4>
           <p className="text-muted text-xs">
             {familyAdjustment?.method
-              ? `Correction: ${familyAdjustment.method}`
-              : "Correction: -"}
+              ? t("pages.artifacts.metricValidation.correction", {
+                  method: familyAdjustment.method,
+                })
+              : t("pages.artifacts.metricValidation.correctionUnavailable")}
             {familyAdjustment?.alpha !== null &&
             familyAdjustment?.alpha !== undefined
-              ? ` · alpha=${familyAdjustment.alpha.toFixed(2)}`
+              ? ` · ${t("pages.artifacts.metricValidation.alpha", {
+                  alpha: familyAdjustment.alpha.toFixed(2),
+                })}`
               : ""}
             {familyAdjustment?.hypothesesTotal !== null &&
             familyAdjustment?.hypothesesTotal !== undefined
-              ? ` · hypotheses=${Math.round(familyAdjustment.hypothesesTotal)}`
+              ? ` · ${t("pages.artifacts.metricValidation.hypotheses", {
+                  count: Math.round(familyAdjustment.hypothesesTotal),
+                })}`
               : ""}
           </p>
         </div>
         <p className="text-muted text-xs">
-          {comparisons.length} comparison{comparisons.length === 1 ? "" : "s"}
+          {t("pages.artifacts.metricValidation.comparisonCount", {
+            count: comparisons.length,
+          })}
         </p>
       </div>
 
@@ -79,16 +91,34 @@ export default function MetricValidationComparisonTable({
         <table className="min-w-full text-sm">
           <thead className="text-muted border-line border-b text-left text-xs uppercase">
             <tr>
-              <th className="px-2 py-2">Metric</th>
-              <th className="px-2 py-2">Base</th>
-              <th className="px-2 py-2">Candidate</th>
-              <th className="px-2 py-2">Delta</th>
+              <th className="px-2 py-2">
+                {t("pages.artifacts.metricValidation.columns.metric")}
+              </th>
+              <th className="px-2 py-2">
+                {t("pages.artifacts.metricValidation.columns.base")}
+              </th>
+              <th className="px-2 py-2">
+                {t("pages.artifacts.metricValidation.columns.candidate")}
+              </th>
+              <th className="px-2 py-2">
+                {t("pages.artifacts.metricValidation.columns.delta")}
+              </th>
               <th className="px-2 py-2">CI</th>
-              <th className="px-2 py-2">Test</th>
-              <th className="px-2 py-2">p</th>
-              <th className="px-2 py-2">p_adj</th>
-              <th className="px-2 py-2">Sig</th>
-              <th className="px-2 py-2">Notes</th>
+              <th className="px-2 py-2">
+                {t("pages.artifacts.metricValidation.columns.test")}
+              </th>
+              <th className="px-2 py-2">
+                {t("pages.artifacts.metricValidation.columns.p")}
+              </th>
+              <th className="px-2 py-2">
+                {t("pages.artifacts.metricValidation.columns.pAdjusted")}
+              </th>
+              <th className="px-2 py-2">
+                {t("pages.artifacts.metricValidation.columns.significance")}
+              </th>
+              <th className="px-2 py-2">
+                {t("pages.artifacts.metricValidation.columns.notes")}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -97,8 +127,13 @@ export default function MetricValidationComparisonTable({
                 <td className="px-2 py-2 align-top">
                   <div className="font-medium">{row.metricLabel}</div>
                   <div className="text-muted text-xs">
-                    {row.baselineModelId ?? "baseline"} vs{" "}
-                    {row.candidateModelId ?? "candidate"}
+                    {row.baselineModelId ??
+                      t(
+                        "pages.artifacts.metricValidation.baselineFallback",
+                      )}{" "}
+                    {t("pages.artifacts.metricValidation.versus")}{" "}
+                    {row.candidateModelId ??
+                      t("pages.artifacts.metricValidation.candidateFallback")}
                   </div>
                 </td>
                 <td className="px-2 py-2 align-top">
@@ -115,7 +150,9 @@ export default function MetricValidationComparisonTable({
                   <div>{row.testLabel ?? row.testId ?? "-"}</div>
                   {row.statistic !== null ? (
                     <div className="text-muted text-xs">
-                      stat={formatNumber(row.statistic)}
+                      {t("pages.artifacts.metricValidation.stat", {
+                        value: formatNumber(row.statistic),
+                      })}
                     </div>
                   ) : null}
                 </td>
@@ -129,8 +166,8 @@ export default function MetricValidationComparisonTable({
                   {row.significant === null
                     ? "-"
                     : row.significant
-                      ? "Yes"
-                      : "No"}
+                      ? t("common.yes")
+                      : t("common.no")}
                 </td>
                 <td className="px-2 py-2 align-top text-xs">
                   {buildNotes(row) || "-"}

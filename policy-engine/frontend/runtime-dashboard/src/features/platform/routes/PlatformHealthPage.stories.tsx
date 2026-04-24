@@ -3,6 +3,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { queryKeys } from "@/api/queryKeys";
+import { FALLBACK_AUTH_ME } from "@/api/hooks/useAuthMe";
+import { AuthzProvider } from "@/app/authz/AuthzProvider";
 import PlatformHealthPage from "@/features/platform/routes/PlatformHealthPage";
 
 const healthData = {
@@ -102,12 +104,15 @@ function SeededPlatformHealthPage() {
     nextClient.setQueryData(queryKeys.capabilities(), capabilitiesData);
     nextClient.setQueryData(queryKeys.connectors(), connectorsData);
     nextClient.setQueryData(queryKeys.runs({ limit: 12 }), runsData);
+    nextClient.setQueryData(queryKeys.authMe(), FALLBACK_AUTH_ME);
     return nextClient;
   }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <PlatformHealthPage />
+      <AuthzProvider>
+        <PlatformHealthPage />
+      </AuthzProvider>
     </QueryClientProvider>
   );
 }

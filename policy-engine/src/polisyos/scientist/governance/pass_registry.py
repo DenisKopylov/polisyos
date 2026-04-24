@@ -188,7 +188,7 @@ def _instantiate_validator(
 __all__ = [
     "ENTRY_POINT_GROUP_GOVERNANCE_PASSES",
     "RUNTIME_ALLOWED_PASS_IDS",
-    "load_governance_passes",
     "build_governance_pipeline",
+    "load_governance_passes",
     "runtime_profile",
 ]

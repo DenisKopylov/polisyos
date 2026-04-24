@@ -4,7 +4,7 @@
 ![Python 3.14](https://img.shields.io/badge/python-3.14-blue.svg)
 ![License](https://img.shields.io/badge/license-proprietary-lightgrey.svg)
 
-_AI-driven Policy Simulation System using JAX and Unified Data Fabric_
+AI-driven Policy Simulation System using JAX and Unified Data Fabric
 
 > Canonical product root: эта директория. Workspace root выше по дереву является
 > только gateway и repo control plane.
@@ -26,16 +26,22 @@ translation steps.
 
 - **IR**: lazy public facade, ABI-oriented contracts, and committed schema snapshots used as
   compatibility checkpoints.
+
 - **Foundry**: JAX-oriented `compile() -> execute()` pipeline, measurement-aware calibration, and
   agent-simulation support for policy experiments.
+
 - **Scientist**: workflow orchestration, governance pass registry, policy search, and
   causal/transportability surfaces.
+
 - **Lex**: legal corpus -> NormPack pipeline, SPO extraction, amendment handling, temporal
   resolution, and policy-facing intervention compilation.
+
 - **Fabric**: production connector families, built-in source profiles, `SourceExecutionPolicy`
   normalization, and async-ingestion-aware data-plane paths.
+
 - **Observation**: observation contracts, causal-readiness bundles, and measurement-trust tiers
   used by calibration and governance flows.
+
 - **Runtime**: FastAPI runtime surface, control-plane services, and a React dashboard for
   operators.
 
@@ -92,26 +98,26 @@ print({"compiled": compiled.ok, "executed": executed.ok})
 
 ## Project Structure
 
-| Directory | Purpose |
-|---|---|
-| `src/polisyos/ir/` | Intermediate Representation: types, schemas, contracts |
-| `src/polisyos/foundry/` | JAX compute engine, calibration, agent simulation |
-| `src/polisyos/scientist/` | Orchestration: workflows, governance, nodes |
-| `src/polisyos/lex/` | Legal corpus processing, NormPack, interventions |
-| `src/polisyos/fabric/` | Data connectors, profiles, world store |
-| `src/polisyos/runtime/` | HTTP API, dashboard, control plane |
-| `schemas/` | JSON Schema snapshots used as ABI checkpoints |
-| `benchmarks/` | Performance and correctness benchmarks |
-| `docs/` | Documentation in Diataxis structure |
+| Directory                 | Purpose                                                |
+| ------------------------- | ------------------------------------------------------ |
+| `src/polisyos/ir/`        | Intermediate Representation: types, schemas, contracts |
+| `src/polisyos/foundry/`   | JAX compute engine, calibration, agent simulation      |
+| `src/polisyos/scientist/` | Orchestration: workflows, governance, nodes            |
+| `src/polisyos/lex/`       | Legal corpus processing, NormPack, interventions       |
+| `src/polisyos/fabric/`    | Data connectors, profiles, world store                 |
+| `src/polisyos/runtime/`   | HTTP API, dashboard, control plane                     |
+| `schemas/`                | JSON Schema snapshots used as ABI checkpoints          |
+| `benchmarks/`             | Performance and correctness benchmarks                 |
+| `docs/`                   | Documentation in Diataxis structure                    |
 
 ## Public Entry Points
 
-| Surface | Start here | Stability |
-|---|---|---|
+| Surface                | Start here                                                                                                                      | Stability                                                                                     |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | Python package facades | `polisyos.ir`, `polisyos.core`, `polisyos.fabric`, `polisyos.foundry`, `polisyos.scientist`, `polisyos.runtime`, `polisyos.lex` | Listed in [Public Surface](https://deniskopylov.github.io/polisyos/reference/public-surface/) |
-| Runtime API | `polisyos.runtime.http.app:create_runtime_api_app`, `schemas/runtime_api_v1.openapi.json` | Governed by the Runtime API contract check |
-| CLI | `polisyos-tools`, `polisyos`, `polisyos-foundry`, `polisyos-causal-capabilities` | Generated in [Tools Reference](https://deniskopylov.github.io/polisyos/reference/tools/) |
-| Frontend consumers | `frontend/runtime-api-client`, `frontend/runtime-dashboard`, `frontend/runtime-reference-shell` | Governed by runtime contract and frontend contract fixtures |
+| Runtime API            | `polisyos.runtime.http.app:create_runtime_api_app`, `schemas/runtime_api_v1.openapi.json`                                       | Governed by the Runtime API contract check                                                    |
+| CLI                    | `polisyos-tools`, `polisyos`, `polisyos-foundry`, `polisyos-causal-capabilities`                                                | Generated in [Tools Reference](https://deniskopylov.github.io/polisyos/reference/tools/)      |
+| Frontend consumers     | `frontend/runtime-api-client`, `frontend/runtime-dashboard`, `frontend/runtime-reference-shell`                                 | Governed by runtime contract and frontend contract fixtures                                   |
 
 ## Dependency Boundaries
 
@@ -147,31 +153,31 @@ uv run --extra ml polisyos-tools diagnostics gen-schema --check
 
 ## If You Need to Change X, Start Here
 
-| Change | Start here |
-|---|---|
-| Public package facade / supported imports | `architecture/public_surface.toml`, `src/polisyos/*/__init__.py`, `docs/reference/public-surface.md` |
-| Generated contract artifact | `architecture/generated_artifacts.toml`, `docs/reference/generated-artifacts.md`, then the source generator |
-| New connector | `uv run polisyos-tools architecture scaffold connector --name MySource --type REST --dry-run`, `docs/connectors/CONTRIBUTING.md` |
-| New governance pass | `uv run polisyos-tools architecture scaffold governance-pass --name my_pass --output ... --test-output ... --dry-run`, `docs/how-to/write-governance-pass.md` |
-| New runtime route | `uv run polisyos-tools architecture scaffold runtime-route --name my_route --output ... --dry-run`, `src/polisyos/runtime/http/routes/README.md` |
-| New benchmark | `uv run polisyos-tools architecture scaffold benchmark --suite causal --name my_case --output ... --dry-run`, `docs/how-to/run-benchmarks.md` |
-| New subsystem / major surface | `docs/reference/ratchet-policy.md`, `uv run polisyos-tools architecture scaffold package-readme --module ... --output ... --dry-run` |
-| Repo-wide acceptance closeout | `docs/reference/operations/platform-acceptance-audit.md`, `python3 -m tools.cli workspace acceptance-audit` |
-| New ADR / runbook | `uv run polisyos-tools architecture scaffold adr ...` or `uv run polisyos-tools architecture scaffold runbook ...` |
+| Change                                    | Start here                                                                                                                                                    |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Public package facade / supported imports | `architecture/public_surface.toml`, `src/polisyos/*/__init__.py`, `docs/reference/public-surface.md`                                                          |
+| Generated contract artifact               | `architecture/generated_artifacts.toml`, `docs/reference/generated-artifacts.md`, then the source generator                                                   |
+| New connector                             | `uv run polisyos-tools architecture scaffold connector --name MySource --type REST --dry-run`, `docs/connectors/CONTRIBUTING.md`                              |
+| New governance pass                       | `uv run polisyos-tools architecture scaffold governance-pass --name my_pass --output ... --test-output ... --dry-run`, `docs/how-to/write-governance-pass.md` |
+| New runtime route                         | `uv run polisyos-tools architecture scaffold runtime-route --name my_route --output ... --dry-run`, `src/polisyos/runtime/http/routes/README.md`              |
+| New benchmark                             | `uv run polisyos-tools architecture scaffold benchmark --suite causal --name my_case --output ... --dry-run`, `docs/how-to/run-benchmarks.md`                 |
+| New subsystem / major surface             | `docs/reference/ratchet-policy.md`, `uv run polisyos-tools architecture scaffold package-readme --module ... --output ... --dry-run`                          |
+| Repo-wide acceptance closeout             | `docs/reference/operations/platform-acceptance-audit.md`, `python3 -m tools.cli workspace acceptance-audit`                                                   |
+| New ADR / runbook                         | `uv run polisyos-tools architecture scaffold adr ...` or `uv run polisyos-tools architecture scaffold runbook ...`                                            |
 
 ## Documentation
 
-| Section | Path |
-|---|---|
-| Docs Site | [PolicyOS Documentation](https://deniskopylov.github.io/polisyos/) |
-| Tutorials | [Tutorials](https://deniskopylov.github.io/polisyos/tutorials/) |
-| How-to | [How-to Guides](https://deniskopylov.github.io/polisyos/how-to/) |
-| Reference | [Reference](https://deniskopylov.github.io/polisyos/reference/) |
-| Explanation | [Explanation](https://deniskopylov.github.io/polisyos/explanation/) |
-| ADRs | [ADRs](https://deniskopylov.github.io/polisyos/adr/) |
-| Public Surface | [Public Surface](https://deniskopylov.github.io/polisyos/reference/public-surface/) |
-| Generated Artifacts | [Generated Artifacts](https://deniskopylov.github.io/polisyos/reference/generated-artifacts/) |
-| Ratchet Policy | [Ratchet Policy](https://deniskopylov.github.io/polisyos/reference/ratchet-policy/) |
+| Section                   | Path                                                                                                                 |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Docs Site                 | [PolicyOS Documentation](https://deniskopylov.github.io/polisyos/)                                                   |
+| Tutorials                 | [Tutorials](https://deniskopylov.github.io/polisyos/tutorials/)                                                      |
+| How-to                    | [How-to Guides](https://deniskopylov.github.io/polisyos/how-to/)                                                     |
+| Reference                 | [Reference](https://deniskopylov.github.io/polisyos/reference/)                                                      |
+| Explanation               | [Explanation](https://deniskopylov.github.io/polisyos/explanation/)                                                  |
+| ADRs                      | [ADRs](https://deniskopylov.github.io/polisyos/adr/)                                                                 |
+| Public Surface            | [Public Surface](https://deniskopylov.github.io/polisyos/reference/public-surface/)                                  |
+| Generated Artifacts       | [Generated Artifacts](https://deniskopylov.github.io/polisyos/reference/generated-artifacts/)                        |
+| Ratchet Policy            | [Ratchet Policy](https://deniskopylov.github.io/polisyos/reference/ratchet-policy/)                                  |
 | Platform Acceptance Audit | [Platform Acceptance Audit](https://deniskopylov.github.io/polisyos/reference/operations/platform-acceptance-audit/) |
 
 ## License

@@ -7,11 +7,11 @@ runs. This lets tests verify that the Phase 2.9 resilience layer
 (RetryPolicy, CircuitBreaker, FallbackChain) behaves correctly under
 realistic failure conditions -- without touching a real API.
 """
+
 from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass, field
-from typing import Any
 
 import pytest
 
@@ -50,8 +50,7 @@ class FaultProfile:
     def __post_init__(self) -> None:
         if self.kind not in ("latency", "error", "disconnect"):
             raise ValueError(
-                f"Invalid fault kind '{self.kind}'. "
-                "Must be one of: latency, error, disconnect."
+                f"Invalid fault kind '{self.kind}'. Must be one of: latency, error, disconnect."
             )
         if self.kind == "latency" and self.latency_ms <= 0:
             raise ValueError("latency_ms must be > 0 for kind='latency'.")
@@ -209,42 +208,50 @@ class FaultInjector:
             case "error":
                 raise SimulatedHTTPError(profile.status_code)
             case "disconnect":
-                raise ConnectionError(
-                    "Simulated TCP disconnect (injected by FaultInjector)"
-                )
+                raise ConnectionError("Simulated TCP disconnect (injected by FaultInjector)")
 
     # ------------------------------------------------------------------
     # Convenience factory methods
     # ------------------------------------------------------------------
 
     @classmethod
-    def with_latency(cls, connector: SourceConnector, latency_ms: int, count: int = 1) -> "FaultInjector":
+    def with_latency(
+        cls, connector: SourceConnector, latency_ms: int, count: int = 1
+    ) -> FaultInjector:
         """Create an injector that adds latency to the next count fetches."""
         return cls(
             connector=connector,
-            sequence=FaultSequence([
-                FaultProfile(kind="latency", latency_ms=latency_ms, count=count),
-            ]),
+            sequence=FaultSequence(
+                [
+                    FaultProfile(kind="latency", latency_ms=latency_ms, count=count),
+                ]
+            ),
         )
 
     @classmethod
-    def with_error(cls, connector: SourceConnector, status_code: int, count: int = 1) -> "FaultInjector":
+    def with_error(
+        cls, connector: SourceConnector, status_code: int, count: int = 1
+    ) -> FaultInjector:
         """Create an injector that raises HTTP errors for the next count fetches."""
         return cls(
             connector=connector,
-            sequence=FaultSequence([
-                FaultProfile(kind="error", status_code=status_code, count=count),
-            ]),
+            sequence=FaultSequence(
+                [
+                    FaultProfile(kind="error", status_code=status_code, count=count),
+                ]
+            ),
         )
 
     @classmethod
-    def with_disconnect(cls, connector: SourceConnector, count: int = 1) -> "FaultInjector":
+    def with_disconnect(cls, connector: SourceConnector, count: int = 1) -> FaultInjector:
         """Create an injector that drops connections for the next count fetches."""
         return cls(
             connector=connector,
-            sequence=FaultSequence([
-                FaultProfile(kind="disconnect", count=count),
-            ]),
+            sequence=FaultSequence(
+                [
+                    FaultProfile(kind="disconnect", count=count),
+                ]
+            ),
         )
 
     # ------------------------------------------------------------------
@@ -278,13 +285,14 @@ class FaultInjector:
 # ---------------------------------------------------------------------------
 
 
-@pytest.fixture()
+@pytest.fixture
 def fault_injector() -> FaultInjector:
     """
     Provide a bare FaultInjector with an empty sequence.
 
     Tests parametrise the sequence after receiving the fixture.
     """
+
     class _Placeholder:
         pass
 

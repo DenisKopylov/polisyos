@@ -1,7 +1,6 @@
 """Tests for ToolRegistry."""
-from __future__ import annotations
 
-import asyncio
+from __future__ import annotations
 
 import pytest
 

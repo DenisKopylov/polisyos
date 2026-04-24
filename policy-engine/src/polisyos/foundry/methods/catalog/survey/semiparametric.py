@@ -12,6 +12,7 @@ This module provides the compositional bridge required by Phase 1 / P1.02:
    selection model.
 5. Expose Foundry methods for ATE, ATT, and subgroup conditional means.
 """
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -586,13 +587,11 @@ def combine_weights_for_estimand(
         )
         if estimand == "ate":
             combined = weights * (
-                treatment_arr / propensity_arr
-                + (1.0 - treatment_arr) / (1.0 - propensity_arr)
+                treatment_arr / propensity_arr + (1.0 - treatment_arr) / (1.0 - propensity_arr)
             )
         elif estimand == "att":
             combined = weights * (
-                treatment_arr
-                + (1.0 - treatment_arr) * propensity_arr / (1.0 - propensity_arr)
+                treatment_arr + (1.0 - treatment_arr) * propensity_arr / (1.0 - propensity_arr)
             )
         elif estimand == "subgroup_mean":
             arm = float(target_treatment)
@@ -663,9 +662,7 @@ def compute_binder_linearized_variance(
             continue
         totals_arr = np.asarray(stratum_totals, dtype=float)
         totals_mean = float(np.mean(totals_arr))
-        variance_numerator += float(
-            n_psu / (n_psu - 1.0) * np.sum((totals_arr - totals_mean) ** 2)
-        )
+        variance_numerator += float(n_psu / (n_psu - 1.0) * np.sum((totals_arr - totals_mean) ** 2))
 
     variance = float(variance_numerator / (denominator**2))
     srs_numerator = float(np.sum(centered**2))
@@ -858,9 +855,7 @@ def diagnose_weight_regime(
         )
     total_abs_psu = float(np.sum(np.abs(psu_totals)))
     max_psu_share = (
-        float(np.max(np.abs(psu_totals)) / total_abs_psu)
-        if total_abs_psu > 0.0
-        else 0.0
+        float(np.max(np.abs(psu_totals)) / total_abs_psu) if total_abs_psu > 0.0 else 0.0
     )
 
     psu_leverage_flags: list[str] = []
@@ -1447,9 +1442,7 @@ def _run_survey_semiparametric_method(
         y_filled = np.asarray(y, dtype=float).copy()
         y_filled[~np.isfinite(y_filled)] = factual_prediction[~np.isfinite(y_filled)]
         schedule = build_psu_stratified_cross_fit_schedule(
-            design_spec.strata
-            if design_spec.strata is not None
-            else np.zeros(n_obs, dtype=object),
+            design_spec.strata if design_spec.strata is not None else np.zeros(n_obs, dtype=object),
             design_spec.psu if design_spec.psu is not None else np.arange(n_obs, dtype=object),
             n_folds=n_folds,
             seed=seed,

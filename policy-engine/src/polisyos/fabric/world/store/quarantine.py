@@ -1,4 +1,5 @@
 """World-store facade for shared fabric quarantine APIs."""
+
 from __future__ import annotations
 
 from polisyos.fabric.data_plane.quarantine import (

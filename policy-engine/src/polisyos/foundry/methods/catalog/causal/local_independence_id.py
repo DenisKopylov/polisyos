@@ -1,7 +1,6 @@
 """Local-independence identification helpers for continuous-time event processes."""
-from __future__ import annotations
 
-from typing import Any
+from __future__ import annotations
 
 from polisyos.foundry.methods.catalog.causal.id_engine import (
     IdentificationResult,

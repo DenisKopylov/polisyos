@@ -207,8 +207,7 @@ def test_suggest_execution_plan_topology_mutations_for_removed_wrapper() -> None
         for mutation in mutations
     )
     assert any(
-        mutation.kind is TopologyMutationKind.DROP_OPTIONAL_NODE
-        and mutation.node_id == "node_lp"
+        mutation.kind is TopologyMutationKind.DROP_OPTIONAL_NODE and mutation.node_id == "node_lp"
         for mutation in mutations
     )
 
@@ -246,8 +245,7 @@ def test_suggest_execution_plan_topology_mutations_accepts_registry_provider(
     )
 
     assert any(
-        mutation.kind is TopologyMutationKind.SWAP_METHOD
-        and mutation.node_id == "node_lp"
+        mutation.kind is TopologyMutationKind.SWAP_METHOD and mutation.node_id == "node_lp"
         for mutation in mutations
     )
 
@@ -279,7 +277,10 @@ def test_capability_aware_generator_emits_topology_candidate_for_missing_method(
     assert candidate.mode is ExecutionPlanSearchMode.TOPOLOGY_STEP
     assert candidate.topology_mutation is not None
     assert candidate.topology_mutation.kind is TopologyMutationKind.SWAP_METHOD
-    assert candidate.topology_mutation.replacement_method_fqn == "optimization.linear.resource_lp@1.0.0"
+    assert (
+        candidate.topology_mutation.replacement_method_fqn
+        == "optimization.linear.resource_lp@1.0.0"
+    )
 
 
 def test_execution_plan_search_loop_defaults_to_capability_aware_generator() -> None:

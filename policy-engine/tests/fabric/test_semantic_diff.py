@@ -1,6 +1,11 @@
 from __future__ import annotations
 
-from polisyos.fabric.connectors.contracts.schema import DataSchema, FieldSpec, SchemaType, SemanticType
+from polisyos.fabric.connectors.contracts.schema import (
+    DataSchema,
+    FieldSpec,
+    SchemaType,
+    SemanticType,
+)
 from polisyos.fabric.data_plane.semantic_diff import compare_historical_rows
 
 
@@ -9,9 +14,15 @@ def test_semantic_diff_uses_primary_key_and_detects_row_revisions() -> None:
         schema_id="fixture.metrics",
         version="1.0",
         fields=(
-            FieldSpec(name="country_code", data_type=SchemaType.STRING, semantic_type=SemanticType.CODE),
+            FieldSpec(
+                name="country_code", data_type=SchemaType.STRING, semantic_type=SemanticType.CODE
+            ),
             FieldSpec(name="year", data_type=SchemaType.INT32, semantic_type=SemanticType.TEMPORAL),
-            FieldSpec(name="policy_cost", data_type=SchemaType.FLOAT64, semantic_type=SemanticType.CURRENCY),
+            FieldSpec(
+                name="policy_cost",
+                data_type=SchemaType.FLOAT64,
+                semantic_type=SemanticType.CURRENCY,
+            ),
         ),
         primary_key=("country_code", "year"),
         time_dimension="year",
@@ -67,7 +78,9 @@ def test_semantic_diff_reports_duplicate_keys_explicitly() -> None:
         schema_id="fixture.duplicates",
         version="1.0",
         fields=(
-            FieldSpec(name="country_code", data_type=SchemaType.STRING, semantic_type=SemanticType.CODE),
+            FieldSpec(
+                name="country_code", data_type=SchemaType.STRING, semantic_type=SemanticType.CODE
+            ),
             FieldSpec(name="year", data_type=SchemaType.INT32, semantic_type=SemanticType.TEMPORAL),
             FieldSpec(name="value", data_type=SchemaType.FLOAT64),
         ),

@@ -1,4 +1,5 @@
 """Unit tests for CausalEngine orchestrator."""
+
 import dataclasses
 
 import numpy as np
@@ -10,9 +11,6 @@ from polisyos.foundry.methods.catalog.causal.causal_engine import (
     DataReadinessBlockedError,
 )
 from polisyos.foundry.methods.catalog.causal.estimand_compiler import ExecutorGraph, ExecutorNode
-from polisyos.foundry.methods.catalog.causal.temporal_estimand_compiler import (
-    TemporalCompileError,
-)
 from polisyos.foundry.methods.catalog.causal.id_engine import (
     IdentificationResult,
     IdentificationStatus,
@@ -29,6 +27,10 @@ from polisyos.ir.analytics.causal import (
     proof_bundle_from_identification_result,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+from polisyos.ir.analytics.dependence_structure import (
+    build_dependence_structure,
+    persist_dependence_structure,
+)
 from polisyos.ir.analytics.dp_robustness import (
     DPEffectiveValidity,
     DPGraphProvenance,
@@ -49,7 +51,6 @@ from polisyos.ir.analytics.dual_certificate import (
     load_dual_certificate_bundle,
     validate_dual_certificate_bundle,
 )
-from polisyos.ir.artifacts import get_json_artifact
 from polisyos.ir.analytics.dynamic_causal_semantics import (
     DynamicReductionStatus,
     DynamicSemanticsFamily,
@@ -96,10 +97,6 @@ from polisyos.ir.analytics.interventions import (
     load_intervention_certificate,
     load_intervention_query,
 )
-from polisyos.ir.analytics.dependence_structure import (
-    build_dependence_structure,
-    persist_dependence_structure,
-)
 from polisyos.ir.analytics.local_independence import (
     LocalIndependenceWeightingCertificateRef,
     load_local_independence_weighting_certificate,
@@ -132,6 +129,7 @@ from polisyos.ir.analytics.survey_quality import (
     build_survey_quality_certificate,
     persist_survey_quality_certificate,
 )
+from polisyos.ir.artifacts import get_json_artifact
 from polisyos.ir.governance.phase1 import load_phase1_flagship_dataset_ids
 from polisyos.ir.refs import (
     ArtifactRefModel,
@@ -553,7 +551,9 @@ class TestCausalEngineIdentify:
         assert proof.proof_stratum == "A1_dynamic"
         assert proof.completeness_regime == "sound_incomplete"
         assert proof.dynamic_semantics is not None
-        assert proof.dynamic_semantics.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION
+        assert (
+            proof.dynamic_semantics.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION
+        )
 
     def test_identify_cyclic_distribution_query_requires_validated_reduction(self):
         graph = CausalGraphModel(
@@ -628,7 +628,9 @@ class TestCausalEngineIdentify:
         assert result.metadata["query_kind"] == "intervention"
         assert result.metadata["intervention_type"] == "node"
         proof = proof_bundle_from_identification_result(result)
-        assert proof.metadata["intervention_certificate"]["query"]["target"]["conditioning"] == ["Z"]
+        assert proof.metadata["intervention_certificate"]["query"]["target"]["conditioning"] == [
+            "Z"
+        ]
 
     def test_identify_shift_policy_uses_mtp_node_and_certificate(self):
         graph = make_dag([("W", "A"), ("A", "Y"), ("W", "Y")])
@@ -1010,8 +1012,13 @@ class TestCausalEngineIdentify:
 
         assert isinstance(result, NegativeCertificate)
         assert result.blocking_type == BlockingType.SEMANTICS_NOT_WELL_DEFINED
-        assert result.quantitative_diagnostics["algorithm_version"] == "interference_intervention_v1"
-        assert result.quantitative_diagnostics["interference_certificate"]["fallback_mode"] == "clustered"
+        assert (
+            result.quantitative_diagnostics["algorithm_version"] == "interference_intervention_v1"
+        )
+        assert (
+            result.quantitative_diagnostics["interference_certificate"]["fallback_mode"]
+            == "clustered"
+        )
         assert "Exposure augmentation" in " ".join(result.quantitative_diagnostics["proof_trace"])
 
     def test_identify_interference_query_identifies_when_no_cross_unit_edges_exist(self):
@@ -1127,9 +1134,10 @@ class TestCausalEngineIdentify:
         assert result.metadata["interference_mode_used"] == "clustered"
         assert result.metadata["interference_fallback_triggered"] is True
         assert result.metadata["interference_estimand_label"] == "clustered_exposure_effect"
-        assert "known_simplicial_complex" in result.metadata["interference_certificate"][
-            "exposure_assumptions"
-        ]
+        assert (
+            "known_simplicial_complex"
+            in result.metadata["interference_certificate"]["exposure_assumptions"]
+        )
 
     def test_identify_rejects_ill_typed_intervention_query(self):
         graph = make_dag([("A", "Y"), ("W", "A"), ("W", "Y")])
@@ -1137,9 +1145,7 @@ class TestCausalEngineIdentify:
             target=QueryTarget(outcome_variables=("Y",)),
             intervention=CompositeIntervention(
                 steps=(
-                    NodeIntervention(
-                        assignments=(VariableAssignment(variable="A", value=1),)
-                    ),
+                    NodeIntervention(assignments=(VariableAssignment(variable="A", value=1),)),
                     MTPIntervention(
                         policies=(
                             ModifiedTreatmentPolicySpec(
@@ -1175,6 +1181,7 @@ class TestCausalEngineCompile:
 
     def test_compile_returns_executor_graph(self):
         from polisyos.foundry.methods.catalog.causal.estimand_compiler import ExecutorGraph
+
         result = self._get_identified_result()
         eg = self.engine.compile(result, n_obs=500, covariate_dim=3)
         assert isinstance(eg, ExecutorGraph)
@@ -1187,7 +1194,10 @@ class TestCausalEngineCompile:
     def test_compile_raises_on_non_identified(self):
         result = make_confounded([("X", "Y")], [("X", "Y")])
         non_id_result = self.engine.identify("X", "Y", result)
-        if isinstance(non_id_result, IdentificationResult) and non_id_result.estimand_ast is not None:
+        if (
+            isinstance(non_id_result, IdentificationResult)
+            and non_id_result.estimand_ast is not None
+        ):
             pytest.skip("Unexpectedly identified")
         if isinstance(non_id_result, NegativeCertificate):
             pytest.skip("Returns NegativeCertificate — cannot test ValueError from compile")
@@ -1209,6 +1219,7 @@ class TestCausalEngineAudit:
             from polisyos.foundry.methods.catalog.causal.causal_engine import (
                 _make_dummy_identification_result,
             )
+
             result = _make_dummy_identification_result("X", "Y")
         bundle = engine.audit(result, None, run_id="test-run-1")
         assert isinstance(bundle, EvidenceBundle)
@@ -1220,6 +1231,7 @@ class TestCausalEngineAudit:
             from polisyos.foundry.methods.catalog.causal.causal_engine import (
                 _make_dummy_identification_result,
             )
+
             result = _make_dummy_identification_result("X", "Y")
         bundle = engine.audit(result, None, run_id="my-unique-run")
         assert bundle.run_id == "my-unique-run"
@@ -1231,6 +1243,7 @@ class TestCausalEngineAudit:
             from polisyos.foundry.methods.catalog.causal.causal_engine import (
                 _make_dummy_identification_result,
             )
+
             result = _make_dummy_identification_result("X", "Y")
         bundle = engine.audit(result, None, run_id="r1")
         assert isinstance(bundle.created_at, str)
@@ -1244,6 +1257,7 @@ class TestCausalEngineAudit:
             from polisyos.foundry.methods.catalog.causal.causal_engine import (
                 _make_dummy_identification_result,
             )
+
             result = _make_dummy_identification_result("X", "Y")
         bundle = engine.audit(result, None, run_id="r2")
         assert isinstance(bundle.identification_status, str)
@@ -1253,12 +1267,14 @@ class TestCausalEngineAudit:
 
     def test_audit_schema_report_in_diagnostics(self, tmp_path):
         from polisyos.foundry.methods.catalog.causal.schema_resolver import SchemaResolutionReport
+
         engine = CausalEngine(registry=None, artifact_store=FileSystemCAS(tmp_path / "cas"))
         result = self._get_result(engine)
         if isinstance(result, NegativeCertificate):
             from polisyos.foundry.methods.catalog.causal.causal_engine import (
                 _make_dummy_identification_result,
             )
+
             result = _make_dummy_identification_result("X", "Y")
         schema = SchemaResolutionReport(support_warnings=["overlap concern"], is_feasible=True)
         bundle = engine.audit(result, None, run_id="r3", schema_report=schema)
@@ -1397,9 +1413,11 @@ class TestCausalEngineRun:
         graph = make_confounded([("X", "Y")], [("X", "Y")])
         report, bundle, cert = engine.run("X", "Y", graph)
         # Should get negative cert or HEDGE_FOUND
-        assert report is None or cert is not None or bundle.identification_status in {
-            "hedge_found", "oracle_needed"
-        }
+        assert (
+            report is None
+            or cert is not None
+            or bundle.identification_status in {"hedge_found", "oracle_needed"}
+        )
         if cert is not None:
             assert cert.recovery_plan is not None
             assert bundle.proof_bundle_ref is not None
@@ -1444,10 +1462,9 @@ class TestCausalEngineRun:
         assert proof_bundle.metadata["method"] == "proximal_bridge"
         assert proof_bundle.metadata["proximal_certificate"]["query"]["treatment"] == ["A"]
         assert proof_bundle.proximal_certificate_ref is not None
-        assert (
-            load_proximal_identification_certificate(store, proof_bundle.proximal_certificate_ref).query.treatment
-            == ("A",)
-        )
+        assert load_proximal_identification_certificate(
+            store, proof_bundle.proximal_certificate_ref
+        ).query.treatment == ("A",)
         assert readiness.measurement_quality == "proxy_only"
 
     def test_run_executes_proximal_bridge_diagnostics_when_proxy_arrays_available(self, tmp_path):
@@ -1523,9 +1540,9 @@ class TestCausalEngineRun:
         x2 = rng.normal(size=n_obs)
         latent = 0.45 * x1 - 0.25 * x2 + rng.normal(scale=0.4, size=n_obs)
         treatment_logits = 0.4 * x1 + 0.2 * x2 + 0.8 * latent
-        treatment = (
-            rng.uniform(size=n_obs) < (1.0 / (1.0 + np.exp(-treatment_logits)))
-        ).astype(float)
+        treatment = (rng.uniform(size=n_obs) < (1.0 / (1.0 + np.exp(-treatment_logits)))).astype(
+            float
+        )
         spillover_treatment = adjacency @ treatment / np.maximum(adjacency.sum(axis=1), 1.0)
         outcome = (
             0.9 * treatment
@@ -1662,13 +1679,26 @@ class TestCausalEngineRun:
         mediator = 0.9 * treatment + 0.35 * x + 0.5 * latent + rng.normal(scale=0.3, size=n_obs)
         z_proxy = latent + rng.normal(scale=0.25, size=n_obs)
         w_proxy = 0.75 * latent + 0.25 * x + rng.normal(scale=0.25, size=n_obs)
-        outcome = 0.75 * treatment + 0.95 * mediator + 0.25 * x + latent + rng.normal(scale=0.3, size=n_obs)
+        outcome = (
+            0.75 * treatment
+            + 0.95 * mediator
+            + 0.25 * x
+            + latent
+            + rng.normal(scale=0.3, size=n_obs)
+        )
 
         report, bundle, cert = engine.run(
             "A",
             "Y",
             graph,
-            data_dict={"A": treatment, "M": mediator, "Y": outcome, "X": x, "Z": z_proxy, "W": w_proxy},
+            data_dict={
+                "A": treatment,
+                "M": mediator,
+                "Y": outcome,
+                "X": x,
+                "Z": z_proxy,
+                "W": w_proxy,
+            },
             intervention_query=query,
             proximal_annotation=ProxyAnnotation(
                 treatment_inducing=("Z",),
@@ -1723,13 +1753,22 @@ class TestCausalEngineRun:
         mediator = 0.85 * treatment + 0.4 * x + 0.45 * latent + rng.normal(scale=0.3, size=n_obs)
         z_proxy = latent + rng.normal(scale=0.25, size=n_obs)
         w_proxy = 0.8 * latent + 0.2 * x + rng.normal(scale=0.25, size=n_obs)
-        outcome = 0.7 * treatment + 1.0 * mediator + 0.3 * x + latent + rng.normal(scale=0.3, size=n_obs)
+        outcome = (
+            0.7 * treatment + 1.0 * mediator + 0.3 * x + latent + rng.normal(scale=0.3, size=n_obs)
+        )
 
         report, bundle, cert = engine.run(
             "A",
             "Y",
             graph,
-            data_dict={"A": treatment, "M": mediator, "Y": outcome, "X": x, "Z": z_proxy, "W": w_proxy},
+            data_dict={
+                "A": treatment,
+                "M": mediator,
+                "Y": outcome,
+                "X": x,
+                "Z": z_proxy,
+                "W": w_proxy,
+            },
             intervention_query=query,
             proximal_annotation=ProxyAnnotation(
                 treatment_inducing=("Z",),
@@ -1805,7 +1844,9 @@ class TestCausalEngineRun:
         monkeypatch.setattr(
             engine,
             "compile",
-            lambda *args, **kwargs: ExecutorGraph(nodes=(), edges=(), nuisance_schedule=(), run_id="run"),
+            lambda *args, **kwargs: ExecutorGraph(
+                nodes=(), edges=(), nuisance_schedule=(), run_id="run"
+            ),
         )
         monkeypatch.setattr(
             engine,
@@ -1814,7 +1855,9 @@ class TestCausalEngineRun:
         )
 
         def _unexpected_estimate(*args, **kwargs):
-            raise AssertionError("estimate() should not run when readiness preflight blocks execution")
+            raise AssertionError(
+                "estimate() should not run when readiness preflight blocks execution"
+            )
 
         monkeypatch.setattr(engine, "estimate", _unexpected_estimate)
 
@@ -1991,7 +2034,8 @@ class TestCausalEngineTemporal:
         return ContinuousTimeQuery(
             intervention_trajectory_ref=(
                 intervention_ref
-                if intervention_ref is not None or query_mode is TemporalQueryMode.OPTIMAL_POLICY_DISCOVERY
+                if intervention_ref is not None
+                or query_mode is TemporalQueryMode.OPTIMAL_POLICY_DISCOVERY
                 else _artifact_ref("a", kind="ir.temporal_intervention_trajectory")
             ),
             query_mode=query_mode,
@@ -2055,10 +2099,7 @@ class TestCausalEngineTemporal:
                     - 0.20 * treatment[:, t] * (state[:, t] <= 0.0)
                     + rng.normal(0.0, 0.25, size=n_units)
                 )
-        reward = (
-            1.4 * treatment * (state > 0.0)
-            - 0.7 * treatment * (state <= 0.0)
-        ).sum(axis=1)
+        reward = (1.4 * treatment * (state > 0.0) - 0.7 * treatment * (state <= 0.0)).sum(axis=1)
         outcome = reward + 0.25 * state[:, 0] + rng.normal(0.0, 0.30, size=n_units)
         return DynamicTreatmentData(
             outcome=outcome,
@@ -2127,7 +2168,10 @@ class TestCausalEngineTemporal:
         diagnostics_payload = get_json_artifact(store, restored.solver_diagnostics_ref.artifact_id)
         assert diagnostics_payload["schema_name"] == "ir.temporal_solver_diagnostics"
         assert diagnostics_payload["schema_version"] == "1.1"
-        assert diagnostics_payload["causal_translation_certificate"]["status"] == "certified_restricted"
+        assert (
+            diagnostics_payload["causal_translation_certificate"]["status"]
+            == "certified_restricted"
+        )
         assert diagnostics_payload["causal_translation_certificate"]["evidence"]["theory_refs"]
         assert diagnostics_payload["causal_equivalence_note"]
 
@@ -2135,7 +2179,10 @@ class TestCausalEngineTemporal:
         proof = load_proof_bundle(store, proof_ref)
         assert proof.proof_status == "oracle_needed"
         assert proof.dynamic_semantics is not None
-        assert proof.dynamic_semantics.semantics_family is DynamicSemanticsFamily.LOCAL_INDEPENDENCE_GRAPH
+        assert (
+            proof.dynamic_semantics.semantics_family
+            is DynamicSemanticsFamily.LOCAL_INDEPENDENCE_GRAPH
+        )
         assert proof.dynamic_semantics.reduction_status is DynamicReductionStatus.BLOCKED
 
     def test_identify_continuous_time_query_marks_validated_local_independence(self):
@@ -2156,8 +2203,13 @@ class TestCausalEngineTemporal:
         assert proof.proof_status == "identified"
         assert proof.proof_stratum == "A1_dynamic"
         assert proof.dynamic_semantics is not None
-        assert proof.dynamic_semantics.semantics_family is DynamicSemanticsFamily.LOCAL_INDEPENDENCE_GRAPH
-        assert proof.dynamic_semantics.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION
+        assert (
+            proof.dynamic_semantics.semantics_family
+            is DynamicSemanticsFamily.LOCAL_INDEPENDENCE_GRAPH
+        )
+        assert (
+            proof.dynamic_semantics.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION
+        )
         assert proof.dynamic_semantics.continuous_time_attachment is not None
         assert proof.dynamic_semantics.continuous_time_attachment.eliminable_processes == (
             "latent_noise",
@@ -2196,7 +2248,9 @@ class TestCausalEngineTemporal:
         proof = load_proof_bundle(store, proof_ref)
         assert proof.proof_status == "identified"
         assert proof.dynamic_semantics is not None
-        assert proof.dynamic_semantics.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION
+        assert (
+            proof.dynamic_semantics.reduction_status is DynamicReductionStatus.VALIDATED_REDUCTION
+        )
         assert proof.metadata["local_independence_certificate_ref"]["kind"] == (
             "ir.local_independence_weighting_certificate"
         )
@@ -2356,7 +2410,9 @@ class TestCausalEngineTemporal:
         assert bundle.metadata["policy_artifact_ref"] is not None
         assert bundle.metadata["derived_schedule_ref"] is not None
 
-        policy_ref = DynamicTreatmentRegimeRef.model_validate(bundle.metadata["policy_artifact_ref"])
+        policy_ref = DynamicTreatmentRegimeRef.model_validate(
+            bundle.metadata["policy_artifact_ref"]
+        )
         derived_ref = TemporalInterventionTrajectoryRef.model_validate(
             bundle.metadata["derived_schedule_ref"]
         )
@@ -2456,7 +2512,9 @@ def test_dynamic_causal_effect_runs_with_verified_readiness(monkeypatch):
     assert result.counterfactual_mean == pytest.approx(1.25)
 
 
-def test_dynamic_causal_effect_blocks_government_data_without_survey_certificate(monkeypatch, tmp_path):
+def test_dynamic_causal_effect_blocks_government_data_without_survey_certificate(
+    monkeypatch, tmp_path
+):
     from polisyos.foundry.methods.catalog.causal.g_computation import ICEGFormula
 
     store = FileSystemCAS(tmp_path / "cas")
@@ -2475,7 +2533,10 @@ def test_dynamic_causal_effect_blocks_government_data_without_survey_certificate
             method="ice_g",
         )
 
-    assert "survey_quality_certificate_missing_for_government_dataset" in exc_info.value.report.blocking_reasons
+    assert (
+        "survey_quality_certificate_missing_for_government_dataset"
+        in exc_info.value.report.blocking_reasons
+    )
 
 
 def test_dynamic_causal_effect_blocks_failing_government_certificate(monkeypatch, tmp_path):
@@ -2533,7 +2594,9 @@ def test_dynamic_causal_effect_blocks_when_flagship_coverage_is_incomplete(monke
         engine.dynamic_causal_effect(
             data=_government_dynamic_data(
                 dataset_id,
-                survey_quality_certificate_ref=seeded["certificate_refs"][dataset_id].model_dump(mode="json"),
+                survey_quality_certificate_ref=seeded["certificate_refs"][dataset_id].model_dump(
+                    mode="json"
+                ),
             ),
             method="ice_g",
         )
@@ -2569,7 +2632,9 @@ def test_dynamic_causal_effect_runs_for_government_data_after_phase1_gate(monkey
     result = engine.dynamic_causal_effect(
         data=_government_dynamic_data(
             dataset_id,
-            survey_quality_certificate_ref=seeded["certificate_refs"][dataset_id].model_dump(mode="json"),
+            survey_quality_certificate_ref=seeded["certificate_refs"][dataset_id].model_dump(
+                mode="json"
+            ),
         ),
         method="ice_g",
     )

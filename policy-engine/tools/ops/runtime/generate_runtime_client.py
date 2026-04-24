@@ -92,25 +92,19 @@ def _schema_to_ts(
     any_of = schema.get("anyOf")
     if isinstance(any_of, list) and any_of:
         return _join_union(
-            _schema_to_ts(item, components=components)
-            for item in any_of
-            if isinstance(item, dict)
+            _schema_to_ts(item, components=components) for item in any_of if isinstance(item, dict)
         )
 
     one_of = schema.get("oneOf")
     if isinstance(one_of, list) and one_of:
         return _join_union(
-            _schema_to_ts(item, components=components)
-            for item in one_of
-            if isinstance(item, dict)
+            _schema_to_ts(item, components=components) for item in one_of if isinstance(item, dict)
         )
 
     all_of = schema.get("allOf")
     if isinstance(all_of, list) and all_of:
         rendered = [
-            _schema_to_ts(item, components=components)
-            for item in all_of
-            if isinstance(item, dict)
+            _schema_to_ts(item, components=components) for item in all_of if isinstance(item, dict)
         ]
         return " & ".join(rendered) if rendered else "unknown"
 
@@ -349,7 +343,7 @@ def _render_ts(spec: dict[str, Any], operations: list[OperationSpec]) -> str:
             "  private readonly fetchImpl: typeof fetch;",
             "",
             "  constructor(options: RuntimeApiClientOptions) {",
-            "    this.baseUrl = options.baseUrl.replace(/\\/$/, \"\");",
+            '    this.baseUrl = options.baseUrl.replace(/\\/$/, "");',
             "    this.headers = options.headers ?? {};",
             "    this.fetchImpl = options.fetchImpl ?? fetch;",
             "  }",
@@ -365,7 +359,7 @@ def _render_ts(spec: dict[str, Any], operations: list[OperationSpec]) -> str:
             "      : `${this.baseUrl}${path}`;",
             "    const headers = body === undefined",
             "      ? this.headers",
-            "      : { \"Content-Type\": \"application/json\", ...this.headers };",
+            '      : { "Content-Type": "application/json", ...this.headers };',
             "    const response = await this.fetchImpl(url, {",
             "      method,",
             "      headers,",
@@ -414,9 +408,7 @@ def _render_ts(spec: dict[str, Any], operations: list[OperationSpec]) -> str:
             params_fields.append(f"    {field_name}{optional}: {ts_type};")
         if operation.body_schema is not None:
             params_fields.append(
-                "    body: "
-                + _schema_to_ts(operation.body_schema, components=components)
-                + ";"
+                "    body: " + _schema_to_ts(operation.body_schema, components=components) + ";"
             )
         has_params = bool(params_fields)
 
@@ -443,12 +435,12 @@ def _render_ts(spec: dict[str, Any], operations: list[OperationSpec]) -> str:
         if operation.body_schema is not None:
             lines.append(
                 f"    return this.request<{operation.response_type}>("
-                f"\"{operation.method}\", path, query, params.body);"
+                f'"{operation.method}", path, query, params.body);'
             )
         else:
             lines.append(
                 f"    return this.request<{operation.response_type}>("
-                f"\"{operation.method}\", path, query);"
+                f'"{operation.method}", path, query);'
             )
         lines.append("  }")
         lines.append("")
@@ -484,8 +476,7 @@ def _render_js(operations: list[OperationSpec]) -> str:
         "    if (!response.ok) {",
         "      const body = await response.text();",
         "      throw new Error(",
-        "        `Runtime API request failed: ${response.status} "
-        "${response.statusText} ${body}`",
+        "        `Runtime API request failed: ${response.status} ${response.statusText} ${body}`",
         "      );",
         "    }",
         "    return await response.json();",
@@ -515,7 +506,13 @@ def _render_js(operations: list[OperationSpec]) -> str:
     ]
 
     for operation in operations:
-        params_arg = "params" if (operation.path_params or operation.query_params) else ""
+        params_arg = (
+            "params"
+            if (
+                operation.path_params or operation.query_params or operation.body_schema is not None
+            )
+            else ""
+        )
         lines.append(f"  async {operation.name}({params_arg}) {{")
         path_expr = operation.path
         for param in operation.path_params:

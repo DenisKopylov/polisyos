@@ -27,27 +27,31 @@ After P8, data-plane contracts and replay completeness are in place, but runtime
 
 Current hard gaps:
 
-| Area | Current state | Impact |
-| --- | --- | --- |
-| Runtime HTTP surface | `src/polisyos/runtime/http/*` provides only middleware (auth, tenant routing, authz), no API routes | UI cannot consume stable run/debug data via HTTP |
-| Run metadata model split | Legacy runtime manifests (`runs/<id>/manifest.json`) coexist with CAS-native `core.run_manifest` + `trace.jsonl` | Run exploration requires format-specific file parsing |
-| Debug workflow introspection | Node outcomes/errors/governance details are spread across `trace.jsonl`, `scientist.workflow_report`, and DecisionPacket payloads | Engineers rely on manual log/artifact digging |
-| Artifact inspection | CAS manifests and payload previews are not exposed via tenant-scoped API | No safe UI path for artifact metadata/content inspection |
-| Frontend entrypoint | Top-level `dashboard.py` is a direct DB/script path | Critical debugging path bypasses runtime contracts and access controls |
+| Area                         | Current state                                                                                                                     | Impact                                                                 |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Runtime HTTP surface         | `src/polisyos/runtime/http/*` provides only middleware (auth, tenant routing, authz), no API routes                               | UI cannot consume stable run/debug data via HTTP                       |
+| Run metadata model split     | Legacy runtime manifests (`runs/<id>/manifest.json`) coexist with CAS-native `core.run_manifest` + `trace.jsonl`                  | Run exploration requires format-specific file parsing                  |
+| Debug workflow introspection | Node outcomes/errors/governance details are spread across `trace.jsonl`, `scientist.workflow_report`, and DecisionPacket payloads | Engineers rely on manual log/artifact digging                          |
+| Artifact inspection          | CAS manifests and payload previews are not exposed via tenant-scoped API                                                          | No safe UI path for artifact metadata/content inspection               |
+| Frontend entrypoint          | Top-level `dashboard.py` is a direct DB/script path                                                                               | Critical debugging path bypasses runtime contracts and access controls |
 
 Observed baseline (`2026-02-10`, local scan):
 
 1. Architecture snapshot from `tools/lint/collect_arch_metrics.py`:
+
    - `package_cycles_count = 0`
    - `import_violations_count = 0`
    - `test_collect_errors_count = 46`
    - `stale_sources_missing_paths_count = 40`
 2. Freeze compare against historical baseline (`summary.json`) currently fails only on:
+
    - `delta_test_collect_errors = +4` (pre-existing, not P9-specific)
 3. Runtime HTTP route surface:
+
    - middleware modules present: `3`
    - API routers/endpoints under `src/polisyos/runtime/http`: `0`
 4. Legacy runtime run sample exists:
+
    - `runs/test_004/manifest.json` (legacy schema with `artifacts[]`, `run_root`, `budgets`)
 
 Net effect: architecture-level import DAG is clean, but there is no stable API contract for run explorer, node debugging, and artifact inspection that a production frontend can depend on.
@@ -57,6 +61,7 @@ Net effect: architecture-level import DAG is clean, but there is no stable API c
 ### 2.1 Goals (MUST)
 
 1. Introduce a versioned, tenant-scoped Runtime HTTP API (`/api/v1`) that supports:
+
    - Run Explorer (`runs`, `timeline`, `nodes`, `lineage`),
    - Debug (`node inputs/outputs/errors/governance details`),
    - Artifact Inspector (`manifest`, `content preview`, `transitive lineage`).
@@ -92,6 +97,7 @@ P9 MUST introduce a runtime API application factory under `src/polisyos/runtime/
 1. API prefix: `/api/v1`.
 2. Read-only scope in P9: `GET` endpoints only for run/debug/artifact views.
 3. Middleware stack integration:
+
    - `JWTAuthMiddleware`
    - `CellRouterMiddleware`
    - `AuthzMiddleware`
@@ -104,15 +110,18 @@ P9 MUST define `RunRecordV1` as canonical response shape independent of storage 
 Supported source adapters:
 
 1. CAS-native run:
+
    - `core.run_manifest` (loaded from CAS via run trace resolution),
    - run-local `trace.jsonl` for timeline and event drilldown.
 2. Legacy runtime run:
+
    - `runs/<run_id>/manifest.json` (`polisyos.runtime.manifest.RunManifest` shape).
 
 Hard requirements:
 
 1. Responses MUST include a `source_kind` marker (`core_run` or `legacy_runtime`).
 2. Source adapters MUST produce consistent normalized fields:
+
    - `run_id`, `status`, `started_at`, `finished_at`, `duration_ms`, `tenant_id`, `cell_id`.
 3. Run listing order MUST be deterministic (`started_at desc`, tie-breaker `run_id asc`).
 
@@ -121,15 +130,20 @@ Hard requirements:
 P9 MUST provide the following endpoints:
 
 1. `GET /api/v1/runs`
+
    - query: `limit`, `cursor`, `status`, `from_ts`, `to_ts`
    - response: paged `RunSummary` list.
 2. `GET /api/v1/runs/{run_id}`
+
    - response: `RunDetails` (normalized run metadata + key refs).
 3. `GET /api/v1/runs/{run_id}/timeline`
+
    - response: timeline summary + ordered events.
 4. `GET /api/v1/runs/{run_id}/nodes`
+
    - response: node run records (status/duration/errors/artifacts).
 5. `GET /api/v1/runs/{run_id}/lineage`
+
    - response: condensed transitive dependency graph for selected root artifact(s).
 
 ### 4.4 Debug API contract
@@ -137,10 +151,13 @@ P9 MUST provide the following endpoints:
 P9 MUST expose node-level and governance-oriented debugging endpoints:
 
 1. `GET /api/v1/debug/runs/{run_id}/nodes/{alias}`
+
    - includes node status, error payload, emitted artifacts, timeline spans, cache diagnostics.
 2. `GET /api/v1/debug/runs/{run_id}/governance`
+
    - includes governance verdict/issues/notes plus validation-trace summary when available.
 3. `GET /api/v1/debug/runs/{run_id}/errors`
+
    - includes structured run-level and node-level error list with trace correlations.
 
 Debug data MUST come from canonical artifacts (`scientist.workflow_report`, DecisionPacket, governance report, trace records), not ad-hoc parsing of raw logs only.
@@ -150,18 +167,23 @@ Debug data MUST come from canonical artifacts (`scientist.workflow_report`, Deci
 P9 MUST expose CAS artifact metadata and safe preview surfaces:
 
 1. `GET /api/v1/artifacts/{artifact_id}`
+
    - manifest metadata, schema info, integrity fields, producer/environment details.
 2. `GET /api/v1/artifacts/{artifact_id}/content`
+
    - content preview with strict size limits and truncation metadata.
 3. `GET /api/v1/artifacts/{artifact_id}/lineage`
+
    - transitive graph summary (`nodes`, `edges`, missing/corrupted flags).
 4. `GET /api/v1/artifacts/{artifact_id}/schema`
+
    - normalized schema descriptor for UI rendering/inspection.
 
 ### 4.6 Security and isolation invariants
 
 1. All non-public endpoints MUST enforce authenticated access scope.
 2. Run/artifact access MUST be tenant-scoped:
+
    - cross-tenant access MUST return deny response (`403` or obscured `404`, policy-defined).
 3. API MUST NOT expose arbitrary filesystem paths in responses.
 4. Artifact content preview MUST enforce configurable byte cap and redaction hooks for sensitive payload classes.
@@ -174,6 +196,7 @@ P9 frontend foundation MUST include:
 1. OpenAPI-described runtime API surface (`runtime_api_v1`).
 2. Generated typed client package for UI consumption (single source of truth from OpenAPI/contracts).
 3. Reference UI shell with pages:
+
    - Run list,
    - Run timeline + node graph,
    - Node debug panel,
@@ -191,20 +214,24 @@ Required new module:
 Required model groups:
 
 1. Common:
+
    - `RuntimeApiError`
    - `CursorPage`
    - `ApiMeta` (request id, timestamp, source markers).
 2. Run Explorer:
+
    - `RunSummary`
    - `RunDetails`
    - `RunTimelineSummary`
    - `RunTimelineEvent`
    - `RunNodeRecord`.
 3. Debug:
+
    - `NodeDebugView`
    - `GovernanceDebugView`
    - `RunErrorView`.
 4. Artifact Inspector:
+
    - `ArtifactManifestView`
    - `ArtifactContentPreview`
    - `ArtifactLineageView`.
@@ -220,10 +247,12 @@ Constraints:
 Required modules (recommended split):
 
 1. `src/polisyos/runtime/http/app.py`
+
    - FastAPI app factory,
    - middleware wiring,
    - route registration.
 2. `src/polisyos/runtime/http/dependencies.py`
+
    - CAS/store/run-index dependency providers,
    - access-scope enforcement helpers.
 3. `src/polisyos/runtime/http/routes/runs.py`
@@ -231,6 +260,7 @@ Required modules (recommended split):
 5. `src/polisyos/runtime/http/routes/artifacts.py`
 6. `src/polisyos/runtime/http/routes/health.py`
 7. `src/polisyos/runtime/http/errors.py`
+
    - deterministic error envelope mapping.
 
 ### 5.3 Run indexing and adapter layer
@@ -238,6 +268,7 @@ Required modules (recommended split):
 Required new service modules:
 
 1. `src/polisyos/runtime/http/services/run_index.py`
+
    - discover run directories,
    - normalize run records via adapters,
    - provide cursor-based listing.
@@ -262,6 +293,7 @@ Timeline requirements:
 1. Trace parsing MUST preserve event order by timestamp, then file position.
 2. Node duration derivation MUST be deterministic.
 3. Summary MUST include:
+
    - `duration_ms`,
    - event count,
    - node status counts,
@@ -270,6 +302,7 @@ Timeline requirements:
 Debug requirements:
 
 1. Node debug view MUST combine:
+
    - workflow report record,
    - matching trace events,
    - node artifacts (inputs/outputs),
@@ -287,6 +320,7 @@ Requirements:
 
 1. Manifest endpoint MUST resolve and return `ArtifactManifest` fields exactly.
 2. Content preview endpoint MUST:
+
    - enforce max-bytes threshold,
    - provide `truncated=true|false`,
    - indicate parse mode (`json`, `text`, `binary`).
@@ -315,6 +349,7 @@ Required artifacts:
 1. OpenAPI export for runtime v1.
 2. Typed client generation script (deterministic output, checked in or reproducibly generated).
 3. Reference UI shell (workspace path to be agreed during implementation) with:
+
    - list/detail navigation for runs,
    - timeline visualization,
    - node debug panel,
@@ -339,12 +374,16 @@ P9 compatibility path:
 ### 6.1 Milestones
 
 1. `M1` (`2026-05-25` -> `2026-05-27`):
+
    - contract models + app skeleton + run adapters.
 2. `M2` (`2026-05-27` -> `2026-05-31`):
+
    - Run Explorer endpoints (`runs`, `details`, `timeline`, `nodes`).
 3. `M3` (`2026-05-31` -> `2026-06-04`):
+
    - Debug + Artifact Inspector endpoints + authz hardening + lineage limits.
 4. `M4` (`2026-06-05` -> `2026-06-07`):
+
    - frontend typed client + reference shell + docs/CI/governance closure.
 
 ### 6.2 PR slicing (recommended)
@@ -359,12 +398,16 @@ P9 compatibility path:
 ### 7.1 Mandatory artifact updates
 
 1. `p1_refactor_queue.md`
+
    - add/track P9 work item (recommended `Q10`) with owner and due date.
 2. `p9_runtime_api_frontend_foundation_spec.md`
+
    - status progression (`Proposed` -> `Implemented`) with implementation evidence section when closed.
 3. `README.md`
+
    - runtime/debugging guidance updated to API-first path; `dashboard.py` marked demo-only.
 4. `src/polisyos/runtime/README.md`
+
    - add runtime HTTP route map and API usage examples.
 
 ### 7.2 Required verification commands
@@ -424,13 +467,13 @@ P9 is complete only if all criteria are met:
 
 ## 9. Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| Dual run formats drift (`core_run` vs `legacy_runtime`) | High | Explicit adapters, source markers, contract tests per format |
-| Large traces/artifact graphs overload API | High | Cursor pagination, max-depth/max-node guards, timeout/cancellation policies |
-| Sensitive data leakage via preview/debug endpoints | High | Authz filters, redaction hooks, payload-size caps, deny-by-default content modes |
-| Optional FastAPI deps absent in some envs | Medium | Optional dependency guard + clear startup diagnostics + CI job with `multi-tenant` extras |
-| Freeze baseline mismatch due historical `summary.json` | Medium | Track known `delta_test_collect_errors +4` as pre-existing and block further regressions |
+| Risk                                                    | Impact | Mitigation                                                                                |
+| ------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------------- |
+| Dual run formats drift (`core_run` vs `legacy_runtime`) | High   | Explicit adapters, source markers, contract tests per format                              |
+| Large traces/artifact graphs overload API               | High   | Cursor pagination, max-depth/max-node guards, timeout/cancellation policies               |
+| Sensitive data leakage via preview/debug endpoints      | High   | Authz filters, redaction hooks, payload-size caps, deny-by-default content modes          |
+| Optional FastAPI deps absent in some envs               | Medium | Optional dependency guard + clear startup diagnostics + CI job with `multi-tenant` extras |
+| Freeze baseline mismatch due historical `summary.json`  | Medium | Track known `delta_test_collect_errors +4` as pre-existing and block further regressions  |
 
 ## 10. Post-P9 Follow-Ups (Out of Scope)
 
@@ -457,9 +500,11 @@ P9-specific baseline observations:
 
 1. `src/polisyos/runtime/http/*` contains middleware only; no API routers/endpoints are implemented.
 2. Runtime run metadata is split between:
+
    - legacy file manifests (`runs/<id>/manifest.json`),
    - CAS-native `core.run_manifest` + `trace.jsonl` workflow outputs.
 3. Node-level debug information is present but fragmented:
+
    - `scientist.workflow_report` artifacts,
    - run trace events in `trace.jsonl`,
    - DecisionPacket partial summaries.
@@ -470,6 +515,7 @@ P9-specific baseline observations:
 Implemented artifacts:
 
 1. Runtime API application + routes:
+
    - `src/polisyos/runtime/http/app.py`
    - `src/polisyos/runtime/http/dependencies.py`
    - `src/polisyos/runtime/http/errors.py`
@@ -478,8 +524,10 @@ Implemented artifacts:
    - `src/polisyos/runtime/http/routes/artifacts.py`
    - `src/polisyos/runtime/http/routes/health.py`
 2. Canonical contracts:
+
    - `src/polisyos/core/contracts/runtime.py`
 3. Adapters/services:
+
    - `src/polisyos/runtime/http/services/run_index.py`
    - `src/polisyos/runtime/http/services/adapters/core_run.py`
    - `src/polisyos/runtime/http/services/adapters/legacy_runtime.py`
@@ -488,6 +536,7 @@ Implemented artifacts:
    - `src/polisyos/runtime/http/services/artifact_inspector.py`
    - `src/polisyos/runtime/http/services/lineage.py`
 4. Frontend foundation:
+
    - OpenAPI export: `schemas/runtime_api_v1.openapi.json`
    - Client generation scripts:
      - `tools/runtime/export_runtime_openapi.py`
@@ -500,6 +549,7 @@ Implemented artifacts:
      - `frontend/runtime-reference-shell/app.js`
      - `frontend/runtime-reference-shell/styles.css`
 5. Test coverage:
+
    - `tests/runtime/http/test_runs_api.py`
    - `tests/runtime/http/test_timeline_api.py`
    - `tests/runtime/http/test_debug_api.py`

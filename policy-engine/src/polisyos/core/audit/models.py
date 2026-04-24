@@ -1,8 +1,9 @@
 """Define audit export and verification report contracts."""
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any, Literal
@@ -10,17 +11,19 @@ from typing import Any, Literal
 
 def utc_now() -> datetime:
     """Return a second-precision UTC timestamp for audit reports."""
-    return datetime.now(timezone.utc).replace(microsecond=0)
+    return datetime.now(UTC).replace(microsecond=0)
 
 
 class ExportProfile(str, Enum):
     """Select whether an audit package contains full artifacts or manifests only."""
+
     FULL = "full"
     MANIFESTS_ONLY = "manifests_only"
 
 
 class SigningPolicy(str, Enum):
     """Control how unsigned artifacts affect export/verification outcomes."""
+
     STRICT = "strict"
     WARN = "warn"
     SKIP = "skip"
@@ -28,6 +31,7 @@ class SigningPolicy(str, Enum):
 
 class StepStatus(str, Enum):
     """Represent the result state of one verifier stage."""
+
     PASS = "PASS"
     FAIL = "FAIL"
     WARN = "WARN"
@@ -37,6 +41,7 @@ class StepStatus(str, Enum):
 @dataclass(frozen=True)
 class ExportOptions:
     """Configure package depth, visualization output, and signature/SLSA policy."""
+
     exclude_kinds: frozenset[str] = frozenset()
     profile: ExportProfile = ExportProfile.FULL
     include_visualization: bool = True
@@ -50,6 +55,7 @@ class ExportOptions:
 @dataclass(frozen=True)
 class AuditExportResult:
     """Return archive path, artifact counters, provenance counters, and warnings."""
+
     archive_path: Path
     run_id: str
     artifacts_exported: int
@@ -66,6 +72,7 @@ class AuditExportResult:
 @dataclass(frozen=True)
 class VerificationIssue:
     """Describe one verifier warning/failure with optional expected/actual values."""
+
     code: str
     message: str
     path: str | None = None
@@ -76,6 +83,7 @@ class VerificationIssue:
 @dataclass
 class StepResult:
     """Track per-step pass/fail counters, timing, and free-form details."""
+
     step_name: str
     status: StepStatus = StepStatus.SKIP
     checks_passed: int = 0
@@ -88,6 +96,7 @@ class StepResult:
 @dataclass
 class VerificationReport:
     """Aggregate all audit verification stages into one final PASS/FAIL report."""
+
     package_path: str
     run_id: str | None = None
     verified_at: datetime = field(default_factory=utc_now)
@@ -164,7 +173,7 @@ class VerificationReport:
             )
         )
 
-    def finalize(self) -> "VerificationReport":
+    def finalize(self) -> VerificationReport:
         """Set `overall_status` from accumulated failures and return `self`."""
         self.overall_status = "FAIL" if self.failures else "PASS"
         return self

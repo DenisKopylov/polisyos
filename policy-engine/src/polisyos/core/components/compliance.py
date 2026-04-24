@@ -1,4 +1,5 @@
 """Validate component metadata and runtime shape against host ABI contracts."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, cast
@@ -35,6 +36,7 @@ class HostAbi(BaseModel):
     Set `strict=False` to downgrade missing/incompatible host ABI findings from
     errors to warnings during local discovery or exploratory bootstrap.
     """
+
     model_config = ConfigDict(extra="forbid")
 
     versions: dict[str, str] = Field(default_factory=dict)
@@ -43,6 +45,7 @@ class HostAbi(BaseModel):
 
 class ComplianceIssue(BaseModel):
     """Report one metadata/dependency/runtime-shape compliance finding."""
+
     model_config = ConfigDict(extra="forbid")
 
     severity: Literal["error", "warning"]
@@ -230,8 +233,7 @@ def _validate_abi_targets(*, metadata: ComponentMetadata, host: HostAbi) -> list
                     severity="error",
                     code="abi.missing_key",
                     message=(
-                        "missing required abi target key: "
-                        + " | ".join(sorted(alternatives))
+                        "missing required abi target key: " + " | ".join(sorted(alternatives))
                     ),
                     component_id=component_id,
                 )
@@ -357,8 +359,7 @@ def _validate_dependencies(
                     severity="error" if host.strict else "warning",
                     code="deps.unsatisfied",
                     message=(
-                        f"No component satisfies dep base_id={dep.base_id}"
-                        f" range={dep.version}"
+                        f"No component satisfies dep base_id={dep.base_id} range={dep.version}"
                     ),
                     component_id=component_id,
                     details={

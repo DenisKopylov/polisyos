@@ -1,4 +1,5 @@
 """Audit package assembler -- bundles audit artifacts into signed packages."""
+
 from __future__ import annotations
 
 from polisyos.core.audit._assembler_archive import (

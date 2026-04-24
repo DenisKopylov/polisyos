@@ -14,6 +14,7 @@ from polisyos.scientist.search.artifact_minimality import ArtifactMinimalityMixi
 
 class ComplianceAuditEntry(BaseModel):
     """One blueprint invariant tracked by the explicit Scientist runtime compliance audit."""
+
     model_config = ConfigDict(extra="forbid")
 
     invariant_id: str = Field(min_length=1)
@@ -164,11 +165,9 @@ def validate_scientist_blueprint_artifact_minimality() -> list[str]:
             default_factory = getattr(field_info, "default_factory", None)
             try:
                 default_value = (
-                    default_factory()
-                    if default_factory is not None
-                    else field_info.default
+                    default_factory() if default_factory is not None else field_info.default
                 )
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 problems.append(
                     f"{module_name}.{name}: artifact_functions default_factory failed: {type(exc).__name__}"
                 )
@@ -197,7 +196,7 @@ def validate_scientist_blueprint_compliance_targets() -> list[str]:
             candidate_module = ".".join(parts[:index])
             try:
                 module = import_module(candidate_module)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 continue
             attr_path = ".".join(parts[index:])
             break

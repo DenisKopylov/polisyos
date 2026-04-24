@@ -1,4 +1,5 @@
 """Public security tee middleware module API."""
+
 from __future__ import annotations
 
 import os
@@ -118,7 +119,13 @@ class TEEGatekeeper:
         try:
             report = self._verifier.fetch_report(nonce=nonce)
             result = self._verifier.verify(report, self._policy, nonce=nonce)
-        except (AttestationFetchError, AttestationDeniedError, TEEError, RuntimeError, ValueError) as exc:
+        except (
+            AttestationFetchError,
+            AttestationDeniedError,
+            TEEError,
+            RuntimeError,
+            ValueError,
+        ) as exc:
             status = (
                 AttestationStatus.UNAVAILABLE
                 if self._policy.fail_closed

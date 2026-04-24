@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from polisyos.core.canon import CanonSpec
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.ir.artifacts.io import get_json_artifact
 
 from .models import EntityMatchBatch, EntityMatchCandidate

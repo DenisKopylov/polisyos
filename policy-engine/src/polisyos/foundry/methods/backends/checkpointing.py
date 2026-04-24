@@ -47,6 +47,7 @@ Usage
     checkpoint = executor.find_latest_checkpoint(chain)
     result = executor.execute(chain, initial_state=state, checkpoint=checkpoint)
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -161,7 +162,7 @@ class ChainCheckpoint:
 
     chain_digest: str
     completed_fqns: list[str]
-    completed_node_ids: list[str]   # UUID as str
+    completed_node_ids: list[str]  # UUID as str
     intermediate_state: dict[str, Any]
     node_timing_ms: list[float] = field(default_factory=list)
     created_at: float = field(default_factory=time.time)
@@ -397,12 +398,9 @@ class CheckpointingChainExecutor:
             all_node_results.append((node_id, result))
 
             # Save checkpoint if needed
-            should_checkpoint = (
-                self._checkpoint_dir is not None
-                and (
-                    (idx - skip_until + 1) % self._checkpoint_every == 0
-                    or idx == len(execution_order) - 1
-                )
+            should_checkpoint = self._checkpoint_dir is not None and (
+                (idx - skip_until + 1) % self._checkpoint_every == 0
+                or idx == len(execution_order) - 1
             )
             if should_checkpoint:
                 self._save_checkpoint(
@@ -467,9 +465,7 @@ class CheckpointingChainExecutor:
         path = self._checkpoint_dir / filename
 
         completed_node_ids = [str(nid) for nid, _ in all_node_results]
-        completed_fqns = [
-            chain.get_node(nid).method_fqn for nid, _ in all_node_results
-        ]
+        completed_fqns = [chain.get_node(nid).method_fqn for nid, _ in all_node_results]
         timing_ms = [r.timing.wall_time_ms for _, r in all_node_results]
 
         chk = ChainCheckpoint(
@@ -557,9 +553,7 @@ def _serialise_state(
     return payload, sidecars
 
 
-def _deserialise_state(
-    payload: dict[str, Any], base_dir: Path
-) -> dict[str, Any]:
+def _deserialise_state(payload: dict[str, Any], base_dir: Path) -> dict[str, Any]:
     """Inverse of ``_serialise_state``."""
     state: dict[str, Any] = {}
     for key, value in payload.items():

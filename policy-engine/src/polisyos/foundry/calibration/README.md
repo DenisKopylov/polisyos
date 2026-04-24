@@ -16,33 +16,37 @@ diagnostics into uncertainty envelopes or post-fit evidence.
 
 - [measurement.py](measurement.py) for observation-quality metadata and weight
   adaptation.
+
 - [pure_executor.py](pure_executor.py) for the no-CAS inner-loop execution path
   used by calibration.
+
 - [calibrator.py](calibrator.py) for the optional JAX-backed fit loop.
 - [report.py](report.py) for persisted reports and fit diagnostics.
 - [identifiability.py](identifiability.py) and [hessian.py](hessian.py) for
   identifiability and second-order diagnostics.
+
 - [../uncertainty/README.md](../uncertainty/README.md) for downstream
   uncertainty propagation.
 
 ## Public Entrypoints
 
-| Entrypoint | Description |
-|---|---|
-| `Calibrator` | JAX-backed optimization loop when calibration extras are importable. |
-| `CalibratorInputs` | Bundles graph, exec plan, targets, registries, and optional measurement bundle inputs. |
-| `CalibrationReport` | Persisted fit result with metrics, history, and fit quality. |
-| `MeasurementAwareTarget` | Observation-aware target contract. |
-| `MeasurementAwareLossConfig` | Controls lag, censoring, regime, and shock discounts. |
-| `compute_effective_weight()` | Combines trust, coverage, lag, censoring, and shock metadata into effective loss weights. |
-| `diagnose_identifiability()` | Produces parameter-level identifiability diagnostics. |
-| `envelopes_from_calibration()` | Converts calibration outputs into uncertainty-envelope artifacts. |
+| Entrypoint                     | Description                                                                               |
+| ------------------------------ | ----------------------------------------------------------------------------------------- |
+| `Calibrator`                   | JAX-backed optimization loop when calibration extras are importable.                      |
+| `CalibratorInputs`             | Bundles graph, exec plan, targets, registries, and optional measurement bundle inputs.    |
+| `CalibrationReport`            | Persisted fit result with metrics, history, and fit quality.                              |
+| `MeasurementAwareTarget`       | Observation-aware target contract.                                                        |
+| `MeasurementAwareLossConfig`   | Controls lag, censoring, regime, and shock discounts.                                     |
+| `compute_effective_weight()`   | Combines trust, coverage, lag, censoring, and shock metadata into effective loss weights. |
+| `diagnose_identifiability()`   | Produces parameter-level identifiability diagnostics.                                     |
+| `envelopes_from_calibration()` | Converts calibration outputs into uncertainty-envelope artifacts.                         |
 
 ## Depends On / Depended On By
 
 - Depends on: `polisyos.foundry.contracts`, compile/execute runtime state,
   `polisyos.ir.observation` contracts and bundles, uncertainty adapters, and
   optional JAX/optimization extras.
+
 - Depended on by: Scientist autotune and feedback flows, uncertainty
   propagation nodes, and runtime helpers that reuse the pure-executor path.
 

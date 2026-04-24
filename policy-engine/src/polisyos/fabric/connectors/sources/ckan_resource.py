@@ -8,14 +8,15 @@ Handles CSV, JSON, spreadsheets, and ZIP-wrapped tabular resources from CKAN por
 from __future__ import annotations
 
 import csv
-import io
 import importlib.util
+import io
 import json as _json
 import time
 import zipfile
-from datetime import datetime, timezone
+from collections.abc import AsyncIterator
+from datetime import UTC, datetime
 from pathlib import PurePosixPath
-from typing import Any, AsyncIterator, ClassVar
+from typing import Any, ClassVar
 from urllib.parse import urlparse
 
 import aiohttp
@@ -23,7 +24,6 @@ import pandas as pd
 
 from polisyos.core.canon import content_hash as compute_content_hash
 from polisyos.fabric.connectors.base import (
-    ConnectionConfig,
     ConnectionHandle,
     FetchRequest,
     FetchResult,
@@ -75,8 +75,7 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
     )
 
     capabilities: ClassVar[ConnectorCapability] = (
-        ConnectorCapability.FULL_FETCH
-        | ConnectorCapability.RATE_LIMIT_AWARE
+        ConnectorCapability.FULL_FETCH | ConnectorCapability.RATE_LIMIT_AWARE
     )
 
     metadata: ClassVar[ConnectorMetadataSpec] = ConnectorMetadataSpec(
@@ -105,15 +104,19 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
         started = time.monotonic()
         try:
             _body, _headers, _raw = await self._resilient_request_json(
-                handle, url, params={},
+                handle,
+                url,
+                params={},
             )
             return HealthStatus(
-                healthy=True, message="HTTP 200",
+                healthy=True,
+                message="HTTP 200",
                 latency_ms=self._elapsed_ms(started),
             )
         except Exception as exc:
             return HealthStatus(
-                healthy=False, message=str(exc),
+                healthy=False,
+                message=str(exc),
                 latency_ms=self._elapsed_ms(started),
             )
 
@@ -169,7 +172,7 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
             quality_tier=QualityTier.SILVER,
             bytes_transferred=len(raw),
             completeness=frame_completeness(df) if not df.empty else 1.0,
-            fetched_at=datetime.now(timezone.utc),
+            fetched_at=datetime.now(UTC),
             fetch_duration_ms=duration_ms,
             content_hash=chash,
             etag=headers.get("ETag"),
@@ -231,12 +234,16 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
         package_id, resource_id = parts
         url = f"{base}/api/3/action/package_show"
         body, _headers, _raw = await self._resilient_request_json(
-            handle, url, params={"id": package_id},
+            handle,
+            url,
+            params={"id": package_id},
         )
         result = body.get("result", {})
         for r in result.get("resources", []):
             if r.get("id") == resource_id:
-                return r["url"], self._guess_format(str(r.get("url") or ""), str(r.get("format") or ""))
+                return r["url"], self._guess_format(
+                    str(r.get("url") or ""), str(r.get("format") or "")
+                )
 
         raise FetchError(
             message=f"Resource {resource_id} not found in package {package_id}",
@@ -368,8 +375,7 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
             if len(members) > max_members:
                 raise FetchError(
                     message=(
-                        "ZIP resource exceeds safe member count "
-                        f"({len(members)} > {max_members})"
+                        f"ZIP resource exceeds safe member count ({len(members)} > {max_members})"
                     ),
                     connector_id=CKANResourceConnector.connector_id,
                 )
@@ -419,8 +425,7 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
                 if max_rows is not None and total_rows > max_rows:
                     raise FetchError(
                         message=(
-                            "ZIP resource exceeds safe row limit "
-                            f"({total_rows} > {max_rows})"
+                            f"ZIP resource exceeds safe row limit ({total_rows} > {max_rows})"
                         ),
                         connector_id=CKANResourceConnector.connector_id,
                     )

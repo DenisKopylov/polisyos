@@ -27,4 +27,3 @@ def objectives_to_directions(composite: CompositeObjective) -> list[Optimization
 def objectives_to_names(composite: CompositeObjective) -> list[str]:
     """Extract objective names in model order."""
     return [objective.name for objective in composite.objectives]
-

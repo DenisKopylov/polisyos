@@ -12,6 +12,7 @@ from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+
 from tools._lib.imports import repo_root_from
 
 if __package__ in {None, ""}:
@@ -153,8 +154,10 @@ def _run_base_verification(repo_root: Path, output_dir: Path, timeout_sec: int) 
     stderr = proc.stderr or ""
     for line in (stdout + "\n" + stderr).splitlines():
         marker = "[verify_scm_v3] wrote:"
-        if marker in line and "scm_v3_verification_evidence_" in line and line.strip().endswith(
-            ".json"
+        if (
+            marker in line
+            and "scm_v3_verification_evidence_" in line
+            and line.strip().endswith(".json")
         ):
             path = line.split(marker, 1)[1].strip()
             candidate = Path(path)

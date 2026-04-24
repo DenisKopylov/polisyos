@@ -4,16 +4,32 @@ from datetime import datetime
 
 from polisyos.core.contracts.provenance import (
     ActivityType as CoreActivityType,
+)
+from polisyos.core.contracts.provenance import (
     EntityType as CoreEntityType,
+)
+from polisyos.core.contracts.provenance import (
     ProvenanceActivity as CoreProvenanceActivity,
+)
+from polisyos.core.contracts.provenance import (
     ProvenanceCoreGraph as CoreProvenanceCoreGraph,
+)
+from polisyos.core.contracts.provenance import (
     ProvenanceEntity as CoreProvenanceEntity,
 )
 from polisyos.fabric.provenance.core import (
     ActivityType as FabricActivityType,
+)
+from polisyos.fabric.provenance.core import (
     EntityType as FabricEntityType,
+)
+from polisyos.fabric.provenance.core import (
     ProvenanceActivity as FabricProvenanceActivity,
+)
+from polisyos.fabric.provenance.core import (
     ProvenanceCoreGraph as FabricProvenanceCoreGraph,
+)
+from polisyos.fabric.provenance.core import (
     ProvenanceEntity as FabricProvenanceEntity,
 )
 
@@ -52,4 +68,3 @@ def test_provenance_stable_id_is_preserved_via_fabric_compat_path() -> None:
 
     assert rebuilt.compute_stable_id() == stable_id
     assert rebuilt.to_dict()["stable_id"] == stable_id
-

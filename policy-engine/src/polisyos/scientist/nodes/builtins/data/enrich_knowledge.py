@@ -1,8 +1,9 @@
 """Public data enrich knowledge module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import ValidationError
@@ -73,6 +74,7 @@ class EnrichKnowledgeNode:
     Requires `inputs.research_intent_ref` and a configured Scholar port, then
     writes `inputs.knowledge_bundle_ref` after freshness checks or a live refresh.
     """
+
     auto_refresh_on_stale: bool = True
     block_on_expired: bool = False
     refresh_cooldown_seconds: int = 3600
@@ -141,7 +143,7 @@ class EnrichKnowledgeNode:
                 bundle_ref=str(existing_ref.artifact_id),
             )
             runtime_state = freshness_store.load(state_key)
-            check_time = datetime.now(timezone.utc)
+            check_time = datetime.now(UTC)
             freshness_result = timed_freshness_check(
                 policy,
                 bundle_ref=str(existing_ref.artifact_id),
@@ -194,7 +196,7 @@ class EnrichKnowledgeNode:
             with lock:
                 # Re-check after lock acquisition in case another worker refreshed recently.
                 runtime_state = freshness_store.load(state_key)
-                recheck_time = datetime.now(timezone.utc)
+                recheck_time = datetime.now(UTC)
                 freshness_result = timed_freshness_check(
                     policy,
                     bundle_ref=str(existing_ref.artifact_id),
@@ -211,7 +213,7 @@ class EnrichKnowledgeNode:
                         freshness=freshness_result,
                     )
 
-                refresh_time = datetime.now(timezone.utc)
+                refresh_time = datetime.now(UTC)
                 freshness_store.record_refresh_attempt(state_key, now=refresh_time)
                 try:
                     refreshed_ref = ctx.scholar.enrich(ctx.store, intent)
@@ -240,7 +242,7 @@ class EnrichKnowledgeNode:
                         message="Refresh failed; reusing stale knowledge bundle",
                     )
 
-                freshness_store.record_refresh_success(state_key, now=datetime.now(timezone.utc))
+                freshness_store.record_refresh_success(state_key, now=datetime.now(UTC))
                 finalized_ref = self._finalize_refreshed_bundle(
                     ctx=ctx,
                     intent=intent,

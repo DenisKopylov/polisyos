@@ -1,4 +1,5 @@
 """Spatio-temporal world template."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -6,14 +7,19 @@ from typing import Any
 import numpy as np
 
 from polisyos.synthetic_world.models import SyntheticWorldDGP
-from polisyos.synthetic_world.operators import apply_entity_sampling, apply_measurement_error, apply_missingness, spatial_intervention_assignments
+from polisyos.synthetic_world.operators import (
+    apply_entity_sampling,
+    apply_measurement_error,
+    apply_missingness,
+    spatial_intervention_assignments,
+)
 from polisyos.synthetic_world.targets import (
     register_distributional_targets,
     register_forecasting_targets,
     register_latent_state_targets,
     register_prior_targets,
-    register_regression_targets,
     register_reference_posterior_targets,
+    register_regression_targets,
     register_spatial_causal_targets,
     register_survey_targets,
 )
@@ -92,7 +98,9 @@ def materialize_spatio_temporal_world(spec: SyntheticWorldDGP) -> MaterializedWo
         "outcome": outcome[sampled_regions].reshape(-1),
         "feature_0": np.repeat(region_feature[sampled_regions], n_periods),
         "treatment_effect": np.repeat(region_effect[sampled_regions], n_periods),
-        "inclusion_probability": np.repeat(sampling.inclusion_probability[sampled_regions], n_periods),
+        "inclusion_probability": np.repeat(
+            sampling.inclusion_probability[sampled_regions], n_periods
+        ),
         "base_weight": np.repeat(sampling.base_weight[sampled_regions], n_periods),
     }
     observed_table = {
@@ -154,7 +162,9 @@ def materialize_spatio_temporal_world(spec: SyntheticWorldDGP) -> MaterializedWo
     truth_registry.update(
         register_regression_targets(
             conditional_mean=outcome[sampled_regions, -1],
-            conditional_variance=np.full(sampled_regions.shape[0], spec.noise_scale**2, dtype=float),
+            conditional_variance=np.full(
+                sampled_regions.shape[0], spec.noise_scale**2, dtype=float
+            ),
             unit_ids=sampled_regions,
         )
     )
@@ -173,7 +183,9 @@ def materialize_spatio_temporal_world(spec: SyntheticWorldDGP) -> MaterializedWo
             coord_name="region_id",
             domain_codes=(region_feature > 0).astype(int),
             domain_name="region_half",
-            design_variance=float(np.var(sampling.base_weight * outcome[:, -1]) / max(n_regions, 1)),
+            design_variance=float(
+                np.var(sampling.base_weight * outcome[:, -1]) / max(n_regions, 1)
+            ),
         )
     )
     truth_registry.update(
@@ -182,7 +194,9 @@ def materialize_spatio_temporal_world(spec: SyntheticWorldDGP) -> MaterializedWo
             prior_mean=np.zeros(3, dtype=float),
             prior_covariance=np.diag(np.array([0.25, 0.25, 1.0], dtype=float)),
             predictive_mean=np.zeros(sampled_regions.shape[0], dtype=float),
-            predictive_std=np.full(sampled_regions.shape[0], np.sqrt(1.0 + spec.noise_scale**2), dtype=float),
+            predictive_std=np.full(
+                sampled_regions.shape[0], np.sqrt(1.0 + spec.noise_scale**2), dtype=float
+            ),
             coord_name="region_id",
             entity_ids=sampled_regions,
         )
@@ -191,7 +205,11 @@ def materialize_spatio_temporal_world(spec: SyntheticWorldDGP) -> MaterializedWo
         register_reference_posterior_targets(
             parameter_names=["rho", "spatial_scale", "treatment_effect"],
             point_estimates=np.array(
-                [spec.autoregressive_scale, spec.spatial_scale, float(np.mean(region_effect[sampled_regions]))],
+                [
+                    spec.autoregressive_scale,
+                    spec.spatial_scale,
+                    float(np.mean(region_effect[sampled_regions])),
+                ],
                 dtype=float,
             ),
             covariance=np.diag(np.array([0.03, 0.03, 0.04], dtype=float)),
@@ -199,7 +217,9 @@ def materialize_spatio_temporal_world(spec: SyntheticWorldDGP) -> MaterializedWo
             predictive_std=(forecast_intervals[1][1] - forecast_intervals[1][0]) / (2.0 * 1.645),
             coord_name="region_id",
             entity_ids=sampled_regions,
-            log_evidence=float(-0.5 * sampled_regions.shape[0] * np.log(2.0 * np.pi * spec.noise_scale**2)),
+            log_evidence=float(
+                -0.5 * sampled_regions.shape[0] * np.log(2.0 * np.pi * spec.noise_scale**2)
+            ),
         )
     )
     truth_registry.update(
@@ -219,7 +239,10 @@ def materialize_spatio_temporal_world(spec: SyntheticWorldDGP) -> MaterializedWo
     }
     truth_registry["spatial.adjacency"] = {
         "values": adjacency.tolist(),
-        "coords": {"row_region_id": list(np.arange(n_regions, dtype=int)), "col_region_id": list(np.arange(n_regions, dtype=int))},
+        "coords": {
+            "row_region_id": list(np.arange(n_regions, dtype=int)),
+            "col_region_id": list(np.arange(n_regions, dtype=int)),
+        },
     }
 
     metadata: dict[str, Any] = {

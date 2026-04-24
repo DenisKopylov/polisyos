@@ -5,6 +5,7 @@ Wave 2 adds:
 - Additional CKAN portals (data.gov.ua, data.gov.ro, EU Open Data)
 - Verifies multi-agency SDMX routing and profile diversity
 """
+
 from __future__ import annotations
 
 import pytest
@@ -33,7 +34,7 @@ class TestWave2SDMXProfiles:
     """ILO, FAO, UN SDMX profiles resolve correctly."""
 
     @pytest.mark.parametrize(
-        "profile_id,expected_agency",
+        ("profile_id", "expected_agency"),
         [
             ("ilo_sdmx", "ILO"),
             ("fao_sdmx", "FAO"),
@@ -79,7 +80,7 @@ class TestWave2CKANProfiles:
     """Additional CKAN portals are registered correctly."""
 
     @pytest.mark.parametrize(
-        "profile_id,expected_url_contains",
+        ("profile_id", "expected_url_contains"),
         [
             ("data_gov_ua", "data.gov.ua"),
             ("data_gov_ro", "data.gov.ro"),
@@ -100,7 +101,9 @@ class TestWave2CKANProfiles:
         ckan_profiles = reg.list_by_family("ckan")
         assert len(ckan_profiles) == 6
 
-    @pytest.mark.parametrize("profile_id", ["data_gov_ua", "data_gov_ro", "data_gov_md", "eu_open_data"])
+    @pytest.mark.parametrize(
+        "profile_id", ["data_gov_ua", "data_gov_ro", "data_gov_md", "eu_open_data"]
+    )
     def test_profile_resolves_to_config(self, profile_id: str):
         reg = SourceProfileRegistry.get_instance()
         profile = reg.get(profile_id)

@@ -5,35 +5,36 @@ Property-based tests for causal methods beyond DID:
 - Double Machine Learning (DML)
 - Callaway-Sant'Anna staggered DID
 """
+
 from __future__ import annotations
 
 import sys
+
 import numpy as np
 import pytest
 
 try:
-    from hypothesis import given, settings, HealthCheck
+    from hypothesis import HealthCheck, given, settings
     from hypothesis import strategies as st
+
     HYPOTHESIS_AVAILABLE = True
 except ImportError:
     HYPOTHESIS_AVAILABLE = False
 
-pytestmark = pytest.mark.skipif(
-    not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed"
-)
+pytestmark = pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
 
 sys.path.insert(0, "src")
 
 from tests.foundry.methods.testing.strategies import (
-    rdd_data_strategy,
-    panel_data_strategy,
     cross_section_strategy,
+    panel_data_strategy,
+    rdd_data_strategy,
 )
-
 
 # ---------------------------------------------------------------------------
 # RDD properties
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture(scope="module")
 def rdd_method(isolated_registry):
@@ -43,7 +44,11 @@ def rdd_method(isolated_registry):
 
 class TestRDDProperties:
     @given(data=rdd_data_strategy())
-    @settings(max_examples=30, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=30,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_output_is_finite(self, data, isolated_registry):
         fqn = "causal.inference.regression_discontinuity@1.0.0"
         method = isolated_registry.get(fqn)
@@ -58,13 +63,16 @@ class TestRDDProperties:
             for key, val in result.items():
                 arr = np.asarray(val)
                 if np.issubdtype(arr.dtype, np.floating):
-                    assert not np.any(np.isnan(arr) & ~np.isinf(arr)), \
-                        f"Unexpected NaN in '{key}'"
+                    assert not np.any(np.isnan(arr) & ~np.isinf(arr)), f"Unexpected NaN in '{key}'"
         except Exception:
             pass  # Small samples may legitimately fail
 
     @given(data=rdd_data_strategy())
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_result_is_dict(self, data, isolated_registry):
         fqn = "causal.inference.regression_discontinuity@1.0.0"
         method = isolated_registry.get(fqn)
@@ -86,9 +94,14 @@ class TestRDDProperties:
 # DML properties
 # ---------------------------------------------------------------------------
 
+
 class TestDMLProperties:
     @given(data=cross_section_strategy())
-    @settings(max_examples=20, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_output_dict_not_empty(self, data, isolated_registry):
         fqn = "causal.hte.double_ml@1.0.0"
         method = isolated_registry.get(fqn)
@@ -108,9 +121,14 @@ class TestDMLProperties:
 # Callaway-Sant'Anna staggered DID properties
 # ---------------------------------------------------------------------------
 
+
 class TestCallawaySantAnnaProperties:
     @given(data=panel_data_strategy(min_units=8, max_units=20))
-    @settings(max_examples=20, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_att_output_exists(self, data, isolated_registry):
         fqn = "causal.inference.did.callaway_santanna@1.0.0"
         method = isolated_registry.get(fqn)

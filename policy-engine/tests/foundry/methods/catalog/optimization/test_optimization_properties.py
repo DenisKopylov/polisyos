@@ -5,27 +5,28 @@ Property-based tests for optimization methods:
 - Combinatorial (knapsack)
 - Sequential dynamic programming
 """
+
 from __future__ import annotations
 
 import sys
+
 import numpy as np
 import pytest
 
 try:
-    from hypothesis import given, settings, assume, HealthCheck
+    from hypothesis import HealthCheck, assume, given, settings
     from hypothesis import strategies as st
     from hypothesis.extra.numpy import arrays
+
     HYPOTHESIS_AVAILABLE = True
 except ImportError:
     HYPOTHESIS_AVAILABLE = False
 
-pytestmark = pytest.mark.skipif(
-    not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed"
-)
+pytestmark = pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
 
 sys.path.insert(0, "src")
 
-from tests.foundry.methods.testing.strategies import lp_data_strategy, _finite_array
+from tests.foundry.methods.testing.strategies import _finite_array, lp_data_strategy
 
 
 @st.composite
@@ -51,7 +52,11 @@ def _check_finite(result: dict) -> None:
 
 class TestStochasticProgrammingProperties:
     @given(data=lp_data_strategy())
-    @settings(max_examples=20, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_two_stage_sp_output_dict(self, data, isolated_registry):
         fqn = "optimization.stochastic.two_stage_stochastic_program@1.0.0"
         method = isolated_registry.get(fqn)
@@ -68,7 +73,11 @@ class TestStochasticProgrammingProperties:
             pass
 
     @given(data=lp_data_strategy())
-    @settings(max_examples=15, deadline=15000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=15,
+        deadline=15000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_two_stage_sp_keys_stable(self, data, isolated_registry):
         fqn = "optimization.stochastic.two_stage_stochastic_program@1.0.0"
         method = isolated_registry.get(fqn)
@@ -86,7 +95,11 @@ class TestCombinationalProperties:
         n_items=st.integers(min_value=3, max_value=10),
         capacity=st.floats(min_value=5.0, max_value=50.0, allow_nan=False),
     )
-    @settings(max_examples=25, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=25,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_knapsack_output_finite(self, n_items, capacity, isolated_registry):
         assume(capacity / n_items > 1.0)
         fqn = "optimization.combinatorial.knapsack@1.0.0"
@@ -107,7 +120,11 @@ class TestCombinationalProperties:
         n_items=st.integers(min_value=3, max_value=10),
         capacity=st.floats(min_value=5.0, max_value=50.0, allow_nan=False),
     )
-    @settings(max_examples=20, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=20,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_knapsack_result_is_dict(self, n_items, capacity, isolated_registry):
         assume(capacity / n_items > 1.0)
         fqn = "optimization.combinatorial.knapsack@1.0.0"
@@ -129,7 +146,11 @@ class TestLPProperties:
     """Regression: LP standard form — optimal solution satisfies constraints."""
 
     @given(data=lp_data_strategy())
-    @settings(max_examples=30, deadline=10000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=30,
+        deadline=10000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_lp_solution_feasible(self, data, isolated_registry):
         fqn = "optimization.linear.resource_lp@1.0.0"
         method = isolated_registry.get(fqn)

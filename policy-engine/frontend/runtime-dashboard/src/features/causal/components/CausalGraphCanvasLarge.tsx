@@ -1,11 +1,7 @@
-import {
-  useRef,
-  useEffect,
-  useCallback,
-  useState,
-} from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n/LocaleProvider";
 
 import type {
   CausalNodeData,
@@ -13,12 +9,7 @@ import type {
   LayoutAlgorithm,
   GraphTransform,
 } from "../types";
-import {
-  NODE_WIDTH,
-  NODE_HEIGHT,
-  NODE_COLORS,
-  NODE_SHAPES,
-} from "../types";
+import { NODE_WIDTH, NODE_HEIGHT, NODE_COLORS, NODE_SHAPES } from "../types";
 import { computeLayout } from "../layouts";
 
 type CausalGraphCanvasLargeProps = {
@@ -46,6 +37,7 @@ export function CausalGraphCanvasLarge({
   onNodeSelect,
   className,
 }: CausalGraphCanvasLargeProps) {
+  const { t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const transformRef = useRef<GraphTransform>({ x: 0, y: 0, scale: 0.5 });
@@ -65,7 +57,8 @@ export function CausalGraphCanvasLarge({
     const el = containerRef.current;
     if (!el) return "#888";
     const varName = cssVar.replace("var(", "").replace(")", "");
-    const resolved = getComputedStyle(el).getPropertyValue(varName).trim() || "#888";
+    const resolved =
+      getComputedStyle(el).getPropertyValue(varName).trim() || "#888";
     colorCache.current.set(cssVar, resolved);
     return resolved;
   }, []);
@@ -205,7 +198,13 @@ export function CausalGraphCanvasLarge({
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     const t = transformRef.current;
-    panRef.current = { active: true, sx: e.clientX, sy: e.clientY, ox: t.x, oy: t.y };
+    panRef.current = {
+      active: true,
+      sx: e.clientX,
+      sy: e.clientY,
+      ox: t.x,
+      oy: t.y,
+    };
     (e.target as Element).setPointerCapture?.(e.pointerId);
   }, []);
 
@@ -284,7 +283,7 @@ export function CausalGraphCanvasLarge({
     >
       <div className="bg-surface/90 border-line absolute top-3 left-3 z-10 rounded-xl border px-3 py-1.5 text-xs backdrop-blur-sm">
         <span className="text-muted">
-          Canvas mode ({nodes.length} nodes)
+          {t("causal.canvas.modeSummary", { count: nodes.length })}
         </span>
       </div>
       <canvas

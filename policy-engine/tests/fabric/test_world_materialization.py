@@ -12,9 +12,10 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.security import DataClassification
+from polisyos.fabric.world.events import build_deterministic_world_event
 from polisyos.fabric.world.materialize import (
-    WorldMaterializationPolicy,
     WorldMaterializationError,
+    WorldMaterializationPolicy,
     WorldMergeConflict,
     WorldProjectionFailureMode,
     build_world_materialization_plan,
@@ -39,7 +40,6 @@ from polisyos.fabric.world.store import (
     stable_world_provenance_v1,
     write_world_fact_segment,
 )
-from polisyos.fabric.world.events import build_deterministic_world_event
 from polisyos.ir.citations import AnchorKind, CitationRef, DocumentRef, FragmentLocator
 from polisyos.ir.fact_log import FactSegmentManifest
 from polisyos.ir.world.abi import EdgeKind, NodeKind
@@ -144,7 +144,9 @@ def _build_claim(fragment_id: str, doc_version_id: str, doc_source: str) -> Clai
     )
 
 
-def _write_single_segment(tmp_path: Path) -> tuple[SimulationDB, FileSystemCAS, DocMeta, WorldEvent]:
+def _write_single_segment(
+    tmp_path: Path,
+) -> tuple[SimulationDB, FileSystemCAS, DocMeta, WorldEvent]:
     cas = FileSystemCAS(tmp_path / "cas")
     db = SimulationDB(db_path=str(tmp_path / "sim.duckdb"))
 
@@ -212,10 +214,7 @@ def test_materialize_single_segment_creates_nodes_edges_projections(tmp_path: Pa
     assert schema_rows
 
     kinds = {
-        row[0]
-        for row in db.conn.execute(
-            "SELECT DISTINCT kind FROM world.world_nodes"
-        ).fetchall()
+        row[0] for row in db.conn.execute("SELECT DISTINCT kind FROM world.world_nodes").fetchall()
     }
     assert NodeKind.DOC_SOURCE.value in kinds
     assert NodeKind.DOC_VERSION.value in kinds
@@ -223,10 +222,7 @@ def test_materialize_single_segment_creates_nodes_edges_projections(tmp_path: Pa
     assert NodeKind.PROV_AGENT.value in kinds
 
     edge_kinds = {
-        row[0]
-        for row in db.conn.execute(
-            "SELECT DISTINCT kind FROM world.world_edges"
-        ).fetchall()
+        row[0] for row in db.conn.execute("SELECT DISTINCT kind FROM world.world_edges").fetchall()
     }
     assert EdgeKind.DOC_HAS_VERSION.value in edge_kinds
     assert any(kind.startswith("prov.") for kind in edge_kinds)
@@ -338,27 +334,17 @@ def test_materialize_idempotent_on_reapply(tmp_path: Path) -> None:
     db, cas, _, _ = _write_single_segment(tmp_path)
 
     materialize_world_duckdb_from_fact_log(tmp_path, db, cas)
-    edges_count_1 = db.conn.execute(
-        "SELECT COUNT(*) FROM world.world_edges"
-    ).fetchone()[0]
-    facts_count_1 = db.conn.execute(
-        "SELECT COUNT(*) FROM world.world_facts"
-    ).fetchone()[0]
+    edges_count_1 = db.conn.execute("SELECT COUNT(*) FROM world.world_edges").fetchone()[0]
+    facts_count_1 = db.conn.execute("SELECT COUNT(*) FROM world.world_facts").fetchone()[0]
 
     materialize_world_duckdb_from_fact_log(tmp_path, db, cas)
-    edges_count_2 = db.conn.execute(
-        "SELECT COUNT(*) FROM world.world_edges"
-    ).fetchone()[0]
-    facts_count_2 = db.conn.execute(
-        "SELECT COUNT(*) FROM world.world_facts"
-    ).fetchone()[0]
+    edges_count_2 = db.conn.execute("SELECT COUNT(*) FROM world.world_edges").fetchone()[0]
+    facts_count_2 = db.conn.execute("SELECT COUNT(*) FROM world.world_facts").fetchone()[0]
 
     assert edges_count_1 == edges_count_2
     assert facts_count_1 == facts_count_2
 
-    meta_rows = db.conn.execute(
-        "SELECT COUNT(*) FROM world._meta_world_segments"
-    ).fetchone()[0]
+    meta_rows = db.conn.execute("SELECT COUNT(*) FROM world._meta_world_segments").fetchone()[0]
     assert meta_rows == 1
 
 
@@ -526,9 +512,7 @@ def test_update_projections_reports_actual_row_counts(tmp_path: Path) -> None:
                 canonical_url="https://example.com/doc-2",
                 official_id=None,
             ),
-            "doc_version_id": doc_version_id_from_raw_artifact(
-                raw_artifact_id=_artifact_id("9")
-            ),
+            "doc_version_id": doc_version_id_from_raw_artifact(raw_artifact_id=_artifact_id("9")),
             "raw_ref": _artifact_id("9"),
         }
     )
@@ -571,9 +555,7 @@ def test_update_projections_reports_actual_row_counts(tmp_path: Path) -> None:
 def test_ranked_world_node_updates_prefer_non_null_values(tmp_path: Path) -> None:
     db = SimulationDB(db_path=str(tmp_path / "sim.duckdb"))
     ensure_world_schema(db)
-    db.conn.execute(
-        "INSERT INTO world.world_nodes (node_id, kind) VALUES ('claim.test', 'claim')"
-    )
+    db.conn.execute("INSERT INTO world.world_nodes (node_id, kind) VALUES ('claim.test', 'claim')")
     db.conn.execute(
         """
         INSERT INTO world.world_facts (
@@ -619,9 +601,7 @@ def test_materialize_stale_if_error_preserves_existing_projections(tmp_path: Pat
     db, cas, meta, _ = _write_single_segment(tmp_path)
     materialize_world_duckdb_from_fact_log(tmp_path, db, cas)
 
-    existing_row = db.conn.execute(
-        "SELECT COUNT(*) FROM world.doc_versions"
-    ).fetchone()[0]
+    existing_row = db.conn.execute("SELECT COUNT(*) FROM world.doc_versions").fetchone()[0]
     assert existing_row == 1
 
     broken_meta = meta.model_copy(

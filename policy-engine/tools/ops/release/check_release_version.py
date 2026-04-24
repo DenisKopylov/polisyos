@@ -12,8 +12,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Validate PolicyOS release version alignment")
     parser.add_argument("--tag", required=True, help="Git tag in vX.Y.Z form")
     parser.add_argument("--pyproject", default="policy-engine/pyproject.toml")
-    parser.add_argument("--package-json", default="policy-engine/frontend/runtime-dashboard/package.json")
-    parser.add_argument("--release-fragments-root", default="policy-engine/release-fragments/releases")
+    parser.add_argument(
+        "--package-json", default="policy-engine/frontend/runtime-dashboard/package.json"
+    )
+    parser.add_argument(
+        "--release-fragments-root", default="policy-engine/release-fragments/releases"
+    )
     parser.add_argument("--github-output", help="Optional GitHub output file path")
     return parser.parse_args()
 
@@ -40,9 +44,7 @@ def main() -> int:
     frontend_version = json.loads(Path(args.package_json).read_text(encoding="utf-8"))["version"]
 
     if python_version != version:
-        raise SystemExit(
-            f"pyproject version mismatch: expected {version}, found {python_version}"
-        )
+        raise SystemExit(f"pyproject version mismatch: expected {version}, found {python_version}")
     if frontend_version != version:
         raise SystemExit(
             f"frontend package version mismatch: expected {version}, found {frontend_version}"

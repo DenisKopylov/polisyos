@@ -6,6 +6,7 @@ Checks:
 1. Production connector classes subclass HTTPConnectorBase.
 2. Forbidden generic helper definitions are not present in source modules.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -13,8 +14,8 @@ import ast
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from tools._lib.imports import repo_root_from
 
+from tools._lib.imports import repo_root_from
 
 DEFAULT_SOURCES_ROOT = (
     repo_root_from(__file__) / "src" / "polisyos" / "fabric" / "connectors" / "sources"
@@ -92,7 +93,10 @@ def _scan_file(path: Path, class_name: str) -> list[Violation]:
         )
 
     for node in tree.body:
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in FORBIDDEN_HELPERS:
+        if (
+            isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and node.name in FORBIDDEN_HELPERS
+        ):
             violations.append(
                 Violation(
                     file=path,
@@ -102,7 +106,10 @@ def _scan_file(path: Path, class_name: str) -> list[Violation]:
             )
 
     for node in connector_class.body:
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in FORBIDDEN_HELPERS:
+        if (
+            isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and node.name in FORBIDDEN_HELPERS
+        ):
             violations.append(
                 Violation(
                     file=path,

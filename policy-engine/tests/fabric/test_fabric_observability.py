@@ -18,7 +18,7 @@ class _CollectingAlertSink:
     def __init__(self) -> None:
         self.alerts = []
 
-    def emit(self, alert) -> None:  # noqa: ANN001
+    def emit(self, alert) -> None:
         self.alerts.append(alert)
 
 
@@ -112,8 +112,7 @@ def test_transform_pipeline_emits_fabric_stage_span_and_lineage_metrics(
     ]
     assert spans
     assert any(
-        "normalize" in str(span.attributes.get("transform.stage_name", ""))
-        for span in spans
+        "normalize" in str(span.attributes.get("transform.stage_name", "")) for span in spans
     )
 
     metrics = get_metrics()

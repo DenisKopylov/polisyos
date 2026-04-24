@@ -1,4 +1,5 @@
 """Authorization client for OPA sidecar with fail-closed semantics."""
+
 from __future__ import annotations
 
 import asyncio
@@ -28,6 +29,7 @@ def _default_metrics() -> MetricsRegistry:
 
 class AuthzDecision(StrEnum):
     """Represent the policy decision returned by OPA or the fail-closed fallback."""
+
     ALLOW = "allow"
     DENY = "deny"
     ERROR = "error"
@@ -36,6 +38,7 @@ class AuthzDecision(StrEnum):
 @dataclass(frozen=True, slots=True)
 class AuthzResult:
     """Return one authorization decision plus latency/cache/audit metadata."""
+
     decision: AuthzDecision
     policy: str
     reasons: tuple[str, ...] = ()
@@ -56,6 +59,7 @@ class AuthzInput:
     JWT-backed user scope is encoded in `identity_*` fields, while SPIFFE
     service identity is encoded in `identity_spiffe_id` and `peer_spiffe_id`.
     """
+
     request_method: str
     request_path: str
     request_headers: dict[str, str]

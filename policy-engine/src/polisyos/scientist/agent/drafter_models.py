@@ -21,6 +21,7 @@ def _as_bool(raw: str | None, default: bool = False) -> bool:
 
 class FindingSeverity(str, Enum):
     """Finding severity public type."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -29,6 +30,7 @@ class FindingSeverity(str, Enum):
 
 class FindingCategory(str, Enum):
     """Finding category public type."""
+
     SIDE_EFFECT = "side_effect"
     MISSING_GROUP = "missing_group"
     BUDGET_VIOLATION = "budget_violation"
@@ -135,7 +137,7 @@ class MultiPassConfig(BaseModel):
         return value
 
     @classmethod
-    def from_env(cls) -> "MultiPassConfig":
+    def from_env(cls) -> MultiPassConfig:
         kwargs: dict[str, Any] = {}
         raw_max_passes = os.getenv("POLISYOS_DRAFTER_MAX_PASSES")
         if raw_max_passes:
@@ -233,9 +235,7 @@ class MultiPassConfig(BaseModel):
             "POLISYOS_CONSTITUTION_PITFALL_MIN_OCCURRENCES"
         )
         if raw_constitution_pitfall_threshold:
-            kwargs["constitution_pitfall_min_occurrences"] = int(
-                raw_constitution_pitfall_threshold
-            )
+            kwargs["constitution_pitfall_min_occurrences"] = int(raw_constitution_pitfall_threshold)
 
         return cls(**kwargs)
 
@@ -270,6 +270,7 @@ class _ConsolidationPayload(BaseModel):
 
 
 __all__ = [
+    "_SEVERITY_ORDER",
     "FindingCategory",
     "FindingSeverity",
     "MultiPassConfig",
@@ -277,5 +278,4 @@ __all__ = [
     "PassFinding",
     "_ConsolidationPayload",
     "_CritiquePayload",
-    "_SEVERITY_ORDER",
 ]

@@ -5,8 +5,8 @@ from polisyos.foundry.agent_sim import (
     EdgeList,
     GraphState,
     SocialInfluenceMechanism,
-    apply_edge_attention,
     aggregate_messages,
+    apply_edge_attention,
     compute_degrees,
     compute_pagerank,
     create_random_graph,
@@ -139,9 +139,7 @@ def test_social_influence_target() -> None:
     graph = GraphState.empty(3).replace(edges=edges, in_degrees=in_deg, out_degrees=out_deg)
 
     state = GlobalState.empty(n_agents=3, seed=0)
-    agents = state.agents.replace(
-        consumption=jnp.array([1.0, 2.0, 3.0], dtype=jnp.float32)
-    )
+    agents = state.agents.replace(consumption=jnp.array([1.0, 2.0, 3.0], dtype=jnp.float32))
     state = state.replace(agents=agents, graph=graph)
 
     mech = SocialInfluenceMechanism(influence_strength=1.0, aggregation="mean")

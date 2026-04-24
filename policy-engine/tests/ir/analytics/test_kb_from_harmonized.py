@@ -2,20 +2,19 @@
 
 from __future__ import annotations
 
-import pytest
 import pandas as pd
+import pytest
 
-from polisyos.ir.analytics.knowledge_base import (
-    DataKnowledgeBase,
-    DistributionAvailability,
-)
 from polisyos.ir.analytics.estimand import (
     DistributionDomain,
     DistributionRef,
     EstimandAST,
 )
+from polisyos.ir.analytics.knowledge_base import (
+    DataKnowledgeBase,
+    DistributionAvailability,
+)
 from polisyos.ir.data.harmonizer import DomainHarmonizer, MissingVariableStrategy
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -31,7 +30,8 @@ def _make_clean_report(
     src = pd.DataFrame({"X": [1.0, 2.0], "Y": [0.1, 0.2]})
     tgt = pd.DataFrame({"treatment": [1.0, 0.0], "outcome": [0.1, 0.3]})
     return DomainHarmonizer.align(
-        src, tgt,
+        src,
+        tgt,
         {"X": "treatment", "Y": "outcome"},
         missing_strategy=MissingVariableStrategy.RAISE_ERROR,
         source_dataset_ref=source_dataset_ref,
@@ -41,10 +41,12 @@ def _make_clean_report(
 
 def _make_coercion_report():
     """Return a compatible report with numeric coercions (int64→float64)."""
-    src = pd.DataFrame({"X": [1, 2, 3]})      # int64
+    src = pd.DataFrame({"X": [1, 2, 3]})  # int64
     tgt = pd.DataFrame({"X_f": [1.0, 2.0, 3.0]})  # float64
     return DomainHarmonizer.align(
-        src, tgt, {"X": "X_f"},
+        src,
+        tgt,
+        {"X": "X_f"},
         missing_strategy=MissingVariableStrategy.RAISE_ERROR,
     )
 
@@ -54,7 +56,9 @@ def _make_imputed_report():
     src = pd.DataFrame({"X": [1.0, 2.0]})
     tgt = pd.DataFrame({"X_mapped": [1.0, 2.0], "extra": [0.0, 1.0]})
     return DomainHarmonizer.align(
-        src, tgt, {"X": "X_mapped"},
+        src,
+        tgt,
+        {"X": "X_mapped"},
         missing_strategy=MissingVariableStrategy.IMPUTE_MEAN,
     )
 
@@ -64,7 +68,9 @@ def _make_error_report():
     src = pd.DataFrame({"X": [1.0]})
     tgt = pd.DataFrame({"Y": [1.0], "missing": [0.0]})
     return DomainHarmonizer.align(
-        src, tgt, {"X": "Y"},
+        src,
+        tgt,
+        {"X": "Y"},
         missing_strategy=MissingVariableStrategy.RAISE_ERROR,
     )
 
@@ -143,9 +149,7 @@ def test_from_harmonized_custom_domains() -> None:
         source_domain=DistributionDomain.EXPERIMENTAL,
         target_domain=DistributionDomain.TARGET,
     )
-    exp_entry = next(
-        (e for e in kb.datasets if e.domain is DistributionDomain.EXPERIMENTAL), None
-    )
+    exp_entry = next((e for e in kb.datasets if e.domain is DistributionDomain.EXPERIMENTAL), None)
     assert exp_entry is not None
 
 
@@ -154,7 +158,8 @@ def test_kb_score_estimand_from_harmonized() -> None:
     src = pd.DataFrame({"income": [1.0, 2.0, 3.0], "employed": [1.0, 0.0, 1.0]})
     tgt = pd.DataFrame({"Y": [1.0, 2.0, 3.0], "T": [1.0, 0.0, 1.0]})
     report = DomainHarmonizer.align(
-        src, tgt,
+        src,
+        tgt,
         {"income": "Y", "employed": "T"},
         missing_strategy=MissingVariableStrategy.RAISE_ERROR,
         source_dataset_ref="study_data",

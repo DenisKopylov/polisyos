@@ -21,4 +21,3 @@ __all__ = [
     "static_treatment_assignments",
     "survey_wave_treatment_assignments",
 ]
-

@@ -1,18 +1,17 @@
 """Tests for Z-transport estimand construction and classifier integration."""
+
 import pytest
 
-from polisyos.ir.analytics.estimand import (
-    DistributionDomain,
-    DistributionRef,
-    EstimandAST,
-    ProductNode,
-    SideConditionKind,
-    SumNode,
-    make_z_transport_estimand,
-)
 from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
     EstimandShape,
     classify_estimand,
+)
+from polisyos.ir.analytics.estimand import (
+    DistributionDomain,
+    EstimandAST,
+    SideConditionKind,
+    SumNode,
+    make_z_transport_estimand,
 )
 
 

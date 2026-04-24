@@ -1,7 +1,9 @@
 """Estimate tabular regression models and return prediction/error summaries."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -18,7 +20,6 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-
 from polisyos.foundry.methods.catalog._payloads import extract_model_payload
 
 from .protocols import PredictionResult, TabularData
@@ -48,9 +49,9 @@ def _prediction_output_slots() -> frozenset[SlotSpec]:
 
 def _regression_metrics(target: np.ndarray, predictions: np.ndarray) -> dict[str, float]:
     residual = np.asarray(target, dtype=float) - np.asarray(predictions, dtype=float)
-    mse = float(np.mean(residual ** 2))
+    mse = float(np.mean(residual**2))
     denom = float(np.sum((target - np.mean(target)) ** 2))
-    r2 = 1.0 - float(np.sum(residual ** 2)) / denom if denom > 1e-12 else 0.0
+    r2 = 1.0 - float(np.sum(residual**2)) / denom if denom > 1e-12 else 0.0
     return {
         "rmse": float(np.sqrt(mse)),
         "mae": float(np.mean(np.abs(residual))),
@@ -81,7 +82,9 @@ def _build_prediction_result(
         target=np.asarray(target, dtype=float),
         feature_importances=dict(feature_importances or {}),
         coefficients=dict(coefficients or {}),
-        metrics=_regression_metrics(np.asarray(target, dtype=float), np.asarray(predictions, dtype=float)),
+        metrics=_regression_metrics(
+            np.asarray(target, dtype=float), np.asarray(predictions, dtype=float)
+        ),
         model_info=dict(model_info or {}),
         embedding_fidelity_certificate=embedding_fidelity_certificate,
         metadata=dict(metadata or {}),
@@ -99,6 +102,7 @@ def _build_prediction_result(
 )
 class ElasticNetEstimator:
     """Fit sparse linear regression with L1/L2 regularization; avoid strongly nonlinear response surfaces without feature engineering."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -164,7 +168,11 @@ class ElasticNetEstimator:
         fit_kwargs: dict[str, Any] = {}
         if data.sample_weight is not None:
             fit_kwargs["sample_weight"] = np.asarray(data.sample_weight, dtype=float)
-        model.fit(np.asarray(data.features, dtype=float), np.asarray(data.target, dtype=float), **fit_kwargs)
+        model.fit(
+            np.asarray(data.features, dtype=float),
+            np.asarray(data.target, dtype=float),
+            **fit_kwargs,
+        )
         predictions = model.predict(np.asarray(data.features, dtype=float))
         names = _feature_names(data)
         coefficients = {name: float(value) for name, value in zip(names, model.coef_)}
@@ -186,6 +194,7 @@ class ElasticNetEstimator:
 )
 class RandomForestEstimator:
     """Fit nonlinear tabular regression with tree ensembles; avoid extrapolation far outside training support."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -222,9 +231,7 @@ class RandomForestEstimator:
         description="Random forest regression baseline with feature importance.",
         tags=frozenset({"ml", "regression", "random-forest"}),
         when_to_use="Nonlinear regression/classification; variable importance; robust to outliers and irrelevant features",
-        citations=(
-            "Breiman, L. (2001). Random forests. Machine Learning, 45(1), 5-32.",
-        ),
+        citations=("Breiman, L. (2001). Random forests. Machine Learning, 45(1), 5-32.",),
         when_not_to_use="Extrapolation beyond training data range; need highly interpretable linear coefficients",
         output_interpretation="Feature importances (Gini/permutation). OOB error as unbiased generalization estimate.",
         typical_min_obs=100,
@@ -253,11 +260,17 @@ class RandomForestEstimator:
         fit_kwargs: dict[str, Any] = {}
         if data.sample_weight is not None:
             fit_kwargs["sample_weight"] = np.asarray(data.sample_weight, dtype=float)
-        model.fit(np.asarray(data.features, dtype=float), np.asarray(data.target, dtype=float), **fit_kwargs)
+        model.fit(
+            np.asarray(data.features, dtype=float),
+            np.asarray(data.target, dtype=float),
+            **fit_kwargs,
+        )
         predictions = model.predict(np.asarray(data.features, dtype=float))
         importances = {
             name: float(value)
-            for name, value in zip(_feature_names(data), np.asarray(model.feature_importances_, dtype=float))
+            for name, value in zip(
+                _feature_names(data), np.asarray(model.feature_importances_, dtype=float)
+            )
         }
         return _build_prediction_result(
             method_name="random_forest",
@@ -276,6 +289,7 @@ class RandomForestEstimator:
 )
 class GradientBoostingEstimator:
     """Fit boosted-tree regression for nonlinear tabular structure; avoid tiny noisy datasets that overfit shallow trees."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     runtime_stack: ClassVar[tuple[str, ...]] = ("scikit-learn", "numpy")
 
@@ -341,11 +355,17 @@ class GradientBoostingEstimator:
         fit_kwargs: dict[str, Any] = {}
         if data.sample_weight is not None:
             fit_kwargs["sample_weight"] = np.asarray(data.sample_weight, dtype=float)
-        model.fit(np.asarray(data.features, dtype=float), np.asarray(data.target, dtype=float), **fit_kwargs)
+        model.fit(
+            np.asarray(data.features, dtype=float),
+            np.asarray(data.target, dtype=float),
+            **fit_kwargs,
+        )
         predictions = model.predict(np.asarray(data.features, dtype=float))
         importances = {
             name: float(value)
-            for name, value in zip(_feature_names(data), np.asarray(model.feature_importances_, dtype=float))
+            for name, value in zip(
+                _feature_names(data), np.asarray(model.feature_importances_, dtype=float)
+            )
         }
         return _build_prediction_result(
             method_name="gradient_boosting",

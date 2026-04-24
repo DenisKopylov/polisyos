@@ -131,9 +131,10 @@ def test_bind_foundry_inputs_node_builds_bindings_and_report(tmp_path) -> None:
     bindings_ref = outcome.state.inputs[INPUT_INPUT_BINDINGS_REF]
     payload = from_canonical_bytes(store.get_bytes(bindings_ref.artifact_id))
     bindings = FoundryInputBindings.model_validate(payload)
-    assert bindings.bound_state_snapshot_ref.artifact_id == outcome.state.artifacts_index[
-        ARTIFACT_STATE_SNAPSHOT_REF
-    ].artifact_id
+    assert (
+        bindings.bound_state_snapshot_ref.artifact_id
+        == outcome.state.artifacts_index[ARTIFACT_STATE_SNAPSHOT_REF].artifact_id
+    )
 
 
 def test_bind_foundry_inputs_node_is_deterministic_for_identical_inputs(tmp_path) -> None:
@@ -227,7 +228,11 @@ def test_bind_foundry_inputs_node_carries_shape_warning_for_survey_snapshots(tmp
     payload = from_canonical_bytes(store.get_bytes(bindings_ref.artifact_id))
     bindings = FoundryInputBindings.model_validate(payload)
     assert "snapshot.data_shape=survey_repeated_cross_section" in bindings.notes
-    assert any("panel SCM/DiD/econometrics" in note for note in bindings.notes if note.startswith("warning:"))
+    assert any(
+        "panel SCM/DiD/econometrics" in note
+        for note in bindings.notes
+        if note.startswith("warning:")
+    )
 
 
 def test_bind_foundry_inputs_build_assertion_is_not_swallowed(tmp_path) -> None:
@@ -249,9 +254,11 @@ def test_bind_foundry_inputs_build_assertion_is_not_swallowed(tmp_path) -> None:
         },
     )
 
-    with patch(
-        "polisyos.scientist.nodes.builtins.data.bind_foundry_inputs.build_input_bindings",
-        side_effect=AssertionError("binding invariant"),
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.data.bind_foundry_inputs.build_input_bindings",
+            side_effect=AssertionError("binding invariant"),
+        ),
+        pytest.raises(AssertionError, match="binding invariant"),
     ):
-        with pytest.raises(AssertionError, match="binding invariant"):
-            BindFoundryInputsNode().execute(ctx, state)
+        BindFoundryInputsNode().execute(ctx, state)

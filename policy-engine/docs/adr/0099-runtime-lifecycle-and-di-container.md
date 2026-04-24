@@ -1,9 +1,11 @@
 # ADR-0099: Runtime Lifecycle and Dependency-Injection Container
 
 ## Status
+
 Accepted
 
 ## Date
+
 2026-04-12
 
 ## Context
@@ -19,6 +21,7 @@ decision records that model as the supported lifecycle contract.
 ## Decision
 
 1. Runtime services are assembled through a typed container that owns:
+
    - dependency graph construction;
    - startup ordering;
    - shutdown ordering;
@@ -49,5 +52,6 @@ decision records that model as the supported lifecycle contract.
 
 - There is a temporary hybrid period where container-managed services are also
   mirrored into legacy `app.state` fields.
+
 - Engineers must update the container when adding new runtime-owned services,
   which makes drift visible but adds process discipline.

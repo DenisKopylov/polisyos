@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -22,8 +21,8 @@ from ._common import (
     node_baseline_matches,
     python_baseline_matches,
     surface_status,
-    uv_command,
     uv_baseline_matches,
+    uv_command,
     version_text,
 )
 

@@ -7,10 +7,15 @@ Covers:
 - rewrite_estimand_with_selection: fixed-point rewriter
 - JSON round-trip of IR ProofStep
 """
+
 from __future__ import annotations
 
-import pytest
-
+from polisyos.foundry.methods.catalog.causal.do_calculus import (
+    apply_sigma_rule1,
+    apply_sigma_rule2,
+    apply_sigma_rule3,
+    rewrite_estimand_with_selection,
+)
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.estimand import (
     DistributionDomain,
@@ -18,13 +23,6 @@ from polisyos.ir.analytics.estimand import (
     EstimandAST,
     SideConditionKind,
 )
-from polisyos.foundry.methods.catalog.causal.do_calculus import (
-    apply_sigma_rule1,
-    apply_sigma_rule2,
-    apply_sigma_rule3,
-    rewrite_estimand_with_selection,
-)
-
 
 # ---------------------------------------------------------------------------
 # Graph helpers
@@ -63,7 +61,13 @@ def _make_simple_ast(dist_ref: DistributionRef) -> EstimandAST:
         root=dist_ref,
         treatment="X",
         outcome="Y",
-        all_variables=tuple(sorted(set(dist_ref.variables) | set(dist_ref.intervention_set) | set(dist_ref.conditioning))),
+        all_variables=tuple(
+            sorted(
+                set(dist_ref.variables)
+                | set(dist_ref.intervention_set)
+                | set(dist_ref.conditioning)
+            )
+        ),
         identification_method="test",
     )
 
@@ -361,6 +365,7 @@ class TestSigmaRulesJsonRoundTrip:
             assert data["rule_name"] == "SIGMA_R1"
             # Round-trip via model_validate
             from polisyos.ir.analytics.evidence_bundle import ProofStep as IRProofStep
+
             restored = IRProofStep.model_validate(data)
             assert restored.rule_name == "SIGMA_R1"
 

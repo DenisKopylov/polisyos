@@ -17,8 +17,6 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.scientist.engine.errors import CircuitBreakerOpenError
-
 __all__ = [
     "CircuitBreaker",
     "CircuitBreakerConfig",
@@ -97,12 +95,8 @@ class CircuitBreaker:
         with self._lock:
             self._failure_count += 1
             self._last_failure_time = time.monotonic()
-            if self._state == "half_open":
-                self._state = "open"
-                self._half_open_calls = 0
-            elif (
-                self._state == "closed"
-                and self._failure_count >= self._config.failure_threshold
+            if self._state == "half_open" or (
+                self._state == "closed" and self._failure_count >= self._config.failure_threshold
             ):
                 self._state = "open"
                 self._half_open_calls = 0

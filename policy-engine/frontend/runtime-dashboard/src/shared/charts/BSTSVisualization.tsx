@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils";
 import { chartTheme, ciColors, chartDefaults } from "./theme";
 import { ChartDataTable } from "./accessibility";
@@ -53,6 +54,7 @@ export function BSTSVisualization({
   title,
   className,
 }: BSTSVisualizationProps) {
+  const { t } = useI18n();
   const n = data.length;
 
   if (n === 0) {
@@ -60,7 +62,7 @@ export function BSTSVisualization({
       <figure
         className={cn("border-border bg-card rounded-xl border p-4", className)}
         role="img"
-        aria-label="Bayesian Structural Time Series: no data available"
+        aria-label={t("shared.charts.bsts.emptyAria")}
       >
         {title && (
           <figcaption className="text-foreground mb-3 text-sm font-semibold">
@@ -68,11 +70,15 @@ export function BSTSVisualization({
           </figcaption>
         )}
         <div className="text-muted flex min-h-40 items-center justify-center rounded-lg border border-dashed text-sm">
-          No data available.
+          {t("shared.charts.common.noDataAvailable")}
         </div>
         <ChartDataTable
-          caption={title ?? "Bayesian Structural Time Series data"}
-          columns={["Actual", "Predicted", "Difference"]}
+          caption={title ?? t("shared.charts.bsts.caption")}
+          columns={[
+            t("shared.charts.bsts.actual"),
+            t("shared.charts.bsts.predicted"),
+            t("shared.charts.bsts.difference"),
+          ]}
           rows={[]}
         />
       </figure>
@@ -102,11 +108,16 @@ export function BSTSVisualization({
     return PADDING.left + (i / Math.max(n - 1, 1)) * PLOT_W;
   }
   function toMainY(v: number) {
-    return PADDING.top + MAIN_H * (1 - (v - (minMainY - mainPad)) / (mainRange + 2 * mainPad));
+    return (
+      PADDING.top +
+      MAIN_H * (1 - (v - (minMainY - mainPad)) / (mainRange + 2 * mainPad))
+    );
   }
   function toDiffY(v: number) {
     const top = PADDING.top + MAIN_H + GAP_H;
-    return top + DIFF_H * (1 - (v - (minDiff - diffPad)) / (diffRange + 2 * diffPad));
+    return (
+      top + DIFF_H * (1 - (v - (minDiff - diffPad)) / (diffRange + 2 * diffPad))
+    );
   }
 
   const interventionIdx = data.findIndex((d) => d.time === interventionTime);
@@ -116,20 +127,44 @@ export function BSTSVisualization({
   const svgHeight = PADDING.top + MAIN_H + GAP_H + DIFF_H + PADDING.bottom;
 
   // Paths
-  const actualPath = data.map((d, i) => `${i === 0 ? "M" : "L"}${toX(i)},${toMainY(d.actual)}`).join(" ");
-  const predictedPath = data.map((d, i) => `${i === 0 ? "M" : "L"}${toX(i)},${toMainY(d.predicted)}`).join(" ");
+  const actualPath = data
+    .map((d, i) => `${i === 0 ? "M" : "L"}${toX(i)},${toMainY(d.actual)}`)
+    .join(" ");
+  const predictedPath = data
+    .map((d, i) => `${i === 0 ? "M" : "L"}${toX(i)},${toMainY(d.predicted)}`)
+    .join(" ");
 
   const ci95Band = (() => {
     if (!data.some((d) => d.ci95Lower != null)) return null;
-    const upper = data.map((d, i) => `${i === 0 ? "M" : "L"}${toX(i)},${toMainY(d.ci95Upper ?? d.predicted)}`).join(" ");
-    const lower = [...data].reverse().map((d, i) => `L${toX(n - 1 - i)},${toMainY(d.ci95Lower ?? d.predicted)}`).join(" ");
+    const upper = data
+      .map(
+        (d, i) =>
+          `${i === 0 ? "M" : "L"}${toX(i)},${toMainY(d.ci95Upper ?? d.predicted)}`,
+      )
+      .join(" ");
+    const lower = [...data]
+      .reverse()
+      .map(
+        (d, i) => `L${toX(n - 1 - i)},${toMainY(d.ci95Lower ?? d.predicted)}`,
+      )
+      .join(" ");
     return `${upper} ${lower} Z`;
   })();
 
   const ci80Band = (() => {
     if (!data.some((d) => d.ci80Lower != null)) return null;
-    const upper = data.map((d, i) => `${i === 0 ? "M" : "L"}${toX(i)},${toMainY(d.ci80Upper ?? d.predicted)}`).join(" ");
-    const lower = [...data].reverse().map((d, i) => `L${toX(n - 1 - i)},${toMainY(d.ci80Lower ?? d.predicted)}`).join(" ");
+    const upper = data
+      .map(
+        (d, i) =>
+          `${i === 0 ? "M" : "L"}${toX(i)},${toMainY(d.ci80Upper ?? d.predicted)}`,
+      )
+      .join(" ");
+    const lower = [...data]
+      .reverse()
+      .map(
+        (d, i) => `L${toX(n - 1 - i)},${toMainY(d.ci80Lower ?? d.predicted)}`,
+      )
+      .join(" ");
     return `${upper} ${lower} Z`;
   })();
 
@@ -162,7 +197,9 @@ export function BSTSVisualization({
           {/* ── Main panel ── */}
 
           {/* CI bands */}
-          {ci95Band && <path d={ci95Band} fill={ciColors.ci95} opacity={0.15} />}
+          {ci95Band && (
+            <path d={ci95Band} fill={ciColors.ci95} opacity={0.15} />
+          )}
           {ci80Band && <path d={ci80Band} fill={ciColors.ci80} opacity={0.2} />}
 
           {/* Intervention line (spans both panels) */}
@@ -182,17 +219,34 @@ export function BSTSVisualization({
             fontSize={chartDefaults.tickFontSize}
             fill={chartTheme.warning}
           >
-            Intervention
+            {t("shared.charts.bsts.intervention")}
           </text>
 
           {/* Predicted line */}
-          <path d={predictedPath} fill="none" stroke={chartTheme.neutral} strokeWidth={2} strokeDasharray="5 3" />
+          <path
+            d={predictedPath}
+            fill="none"
+            stroke={chartTheme.neutral}
+            strokeWidth={2}
+            strokeDasharray="5 3"
+          />
 
           {/* Actual line */}
-          <path d={actualPath} fill="none" stroke={chartTheme.primary} strokeWidth={2} />
+          <path
+            d={actualPath}
+            fill="none"
+            stroke={chartTheme.primary}
+            strokeWidth={2}
+          />
 
           {/* Main Y axis */}
-          <line x1={PADDING.left} y1={PADDING.top} x2={PADDING.left} y2={PADDING.top + MAIN_H} stroke={chartTheme.axis} />
+          <line
+            x1={PADDING.left}
+            y1={PADDING.top}
+            x2={PADDING.left}
+            y2={PADDING.top + MAIN_H}
+            stroke={chartTheme.axis}
+          />
 
           {/* ── Difference panel ── */}
           {data.map((d, i) => {
@@ -249,40 +303,102 @@ export function BSTSVisualization({
           />
 
           {/* Labels */}
-          <text x={PADDING.left - 4} y={PADDING.top + MAIN_H / 2} textAnchor="end" dominantBaseline="central" fontSize={9} fill={chartTheme.neutral} transform={`rotate(-90, ${PADDING.left - 16}, ${PADDING.top + MAIN_H / 2})`}>
-            Outcome
+          <text
+            x={PADDING.left - 4}
+            y={PADDING.top + MAIN_H / 2}
+            textAnchor="end"
+            dominantBaseline="central"
+            fontSize={9}
+            fill={chartTheme.neutral}
+            transform={`rotate(-90, ${PADDING.left - 16}, ${PADDING.top + MAIN_H / 2})`}
+          >
+            {t("shared.charts.bsts.outcome")}
           </text>
-          <text x={PADDING.left - 4} y={PADDING.top + MAIN_H + GAP_H + DIFF_H / 2} textAnchor="end" dominantBaseline="central" fontSize={9} fill={chartTheme.neutral} transform={`rotate(-90, ${PADDING.left - 16}, ${PADDING.top + MAIN_H + GAP_H + DIFF_H / 2})`}>
-            Diff
+          <text
+            x={PADDING.left - 4}
+            y={PADDING.top + MAIN_H + GAP_H + DIFF_H / 2}
+            textAnchor="end"
+            dominantBaseline="central"
+            fontSize={9}
+            fill={chartTheme.neutral}
+            transform={`rotate(-90, ${PADDING.left - 16}, ${PADDING.top + MAIN_H + GAP_H + DIFF_H / 2})`}
+          >
+            {t("shared.charts.bsts.difference")}
           </text>
 
           {/* Summary stats */}
-          <g transform={`translate(${SVG_WIDTH - PADDING.right - 8}, ${PADDING.top + 16})`} textAnchor="end">
+          <g
+            transform={`translate(${SVG_WIDTH - PADDING.right - 8}, ${PADDING.top + 16})`}
+            textAnchor="end"
+          >
             {cumulativeEffect != null && (
-              <text fontSize={chartDefaults.tickFontSize} fontWeight={700} fill={chartTheme.success}>
-                Cumul. = {cumulativeEffect >= 0 ? "+" : ""}{cumulativeEffect.toFixed(3)}
+              <text
+                fontSize={chartDefaults.tickFontSize}
+                fontWeight={700}
+                fill={chartTheme.success}
+              >
+                {t("shared.charts.bsts.cumulative")}{" "}
+                {cumulativeEffect >= 0 ? "+" : ""}
+                {cumulativeEffect.toFixed(3)}
               </text>
             )}
             {pValue != null && (
-              <text y={16} fontSize={chartDefaults.tickFontSize} fill={pValue < 0.05 ? chartTheme.success : chartTheme.neutral}>
-                p = {pValue.toFixed(4)}
+              <text
+                y={16}
+                fontSize={chartDefaults.tickFontSize}
+                fill={pValue < 0.05 ? chartTheme.success : chartTheme.neutral}
+              >
+                {t("shared.charts.bsts.pValue")} {pValue.toFixed(4)}
               </text>
             )}
           </g>
 
           {/* Legend */}
           <g transform={`translate(${PADDING.left + 8}, ${PADDING.top + 8})`}>
-            <line x1={0} y1={0} x2={16} y2={0} stroke={chartTheme.primary} strokeWidth={2} />
-            <text x={20} y={4} fontSize={chartDefaults.tickFontSize} fill={chartTheme.axis}>Actual</text>
-            <line x1={80} y1={0} x2={96} y2={0} stroke={chartTheme.neutral} strokeWidth={2} strokeDasharray="5 3" />
-            <text x={100} y={4} fontSize={chartDefaults.tickFontSize} fill={chartTheme.axis}>Predicted</text>
+            <line
+              x1={0}
+              y1={0}
+              x2={16}
+              y2={0}
+              stroke={chartTheme.primary}
+              strokeWidth={2}
+            />
+            <text
+              x={20}
+              y={4}
+              fontSize={chartDefaults.tickFontSize}
+              fill={chartTheme.axis}
+            >
+              {t("shared.charts.bsts.actual")}
+            </text>
+            <line
+              x1={80}
+              y1={0}
+              x2={96}
+              y2={0}
+              stroke={chartTheme.neutral}
+              strokeWidth={2}
+              strokeDasharray="5 3"
+            />
+            <text
+              x={100}
+              y={4}
+              fontSize={chartDefaults.tickFontSize}
+              fill={chartTheme.axis}
+            >
+              {t("shared.charts.bsts.predicted")}
+            </text>
           </g>
         </svg>
       </div>
 
       <ChartDataTable
-        caption={title ?? "BSTS causal impact data"}
-        columns={["Actual", "Predicted", "Difference"]}
+        caption={title ?? t("shared.charts.bsts.caption")}
+        columns={[
+          t("shared.charts.bsts.actual"),
+          t("shared.charts.bsts.predicted"),
+          t("shared.charts.bsts.difference"),
+        ]}
         rows={tableRows}
       />
     </figure>

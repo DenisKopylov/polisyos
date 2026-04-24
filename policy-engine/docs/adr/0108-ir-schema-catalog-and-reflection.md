@@ -31,6 +31,7 @@ The catalog:
 - walks the importable `polisyos.ir` package tree;
 - records type kind, module, current version, public status, export aliases,
   fields, IR refs, ABI snapshot linkage, and compatibility metadata;
+
 - exposes stable tooling functions:
   `get_ir_schema_catalog()`, `list_ir_types()`, `get_ir_type()`,
   `inspect_ir_schema()`, and `enumerate_ir_exports()`.

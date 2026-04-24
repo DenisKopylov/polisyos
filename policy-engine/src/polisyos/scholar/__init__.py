@@ -7,6 +7,7 @@ document/claim pipeline until a caller actually invokes Scholar APIs.
 
 Names listed in `__all__` are the supported package-level surface.
 """
+
 from __future__ import annotations
 
 import importlib

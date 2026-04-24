@@ -4,6 +4,7 @@ All Lex exceptions inherit from ``LexError`` and preserve ``doc_source_id`` / ``
 when available so orchestration, diagnostics, and governance tooling can attribute failures to a
 specific corpus object and pipeline stage.
 """
+
 from __future__ import annotations
 
 from typing import Any

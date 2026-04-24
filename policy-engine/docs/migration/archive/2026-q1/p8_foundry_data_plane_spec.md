@@ -24,13 +24,13 @@ After P7, connector runtime is hardened, but Foundry still consumes data through
 
 Current data-plane gaps:
 
-| Area | Current state | Impact |
-| --- | --- | --- |
-| Foundry input contract | `ExecuteRequest.data_snapshot_ref` exists, but execute path requires `DataSnapshot.data_ref.kind == foundry.state_snapshot` | Real connector data does not have a first-class binding contract into Foundry state |
-| Scientist data binding | `BuildDataSnapshotNode` mostly passes through existing snapshots; no deterministic tabular-to-state materialization contract | Data-plane is not explicit, hard to validate/replay as a separate phase |
-| Fabric port integration | `FabricPort.snapshot(...)` protocol exists, but no default concrete adapter in `scientist/adapters` | `data_view_request_ref` path is not production-ready |
-| Pre-expensive quality gates | `QualityGatePass` exists in governance preflight utility, but default workflow path (`run_governance` node) does not execute it before simulation | Low-quality/stale data can reach expensive compile/execute stages |
-| Replay completeness | Replay relies on snapshot refs but has no dedicated `input_bindings` artifact role | Reproducibility metadata is incomplete at data-binding boundary |
+| Area                        | Current state                                                                                                                                     | Impact                                                                              |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Foundry input contract      | `ExecuteRequest.data_snapshot_ref` exists, but execute path requires `DataSnapshot.data_ref.kind == foundry.state_snapshot`                       | Real connector data does not have a first-class binding contract into Foundry state |
+| Scientist data binding      | `BuildDataSnapshotNode` mostly passes through existing snapshots; no deterministic tabular-to-state materialization contract                      | Data-plane is not explicit, hard to validate/replay as a separate phase             |
+| Fabric port integration     | `FabricPort.snapshot(...)` protocol exists, but no default concrete adapter in `scientist/adapters`                                               | `data_view_request_ref` path is not production-ready                                |
+| Pre-expensive quality gates | `QualityGatePass` exists in governance preflight utility, but default workflow path (`run_governance` node) does not execute it before simulation | Low-quality/stale data can reach expensive compile/execute stages                   |
+| Replay completeness         | Replay relies on snapshot refs but has no dedicated `input_bindings` artifact role                                                                | Reproducibility metadata is incomplete at data-binding boundary                     |
 
 Net effect: architecture boundaries are cleaner after P7, but the connector/fabric side and Foundry execution side are still coupled by a temporary snapshot compatibility bridge instead of a stable input-binding ABI.
 
@@ -76,12 +76,15 @@ After P8:
 Required additions in `core/contracts/foundry.py`:
 
 1. `FoundryInputBindingsRef`:
+
    - `kind="foundry.input_bindings"`
    - `media_type="application/json"`.
 2. `FoundryInputBindingReportRef`:
+
    - `kind="foundry.input_binding_report"`
    - `media_type="application/json"`.
 3. `FoundryInputBindings` envelope (minimum fields):
+
    - `data_snapshot_ref`
    - `registry_bundle_ref`
    - `rules` (binding rules)
@@ -148,11 +151,14 @@ Default workflow (`scientist/workflows/default.py`) after P8 MUST include:
 Required changes:
 
 1. `src/polisyos/core/contracts/foundry.py`
+
    - add `FoundryInputBindingsRef`, `FoundryInputBindingReportRef`,
    - add `FoundryInputBindings` (+ supporting models for rules/transforms).
 2. `src/polisyos/core/contracts/fabric.py`
+
    - extend `DataSnapshot` with optional quality/binding refs.
 3. `src/polisyos/core/contracts/README.md`
+
    - document P8 data-plane contract ownership and compatibility window.
 
 Constraints:
@@ -184,20 +190,25 @@ Implementation constraints:
 Required additions:
 
 1. `src/polisyos/scientist/nodes/builtins/data/bind_foundry_inputs.py`
+
    - builds/persists `foundry.input_bindings`,
    - materializes `state_snapshot_ref`,
    - emits binding report.
 2. `src/polisyos/scientist/nodes/builtins/governance/data_plane_gate.py`
+
    - runs `QualityGatePass`/`PIICheckPass` on snapshot+binding context before simulation.
 
 Required updates:
 
 1. `src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py`
+
    - prefer `input_bindings_ref` path,
    - keep legacy fallback behavior.
 2. `src/polisyos/scientist/workflows/default.py`
+
    - include new P8 nodes and dependencies.
 3. `src/polisyos/scientist/workflows/builder.py`
+
    - update required input checks/messages to include binding path.
 
 ### 5.4 Fabric adapter path for snapshot build
@@ -221,11 +232,13 @@ Compatibility requirement:
 Required updates:
 
 1. `src/polisyos/foundry/execute/api.py`
+
    - support `input_bindings_ref`,
    - resolve bound snapshot through bindings artifact,
    - keep `state_snapshot_ref` and `data_snapshot_ref` fallback behavior.
 
 2. `src/polisyos/core/contracts/foundry.py`
+
    - extend `ExecuteRequest` with optional `input_bindings_ref`.
 
 ### 5.6 ModelSpec consistency checks
@@ -241,10 +254,13 @@ Required P8 rule:
 Required updates:
 
 1. `src/polisyos/runtime/replay.py`
+
    - include `input_bindings_ref` in critical role detection/completeness checks.
 2. `src/polisyos/scientist/replay_backend.py`
+
    - pass binding refs when available for Foundry replay.
 3. `src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py`
+
    - include binding refs in packet payload and manifest input refs.
 
 ### 5.8 Lint and regression prevention
@@ -264,13 +280,17 @@ Minimum checks:
 ### 6.1 Milestones
 
 1. `M1` (`2026-05-11` -> `2026-05-13`):
+
    - contract additions (`input_bindings` refs/models),
    - execute API support for `input_bindings_ref`.
 2. `M2` (`2026-05-13` -> `2026-05-17`):
+
    - implement binding node + deterministic materialization module.
 3. `M3` (`2026-05-17` -> `2026-05-21`):
+
    - workflow rewiring + pre-simulation data-plane gate + replay integration.
 4. `M4` (`2026-05-22` -> `2026-05-24`):
+
    - lint/tests/docs/governance closure and freeze evidence.
 
 ### 6.2 PR slicing (recommended)
@@ -285,10 +305,13 @@ Minimum checks:
 ### 7.1 Mandatory artifact updates
 
 1. `p1_refactor_queue.md`
+
    - add/track P8 work item (recommended `Q9`) and closure state.
 2. `p8_foundry_data_plane_spec.md`
+
    - status progression (`Proposed` -> `Implemented`) with evidence section on close.
 3. `import_exceptions.toml` / `import_exceptions_registry.md`
+
    - P8 SHOULD avoid new long-lived architecture exceptions.
 
 ### 7.2 Required verification commands
@@ -356,13 +379,13 @@ P8 is complete only if all criteria are met:
 
 ## 9. Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| Non-deterministic tabular transforms (ordering/grouping drift) | High | Stable sort keys, explicit aggregation semantics, deterministic serialization tests |
-| Data-schema drift breaks slot mappings | High | Binding validation against slot registry + contract hash checks + blocker mode |
-| Memory pressure during tabular-to-state materialization | Medium | Chunked materialization strategy and explicit shape limits in binder |
-| Breaking existing snapshot-based tests/flows | Medium | Keep one-release fallback path and add compatibility regression suite |
-| Governance gate ambiguity across preflight/node runtime | Medium | Define P8 node-level gate as canonical pre-simulation blocker for default workflow |
+| Risk                                                           | Impact | Mitigation                                                                          |
+| -------------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------- |
+| Non-deterministic tabular transforms (ordering/grouping drift) | High   | Stable sort keys, explicit aggregation semantics, deterministic serialization tests |
+| Data-schema drift breaks slot mappings                         | High   | Binding validation against slot registry + contract hash checks + blocker mode      |
+| Memory pressure during tabular-to-state materialization        | Medium | Chunked materialization strategy and explicit shape limits in binder                |
+| Breaking existing snapshot-based tests/flows                   | Medium | Keep one-release fallback path and add compatibility regression suite               |
+| Governance gate ambiguity across preflight/node runtime        | Medium | Define P8 node-level gate as canonical pre-simulation blocker for default workflow  |
 
 ## 10. Post-P8 Follow-Ups (Out of Scope)
 
@@ -386,6 +409,7 @@ P8-specific baseline observations:
 
 1. `foundry/execute/api.py` resolves `data_snapshot_ref` only through `DataSnapshot.data_ref.kind == "foundry.state_snapshot"` compatibility path.
 2. `foundry.state_snapshot` kind assumptions are present in active execution/analysis paths:
+
    - `src/polisyos/foundry/execute/api.py`
    - `src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py`
    - `src/polisyos/scientist/agent/feasibility.py`
@@ -398,26 +422,34 @@ P8-specific baseline observations:
 Implemented artifacts (P8 scope):
 
 1. Contract layer:
+
    - `src/polisyos/core/contracts/foundry.py`: added `FoundryInputBindingsRef`, `FoundryInputBindingReportRef`, `FoundryInputBindings`, binding rule/transform models, and `ExecuteRequest.input_bindings_ref`.
    - `src/polisyos/core/contracts/fabric.py`: `DataSnapshot` extended with `quality_report_ref` and `input_bindings_ref`.
    - `src/polisyos/core/contracts/__init__.py` and `src/polisyos/core/contracts/README.md`: exports/docs updated for P8 ownership and compatibility window.
 2. Foundry data-plane module:
+
    - Added `src/polisyos/foundry/data_plane/` with deterministic binding/materialization flow and binding report persistence.
 3. Execute API:
+
    - `src/polisyos/foundry/execute/api.py`: canonical state-source resolution order (`state_snapshot_ref` -> `input_bindings_ref` -> `data_snapshot_ref` fallback), compatibility notes, and input provenance roles.
 4. Scientist nodes/workflow:
+
    - Added `src/polisyos/scientist/nodes/builtins/data/bind_foundry_inputs.py`.
    - Added `src/polisyos/scientist/nodes/builtins/governance/data_plane_gate.py`.
    - Updated default DAG in `src/polisyos/scientist/workflows/default.py` to include `bind_foundry_inputs` and `run_data_plane_gate` before simulation.
    - Updated `run_simulation` to prefer `input_bindings_ref`.
 5. Fabric adapter path:
+
    - Added `src/polisyos/scientist/adapters/fabric_bridge.py` with concrete `FabricPort.snapshot(...)`.
 6. Replay/decision packet integration:
+
    - `src/polisyos/runtime/replay.py`, `src/polisyos/scientist/replay_backend.py`, and `src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py` updated for `input_bindings_ref` completeness and manifest propagation.
 7. Regression prevention:
+
    - Added `tools/lint/lint_foundry_data_plane.py`.
    - Updated queue tracking in `p1_refactor_queue.md` (`Q9` closed).
 8. P8 tests:
+
    - Added:
      - `tests/contract/test_foundry_input_bindings_contract.py`
      - `tests/foundry/test_execute_input_bindings.py`

@@ -9,10 +9,9 @@ import platform
 import sys
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from tools._lib.imports import repo_root_from
 from typing import Any
 
 from tools._lib.cache import (
@@ -28,6 +27,7 @@ from tools._lib.cache import (
     write_json_cache,
 )
 from tools._lib.fs import atomic_write_text
+from tools._lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -37,6 +37,7 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from schemas.abi_models import ABIModelEntry, select_abi_entries  # noqa: E402
+
 from .generate_ir_reference_catalog import (  # noqa: E402
     generate_reference_docs,
 )
@@ -93,10 +94,7 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--models",
         nargs="*",
-        help=(
-            "Optional model filters by abi_key/module/priority/fqn "
-            "(e.g. --models claim p0 ir)"
-        ),
+        help=("Optional model filters by abi_key/module/priority/fqn (e.g. --models claim p0 ir)"),
     )
     parser.add_argument(
         "--format",
@@ -164,7 +162,9 @@ def _class_source_path(cls: type[Any]) -> Path | None:
 def _resolve_entry(entry: ABIModelEntry) -> ResolvedABIEntry:
     cls = _resolve_class(entry.fqn)
     source_path = _class_source_path(cls)
-    source_hash = file_sha256(source_path) if source_path is not None and source_path.exists() else None
+    source_hash = (
+        file_sha256(source_path) if source_path is not None and source_path.exists() else None
+    )
     return ResolvedABIEntry(
         entry=entry,
         cls=cls,
@@ -254,7 +254,7 @@ def _build_manifest(
     pydantic_version: str,
 ) -> dict[str, Any]:
     manifest = {
-        "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+        "generated_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
         "generator_version": GENERATOR_VERSION,
         "python_version": platform.python_version(),
         "pydantic_version": pydantic_version,
@@ -388,7 +388,9 @@ def _process_module(
                 if entry.allow_missing:
                     print(f"[WARN] skipped missing optional ABI entry {entry.abi_key}: {exc}")
                     continue
-                raise GenerationError(f"Failed to import ABI entry '{entry.abi_key}': {exc}") from exc
+                raise GenerationError(
+                    f"Failed to import ABI entry '{entry.abi_key}': {exc}"
+                ) from exc
 
         payload = _load_or_generate_entry_payload(
             resolved,
@@ -484,17 +486,11 @@ def _changed_source_scope(base_ref: str) -> tuple[set[Path], bool]:
     if any(path in FULL_REBUILD_SENTINELS for path in changed_paths):
         return set(), True
     changed_under_src = {
-        path.resolve()
-        for path in changed_paths
-        if path.resolve().is_relative_to(SRC_ROOT)
+        path.resolve() for path in changed_paths if path.resolve().is_relative_to(SRC_ROOT)
     }
     if any(path.suffix == ".py" and not path.exists() for path in changed_under_src):
         return set(), True
-    changed_sources = {
-        path
-        for path in changed_under_src
-        if path.suffix == ".py" and path.exists()
-    }
+    changed_sources = {path for path in changed_under_src if path.suffix == ".py" and path.exists()}
     return changed_sources, False
 
 
@@ -575,18 +571,20 @@ def main(argv: Sequence[str] | None = None) -> int:
         include_deprecated=args.include_deprecated,
         scan_mode=scan_mode,
     )
-    if baseline_label and args.skip_if_unchanged and baseline_matches(
-        cache_root,
-        CACHE_NAMESPACE,
-        baseline_label,
-        fingerprint=fingerprint,
+    if (
+        baseline_label
+        and args.skip_if_unchanged
+        and baseline_matches(
+            cache_root,
+            CACHE_NAMESPACE,
+            baseline_label,
+            fingerprint=fingerprint,
+        )
     ):
         print(f"ABI schema snapshot generation skipped: baseline {baseline_label!r} unchanged.")
         return 0
 
-    resolved_entries_by_key = {
-        resolved.entry.abi_key: resolved for resolved in resolved_entries
-    }
+    resolved_entries_by_key = {resolved.entry.abi_key: resolved for resolved in resolved_entries}
     by_module: dict[str, list[ABIModelEntry]] = {}
     for entry in entries:
         if entry.abi_key in resolved_entries_by_key:

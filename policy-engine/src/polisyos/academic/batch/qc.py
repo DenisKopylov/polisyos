@@ -10,15 +10,18 @@ import urllib.request
 from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import duckdb
 
-from polisyos.academic.batch.config import AcademicBatchConfig
 from polisyos.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
 from polisyos.academic.knowledge.runtime_canonical_registry import runtime_canonical_names
 from polisyos.batch_common.manifest import write_stage_manifest
 from polisyos.batch_common.qc import QCCheck, QCReport, evaluate_fail_fast, write_qc_report
 from polisyos.common.logger import get_logger
+
+if TYPE_CHECKING:
+    from polisyos.academic.batch.config import AcademicBatchConfig
 
 logger = get_logger(__name__)
 
@@ -26,15 +29,53 @@ _CANONICAL_VAR_RE = re.compile(r"^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*){0,3}$")
 
 # Approved domain prefixes — any variable starting with one of these counts as canonical
 _APPROVED_DOMAIN_PREFIXES: tuple[str, ...] = (
-    "economic.", "fiscal.", "governance.", "institutional.", "social.", "demographic.",
-    "labor.", "trade.", "environmental.", "health.", "education.", "infrastructure.",
-    "political.", "migration.", "security.", "energy.", "digital.", "monetary.",
-    "justice.", "climate.", "agriculture.", "urban.", "finance.", "gender.",
+    "economic.",
+    "fiscal.",
+    "governance.",
+    "institutional.",
+    "social.",
+    "demographic.",
+    "labor.",
+    "trade.",
+    "environmental.",
+    "health.",
+    "education.",
+    "infrastructure.",
+    "political.",
+    "migration.",
+    "security.",
+    "energy.",
+    "digital.",
+    "monetary.",
+    "justice.",
+    "climate.",
+    "agriculture.",
+    "urban.",
+    "finance.",
+    "gender.",
     # Extended domain prefixes for scientific/empirical topics
-    "agricultural.", "biotech.", "hospital.", "genetic.", "behavioral.", "soil.",
-    "safety.", "antibiotic.", "nutrition.", "pharmaceutical.", "industrial.",
-    "biological.", "chemical.", "ecological.", "medical.", "epidemiological.",
-    "transport.", "housing.", "water.", "food.", "marine.", "forestry.",
+    "agricultural.",
+    "biotech.",
+    "hospital.",
+    "genetic.",
+    "behavioral.",
+    "soil.",
+    "safety.",
+    "antibiotic.",
+    "nutrition.",
+    "pharmaceutical.",
+    "industrial.",
+    "biological.",
+    "chemical.",
+    "ecological.",
+    "medical.",
+    "epidemiological.",
+    "transport.",
+    "housing.",
+    "water.",
+    "food.",
+    "marine.",
+    "forestry.",
 )
 
 
@@ -74,7 +115,7 @@ def _approved_canonical_names(config: AcademicBatchConfig) -> set[str]:
 def _line_count(path: Path) -> int:
     if not path.exists():
         return 0
-    with open(path, "r", encoding="utf-8") as fh:
+    with open(path, encoding="utf-8") as fh:
         return sum(1 for _ in fh)
 
 
@@ -119,7 +160,9 @@ def run_qc(
     checks: list[QCCheck] = []
     metrics: dict[str, object] = {}
     graph_load_metrics = _stage_manifest_metrics(config.manifests_dir / "graph_load.json")
-    metrics["json_validation_failures"] = int(graph_load_metrics.get("json_validation_failures") or 0)
+    metrics["json_validation_failures"] = int(
+        graph_load_metrics.get("json_validation_failures") or 0
+    )
     checks.append(
         QCCheck(
             name="json_validation_failures",
@@ -137,7 +180,7 @@ def run_qc(
         manifest_path = _latest_manifest(root)
         if manifest_path is None:
             continue
-        with open(manifest_path, "r", encoding="utf-8") as fh:
+        with open(manifest_path, encoding="utf-8") as fh:
             manifest = json.load(fh)
         payload = Path(manifest.get("payload", ""))
         declared = int(manifest.get("count", 0))
@@ -170,7 +213,7 @@ def run_qc(
     approved_canonical_names = _approved_canonical_names(config)
 
     if config.merged_records_path.exists():
-        with open(config.merged_records_path, "r", encoding="utf-8") as fh:
+        with open(config.merged_records_path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -195,23 +238,33 @@ def run_qc(
                     if not isinstance(est, dict) or not isinstance(est.get("value"), (int, float)):
                         malformed_estimate_rows += 1
 
-                claims = row.get("causal_claims") if isinstance(row.get("causal_claims"), list) else []
+                claims = (
+                    row.get("causal_claims") if isinstance(row.get("causal_claims"), list) else []
+                )
                 for claim in claims:
                     if not is_resolve_extract:
                         continue
                     if not isinstance(claim, dict):
                         continue
                     claims_total += 1
-                    supporting_spans = claim.get("supporting_spans") if isinstance(claim.get("supporting_spans"), list) else []
+                    supporting_spans = (
+                        claim.get("supporting_spans")
+                        if isinstance(claim.get("supporting_spans"), list)
+                        else []
+                    )
                     if supporting_spans:
                         supporting_spans_total += 1
 
     # Compute canonical_claim_variable_pct from published_claims (canonicalized variables)
-    published_claims_path = config.published_claims_final_path if config.published_claims_final_path.exists() else config.published_claims_path
+    published_claims_path = (
+        config.published_claims_final_path
+        if config.published_claims_final_path.exists()
+        else config.published_claims_path
+    )
     published_claims_for_canonical = 0
     canonical_claim_variables = 0
     if published_claims_path.exists():
-        with open(published_claims_path, "r", encoding="utf-8") as fh:
+        with open(published_claims_path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -223,8 +276,12 @@ def run_qc(
                 if not isinstance(row, dict):
                     continue
                 published_claims_for_canonical += 1
-                cause = str(row.get("cause_text") or row.get("cause_variable") or row.get("cause") or "").strip()
-                effect = str(row.get("effect_text") or row.get("effect_variable") or row.get("effect") or "").strip()
+                cause = str(
+                    row.get("cause_text") or row.get("cause_variable") or row.get("cause") or ""
+                ).strip()
+                effect = str(
+                    row.get("effect_text") or row.get("effect_variable") or row.get("effect") or ""
+                ).strip()
                 if _is_canonical_variable(cause, approved_canonical_names):
                     canonical_claim_variables += 1
                 if _is_canonical_variable(effect, approved_canonical_names):
@@ -240,10 +297,18 @@ def run_qc(
     metrics["resolve_extract_count"] = resolve_extract_count
     metrics["abstract_fallback_docs"] = abstract_fallback_docs
     metrics["extraction_modes"] = extraction_modes
-    supporting_span_coverage = (supporting_spans_total / max(1, claims_total)) * 100.0 if claims_total else 0.0
+    supporting_span_coverage = (
+        (supporting_spans_total / max(1, claims_total)) * 100.0 if claims_total else 0.0
+    )
     metrics["supporting_span_coverage_pct"] = round(supporting_span_coverage, 3)
-    canonical_denominator = max(1, published_claims_for_canonical * 2) if published_claims_for_canonical else 1
-    canonical_ratio = (canonical_claim_variables / canonical_denominator) * 100.0 if published_claims_for_canonical else 0.0
+    canonical_denominator = (
+        max(1, published_claims_for_canonical * 2) if published_claims_for_canonical else 1
+    )
+    canonical_ratio = (
+        (canonical_claim_variables / canonical_denominator) * 100.0
+        if published_claims_for_canonical
+        else 0.0
+    )
     metrics["canonical_claim_variable_pct"] = round(canonical_ratio, 3)
 
     checks.append(
@@ -255,7 +320,14 @@ def run_qc(
             severity="warning",
         )
     )
-    checks.append(QCCheck(name="malformed_estimate_pct", passed=malformed_pct <= 2.0, value=malformed_pct, threshold=2.0))
+    checks.append(
+        QCCheck(
+            name="malformed_estimate_pct",
+            passed=malformed_pct <= 2.0,
+            value=malformed_pct,
+            threshold=2.0,
+        )
+    )
     checks.append(
         QCCheck(
             name="canonical_claim_variable_pct",
@@ -319,7 +391,7 @@ def run_qc(
         by_topic: dict[str, int] = {}
         topic_work_ids: set[str] = set()
         total_rows = 0
-        with open(config.selected_topic_works_path, "r", encoding="utf-8") as fh:
+        with open(config.selected_topic_works_path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -336,7 +408,7 @@ def run_qc(
         global_selected_rows = 0
         global_selected_work_ids: set[str] = set()
         if config.selected_global_works_path.exists():
-            with open(config.selected_global_works_path, "r", encoding="utf-8") as fh:
+            with open(config.selected_global_works_path, encoding="utf-8") as fh:
                 for line in fh:
                     line = line.strip()
                     if not line:
@@ -355,7 +427,9 @@ def run_qc(
                     global_selected_rows += 1
                     global_selected_work_ids.add(work_id)
 
-        selected_unique_works = len(global_selected_work_ids) if global_selected_work_ids else len(topic_work_ids)
+        selected_unique_works = (
+            len(global_selected_work_ids) if global_selected_work_ids else len(topic_work_ids)
+        )
 
         counts = list(by_topic.values())
         underfilled = sum(1 for c in counts if c < config.target_per_topic)
@@ -370,7 +444,9 @@ def run_qc(
         metrics["underfilled_topic_count"] = underfilled
         metrics["unique_work_ratio"] = round(unique_ratio, 6)
         metrics["selected_per_topic_mean"] = round(statistics.mean(counts), 3) if counts else 0.0
-        metrics["selected_per_topic_median"] = round(statistics.median(counts), 3) if counts else 0.0
+        metrics["selected_per_topic_median"] = (
+            round(statistics.median(counts), 3) if counts else 0.0
+        )
 
         checks.append(
             QCCheck(
@@ -412,7 +488,7 @@ def run_qc(
         attempt_work_ids: list[str] = []
         zero_token_attempts = 0
         retryable_error_attempts = 0
-        with open(attempt_path, "r", encoding="utf-8") as fh:
+        with open(attempt_path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -430,10 +506,18 @@ def run_qc(
                 completion_tokens = int(row.get("token_count_completion") or 0)
                 if prompt_tokens == 0 and completion_tokens == 0:
                     zero_token_attempts += 1
-                if str(row.get("llm_error_class") or "") in {"provider_http_429", "provider_http_5xx", "timeout"}:
+                if str(row.get("llm_error_class") or "") in {
+                    "provider_http_429",
+                    "provider_http_5xx",
+                    "timeout",
+                }:
                     retryable_error_attempts += 1
         duplicate_attempts = len(attempt_work_ids) - len(set(attempt_work_ids))
-        zero_token_share = (zero_token_attempts / max(1, len(attempt_work_ids))) * 100.0 if attempt_work_ids else 0.0
+        zero_token_share = (
+            (zero_token_attempts / max(1, len(attempt_work_ids))) * 100.0
+            if attempt_work_ids
+            else 0.0
+        )
         metrics["resolve_attempts_total"] = len(attempt_work_ids)
         metrics["resolve_attempt_duplicate_rows"] = duplicate_attempts
         metrics["resolve_attempt_zero_token_share_pct"] = round(zero_token_share, 3)
@@ -459,7 +543,7 @@ def run_qc(
 
     if final_results_path.exists():
         final_work_ids: list[str] = []
-        with open(final_results_path, "r", encoding="utf-8") as fh:
+        with open(final_results_path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -477,7 +561,9 @@ def run_qc(
         metrics["resolve_final_rows"] = len(final_work_ids)
         metrics["resolve_final_duplicate_rows"] = duplicate_final_rows
         if attempt_path.exists():
-            metrics["resolve_attempt_final_parity_gap"] = max(0, len(set(attempt_work_ids)) - len(set(final_work_ids)))
+            metrics["resolve_attempt_final_parity_gap"] = max(
+                0, len(set(attempt_work_ids)) - len(set(final_work_ids))
+            )
         checks.append(
             QCCheck(
                 name="resolve_final_duplicate_rows",
@@ -491,7 +577,7 @@ def run_qc(
     # 4) LLM gate metrics (if manifest exists)
     if config.llm_gate_manifest_path.exists():
         try:
-            with open(config.llm_gate_manifest_path, "r", encoding="utf-8") as fh:
+            with open(config.llm_gate_manifest_path, encoding="utf-8") as fh:
                 gate = json.load(fh)
             gate_metrics = gate.get("metrics", {}) if isinstance(gate, dict) else {}
             llm_candidate_total = int(gate_metrics.get("llm_candidate_total", 0) or 0)
@@ -538,7 +624,7 @@ def run_qc(
     # 4b) article extraction cache idempotency.
     if config.article_extraction_cache_path.exists():
         cache_keys: list[str] = []
-        with open(config.article_extraction_cache_path, "r", encoding="utf-8") as fh:
+        with open(config.article_extraction_cache_path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -551,7 +637,11 @@ def run_qc(
                 if isinstance(key, str) and key:
                     cache_keys.append(key)
         unique_keys = len(set(cache_keys))
-        duplicate_pct = (100.0 * (len(cache_keys) - unique_keys) / max(1, len(cache_keys))) if cache_keys else 0.0
+        duplicate_pct = (
+            (100.0 * (len(cache_keys) - unique_keys) / max(1, len(cache_keys)))
+            if cache_keys
+            else 0.0
+        )
         metrics["article_cache_entries"] = len(cache_keys)
         metrics["article_cache_duplicate_pct"] = round(duplicate_pct, 3)
         checks.append(
@@ -565,8 +655,16 @@ def run_qc(
         )
 
     # 4c) raw/published claim metrics.
-    raw_claims_path = config.raw_claim_candidates_final_path if config.raw_claim_candidates_final_path.exists() else config.raw_claim_candidates_path
-    published_claims_path = config.published_claims_final_path if config.published_claims_final_path.exists() else config.published_claims_path
+    raw_claims_path = (
+        config.raw_claim_candidates_final_path
+        if config.raw_claim_candidates_final_path.exists()
+        else config.raw_claim_candidates_path
+    )
+    published_claims_path = (
+        config.published_claims_final_path
+        if config.published_claims_final_path.exists()
+        else config.published_claims_path
+    )
     raw_claims_total = 0
     publishable_total = 0
     abstract_only_publishable = 0
@@ -583,7 +681,7 @@ def run_qc(
     published_tier4_share = 0.0
     if raw_claims_path.exists() or published_claims_path.exists():
         if raw_claims_path.exists():
-            with open(raw_claims_path, "r", encoding="utf-8") as fh:
+            with open(raw_claims_path, encoding="utf-8") as fh:
                 for line in fh:
                     line = line.strip()
                     if not line:
@@ -604,7 +702,7 @@ def run_qc(
                             raw_contaminated += 1
 
         if published_claims_path.exists():
-            with open(published_claims_path, "r", encoding="utf-8") as fh:
+            with open(published_claims_path, encoding="utf-8") as fh:
                 for line in fh:
                     line = line.strip()
                     if not line:
@@ -629,9 +727,13 @@ def run_qc(
                     else:
                         fulltext_publishable += 1
 
-        publishable_share = (publishable_total / max(1, raw_claims_total)) * 100.0 if raw_claims_total else 0.0
+        publishable_share = (
+            (publishable_total / max(1, raw_claims_total)) * 100.0 if raw_claims_total else 0.0
+        )
         abstract_only_publishable_share = (
-            (abstract_only_publishable / max(1, publishable_total)) * 100.0 if publishable_total else 0.0
+            (abstract_only_publishable / max(1, publishable_total)) * 100.0
+            if publishable_total
+            else 0.0
         )
         fulltext_publishable_share = (
             (fulltext_publishable / max(1, publishable_total)) * 100.0 if publishable_total else 0.0
@@ -644,7 +746,9 @@ def run_qc(
 
         metrics["raw_claim_candidates_total"] = raw_claims_total
         metrics["publishable_edge_rate_pct"] = round(publishable_share, 3)
-        metrics["raw_to_published_claim_drop_rate_pct"] = round(100.0 - publishable_share, 3) if raw_claims_total else 0.0
+        metrics["raw_to_published_claim_drop_rate_pct"] = (
+            round(100.0 - publishable_share, 3) if raw_claims_total else 0.0
+        )
         metrics["abstract_only_publishable_share_pct"] = round(abstract_only_publishable_share, 3)
         metrics["fulltext_publishable_share_pct"] = round(fulltext_publishable_share, 3)
         metrics["published_edge_stability_pct"] = 100.0
@@ -660,7 +764,9 @@ def run_qc(
         3,
     )
     metrics["raw_claim_duplicate_rows"] = len(raw_claim_ids) - len(set(raw_claim_ids))
-    metrics["published_claim_duplicate_rows"] = len(published_claim_ids) - len(set(published_claim_ids))
+    metrics["published_claim_duplicate_rows"] = len(published_claim_ids) - len(
+        set(published_claim_ids)
+    )
 
     checks.append(
         QCCheck(
@@ -712,7 +818,7 @@ def run_qc(
     if config.fulltext_fetch_log_path.exists() or config.fulltext_resolved_path.exists():
         fetch_rows: list[dict[str, object]] = []
         if config.fulltext_fetch_log_path.exists():
-            with open(config.fulltext_fetch_log_path, "r", encoding="utf-8") as fh:
+            with open(config.fulltext_fetch_log_path, encoding="utf-8") as fh:
                 for line in fh:
                     line = line.strip()
                     if not line:
@@ -726,7 +832,7 @@ def run_qc(
 
         final_rows: list[dict[str, object]] = []
         if config.fulltext_resolved_path.exists():
-            with open(config.fulltext_resolved_path, "r", encoding="utf-8") as fh:
+            with open(config.fulltext_resolved_path, encoding="utf-8") as fh:
                 for line in fh:
                     line = line.strip()
                     if not line:
@@ -748,20 +854,27 @@ def run_qc(
         recoverable_landing_pages = sum(
             1
             for row in fetch_rows
-            if str(row.get("fetch_error_class") or "") in {"redirect_placeholder", "landing_page_without_pdf", "short_html_shell"}
+            if str(row.get("fetch_error_class") or "")
+            in {"redirect_placeholder", "landing_page_without_pdf", "short_html_shell"}
         )
-        metadata_rows = [row for row in fetch_rows if str(row.get("attempt_kind") or "") == "metadata"]
+        metadata_rows = [
+            row for row in fetch_rows if str(row.get("attempt_kind") or "") == "metadata"
+        ]
         shared_cache_work_ids = {
             str(row.get("work_id") or "")
             for row in fetch_rows
-            if str(row.get("attempt_kind") or "") == "shared_cache" and str(row.get("work_id") or "").strip()
+            if str(row.get("attempt_kind") or "") == "shared_cache"
+            and str(row.get("work_id") or "").strip()
         }
         metadata_hits = sum(
             1
             for row in metadata_rows
-            if int(row.get("discovered_pdf_count") or 0) > 0 or int(row.get("discovered_canonical_count") or 0) > 0
+            if int(row.get("discovered_pdf_count") or 0) > 0
+            or int(row.get("discovered_canonical_count") or 0) > 0
         )
-        metadata_pdf_hits = sum(1 for row in metadata_rows if int(row.get("discovered_pdf_count") or 0) > 0)
+        metadata_pdf_hits = sum(
+            1 for row in metadata_rows if int(row.get("discovered_pdf_count") or 0) > 0
+        )
         landing_page_attempts = [
             row
             for row in fetch_rows
@@ -772,7 +885,9 @@ def run_qc(
                 or str(row.get("source_kind") or "").endswith("landing")
             )
         ]
-        landing_page_pdf_recoveries = sum(1 for row in landing_page_attempts if int(row.get("discovered_pdf_count") or 0) > 0)
+        landing_page_pdf_recoveries = sum(
+            1 for row in landing_page_attempts if int(row.get("discovered_pdf_count") or 0) > 0
+        )
         placeholder_work_ids = {
             str(row.get("work_id") or "")
             for row in fetch_rows
@@ -791,28 +906,67 @@ def run_qc(
         fake_fulltext_rows = sum(
             1
             for row in fetch_rows
-            if str(row.get("fetch_error_class") or "") in {"fake_fulltext", "redirect_placeholder", "short_html_shell"}
+            if str(row.get("fetch_error_class") or "")
+            in {"fake_fulltext", "redirect_placeholder", "short_html_shell"}
         )
-        publisher_403_rows = sum(1 for row in fetch_rows if str(row.get("fetch_error_class") or "") == "publisher_blocked_403")
+        publisher_403_rows = sum(
+            1
+            for row in fetch_rows
+            if str(row.get("fetch_error_class") or "") == "publisher_blocked_403"
+        )
         metadata_provider_totals: Counter[str] = Counter()
         metadata_provider_hits: Counter[str] = Counter()
         for row in metadata_rows:
-            provider = str(row.get("source_kind") or "").strip().replace("metadata_", "").replace("_cache_hit", "")
+            provider = (
+                str(row.get("source_kind") or "")
+                .strip()
+                .replace("metadata_", "")
+                .replace("_cache_hit", "")
+            )
             provider = provider or "unknown"
             metadata_provider_totals[provider] += 1
-            if int(row.get("discovered_pdf_count") or 0) > 0 or int(row.get("discovered_canonical_count") or 0) > 0:
+            if (
+                int(row.get("discovered_pdf_count") or 0) > 0
+                or int(row.get("discovered_canonical_count") or 0) > 0
+            ):
                 metadata_provider_hits[provider] += 1
 
         metrics["usable_fulltext_resolved"] = usable_fulltext_resolved
         metrics["recoverable_landing_pages"] = recoverable_landing_pages
-        metrics["metadata_resolver_hit_rate"] = round((metadata_hits / max(1, len(metadata_rows))) * 100.0, 3) if metadata_rows else 0.0
-        metrics["metadata_pdf_recovery_rate"] = round((metadata_pdf_hits / max(1, len(metadata_rows))) * 100.0, 3) if metadata_rows else 0.0
-        metrics["landing_page_pdf_recovery_rate"] = round((landing_page_pdf_recoveries / max(1, len(landing_page_attempts))) * 100.0, 3) if landing_page_attempts else 0.0
-        metrics["redirect_placeholder_recovery_rate"] = round((placeholder_recovered / max(1, len(placeholder_work_ids))) * 100.0, 3) if placeholder_work_ids else 0.0
-        metrics["fake_fulltext_rate"] = round((fake_fulltext_rows / max(1, len(fetch_rows))) * 100.0, 3) if fetch_rows else 0.0
-        metrics["publisher_403_rate"] = round((publisher_403_rows / max(1, len(fetch_rows))) * 100.0, 3) if fetch_rows else 0.0
-        metrics["final_abstract_fallback_rate"] = round((final_abstract_fallback / max(1, final_total)) * 100.0, 3) if final_total else 0.0
-        metrics["fulltext_cache_hit_rate"] = round((len(shared_cache_work_ids) / max(1, final_total)) * 100.0, 3) if final_total else 0.0
+        metrics["metadata_resolver_hit_rate"] = (
+            round((metadata_hits / max(1, len(metadata_rows))) * 100.0, 3) if metadata_rows else 0.0
+        )
+        metrics["metadata_pdf_recovery_rate"] = (
+            round((metadata_pdf_hits / max(1, len(metadata_rows))) * 100.0, 3)
+            if metadata_rows
+            else 0.0
+        )
+        metrics["landing_page_pdf_recovery_rate"] = (
+            round((landing_page_pdf_recoveries / max(1, len(landing_page_attempts))) * 100.0, 3)
+            if landing_page_attempts
+            else 0.0
+        )
+        metrics["redirect_placeholder_recovery_rate"] = (
+            round((placeholder_recovered / max(1, len(placeholder_work_ids))) * 100.0, 3)
+            if placeholder_work_ids
+            else 0.0
+        )
+        metrics["fake_fulltext_rate"] = (
+            round((fake_fulltext_rows / max(1, len(fetch_rows))) * 100.0, 3) if fetch_rows else 0.0
+        )
+        metrics["publisher_403_rate"] = (
+            round((publisher_403_rows / max(1, len(fetch_rows))) * 100.0, 3) if fetch_rows else 0.0
+        )
+        metrics["final_abstract_fallback_rate"] = (
+            round((final_abstract_fallback / max(1, final_total)) * 100.0, 3)
+            if final_total
+            else 0.0
+        )
+        metrics["fulltext_cache_hit_rate"] = (
+            round((len(shared_cache_work_ids) / max(1, final_total)) * 100.0, 3)
+            if final_total
+            else 0.0
+        )
         metrics["metadata_resolver_success_rate_by_provider"] = {
             provider: round((metadata_provider_hits[provider] / max(1, total)) * 100.0, 3)
             for provider, total in sorted(metadata_provider_totals.items())
@@ -822,7 +976,7 @@ def run_qc(
     if config.article_extraction_results_path.exists():
         dropped_context_overlap = 0
         retained_context_attrs = 0
-        with open(config.article_extraction_results_path, "r", encoding="utf-8") as fh:
+        with open(config.article_extraction_results_path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -833,12 +987,22 @@ def run_qc(
                     continue
                 if not isinstance(row, dict):
                     continue
-                diagnostics = row.get("reconciliation_diagnostics") if isinstance(row.get("reconciliation_diagnostics"), dict) else {}
+                diagnostics = (
+                    row.get("reconciliation_diagnostics")
+                    if isinstance(row.get("reconciliation_diagnostics"), dict)
+                    else {}
+                )
                 dropped_context_overlap += int(diagnostics.get("dropped_context_overlap", 0) or 0)
-                retained_context_attrs += len(row.get("context_attributes") or []) if isinstance(row.get("context_attributes"), list) else 0
+                retained_context_attrs += (
+                    len(row.get("context_attributes") or [])
+                    if isinstance(row.get("context_attributes"), list)
+                    else 0
+                )
 
         overlap_total = dropped_context_overlap + retained_context_attrs
-        overlap_drop_rate = (dropped_context_overlap / max(1, overlap_total)) * 100.0 if overlap_total else 0.0
+        overlap_drop_rate = (
+            (dropped_context_overlap / max(1, overlap_total)) * 100.0 if overlap_total else 0.0
+        )
         metrics["context_attr_overlap_drop_rate"] = round(overlap_drop_rate, 3)
         checks.append(
             QCCheck(
@@ -862,7 +1026,11 @@ def run_qc(
         finally:
             con.close()
 
-        urls = [str(r[0]) for r in rows if isinstance(r[0], str) and r[0].startswith(("http://", "https://"))]
+        urls = [
+            str(r[0])
+            for r in rows
+            if isinstance(r[0], str) and r[0].startswith(("http://", "https://"))
+        ]
         random.seed(42)
         sample = random.sample(urls, k=min(20, len(urls))) if urls else []
         for url in sample:
@@ -957,8 +1125,12 @@ def run_qc(
                 fuzzy_linked = 0
                 unmatched = 0
 
-            exact_link_rate = (exact_linked / max(1, mod_edge_count)) * 100.0 if mod_edge_count else 0.0
-            fuzzy_link_rate = (fuzzy_linked / max(1, mod_edge_count)) * 100.0 if mod_edge_count else 0.0
+            exact_link_rate = (
+                (exact_linked / max(1, mod_edge_count)) * 100.0 if mod_edge_count else 0.0
+            )
+            fuzzy_link_rate = (
+                (fuzzy_linked / max(1, mod_edge_count)) * 100.0 if mod_edge_count else 0.0
+            )
             unmatched_rate = (unmatched / max(1, mod_edge_count)) * 100.0 if mod_edge_count else 0.0
             metrics["moderation_claim_link_rate_exact"] = round(exact_link_rate, 3)
             metrics["moderation_claim_link_rate_fuzzy"] = round(fuzzy_link_rate, 3)
@@ -975,9 +1147,7 @@ def run_qc(
 
             # Moderator coverage: % of causal edges with at least one moderator
             try:
-                total_edges = int(
-                    con.execute("SELECT COUNT(*) FROM ac_skg_edges").fetchone()[0]
-                )
+                total_edges = int(con.execute("SELECT COUNT(*) FROM ac_skg_edges").fetchone()[0])
                 if total_edges > 0 and mod_edge_count > 0:
                     edges_with_mod = int(
                         con.execute(
@@ -1051,7 +1221,9 @@ def run_qc(
                         )
                     else:
                         target_rows = int(
-                            con.execute("SELECT COUNT(DISTINCT edge_id) FROM ac_skg_transport_scores").fetchone()[0]
+                            con.execute(
+                                "SELECT COUNT(DISTINCT edge_id) FROM ac_skg_transport_scores"
+                            ).fetchone()[0]
                         )
                 except duckdb.CatalogException:
                     target_rows = 0
@@ -1135,7 +1307,9 @@ def run_qc(
             checks.append(
                 QCCheck(
                     name="sample_size_coverage_pct",
-                    passed=sample_size_coverage >= 40.0 if metrics.get("parameters_total", 0) else True,
+                    passed=sample_size_coverage >= 40.0
+                    if metrics.get("parameters_total", 0)
+                    else True,
                     value=round(sample_size_coverage, 3),
                     threshold=40.0,
                     severity="warning",
@@ -1191,7 +1365,9 @@ def run_qc(
             )
 
             try:
-                family_edge_count = int(con.execute("SELECT COUNT(*) FROM ac_skg_family_edges").fetchone()[0])
+                family_edge_count = int(
+                    con.execute("SELECT COUNT(*) FROM ac_skg_family_edges").fetchone()[0]
+                )
             except duckdb.Error:
                 family_edge_count = 0
             metrics["family_edge_count"] = family_edge_count
@@ -1215,7 +1391,9 @@ def run_qc(
             checks.append(
                 QCCheck(
                     name="simulation_ready_numeric_count",
-                    passed=simulation_ready_numeric_count > 0 if metrics.get("resolve_extract_count", 0) else True,
+                    passed=simulation_ready_numeric_count > 0
+                    if metrics.get("resolve_extract_count", 0)
+                    else True,
                     value=simulation_ready_numeric_count,
                     threshold=1,
                     severity="warning",
@@ -1232,11 +1410,15 @@ def run_qc(
             benchmark_report = {}
             if config.benchmark_report_path.exists():
                 try:
-                    benchmark_report = json.loads(config.benchmark_report_path.read_text(encoding="utf-8"))
+                    benchmark_report = json.loads(
+                        config.benchmark_report_path.read_text(encoding="utf-8")
+                    )
                 except (OSError, json.JSONDecodeError):
                     benchmark_report = {}
             canonization = edge_report.get("canonization") if isinstance(edge_report, dict) else {}
-            global_canonical_resolution_rate = float((canonization or {}).get("resolution_rate_pct") or 0.0)
+            global_canonical_resolution_rate = float(
+                (canonization or {}).get("resolution_rate_pct") or 0.0
+            )
             benchmark_metrics = (
                 benchmark_report.get("metrics")
                 if isinstance(benchmark_report.get("metrics"), dict)
@@ -1250,12 +1432,18 @@ def run_qc(
                 runtime_demanded_canonical_resolution_rate,
                 3,
             )
-            metrics["global_canonical_resolution_rate_pct"] = round(global_canonical_resolution_rate, 3)
-            metrics["canonical_resolution_rate_pct"] = round(runtime_demanded_canonical_resolution_rate, 3)
+            metrics["global_canonical_resolution_rate_pct"] = round(
+                global_canonical_resolution_rate, 3
+            )
+            metrics["canonical_resolution_rate_pct"] = round(
+                runtime_demanded_canonical_resolution_rate, 3
+            )
             checks.append(
                 QCCheck(
                     name="canonical_resolution_rate_pct",
-                    passed=runtime_demanded_canonical_resolution_rate >= 90.0 if benchmark_report else True,
+                    passed=runtime_demanded_canonical_resolution_rate >= 90.0
+                    if benchmark_report
+                    else True,
                     value=round(runtime_demanded_canonical_resolution_rate, 3),
                     threshold=90.0,
                     severity="critical",
@@ -1264,7 +1452,9 @@ def run_qc(
             checks.append(
                 QCCheck(
                     name="global_canonical_resolution_rate_pct",
-                    passed=global_canonical_resolution_rate >= 50.0 if edge_report_path.exists() else True,
+                    passed=global_canonical_resolution_rate >= 50.0
+                    if edge_report_path.exists()
+                    else True,
                     value=round(global_canonical_resolution_rate, 3),
                     threshold=50.0,
                     severity="warning",

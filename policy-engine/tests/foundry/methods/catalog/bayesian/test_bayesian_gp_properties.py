@@ -1,27 +1,27 @@
 """
 Property-based tests for Gaussian Process and variational inference methods.
 """
+
 from __future__ import annotations
 
 import sys
+
 import numpy as np
 import pytest
 
 try:
-    from hypothesis import given, settings, HealthCheck
+    from hypothesis import HealthCheck, given, settings
+
     HYPOTHESIS_AVAILABLE = True
 except ImportError:
     HYPOTHESIS_AVAILABLE = False
 
-pytestmark = pytest.mark.skipif(
-    not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed"
-)
+pytestmark = pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
 
 sys.path.insert(0, "src")
 
 from tests.foundry.methods.testing.strategies import (
     bayesian_regression_strategy,
-    spatial_data_strategy,
 )
 
 
@@ -36,7 +36,11 @@ def _check_finite(result: dict, fqn: str) -> None:
 
 class TestGaussianProcessProperties:
     @given(data=bayesian_regression_strategy())
-    @settings(max_examples=15, deadline=20000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=15,
+        deadline=20000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_gp_regression_output_finite(self, data, isolated_registry):
         fqn = "bayesian.gp.gp_regression@1.0.0"
         method = isolated_registry.get(fqn)
@@ -49,7 +53,11 @@ class TestGaussianProcessProperties:
             pass
 
     @given(data=bayesian_regression_strategy())
-    @settings(max_examples=10, deadline=20000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=10,
+        deadline=20000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_gp_predictive_variance_positive(self, data, isolated_registry):
         """GP predictive variance should be non-negative."""
         fqn = "bayesian.gp.gp_regression@1.0.0"
@@ -65,7 +73,11 @@ class TestGaussianProcessProperties:
             pass
 
     @given(data=bayesian_regression_strategy())
-    @settings(max_examples=10, deadline=20000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=10,
+        deadline=20000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_gp_deterministic_same_seed(self, data, isolated_registry):
         fqn = "bayesian.gp.gp_regression@1.0.0"
         method = isolated_registry.get(fqn)
@@ -80,7 +92,11 @@ class TestGaussianProcessProperties:
 
 class TestVariationalInferenceProperties:
     @given(data=bayesian_regression_strategy())
-    @settings(max_examples=15, deadline=20000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=15,
+        deadline=20000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_mean_field_vi_output_dict(self, data, isolated_registry):
         fqn = "bayesian.variational.mean_field_vi@1.0.0"
         method = isolated_registry.get(fqn)
@@ -92,7 +108,11 @@ class TestVariationalInferenceProperties:
             pass
 
     @given(data=bayesian_regression_strategy())
-    @settings(max_examples=10, deadline=20000, suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture])
+    @settings(
+        max_examples=10,
+        deadline=20000,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
+    )
     def test_elbo_is_finite(self, data, isolated_registry):
         """ELBO (Evidence Lower BOund) should be finite after convergence."""
         fqn = "bayesian.variational.mean_field_vi@1.0.0"

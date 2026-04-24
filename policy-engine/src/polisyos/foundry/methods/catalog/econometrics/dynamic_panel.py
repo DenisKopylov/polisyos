@@ -1,20 +1,24 @@
 """Dynamic panel GMM estimators with dependence-aware inference posture."""
+
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from statistics import NormalDist
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 import numpy as np
-from scipy.stats import chi2, norm, t as student_t
+
+try:  # pragma: no cover - exercised in full scientific environments.
+    from scipy.stats import chi2, norm
+    from scipy.stats import t as student_t
+except ImportError:  # pragma: no cover - keeps IR/schema reflection importable.
+    chi2 = None  # type: ignore[assignment]
+    norm = None  # type: ignore[assignment]
+    student_t = None  # type: ignore[assignment]
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
-from polisyos.ir.analytics.dependence_structure import (
-    dependence_structure_from_econometrics,
-    persist_dependence_structure,
-)
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -23,6 +27,11 @@ from polisyos.foundry.methods.base import (
     MethodSignature,
     ParameterSpec,
     foundry_method,
+)
+from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
+from polisyos.ir.analytics.dependence_structure import (
+    dependence_structure_from_econometrics,
+    persist_dependence_structure,
 )
 
 from .dependence import route_cross_sectional_dependence
@@ -39,6 +48,25 @@ from .protocols import EconometricResult, PanelData
 logger = get_logger(__name__)
 
 _FLOAT_EPS = 1e-12
+_STANDARD_NORMAL = NormalDist()
+
+
+def _normal_sf(value: float) -> float:
+    if norm is not None:
+        return float(norm.sf(value))
+    return float(1.0 - _STANDARD_NORMAL.cdf(value))
+
+
+def _student_t_ppf(probability: float, df: int) -> float:
+    if student_t is not None:
+        return float(student_t.ppf(probability, df))
+    return float(_STANDARD_NORMAL.inv_cdf(probability))
+
+
+def _student_t_sf(value: float, df: int) -> float:
+    if student_t is not None:
+        return float(student_t.sf(value, df))
+    return _normal_sf(value)
 
 
 @dataclass(frozen=True)
@@ -271,9 +299,7 @@ def _populate_difference_instruments(
                 z_row[offset + n_exog : offset + n_exog + n_external] = dz_i[current_time - 1]
         offset += n_exog + n_external
     if include_time_effects:
-        z_row[offset : offset + (n_periods - 2)] = _difference_time_basis(
-            n_periods, time_idx, True
-        )
+        z_row[offset : offset + (n_periods - 2)] = _difference_time_basis(n_periods, time_idx, True)
 
 
 def _populate_level_instruments(
@@ -478,7 +504,10 @@ def _fit_gmm(design: _DynamicPanelDesign, *, step_count: int) -> _GMMFit:
     for _ in range(max(step_count - 1, 0)):
         residuals_by_entity = tuple(entity.y - entity.X @ beta for entity in design.entities)
         moment_vectors = np.vstack(
-            [entity.Z.T @ residual for entity, residual in zip(design.entities, residuals_by_entity, strict=False)]
+            [
+                entity.Z.T @ residual
+                for entity, residual in zip(design.entities, residuals_by_entity, strict=False)
+            ]
         )
         covariance = _symmetrize(moment_vectors.T @ moment_vectors / n_entities)
         weight_matrix = np.linalg.pinv(covariance)
@@ -486,10 +515,16 @@ def _fit_gmm(design: _DynamicPanelDesign, *, step_count: int) -> _GMMFit:
 
     residuals_by_entity = tuple(entity.y - entity.X @ beta for entity in design.entities)
     diff_residuals = np.concatenate(
-        [residual[: entity.diff_rows] for entity, residual in zip(design.entities, residuals_by_entity, strict=False)]
+        [
+            residual[: entity.diff_rows]
+            for entity, residual in zip(design.entities, residuals_by_entity, strict=False)
+        ]
     )
     moment_vectors = np.vstack(
-        [entity.Z.T @ residual for entity, residual in zip(design.entities, residuals_by_entity, strict=False)]
+        [
+            entity.Z.T @ residual
+            for entity, residual in zip(design.entities, residuals_by_entity, strict=False)
+        ]
     )
     base_s = _symmetrize(moment_vectors.T @ moment_vectors / n_entities)
     base_covariance = _symmetrize(
@@ -507,7 +542,7 @@ def _fit_gmm(design: _DynamicPanelDesign, *, step_count: int) -> _GMMFit:
         stat = float(n_entities * (g_bar.T @ weight_matrix @ g_bar))
         if np.isfinite(stat) and stat >= 0.0:
             hansen_stat = stat
-            hansen_pvalue = float(chi2.sf(stat, hansen_df))
+            hansen_pvalue = float(chi2.sf(stat, hansen_df)) if chi2 is not None else None
 
     return _GMMFit(
         beta=beta,
@@ -669,7 +704,11 @@ def _covariance_from_kernel(
 ) -> np.ndarray | None:
     if kernel is None:
         return None
-    if kernel.ndim != 2 or kernel.shape[0] != moment_vectors.shape[0] or kernel.shape[1] != moment_vectors.shape[0]:
+    if (
+        kernel.ndim != 2
+        or kernel.shape[0] != moment_vectors.shape[0]
+        or kernel.shape[1] != moment_vectors.shape[0]
+    ):
         return None
     return _symmetrize(moment_vectors.T @ kernel @ moment_vectors / scale)
 
@@ -681,7 +720,11 @@ def _finalize_covariance(
 ) -> np.ndarray:
     core = fit.zx.T @ fit.weight_matrix @ fit.zx
     inv_core = np.linalg.pinv(core)
-    covariance = inv_core @ (fit.zx.T @ fit.weight_matrix @ covariance_matrix @ fit.weight_matrix @ fit.zx) @ inv_core
+    covariance = (
+        inv_core
+        @ (fit.zx.T @ fit.weight_matrix @ covariance_matrix @ fit.weight_matrix @ fit.zx)
+        @ inv_core
+    )
     covariance = _symmetrize(covariance / max(design.n_entities, 1))
     diag = np.clip(np.diag(covariance), 0.0, None)
     covariance[np.diag_indices_from(covariance)] = diag
@@ -720,7 +763,9 @@ def _build_inference_context(
                 covariance_kind="robust_gmm",
                 distribution="normal",
                 df=None,
-                warnings=("Cluster covariance requested but cluster_ids are unavailable; used robust GMM.",),
+                warnings=(
+                    "Cluster covariance requested but cluster_ids are unavailable; used robust GMM.",
+                ),
             )
         group_count = int(np.unique(cluster_ids).size)
         return _InferenceContext(
@@ -735,7 +780,9 @@ def _build_inference_context(
                 covariance_kind="robust_gmm",
                 distribution="normal",
                 df=None,
-                warnings=("Fixed-G cluster covariance requested but cluster_ids are unavailable; used robust GMM.",),
+                warnings=(
+                    "Fixed-G cluster covariance requested but cluster_ids are unavailable; used robust GMM.",
+                ),
             )
         group_count = int(np.unique(cluster_ids).size)
         return _InferenceContext(
@@ -755,7 +802,9 @@ def _build_inference_context(
                 covariance_kind="robust_gmm",
                 distribution="normal",
                 df=None,
-                warnings=("Multiway clustering requested but cluster_ids are unavailable; used robust GMM.",),
+                warnings=(
+                    "Multiway clustering requested but cluster_ids are unavailable; used robust GMM.",
+                ),
             )
         return _InferenceContext(covariance_kind="multiway_cluster", distribution="normal", df=None)
 
@@ -780,9 +829,13 @@ def _build_inference_context(
                 covariance_kind="robust_gmm",
                 distribution="normal",
                 df=None,
-                warnings=("Spatial HAC requested but no aligned W/coords metadata was found; used robust GMM.",),
+                warnings=(
+                    "Spatial HAC requested but no aligned W/coords metadata was found; used robust GMM.",
+                ),
             )
-        return _InferenceContext(covariance_kind="conley_spatial_hac", distribution="normal", df=None)
+        return _InferenceContext(
+            covariance_kind="conley_spatial_hac", distribution="normal", df=None
+        )
 
     if covariance_kind == "network_hac":
         kernel = _build_network_kernel(metadata.get("graph"), unique_entities.size)
@@ -791,7 +844,9 @@ def _build_inference_context(
                 covariance_kind="robust_gmm",
                 distribution="normal",
                 df=None,
-                warnings=("Network HAC requested but no aligned graph metadata was found; used robust GMM.",),
+                warnings=(
+                    "Network HAC requested but no aligned graph metadata was found; used robust GMM.",
+                ),
             )
         return _InferenceContext(covariance_kind="network_hac", distribution="normal", df=None)
 
@@ -815,7 +870,9 @@ def _compute_dependence_covariance(
     )
 
     if context.covariance_kind == "robust_gmm":
-        covariance_matrix = _symmetrize(fit.moment_vectors.T @ fit.moment_vectors / design.n_entities)
+        covariance_matrix = _symmetrize(
+            fit.moment_vectors.T @ fit.moment_vectors / design.n_entities
+        )
         return _finalize_covariance(covariance_matrix, fit, design), context
 
     cluster_ids = _align_entity_metadata(
@@ -888,20 +945,22 @@ def _compute_dependence_covariance(
     return _finalize_covariance(covariance_matrix, fit, design), fallback
 
 
-def _serial_correlation_test(diff_residuals: np.ndarray, n_entities: int, n_periods: int, lag: int) -> tuple[float | None, float | None]:
+def _serial_correlation_test(
+    diff_residuals: np.ndarray, n_entities: int, n_periods: int, lag: int
+) -> tuple[float | None, float | None]:
     diff_matrix = diff_residuals.reshape(n_entities, n_periods - 2)
     if diff_matrix.shape[1] <= lag:
         return None, None
     current = diff_matrix[:, lag:]
     lagged = diff_matrix[:, :-lag]
     numerator = float(np.sum(current * lagged))
-    denominator = float(np.sqrt(np.sum(current ** 2) * np.sum(lagged ** 2)))
+    denominator = float(np.sqrt(np.sum(current**2) * np.sum(lagged**2)))
     if denominator <= _FLOAT_EPS:
         return None, None
     correlation = numerator / denominator
     n_pairs = int(current.size)
     statistic = float(correlation * np.sqrt(max(n_pairs, 1)))
-    p_value = float(2.0 * norm.sf(abs(statistic)))
+    p_value = float(2.0 * _normal_sf(abs(statistic)))
     return statistic, p_value
 
 
@@ -917,9 +976,9 @@ def _confidence_interval(
         return None
     alpha = 1.0 - confidence_level
     if distribution == "t" and df is not None and df > 0:
-        critical = float(student_t.ppf(1.0 - alpha / 2.0, df))
+        critical = _student_t_ppf(1.0 - alpha / 2.0, df)
     else:
-        critical = float(NormalDist().inv_cdf(1.0 - alpha / 2.0))
+        critical = float(_STANDARD_NORMAL.inv_cdf(1.0 - alpha / 2.0))
     return (estimate - critical * std_error, estimate + critical * std_error)
 
 
@@ -934,9 +993,9 @@ def _p_value_and_statistic(
         return None, None
     statistic = float(estimate / std_error)
     if distribution == "t" and df is not None and df > 0:
-        p_value = float(2.0 * student_t.sf(abs(statistic), df))
+        p_value = float(2.0 * _student_t_sf(abs(statistic), df))
     else:
-        p_value = float(2.0 * norm.sf(abs(statistic)))
+        p_value = float(2.0 * _normal_sf(abs(statistic)))
     return statistic, p_value
 
 
@@ -1025,7 +1084,9 @@ def _route_dependence(
         dependence_metadata=_resolve_dependence_metadata(state, params),
         used_time_dummies=bool(params.get("include_time_effects", False)),
         dependence_covariance=applied_covariance,
-        dependence_fallback=str(params.get("dependence_fallback", "suppress_inference")).strip().lower(),
+        dependence_fallback=str(params.get("dependence_fallback", "suppress_inference"))
+        .strip()
+        .lower(),
         covariance_applied=covariance_applied,
         method_context="dynamic_gmm",
     )
@@ -1098,7 +1159,9 @@ def _run_dynamic_panel_gmm(
         params=params,
         state=state,
         covariance_applied=False,
-        applied_covariance=_normalize_covariance_request(params.get("dependence_covariance", "auto")),
+        applied_covariance=_normalize_covariance_request(
+            params.get("dependence_covariance", "auto")
+        ),
     )
     covariance_choice = _select_covariance(params=params, diagnostic=preliminary_diagnostic)
     covariance, inference = _compute_dependence_covariance(
@@ -1151,7 +1214,9 @@ def _run_dynamic_panel_gmm(
         "ar2_statistic": ar2_stat,
         "ar2_pvalue": ar2_pvalue,
         "applied_covariance": inference.covariance_kind,
-        "requested_covariance": _normalize_covariance_request(params.get("dependence_covariance", "auto")),
+        "requested_covariance": _normalize_covariance_request(
+            params.get("dependence_covariance", "auto")
+        ),
     }
 
     warnings = list(inference.warnings)

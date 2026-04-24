@@ -1,4 +1,5 @@
 """Manage agent slots, births, deaths, and graph synchronization inside agent simulation."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -7,7 +8,7 @@ from typing import TYPE_CHECKING
 import chex
 import jax
 import jax.numpy as jnp
-from jaxtyping import Array, Bool, Float, Int
+from jaxtyping import Array, Int
 
 from polisyos.foundry.agent_sim.state import AgentState
 
@@ -19,7 +20,8 @@ if TYPE_CHECKING:
 @chex.dataclass(frozen=True)
 class PopulationManager:
     """Track free slots and birth/death counters for the fixed-capacity agent buffer."""
-    free_stack: Int[Array, "max_agents"]
+
+    free_stack: Int[Array, max_agents]
     free_top: Int[Array, ""]
     max_agents: int
     n_active: Int[Array, ""]
@@ -30,6 +32,7 @@ class PopulationManager:
 @chex.dataclass(frozen=True)
 class PopulationState:
     """Bundle agent arrays with slot-allocation state for replayable population updates."""
+
     agents: AgentState
     manager: PopulationManager
     next_agent_id: Int[Array, ""]
@@ -38,6 +41,7 @@ class PopulationState:
 @dataclass(frozen=True)
 class PopulationConfig:
     """Set demographic, wealth, and employment priors for population initialization."""
+
     max_initial_age: int = 80
     mean_life_expectancy: int = 75
     std_life_expectancy: int = 10
@@ -55,6 +59,7 @@ class PopulationConfig:
 @dataclass(frozen=True)
 class LifecycleConfig:
     """Configure per-step birth, death, and inheritance dynamics for lifecycle updates."""
+
     population_config: PopulationConfig = PopulationConfig()
     steps_per_year: int = 12
     enable_gift_transfers: bool = False
@@ -68,6 +73,7 @@ class LifecycleConfig:
 @dataclass(frozen=True)
 class InheritanceConfig:
     """Control how estates are split and taxed when agents leave the population."""
+
     inheritance_to_children: float = 0.7
     inheritance_to_spouse: float = 0.2
     inheritance_tax_rate: float = 0.1
@@ -78,6 +84,7 @@ class InheritanceConfig:
 @dataclass(frozen=True)
 class GraphSyncConfig:
     """Describe how newborn or surviving agents should alter the runtime graph."""
+
     connect_newborns_to_parents: bool = True
     connect_newborns_to_random: bool = True
     initial_connections: int = 5
@@ -137,8 +144,7 @@ def initialize_population(
     life_expectancy = life_expectancy_years * jnp.array(steps_per_year, dtype=jnp.int32)
 
     fertility_rate = jnp.where(
-        (age_years >= config.fertility_start_age)
-        & (age_years <= config.fertility_end_age),
+        (age_years >= config.fertility_start_age) & (age_years <= config.fertility_end_age),
         config.base_fertility_rate,
         0.0,
     )
@@ -289,6 +295,7 @@ def free_multiple_slots(
     valid_mask: jnp.ndarray,
 ) -> PopulationManager:
     """Return many removed-agent slots to the free stack in one scan."""
+
     def free_one(carry, inp):
         mgr = carry
         idx, valid = inp
@@ -303,7 +310,7 @@ def free_multiple_slots(
 
 
 def batch_create_agents(
-    state: "GlobalState",
+    state: GlobalState,
     n_new: int,
     parent_indices: jnp.ndarray,
     rng_key: chex.PRNGKey,
@@ -313,7 +320,7 @@ def batch_create_agents(
     birth_step: jnp.ndarray | None = None,
     age_override: jnp.ndarray | None = None,
     steps_per_year: int = 12,
-) -> "GlobalState":
+) -> GlobalState:
     """Materialize newborn or immigrant agents into freshly allocated population slots."""
     manager, slot_indices, n_allocated = allocate_multiple_slots(
         state.population_manager,
@@ -339,9 +346,12 @@ def batch_create_agents(
     )
     inherited = config.inheritance_fraction * parent_wealth
 
-    own_wealth = jnp.exp(
-        config.mean_log_wealth + config.std_log_wealth * jax.random.normal(keys[0], (n_new,))
-    ) * 0.1
+    own_wealth = (
+        jnp.exp(
+            config.mean_log_wealth + config.std_log_wealth * jax.random.normal(keys[0], (n_new,))
+        )
+        * 0.1
+    )
     new_wealth = inherited + own_wealth
 
     parent_risk = jnp.where(
@@ -488,7 +498,7 @@ def batch_create_agents(
     )
 
 
-def batch_remove_agents(state: "GlobalState", removal_mask: jnp.ndarray) -> "GlobalState":
+def batch_remove_agents(state: GlobalState, removal_mask: jnp.ndarray) -> GlobalState:
     """Deactivate removed agents and recycle their buffer slots."""
     removal_mask = removal_mask & state.agents.active
     max_agents = state.agents.active.shape[0]
@@ -523,7 +533,7 @@ def batch_remove_agents(state: "GlobalState", removal_mask: jnp.ndarray) -> "Glo
 
 
 def compute_death_mask(
-    state: "GlobalState",
+    state: GlobalState,
     rng_key: chex.PRNGKey,
     *,
     base_mortality_rate: float = 0.001,
@@ -536,9 +546,7 @@ def compute_death_mask(
     age_years = agents.age // steps_per_year
     base_hazard = base_mortality_rate
     age_hazard = age_mortality_factor * jnp.exp(0.1 * age_years)
-    wealth_mean = jnp.sum(agents.wealth * agents.active) / (
-        jnp.sum(agents.active) + 1e-8
-    )
+    wealth_mean = jnp.sum(agents.wealth * agents.active) / (jnp.sum(agents.active) + 1e-8)
     wealth_normalized = agents.wealth / (wealth_mean + 1e-8)
     wealth_hazard = wealth_mortality_factor * jnp.log(wealth_normalized + 1.0)
     over_life_exp = jnp.maximum(agents.age - agents.life_expectancy, 0)
@@ -555,14 +563,14 @@ def compute_death_mask(
 
 
 def sync_graph_with_population(
-    graph: "GraphState",
+    graph: GraphState,
     old_active: jnp.ndarray,
     new_active: jnp.ndarray,
     births: jnp.ndarray,
     rng_key: chex.PRNGKey,
     config: GraphSyncConfig,
     parent_slots: jnp.ndarray | None = None,
-) -> "GraphState":
+) -> GraphState:
     """Prune dead-agent edges and optionally attach newborns into the runtime graph."""
     edges = graph.edges
     if not hasattr(edges, "active"):
@@ -593,7 +601,7 @@ def sync_graph_with_population(
     n_births = jnp.sum(births.astype(jnp.int32))
     has_births = n_births > 0
 
-    def _add_edges(g: "GraphState") -> "GraphState":
+    def _add_edges(g: GraphState) -> GraphState:
         edges_local = g.edges
         free_mask = ~edges_local.active
         max_edges = edges_local.max_edges

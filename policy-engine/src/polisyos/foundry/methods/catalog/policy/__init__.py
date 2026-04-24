@@ -1,4 +1,5 @@
 """Expose policy-evaluation methods and register them into the Foundry catalog."""
+
 from __future__ import annotations
 
 from polisyos.foundry.methods.exceptions import MethodAlreadyRegisteredError
@@ -21,6 +22,10 @@ from .frontier import (
 from .mcda import (
     AHPEstimator,
     ELECTREEstimator,
+    RankStabilityEstimator,
+    RobustAHPEstimator,
+    RobustELECTREEstimator,
+    RobustTOPSISEstimator,
     TOPSISEstimator,
 )
 from .welfare import (
@@ -29,7 +34,15 @@ from .welfare import (
     CostEffectivenessEstimator,
     RawlsianSWFEstimator,
     SenCapabilityEstimator,
+    SocialWeightManifest,
+    StateDependentInverseSocialWeightsEstimator,
     UtilitarianSWFEstimator,
+    WelfareBundle,
+    build_social_weight_ref,
+    clear_social_weight_manifest_registry,
+    register_social_weight_manifest,
+    resolve_social_weight_manifest,
+    resolve_social_weight_schedule,
 )
 
 
@@ -57,11 +70,23 @@ __all__ = [
     "MeanFieldEquilibriumEstimator",
     "OptimalLinearTaxEstimator",
     "PolicyScorecardEstimator",
+    "RankStabilityEstimator",
     "RawlsianSWFEstimator",
+    "RobustAHPEstimator",
+    "RobustELECTREEstimator",
+    "RobustTOPSISEstimator",
     "SenCapabilityEstimator",
+    "SocialWeightManifest",
+    "StateDependentInverseSocialWeightsEstimator",
     "SufficientStatisticsWelfareEstimator",
     "TOPSISEstimator",
     "UtilitarianSWFEstimator",
+    "WelfareBundle",
+    "build_social_weight_ref",
+    "clear_social_weight_manifest_registry",
     "ensure_policy_methods_registered",
     "register_policy_methods",
+    "register_social_weight_manifest",
+    "resolve_social_weight_manifest",
+    "resolve_social_weight_schedule",
 ]

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -52,7 +52,7 @@ def test_registry_fragment_composition_is_bounded(benchmark) -> None:
 def test_fetch_request_cached_keys_are_bounded(benchmark) -> None:
     request = FetchRequest(
         dataset_id="phase3.dataset",
-        date_start=datetime(2025, 1, 1, tzinfo=timezone.utc),
+        date_start=datetime(2025, 1, 1, tzinfo=UTC),
         filters=(("country", ("USA", "DEU", "FRA")),),
         include_metadata=True,
         include_schema=False,

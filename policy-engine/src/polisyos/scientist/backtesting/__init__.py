@@ -5,6 +5,7 @@ Python and define the standard replay contract. Composition replay helpers are
 lazy-loaded to avoid importing cross-graph reconciliation dependencies unless a
 benchmark explicitly audits fragment composition.
 """
+
 from __future__ import annotations
 
 import importlib
@@ -29,31 +30,31 @@ from .plan import HistoricalValidationPlan, MaskingStrategy, PredictionSource
 from .trust_scorer import TrustScorer
 
 __all__ = [
-    "HistoricalValidationPlan",
-    "MaskingStrategy",
-    "PredictionSource",
-    "AdversarialScenario",
+    "ABSTRACTION_LEAKAGE_SUITE_ID",
+    "MULTIPLICITY_DISCLOSURE_SUITE_ID",
+    "PHASE_D4_ROTATION_GROUP",
+    "STRATEGIC_GAMING_SUITE_ID",
     "AdversarialGenerator",
+    "AdversarialScenario",
+    "BacktestOrchestrator",
     "ChallengeCase",
     "ChallengeCaseResult",
     "ChallengeSuiteResult",
-    "STRATEGIC_GAMING_SUITE_ID",
-    "MULTIPLICITY_DISCLOSURE_SUITE_ID",
-    "ABSTRACTION_LEAKAGE_SUITE_ID",
-    "PHASE_D4_ROTATION_GROUP",
-    "run_phase_d4_challenge_suites",
     "CompositionReplayResult",
+    "HistoricalValidationPlan",
+    "MaskingStrategy",
     "OutcomeMasker",
     "PredictionEvaluator",
-    "TrustScorer",
-    "BacktestOrchestrator",
-    "replay_fragment_composition_case",
-    "TemporalThresholds",
+    "PredictionSource",
     "TemporalEvaluationResult",
-    "evaluate_temporal_trajectory",
-    "evaluate_temporal_safe_rejection",
-    "summarize_temporal_evaluations",
+    "TemporalThresholds",
+    "TrustScorer",
     "build_temporal_backtest_report",
+    "evaluate_temporal_safe_rejection",
+    "evaluate_temporal_trajectory",
+    "replay_fragment_composition_case",
+    "run_phase_d4_challenge_suites",
+    "summarize_temporal_evaluations",
 ]
 
 

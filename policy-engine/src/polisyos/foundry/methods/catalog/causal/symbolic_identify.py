@@ -1,4 +1,5 @@
 """Attempt symbolic causal identification and return formula/proof metadata."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -207,12 +208,16 @@ def _unsupported_symbolic_result(
 
 def _proof_bundle_from_transport_result(result: TransportabilityResult) -> ProofBundle:
     """Build a heuristic-backed proof bundle for transport-only symbolic paths."""
-    proof_status = "identified" if result.status is TransportabilityStatus.IDENTIFIED else "oracle_needed"
+    proof_status = (
+        "identified" if result.status is TransportabilityStatus.IDENTIFIED else "oracle_needed"
+    )
     proof_stratum = "A1_extended" if proof_status == "identified" else "A2_oracle_backed"
     return ProofBundle(
         proof_status=proof_status,
         proof_stratum=proof_stratum,
-        theorem_family=result.identification_engine or result.algorithm_version or "transport_symbolic",
+        theorem_family=result.identification_engine
+        or result.algorithm_version
+        or "transport_symbolic",
         completeness_regime="heuristic_backed",
         implementation_coverage="transportability_bridge",
         query_ref=result.query,
@@ -292,6 +297,7 @@ def _state_payload(
 )
 class SymbolicIdentify:
     """Run symbolic ID over a graph/query contract; avoid treating identification output as an estimator without data support."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
 
     signature: ClassVar[MethodSignature] = MethodSignature(
@@ -453,7 +459,7 @@ class SymbolicIdentify:
 
 
 def _id_result_to_transport_result(
-    id_result: "IdentificationResult",
+    id_result: IdentificationResult,
     diagram: SelectionDiagram,
     treatment: str,
     outcome: str,
@@ -475,7 +481,9 @@ def _id_result_to_transport_result(
         return TransportabilityResult(
             query=f"P*({outcome}|do({treatment}))",
             status=TransportabilityStatus.IDENTIFIED,
-            transport_mode=TransportMode.TRANSPORT_FORMULA if diagram.s_nodes else TransportMode.DIRECT,
+            transport_mode=TransportMode.TRANSPORT_FORMULA
+            if diagram.s_nodes
+            else TransportMode.DIRECT,
             transport_formula=formula,
             base_confidence=1.0,
             context_distance_penalty=context_penalty,
@@ -685,9 +693,9 @@ class SymbolicIdentifyV2:
                 payload = {
                     "transport_result": transport_result.model_dump(mode="json"),
                     "estimand_ast": estimand_dict,
-                    "proof_bundle": proof_bundle_from_identification_result(
-                        id_result
-                    ).model_dump(mode="json"),
+                    "proof_bundle": proof_bundle_from_identification_result(id_result).model_dump(
+                        mode="json"
+                    ),
                 }
                 if id_result.status is IdentificationStatus.HEDGE_FOUND:
                     from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
@@ -725,7 +733,7 @@ class SymbolicIdentifyV2:
         selected_backend, _, unavailable_reasons = _resolve_symbolic_backend_locally(
             symbolic_backend
         )
-        trace = [f"symbolic_backend_order:fallback_to_v1"]
+        trace = ["symbolic_backend_order:fallback_to_v1"]
 
         # Try frontdoor heuristic first (v1 behavior)
         if selected_backend is not None:
@@ -791,8 +799,7 @@ def _resolve_transport_privacy_context(
 
 
 # Import deferred to avoid circular imports at module-load time
-from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult  # noqa: E402
-
+from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult
 
 __all__ = [
     "SymbolicIdentify",

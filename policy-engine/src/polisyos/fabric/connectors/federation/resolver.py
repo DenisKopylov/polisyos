@@ -4,6 +4,7 @@ Conflict resolution for multi-source data composition.
 Implements policies for resolving conflicts when multiple sources provide
 overlapping data for the same dimensions.
 """
+
 from __future__ import annotations
 
 import json
@@ -102,15 +103,11 @@ class ConflictResolver:
             elif policy == ConflictPolicy.MOST_RECENT:
                 resolution = self._resolve_by_recency(effective_candidates, context)
             elif policy == ConflictPolicy.MANUAL_PRIORITY:
-                resolution = self._resolve_by_manual_priority(
-                    effective_candidates, context
-                )
+                resolution = self._resolve_by_manual_priority(effective_candidates, context)
             elif policy == ConflictPolicy.MEDIAN:
                 resolution = self._resolve_by_median(effective_candidates, context)
             elif policy == ConflictPolicy.FIRST_AVAILABLE:
-                resolution = self._resolve_first_available(
-                    effective_candidates, context
-                )
+                resolution = self._resolve_first_available(effective_candidates, context)
             else:
                 raise ConflictResolutionError(f"Unknown policy: {policy}")
 
@@ -172,15 +169,12 @@ class ConflictResolver:
         Tie-breaking: MOST_RECENT, then deterministic hash.
         """
         highest_trust = max(c.metadata.metadata.trust_level for c in candidates)
-        tied = [
-            c for c in candidates if c.metadata.metadata.trust_level == highest_trust
-        ]
+        tied = [c for c in candidates if c.metadata.metadata.trust_level == highest_trust]
 
         if len(tied) == 1:
             chosen = tied[0]
             reasoning = (
-                f"TRUST_HIGHEST: {chosen.source_id} "
-                f"({chosen.metadata.metadata.trust_level.name})"
+                f"TRUST_HIGHEST: {chosen.source_id} ({chosen.metadata.metadata.trust_level.name})"
             )
             return ConflictResolution(
                 chosen_candidate=chosen,
@@ -216,21 +210,16 @@ class ConflictResolver:
         """
         Resolve by preferring most recently updated data.
         """
+
         def recency(candidate: ConflictCandidate) -> datetime:
             return candidate.metadata.last_updated or candidate.metadata.fetched_at
 
         max_time = max(recency(c) for c in candidates)
         tied = [c for c in candidates if recency(c) == max_time]
 
-        if len(tied) == 1:
-            chosen = tied[0]
-        else:
-            chosen = self._stable_tie_break(tied, context)
+        chosen = tied[0] if len(tied) == 1 else self._stable_tie_break(tied, context)
 
-        reasoning = (
-            f"MOST_RECENT: {chosen.source_id} "
-            f"(updated {recency(chosen).isoformat()})"
-        )
+        reasoning = f"MOST_RECENT: {chosen.source_id} (updated {recency(chosen).isoformat()})"
 
         return ConflictResolution(
             chosen_candidate=chosen,
@@ -253,10 +242,7 @@ class ConflictResolver:
         max_priority = max(priority_map.get(c.source_id, 0) for c in candidates)
         tied = [c for c in candidates if priority_map.get(c.source_id, 0) == max_priority]
 
-        if len(tied) == 1:
-            chosen = tied[0]
-        else:
-            chosen = self._stable_tie_break(tied, context)
+        chosen = tied[0] if len(tied) == 1 else self._stable_tie_break(tied, context)
 
         reasoning = (
             f"MANUAL_PRIORITY: {chosen.source_id} "
@@ -319,9 +305,7 @@ class ConflictResolver:
             )
 
         median_value = float(np.median(numeric_values))
-        closest = [
-            c for c in numeric_candidates if abs(float(c.value) - median_value) < 1e-10
-        ]
+        closest = [c for c in numeric_candidates if abs(float(c.value) - median_value) < 1e-10]
 
         if closest:
             chosen = self._stable_tie_break(closest, context)
@@ -404,11 +388,7 @@ class ConflictResolver:
         candidates: list[ConflictCandidate],
         context: ConflictContext,
     ) -> ConflictCandidate:
-        seed = (
-            context.request.tie_breaker_seed
-            or self._tie_breaker_seed
-            or ""
-        )
+        seed = context.request.tie_breaker_seed or self._tie_breaker_seed or ""
 
         def stable_key(candidate: ConflictCandidate) -> int:
             row_key = context.row_key or candidate.row_key or {}

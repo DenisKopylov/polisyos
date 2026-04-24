@@ -78,15 +78,18 @@ def test_benchmark_registry_resolves_family_bundle_by_scope(tmp_path) -> None:
 
     assert bundle.selection_evaluation_ref == selection
     assert bundle.hidden_holdout_evaluation_ref == hidden
-    assert registry.require_promotion_evidence(
-        family="causal_core",
-        claim_mode="estimation",
-        run_id="run-a",
-        loop_id="loop-a",
-        query_type="policy",
-        estimator_name="cf",
-        readiness_target="deployment_ready",
-    ) == []
+    assert (
+        registry.require_promotion_evidence(
+            family="causal_core",
+            claim_mode="estimation",
+            run_id="run-a",
+            loop_id="loop-a",
+            query_type="policy",
+            estimator_name="cf",
+            readiness_target="deployment_ready",
+        )
+        == []
+    )
 
 
 def test_benchmark_registry_requires_rotating_challenge_for_non_core_family(tmp_path) -> None:
@@ -275,12 +278,15 @@ def test_benchmark_registry_closes_frontier_promotion_bundle_when_phase_d4_matri
         multiplicity,
         strategic,
     ]
-    assert registry.require_promotion_evidence(
-        family="frontier_family",
-        claim_mode="estimation",
-        run_id="run-frontier",
-        loop_id="loop-frontier",
-    ) == []
+    assert (
+        registry.require_promotion_evidence(
+            family="frontier_family",
+            claim_mode="estimation",
+            run_id="run-frontier",
+            loop_id="loop-frontier",
+        )
+        == []
+    )
 
 
 def test_benchmark_registry_records_extended_contour_metadata(tmp_path) -> None:

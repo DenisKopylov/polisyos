@@ -3,18 +3,26 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import time
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from polisyos.batch_common.thermal import cooldown
-from polisyos.datasets.batch.checkpoints import fingerprint_paths, save_stage_state, stage_can_skip, write_json
-from polisyos.datasets.batch.config import DatasetBatchConfig
+from polisyos.datasets.batch.checkpoints import (
+    fingerprint_paths,
+    save_stage_state,
+    stage_can_skip,
+    write_json,
+)
+
+if TYPE_CHECKING:
+    from polisyos.datasets.batch.config import DatasetBatchConfig
 
 
 @dataclass
 class PipelineStats:
     """Pipeline stats public type."""
+
     elapsed_seconds: float = 0.0
     stage_times: dict[str, float] = field(default_factory=dict)
     metrics: dict[str, float | int | str] = field(default_factory=dict)
@@ -42,7 +50,9 @@ def _stage_input_fingerprint(config: DatasetBatchConfig, stage: str) -> str:
     if stage == "qc":
         return fingerprint_paths([config.db_path, config.benchmark_report_path])
     if stage == "publish":
-        return fingerprint_paths([config.qc_report_path, config.benchmark_report_path, config.db_path])
+        return fingerprint_paths(
+            [config.qc_report_path, config.benchmark_report_path, config.db_path]
+        )
     return config.run_signature
 
 
@@ -54,7 +64,10 @@ def _stage_outputs(config: DatasetBatchConfig, stage: str) -> list:
         "graph_load": [config.db_path],
         "graph_index": [config.db_path],
         "core_sources_ingest": [config.manifests_dir / "core_sources_ingest.json"],
-        "embed": [config.index_dir / "ds_dataset_index.hnsw", config.index_dir / "ds_dataset_embeddings.npz"],
+        "embed": [
+            config.index_dir / "ds_dataset_index.hnsw",
+            config.index_dir / "ds_dataset_embeddings.npz",
+        ],
         "benchmark": [config.benchmark_report_path],
         "qc": [config.qc_report_path],
         "publish": [config.publish_manifest_path, config.consumer_readiness_path],
@@ -74,7 +87,9 @@ def _should_skip_stage(config: DatasetBatchConfig, stage: str) -> bool:
     )
 
 
-def _record_stage_completion(config: DatasetBatchConfig, stage: str, *, metadata: dict[str, object] | None = None) -> None:
+def _record_stage_completion(
+    config: DatasetBatchConfig, stage: str, *, metadata: dict[str, object] | None = None
+) -> None:
     save_stage_state(
         config.stage_state_path,
         stage=stage,
@@ -85,7 +100,9 @@ def _record_stage_completion(config: DatasetBatchConfig, stage: str, *, metadata
     )
 
 
-async def run_dataset_pipeline(config: DatasetBatchConfig, *, thermal: bool = False) -> PipelineStats:
+async def run_dataset_pipeline(
+    config: DatasetBatchConfig, *, thermal: bool = False
+) -> PipelineStats:
     """Run selected stages sequentially (used by `run` CLI wrapper)."""
     from polisyos.datasets.batch.benchmark import run_benchmark
     from polisyos.datasets.batch.core_sources_ingest import run_core_sources_ingest_async
@@ -120,7 +137,9 @@ async def run_dataset_pipeline(config: DatasetBatchConfig, *, thermal: bool = Fa
                 harvested = await harvest_sources(config)
                 stats.stage_times["harvest"] = time.monotonic() - st
                 stats.metrics["harvest_records"] = sum(len(v) for v in harvested.values())
-                _record_stage_completion(config, "harvest", metadata={"records": stats.metrics["harvest_records"]})
+                _record_stage_completion(
+                    config, "harvest", metadata={"records": stats.metrics["harvest_records"]}
+                )
 
         if "normalize" in config.stages:
             current_stage = "normalize"
@@ -131,7 +150,9 @@ async def run_dataset_pipeline(config: DatasetBatchConfig, *, thermal: bool = Fa
                 norm_counts = normalize_raw_sources(config)
                 stats.stage_times["normalize"] = time.monotonic() - st
                 stats.metrics["normalized_records"] = sum(norm_counts.values())
-                _record_stage_completion(config, "normalize", metadata={"records": stats.metrics["normalized_records"]})
+                _record_stage_completion(
+                    config, "normalize", metadata={"records": stats.metrics["normalized_records"]}
+                )
 
         if "merge_dedup" in config.stages:
             current_stage = "merge_dedup"
@@ -142,7 +163,11 @@ async def run_dataset_pipeline(config: DatasetBatchConfig, *, thermal: bool = Fa
                 merge_stats = merge_and_dedup(config)
                 stats.stage_times["merge_dedup"] = time.monotonic() - st
                 stats.metrics.update({f"merge_{k}": v for k, v in merge_stats.items()})
-                _record_stage_completion(config, "merge_dedup", metadata={k: merge_stats.get(k) for k in sorted(merge_stats)})
+                _record_stage_completion(
+                    config,
+                    "merge_dedup",
+                    metadata={k: merge_stats.get(k) for k in sorted(merge_stats)},
+                )
 
         if "graph_load" in config.stages:
             current_stage = "graph_load"
@@ -154,7 +179,11 @@ async def run_dataset_pipeline(config: DatasetBatchConfig, *, thermal: bool = Fa
                 stats.stage_times["graph_load"] = time.monotonic() - st
                 stats.metrics["graph_datasets"] = gstats.datasets
                 stats.metrics["graph_distributions"] = gstats.distributions
-                _record_stage_completion(config, "graph_load", metadata={"datasets": gstats.datasets, "distributions": gstats.distributions})
+                _record_stage_completion(
+                    config,
+                    "graph_load",
+                    metadata={"datasets": gstats.datasets, "distributions": gstats.distributions},
+                )
 
         if "graph_index" in config.stages:
             current_stage = "graph_index"
@@ -181,7 +210,11 @@ async def run_dataset_pipeline(config: DatasetBatchConfig, *, thermal: bool = Fa
                 stats.metrics["core_observations_inserted"] = cstats.observations_inserted
                 stats.metrics["core_observations_replaced"] = cstats.observations_replaced
                 stats.metrics["core_failures"] = cstats.failures
-                _record_stage_completion(config, "core_sources_ingest", metadata={"failures": cstats.failures, "observations": cstats.observations})
+                _record_stage_completion(
+                    config,
+                    "core_sources_ingest",
+                    metadata={"failures": cstats.failures, "observations": cstats.observations},
+                )
 
         if "embed" in config.stages:
             current_stage = "embed"
@@ -203,7 +236,9 @@ async def run_dataset_pipeline(config: DatasetBatchConfig, *, thermal: bool = Fa
                 benchmark = run_benchmark(config)
                 stats.stage_times["benchmark"] = time.monotonic() - st
                 stats.metrics.update(benchmark.metrics)
-                _record_stage_completion(config, "benchmark", metadata={"report_path": str(benchmark.report_path)})
+                _record_stage_completion(
+                    config, "benchmark", metadata={"report_path": str(benchmark.report_path)}
+                )
 
         if "qc" in config.stages:
             current_stage = "qc"
@@ -246,6 +281,8 @@ async def run_dataset_pipeline(config: DatasetBatchConfig, *, thermal: bool = Fa
     return stats
 
 
-def run_dataset_pipeline_sync(config: DatasetBatchConfig, *, thermal: bool = False) -> PipelineStats:
+def run_dataset_pipeline_sync(
+    config: DatasetBatchConfig, *, thermal: bool = False
+) -> PipelineStats:
     """Sync wrapper for callers that are not in asyncio context."""
     return asyncio.run(run_dataset_pipeline(config, thermal=thermal))

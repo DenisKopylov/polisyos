@@ -6,6 +6,7 @@ nodes and tutorials. It accepts only `CompileRequest` payloads whose
 compiler backend deterministically, and persists a `CompileReport` failure
 envelope when compilation cannot produce an executable plan.
 """
+
 from __future__ import annotations
 
 from polisyos.core.artifacts.manifest import InputRef
@@ -96,9 +97,7 @@ def _compile_exception(
     inputs = [InputRef(artifact_id=request.policy_ref.artifact_id, role="ir")]
     if request.registry_bundle_ref is not None:
         inputs.append(
-            InputRef(
-                artifact_id=request.registry_bundle_ref.artifact_id, role="registry_bundle"
-            )
+            InputRef(artifact_id=request.registry_bundle_ref.artifact_id, role="registry_bundle")
         )
     compile_report_ref = put_compile_report(store, compile_report, inputs=inputs)
     return CompileResult(

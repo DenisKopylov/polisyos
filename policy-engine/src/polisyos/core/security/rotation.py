@@ -1,4 +1,5 @@
 """Secret and trust-anchor rotation helpers for runtime security operations."""
+
 from __future__ import annotations
 
 import json
@@ -189,7 +190,9 @@ def _read_json_object(path: Path) -> dict[str, Any]:
 
 
 def _atomic_write_json(path: Path, payload: dict[str, Any]) -> None:
-    _atomic_write_bytes(path, (fast_json_dumps(payload, sort_keys=True) + "\n").encode("utf-8"), 0o644)
+    _atomic_write_bytes(
+        path, (fast_json_dumps(payload, sort_keys=True) + "\n").encode("utf-8"), 0o644
+    )
 
 
 def _write_secret_file(path: Path, data: bytes, *, mode: int, force: bool) -> None:

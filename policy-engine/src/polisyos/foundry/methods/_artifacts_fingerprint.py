@@ -6,15 +6,17 @@ Provides:
 - compute_source_hash() / compute_source_fingerprint() for class-level hashing
 - Shared constants and low-level utility helpers used across artifact sub-modules
 """
+
 from __future__ import annotations
 
 import ast
 import inspect
 import subprocess
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import (
@@ -28,8 +30,8 @@ from polisyos.core.canon import (
 
 __all__ = [
     "SourceFingerprint",
-    "compute_source_hash",
     "compute_source_fingerprint",
+    "compute_source_hash",
 ]
 
 logger = get_logger(__name__)
@@ -42,9 +44,10 @@ SOURCE_UNAVAILABLE: str = "unavailable"
 
 # -- Shared utility helpers (package-private) --------------------------------
 
+
 def _utc_now() -> datetime:
     """Return current UTC time with timezone info."""
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _float_payload(value: float | None) -> dict[str, str] | None:
@@ -64,6 +67,7 @@ def _compute_deterministic_hash(data: Mapping[str, Any]) -> str:
 
 
 # -- File / git helpers for fingerprinting -----------------------------------
+
 
 def _hash_file(path: Path) -> str | None:
     try:
@@ -147,6 +151,7 @@ def _normalized_source_hash(source: str) -> str | None:
 
 
 # -- Public API --------------------------------------------------------------
+
 
 def compute_source_hash(
     cls: type,
@@ -241,9 +246,7 @@ def compute_source_fingerprint(
             except ValueError:
                 module_file = module_file_path.name
             git_commit = _safe_run(["git", "-C", str(git_root), "rev-parse", "HEAD"])
-            git_tree = _safe_run(
-                ["git", "-C", str(git_root), "rev-parse", "HEAD^{tree}"]
-            )
+            git_tree = _safe_run(["git", "-C", str(git_root), "rev-parse", "HEAD^{tree}"])
         else:
             module_file = module_file_path.name
 

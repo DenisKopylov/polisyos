@@ -1,10 +1,11 @@
 """Public search stopping module API."""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any, Dict, List
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -13,7 +14,7 @@ class StoppingCondition:
 
     should_stop: bool
     reason: str | None = None
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
 
 
 class StoppingCriterion(ABC):
@@ -28,8 +29,8 @@ class StoppingCriterion(ABC):
     @abstractmethod
     def check(
         self,
-        history: List[Dict[str, Any]],
-        state: Dict[str, Any],
+        history: list[dict[str, Any]],
+        state: dict[str, Any],
     ) -> StoppingCondition:
         """
         Check if search should terminate.
@@ -60,7 +61,7 @@ class MaxIterations(StoppingCriterion):
     def name(self) -> str:
         return "max_iterations"
 
-    def check(self, history: List[Dict[str, Any]], state: Dict[str, Any]) -> StoppingCondition:
+    def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
         current = len(history)
         if current >= self._max_iter:
             return StoppingCondition(
@@ -84,7 +85,7 @@ class MaxWallTime(StoppingCriterion):
     def name(self) -> str:
         return "max_wall_time"
 
-    def check(self, history: List[Dict[str, Any]], state: Dict[str, Any]) -> StoppingCondition:
+    def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
         now = datetime.now(UTC)
 
         if self._start_time is None:
@@ -126,14 +127,12 @@ class ImprovementPlateau(StoppingCriterion):
     def name(self) -> str:
         return "improvement_plateau"
 
-    def check(self, history: List[Dict[str, Any]], state: Dict[str, Any]) -> StoppingCondition:
+    def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
         if len(history) < self._patience + 1:
             return StoppingCondition(should_stop=False)
 
         values = [
-            h.get(self._objective_key, float("inf"))
-            for h in history
-            if self._objective_key in h
+            h.get(self._objective_key, float("inf")) for h in history if self._objective_key in h
         ]
 
         if len(values) < self._patience + 1:
@@ -182,7 +181,7 @@ class TargetAchieved(StoppingCriterion):
     def name(self) -> str:
         return "target_achieved"
 
-    def check(self, history: List[Dict[str, Any]], state: Dict[str, Any]) -> StoppingCondition:
+    def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
         if not history:
             return StoppingCondition(should_stop=False)
 
@@ -213,7 +212,7 @@ class CostBudgetStopping(StoppingCriterion):
     def name(self) -> str:
         return "cost_budget"
 
-    def check(self, history: List[Dict[str, Any]], state: Dict[str, Any]) -> StoppingCondition:
+    def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
         cost = state.get(self._cost_key, 0.0)
         if cost >= self._max_cost:
             return StoppingCondition(
@@ -227,7 +226,7 @@ class CostBudgetStopping(StoppingCriterion):
 class CompositeStoppingCriterion(StoppingCriterion):
     """Stop when ANY contained criterion triggers (OR logic)."""
 
-    def __init__(self, criteria: List[StoppingCriterion]):
+    def __init__(self, criteria: list[StoppingCriterion]):
         if not criteria:
             raise ValueError("At least one criterion required")
         self._criteria = criteria
@@ -236,7 +235,7 @@ class CompositeStoppingCriterion(StoppingCriterion):
     def name(self) -> str:
         return "composite"
 
-    def check(self, history: List[Dict[str, Any]], state: Dict[str, Any]) -> StoppingCondition:
+    def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
         for criterion in self._criteria:
             result = criterion.check(history, state)
             if result.should_stop:
@@ -255,7 +254,7 @@ class CompositeStoppingCriterion(StoppingCriterion):
 class AllStoppingCriteria(StoppingCriterion):
     """Stop only when ALL contained criteria trigger (AND logic)."""
 
-    def __init__(self, criteria: List[StoppingCriterion]):
+    def __init__(self, criteria: list[StoppingCriterion]):
         if not criteria:
             raise ValueError("At least one criterion required")
         self._criteria = criteria
@@ -264,7 +263,7 @@ class AllStoppingCriteria(StoppingCriterion):
     def name(self) -> str:
         return "all_composite"
 
-    def check(self, history: List[Dict[str, Any]], state: Dict[str, Any]) -> StoppingCondition:
+    def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
         results = [c.check(history, state) for c in self._criteria]
         if all(r.should_stop for r in results):
             reasons = [r.reason for r in results if r.reason]

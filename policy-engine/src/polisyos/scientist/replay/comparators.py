@@ -1,4 +1,5 @@
 """Built-in custom comparators for replay diff."""
+
 from __future__ import annotations
 
 import json
@@ -36,6 +37,8 @@ def json_string_comparator(a: Any, b: Any, cfg: DiffToleranceConfig) -> float:
         all_keys = set(parsed_a.keys()) | set(parsed_b.keys())
         if not all_keys:
             return 1.0
-        common = sum(1 for k in all_keys if k in parsed_a and k in parsed_b and parsed_a[k] == parsed_b[k])
+        common = sum(
+            1 for k in all_keys if k in parsed_a and k in parsed_b and parsed_a[k] == parsed_b[k]
+        )
         return common / len(all_keys)
     return 0.0

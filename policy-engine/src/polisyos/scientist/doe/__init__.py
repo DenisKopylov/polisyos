@@ -1,4 +1,5 @@
 """Design-of-experiments facade for sensitivity plans, adversarial sweeps, and stress reports."""
+
 from .analysis import analyze_sensitivity
 from .designs import (
     AblationPlan,

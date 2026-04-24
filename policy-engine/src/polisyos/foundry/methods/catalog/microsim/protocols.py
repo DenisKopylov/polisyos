@@ -1,11 +1,19 @@
 """Public microsim protocols module API."""
+
 from __future__ import annotations
 
 from enum import Enum
 from typing import Any, ClassVar, Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 
 from polisyos.foundry.calibration.identifiability import IdentifiabilityReport
 from polisyos.ir.analytics.uncertainty import (
@@ -15,6 +23,7 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
+from polisyos.ir.refs import FiscalFeedbackLinkRef
 
 
 def _to_numpy(value: Any) -> np.ndarray:
@@ -25,6 +34,7 @@ def _to_numpy(value: Any) -> np.ndarray:
 
 class SurveyMicroData(BaseModel):
     """Survey micro data public type."""
+
     contract_id: ClassVar[str] = "foundry.microsim.survey_micro_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
@@ -73,7 +83,7 @@ class SurveyMicroData(BaseModel):
         return _to_numpy(value)
 
     @model_validator(mode="after")
-    def _validate_shapes(self) -> "SurveyMicroData":
+    def _validate_shapes(self) -> SurveyMicroData:
         if not isinstance(self.market_income, np.ndarray) or self.market_income.ndim != 1:
             raise ValueError("market_income must be a 1D numpy array")
         if not isinstance(self.weights, np.ndarray) or self.weights.ndim != 1:
@@ -146,6 +156,7 @@ class SurveyMicroData(BaseModel):
 
 class MicrosimResult(BaseModel):
     """Carry household income outputs and summary metrics emitted by static microsimulation runs."""
+
     contract_id: ClassVar[str] = "foundry.microsim.result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -155,6 +166,7 @@ class MicrosimResult(BaseModel):
     weighted_mean_disposable_income: float
     weighted_gini: float
     policy_revenue: float
+    fiscal_feedback_ref: FiscalFeedbackLinkRef | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("disposable_income", "tax_liability", "benefit_income", mode="before")
@@ -162,7 +174,9 @@ class MicrosimResult(BaseModel):
     def _coerce_numpy(cls, value: Any) -> Any:
         return _to_numpy(value)
 
-    @field_serializer("disposable_income", "tax_liability", "benefit_income", mode="plain", when_used="json")
+    @field_serializer(
+        "disposable_income", "tax_liability", "benefit_income", mode="plain", when_used="json"
+    )
     def _serialize_array(self, value: Any) -> Any:
         if isinstance(value, np.ndarray):
             return value.tolist()
@@ -287,6 +301,7 @@ class ReweightingTargetCompatibility(BaseModel):
 
 class ReweightingResult(BaseModel):
     """Record calibrated weights plus target-versus-achieved moment gaps for replay and audit."""
+
     contract_id: ClassVar[str] = "foundry.microsim.reweighting_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -311,6 +326,7 @@ class ReweightingResult(BaseModel):
 
 class TaxBenefitResult(BaseModel):
     """Capture disposable-income, tax-rate, and revenue outputs from tax-benefit simulations."""
+
     contract_id: ClassVar[str] = "foundry.microsim.tax_benefit_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -365,6 +381,7 @@ class TaxBenefitResult(BaseModel):
 
 class BehavioralResponseResult(BaseModel):
     """Capture post-reform incomes and elasticity diagnostics emitted by behavioral-response runs."""
+
     contract_id: ClassVar[str] = "foundry.microsim.behavioral_response_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -379,7 +396,9 @@ class BehavioralResponseResult(BaseModel):
     def _coerce_behavioral_vector(cls, value: Any) -> Any:
         return _to_numpy(value)
 
-    @field_serializer("adjusted_market_income", "labor_supply_change", mode="plain", when_used="json")
+    @field_serializer(
+        "adjusted_market_income", "labor_supply_change", mode="plain", when_used="json"
+    )
     def _serialize_behavioral_vector(self, value: Any) -> Any:
         if isinstance(value, np.ndarray):
             return value.tolist()
@@ -411,6 +430,7 @@ class BehavioralResponseResult(BaseModel):
 
 class HeterogeneousBehavioralResponseResult(BaseModel):
     """Carry behavioral-response estimates with explicit identification semantics."""
+
     contract_id: ClassVar[str] = "foundry.microsim.behavioral_response_result.v2"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -496,8 +516,84 @@ class HeterogeneousBehavioralResponseResult(BaseModel):
         )
 
 
+class InverseBehavioralIdentifiedSet(BaseModel):
+    """Set-valued fallback summary when inverse calibration is only partially identified."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    parameter_bounds: dict[str, tuple[float, float]] = Field(default_factory=dict)
+    representative_point: dict[str, float] = Field(default_factory=dict)
+    feasible_share: float | None = Field(default=None, ge=0.0, le=1.0)
+    grid_size: int | None = Field(default=None, ge=1)
+    warnings: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _validate_parameter_bounds(self) -> InverseBehavioralIdentifiedSet:
+        for key, interval in self.parameter_bounds.items():
+            lower, upper = interval
+            if not np.isfinite(lower) or not np.isfinite(upper):
+                raise ValueError(f"parameter_bounds.{key} must be finite")
+            if lower > upper:
+                raise ValueError(f"parameter_bounds.{key} lower must be <= upper")
+        return self
+
+
+class InverseBehavioralCalibrationResult(BaseModel):
+    """Typed inverse-calibration artifact for Track 11 behavioral calibration."""
+
+    contract_id: ClassVar[str] = "foundry.microsim.inverse_behavioral_calibration_result.v1"
+    model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
+
+    objective_family: str
+    constraint_family: str
+    objective_params: dict[str, float] = Field(default_factory=dict)
+    constraint_params: dict[str, float] = Field(default_factory=dict)
+    normalization: dict[str, Any] = Field(default_factory=dict)
+    fit_loss: float = Field(ge=0.0)
+    optimality_gap_stats: dict[str, float] = Field(default_factory=dict)
+    identified_object: Literal[
+        "objective_params",
+        "objective_and_constraint_params",
+        "bounds_only",
+        "not_identified",
+        "manual_override_required",
+    ]
+    regime: Literal["cross_section", "repeated_cross_section", "panel"]
+    effective_sample_size: float | None = None
+    measurement_reliability: float | None = None
+    identifiability_status: Literal["identified", "sloppy", "non_identified"]
+    identifiability: IdentifiabilityReport | None = None
+    jacobian_rank: int | None = Field(default=None, ge=0)
+    condition_number: float | None = Field(default=None, ge=0.0)
+    bootstrap_intervals: dict[str, tuple[float, float]] = Field(default_factory=dict)
+    identified_set: InverseBehavioralIdentifiedSet | None = None
+    identified_set_summary: dict[str, Any] | None = None
+    fallback_used: bool = False
+    diagnostics: dict[str, Any] = Field(default_factory=dict)
+    microsim_calibration_report: dict[str, Any] | None = None
+    microsim_calibration_report_ref: dict[str, Any] | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_identification_payload(self) -> InverseBehavioralCalibrationResult:
+        if self.identified_object == "bounds_only" and self.identified_set is None:
+            raise ValueError("identified_set is required when identified_object='bounds_only'")
+        if (
+            self.identified_object == "objective_and_constraint_params"
+            and not self.constraint_params
+        ):
+            raise ValueError(
+                "constraint_params are required when "
+                "identified_object='objective_and_constraint_params'"
+            )
+        if self.identified_object == "not_identified" and self.objective_params:
+            raise ValueError("not_identified results cannot publish objective_params")
+        return self
+
+
 class ImputationResult(BaseModel):
     """Record imputed incomes and training-quality metadata for missing-data repair."""
+
     contract_id: ClassVar[str] = "foundry.microsim.imputation_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -553,7 +649,7 @@ class MNARIncomeAssumptionVector(BaseModel):
     additional_restrictions: tuple[str, ...] = ()
 
     @model_validator(mode="after")
-    def _validate_ranges(self) -> "MNARIncomeAssumptionVector":
+    def _validate_ranges(self) -> MNARIncomeAssumptionVector:
         if self.support_bounds[0] > self.support_bounds[1]:
             raise ValueError("support_bounds must be ordered")
         for label, interval in (
@@ -581,10 +677,12 @@ class MNARIncomeBoundsInterval(BaseModel):
     manski_outer_bound: dict[str, float] | None = None
 
     @model_validator(mode="after")
-    def _validate_bounds(self) -> "MNARIncomeBoundsInterval":
+    def _validate_bounds(self) -> MNARIncomeBoundsInterval:
         if self.lower > self.upper:
             raise ValueError("lower bound must not exceed upper bound")
-        if self.reference_value is not None and not (self.lower <= self.reference_value <= self.upper):
+        if self.reference_value is not None and not (
+            self.lower <= self.reference_value <= self.upper
+        ):
             raise ValueError("reference_value must lie within the interval")
         if self.manski_outer_bound is not None:
             lower = float(self.manski_outer_bound.get("lower", self.lower))
@@ -641,6 +739,7 @@ class MNARIncomeBoundsResult(BaseModel):
 
 class DynamicMicrosimResult(BaseModel):
     """Carry final outcomes and time paths emitted by dynamic microsimulation runs."""
+
     contract_id: ClassVar[str] = "foundry.microsim.dynamic_result.v1"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
@@ -678,9 +777,11 @@ class DynamicMicrosimResult(BaseModel):
 
 __all__ = [
     "BehavioralResponseResult",
-    "HeterogeneousBehavioralResponseResult",
     "DynamicMicrosimResult",
+    "HeterogeneousBehavioralResponseResult",
     "ImputationResult",
+    "InverseBehavioralCalibrationResult",
+    "InverseBehavioralIdentifiedSet",
     "MNARIncomeAssumptionVector",
     "MNARIncomeBoundsDiagnostics",
     "MNARIncomeBoundsInterval",

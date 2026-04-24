@@ -1,10 +1,12 @@
 """Public uncertainty monte carlo module API."""
+
 from __future__ import annotations
 
 import math
 import warnings
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from typing import Any, Callable, Mapping
+from typing import Any
 
 import jax
 import jax.numpy as jnp
@@ -48,6 +50,7 @@ class _QMCExecutionSummary:
 
 class MonteCarloPropagator:
     """Monte carlo propagator public type."""
+
     def __init__(self, config: PropagationConfig | None = None) -> None:
         self._config = config or PropagationConfig()
 
@@ -92,14 +95,27 @@ class MonteCarloPropagator:
 
         if use_qmc:
             actual_n_samples, failed, qmc_summary = self._run_qmc_loop(
-                simulation_fn, param_names, input_envelopes, output_metric_ids,
-                n_samples, sample_buffers, adaptive, alpha,
+                simulation_fn,
+                param_names,
+                input_envelopes,
+                output_metric_ids,
+                n_samples,
+                sample_buffers,
+                adaptive,
+                alpha,
             )
             stopped_early = adaptive.enabled and actual_n_samples < n_samples
         else:
             actual_n_samples, failed = self._run_random_loop(
-                simulation_fn, param_names, input_envelopes, output_metric_ids,
-                n_samples, batch_size, sample_buffers, adaptive, alpha,
+                simulation_fn,
+                param_names,
+                input_envelopes,
+                output_metric_ids,
+                n_samples,
+                batch_size,
+                sample_buffers,
+                adaptive,
+                alpha,
             )
             stopped_early = adaptive.enabled and actual_n_samples < n_samples
 
@@ -109,8 +125,14 @@ class MonteCarloPropagator:
             input_envelopes,
             param_names,
             output_metric_ids,
-            nominal_params, nominal_outputs, actual_n_samples, failed, stopped_early,
-            level, alpha, qmc_summary=qmc_summary,
+            nominal_params,
+            nominal_outputs,
+            actual_n_samples,
+            failed,
+            stopped_early,
+            level,
+            alpha,
+            qmc_summary=qmc_summary,
         )
 
     # ------------------------------------------------------------------
@@ -162,10 +184,7 @@ class MonteCarloPropagator:
                 )
 
                 for row_idx in range(uniform_samples.shape[0]):
-                    params = {
-                        name: float(qmc_transformed[name][row_idx])
-                        for name in param_names
-                    }
+                    params = {name: float(qmc_transformed[name][row_idx]) for name in param_names}
                     sample_idx = generated + row_idx
                     ok = self._eval_and_record(
                         simulation_fn,
@@ -183,18 +202,30 @@ class MonteCarloPropagator:
                 generated_this_replicate += generated_batch
 
                 if adaptive.enabled and self._check_adaptive_stop(
-                    generated, adaptive, sample_buffers.values, output_metric_ids, alpha,
+                    generated,
+                    adaptive,
+                    sample_buffers.values,
+                    output_metric_ids,
+                    alpha,
                 ):
-                    return generated, failed, _QMCExecutionSummary(
-                        method=qmc_method,
-                        scrambled=scrambled,
-                        replicate_count=actual_replicates,
+                    return (
+                        generated,
+                        failed,
+                        _QMCExecutionSummary(
+                            method=qmc_method,
+                            scrambled=scrambled,
+                            replicate_count=actual_replicates,
+                        ),
                     )
 
-        return generated, failed, _QMCExecutionSummary(
-            method=qmc_method,
-            scrambled=scrambled,
-            replicate_count=actual_replicates,
+        return (
+            generated,
+            failed,
+            _QMCExecutionSummary(
+                method=qmc_method,
+                scrambled=scrambled,
+                replicate_count=actual_replicates,
+            ),
         )
 
     def _run_random_loop(
@@ -225,8 +256,12 @@ class MonteCarloPropagator:
                 params = {name: batch_samples[name][i] for name in param_names}
                 sample_idx = generated + i
                 ok = self._eval_and_record(
-                    simulation_fn, params, param_names, output_metric_ids,
-                    sample_buffers, sample_idx=sample_idx,
+                    simulation_fn,
+                    params,
+                    param_names,
+                    output_metric_ids,
+                    sample_buffers,
+                    sample_idx=sample_idx,
                 )
                 if not ok:
                     failed += 1
@@ -234,7 +269,11 @@ class MonteCarloPropagator:
             generated += this_batch
 
             if adaptive.enabled and self._check_adaptive_stop(
-                generated, adaptive, sample_buffers.values, output_metric_ids, alpha,
+                generated,
+                adaptive,
+                sample_buffers.values,
+                output_metric_ids,
+                alpha,
             ):
                 return generated, failed
 
@@ -256,9 +295,7 @@ class MonteCarloPropagator:
             result = simulation_fn(**params)
             for mid in output_metric_ids:
                 raw = result.get(mid)
-                sample_buffers.values[mid][sample_idx] = (
-                    float("nan") if raw is None else float(raw)
-                )
+                sample_buffers.values[mid][sample_idx] = float("nan") if raw is None else float(raw)
             return True
         except Exception:
             for mid in output_metric_ids:
@@ -309,10 +346,7 @@ class MonteCarloPropagator:
                 metric_id: np.full((n_samples,), np.nan, dtype=np.float64)
                 for metric_id in output_metric_ids
             },
-            input_samples={
-                name: np.empty((n_samples,), dtype=np.float64)
-                for name in param_names
-            },
+            input_samples={name: np.empty((n_samples,), dtype=np.float64) for name in param_names},
             capacity=n_samples,
         )
 
@@ -357,11 +391,7 @@ class MonteCarloPropagator:
                 else CertificateKind.KOLMOGOROV
             )
         )
-        qmc_has_full_certificate = (
-            qmc_method is not None
-            and qmc_scrambled
-            and qmc_replicates >= 2
-        )
+        qmc_has_full_certificate = qmc_method is not None and qmc_scrambled and qmc_replicates >= 2
         for metric_id in output_metric_ids:
             arr = jnp.asarray(values[metric_id][:actual_n_samples], dtype=jnp.float32)
             valid = arr[jnp.isfinite(arr)]
@@ -427,7 +457,9 @@ class MonteCarloPropagator:
                             else None
                         ),
                         confidence_level=None,
-                        scope=("expectation_bv",) if qmc_method is not None else ("expectation", "bounds"),
+                        scope=("expectation_bv",)
+                        if qmc_method is not None
+                        else ("expectation", "bounds"),
                         map_name=metric_id,
                         sample_size=n_valid if n_valid > 0 else None,
                         replicate_count=qmc_replicates if qmc_method is not None else None,
@@ -478,11 +510,7 @@ class MonteCarloPropagator:
                 if n_valid > 100:
                     q05 = float(jnp.percentile(valid, 5.0))
                     tail_mask = valid <= q05
-                    cvar_05 = (
-                        float(jnp.mean(valid[tail_mask]))
-                        if jnp.any(tail_mask)
-                        else q05
-                    )
+                    cvar_05 = float(jnp.mean(valid[tail_mask])) if jnp.any(tail_mask) else q05
                     metadata["tail_risk"] = {
                         "cvar_05": cvar_05,
                         "quantile_01": float(jnp.percentile(valid, 1.0)),
@@ -503,7 +531,9 @@ class MonteCarloPropagator:
                         }
                         valid_outputs = values[metric_id][:actual_n_samples][valid_mask]
                         indices = compute_first_order_indices(
-                            filtered_inputs, valid_outputs, param_names,
+                            filtered_inputs,
+                            valid_outputs,
+                            param_names,
                         )
                         metadata["sensitivity_indices"] = indices
                         metadata["sensitivity_method"] = "regression_first_order_proxy"
@@ -679,6 +709,7 @@ class MonteCarloPropagator:
                 else:
                     c = min(max((point - lo) / (hi - lo), 0.0), 1.0)
                     from scipy.stats import triang
+
                     result[name] = triang.ppf(u, c, loc=lo, scale=hi - lo)
             else:
                 # Fallback: normal approximation
@@ -751,9 +782,7 @@ class MonteCarloPropagator:
             new_block = sampler.random(block_size)
 
         available = (
-            new_block
-            if buffered.shape[0] == 0
-            else np.concatenate((buffered, new_block), axis=0)
+            new_block if buffered.shape[0] == 0 else np.concatenate((buffered, new_block), axis=0)
         )
         samples = available[:chunk_size]
         return (

@@ -1,15 +1,12 @@
 """Public uncertainty analytical module API."""
+
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping
 from statistics import NormalDist
-from typing import Mapping
 
 from polisyos.ir.analytics.uncertainty import (
-    _merge_certificate_kind,
-    _merge_certificate_radii,
-    _propagate_certificate_radius,
-    _worst_exactness,
     CertificateKind,
     ComposedFlavour,
     DistributionFamily,
@@ -19,6 +16,10 @@ from polisyos.ir.analytics.uncertainty import (
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    _merge_certificate_kind,
+    _merge_certificate_radii,
+    _propagate_certificate_radius,
+    _worst_exactness,
     build_composition_provenance,
 )
 
@@ -28,6 +29,7 @@ from .protocol import PropagationResult
 
 class AnalyticalPropagator:
     """Analytical propagator public type."""
+
     @property
     def method(self) -> PropagationMethod:
         return PropagationMethod.ANALYTICAL
@@ -35,8 +37,7 @@ class AnalyticalPropagator:
     @staticmethod
     def is_applicable(input_envelopes: Mapping[str, UncertaintyEnvelope]) -> bool:
         return all(
-            env.distribution_family == DistributionFamily.NORMAL
-            for env in input_envelopes.values()
+            env.distribution_family == DistributionFamily.NORMAL for env in input_envelopes.values()
         )
 
     @staticmethod

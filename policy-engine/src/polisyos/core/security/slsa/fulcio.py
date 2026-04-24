@@ -1,8 +1,9 @@
 """Public slsa fulcio module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Protocol
 
 import httpx
@@ -188,7 +189,9 @@ class FulcioClient:
         response.raise_for_status()
         payload = response.json()
 
-        chain = payload.get("signedCertificateEmbeddedSct", {}).get("chain", {}).get("certificates", [])
+        chain = (
+            payload.get("signedCertificateEmbeddedSct", {}).get("chain", {}).get("certificates", [])
+        )
         if not isinstance(chain, list) or not chain:
             raise RuntimeError("Fulcio response does not include certificate chain")
 
@@ -215,7 +218,7 @@ class FulcioClient:
                 x509.NameAttribute(NameOID.ORGANIZATION_NAME, "PolicyOS"),
             ]
         )
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         cert = (
             x509.CertificateBuilder()
             .subject_name(subject)
@@ -229,6 +232,7 @@ class FulcioClient:
         )
         return cert.public_bytes(Encoding.PEM)
 
+
 def _to_pem_if_needed(value: str) -> str:
     if "BEGIN CERTIFICATE" in value:
         return value
@@ -236,16 +240,9 @@ def _to_pem_if_needed(value: str) -> str:
     return f"-----BEGIN CERTIFICATE-----\n{wrapped}\n-----END CERTIFICATE-----\n"
 
 
-
 def _sha256(payload: bytes) -> str:
     return content_hash(payload)
 
 
-
 def _utc_now_iso() -> str:
-    return (
-        datetime.now(timezone.utc)
-        .replace(microsecond=0)
-        .isoformat()
-        .replace("+00:00", "Z")
-    )
+    return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")

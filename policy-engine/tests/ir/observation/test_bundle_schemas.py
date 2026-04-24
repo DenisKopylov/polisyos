@@ -5,9 +5,7 @@ import importlib
 import pytest
 
 from polisyos.ir.observation.bundles import (
-    AgentFactorEmbeddingsBundleManifest,
     BACKTEST_PLAN_TARGET,
-    BilevelProblemBundle,
     DYNAMIC_TREATMENT_TARGET,
     LESSON_CARD_TARGET,
     MULTIPLEX_NETWORK_TARGET,
@@ -15,17 +13,20 @@ from polisyos.ir.observation.bundles import (
     PANEL_ECONOMETRIC_TARGET,
     PANEL_OBSERVATIONAL_TARGET,
     PROXY_MEASUREMENT_TARGET,
+    SECTION_15_7_BUNDLE_MODELS,
     SURVEY_MICRODATA_TARGET,
     SURVIVAL_DATA_TARGET,
+    AgentFactorEmbeddingsBundleManifest,
     BacktestPlanBundle,
+    BilevelProblemBundle,
     BoundsEstimationBundle,
     BundleAxisSemantic,
     BundleLineageRef,
     CalibrationTargetBundleManifest,
     CausalPanelBundleManifest,
     CellPrototypeEmbeddingsBundleManifest,
-    CounterfactualCheckBundle,
     ContractCompatibilityTarget,
+    CounterfactualCheckBundle,
     DTRTreatmentSequenceBundleManifest,
     GovernancePassMappingBundle,
     HeckmanCorrectionBundle,
@@ -40,14 +41,13 @@ from polisyos.ir.observation.bundles import (
     ProxyIdentificationBundle,
     RequiredArraySpec,
     RequiredColumnSpec,
-    SECTION_15_7_BUNDLE_MODELS,
     SobolDiagnosticsBundle,
     SpecificationCurveBundle,
     SpecificationCurveDiagnosticsBundle,
-    TransportabilityCheckBundle,
     StrategicResponseSpecsBundle,
     SurvivalDataBundleManifest,
     SurvivalHazardBundle,
+    TransportabilityCheckBundle,
 )
 from polisyos.ir.observation.contracts import (
     IdentificationMode,
@@ -56,7 +56,6 @@ from polisyos.ir.observation.contracts import (
     StrategicResponseChannel,
 )
 from polisyos.ir.observation.governance import DEFAULT_GOVERNANCE_PASS_ALIAS_REGISTRY
-
 
 EXPECTED_ARTIFACTS = {
     "calibration_target_bundle_v1.npz",
@@ -219,8 +218,12 @@ def _sample_payloads() -> list[object]:
             required_arrays=[
                 RequiredArraySpec(name="agent_ids", axes=["agent"], dtype="string"),
                 RequiredArraySpec(name="embeddings", axes=["agent", "factor"], dtype="float32"),
-                RequiredArraySpec(name="factor_loadings", axes=["variable", "factor"], dtype="float32"),
-                RequiredArraySpec(name="explained_variance_ratio", axes=["factor"], dtype="float32"),
+                RequiredArraySpec(
+                    name="factor_loadings", axes=["variable", "factor"], dtype="float32"
+                ),
+                RequiredArraySpec(
+                    name="explained_variance_ratio", axes=["factor"], dtype="float32"
+                ),
             ],
             axis_semantics=[
                 BundleAxisSemantic(axis="agent", description="Unique agent embedding axis"),
@@ -234,7 +237,9 @@ def _sample_payloads() -> list[object]:
             required_arrays=[
                 RequiredArraySpec(name="cell_ids", axes=["cell"], dtype="string"),
                 RequiredArraySpec(name="labels", axes=["cell"], dtype="int64"),
-                RequiredArraySpec(name="prototype_centers", axes=["prototype", "feature"], dtype="float32"),
+                RequiredArraySpec(
+                    name="prototype_centers", axes=["prototype", "feature"], dtype="float32"
+                ),
             ],
             axis_semantics=[
                 BundleAxisSemantic(axis="cell", description="Observed cell axis"),
@@ -252,6 +257,10 @@ def _sample_payloads() -> list[object]:
             b_upper=[1.0, 1.0, 1.2],
             A_lower=[[1.0, 0.0], [0.0, 1.0]],
             b_lower=[1.0, 1.0],
+            tie_break="optimistic",
+            ambiguity_mode="auto",
+            delta_near_opt=0.0,
+            certificate_mode="residual_or_bounds",
             result_summary={"upper_feasible": True, "lower_feasible": True, "n_vars": 2},
         ),
         HeckmanCorrectionBundle(
@@ -350,9 +359,7 @@ def _sample_payloads() -> list[object]:
                                 "epsilon": 2.0,
                                 "delta": 1e-6,
                                 "released_statistics": ["P_s(Y|do(X))"],
-                                "public_channel_spec": {
-                                    "query_class": "gaussian_histogram_v1"
-                                },
+                                "public_channel_spec": {"query_class": "gaussian_histogram_v1"},
                             }
                         ],
                         "private_factor_bounds": [
@@ -448,4 +455,4 @@ def test_target_contract_fqns_resolve_where_applicable(
 
     assert target.contract_id == expected_contract_id
     if hasattr(resolved, "contract_id"):
-        assert target.contract_id == getattr(resolved, "contract_id")
+        assert target.contract_id == resolved.contract_id

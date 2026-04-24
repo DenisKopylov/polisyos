@@ -1,23 +1,24 @@
 # Generated Artifacts
 
 > Generated from `architecture/generated_artifacts.toml`.
-
 > Regenerate this page with `uv run polisyos-tools architecture guardrails sync`.
 > Validate drift with `uv run polisyos-tools architecture guardrails check`.
 
 Every committed generated artifact family must have a source of truth, a regeneration command, a freshness rule, and an approval owner.
 
-| Family | Commit policy | Drift gate | Owner | Outputs |
-| --- | --- | --- | --- | --- |
-| `ABI schema snapshots` | `committed` | `automated` | `team-polisyos` | `schemas/snapshots/ir`<br/>`schemas/snapshots/fabric/edge_kind.schema.json`<br/>`schemas/snapshots/fabric/node_kind.schema.json`<br/>`schemas/snapshots/fabric/_manifest.json` |
-| `Fabric connector contract registry` | `committed` | `automated` | `team-polisyos` | `schemas/snapshots/fabric/connector_contract_registry.json` |
-| `Runtime OpenAPI snapshot` | `committed` | `automated` | `team-polisyos` | `schemas/runtime_api_v1.openapi.json` |
-| `Generated runtime API client` | `committed` | `automated` | `team-polisyos` | `frontend/runtime-api-client/runtimeApiClient.ts`<br/>`frontend/runtime-api-client/runtimeApiClient.js` |
-| `Runtime dashboard generated API types` | `committed` | `automated` | `team-polisyos` | `frontend/runtime-dashboard/src/api/types.ts` |
-| `Recorded connector fixtures` | `committed` | `manual_review` | `team-polisyos` | `tests/fabric/connectors/sources/fixtures` |
-| `Runtime dashboard contract fixtures` | `committed` | `manual_review` | `team-polisyos` | `frontend/runtime-dashboard/src/test/contracts/fixtures` |
-| `Benchmark reports and bundle stats` | `mixed` | `manual_review` | `team-polisyos` | `benchmarks/_reports`<br/>`frontend/runtime-dashboard/dist/bundle-stats.json` |
-| `Audit and evidence artifacts` | `mixed` | `manual_review` | `team-polisyos` | `docs/archive/reports`<br/>`frontend/runtime-dashboard/npm-audit-report.json`<br/>`frontend/runtime-dashboard/npm-audit-summary.md` |
+| Family                                  | Commit policy | Drift gate      | Owner               | Outputs                                                                                                                                                                        |
+| --------------------------------------- | ------------- | --------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ABI schema snapshots`                  | `committed`   | `automated`     | `team-polisyos`     | `schemas/snapshots/ir`<br/>`schemas/snapshots/fabric/edge_kind.schema.json`<br/>`schemas/snapshots/fabric/node_kind.schema.json`<br/>`schemas/snapshots/fabric/_manifest.json` |
+| `Fabric connector contract registry`    | `committed`   | `automated`     | `team-polisyos`     | `schemas/snapshots/fabric/connector_contract_registry.json`                                                                                                                    |
+| `Runtime OpenAPI snapshot`              | `committed`   | `automated`     | `team-polisyos`     | `schemas/runtime_api_v1.openapi.json`                                                                                                                                          |
+| `Generated runtime API client`          | `committed`   | `automated`     | `team-polisyos`     | `frontend/runtime-api-client/runtimeApiClient.ts`<br/>`frontend/runtime-api-client/runtimeApiClient.js`                                                                        |
+| `Runtime dashboard generated API types` | `committed`   | `automated`     | `team-polisyos`     | `frontend/runtime-dashboard/src/api/types.ts`                                                                                                                                  |
+| `Recorded connector fixtures`           | `committed`   | `manual_review` | `team-polisyos`     | `tests/fabric/connectors/sources/fixtures`                                                                                                                                     |
+| `Runtime dashboard contract fixtures`   | `committed`   | `manual_review` | `team-polisyos`     | `frontend/runtime-dashboard/src/test/contracts/fixtures`                                                                                                                       |
+| `Benchmark reports and bundle stats`    | `mixed`       | `manual_review` | `team-polisyos`     | `benchmarks/_reports`<br/>`frontend/runtime-dashboard/dist/bundle-stats.json`                                                                                                  |
+| `Audit and evidence artifacts`          | `mixed`       | `manual_review` | `team-polisyos`     | `docs/archive/reports`<br/>`frontend/runtime-dashboard/npm-audit-report.json`<br/>`frontend/runtime-dashboard/npm-audit-summary.md`                                            |
+| `Public surface inventory`              | `committed`   | `automated`     | `team-architecture` | `architecture/public_surface_inventory.json`<br/>`architecture/public_surface`                                                                                                 |
+| `Release SBOM`                          | `committed`   | `automated`     | `team-security`     | `release/sbom`                                                                                                                                                                 |
 
 ## `ABI schema snapshots`
 
@@ -36,6 +37,7 @@ Every committed generated artifact family must have a source of truth, a regener
   - `schemas/snapshots/fabric/_manifest.json`
 
 Canonical regeneration commands:
+
 ```bash
 PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
 ```
@@ -54,6 +56,7 @@ PYTHONPATH=src:. uv run --extra ml python tools/diagnostics/gen_schema.py
   - `schemas/snapshots/fabric/connector_contract_registry.json`
 
 Canonical regeneration commands:
+
 ```bash
 uv run python tools/ci/check_fabric_schema_registry.py --update
 ```
@@ -72,6 +75,7 @@ uv run python tools/ci/check_fabric_schema_registry.py --update
   - `schemas/runtime_api_v1.openapi.json`
 
 Canonical regeneration commands:
+
 ```bash
 PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
 ```
@@ -91,6 +95,7 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/export_r
   - `frontend/runtime-api-client/runtimeApiClient.js`
 
 Canonical regeneration commands:
+
 ```bash
 PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts frontend/runtime-api-client/runtimeApiClient.ts --out-js frontend/runtime-api-client/runtimeApiClient.js
 ```
@@ -109,6 +114,7 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/runtime/generate
   - `frontend/runtime-dashboard/src/api/types.ts`
 
 Canonical regeneration commands:
+
 ```bash
 cd frontend/runtime-dashboard && npm run generate:api
 ```
@@ -127,6 +133,7 @@ cd frontend/runtime-dashboard && npm run generate:api
   - `tests/fabric/connectors/sources/fixtures`
 
 Canonical regeneration commands:
+
 ```bash
 PYTHONPATH=src:. uv run python scripts/record_fixtures.py --wave 1
 PYTHONPATH=src:. uv run python scripts/record_fixtures.py --wave 2
@@ -147,6 +154,7 @@ PYTHONPATH=src:. uv run python scripts/record_fixtures.py --wave 3
   - `frontend/runtime-dashboard/src/test/contracts/fixtures`
 
 Canonical regeneration commands:
+
 ```bash
 cd frontend/runtime-dashboard && npm run contracts:record
 ```
@@ -166,6 +174,7 @@ cd frontend/runtime-dashboard && npm run contracts:record
   - `frontend/runtime-dashboard/dist/bundle-stats.json`
 
 Canonical regeneration commands:
+
 ```bash
 uv run polisyos-tools benchmarks run-all
 cd frontend/runtime-dashboard && npm run bundle:stats
@@ -187,6 +196,46 @@ cd frontend/runtime-dashboard && npm run bundle:stats
   - `frontend/runtime-dashboard/npm-audit-summary.md`
 
 Canonical regeneration commands:
+
 ```bash
 cd frontend/runtime-dashboard && npm run audit:ci
+```
+
+## `Public surface inventory`
+
+- Family id: `public-surface-inventory`
+- Source of truth: architecture/public_surface.toml and src/polisyos/**/__init__.py public exports
+- Commit policy: `committed`
+- Freshness rule: Regenerate whenever supported public entrypoints, __all__, or public signatures change.
+- Drift gate: `automated`
+- Owner: `team-architecture`
+- Approval owner: `team-architecture`
+- Related workflow/config: `.github/workflows/arch.yml`
+- Outputs:
+  - `architecture/public_surface_inventory.json`
+  - `architecture/public_surface`
+
+Canonical regeneration commands:
+
+```bash
+uv run polisyos-tools quality public-surface snapshot --all
+```
+
+## `Release SBOM`
+
+- Family id: `release-sbom`
+- Source of truth: uv.lock, frontend workspace lockfile, Dockerfile.reproducible, and release manifest inputs
+- Commit policy: `committed`
+- Freshness rule: Regenerate and commit for every release candidate or dependency-lock change that enters a release branch.
+- Drift gate: `automated`
+- Owner: `team-security`
+- Approval owner: `team-security`
+- Related workflow/config: `.github/workflows/build-and-push.yml`
+- Outputs:
+  - `release/sbom`
+
+Canonical regeneration commands:
+
+```bash
+uv run polisyos-tools security sbom --output release/sbom/
 ```

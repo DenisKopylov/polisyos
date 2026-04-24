@@ -1,4 +1,5 @@
 """Public engine executor module API."""
+
 from __future__ import annotations
 
 import logging
@@ -33,8 +34,8 @@ from polisyos.scientist.engine.telemetry import (
     set_span_attribute,
     start_node_span,
 )
-from polisyos.scientist.error_semantics import emit_degraded_path
 from polisyos.scientist.engine.workflow_spec import ErrorPolicy
+from polisyos.scientist.error_semantics import emit_degraded_path
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -75,6 +76,7 @@ _NODE_EXECUTION_ERRORS = _EXECUTOR_DEGRADED_ERRORS
 
 class NodeRunRecord(BaseModel):
     """Node run record data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     alias: str
@@ -88,6 +90,7 @@ class NodeRunRecord(BaseModel):
 
 class WorkflowReport(BaseModel):
     """Workflow report data model."""
+
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -101,6 +104,7 @@ class WorkflowReport(BaseModel):
 @dataclass(frozen=True)
 class WorkflowExecutionResult:
     """Workflow execution result data model."""
+
     state: ExperimentState
     report: WorkflowReport
     run_ref: ArtifactRef | None = None
@@ -357,15 +361,19 @@ class WorkflowExecutor:
                     cond_result = evaluate_condition(inv.condition.expr, state)
                 except ConditionSyntaxError as exc:
                     self._ctx.logger.error(
-                        "Condition syntax error for node %s: %s", alias, exc,
+                        "Condition syntax error for node %s: %s",
+                        alias,
+                        exc,
                     )
                     cond_result = False
 
                 if not cond_result:
                     if inv.condition.on_false == "fail":
                         record = NodeRunRecord(
-                            alias=alias, node_id=str(inv.node_id),
-                            status="fail", duration_ms=0,
+                            alias=alias,
+                            node_id=str(inv.node_id),
+                            status="fail",
+                            duration_ms=0,
                             error=NodeError(
                                 code="node.condition_false",
                                 message=f"Condition not met: {inv.condition.expr}",
@@ -375,19 +383,23 @@ class WorkflowExecutor:
                         records.append(record)
                         failed.add(alias)
                         self._ctx.run.emit(
-                            f"scientist.node.{alias}", "NODE_FAIL",
+                            f"scientist.node.{alias}",
+                            "NODE_FAIL",
                             metrics={"duration_ms": 0, "status_ok": 0},
                         )
                     else:
                         record = NodeRunRecord(
-                            alias=alias, node_id=str(inv.node_id),
-                            status="skip", duration_ms=0,
+                            alias=alias,
+                            node_id=str(inv.node_id),
+                            status="skip",
+                            duration_ms=0,
                             skip_reason="condition_false",
                         )
                         records.append(record)
                         condition_skipped.add(alias)
                         self._ctx.run.emit(
-                            f"scientist.node.{alias}", "NODE_SKIP",
+                            f"scientist.node.{alias}",
+                            "NODE_SKIP",
                             metrics={"duration_ms": 0, "status_ok": 0},
                         )
                     if workflow.error_policy == "fail_fast" and alias in failed:
@@ -444,7 +456,8 @@ class WorkflowExecutor:
                 self._ctx.run.emit(f"scientist.node.{alias}", "NODE_STARTED")
                 if self._ctx.audit is not None:
                     self._ctx.audit.append(
-                        run_id=state.run_id, actor="engine",
+                        run_id=state.run_id,
+                        actor="engine",
                         action="NODE_STARTED",
                         metadata={"alias": alias, "node_id": str(inv.node_id)},
                     )
@@ -549,7 +562,9 @@ class WorkflowExecutor:
                     )
                     try:
                         raw_outcome = execute_with_retry_sync(
-                            node, self._ctx, node_state,
+                            node,
+                            self._ctx,
+                            node_state,
                             retry_policy=retry_policy,
                             timeout_s=inv.timeout_s,
                             alias=alias,
@@ -627,9 +642,7 @@ class WorkflowExecutor:
                                     message="Node result cache write bypassed",
                                     code="node.cache_bypass",
                                     attrs={
-                                        "reason": str(
-                                            envelope.get("reason", "cache_bypass")
-                                        ),
+                                        "reason": str(envelope.get("reason", "cache_bypass")),
                                         "error_type": str(
                                             envelope.get("error_type", "runtime_error")
                                         ),
@@ -670,15 +683,18 @@ class WorkflowExecutor:
                     try:
                         ended_at = datetime.now(UTC)
                         started_at_dt = datetime.fromtimestamp(
-                            ended_at.timestamp() - duration_ms / 1000, tz=UTC,
+                            ended_at.timestamp() - duration_ms / 1000,
+                            tz=UTC,
                         )
                         if outcome.status == "ok":
                             input_refs: list[Any] = []
-                            for dep in (inv.depends_on or []):
+                            for dep in inv.depends_on or []:
                                 input_refs.extend(self._node_outputs.get(dep, []))
                             self._provenance_dag.record_node_execution(
-                                alias=alias, node_id=node_id,
-                                started_at=started_at_dt, ended_at=ended_at,
+                                alias=alias,
+                                node_id=node_id,
+                                started_at=started_at_dt,
+                                ended_at=ended_at,
                                 input_refs=input_refs,
                                 output_refs=list(outcome.artifacts),
                                 params=dict(inv.params) if inv.params else {},
@@ -686,14 +702,16 @@ class WorkflowExecutor:
                             self._node_outputs[alias] = list(outcome.artifacts)
                         elif outcome.status == "fail":
                             self._provenance_dag.record_node_failure(
-                                alias=alias, node_id=node_id,
+                                alias=alias,
+                                node_id=node_id,
                                 error=str(outcome.error.message) if outcome.error else "Unknown",
                                 traceback=(
                                     outcome.error.details.get("type", "")
                                     if outcome.error and outcome.error.details
                                     else None
                                 ),
-                                started_at=started_at_dt, ended_at=ended_at,
+                                started_at=started_at_dt,
+                                ended_at=ended_at,
                             )
                     except _EXECUTOR_DEGRADED_ERRORS as exc:
                         envelope = _executor_degraded(
@@ -709,13 +727,9 @@ class WorkflowExecutor:
                                 code="node.provenance_degraded",
                                 attrs={
                                     "reason": str(
-                                        envelope.get(
-                                            "reason", "provenance_record_failed"
-                                        )
+                                        envelope.get("reason", "provenance_record_failed")
                                     ),
-                                    "error_type": str(
-                                        envelope.get("error_type", "runtime_error")
-                                    ),
+                                    "error_type": str(envelope.get("error_type", "runtime_error")),
                                 },
                             )
                         )
@@ -745,7 +759,8 @@ class WorkflowExecutor:
                 if self._ctx.audit is not None:
                     audit_action = "NODE_COMPLETED" if outcome.status == "ok" else "NODE_FAILED"
                     self._ctx.audit.append(
-                        run_id=state.run_id, actor="engine",
+                        run_id=state.run_id,
+                        actor="engine",
                         action=audit_action,
                         artifact_refs=list(outcome.artifacts) if outcome.artifacts else None,
                         metadata={
@@ -791,7 +806,8 @@ class WorkflowExecutor:
                             )
                             if self._ctx.audit is not None:
                                 self._ctx.audit.append(
-                                    run_id=state.run_id, actor="engine",
+                                    run_id=state.run_id,
+                                    actor="engine",
                                     action="CHECKPOINT_CREATED",
                                     artifact_refs=[checkpoint_result.checkpoint_ref],
                                     metadata={

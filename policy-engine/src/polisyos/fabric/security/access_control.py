@@ -1,13 +1,15 @@
 """Fabric data-governance primitives for classification, row policies, and access audit."""
+
 from __future__ import annotations
 
 import json
 import threading
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -115,13 +117,13 @@ class AccessAuditEvent(BaseModel):
     purpose_of_use: str = ""
     trace_id: str = ""
     metadata: dict[str, Any] = Field(default_factory=dict)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     @field_validator("created_at", mode="after")
     @classmethod
     def _ensure_aware(cls, value: datetime) -> datetime:
         if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
+            return value.replace(tzinfo=UTC)
         return value
 
 
@@ -135,9 +137,8 @@ class JsonlAccessAuditLog:
 
     def append(self, event: AccessAuditEvent) -> None:
         line = json.dumps(event.model_dump(mode="json"), sort_keys=True) + "\n"
-        with self._lock:
-            with open(self._path, "a", encoding="utf-8") as handle:
-                handle.write(line)
+        with self._lock, open(self._path, "a", encoding="utf-8") as handle:
+            handle.write(line)
 
 
 def current_trace_id() -> str:

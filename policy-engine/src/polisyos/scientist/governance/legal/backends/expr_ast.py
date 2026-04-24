@@ -1,4 +1,5 @@
 """Public backends expr ast module API."""
+
 from __future__ import annotations
 
 import warnings
@@ -16,7 +17,7 @@ warnings.warn(
 )
 
 __all__ = [
-    "SafeExpressionEvaluator",
-    "ExpressionASTBackend",
     "EvaluationError",
+    "ExpressionASTBackend",
+    "SafeExpressionEvaluator",
 ]

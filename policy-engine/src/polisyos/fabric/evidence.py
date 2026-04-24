@@ -1,4 +1,5 @@
 """Public fabric evidence module API."""
+
 from __future__ import annotations
 
 import json
@@ -24,7 +25,9 @@ class EvidencePayloadError(ValueError):
 def _require_payload_str(payload: dict[str, object], field: str) -> str:
     value = payload.get(field)
     if not isinstance(value, str) or not value:
-        raise EvidencePayloadError(f"Provenance graph payload missing required string field: {field}")
+        raise EvidencePayloadError(
+            f"Provenance graph payload missing required string field: {field}"
+        )
     return value
 
 
@@ -48,8 +51,7 @@ def build_evidence_bundle(
     quality_payload = None
     if quality_indicators is not None:
         quality_payload = {
-            metric_id: indicators.to_dict()
-            for metric_id, indicators in quality_indicators.items()
+            metric_id: indicators.to_dict() for metric_id, indicators in quality_indicators.items()
         }
     return EvidenceBundle(
         sources=sources or [],

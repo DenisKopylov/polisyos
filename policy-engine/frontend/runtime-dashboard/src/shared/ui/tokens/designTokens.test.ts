@@ -1,4 +1,5 @@
 import {
+  densityScale,
   designTokens,
   foundationTokens,
   readDesignTokenValue,
@@ -12,6 +13,7 @@ describe("designTokens", () => {
   });
 
   it("exposes grouped token registries", () => {
+    expect(designTokens.density).toBe(densityScale);
     expect(designTokens.foundation).toBe(foundationTokens);
     expect(designTokens.semantic).toBe(semanticTokens);
   });

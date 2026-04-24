@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock
 
 import pytest
@@ -12,7 +12,6 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.agent.persistent_memory import (
     MemoryEntry,
     MemoryIndex,
-    MemoryIndexEntry,
     MemoryKind,
     MemoryQuery,
     PersistentMemoryStore,
@@ -175,23 +174,33 @@ class TestPersistentMemoryStoreCRUD:
         store = _make_store()
         mem = PersistentMemoryStore(store)
         for i in range(3):
-            mem.store_memory(MemoryEntry(
-                kind=MemoryKind.EPISODIC,
-                content=f"fact number {i}",
-                source_run_id="r1",
-            ))
+            mem.store_memory(
+                MemoryEntry(
+                    kind=MemoryKind.EPISODIC,
+                    content=f"fact number {i}",
+                    source_run_id="r1",
+                )
+            )
         results = mem.query(MemoryQuery())
         assert len(results) == 3
 
     def test_kind_filter(self) -> None:
         store = _make_store()
         mem = PersistentMemoryStore(store)
-        mem.store_memory(MemoryEntry(
-            kind=MemoryKind.EPISODIC, content="episodic fact", source_run_id="r1",
-        ))
-        mem.store_memory(MemoryEntry(
-            kind=MemoryKind.SEMANTIC, content="semantic fact", source_run_id="r1",
-        ))
+        mem.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.EPISODIC,
+                content="episodic fact",
+                source_run_id="r1",
+            )
+        )
+        mem.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.SEMANTIC,
+                content="semantic fact",
+                source_run_id="r1",
+            )
+        )
         results = mem.query(MemoryQuery(kind=MemoryKind.SEMANTIC))
         assert len(results) == 1
         assert results[0].kind == MemoryKind.SEMANTIC
@@ -199,14 +208,22 @@ class TestPersistentMemoryStoreCRUD:
     def test_tag_filter(self) -> None:
         store = _make_store()
         mem = PersistentMemoryStore(store)
-        mem.store_memory(MemoryEntry(
-            kind=MemoryKind.EPISODIC, content="tagged fact",
-            tags=["labor", "wage"], source_run_id="r1",
-        ))
-        mem.store_memory(MemoryEntry(
-            kind=MemoryKind.EPISODIC, content="other fact",
-            tags=["fiscal"], source_run_id="r1",
-        ))
+        mem.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.EPISODIC,
+                content="tagged fact",
+                tags=["labor", "wage"],
+                source_run_id="r1",
+            )
+        )
+        mem.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.EPISODIC,
+                content="other fact",
+                tags=["fiscal"],
+                source_run_id="r1",
+            )
+        )
         results = mem.query(MemoryQuery(tags=["labor"]))
         assert len(results) == 1
         assert "labor" in results[0].tags
@@ -214,14 +231,22 @@ class TestPersistentMemoryStoreCRUD:
     def test_confidence_filter(self) -> None:
         store = _make_store()
         mem = PersistentMemoryStore(store)
-        mem.store_memory(MemoryEntry(
-            kind=MemoryKind.EPISODIC, content="low conf",
-            confidence=0.3, source_run_id="r1",
-        ))
-        mem.store_memory(MemoryEntry(
-            kind=MemoryKind.EPISODIC, content="high conf",
-            confidence=0.9, source_run_id="r1",
-        ))
+        mem.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.EPISODIC,
+                content="low conf",
+                confidence=0.3,
+                source_run_id="r1",
+            )
+        )
+        mem.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.EPISODIC,
+                content="high conf",
+                confidence=0.9,
+                source_run_id="r1",
+            )
+        )
         results = mem.query(MemoryQuery(min_confidence=0.5))
         assert len(results) == 1
         assert results[0].confidence == 0.9
@@ -230,27 +255,37 @@ class TestPersistentMemoryStoreCRUD:
         store = _make_store()
         mem = PersistentMemoryStore(store)
         for i in range(10):
-            mem.store_memory(MemoryEntry(
-                kind=MemoryKind.EPISODIC,
-                content=f"fact {i}",
-                source_run_id="r1",
-            ))
+            mem.store_memory(
+                MemoryEntry(
+                    kind=MemoryKind.EPISODIC,
+                    content=f"fact {i}",
+                    source_run_id="r1",
+                )
+            )
         results = mem.query(MemoryQuery(max_results=3))
         assert len(results) == 3
 
     def test_ttl_expiration(self) -> None:
         store = _make_store()
         mem = PersistentMemoryStore(store)
-        past = datetime.now(timezone.utc) - timedelta(hours=1)
-        future = datetime.now(timezone.utc) + timedelta(hours=1)
-        mem.store_memory(MemoryEntry(
-            kind=MemoryKind.EPISODIC, content="expired",
-            source_run_id="r1", expires_at=past,
-        ))
-        mem.store_memory(MemoryEntry(
-            kind=MemoryKind.EPISODIC, content="valid",
-            source_run_id="r1", expires_at=future,
-        ))
+        past = datetime.now(UTC) - timedelta(hours=1)
+        future = datetime.now(UTC) + timedelta(hours=1)
+        mem.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.EPISODIC,
+                content="expired",
+                source_run_id="r1",
+                expires_at=past,
+            )
+        )
+        mem.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.EPISODIC,
+                content="valid",
+                source_run_id="r1",
+                expires_at=future,
+            )
+        )
         results = mem.query(MemoryQuery())
         assert len(results) == 1
         assert results[0].content == "valid"
@@ -258,14 +293,20 @@ class TestPersistentMemoryStoreCRUD:
     def test_keyword_relevance_ranking(self) -> None:
         store = _make_store()
         mem = PersistentMemoryStore(store)
-        mem.store_memory(MemoryEntry(
-            kind=MemoryKind.SEMANTIC, content="fiscal policy deficit spending",
-            source_run_id="r1",
-        ))
-        mem.store_memory(MemoryEntry(
-            kind=MemoryKind.SEMANTIC, content="labor market wage elasticity employment",
-            source_run_id="r1",
-        ))
+        mem.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.SEMANTIC,
+                content="fiscal policy deficit spending",
+                source_run_id="r1",
+            )
+        )
+        mem.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.SEMANTIC,
+                content="labor market wage elasticity employment",
+                source_run_id="r1",
+            )
+        )
         results = mem.query(MemoryQuery(query_text="wage elasticity"))
         assert len(results) == 2
         assert "wage" in results[0].content
@@ -273,27 +314,33 @@ class TestPersistentMemoryStoreCRUD:
     def test_query_filters_ttl_and_confidence_from_index_before_extra_cas_reads(self) -> None:
         store = _make_store()
         mem = PersistentMemoryStore(store)
-        now = datetime.now(timezone.utc)
-        mem.store_memory(MemoryEntry(
-            kind=MemoryKind.EPISODIC,
-            content="expired memory",
-            source_run_id="r1",
-            confidence=0.9,
-            expires_at=now - timedelta(hours=1),
-        ))
-        mem.store_memory(MemoryEntry(
-            kind=MemoryKind.EPISODIC,
-            content="low confidence memory",
-            source_run_id="r1",
-            confidence=0.2,
-        ))
-        mem.store_memory(MemoryEntry(
-            kind=MemoryKind.EPISODIC,
-            content="usable memory",
-            source_run_id="r1",
-            confidence=0.8,
-            expires_at=now + timedelta(hours=1),
-        ))
+        now = datetime.now(UTC)
+        mem.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.EPISODIC,
+                content="expired memory",
+                source_run_id="r1",
+                confidence=0.9,
+                expires_at=now - timedelta(hours=1),
+            )
+        )
+        mem.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.EPISODIC,
+                content="low confidence memory",
+                source_run_id="r1",
+                confidence=0.2,
+            )
+        )
+        mem.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.EPISODIC,
+                content="usable memory",
+                source_run_id="r1",
+                confidence=0.8,
+                expires_at=now + timedelta(hours=1),
+            )
+        )
 
         store.get_bytes.reset_mock()
         results = mem.query(MemoryQuery(min_confidence=0.5, max_results=1))
@@ -305,19 +352,23 @@ class TestPersistentMemoryStoreCRUD:
     def test_prune_expired_uses_index_metadata_without_loading_payloads(self) -> None:
         store = _make_store()
         mem = PersistentMemoryStore(store)
-        now = datetime.now(timezone.utc)
-        mem.store_memory(MemoryEntry(
-            kind=MemoryKind.EPISODIC,
-            content="expired memory",
-            source_run_id="r1",
-            expires_at=now - timedelta(hours=1),
-        ))
-        mem.store_memory(MemoryEntry(
-            kind=MemoryKind.EPISODIC,
-            content="fresh memory",
-            source_run_id="r1",
-            expires_at=now + timedelta(hours=1),
-        ))
+        now = datetime.now(UTC)
+        mem.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.EPISODIC,
+                content="expired memory",
+                source_run_id="r1",
+                expires_at=now - timedelta(hours=1),
+            )
+        )
+        mem.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.EPISODIC,
+                content="fresh memory",
+                source_run_id="r1",
+                expires_at=now + timedelta(hours=1),
+            )
+        )
 
         store.get_bytes.reset_mock()
         removed = mem.prune_expired()
@@ -336,9 +387,13 @@ class TestIndexPersistence:
     def test_save_and_load_index(self) -> None:
         store = _make_store()
         mem1 = PersistentMemoryStore(store)
-        mem1.store_memory(MemoryEntry(
-            kind=MemoryKind.EPISODIC, content="persisted fact", source_run_id="r1",
-        ))
+        mem1.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.EPISODIC,
+                content="persisted fact",
+                source_run_id="r1",
+            )
+        )
         idx_ref = mem1.save_index()
 
         # New store instance loads the index
@@ -353,12 +408,14 @@ class TestIndexPersistence:
 
         # Run 1: remember
         mem1 = PersistentMemoryStore(store)
-        mem1.store_memory(MemoryEntry(
-            kind=MemoryKind.SEMANTIC,
-            content="GDP elasticity is approximately 0.3",
-            tags=["economics"],
-            source_run_id="run_1",
-        ))
+        mem1.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.SEMANTIC,
+                content="GDP elasticity is approximately 0.3",
+                tags=["economics"],
+                source_run_id="run_1",
+            )
+        )
         idx_ref = mem1.save_index()
 
         # Run 2: recall
@@ -369,11 +426,13 @@ class TestIndexPersistence:
         assert results[0].source_run_id == "run_1"
 
         # Run 2 also adds memory
-        mem2.store_memory(MemoryEntry(
-            kind=MemoryKind.EPISODIC,
-            content="New finding from run 2",
-            source_run_id="run_2",
-        ))
+        mem2.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.EPISODIC,
+                content="New finding from run 2",
+                source_run_id="run_2",
+            )
+        )
         idx_ref_2 = mem2.save_index()
 
         # Run 3: sees both
@@ -386,25 +445,31 @@ class TestIndexPersistence:
         content = "A" * 260 + " unique suffix"
 
         mem1 = PersistentMemoryStore(store)
-        ref1 = mem1.store_memory(MemoryEntry(
-            kind=MemoryKind.SEMANTIC,
-            content=content,
-            source_run_id="run_1",
-        ))
-        ref2 = mem1.store_memory(MemoryEntry(
-            kind=MemoryKind.SEMANTIC,
-            content=content,
-            source_run_id="run_1",
-        ))
+        ref1 = mem1.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.SEMANTIC,
+                content=content,
+                source_run_id="run_1",
+            )
+        )
+        ref2 = mem1.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.SEMANTIC,
+                content=content,
+                source_run_id="run_1",
+            )
+        )
         idx_ref = mem1.save_index()
 
         mem2 = PersistentMemoryStore(store)
         mem2.load_index(idx_ref)
-        ref3 = mem2.store_memory(MemoryEntry(
-            kind=MemoryKind.SEMANTIC,
-            content=content,
-            source_run_id="run_2",
-        ))
+        ref3 = mem2.store_memory(
+            MemoryEntry(
+                kind=MemoryKind.SEMANTIC,
+                content=content,
+                source_run_id="run_2",
+            )
+        )
 
         assert str(ref1.artifact_id) == str(ref2.artifact_id)
         assert str(ref1.artifact_id) == str(ref3.artifact_id)
@@ -544,7 +609,10 @@ class TestContextUpdates:
         from polisyos.scientist.engine.context import ExecutionContext
 
         ctx = ExecutionContext(
-            store=MagicMock(), run=MagicMock(), logger=MagicMock(), depth=2,
+            store=MagicMock(),
+            run=MagicMock(),
+            logger=MagicMock(),
+            depth=2,
         )
         assert ctx.depth == 2
 
@@ -553,7 +621,10 @@ class TestContextUpdates:
 
         mem = MagicMock()
         ctx = ExecutionContext(
-            store=MagicMock(), run=MagicMock(), logger=MagicMock(), memory=mem,
+            store=MagicMock(),
+            run=MagicMock(),
+            logger=MagicMock(),
+            memory=mem,
         )
         assert ctx.memory is mem
 
@@ -561,7 +632,9 @@ class TestContextUpdates:
         from polisyos.scientist.engine.context import ExecutionContext
 
         ctx = ExecutionContext(
-            store=MagicMock(), run=MagicMock(), logger=MagicMock(),
+            store=MagicMock(),
+            run=MagicMock(),
+            logger=MagicMock(),
         )
         assert ctx.depth == 0
         assert ctx.memory is None

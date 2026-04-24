@@ -48,6 +48,7 @@ else:
         )
         from .tracer import PolicyOSTracer, get_current_trace_context, get_tracer
     except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
+
         class _NoopMetric:
             def add(self, value, attrs=None) -> None:
                 return None
@@ -558,25 +559,25 @@ else:
 
 
 __all__ = [
-    "OTelConfig",
-    "get_default_config",
-    "get_tracer",
-    "get_current_trace_context",
-    "PolicyOSTracer",
-    "get_metrics",
     "MetricsRegistry",
-    "traced",
-    "traced_method",
-    "configure_otel_logging_handler",
-    "get_trace_context_dict",
+    "OTelConfig",
+    "PolicyOSTracer",
     "StructuredFormatter",
     "TraceContextFilter",
-    "inject_headers",
+    "TracedExecutorWrapper",
+    "configure_otel_logging_handler",
+    "estimate_llm_cost_usd",
     "extract_headers",
+    "get_current_trace_context",
+    "get_default_config",
+    "get_metrics",
+    "get_trace_context_dict",
+    "get_tracer",
+    "inject_headers",
+    "pricing_table",
     "propagate_context",
+    "traced",
+    "traced_method",
     "with_context_vars",
     "with_trace_context",
-    "TracedExecutorWrapper",
-    "pricing_table",
-    "estimate_llm_cost_usd",
 ]

@@ -19,37 +19,40 @@ directly.
 
 ## Phase Coverage
 
-| Source phase | State meaning |
-|---|---|
-| Phase 1 | Missing, malformed, or non-finite state is rejected through fail-closed guards where the runtime contract requires it. |
-| Phase 2 | ProgramGraph nodes patch state through explicit slot paths, merge rules, state deltas, and snapshots. |
-| Phase 3 | State objects must remain JAX-compatible for hot paths; JAX claims link to JIT and cross-backend tests. |
-| Phase 4 | Snapshots, state deltas, and environment fingerprints form the replay boundary. |
-| Phase 6 | Multiscale and agent-sim state fields support population, graph, and distribution-aware policy simulation. |
+| Source phase | State meaning                                                                                                          |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| Phase 1      | Missing, malformed, or non-finite state is rejected through fail-closed guards where the runtime contract requires it. |
+| Phase 2      | ProgramGraph nodes patch state through explicit slot paths, merge rules, state deltas, and snapshots.                  |
+| Phase 3      | State objects must remain JAX-compatible for hot paths; JAX claims link to JIT and cross-backend tests.                |
+| Phase 4      | Snapshots, state deltas, and environment fingerprints form the replay boundary.                                        |
+| Phase 6      | Multiscale and agent-sim state fields support population, graph, and distribution-aware policy simulation.             |
 
 ## How to Read This Page
 
 - Read `polisyos.foundry.contracts.state` for what compiled programs can read
   or patch at runtime.
+
 - Read `polisyos.foundry.layout` for `slot_id -> state_path` materialization and
   family manifests.
+
 - Read `polisyos.foundry.executor` for state snapshot, state delta, and
   merge/apply helpers.
+
 - Treat `GlobalState` as the replay boundary: compile and execute flows pass
   artifact refs around, while JAX executors transform the concrete state bundle.
 
 ## State Contracts
 
-| Contract | Role |
-|---|---|
-| `AgentState` | Household-level agent arrays. |
-| `FirmState` | Firm-level production and finance arrays. |
-| `MarketState` | Aggregate market tensors. |
-| `CellState` | Regional/sectoral aggregates. |
-| `HouseholdCellState` | Household-cell welfare aggregates. |
-| `ProcurementGraphState` | Procurement network runtime tensors. |
-| `AgentSimRuntimeState` | RNG plus runtime-only distribution/network state. |
-| `GlobalState` | Top-level execution state. |
+| Contract                | Role                                              |
+| ----------------------- | ------------------------------------------------- |
+| `AgentState`            | Household-level agent arrays.                     |
+| `FirmState`             | Firm-level production and finance arrays.         |
+| `MarketState`           | Aggregate market tensors.                         |
+| `CellState`             | Regional/sectoral aggregates.                     |
+| `HouseholdCellState`    | Household-cell welfare aggregates.                |
+| `ProcurementGraphState` | Procurement network runtime tensors.              |
+| `AgentSimRuntimeState`  | RNG plus runtime-only distribution/network state. |
+| `GlobalState`           | Top-level execution state.                        |
 
 ## Common Usage Flow
 
@@ -66,12 +69,16 @@ directly.
 
 - Global state:
   `tests/foundry/test_global_state.py`
+
 - Contract state compatibility:
   `tests/foundry/contracts/test_state_contracts.py`
+
 - Slot layout:
   `tests/foundry/test_layout.py`
+
 - Snapshot behavior:
   `tests/foundry/test_executor_snapshots.py`
+
 - Merge determinism:
   `tests/foundry/test_merge_determinism.py`
 

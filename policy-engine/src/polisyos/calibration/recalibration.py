@@ -1,19 +1,28 @@
 """Post-hoc recalibration helpers for binary and multiclass predictions."""
+
 from __future__ import annotations
 
-import math
-from typing import Any, Literal, Sequence
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.calibration._sklearn_compat import (
+    SKLEARN_AVAILABLE,
+    LogisticRegression,
+)
 from polisyos.calibration.diagnostics import evaluate_binary
 from polisyos.calibration.multiclass import evaluate_multiclass
-from polisyos.foundry.methods.catalog.causal._sklearn_compat import (
-    LogisticRegression,
-    SKLEARN_AVAILABLE,
+from polisyos.ir.analytics import calibration_diagnostics
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+
+# Pydantic resolves these annotation targets at runtime.
+_CALIBRATION_MODEL_TYPES = (
+    calibration_diagnostics.CalibrationDiagnosticsReport,
+    calibration_diagnostics.CalibrationMetrics,
 )
-from polisyos.ir.analytics.calibration_diagnostics import CalibrationMetrics
 
 try:  # pragma: no cover - exercised when scipy is available
     from scipy.optimize import minimize_scalar
@@ -50,7 +59,7 @@ class CalibratorComparisonEntry(BaseModel):
     method: str
     selected: bool = False
     passes_guardrails: bool = True
-    metrics: CalibrationMetrics
+    metrics: calibration_diagnostics.CalibrationMetrics
     deltas: dict[str, float] = Field(default_factory=dict)
     calibrator: FittedCalibrator
 
@@ -287,7 +296,12 @@ def _fit_binary_sigmoid(
             task="binary",
             input_type=input_type,
             n_calibration=int(y_true.size),
-            parameters={"mode": "constant", "value": constant, "coef": 0.0, "intercept": _safe_logit(constant)},
+            parameters={
+                "mode": "constant",
+                "value": constant,
+                "coef": 0.0,
+                "intercept": _safe_logit(constant),
+            },
         )
     model = LogisticRegression(max_iter=2000, C=1000.0)
     model.fit(feature.reshape(-1, 1), y_true)
@@ -335,7 +349,10 @@ def _fit_binary_temperature(
     input_type: str,
 ) -> FittedCalibrator:
     logits = _binary_logit_view(scores, input_type=input_type)
-    objective = lambda temp: _binary_temperature_objective(temp, logits, y_true)
+
+    def objective(temp: float) -> float:
+        return _binary_temperature_objective(temp, logits, y_true)
+
     temperature = _minimize_temperature(objective)
     return FittedCalibrator(
         method="temperature",
@@ -353,7 +370,10 @@ def _fit_multiclass_temperature(
     input_type: str,
 ) -> FittedCalibrator:
     logits = _multiclass_logit_view(scores, input_type=input_type)
-    objective = lambda temp: _multiclass_temperature_objective(temp, logits, y_true)
+
+    def objective(temp: float) -> float:
+        return _multiclass_temperature_objective(temp, logits, y_true)
+
     temperature = _minimize_temperature(objective)
     return FittedCalibrator(
         method="temperature",
@@ -375,7 +395,9 @@ def _fit_multiclass_sigmoid(
     per_class: list[dict[str, Any]] = []
     for class_index in range(feature.shape[1]):
         per_class.append(
-            _fit_binary_spec(target=(y_true == class_index).astype(float), feature=feature[:, class_index])
+            _fit_binary_spec(
+                target=(y_true == class_index).astype(float), feature=feature[:, class_index]
+            )
         )
     return FittedCalibrator(
         method="sigmoid",
@@ -464,8 +486,8 @@ def _apply_piecewise_linear(feature: np.ndarray, spec: dict[str, Any]) -> np.nda
 
 
 def _metric_deltas(
-    baseline: CalibrationMetrics,
-    current: CalibrationMetrics,
+    baseline: calibration_diagnostics.CalibrationMetrics,
+    current: calibration_diagnostics.CalibrationMetrics,
 ) -> dict[str, float]:
     deltas: dict[str, float] = {}
     for metric_name in ("brier", "log_loss", "ece"):
@@ -479,7 +501,7 @@ def _metric_deltas(
 
 def _passes_guardrails(
     *,
-    metrics: CalibrationMetrics,
+    metrics: calibration_diagnostics.CalibrationMetrics,
     deltas: dict[str, float],
     guardrails: dict[str, float],
 ) -> bool:
@@ -518,7 +540,10 @@ def _select_best_method(
     return selected.method, fallback_used
 
 
-def _selection_value(metrics: CalibrationMetrics, selection_metric: str) -> float:
+def _selection_value(
+    metrics: calibration_diagnostics.CalibrationMetrics,
+    selection_metric: str,
+) -> float:
     value = getattr(metrics, selection_metric)
     if value is None:
         raise ValueError(f"Selection metric {selection_metric!r} is unavailable for this task")
@@ -565,7 +590,7 @@ def _evaluate_calibrator(
     tests: Sequence[str] | None,
     uncertainty: dict[str, Any] | None,
     groups: dict[str, Sequence[str]] | None,
-) -> Any:
+) -> calibration_diagnostics.CalibrationDiagnosticsReport:
     calibrated = apply_calibrator(calibrator=calibrator, scores=base_predictions)
     if task == "binary":
         return evaluate_binary(
@@ -619,7 +644,9 @@ def _multiclass_feature_view(scores: np.ndarray, *, input_type: str) -> np.ndarr
 def _multiclass_logit_view(scores: np.ndarray, *, input_type: str) -> np.ndarray:
     if input_type == "logit":
         return np.asarray(scores, dtype=float)
-    return np.log(np.clip(_multiclass_probability_view(scores, input_type=input_type), _EPSILON, 1.0))
+    return np.log(
+        np.clip(_multiclass_probability_view(scores, input_type=input_type), _EPSILON, 1.0)
+    )
 
 
 def _multiclass_probability_view(scores: np.ndarray, *, input_type: str) -> np.ndarray:
@@ -681,7 +708,7 @@ def _multiclass_temperature_objective(
     )
 
 
-def _minimize_temperature(objective: Any) -> float:
+def _minimize_temperature(objective: Callable[[float], float]) -> float:
     if minimize_scalar is None:  # pragma: no cover - fallback only
         grid = np.linspace(0.25, 5.0, 40)
         losses = [float(objective(float(temp))) for temp in grid]

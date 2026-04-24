@@ -1,11 +1,11 @@
 """Integration tests for CausalEngine end-to-end pipeline."""
+
 import numpy as np
-import pytest
+
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
-from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
-from polisyos.ir.analytics.causal_graph import CausalGraphModel, CausalEdge, EdgeMark, GraphType
+from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.evidence_bundle import EvidenceBundle
-from polisyos.ir.analytics.negative_certificate import NegativeCertificate, BlockingType
+from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
 
 
 def make_dag(directed_edges):
@@ -65,7 +65,9 @@ class TestBackdoorEndToEnd:
 
     def test_schema_resolution_in_run(self):
         _, bundle, _ = self.engine.run(
-            "X", "Y", self.graph,
+            "X",
+            "Y",
+            self.graph,
             df_columns=["X", "Y", "Z"],
             df_dtypes={"X": "float64", "Y": "float64", "Z": "float64"},
         )
@@ -115,17 +117,22 @@ class TestZInterventionEndToEnd:
 
     def test_run_with_z_interventions(self):
         _, bundle, cert = self.engine.run(
-            "X", "Y", self.graph,
+            "X",
+            "Y",
+            self.graph,
             z_interventions=frozenset({"Z"}),
         )
         assert isinstance(bundle, EvidenceBundle)
 
     def test_z_id_returns_identification_result(self):
         result = self.engine.identify(
-            "X", "Y", self.graph,
+            "X",
+            "Y",
+            self.graph,
             z_interventions=frozenset({"Z"}),
         )
         from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult
+
         assert isinstance(result, (IdentificationResult, NegativeCertificate))
 
 
@@ -138,7 +145,9 @@ class TestSchemaResolutionIntegration:
 
     def test_schema_warnings_surface_in_bundle(self):
         _, bundle, _ = self.engine.run(
-            "X", "Y", self.graph,
+            "X",
+            "Y",
+            self.graph,
             df_columns=["X", "Y", "Z"],
             df_dtypes={"X": "float64", "Y": "float64", "Z": "float64"},
         )
@@ -148,7 +157,9 @@ class TestSchemaResolutionIntegration:
 
     def test_missing_column_does_not_crash(self):
         _, bundle, _ = self.engine.run(
-            "X", "Y", self.graph,
+            "X",
+            "Y",
+            self.graph,
             df_columns=["X", "Y"],  # Z missing
             df_dtypes={"X": "float64", "Y": "float64"},
         )

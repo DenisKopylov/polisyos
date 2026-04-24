@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import sys
-from types import ModuleType
-from types import SimpleNamespace
+from types import ModuleType, SimpleNamespace
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions

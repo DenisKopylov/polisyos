@@ -32,7 +32,9 @@ def test_run_publish_writes_consumer_readiness_manifest(tmp_path) -> None:
                     "llm_gap_fill_sent_total": 12,
                     "llm_gap_fill_added_statements_total": 7,
                     "baseline_vs_gap_fill_added_statements_total": 7,
-                    "top_gap_fill_subtypes": [{"legal_unit_subtype": "core_normative_clause", "count": 8}],
+                    "top_gap_fill_subtypes": [
+                        {"legal_unit_subtype": "core_normative_clause", "count": 8}
+                    ],
                 },
                 "checks": [],
             }
@@ -66,7 +68,10 @@ def test_run_publish_writes_consumer_readiness_manifest(tmp_path) -> None:
     assert payload["release_readiness"]["release_ready"] is True
     assert payload["table_counts"]["lex_normative_facts"] == 1
     assert payload["quality_summary"]["llm_gap_fill_metrics"]["llm_gap_fill_sent_total"] == 12
-    assert payload["quality_summary"]["top_gap_fill_subtypes"][0]["legal_unit_subtype"] == "core_normative_clause"
+    assert (
+        payload["quality_summary"]["top_gap_fill_subtypes"][0]["legal_unit_subtype"]
+        == "core_normative_clause"
+    )
 
 
 def test_run_publish_ignores_optional_embedding_failures_for_smoke(tmp_path) -> None:
@@ -110,7 +115,9 @@ def test_run_publish_ignores_optional_embedding_failures_for_smoke(tmp_path) -> 
     )
 
     run_publish(tmp_path, require_embeddings=False)
-    payload = json.loads((tmp_path / "publish" / "consumer_readiness.json").read_text(encoding="utf-8"))
+    payload = json.loads(
+        (tmp_path / "publish" / "consumer_readiness.json").read_text(encoding="utf-8")
+    )
     assert payload["release_readiness"]["qc_failed_checks"] == []
     assert payload["release_readiness"]["release_failed_checks"] == []
     assert payload["release_readiness"]["qc_passed"] is True

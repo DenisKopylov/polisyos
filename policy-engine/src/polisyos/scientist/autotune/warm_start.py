@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
-from .models import BenchmarkEvaluation, BenchmarkSplit, MetricDirection
+from .models import BenchmarkEvaluation
 
 logger = logging.getLogger(__name__)
 

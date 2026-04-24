@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from itertools import combinations
 import re
+from itertools import combinations
 
 from .models import EntityMatchCandidate, EntityMatchEvidence, EntityRecord
 
@@ -56,7 +56,9 @@ class ProbabilisticEntityResolver:
         left_names = {left.canonical_name, *left.aliases}
         right_names = {right.canonical_name, *right.aliases}
         left_name_tokens = set().union(*(_normalize_tokens(value) for value in left_names if value))
-        right_name_tokens = set().union(*(_normalize_tokens(value) for value in right_names if value))
+        right_name_tokens = set().union(
+            *(_normalize_tokens(value) for value in right_names if value)
+        )
         name_score = _jaccard(left_name_tokens, right_name_tokens)
 
         identifier_pairs = {
@@ -89,7 +91,8 @@ class ProbabilisticEntityResolver:
         evidence: list[EntityMatchEvidence] = [
             EntityMatchEvidence(
                 evidence_type="name_similarity",
-                detail="shared_tokens=" + ",".join(sorted(left_name_tokens & right_name_tokens)[:8]),
+                detail="shared_tokens="
+                + ",".join(sorted(left_name_tokens & right_name_tokens)[:8]),
                 score=name_score,
             )
         ]
@@ -97,7 +100,8 @@ class ProbabilisticEntityResolver:
             evidence.append(
                 EntityMatchEvidence(
                     evidence_type="identifier_overlap",
-                    detail="shared_identifiers=" + ",".join(f"{key}:{value}" for key, value in shared_identifiers),
+                    detail="shared_identifiers="
+                    + ",".join(f"{key}:{value}" for key, value in shared_identifiers),
                     score=identifier_score,
                 )
             )
@@ -105,7 +109,8 @@ class ProbabilisticEntityResolver:
             evidence.append(
                 EntityMatchEvidence(
                     evidence_type="attribute_overlap",
-                    detail="shared_attributes=" + ",".join(f"{key}:{value}" for key, value in shared_attributes),
+                    detail="shared_attributes="
+                    + ",".join(f"{key}:{value}" for key, value in shared_attributes),
                     score=attribute_score,
                 )
             )

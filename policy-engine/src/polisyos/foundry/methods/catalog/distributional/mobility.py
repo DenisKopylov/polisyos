@@ -1,12 +1,13 @@
 """Public distributional mobility module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -19,6 +20,7 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
 from polisyos.ir.analytics.mobility import (
     MobilityAttrition,
     MobilityBalanceDiagnostics,
@@ -219,7 +221,9 @@ def _weighted_row_marginals(
 
 
 def _row_normalize(joint: np.ndarray, row_marginals: np.ndarray | None = None) -> np.ndarray:
-    row_totals = joint.sum(axis=1) if row_marginals is None else np.asarray(row_marginals, dtype=float)
+    row_totals = (
+        joint.sum(axis=1) if row_marginals is None else np.asarray(row_marginals, dtype=float)
+    )
     transition = np.zeros_like(joint)
     for row in range(joint.shape[0]):
         denom = float(row_totals[row])
@@ -342,10 +346,12 @@ def _weighted_var(features: np.ndarray, weights: np.ndarray, mean: np.ndarray) -
     if total <= 0.0:
         return np.zeros(features.shape[1], dtype=float)
     centered = features - mean
-    return (weights[:, None] * (centered ** 2)).sum(axis=0) / total
+    return (weights[:, None] * (centered**2)).sum(axis=0) / total
 
 
-def _max_abs_smd(reference_features: np.ndarray, reference_weights: np.ndarray, other_weights: np.ndarray) -> float | None:
+def _max_abs_smd(
+    reference_features: np.ndarray, reference_weights: np.ndarray, other_weights: np.ndarray
+) -> float | None:
     if reference_features.size == 0:
         return None
     ref_mean = _weighted_mean(reference_features, reference_weights)
@@ -362,10 +368,10 @@ def _effective_sample_size(weights: np.ndarray) -> float | None:
     total = float(active.sum())
     if total <= 0.0:
         return None
-    denom = float(np.sum(active ** 2))
+    denom = float(np.sum(active**2))
     if denom <= 0.0:
         return None
-    return float((total ** 2) / denom)
+    return float((total**2) / denom)
 
 
 def _clip_probabilities(probabilities: np.ndarray, floor: float) -> np.ndarray:
@@ -426,13 +432,9 @@ def _fit_sequential_retention_probabilities(
     if provided_probabilities_by_wave is not None:
         provided = np.asarray(provided_probabilities_by_wave, dtype=float)
         if provided.shape != (n_obs, n_waves):
-            raise ValueError(
-                "retention_probabilities_by_wave must have shape (n_obs, n_waves)"
-            )
+            raise ValueError("retention_probabilities_by_wave must have shape (n_obs, n_waves)")
         if np.any(~np.isfinite(provided)) or np.any(provided <= 0.0):
-            raise ValueError(
-                "retention_probabilities_by_wave must be finite and strictly positive"
-            )
+            raise ValueError("retention_probabilities_by_wave must be finite and strictly positive")
         return _clip_probabilities(provided, positivity_floor), [
             float(np.sum(base_weights[valid_origin_mask & (retention_matrix[:, wave] == 1)]))
             for wave in range(n_waves)
@@ -771,10 +773,7 @@ class MobilityMatrixEstimator:
 
         n_classes = int(params.get("n_classes", 5))
         valid_mask = (
-            (origin >= 0)
-            & (origin < n_classes)
-            & (destination >= 0)
-            & (destination < n_classes)
+            (origin >= 0) & (origin < n_classes) & (destination >= 0) & (destination < n_classes)
         )
         n_valid = int(valid_mask.sum())
         if n_valid == 0:
@@ -807,13 +806,13 @@ class MobilityMatrixEstimator:
             metadata={"valid_observations": n_valid},
         )
         report_ref = (
-            persist_mobility_report(artifact_store, report)
-            if artifact_store is not None
-            else None
+            persist_mobility_report(artifact_store, report) if artifact_store is not None else None
         )
         return {
             "result": report,
-            "mobility_report_ref": None if report_ref is None else report_ref.model_dump(mode="json"),
+            "mobility_report_ref": None
+            if report_ref is None
+            else report_ref.model_dump(mode="json"),
         }
 
 
@@ -921,7 +920,9 @@ class AttritionAdjustedMobilityMatrixEstimator:
         if not np.any(valid_origin_mask):
             raise ValueError("origin_classes must contain at least one valid class index")
         normalized_weights = _normalize_weights(base_weights, valid_origin_mask)
-        observed_mask = valid_origin_mask & (retained == 1) & (destination >= 0) & (destination < n_classes)
+        observed_mask = (
+            valid_origin_mask & (retained == 1) & (destination >= 0) & (destination < n_classes)
+        )
 
         row_marginals = _weighted_row_marginals(
             origin,
@@ -942,7 +943,9 @@ class AttritionAdjustedMobilityMatrixEstimator:
             retention_probabilities = np.asarray(provided_retention, dtype=float)
             if retention_probabilities.ndim != 1 or retention_probabilities.size != n_obs:
                 raise ValueError("retention_probabilities must align with observations")
-            if np.any(~np.isfinite(retention_probabilities)) or np.any(retention_probabilities <= 0):
+            if np.any(~np.isfinite(retention_probabilities)) or np.any(
+                retention_probabilities <= 0
+            ):
                 raise ValueError("retention_probabilities must be finite and strictly positive")
             retention_model = MobilityModelSpec(
                 family="provided_probabilities",
@@ -1000,8 +1003,7 @@ class AttritionAdjustedMobilityMatrixEstimator:
                         )
                     y_full = ((destination[row_mask] == col) & observed_row_mask).astype(float)
                     contribution = mu_hat + (
-                        observed_row_mask.astype(float)
-                        / retention_probabilities[row_mask]
+                        observed_row_mask.astype(float) / retention_probabilities[row_mask]
                     ) * (y_full - mu_hat)
                     row_probs[col] = float(
                         np.sum(normalized_weights[row_mask] * contribution) / row_total
@@ -1026,14 +1028,21 @@ class AttritionAdjustedMobilityMatrixEstimator:
         reference_features = raw_features[valid_origin_mask]
         before_weights = np.zeros(n_obs, dtype=float)
         before_weights[observed_mask] = normalized_weights[observed_mask]
-        before_smd = _max_abs_smd(reference_features, reference_weights, before_weights[valid_origin_mask])
-        after_smd = _max_abs_smd(reference_features, reference_weights, adjusted_weights[valid_origin_mask])
+        before_smd = _max_abs_smd(
+            reference_features, reference_weights, before_weights[valid_origin_mask]
+        )
+        after_smd = _max_abs_smd(
+            reference_features, reference_weights, adjusted_weights[valid_origin_mask]
+        )
 
         positive_weights = adjusted_weights[adjusted_weights > 0.0]
         warnings: list[str] = []
         if positive_weights.size and float(np.max(positive_weights)) > 10.0:
             warnings.append("large_ipcw_weights")
-        if float(np.min(retention_probabilities[valid_origin_mask])) <= min(max(positivity_floor, 1e-6), 0.49) + 1e-9:
+        if (
+            float(np.min(retention_probabilities[valid_origin_mask]))
+            <= min(max(positivity_floor, 1e-6), 0.49) + 1e-9
+        ):
             warnings.append("positivity_floor_active")
         invalid_observed = int(np.sum((retained == 1) & ~observed_mask & valid_origin_mask))
         if invalid_observed > 0:
@@ -1047,9 +1056,16 @@ class AttritionAdjustedMobilityMatrixEstimator:
             normalized_destination_marginals = None
             if destination_marginals is not None:
                 normalized_destination_marginals = np.asarray(destination_marginals, dtype=float)
-                if normalized_destination_marginals.ndim != 1 or normalized_destination_marginals.size != n_classes:
-                    raise ValueError("destination_marginals must be a 1D vector of length n_classes")
-                if np.any(~np.isfinite(normalized_destination_marginals)) or np.any(normalized_destination_marginals < 0):
+                if (
+                    normalized_destination_marginals.ndim != 1
+                    or normalized_destination_marginals.size != n_classes
+                ):
+                    raise ValueError(
+                        "destination_marginals must be a 1D vector of length n_classes"
+                    )
+                if np.any(~np.isfinite(normalized_destination_marginals)) or np.any(
+                    normalized_destination_marginals < 0
+                ):
                     raise ValueError("destination_marginals must be finite and non-negative")
                 total_dest = float(normalized_destination_marginals.sum())
                 if total_dest <= 0.0:
@@ -1072,7 +1088,9 @@ class AttritionAdjustedMobilityMatrixEstimator:
             bounds_payload = MobilityBounds(
                 bundle_ref=bounds_ref,
                 cell_bounds=_cell_bounds_payload(cell_lower, cell_upper),
-                summary_bounds={key: tuple(map(float, value)) for key, value in summary_bounds.items()},
+                summary_bounds={
+                    key: tuple(map(float, value)) for key, value in summary_bounds.items()
+                },
                 sharpness_status=(
                     "sharp_with_known_marginals"
                     if normalized_destination_marginals is not None
@@ -1086,7 +1104,9 @@ class AttritionAdjustedMobilityMatrixEstimator:
         diagnostics = MobilityDiagnostics(
             effective_sample_size=_effective_sample_size(positive_weights),
             max_weight=(float(np.max(positive_weights)) if positive_weights.size else None),
-            p99_weight=(float(np.quantile(positive_weights, 0.99)) if positive_weights.size else None),
+            p99_weight=(
+                float(np.quantile(positive_weights, 0.99)) if positive_weights.size else None
+            ),
             min_retention_probability=float(np.min(retention_probabilities[valid_origin_mask])),
             max_retention_probability=float(np.max(retention_probabilities[valid_origin_mask])),
             observed_retention_rate=float(np.sum(normalized_weights[retained == 1])),
@@ -1108,7 +1128,9 @@ class AttritionAdjustedMobilityMatrixEstimator:
             status=report_status,
             population=MobilityPopulation(
                 target_population="panel baseline cohort",
-                weights_design="sample_weights" if "sample_weights" in state or "weights" in state else "uniform",
+                weights_design="sample_weights"
+                if "sample_weights" in state or "weights" in state
+                else "uniform",
                 panel_length=int(params.get("panel_length", 2)),
                 waves_used=list(params.get("waves_used", [1, 2])),
                 class_definition={
@@ -1159,13 +1181,13 @@ class AttritionAdjustedMobilityMatrixEstimator:
         )
 
         report_ref = (
-            persist_mobility_report(artifact_store, report)
-            if artifact_store is not None
-            else None
+            persist_mobility_report(artifact_store, report) if artifact_store is not None else None
         )
         return {
             "result": report,
-            "mobility_report_ref": None if report_ref is None else report_ref.model_dump(mode="json"),
+            "mobility_report_ref": None
+            if report_ref is None
+            else report_ref.model_dump(mode="json"),
         }
 
 
@@ -1229,7 +1251,9 @@ class SequentialIPCWLifetimeMobilityEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Sequential IPCW/AIPW estimator for mobility matrices in multi-wave panels.",
-        tags=frozenset({"distributional", "mobility", "attrition", "panel", "sequential", "ipcw", "aipw"}),
+        tags=frozenset(
+            {"distributional", "mobility", "attrition", "panel", "sequential", "ipcw", "aipw"}
+        ),
         when_to_use="Lifetime or long-panel mobility when final class requires survival through multiple waves and attrition is modeled sequentially.",
         output_interpretation="Returns a mobility report with sequential retention diagnostics, point estimates, and bounds fallback.",
     )
@@ -1279,7 +1303,9 @@ class SequentialIPCWLifetimeMobilityEstimator:
         )
         combined_retention_probabilities = np.prod(wave_probabilities, axis=1)
         fully_retained = np.all(retention_matrix == 1, axis=1)
-        observed_mask = valid_origin_mask & fully_retained & (destination >= 0) & (destination < n_classes)
+        observed_mask = (
+            valid_origin_mask & fully_retained & (destination >= 0) & (destination < n_classes)
+        )
 
         row_marginals = _weighted_row_marginals(
             origin,
@@ -1331,8 +1357,7 @@ class SequentialIPCWLifetimeMobilityEstimator:
                         )
                     y_full = ((destination[row_mask] == col) & observed_row_mask).astype(float)
                     contribution = mu_hat + (
-                        observed_row_mask.astype(float)
-                        / combined_retention_probabilities[row_mask]
+                        observed_row_mask.astype(float) / combined_retention_probabilities[row_mask]
                     ) * (y_full - mu_hat)
                     row_probs[col] = float(
                         np.sum(normalized_weights[row_mask] * contribution) / row_total
@@ -1358,11 +1383,20 @@ class SequentialIPCWLifetimeMobilityEstimator:
             normalized_destination_marginals = None
             if destination_marginals is not None:
                 normalized_destination_marginals = np.asarray(destination_marginals, dtype=float)
-                if normalized_destination_marginals.ndim != 1 or normalized_destination_marginals.size != n_classes:
-                    raise ValueError("destination_marginals must be a 1D vector of length n_classes")
-                if np.any(~np.isfinite(normalized_destination_marginals)) or np.any(normalized_destination_marginals < 0.0):
+                if (
+                    normalized_destination_marginals.ndim != 1
+                    or normalized_destination_marginals.size != n_classes
+                ):
+                    raise ValueError(
+                        "destination_marginals must be a 1D vector of length n_classes"
+                    )
+                if np.any(~np.isfinite(normalized_destination_marginals)) or np.any(
+                    normalized_destination_marginals < 0.0
+                ):
                     raise ValueError("destination_marginals must be finite and non-negative")
-                normalized_destination_marginals /= max(float(normalized_destination_marginals.sum()), _EPS)
+                normalized_destination_marginals /= max(
+                    float(normalized_destination_marginals.sum()), _EPS
+                )
             bounds_bundle, cell_lower, cell_upper, summary_bounds = build_mobility_bounds_bundle(
                 observed_joint,
                 row_marginals,
@@ -1379,7 +1413,9 @@ class SequentialIPCWLifetimeMobilityEstimator:
             bounds_payload = MobilityBounds(
                 bundle_ref=bounds_ref,
                 cell_bounds=_cell_bounds_payload(cell_lower, cell_upper),
-                summary_bounds={key: tuple(map(float, value)) for key, value in summary_bounds.items()},
+                summary_bounds={
+                    key: tuple(map(float, value)) for key, value in summary_bounds.items()
+                },
                 sharpness_status=(
                     "sharp_with_known_marginals"
                     if normalized_destination_marginals is not None
@@ -1396,15 +1432,22 @@ class SequentialIPCWLifetimeMobilityEstimator:
         diagnostics = MobilityDiagnostics(
             effective_sample_size=_effective_sample_size(positive_weights),
             max_weight=(float(np.max(positive_weights)) if positive_weights.size else None),
-            p99_weight=(float(np.quantile(positive_weights, 0.99)) if positive_weights.size else None),
-            min_retention_probability=float(np.min(combined_retention_probabilities[valid_origin_mask])),
-            max_retention_probability=float(np.max(combined_retention_probabilities[valid_origin_mask])),
+            p99_weight=(
+                float(np.quantile(positive_weights, 0.99)) if positive_weights.size else None
+            ),
+            min_retention_probability=float(
+                np.min(combined_retention_probabilities[valid_origin_mask])
+            ),
+            max_retention_probability=float(
+                np.max(combined_retention_probabilities[valid_origin_mask])
+            ),
             observed_retention_rate=float(np.sum(normalized_weights[fully_retained])),
             observed_full_cases=int(observed_mask.sum()),
             sensitivity_grid=wave_observed,
             warnings=(
                 ["sequential_positivity_floor_active"]
-                if float(np.min(wave_probabilities[valid_origin_mask])) <= min(max(positivity_floor, 1e-6), 0.49) + 1e-9
+                if float(np.min(wave_probabilities[valid_origin_mask]))
+                <= min(max(positivity_floor, 1e-6), 0.49) + 1e-9
                 else []
             ),
         )
@@ -1414,13 +1457,17 @@ class SequentialIPCWLifetimeMobilityEstimator:
             status="warn" if diagnostics.warnings else "ok",
             population=MobilityPopulation(
                 target_population="panel baseline cohort",
-                weights_design="sample_weights" if "sample_weights" in state or "weights" in state else "uniform",
+                weights_design="sample_weights"
+                if "sample_weights" in state or "weights" in state
+                else "uniform",
                 panel_length=n_waves + 1,
                 waves_used=list(params.get("waves_used", list(range(1, n_waves + 2)))),
                 class_definition={
                     "type": str(params.get("class_type", "preclassified")),
                     "n_classes": n_classes,
-                    "lifetime_rule": str(params.get("lifetime_rule", "provided_destination_classes")),
+                    "lifetime_rule": str(
+                        params.get("lifetime_rule", "provided_destination_classes")
+                    ),
                 },
             ),
             attrition=MobilityAttrition(
@@ -1471,7 +1518,9 @@ class SequentialIPCWLifetimeMobilityEstimator:
                 "class_definition_fixed_ex_ante",
                 "sequential_mar_given_history",
                 "positivity",
-                "monotone_dropout_assumption" if bool(params.get("monotone", True)) else "nonmonotone_retention_supplied",
+                "monotone_dropout_assumption"
+                if bool(params.get("monotone", True))
+                else "nonmonotone_retention_supplied",
             ],
             summary_metrics=_legacy_summary_metrics(
                 transition_matrix,
@@ -1479,11 +1528,7 @@ class SequentialIPCWLifetimeMobilityEstimator:
                 n_classes=n_classes,
                 n_obs=int(observed_mask.sum()),
             ),
-            upstream_refs=(
-                []
-                if bounds_ref is None
-                else [f"artifact://{bounds_ref.artifact_id}"]
-            ),
+            upstream_refs=([] if bounds_ref is None else [f"artifact://{bounds_ref.artifact_id}"]),
             metadata={
                 "estimator": estimator,
                 "n_waves": n_waves,
@@ -1491,13 +1536,13 @@ class SequentialIPCWLifetimeMobilityEstimator:
             },
         )
         report_ref = (
-            persist_mobility_report(artifact_store, report)
-            if artifact_store is not None
-            else None
+            persist_mobility_report(artifact_store, report) if artifact_store is not None else None
         )
         return {
             "result": report,
-            "mobility_report_ref": None if report_ref is None else report_ref.model_dump(mode="json"),
+            "mobility_report_ref": None
+            if report_ref is None
+            else report_ref.model_dump(mode="json"),
         }
 
 
@@ -1579,7 +1624,9 @@ class RefreshmentSampleMobilityEstimator:
         base_weights = _optional_weights(state, origin.shape[0])
         valid_origin_mask = (origin >= 0) & (origin < n_classes)
         normalized_weights = _normalize_weights(base_weights, valid_origin_mask)
-        observed_mask = valid_origin_mask & (retained == 1) & (destination >= 0) & (destination < n_classes)
+        observed_mask = (
+            valid_origin_mask & (retained == 1) & (destination >= 0) & (destination < n_classes)
+        )
 
         baseline_row_marginals = _weighted_row_marginals(
             origin,
@@ -1642,7 +1689,9 @@ class RefreshmentSampleMobilityEstimator:
             bounds_payload = MobilityBounds(
                 bundle_ref=bounds_ref,
                 cell_bounds=_cell_bounds_payload(cell_lower, cell_upper),
-                summary_bounds={key: tuple(map(float, value)) for key, value in summary_bounds.items()},
+                summary_bounds={
+                    key: tuple(map(float, value)) for key, value in summary_bounds.items()
+                },
                 sharpness_status="sharp_with_known_marginals",
                 method=str(bounds_bundle.metadata.get("bounds_method", "transport_bounds")),
             )
@@ -1652,7 +1701,9 @@ class RefreshmentSampleMobilityEstimator:
             status="warn",
             population=MobilityPopulation(
                 target_population="panel baseline cohort with refreshment sample",
-                weights_design="sample_weights" if "sample_weights" in state or "weights" in state else "uniform",
+                weights_design="sample_weights"
+                if "sample_weights" in state or "weights" in state
+                else "uniform",
                 panel_length=2,
                 waves_used=list(params.get("waves_used", [1, 2])),
                 class_definition={"type": "preclassified", "n_classes": n_classes},
@@ -1701,24 +1752,22 @@ class RefreshmentSampleMobilityEstimator:
                 n_classes=n_classes,
                 n_obs=int(observed_mask.sum()),
             ),
-            upstream_refs=(
-                []
-                if bounds_ref is None
-                else [f"artifact://{bounds_ref.artifact_id}"]
-            ),
+            upstream_refs=([] if bounds_ref is None else [f"artifact://{bounds_ref.artifact_id}"]),
             metadata={
-                "refreshment_sample_size": int(np.asarray(state.get("refreshment_destination_classes", [])).size),
+                "refreshment_sample_size": int(
+                    np.asarray(state.get("refreshment_destination_classes", [])).size
+                ),
                 "refreshment_fit": refreshment_fit,
             },
         )
         report_ref = (
-            persist_mobility_report(artifact_store, report)
-            if artifact_store is not None
-            else None
+            persist_mobility_report(artifact_store, report) if artifact_store is not None else None
         )
         return {
             "result": report,
-            "mobility_report_ref": None if report_ref is None else report_ref.model_dump(mode="json"),
+            "mobility_report_ref": None
+            if report_ref is None
+            else report_ref.model_dump(mode="json"),
         }
 
 
@@ -1794,16 +1843,16 @@ class IntergenerationalElasticityEstimator:
         x_centered = log_parent - x_mean
         y_centered = log_child - y_mean
 
-        ss_xx = float(np.sum(x_centered ** 2))
+        ss_xx = float(np.sum(x_centered**2))
         ss_xy = float(np.sum(x_centered * y_centered))
-        ss_yy = float(np.sum(y_centered ** 2))
+        ss_yy = float(np.sum(y_centered**2))
 
         if ss_xx < 1e-12:
             raise ValueError("parent_values have zero variance")
 
         beta = ss_xy / ss_xx
         alpha = y_mean - beta * x_mean
-        r_squared = 1.0 if ss_yy < 1e-12 else (ss_xy ** 2) / (ss_xx * ss_yy)
+        r_squared = 1.0 if ss_yy < 1e-12 else (ss_xy**2) / (ss_xx * ss_yy)
 
         artifact_store = resolve_artifact_store(state, params)
         report = MobilityReport(
@@ -1828,13 +1877,13 @@ class IntergenerationalElasticityEstimator:
             metadata={"log_scale": True},
         )
         report_ref = (
-            persist_mobility_report(artifact_store, report)
-            if artifact_store is not None
-            else None
+            persist_mobility_report(artifact_store, report) if artifact_store is not None else None
         )
         return {
             "result": report,
-            "mobility_report_ref": None if report_ref is None else report_ref.model_dump(mode="json"),
+            "mobility_report_ref": None
+            if report_ref is None
+            else report_ref.model_dump(mode="json"),
         }
 
 

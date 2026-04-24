@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useLocation } from "react-router-dom";
 
@@ -232,7 +232,15 @@ describe("EvidenceFabricPage", () => {
     renderEvidencePage();
 
     expect(screen.getByTestId("evidence-page")).toBeInTheDocument();
+    const metricStrip = screen.getByTestId("evidence-metric-strip");
+    expect(metricStrip).toBeInTheDocument();
     expect(screen.getByText("pages.evidence.heroTitle")).toBeInTheDocument();
+    expect(
+      within(metricStrip).getByText("pages.evidence.connectors"),
+    ).toBeInTheDocument();
+    expect(
+      within(metricStrip).getByText("common.confidence"),
+    ).toBeInTheDocument();
     expect(screen.getByText("workspace:overview:")).toBeInTheDocument();
     expect(screen.getAllByText("World Bank CPI")).not.toHaveLength(0);
     expect(screen.getAllByText("CPI")).not.toHaveLength(0);

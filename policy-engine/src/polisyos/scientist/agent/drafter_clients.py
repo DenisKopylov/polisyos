@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.core.canon import truncated_hash
@@ -15,6 +15,7 @@ from polisyos.scientist.llm import TracedLLMClient
 
 class MockLLM:
     """Mock LLM public type."""
+
     def invoke(self, prompt: str) -> str:
         """Эмулирует ответ GPT-4, возвращая валидный JSON."""
         print(f"   [MockLLM] 'Thinking' about: {prompt[:50]}...")
@@ -126,7 +127,7 @@ class MockDrafterAgent:
             confidence=min(0.95, confidence),
             alternatives_considered=self._get_alternatives(problem_frame),
             raw_llm_response=None,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
     def _generate_interventions(self, problem_frame: ProblemFrame) -> list[dict[str, Any]]:
@@ -218,10 +219,7 @@ class MockDrafterAgent:
                 [
                     "",
                     "Data context highlights:",
-                    *[
-                        f"- {key}: {value}"
-                        for key, value in list(data_context.items())[:4]
-                    ],
+                    *[f"- {key}: {value}" for key, value in list(data_context.items())[:4]],
                 ]
             )
 
@@ -297,7 +295,7 @@ class MockDrafterAgent:
             confidence=min(0.95, draft.confidence + 0.05),
             alternatives_considered=draft.alternatives_considered,
             raw_llm_response=None,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
     @property
@@ -396,7 +394,7 @@ Generate a draft JSON object.
                 alternatives_considered=data.get("alternatives_considered", []),
                 confidence=float(data.get("confidence", 0.6)),
                 raw_llm_response=content,
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
         except (json.JSONDecodeError, TypeError, ValueError):
             fallback = MockDrafterAgent()
@@ -430,7 +428,7 @@ Generate a draft JSON object.
             confidence=min(0.95, draft.confidence + 0.05),
             alternatives_considered=draft.alternatives_considered,
             raw_llm_response=draft.raw_llm_response,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
     @staticmethod
@@ -448,7 +446,10 @@ def _web_evidence_prompt_block(problem_frame: ProblemFrame) -> str:
     context = getattr(problem_frame, "context", None)
     if not isinstance(context, dict):
         return "{}"
-    if isinstance(context.get("web_evidence_context"), str) and context["web_evidence_context"].strip():
+    if (
+        isinstance(context.get("web_evidence_context"), str)
+        and context["web_evidence_context"].strip()
+    ):
         return context["web_evidence_context"]
     payload = context.get("web_evidence")
     if isinstance(payload, dict) and payload:

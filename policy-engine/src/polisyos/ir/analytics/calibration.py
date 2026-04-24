@@ -1,20 +1,24 @@
 """Public analytics calibration module API."""
+
 from __future__ import annotations
 
-from typing import Any, List, Optional
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.types import TimeFrequency
+if TYPE_CHECKING:
+    from polisyos.ir.types import TimeFrequency
+else:
+    from polisyos.ir.types import TimeFrequency
 
 
 class TargetAlignConfig(BaseModel):
     """Настройки выравнивания исторического ряда под шаг симуляции."""
 
-    frequency: Optional[TimeFrequency] = Field(
+    frequency: TimeFrequency | None = Field(
         None, description="Частота симуляции/ресемплинга (если нужно переопределить)."
     )
-    time_column: Optional[str] = Field(
+    time_column: str | None = Field(
         None, description="Название колонки времени в результатах Fabric (если есть)."
     )
     method: str = Field(
@@ -22,10 +26,11 @@ class TargetAlignConfig(BaseModel):
         description="Метод интерполяции/ресемплинга (linear|ffill).",
         pattern=r"^(linear|ffill)$",
     )
-    fill_value: Optional[float] = Field(
-        None, description="Чем заполнить пропуски (если None — использовать крайние значения/интерполяцию)."
+    fill_value: float | None = Field(
+        None,
+        description="Чем заполнить пропуски (если None — использовать крайние значения/интерполяцию).",
     )
-    steps: Optional[int] = Field(
+    steps: int | None = Field(
         None, ge=1, description="Явное количество шагов симуляции для данного таргета."
     )
 
@@ -70,8 +75,12 @@ class HessianConfig(BaseModel):
     enabled: bool = True
     damping: float = Field(1e-6, ge=0.0, description="Диагональный сдвиг λ для H + λI.")
     rank_tol: float = Field(1e-6, gt=0.0, description="Порог для оценки ранга Hessian.")
-    condition_warn: float = Field(1e8, gt=0.0, description="Порог кондиционирования для диагностики.")
-    std_warn: float = Field(1e6, gt=0.0, description="Порог STD для диагностики неидентифицируемости.")
+    condition_warn: float = Field(
+        1e8, gt=0.0, description="Порог кондиционирования для диагностики."
+    )
+    std_warn: float = Field(
+        1e6, gt=0.0, description="Порог STD для диагностики неидентифицируемости."
+    )
     max_params: int | None = Field(
         None, ge=1, description="Ограничение на количество параметров для расчёта Hessian."
     )
@@ -83,7 +92,7 @@ class ConstraintLossConfig(BaseModel):
     """Настройки штрафов по ограничениям."""
 
     enabled: bool = False
-    constraint_ids: List[str] = Field(
+    constraint_ids: list[str] = Field(
         default_factory=list, description="Если пусто — использовать все ограничения из registry."
     )
     mode: str = Field("trajectory", pattern=r"^(trajectory|final)$")
@@ -112,9 +121,7 @@ class FidelityConfig(BaseModel):
         description="Режим исполнения (relaxed|discrete).",
         pattern=r"^(relaxed|discrete)$",
     )
-    temperature: float = Field(
-        1.0, gt=0.0, description="Температура сглаживания (softmax/gumbel)."
-    )
+    temperature: float = Field(1.0, gt=0.0, description="Температура сглаживания (softmax/gumbel).")
     force_override: bool = Field(
         True, description="Принудительно перезаписывать fidelity в параметрах механизма."
     )
@@ -132,13 +139,15 @@ class CalibrationTarget(BaseModel):
 
     target_id: str = Field(..., max_length=128, description="Идентификатор таргета (уникален).")
     model_metric_path: str = Field(
-        ..., max_length=256, description="state_path или slot_id для извлечения метрики из состояния/трейса."
+        ...,
+        max_length=256,
+        description="state_path или slot_id для извлечения метрики из состояния/трейса.",
     )
     fabric_query: dict[str, Any] | None = Field(
         None,
         description="Запрос/спецификация к Fabric/UDF. В preflight должен быть разрешён в массив значений.",
     )
-    fabric_metric: Optional[str] = Field(
+    fabric_metric: str | None = Field(
         None,
         description=(
             "Колонка/метрика из результата Fabric "
@@ -148,7 +157,7 @@ class CalibrationTarget(BaseModel):
     )
     align: TargetAlignConfig = Field(default_factory=TargetAlignConfig)
     loss: TargetLossConfig = Field(default_factory=TargetLossConfig)
-    trainables: List["TrainableParamRef"] = Field(
+    trainables: list[TrainableParamRef] = Field(
         default_factory=list,
         description="Опциональная карта параметров, связанных с этим таргетом.",
     )
@@ -165,17 +174,19 @@ class TrainableParamRef(BaseModel):
     """Ссылка на параметр механизма, который нужно калибровать."""
 
     param_id: str = Field(..., max_length=128)
-    node_id: Optional[str] = Field(
+    node_id: str | None = Field(
         None, description="node_id в ProgramGraph (если известен конкретный узел).", max_length=128
     )
-    mechanism_type: Optional[str] = Field(
-        None, description="Тип механизма, если trainable определяется на типовом уровне.", max_length=128
+    mechanism_type: str | None = Field(
+        None,
+        description="Тип механизма, если trainable определяется на типовом уровне.",
+        max_length=128,
     )
     selector: Any | None = Field(
         None,
         description="Опциональная селекция/маска (SelectorExpr или строковый ключ).",
     )
-    tie_id: Optional[str] = Field(
+    tie_id: str | None = Field(
         None,
         description="Идентификатор группы для связки параметров (shared/tied).",
         max_length=128,
@@ -188,7 +199,9 @@ class MultiStartConfig(BaseModel):
     """Configuration for multi-start optimization."""
 
     n_starts: int = Field(5, ge=1, description="Number of optimization starts.")
-    perturbation_scale: float = Field(0.1, gt=0.0, description="Scale for initial parameter perturbation.")
+    perturbation_scale: float = Field(
+        0.1, gt=0.0, description="Scale for initial parameter perturbation."
+    )
     selection: str = Field(
         "best_loss",
         pattern=r"^(best_loss|best_identifiability)$",
@@ -210,24 +223,28 @@ class CalibrationConfig(BaseModel):
     """
 
     schema_version: str = Field("0.1", pattern=r"^\\d+\\.\\d+$")
-    targets: List[CalibrationTarget] = Field(default_factory=list)
-    trainables: List[TrainableParamRef] = Field(
+    targets: list[CalibrationTarget] = Field(default_factory=list)
+    trainables: list[TrainableParamRef] = Field(
         default_factory=list,
         description="Необязательный явный список параметров; если пусто — использовать ParamSpec.trainable.",
     )
-    steps: Optional[int] = Field(
-        None, ge=1, description="Явное число шагов симуляции для калибровки (если нужно переопределить)."
+    steps: int | None = Field(
+        None,
+        ge=1,
+        description="Явное число шагов симуляции для калибровки (если нужно переопределить).",
     )
-    time_axis: Optional[List[float]] = Field(
+    time_axis: list[float] | None = Field(
         None, description="Явная ось времени для ресемплинга таргетов."
     )
     max_steps: int = Field(200, ge=1, description="Лимит итераций оптимизации (MVP).")
     learning_rate: float = Field(1e-2, gt=0.0, description="Начальный lr для optax.Adam.")
-    clip_grad_norm: Optional[float] = Field(
+    clip_grad_norm: float | None = Field(
         None, gt=0.0, description="Глобальный клиппинг нормы градиента."
     )
     early_stop_patience: int = Field(0, ge=0, description="Patience для early stopping.")
-    early_stop_min_delta: float = Field(0.0, ge=0.0, description="Мин. улучшение для сброса patience.")
+    early_stop_min_delta: float = Field(
+        0.0, ge=0.0, description="Мин. улучшение для сброса patience."
+    )
     early_stop_min_steps: int = Field(0, ge=0, description="Минимум шагов до early stopping.")
     seed_strategy: str = Field(
         "fixed",
@@ -236,7 +253,7 @@ class CalibrationConfig(BaseModel):
     )
     grad_norm: GradNormConfig = Field(default_factory=GradNormConfig)
     hessian: HessianConfig = Field(default_factory=HessianConfig)
-    multi_start: Optional[MultiStartConfig] = Field(
+    multi_start: MultiStartConfig | None = Field(
         None, description="Multi-start optimization config; None = single run."
     )
     constraint_loss: ConstraintLossConfig = Field(default_factory=ConstraintLossConfig)

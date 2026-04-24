@@ -1,12 +1,10 @@
 """Public normpack provider registry module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import (
     ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS,
     ComponentEntry,
@@ -19,11 +17,16 @@ from polisyos.core.components import (
 )
 from polisyos.core.components.ids import SemVer
 from polisyos.core.registry.generic import GenericRegistry
-from polisyos.ir.norm_pack import NormPack
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.ir.norm_pack import NormPack
 
 
 class NormPackProvider(Protocol):
     """Norm pack provider implementation."""
+
     provider_id: str
 
     def get_static_norm_pack(
@@ -39,6 +42,7 @@ class NormPackProvider(Protocol):
 @dataclass(slots=True)
 class ProviderRecord:
     """Provider record data model."""
+
     component_id: str
     base_id: str
     version: str
@@ -51,6 +55,7 @@ class ProviderRecord:
 @dataclass(slots=True)
 class ProviderBootstrapReport:
     """Provider bootstrap report data model."""
+
     registered: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     discovery_errors: list[str] = field(default_factory=list)
@@ -58,6 +63,7 @@ class ProviderBootstrapReport:
 
 class NormPackProviderRegistry:
     """Norm pack provider registry implementation."""
+
     def __init__(self) -> None:
         self._records = GenericRegistry[str, ProviderRecord](
             key_fn=lambda record: record.component_id,
@@ -110,9 +116,7 @@ def bootstrap_component_providers(components_index: ComponentRegistry) -> Provid
         )
         errors = [issue for issue in issues if issue.severity == "error"]
         if errors:
-            report.errors.append(
-                f"{component_id}: {'; '.join(issue.message for issue in errors)}"
-            )
+            report.errors.append(f"{component_id}: {'; '.join(issue.message for issue in errors)}")
             continue
 
         try:
@@ -123,9 +127,7 @@ def bootstrap_component_providers(components_index: ComponentRegistry) -> Provid
 
         provider = _coerce_provider(created, component_id=entry.metadata.component_id.base_id)
         if provider is None:
-            report.errors.append(
-                f"{component_id}: provider must implement get_static_norm_pack()"
-            )
+            report.errors.append(f"{component_id}: provider must implement get_static_norm_pack()")
             continue
 
         _GLOBAL_REGISTRY.register(
@@ -179,10 +181,11 @@ def discover_and_bootstrap_providers(
 def _coerce_provider(value: Any, *, component_id: str) -> NormPackProvider | None:
     if hasattr(value, "get_static_norm_pack") and callable(value.get_static_norm_pack):
         if not hasattr(value, "provider_id"):
-            setattr(value, "provider_id", component_id)
+            value.provider_id = component_id
         return value
 
     if callable(value):
+
         class _FnProvider:
             provider_id = component_id
 

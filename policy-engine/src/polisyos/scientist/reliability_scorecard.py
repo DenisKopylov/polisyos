@@ -1,4 +1,5 @@
 """Scientist reliability scorecard helpers."""
+
 from __future__ import annotations
 
 from collections.abc import Collection, Mapping, Sequence
@@ -94,16 +95,13 @@ class ScientistReliabilityScorecard:
             "passes_all": self.passes_all,
             "notes": list(self.notes),
             "scenario_evidence": {
-                name: list(values)
-                for name, values in self.scenario_evidence.items()
+                name: list(values) for name, values in self.scenario_evidence.items()
             },
             "benchmark_evidence": {
-                name: list(values)
-                for name, values in self.benchmark_evidence.items()
+                name: list(values) for name, values in self.benchmark_evidence.items()
             },
             "operational_evidence": {
-                name: list(values)
-                for name, values in self.operational_evidence.items()
+                name: list(values) for name, values in self.operational_evidence.items()
             },
         }
 
@@ -140,9 +138,7 @@ def build_scientist_reliability_scorecard(
     benchmark_coverage_rate = _pass_rate(normalized_benchmarks)
     operational_readiness_rate = _pass_rate(normalized_operational)
     weighted_score = round(
-        scenario_pass_rate * 0.5
-        + benchmark_coverage_rate * 0.3
-        + operational_readiness_rate * 0.2,
+        scenario_pass_rate * 0.5 + benchmark_coverage_rate * 0.3 + operational_readiness_rate * 0.2,
         4,
     )
 
@@ -185,14 +181,10 @@ def build_scientist_reliability_scorecard_from_evidence(
     benchmark_names: Collection[str],
 ) -> ScientistReliabilityScorecard:
     observed_tests = {
-        str(item).strip()
-        for item in passed_test_cases
-        if isinstance(item, str) and item.strip()
+        str(item).strip() for item in passed_test_cases if isinstance(item, str) and item.strip()
     }
     observed_benchmarks = {
-        str(item).strip()
-        for item in benchmark_names
-        if isinstance(item, str) and item.strip()
+        str(item).strip() for item in benchmark_names if isinstance(item, str) and item.strip()
     }
     scenario_results = _presence_results(SCENARIO_EVIDENCE_CASES, observed_tests)
     benchmark_results = _presence_results(
@@ -222,14 +214,12 @@ def _normalize_evidence(
     raw: Mapping[str, Sequence[str]] | None,
 ) -> dict[str, tuple[str, ...]]:
     if raw is None:
-        return {name: () for name in required}
+        return dict.fromkeys(required, ())
     normalized: dict[str, tuple[str, ...]] = {}
     for name in required:
         values = raw.get(name, ())
         normalized[name] = tuple(
-            str(item)
-            for item in values
-            if isinstance(item, str) and item.strip()
+            str(item) for item in values if isinstance(item, str) and item.strip()
         )
     return normalized
 
@@ -238,10 +228,7 @@ def _presence_results(
     required: Mapping[str, tuple[str, ...]],
     observed: Collection[str],
 ) -> dict[str, bool]:
-    return {
-        name: any(case in observed for case in cases)
-        for name, cases in required.items()
-    }
+    return {name: any(case in observed for case in cases) for name, cases in required.items()}
 
 
 def _pass_rate(results: Mapping[str, bool]) -> float:

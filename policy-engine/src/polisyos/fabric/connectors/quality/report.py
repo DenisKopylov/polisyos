@@ -33,7 +33,7 @@ class FreshnessLevel(Enum):
     STALE = "stale"  # Exceeds TTL, quality degraded
     EXPIRED = "expired"  # Critically outdated, unusable
 
-    def __lt__(self, other: "FreshnessLevel") -> bool:
+    def __lt__(self, other: FreshnessLevel) -> bool:
         order = [
             FreshnessLevel.EXPIRED,
             FreshnessLevel.STALE,
@@ -226,9 +226,7 @@ class DataQualityReport:
                 "anomaly_findings": len(self.anomaly_report.findings) if self.anomaly_report else 0,
                 "drift_findings": len(self.drift_report.findings) if self.drift_report else 0,
                 "contract_failures": (
-                    self.quality_contract_result.failed_rules
-                    if self.quality_contract_result
-                    else 0
+                    self.quality_contract_result.failed_rules if self.quality_contract_result else 0
                 ),
             },
             "content_hash": self._compute_hash(),
@@ -285,9 +283,7 @@ class DataQualityReport:
                 lines.append(f"    ... and {len(self.violations) - 3} more")
 
         if self.dataset_profile is not None:
-            lines.append(
-                f"  Profile Score: {self.dataset_profile.profile_score:.2%}"
-            )
+            lines.append(f"  Profile Score: {self.dataset_profile.profile_score:.2%}")
 
         if self.anomaly_report is not None and self.anomaly_report.findings:
             lines.append(
@@ -309,14 +305,10 @@ class DataQualityReport:
             )
 
         if self.trend_report is not None and self.trend_report.score_delta is not None:
-            lines.append(
-                f"  Trend Delta: {self.trend_report.score_delta:+.3f}"
-            )
+            lines.append(f"  Trend Delta: {self.trend_report.score_delta:+.3f}")
 
         if self.sampled:
-            lines.append(
-                f"  Note: Validated on sample of {self.sample_size}/{self.row_count} rows"
-            )
+            lines.append(f"  Note: Validated on sample of {self.sample_size}/{self.row_count} rows")
 
         return "\n".join(lines)
 
@@ -345,19 +337,13 @@ class DataQualityReport:
             "source_id": self.source_id,
             "component_scores": dict(self.component_scores),
             "dataset_profile": (
-                self.dataset_profile.to_dict()
-                if self.dataset_profile is not None
-                else None
+                self.dataset_profile.to_dict() if self.dataset_profile is not None else None
             ),
             "anomaly_report": (
-                self.anomaly_report.to_dict()
-                if self.anomaly_report is not None
-                else None
+                self.anomaly_report.to_dict() if self.anomaly_report is not None else None
             ),
             "drift_report": (
-                self.drift_report.to_dict()
-                if self.drift_report is not None
-                else None
+                self.drift_report.to_dict() if self.drift_report is not None else None
             ),
             "quality_contract_result": (
                 self.quality_contract_result.to_dict()
@@ -365,9 +351,7 @@ class DataQualityReport:
                 else None
             ),
             "trend_report": (
-                self.trend_report.to_dict()
-                if self.trend_report is not None
-                else None
+                self.trend_report.to_dict() if self.trend_report is not None else None
             ),
         }
 

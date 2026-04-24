@@ -12,6 +12,7 @@ from typing import Any
 
 class TurnRole(str, Enum):
     """Turn role public type."""
+
     USER = "user"
     PI = "pi"
     DRAFTER = "drafter"
@@ -24,6 +25,7 @@ class TurnRole(str, Enum):
 @dataclass
 class MemoryTurn:
     """Memory turn public type."""
+
     role: TurnRole
     content: str
     timestamp: datetime = field(default_factory=datetime.utcnow)
@@ -33,6 +35,7 @@ class MemoryTurn:
 @dataclass
 class Attempt:
     """Attempt public type."""
+
     attempt_number: int
     draft_summary: str
     ir_summary: str
@@ -151,7 +154,7 @@ class ShortTermMemory:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ShortTermMemory":
+    def from_dict(cls, data: dict[str, Any]) -> ShortTermMemory:
         """Deserialize memory from dictionary."""
         memory = cls()
         for turn_data in data.get("turns", []):

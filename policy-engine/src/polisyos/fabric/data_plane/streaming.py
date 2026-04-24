@@ -1,4 +1,5 @@
 """Event-driven streaming runtime, checkpointing, and CDC helpers."""
+
 from __future__ import annotations
 
 import asyncio
@@ -86,7 +87,9 @@ class StreamDatasetRunResult:
     final_cursor_ref: str | None = None
 
 
-def normalize_connection_config(config: ConnectionConfig | dict[str, Any] | None) -> ConnectionConfig | None:
+def normalize_connection_config(
+    config: ConnectionConfig | dict[str, Any] | None,
+) -> ConnectionConfig | None:
     """Normalize connection config inputs for one stream session."""
     if config is None or isinstance(config, ConnectionConfig):
         return config
@@ -255,25 +258,31 @@ class StreamingSourceSession:
             schema_fingerprint=schema_fingerprint,
             created_at=datetime.now(UTC),
             committed_at=(
-                datetime.now(UTC)
-                if lifecycle_state == StreamLifecycleState.CLOSED
-                else None
+                datetime.now(UTC) if lifecycle_state == StreamLifecycleState.CLOSED else None
             ),
         )
 
     async def commit(self, checkpoint: StreamCheckpoint) -> None:
         """Commit one checkpoint to the source if the connector supports it."""
-        if self.connector is not None and self.handle is not None and hasattr(
-            self.connector,
-            "commit_stream",
+        if (
+            self.connector is not None
+            and self.handle is not None
+            and hasattr(
+                self.connector,
+                "commit_stream",
+            )
         ):
             await self.connector.commit_stream(self.handle, checkpoint)
 
     async def rewind(self, checkpoint: StreamCheckpoint) -> None:
         """Rewind the stream to one earlier checkpoint."""
-        if self.connector is not None and self.handle is not None and hasattr(
-            self.connector,
-            "rewind_stream",
+        if (
+            self.connector is not None
+            and self.handle is not None
+            and hasattr(
+                self.connector,
+                "rewind_stream",
+            )
         ):
             await self.connector.rewind_stream(self.handle, checkpoint)
             return
@@ -296,9 +305,13 @@ class StreamingSourceSession:
             level=BackpressureLevel.PAUSED,
             reason=reason or "stream paused",
         )
-        if self.connector is not None and self.handle is not None and hasattr(
-            self.connector,
-            "pause_stream",
+        if (
+            self.connector is not None
+            and self.handle is not None
+            and hasattr(
+                self.connector,
+                "pause_stream",
+            )
         ):
             await self.connector.pause_stream(self.handle, reason=reason)
 
@@ -308,9 +321,13 @@ class StreamingSourceSession:
         self.pool.clear_backpressure(
             source=f"{self.connector_id}:{self.dataset_id}:{self.partition_key}",
         )
-        if self.connector is not None and self.handle is not None and hasattr(
-            self.connector,
-            "resume_stream",
+        if (
+            self.connector is not None
+            and self.handle is not None
+            and hasattr(
+                self.connector,
+                "resume_stream",
+            )
         ):
             await self.connector.resume_stream(self.handle)
 
@@ -319,9 +336,13 @@ class StreamingSourceSession:
         if self._closed:
             return
         self._closed = True
-        if self.connector is not None and self.handle is not None and hasattr(
-            self.connector,
-            "close_stream",
+        if (
+            self.connector is not None
+            and self.handle is not None
+            and hasattr(
+                self.connector,
+                "close_stream",
+            )
         ):
             await self.connector.close_stream(self.handle)
         if self.handle is not None:
@@ -486,7 +507,8 @@ class StreamWindowAccumulator:
         return []
 
     def _emit_bucket_window(self) -> WindowAssignment:
-        assert self._bucket_key is not None
+        if self._bucket_key is None:
+            raise RuntimeError("cannot emit a bucket window before assigning a bucket key")
         bucket_seconds = max(1, int(self.policy.size))
         start_at = datetime.fromtimestamp(self._bucket_key * bucket_seconds, tz=UTC)
         end_at = datetime.fromtimestamp((self._bucket_key + 1) * bucket_seconds, tz=UTC)
@@ -560,9 +582,10 @@ class StreamWindowAccumulator:
         window_seconds = max(1, int(self.policy.size))
         slide_seconds = max(1, int(self.policy.slide or self.policy.size))
         self._sliding_time_rows.append((row, ts))
-        while self._sliding_time_rows and (
-            ts - self._sliding_time_rows[0][1]
-        ).total_seconds() > window_seconds:
+        while (
+            self._sliding_time_rows
+            and (ts - self._sliding_time_rows[0][1]).total_seconds() > window_seconds
+        ):
             self._sliding_time_rows.popleft()
         if self._next_slide_at is None:
             self._next_slide_at = ts
@@ -700,7 +723,9 @@ async def process_stream_dataset(
             clean_rows: list[dict[str, Any]] = []
             chunk_warnings: list[str] = []
             chunk_quarantined = 0
-            async for batch in iter_record_batches(chunk.data, batch_size=max(1, int(options.batch_size))):
+            async for batch in iter_record_batches(
+                chunk.data, batch_size=max(1, int(options.batch_size))
+            ):
                 valid_rows, warnings, quarantined = sanitize_rows(
                     batch,
                     connector_id=connector_id,
@@ -912,7 +937,11 @@ async def _persist_stream_window_async(
     assignment: WindowAssignment,
     input_ref: ArtifactRef | None,
 ) -> ArtifactRef:
-    inputs = [InputRef(artifact_id=input_ref.artifact_id, role="stream_chunk")] if input_ref is not None else None
+    inputs = (
+        [InputRef(artifact_id=input_ref.artifact_id, role="stream_chunk")]
+        if input_ref is not None
+        else None
+    )
     payload = {
         "connector_id": connector_id,
         "dataset_id": dataset_id,
@@ -994,7 +1023,11 @@ def persist_stream_window(
     input_ref: ArtifactRef | None,
 ) -> ArtifactRef:
     """Persist one logical stream window."""
-    inputs = [InputRef(artifact_id=input_ref.artifact_id, role="stream_chunk")] if input_ref is not None else None
+    inputs = (
+        [InputRef(artifact_id=input_ref.artifact_id, role="stream_chunk")]
+        if input_ref is not None
+        else None
+    )
     payload = {
         "connector_id": connector_id,
         "dataset_id": dataset_id,

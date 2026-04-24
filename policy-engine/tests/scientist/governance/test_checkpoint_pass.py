@@ -33,11 +33,13 @@ class TestCheckpointPass:
         assert not any(i.code == "CHECKPOINT_MISSING" for i in issues)
 
     def test_unordered_timestamps(self, pass_context_factory):
-        ctx = pass_context_factory(state={
-            "checkpoints": [
-                {"stage": "estimation_complete", "timestamp": "2026-01-02"},
-                {"stage": "data_loaded", "timestamp": "2026-01-01"},
-            ],
-        })
+        ctx = pass_context_factory(
+            state={
+                "checkpoints": [
+                    {"stage": "estimation_complete", "timestamp": "2026-01-02"},
+                    {"stage": "data_loaded", "timestamp": "2026-01-01"},
+                ],
+            }
+        )
         issues = CheckpointPass().validate(ctx)
         assert any(i.code == "CHECKPOINT_ORDER" for i in issues)

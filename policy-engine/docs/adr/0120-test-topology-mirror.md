@@ -1,9 +1,11 @@
 # ADR-0120: Test Topology Mirror
 
 ## Status
+
 Proposed
 
 ## Date
+
 2026-04-18
 
 ## Context

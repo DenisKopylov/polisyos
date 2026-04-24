@@ -51,8 +51,8 @@ from polisyos.ir.analytics.invariance import (
     RegimeShiftComputationalFeasibility,
     RegimeShiftDataSignature,
     RegimeShiftEnvironmentRecord,
-    RegimeShiftIdentificationCertificate,
     RegimeShiftIdentifiabilityWitness,
+    RegimeShiftIdentificationCertificate,
     RegimeShiftInformativeness,
     RegimeShiftInvarianceTesting,
     RegimeShiftMECContraction,
@@ -61,9 +61,9 @@ from polisyos.ir.analytics.invariance import (
     RegimeShiftProducedBy,
     RegimeShiftSetTestResult,
     RegimeShiftStabilityMetrics,
+    RegimeShiftTargetResult,
     RegimeShiftTrack7InteractionStats,
     RegimeShiftTrack7Revalidation,
-    RegimeShiftTargetResult,
     RegimeShiftTypeAssessment,
     ShiftTypeAlphaSplit,
     ShiftTypeAssumptions,
@@ -274,7 +274,7 @@ def _f_test_heterogeneity(
     except np.linalg.LinAlgError:
         return 0.0, 1.0
     res_r = y - X_pooled @ beta_r
-    ss_r = float(np.sum(res_r ** 2))
+    ss_r = float(np.sum(res_r**2))
     df_r = n - X_pooled.shape[1]
 
     # Unrestricted model: per-domain intercepts (domain fixed effects)
@@ -292,7 +292,7 @@ def _f_test_heterogeneity(
     except np.linalg.LinAlgError:
         return 0.0, 1.0
     res_u = y - X_unres @ beta_u
-    ss_u = float(np.sum(res_u ** 2))
+    ss_u = float(np.sum(res_u**2))
     df_u = n - X_unres.shape[1]
 
     df_diff = df_r - df_u
@@ -400,11 +400,7 @@ def _stratified_kfold_indices(
         shuffled = env_indices[rng.permutation(len(env_indices))]
         for fold_idx, split in enumerate(np.array_split(shuffled, len(fold_buckets))):
             fold_buckets[fold_idx].extend(int(idx) for idx in split.tolist())
-    return tuple(
-        np.asarray(sorted(bucket), dtype=int)
-        for bucket in fold_buckets
-        if bucket
-    )
+    return tuple(np.asarray(sorted(bucket), dtype=int) for bucket in fold_buckets if bucket)
 
 
 def _cross_fitted_polynomial_sieve_residuals(
@@ -419,10 +415,7 @@ def _cross_fitted_polynomial_sieve_residuals(
 ) -> tuple[np.ndarray, dict[str, Any]]:
     y = data[:, target_col]
     X = data[:, feature_cols] if feature_cols else np.zeros((len(y), 0), dtype=float)
-    min_env_size = min(
-        int(np.sum(domain_labels == env))
-        for env in np.unique(domain_labels)
-    )
+    min_env_size = min(int(np.sum(domain_labels == env)) for env in np.unique(domain_labels))
     n_folds = 3 if min_env_size >= 3 else 2
     folds = _stratified_kfold_indices(domain_labels=domain_labels, n_folds=n_folds, seed=seed)
     residuals = np.zeros(len(y), dtype=float)
@@ -704,9 +697,7 @@ class KSInvarianceTest:
                 ),
             }
         ),
-        output_slots=frozenset(
-            {SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}
-        ),
+        output_slots=frozenset({SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}),
         parameters=(
             ParameterSpec(name="alpha", default=0.05),
             ParameterSpec(
@@ -888,9 +879,7 @@ class ICPInvarianceTest:
                 ),
             }
         ),
-        output_slots=frozenset(
-            {SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}
-        ),
+        output_slots=frozenset({SlotSpec("result", SlotType.SCALAR, Unit("diagnostic", "json"))}),
         parameters=(
             ParameterSpec(name="alpha", default=0.05),
             ParameterSpec(
@@ -1013,8 +1002,7 @@ class ICPInvarianceTest:
                     "n_tests": n_tests,
                     "alpha": alpha,
                     "f_statistics": {
-                        f"feature_{feature_cols[i]}": float(f_stats[i])
-                        for i in range(n_tests)
+                        f"feature_{feature_cols[i]}": float(f_stats[i]) for i in range(n_tests)
                     },
                 },
             }
@@ -1043,9 +1031,7 @@ def _normalize_variable_names(
         return [f"X{i}" for i in range(n_features)]
     names = [str(item).strip() for item in raw_names]
     if len(names) != n_features or any(not item for item in names):
-        raise ValueError(
-            "InvariantDiscoveryFromRegimes: variable_names must match data width"
-        )
+        raise ValueError("InvariantDiscoveryFromRegimes: variable_names must match data width")
     if len(set(names)) != len(names):
         raise ValueError("InvariantDiscoveryFromRegimes: variable_names must be unique")
     return names
@@ -1067,9 +1053,7 @@ def _normalize_target_cols(
     for raw_target in raw_targets:
         if isinstance(raw_target, str) and not raw_target.isdigit():
             if raw_target not in name_to_idx:
-                raise ValueError(
-                    f"InvariantDiscoveryFromRegimes: unknown target {raw_target!r}"
-                )
+                raise ValueError(f"InvariantDiscoveryFromRegimes: unknown target {raw_target!r}")
             target_cols.append(name_to_idx[raw_target])
         else:
             target_col = int(raw_target)
@@ -1226,9 +1210,7 @@ def _track7_prune_candidate_pool(
         if len(block_candidate_names) >= 2:
             mutually_exclusive_groups.add(block_candidate_names)
 
-    pruned_cols = [
-        idx for idx in candidate_cols if variable_names[idx] not in suppressed_names
-    ]
+    pruned_cols = [idx for idx in candidate_cols if variable_names[idx] not in suppressed_names]
     return (
         pruned_cols,
         tuple(sorted(suppressed_names)),
@@ -1336,9 +1318,7 @@ def _evaluate_candidate_sets(
 ) -> tuple[tuple[RegimeShiftSetTestResult, ...], tuple[RegimeShiftSetTestResult, ...]]:
     unique_domains = np.unique(domain_labels)
     if len(unique_domains) < 2:
-        raise ValueError(
-            "InvariantDiscoveryFromRegimes: at least two environments are required"
-        )
+        raise ValueError("InvariantDiscoveryFromRegimes: at least two environments are required")
     raw_pvalues = np.ones(len(candidate_sets), dtype=float)
     diagnostics: list[dict[str, Any]] = []
     for idx, candidate_set in enumerate(candidate_sets):
@@ -1497,8 +1477,7 @@ def _build_environment_shift_summaries(
             if idx not in target_idx_set and shift_scores[idx] >= 0.5
         )
         detected_target_shift_flags = {
-            variable_names[idx]: bool(shift_scores[idx] >= 0.5)
-            for idx in target_cols
+            variable_names[idx]: bool(shift_scores[idx] >= 0.5) for idx in target_cols
         }
         summaries[env_id] = {
             "detected_covariate_shifts": detected_covariate_shifts,
@@ -1507,9 +1486,7 @@ def _build_environment_shift_summaries(
                 detected_covariate_shifts,
                 tuple(
                     sorted(
-                        target
-                        for target, shifted in detected_target_shift_flags.items()
-                        if shifted
+                        target for target, shifted in detected_target_shift_flags.items() if shifted
                     )
                 ),
             ),
@@ -1529,14 +1506,12 @@ def _build_identifiability_witness(
     for target in target_results:
         redundant_env_sets.append(set(target.informativeness.redundant_envs))
         for env_id, changed in target.informativeness.leave_one_out_parent_changes.items():
-            if changed or target.informativeness.leave_one_out_minimal_set_changes.get(env_id, False):
+            if changed or target.informativeness.leave_one_out_minimal_set_changes.get(
+                env_id, False
+            ):
                 informative_envs.add(env_id)
 
-    redundant_envs = (
-        set.intersection(*redundant_env_sets)
-        if redundant_env_sets
-        else set()
-    )
+    redundant_envs = set.intersection(*redundant_env_sets) if redundant_env_sets else set()
     if resolved_model_family == "nonlinear":
         min_envs = 3
         min_informative = 2
@@ -1648,7 +1623,7 @@ def _treewidth_upper_bound(
     component: tuple[str, ...],
 ) -> int:
     working = {
-        node: set(neighbor for neighbor in adjacency.get(node, set()) if neighbor in component)
+        node: {neighbor for neighbor in adjacency.get(node, set()) if neighbor in component}
         for node in component
     }
     width = 0
@@ -1704,13 +1679,7 @@ def _exact_reconcile_parent_sets(
 ) -> tuple[dict[str, tuple[str, ...]], tuple[tuple[str, str], ...], str | None]:
     candidate_parent_names_by_target = {
         target.target: tuple(
-            sorted(
-                {
-                    variable
-                    for result in target.accepted_sets
-                    for variable in result.S
-                }
-            )
+            sorted({variable for result in target.accepted_sets for variable in result.S})
         )
         for target in target_results
     }
@@ -1730,9 +1699,7 @@ def _exact_reconcile_parent_sets(
     forced_edges: set[tuple[str, str]] = set()
 
     for component in components:
-        component_targets = [
-            targets_by_name[name] for name in component if name in targets_by_name
-        ]
+        component_targets = [targets_by_name[name] for name in component if name in targets_by_name]
         if not component_targets:
             continue
         if any(not target.accepted_sets for target in component_targets):
@@ -1852,11 +1819,7 @@ def _summarize_track7_revalidation(
         if str(family_name) in _TRACK7_FAMILY_NAMES and bool(blocked)
     }
     blocker_families.update(
-        (
-            violation.family.value
-            if hasattr(violation.family, "value")
-            else str(violation.family)
-        )
+        (violation.family.value if hasattr(violation.family, "value") else str(violation.family))
         for violation in report.violated_constraints_preview
         if (
             (
@@ -1914,7 +1877,7 @@ def _run_track7_revalidation(
             seed=seed,
             readiness_target="diagnostic",
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return RegimeShiftTrack7Revalidation(
             performed=False,
             warnings=(f"track7_revalidation_failed:{type(exc).__name__}:{exc}",),
@@ -2134,7 +2097,7 @@ def _selection_overlap_metrics(
             try:
                 beta, _ = _ols_fit(X, indicator)
                 scores[:, env_idx] = np.clip(X_aug @ beta, 1e-3, None)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 scores[:, env_idx] = 1.0
         row_sums = scores.sum(axis=1, keepdims=True)
         bad_rows = row_sums[:, 0] <= _EPS
@@ -2152,11 +2115,7 @@ def _selection_overlap_metrics(
     assigned_prob = np.clip(assigned_prob, 0.01, 1.0)
     weights = 1.0 / assigned_prob
     weight_sum = float(np.sum(weights))
-    ess = (
-        (weight_sum * weight_sum) / float(np.sum(weights**2))
-        if weight_sum > 0.0
-        else 0.0
-    )
+    ess = (weight_sum * weight_sum) / float(np.sum(weights**2)) if weight_sum > 0.0 else 0.0
     max_weight = float(np.max(weights)) if len(weights) else 0.0
 
     if ess < max(20.0, 0.2 * n_obs) or max_weight > 20.0:
@@ -2202,11 +2161,7 @@ def _build_selection_only_witness(
     best_payload: dict[str, Any] | None = None
 
     for conditioning_cols in candidate_sets:
-        tested_cols = [
-            idx
-            for idx in range(len(variable_names))
-            if idx not in conditioning_cols
-        ]
+        tested_cols = [idx for idx in range(len(variable_names)) if idx not in conditioning_cols]
         if not tested_cols:
             continue
         per_variable_p_values, family_p_value = _conditional_domain_pvalues(
@@ -2218,9 +2173,7 @@ def _build_selection_only_witness(
             alpha=alpha,
             correction=correction,
         )
-        rejection_count = sum(
-            1 for value in per_variable_p_values.values() if value < alpha
-        )
+        rejection_count = sum(1 for value in per_variable_p_values.values() if value < alpha)
         target_rejection_count = sum(
             1
             for idx in target_idx_set
@@ -2305,9 +2258,7 @@ def _build_selection_only_witness(
     return (
         ShiftTypeSelectionOnlyWitness(
             status=status,
-            balancing_set=tuple(
-                variable_names[idx] for idx in selected_conditioning_cols
-            ),
+            balancing_set=tuple(variable_names[idx] for idx in selected_conditioning_cols),
             p_value=family_p_value,
             per_variable_p_values=per_variable_p_values,
             max_weight=max_weight,
@@ -2340,9 +2291,7 @@ def _build_structural_only_witness(
         target = variable_names[target_col]
         targets_tested.append(target)
         candidate_sets = _candidate_sets_for_target(
-            candidate_parent_cols=[
-                idx for idx in range(select_data.shape[1]) if idx != target_col
-            ],
+            candidate_parent_cols=[idx for idx in range(select_data.shape[1]) if idx != target_col],
             max_set_size=max_set_size,
             variable_names=variable_names,
         )
@@ -2456,21 +2405,19 @@ def _build_shift_type_assessment(
             max_set_size=max_set_size,
             model_family=model_family,
         )
-        selection_witness, observed_selection_sufficiency, overlap = (
-            _build_selection_only_witness(
-                select_data=select_data,
-                select_domain_labels=select_domain_labels,
-                calib_data=calib_data,
-                calib_domain_labels=calib_domain_labels,
-                test_data=test_data,
-                test_domain_labels=test_domain_labels,
-                variable_names=variable_names,
-                target_cols=target_cols,
-                baseline_covariate_cols=baseline_covariate_cols,
-                alpha=alpha_split.selection,
-                correction=correction,
-                max_set_size=selection_max_set_size,
-            )
+        selection_witness, observed_selection_sufficiency, overlap = _build_selection_only_witness(
+            select_data=select_data,
+            select_domain_labels=select_domain_labels,
+            calib_data=calib_data,
+            calib_domain_labels=calib_domain_labels,
+            test_data=test_data,
+            test_domain_labels=test_domain_labels,
+            variable_names=variable_names,
+            target_cols=target_cols,
+            baseline_covariate_cols=baseline_covariate_cols,
+            alpha=alpha_split.selection,
+            correction=correction,
+            max_set_size=selection_max_set_size,
         )
 
         if not shift_detected:
@@ -2478,7 +2425,8 @@ def _build_shift_type_assessment(
         elif (
             structural_witness.status is ShiftTypeWitnessStatus.NOT_REJECTED
             and selection_witness.status is ShiftTypeWitnessStatus.REJECTED
-            and context_exogeneity in {
+            and context_exogeneity
+            in {
                 ShiftTypeContextExogeneity.DECLARED,
                 ShiftTypeContextExogeneity.DESIGN_BASED,
             }
@@ -2504,8 +2452,7 @@ def _build_shift_type_assessment(
                 certification_level = ShiftTypeCertificationLevel.PROVISIONAL
         elif overall_label is ShiftTypeOverallLabel.SELECTION_ONLY_CONSISTENT:
             if (
-                observed_selection_sufficiency
-                is ShiftTypeObservedSelectionSufficiency.SUPPORTED
+                observed_selection_sufficiency is ShiftTypeObservedSelectionSufficiency.SUPPORTED
                 and overlap is ShiftTypeOverlapStatus.OK
             ):
                 certification_level = ShiftTypeCertificationLevel.CERTIFIED
@@ -2558,7 +2505,9 @@ def _build_shift_type_assessment(
                 "or latent confounding, so the safe outcome is ambiguous."
             )
         if not split_confirmation_used:
-            narrative_summary += " Sample-split confirmation was skipped because some environments were too small."
+            narrative_summary += (
+                " Sample-split confirmation was skipped because some environments were too small."
+            )
 
         return (
             RegimeShiftTypeAssessment(
@@ -2609,12 +2558,15 @@ def _build_shift_type_assessment(
             f"reproduced on {int(round(agreement * repro_splits))}/{repro_splits} split seeds."
         )
     elif repro_splits > 1:
-        narrative_summary += (
-            f" Reproducibility check matched on {int(round(agreement * repro_splits))}/{repro_splits} split seeds."
-        )
-    if not split_confirmation_used and certification_level is not ShiftTypeCertificationLevel.SCREEN_ONLY:
+        narrative_summary += f" Reproducibility check matched on {int(round(agreement * repro_splits))}/{repro_splits} split seeds."
+    if (
+        not split_confirmation_used
+        and certification_level is not ShiftTypeCertificationLevel.SCREEN_ONLY
+    ):
         certification_level = ShiftTypeCertificationLevel.SCREEN_ONLY
-        narrative_summary += " Certification was downgraded because split confirmation was unavailable."
+        narrative_summary += (
+            " Certification was downgraded because split confirmation was unavailable."
+        )
     if (
         certification_level is ShiftTypeCertificationLevel.SCREEN_ONLY
         and assessment.overall_label
@@ -2672,9 +2624,7 @@ def _build_regime_shift_certificate(
 ) -> RegimeShiftIdentificationCertificate:
     unique_domains, counts = np.unique(domain_labels, return_counts=True)
     env_ids = [str(env) for env in unique_domains]
-    env_counts = {
-        str(env): int(count) for env, count in zip(unique_domains, counts, strict=True)
-    }
+    env_counts = {str(env): int(count) for env, count in zip(unique_domains, counts, strict=True)}
     route_resolution = _resolve_regime_model_family(
         data=data,
         domain_labels=domain_labels,
@@ -2754,9 +2704,7 @@ def _build_regime_shift_certificate(
             screening=screening,
             max_candidate_parents=max_candidate_parents,
         )
-        candidate_parent_names = tuple(
-            variable_names[idx] for idx in sorted(candidate_parent_cols)
-        )
+        candidate_parent_names = tuple(variable_names[idx] for idx in sorted(candidate_parent_cols))
         candidate_parent_names_by_target[target] = candidate_parent_names
         candidate_parent_sizes[target] = len(candidate_parent_cols)
         candidate_sets = _candidate_sets_for_target(
@@ -2910,7 +2858,9 @@ def _build_regime_shift_certificate(
         target_results = [
             target.model_copy(
                 update={
-                    "estimated_parents": selected_parent_sets.get(target.target, target.estimated_parents)
+                    "estimated_parents": selected_parent_sets.get(
+                        target.target, target.estimated_parents
+                    )
                 }
             )
             for target in target_results
@@ -2958,9 +2908,7 @@ def _build_regime_shift_certificate(
     )
     estimated_memory_mb = float(
         round(
-            8.0
-            + 0.05 * expected_test_count
-            + 0.5 * sum(treewidth_upper_bounds),
+            8.0 + 0.05 * expected_test_count + 0.5 * sum(treewidth_upper_bounds),
             6,
         )
     )
@@ -3171,9 +3119,7 @@ def build_regime_shift_identification_certificate(
             "build_regime_shift_identification_certificate: at least two environments are required"
         )
     if not (0.0 <= float(alpha) <= 1.0):
-        raise ValueError(
-            "build_regime_shift_identification_certificate: alpha must be in [0,1]"
-        )
+        raise ValueError("build_regime_shift_identification_certificate: alpha must be in [0,1]")
     if int(max_set_size) < 0:
         raise ValueError(
             "build_regime_shift_identification_certificate: max_set_size must be non-negative"
@@ -3252,9 +3198,7 @@ def build_regime_shift_identification_certificate(
         algebraic_blocks=algebraic_blocks,
         prior_algebraic_reports=prior_algebraic_reports,
         max_candidate_parents=int(max_candidate_parents),
-        local_separator_cap=(
-            int(local_separator_cap) if local_separator_cap is not None else None
-        ),
+        local_separator_cap=(int(local_separator_cap) if local_separator_cap is not None else None),
         exact_component_cap=int(exact_component_cap),
         exact_treewidth_cap=int(exact_treewidth_cap),
     )
@@ -3380,14 +3324,10 @@ class InvariantDiscoveryFromRegimes:
             max_set_size=int(params.get("max_set_size", 2)),
             model_family=str(params.get("model_family", "auto")),
             screening=(
-                str(params.get("screening"))
-                if params.get("screening") is not None
-                else None
+                str(params.get("screening")) if params.get("screening") is not None else None
             ),
             dataset_ref=(
-                str(params.get("dataset_ref"))
-                if params.get("dataset_ref") is not None
-                else None
+                str(params.get("dataset_ref")) if params.get("dataset_ref") is not None else None
             ),
             context_exogeneity=str(params.get("context_exogeneity", "unverified")),
             baseline_covariates=params.get("baseline_covariates"),
@@ -3405,9 +3345,7 @@ class InvariantDiscoveryFromRegimes:
         forced_orientations = certificate.mec_contraction.edge_updates.forced_orientations
         return {
             "result": {
-                "regime_shift_identification_certificate": certificate.model_dump(
-                    mode="json"
-                ),
+                "regime_shift_identification_certificate": certificate.model_dump(mode="json"),
                 "shift_type_assessment": (
                     certificate.shift_type_assessment.model_dump(mode="json")
                     if certificate.shift_type_assessment is not None
@@ -3420,8 +3358,7 @@ class InvariantDiscoveryFromRegimes:
                 ),
                 "forced_orientations": [list(edge) for edge in forced_orientations],
                 "estimated_parents_by_target": {
-                    target.target: list(target.estimated_parents)
-                    for target in certificate.targets
+                    target.target: list(target.estimated_parents) for target in certificate.targets
                 },
             },
             "__determinism_tier__": DeterminismTier.STATISTICAL,
@@ -3464,7 +3401,7 @@ def build_environment_audit_report(
 
     try:
         data_array = np.asarray(data, dtype=float)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return _environment_audit_report(
             status="degraded",
             warnings=[f"environment_audit_invalid_data:{type(exc).__name__}", *warnings],
@@ -3531,7 +3468,7 @@ def build_environment_audit_report(
         )
 
     unique_domains, counts = np.unique(labels_array, return_counts=True)
-    n_environments = int(len(unique_domains))
+    n_environments = len(unique_domains)
     audit_metadata.setdefault(
         "variable_names",
         list(resolved_variable_names),
@@ -3599,9 +3536,7 @@ def build_environment_audit_report(
                 invariant_features = [
                     int(item) for item in icp_payload.get("invariant_features", [])
                 ]
-                variant_features = [
-                    int(item) for item in icp_payload.get("variant_features", [])
-                ]
+                variant_features = [int(item) for item in icp_payload.get("variant_features", [])]
                 icp_p_values = {
                     str(key): float(value)
                     for key, value in dict(icp_payload.get("p_values", {})).items()
@@ -3611,7 +3546,7 @@ def build_environment_audit_report(
                 if not icp_passed:
                     warnings.append("icp_detected_feature_heterogeneity")
                     status = _merge_environment_audit_status(status, "warning")
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 warnings.append(f"icp_failed:{type(exc).__name__}")
                 audit_metadata["icp_error"] = str(exc)
                 status = _merge_environment_audit_status(status, "degraded")
@@ -3622,9 +3557,7 @@ def build_environment_audit_report(
         status=status,
         n_environments=n_environments,
         ks_passed=bool(ks_payload.get("passed", True)),
-        ks_rejected_variables=[
-            int(item) for item in ks_payload.get("rejected_variables", [])
-        ],
+        ks_rejected_variables=[int(item) for item in ks_payload.get("rejected_variables", [])],
         ks_p_values={
             str(key): float(value)
             for key, value in dict(ks_payload.get("p_values_matrix", {})).items()
@@ -3656,11 +3589,11 @@ def _resolve_target_col(
             return variable_names.index(name), None
         try:
             target_col = int(name)
-        except Exception:  # noqa: BLE001
+        except Exception:
             return None, "icp_invalid_target_col"
     try:
         resolved = int(target_col)
-    except Exception:  # noqa: BLE001
+    except Exception:
         return None, "icp_invalid_target_col"
     if not (0 <= resolved < n_features):
         return None, "icp_invalid_target_col"
@@ -3720,6 +3653,6 @@ __all__ = [
     "ICPInvarianceTest",
     "InvariantDiscoveryFromRegimes",
     "KSInvarianceTest",
-    "build_regime_shift_identification_certificate",
     "build_environment_audit_report",
+    "build_regime_shift_identification_certificate",
 ]

@@ -26,9 +26,7 @@ def test_frontier_runtime_report_requires_validation_and_benchmark_refs() -> Non
     assert report.default_enable_eligible is False
     assert "missing_offline_validation_ref" in report.default_enable_blockers
     assert "missing_benchmark_pack_ref" in report.default_enable_blockers
-    proximal = next(
-        item for item in report.capabilities if item.capability_id == "proximal_causal"
-    )
+    proximal = next(item for item in report.capabilities if item.capability_id == "proximal_causal")
     assert proximal.status == FrontierCapabilityStatus.OFFLINE_GATED
 
 
@@ -44,9 +42,7 @@ def test_frontier_runtime_report_marks_wired_capabilities_available_offline() ->
         )
     )
 
-    proximal = next(
-        item for item in report.capabilities if item.capability_id == "proximal_causal"
-    )
+    proximal = next(item for item in report.capabilities if item.capability_id == "proximal_causal")
     adversarial = next(
         item
         for item in report.capabilities

@@ -1,4 +1,5 @@
 """Public builtins set state module API."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -31,13 +32,14 @@ _ALLOWED_TYPES = (str, int, bool, Decimal)
 @dataclass(frozen=True)
 class SetStateNode:
     """Bootstrap node that writes a scalar value into `state.params` for downstream binds."""
+
     params: dict[str, JsonScalar] | None = None
 
     @property
     def spec(self) -> NodeSpec:
         return _SET_STATE_SPEC
 
-    def bind(self, params: dict[str, JsonScalar]) -> "SetStateNode":
+    def bind(self, params: dict[str, JsonScalar]) -> SetStateNode:
         return SetStateNode(params=params)
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:

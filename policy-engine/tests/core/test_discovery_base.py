@@ -68,4 +68,3 @@ def test_list_entry_points_compat(monkeypatch) -> None:
 
     entries = list_entry_points(group="x.group")
     assert [entry.name for entry in entries] == ["a", "b"]
-

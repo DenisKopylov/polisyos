@@ -1,4 +1,5 @@
 """IR contracts for network-embedding faithfulness diagnostics."""
+
 from __future__ import annotations
 
 from enum import Enum

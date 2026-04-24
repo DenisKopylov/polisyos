@@ -1,7 +1,9 @@
 """Public microsim static module API."""
+
 from __future__ import annotations
 
-from typing import Any, ClassVar, Mapping
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -18,8 +20,8 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
 from polisyos.foundry.methods.catalog._payloads import extract_model_payload
+from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
 from polisyos.ir.analytics.microsim_calibration import load_microsim_calibration_report
 from polisyos.ir.refs import MicrosimCalibrationReportRef
 
@@ -73,6 +75,7 @@ def _resolve_calibration_gate(
 )
 class StaticMicrosimEstimator:
     """Run a one-period microsimulation over household tax and transfer rules."""
+
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     runtime_stack: ClassVar[tuple[str, ...]] = ("numpy",)
 
@@ -141,7 +144,9 @@ class StaticMicrosimEstimator:
 
     @staticmethod
     def pure_step(state: SurveyMicroData, params: Mapping[str, Any]) -> dict[str, Any]:
-        data = state if isinstance(state, SurveyMicroData) else SurveyMicroData.model_validate(state)
+        data = (
+            state if isinstance(state, SurveyMicroData) else SurveyMicroData.model_validate(state)
+        )
         artifact_store = resolve_artifact_store(
             state.model_dump(mode="python") if isinstance(state, SurveyMicroData) else state,
             params,

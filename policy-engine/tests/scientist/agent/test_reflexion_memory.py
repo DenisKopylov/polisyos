@@ -100,9 +100,7 @@ def test_reflexion_orchestrator_injects_prior_reflections_and_stores_retry_outco
 
     assert "prior_reflections" in retry_context
     assert "reuse known-good sections" in retry_context["prior_reflections"]
-    assert retry_context["problem_signature"] == problem_signature(
-        "Design a carbon tax policy"
-    )
+    assert retry_context["problem_signature"] == problem_signature("Design a carbon tax policy")
 
     scorecard = orchestrator.evaluate_candidate(
         objective="Design a carbon tax policy",
